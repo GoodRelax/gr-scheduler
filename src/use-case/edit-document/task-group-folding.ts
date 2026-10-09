@@ -1,4 +1,4 @@
-// EditDocument -- a row's tree state and level zero's, and the writes table T-328 gives a press.
+// EditDocument -- a task group's tree state and level zero's, and the writes table T-328 gives a press.
 // @unit      UF-79  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -13,7 +13,7 @@ import { withTaskGroup, withSchedule } from './edit-task-group'
 import type { DocumentSettingsCommand } from './edit-document-settings'
 
 export interface TreeStateEventCarried {
-  // WHY: the head's add (IC-93) presses level zero, which is no row, so its event carries null.
+  // WHY: the head's add (IC-93) presses level zero, which is no task group, so its event carries null.
   readonly pressedRowId: string | null
   readonly revealedRowId: string
 }
@@ -60,7 +60,7 @@ const ROOT_GUARDS: Readonly<Record<string, (levelZeroTreeState: LevelZeroTreeSta
 }
 
 // TRAP: the guard is a name, "not name", or terms joined by " & " (the generator prints no other
-// form); a name this unit does not hold throws rather than reading as false and moving no row.
+// form); a name this unit does not hold throws rather than reading as false and moving no task group.
 /** @purity pure */
 function isGuardHeld(guard: string | null, isNamedGuardHeld: (name: string) => boolean): boolean {
   if (guard === null) return true
@@ -177,7 +177,7 @@ export function setTaskGroupTreeState(
 ): EditResult {
   const taskGroup = byId.get(command.groupId)
   if (taskGroup === undefined) {
-    return refused([reject('CM-85', 'FR-004', `no such row: ${command.groupId}`)])
+    return refused([reject('CM-85', 'FR-004', `no such task group: ${command.groupId}`)])
   }
   // WHY: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
   if (!isTreeState(command.treeState)) {

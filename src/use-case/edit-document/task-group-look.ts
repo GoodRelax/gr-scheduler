@@ -1,4 +1,4 @@
-// EditDocument -- a row's colour and min height are rewritten.
+// EditDocument -- a task group's colour and min height are rewritten.
 // @unit      UF-78  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -22,10 +22,10 @@ export function setTaskGroupColor(
 ): EditResult {
   const taskGroup = byId.get(command.groupId)
   if (taskGroup === undefined) {
-    return refused([reject('CM-30', 'FR-042', `no such row: ${command.groupId}`)])
+    return refused([reject('CM-30', 'FR-042', `no such task group: ${command.groupId}`)])
   }
   if (!TASK_GROUP_COLOUR_NAMES.includes(command.color) && customColourOf(command.color) === null) {
-    return refused([reject('CM-30', 'CV-9', `not a row colour name or a custom colour: ${command.color}`)])
+    return refused([reject('CM-30', 'CV-9', `not a task group colour name or a custom colour: ${command.color}`)])
   }
   if (taskGroup.color === command.color) return edited(document)
   return edited(withTaskGroup(document, { ...taskGroup, color: command.color }))
@@ -40,7 +40,7 @@ export function resetTaskGroupColor(
 ): EditResult {
   const taskGroup = byId.get(command.groupId)
   if (taskGroup === undefined) {
-    return refused([reject('CM-31', 'FR-007', `no such row: ${command.groupId}`)])
+    return refused([reject('CM-31', 'FR-007', `no such task group: ${command.groupId}`)])
   }
   if (taskGroup.color === null) return edited(document)
   return edited(withTaskGroup(document, { ...taskGroup, color: null }))
@@ -55,7 +55,7 @@ export function setTaskGroupMinHeight(
 ): EditResult {
   const taskGroup = byId.get(command.groupId)
   if (taskGroup === undefined) {
-    return refused([reject('CM-32', 'FR-042', `no such row: ${command.groupId}`)])
+    return refused([reject('CM-32', 'FR-042', `no such task group: ${command.groupId}`)])
   }
   if (command.minHeight !== null && !Number.isInteger(command.minHeight)) {
     return refused([reject('CM-32', 'AT-59', `min height is not an integer: ${command.minHeight}`)])

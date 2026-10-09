@@ -156,7 +156,7 @@ function pinEdited(
   if (held.includes(command.groupId)) return put({ pinnedGroupIds: held })
   if (held.length >= SETTINGS_CONSTANTS.pinnedTaskGroupMax) {
     return refused([
-      reject('CM-68', 'FR-098', `already holding ${SETTINGS_CONSTANTS.pinnedTaskGroupMax} pinned rows`),
+      reject('CM-68', 'FR-098', `already holding ${SETTINGS_CONSTANTS.pinnedTaskGroupMax} pinned task groups`),
     ])
   }
   return put({ pinnedGroupIds: [...held, command.groupId] })

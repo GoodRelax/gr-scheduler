@@ -325,7 +325,7 @@ async function filteredStageMarkup(page, { x0, y0, x1, y1 }) {
 }
 
 /** Bounding box (screen px, on the 900x500 canvas) of everything belonging to the given owner keys:
- *  drawn shapes, name/assignee label boxes, and grab-area zones. Used to fit a crop around a row. */
+ *  drawn shapes, name/assignee label boxes, and grab-area zones. Used to fit a crop around a task group. */
 async function ownerBBox(page, owners, margin = 4) {
   const box = await page.evaluate((owners) => {
     const pts = []
@@ -343,9 +343,9 @@ async function ownerBBox(page, owners, margin = 4) {
   return { x0: box.x0 - margin, x1: box.x1 + margin, y0: box.y0 - margin, y1: box.y1 + margin }
 }
 
-/** Figures 1-3: crop to a full-width horizontal band (a "row"), per CR-430 4.4 step 5 ("viewBox を行
- *  の帯に絞り"). Only the Y extent is derived from the row's content; X stays the full 900 canvas. */
-async function buildRowMapFigure(page, { file, title, ariaLabel, owners, note }) {
+/** Figures 1-3: crop to a full-width horizontal band (a "task group"), per CR-430 4.4 step 5 ("viewBox を行
+ *  の帯に絞り"). Only the Y extent is derived from the task group's content; X stays the full 900 canvas. */
+async function buildTaskGroupMapFigure(page, { file, title, ariaLabel, owners, note }) {
   const bbox = await ownerBBox(page, owners, 6)
   const y0 = Math.max(0, Math.floor(bbox.y0)), y1 = Math.ceil(bbox.y1)
   const width = 900, height = y1 - y0
@@ -354,8 +354,8 @@ async function buildRowMapFigure(page, { file, title, ariaLabel, owners, note })
   return { file, svg: svgDocument({ file, title, width, height, viewBox: `0 ${y0} ${width} ${height}`, ariaLabel, body }), note }
 }
 
-/** Figure 4 (fig-hit-stacked-row.svg): CR-430 4.4 decision 6 -- hitAt() sampled every 1 screen px
- *  across the stacked row, horizontally-adjacent pixels with the SAME resolved answer merged into one
+/** Figure 4 (fig-hit-stacked-task-group.svg): CR-430 4.4 decision 6 -- hitAt() sampled every 1 screen px
+ *  across the stacked task group, horizontally-adjacent pixels with the SAME resolved answer merged into one
  *  rect, painted with that zone's own grab-area colour (z.fill, straight from the sample -- not a
  *  colour table this probe maintains separately). Painted on top of the ordinary drawing, same as the
  *  sample's own "掴み代の面" toggle already does (zones is the topmost paint layer), except here every
@@ -365,7 +365,7 @@ async function buildHitStackedFigure(page) {
   const bbox = await ownerBBox(page, owners, 8)
   const x0 = Math.max(0, Math.floor(bbox.x0)), x1 = Math.min(900, Math.ceil(bbox.x1))
   const y0 = Math.max(0, Math.floor(bbox.y0)), y1 = Math.ceil(bbox.y1)
-  // draw the row without the sample's own raw-zone wash; this figure supplies its own resolved one
+  // draw the task group without the sample's own raw-zone wash; this figure supplies its own resolved one
   await page.evaluate(() => { document.getElementById('showZones').checked = false; draw() })
   const inner = await filteredStageMarkup(page, { x0: 0, y0, x1: 900, y1 })
   const raster = await page.evaluate(({ x0, x1, y0, y1 }) => {
@@ -389,11 +389,11 @@ async function buildHitStackedFigure(page) {
   const width = 900, height = y1 - y0
   const body = `  <rect class="band-bg" x="0" y="${y0}" width="${width}" height="${height}"/>\n  ${inner}\n  <g data-layer="hit-raster">${rasterMarkup}</g>`
   return {
-    file: 'fig-hit-stacked-row.svg',
+    file: 'fig-hit-stacked-task-group.svg',
     svg: svgDocument({
-      file: 'fig-hit-stacked-row.svg', title: '図 F-023 -- 積んだ行の応え方（hitAt を 1px 刻みで塗る）',
+      file: 'fig-hit-stacked-task-group.svg', title: '図 F-023 -- 積んだタスクグループの応え方（hitAt を 1px 刻みで塗る）',
       width, height, viewBox: `0 ${y0} ${width} ${height}`,
-      ariaLabel: 'stacked row hit-test raster, 1px steps, coloured by the resolved grab area',
+      ariaLabel: 'stacked task group hit-test raster, 1px steps, coloured by the resolved grab area',
       body,
     }),
     note: `raster rects: ${raster.length}`,
@@ -474,7 +474,7 @@ async function buildPointerShapesFigure(page) {
     'PK-5a': { label: '円 〇', svg: discGlyph(false, S.msCur) },
     'PK-5b': { label: '円 ●', svg: discGlyph(true, S.msActCur) },
     'PK-9': { label: '再開の折れ矢印', svg: resumeGlyph(S.resumeCur) },
-    'PK-17': { label: '親子をつなぐ形', svg: parentLinkGlyph(S.cur) },
+    'PK-17': { label: '親タスクと子タスクをつなぐ形', svg: parentLinkGlyph(S.cur) },
   }))
   // The environment's own cursors (table T-269): named in words with their CSS keyword, never drawn.
   const NATIVE = {
@@ -544,15 +544,15 @@ export async function run({ outDir = OUT_DIR, skipGate = false } = {}) {
     await applyNeutralNames(page)
 
     const figures = []
-    figures.push(await buildRowMapFigure(page, {
+    figures.push(await buildTaskGroupMapFigure(page, {
       file: 'fig-grab-map-bar.svg', title: '図 F-020 -- === の掴み代の地図（① ②）',
-      ariaLabel: 'grab-area map for the === bar tasks (rows 1 and 2)', owners: ['task', 'unset'],
+      ariaLabel: 'grab-area map for the === bar tasks (task groups 1 and 2)', owners: ['task', 'unset'],
     }))
-    figures.push(await buildRowMapFigure(page, {
+    figures.push(await buildTaskGroupMapFigure(page, {
       file: 'fig-grab-map-arrow.svg', title: '図 F-021 -- ---> の掴み代の地図（③ 3 段）',
       ariaLabel: 'grab-area map for the ---> line-only task, 3 stacked stages', owners: ['arrow'],
     }))
-    figures.push(await buildRowMapFigure(page, {
+    figures.push(await buildTaskGroupMapFigure(page, {
       file: 'fig-grab-map-milestone.svg', title: '図 F-022 -- ◆ の掴み代の地図（④、隣接を含む）',
       ariaLabel: 'grab-area map for a milestone, including its neighbour', owners: ['ms', 'ms2'],
     }))

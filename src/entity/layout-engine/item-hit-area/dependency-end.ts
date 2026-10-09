@@ -43,7 +43,7 @@ export function dependencyEndAtPointer(
   const cut = geometry.pinnedBand ?? null
   for (const task of geometry.tasks) {
     if (onTaskUid !== null && task.taskUid !== onTaskUid) continue
-    // WHY: above the pinned band's foot a scrolling row shows nothing, so the point reaches none of it (DFC-1222).
+    // WHY: above the pinned band's foot a scrolling task group shows nothing, so the point reaches none of it (DFC-1222).
     if (onTaskUid === null && isCutAway(cut, isScrolling(cut, task.taskUid), y)) continue
     if (task.hasPlanDates === false) continue
     const shape = shapeOf(task)

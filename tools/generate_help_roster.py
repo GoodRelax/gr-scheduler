@@ -146,7 +146,7 @@ LEFT_OUT_ROWS = ('IC-52', 'IC-53', 'IC-75')
 # in none of the three stops the run -- FR-036 (MUST) has the requirement decide
 # a new row, and this script must not decide it.
 # CR-560: FR-036 names MK-15 (the Ctrl drag that copies the Selection).
-# CR-656: FR-036 names MK-16 (the Shift drag that moves to another row only).
+# CR-656: FR-036 names MK-16 (the Shift drag that moves to another task group only).
 SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7', 'MK-15', 'MK-16')
 UNLISTED_ASSIGNMENTS = ('MK-1', 'MK-6', 'MK-8', 'MK-11', 'MK-13',
                         'MK-9', 'MK-9a', 'MK-10', 'MK-12')
@@ -154,7 +154,7 @@ UNLISTED_ASSIGNMENTS = ('MK-1', 'MK-6', 'MK-8', 'MK-11', 'MK-13',
 # The screen order of the Task Group Panel. HF-10 of table T-051 orders all five
 # head entrances on one line (collapse all, open one level, open all, add,
 # delete all); HF-1 reads the 2 x 2 grid of a
-# row column first (hide, open one level, collapse below, open below), HF-4
+# task group column first (hide, open one level, collapse below, open below), HF-4
 # puts delete over add after it and the pin outermost. The rows are the
 # entrances table T-109 describes in those words. The set is checked against
 # the table every run, so a row added there stops the run instead of vanishing.

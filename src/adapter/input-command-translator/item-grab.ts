@@ -458,7 +458,7 @@ function selectedBoxesOf(context: InputContext): SelectedBoxes {
 }
 
 // see PE-1, SL-7, FR-019
-// WHY: the frame keeps its size: both dates by the same days, both rows by the same rows, as a GR-14 body drag does.
+// WHY: the frame keeps its size: both dates by the same days, both task groups by the same task groups, as a GR-14 body drag does.
 /** @purity pure */
 function highlightBoxShiftWrite(
   context: InputContext,
@@ -527,7 +527,7 @@ function orderedDays(start: CalendarDay, end: CalendarDay): { readonly early: Ca
 
 // see PE-1, SL-7
 // WHY: one shift for the whole selection: a per-item clamp would spread a selection that
-// started a row apart, and the table asks for the same number of rows for all of them.
+// started a task group apart, and the table asks for the same number of task groups for all of them.
 /** @purity pure */
 function clampedTaskGroupShift(
   context: InputContext,
@@ -553,7 +553,7 @@ function clampedTaskGroupShift(
 }
 
 // see CY-6
-// WHY: a held drag draws its result into the rows, so a release is measured on the rows the press saw.
+// WHY: a held drag draws its result into the task groups, so a release is measured on the task groups the press saw.
 /** @purity pure */
 function layoutAtPressOf(context: InputContext, press: PointerPress): InputContext['layout'] {
   const taskGroups = press.layoutRowsAtPress
@@ -569,7 +569,7 @@ function shiftWithinTaskGroups(taskGroups: readonly TaskGroupPlacement[], held: 
 }
 
 // see PTD-7, CY-3, CY-5, CY-6, CY-8, CY-9, CM-8, DU-1
-// WHY: one CM-8 with the landing is one undo step (FR-031); rows count the chosen Tasks' copies, not CY-4's boxes.
+// WHY: one CM-8 with the landing is one undo step (FR-031); task groups count the chosen Tasks' copies, not CY-4's boxes.
 /** @purity pure */
 export function copyDragWrite(context: InputContext, press: PointerPress, release: PointerInput): TranslatedInput {
   if (!hasDraggedPastThreshold(press, release)) return CONSUMED_ELSEWHERE
@@ -741,7 +741,7 @@ function highlightTaskGroupSpanOf(
   const firstRow = context.layout.taskGroups[0]
   const lastTaskGroup = context.layout.taskGroups[context.layout.taskGroups.length - 1]
   if (firstRow === undefined || lastTaskGroup === undefined) return null
-  // TRAP: fall back to the first and last layout rows exactly as highlightGeometry does, or the grabbed box is not the drawn one.
+  // TRAP: fall back to the first and last layout task groups exactly as highlightGeometry does, or the grabbed box is not the drawn one.
   const topAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.groupId === box.topGroupId) ?? firstRow)
   const bottomAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.groupId === box.bottomGroupId) ?? lastTaskGroup)
   return { upperAt: Math.min(topAt, bottomAt), lowerAt: Math.max(topAt, bottomAt) }
@@ -790,7 +790,7 @@ function commentBoxMoveWrite(
   isAnchor: boolean,
 ): TranslatedInput {
   const box = boxById(context.document.schedule.commentBoxes, id)
-  // TRAP: from the document and the rows at the press, never context.geometry: a held drag draws the box already
+  // TRAP: from the document and the task groups at the press, never context.geometry: a held drag draws the box already
   // moved, so the pull would be counted twice.
   const layout = layoutAtPressOf(context, press)
   // WHY: a box with no anchor date stands at the document's start date, as commentGeometry draws it (FR-019).

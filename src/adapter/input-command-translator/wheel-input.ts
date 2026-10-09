@@ -37,7 +37,7 @@ function taskGroupHeldOf(context: InputContext): TaskGroupAnchor {
 }
 
 // see FR-016, MK-1, S-176
-// TRAP: the device distance itself, never whole rows: a band taller than a notch never moved.
+// TRAP: the device distance itself, never whole task groups: a band taller than a notch never moved.
 // STOP: spec does not decide where a turn past an end lands. Looked in MK-1, S-78, S-176, OP-10.
 // @provisional PND-177
 /** @purity pure */
@@ -106,7 +106,7 @@ export function commandFromWheel(
   const moved = plain
     ? scrolledAnchor(context, 0, input.scrollPx.y)
     : scrolledAnchor(context, sideways, 0)
-  // TRAP: MK-5 moves no row, and a round trip through drawn px loses the rounding (DFC-615).
+  // TRAP: MK-5 moves no task group, and a round trip through drawn px loses the rounding (DFC-615).
   const row = plain ? taskGroupTurnedTo(context, input.scrollPx.y) : taskGroupHeldOf(context)
   const to = {
     kind: 'setScrollPosition',

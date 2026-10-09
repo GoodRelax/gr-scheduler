@@ -4,7 +4,7 @@ import { open, page, shot, close } from '../harness.mjs'
 
 await open()
 
-// A patch of the Row Area with several bars in it.
+// A patch of the Task Group Area with several bars in it.
 const BOX = { x: 260, y: 300, w: 520, h: 220 }
 const CLIP = { x: 170, y: 260, width: 760, height: 300 }
 

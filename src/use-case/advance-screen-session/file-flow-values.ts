@@ -43,7 +43,7 @@ export interface FileFlowQuestion {
 // WHY: the translator's CreatedSubject again; UseCase may not read an Adapter type (table T-061).
 export type FileFlowCreatedSubject =
   | { readonly kind: 'task'; readonly uid: number }
-  | { readonly kind: 'row'; readonly groupId: string }
+  | { readonly kind: 'taskGroup'; readonly groupId: string }
 
 export type FileFlowOwedAction =
   | {

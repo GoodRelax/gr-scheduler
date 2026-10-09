@@ -13,12 +13,12 @@ written by whoever made the second one.
 width counts two, half width counts one. The counting is written as
 `charCodeAt(0) < 0x100 ? 1 : 2`, and it stands in FOUR places under `src/`:
 
-    src/adapter/screen-renderer/row-title-panel.ts:188
+    src/adapter/screen-renderer/task-group-panel.ts:188
     src/entity/layout-engine/schedule-geometry/schedule-geometry.ts:1813
     src/entity/layout-engine/schedule-layout/schedule-layout.ts:516
     src/entity/layout-engine/schedule-layout/schedule-layout.ts:693
 
-The comment at `row-title-panel.ts:51` says 「The counting FR-093 estimates a
+The comment at `task-group-panel.ts:51` says 「The counting FR-093 estimates a
 width in lives twice in `src/`: once here and once in ScheduleLayout's LC-5」,
 and the one at `schedule-geometry.ts:1808` says 「a fourth would mean the rule
 has earned a home」. Both were true when written. Neither is true now, and
@@ -85,7 +85,7 @@ HOW IT DECIDES -- the three judgements, each of which can be refuted.
 WHAT IT DOES NOT CLAIM.
 
 ⛔ IT DOES NOT SAY A GROUP SHOULD BE FOLDED. Some of what it finds is the
-price of a boundary the design chose on purpose -- `row-title-panel.ts` says
+price of a boundary the design chose on purpose -- `task-group-panel.ts` says
 in as many words that `_source/components.json` gives it no edge to
 `ScheduleLayout`, so its copy of the counting is the boundary's price. This
 check makes the copies VISIBLE and holds their number; which ones earn a home

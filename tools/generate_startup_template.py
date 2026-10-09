@@ -55,35 +55,35 @@ generated schema's job, not this file's.
                        Test, Delivery -- the seven TP-3 names, in its order,
                        each drawn as a chevron with one milestone at its gate.
                        They overlap heavily, the way real phases do, and the
-                       overlap is what lets one row design, build and test a
+                       overlap is what lets one task group design, build and test a
                        component without idling for six months in between.
     a forest           the first tree overviews the whole (TP-4): one bar over
                        the whole project, the phase bars under it, the gates
                        beside them. Six product trees follow.
-    the WBS            mirrors the row forest. Every row that has child rows
+    the WBS            mirrors the task group forest. Every task group that has child task groups
                        carries ONE roll-up task, and that task is the WBS
-                       parent of the row's own work and of the child rows'
+                       parent of the task group's own work and of the child task groups'
                        roll-ups. ⛔ A roll-up is DERIVED from what hangs under
                        it, never dated on its own -- that is what makes a
-                       parent contain its children (A1) and a row contain the
-                       rows indented under it (A3).
-    the work           comes from what the row IS. A row has a KIND, taken from
+                       parent contain its children (A1) and a task group contain the
+                       task groups indented under it (A3).
+    the work           comes from what the task group IS. A task group has a KIND, taken from
                        where it sits in the tree, and each kind has its own
-                       vocabulary of work: a documentation row writes and
-                       proofreads, a data row draws models and migrates, a
-                       screen row wireframes and checks contrast. ⛔ No row
+                       vocabulary of work: a documentation task group writes and
+                       proofreads, a data task group draws models and migrates, a
+                       screen task group wireframes and checks contrast. ⛔ No task group
                        runs a checklist with the noun swapped (A14).
-    the names          say what the WORK is, never what the ROW is. The row
+    the names          say what the WORK is, never what the TASK GROUP is. The task group
                        header already carries the label, so a bar repeating it
                        says nothing twice; a name is one of the kind's verbs
                        filled with one of the kind's objects, each pair spoken
                        once in the whole document (A10).
-    the shape          a row works the phases its HEIGHT is responsible for --
-                       how much hangs under it, not how deep it sits. A row
+    the shape          a task group works the phases its HEIGHT is responsible for --
+                       how much hangs under it, not how deep it sits. A task group
                        with nothing under it designs, builds and tests one
-                       component in one band; a row with four levels under it
+                       component in one band; a task group with four levels under it
                        surveys, researches, plans and hands over. So the
-                       vertical axis carries information, and a leaf row's work
+                       vertical axis carries information, and a leaf task group's work
                        is clustered where that component is built (A15).
     the actuals        a status date 40% in, and REAL variance: work that
                        started late, work that finished early, work that ran
@@ -166,9 +166,9 @@ PROJECT_FINISH = date(2029, 3, 30)
 # asks for plain software-development English, and marketing vocabulary is the
 # industry narrowing FR-027 forbids.
 #
-# ⚠️ THE OVERLAP CARRIES WEIGHT, and is not decoration. A row that designs, builds
+# ⚠️ THE OVERLAP CARRIES WEIGHT, and is not decoration. A task group that designs, builds
 # and tests one component has to place three blocks in a row; if the design
-# window closed six months before the test window opened, the row would be
+# window closed six months before the test window opened, the task group would be
 # idle in between and its lane would read as work smeared over three years.
 # Each phase now overlaps the next by more than a block, so the blocks abut
 # (A15). ⚠️ Every boundary is a working day, which `build()` checks, and none
@@ -183,18 +183,18 @@ PHASES = (
     ('Delivery',       date(2027, 12, 1), date(2029, 3, 30), 'star'),
 )
 
-# How much of a row's work each phase takes, by the HEIGHT of the row -- how
+# How much of a task group's work each phase takes, by the HEIGHT of the task group -- how
 # many levels hang under it. ⭐ This is the shape of the plan, and height is
-# the right key rather than depth: a row with nothing under it is where a
-# component is actually built, wherever it sits in the tree, and a row with
-# four levels under it is co-ordinating a programme. Reading down the row
+# the right key rather than depth: a task group with nothing under it is where a
+# component is actually built, wherever it sits in the tree, and a task group with
+# four levels under it is co-ordinating a programme. Reading down the task group
 # titles therefore reads left to right along the time axis, which is what
 # makes the vertical axis mean something.
-# ⛔ A weight of zero is the point of the leaf rows: a component is not
+# ⛔ A weight of zero is the point of the leaf task groups: a component is not
 # surveyed and is not rolled out on its own, so its band covers three phases
 # and not the whole three years. A weight of one or two percent would put a
 # single task at the far end of the chart and stretch the lane back over
-# everything -- which is how every row in the artifact this replaces came to
+# everything -- which is how every task group in the artifact this replaces came to
 # span the whole project.
 HEIGHT_PHASE_WEIGHT = {
     0: (0,  0,  0, 24, 52, 24,  0),
@@ -204,9 +204,9 @@ HEIGHT_PHASE_WEIGHT = {
     4: (30, 24, 20,  6,  2,  4, 14),
 }
 
-# TP-4 and TP-5. The row forest. ⛔ Every label is unique across the document:
-# the task group panel shows the leaf label alone, so three rows all reading
-# "Screens" would be three rows a reader cannot tell apart.
+# TP-4 and TP-5. The task group forest. ⛔ Every label is unique across the document:
+# the task group panel shows the leaf label alone, so three task groups all reading
+# "Screens" would be three task groups a reader cannot tell apart.
 #
 # ⛔ No industry and no product is named, in the values as well as the prose
 # (FR-027). That is why the two mobile targets are a phone and a tablet --
@@ -354,13 +354,13 @@ TREE = (
     )),
 )
 
-# ⭐ WHAT KIND OF THING EACH ROW IS. The kind decides the row's vocabulary of
-# work, and it comes from where the row sits in the tree: a row inherits its
+# ⭐ WHAT KIND OF THING EACH TASK GROUP IS. The kind decides the task group's vocabulary of
+# work, and it comes from where the task group sits in the tree: a task group inherits its
 # parent's kind, and only the places where the kind CHANGES are named here. A
-# top-level row that names no kind co-ordinates a programme.
-# ⛔ This is the whole answer to "row Documentation contains Draw the
-# Documentation data model": a documentation row does documentation work
-# because the work is drawn from its kind, not from a list every row shares.
+# top-level task group that names no kind co-ordinates a programme.
+# ⛔ This is the whole answer to "task group Documentation contains Draw the
+# Documentation data model": a documentation task group does documentation work
+# because the work is drawn from its kind, not from a list every task group shares.
 TASK_GROUP_KIND = {
     'Phone App': 'ui',
     'Phone Local Store': 'data',
@@ -392,7 +392,7 @@ ROOT_KIND = 'program'
 WANTED_TASK_GROUPS = 100    # TP-5
 WANTED_TASKS = 1000  # TP-6
 
-# The label of the row that overviews the whole (TP-4), and of its two
+# The label of the task group that overviews the whole (TP-4), and of its two
 # children. They carry the fixed contents of the first tree and take no
 # generated work.
 OVERVIEW_TASK_GROUP = 'Whole Product'
@@ -400,7 +400,7 @@ PHASE_BAR_TASK_GROUP = 'Phase Bars'
 PHASE_GATE_TASK_GROUP = 'Phase Gates'
 OVERVIEW_TASK_GROUPS = (OVERVIEW_TASK_GROUP, PHASE_BAR_TASK_GROUP, PHASE_GATE_TASK_GROUP)
 
-# What the first tree's three rows and every roll-up are called. ⭐ Declared
+# What the first tree's three task groups and every roll-up are called. ⭐ Declared
 # rather than typed where they are used, because the neutrality check reads
 # the declarations: a word this generator can say is a word it has written
 # down somewhere, and one it has not is the refusal.
@@ -409,8 +409,8 @@ PHASE_BAR_NAME = '%s phase'
 PHASE_GATE_NAME = '%s complete'
 ROLLUP_NAME = '%s workstream'
 
-# TP-7 forbids an even spread. How much work a row carries of its own, by
-# depth: the cycle repeats down the rows of that depth, and the scaler below
+# TP-7 forbids an even spread. How much work a task group carries of its own, by
+# depth: the cycle repeats down the task groups of that depth, and the scaler below
 # moves the whole set onto TP-6 without flattening it.
 WORK_CYCLE = {
     1: (26, 31, 22, 29, 18, 24),
@@ -431,8 +431,8 @@ DURATIONS = (
 )
 
 # How many working days pass between one piece of work finishing and the next
-# one on the same row starting, and how often that gap is drawn. ⭐ Mostly
-# nothing to a few days: a row is a person's queue, and a queue with a
+# one on the same task group starting, and how often that gap is drawn. ⭐ Mostly
+# nothing to a few days: a task group is a person's queue, and a queue with a
 # three-month hole in it is not a queue. The tail exists so that not every
 # consecutive pair is a dependency (`build_dependencies` draws a link only
 # where the gap is small enough to constrain anything).
@@ -440,33 +440,33 @@ WORK_GAPS = ((0, 9), (1, 12), (2, 10), (3, 7), (4, 4), (5, 3), (8, 2),
              (12, 1), (20, 1))
 
 # The gap between the last piece of work of one phase and the first of the
-# next, on the same row. ⭐ Wider than a gap inside a phase, because something
+# next, on the same task group. ⭐ Wider than a gap inside a phase, because something
 # has to be signed off in between, but nothing like a phase window.
 PHASE_HANDOFF_GAPS = ((1, 6), (2, 6), (3, 5), (5, 4), (8, 3), (13, 2), (21, 1))
 
-# How eagerly a row pulls its next phase block up against the last one, by the
-# row's height. ⭐ 0 means "the day the window opens or the day the last block
-# ended, whichever is later" -- which is what makes a leaf row's work a band
-# rather than a smear. A row with levels under it is co-ordinating, and
+# How eagerly a task group pulls its next phase block up against the last one, by the
+# task group's height. ⭐ 0 means "the day the window opens or the day the last block
+# ended, whichever is later" -- which is what makes a leaf task group's work a band
+# rather than a smear. A task group with levels under it is co-ordinating, and
 # co-ordination genuinely does run through the whole of a phase window.
 BAND_PULL = {0: 0.0, 1: 0.10, 2: 0.34, 3: 0.50, 4: 0.55}
 
-# How far a row's gaps are stretched, by height, for the same reason. ⭐ A leaf
-# row's queue is back to back; a programme row's five survey tasks are spread
+# How far a task group's gaps are stretched, by height, for the same reason. ⭐ A leaf
+# task group's queue is back to back; a programme task group's five survey tasks are spread
 # through the survey, which is what keeps every month of the plan carrying a
-# start (A9) without any row lapping its window.
+# start (A9) without any task group lapping its window.
 GAP_STRETCH = {0: 1.0, 1: 1.4, 2: 3.0, 3: 4.5, 4: 5.5}
 
-# How many working days a row may wait past the earliest day a block could
+# How many working days a task group may wait past the earliest day a block could
 # start. ⭐ Nobody starts on the morning a window opens because the window
 # opened.
 BAND_WAIT = 34
 
-# How much of a row's lane is drawn from the row itself rather than from its
+# How much of a task group's lane is drawn from the task group itself rather than from its
 # place among its siblings. ⭐ Measured, not guessed: at 0 two sibling sets of
 # the same size land on the same days (which is what A6 refuses), and past
-# about a third the rows stop reading as a sequence and the busiest month
-# climbs again. 0.30 gave the lowest peak month and the tightest leaf rows of
+# about a third the task groups stop reading as a sequence and the busiest month
+# climbs again. 0.30 gave the lowest peak month and the tightest leaf task groups of
 # the values tried.
 LANE_SCATTER = 0.30
 
@@ -482,15 +482,15 @@ DEPENDENCY_MAX_GAP = 10
 # read the picture of.
 GATE_FEEDERS = 8
 
-# ⛔ WHAT WAITS ON WHAT ACROSS THE ROW FOREST. Every link this document drew
-# used to stay inside one display row -- 373 of 406 of them -- and not one of
+# ⛔ WHAT WAITS ON WHAT ACROSS THE TASK GROUP FOREST. Every link this document drew
+# used to stay inside one display task group -- 373 of 406 of them -- and not one of
 # the six product trees waited on another. A plan where the client never waits
 # on the service it calls and the release never waits on the tests is not a
 # plan, it is six plans printed on one page.
 # ⭐ Each pair is a real reason one thing cannot proceed until another has:
 # a caller waiting on the endpoint it calls, a service waiting on the table it
 # reads, a suite waiting on what it exercises, a release waiting on the suite.
-# ⚠️ The pair names ROWS, and the search reaches everything indented under
+# ⚠️ The pair names TASK GROUPS, and the search reaches everything indented under
 # them, because the work is on the leaves. Where no two pieces of work land
 # close enough in time to constrain one another, NO link is drawn -- the same
 # rule DEPENDENCY_MAX_GAP holds everywhere else.
@@ -526,7 +526,7 @@ WAITS_ON = (
 )
 
 # How many links one task-group-to-task-group relation may draw. ⭐ A handful: the point is
-# that the trees hold each other up, not that every task of one row points at
+# that the trees hold each other up, not that every task of one task group points at
 # every task of another.
 WAITING_LINKS = 3
 
@@ -558,20 +558,20 @@ def lag_of_working_days(days):
 
 # ⛔ THE VOCABULARY OF WORK, BY KIND AND THEN BY PHASE. Seven tuples per kind,
 # in the order of PHASES, and one tuple of OBJECTS per kind -- the concrete
-# things that kind of row works on. A name is one template filled with one
+# things that kind of task group works on. A name is one template filled with one
 # object, and NOTHING ELSE goes into it.
 #
-# ⛔ THE ROW LABEL IS NOT IN A WORK NAME. The row header already says what the
+# ⛔ THE TASK GROUP LABEL IS NOT IN A WORK NAME. The task group header already says what the
 # thing is; a bar that repeats it says the same thing twice and reads as
 # stutter ("Fix the Phone Portrait Layout layout defects" on the Phone
-# Portrait Layout row -- 985 of a thousand names did that, and 17 of them
+# Portrait Layout task group -- 985 of a thousand names did that, and 17 of them
 # doubled the word outright). The bar says what the WORK is -- "Fix the
 # toolbar layout defects" -- and A10 refuses a work name carrying its own
-# row's label.
+# task group's label.
 # ⭐ Uniqueness therefore comes from the PAIR, not from the label: `take` hands
 # out each (template, object) pair once across the whole document and refuses
 # when a kind runs out, so a thousand names are a thousand names without a
-# single row label pasted in.
+# single task group label pasted in.
 #
 # ⛔ EVERY VERB FITS EVERY OBJECT OF ITS OWN KIND. That is what the object
 # tuples are for: "Backfill the %s" sits in the data kind, whose objects are
@@ -727,7 +727,7 @@ WORK_BY_KIND = {
     ),
 }
 
-# ⛔ WHAT EACH KIND OF ROW WORKS ON. Sixteen per kind, so that the pairs a
+# ⛔ WHAT EACH KIND OF TASK GROUP WORKS ON. Sixteen per kind, so that the pairs a
 # kind can say outnumber the tasks any one phase of it carries -- the busiest
 # is the screen kind's build, where seven templates over sixteen objects say a
 # hundred and twelve different things and ninety-three are needed.
@@ -780,7 +780,7 @@ WORK_OBJECTS = {
                 'approval gate'),
 }
 
-# How many of its kind's objects one row keeps coming back to. ⭐ A row is one
+# How many of its kind's objects one task group keeps coming back to. ⭐ A task group is one
 # component's queue, so it works a handful of things over and over rather than
 # sixteen different ones once each; `take` starts inside that window and walks
 # outward only when the pair it wanted is already spoken for.
@@ -795,11 +795,11 @@ TASK_GROUP_OBJECT_SPAN = 4
 DELIVERY_WATCH = 'Monitor the %s after release'
 DELIVERY_HANDOVER = 'Hand the %s over to operations'
 
-# Where a row builds enough to be worth splitting, the build closes with
+# Where a task group builds enough to be worth splitting, the build closes with
 # numbered increments. ⭐ They are handed out in the order the tasks are
 # generated, which is date order, so increment 2 always starts after increment
 # 1 -- the thing 43.4% of the pairs in the artifact this replaces got wrong.
-# ⚠️ All three increments of one row take the SAME object, because they are
+# ⚠️ All three increments of one task group take the SAME object, because they are
 # increments OF one thing; `take_series` is what keeps them together, and that
 # is also what gives A5 a counter to read against the dates.
 IMPLEMENTATION_INCREMENT = 'Complete the %s increment %d'
@@ -811,13 +811,13 @@ IMPLEMENTATION_PHASE = 4
 DELIVERY_PHASE = 6
 
 # What a name that is not a piece of work may be: a roll-up, a phase bar, a
-# gate, or one of the milestones a row plants in its own lane.
+# gate, or one of the milestones a task group plants in its own lane.
 DELIVERABLE_TAILS = (' workstream', ' phase', ' complete', ' ready',
                      ' frozen', ' accepted', ' handed over')
-# ⚠️ A roll-up and a milestone DO carry the row label, and that is the
-# difference: neither is work. One is the row itself summarised and the other
-# is the row itself signed off, and a reader meets both in the WBS outline --
-# away from the row header, where nothing else would identify them.
+# ⚠️ A roll-up and a milestone DO carry the task group label, and that is the
+# difference: neither is work. One is the task group itself summarised and the other
+# is the task group itself signed off, and a reader meets both in the WBS outline --
+# away from the task group header, where nothing else would identify them.
 MILESTONE_TAILS = ('%s ready', '%s frozen', '%s accepted', '%s handed over')
 # ⭐ HOW FAR A TASK SLIPPED, in working days, and how often. A negative slip is
 # work that started early. ⚠️ The tail is what makes `DL-2` of table T-021b
@@ -937,7 +937,7 @@ AUTHOR_PAINT = (
     ('yellow', 'dimgray', 1),
 )
 
-# The rows that carry a colour of their own, so FR-042's override is drawn.
+# The task groups that carry a colour of their own, so FR-042's override is drawn.
 TASK_GROUP_PAINT = (('Quality And Release', 'lightgray'), ('Mobile Client', 'orange'))
 
 # The document's one calendar (FR-054), and who the document stamp says last
@@ -1087,7 +1087,7 @@ def constant(name):
     """One key of SETTINGS_CONSTANTS, refused rather than guessed when absent.
 
     The block is read once per run; the depth check asks for its cap once per
-    row.
+    task group.
 
     @purity semi-pure-b
     """
@@ -1397,8 +1397,8 @@ def numbered_increment(turn):
 def work_names_by_kind():
     """Every name a kind's vocabulary can say, and the template that says it.
 
-    ⭐ THIS IS THE WHOLE OF WHAT A ROW MAY BE TOLD TO DO. A14 reads it to
-    refuse a name the row's kind could not have produced, and the neutrality
+    ⭐ THIS IS THE WHOLE OF WHAT A TASK GROUP MAY BE TOLD TO DO. A14 reads it to
+    refuse a name the task group's kind could not have produced, and the neutrality
     check reads it to refuse a string the generator did not draw from its own
     declared words. Built from the declarations alone -- never from what was
     written -- because a set read back off the artifact would allow whatever
@@ -1414,7 +1414,7 @@ def work_names_by_kind():
             for one in WORK_OBJECTS[kind]:
                 said[template % one] = template
         # ⚠️ The three increments fold back onto ONE skeleton. Counting them as
-        # three would let a row claim a spread of names it does not have.
+        # three would let a task group claim a spread of names it does not have.
         for turn in range(1, INCREMENTS + 1):
             for one in WORK_OBJECTS[kind]:
                 said[numbered_increment(turn) % one] = IMPLEMENTATION_INCREMENT
@@ -1426,13 +1426,13 @@ SAYABLE = work_names_by_kind()
 
 
 # ---------------------------------------------------------------------------
-# The rows
+# The task groups
 # ---------------------------------------------------------------------------
 
 def flatten(tree, parent=None, depth=1, rows=None):
-    """The row forest, depth first, each row carrying its parent, depth and kind.
+    """The task group forest, depth first, each task group carrying its parent, depth and kind.
 
-    ⭐ The kind is inherited unless TASK_GROUP_KIND names this row, which is what
+    ⭐ The kind is inherited unless TASK_GROUP_KIND names this task group, which is what
     makes "where it sits in the tree" the answer to "what work does it do".
 
     @purity pure
@@ -1462,7 +1462,7 @@ def flatten(tree, parent=None, depth=1, rows=None):
 
 
 def height_of(row):
-    """How many levels hang under this row.
+    """How many levels hang under this task group.
 
     @purity pure
     """
@@ -1472,13 +1472,13 @@ def height_of(row):
 
 
 def work_counts(rows, wanted):
-    """How much work of its own each row carries, adding up to `wanted`.
+    """How much work of its own each task group carries, adding up to `wanted`.
 
     The cycle fixes the SHAPE of the spread (TP-7), not its total. Scale the
-    rows until the total is exact, then hand the rounding residue to the
-    biggest rows one at a time -- biggest first, so a row never drops to zero
+    task groups until the total is exact, then hand the rounding residue to the
+    biggest task groups one at a time -- biggest first, so a task group never drops to zero
     and the unevenness the cycle put there survives. Every step is decided by
-    the row order, so two runs agree.
+    the task group order, so two runs agree.
 
     @purity pure
     """
@@ -1508,11 +1508,11 @@ def work_counts(rows, wanted):
 
 
 def phase_split(row, total):
-    """How a row's work falls across the seven phases (largest remainder).
+    """How a task group's work falls across the seven phases (largest remainder).
 
     ⛔ A phase its KIND has no vocabulary for takes no work, and its weight
     moves to the next phase the kind can work. Otherwise a height would put
-    delivery work on a screen row, and the only names left to give it would be
+    delivery work on a screen task group, and the only names left to give it would be
     somebody else's.
 
     @purity pure
@@ -1525,7 +1525,7 @@ def phase_split(row, total):
             weights[fallback] += weights[phase]
             weights[phase] = 0
     insist(sum(weights) > 0,
-           'the row %s works no phase at all: kind %s has no vocabulary for '
+           'the task group %s works no phase at all: kind %s has no vocabulary for '
            'the phases its height gives it' % (row['label'], row['kind']))
     weighed = sum(weights)
     exact = [total * weight / float(weighed) for weight in weights]
@@ -1537,18 +1537,18 @@ def phase_split(row, total):
         taken[order[step % len(order)]] += 1
     for phase, count in enumerate(taken):
         insist(count == 0 or vocabulary[phase],
-               'the row %s was given %d task(s) in the %s phase and its kind '
+               'the task group %s was given %d task(s) in the %s phase and its kind '
                '%s has no vocabulary for it'
                % (row['label'], count, PHASES[phase][0], row['kind']))
     return taken
 
 
 def lane_of(row):
-    """Where in the room it has this row places its band, as a fraction.
+    """Where in the room it has this task group places its band, as a fraction.
 
     Siblings slide across the room in the order the tree lists them, so the
     parts of one component are sequenced rather than piled on one another.
-    ⚠️ Not the same as the row's order alone: two sibling sets of the same
+    ⚠️ Not the same as the task group's order alone: two sibling sets of the same
     size would then land on the same days, and A6 exists because that reads as
     one bar drawn twice.
 
@@ -1569,7 +1569,7 @@ class Builder(object):
     """Everything the document holds, built once, in one order.
 
     ⛔ Not a bag of module-level lists: the uid counter, the tasks and the
-    rows have to move together, and `Project.uidHighWaterMark` is the maximum
+    task groups have to move together, and `Project.uidHighWaterMark` is the maximum
     uid ISSUED, not the maximum a Task holds (AT-20).
     """
 
@@ -1592,7 +1592,7 @@ class Builder(object):
         self.overview_task_uids = set()
         self.rollups = set()
         # Every work name already handed out. ⛔ This is what makes a name
-        # unique without the row label in it: a (template, object) pair is
+        # unique without the task group label in it: a (template, object) pair is
         # spoken once in the whole document and `take` walks on when it meets
         # one that is.
         self.taken = set()
@@ -1612,7 +1612,7 @@ class Builder(object):
 
     def add_task(self, row, name, start_at, finish_at, phase, milestone=False,
                  parent_uid=None):
-        """One task, on one row, dated in working-day indices.
+        """One task, on one task group, dated in working-day indices.
 
         @purity non-pure
         """
@@ -1680,17 +1680,17 @@ class Builder(object):
     # -- the work, leaves first (A1) ---------------------------------------
 
     def build_work(self, counts):
-        """Every row's own work, laid out as ONE BAND through its phases.
+        """Every task group's own work, laid out as ONE BAND through its phases.
 
-        ⭐ A row is somebody's queue, so its work is chained: each piece
+        ⭐ A task group is somebody's queue, so its work is chained: each piece
         starts a few working days after the one before it finished, each phase
         block follows the one before it, and the whole band is slid to where
         every block fits inside its own phase window. That is what makes a
-        leaf row's work sit where the component is built (A15) instead of
+        leaf task group's work sit where the component is built (A15) instead of
         being smeared across three years -- and it is what gives the
         dependencies something to constrain (A17).
 
-        ⭐ Starts never go backwards inside a row, which is what keeps a row
+        ⭐ Starts never go backwards inside a task group, which is what keeps a task group
         from lapping the phase cycle (A4) and keeps a counter in a name in
         step with its date (A5).
 
@@ -1712,7 +1712,7 @@ class Builder(object):
                     self.handed.add(task['uid'])
 
     def task_group_band(self, row, split):
-        """Where every piece of this row's work sits, as working-day indices.
+        """Where every piece of this task group's work sits, as working-day indices.
 
         ⛔ Nothing is placed until the whole band is known to fit: the blocks
         are measured first, the band is slid to a start that keeps every block
@@ -1723,7 +1723,7 @@ class Builder(object):
         @purity semi-pure-a
         """
         live = [phase for phase, count in enumerate(split) if count]
-        insist(live, 'the row %s was given no work at all' % row['label'])
+        insist(live, 'the task group %s was given no work at all' % row['label'])
         planted = self.plants(row) and split[live[-1]] >= 2
         scale = 1.0
         for _attempt in range(30):
@@ -1733,7 +1733,7 @@ class Builder(object):
                 return placed
             scale *= 0.82
         insist(False,
-               'the row %s cannot be laid out inside its phase windows even '
+               'the task group %s cannot be laid out inside its phase windows even '
                'at a thirtieth of its lengths' % row['label'])
 
     def blocks_of(self, row, split, live, planted, scale):
@@ -1768,11 +1768,11 @@ class Builder(object):
     def slide(self, row, blocks):
         """Place the blocks one after another, each inside its phase window.
 
-        The first block is placed by the row's lane, so rows spread across the
+        The first block is placed by the task group's lane, so task groups spread across the
         window instead of piling on its first day. Every block after it starts
-        as soon as the row's PULL lets it: a row with nothing under it pulls
+        as soon as the task group's PULL lets it: a task group with nothing under it pulls
         its next block up against the last one, because that is where the
-        component is built; a row co-ordinating a programme spreads its blocks
+        component is built; a task group co-ordinating a programme spreads its blocks
         through the windows, because that is what co-ordination is.
 
         Gives back `None` when a block no longer fits the room its window has
@@ -1792,9 +1792,9 @@ class Builder(object):
             high = index_of(PHASES[phase][2]) - block['width'] + 1
             if low > high:
                 return None
-            # ⛔ Never exactly on the day the window opens. A row whose last
+            # ⛔ Never exactly on the day the window opens. A task group whose last
             # block ended before the next window exists would otherwise start
-            # on its first day, and every such row would start on that ONE day
+            # on its first day, and every such task group would start on that ONE day
             # -- 82 of a thousand tasks landed on two of them before this wait
             # existed, which is what A9's ceiling is for.
             # ⚠️ The wait is bounded by HALF the room that is left, and the
@@ -1823,13 +1823,13 @@ class Builder(object):
         return placed
 
     def plants(self, row):
-        """Whether this row plants a milestone of its own at the end of its band.
+        """Whether this task group plants a milestone of its own at the end of its band.
 
-        ⭐ Not every row: a lane with a marker in it every few weeks stops
-        reading as a marker. One row in seven carries one.
+        ⭐ Not every task group: a lane with a marker in it every few weeks stops
+        reading as a marker. One task group in seven carries one.
 
         ⛔ At the END of the band, never in the middle. A milestone named
-        "<row> ready" that sits before the row builds anything is signed off
+        "<task group> ready" that sits before the task group builds anything is signed off
         before its own work begins, and eight of them were -- one of them the
         PREDECESSOR of the build it claimed to gate, across a 270-day link.
 
@@ -1849,7 +1849,7 @@ class Builder(object):
         ⛔ NOT named inside `slide`. The band is measured up to thirty times
         at shrinking lengths before one fits, and a name handed out during a
         measurement that is then thrown away would be spent for good -- every
-        row after it would find the pairs it wanted already taken.
+        task group after it would find the pairs it wanted already taken.
 
         @purity non-pure
         """
@@ -1871,21 +1871,21 @@ class Builder(object):
         return out
 
     def name_for(self, row, entry, turn, drawn, increments):
-        """A name that reads as work this row would actually do.
+        """A name that reads as work this task group would actually do.
 
-        ⛔ THE ROW LABEL IS NOT IN IT. The row header says what the thing is;
+        ⛔ THE TASK GROUP LABEL IS NOT IN IT. The task group header says what the thing is;
         this says what the work is. Uniqueness comes from `take`, which spends
         each (template, object) pair once in the whole document.
 
-        ⚠️ A milestone and a roll-up are the exception and DO name the row --
-        they are the row signed off and the row summarised, and a reader meets
+        ⚠️ A milestone and a roll-up are the exception and DO name the task group --
+        they are the task group signed off and the task group summarised, and a reader meets
         them in the WBS outline where nothing else identifies them.
 
-        ⭐ Where in the kind's list a row starts is drawn from the row's id, so
-        two rows of one kind carrying the same amount of work do not end up
+        ⭐ Where in the kind's list a task group starts is drawn from the task group's id, so
+        two task groups of one kind carrying the same amount of work do not end up
         with the same set of skeletons (A14).
 
-        Hands back `None` the first time a row's numbered increments are
+        Hands back `None` the first time a task group's numbered increments are
         wanted, because those three take ONE object between them and the
         caller settles that as a series.
 
@@ -1922,10 +1922,10 @@ class Builder(object):
     def take(self, row, template, turn):
         """Fill one template's slot with an object nobody has used it on yet.
 
-        ⭐ The row prefers a small window of its kind's objects, because a row
+        ⭐ The task group prefers a small window of its kind's objects, because a task group
         is one component's queue and a queue comes back to the same handful of
         things. It walks outward only when the pair it wanted is spent, which
-        is what keeps a thousand names apart without a row label in any of
+        is what keeps a thousand names apart without a task group label in any of
         them.
 
         @purity non-pure
@@ -1939,7 +1939,7 @@ class Builder(object):
                 self.taken.add(name)
                 return name
         insist(False,
-               'the %s vocabulary has run out of ways to say %r, so the row '
+               'the %s vocabulary has run out of ways to say %r, so the task group '
                '%s cannot be given a name that is not already used'
                % (row['kind'], template, row['label']))
 
@@ -1962,14 +1962,14 @@ class Builder(object):
                 self.taken.update(names)
                 return names
         insist(False,
-               'the %s vocabulary has no object left that the row %s can take '
+               'the %s vocabulary has no object left that the task group %s can take '
                'all %d increments of' % (row['kind'], row['label'],
                                          len(templates)))
 
     # -- the roll-ups, derived from what hangs under them (A1, A2, A3) ------
 
     def build_rollups(self):
-        """One roll-up per row that has child rows, dated by its children.
+        """One roll-up per task group that has child task groups, dated by its children.
 
         ⛔ Derived, never dated on its own. A parent that is dated
         independently is how the artifact this replaces came to hang three
@@ -1986,7 +1986,7 @@ class Builder(object):
             held += [self.by_uid[uid] for child in row['children']
                      if 'rollup' not in child for uid in child['tasks']]
             insist(len(held) > 0,
-                   'the row %s has neither work nor children to roll up'
+                   'the task group %s has neither work nor children to roll up'
                    % row['label'])
             start_at = min(one['startAt'] for one in held)
             finish_at = max(one['finishAt'] for one in held)
@@ -1997,7 +1997,7 @@ class Builder(object):
             self.rollups.add(task['uid'])
             for one in held:
                 one['parentTaskUid'] = task['uid']
-        # Every root row's roll-up is a WBS root of its own, the way the row
+        # Every root task group's roll-up is a WBS root of its own, the way the task group
         # forest has several roots (TP-4). ⛔ Hanging them under the overview
         # bar would make the WBS six deep, and TP-8 holds both axes at five.
         self.number_wbs()
@@ -2342,7 +2342,7 @@ class Builder(object):
         ⛔ NEITHER DOES A BAND OF THE FIRST TREE. "Implementation phase" is a
         band over eighteen months of the programme, and making it one named
         person's task -- the longest task in the plan -- says that person is
-        doing all of it. TP-4 calls the first tree the row that overviews the
+        doing all of it. TP-4 calls the first tree the task group that overviews the
         WHOLE, which is the same argument as the roll-up's. ⚠️ An unassigned
         task is a state the specification draws rather than a hole: AS-2 of
         table T-225 requires the assignee label to read `-` for exactly this.
@@ -2452,7 +2452,7 @@ class Builder(object):
                 pred, succ = held[turn - 1], held[turn]
                 if not link(pred, succ, 1):      # DP-1 FS
                     link(pred, succ, 3)          # DP-4 SS
-            # DP-3 FF: two rows under one parent finish together, because the
+            # DP-3 FF: two task groups under one parent finish together, because the
             # parent is not done until both of them are. ⚠️ Only where they
             # really do finish together -- `link` drops the pair otherwise.
             for turn in range(1, len(row['children'])):
@@ -2507,7 +2507,7 @@ class Builder(object):
                 link(bar, one, 3)
         # ⛔ AND THE TREES WAIT ON EACH OTHER (WAITS_ON). Closest pair first,
         # so the link that is drawn is the one that really does constrain --
-        # and a relation whose two rows never come within
+        # and a relation whose two task groups never come within
         # DEPENDENCY_MAX_GAP of each other draws nothing at all, the same rule
         # every other link here follows.
         by_label = dict((row['label'], row) for row in self.rows)
@@ -2531,7 +2531,7 @@ class Builder(object):
                     break
                 if link(self.by_uid[pred_uid], self.by_uid[succ_uid], kind):
                     drawn += 1
-        # DP-2 SF, the rare one: a row cannot close its delivery until the
+        # DP-2 SF, the rare one: a task group cannot close its delivery until the
         # first thing it delivered has begun.
         for row in self.rows:
             held = [self.by_uid[uid] for uid in row['tasks']
@@ -2551,9 +2551,9 @@ class Builder(object):
         return (task['startAt'], task['finishAt'], task['uid'])
 
     def work_under(self, row):
-        """Every piece of real work on this row and on the rows under it.
+        """Every piece of real work on this task group and on the task groups under it.
 
-        ⭐ The work is on the leaves, so a relation stated between two rows
+        ⭐ The work is on the leaves, so a relation stated between two task groups
         has to reach what is indented under them or it would find nothing to
         join. ⛔ Roll-ups are not in it: a roll-up is derived from what hangs
         under it, and holding one up would hold up everything twice.
@@ -2710,12 +2710,12 @@ class Builder(object):
         """@purity semi-pure-a"""
         out = []
         for row in self.rows:
-            # ⭐ A couple of rows carry a colour of their own (TASK_GROUP_PAINT), so
+            # ⭐ A couple of task groups carry a colour of their own (TASK_GROUP_PAINT), so
             # FR-042's colour override is exercised. The rest are resolved
             # from the theme and the number of stacked levels. DFC-1002:
             # OVERVIEW_TASK_GROUP used to force height 64 here for no reason T-226
             # asks for, drawing it taller than its natural one-lane height
-            # (21.6px) -- removed. DFC-1086: no row of the startup template
+            # (21.6px) -- removed. DFC-1086: no task group of the startup template
             # carries a min height (the FR-042 override is left unused here).
             color = dict(TASK_GROUP_PAINT).get(row['label'])
             min_height = None
@@ -2723,12 +2723,12 @@ class Builder(object):
                 'id': row['id'],
                 'parentId': row['parent']['id'] if row['parent'] else None,
                 'label': row['label'],
-                # FR-058 lets a row take its name from the task it was derived
-                # from; every row here names itself, and AT-54 only forbids a
-                # row with neither.
+                # FR-058 lets a task group take its name from the task it was derived
+                # from; every task group here names itself, and AT-54 only forbids a
+                # task group with neither.
                 'derivedFromTaskUid': None,
                 'order': row['order'],
-                # AT-153: a row is born with no tree state a person chose.
+                # AT-153: a task group is born with no tree state a person chose.
                 'treeState': 'auto',
                 # GP-1: null is "anyone may edit", which is what a template
                 # that has never met a server must say.
@@ -2835,7 +2835,7 @@ def check_rollup(built, under):
 
 
 def window_of(built, row, with_children=True):
-    """The days a row covers, optionally counting the rows indented under it.
+    """The days a task group covers, optionally counting the task groups indented under it.
 
     @purity pure
     """
@@ -2865,7 +2865,7 @@ def check_nesting(built):
         insist(mine is not None and theirs is not None,
                'A3: %s or its parent carries no task at all' % row['label'])
         insist(theirs[0] <= mine[0] and theirs[1] >= mine[1],
-               'A3: the row %s runs %s..%s and escapes its parent %s, which '
+               'A3: the task group %s runs %s..%s and escapes its parent %s, which '
                'runs %s..%s'
                % (row['label'], WORKDAYS[mine[0]], WORKDAYS[mine[1]],
                   row['parent']['label'], WORKDAYS[theirs[0]],
@@ -2873,7 +2873,7 @@ def check_nesting(built):
 
 
 def check_phase_order(built, under):
-    """A4 -- no row laps the phase cycle.
+    """A4 -- no task group laps the phase cycle.
 
     ⚠️ Roll-ups are not in this: one spans the phases of everything under it,
     so it has no single phase to be in order by. A7 covers them instead, by
@@ -2886,7 +2886,7 @@ def check_phase_order(built, under):
         held.sort(key=lambda one: (one['startAt'], one['uid']))
         for turn in range(1, len(held)):
             insist(held[turn]['phase'] >= held[turn - 1]['phase'],
-                   'A4: on the row %s, %s (%s) starts after %s (%s) and goes '
+                   'A4: on the task group %s, %s (%s) starts after %s (%s) and goes '
                    'back a phase'
                    % (row['label'], held[turn]['name'],
                       PHASES[held[turn]['phase']][0], held[turn - 1]['name'],
@@ -2916,7 +2916,7 @@ def check_counters(built):
 
 
 def check_twins(built):
-    """A6 -- no two rows hold the same dates.
+    """A6 -- no two task groups hold the same dates.
 
     @purity semi-pure-b
     """
@@ -2926,7 +2926,7 @@ def check_twins(built):
                               built.by_uid[uid]['finishAt'])
                              for uid in row['tasks']))
         insist(shape not in seen,
-               'A6: the rows %s and %s hold the identical set of dates'
+               'A6: the task groups %s and %s hold the identical set of dates'
                % (seen.get(shape), row['label']))
         seen[shape] = row['label']
 
@@ -3044,13 +3044,13 @@ def check_names(built):
     labels = set()
     for row in built.rows:
         insist(row['label'] not in labels,
-               'A10: two rows are called %s, and the task group panel shows the '
+               'A10: two task groups are called %s, and the task group panel shows the '
                'leaf label alone' % row['label'])
         labels.add(row['label'])
-    # ⛔ THE BAR SAYS WHAT THE WORK IS; THE ROW SAYS WHAT THE THING IS. 985 of
-    # a thousand names restated their own row's label, which the row header
+    # ⛔ THE BAR SAYS WHAT THE WORK IS; THE TASK GROUP SAYS WHAT THE THING IS. 985 of
+    # a thousand names restated their own task group's label, which the task group header
     # was already showing. ⚠️ A roll-up and a milestone are exempt because
-    # neither is work: one is the row summarised and the other is the row
+    # neither is work: one is the task group summarised and the other is the task group
     # signed off, and both are read in the WBS outline away from the header.
     for row in built.rows:
         if row['label'] in OVERVIEW_TASK_GROUPS:
@@ -3060,8 +3060,8 @@ def check_names(built):
             if uid in built.rollups or task['milestone']:
                 continue
             insist(row['label'].lower() not in task['name'].lower(),
-                   'A10: %s restates the label of the row it sits on (%s), '
-                   'which the row header already shows'
+                   'A10: %s restates the label of the task group it sits on (%s), '
+                   'which the task group header already shows'
                    % (task['name'], row['label']))
 
 
@@ -3086,7 +3086,7 @@ def check_overview(built):
     rows = dict((row['label'], row) for row in built.rows)
     insist(rows[PHASE_BAR_TASK_GROUP]['parent'] is rows[OVERVIEW_TASK_GROUP]
            and rows[PHASE_GATE_TASK_GROUP]['parent'] is rows[OVERVIEW_TASK_GROUP],
-           'A11: the phase rows are not under the row that overviews the whole')
+           'A11: the phase task groups are not under the task group that overviews the whole')
 
 
 def plan_actual_state(task):
@@ -3177,7 +3177,7 @@ def check_dead_data(built, status_at):
                % (task['name'], drawn_as.get(task['uid'])))
     coloured = [one for one in built.task_groups() if one['color'] is not None]
     insist(coloured,
-           'A12: no row carries a colour of its own (FR-042)')
+           'A12: no task group carries a colour of its own (FR-042)')
     # ⛔ A band of the first tree is not one person's task. B7 of the second
     # audit: "Implementation phase" was a 395-day leaf owned solely by
     # Developer B, and it was the longest task in the plan.
@@ -3189,12 +3189,12 @@ def check_dead_data(built, status_at):
 
 
 def check_vocabulary(built):
-    """A14 -- the work in a row comes from what that row IS.
+    """A14 -- the work in a task group comes from what that task group IS.
 
     ⛔ Two measurements, both of which the artifact this replaces failed. A
     thousand names collapsed to 59 skeletons, one of which appeared in 95 of
-    the 100 rows; and 62 rows carried a task-name SET identical to another
-    row's, which is the duplicate-bar-set defect wearing new clothes.
+    the 100 task groups; and 62 task groups carried a task-name SET identical to another
+    task group's, which is the duplicate-bar-set defect wearing new clothes.
 
     @purity semi-pure-b
     """
@@ -3205,42 +3205,42 @@ def check_vocabulary(built):
     shapes = {}
     for task in built.tasks:
         row = where[task['uid']]
-        # ⚠️ The first tree is exempt: its three rows hold the fixed contents
+        # ⚠️ The first tree is exempt: its three task groups hold the fixed contents
         # of TP-4 -- a whole-project bar, seven phase bands and seven gates --
         # and no kind says those.
         if row['label'] in OVERVIEW_TASK_GROUPS:
             continue
-        # ⛔ Every name is one its own row's kind could have said.
+        # ⛔ Every name is one its own task group's kind could have said.
         insist(sayable(row, task),
-               'A14: %s is on a %s row, whose kind has no such work'
+               'A14: %s is on a %s task group, whose kind has no such work'
                % (task['name'], row['kind']))
         shapes.setdefault(row['label'], set()).add(skeleton_of(row, task))
     seen = {}
     for label, held in shapes.items():
         key = tuple(sorted(held))
         insist(key not in seen,
-               'A14: the rows %s and %s carry the identical set of task names '
+               'A14: the task groups %s and %s carry the identical set of task names '
                'with the noun swapped' % (seen.get(key), label))
         seen[key] = label
     spread = {}
     for label, held in shapes.items():
         for shape in held:
             spread[shape] = spread.get(shape, 0) + 1
-    # ⚠️ The roll-up is deliberately the same shape on every row that has one
-    # ("<ROW> workstream"), so it is measured apart from the work.
+    # ⚠️ The roll-up is deliberately the same shape on every task group that has one
+    # ("<TASK GROUP> workstream"), so it is measured apart from the work.
     worst = max((count, shape) for shape, count in spread.items()
                 if not shape.endswith(' workstream'))
     insist(worst[0] <= len(shapes) * 0.34,
-           'A14: %s is on %d of the %d rows, over the third that says the '
-           'rows are one checklist' % (worst[1], worst[0], len(shapes)))
+           'A14: %s is on %d of the %d task groups, over the third that says the '
+           'task groups are one checklist' % (worst[1], worst[0], len(shapes)))
     insist(len(spread) >= 120,
            'A14: a thousand names collapse to %d shapes' % len(spread))
 
 
 def skeleton_of(row, task):
-    """The template that could have said this task's name, on this row.
+    """The template that could have said this task's name, on this task group.
 
-    ⭐ A roll-up and a milestone name the row itself, so they keep their own
+    ⭐ A roll-up and a milestone name the task group itself, so they keep their own
     skeleton with the label taken back out; everything else is a piece of work
     and is looked up in what its kind can say.
 
@@ -3260,7 +3260,7 @@ def skeleton_of(row, task):
 
 
 def sayable(row, task):
-    """Whether this row's kind could have produced this task's name.
+    """Whether this task group's kind could have produced this task's name.
 
     @purity pure
     """
@@ -3268,10 +3268,10 @@ def sayable(row, task):
 
 
 def check_clustering(built):
-    """A15 -- a leaf row's work sits where that component is built.
+    """A15 -- a leaf task group's work sits where that component is built.
 
-    ⛔ 60 leaf rows with a median span of 558 days and a median density of
-    0.17 is a plan smeared across three years. The density is the days a row
+    ⛔ 60 leaf task groups with a median span of 558 days and a median density of
+    0.17 is a plan smeared across three years. The density is the days a task group
     has a bar on divided by the days between its first start and its last
     finish.
 
@@ -3289,19 +3289,19 @@ def check_clustering(built):
             busy.update(range(one['startAt'], one['finishAt'] + 1))
         spans.append(last - first + 1)
         densities.append(len(busy) / float(last - first + 1))
-    insist(len(spans) >= 40, 'A15: only %d leaf rows to measure' % len(spans))
+    insist(len(spans) >= 40, 'A15: only %d leaf task groups to measure' % len(spans))
     spans.sort()
     densities.sort()
     middle = len(spans) // 2
     insist(densities[middle] >= 0.40,
-           'A15: the median leaf row has a bar on %.2f of the days it spans, '
-           'and a row that empty is not a row anybody planned'
+           'A15: the median leaf task group has a bar on %.2f of the days it spans, '
+           'and a task group that empty is not a task group anybody planned'
            % densities[middle])
     insist(spans[middle] <= 320,
-           'A15: the median leaf row spans %d working days' % spans[middle])
+           'A15: the median leaf task group spans %d working days' % spans[middle])
     smeared = [one for one in spans if one > 400]
     insist(len(smeared) <= 12,
-           'A15: %d leaf rows span more than 400 working days' % len(smeared))
+           'A15: %d leaf task groups span more than 400 working days' % len(smeared))
 
 
 def check_progress(built, status_at):
@@ -3448,7 +3448,7 @@ def check_links(built):
 
 
 def tree_of(row):
-    """The top-level row this row hangs under.
+    """The top-level task group this task group hangs under.
 
     @purity pure
     """
@@ -3462,7 +3462,7 @@ def check_reach(built):
 
     ⛔ Both were measured at zero. All seven gates had three predecessors and
     no successor anywhere, which makes a gate a decoration rather than a gate;
-    and 373 of 406 links stayed inside a single display row, with every one of
+    and 373 of 406 links stayed inside a single display task group, with every one of
     the 30 that did not touching the overview lane. Mobile Client never waited
     on Web Service.
 
@@ -3504,7 +3504,7 @@ def check_reach(built):
            'A20: only %d link(s) cross from one product tree to another'
            % sum(between.values()))
     insist(inside * 100.0 / held <= 80.0,
-           'A20: %.1f%% of the links stay inside one display row'
+           'A20: %.1f%% of the links stay inside one display task group'
            % (inside * 100.0 / held))
 
 
@@ -3516,9 +3516,9 @@ def check_rollup_reading(built):
     the one whose FR-012 figure is the duration-weighted reading of what it
     stands over. 33 of 40 summaries were more than three points away from it.
 
-    ⚠️ A row's roll-up stands over its WBS descendants, and this checks that
+    ⚠️ A task group's roll-up stands over its WBS descendants, and this checks that
     too -- the two lists have to agree, or the roll-up is reading something
-    other than the rows indented under it.
+    other than the task groups indented under it.
 
     @purity semi-pure-b
     """
@@ -3553,14 +3553,14 @@ def check_counts(built):
     @purity semi-pure-b
     """
     insist(len(built.rows) == WANTED_TASK_GROUPS,
-           'TP-5: the tree holds %d rows, and table T-226 asks for %d'
+           'TP-5: the tree holds %d task groups, and table T-226 asks for %d'
            % (len(built.rows), WANTED_TASK_GROUPS))
     insist(len(built.tasks) == WANTED_TASKS,
            'TP-6: built %d tasks, and table T-226 asks for %d'
            % (len(built.tasks), WANTED_TASKS))
     depth = max(row['depth'] for row in built.rows)
     insist(depth == 5,
-           'TP-5 and TP-8: the row tree is %d deep, and the cap FR-004 imposes '
+           'TP-5 and TP-8: the task group tree is %d deep, and the cap FR-004 imposes '
            'is 5' % depth)
     # ⚠️ Not a single pass in uid order: a roll-up is issued AFTER the work it
     # rolls up, so a parent's uid can be larger than its child's.
@@ -3576,17 +3576,17 @@ def check_counts(built):
     for task in built.tasks:
         deep(task['uid'])
     insist(max(wbs.values()) == 5,
-           'TP-8: the WBS is %d deep, and the row depth is 5'
+           'TP-8: the WBS is %d deep, and the task group depth is 5'
            % max(wbs.values()))
     roots = [row for row in built.rows if row['parent'] is None]
     insist(len(roots) >= 3,
-           'TP-4: %d top-level row(s), and the table asks for a forest'
+           'TP-4: %d top-level task group(s), and the table asks for a forest'
            % len(roots))
     insist(len(PHASES) == 7, 'TP-3: %d phases, and the table asks for seven'
            % len(PHASES))
     per_task_group = set(len(row['tasks']) for row in built.rows)
     insist(len(per_task_group) > 5,
-           'TP-7: the tasks per row take only %d different values'
+           'TP-7: the tasks per task group take only %d different values'
            % len(per_task_group))
 
 
@@ -4011,7 +4011,7 @@ def check_settings_bounds(settings):
             # `pinnedGroupIds` (S-126) states a ceiling of `pinnedTaskGroupMax` and
             # a floor of no items, and the row was skipped entirely because
             # the value was not a number -- so the one setting in the table
-            # whose bound counts rows was the one bound nobody read.
+            # whose bound counts task groups was the one bound nobody read.
             stated[key] = float(len(value))
         elif isinstance(value, dict):
             for tail, held in value.items():
@@ -4065,7 +4065,7 @@ def check_invariants(document, settings):
 
     for pinned in settings['pinnedGroupIds']:
         insist(pinned in group_ids,
-               'IV-3: a pinned row points at %s, which is not a TaskGroup'
+               'IV-3: a pinned task group points at %s, which is not a TaskGroup'
                % pinned)
 
     parent_of = dict((task['uid'], task['parentTaskUid']) for task in tasks)
@@ -4087,13 +4087,13 @@ def check_invariants(document, settings):
         depth, at, seen = 1, group['parentId'], set([group['id']])
         while at is not None:
             insist(at not in seen,
-                   'IV-5: the rows above %s are a cycle' % group['label'])
+                   'IV-5: the task groups above %s are a cycle' % group['label'])
             seen.add(at)
             depth += 1
             at = above[at]
         cap = constant('maxGroupDepth')
         insist(depth <= cap,
-               'IV-5: the row %s sits %d deep, over the cap of %d'
+               'IV-5: the task group %s sits %d deep, over the cap of %d'
                % (group['label'], depth, cap))
 
     held = {}
@@ -4128,7 +4128,7 @@ def check_invariants(document, settings):
     for group in groups:
         insist(group['label'] is not None
                or group['derivedFromTaskUid'] is not None,
-               'IV-8: a row has neither a label nor a task to take one from')
+               'IV-8: a task group has neither a label nor a task to take one from')
 
     for visual in schedule['taskVisuals']:
         insist(not (visual['fillColor'] == 'transparent'
@@ -4234,7 +4234,7 @@ def declared_strings(settings):
 
 
 def tree_labels(tree):
-    """Every row label the forest declares.
+    """Every task group label the forest declares.
 
     @purity pure
     """
@@ -4480,7 +4480,7 @@ def build():
     assert_settings_complete(settings)
     built = Builder(settings)
     insist(len(built.rows) == WANTED_TASK_GROUPS,
-           'TP-5: the tree holds %d rows, and table T-226 asks for %d'
+           'TP-5: the tree holds %d task groups, and table T-226 asks for %d'
            % (len(built.rows), WANTED_TASK_GROUPS))
     for phase in PHASES:
         insist(is_working_day(phase[1]) and is_working_day(phase[2]),
@@ -4587,7 +4587,7 @@ def nullable_project_columns():
 def empty_document():
     """Table T-342 -- the empty document FR-095 starts afresh with.
 
-    ⛔ No row: BK-2's one row is the one the rule under table T-050 makes on
+    ⛔ No task group: BK-2's one task group is the one the rule under table T-050 makes on
     landing, with an id taken afresh each time (document-change-plan.ts).
 
     @purity semi-pure-b
@@ -4684,7 +4684,7 @@ def main():
                                  % os.path.relpath(path, ROOT))
                 return 1
         sys.stdout.write('OK       the startup template and the %d file(s) '
-                         'beside it match their manuscript (%d row(s), %d task(s))\n'
+                         'beside it match their manuscript (%d task group(s), %d task(s))\n'
                          % (len(wanted) - 1,
                             len(document['schedule']['taskGroups']),
                             len(document['schedule']['tasks'])))

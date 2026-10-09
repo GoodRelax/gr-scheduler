@@ -54,7 +54,7 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
     if (context.isTextEntryUnsettled) return acted({ kind: 'settleTextEntry' })
     // WHY: same kind as the settle stage; only the shell knows whether its commit settled anything.
     if (context.isPropertiesPanelShowing === true) return acted({ kind: 'settleTextEntry' })
-    // TRAP: with nothing chosen (rows too) Enter stays unassigned, or tabbed-to controls lose activation.
+    // TRAP: with nothing chosen (task groups too) Enter stays unassigned, or tabbed-to controls lose activation.
     return escapeContextOf(context).isSelectionStanding === true ? CONSUMED_ELSEWHERE : UNASSIGNED
   }
 

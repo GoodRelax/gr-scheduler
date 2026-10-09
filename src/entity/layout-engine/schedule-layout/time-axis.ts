@@ -45,7 +45,7 @@ export function tickStrideOf(layout: ScheduleLayout, _settings: DocumentSettings
 export type TimeAxis = Pick<ScheduleLayout, 'pxPerDay' | 'originDay' | 'originX'>
 
 // see FR-017, DC-3
-// WHY: the axis alone, without laying out a row, for readers that only turn a pointer into a day.
+// WHY: the axis alone, without laying out a task group, for readers that only turn a pointer into a day.
 /** @purity pure */
 export function timeAxisOf(storedSettings: DocumentSettings, regions: ScreenRegions): TimeAxis {
   const settings = drawnSettingsOf(storedSettings)

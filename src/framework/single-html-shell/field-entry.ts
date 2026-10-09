@@ -180,6 +180,6 @@ export function spendFieldCommit(hands: FieldEntryHands, frame: FrameValues): bo
   if (commit === null) return false
   const commands = commandFromFieldCommit(commit, hands.collectInputContext(frame))
   if (commands.length > 0) hands.writeDocument(commands, frame, true)
-  // TRAP: true on the commit, not the commands; a value naming no row is still a settled edit (SK-19).
+  // TRAP: true on the commit, not the commands; a value naming no task group is still a settled edit (SK-19).
   return true
 }

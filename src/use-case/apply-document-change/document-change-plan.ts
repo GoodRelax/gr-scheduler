@@ -157,7 +157,7 @@ function stepSizeBytes(document: Document): number {
 }
 
 // see T-050, CM-27
-// TRAP: on the command road only CM-27 can leave no row, so a batch that does carries this id.
+// TRAP: on the command road only CM-27 can leave no task group, so a batch that does carries this id.
 /** @purity pure */
 function freshRowIdOf(commands: readonly DocumentCommand[]): string | null {
   for (const command of commands) {
@@ -181,7 +181,7 @@ function documentHoldingOneTaskGroup(
     label: defaultTaskGroupName,
     derivedFromTaskUid: null,
     order: 0,
-    // WHY: the one row T-050 leaves stands open whatever emptied the rows, as a CM-26 row does (AT-153).
+    // WHY: the one task group T-050 leaves stands open whatever emptied the task groups, as a CM-26 task group does (AT-153).
     treeState: 'temporarilyExpanded',
     editGroup: null,
     color: null,

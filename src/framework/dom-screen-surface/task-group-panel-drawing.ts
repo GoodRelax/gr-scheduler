@@ -1,4 +1,4 @@
-// DomScreenSurface -- the Task Group Title Tree rows with their controls, grab strips and folded counts.
+// DomScreenSurface -- the Task Group Title Tree task groups with their controls, grab strips and folded counts.
 // @unit      UF-105  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -121,7 +121,7 @@ function taskGroupControlLatticePx(): number {
 
 // see HF-6, HF-19
 // WHY: hit, so the gaps between controls count as the group; as tall as the lower of the
-// row's bottom and the lattice's, which may hang over the rows below.
+// task group's bottom and the lattice's, which may hang over the task groups below.
 /** @purity pure */
 function taskGroupControlGroundStyle(leftmostStepsFromEdge: number): string {
   const reach = taskGroupControlRightPx(leftmostStepsFromEdge)
@@ -303,7 +303,7 @@ function taskGroupTitleElement(host: Document, title: TaskGroupTitle, isPinned: 
     row.append(grab)
   }
 
-  // TRAP: the size goes on the name alone; on the row the em-sized marks would follow it (HF-5).
+  // TRAP: the size goes on the name alone; on the task group the em-sized marks would follow it (HF-5).
   const label = made(host, 'span', STYLE.taskGroupLabel + `font-size:${title.fontPx}px;`)
   label.textContent = title.label
 
@@ -431,7 +431,7 @@ function panelCornerEntryStyle(stepsFromEdge: number, canAct: boolean): string {
 }
 
 // see HF-10, T-206
-// WHY: the head stands S-313 off the right edge, the same distance as the row controls (HF-4).
+// WHY: the head stands S-313 off the right edge, the same distance as the task group controls (HF-4).
 // TRAP: read at the call; dom-screen-surface.ts imports this file, so a module-level read sees nothing.
 /** @purity pure */
 function panelCornerRightPx(stepsFromEdge: number): number {
@@ -515,7 +515,7 @@ export function markHeadEntries(entries: HeadEntries, panel: TaskGroupPanel): vo
   markHeadEntry(entries.deleteEveryTaskGroup, DELETE_EVERY_ROW_ENTRY, true)
 }
 
-// WHY: inferred from row tops: ScreenFrame carries no corner rectangle and no ruler height.
+// WHY: inferred from task group tops: ScreenFrame carries no corner rectangle and no ruler height.
 /** @purity pure */
 export function taskGroupsTopPx(panel: TaskGroupPanel): number | null {
   let top: number | null = null
@@ -547,8 +547,8 @@ export function fillTaskGroupTitleTree(
     anchors.set(anchorKey({ kind: 'taskGroupTitle', groupId: title.groupId }), row)
     drawn.push(row)
   }
-  // WHY: after the rows, whose opaque ground would hide a line set before them; a hovered
-  // row's z-index still lifts its controls over the lines (HF-19).
+  // WHY: after the task groups, whose opaque ground would hide a line set before them; a hovered
+  // task group's z-index still lifts its controls over the lines (HF-19).
   for (const line of panel.groupGridLines ?? []) {
     const rule = made(host, 'div', boxStyle(line) + STYLE.groupGridLine)
     rule.setAttribute(GROUP_GRID_LINE_MARK, 'true')

@@ -5,14 +5,14 @@
 // sample's, so this empties it and stands the sample's tree up through the
 // UI -- IC-82 to delete, IC-93 / IC-91 to add, and the entry HF-14 opens to name.
 //
-// ⛔ THE WINDOW IS TALL ON PURPOSE. A row is as tall as its tiers make it
+// ⛔ THE WINDOW IS TALL ON PURPOSE. A task group is as tall as its tiers make it
 // (`ST-9`, with the arithmetic in `LF-2`), measured at 22..188px on the shipped
 // build's own document, so a 1080-high window draws only the first few of them
-// and a row below the fold cannot be pressed.
+// and a task group below the fold cannot be pressed.
 //
 // ⚠️ THIS COMMENT USED TO SAY 「64..148px (FR-042)」, a range that is nowhere in
 // the specification -- see the note in `check.mjs`. The board this file builds
-// is made of rows carrying no `Task` at all, which is exactly the 22..28px case
+// is made of task groups carrying no `Task` at all, which is exactly the 22..28px case
 // the invented floor denied.
 //
 // ⭐ WHY THIS LIVES IN tools/ AND NOT IN scratch/. scratch/ is gitignored, so a
@@ -80,7 +80,7 @@ async function openSample(browser) {
       await tab.waitForTimeout(150)
       return found
     },
-    // Which rows are held at the top, in the order they are held there.
+    // Which task groups are held at the top, in the order they are held there.
     pinned: () => tab.evaluate(() =>
       [...document.querySelectorAll('.row.pinnedTop')]
         .map((row) => row.querySelector('.nm')?.textContent ?? '')),
@@ -113,7 +113,7 @@ export const SAMPLE_TREE = [
 ]
 
 /**
- * How far one drag on the `Panel Divider` widens the `Row Title Panel`.
+ * How far one drag on the `Panel Divider` widens the `Task Group Panel`.
  *
  * ⭐ A STEP AND NOT A COMPUTED WIDTH. FR-085 cuts the name against a formula
  * whose terms are settings values, and working the answer out here would copy
@@ -137,14 +137,14 @@ async function openApp(browser) {
         (row.querySelector('span')?.textContent ?? '').trim()}`))
 
   const panelRight = () => tab.evaluate(() =>
-    Math.round(document.querySelector('[data-role="Row Title Panel"]').getBoundingClientRect().right))
+    Math.round(document.querySelector('[data-role="Task Group Panel"]').getBoundingClientRect().right))
 
   // ⛔⛔ THE NAMES THE PRODUCT CUT, AND WHY THIS TOOL MAY NOT READ ONE.
   //
-  // FR-085 (MUST) cuts a row's name to the width the `Row Title Panel` leaves
+  // FR-085 (MUST) cuts a task group's name to the width the `Task Group Panel` leaves
   // it and closes it with `…`. From CR-336 the formula also subtracts the grab
   // strip GR-20 (`S-138`) and the gap after it (`S-218`), so at 1400x2000 a
-  // depth-3 row gets 102px and 「Phone Home Screen」 genuinely does not fit --
+  // depth-3 task group gets 102px and 「Phone Home Screen」 genuinely does not fit --
   // the drawn word is 「Phone Home Sc…」. The sample cuts nothing, so `rows()`
   // on the two sides could never agree again.
   //
@@ -161,10 +161,10 @@ async function openApp(browser) {
   // a real pointer on the real band, no member added to the product, no
   // specification rule invented.
   //
-  // ⭐ WHICH ROWS WERE CUT IS THE PRODUCT'S OWN ANSWER, not this tool's guess:
-  // `data-truncated` is written on every row from `RowTitle.isLabelTruncated`,
+  // ⭐ WHICH TASK GROUPS WERE CUT IS THE PRODUCT'S OWN ANSWER, not this tool's guess:
+  // `data-truncated` is written on every task group from `TaskGroupTitle.isLabelTruncated`,
   // which FR-085 needs anyway for the tooltip that shows the whole name.
-  const cutRows = () => tab.evaluate(() =>
+  const cutTaskGroups = () => tab.evaluate(() =>
     [...document.querySelectorAll('[data-depth][data-truncated="true"]')]
       .map((row) => (row.querySelector('span')?.textContent ?? '').trim()))
 
@@ -177,9 +177,9 @@ async function openApp(browser) {
    * `commandFromPanelDivider` moves the boundary by the difference between the
    * two points, so a press anywhere across the band widens by the same amount.
    */
-  const widenRowTitlePanel = async (byPx) => {
+  const widenTaskGroupPanel = async (byPx) => {
     const band = await tab.evaluate(() => {
-      const one = document.querySelector('[data-role="Panel Divider"][data-panel="rowTitlePanel"]')
+      const one = document.querySelector('[data-role="Panel Divider"][data-panel="taskGroupPanel"]')
       if (one === null) return null
       const box = one.getBoundingClientRect()
       return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
@@ -195,19 +195,19 @@ async function openApp(browser) {
 
   /**
    * Widen the panel until the product says it is cutting no name, so that the
-   * word `rows()` reads IS the row's whole name.
+   * word `rows()` reads IS the task group's whole name.
    *
-   * ⚠️ IT CAN FAIL, AND THEN IT SAYS SO. `S-79` is bounded by 「`Row Area` の幅
+   * ⚠️ IT CAN FAIL, AND THEN IT SAYS SO. `S-79` is bounded by 「`Task Group Area` の幅
    * > 0」 (FR-052) and `edit-document-settings.ts` holds that bound, so a drag
    * past it moves nothing. Returning `false` is how a caller learns that the
    * names it is about to read are NOT whole -- ⛔ it must not read them anyway.
    */
   const showWholeNames = async () => {
     for (let tries = 0; tries < WIDEN_TRIES; tries += 1) {
-      if ((await cutRows()).length === 0) return true
-      if ((await widenRowTitlePanel(WIDEN_STEP_PX)) === false) return false
+      if ((await cutTaskGroups()).length === 0) return true
+      if ((await widenTaskGroupPanel(WIDEN_STEP_PX)) === false) return false
     }
-    return (await cutRows()).length === 0
+    return (await cutTaskGroups()).length === 0
   }
 
   const topOf = (name) => tab.evaluate((wanted) => {
@@ -216,8 +216,8 @@ async function openApp(browser) {
     return row === undefined ? null : Math.round(row.getBoundingClientRect().y)
   }, name)
 
-  // ⛔ A REAL POINTER. HF-6 keeps a row's controls out of the picture until the
-  // pointer is on that row's name, and a synthetic click reaches nothing.
+  // ⛔ A REAL POINTER. HF-6 keeps a task group's controls out of the picture until the
+  // pointer is on that task group's name, and a synthetic click reaches nothing.
   const hover = async (top) => {
     const at = await tab.evaluate((wanted) => {
       const row = [...document.querySelectorAll('[data-depth]')]
@@ -254,10 +254,10 @@ async function openApp(browser) {
   }
 
   return {
-    tab, rows, topOf, hover, away, pressEntry, cutRows, showWholeNames,
-    // Which rows are held at the top, in the order they are held there.
+    tab, rows, topOf, hover, away, pressEntry, cutTaskGroups, showWholeNames,
+    // Which task groups are held at the top, in the order they are held there.
     //
-    // The shell writes `data-pinned` on every row, so this reads the same fact
+    // The shell writes `data-pinned` on every task group, so this reads the same fact
     // the sample's `pinnedTop` class carries -- and it reads DOM order, which
     // is what FR-098 lifts.
     pinned: () => tab.evaluate(() =>
@@ -265,12 +265,12 @@ async function openApp(browser) {
         .map((row) => (row.querySelector('span')?.textContent ?? '').trim())),
     counts: () => tab.evaluate(() =>
       [...document.querySelectorAll('[data-depth]')]
-        .filter((row) => row.querySelector('[data-folded-rows]') !== null)
+        .filter((row) => row.querySelector('[data-folded-task-groups]') !== null)
         .map((row) => `${(row.querySelector('span')?.textContent ?? '').trim()}=${
-          row.querySelector('[data-folded-rows]')?.getAttribute('data-folded-rows') ?? ''}`)),
+          row.querySelector('[data-folded-task-groups]')?.getAttribute('data-folded-task-groups') ?? ''}`)),
     /**
      * Which entrances stand armed and which are drawn faint, keyed the way the
-     * sample keys them -- `<row name>:<the sample's act>`.
+     * sample keys them -- `<task group name>:<the sample's act>`.
      *
      * ⛔ THE ARMING IS AN ATTRIBUTE. FR-029 draws a spent entrance in `S-149`
      * and marks it `aria-disabled`; nothing else tells the two apart.
@@ -284,8 +284,8 @@ async function openApp(browser) {
         // WHY: an entrance the sample has no act for is keyed by its own IC id, so
         // KNOWN_DIVERGENCES in check.mjs can name it instead of an empty act.
         const keyOf = (one) => actOf[one.getAttribute('data-icon') ?? ''] ?? one.getAttribute('data-icon') ?? ''
-        // DFC-1006: a row's own controls also stand above y 85 since the display
-        // scale changed (dca48b79), so the head is only what no row holds.
+        // DFC-1006: a task group's own controls also stand above y 85 since the display
+        // scale changed (dca48b79), so the head is only what no task group holds.
         const head = [...document.querySelectorAll('[data-icon]')]
           .filter((one) => {
             const box = one.getBoundingClientRect()
@@ -300,8 +300,8 @@ async function openApp(browser) {
     },
     // ⛔⛔ RESOLVED BY NAME AT EVERY STEP, NEVER BY A REMEMBERED y. The panel
     // re-lays out after each press, so a `y` read before the hover can belong to
-    // a different row by the time the entrance is looked for -- measured: an
-    // `add` meant for 「Back Office」 landed on 「Tablet App」 and two rows were
+    // a different task group by the time the entrance is looked for -- measured: an
+    // `add` meant for 「Back Office」 landed on 「Tablet App」 and two task groups were
     // built under the wrong parent, with no error raised.
     pressRow: async (name, act) => {
       const onName = await tab.evaluate((wanted) => {
@@ -319,7 +319,7 @@ async function openApp(browser) {
         const row = [...document.querySelectorAll('[data-depth]')]
           .find((one) => (one.querySelector('span')?.textContent ?? '').trim() === wanted)
         if (row === undefined) return null
-        // ⭐ THE ENTRANCE INSIDE THAT ROW, not one near its y.
+        // ⭐ THE ENTRANCE INSIDE THAT TASK GROUP, not one near its y.
         const entry = [...row.querySelectorAll(`[data-icon="${icon}"]`)]
           .find((one) => one.getBoundingClientRect().x < rightEdge)
         if (entry === undefined) return null

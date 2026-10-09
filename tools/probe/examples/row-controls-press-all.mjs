@@ -1,26 +1,26 @@
-// Press EVERY entry of the row title panel, one per fresh page, and say which
+// Press EVERY entry of the task group panel, one per fresh page, and say which
 // ones did nothing.
 //
 // ⭐⭐ WHAT THIS FOUND (the ledger's DFC-142). Six of the thirty-five
 // presses moved nothing, and all six were the "open" control -- IC-58 on five
-// rows and IC-74 at the panel's head. ⛔ THE WIRING IS NOT STALE: fold
+// task groups and IC-74 at the panel's head. ⛔ THE WIRING IS NOT STALE: fold
 // something first and the very same control works.
 // The real fault is that a DISARMED entry and an ARMED one are identical on
 // screen -- same opacity, same colour, same `pointer` cursor, no `disabled`
 // attribute -- so at startup, when nothing is folded, every "open" on screen is
 // dead and nothing says so.
 //
-// ⛔ WHY ONE FRESH PAGE PER PRESS. Folding a row changes which controls the
-// next row even carries. Measuring them all on one page measures the presses
+// ⛔ WHY ONE FRESH PAGE PER PRESS. Folding a task group changes which controls the
+// next task group even carries. Measuring them all on one page measures the presses
 // that came before, not the press at hand.
 //
-// ⛔ WHY THE REGION AND NOT THE DOM. The row controls are not descendants of
-// `[data-role="Row Title Panel"]`; an earlier probe queried inside that element
+// ⛔ WHY THE REGION AND NOT THE DOM. The task group controls are not descendants of
+// `[data-role="Task Group Panel"]`; an earlier probe queried inside that element
 // and concluded IC-82 was never drawn.
 //
 //   node tools/probe/examples/row-controls-press-all.mjs
 import {
-  open, rows, rowPanel, hoverRow, panelEntries, pressPanelEntry, pointerAway, close,
+  open, rows, taskGroupPanelBox, hoverTaskGroup, panelEntries, pressPanelEntry, pointerAway, close,
 } from '../harness.mjs'
 
 /** A board wide enough that any of the seven entries would disturb it. */
@@ -36,17 +36,17 @@ const board = (onPage) => onPage.evaluate(() => ({
 
 // ⚠️ No binding: every helper below reaches the page through the harness.
 await open()
-console.log('panel', JSON.stringify(await rowPanel()))
+console.log('panel', JSON.stringify(await taskGroupPanelBox()))
 
 // Plan on one page; act on a fresh one per press.
-const plan = [{ rowTopPx: null, where: 'panel head', icon: 'IC-74' },
-              { rowTopPx: null, where: 'panel head', icon: 'IC-78' }]
+const plan = [{ taskGroupTopPx: null, where: 'panel head', icon: 'IC-74' },
+              { taskGroupTopPx: null, where: 'panel head', icon: 'IC-78' }]
 await pointerAway()
 for (const row of await rows()) {
-  await hoverRow(row.y)
+  await hoverTaskGroup(row.y)
   for (const entry of await panelEntries(row.y)) {
     plan.push({
-      rowTopPx: row.y,
+      taskGroupTopPx: row.y,
       where: `d=${row.depth} "${row.text.slice(0, 17)}"`,
       icon: entry.icon,
     })
@@ -57,9 +57,9 @@ console.log(`${plan.length} presses\n`)
 const dead = []
 for (const item of plan) {
   const freshPage = await open({ settle: 1200 })
-  if (item.rowTopPx !== null) await hoverRow(item.rowTopPx)
+  if (item.taskGroupTopPx !== null) await hoverTaskGroup(item.taskGroupTopPx)
   const before = await board(freshPage)
-  if (!await pressPanelEntry(item.rowTopPx, item.icon)) {
+  if (!await pressPanelEntry(item.taskGroupTopPx, item.icon)) {
     console.log(`MISSING ${item.icon} ${item.where}`)
     continue
   }

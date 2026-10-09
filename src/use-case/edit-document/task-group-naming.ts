@@ -1,4 +1,4 @@
-// EditDocument -- a row stands with a name or a derivation source, and is renamed.
+// EditDocument -- a task group stands with a name or a derivation source, and is renamed.
 // @unit      UF-77  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -22,14 +22,14 @@ export function createTaskGroup(
   const groups = schedule.taskGroups
   const refusals: Refusal[] = []
   if (byId.has(command.id)) {
-    refusals.push(reject('CM-26', 'IV-1', `a row already holds the id ${command.id}`))
+    refusals.push(reject('CM-26', 'IV-1', `a task group already holds the id ${command.id}`))
   }
   if (!Number.isInteger(command.order)) {
     refusals.push(reject('CM-26', 'AT-55', `order is not an integer: ${command.order}`))
   }
   if (command.label === null && command.derivedFromTaskUid === null) {
     refusals.push(
-      reject('CM-26', 'FR-058', 'a row may hold neither a name nor a derivation source (AT-54)'),
+      reject('CM-26', 'FR-058', 'a task group may hold neither a name nor a derivation source (AT-54)'),
     )
   }
   if (
@@ -43,7 +43,7 @@ export function createTaskGroup(
   if (command.parentId !== null) {
     const parent = byId.get(command.parentId)
     if (parent === undefined) {
-      refusals.push(reject('CM-26', 'FR-085', `no such parent row: ${command.parentId}`))
+      refusals.push(reject('CM-26', 'FR-085', `no such parent task group: ${command.parentId}`))
     } else if (depthOf(byId, parent) >= SETTINGS_CONSTANTS.maxGroupDepth) {
       refusals.push(
         reject(
@@ -79,11 +79,11 @@ export function setTaskGroupLabel(
 ): EditResult {
   const taskGroup = byId.get(command.groupId)
   if (taskGroup === undefined) {
-    return refused([reject('CM-29', 'FR-085', `no such row: ${command.groupId}`)])
+    return refused([reject('CM-29', 'FR-085', `no such task group: ${command.groupId}`)])
   }
   if (command.label === null && taskGroup.derivedFromTaskUid === null) {
     return refused([
-      reject('CM-29', 'FR-058', 'a row may hold neither a name nor a derivation source (AT-54)'),
+      reject('CM-29', 'FR-058', 'a task group may hold neither a name nor a derivation source (AT-54)'),
     ])
   }
   if (taskGroup.label === command.label) return edited(document)

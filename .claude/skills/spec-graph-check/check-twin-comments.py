@@ -54,7 +54,7 @@ src/adapter/document-codec/mspdi-codec.ts are about to be split:
     <symbol> :: <the first 10 words of the claim's form>
 
   symbol  the declaration the comment sits on, qualified by the named
-          declarations enclosing it (`rowAnchorAt.slab`). When the comment sits
+          declarations enclosing it (`taskGroupAnchorAt.slab`). When the comment sits
           on a statement, not a declaration, it is the enclosing chain alone
           (`isOpenOneLevelArmed`); at the top of a file with no declaration
           below, `(top)`. Found by indentation on the lexed code, so a
@@ -460,7 +460,7 @@ export function writeRows(rows: Row[]): string[] {
 SELF_TEST_NEW = u'''\
 export function rowAt(rows: Row[], y: number): number {
   const at = rows.length
-  // TRAP: the same walk as rowAnchorIn in zoom-and-fit.ts; change both together.
+  // TRAP: the same walk as taskGroupAnchorIn in zoom-and-fit.ts; change both together.
   const slab = y - at
   return slab
 }
@@ -495,7 +495,7 @@ def self_test():
     # 1. a new unregistered copy comment.
     results.append(self_test_case(
         'case 1 (a new copy comment)', dict(clean, **{'src/d/d.ts': SELF_TEST_NEW}),
-        held, 'rowAt.slab :: the same walk as rowanchorin'))
+        held, 'rowAt.slab :: the same walk as taskgroupanchorin'))
     # 2. the held claim's comment deleted.
     gone = dict(clean, **{'src/a/a.ts': SELF_TEST_A.replace(
         "// TRAP: a copy of screen-regions.ts's private rectHoldsPoint; "
@@ -521,7 +521,7 @@ export function deliverAll(watchers: Map<string, Watcher>): void {
     twice = dict(clean, **{'src/d/d.ts': SELF_TEST_NEW,
                            'src/f/f.ts': SELF_TEST_NEW})
     results.append(self_test_case('case 5 (a key collision)', twice, held,
-                                  'rowAt.slab :: the same walk as rowanchorin in '
+                                  'rowAt.slab :: the same walk as taskgroupanchorin in '
                                   'zoom and fit ts change both together #2'))
     failures = [one for one in results if one]
     for failure in failures:

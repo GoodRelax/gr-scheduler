@@ -171,7 +171,7 @@ export const PAINT = {
 
 /** @purity pure */
 export function stateGround(paint: string, depthTaskGroup: 'S-214' | 'S-215'): string {
-  // WHY: color-mix, not opacity, which would fade the row's name and controls with the ground.
+  // WHY: color-mix, not opacity, which would fade the task group's name and controls with the ground.
   return `color-mix(in srgb, ${paint} ${NOT_STORED_STATE_GROUND_PERCENTS[depthTaskGroup]}%, transparent)`
 }
 
@@ -311,8 +311,8 @@ export const STYLE = {
     'position:fixed;left:0;top:0;right:0;bottom:0;pointer-events:none;' +
     `font:inherit;color:${PAINT.ink};`,
   layer: 'position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none;',
-  // TRAP: isolate the Task Group Title Tree, so a hovered row's raise stays inside it; unisolated it
-  // lifts the row over every later layer, the divider band and the modals included.
+  // TRAP: isolate the Task Group Title Tree, so a hovered task group's raise stays inside it; unisolated it
+  // lifts the task group over every later layer, the divider band and the modals included.
   treeIsolation: 'isolation:isolate;',
   appHeader:
     'position:absolute;left:0;top:0;right:0;box-sizing:border-box;display:flex;' +
@@ -357,7 +357,7 @@ export const STYLE = {
   taskGroupPanel: `position:absolute;background:${PAINT.panel};`,
   panelCornerEntry: 'position:absolute;top:0;right:0;pointer-events:auto;',
   // see HF-19
-  // WHY: clip across only; the controls' lattice may hang below a row shorter than it.
+  // WHY: clip across only; the controls' lattice may hang below a task group shorter than it.
   taskGroupTitle:
     'box-sizing:border-box;display:flex;align-items:flex-start;' +
     'overflow-x:clip;overflow-y:visible;white-space:nowrap;' +
@@ -581,7 +581,7 @@ const TASK_GROUP_CONTROL_SHOWN_CSS =
   `[data-unit="${UNIT_ROW}"] [data-group-id]:hover [data-icon="${DELETE_ROW_ENTRY}"]` +
   '{visibility:visible;}' +
   // see HF-6, HF-19
-  // WHY: rows paint in tree order, so a later row covers a hanging group and takes its pointer.
+  // WHY: task groups paint in tree order, so a later task group covers a hanging group and takes its pointer.
   `[data-unit="${UNIT_ROW}"] [data-role="${ROLE.taskGroupTitleTree}"] > [data-group-id]:hover` +
   '{z-index:1;}'
 
@@ -903,7 +903,7 @@ const SHOW_ONLY_CHECKED_BAR_ROLE = 'Show Only Checked Bar'
 const SHOW_ONLY_CHECKED_ENTRY = 'IC-143'
 
 // see TV-11, U-67, S-497, S-498
-// WHY: drawn in the band the shell takes off the top of the Schedule Canvas (TV-11), so it covers no row.
+// WHY: drawn in the band the shell takes off the top of the Schedule Canvas (TV-11), so it covers no task group.
 /** @purity non-pure */
 function showOnlyCheckedBarElements(host: Document, panel: SearchPanelView | null | undefined): readonly HTMLElement[] {
   const bar = panel?.showOnlyCheckedBar ?? null

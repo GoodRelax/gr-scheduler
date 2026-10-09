@@ -72,7 +72,7 @@ character tail is quoted somewhere under tests/, however that test frames the
 rest of its assertion. Below 28 characters a clause counts as NOT held: eyeballing
 every match this check makes at exactly 28 characters turned up specific
 wording every time --
-`⛔ **その行自身を隠してはならない（MUST NOT）`, `` T-206 の `S-213` とすること
+`⛔ **そのタスクグループ自身を隠してはならない（MUST NOT）`, `` T-206 の `S-213` とすること
 （MUST） `` and the like -- never a bare generic ending, so 28 was kept as the
 floor rather than raised. ⚠️ This can UNDER-count: a clause whose own
 manuscript context is shorter than 28 characters before the marker (rare;

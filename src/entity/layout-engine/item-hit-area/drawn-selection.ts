@@ -35,7 +35,7 @@ export function selectionWithinDrawn(selection: Selection, geometry: ScheduleGeo
 }
 
 // see T-023c, FR-098, ST-7
-// WHY: a pin the band cannot hold and a row past the stack safety cap are no row T-023c names.
+// WHY: a pin the band cannot hold and a task group past the stack safety cap are no row T-023c names.
 /** @purity pure */
 export function selectionWithinDrawnTaskGroups(
   selection: Selection,

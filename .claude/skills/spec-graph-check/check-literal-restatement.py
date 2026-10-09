@@ -21,7 +21,7 @@ is compared with the GENERATED POOL: the same shapes (at any depth) and the
 per-field value bags inside the fences, every JSON file under src/ (all 11 are
 written by a tools/generate_*.py and say so), and two derived forms of each --
 the last dotted segment (`treeStateMachine.auto` -> `auto`) and the identifier
-words of compound guard strings (`isPressedRow & not isLeafRow`). A hand set
+words of compound guard strings (`isPressedTaskGroup & not isLeafTaskGroup`). A hand set
 is a HIT when its best generated match shares at least 3 members AND the
 Jaccard index |H & G| / |H | G| is at least 0.7.
 
@@ -552,7 +552,7 @@ def variants(members):
     ~last   the last dotted segment of each member (`treeStateMachine.auto`
             -> `auto`), which is how a state value is written by hand;
     ~words  the identifier words of compound guard strings
-            (`isPressedRow & not isLeafRow` -> isPressedRow, isLeafRow).
+            (`isPressedTaskGroup & not isLeafTaskGroup` -> isPressedTaskGroup, isLeafTaskGroup).
     """
     base = frozenset(members)
     out = [('', base)]

@@ -36,7 +36,7 @@ export function progressLineOf(inputs: GeometryInputs): Path {
 
   const baseX = xFromDay(layout, statusDate)
   const half = layout.rectangleHeight / 2
-  // WHY: bucketed by row and lane: by row alone each lane rescans its row, quadratic once Tasks overlap (NFR-013).
+  // WHY: bucketed by task group and lane: by task group alone each lane rescans its task group, quadratic once Tasks overlap (NFR-013).
   const byLane = new Map<string, TaskPlacement[][]>()
   for (const placed of layout.placements) {
     const lanes = byLane.get(placed.groupId) ?? []

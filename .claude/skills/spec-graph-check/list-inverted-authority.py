@@ -19,7 +19,7 @@ its reason the day someone tidies the copy.
 
 ⚠️ THE NAIVE VERSION IS USELESS, and that is the whole design problem. The
 manuscripts name code identifiers constantly and legitimately -- `actualStart`,
-`wbsParentUid`, `documentSettings` -- because the ERD defines them. Flagging
+`parentTaskUid`, `documentSettings` -- because the ERD defines them. Flagging
 "an identifier that also exists in src/" would flag hundreds of honest lines.
 
 ⭐ THE TELL IS NOT THE IDENTIFIER. IT IS THE DEFERRAL. What makes DFC-470 wrong

@@ -213,7 +213,7 @@ CONFIRMATION_ANSWERS = ('proceed', 'cancel')
 NOTICE_DISMISS = ('dismiss',)
 
 # The caveat FR-032 (MUST) puts on a listed item: a `Task` that goes with the
-# row being deleted but is DRAWN on another row, which HM-10 of table T-015a is
+# task group being deleted but is DRAWN on another task group, which HM-10 of table T-015a is
 # what makes possible. FR-032 settles the medium as a WORD and forbids raising a
 # glyph for it, RC-13 of table T-026 keeping shapes as the user's own ruling.
 # ⛔ Held here rather than read from a table for the reason above it: no table
@@ -235,21 +235,21 @@ FILE_STATUS = ('neverSaved',)
 # and no table holds it as a row. KEYS, not words.
 BRANDING_PARTS = ('logo',)
 
-# The name a row settles on when it has none of its own. FR-032 (MUST) has a
-# row whose derivation source is being deleted settle its name before the Task
+# The name a task group settles on when it has none of its own. FR-032 (MUST) has a
+# task group whose derivation source is being deleted settle its name before the Task
 # goes, and (MUST NOT) forbids refusing the deletion because that source never
 # had a name -- which is the ordinary case, since FR-001 draws a nameless Task
-# and derives the new row's name from it. The requirement states the rule and
+# and derives the new task group's name from it. The requirement states the rule and
 # says in as many words that the WORD is this dictionary's and is not spelled
 # there.
 # ⛔ HELD HERE RATHER THAN READ FROM A TABLE, the same move as FILE_STATUS above
 # and for the same reason: no table holds it as a row, and Chapter 6.2 forbids a
 # table whose only column would be the word itself.
-# ⚠️ ONE KEY AND NOT ONE PER ENTRANCE. `row` is the default name of a ROW, not
-# of "a row CM-7 settled" -- FR-032's settle and the row a document with no rows
+# ⚠️ ONE KEY AND NOT ONE PER ENTRANCE. `taskGroup` is the default name of a TASK GROUP, not
+# of "a task group CM-7 settled" -- FR-032's settle and the task group a document with no task groups
 # raises want the same word, and two keys would let them drift apart.
 # ⚠️ These are KEYS, not words.
-DEFAULT_NAMES = ('row',)
+DEFAULT_NAMES = ('taskGroup',)
 
 # The seven weekdays the fourth ruler tier prints beside the day number
 # (FR-017, MUST). ⛔ HELD HERE RATHER THAN READ FROM A TABLE, and Chapter 6.2
@@ -311,10 +311,10 @@ PROPERTY_FIELD_PARTS = ('dependencyEnd', 'addResource', 'derivedParent',
                         'lagDays', 'linkHintFS', 'linkHintSF', 'linkHintFF',
                         'linkHintSS', 'resumeValidHint')
 
-# CR-582: the parts of a row's min height field (table T-338): the unit beside
+# CR-582: the parts of a task group's min height field (table T-338): the unit beside
 # the value (MH-1), the current height with its `{px}` slot (MH-3), the word an
 # empty field shows (MH-2), and the word that replaces the current height while
-# the row is not drawn (MH-6). HELD HERE, the same move as COLOUR_FIELD_PARTS:
+# the task group is not drawn (MH-6). HELD HERE, the same move as COLOUR_FIELD_PARTS:
 # table T-338 states them in prose and no table holds them as rows. KEYS, not
 # words.
 #

@@ -640,7 +640,7 @@ function zoLayer(row: string, drawn: readonly string[]): readonly string[] {
 }
 
 // see FR-051, EP-5
-// WHY: drawn only on the ground the row bands paint (no scrollbar band, no canvasPadding under rows).
+// WHY: drawn only on the ground the task group bands paint (no scrollbar band, no canvasPadding under task groups).
 // TRAP: one clip per layer; one group around them all, halo mask inside, paints 3-4x slower (DFC-1132).
 /** @purity pure */
 function groundClipped(input: GridInput, layers: readonly string[]): readonly string[] {

@@ -15,7 +15,7 @@ export interface FieldEntryCreatedTask {
 }
 
 export interface FieldEntryCreatedRow {
-  readonly kind: 'row'
+  readonly kind: 'taskGroup'
   readonly groupId: string
 }
 
@@ -168,7 +168,7 @@ function onFieldFocusAsked(values: FieldEntryValues, event: EventOf<'fieldFocusA
   return combined(values, values.createdTaskNamingState, want, NO_EFFECTS)
 }
 
-// WHY: an added row leaves the naming scene as it is, as today's shell does (CR-480 decision 9).
+// WHY: an added task group leaves the naming scene as it is, as today's shell does (CR-480 decision 9).
 /** @purity pure */
 function onCreationLanded(values: FieldEntryValues, event: EventOf<'creationLanded'>): FieldEntryStep {
   const { created } = event

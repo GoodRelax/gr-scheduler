@@ -1,4 +1,4 @@
-// ScheduleLayout -- the pinned band: pinned rows lifted to the top, the rest shifted below (FR-098).
+// ScheduleLayout -- the pinned band: pinned task groups lifted to the top, the rest shifted below (FR-098).
 // @unit      UF-141  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -52,7 +52,7 @@ export function pinnedBandOf(
 
   let scrollY = scrollAreaY
   for (const taskGroup of taskGroupPlacements) {
-    // TRAP: seen, not inBand: a dropped pin must not come back as a scrolling row.
+    // TRAP: seen, not inBand: a dropped pin must not come back as a scrolling task group.
     if (seen.has(taskGroup.groupId)) continue
     shiftByGroupId.set(taskGroup.groupId, scrollY - taskGroup.y)
     scrollY += taskGroup.height + settings.taskGroupGap
@@ -107,7 +107,7 @@ export function shiftedPlacements(
 }
 
 // see SJ-8
-// WHY: a row the last picture did not draw has no drawn height yet; any room below the pins is taken as enough.
+// WHY: a task group the last picture did not draw has no drawn height yet; any room below the pins is taken as enough.
 /** @purity pure */
 export function hasRoomBelowPinsIn(layout: ScheduleLayout, taskGroupArea: ScreenRect, groupId: string | null): boolean {
   const room = taskGroupArea.height - (layout.pinnedBandHeight ?? 0)

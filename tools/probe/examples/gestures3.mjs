@@ -22,7 +22,7 @@ const state = () => page().evaluate(() => {
     rulerLeft: labels.slice(0, 3).map((o) => o.t).join(' | '),
     frames: svg.querySelectorAll('[stroke-dasharray="2 2"]').length,
     rows: document.querySelectorAll('[data-depth]').length,
-    topRow: (document.querySelector('[data-depth]')?.textContent ?? '').trim().slice(0, 18),
+    topTaskGroup: (document.querySelector('[data-depth]')?.textContent ?? '').trim().slice(0, 18),
   }
 })
 

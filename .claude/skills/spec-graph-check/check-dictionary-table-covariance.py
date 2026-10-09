@@ -6,7 +6,7 @@ WHY THIS EXISTS -- ledger row DFC-145. `tests/contract/
 t-233-reason-words-tell-the-row.contract.test.ts` built exactly this latch for
 table T-233 alone, after ledger row DFC-166: the 場面 of `RS-30` was rewritten,
 the dictionary word for it was not, and a person who pressed a spent `IC-90`
-was told the row was already folded when the row it named was NOT folded.
+was told the task group was already folded when the task group it named was NOT folded.
 ⛔ EVERY MACHINE CHECK STAYED GREEN, because every one of them asks whether a
 word REACHED the screen and never whether it still says what its row says.
 

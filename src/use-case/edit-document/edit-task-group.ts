@@ -118,7 +118,7 @@ export function subtreeOf(groups: readonly TaskGroup[], rootId: string): Subtree
 }
 
 // see CD-1, DU-1, IV-4
-// WHY: a sweep, not a recursion, because rows arrive in no parent-before-child order.
+// WHY: a sweep, not a recursion, because task groups arrive in no parent-before-child order.
 /** @purity pure */
 export function wbsSubtreesOf(tasks: readonly Task[], seeds: Iterable<number>): ReadonlySet<number> {
   const held = new Set<number>(seeds)
@@ -161,11 +161,11 @@ function pastePlanOf(
 ): PastePlan {
   const copied = subtreeOf(groups, command.sourceGroupId)
   if (copied === null) {
-    return { ok: false, refusals: [reject('CM-28', 'FR-033', `no such row: ${command.sourceGroupId}`)] }
+    return { ok: false, refusals: [reject('CM-28', 'FR-033', `no such task group: ${command.sourceGroupId}`)] }
   }
   const target = command.targetGroupId === null ? null : byId.get(command.targetGroupId)
   if (target === undefined) {
-    return { ok: false, refusals: [reject('CM-28', 'FR-033', `no such row to paste under: ${command.targetGroupId}`)] }
+    return { ok: false, refusals: [reject('CM-28', 'FR-033', `no such task group to paste under: ${command.targetGroupId}`)] }
   }
   const refusals: Refusal[] = []
   const under = target === null ? 0 : depthOf(byId, target)
@@ -190,7 +190,7 @@ function pastePlanOf(
 }
 
 // see DU-2, HM-12
-// WHY: the copied row follows its Task's copy, or settles its name, so moving the copy never moves the original Task.
+// WHY: the copied task group follows its Task's copy, or settles its name, so moving the copy never moves the original Task.
 /** @purity pure */
 function copiedTaskGroupOf(
   schedule: Schedule,
@@ -213,7 +213,7 @@ function copiedTaskGroupOf(
 }
 
 // see CM-28, FR-033, DU-1, DU-2
-// WHY: only the Tasks on the copied rows; a WBS descendant on another row is not copied, and no paste is refused.
+// WHY: only the Tasks on the copied task groups; a WBS descendant on another task group is not copied, and no paste is refused.
 /** @purity pure */
 function pasteTaskGroupSubtree(
   document: Document,
@@ -283,7 +283,7 @@ export function editTaskGroup(
     case 'deleteTaskGroup': {
       const doomed = subtreeOf(groups, command.groupId)
       if (doomed === null) {
-        return refused([reject('CM-27', 'FR-032', `no such row: ${command.groupId}`)])
+        return refused([reject('CM-27', 'FR-032', `no such task group: ${command.groupId}`)])
       }
       const doomedTaskGroups = new Set(doomed.taskGroups.map((one) => one.id))
       const seeds = schedule.taskGroupMembers

@@ -4,17 +4,17 @@
 // instruction asks for: 「GRS のタスクグループ名を変更したり、追加、削除すればよい」.
 // GRS starts with a bigger document than the sample seeds, so this empties it
 // (IC-82 + the confirmation FR-046 raises) and stands the sample's tree up
-// (IC-93 for a shallowest row, IC-91 for a child, then the entry HF-14 opens).
+// (IC-93 for a shallowest task group, IC-91 for a child, then the entry HF-14 opens).
 //
-// ⛔ THE WINDOW IS TALL ON PURPOSE. A row is as tall as its tiers make it
+// ⛔ THE WINDOW IS TALL ON PURPOSE. A task group is as tall as its tiers make it
 // (`ST-9`, and `LF-2` for the arithmetic), which on the shipped build's own
 // document measures 22..188px, so a 1080-high window draws only the first few
-// and a row below the fold cannot be pressed.
+// and a task group below the fold cannot be pressed.
 //
 // ⚠️ THIS COMMENT USED TO SAY 「64..148px (FR-042)」 AND THAT WAS NOT IN THE
-// SPECIFICATION. `FR-042` states one thing about the number a row carries --
+// SPECIFICATION. `FR-042` states one thing about the number a task group carries --
 // 「指定した高さは下限として扱うこと（MUST）」 -- and no range at all. The
-// invented range hid DFC-225 for a round: a row holding no `Task` is 22..28px,
+// invented range hid DFC-225 for a round: a task group holding no `Task` is 22..28px,
 // which is smaller than the 48px lattice of `HF-1` standing on it, and a
 // reader who believed the floor was 64 would not look for that case.
 import { readFileSync } from 'node:fs'
@@ -32,58 +32,58 @@ const app = await openApp(browser)
 // ------------------------------------------------------- build the board ----
 
 /**
- * Take the document down to the ONE row it must always hold, one press at a time.
+ * Take the document down to the ONE task group it must always hold, one press at a time.
  *
- * ⛔ THE FIRST DRAWN ROW, WHATEVER ITS DEPTH -- not the first ROOT. HF-9 lets
- * the panel scroll, so a row above the viewport is not in the tree at all and
- * a loop that waits for a root to appear stops with rows still standing.
- * ⭐ Deleting any row takes its subtree with it (CD-2), so first-drawn is
+ * ⛔ THE FIRST DRAWN TASK GROUP, WHATEVER ITS DEPTH -- not the first ROOT. HF-9 lets
+ * the panel scroll, so a task group above the viewport is not in the tree at all and
+ * a loop that waits for a root to appear stops with task groups still standing.
+ * ⭐ Deleting any task group takes its subtree with it (CD-2), so first-drawn is
  * enough: the document empties whatever order they are reached in.
  *
  * ⛔⛔ IT CANNOT REACH ZERO, AND MUST NOT TRY. The paragraph
  * under table T-050 (MUST) has the document always hold at least one
- * `TaskGroup`: 「ある操作の結果として行が 0 になるときは、その操作の一部として、
- * 深さ `L1` の行を 1 つ作ること（MUST）」, named from the dictionary's
- * `defaultNames`/`row`. A loop that waits for no row at all throws
+ * `TaskGroup`: 「ある操作の結果としてタスクグループが 0 になるときは、その操作の一部として、
+ * 深さ `L1` のタスクグループを 1 つ作ること（MUST）」, named from the dictionary's
+ * `defaultNames`/`taskGroup`. A loop that waits for no task group at all throws
  * 「the document would not empty」 after 200 presses -- which is the product
  * obeying its specification, not a fault.
  *
- * ⛔⛔ SO IT STOPS ON THE INVARIANT'S OWN ROW, NOT AT A COUNT. "Stop when one
- * row is drawn" was tried and measured wrong: the drawn set is a SCROLLED
- * WINDOW, and the loop stopped with 「Quality And Release」 -- a row of the SAMPLE, 148px
+ * ⛔⛔ SO IT STOPS ON THE INVARIANT'S OWN TASK GROUP, NOT AT A COUNT. "Stop when one
+ * task group is drawn" was tried and measured wrong: the drawn set is a SCROLLED
+ * WINDOW, and the loop stopped with 「Quality And Release」 -- a task group of the SAMPLE, 148px
  * tall because it carries tasks -- still standing. The board was then built
  * beside it, and the next `pressRow` could not find its own parent.
- * ⭐ The row the invariant makes is a NEW row: JDG-300 Q14 (PND-488) retired
- * the fixed identifier, so deleting that row stands another one up under a
+ * ⭐ The task group the invariant makes is a NEW task group: JDG-300 Q14 (PND-488) retired
+ * the fixed identifier, so deleting that task group stands another one up under a
  * new identifier every time (DFC-979, measured 2026-09-25: the id changed on
  * every press, 200 presses and no fixed point). The loop therefore stops when one
- * row was drawn, a press left one row drawn again with only its identifier
- * changed, and that row carries the dictionary's `defaultNames`/`row` word --
- * the last check keeps a lone tall row, replaced by another lone one when the
- * drawn window scrolls, from passing for the invariant's row.
+ * task group was drawn, a press left one task group drawn again with only its identifier
+ * changed, and that task group carries the dictionary's `defaultNames`/`taskGroup` word --
+ * the last check keeps a lone tall task group, replaced by another lone one when the
+ * drawn window scrolls, from passing for the invariant's task group.
  */
-/** The rows on screen right now, as identifiers -- what the loop's stop compares. */
+/** The task groups on screen right now, as identifiers -- what the loop's stop compares. */
 async function drawnRowIds() {
   return app.tab.evaluate(() =>
     [...document.querySelectorAll('[data-depth]')].map((row) => row.getAttribute('data-group-id')))
 }
 
-/** Every spelling the dictionary gives the name of a row the invariant stands up. */
-function defaultRowNames() {
+/** Every spelling the dictionary gives the name of a task group the invariant stands up. */
+function defaultTaskGroupNames() {
   const dictionary = JSON.parse(readFileSync(DICTIONARY, 'utf8'))
-  const found = (dictionary.defaultNames ?? []).find((one) => one.use === 'row')
+  const found = (dictionary.defaultNames ?? []).find((one) => one.use === 'taskGroup')
   const names = Object.values(found?.text ?? {}).filter((one) => typeof one === 'string' && one !== '')
-  if (names.length === 0) throw new Error(`${DICTIONARY} spells no default row name`)
+  if (names.length === 0) throw new Error(`${DICTIONARY} spells no default task group name`)
   return names
 }
 
 async function emptyTheApp() {
-  const defaultNames = defaultRowNames()
+  const defaultNames = defaultTaskGroupNames()
   let before = null
   for (let guard = 0; guard < 200; guard += 1) {
     const ids = await drawnRowIds()
-    // The stop: one row before the press, one row after it, only the id
-    // changed, and the row left is the invariant's (named by the dictionary).
+    // The stop: one task group before the press, one task group after it, only the id
+    // changed, and the task group left is the invariant's (named by the dictionary).
     if (ids.length === 1 && before !== null && before.length === 1 && before[0] !== ids[0]) {
       const [only] = await app.rows()
       const name = (only ?? '').split(':').slice(1).join(':')
@@ -117,7 +117,7 @@ async function emptyTheApp() {
 }
 
 /**
- * Name the row HF-14 just stood up, in the name field of its Properties Panel.
+ * Name the task group HF-14 just stood up, in the name field of its Properties Panel.
  *
  * The field is a textarea, not an input: FR-006 wraps a text field and grows
  * it downwards, which a one-line input cannot do.
@@ -130,35 +130,35 @@ async function nameIt(name) {
 }
 
 /**
- * Stand the sample's tree up beside the one row the document must keep, then
- * take that row away last.
+ * Stand the sample's tree up beside the one task group the document must keep, then
+ * take that task group away last.
  *
  * ⛔⛔ "THE PARENT VANISHES" WAS A MISREADING, AND IT IS WRITTEN DOWN HERE SO
- * NOBODY MEASURES IT AGAIN. With a row left standing, naming a newly added row
+ * NOBODY MEASURES IT AGAIN. With a task group left standing, naming a newly added task group
  * leaves `app.rows()` answering with the CHILD ALONE -- but `app.rows()` reads
  * `[data-depth]`, which is the DRAWN WINDOW and not the document. Measured: a
- * wheel-up over the panel brings every row straight back
+ * wheel-up over the panel brings every task group straight back
  * (「Quality And Release」@85, 「Whole Product」@241, 「Phase Bars」@277) and the
  * next press then lands. NOTHING IS EVER LOST.
  * ⚠️ What IS real is that the view parks below the content after that write, so
- * the panel builds DOM for a row whose ancestors are above its top edge. ⭐ It
+ * the panel builds DOM for a task group whose ancestors are above its top edge. ⭐ It
  * reproduces with the T-050 invariant REVERTED (rebuilt from HEAD and measured),
  * so it predates that work and belongs in its own ledger row -- it needs a tall
- * leftover row and is invisible once `emptyTheApp` reaches its stop.
+ * leftover task group and is invisible once `emptyTheApp` reaches its stop.
  *
  * ⚠️ THE LEFTOVER IS MATCHED BY THE WORD ON SCREEN, which FR-085 may have cut
  * with a `…`. That is what `pressRow` compares against, so a cut name still
  * resolves -- but it is why the name is read here rather than assumed.
  */
-async function theOnlyRowsName() {
+async function theOnlyTaskGroupsName() {
   const drawn = await app.rows()
   return drawn.length === 0 ? null : drawn[0].split(':').slice(1).join(':')
 }
 
-/** Scroll the Row Title Panel back to its top, the way a reader's wheel does. */
-async function wheelUpOverRows() {
+/** Scroll the Task Group Panel back to its top, the way a reader's wheel does. */
+async function wheelUpOverTaskGroups() {
   const at = await app.tab.evaluate(() => {
-    const box = document.querySelector('[data-role="Row Title Panel"]')?.getBoundingClientRect()
+    const box = document.querySelector('[data-role="Task Group Panel"]')?.getBoundingClientRect()
     return box === undefined ? null : { x: box.x + box.width / 2, y: box.y + box.height / 2 }
   })
   if (at === null) return
@@ -169,11 +169,11 @@ async function wheelUpOverRows() {
 
 async function buildTheBoard() {
   await emptyTheApp()
-  const leftover = await theOnlyRowsName()
-  // ⛔ EVERY PRESS IS CHECKED. A row below the fold is not in the tree (HF-9),
+  const leftover = await theOnlyTaskGroupsName()
+  // ⛔ EVERY PRESS IS CHECKED. A task group below the fold is not in the tree (HF-9),
   // so `pressRow` can find nothing and return quietly -- and the next `nameIt`
   // would then type into whatever field happened to be open, which is how two
-  // rows landed under the wrong parent on the first run.
+  // task groups landed under the wrong parent on the first run.
   const pressAdd = (parent) => (parent === null
     ? app.pressHead('addRoot')
     : app.pressRow(parent, 'add'))
@@ -181,9 +181,9 @@ async function buildTheBoard() {
     for (const [name, grandKids] of kids) {
       let done = await pressAdd(parent)
       // The view can park below the content after a write (the note above
-      // theOnlyRowsName); a wheel-up over the panel brings the parent back.
+      // theOnlyTaskGroupsName); a wheel-up over the panel brings the parent back.
       if (done === false) {
-        await wheelUpOverRows()
+        await wheelUpOverTaskGroups()
         done = await pressAdd(parent)
       }
       if (done === false) {
@@ -196,12 +196,12 @@ async function buildTheBoard() {
   }
   await stand(null, SAMPLE_TREE)
 
-  // ⭐ NOW the leftover can go: the document holds the sample's rows, so taking
+  // ⭐ NOW the leftover can go: the document holds the sample's task groups, so taking
   // it away cannot drive the count to zero and cannot raise the invariant again.
   if (leftover !== null) {
     const gone = await app.pressRow(leftover, 'del')
     if (gone === false) {
-      throw new Error(`could not delete the leftover row ${JSON.stringify(leftover)} `
+      throw new Error(`could not delete the leftover task group ${JSON.stringify(leftover)} `
         + `-- drawn: ${JSON.stringify(await app.rows())}`)
     }
     const asked = await app.tab.$('[data-confirmation-answer="proceed"]')
@@ -238,13 +238,13 @@ const SCRIPT = [
   ['row', 'Back Office', 'foldAll'],
   ['row', 'Back Office', 'openOne'],
   // ⭐ PINNING, WHICH THE FOLD FAMILY ABOVE NEVER TOUCHES. FR-098 lifts a
-  // pinned row out of the scrolling flow to the top, so every reading below
+  // pinned task group out of the scrolling flow to the top, so every reading below
   // moves: `rows` because the order changes, `pinned` because the set does.
   // ⛔ The sample lifts only while its `pinTop` box is ticked, and it is
   // ticked by default -- do not untick it, or the two stop being comparable.
   ['row', 'Back Office', 'pin'],
   ['row', 'Mobile Client', 'pin'],
-  // ⭐ A PINNED ROW MUST SURVIVE THE FOLD FAMILY (FR-098: only a folded or a
+  // ⭐ A PINNED TASK GROUP MUST SURVIVE THE FOLD FAMILY (FR-098: only a folded or a
   // hidden ancestor may stop it being drawn).
   ['head', 'headFoldAll'],
   ['head', 'headOpenAll'],
@@ -257,15 +257,15 @@ const SCRIPT = [
   // ABOVE NEVER DO. 25/25 agreeing is not "there is nothing left to find" --
   // it is "there is nothing left being asked". Measured over the board this
   // file builds, the twenty-five never once:
-  //   - pressed anything on a row at the DEEPEST tier the sample seeds (`L3`:
+  //   - pressed anything on a task group at the DEEPEST tier the sample seeds (`L3`:
   //     `Phone Sign In`, `Phone Home Screen`),
   //   - pressed an entrance the two sides draw FAINT, so nothing checked that a
   //     spent press changes nothing on either side (FR-029 MUST NOT lets the
   //     press through so the reason can be told -- it does not let it act),
   //   - held more than TWO pins at once, or took the MIDDLE one off,
-  //   - folded a PINNED row's own parent, which is the one thing FR-098 allows
-  //     to stop a pinned row being drawn,
-  //   - hid a pinned row with `hideSelf`.
+  //   - folded a PINNED task group's own parent, which is the one thing FR-098 allows
+  //     to stop a pinned task group being drawn,
+  //   - hid a pinned task group with `hideSelf`.
   //
   // ⛔ THE FIRST OF THEM IS A NORMALISER, NOT A QUESTION. The twenty-five above
   // leave the board in a state this file does not spell out anywhere, and a
@@ -284,14 +284,14 @@ const SCRIPT = [
   // ⭐ THE DEEPEST TIER THE SAMPLE SEEDS, PINNED. Every pin above was on `L1`.
   ['row', 'Phone Sign In', 'pin'],
   // ⭐ FR-098's ONE EXCEPTION, PRESSED. 「畳まれた祖先・隠された祖先だけが、
-  // ピン止めした行を描かせないでよい」 -- so folding `Phone App` must take its
+  // ピン止めしたタスクグループを描かせないでよい」 -- so folding `Phone App` must take its
   // pinned child off the board even though the pin is still on, and opening one
   // tier again must bring it back still pinned.
   ['row', 'Phone App', 'foldAll'],
   ['row', 'Phone App', 'openOne'],
 
   // ⭐ THREE PINS, IN THREE DIFFERENT SUBTREES AND AT THREE DIFFERENT TIERS.
-  // FR-098 (MUST NOT) 「ピン止めした行どうしに優劣を設けてはならない —— 固定した
+  // FR-098 (MUST NOT) 「ピン止めしたタスクグループどうしに優劣を設けてはならない —— 固定した
   // 順に上から並べる」, and with two pins a tree-ordered stack and a
   // fixing-ordered stack can agree by accident. With three they cannot.
   ['row', 'Billing', 'pin'],
@@ -302,7 +302,7 @@ const SCRIPT = [
   ['head', 'headOne'],
   ['head', 'headOpenAll'],
 
-  // ⭐ A PINNED ROW HIDDEN BY ITS OWN ENTRANCE, AND BROUGHT BACK BY ITS PARENT.
+  // ⭐ A PINNED TASK GROUP HIDDEN BY ITS OWN ENTRANCE, AND BROUGHT BACK BY ITS PARENT.
   ['row', 'Billing', 'hideSelf'],
   ['row', 'Back Office', 'openOne'],
 
@@ -318,13 +318,13 @@ const SCRIPT = [
   // spent, and this presses it again. ⛔ The board must not move.
   ['row', 'Back Office', 'openOne'],
 
-  // ⭐ FR-098's OTHER EXCEPTION: A HIDDEN ANCESTOR, NOT A FOLDED ONE. The row is
+  // ⭐ FR-098's OTHER EXCEPTION: A HIDDEN ANCESTOR, NOT A FOLDED ONE. The task group is
   // pinned at `L3` and its parent is taken away by that parent's OWN entrance
   // (`hideSelf`, IC-59), which is a different press from folding the parent's
   // children -- and the requirement names both.
   ['row', 'Phone Sign In', 'pin'],
   ['row', 'Phone App', 'hideSelf'],
-  // ⛔ `openAll` AND NOT `openOne`, AND THE DIFFERENCE WAS MEASURED. A row's
+  // ⛔ `openAll` AND NOT `openOne`, AND THE DIFFERENCE WAS MEASURED. A task group's
   // open-one entrance brings back its DIRECT children only; `Phone Sign In` is a
   // grandchild of `Mobile Client`, so after `openOne` it is still away -- BOTH
   // SIDES AGREED ON THAT (measured: 「could not be pressed (sample:
@@ -334,7 +334,7 @@ const SCRIPT = [
   ['row', 'Mobile Client', 'openAll'],
   ['row', 'Phone Sign In', 'pin'],
 
-  // ⭐ A ROW WITH NO CHILDREN AT ALL. `Tablet App` is a leaf, so both its
+  // ⭐ A TASK GROUP WITH NO CHILDREN AT ALL. `Tablet App` is a leaf, so both its
   // fold-all and its open-all are drawn spent on both sides. The twenty-five
   // pressed neither on a leaf.
   ['row', 'Tablet App', 'foldAll'],
@@ -349,28 +349,28 @@ const SCRIPT = [
   // ⭐ TWENTY-FIVE MORE MOVES, AND WHAT THE FIFTY ABOVE NEVER ASKED.
   // 50/50 agreeing is again not "there is nothing left to find" -- it is
   // "there is nothing left being asked". ⭐ MEASURED OVER THIS BOARD, not
-  // guessed: the eleven rows the sample seeds and the five acts a row carries
+  // guessed: the eleven task groups the sample seeds and the five acts a task group carries
   // make 55 cells, and the fifty above press 20 of them. THIRTY-FIVE ARE
-  // NEVER PRESSED, and THREE ROWS ARE NEVER TOUCHED AT ALL --
+  // NEVER PRESSED, and THREE TASK GROUPS ARE NEVER TOUCHED AT ALL --
   // 「Phase Gates」, 「Phone Home Screen」, 「Reporting」.
   //   - the deepest tier (`L3`) receives only `openOne` and `pin`; its
   //     `hideSelf`, `foldAll` and `openAll` are never pressed,
   //   - 「Whole Product」, the FIRST root, never receives one press of the fold
   //     family -- only `hideSelf` and `pin`,
-  //   - no parent ever has EVERY child away at once, so nothing asks what a row
+  //   - no parent ever has EVERY child away at once, so nothing asks what a task group
   //     holding nothing draws,
   //   - folding and hiding are never combined on the same subtree, though
-  //     `HR-6` (MUST) makes hiding do both: 「あわせて、その行と、その配下を
+  //     `HR-6` (MUST) makes hiding do both: 「あわせて、そのタスクグループと、その配下を
   //     畳んだ状態にすること」,
-  //   - a pinned row and a pinned ANCESTOR of it never stand together, so the
+  //   - a pinned task group and a pinned ANCESTOR of it never stand together, so the
   //     pinned stack is never asked to hold a parent and its own child,
-  //   - a pinned row is never folded BY ITS OWN entrance, so a count is never
-  //     read off a row while it is lifted out of the flow,
+  //   - a pinned task group is never folded BY ITS OWN entrance, so a count is never
+  //     read off a task group while it is lifted out of the flow,
   //   - the head's own entrances are never pressed twice running except
   //     `headOne`, so a SPENT HEAD entrance is never pressed at all -- every
-  //     spent press above is on a row.
+  //     spent press above is on a task group.
   //
-  // ⛔ THE PIN CAP IS DELIBERATELY NOT REACHED. `S-127` (`pinnedRowMax`) stands
+  // ⛔ THE PIN CAP IS DELIBERATELY NOT REACHED. `S-127` (`pinnedTaskGroupMax`) stands
   // at 5 and FR-098 (MUST) has GRS refuse the sixth and tell the reader; the
   // sample has no cap and would simply take it. That is a difference the
   // SPECIFICATION wins, but it is not a difference this file can express -- a
@@ -389,39 +389,39 @@ const SCRIPT = [
   ['head', 'headFoldAll'],
   ['head', 'headOpenAll'],
 
-  // ⭐ EVERY CHILD OF ONE PARENT TAKEN AWAY. 「Reporting」 is a row the fifty
-  // never touch, and with 「Billing」 already away 「Back Office」 becomes a row
+  // ⭐ EVERY CHILD OF ONE PARENT TAKEN AWAY. 「Reporting」 is a task group the fifty
+  // never touch, and with 「Billing」 already away 「Back Office」 becomes a task group
   // holding nothing -- which is what its count and its arming are then asked.
   ['row', 'Billing', 'hideSelf'],
   ['row', 'Reporting', 'hideSelf'],
-  // ⭐ FOLDING A PARENT WHOSE CHILDREN ARE ALREADY HIDDEN. The two ways a row
+  // ⭐ FOLDING A PARENT WHOSE CHILDREN ARE ALREADY HIDDEN. The two ways a task group
   // can be away are never combined above. `HR-6` already folded each child as
   // it was hidden, so this asks what folding the parent adds on top.
   ['row', 'Back Office', 'foldAll'],
   // ⭐ AND OPEN-ALL OVER BOTH. `HR-6` names the parent's OPEN-ONE (`HR-7`) as
-  // what brings a hidden row back; whether open-all does it too is a question
+  // what brings a hidden task group back; whether open-all does it too is a question
   // neither side has been asked. ⛔ Back Office's open-all is one of the 35
   // cells never pressed.
   ['row', 'Back Office', 'openAll'],
 
-  // ⭐ HIDE-SELF AT THE DEEPEST TIER, on a row the fifty never touch. `L3`
+  // ⭐ HIDE-SELF AT THE DEEPEST TIER, on a task group the fifty never touch. `L3`
   // above receives only `openOne` and `pin`.
   ['row', 'Phone Home Screen', 'hideSelf'],
   // ⭐ OPEN-ALL ON A PARENT WITH A HIDDEN CHILD -- another never-pressed cell,
   // and the same question as `Back Office` asked one tier deeper.
   ['row', 'Phone App', 'openAll'],
 
-  // ⭐ A PINNED ROW AND A PINNED ANCESTOR OF IT, STANDING TOGETHER. Every pin
-  // above sits in a subtree of its own. FR-098 (MUST NOT) 「同じ行を本来の縦
+  // ⭐ A PINNED TASK GROUP AND A PINNED ANCESTOR OF IT, STANDING TOGETHER. Every pin
+  // above sits in a subtree of its own. FR-098 (MUST NOT) 「同じタスクグループを本来の縦
   // 位置にも描いてはならない」 and stacks the pinned in the order they were
   // fixed -- with a parent and its own child both lifted, a stack that quietly
   // keeps tree order and one that keeps fixing order cannot read alike.
   ['row', 'Phone App', 'pin'],
   ['row', 'Phone Sign In', 'pin'],
   // ⭐ FR-098's FOLDED-ANCESTOR EXCEPTION WHERE THE ANCESTOR IS ITSELF PINNED.
-  // 「ピン止めした行が描かれないのは、人が畳んだ行の配下にあるとき（表 T-015
-  // の `HR-1a`）と、隠した行の配下にあるとき（同表の `HR-6`）に限ること
-  // （MUST）」 -- above, the folded ancestor was an ordinary row. Here it is
+  // 「ピン止めしたタスクグループが描かれないのは、人が畳んだタスクグループの配下にあるとき（表 T-015
+  // の `HR-1a`）と、隠したタスクグループの配下にあるとき（同表の `HR-6`）に限ること
+  // （MUST）」 -- above, the folded ancestor was an ordinary task group. Here it is
   // itself lifted out of the flow, so the child is under a parent that is no
   // longer in the place it was folded in.
   ['row', 'Phone App', 'foldAll'],
@@ -429,7 +429,7 @@ const SCRIPT = [
 
   // ⭐ FOUR PINS, AT TWO TIERS, WITH A PARENT-CHILD PAIR AMONG THEM. Three was
   // the most the fifty held, and those three shared no ancestry.
-  // 「Phase Gates」 is a row the fifty never touch; 「Tablet App」's pin is one
+  // 「Phase Gates」 is a task group the fifty never touch; 「Tablet App」's pin is one
   // of the 35 cells never pressed.
   ['row', 'Phase Gates', 'pin'],
   ['row', 'Tablet App', 'pin'],
@@ -439,7 +439,7 @@ const SCRIPT = [
   ['head', 'headOpenAll'],
   // ⭐ THE FIRST-FIXED PIN COMES OFF. The block above took the MIDDLE one off;
   // taking the HEAD of the stack off asks whether the rest keep the order they
-  // were fixed in, or quietly re-stack. ⛔ It also leaves a pinned row whose
+  // were fixed in, or quietly re-stack. ⛔ It also leaves a pinned task group whose
   // pinned ancestor has just stopped being pinned.
   ['row', 'Phone App', 'pin'],
 
@@ -449,8 +449,8 @@ const SCRIPT = [
   ['row', 'Whole Product', 'foldAll'],
   ['row', 'Whole Product', 'openOne'],
 
-  // ⭐ A PINNED ROW FOLDED BY ITS OWN ENTRANCE. Pins and a row's own fold are
-  // never combined on one row above, so no count has ever been read off a row
+  // ⭐ A PINNED TASK GROUP FOLDED BY ITS OWN ENTRANCE. Pins and a task group's own fold are
+  // never combined on one task group above, so no count has ever been read off a task group
   // while FR-098 holds it out of the scrolling flow.
   ['row', 'Mobile Client', 'pin'],
   ['row', 'Mobile Client', 'foldAll'],
@@ -472,18 +472,18 @@ const say = (step) => step[0] === 'head' ? `head:${step[1]}` : `${step[1]}:${ste
  * ⭐ Measured: pinning `Back Office` then `Mobile Client` gives
  *    the sample ["Mobile Client","Back Office"] -- its document order
  *    GRS        ["Back Office","Mobile Client"] -- the order they were fixed
- * FR-098 (MUST NOT) 「ピン止めした行どうしに優劣を設けてはならない —— 固定した
+ * FR-098 (MUST NOT) 「ピン止めしたタスクグループどうしに優劣を設けてはならない —— 固定した
  * 順に上から並べる」, so GRS is right and the sample keeps tree order.
  * `S-126` is an array for exactly this reason.
  */
 const KNOWN_DIVERGENCES = [
   {
     reading: 'rows  ',
-    why: 'FR-098: pinned rows stack in the order they were fixed, not tree order',
+    why: 'FR-098: pinned task groups stack in the order they were fixed, not tree order',
   },
   {
     reading: 'pinned',
-    why: 'FR-098: pinned rows stack in the order they were fixed, not tree order',
+    why: 'FR-098: pinned task groups stack in the order they were fixed, not tree order',
   },
   // ⭐ AN ENTRANCE ONLY GRS HAS, NAMED ONE BY ONE (DFC-1006, JDG-672). An entry
   // with `onlyInGrs` excuses exactly the items that start with it and nothing
@@ -491,7 +491,7 @@ const KNOWN_DIVERGENCES = [
   {
     reading: 'arming',
     onlyInGrs: 'head:IC-106=',
-    why: 'HF-20: the head of the Row Title Panel holds an entrance that deletes every row (IC-106); '
+    why: 'HF-20: the head of the Task Group Panel holds an entrance that deletes every task group (IC-106); '
       + 'the sample has no such entrance, so GRS alone draws it',
   },
 ]
@@ -551,7 +551,7 @@ const whyKnown = (what) =>
  *   DFC-147  the watermark entrance was inert -- `ENTRY` had no key for IC-41, so
  *          the press reached every member and changed nothing. FR-020 now
  *          raises U-60 `Watermark Unlock` and the press writes the setting.
- *   DFC-181  never a defect. The row bands do not move; two LANES inside one band
+ *   DFC-181  never a defect. The task group bands do not move; two LANES inside one band
  *          trade, which is table T-014's ST-2 ordering and ST-3's greedy pass
  *          doing what they say, and Ctrl+Y reproduces the trade with no pointer
  *          in it -- so it belongs to the document, not to holding the grab.
@@ -718,7 +718,7 @@ async function run() {
 
   // ⛔⛔ THE PANEL IS WIDENED BEFORE ONE NAME IS READ, AND IT IS NOT A
   // CONVENIENCE. FR-085 (MUST) cuts a name that does not fit the width the
-  // `Row Title Panel` leaves it, and since CR-336 the formula subtracts the
+  // `Task Group Panel` leaves it, and since CR-336 the formula subtracts the
   // grab strip and its gap as well, so at this window 「Phone Home Screen」 at
   // depth 2 is drawn 「Phone Home Sc…」. ⭐ FR-085's own last clause says what
   // to do about it -- 「全文を見たい者はパネルを広げる（`FR-052`）」 -- and
@@ -730,9 +730,9 @@ async function run() {
   // different name must never read alike, because telling them apart is the
   // only thing this gate does.
   if ((await app.showWholeNames()) !== true) {
-    console.log('⛔ THE ROW NAMES ARE STILL BEING CUT AFTER WIDENING THE PANEL '
+    console.log('⛔ THE TASK GROUP NAMES ARE STILL BEING CUT AFTER WIDENING THE PANEL '
       + '-- nothing after this is comparable')
-    console.log('   still cut:', JSON.stringify(await app.cutRows()))
+    console.log('   still cut:', JSON.stringify(await app.cutTaskGroups()))
     return 1
   }
 
@@ -770,21 +770,21 @@ async function run() {
         + `(sample: ${landed[0]}, GRS: ${landed[1]})`)
       continue
     }
-    // ⭐ THREE READINGS, NOT ONE. The drawn rows say what happened; the counts
-    // say what each row is holding away (HF-18); the arming says which
+    // ⭐ THREE READINGS, NOT ONE. The drawn task groups say what happened; the counts
+    // say what each task group is holding away (HF-18); the arming says which
     // entrances FR-029 spends. A build could match on any one and differ on
     // the others.
     // ⛔ THE ARMING IS COMPARED AS A SET. The two draw their entrances in
-    // different orders inside a row -- the sample by its own print order, GRS by
+    // different orders inside a task group -- the sample by its own print order, GRS by
     // HF-4's right-to-left placement -- and the ORDER is HF-4's business, not
-    // this comparison's. ⭐ The rows and the counts ARE compared in order,
-    // because the order rows stand in is exactly what the fold family decides.
+    // this comparison's. ⭐ The task groups and the counts ARE compared in order,
+    // because the order task groups stand in is exactly what the fold family decides.
     const sorted = (list) => [...list].sort()
     const readings = [
       ['rows  ', await sample.rows(), await app.rows()],
       ['counts', sorted(await sample.counts()), sorted(await app.counts())],
       ['arming', sorted(await sample.faint()), sorted(await app.faint())],
-      // ⭐ COMPARED IN ORDER. FR-098 says pinned rows are stacked in the order
+      // ⭐ COMPARED IN ORDER. FR-098 says pinned task groups are stacked in the order
       // they were fixed, so the order IS the rule being checked.
       ['pinned', await sample.pinned(), await app.pinned()],
     ]
@@ -823,7 +823,7 @@ async function run() {
     // ⛔⛔ AND IT SHOWS ITS WORKING. `isKnown` excuses a reading on ONE test --
     // the two hold the same items in a different ORDER -- and says nothing
     // about WHICH order either side took. That is blunt enough to swallow a
-    // real find: the moves that stand a pinned row beside its own pinned
+    // real find: the moves that stand a pinned task group beside its own pinned
     // ANCESTOR are order questions too, and an excuse that prints only its
     // reason would wave them through unread. ⭐ So both orders are printed
     // every run, and a reader can see that GRS's IS the order they were fixed.
@@ -852,7 +852,7 @@ async function run() {
     for (const [what, onlySample, onlyApp, left, right] of wrong) {
       // ⛔⛔ AN EMPTY PAIR OF "only in" LISTS IS NOT "NO DIFFERENCE". It means
       // the two hold the SAME items in a DIFFERENT ORDER, and for `rows` and
-      // `pinned` the order IS the rule -- FR-098 stacks pinned rows in the
+      // `pinned` the order IS the rule -- FR-098 stacks pinned task groups in the
       // order they were fixed. ⭐ Measured: without this, two real order
       // divergences printed as ⛔ with four empty lists and said nothing.
       if (onlySample.length === 0 && onlyApp.length === 0) {

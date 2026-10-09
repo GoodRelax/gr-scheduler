@@ -29,8 +29,8 @@ import { confirmationFromSession, dismissKeyOf, noticesFromSession } from './not
 export { dismissKeyOf }
 
 // see HF-14
-// WHY: the en cell, not the display language; the row label is document data (FR-038).
-const DEFAULT_TASK_GROUP_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'row')
+// WHY: the en cell, not the display language; the task group label is document data (FR-038).
+const DEFAULT_TASK_GROUP_NAME_ENTRY = displayWords.defaultNames.find((one) => one.use === 'taskGroup')
 export const DEFAULT_TASK_GROUP_NAME: string =
   DEFAULT_TASK_GROUP_NAME_ENTRY === undefined ? '' : DEFAULT_TASK_GROUP_NAME_ENTRY.text.en
 
@@ -768,7 +768,7 @@ export function screenViewFromRegions(
       settings,
       selection,
       readings,
-      // TRAP: never omit schedule, or the palette counts tasks no row draws.
+      // TRAP: never omit schedule, or the palette counts tasks no task group draws.
       schedule,
     ),
     ...openModalPlaced(session, schedule, readings, settings),

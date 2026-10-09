@@ -1,4 +1,4 @@
-// ScheduleLayout -- how deep the drawn rows go at the vertical zoom (table T-005a, L-3).
+// ScheduleLayout -- how deep the drawn task groups go at the vertical zoom (table T-005a, L-3).
 // @unit      UF-139  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -16,7 +16,7 @@ const OPENING_TREE_STATES: Readonly<
 }
 
 // see FR-018, T-329, AT-153
-// WHY: read over rows TD-1 to TD-3 let through, so an opened row never beats HF-7 or HR-6.
+// WHY: read over rows TD-1 to TD-3 let through, so an opened task group never beats HF-7 or HR-6.
 /** @purity pure */
 export function keptInViewByTreeState(
   unfoldedTaskGroups: readonly TaskGroup[],

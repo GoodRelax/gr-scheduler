@@ -1,4 +1,4 @@
-// DocumentCodec, MSPDI half -- builds the rows and memberships from the WBS tree of the imported tasks.
+// DocumentCodec, MSPDI half -- builds the task groups and memberships from the WBS tree of the imported tasks.
 // @unit      UF-156  (docs/spec/05-07-design.md, table T-075)
 // @component DocumentCodec, layer Adapter (table T-062)
 // @purity    pure

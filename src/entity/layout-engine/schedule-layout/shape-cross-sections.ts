@@ -22,7 +22,7 @@ export function shapeHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): nu
 }
 
 // see OC-10, XS-4
-// TRAP: the tier is the font size, never S-233; that ratio moves every stacked row.
+// TRAP: the tier is the font size, never S-233; that ratio moves every stacked task group.
 /** @purity pure */
 export function labelLiftOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
   if (!laidBelow(shapeKind)) return 0

@@ -350,7 +350,7 @@ function derivedParentsOf(tasks: readonly Task[], byUid: ReadonlyMap<number, Tas
   for (const task of tasks) {
     const depth = taskGroupDepthOf.get(task.uid)
     if (statedParentUidOf(task, byUid) !== null || depth === undefined) continue
-    // WHY: a task on a top row has no row above it, so no parent is derived (PND-605, JDG-823).
+    // WHY: a task on a top task group has no task group above it, so no parent is derived (PND-605, JDG-823).
     if (depth === 0) continue
     const candidates = (tasksAtDepth.get(depth - 1) ?? [])
       .filter((bar) => encloses(bar, task))

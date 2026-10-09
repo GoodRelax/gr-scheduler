@@ -144,7 +144,7 @@ function anchorRefusals(command: string, document: Document, anchor: AnnotationA
     found.push(reject(command, 'AT-113', `the anchored day is not a date: ${anchor.date}`))
   }
   if (!hasGroup(document, anchor.groupId)) {
-    found.push(reject(command, 'IV-2', `the document holds no row with id ${anchor.groupId} (RL-18)`))
+    found.push(reject(command, 'IV-2', `the document holds no task group with id ${anchor.groupId} (RL-18)`))
   }
   return found
 }
@@ -159,10 +159,10 @@ function rangeRefusals(command: string, document: Document, range: HighlightRang
     found.push(reject(command, 'AT-118', `the right edge is not a date: ${range.endDate}`))
   }
   if (!hasGroup(document, range.topGroupId)) {
-    found.push(reject(command, 'IV-2', `the document holds no row with id ${range.topGroupId} (RL-19)`))
+    found.push(reject(command, 'IV-2', `the document holds no task group with id ${range.topGroupId} (RL-19)`))
   }
   if (!hasGroup(document, range.bottomGroupId)) {
-    found.push(reject(command, 'IV-2', `the document holds no row with id ${range.bottomGroupId} (RL-20)`))
+    found.push(reject(command, 'IV-2', `the document holds no task group with id ${range.bottomGroupId} (RL-20)`))
   }
   return found
 }

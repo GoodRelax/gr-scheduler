@@ -122,9 +122,9 @@ RETIRED = {'FR-050', 'T-030',
            # true of the day they were written, so the seat stays burnt like
            # every other retirement here.
            'S-93',
-           # U-29 (the hidden-group tab) went with CR-320, when the row
+           # U-29 (the hidden-group tab) went with CR-320, when the task group
            # controls were matched to the approved sample. It was the only
-           # entrance that brought a hidden row back, and HR-6 (hide this row)
+           # entrance that brought a hidden task group back, and HR-6 (hide this task group)
            # now gets its way back from the parent's 1 階層開く -- HR-7, reached
            # through HF-13 -- which left U-29 with no reader at all. Appendix 1.74
            # says so in as many words: 「U-29（非表示グループタブ）を廃止した」.
@@ -265,7 +265,7 @@ RETIRED = {'FR-050', 'T-030',
            # key row of table T-104) left with it. rulings.md (JDG-399) and the
            # change requests still name them, and the seats stay burnt.
            'L-2', 'S-86', 'DS-2', 'K-55',
-           # CR-570 (2026-09-26, ruling JDG-596): a row's three booleans --
+           # CR-570 (2026-09-26, ruling JDG-596): a task group's three booleans --
            # AT-56 isCollapsed, AT-57 isHidden, AT-142 isKeptOpen -- became one
            # column of five values, AT-153 treeState. Table T-254 (KO-1 .. KO-7,
            # the entrances that set and cleared the kept-open mark) left with

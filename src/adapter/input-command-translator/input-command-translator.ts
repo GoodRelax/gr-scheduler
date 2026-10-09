@@ -134,21 +134,21 @@ export interface PointerPress {
   readonly on: ScreenPart | null
   readonly pressRow: PressRow
   readonly followedTo?: { readonly x: number; readonly y: number }
-  // TRAP: never default an absent axis to 'position'; a still click would stop choosing the row.
+  // TRAP: never default an absent axis to 'position'; a still click would stop choosing the task group.
   readonly taskGroupGrabAxis?: TaskGroupGrabAxis | null
   // see FR-052
   // TRAP: the width DRAWN when the press began, taken then: the context's regions follow the held
   // picture, so reading them at release counts the travel twice.
   readonly propertyPanelWidthAtPress?: number
   // see CY-6
-  // TRAP: the rows DRAWN when the press began: a held copy drag draws its copies stacked into the source rows,
-  // so rows read at release are taller and a release one row down lands in the source row.
-  readonly layoutRowsAtPress?: ScheduleLayout['rows']
+  // TRAP: the task groups DRAWN when the press began: a held copy drag draws its copies stacked into the source task groups,
+  // so task groups read at release are taller and a release one task group down lands in the source task group.
+  readonly layoutRowsAtPress?: ScheduleLayout['taskGroups']
   // see GR-21, FR-051
   // TRAP: the whole the horizontal bar measures against, taken at the press: measured again during the
   // drag, a view past the content's edge shrinks it and the grip falls behind the pointer.
   readonly horizontalWholeAtPress?: HorizontalWhole
-  // TRAP: the vertical twin, held for the same reason: the last row scrolled to the top runs the view
+  // TRAP: the vertical twin, held for the same reason: the last task group scrolled to the top runs the view
   // past the content.
   readonly verticalWholeAtPress?: VerticalWhole
 }
@@ -228,7 +228,7 @@ export type SpentEntranceSituation =
 
 export type CreatedSubject =
   | { readonly kind: 'task'; readonly uid: number }
-  | { readonly kind: 'row'; readonly groupId: string }
+  | { readonly kind: 'taskGroup'; readonly groupId: string }
 
 export type InputAction =
   | {
@@ -888,7 +888,7 @@ export function commandFromInput(input: HumanInput, context: InputContext): Tran
 }
 
 // see T-019, T-019a
-// TRAP: write back the row the Task already stands at; choosing one lets an end drag finish it.
+// TRAP: write back the task group the Task already stands at; choosing one lets an end drag finish it.
 /** @purity pure */
 export function placementAt(task: Task): PlacedPlanActual | null {
   const actualStart = task.actualStart
@@ -940,7 +940,7 @@ function commandFromPointer(input: PointerInput, context: InputContext): Transla
 
 // see PE-0
 // WHY: the press point alone is not enough; a gesture that began on the chart keeps the browser
-// off for the whole drag, or the text under the pointer is taken once it leaves the row area.
+// off for the whole drag, or the text under the pointer is taken once it leaves the task group area.
 /** @purity pure */
 function isOnTheChart(context: InputContext, input: PointerInput): boolean {
   const press = context.pressed
@@ -1188,7 +1188,7 @@ function commandFromEntry(
       return commandFromRowExpanderOpenAll(context)
     case ENTRY.alignStart:
     case ENTRY.alignFinish:
-      // TRAP: count chosen Tasks among drawn rows (a fold hides one without changing Selection),
+      // TRAP: count chosen Tasks among drawn task groups (a fold hides one without changing Selection),
       // and read Selection, not the drawn palette, which can be a skipped paint old.
       if (context.selection.ordered && chosenDrawnTaskCount(context) >= 2) {
         return changed(alignWrites(context, entry === ENTRY.alignStart))
@@ -1284,14 +1284,14 @@ export function boxById<Box extends { readonly id: string }>(boxes: readonly Box
 }
 
 // see HB-3, GA-9
-// TRAP: sort by y, not layout order: FR-098 lifts pinned rows, so layout order is not what is drawn.
+// TRAP: sort by y, not layout order: FR-098 lifts pinned task groups, so layout order is not what is drawn.
 /** @purity pure */
 export function drawnTaskGroupsOf(layout: ScheduleLayout): readonly TaskGroupPlacement[] {
   return [...layout.taskGroups].sort((a, b) => a.y - b.y)
 }
 
 // see HB-3
-// WHY: counts the row tops crossed, so a press on a box's edge and one inside the row move by the same rows.
+// WHY: counts the task group tops crossed, so a press on a box's edge and one inside the task group move by the same task groups.
 /** @purity pure */
 export function drawnTaskGroupsCrossed(taskGroups: readonly TaskGroupPlacement[], fromY: number, toY: number): number {
   const topsAtOrAbove = (y: number): number => taskGroups.filter((taskGroup) => taskGroup.y <= y).length

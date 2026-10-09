@@ -1,4 +1,4 @@
-// ScheduleLayout -- the vertical scroll: unpinned rows and tasks move by the view place (OP-10a).
+// ScheduleLayout -- the vertical scroll: unpinned task groups and tasks move by the view place (OP-10a).
 // @unit      UF-142  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure

@@ -1,4 +1,4 @@
-// SvgRenderer -- the chart's grid: row bands and rules, date rules and the ruler band.
+// SvgRenderer -- the chart's grid: task group bands and rules, date rules and the ruler band.
 // @unit      UF-82   (docs/spec/05-07-design.md, table T-075)
 // @component SvgRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -314,7 +314,7 @@ export function gridParts(input: GridInput): GridParts {
     const bottom = Math.min(taskGroup.y + taskGroup.height, areaBottom)
     if (bottom <= top) continue
     const band = chosen(colourOfGroup.get(taskGroup.groupId) ?? null, 'band') ?? themed(bandTaskGroupOf(taskGroup.depth, position))
-    const taskGroupKey = `row-${taskGroup.groupId}`
+    const taskGroupKey = `task-group-${taskGroup.groupId}`
     bandParts.push(
       `<rect x="${rounded(area.x)}" y="${rounded(top)}"` +
         ` width="${rounded(bandWidthOf(input))}" height="${rounded(bottom - top)}"` +

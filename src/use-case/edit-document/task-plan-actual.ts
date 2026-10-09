@@ -133,7 +133,7 @@ function unstartedCopyOf(task: Task): Task {
 }
 
 // see CM-8, CM-28, DU-1, EX-12
-// WHY: the one rule for a copy on both pastes (Task and row): unstarted, and its dates read as edited.
+// WHY: the one rule for a copy on both pastes (Task and task group): unstarted, and its dates read as edited.
 /** @purity pure */
 export function pastedCopyOf(task: Task, schedule: Schedule, within: WorkingCalendar): Task {
   return planDatesEdited(unstartedCopyOf(task), schedule, within)

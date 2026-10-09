@@ -244,7 +244,7 @@ function mayStopAtStackCap(schedule: Schedule, drawn: DrawnSettings): boolean {
 }
 
 // see FR-016, FR-018
-// TRAP: void when ST-7 may cut the rows, or once one row's height reads another row.
+// TRAP: void when ST-7 may cut the task groups, or once one task group's height reads another task group.
 /** @purity pure */
 function deepestFloorZoomYOf(context: InputContext, measuredWith: DocumentSettings): number | null {
   const top = floorZoomYOf(measuredWith)

@@ -9,8 +9,8 @@ WHAT IT CHANGES. Only dates and progress (CR-618 decision 3): the status date,
 and the actuals of leaf tasks and their assignments -- ActualStart,
 ActualFinish, the percent columns, ActualDuration / RemainingDuration and
 ActualWork / RemainingWork -- then the rolled-up actuals of the WBS ancestors
-of every leaf it touched. It never changes the row tree, a name, a UID, a plan
-date, a link or a file name, so every test that reads a sample keeps its rows.
+of every leaf it touched. It never changes the task group tree, a name, a UID, a plan
+date, a link or a file name, so every test that reads a sample keeps its task groups.
 
 THE TREATMENT IS A TABLE PER SAMPLE (TREATMENTS below), and en and ja get the
 same table (CR-618 decision 5):

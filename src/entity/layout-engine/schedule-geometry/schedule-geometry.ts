@@ -328,7 +328,7 @@ function overlapOf(from: number, to: number, lower: number, upper: number): numb
 }
 
 // see EL-1, EL-2, FR-098, LF-14
-// WHY: an EL-2 end stands on a zero-height line, so it is never inside its row's place down.
+// WHY: an EL-2 end stands on a zero-height line, so it is never inside its task group's place down.
 /** @purity pure */
 function farEndOf(end: LinkEnd, groupId: string, undrawnTaskGroupDepth: number | null, foldedRowId: string | null,
                   reading: EndReading): FarEndGeometry {
@@ -403,8 +403,8 @@ function climbOf(own: TaskGroup, reading: EndReading): Climb | null {
 }
 
 // see EL-2, EL-10, EL-20, RT-4a, LC-1
-// WHY: a pin the band cannot hold and a row past the stack safety cap are no group LOD row; RT-4a keeps them.
-// WHY: a fold or a hide on the way up makes the end an EL-20 end, a pinned row too; it stands like an EL-2 end.
+// WHY: a pin the band cannot hold and a task group past the stack safety cap are no group LOD row; RT-4a keeps them.
+// WHY: a fold or a hide on the way up makes the end an EL-20 end, a pinned task group too; it stands like an EL-2 end.
 /** @purity pure */
 function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   const { layout, settings } = reading.inputs
@@ -422,13 +422,13 @@ function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   if (climb.taskGroup === null) return unparentedEndOf(task, own, climb, x, width, reading)
   if (!climb.isFolded && reading.pinnedIds.has(own.id)) return null
   const end = standingEndOf(task.uid, x, width, standingYOf(climb.taskGroup, reading))
-  // WHY: the own row lies step + 1 levels below the drawn ancestor it stands under.
+  // WHY: the own task group lies step + 1 levels below the drawn ancestor it stands under.
   const depth = climb.taskGroup.depth + climb.step + 1
   return { end, far: farEndOf(end, own.id, depth, climb.isFolded ? own.id : null, reading) }
 }
 
 // see EL-20, TV-3, LC-9
-// WHY: with no drawn ancestor, a folded end or a filtered end stands at the last drawn row before its own.
+// WHY: with no drawn ancestor, a folded end or a filtered end stands at the last drawn task group before its own.
 /** @purity pure */
 function unparentedEndOf(task: Task, own: TaskGroup, climb: Climb, x: number, width: number,
                          reading: EndReading): SightedEnd | null {

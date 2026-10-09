@@ -1,4 +1,4 @@
-// Schedule -- a row's name from its label or the task it derives from, and the names up to the top.
+// Schedule -- a task group's name from its label or the task it derives from, and the names up to the top.
 // @unit      UF-177  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -26,7 +26,7 @@ export function taskGroupPathOf(schedule: Schedule, groupId: string): readonly s
   const byId = new Map(schedule.taskGroups.map((taskGroup) => [taskGroup.id, taskGroup]))
   const path: string[] = []
   let taskGroup = byId.get(groupId)
-  // WHY: the climb stops after as many steps as there are rows, so a parent ring cannot hang it.
+  // WHY: the climb stops after as many steps as there are task groups, so a parent ring cannot hang it.
   while (taskGroup !== undefined && path.length <= byId.size) {
     path.push(nameOfTaskGroup(schedule, taskGroup))
     taskGroup = taskGroup.parentId === null ? undefined : byId.get(taskGroup.parentId)

@@ -1057,7 +1057,7 @@ function onlyGroupId(groupIds: readonly string[]): string | null {
 }
 
 // see FR-006, FR-042, FR-072, FR-085
-// WHY: one subject's fields only (FR-006 MUST NOT): a picked item's, else the one picked row's.
+// WHY: one subject's fields only (FR-006 MUST NOT): a picked item's, else the one picked task group's.
 /** @purity pure */
 function fieldsOfSubject(
   schedule: Schedule,
@@ -1585,12 +1585,12 @@ export function propertiesPanelFromSelection(
   }
 
   const isNothingPicked = selection.items.length === 0 && readings.selectedGroupIds.length === 0
-  // WHY: a held subject naming rows alone was a row pick (FR-072), so the items still selected stay off the panel.
+  // WHY: a held subject naming task groups alone was a task group pick (FR-072), so the items still selected stay off the panel.
   const isTaskGroupPick = content.subject.selection.items.length === 0 && content.subject.groupIds.length > 0
   const subject = isNothingPicked
     ? content.subject
     : { selection: isTaskGroupPick ? content.subject.selection : selection, groupIds: readings.selectedGroupIds }
-  // WHY: readings with no layout place no row, so the row reads as not drawn (MH-6), never as 0 px.
+  // WHY: readings with no layout place no task group, so the task group reads as not drawn (MH-6), never as 0 px.
   const placedTaskGroups = readings.placedTaskGroups ?? []
   const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language, placedTaskGroups)
   const look = {

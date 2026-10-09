@@ -777,7 +777,7 @@ function isCovering(region: Region | null, x: number, y: number): region is Regi
 }
 
 // see FR-098, S-78, HT-1
-// WHY: what a scrolling row draws is cut at the top of the area below the band, so no point in the band reaches it.
+// WHY: what a scrolling task group draws is cut at the top of the area below the band, so no point in the band reaches it.
 export type BandCut = NonNullable<ScheduleGeometry['pinnedBand']> | null
 
 /** @purity pure */

@@ -83,7 +83,7 @@ function dividersOf(regions: ScreenRegions, settings: DocumentSettings, session:
 }
 
 // see FR-051
-// WHY: on the canvas bottom edge, so canvasPadding lies between the rows and the bar, not under it.
+// WHY: on the canvas bottom edge, so canvasPadding lies between the task groups and the bar, not under it.
 /** @purity pure */
 function horizontalTrackOf(regions: ScreenRegions, thickness: number): ScreenRect {
   const canvas = regions.scheduleCanvas
@@ -161,7 +161,7 @@ export function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions
 }
 
 // see GR-21, FR-051
-// WHY: the same union as the horizontal whole: a view scrolled down to the last row runs past the content.
+// WHY: the same union as the horizontal whole: a view scrolled down to the last task group runs past the content.
 /** @purity pure */
 export function verticalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): VerticalWhole {
   const scrollTop = layout.scrollAreaY ?? regions.taskGroupArea.y
@@ -171,7 +171,7 @@ export function verticalWholeOf(layout: ScheduleLayout, regions: ScreenRegions):
   return { fromContentY0: contentY0 - top, height: bottom - top }
 }
 
-// TRAP: (FR-098) the scrolling remainder's height; the Task Group Area's would grow the grip as rows are pinned.
+// TRAP: (FR-098) the scrolling remainder's height; the Task Group Area's would grow the grip as task groups are pinned.
 /** @purity pure */
 function visibleHeightOf(layout: ScheduleLayout, regions: ScreenRegions): number {
   return Math.max(0, regions.taskGroupArea.y + regions.taskGroupArea.height - (layout.scrollAreaY ?? regions.taskGroupArea.y))

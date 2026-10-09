@@ -41,7 +41,7 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
                             root's first, then each machine's in manuscript
                             order
 
-A region that holds documentData (SD-5 of table T-250 -- the row tree, whose
+A region that holds documentData (SD-5 of table T-250 -- the task group tree, whose
 unit is src/use-case/edit-document/task-group-folding.ts) is a SAVED value of
 the document, so it gets no state unions, no root type and no initial values:
 its state type is the erd.json enum column the region names. Only <Stem>Key,

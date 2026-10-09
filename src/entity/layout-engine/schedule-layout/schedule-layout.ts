@@ -1,4 +1,4 @@
-// ScheduleLayout: public entry; places rows and tasks in one pass of table T-068, and re-exports what the siblings hold.
+// ScheduleLayout: public entry; places task groups and tasks in one pass of table T-068, and re-exports what the siblings hold.
 // @unit      UF-5   (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleLayout, layer layoutEngine (table T-062)
 // @purity    pure
@@ -385,8 +385,8 @@ function dummyReachOf(
 }
 
 // see LF-3, HF-19, FR-085
-// WHY: the task group name's box is a floor too, or a zoomed-down row loses the name that tells it apart.
-// TRAP: never add the row controls' lattice here: it floors no band (HF-19); LF-16 reserves it.
+// WHY: the task group name's box is a floor too, or a zoomed-down task group loses the name that tells it apart.
+// TRAP: never add the task group controls' lattice here: it floors no band (HF-19); LF-16 reserves it.
 // TRAP: takes the DRAWN settings; the stored ones would miss the display ratio (FR-039).
 /** @purity pure */
 function bandFloorOf(depth: number, drawn: DrawnSettings): number {
@@ -401,7 +401,7 @@ function drawnMinHeightPxOf(minHeight: number | null, drawn: DrawnSettings): num
 }
 
 // see LF-2, VG-2
-// WHY: a row with no Task still stacks one rectangle lane, or placing its first Task shifts every row below.
+// WHY: a task group with no Task still stacks one rectangle lane, or placing its first Task shifts every task group below.
 /** @purity pure */
 function packedLanesOf(laneHeights: readonly number[], emptyLane: number, laneGap: number): number {
   if (laneHeights.length === 0) return emptyLane + laneGap
@@ -409,7 +409,7 @@ function packedLanesOf(laneHeights: readonly number[], emptyLane: number, laneGa
 }
 
 // see LF-16, HF-19
-// TRAP: the pinned band gets none: LF-16 reserves only below the last scrolling row.
+// TRAP: the pinned band gets none: LF-16 reserves only below the last scrolling task group.
 /** @purity pure */
 function lastTaskGroupReserveOf(
   scrollingTaskGroups: readonly TaskGroupPlacement[],
@@ -582,7 +582,7 @@ export function layoutFromSchedule(
       if (lane < 0) {
         // STOP: spec does not decide whether ST-7 admits S-89 lanes or stops at the S-89th. Looked in ST-7, S-89
         // @provisional PND-430
-        // TRAP: break before the row is placed: a partial row leaves laneOf shorter than measured.
+        // TRAP: break before the task group is placed: a partial task group leaves laneOf shorter than measured.
         if (lanes.length >= settings.stackSafetyCap) {
           capStop = { groupId: row.id, cap: settings.stackSafetyCap }
           break

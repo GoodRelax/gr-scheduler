@@ -267,7 +267,7 @@ function shippedDocuments(): ShippedDocuments {
 }
 
 // see T-050, RD-6
-// WHY: the empty document carries no row; this replacement lands it with the one row every document holds.
+// WHY: the empty document carries no task group; this replacement lands it with the one task group every document holds.
 /** @purity non-pure */
 function holdWithItsTaskGroup(running: FrameLoop, chosen: Document, shipped: ShippedDocuments): void {
   if (chosen === shipped.startingAfresh) running.holdDocument({ row: 'RD-6', document: chosen })

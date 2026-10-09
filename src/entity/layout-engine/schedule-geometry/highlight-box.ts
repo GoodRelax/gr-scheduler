@@ -1,4 +1,4 @@
-// ScheduleGeometry -- the highlight box: its rectangle from the top and bottom rows and the two end days (FR-019).
+// ScheduleGeometry -- the highlight box: its rectangle from the top and bottom task groups and the two end days (FR-019).
 // @unit      UF-171  (docs/spec/05-07-design.md, table T-075)
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
@@ -36,7 +36,7 @@ function sideHandlesOf(width: number, height: number): HighlightGeometry['hasSid
 // see FR-019, UC-008
 interface DrawnTaskGroupsInTree {
   readonly treeIndexOf: ReadonlyMap<string, number>
-  // WHY: the drawn rows in tree order, each with its index in the whole tree (drawn or not).
+  // WHY: the drawn task groups in tree order, each with its index in the whole tree (drawn or not).
   readonly drawn: readonly { readonly taskGroup: TaskGroupPlacement; readonly at: number }[]
 }
 
@@ -53,8 +53,8 @@ function drawnTaskGroupsInTreeOf(schedule: Schedule, taskGroupById: ReadonlyMap<
 }
 
 // see FR-019, UC-008
-// WHY: UC-008 4a -- an undrawn end row gives way to the nearest drawn row of the range in tree order, so the frame
-// shrinks to the shown rows; a null or unknown end keeps the screen's first or last row, and no drawn row, no box.
+// WHY: UC-008 4a -- an undrawn end task group gives way to the nearest drawn task group of the range in tree order, so the frame
+// shrinks to the shown task groups; a null or unknown end keeps the screen's first or last task group, and no drawn task group, no box.
 /** @purity pure */
 function drawnEndsOf(
   box: Schedule['highlightBoxes'][number],
@@ -94,7 +94,7 @@ export function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): r
     const ends = drawnEndsOf(box, taskGroupById, treeOf, layout.taskGroups)
     if (ends === undefined) continue
     const { top, bottom } = ends
-    // TRAP: both edges through min / max: rows are stored in tree order but drawn in screen order, and pinning inverts them.
+    // TRAP: both edges through min / max: task groups are stored in tree order but drawn in screen order, and pinning inverts them.
     const early = compareDays(from, toDay) <= 0 ? from : toDay
     const late = compareDays(from, toDay) <= 0 ? toDay : from
     const x0 = xFromDay(layout, early)

@@ -196,7 +196,7 @@ export async function textsEqual(reading) {
     .filter((drawn) => (drawn.textContent ?? '').trim() === wanted).length, reading)
 }
 
-/** The rows the panel drew, with the depth each carries. */
+/** The task groups the panel drew, with the depth each carries. */
 export async function rows() {
   return page().evaluate(() => [...document.querySelectorAll('[data-depth]')]
     .map((row) => ({
@@ -243,19 +243,19 @@ export const PANEL = '[data-role="Properties Panel"]'
  *
  * ⛔⛔ DO NOT PRESS `p` HERE -- THE NOTE ABOVE SAYS IT IS THE COMMAND
  * PALETTE. Measured on the shipped build (the ledger's DFC-222): `p` leaves
- * 0 field rows and 0 inputs, a double press on a row name gives 6 field rows
+ * 0 field rows and 0 inputs, a double press on a task group name gives 6 field rows
  * and 1 input, and one on a task gives 37 and 3 -- the task gesture works.
  *
  * ⭐ THE PREDICATE COUNTS INPUTS, NOT FIELD ROWS. A probe wants this function
  * because it is about to type; a panel that has filled with rows carrying no
  * editable field is the state DFC-222 was reported from.
  *
- * @param at the point to press. Defaults to the name of the topmost row --
+ * @param at the point to press. Defaults to the name of the topmost task group --
  *   pass a task's `mid` from `shapes()` for the 37-field picture instead.
  */
 export async function openPanel({ at = null } = {}) {
-  const pressPoint = at ?? (await rowNamePoint())
-  if (pressPoint === null) throw new Error('openPanel: no row name to press')
+  const pressPoint = at ?? (await taskGroupNamePoint())
+  if (pressPoint === null) throw new Error('openPanel: no task group name to press')
   await doublePressAt(pressPoint.x, pressPoint.y)
   await until(
     async () => (await count(`${PANEL} input, ${PANEL} textarea`)) > 0,
@@ -263,18 +263,18 @@ export async function openPanel({ at = null } = {}) {
 }
 
 /**
- * Where to press a row's name, which is what MK-13 wants under the pointer.
+ * Where to press a task group's name, which is what MK-13 wants under the pointer.
  *
  * ⛔ THE NAME IS WIDER THAN THE PART OF IT THAT CAN BE PRESSED. Measured:
- * the name span starts at x=36 and runs 134px, but the row's own
+ * the name span starts at x=36 and runs 134px, but the task group's own
  * controls sit on their own ground from x=66 -- so anything further right than
  * about 60 presses a control instead of the name. The 8px inset is a point
  * inside the name and clear of the grab strip on its left.
  *
- * ⚠️ `rowTopPx` names a row the way `hoverRow` does: the top edge `rows()`
- * reports. Pass null for the topmost drawn row.
+ * ⚠️ `taskGroupTopPx` names a task group the way `hoverTaskGroup` does: the top edge `rows()`
+ * reports. Pass null for the topmost drawn task group.
  */
-export async function rowNamePoint(rowTopPx = null, { insetPx = 8 } = {}) {
+export async function taskGroupNamePoint(taskGroupTopPx = null, { insetPx = 8 } = {}) {
   return page().evaluate(([wantedTopPx, inset]) => {
     const drawn = [...document.querySelectorAll('[data-depth]')]
       .sort((a, b) => a.getBoundingClientRect().y - b.getBoundingClientRect().y)
@@ -287,7 +287,7 @@ export async function rowNamePoint(rowTopPx = null, { insetPx = 8 } = {}) {
     if (name === undefined) return null
     const nameBox = name.getBoundingClientRect()
     return { x: Math.round(nameBox.x + inset), y: Math.round(nameBox.y + nameBox.height / 2) }
-  }, [rowTopPx, insetPx])
+  }, [taskGroupTopPx, insetPx])
 }
 
 export async function fieldValue() {
@@ -362,7 +362,7 @@ export async function partAt(x, y) {
 }
 
 /**
- * A point inside the `Row Area` that the app itself calls empty.
+ * A point inside the `Task Group Area` that the app itself calls empty.
  *
  * ⭐⭐ ASK THE APP, DO NOT COMPUTE IT. Two probes of that round picked a point
  * by walking bounding boxes and both landed ON something -- once on the palette
@@ -454,18 +454,18 @@ export async function notices() {
 }
 
 /**
- * The row bands: where each stands, how tall it is, and how far to the next.
+ * The task group bands: where each stands, how tall it is, and how far to the next.
  *
  * ⚠️ THE PITCH IS NOT THE HEIGHT. Every pitch is the band plus 8px, and that
  * gap is where a vertical pan lost its travel in the ledger's DFC-138. A probe
  * that reads `height` where it means `pitch` measures the defect rather than
  * the picture.
  */
-export async function rowBands() {
+export async function taskGroupBands() {
   const rows = await page().evaluate(() =>
     [...document.querySelectorAll('[data-depth]')]
       .map((row) => row.getBoundingClientRect())
-      .map((rowBox) => ({ y: Math.round(rowBox.y), height: Math.round(rowBox.height) }))
+      .map((taskGroupBox) => ({ y: Math.round(taskGroupBox.y), height: Math.round(taskGroupBox.height) }))
       .sort((a, b) => a.y - b.y))
   return rows.map((row, i) => ({
     ...row,
@@ -500,20 +500,20 @@ export async function sweep(from, delta, read, { steps = 40, modifiers = [] } = 
   return seen
 }
 
-// ------------------------------------------- the row title panel, a lot used --
+// ------------------------------------------- the task group panel, a lot used --
 
 /**
- * The width the Row Title Panel occupies, and the x below which its entries sit.
+ * The width the Task Group Panel occupies, and the x below which its entries sit.
  *
- * ⛔ USE THE REGION, NOT THE DOM PARENTAGE. The row controls are NOT
- * descendants of `[data-role="Row Title Panel"]` -- querying inside that
+ * ⛔ USE THE REGION, NOT THE DOM PARENTAGE. The task group controls are NOT
+ * descendants of `[data-role="Task Group Panel"]` -- querying inside that
  * element answers only the two entries at the panel's head, so a probe that
  * does so reports IC-82 as not drawn at all.
  */
-export async function rowPanel() {
+export async function taskGroupPanelBox() {
   return page().evaluate(() => {
     const panelBox = document
-      .querySelector('[data-role="Row Title Panel"]').getBoundingClientRect()
+      .querySelector('[data-role="Task Group Panel"]').getBoundingClientRect()
     return {
       x: Math.round(panelBox.x),
       right: Math.round(panelBox.right),
@@ -523,21 +523,21 @@ export async function rowPanel() {
 }
 
 /**
- * Put the pointer on a row's NAME, which is the one state HF-6 draws its
- * controls in. Answers false when no row stands at that top any more.
+ * Put the pointer on a task group's NAME, which is the one state HF-6 draws its
+ * controls in. Answers false when no task group stands at that top any more.
  *
- * ⭐ `rowTopPx` IS THE KEY THAT NAMES A ROW here and in the two below: the top
+ * ⭐ `taskGroupTopPx` IS THE KEY THAT NAMES A TASK GROUP here and in the two below: the top
  * edge `rows()` reports for it. ⛔ It is not the pointer's y -- an earlier name
  * of `y` needed a line of comment to say so, which is what a name is for.
  */
-export async function hoverRow(rowTopPx, { intoNamePx = 30, settle = 140 } = {}) {
+export async function hoverTaskGroup(taskGroupTopPx, { intoNamePx = 30, settle = 140 } = {}) {
   const pointerAt = await page().evaluate(([wantedTopPx, insetPx]) => {
     const row = [...document.querySelectorAll('[data-depth]')]
       .find((drawn) => Math.round(drawn.getBoundingClientRect().y) === wantedTopPx)
     if (row === undefined) return null
-    const rowBox = row.getBoundingClientRect()
-    return { x: rowBox.x + insetPx, y: rowBox.y + rowBox.height / 2 }
-  }, [rowTopPx, intoNamePx])
+    const taskGroupBox = row.getBoundingClientRect()
+    return { x: taskGroupBox.x + insetPx, y: taskGroupBox.y + taskGroupBox.height / 2 }
+  }, [taskGroupTopPx, intoNamePx])
   if (pointerAt === null) return false
   await page().mouse.move(pointerAt.x, pointerAt.y)
   await page().waitForTimeout(settle)
@@ -545,19 +545,19 @@ export async function hoverRow(rowTopPx, { intoNamePx = 30, settle = 140 } = {})
 }
 
 /**
- * Every entry standing in the row title panel's region, with the arming flags
+ * Every entry standing in the task group panel's region, with the arming flags
  * that decide whether pressing it does anything.
  *
- * ⭐ `rowTopPx` NARROWS IT TO ONE ROW; pass null for the whole panel, head
+ * ⭐ `taskGroupTopPx` NARROWS IT TO ONE TASK GROUP; pass null for the whole panel, head
  * included.
  * ⛔ THE DEFAULT EDGE IS THE PANEL'S OWN RIGHT, MEASURED. A constant guessed a
  * little wide (175) swept in IC-53 of the schedule canvas at x=171 and reported
- * it as a dead row control.
- * ⚠️ Call `hoverRow` first for a row's own controls -- HF-6 keeps them
- * `visibility: hidden` until the pointer is on that row's name.
+ * it as a dead task group control.
+ * ⚠️ Call `hoverTaskGroup` first for a task group's own controls -- HF-6 keeps them
+ * `visibility: hidden` until the pointer is on that task group's name.
  */
-export async function panelEntries(rowTopPx = null, { panelRightPx = null } = {}) {
-  const rightEdgePx = panelRightPx ?? (await rowPanel()).right
+export async function panelEntries(taskGroupTopPx = null, { panelRightPx = null } = {}) {
+  const rightEdgePx = panelRightPx ?? (await taskGroupPanelBox()).right
   return page().evaluate(([wantedTopPx, edgePx]) =>
     [...document.querySelectorAll('[data-icon]')]
       .filter((entry) => {
@@ -582,18 +582,18 @@ export async function panelEntries(rowTopPx = null, { panelRightPx = null } = {}
           x: Math.round(entryBox.x), y: Math.round(entryBox.y),
           width: Math.round(entryBox.width), height: Math.round(entryBox.height),
         }
-      }), [rowTopPx, rightEdgePx])
+      }), [taskGroupTopPx, rightEdgePx])
 }
 
 /**
- * Press the entry carrying this icon on the row whose top is `rowTopPx`, with a
+ * Press the entry carrying this icon on the task group whose top is `taskGroupTopPx`, with a
  * REAL pointer. Pass null for the entries at the panel's head.
  *
  * ⚠️ `press` CANNOT DO THIS. That one takes the first node with the icon, and
- * every drawn row carries its own IC-60 and IC-82.
+ * every drawn task group carries its own IC-60 and IC-82.
  */
-export async function pressPanelEntry(rowTopPx, icon, { panelRightPx = null } = {}) {
-  const rightEdgePx = panelRightPx ?? (await rowPanel()).right
+export async function pressPanelEntry(taskGroupTopPx, icon, { panelRightPx = null } = {}) {
+  const rightEdgePx = panelRightPx ?? (await taskGroupPanelBox()).right
   const pressAtPoint = await page().evaluate(([wantedTopPx, wantedIcon, edgePx]) => {
     const inPanel = [...document.querySelectorAll(`[data-icon="${wantedIcon}"]`)]
       .filter((entry) => entry.getBoundingClientRect().x < edgePx)
@@ -603,7 +603,7 @@ export async function pressPanelEntry(rowTopPx, icon, { panelRightPx = null } = 
     if (entry === undefined) return null
     const entryBox = entry.getBoundingClientRect()
     return { x: entryBox.x + entryBox.width / 2, y: entryBox.y + entryBox.height / 2 }
-  }, [rowTopPx, icon, rightEdgePx])
+  }, [taskGroupTopPx, icon, rightEdgePx])
   if (pressAtPoint === null) return false
   await pressAt(pressAtPoint.x, pressAtPoint.y)
   return true
@@ -657,7 +657,7 @@ export async function styleSignature() {
  * The order the DOM holds children in, which is NOT the order the screen shows.
  *
  * ⛔⛔ `rows()` SORTS BY `y`, SO IT CAN NEVER SEE THIS KIND OF FAULT. Measured
- * by pinning three rows in reverse order: they came out in pin order in the
+ * by pinning three task groups in reverse order: they came out in pin order in the
  * DOM and in natural order on the screen -- FR-098's 「固定した順に上から並べる」
  * broken in a way every y-sorted reading calls correct.
  */
@@ -678,8 +678,8 @@ export async function treeOrder(role) {
  * The chain of `data-role` above a node, so "there are two of them here" can be
  * told from "one of them contains the other".
  *
- * ⛔ TWO FALSE DEFECT REPORTS IN ONE DAY CAME FROM NOT ASKING THIS. A row and
- * its own Row Pin button share a `y`, and `data-pinned` sits on BOTH the row
+ * ⛔ TWO FALSE DEFECT REPORTS IN ONE DAY CAME FROM NOT ASKING THIS. A task group and
+ * its own Task Group Pin button share a `y`, and `data-pinned` sits on BOTH the task group
  * and the button -- so one pin reads as two unless the parentage is checked.
  */
 export async function ancestry(selector, nth = 0) {

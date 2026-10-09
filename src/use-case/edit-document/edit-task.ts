@@ -296,7 +296,7 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
       }
       const member = schedule.taskGroupMembers.find((one) => one.taskUid === command.uid)
       if (member === undefined) {
-        return refused([reject('CM-19', 'IV-6', `uid ${command.uid} is on no row`)])
+        return refused([reject('CM-19', 'IV-6', `uid ${command.uid} is on no task group`)])
       }
       if (member.groupId === command.groupId) return edited(document)
       const taskGroupMembers = schedule.taskGroupMembers.map((one) =>

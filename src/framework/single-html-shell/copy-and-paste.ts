@@ -1,4 +1,4 @@
-// SingleHtmlShell frame loop -- copies the chosen row or Tasks, and builds the command that pastes the copy back.
+// SingleHtmlShell frame loop -- copies the chosen task group or Tasks, and builds the command that pastes the copy back.
 // @unit      UF-168  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
@@ -20,17 +20,17 @@ import {
 
 type SelectionCopied = NonNullable<ScreenSession['selection']['copiedForPaste']>
 
-// WHY: one chosen row is copied whatever Tasks are also selected; two rows or nothing copy
+// WHY: one chosen task group is copied whatever Tasks are also selected; two task groups or nothing copy
 // nothing (RS-27). see FR-033, SL-7b
 /** @purity pure */
 export function copiedForPasteOf(chosenTaskGroups: readonly string[], selected: Selection): SelectionCopied | null {
-  if (chosenTaskGroups.length === 1) return { kind: 'row', groupId: chosenTaskGroups[0] as string }
+  if (chosenTaskGroups.length === 1) return { kind: 'taskGroup', groupId: chosenTaskGroups[0] as string }
   if (chosenTaskGroups.length > 1) return null
   const uids = taskUidsIn(selected)
   return uids.length === 0 ? null : { kind: 'task', uids }
 }
 
-// WHY: two or more paste targets refuse any paste, a row copy or a Task copy alike (RS-27).
+// WHY: two or more paste targets refuse any paste, a task group copy or a Task copy alike (RS-27).
 // see FR-033
 /** @purity pure */
 export function pasteRefusedFor(chosenTaskGroups: readonly string[]): boolean {

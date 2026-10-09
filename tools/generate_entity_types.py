@@ -167,7 +167,7 @@ def date_columns_block(erd):
 # has to DERIVE them, and nothing carried the manuscript's enumerations and
 # bounds into src/ at all. ⛔ Six entities and not all eighteen: FR-006's table
 # T-016 is the `Task` roster (with `TaskVisual` for the drawn columns), FR-042
-# adds a row's colour and min height (`TaskGroup`), FR-009 adds the dependency
+# adds a task group's colour and min height (`TaskGroup`), FR-009 adds the dependency
 # line, PR-21 of table T-016 (対象 `CommentBox`) adds the comment box, and
 # PR-22 (対象 `HighlightBox`, JDG-408) adds a highlight box's outline colour. A
 # roster of every entity would state a shape for columns no surface offers.
@@ -1022,11 +1022,11 @@ def default_calendar_block():
 ARRIVES_AS_ARGUMENT = []
 # ⛔ A THIRD SEAM: no door AND no caller. S-138 and S-140 are read by the unit
 # that draws with them, and neither crosses a contract -- S-140 is the room the
-# row control keeps, which only the side that lays the panel out can subtract,
+# task group control keeps, which only the side that lays the panel out can subtract,
 # and S-138 is a constant of the drawing itself rather than of any one item.
 DRAWN_WITH_WHERE_IT_STANDS = []
 # ⛔ A SEAM OF ITS OWN, AND THE ONE GROUND ABOVE DOES NOT FIT. S-138 and S-218
-# are the room GR-20's grab strip keeps beside the row's name, and FR-085 (MUST)
+# are the room GR-20's grab strip keeps beside the task group's name, and FR-085 (MUST)
 # subtracts both of them before cutting that name -- so what they settle is
 # WHERE THE NAME IS CUT, and EP-3 of table T-076 draws the panel into the
 # exported picture. ⇒ The closing sentence of DRAWN_WITH_WHERE_IT_STANDS ("the
@@ -1337,7 +1337,7 @@ NOT_STORED_TARGETS = {
     # gives: the floor belongs where the drawn settings are made, and that unit
     # imports `document-settings.ts` alone, so no import cycle is opened.
     # S-243 AND NOT S-141 SINCE CR-414: every entrance this unit composes sits
-    # on the Task Group Panel (HF-1's lattice for LF-16's reserve, four row
+    # on the Task Group Panel (HF-1's lattice for LF-16's reserve, four task group
     # controls for FR-039's floor), and FR-029 (MUST) gives those the gap S-243.
     'NOT_STORED_ENTRANCE_SIZES': (['S-138', 'S-237', 'S-243'],
                                   READ_WHERE_IT_STANDS),
@@ -1387,7 +1387,7 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES': (['S-218'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
     # dom-screen-surface.ts: one constant per consuming SUBJECT. S-138, S-141
-    # and S-237 are the box an ENTRANCE is drawn in; S-213 is the band a ROW is
+    # and S-237 are the box an ENTRANCE is drawn in; S-213 is the band a TASK GROUP is
     # marked with -- HF-15's live axis and HF-18's holding mark -- and the
     # settings row itself states that those two bands are one number.
     'NOT_STORED_TASK_GROUP_BAND_SIZES': (['S-213'], DRAWN_WITH_WHERE_IT_STANDS),
@@ -1400,7 +1400,7 @@ NOT_STORED_TARGETS = {
     # constant per consuming SUBJECT, and this subject is the controls' inset.
     'NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES': (['S-313'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE EITHER, though it lands in the same
-    # file: S-213 is a BAND drawn on a row's edge and these two are how faint a
+    # file: S-213 is a BAND drawn on a task group's edge and these two are how faint a
     # GROUND laid under something is, which is the subject S-214's own row
     # names (「状態を地で薄く示すときの濃さ」).
     # ⭐ AND THE TWO ARE ONE SUBJECT, which is why they share a constant where
@@ -1408,8 +1408,8 @@ NOT_STORED_TARGETS = {
     # AGAINST S-214 -- 「`S-214` より濃い値を別に持つ … 同じ濃さでは見分けられ
     # ない」 -- so the pair is a single scale of state grounds with two steps on
     # it, and three requirements read it: FR-029 (the entrance under the
-    # pointer) and FR-098 (the pinned row) take S-214, and HF-15 of table T-051
-    # (the row a hand is holding) takes S-215.
+    # pointer) and FR-098 (the pinned task group) take S-214, and HF-15 of table T-051
+    # (the task group a hand is holding) takes S-215.
     'NOT_STORED_STATE_GROUND_PERCENTS': (['S-214', 'S-215'],
                                          DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ FR-036's help, whose share of the screen and whose column count are
@@ -1756,7 +1756,7 @@ NOT_STORED_TARGETS = {
                                       'S-297'], DRAWN_UNDER_THE_HAND_ALONE),
     # ⛔ NOT FOLDED INTO ANY LINE ABOVE, and the subject is what keeps it
     # apart: every other row in this file's shell block is a length, a count
-    # or a time, and this one is a NAME -- the word FR-020 lays over the Row
+    # or a time, and this one is a NAME -- the word FR-020 lays over the Task Group
     # Area while FR-086's entry road does not exist. ⚠️ It is the only row of
     # table T-206 in `src/` whose cell is a `lit`, so its generated type is
     # the literal itself.
@@ -1767,9 +1767,9 @@ NOT_STORED_TARGETS = {
     # same way -- S-96 is handed in and S-208 is read where it stands, which
     # is what the paragraph above each says.
     # ⭐ S-212 JOINS S-208 BECAUSE THEY ARE ONE SUBJECT: both are HF-15's grab,
-    # both are read by the member that answers where the held row is DRAWN, and
+    # both are read by the member that answers where the held task group is DRAWN, and
     # neither is a length the document keeps. S-208 says when the axis is
-    # settled and S-212 says how far the row still follows the axis that was
+    # settled and S-212 says how far the task group still follows the axis that was
     # refused -- 「拒まれた向きへの追従は途中で止めること（MUST）—— 止める割合は
     # ... `S-212`」.
     # ⛔ S-211 IS NOT WITH THEM AND CANNOT BE. That row states a STATE (段 0 が
@@ -1803,7 +1803,7 @@ NOT_STORED_TARGETS = {
     # list, and (MUST NOT) forbids a surface a list of its own -- so the row is
     # written into the three units that write text: `svg-renderer.ts` (the
     # chart's labels, ruler, watermark and highlight text, which travel into the
-    # export inside the chart's SVG), `image-exporter.ts` (the title and row
+    # export inside the chart's SVG), `image-exporter.ts` (the title and task group
     # names the export draws around that SVG), and `dom-screen-surface.ts` (the
     # root every DOM surface inherits from).
     # ⭐ ONE NAME IN THREE UNITS, on the bargain NOT_STORED_CHROME_SCALE stands
@@ -1938,13 +1938,13 @@ COLOUR_TARGETS = {
     # already holds for 「いま効いている」, and FR-029's table T-237 has this unit
     # FILL the armed entrance with it (EN-1), so it is the chrome's after all.
     # ⭐ S-151 IS THE CHROME'S TOO, by the same
-    # reading: EN-3 of table T-237 fills a PINNED row's `Task Group Pin` with it and
-    # HF-6 of table T-051 (MUST) points at that row. The pin is a row control
+    # reading: EN-3 of table T-237 fills a PINNED task group's `Task Group Pin` with it and
+    # HF-6 of table T-051 (MUST) points at that task group. The pin is a task group control
     # this unit draws, not a bar, so the row has a reader on this side as
     # well as on the drawing side (where SL-8's selection frame keeps it).
     # ⛔ Not a second copy -- ONE row of table T-236 read by two units, which is
     # what S-146 / S-147 / S-149 already do below.
-    # ⭐ S-231 IS THE ROW HEADER PANEL'S ALONE (DFC-601 / CR-385): the row's
+    # ⭐ S-231 IS THE TASK GROUP PANEL'S ALONE (DFC-601 / CR-385): the task group's
     # grab strip mark (HF-15, GR-20) is drawn by this unit only, and S-149
     # (the rule) no longer stands in for it -- that is the whole point of the
     # change request (`the grip no longer borrows the rule's colour`).
@@ -1965,7 +1965,7 @@ COLOUR_TARGETS = {
                        'S-390'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
-    # SvgRenderer the edge labelled "ruler and rows" and gives ScreenRenderer no
+    # SvgRenderer the edge labelled "ruler and task groups" and gives ScreenRenderer no
     # edge to ScheduleLayout at all).
     # ⭐ S-146, S-147 AND S-149 STAND IN BOTH ROSTERS ON PURPOSE. They are the
     # ground, the ink and the rule, and both units draw with them: the chrome
@@ -2095,12 +2095,12 @@ def colour_sources_block(name):
 # ---- table T-294: the palette colours (CR-548) ---------------------------
 #
 # ⭐ ONE ROW PER COLOUR, EIGHT CELLS: the four drawn forms (fill, outline,
-# actual fill, row band) in both themes. The document stores the row's KEY
+# actual fill, task group band) in both themes. The document stores the row's KEY
 # (CV-1 of table T-017b); these values are baked into the artifact.
 # A cell is '#rrggbb', null (描かない: not drawn), the row ID a `sameAs`
 # names -- that row is a row of table T-236 which follows the hue, so the
 # renderer resolves it through its own themed() -- or false for a dash (—):
-# the colour offers no value for that form (black's row band, CV-9), and the
+# the colour offers no value for that form (black's task group band, CV-9), and the
 # form keeps the theme's.
 
 PALETTE_FORMS = ('fill', 'outline', 'actual', 'band')
@@ -3054,9 +3054,9 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_PARENT_TASK_ARROW_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐⭐ LF-16's RESERVE, IN THE UNIT THAT DECIDES THE BAND. Table T-051's
-    # HF-19 (MUST NOT) keeps HF-1's 2 x 2 lattice out of a row's band, and
-    # table T-221's LF-16 puts what the last scrolling row lacks of it below
-    # the rows instead. This is the unit that settles both, so it asks
+    # HF-19 (MUST NOT) keeps HF-1's 2 x 2 lattice out of a task group's band, and
+    # table T-221's LF-16 puts what the last scrolling task group lacks of it below
+    # the task groups instead. This is the unit that settles both, so it asks
     # `screen-regions.ts` for the lattice (PI-35) rather than waiting for
     # whoever remembered to measure one. ⛔ NOT `NOT_STORED_ICON_SIZES` MOVED HERE: that constant is
     # the box `dom-screen-surface.ts` DRAWS an entrance in, and Chapter 5.3
@@ -3196,7 +3196,7 @@ TARGETS = [
      ['docs/spec/_assets/tbl-glossary.md (table T-109)',
       'docs/spec/_source/settings.json (tables T-202 and T-206)']),
     # ⭐ HF-5's room, resolved on the side that can resolve it. S-140 is the
-    # room the row controls keep, and what it is subtracted from is the row's
+    # room the task group controls keep, and what it is subtracted from is the task group's
     # own name width, which only this side knows -- `DocumentSettings` does not
     # cross IF-9.
     # ⭐ And GR-20's room beside it, in a constant of its own: FR-085 (MUST)
@@ -3353,7 +3353,7 @@ TARGETS = [
     (os.path.join(ADAPTER, 'image-exporter', 'image-exporter.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DOCUMENT_TITLE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_CHROME_SCALE') + NEWLINE * 2
-     # ⭐ CR-419: the title and row names this unit draws AROUND the chart's
+     # ⭐ CR-419: the title and task group names this unit draws AROUND the chart's
      # SVG are texts of the exported picture too (FR-039 MUST), and the chart's
      # own texts already carry the list inside that SVG.
      + not_stored_block('NOT_STORED_TYPEFACES') + NEWLINE * 2

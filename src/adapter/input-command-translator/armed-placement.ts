@@ -180,7 +180,7 @@ export function commandFromArmed(
     const releaseTaskGroup = taskGroupAtY(context.layout, release.y)
     if (taskGroup === null || releaseTaskGroup === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
 
-    // TRAP: rank rows by tree order, not TaskGroupPlacement.y: once FR-098 pins a row,
+    // TRAP: rank task groups by tree order, not TaskGroupPlacement.y: once FR-098 pins a task group,
     // comparing y writes pairs IV-19 refuses.
     const rankById = taskGroupRankById(context.document.schedule.taskGroups)
     const pressRank = rankById.get(taskGroup.groupId) ?? 0

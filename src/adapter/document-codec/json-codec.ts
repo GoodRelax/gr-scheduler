@@ -214,7 +214,7 @@ function withStopInPlaceOfActualDuration(parsed: unknown): OlderActualShape {
 }
 
 // see FR-073, GP-1
-// WHY: GP-1's edit group is ungated, so any row without it is open to anyone. The row's tree
+// WHY: GP-1's edit group is ungated, so any task group without it is open to anyone. The task group's tree
 // state (AT-153) is never filled: an older document is not read over (JDG-601).
 /** @purity pure */
 function withTaskGroupColumnsOfAnOlderVersion(parsed: unknown): unknown {

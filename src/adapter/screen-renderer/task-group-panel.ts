@@ -196,7 +196,7 @@ function heldBox(box: ScreenRect, held: HeldTaskGroup | null): ScreenRect {
 }
 
 // see T-329
-// WHY: the rows the picture places, off-screen ones included: a row only scrolled away is drawn
+// WHY: the task groups the picture places, off-screen ones included: a task group only scrolled away is drawn
 // (decision 15 of CR-570). Without the reading, the on-screen boxes stand in for it.
 /** @purity pure */
 function placedRowIdsOf(readings: ScreenViewReadings): ReadonlySet<string> {
@@ -207,8 +207,8 @@ function placedRowIdsOf(readings: ScreenViewReadings): ReadonlySet<string> {
 // see HF-2, HF-10, HF-13, RS-28, RS-30, RS-31, T-329
 // TRAP: task-group-tree-entrances.ts arms IC-58, IC-74 and IC-90 by these same tests
 // (isOpenAllBelowArmed, isEveryTaskGroupOpenArmed, isOpenOneLevelArmed); change both together.
-// WHY: a child drawn only because of a temporarilyExpanded row still counts for the one-level open
-// (decision 5 of CR-570). Every row TD-6 / TD-7 keeps is placed, so the placed rows are enough.
+// WHY: a child drawn only because of a temporarilyExpanded task group still counts for the one-level open
+// (decision 5 of CR-570). Every task group TD-6 / TD-7 keeps is placed, so the placed task groups are enough.
 /** @purity pure */
 function openArmingOf(
   schedule: Schedule,
@@ -341,7 +341,7 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
 }
 
 // see FR-042, FR-098
-// WHY: from the placed boxes, not a held row's moved one: the schedule side's line stays put too.
+// WHY: from the placed boxes, not a held task group's moved one: the schedule side's line stays put too.
 /** @purity pure */
 function groupGridLinesOf(
   described: readonly TaskGroupTitle[],

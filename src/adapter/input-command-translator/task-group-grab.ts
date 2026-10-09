@@ -1,4 +1,4 @@
-// InputCommandTranslator -- a grabbed row carried by HF-15 and landed as an order or depth write.
+// InputCommandTranslator -- a grabbed task group carried by HF-15 and landed as an order or depth write.
 // @unit      UF-97   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -183,7 +183,7 @@ function taskGroupGrabPlacesInDrawingOrder(
       const isOwn = taskGroup.id === heldGroupId
       put({ parentId: taskGroup.parentId, order, atY: entry.box.y, isOwn })
       runParentId = taskGroup.parentId
-      // TRAP: not one past the held row; with it taken out, before and after it are one place,
+      // TRAP: not one past the held task group; with it taken out, before and after it are one place,
       // and counting past it would hide the end RS-39 is told against.
       runOrderAfter = isOwn ? order : order + 1
       runBottom = entry.box.y + entry.box.height
@@ -224,7 +224,7 @@ function taskGroupGrabPositionOf(
   if (travelY > 0 && ownAt === places.length - 1) {
     return { place: own, situation: 'noPlaceLeftInThatDirection' }
   }
-  // WHY: the row's carried top edge, not the pointer's y, or the row jumps the instant it is touched.
+  // WHY: the task group's carried top edge, not the pointer's y, or the task group jumps the instant it is touched.
   const carriedTo = heldBox.y + travelY
   let best = own
   for (const place of places) {
@@ -237,7 +237,7 @@ function taskGroupGrabPositionOf(
 
 // see HF-15, S-37, DS-1
 // TRAP: the DRAWN S-37, not the stored one. The panel draws the indent at the display
-// ratio, so a stored step would leave the row behind the hand by that ratio every step.
+// ratio, so a stored step would leave the task group behind the hand by that ratio every step.
 /** @purity pure */
 function drawnTaskGroupIndentOf(context: InputContext): number {
   return SETTINGS_CONSTANTS.taskGroupTitleIndent * displayRatioOf(context.document.documentSettings)
@@ -248,7 +248,7 @@ function drawnTaskGroupIndentOf(context: InputContext): number {
 function taskGroupGrabDepthSteps(context: InputContext, at: PointerInput, press: PointerPress): number {
   const indent = drawnTaskGroupIndentOf(context)
   if (!(indent > 0)) return 0
-  // WHY: truncated, not rounded; rounding moves the row half a step before the hand.
+  // WHY: truncated, not rounded; rounding moves the task group half a step before the hand.
   return Math.trunc((at.x - press.at.x) / indent)
 }
 
@@ -270,7 +270,7 @@ function taskGroupGrabAxisAt(at: PointerInput, press: PointerPress): TaskGroupGr
 /** @purity pure */
 export function grabbedTaskGroupId(press: PointerPress): string | null {
   const on = press.on
-  // TRAP: a pinned row is refused only because the surface draws no strip on it.
+  // TRAP: a pinned task group is refused only because the surface draws no strip on it.
   if (on === null || on.isTaskGroupGrabStrip !== true) return null
   return on.taskGroupId
 }

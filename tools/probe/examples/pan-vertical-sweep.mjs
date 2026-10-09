@@ -1,4 +1,4 @@
-// Is the vertical pan 等倍, or does it land only on rows?
+// Is the vertical pan 等倍, or does it land only on task groups?
 import { open, until, count, page, close } from '../harness.mjs'
 
 const marker = () => page().evaluate(() => {

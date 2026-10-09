@@ -1,4 +1,4 @@
-// EditDocument -- sibling rows' order and parent change, and the WBS order follows the rows.
+// EditDocument -- sibling task groups' order and parent change, and the WBS order follows the task groups.
 // @unit      UF-80  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -13,7 +13,7 @@ import type { TaskGroupCommandOf } from './edit-task-group'
 import { depthOf, subtreeOf, wbsSubtreesOf, withSchedule } from './edit-task-group'
 
 // see HM-9
-// TRAP: schedule-invariants.ts and the input translator walk the row tree the same way; change all three.
+// TRAP: schedule-invariants.ts and the input translator walk the task group tree the same way; change all three.
 /** @purity pure */
 function taskGroupTreeRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
   const childrenOf = new Map<string | null, TaskGroup[]>()
@@ -98,16 +98,16 @@ export function reorderTaskGroupSiblings(
   const groups = document.schedule.taskGroups
   const refusals: Refusal[] = []
   if (command.parentId !== null && !byId.has(command.parentId)) {
-    refusals.push(reject('CM-35', 'FR-005', `no such parent row: ${command.parentId}`))
+    refusals.push(reject('CM-35', 'FR-005', `no such parent task group: ${command.parentId}`))
   }
   const siblings = groups.filter((one) => one.parentId === command.parentId)
   const asked = new Set(command.orderedIds)
   if (asked.size !== command.orderedIds.length) {
-    refusals.push(reject('CM-35', 'HM-8', 'the same row is named twice'))
+    refusals.push(reject('CM-35', 'HM-8', 'the same task group is named twice'))
   }
   if (asked.size !== siblings.length || !siblings.every((one) => asked.has(one.id))) {
     refusals.push(
-      reject('CM-35', 'HM-8', 'the list must name every child of that parent, and no other row'),
+      reject('CM-35', 'HM-8', 'the list must name every child of that parent, and no other task group'),
     )
   }
   if (refusals.length > 0) return refused(refusals)
@@ -131,20 +131,20 @@ export function moveTaskGroup(
   const groups = document.schedule.taskGroups
   const moved = byId.get(command.groupId)
   if (moved === undefined) {
-    return refused([reject('CM-73', 'FR-005', `no such row: ${command.groupId}`)])
+    return refused([reject('CM-73', 'FR-005', `no such task group: ${command.groupId}`)])
   }
   const refusals: Refusal[] = []
   const parent = command.parentId === null ? null : byId.get(command.parentId)
   if (command.parentId !== null && parent === undefined) {
-    refusals.push(reject('CM-73', 'FR-005', `no such parent row: ${command.parentId}`))
+    refusals.push(reject('CM-73', 'FR-005', `no such parent task group: ${command.parentId}`))
   }
   const carried = subtreeOf(groups, command.groupId)
   if (carried === null) {
-    return refused([reject('CM-73', 'FR-005', `no such row: ${command.groupId}`)])
+    return refused([reject('CM-73', 'FR-005', `no such task group: ${command.groupId}`)])
   }
   if (command.parentId !== null && carried.taskGroups.some((one) => one.id === command.parentId)) {
     refusals.push(
-      reject('CM-73', 'HM-4', 'a row may not be moved under itself or its own descendant'),
+      reject('CM-73', 'HM-4', 'a task group may not be moved under itself or its own descendant'),
     )
   }
   const under = parent === undefined || parent === null ? 0 : depthOf(byId, parent)
@@ -185,7 +185,7 @@ export function moveTaskGroup(
 }
 
 // see HM-1, HM-4
-// WHY: byId is the pre-move row index moveTaskGroup already holds; the WBS walk reads the rows as they stood.
+// WHY: byId is the pre-move task group index moveTaskGroup already holds; the WBS walk reads the task groups as they stood.
 /** @purity pure */
 function movedWithTheWbs(
   document: Document,
@@ -206,7 +206,7 @@ function movedWithTheWbs(
 }
 
 // see HM-1, HM-7, HM-12
-// WHY: undefined when the move reaches no parent task: a hand-made row carries no Task, and a reorder is no move;
+// WHY: undefined when the move reaches no parent task: a hand-made task group carries no Task, and a reorder is no move;
 // null is the root.
 /** @purity pure */
 function parentTaskAfterTheMove(
@@ -221,8 +221,8 @@ function parentTaskAfterTheMove(
 }
 
 // see HM-12, DU-1
-// WHY: walks up from the landing row; a row whose source Task is gone derives nothing, and no derived row is the root.
-// A copy's walk passes the rows that derive from its own WBS descendants (DU-1), so no loop forms.
+// WHY: walks up from the landing task group; a task group whose source Task is gone derives nothing, and no derived task group is the root.
+// A copy's walk passes the task groups that derive from its own WBS descendants (DU-1), so no loop forms.
 /** @purity pure */
 export function nearestDerivedTaskUid(
   schedule: Schedule,

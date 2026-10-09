@@ -559,7 +559,7 @@ interface HeldZoomEnds {
 }
 
 // see OP-10, OP-10a
-// WHY: the view place only shifts rows and days; it changes no row's height, order or the stored zoom.
+// WHY: the view place only shifts task groups and days; it changes no task group's height, order or the stored zoom.
 const VIEW_PLACE_FIELDS: ReadonlySet<string> = new Set<keyof DocumentSettings>([
   'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset',
 ])
@@ -583,7 +583,7 @@ function isSameZoomEndsInputs(held: HeldZoomEnds, now: Omit<HeldZoomEnds, 'ends'
 }
 
 // see FR-029, DFC-567, PI-18, DFC-2301
-// WHY: the ends lay the rows out again; a pan moves the layout every frame but none of what they read.
+// WHY: the ends lay the task groups out again; a pan moves the layout every frame but none of what they read.
 /** @purity non-pure */
 function zoomEntranceEndsHoldOf() {
   let held: HeldZoomEnds | null = null
@@ -1243,7 +1243,7 @@ function taskGroupsWithinSchedule(session: ScreenSession, schedule: Document['sc
 }
 
 // see FR-072, FR-006, FR-085
-// WHY: both selections stand at once (SK-19); a choice that moved the rows alone was a row pick, so the panel shows the row.
+// WHY: both selections stand at once (SK-19); a choice that moved the task groups alone was a task group pick, so the panel shows the task group.
 /** @purity pure */
 function subjectOfChoice(selection: Selection, groupIds: readonly string[], session: ScreenSession): PropertiesSubject | null {
   if (selection.items.length === 0 && groupIds.length === 0) return null
@@ -1303,7 +1303,7 @@ function regionsClosedUnderTaskGroupArea(regions: ScreenRegions): ScreenRegions 
 
 // see IX-13, IX-14, IX-15, FX-1, FX-2
 // WHY: the screen's own composition at the S-81 width with both panels shut; one layout run (5.5),
-// laid against the S-217 height so no pinned row is cut, then the canvas is closed under the last row.
+// laid against the S-217 height so no pinned task group is cut, then the canvas is closed under the last task group.
 /** @purity pure */
 function spanExportViewOf(
   document: Document,
@@ -1799,7 +1799,7 @@ function choiceEventOf(input: HumanInput, pickedObjects: Selection): SessionEven
 }
 
 // see IN-4, SK-19, FR-085, T-293
-// WHY: emptySelection() is one shared value, so with only rows chosen the picked objects stay the held
+// WHY: emptySelection() is one shared value, so with only task groups chosen the picked objects stay the held
 // ones; the spent rung tells instead -- Esc on the selection rung, Enter the translator left to the choice.
 /** @purity pure */
 function isTaskGroupChoiceSpentBy(
@@ -3301,7 +3301,7 @@ export function frameLoop(
         return
       }
       case 'chooseTaskGroup': {
-        // TRAP: read the held set, not the drawn row; FR-048 may skip a paint, so a picture can be older.
+        // TRAP: read the held set, not the drawn task group; FR-048 may skip a paint, so a picture can be older.
         const chosenTaskGroups = taskGroupsChosenWith(session.selection.chosenTaskGroups, action.groupId, action.isExtending)
         sendToSession({ type: 'taskGroupsPicked', chosenTaskGroups }, frame)
         showPropertiesOfChoice()

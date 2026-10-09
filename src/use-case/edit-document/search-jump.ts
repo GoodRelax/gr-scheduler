@@ -1,4 +1,4 @@
-// EditDocument -- the writes that open a search hit's row and its ancestors and bring it into view.
+// EditDocument -- the writes that open a search hit's task group and its ancestors and bring it into view.
 // @unit      UF-179  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -93,7 +93,7 @@ export function searchJumpReachOf(layout: ScheduleLayout, target: SearchJumpTarg
 }
 
 // see SJ-7, SJ-8, FR-098
-// WHY: a pinned row the reveal opens is not in the last picture, so the room below the pins decides, as for any undrawn row.
+// WHY: a pinned task group the reveal opens is not in the last picture, so the room below the pins decides, as for any undrawn task group.
 /** @purity pure */
 function isShownAfterJump(
   document: Document,

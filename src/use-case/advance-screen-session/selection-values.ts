@@ -19,7 +19,7 @@ export interface SelectionCopiedTask {
 }
 
 export interface SelectionCopiedTaskGroup {
-  readonly kind: 'row'
+  readonly kind: 'taskGroup'
   readonly groupId: string
 }
 

@@ -1,4 +1,4 @@
-// InputCommandTranslator -- the row fold, open, hide and add entrances (T-015, T-051, T-328).
+// InputCommandTranslator -- the task group fold, open, hide and add entrances (T-015, T-051, T-328).
 // @unit      UF-96   (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
@@ -68,7 +68,7 @@ export function commandFromRowEntry(
   if (taskGroupId === null) return CONSUMED_ELSEWHERE
 
   if (entry === ENTRY.taskGroupPin) {
-    // TRAP: read the document, not the drawn row: against a stale picture the pin never comes off.
+    // TRAP: read the document, not the drawn task group: against a stale picture the pin never comes off.
     const isPinned = context.document.documentSettings.pinnedGroupIds.includes(taskGroupId)
     return changed([
       isPinned
@@ -119,15 +119,15 @@ export function commandFromRowEntry(
 }
 
 // see CM-27, T-050
-// WHY: the fresh id rides on every delete; only the use case knows the rows would run out.
+// WHY: the fresh id rides on every delete; only the use case knows the task groups would run out.
 /** @purity pure */
 function taskGroupDeleted(context: InputContext, taskGroupId: string): TranslatedInput {
   return changed([{ kind: 'deleteTaskGroup', groupId: taskGroupId, newGroupId: context.newGroupId }])
 }
 
 // see HF-20, CD-6, IC-106, T-328
-// WHY: CM-27 once per top row in one bundle: one undo unit, and the row rule of T-050 sees the last go.
-// WHY: the same bundle opens level zero (everyTaskGroupDeletePressed), so the one row T-050 leaves is drawn.
+// WHY: CM-27 once per top task group in one bundle: one undo unit, and the task group rule of T-050 sees the last go.
+// WHY: the same bundle opens level zero (everyTaskGroupDeletePressed), so the one task group T-050 leaves is drawn.
 /** @purity pure */
 export function everyTaskGroupDeleted(context: InputContext): TranslatedInput {
   const newGroupId = context.newGroupId
@@ -219,11 +219,11 @@ function orderPastLastChild(schedule: Schedule, parentGroupId: string | null): n
 }
 
 // see HF-14, HF-17, T-328, AT-153
-// WHY: the new row is shown by its tree state (temporarilyExpanded, CM-26), never by a zoom write (HF-14).
+// WHY: the new task group is shown by its tree state (temporarilyExpanded, CM-26), never by a zoom write (HF-14).
 /** @purity pure */
 export function taskGroupStoodUp(context: InputContext, parentGroupId: string | null): TranslatedInput {
   const newGroupId = context.newGroupId
-  // TRAP: keep the tree state writes in the row's bundle; a bundle of their own is a second undo step.
+  // TRAP: keep the tree state writes in the task group's bundle; a bundle of their own is a second undo step.
   return changedAndCreated(
     [
       [
@@ -238,7 +238,7 @@ export function taskGroupStoodUp(context: InputContext, parentGroupId: string | 
         } as const,
       ],
     ],
-    { kind: 'row', groupId: newGroupId },
+    { kind: 'taskGroup', groupId: newGroupId },
   )
 }
 

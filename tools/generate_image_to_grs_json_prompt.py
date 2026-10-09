@@ -65,11 +65,11 @@ FENCE = '```'
 # tell the AI it may leave in place ("ai-conversion"); the instants are the
 # startup template's, and the file has never been saved (AT-140).
 BASE_AUTHOR = 'ai-conversion'
-# The one row the base document carries: the prompt asks for at least one
+# The one task group the base document carries: the prompt asks for at least one
 # TaskGroup, and the base is what the AI copies whole.
 BASE_TASK_GROUP = {
     'id': '00000000-0000-4000-8000-000000000001',
-    'label': 'Row 1',
+    'label': 'Task Group 1',
 }
 # Project columns that describe the startup template's fictional plan. The
 # base document is a blank the AI fills, so each is null there.

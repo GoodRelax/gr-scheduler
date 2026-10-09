@@ -207,7 +207,7 @@ async function trimTo(page, target) {
     for (let pass = 0; pass < 64; pass += 1) {
       const tasks = api.readDocument().schedule.tasks
       if (tasks.length <= want) return { tasks: tasks.length, note: '' }
-      const parents = new Set(tasks.map((t) => t.wbsParentUid).filter((u) => u !== null))
+      const parents = new Set(tasks.map((t) => t.parentTaskUid).filter((u) => u !== null))
       const victims = tasks.filter((t) => !parents.has(t.uid)).map((t) => t.uid)
         .slice(0, tasks.length - want)
       const answer = api.applyCommands({

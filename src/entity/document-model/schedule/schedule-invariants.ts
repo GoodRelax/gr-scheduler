@@ -146,7 +146,7 @@ function nestingOf<TKey, TRow>(
   return { depthByKey, rings }
 }
 
-// WHY: not the picture's row walk, which skips hidden and folded rows; an invariant must not depend on the screen.
+// WHY: not the picture's task group walk, which skips hidden and folded task groups; an invariant must not depend on the screen.
 // see IV-19, SV-8
 /** @purity pure */
 export function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> {
@@ -431,7 +431,7 @@ const INVARIANTS: readonly Invariant[] = [
         if (depth !== undefined && depth > SETTINGS_CONSTANTS.maxGroupDepth) {
           found.push({
             at: `/schedule/taskGroups/${index}`,
-            what: `row ${group.id} sits at depth ${depth}, past maxGroupDepth `
+            what: `task group ${group.id} sits at depth ${depth}, past maxGroupDepth `
               + `(${SETTINGS_CONSTANTS.maxGroupDepth})`,
           })
         }
@@ -492,7 +492,7 @@ const INVARIANTS: readonly Invariant[] = [
         if (group.label === null && group.derivedFromTaskUid === null) {
           found.push({
             at: `/schedule/taskGroups/${index}`,
-            what: `row ${group.id} has neither a label nor a Task to take its name from`,
+            what: `task group ${group.id} has neither a label nor a Task to take its name from`,
           })
         }
       }
@@ -691,7 +691,7 @@ const INVARIANTS: readonly Invariant[] = [
         const top = box.topGroupId === null ? undefined : rankById.get(box.topGroupId)
         const bottom = box.bottomGroupId === null ? undefined : rankById.get(box.bottomGroupId)
         if (top !== undefined && bottom !== undefined && top > bottom) {
-          found.push({ at, what: `HighlightBox ${box.id} has its top row below its bottom row` })
+          found.push({ at, what: `HighlightBox ${box.id} has its top task group below its bottom task group` })
         }
       }
       return found
