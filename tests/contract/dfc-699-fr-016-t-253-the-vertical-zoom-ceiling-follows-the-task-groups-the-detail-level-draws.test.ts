@@ -7,7 +7,7 @@ import { keyOf, REQUIREMENTS, taskGroupDocument, shell, taskOf, type ShellBench 
 
 // see FR-016
 const FR_016_FIRST_BAND_THAT_FILLS =
-  '⭐ 行の軸（`zoomY`）の上限は、いちばん高い行の帯の高さが、初めて `Task Group Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
+  '⭐ 縦軸（`zoomY`）の上限は、いちばん高いタスクグループの帯の高さが、初めて `Task Group Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
 // see FR-018
 const FR_018_DEEPER_TASK_GROUPS_BY_ZOOM = 'グループ'
 

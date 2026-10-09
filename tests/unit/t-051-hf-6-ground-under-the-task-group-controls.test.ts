@@ -26,7 +26,7 @@
 //      WHICH row, and FR-029 now names one: 「薄さは … 表 T-236 の `S-149` の色
 //      で示すこと（MUST）」. ⛔ And it asks it on the `App Header` alone, while
 //      the same requirement closes with 「本規則は … 表 T-109 の全行に当たる ——
-//      行の操作子もパレットもヘッダーも同じである。載る面によって薄くしない入口
+//      タスクグループの操作子もパレットもヘッダーも同じである。載る面によって薄くしない入口
 //      があってはならない（MUST NOT）」.
 //
 // ---------------------------------------------------------------------------
@@ -38,16 +38,16 @@
 //                  （MUST）」／⛔ 「操作子ごとに別々の地を敷いてはならない（MUST
 //                  NOT）—— 操作子のあいだに名前の文字のかけらが残る」／⭐ the range
 //                  of the ground (to the row's right edge; down to the lower of the
-//                  row's bottom and the lattice's, CR-553)／⭐ 「操作子は、行の名前の上へ重ねて描くこ
+//                  row's bottom and the lattice's, CR-553)／⭐ 「操作子は、タスクグループ名の上へ重ねて描くこ
 //                  と（MUST）」
 //   `FR-029`       「その入口を押しても、いま文書にも画面にも何も変えられないときは、
 //                  その入口を薄く描くこと（MUST）。薄さは … 表 T-236 の `S-149` の
 //                  色で示すこと（MUST）。」／⛔ 「薄く描いた入口を、宿主の意味で無効
 //                  にしてはならない（MUST NOT）—— 無効にすると押下そのものが届かず、
 //                  下の理由を告げる引き金が消える」／⚠️ 「本規則は … 表 T-109 の全行
-//                  に当たる —— 行の操作子もパレットもヘッダーも同じである。載る面に
+//                  に当たる —— タスクグループの操作子もパレットもヘッダーも同じである。載る面に
 //                  よって薄くしない入口があってはならない（MUST NOT）。」
-//   表 T-236 S-150 「パネルの地の色」（行見出しパネル・プロパティパネル・パレットの地。
+//   表 T-236 S-150 「パネルの地の色」（タスクグループパネル・プロパティパネル・パレットの地。
 //                  色相追随 ○）
 //   表 T-236 S-149 「罫の色」（区切りの線。色相追隨 ○）
 //                  ⚠️ CR-307 が 2026-08-30 に S-148 をこの行へ差し替えた ——
@@ -867,7 +867,7 @@ const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { groupId: string }): T
   isLabelTruncated: false,
   // ⭐ A ROW WITH NOTHING TO FOLD, WHICH IS NOT A ROW WITHOUT CONTROLS. This
   // read `null` until 2026-08-30, when `TaskGroupTitle.expander` stopped being
-  // nullable: 表 T-051 の `HF-1` puts the three on 「各行」 and the closing
+  // nullable: 表 T-051 の `HF-1` puts the three on 「各タスクグループ」 and the closing
   // paragraph under that table gives 「対象が 1 つも無い」 as a STATE the three
   // carry -- which `FR-029` (MUST) then draws 薄く -- rather than as their
   // absence. ⚠️ The neutral fixture is therefore the three with none armed.
@@ -887,8 +887,8 @@ const NOTHING_TO_OPEN: TaskGroupExpander = { canOpen: false, canClose: true, can
  * A row with nothing to fold at all.
  *
  * ⭐ THE STATE THAT REPLACED `null` ON 2026-08-30. 表 T-051 の `HF-1` places the
- * three on 「**各行**」, and the closing paragraph under that table gives what a
- * row with no work carries: 「⛔ **その操作で、描かれる行が 1 行も増減しないとき
+ * three on 「**各タスクグループ**」, and the closing paragraph under that table gives what a
+ * row with no work carries: 「⛔ **その操作で、描かれるタスクグループが 1 つも増減しないとき
  * は、対象が 1 つも無いものとして扱うこと（MUST）**」 -- which `FR-029` draws 薄く.
  */
 const NOTHING_TO_FOLD: TaskGroupExpander = { canOpen: false, canClose: false, canCloseBelow: false }
@@ -945,8 +945,8 @@ function iconEntry(root: FakeElement, icon: string): FakeElement {
  * ⭐ FOUND FROM THE CONTROLS UP, because no attribute of the specification names
  * a row: W-4 of 表 T-006a fixes `data-role` for a UI part and 表 T-103 gives the
  * tree a name, not each of its rows. So the row is the highest node under the
- * tree that still holds this row's controls -- which is what 「行の右端」 and
- * 「その行の高さ」 are measured against.
+ * tree that still holds this row's controls -- which is what 「タスクグループの右端」 and
+ * 「そのタスクグループの高さ」 are measured against.
  */
 function taskGroupElement(built: Stage): FakeElement {
   const tree = oneByRole(built.root(), U_23)
@@ -961,8 +961,8 @@ function taskGroupElement(built: Stage): FakeElement {
  *
  * ⛔ THE ROW ITSELF IS NOT ONE OF THEM, and leaving it in would make the count
  * below a count of something else. The row is a strip of the `Task Group Panel`,
- * whose ground 表 T-236 gives `S-150` in its own right (「行見出しパネル・プロパ
- * ティパネル・パレットの地」), and CR-305 measured that —— 「行の帯の地も実測で
+ * whose ground 表 T-236 gives `S-150` in its own right (「タスクグループパネル・プロパ
+ * ティパネル・パレットの地」), and CR-305 measured that —— 「タスクグループの帯の地も実測で
  * `S-150` である」 is why the band is invisible where no control stands. What
  * HF-6 asks for is a ground laid UNDER THE CONTROLS, which is a thing within
  * the row.
@@ -996,7 +996,7 @@ function reachesTheLowerBottom(node: FakeElement, taskGroupHeightPx: number, lat
 /**
  * Whether this node reaches the right edge of the row it is in.
  *
- * ⚠️ TWO READINGS, for the same reason: 「行の右端まで」 is stated of the row and
+ * ⚠️ TWO READINGS, for the same reason: 「タスクグループの右端まで」 is stated of the row and
  * a box says it either by being pinned to that edge or by a left edge and a
  * width that add up to it. ⛔ A band that stopped short is what the sentence
  * refuses: CR-305 measured the gap it leaves at 4px of the person's own name.
@@ -1032,7 +1032,7 @@ describe('the manuscripts still say what these cases read', () => {
     expect(HF_6).toContain('操作子の下に地を 1 枚敷くこと（MUST）')
     expect(HF_6).toContain('`S-150`')
     expect(HF_6).toContain('操作子ごとに別々の地を敷いてはならない（MUST NOT）')
-    expect(HF_6).toContain('行の右端までとし、縦はその行の上端から、行の下端と格子（`HF-1`）の下端のうち下にあるほうまでとすること（MUST）')
+    expect(HF_6).toContain('タスクグループの右端までとし、縦はそのタスクグループの上端から、タスクグループの下端と格子（`HF-1`）の下端のうち下にあるほうまでとすること（MUST）')
     expect(HF_6).toContain('本行の最初の MUST が言う「群」は、この地の範囲である —— 操作子と操作子のあいだの地の上も、群の上に数える')
   })
 
@@ -1129,8 +1129,8 @@ describe('表 T-051 HF-6 -- the ground laid under a row’s controls', () => {
   })
 
   it('⛔ MUST: it reaches the row’s right edge', () => {
-    // 「敷く範囲は、いちばん左の操作子の左端から行の右端までとし…」—— CR-305:
-    //   「操作子の右端で止めると、行の右端との隙間に名前の文字が残る」.
+    // 「敷く範囲は、いちばん左の操作子の左端からタスクグループの右端までとし…」—— CR-305:
+    //   「操作子の右端で止めると、タスクグループの右端との隙間に名前の文字が残る」.
     const built = drawn(oneTaskGroup())
     const row = taskGroupElement(built)
     const band = bandsIn(built, row)[0]
@@ -1138,7 +1138,7 @@ describe('表 T-051 HF-6 -- the ground laid under a row’s controls', () => {
 
     expect(
       reachesTheTaskGroupsRightEdge(band, TASK_GROUP_BOX.width),
-      `HF-6 (MUST): 行の右端まで (${TASK_GROUP_BOX.width}px): ${serialize(band)}`,
+      `HF-6 (MUST): タスクグループの右端まで (${TASK_GROUP_BOX.width}px): ${serialize(band)}`,
     ).toBe(true)
   })
 
@@ -1148,7 +1148,7 @@ describe('表 T-051 HF-6 -- the ground laid under a row’s controls', () => {
     // on a row whose controls are all armed. ⛔ The unit chose that edge with
     // `title.expander !== null ? …open : …openOneLevel` -- a row without an
     // expander started its band three steps in. `TaskGroupTitle.expander` is no longer
-    // nullable (表 T-051 の `HF-1`, 「**各行**に… 1 つずつ置く」), so every row
+    // nullable (表 T-051 の `HF-1`, 「**各タスクグループ**に… 1 つずつ置く」), so every row
     // now carries the same seven and the band has one left edge for all of them.
     //
     // ⛔ THE TWO RULES THAT SAY IT MAY NOT MOVE:
@@ -1168,7 +1168,7 @@ describe('表 T-051 HF-6 -- the ground laid under a row’s controls', () => {
 
     expect(
       reachesTheTaskGroupsRightEdge(spentBand, TASK_GROUP_BOX.width),
-      `HF-6 (MUST): 行の右端まで (${TASK_GROUP_BOX.width}px): ${serialize(spentBand)}`,
+      `HF-6 (MUST): タスクグループの右端まで (${TASK_GROUP_BOX.width}px): ${serialize(spentBand)}`,
     ).toBe(true)
     expect(
       inlineStyle(spentBand),
@@ -1177,7 +1177,7 @@ describe('表 T-051 HF-6 -- the ground laid under a row’s controls', () => {
   })
 
   it('⭐ two rows are two grounds -- the band belongs to a row and not to the panel', () => {
-    // ⭐ THE OTHER READING THE RULE EXCLUDES. 「敷く範囲は … 縦はその行の高さ」
+    // ⭐ THE OTHER READING THE RULE EXCLUDES. 「敷く範囲は … 縦はそのタスクグループの高さ」
     // makes the ground a row's own; one band drawn across the panel would satisfy
     // 「1 枚」 while covering rows whose controls are not drawn at all.
     const built = drawn(
@@ -1229,7 +1229,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
   })
 
   it('⛔ MUST NOT: the same on the `Command Palette` -- 載る面によって変えない', () => {
-    // 「本規則は … 表 T-109 の全行に当たる —— 行の操作子もパレットもヘッダーも
+    // 「本規則は … 表 T-109 の全行に当たる —— タスクグループの操作子もパレットもヘッダーも
     //   同じである。載る面によって薄くしない入口があってはならない（MUST NOT）」
     const built = drawn(
       viewWith({ commandPalette: paletteWith([command({ icon: IC_PALETTE, isEnabled: false })]) }),
@@ -1255,7 +1255,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
   })
 
   it('⛔ MUST: and on the panel’s own two entrances -- IC-74 and IC-78', () => {
-    // 表 T-109: IC-74 「すべての行を開く」（表 T-051 の `HF-10`）, IC-78 「すべての行を
+    // 表 T-109: IC-74 「すべてのタスクグループを開く」（表 T-051 の `HF-10`）, IC-78 「すべてのタスクグループを
     //   畳む」（`HF-12`）. ⭐ THEY ARE DRAWN FOR THE PANEL AND NOT PER ROW, which
     //   is why FR-029's closing sentence has to reach them by name: 「本規則は …
     //   表 T-109 の全行に当たる」.

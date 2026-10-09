@@ -46,10 +46,10 @@ const OD_2_WEEK_MONTH = '「年 ＋ 月 ＋ 週」と「年 ＋ 月」の段で�
 const OD_2_YEAR = '「年」の段では塗らない。'
 // see OD-3
 const OD_3_EXTENT = '`Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の上端から下端まで、その日の列の幅で塗ること（MUST）。'
-const OD_3_PINNED = 'ピン止めした行（`U-46`）の上も塗る。'
+const OD_3_PINNED = 'ピン止めしたタスクグループ（`U-46`）の上も塗る。'
 const OD_3_NOT_RULER = '⛔ `Time Ruler`（`U-19`）の帯は塗らない（MUST NOT）'
 // see OD-4
-const OD_4_ORDER = '行の帯と行の色（`FR-042`）の上、日付罫線（`U-17`）・グループ罫線（`U-18`）と日程の図形の下に描くこと（MUST）'
+const OD_4_ORDER = 'タスクグループの帯とタスクグループの色（`FR-042`）の上、日付罫線（`U-17`）・グループ罫線（`U-18`）と日程の図形の下に描くこと（MUST）'
 // see OD-5
 const OD_5_COLOUR = '`_assets/tbl-settings.md` の 表 T-236 の `S-450` で塗ること（MUST）。'
 // see OD-6

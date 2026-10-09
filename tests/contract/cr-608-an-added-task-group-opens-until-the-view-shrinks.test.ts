@@ -22,14 +22,14 @@ const rowOf = (table: string, id: string) => {
 }
 
 const HF_14_STANDS =
-  '立てた行は `_assets/fig-erd-detail.md` の `AT-153` のとおり `temporarilyExpanded` で立ち、押した親は `_assets/tbl-state-machines.md` の 表 T-328 の `childTaskGroupAddPressed` の行のとおり、`auto` か `collapsed` なら `temporarilyExpanded` になる。'
-const HF_14_DRAWS = '⇒ `FR-018` の 表 T-329 の `TD-6`・`TD-7` が、いまの倍率のまま、立てた行とその兄弟とその祖先を描く。'
+  '立てたタスクグループは `_assets/fig-erd-detail.md` の `AT-153` のとおり `temporarilyExpanded` で立ち、押した親は `_assets/tbl-state-machines.md` の 表 T-328 の `childTaskGroupAddPressed` の行のとおり、`auto` か `collapsed` なら `temporarilyExpanded` になる。'
+const HF_14_DRAWS = '⇒ `FR-018` の 表 T-329 の `TD-6`・`TD-7` が、いまの倍率のまま、立てたタスクグループとその兄弟とその祖先を描く。'
 const HF_14_NO_ZOOM = 'そのために縦の倍率を書き換えてはならない（MUST NOT）'
-const HF_14_TEMPORARY = '縦を縮める最初の入力で、立てた行も押した親も `auto` へ戻る（同表の `verticalZoomShrinkPressed`）'
+const HF_14_TEMPORARY = '縦を縮める最初の入力で、立てたタスクグループも押した親も `auto` へ戻る（同表の `verticalZoomShrinkPressed`）'
 const HF_14_ONE_PARENT = '開いてよいのは押した親 1 つだけである'
 const HF_14_NO_ANCESTOR = 'その先祖を書き換えてはならない（MUST NOT）'
-const UN_14_ONE_STEP = '1 回の押下が書き換える行の木の状態は、行がいくつでも同じ 1 段に入れること（MUST）'
-const FR_018_ADDED = '足した行と、足した先の親も同じ値で立つ（`AT-153`、同表の `childTaskGroupAddPressed`、表 T-051 の `HF-14`）'
+const UN_14_ONE_STEP = '1 回の押下が書き換えるタスクグループの木の状態は、タスクグループがいくつでも同じ 1 段に入れること（MUST）'
+const FR_018_ADDED = '足したタスクグループと、足した先の親も同じ値で立つ（`AT-153`、同表の `childTaskGroupAddPressed`、表 T-051 の `HF-14`）'
 
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
 

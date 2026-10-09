@@ -1105,7 +1105,7 @@ const TASK_GROUP_TITLE_INDENT = SETTINGS_CONSTANTS['taskGroupTitleIndent'] as nu
 
 const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { groupId: string }): TaskGroupTitle => ({
   depth: patch.depth ?? 1,
-  // `FR-085` takes 「その行の深さぶんのインデント（`taskGroupTitleIndent`。
+  // `FR-085` takes 「そのタスクグループの深さぶんのインデント（`taskGroupTitleIndent`。
   // 表 T-201 の `S-37`）」 off the usable width, so a row at depth n carries n
   // of them. ⭐ The description carries the number; this unit invents none.
   indentPx: (patch.depth ?? 1) * TASK_GROUP_TITLE_INDENT,
@@ -1118,7 +1118,7 @@ const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { groupId: string }): T
   isLabelTruncated: false,
   // ⭐ A ROW WITH NOTHING TO FOLD, WHICH IS NOT A ROW WITHOUT CONTROLS. This
   // read `null` until 2026-08-30, when `TaskGroupTitle.expander` stopped being
-  // nullable: 表 T-051 の `HF-1` puts the three on 「各行」 and the closing
+  // nullable: 表 T-051 の `HF-1` puts the three on 「各タスクグループ」 and the closing
   // paragraph under that table gives 「対象が 1 つも無い」 as a STATE the three
   // carry -- which `FR-029` (MUST) then draws 薄く -- rather than as their
   // absence. ⚠️ The neutral fixture is therefore the three with none armed.
@@ -1512,8 +1512,8 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
     // among the rows -- so a third field took characters, inside the `Task Group Name
     // Tree`, and a listener serving it was not this unit widening its supply.
     // ⛔ ALL THREE OF THAT ROW'S MUSTS WERE WITHDRAWN (利用者の裁定 2026-09-04,
-    // quoted in the row itself). It now reads 「押された瞬間に、既定の名前で行を
-    // 立てること（MUST）。その行のプロパティパネルを出し、名前の欄で名づけさせる
+    // quoted in the row itself). It now reads 「押された瞬間に、既定の名前でタスクグループを
+    // 立てること（MUST）。そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせる
     // こと（MUST）」 with 「改名と別の道を作ってはならない（MUST NOT）」 beside it
     // ⇒ THE NAMING HAPPENS IN THE `Properties Panel`, which was already one of
     // the two parts IF-9 names, so the roster goes back to two.
@@ -1619,7 +1619,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
 //
 // ⭐ WHAT THE MANUSCRIPT SAYS NOW (docs/spec/01-04-requirements.md, 表 T-051 の
 // `HF-14`; the ruling of 2026-09-03 is quoted verbatim inside the row):
-//   「**押された瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティ
+//   「**押された瞬間に、既定の名前でタスクグループを立てること（MUST）。そのタスクグループのプロパティ
 //   パネルを出し、名前の欄で名づけさせること（MUST）**」 —— ⛔ 「**改名と別の道を
 //   作ってはならない（MUST NOT）。道は `FR-085` が改名について定めるものと同じ
 //   ものとすること（MUST）**」 —— ⛔ 「**その作法をここに書き写してはならない
@@ -1637,7 +1637,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
 // withhold. Nothing in HF-14 as it now stands replaces it.
 //
 // ⛔ WHAT THIS UNIT CANNOT CARRY, WRITTEN DOWN RATHER THAN ASSERTED:
-//   - 「押された瞬間に…行を立てること」 and 「足した行は末子とすること」 are the
+//   - 「押された瞬間に…タスクグループを立てること」 and 「足したタスクグループは末子とすること」 are the
 //     WRITE. This unit holds no document and makes no command; a `ScreenView`
 //     reaches it with the row already in it.
 //   - 「既定の名前は表示語として持つこと」 is the naming side's. The word travels
@@ -1653,7 +1653,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
 //     arrives. ⛔ A case here could only check that a row the fixture itself put
 //     into the view was drawn, which says nothing at all about a tier being
 //     opened. That MUST belongs to the side that chooses the tier.
-//   - 「薄いまま押されたときは、行を立てずに理由を告げること（MUST）。理由は 表
+//   - 「薄いまま押されたときは、タスクグループを立てずに理由を告げること（MUST）。理由は 表
 //     T-233 の `RS-46`」 is likewise raised elsewhere; this unit draws whatever
 //     `notices` it is handed.
 //
@@ -1667,7 +1667,7 @@ describe('表 T-078 / NFR-010 (MUST NOT) -- nothing in this unit wakes a frame',
 // there is exactly one of it, and that it does not stand among the rows.
 // ===========================================================================
 
-describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロパティパネルの名前の欄で名づけさせること', () => {
+describe('HF-14 of 表 T-051 (MUST) -- 既定の名前でタスクグループを立て、プロパティパネルの名前の欄で名づけさせること', () => {
   /**
    * The row of the name field, READ OUT OF 表 T-023's `MK-13` and never typed.
    *
@@ -1679,7 +1679,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
    */
   const NAME_TASK_GROUP = ((): string => {
     const mk13 = specTable('T-023').rows.find((one) => one.id === 'MK-13')
-    const found = /行見出し（行の名前）[^`]*`[^`]*`[^`]*`(AT-\d+)`/.exec(mk13?.cells.join(' ') ?? '')
+    const found = /タスクグループ見出し（タスクグループ名）[^`]*`[^`]*`[^`]*`(AT-\d+)`/.exec(mk13?.cells.join(' ') ?? '')
     if (found === null) throw new Error('表 T-023 MK-13 no longer names the task-group-name field')
     return found[1] as string
   })()
@@ -1753,7 +1753,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
     return built
   }
 
-  it('⭐ MUST: GIVEN the row is standing WHEN the naming is looked for THEN it is in the `Properties Panel` -- 「その行のプロパティパネルを出し、名前の欄で名づけさせること」', () => {
+  it('⭐ MUST: GIVEN the row is standing WHEN the naming is looked for THEN it is in the `Properties Panel` -- 「そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせること」', () => {
     const built = drawn()
     const panel = oneByRole(built.root(), partName('U-25'))
 
@@ -1863,8 +1863,8 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
     // ⭐⭐ THE RULING OF 2026-09-03, IN THE ROW'S OWN WORDS: DFC-243 「**No name という
     // タスクグループを追加してそれを編集するプロパティーウインドウを開け。
     // つまり、現在タスクグループ名を変更する際の操作と操作感を合わせろ。**」
-    expect(cells).toContain('押された瞬間に、既定の名前で行を立てること（MUST）')
-    expect(cells).toContain('その行のプロパティパネルを出し、名前の欄で名づけさせること（MUST）')
+    expect(cells).toContain('押された瞬間に、既定の名前でタスクグループを立てること（MUST）')
+    expect(cells).toContain('そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせること（MUST）')
     // ⛔ ONE ROAD, AND IT IS THE ONE `FR-085` ALREADY DEFINES FOR RENAMING -- so
     // this unit may not grow a second way of asking for the name.
     expect(cells).toContain('改名と別の道を作ってはならない（MUST NOT）')
@@ -1926,8 +1926,8 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前で行を立て、プロ�
 
     const sk19 = specTable('T-036').rows.find((one) => one.id === 'SK-19')
     expect(sk19, '表 T-036 no longer holds SK-19').toBeDefined()
-    // ⭐ 行名 is this field by name, and `Enter` is the key the row gives it.
-    expect(sk19?.cells.join(' ')).toContain('行名')
+    // ⭐ タスクグループ名 is this field by name, and `Enter` is the key the row gives it.
+    expect(sk19?.cells.join(' ')).toContain('タスクグループ名')
     expect(sk19?.cells.join(' ')).toContain('Enter')
     // ⭐ AND THE TELLING STANDS AHEAD OF IT SINCE 2026-08-31.
     expect(sk19?.cells.join(' ')).toContain('出ている通知があるときは、それを 1 つ消すこと（MUST）')
@@ -2517,7 +2517,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     const two = chainUpTo(theOneWithText(tree, 'TaskGroupAtTwo'), tree).map(styleOf).join(' ')
     const three = chainUpTo(theOneWithText(tree, 'TaskGroupAtThree'), tree).map(styleOf).join(' ')
 
-    // `FR-085`: 「その行の深さぶんのインデント」 -- two of `S-37` at depth 2,
+    // `FR-085`: 「そのタスクグループの深さぶんのインデント」 -- two of `S-37` at depth 2,
     // three of it at depth 3.
     expect(two).toContain(`${2 * TASK_GROUP_TITLE_INDENT}px`)
     expect(three).toContain(`${3 * TASK_GROUP_TITLE_INDENT}px`)
@@ -2534,17 +2534,17 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
   // ⛔ THE DEFECT THESE CASES STAND IN FOR. Measured on the shipped build of
   // 2026-08-30: the row's three controls sat in the row's own flow with
   // `visibility:hidden`, holding 48 of a 170px panel, while `S-140` of 表 T-206
-  // -- 「行の操作子に確保する場所（`FR-085`）」-- states 0px. So `FR-085` cut the
+  // -- 「タスクグループの操作子に確保する場所（`FR-085`）」-- states 0px. So `FR-085` cut the
   // name against 158px and the browser was handed 90, and the difference went
   // into the browser's own ellipsis, which `isLabelTruncated` cannot record.
   //
   // THE TWO MUSTs THAT SETTLE IT:
-  //   表 T-051 `HF-6`  ⭐「**操作子は、行の名前の上へ重ねて描くこと（MUST）** ——
+  //   表 T-051 `HF-6`  ⭐「**操作子は、タスクグループ名の上へ重ねて描くこと（MUST）** ——
   //     確保する場所は 0 だからである（`S-140`）」, and ⛔「**描かないあいだも、
   //     確保する場所を変えてはならない（MUST NOT）** —— 規則と理由は `FR-085` が
   //     持つ」
-  //   `FR-085`         「使える幅は、`taskGroupPanelWidth` から、その行の深さぶん
-  //     のインデント（`S-37`）と、行の操作子…に確保した場所と、**行の掴み代
+  //   `FR-085`         「使える幅は、`taskGroupPanelWidth` から、そのタスクグループの深さぶん
+  //     のインデント（`S-37`）と、タスクグループの操作子…に確保した場所と、**タスクグループの掴み代
   //     （表 T-023d の `GR-20`）に確保した場所（`S-138`）とその隔たり（`S-218`）**
   //     を引いた残りとすること（MUST）」
   //
@@ -2559,7 +2559,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
   // tests/system's.
   // -------------------------------------------------------------------------
 
-  /** `S-218` -- 「行の掴み代と行の名前のあいだ（表 T-023d の `GR-20`）」. */
+  /** `S-218` -- 「タスクグループの掴み代とタスクグループ名のあいだ（表 T-023d の `GR-20`）」. */
   const s218 = (): number => {
     const row = specTable('T-206').rows.find((one) => one.id === 'S-218')
     if (row === undefined) throw new Error('表 T-206 no longer holds S-218')
@@ -2568,7 +2568,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     return Number(found[1])
   }
 
-  /** `S-140` -- 「行の操作子に確保する場所（`FR-085`）」. */
+  /** `S-140` -- 「タスクグループの操作子に確保する場所（`FR-085`）」. */
   const s140 = (): number => {
     const row = specTable('T-206').rows.find((one) => one.id === 'S-140')
     if (row === undefined) throw new Error('表 T-206 no longer holds S-140')
@@ -2594,12 +2594,12 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     styleOf(element).includes('position:absolute')
 
   it('⛔ DFC-116 / HF-6 (MUST): every row control is laid OVER the name, not beside it', () => {
-    // 「⭐ **操作子は、行の名前の上へ重ねて描くこと（MUST）** —— 確保する場所は 0
+    // 「⭐ **操作子は、タスクグループ名の上へ重ねて描くこと（MUST）** —— 確保する場所は 0
     // だからである」, with `S-140` read out of 表 T-206 to hold that 0 to the
     // manuscript rather than to this comment.
     // GOES RED IF: a control goes back into the row's flow, which is what took
     // 48px of a 170px panel away from the name on 2026-08-30.
-    expect(s140(), '表 T-206 の `S-140`: 行の操作子に確保する場所').toBe(0)
+    expect(s140(), '表 T-206 の `S-140`: タスクグループの操作子に確保する場所').toBe(0)
 
     const { children } = drawnTaskGroup(
       taskGroupTitle({
@@ -2612,7 +2612,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     const inFlow = children.filter((child) => !isOutOfFlow(child))
     // The grab strip (`GR-20`) and the name itself, and nothing else.
     // ⚠️ NOT A PINNED ROW: 表 T-023d の `GR-20` (MUST NOT) says a pinned row
-    // cannot be grabbed —— 「⛔ **ピン止めしている行は掴めないこと（MUST NOT）**」
+    // cannot be grabbed —— 「⛔ **ピン止めしているタスクグループは掴めないこと（MUST NOT）**」
     // —— so it draws no strip and this count would be one for a reason that has
     // nothing to do with the controls.
     expect(
@@ -2622,7 +2622,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
   })
 
   it('⛔ FR-085 (MUST): what the flow spends beside the name is the indent, `S-138` and `S-218`', () => {
-    // 「その行の深さぶんのインデント（`S-37`）と …… **行の掴み代（`GR-20`）に確保
+    // 「そのタスクグループの深さぶんのインデント（`S-37`）と …… **タスクグループの掴み代（`GR-20`）に確保
     // した場所（`S-138`）とその隔たり（`S-218`）**を引いた残り」. ⭐ Three terms,
     // three numbers on the row, all read from the manuscript.
     // GOES RED IF: the strip stops being `S-138` wide, the gap stops being
@@ -2636,7 +2636,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     // says WHICH side the indent is on.
     const style = inlineStyle(row)
 
-    // 「その行の深さぶんのインデント」 -- and `TaskGroupTitle.indentPx` is that product.
+    // 「そのタスクグループの深さぶんのインデント」 -- and `TaskGroupTitle.indentPx` is that product.
     expect(style, 'FR-085: the row is set in by its own `indentPx`').toContain(
       `padding:0 0 0 ${depth * TASK_GROUP_TITLE_INDENT}px`,
     )
@@ -2645,7 +2645,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
       `gap:${s218()}px`,
     )
 
-    // 「行の掴み代（表 T-023d の `GR-20`）に確保した場所（`S-138`）」. `HF-15`
+    // 「タスクグループの掴み代（表 T-023d の `GR-20`）に確保した場所（`S-138`）」. `HF-15`
     // (MUST) draws it always -- 「⛔ **`HF-6` の対象ではない**」 -- so it is the
     // one thing that may stand in the flow ahead of the name.
     const inFlow = children.filter((child) => !isOutOfFlow(child))
@@ -3130,7 +3130,7 @@ describe('boundaries', () => {
           pinnedTitles: [],
           // ⚠️ `expander` LEFT THIS LIST ON 2026-08-30 AND IS NOT AN OMISSION:
           // `TaskGroupTitle.expander` stopped being nullable when 表 T-051 の `HF-1`
-          // 「各行に… 1 つずつ置く」 was read into the type, so it is no longer
+          // 「各タスクグループに… 1 つずつ置く」 was read into the type, so it is no longer
           // one of the description's optional parts. ⭐ `label` still is -- `FR-058`
           // and `AT-54` make a row's own name genuinely absent -- and that is what
           // this row is here to carry.
@@ -3275,9 +3275,9 @@ const FR_029_NOT_BY_SURFACE = '載る面によって変えてはならない（M
  * ⭐ 表 T-109 (docs/spec/_assets/tbl-glossary.md:465, 497, 503-506):
  *   | IC-20 | `App Header`       | ... | `Agent API` を有効にする・無効にする |
  *   | IC-52 | `Help Modal` / ... | ... | 開いている面を閉じる |
- *   | IC-58 | `Task Group Panel`  | ... | 行の配下をすべて開く |
- *   | IC-59 | `Task Group Panel`  | ... | その行自身を畳む |
- *   | IC-60 | `Task Group Panel`  | ... | 行をピン止めし、同じ入口で外す |
+ *   | IC-58 | `Task Group Panel`  | ... | タスクグループの配下をすべて開く |
+ *   | IC-59 | `Task Group Panel`  | ... | そのタスクグループ自身を畳む |
+ *   | IC-60 | `Task Group Panel`  | ... | タスクグループをピン止めし、同じ入口で外す |
  *   | IC-61 | `Command Palette`  | ... | 依存線を構える |
  * ⛔ Four different 面 on purpose: the header, the floating palette, a surface
  * opened OVER the screen, and the controls on a row. That is the whole of what
@@ -3602,7 +3602,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     }
   })
 
-  it('⭐ GIVEN two rows at different depths WHEN their controls are read THEN the box is the same on both, and neither is set down (表 T-051 HF-5 MUST: 行の名前の文字サイズにかかわらず、操作子を同じ大きさで描くこと)', () => {
+  it('⭐ GIVEN two rows at different depths WHEN their controls are read THEN the box is the same on both, and neither is set down (表 T-051 HF-5 MUST: タスクグループ名の文字サイズにかかわらず、操作子を同じ大きさで描くこと)', () => {
     // ⚠️ WHAT THIS UNIT CAN BE ASKED. `TaskGroupTitle` carries no text size -- the
     // name's size follows the depth through S-36 and S-38, which live on the far
     // side of IF-9 -- so the only thing about the name's size that reaches here

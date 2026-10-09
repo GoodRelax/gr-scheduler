@@ -16,16 +16,16 @@ import {
 
 // WHY: E-24 names no kind of copy, so it binds every paste FR-033 makes, a Task paste included.
 const SEVERAL_TARGET_TASK_GROUPS_REFUSED =
-  '⛔ 貼り付け先として行が 2 つ以上選ばれているときは、貼り付けを受け付けず、行えない理由を `FR-029` のとおり通知の仕組みへ運ぶこと（MUST）'
-const TARGET_IS_THE_CHOSEN_TASK_GROUP = '貼り付け先は、選んでいる行の子とすること（MUST）'
-const SAME_TASK_GROUP = '**複製した `Task` は、複製元と同じ行に載せること（MUST）'
+  '⛔ 貼り付け先としてタスクグループが 2 つ以上選ばれているときは、貼り付けを受け付けず、行えない理由を `FR-029` のとおり通知の仕組みへ運ぶこと（MUST）'
+const TARGET_IS_THE_CHOSEN_TASK_GROUP = '貼り付け先は、選んでいるタスクグループの子とすること（MUST）'
+const SAME_TASK_GROUP = '**複製した `Task` は、複製元と同じタスクグループに載せること（MUST）'
 const EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP =
-  '⛐ **ただ 1 つの例外は、複製元の行が `editGroup` を名乗っているときである** —— そのときに限り、**選んでいる自分の行に載せること（MUST）**'
+  '⛐ **ただ 1 つの例外は、複製元のタスクグループが `editGroup` を名乗っているときである** —— そのときに限り、**選んでいる自分のタスクグループに載せること（MUST）**'
 const MANY_TASKS_ALL_COPIED =
-  '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じ行に載せること（MUST）'
+  '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じタスクグループに載せること（MUST）'
 // WHY: CR-714 (JDG-1736) replaced "the copy keeps its source's parent" with a parent inferred from the landing row.
 const PARENT_FROM_THE_TASK_GROUP =
-  'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの WBS の親を、コピーを載せた行から推定すること（MUST）'
+  'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの親タスクを、コピーを載せたタスクグループから推定すること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
 const REASON_IS_A_T233_ROW = '⭐ 通知が運ぶ理由は 表 T-233 の行とすること（MUST）'
 

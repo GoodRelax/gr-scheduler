@@ -37,7 +37,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
 }
 
 // see MG-8
-const MG_8_KEEP = '見た目（色・形状）と、どの行に載っているかを保つこと（MUST）。'
+const MG_8_KEEP = '見た目（色・形状）と、どのタスクグループに載っているかを保つこと（MUST）。'
 const MG_8_REALIGN =
   '⭐ ただし、上書きで `Task.milestone` が変わり、保った形（`TaskVisual.shapeKind`）が `05-07-design.md` の 表 T-220 の `IV-22` に外れるときは、その形を `null` へ戻すこと（MUST）'
 // see T-251

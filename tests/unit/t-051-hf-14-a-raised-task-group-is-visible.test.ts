@@ -1,5 +1,5 @@
 // 表 T-051 の `HF-14` (MUST, 利用者の裁定 2026-09-03 / 2026-09-04) -- the promise
-// this file is written for is HF-14's OWN summary of it: 「立てた行は見える」.
+// this file is written for is HF-14's OWN summary of it: 「立てたタスクグループは見える」.
 //
 // WHY: HF-14 shows a raised row by tree state alone (AT-153, T-328, TD-6 / TD-7), never by
 // rewriting zoomY; groupDepthLimit only proves the raised row lies past the drawn tier.
@@ -32,7 +32,7 @@
 // ⛔ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
 // ---------------------------------------------------------------------------
 //   1. HF-14's OTHER TWO PROMISES. The default name and the properties panel
-//      ("押された瞬間に、既定の名前で行を立てること…") belong to
+//      ("押された瞬間に、既定の名前でタスクグループを立てること…") belong to
 //      tests/unit/uf-71.test.ts's own HF-14 describe block, and the faint /
 //      refused entrance at `FR-085`'s cap belongs to
 //      tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts. Repeating
@@ -42,12 +42,12 @@
 //      —— 同じ MUST が 2 か所に載ると必ず離れていく」.
 //   2. HF-17's OWN HALF (見える位置まで表示位置を送ること). HF-14 borrows it
 //      ("`HF-14`（配下に足す）も同じとすること（MUST）"), but the task that
-//      asked for this file draws the line itself: "HF-17（行が見える位置ま
-//      で送る）とは別の約束である。送っても、落とされた行は現れない。" ここで
+//      asked for this file draws the line itself: "HF-17（タスクグループが見える位置ま
+//      で送る）とは別の約束である。送っても、落とされたタスクグループは現れない。" ここで
 //      問うのは詳しさの段と畳みだけであり、表示位置（scrollDate 等）そのもの
 //      は問わない。
 //   3. WHETHER THE ADD AND THE OPEN SHARE ONE UNDO STEP OR TWO. 表 T-027's
-//      `UN-1` / `UN-14` put 「行（`TaskGroup`）の追加」and「行の木の状態（`treeState`）」
+//      `UN-1` / `UN-14` put 「タスクグループ（`TaskGroup`）の追加」and「タスクグループの木の状態（`treeState`）」
 //      in the SAME target family (both count), while `UN-8` puts
 //      「ズーム・スクロール・パン」in the EXCLUDED family (never counts).
 //      `FR-018`'s own rationale keeps `zoomY` inside `documentSettings`
@@ -55,7 +55,7 @@
 //      when one user gesture must write BOTH a counted change and a
 //      `UN-8`-excluded one: two separate writes, ordered, only one counted
 //      ("全体表示の 1 回の押下は、2 つの書き込みに分けて行うこと（MUST）…①
-//      倍率と表示位置を置く（`UN-8` により段を積まない）② 畳んだ行をすべて開
+//      倍率と表示位置を置く（`UN-8` により段を積まない）② 畳んだタスクグループをすべて開
 //      く（`UN-17` により段を 1 つ積む）"). Whether HF-14's task-group-add and the
 //      parent's open share one step is never
 //      stated by 表 T-051's `HF-14` itself, and no other row was found that
@@ -254,7 +254,7 @@ function groupIn(document: Document, id: string): { id: string; parentId: string
  * The one `TaskGroup` present after a press that was absent before it.
  *
  * ⭐ MEASURED AS A DIFFERENCE, matching 表 T-051's own methodology right below
- * `HF-18`: 「数えるのは配下の行の数ではなく、その操作の前後で描かれる行の差であ
+ * `HF-18`: 「数えるのは配下のタスクグループの数ではなく、その操作の前後で描かれるタスクグループの差であ
  * る。」 The id a freshly raised row gets is the system's to choose, not this
  * file's, so it is never guessed -- only found.
  */
@@ -418,14 +418,14 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔⛔ HF-14 keeps the raised row visible by the tree state, never by rewriting the vertical zoom', () => {
-    expect(says('T-051', 'HF-14')).toContain('立てた行は見える（MUST）')
+    expect(says('T-051', 'HF-14')).toContain('立てたタスクグループは見える（MUST）')
     expect(says('T-051', 'HF-14')).toContain('`AT-153` のとおり `temporarilyExpanded` で立ち')
     expect(says('T-051', 'HF-14')).toContain('`auto` か `collapsed` なら `temporarilyExpanded` になる')
-    expect(says('T-051', 'HF-14')).toContain('いまの倍率のまま、立てた行とその兄弟とその祖先を描く')
+    expect(says('T-051', 'HF-14')).toContain('いまの倍率のまま、立てたタスクグループとその兄弟とその祖先を描く')
     expect(says('T-051', 'HF-14')).toContain('そのために縦の倍率を書き換えてはならない（MUST NOT）')
     expect(says('T-051', 'HF-14')).toContain('表示位置を送るだけで済ませてはならない（MUST NOT）')
     expect(says('T-051', 'HF-14')).toContain(
-      'これは `HF-17` の「行が見える位置まで送ること（MUST）」と同じ 1 つの約束である',
+      'これは `HF-17` の「タスクグループが見える位置まで送ること（MUST）」と同じ 1 つの約束である',
     )
   })
 
@@ -439,7 +439,7 @@ describe('the manuscript still says what these cases read', () => {
       '`HF-7` の畳みは人が自分でしたことなので、製品が動かすのは押した親の畳みを開くこの 1 つの場合に限る',
     )
     expect(says('T-051', 'HF-7')).toContain('人が畳んだ状態は、表示量の増減（`FR-018`）より優先する')
-    expect(says('T-051', 'HF-7')).toContain('人が足した行（`HF-14`）も、表示量の増減より優先する')
+    expect(says('T-051', 'HF-7')).toContain('人が足したタスクグループ（`HF-14`）も、表示量の増減より優先する')
   })
 
   it('⭐ FR-018 still gives the group-LOD formula this file computes its zoomY from', () => {
@@ -460,7 +460,7 @@ describe('the manuscript still says what these cases read', () => {
     // and 表 T-015's `HR-1a` (MUST NOT) hides a collapsed group's entire
     // subtree, not just its direct children:
     expect(says('T-015', 'HR-1a')).toContain(
-      '畳んだ `TaskGroup` の配下の行と、その行に載っている `Task` を描いてはならない（MUST NOT）',
+      '畳んだ `TaskGroup` の配下のタスクグループと、そのタスクグループに載っている `Task` を描いてはならない（MUST NOT）',
     )
     // ⛔ So a row with a COLLAPSED ancestor is never drawn, and can never be
     // the row this file presses `IC-91` on. The half-2 case below therefore
@@ -475,7 +475,7 @@ describe('the manuscript still says what these cases read', () => {
     // 表 T-027: the ADD (`UN-1` / `UN-14`) and the FOLD-OPEN (`UN-14`) are both
     // counted targets; `zoomY` (`UN-8`) never is.
     expect(says('T-027', 'UN-14')).toContain(
-      '行（`TaskGroup`）の追加・削除・名前の変更、行の色と高さの変更、行の木の状態（`treeState`）と段 0 の畳み',
+      'タスクグループ（`TaskGroup`）の追加・削除・名前の変更、タスクグループの色と高さの変更、タスクグループの木の状態（`treeState`）と段 0 の畳み',
     )
     expect(says('T-027', 'UN-8')).toContain('ズーム・スクロール・パン')
     // FR-055 shows the split the codebase already uses for a gesture that

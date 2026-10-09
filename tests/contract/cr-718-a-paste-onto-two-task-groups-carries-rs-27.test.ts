@@ -20,12 +20,12 @@ vi.mock('../../src/use-case/advance-screen-session/advance-screen-session', asyn
 })
 
 const SEVERAL_TASK_GROUPS_ARE_REFUSED =
-  '⛔ 貼り付け先として行が 2 つ以上選ばれているときは、貼り付けを受け付けず、行えない理由を `FR-029` のとおり通知の仕組みへ運ぶこと（MUST） —— どの行の子とするかが決まらない。'
+  '⛔ 貼り付け先としてタスクグループが 2 つ以上選ばれているときは、貼り付けを受け付けず、行えない理由を `FR-029` のとおり通知の仕組みへ運ぶこと（MUST） —— どのタスクグループの子とするかが決まらない。'
 const THE_REASON_IS_RS_27 = '⚠️ この場面に当たる 表 T-233 の行は無いので、運ぶ理由は同要求の落ち先の `RS-27` である。'
 const A_REASON_IS_A_T_233_ROW = '⭐ 通知が運ぶ理由は 表 T-233 の行とすること（MUST）'
 const A_HIDDEN_REASON_STANDS_NO_CARD =
   '「出さない」の理由は、上げられても通知の欄に 1 枚を立てない —— 行は理由として残り、`Agent API` の拒否の値（表 T-035 の `AG-9a`）はその行を運ぶ。'
-const SAME_TASK_GROUP = '**複製した `Task` は、複製元と同じ行に載せること（MUST）'
+const SAME_TASK_GROUP = '**複製した `Task` は、複製元と同じタスクグループに載せること（MUST）'
 
 describe('FR-033 / FR-076 -- the clauses this file is driven by still stand', () => {
   it.each([SEVERAL_TASK_GROUPS_ARE_REFUSED, THE_REASON_IS_RS_27, A_REASON_IS_A_T_233_ROW, A_HIDDEN_REASON_STANDS_NO_CARD, SAME_TASK_GROUP])('%s', (clause) => {

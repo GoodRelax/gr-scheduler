@@ -47,14 +47,14 @@ const HF_10_ORDER =
 const HF_10_NOT_TWO_TIERS =
   '2 段に積まないのは、パネルの頭の高さが 2 段に足りない倍率で、下の段の操作子が隠れて押せなくなるからである。'
 const HF_20_LAST = '並びの最後、`HF-17`（最も浅い段へ足す）の右隣である。'
-const HF_12_COUNT = 'そのときは、頭にいま何行を畳み込んでいるかを示すこと（MUST）'
-const HF_18_COUNT = '配下に畳み込んでいる行があるとき、その行数を行に示すこと（MUST）'
+const HF_12_COUNT = 'そのときは、頭にいまいくつのタスクグループを畳み込んでいるかを示すこと（MUST）'
+const HF_18_COUNT = '配下に畳み込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示すこと（MUST）'
 const HF_2_FAINT = '押しても何も変わらないときだけ、`FR-029` に従って薄く描くこと（MUST）'
-const HF_2_ARMED = '押した行の配下に `FR-018` の 表 T-329 で描かれていない行が 1 つでもあるときである'
+const HF_2_ARMED = '押したタスクグループの配下に `FR-018` の 表 T-329 で描かれていないタスクグループが 1 つでもあるときである'
 const HF_6_KEEP_PLACE = '描かないあいだも、確保する場所を変えてはならない（MUST NOT）'
-const HF_6_PIN = 'ピン止めしている行の `IC-60` だけは、ポインタが乗っていなくても描くこと（MUST）'
+const HF_6_PIN = 'ピン止めしているタスクグループの `IC-60` だけは、ポインタが乗っていなくても描くこと（MUST）'
 const HF_15_MARK = '印は縦に並べた 2 本の三点リーダ（`⋮⋮` U+22EE を 2 つ）とすること（MUST）'
-const FR_098_ONCE = '同じ行を本来の縦位置にも描いてはならない（MUST NOT）'
+const FR_098_ONCE = '同じタスクグループを本来の縦位置にも描いてはならない（MUST NOT）'
 const FR_029_NOT_DISABLED = '薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT）'
 
 const TASK_GROUP_PANEL = englishName('U-22')
@@ -194,7 +194,7 @@ describe('the head of the panel (HF-10, HF-12)', () => {
     expect(new Set(tops).size, `${HF_10_ORDER} / ${HF_10_NOT_TWO_TIERS} -- ${tops.join(', ')}`).toBe(1)
   })
 
-  it('HF-12 頭にいま何行を畳み込んでいるかを示すこと -- the head shows the folded count even with no row drawn', () => {
+  it('HF-12 頭にいまいくつのタスクグループを畳み込んでいるかを示すこと -- the head shows the folded count even with no row drawn', () => {
     const built = drawn({ pinnedTitles: [], titles: [], foldedTaskGroupCount: 7 })
     const panel = oneByRole(built.root(), TASK_GROUP_PANEL)
     expect(panel.textContent).toMatch(/(^|\D)7(\D|$)/)
@@ -202,7 +202,7 @@ describe('the head of the panel (HF-10, HF-12)', () => {
 })
 
 describe('each row (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
-  it('HF-18 その行数を行に示すこと -- a row holding folded rows shows how many', () => {
+  it('HF-18 そのタスクグループ数をタスクグループに示すこと -- a row holding folded rows shows how many', () => {
     const built = drawn({ pinnedTitles: [PINNED], titles: [PLAIN] })
     const [row] = taskGroupNode(built, 'g-pinned')
     expect(row?.textContent ?? '').toMatch(/(^|\D)4(\D|$)/)
@@ -225,7 +225,7 @@ describe('each row (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
     for (const one of controls) expect(styleMap(one).get('display')).not.toBe('none')
   })
 
-  it('HF-6 ピン止めしている行の IC-60 だけは、ポインタが乗っていなくても描くこと', () => {
+  it('HF-6 ピン止めしているタスクグループの IC-60 だけは、ポインタが乗っていなくても描くこと', () => {
     const built = drawn({ pinnedTitles: [PINNED], titles: [PLAIN] })
     const pinOf = (groupId: string): FakeElement =>
       byRole(taskGroupNode(built, groupId)[0] as FakeElement, TASK_GROUP_PIN)[0] as FakeElement
@@ -244,7 +244,7 @@ describe('each row (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
     for (const mark of marks) expect(mark.tagName).not.toBe('BUTTON')
   })
 
-  it('FR-098 同じ行を本来の縦位置にも描いてはならない -- a pinned row is drawn once', () => {
+  it('FR-098 同じタスクグループを本来の縦位置にも描いてはならない -- a pinned row is drawn once', () => {
     const built = drawn({ pinnedTitles: [PINNED], titles: [PLAIN] })
     expect(taskGroupNode(built, 'g-pinned')).toHaveLength(1)
     expect(taskGroupNode(built, 'g-plain')).toHaveLength(1)

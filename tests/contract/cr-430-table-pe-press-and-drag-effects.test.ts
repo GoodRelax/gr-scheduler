@@ -61,7 +61,7 @@ const T_270 = specTable('T-270')
 const GRABBED = '掴んだもの'
 const ON_RELEASE = '押して離す（動かさない）'
 const SIDEWAYS = '横に引く'
-const DOWNWARDS = '縦に引く（行を移る）'
+const DOWNWARDS = '縦に引く（タスクグループを移る）'
 
 const cellOf = (row: string, heading: string): string => {
   const found = T_270.rows.find((one) => one.id === row)

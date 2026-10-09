@@ -56,7 +56,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     const text = rowText('T-023', 'MK-16')
     expect(text).toContain('タスクの本体の上から始める、`Shift` だけを伴う左ドラッグ')
     expect(text).toContain('表 T-023a の `PTD-3`')
-    expect(text).toContain('日付を変えず、行だけを移す')
+    expect(text).toContain('日付を変えず、タスクグループだけを移す')
     expect(text).toContain('選択に含まれないタスクから始めれば、そのタスクを選択に足し、選択の全部を移す（表 T-023c の `SL-4`）')
   })
 
@@ -82,7 +82,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
   })
 
   it('PTD-3: a Shift-only drag from a task body keeps the dates and moves rows only', () => {
-    expect(rowText('T-023a', 'PTD-3')).toContain('`Shift` だけを伴ってタスクの本体から引いたときは、日付を変えずに行だけを移す（表 T-023 の `MK-16`')
+    expect(rowText('T-023a', 'PTD-3')).toContain('`Shift` だけを伴ってタスクの本体から引いたときは、日付を変えずにタスクグループだけを移す（表 T-023 の `MK-16`')
   })
 
   it('SL-4: a Shift body drag adds the pressed task and moves the whole selection; a click still adds or removes one', () => {
@@ -95,7 +95,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
 
   it('T-270: a Shift-only body drag applies only the vertical part and reads Shift at the press', () => {
     expect(REQUIREMENTS).toContain(
-      '`Shift` だけを伴って本体（`PE-1` ・ `PE-6`）を引いたときは、横の成分を当てず、縦だけを当てること（MUST） —— 選択の全部を、横は 0 日、縦は同じ行数だけ動かし、予定も実績も日付を変えない（表 T-023 の `MK-16`）。',
+      '`Shift` だけを伴って本体（`PE-1` ・ `PE-6`）を引いたときは、横の成分を当てず、縦だけを当てること（MUST） —— 選択の全部を、横は 0 日、縦は同じタスクグループ数だけ動かし、予定も実績も日付を変えない（表 T-023 の `MK-16`）。',
     )
     expect(REQUIREMENTS).toContain('押したタスクが選択に含まれないときは、それを選択に足してから全部を動かすこと（MUST）（表 T-023c の `SL-4`）。')
     expect(REQUIREMENTS).toContain('`Shift` は押した時点で読み、押しているあいだに押しても離しても変えないこと（MUST）')

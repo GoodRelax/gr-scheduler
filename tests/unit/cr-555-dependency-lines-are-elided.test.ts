@@ -53,7 +53,7 @@ const DOT_MARGIN = T206('S-363')
 const SL_3_WHOLLY = '矩形に完全に囲まれた対象だけを取ること'
 const T_303_MARK_IS_PART_OF_THE_LINE = '⭐ 続きの印はその依存線の一部である'
 const EL_20_NOT_SEEN = 'その端は見えていない端とすること（MUST）。'
-const EL_20_STAND = '経路を引くために立つ所は `EL-2` と同じとする —— 描かれている最も近い祖先の行の帯の下端であり'
+const EL_20_STAND = '経路を引くために立つ所は `EL-2` と同じとする —— 描かれている最も近い祖先のタスクグループの帯の下端であり'
 
 const EPS = 1e-6
 // WHY: the SVG prints two decimals.

@@ -13,7 +13,7 @@ const TASK_GROUP_PANEL = 'Task Group Panel'
 const NOTHING_TO_OPEN = 'RS-31'
 
 const HF_10_NOT_IN_HF_18 =
-  '押しが何かを変えるのは、押した行の配下に `FR-018` の 表 T-329 で描かれていない行が 1 つでもあるときである'
+  '押しが何かを変えるのは、押したタスクグループの配下に `FR-018` の 表 T-329 で描かれていないタスクグループが 1 つでもあるときである'
 const FIRST = 'f0000000-0000-4000-8000-000000000000'
 const FIRST_CHILD = 'f0000000-0000-4000-8000-0000000000c1'
 const ROWS = 40

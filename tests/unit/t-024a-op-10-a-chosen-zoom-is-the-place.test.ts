@@ -47,7 +47,7 @@
 // ---------------------------------------------------------------------------
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
-//   T-024a OP-10  its condition -- 「表示位置が `null`、または指す行が存在しない
+//   T-024a OP-10  its condition -- 「表示位置が `null`、または指すタスクグループが存在しない
 //           とき」 -- and the two clauses this file is for:
 //           「⛔⛔ **人が倍率か表示位置を選んだときは、それを表示位置とすること
 //           （MUST）**（利用者の裁定 2026-09-06）—— **選んだ時点で「人がまだ場所
@@ -67,7 +67,7 @@
 //           SK-18 (`F`, entrance IC-10) -- the keys that reach the four
 //           entrances the measurement names.
 //   T-109   IC-10 全体を 1 画面に収める / IC-12 時間軸を縮小する /
-//           IC-13 時間軸を拡大する / IC-15 行軸を拡大する.
+//           IC-13 時間軸を拡大する / IC-15 縦軸を拡大する.
 //   T-203   S-77 `scrollDate` and S-78 `scrollGroupId` -- 表示位置, the pair
 //           OP-10's condition reads and the ruling says a choice fills in.
 //
@@ -195,7 +195,7 @@ const BECAUSE_THE_CONDITION_STOPS_HOLDING =
   '選んだ時点で「人がまだ場所を決めていない」ではなくなるので、本行の条件は成り立たなくなり、全体表示はやり直されない。'
 
 /** OP-10's condition -- what has to be true of the fixture for any of this to run. */
-const THE_CONDITION = '表示位置が `null`、または指す行が存在しないとき'
+const THE_CONDITION = '表示位置が `null`、または指すタスクグループが存在しないとき'
 
 // ===========================================================================
 // 2. The keys, tied to the entrances the measurement names
@@ -562,7 +562,7 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
     const after = one.place()
     expect(after.scrollDate, 'S-77 still says the person has not chosen a place').not.toBeNull()
     expect(after.scrollGroupId, 'S-78 still says the person has not chosen a place').not.toBeNull()
-    // 「または指す行が存在しないとき」 -- the other half of the same condition.
+    // 「または指すタスクグループが存在しないとき」 -- the other half of the same condition.
     expect([TASK_GROUP_ONE, TASK_GROUP_TWO]).toContain(after.scrollGroupId)
   })
 

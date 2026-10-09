@@ -27,7 +27,7 @@ const TD_8_ANCESTORS = '⭐ 祖先は、子孫にチェックしたタスクが�
 const TV_3_NOT_FAINT = '「描かれていないタスク」）。⛔ 薄く描いてはならない（MUST NOT）'
 const EL_20_FILTERED_END =
   '⭐ 端の `Task` が表示の絞り込み（`FR-151` の 表 T-353 の `TV-3`）で描かれないときも、その端は見えていない端とすること（MUST）'
-const EL_20_TASK_GROUP_DRAWN = '載る行が描かれていても同じである'
+const EL_20_TASK_GROUP_DRAWN = '載るタスクグループが描かれていても同じである'
 const EL_20_NOT_DROPPED = '⛔ 立つ所が無いとして線を落としてはならない（MUST NOT）'
 const FR_135_FILTERED_END =
   '家族の矢印の片方の端のタスクが表示の絞り込み（`FR-151` の 表 T-353 の `TV-3`）で描かれないときは、依存線の見えていない端（表 T-303 の `EL-20`）と同じく、見えている側に短い線と続きの印を描くこと（MUST）'

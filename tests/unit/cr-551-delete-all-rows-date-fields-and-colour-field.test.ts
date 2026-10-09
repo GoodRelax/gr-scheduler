@@ -194,9 +194,9 @@ const inField = (built: Bench, row: string): FakeElement[] =>
   selfAndDescendants(panelRoot(built)).filter((one) => one.getAttribute('data-field-row') === row)
 
 
-const HF_20 = '`HF-10` の操作子の並びに、すべての行を消す操作子を 1 つ置くこと（MUST）'
-const CD_6_ONE_TASK_GROUP = '行が 0 になるので、本表の後の段により、同じ操作の一部として深さ `L1` の行が 1 つ作られる（取り消し 1 回で戻る）'
-const E_36_HEAD = '頭が持つ入口が 5 つ、行が持つ入口が 7 つであることは、この 1 つの違いから出る（MUST）'
+const HF_20 = '`HF-10` の操作子の並びに、すべてのタスクグループを消す操作子を 1 つ置くこと（MUST）'
+const CD_6_ONE_TASK_GROUP = 'タスクグループが 0 になるので、本表の後の段により、同じ操作の一部として深さ `L1` のタスクグループが 1 つ作られる（取り消し 1 回で戻る）'
+const E_36_HEAD = '頭が持つ入口が 5 つ、タスクグループが持つ入口が 7 つであることは、この 1 つの違いから出る（MUST）'
 
 const QN_10 = WORDS.questions.find((one) => one.rowId === 'QN-10')?.text.ja ?? ''
 const YES = (WORDS.confirmation.find((one) => one.answer === 'proceed')?.text.ja ?? '').slice(0, 1).toUpperCase()
@@ -213,7 +213,7 @@ const HEAD_ENTRANCES = ['IC-74', 'IC-78', 'IC-92', 'IC-93', 'IC-106']
 const TASK_GROUP_ONLY_ENTRANCES = ['IC-59', 'IC-60']
 
 describe('HF-20 / CD-6 / QN-10 -- the head deletes every row', () => {
-  it('HF-20 / CD-6 / E-36 still say: すべての行を消す操作子 / 深さ L1 の行が 1 つ作られる / 頭が持つ入口が 5 つ', () => {
+  it('HF-20 / CD-6 / E-36 still say: すべてのタスクグループを消す操作子 / 深さ L1 のタスクグループが 1 つ作られる / 頭が持つ入口が 5 つ', () => {
     expect(REQUIREMENTS).toContain(HF_20)
     expect(REQUIREMENTS).toContain(CD_6_ONE_TASK_GROUP)
     expect(REQUIREMENTS).toContain(E_36_HEAD)
@@ -249,7 +249,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every row', () => {
     expect(built.loop.document(), 'nothing is deleted before the answer').toBe(before)
   })
 
-  it('CD-6: 深さ L1 のすべての行に CD-2 を当てた和 -- every row and every task goes, and one L1 row is made', () => {
+  it('CD-6: 深さ L1 のすべてのタスクグループに CD-2 を当てた和 -- every row and every task goes, and one L1 row is made', () => {
     // see CD-6, CD-2
     const built = bench(documentWith(ROWS, NAMES))
     built.press('Task Group Panel', 'IC-106')

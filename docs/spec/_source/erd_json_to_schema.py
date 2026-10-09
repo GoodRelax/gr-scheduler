@@ -183,11 +183,11 @@ def colour_names():
 
 
 def bandless_colour_names():
-    """The palette names that offer no row band: table T-294's band cells.
+    """The palette names that offer no task group band: table T-294's band cells.
 
     CR-586: a colour column flagged "band" (AT-58, TaskGroup.color) takes only
-    the names whose row-band cells (lightBand, darkBand) are not a dash; the
-    dash (black, S-315) is what CV-9 leaves off the row colour field. The dash
+    the names whose task-group-band cells (lightBand, darkBand) are not a dash; the
+    dash (black, S-315) is what CV-9 leaves off the task group colour field. The dash
     is read the way tools/generate_entity_types.py's palette_cell reads it --
     a cell whose `ja` starts with it -- so the two generators agree; a change
     to one reading is a change to both.

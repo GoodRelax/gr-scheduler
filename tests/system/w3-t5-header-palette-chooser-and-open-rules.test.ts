@@ -15,7 +15,7 @@ const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'),
 
 // see HF-10
 const HF_10_COUNT_PLACE =
-  '⭐ `HF-12` の畳み込んだ行の数は、並びのいちばん左の操作子（すべて畳む）のすぐ左に置き、数の右端をその操作子の外形の左端に接すること（MUST）'
+  '⭐ `HF-12` の畳み込んだタスクグループの数は、並びのいちばん左の操作子（すべて畳む）のすぐ左に置き、数の右端をその操作子の外形の左端に接すること（MUST）'
 // see FR-096
 const FR_096_ONE_COLUMN = '⭐ 選択面は、形式を上の順で上から下へ 1 段に 1 つずつ並べること（MUST）'
 const FR_096_SAME_SIZE = '⭐ 形式のボタンは、幅も高さもすべて揃えること（MUST）'

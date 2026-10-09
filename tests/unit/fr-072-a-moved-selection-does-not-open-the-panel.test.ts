@@ -8,7 +8,7 @@
 // 2 か所に置けば必ず離れていく」), and a test that held the roster would be the
 // second place the count lives -- the very drift that MUST NOT was written for.
 // `MK-13` and `IC-17` appear below as two roads EACH NAMED BY A ROW OF ITS OWN,
-// never as the whole of the set. FR-072 itself records that 行を選ぶ道 (`FR-042`)
+// never as the whole of the set. FR-072 itself records that タスクグループを選ぶ道 (`FR-042`)
 // was already a third when the count was written, and that `FR-091` and `HF-14`
 // of table T-051 「さらに求めている」 -- and a road named tomorrow must not make
 // a line of this file go red.
@@ -65,7 +65,7 @@
 //                  択を解いてはならない（MUST NOT）」／「いま何を出しているかを、入
 //                  口の押下状態で示すこと（MUST）。」
 //                  ⚠️ 「出す入口は…`MK-13` と `IC-17` の 2 つである」は 2026-09-04
-//                  に落ちた —— 書かれた時点で既に偽であり（行を選ぶ道が 3 つ目で
+//                  に落ちた —— 書かれた時点で既に偽であり（タスクグループを選ぶ道が 3 つ目で
 //                  あった）、この版まで本ファイルはその 1 文を逐語で見張っていた。
 //   `FR-006`       「プロパティパネルが選択を出しているとき、`GRS` は、表 T-016 の
 //                  項目をプロパティパネルに出し…」 ⭐ ITS SUBJECT IS THE PANEL
@@ -76,7 +76,7 @@
 //                  文字をすべて選んだ状態にすること（MUST）…」
 //   表 T-109 IC-17 「`App Header` | 表示 | 文書の描画設定をプロパティパネルに出す |
 //                  `FR-072`」 -- read at run time below, never typed.
-//   表 T-036 SK-19 「その場の編集を確定する（名称・担当者名・行名・文書名・プロパ
+//   表 T-036 SK-19 「その場の編集を確定する（名称・担当者名・タスクグループ名・文書名・プロパ
 //                  ティの入力）」…「確定していないその場の編集が 1 つも無いときは、プロ
 //                  パティパネルを出しているならば出すのをやめること（MUST）」／
 //                  ⚠️ 「焦点が名称の欄の外にあるときも同じである」 | `Enter`
@@ -606,7 +606,7 @@ describe('the manuscript still says what these cases read', () => {
     // ⛔ THIS GUARD HOLDS NO COUNT, ON PURPOSE. Until 2026-09-04 FR-072 closed
     // with CR-304 「出す入口は 表 T-023 の `MK-13` と `IC-17` の 2 つである。」 and this
     // very case asserted it word for word. ⛔ The sentence was already false the
-    // day it was written -- 行を選ぶ道 (`FR-042`) was a third -- and `FR-091`
+    // day it was written -- タスクグループを選ぶ道 (`FR-042`) was a third -- and `FR-091`
     // and `HF-14` of table T-051 have since named more. ⇒ What stands here in
     // its place is NOT 「その 1 文が無いこと」, which would rot the other way
     // (going red the moment anyone quotes it in a history note, as FR-072 now

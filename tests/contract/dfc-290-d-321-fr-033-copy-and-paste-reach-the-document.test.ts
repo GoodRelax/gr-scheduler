@@ -11,14 +11,14 @@
 // ---------------------------------------------------------------------------
 //
 //   STATEMENT: 「作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、**選ば
-//    れた `Task` だけを**複製すること。行見出しパネルでは、
+//    れた `Task` だけを**複製すること。タスクグループパネルでは、
 //    選ばれた `TaskGroup` を**部分木ごと**複製すること。」
-//   「複製した `Task` は、複製元と同じ行に載せること（MUST）」
+//   「複製した `Task` は、複製元と同じタスクグループに載せること（MUST）」
 //   「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けずに通知
 //    すること（MUST）」
 //   「複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）」
 //   「複製に `TaskOrigin` を付けてはならない（MUST NOT）」
-//   「貼り付け先は、選んでいる行の子とすること（MUST）」
+//   「貼り付け先は、選んでいるタスクグループの子とすること（MUST）」
 //   「複製に使う置き場はアプリの中に持つこと（MUST）。OS のクリップボードから読み
 //    込んではならない（MUST NOT）」
 //
@@ -125,16 +125,16 @@ const REQUIREMENTS = unbroken(readFileSync(
  * clauses. ⭐ Each ends at its own marker's closing parenthesis.
  */
 const FR_033_STATEMENT =
-  '作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、**選ばれた `Task` だけを**複製すること。行見出しパネルでは、選ばれた `TaskGroup` を**部分木ごと**複製すること。'
+  '作成者がタスクを選んでコピーし貼り付けたとき、`GRS` は、**選ばれた `Task` だけを**複製すること。タスクグループパネルでは、選ばれた `TaskGroup` を**部分木ごと**複製すること。'
 
-const FR_033_SAME_TASK_GROUP = '複製した `Task` は、複製元と同じ行に載せること（MUST）'
+const FR_033_SAME_TASK_GROUP = '複製した `Task` は、複製元と同じタスクグループに載せること（MUST）'
 
 const FR_033_NO_SAME_UID =
   '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
 
 const FR_033_NO_TASK_ORIGIN = '複製に `TaskOrigin` を付けてはならない（MUST NOT）'
 
-const FR_033_PASTE_UNDER_THE_CHOSEN_TASK_GROUP = '貼り付け先は、選んでいる行の子とすること（MUST）'
+const FR_033_PASTE_UNDER_THE_CHOSEN_TASK_GROUP = '貼り付け先は、選んでいるタスクグループの子とすること（MUST）'
 
 /** ⭐ The clause that ties this requirement to 表 T-014 の `ST-7`. */
 const FR_033_REFUSE_AT_THE_VALVE =
@@ -188,7 +188,7 @@ function keyOf(id: string): KeyInput {
 const COPY = keyOf('SK-4')
 const PASTE = keyOf('SK-5')
 
-/** `U-22` -- the 面 the row half of the STATEMENT names（行見出しパネル）. */
+/** `U-22` -- the 面 the row half of the STATEMENT names（タスクグループパネル）. */
 const TASK_GROUP_PANEL = bare(rowOf(T_103, 'U-22').by['確定名（英）'] ?? '')
 
 interface ReasonWords {
@@ -390,7 +390,7 @@ interface Stage {
   send(input: HumanInput): void
   /** Press one Task's plan bar on the canvas -- `SL-2` of 表 T-023c moving. */
   pressTask(uid: number): void
-  /** Press one row's title -- the 行見出しパネル half of the STATEMENT. */
+  /** Press one row's title -- the タスクグループパネル half of the STATEMENT. */
   pressRow(groupId: string): void
   taskUids(): readonly number[]
   groupIds(): readonly string[]
@@ -484,8 +484,8 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
   })
 
   it('表 T-223 still copies no WBS descendant that was not chosen, and cascades a row to the rows below it', () => {
-    expect(rowOf(T_223, 'DU-1').cells.join(' ')).toContain('選ばれていない WBS の子孫を複製してはならない')
-    expect(rowOf(T_223, 'DU-2').cells.join(' ')).toContain('配下の行')
+    expect(rowOf(T_223, 'DU-1').cells.join(' ')).toContain('選ばれていない子孫タスクを複製してはならない')
+    expect(rowOf(T_223, 'DU-2').cells.join(' ')).toContain('配下のタスクグループ')
   })
 
   it('the fixture really holds the two subtrees the STATEMENT speaks of', () => {
@@ -532,7 +532,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
   })
 
   it('and the copied Task sits on the row its original sits on (MUST)', () => {
-    // 「複製した `Task` は、複製元と同じ行に載せること（MUST）」 -- 載る行が決まら
+    // 「複製した `Task` は、複製元と同じタスクグループに載せること（MUST）」 -- 載るタスクグループが決まら
     // ないと、表 T-050 の `CD-2` が消す範囲も決まらない。
     const built = stage(documentOfTwoTaskGroups())
     built.pressTask(PARENT_TASK)
@@ -561,8 +561,8 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen Task duplicates that Task only', 
 
 describe('FR-033 -- SK-4 then SK-5 on a chosen row duplicates the row subtree', () => {
   it('⭐⭐ the pair of keys leaves two more rows in the document', () => {
-    // 「行見出しパネルでは、選ばれた `TaskGroup` を**部分木ごと**複製すること」, and
-    // 表 T-223 の `DU-2` names 「配下の行」 as what travels with it.
+    // 「タスクグループパネルでは、選ばれた `TaskGroup` を**部分木ごと**複製すること」, and
+    // 表 T-223 の `DU-2` names 「配下のタスクグループ」 as what travels with it.
     const built = stage(documentOfTwoTaskGroups())
     built.pressRow(PARENT_TASK_GROUP)
 
@@ -577,8 +577,8 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen row duplicates the row subtree', 
   })
 
   it('and the Tasks on the copied rows come with them (DU-2)', () => {
-    // 「その行に載っているすべての `Task`」 and
-    // 「⚠️ **複製した `Task` は複製した行に載せる。**」
+    // 「そのタスクグループに載っているすべての `Task`」 and
+    // 「⚠️ **複製した `Task` は複製したタスクグループに載せる。**」
     const built = stage(documentOfTwoTaskGroups())
     built.pressRow(PARENT_TASK_GROUP)
 
@@ -592,7 +592,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen row duplicates the row subtree', 
       .filter((uid) => newTaskGroups.includes(built.taskGroupOfTask(uid) ?? ''))
     expect(
       carried.length,
-      'the copied rows came up empty, which DU-2 (「その行に載っているすべての `Task`」) forbids',
+      'the copied rows came up empty, which DU-2 (「そのタスクグループに載っているすべての `Task`」) forbids',
     ).toBe(2)
   })
 })

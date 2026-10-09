@@ -14,9 +14,9 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 // WHY: CR-690 -- the old span row retired (its rules are FX-1 / FX-5), the span applies only while fixed (S-532), days carry the year (FX-8).
 const IX_12 = '表 T-024 の `IO-3`・`IO-4`・`IO-6` の絵を `IX-13` 〜 `IX-16` で描くこと（MUST）'
-const IX_14_ALL_TASK_GROUPS = '| IX-14 | 期間の絵の縦 | ⭐ `FR-018` の 表 T-329 が描く行のすべてを、上から下まで並べること（MUST）'
-const IX_14_ZOOM_ONE = '行の高さは、`FR-039` の 表 T-252 の `DS-8` の縦のズーム（表 T-203 の `S-76`）を 1 と置いて組むこと（MUST）（`DS-13` は縦のズームを掛けない）'
-const IX_15_NO_FIT = '`S-217` を超えるときは `IX-5` ・ `IX-6` のとおりとする。⛔ 収めるために、行の高さ・1 日の幅・字の大きさを変えてはならない（MUST NOT）'
+const IX_14_ALL_TASK_GROUPS = '| IX-14 | 期間の絵の縦 | ⭐ `FR-018` の 表 T-329 が描くタスクグループのすべてを、上から下まで並べること（MUST）'
+const IX_14_ZOOM_ONE = 'タスクグループの高さは、`FR-039` の 表 T-252 の `DS-8` の縦のズーム（表 T-203 の `S-76`）を 1 と置いて組むこと（MUST）（`DS-13` は縦のズームを掛けない）'
+const IX_15_NO_FIT = '`S-217` を超えるときは `IX-5` ・ `IX-6` のとおりとする。⛔ 収めるために、タスクグループの高さ・1 日の幅・字の大きさを変えてはならない（MUST NOT）'
 const IX_16 = '| IX-16 | 期間の絵に描く UI パーツ | 表 T-076 に従うこと（MUST）'
 const FR_096_SPAN = '行の語は `FR-038` の辞書の `exportChooser` の `fitSpan` の語とし、その中の 2 つの日を `FR-055` の 表 T-367 の `FX-8` の形で書くこと（MUST）'
 const EP_3_NO_DOM = '画面は名前を箱の上端に寄せて置き（`FR-085`）、書き出しは字をベースラインで置くので、測らずに同じ高さへ揃えるには上端からの補正が要る —— `EP-1` の `Document Title` と同じ考え方である。⛔ DOM を測って揃えてはならない（MUST NOT）'

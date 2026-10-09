@@ -45,7 +45,7 @@ const BLUE = bare(verticalIn('T-294', 'S-319').cells[1] ?? '')
 
 
 const IR_1 =
-  '欄なら 表 T-016 の行 ID、入口なら `_assets/tbl-glossary.md` の 表 T-109 の行 ID、プロパティパネルの行の名前の欄なら `_assets/fig-erd-detail.md` の `AT-53`、どれでもなければ文書の本体。'
+  '欄なら 表 T-016 の行 ID、入口なら `_assets/tbl-glossary.md` の 表 T-109 の行 ID、プロパティパネルのタスクグループ名の欄なら `_assets/fig-erd-detail.md` の `AT-53`、どれでもなければ文書の本体。'
 const CV_9_HOST_INPUT = '閲覧環境の色の入力（`input type=color`）は、カスタムカラーの入口を押したときにだけ出すこと（MUST）'
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
@@ -234,7 +234,7 @@ function openCustom(built: Bench): FakeElement {
 }
 
 describe('IR-1 -- the row fields carry their T-016 row IDs', () => {
-  it('IR-1 still says: 欄なら 表 T-016 の行 ID ... プロパティパネルの行の名前の欄なら AT-53', () => {
+  it('IR-1 still says: 欄なら 表 T-016 の行 ID ... プロパティパネルのタスクグループ名の欄なら AT-53', () => {
     expect(REQUIREMENTS).toContain(IR_1)
   })
 

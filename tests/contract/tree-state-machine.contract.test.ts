@@ -61,7 +61,7 @@ const FR_018_BY_T_328 =
   '値を書き換える入口と先の値は、段 0 の畳み（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST）'
 const FR_018_NO_OTHER_WRITER = '同表に無い操作で値を書き換えてはならない（MUST NOT）'
 const FR_018_BY_T_329 =
-  '行の木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外す行を 表 T-329 に従って決めること（MUST）'
+  'タスクグループの木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外すタスクグループを 表 T-329 に従って決めること（MUST）'
 
 // see T-328
 // WHY: one tree reaches every guard of the table: an ancestor of the pressed row, the pressed row,
@@ -81,7 +81,7 @@ const PRESSED = 'P'
 // relation isRevealedTaskGroupOrAncestor has to tell apart.
 const REVEALED = 'G'
 const SJ_2_OPENS =
-  '飛ぶ先の行（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする —— 今の値が `hidden` でも、確かめを問わない。'
+  '飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする —— 今の値が `hidden` でも、確かめを問わない。'
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -279,7 +279,7 @@ describe('SD-3: a cell the table leaves empty writes nothing (the same reference
 describe(`table T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
   it('the requirement still says it, word for word, and names taskGroupRevealAsked of table T-328', () => {
     expect(REQUIREMENTS).toContain(SJ_2_OPENS)
-    expect(REQUIREMENTS).toContain('規則は行の木の状態機械（表 T-328）の出来事 `taskGroupRevealAsked` が持つ。')
+    expect(REQUIREMENTS).toContain('規則はタスクグループの木の状態機械（表 T-328）の出来事 `taskGroupRevealAsked` が持つ。')
   })
 
   it('opens the row jumped to and every ancestor, a hidden one included, and nothing else', () => {

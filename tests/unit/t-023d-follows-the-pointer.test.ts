@@ -63,8 +63,8 @@
 //           「`GA-1` / `GA-2` / `GA-3` / `GA-4` / `GA-20` / `GA-9` / `GR-14` /
 //           `GA-16` / `GR-16` / `GR-21` を掴んでいるあいだ、置くことになる姿を、ポインタに
 //           追従させて描いて示すこと（MUST）……⚠️ `GA-9` は縦にも追従すること
-//           （MUST）—— 行の載せ替え（表 T-015a の `HM-3`）は縦の移動そのもの
-//           なので、縦を止めるとどの行へ載るのかが見えない。⚠️ 確定は 表 T-028 の
+//           （MUST）—— タスクグループの載せ替え（表 T-015a の `HM-3`）は縦の移動そのもの
+//           なので、縦を止めるとどのタスクグループへ載るのかが見えない。⚠️ 確定は 表 T-028 の
 //           `IN-1` に従う（離した時点）」
 //           ⭐ THE TEN ROW IDS ARE READ OUT OF THE MANUSCRIPT, NOT COPIED --
 //           see `closingRuleRows()`.
@@ -91,7 +91,7 @@
 //   T-023d GA-20          再開アイコン、マーカーのさらに外側、`resume` を変える
 //           （`FR-044`）
 //   T-023d GA-9         予定バー本体、端点を除いた中間、予定の平行移動
-//           （`FR-011`）と、縦に動かしたときの行の載せ替え（表 T-015a の `HM-3`）
+//           （`FR-011`）と、縦に動かしたときのタスクグループの載せ替え（表 T-015a の `HM-3`）
 //   T-023d GR-14         コメントボックス / ハイライトボックス、本体・アンカー・
 //           四隅、動かす / 大きさを変える
 //   T-023d GA-16         実績のマイルストーン、実績の図形の上、`actualStart` を
@@ -108,10 +108,10 @@
 //   T-028 IN-1   「ポインタ操作は押した時点で実行せず、離した時点で確定すること」
 //   FR-031  「文書を変えるドラッグ 1 回を 1 段にまとめること（MUST）」
 //   FR-011  「タスクの本体をドラッグしたとき、予定の日付だけをずらし、実績の
-//           日付を変えてはならない（MUST NOT）。行をまたぐ移動では予定も実績も
-//           新しい行へ移るが、どちらの日付も変わらない（MUST NOT）」
-//   T-015a HM-3  「タスクバーを別の行へ移す操作では WBS を変えてはならない
-//           （MUST NOT）—— 行の移動と階層の移動は別の操作である」
+//           日付を変えてはならない（MUST NOT）。タスクグループをまたぐ移動では予定も実績も
+//           新しいタスクグループへ移るが、どちらの日付も変わらない（MUST NOT）」
+//   T-015a HM-3  「タスクバーを別のタスクグループへ移す操作では WBS を変えてはならない
+//           （MUST NOT）—— タスクグループの移動と階層の移動は別の操作である」
 //   FR-044  「`Task` が中断しているあいだ、`GRS` は、作成者が再開予定日を画面上で
 //           置き、置いた後に動かせるようにすること」
 //   FR-046  基準日を動かす経路（`statusDate`）
@@ -932,7 +932,7 @@ describe('the manuscript still states the rule this file is about', () => {
     )
     expect(
       line,
-      'the reason it gives: 行の載せ替え（表 T-015a の `HM-3`）は縦の移動そのもの',
+      'the reason it gives: タスクグループの載せ替え（表 T-015a の `HM-3`）は縦の移動そのもの',
     ).toContain('表 T-015a の `HM-3`')
   })
 
@@ -1166,7 +1166,7 @@ describe('table T-023d GA-9: the plan bar follows the pointer downwards too', ()
     built.send(pointer('move', at.x, at.y + down))
     expect(
       midY(planBox(built.loop, PLAIN_UID)),
-      'table T-023d: `GA-9` は縦にも追従すること（MUST）—— 縦を止めるとどの行へ載るのかが見えない',
+      'table T-023d: `GA-9` は縦にも追従すること（MUST）—— 縦を止めるとどのタスクグループへ載るのかが見えない',
     ).toBeGreaterThan(held)
   })
 
@@ -1309,9 +1309,9 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
   })
 
   it('GA-9 settles the row on a downward release, and moves no date and no parent task', () => {
-    // FR-011: 「行をまたぐ移動では予定も実績も新しい行へ移るが、どちらの日付も
-    // 変わらない（MUST NOT）」, and HM-3 of table T-015a: 「タスクバーを別の行へ
-    // 移す操作では WBS を変えてはならない（MUST NOT）—— 行の移動と階層の移動は
+    // FR-011: 「タスクグループをまたぐ移動では予定も実績も新しいタスクグループへ移るが、どちらの日付も
+    // 変わらない（MUST NOT）」, and HM-3 of table T-015a: 「タスクバーを別のタスクグループへ
+    // 移す操作では WBS を変えてはならない（MUST NOT）—— タスクグループの移動と階層の移動は
     // 別の操作である」.
     const built = stage()
     const before = structuredClone(taskOf(built.loop, PLAIN_UID))
@@ -1325,7 +1325,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     built.send(pointer('up', at.x, at.y + down))
     expect(
       memberGroupOf(built.loop, PLAIN_UID),
-      'table T-023d GA-9: 縦に動かしたときの行の載せ替え（表 T-015a の `HM-3`）',
+      'table T-023d GA-9: 縦に動かしたときのタスクグループの載せ替え（表 T-015a の `HM-3`）',
     ).toBe(TASK_GROUP_B)
     const after = taskOf(built.loop, PLAIN_UID)
     expect(after.start, 'FR-011: どちらの日付も変わらない（MUST NOT）').toBe(before.start)
@@ -1335,7 +1335,7 @@ describe('table T-028 IN-1: the release settles what the picture was showing', (
     )
     expect(
       after.parentTaskUid,
-      'T-015a HM-3: タスクバーを別の行へ移す操作では WBS を変えてはならない（MUST NOT）',
+      'T-015a HM-3: タスクバーを別のタスクグループへ移す操作では WBS を変えてはならない（MUST NOT）',
     ).toBe(before.parentTaskUid)
   })
 

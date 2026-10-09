@@ -11,7 +11,7 @@
 // ⭐⭐ THE CLAUSE, VERBATIM (docs/spec/01-04-requirements.md, 表 T-051 の `HF-17`)
 // ---------------------------------------------------------------------------
 //
-//   「⚠️ 本行で行を足すとき、段 0 が畳まれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ開くこと
+//   「⚠️ 本行でタスクグループを足すとき、段 0 が畳まれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ開くこと
 //    （MUST）。すべて開いてはならない（MUST NOT）」（利用者の裁定 2026-09-06
 //    「(a) ただし、1 階層だけ開くこと」） —— 「開かなければ、本行の MUST NOT
 //    （打ち込み口だけを送ってはならない）が破れる。」「すべて開けば `HF-10` と
@@ -19,7 +19,7 @@
 //
 // and 表 T-015 の `HR-2` (全畳み), which is how a fixture folds 段 0 at all:
 //
-//   「最も浅い段の行も畳むこと（MUST）」…「段 0 が畳まれているかは
+//   「最も浅い段のタスクグループも畳むこと（MUST）」…「段 0 が畳まれているかは
 //    `_assets/tbl-settings.md` の 表 T-203 の `S-418` が持つ」
 //
 // ---------------------------------------------------------------------------
@@ -86,10 +86,10 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** ⭐⭐ THE CLAUSE CR-368 ADDED TO HF-17 ON 2026-09-06, verbatim. */
 const HF_17_OPENS_ONE_LEVEL =
-  '本行で行を足すとき、段 0 が畳まれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ開くこと（MUST）。すべて開いてはならない（MUST NOT）'
+  '本行でタスクグループを足すとき、段 0 が畳まれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ開くこと（MUST）。すべて開いてはならない（MUST NOT）'
 
 /** 表 T-015 の `HR-2` -- the rule that lets a fixture fold 段 0 in the first place. */
-const HR_2_FOLDS_LEVEL_ZERO_TOO = '最も浅い段の行も畳むこと（MUST）'
+const HR_2_FOLDS_LEVEL_ZERO_TOO = '最も浅い段のタスクグループも畳むこと（MUST）'
 
 describe('the manuscript this file is driven by', () => {
   it('still asks HF-17 to open exactly one level, never every fold', () => {
@@ -365,7 +365,7 @@ describe('premise -- HEAD_FOLD_EVERY_TASK_GROUP (HR-2) folds 段 0 itself', () =
 
     expect(
       drawnTaskGroups(built),
-      'HR-2 (MUST): 最も浅い段の行も畳むこと -- the roots should have gone with everything else',
+      'HR-2 (MUST): 最も浅い段のタスクグループも畳むこと -- the roots should have gone with everything else',
     ).toEqual([])
     expect(canOpenLevelZero(built), 'HF-16 should now be armed to open the fold this made').toBe(
       true,

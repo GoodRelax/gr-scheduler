@@ -42,13 +42,13 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/\*\*/g, '').replace(/\s*\n\s*/g, '')
 
-const IP_5_ROOT = '上に行の無い行（最上位の行）に載る `Task` は、`parentTaskUid` が `null` なら親なし（根）とする。'
+const IP_5_ROOT = '上にタスクグループの無いタスクグループ（最上位のタスクグループ）に載る `Task` は、`parentTaskUid` が `null` なら親なし（根）とする。'
 const IP_5_NO_VO_4 = '候補を求めず、表 T-312 の `VO-4` にしない。'
 const FR_135_FAMILY = '家族とは、持ち主の `Task` から親への矢印と、持ち主の子からその `Task` への矢印である。'
-const FR_135_NOT_ALL = '⛔ すべての親子を一度に描いてはならない（MUST NOT）'
+const FR_135_NOT_ALL = '⛔ すべての親タスクと子タスクを一度に描いてはならない（MUST NOT）'
 const FR_135_SHAPE = '矢印は、子のバーの上辺の中ほどから縦に上がり、矢じりが親のバーの下辺に触れる形とし'
 const FR_135_BEND = '子の中ほどが親の幅の外にあれば、子の上で 1 度折れて親の幅の中へ寄ること（MUST）'
-const FR_135_INK = '明記の親（`parentTaskUid`）への矢印は実線、表 T-318 で導いた親への矢印は `_assets/tbl-settings.md` の 表 T-206 の `S-486` の刻みの破線とし'
+const FR_135_INK = '明記の親タスク（`parentTaskUid`）への矢印は実線、表 T-318 で導いた親タスクへの矢印は `_assets/tbl-settings.md` の 表 T-206 の `S-486` の刻みの破線とし'
 const FR_135_HEAD = '矢じりは依存線と同じ大きさ（表 T-201 の `S-19` ・ `S-300`）とすること（MUST）'
 const FR_135_HIT = '矢印の当たりの太さは 表 T-206 の `S-485` とする。'
 const FR_135_QUERY = '子の上に `?` を、表 T-318 の `IP-4` の並びの頭 3 つの候補に破線の枠と並びの番号を'

@@ -12,7 +12,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // WHY: the constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const EP_9_S_149 =
-  ' | 操作子としては描かない。境界の線を描く | 境界が消えると行見出しと日程の境目が読めない。`Group Grid Lines`（`U-18`）と同じ太さの線を 1 本、表 T-236 の `S-149`（罫の色）で引くこと（MUST）'
+  ' | 操作子としては描かない。境界の線を描く | 境界が消えるとタスクグループ見出しと日程の境目が読めない。`Group Grid Lines`（`U-18`）と同じ太さの線を 1 本、表 T-236 の `S-149`（罫の色）で引くこと（MUST）'
 
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 const BASE_SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))

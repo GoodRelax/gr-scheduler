@@ -4,7 +4,7 @@
 // reason instead of a row.
 //
 // ⚠️ THE ROW WAS REWRITTEN ON 2026-09-04 (CR-348) AND THIS FILE FOLLOWED IT.
-// 「打ち込み口を出さずに」 became 「行を立てずに」 because the field it named was
+// 「打ち込み口を出さずに」 became 「タスクグループを立てずに」 because the field it named was
 // withdrawn from the same row: an ordinary press now raises the row with a
 // default name and opens its properties panel (the `FR-085` rename road), so
 // there is no name field left to withhold -- what the refusal withholds is the
@@ -13,17 +13,17 @@
 // ⭐ THE THREE SENTENCES THIS FILE IS WRITTEN FROM, verbatim out of 表 T-051's
 // `HF-14` (docs/spec/01-04-requirements.md):
 //
-//   ⛔ 「**その行の深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く
+//   ⛔ 「**そのタスクグループの深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く
 //    描くこと（MUST）**」 —— ⭐ 「**`HF-13` が「開ける直下の子が 1 つも無いとき」に
 //    採るのと同じ形である。**」
-//   ⛔⛔ 「**薄いまま押されたときは、行を立てずに理由を告げること（MUST）。理由は
+//   ⛔⛔ 「**薄いまま押されたときは、タスクグループを立てずに理由を告げること（MUST）。理由は
 //    表 T-233 の `RS-46` とすること（MUST）**」
-//   ⛔ 「**行を立ててからパネルを開き、そこで拒んではならない（MUST NOT）**」 ——
+//   ⛔ 「**タスクグループを立ててからパネルを開き、そこで拒んではならない（MUST NOT）**」 ——
 //    「**押した人には、名づけを求められたうえで捨てられたようにしか見えない。**」
 //
 // and out of 表 T-233:
 //
-//   「| RS-46 | **これ以上深い段には行を足せない** | `NT-3a` | `FR-085` |」
+//   「| RS-46 | **これ以上深い段にはタスクグループを足せない** | `NT-3a` | `FR-085` |」
 //
 // ⛔ AND THE ROW IT MUST NOT BE CONFUSED WITH, which CR-340 names outright:
 //   「| RS-38 | 深さの上限に達しているので、これ以上深い段へは動かせない | `NT-1` |
@@ -50,16 +50,16 @@
 // ---------------------------------------------------------------------------
 // ⛔ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
 // ---------------------------------------------------------------------------
-//   1. WHAT AN ORDINARY (UNREFUSED) PRESS RAISES. 「既定の名前で行を立てること
-//      （MUST）。その行のプロパティパネルを出し…（MUST）」 is HF-14's other half, and
+//   1. WHAT AN ORDINARY (UNREFUSED) PRESS RAISES. 「既定の名前でタスクグループを立てること
+//      （MUST）。そのタスクグループのプロパティパネルを出し…（MUST）」 is HF-14's other half, and
 //      it belongs to a file about the ordinary press -- this one is named for
 //      the cap. ⛔ The old note here said the withheld half could not be read at
 //      this seam because it was a NAME FIELD; CR-348 withdrew that field, and
 //      what the refusal withholds is now the ROW and the PANEL, both of which
 //      this seam carries (`FrameLoop.document()` and
 //      `ScreenView.propertiesPanel`) and both of which are asserted below.
-//   1b. WHETHER THE DETAIL TIER WAS OPENED. 「立てた行が…詳しさの段（`FR-018`）で
-//      落ちる深さになるときは、その行が描かれるまで詳しさの段を開くこと（MUST）」 is a
+//   1b. WHETHER THE DETAIL TIER WAS OPENED. 「立てたタスクグループが…詳しさの段（`FR-018`）で
+//      落ちる深さになるときは、そのタスクグループが描かれるまで詳しさの段を開くこと（MUST）」 is a
 //      2026-09-04 MUST about the press that SUCCEEDS. ⛔ It is not written here:
 //      no press in this file raises a row, and choosing the seam it is read
 //      through is the implementer's, not this file's.
@@ -149,7 +149,7 @@ const ADD_CHILD_TASK_GROUP = entranceFor('HF-14')
 /** The manner 表 T-233 writes one reason against. */
 const mannerOf = (reason: string): string => bare(rowOf('T-233', reason).by['作法'] ?? '')
 
-/** RS-46 -- 「これ以上深い段には行を足せない」. */
+/** RS-46 -- 「これ以上深い段にはタスクグループを足せない」. */
 const RS_46 = 'RS-46'
 /** RS-38 -- the MOVE at the cap, which CR-340 forbids reusing for the ADD. */
 const RS_38 = 'RS-38'
@@ -208,7 +208,7 @@ const uuidOf = (n: number): string => `00000000-0000-4000-8000-${String(n).padSt
  *
  * ⭐ THE DEPTH IS COUNTED FROM THE ROOT, which S-125 fixes and
  * tests/contract/document-invariants.contract.test.ts reads the same way. So
- * the last link is the row 「その行の深さが `FR-085` の上限に達している」 names, and
+ * the last link is the row 「そのタスクグループの深さが `FR-085` の上限に達している」 names, and
  * the one before it is the control: it is deep, and it may still take a child.
  */
 const CHAIN: readonly { readonly id: string; readonly depth: number }[] = Array.from(
@@ -445,28 +445,28 @@ describe('the manuscript still says what these cases read', () => {
     // manuscript which went back on any of them fails HERE rather than in a
     // case that would then be asserting a rule nobody holds.
     expect(says('T-051', 'HF-14')).toContain(
-      'その行の深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描くこと（MUST）',
+      'そのタスクグループの深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描くこと（MUST）',
     )
     expect(says('T-051', 'HF-14')).toContain(
-      '薄いまま押されたときは、その行の配下に新しい行を立てないこと（MUST）。運ぶ理由は 表 T-233 の `RS-46` とすること（MUST）',
+      '薄いまま押されたときは、そのタスクグループの配下に新しいタスクグループを立てないこと（MUST）。運ぶ理由は 表 T-233 の `RS-46` とすること（MUST）',
     )
     // ⛔⛔ CR-348's own MUST NOT, and the reason the case below reads the row
     // count and the panel rather than the reason alone: raising the row and
     // refusing inside the panel would tell RS-46 and still be forbidden.
     expect(says('T-051', 'HF-14')).toContain(
-      '行を立ててからパネルを開き、そこで拒んではならない（MUST NOT）',
+      'タスクグループを立ててからパネルを開き、そこで拒んではならない（MUST NOT）',
     )
   })
 
   it('⛔ HF-14 no longer holds the model that was withdrawn on 2026-09-04', () => {
     // ⚠️ THE GUARD THAT KEEPS THIS FILE HONEST. CR-348 withdrew three MUSTs
     // (「名前は空で立てる」「既定の名を与えてはならない」「空のまま確定されたら立てない」)
-    // and the row now says the opposite: 「**押された瞬間に、既定の名前で行を立てる
-    // こと（MUST）。その行のプロパティパネルを出し、名前の欄で名づけさせること（MUST）**」.
+    // and the row now says the opposite: 「**押された瞬間に、既定の名前でタスクグループを立てる
+    // こと（MUST）。そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせること（MUST）**」.
     // ⛔ If a case in this file ever reads an empty name field or an empty-name
     // confirmation again, this is what says it is reading a rule nobody holds.
     expect(says('T-051', 'HF-14')).toContain(
-      '押された瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティパネルを出し、名前の欄で名づけさせること（MUST）',
+      '押された瞬間に、既定の名前でタスクグループを立てること（MUST）。そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせること（MUST）',
     )
     expect(says('T-051', 'HF-14')).not.toContain('打ち込み口')
   })
@@ -474,8 +474,8 @@ describe('the manuscript still says what these cases read', () => {
   it('⛔ 表 T-233 still holds RS-46, against NT-3a, and its words are in the dictionary', () => {
     // ⭐ THE MANNER IS THE HALF THAT IS EASY TO GET WRONG, and CR-340 argued it:
     // the reader asked for something the tool cannot do, and a next step exists
-    // (「もっと浅い行に足してください」), so NT-3a and not NT-1.
-    expect(rowOf('T-233', RS_46).by['場面']).toContain('これ以上深い段には行を足せない')
+    // (「もっと浅いタスクグループに足してください」), so NT-3a and not NT-1.
+    expect(rowOf('T-233', RS_46).by['場面']).toContain('これ以上深い段にはタスクグループを足せない')
     expect(mannerOf(RS_46)).toBe('NT-3a')
     expect(bare(rowOf('T-233', RS_46).by['正'] ?? '')).toBe('FR-085')
     for (const language of ['ja', 'en'] as const) {
@@ -504,7 +504,7 @@ describe('the manuscript still says what these cases read', () => {
 
 describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () => {
   it('⛔ the row AT the cap is described as having nothing to add, and the one above it is not', () => {
-    // ⭐ 「その行の深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描く
+    // ⭐ 「そのタスクグループの深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描く
     // こと（MUST）」. Faintness is drawn by the surface; what this unit owes is the
     // answer the surface draws FROM -- and 「`HF-13` が「開ける直下の子が 1 つも無い
     // とき」に採るのと同じ形である」 is what says the two are read the same way.
@@ -525,7 +525,7 @@ describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () 
     it(`⭐ a press at the cap shows none of RS-46's, RS-38's or RS-15's words (${language})`, () => {
       // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR, measured in CR-340 and still
       // written into HF-14: 「⚠️ **実測（2026-09-03、出荷ビルド）: 深さ 5 で入口は
-      // 薄いまま押せ、押した先は開き、確定しても行は増えず通知も出なかった。**」
+      // 薄いまま押せ、押した先は開き、確定してもタスクグループは増えず通知も出なかった。**」
       // ⇒ 「**押した人には、名づけを求められたうえで捨てられたようにしか見えない。**」
       const built = stage(language)
 
@@ -554,7 +554,7 @@ describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () 
   })
 
   it('⛔ the refused press leaves the document exactly as it was', () => {
-    // ⭐ 「**薄いまま押されたときは、行を立てずに理由を告げること（MUST）**」. Since
+    // ⭐ 「**薄いまま押されたときは、タスクグループを立てずに理由を告げること（MUST）**」. Since
     // CR-348 this is the WHOLE of that half, and it is readable right here: the
     // row is what the refusal withholds, so the row count is the assertion.
     const built = stage()
@@ -566,7 +566,7 @@ describe('表 T-051 HF-14 (MUST): a row at FR-085s cap has no child to add', () 
     expect(taskGroupCount(built), 'a row was added past S-125').toBe(taskGroupsBefore)
     expect(JSON.stringify(built.loop.document())).toBe(before)
     expect(built.loop.hasUnsavedEdits()).toBe(false)
-    // ⛔ 「**行を立ててからパネルを開き、そこで拒んではならない（MUST NOT）**」 -- the
+    // ⛔ 「**タスクグループを立ててからパネルを開き、そこで拒んではならない（MUST NOT）**」 -- the
     // ordinary press opens the properties panel (`UF-64`), so a refusal that
     // opened it too would be the very shape CR-348 forbids.
     expect(

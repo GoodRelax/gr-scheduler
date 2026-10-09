@@ -11,7 +11,7 @@ import { rowOf } from './sws-case'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 const CLAUSE_RIGHT_MARGIN =
-  '⭐ 並びのいちばん右の操作子（すべて消す）の外形と、行見出しパネルの右端とのあいだを、行の並び（`HF-4`）と同じく `_assets/tbl-settings.md` の 表 T-206 の `S-313` とすること（MUST）'
+  '⭐ 並びのいちばん右の操作子（すべて消す）の外形と、タスクグループパネルの右端とのあいだを、タスクグループの並び（`HF-4`）と同じく `_assets/tbl-settings.md` の 表 T-206 の `S-313` とすること（MUST）'
 const CLAUSE_TAB_ORDER = '⭐ 焦点が `Tab` で進む順も、この並びの左から右とすること（MUST）'
 
 // see T-109

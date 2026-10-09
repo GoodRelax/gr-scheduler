@@ -32,9 +32,9 @@ const rowText = (table: string, id: string): string => {
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const T_270_WHOLE =
   'それまでの選択は置き換える（表 T-023c の `SL-2`）。⭐ 選択に含まれるものの本体を引けば、選択の全部が動くこと（MUST）'
-const T_270_KEPT = '—— 横は同じ日数、縦は同じ行数である。離した後も全部が選ばれたままとすること（MUST）'
+const T_270_KEPT = '—— 横は同じ日数、縦は同じタスクグループ数である。離した後も全部が選ばれたままとすること（MUST）'
 const T_270_STOP =
-  '行の数は画面に描いた行で数え、最初の行より上か最後の行より下へ出るものがあれば、全体をそこで止めること（MUST）'
+  'タスクグループの数は画面に描いたタスクグループで数え、最初のタスクグループより上か最後のタスクグループより下へ出るものがあれば、全体をそこで止めること（MUST）'
 const T_270_SHIFT =
   '⭐ `Shift` だけを伴って本体（`PE-1` ・ `PE-6`）を引いたときは、横の成分を当てず、縦だけを当てること（MUST）'
 const SL_7 = '| SL-7 | まとめて動かす | 選択に含まれる対象の本体をドラッグしたとき、選択されている全部を動かすこと（MUST）'

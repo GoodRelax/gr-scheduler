@@ -889,7 +889,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       // STEP: LF-2 sums each lane to its drawn edge (VG-5) and adds one VG-2 gap per lane, the bottom one included.
       mentions(T221, 'LF-2', 'VG-5', 'VG-2', '段数と同じ数')
       mentions(T221, 'LF-3', 'HF-1', '帯高の床に数えない')
-      mentions(T051, 'HF-19', '行の帯高の下限にしてはならない（MUST NOT）')
+      mentions(T051, 'HF-19', 'タスクグループの帯高の下限にしてはならない（MUST NOT）')
       let belowTheLattice = 0
       for (const [name, drawn] of bandDocuments()) {
         for (const taskGroup of drawn.layout.taskGroups) {
@@ -1058,7 +1058,7 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
   // names `LF-2` and `LF-3` alone, and NO SW_SPEC node of Chapter 6.1 names
   // `LF-14` -- so the completeness check at the foot of this file has been
   // demanding a case that has no node of its own to hang from. It is filed here
-  // because `LF-14` is written as an amendment to `LF-3` (「帯へ上げた行は
+  // because `LF-14` is written as an amendment to `LF-3` (「帯へ上げたタスクグループは
   // `LF-3` の連なりから除き、抜けた場所は詰める」), which is exactly what SWS-2
   // owns. ⛔ REPORTED AS A HOLE: either SWS-2's STATEMENT gains the row, or
   // Chapter 6.1 gains a node for FR-098's band.
@@ -1077,9 +1077,9 @@ describe('SWS-2 -- decide a row band and where it sits (FR-003)', () => {
       then: 'the pinned row stands at the top of the Task Group Area and the rest close up one band and one taskGroupGap below it',
     }),
     () => {
-      // LF-14: 「帯の高さは、帯に置く行の帯高（`LF-2`）を合計し、行と行のあいだに
-      //   `taskGroupGap` をその数から 1 を引いた数だけ加えたものとする。帯へ上げた行は
-      //   `LF-3` の連なりから除き、抜けた場所は詰める。スクロールする行が並ぶのは、
+      // LF-14: 「帯の高さは、帯に置くタスクグループの帯高（`LF-2`）を合計し、タスクグループとタスクグループのあいだに
+      //   `taskGroupGap` をその数から 1 を引いた数だけ加えたものとする。帯へ上げたタスクグループは
+      //   `LF-3` の連なりから除き、抜けた場所は詰める。スクロールするタスクグループが並ぶのは、
       //   `Task Group Area` の高さから帯の高さと `taskGroupGap` 1 つぶんを引いた残りとする」,
       // with FR-098: 「本要求でいう「画面の上端」とは … `U-50`（`Task Group Area`）の
       //   上端をいう（MUST）」.
@@ -1713,7 +1713,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       ).toBeLessThanOrEqual(actualRight + 1e-9)
       expect(
         marker.centre.x + marker.radius,
-        '⛔ 名称ラベルをマーカーの左に置いてはならない（MUST NOT） —— どの行でも左から マーカー → 名前 の順である。',
+        '⛔ 名称ラベルをマーカーの左に置いてはならない（MUST NOT） —— どのタスクグループでも左から マーカー → 名前 の順である。',
       ).toBeCloseTo(label.x - SETTINGS_CONSTANTS.labelGap * DISPLAY_RATIO, 6)
     },
   )
@@ -2108,7 +2108,7 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
       then: 'the anchor stands at the centre of the day 5 column and the centre of the band the row is drawn in',
     }),
     () => {
-      mentions(T221, 'LF-15', '`anchorDate` の日の列の中央', '`anchorGroupId` の行が描かれた帯', '`LF-14`')
+      mentions(T221, 'LF-15', '`anchorDate` の日の列の中央', '`anchorGroupId` のタスクグループが描かれた帯', '`LF-14`')
       for (const pinned of [[], ['g2']]) {
         const bare = draw(
           [task({ uid: 1, name: 'a', start: day(2), finish: day(8) })],

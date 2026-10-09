@@ -35,7 +35,7 @@
 //             表 T-028 の `IN-1`; see the describe below）, 「⚠️ 確定は 表 T-028 の
 //             `IN-1` に従う（離した時点）」, 「判定は `Task Group Area` の幅が 0 より
 //             大きいことをもって行うこと（MUST）……これが 0 以下になる組を
-//             受け付けてはならない（MUST NOT）」 and 「行見出しパネルの幅を 0 に
+//             受け付けてはならない（MUST NOT）」 and 「タスクグループパネルの幅を 0 に
 //             できてはならない（MUST NOT）」.
 //   T-023d    its closing rule for the fade: 「`GA-7` / `GA-8` を掴んでいる
 //             あいだ、置くことになるフェードの形と掴み点を描いて示すこと
@@ -97,7 +97,7 @@
 //   S-134     「`Panel Divider` の掴み帯（`FR-051`）| 境界に重なる 8px」 -- the
 //             band is ON the boundary, which is why every divider case below
 //             presses its CENTRE (see `boundaryOf`).
-//   T-031 SC-3   行見出しパネルは拡大しても常に表示されている -- the reason
+//   T-031 SC-3   タスクグループパネルは拡大しても常に表示されている -- the reason
 //             FR-052 forbids a width of 0.
 //   U-50 / FR-052's own formula: `Task Group Area` の幅 = `Schedule Canvas` の幅 −
 //             `canvasPadding` − 2 つの幅 − 縦のスクロールバーの太さ.
@@ -1159,7 +1159,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     built.send(pointer('move', at.x - 30, at.y))
     expect(
       drawnPanelWidth(built.loop),
-      'FR-052: ⭐ ただし行見出しパネルの幅は、ポインタ位置が決める幅が `FR-039` の 表 T-252 の後の段が定める床を下回るとき、床で止めて描くこと（MUST）',
+      'FR-052: ⭐ ただしタスクグループパネルの幅は、ポインタ位置が決める幅が `FR-039` の 表 T-252 の後の段が定める床を下回るとき、床で止めて描くこと（MUST）',
     ).toBeCloseTo(was, 6)
   })
 
@@ -1445,7 +1445,7 @@ describe('FR-052: the pair a release writes keeps the `Task Group Area` above ze
     built.send(pointer('up', -600, at.y))
     expect(
       storedPanelWidth(built.loop),
-      'FR-052: 行見出しパネルの幅を 0 にできてはならない（MUST NOT）—— 表 T-031 の SC-3',
+      'FR-052: タスクグループパネルの幅を 0 にできてはならない（MUST NOT）—— 表 T-031 の SC-3',
     ).toBeGreaterThan(0)
   })
 

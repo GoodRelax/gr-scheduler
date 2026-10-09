@@ -29,20 +29,20 @@ const REQUIREMENTS = unbroken(
 )
 const TASK_GROUP_TREE_SECTION = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-state-machines.md'), 'utf8'),
-).split('## 行の木（`taskGroupTree`）')[1] ?? ''
+).split('## タスクグループの木（`taskGroupTree`）')[1] ?? ''
 
-const FR_018_BY_T_329 = '⭐ 行の木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外す行を 表 T-329 に従って決めること（MUST）'
+const FR_018_BY_T_329 = '⭐ タスクグループの木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外すタスクグループを 表 T-329 に従って決めること（MUST）'
 const FR_018_ONLY_T_328 = '⭐ 値を書き換える入口と先の値は、段 0 の畳み（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST） —— 同表に無い操作で値を書き換えてはならない（MUST NOT）'
-const T_329_HOW_TO_READ = '⭐ 行を描くのは、種類が「すべて要る」の行がすべて成り立ち、「どれか 1 つ」の行が 1 つでも成り立つときだけとすること（MUST）'
-const FR_016_TALLEST_AMONG_DRAWN = '⭐ いちばん高い行は、調べる倍率で `FR-018` が描く行から選ぶこと（MUST）'
-const HF_13_BY_T_328 = '⭐ 押した行と隠した直下の子が取る値は 表 T-328 の `oneLevelOpenPressed` の行に従うこと（MUST）'
-const HF_13_OPENABLE_CHILDREN = '⭐ 開ける直下の子は、`FR-018` の 表 T-329 で描かれていない子と、`temporarilyExpanded` の行があるから描かれているだけの子とすること（MUST）'
+const T_329_HOW_TO_READ = '⭐ タスクグループを描くのは、種類が「すべて要る」の行がすべて成り立ち、「どれか 1 つ」の行が 1 つでも成り立つときだけとすること（MUST）'
+const FR_016_TALLEST_AMONG_DRAWN = '⭐ いちばん高いタスクグループは、調べる倍率で `FR-018` が描くタスクグループから選ぶこと（MUST）'
+const HF_13_BY_T_328 = '⭐ 押したタスクグループと隠した直下の子が取る値は 表 T-328 の `oneLevelOpenPressed` の行に従うこと（MUST）'
+const HF_13_OPENABLE_CHILDREN = '⭐ 開ける直下の子は、`FR-018` の 表 T-329 で描かれていない子と、`temporarilyExpanded` のタスクグループがあるから描かれているだけの子とすること（MUST）'
 const HF_13_WEIGHT_AGREES = '⛔ 描いた濃さと、押して起きることを食い違わせてはならない（MUST NOT）'
-const HF_3_BY_T_328 = '⭐ 隠すときに行が取る値は `_assets/tbl-state-machines.md` の 表 T-328 の `hidePressed` の行に従うこと（MUST）'
-const HF_11_BY_T_328 = '⭐ 畳むときに行が取る値は 表 T-328 の `allBelowFoldPressed` の行に従うこと（MUST）'
-const HF_8_BY_T_328 = '人が全体表示（`FR-055`）を求めたとき、行と段 0 の値を `_assets/tbl-state-machines.md` の 表 T-328 の `fitPressed` の行と根の升に従って戻すこと（MUST）'
-const UN_14_ONE_PRESS_ONE_STEP = '⭐ 1 回の押下が書き換える行の木の状態は、行がいくつでも同じ 1 段に入れること（MUST）'
-const UN_14_LEVEL_ZERO_SAME_STEP = '⭐ 段 0 の畳み（`S-418`）は見せ方の群の鍵だが、同じ押下が書く行の木の状態と同じ段に入れること（MUST）'
+const HF_3_BY_T_328 = '⭐ 隠すときにタスクグループが取る値は `_assets/tbl-state-machines.md` の 表 T-328 の `hidePressed` の行に従うこと（MUST）'
+const HF_11_BY_T_328 = '⭐ 畳むときにタスクグループが取る値は 表 T-328 の `allBelowFoldPressed` の行に従うこと（MUST）'
+const HF_8_BY_T_328 = '人が全体表示（`FR-055`）を求めたとき、タスクグループと段 0 の値を `_assets/tbl-state-machines.md` の 表 T-328 の `fitPressed` の行と根の升に従って戻すこと（MUST）'
+const UN_14_ONE_PRESS_ONE_STEP = '⭐ 1 回の押下が書き換えるタスクグループの木の状態は、タスクグループがいくつでも同じ 1 段に入れること（MUST）'
+const UN_14_LEVEL_ZERO_SAME_STEP = '⭐ 段 0 の畳み（`S-418`）は見せ方の群の鍵だが、同じ押下が書くタスクグループの木の状態と同じ段に入れること（MUST）'
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)

@@ -39,7 +39,7 @@ const FR_039_NOT_PER_SURFACE = '⛔ 面ごとに書体の並びを変えては�
 const FR_039_NAMES_ARE_HEAVIER =
   '⭐ 表 T-012 の形状の名称ラベル（表 T-038 の `OC-1`）だけを、同書の 表 T-206 の `S-245` の太さで描くこと（MUST）'
 const FR_039_NOTHING_ELSE_IS_HEAVIER =
-  'タスクとマイルストーンの名前を、行見出しの名前や担当と完了率の札より目立たせる。⛔ ほかの字をその太さで描いてはならない（MUST NOT）'
+  'タスクとマイルストーンの名前を、タスクグループ名や担当と完了率の札より目立たせる。⛔ ほかの字をその太さで描いてはならない（MUST NOT）'
 
 const cellOf = (table: string, id: string, column: string): string => {
   const row = specTable(table).rows.find((one) => one.id === id)

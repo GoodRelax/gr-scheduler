@@ -36,7 +36,7 @@ import {
 const NO_BAND = '—'
 
 const T_266_ONE_TARGET_A_ROW = '⭐ 1 行が 1 つの操作対象である。'
-const T_266_NO_OTHER_ROW = '⛔ どの値も、ほかの行の掴み代を動かさないこと（MUST NOT）。'
+const T_266_NO_OTHER_ROW = '⛔ どの値も、ほかのタスクグループの掴み代を動かさないこと（MUST NOT）。'
 const T_266_VALUES_LIVE_IN_T_206 =
   '値は `_assets/tbl-settings.md` の 表 T-206 が持ち、単位は画面の px である（マイルストーンの予定の幅だけが比である）。'
 const FR_104_EVERY_TARGET =

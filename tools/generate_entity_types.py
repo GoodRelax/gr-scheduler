@@ -1082,7 +1082,7 @@ DRAWN_INTO_THE_EXPORTED_PICTURE = []
 # gap the name label of a line-only shape is lifted by (the label column of table
 # T-012), and it is read by the unit that lays the label out. ⛔ The ground of
 # S-138 and S-180 does NOT fit: both close with some form of "the
-# export does not show this", and EP-5 of table T-076 draws the Row Area's
+# export does not show this", and EP-5 of table T-076 draws the Task Group Area's
 # contents -- the name label among them -- INTO the exported picture. ⚠️ Nor is
 # S-194's sentence right: that one turns on the document keeping the two DATES,
 # and a label has no such pair. What table T-206 records here is that the
@@ -1163,9 +1163,9 @@ KEPT_WHERE_IT_STANDS = []
 SETTLED_WHERE_IT_STANDS = []
 # ⛔ AN EIGHTH SEAM: no door AND no caller, because the value is one END of a
 # DERIVATION this unit alone can carry out. FR-016 (MUST) states the ceiling of
-# the day axis as 「`Row Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）」, and
+# the day axis as 「`Task Group Area` の幅 ÷（`S-229` × 等倍のときの 1 日の幅）」, and
 # both of the other two terms are already here and nowhere else: the region is
-# `InputContext.regions.rowArea` and the width of one day at 等倍 is read back
+# `InputContext.regions.taskGroupArea` and the width of one day at 等倍 is read back
 # off the frame's own layout. ⛔ The row's own note forbids the number itself
 # reaching `src/` by hand -- 「`src/` に 10 を打ち込んではならない」 -- which is
 # exactly what a generated block is for.
@@ -1189,7 +1189,7 @@ ARRIVES_AS_ARGUMENT_ZOOM = list(ARRIVES_AS_ARGUMENT)
 # ⭐ THE FALLBACK IS THE ROW'S OWN DEFAULT, AND FR-086 IS WHY THAT IS THE RIGHT
 # ONE. That requirement (MUST) has a person enter the name and starts them from
 # this very value; nothing in this build asks yet, so the start is all there is
-# -- and FR-020 (MUST) still lays a name over the Row Area meanwhile. ⛔ The
+# -- and FR-020 (MUST) still lays a name over the Task Group Area meanwhile. ⛔ The
 # alternative was the shell typing the word in, which rule 03 forbids.
 STORED_WHERE_IT_STANDS = []
 NOT_STORED_TARGETS = {
@@ -1297,8 +1297,8 @@ NOT_STORED_TARGETS = {
     # it across -- which is `properties-panel.ts`. One shared constant would
     # hand each unit the other's value.
     'NOT_STORED_PROPERTY_CONTROL_SIZES': (['S-199'], READ_WHERE_IT_STANDS),
-    'NOT_STORED_ROW_CONTROL_SIZES': (['S-140', 'S-313'], DRAWN_WITH_WHERE_IT_STANDS),
-    # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in row-title-panel.ts
+    'NOT_STORED_TASK_GROUP_CONTROL_SIZES': (['S-140', 'S-313'], DRAWN_WITH_WHERE_IT_STANDS),
+    # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in task-group-panel.ts
     # and both are terms of the same subtraction: one constant per consuming
     # SUBJECT, and the subject differs. S-140 is the room the row CONTROLS keep
     # (HF-6 of table T-051 lays them over the name, so it is 0); S-138 and S-218
@@ -1307,17 +1307,17 @@ NOT_STORED_TARGETS = {
     # ⛔ S-218 IS NOT S-141, although both are 4px: S-141 is the gap between a
     # shape and its entrance FRAME (FR-029), and table T-206's own row for S-218
     # refuses that reading in as many words.
-    'NOT_STORED_ROW_GRAB_ROOM_SIZES': (['S-138', 'S-218'],
+    'NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES': (['S-138', 'S-218'],
                                        SUBTRACTED_WHERE_IT_STANDS),
     # S-243 joins the three because the one unit that draws every entrance
-    # draws the Row Title Panel's too: FR-029 (MUST) gives an entrance on that
+    # draws the Task Group Panel's too: FR-029 (MUST) gives an entrance on that
     # panel the gap S-243 instead of S-141, and the box and frame line stay.
     'NOT_STORED_ICON_SIZES': (['S-138', 'S-141', 'S-237', 'S-243'],
                               DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ THE THREE ROWS AN ENTRANCE'S OUTER WIDTH IS COMPOSED OF, READ WHERE
     # THE FLOOR IS WORKED OUT. FR-029 (MUST) states that width as the box
     # (S-138) plus the gap (S-141) and the frame's line (S-237) on each side,
-    # and FR-039's floor under the DRAWN Row Title Panel is four of them times
+    # and FR-039's floor under the DRAWN Task Group Panel is four of them times
     # S-235, beside one grab strip of S-138 times S-235.
     # ⛔ THE OUTER WIDTH IS NOT A ROW AND MAY NOT BECOME ONE: FR-029 (MUST NOT)
     # forbids that px number a place in table T-206, because a table holding
@@ -1337,7 +1337,7 @@ NOT_STORED_TARGETS = {
     # gives: the floor belongs where the drawn settings are made, and that unit
     # imports `document-settings.ts` alone, so no import cycle is opened.
     # S-243 AND NOT S-141 SINCE CR-414: every entrance this unit composes sits
-    # on the Row Title Panel (HF-1's lattice for LF-16's reserve, four row
+    # on the Task Group Panel (HF-1's lattice for LF-16's reserve, four row
     # controls for FR-039's floor), and FR-029 (MUST) gives those the gap S-243.
     'NOT_STORED_ENTRANCE_SIZES': (['S-138', 'S-237', 'S-243'],
                                   READ_WHERE_IT_STANDS),
@@ -1369,7 +1369,7 @@ NOT_STORED_TARGETS = {
     # multiplies that same pair by this row -- so the export has to reach it too.
     # ⛔ A second value in the exporter is what EP-1 (MUST NOT) forbids.
     # ⭐ THE THIRD IS `screen-regions.ts`, and FR-039's floor is why: the floor
-    # under the drawn Row Title Panel is the grab strip and four entrances
+    # under the drawn Task Group Panel is the grab strip and four entrances
     # multiplied by THIS row rather than by the display ratio (DS-7 of table
     # T-252 keeps the display scale off both), and it is worked out where the
     # drawn settings are made. ⛔ That unit may not import the Adapter or the
@@ -1384,21 +1384,21 @@ NOT_STORED_TARGETS = {
     # ⛔ NOT FOLDED INTO NOT_STORED_ICON_SIZES: that constant is an ENTRANCE's
     # shape (S-138's box, S-141's inner gap and S-237's frame line), and GR-20
     # is no entrance.
-    'NOT_STORED_ROW_GRAB_STRIP_SIZES': (['S-218'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES': (['S-218'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
     # dom-screen-surface.ts: one constant per consuming SUBJECT. S-138, S-141
     # and S-237 are the box an ENTRANCE is drawn in; S-213 is the band a ROW is
     # marked with -- HF-15's live axis and HF-18's holding mark -- and the
     # settings row itself states that those two bands are one number.
-    'NOT_STORED_ROW_BAND_SIZES': (['S-213'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_TASK_GROUP_BAND_SIZES': (['S-213'], DRAWN_WITH_WHERE_IT_STANDS),
     # THE SAME ROW, ON THE SIDE THAT DRAWS IT (seam S-9 of CR-541). S-313 stands
-    # in NOT_STORED_ROW_CONTROL_SIZES for row-title-panel.ts, which measures the
-    # controls, and here for row-title-panel-drawing.ts, which lays the nearest
+    # in NOT_STORED_TASK_GROUP_CONTROL_SIZES for task-group-panel.ts, which measures the
+    # controls, and here for task-group-panel-drawing.ts, which lays the nearest
     # one in from the panel's right edge (HF-4 of table T-051); neither unit may
     # import the other (Chapter 5.3), so both read one generated row -- the
     # bargain S-218 already stands on. NOT folded into the lines above: one
     # constant per consuming SUBJECT, and this subject is the controls' inset.
-    'NOT_STORED_ROW_CONTROL_EDGE_SIZES': (['S-313'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES': (['S-313'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE EITHER, though it lands in the same
     # file: S-213 is a BAND drawn on a row's edge and these two are how faint a
     # GROUND laid under something is, which is the subject S-214's own row
@@ -1534,12 +1534,12 @@ NOT_STORED_TARGETS = {
     # never are (EP-12 of table T-076).
     'NOT_STORED_DEPENDENCY_EMPHASIS_SIZES': (['S-447'],
                                              DRAWN_WITH_WHERE_IT_STANDS),
-    # CR-631: S-485, how wide a WBS parent arrow answers the pointer, and
+    # CR-631: S-485, how wide a parent task arrow answers the pointer, and
     # S-486, the dash of an arrow to a derived parent (FR-135). One constant
     # for the one consuming subject, the family arrows, printed into the unit
-    # that lays them out (wbs-parent-arrows.ts); the hit test and the renderer
+    # that lays them out (parent-task-arrows.ts); the hit test and the renderer
     # read both off the geometry instead of a copy of their own.
-    'NOT_STORED_WBS_PARENT_ARROW_SIZES': (['S-485', 'S-486'],
+    'NOT_STORED_PARENT_TASK_ARROW_SIZES': (['S-485', 'S-486'],
                                           DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ CR-551: S-333 (the base date line's width, CU-1 of table T-029) joins
     # S-194: both are the width a line of table T-029 is drawn at, both are
@@ -1674,7 +1674,7 @@ NOT_STORED_TARGETS = {
     # <tspan> at the same factor and reads it from this unit's public entry.
     'NOT_STORED_LABEL_SIZES': (['S-196', 'S-233', 'S-325'],
                                DRAWN_INTO_THE_EXPORTED_PICTURE_FROM_THE_SHAPE),
-    # ⭐ CR-551: FR-055's fit leaves S-332 of the Row Area's width free on each
+    # ⭐ CR-551: FR-055's fit leaves S-332 of the Task Group Area's width free on each
     # side. ⛔ A NEW CONSTANT: its subject is the fit, which fitZoom in
     # fit-zoom.ts carries out, and no line above is the fit's.
     'NOT_STORED_FIT_MARGIN': (['S-332'], READ_WHERE_IT_STANDS),
@@ -1776,7 +1776,7 @@ NOT_STORED_TARGETS = {
     # 畳まれているか) whose value cell is 「畳まれていない」, not a machine value,
     # so it has no literal to emit; its own note puts it beside S-99g, and the
     # shell holds it the way it holds that one.
-    'NOT_STORED_ROW_GRAB_SIZES': (['S-208', 'S-212'], SETTLED_WHERE_IT_STANDS),
+    'NOT_STORED_TASK_GROUP_GRAB_SIZES': (['S-208', 'S-212'], SETTLED_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO EITHER LINE ABOVE, though all three land in the
     # translator: one constant per consuming SUBJECT. S-96 is how far one notch
     # steps, S-208 / S-212 are HF-15's grab, and S-229 is the FLOOR ON WHAT
@@ -1788,7 +1788,7 @@ NOT_STORED_TARGETS = {
     # both end in an FR-016 ceiling: S-229 bounds the DAY axis, S-238 / S-239
     # are the step and the tolerance table T-253 searches the ROW axis's band
     # side with. The same seam as S-229: both are ends of a derivation only
-    # `rowBandCeilingOf` carries out, and neither may be typed into `src/`.
+    # `taskGroupBandCeilingOf` carries out, and neither may be typed into `src/`.
     # ⛔ S-238 IS NOT S-53 / S-96 although both default to 1.1: the row's own
     # note forbids the two to be shared (S-53 is how fast one notch moves).
     'NOT_STORED_ROW_BAND_CEILING_SEARCH': (['S-238', 'S-239'], DERIVED_WHERE_IT_STANDS),
@@ -1938,7 +1938,7 @@ COLOUR_TARGETS = {
     # already holds for 「いま効いている」, and FR-029's table T-237 has this unit
     # FILL the armed entrance with it (EN-1), so it is the chrome's after all.
     # ⭐ S-151 IS THE CHROME'S TOO, by the same
-    # reading: EN-3 of table T-237 fills a PINNED row's `Row Pin` with it and
+    # reading: EN-3 of table T-237 fills a PINNED row's `Task Group Pin` with it and
     # HF-6 of table T-051 (MUST) points at that row. The pin is a row control
     # this unit draws, not a bar, so the row has a reader on this side as
     # well as on the drawing side (where SL-8's selection frame keeps it).
@@ -1955,7 +1955,7 @@ COLOUR_TARGETS = {
     # App Header on this side; it names S-148 through sameAs.
     # CR-650: S-493, the App Header divider rule (BR-7), names S-149 likewise.
     # CR-657: S-165, the Group Grid Lines colour, which FR-042 now has drawn
-    # across the Row Title Panel too -- the panel is DOM, so it reads the row
+    # across the Task Group Panel too -- the panel is DOM, so it reads the row
     # here. ONE row read by two units, like S-151 above.
     'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-231',
                        'S-151', 'S-152', 'S-183', 'S-153', 'S-154', 'S-170',
@@ -2423,7 +2423,7 @@ def annotation_bounds_block():
 #
 # ⭐ S-102 AND THE THREE OF CR-348 REACH THE DRAWING SIDE. ⛔ Do not leave a
 # value out on the ground that nothing draws it yet: FR-020 (MUST) has GRS lay
-# the mark over the Row Area, and FR-020 (MUST) names S-220 / S-221 / S-222
+# the mark over the Task Group Area, and FR-020 (MUST) names S-220 / S-221 / S-222
 # and S-223 as the values it is drawn with and (MUST NOT) forbids them in
 # `src/`, so the values are carried here -- the alternative is the drawing
 # side typing -30.
@@ -3050,8 +3050,8 @@ TARGETS = [
      + not_stored_block('NOT_STORED_DEPENDENCY_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # CR-631: the family arrows' hit width and derived-parent dash (FR-135).
-    (os.path.join(LAYOUT, 'schedule-geometry', 'wbs-parent-arrows.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_WBS_PARENT_ARROW_SIZES'),
+    (os.path.join(LAYOUT, 'schedule-geometry', 'parent-task-arrows.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_PARENT_TASK_ARROW_SIZES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐⭐ LF-16's RESERVE, IN THE UNIT THAT DECIDES THE BAND. Table T-051's
     # HF-19 (MUST NOT) keeps HF-1's 2 x 2 lattice out of a row's band, and
@@ -3091,22 +3091,22 @@ TARGETS = [
     # ⭐ THE DRAWING RATIO STANDS AT THE BOTTOM OF THE LAYOUT ENGINE, and the
     # reason is the import graph rather than the subject. Every side that draws
     # has to multiply table T-252's rows by it -- the regions, the layout, the
-    # geometry, the row title panel, the picture and the export -- and
+    # geometry, the task group panel, the picture and the export -- and
     # `screen-regions.ts` is the one unit of the engine they can all reach:
     # it imports `document-settings.ts` alone, while `schedule-layout.ts`
     # imports IT. ⛔ Putting the row in `schedule-layout.ts` would leave
     # `regionsFromScreen` unable to scale S-79 and S-2 without the cycle LR-3
     # forbids.
     # ⭐ THE ENTRANCE'S THREE ROWS AND THE CHROME'S SCALE STAND HERE TOO, for
-    # FR-039's floor under the drawn Row Title Panel: the floor is composed
+    # FR-039's floor under the drawn Task Group Panel: the floor is composed
     # where the drawn settings are made, so nothing downstream has to know it.
     (os.path.join(LAYOUT, 'screen-regions', 'screen-regions.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DISPLAY_SCALE_BASE') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ENTRANCE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_CHROME_SCALE'),
      ['docs/spec/_source/settings.json (table T-206)']),
-    # NOT_STORED_ROW_CONTROL_OUTER_SIZES used to lead this entry. CR-397 moved
-    # the row-control floor to `screen-regions.ts`, which composes it from
+    # NOT_STORED_TASK_GROUP_CONTROL_OUTER_SIZES used to lead this entry. CR-397 moved
+    # the task-group-control floor to `screen-regions.ts`, which composes it from
     # NOT_STORED_ENTRANCE_SIZES and S-235, and left the sum with no reader
     # anywhere -- not even in this file. JDG-139 prints a constant nobody
     # outside its file reads as a plain `const`, and a plain `const` nobody
@@ -3200,14 +3200,14 @@ TARGETS = [
     # own name width, which only this side knows -- `DocumentSettings` does not
     # cross IF-9.
     # ⭐ And GR-20's room beside it, in a constant of its own: FR-085 (MUST)
-    # subtracts 「行の掴み代（表 T-023d の `GR-20`）に確保した場所（… `S-138`）と
+    # subtracts 「タスクグループの掴み代（表 T-023d の `GR-20`）に確保した場所（… `S-138`）と
     # その隔たり（同表の `S-218`）」 from the same panel width, and until CR-336
     # neither row reached this side at all -- the strip took 20px of the name's
     # box that the arithmetic never took off, so the cut was judged on a width
     # the name never had and the browser's own ellipsis ate the difference.
-    (os.path.join(ADAPTER, 'screen-renderer', 'row-title-panel.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_ROW_CONTROL_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ROW_GRAB_ROOM_SIZES') + NEWLINE * 2
+    (os.path.join(ADAPTER, 'screen-renderer', 'task-group-panel.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_TASK_GROUP_CONTROL_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_CHROME_SCALE'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The only generated region that lands in Framework, for the reason the
@@ -3224,7 +3224,7 @@ TARGETS = [
      with_entry_switches(
          os.path.join(ADAPTER, 'input-command-translator', 'input-command-translator.ts'),
          lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP') + NEWLINE * 2
-         + not_stored_block('NOT_STORED_ROW_GRAB_SIZES') + NEWLINE * 2
+         + not_stored_block('NOT_STORED_TASK_GROUP_GRAB_SIZES') + NEWLINE * 2
          + not_stored_block('NOT_STORED_VISIBLE_DAY_FLOOR') + NEWLINE * 2
          + not_stored_block('NOT_STORED_ROW_BAND_CEILING_SEARCH') + NEWLINE * 2
          + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR'),
@@ -3272,9 +3272,9 @@ TARGETS = [
     # while a second value would be what it forbids (DFC-276).
     (os.path.join(FRAMEWORK, 'dom-screen-surface', 'dom-screen-surface.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ROW_GRAB_STRIP_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ROW_BAND_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_ROW_CONTROL_EDGE_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_TASK_GROUP_BAND_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_RESOURCE_ROSTER_SIZES') + NEWLINE * 2
@@ -3337,7 +3337,7 @@ TARGETS = [
      + colour_sources_block('SCHEDULE_COLOURS') + NEWLINE * 2
      # ⭐ CR-548: the palette colours' drawn values, beside the theme's own.
      + palette_block()
-     # ⭐ FR-020's four, in the unit that lays the mark over the Row Area. The
+     # ⭐ FR-020's four, in the unit that lays the mark over the Task Group Area. The
      # ink rides in SCHEDULE_COLOURS above, because it is a row of table T-236
      # and has a light and a dark rendering; the angle, the size, the spacing
      # and the opacity have one value each and are rows of table T-207.
@@ -3481,7 +3481,7 @@ PUBLISHED_READ_BY_SRC = {
     'src/adapter/input-command-translator/input-command-translator.ts': (
         'NOT_STORED_PROPERTIES_PANEL_FLOOR',
         'NOT_STORED_ROW_BAND_CEILING_SEARCH',
-        'NOT_STORED_ROW_GRAB_SIZES',
+        'NOT_STORED_TASK_GROUP_GRAB_SIZES',
         'NOT_STORED_VISIBLE_DAY_FLOOR',
         'NOT_STORED_ZOOM_STEP',
     ),
@@ -3533,9 +3533,9 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_ARMED_LABEL_SIZES',
         'NOT_STORED_PROPERTY_FIELD_SIZES',
         'NOT_STORED_RESOURCE_ROSTER_SIZES',
-        'NOT_STORED_ROW_BAND_SIZES',
-        'NOT_STORED_ROW_CONTROL_EDGE_SIZES',
-        'NOT_STORED_ROW_GRAB_STRIP_SIZES',
+        'NOT_STORED_TASK_GROUP_BAND_SIZES',
+        'NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES',
+        'NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES',
         'NOT_STORED_SEARCH_PANEL_FONT_SIZES',
         'NOT_STORED_SEARCH_PANEL_SIZES',
         'SCREEN_COLOURS',

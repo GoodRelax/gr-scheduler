@@ -1,5 +1,5 @@
 // 表 T-051 の `HF-17` and `HF-14` (MUST, 利用者の裁定 2026-09-03, CR-346 then
-// CR-348, ledger row DFC-243): 「行を足す操作が、行の名前を変える操作と同じ操作感で
+// CR-348, ledger row DFC-243): 「行を足す操作が、タスクグループ名を変える操作と同じ操作感で
 // あること」 -- adding a row at 段 0 (the panel's head, `HF-17`) must feel exactly
 // like renaming one already on the panel (`FR-085`'s double-click path).
 //
@@ -20,7 +20,7 @@
 // ⭐ THE THREE SENTENCES THIS FILE IS WRITTEN FROM, verbatim out of 表 T-051's
 // `HF-14` (docs/spec/01-04-requirements.md):
 //
-//   ⭐⭐ 「**押された瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティ
+//   ⭐⭐ 「**押された瞬間に、既定の名前でタスクグループを立てること（MUST）。そのタスクグループのプロパティ
 //    パネルを出し、名前の欄で名づけさせること（MUST）**」
 //   ⛔ 「**改名と別の道を作ってはならない（MUST NOT）。道は `FR-085` が改名につい
 //    て定めるものと同じものとすること（MUST）。**」
@@ -28,12 +28,12 @@
 //    （MUST NOT）**」 -- so this file reads the word from the dictionary at run
 //    time and never types it.
 //
-// and out of `HF-17` (the same table): 「**足した行は最も浅い段の末子とすること
+// and out of `HF-17` (the same table): 「**足したタスクグループは最も浅い段の末子とすること
 // （MUST）。名前の扱いは `HF-14` に従う。**」 and 「**`HF-14`（配下に足す）も同じと
 // すること（MUST）**」 -- one naming MUST, read by two entrances.
 //
-// and out of `FR-085` (the road `HF-14` points to): 「**行の名前を変える経路は、
-// 行見出しパネルでその名前をダブルクリックすること（表 T-023 の `MK-13`）とし、
+// and out of `FR-085` (the road `HF-14` points to): 「**タスクグループ名を変える経路は、
+// タスクグループパネルでその名前をダブルクリックすること（表 T-023 の `MK-13`）とし、
 // `GRS` はプロパティパネルを出し、名前の欄（`_assets/fig-erd-detail.md` の
 // `AT-53`）を編集できる状態にして焦点を置き、既にある文字をすべて選んだ状態にする
 // こと（MUST）**」.
@@ -64,8 +64,8 @@
 // ⛔ WHAT IS DELIBERATELY NOT ASSERTED, AND WHY
 // ---------------------------------------------------------------------------
 //   1. WHETHER THE DETAIL TIER OR A FOLDED ANCESTOR IS OPENED so the new row is
-//      visible. Those are `HF-14`'s OWN separate MUSTs (「その行が描かれるまで
-//      詳しさの段を開くこと」 and 「立てた行が…畳んだ親の下に入るときは、その親を
+//      visible. Those are `HF-14`'s OWN separate MUSTs (「そのタスクグループが描かれるまで
+//      詳しさの段を開くこと」 and 「立てたタスクグループが…畳んだ親の下に入るときは、その親を
 //      開くこと」), argued and measured independently (`DFC-237`); they are not
 //      part of what makes the OPERATION feel like a rename, which is this
 //      file's one question.
@@ -82,7 +82,7 @@
 //      MUST of `HF-17` / `HF-14`, not part of the operation's FEEL at the
 //      moment of the press.
 //   5. A DOCUMENT WITH ZERO ROWS. `HF-17`'s own RATIONALE names this case
-//      (「行が 1 つも無い文書では押す相手が存在しない」), but whether `frameLoop`
+//      (「タスクグループが 1 つも無い文書では押す相手が存在しない」), but whether `frameLoop`
 //      normalizes such a document on load is not established by any file this
 //      one is allowed to read, so no case here assumes an answer either way.
 
@@ -471,7 +471,7 @@ describe('the manuscript still says what these cases read', () => {
 
   it('⭐⭐ HF-14 (MUST): a press raises the row at once, named from the dictionary, on FR-085s own road', () => {
     expect(says('T-051', 'HF-14')).toContain(
-      '押された瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティパネルを出し、名前の欄で名づけさせること（MUST）',
+      '押された瞬間に、既定の名前でタスクグループを立てること（MUST）。そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせること（MUST）',
     )
     expect(says('T-051', 'HF-14')).toContain(
       '改名と別の道を作ってはならない（MUST NOT）。道は `FR-085` が改名について定めるものと同じものとすること（MUST）。',
@@ -513,7 +513,7 @@ describe('the manuscript still says what these cases read', () => {
 
   it('⭐ FR-085 states the very road HF-14 points HF-17 at', () => {
     expect(REQUIREMENTS).toContain(
-      '行の名前を変える経路は、行見出しパネルでその名前をダブルクリックすること',
+      'タスクグループ名を変える経路は、タスクグループパネルでその名前をダブルクリックすること',
     )
     expect(REQUIREMENTS).toContain(
       '名前の欄（`_assets/fig-erd-detail.md` の `AT-53`）を編集できる状態にして焦点を置き、既にある文字をすべて選んだ状態にすること（MUST）',
@@ -572,7 +572,7 @@ describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the row at once', (
       const after = built.rows()
       expect(after, 'exactly one row was raised').toHaveLength(before.length + 1)
       const created = newTaskGroupSince(before, after)
-      expect(created.parentId, '足した行は最も浅い段の末子 -- no parent, like the other roots').toBeNull()
+      expect(created.parentId, '足したタスクグループは最も浅い段の末子 -- no parent, like the other roots').toBeNull()
       expect(created.label, 'named from FR-038s dictionary, not left empty').toBe(
         DEFAULT_TASK_GROUP_NAME_WORD.text[language],
       )

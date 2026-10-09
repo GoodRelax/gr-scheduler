@@ -12,7 +12,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // see FR-135
 const ONLY_A_PERSON_WRITES_THE_PARENT =
-  '`parentTaskUid` は、人が親定義のドラッグ（表 T-351）で結んだとき、または矢印の `Delete`（`PTL-11`）かパネルの ×（`PTL-17`）で外したときだけ書くこと（MUST）。⛔ `GRS` が候補から自動で書いてはならない（MUST NOT）'
+  '`parentTaskUid` は、人が親タスク設定のドラッグ（表 T-351）で結んだとき、または矢印の `Delete`（`PTL-11`）かパネルの ×（`PTL-17`）で外したときだけ書くこと（MUST）。⛔ `GRS` が候補から自動で書いてはならない（MUST NOT）'
 
 // see IX-12, T-241
 // WHY: CR-690 -- the span reaches the screen only through the fit (FX-2); setting and fixing it never moves the view.
@@ -35,7 +35,7 @@ const STAMP_OF_THE_WRITTEN_BYTES =
   '、ほかでは書くときに下段が示している時刻を入れること（MUST）。下段が `HS-5` のときは空とすること（MUST）'
 
 // see EP-3, T-076
-const TASK_GROUP_NAME_BASELINE = '⭐ 縦は、書き出す行の名前のベースラインを、その行の行見出しの箱の上端から、その行の名前の字の大きさだけ下に置くこと（MUST）'
+const TASK_GROUP_NAME_BASELINE = '⭐ 縦は、書き出すタスクグループ名のベースラインを、そのタスクグループのタスクグループ見出しの箱の上端から、そのタスクグループ名の字の大きさだけ下に置くこと（MUST）'
 
 const CLAUSES = [
   ONLY_A_PERSON_WRITES_THE_PARENT,

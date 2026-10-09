@@ -304,10 +304,10 @@ describe('IN-7 (table T-028) -- tooltips', () => {
   })
 })
 
-const FR_051_BAND_TO_BAR = 'その余白にも、行の帯の地を、縦の `Scrollbars` の左端まで続けて塗ること（MUST）'
-const FR_051_NOT_IN_VERTICAL = '行の帯の地も日程の形も、縦の `Scrollbars` の帯の中へ描いてはならない（MUST NOT）。'
+const FR_051_BAND_TO_BAR = 'その余白にも、タスクグループの帯の地を、縦の `Scrollbars` の左端まで続けて塗ること（MUST）'
+const FR_051_NOT_IN_VERTICAL = 'タスクグループの帯の地も日程の形も、縦の `Scrollbars` の帯の中へ描いてはならない（MUST NOT）。'
 const FR_051_BOTTOM = '横の `Scrollbars` は、`GRS` が占める画面の下端に接して置くこと（MUST）。'
-const FR_051_NOT_IN_HORIZONTAL = '日程（行の帯・形・罫線）を横の `Scrollbars` の帯の中へ描いてはならない（MUST NOT）'
+const FR_051_NOT_IN_HORIZONTAL = '日程（タスクグループの帯・形・罫線）を横の `Scrollbars` の帯の中へ描いてはならない（MUST NOT）'
 
 interface Box {
   readonly x: number
@@ -386,7 +386,7 @@ describe('FR-051 -- the scrollbar bands', () => {
     expect((horizontal?.track.y ?? 0) + (horizontal?.track.height ?? 0)).toBeCloseTo(SCREEN.height, 3)
   })
 
-  it('FR-051: 行の帯の地を、縦の Scrollbars の左端まで続けて塗る', () => {
+  it('FR-051: タスクグループの帯の地を、縦の Scrollbars の左端まで続けて塗る', () => {
     // see FR-051
     const built = manyTaskGroups()
     const vertical = built.view().frame.scrollbars.find((one) => one.axis === 'vertical')
@@ -395,7 +395,7 @@ describe('FR-051 -- the scrollbar bands', () => {
     for (const band of bands) expect(band.x + band.width).toBeCloseTo(vertical?.track.x ?? Number.NaN, 2)
   })
 
-  it('FR-051: 行の帯の地も日程の形も、縦の Scrollbars の帯の中へ描いてはならない', () => {
+  it('FR-051: タスクグループの帯の地も日程の形も、縦の Scrollbars の帯の中へ描いてはならない', () => {
     // see FR-051
     const built = manyTaskGroups()
     const vertical = built.view().frame.scrollbars.find((one) => one.axis === 'vertical')?.track as Box
@@ -404,7 +404,7 @@ describe('FR-051 -- the scrollbar bands', () => {
     expect(inside, JSON.stringify(inside.slice(0, 3))).toEqual([])
   })
 
-  it('FR-051: 日程（行の帯・形・罫線）を横の Scrollbars の帯の中へ描いてはならない', () => {
+  it('FR-051: 日程（タスクグループの帯・形・罫線）を横の Scrollbars の帯の中へ描いてはならない', () => {
     // see FR-051
     const built = manyTaskGroups()
     const horizontal = built.view().frame.scrollbars.find((one) => one.axis === 'horizontal')?.track as Box

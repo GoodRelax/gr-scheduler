@@ -35,7 +35,7 @@ const SV_5_ENTER = '焦点がパネルの中にあるときの `Enter` は、`SK
 const SJ_1_WHERE = 'タスクの表は `SQ-1` のセル、コメントボックスの表は `SQ-7` のセル。'
 const SJ_1_OTHERS = 'ほかのセルは飛ばない'
 const SJ_2_OPEN =
-  '飛ぶ先の行（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする'
+  '飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする'
 const SJ_2_LEVEL_ZERO = '段 0 が畳まれていれば開く。'
 const SJ_2_ONE_STEP = '値が変われば未保存の編集（`FR-100`）であり、取り消しの 1 段である。'
 const SJ_2_NO_STEP = '1 つも変わらなければ段を積まない'

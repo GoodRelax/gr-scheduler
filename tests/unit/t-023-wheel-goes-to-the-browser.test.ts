@@ -74,7 +74,7 @@
 //   T-036  SK-13  「ヘルプを開く | `F1`」 -- the one surface these cases can raise
 //                without drawing anything, and `ScreenState` is what holds it.
 //   T-036  SK-8 / SK-11   `Esc` / `Ctrl+S` -- the two keys pressed below.
-//   FR-032        「行を削除するとき、および WBS の子孫を持つ `Task` を削除するとき
+//   FR-032        「タスクグループを削除するとき、および子孫タスクを持つ `Task` を削除するとき
 //                は確認を求めること」 -- how a real `Confirmation` (U-55) is raised
 //                from outside, so that the OTHER half of the rule's subject is
 //                driven and not merely named.

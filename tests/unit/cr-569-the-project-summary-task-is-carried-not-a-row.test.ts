@@ -33,7 +33,7 @@ const MR_4_ORDER_NOTE =
 const MR_4_TWO_KEYS = '⚠️ `UID` と `OutlineLevel` の 2 つで見分ける'
 const AT_139_NOT_COUNTED = 'プロジェクトの要約タスクは数えない —— 表 T-265 の `MR-4`'
 const FR_058_SENTENCE =
-  '⭐ プロジェクトの要約タスクは `Task` にならないので（表 T-265 の `MR-4`）、行も作らない —— その直下のタスクは親を持たない `Task` になり、自分の行を持って最上位に並ぶ。'
+  '⭐ プロジェクトの要約タスクは `Task` にならないので（表 T-265 の `MR-4`）、タスクグループも作らない —— その直下のタスクは親を持たない `Task` になり、自分のタスクグループを持って最上位に並ぶ。'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const ERD_DETAIL = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8'))

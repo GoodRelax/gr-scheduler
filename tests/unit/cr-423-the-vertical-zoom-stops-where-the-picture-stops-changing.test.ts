@@ -24,9 +24,9 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
-const FR_016_BY_T_262 = '⭐ 行の軸だけを動かす入力が端で絵を変えないときの扱いは、表 T-262 に従うこと（MUST）'
+const FR_016_BY_T_262 = '⭐ 縦軸だけを動かす入力が端で絵を変えないときの扱いは、表 T-262 に従うこと（MUST）'
 const ZE_1_THE_LOWER_END =
-  '⭐ いまの `zoomY` が次の ① と ② をともに満たすとき、行の軸は縮める側の端にあるとすること（MUST）'
+  '⭐ いまの `zoomY` が次の ① と ② をともに満たすとき、縦軸は縮める側の端にあるとすること（MUST）'
 const ZE_2_NO_WRITE_AT_THE_END =
   '端にあるときに縮める入力（表 T-023 の `MK-4` の縮める向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-14`、表 T-036 の `SK-16c`）を受けたら、`zoomY` を書き換えてはならない（MUST NOT）'
 const ZE_2_ENTERING_WRITES_THE_STEP =
@@ -40,8 +40,8 @@ const ZE_5_ITS_TEXT =
 const ZE_5_ONE_MESSAGE =
   '⭐ 消えるとき・続けて押したとき・通知との違いは同表の `SE-3`〜`SE-5` のとおりとし、表示の倍率を示すメッセージと同じ 1 つのメッセージとして扱うこと（MUST）'
 const T_262_NOT_FOR_MK_2 = '⚠️ 本表は `MK-2`（両軸のズーム）に当てない'
-const UN_8_ZOOM_IS_NO_STEP = '⚠️ 行の軸のズームは、もともと取り消しの対象外である（表 T-027 の `UN-8`）'
-const FR_031_SHRINK_TWO_WRITES = '⭐ 縦（行の軸）を縮める 1 回の入力も、同じ形で 2 つの書き込みに分けること（MUST）'
+const UN_8_ZOOM_IS_NO_STEP = '⚠️ 縦軸のズームは、もともと取り消しの対象外である（表 T-027 の `UN-8`）'
+const FR_031_SHRINK_TWO_WRITES = '⭐ 縦軸を縮める 1 回の入力も、同じ形で 2 つの書き込みに分けること（MUST）'
 const FR_031_AT_THE_END_ONLY_THE_TREE = '⚠️ 縮める側の端で倍率を書き換えないとき（`FR-016` の 表 T-262 の `ZE-2`）は ① を書かず、② だけを書く'
 const FR_018_ONLY_T_328 = '⭐ 値を書き換える入口と先の値は、段 0 の畳み（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST） —— 同表に無い操作で値を書き換えてはならない（MUST NOT）'
 
@@ -495,7 +495,7 @@ describe('ZE-2 / ZE-4 -- at the lower end a zoom-out input writes nothing', () =
 })
 
 describe('ZE-1 -- a document with no depth-2 row the threshold drops', () => {
-  it('⭐ いまの `zoomY` が次の ① と ② をともに満たすとき、行の軸は縮める側の端にあるとすること（MUST） -- depth-1 rows only, zoomY 0.9: SK-16c writes nothing', () => {
+  it('⭐ いまの `zoomY` が次の ① と ② をともに満たすとき、縦軸は縮める側の端にあるとすること（MUST） -- depth-1 rows only, zoomY 0.9: SK-16c writes nothing', () => {
     expect(0.9, 'premise: (1) holds at 0.9').toBeLessThanOrEqual(PLAN_FLOOR_LETS_GO_AT)
     const built = bench(documentOf(FLAT, 0.9))
     built.send(SK_16C)

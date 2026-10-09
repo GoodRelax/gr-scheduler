@@ -27,9 +27,9 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const ERD_DETAIL = unbroken(readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8'))
 
 const AT_153_MADE =
-  '`createTaskGroup`（`_assets/tbl-glossary.md` の 表 T-108 の `CM-26`）で作る行と、行が 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作る行は `temporarilyExpanded`'
+  '`createTaskGroup`（`_assets/tbl-glossary.md` の 表 T-108 の `CM-26`）で作るタスクグループと、タスクグループが 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作るタスクグループは `temporarilyExpanded`'
 const AT_153_DEFAULT =
-  '既定の `auto` は、この値を持たずに読んだ行と、`CM-26` を通らずにできる行（MSPDI から取り込んだ行、`createTask` が行とともに作る行）が取る。'
+  '既定の `auto` は、この値を持たずに読んだタスクグループと、`CM-26` を通らずにできるタスクグループ（MSPDI から取り込んだタスクグループ、`createTask` がタスクグループとともに作るタスクグループ）が取る。'
 const AT_153_DU_2 = '貼り付けたコピーは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う'
 const DU_2_VALUE =
   '複製元が `collapsed` か `hidden` ならその値とし、`expanded` か `temporarilyExpanded` なら `auto` とすること（MUST）'

@@ -37,7 +37,7 @@ const LP_WHAT_FITS_MEANS =
 const LP_ONLY_THE_FINISH_SIDE_IS_RESERVED =
   '終了側だけを取り置くのは、マーカーが実績の開始の掴み代の上に立つ設計だからである —— 開始側は取り置かない。'
 const LP_NEVER_THE_NAME_LEFT_OF_THE_MARKER =
-  '名称ラベルをマーカーの左に置いてはならない（MUST NOT） —— どの行でも左から マーカー → 名前 の順である。'
+  '名称ラベルをマーカーの左に置いてはならない（MUST NOT） —— どのタスクグループでも左から マーカー → 名前 の順である。'
 const LP_THE_ASSIGNEE_LABEL =
   '担当と進捗は 1 枚の札にまとめ、右寄せで、描いている予定と実績のうち早いほうの開始から `S-302` だけ左に置くこと（MUST）。'
 const LP_THE_SEPARATOR = '担当と進捗の区切りは「 : 」（半角コロンの前後に空白 1 つ）とすること（MUST）。'

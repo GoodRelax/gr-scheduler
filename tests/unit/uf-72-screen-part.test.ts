@@ -276,28 +276,28 @@ const T_051 = specTable('T-051')
  * ⛔⛔ DERIVED AND NEVER LISTED, BECAUSE A LIST HERE HAS ALREADY GONE STALE
  * ONCE. This file used to strike out `HF-10` and `HF-12` by a regular
  * expression written over their ids; on 2026-08-30 the head gained `HF-16`
- * (最も浅い段を 1 階層だけ開く) and `HF-17` (最も浅い段へ行を 1 つ足す), and every
+ * (最も浅い段を 1 階層だけ開く) and `HF-17` (最も浅い段へタスクグループを 1 つ足す), and every
  * case driven by 「the entries on a row」 silently began asserting that two head
  * controls stand on every row -- which is what turned twenty-one of them red.
  *
  * ⭐ WHAT THE MANUSCRIPT ITSELF SAYS, and therefore what is matched:
- *   `HF-10` 「**行見出しパネルの最上部の右寄せに**、すべての行を開く操作子を 1 つ
+ *   `HF-10` 「**タスクグループパネルの最上部の右寄せに**、すべてのタスクグループを開く操作子を 1 つ
  *           置くこと（MUST）」 -- the only row that names the place outright.
- *   `HF-12` 「**`HF-10` の操作子の並びに**、すべての行を畳む操作子を 1 つ置くこと
+ *   `HF-12` 「**`HF-10` の操作子の並びに**、すべてのタスクグループを畳む操作子を 1 つ置くこと
  *           （MUST）」
  *   `HF-16` 「**`HF-10` の操作子の並びに**、最も浅い段を 1 階層だけ開く操作子を
  *           1 つ置くこと（MUST）」
- *   `HF-17` 「**`HF-10` の操作子の並びに**、最も浅い段へ行を 1 つ足す操作子を
+ *   `HF-17` 「**`HF-10` の操作子の並びに**、最も浅い段へタスクグループを 1 つ足す操作子を
  *           1 つ置くこと（MUST）」
- * ⇒ a head row is one that either names 行見出しパネルの最上部 itself, or places
- * itself against `HF-10` の操作子. A row placed on 「各行に」 / 「行ごとに 1 つ」
+ * ⇒ a head row is one that either names タスクグループパネルの最上部 itself, or places
+ * itself against `HF-10` の操作子. A row placed on 「各タスクグループに」 / 「タスクグループごとに 1 つ」
  * says neither. ⛔ A fifth head control added tomorrow will have to say one of
  * those two things to be placed at all, and this reading picks it up unaided.
  */
 const T_051_AT_THE_HEAD: readonly string[] = T_051.rows
   .filter((one) => {
     const says = one.cells.join(' ')
-    return says.includes('行見出しパネルの最上部') || says.includes('`HF-10` の操作子')
+    return says.includes('タスクグループパネルの最上部') || says.includes('`HF-10` の操作子')
   })
   .map((one) => one.id)
 
@@ -402,10 +402,10 @@ function entranceForRule(rule: string): string {
  * with the row of 表 T-051 that is its 正.
  *
  * ⭐ 表 T-109, docs/spec/_assets/tbl-glossary.md:
- *   | IC-59 | `Task Group Panel` | — | この行を隠す              | 表 T-051 の `HF-3`  |
- *   | IC-90 | `Task Group Panel` | — | 行の配下を 1 階層だけ開く | 表 T-051 の `HF-13` |
- *   | IC-77 | `Task Group Panel` | — | 行の配下をすべて畳む      | 表 T-051 の `HF-11` |
- *   | IC-58 | `Task Group Panel` | — | 行の配下をすべて開く      | 表 T-051 の `HF-2`  |
+ *   | IC-59 | `Task Group Panel` | — | このタスクグループを隠す              | 表 T-051 の `HF-3`  |
+ *   | IC-90 | `Task Group Panel` | — | タスクグループの配下を 1 階層だけ開く | 表 T-051 の `HF-13` |
+ *   | IC-77 | `Task Group Panel` | — | タスクグループの配下をすべて畳む      | 表 T-051 の `HF-11` |
+ *   | IC-58 | `Task Group Panel` | — | タスクグループの配下をすべて開く      | 表 T-051 の `HF-2`  |
  * ⛔ They are FOUR rows of the roster and not one row in four states.
  *
  * ⚠️ THE COUNT IS `HF-1`'s AND MOVED TWICE. 表 T-103's `U-47` holds no count of
@@ -417,26 +417,26 @@ function entranceForRule(rule: string): string {
  *
  * ⚠️ WHAT THE CLOSING SIDE MEANS WAS REPLACED ON 2026-08-30 (利用者の裁定,
  * recorded in `HF-3`'s own cell). `IC-59` used to be 表 T-015 の `HR-5`
- * (その行自身を畳む); it is now `HR-6` -- 「**隠す操作子は、その行を隠すこと
+ * (そのタスクグループ自身を畳む); it is now `HR-6` -- 「**隠す操作子は、そのタスクグループを隠すこと
  * （MUST）**」 -- and `HR-5` stays in 表 T-015 with no entrance at all. ⛔ It is
  * the MEANING that moved and not the roster row: this unit still owes them
  * nothing but telling a press on one from a press on another.
  */
 const T_109_TASK_GROUP_EXPANDER = [
-  { row: entranceForRule('HF-3'), rule: 'HF-3', gist: 'この行を隠す', side: 'hiding' },
+  { row: entranceForRule('HF-3'), rule: 'HF-3', gist: 'このタスクグループを隠す', side: 'hiding' },
   {
     row: entranceForRule('HF-13'),
     rule: 'HF-13',
-    gist: '行の配下を 1 階層だけ開く',
+    gist: 'タスクグループの配下を 1 階層だけ開く',
     side: 'openingOneLevel',
   },
   {
     row: entranceForRule('HF-11'),
     rule: 'HF-11',
-    gist: '行の配下をすべて畳む',
+    gist: 'タスクグループの配下をすべて畳む',
     side: 'closingBelow',
   },
-  { row: entranceForRule('HF-2'), rule: 'HF-2', gist: '行の配下をすべて開く', side: 'opening' },
+  { row: entranceForRule('HF-2'), rule: 'HF-2', gist: 'タスクグループの配下をすべて開く', side: 'opening' },
 ]
 
 /**
@@ -477,15 +477,15 @@ const T_051_HF20_LAST_IN_THE_RUN = '並びの最後、`HF-17`（最も浅い段�
 
 /** 表 T-051 `HF-15` — the four MUSTs of that row that reach a drawing unit. */
 const T_051_HF15_THE_AXIS_MARK =
-  'いまどちらの軸が生きているかを、掴んでいる行に描くこと（MUST）'
+  'いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと（MUST）'
 const T_051_HF15_THE_BANDS =
-  '上下の軸が生きているときは行の左右の辺に、左右の軸が生きているときは行の上下の辺に、帯を 1 本ずつ描くこと（MUST）'
-const T_051_HF15_THE_GROUND = '掴んでいる行には地を敷くこと（MUST）'
+  '上下の軸が生きているときはタスクグループの左右の辺に、左右の軸が生きているときはタスクグループの上下の辺に、帯を 1 本ずつ描くこと（MUST）'
+const T_051_HF15_THE_GROUND = '掴んでいるタスクグループには地を敷くこと（MUST）'
 const T_051_HF15_THE_STRIP_IS_ALWAYS_DRAWN = '掴み代は常に描くこと（MUST）'
 
 /** 表 T-051 `HF-18` — the count a row shows for what it holds folded. */
 const T_051_HF18_THE_COUNT =
-  '配下に畳み込んでいる行があるとき、その行数を行に示すこと（MUST）'
+  '配下に畳み込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示すこと（MUST）'
 
 /**
  * `HF-1`'s lattice, LEFT TO RIGHT, each place with the row of 表 T-051 that owns
@@ -530,14 +530,14 @@ const T_051_EXPANDER = [
   // ⭐ SO THE GIST READ HERE IS THE DELEGATION ITSELF, and the effect each one
   // delegates to is read from 表 T-015 by the rows below it.
   { row: 'HF-2', gist: '開く操作子の職務は 表 T-015 の `HR-3` である（MUST）' },
-  // ⛔ `HF-3` IS NO LONGER 「その行自身を畳む」. 利用者の裁定 2026-08-30 gave it
+  // ⛔ `HF-3` IS NO LONGER 「そのタスクグループ自身を畳む」. 利用者の裁定 2026-08-30 gave it
   // 表 T-015 の `HR-6` instead, and 2026-08-31 put that as a delegation too.
   { row: 'HF-3', gist: '隠す操作子の職務は 表 T-015 の `HR-6` である（MUST）' },
   // ⛔⛔ `HF-11` IS `HR-4`, WHICH FOLDS THE PRESSED ROW ITSELF. The row records
-  // what the old wording cost: 「**2026-08-31 まで、本行は「その行自身を畳んでは
+  // what the old wording cost: 「**2026-08-31 まで、本行は「そのタスクグループ自身を畳んでは
   // ならない」と定めていた**」.
   { row: 'HF-11', gist: '配下をすべて閉じる操作子は、表 T-015 の `HR-4` を行うこと（MUST）' },
-  { row: 'HF-13', gist: '1 階層だけ開く操作子を、行ごとに 1 つ置くこと（MUST）' },
+  { row: 'HF-13', gist: '1 階層だけ開く操作子を、タスクグループごとに 1 つ置くこと（MUST）' },
   // ⭐ AND `HF-13`'s JOB SENTENCE, which is the one the case below leans on: the
   // one-level entrance is 表 T-015 の `HR-7` and nothing else.
   { row: 'HF-13', gist: 'その職務は 表 T-015 の `HR-7` である（MUST）' },
@@ -1521,7 +1521,7 @@ const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { groupId: string }): T
   isLabelTruncated: false,
   // ⭐ A ROW WITH NOTHING TO FOLD, WHICH IS NOT A ROW WITHOUT CONTROLS. This
   // read `null` until 2026-08-30, when `TaskGroupTitle.expander` stopped being
-  // nullable: 表 T-051 の `HF-1` puts the three on 「各行」 and the closing
+  // nullable: 表 T-051 の `HF-1` puts the three on 「各タスクグループ」 and the closing
   // paragraph under that table gives 「対象が 1 つも無い」 as a STATE the three
   // carry -- which `FR-029` (MUST) then draws 薄く -- rather than as their
   // absence. ⚠️ The neutral fixture is therefore the three with none armed.
@@ -1768,7 +1768,7 @@ describe('the specification still says what these cases copy', () => {
   it('U-23 still requires an entrance to be named by the Task Group Panel (MUST)', () => {
     const row = specTable('T-103').rows.find((one) => one.id === 'U-23')
     expect(row?.cells.join(' ')).toContain(
-      '操作の入口を指すときは「行見出しパネル」と書くこと（MUST）',
+      '操作の入口を指すときは「タスクグループパネル」と書くこと（MUST）',
     )
   })
 })
@@ -2370,9 +2370,9 @@ describe('the entries of 表 T-109 on the `Task Group Panel`', () => {
   //
   // 表 T-109, docs/spec/_assets/tbl-glossary.md:503-505, holds three entries on
   // the `Task Group Panel`:
-  //   IC-58  行の配下をすべて開く            表 T-051 の HF-2
-  //   IC-59  その行自身を畳む               表 T-051 の HF-3
-  //   IC-60  行をピン止めし、同じ入口で外す   FR-098
+  //   IC-58  タスクグループの配下をすべて開く            表 T-051 の HF-2
+  //   IC-59  そのタスクグループ自身を畳む               表 T-051 の HF-3
+  //   IC-60  タスクグループをピン止めし、同じ入口で外す   FR-098
   //
   // ⭐ IC-58 / IC-59 ARE ANSWERED TOO, and the block below asks for both. The
   // note that used to stand here said they were not: it read that the unit drew
@@ -2421,9 +2421,9 @@ describe('the entries of 表 T-109 on the `Task Group Panel`', () => {
  * What a row with nothing under it carries.
  *
  * ⭐⭐ IT IS NOT `null`, AND ON 2026-08-30 IT STOPPED BEING ABLE TO BE. 表 T-051
- * の `HF-1` places the three on 「**各行**」 with no exception, and the closing
+ * の `HF-1` places the three on 「**各タスクグループ**」 with no exception, and the closing
  * paragraph under that table says what a row with nothing to fold carries
- * instead: 「⛔ **その操作で、描かれる行が 1 行も増減しないときは、対象が 1 つも
+ * instead: 「⛔ **その操作で、描かれるタスクグループが 1 つも増減しないときは、対象が 1 つも
  * 無いものとして扱うこと（MUST）**」 -- a STATE of the three, which `FR-029`
  * (MUST) then draws 薄く. ⇒ `TaskGroupTitle.expander` is no longer nullable, so the
  * cases that used to spell this `null` spell it here.
@@ -2465,9 +2465,9 @@ const EXPANDER_TASK_GROUPS = T_109_TASK_GROUP_EXPANDER.map((one) => one.row).sor
  *
  * ⛔⛔ FOUND BY `data-icon` AND NO LONGER BY `data-role="Task Group Expander"`, and the
  * change is a reading of the specification rather than a convenience. 表 T-103's
- * `U-47` says 「行の折り畳みの操作子。⛔ **員数と置き方は 表 T-051 の `HF-1` が
+ * `U-47` says 「タスクグループの折り畳みの操作子。⛔ **員数と置き方は 表 T-051 の `HF-1` が
  * 持ち、本行は持たない**」, and `HF-1` enumerates exactly three -- DFC-161 「開く操作子と、
- * その行自身を閉じる操作子と、配下をすべて閉じる操作子を 1 つずつ」. `IC-90`
+ * そのタスクグループ自身を閉じる操作子と、配下をすべて閉じる操作子を 1 つずつ」. `IC-90`
  * comes from `HF-13` and `IC-91` from `HF-14`, neither of which `HF-1` counts.
  * ⚠️ WHETHER THOSE TWO ARE PART OF `U-47` IS NOT DECIDED ANYWHERE: `U-47` points
  * its count at `HF-1` (three), while A-appendix.md's entry for version 1.72 says
@@ -2493,7 +2493,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
     expect(expanderIcons(built).sort()).toEqual(EXPANDER_TASK_GROUPS)
   })
 
-  it('GIVEN two rows, one pinned and one not, WHEN the panel is drawn THEN EACH row gets the pair (HF-1 「各行に」)', () => {
+  it('GIVEN two rows, one pinned and one not, WHEN the panel is drawn THEN EACH row gets the pair (HF-1 「各タスクグループに」)', () => {
     const built = drawn(
       viewWith({
         taskGroupPanel: {
@@ -2521,7 +2521,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
     // control added to `HF-1` moves this number on its own.
     expect(icons).toHaveLength(T_109_TASK_GROUP_EXPANDER.length * 2)
     // ⛔ U-46 lifts a pinned row out of the scrolling list, but it is still a row
-    // OF the panel, and HF-1 says 各行 without an exception for it.
+    // OF the panel, and HF-1 says 各タスクグループ without an exception for it.
     for (const one of T_109_TASK_GROUP_EXPANDER) {
       const drawnTwice = icons.filter((held) => held === one.row)
       expect(drawnTwice, `${one.row} was not drawn once per row`).toHaveLength(2)
@@ -2542,7 +2542,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
     },
   )
 
-  it('⭐ GIVEN a row with NOTHING under it WHEN the panel is drawn THEN HF-13 and HF-14 still place their entrances on it (「行ごとに 1 つ置くこと（MUST）」)', () => {
+  it('⭐ GIVEN a row with NOTHING under it WHEN the panel is drawn THEN HF-13 and HF-14 still place their entrances on it (「タスクグループごとに 1 つ置くこと（MUST）」)', () => {
     const built = drawn(withExpander(NOTHING_TO_FOLD))
     const row = theTaskGroupOf(built)
     const drew = controlsOf(row).map((one) => one.getAttribute('data-icon'))
@@ -2556,18 +2556,18 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
     // twice over:
     //
     //   `HF-13` (docs/spec/01-04-requirements.md):
-    //     「**1 階層だけ開く操作子を、行ごとに 1 つ置くこと（MUST）**」
+    //     「**1 階層だけ開く操作子を、タスクグループごとに 1 つ置くこと（MUST）**」
     //     「⛔ **開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描く
     //       こと（MUST）**」
     //   `HF-14`:
-    //     「**配下に行を足す操作子を、行ごとに 1 つ置くこと（MUST）**」
+    //     「**配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（MUST）**」
     //
     // ⭐ 「開ける直下の子が 1 つも無いとき」 IS THIS ROW, and the rule for it is
     // 薄く描く -- faint, not absent. A row with nothing under it is the case the
     // MUST was written for, so it is the case that must draw them.
     // ⚠️ HF-14 is not spent by a childless row at all: the closing paragraph
     // under 表 T-051 names 「`HF-2` / `HF-3` / `HF-10` / `HF-11` / `HF-12` /
-    // `HF-13`」 as the entrances that count 「いま描かれている行」 and does NOT
+    // `HF-13`」 as the entrances that count 「いま描かれているタスクグループ」 and does NOT
     // name `HF-14` -- adding a row is not an operation that reveals one.
     expect(drew, `${entranceForRule('HF-13')} left a row with nothing under it`).toContain(
       entranceForRule('HF-13'),
@@ -2601,18 +2601,18 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per row'
 // ⭐ WHAT THE SPECIFICATION SAYS, VERBATIM (docs/spec/01-04-requirements.md,
 // 表 T-051):
 //
-//   `HF-13`: 「**1 階層だけ開く操作子を、行ごとに 1 つ置くこと（MUST）**」 ——
+//   `HF-13`: 「**1 階層だけ開く操作子を、タスクグループごとに 1 つ置くこと（MUST）**」 ——
 //     表 T-015 の `HR-7` である。⭐ 「**`HF-2`（配下をすべて開く）とは別の入口と
 //     すること（MUST）。同じ入口に兼ねさせてはならない（MUST NOT）**」 ——
 //     「押すたびに違う量が開く入口は、何が起きるかを押す前に読めない」。
 //     ⛔ 「**開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと
 //     （MUST）。**」⭐ 「**入口は 表 T-109 の `IC-90` である**」
-//   `HF-14`: 「**配下に行を足す操作子を、行ごとに 1 つ置くこと（MUST）**」 ——
+//   `HF-14`: 「**配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（MUST）**」 ——
 //     表 T-015 の `HR-8` である。⭐ 「**入口は 表 T-109 の `IC-91` である**」
 //
 // ⛔ WHAT THIS UNIT DOES NOT OWE THEM, said plainly so nobody looks for it here.
-// 表 T-015's `HR-7` 「孫より下の畳みに触れてはならない（MUST NOT）」 and `HF-14`'s 「**足した行は末子とすること（MUST）**」 and
-// 「**押された瞬間に、既定の名前で行を立てること（MUST）。その行のプロパティパネル
+// 表 T-015's `HR-7` 「孫より下の畳みに触れてはならない（MUST NOT）」 and `HF-14`'s 「**足したタスクグループは末子とすること（MUST）**」 and
+// 「**押された瞬間に、既定の名前でタスクグループを立てること（MUST）。そのタスクグループのプロパティパネル
 // を出し、名前の欄で名づけさせること（MUST）**」 are all
 // rules about what is WRITTEN when the entrance is pressed. This unit draws and
 // answers points; the press is planned in the translator and carried out three
@@ -2625,7 +2625,7 @@ const IC_OPEN_ONE_LEVEL = entranceForRule('HF-13')
 const IC_OPEN_ALL_BELOW = entranceForRule('HF-2')
 const IC_ADD_CHILD = entranceForRule('HF-14')
 
-/** Two plain rows, so 「行ごとに 1 つ」 can be counted rather than assumed. */
+/** Two plain rows, so 「タスクグループごとに 1 つ」 can be counted rather than assumed. */
 const twoTaskGroups = (patch: Partial<TaskGroupTitle> = {}): ScreenView =>
   viewWith({
     taskGroupPanel: {
@@ -2649,8 +2649,8 @@ const twoTaskGroups = (patch: Partial<TaskGroupTitle> = {}): ScreenView =>
 const everyEntry = (built: Stage, icon: string): FakeElement[] =>
   selfAndDescendants(built.root()).filter((one) => one.getAttribute('data-icon') === icon)
 
-describe('表 T-051 HF-13 -- 1 階層だけ開く操作子を、行ごとに 1 つ (MUST)', () => {
-  it(`GIVEN two rows WHEN the panel is drawn THEN each carries exactly one ${IC_OPEN_ONE_LEVEL} (「行ごとに 1 つ置くこと（MUST）」)`, () => {
+describe('表 T-051 HF-13 -- 1 階層だけ開く操作子を、タスクグループごとに 1 つ (MUST)', () => {
+  it(`GIVEN two rows WHEN the panel is drawn THEN each carries exactly one ${IC_OPEN_ONE_LEVEL} (「タスクグループごとに 1 つ置くこと（MUST）」)`, () => {
     const built = drawn(twoTaskGroups())
 
     expect(everyEntry(built, IC_OPEN_ONE_LEVEL)).toHaveLength(2)
@@ -2752,7 +2752,7 @@ describe('表 T-051 HF-13 -- 1 階層だけ開く操作子を、行ごとに 1 �
     const hf13 = specTable('T-051').rows.find((one) => one.id === 'HF-13')
     expect(hf13, '表 T-051 no longer holds HF-13').toBeDefined()
     const cells = hf13?.cells.join(' ') ?? ''
-    expect(cells).toContain('1 階層だけ開く操作子を、行ごとに 1 つ置くこと（MUST）')
+    expect(cells).toContain('1 階層だけ開く操作子を、タスクグループごとに 1 つ置くこと（MUST）')
     expect(cells).toContain('同じ入口に兼ねさせてはならない（MUST NOT）')
     expect(cells).toContain('開ける直下の子が 1 つも無いときは')
     // ⭐ The join this file leans on: HF-13 names its own entrance, and
@@ -2782,8 +2782,8 @@ describe('表 T-051 HF-13 -- 1 階層だけ開く操作子を、行ごとに 1 �
   })
 })
 
-describe('表 T-051 HF-14 -- 配下に行を足す操作子を、行ごとに 1 つ (MUST)', () => {
-  it(`GIVEN two rows WHEN the panel is drawn THEN each carries exactly one ${IC_ADD_CHILD} (「行ごとに 1 つ置くこと（MUST）」)`, () => {
+describe('表 T-051 HF-14 -- 配下にタスクグループを足す操作子を、タスクグループごとに 1 つ (MUST)', () => {
+  it(`GIVEN two rows WHEN the panel is drawn THEN each carries exactly one ${IC_ADD_CHILD} (「タスクグループごとに 1 つ置くこと（MUST）」)`, () => {
     const built = drawn(twoTaskGroups())
 
     expect(everyEntry(built, IC_ADD_CHILD)).toHaveLength(2)
@@ -2799,7 +2799,7 @@ describe('表 T-051 HF-14 -- 配下に行を足す操作子を、行ごとに 1 
     const built = drawn(oneLiveTaskGroup())
 
     // ⭐ `taskGroupId` IS THE WHOLE OF WHAT MAKES THE PRESS ACTIONABLE. HR-8 of
-    // 表 T-015 (MUST): 「**選択した `TaskGroup` の配下に行を 1 つ足す。**⭐ **足す
+    // 表 T-015 (MUST): 「**選択した `TaskGroup` の配下にタスクグループを 1 つ足す。**⭐ **足す
     // 先は配下とすること（MUST）**」 -- so an answer that named the entrance and
     // not the row would leave the shell knowing what was pressed and not under
     // what.
@@ -2822,8 +2822,8 @@ describe('表 T-051 HF-14 -- 配下に行を足す操作子を、行ごとに 1 
 
     // ⚠️ THE CLOSING PARAGRAPH UNDER 表 T-051 DOES NOT REACH HF-14. It names
     // 「`HF-2` / `HF-3` / `HF-10` / `HF-11` / `HF-12` / `HF-13`」 as the
-    // entrances that count 「いま描かれている行」 and finishes 「その操作で、
-    // 描かれる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと
+    // entrances that count 「いま描かれているタスクグループ」 and finishes 「その操作で、
+    // 描かれるタスクグループが 1 つも増減しないときは、対象が 1 つも無いものとして扱うこと
     // （MUST）」. ⛔ HF-14 is absent from that list, and adding a row always
     // increases the rows -- so nothing about having no children spends it.
     expect(onLeaf).toBeDefined()
@@ -2839,13 +2839,13 @@ describe('表 T-051 HF-14 -- 配下に行を足す操作子を、行ごとに 1 
     const cells = hf14?.cells.join(' ') ?? ''
 
     // ⭐ WHAT THIS UNIT DRAWS AND ANSWERS FOR -- unchanged since 2026-08-30.
-    expect(cells).toContain('配下に行を足す操作子を、行ごとに 1 つ置くこと（MUST）')
-    expect(cells).toContain('足した行は末子とすること（MUST）')
+    expect(cells).toContain('配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（MUST）')
+    expect(cells).toContain('足したタスクグループは末子とすること（MUST）')
     expect(cells).toContain(`\`${IC_ADD_CHILD}\``)
     // ⛔ AND THE ONE DRAWING RULE THE NAMING CHANGE DID NOT TOUCH: a row already
     // at `FR-085`'s depth limit still carries the entrance, drawn faint.
     expect(cells).toContain(
-      'その行の深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描くこと（MUST）',
+      'そのタスクグループの深さが `FR-085` の上限に達しているときは、`FR-029` に従って薄く描くこと（MUST）',
     )
 
     // ⭐⭐ WHAT CHANGED ON 2026-09-04 (利用者の裁定 2026-09-03): the row is stood
@@ -2853,8 +2853,8 @@ describe('表 T-051 HF-14 -- 配下に行を足す操作子を、行ごとに 1 
     // `FR-085` gives renaming. ⚠️ Not this unit's to carry out -- read here for
     // the reason HR-8 is read below: the press it draws must not be planned into
     // a second, in-place naming road.
-    expect(cells).toContain('押された瞬間に、既定の名前で行を立てること（MUST）')
-    expect(cells).toContain('その行のプロパティパネルを出し、名前の欄で名づけさせること（MUST）')
+    expect(cells).toContain('押された瞬間に、既定の名前でタスクグループを立てること（MUST）')
+    expect(cells).toContain('そのタスクグループのプロパティパネルを出し、名前の欄で名づけさせること（MUST）')
     expect(cells).toContain('改名と別の道を作ってはならない（MUST NOT）')
 
     // ⛔⛔ THE THREE MUSTS THIS CASE USED TO HOLD DOWN ARE WITHDRAWN: 「**その禁止
@@ -2903,8 +2903,8 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
     const opening = ask(built, AT.taskGroupExpanderOpen.x, AT.taskGroupExpanderOpen.y)
     const closing = ask(built, AT.taskGroupExpanderClose.x, AT.taskGroupExpanderClose.y)
 
-    // ⛔ If one control answered for both, HF-2 (その行の配下をすべて開く) and
-    // HF-3 (その行自身を畳む) would have to be told apart by something other than
+    // ⛔ If one control answered for both, HF-2 (そのタスクグループの配下をすべて開く) and
+    // HF-3 (そのタスクグループ自身を畳む) would have to be told apart by something other than
     // the press -- and 表 T-109 gives them two rows precisely so they need not be.
     expect(opening?.entry).not.toBe(closing?.entry)
     expect([opening?.entry, closing?.entry]).toEqual(['IC-58', 'IC-59'])
@@ -3017,7 +3017,7 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
   // ⛔⛔ A CASE STOOD HERE AND WAS DELETED ON 2026-08-30, NOT WEAKENED. It read
   // 「GIVEN a row with no expander … THEN the panel answers with entry null (null
   // path)」, and 「a row with no expander」 is a description `TaskGroupTitle.expander` can
-  // no longer spell (表 T-051 の `HF-1`, 「各行に… 1 つずつ置く」). ⭐ BOTH HALVES
+  // no longer spell (表 T-051 の `HF-1`, 「各タスクグループに… 1 つずつ置く」). ⭐ BOTH HALVES
   // OF WHAT IT ASSERTED LIVE ON, and neither is this file's only copy:
   //   ・ 「面の上・入口の外」 answering `entry: null` while still naming the row is
   //     「GIVEN IC-77 ends at x 132 WHEN the strip beyond it is pressed」 above,
@@ -3091,10 +3091,10 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
 //                   that covers no point is an entry no point can be on
 //   表 T-051 HF-1   places the folding controls on every row (see HF-1)
 //                   -- a 操作子 that cannot be operated is not placed
-//   表 T-051 HF-5   「行の名前の文字サイズにかかわらず、操作子を同じ大きさで描く
+//   表 T-051 HF-5   「タスクグループ名の文字サイズにかかわらず、操作子を同じ大きさで描く
 //                   こと（MUST）」 -- it has A SIZE, and the row's name is not
 //                   what decides it
-//   FR-098          「ピン止めの操作子（`Task Group Pin`）を、行見出しパネルの各行に
+//   FR-098          「ピン止めの操作子（`Task Group Pin`）を、タスクグループパネルの各タスクグループに
 //                   1 つ置くこと（MUST）」「その操作子で同じようにピン止めを
 //                   外せること（MUST）」
 //   FR-029          RATIONALE 「無反応だと故障に見える」
@@ -3104,7 +3104,7 @@ describe('the Task Group Expander at the edges -- R3.4, the bare panel, and a re
 const T_051_HF5_SAME_SIZE = '操作子を同じ大きさで描くこと（MUST）'
 
 /** FR-098's MUST, copied from docs/spec/01-04-requirements.md:2594. */
-const FR_098_ONE_PER_TASK_GROUP = '行見出しパネルの各行に 1 つ置くこと（MUST）'
+const FR_098_ONE_PER_TASK_GROUP = 'タスクグループパネルの各タスクグループに 1 つ置くこと（MUST）'
 
 /** A length that contributes nothing. ⚠️ `none` and `auto` are a length's absence, not zero. */
 const isZeroLength = (value: string): boolean =>
@@ -3311,7 +3311,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
     }
   })
 
-  it('GIVEN a pinned row and an ordinary row WHEN every control of 表 T-109 on the panel is read THEN each of the six has a box (HF-1 「各行に」, FR-098 「各行に 1 つ」)', () => {
+  it('GIVEN a pinned row and an ordinary row WHEN every control of 表 T-109 on the panel is read THEN each of the six has a box (HF-1 「各タスクグループに」, FR-098 「各タスクグループに 1 つ」)', () => {
     const built = drawn(
       viewWith({
         taskGroupPanel: {
@@ -3345,13 +3345,13 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
     }
   })
 
-  it('⭐ GIVEN a row with NOTHING TO FOLD WHEN the panel is read THEN every entry of 表 T-109 is on it exactly once and each has a box (FR-098 「各行に 1 つ」, HF-1 「各行に」, FR-029 薄く描く)', () => {
+  it('⭐ GIVEN a row with NOTHING TO FOLD WHEN the panel is read THEN every entry of 表 T-109 is on it exactly once and each has a box (FR-098 「各タスクグループに 1 つ」, HF-1 「各タスクグループに」, FR-029 薄く描く)', () => {
     const built = drawn(withExpander(NOTHING_TO_FOLD))
 
     // ⛔⛔ THIS CASE USED TO READ 「the pin is still there with a box and NO
     // EXPANDER IS」 and asserted `IC-58` / `IC-59` were absent. That half was a
     // reading of the seam, not of the manuscript, and the seam has since been
-    // corrected: 表 T-051 の `HF-1` places the three on 「**各行**」 and `FR-029`
+    // corrected: 表 T-051 の `HF-1` places the three on 「**各タスクグループ**」 and `FR-029`
     // (MUST) draws a control that can do nothing 薄く rather than taking it away
     // -- 「**載る面によって薄くしない入口があってはならない（MUST NOT）**」.
     // ⭐ WHAT THE CASE WAS FOR SURVIVES AND IS WIDENED: `FR-098`'s pin does not
@@ -3421,7 +3421,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
       const reaching = inheritedPointerEvents(node)
 
       // ⛔ FR-098 (docs/spec/01-04-requirements.md:2594, MUST):
-      //   「ピン止めの操作子（`Task Group Pin`）を、行見出しパネルの各行に 1 つ置くこと
+      //   「ピン止めの操作子（`Task Group Pin`）を、タスクグループパネルの各タスクグループに 1 つ置くこと
       //    （MUST）」…「その操作子で同じようにピン止めを外せること（MUST）」
       // 「外せること」 is a press. 表 T-051 HF-1 asks the same of the expander,
       //   whose controls it places on every row (see HF-1)
@@ -3470,13 +3470,13 @@ const FR_098_SAME_AS_THE_EXPANDER = '置き方・大きさ・濃さと'
 // HOWEVER DEEP THE ROW SITS.
 //
 // 表 T-051 HF-4 (docs/spec/01-04-requirements.md:1310, MUST):
-//   「行の名前の長さにかかわらず、操作子を行見出しパネルの右端に揃えること
+//   「タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること
 //     （MUST）」—— 名前ごとに位置が変わると狙えない
 // FR-098 (:2594) binds the `Task Group Pin` to that rule rather than restating it:
 //   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折り畳みの
 //     操作子と同じとする（表 T-051 の `HF-4` 〜 `HF-6` と `HF-9`）」
 // FR-085 (:1272) is what makes DEPTH the second variable. The room a name gets
-// is the panel width less 「その行の深さぶんのインデント」 (`taskGroupTitleIndent`)
+// is the panel width less 「そのタスクグループの深さぶんのインデント」 (`taskGroupTitleIndent`)
 // less the room kept for the controls -- so the indent is spent on the NAME's
 // side. An indent that moved the controls would make the right edge depend on
 // the depth, which is the same defect HF-4 names for the name's length.
@@ -3513,10 +3513,10 @@ const FR_098_SAME_AS_THE_EXPANDER = '置き方・大きさ・濃さと'
 
 /** 表 T-051 HF-4, copied from docs/spec/01-04-requirements.md:1310. */
 const T_051_HF4_RIGHT_EDGE =
-  '行の名前の長さにかかわらず、操作子を行見出しパネルの右端に揃えること（MUST）'
+  'タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること（MUST）'
 
 /** FR-085's rule that the depth is spent as an indent, copied from :1272. */
-const FR_085_INDENT_BY_DEPTH = 'その行の深さぶんのインデント'
+const FR_085_INDENT_BY_DEPTH = 'そのタスクグループの深さぶんのインデント'
 
 /**
  * A number out of a settings table, read at the moment this file is read so a
@@ -3533,7 +3533,7 @@ function settingNumber(table: string, row: string): number {
  * `maxGroupDepth` (S-125) as 表 T-211 holds it.
  *
  * ⭐ 表 T-211 (docs/spec/_assets/tbl-settings.md:286): 「`TaskGroup` の深さの上限。
- * …**根の行を深さ 1 と数える**」 -- so 1 and this number are the two ends.
+ * …**根のタスクグループを深さ 1 と数える**」 -- so 1 and this number are the two ends.
  */
 const MAX_GROUP_DEPTH = settingNumber('T-211', 'S-125')
 
@@ -3707,7 +3707,7 @@ const controlStyles = (built: Stage): Record<string, string> =>
   )
 
 /**
- * 表 T-051 `HF-4` (MUST): 「行の名前の長さにかかわらず、操作子を行見出しパネルの
+ * 表 T-051 `HF-4` (MUST): 「タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの
  * 右端に揃えること」 -- so everything that brings a control stands together at the
  * END of the row's line, with nothing of the row's own after it.
  *
@@ -3737,7 +3737,7 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
       const built = drawn(taskGroupNamed(label))
       const row = theTaskGroupOf(built)
 
-      // ⛔ 表 T-051 HF-4 (MUST): 「行の名前の長さにかかわらず、操作子を行見出し
+      // ⛔ 表 T-051 HF-4 (MUST): 「タスクグループ名の長さにかかわらず、操作子をタスクグループ見出し
       // パネルの右端に揃えること」. In a flex line the last items sit at its end
       // only if something ahead of them absorbs the free space -- so these four
       // readings together are the rule, and no one of them is it alone.
@@ -3792,7 +3792,7 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     ).toEqual([])
   })
 
-  it('⭐ GIVEN a row with NOTHING under it WHEN it is read THEN the SAME roster still ends the row (表 T-051 HF-1 「各行に」, HF-13 / HF-14 「行ごとに 1 つ」, FR-029 薄く描く)', () => {
+  it('⭐ GIVEN a row with NOTHING under it WHEN it is read THEN the SAME roster still ends the row (表 T-051 HF-1 「各タスクグループに」, HF-13 / HF-14 「タスクグループごとに 1 つ」, FR-029 薄く描く)', () => {
     const built = drawn(withExpander(NOTHING_TO_FOLD))
     const row = theTaskGroupOf(built)
 
@@ -3806,7 +3806,7 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
     // asserted 「the `Task Group Pin` alone ends the row」 with a typed list of two.
     //
     // ⭐ EVERY ROW HAS THE SAME CONTROLS, AND HF-4 IS WHY IT MATTERS HERE:
-    // 「**行の名前の長さにかかわらず、操作子を行見出しパネルの右端に揃えること
+    // 「**タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること
     // （MUST）**」, whose reason is 「名前ごとに位置が変わると狙えない」. ⛔ A
     // roster that shrinks on a childless row moves every remaining control under
     // a different part of the pointer's travel -- the very complaint HF-4 was
@@ -3842,7 +3842,7 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
 
     // ⭐⭐ READ THROUGH THE HOSTS SINCE CR-336, for `HF-1`'s lattice: see
     // `expectTheControlsEndTheTaskGroup`. ⛔ U-46 lifts a pinned row out of the
-    // scrolling list, but it is a row OF the panel and `HF-4` says 行の名前の
+    // scrolling list, but it is a row OF the panel and `HF-4` says タスクグループ名の
     // 長さにかかわらず without an exception for it.
     expect(styleMap(row).get('display')).toBe('flex')
     expect(
@@ -3870,7 +3870,7 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
   it('GIVEN the specification is re-read WHEN 表 T-051 HF-4 is looked up THEN it still puts the controls on the right edge regardless of the name (Chapter 1.9: the case is driven by the table)', () => {
     const hf4 = specTable('T-051').rows.find((one) => one.id === 'HF-4')
     expect(hf4, '表 T-051 no longer holds HF-4').toBeDefined()
-    expect(hf4?.cells.join(' ')).toContain('行の名前の長さにかかわらず')
+    expect(hf4?.cells.join(' ')).toContain('タスクグループ名の長さにかかわらず')
     expect(hf4?.cells.join(' ')).toContain('右端に揃えること（MUST）')
     expect(specText('01-04-requirements.md')).toContain(T_051_HF4_RIGHT_EDGE)
     // ⭐ FR-098 does not restate the rule; it refers the 置き方 to HF-4 .. HF-6.
@@ -3918,7 +3918,7 @@ describe('表 T-051 HF-4 / FR-085 -- the row depth moves the name, never the rig
     // ⚠️ Without this, the case above would be satisfied by a unit that ignored
     // the depth altogether: nothing differs, so nothing differs on the right.
     // FR-085 counts on the indent being there -- the room is what is left after
-    // 「その行の深さぶんのインデント」 (`taskGroupTitleIndent`).
+    // 「そのタスクグループの深さぶんのインデント」 (`taskGroupTitleIndent`).
     expect(
       differingProperties(theTaskGroupOf(root), theTaskGroupOf(deepest)),
       `depth ${MAX_GROUP_DEPTH} is drawn exactly like depth 1 -- the indent is missing`,
@@ -3930,7 +3930,7 @@ describe('表 T-051 HF-4 / FR-085 -- the row depth moves the name, never the rig
     const row = specTable('T-211').rows.find((one) => one.id === 'S-125')
     expect(row?.cells.join(' '), '表 T-211 no longer holds maxGroupDepth').toContain('maxGroupDepth')
     expect(row?.cells.join(' '), 'S-125 no longer counts the root row as depth 1').toContain(
-      '根の行を深さ 1 と数える',
+      '根のタスクグループを深さ 1 と数える',
     )
     expect(DEPTHS[0]).toBe(1)
     expect(DEPTHS[DEPTHS.length - 1]).toBe(MAX_GROUP_DEPTH)
@@ -3943,7 +3943,7 @@ describe('表 T-051 HF-4 / FR-085 -- the row depth moves the name, never the rig
 //
 // 表 T-051 HF-6 (docs/spec/01-04-requirements.md, MUST):
 //   see T_051_HF6_ONLY_WHILE_POINTED below for the sentence, read from the row
-//     —— 常に描くと、日程より操作子が目立ち、行の名前ともぶつかる
+//     —— 常に描くと、日程より操作子が目立ち、タスクグループ名ともぶつかる
 //   「描かないあいだも、確保する場所を変えてはならない（MUST NOT）」
 //     —— 規則と理由は `FR-085` が持つ
 // FR-098 (:2610) refers the 置き方 of the `Task Group Pin` to the same row.
@@ -3966,7 +3966,7 @@ describe('表 T-051 HF-4 / FR-085 -- the row depth moves the name, never the rig
 //      admissible too; the cases below read whichever the unit declared, and
 //      only a unit that declared NEITHER fails them.
 //   2. THAT THE POINTER CONDITION NAMES THE ROW'S **NAME** rather than the whole
-//      row. HF-6 says 「その行の名前に」 -- but the name has no settled name to
+//      row. HF-6 says 「そのタスクグループ名に」 -- but the name has no settled name to
 //      key a selector on: 表 T-103 has no row for the cell a row's name sits in,
 //      which is why `nameCellOf` above finds it BY POSITION. ⚠️ So a case
 //      demanding a selector for it would be demanding a `data-role` the
@@ -4070,9 +4070,9 @@ function restingDeclaration(
 
 /** 表 T-051 HF-6's two rules, copied from docs/spec/01-04-requirements.md:1312. */
 const T_051_HF6_ONLY_WHILE_POINTED =
-  '操作子は、その行の名前か、その行のために描いた操作子の群（下の段が地を敷く範囲）にポインタが乗っているあいだだけ描くこと（MUST）'
+  '操作子は、そのタスクグループ名か、そのタスクグループのために描いた操作子の群（下の段が地を敷く範囲）にポインタが乗っているあいだだけ描くこと（MUST）'
 const T_051_HF6_THE_GROUP_STAYS =
-  '一度ある行のために描いた群は、ポインタがその群から外れて群が消えるまで、その行の操作子であり続けること（MUST）'
+  '一度あるタスクグループのために描いた群は、ポインタがその群から外れて群が消えるまで、そのタスクグループの操作子であり続けること（MUST）'
 const T_051_HF6_ROOM_UNCHANGED = '描かないあいだも、確保する場所を変えてはならない（MUST NOT）'
 
 /**
@@ -4208,10 +4208,10 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
     const rules = sheetRulesOf(built.root())
 
     // ⛔⛔ `IC-60` IS LEFT OUT, AND THE RULING OF 2026-08-30 IS WHY. `HF-6` now
-    // carries an exception in as many words: 「⛔⛔ **ピン止めしている行の
+    // carries an exception in as many words: 「⛔⛔ **ピン止めしているタスクグループの
     // `IC-60` だけは、ポインタが乗っていなくても描くこと（MUST）** —— ⛔ **本行の
-    // 最初の MUST の唯一の例外である。****描かなければ、どの行が留まっているかは
-    // 全行を撫でるしか読む手が無い。**」 ⇒ asserting the pin hidden here would be
+    // 最初の MUST の唯一の例外である。****描かなければ、どのタスクグループが留まっているかは
+    // 全タスクグループを撫でるしか読む手が無い。**」 ⇒ asserting the pin hidden here would be
     // asserting the reading that ruling replaced. ⭐ The exception has a case of
     // its own below, and the MUST NOT beside it -- 「⛔ **ほかの操作子を常時描いて
     // はならない（MUST NOT）**」 -- is what the loop here still holds.
@@ -4227,8 +4227,8 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
     }
   })
 
-  it('⛔⛔ MUST GIVEN a PINNED row WHEN its IC-60 is read THEN it is drawn with NO pointer on the row (表 T-051 HF-6: ピン止めしている行の IC-60 だけは、ポインタが乗っていなくても描くこと)', () => {
-    // ⭐ THE RULING'S OWN REASON: 「**描かなければ、どの行が留まっているかは全行を
+  it('⛔⛔ MUST GIVEN a PINNED row WHEN its IC-60 is read THEN it is drawn with NO pointer on the row (表 T-051 HF-6: ピン止めしているタスクグループの IC-60 だけは、ポインタが乗っていなくても描くこと)', () => {
+    // ⭐ THE RULING'S OWN REASON: 「**描かなければ、どのタスクグループが留まっているかは全タスクグループを
     // 撫でるしか読む手が無い。**」 ⚠️ 「**この例外が当たるのは留まっているあいだ
     // だけであり、外せばほかの操作子と同じに戻る。**」
     //
@@ -4289,7 +4289,7 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
     const hf6 = (specTable('T-051').rows.find((one) => one.id === 'HF-6')?.cells ?? []).join(' ')
 
     expect(hf6).toContain(
-      'ピン止めしている行の `IC-60` だけは、ポインタが乗っていなくても描くこと（MUST）',
+      'ピン止めしているタスクグループの `IC-60` だけは、ポインタが乗っていなくても描くこと（MUST）',
     )
     expect(hf6).toContain('本行の最初の MUST の唯一の例外である')
     expect(hf6).toContain('ほかの操作子を常時描いてはならない（MUST NOT）')
@@ -4330,13 +4330,13 @@ describe('表 T-051 HF-6 / FR-098 -- the row controls are drawn only while a poi
 // row and is tested above; this is where they sit DOWN it.
 //
 // docs/spec/01-04-requirements.md (表 T-051, HF-5), AS THAT ROW NOW READS:
-//   「行の名前の文字サイズにかかわらず、操作子を同じ大きさで描くこと（MUST）。
+//   「タスクグループ名の文字サイズにかかわらず、操作子を同じ大きさで描くこと（MUST）。
 //    名前が操作子より大きいときは、名前の上端に揃えること（MUST）。中央で揃えて
 //    はならない（MUST NOT）」
 //   —— 中央にすると名前の文字サイズが変わるたびに操作子の位置が動き、`HF-4` が
 //      横で禁じたことを縦で許すことになる。
 //   「⛔ 上端から下げてはならない（MUST NOT）」
-//   —— 名前の大きさは深さで変わるので、下げると行ごとに操作子の高さが食い違って
+//   —— 名前の大きさは深さで変わるので、下げるとタスクグループごとに操作子の高さが食い違って
 //      見える。
 //
 // ⚠️ THE ROW WAS REVERTED, AND THIS BLOCK WITH IT (利用者の裁定, 2026-08-25).
@@ -4562,12 +4562,12 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
 // ===========================================================================
 // GR-20 OF 表 T-023d -- THE GRAB STRIP THE ROW DRAG IS TAKEN ON.
 //
-// ⭐ WHY THIS BLOCK IS HERE. 表 T-023d GR-20: 「行見出しパネルの行 | **行の左端
+// ⭐ WHY THIS BLOCK IS HERE. 表 T-023d GR-20: 「タスクグループパネルのタスクグループ | **タスクグループの左端
 // に敷く掴み代**（幅は `_assets/tbl-settings.md` の 表 T-206 の `S-138`）|
-// 掴めば行を動かす（表 T-051 の `HF-15`）。⛔ **ピン止めしている行は掴めない
-// こと（MUST NOT）** —— `FR-098` が留めた行をパネルの先頭へ上げるので、**上げ
+// 掴めばタスクグループを動かす（表 T-051 の `HF-15`）。⛔ **ピン止めしているタスクグループは掴めない
+// こと（MUST NOT）** —— `FR-098` が留めたタスクグループをパネルの先頭へ上げるので、**上げ
 // られた位置で掴むと、木の順ではなく描く順を触ることになる。**⚠️ **実測で、
-// 留めた行を引くと画面は 1px も動かないまま親を 2 つまたいだ**」.
+// 留めたタスクグループを引くと画面は 1px も動かないまま親を 2 つまたいだ**」.
 //
 // The side that DREW the panel is the side that knows a row was lifted (表 T-065
 // IF-9, MUST), so both halves of that row are answered here: the strip is laid,
@@ -4657,9 +4657,9 @@ const taskGroupWithGroupId = (built: Stage, groupId: string): FakeElement => {
   return found
 }
 
-describe('GR-20 of 表 T-023d -- 行の左端に敷く掴み代（幅は S-138）', () => {
+describe('GR-20 of 表 T-023d -- タスクグループの左端に敷く掴み代（幅は S-138）', () => {
   it.each(DEPTHS)(
-    '⭐ GIVEN an ordinary row at depth %i WHEN it is read THEN it carries ONE strip of S-138 and that strip is the FIRST thing in the row (GR-20 「行の左端に敷く掴み代」)',
+    '⭐ GIVEN an ordinary row at depth %i WHEN it is read THEN it carries ONE strip of S-138 and that strip is the FIRST thing in the row (GR-20 「タスクグループの左端に敷く掴み代」)',
     (depth) => {
       const built = drawn(taskGroupNamed('TaskGroupOne', depth))
       const row = theTaskGroupOf(built)
@@ -4669,7 +4669,7 @@ describe('GR-20 of 表 T-023d -- 行の左端に敷く掴み代（幅は S-138�
         strips.length,
         `GR-20's strip is not on the row, or there is more than one of it: ${serialize(row)}`,
       ).toBe(1)
-      // 「行の左端に敷く」 -- the LEFT edge of the row, so nothing of the row
+      // 「タスクグループの左端に敷く」 -- the LEFT edge of the row, so nothing of the row
       // stands before it. ⚠️ The depth cases are here because FR-085 indents a
       // deep row: an indent that pushed the strip in would put the grab
       // somewhere different on every row, which is the complaint HF-4 was
@@ -4695,8 +4695,8 @@ describe('GR-20 of 表 T-023d -- 行の左端に敷く掴み代（幅は S-138�
     ).toEqual([])
   })
 
-  it('⛔ MUST NOT GIVEN a PINNED row WHEN it is read THEN it carries NO strip at all (GR-20: ピン止めしている行は掴めないこと)', () => {
-    // ⚠️ 「実測で、留めた行を引くと画面は 1px も動かないまま親を 2 つまたいだ」.
+  it('⛔ MUST NOT GIVEN a PINNED row WHEN it is read THEN it carries NO strip at all (GR-20: ピン止めしているタスクグループは掴めないこと)', () => {
+    // ⚠️ 「実測で、留めたタスクグループを引くと画面は 1px も動かないまま親を 2 つまたいだ」.
     const built = drawn(PANEL_WITH_A_PIN())
 
     expect(
@@ -4713,10 +4713,10 @@ describe('GR-20 of 表 T-023d -- 行の左端に敷く掴み代（幅は S-138�
     const gr20 = specTable('T-023d').rows.find((one) => one.id === 'GR-20')
     expect(gr20, '表 T-023d no longer holds GR-20').toBeDefined()
     const says = (gr20?.cells ?? []).join(' ')
-    expect(says).toContain('行の左端に敷く掴み代')
+    expect(says).toContain('タスクグループの左端に敷く掴み代')
     expect(says).toContain('`S-138`')
-    expect(says).toContain('ピン止めしている行は掴めないこと（MUST NOT）')
-    expect(says).toContain('掴めば行を動かす')
+    expect(says).toContain('ピン止めしているタスクグループは掴めないこと（MUST NOT）')
+    expect(says).toContain('掴めばタスクグループを動かす')
     expect(S_138_STRIP_WIDTH, 'S-138 no longer states a width').toBeGreaterThan(0)
   })
 })
@@ -5294,7 +5294,7 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     expect(hf10).toContain(T_051_HF10_THE_HEAD_RUN)
     // ⛔ THE OUTERMOST OF THE HEAD IS NOT 「すべて開く」, which that row says
     // itself: 「**本行の「すべて開く」を並びのいちばん外へ置いてはならない
-    // （MUST NOT）** —— **頭も行も、折り畳みの外に立つのは行を足す入口と消す入口である。**」.
+    // （MUST NOT）** —— **頭もタスクグループも、折り畳みの外に立つのはタスクグループを足す入口と消す入口である。**」.
     expect(hf10).toContain('本行の「すべて開く」を並びのいちばん外へ置いてはならない（MUST NOT）')
 
     expect(hf10, 'HF-10 names the reason the head is not two tiers').toContain(T_051_HF10_NOT_TWO_TIERS)
@@ -5364,10 +5364,10 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     expect(nodesFor(built, [entranceForRule('HF-3')]).length).toBe(2)
   })
 
-  it('⭐⭐ GIVEN a panel with NO rows at all WHEN the head is read THEN all five are still drawn (HF-17: 行が 1 つも無い文書では押す相手が存在しない)', () => {
+  it('⭐⭐ GIVEN a panel with NO rows at all WHEN the head is read THEN all five are still drawn (HF-17: タスクグループが 1 つも無い文書では押す相手が存在しない)', () => {
     // ⛔ WITHOUT THIS, `HF-17`'s own reason is unreachable: 「**本行が無いと、最も
-    // 浅い段の行を作る道が画面から消える** —— `FR-085` は最上位の行を作れることを
-    // 求めており、`HR-8` は足す先を配下と定めるので、**行が 1 つも無い文書では押す
+    // 浅い段のタスクグループを作る道が画面から消える** —— `FR-085` は最上位のタスクグループを作れることを
+    // 求めており、`HR-8` は足す先を配下と定めるので、**タスクグループが 1 つも無い文書では押す
     // 相手が存在しない**」. A head drawn only beside a row would leave an empty
     // document with no way to gain one.
     const built = drawn(viewWith({ taskGroupPanel: { pinnedTitles: [], titles: [] } }))
@@ -5384,20 +5384,20 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
 // 表 T-051 HF-15 AND HF-18 -- WHAT IS DRAWN THAT IS NOT AN ENTRANCE.
 //
 // ⭐ THREE MUSTS OF `HF-15` REACH THIS UNIT, and all three are about drawing:
-//   ⭐⭐ 「**いまどちらの軸が生きているかを、掴んでいる行に描くこと（MUST）** ——
-//      **上下の軸が生きているときは行の左右の辺に、左右の軸が生きているときは行の
+//   ⭐⭐ 「**いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと（MUST）** ——
+//      **上下の軸が生きているときはタスクグループの左右の辺に、左右の軸が生きているときはタスクグループの
 //      上下の辺に、帯を 1 本ずつ描くこと（MUST）。**⭐ **色は 表 T-236 の `S-151`
 //      （上下）と `S-152`（左右）とする。**」
-//   ⭐ 「掴んでいる行には地を敷くこと（MUST）」 (see HF-15)
+//   ⭐ 「掴んでいるタスクグループには地を敷くこと（MUST）」 (see HF-15)
 //   ⭐ 「**掴み代は常に描くこと（MUST）** —— ⛔ **`HF-6`（操作子はポインタが乗って
 //      いるあいだだけ）の対象ではない** —— **掴めることが読めなければ、掴もうと
 //      する手が動かない。**」
-// ⭐ AND ONE OF `HF-18`: 「**配下に畳み込んでいる行があるとき、その行数を行に示す
+// ⭐ AND ONE OF `HF-18`: 「**配下に畳み込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示す
 //   こと（MUST）**」, with ⛔ 「**`HF-6` の対象ではない** —— **ポインタが乗って
-//   いるあいだだけでは、抱えている行を探して回ることになる**」.
+//   いるあいだだけでは、抱えているタスクグループを探して回ることになる**」.
 //
 // ⭐ THE BAND'S THICKNESS IS STATED SINCE 2026-08-31 and is read below: `S-213`
-// of 表 T-206, which `HF-15` and `HF-18` BOTH name -- 「行の辺に引く 1 本の帯」 is
+// of 表 T-206, which `HF-15` and `HF-18` BOTH name -- 「タスクグループの辺に引く 1 本の帯」 is
 // one thing and holds one number. ⛔ Until that day neither band had a source
 // and this unit carried two invented ones, 2px and 3px.
 // ⚠️ WHAT IS STILL NOT ASSERTED. The GROUND'S COLOUR under the held row:
@@ -5458,7 +5458,7 @@ describe('表 T-051 HF-15 (MUST) -- the row that is held says which axis is live
 
   it('⭐ MUST GIVEN an axis is live WHEN the bands are read THEN both are S-213 thick (HF-15: 太さは 表 T-206 の `S-213`)', () => {
     // ⭐ ONE NUMBER FOR BOTH BANDS, which `S-213` states: HF-15's live axis and
-    // HF-18's holding mark are 「行の辺に引く 1 本の帯」.
+    // HF-18's holding mark are 「タスクグループの辺に引く 1 本の帯」.
     // ⛔ THEY WERE 2px AND 3px, both invented in the drawing unit.
     const stated = specTable('T-206').rows.find((one) => one.id === 'S-213')
     if (stated === undefined) throw new Error('表 T-206 no longer holds S-213')
@@ -5480,7 +5480,7 @@ describe('表 T-051 HF-15 (MUST) -- the row that is held says which axis is live
     }
   })
 
-  it('⭐ MUST GIVEN the position axis is live WHEN the held row is read THEN a band lies on its LEFT and RIGHT edges and on neither other (HF-15: 上下の軸が生きているときは行の左右の辺に)', () => {
+  it('⭐ MUST GIVEN the position axis is live WHEN the held row is read THEN a band lies on its LEFT and RIGHT edges and on neither other (HF-15: 上下の軸が生きているときはタスクグループの左右の辺に)', () => {
     // ⛔ CROSSWISE IS WHAT THE ROW SAYS: a grab that moves the row UP AND DOWN
     // is marked on the left and right edges.
     const row = theTaskGroupOf(drawn(taskGroupHeldOn('position')))
@@ -5491,7 +5491,7 @@ describe('表 T-051 HF-15 (MUST) -- the row that is held says which axis is live
     ])
   })
 
-  it('⭐ MUST GIVEN the depth axis is live WHEN the held row is read THEN a band lies on its TOP and BOTTOM edges and on neither other (HF-15: 左右の軸が生きているときは行の上下の辺に)', () => {
+  it('⭐ MUST GIVEN the depth axis is live WHEN the held row is read THEN a band lies on its TOP and BOTTOM edges and on neither other (HF-15: 左右の軸が生きているときはタスクグループの上下の辺に)', () => {
     const row = theTaskGroupOf(drawn(taskGroupHeldOn('depth')))
 
     expect([...bordersOf(row).keys()].sort(), `the held row's edges: ${inlineStyle(row)}`).toEqual([
@@ -5517,7 +5517,7 @@ describe('表 T-051 HF-15 (MUST) -- the row that is held says which axis is live
     expect(onPosition[0], 'the two axes are drawn in one and the same colour').not.toBe(onDepth[0])
   })
 
-  it('⭐ MUST GIVEN a row is held WHEN it is compared with the same row unheld THEN it is given a ground of its own (HF-15: 掴んでいる行には地を敷くこと)', () => {
+  it('⭐ MUST GIVEN a row is held WHEN it is compared with the same row unheld THEN it is given a ground of its own (HF-15: 掴んでいるタスクグループには地を敷くこと)', () => {
     const held = theTaskGroupOf(drawn(taskGroupHeldOn('position')))
     const free = theTaskGroupOf(drawn(taskGroupHeldOn(null)))
 
@@ -5559,7 +5559,7 @@ describe('表 T-051 HF-15 (MUST) -- the row that is held says which axis is live
  * The marks a row carries that show nothing but a number.
  *
  * ⛔ FOUND BY WHAT THE MANUSCRIPT SAYS IT IS, not by an attribute name: `HF-18`
- * (MUST) asks for 「その行数を行に示すこと」 and 「その行自身にも印を付けること」,
+ * (MUST) asks for 「そのタスクグループの数をタスクグループに示すこと」 and 「そのタスクグループ自身にも印を付けること」,
  * and neither 表 T-103 nor 表 T-109 gives the mark a part or an entrance to be
  * named by. ⭐ A LEAF whose whole text is a number is the one reading of that
  * which a build cannot pass by accident -- a row's name is not a bare number.
@@ -5583,19 +5583,19 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a row holds folded is draw
     const hf18 = (specTable('T-051').rows.find((one) => one.id === 'HF-18')?.cells ?? []).join(' ')
 
     expect(hf18).toContain(T_051_HF18_THE_COUNT)
-    expect(hf18).toContain('その行自身にも印を付けること（MUST）')
+    expect(hf18).toContain('そのタスクグループ自身にも印を付けること（MUST）')
     // ⭐ THE SHAPE THE SAMPLE SETTLED (2026-08-31): where the number stands and
     // what stands in front of it. ⛔ Before that day HF-18 stated neither, and
     // the implementation invented both -- the count was drawn over the second
     // character of the row's name.
-    expect(hf18).toContain('置く先は行の右端とすること（MUST）')
+    expect(hf18).toContain('置く先はタスクグループの右端とすること（MUST）')
     expect(hf18).toContain('数の前に、畳み込みを表す印を 1 つ置くこと（MUST）')
     expect(hf18).toContain('色は 表 T-236 の `S-153` とする')
     expect(hf18).toContain('`HF-6` の対象ではない')
     expect(themeColoursOf('S-153').filter((one) => one !== ''), '表 T-236 S-153').toHaveLength(2)
   })
 
-  it('⭐ MUST GIVEN a row that holds three rows folded WHEN it is read THEN the count is drawn on it (HF-18: その行数を行に示すこと)', () => {
+  it('⭐ MUST GIVEN a row that holds three rows folded WHEN it is read THEN the count is drawn on it (HF-18: そのタスクグループ数をタスクグループに示すこと)', () => {
     const built = drawn(
       viewWith({
         taskGroupPanel: {
@@ -5618,7 +5618,7 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a row holds folded is draw
     ).toEqual(['3'])
   })
 
-  it('⛔ GIVEN a row that holds NOTHING folded WHEN it is read THEN no count is drawn (HF-18 shows one 「配下に畳み込んでいる行があるとき」)', () => {
+  it('⛔ GIVEN a row that holds NOTHING folded WHEN it is read THEN no count is drawn (HF-18 shows one 「配下に畳み込んでいるタスクグループがあるとき」)', () => {
     const built = drawn(oneLiveTaskGroup())
 
     expect(
@@ -5654,7 +5654,7 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a row holds folded is draw
     )
     expect(
       hiddenWhileResting(sheetRulesOf(built.root()), mark as FakeElement),
-      'the count is drawn only while a pointer is on the row -- 抱えている行を探して回ることになる',
+      'the count is drawn only while a pointer is on the row -- 抱えているタスクグループを探して回ることになる',
     ).toBeNull()
   })
 })

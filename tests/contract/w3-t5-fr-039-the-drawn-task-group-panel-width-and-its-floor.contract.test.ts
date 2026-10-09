@@ -17,9 +17,9 @@ import { bare, specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // see FR-039
-const FR_039_LARGER_OF_THE_TWO = '⭐ 描く行見出しパネルの幅は、`S-79` に描く比を掛けた値と、次の床の大きい方とすること（MUST）'
+const FR_039_LARGER_OF_THE_TWO = '⭐ 描くタスクグループパネルの幅は、`S-79` に描く比を掛けた値と、次の床の大きい方とすること（MUST）'
 const FR_039_THE_FLOOR =
-  '床 ＝ `S-37` × 描く比 × 同書の 表 T-211 の `S-125` ＋ 行の掴み代の幅（`S-138` × `S-235`）＋ 行の操作子の 4 列（表 T-051 の `HF-4`）ぶんの入口の外形の幅（`FR-029` が定める外形の幅 × `S-235`）'
+  '床 ＝ `S-37` × 描く比 × 同書の 表 T-211 の `S-125` ＋ タスクグループの掴み代の幅（`S-138` × `S-235`）＋ タスクグループの操作子の 4 列（表 T-051 の `HF-4`）ぶんの入口の外形の幅（`FR-029` が定める外形の幅 × `S-235`）'
 const FR_039_THE_OUTER_WIDTH = '53.336 は `S-138` 16 ＋ `S-243` 1 × 2 ＋ `S-237` 1 × 2 ＝ 20px の 4 列に'
 
 /** @purity pure */

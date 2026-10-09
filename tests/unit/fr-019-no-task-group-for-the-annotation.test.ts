@@ -19,11 +19,11 @@
 // The rules these cases answer to
 // ---------------------------------------------------------------------------
 //
-//   FR-019   the refusal, its 作法 and its 理由; and 「行を 1 つ作って載せては
+//   FR-019   the refusal, its 作法 and its 理由; and 「タスクグループを 1 つ作って載せては
 //            ならない（MUST NOT）」.
 //   FR-029   「押されたときに限り、行えない理由を通知すること（MUST）」 and
 //            「当たる行があるのに落ち先を運んではならない（MUST NOT）」.
-//   T-233    RS-44 -- 「注記を置こうとした所に、指す行が無い」, manner NT-1;
+//   T-233    RS-44 -- 「注記を置こうとした所に、指すタスクグループが無い」, manner NT-1;
 //            and RS-15, the fallback that MUST NOT be carried in its place.
 //   T-037    NT-1 -- the manner a refused input is told in.
 //   T-038    the one dictionary FR-038 keeps the words in, in both display
@@ -92,7 +92,7 @@ const wordsOf = (rowId: string): { readonly ja: string; readonly en: string } =>
   return found.text
 }
 
-/** RS-44 -- 「注記を置こうとした所に、指す行が無い」. */
+/** RS-44 -- 「注記を置こうとした所に、指すタスクグループが無い」. */
 const RS_44 = 'RS-44'
 /** RS-15 -- the fallback FR-029 (MUST NOT) forbids where a row of its own fits. */
 const RS_15 = 'RS-15'
@@ -363,7 +363,7 @@ describe('FR-019 (MUST): an annotation with no row under it is refused, and told
     expect(RS_44_MANNER).toBe('NT-1')
   })
 
-  it('⛔ creates nothing -- 行を 1 つ作って載せてはならない (MUST NOT)', () => {
+  it('⛔ creates nothing -- タスクグループを 1 つ作って載せてはならない (MUST NOT)', () => {
     // ⭐ THE OTHER HALF OF THE SAME RULING, and the half FR-001's neighbouring
     // sentence could have been borrowed for. A row minted for an annotation
     // would carry neither a name nor a 導出元 (AT-54, FR-058).

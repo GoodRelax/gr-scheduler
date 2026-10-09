@@ -27,7 +27,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const T_256_SPLIT =
   '4` は後から足した段である）。⭐ `Command Palette` の入口を 2 つの塊に分け、表 T-109 の `群` が `揃える` の行を、`HC-4` の `Task Group Panel` の塊の下の塊へ移すこと（MUST）'
 const T_256_CONTINUED_HEADING =
-  '段目を行見出しパネルの下の枠へ移すと定めた。群は名で名指す —— 群の中の行は 表 T-109 の `群` の欄が決めるので、行が群を移っても本表は書き換えない。⭐ 移した塊の見出しは、パレットの続きであることを言う語とすること（MUST）'
+  '段目をタスクグループパネルの下の枠へ移すと定めた。群は名で名指す —— 群の中の行は 表 T-109 の `群` の欄が決めるので、行が群を移っても本表は書き換えない。⭐ 移した塊の見出しは、パレットの続きであることを言う語とすること（MUST）'
 const FR_036_LEFT_OFF =
   'd`・`Open Chooser`・`Difference Review` の面だけ（`Help Modal` を併せて持つものを含む）である行と、`IC-52`・`IC-53`・`IC-75` を、段に載せてはならない（MUST NOT）'
 const T_256_USER_WORDS = '（利用者が「コマンドパレット（続き）」と定めた）'

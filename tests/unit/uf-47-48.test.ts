@@ -112,7 +112,7 @@ const TEMPLATE = JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as Record<strin
 /** UUIDs for the two rows the small document draws. */
 const ALPHA = '11111111-1111-4111-8111-111111111111'
 const BETA = '22222222-2222-4222-8222-222222222222'
-/** A `TaskGroup.id` no row carries -- OP-10's "指す行が存在しない". */
+/** A `TaskGroup.id` no row carries -- OP-10's "指すタスクグループが存在しない". */
 const GONE = '99999999-9999-4999-8999-999999999999'
 
 const FIRST_START = '2026-04-01T00:00:00'
@@ -642,7 +642,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
   })
 
   it('holds when scrollGroupId names a row that is gone, even though scrollDate holds a day', () => {
-    // OP-10 covers two cases in one row: "表示位置が `null`、または指す行が存在
+    // OP-10 covers two cases in one row: "表示位置が `null`、または指すタスクグループが存在
     // しないとき". IV-3 says in as many words that the stored place is NOT kept
     // pointing at a live row, so this state is reachable in a valid document
     // (CD-2 makes it on purpose when a row is deleted).
@@ -709,7 +709,7 @@ describe('HF-8 of table T-051 -- what boot must not do', () => {
   it('and draws the picture that collapse means -- the row under it stays undrawn', () => {
     // The half that matters: HF-8 could be honoured in the document and still
     // be applied to the frame. LC-1 of table T-068 drops the collapsed rows
-    // first, and HR-1a forbids drawing "畳んだ `TaskGroup` の配下の行と、その行
+    // first, and HR-1a forbids drawing "畳んだ `TaskGroup` の配下のタスクグループと、そのタスクグループ
     // に載っている `Task`".
     const pane = host()
     const withCollapse = frameLoop(pane.surface, collapsed(), SCREEN).current()!
@@ -1156,7 +1156,7 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
   it('GIVEN a collapsed row THEN the panel drops the same row the body drops (HF-8 / HR-1a)', () => {
     // The vertical link is not only the numbers: a row the body does not draw
     // is a row the panel has no line for. HR-1a forbids drawing "畳んだ
-    // `TaskGroup` の配下の行", and HF-8 keeps the saved collapse at boot.
+    // `TaskGroup` の配下のタスクグループ", and HF-8 keeps the saved collapse at boot.
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(

@@ -248,7 +248,7 @@ const T201_COLUMNS = 7
 const T201_DEFAULT = 3
 
 /**
- * `S-37` (`taskGroupTitleIndent`) of table T-201, 「行見出しの字下げ。1 段深くなるごと
+ * `S-37` (`taskGroupTitleIndent`) of table T-201, 「タスクグループ見出しの字下げ。1 段深くなるごと
  * にこの幅だけ字下げする」（利用者の裁定 2026-09-01）, which `FR-085` (MUST) also
  * subtracts from the width a name is cut against.
  *
@@ -2886,7 +2886,7 @@ test('DFC-210: a bar shape needs a drag, a milestone needs only a press', async 
      *
      * ⛔⛔ AND A BAR THAT ONLY MOVED IS NOT A BAR THAT WAS MADE. `FR-043` (MUST)
      * puts the created task on 「ドラッグを始めた縦位置が指す `TaskGroup`」 and,
-     * 「指す `TaskGroup` が無いときは行を 1 つ作ってそこへ載せること（MUST）」 --
+     * 「指す `TaskGroup` が無いときはタスクグループを 1 つ作ってそこへ載せること（MUST）」 --
      * so a drag on clear ground can insert a row, and every bar BELOW it slides
      * down by one row's height. Its x, its width and its height are all the ones
      * it already had; only its y is new, which is exactly the one field the
@@ -3115,7 +3115,7 @@ function stepPerTier(byDepth: ReadonlyMap<number, number>, what: string, room: n
 // ごとに ... インデントしろ」 -- and measured, before CR-287, at screen minus
 // picture of -8 / -4 / 0 / +4 / +8 px over tiers 1..5, because each side worked
 // the number out for itself. `FR-085` (MUST) names one indent for both:
-// 「その行の深さぶんのインデント」 (`taskGroupTitleIndent`, `S-37`), and
+// 「そのタスクグループの深さぶんのインデント」 (`taskGroupTitleIndent`, `S-37`), and
 // `S-37` says 「1 段深くなるごとにこの幅だけ字下げする」.
 //
 // ⛔ THE PICTURE IS WRITTEN SMALLER THAN THE SCREEN, AND THAT IS NOT THE DEFECT.
@@ -3292,8 +3292,8 @@ async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
  * ratio; `right` and `below` are those two, already multiplied.
  *
  * ⛔ THE HEAD'S BAND IS CUT OFF DELIBERATELY, and `HF-12` of table T-051 is the
- * reason: folding every row 「行が 1 つも描かれない状態になりうる」 and the head
- * then 「頭にいま何行を畳み込んでいるかを示すこと（MUST）」. That count stands in
+ * reason: folding every row 「タスクグループが 1 つも描かれない状態になりうる」 and the head
+ * then 「頭にいまいくつのタスクグループを畳み込んでいるかを示すこと（MUST）」. That count stands in
  * the head, above the tree, and it is not a row -- counting it as one would have
  * a build that obeys `HF-12` reported as drawing a row the screen does not.
  * `EP-1`'s `Document Title` sits higher still and is cut off by the same edge.
@@ -3403,7 +3403,7 @@ function tiered(lines: readonly PanelLine[]): string[] {
 //
 // ⚠️ THE FOLD PRESSED IS THE PANEL HEAD'S, `HF-12` of table T-051 by way of
 // table T-109, and it is the one press whose result cannot be reached by
-// accident: `HF-12` (MUST) folds 「最も浅い段の行も」 as well, so the screen is
+// accident: `HF-12` (MUST) folds 「最も浅い段のタスクグループも」 as well, so the screen is
 // left drawing no row at all, and a picture that carries any row after it
 // carries a row the screen does not. `HF-10` presses it open again, and the
 // second half of this case is that the picture comes back with it.
@@ -3886,10 +3886,10 @@ test('DFC-233: the settings surface prints dictionary words and no raw identifie
 // GOES RED IF: a row added at the shallowest tier, or added under a row standing
 // at the foot of the panel, is not drawn once its name is settled -- or is drawn
 // outside the panel's own box. Table T-051 row `HF-17` (MUST) reads 「⛔ **足した
-// 行が描かれていないときは、その行が見える位置まで表示位置を送ること（MUST）。
+// タスクグループが描かれていないときは、そのタスクグループが見える位置まで表示位置を送ること（MUST）。
 // 打ち込み口だけを送ってはならない（MUST NOT）** —— **口だけ送ると、確定した
-// あとに行がどこへ行ったか読めない。**⚠️ **送り方は `HF-9` に従う。**⭐ **`HF-14`
-// （配下に足す）も同じとすること（MUST）** —— **押した行が画面の下端に在るときに
+// あとにタスクグループがどこへ行ったか読めない。**⚠️ **送り方は `HF-9` に従う。**⭐ **`HF-14`
+// （配下に足す）も同じとすること（MUST）** —— **押したタスクグループが画面の下端に在るときに
 // 同じことが起きる。**」
 //
 // ⭐ THE NAME IS WHAT MAKES THE ROW FINDABLE. `HF-14` (MUST) has the row stand

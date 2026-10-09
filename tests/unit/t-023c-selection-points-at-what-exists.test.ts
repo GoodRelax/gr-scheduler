@@ -40,13 +40,13 @@
 //       選択に残してはならない（MUST NOT）**（利用者の裁定 2026-08-29）—— **選択は
 //       文書の外の値である**ので（表 T-027 の `UN-9`）、`Task` や注記が消えても自動
 //       では落ちない。⛔ **落とす場所を、消える入口ごとに定めてはならない（MUST
-//       NOT）** —— **入口は 表 T-050 の連鎖・行の削除・取り消し／やり直し・別の文書を
+//       NOT）** —— **入口は 表 T-050 の連鎖・タスクグループの削除・取り消し／やり直し・別の文書を
 //       開くこと（表 T-024a）と複数あり、入口ごとに書けば入口が増えるたびに規則が
 //       増える。**⚠️ **いつ落とすかは本規則が定めない** —— 満たすべきは上の不変条件
 //       だけである。」
 //
 //   T-023c SL-1  the five kinds a selection may hold -- 「タスク・依存線・ハイライト
-//                ボックス・コメントボックス・基準日線」 -- and 「行（`TaskGroup`）は
+//                ボックス・コメントボックス・基準日線」 -- and 「タスクグループ（`TaskGroup`）は
 //                対象に含めない」. EVERY ONE OF THE FIVE gets a case below.
 //   T-036  SK-2  「選択できるものをすべて選択する（表 T-023c の SL-1）| `Ctrl` ＋ `A`」 --
 //                the one door a test outside the loop has for putting all five
@@ -75,9 +75,9 @@
 //      「落とす場所を、消える入口ごとに定めてはならない」 -- is about the shape of
 //      the rule, not about a value, and no test can see a call site. ⭐ WHAT A
 //      TEST CAN DO IS WALK THE ENTRANCES: the rule names four (表 T-050 の連鎖・
-//      行の削除・取り消し／やり直し・別の文書を開くこと), and a build that had
+//      タスクグループの削除・取り消し／やり直し・別の文書を開くこと), and a build that had
 //      written the drop per entrance would show it as one entrance that forgot.
-//      Three of the four are driven below; 行の削除 is NOT -- see 5.
+//      Three of the four are driven below; タスクグループの削除 is NOT -- see 5.
 //   3. THAT THE SELECTION SURVIVES anything. Nothing in the manuscript says it
 //      does, so no case here asserts that the items which still exist stay
 //      selected: a build that emptied the whole selection every frame would
@@ -90,7 +90,7 @@
 //      -- and not a thing this file may assert: it says what the history does
 //      NOT carry, and the undo case below asks only what the invariant is,
 //      never whether a step was stacked.
-//   5. 行の削除 as an entrance. FR-032 puts row deletion behind the task-group-title
+//   5. タスクグループの削除 as an entrance. FR-032 puts row deletion behind the task-group-title
 //      panel and behind a confirmation, and table T-023c's own note says the
 //      row set and the selection set are different sets -- so a case for it
 //      would have to press through a panel this file draws nothing of.
@@ -557,11 +557,11 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('the rule still names more than one entrance, which is why more than one is walked', () => {
-    // 「入口は 表 T-050 の連鎖・行の削除・取り消し／やり直し・別の文書を開くこと
+    // 「入口は 表 T-050 の連鎖・タスクグループの削除・取り消し／やり直し・別の文書を開くこと
     // （表 T-024a）と複数あり」. ⭐ Read rather than copied: an entrance added to
     // that sentence has to reach this file rather than slide past it.
     const rule = closingRuleLine()
-    for (const entrance of ['表 T-050 の連鎖', '行の削除', '取り消し／やり直し', '別の文書を開く']) {
+    for (const entrance of ['表 T-050 の連鎖', 'タスクグループの削除', '取り消し／やり直し', '別の文書を開く']) {
       expect(rule, `the rule still names ${entrance}`).toContain(entrance)
     }
   })
@@ -571,7 +571,7 @@ describe('the manuscript still says what these cases read', () => {
       expect(SL_1, `SL-1 still names ${one.kind}`).toContain(one.word)
     }
     expect(SL_1_KINDS).toHaveLength(5)
-    expect(SL_1, 'SL-1 still keeps rows out').toContain('行（`TaskGroup`）は対象に含めない')
+    expect(SL_1, 'SL-1 still keeps rows out').toContain('タスクグループ（`TaskGroup`）は対象に含めない')
   })
 
   it('the keys these cases press are still the ones table T-036 assigns', () => {

@@ -38,13 +38,13 @@ const REQUIREMENTS = unbroken(
 
 
 const FR_042_PANEL_CARRIES_THE_LINE =
-  ' —— 1 行 ＝ 1 対象がマルチバーの中核なので、境界が見えないとどこまでが 1 行か読めない。⭐ **境界の線は、日程の側（`Task Group Area`、`U-50`）だけでなく、行見出しパネル（`U-22`）の行の境にも引くこと（MUST）'
+  ' —— 1 つのタスクグループ ＝ 1 対象がマルチバーの中核なので、境界が見えないとどこまでが 1 つのタスクグループか読めない。⭐ **境界の線は、日程の側（`Task Group Area`、`U-50`）だけでなく、タスクグループパネル（`U-22`）のタスクグループの境にも引くこと（MUST）'
 
 const FR_042_LEFT_TO_RIGHT_AND_UNBROKEN =
-  '18`）と同じ線であり、同じ線とは太さ・色・縦の位置が同じであるということである。線は行見出しパネルの左端から右端まで引き、日程の側の線と切れ目なく続けること（MUST）'
+  '18`）と同じ線であり、同じ線とは太さ・色・縦の位置が同じであるということである。線はタスクグループパネルの左端から右端まで引き、日程の側の線と切れ目なく続けること（MUST）'
 
-const FR_098_PINNED_BAND_SIDE = '⭐ 行見出しの側の境目も同じ線で示す —— 行見出しパネルにも線を引く規則は `FR-042` が持つ。'
-const EP_3_EXPORT_SIDE = '⭐ 行の境のグループ罫線（`U-18`）も画面のとおり描く'
+const FR_098_PINNED_BAND_SIDE = '⭐ タスクグループ見出しの側の境目も同じ線で示す —— タスクグループパネルにも線を引く規則は `FR-042` が持つ。'
+const EP_3_EXPORT_SIDE = '⭐ タスクグループの境のグループ罫線（`U-18`）も画面のとおり描く'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-042 (MUST) -- the Task Group Panel carries the line at each row boundary', FR_042_PANEL_CARRIES_THE_LINE],
@@ -156,7 +156,7 @@ const lineAtBottomOf = (panel: TaskGroupPanel, box: ScreenRect): ScreenRect | un
   linesOf(panel).find((line) => Math.abs(line.y + line.height / 2 - (box.y + box.height)) < NEAR)
 
 
-describe('FR-042 (MUST) -- 「行見出しパネル（`U-22`）の行の境にも引くこと」', () => {
+describe('FR-042 (MUST) -- 「タスクグループパネル（`U-22`）のタスクグループの境にも引くこと」', () => {
   const panel = panelOf(settingsOf({ groupGridLinesVisible: true }))
 
   it('draws one line at the bottom boundary of every row the panel draws', () => {
@@ -198,7 +198,7 @@ describe('T-202 S-68 false -- the panel carries no line', () => {
 })
 
 
-describe('FR-098 -- 「行見出しの側の境目も同じ線で示す」', () => {
+describe('FR-098 -- 「タスクグループ見出しの側の境目も同じ線で示す」', () => {
   it('draws the line under the last pinned row, so the band boundary is shown on the panel side', () => {
     const panel = panelOf(settingsOf({ groupGridLinesVisible: true, pinnedGroupIds: ['g1', 'g2'] }))
     const pinned = panel.pinnedTitles.map((one) => one.groupId)
@@ -337,7 +337,7 @@ const pictureOf = (scene: ExportScene): string => {
 // see T-041
 const ROUNDING = 0.5
 
-describe('T-076 EP-3 -- 「行の境のグループ罫線（`U-18`）も画面のとおり描く」', () => {
+describe('T-076 EP-3 -- 「タスクグループの境のグループ罫線（`U-18`）も画面のとおり描く」', () => {
   it('draws every panel-side line into the picture at its screen rectangle times the export ratio, in U-18\'s colour', () => {
     expect(RATIO, 'the fixture is built so the ratio is not 1').not.toBe(1)
     const settings = exportSettingsOf(true)

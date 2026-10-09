@@ -39,9 +39,9 @@ and closed several lines later. So:
 The words are the ones the hand-written table held. What moved: the outer
 parentheses of the long notes are gone; two full stops inside an inner
 parenthesis became commas so the parenthesis closes on its own line (PI-7
-dependencyStartOfHit, PI-18 rowBandCeilingOf); and two bold runs that ran
+dependencyStartOfHit, PI-18 taskGroupBandCeilingOf); and two bold runs that ran
 across a line break now close before the full stop that ends their line
-(PI-5 rowPlacesAtZoomY, PI-25) -- the same rule, applied to `**`.
+(PI-5 taskGroupPlacesAtZoomY, PI-25) -- the same rule, applied to `**`.
 
 ⛔ REFUSED BEFORE A BYTE IS WRITTEN:
 

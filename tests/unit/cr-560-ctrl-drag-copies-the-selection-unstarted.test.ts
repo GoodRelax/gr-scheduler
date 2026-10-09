@@ -120,7 +120,7 @@ describe('CR-560 premises: the clauses read this way', () => {
   it('T-108 CM-8 carries the day shift and the rows of a Ctrl drag copy', () => {
     const line = GLOSSARY.split(/\r?\n/).find((one) => one.startsWith('| CM-8 |')) ?? ''
     expect(line).toContain('`pasteTasks`')
-    expect(line).toContain('ずらす日数と、コピーを載せる行も運ぶ')
+    expect(line).toContain('ずらす日数と、コピーを載せるタスクグループも運ぶ')
   })
 
   it('FR-036: the help lists MK-15', () => {
@@ -735,8 +735,8 @@ describe('T-308 through the shell: a Ctrl drag on the selection copies it', () =
 
 describe('T-308 CY-6 through the shell: a copy drag that moves in steps counts the rows drawn at the press', () => {
   it('premise: CY-6 counts rows on the rows drawn on screen; PTD-7 draws the copy while held', () => {
-    expect(cellsOf('T-308', 'CY-6')).toContain('すべてのコピーを、引いた行数だけ移した行に載せること（MUST）')
-    expect(cellsOf('T-308', 'CY-6')).toContain('行数は画面に描いた行で数え')
+    expect(cellsOf('T-308', 'CY-6')).toContain('すべてのコピーを、引いたタスクグループ数だけ移したタスクグループに載せること（MUST）')
+    expect(cellsOf('T-308', 'CY-6')).toContain('タスクグループ数は画面に描いたタスクグループで数え')
     expect(cellsOf('T-023a', 'PTD-7')).toContain('押しているあいだ、コピーを置くことになる所にコピーを描き、コピー元はそのまま描くこと（MUST）')
     expect(cellsOf('T-023a', 'PTD-7')).toContain('追従は絵であって編集ではない')
   })

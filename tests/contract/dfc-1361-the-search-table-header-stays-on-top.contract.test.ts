@@ -34,7 +34,7 @@ const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並
 const SV_6_UNDER = '残りの列はその下を送る（表 T-257 の `RR-4` と同じ形）'
 const RR_4_UNDER = '⭐ ほかの欄はその下を通って送られる'
 const S_146_ROLE = '地'
-const S_150_ROLE = '行見出しパネル・プロパティパネル・パレットの地'
+const S_150_ROLE = 'タスクグループパネル・プロパティパネル・パレットの地'
 
 // see T-331
 const T_331 = specTable('T-331').rows

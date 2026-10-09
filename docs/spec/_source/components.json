@@ -185,7 +185,7 @@
   {
    "name": "ScheduleLayout",
    "shape": "component",
-   "description": "Time axis, label width estimate, row placement, detail level, fit.",
+   "description": "Time axis, label width estimate, task group placement, detail level, fit.",
    "remark": "FR-017 / FR-093 / FR-003 / FR-018 / FR-055"
   },
   {
@@ -375,8 +375,8 @@
    "source": "SvgRenderer",
    "target": "ScheduleLayout",
    "arrow": "dependency",
-   "label": "ruler and rows",
-   "description": "reads the ruler and the row placement"
+   "label": "ruler and task groups",
+   "description": "reads the ruler and the task group placement"
   },
   {
    "source": "SvgRenderer",
@@ -593,7 +593,7 @@
    "target": "Schedule",
    "arrow": "dependency",
    "label": "colours + theme colour",
-   "description": "reads themeHue (AT-19), the per-Task colours and the row colour, none of which the geometry carries"
+   "description": "reads themeHue (AT-19), the per-Task colours and the task group colour, none of which the geometry carries"
   },
   {
    "source": "SvgRenderer",
@@ -796,7 +796,7 @@
    "target": "DocumentSettings",
    "arrow": "dependency",
    "label": "panel widths",
-   "description": "reads the saved row title panel width (S-79); the property panel width is a screen value handed in by the caller (S-171)"
+   "description": "reads the saved task group panel width (S-79); the property panel width is a screen value handed in by the caller (S-171)"
   },
   {
    "source": "InputCommandTranslator",
@@ -817,7 +817,7 @@
    "target": "ScreenRenderer",
    "arrow": "dependency",
    "label": "entry under pointer",
-   "description": "asks which UI part and which entry a point on the screen is on (IF-9), and the size a depth-1 row name is written at (FR-016)"
+   "description": "asks which UI part and which entry a point on the screen is on (IF-9), and the size a depth-1 task group name is written at (FR-016)"
   },
   {
    "source": "SingleHtmlShell",
@@ -843,8 +843,8 @@
    "source": "ScreenRenderer",
    "target": "Schedule",
    "arrow": "dependency",
-   "label": "row names + attributes",
-   "description": "reads the row names and the attributes the properties panel shows"
+   "label": "task group names + attributes",
+   "description": "reads the task group names and the attributes the properties panel shows"
   },
   {
    "source": "ScreenRenderer",
@@ -1025,22 +1025,22 @@
    "source": "ItemHitArea",
    "target": "DocumentSettings",
    "arrow": "dependency",
-   "label": "pinned rows",
-   "description": "reads the pinned rows"
+   "label": "pinned task groups",
+   "description": "reads the pinned task groups"
   },
   {
    "source": "ItemHitArea",
    "target": "Schedule",
    "arrow": "dependency",
-   "label": "row members",
-   "description": "reads which row each task sits on"
+   "label": "task group members",
+   "description": "reads which task group each task sits on"
   },
   {
    "source": "ItemHitArea",
    "target": "ScheduleLayout",
    "arrow": "dependency",
-   "label": "laid-out rows",
-   "description": "reads which rows the layout left out"
+   "label": "laid-out task groups",
+   "description": "reads which task groups the layout left out"
   },
   {
    "source": "ItemHitArea",
@@ -1103,7 +1103,7 @@
    "target": "ScreenRegions",
    "arrow": "dependency",
    "label": "ratio + lattice floor",
-   "description": "asks the display ratio, the settings actually drawn at, and the floor the row control lattice keeps"
+   "description": "asks the display ratio, the settings actually drawn at, and the floor the task group control lattice keeps"
   },
   {
    "source": "ScreenRenderer",

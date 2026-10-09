@@ -67,7 +67,7 @@ FENCE = '```'
 BASE_AUTHOR = 'ai-conversion'
 # The one row the base document carries: the prompt asks for at least one
 # TaskGroup, and the base is what the AI copies whole.
-BASE_ROW = {
+BASE_TASK_GROUP = {
     'id': '00000000-0000-4000-8000-000000000001',
     'label': 'Row 1',
 }
@@ -171,9 +171,9 @@ def empty_document():
             'resources': [],
             'assignments': [],
             'taskGroups': [{
-                'id': BASE_ROW['id'],
+                'id': BASE_TASK_GROUP['id'],
                 'parentId': None,
-                'label': BASE_ROW['label'],
+                'label': BASE_TASK_GROUP['label'],
                 'derivedFromTaskUid': None,
                 'order': 0,
                 'treeState': 'auto',

@@ -2,15 +2,15 @@
 // docs/spec/01-04-requirements.md (利用者の指示 2026-09-01, ledger row DFC-175):
 //
 //   「文書は、`TaskGroup` を必ず 1 つ以上持つこと（MUST）」
-//   「ある操作の結果として行が 0 になるときは、その操作の一部として、深さ `L1`
-//     の行を 1 つ作ること（MUST）。名前は `FR-038` の辞書の `defaultNames` の
+//   「ある操作の結果としてタスクグループが 0 になるときは、その操作の一部として、深さ `L1`
+//     のタスクグループを 1 つ作ること（MUST）。名前は `FR-038` の辞書の `defaultNames` の
 //     `row` の語とすること（MUST）」
 //   「2 つ目の語を作ってはならない（MUST NOT）」
-//   「取り消しの単位を分けてはならない（MUST NOT）…取り消し 1 回で消した行が
+//   「取り消しの単位を分けてはならない（MUST NOT）…取り消し 1 回で消したタスクグループが
 //     戻ること（MUST）」
 //   「本規則は削除だけのものではない…経路ごとに書き写してはならない（MUST NOT）」
-//   「最後の 1 行の削除を拒んではならない（MUST NOT）」
-//   「`FR-032` が問う件数に、作られる 1 行を足してはならない（MUST NOT）」
+//   「最後の 1 つのタスクグループの削除を拒んではならない（MUST NOT）」
+//   「`FR-032` が問う件数に、作られる 1 つのタスクグループを足してはならない（MUST NOT）」
 //
 // Chapter 9 does not admit Unit as a TEST_LEVEL, so these cases have no node in
 // the specification; table T-218 of Chapter 7 gives them their place (TS-6,
@@ -93,15 +93,15 @@ const DICTIONARY_ROW_WORD = (() => {
 describe('table T-050 -- the manuscript the cases below rest on', () => {
   it('still asks for one row, at L1, named from the dictionary', () => {
     expect(INVARIANT).toContain('（MUST）')
-    // 「深さ `L1` の行を 1 つ作ること」
+    // 「深さ `L1` のタスクグループを 1 つ作ること」
     expect(INVARIANT).toContain('`L1`')
     // 「名前は `FR-038` の辞書の `defaultNames` の `row` の語とすること」
     expect(INVARIANT).toContain('`defaultNames`')
     expect(INVARIANT).toContain('`FR-038`')
     // 「2 つ目の語を作ってはならない（MUST NOT）」
     expect(INVARIANT).toContain('2 つ目の語を作ってはならない')
-    // 「最後の 1 行の削除を拒んではならない（MUST NOT）」
-    expect(INVARIANT).toContain('最後の 1 行の削除を拒んではならない')
+    // 「最後の 1 つのタスクグループの削除を拒んではならない（MUST NOT）」
+    expect(INVARIANT).toContain('最後の 1 つのタスクグループの削除を拒んではならない')
     // 「経路ごとに書き写してはならない（MUST NOT）」
     expect(INVARIANT).toContain('経路ごとに書き写してはならない')
   })
@@ -251,7 +251,7 @@ const settled = (plan: ReplacementPlan): Extract<ReplacementPlan, { ok: true }> 
 /** What the invariant asks of any document a road settles on. */
 const holdsTheRequiredTaskGroup = (document: Document): TaskGroup => {
   const taskGroups = document.schedule.taskGroups
-  // 「行を 1 つ作ること」 -- one, not two (MUST NOT: 2 つ目の語を作ってはならない).
+  // 「タスクグループを 1 つ作ること」 -- one, not two (MUST NOT: 2 つ目の語を作ってはならない).
   expect(taskGroups).toHaveLength(1)
   const taskGroup = taskGroups[0]!
   // 「深さ `L1`」 -- and the depth is DERIVED: FR-004 takes it from the parent,
@@ -272,7 +272,7 @@ const holdsTheRequiredTaskGroup = (document: Document): TaskGroup => {
 
 describe('table T-050 -- deleting the last row', () => {
   it('is not refused', () => {
-    // 「最後の 1 行の削除を拒んではならない（MUST NOT）」 -- 拒むと、その行に載る
+    // 「最後の 1 つのタスクグループの削除を拒んではならない（MUST NOT）」 -- 拒むと、そのタスクグループに載る
     // `Task` ごと消す道が無くなる.
     const plan = planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }])
     expect(plan.ok).toBe(true)
@@ -289,7 +289,7 @@ describe('table T-050 -- deleting the last row', () => {
   })
 
   it('carries no Task, so the count FR-032 asks about has nothing to pick up', () => {
-    // 「`FR-032` が問う件数に、作られる 1 行を足してはならない（MUST NOT）」 --
+    // 「`FR-032` が問う件数に、作られる 1 つのタスクグループを足してはならない（MUST NOT）」 --
     // the question is about what disappears, and this row is not one of them.
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }]))
     const taskGroup = holdsTheRequiredTaskGroup(plan.document)
@@ -305,7 +305,7 @@ describe('table T-050 -- deleting the last row', () => {
 
   it('gives the deleted row back on ONE press of undo', () => {
     // 「取り消しの単位を分けてはならない（MUST NOT）。消したことと作ったことは
-    // 1 つの操作であり、取り消し 1 回で消した行が戻ること（MUST）」
+    // 1 つの操作であり、取り消し 1 回で消したタスクグループが戻ること（MUST）」
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }]))
     // WS-4 pushed exactly ONE step for the whole operation.
     expect(plan.history.done).toHaveLength(1)

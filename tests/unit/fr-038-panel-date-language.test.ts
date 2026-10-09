@@ -62,7 +62,7 @@
 // else -- so those two names are the whole of what is looked for. ⛔ If the
 // ruling is that the host's calendar stands outside FR-038 altogether, these
 // cases are wrong and the manuscript needs the sentence that says so, beside
-// FR-038's existing exception for 「タスク名と行名、および表 T-016 の項目名」.
+// FR-038's existing exception for 「タスク名とタスクグループ名、および表 T-016 の項目名」.
 // Reported rather than dropped.
 //
 // ⭐ WHAT IS DELIBERATELY NOT ASSERTED:

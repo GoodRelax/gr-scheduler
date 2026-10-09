@@ -41,8 +41,8 @@
 //              NOT）」／⛔ 「ポインタが乗っただけで理由を出してはならない（MUST
 //              NOT）」（利用者の裁定 2026-08-30「薄く描け。押下した場合のみ理由を
 //              説明するポップアップを出せ」）
-//   表 T-233   RS-28 「配下に、開ける行が 1 つも無い」（正: 表 T-051 の `HF-2`）
-//              RS-29 「その行は、描かれている子を 1 つも持たない」（`HF-11`）
+//   表 T-233   RS-28 「配下に、開けるタスクグループが 1 つも無い」（正: 表 T-051 の `HF-2`）
+//              RS-29 「そのタスクグループは、描かれている子を 1 つも持たない」（`HF-11`）
 //              RS-30 「直下に、画面へ戻せる子が 1 つも無い」（`HF-13`）
 //                    ⛔⛔ THE ROW MOVED ON 2026-08-31（利用者の指示「サンプルと
 //                    同じ動作にしろ」）: its 正 was `HF-3` and its 場面 was 「その
@@ -51,8 +51,8 @@
 //                    which that row states itself 「開ける直下の子が 1 つも無い
 //                    ときは、`FR-029` に従って薄く描くこと（MUST）」 -- and the
 //                    roster below carries it again, on `IC-90`.
-//              RS-31 「描かれていない行が 1 つも無い」（`HF-10`）
-//              RS-32 「開いている行が 1 つも無い」（`HF-12`）
+//              RS-31 「描かれていないタスクグループが 1 つも無い」（`HF-10`）
+//              RS-32 「開いているタスクグループが 1 つも無い」（`HF-12`）
 //              RS-33 「予定と実績のうち、いま出ているのが一方だけである」（`FR-049`）
 //              RS-34 「揃える相手の `Task` が選ばれていない」（`FR-034`）
 //              RS-27 「押した入口が、いま行えることを持たない」（`FR-029`）
@@ -64,9 +64,9 @@
 //              （MUST）。訂正の手がかりを添えること。色や枠だけで示してはならない
 //              （MUST NOT）」
 //   表 T-051 の結び ⛔ 「`HF-2` / `HF-3` / `HF-10` / `HF-11` / `HF-12` / `HF-13` /
-//              `HF-16` が対象とするのは、いま描かれている行である（MUST）。描かれて
-//              いない行の畳みを数えてはならない（MUST NOT）」／⛔ 「その操作で、描か
-//              れる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと
+//              `HF-16` が対象とするのは、いま描かれているタスクグループである（MUST）。描かれて
+//              いないタスクグループの畳みを数えてはならない（MUST NOT）」／⛔ 「その操作で、描か
+//              れるタスクグループが 1 つも増減しないときは、対象が 1 つも無いものとして扱うこと
 //              （MUST）」
 //              -- ⭐ THAT CLOSING RULE IS WHAT MAKES EACH FIXTURE BELOW SPENT.
 //   表 T-015   HR-3（`HF-2`）／HR-4（`HF-11`）／HR-6（`HF-3`）／HR-7（`HF-13`）,
@@ -205,9 +205,9 @@ const FR_029_NOT_THE_FALLBACK = '当たる行があるのに落ち先を運ん�
 const FR_029_RS_27_IS_THE_FALLBACK = 'どの入口にも当たる行が無いときの落ち先が `RS-27` である'
 const FR_029_NOT_ON_HOVER = 'ポインタが乗っただけで理由を出してはならない（MUST NOT）'
 const T_051_ONLY_DRAWN_TASK_GROUPS =
-  '描かれていない行の畳みを数えてはならない（MUST NOT）'
+  '描かれていないタスクグループの畳みを数えてはならない（MUST NOT）'
 const T_051_NO_CHANGE_MEANS_SPENT =
-  'その操作で、描かれる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと（MUST）'
+  'その操作で、描かれるタスクグループが 1 つも増減しないときは、対象が 1 つも無いものとして扱うこと（MUST）'
 
 /**
  * FR-038's dictionary, as the manuscript keeps it.
@@ -277,7 +277,7 @@ interface Fixture {
  * ALPHA > BETA > GAMMA, all three drawn unless a fold hides one.
  *
  * ⭐ THREE DEEP AND NOT TWO, because 表 T-051's closing rule counts 「その操作の
- * 前後で描かれる行の差」: a leaf carries no descendant to hide, so folding it
+ * 前後で描かれるタスクグループの差」: a leaf carries no descendant to hide, so folding it
  * changes no picture at all, and that is what makes `IC-77` on BETA spent while
  * the same control on ALPHA still has work.
  */
@@ -548,7 +548,7 @@ const SPENT: readonly Spent[] = [
     reason: 'RS-29',
     fixture: {},
     // ⛔⛔ THIS PRESS MOVED FROM BETA TO GAMMA ON 2026-08-31（利用者の指示「サンプル
-    // と同じ動作にしろ」）. `HF-11` was 「その行の配下をすべて畳む」, under which
+    // と同じ動作にしろ」）. `HF-11` was 「そのタスクグループの配下をすべて畳む」, under which
     // BETA -- whose only descendant is the leaf GAMMA -- had nothing to fold; it
     // is now 表 T-015 の `HR-4`, 「**選択した `TaskGroup` を畳むこと（MUST）**」 ⇒
     // 「**その直下の子から下が描かれなくなる**」, so a press on BETA takes GAMMA
@@ -562,7 +562,7 @@ const SPENT: readonly Spent[] = [
     // `HF-3`; on 2026-08-30 利用者の裁定 gave that entrance 表 T-015 の `HR-6`
     // (hide), so 「既に畳まれている」 stopped being its situation and the row it
     // stands on is by definition DRAWN -- hiding it always takes one row off the
-    // screen, and `HF-3` says so: 「⭐ **描かれている行はいつでも隠せるので、本操作
+    // screen, and `HF-3` says so: 「⭐ **描かれているタスクグループはいつでも隠せるので、本操作
     // 子を薄く描く場面は無い**」.
     // ⭐⭐ ON 2026-08-31 THE ROW MOVED TO `HF-13`, and it now reads 「直下に、
     // 画面へ戻せる子が 1 つも無い」 -- what `HR-7` would put back: 「**選択した
@@ -591,10 +591,10 @@ const SPENT: readonly Spent[] = [
     fixture: {},
     onTaskGroup: null,
     // ⛔⛔ ONE FOLD OF EVERY ROW IS NO LONGER ENOUGH TO SPEND THIS ONE, AND
-    // 表 T-015's `HR-2` IS WHY: 「**最も浅い段の行も畳むこと（MUST）**—— ⭐ パネルの頭は最も浅い段のさらに上、
+    // 表 T-015's `HR-2` IS WHY: 「**最も浅い段のタスクグループも畳むこと（MUST）**—— ⭐ パネルの頭は最も浅い段のさらに上、
     // すなわち段 0 として扱う」, and
     // `HF-12` repeats it. ⇒ while ALPHA alone is folded there is still 段 0 to
-    // fold, and the press acts. ⭐ The 場面 「開いている行が 1 つも無い」 is
+    // fold, and the press acts. ⭐ The 場面 「開いているタスクグループが 1 つも無い」 is
     // reached only once 段 0 itself is down, which is the state a first press
     // on this same entrance leaves behind.
     primedBy: [{ entry: 'IC-78', onTaskGroup: null }],

@@ -201,7 +201,7 @@ const cellOf = (table: string, id: string, heading: string): string =>
 describe('CR-618 -- the rows T8 counts by', () => {
   it('T-315 still holds DG-1 .. DG-4 and T-311 still holds VS-5 as the sample counts read them', () => {
     expect(specTable('T-315').rows.map((row) => row.id)).toEqual(['DG-1', 'DG-2', 'DG-3', 'DG-4'])
-    expect(cellOf('T-315', 'DG-3', '条件')).toContain('`DG-2` の `Task` の WBS の祖先')
+    expect(cellOf('T-315', 'DG-3', '条件')).toContain('`DG-2` の `Task` の祖先タスク')
     expect(cellOf('T-311', 'VS-5', '観点')).toBe('実績の日付が `Project.statusDate` より後')
   })
 })

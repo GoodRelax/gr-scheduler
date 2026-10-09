@@ -35,7 +35,7 @@
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
 //   T-024a OP-10  the ⛔⛔ that keeps the fit off a BT-4 document, and then:
-//           「⭐ そのときは、その文書が覆う最初の日と、行の木の先頭から描くこと
+//           「⭐ そのときは、その文書が覆う最初の日と、タスクグループの木の先頭から描くこと
 //           （MUST）—— 倍率は文書が持つものをそのまま使う。⛔ 日も行 ID も新しく
 //           持たせてはならない（MUST NOT）—— どちらも文書から導ける。
 //           ⭐ 「その文書が覆う最初の日」とは、その文書の `Task` が持つ `start`
@@ -57,7 +57,7 @@
 //           no `Task` has no extent to fit.
 //   T-024a OP-10  its first sentence, which is why the fixture's stored place
 //           must be null for any of this to run: 「表示位置が `null`、または指す
-//           行が存在しないとき」
+//           タスクグループが存在しないとき」
 //   T-034  BT-4  「初期表示用のテンプレート（`FR-027`）」 -- the seat OP-10
 //           excludes by name, and what `startedFromTemplate` says.
 //   T-203  S-77 `scrollDate` / S-78 `scrollGroupId` -- the stored place.
@@ -87,7 +87,7 @@
 // ---------------------------------------------------------------------------
 // WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
-//   - 「行の木の先頭から描く」, the vertical half of the same sentence, and the
+//   - 「タスクグループの木の先頭から描く」, the vertical half of the same sentence, and the
 //     ⛔⛔ exclusion itself. Both are already driven on the SHIPPED template by
 //     tests/unit/fr-027-startup-shows-its-depth.test.ts, and nothing here
 //     repeats a case of that file.
@@ -458,7 +458,7 @@ describe('the fixture these cases stand on', () => {
   })
 
   it('stores no place, so OP-10 is the row that decides where the first frame starts', () => {
-    // OP-10's first sentence: 「表示位置が `null`、または指す行が存在しないとき」.
+    // OP-10's first sentence: 「表示位置が `null`、または指すタスクグループが存在しないとき」.
     // A template that filled either in would send every case below down a
     // branch none of them is about, without changing a line of them.
     const settings = (documentOf() as any).documentSettings

@@ -2,7 +2,7 @@
 // クリックしたら、プロパティパネルを開き、タスクグループ名編集モードとせよ。編集後
 // Enter でプロパティーパネルを閉じれ」「(タスク名編集モードと同様の動作)」.
 //
-// The requirement now reads: 「行の名前を変える経路は、行見出しパネルでその名前を
+// The requirement now reads: 「タスクグループ名を変える経路は、タスクグループパネルでその名前を
 // ダブルクリックすること（表 T-023 の `MK-13`）とし、`GRS` はプロパティパネルを出
 // し、名前の欄（`AT-53`）を編集できる状態にして焦点を置き、既にある文字をすべて選
 // んだ状態にすること（MUST）」.
@@ -36,13 +36,13 @@
 // The rules these cases answer to
 // ---------------------------------------------------------------------------
 //
-//   FR-085   the sentence quoted above (MUST), and 「行の名前を変える経路は …
+//   FR-085   the sentence quoted above (MUST), and 「タスクグループ名を変える経路は …
 //            ダブルクリックすること」.
-//   FR-042   ⭐ 「行の名前（`AT-53`）もこのパネルで編集できるようにすること
-//            （MUST）」 -- the 2026-09-01 ruling overrode 「行の名前はここで扱わ
-//            ない」. ⛔ 「行を選んだだけで名前の欄へ焦点を移してはならない
+//   FR-042   ⭐ 「タスクグループ名（`AT-53`）もこのパネルで編集できるようにすること
+//            （MUST）」 -- the 2026-09-01 ruling overrode 「タスクグループ名はここで扱わ
+//            ない」. ⛔ 「タスクグループを選んだだけで名前の欄へ焦点を移してはならない
 //            （MUST NOT）」.
-//   T-023    MK-13's 行見出し entry.
+//   T-023    MK-13's タスクグループ見出し entry.
 //   T-036    SK-19, which closes the panel and is NOT restated here.
 //   AT-53    `TaskGroup.label`, the row's name.
 //
@@ -113,13 +113,13 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** FR-085's sentence these cases stand on, quoted from the manuscript. */
 const FR_085_THE_RENAME_PATH =
-  '行の名前を変える経路は、行見出しパネルでその名前をダブルクリックすること'
+  'タスクグループ名を変える経路は、タスクグループパネルでその名前をダブルクリックすること'
 /** FR-042's, the half that puts the name on the panel at all. */
 const FR_042_THE_NAME_IS_ON_THE_PANEL =
   'もこのパネルで編集できるようにすること（MUST）'
 /** ⛔ The one it overrode. It may stand as history, never as a live rule. */
 const THE_OVERRIDDEN_SENTENCE =
-  '⚠️ **行の名前はここで扱わない** —— 名前を付ける・変える入口は `FR-085` の行見出しパネル 1 つとする（`FR-029`）。'
+  '⚠️ **タスクグループ名はここで扱わない** —— 名前を付ける・変える入口は `FR-085` のタスクグループパネル 1 つとする（`FR-029`）。'
 
 /**
  * `AT-53` -- the row's name, read out of the ERD rather than typed.
@@ -376,11 +376,11 @@ const fieldOf = (panel: PropertiesPanel | null, row: string) =>
 // ===========================================================================
 
 describe('the manuscript still says what these cases read', () => {
-  it('⭐ FR-085 states the rename path, and MK-13 names the 行見出し', () => {
+  it('⭐ FR-085 states the rename path, and MK-13 names the タスクグループ見出し', () => {
     // GOES RED IF: the ruling of 2026-09-01 is reversed, or MK-13 stops naming
     // the task group title as one of its destinations.
     expect(REQUIREMENTS).toContain(FR_085_THE_RENAME_PATH)
-    expect(MK_13).toContain('行見出し')
+    expect(MK_13).toContain('タスクグループ見出し')
   })
 
   it('⛔ FR-042 now puts the task group name on the panel, and the sentence it overrode is gone', () => {
@@ -451,7 +451,7 @@ describe('FR-085 (MUST): a double click on the name opens the panel at that fiel
   })
 
   it('⛔ a single press chooses the row and asks for no field (FR-042, MUST NOT)', () => {
-    // ⚠️ THE CONTROL CASE, and a rule of its own: 「行を選んだだけで名前の欄へ焦点
+    // ⚠️ THE CONTROL CASE, and a rule of its own: 「タスクグループを選んだだけで名前の欄へ焦点
     // を移してはならない（MUST NOT）」. Without it, a shell that asked for the
     // field on EVERY press on a row would pass the case above.
     // GOES RED IF: the ask is hung on the press rather than on the double click.

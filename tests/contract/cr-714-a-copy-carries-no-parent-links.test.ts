@@ -12,13 +12,13 @@ import { editTaskGroup, type TaskGroupCommand } from '../../src/use-case/edit-do
 import { editTask } from '../../src/use-case/edit-document/edit-task'
 
 const PAIRED =
-  'コピー元の親もコピーするときは、コピーの WBS の親をその親のコピーとすること（MUST）'
+  'コピー元の親もコピーするときは、コピーの親タスクをその親のコピーとすること（MUST）'
 const INFERRED =
-  'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの WBS の親を、コピーを載せた行から推定すること（MUST）'
+  'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの親タスクを、コピーを載せたタスクグループから推定すること（MUST）'
 const OWN_TASK_GROUP =
-  '⚠️ コピーを載せた行の導出元がコピー自身かコピー元であるときは、その行の親の行からたどる'
+  '⚠️ コピーを載せたタスクグループの導出元がコピー自身かコピー元であるときは、そのタスクグループの親のタスクグループからたどる'
 const DERIVED_TASK_GROUP =
-  '導出元を持つ行をコピーしたとき、導出元の `Task` も一緒にコピーするならコピーの行の導出元をそのコピーとし、コピーしないならコピーの行の名前を確定させて導出元を空にすること（MUST）'
+  '導出元を持つタスクグループをコピーしたとき、導出元の `Task` も一緒にコピーするならコピーのタスクグループの導出元をそのコピーとし、コピーしないならコピーのタスクグループ名を確定させて導出元を空にすること（MUST）'
 
 const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 const TEMPLATE_TEXT = readFileSync(

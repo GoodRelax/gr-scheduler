@@ -32,12 +32,12 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 }
 
 const HF_20_OPENS = '消すときは、段 0 の畳み（`_assets/tbl-settings.md` の `S-418`）を開くこと（MUST）'
-const HF_20_ONE_STEP = '取り消し 1 回で、消す前の行と畳みへ戻る'
+const HF_20_ONE_STEP = '取り消し 1 回で、消す前のタスクグループと畳みへ戻る'
 const HF_20_NO_VIEW_WRITE = '倍率と表示位置は書かない'
-const FR_032_VALUE = 'その行の `treeState` も `temporarilyExpanded` とすること（MUST）'
-const FR_032_ANY_ROAD = '行を 0 にしたのがどの操作でも同じ値で立てる'
+const FR_032_VALUE = 'そのタスクグループの `treeState` も `temporarilyExpanded` とすること（MUST）'
+const FR_032_ANY_ROAD = 'タスクグループを 0 にしたのがどの操作でも同じ値で立てる'
 const OP_10_FIT = '`FR-055` の全体表示が選ぶ倍率と表示位置にすること（MUST）'
-const CD_2_NULL = 'その行を指す表示位置（同 `S-78`）は消さず `null` へ戻す'
+const CD_2_NULL = 'そのタスクグループを指す表示位置（同 `S-78`）は消さず `null` へ戻す'
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)

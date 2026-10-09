@@ -47,7 +47,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
 
 // see CV-9
 const CV_9_ONE_LIST =
-  '⭐ 行の色の欄が並べる名を、`TaskGroup.color` が受ける名の唯一の一覧とすること（MUST） —— 一覧は、表 T-294 の名のうち、行の帯の欄が「—」でないものとする（透明は「描かない」を持つので一覧に入る）。'
+  '⭐ タスクグループの色の欄が並べる名を、`TaskGroup.color` が受ける名の唯一の一覧とすること（MUST） —— 一覧は、表 T-294 の名のうち、タスクグループの帯の欄が「—」でないものとする（透明は「描かない」を持つので一覧に入る）。'
 const CV_9_REFUSED =
   '⛔ 一覧の外の名（黒）は、`CM-30`（`FR-042`）も、`GRS JSON` の取り込み（`05-07-design.md` の 表 T-220 の前文のスキーマ、拒んだときの理由は 表 T-233 の `RS-25`）も受けてはならない（MUST NOT）'
 const CV_9_GENERATED =
@@ -61,8 +61,8 @@ const CV_2_TWO_VALUES = 'カスタムカラーは、明るいテーマの値と�
 const RS_25_SCENE = '読んだ `GRS JSON` の列が、決められた形に合わない'
 
 const H_NAME = '保存する綴り'
-const H_LIGHT_BAND = '明るいテーマの行の帯'
-const H_DARK_BAND = '暗いテーマの行の帯'
+const H_LIGHT_BAND = '明るいテーマのタスクグループの帯'
+const H_DARK_BAND = '暗いテーマのタスクグループの帯'
 const DASH = '—'
 
 // see T-294, CV-9

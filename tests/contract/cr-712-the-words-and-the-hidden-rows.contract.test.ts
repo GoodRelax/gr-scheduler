@@ -46,7 +46,7 @@ const FR_029_FALLBACK_HIDDEN = '落ち先が `RS-27` である（出さない）
 const FR_029_OLD_TELL = '行えない理由を通知すること（MUST）'
 const NT_7_DROPPED_AS_RS_27 =
   '画面からの書き込み（取り消し・やり直しを含む）は 表 T-233 の `RS-27` として捨て（同行は出さない —— 問いが画面に立っているので、受けなかったことは見える）、`Agent API` の書き込みは 表 T-035 の `AG-9` のとおり拒むこと（MUST）'
-const HF_14_NO_TASK_GROUP_WHEN_FAINT = '⛔ 薄いまま押されたときは、その行の配下に新しい行を立てないこと（MUST）'
+const HF_14_NO_TASK_GROUP_WHEN_FAINT = '⛔ 薄いまま押されたときは、そのタスクグループの配下に新しいタスクグループを立てないこと（MUST）'
 const HF_14_CARRIES_RS_46 = '運ぶ理由は 表 T-233 の `RS-46` とすること（MUST）'
 const FR_019_NOT_MADE = '指す `TaskGroup` が無い縦位置で置こうとしたときは、作らないこと（MUST）'
 const FR_019_CARRIES_RS_44 = '運ぶ理由は 表 T-233 の `RS-44` とする'
@@ -67,7 +67,7 @@ const IMPORT_REFUSAL_WORDS: readonly (readonly [string, string, string, string, 
   ["IV-1", "同じ ID のものが 2 つ以上あるので、このファイルは開けません", "元のファイルの ID の重なりを直してから開いてください", "Two or more items share one ID, so this file cannot be opened", "Fix the repeated IDs in the original file, then open it"],
   ["IV-2", "存在しないものを指している参照があるので、このファイルは開けません", "書き出したときのファイルをそのまま開いてください", "A reference points at something that does not exist, so this file cannot be opened", "Open the file exactly as it was exported"],
   ["IV-3", "ピン止めの記録が存在しないタスクグループを指しているので、このファイルは開けません", "書き出したときのファイルをそのまま開いてください", "A pin record points at a task group that does not exist, so this file cannot be opened", "Open the file exactly as it was exported"],
-  ["IV-4", "タスクの親子が輪になっているので、このファイルは開けません", "元のファイルで親子の輪を解いてから開いてください", "The parents and children of the tasks form a loop, so this file cannot be opened", "Break the loop in the original file, then open it"],
+  ["IV-4", "親タスクと子タスクの関係が輪になっているので、このファイルは開けません", "元のファイルで親タスクと子タスクの関係の輪を解いてから開いてください", "The parents and children of the tasks form a loop, so this file cannot be opened", "Break the loop in the original file, then open it"],
   ["IV-5", "タスクグループの入れ子が段の上限より深いので、このファイルは開けません", "元のファイルで入れ子を浅くしてから開いてください", "Task groups are nested deeper than the level limit, so this file cannot be opened", "Make the nesting shallower in the original file, then open it"],
   ["IV-6", "どのタスクグループにも載っていない（または 2 つ以上に載っている）タスクがあるので、このファイルは開けません", "書き出したときのファイルをそのまま開いてください", "A task sits on no task group (or on more than one), so this file cannot be opened", "Open the file exactly as it was exported"],
   ["IV-7", "暦が 1 つも無いので、このファイルは開けません", "書き出したときのファイルをそのまま開いてください", "The file has no calendar, so it cannot be opened", "Open the file exactly as it was exported"],

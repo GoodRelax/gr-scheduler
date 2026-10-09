@@ -64,9 +64,9 @@ const wordOf = (part: string, language: 'ja' | 'en'): string => {
 }
 
 const QN_12_TWO = '答えは辞書の `parentTaskChoice` の 2 つの語の択であり、`Yes` / `No` ではない。'
-const QN_12_FIRST = '1 つ目の択は、`AR-7` を構えていれば「親子関係を定義するため子タスクを選択」、構えていなければ「タスクを選択」と短くする。'
+const QN_12_FIRST = '1 つ目の択は、`AR-7` を構えていれば「親タスクと子タスクの関係を定義するため子タスクを選択」、構えていなければ「タスクを選択」と短くする。'
 const QN_12_NEAR = '面はポインタの近くに立ち、`Esc` か面の外を押せば選ばずに閉じる（`PTL-14`）'
-const WL_POINTER = '⭐ ポインタの形は、`AR-7` を構えているあいだは日程表の描画領域の全体で 表 T-269 の `PK-17` とし、構えずに親子判別だけが入のときは実線の矢印の上でだけ `PK-17`、破線の矢印の上で `PK-18` とすること（MUST）。'
+const WL_POINTER = '⭐ ポインタの形は、`AR-7` を構えているあいだは日程表の描画領域の全体で 表 T-269 の `PK-17` とし、構えずに親タスク表示だけが入のときは実線の矢印の上でだけ `PK-17`、破線の矢印の上で `PK-18` とすること（MUST）。'
 const FR_135_SCREEN_ONLY = '家族の矢印と、`?`・候補の枠と番号は、依存線と同じ重ね順（`FR-110` の 表 T-020 の `ZO-4`）に描き、画面にだけ描くこと（MUST）'
 const FR_135_SELECTED = '選んだ矢印は、依存線と同じく、その太さに 表 T-206 の `S-447` を足した太さで描くこと（MUST）（表 T-023c の `SL-8`）。'
 
@@ -79,7 +79,7 @@ describe('CR-631 -- the manuscript these cases are driven by', () => {
   })
 
   it('the dictionary words QN-12 names: the short first answers and the arrows answer', () => {
-    expect(wordOf('childTasks', 'ja')).toContain('親子関係を定義するため子タスクを選択')
+    expect(wordOf('childTasks', 'ja')).toContain('親タスクと子タスクの関係を定義するため子タスクを選択')
     expect(wordOf('tasks', 'ja')).toContain('タスクを選択')
     expect(wordOf('links', 'ja').length).toBeGreaterThan(0)
   })
@@ -87,7 +87,7 @@ describe('CR-631 -- the manuscript these cases are driven by', () => {
   it('S-484 defaults to off, IC-141 sits right of IC-81, and IC-142 right of IC-141 (CR-658)', () => {
     expect(cellOf('T-206', 'S-484', '既定')).toContain('false')
     expect(flat(rowText('T-109', 'IC-141'))).toContain('依存線の表示（`IC-81`）の右に並べる。')
-    expect(flat(rowText('T-109', 'IC-142'))).toContain('親子判別（`IC-141`）のすぐ右に並べる')
+    expect(flat(rowText('T-109', 'IC-142'))).toContain('親タスク表示（`IC-141`）のすぐ右に並べる')
     expect(cellOf('T-109', 'IC-142', '群')).toBe(cellOf('T-109', 'IC-141', '群'))
   })
 })

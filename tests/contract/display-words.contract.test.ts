@@ -147,9 +147,9 @@
 //      roster: the seven, in AT-17's order, each with a word in each language.
 //   7. WHETHER `defaultNames` ARRIVES ON A FRAME (DFC-171, 2026-09-01). ⛔ It is
 //      the ONE section whose word the screen never prints AS A WORD: FR-032
-//      (MUST) 「行の名前を既定の名前に確定させること」 WRITES it into
+//      (MUST) 「タスクグループ名を既定の名前に確定させること」 WRITES it into
 //      `TaskGroup.label`, so from that moment it is document data, and FR-038
-//      states in as many words that 行名 is not translated. ⇒ Asking a frame
+//      states in as many words that タスクグループ名 is not translated. ⇒ Asking a frame
 //      to print it in the reader's language would assert the opposite of what
 //      the two requirements say, and the only way to raise such a frame would
 //      be to write the word into this file's own schedule first -- a case
@@ -324,7 +324,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   branding: 'part',
   // ⭐ THE SECTION DFC-171 RAISED. `FR-032` (MUST) settles the name of a row whose
   // derivation source is about to go, and 2026-09-01 added the case the reader
-  // hit every time: 「⛔⛔ **導出元の `Task` が名前を持たないときは、行の名前を
+  // hit every time: 「⛔⛔ **導出元の `Task` が名前を持たないときは、タスクグループ名を
   // 既定の名前に確定させること（MUST）。名前が無いことを理由に削除を拒んでは
   // ならない（MUST NOT）** —— ⭐ **語は `FR-038` の辞書が持ち、ここに綴らない。**」
   // ⇒ the requirement sends the word here BY NAME, which is why this section is
@@ -1367,7 +1367,7 @@ const ON_A_HIGHLIGHT_BOX = 'HighlightBox'
  * the field by AT-53 of fig-erd-detail when it says where the double click puts the
  * focus. ⭐ ONLY the name field names the ATTRIBUTE row: IR-1 of table T-263
  * reads 「欄なら 表 T-016 の行 ID」 and
- * 「プロパティパネルの行の名前の欄なら `_assets/fig-erd-detail.md` の `AT-53`」.
+ * 「プロパティパネルのタスクグループ名の欄なら `_assets/fig-erd-detail.md` の `AT-53`」.
  * ⛔ A 備考 naming an AT row (PR-33's names `AT-144`) does not change that, so
  * the AT row is read out of IR-1 and matched through table T-058's join.
  */
@@ -1375,7 +1375,7 @@ const ENTITY_COLUMN = 'エンティティ'
 const COLUMN_COLUMN = '列'
 const T058 = specTable('T-058')
 
-const NAME_FIELD_CLAUSE = /プロパティパネルの行の名前の欄なら `_assets\/fig-erd-detail\.md` の `(AT-\d+)`/
+const NAME_FIELD_CLAUSE = /プロパティパネルのタスクグループ名の欄なら `_assets\/fig-erd-detail\.md` の `(AT-\d+)`/
 const NAME_FIELD_ROW = ((): string => {
   const how = specTable('T-263').rows.find((row) => row.id === 'IR-1')?.by['書き方'] ?? ''
   const found = NAME_FIELD_CLAUSE.exec(how)?.[1]
@@ -1953,17 +1953,17 @@ for (const section of ['fileStatus', 'exportFormats']) {
 
 // ⭐ WHY A WORD THAT BECOMES DOCUMENT CONTENT IS NOT A WORD A FRAME PRINTS.
 // FR-032 (MUST) does not put this word on the screen; it puts it in the
-// document. 「⛔⛔ **導出元の `Task` が名前を持たないときは、行の名前を既定の名前
+// document. 「⛔⛔ **導出元の `Task` が名前を持たないときは、タスクグループ名を既定の名前
 // に確定させること（MUST）**」 -- 確定させる is a WRITE, into `TaskGroup.label`
 // (AT-53 of table T-058), on the way to emptying `derivedFromTaskUid`. Once it
 // is written it is the row's name, indistinguishable from a name a person
-// typed: the screen shows it the way it shows every other 行名.
+// typed: the screen shows it the way it shows every other タスクグループ名.
 //
 // ⛔⛔ DO NOT REACH FOR THE WITHDRAWN SENTENCE OF FR-038 HERE. 2026-09-04 まで
 // `FR-038` の本文は「表 T-016 の項目名は翻訳の対象ではない」と書いており、この注は
 // かつてそれを根拠にしていた。⛔ 同日の利用者の裁定がそれを撤回し、いまの本文は
-// 逆を定める ——「タスク名と行名、および 表 T-016 の項目名も、他の語と同じく表示
-// 言語に従うこと（MUST）」。⇒ 「行名は訳さない」はもう引ける規則ではない。
+// 逆を定める ——「タスク名とタスクグループ名、および 表 T-016 の項目名も、他の語と同じく表示
+// 言語に従うこと（MUST）」。⇒ 「タスクグループ名は訳さない」はもう引ける規則ではない。
 // ⭐ WHAT HOLDS THIS OMISSION IS `FR-032` ALONE, and it is enough: the word is
 // settled INTO the document before any frame could print it, so what a reader
 // sees is a `TaskGroup.label` this file would have had to write itself. The
@@ -1999,7 +1999,7 @@ for (const entry of GENERATED['defaultNames'] ?? []) {
     keyOf('defaultNames', entry),
     'FR-032 (MUST) settles it into TaskGroup.label, so it is document data and not screen text -- and ' +
       'no frame this file can raise prints it at all, because the word is settled into the document ' +
-      'before any frame could -- ⛔ NOT because 行名 is untranslatable: FR-038 withdrew that sentence ' +
+      'before any frame could -- ⛔ NOT because タスクグループ名 is untranslatable: FR-038 withdrew that sentence ' +
       'on 2026-09-04 and now puts row names under the display language like every other word',
   )
 }

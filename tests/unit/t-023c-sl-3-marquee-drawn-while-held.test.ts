@@ -21,7 +21,7 @@
 // holds eight `SW_SPEC` nodes, none of which reaches a range selection:
 //
 //   SWS-1 目盛の刻みの間隔      SWS-5 イナズマ線の頂点
-//   SWS-2 行の帯高と縦位置      SWS-6 MSPDI の正規化
+//   SWS-2 タスクグループの帯高と縦位置      SWS-6 MSPDI の正規化
 //   SWS-3 依存線の経路          SWS-7 書き出した SVG の正規化
 //   SWS-4 描くものの頂点        SWS-8 単一 HTML の内容セキュリティ方針
 //
@@ -71,7 +71,7 @@
 //           ⛔ **握っているあいだだけ描き、離したら消すこと（MUST）** ——
 //           **離した時点で残るのは選択そのものであり、矩形ではない**」
 //   T-023c SL-1  「対象 | **タスク・依存線・ハイライトボックス・コメント
-//           ボックス・基準日線。**行（`TaskGroup`）は対象に含めない」-- which is
+//           ボックス・基準日線。**タスクグループ（`TaskGroup`）は対象に含めない」-- which is
 //           why a press inside an empty row band hits nothing.
 //   T-023c SL-8  「タスク・ハイライトボックス・コメントボックスは、外接矩形に
 //           沿った破線の枠で囲むこと（MUST）…枠の太さと破線の刻みは

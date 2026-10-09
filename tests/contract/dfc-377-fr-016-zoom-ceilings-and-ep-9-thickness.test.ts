@@ -10,7 +10,7 @@
 // plus a run of check-must-clause-coverage.py's own held/not-held test): NINE
 // of the eighteen are already held, verbatim, by
 // tests/system/user-reported-fixes.test.ts (grep confirms: 「拡大の側には」、
-// 「行の軸でも掴んだ行を留めること」、「Adapter に自前の割付けをさせてはならない」
+// 「縦軸でも掴んだタスクグループを留めること」、「Adapter に自前の割付けをさせてはならない」
 // and six neighbours). ⭐ THE REMAINING NINE -- four of FR-016's, five of
 // EP-9's -- are what this file holds. The count and the location the brief
 // handed over were both checked against the manuscript and the commit that
@@ -135,10 +135,10 @@ const FR_016_CEILING_HIT_NOT_A_DEAD_ENTRANCE =
   '限に達したことを、押しても何も起きない入口で示してはならない（MUST NOT）'
 
 const FR_016_TASK_GROUP_POSITION_NOT_BY_ARITHMETIC =
-  '` の下限・`LF-3` の下限・表 T-014 の段数・`FR-018` が描く行そのものを変えること）ので、**倍率から位置を算で求めてはならない（MUST NOT）'
+  '` の下限・`LF-3` の下限・表 T-014 の段数・`FR-018` が描くタスクグループそのものを変えること）ので、**倍率から位置を算で求めてはならない（MUST NOT）'
 
 const FR_016_TASK_GROUP_POSITION_MEMBER_IS_PI_5 =
-  'ること）ので、**倍率から位置を算で求めてはならない（MUST NOT）。**⭐ その倍率での行の位置を答えるメンバを、表 T-064 の `PI-5` に置くこと（MUST）'
+  'ること）ので、**倍率から位置を算で求めてはならない（MUST NOT）。**⭐ その倍率でのタスクグループの位置を答えるメンバを、表 T-064 の `PI-5` に置くこと（MUST）'
 
 // -- T-076 EP-9, the Panel Divider's thickness (five of the eighteen) -------
 
@@ -391,7 +391,7 @@ describe('T-076 EP-9 (MUST) -- 「画面と書き出しも同じ 1 か所を読�
 //
 // ⭐ `taskGroupPlacesAtZoomY`'s own head comment (schedule-layout.ts, read as a
 // published contract) quotes both clauses this section presses: 「その倍率
-// での行の位置を答えるメンバを、表 T-064 の `PI-5` に置くこと（MUST）」 and
+// でのタスクグループの位置を答えるメンバを、表 T-064 の `PI-5` に置くこと（MUST）」 and
 // 「倍率から位置を算で求めてはならない（MUST NOT）」, and says why a caller's
 // own arithmetic is wrong -- FR-094's floor, LF-3's second floor, table
 // T-014's lane count and FR-018's level of detail all move under `zoomY` and
@@ -515,7 +515,7 @@ const VG_2_GAP =
 const placesAt = (zoomY: number) =>
   taskGroupPlacesAtZoomY(SCHEDULE, LAYOUT_SETTINGS, LAYOUT_REGIONS, zoomY)
 
-describe('FR-016 (MUST) -- 「その倍率での行の位置を答えるメンバを、表 T-064 の PI-5 に置くこと」', () => {
+describe('FR-016 (MUST) -- 「その倍率でのタスクグループの位置を答えるメンバを、表 T-064 の PI-5 に置くこと」', () => {
   it('the premise: both zooms sit above FR-094’s floor, and each band carries the VG-2 gap zoomY does not scale', () => {
     // Without this the case below could be measuring the floor-pinned band,
     // where every zoom answers the same drawing for a reason FR-016 does not

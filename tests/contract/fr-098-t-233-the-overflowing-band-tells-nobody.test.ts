@@ -36,7 +36,7 @@ describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
     // WHY: latched whole, not paraphrased, so a rewrite that keeps the
     // overflow but drops the table cannot slip past separate substring checks.
     expect(REQUIREMENTS).toContain(
-      'ピン止めした行が描かれないのは、`FR-018` の 表 T-329 の種類「すべて要る」の行のどれかが成り立たないときと、' +
+      'ピン止めしたタスクグループが描かれないのは、`FR-018` の 表 T-329 の種類「すべて要る」の行のどれかが成り立たないときと、' +
         '帯が `Task Group Area` に収まらず入りきらないときに限ること（MUST）',
     )
     expect(REQUIREMENTS).toContain('それ以外の理由で描くのをやめてはならない（MUST NOT）。')
@@ -45,12 +45,12 @@ describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
   it('⛔ the MUST NOT against filling the Task Group Area is gone, and its replacement stands', () => {
     expect(
       REQUIREMENTS.includes(
-        '帯が `Task Group Area` を埋め尽くし、スクロールする行が 1 行も描けなくなってはならない',
+        '帯が `Task Group Area` を埋め尽くし、スクロールするタスクグループが 1 つも描けなくなってはならない',
       ),
       'the withdrawn MUST NOT is back in FR-098; CR-363 removed it on 2026-09-06',
     ).toBe(false)
     expect(REQUIREMENTS).toContain(
-      '帯が `Task Group Area` を埋め尽くし、スクロールする行が 1 行も描けなくなることは在りうる',
+      '帯が `Task Group Area` を埋め尽くし、スクロールするタスクグループが 1 つも描けなくなることは在りうる',
     )
     expect(REQUIREMENTS).toContain('道具はそれを防がない')
   })
@@ -59,7 +59,7 @@ describe('FR-098 after CR-363 -- an overflowing band tells nobody', () => {
     // WHY: latched here too -- this file's third case depends on the band
     // being cut, which only holds if the scroll MUST stays withdrawn.
     expect(
-      REQUIREMENTS.includes('ピン止めした行の並びを縦にスクロールできるようにすること'),
+      REQUIREMENTS.includes('ピン止めしたタスクグループの並びを縦にスクロールできるようにすること'),
       'the withdrawn scroll MUST is back in FR-098',
     ).toBe(false)
   })

@@ -238,7 +238,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // message: the 場面 and the three fields of the dictionary were read side by
   // side first, and this note records what that reading found.
   //
-  // `RS-46` -- 場面 「これ以上深い段には行を足せない」; ja DFC-206 「これ以上深い段には行を
+  // `RS-46` -- 場面 「これ以上深い段にはタスクグループを足せない」; ja DFC-206 「これ以上深い段には行を
   //   足せません」 is again the same sentence, en 「A row cannot be added any
   //   deeper than this」 says the same, and the next step DFC-206 「もっと浅い行に足して
   //   ください」 / 「Add it to a shallower row」 is the one `FR-085`'s cap leaves
@@ -430,7 +430,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // ⛔ The words are not copied into these notes -- rule 02 section 4 has a
   // note name its row, and FR-038 (MUST NOT) admits one store of them.
   //
-  // RS-55 -- 場面 「動かす先が、その行自身か、その行の子孫である」（輪になる）,
+  // RS-55 -- 場面 「動かす先が、そのタスクグループ自身か、そのタスクグループの子孫である」（輪になる）,
   //   作法 `NT-1`, 正 表 T-015a の `HM-4`.
   // ⭐ BOTH HALVES OF THE SCENE ARE IN BOTH LANGUAGES: the destination being
   //   the row ITSELF, and the destination being one of its own descendants.

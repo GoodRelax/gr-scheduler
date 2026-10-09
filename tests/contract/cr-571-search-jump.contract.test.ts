@@ -22,23 +22,23 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const SJ_2_OPENS =
-  '飛ぶ先の行（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする —— 今の値が `hidden` でも、確かめを問わない。'
+  '飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする —— 今の値が `hidden` でも、確かめを問わない。'
 const SJ_2_LEVEL_ZERO = '段 0 が畳まれていれば開く。'
 const SJ_2_NOTHING_CHANGED = '1 つも変わらなければ段を積まない'
-const SJ_5_TOP = '`_assets/tbl-settings.md` の `S-78` をその行にし、行の中のずれを 0 にする'
+const SJ_5_TOP = '`_assets/tbl-settings.md` の `S-78` をそのタスクグループにし、タスクグループの中のずれを 0 にする'
 const SJ_6_NO_ZOOM = '倍率を変えない。'
 const SJ_6_NO_DATE = '日付が空なら横は動かさない'
 const SJ_7_PINNED =
-  '飛ぶ先の行がピン止めの行（`S-126`）で、ピン止めの帯（`FR-098`）に描かれているなら、`SJ-5` を行わず、`SJ-6` だけを行う'
+  '飛ぶ先のタスクグループがピン止めのタスクグループ（`S-126`）で、ピン止めの帯（`FR-098`）に描かれているなら、`SJ-5` を行わず、`SJ-6` だけを行う'
 const SJ_8_NO_ROOM =
-  '飛ぶ先の行を画面に出せないときは、`SJ-5` と `SJ-6` を行わず、表 T-233 の `RS-66` を告げる。'
+  '飛ぶ先のタスクグループを画面に出せないときは、`SJ-5` と `SJ-6` を行わず、表 T-233 の `RS-66` を告げる。'
 const SJ_8_STILL = '`SJ-2` と `SJ-4` は行う'
 // see SJ-6
 // WHY: a day is ten pixels wide, and nothing of the task reaches left of its date unless a case says so.
 // No row stands in the pinned band unless a case says so (SJ-7).
 const NO_REACH = { pxPerDay: 10, leftReachPx: 0, drawnTaskGroups: [] as readonly { groupId: string; isPinned?: boolean }[] }
 const IN_BAND = (row: string): typeof NO_REACH => ({ ...NO_REACH, drawnTaskGroups: [{ groupId: row, isPinned: true }] })
-const RS_66_SCENE = '**ピン止めした行が多く、検索パネルから飛ぶ先を画面に出せない**'
+const RS_66_SCENE = '**ピン止めしたタスクグループが多く、検索パネルから飛ぶ先を画面に出せない**'
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),

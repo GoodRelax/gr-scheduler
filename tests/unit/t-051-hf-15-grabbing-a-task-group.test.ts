@@ -1,4 +1,4 @@
-// Unit tests for HF-15 of 表 T-051 -- 「行を掴んで動かせること（MUST）」 -- and
+// Unit tests for HF-15 of 表 T-051 -- 「タスクグループを掴んで動かせること（MUST）」 -- and
 // for GR-20 of 表 T-023d, the strip that drag is taken on.
 //
 // The unit these arrive on is UF-48 `single-html-shell` (CP-25 of 表 T-062),
@@ -40,7 +40,7 @@
 // ---------------------------------------------------------------------------
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
-//   T-051 HF-15 「**行を掴んで動かせること（MUST）** —— 掴み代は 表 T-023d の
+//   T-051 HF-15 「**タスクグループを掴んで動かせること（MUST）** —— 掴み代は 表 T-023d の
 //           `GR-20` である。⭐ **軸を 1 本に固定すること（MUST）。掴んでから最初
 //           に閾値を超えた向きで軸が決まり、離すまで変わらないこと（MUST）**……
 //           閾値は `_assets/tbl-settings.md` の 表 T-206 の `S-208` が持つ。
@@ -49,19 +49,19 @@
 //           末子の次は次の群の長子の位置であり、親をまたぐ。**⛔ **畳まれた群の
 //           中の場所を選んではならない（MUST NOT）**……⭐ **左右は段を変える
 //           こと（MUST）。右へ 1 歩はすぐ上の兄弟の末子になること、左へ 1 歩は
-//           親の次の兄弟になること（MUST）**……⇒ **すぐ上に兄弟が無い行は右へ
+//           親の次の兄弟になること（MUST）**……⇒ **すぐ上に兄弟が無いタスクグループは右へ
 //           動かせない。**⚠️ **左へ出たとき、後ろに居た兄弟は元の親に残すこと
 //           （MUST）。**⛔ **深さの上限を超える右移動を受け付けてはならない
 //           （MUST NOT）** —— 上限は `FR-085` が持つ。⭐ **どちらの向きでも、
-//           その行の配下ごと動かすこと（MUST）。**⭐ **握っているあいだ、行を
+//           そのタスクグループの配下ごと動かすこと（MUST）。**⭐ **握っているあいだ、タスクグループを
 //           ポインタに追従させること（MUST）。段送りの刻みは 表 T-201 の `S-37`
 //           と同じとすること（MUST）** —— ⛔⛔ **刻みを別に持ってはならない
-//           （MUST NOT）**……⛔ **動かせないときは、行を動かさずに理由を告げる
+//           （MUST NOT）**……⛔ **動かせないときは、タスクグループを動かさずに理由を告げる
 //           こと（MUST）** —— 作法は `FR-029` に従い、理由は 表 T-233 の行と
 //           する」
-//   T-023d GR-20 「行見出しパネルの行 | **行の左端に敷く掴み代**（幅は
-//           `_assets/tbl-settings.md` の 表 T-206 の `S-138`）| 掴めば行を動かす
-//           （表 T-051 の `HF-15`）。⛔ **ピン止めしている行は掴めないこと
+//   T-023d GR-20 「タスクグループパネルのタスクグループ | **タスクグループの左端に敷く掴み代**（幅は
+//           `_assets/tbl-settings.md` の 表 T-206 の `S-138`）| 掴めばタスクグループを動かす
+//           （表 T-051 の `HF-15`）。⛔ **ピン止めしているタスクグループは掴めないこと
 //           （MUST NOT）**」
 //   T-023d  its closing paragraph: 「⚠️ **`GR-20` は、表 T-051 の `HF-15` が
 //           追従を同じ MUST で既に求めている。**⛔ **本表で繰り返してはならない
@@ -70,11 +70,11 @@
 //           （`FR-031`）—— **追従は絵であって編集ではない。**」
 //   T-233 RS-36 / RS-37 / RS-38 / RS-39 -- the four reasons a refusal carries,
 //           all of manner `NT-1`
-//   T-206 S-208 「掴んだ行の軸が決まる距離」, and its own ⛔ 「刻みを本表に
+//   T-206 S-208 「掴んだタスクグループの軸が決まる距離」, and its own ⛔ 「刻みを本表に
 //           持たせてはならない」
 //   T-206 S-138 the width GR-20 lays the strip at
 //   T-201 S-37 `taskGroupTitleIndent` -- the 段送りの刻み HF-15 borrows
-//   T-211 S-125 `maxGroupDepth`, 「根の行を深さ 1 と数える」
+//   T-211 S-125 `maxGroupDepth`, 「根のタスクグループを深さ 1 と数える」
 //   FR-085  「深さの上限は `FR-004` に従う（値は表 T-211 の `S-125`）」
 //   FR-098  the pin, which lifts a row to the head of the panel
 //   FR-029  what cannot be used gives its reason rather than going quiet
@@ -82,10 +82,10 @@
 //           `CM-35` と `CM-73`）。⚠️ **並べ替えを別の行にしない** —— **掴んで
 //           動かす 1 回のドラッグは、親をまたぐことも、またがないこともあり、
 //           どちらも 1 段である**」
-//   T-108 CM-73 `moveTaskGroup` 「行の親と並びを変える」
+//   T-108 CM-73 `moveTaskGroup` 「タスクグループの親と並びを変える」
 //   T-015a HM-3a 「**移動後の深さが `FR-004` の上限を超える移動を受け付けては
 //           ならない（MUST NOT）。** 部分木は**移動後の最深部**で測る」
-//   T-015a HM-5 「**行の器を作り直してはならない（MUST NOT）。** 更新するのは
+//   T-015a HM-5 「**タスクグループの器を作り直してはならない（MUST NOT）。** 更新するのは
 //           親だけとする」
 //   T-028 IN-1  ポインタ操作は離した時点で確定する
 //
@@ -115,8 +115,8 @@
 //     is a REQUIREMENT, not a leak. ⚠️ The heading MUST NOT is untouched by
 //     that: nothing is written while the row is HELD, and the two cases above
 //     this one still compare the whole document mid-drag.
-//     ⛔ HM-3 still forbids the parent moving 「タスクバーを別の行へ移す操作
-//     では WBS の親を変えてはならない（MUST NOT）」, so `parentTaskUid` is
+//     ⛔ HM-3 still forbids the parent moving 「タスクバーを別のタスクグループへ移す操作
+//     では親タスクを変えてはならない（MUST NOT）」, so `parentTaskUid` is
 //     read back unchanged below, and so is every other field of every task.
 //   - WHICH SIDE REFUSES A PINNED ROW. GR-20's MUST NOT is a statement about
 //     the grab AREA, and 表 T-065's IF-9 (MUST) leaves the side that DREW the
@@ -192,7 +192,7 @@ function settingOf(table: string, id: string, column: string): number {
 }
 
 /**
- * 表 T-206 `S-208` -- 掴んだ行の軸が決まる距離.
+ * 表 T-206 `S-208` -- 掴んだタスクグループの軸が決まる距離.
  *
  * ⚠️ THE `既定` COLUMN AND NOT `値`. 表 T-206's first cell NAMES the thing and
  * the second gives the number; a reading of the first would come back with the
@@ -206,7 +206,7 @@ const S_37_INDENT = settingOf('T-201', 'S-37', '既定値')
 // see HF-15, S-37, DS-1
 const DRAWN_S_37 = S_37_INDENT * DEFAULT_DISPLAY_RATIO
 
-/** 表 T-211 `S-125` `maxGroupDepth`. 「根の行を深さ 1 と数える」. */
+/** 表 T-211 `S-125` `maxGroupDepth`. 「根のタスクグループを深さ 1 と数える」. */
 const S_125_MAX_DEPTH = settingOf('T-211', 'S-125', '値')
 
 /** 表 T-103 U-22 -- the settled name IF-9 answers a point in the panel by. */
@@ -608,7 +608,7 @@ const childrenOf = (loop: FrameLoop, parentId: string | null): readonly string[]
     .sort((a, b) => a.order - b.order)
     .map((one) => nameOf(one.id))
 
-/** How deep one row sits. 「根の行を深さ 1 と数える」 (S-125). */
+/** How deep one row sits. 「根のタスクグループを深さ 1 と数える」 (S-125). */
 function depthOf(loop: FrameLoop, groupId: string): number {
   let at: string | null = groupId
   let depth = 0
@@ -685,7 +685,7 @@ describe('the specification still says what these cases are driven by', () => {
   it('表 T-051 still holds HF-15, and every MUST these cases assert is still in it', () => {
     const hf15 = saysOf('T-051', 'HF-15')
     for (const clause of [
-      '行を掴んで動かせること（MUST）',
+      'タスクグループを掴んで動かせること（MUST）',
       '軸を 1 本に固定すること（MUST）',
       '掴んでから最初に閾値を超えた向きで軸が決まり、離すまで変わらないこと（MUST）',
       '上下は位置を変え、段を変えてはならない（MUST NOT）',
@@ -694,14 +694,14 @@ describe('the specification still says what these cases are driven by', () => {
       '畳まれた群の中の場所を選んではならない（MUST NOT）',
       '左右は段を変えること（MUST）',
       '右へ 1 歩はすぐ上の兄弟の末子になること、左へ 1 歩は親の次の兄弟になること（MUST）',
-      'すぐ上に兄弟が無い行は右へ動かせない',
+      'すぐ上に兄弟が無いタスクグループは右へ動かせない',
       '左へ出たとき、後ろに居た兄弟は元の親に残すこと（MUST）',
       '深さの上限を超える右移動を受け付けてはならない（MUST NOT）',
-      'その行の配下ごと動かすこと（MUST）',
-      '握っているあいだ、行をポインタに追従させること（MUST）',
+      'そのタスクグループの配下ごと動かすこと（MUST）',
+      '握っているあいだ、タスクグループをポインタに追従させること（MUST）',
       '段送りの刻みは 表 T-201 の `S-37` と同じとすること（MUST）',
       '刻みを別に持ってはならない（MUST NOT）',
-      '動かせないときは、行を動かさずに理由を告げること（MUST）',
+      '動かせないときは、タスクグループを動かさずに理由を告げること（MUST）',
     ]) {
       expect(hf15, `表 T-051 の HF-15 no longer says 「${clause}」`).toContain(clause)
     }
@@ -709,11 +709,11 @@ describe('the specification still says what these cases are driven by', () => {
 
   it('表 T-023d still holds GR-20, and it still refuses a pinned row and points the width at S-138', () => {
     const gr20 = saysOf('T-023d', 'GR-20')
-    expect(gr20).toContain('行の左端に敷く掴み代')
+    expect(gr20).toContain('タスクグループの左端に敷く掴み代')
     expect(gr20).toContain('`S-138`')
-    expect(gr20).toContain('掴めば行を動かす')
+    expect(gr20).toContain('掴めばタスクグループを動かす')
     expect(gr20, '表 T-023d no longer keeps a pinned row out of the grab').toContain(
-      'ピン止めしている行は掴めないこと（MUST NOT）',
+      'ピン止めしているタスクグループは掴めないこと（MUST NOT）',
     )
     // 「上の行ほど優先すること（MUST）」 -- GR-20 is a row of that table, so it
     // is bound by the priority order like every other.
@@ -747,7 +747,7 @@ describe('the specification still says what these cases are driven by', () => {
 
   it('S-208 is the threshold, S-37 is the step, and NO settings row holds a step of its own', () => {
     const s208 = saysOf('T-206', 'S-208')
-    expect(s208).toContain('掴んだ行の軸が決まる距離')
+    expect(s208).toContain('掴んだタスクグループの軸が決まる距離')
     expect(s208, 'S-208 no longer forbids a second home for the step').toContain(
       '刻みを本表に持たせてはならない',
     )
@@ -769,7 +769,7 @@ describe('the specification still says what these cases are driven by', () => {
     expect(bare(cm73.cells[1] ?? ''), '表 T-108 renamed the command HF-15 writes').toBe(
       'moveTaskGroup',
     )
-    expect(cm73.cells.join(' ')).toContain('行の親と並びを変える')
+    expect(cm73.cells.join(' ')).toContain('タスクグループの親と並びを変える')
     expect(cm73.cells.join(' ')).toContain('`HF-15`')
     expect(saysOf('T-027', 'UN-4')).toContain(
       '掴んで動かす 1 回のドラッグは、親をまたぐことも、またがないこともあり、どちらも 1 段である',
@@ -786,12 +786,12 @@ describe('the specification still says what these cases are driven by', () => {
       '並べ替えた順序も WBS へ伝わること（MUST）',
     )
     expect(hm9, 'HM-9 no longer decides the rank by the row tree').toContain(
-      '各 `Task` の、同じ WBS 親を持つ兄弟の中での順位は、その `Task` を描いている行の、行の木における位置で決めること（MUST）',
+      '各 `Task` の、同じ親タスクを持つ兄弟の中での順位は、その `Task` を描いているタスクグループの、タスクグループの木における位置で決めること（MUST）',
     )
 
     const hm3 = saysOf('T-015a', 'HM-3')
     expect(hm3, 'HM-3 no longer forbids the parent task moving').toContain(
-      'WBS の親を変えてはならない（MUST NOT）',
+      '親タスクを変えてはならない（MUST NOT）',
     )
     expect(hm3, 'HM-3 no longer leaves the sibling order to HM-9').toContain(
       '同じ親の下での順序は `HM-9` に従い',
@@ -805,7 +805,7 @@ describe('the specification still says what these cases are driven by', () => {
 
   it('FR-085 still owns the depth cap, and S-125 still counts a root row as depth 1', () => {
     expect(REQUIREMENTS).toContain('深さの上限は `FR-004` に従う（値は表 T-211 の `S-125`）')
-    expect(saysOf('T-211', 'S-125')).toContain('根の行を深さ 1 と数える')
+    expect(saysOf('T-211', 'S-125')).toContain('根のタスクグループを深さ 1 と数える')
     expect(S_125_MAX_DEPTH).toBeGreaterThanOrEqual(3)
   })
 })
@@ -960,7 +960,7 @@ describe('HF-15 -- 上下は位置を変え、段を変えてはならない（M
   })
 
   it('⛔ MUST NOT: 「畳まれた群の中の場所を選んではならない」 -- a drag that walks PAST the folded Gamma lands under Delta and never inside Gamma', () => {
-    // 「動かした行が消えることになり、効かない操作子と見分けがつかない」.
+    // 「動かしたタスクグループが消えることになり、効かない操作子と見分けがつかない」.
     const built = stage()
     const downToD1 = bandOf(built.loop, D1).y - bandOf(built.loop, A2).y
 
@@ -1040,7 +1040,7 @@ describe('HF-15 -- 左右は段を変えること（MUST）', () => {
     expect(childrenOf(built.loop, ALPHA)).toEqual(['A2'])
   })
 
-  it('⇒ すぐ上に兄弟が無い行は右へ動かせない -- A1 is Alpha’s first child, so RS-36 is told and the row does not move', () => {
+  it('⇒ すぐ上に兄弟が無いタスクグループは右へ動かせない -- A1 is Alpha’s first child, so RS-36 is told and the row does not move', () => {
     const built = stage()
     const before = structuredClone(built.loop.document())
 
@@ -1053,7 +1053,7 @@ describe('HF-15 -- 左右は段を変えること（MUST）', () => {
     toldOnly(built, 'RS-36')
   })
 
-  it('⛔ MUST: いちばん浅い段に居る行は左へ動かせない -- Alpha is at depth 1, so RS-37 is told and the row does not move', () => {
+  it('⛔ MUST: いちばん浅い段に居るタスクグループは左へ動かせない -- Alpha is at depth 1, so RS-37 is told and the row does not move', () => {
     const built = stage()
     const before = structuredClone(built.loop.document())
 
@@ -1140,10 +1140,10 @@ describe('HF-15 / FR-085 / HM-3a -- 深さの上限を超える右移動を受�
 })
 
 // ===========================================================================
-// どちらの向きでも、その行の配下ごと動かすこと（MUST）
+// どちらの向きでも、そのタスクグループの配下ごと動かすこと（MUST）
 // ===========================================================================
 
-describe('HF-15 (MUST) -- どちらの向きでも、その行の配下ごと動かすこと', () => {
+describe('HF-15 (MUST) -- どちらの向きでも、そのタスクグループの配下ごと動かすこと', () => {
   it('the DEPTH axis carries the subtree: A2A is still A2’s child, one step deeper', () => {
     const built = stage()
 
@@ -1166,7 +1166,7 @@ describe('HF-15 (MUST) -- どちらの向きでも、その行の配下ごと動
     ])
 
     expect(parentOf(built.loop, A2A), 'the child was left behind').toBe(A2)
-    // ⚠️ HM-5 (MUST NOT): 「行の器を作り直してはならない。更新するのは親だけ」 --
+    // ⚠️ HM-5 (MUST NOT): 「タスクグループの器を作り直してはならない。更新するのは親だけ」 --
     // so the child that came along is the SAME row, keeping its own name.
     expect(rowsOf(built.loop).map((one) => one.id).sort()).toEqual(
       ROWS.map((one) => one.id).sort(),
@@ -1175,13 +1175,13 @@ describe('HF-15 (MUST) -- どちらの向きでも、その行の配下ごと動
 })
 
 // ===========================================================================
-// 握っているあいだ、行をポインタに追従させること（MUST）
+// 握っているあいだ、タスクグループをポインタに追従させること（MUST）
 // ===========================================================================
 
-describe('HF-15 (MUST) -- 握っているあいだ、行をポインタに追従させること。段送りの刻みは S-37 と同じ', () => {
+describe('HF-15 (MUST) -- 握っているあいだ、タスクグループをポインタに追従させること。段送りの刻みは S-37 と同じ', () => {
   it('⭐ the depth axis moves the drawn row by EXACTLY one S-37 per S-37 of travel', () => {
     // ⛔⛔ 「刻みを別に持ってはならない（MUST NOT）」 —— 実測で、刻み 26px・
-    // 段送り 16px のときポインタ 64px に対し行は 22px しか動かず、1 段ごとに
+    // 段送り 16px のときポインタ 64px に対しタスクグループは 22px しか動かず、1 段ごとに
     // 離れていった。⭐ 揃えるとずれは 0px である。
     const built = stage()
     const at = stripPoint(built.loop, A2)
@@ -1202,7 +1202,7 @@ describe('HF-15 (MUST) -- 握っているあいだ、行をポインタに追従
 
     expect(
       oneStep - restingIndent,
-      '描いた S-37 ぶん動かしても、描いた S-37 ぶん行が動かない（表 T-252 の DS-1）',
+      '描いた S-37 ぶん動かしても、描いた S-37 ぶんタスクグループが動かない（表 T-252 の DS-1）',
     ).toBeCloseTo(step, 9)
     expect(
       twoSteps - restingIndent,
@@ -1273,8 +1273,8 @@ describe('表 T-023d (MUST NOT) -- 掴んでいるあいだ値を文書へ書い
     // untouched, which is what a single `moveTaskGroup` leaves behind.
     //
     // ⭐ 表 T-015a の HM-9 (利用者の裁定 2026-09-05) widened WHERE that one
-    // write may land: 「各 `Task` の、同じ WBS 親を持つ兄弟の中での順位は、
-    // その `Task` を描いている行の、行の木における位置で決めること（MUST）」.
+    // write may land: 「各 `Task` の、同じ親タスクを持つ兄弟の中での順位は、
+    // その `Task` を描いているタスクグループの、タスクグループの木における位置で決めること（MUST）」.
     // A `Task` is not in `schedule.taskGroups`, so the release MUST reach
     // `Task.wbsOrder` (`AT-26`). ⛔ It may reach nothing else: HM-3 keeps
     // `parentTaskUid` still, and every other task field is compared whole.
@@ -1321,15 +1321,15 @@ describe('表 T-023d (MUST NOT) -- 掴んでいるあいだ値を文書へ書い
       exceptTheRank(before),
     )
 
-    // ⛔ HM-3 (MUST NOT): 「タスクバーを別の行へ移す操作では WBS の親を
-    // 変えてはならない」 -- 禁止の対象は親子関係であり、同じ親の下の順序
+    // ⛔ HM-3 (MUST NOT): 「タスクバーを別のタスクグループへ移す操作では親タスクを
+    // 変えてはならない」 -- 禁止の対象は親タスクと子タスクの関係であり、同じ親の下の順序
     // ではない。Stated on its own so a later widening of the field list cannot
     // let the parent slip through with it.
     const parents = (doc: any) =>
       (doc.schedule.tasks as any[]).map((one) => [one.uid, one.parentTaskUid])
     expect(parents(after), 'the release moved a parent task (HM-3)').toEqual(parents(before))
 
-    // HM-5 (MUST NOT): 行の器を作り直してはならない -- the same rows come back,
+    // HM-5 (MUST NOT): タスクグループの器を作り直してはならない -- the same rows come back,
     // carrying the same names, colours and heights.
     const shape = (doc: any) =>
       [...doc.schedule.taskGroups]
@@ -1349,12 +1349,12 @@ describe('表 T-023d (MUST NOT) -- 掴んでいるあいだ値を文書へ書い
 })
 
 // ===========================================================================
-// GR-20 (MUST NOT) -- ピン止めしている行は掴めない
+// GR-20 (MUST NOT) -- ピン止めしているタスクグループは掴めない
 // ===========================================================================
 
-describe('GR-20 of 表 T-023d (MUST NOT) -- ピン止めしている行は掴めないこと', () => {
-  // 「`FR-098` が留めた行をパネルの先頭へ上げるので、上げられた位置で掴むと、
-  // 木の順ではなく描く順を触ることになる。⚠️ 実測で、留めた行を引くと画面は
+describe('GR-20 of 表 T-023d (MUST NOT) -- ピン止めしているタスクグループは掴めないこと', () => {
+  // 「`FR-098` が留めたタスクグループをパネルの先頭へ上げるので、上げられた位置で掴むと、
+  // 木の順ではなく描く順を触ることになる。⚠️ 実測で、留めたタスクグループを引くと画面は
   // 1px も動かないまま親を 2 つまたいだ」.
   //
   // ⭐ THE MUST NOT ITSELF IS ANSWERED AT THE SIDE THE MANUSCRIPT PUTS IT ON,
@@ -1362,7 +1362,7 @@ describe('GR-20 of 表 T-023d (MUST NOT) -- ピン止めしている行は掴め
   // pinned row HAVING a grab area, and 表 T-065's IF-9 (MUST) makes the side
   // that DREW the panel the side that answers where one is. The cases that hold
   // it are therefore in tests/unit/uf-72-screen-part.test.ts, under
-  // 「GR-20 of 表 T-023d -- 行の左端に敷く掴み代（幅は S-138）」, where a pinned
+  // 「GR-20 of 表 T-023d -- タスクグループの左端に敷く掴み代（幅は S-138）」, where a pinned
   // row is read and found to carry no strip at all.
   //
   // ⛔ WHAT IS DELIBERATELY NOT ASSERTED HERE, AND WHY. A case could hand THIS
@@ -1394,7 +1394,7 @@ describe('GR-20 of 表 T-023d (MUST NOT) -- ピン止めしている行は掴め
 
 describe('GR-20 -- the strip is what the drag is taken on, and nothing else on the row is', () => {
   it('a press on the row that is NOT on the strip does not move the row, however far it travels', () => {
-    // GR-20 gives the grab a place: 「行の左端に敷く掴み代」. A press elsewhere
+    // GR-20 gives the grab a place: 「タスクグループの左端に敷く掴み代」. A press elsewhere
     // on the row is FR-085's choosing of that row, not a grab.
     const built = stage()
     const at = stripPoint(built.loop, A2)
@@ -1414,17 +1414,17 @@ describe('GR-20 -- the strip is what the drag is taken on, and nothing else on t
 // ⭐⭐ THE TWO MUSTS 利用者の裁定 2026-08-30 ADDED TO `HF-15`, AND NEITHER HAD A
 // CASE UNTIL NOW.
 //
-//   THE AXIS MARK 「⭐⭐ **いまどちらの軸が生きているかを、掴んでいる行に描くこと
-//     （MUST）** —— **上下の軸が生きているときは行の左右の辺に、左右の軸が生きて
-//     いるときは行の上下の辺に、帯を 1 本ずつ描くこと（MUST）。**⭐ **色は 表 T-236
+//   THE AXIS MARK 「⭐⭐ **いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと
+//     （MUST）** —— **上下の軸が生きているときはタスクグループの左右の辺に、左右の軸が生きて
+//     いるときはタスクグループの上下の辺に、帯を 1 本ずつ描くこと（MUST）。**⭐ **色は 表 T-236
 //     の `S-151`（上下）と `S-152`（左右）とする。**⛔ **描かないと、動かせない向き
 //     へ引いたときに壊れた操作子と見分けがつかない** —— **押しても何も起きない入口
 //     と同じ見え方になる**」
 //   THE RESISTED FOLLOW 「⭐⭐ **拒まれた向きへの追従は途中で止めること（MUST）**
-//     —— **止める割合は … `S-212` が持つ。**⛔ **拒んだうえに行をポインタへ付いて
+//     —— **止める割合は … `S-212` が持つ。**⛔ **拒んだうえにタスクグループをポインタへ付いて
 //     行かせてはならない（MUST NOT）** —— **手応えが返らないと、木から離れて滑って
 //     いくだけに見える**」, with `S-212` 「⭐ **掛ける相手は、その軸の 1 歩ぶんで
-//     ある** —— **左右なら 表 T-201 の `S-37`、上下ならその行が占める送りである**」
+//     ある** —— **左右なら 表 T-201 の `S-37`、上下ならそのタスクグループが占める送りである**」
 //
 // ⛔ WHAT IS READ HERE AND WHAT IS NOT. This file drives the frame loop and reads
 // the DESCRIPTION it hands the surface, so what these cases can see is
@@ -1434,7 +1434,7 @@ describe('GR-20 -- the strip is what the drag is taken on, and nothing else on t
 // tests/unit/uf-72-screen-part.test.ts; ⛔ nothing here asserts a pixel of paint.
 // ===========================================================================
 
-/** 表 T-206 `S-212` -- 拒まれた向きへ掴んだ行が追従する割合. */
+/** 表 T-206 `S-212` -- 拒まれた向きへ掴んだタスクグループが追従する割合. */
 const S_212_RESISTED_RATIO = settingOf('T-206', 'S-212', '既定')
 
 /** Which axis the panel says each drawn row is held on, keyed by row. */
@@ -1447,16 +1447,16 @@ function heldAxes(built: Stage): Map<string, unknown> {
   return found
 }
 
-describe('HF-15 (MUST) -- いまどちらの軸が生きているかを、掴んでいる行に描くこと', () => {
+describe('HF-15 (MUST) -- いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと', () => {
   it('表 T-051 still asks for the mark, the bands, the ground and the always-drawn strip, and 表 T-236 still holds the two colours', () => {
     const hf15 = saysOf('T-051', 'HF-15')
     for (const clause of [
-      'いまどちらの軸が生きているかを、掴んでいる行に描くこと（MUST）',
-      '上下の軸が生きているときは行の左右の辺に、左右の軸が生きているときは行の上下の辺に、帯を 1 本ずつ描くこと（MUST）',
+      'いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと（MUST）',
+      '上下の軸が生きているときはタスクグループの左右の辺に、左右の軸が生きているときはタスクグループの上下の辺に、帯を 1 本ずつ描くこと（MUST）',
       '色は 表 T-236 の `S-151`（上下）と `S-152`（左右）とする',
-      '掴んでいる行には地を敷くこと（MUST）',
+      '掴んでいるタスクグループには地を敷くこと（MUST）',
       '拒まれた向きへの追従は途中で止めること（MUST）',
-      '拒んだうえに行をポインタへ付いて行かせてはならない（MUST NOT）',
+      '拒んだうえにタスクグループをポインタへ付いて行かせてはならない（MUST NOT）',
       '掴み代は常に描くこと（MUST）',
       '`HF-6`（操作子はポインタが乗っているあいだだけ）の対象ではない',
     ]) {
@@ -1552,7 +1552,7 @@ describe('HF-15 (MUST) -- 拒まれた向きへの追従は途中で止めるこ
 
     built.send(pointer('up', at.x + S_37_INDENT * 8, at.y + PAST))
 
-    // ⛔ MUST NOT: 「拒んだうえに行をポインタへ付いて行かせてはならない」.
+    // ⛔ MUST NOT: 「拒んだうえにタスクグループをポインタへ付いて行かせてはならない」.
     expect(pulled, 'the row followed the whole way into the refused direction').toBeLessThan(
       S_37_INDENT * 4,
     )
@@ -1569,7 +1569,7 @@ describe('HF-15 (MUST) -- 拒まれた向きへの追従は途中で止めるこ
   })
 
   it('⭐ MUST: with the DEPTH axis live, a downward pull moves the row part of one row’s advance and stops', () => {
-    // ⭐ 「上下ならその行が占める送りである」 -- the row's own band is that advance,
+    // ⭐ 「上下ならそのタスクグループが占める送りである」 -- the row's own band is that advance,
     // and the loop is what placed it.
     const built = stage()
     const at = stripPoint(built.loop, A2)

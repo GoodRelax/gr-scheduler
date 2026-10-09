@@ -13,8 +13,8 @@ import { applyCommandsOf, readDocumentOf, taskGroupsDocument } from './w3-t1-sta
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-const FR_135_FIELD = 'プロパティパネルの WBS の親の欄の出し方と、押したときの動きは、表 T-351 の `PTL-15` 〜 `PTL-17` に従うこと（MUST）'
-const FR_135_HANDS = '—— 候補がどれかを図の上で読み、そのまま引いて結べる。WBS の親を結ぶ・外す手は 表 T-351 に従うこと（MUST）'
+const FR_135_FIELD = 'プロパティパネルの親タスクの欄の出し方と、押したときの動きは、表 T-351 の `PTL-15` 〜 `PTL-17` に従うこと（MUST）'
+const FR_135_HANDS = '—— 候補がどれかを図の上で読み、そのまま引いて結べる。親タスクを結ぶ・外す手は 表 T-351 に従うこと（MUST）'
 const FR_075_COLOURS = '掴み点の寸法は `_assets/tbl-settings.md` の表 T-210 が持つ。掴み点の面と縁は、同書の 表 T-236 の `S-527` と `S-528` の色で描くこと（MUST）'
 const FR_006_LOOK_LAST =
   '⭐ 見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅の行）は、同じ対象の行の並びの末尾に置くこと（MUST）'

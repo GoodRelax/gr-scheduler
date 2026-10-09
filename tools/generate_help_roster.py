@@ -22,7 +22,7 @@ THE LAYOUT IS FR-036'S OWN:
 
   - blocks in the columns and the order table T-256 names them: the
     assignments with no entrance (`basics`) and the browser functions
-    (`browser`) in HC-1, `App Header` in HC-2, `Row Title Panel` and then the
+    (`browser`) in HC-1, `App Header` in HC-2, `Task Group Panel` and then the
     palette's continuation in HC-4, `Command Palette` in HC-3. CR-665: the
     continuation holds the palette group table T-256 names by its name, and
     `Command Palette` holds the other groups. Every block opens with its
@@ -121,17 +121,17 @@ FULL_WIDTH_PLUS = u'\uff0b'
 
 BASICS = 'basics'
 BROWSER = 'browser'
-ROW_TITLE_PANEL = 'Row Title Panel'
+TASK_GROUP_PANEL = 'Task Group Panel'
 APP_HEADER = 'App Header'
 COMMAND_PALETTE = 'Command Palette'
-# CR-665: the block of the palette group moved under the Row Title Panel. The
+# CR-665: the block of the palette group moved under the Task Group Panel. The
 # name keys its heading in the dictionary, as every block's name does.
 PALETTE_CONTINUED = 'Command Palette (continued)'
-BLOCKS = (BASICS, BROWSER, ROW_TITLE_PANEL, APP_HEADER, COMMAND_PALETTE,
+BLOCKS = (BASICS, BROWSER, TASK_GROUP_PANEL, APP_HEADER, COMMAND_PALETTE,
           PALETTE_CONTINUED)
 # CR-635: the blocks whose heading this script adds; basics and browser open
 # with theirs where they are built. The heading's word is keyed by the block.
-SURFACE_BLOCKS = (ROW_TITLE_PANEL, APP_HEADER, COMMAND_PALETTE, PALETTE_CONTINUED)
+SURFACE_BLOCKS = (TASK_GROUP_PANEL, APP_HEADER, COMMAND_PALETTE, PALETTE_CONTINUED)
 # CR-635 (FR-036, MUST NOT): a row of table T-109 whose surfaces are only these
 # (Help Modal beside them or not) is left off the help, and so are the three
 # rows named on their own. CR-665 added Open Chooser and Difference Review:
@@ -151,14 +151,14 @@ SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7', 'MK-15', 'MK-16')
 UNLISTED_ASSIGNMENTS = ('MK-1', 'MK-6', 'MK-8', 'MK-11', 'MK-13',
                         'MK-9', 'MK-9a', 'MK-10', 'MK-12')
 
-# The screen order of the Row Title Panel. HF-10 of table T-051 orders all five
+# The screen order of the Task Group Panel. HF-10 of table T-051 orders all five
 # head entrances on one line (collapse all, open one level, open all, add,
 # delete all); HF-1 reads the 2 x 2 grid of a
 # row column first (hide, open one level, collapse below, open below), HF-4
 # puts delete over add after it and the pin outermost. The rows are the
 # entrances table T-109 describes in those words. The set is checked against
 # the table every run, so a row added there stops the run instead of vanishing.
-ROW_TITLE_PANEL_ORDER = ('IC-78', 'IC-92', 'IC-74', 'IC-93', 'IC-106',
+TASK_GROUP_PANEL_ORDER = ('IC-78', 'IC-92', 'IC-74', 'IC-93', 'IC-106',
                          'IC-59', 'IC-90', 'IC-77', 'IC-58', 'IC-82', 'IC-91',
                          'IC-60')
 
@@ -429,12 +429,12 @@ def build():
 
     on = lambda surface: [i['rowId'] for i in icons if home(i) == surface]
 
-    panel_rows = on(ROW_TITLE_PANEL)
-    if sorted(panel_rows) != sorted(ROW_TITLE_PANEL_ORDER):
+    panel_task_groups = on(TASK_GROUP_PANEL)
+    if sorted(panel_task_groups) != sorted(TASK_GROUP_PANEL_ORDER):
         stop('table %s puts %s on %s, and the screen order this script holds '
-             'names %s' % (ICON_TABLE, panel_rows, ROW_TITLE_PANEL,
-                           list(ROW_TITLE_PANEL_ORDER)))
-    panel = [icon_item(ROW_TITLE_PANEL, None, rid) for rid in ROW_TITLE_PANEL_ORDER]
+             'names %s' % (ICON_TABLE, panel_task_groups, TASK_GROUP_PANEL,
+                           list(TASK_GROUP_PANEL_ORDER)))
+    panel = [icon_item(TASK_GROUP_PANEL, None, rid) for rid in TASK_GROUP_PANEL_ORDER]
 
     header = [icon_item(APP_HEADER, None, rid) for rid in on(APP_HEADER)]
 
@@ -461,7 +461,7 @@ def build():
     milestone_glyphs = [milestones[0], milestones[shown - 1], MILESTONE_LIST_ROW]
 
     # CR-665 (FR-036, MUST): the group table T-256 names goes to the palette's
-    # continuation under the Row Title Panel, in the same order; the rest stay.
+    # continuation under the Task Group Panel, in the same order; the rest stay.
     if moved_group not in [cell for cell, _first, _members in groups]:
         stop('table %s moves the palette group %r, which no row of table %s '
              'holds' % (COLUMN_TABLE, moved_group, ICON_TABLE))
@@ -481,7 +481,7 @@ def build():
                 continue
             into.append(icon_item(block, first, rid))
 
-    by_block = {BASICS: basics, BROWSER: browser, ROW_TITLE_PANEL: panel,
+    by_block = {BASICS: basics, BROWSER: browser, TASK_GROUP_PANEL: panel,
                 APP_HEADER: header,
                 COMMAND_PALETTE: palette, PALETTE_CONTINUED: continued}
     for block in SURFACE_BLOCKS:

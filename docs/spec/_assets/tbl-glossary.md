@@ -39,7 +39,7 @@
 | N-12 | `Dependency` | 依存。<br>⚠️ 画面に描く線は `Dependency Lines`（`U-16`）であり、別の語である |
 | N-13 | `TaskVisual` | タスクの見せ方。<br>形・色・名前の置き方 |
 | N-14 | `TaskOrigin` | 取り込み元の記録 |
-| N-26 | `treeState` | 行の木の状態。<br>`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden` の 5 つの値（`01-04-requirements.md` の `FR-018` の 表 T-329、`_assets/tbl-state-machines.md` の 表 T-328）。<br>⚠️ `auto` は「開いている」ではない —— 人が何も決めていない行であり、何段描くかは倍率が決める |
+| N-26 | `treeState` | タスクグループの木の状態。<br>`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden` の 5 つの値（`01-04-requirements.md` の `FR-018` の 表 T-329、`_assets/tbl-state-machines.md` の 表 T-328）。<br>⚠️ `auto` は「開いている」ではない —— 人が何も決めていないタスクグループであり、何段描くかは倍率が決める |
 
 ## 2. プロパティ
 
@@ -69,7 +69,7 @@
 | P-18 | `strokeColor` / `fillColor` / `strokeWidthPx` | 線色 / 塗り色 / 線の太さ |
 | P-19 | `'transparent'` | 透明。<br>`strokeColor` / `fillColor` / `TaskGroup.color` が取りうる値であり、`tbl-settings.md` の 表 T-294 の保存する綴りの 1 つである（`S-324`）。<br>`null`（選んでいない）とは別物である |
 | P-21 | `fadeInDays` / `fadeOutDays` | フェードイン日数 / フェードアウト日数 |
-| P-22 | `wbsParentUid` | WBS の親（深さは導出する） |
+| P-22 | `parentTaskUid` | 親タスク（深さは導出する） |
 | P-23 | `linkType` | 依存の種別（4 値は表 T-018 が持つ） |
 
 ## 3. UI パーツ
@@ -80,7 +80,7 @@
 
 | 行 ID | 確定名（英） | 日本語 |
 | --- | --- | --- |
-| U-1 | `Rows` | 行 |
+| U-1 | `Task Groups` | タスクグループ |
 | U-2 | `Task Bars` | タスクバー（**総称**）。<br>`Plan Bar` と `Actual Bar` をまとめて指す。<br>言い分ける規則は表 T-006b の `A-14` が持つ |
 | U-3 | `Plan Bar` | 予定バー |
 | U-4 | `Actual Bar` | 実績バー |
@@ -102,8 +102,8 @@
 | U-19 | `Time Ruler` | タイムルーラー |
 | U-20 | `Watermark` | 透かし |
 | U-21 | `Scrollbars` | スクロールバー |
-| U-22 | `Row Title Panel` | 行見出しパネル |
-| U-23 | `Row Title Tree` | 行見出しツリー。<br>**`Row Title Panel` の中身**（パネルが画面領域、ツリーがその中の木の表示）。<br>⚠️ **操作の入口を指すときは「行見出しパネル」と書くこと（MUST）** —— 入口を 2 つの語で呼ぶと `FR-029` に触れる |
+| U-22 | `Task Group Panel` | タスクグループパネル |
+| U-23 | `Task Group Title Tree` | タスクグループ見出しツリー。<br>**`Task Group Panel` の中身**（パネルが画面領域、ツリーがその中の木の表示）。<br>⚠️ **操作の入口を指すときは「タスクグループパネル」と書くこと（MUST）** —— 入口を 2 つの語で呼ぶと `FR-029` に触れる |
 | U-24 | `Panel Divider` | パネル境界 |
 | U-25 | `Properties Panel` | プロパティパネル |
 | U-26 | `Command Palette` | コマンドパレット |
@@ -117,21 +117,21 @@
 | U-36 | `Agent API` | **`Agent API`**（日英とも同じ語を使い、訳語を当てない） |
 | U-37 | `WatermarkUnlockPassword` | **透かし解除パスワード**。<br>**「合言葉」と呼んではならない（MUST NOT）** —— 何のための語かが伝わらない。<br>既定値と SHA-256 は `tbl-settings.md` の表 T-207 が持つ |
 | U-38 | `ArmedShape` | **構え**。<br>直訳ではない。<br>例外は表 T-105。<br>パレットで選んでいて「次に引いたら作られる / 結ばれるもの」。<br>全数は表 T-023b が持つ。<br>**「選択」と呼んではならない（MUST NOT）** —— 選択（`Selection`）は既にある対象を選ぶことであり、別の状態である |
-| U-39 | `Selection` | **選択**。<br>既にある対象を選ぶこと、およびその集合。<br>描画領域の規則は表 T-023c、行の規則は `FR-085` が持つ |
+| U-39 | `Selection` | **選択**。<br>既にある対象を選ぶこと、およびその集合。<br>描画領域の規則は表 T-023c、タスクグループの規則は `FR-085` が持つ |
 | U-40 | `Marquee` | **範囲選択**。<br>直訳ではない。<br>例外は表 T-105。<br>何にも当たらない場所からドラッグして矩形で選ぶこと |
 | U-41 | `Percent Complete Label` | 完了率ラベル |
 | U-42 | `Pointer` | ポインタ。<br>マウスが指す点 |
 | U-43 | `Grab Region` / `Grab Point` | 掴み領域 / 掴み点。<br>形と大きさの全数は表 T-266、応える順は表 T-267 と表 T-268（日程の形でないものは表 T-023d）が持つ |
 | U-44 | `Dialogue Field` | 対話欄 |
 | U-45 | `GoodRelax Scheduler` | 本ソフトウェアの名称。<br>略称は `GRS`。<br>日本語に訳さない |
-| U-46 | `Pinned Row` | ピン止めした行。<br>縦にスクロールしても画面に残る |
-| U-47 | `Row Expander` | 行の折り畳みの操作子。<br>⛔ **員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない** —— **同じ数が 2 か所に載ると、必ず離れていく** |
-| U-48 | `Row Pin` | ピン止めの操作子。<br>置き方は `FR-098` |
+| U-46 | `Pinned Task Group` | ピン止めしたタスクグループ。<br>縦にスクロールしても画面に残る |
+| U-47 | `Task Group Expander` | タスクグループの折り畳みの操作子。<br>⛔ **員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない** —— **同じ数が 2 か所に載ると、必ず離れていく** |
+| U-48 | `Task Group Pin` | ピン止めの操作子。<br>置き方は `FR-098` |
 | U-49 | `Resource Roster` | 担当者名簿。<br>文書が持つ担当者の一覧。<br>出し方と消し方は `FR-099` |
-| U-50 | `Row Area` | （画面に出ない構造名。<br>日本語を当てない）。<br>`Schedule Canvas` から `Time Ruler` の帯と余白を除いた、`Rows` が並ぶ領域。<br> 左右は `Row Title Panel` と `Properties Panel` の内側 |
+| U-50 | `Task Group Area` | （画面に出ない構造名。<br>日本語を当てない）。<br>`Schedule Canvas` から `Time Ruler` の帯と余白を除いた、`Task Groups` が並ぶ領域。<br> 左右は `Task Group Panel` と `Properties Panel` の内側 |
 | U-52 | `Actual Operation Dummy` | 実績操作のダミー。<br>**まだ始まっていない実績。<br>** 未着手のタスクに薄く出し、実績と同じ規則で置き、掴ませる。<br>札の基準は表 T-272、掴み代は表 T-266 が持つ。<br>文書のデータとしては存在しない（`FR-043`） |
 | U-51 | `ScreenState` | （画面に出ない構造名。<br>日本語を当てない）。<br>文書に保存しない画面の値をまとめて持つ型の名。<br>⚠️ **「画面の状態」と呼んではならない（MUST NOT）** —— その日本語は `tbl-settings.md` の表 T-203 と、本書の表 T-104 の群（`K-67` 〜 `K-72` / `K-110` / `K-111`）が既に使っている |
-| U-53 | `Tooltip` | ツールチップ。<br>何かに添えて出す説明。<br>出す場面は `FR-092` の `EZ-2`（アイコン）と `EZ-6`（タスク・期限の印・変更前の予定）／ `FR-037` が、振る舞いは表 T-028 の `IN-3` が持つ。<br>⚠️ **`FR-085` は場面ではない** —— 同要求は打ち切った行名の全文を出すことを禁じており、`IN-3` が「引き金ではなくなった」と述べている。<br>⚠️ **重ねて開く面ではない**（表 T-028 の `IN-4`） |
+| U-53 | `Tooltip` | ツールチップ。<br>何かに添えて出す説明。<br>出す場面は `FR-092` の `EZ-2`（アイコン）と `EZ-6`（タスク・期限の印・変更前の予定）／ `FR-037` が、振る舞いは表 T-028 の `IN-3` が持つ。<br>⚠️ **`FR-085` は場面ではない** —— 同要求は打ち切ったタスクグループ名の全文を出すことを禁じており、`IN-3` が「引き金ではなくなった」と述べている。<br>⚠️ **重ねて開く面ではない**（表 T-028 の `IN-4`） |
 | U-54 | `Export Chooser` | 書き出しの形式を選ぶ面。<br>開く規則は `FR-096`、入口は表 T-109 の `IC-2`、鍵は表 T-036 の `SK-12` が持つ |
 | U-55 | `Confirmation` | 続けてよいかを問う面。<br>問い方は表 T-037 の `NT-7`、2 択の入口の語は `FR-038` の辞書の `confirmation` が持つ。<br>⛔ **語のボタンであり、図形の入口ではない**—— **本表 T-109 にも 図 F-019 にも行を持たない。<br>**⚠️ **通知（`Notice`）ではない** —— 通知は答えを求めない |
 | U-56 | `Open Chooser` | 読んだ内容の扱い方を選ぶ面。<br>選ばせる規則は 表 T-024a の `OP-3`、3 つの入口は表 T-109 の `IC-71` 〜 `IC-73` が持つ。<br>面の中身と並びは 表 T-024a の `OP-16` が持つ。<br>⚠️ **`Confirmation` ではない** —— あちらは 2 択であり、表 T-037 の `NT-7` がそう定めている。<br>⭐ **`Export Chooser`（`U-54`）の対である** |
@@ -199,7 +199,7 @@
 | K-9 | 縦の寸法 | `thinFontScale` | 細線のフォント倍率 |
 | K-10 | 縦の寸法 | `actualGap` | 予定から実績までの間隔（下に置くとき） |
 | K-11 | 縦の寸法 | `stackGap` | 積み順の段の間隔 |
-| K-12 | 縦の寸法 | `rowGap` | 行の間隔 |
+| K-12 | 縦の寸法 | `taskGroupGap` | タスクグループの間隔 |
 | K-13 | 形状の縦幅 | `shapeHeightOf.rectangle` | 矩形 |
 | K-14 | 形状の縦幅 | `shapeHeightOf.chevron` | 矢羽根 |
 | K-15 | 形状の縦幅 | `shapeHeightOf.arrow` | 矢印 |
@@ -228,9 +228,9 @@
 | K-33 | ラベル | `labelBaseline` | ベースライン補正 |
 | K-34 | ラベル | `labelHaloOfFont` | 縁取りの太さ ÷ フォント |
 | K-35 | ラベル | `truncateUnits` | 打ち切り幅（半角換算） |
-| K-36 | ラベル | `rowTitleFont` | 行名の文字 |
-| K-37 | ラベル | `rowTitleIndent` | 行名の `TaskGroup` の深さ 1 段ぶんのインデント |
-| K-38 | ラベル | `rowTitleTopScale` | `TaskGroup` 深さ 1 の行名の倍率 |
+| K-36 | ラベル | `taskGroupTitleFont` | タスクグループ名の文字 |
+| K-37 | ラベル | `taskGroupTitleIndent` | タスクグループ名の `TaskGroup` の深さ 1 段ぶんのインデント |
+| K-38 | ラベル | `taskGroupTitleTopScale` | `TaskGroup` 深さ 1 のタスクグループ名の倍率 |
 | K-39 | 形状の細部 | `planStroke` | 予定の輪郭線 |
 | K-43 | 形状の細部 | `chevronNotchOfHeight` | 矢羽根の切り欠き ÷ 高さ |
 | K-44 | 形状の細部 | `chevronNotchOfWidth` | 矢羽根の切り欠き ÷ 幅 |
@@ -259,12 +259,12 @@
 | K-67 | 画面の状態 | `zoomX` | 横のズーム倍率 |
 | K-68 | 画面の状態 | `zoomY` | 縦のズーム倍率 |
 | K-69 | 画面の状態 | `scrollDate` | 表示の左端が指す日付 |
-| K-70 | 画面の状態 | `scrollGroupId` | 表示の上端が指す行 |
-| K-71 | 画面の状態 | `rowTitlePanelWidth` | タスクグループパネルの幅 |
-| K-143 | 画面の状態 | `rowTitlePanelWidthFixed` | タスクグループパネルの幅を固定する |
+| K-70 | 画面の状態 | `scrollGroupId` | 表示の上端が指すタスクグループ |
+| K-71 | 画面の状態 | `taskGroupPanelWidth` | タスクグループパネルの幅 |
+| K-143 | 画面の状態 | `taskGroupPanelWidthFixed` | タスクグループパネルの幅を固定する |
 | K-72 | 画面の状態 | `propertyPanelWidth` ⛔ | `Properties Panel` の幅 |
 | K-110 | 画面の状態 | `pinnedGroupIds` | ピン止めの対象 |
-| K-111 | 画面の状態 | `pinnedRowMax` | ピン止めの件数の上限 |
+| K-111 | 画面の状態 | `pinnedTaskGroupMax` | ピン止めの件数の上限 |
 | K-73 | 表示の切り替え | `stackDirection` | 積む向き |
 | K-122 | 表示の切り替え | `planVisible` | 予定の表示 |
 | K-123 | 表示の切り替え | `actualVisible` | 実績の表示 |
@@ -292,7 +292,7 @@
 | K-95 | フェード | `fadeHandleStrokePx` | フェード掴み点の枠線 |
 | K-97 | 保存と上限 | `importMaxBytes` | 取り込むファイルの上限 |
 | K-98 | 保存と上限 | `importMaxItems` | 取り込む `Task` の件数の上限 |
-| K-99 | 保存と上限 | `importMaxDepth` | WBS のネストの深さの上限 |
+| K-99 | 保存と上限 | `importMaxDepth` | 親タスクの入れ子の深さの上限 |
 | K-100 | 画面の寸法 | `appHeaderMaxHeight` | `App Header` の高さの上限 |
 | K-101 | 透かし | `watermarkOpacity` | 透かしの濃さ |
 | K-102 | 構造の上限 | `maxGroupDepth` | `TaskGroup` の深さの上限 |
@@ -307,10 +307,10 @@
 | K-116 | 注記 | `commentBoxWrapUnits` | コメントボックスの本文を折り返す単位数 |
 | K-118 | 保存と上限 | `carryMaxDepth` | 解釈しない要素の入れ子の深さの上限 |
 | K-119 | 出力 | `exportCanvasHeightCap` | 書き出す絵の高さの上限 |
-| K-120 | 画面の状態 | `scrollGroupOffset` | 表示の上端が指す行のどこにあるか |
+| K-120 | 画面の状態 | `scrollGroupOffset` | 表示の上端が指すタスクグループのどこにあるか |
 | K-121 | 画面の状態 | `scrollDayOffset` | 表示の左端が指す日のどこにあるか |
 | K-138 | 画面の状態 | `levelZeroTreeState` | 段 0 の木の状態 |
-| K-140 | 遅延診断 | `parentProgressToleranceDays` | 遅延診断時に親子の進捗の疑義を許す日数（稼働日） |
+| K-140 | 遅延診断 | `parentProgressToleranceDays` | 遅延診断時に親タスクの進捗の疑義を許す日数（稼働日） |
 | K-90 | 保存しないもの（別枠） | `screenLanguage` ⛔ | 画面の言語（`ja` / `en`）。<br>置き場と規則は表 T-206 の `S-99` |
 | K-139 | 保存しないもの | `helpLanguage` ⛔ | ヘルプの言語（`ja` / `en`）。<br>置き場と規則は表 T-206 の `S-434` |
 
@@ -390,7 +390,7 @@
 | AM-13 | 出す | `exportSvg` | 動詞＋目的語・`semi-pure-b` | 書き出す絵（`FR-080`、文書が全体表示時の期間を固定しているときは 表 T-241 の `IX-12`）を値で返す | 表 T-024 の `IO-3` ／ `FR-080` |
 | AM-14 | 出す | `exportPng` | 動詞＋目的語・`semi-pure-b` | 画像を値で返す。<br>失敗も値で返す | 表 T-024 の `IO-4` ／ `FR-025` ／ 表 T-035 の `AG-8` |
 | AM-15 | 出す | `exportEmbeddedHtml` | 動詞＋目的語・`semi-pure-b` | 本体と文書を合わせた 1 つの `.html` を値で返す | 表 T-024 の `IO-7` ／ `FR-067` |
-| AM-16 | 見せる | `focusTask` | 動詞＋目的語・`non-pure` | 指定したタスクが載る行と祖先を開き、見える位置へ表示を寄せる | `FR-151` の 表 T-332 の `SJ-9` |
+| AM-16 | 見せる | `focusTask` | 動詞＋目的語・`non-pure` | 指定したタスクが載るタスクグループと祖先を開き、見える位置へ表示を寄せる | `FR-151` の 表 T-332 の `SJ-9` |
 | AM-27 | 見せる | `showOnlyTasks` | 動詞＋目的語・`non-pure` | `uid` の並びを受けてチェックを置き換え、表示の絞り込みに入る。<br>`null` を受けたら絞り込みを終える（チェックは残す）。<br>検索パネルが出ていなければ最小化で出してから入る —— 表示の絞り込みはパネルと一緒に生きる（`TV-8`）。<br>入ったら帯（`U-67`）が出る —— 人の画面に何が起きたかが残る | `FR-151` の 表 T-353 の `TV-5` 〜 `TV-8` |
 | AM-17 | 待つ | `watchChanges` | 動詞＋目的語・`non-pure` | 自分以外が確定した変更と発話を待つ | 表 T-035 の `AG-6` / `AG-11` |
 | AM-18 | 話す | `postDialogueMessage` | 動詞＋目的語・`non-pure` | AI が確定した発話を対話欄へ置く | `FR-066` ／ 表 T-035 の `AG-11` |
@@ -424,10 +424,10 @@
 | CM-3 | `Project` | `setStatusDate` | — | 基準日を置く・動かす | `FR-046` |
 | CM-4 | `Project` | `clearStatusDate` | — | 基準日を消す | `FR-046` |
 | CM-5 | `Project` | `setThemeHue` | — | テーマ色を変える | `FR-041` |
-| CM-87 | `Project` | `setParentProgressTolerance` | — | 親子の進捗の疑義が許す日数を変える | `FR-131` |
+| CM-87 | `Project` | `setParentProgressTolerance` | — | 親タスクの進捗の疑義が許す日数を変える | `FR-131` |
 | CM-6 | `Task` | `createTask` | ⭐ | タスクを作る | `FR-001` |
 | CM-7 | `Task` | `deleteTask` | — | タスクを消す | `FR-032` |
-| CM-8 | `Task` | `pasteTaskSubtree` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない WBS の子孫はコピーしない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。<br>`Ctrl` ドラッグのコピーは、ずらす日数と、コピーを載せる行も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |
+| CM-8 | `Task` | `pasteTasks` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない子孫タスクはコピーしない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。<br>`Ctrl` ドラッグのコピーは、ずらす日数と、コピーを載せるタスクグループも運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |
 | CM-9 | `Task` | `setTaskName` | — | 名称を変える | `FR-091` |
 | CM-10 | `Task` | `setTaskNotes` | — | 備考を置く | `FR-006` |
 | CM-11 | `Task` | `setTaskPlanDates` | ⭐ | 予定の開始・終了を置く | `FR-012` |
@@ -437,20 +437,20 @@
 | CM-15 | `Task` | `cycleTaskPlanActualState` | ⭐ | 予実の状態を、表 T-021a の輪に沿って 1 つ進める。<br>中断から未着手へ戻すときに外した実績は `ScreenState` が覚え、本命令はそこから受け取る | `FR-013` |
 | CM-16 | `Task` | `setTaskFadeInDays` | — | フェードイン日数を置く | `FR-075` |
 | CM-17 | `Task` | `setTaskFadeOutDays` | — | フェードアウト日数を置く | `FR-075` |
-| CM-18 | `Task` | `setTaskWbsParent` | — | WBS の親を移す | `FR-005` |
-| CM-19 | `Task` | `moveTaskToTaskGroup` | — | 別の行へ載せ替える | `FR-005` |
+| CM-18 | `Task` | `setTaskParentTask` | — | 親タスクを移す | `FR-005` |
+| CM-19 | `Task` | `moveTaskToTaskGroup` | — | 別のタスクグループへ載せ替える | `FR-005` |
 | CM-20 | `TaskVisual` | `setTaskVisualShapeKind` | — | タスク形状を変える | `FR-083` |
 | CM-21 | `TaskVisual` | `setTaskVisualMilestoneGlyph` | — | マイルストーン形状を変える | `FR-078` |
 | CM-22 | `TaskVisual` | `setTaskVisualColors` | ⭐ | 線色と塗り色を置く | `FR-007` |
 | CM-23 | `TaskVisual` | `resetTaskVisualColors` | ⭐ | 色をテーマ追随へ戻す | `FR-007` |
 | CM-24 | `TaskVisual` | `setTaskVisualStrokeWidth` | — | 線の太さを置く | `FR-007` |
-| CM-26 | `TaskGroup` | `createTaskGroup` | ⭐ | 行を作る | `FR-085` |
-| CM-27 | `TaskGroup` | `deleteTaskGroup` | — | 行を消す | `FR-032` |
-| CM-28 | `TaskGroup` | `pasteTaskGroupSubtree` | ⭐ | 行の部分木を複製する | `FR-033` |
-| CM-29 | `TaskGroup` | `setTaskGroupLabel` | — | 行の名前を変える | `FR-085` |
-| CM-30 | `TaskGroup` | `setTaskGroupColor` | — | 行の色を置く | `FR-042` |
-| CM-31 | `TaskGroup` | `resetTaskGroupColor` | — | 行の色をテーマ追随へ戻す | `FR-007` |
-| CM-32 | `TaskGroup` | `setTaskGroupMinHeight` | — | 行の最小の高さを置く | `FR-042` |
+| CM-26 | `TaskGroup` | `createTaskGroup` | ⭐ | タスクグループを作る | `FR-085` |
+| CM-27 | `TaskGroup` | `deleteTaskGroup` | — | タスクグループを消す | `FR-032` |
+| CM-28 | `TaskGroup` | `pasteTaskGroupSubtree` | ⭐ | タスクグループの部分木を複製する | `FR-033` |
+| CM-29 | `TaskGroup` | `setTaskGroupLabel` | — | タスクグループ名を変える | `FR-085` |
+| CM-30 | `TaskGroup` | `setTaskGroupColor` | — | タスクグループの色を置く | `FR-042` |
+| CM-31 | `TaskGroup` | `resetTaskGroupColor` | — | タスクグループの色をテーマ追随へ戻す | `FR-007` |
+| CM-32 | `TaskGroup` | `setTaskGroupMinHeight` | — | タスクグループの最小の高さを置く | `FR-042` |
 | CM-35 | `TaskGroup` | `reorderTaskGroupSiblings` | ⭐ | 兄弟の並びを変える | `FR-005` |
 | CM-36 | `Dependency` | `createDependency` | ⭐ | 依存線を引く | `FR-009` |
 | CM-37 | `Dependency` | `deleteDependency` | — | 依存線を消す | `FR-032` |
@@ -486,19 +486,19 @@
 | CM-64 | 見せ方の群 | `setThemeMonochrome` | — | モノクロを選ぶ | `FR-041` |
 | CM-65 | 見せ方の群 | `setZoom` | ⭐ | 表示倍率を変える | `FR-016` |
 | CM-66 | 見せ方の群 | `setScrollPosition` | — | 表示位置を変える | `FR-051` |
-| CM-67 | 見せ方の群 | `setRowTitlePanelWidth` | — | 行見出しパネルの幅を変える | `FR-052` |
-| CM-68 | 見せ方の群 | `pinTaskGroup` | — | 行をピン止めする | `FR-098` |
+| CM-67 | 見せ方の群 | `setTaskGroupPanelWidth` | — | タスクグループパネルの幅を変える | `FR-052` |
+| CM-68 | 見せ方の群 | `pinTaskGroup` | — | タスクグループをピン止めする | `FR-098` |
 | CM-69 | 見せ方の群 | `unpinTaskGroup` | — | ピン止めを外す | `FR-098` |
 | CM-71 | 見せ方の群 | `fitScheduleToScreen` | ⭐ | 全体が収まる倍率と表示位置を置く | `FR-055` |
-| CM-72 | `TaskGroup` | `resetTaskGroupTreeStates` | ⭐ | 隠した行を除くすべての行の木の状態を `auto` へ戻す | `FR-055`（表 T-051 の `HF-8`、`_assets/tbl-state-machines.md` の 表 T-328）|
-| CM-73 | `TaskGroup` | `moveTaskGroup` | ⭐ | 行の親と並びを変える | `FR-005`（表 T-051 の `HF-15`）|
+| CM-72 | `TaskGroup` | `resetTaskGroupTreeStates` | ⭐ | 隠したタスクグループを除くすべてのタスクグループの木の状態を `auto` へ戻す | `FR-055`（表 T-051 の `HF-8`、`_assets/tbl-state-machines.md` の 表 T-328）|
+| CM-73 | `TaskGroup` | `moveTaskGroup` | ⭐ | タスクグループの親と並びを変える | `FR-005`（表 T-051 の `HF-15`）|
 | CM-74 | 見せ方の群 | `setDisplayScale` | — | 表示の倍率の段を変える | `FR-039` |
 | CM-88 | 見せ方の群 | `setFitSpan` | ⭐ | 全体表示時の期間を置く・動かす（開始日と終了日を 1 度に） | `FR-055` |
 | CM-89 | 見せ方の群 | `clearFitSpan` | ⭐ | 全体表示時の期間を消す（固定していれば固定も外す —— 表 T-367 の `FX-5`） | `FR-055` |
 | CM-90 | 見せ方の群 | `setFitSpanFixed` | ⭐ | 全体表示時の期間を固定する・外す（期間が空なら現在表示中の期間をコピーする —— 表 T-367 の `FX-4`） | `FR-055` |
-| CM-91 | 見せ方の群 | `setRowTitlePanelWidthFixed` | — | 行見出しパネルの幅を固定する・外す | `FR-052` |
-| CM-85 | `TaskGroup` | `setTaskGroupTreeState` | — | 行の木の状態を置く | `FR-004`（`_assets/tbl-state-machines.md` の 表 T-328）|
-| CM-76 | `TaskGroup` | `setTaskGroupEditGroup` | — | 行の編集グループを入れる・消す。<br>人だけが使う（表 T-275 の `GP-1`） | `FR-111` |
+| CM-91 | 見せ方の群 | `setTaskGroupPanelWidthFixed` | — | タスクグループパネルの幅を固定する・外す | `FR-052` |
+| CM-85 | `TaskGroup` | `setTaskGroupTreeState` | — | タスクグループの木の状態を置く | `FR-004`（`_assets/tbl-state-machines.md` の 表 T-328）|
+| CM-76 | `TaskGroup` | `setTaskGroupEditGroup` | — | タスクグループの編集グループを入れる・消す。<br>人だけが使う（表 T-275 の `GP-1`） | `FR-111` |
 | CM-86 | 見せ方の群 | `setLevelZeroTreeState` | — | 段 0 の木の状態を置く | `FR-004`（`_assets/tbl-state-machines.md` の 表 T-328 の根の升）|
 
 ⚠️ `群` は対象の確定名（表 T-058 のエンティティ）と、どのエンティティにも属さない見せ方の群である。
@@ -552,8 +552,8 @@
 | IC-11 | `App Header` | 表示 | 全画面表示に入り、同じ入口で出る（`S-99f`）| `FR-071` | — | — |
 | IC-12 | `App Header` | 表示 | 時間軸を縮小する（`S-75`）| `FR-018` | — | — |
 | IC-13 | `App Header` | 表示 | 時間軸を拡大する（`S-75`）| `FR-018` | — | — |
-| IC-14 | `App Header` | 表示 | 行軸を縮小する（`S-76`）| `FR-018` | — | — |
-| IC-15 | `App Header` | 表示 | 行軸を拡大する（`S-76`）| `FR-018` | — | — |
+| IC-14 | `App Header` | 表示 | 縦軸を縮小する（`S-76`）| `FR-018` | — | — |
+| IC-15 | `App Header` | 表示 | 縦軸を拡大する（`S-76`）| `FR-018` | — | — |
 | IC-100 | `App Header` | 表示 | モノクロで描く・色に戻す（`S-74`）。<br>⚠️ **明暗テーマ（`IC-16`）とは別の値である** —— 理由は `FR-041` が持つ。<br>⛔ **`FR-049` の切り替えではない** —— `S-74` は 表 T-203 の行であり、同要求が見るのは 表 T-202 の真偽の行である。<br>⭐ 本行は明暗テーマの入口（`IC-16`）の左に並べる（`FR-041`） | `FR-041`（表 T-108 の `CM-64`）| — | — |
 | IC-16 | `App Header` | 表示 | 明暗テーマを選ぶ（`S-72`）| `FR-039` | — | — |
 | IC-5 | `App Header` | 履歴 | 編集を取り消す | `FR-031` | — | — |
@@ -598,8 +598,8 @@
 | IC-79 | `Command Palette` | 表示 | 担当ラベルを表示する・非表示にする | `FR-049` | `S-60` | — |
 | IC-80 | `Command Palette` | 表示 | 完了率ラベルを表示する・非表示にする | `FR-049`（`FR-090`）| `S-61` | — |
 | IC-81 | `Command Palette` | 表示 | 依存線を表示する・非表示にする。<br>⚠️ **隠しているあいだは、依存線を選ぶことも、ラグを編集することも、削除することもできない** —— 表示に戻してから行う。<br>規則と理由は `FR-049` が持つ | `FR-049`（`FR-009`）| `S-62` | — |
-| IC-141 | `Command Palette` | 表示 | WBS の親子を、子から親への矢印で表示する・非表示にする（`S-484`）。<br>⭐ 描くのは、指した・選んだタスクの家族だけである（`FR-135`）。<br>⭐ 依存線の表示（`IC-81`）の右に並べる。<br>⚠️ `切り替える設定値` の欄は `—` である —— `S-484` は 表 T-202 の行ではない（本表の前文） | `FR-135` | — | — |
-| IC-142 | `Command Palette` | 表示 | WBS の親を結ぶ構えに入る（表 T-023b の `AR-7`）。<br>⭐ 親子判別（`IC-141`）のすぐ右に並べる —— 親子を見る入口の右隣に、親子を結ぶ入口を探せる。<br>⚠️ 群は `表示` であるが、押せば構える（`構え` の欄） —— 場所のために群を選ぶ先例は `IC-61` と `IC-103` の注が持つ | `FR-135` | — | `AR-7` |
+| IC-141 | `Command Palette` | 表示 | 親タスクと子タスクを、子タスクから親タスクへの矢印で表示する・非表示にする（`S-484`）。<br>⭐ 描くのは、指した・選んだタスクの家族だけである（`FR-135`）。<br>⭐ 依存線の表示（`IC-81`）の右に並べる。<br>⚠️ `切り替える設定値` の欄は `—` である —— `S-484` は 表 T-202 の行ではない（本表の前文） | `FR-135` | — | — |
+| IC-142 | `Command Palette` | 表示 | 親タスクを結ぶ構えに入る（表 T-023b の `AR-7`）。<br>⭐ 親タスク表示（`IC-141`）のすぐ右に並べる —— 親タスクと子タスクを見る入口の右隣に、親タスクと子タスクを結ぶ入口を探せる。<br>⚠️ 群は `表示` であるが、押せば構える（`構え` の欄） —— 場所のために群を選ぶ先例は `IC-61` と `IC-103` の注が持つ | `FR-135` | — | `AR-7` |
 | IC-99 | `Command Palette` | 表示 | 文字サイズの段を変える（`S-70`。<br>3 値排他）。<br>⭐ **押すたびに 表 T-215 が刷る並びの次の段へ移り、末尾の次は先頭へ戻る** —— `FR-029` が同じ機能の入口を 2 か所に置くことを禁じているので、入口は 1 つであり、1 つの入口が 3 段すべてに届くには巡るほかない。<br>⚠️ **段の並びは 表 T-215 のものであって、本行が定めるものではない** | `FR-039`（表 T-108 の `CM-62`）| — | — |
 | IC-101 | `Command Palette` | 表示 | 積む向きを選ぶ（`S-58`。<br>2 値排他）。<br>⭐ **押すたびにもう一方の向きへ移る** —— `IC-16`（`S-72`）と同じ形であり、値が 2 つしか無いので巡りは往復になる | `FR-003`（表 T-108 の `CM-56`）| — | — |
 | IC-103 | `Command Palette` | カーソル | 名称ラベルに予定日を添える・外す（書き方は `FR-002` の 表 T-251）。<br>⭐ **本行は群 `カーソル` の頭に置き、基準日の入口（`IC-44`）の左に並べる** —— 並べる順は群の塊と行の順が決めるので（同表の前文）、`IC-61` と同じく場所のために群を選んだ。<br>⚠️ 図形の「6/3」は特定の日を指さない | `FR-049`（`FR-002`）| `S-232` | — |
@@ -614,14 +614,14 @@
 | IC-54 | `Command Palette` | 構え | いま構えている図形を示す。<br>**ボタンではない** | 表 T-023b | — | — |
 | IC-102 | `Help Modal` | — | マウスのホイールを示す。<br>**ボタンではない** —— ヘルプの凡例に置き、割当の語の中のホイールをこの図形で示す | `FR-036` | — | — |
 | IC-128 | `Help Modal` | — | ヘルプの言語を選ぶ（`S-434`）。<br>⭐ 図形は `IC-21` と同じである | `FR-038` | — | — |
-| IC-58 | `Row Title Panel` | — | 行の配下をすべて開く | 表 T-051 の `HF-2` | — | — |
-| IC-59 | `Row Title Panel` | — | この行を隠す | 表 T-051 の `HF-3` | — | — |
-| IC-77 | `Row Title Panel` | — | 行の配下をすべて畳む | 表 T-051 の `HF-11` | — | — |
-| IC-90 | `Row Title Panel` | — | 行の配下を 1 階層だけ開く | 表 T-051 の `HF-13` | — | — |
-| IC-91 | `Row Title Panel` | — | 行の配下に行を 1 つ足す | 表 T-051 の `HF-14` | — | — |
-| IC-60 | `Row Title Panel` | — | 行をピン止めし、同じ入口で外す | `FR-098` | — | — |
-| IC-82 | `Row Title Panel` | — | 行を削除する。<br>⭐ 消える範囲は 表 T-050 の `CD-2` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-1`）| `FR-032` | — | — |
-| IC-106 | `Row Title Panel` | — | すべての行を削除する（行見出しパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）| `FR-032` | — | — |
+| IC-58 | `Task Group Panel` | — | タスクグループの配下をすべて開く | 表 T-051 の `HF-2` | — | — |
+| IC-59 | `Task Group Panel` | — | このタスクグループを隠す | 表 T-051 の `HF-3` | — | — |
+| IC-77 | `Task Group Panel` | — | タスクグループの配下をすべて畳む | 表 T-051 の `HF-11` | — | — |
+| IC-90 | `Task Group Panel` | — | タスクグループの配下を 1 階層だけ開く | 表 T-051 の `HF-13` | — | — |
+| IC-91 | `Task Group Panel` | — | タスクグループの配下にタスクグループを 1 つ足す | 表 T-051 の `HF-14` | — | — |
+| IC-60 | `Task Group Panel` | — | タスクグループをピン止めし、同じ入口で外す | `FR-098` | — | — |
+| IC-82 | `Task Group Panel` | — | タスクグループを削除する。<br>⭐ 消える範囲は 表 T-050 の `CD-2` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-1`）| `FR-032` | — | — |
+| IC-106 | `Task Group Panel` | — | すべてのタスクグループを削除する（タスクグループパネルの頭、`HF-20`）。<br>⭐ 図形は `IC-82` と同じである。<br>消える範囲は 表 T-050 の `CD-6` が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-10`）| `FR-032` | — | — |
 | IC-118 | `Search Panel` | — | タスクとマイルストーンの表を出す | `FR-151` | — | — |
 | IC-119 | `Search Panel` | — | コメントボックスの表を出す | `FR-151` | — | — |
 | IC-143 | `Search Panel` | — | 表示の絞り込み（[表示] の列でチェックしたタスクだけを日程表に描くこと）に入り、同じ入口で終える（`S-495`）。<br>⭐ タスクの表を出しているときだけ置く。<br>チェックが 1 つも無いあいだは効かない（`FR-151` の 表 T-353 の `TV-5`） | `FR-151` の 表 T-353 | — | — |
@@ -653,10 +653,10 @@
 | IC-71 | `Open Chooser` | — | 読んだ内容で現在の文書を置き換える | 表 T-024a の `OP-3` | — | — |
 | IC-72 | `Open Chooser` | — | 読んだ内容を現在の文書へ合流させる | 表 T-024a の `OP-3` | — | — |
 | IC-73 | `Open Chooser` | — | 読んだ内容を変更前の予定として重ねる | 表 T-024a の `OP-3` | — | — |
-| IC-74 | `Row Title Panel` | — | すべての行を開く | 表 T-051 の `HF-10` | — | — |
-| IC-78 | `Row Title Panel` | — | すべての行を畳む | 表 T-051 の `HF-12` | — | — |
-| IC-92 | `Row Title Panel` | — | 最も浅い段を 1 階層だけ開く | 表 T-051 の `HF-16` | — | — |
-| IC-93 | `Row Title Panel` | — | 最も浅い段へ行を 1 つ足す | 表 T-051 の `HF-17` | — | — |
+| IC-74 | `Task Group Panel` | — | すべてのタスクグループを開く | 表 T-051 の `HF-10` | — | — |
+| IC-78 | `Task Group Panel` | — | すべてのタスクグループを畳む | 表 T-051 の `HF-12` | — | — |
+| IC-92 | `Task Group Panel` | — | 最も浅い段を 1 階層だけ開く | 表 T-051 の `HF-16` | — | — |
+| IC-93 | `Task Group Panel` | — | 最も浅い段へタスクグループを 1 つ足す | 表 T-051 の `HF-17` | — | — |
 | IC-76 | `Command Palette` | 表示 | 操作と描画の記録を始め、**同じ入口で止める**（`S-206`）。<br>止めたとき記録はクリップボードへ渡る（表 T-008 の `CHN-9`）。<br>⭐ パレットを最小化しているあいだも、記録していれば掴み帯に押下状態で載る（`FR-053`）| `FR-102` | — | — |
 | IC-95 | `Difference Review` | — | 重複しているタスクを、開いたファイルの値で取り込む（表 T-032a の `MM-1`）| `FR-022` | — | — |
 | IC-96 | `Difference Review` | — | 重複しているタスクを、別のものとして両方とも残す（表 T-032a の `MM-2`）| `FR-022` | — | — |

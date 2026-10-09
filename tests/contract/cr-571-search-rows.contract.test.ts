@@ -29,7 +29,7 @@ const cellOf = (table: string, id: string, heading: string): string => unbroken(
 const FR_151_STATEMENT =
   '作成者が語を打ったとき、`GRS` は、名前・担当者名・コメントボックスの本文にその語を含むタスクとコメントボックスを検索パネル（`_assets/tbl-glossary.md` の `U-64`）の表に並べ'
 const FR_151_NOT_NOTES_NOR_TASK_GROUP_NAMES =
-  '⛔ 探すものに `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）と行の名前（`AT-53`）を含めてはならない（MUST NOT） —— 行の名前は 表 T-331 の `SQ-6` の絞り込みで届く。'
+  '⛔ 探すものに `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）とタスクグループ名（`AT-53`）を含めてはならない（MUST NOT） —— タスクグループ名は 表 T-331 の `SQ-6` の絞り込みで届く。'
 
 const SV_4 = cellOf('T-330', 'SV-4', '定め')
 const SV_4_WHERE =
@@ -42,7 +42,7 @@ const SV_4_EMPTY_NAME = '名前が空のタスクも表に載るが、名前の�
 
 const SV_8 = cellOf('T-330', 'SV-8', '定め')
 const SV_8_DEFAULT_ORDER =
-  '既定の並びは、行の木の上からの並び → `SQ-3`（コメントボックスは `SQ-9`）→ `Task.uid`（コメントボックスは `id`）'
+  '既定の並びは、タスクグループの木の上からの並び → `SQ-3`（コメントボックスは `SQ-9`）→ `Task.uid`（コメントボックスは `id`）'
 
 const SQ_1_NO_NAME_WORD = 'この語は `SV-4` の一致に使わない'
 const SQ_2_ORDER = '割当の並びのまま'

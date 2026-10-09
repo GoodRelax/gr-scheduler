@@ -17,12 +17,12 @@ import {
 
 // see FR-016
 const FR_016_FIRST_BAND_THAT_FILLS =
-  '⭐ 行の軸（`zoomY`）の上限は、いちばん高い行の帯の高さが、初めて `Task Group Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
+  '⭐ 縦軸（`zoomY`）の上限は、いちばん高いタスクグループの帯の高さが、初めて `Task Group Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
 // see T-253, BC-3, FR-042, CR-689
 const BC_3_FIRST_ALREADY = '最初の倍率で既に達していれば、帯の側の上限はその倍率とし、`BC-4` と `BC-5` を行わない。'
 const FR_042_NOT_ZOOM_Y = '⛔ 縦のズーム（同書の 表 T-203 の `S-76`）で縮めてはならない（MUST NOT）'
 // see FR-016
-const FR_016_POINTER_HOLDS = 'ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと（MUST）。'
+const FR_016_POINTER_HOLDS = 'ズームはポインタ位置を中心とし、カーソル下の日付とタスクグループが動かないこと（MUST）。'
 // see FR-016
 const FR_016_NO_POINTER_USES_THE_MIDDLE =
   'ポインタを伴わない経路（画面上のボタン・ショートカット・`Agent API`）では、`Task Group Area` の中心をズームの中心とすること（MUST）'

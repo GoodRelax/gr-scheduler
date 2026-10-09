@@ -51,7 +51,7 @@ graph RL
 | 行 ID | 層 | 置くもの | 純粋性 |
 | --- | --- | --- | --- |
 | LY-1 | `Entity` / `documentModel` | 表 T-052 が定める文書ルートの 3 群すべて（日程データの群のエンティティは 表 T-056）と、その不変条件（全数は Chapter 6.1 が持つ）。<br>および**文書に保存しない実行時の値**（取り消しの履歴・選択・確定した発話・画面の使い方の値。<br>いずれも不変の値として持ち、丸ごと置き換える） | すべて `pure` |
-| LY-2 | `Entity` / `layoutEngine` | 画面の各部の矩形、日付と座標の対応、`Rows` の配置、描くものの頂点、表示量の増減、当たり判定 | すべて `pure` |
+| LY-2 | `Entity` / `layoutEngine` | 画面の各部の矩形、日付と座標の対応、`Task Groups` の配置、描くものの頂点、表示量の増減、当たり判定 | すべて `pure` |
 | LY-3 | `UseCase` | 文書を変える操作と、確定までの手順。<br>取り込みの検証。<br>変更の通知。<br>保存しない画面とセッションの流れの遷移（出来事から次の状態と副作用を決める） | 操作と検証は `pure`、確定と通知は `non-pure`。<br>遷移は `pure` |
 | LY-4 | `Adapter` | `Agent API`、SVG の生成、日程表の外側の UI パーツの記述の生成、交換形式との相互変換、画面の入力を操作へ変えること、および**外側の道具を使うためのインターフェースの宣言** | 変換と直列化は `pure`、外を読むものは `semi-pure-b`、残りは `non-pure` |
 | LY-5 | `Framework` | **`Adapter` が宣言したインターフェースの実装**（ブラウザの DOM・SVG・File System Access API・`localStorage` を使う）と、単一 `.html` のシェルと、ページに載らない MCP の取次のプロセス（`FR-150`、`_assets/design-mcp-relay.md`）。<br>**現在値を保持するのはこの層だけである** —— 内側の 3 層はすべて値を引数で受け取る | 外を読むものは `semi-pure-b`、残りは `non-pure` |
@@ -111,7 +111,7 @@ graph RL
 | CP-2 | `documentModel` | `DocumentSettings` | 見せ方の群。<br>保存する値と、その下限・上限 | 表 T-052 の `DR-3` / `FR-063` |
 | CP-3 | `documentModel` | `DocumentStamp` | 文書の刻印と、版を進める純粋関数 | 表 T-052 の `DR-4` / `FR-063` |
 | CP-4 | `documentModel` | `EditHistory` | 取り消しの履歴。<br>不変の値として持つ | `FR-031` |
-| CP-5 | `layoutEngine` | `ScheduleLayout` | 時間軸、ラベル幅の概算、`Rows` の配置、表示量の増減、全体を収める表示 | `FR-017` / `FR-093` / `FR-003` / `FR-018` / `FR-055` |
+| CP-5 | `layoutEngine` | `ScheduleLayout` | 時間軸、ラベル幅の概算、`Task Groups` の配置、表示量の増減、全体を収める表示 | `FR-017` / `FR-093` / `FR-003` / `FR-018` / `FR-055` |
 | CP-6 | `layoutEngine` | `ScheduleGeometry` | 描くものの頂点。<br>バー・依存線・イナズマ線・カーソル・注記・透かし | `FR-094` / `FR-009` / `FR-014` |
 | CP-7 | `layoutEngine` | `ItemHitArea` | ポインタが指すアイテムの判定 | 表 T-023c の `SL-1` |
 | CP-8 | `UseCase` | `ApplyDocumentChange` | **文書への書き込みの唯一の経路。<br>** 照合・全か無か・履歴・刻印・通知 | 表 T-042 の `MS-1` / `FR-028` / `AG-2` / `AG-3` / `FR-031` / `FR-063` |
@@ -332,22 +332,22 @@ src/
 | 行 ID | コンポーネント | ユニット | 割った理由 |
 | --- | --- | --- | --- |
 | UT-1 | `ApplyDocumentChange` | `apply-document-change.ts` ／ `document-change-plan.ts` | **純粋性**（表 T-060 の `LY-3`） |
-| UT-2 | `EditDocument` | `edit-document.ts` と、集約ごとの 8 ファイル ／ `deletion-confirmations.ts` ／ `search-jump.ts` | **純粋性ではない** —— 表 T-075 のとおり 11 とも同じである。<br>そのうち 2 つは `UT-9` でさらに割った。<br>**集約ごとに変更の理由が別なので割った** —— タスクの規則が変わっても暦の規則は変わらない<br>`deletion-confirmations.ts` は、削除が負う問い（表 T-050 と 表 T-234 の削除の行）が変わったときに書き直す —— 集約をまたいで数えるので、どの集約のファイルにも置かない。<br>`search-jump.ts` は、検索パネルからの飛び方（`FR-151` の 表 T-332）が変わったときに書き直す —— 行の木と表示の位置をまたいで書くので、どの集約のファイルにも置かない |
+| UT-2 | `EditDocument` | `edit-document.ts` と、集約ごとの 8 ファイル ／ `deletion-confirmations.ts` ／ `search-jump.ts` | **純粋性ではない** —— 表 T-075 のとおり 11 とも同じである。<br>そのうち 2 つは `UT-9` でさらに割った。<br>**集約ごとに変更の理由が別なので割った** —— タスクの規則が変わっても暦の規則は変わらない<br>`deletion-confirmations.ts` は、削除が負う問い（表 T-050 と 表 T-234 の削除の行）が変わったときに書き直す —— 集約をまたいで数えるので、どの集約のファイルにも置かない。<br>`search-jump.ts` は、検索パネルからの飛び方（`FR-151` の 表 T-332）が変わったときに書き直す —— タスクグループの木と表示の位置をまたいで書くので、どの集約のファイルにも置かない |
 | UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts` ／ `change-notice.ts` | **純粋性**（`LY-3`）。<br>⚠️ 選び方の規則は 表 T-035 の `AG-6` にあり、日程データと発話で違う。<br>値だけで決まる |
 | UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` ／ `relayed-call.ts` | **純粋性ではない** —— 表 T-075 のとおり 3 つとも同じである。<br>設置は `FR-065`（既定で公開しない）が、22 メンバは 表 T-107 が、取次が運んだ呼び出しの受け方は 表 T-035 の `AG-12` が縛るので、変更の理由が別である |
 | UT-5 | `DocumentCodec` | `document-codec.ts` ／ `json-codec.ts` ／ `mspdi-codec.ts` ／ `embedded-html-codec.ts` | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。<br>**残りは形式ごとに正が別だからである** —— `GRS JSON` は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
-| UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` ／ `session-effects.ts` ／ `pointer-shape.ts` ／ `held-press-preview.ts` ／ `browser-stored-values.ts` ／ `interaction-record.ts` ／ `view-place.ts` ／ `frame-clock-wakes.ts` ／ `field-entry.ts` ／ `document-file-flow.ts` ／ `watermark-unlock.ts` ／ `row-band-ceiling-cache.ts` ／ `copy-and-paste.ts` ／ `agent-api-relay-link.ts` ／ `wbs-parent-hold.ts` ／ `shown-tasks-hold.ts` | **純粋性ではない** —— 表 T-075 のとおり `held-press-preview.ts` は `semi-pure-b` で、ほかは `non-pure` である。<br>起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。<br>`session-effects.ts` は、副作用の名の全数（表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）と、返った順に 1 つずつ実行すること（表 T-249 の `SF-6`）を負い、フレームの回し方とは変更の理由が互いに素である（表 T-276 の `UD-1`）—— 「副作用が 2 度実行された」「種類の漏れが型検査を通った」は本ファイル、「書き込みの中身が違う」は `frame-loop.ts` の実行の行である（`UD-5`）。<br>`frame-loop.ts` の周期から、変更の理由が別の塊を兄弟へ出した（`UD-1`）—— ブラウザに残す値は 表 T-206 の `S-99`〜`S-99c` の鍵と読めないときの扱いが、ポインタの形は 表 T-269 と 表 T-266 の欄が、表示の場所は `OP-10` と `FR-055` が、透かしの解除は `FR-020` と `S-99c`・`S-101` が、行ズームの天井の使い回しは 表 T-071 の `CA-1` が、掴んで動かす間の先の描画は 表 T-023d が、操作の記録は `FR-102` と 表 T-295 が、時間でフレームを起こす待ちは 表 T-078 の `FT-4` が、名前付けと入力欄は 表 T-292 が、文書のファイルの流れは 表 T-290 と 表 T-024・表 T-024a が、コピーと貼り付けは `FR-033` が、取次へ繋ぐ口は 表 T-035 の `AG-12` が、WBS の親子の見せ方と混ざった選択の 2 択は `FR-135` と 表 T-351 が、表示の絞り込みのチェックは 表 T-353 と `SJ-0` が変わったときに書き直す。<br>兄弟が共有する語彙は `frame-loop.ts` に置き、`frame-loop.ts` が兄弟の名を出し直す。<br>兄弟は閉包の値を、`frame-loop.ts` が 1 度だけ作る手の束（`FrameLoopHands`）から読む —— 状態を覚える兄弟は自分の値だけを持つ小さな作り手であり、ほかは手の束を引数で受ける関数である。<br> ⚠️ **割らないと 1 つのユニットが複数の事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
+| UT-6 | `SingleHtmlShell` | `single-html-shell.ts` ／ `frame-loop.ts` ／ `session-effects.ts` ／ `pointer-shape.ts` ／ `held-press-preview.ts` ／ `browser-stored-values.ts` ／ `interaction-record.ts` ／ `view-place.ts` ／ `frame-clock-wakes.ts` ／ `field-entry.ts` ／ `document-file-flow.ts` ／ `watermark-unlock.ts` ／ `task-group-band-ceiling-cache.ts` ／ `copy-and-paste.ts` ／ `agent-api-relay-link.ts` ／ `parent-task-hold.ts` ／ `shown-tasks-hold.ts` | **純粋性ではない** —— 表 T-075 のとおり `held-press-preview.ts` は `semi-pure-b` で、ほかは `non-pure` である。<br>起動は `FR-067` と `FR-065` が、フレームの走行は 表 T-060 の `LY-5` と 5.6 の ADR-001 が縛るので、変更の理由が別である。<br>`session-effects.ts` は、副作用の名の全数（表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）と、返った順に 1 つずつ実行すること（表 T-249 の `SF-6`）を負い、フレームの回し方とは変更の理由が互いに素である（表 T-276 の `UD-1`）—— 「副作用が 2 度実行された」「種類の漏れが型検査を通った」は本ファイル、「書き込みの中身が違う」は `frame-loop.ts` の実行の行である（`UD-5`）。<br>`frame-loop.ts` の周期から、変更の理由が別の塊を兄弟へ出した（`UD-1`）—— ブラウザに残す値は 表 T-206 の `S-99`〜`S-99c` の鍵と読めないときの扱いが、ポインタの形は 表 T-269 と 表 T-266 の欄が、表示の場所は `OP-10` と `FR-055` が、透かしの解除は `FR-020` と `S-99c`・`S-101` が、縦軸のズームの天井の使い回しは 表 T-071 の `CA-1` が、掴んで動かす間の先の描画は 表 T-023d が、操作の記録は `FR-102` と 表 T-295 が、時間でフレームを起こす待ちは 表 T-078 の `FT-4` が、名前付けと入力欄は 表 T-292 が、文書のファイルの流れは 表 T-290 と 表 T-024・表 T-024a が、コピーと貼り付けは `FR-033` が、取次へ繋ぐ口は 表 T-035 の `AG-12` が、親タスクと子タスクの見せ方と混ざった選択の 2 択は `FR-135` と 表 T-351 が、表示の絞り込みのチェックは 表 T-353 と `SJ-0` が変わったときに書き直す。<br>兄弟が共有する語彙は `frame-loop.ts` に置き、`frame-loop.ts` が兄弟の名を出し直す。<br>兄弟は閉包の値を、`frame-loop.ts` が 1 度だけ作る手の束（`FrameLoopHands`）から読む —— 状態を覚える兄弟は自分の値だけを持つ小さな作り手であり、ほかは手の束を引数で受ける関数である。<br> ⚠️ **割らないと 1 つのユニットが複数の事柄を負い、`R2.2` に反する** —— 5.2 の分割基準が、ユニットの側でも同じことを言う |
 | UT-7 | `ScreenRenderer` | `screen-renderer.ts` と、UI パーツごとの 11 ファイル | **純粋性ではない** —— 表 T-075 のとおり 12 とも同じである。<br>**UI パーツごとに縛る要求が別なので割った**（`UT-2` と同じ形である）—— ヘルプの規則が変わってもプロパティパネルの規則は変わらない。<br>検索パネルは、中身（`search-panel.ts`）と、列の絞り込みと並べ替え（`search-table-filters.ts`）の 2 つに割った —— 絞り込みの規則（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）が変わっても、パネルの中身の組み立ては変わらない |
 | UT-8 | `SvgRenderer` | `svg-renderer.ts` と、描く物ごとの 3 ファイル | **純粋性ではない** —— 表 T-075 のとおり 4 つとも同じである。<br>**描く物ごとに縛る要求が別なので割った**（表 T-276 の `UD-1`）—— 格子の規則（`FR-089`）が変わってもタスクの図の規則（`FR-013`・`FR-075`）は変わらない。<br>依存線をタスクの図と同じユニットに置くのは、両者が同じ変更で動いてきたからである |
 | UT-9 | `EditDocument` | `edit-task.ts` と要求ごとの 5 ファイル ／ `edit-task-group.ts` と要求ごとの 4 ファイル | **純粋性ではない** —— 表 T-075 のとおり 11 とも同じである。<br>**1 つの集約の中でも、要求ごとに変更の理由が別なので割った**（表 T-276 の `UD-1`）—— 完了率の式（`FR-012`）が変わっても、予定と実績の置き方（`FR-011`・`FR-103`）は変わらない。<br>`FR-011` と `FR-103` は同じ変更で動いてきたので 1 つのユニットに置き、`FR-058` の規則は `FR-085` の分岐の中にあるので 1 つのユニットに置いた |
-| UT-10 | `InputCommandTranslator` | `input-command-translator.ts` と、入力の種類と答える表ごとの 13 ファイル | **純粋性ではない** —— 表 T-075 のとおり 14 とも同じである。<br>**入力の種類ごとに、答える表が別なので割った**（表 T-276 の `UD-1`）—— 打鍵の割当（表 T-036）が変わってもホイールの割当（表 T-023 の `MK-1` 〜 `MK-5`）は変わらず、プロパティパネルの入力の型（表 T-016）が変わっても行の掴み（表 T-051 の `HF-15`）は変わらない。<br>14 とも `pure` であることは、割らない理由にならない（`UD-3`）。<br>兄弟が共有する語彙と補助、入口の振り分け（表 T-023a・表 T-109）は公開エントリに置いた |
+| UT-10 | `InputCommandTranslator` | `input-command-translator.ts` と、入力の種類と答える表ごとの 13 ファイル | **純粋性ではない** —— 表 T-075 のとおり 14 とも同じである。<br>**入力の種類ごとに、答える表が別なので割った**（表 T-276 の `UD-1`）—— 打鍵の割当（表 T-036）が変わってもホイールの割当（表 T-023 の `MK-1` 〜 `MK-5`）は変わらず、プロパティパネルの入力の型（表 T-016）が変わってもタスクグループの掴み（表 T-051 の `HF-15`）は変わらない。<br>14 とも `pure` であることは、割らない理由にならない（`UD-3`）。<br>兄弟が共有する語彙と補助、入口の振り分け（表 T-023a・表 T-109）は公開エントリに置いた |
 | UT-11 | `AdvanceScreenSession` | `advance-screen-session.ts` ／ `session-step.ts` ／ 領域ごとのファイル（いまは `screen-values.ts` ／ `notice-values.ts` ／ `gesture-values.ts` ／ `file-flow-values.ts` ／ `field-entry-values.ts` ／ `selection-values.ts` ／ `interaction-record-values.ts` ／ `agent-api-values.ts`） | **変更の理由が 3 つある**（表 T-276 の `UD-1`）—— 公開エントリは領域の合成と、ほかの領域や文書の値を出来事へ詰めることを負い（表 T-249 の `SF-8`）、`session-step.ts` は全領域が共有する 1 段の形を負い（表 T-249 の `SF-2` ・ `SF-3` ・ `SF-4` と 表 T-250 の `SD-3`）、領域ごとのファイルはその領域の出来事と状態機械の表を負う（画面の値は 表 T-280、通知は 表 T-286、身振りは 表 T-289、ファイル操作と問いは 表 T-290、名前付けと入力欄は 表 T-292、選択は 表 T-293、操作の記録は 表 T-295、`Agent API` は 表 T-296）。<br>**純粋性ではない** —— 表 T-075 のとおり 3 つとも `pure` である（`UD-3`）。<br>領域が増えるたびに領域のファイルが 1 つ増える（`UT-2` ・ `UT-7` と同じ形）—— 画面の値の遷移が変わっても 1 段の形は変わらない |
 | UT-12 | `DomScreenSurface` | `dom-screen-surface.ts` と、描く UI パーツごとの 10 ファイルと、欄の編集の 1 ファイル | **純粋性ではない** —— 表 T-075 のとおり 12 とも同じである（表 T-060 の `LY-5` は `Framework` に `semi-pure-b` と `non-pure` しか与えない）。<br>**UI パーツごとに縛る要求が別なので割った**（表 T-276 の `UD-1`、`UT-7` と同じ形である）—— 通知の作法（表 T-037）が変わってもプロパティパネルの入力の型（表 T-016）は変わらない。<br>欄の編集は UI パーツではなく、表 T-028 の `IN-4`・`IN-5a`・`IN-6` が縛るので別のユニットにした。<br>兄弟が共有する語彙（色・入口の寸法と見た目・UI パーツの名）と層の重ね方は公開エントリに置いた |
-| UT-13 | `Schedule` | `schedule.ts` ／ `schedule-entities.ts` ／ `plan-actual-state.ts` ／ `calendar-day.ts` ／ `working-calendar.ts` ／ `task-delay.ts` ／ `stored-colour.ts` ／ `schedule-invariants.ts` ／ `row-names.ts` ／ `schedule-search.ts` ／ `delay-diagnostics.ts` | **純粋性ではない** —— 表 T-075 のとおり 11 とも `pure` である（`UD-3`）。<br>**変更の理由が別なので割った**（表 T-276 の `UD-1`）—— エンティティの型と列と既定の暦は `erd.json` と 表 T-209 が変わったときに `npm run gen` が書き直し、予実の状態の判別は 表 T-019a が、暦の日付の算術は 表 T-033 の `EX-` の行と 表 T-029a の `DC-` の行が、稼働日の数えは `FR-054` と 表 T-214 が、遅れの判別は 表 T-021b が、色の保存の綴りは 表 T-017b が、文書の不変条件は 表 T-220 が、行の名前の導きは `AT-53`・`AT-54` の規則が、検索の当たりは `FR-151` の 表 T-330 の `SV-4` と 表 T-331 が、遅延診断の判じ方は 表 T-310 〜 T-319 が変わったときに人が書き直す。<br>生成の区画を公開エントリではなく兄弟に置いたのは、`working-calendar.ts` がモジュールの頂上で既定の暦を読むからである —— 区画が公開エントリにあると、兄弟が公開エントリから取り込み、公開エントリが兄弟を出し直す輪ができ、読み込みの順によっては読む時に定数がまだ無い。<br>`taskByUid` と、兄弟の名の出し直しは公開エントリに置いた |
-| UT-14 | `ScheduleLayout` | `schedule-layout.ts` ／ `time-axis.ts` ／ `label-width.ts` ／ `assignee-label.ts` ／ `percent-label.ts` ／ `name-label.ts` ／ `shape-cross-sections.ts` ／ `drawn-rows.ts` ／ `group-level-of-detail.ts` ／ `label-placement.ts` ／ `pinned-band.ts` ／ `row-scroll.ts` ／ `fit-zoom.ts` | **純粋性ではない** —— 表 T-075 のとおり 13 とも `pure` である（`UD-3`）。<br>**段ごとに正が別なので割った**（表 T-276 の `UD-1`）—— 表 T-068 の `LC-1` 〜 `LC-9` は `layoutFromSchedule` の 1 回の通り道で、時間軸は `FR-017` と 表 T-252 が、ラベル幅の概算は `FR-093` が、担当の札は `FR-059` が、完了率の札は `FR-090` と `OC-2` が、名称ラベルの字は `FR-002` と `ND-1` 〜 `ND-5` が、形の縦の断面は 表 T-271 と `FR-077` が、描く行の選びは `LC-1` と `HR-2` が、描く行の深さは `FR-018` と 表 T-005a の `L-3` が、札の置き場は `FR-109` と 表 T-272・表 T-273 が、ピン止めの帯は `FR-098` と `LF-14` が、縦の表示位置からのずらしは `OP-10a` が、全体を収める表示は `FR-055` が変わったときに書き直す。<br>行のループ —— 段の割当（`FR-003`・表 T-014）・占有幅の合算（`LC-7`）・帯高（`LC-9`）—— は公開エントリに置き、兄弟へ出したのはループが呼ぶ関数だけである。<br>兄弟が共有する語彙（形の種類・置き場の型・生成の定数）と、兄弟の名の出し直しは公開エントリに置いた |
-| UT-15 | `ScheduleGeometry` | `schedule-geometry.ts` ／ `task-figures.ts` ／ `highlight-box.ts` ／ `dependency-route.ts` ／ `plan-actual-guides.ts` ／ `progress-line.ts` ／ `comment-box.ts` ／ `dual-cursor.ts` ／ `wbs-parent-arrows.ts` | **純粋性ではない** —— 表 T-075 のとおり 9 つとも `pure` である（`UD-3`）。<br>**描くものごとに正が別なので割った**（表 T-276 の `UD-1`）—— タスクの図は `FR-043` と 表 T-012・表 T-021・表 T-240 が、ハイライトボックスの箱は `FR-019` と `CM-52` が、依存線の経路と矢じりは `FR-009` と 表 T-222 が、予実の補助線は `FR-084` と 表 T-020a が、イナズマ線は `FR-014` と 表 T-022 が、コメントボックスは `FR-097` と `S-182` が、`Dual Cursor` は `FR-082` と `CU-2` が、WBS の親子の矢印は `FR-135` と 表 T-351 が変わったときに書き直す。<br>ハイライトボックスはタスクの図と共に変わってきたが、共に変えた変更はどれも多くのファイルに一斉に触れた手直しだったので、名が体を表すように別のユニットにした —— 割ったあと、どちらかに触れる次の 2 件の変更のうち 1 件でも `task-figures.ts` と `highlight-box.ts` の両方に触れたら、1 つに戻す。<br>頂点を 1 度に組み立てる通り道（`LC-10`・`LC-11`）と、兄弟が共有する語彙（頂点の型・1 回の入力 `GeometryInputs`・`point`）と、兄弟の名の出し直しは公開エントリに置いた |
+| UT-13 | `Schedule` | `schedule.ts` ／ `schedule-entities.ts` ／ `plan-actual-state.ts` ／ `calendar-day.ts` ／ `working-calendar.ts` ／ `task-delay.ts` ／ `stored-colour.ts` ／ `schedule-invariants.ts` ／ `task-group-names.ts` ／ `schedule-search.ts` ／ `delay-diagnostics.ts` | **純粋性ではない** —— 表 T-075 のとおり 11 とも `pure` である（`UD-3`）。<br>**変更の理由が別なので割った**（表 T-276 の `UD-1`）—— エンティティの型と列と既定の暦は `erd.json` と 表 T-209 が変わったときに `npm run gen` が書き直し、予実の状態の判別は 表 T-019a が、暦の日付の算術は 表 T-033 の `EX-` の行と 表 T-029a の `DC-` の行が、稼働日の数えは `FR-054` と 表 T-214 が、遅れの判別は 表 T-021b が、色の保存の綴りは 表 T-017b が、文書の不変条件は 表 T-220 が、タスクグループ名の導きは `AT-53`・`AT-54` の規則が、検索の当たりは `FR-151` の 表 T-330 の `SV-4` と 表 T-331 が、遅延診断の判じ方は 表 T-310 〜 T-319 が変わったときに人が書き直す。<br>生成の区画を公開エントリではなく兄弟に置いたのは、`working-calendar.ts` がモジュールの頂上で既定の暦を読むからである —— 区画が公開エントリにあると、兄弟が公開エントリから取り込み、公開エントリが兄弟を出し直す輪ができ、読み込みの順によっては読む時に定数がまだ無い。<br>`taskByUid` と、兄弟の名の出し直しは公開エントリに置いた |
+| UT-14 | `ScheduleLayout` | `schedule-layout.ts` ／ `time-axis.ts` ／ `label-width.ts` ／ `assignee-label.ts` ／ `percent-label.ts` ／ `name-label.ts` ／ `shape-cross-sections.ts` ／ `drawn-task-groups.ts` ／ `group-level-of-detail.ts` ／ `label-placement.ts` ／ `pinned-band.ts` ／ `task-group-scroll.ts` ／ `fit-zoom.ts` | **純粋性ではない** —— 表 T-075 のとおり 13 とも `pure` である（`UD-3`）。<br>**段ごとに正が別なので割った**（表 T-276 の `UD-1`）—— 表 T-068 の `LC-1` 〜 `LC-9` は `layoutFromSchedule` の 1 回の通り道で、時間軸は `FR-017` と 表 T-252 が、ラベル幅の概算は `FR-093` が、担当の札は `FR-059` が、完了率の札は `FR-090` と `OC-2` が、名称ラベルの字は `FR-002` と `ND-1` 〜 `ND-5` が、形の縦の断面は 表 T-271 と `FR-077` が、描くタスクグループの選びは `LC-1` と `HR-2` が、描くタスクグループの深さは `FR-018` と 表 T-005a の `L-3` が、札の置き場は `FR-109` と 表 T-272・表 T-273 が、ピン止めの帯は `FR-098` と `LF-14` が、縦の表示位置からのずらしは `OP-10a` が、全体を収める表示は `FR-055` が変わったときに書き直す。<br>タスクグループのループ —— 段の割当（`FR-003`・表 T-014）・占有幅の合算（`LC-7`）・帯高（`LC-9`）—— は公開エントリに置き、兄弟へ出したのはループが呼ぶ関数だけである。<br>兄弟が共有する語彙（形の種類・置き場の型・生成の定数）と、兄弟の名の出し直しは公開エントリに置いた |
+| UT-15 | `ScheduleGeometry` | `schedule-geometry.ts` ／ `task-figures.ts` ／ `highlight-box.ts` ／ `dependency-route.ts` ／ `plan-actual-guides.ts` ／ `progress-line.ts` ／ `comment-box.ts` ／ `dual-cursor.ts` ／ `parent-task-arrows.ts` | **純粋性ではない** —— 表 T-075 のとおり 9 つとも `pure` である（`UD-3`）。<br>**描くものごとに正が別なので割った**（表 T-276 の `UD-1`）—— タスクの図は `FR-043` と 表 T-012・表 T-021・表 T-240 が、ハイライトボックスの箱は `FR-019` と `CM-52` が、依存線の経路と矢じりは `FR-009` と 表 T-222 が、予実の補助線は `FR-084` と 表 T-020a が、イナズマ線は `FR-014` と 表 T-022 が、コメントボックスは `FR-097` と `S-182` が、`Dual Cursor` は `FR-082` と `CU-2` が、親タスクと子タスクの矢印は `FR-135` と 表 T-351 が変わったときに書き直す。<br>ハイライトボックスはタスクの図と共に変わってきたが、共に変えた変更はどれも多くのファイルに一斉に触れた手直しだったので、名が体を表すように別のユニットにした —— 割ったあと、どちらかに触れる次の 2 件の変更のうち 1 件でも `task-figures.ts` と `highlight-box.ts` の両方に触れたら、1 つに戻す。<br>頂点を 1 度に組み立てる通り道（`LC-10`・`LC-11`）と、兄弟が共有する語彙（頂点の型・1 回の入力 `GeometryInputs`・`point`）と、兄弟の名の出し直しは公開エントリに置いた |
 | UT-16 | `ItemHitArea` | `item-hit-area.ts` ／ `dependency-end.ts` ／ `marquee.ts` ／ `drawn-selection.ts` | **純粋性ではない** —— 表 T-075 のとおり 4 つとも `pure` である（`UD-3`）。<br>**答える問いごとに正が別なので割った**（表 T-276 の `UD-1`）—— ポインタの下の対象と掴み代は `FR-104` と 表 T-023d・表 T-266・表 T-267・表 T-268 が、依存線の端は `FR-009` と `PTD-3` が、範囲選択で囲まれた対象は `SL-3` が、描いているタスクへの選択の絞り込みは `FR-049` と 表 T-023c が変わったときに書き直す。<br>描いた形を掴みの側から読み直す通り道（`shapeOf`）と、兄弟が共有する語彙（対象と当たりの型・図形の算）と、兄弟の名の出し直しは公開エントリに置いた |
-| UT-17 | `DocumentCodec` | `json-codec.ts` ／ `grs-json-schema.ts` ／ `mspdi-codec.ts` ／ `mspdi-xml.ts` ／ `mspdi-child-placement.ts` ／ `mspdi-fade-frames.ts` ／ `mspdi-imported-rows.ts` | **純粋性ではない** —— 表 T-075 のとおり、割ったユニットはどれも `pure` である（`UD-3`）。<br>**1 つの形式の中でも、変更の理由が別なので割った**（表 T-276 の `UD-1`）—— `UT-5` で形式ごとに割ったユニットを、さらに割った。<br>`GRS JSON` の文字列と文書の変換（形式の版の判じ・古い版の補い）は `FR-024` と `FR-073` が、値をスキーマに照らす歩きと節の表は 表 T-220 の前文のスキーマ（`grs-document.schema.json`）が変わったときに書き直す。<br>`MSPDI` の要素の木と文書の写しは `FR-021`・`FR-057` と交換相手のスキーマの列が、XML の文字列と要素の木の変換は XML の構文と `FR-023` の拒みと `CN-5` の書き方が、書き出す要素の子の並びは交換相手のスキーマの子の順（`EX-10`、`mspdi-child-order.json`）が、フェード日数を写す拡張領域の枠は `EX-6`・`EX-8` と枠の名簿（`mspdi-custom-fields.json`）が、取り込んだタスクから作る行と所属は `FR-058` と `AT-51` が変わったときに書き直す。<br>生成の区画は、それを歩く関数と同じユニットに刷る —— `json-codec.ts` は生成の定数を直に読まず、スキーマの根を閉じ込めた関数を兄弟に問う。<br>外れの型は作り手と同じユニットに置き、`json-codec.ts` と `mspdi-codec.ts` が出し直す。<br>`MSPDI` の兄弟が共有する要素の木の語彙（要素の道・葉の読み書き・告知）は公開エントリに置いた |
+| UT-17 | `DocumentCodec` | `json-codec.ts` ／ `grs-json-schema.ts` ／ `mspdi-codec.ts` ／ `mspdi-xml.ts` ／ `mspdi-child-placement.ts` ／ `mspdi-fade-frames.ts` ／ `mspdi-imported-task-groups.ts` | **純粋性ではない** —— 表 T-075 のとおり、割ったユニットはどれも `pure` である（`UD-3`）。<br>**1 つの形式の中でも、変更の理由が別なので割った**（表 T-276 の `UD-1`）—— `UT-5` で形式ごとに割ったユニットを、さらに割った。<br>`GRS JSON` の文字列と文書の変換（形式の版の判じ・古い版の補い）は `FR-024` と `FR-073` が、値をスキーマに照らす歩きと節の表は 表 T-220 の前文のスキーマ（`grs-document.schema.json`）が変わったときに書き直す。<br>`MSPDI` の要素の木と文書の写しは `FR-021`・`FR-057` と交換相手のスキーマの列が、XML の文字列と要素の木の変換は XML の構文と `FR-023` の拒みと `CN-5` の書き方が、書き出す要素の子の並びは交換相手のスキーマの子の順（`EX-10`、`mspdi-child-order.json`）が、フェード日数を写す拡張領域の枠は `EX-6`・`EX-8` と枠の名簿（`mspdi-custom-fields.json`）が、取り込んだタスクから作るタスクグループと所属は `FR-058` と `AT-51` が変わったときに書き直す。<br>生成の区画は、それを歩く関数と同じユニットに刷る —— `json-codec.ts` は生成の定数を直に読まず、スキーマの根を閉じ込めた関数を兄弟に問う。<br>外れの型は作り手と同じユニットに置き、`json-codec.ts` と `mspdi-codec.ts` が出し直す。<br>`MSPDI` の兄弟が共有する要素の木の語彙（要素の道・葉の読み書き・告知）は公開エントリに置いた |
 
 ⭐ **要求の側から「まずどのファイルを開くか」を引けるように、表 T-075 は欄「負う要求」を持つ。**  
 欄に書くのは、その要求が動いたときに**最初に開くユニット**だけであり、その要求に触るファイルの全部ではない。  
@@ -363,7 +363,7 @@ src/
 | 行 ID | 区分 | 定義 | 欄に立つユニット | 例 |
 | --- | --- | --- | --- | --- |
 | OW-1 | 単独 | 規則を決めるユニットが 1 つだけあり、ほかのファイルはその結果を使うだけである。<br>要求が動いても、ほかのファイルの規則は動かない | そのユニット 1 つ | `FR-014`（イナズマ線の頂点）は `schedule-geometry.ts` |
-| OW-2 | 連鎖 | 層を跨ぐことが要求そのものである。<br>入力 → ユースケース → 幾何 → 描画 → DOM と伝わる。<br>跨ぐのは 表 T-061 の依存規則がそう強いているからであり、設計の失敗ではない | 規則の値を持つ最も内側のユニット。<br>外側はそれに従うだけなので、変更はそこから始まる | `FR-085`（行を作る）は `edit-task-group.ts` |
+| OW-2 | 連鎖 | 層を跨ぐことが要求そのものである。<br>入力 → ユースケース → 幾何 → 描画 → DOM と伝わる。<br>跨ぐのは 表 T-061 の依存規則がそう強いているからであり、設計の失敗ではない | 規則の値を持つ最も内側のユニット。<br>外側はそれに従うだけなので、変更はそこから始まる | `FR-085`（タスクグループを作る）は `edit-task-group.ts` |
 | OW-3 | 群 | 同じコンポーネントの兄弟ユニットが並列に分担する。<br>表 T-063 の `UT-2` と `UT-7` が「集約ごと」「UI パーツごと」と言っているのがこの形である | そのコンポーネントの公開エントリ。<br>入口は規則を持たないが、兄弟の全数をそこで読めるので 1 ホップで正しい兄弟に着く | `FR-096`（書き出しの入口を 1 つにする）は `document-codec.ts` |
 | OW-4 | 横断 | ユニットが何をするかではなく、どう書かれるかを縛る。<br>検証の作法・可読の下限・寸法の出どころ・速さの下限などがこれである | 起点のユニット。<br>起点のユニットを持たない要求は本欄に現れず、本節の結びが名指す | `FR-023`（外部入力の検証）は `validate-imported-document.ts` |
 | OW-5 | 全体の性質 | どのユニットの性質でもなく、木の全体の性質である。<br>`OW-4` との境はここである —— `OW-4` はユニットがどう書かれるかを縛り、`OW-5` はどのユニットにも属さない。<br>だから起点はユニットではなく、その要求を確かめる手立て（試験・関門・検査）である | 本欄には立たない。<br>確かめる手立てを、本節の結びが名指す | `NFR-004`（単一ファイル・オフライン）は `tests/system/nfr-004-file-scheme-sweep.sws.test.ts` |
@@ -392,61 +392,61 @@ src/
 | UF-129 | `Schedule` | `task-delay.ts` | `pure` | `Task` が遅れているかと、遅れの稼働日数を表 T-021b の起点と終点から判ずる（`FR-047`） | `FR-047`（`OW-1`） |
 | UF-130 | `Schedule` | `stored-colour.ts` | `pure` | 選んだ色の保存の綴り —— パレット色の名とカスタムカラーの明暗の 2 値 —— を表 T-017b の `CV-1`〜`CV-4` に従って作り・読み・確かめる | — |
 | UF-131 | `Schedule` | `schedule-invariants.ts` | `pure` | 文書の不変条件を表 T-220 の行ごとに判じ、違反の箇所を返す | — |
-| UF-177 | `Schedule` | `row-names.ts` | `pure` | 行の名前を `AT-53` と `AT-54` から導き、最上位までの名前の並びを返す | — |
+| UF-177 | `Schedule` | `task-group-names.ts` | `pure` | タスクグループ名を `AT-53` と `AT-54` から導き、最上位までの名前の並びを返す | — |
 | UF-178 | `Schedule` | `schedule-search.ts` | `pure` | 語に当たるタスクとコメントボックスの行を、表 T-331 の列の値とともに返す（表 T-330 の `SV-4`） | — |
 | UF-184 | `Schedule` | `delay-diagnostics.ts` | `pure` | 遅延診断のレポート（表 T-317）を、進捗妥当性検査（表 T-310 〜 T-312）・ボトルネック検出（表 T-313 ・ 表 T-314 ・ 表 T-316）・明記されていない親（表 T-318）・マイルストーンの先行と達成（表 T-319）から作る | `FR-131`（`OW-1`）・`FR-132`（`OW-1`）・`FR-134`（`OW-2`）・`FR-135`（`OW-1`）・`FR-136`（`OW-1`） |
 | UF-192 | `Schedule` | `delay-diagnostics-report-table.ts` | `pure` | 遅延診断レポートの表（`01-04-requirements.md` の 表 T-347）の行を、`AM-19` と同じレポートから既定の並びで作り、コピーと書き出しの Markdown の文字列（表 T-346 の `RW-6`）を 1 つの関数で作る（`delayDiagnosticsReportMarkdown`） | — |
 | UF-2 | `DocumentSettings` | `document-settings.ts` | `pure` | `CP-2` | `FR-039`（`OW-2`）・`FR-041`（`OW-2`）・`FR-049`（`OW-2`） |
 | UF-3 | `DocumentStamp` | `document-stamp.ts` | `pure` | `CP-3` | `FR-063`（`OW-2`） |
 | UF-4 | `EditHistory` | `edit-history.ts` | `pure` | `CP-4` | `FR-031`（`OW-2`） |
-| UF-5 | `ScheduleLayout` | `schedule-layout.ts` | `pure` | 表 T-068 の順に 1 度だけ通して、タスクと行の置き場を決め、段を割り当てる（`FR-003`・表 T-014） —— 各段の値を兄弟に問い（`LC-1` 〜 `LC-6`）、タスクごとに形・予定の幅・実績とダミーの届き・フェードの切り詰めを測り、占有幅を合算して（`LC-7`・表 T-038）、段の間の隙間（`VG-2`）と帯高と縦位置を決める（`LC-9`）。<br>置き場の型と生成の定数と 1 回の走行の暦の読みを持ち、兄弟の名を束ねて 表 T-064 の `PI-5` のとおりに公開する | `FR-003`（`OW-1`） |
-| UF-132 | `ScheduleLayout` | `time-axis.ts` | `pure` | 日付と横の位置を対応づける時間軸を敷く（`FR-017`・`LC-3`）。<br>ルーラーの粒度を選び（表 T-252、表 T-005a の `L-1`）、目盛を間引き（`LF-1`）、行を置かずに軸だけを答える（`DC-3`） | `FR-017`（`OW-1`） |
+| UF-5 | `ScheduleLayout` | `schedule-layout.ts` | `pure` | 表 T-068 の順に 1 度だけ通して、タスクとタスクグループの置き場を決め、段を割り当てる（`FR-003`・表 T-014） —— 各段の値を兄弟に問い（`LC-1` 〜 `LC-6`）、タスクごとに形・予定の幅・実績とダミーの届き・フェードの切り詰めを測り、占有幅を合算して（`LC-7`・表 T-038）、段の間の隙間（`VG-2`）と帯高と縦位置を決める（`LC-9`）。<br>置き場の型と生成の定数と 1 回の走行の暦の読みを持ち、兄弟の名を束ねて 表 T-064 の `PI-5` のとおりに公開する | `FR-003`（`OW-1`） |
+| UF-132 | `ScheduleLayout` | `time-axis.ts` | `pure` | 日付と横の位置を対応づける時間軸を敷く（`FR-017`・`LC-3`）。<br>ルーラーの粒度を選び（表 T-252、表 T-005a の `L-1`）、目盛を間引き（`LF-1`）、タスクグループを置かずに軸だけを答える（`DC-3`） | `FR-017`（`OW-1`） |
 | UF-133 | `ScheduleLayout` | `label-width.ts` | `pure` | ラベルの幅を、全角 2・半角 1 の単位数 × 字の大きさ × `labelCoef` で概算する（`FR-093`・`LC-5`） | `FR-093`（`OW-1`） |
 | UF-134 | `ScheduleLayout` | `assignee-label.ts` | `pure` | 担当の札の字を、作業資源の名の昇順の先頭 1 名と残りの人数で書く（`FR-059`）。<br>材料・費用・名の空の資源を出さず（`AT-87`・`AT-88`）、担当ラベルが名を出す資源を答える（`AS-1`） | `FR-059`（`OW-2`） |
 | UF-135 | `ScheduleLayout` | `percent-label.ts` | `pure` | 完了率の札の字を整数と `%` で書き、担当の札と 1 枚に繋ぐ（`FR-090`・`OC-2`）。<br>未着手は書かない | `FR-090`（`OW-2`） |
 | UF-136 | `ScheduleLayout` | `name-label.ts` | `pure` | 名称ラベルの字を書く（`FR-002`・`LC-4`） —— 名を打ち切り、予定日を添え、年を書くかを文書全体で決める（`ND-1` 〜 `ND-5`・`S-232`）。<br>予定日の字を名の字の `S-325` 倍で測って、ラベルの幅を答える | `FR-002`（`OW-2`） |
 | UF-137 | `ScheduleLayout` | `shape-cross-sections.ts` | `pure` | 形ごとの縦の断面（表 T-271 の `XS-1` 〜 `XS-9`）を、縦の倍率から決める（表 T-012）。<br>字を可読の下限より小さくせず（`FR-077`）、同じ式を逆に解いて、名の字の大きさから縦の倍率を答える | `FR-077`（`OW-2`） |
-| UF-138 | `ScheduleLayout` | `drawn-rows.ts` | `pure` | 描く行を選ぶ —— 畳んだ行と隠した行を落とし（`LC-1`・`HF-7`・`HR-2`）、残りを木の順に並べる | — |
-| UF-139 | `ScheduleLayout` | `group-level-of-detail.ts` | `pure` | 縦の倍率に応じて描く行の深さを減らす（表 T-005a の `L-3`、`FR-018`・`LC-2`）。<br>`expanded` と `temporarilyExpanded` が残す行を答え（`01-04-requirements.md` の 表 T-329 の `TD-6`・`TD-7`）、深さごとに要る倍率を 1 つの式で答える（`S-87`・`S-88`） | `FR-018`（`OW-2`） |
+| UF-138 | `ScheduleLayout` | `drawn-task-groups.ts` | `pure` | 描くタスクグループを選ぶ —— 畳んだタスクグループと隠したタスクグループを落とし（`LC-1`・`HF-7`・`HR-2`）、残りを木の順に並べる | — |
+| UF-139 | `ScheduleLayout` | `group-level-of-detail.ts` | `pure` | 縦の倍率に応じて描くタスクグループの深さを減らす（表 T-005a の `L-3`、`FR-018`・`LC-2`）。<br>`expanded` と `temporarilyExpanded` が残すタスクグループを答え（`01-04-requirements.md` の 表 T-329 の `TD-6`・`TD-7`）、深さごとに要る倍率を 1 つの式で答える（`S-87`・`S-88`） | `FR-018`（`OW-2`） |
 | UF-140 | `ScheduleLayout` | `label-placement.ts` | `pure` | 札の基準を選び（`RF-1`・`RF-3`、実績の無いタスクではダミーの帯）、名称・進捗マーカー・担当の札を形に隠れない所へ置く（`FR-109`・`LC-6`・表 T-272・表 T-273）。<br>未定の再開アイコンのぶん外へずらす（`GA-20`・`XS-10`） | `FR-109`（`OW-1`） |
-| UF-141 | `ScheduleLayout` | `pinned-band.ts` | `pure` | ピン止めした行を上の帯へ持ち上げ、入りきらない行を落とす（`FR-098`・`LF-14`）。<br>残りの行とタスクを帯の下へずらす | — |
-| UF-142 | `ScheduleLayout` | `row-scroll.ts` | `pure` | 縦の表示位置（`OP-10a`・`S-176`）から、ピン止めでない行とタスクをずらす | — |
+| UF-141 | `ScheduleLayout` | `pinned-band.ts` | `pure` | ピン止めしたタスクグループを上の帯へ持ち上げ、入りきらないタスクグループを落とす（`FR-098`・`LF-14`）。<br>残りのタスクグループとタスクを帯の下へずらす | — |
+| UF-142 | `ScheduleLayout` | `task-group-scroll.ts` | `pure` | 縦の表示位置（`OP-10a`・`S-176`）から、ピン止めでないタスクグループとタスクをずらす | — |
 | UF-143 | `ScheduleLayout` | `fit-zoom.ts` | `pure` | 全体が収まる縦横の倍率と表示位置を求める（`FR-055`・`OP-10`） —— 描く深さを床の倍率で試して選び、横の倍率を `S-75`／`S-76` に収める | `FR-055`（`OW-1`） |
 | UF-6 | `ScheduleGeometry` | `schedule-geometry.ts` | `pure` | 配置から、日程表に描くものの頂点を 1 度に組み立てる（`CP-6`・`LC-10`・`LC-11`） —— 描く設定と選択を 1 回の入力にまとめ（`GeometryInputs`）、兄弟に描くものごとの頂点を問い、基準日線を置く。<br>頂点の型を持ち、兄弟の名を束ねて 表 T-064 の `PI-6` のとおりに公開する | `FR-020`（`OW-2`）・`FR-045`（`OW-2`）・`FR-079`（`OW-4`）・`FR-094`（`OW-4`）・`NFR-013`（`OW-4`） |
 | UF-144 | `ScheduleGeometry` | `task-figures.ts` | `pure` | 1 つのタスクの描く図形の頂点を作る —— 予定・実績・マイルストーンの形、名札と担当の札の箱、進捗マーカー、再開アイコン、ダミー、フェードの掴み点（表 T-012・表 T-021・表 T-240・`LF-6` 〜 `LF-13`）。<br>それらを 1 つのタスクの頂点に組む（`taskGeometryOf`） | `FR-043`（`OW-2`） |
-| UF-171 | `ScheduleGeometry` | `highlight-box.ts` | `pure` | ハイライトボックスの箱を、上下の行と両端の日から置く（`FR-019`）。<br>終わりの日を含め、並びが逆でも min と max で囲み、角の丸みを既定で埋めない（`CM-52`） | — |
+| UF-171 | `ScheduleGeometry` | `highlight-box.ts` | `pure` | ハイライトボックスの箱を、上下のタスクグループと両端の日から置く（`FR-019`）。<br>終わりの日を含め、並びが逆でも min と max で囲み、角の丸みを既定で埋めない（`CM-52`） | — |
 | UF-145 | `ScheduleGeometry` | `dependency-route.ts` | `pure` | 依存線の経路と矢じりを引く（`FR-009`・表 T-018・表 T-018a・表 T-222）。<br>選んだ線を太くし（`SL-8`・`S-447`）、予定日の無いタスクを端にしない（`RT-4a`） | `FR-009`（`OW-1`） |
 | UF-146 | `ScheduleGeometry` | `plan-actual-guides.ts` | `pure` | 予定と実績が離れたとき、実績から予定へ補助線を引く（`FR-084`・表 T-020a） | `FR-084`（`OW-1`） |
-| UF-147 | `ScheduleGeometry` | `progress-line.ts` | `pure` | 基準日のイナズマ線の頂点を打つ（`FR-014`・表 T-022）。<br>タスクを行と段で束ね、頂点を 2 乗の手間で探さない（`NFR-013`） | `FR-014`（`OW-1`） |
+| UF-147 | `ScheduleGeometry` | `progress-line.ts` | `pure` | 基準日のイナズマ線の頂点を打つ（`FR-014`・表 T-022）。<br>タスクをタスクグループと段で束ね、頂点を 2 乗の手間で探さない（`NFR-013`） | `FR-014`（`OW-1`） |
 | UF-148 | `ScheduleGeometry` | `comment-box.ts` | `pure` | コメントボックスの本文を折り返し、本文の箱と引出し線を置く（`FR-097`・`FR-019`・`S-182`）。<br>引出し線は 1 本の経路として答える（`GR-14`） | `FR-097`（`OW-2`） |
 | UF-149 | `ScheduleGeometry` | `dual-cursor.ts` | `pure` | `Dual Cursor` の 2 本の縦線を置く（`FR-082`・`CU-2`） | `FR-082`（`OW-2`） |
-| UF-196 | `ScheduleGeometry` | `wbs-parent-arrows.ts` | `pure` | 家族の WBS の親子の矢印（子から親へ、明記は実線・導いた親は破線）と、親が決まらない子の `?` と候補の番号を置く（`FR-135`・表 T-318・`S-485`・`S-486`）。<br>親の名の色を変える `Task` を答える（`S-398`・`S-399`） | — |
+| UF-196 | `ScheduleGeometry` | `parent-task-arrows.ts` | `pure` | 家族の親タスクと子タスクの矢印（子タスクから親タスクへ、明記は実線・導いた親タスクは破線）と、親が決まらない子の `?` と候補の番号を置く（`FR-135`・表 T-318・`S-485`・`S-486`）。<br>親の名の色を変える `Task` を答える（`S-398`・`S-399`） | — |
 | UF-7 | `ItemHitArea` | `item-hit-area.ts` | `pure` | ポインタの下の対象と掴み代を 1 つに決める（`CP-7`・表 T-023d・表 T-266・表 T-267・表 T-268・`FR-104`） —— 描いた形を掴みの側から読み直し（`shapeOf`）、掴み代の大きさを 表 T-206 から 1 組で答える。<br>兄弟が使う図形の算を持ち、兄弟の名を束ねて 表 T-064 の `PI-7` のとおりに公開する | `FR-104`（`OW-1`）・`FR-105`（`OW-2`）・`FR-108`（`OW-2`） |
 | UF-150 | `ItemHitArea` | `dependency-end.ts` | `pure` | 構えが依存線のとき、予定の帯の左半分・右半分から依存線の端を答える（`FR-009`・`PTD-3`）。<br>実績の帯へは落ちず（`FR-009` の MUST NOT）、押したときの当たりから起点を答える | — |
 | UF-151 | `ItemHitArea` | `marquee.ts` | `pure` | 範囲選択の矩形に完全に囲まれた対象を返す（`SL-3`）。<br>返す順は、タスク・依存線・コメントボックス・ハイライトボックスの決まった順である（`SL-7b`） | — |
-| UF-169 | `ItemHitArea` | `drawn-selection.ts` | `pure` | 選択を、描いているタスクだけに絞る（表 T-023c・`FR-049`） —— 描いているかを 表 T-240 の図から判じる（`isTaskDrawn`）。<br>何も外れないときは同じ物を返し、選んだ順を保つ（`SL-7b`）<br>フレームで使う絞り込み（`selectionWithinDrawnRows`）は、表 T-023c が名指さない行のタスクを残し、掴んで動かす間の下書きの絵では絞らない | — |
+| UF-169 | `ItemHitArea` | `drawn-selection.ts` | `pure` | 選択を、描いているタスクだけに絞る（表 T-023c・`FR-049`） —— 描いているかを 表 T-240 の図から判じる（`isTaskDrawn`）。<br>何も外れないときは同じ物を返し、選んだ順を保つ（`SL-7b`）<br>フレームで使う絞り込み（`selectionWithinDrawnTaskGroups`）は、表 T-023c が名指さないタスクグループのタスクを残し、掴んで動かす間の下書きの絵では絞らない | — |
 | UF-8 | `ApplyDocumentChange` | `apply-document-change.ts` | `non-pure` | 確定と通知 | — |
 | UF-9 | `ApplyDocumentChange` | `document-change-plan.ts` | `pure` | 照合と、全か無かの組み立て | `FR-095`（`OW-2`） |
 | UF-10 | `EditDocument` | `edit-document.ts` | `pure` | 集約ごとの 8 ファイルと `deletion-confirmations.ts` を束ねて公開する | `FR-007`（`OW-3`）・`FR-032`（`OW-3`） |
 | UF-11 | `EditDocument` | `edit-task.ts` | `pure` | `Task` の命令を受け、要求を負う規則は兄弟のユニットへ委ねて、新しい文書を返す | — |
 | UF-72 | `EditDocument` | `task-create.ts` | `pure` | 構えた形状で、期間を持つタスクを 1 つ立てる | `FR-001`（`OW-2`） |
-| UF-73 | `EditDocument` | `task-paste.ts` | `pure` | 選んだタスクだけをコピーし、選ばれていない WBS の子孫はコピーしない | `FR-033`（`OW-2`） |
+| UF-73 | `EditDocument` | `task-paste.ts` | `pure` | 選んだタスクだけをコピーし、選ばれていない子孫タスクはコピーしない | `FR-033`（`OW-2`） |
 | UF-74 | `EditDocument` | `task-plan-actual.ts` | `pure` | 予定と実績の日付を、表 T-245・表 T-019・表 T-021a に従って置く | `FR-011`（`OW-2`）・`FR-044`（`OW-2`）・`FR-103`（`OW-2`） |
 | UF-75 | `EditDocument` | `percent-complete.ts` | `pure` | 完了率を、稼働日で数えた実績と予定から算出し直す。<br>文書の全 `Task` を数え直して、値が変わった `Task` を答える —— 暦の編集（`UF-16`）と `GRS JSON` の読み（`UF-35`）が同じ式を呼ぶ | `FR-012`（`OW-2`） |
 | UF-76 | `EditDocument` | `task-appearance.ts` | `pure` | タスクの見た目 —— 形・図形・色・線の太さ・名の置き場・フェードの日数 —— を書き換える | `FR-083`（`OW-2`） |
 | UF-12 | `EditDocument` | `edit-task-group.ts` | `pure` | `TaskGroup` の命令を受け、要求を負う規則は兄弟のユニットへ委ねて、新しい文書を返す | `FR-111`（`OW-2`） |
-| UF-77 | `EditDocument` | `task-group-naming.ts` | `pure` | 行を、名か由来を持つものとして立て、名を付け替える | `FR-058`（`OW-2`）・`FR-085`（`OW-2`） |
-| UF-78 | `EditDocument` | `task-group-look.ts` | `pure` | 行の色と最小の高さを書き換える | `FR-042`（`OW-2`） |
-| UF-79 | `EditDocument` | `task-group-folding.ts` | `pure` | 行の木の状態を、1 行または全行について書き換え、入口ごとの先の値を `_assets/tbl-state-machines.md` の 表 T-328 の遷移表から引く | `FR-004`（`OW-2`） |
-| UF-80 | `EditDocument` | `task-group-order.ts` | `pure` | 兄弟の行の並びと親を、表 T-015a に従って変える | `FR-005`（`OW-2`） |
+| UF-77 | `EditDocument` | `task-group-naming.ts` | `pure` | タスクグループを、名か由来を持つものとして立て、名を付け替える | `FR-058`（`OW-2`）・`FR-085`（`OW-2`） |
+| UF-78 | `EditDocument` | `task-group-look.ts` | `pure` | タスクグループの色と最小の高さを書き換える | `FR-042`（`OW-2`） |
+| UF-79 | `EditDocument` | `task-group-folding.ts` | `pure` | タスクグループの木の状態を、1 つのタスクグループまたは全タスクグループについて書き換え、入口ごとの先の値を `_assets/tbl-state-machines.md` の 表 T-328 の遷移表から引く | `FR-004`（`OW-2`） |
+| UF-80 | `EditDocument` | `task-group-order.ts` | `pure` | 兄弟のタスクグループの並びと親を、表 T-015a に従って変える | `FR-005`（`OW-2`） |
 | UF-13 | `EditDocument` | `edit-dependency.ts` | `pure` | `Dependency` の編集 | — |
 | UF-14 | `EditDocument` | `edit-annotation.ts` | `pure` | 注記（`CommentBox` と `HighlightBox`）の編集 | `FR-019`（`OW-2`） |
 | UF-15 | `EditDocument` | `edit-resource.ts` | `pure` | `Resource` と `Assignment` の編集 | `FR-008`（`OW-2`） |
 | UF-16 | `EditDocument` | `edit-calendar.ts` | `pure` | `Calendar` の編集。<br>例外日の日付の時刻を揃えるのは本ユニットだけである（`_assets/tbl-glossary.md` の `CM-39`）。 | `FR-088`（`OW-2`） |
 | UF-17 | `EditDocument` | `edit-project.ts` | `pure` | `Project` の編集 | `FR-035`（`OW-2`）・`FR-046`（`OW-2`） |
 | UF-18 | `EditDocument` | `edit-document-settings.ts` | `pure` | `DocumentSettings` の編集 | — |
-| UF-162 | `EditDocument` | `deletion-confirmations.ts` | `pure` | 削除が消すもの・解くものを数え、表 T-234 の問い（`QN-1`・`QN-2`・`QN-3`・`QN-10`）を立てるかを決める（`FR-032`・`FR-099`） —— 行と共に消える行とタスクを数え（表 T-050 の `CD-1`・`CD-2`・`CD-6`）、担当の外しで解かれるタスクを並べる（`CD-5`）<br>告げ方（表 T-037 の `NT-7`）は持たない | — |
-| UF-179 | `EditDocument` | `search-jump.ts` | `pure` | 飛ぶ先の行と祖先を開き、表示を寄せる書き込みを、表 T-332 に従って作る | — |
+| UF-162 | `EditDocument` | `deletion-confirmations.ts` | `pure` | 削除が消すもの・解くものを数え、表 T-234 の問い（`QN-1`・`QN-2`・`QN-3`・`QN-10`）を立てるかを決める（`FR-032`・`FR-099`） —— タスクグループと共に消えるタスクグループとタスクを数え（表 T-050 の `CD-1`・`CD-2`・`CD-6`）、担当の外しで解かれるタスクを並べる（`CD-5`）<br>告げ方（表 T-037 の `NT-7`）は持たない | — |
+| UF-179 | `EditDocument` | `search-jump.ts` | `pure` | 飛ぶ先のタスクグループと祖先を開き、表示を寄せる書き込みを、表 T-332 に従って作る | — |
 | UF-19 | `ImportDocument` | `import-document.ts` | `pure` | `CP-10` | `FR-015`（`OW-2`）・`FR-022`（`OW-2`）・`FR-056`（`OW-1`）・`FR-087`（`OW-1`） |
 | UF-20 | `UndoEdit` | `undo-edit.ts` | `pure` | `CP-11` | — |
 | UF-21 | `RedoEdit` | `redo-edit.ts` | `pure` | `CP-12` | — |
@@ -459,15 +459,15 @@ src/
 | UF-28 | `AgentApiEndpoint` | `agent-api-members.ts` | `non-pure` | 表 T-107 の 22 メンバの結線 | `FR-028`（`OW-2`） |
 | UF-185 | `AgentApiEndpoint` | `relayed-call.ts` | `non-pure` | 取次が運んだ呼び出しを 1 つずつ、表 T-107 の同じ確定名のメンバへ渡し、答えを運べる値にして返す（`answerRelayedCall`） —— 画像のバイト列は base64 の文字列にし、購読した変更と発話は渡された送り口へ流す（`_assets/design-mcp-relay.md` の 3.2 ・ 3.3）。<br>呼び出しと答えの型（`RelayedCall` ・ `RelayedAnswer`）を宣言する | — |
 | UF-29 | `AgentApiEndpoint` | `snapshot-source.ts` | `—` | `SnapshotSource` の宣言（`IF-7`） | — |
-| UF-30 | `InputCommandTranslator` | `input-command-translator.ts` | `pure` | `CP-18` の残り —— 入力の種類と押した所から、答える兄弟を選ぶ（表 T-023a・表 T-109）。<br>兄弟が共有する語彙と補助 —— 出力の型、日と行の座標、スクロールの錨 —— を持つ。<br>行の軸の上限の字と帯を、コピーせずに `PI-5`・`PI-37` へ問う | `FR-016`（`OW-3`）・`FR-034`（`OW-1`）・`FR-040`（`OW-4`）・`FR-070`（`OW-3`） |
+| UF-30 | `InputCommandTranslator` | `input-command-translator.ts` | `pure` | `CP-18` の残り —— 入力の種類と押した所から、答える兄弟を選ぶ（表 T-023a・表 T-109）。<br>兄弟が共有する語彙と補助 —— 出力の型、日とタスクグループの座標、スクロールの錨 —— を持つ。<br>縦軸の上限の字と帯を、コピーせずに `PI-5`・`PI-37` へ問う | `FR-016`（`OW-3`）・`FR-034`（`OW-1`）・`FR-040`（`OW-4`）・`FR-070`（`OW-3`） |
 | UF-90 | `InputCommandTranslator` | `shortcut-keys.ts` | `pure` | 打鍵を、表 T-036 の割当に従って操作へ変える | — |
 | UF-91 | `InputCommandTranslator` | `wheel-input.ts` | `pure` | ホイールの回転を、表 T-023 の `MK-1` 〜 `MK-5` に従ってスクロールかズームへ変える | — |
 | UF-92 | `InputCommandTranslator` | `zoom-and-fit.ts` | `pure` | 日程表の倍率を決めて書き込む —— 1 段のズームと、全体を収めること | — |
-| UF-93 | `InputCommandTranslator` | `display-scale-steps.ts` | `pure` | 表示の倍率を 1 段動かし、`Row Area` の中点の日と行を留める（`FR-039`・表 T-252） | — |
+| UF-93 | `InputCommandTranslator` | `display-scale-steps.ts` | `pure` | 表示の倍率を 1 段動かし、`Task Group Area` の中点の日とタスクグループを留める（`FR-039`・表 T-252） | — |
 | UF-94 | `InputCommandTranslator` | `frame-drags.ts` | `pure` | 画面の枠の UI パーツ —— パレットの掴み帯・スクロールバー・パネルの境 —— を引いた量を、位置と幅の書き込みに変える | — |
 | UF-95 | `InputCommandTranslator` | `dual-cursor-input.ts` | `pure` | `Dual Cursor` の入口の押下とチャートの押下を、表 T-029a に従って日の置き場と追う側に変える | — |
-| UF-96 | `InputCommandTranslator` | `row-tree-entrances.ts` | `pure` | 行の畳み・開き・隠し・足しの入口を、表 T-015・表 T-051・表 T-328 に従って書き込みに変える | — |
-| UF-97 | `InputCommandTranslator` | `row-grab.ts` | `pure` | 掴んだ行を 表 T-051 の `HF-15` に従って運び、落ち先を並びか深さの書き込みに変える | — |
+| UF-96 | `InputCommandTranslator` | `task-group-tree-entrances.ts` | `pure` | タスクグループの畳み・開き・隠し・足しの入口を、表 T-015・表 T-051・表 T-328 に従って書き込みに変える | — |
+| UF-97 | `InputCommandTranslator` | `task-group-grab.ts` | `pure` | 掴んだタスクグループを 表 T-051 の `HF-15` に従って運び、落ち先を並びか深さの書き込みに変える | — |
 | UF-98 | `InputCommandTranslator` | `item-grab.ts` | `pure` | チャートの上で掴んだアイテムを離したとき、掴んだ所（表 T-266・表 T-023d）ごとに、置く値（表 T-245・表 T-246・表 T-270）を書き込みに変える | — |
 | UF-99 | `InputCommandTranslator` | `armed-placement.ts` | `pure` | 構え（表 T-023b）を、ドラッグした範囲か、選んでいるタスクに当てて書き込みに変える | — |
 | UF-100 | `InputCommandTranslator` | `field-commit.ts` | `pure` | プロパティパネルで確定した値を、表 T-016 の入力の型に従って 表 T-108 の命令にする | — |
@@ -476,17 +476,17 @@ src/
 | UF-31 | `InputCommandTranslator` | `input-source.ts` | `—` | `InputSource` の宣言（`IF-2`） | — |
 | UF-32 | `SvgRenderer` | `svg-renderer.ts` | `pure` | `CP-19` の残り —— 1 枚の SVG を、表 T-020 の順に層を重ねて組み立てる。<br>層の並びを決めるのは本ユニットだけであり、兄弟は層ごとの文字列の列を返す | `FR-080`（`OW-2`）・`FR-110`（`OW-1`）・`NFR-007`（`OW-4`） |
 | UF-81 | `SvgRenderer` | `schedule-task-figures.ts` | `pure` | タスクごとの図 —— 予定・実績・ガイド・ダミー・選択枠・フェードの掴み点・進捗マーカー・再開アイコン・札 —— と、タスクを結ぶ依存線 | `FR-013`（`OW-2`）・`FR-075`（`OW-2`） |
-| UF-82 | `SvgRenderer` | `schedule-grid.ts` | `pure` | チャートの格子 —— 行の帯と横罫、日付の縦罫、目盛の帯 —— を 1 つの刻みから描く | `FR-089`（`OW-2`） |
+| UF-82 | `SvgRenderer` | `schedule-grid.ts` | `pure` | チャートの格子 —— タスクグループの帯と横罫、日付の縦罫、目盛の帯 —— を 1 つの刻みから描く | `FR-089`（`OW-2`） |
 | UF-83 | `SvgRenderer` | `schedule-overlays.ts` | `pure` | タスクに属さない重ね描き —— 進捗線・状態線・二重カーソル・ガイドカーソル・注記・透かし | — |
 | UF-33 | `SvgRenderer` | `svg-surface.ts` | `—` | `SvgSurface` の宣言（`IF-1`） | — |
 | UF-34 | `DocumentCodec` | `document-codec.ts` | `pure` | 3 つの符号器を束ねて公開する | `FR-096`（`OW-3`） |
 | UF-35 | `DocumentCodec` | `json-codec.ts` | `pure` | `GRS JSON` の文字列と文書を相互に変える（`FR-024`・`FR-073`） —— 形式の版を判じて新しい版の知らない鍵を並べて捨て（`OP-7`・`FR-073`）、退いた列を外し（表 T-297）、古い版の欠けた列を埋め（`AT-141`〜`AT-143`・`GP-1`）、`documentSettings` の解釈できない鍵を捨てるか既定値に戻し（`OP-6`）、スキーマの外れで拒み（`RS-25`・`RS-64`）、設定値を範囲へ寄せて数え（`OP-6`・`PI-2`）、完了率を日付から数え直して数える（`FR-012`・`RS-52`）。<br>スキーマに照らす問いは兄弟に問い、外れの型を出し直す | `FR-024`（`OW-1`）・`FR-073`（`OW-2`） |
 | UF-152 | `DocumentCodec` | `grs-json-schema.ts` | `pure` | `GRS JSON` のスキーマ（表 T-220 の前文、`grs-document.schema.json`）を持ち、それに照らして答える —— 値の外れを並べ（`FR-023`・`RS-25`）、実体を持つ集まりの名を答える（表 T-297）。<br>節の表は生成器が刷り、11 の語だけを解し、知らない鍵の外れを名乗らせる（`isUnknownKeyFault`）。<br>日時の `pattern` と形式の版の `const` は節の表に刷らない —— 日時は `FR-023` が、版は `FR-073` が判じる（Chapter 6.1） | — |
-| UF-36 | `DocumentCodec` | `mspdi-codec.ts` | `pure` | `MSPDI` の要素の木と文書を、列ごとに相互に写す（`FR-021`・`FR-057`） —— 読まない子を `carry` に控えて書くとき元の位置へ戻し（`DF-3`・`MR-3`・`RS-60`）、プロジェクトの要約タスクを `Task` にせず原形のまま控え（`MR-4`・`EX-5`）、版を判じ（`EX-1`・`AT-143`）、書き出すときに作る値を作り（表 T-059）、実績の長さを停止日に直し（`FR-011`・`AT-141`）、制約の 2 列を写す（`EX-11`・`EX-12`）。<br>XML の文字列と要素の木の変換は `mspdi-xml.ts` に、書き出す要素の子の並び（`EX-10`）は `mspdi-child-placement.ts` に、フェード日数と拡張領域の枠（`EX-6`・`EX-8`）は `mspdi-fade-frames.ts` に、取り込んだタスクの行と所属（`FR-058`）は `mspdi-imported-rows.ts` に問う。<br>兄弟が使う要素の木の語彙と、外へ見せる入口と型を持ち、外れの型を出し直す | `FR-021`（`OW-2`）・`FR-057`（`OW-1`） |
+| UF-36 | `DocumentCodec` | `mspdi-codec.ts` | `pure` | `MSPDI` の要素の木と文書を、列ごとに相互に写す（`FR-021`・`FR-057`） —— 読まない子を `carry` に控えて書くとき元の位置へ戻し（`DF-3`・`MR-3`・`RS-60`）、プロジェクトの要約タスクを `Task` にせず原形のまま控え（`MR-4`・`EX-5`）、版を判じ（`EX-1`・`AT-143`）、書き出すときに作る値を作り（表 T-059）、実績の長さを停止日に直し（`FR-011`・`AT-141`）、制約の 2 列を写す（`EX-11`・`EX-12`）。<br>XML の文字列と要素の木の変換は `mspdi-xml.ts` に、書き出す要素の子の並び（`EX-10`）は `mspdi-child-placement.ts` に、フェード日数と拡張領域の枠（`EX-6`・`EX-8`）は `mspdi-fade-frames.ts` に、取り込んだタスクのタスクグループと所属（`FR-058`）は `mspdi-imported-task-groups.ts` に問う。<br>兄弟が使う要素の木の語彙と、外へ見せる入口と型を持ち、外れの型を出し直す | `FR-021`（`OW-2`）・`FR-057`（`OW-1`） |
 | UF-153 | `DocumentCodec` | `mspdi-xml.ts` | `pure` | XML の文字列と要素の木を相互に変える。<br>宣言に無い属性と、定義の無い実体参照を拒み（`FR-023`）、入れ子を明示のスタックで読み、UTF-8 の宣言と名前空間を置いて書く（`CN-5`） | — |
 | UF-154 | `DocumentCodec` | `mspdi-child-placement.ts` | `pure` | 書き出す要素の子を、交換相手のスキーマの `xsd:sequence` の順に置く（`EX-10`） —— 持ち回った子を届いた順で戻し、宣言の無い子を宣言された隣に付ける。<br>順の名簿（`pj15` だけが宣言する子の印を含む）を `mspdi-child-order.json` から持ち、`xsd:all` の親と名簿に無い親の子は届いた順に置く | — |
 | UF-155 | `DocumentCodec` | `mspdi-fade-frames.ts` | `pure` | フェード日数を、`MSPDI` の拡張領域の枠と相互に写す（`EX-6`・`EX-8`） —— 枠の定義を 1 度だけ書く。<br>名簿（`mspdi-custom-fields.json`）の順に使われていない枠を探し、取込元の枠を上書きせず、書けなければ告げ、読むときは `Alias` で名乗った枠だけを取る | — |
-| UF-156 | `DocumentCodec` | `mspdi-imported-rows.ts` | `pure` | 取り込んだタスクの WBS の木から、行と所属を作る（`FR-058`）。<br>子を持たないタスクには行を作らず親の行へ載せ、`maxGroupDepth` の深さで止めて、深いタスクは最も深い祖先の行へ載せ、行の ID をタスクの UID から作る（`AT-51`） | — |
+| UF-156 | `DocumentCodec` | `mspdi-imported-task-groups.ts` | `pure` | 取り込んだタスクの WBS の木から、タスクグループと所属を作る（`FR-058`）。<br>子を持たないタスクにはタスクグループを作らず親のタスクグループへ載せ、`maxGroupDepth` の深さで止めて、深いタスクは最も深い祖先のタスクグループへ載せ、タスクグループの ID をタスクの UID から作る（`AT-51`） | — |
 | UF-37 | `DocumentCodec` | `embedded-html-codec.ts` | `semi-pure-b` | 単一 `.html` の書き出しと、埋め込まれた文書の取り出し | `FR-067`（`OW-2`） |
 | UF-38 | `DocumentCodec` | `app-shell-source.ts` | `—` | `AppShellSource` の宣言（`IF-8`） | — |
 | UF-39 | `ImageExporter` | `image-exporter.ts` | `semi-pure-b` | `CP-21` の残り | `FR-025`（`OW-2`） |
@@ -496,7 +496,7 @@ src/
 | UF-45 | `ClipboardGateway` | `clipboard-gateway.ts` | `non-pure` | `CP-24` の残り | — |
 | UF-46 | `ClipboardGateway` | `clipboard.ts` | `—` | `Clipboard` の宣言（`IF-5`） | — |
 | UF-47 | `SingleHtmlShell` | `single-html-shell.ts` | `non-pure` | 起動と結線（順序は 表 T-077）、埋め込みの入れ物、公開点を置くこと、`AppShellSource` の実装 | `NFR-011`（`OW-2`） |
-| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持（保存しない画面とセッションの値は、セッションの現在値（`PI-39` の `ScreenSession`）1 つとして持つ。<br>出来事は 1 本の送り口 `sendToSession` だけを通し、`advanceScreenSession` で 1 段進めて参照を差し替え、返った副作用をその同じ呼び出しの中で `UF-123` の実行に渡す —— `SF-6` ・ `SF-7`。<br>`Esc` の段は `escapeTarget` で決めて 1 段 1 行で送る（表 T-283）。<br>描き手へは根の状態と `ScreenViewReadings` を渡す）、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある。<br>ポインタの形は `pointer-shape.ts` に、掴んで動かす間の先の描画は `held-press-preview.ts` に、ブラウザに残す値の読み書きは `browser-stored-values.ts` に、操作の記録は `interaction-record.ts` に、表示の場所は `view-place.ts` に、時間でフレームを起こす待ちは `frame-clock-wakes.ts` に、名前付けと入力欄の出来事は `field-entry.ts` に、文書のファイルの流れは `document-file-flow.ts` に、透かしの解除の門は `watermark-unlock.ts` に、行ズームの天井の使い回しは `row-band-ceiling-cache.ts` に、コピーと貼り付けは `copy-and-paste.ts` に問う。<br>削除が負う問いを立てるかは `EditDocument`（`PI-9`）に問い、告げ方（`NT-7`）だけを添える。<br>兄弟が共有する語彙（問いの型・告げ方）と、兄弟が閉包の値を読む手の束（`FrameLoopHands`）を持つ。<br>⚠️ 本ユニットは `R2.2a` と `R2.2b` を満たさない —— セッションを 1 段進めることとフレームを計算して配ることが 1 つの周期に残る。<br>2 つは多くの変更で共に書き換わってきたので、いまは 1 つの周期に置く | `FR-068`（`OW-2`）・`FR-100`（`OW-2`）・`NFR-002`（`OW-4`）・`NFR-003`（`OW-4`）・`NFR-010`（`OW-1`） |
+| UF-48 | `SingleHtmlShell` | `frame-loop.ts` | `non-pure` | 現在値の保持（保存しない画面とセッションの値は、セッションの現在値（`PI-39` の `ScreenSession`）1 つとして持つ。<br>出来事は 1 本の送り口 `sendToSession` だけを通し、`advanceScreenSession` で 1 段進めて参照を差し替え、返った副作用をその同じ呼び出しの中で `UF-123` の実行に渡す —— `SF-6` ・ `SF-7`。<br>`Esc` の段は `escapeTarget` で決めて 1 段 1 行で送る（表 T-283）。<br>描き手へは根の状態と `ScreenViewReadings` を渡す）、フレームを起こす契機の観測（表 T-078）、フレーム先頭の収集と計算、描画と入力への配り、`SnapshotSource` の実装、全画面表示をブラウザに求めることと、ブラウザが告げた全画面表示の変化を 表 T-206 の `S-99f` へ写すこと（`FR-071`）。<br>⭐ 全画面表示の求めは、入口の入力（表 T-078 の `FT-1`）を受けたその呼び出しの中で、フレームを待たずに出すこと（MUST） —— ブラウザは利用者の操作による活性の中で出された求めしか受け付けず、活性をどこまで持ち越すかはブラウザごとに違うので、入力を受けた呼び出しの中で出すことだけが、どのブラウザでも活性の中にある。<br>ポインタの形は `pointer-shape.ts` に、掴んで動かす間の先の描画は `held-press-preview.ts` に、ブラウザに残す値の読み書きは `browser-stored-values.ts` に、操作の記録は `interaction-record.ts` に、表示の場所は `view-place.ts` に、時間でフレームを起こす待ちは `frame-clock-wakes.ts` に、名前付けと入力欄の出来事は `field-entry.ts` に、文書のファイルの流れは `document-file-flow.ts` に、透かしの解除の門は `watermark-unlock.ts` に、縦軸のズームの天井の使い回しは `task-group-band-ceiling-cache.ts` に、コピーと貼り付けは `copy-and-paste.ts` に問う。<br>削除が負う問いを立てるかは `EditDocument`（`PI-9`）に問い、告げ方（`NT-7`）だけを添える。<br>兄弟が共有する語彙（問いの型・告げ方）と、兄弟が閉包の値を読む手の束（`FrameLoopHands`）を持つ。<br>⚠️ 本ユニットは `R2.2a` と `R2.2b` を満たさない —— セッションを 1 段進めることとフレームを計算して配ることが 1 つの周期に残る。<br>2 つは多くの変更で共に書き換わってきたので、いまは 1 つの周期に置く | `FR-068`（`OW-2`）・`FR-100`（`OW-2`）・`NFR-002`（`OW-4`）・`NFR-003`（`OW-4`）・`NFR-010`（`OW-1`） |
 | UF-157 | `SingleHtmlShell` | `pointer-shape.ts` | `non-pure` | 指している掴み代に応じて、表 T-269 のポインタの形を描いて返す（`IN-2`・`FR-106`） —— 形の選び方は 表 T-266 の欄から読み、押している間は押した点の形を保ち、依存線を構えているあいだは形を出さない | `FR-106`（`OW-1`） |
 | UF-158 | `SingleHtmlShell` | `held-press-preview.ts` | `semi-pure-b` | 掴んで動かす間、離したときの結果を先に描く文書と依存線を作る（表 T-023d・`PTD-3`・`PTD-5`・`FR-009`） —— 先に描く掴みの行を持ち、範囲選択の矩形を求め、保持中の文書から 1 度だけ当てる。<br>拒まれた引きは描かない | — |
 | UF-159 | `SingleHtmlShell` | `browser-stored-values.ts` | `non-pure` | ブラウザに残す値（表 T-206 の `S-99`〜`S-99c`）を読み書きし、GRS リセット（`01-04-requirements.md` の `FR-153`）では同書の 表 T-345 が「消す」とする鍵を消す —— 起動時の画面の言語と `Agent API` の記憶を読む（`FR-038`・`FR-065`）。<br>鍵に共通の接頭辞を付け、読めない値は無いものとし、書けないときは何もしない。<br>⭐ 消すときも、共通の接頭辞で `GRS` の鍵を見分け、ほかの鍵に触れない（同表の `WP-6`） | `FR-153`（`OW-1`） |
@@ -506,13 +506,13 @@ src/
 | UF-164 | `SingleHtmlShell` | `field-entry.ts` | `non-pure` | 名前付けと入力欄の領域（表 T-292）の出来事を、面と機械の間で運ぶ —— 焦点の求めと再試行（`MK-13`・`IN-5a`・`IN-5b`）、知らせの汲み出し（`IF-9`）、確定の書き込み（`SK-19`）。<br>状態を読む前に知らせを汲み、動いた選択も求めを取り下げる | — |
 | UF-165 | `SingleHtmlShell` | `document-file-flow.ts` | `non-pure` | 文書のファイルの流れ（表 T-290）—— 開く・保存する・書き出す・渡された文書とドロップされたファイルを取り込む —— をファイルの門を通して運ぶ。<br>開く前に検証して使えない日付のタスクを落とし（`FR-023`）、開き方・合流の対応・上書きの問いの答えを待ち（`QN-4`・`QN-5`・`OP-3`・表 T-032a）、失敗を 表 T-233 の理由で告げる | — |
 | UF-166 | `SingleHtmlShell` | `watermark-unlock.ts` | `non-pure` | 透かしの解除の門（`FR-020`・`U-60`） —— 答えの SHA-256 を、記憶の値（`S-99c`、無ければ `S-101`）と照らす。<br>SHA-256 を求められない環境では、合わない答えとして `RS-41` を告げる | — |
-| UF-167 | `SingleHtmlShell` | `row-band-ceiling-cache.ts` | `non-pure` | 行ズームの天井（`FR-016`、`rowBandCeilingOf`）を、帯を変えない入力のあいだ使い回す（表 T-071 の `CA-1` の ②） —— 帯を変えない設定の列（縦の倍率と表示の位置）は鍵から外す | — |
-| UF-168 | `SingleHtmlShell` | `copy-and-paste.ts` | `non-pure` | 選んだ行かタスクをコピーし、コピーしたものを貼る命令を作る（`FR-033`・`SK-4`・`SK-5`・`DU-2`） —— 重ねの上限を超える貼り付けは告げて止め、貼る先が 2 つ以上なら貼らない | — |
+| UF-167 | `SingleHtmlShell` | `task-group-band-ceiling-cache.ts` | `non-pure` | 縦軸のズームの天井（`FR-016`、`taskGroupBandCeilingOf`）を、帯を変えない入力のあいだ使い回す（表 T-071 の `CA-1` の ②） —— 帯を変えない設定の列（縦の倍率と表示の位置）は鍵から外す | — |
+| UF-168 | `SingleHtmlShell` | `copy-and-paste.ts` | `non-pure` | 選んだタスクグループかタスクをコピーし、コピーしたものを貼る命令を作る（`FR-033`・`SK-4`・`SK-5`・`DU-2`） —— 重ねの上限を超える貼り付けは告げて止め、貼る先が 2 つ以上なら貼らない | — |
 | UF-123 | `SingleHtmlShell` | `session-effects.ts` | `non-pure` | 状態機械が返した副作用を、返った順に 1 つずつ種類ごとの実行へ渡すこと（`runSessionEffects`）と、その実行の表の型（`EffectRunners` —— 副作用の種類の全数を 1 つ残らず求める。<br>全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）、まだ結線していない領域の種類の置き場（`unwiredEffect` —— 呼ばれたら投げる。<br>シェルはその領域の出来事を送らないので届かない） | — |
 | UF-188 | `SingleHtmlShell` | `agent-api-relay-link.ts` | `non-pure` | 取次が配ったページで、`Agent API` が有効であり URL の断片に鍵があるあいだだけ、同じ origin の WebSocket で取次へ繋ぎ、届いた呼び出しを `answerRelayedCall` へ渡して答えを返す（表 T-035 の `AG-12` の ② ⑦、`_assets/design-mcp-relay.md` の 3.2） —— 無効になれば閉じる | — |
 | UF-195 | `SingleHtmlShell` | `delay-diagnostics-report-window.ts` | `non-pure` | 遅延診断レポートの窓の入口に答える —— 表と枠の入口は窓の値へ、`IC-108` はクリップボードへ、`IC-140` は `.md` のファイルへ（`01-04-requirements.md` の 表 T-346） | — |
-| UF-197 | `SingleHtmlShell` | `wbs-parent-hold.ts` | `non-pure` | 親子判別の入切（`S-484`、`IC-141`）と、描く家族の持ち主（`FR-135`）と、混ざった選択の 2 択（表 T-234 の `QN-12`、表 T-351 の `WL-13`・`WL-14`）を持つ —— 親の答えは文書が変わったときだけ求め直す | — |
-| UF-198 | `SingleHtmlShell` | `shown-tasks-hold.ts` | `non-pure` | 検索パネルのチェック（`S-494`・`S-495`）を、文書と画面に合わせて保つ（表 T-353） —— 文書から消えたタスクを外し（`TV-2`）、作ったタスクと飛ぶ先を足し（`TV-7`・`SJ-0`）、新しく表示に入ったタスクの行を開き（`TV-6`）、文書を置き換えたら絞り込みを終え（`TV-9`）、描く集合を絵へ渡し（`TV-1`・`TV-3`）、Agent API の読み書き（`AM-26`・`AM-27`）に応える | — |
+| UF-197 | `SingleHtmlShell` | `parent-task-hold.ts` | `non-pure` | 親タスク表示の入切（`S-484`、`IC-141`）と、描く家族の持ち主（`FR-135`）と、混ざった選択の 2 択（表 T-234 の `QN-12`、表 T-351 の `PTL-13`・`PTL-14`）を持つ —— 親の答えは文書が変わったときだけ求め直す | — |
+| UF-198 | `SingleHtmlShell` | `shown-tasks-hold.ts` | `non-pure` | 検索パネルのチェック（`S-494`・`S-495`）を、文書と画面に合わせて保つ（表 T-353） —— 文書から消えたタスクを外し（`TV-2`）、作ったタスクと飛ぶ先を足し（`TV-7`・`SJ-0`）、新しく表示に入ったタスクのタスクグループを開き（`TV-6`）、文書を置き換えたら絞り込みを終え（`TV-9`）、描く集合を絵へ渡し（`TV-1`・`TV-3`）、Agent API の読み書き（`AM-26`・`AM-27`）に応える | — |
 | UF-49 | `DomSvgSurface` | `dom-svg-surface.ts` | `non-pure` | `CP-26` | — |
 | UF-50 | `DomInputSource` | `dom-input-source.ts` | `non-pure` | `CP-27` | — |
 | UF-51 | `FileSystemAccessFileStore` | `file-system-access-file-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-28` | — |
@@ -526,7 +526,7 @@ src/
 | UF-60 | `ScreenRenderer` | `screen-renderer.ts` | `pure` | UI パーツごとの 11 ファイルを束ねて公開し、画面の言語とヘルプの言語を運ぶ（`FR-038`） | `FR-029`（`OW-3`）・`FR-038`（`OW-3`） |
 | UF-61 | `ScreenRenderer` | `screen-frame.ts` | `pure` | `App Header`・`Panel Divider`・`Scrollbars` の割り付け（`FR-051` / `FR-052`）、つまみが表す全体の測り（`GR-21` —— 内容の範囲といま見えている範囲の和。<br>押した時点の全体を保つのは値を持つ `SingleHtmlShell` である）と、全画面表示かどうか（表 T-206 の `S-99f`）を記述へ運ぶこと（`FR-071`）。<br>⚠️ 画面を広げるのはブラウザであり、本ユニットは全画面表示のために割り付けを変えない | `FR-052`（`OW-2`） |
 | UF-62 | `ScreenRenderer` | `app-header-items.ts` | `pure` | `Branding` の字と押した先の所（`FR-051` の 表 T-349）・`Document Title`（`FR-035`）・`Opened File Name` と `File Saved At`（`FR-101`）・`Agent API` が有効であることの表示（`FR-065`）・画面の言語の切替（`FR-038`）。<br>⚠️ **`FR-101` の「名前を時刻の上に置く」は本ユニットの責務ではない** —— 本ユニットは名前と時刻と大きさの 3 つの値を運ぶだけであり、**順序を運ぶ欄を持たない**。<br>上下の関係を負うのは `UF-104` である | — |
-| UF-63 | `ScreenRenderer` | `row-title-panel.ts` | `pure` | `Row Title Panel` と `Row Title Tree`（`FR-085` / `FR-005` / `FR-098`） | `FR-098`（`OW-2`） |
+| UF-63 | `ScreenRenderer` | `task-group-panel.ts` | `pure` | `Task Group Panel` と `Task Group Title Tree`（`FR-085` / `FR-005` / `FR-098`） | `FR-098`（`OW-2`） |
 | UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） | `FR-006`（`OW-2`）・`FR-072`（`OW-1`） |
 | UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） | `FR-078`（`OW-2`） |
 | UF-66 | `ScreenRenderer` | `open-modals.ts` | `pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）—— `FR-036` / `FR-074` / `FR-099` / `FR-088` | `FR-036`（`OW-2`）・`FR-074`（`OW-2`）・`FR-099`（`OW-2`） |
@@ -542,7 +542,7 @@ src/
 | UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38` の残り —— UI パーツを 表 T-337 の重ね順に重ね、記述の変わった UI パーツだけを兄弟に描かせ、画面の点がどの UI パーツのどの入口の上かを答える（`IF-9`）。<br>ヘッダの高さを測って知らせ、パネルと通知の置き場を決める（`FR-051`）。<br>表示の倍率の告げ（`SE-4`・`SE-5`）を描く。<br>兄弟が共有する語彙 —— 色（表 T-236・`FR-041`）・入口の寸法と見た目（`FR-029`・表 T-237）・見た目の表・UI パーツの名 —— を持つ。<br>⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは兄弟の `UF-104` である** —— `Opened File Name` を `File Saved At` の上に置く。<br>⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と `UF-104` のどちらが正かが読めなくなる | `FR-152`（`OW-1`） |
 | UF-103 | `DomScreenSurface` | `screen-frame-drawing.ts` | `non-pure` | `Panel Divider` の掴み帯と線、`Scrollbars` の溝とつまみを、記述の矩形のとおりに描く（`U-21`・`U-24`・`SC-4`・`GR-22`）。<br>パネルの境の線を記述から引く | — |
 | UF-104 | `DomScreenSurface` | `app-header-drawing.ts` | `non-pure` | `App Header` の中身 —— `Branding`・文書名・ファイルの名と保存の時刻と大きさ・ヘッダの入口 —— を描く（`U-31`）。<br>`Branding` を文書名の左の席に押せる字として置いて縦線で隔て（`FR-051` の 表 T-349）、文書名を `FR-039` の太さで描き、名前を時刻の上に置き（`FR-101`）、時刻と大きさを 表 T-341 のとおり綴り、2 段を `App Header` の高さに数えずに置き（`HS-8`）、題と 2 段に縦線の右の幅を分け合わせて題を上の層に置き（`HS-9`・`HS-10`）、画面の言語の入口に言語の略号を添える（`IC-21`） | `FR-101`（`OW-2`） |
-| UF-105 | `DomScreenSurface` | `row-title-panel-drawing.ts` | `non-pure` | `Row Title Tree` の行を、表 T-051 の操作子・掴み代・畳んだ数とともに描く（`U-22`・`FR-098`）。<br>パネルの角の入口（`HF-10`・`HF-12`・`HF-16`・`HF-17`）を描き、描いた操作子の格子の高さを測って知らせる（表 T-221 の `LF-16`・`HF-19`） | — |
+| UF-105 | `DomScreenSurface` | `task-group-panel-drawing.ts` | `non-pure` | `Task Group Title Tree` のタスクグループを、表 T-051 の操作子・掴み代・畳んだ数とともに描く（`U-22`・`FR-098`）。<br>パネルの角の入口（`HF-10`・`HF-12`・`HF-16`・`HF-17`）を描き、描いた操作子の格子の高さを測って知らせる（表 T-221 の `LF-16`・`HF-19`） | — |
 | UF-106 | `DomScreenSurface` | `properties-panel-drawing.ts` | `non-pure` | `Properties Panel` の欄を、表 T-016 の入力の型ごとの操作子として描く（`U-25`・`FR-006`・`FR-072`）。<br>長い値を折り返して高さを伸ばし、出口の入口を最初の欄の行に置く | — |
 | UF-107 | `DomScreenSurface` | `field-editing.ts` | `non-pure` | 文字入力の欄の編集 —— 焦点を持つ・`Esc` で打つ前へ戻す・`Enter` と欄の外の押しで確定する —— を 表 T-028 の `IN-4`・`IN-6` と `SK-19` に従って扱い、確定した値を欄の行 ID とともに返す（`IF-9`）。<br>欄はプロパティパネルの欄・文書名（`U-27`）・透かし解除の答え（`U-60`）である。<br>入力中かを答え（`IN-5a`）、立っている通知が `Enter` と `Esc` を先に取る（`NT-8`） | — |
 | UF-108 | `DomScreenSurface` | `command-palette-drawing.ts` | `non-pure` | `Command Palette` —— 掴み帯・最小化・群と区切り線 —— を描く（`U-26`・`FR-053`・`GR-19`）。<br>区切り線の太さと間は `S-143` から読む | — |
@@ -661,8 +661,8 @@ src/
 **ピン止めは、指す先が無くなってはならない（MUST NOT）** —— 消すときに一緒に外すことを 表 T-050 の `CD-2` が定めており、宙吊りは文書が壊れていることを表す。
 
 **縦の並びを決める軸が 2 本ある。**  
-一方は WBS で、`Task.wbsParentUid` が持ち、深さに上限を課さず、交換相手へ書き出す。  
-もう一方は行で、`TaskGroup` と `TaskGroupMember` が持ち、深さに上限を課し、交換相手へ書き出さない。  
+一方は WBS で、`Task.parentTaskUid` が持ち、深さに上限を課さず、交換相手へ書き出す。  
+もう一方はタスクグループで、`TaskGroup` と `TaskGroupMember` が持ち、深さに上限を課し、交換相手へ書き出さない。  
 **どちらの深さをどう扱うかは `FR-004` が定める。**
 
 **2 本に分けたのは、交換相手が木を 1 本しか持たないためである。**  
@@ -794,11 +794,11 @@ src/
 
 保存しない状態の状態機械（5.6 の ADR-002）の原稿は `_source/state-machines.json` である。  
 原稿から、領域ごとの出来事の定義・優先順の表と、状態機械ごとの状態遷移図・状態遷移表・状態の一覧を生成し、TypeScript の判別共用体と初期値を生成する。  
-遷移表の定数は、それを読むコードがあるユニットにだけ生成する（いまは行の木の `task-group-folding.ts` だけ）—— ほかの領域の遷移の関数はその定数を読まず、表との一致は領域ごとの契約試験が確かめる（表 T-250 の `SD-3`、表 T-285 の `RA-6`）。  
+遷移表の定数は、それを読むコードがあるユニットにだけ生成する（いまはタスクグループの木の `task-group-folding.ts` だけ）—— ほかの領域の遷移の関数はその定数を読まず、表との一致は領域ごとの契約試験が確かめる（表 T-250 の `SD-3`、表 T-285 の `RA-6`）。  
 手で書くのは各領域の遷移の関数だけである。  
 原稿に載せるのは、要求が名指す状態・出来事・遷移だけとする（MUST）。  
 実装の都合の細部は状態の種類を増やさず、状態が運ぶ値としてコードが持つ。  
-⚠️ 文書のデータの状態は、表 T-250 の `SD-5` の行の木を除いて原稿に入れない（図 F-018 を含む）。  
+⚠️ 文書のデータの状態は、表 T-250 の `SD-5` のタスクグループの木を除いて原稿に入れない（図 F-018 を含む）。  
 原稿が持つもの・持たないものを 表 T-250 に示す。
 
 **表 T-250 — 状態機械の原稿が持つもの**
@@ -809,7 +809,7 @@ src/
 | SD-2 | 出来事 | キー（名は `領域/キー`）、どこから来るか（入力の行・副作用の結果・時間）、運ぶ値の名前。<br>領域ごとに 1 度だけ定め、いくつの状態機械を動かしても定め直さない | 画面の語（辞書が持つ） |
 | SD-3 | 状態遷移表 | 状態機械ごとに、出来事 × いまの状態 の升。<br>升は先の状態（同じ状態機械の状態）、ガード（名前、またはほかの状態機械がいる状態）、副作用の名前と引数、根拠の行を持つ。<br>升の無い組は変化なし（同じ参照）である | ガードの条件式と副作用の中身（コードが持つ）。<br>⭐ 表と関数のずれは、領域ごとの契約試験（すべての状態と出来事の組で先の状態の種類が表と一致し、表に無い組では同じ参照を返す）が止める |
 | SD-4 | 領域をまたぐ優先順 | 奪い合う出来事、順を決めた要求の行、段ごとの状態のキー | **順そのものの正**（`IN-4` などの要求の行が持つ） |
-| SD-5 | 文書のデータの状態 | 行の木（`TaskGroup.treeState`、`_assets/fig-erd-detail.md` の `AT-153`）だけは、保存する値でも原稿に置く。<br>その領域は、出来事・状態遷移表・状態遷移図・状態の一覧と、遷移表の定数だけを生成する | 状態の型（`erd.json` の列挙が持ち、原稿の状態のキーはその値と同じ並びとする）、根の値、`step`（値は書き込みの唯一の経路で書き換わる —— 表 T-249 の `SF-10`） |
+| SD-5 | 文書のデータの状態 | タスクグループの木（`TaskGroup.treeState`、`_assets/fig-erd-detail.md` の `AT-153`）だけは、保存する値でも原稿に置く。<br>その領域は、出来事・状態遷移表・状態遷移図・状態の一覧と、遷移表の定数だけを生成する | 状態の型（`erd.json` の列挙が持ち、原稿の状態のキーはその値と同じ並びとする）、根の値、`step`（値は書き込みの唯一の経路で書き換わる —— 表 T-249 の `SF-10`） |
 
 第 1 領域（画面の値）の出来事・状態機械・状態遷移表を `_assets/tbl-state-machines.md` の 表 T-280 に、状態遷移を 図 F-026 に示す。  
 第 2 領域（通知）のそれらを同じファイルの 表 T-286 に、状態遷移を 図 F-029 に示す。  
@@ -819,7 +819,7 @@ src/
 第 6 領域（選択）のそれらを同じファイルの 表 T-293 に、状態遷移を 図 F-039 に示す。  
 第 7 領域（操作の記録）のそれらを同じファイルの 表 T-295 に、状態遷移を 図 F-041 に示す。  
 第 8 領域（`Agent API`）のそれらを同じファイルの 表 T-296 に、状態遷移を 図 F-042 に示す。  
-第 9 領域（行の木）のそれらを同じファイルの 表 T-328 に、状態遷移を 図 F-043 に示す。  
+第 9 領域（タスクグループの木）のそれらを同じファイルの 表 T-328 に、状態遷移を 図 F-043 に示す。  
 領域をまたぐ優先順（`SD-4`）を同じファイルの 表 T-283 に示す。  
 順そのものの正は `IN-4` ・ `SK-19` ・ `NT-7` の行である。  
 状態機械・状態・出来事・遷移は、番号ではなく名で指す。  
@@ -872,16 +872,16 @@ stateDiagram-v2
 
 | 行 ID | 順 | 計算 | 主な入力 | 正 |
 | --- | :-: | --- | --- | --- |
-| LC-1 | 1 | 人が畳んだ行と非表示の行を落とす | 畳みの状態 | 表 T-051 の `HF-7` |
-| LC-2 | 2 | 表示量を増減し、描く対象を決める | 縦横の倍率 ／ 行の木の状態（`01-04-requirements.md` の 表 T-329） | `FR-018` ／ 表 T-005a |
+| LC-1 | 1 | 人が畳んだタスクグループと非表示のタスクグループを落とす | 畳みの状態 | 表 T-051 の `HF-7` |
+| LC-2 | 2 | 表示量を増減し、描く対象を決める | 縦横の倍率 ／ タスクグループの木の状態（`01-04-requirements.md` の 表 T-329） | `FR-018` ／ 表 T-005a |
 | LC-3 | 3 | 時間軸を敷く（日付 → x） | 倍率・表示位置 | `FR-017` |
 | LC-4 | 4 | ラベルを打ち切る | `truncateUnits` | `01-04-requirements.md` の `FR-002` |
 | LC-5 | 5 | ラベルの幅を概算する | 単位数 × フォント × `labelCoef` | `FR-093` |
 | LC-6 | 6 | ラベルの置き場所を決める | 幅と基準の幅 | `01-04-requirements.md` の `FR-109` の 表 T-272 と 表 T-273 |
 | LC-7 | 7 | 占有幅を合算する | 外へ出したラベル・担当・完了率 | 表 T-038 |
 | LC-8 | 8 | 段を割り当てる | 占有幅 | 表 T-014 の `ST-2` / `ST-3` |
-| LC-9 | 9 | 行を木の順に並べ、帯高と縦位置を決める | 段数・行の親子 | 表 T-014 の `ST-9` ／ `AT-55` |
-| LC-10 | 10 | 依存線の経路を引き、端点が見えていない線を省く | 端点の座標 ／ `Row Area` と帯（表 T-221 の `LF-14`） | 表 T-018a ／ `01-04-requirements.md` の 表 T-303 |
+| LC-9 | 9 | タスクグループを木の順に並べ、帯高と縦位置を決める | 段数・タスクグループの親子 | 表 T-014 の `ST-9` ／ `AT-55` |
+| LC-10 | 10 | 依存線の経路を引き、端点が見えていない線を省く | 端点の座標 ／ `Task Group Area` と帯（表 T-221 の `LF-14`） | 表 T-018a ／ `01-04-requirements.md` の 表 T-303 |
 | LC-11 | 11 | 描くものの頂点を作る | 上のすべて | `FR-094` |
 
 上から順に 1 度だけ通ること（MUST）。  
@@ -891,17 +891,17 @@ stateDiagram-v2
 **干渉は `LC-8` の貪欲割当が解く。**
 
 **`LC-1` が `LC-2` より先なのは `HF-7` が定めている** —— 人が畳んだ状態は表示量の増減より強い。  
-**`LC-10` が `LC-2` より後なのは `RT-4a` と `01-04-requirements.md` の 表 T-303 が定めている** —— 端点のどちらかが描かれていない依存線は引かず、グループ LOD が描かない行の端点と、人が畳んだ行・隠した行の配下の端点は、描かれている最も近い祖先の行に立てる（同表の `EL-2` ・ `EL-20`）。
-描かれている祖先が無い隠した行の配下の端点は、`LC-9` の木の順でその端の行より前に描かれているスクロールする行のうち最後の行の下端に立てる（同表の `EL-20`）。
+**`LC-10` が `LC-2` より後なのは `RT-4a` と `01-04-requirements.md` の 表 T-303 が定めている** —— 端点のどちらかが描かれていない依存線は引かず、グループ LOD が描かないタスクグループの端点と、人が畳んだタスクグループ・隠したタスクグループの配下の端点は、描かれている最も近い祖先のタスクグループに立てる（同表の `EL-2` ・ `EL-20`）。
+描かれている祖先が無い隠したタスクグループの配下の端点は、`LC-9` の木の順でその端のタスクグループより前に描かれているスクロールするタスクグループのうち最後のタスクグループの下端に立てる（同表の `EL-20`）。
 
-**`LC-9` が行を並べる順は木の順とすること（MUST）** —— 親の行の直下にその配下を置き、同じ親の下では `_assets/fig-erd-detail.md` の `AT-55` の昇順に並べる。  
-**深さの順に並べてはならない（MUST NOT）** —— 同じ深さの行が塊になり、**親とその配下が画面の離れた場所に出る。**  
-行が画面に収まりきらないとき、上端に来るのが根ばかりになり、**木を持つ文書が階層の無い一覧に見える。**  
-⚠️ **`LC-1` と `LC-2` が落とした行は、この順から抜けるだけである** —— 残った行どうしの前後は変わらない。  
-行の縞（`FR-042`）が数える「行の位置」も、この順での位置とすること（MUST） —— 別の順で数えると、同じ文書で縞の向きと並びが食い違う。
+**`LC-9` がタスクグループを並べる順は木の順とすること（MUST）** —— 親のタスクグループの直下にその配下を置き、同じ親の下では `_assets/fig-erd-detail.md` の `AT-55` の昇順に並べる。  
+**深さの順に並べてはならない（MUST NOT）** —— 同じ深さのタスクグループが塊になり、**親とその配下が画面の離れた場所に出る。**  
+タスクグループが画面に収まりきらないとき、上端に来るのが根ばかりになり、**木を持つ文書が階層の無い一覧に見える。**  
+⚠️ **`LC-1` と `LC-2` が落としたタスクグループは、この順から抜けるだけである** —— 残ったタスクグループどうしの前後は変わらない。  
+タスクグループの縞（`FR-042`）が数える「タスクグループの位置」も、この順での位置とすること（MUST） —— 別の順で数えると、同じ文書で縞の向きと並びが食い違う。
 
-⭐ フレームの 1 回のほかに本表を走らせてよいのは、全体を収める表示（`FR-055`）と、画像を書き出すとき（`01-04-requirements.md` の `FR-080`・`FR-025`）と、`PI-5` の `rowPlacesAtZoomY` に問う 3 つの道 —— `FR-016` の行の軸の錨、`FR-016` の行の軸の上限（帯の側、`01-04-requirements.md` の 表 T-253）、`FR-039` の表示の倍率を変えたときの錨 —— だけである。  
-⭐ どれも `layoutEngine`（`CP-5`）の中でのみ走らせること（MUST）—— ⚠️ 行の高さと縦位置を決める `LC-9` は本表の中にあるので、候補の倍率での行の位置は本表をもう 1 度走らせることでしか得られない。  
+⭐ フレームの 1 回のほかに本表を走らせてよいのは、全体を収める表示（`FR-055`）と、画像を書き出すとき（`01-04-requirements.md` の `FR-080`・`FR-025`）と、`PI-5` の `taskGroupPlacesAtZoomY` に問う 3 つの道 —— `FR-016` の縦軸の錨、`FR-016` の縦軸の上限（帯の側、`01-04-requirements.md` の 表 T-253）、`FR-039` の表示の倍率を変えたときの錨 —— だけである。  
+⭐ どれも `layoutEngine`（`CP-5`）の中でのみ走らせること（MUST）—— ⚠️ タスクグループの高さと縦位置を決める `LC-9` は本表の中にあるので、候補の倍率でのタスクグループの位置は本表をもう 1 度走らせることでしか得られない。  
 ⭐ 全体を収める表示は、下の表のとおり本表を 2 回まで走らせる。  
 2 つの錨は、候補の倍率で 1 回ずつ走らせる。  
 ⭐ 書き出しは、書き出す 1 枚ごとに 1 回走らせる —— 全体表示時の期間を固定していなければ（`01-04-requirements.md` の `FR-055` の 表 T-367 の `FX-1`）画面と同じ区画と倍率で、固定していれば `01-04-requirements.md` の 表 T-241 の `IX-13` の区画と 1 日の幅、`IX-14` の縦のズーム 1 で走らせる。  
@@ -911,7 +911,7 @@ stateDiagram-v2
 
 | 回 | すること |
 | --- | --- |
-| 1 | 人が全体表示を求めたとき（表 T-051 の `HF-8`）は、人が畳んだ状態をすべて捨て、`expanded` と `temporarilyExpanded` も 表 T-328 の `fitPressed` のとおり `auto` へ戻したものとして走らせる。<br>⛔ 起動のときの全体表示（`01-04-requirements.md` の 表 T-024a の `OP-10`）では捨てない —— 同行が `HF-8` を働かせることを禁じているので、文書が持つ畳みと開きのまま走らせ、`LC-1` が落とした行の深さは数えない。<br>そのうえで、帯の高さが `FR-094` の床に達する倍率で、その文書が持つすべての深さを通して `LC-1` 〜 `LC-9` を走らせ、**表 T-038 の実寸を段ごとに得る**。<br>⭐ その床より下では絵が倍率に依らないので、1 回測れば床の内側に収まる段の縦幅は算術で出る |
+| 1 | 人が全体表示を求めたとき（表 T-051 の `HF-8`）は、人が畳んだ状態をすべて捨て、`expanded` と `temporarilyExpanded` も 表 T-328 の `fitPressed` のとおり `auto` へ戻したものとして走らせる。<br>⛔ 起動のときの全体表示（`01-04-requirements.md` の 表 T-024a の `OP-10`）では捨てない —— 同行が `HF-8` を働かせることを禁じているので、文書が持つ畳みと開きのまま走らせ、`LC-1` が落としたタスクグループの深さは数えない。<br>そのうえで、帯の高さが `FR-094` の床に達する倍率で、その文書が持つすべての深さを通して `LC-1` 〜 `LC-9` を走らせ、**表 T-038 の実寸を段ごとに得る**。<br>⭐ その床より下では絵が倍率に依らないので、1 回測れば床の内側に収まる段の縦幅は算術で出る |
 | — | **採った段が床の内側の倍率で描けるなら、それで決まる** |
 | 2 | **採った段が床より上の倍率を要するときだけ**もう 1 度通し、その倍率での実寸を見て、**収まらなければ 1 つ浅い段へ退く** |
 
@@ -1048,7 +1048,7 @@ stateDiagram-v2
 
 ADR-001 — 画面の矩形とレイアウトと幾何をフレーム先頭で 1 回だけ計算する
 
-**Context** —— **表 T-068 の 11 段を必要とする経路が 1 フレームに 4 本ある** —— `SvgRenderer`（目盛と行）／ `ScheduleGeometry`（座標）／ `InputCommandTranslator`（ポインタ → 日付）／ `ItemHitArea`（当たり判定）。  
+**Context** —— **表 T-068 の 11 段を必要とする経路が 1 フレームに 4 本ある** —— `SvgRenderer`（目盛とタスクグループ）／ `ScheduleGeometry`（座標）／ `InputCommandTranslator`（ポインタ → 日付）／ `ItemHitArea`（当たり判定）。  
 **どのコンポーネントもインスタンスを持たないので**（5.3）、各々が自分で計算すると同じ 11 段が 4 回走る。
 
 **Decision** —— `SingleHtmlShell` がフレームの先頭で 1 回計算し、そのフレームのあいだ配る。  
@@ -1066,7 +1066,7 @@ ADR-001 — 画面の矩形とレイアウトと幾何をフレーム先頭で 1
 
 | 行 ID | 事項 | 内容 |
 | --- | --- | --- |
-| CA-1 | 何をキャッシュするか | そのフレームの `ScreenRegions` と `ScheduleLayout` と `ScheduleGeometry`（後の 2 つは 表 T-068 の結果）。<br>⚠️ **文書そのものはキャッシュではない** —— 現在値であり、持ち主は `LY-5` が定めている<br>⭐ ほかに、自分の鍵で失効する持ち越しを 2 つ持つ。<br>① 全体表示が選んだ表示位置（表 T-024a の `OP-10`）—— 鍵は画面の環境であり、文書が表示位置を持ったとき、別の文書になったとき、環境が変わったときに捨てる。<br>② 行の軸のズームの上限（`FR-016`）—— 鍵は帯を組む材料（日程データの群、ズームとスクロール位置を除く文書の設定、描く横の倍率、`Row Area` の矩形、段 0 の畳み、ズームの下限と上限）であり、どれかが変わったときに作り直す |
+| CA-1 | 何をキャッシュするか | そのフレームの `ScreenRegions` と `ScheduleLayout` と `ScheduleGeometry`（後の 2 つは 表 T-068 の結果）。<br>⚠️ **文書そのものはキャッシュではない** —— 現在値であり、持ち主は `LY-5` が定めている<br>⭐ ほかに、自分の鍵で失効する持ち越しを 2 つ持つ。<br>① 全体表示が選んだ表示位置（表 T-024a の `OP-10`）—— 鍵は画面の環境であり、文書が表示位置を持ったとき、別の文書になったとき、環境が変わったときに捨てる。<br>② 縦軸のズームの上限（`FR-016`）—— 鍵は帯を組む材料（日程データの群、ズームとスクロール位置を除く文書の設定、描く横の倍率、`Task Group Area` の矩形、段 0 の畳み、ズームの下限と上限）であり、どれかが変わったときに作り直す |
 | CA-2 | 無効化の契機 | **フレームの先頭。<br>** そのフレームのあいだは作り直さない。<br>⚠️ `NFR-010` により、表 T-078 の契機が 1 つも無いフレームはそもそも走らない<br>⚠️ `CA-1` の後段の 2 つはフレームの先頭で作り直さない —— 自分の鍵が変わったときにだけ作り直す |
 | CA-3 | 許容する陳腐化 | **1 フレームぶん。<br>** ⚠️ **フレームの途中で文書が変わることは無い** —— 身振りの最中の書き込みは 表 T-035 の `AG-9` が、通知の配布中の書き込みは 表 T-067 の `WS-2` が拒否する。<br>⚠️ 人の応答を待つファイル操作（表 T-066 の `CS-4`）はフレームをまたぐが、着地は `WS-6` なので、やはりフレームの途中では変わらない |
 | CA-4 | 同時失効時の挙動 | **同時に失効する複数のキャッシュを持たない。<br>** 持ち主は `SingleHtmlShell` ただ 1 つで、`CA-1` の 3 つは同じ契機で同時に作り直される。<br>**1 つだけが古いという状態を作ってはならない（MUST NOT）**<br>⚠️ 自分の鍵で失効する `CA-1` の後段の 2 つは、本行の外である —— 鍵が同じあいだは古くならない |
@@ -1262,7 +1262,7 @@ flowchart TB
 **文書の不変条件の全数を 表 T-220 に示す** —— 表 T-060 の `LY-1` が、その全数を本節が持つと定めている。  
 `scheduleViolations`（表 T-064 の `PI-1`）は本表を駆動して回ること（MUST）。  
 ⭐ 本表の行は、操作が終わった文書について判ずること（MUST） —— 操作の途中の文書を数え上げると、偽の違反が出る。  
-⚠️ ユースケースの層は行が 0 の文書を返す —— 1 行が戻るのはその外側であり、`tests/unit/t-050-a-document-always-holds-one-row.test.ts` が押さえる。  
+⚠️ ユースケースの層はタスクグループが 0 の文書を返す —— 1 つのタスクグループが戻るのはその外側であり、`tests/unit/t-050-a-document-always-holds-one-task-group.test.ts` が押さえる。  
 ユースケースの層の側に単体試験は置かない —— `edit-task-group.ts` は `pure` であり、`docs/development-rules/04-verification.md` の省略の表が `pure` の関数の単体試験を省く。  
 ⭐ 何をもって 1 つの操作とするかは `01-04-requirements.md` の 表 T-050 の直下が持つ。  
 ⚠️ この時点は本表のすべての行に掛かる。  
@@ -1319,9 +1319,9 @@ flowchart TB
 | --- | --- | --- | --- |
 | IV-1 | 主キーの値が、それが並ぶ配列の中で重複しないこと | 表 T-058 の鍵の欄が `PK` または `PK,FK` とする列 | 一意 |
 | IV-2 | 外部キーが非 `null` のとき、それが指す先の行が同じ文書にあること | 表 T-058 の鍵の欄が `FK` または `PK,FK` とする列と、表 T-057 が定めるその指し先 | 参照 |
-| IV-3 | ピン止めした行が、実在する `TaskGroup` を指すこと。<br>⚠️ **表示位置は対象外** —— 指す先が無いときの扱いは表 T-024a の `OP-10` が持ち、2 本の違いは 5.4 が持つ | `_assets/tbl-settings.md` の `S-126` と、`TaskGroup` の主キーの集合 | 参照 |
-| IV-4 | `Task.wbsParentUid` がたどる親子に輪が無いこと | `Task` の主キーと `wbsParentUid` | 構造 |
-| IV-5 | `TaskGroup.parentId` がたどる入れ子の深さが、行の深さの上限を超えないこと。<br>⚠️ **WBS の深さは対象外** —— 上限を持たない | `TaskGroup` の主キーと `parentId`、`_assets/tbl-settings.md` の `S-125` | 構造 |
+| IV-3 | ピン止めしたタスクグループが、実在する `TaskGroup` を指すこと。<br>⚠️ **表示位置は対象外** —— 指す先が無いときの扱いは表 T-024a の `OP-10` が持ち、2 本の違いは 5.4 が持つ | `_assets/tbl-settings.md` の `S-126` と、`TaskGroup` の主キーの集合 | 参照 |
+| IV-4 | `Task.parentTaskUid` がたどる親タスクと子タスクの関係に輪が無いこと | `Task` の主キーと `parentTaskUid` | 構造 |
+| IV-5 | `TaskGroup.parentId` がたどる入れ子の深さが、タスクグループの深さの上限を超えないこと。<br>⚠️ **WBS の深さは対象外** —— 上限を持たない | `TaskGroup` の主キーと `parentId`、`_assets/tbl-settings.md` の `S-125` | 構造 |
 | IV-6 | どの `Task` も、ちょうど 1 つの `TaskGroupMember` から指されること | `Task` の主キーと `TaskGroupMember.taskUid` | 構造 |
 | IV-23 | どの `Task` も、ちょうど 1 つの `TaskVisual` から指されること。<br>⭐ 色も形も決めていない `Task` は、`taskUid` のほかがすべて `null` の 1 つを持つ —— 無いときの描き方を別に定めずに済む | `Task` の主キーと `TaskVisual.taskUid` | 構造 |
 | IV-7 | 暦が 1 つ以上あること | `Calendar` の並び | 構造 |
@@ -1334,8 +1334,8 @@ flowchart TB
 | IV-14 | 日付の列が、日として読め、受け入れる日付の範囲に収まること。<br>⚠️ **空文字は「読めない」側である** —— 空を許す列の空は `null` である | 表 T-058 の型の欄が日付または日時とする列と、表 T-214 | 範囲 |
 | IV-15 | `TaskOrigin.lastSeenImportSeq` が `Project.importSeq` を超えないこと | その 2 列 | 範囲 |
 | IV-16 | 下限または上限の欄が別の設定値を名指している設定値が、その欄の式を満たすこと。<br>⚠️ **欄が画面の寸法を指すものは対象外** —— 静止した文書だけでは判定できない | `_assets/tbl-settings.md` の下限・上限の欄 | 範囲 |
-| IV-19 | ハイライトボックスの `startDate` が `endDate` より後でないこと、および `topGroupId` が `bottomGroupId` より下でないこと。<br>⭐ `IV-10` が `Task` の 2 列について定めるものを、注記の 4 列について定める。<br>⚠️ **ドラッグから来た値は本行の対象ではない** —— `FR-019` が離した時点で正規化すると定めており、正規化された値は本行を必ず満たす。<br>⛔ **正規化が描かれた `y` で上下を決めると、この一文は偽になる** —— ピン留めした行から木の上の行へ引くと満たさない（木の順位 7 から 0 へ引くと、`topGroupId` ＝ 7 ／ `bottomGroupId` ＝ 0 が入る）。<br>⭐ `FR-019` の正規化は行の木の順位で判ずるので、この一文は真である。<br>⛔ **打ち込みと取り込みから来た値には効かせること（MUST）** —— そちらに向きが無いとは言えない | その 4 列 | 組合せ |
-| IV-18 | `TaskGroup.parentId` がたどる親子に輪が無いこと。<br>⚠️ **`IV-4` は `Task.wbsParentUid` だけを見る** —— 表 T-015a の `HM-4` が禁じるのは画面の上での移動、`FR-023` が見るのは取り込みの WBS であり、この輪はどちらにも掛からない | `TaskGroup` の主キーと `parentId` | 構造 |
+| IV-19 | ハイライトボックスの `startDate` が `endDate` より後でないこと、および `topGroupId` が `bottomGroupId` より下でないこと。<br>⭐ `IV-10` が `Task` の 2 列について定めるものを、注記の 4 列について定める。<br>⚠️ **ドラッグから来た値は本行の対象ではない** —— `FR-019` が離した時点で正規化すると定めており、正規化された値は本行を必ず満たす。<br>⛔ **正規化が描かれた `y` で上下を決めると、この一文は偽になる** —— ピン留めしたタスクグループから木の上のタスクグループへ引くと満たさない（木の順位 7 から 0 へ引くと、`topGroupId` ＝ 7 ／ `bottomGroupId` ＝ 0 が入る）。<br>⭐ `FR-019` の正規化はタスクグループの木の順位で判ずるので、この一文は真である。<br>⛔ **打ち込みと取り込みから来た値には効かせること（MUST）** —— そちらに向きが無いとは言えない | その 4 列 | 組合せ |
+| IV-18 | `TaskGroup.parentId` がたどる親子に輪が無いこと。<br>⚠️ **`IV-4` は `Task.parentTaskUid` だけを見る** —— 表 T-015a の `HM-4` が禁じるのは画面の上での移動、`FR-023` が見るのは取り込みの WBS であり、この輪はどちらにも掛からない | `TaskGroup` の主キーと `parentId` | 構造 |
 | IV-20 | 文書が `TaskGroup` を 1 つ以上持つこと。<br>⭐ 原本は 表 T-050 の直下の「文書は、`TaskGroup` を必ず 1 つ以上持つこと（MUST）」である | `TaskGroup` の並び | 構造 |
 | IV-21 | `actualStart` と実績の最後の日（完了なら `actualFinish`、それ以外は `stop`）がともに非 `null` の `Task` で、`FR-011` が日付から数えた実績の長さが 0 を下回らないこと。<br>⭐ `IV-10` が予定の 2 列について定めるものを、実績の日付について定める —— 下回る値は実績の両端が入れ替わった置き方であり、拒んで告げる。<br>⚠️ **0 以上で床を下回る値は本行の対象ではない** —— 着手しているタスクの床（`_assets/tbl-settings.md` の `S-129`）は `FR-011` が持つ | その 3 列と、`FR-054` が解いた文書の暦 | 組合せ |
 | IV-22 | `TaskVisual.shapeKind` が非 `null` のとき、それが `'milestone'` であることと、その `TaskVisual` が指す `Task` の `milestone` が真であることが一致すること。<br>⭐ マイルストーンかどうかの正は `Task.milestone` であり、形は描き方だけを持つ（`01-04-requirements.md` の 表 T-005 の `G-1`） —— 食い違う文書では、描いた形と、名称ラベルに添える予定日（同書の 表 T-251）と依存の種別（同書の `FR-009`）が別のことを言う。<br>⚠️ **`shapeKind` が `null` の `TaskVisual` は対象外** —— 形を `Task.milestone` から解く（`_assets/fig-erd-detail.md` の `AT-100`）。<br>⚠️ 画面の上の編集は食い違いを作らない —— 作るときは同書の 表 T-239 の `TC-1` が形から真偽値を決め、置いた後は同書の `FR-083` が期間を持つ形とマイルストーンの乗り換えを禁じる。<br>MSPDI の上書きで `Task.milestone` だけが変わるときは、本行で拒まず、同書の 表 T-032 の `MG-8` が形を揃える —— 取込元での変更であって、壊れたファイルではない | その 2 列と、`TaskVisual` から `Task` への外部キー（表 T-057） | 組合せ |
@@ -1350,8 +1350,8 @@ flowchart TB
 | 行 ID | 求めるもの | 算式 |
 | --- | --- | --- |
 | LF-1 | 目盛の刻みの間隔 | 段階ごとに固定とする。<br>⭐ **刻むのは段ではなく行であり、その行が刷る単位に 1 つ刻むこと（MUST）** —— **どの行が何を刷るかは `FR-017` の 表 T-238 が持つ。<br>**⇒ 年を刷る行は 1 年、月を刷る行は 1 か月、週の始まりの日を刷る行は 7 日、日と曜日を刷る行は 1 日に 1 つである。<br>⭐ **日の段と曜日の段が同じ間隔なのは、同じ軸を 2 段に割ったものだからである**（`FR-017`）—— **別の間隔にすると、その日のものでない曜日が日の下に並ぶ。<br>**⭐ 実測（出荷ビルド）: 月の段の年の行は 1 回、月の行は 12 回刻んだ。<br>⇒ **行を単位にすれば、段が割れても文を書き足さずに済む。<br>**⛔ **これ以外の間隔を採ってはならない（MUST NOT）**—— 間引いた段では読む人が刻みの単位を数え直すことになり、2 日おきと 3 日おきが倍率で入れ替わる。<br> ⭐ **週の段の起点は `Project.weekStartDay` が持つ**（`FR-054`）。<br>**ラベルが 1 刻みに収まることは段階の側が保証する** —— しきい値の導き方は 表 T-205 の注が持つ |
-| LF-2 | 行の帯高 | 段ごとに、その段に載る `Task` が縦に取る高さ（`01-04-requirements.md` の `FR-094` の 表 T-259 の `VG-5` が測る描いた端まで）の最大を採り、それらを合計して、段と段のあいだと、いちばん下の段の下に、同表の `VG-2` の隙間を 1 つずつ加える（段数と同じ数）。<br>⭐ いちばん下の段の下にも加えるのは、次の行のいちばん上の段とのあいだに同じ隙間を空けるためである（同表の `VG-1`）。<br>**`Task` を 1 つも持たない段は、矩形が縦に取る高さとする** |
-| LF-3 | 行の縦位置 | 前の行の縦位置に、前の行の帯高と `rowGap` を加える。<br>帯高は矩形が縦に取る高さを下回らない。<br>⭐ 帯高は、その行の名前（行見出しパネルに刷る行名、`FR-085`）の字の箱が縦に取る高さも下回らない —— 行名が見えないと何の行か分からなくなる。<br>⚠️ 表示の倍率（`FR-039`）を上げたまま縦に縮めたときに効く床である。<br>⚠️ **行の操作子（`01-04-requirements.md` の 表 T-051 の `HF-1` の格子）が縦に取る高さは、帯高の床に数えない** —— 数えると、`Task` が 1 段しかない行も格子の高さまで広がる。<br>格子が帯からはみ出す扱いは同表の `HF-19` と `HF-6` が、最後の行の下の余白は `LF-16` が持つ |
+| LF-2 | タスクグループの帯高 | 段ごとに、その段に載る `Task` が縦に取る高さ（`01-04-requirements.md` の `FR-094` の 表 T-259 の `VG-5` が測る描いた端まで）の最大を採り、それらを合計して、段と段のあいだと、いちばん下の段の下に、同表の `VG-2` の隙間を 1 つずつ加える（段数と同じ数）。<br>⭐ いちばん下の段の下にも加えるのは、次のタスクグループのいちばん上の段とのあいだに同じ隙間を空けるためである（同表の `VG-1`）。<br>**`Task` を 1 つも持たない段は、矩形が縦に取る高さとする** |
+| LF-3 | タスクグループの縦位置 | 前のタスクグループの縦位置に、前のタスクグループの帯高と `taskGroupGap` を加える。<br>帯高は矩形が縦に取る高さを下回らない。<br>⭐ 帯高は、そのタスクグループ名（タスクグループパネルに刷るタスクグループ名、`FR-085`）の字の箱が縦に取る高さも下回らない —— タスクグループ名が見えないと何のタスクグループか分からなくなる。<br>⚠️ 表示の倍率（`FR-039`）を上げたまま縦に縮めたときに効く床である。<br>⚠️ **タスクグループの操作子（`01-04-requirements.md` の 表 T-051 の `HF-1` の格子）が縦に取る高さは、帯高の床に数えない** —— 数えると、`Task` が 1 段しかないタスクグループも格子の高さまで広がる。<br>格子が帯からはみ出す扱いは同表の `HF-19` と `HF-6` が、最後のタスクグループの下の余白は `LF-16` が持つ |
 | LF-5 | 段間の通路の高さ | 下へ向かうときは先行の下端と後続の上端の中点、上へ向かうときは後続の下端と先行の上端の中点、同じ段どうしのときはその段の下端に、`01-04-requirements.md` の 表 T-259 の `VG-2` の隙間の半分を加えた高さ |
 | LF-6 | 矢羽根の切り欠き | 予定側は、横幅に `chevronNotchOfWidth` を掛けた値と、縦幅に `chevronNotchOfHeight` を掛けた値の小さいほう。<br>実績側は予定側に `actualOfPlan` を掛けた値とし、**2 度目の頭打ちを当ててはならない（MUST NOT）** |
 | LF-7 | 矢じりと端点の点 | 矢じりの横幅は、`thinArrowHeadLength` と、横幅に `arrowHeadOfSpan` を掛けた値の小さいほう。<br>矢じりの縦幅は `thinArrowHeadHeight`。<br>端点スパンの点の径は `spanDotSize`。<br>⛔ **どれも線の太さから導かない** —— 値と式は `01-04-requirements.md` の `FR-109` の 表 T-271 の `XS-5` が持つ |
@@ -1359,18 +1359,18 @@ flowchart TB
 | LF-9 | 実績バーの縦の置き場 | 内側に重ねる形状は、予定の縦幅から実績の縦幅を引いた差の半分だけ下げる。<br>下へずらす形状は、予定の線の下の縁から `actualGap` だけ下に実績の線の上の縁を置く（`01-04-requirements.md` の `FR-109` の 表 T-271 の `XS-6`）|
 | LF-10 | マイルストーンの図形の大きさ | 予定は、その `Task` の予定の縦幅を一辺とする図形とし、`start` の位置を中心に置く。<br>実績はそれに `actualOfPlan` を掛けた大きさとし、実績の日付を中心に置く。<br>**上下の中心は予定と同じとする**。<br>⭐ **図形の中心は、その図形の外接枠の中心とする（上下も左右も）**。<br>⛔ 頂点を置いた円の中心を中心としてはならない —— △ ▽ 五角形 ☆ が上下にずれ、横に並べたとき揃って見えない |
 | LF-11 | マーカーと再開アイコンの置き場 | 横は `01-04-requirements.md` の `FR-109` の 表 T-272 と 表 T-273 が持つ。<br>縦は同要求の 表 T-271 が持つ（矩形は `XS-3`、線だけの形は 1 段目の `XS-4`、再開アイコンは `XS-10` ／ `XS-12`）。<br>マーカーは `markerSize` を一辺とする正方形で置く。<br>⛔ **本行は寸法だけを持ち、場所を持たない** —— 場所を 2 か所に書くと必ず離れていく |
-| LF-12 | イナズマ線の頂点の縦位置 | 段ごとに、その段の上端に**矩形**の予定の縦幅の半分を加えた高さ。<br>線の上端と下端は基準日の位置とし、最初の行の上と最後の行の下へ `progressLineOverhang` だけ伸ばす |
+| LF-12 | イナズマ線の頂点の縦位置 | 段ごとに、その段の上端に**矩形**の予定の縦幅の半分を加えた高さ。<br>線の上端と下端は基準日の位置とし、最初のタスクグループの上と最後のタスクグループの下へ `progressLineOverhang` だけ伸ばす |
 | LF-13 | 再開アイコンの形 | 下端をマーカーの下端に、矢先の高さをマーカーの中心に置いた L 字の折れ矢印とする（矩形で再開日があるとき —— `01-04-requirements.md` の `FR-109` の 表 T-271 の `XS-10`）。<br>腕の長さは図形の一辺に `resumeArmOfMarker` を、矢じりの大きさに `resumeHeadOfMarker` を掛けた値。<br>`resumeValid` が偽のときは一辺に `resumeScaleInvalid` を掛け、濃さに `resumeOpacityInvalid` を掛ける。<br>⚠️ 同表の `XS-10` の未定のアイコンと `XS-12`（線だけの形の 3 段目のアイコン）の縦は同表が持ち、本行は持たない。<br>⛔ **本行が持つのは形だけである** —— 横の位置は 表 T-273 の結びが持つ |
-| LF-14 | ピン止めした行の帯（`FR-098`）| 帯の高さは、帯に置く行の帯高（`LF-2`）を合計し、行と行のあいだに `rowGap` をその数から 1 を引いた数だけ加えたものとする。<br>**帯へ上げた行は `LF-3` の連なりから除き、抜けた場所は詰める。<br>** スクロールする行が並ぶのは、`Row Area` の高さから帯の高さと `rowGap` 1 つぶんを引いた残りとする |
-| LF-15 | コメントボックスのアンカーの置き場 | 横は `anchorDate` の日の列の中央、縦は `anchorGroupId` の行が描かれた帯（`LF-2` / `LF-3`、ピン止めした行は `LF-14`）の中央とする。<br>⚠️ ハイライトボックスの左端と右端は日の列の端に立つ（`01-04-requirements.md` の `FR-019`）が、アンカーは日を 1 つ指す点なので、その日の列の中に置く。<br>⭐ 帯の上端と下端は採らない —— そちらはハイライトボックスが行の範囲を囲むのに使う。<br>⚠️ 本文の箱は留めた点からのずれで置く（`FR-019`）ので、ずれを書かずにアンカーだけを書くと、箱もアンカーと共に動く —— 掴んで引いたときに何を書くかは、同書の 表 T-023d の結びが持つ |
+| LF-14 | ピン止めしたタスクグループの帯（`FR-098`）| 帯の高さは、帯に置くタスクグループの帯高（`LF-2`）を合計し、タスクグループとタスクグループのあいだに `taskGroupGap` をその数から 1 を引いた数だけ加えたものとする。<br>**帯へ上げたタスクグループは `LF-3` の連なりから除き、抜けた場所は詰める。<br>** スクロールするタスクグループが並ぶのは、`Task Group Area` の高さから帯の高さと `taskGroupGap` 1 つぶんを引いた残りとする |
+| LF-15 | コメントボックスのアンカーの置き場 | 横は `anchorDate` の日の列の中央、縦は `anchorGroupId` のタスクグループが描かれた帯（`LF-2` / `LF-3`、ピン止めしたタスクグループは `LF-14`）の中央とする。<br>⚠️ ハイライトボックスの左端と右端は日の列の端に立つ（`01-04-requirements.md` の `FR-019`）が、アンカーは日を 1 つ指す点なので、その日の列の中に置く。<br>⭐ 帯の上端と下端は採らない —— そちらはハイライトボックスがタスクグループの範囲を囲むのに使う。<br>⚠️ 本文の箱は留めた点からのずれで置く（`FR-019`）ので、ずれを書かずにアンカーだけを書くと、箱もアンカーと共に動く —— 掴んで引いたときに何を書くかは、同書の 表 T-023d の結びが持つ |
 | LF-17 | コメントボックスの引出し線が本文の箱から出る隅 | 横は、留めた点（`LF-15`）が本文の箱の横の中点より右に在れば右、そうでなければ左の隅とする。<br>縦は、留めた点が箱の縦の中点より上に在れば上、そうでなければ下の隅とする。<br>⭐ この 2 つで選ぶ隅は、4 隅のうち留めた点に最も近い隅である —— 横の差と縦の差をそれぞれ最も小さくする隅が、直線の距離も最も小さくする。<br>⭐ 中点に等しいときは左と下を採る —— 等しい 2 隅のどちらを採っても線の長さは同じであり、左下はずれの基準隅（`01-04-requirements.md` の `FR-019`）と同じ隅である。<br>⭐ 留めた点が本文の箱の中（縁を含む）に在るときは、引出し線を描かない —— 箱から外へ出る線が無く、隅から中の点へ引くと本文の上を横切る。<br>⚠️ 線先の印（同書の 表 T-023d の結び）はそのときも描く（重ね順は同書の 表 T-020 の `ZO-10`）ので、選んでいれば箱の中の線先も見えて掴める |
-| LF-16 | 行の並びの下の余白 | スクロールする行（`LF-14` の帯へ上げた行を除く）のいちばん下の行の下に、行の操作子の格子（`01-04-requirements.md` の 表 T-051 の `HF-1`）が縦に取る高さからその行の帯高を引いた長さの余白を加える。<br>引いた長さが 0 を下回るとき（帯高が格子以上のとき）と、スクロールする行が 1 つも無いときは 0 とする。<br>格子が縦に取る高さは、入口 1 つの縦（`_assets/tbl-settings.md` の 表 T-206 の `S-138` ＋ `S-243` × 2）の 2 段ぶんに、`FR-029` のとおり `S-235` を掛けた長さとする —— 枠の線の太さ（`S-237`）は数えない（`FR-029` は `S-237` を外形の幅に加え、外形の縦は定めない）。<br>⚠️ **格子の高さを数で書かない** —— 操作子 1 つの外形は `_assets/tbl-settings.md` の 表 T-206 の `S-138` と `S-243` が決めており、格子はその 2 段ぶんである。<br>⛔ 同表の値をコピーしない。<br>⚠️ 格子の高さは、表示の倍率（`FR-039` の 表 T-252 の `DS-7`）にも閲覧者の文字サイズにも追随しない —— `S-138` がそう定めている。<br>⭐ 余白は縦のスクロールの全体（`01-04-requirements.md` の 表 T-023d の `GR-21` の「全体」）に入る —— 行見出しパネルは縦を本体と連動させる（同書の 表 T-031 の `SC-1`）ので、行見出しパネルと `Row Area` の両方で、最後の行の操作子が下端で切れない。<br>⭐ `FR-055` が収まるかを見る縦の高さにも入る。<br>⚠️ 余白には何も描かない。<br>行ではないので、その縦位置は行の無い縦位置である（同書の 表 T-239 の `TC-3`）。<br>⚠️ `canvasPadding`（`_assets/tbl-settings.md` の 表 T-201 の `S-56`）とは別の量であり、兼ねない —— `canvasPadding` を縦に取る場所は `FR-051` が持つ |
+| LF-16 | タスクグループの並びの下の余白 | スクロールするタスクグループ（`LF-14` の帯へ上げたタスクグループを除く）のいちばん下のタスクグループの下に、タスクグループの操作子の格子（`01-04-requirements.md` の 表 T-051 の `HF-1`）が縦に取る高さからそのタスクグループの帯高を引いた長さの余白を加える。<br>引いた長さが 0 を下回るとき（帯高が格子以上のとき）と、スクロールするタスクグループが 1 つも無いときは 0 とする。<br>格子が縦に取る高さは、入口 1 つの縦（`_assets/tbl-settings.md` の 表 T-206 の `S-138` ＋ `S-243` × 2）の 2 段ぶんに、`FR-029` のとおり `S-235` を掛けた長さとする —— 枠の線の太さ（`S-237`）は数えない（`FR-029` は `S-237` を外形の幅に加え、外形の縦は定めない）。<br>⚠️ **格子の高さを数で書かない** —— 操作子 1 つの外形は `_assets/tbl-settings.md` の 表 T-206 の `S-138` と `S-243` が決めており、格子はその 2 段ぶんである。<br>⛔ 同表の値をコピーしない。<br>⚠️ 格子の高さは、表示の倍率（`FR-039` の 表 T-252 の `DS-7`）にも閲覧者の文字サイズにも追随しない —— `S-138` がそう定めている。<br>⭐ 余白は縦のスクロールの全体（`01-04-requirements.md` の 表 T-023d の `GR-21` の「全体」）に入る —— タスクグループパネルは縦を本体と連動させる（同書の 表 T-031 の `SC-1`）ので、タスクグループパネルと `Task Group Area` の両方で、最後のタスクグループの操作子が下端で切れない。<br>⭐ `FR-055` が収まるかを見る縦の高さにも入る。<br>⚠️ 余白には何も描かない。<br>タスクグループではないので、その縦位置はタスクグループの無い縦位置である（同書の 表 T-239 の `TC-3`）。<br>⚠️ `canvasPadding`（`_assets/tbl-settings.md` の 表 T-201 の `S-56`）とは別の量であり、兼ねない —— `canvasPadding` を縦に取る場所は `FR-051` が持つ |
 | LF-18 | マイルストーンの図形の線と塗り | 外形は塗り、縁の線で囲む。<br>絵の中の線（箱の稜線・円筒と杯の上面の手前の弧・フロッピーの窓・顔の口）は、塗りに穴を開けずに、塗りの上に線で描く。<br>顔の目は点で塗る。<br>書類の折り返しは、塗りの上に薄く塗った面（`shade`）で描く —— 面は紙の裏を見せ、角が折れていると読ませる。<br>線だけでは、角の欠けた四角と読まれうる。<br>⭐ 中の線・点・面の色は、予定では予定の縁の色、実績とダミーでは予定の塗りの色とする —— 実績の塗りは濃いので、縁の色では見えない。<br>カスタムカラーのタスクでは、そのタスクの予定の塗りの色である。<br>⭐ 重なる部分は、奥から順に描く —— 人は胴の上に頭、杯は取っ手の上に胴。<br>⭐ 円・顔の輪郭・円筒・杯の丸みは曲線で描き、多角形で近似しない —— 多角形は拡大すると角が見える。<br>⭐ 形そのもの（単位の正方形の中の座標）は 図 F-044 が持つ。<br>⭐ `_assets/tbl-glossary.md` の 図 F-019 のグリフは同じ形を線だけで描く。<br>違いは 2 つだけとする —— 杯の取っ手は 1 本の線（小さな箱では二重の線が潰れて 1 つの塊になる）、人の肩の線は頭の輪郭で止める（線だけの絵には、胴を隠す塗りが無いため） |
 
 ⚠️ **`Task` が 1 つで縦に取る高さは本表が持たない** —— 表 T-012 の「実績の置き方」の欄と、`FR-094` の床の規則が既に持っている —— 上へずらした名称ラベルのぶんは `01-04-requirements.md` の 表 T-038 の `OC-10` が持ち、その 1 段目の高さは同書の `FR-109` の 表 T-271 の `XS-4` が字の大きさで数える。  
 ⚠️ `TaskGroup.minHeight` の指定があるときは `FR-042` が優先する —— 指定は下限であり、段数がそれより高い帯を要するときは超えて広げる。  
 描くときに指定へ掛ける比は `01-04-requirements.md` の `FR-039` の 表 T-252 の `DS-13` が持つ（表示の倍率の段だけで、縦のズームと `S-236` は掛けない）。  
-⚠️ `LF-12` が矩形の縦幅を使うのは、段に載る `Task` の形状によらず同じ高さに頂点を打つためである —— 形状で高さが変わると、同じ行の段どうしで頂点の高さが揃わない。
+⚠️ `LF-12` が矩形の縦幅を使うのは、段に載る `Task` の形状によらず同じ高さに頂点を打つためである —— 形状で高さが変わると、同じタスクグループの段どうしで頂点の高さが揃わない。
 
 **図 F-044 — マイルストーンの図形（チャート）**
 
@@ -1487,15 +1487,15 @@ flowchart TB
   **ID**: `FR-017`
   **Role**: `Satisfies`
 
-#### 行の帯高と縦位置を決める
+#### タスクグループの帯高と縦位置を決める
 
 **Type**: SW_SPEC
 **UID**: SWS-2
 
-**STATEMENT**: 段を割り当てたあと、`GRS` は、行の帯高と縦位置を 表 T-221 の `LF-2` と `LF-3` に従って決め、行の並びの下の余白を同表の `LF-16` に従って置くこと。
+**STATEMENT**: 段を割り当てたあと、`GRS` は、タスクグループの帯高と縦位置を 表 T-221 の `LF-2` と `LF-3` に従って決め、タスクグループの並びの下の余白を同表の `LF-16` に従って置くこと。
 
 **RATIONALE**: 表 T-014 の `ST-9` が定めた、その決まり方である。  
-⚠️ 空の段と空の行が矩形 1 段ぶんを取るのは、行の帯が消えて行見出しと縦位置がずれるのを防ぐためである。
+⚠️ 空の段と空のタスクグループが矩形 1 段ぶんを取るのは、タスクグループの帯が消えてタスクグループ見出しと縦位置がずれるのを防ぐためである。
 
 **Relations**:
 
@@ -1661,7 +1661,7 @@ flowchart TB
 **行を足しても、それ以降の番号は動かない。**  
 ⭐ **要求の `UID` と同じ規則である**（Chapter 1）—— **番号が動くとトレースの鎖が切れる。**  
 ⛔ 番号を表の中の位置から取ってはならない（MUST NOT） —— 位置を番号にすると、行を足したときに参照が黙ってずれる。  
-**外から指すときは名前で指すこと** —— エンティティは名前で、列はエンティティ名と列名の対で指す（`Task.wbsParentUid` の形。  
+**外から指すときは名前で指すこと** —— エンティティは名前で、列はエンティティ名と列名の対で指す（`Task.parentTaskUid` の形。  
 表 T-006a の `W-7`）。
 
 **表 T-059 のものを文書は持たない。**  
@@ -1828,7 +1828,7 @@ JSON を扱うエディタの多くは、データの文書の `"$schema"` を�
 **本表が定めるのは、ゲートを適用する単位だけである。**
 
 ⛔ 「フレーム時間」とは、届いたフレームとフレームの間隔である（MUST）。  
-描き直しの呼び出しの中で過ごす時間を、フレーム時間として測ってはならない（MUST NOT）—— ⚠️ **実測でこの 2 つは切り離せた**: 行の操作子の高さを毎フレーム測り直すのをやめたところ、呼び出しの中で過ごす時間は 30.3 から 19.4 ミリ秒へ 36% よくなったが、ブラウザ自身の計器で見たレイアウト（5.3 → 5.5）・スタイルの再計算（6.3 → 6.5）・スクリプト（19.9 → 20.5）はどれも動かず、CPU を 8 倍に絞ったときのフレームの間隔も 405 → 446 ミリ秒（雑音の範囲）で変わらなかった。  
+描き直しの呼び出しの中で過ごす時間を、フレーム時間として測ってはならない（MUST NOT）—— ⚠️ **実測でこの 2 つは切り離せた**: タスクグループの操作子の高さを毎フレーム測り直すのをやめたところ、呼び出しの中で過ごす時間は 30.3 から 19.4 ミリ秒へ 36% よくなったが、ブラウザ自身の計器で見たレイアウト（5.3 → 5.5）・スタイルの再計算（6.3 → 6.5）・スクリプト（19.9 → 20.5）はどれも動かず、CPU を 8 倍に絞ったときのフレームの間隔も 405 → 446 ミリ秒（雑音の範囲）で変わらなかった。  
 ⇒ ⭐ 呼び出しの外で払われる費用があるので、呼び出しの中だけを測ると、人が待つ時間と切り離された数で合格できてしまう。  
 ⭐ **`PG-2` と `PG-3` の両方に当たる。**  
 ⛔ **`PG-1`（初期描画）には当たらない** —— **あちらは 1 枚が出るまでの時間であって、間隔ではない。**

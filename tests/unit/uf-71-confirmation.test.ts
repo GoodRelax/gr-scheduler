@@ -1894,7 +1894,7 @@ describe('table T-037 NT-7 (MUST) -- what would go is named, one by one', () => 
     // a long list crowd the two answers out, disable them, or stop answering for
     // them would pass both and still leave the person unable to answer.
     // ⛔ CD-2 of table T-050 makes such a list ordinary, not extreme: deleting a
-    // row takes 「その行に載っているすべての `Task`」 and every descendant row
+    // row takes 「そのタスクグループに載っているすべての `Task`」 and every descendant row
     // with it.
     const many = Array.from({ length: 40 }, (_unused, index) => named(`task number ${index}`))
 

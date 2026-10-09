@@ -52,7 +52,7 @@ What `load()` refuses (CR-436 section 3.1 and wave A2), on top of the schema:
     finds the region an event touches by its `type` (SS-5 of table T-284),
     so one key in two regions leaves that lookup without one answer. An
     effect name may repeat across regions -- the shell only runs it;
-  - a region that holds documentData (SD-5 of table T-250, the row tree)
+  - a region that holds documentData (SD-5 of table T-250, the task group tree)
     without the erd.json column it names, or whose machine's state keys are
     not that column's enum values in the same order -- the state type is the
     column's, so the two lists may not drift apart.
@@ -261,7 +261,7 @@ class Region(object):
     def __init__(self, raw):
         self.raw = raw
         self.name = raw['region']
-        # SD-5: a region that holds a saved value of the document (the row
+        # SD-5: a region that holds a saved value of the document (the task group
         # tree). Its state type is an erd.json column, never printed here.
         self.holds_document_data = raw.get('holds') == DOCUMENT_DATA
         self.stem = raw['typeStem']
@@ -935,7 +935,7 @@ HEADER = [
     u'> **作り直す**: `npm run gen` ／ **ズレを検出する**: `npm run gen:check`。',
     u'',
     u'本書は、保存しない状態の状態機械（`05-07-design.md` の 5.6 の ADR-002）を、領域ごと・状態機械ごとに印字したものである。  ',
-    u'⚠️ 例外は行の木（`rowTree`）の 1 つだけであり、その状態は文書に保存する値である（`05-07-design.md` の 表 T-250 の `SD-5`）。  ',
+    u'⚠️ 例外はタスクグループの木（`taskGroupTree`）の 1 つだけであり、その状態は文書に保存する値である（`05-07-design.md` の 表 T-250 の `SD-5`）。  ',
     u'原稿が持つもの・持たないものは `05-07-design.md` の 表 T-250 が、状態機械の形は 表 T-249 が持つ。  ',
     u'名前の読み方は `05-07-design.md` の 5.5 が持つ。',
 ]

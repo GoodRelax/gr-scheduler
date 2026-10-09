@@ -610,7 +610,7 @@ test('DFC-160: the entrances at the head of the task group panel stand apart, in
       expect(
         box.width,
         `${box.entrance} is drawn ${box.width}px wide. FR-029 (MUST): ` +
-          '「入口の外形の幅は、箱の一辺（`S-138`）に、隙間（`S-141`、行見出しパネルでは `S-243`）' +
+          '「入口の外形の幅は、箱の一辺（`S-138`）に、隙間（`S-141`、タスクグループパネルでは `S-243`）' +
           'と枠の線の太さ（`S-237`）を左右のぶん加えた値とすること（MUST）」 and 「箱の一辺' +
           '（`S-138`）と隙間（`S-141` / `S-243`）と枠の線の太さ（`S-237`）には、どの面でも同書の ' +
           '表 T-206 の `S-235` を掛けて描くこと（MUST）」 ' +
@@ -1331,9 +1331,9 @@ test('DFC-374: magnifying the vertical axis stops before one row fills the Task 
     )
     expect(
       worstAtTextCeiling,
-      `FR-016 (MUST): 「行の軸の上限は、上の倍率と、次の倍率の小さい方とすること（MUST）」 —— ` +
+      `FR-016 (MUST): 「縦軸の上限は、上の倍率と、次の倍率の小さい方とすること（MUST）」 —— ` +
         `「矩形（\`_assets/tbl-settings.md\` の 表 T-201 の \`S-13\`）のタスクの名称ラベルの字が、` +
-        `深さ 1 の行の名前の字（同表の \`S-36\` × \`S-38\`）に等しくなる倍率である」. On the ` +
+        `深さ 1 のタスクグループ名の字（同表の \`S-36\` × \`S-38\`）に等しくなる倍率である」. On the ` +
         `1080px window the band ceiling is the larger, so the stop is zoomY ` +
         `${TEXT_CEILING_ZOOM_Y.toFixed(4)} and a rectangle's name ${expectedAtTextCeiling.toFixed(2)}px; ` +
         `the rectangles read ${tallFonts.map((font) => font.toFixed(2)).join(', ')}px ` +
@@ -1361,7 +1361,7 @@ test('DFC-374: magnifying the vertical axis stops before one row fills the Task 
     ).toBeGreaterThan(tallestBandOf(opened))
     expect(
       tall.length,
-      `FR-016 (MUST): 「行の軸（\`zoomY\`）の上限は、いちばん高い行の帯が \`Task Group Area\` の高さに` +
+      `FR-016 (MUST): 「縦軸（\`zoomY\`）の上限は、いちばん高いタスクグループの帯が \`Task Group Area\` の高さに` +
         `達する倍率とすること（MUST）」. Forty-five notches of MK-4 left ${String(tall.length)} ` +
         `row(s) on a ${String(canvasBox.height)}px canvas, the tallest reading ` +
         `${tallestBandOf(tall).toFixed(1)}px -- past the ceiling the magnifying goes on until ` +
@@ -1390,7 +1390,7 @@ test('DFC-374: magnifying the vertical axis stops before one row fills the Task 
     const shortArea = taskGroupAreaSpanOf(short)
     expect(
       tallestBandOf(tall),
-      `FR-016 (MUST): 「行の軸（\`zoomY\`）の上限は、いちばん高い行の帯が \`Task Group Area\` の高さに` +
+      `FR-016 (MUST): 「縦軸（\`zoomY\`）の上限は、いちばん高いタスクグループの帯が \`Task Group Area\` の高さに` +
         `達する倍率とすること（MUST）」. The tallest band on the 1080px window reads ` +
         `${tallestBandOf(tall).toFixed(2)}px against a ${tallArea.toFixed(2)}px Task Group Area -- a ` +
         'band that fills the area at both ends is a band the area cut, which is what a build ' +
@@ -1436,7 +1436,7 @@ test('DFC-374: magnifying the vertical axis stops before one row fills the Task 
     ).toBeGreaterThan(DRAWN_RECTANGLE_NAME_PX_AT_ONE + NAME_PX_TOLERANCE)
     expect(
       Math.max(...lowFonts),
-      `FR-016 (MUST): 「行の軸の上限は、上の倍率と、次の倍率の小さい方とすること（MUST）」; ` +
+      `FR-016 (MUST): 「縦軸の上限は、上の倍率と、次の倍率の小さい方とすること（MUST）」; ` +
         `FR-016 (MUST NOT): 「このために新しい設定値の行を立ててはならない（MUST NOT）」 —— ` +
         `「画面の高さから導く。」 On the low window the rectangle names settle at ` +
         `${lowFonts.map((f) => f.toFixed(2)).join(', ')}px against the ` +
@@ -1512,8 +1512,8 @@ test('DFC-366: one notch of the vertical-axis zoom leaves the row under the poin
     const nowAt = sameRecord.y + into * sameRecord.height
     expect(
       Math.abs(nowAt - at),
-      `FR-016 (MUST): 「ズームはポインタ位置を中心とし、カーソル下の日付と行が動かないこと` +
-        `（MUST）」 and 「倍率を変えたとき、行の軸でも掴んだ行を留めること（MUST）」. The wheel ` +
+      `FR-016 (MUST): 「ズームはポインタ位置を中心とし、カーソル下の日付とタスクグループが動かないこと` +
+        `（MUST）」 and 「倍率を変えたとき、縦軸でも掴んだタスクグループを留めること（MUST）」. The wheel ` +
         `was turned at y=${String(at)}, where the band was ${held.height.toFixed(1)}px and is ` +
         `now ${sameRecord.height.toFixed(1)}px; the point under the pointer has moved to ` +
         `y=${nowAt.toFixed(1)}`,

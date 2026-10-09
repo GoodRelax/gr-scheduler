@@ -14,7 +14,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 const FR_130_NO_STATUS = '基準日（`Project.statusDate`）が `null` のときは診断を行わず、そのことを告げること（MUST）。'
 const FR_130_NO_WRITE = '⛔ 診断は文書を変えてはならない（MUST NOT） —— タスク・依存・実績・`S-63` を書かない。'
-const FR_130_NOT_KEPT = '導いた親子（`FR-135`）とマイルストーンの先行・達成（`FR-136`）も保存しない。'
+const FR_130_NOT_KEPT = '導いた親タスクと子タスクの関係（`FR-135`）とマイルストーンの先行・達成（`FR-136`）も保存しない。'
 const FR_131_ONE_EACH =
   '`GRS` は、開いている文書モデルを、矛盾（表 T-310）・疑義（表 T-311）・記載漏れ（表 T-312）の観点ですべて調べ、当たった 1 件ごとに指摘を 1 つ作ること。'
 const FR_132_BOTTLENECK =
@@ -24,10 +24,10 @@ const FR_132_NOT_DONE = '⛔ 完了（表 T-019a の `PS-2`）したタスクを
 const FR_132_DX_9 =
   '押し出し日数が `S-397` 以上の完了したタスクは、レポートの 表 T-317 の `DX-9` に確定した押し出しとして出すこと（MUST）。'
 const FR_133_PATH_MARK =
-  'ボトルネック経路の印（`DG-3`）は、ボトルネックの WBS の祖先（`parentTaskUid` を遡る縦の道、`FR-135` で導いた親を含む）にだけ付けること（MUST）。'
+  'ボトルネック経路の印（`DG-3`）は、ボトルネックの祖先タスク（`parentTaskUid` を遡る縦の道、`FR-135` で導いた親タスクを含む）にだけ付けること（MUST）。'
 const FR_133_NOT_DOWNSTREAM = '⛔ 依存の下流に付けてはならない（MUST NOT）。'
 const FR_135_DERIVE = '`Task.parentTaskUid` が `null` の `Task` について、`GRS` は、表 T-318 の規則で親を導き、診断の中でだけ使うこと。'
-const FR_135_NOT_WRITTEN = '⛔ 導いた親を文書へ書いてはならない（MUST NOT）。'
+const FR_135_NOT_WRITTEN = '⛔ 導いた親タスクを文書へ書いてはならない（MUST NOT）。'
 const FR_135_NOT_NARROWER = '⛔ 候補が 2 つ以上のとき、狭いほうを親と決めてはならない（MUST NOT）。'
 const FR_135_VO_4 = '導けなかった `Task` を、進捗妥当性検査の指摘（表 T-312 の `VO-4`）として出すこと（MUST）。'
 const FR_136_DW_3 = '先行を 1 つも持たないマイルストーンは、表 T-316 の `DW-3` とすること（MUST）。'
@@ -497,8 +497,8 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
     ])
     expect(cellOf('T-313', 'BD-1', '何をするか')).toContain('着手済みで未完了は 基準日 ＋ 残りの日数 とし')
     expect(cellOf('T-314', 'DQ-3', '定義')).toContain('max(0, `DQ-1` − (最早開始 ＋ 計画期間))')
-    expect(cellOf('T-316', 'DW-1', '紫（表 T-315 の `DG-1`）を付ける行')).toBe('原因の `Task` と、その依存の下流すべて')
-    expect(cellOf('T-316', 'DW-2', '紫（表 T-315 の `DG-1`）を付ける行')).toContain('候補が 0 なら原因だけ')
+    expect(cellOf('T-316', 'DW-1', '紫（表 T-315 の `DG-1`）を付けるタスク')).toBe('原因の `Task` と、その依存の下流すべて')
+    expect(cellOf('T-316', 'DW-2', '紫（表 T-315 の `DG-1`）を付けるタスク')).toContain('候補が 0 なら原因だけ')
     expect(cellOf('T-318', 'IP-1', '規則')).toContain('（親の `start` ≤ 子の `start` かつ 子の `finish` ≤ 親の `finish`）')
     expect(cellOf('T-319', 'MP-4', '規則')).toContain('達成日 ＝ 先行の最も遅い `actualFinish`')
     expect(S_397).toBe(1)

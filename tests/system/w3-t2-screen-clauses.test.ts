@@ -21,7 +21,7 @@ const FORMAT_BUTTON_GAP = '⭐ 上下に隣り合う 2 つの形式のボタン�
 
 // see FR-052
 const HELD_WIDTH_IS_RELEASED_WIDTH =
-  '⭐ 掴んでいるあいだに描く行見出しパネルの幅は、その時点のポインタ位置で離したときに `FR-039` の 表 T-252 の後の段が保存する `S-79` を、同じ段の規則で描いた幅とすること（MUST）'
+  '⭐ 掴んでいるあいだに描くタスクグループパネルの幅は、その時点のポインタ位置で離したときに `FR-039` の 表 T-252 の後の段が保存する `S-79` を、同じ段の規則で描いた幅とすること（MUST）'
 
 // see MK-13, T-023
 const TITLE_DOUBLE_CLICK = '／`Document Title`（`_assets/tbl-glossary.md` の `U-27`） ＝ 表 T-036 の `SK-9` が開くのと同じ、その場で編集する欄（`FR-035`）を開くこと（MUST）'

@@ -20,7 +20,7 @@ const FIGURE = unbroken(
 // WHY: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 const AT_102_SPELLING =
   'カスタムカラーの `明るいテーマの値/暗いテーマの値`（それぞれ `#rrggbb` か空、両方空は無い。例: `#c0504d/`）'
-const AT_58_SAME_FORM = '行の帯の色。形は `AT-102` と同じ。'
+const AT_58_SAME_FORM = 'タスクグループの帯の色。形は `AT-102` と同じ。'
 
 describe('DFC-920 the manuscript these cases are driven by', () => {
   it.each([AT_102_SPELLING, AT_58_SAME_FORM])('fig-erd-detail still says it: %s', (clause) => {

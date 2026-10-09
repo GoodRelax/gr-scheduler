@@ -2,7 +2,7 @@
  "$schema": "./state-machines.schema.json",
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
-  "The unsaved screen and session values as state machines (ADR-002 of Chapter 5.6), plus the row tree (TaskGroup.treeState), the one saved value this file holds (SD-5 of table T-250): per region, the events it receives (defined once), the values its root carries, and one state machine per orthogonal concern -- its states and its state transition table. What the manuscript holds and does not hold is table T-250 of docs/spec/05-07-design.md; the form of the machine is table T-249.",
+  "The unsaved screen and session values as state machines (ADR-002 of Chapter 5.6), plus the task group tree (TaskGroup.treeState), the one saved value this file holds (SD-5 of table T-250): per region, the events it receives (defined once), the values its root carries, and one state machine per orthogonal concern -- its states and its state transition table. What the manuscript holds and does not hold is table T-250 of docs/spec/05-07-design.md; the form of the machine is table T-249.",
   "NAMES, NOT NUMBERS (JDG-286, R4.4 of docs/development-rules/07-review-standards.md). A machine -- the definition -- is a noun phrase of what it tracks plus `StateMachine`, unique across every region (armModeStateMachine); the code holds its CURRENT state in a field and type named the same noun phrase plus `State` (armModeState, ArmModeState). A state reads 'the machine is now <state>': a past participle or adjective (taskShapeArmed, hidden, idle) or a present participle with its object (delivering, placingDate1), never a bare noun; its id is machine.state (paletteDisplayStateMachine.shown.expanded). An event is subject plus past tense, defined once per region, id region/key (screen/armEntryPressed). A transition is its cell -- machine, current state and event.",
   "A TABLE IS event -> current state -> cell. A cell is one branch {to, guard?, effect?, effectArgument?, evidence, note?} or a list of two or more told apart by their guards. An ABSENT cell means the machine does not change and keeps the same reference (SD-3). `to` equal to the current state is a transition to itself. A cell on a composite state answers for every state below it. A guard term is a name the code holds, or {in: <state id>} of ANOTHER machine of the region. `to` may be {name}: a value the event carries, standing for any top-level kind of the machine but its initial one.",
   "Generated FROM this file: _assets/tbl-state-machines.md (state_machines_json_to_md.py) -- per region the event definitions, the root's values and, per machine, its state diagram, its state transition table and its states; and, in the generated region of the unit each region names (`unit`; tools/generate_state_machine_types.py), the discriminated unions and the initial values. The transition-table constant is printed only where code reads it -- the unit itself or another file (JDG-139; the generator's TRANSITIONS_READ) -- today task-group-folding.ts alone (TREE_STATE_TRANSITIONS, table T-328); CR-573 removed the tests that were the only readers of the others. A region that holds documentData (SD-5) gets only its events and, where it is read, its transition-table constant, and its state keys must be the enum values of the erd.json column it names, in the same order.",
@@ -200,7 +200,7 @@
      }
     ],
     "also": {
-     "ja": "根の値 `chosenRows`（空でないとき）のどちらか —— 行見出しパネルの行だけを選んでいるときも立つ（`FR-085`）"
+     "ja": "根の値 `chosenTaskGroups`（空でないとき）のどちらか —— タスクグループパネルのタスクグループだけを選んでいるときも立つ（`FR-085`）"
     },
     "evidence": [
      "IN-4",
@@ -349,7 +349,7 @@
      }
     ],
     "also": {
-     "ja": "根の値 `chosenRows`（空でないとき）のどちらか —— 行見出しパネルの行だけを選んでいるときも立つ（`FR-085`）"
+     "ja": "根の値 `chosenTaskGroups`（空でないとき）のどちらか —— タスクグループパネルのタスクグループだけを選んでいるときも立つ（`FR-085`）"
     },
     "evidence": [
      "SK-19",
@@ -933,7 +933,7 @@
        "PTD-2"
       ],
       "note": {
-       "ja": "`Row Area` のクリック"
+       "ja": "`Task Group Area` のクリック"
       }
      },
      "carries": [
@@ -970,14 +970,14 @@
      ]
     },
     {
-     "key": "rowZoomEndReached",
+     "key": "verticalZoomEndReached",
      "source": {
       "kind": "effectResult",
       "rows": [
        "ZE-5"
       ],
       "note": {
-       "ja": "行の軸のズームが端に当たった"
+       "ja": "縦軸のズームが端に当たった"
       }
      },
      "carries": [
@@ -1329,7 +1329,7 @@
        ]
       },
       {
-       "key": "wbsParentArmed",
+       "key": "parentTaskArmed",
        "parent": null,
        "initial": false,
        "carries": [],
@@ -1401,7 +1401,7 @@
          "IN-4"
         ]
        },
-       "wbsParentArmed": {
+       "parentTaskArmed": {
         "to": "notArmed",
         "guard": [
          {
@@ -1411,7 +1411,7 @@
         "evidence": [
          "FR-016",
          "IN-4",
-         "WL-2"
+         "PTL-2"
         ]
        }
       },
@@ -1558,7 +1558,7 @@
          ]
         }
        ],
-       "wbsParentArmed": [
+       "parentTaskArmed": [
         {
          "to": "notArmed",
          "guard": [
@@ -1569,7 +1569,7 @@
          "evidence": [
           "FR-016",
           "SP-4",
-          "WL-2"
+          "PTL-2"
          ]
         },
         {
@@ -1642,7 +1642,7 @@
          "FR-016"
         ]
        },
-       "wbsParentArmed": {
+       "parentTaskArmed": {
         "to": "notArmed",
         "guard": [
          {
@@ -2208,7 +2208,7 @@
         {
          "name": "subject",
          "note": {
-          "ja": "選択と行の集合"
+          "ja": "選択とタスクグループの集合"
          }
         }
        ],
@@ -2779,7 +2779,7 @@
         }
        }
       },
-      "rowZoomEndReached": {
+      "verticalZoomEndReached": {
        "hidden": {
         "to": "shown",
         "effect": "startScaleMessageTimer",
@@ -3763,7 +3763,7 @@
       {
        "name": "pressedOn",
        "note": {
-        "ja": "押したもの —— 当たった掴みか、画面の場所（入口・掴み帯・パネルの境界・行の掴み代・つまみ）。座標は運ばない"
+        "ja": "押したもの —— 当たった掴みか、画面の場所（入口・掴み帯・パネルの境界・タスクグループの掴み代・つまみ）。座標は運ばない"
        }
       }
      ]
@@ -3798,7 +3798,7 @@
      "carries": []
     },
     {
-     "key": "rowGrabAxisSettled",
+     "key": "taskGroupGrabAxisSettled",
      "source": {
       "kind": "input",
       "rows": [
@@ -3806,7 +3806,7 @@
        "S-208"
       ],
       "note": {
-       "ja": "行を掴んだまま、押した点から初めて閾値を超えて動いた。どちらの向きが先かは呼び手が判じる"
+       "ja": "タスクグループを掴んだまま、押した点から初めて閾値を超えて動いた。どちらの向きが先かは呼び手が判じる"
       }
      },
      "carries": [
@@ -4071,7 +4071,7 @@
      }
     },
     {
-     "name": "rowGrabStateMachine",
+     "name": "taskGroupGrabStateMachine",
      "states": [
       {
        "key": "notGrabbed",
@@ -4118,7 +4118,7 @@
         "to": "axisUndecided",
         "guard": [
          {
-          "name": "isRowGrabStrip"
+          "name": "isTaskGroupGrabStrip"
          }
         ],
         "evidence": [
@@ -4177,7 +4177,7 @@
         ]
        }
       },
-      "rowGrabAxisSettled": {
+      "taskGroupGrabAxisSettled": {
        "axisUndecided": [
         {
          "to": "changingPosition",
@@ -4513,7 +4513,7 @@
        "HF-20"
       ],
       "note": {
-       "ja": "確認を要る書き込みの束（行の削除・WBS の子孫を持つ `Task` の削除・すべての行の削除）、担当者の削除"
+       "ja": "確認を要る書き込みの束（タスクグループの削除・子孫タスクを持つ `Task` の削除・すべてのタスクグループの削除）、担当者の削除"
       }
      },
      "carries": [
@@ -5865,12 +5865,12 @@
         "not": true
        }
       ],
-      "effect": "bringCreatedRowIntoSight",
+      "effect": "bringCreatedTaskGroupIntoSight",
       "evidence": [
        "HF-17"
       ],
       "note": {
-       "ja": "足した行が描かれていないときだけ送る。描かれているかはシェルが次のレイアウトで判じる"
+       "ja": "足したタスクグループが描かれていないときだけ送る。描かれているかはシェルが次のレイアウトで判じる"
       }
      }
     }
@@ -5886,7 +5886,7 @@
        "FR-097"
       ],
       "note": {
-       "ja": "欄に焦点を置くことを要求が名指した押下（名称・行名・担当・注記の本文・枠の色・文書名）"
+       "ja": "欄に焦点を置くことを要求が名指した押下（名称・タスクグループ名・担当・注記の本文・枠の色・文書名）"
       }
      },
      "carries": [
@@ -5921,7 +5921,7 @@
       {
        "name": "created",
        "note": {
-        "ja": "作ったタスクの UID か、足した行の ID"
+        "ja": "作ったタスクの UID か、足したタスクグループの ID"
        }
       }
      ]
@@ -6278,7 +6278,7 @@
          "IN-5b"
         ],
         "note": {
-         "ja": "`fieldRow` はタスクなら `PR-1`、行なら `AT-53`"
+         "ja": "`fieldRow` はタスクなら `PR-1`、タスクグループなら `AT-53`"
         }
        },
        "fieldFocusWanted": {
@@ -6300,7 +6300,7 @@
          "IN-5b"
         ],
         "note": {
-         "ja": "`fieldRow` はタスクなら `PR-1`、行なら `AT-53`"
+         "ja": "`fieldRow` はタスクなら `PR-1`、タスクグループなら `AT-53`"
         }
        }
       },
@@ -6384,7 +6384,7 @@
    "root": {
     "carries": [
      {
-      "name": "chosenRows",
+      "name": "chosenTaskGroups",
       "rows": [
        "FR-085"
       ]
@@ -6416,22 +6416,22 @@
      "SK-19"
     ],
     "transitions": {
-     "rowsPicked": {
+     "taskGroupsPicked": {
       "evidence": [
        "FR-085",
        "FR-042"
       ],
       "note": {
-       "ja": "`chosenRows` を書き換える"
+       "ja": "`chosenTaskGroups` を書き換える"
       }
      },
-     "createdRowSelected": {
+     "createdTaskGroupSelected": {
       "evidence": [
        "HF-14",
        "FR-085"
       ],
       "note": {
-       "ja": "`chosenRows` を作った行 1 つにする"
+       "ja": "`chosenTaskGroups` を作ったタスクグループ 1 つにする"
       }
      },
      "resourcesPicked": {
@@ -6463,7 +6463,7 @@
        "FR-085"
       ],
       "note": {
-       "ja": "`chosenRows` を空にする —— 段「選択」は対象と行の両方を解く"
+       "ja": "`chosenTaskGroups` を空にする —— 段「選択」は対象とタスクグループの両方を解く"
       }
      },
      "selectionSettleKeyPressed": {
@@ -6472,7 +6472,7 @@
        "FR-085"
       ],
       "note": {
-       "ja": "`chosenRows` を空にする —— 対象と行の両方を解く"
+       "ja": "`chosenTaskGroups` を空にする —— 対象とタスクグループの両方を解く"
       }
      },
      "selectionPruned": {
@@ -6480,7 +6480,7 @@
        "FR-085"
       ],
       "note": {
-       "ja": "`chosenRows` を、運ぶ `chosenRows`（文書に在る行だけ）に置き換える"
+       "ja": "`chosenTaskGroups` を、運ぶ `chosenTaskGroups`（文書に在るタスクグループだけ）に置き換える"
       }
      }
     }
@@ -6586,7 +6586,7 @@
        "FR-085"
       ],
       "note": {
-       "ja": "書き込みが着地し、文書に無くなった対象を刈った。または、表示の切り替え・行の畳みと隠し・行の軸の倍率で描かれなくなったタスクを刈った。⭐ 同じ着地で、文書に無くなった行も行の選択から刈る（`FR-085`）"
+       "ja": "書き込みが着地し、文書に無くなった対象を刈った。または、表示の切り替え・タスクグループの畳みと隠し・縦軸の倍率で描かれなくなったタスクを刈った。⭐ 同じ着地で、文書に無くなったタスクグループもタスクグループの選択から刈る（`FR-085`）"
       }
      },
      "carries": [
@@ -6594,12 +6594,12 @@
        "name": "remainingObjects"
       },
       {
-       "name": "chosenRows",
+       "name": "chosenTaskGroups",
        "rows": [
         "FR-085"
        ],
        "note": {
-        "ja": "刈ったあとに残る行。文書から消えた行を除いた行の選択"
+        "ja": "刈ったあとに残るタスクグループ。文書から消えたタスクグループを除いたタスクグループの選択"
        }
       }
      ]
@@ -6627,7 +6627,7 @@
      ]
     },
     {
-     "key": "rowsPicked",
+     "key": "taskGroupsPicked",
      "source": {
       "kind": "input",
       "rows": [
@@ -6635,24 +6635,24 @@
        "FR-042"
       ],
       "note": {
-       "ja": "行見出しパネルで行を選ぶ・増減する"
+       "ja": "タスクグループパネルでタスクグループを選ぶ・増減する"
       }
      },
      "carries": [
       {
-       "name": "chosenRows"
+       "name": "chosenTaskGroups"
       }
      ]
     },
     {
-     "key": "createdRowSelected",
+     "key": "createdTaskGroupSelected",
      "source": {
       "kind": "effectResult",
       "rows": [
        "HF-14"
       ],
       "note": {
-       "ja": "行を足す書き込みが着地し、足した行が文書に在る"
+       "ja": "タスクグループを足す書き込みが着地し、足したタスクグループが文書に在る"
       }
      },
      "carries": [
@@ -7150,9 +7150,9 @@
    ]
   },
   {
-   "region": "rowTree",
+   "region": "taskGroupTree",
    "name": {
-    "ja": "行の木"
+    "ja": "タスクグループの木"
    },
    "unit": "src/use-case/edit-document/task-group-folding.ts",
    "typeStem": "TreeState",
@@ -7161,13 +7161,13 @@
    "table": {
     "id": "T-328",
     "caption": {
-     "ja": "行の木の状態機械"
+     "ja": "タスクグループの木の状態機械"
     }
    },
    "figure": {
     "id": "F-043",
     "caption": {
-     "ja": "行の木の状態遷移"
+     "ja": "タスクグループの木の状態遷移"
     }
    },
    "root": {
@@ -7177,7 +7177,7 @@
      "S-418"
     ],
     "transitions": {
-     "everyRowFoldPressed": {
+     "everyTaskGroupFoldPressed": {
       "effect": "writeLevelZeroCollapsed",
       "evidence": [
        "HR-2",
@@ -7185,10 +7185,10 @@
        "S-418"
       ],
       "note": {
-       "ja": "段 0 を畳む（`S-418` を `'collapsed'` に）。行の値と同じ束に入れる"
+       "ja": "段 0 を畳む（`S-418` を `'collapsed'` に）。タスクグループの値と同じ束に入れる"
       }
      },
-     "everyRowOpenPressed": {
+     "everyTaskGroupOpenPressed": {
       "guard": [
        {
         "name": "isLevelZeroCollapsed"
@@ -7201,7 +7201,7 @@
        "S-418"
       ],
       "note": {
-       "ja": "段 0 を開く（`S-418` を `'auto'` に）。行の値と同じ束に入れる"
+       "ja": "段 0 を開く（`S-418` を `'auto'` に）。タスクグループの値と同じ束に入れる"
       }
      },
      "topLevelOpenPressed": {
@@ -7220,7 +7220,7 @@
        "ja": "同上"
       }
      },
-     "childRowAddPressed": {
+     "childTaskGroupAddPressed": {
       "guard": [
        {
         "name": "isLevelZeroCollapsed"
@@ -7232,7 +7232,7 @@
        "S-418"
       ],
       "note": {
-       "ja": "同上。1 階層だけ開き、行の値は変えない（`HF-17`）"
+       "ja": "同上。1 階層だけ開き、タスクグループの値は変えない（`HF-17`）"
       }
      },
      "fitPressed": {
@@ -7251,7 +7251,7 @@
        "ja": "同上"
       }
      },
-     "everyRowDeletePressed": {
+     "everyTaskGroupDeletePressed": {
       "guard": [
        {
         "name": "isLevelZeroCollapsed"
@@ -7266,7 +7266,7 @@
        "ja": "同上。消す書き込みと同じ束に入れる（`HF-20`）"
       }
      },
-     "rowRevealAsked": {
+     "taskGroupRevealAsked": {
       "guard": [
        {
         "name": "isLevelZeroCollapsed"
@@ -7278,7 +7278,7 @@
        "S-418"
       ],
       "note": {
-       "ja": "段 0 を開く（`S-418` を `'auto'` に）。行の値と同じ束に入れる"
+       "ja": "段 0 を開く（`S-418` を `'auto'` に）。タスクグループの値と同じ束に入れる"
       }
      }
     }
@@ -7294,14 +7294,14 @@
        "HR-7"
       ],
       "note": {
-       "ja": "行の 1 階層開く操作子を押した。押しが何かを行うときだけ（`FR-029`）"
+       "ja": "タスクグループの 1 階層開く操作子を押した。押しが何かを行うときだけ（`FR-029`）"
       }
      },
      "carries": [
       {
        "name": "pressedRowId",
        "note": {
-        "ja": "押した行の id"
+        "ja": "押したタスクグループの id"
        }
       }
      ]
@@ -7316,14 +7316,14 @@
        "HR-3"
       ],
       "note": {
-       "ja": "行の配下をすべて開く操作子を押した。押しが何かを行うときだけ"
+       "ja": "タスクグループの配下をすべて開く操作子を押した。押しが何かを行うときだけ"
       }
      },
      "carries": [
       {
        "name": "pressedRowId",
        "note": {
-        "ja": "押した行の id"
+        "ja": "押したタスクグループの id"
        }
       }
      ]
@@ -7338,14 +7338,14 @@
        "HR-6"
       ],
       "note": {
-       "ja": "行の隠す操作子を押した"
+       "ja": "タスクグループの隠す操作子を押した"
       }
      },
      "carries": [
       {
        "name": "pressedRowId",
        "note": {
-        "ja": "押した行の id"
+        "ja": "押したタスクグループの id"
        }
       }
      ]
@@ -7360,20 +7360,20 @@
        "HR-4"
       ],
       "note": {
-       "ja": "行の配下をすべて畳む操作子を押した。押しが何かを行うときだけ"
+       "ja": "タスクグループの配下をすべて畳む操作子を押した。押しが何かを行うときだけ"
       }
      },
      "carries": [
       {
        "name": "pressedRowId",
        "note": {
-        "ja": "押した行の id"
+        "ja": "押したタスクグループの id"
        }
       }
      ]
     },
     {
-     "key": "everyRowOpenPressed",
+     "key": "everyTaskGroupOpenPressed",
      "source": {
       "kind": "input",
       "rows": [
@@ -7388,7 +7388,7 @@
      "carries": []
     },
     {
-     "key": "everyRowFoldPressed",
+     "key": "everyTaskGroupFoldPressed",
      "source": {
       "kind": "input",
       "rows": [
@@ -7417,7 +7417,7 @@
      "carries": []
     },
     {
-     "key": "childRowAddPressed",
+     "key": "childTaskGroupAddPressed",
      "source": {
       "kind": "input",
       "rows": [
@@ -7428,14 +7428,14 @@
        "HF-17"
       ],
       "note": {
-       "ja": "行の配下に足す操作子か、頭の最も浅い段へ足す操作子を押した"
+       "ja": "タスクグループの配下に足す操作子か、頭の最も浅い段へ足す操作子を押した"
       }
      },
      "carries": [
       {
        "name": "pressedRowId",
        "note": {
-        "ja": "押した行の id。頭の操作子（`IC-93`）では段 0 を押したので、どの行でもない。値は `null` とする"
+        "ja": "押したタスクグループの id。頭の操作子（`IC-93`）では段 0 を押したので、どのタスクグループでもない。値は `null` とする"
        }
       }
      ]
@@ -7457,7 +7457,7 @@
      "carries": []
     },
     {
-     "key": "everyRowDeletePressed",
+     "key": "everyTaskGroupDeletePressed",
      "source": {
       "kind": "input",
       "rows": [
@@ -7465,13 +7465,13 @@
        "HF-20"
       ],
       "note": {
-       "ja": "頭のすべての行を消す操作子を押し、問い（`QN-10`）に消すと答えた"
+       "ja": "頭のすべてのタスクグループを消す操作子を押し、問い（`QN-10`）に消すと答えた"
       }
      },
      "carries": []
     },
     {
-     "key": "rowZoomShrinkPressed",
+     "key": "verticalZoomShrinkPressed",
      "source": {
       "kind": "input",
       "rows": [
@@ -7482,13 +7482,13 @@
        "ZE-2"
       ],
       "note": {
-       "ja": "縦（行の軸）を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない"
+       "ja": "縦軸を縮める入力。縮める側の端で倍率を書き換えないとき（`ZE-2`）も送る。拡げる入力・日付の軸のズーム・`Agent API` の `setZoom` では送らない"
       }
      },
      "carries": []
     },
     {
-     "key": "rowRevealAsked",
+     "key": "taskGroupRevealAsked",
      "source": {
       "kind": "input",
       "rows": [
@@ -7498,14 +7498,14 @@
        "TV-6"
       ],
       "note": {
-       "ja": "検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して畳んだ行か隠した行の配下の端へ送る（`EL-21`）か、表示の絞り込みに入る・絞り込みのあいだにチェックを足す（`FR-151` の 表 T-353 の `TV-6`）"
+       "ja": "検索パネルの表の行を押して飛ぶ（`SJ-1`）か、`Agent API` の `focusTask`（`AM-16`）が飛ぶか、依存線の続きの印を押して畳んだタスクグループか隠したタスクグループの配下の端へ送る（`EL-21`）か、表示の絞り込みに入る・絞り込みのあいだにチェックを足す（`FR-151` の 表 T-353 の `TV-6`）"
       }
      },
      "carries": [
       {
        "name": "revealedRowId",
        "note": {
-        "ja": "飛ぶ先の行の id"
+        "ja": "飛ぶ先のタスクグループの id"
        }
       }
      ]
@@ -7574,7 +7574,7 @@
         "to": "expanded",
         "guard": [
          {
-          "name": "isPressedRow"
+          "name": "isPressedTaskGroup"
          }
         ],
         "evidence": [
@@ -7586,7 +7586,7 @@
         "to": "expanded",
         "guard": [
          {
-          "name": "isPressedRow"
+          "name": "isPressedTaskGroup"
          }
         ],
         "evidence": [
@@ -7598,7 +7598,7 @@
         "to": "expanded",
         "guard": [
          {
-          "name": "isPressedRow"
+          "name": "isPressedTaskGroup"
          }
         ],
         "evidence": [
@@ -7610,7 +7610,7 @@
         "to": "collapsed",
         "guard": [
          {
-          "name": "isChildOfPressedRow"
+          "name": "isChildOfPressedTaskGroup"
          }
         ],
         "evidence": [
@@ -7625,7 +7625,7 @@
          "to": "temporarilyExpanded",
          "guard": [
           {
-           "name": "isPressedRow"
+           "name": "isPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7638,10 +7638,10 @@
          "to": "temporarilyExpanded",
          "guard": [
           {
-           "name": "isBelowPressedRow"
+           "name": "isBelowPressedTaskGroup"
           },
           {
-           "name": "isLeafRow",
+           "name": "isLeafTaskGroup",
            "not": true
           }
          ],
@@ -7657,7 +7657,7 @@
          "to": "temporarilyExpanded",
          "guard": [
           {
-           "name": "isPressedRow"
+           "name": "isPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7670,10 +7670,10 @@
          "to": "temporarilyExpanded",
          "guard": [
           {
-           "name": "isBelowPressedRow"
+           "name": "isBelowPressedTaskGroup"
           },
           {
-           "name": "isLeafRow",
+           "name": "isLeafTaskGroup",
            "not": true
           }
          ],
@@ -7687,10 +7687,10 @@
          "to": "auto",
          "guard": [
           {
-           "name": "isBelowPressedRow"
+           "name": "isBelowPressedTaskGroup"
           },
           {
-           "name": "isLeafRow"
+           "name": "isLeafTaskGroup"
           }
          ],
          "evidence": [
@@ -7705,10 +7705,10 @@
          "to": "temporarilyExpanded",
          "guard": [
           {
-           "name": "isBelowPressedRow"
+           "name": "isBelowPressedTaskGroup"
           },
           {
-           "name": "isLeafRow",
+           "name": "isLeafTaskGroup",
            "not": true
           }
          ],
@@ -7722,10 +7722,10 @@
          "to": "auto",
          "guard": [
           {
-           "name": "isBelowPressedRow"
+           "name": "isBelowPressedTaskGroup"
           },
           {
-           "name": "isLeafRow"
+           "name": "isLeafTaskGroup"
           }
          ],
          "evidence": [
@@ -7742,7 +7742,7 @@
          "to": "hidden",
          "guard": [
           {
-           "name": "isPressedRow"
+           "name": "isPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7754,7 +7754,7 @@
          "to": "collapsed",
          "guard": [
           {
-           "name": "isBelowPressedRow"
+           "name": "isBelowPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7768,7 +7768,7 @@
         "to": "hidden",
         "guard": [
          {
-          "name": "isPressedRow"
+          "name": "isPressedTaskGroup"
          }
         ],
         "evidence": [
@@ -7781,7 +7781,7 @@
          "to": "hidden",
          "guard": [
           {
-           "name": "isPressedRow"
+           "name": "isPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7793,7 +7793,7 @@
          "to": "collapsed",
          "guard": [
           {
-           "name": "isBelowPressedRow"
+           "name": "isBelowPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7808,7 +7808,7 @@
          "to": "hidden",
          "guard": [
           {
-           "name": "isPressedRow"
+           "name": "isPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7820,7 +7820,7 @@
          "to": "collapsed",
          "guard": [
           {
-           "name": "isBelowPressedRow"
+           "name": "isBelowPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7837,7 +7837,7 @@
          "to": "collapsed",
          "guard": [
           {
-           "name": "isPressedRow"
+           "name": "isPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7850,7 +7850,7 @@
          "to": "collapsed",
          "guard": [
           {
-           "name": "isBelowPressedRow"
+           "name": "isBelowPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7865,7 +7865,7 @@
          "to": "collapsed",
          "guard": [
           {
-           "name": "isPressedRow"
+           "name": "isPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7878,7 +7878,7 @@
          "to": "collapsed",
          "guard": [
           {
-           "name": "isBelowPressedRow"
+           "name": "isBelowPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7893,7 +7893,7 @@
          "to": "collapsed",
          "guard": [
           {
-           "name": "isPressedRow"
+           "name": "isPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7906,7 +7906,7 @@
          "to": "collapsed",
          "guard": [
           {
-           "name": "isBelowPressedRow"
+           "name": "isBelowPressedTaskGroup"
           }
          ],
          "evidence": [
@@ -7917,12 +7917,12 @@
         }
        ]
       },
-      "everyRowOpenPressed": {
+      "everyTaskGroupOpenPressed": {
        "auto": {
         "to": "temporarilyExpanded",
         "guard": [
          {
-          "name": "isLeafRow",
+          "name": "isLeafTaskGroup",
           "not": true
          }
         ],
@@ -7937,7 +7937,7 @@
          "to": "temporarilyExpanded",
          "guard": [
           {
-           "name": "isLeafRow",
+           "name": "isLeafTaskGroup",
            "not": true
           }
          ],
@@ -7951,7 +7951,7 @@
          "to": "auto",
          "guard": [
           {
-           "name": "isLeafRow"
+           "name": "isLeafTaskGroup"
           }
          ],
          "evidence": [
@@ -7966,7 +7966,7 @@
          "to": "temporarilyExpanded",
          "guard": [
           {
-           "name": "isLeafRow",
+           "name": "isLeafTaskGroup",
            "not": true
           }
          ],
@@ -7980,7 +7980,7 @@
          "to": "auto",
          "guard": [
           {
-           "name": "isLeafRow"
+           "name": "isLeafTaskGroup"
           }
          ],
          "evidence": [
@@ -7991,7 +7991,7 @@
         }
        ]
       },
-      "everyRowFoldPressed": {
+      "everyTaskGroupFoldPressed": {
        "auto": {
         "to": "collapsed",
         "evidence": [
@@ -8022,7 +8022,7 @@
         "to": "collapsed",
         "guard": [
          {
-          "name": "isTopLevelRow"
+          "name": "isTopLevelTaskGroup"
          }
         ],
         "evidence": [
@@ -8031,12 +8031,12 @@
         ]
        }
       },
-      "childRowAddPressed": {
+      "childTaskGroupAddPressed": {
        "auto": {
         "to": "temporarilyExpanded",
         "guard": [
          {
-          "name": "isPressedRow"
+          "name": "isPressedTaskGroup"
          }
         ],
         "evidence": [
@@ -8048,7 +8048,7 @@
         "to": "temporarilyExpanded",
         "guard": [
          {
-          "name": "isPressedRow"
+          "name": "isPressedTaskGroup"
          }
         ],
         "evidence": [
@@ -8080,7 +8080,7 @@
         ]
        }
       },
-      "rowZoomShrinkPressed": {
+      "verticalZoomShrinkPressed": {
        "temporarilyExpanded": {
         "to": "auto",
         "evidence": [
@@ -8090,12 +8090,12 @@
         ]
        }
       },
-      "rowRevealAsked": {
+      "taskGroupRevealAsked": {
        "auto": {
         "to": "expanded",
         "guard": [
          {
-          "name": "isRevealedRowOrAncestor"
+          "name": "isRevealedTaskGroupOrAncestor"
          }
         ],
         "evidence": [
@@ -8106,7 +8106,7 @@
         "to": "expanded",
         "guard": [
          {
-          "name": "isRevealedRowOrAncestor"
+          "name": "isRevealedTaskGroupOrAncestor"
          }
         ],
         "evidence": [
@@ -8117,7 +8117,7 @@
         "to": "expanded",
         "guard": [
          {
-          "name": "isRevealedRowOrAncestor"
+          "name": "isRevealedTaskGroupOrAncestor"
          }
         ],
         "evidence": [
@@ -8128,7 +8128,7 @@
         "to": "expanded",
         "guard": [
          {
-          "name": "isRevealedRowOrAncestor"
+          "name": "isRevealedTaskGroupOrAncestor"
          }
         ],
         "evidence": [

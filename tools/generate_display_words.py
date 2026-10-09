@@ -129,10 +129,10 @@ SHORTCUT_ENTRANCE_HEADING = u'入口'
 # holds the note on IC-54's row, so that section is keyed by the row id.
 # CR-635: every block of the help carries a heading, keyed by the block's name
 # in the help roster (tools/generate_help_roster.py). CR-665: the palette's
-# group moved under the Row Title Panel is a block of its own, with its own
+# group moved under the Task Group Panel is a block of its own, with its own
 # heading.
 # ⚠️ These are KEYS, not words.
-HELP_HEADINGS =('basics', 'browser', 'App Header', 'Row Title Panel',
+HELP_HEADINGS =('basics', 'browser', 'App Header', 'Task Group Panel',
                 'Command Palette (continued)', 'Command Palette')
 HELP_NOTES = ('IC-54', 'IC-20')
 # ⭐ The notes below the columns of the help body (FR-036, CR-620): note *1
@@ -218,7 +218,7 @@ NOTICE_DISMISS = ('dismiss',)
 # glyph for it, RC-13 of table T-026 keeping shapes as the user's own ruling.
 # ⛔ Held here rather than read from a table for the reason above it: no table
 # holds these as rows. ⚠️ These are KEYS, not words.
-CONFIRMATION_MARKS = ('shownOnAnotherRow',)
+CONFIRMATION_MARKS = ('shownOnAnotherTaskGroup',)
 
 # What the header shows in place of a time when the document has never been
 # written to a file (FR-101, MUST: 「時刻の代わりにその旨を示すこと」).
@@ -301,7 +301,7 @@ COLOUR_FIELD_PARTS = ('custom', 'themeHint', 'noFill', 'noLine', 'defaultColour'
 # (AS-5, {name} slot). HELD HERE, the same move as COLOUR_FIELD_PARTS. KEYS,
 # not words.
 #
-# CR-689: the three words of the WBS parent field (WL-15 2-4, JDG-1133 /
+# CR-689: the three words of the parent task field (PTL-15 2-4, JDG-1133 /
 # JDG-1467), the unit words beside the outline width and the actual length
 # (FR-006), the lag and the kind tooltips of a dependency line in PR-37 / PR-38
 # ({lag} and {abbreviation} slots, JDG-1653), and the tooltip of PR-8
@@ -324,12 +324,12 @@ PROPERTY_FIELD_PARTS = ('dependencyEnd', 'addResource', 'derivedParent',
 # word stands for null (MH-2), the check does.
 ROW_MIN_HEIGHT_FIELD_PARTS = ('enable', 'unit', 'basisHint', 'currentName',
                               'currentValue', 'currentlyHidden')
-# CR-690: the document settings panel's row title panel width field (table
+# CR-690: the document settings panel's task group panel width field (table
 # T-368: the unit WF-2, the read-only current width WF-3) and fit span field
 # (table T-367: the read-only shown span FX-6, the copy entrance FX-7). No
 # table holds these words as rows, so they are HELD HERE, the same move as
 # ROW_MIN_HEIGHT_FIELD_PARTS. KEYS, not words.
-ROW_TITLE_WIDTH_FIELD_PARTS = ('unit', 'currentName', 'currentValue')
+TASK_GROUP_PANEL_WIDTH_FIELD_PARTS = ('unit', 'currentName', 'currentValue')
 FIT_SPAN_FIELD_PARTS = ('currentName', 'currentValue', 'copyCurrent')
 
 # CR-571: the search panel (FR-151). The column headings are READ from table
@@ -365,11 +365,11 @@ DIFFERENCE_REVIEW_PARTS = ('separateNote',)
 # OPEN_CHOOSER_PARTS. KEYS, not words.
 EXPORT_CHOOSER_PARTS = ('fitSpan',)
 # CR-631: the two choices QN-12 of table T-234 offers when a selection mixes
-# tasks and WBS parent arrows (WL-13 of table T-351): the first in its armed
+# tasks and parent task arrows (PTL-13 of table T-351): the first in its armed
 # and its unarmed wording (JDG-1142), then the arrows. Not NT-7's Yes / No, and
 # no table holds them as rows, so they are HELD HERE, the same move as
 # OPEN_CHOOSER_PARTS. KEYS, not words.
-WBS_PARENT_CHOICE_PARTS = ('childTasks', 'tasks', 'links')
+PARENT_TASK_CHOICE_PARTS = ('childTasks', 'tasks', 'links')
 
 # CR-624: the words that head two lines of the hint a rested pointer shows
 # (table T-348 of FR-092): the plan line (TL-5) and the actual line (TL-6).
@@ -681,7 +681,7 @@ def roster():
         'colourField': list(COLOUR_FIELD_PARTS),
         'propertyField': list(PROPERTY_FIELD_PARTS),
         'rowMinHeightField': list(ROW_MIN_HEIGHT_FIELD_PARTS),
-        'rowTitleWidthField': list(ROW_TITLE_WIDTH_FIELD_PARTS),
+        'taskGroupPanelWidthField': list(TASK_GROUP_PANEL_WIDTH_FIELD_PARTS),
         'scaleEcho': list(SCALE_ECHO_ENDS),
         'dualCursorReadout': list(DUAL_CURSOR_READOUT_LINES),
         'searchColumns': [row[0] for row in
@@ -709,7 +709,7 @@ def roster():
         'exportChooser': list(EXPORT_CHOOSER_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
         'differenceReview': list(DIFFERENCE_REVIEW_PARTS),
-        'wbsParentChoice': list(WBS_PARENT_CHOICE_PARTS),
+        'parentTaskChoice': list(PARENT_TASK_CHOICE_PARTS),
         'hintLines': hint_lines(),
         'assignments': [row[0] for row in
                         table_rows(REL_REQUIREMENTS, ASSIGNMENT_ROW,
@@ -771,7 +771,7 @@ SHAPE = {
     'colourField': ('part', ('text',)),
     'propertyField': ('part', ('text',)),
     'rowMinHeightField': ('part', ('text',)),
-    'rowTitleWidthField': ('part', ('text',)),
+    'taskGroupPanelWidthField': ('part', ('text',)),
     'themeHues': ('rowId', ('text',)),
     'scaleEcho': ('end', ('text',)),
     'dualCursorReadout': ('line', ('text',)),
@@ -789,7 +789,7 @@ SHAPE = {
     'exportChooser': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
     'differenceReview': ('part', ('text',)),
-    'wbsParentChoice': ('part', ('text',)),
+    'parentTaskChoice': ('part', ('text',)),
     'hintLines': ('rowId', ('text',)),
 }
 
@@ -893,10 +893,10 @@ def build(doc, keys_by_row):
                     'assignments', 'arms',
                     'weekdays', 'hintLines',
                     'colourNames', 'colourField', 'propertyField',
-                    'rowMinHeightField', 'rowTitleWidthField',
+                    'rowMinHeightField', 'taskGroupPanelWidthField',
                     'themeHues',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
-                    'planActualStates', 'searchPanel', 'wbsParentChoice',
+                    'planActualStates', 'searchPanel', 'parentTaskChoice',
                     'delayReportColumns',
                     'delayReportStatuses', 'delayReportSummary',
                     'delayReportMarkdown', 'delayReportReasons',

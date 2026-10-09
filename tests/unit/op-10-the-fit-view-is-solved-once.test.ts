@@ -23,7 +23,7 @@ const sectionOf = (uid: string): string => {
 }
 
 const OP_10_IS_THE_FIT =
-  '| OP-10 | **表示位置が `null`、または指す行が存在しないとき**<br>⭐ 表示位置は `scrollDate`（`S-77`）と `scrollGroupId`（`S-78`）の組であり、どちらか一方でも `null` なら、表示位置が `null` であるとすること（MUST） —— 片方だけでは場所を指せない（日だけでは上端の行が、行だけでは左端の日が決まらない） | `FR-055` の全体表示が選ぶ倍率と表示位置にすること（MUST）。'
+  '| OP-10 | **表示位置が `null`、または指すタスクグループが存在しないとき**<br>⭐ 表示位置は `scrollDate`（`S-77`）と `scrollGroupId`（`S-78`）の組であり、どちらか一方でも `null` なら、表示位置が `null` であるとすること（MUST） —— 片方だけでは場所を指せない（日だけでは上端のタスクグループが、タスクグループだけでは左端の日が決まらない） | `FR-055` の全体表示が選ぶ倍率と表示位置にすること（MUST）。'
 const OP_10_NOT_EVERY_FRAME =
   '⛔ **本行を毎フレームやり直してはならない（MUST NOT）** —— **本行は結果を定めるものであって、頻度を定めるものではない。'
 const OP_10_A_PERSON_CHOOSES =
@@ -528,7 +528,7 @@ describe('OP-10 の答えを取り直す出来事', () => {
 
   // WHY: the fit may land inside the shrinking end (ZE-1), where ZE-6 writes more than one S-53
   // step; OP-10 and FR-055 fix the zoom stepped from, so one step is the floor of what is written.
-  it('人が行軸の倍率を選んだとき -- 全体表示の倍率から S-53 で刻んだ値が文書へ着き、次のフレームがそれを上書きしない', () => {
+  it('人が縦軸の倍率を選んだとき -- 全体表示の倍率から S-53 で刻んだ値が文書へ着き、次のフレームがそれを上書きしない', () => {
     const built = bench(documentWithNoViewPlace())
     const fitted = built.exportedViewPlace().zoomY
     built.press(WIDEN_THE_VERTICAL_AXIS)

@@ -136,8 +136,8 @@
     "planVisible",
     "progressLineVisible",
     "progressMarkerVisible",
-    "rowTitlePanelWidth",
-    "rowTitlePanelWidthFixed",
+    "taskGroupPanelWidth",
+    "taskGroupPanelWidthFixed",
     "rulerFont",
     "rulerHeight",
     "scrollDate",
@@ -253,12 +253,12 @@
      "type": "boolean",
      "default": true
     },
-    "rowTitlePanelWidth": {
+    "taskGroupPanelWidth": {
      "type": "number",
      "default": 300,
      "minimum": 80
     },
-    "rowTitlePanelWidthFixed": {
+    "taskGroupPanelWidthFixed": {
      "type": "boolean",
      "default": false
     },
@@ -297,7 +297,7 @@
      "default": 0
     },
     "stackDirection": {
-     "description": "up stacks a row's tasks so that the chart climbs to a goal at the upper right; down stacks them so that it descends to a goal at the lower right.",
+     "description": "up stacks a task group's tasks so that the chart climbs to a goal at the upper right; down stacks them so that it descends to a goal at the lower right.",
      "enum": [
       "up",
       "down"
@@ -475,7 +475,7 @@
      "$ref": "#/$defs/Time"
     },
     "themeHue": {
-     "description": "The hue that tasks and rows without a colour of their own are drawn in. It belongs to the project, not to the reader, so it is here and not in documentSettings.",
+     "description": "The hue that tasks and task groups without a colour of their own are drawn in. It belongs to the project, not to the reader, so it is here and not in documentSettings.",
      "type": "integer",
      "minimum": 0,
      "maximum": 359,
@@ -521,7 +521,7 @@
    "description": "One task: its plan, and its actual given by dates.",
    "required": [
     "uid",
-    "wbsParentUid",
+    "parentTaskUid",
     "wbsOrder",
     "name",
     "start",
@@ -547,7 +547,7 @@
     "uid": {
      "type": "integer"
     },
-    "wbsParentUid": {
+    "parentTaskUid": {
      "type": [
       "integer",
       "null"
@@ -705,7 +705,7 @@
   },
   "TaskGroup": {
    "type": "object",
-   "description": "A row on screen. Rows are kept apart from the WBS (Task.wbsParentUid) so that several tasks can share one row; rows are not exported to MS Project.",
+   "description": "A task group on screen. Task groups are kept apart from the WBS (Task.parentTaskUid) so that several tasks can share one task group; task groups are not exported to MS Project.",
    "required": [
     "id",
     "parentId",
@@ -746,7 +746,7 @@
      "type": "integer"
     },
     "treeState": {
-     "description": "Saved, like every row state, so that reopening shows what was saved.",
+     "description": "Saved, like every task group state, so that reopening shows what was saved.",
      "enum": [
       "auto",
       "collapsed",
@@ -779,7 +779,7 @@
   },
   "TaskGroupMember": {
    "type": "object",
-   "description": "Which row a task sits on; every task sits on exactly one row. No lane is stored: GRS stacks a row's tasks itself, in the direction documentSettings.stackDirection names.",
+   "description": "Which task group a task sits on; every task sits on exactly one task group. No lane is stored: GRS stacks a task group's tasks itself, in the direction documentSettings.stackDirection names.",
    "required": [
     "taskUid",
     "groupId"
@@ -1156,7 +1156,7 @@
   },
   "CommentBox": {
    "type": "object",
-   "description": "One comment box. Pinned to a date and a row.",
+   "description": "One comment box. Pinned to a date and a task group.",
    "required": [
     "id",
     "leaderShapeKind",
@@ -1255,7 +1255,7 @@
   },
   "HighlightBox": {
    "type": "object",
-   "description": "One highlight box. Encloses a range of dates and rows.",
+   "description": "One highlight box. Encloses a range of dates and task groups.",
    "required": [
     "id",
     "startDate",

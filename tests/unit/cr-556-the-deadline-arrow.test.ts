@@ -48,10 +48,10 @@ const anyRowText = (table: string, id: string): string => {
   return unbroken(found.cells.join(' '))
 }
 
-const DA_1_DRAW = '`deadline` が `null` でない `Task` の印を、その `Task` を置いた行を描くときに描くこと（MUST）'
+const DA_1_DRAW = '`deadline` が `null` でない `Task` の印を、その `Task` を置いたタスクグループを描くときに描くこと（MUST）'
 const DA_1_NULL = '`deadline` が `null` の `Task` には描かないこと（MUST）'
 const DA_1_NOT_THE_TOGGLES = '従わせてはならない（MUST NOT）'
-const DA_1_FOLDED = '畳んだ行・隠した行・詳しさの段で描かない行に載る `Task` の印は描かない'
+const DA_1_FOLDED = '畳んだタスクグループ・隠したタスクグループ・詳しさの段で描かないタスクグループに載る `Task` の印は描かない'
 const DA_2_ONE_SHAPE = '1 つの塗りの形として描くこと（MUST）'
 const DA_2_HEIGHT = '箱の高さ d は、その `Task` の進捗マーカーの径とすること（MUST）'
 const DA_2_RATIOS = '軸の太さは d × 同表の `S-367` とすること（MUST）'

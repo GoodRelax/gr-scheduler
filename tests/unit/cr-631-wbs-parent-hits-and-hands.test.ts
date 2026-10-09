@@ -68,9 +68,9 @@ describe('CR-631 -- the rows of table T-351 these cases are driven by', () => {
   })
 
   it('T-023b AR-7, T-023a PTD-5 and T-023c SL-1 / SL-4 still say it', () => {
-    expect(flat(rowText('T-023b', 'AR-7'))).toContain('**WBS の親を結ぶ**'.replace(/\*\*/g, ''))
-    expect(flat(rowText('T-023a', 'PTD-5'))).toContain('WBS の親を構えている（AR-7）')
-    expect(flat(rowText('T-023c', 'SL-1'))).toContain('破線の矢印（表 T-318 で導いた親）を選んではならない（MUST NOT）')
+    expect(flat(rowText('T-023b', 'AR-7'))).toContain('**親タスクを結ぶ**'.replace(/\*\*/g, ''))
+    expect(flat(rowText('T-023a', 'PTD-5'))).toContain('親タスクを構えている（AR-7）')
+    expect(flat(rowText('T-023c', 'SL-1'))).toContain('破線の矢印（表 T-318 で導いた親タスク）を選んではならない（MUST NOT）')
     expect(flat(rowText('T-023c', 'SL-4'))).toContain('動かさない `Ctrl` ＋クリックも `Shift` と同じく 1 つずつ増減する')
     expect(cellOf('T-109', 'IC-142', '構え')).toContain('AR-7')
   })

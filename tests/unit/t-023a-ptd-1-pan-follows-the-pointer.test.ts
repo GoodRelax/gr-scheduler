@@ -17,7 +17,7 @@
 // holds eight `SW_SPEC` nodes, none of which reaches a pan:
 //
 //   SWS-1 目盛の刻みの間隔      SWS-5 イナズマ線の頂点
-//   SWS-2 行の帯高と縦位置      SWS-6 MSPDI の正規化
+//   SWS-2 タスクグループの帯高と縦位置      SWS-6 MSPDI の正規化
 //   SWS-3 依存線の経路          SWS-7 書き出した SVG の正規化
 //   SWS-4 描くものの頂点        SWS-8 単一 HTML の内容セキュリティ方針
 //
@@ -71,13 +71,13 @@
 //   T-023d  「**パンは等倍とすること（MUST）** —— ポインタが動いた距離だけ
 //           日程表が動く。倍率を掛けない。⛔ **錠の上にしか着地できない形に
 //           してはならない（MUST NOT）** —— `_assets/tbl-settings.md` の
-//           表 T-203 の `S-77` と `S-78` は日付と行の識別子しか持てないので、
-//           それだけでは 1 日・1 行より短い移動が何も起こさず、等倍が成り立た
+//           表 T-203 の `S-77` と `S-78` は日付とタスクグループの識別子しか持てないので、
+//           それだけでは 1 日・1 タスクグループより短い移動が何も起こさず、等倍が成り立た
 //           ない。**端数は同表の `S-176` と `S-177` が持つ（MUST）。**」
 //   T-206 / T-203 S-176 / S-177   the two fractions that sentence leans on:
-//           「表示の上端が、`scrollGroupId` が指す行のどこにあるか。**その行が
-//           占める送り（その行の帯の高さと、その下の隙間を合わせた長さ。次の行の
-//           上端までの距離であり、最後の行は自身の帯）に対する比であり、px では
+//           「表示の上端が、`scrollGroupId` が指すタスクグループのどこにあるか。**そのタスクグループが
+//           占める送り（そのタスクグループの帯の高さと、その下の隙間を合わせた長さ。次のタスクグループの
+//           上端までの距離であり、最後のタスクグループは自身の帯）に対する比であり、px では
 //           ない**（`FR-080`）。⛔⛔ **帯の高さに対する比にしてはならない
 //           （MUST NOT）** —— **帯と帯は接していない**ので、帯に対する比では隙間
 //           に立つ上端を名指せず、表 T-023d の「**錠の上にしか着地できない形に
@@ -126,9 +126,9 @@
 // してはならない（MUST NOT）.
 //
 // ⭐ THE MANUSCRIPT WAS WHERE IT CAME FROM, AND THE MANUSCRIPT IS WHERE IT WAS
-// FIXED. `S-176` had read DFC-138 「その行自身の高さに対する比」, a height smaller than
+// FIXED. `S-176` had read DFC-138 「そのタスクグループ自身の高さに対する比」, a height smaller than
 // the distance from one row to the next, so the gap had no spelling at all. It
-// now reads 「その行が占める送り……に対する比」 and carries a MUST NOT against
+// now reads 「そのタスクグループが占める送り……に対する比」 and carries a MUST NOT against
 // the band. ⚠️ THE SIDEWAYS AXIS WAS ALWAYS WHOLE: days abut, so it had no gap
 // to lose. ⛔ Not one assertion below was weakened to close this.
 
@@ -574,7 +574,7 @@ const emptySpot = (loop: FrameLoop): Point => {
  * that can only land on the lock (⛔ 錠の上にしか着地できない形にしてはならない
  * （MUST NOT）) and says why: `S-77` and `S-78` hold a date and a row id, so a
  * pan built out of those alone moves by nothing at all for anything shorter
- * than one day or one row -- 「それだけでは 1 日・1 行より短い移動が何も起こさ
+ * than one day or one row -- 「それだけでは 1 日・1 タスクグループより短い移動が何も起こさ
  * ず、等倍が成り立たない」. Halves are what make that visible.
  */
 const TRAVEL_DAYS = 2.5

@@ -31,7 +31,7 @@ const AGENT_API_ENTRANCE = ((): string => {
 })()
 
 const HF_6_NOT_THE_LOWER_TASK_GROUP =
-  '群が下の行に重なっているとき、群の上にあるポインタを、下の行の名前に乗っていると数えてはならない（MUST NOT）'
+  '群が下のタスクグループに重なっているとき、群の上にあるポインタを、下のタスクグループ名に乗っていると数えてはならない（MUST NOT）'
 
 const ROW = '[data-depth]'
 const GRID = '[data-row-folding-grid]'

@@ -12,11 +12,11 @@ import type { Document } from '../../src/entity/document-model/document/document
 import { editTaskGroup, type TaskGroupCommand } from '../../src/use-case/edit-document/edit-document'
 import { editTask } from '../../src/use-case/edit-document/edit-task'
 
-const LEAF_CLAUSE = '**子を持たない `Task` には器を作らず、親の `Task` の行に載せること（MUST）'
-const ROOT_CLAUSE = '**親を持たない `Task` は、子を持たなくても自分の行を持つこと（MUST）'
-const OWN_TASK_GROUP_SENTENCE = '子を持つ `Task` は、自分から作った行に自分自身も載る。'
+const LEAF_CLAUSE = '**子を持たない `Task` には器を作らず、親の `Task` のタスクグループに載せること（MUST）'
+const ROOT_CLAUSE = '**親を持たない `Task` は、子を持たなくても自分のタスクグループを持つこと（MUST）'
+const OWN_TASK_GROUP_SENTENCE = '子を持つ `Task` は、自分から作ったタスクグループに自分自身も載る。'
 const CAPPED_PARENT_SENTENCE =
-  '親に器が無いとき（親が上限を超える段に在るとき）は、上の段落のとおり最も深い段の行に載せる。'
+  '親に器が無いとき（親が上限を超える段に在るとき）は、上の段落のとおり最も深い段のタスクグループに載せる。'
 
 const REQUIREMENTS = readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')
 

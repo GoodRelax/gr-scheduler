@@ -444,7 +444,7 @@ const rowOf = (
   box,
   label,
   // S-37 of table T-201 (K-37) is the indent of ONE level of depth, and FR-085
-  // takes 「その行の深さぶんのインデント」 off the usable width, DRAWN (T-252 DS-1).
+  // takes 「そのタスクグループの深さぶんのインデント」 off the usable width, DRAWN (T-252 DS-1).
   indentPx: depth * SETTINGS_CONSTANTS.taskGroupTitleIndent * DISPLAY_RATIO,
   ...taskGroupNameFont(depth),
   // Nothing is cut here, and the `TaskGroupTitle` contract fixes that case as
@@ -1135,7 +1135,7 @@ describe('FR-080 -- a part left out leaves a gap, it does not move its neighbour
     //
     // ⚠️ THE ROW'S CONTROLS ARE TAKEN OUT BY SPENDING THEM, NOT BY REMOVING THEM.
     // Until 2026-08-30 this line read `expander: null`, and that is a state the
-    // manuscript does not admit: 表 T-051 の `HF-1` places the three on 「各行」,
+    // manuscript does not admit: 表 T-051 の `HF-1` places the three on 「各タスクグループ」,
     // so `TaskGroupTitle.expander` is no longer nullable. ⭐ THE VARIABLE THE MANUSCRIPT
     // DOES NAME is whether each control is armed or spent -- `FR-029` (MUST)
     // draws a spent one 薄く, a different drawing of the same control -- together

@@ -418,7 +418,7 @@
     "to": "schedule",
     "multiplicity": "0..1 ─ 1",
     "label": {
-     "ja": "表示位置が指す行。弱い参照"
+     "ja": "表示位置が指すタスクグループ。弱い参照"
     }
    },
    {
@@ -426,7 +426,7 @@
     "to": "schedule",
     "multiplicity": "0..n ─ 1",
     "label": {
-     "ja": "ピン止めした行。弱い参照"
+     "ja": "ピン止めしたタスクグループ。弱い参照"
     }
    }
   ]
@@ -792,7 +792,7 @@
       "ja": "テーマ色の色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73`"
      },
      "schemaNote": {
-      "en": "The hue that tasks and rows without a colour of their own are drawn in. It belongs to the project, not to the reader, so it is here and not in documentSettings."
+      "en": "The hue that tasks and task groups without a colour of their own are drawn in. It belongs to the project, not to the reader, so it is here and not in documentSettings."
      }
     },
     {
@@ -810,7 +810,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "親子の進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない"
+      "ja": "親タスクの進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない"
      },
      "schemaNote": {
       "en": "How many working days a parent task's progress point may lie outside the progress points of the work below it before Delay Diagnostics asks whether an update is missing. It belongs to the project (how often progress is collected), not to the reader, so it is here and not in documentSettings."
@@ -959,7 +959,7 @@
     },
     {
      "seat": 25,
-     "name": "wbsParentUid",
+     "name": "parentTaskUid",
      "type": "整数",
      "nullable": "可（`null` = 根）",
      "json": {
@@ -970,7 +970,7 @@
      "origin": "Consume",
      "exchange": "",
      "meaning": {
-      "ja": "WBS の親。交換相手には対応要素が無く、深さと出現順から起こす"
+      "ja": "親タスク。交換相手には対応要素が無く、深さと出現順から起こす"
      }
     },
     {
@@ -1458,8 +1458,8 @@
    "seat": 4,
    "name": "TaskGroup",
    "description": {
-    "ja": "行の器。縦積みの軸を作る（`FR-004`）",
-    "en": "A row on screen. Rows are kept apart from the WBS (Task.wbsParentUid) so that several tasks can share one row; rows are not exported to MS Project."
+    "ja": "タスクグループの器。縦積みの軸を作る（`FR-004`）",
+    "en": "A task group on screen. Task groups are kept apart from the WBS (Task.parentTaskUid) so that several tasks can share one task group; task groups are not exported to MS Project."
    },
    "export": false,
    "carry": false,
@@ -1478,7 +1478,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "行の識別子"
+      "ja": "タスクグループの識別子"
      }
     },
     {
@@ -1495,7 +1495,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "親の行。深さの上限は `FR-004`"
+      "ja": "親のタスクグループ。深さの上限は `FR-004`"
      }
     },
     {
@@ -1511,7 +1511,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "行の名前"
+      "ja": "タスクグループ名"
      }
     },
     {
@@ -1567,10 +1567,10 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "行の木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせる行は `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。`createTaskGroup`（`_assets/tbl-glossary.md` の 表 T-108 の `CM-26`）で作る行と、行が 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作る行は `temporarilyExpanded`（同書の 表 T-051 の `HF-14` —— 足した行を倍率によらず見せ、縦を縮めたら `auto` へ戻す）。既定の `auto` は、この値を持たずに読んだ行と、`CM-26` を通らずにできる行（MSPDI から取り込んだ行、`createTask` が行とともに作る行）が取る。貼り付けたコピーは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う"
+      "ja": "タスクグループの木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせるタスクグループは `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。`createTaskGroup`（`_assets/tbl-glossary.md` の 表 T-108 の `CM-26`）で作るタスクグループと、タスクグループが 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作るタスクグループは `temporarilyExpanded`（同書の 表 T-051 の `HF-14` —— 足したタスクグループを倍率によらず見せ、縦を縮めたら `auto` へ戻す）。既定の `auto` は、この値を持たずに読んだタスクグループと、`CM-26` を通らずにできるタスクグループ（MSPDI から取り込んだタスクグループ、`createTask` がタスクグループとともに作るタスクグループ）が取る。貼り付けたコピーは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う"
      },
      "schemaNote": {
-      "en": "Saved, like every row state, so that reopening shows what was saved."
+      "en": "Saved, like every task group state, so that reopening shows what was saved."
      }
     },
     {
@@ -1586,7 +1586,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "この行を編集できるグループ。`null` は誰でも編集できる。規則は `FR-111`"
+      "ja": "このタスクグループを編集できるグループ。`null` は誰でも編集できる。規則は `FR-111`"
      }
     },
     {
@@ -1603,7 +1603,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "行の帯の色。形は `AT-102` と同じ。ただし行の帯を持たない名（`_assets/tbl-settings.md` の表 T-294 の行の帯の欄が「—」の名 —— 黒 `S-315`）は取らない（表 T-017b の `CV-9`）。規則は表 T-017b"
+      "ja": "タスクグループの帯の色。形は `AT-102` と同じ。ただしタスクグループの帯を持たない名（`_assets/tbl-settings.md` の表 T-294 の行の帯の欄が「—」の名 —— 黒 `S-315`）は取らない（表 T-017b の `CV-9`）。規則は表 T-017b"
      }
     },
     {
@@ -1619,7 +1619,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "行の最小の高さ。表示の倍率 100 のときの画面の px（縦のズームでは伸び縮みしない）。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ"
+      "ja": "タスクグループの最小の高さ。表示の倍率 100 のときの画面の px（縦のズームでは伸び縮みしない）。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ"
      }
     }
    ]
@@ -1628,8 +1628,8 @@
    "seat": 5,
    "name": "TaskGroupMember",
    "description": {
-    "ja": "どのタスクがどの行に載るか。段は持たない —— 行の中の積み順は表 T-014 の `ST-2` が決める",
-    "en": "Which row a task sits on; every task sits on exactly one row. No lane is stored: GRS stacks a row's tasks itself, in the direction documentSettings.stackDirection names."
+    "ja": "どのタスクがどのタスクグループに載るか。段は持たない —— タスクグループの中の積み順は表 T-014 の `ST-2` が決める",
+    "en": "Which task group a task sits on; every task sits on exactly one task group. No lane is stored: GRS stacks a task group's tasks itself, in the direction documentSettings.stackDirection names."
    },
    "export": false,
    "carry": false,
@@ -1650,7 +1650,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "載るタスク。**1 つのタスクは 1 行にしか載らない**ので、これだけで一意である"
+      "ja": "載るタスク。**1 つのタスクは 1 つのタスクグループにしか載らない**ので、これだけで一意である"
      }
     },
     {
@@ -1667,7 +1667,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "載せる行"
+      "ja": "載せるタスクグループ"
      }
     }
    ]
@@ -2582,8 +2582,8 @@
    "seat": 13,
    "name": "CommentBox",
    "description": {
-    "ja": "コメントボックス 1 つ。日付と行に留める",
-    "en": "One comment box. Pinned to a date and a row."
+    "ja": "コメントボックス 1 つ。日付とタスクグループに留める",
+    "en": "One comment box. Pinned to a date and a task group."
    },
    "export": false,
    "carry": false,
@@ -2672,7 +2672,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "留める行"
+      "ja": "留めるタスクグループ"
      }
     },
     {
@@ -2787,8 +2787,8 @@
    "seat": 14,
    "name": "HighlightBox",
    "description": {
-    "ja": "ハイライトボックス 1 つ。日付と行の範囲を囲む",
-    "en": "One highlight box. Encloses a range of dates and rows."
+    "ja": "ハイライトボックス 1 つ。日付とタスクグループの範囲を囲む",
+    "en": "One highlight box. Encloses a range of dates and task groups."
    },
    "export": false,
    "carry": false,
@@ -2858,7 +2858,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "囲む範囲の上端の行"
+      "ja": "囲む範囲の上端のタスクグループ"
      }
     },
     {
@@ -2875,7 +2875,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "囲む範囲の下端の行"
+      "ja": "囲む範囲の下端のタスクグループ"
      }
     },
     {
@@ -3310,9 +3310,9 @@
    "child": "Task",
    "multiplicity": "0..n ─ 0..1",
    "label": {
-    "ja": "WBS の親子（`wbsParentUid`）。輪を禁じる規則は 表 T-015a の `HM-4` と `FR-023` が持つ"
+    "ja": "親タスクと子タスク（`parentTaskUid`）。輪を禁じる規則は 表 T-015a の `HM-4` と `FR-023` が持つ"
    },
-   "fromColumn": "wbsParentUid",
+   "fromColumn": "parentTaskUid",
    "toColumn": "uid"
   },
   {
@@ -3346,7 +3346,7 @@
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 0..1",
    "label": {
-    "ja": "行の親子（`parentId`）。深さの上限は `FR-004`"
+    "ja": "タスクグループの親子（`parentId`）。深さの上限は `FR-004`"
    },
    "fromColumn": "parentId",
    "toColumn": "id"
@@ -3357,7 +3357,7 @@
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 1",
    "label": {
-    "ja": "どの行に載るか（`groupId`）"
+    "ja": "どのタスクグループに載るか（`groupId`）"
    },
    "fromColumn": "groupId",
    "toColumn": "id"
@@ -3379,7 +3379,7 @@
    "child": "Task",
    "multiplicity": "0..n ─ 0..1",
    "label": {
-    "ja": "行の名前の導出元（`derivedFromTaskUid`）"
+    "ja": "タスクグループ名の導出元（`derivedFromTaskUid`）"
    },
    "fromColumn": "derivedFromTaskUid",
    "toColumn": "uid"
@@ -3506,7 +3506,7 @@
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 0..1",
    "label": {
-    "ja": "留める行（`anchorGroupId`）"
+    "ja": "留めるタスクグループ（`anchorGroupId`）"
    },
    "fromColumn": "anchorGroupId",
    "toColumn": "id"
@@ -3517,7 +3517,7 @@
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 0..1",
    "label": {
-    "ja": "囲む範囲の上端の行（`topGroupId`）"
+    "ja": "囲む範囲の上端のタスクグループ（`topGroupId`）"
    },
    "fromColumn": "topGroupId",
    "toColumn": "id"
@@ -3528,7 +3528,7 @@
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 0..1",
    "label": {
-    "ja": "囲む範囲の下端の行（`bottomGroupId`）"
+    "ja": "囲む範囲の下端のタスクグループ（`bottomGroupId`）"
    },
    "fromColumn": "bottomGroupId",
    "toColumn": "id"
@@ -3614,7 +3614,7 @@
    "name": "outlineLevel",
    "exchange": "Task/OutlineLevel",
    "source": {
-    "ja": "`wbsParentUid` の木の深さ。**浅く丸めない**（`FR-004`）"
+    "ja": "`parentTaskUid` の木の深さ。**浅く丸めない**（`FR-004`）"
    }
   },
   {

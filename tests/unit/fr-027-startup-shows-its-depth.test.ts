@@ -29,13 +29,13 @@
 //     `uf-47-48.test.ts`.
 //
 // The rows these cases answer to (rule 03: name the row, never copy its value):
-//   T-226    TP-8 -- 「行の深さと WBS の深さ」 are 「同じ 5 段に揃える」 in the
+//   T-226    TP-8 -- 「タスクグループの深さと WBS の深さ」 are 「同じ 5 段に揃える」 in the
 //            template. The number is read out of the cell at run time.
-//   T-024a   OP-10 -- 「表示位置が `null`、または指す行が存在しないとき」 the
+//   T-024a   OP-10 -- 「表示位置が `null`、または指すタスクグループが存在しないとき」 the
 //            zoom and the place come from FR-055's fit (MUST), ⛔ EXCEPT for a
 //            document opened from BT-4: 「表 T-034 の `BT-4`（起動テンプレート）
 //            から開いた文書には働かせてはならない（MUST NOT）」, and then
-//            「その文書が覆う最初の日と、行の木の先頭から描くこと（MUST）——
+//            「その文書が覆う最初の日と、タスクグループの木の先頭から描くこと（MUST）——
 //            倍率は文書が持つものをそのまま使う」, with 「日も行 ID も新しく
 //            持たせてはならない（MUST NOT）—— どちらも文書から導ける」, and
 //            since 2026-08-29 the definition itself (MUST): 「「その文書が覆う
@@ -46,9 +46,9 @@
 //            the boot order, and the one OP-10 excludes by name.
 //   T-051    HF-8 -- 「起動のときは働かせてはならない（MUST NOT。表 T-024a の
 //            `OP-10`）」.
-//   T-068    LC-9 -- 「行を木の順に並べ、帯高と縦位置を決める」, and the rule
-//            after that table: 「行を並べる順は木の順とすること（MUST）...
-//            深さの順に並べてはならない（MUST NOT）—— ... 行が画面に収まり
+//   T-068    LC-9 -- 「タスクグループを木の順に並べ、帯高と縦位置を決める」, and the rule
+//            after that table: 「タスクグループを並べる順は木の順とすること（MUST）...
+//            深さの順に並べてはならない（MUST NOT）—— ... タスクグループが画面に収まり
 //            きらないとき、上端に来るのが根ばかりになり、木を持つ文書が階層の
 //            無い一覧に見える」.
 //   T-077    BO-3 / BO-4 -- the boot reads the zoom and the place from the
@@ -277,7 +277,7 @@ const firstDayCovered = (): string => {
 }
 
 /**
- * 「行の木の先頭」 -- the first row of LC-9's tree order, which is the root the
+ * 「タスクグループの木の先頭」 -- the first row of LC-9's tree order, which is the root the
  * `AT-55` ascent puts first. ⛔ Not `GROUPS[0]`: the artifact's array order is
  * not a row of any table.
  */
@@ -374,7 +374,7 @@ describe('TP-8 of table T-226 -- the shipped template on both axes', () => {
   })
 
   it('gives the WBS the same number, which is what 「同じ ... に揃える」 asks', () => {
-    // ⭐ 「行の深さと WBS の深さ」 -- two axes, and TP-8 levels them for THIS
+    // ⭐ 「タスクグループの深さと WBS の深さ」 -- two axes, and TP-8 levels them for THIS
     // document. 5.4 keeps them separate as a rule, which is why the case
     // compares the two counts rather than assuming one implies the other.
     expect(wbsDepth()).toBe(firstNumberOf(TP_8['値'] ?? ''))
@@ -418,13 +418,13 @@ describe('OP-10 (MUST NOT) -- the template carries no place of its own', () => {
   })
 
   it('ships no row id either, for the same MUST NOT', () => {
-    // S-78: 「表示の上端が指す行。⚠️ 整数ではない」 -- a `TaskGroup.id`, and the
+    // S-78: 「表示の上端が指すタスクグループ。⚠️ 整数ではない」 -- a `TaskGroup.id`, and the
     // template names none.
     expect(SETTINGS.scrollGroupId).toBeNull()
   })
 
   it('so both halves of OP-10 condition are met, and only the BT-4 exclusion keeps the fit off', () => {
-    // ⭐ The premise of section 3. 「表示位置が `null`、または指す行が存在しない
+    // ⭐ The premise of section 3. 「表示位置が `null`、または指すタスクグループが存在しない
     // とき」 is satisfied here, so without 「表 T-034 の `BT-4`（起動テンプレート）
     // から開いた文書には働かせてはならない（MUST NOT）」 every boot would land on
     // FR-055's fit -- and section 4 measures what that fit answers.
@@ -449,7 +449,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
   })
 
   it('starts at the head of the row tree, drawn from the top of the Task Group Area', () => {
-    // OP-10: 「その文書が覆う最初の日と、行の木の先頭から描くこと（MUST）」. The
+    // OP-10: 「その文書が覆う最初の日と、タスクグループの木の先頭から描くこと（MUST）」. The
     // head of the tree is the root LC-9's order reaches first, and 「から描く」
     // puts it at the top edge -- not scrolled past.
     const first = bootFrame.values.layout.taskGroups[0]
@@ -460,8 +460,8 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
 
   it('⭐ puts a row deeper than the first level into the FIRST SCREENFUL, not merely into the layout', () => {
     // ⭐ THE USER-VISIBLE CLAIM, and the reason LC-9 got its rule. The prose
-    // after table T-068: 「深さの順に並べてはならない（MUST NOT）—— 同じ深さの行
-    // が塊になり、親とその配下が画面の離れた場所に出る。行が画面に収まりきらない
+    // after table T-068: 「深さの順に並べてはならない（MUST NOT）—— 同じ深さのタスクグループ
+    // が塊になり、親とその配下が画面の離れた場所に出る。タスクグループが画面に収まりきらない
     // とき、上端に来るのが根ばかりになり、木を持つ文書が階層の無い一覧に見える」.
     // TP-5 makes this document 100 rows, so it does NOT fit -- which is exactly
     // the condition that prose names.
@@ -479,7 +479,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
   })
 
   it('⭐ and a parent stands directly above its own child there, which is what 「木の順」 means', () => {
-    // 「親の行の直下にその配下を置き」. Measured on the rows a person actually
+    // 「親のタスクグループの直下にその配下を置き」. Measured on the rows a person actually
     // sees, so a tree order that only holds far down the document would fail.
     const seen = taskGroupsInFirstScreenful(bootFrame.values.layout)
     const parentOf = new Map(GROUPS.map((row) => [row['id'], row['parentId']]))
@@ -581,7 +581,7 @@ describe('FR-055 -- one press still answers the first level on this document', (
     // ⭐ The contrast OP-10's exclusion turns on, measured. Nothing here asks
     // the fit to change: it is answering FR-055 correctly on a document table
     // T-226 deliberately makes larger than the MC-7 scale GL-002 is judged at
-    // -- 「本テンプレートは表 T-025 の `MC-7` より行が多い」.
+    // -- 「本テンプレートは表 T-025 の `MC-7` よりタスクグループが多い」.
     const write = fitWrite(SETTINGS)
     const afterFit = layoutFromSchedule(
       SCHEDULE,

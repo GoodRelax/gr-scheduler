@@ -20,8 +20,8 @@
 //
 // The closing paragraph under 表 T-051 records what the shipping build did:
 //
-//   ⭐⭐ 「**折り畳みの 4 つの操作子は、どれも押した行そのものの状態を書き換える**
-//   （利用者の指示 2026-08-31「サンプルと同じ動作にしろ」）… ⛔ **押した行ではなく、
+//   ⭐⭐ 「**折り畳みの 4 つの操作子は、どれも押したタスクグループそのものの状態を書き換える**
+//   （利用者の指示 2026-08-31「サンプルと同じ動作にしろ」）… ⛔ **押したタスクグループではなく、
 //   その配下の状態を書き換えてはならない（MUST NOT）** —— ⚠️ **実測で、`HF-11` は
 //   直下の子を残し、`HF-13` は孫を開いた。どちらも 1 階層ずれており、頭に置いた同じ
 //   入口とは別の絵になっていた。**」
@@ -30,7 +30,7 @@
 // which rows are drawn, and which row's two columns moved.
 //
 // ⚠️⚠️ THE ONE PLACE THE MANUSCRIPT ARGUES WITH ITSELF, and the reading these
-// cases take. Read on its own, 「押した行ではなく、その配下の状態を書き換えては
+// cases take. Read on its own, 「押したタスクグループではなく、その配下の状態を書き換えては
 // ならない（MUST NOT）」 forbids a press from writing any descendant at all. Three
 // other MUSTs require exactly that:
 //   `HR-1a` 「⇒ ⭐ **畳む操作は必ず配下ごと状態を書き換えること（MUST）。**」
@@ -144,14 +144,14 @@ const T_051 = specTable('T-051')
  *
  * ⭐ DERIVED AND NEVER LISTED -- the reading is borrowed from
  * tests/unit/uf-72-screen-part.test.ts, which records that a list written here
- * has already gone stale once. `HF-10` names 「行見出しパネルの最上部」 outright
+ * has already gone stale once. `HF-10` names 「タスクグループパネルの最上部」 outright
  * and `HF-12` / `HF-16` / `HF-17` each place themselves against 「`HF-10` の操作
- * 子」; a row placed on 「各行に」 says neither.
+ * 子」; a row placed on 「各タスクグループに」 says neither.
  */
 const T_051_AT_THE_HEAD: readonly string[] = T_051.rows
   .filter((one) => {
     const said = one.cells.join(' ')
-    return said.includes('行見出しパネルの最上部') || said.includes('`HF-10` の操作子')
+    return said.includes('タスクグループパネルの最上部') || said.includes('`HF-10` の操作子')
   })
   .map((one) => one.id)
 
@@ -639,9 +639,9 @@ describe('the manuscript still says what these cases read', () => {
     expect(says('T-015', 'HR-3')).toContain(
       '選択した `TaskGroup` と、その配下のすべてから、畳みと隠しを取り除くこと（MUST）',
     )
-    expect(says('T-015', 'HR-3')).toContain('その行自身の畳みも解くこと（MUST）')
+    expect(says('T-015', 'HR-3')).toContain('そのタスクグループ自身の畳みも解くこと（MUST）')
     expect(says('T-015', 'HR-4')).toContain('選択した `TaskGroup` を畳むこと（MUST）')
-    expect(says('T-015', 'HR-4')).toContain('その行自身を隠してはならない（MUST NOT）')
+    expect(says('T-015', 'HR-4')).toContain('そのタスクグループ自身を隠してはならない（MUST NOT）')
     expect(says('T-015', 'HR-7')).toContain('選択した `TaskGroup` の畳みだけを解くこと（MUST）')
     expect(says('T-015', 'HR-7')).toContain('孫より下の畳みに触れてはならない（MUST NOT）')
     expect(says('T-015', 'HR-7')).toContain(
@@ -659,7 +659,7 @@ describe('the manuscript still says what these cases read', () => {
 
   it('⛔ the closing paragraphs still tie the family together', () => {
     expect(REQUIREMENTS).toContain(
-      '折り畳みの 4 つの操作子は、どれも押した行そのものの状態を書き換える',
+      '折り畳みの 4 つの操作子は、どれも押したタスクグループそのものの状態を書き換える',
     )
     expect(REQUIREMENTS).toContain('描かない向きへ働く値は 2 つだけとすること（MUST）')
     expect(REQUIREMENTS).toContain(
@@ -667,28 +667,28 @@ describe('the manuscript still says what these cases read', () => {
     )
     expect(REQUIREMENTS).toContain('段 0 のために `TaskGroup` の列を足してはならない（MUST NOT）')
     expect(REQUIREMENTS).toContain(
-      '行見出しパネルの最上部の右寄せに、すべての行を開く操作子を 1 つ置くこと（MUST）',
+      'タスクグループパネルの最上部の右寄せに、すべてのタスクグループを開く操作子を 1 つ置くこと（MUST）',
     )
     expect(REQUIREMENTS).toContain('本行を `HF-3`（隠す）と同じ働きにしてはならない（MUST NOT）')
-    expect(REQUIREMENTS).toContain('押した行の状態を書き換えずに、その配下の状態だけを書き換えてはならない（MUST NOT）')
-    expect(REQUIREMENTS).toContain('パネルの頭は段 0 であり、行ではない。')
+    expect(REQUIREMENTS).toContain('押したタスクグループの状態を書き換えずに、その配下の状態だけを書き換えてはならない（MUST NOT）')
+    expect(REQUIREMENTS).toContain('パネルの頭は段 0 であり、タスクグループではない。')
     // see HF-20
     expect(REQUIREMENTS).toContain(
-      '頭が持つ入口が 5 つ、行が持つ入口が 7 つであることは、この 1 つの違いから出る（MUST）',
+      '頭が持つ入口が 5 つ、タスクグループが持つ入口が 7 つであることは、この 1 つの違いから出る（MUST）',
     )
     expect(REQUIREMENTS).toContain(
-      '段 0 には畳み込む先の親が無いので隠せず（`HF-3`）、行でないので留められない（`FR-098`）。',
+      '段 0 には畳み込む先の親が無いので隠せず（`HF-3`）、タスクグループでないので留められない（`FR-098`）。',
     )
     expect(REQUIREMENTS).toContain('頭にその 2 つの入口を置いてはならない（MUST NOT）。')
     expect(REQUIREMENTS).toContain(
-      '`HF-16` は `HF-13` を、`HF-12` は `HF-11` を、`HF-10` は `HF-2` を、`HF-17` は `HF-14` を、それぞれ段 0 に対して行うものである、`HF-20` は行ごとの削除（表 T-109 の `IC-82`）を段 0 に対して行うものである。',
+      '`HF-16` は `HF-13` を、`HF-12` は `HF-11` を、`HF-10` は `HF-2` を、`HF-17` は `HF-14` を、それぞれ段 0 に対して行うものである、`HF-20` はタスクグループごとの削除（表 T-109 の `IC-82`）を段 0 に対して行うものである。',
     )
     // The arming rule every case in the last block rests on.
     expect(REQUIREMENTS).toContain(
-      'その操作で、描かれる行が 1 行も増減しないときは、対象が 1 つも無いものとして扱うこと（MUST）',
+      'その操作で、描かれるタスクグループが 1 つも増減しないときは、対象が 1 つも無いものとして扱うこと（MUST）',
     )
     expect(REQUIREMENTS).toContain(
-      '数えるのは配下の行の数ではなく、その操作の前後で描かれる行の差である。',
+      '数えるのは配下のタスクグループの数ではなく、その操作の前後で描かれるタスクグループの差である。',
     )
   })
 
@@ -699,9 +699,9 @@ describe('the manuscript still says what these cases read', () => {
       'utf8',
     ))
     expect(detail).toContain('| AT-153 | `TaskGroup` | `treeState` |')
-    expect(REQUIREMENTS).toContain('**その行自身も描かない `hidden`** と、**その行の配下を描かない `collapsed`**')
+    expect(REQUIREMENTS).toContain('**そのタスクグループ自身も描かない `hidden`** と、**そのタスクグループの配下を描かない `collapsed`**')
     expect(says('T-203', 'S-418')).toContain('`levelZeroTreeState`')
-    expect(says('T-203', 'S-418')).toContain('段 0（行見出しパネルの頭）の木の状態')
+    expect(says('T-203', 'S-418')).toContain('段 0（タスクグループパネルの頭）の木の状態')
   })
 
   it('the document these cases drive is a valid GRS JSON document', () => {
@@ -729,7 +729,7 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
   it('⛔ MUST: HF-11 folds the row it was pressed on (HR-4, 指示 2026-08-31)', () => {
     // `HR-4`: 「**選択した `TaskGroup` を畳むこと（MUST）**」 —— ⇒ 「**その直下の子
     // から下が描かれなくなる**」. ⛔⛔ THE BUG THE ROW RECORDS: 「**2026-08-31 まで
-    // 「配下をすべて閉じる」と書いていた** —— **実装はその読みどおり配下の行だけを
+    // 「配下をすべて閉じる」と書いていた** —— **実装はその読みどおり配下のタスクグループだけを
     // 閉じ、その行を閉じていなかった**」.
     const built = stage()
 
@@ -739,7 +739,7 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
   })
 
   it('⛔ MUST NOT: HF-11 does not hide the row it was pressed on (HR-4)', () => {
-    // `HR-4`: 「⛔ **その行自身を隠してはならない（MUST NOT）** —— 隠すのは `HR-6`
+    // `HR-4`: 「⛔ **そのタスクグループ自身を隠してはならない（MUST NOT）** —— 隠すのは `HR-6`
     // である」. ⭐ The two values are the whole of 「描かない向きへ働く値は
     // 2 つだけ」, so a press that wrote the wrong one would still move the
     // picture and be invisible to a case that only counted rows.
@@ -752,7 +752,7 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
 
   it('⛔ MUST: HF-3 hides the row it was pressed on and NOT its children (HR-6)', () => {
     // `HF-3`: 「**隠す操作子の職務は 表 T-015 の `HR-6` である（MUST）**」, and
-    // `HR-6` keeps 「隠した行の配下の行…を描いてはならない（MUST NOT）」 as a rule
+    // `HR-6` keeps 「隠したタスクグループの配下のタスクグループ…を描いてはならない（MUST NOT）」 as a rule
     // about what is DRAWN -- so one write is the whole of it.
     const built = stage()
 
@@ -768,7 +768,7 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
   })
 
   it('⛔ MUST: HF-3 folds every row under the row it hid (HR-6)', () => {
-    // `HR-6` since 2026-08-31: 「**あわせて、その行と、その配下を畳んだ状態にすること
+    // `HR-6` since 2026-08-31: 「**あわせて、そのタスクグループと、その配下を畳んだ状態にすること
     // （MUST）**」（利用者の指示「サンプルと同じ動作にしろ」）—— ⛔ 「**配下をその
     // ままにして隠してはならない（MUST NOT）**」.
     //
@@ -818,9 +818,9 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
   })
 
   it('⛔ MUST: HF-2 unfolds the pressed row ITSELF as well as everything below (HR-3, 指示 2026-08-31)', () => {
-    // ⭐⭐ THE RULING THAT REVERSED THIS: 「⭐⭐ **その行自身の畳みも解くこと
+    // ⭐⭐ THE RULING THAT REVERSED THIS: 「⭐⭐ **そのタスクグループ自身の畳みも解くこと
     // （MUST）**（利用者の指示 2026-08-31「サンプルと同じ動作にしろ」）—— **`HR-4`
-    // が畳むのはその行自身なので、解く側が同じ行を解かなければ対にならない。**」
+    // が畳むのはそのタスクグループ自身なので、解く側が同じタスクグループを解かなければ対にならない。**」
     const built = stage({ folded: [ALPHA, BETA, GAMMA, DELTA] })
 
     built.press(OPEN_ALL_BELOW, ALPHA)
@@ -842,12 +842,12 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
   })
 
   it('⭐ MUST: a fold writes the state of the whole subtree, so no shape is remembered (HR-1a)', () => {
-    // `HR-1a`: 「⛔⛔ **畳んだ行の配下は、それ自身も畳まれた状態とすること（MUST）。
+    // `HR-1a`: 「⛔⛔ **畳んだタスクグループの配下は、それ自身も畳まれた状態とすること（MUST）。
     // 畳む前の形を覚えて、開いたときに戻してはならない（MUST NOT）**…⇒ ⭐ **畳む操作
     // は必ず配下ごと状態を書き換えること（MUST）。**」
     //
     // ⚠️⚠️ THIS IS THE ONE CASE THE CLOSING PARAGRAPH'S MUST NOT ARGUES WITH, and
-    // the file header says which reading it takes: 「押した行ではなく、その配下の
+    // the file header says which reading it takes: 「押したタスクグループではなく、その配下の
     // 状態を書き換えてはならない」 forbids writing the descendants INSTEAD OF the
     // pressed row, not writing them AS WELL -- otherwise `HR-1a`'s own MUST, and
     // `HR-3`'s 「配下のすべてから」, and `HR-7`'s 「その隠しも解く」 could none of
@@ -870,7 +870,7 @@ describe('表 T-051 の結び -- the press writes the pressed row, not its child
 describe('表 T-015 -- the picture each of the four controls leaves', () => {
   it('⭐ HF-11 on a middle row takes its whole subtree off the picture and leaves the row (HR-4)', () => {
     // `HR-4`: ⇒ 「**その直下の子から下が描かれなくなる**」, and `HR-1a` (MUST NOT)
-    // 「**畳んだ `TaskGroup` の配下の行と、その行に載っている `Task` を描いては
+    // 「**畳んだ `TaskGroup` の配下のタスクグループと、そのタスクグループに載っている `Task` を描いては
     // ならない**」. ⚠️ 実測: 「押しても直下の子が描かれたまま残り、見本と違う絵になる」.
     const built = stage()
 
@@ -907,7 +907,7 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
   })
 
   it('⭐ HF-3 takes the row itself off the picture, and its subtree with it (HR-6)', () => {
-    // `HR-6` (MUST NOT): 「**隠した行の配下の行と、その行に載っている `Task` を
+    // `HR-6` (MUST NOT): 「**隠したタスクグループの配下のタスクグループと、そのタスクグループに載っている `Task` を
     // 描いてはならない**」 -- so hiding Beta costs three rows and not one.
     const built = stage()
 
@@ -923,7 +923,7 @@ describe('表 T-015 -- the picture each of the four controls leaves', () => {
 
 describe('表 T-015 -- HR-3 and HR-4 are one pair on one row', () => {
   it('⭐⭐ MUST: folding a row and then opening it below restores the picture exactly', () => {
-    // 「**`HR-4` が畳むのはその行自身なので、解く側が同じ行を解かなければ対に
+    // 「**`HR-4` が畳むのはそのタスクグループ自身なので、解く側が同じタスクグループを解かなければ対に
     // ならない**」. ⛔ Under the reading of 2026-08-30 -- HF-2 reaching 配下 only --
     // this round trip could not close, because the row HF-11 folded was the one
     // row HF-2 would not open.
@@ -974,7 +974,7 @@ describe('表 T-015 -- HR-3 and HR-4 are one pair on one row', () => {
 describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one difference', () => {
   it('⛔ the manuscript still names both doors and says the difference is only the range', () => {
     expect(says('T-015', 'HR-6')).toContain(
-      '隠した行は、親の行の「配下を 1 階層開く」操作子で戻せること（MUST）',
+      '隠したタスクグループは、親のタスクグループの「配下を 1 階層開く」操作子で戻せること（MUST）',
     )
     expect(says('T-015', 'HR-6')).toContain('「配下をすべて開く」操作子でも戻せること（MUST）')
     expect(says('T-015', 'HR-6')).toContain('1 本は直下の子だけ、2 本は配下のすべて')
@@ -1075,8 +1075,8 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
   })
 
   it('⭐⭐ HF-16 also brings back a hidden TOP-LEVEL row, as HF-13 does for a child (HR-6)', () => {
-    // 「**親を持たない最上位の行は、段 0 の同じ操作子で戻せること（MUST）** ——
-    // 同表の `HF-16` である。`FR-085` が最上位の行を許しているためである」.
+    // 「**親を持たない最上位のタスクグループは、段 0 の同じ操作子で戻せること（MUST）** ——
+    // 同表の `HF-16` である。`FR-085` が最上位のタスクグループを許しているためである」.
     const built = stage({ hidden: [ZETA] })
     expect(drawnTaskGroups(built)).not.toContain('Zeta')
 
@@ -1097,7 +1097,7 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
   })
 
   it('⭐⭐ HF-10 brings back what HF-3 hid, wherever it is (HR-1: HR-3 と同じく)', () => {
-    // `HR-1`: 「⭐ **`HR-3` と同じく、`HR-6` が隠した行もすべて戻すこと（MUST）** ——
+    // `HR-1`: 「⭐ **`HR-3` と同じく、`HR-6` が隠したタスクグループもすべて戻すこと（MUST）** ——
     // **本行は `HR-3` の段 0 である**」.
     const built = stage({ hidden: [ZETA, DELTA], folded: [ALPHA], atStoredZoom: true })
 
@@ -1108,7 +1108,7 @@ describe('表 T-051 の結び -- the head does at 段 0 what the paired control 
 
   it('⭐ the four head entrances are told apart: 1 階層 and すべて are not one control', () => {
     // `HF-16` (MUST NOT): 「**`HF-10`（すべて開く）に兼ねさせてはならない（MUST NOT）**
-    // —— **理由は `HF-13` が行について述べたものと同じである**」.
+    // —— **理由は `HF-13` がタスクグループについて述べたものと同じである**」.
     const oneLevel = stage()
     const everyTaskGroup = stage()
 
@@ -1198,13 +1198,13 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
       '押しても何も変わらないときだけ、`FR-029` に従って薄く描くこと（MUST）',
     )
     expect(says('T-051', 'HF-2')).toContain(
-      '押しが何かを変えるのは、押した行の配下に `FR-018` の 表 T-329 で描かれていない行が 1 つでもあるときである',
+      '押しが何かを変えるのは、押したタスクグループの配下に `FR-018` の 表 T-329 で描かれていないタスクグループが 1 つでもあるときである',
     )
     expect(says('T-051', 'HF-10')).toContain(
-      '描かれていない行（`FR-018` の 表 T-329）が 1 つも無いときだけ、`FR-029` に従って薄く描くこと（MUST）',
+      '描かれていないタスクグループ（`FR-018` の 表 T-329）が 1 つも無いときだけ、`FR-029` に従って薄く描くこと（MUST）',
     )
     expect(says('T-051', 'HF-3')).toContain(
-      '描かれている行はいつでも隠せるので、本操作子を薄く描く場面は無い',
+      '描かれているタスクグループはいつでも隠せるので、本操作子を薄く描く場面は無い',
     )
     expect(says('T-051', 'HF-13')).toContain(
       '開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと（MUST）',
@@ -1250,9 +1250,9 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
   })
 
   it('⛔ MUST: HF-11 is faint on a row whose press would move no row (表 T-051 の結び)', () => {
-    // 「⛔ **その操作で、描かれる行が 1 行も増減しないときは、対象が 1 つも無いものと
+    // 「⛔ **その操作で、描かれるタスクグループが 1 つも増減しないときは、対象が 1 つも無いものと
     // して扱うこと（MUST）** —— **畳む相手が描かれていても、その相手が配下を持たな
-    // ければ、畳んで隠れる行は 1 つも無い**」. ⭐ Delta is a leaf, so folding it takes
+    // ければ、畳んで隠れるタスクグループは 1 つも無い**」. ⭐ Delta is a leaf, so folding it takes
     // nothing off the screen; Gamma holds Delta, so folding Gamma does.
     const built = stage()
 
@@ -1368,14 +1368,14 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
 describe('表 T-051 の HF-18 -- the number a row shows is the number that arms its opener', () => {
   it('⛔ the manuscript ties the count to the arming only where no zoom takes part', () => {
     expect(says('T-051', 'HF-18')).toContain(
-      '配下に畳み込んでいる行があるとき、その行数を行に示すこと（MUST）',
+      '配下に畳み込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示すこと（MUST）',
     )
     expect(says('T-051', 'HF-18')).toContain(
-      '数えるのは人が畳んだ分だけとすること（MUST）。表示量（`FR-018`）が落とした行を数えてはならない（MUST NOT）',
+      '数えるのは人が畳んだ分だけとすること（MUST）。表示量（`FR-018`）が落としたタスクグループを数えてはならない（MUST NOT）',
     )
     expect(says('T-051', 'HF-2')).toContain('構えの条件は `HF-18` の数と同じではない')
     expect(says('T-051', 'HF-2')).toContain(
-      '`HF-18` は人が畳んだ分だけを数え、倍率が落とした行を数えない',
+      '`HF-18` は人が畳んだ分だけを数え、倍率が落としたタスクグループを数えない',
     )
   })
 
@@ -1421,7 +1421,7 @@ describe('表 T-051 の HF-18 -- the number a row shows is the number that arms 
   })
 
   it('⛔ MUST: the number is the rows that come back when that row’s HF-2 is pressed', () => {
-    // 「⭐ **数えるのは配下の行の数ではなく、その操作の前後で描かれる行の差である。**」
+    // 「⭐ **数えるのは配下のタスクグループの数ではなく、その操作の前後で描かれるタスクグループの差である。**」
     // ⇒ the count is measurable without this file deciding what 「抱えている」 means:
     // press the control and count the rows that arrived.
     const wrong: string[] = []

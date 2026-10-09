@@ -27,7 +27,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const ZE_6_RULE =
   '⭐ いまの `zoomY` で `ZE-1` の ① が成り立つとき、拡げる入力（表 T-023 の `MK-4` の拡げる向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-15`、表 T-036 の `SK-16a`）を受けたら、次の ① と ② のうち小さいほうを目標とし、`S-53` で刻んだ値と目標のうち大きいほうを書くこと（MUST）。'
 const ZE_6_ONE =
-  '① いまの `zoomY` より大きい、`FR-018` のしきい値（`_assets/tbl-settings.md` の 表 T-205 の `S-87` × `S-88`^(深さ − 2)）のうち、`FR-018` が描く行がいまと変わる最小のもの —— 描く行が変わらないしきい値は数えない。'
+  '① いまの `zoomY` より大きい、`FR-018` のしきい値（`_assets/tbl-settings.md` の 表 T-205 の `S-87` × `S-88`^(深さ − 2)）のうち、`FR-018` が描くタスクグループがいまと変わる最小のもの —— 描くタスクグループが変わらないしきい値は数えない。'
 const ZE_6_TWO = '② `ZE-1` の ① が成り立たなくなる境目の倍率（表 T-201 の `S-6` ÷ `S-5` ÷ `S-4`）に `S-53` を掛けた値。'
 const ZE_6_CLAMP = '書く値は本要求の上限で止めること（MUST）。'
 const ZE_6_EQUAL = '止めた値がいまの `zoomY` と等しいときは `ZE-3` に従う。'
@@ -42,9 +42,9 @@ const ZE_5_TEXT =
   '中身は、`zoomY` に 100 を掛けて小数点以下を四捨五入した数に `%` を付け、`ZE-2` では最小であることを示す語を、`ZE-3` では最大であることを示す語を添えたものとすること（MUST）'
 const ZE_2_NO_WRITE =
   '端にあるときに縮める入力（表 T-023 の `MK-4` の縮める向き、`_assets/tbl-glossary.md` の 表 T-109 の `IC-14`、表 T-036 の `SK-16c`）を受けたら、`zoomY` を書き換えてはならない（MUST NOT）。'
-const FR_016_ZE_6 = '⚠️ 行の軸の床より下で拡げるときは、表 T-262 の `ZE-6` が書く値を決める。'
+const FR_016_ZE_6 = '⚠️ 縦軸の床より下で拡げるときは、表 T-262 の `ZE-6` が書く値を決める。'
 const FR_016_ONE_NOTCH = '**1 ノッチで動く倍率は表 T-201 の `S-53` に従うこと。**'
-const FR_016_CEILING_START_FREE = '⭐ 行の軸の上限は、拡大を始めた倍率に依らないこと（MUST）'
+const FR_016_CEILING_START_FREE = '⭐ 縦軸の上限は、拡大を始めた倍率に依らないこと（MUST）'
 const FR_018_REPEAT =
   '入口を押し続けたときは、`_assets/tbl-settings.md` の 表 T-206 の `S-172` が定める待ち時間ののち、同表の `S-173` が定める間隔で倍率を刻み続けること（MUST）。'
 const FR_018_ZE_6_HELD = '⚠️ 表 T-262 の `ZE-6` は 1 回押しにも押し続けにも同じく当たる'

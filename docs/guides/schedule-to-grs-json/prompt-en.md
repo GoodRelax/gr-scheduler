@@ -12,7 +12,7 @@ The Japanese version is [prompt-ja.md](prompt-ja.md).
 2. Attach to an AI that can read images and files the schedule to convert (an image, a slide file or a spreadsheet file; several are fine) and the two files from step 1.
 3. Paste the block under "Prompt" as it is, and fill in the `[ ]` parts.
 4. Save the JSON the AI returns as `something.json` and open it with GRS's open command.
-5. Check the AI's "Estimates" table against the original, above all the key dates, colours and how the rows were split.
+5. Check the AI's "Estimates" table against the original, above all the key dates, colours and how the task groups were split.
 
 ⚠️ Do not use the JSON files in `sample-schedule/` as a base. They no longer validate against the schema (checked 2026-09-16). The base is `grs-skeleton.json`.
 
@@ -65,7 +65,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
    - name is the name attached to the bar or symbol in the original. When it cannot be read, estimate a close wording and list it under "Estimates".
    - start and finish are the planned start and finish dates. When a bar's end is slanted or fading, use the outer end including that part. finish must not be before start.
    - For a milestone (a one-day mark such as ◇ ▼ ★), set milestone to true and start and finish to the same day. Otherwise false.
-   - Set wbsParentUid to the parent's uid only when the original clearly draws parent and child (a summary bar and its child bars). Otherwise null. wbsOrder is the position among siblings (from 0). Never make a cycle.
+   - Set parentTaskUid to the parent's uid only when the original clearly draws parent and child (a summary bar and its child bars). Otherwise null. wbsOrder is the position among siblings (from 0). Never make a cycle.
    - When actuals are drawn (a bar separate from the plan, a filled part, a done mark and so on):
      - Done: dates in actualStart and actualFinish, stop is null, percentComplete is 100.
      - In progress: dates in actualStart and stop (the last day the actual has reached), actualFinish is null, percentComplete as read (null if unreadable).
@@ -126,10 +126,10 @@ You are an expert at reading and converting schedule charts. Read the attached s
 
 ## A worked example
 
-For an English schedule with one heading row, one child row below it and four tasks, this is the part of `schedule` you rewrite.
+For an English schedule with one heading task group, one child task group below it and four tasks, this is the part of `schedule` you rewrite.
 
 - "Draft the plan": an orange bar whose finish end fades out through a gradient (done). The strong orange is the fill, and the 5 fading days are the fade-out
-- "Plan approved", "Budget review", "Budget approved": a ◇, a grey bar and a ◇ at the same height. The shapes are mixed but they form one line, so all three sit in one child row labelled "Approvals". The heading row also holds "Draft the plan", so the child row is needed
+- "Plan approved", "Budget review", "Budget approved": a ◇, a grey bar and a ◇ at the same height. The shapes are mixed but they form one line, so all three sit in one child task group labelled "Approvals". The heading task group also holds "Draft the plan", so the child task group is needed
 
 Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to `4`, it validates against the schema (checked 2026-10-03). If the colour used most in the original is blue, `schedule.project.themeHue` stays at `214`.
 
@@ -137,7 +137,7 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
 {
   "tasks": [
     {
-      "uid": 1, "wbsParentUid": null, "wbsOrder": 0, "name": "Draft the plan",
+      "uid": 1, "parentTaskUid": null, "wbsOrder": 0, "name": "Draft the plan",
       "start": "2026-04-06T08:00:00", "finish": "2026-04-24T17:00:00", "milestone": false,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": "2026-04-06T08:00:00", "stop": null, "actualFinish": "2026-04-27T17:00:00",
@@ -145,7 +145,7 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
       "fadeInDays": null, "fadeOutDays": 5, "dependencies": [], "carry": {}, "carryElements": []
     },
     {
-      "uid": 2, "wbsParentUid": null, "wbsOrder": 1, "name": "Plan approved",
+      "uid": 2, "parentTaskUid": null, "wbsOrder": 1, "name": "Plan approved",
       "start": "2026-04-30T08:00:00", "finish": "2026-04-30T08:00:00", "milestone": true,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": null, "stop": null, "actualFinish": null,
@@ -157,7 +157,7 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
       "carry": {}, "carryElements": []
     },
     {
-      "uid": 3, "wbsParentUid": null, "wbsOrder": 2, "name": "Budget review",
+      "uid": 3, "parentTaskUid": null, "wbsOrder": 2, "name": "Budget review",
       "start": "2026-05-04T08:00:00", "finish": "2026-05-13T17:00:00", "milestone": false,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": null, "stop": null, "actualFinish": null,
@@ -165,7 +165,7 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
       "fadeInDays": null, "fadeOutDays": null, "dependencies": [], "carry": {}, "carryElements": []
     },
     {
-      "uid": 4, "wbsParentUid": null, "wbsOrder": 3, "name": "Budget approved",
+      "uid": 4, "parentTaskUid": null, "wbsOrder": 3, "name": "Budget approved",
       "start": "2026-05-15T08:00:00", "finish": "2026-05-15T08:00:00", "milestone": true,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": null, "stop": null, "actualFinish": null,
@@ -228,12 +228,12 @@ If you have Python, you can also check only the shape before opening it (skip th
 python -c "import json,sys,jsonschema; s=json.load(open('grs-document.schema.json',encoding='utf-8')); d=json.load(open(sys.argv[1],encoding='utf-8')); e=list(jsonschema.Draft202012Validator(s).iter_errors(d)); print(len(e),'errors'); [print(list(x.absolute_path),x.message[:120]) for x in e[:20]]" out.json
 ```
 
-⚠️ Passing the schema does not cover the document invariants (row depth, every task in exactly one row, fade lengths and so on). The full list is the table of `IV-` rows in section 6.1 of `docs/spec/05-07-design.md`.
+⚠️ Passing the schema does not cover the document invariants (task group depth, every task in exactly one task group, fade lengths and so on). The full list is the table of `IV-` rows in section 6.1 of `docs/spec/05-07-design.md`.
 
 ## What cannot be matched
 
-- **Horizontal lines**: a name label placed outside its shape also counts toward the width an item takes in its row (table T-038's `OC-1` in `docs/spec/01-04-requirements.md`). If items in a line sit close together and their names are long, they still split into two lanes inside the child row.
-- **Deep rows**: a row of depth d (d ≥ 2) is drawn only when the vertical zoom is at least `0.32 × 1.875^(d − 2)` (table T-205's `S-87` / `S-88`). At zoom 1 that is depth 3; depth 4 needs 1.125 and depth 5 needs 2.11, close to the zoom ceiling. That is why the prompt keeps depth at 3.
+- **Horizontal lines**: a name label placed outside its shape also counts toward the width an item takes in its task group (table T-038's `OC-1` in `docs/spec/01-04-requirements.md`). If items in a line sit close together and their names are long, they still split into two lanes inside the child task group.
+- **Deep task groups**: a task group of depth d (d ≥ 2) is drawn only when the vertical zoom is at least `0.32 × 1.875^(d − 2)` (table T-205's `S-87` / `S-88`). At zoom 1 that is depth 3; depth 4 needs 1.125 and depth 5 needs 2.11, close to the zoom ceiling. That is why the prompt keeps depth at 3.
 - **Gradients**: GRS cannot draw colour gradients. A gradient that fades out is approximated by a fade, which slants the end. A fade means "these dates are not yet firm", so a decorative gradient in the original gets a mark with that meaning. A two-colour gradient becomes one colour.
 - **Colours**: the palette has 11 colours, and shadows and gloss cannot be drawn.
 - **Name placement and text colour**: GRS places names. A document cannot hold text colours.
@@ -244,4 +244,4 @@ If you only use the app, you can skip this section.
 
 - The authority on the shape is `docs/spec/_source/grs-document.schema.json` (section 6.2 of `docs/spec/05-07-design.md`). The rules here were taken from it, from the `IV-` rows of section 6.1, and from `docs/spec/01-04-requirements.md`'s table T-052 (4.1), table T-012a for fades (`FD-`), table T-014 for stacking (`ST-`) and table T-017 for the palette (`CL-`). When the specification changes, review this guide, the Japanese version and `grs-skeleton.json`.
 - The specification has not yet fixed how the palette colours are spelled (`PND-494`). This guide follows the spellings (`dimgray` and so on) used by GRS's startup template, `src/framework/single-html-shell/startup-template.json`.
-- `grs-skeleton.json` was made from the same template by emptying the schedule and keeping one row. ⚠️ It is not a generated file, so `npm run gen:check` does not catch drift. Check 75 of `.claude/skills/spec-graph-check/check.sh` (`check-guide-grs-json.py`) does: it validates `grs-skeleton.json`, and each prompt's worked example merged into it, against the schema, and goes red when a prompt names a `TaskVisual` / `Project` / `TaskGroup` key the schema does not define or leaves out a `TaskVisual` / `TaskGroup` key the schema requires. It does not read what the prose says about allowed values.
+- `grs-skeleton.json` was made from the same template by emptying the schedule and keeping one task group. ⚠️ It is not a generated file, so `npm run gen:check` does not catch drift. Check 75 of `.claude/skills/spec-graph-check/check.sh` (`check-guide-grs-json.py`) does: it validates `grs-skeleton.json`, and each prompt's worked example merged into it, against the schema, and goes red when a prompt names a `TaskVisual` / `Project` / `TaskGroup` key the schema does not define or leaves out a `TaskVisual` / `TaskGroup` key the schema requires. It does not read what the prose says about allowed values.

@@ -205,7 +205,7 @@ HEIGHT_PHASE_WEIGHT = {
 }
 
 # TP-4 and TP-5. The row forest. ⛔ Every label is unique across the document:
-# the row title panel shows the leaf label alone, so three rows all reading
+# the task group panel shows the leaf label alone, so three rows all reading
 # "Screens" would be three rows a reader cannot tell apart.
 #
 # ⛔ No industry and no product is named, in the values as well as the prose
@@ -361,7 +361,7 @@ TREE = (
 # ⛔ This is the whole answer to "row Documentation contains Draw the
 # Documentation data model": a documentation row does documentation work
 # because the work is drawn from its kind, not from a list every row shares.
-ROW_KIND = {
+TASK_GROUP_KIND = {
     'Phone App': 'ui',
     'Phone Local Store': 'data',
     'Phone Push Notification': 'service',
@@ -389,16 +389,16 @@ ROOT_KIND = 'program'
 
 # @provisional PND-611 -- the shipped size is on hold until the user
 # simplifies the sample (JDG-970); CR-612's MC-10 keeps this size for measuring.
-WANTED_ROWS = 100    # TP-5
+WANTED_TASK_GROUPS = 100    # TP-5
 WANTED_TASKS = 1000  # TP-6
 
 # The label of the row that overviews the whole (TP-4), and of its two
 # children. They carry the fixed contents of the first tree and take no
 # generated work.
-OVERVIEW_ROW = 'Whole Product'
-PHASE_BAR_ROW = 'Phase Bars'
-PHASE_GATE_ROW = 'Phase Gates'
-OVERVIEW_ROWS = (OVERVIEW_ROW, PHASE_BAR_ROW, PHASE_GATE_ROW)
+OVERVIEW_TASK_GROUP = 'Whole Product'
+PHASE_BAR_TASK_GROUP = 'Phase Bars'
+PHASE_GATE_TASK_GROUP = 'Phase Gates'
+OVERVIEW_TASK_GROUPS = (OVERVIEW_TASK_GROUP, PHASE_BAR_TASK_GROUP, PHASE_GATE_TASK_GROUP)
 
 # What the first tree's three rows and every roll-up are called. ⭐ Declared
 # rather than typed where they are used, because the neutrality check reads
@@ -525,7 +525,7 @@ WAITS_ON = (
     ('Acceptance Test Suite', 'Production Release'),
 )
 
-# How many links one row-to-row relation may draw. ⭐ A handful: the point is
+# How many links one task-group-to-task-group relation may draw. ⭐ A handful: the point is
 # that the trees hold each other up, not that every task of one row points at
 # every task of another.
 WAITING_LINKS = 3
@@ -784,7 +784,7 @@ WORK_OBJECTS = {
 # component's queue, so it works a handful of things over and over rather than
 # sixteen different ones once each; `take` starts inside that window and walks
 # outward only when the pair it wanted is already spoken for.
-ROW_OBJECT_SPAN = 4
+TASK_GROUP_OBJECT_SPAN = 4
 
 # The two pieces of delivery work that always come last, and always in this
 # order. ⭐ They are named apart from the rotation because the SHAPE they are
@@ -938,7 +938,7 @@ AUTHOR_PAINT = (
 )
 
 # The rows that carry a colour of their own, so FR-042's override is drawn.
-ROW_PAINT = (('Quality And Release', 'lightgray'), ('Mobile Client', 'orange'))
+TASK_GROUP_PAINT = (('Quality And Release', 'lightgray'), ('Mobile Client', 'orange'))
 
 # The document's one calendar (FR-054), and who the document stamp says last
 # wrote the file. ⭐ Both are words this generator says, so both are declared
@@ -1432,7 +1432,7 @@ SAYABLE = work_names_by_kind()
 def flatten(tree, parent=None, depth=1, rows=None):
     """The row forest, depth first, each row carrying its parent, depth and kind.
 
-    ⭐ The kind is inherited unless ROW_KIND names this row, which is what
+    ⭐ The kind is inherited unless TASK_GROUP_KIND names this row, which is what
     makes "where it sits in the tree" the answer to "what work does it do".
 
     @purity pure
@@ -1445,7 +1445,7 @@ def flatten(tree, parent=None, depth=1, rows=None):
             'depth': depth,
             'order': order,
             'siblings': len(tree),
-            'kind': ROW_KIND.get(label,
+            'kind': TASK_GROUP_KIND.get(label,
                                  parent['kind'] if parent else ROOT_KIND),
             'children': [],
             'tasks': [],
@@ -1485,7 +1485,7 @@ def work_counts(rows, wanted):
     counts = {}
     seen = {}
     for row in rows:
-        if row['label'] in OVERVIEW_ROWS:
+        if row['label'] in OVERVIEW_TASK_GROUPS:
             continue
         depth = row['depth']
         turn = seen.get(depth, 0)
@@ -1619,7 +1619,7 @@ class Builder(object):
         uid = self.issue_uid()
         task = {
             'uid': uid,
-            'wbsParentUid': parent_uid,
+            'parentTaskUid': parent_uid,
             'wbsOrder': 0,
             'name': name,
             'start': text_of_start_side(WORKDAYS[start_at], milestone),
@@ -1658,20 +1658,20 @@ class Builder(object):
         """
         rows = dict((row['label'], row) for row in self.rows)
         whole = self.add_task(
-            rows[OVERVIEW_ROW], OVERVIEW_TASK,
+            rows[OVERVIEW_TASK_GROUP], OVERVIEW_TASK,
             index_of(PROJECT_START), index_of(PROJECT_FINISH),
             len(PHASES) - 1)
         self.overview_uid = whole['uid']
         self.rollups.add(whole['uid'])
         self.overview_task_uids.add(whole['uid'])
         for phase, (name, start, gate, _glyph) in enumerate(PHASES):
-            bar = self.add_task(rows[PHASE_BAR_ROW], PHASE_BAR_NAME % name,
+            bar = self.add_task(rows[PHASE_BAR_TASK_GROUP], PHASE_BAR_NAME % name,
                                 index_of(start), index_of(gate), phase,
                                 parent_uid=whole['uid'])
             self.phase_bars[phase] = bar['uid']
             self.overview_task_uids.add(bar['uid'])
         for phase, (name, _start, gate, _glyph) in enumerate(PHASES):
-            mark = self.add_task(rows[PHASE_GATE_ROW], PHASE_GATE_NAME % name,
+            mark = self.add_task(rows[PHASE_GATE_TASK_GROUP], PHASE_GATE_NAME % name,
                                  index_of(gate), index_of(gate), phase,
                                  milestone=True, parent_uid=whole['uid'])
             self.gates[phase] = mark['uid']
@@ -1697,9 +1697,9 @@ class Builder(object):
         @purity non-pure
         """
         for row in self.rows:
-            if row['label'] in OVERVIEW_ROWS:
+            if row['label'] in OVERVIEW_TASK_GROUPS:
                 continue
-            placed = self.row_band(row, phase_split(row, counts[row['id']]))
+            placed = self.task_group_band(row, phase_split(row, counts[row['id']]))
             for entry in self.name_band(row, placed):
                 task = self.add_task(row, entry['name'], entry['start_at'],
                                      entry['finish_at'], entry['phase'],
@@ -1711,7 +1711,7 @@ class Builder(object):
                 if entry.get('handed'):
                     self.handed.add(task['uid'])
 
-    def row_band(self, row, split):
+    def task_group_band(self, row, split):
         """Where every piece of this row's work sits, as working-day indices.
 
         ⛔ Nothing is placed until the whole band is known to fit: the blocks
@@ -1932,7 +1932,7 @@ class Builder(object):
         """
         objects = WORK_OBJECTS[row['kind']]
         first = (int(fraction(row['id'], 'object') * len(objects))
-                 + turn % ROW_OBJECT_SPAN)
+                 + turn % TASK_GROUP_OBJECT_SPAN)
         for step in range(len(objects)):
             name = template % objects[(first + step) % len(objects)]
             if name not in self.taken and reads_clean(name):
@@ -1953,7 +1953,7 @@ class Builder(object):
         """
         objects = WORK_OBJECTS[row['kind']]
         first = (int(fraction(row['id'], 'object') * len(objects))
-                 + turn % ROW_OBJECT_SPAN)
+                 + turn % TASK_GROUP_OBJECT_SPAN)
         for step in range(len(objects)):
             one = objects[(first + step) % len(objects)]
             names = [template % one for template in templates]
@@ -1978,7 +1978,7 @@ class Builder(object):
         @purity non-pure
         """
         for row in sorted(self.rows, key=lambda one: -one['depth']):
-            if row['label'] in OVERVIEW_ROWS or not row['children']:
+            if row['label'] in OVERVIEW_TASK_GROUPS or not row['children']:
                 continue
             held = [self.by_uid[uid] for uid in row['tasks']]
             held += [self.by_uid[child['rollup']] for child in row['children']
@@ -1996,7 +1996,7 @@ class Builder(object):
             row['rollup'] = task['uid']
             self.rollups.add(task['uid'])
             for one in held:
-                one['wbsParentUid'] = task['uid']
+                one['parentTaskUid'] = task['uid']
         # Every root row's roll-up is a WBS root of its own, the way the row
         # forest has several roots (TP-4). ⛔ Hanging them under the overview
         # bar would make the WBS six deep, and TP-8 holds both axes at five.
@@ -2010,7 +2010,7 @@ class Builder(object):
         seen = {}
         for task in sorted(self.tasks, key=lambda one: (one['startAt'],
                                                         one['uid'])):
-            parent = task['wbsParentUid']
+            parent = task['parentTaskUid']
             turn = seen.get(parent, 0)
             seen[parent] = turn + 1
             task['wbsOrder'] = turn
@@ -2613,7 +2613,7 @@ class Builder(object):
         # across the whole chart -- which is what FR-007 lets an author do, and
         # what nothing in the artifact this replaces was doing.
         planning = 2
-        for turn, row in enumerate(self.top_rows()):
+        for turn, row in enumerate(self.top_task_groups()):
             held = [self.by_uid[uid] for uid in row['tasks']
                     if uid not in self.rollups
                     and self.by_uid[uid]['phase'] == planning]
@@ -2632,13 +2632,13 @@ class Builder(object):
             if task['uid'] not in chosen:
                 self.visuals.append(self.visual(task['uid'], None))
 
-    def top_rows(self):
+    def top_task_groups(self):
         """The product trees, in the order the forest lists them.
 
         @purity semi-pure-a
         """
         return [row for row in self.rows
-                if row['parent'] is None and row['label'] not in OVERVIEW_ROWS]
+                if row['parent'] is None and row['label'] not in OVERVIEW_TASK_GROUPS]
 
     def build_fades(self):
         """Fades, on rectangles and chevrons alone (FD-5 of table T-012a).
@@ -2710,14 +2710,14 @@ class Builder(object):
         """@purity semi-pure-a"""
         out = []
         for row in self.rows:
-            # ⭐ A couple of rows carry a colour of their own (ROW_PAINT), so
+            # ⭐ A couple of rows carry a colour of their own (TASK_GROUP_PAINT), so
             # FR-042's colour override is exercised. The rest are resolved
             # from the theme and the number of stacked levels. DFC-1002:
-            # OVERVIEW_ROW used to force height 64 here for no reason T-226
+            # OVERVIEW_TASK_GROUP used to force height 64 here for no reason T-226
             # asks for, drawing it taller than its natural one-lane height
             # (21.6px) -- removed. DFC-1086: no row of the startup template
             # carries a min height (the FR-042 override is left unused here).
-            color = dict(ROW_PAINT).get(row['label'])
+            color = dict(TASK_GROUP_PAINT).get(row['label'])
             min_height = None
             out.append({
                 'id': row['id'],
@@ -2793,13 +2793,13 @@ class Builder(object):
 # ---------------------------------------------------------------------------
 
 def descendants_of(built):
-    """Every task under each task, by `wbsParentUid`.
+    """Every task under each task, by `parentTaskUid`.
 
     @purity pure
     """
     children = {}
     for task in built.tasks:
-        children.setdefault(task['wbsParentUid'], []).append(task['uid'])
+        children.setdefault(task['parentTaskUid'], []).append(task['uid'])
     out = {}
     for task in built.tasks:
         held = []
@@ -2813,7 +2813,7 @@ def descendants_of(built):
 
 
 def check_rollup(built, under):
-    """A1 -- a WBS parent contains every task under it. A2 -- and is not a point.
+    """A1 -- a parent task contains every task under it. A2 -- and is not a point.
 
     @purity semi-pure-b
     """
@@ -3044,7 +3044,7 @@ def check_names(built):
     labels = set()
     for row in built.rows:
         insist(row['label'] not in labels,
-               'A10: two rows are called %s, and the row title panel shows the '
+               'A10: two rows are called %s, and the task group panel shows the '
                'leaf label alone' % row['label'])
         labels.add(row['label'])
     # ⛔ THE BAR SAYS WHAT THE WORK IS; THE ROW SAYS WHAT THE THING IS. 985 of
@@ -3053,7 +3053,7 @@ def check_names(built):
     # neither is work: one is the row summarised and the other is the row
     # signed off, and both are read in the WBS outline away from the header.
     for row in built.rows:
-        if row['label'] in OVERVIEW_ROWS:
+        if row['label'] in OVERVIEW_TASK_GROUPS:
             continue
         for uid in row['tasks']:
             task = built.by_uid[uid]
@@ -3084,8 +3084,8 @@ def check_overview(built):
                'A11: the overview bar does not contain the %s phase'
                % PHASES[phase][0])
     rows = dict((row['label'], row) for row in built.rows)
-    insist(rows[PHASE_BAR_ROW]['parent'] is rows[OVERVIEW_ROW]
-           and rows[PHASE_GATE_ROW]['parent'] is rows[OVERVIEW_ROW],
+    insist(rows[PHASE_BAR_TASK_GROUP]['parent'] is rows[OVERVIEW_TASK_GROUP]
+           and rows[PHASE_GATE_TASK_GROUP]['parent'] is rows[OVERVIEW_TASK_GROUP],
            'A11: the phase rows are not under the row that overviews the whole')
 
 
@@ -3208,7 +3208,7 @@ def check_vocabulary(built):
         # ⚠️ The first tree is exempt: its three rows hold the fixed contents
         # of TP-4 -- a whole-project bar, seven phase bands and seven gates --
         # and no kind says those.
-        if row['label'] in OVERVIEW_ROWS:
+        if row['label'] in OVERVIEW_TASK_GROUPS:
             continue
         # ⛔ Every name is one its own row's kind could have said.
         insist(sayable(row, task),
@@ -3279,7 +3279,7 @@ def check_clustering(built):
     """
     spans, densities = [], []
     for row in built.rows:
-        if row['children'] or row['label'] in OVERVIEW_ROWS or not row['tasks']:
+        if row['children'] or row['label'] in OVERVIEW_TASK_GROUPS or not row['tasks']:
             continue
         held = [built.by_uid[uid] for uid in row['tasks']]
         first = min(one['startAt'] for one in held)
@@ -3493,7 +3493,7 @@ def check_reach(built):
         insist(successors.get(gate['uid'], 0) > 0,
                'A19: nothing anywhere waits on the %s gate, and a gate that '
                'holds nothing back is a decoration' % PHASES[phase][0])
-    overview = set([OVERVIEW_ROW])
+    overview = set([OVERVIEW_TASK_GROUP])
     between = dict((pair, count) for pair, count in pairs.items()
                    if pair[0] not in overview and pair[1] not in overview)
     insist(len(between) >= 8,
@@ -3552,9 +3552,9 @@ def check_counts(built):
 
     @purity semi-pure-b
     """
-    insist(len(built.rows) == WANTED_ROWS,
+    insist(len(built.rows) == WANTED_TASK_GROUPS,
            'TP-5: the tree holds %d rows, and table T-226 asks for %d'
-           % (len(built.rows), WANTED_ROWS))
+           % (len(built.rows), WANTED_TASK_GROUPS))
     insist(len(built.tasks) == WANTED_TASKS,
            'TP-6: built %d tasks, and table T-226 asks for %d'
            % (len(built.tasks), WANTED_TASKS))
@@ -3569,7 +3569,7 @@ def check_counts(built):
     def deep(uid):
         """@purity semi-pure-a"""
         if uid not in wbs:
-            parent = built.by_uid[uid]['wbsParentUid']
+            parent = built.by_uid[uid]['parentTaskUid']
             wbs[uid] = 1 if parent is None else deep(parent) + 1
         return wbs[uid]
 
@@ -3584,10 +3584,10 @@ def check_counts(built):
            % len(roots))
     insist(len(PHASES) == 7, 'TP-3: %d phases, and the table asks for seven'
            % len(PHASES))
-    per_row = set(len(row['tasks']) for row in built.rows)
-    insist(len(per_row) > 5,
+    per_task_group = set(len(row['tasks']) for row in built.rows)
+    insist(len(per_task_group) > 5,
            'TP-7: the tasks per row take only %d different values'
-           % len(per_row))
+           % len(per_task_group))
 
 
 # ---------------------------------------------------------------------------
@@ -4008,7 +4008,7 @@ def check_settings_bounds(settings):
             stated[key] = float(value)
         elif isinstance(value, list):
             # ⛔ A LIST HAS A LENGTH, AND THAT IS WHAT ITS BOUND BOUNDS.
-            # `pinnedGroupIds` (S-126) states a ceiling of `pinnedRowMax` and
+            # `pinnedGroupIds` (S-126) states a ceiling of `pinnedTaskGroupMax` and
             # a floor of no items, and the row was skipped entirely because
             # the value was not a number -- so the one setting in the table
             # whose bound counts rows was the one bound nobody read.
@@ -4068,7 +4068,7 @@ def check_invariants(document, settings):
                'IV-3: a pinned row points at %s, which is not a TaskGroup'
                % pinned)
 
-    parent_of = dict((task['uid'], task['wbsParentUid']) for task in tasks)
+    parent_of = dict((task['uid'], task['parentTaskUid']) for task in tasks)
     for uid in task_uids:
         seen = set()
         at = uid
@@ -4226,7 +4226,7 @@ def declared_strings(settings):
     said.update(SHAPE_KINDS)
     for fill, stroke, weight in AUTHOR_PAINT:
         said.update((fill, stroke, weight))
-    said.update(paint for _label, paint in ROW_PAINT)
+    said.update(paint for _label, paint in TASK_GROUP_PAINT)
     # ⭐ The presentation values are the manuscript's own words, arriving
     # through the block tools/generate_entity_types.py writes.
     said.update(one for _path, one in strings_in(settings, 'settings', []))
@@ -4479,9 +4479,9 @@ def build():
     settings = settings_defaults()
     assert_settings_complete(settings)
     built = Builder(settings)
-    insist(len(built.rows) == WANTED_ROWS,
+    insist(len(built.rows) == WANTED_TASK_GROUPS,
            'TP-5: the tree holds %d rows, and table T-226 asks for %d'
-           % (len(built.rows), WANTED_ROWS))
+           % (len(built.rows), WANTED_TASK_GROUPS))
     for phase in PHASES:
         insist(is_working_day(phase[1]) and is_working_day(phase[2]),
                'the %s phase begins or ends on a non-working day' % phase[0])
@@ -4489,7 +4489,7 @@ def build():
     built.build_overview()
     fixed = len(built.tasks)
     rollups = sum(1 for row in built.rows
-                  if row['children'] and row['label'] not in OVERVIEW_ROWS)
+                  if row['children'] and row['label'] not in OVERVIEW_TASK_GROUPS)
     built.build_work(work_counts(built.rows, WANTED_TASKS - fixed - rollups))
     built.build_rollups()
 

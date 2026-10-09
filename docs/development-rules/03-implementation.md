@@ -63,9 +63,9 @@ NOT_STORED_DELAY_MARK_SIZES          遅れの記号 `(!)` の縦棒と点の寸
 NOT_STORED_BOTTLENECK_THRESHOLD      ボトルネックとする押し出し日数の下限（`S-397`、`CR-561`。`delay-diagnostics.ts` が読む）
 NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅の上限と、進捗マーカーの径に対する比（`S-180` / `S-247`）
 NOT_STORED_END_POINTER_SIZES         本ツールが描くポインタの画像の大きさと縁（表 T-269。`S-249` / `S-294` 〜 `S-297`）
-NOT_STORED_ENTRANCE_SIZES            行見出しパネルの入口の図形の箱・枠・隙間（`S-138` / `S-237` / `S-243`）
+NOT_STORED_ENTRANCE_SIZES            タスクグループパネルの入口の図形の箱・枠・隙間（`S-138` / `S-237` / `S-243`）
 NOT_STORED_HELP_SIZES                ヘルプの取り分と列と塊の空き、ツールチップと読み出しの字と余白とポインタからの隔たり、表 T-335 のウインドウの下限と縁、対話欄の既定の大きさ、リポジトリの所（`S-201` 〜 `S-204` / `S-334` / `S-339` / `S-340` / `S-436` / `S-437` / `S-457` / `S-458` / `S-460` / `S-423` / `S-424` / `S-426` / `S-453` / `S-454` / `S-459`）
-NOT_STORED_ICON_SIZES                アイコンの箱と隔たりと入口の枠、行見出しパネルの入口の隔たり（`S-138` / `S-141` / `S-237` / `S-243`）
+NOT_STORED_ICON_SIZES                アイコンの箱と隔たりと入口の枠、タスクグループパネルの入口の隔たり（`S-138` / `S-141` / `S-237` / `S-243`）
 NOT_STORED_INTERACTION_RECORD_LIMITS 操作記録の上限（`S-207`）
 NOT_STORED_LABEL_SIZES               ラベルの幅の係数と予定日の字の係数（`S-196` / `S-233` / `S-325`）
 NOT_STORED_FIT_MARGIN                全体表示で横に残す余白の比（`S-332`）
@@ -87,13 +87,13 @@ NOT_STORED_WHEEL_UNITS               ホイールの 1 行の長さと 1 ノッ�
 NOT_STORED_EXPORT_CHOOSER_SIZES      保存の面の形式のボタンのあいだの隔たり（`S-517`、`FR-096`、`CR-685`）
 NOT_STORED_SCALE_MESSAGE_TIMES       表示の倍率のメッセージを出しておく時間（`S-244`）
 NOT_STORED_NOTICE_TIMES              時間で消す通知を出しておく時間（`S-542`、表 T-037 の `NT-2`。`CR-712`）
-NOT_STORED_ROW_BAND_CEILING_SEARCH   行の軸の上限（帯の側）を探す刻みと許容（`S-238` / `S-239`）
-NOT_STORED_ROW_BAND_SIZES            行の辺に引く帯の太さ（`S-213`）
-NOT_STORED_ROW_CONTROL_SIZES         行の操作子の大きさと右端からの隔たり（`S-140` / `S-313`）
-NOT_STORED_ROW_CONTROL_EDGE_SIZES    行の操作子を描く側の、右端からの隔たり（`S-313`）
-NOT_STORED_ROW_GRAB_ROOM_SIZES       行の掴み代が取る場所（`S-138` / `S-218`）
-NOT_STORED_ROW_GRAB_SIZES            掴んだ行の軸と追従（`S-208` / `S-212`）
-NOT_STORED_ROW_GRAB_STRIP_SIZES      掴み代と行の名前の隔たり（`S-218`）
+NOT_STORED_ROW_BAND_CEILING_SEARCH   縦軸の上限（帯の側）を探す刻みと許容（`S-238` / `S-239`）
+NOT_STORED_TASK_GROUP_BAND_SIZES            タスクグループの辺に引く帯の太さ（`S-213`）
+NOT_STORED_TASK_GROUP_CONTROL_SIZES         タスクグループの操作子の大きさと右端からの隔たり（`S-140` / `S-313`）
+NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES    タスクグループの操作子を描く側の、右端からの隔たり（`S-313`）
+NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES       タスクグループの掴み代が取る場所（`S-138` / `S-218`）
+NOT_STORED_TASK_GROUP_GRAB_SIZES            掴んだタスクグループの軸と追従（`S-208` / `S-212`）
+NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES      掴み代とタスクグループ名の隔たり（`S-218`）
 NOT_STORED_SCROLLBAR_SIZES           スクロールバーの厚みの下限（`S-205`）
 NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES 表示の絞り込みの帯の高さと字、絵の注の字（`S-497` / `S-498`、`CR-661`）。写しは 3 つ —— 帯を下げる `SingleHtmlShell`、帯を描く `DomScreenSurface`、注を書く `ImageExporter`
 NOT_STORED_ANNOTATION_SIZES          注記の見せ方の既定（表 T-217 の全行。`S-132` ・ `S-369` 〜 `S-371` ・ `S-374` ・ `S-375`）
@@ -103,7 +103,7 @@ NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS   カスタムカラーの実績の塗りの�
 NOT_STORED_THEME_SOLVE               テーマ色を色相ごとに解く数 —— 寄せの刻み・上限・4 行の比・地の彩度を割る回数（`S-520` 〜 `S-526`、表 T-366、`CR-683`）
 NOT_STORED_DEADLINE_MARK_SIZES       期限の印の径・矢じり・軸の比（`S-365` / `S-366` / `S-367`、`CR-556`）
 NOT_STORED_BASELINE_OUTLINE_SIZES    変更前の予定の輪郭の破線の刻み（`S-444`、`CR-588`）
-NOT_STORED_WBS_PARENT_ARROW_SIZES    WBS の親子の矢印の当たりの太さと、導いた親への矢印の破線の刻み（`S-485` / `S-486`、`CR-631`）
+NOT_STORED_PARENT_TASK_ARROW_SIZES    親タスクと子タスクの矢印の当たりの太さと、導いた親タスクへの矢印の破線の刻み（`S-485` / `S-486`、`CR-631`）
 NOT_STORED_SEARCH_PANEL_SIZES        検索パネルの大きさと、検索の表と遅延診断レポートの表の列の幅・下限・境目の掴み代（`S-421` / `S-422`、`CR-571`。`S-425` / `S-465` 〜 `S-474`、`CR-629`。`S-475` 〜 `S-481`、`CR-639`。`S-500` 〜 `S-502`、`CR-660`）
 NOT_STORED_SEARCH_PANEL_FONT_SIZES   検索パネルの字の大きさの段（表 T-333、`CR-571`）。写しは 2 つ —— `DomScreenSurface` が描く px を、`ScreenState` が段の並び（`S-429` の段は行の位置）を `AdvanceScreenSession` へ渡す
 NOT_STORED_SEARCH_JUMP_INSET         検索から飛んだ先の左端と表示の左端のあいだ（`S-428`、表 T-332 の `SJ-6`、`DFC-1770`）
@@ -134,7 +134,7 @@ SETTINGS_CONSTANTS                   文書に保存しない設定の値（`_as
 SETTINGS_BOUNDS                      その下限・上限
 SETTINGS_DEFAULTS                    見せ方の群の既定値
 SETTINGS_DERIVED                     他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）
-TREE_STATE_TRANSITIONS               行の木の状態遷移表の升を 1 つずつ並べたもの（表 T-328。`tools/generate_state_machine_types.py` が `task-group-folding.ts` に刷る）
+TREE_STATE_TRANSITIONS               タスクグループの木の状態遷移表の升を 1 つずつ並べたもの（表 T-328。`tools/generate_state_machine_types.py` が `task-group-folding.ts` に刷る）
 VISIBLE_ELEMENT_BY_ENTRY             表示の切り替えの入口が反転する 表 T-202 の真偽の鍵（表 T-109 の `切り替える設定値`。`FR-049`、`CR-589`）。写しは 3 つ —— 翻訳係・`Command Palette`・`App Header`
 GUIDE_CURSOR_MODE_BY_ENTRY           ガイドカーソルの入口が書く `S-66` の値（同じ欄。`FR-048`、`CR-589`）。写しは 2 つ —— 翻訳係・`Command Palette`
 WATERMARK_UNLOCK_DIGEST              既定の透かし解除パスワードの SHA-256（表 T-207 の `S-101`）
@@ -182,7 +182,7 @@ NOT_STORED_NAME_LABEL_WEIGHT         タスクとマイルストーンの名称�
 ⭐ **一覧は、生成のときに import から割り出さず、手で書く。**
 公開はユニットの顔を決めることなので、import を足した者に自動で与えず、差分の 1 行として残す。
 生成器の出力も、原稿と生成器だけで決まる（試験の import が増えても減っても変わらない）。
-⚠️ **実例**: `NOT_STORED_ROW_CONTROL_OUTER_SIZES` は `CR-397` で床の式が `screen-regions.ts` へ移ったあと、自分のファイルを含めて誰にも読まれないまま刷られ続けていた。
+⚠️ **実例**: `NOT_STORED_TASK_GROUP_CONTROL_OUTER_SIZES` は `CR-397` で床の式が `screen-regions.ts` へ移ったあと、自分のファイルを含めて誰にも読まれないまま刷られ続けていた。
 第 1 段で生成をやめた。
 
 ⭐ **3 段で進めた。3 段とも済んでいる（第 3 段は 2026-10-08、`DFC-619`）。**

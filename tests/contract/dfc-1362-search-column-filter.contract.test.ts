@@ -50,7 +50,7 @@ const EXAMPLE_KATAKANA = 'レビュー'
 const SV_4_EMPTY = '語が空のときはすべての行を載せる。'
 const SV_4_NAMELESS = '名前が空のタスクも表に載るが、名前の側では空でない語に当たらない'
 const FR_151_NOT_SEARCHED =
-  '⛔ 探すものに `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）と行の名前（`AT-53`）を含めてはならない（MUST NOT）'
+  '⛔ 探すものに `Task.notes`（`_assets/fig-erd-detail.md` の `AT-32`）とタスクグループ名（`AT-53`）を含めてはならない（MUST NOT）'
 
 const SV_7_ENTRY = 'どの列の見出しにも `IC-122` を置き、押すと絞り込みを開く。'
 const SV_7_CONTENTS =
@@ -68,7 +68,7 @@ const SV_8_STATES =
   '状態の列（`SQ-5`）の昇順は ボトルネック → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
 const SV_8_TIES = '同じ値の行は既定の並びを保ち、空の値は向きによらず末尾。'
 const SV_8_DEFAULT =
-  '既定の並びは、行の木の上からの並び → `SQ-3`（コメントボックスは `SQ-9`）→ `Task.uid`（コメントボックスは `id`）'
+  '既定の並びは、タスクグループの木の上からの並び → `SQ-3`（コメントボックスは `SQ-9`）→ `Task.uid`（コメントボックスは `id`）'
 
 const SV_3_ONE = '表は一度に 1 つだけ出す。'
 const SV_12_ONLY_TITLE = '`FR-036` の 表 T-335 の `WB-2`・`WB-5`（入口は `IC-129`）'

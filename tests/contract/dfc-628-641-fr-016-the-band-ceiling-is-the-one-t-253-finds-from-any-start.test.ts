@@ -7,9 +7,9 @@ import { keyOf, REQUIREMENTS, taskGroupDocument, shell, taskOf, type ShellBench 
 
 // see FR-016
 const FR_016_FIRST_REACH =
-  '⭐ 行の軸（`zoomY`）の上限は、いちばん高い行の帯の高さが、初めて `Task Group Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
+  '⭐ 縦軸（`zoomY`）の上限は、いちばん高いタスクグループの帯の高さが、初めて `Task Group Area` の高さ以上になった倍率とし、その倍率を 表 T-253 の手順で探すこと（MUST）'
 const FR_016_ANY_START =
-  '⭐ 行の軸の上限は、拡大を始めた倍率に依らないこと（MUST） —— いまの `zoomY` だけが違う 2 つの状態は、同じ上限を持つ。'
+  '⭐ 縦軸の上限は、拡大を始めた倍率に依らないこと（MUST） —— いまの `zoomY` だけが違う 2 つの状態は、同じ上限を持つ。'
 // see T-253
 const BC_1_LADDER = '次の倍率を、1 つ前の倍率に同書の 表 T-206 の `S-238` を掛けた値とする。'
 const BC_2_EQUAL_REACHES = '帯の高さが `Task Group Area` の高さと等しいときも、達したとする。'

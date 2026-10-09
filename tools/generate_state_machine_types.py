@@ -37,7 +37,7 @@ a machine's name without `StateMachine`, in PascalCase (JDG-286, R4.4):
                             table T-292 for `fieldEntry`, table T-293 for
                             `selection`, table T-295 for
                             `interactionRecord`, table T-296 for
-                            `agentApi`, table T-328 for `rowTree`), the
+                            `agentApi`, table T-328 for `taskGroupTree`), the
                             root's first, then each machine's in manuscript
                             order
 
@@ -89,7 +89,7 @@ REGION = re.compile(re.escape(OPEN) + r'\n// From docs/spec/_source/state-machin
 # full reasoning): a generated constant is EXPORTED ONLY WHEN ANOTHER FILE
 # READS IT, and is otherwise a plain `const`. A plain `const` that nothing
 # reads at all -- not even its own file -- is refused by noUnusedLocals, so
-# it is not generated (the precedent is NOT_STORED_ROW_CONTROL_OUTER_SIZES).
+# it is not generated (the precedent is NOT_STORED_TASK_GROUP_CONTROL_OUTER_SIZES).
 #
 # The hand-written `step` of a region answers from its own code and never
 # reads the region's <STEM>_TRANSITIONS; the per-region contract test holds it

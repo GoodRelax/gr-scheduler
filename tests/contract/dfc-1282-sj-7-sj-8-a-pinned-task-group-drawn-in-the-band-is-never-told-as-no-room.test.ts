@@ -17,9 +17,9 @@ const cellOf = (id: string): string => {
 
 // see SJ-7, SJ-8
 const SJ_7_PINNED_DRAWN =
-  '飛ぶ先の行がピン止めの行（`S-126`）で、ピン止めの帯（`FR-098`）に描かれているなら、`SJ-5` を行わず、`SJ-6` だけを行う。'
+  '飛ぶ先のタスクグループがピン止めのタスクグループ（`S-126`）で、ピン止めの帯（`FR-098`）に描かれているなら、`SJ-5` を行わず、`SJ-6` だけを行う。'
 const SJ_7_ROOM_IRRELEVANT = '帯の下に残る高さは問わない'
-const SJ_8_NOT_DRAWN = 'ピン止めの行では、帯に入りきらずに描かれていないこと'
+const SJ_8_NOT_DRAWN = 'ピン止めのタスクグループでは、帯に入りきらずに描かれていないこと'
 const SJ_8_STILL_OPENS = '`SJ-2` と `SJ-4` は行う'
 
 type Loose = Record<string, unknown>
