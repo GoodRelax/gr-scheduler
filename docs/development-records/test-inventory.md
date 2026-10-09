@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 282 | 3093 | 3 | 5 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 282 | 3094 | 3 | 5 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 70 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 72 | 447 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3909 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 556 | 7553 | 6 | 9 | 12 | 2 |
+| **all** | | | 556 | 7554 | 6 | 9 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -371,7 +371,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-717-one-band-rule-for-the-drawing-and-the-hit-test.test.ts` | 8 | FR-098 | - | T-303 | EL-4, EL-19, PI-6 | - | - | - | - |
 | `tests/contract/cr-718-a-bar-shape-released-without-a-drag-carries-rs-53.test.ts` | 5 | FR-001, FR-076 | VT-2 | T-012, T-109, T-290 | RS-53, TC-8 | - | - | - | - |
 | `tests/contract/cr-718-a-paste-onto-two-task-groups-carries-rs-27.test.ts` | 5 | FR-033, FR-076 | VT-2 | T-290 | RS-27 | - | - | - | - |
-| `tests/contract/cr-718-an-import-refusal-names-its-t-220-task-group.contract.test.ts` | 7 | FR-023, FR-076 | - | T-214, T-220 | AG-9a, IV-10, IV-14, S-119 | - | - | - | - |
+| `tests/contract/cr-718-an-import-refusal-names-its-t-220-task-group.contract.test.ts` | 8 | FR-012, FR-023, FR-076 | - | T-214, T-220, T-233 | AG-9a, IV-10, IV-14, S-119 | - | - | - | - |
 | `tests/contract/cr-718-the-requirement-text-defers-to-the-display-column.contract.test.ts` | 6 | FR-001, FR-008, FR-033, FR-076 | - | T-220, T-233, T-239 | IV-10, IV-14, RS-27, RS-49, RS-53, TC-8 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |

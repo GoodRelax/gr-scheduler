@@ -74,7 +74,6 @@ const HIDDEN = [
 const TIMED = [
   'RS-23', 'RS-33', 'RS-54', 'RS-56', 'RS-58', 'RS-59', 'RS-61', 'RS-63', 'RS-65', 'RS-66', 'RS-68',
   'RS-70', 'RS-69', 'RS-77',
-  // CR-719 section 11, JDG-1777: the five refusals a field answers leave by themselves.
   'RS-84', 'RS-85', 'RS-86', 'RS-87', 'RS-88',
 ] as const
 const REPORTED = ['RS-14', 'RS-16', 'RS-50', 'RS-51', 'RS-52', 'RS-60', 'RS-71', 'RS-72', 'RS-73'] as const

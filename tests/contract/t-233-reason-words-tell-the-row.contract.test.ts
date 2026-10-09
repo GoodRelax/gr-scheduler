@@ -545,9 +545,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // may not hold it, and the road is another destination, as RS-3's.
   'RS-76': 'ec9c53b8e6e11451',
   'RS-77': '4582796b6be4b330',
-  // WHY: read 2026-10-10 (CR-719, JDG-1777); the user read the eleven scenes with their words and
-  // next steps and answered 「それでやれ」. Four tell why a file is not opened (a limit of table T-211
-  // or a Task with no dates), seven tell which row of table T-220 an edit broke.
+  // WHY: read 2026-10-10 (CR-719, JDG-1777); four tell why a file is not opened (a limit of
+  // table T-211 or a Task with no dates), seven tell which row of table T-220 an edit broke.
   'RS-78': '041a289233490cc8',
   'RS-79': 'a937ddb17ac75a7e',
   'RS-80': 'eafa7e48e45f0966',

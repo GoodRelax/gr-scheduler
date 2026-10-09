@@ -68,9 +68,9 @@
 // ---------------------------------------------------------------------------
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
-//  1. WHICH ROW OF 表 T-233 A REFUSED PASTE CARRIES. `FR-033` says 「貼り付けを
-//     受け付けずに通知すること（MUST）」 and names NO row; DFC-290's own record says
-//     the choice was the body's and not the user's. So the case below asks only
+//  1. WHICH ROW OF 表 T-233 A REFUSED PASTE CARRIES. Until CR-719 `FR-033` named
+//     NO row; it now names `RS-24` (E-08), which a spec-only case is to hold. The
+//     case below was written before that, and asks only
 //     what 表 T-233's closing rule requires -- that whatever is told IS a row of
 //     that table, in the words `FR-038`'s dictionary holds for it.
 //  2. WHAT AN EMPTY STORE TELLS. Same reason: `FR-033` states no reason row for
@@ -680,10 +680,10 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
   })
 
   it('⭐ and the refusal is TOLD, in the words FR-038 holds for a row of 表 T-233', () => {
-    // 「貼り付けを受け付けずに**通知**すること（MUST）」, and 表 T-233's closing
+    // 「表 T-233 の `RS-24` として通知の仕組みへ運ぶこと（MUST）」, and 表 T-233's closing
     // rule: 「通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運
     // んではならない（MUST NOT）」.
-    // ⛔ WHICH row is not asserted: FR-033 names none (see the head of this file).
+    // ⛔ WHICH row is not asserted here (see the head of this file).
     expect(REQUIREMENTS).toContain(T_233_ONLY_ITS_OWN_ROWS)
     const built = stage(documentOfTwoTaskGroups(AT_THE_CAP), TALL)
     built.pressTask(PARENT_TASK)

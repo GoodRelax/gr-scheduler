@@ -96,7 +96,7 @@ import {
   type FrameEnvironment,
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
-import { bare, bareAll, specTable, type SpecRow, type SpecTable } from './spec-table'
+import { bare, bareAll, specTable, unbroken, type SpecRow, type SpecTable } from './spec-table'
 
 // ---------------------------------------------------------------------------
 // The manuscript, read at read time rather than copied (Chapter 1.9)
@@ -139,6 +139,9 @@ const RS_56 = 'RS-56'
 const RS_57 = 'RS-57'
 const RS_58 = 'RS-58'
 const RS_82 = 'RS-82'
+
+const FR_076_A_T_220_REFUSAL_CARRIES_ITS_ROW =
+  '⭐ 画面からの書き込みが Chapter 6.1 の 表 T-220 の行で拒まれたときは、本表のうち出典の欄がその行を名指す行を運ぶこと（MUST）'
 
 // ---------------------------------------------------------------------------
 // The loop, driven the way a person settles a value in the Properties Panel
@@ -374,20 +377,14 @@ describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-
 // ===========================================================================
 // DFC-406 -- the wide half: IV-2 is told its own row, not RS-10 and not RS-55
 // ===========================================================================
-//
-// ⚠️ RETIRED 2026-10-10 (CR-719): this case asserted that a parent task naming
-// a uid the document does not hold (`IV-2`) is told `RS-10`. CR-719 gave `IV-2`
-// its own row of table T-233 (`RS-82`), and FR-076 now says (MUST) that a
-// write a row of table T-220 refuses carries the T-233 row whose 正 names it.
-// The guard that a rule with NO row keeps `RS-10` lives on in
-// tests/unit/t-233-rs-56-a-self-dependency-is-told-its-own-row.test.ts
-// (THE WIDE HALF: FR-009s OTHER refusals keep RS-10).
 
 describe('DFC-406 / table T-233: a write IV-2 refuses is told the row whose 正 names IV-2', () => {
   it('⭐⭐ a parent task naming a uid the document does not hold is told RS-82, not RS-10', () => {
     // ⭐ THE SAME COMMAND AS THE `RS-55` CASE ABOVE, refused on a different rule
     // (`IV-2`, a foreign key pointing at nothing) -- so what separates the two
     // cases is the rule alone, which is what the routing reads.
+    expect(unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8')))
+      .toContain(FR_076_A_T_220_REFUSAL_CARRIES_ITS_ROW)
     expect(authorityOf(RS_82)).toContain('IV-2')
     const document = templateDocument()
     const task = firstTask(document)

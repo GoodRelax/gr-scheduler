@@ -179,3 +179,18 @@ describe(`IV-14 -- a date before importMinDate (${IMPORT_MIN_DATE}) is refused u
     expect(verdictOf(documentOf([taskOf({ uid: 1, name: 't1', ...IN_RANGE })], projectOf({ created: `${IMPORT_MIN_DATE}T00:00:00` })))).toEqual({ ok: true })
   })
 })
+
+const AN_UNOWNED_IMPORT_REFUSAL_CARRIES_ITS_T_233_ROW =
+  '本表のうち出典の欄がその上限か `FR-012` を名指す行を運ぶこと（MUST）'
+
+describe('FR-076 (CR-719) -- a Task with no start is refused under the T-233 row whose 正 names FR-012', () => {
+  it(AN_UNOWNED_IMPORT_REFUSAL_CARRIES_ITS_T_233_ROW, () => {
+    expect(REQUIREMENTS).toContain(AN_UNOWNED_IMPORT_REFUSAL_CARRIES_ITS_T_233_ROW)
+    const owner = specTable('T-233').rows.find((one) => (one.by['正'] ?? '').trim() === '`FR-012`')
+    expect(owner, 'table T-233 has a row whose 正 is FR-012').toBeDefined()
+    const rules = rulesOf(verdictOf(documentOf([taskOf({ uid: 1, name: 't1', finish: '2026-01-09' })])))
+    expect(rules, JSON.stringify(rules)).toContain(owner?.id)
+    expect(rules).not.toContain('FR-012')
+    expect(rules).not.toContain('RS-15')
+  })
+})
