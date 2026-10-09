@@ -98,6 +98,39 @@ const isSeparator = (line: string): boolean => /^\|[\s:|-]+\|$/.test(line.trim()
  * the heading findable rather than positional.
  */
 export function specTable(id: string): SpecTable {
+  const held = TABLES_READ.get(id)
+  if (held === undefined) {
+    const read = readSpecTable(id)
+    TABLES_READ.set(id, read)
+    return copyOf(read)
+  }
+  return copyOf(held)
+}
+
+// WHY: one read and split per test file, not per call -- the grab-area scans call this
+// WHY: hundreds of times per case (DFC-2312); each test file still loads its own module.
+const LINES_READ = new Map<string, readonly string[]>()
+const TABLES_READ = new Map<string, SpecTable>()
+
+// TRAP: hand out copies -- a test that edits a cached table would change what later cases read.
+const copyOf = (table: SpecTable): SpecTable => ({
+  ...table,
+  headings: [...table.headings],
+  rows: table.rows.map((row) => ({ id: row.id, cells: [...row.cells], by: { ...row.by } })),
+})
+
+// WHY: an empty read is not kept, so the next call reads the manuscript again (DFC-255).
+function manuscriptLines(file: string): readonly string[] | null {
+  const held = LINES_READ.get(file)
+  if (held !== undefined) return held
+  const text = readFileSync(join(SPEC, file), 'utf8')
+  if (text.trim().length === 0) return null
+  const lines = text.split('\n')
+  LINES_READ.set(file, lines)
+  return lines
+}
+
+function readSpecTable(id: string): SpecTable {
   const unreadable: string[] = []
   for (const file of FILES) {
     // ⛔⛔ A MANUSCRIPT CAN BE LOCKED WHILE THIS RUNS, and the read then
@@ -112,9 +145,9 @@ export function specTable(id: string): SpecTable {
     // is the likeliest reading of DFC-255's rare unreproducible failure.
     // ⭐ So the read is caught and named, and the suite is not run while
     // anything is writing docs/spec.
-    let text: string
+    let lines: readonly string[] | null
     try {
-      text = readFileSync(join(SPEC, file), 'utf8')
+      lines = manuscriptLines(file)
     } catch (cause) {
       unreadable.push(`${file} (${cause instanceof Error ? cause.message : String(cause)})`)
       continue
@@ -122,11 +155,10 @@ export function specTable(id: string): SpecTable {
     // ⚠️ AND THE OTHER HALF OF THE SAME MOMENT: the read can succeed and
     // hand back a file that is empty or still filling. Measured 2026-09-05:
     // both shapes appeared in the same experiment, so both are caught.
-    if (text.trim().length === 0) {
+    if (lines === null) {
       unreadable.push(`${file} (read back empty)`)
       continue
     }
-    const lines = text.split('\n')
     const at = lines.findIndex((line) => line.startsWith(`**表 ${id} —`))
     if (at < 0) continue
 

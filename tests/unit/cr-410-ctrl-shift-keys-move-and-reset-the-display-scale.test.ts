@@ -53,6 +53,8 @@ describe('CR-410 -- the manuscript these cases are driven by', () => {
   })
 })
 
+const WALK_TIMEOUT_MS = 30_000
+
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, any>
@@ -127,7 +129,9 @@ describe('SK-22 / SK-23 -- Ctrl + Shift + [+] / [-] move the display scale one s
     expect(built.settings()['displayScale'], FR_039_THE_TWO_KEYS).toBe(stepAfter(DEFAULT_DISPLAY_SCALE, -1))
   })
 
-  it('walks every step in the order table T-202 spells, up and then down', () => {
+  // WHY: every step redraws the startup template at a new scale, so this one case outgrows the
+  // WHY: 5 s default on a loaded machine; the timeout is named here, not raised for the file (DFC-2312).
+  it('walks every step in the order table T-202 spells, up and then down', { timeout: WALK_TIMEOUT_MS }, () => {
     const built = stage({ displayScale: LOWEST })
     const up: number[] = [LOWEST]
     for (let at = 1; at < DISPLAY_SCALE_STEPS.length; at += 1) {

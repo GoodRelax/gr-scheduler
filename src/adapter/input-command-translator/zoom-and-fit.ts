@@ -130,8 +130,7 @@ function measuredAtScreenZoomX(
 
 // see ZE-1, FR-094, FR-018, S-76
 /** @purity pure */
-function isVerticalZoomAtLowerEnd(context: InputContext): boolean {
-  const on = zoomOnScreen(context)
+function isVerticalZoomAtLowerEnd(context: InputContext, on: { readonly x: number; readonly y: number }): boolean {
   const measuredWith = measuredAtScreenZoomX(context, on)
   const now = verticalAxisReadingOf(measuredWith, on.y)
   const lowest = verticalAxisReadingOf(measuredWith, context.zoomMin)
@@ -181,7 +180,7 @@ export function verticalZoomAnswer(
 ): TranslatedInput {
   const on = zoomOnScreen(context)
   const drawnZoomY = on.y
-  if (factor < 1 && isVerticalZoomAtLowerEnd(context)) {
+  if (factor < 1 && isVerticalZoomAtLowerEnd(context, on)) {
     const ended = verticalZoomShrinkWrites(context, [])
     return { ...ended, verticalZoomEndShown: { end: 'min', zoomY: drawnZoomY } }
   }
@@ -202,13 +201,13 @@ function verticalZoomStepOf(
   const wanted =
     factor > 1
       ? zoomYWithinCeiling(context, on.x, nextTaskGroupPictureZoomYOf(context, on, on.y * factor))
-      : zoomTimes(context, factor, 'y')
+      : zoomTimesFrom(context, on, factor, 'y')
   return zoomWithinBounds(context, wanted)
 }
 
 /** @purity pure */
-function timeZoomStepOf(context: InputContext, factor: number): number {
-  return zoomWithinBounds(context, zoomTimes(context, factor, 'x'))
+function timeZoomStepOf(context: InputContext, on: { readonly x: number; readonly y: number }, factor: number): number {
+  return zoomWithinBounds(context, zoomTimesFrom(context, on, factor, 'x'))
 }
 
 export interface ZoomEntranceEnds {
@@ -224,9 +223,9 @@ export interface ZoomEntranceEnds {
 export function zoomEntranceEndsOf(context: InputContext): ZoomEntranceEnds {
   const on = zoomOnScreen(context)
   return {
-    timeOut: timeZoomStepOf(context, keyZoomFactor(context, false)) === on.x,
-    timeIn: timeZoomStepOf(context, keyZoomFactor(context, true)) === on.x,
-    verticalOut: isVerticalZoomAtLowerEnd(context),
+    timeOut: timeZoomStepOf(context, on, keyZoomFactor(context, false)) === on.x,
+    timeIn: timeZoomStepOf(context, on, keyZoomFactor(context, true)) === on.x,
+    verticalOut: isVerticalZoomAtLowerEnd(context, on),
     verticalIn: verticalZoomStepOf(context, on, keyZoomFactor(context, true)) === on.y,
   }
 }
@@ -347,11 +346,21 @@ function bandCeilingUpTo(
   return upper
 }
 
-// TRAP: rounding the stepped zoom breaks FR-018 silently (it can cross a detail threshold).
 // see FR-016, FR-018
 /** @purity pure */
 export function zoomTimes(context: InputContext, factor: number, axis: 'x' | 'y'): number {
-  const on = zoomOnScreen(context)
+  return zoomTimesFrom(context, zoomOnScreen(context), factor, axis)
+}
+
+// TRAP: rounding the stepped zoom breaks FR-018 silently (it can cross a detail threshold).
+// see FR-016, FR-018
+/** @purity pure */
+function zoomTimesFrom(
+  context: InputContext,
+  on: { readonly x: number; readonly y: number },
+  factor: number,
+  axis: 'x' | 'y',
+): number {
   if (axis === 'y') return zoomYWithinCeiling(context, on.x, on.y * factor)
   const stepped = on.x * factor
   const ceiling = zoomXCeiling(context)

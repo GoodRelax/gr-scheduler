@@ -1088,7 +1088,23 @@ const surfaceFrame = (surface: string, rowId: string | null = null): Frame => sc
 
 type Build = typeof screenViewFromRegions
 
-const viewOf = (build: Build, frame: Frame, language: string): ScreenView =>
+// WHY: the arrival sweep asks every frame once per written word; one build per frame and language
+// WHY: keeps that case from rebuilding the same view hundreds of times (DFC-2312).
+const VIEWS_BUILT = new Map<Build, WeakMap<Frame, Map<string, ScreenView>>>()
+
+const viewOf = (build: Build, frame: Frame, language: string): ScreenView => {
+  const byFrame = VIEWS_BUILT.get(build) ?? new WeakMap<Frame, Map<string, ScreenView>>()
+  VIEWS_BUILT.set(build, byFrame)
+  const byLanguage = byFrame.get(frame) ?? new Map<string, ScreenView>()
+  byFrame.set(frame, byLanguage)
+  const held = byLanguage.get(language)
+  if (held !== undefined) return held
+  const view = freshViewOf(build, frame, language)
+  byLanguage.set(language, view)
+  return view
+}
+
+const freshViewOf = (build: Build, frame: Frame, language: string): ScreenView =>
   build(
     frame.regions,
     frame.schedule,
@@ -2559,6 +2575,16 @@ const stringsIn = (value: unknown, found: string[] = [], seen = new Set<unknown>
   return found
 }
 
+const STRINGS_READ = new WeakMap<ScreenView, readonly string[]>()
+
+const stringsOfView = (view: ScreenView): readonly string[] => {
+  const held = STRINGS_READ.get(view)
+  if (held !== undefined) return held
+  const read = stringsIn(view)
+  STRINGS_READ.set(view, read)
+  return read
+}
+
 /**
  * One question raised per row of table T-234 -- the frame the words of the
  * `questions` section have to arrive on, and the one FR-032's mark needs in
@@ -2699,7 +2725,7 @@ const framesShowing = (
   word: string,
   language: string,
 ): readonly { readonly what: string; readonly frame: Frame }[] =>
-  FRAMES.filter((one) => shows(word, stringsIn(viewOf(screenViewFromRegions, one.frame, language))))
+  FRAMES.filter((one) => shows(word, stringsOfView(viewOf(screenViewFromRegions, one.frame, language))))
 
 // see FR-039, SE-2, FR-038
 const scaleEchoFramesShowing = (
@@ -2707,7 +2733,7 @@ const scaleEchoFramesShowing = (
   language: string,
 ): readonly { readonly what: string; readonly frame: Frame }[] =>
   FRAMES.filter((one) =>
-    stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => /^\d+%/.test(text) && text.endsWith(word)),
+    stringsOfView(viewOf(screenViewFromRegions, one.frame, language)).some((text) => /^\d+%/.test(text) && text.endsWith(word)),
   )
 
 // see DC-3, FR-038
@@ -2776,7 +2802,7 @@ const rowMinHeightFieldFramesShowing = (
 ): readonly { readonly what: string; readonly frame: Frame }[] => {
   const pattern = new RegExp(`^${word.split(TASK_GROUP_MIN_HEIGHT_PX_SLOT).map(escapeForRegExp).join('\\d+')}$`)
   return FRAMES.filter((one) =>
-    stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
+    stringsOfView(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
   )
 }
 
@@ -2788,7 +2814,7 @@ const shownSpanFramesShowing = (
 ): readonly { readonly what: string; readonly frame: Frame }[] => {
   const pattern = new RegExp(`^${word.split(/\{start\}|\{finish\}/).map(escapeForRegExp).join('\\d{4}/\\d{2}/\\d{2}')}$`)
   return FRAMES.filter((one) =>
-    stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
+    stringsOfView(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
   )
 }
 
@@ -2800,7 +2826,7 @@ const customValueFramesShowing = (
 ): readonly { readonly what: string; readonly frame: Frame }[] => {
   const pattern = new RegExp(`^${word.split(CUSTOM_VALUE_SLOT).map(escapeForRegExp).join('#[0-9A-F]{6}')}$`)
   return FRAMES.filter((one) =>
-    stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
+    stringsOfView(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
   )
 }
 
@@ -2818,7 +2844,7 @@ const propertyFieldFramesShowing = (
       .join('.*')}$`,
   )
   return FRAMES.filter((one) =>
-    stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) =>
+    stringsOfView(viewOf(screenViewFromRegions, one.frame, language)).some((text) =>
       text.split('\n').some((line) => pattern.test(line)),
     ),
   )
@@ -2833,7 +2859,7 @@ const countSlottedFramesShowing = (
 ): readonly { readonly what: string; readonly frame: Frame }[] => {
   const pattern = new RegExp(`^${word.split(/\{total\}|\{shown\}/).map(escapeForRegExp).join('[0-9]+')}$`)
   return FRAMES.filter((one) =>
-    stringsIn(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
+    stringsOfView(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
   )
 }
 
@@ -3401,7 +3427,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
         if (twin === undefined || twin.word === '' || twin.word === cell.word) continue
         for (const one of on) {
           expect(
-            stringsIn(viewOf(screenViewFromRegions, one.frame, other)).includes(printed),
+            stringsOfView(viewOf(screenViewFromRegions, one.frame, other)).includes(printed),
             `FR-038 (MUST): ${at} holds a word of its own per language, so ${one.what} must not print the ` +
               `${cell.language} one when the view is asked for in ${other}`,
           ).toBe(false)
