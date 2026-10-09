@@ -1,0 +1,50 @@
+old	new	scope	guard	not_before	status	decided_by	hits	note
+WBS のネストの深さの上限	親タスクの入れ子の深さの上限	all	on		on	JDG-1668 (K-99)	3	CR-708 2.1
+WBS の親子関係	親タスクと子タスクの関係	all	on		on	JDG-1659	0	CR-708 2.1
+WBS の親子	親タスクと子タスク	all	on		on	JDG-1659	13	CR-708 2.1
+WBS の部分木	親タスクの部分木	all	on		on	JDG-1668	0	CR-708 2.1
+WBS の子孫	子孫タスク	all	on		on	JDG-1668	21	CR-708 2.1
+WBS の祖先	祖先タスク	all	on		on	JDG-1668	5	CR-708 2.1
+WBS の兄弟	兄弟タスク	all	on		on	JDG-1668	0	CR-708 2.1
+WBS の親	親タスク	all	on		on	JDG-1652 / JDG-1659	50	CR-708 2.1; also PR-15 (JDG-1614)
+WBS の子	子タスク	all	on		on	JDG-1668	2	CR-708 2.1
+WBS 親	親タスク	all	on		on	JDG-1652	4	CR-708 2.1
+親子の進捗の疑義	親タスクの進捗の疑義	all	on		on	JDG-1659 (K-140, FR-131)	7	CR-708 2.1
+親子判別	親タスク表示	all	on		on	JDG-1667 (IC-141)	11	CR-708 2.1
+親定義	親タスク設定	all	on		on	JDG-1667 (IC-142)	11	CR-708 2.1
+導いた親	導いた親タスク	all	on	タスク	on	JDG-1659	16	CR-708 2.1
+明記の親	明記の親タスク	all	on	タスク	on	JDG-1659	4	CR-708 2.1
+表示の上端が指す行	表示の上端が指すタスクグループ	all	on		on	JDG-1659 (K-70, K-120)	6	CR-708 2.2
+行見出しパネル	タスクグループパネル	all	off		on	JDG-1659	148	CR-708 2.1; before 行見出し
+行見出しツリー	タスクグループ見出しツリー	all	off		on	JDG-1662	1	CR-708 2.1
+行見出しの名前	タスクグループ名	all	off		on	JDG-1662	7	CR-708 7 table
+行見出し	タスクグループ見出し	all	off		on	JDG-1662	26	CR-708 2.1 (the box); 見出しの行 is a different word
+行タイトル	タスクグループ名	all	off		on	JDG-1659 / JDG-1662	3	CR-708 2.1 (SQ-8)
+行の名前	タスクグループ名	all	on		on	JDG-1659 / JDG-1662	96	CR-708 2.1
+行名	タスクグループ名	all	off		on	JDG-1659 / JDG-1662	31	CR-708 2.1; never after a kanji (実行名 stays)
+行軸（縦）	縦軸	all	off		on	JDG-1660	6	CR-708 2.1
+行の軸	縦軸	all	on		on	JDG-1660	51	CR-708 2.1
+行軸	縦軸	all	off		on	JDG-1660	4	CR-708 2.1
+行ズーム	縦軸のズーム	all	off		on	JDG-1660	3	CR-708 2.1
+ピン止めした行	ピン止めしたタスクグループ	all	off		on	JDG-1659	45	CR-708 2.1
+ピン止め行	ピン止めしたタスクグループ	all	off		on	JDG-1659	1	CR-708 2.1
+最上位の行	最上位のタスクグループ	all	on		on	JDG-1570	10	inventory J1-A99
+配下の行	配下のタスクグループ	all	on		on	JDG-1570	19	inventory J1-A12 / J2-073
+畳んだ行	畳んだタスクグループ	all	on		on	JDG-1570	28	inventory J1-A12
+隠した行	隠したタスクグループ	all	on		on	JDG-1570	23	inventory J1-A12
+行の帯	タスクグループの帯	all	on		on	JDG-1570	84	inventory J1-A04; covers 行の帯高
+行の木	タスクグループの木	all	on		on	JDG-1570	61	inventory J1-A09
+行の操作子	タスクグループの操作子	all	on		on	JDG-1570	27	inventory J1-A08
+行の掴み	タスクグループの掴み	all	on		on	JDG-1570	16	inventory J1-A08
+行の配下	タスクグループの配下	all	on		on	JDG-1570	51	inventory J1-A12
+行の深さ	タスクグループの深さ	all	on		on	JDG-1570	29	TaskGroup depth
+行の間隔	タスクグループの間隔	all	on		on	JDG-1570 (K-12)	3	CR-708 2.2
+行の色	タスクグループの色	all	on		on	JDG-1570	19	inventory J1-A11 (TaskGroup.color)
+行の識別子	タスクグループの識別子	all	on		on	JDG-1570	11	inventory J1-A10
+行自身	タスクグループ自身	all	on		on	JDG-1570	33	inventory J1-A06
+行を畳	タスクグループを畳	all	on		on	JDG-1570	9	inventory J1-A12
+行を開	タスクグループを開	all	on		on	JDG-1570	9	inventory J1-A12
+行をピン止め	タスクグループをピン止め	all	on		on	JDG-1570	9	inventory J2-010
+行に載	タスクグループに載	all	on		on	JDG-1570	77	inventory J1-A14 (載る / 載せる / 載って)
+行に重な	タスクグループに重な	all	on		on	JDG-1570	3	inventory J2-020
+行の高さ	タスクグループの高さ	all	on		on	JDG-1570	14	inventory J1-A07 -- reader: a text line height must be turned off per hit
