@@ -57,7 +57,7 @@ import { rulerTierOf, serialOf, timeAxisOf, xOnTimeAxis } from './time-axis'
 
 export { dateAtX, fixedFitSpanOf, rulerTierOf, shownSpanOf, tickStrideOf, timeAxisOf, xFromDay } from './time-axis'
 export type { TimeAxis } from './time-axis'
-export { labelUnits } from './label-width'
+export { labelUnits, labelWidth } from './label-width'
 export { labelledAssigneeUidOf } from './assignee-label'
 export {
   markerDiameterOf,

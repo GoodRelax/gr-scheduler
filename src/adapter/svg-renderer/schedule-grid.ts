@@ -16,6 +16,7 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import {
   dateAtX,
+  labelWidth,
   tickStrideOf,
   xFromDay,
   type ScheduleLayout,
@@ -126,6 +127,65 @@ function ticksOfRow(
   return out
 }
 
+// see T-238
+/** @purity pure */
+function rulerLabelOf(row: RulerRow, day: CalendarDay, weekdayWords: readonly string[]): string {
+  return row === 'year'
+    ? String(day.year)
+    : row === 'yearMonth'
+      ? `${day.year}-${twoDigits(day.month)}`
+      : row === 'month'
+        ? String(day.month)
+        : row === 'weekday'
+          ? (weekdayWords[weekdayOf(day)] ?? '')
+          : String(day.day)
+}
+
+// see LF-19
+// WHY: the FR-093 estimate, never a measured width: the band is drawn every frame (S-30).
+/** @purity pure */
+function rulerLabelLeftOf(
+  tickX: number,
+  nextTickX: number | null,
+  label: string,
+  fontSize: number,
+  bandLeft: number,
+  settings: DrawnSettings,
+): number | null {
+  if (tickX >= bandLeft) return tickX
+  if (nextTickX === null) return bandLeft
+  const pulledRight = bandLeft + labelWidth(label, fontSize, settings)
+  return pulledRight > nextTickX - settings.rulerLabelGap ? null : bandLeft
+}
+
+// see T-238, LF-19
+/** @purity pure */
+function rulerLabelSvg(
+  row: RulerRow,
+  day: CalendarDay,
+  tickX: number,
+  nextTickX: number | null,
+  baseline: number,
+  bandLeft: number,
+  settings: DrawnSettings,
+  ink: string,
+  weekdayWords: readonly string[],
+): string | null {
+  const label = rulerLabelOf(row, day, weekdayWords)
+  const fontSize =
+    row === 'weekday'
+      ? settings.rulerFont * NOT_STORED_RULER_WEEKDAY_SIZES['S-219']
+      : settings.rulerFont
+  const left = rulerLabelLeftOf(tickX, nextTickX, label, fontSize, bandLeft, settings)
+  if (left === null) return null
+  return (
+    `<text x="${rounded(left)}" y="${rounded(baseline)}"` +
+    ` font-size="${rounded(fontSize)}"${typefaceAttribute()} fill="${ink}"` +
+    ` xml:space="preserve"${figureKey(`ruler-${row}-label-${serialOf(day)}`)}>` +
+    `${escaped(label)}</text>`
+  )
+}
+
 // see FR-017
 /** @purity pure */
 export function rulerSvg(
@@ -165,9 +225,10 @@ export function rulerSvg(
           ` stroke="${rule}" stroke-width="1"${figureKey(`ruler-${row}-rule`)}/>`,
       )
     }
-    for (const day of ticksOfRow(row, layout, stride, weekStart, from, right, cap)) {
+    const ticks = ticksOfRow(row, layout, stride, weekStart, from, right, cap)
+    for (const [at, day] of ticks.entries()) {
       const x = xFromDay(layout, day)
-      // TRAP: skip only the rule left of the band, never the label: the year row would go empty.
+      // TRAP: skip only the rule left of the band; LF-19 pulls its label to the edge instead.
       if (x >= band.x) {
         out.push(
           `<line x1="${rounded(x)}" y1="${rounded(top)}"` +
@@ -176,26 +237,10 @@ export function rulerSvg(
             `${figureKey(`ruler-${row}-tick-${serialOf(day)}`)}/>`,
         )
       }
-      const label =
-        row === 'year'
-          ? String(day.year)
-          : row === 'yearMonth'
-            ? `${day.year}-${twoDigits(day.month)}`
-            : row === 'month'
-              ? String(day.month)
-              : row === 'weekday'
-                ? (weekdayWords[weekdayOf(day)] ?? '')
-                : String(day.day)
-      const fontSize =
-        row === 'weekday'
-          ? settings.rulerFont * NOT_STORED_RULER_WEEKDAY_SIZES['S-219']
-          : settings.rulerFont
-      out.push(
-        `<text x="${rounded(Math.max(x, band.x))}" y="${rounded(baseline)}"` +
-          ` font-size="${rounded(fontSize)}"${typefaceAttribute()} fill="${ink}"` +
-          ` xml:space="preserve"${figureKey(`ruler-${row}-label-${serialOf(day)}`)}>` +
-          `${escaped(label)}</text>`,
-      )
+      const next = ticks[at + 1]
+      const nextX = next === undefined ? null : xFromDay(layout, next)
+      const label = rulerLabelSvg(row, day, x, nextX, baseline, band.x, settings, ink, weekdayWords)
+      if (label !== null) out.push(label)
     }
   }
   out.push(
