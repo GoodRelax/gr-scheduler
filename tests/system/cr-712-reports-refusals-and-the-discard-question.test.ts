@@ -26,7 +26,7 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 }
 
 const FR_076_REPORT_ROWS_GO_TO_U_62 =
-  '表示の仕方が「`U-62` に並べる」の理由は、1 回の読込（開く・開き直す・合流させる・重ねる）の中で上がったら、通知の欄に立てず、読込が着地したときに `_assets/tbl-glossary.md` の `U-62` に 1 行として並べること（MUST）'
+  '表示の仕方が「`U-62` に並べる」の理由は、1 回の読込（開く・開き直す・合流させる・重ねる、起動時に渡された文書を読む 表 T-024a の `OP-14` を含む）の中で上がったら、通知の欄に立てず、読込が着地したときに `_assets/tbl-glossary.md` の `U-62` に 1 行として並べること（MUST）'
 const MG_10_ALWAYS_ON_U_61 =
   '「別のものとして取り込む」を選ばせる面（`_assets/tbl-glossary.md` の `U-61`）に、そのタスクが元の外部 WBS マスタへ戻せなくなることを、選ぶ前から常に示すこと（MUST）'
 const T_233_REFUSAL_CARRIES_THE_ROW =

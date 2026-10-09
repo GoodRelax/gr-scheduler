@@ -19,10 +19,10 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 
 const FR_076_REPORT_ROWS_GO_TO_U_62 =
-  '表示の仕方が「`U-62` に並べる」の理由は、1 回の読込（開く・開き直す・合流させる・重ねる）の中で上がったら、通知の欄に立てず、読込が着地したときに `_assets/tbl-glossary.md` の `U-62` に 1 行として並べること（MUST）'
+  '表示の仕方が「`U-62` に並べる」の理由は、1 回の読込（開く・開き直す・合流させる・重ねる、起動時に渡された文書を読む 表 T-024a の `OP-14` を含む）の中で上がったら、通知の欄に立てず、読込が着地したときに `_assets/tbl-glossary.md` の `U-62` に 1 行として並べること（MUST）'
 const FR_076_OUTSIDE_A_READING_IT_IS_A_NOTICE =
   '読込の外で上がったら、「出す」と同じ 1 枚の通知とする —— 暦を変えて完了率を数え直したとき（`RS-52`、`FR-012`）がその場合である'
-const U_62_WHAT_IT_IS = '1 回の読込（開く・開き直す・合流させる・重ねる）の結果を、理由ごとに並べて告げる面。'
+const U_62_WHAT_IT_IS = '1 回の読込（開く・開き直す・合流させる・重ねる・起動時に渡された文書を読む）の結果を、理由ごとに並べて告げる面。'
 const U_62_A_COUNT_ROW =
   '件数を持つ理由（`RS-14`・`RS-16`・`RS-51`・`RS-52`・`RS-60`・`RS-71`・`RS-72`）は、その理由の語と件数と次の一手を 1 行に並べる。'
 const U_62_A_NAME_ROW = '名前を持つ理由（`RS-50`・`RS-73`）は、その理由の語の下に名前を並べる。'

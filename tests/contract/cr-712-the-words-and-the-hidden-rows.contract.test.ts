@@ -39,15 +39,15 @@ const MG_10_ALWAYS_ON_U_61 =
 const MG_10_NOT_A_NOTICE = '通知にしない —— 選ぶ人が選ぶ前に読むものであり、`OK` を押させるものではない'
 const T_233_REFUSAL_CARRIES_THE_ROW =
   '取り込みの検証が拒んだとき、`NT-1` の通知が運ぶ理由は、拒んだ 表 T-220 の行の行 ID とすること（MUST）'
-const FR_029_CARRY_THE_REASON = '押されたときに限り、行えない理由を運ぶこと（MUST）'
+const FR_029_CARRY_THE_REASON = '押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）'
 const FR_029_THE_COLUMN_DECIDES =
   'その理由を画面に出すかどうかは同表の表示の仕方の欄が決める —— 薄さが行えないことを既に示しているので、多くの行は出さない'
 const FR_029_FALLBACK_HIDDEN = '落ち先が `RS-27` である（出さない）'
 const FR_029_OLD_TELL = '行えない理由を通知すること（MUST）'
 const NT_7_DROPPED_AS_RS_27 =
   '画面からの書き込み（取り消し・やり直しを含む）は 表 T-233 の `RS-27` として捨て（同行は出さない —— 問いが画面に立っているので、受けなかったことは見える）、`Agent API` の書き込みは 表 T-035 の `AG-9` のとおり拒むこと（MUST）'
-const HF_14_NO_ROW_WHEN_FAINT = '⛔ 薄いまま押されたときは、行を立てないこと（MUST）'
-const HF_14_CARRIES_RS_46 = '運ぶ理由は 表 T-233 の `RS-46` とする'
+const HF_14_NO_ROW_WHEN_FAINT = '⛔ 薄いまま押されたときは、その行の配下に新しい行を立てないこと（MUST）'
+const HF_14_CARRIES_RS_46 = '運ぶ理由は 表 T-233 の `RS-46` とすること（MUST）'
 const FR_019_NOT_MADE = '指す `TaskGroup` が無い縦位置で置こうとしたときは、作らないこと（MUST）'
 const FR_019_CARRIES_RS_44 = '運ぶ理由は 表 T-233 の `RS-44` とする'
 const FR_019_SEEN_ON_SCREEN = '理由は出さない —— 置かれなかったことは画面で見える'
@@ -149,7 +149,7 @@ describe('E-03 -- the sentences a hidden row would break are rewritten to carry,
     expect(REQUIREMENTS).toContain(FR_029_THE_COLUMN_DECIDES)
     expect(REQUIREMENTS).toContain(FR_029_FALLBACK_HIDDEN)
     expect(REQUIREMENTS).not.toContain(FR_029_OLD_TELL)
-    expect(REQUIREMENTS).toMatch(/行えない理由を運ぶこと（MUST）[」』]と両立しない/)
+    expect(REQUIREMENTS).toMatch(/行えない理由を通知の仕組みへ運ぶこと（MUST）[」』]と両立しない/)
   })
 
   it('NT-7 drops a screen write as RS-27 without showing it', () => {

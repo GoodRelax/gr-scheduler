@@ -31,9 +31,9 @@ const NT_2_COUNTED_AGAIN_AFTER_LEAVING = '箱から離れたら `S-542` を始�
 const NT_2_COUNTED_AGAIN_WHEN_BUNDLED = '同じ理由が上がって `NT-3` で束ねたときも、始めから数え直すこと（MUST）'
 const NT_2_OK_STILL_DISMISSES = '`NT-8` の消し方（`OK`・`Enter`・`Esc`）はそのまま当たる —— 先に人が消してよい。'
 const NT_2_THE_REPORT_IS_NOT_A_NOTICE =
-  '`U-62` に並べる理由（表 T-233 の表示の仕方）は通知ではないので、本行に当たらない —— `U-62` は `OK` で閉じるまで立つ。'
+  '`U-62` に並べる理由（表 T-233 の表示の仕方）は通知ではないので、本行に当たらない —— `U-62` は `OK` で閉じるまで立つ'
 const T_078_ONLY_WHILE_A_TIMED_CARD_STANDS =
-  '通知の期限は、表示の仕方が「時間で消す」の通知が立っているときにだけ数える'
+  '通知の期限は、表示の仕方が「時間で消す」の通知（表 T-233）が立っているときにだけ数える'
 
 const CLAUSES: readonly (readonly [string, string])[] = [
   ['NT-2 (MUST) read before it goes', NT_2_READ_BEFORE_IT_GOES],

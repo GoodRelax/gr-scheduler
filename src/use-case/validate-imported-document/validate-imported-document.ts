@@ -38,6 +38,10 @@ export type ImportVerdict =
 
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
+// see IV-4, T-233
+// WHY: a ring is refused under the table T-220 row it breaks, so NT-1 tells the IV-4 words, not RS-15.
+const PARENT_RING_ROW = 'IV-4'
+
 /** @purity pure */
 function refusal(rule: string, at: string, what: string, notice: 'NT-1' | 'NT-6'): ValidationRefusal {
   return { rule, at, what, notice }
@@ -194,7 +198,7 @@ export function validateImportedDocument(
   for (const ring of wbs.rings) {
     found.push(
       refusal(
-        'FR-023',
+        PARENT_RING_ROW,
         '/schedule/tasks',
         `wbsParentUid closes a ring over Task uids ${ring.join(', ')}`,
         'NT-1',

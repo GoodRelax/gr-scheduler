@@ -6,10 +6,8 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { specTable, unbroken } from './spec-table'
-import {
-  NOTICE_DISPLAY_OF_REASON,
-  QUESTION_DISPLAY_OF_ROW,
-} from '../../src/use-case/advance-screen-session/advance-screen-session'
+import { NOTICE_DISPLAY_OF_REASON } from '../../src/use-case/advance-screen-session/advance-screen-session'
+import { QUESTION_DISPLAY_OF_ROW } from '../../src/use-case/advance-screen-session/notice-values'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 
@@ -63,9 +61,9 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
 // WHY: each constant ends exactly at its marker, cut from section 4 of CR-712 as check 39 reads it.
 const FR_076_THE_COLUMN_HOLDS_IT = '理由ごとに画面へどう出すかは、表 T-233 の「表示の仕方」の欄が持つ（MUST）'
 const FR_076_HIDE_IS_CARRIED =
-  '「出さない」の理由は、上げられても通知の欄に 1 枚を立てない —— 行は理由として残り、`Agent API` の拒否の値（表 T-035 の `AG-9a`）と試験はその行を運ぶ。'
+  '「出さない」の理由は、上げられても通知の欄に 1 枚を立てない —— 行は理由として残り、`Agent API` の拒否の値（表 T-035 の `AG-9a`）はその行を運ぶ。'
 const FR_076_NOT_DECIDED_AGAIN = '要求の本文に「告げる」と書かれていても、出すかどうかを本文で決め直してはならない（MUST NOT）'
-const FR_076_A_NEW_ROW_HAS_WORDS = '相乗り（表示の仕方の欄の「語は …」）を持たない行を足すときは、辞書の原稿にも項を足すこと（MUST）'
+const FR_076_A_NEW_ROW_HAS_WORDS = '相乗り（表 T-233 のまとめ方の欄の「語は …」）を持たない行を足すときは、辞書の原稿にも項を足すこと（MUST）'
 const FR_076_A_RIDING_ROW_HAS_NONE = '相乗りする行の項を辞書に持ってはならない（MUST NOT）'
 
 // WHY: the rows by display, copied from CR-712 section 3.2, so a row moved in the manuscript alone goes red.
@@ -189,7 +187,7 @@ describe(`T-233 display column -- ${FR_076_THE_COLUMN_HOLDS_IT}`, () => {
   it('table T-033 EX-3 names RS-77, once after the export', () => {
     const ex3 = specTable('T-033').rows.find((one) => one.id === 'EX-3')
     expect(ex3, 'table T-033 has EX-3').toBeDefined()
-    expect((ex3?.cells ?? []).join(' ')).toContain('（表 T-233 の `RS-77`。書き出しの後に 1 回）')
+    expect((ex3?.cells ?? []).join(' ')).toContain('（表 T-233 の `RS-77`、書き出しの後に 1 回）')
   })
 
   it('a refusal of the import check rides as the manuscript says: T-220, NT-1, show, IV-17 on RS-21', () => {
@@ -240,10 +238,10 @@ describe('the generated rosters src reads are the manuscript (PI-39)', () => {
     expect(QUESTION_DISPLAY_OF_ROW['QN-5']).toBe('askOnlyWithUnsavedEdits')
   })
 
-  it('PI-39 publishes both names', () => {
+  // WHY: the applied PI-39 lists NOTICE_DISPLAY_OF_REASON only; QUESTION_DISPLAY_OF_ROW is read inside the use case (file-flow-values.ts), not by the shell.
+  it('PI-39 publishes NOTICE_DISPLAY_OF_REASON', () => {
     const pi39 = PUBLISHED.split('\n').find((line) => line.startsWith('| PI-39 |')) ?? ''
     expect(pi39).toContain('`NOTICE_DISPLAY_OF_REASON`')
-    expect(pi39).toContain('`QUESTION_DISPLAY_OF_ROW`')
   })
 })
 
