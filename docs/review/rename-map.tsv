@@ -1674,7 +1674,9 @@ WL-14	PTL-14	row-id	a	2.7	6	12	JDG-1731	S1-B,S1-C,S1-D,S2-FW,S3-UNIT		1
 WL-15	PTL-15	row-id	a	2.7	11	24	JDG-1731	S1-B,S1-D,S2-ENT,S2-FW,S2-UA,S3-SYS		2		
 WL-16	PTL-16	row-id	a	2.7	7	15	JDG-1731	S1-B,S1-D,S2-FW,S2-UA,S3-SYS,S3-UNIT		2		
 WL-17	PTL-17	row-id	a	2.7	9	12	JDG-1731	S1-B,S1-D,S2-FW,S2-UA,S3-SYS		1		
+rowanchorat	taskgroupanchorat	identifier	a	2.5	1	1	reconcile item 15 (follows rowAnchorAt, class a)	S3-BASE	S3-BASE	0		a lowercased spelling no part rule sees
 rowanchorin	taskgroupanchorin	identifier	a	2.5	2	2	reconcile item 12 (follows rowAnchorIn, class a)	S2-TL,S3-BASE	S2-TL	0		a lowercased spelling no part rule sees
+rowgrabaxisat	taskgroupgrabaxisat	identifier	a	2.5	1	1	reconcile item 15 (follows rowGrabAxisAt, class a)	S3-BASE	S3-BASE	0		a lowercased spelling no part rule sees
 WL	PTL	row-id-prefix	a	2.7	1	1	JDG-1731	S1-D	S1-D	1		the registry entry of docs/spec/_source/row-id-prefixes.json only
 docs/spec/_assets/fig-hit-stacked-row.svg	docs/spec/_assets/fig-hit-stacked-task-group.svg	file-path	a	2.6	1	1	machine:a part: hit	S1-C	S1-C	0		git mv; import paths follow (rename_symbols.mjs)
 src/adapter/document-codec/mspdi-imported-rows.ts	src/adapter/document-codec/mspdi-imported-task-groups.ts	file-path	a	2.6	1	1	machine:a part: imported	S2-UA	S2-UA	0		git mv; import paths follow (rename_symbols.mjs)

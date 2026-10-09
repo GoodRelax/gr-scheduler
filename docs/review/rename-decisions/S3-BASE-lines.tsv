@@ -67,16 +67,16 @@ path	line	col	text	decision	rewrite_old	rewrite_new	note
 .claude/skills/spec-graph-check/stale-blocked-baseline.txt	8	63	rows	keep			item 15: baseline comment, history of a ledger / table / layout row (X-4)
 .claude/skills/spec-graph-check/stale-blocked-baseline.txt	10	22	row	keep			item 15: baseline comment, history of a ledger / table / layout row (X-4)
 .claude/skills/spec-graph-check/stale-blocked-baseline.txt	11	2	row	keep			item 15: baseline comment, history of a ledger / table / layout row (X-4)
-.claude/skills/spec-graph-check/twin-comments-baseline.txt	52	42	row	task-group			item 15: twin key quotes the src comment naming row-scroll.ts (renamed): task group scroll ts
+.claude/skills/spec-graph-check/twin-comments-baseline.txt	52	42	row	rewrite	scrolloffsetof row scroll ts inverts this both must divide by	scrolloffsetof task group scroll ts inverts this both must divide	reconcile: item 15: check 70 key re-keyed as the renamed comment reads it (the key window drops the last word); was task-group item 15: twin key quotes the src comment naming row-scroll.ts (renamed): task group scroll ts
 .claude/skills/spec-graph-check/twin-comments-baseline.txt	58	94	row	keep			item 15: a why / twin line about a table row or the past (not a key)
-.claude/skills/spec-graph-check/twin-comments-baseline.txt	60	74	rows	task-group			item 15: twin key quotes item-grab.ts:744, decided task-group by S2-UA
+.claude/skills/spec-graph-check/twin-comments-baseline.txt	60	74	rows	rewrite	layout rows exactly	layout task groups	reconcile: item 15: check 70 key re-keyed as the renamed comment reads it (the key window drops the last word); was task-group item 15: twin key quotes item-grab.ts:744, decided task-group by S2-UA
 .claude/skills/spec-graph-check/twin-comments-baseline.txt	62	9	row	keep			item 15: a why / twin line about a table row or the past (not a key)
-.claude/skills/spec-graph-check/twin-comments-baseline.txt	92	27	row	task-group			item 15: twin key quotes the src comment naming row-tree-entrances.ts (renamed)
-.claude/skills/spec-graph-check/twin-comments-baseline.txt	96	23	row	task-group			item 15: twin key quotes the src comment naming row-tree-entrances.ts (renamed)
+.claude/skills/spec-graph-check/twin-comments-baseline.txt	92	27	row	rewrite	row tree entrances ts arms ic 58 by this same	task group tree entrances ts arms ic 58 by this	reconcile: item 15: check 70 key re-keyed as the renamed comment reads it (the key window drops the last word); was task-group item 15: twin key quotes the src comment naming row-tree-entrances.ts (renamed)
+.claude/skills/spec-graph-check/twin-comments-baseline.txt	96	23	row	rewrite	row tree entrances ts arms ic 58 ic 74 and	task group tree entrances ts arms ic 58 ic 74	reconcile: item 15: check 70 key re-keyed as the renamed comment reads it (the key window drops the last word); was task-group item 15: twin key quotes the src comment naming row-tree-entrances.ts (renamed)
 .claude/skills/spec-graph-check/twin-comments-baseline.txt	98	87	rows	keep			item 15: a why / twin line about a table row or the past (not a key)
 .claude/skills/spec-graph-check/twin-comments-baseline.txt	158	65	rows	keep			item 15: a why / twin line about a table row or the past (not a key)
 .claude/skills/spec-graph-check/twin-comments-baseline.txt	161	19	row	keep			item 15: a why / twin line about a table row or the past (not a key)
-.claude/skills/spec-graph-check/twin-comments-baseline.txt	210	83	row	task-group			item 15: twin key quotes task-group-order.ts:16, decided task-group by S2-UA
+.claude/skills/spec-graph-check/twin-comments-baseline.txt	210	83	row	rewrite	walk the row	walk the task	reconcile: item 15: check 70 key re-keyed as the renamed comment reads it (the key window ends after task); was task-group item 15: twin key quotes task-group-order.ts:16, decided task-group by S2-UA
 .claude/skills/spec-graph-check/unit-test-or-omission-baseline.txt	7	148	row	keep			item 15: baseline comment, history of a ledger / table / layout row (X-4)
 .claude/skills/spec-graph-check/unit-test-or-omission-baseline.txt	7	250	row	keep			item 15: baseline comment, history of a ledger / table / layout row (X-4)
 .claude/skills/spec-graph-check/unit-test-or-omission-baseline.txt	7	341	rows	keep			item 15: baseline comment, history of a ledger / table / layout row (X-4)

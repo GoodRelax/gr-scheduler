@@ -82,9 +82,12 @@ SPEC_WORDS = (
 WL_ID = re.compile(r'\bWL-([0-9]+)\b')
 # A name the tree also spells folded to lower case, where no part rule can see
 # the row in it: check 70's self-test expects the key of a comment naming
-# rowAnchorIn (class a, S2-UA) as 'rowanchorin' (reconcile item 12).
+# rowAnchorIn (class a, S2-UA) as 'rowanchorin' (reconcile item 12), and the
+# keys of check 70's baseline fold the names their comments hold (item 15).
 FOLDED_NAMES = {
     'rowanchorin': ('taskgroupanchorin', 'reconcile item 12 (follows rowAnchorIn, class a)'),
+    'rowanchorat': ('taskgroupanchorat', 'reconcile item 15 (follows rowAnchorAt, class a)'),
+    'rowgrabaxisat': ('taskgroupgrabaxisat', 'reconcile item 15 (follows rowGrabAxisAt, class a)'),
 }
 
 
