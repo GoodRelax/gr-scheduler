@@ -20,7 +20,7 @@ const MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_ass
 
 const FR_029_FAINT =
   'その入口を押しても、いま文書にも画面にも何も変えられないときは、その入口を薄く描くこと（MUST）'
-const REFUSES_ANOTHER = '開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かないことを告げる'
+const REFUSES_ANOTHER = '開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かない理由として運ぶ'
 
 const ROSTER_ENTRANCE = 'IC-62'
 const WATERMARK_ENTRANCE = 'IC-41'

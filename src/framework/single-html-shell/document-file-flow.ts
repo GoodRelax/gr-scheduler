@@ -349,7 +349,7 @@ function tellNewerFormat(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, read
   if (!isUnreadAsked) hands.raiseNotice(NEWER_FORMAT_UNREAD_REASON, null)
 }
 
-const UNUSABLE_DATE_RULES: ReadonlySet<string> = new Set(['IV-14', 'S-119', 'S-120'])
+const UNUSABLE_DATE_RULES: ReadonlySet<string> = new Set(['IV-14'])
 
 const TASK_REFUSAL_PREFIX = '/schedule/tasks/'
 

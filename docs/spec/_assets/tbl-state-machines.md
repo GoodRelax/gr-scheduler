@@ -252,12 +252,12 @@ stateDiagram-v2
 
 | 出来事 | `closed` | `open` |
 | --- | --- | --- |
-| `screen/surfaceEntryPressed` | → `open` | → 自己 [`isAnotherSurface` & not `isFlowAwaitingAnswer`] / `tellFlowSurfaceClosed`（開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える）<br>→ 自己 [`isAnotherSurface` & `isFlowAwaitingAnswer`] / `raiseNotice`（`RS-27`）（開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かないことを告げる）<br>それ以外 → — |
+| `screen/surfaceEntryPressed` | → `open` | → 自己 [`isAnotherSurface` & not `isFlowAwaitingAnswer`] / `tellFlowSurfaceClosed`（開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える）<br>→ 自己 [`isAnotherSurface` & `isFlowAwaitingAnswer`] / `raiseNotice`（`RS-27`）（開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かない理由として運ぶ）<br>それ以外 → — |
 | `screen/surfaceRaisedByFlow` | → `open` | → 自己 [`isAnotherSurface` & not `isFlowAwaitingAnswer`] / `tellFlowSurfaceClosed`（開く道が立てる面も、開いている面を差し替える。答えを待つ面が開いているあいだ、開く道は次の面を立てない）<br>それ以外 → — |
 | `screen/flowSurfaceAnswered` | — | → `closed`（`tellFlowSurfaceClosed` を返さない —— 答えた後に「閉じた」が戻らない） |
 | `screen/surfaceCloseAsked` | — | → `closed` [`isSurfaceTarget`] / `tellFlowSurfaceClosed`<br>それ以外 → — |
 | `screen/escapePressed` | — | → `closed` [`isRungSurface`] / `tellFlowSurfaceClosed`<br>それ以外 → — |
-| `screen/watermarkEntryPressed` | → `open` [`watermarkDisplayStateMachine.shown` にいる]（`surfaceName` は `U-60`）<br>それ以外 → — | → 自己 [`watermarkDisplayStateMachine.shown` にいる & `isAnotherSurface` & not `isFlowAwaitingAnswer`] / `tellFlowSurfaceClosed`（開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える（`U-60`））<br>→ 自己 [`watermarkDisplayStateMachine.shown` にいる & `isAnotherSurface` & `isFlowAwaitingAnswer`] / `raiseNotice`（`RS-27`）（開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かないことを告げる）<br>それ以外 → — |
+| `screen/watermarkEntryPressed` | → `open` [`watermarkDisplayStateMachine.shown` にいる]（`surfaceName` は `U-60`）<br>それ以外 → — | → 自己 [`watermarkDisplayStateMachine.shown` にいる & `isAnotherSurface` & not `isFlowAwaitingAnswer`] / `tellFlowSurfaceClosed`（開いている面を閉じて、押した入口の面に差し替える。`surfaceName` を書き換える（`U-60`））<br>→ 自己 [`watermarkDisplayStateMachine.shown` にいる & `isAnotherSurface` & `isFlowAwaitingAnswer`] / `raiseNotice`（`RS-27`）（開く道の答えを待つ面（`flowSurfaceAnswered` で答える `U-56`・`U-61`）は差し替えない。押した入口が効かない理由として運ぶ）<br>それ以外 → — |
 | `screen/watermarkUnlockAnswered` | — | → 自己 [`isWatermarkUnlockSurface` & `isProceeding`] / `matchWatermarkUnlock`<br>→ `closed` [`isWatermarkUnlockSurface` & not `isProceeding`]<br>それ以外 → — |
 | `screen/watermarkUnlockMatched` | — | → `closed` [`watermarkDisplayStateMachine.shown` にいる & `isWatermarkUnlockSurface`]<br>それ以外 → — |
 | `screen/watermarkUnlockMismatched` | — | → 自己 [`isWatermarkUnlockSurface`] / `raiseNotice`（`RS-41`）（面を閉じない）<br>それ以外 → — |

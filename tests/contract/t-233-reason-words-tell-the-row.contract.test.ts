@@ -535,8 +535,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // (MG-11), and the step warns a kept one comes back on the other side at the next export.
   'RS-73': '6b104b07df319bff',
   // WHY: read 2026-10-07; a write refused (AG-9a) while an NT-7 question stands, and the road is
-  // to try again once that question has been answered (WS-2).
-  'RS-74': '2fbc93458a8c6c70',
+  // to try again once that question has been answered (WS-2). Re-read 2026-10-09 (CR-718): the
+  // scene now says a screen write is dropped as RS-27, not told; the words still tell it.
+  'RS-74': 'e0e5ef5269e1296a',
   // WHY: read 2026-10-08 (CR-705); opening or reopening a file broke for no row's reason (IF-3),
   // an NT-3a notice, and the road is to open it once more.
   'RS-75': 'b9a97a96cf09ae40',
