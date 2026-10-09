@@ -168,7 +168,7 @@ const FR_099_NOT_A_COUNT =
   'る割当があるときは、そのタスクの名前を示して確認を求めること（MUST）。件数だけを示してはならない（MUST NOT）'
 
 /** FR-099's own reason there is exactly one deleting entrance. */
-const FR_099_ONE_ENTRANCE = '選んだ担当を消す操作の 2 手で果たすこと（MUST）'
+const FR_099_ONE_ENTRANCE = 'まとめて選ぶ操作と、選んだ担当を消す操作の 2 手で果たすこと（MUST）'
 
 const T_109: SpecTable = specTable('T-109')
 const T_234: SpecTable = specTable('T-234')

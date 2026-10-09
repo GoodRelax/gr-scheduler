@@ -279,9 +279,6 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  // RE-READ 2026-10-10 (CR-724, JDG-1856): the scene and the Japanese words name the resource
-  // without the person suffix; nothing else moved, and both languages and the next step still
-  // tell the same rename.
   'RS-49': 'c2740b284cbc8d0b',
   // ⭐ ADDED 2026-09-06 (CR-368, FR-023's ruling that the import drops and
   // tells). Read together before anything was recorded, the way this file
@@ -554,9 +551,6 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-79': 'a937ddb17ac75a7e',
   'RS-80': 'eafa7e48e45f0966',
   'RS-81': 'bdcb97db885040c8',
-  // RE-READ 2026-10-10 (CR-724, JDG-1856): the Japanese word names the resource without the
-  // person suffix; the scene (a Task, TaskGroup or Resource the write points at is gone) is
-  // told the same.
   'RS-82': '061e56575e3dc8a7',
   'RS-83': '124e158fd4882867',
   'RS-84': '3bd1c89160dc93fd',
