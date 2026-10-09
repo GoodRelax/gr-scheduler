@@ -545,6 +545,20 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // may not hold it, and the road is another destination, as RS-3's.
   'RS-76': 'ec9c53b8e6e11451',
   'RS-77': '4582796b6be4b330',
+  // WHY: read 2026-10-10 (CR-719, JDG-1777); the user read the eleven scenes with their words and
+  // next steps and answered 「それでやれ」. Four tell why a file is not opened (a limit of table T-211
+  // or a Task with no dates), seven tell which row of table T-220 an edit broke.
+  'RS-78': '041a289233490cc8',
+  'RS-79': 'a937ddb17ac75a7e',
+  'RS-80': 'eafa7e48e45f0966',
+  'RS-81': 'bdcb97db885040c8',
+  'RS-82': '6a17ca2743c83eec',
+  'RS-83': '124e158fd4882867',
+  'RS-84': '3bd1c89160dc93fd',
+  'RS-85': 'cbc5744a3c912700',
+  'RS-86': 'c64ce1bbc9c9cf28',
+  'RS-87': 'f14d9e550cb2c93e',
+  'RS-88': '09beef6619c3a678',
 }
 
 const fingerprintOf = (rowId: string): string => {

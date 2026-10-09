@@ -786,6 +786,14 @@ const REFUSAL_SITUATIONS: readonly RefusalSituation[] = [
   { reason: 'RS-58', command: 'CM-11', rule: 'FR-012' },
   { reason: 'RS-58', command: 'CM-88', rule: 'FX-1' },
   { reason: 'RS-58', command: 'CM-90', rule: 'FX-1' },
+  // CR-719: each T-220 row an edit can break carries the T-233 row whose source names it.
+  { reason: 'RS-82', command: null, rule: 'IV-2' },
+  { reason: 'RS-83', command: null, rule: 'IV-6' },
+  { reason: 'RS-84', command: null, rule: 'IV-9' },
+  { reason: 'RS-85', command: null, rule: 'IV-11' },
+  { reason: 'RS-86', command: null, rule: 'IV-12' },
+  { reason: 'RS-87', command: null, rule: 'IV-14' },
+  { reason: 'RS-88', command: null, rule: 'IV-21' },
 ]
 
 // see T-233

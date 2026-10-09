@@ -49,6 +49,19 @@ const UNUSABLE_DATE_ROW = 'IV-14'
 // see IV-10, FR-012, T-233
 const FINISH_BEFORE_START_ROW = 'IV-10'
 
+// see FR-023, FR-076, T-211, T-233
+// WHY: no T-220 row owns these refusals, so each carries its own T-233 row, never RS-15 (CR-719).
+const OVER_MAX_BYTES_ROW = 'RS-78'
+
+// see FR-023, FR-076, T-211, T-233
+const OVER_MAX_ITEMS_ROW = 'RS-79'
+
+// see FR-023, FR-076, T-211, T-233
+const OVER_MAX_DEPTH_ROW = 'RS-80'
+
+// see FR-012, FR-076, T-233
+const UNDATED_TASK_ROW = 'RS-81'
+
 /** @purity pure */
 function refusal(rule: string, at: string, what: string, notice: 'NT-1' | 'NT-6'): ValidationRefusal {
   return { rule, at, what, notice }
@@ -174,7 +187,7 @@ export function validateImportedDocument(
       ok: false,
       refusals: [
         refusal(
-          'S-113',
+          OVER_MAX_BYTES_ROW,
           '',
           `${candidate.byteLength} bytes is over importMaxBytes (${bounds.importMaxBytes} MB)`,
           'NT-6',
@@ -190,7 +203,7 @@ export function validateImportedDocument(
       ok: false,
       refusals: [
         refusal(
-          'S-114',
+          OVER_MAX_ITEMS_ROW,
           '/schedule/tasks',
           `${tasks.length} Tasks is over importMaxItems (${bounds.importMaxItems})`,
           'NT-6',
@@ -216,7 +229,7 @@ export function validateImportedDocument(
   if (deepest !== null && deepest.depth > bounds.importMaxDepth) {
     found.push(
       refusal(
-        'S-115',
+        OVER_MAX_DEPTH_ROW,
         '/schedule/tasks',
         `Task uid ${deepest.uid} sits at WBS depth ${deepest.depth}, `
         + `over importMaxDepth (${bounds.importMaxDepth})`,
@@ -252,7 +265,7 @@ export function validateImportedDocument(
 
     if (!emptyRowUids.has(task.uid) && (task.start === null || task.finish === null)) {
       found.push(
-        refusal('FR-012', foundAt, `Task uid ${task.uid} has no start or no finish`, 'NT-1'),
+        refusal(UNDATED_TASK_ROW, foundAt, `Task uid ${task.uid} has no start or no finish`, 'NT-1'),
       )
     }
 

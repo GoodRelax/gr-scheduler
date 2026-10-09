@@ -94,6 +94,10 @@ export type ReasonRow =
   | 'RS-12'
   | 'RS-13'
   | 'RS-14'
+  | 'RS-78'
+  | 'RS-79'
+  | 'RS-80'
+  | 'RS-81'
   | 'RS-16'
   | 'RS-19'
   | 'RS-20'
@@ -134,6 +138,13 @@ export type ReasonRow =
   | 'RS-56'
   | 'RS-57'
   | 'RS-58'
+  | 'RS-82'
+  | 'RS-83'
+  | 'RS-84'
+  | 'RS-85'
+  | 'RS-86'
+  | 'RS-87'
+  | 'RS-88'
   | 'RS-59'
   | 'RS-60'
   | 'RS-61'
@@ -201,6 +212,7 @@ export type NoticeManner =
   | 'NT-3a'
   | 'NT-4'
   | 'NT-5'
+  | 'NT-6'
 
 // see T-233, T-037
 export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner>> = {
@@ -218,6 +230,10 @@ export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner
   'RS-12': 'NT-1',
   'RS-13': 'NT-1',
   'RS-14': 'NT-5',
+  'RS-78': 'NT-6',
+  'RS-79': 'NT-6',
+  'RS-80': 'NT-6',
+  'RS-81': 'NT-1',
   'RS-16': 'NT-5',
   'RS-19': 'NT-4',
   'RS-20': 'NT-5',
@@ -258,6 +274,13 @@ export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner
   'RS-56': 'NT-1',
   'RS-57': 'NT-1',
   'RS-58': 'NT-1',
+  'RS-82': 'NT-1',
+  'RS-83': 'NT-1',
+  'RS-84': 'NT-1',
+  'RS-85': 'NT-1',
+  'RS-86': 'NT-1',
+  'RS-87': 'NT-1',
+  'RS-88': 'NT-1',
   'RS-59': 'NT-3a',
   'RS-60': 'NT-5',
   'RS-61': 'NT-1',
@@ -316,6 +339,10 @@ export const NOTICE_DISPLAY_OF_REASON: Readonly<Record<NoticeReason, 'show' | 'h
   'RS-12': 'show',
   'RS-13': 'show',
   'RS-14': 'report',
+  'RS-78': 'show',
+  'RS-79': 'show',
+  'RS-80': 'show',
+  'RS-81': 'show',
   'RS-16': 'report',
   'RS-19': 'hide',
   'RS-20': 'show',
@@ -356,6 +383,13 @@ export const NOTICE_DISPLAY_OF_REASON: Readonly<Record<NoticeReason, 'show' | 'h
   'RS-56': 'autoDismiss',
   'RS-57': 'show',
   'RS-58': 'autoDismiss',
+  'RS-82': 'show',
+  'RS-83': 'show',
+  'RS-84': 'autoDismiss',
+  'RS-85': 'autoDismiss',
+  'RS-86': 'autoDismiss',
+  'RS-87': 'autoDismiss',
+  'RS-88': 'autoDismiss',
   'RS-59': 'autoDismiss',
   'RS-60': 'report',
   'RS-61': 'autoDismiss',
@@ -414,6 +448,10 @@ export const NOTICE_WORDS_ROW_OF_REASON: Readonly<Record<NoticeReason, NoticeRea
   'RS-12': 'RS-11',
   'RS-13': 'RS-11',
   'RS-14': 'RS-14',
+  'RS-78': 'RS-78',
+  'RS-79': 'RS-79',
+  'RS-80': 'RS-80',
+  'RS-81': 'RS-81',
   'RS-16': 'RS-16',
   'RS-19': 'RS-19',
   'RS-20': 'RS-20',
@@ -454,6 +492,13 @@ export const NOTICE_WORDS_ROW_OF_REASON: Readonly<Record<NoticeReason, NoticeRea
   'RS-56': 'RS-56',
   'RS-57': 'RS-57',
   'RS-58': 'RS-58',
+  'RS-82': 'RS-82',
+  'RS-83': 'RS-83',
+  'RS-84': 'RS-84',
+  'RS-85': 'RS-85',
+  'RS-86': 'RS-86',
+  'RS-87': 'RS-87',
+  'RS-88': 'RS-88',
   'RS-59': 'RS-59',
   'RS-60': 'RS-60',
   'RS-61': 'RS-61',

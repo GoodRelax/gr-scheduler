@@ -230,6 +230,50 @@
    "display": "report"
   },
   {
+   "id": "RS-78",
+   "scene": {
+    "ja": "取り込むファイルの大きさが `S-113` を超える"
+   },
+   "manner": "NT-6",
+   "source": {
+    "ja": "`FR-023` ／ 表 T-211 の `S-113`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-79",
+   "scene": {
+    "ja": "取り込む `Task` の件数が `S-114` を超える"
+   },
+   "manner": "NT-6",
+   "source": {
+    "ja": "`FR-023` ／ 表 T-211 の `S-114`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-80",
+   "scene": {
+    "ja": "取り込む `Task` の入れ子（WBS）の深さが `S-115` を超える"
+   },
+   "manner": "NT-6",
+   "source": {
+    "ja": "`FR-023` ／ 表 T-211 の `S-115`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-81",
+   "scene": {
+    "ja": "取り込む `Task` に `start` か `finish` が無い（表 T-033 の `EX-5` の中身の無い行を除く）"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "`FR-012`"
+   },
+   "display": "show"
+  },
+  {
    "id": "RS-16",
    "scene": {
     "ja": "重ねる側のタスクに、`UID` の一致する現在のタスクが無い"
@@ -667,6 +711,83 @@
    "manner": "NT-1",
    "source": {
     "ja": "Chapter 6.1 の 表 T-220 の `IV-10` ／ `FR-055` の 表 T-367 の `FX-1`"
+   },
+   "display": "autoDismiss"
+  },
+  {
+   "id": "RS-82",
+   "scene": {
+    "ja": "書き込みが指す相手（`Task`・`TaskGroup`・`Resource`）が文書に無い —— 例: コピー元のタスクを消してから貼り付けた"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "Chapter 6.1 の 表 T-220 の `IV-2`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-83",
+   "scene": {
+    "ja": "載せ替えるタスクが、どのタスクグループにも載っていない"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "Chapter 6.1 の 表 T-220 の `IV-6`"
+   },
+   "display": "show"
+  },
+  {
+   "id": "RS-84",
+   "scene": {
+    "ja": "塗りと線の両方を透明にしようとした"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "Chapter 6.1 の 表 T-220 の `IV-9`"
+   },
+   "display": "autoDismiss"
+  },
+  {
+   "id": "RS-85",
+   "scene": {
+    "ja": "終了日の無いタスクにフェードを付けようとした"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "Chapter 6.1 の 表 T-220 の `IV-11`"
+   },
+   "display": "autoDismiss"
+  },
+  {
+   "id": "RS-86",
+   "scene": {
+    "ja": "フェードの日数の和がタスクの期間を超える"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "Chapter 6.1 の 表 T-220 の `IV-12`"
+   },
+   "display": "autoDismiss"
+  },
+  {
+   "id": "RS-87",
+   "scene": {
+    "ja": "日付として読めない値か、扱える範囲（表 T-214）の外の日付を入れた"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "Chapter 6.1 の 表 T-220 の `IV-14`"
+   },
+   "display": "autoDismiss"
+  },
+  {
+   "id": "RS-88",
+   "scene": {
+    "ja": "実績の終了が実績の開始より前になる"
+   },
+   "manner": "NT-1",
+   "source": {
+    "ja": "Chapter 6.1 の 表 T-220 の `IV-21`"
    },
    "display": "autoDismiss"
   },

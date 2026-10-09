@@ -138,6 +138,7 @@ const RS_55 = 'RS-55'
 const RS_56 = 'RS-56'
 const RS_57 = 'RS-57'
 const RS_58 = 'RS-58'
+const RS_82 = 'RS-82'
 
 // ---------------------------------------------------------------------------
 // The loop, driven the way a person settles a value in the Properties Panel
@@ -371,19 +372,23 @@ describe('DFC-411 / table T-037: a write refusal is told its own row and not RS-
 })
 
 // ===========================================================================
-// DFC-406 -- the wide half: what is NOT one of those rows stays RS-10
+// DFC-406 -- the wide half: IV-2 is told its own row, not RS-10 and not RS-55
 // ===========================================================================
+//
+// ⚠️ RETIRED 2026-10-10 (CR-719): this case asserted that a parent task naming
+// a uid the document does not hold (`IV-2`) is told `RS-10`. CR-719 gave `IV-2`
+// its own row of table T-233 (`RS-82`), and FR-076 now says (MUST) that a
+// write a row of table T-220 refuses carries the T-233 row whose 正 names it.
+// The guard that a rule with NO row keeps `RS-10` lives on in
+// tests/unit/t-233-rs-56-a-self-dependency-is-told-its-own-row.test.ts
+// (THE WIDE HALF: FR-009s OTHER refusals keep RS-10).
 
-describe('DFC-406 / table T-233: a refusal the table names no row for keeps RS-10', () => {
-  it('⭐⭐ a parent task naming a uid the document does not hold is told RS-10', () => {
-    // ⛔⛔ THE HALF THAT WAS UNGUARDED (measured 2026-09-08). Widening the
-    // shell's test until `RS-10` became unreachable took ZERO cases red, so
-    // nothing held the routing in the other direction: a build that answered
-    // every WS-3 refusal with one of the situation rows would be telling the
-    // reader something untrue about what was refused.
+describe('DFC-406 / table T-233: a write IV-2 refuses is told the row whose 正 names IV-2', () => {
+  it('⭐⭐ a parent task naming a uid the document does not hold is told RS-82, not RS-10', () => {
     // ⭐ THE SAME COMMAND AS THE `RS-55` CASE ABOVE, refused on a different rule
     // (`IV-2`, a foreign key pointing at nothing) -- so what separates the two
     // cases is the rule alone, which is what the routing reads.
+    expect(authorityOf(RS_82)).toContain('IV-2')
     const document = templateDocument()
     const task = firstTask(document)
     const absent = Math.max(...document.schedule.tasks.map((one) => one.uid)) + 1000
@@ -397,8 +402,9 @@ describe('DFC-406 / table T-233: a refusal the table names no row for keeps RS-1
 
     const told = one.notices()
     expect(told.length, 'FR-076 (MUST): the refusal is told').toBe(1)
-    expect(told[0]?.text).toBe(wordsOf(RS_10).ja)
+    expect(told[0]?.text).toBe(wordsOf(RS_82).ja)
+    expect(told[0]?.text).not.toBe(wordsOf(RS_10).ja)
     expect(told[0]?.text).not.toBe(wordsOf(RS_55).ja)
-    expect(told[0]?.manner).toBe(mannerOf(RS_10))
+    expect(told[0]?.manner).toBe(mannerOf(RS_82))
   })
 })

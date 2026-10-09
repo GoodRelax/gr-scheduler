@@ -2674,6 +2674,16 @@ const FIGURED_ROWS: ReadonlySet<string> = new Set(
 )
 
 // see FR-036, FR-038
+// see FR-076
+// WHY: a reason word names a setting in braces and the screen prints its value (CR-719 X-2).
+const withSettingValues = (word: string): string => {
+  const settings: Readonly<Record<string, unknown>> = SETTINGS_CONSTANTS
+  return word.replace(/\{([A-Za-z]+)\}/g, (slot: string, name: string) => {
+    const value = settings[name]
+    return typeof value === 'number' || typeof value === 'string' ? String(value) : slot
+  })
+}
+
 const shows = (word: string, strings: readonly string[]): boolean => {
   const glyphs = glyphRowsIn(word)
   if (glyphs.length === 0) return strings.includes(word)
@@ -3326,7 +3336,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       // STEP: a helpNotes word rides on its own row's entry text (FR-036).
       // STEP: a scaleEcho word rides after the value and % of SE-2's one message (CR-411).
       // STEP: a reason word prints S-350 where it names the {downloadUrl} seat (FR-073).
-      const printed = withDownloadAddress(cell.word)
+      // STEP: and a setting's value where it names that setting, e.g. {importMaxBytes} (FR-076, CR-719).
+      const printed = withSettingValues(withDownloadAddress(cell.word))
       const on =
         cell.section === 'helpNotes'
           ? helpNoteFramesShowing(cell.key, cell.word, cell.language)

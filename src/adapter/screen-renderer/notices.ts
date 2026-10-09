@@ -19,6 +19,7 @@ import {
   type NoticeReason,
   type ScreenSession,
 } from '../../use-case/advance-screen-session/advance-screen-session'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import displayWords from './display-words.json'
 
 const STARTUP_PENDING_MANNER = 'NT-4'
@@ -63,6 +64,10 @@ const NO_WORDS = ''
 
 const DOWNLOAD_ADDRESS_SLOT = '{downloadUrl}'
 
+// see FR-076
+// WHY: a word names a setting in braces, e.g. {importMaxBytes}; its value is never copied into the word.
+const SETTING_SLOT = /\{([A-Za-z]+)\}/g
+
 /** @purity pure */
 function answerText(answer: string, language: DisplayLanguage): string {
   const word = CONFIRMATION_BY_ANSWER.get(answer)?.text[language]
@@ -96,10 +101,21 @@ export function linkedWordsOf(word: string): LinkedWords | null {
   }
 }
 
+// see FR-076, T-211
+/** @purity pure */
+function settingsFilledWord(word: string): string {
+  const settings: Readonly<Record<string, unknown>> = SETTINGS_CONSTANTS
+  return word.replace(SETTING_SLOT, (slot: string, name: string) => {
+    const value = Object.hasOwn(settings, name) ? settings[name] : undefined
+    return typeof value === 'number' || typeof value === 'string' ? String(value) : slot
+  })
+}
+
 /** @purity pure */
 function filledWord(word: string): string {
-  const linked = linkedWordsOf(word)
-  return linked === null ? word : linked.before + linked.address + linked.after
+  const settled = settingsFilledWord(word)
+  const linked = linkedWordsOf(settled)
+  return linked === null ? settled : linked.before + linked.address + linked.after
 }
 
 // see FR-076, NT-1
@@ -111,7 +127,7 @@ function reasonWord(reason: string, cell: ReasonCell, language: DisplayLanguage)
 // see FR-073
 /** @purity pure */
 export function reasonNextStepLink(reason: string, language: DisplayLanguage): LinkedWords | null {
-  return linkedWordsOf(unfilledReasonWord(reason, 'nextStep', language))
+  return linkedWordsOf(settingsFilledWord(unfilledReasonWord(reason, 'nextStep', language)))
 }
 
 // see FR-076, T-233

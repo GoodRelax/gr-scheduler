@@ -1,10 +1,10 @@
 # CR-719 —— 断った理由に名前を付ける —— 開くときの 4 場面と編集のときの 7 場面に 表 T-233 の行を足す
 
-> 起草の状態: **下書き**（2026-10-10、作業木 `8d776ed6` の上）。仕様・コード・試験はまだ変えていない —— 利用者が 11 行の語を読んでから当てる（11 節）。
+> 起草の状態: 当てた（2026-10-10、作業木 `3fa296f7` の上）。調整役が 11 節の 11 行（場面・語 → 次の一手・表示の仕方）を利用者に見せ、利用者は「それでやれ」と答えた（`JDG-1777`）。仕様・コード・既存の試験・台帳を同じ作業木で当てた。仕様だけを読む試験は別の体が書く（9 節）。
 > ID の帯: 番号 `CR-719`、裁定 `JDG-1776`（本件）と `JDG-1773`（席の負荷の取り決め。本書の外だが同じコミットで記録した）を調整役から受けた。`8d776ed6` の木で `CR-719` を名乗る所は 0 件、`JDG-1773`・`JDG-1776` も 0 件だった（13 節）。
-> 表 T-233 の新しい 11 行は仮の名 `RS-NEW-1`〜`RS-NEW-11` で書く。本当の番号は当てるときに振る —— `8d776ed6` の 表 T-233 の行は 72 行、最大は `RS-77` である（欠番 `RS-17`・`RS-18`・`RS-35`・`RS-45`・`RS-47` は使わない —— 同じ ID を二度使わない）。
-> 当てる裁定: `JDG-1776`（案 A —— 場面ごとに 1 行、11 行。Excel の記入表は作らず、11 の語は調整役が対話で見せる）。覆す裁定は無い。
-> 閉じるもの: 台帳 `DFC-2305`（編集）と `DFC-2310`（開く）。当てたときに `実測待ち` へ動かす（12 節）。
+> 表 T-233 の新しい 11 行は、起草のときに仮の名 `RS-NEW-1`〜`RS-NEW-11` で書き、当てるときに `RS-78`〜`RS-88` を振った（`3fa296f7` の木で `RS-78`〜`RS-88` を名乗る所は本書の 2 節の予定の欄だけだった）。本文の仮の名は当てた番号に置き換えた。欠番 `RS-17`・`RS-18`・`RS-35`・`RS-45`・`RS-47` は使わない —— 同じ ID を二度使わない。
+> 当てる裁定: `JDG-1776`（案 A —— 場面ごとに 1 行、11 行。Excel の記入表は作らず、11 の語は調整役が対話で見せる）と `JDG-1777`（利用者が 11 節の語と表示の仕方を読み、そのまま認めた）。覆す裁定は無い。`JDG-1777` は調整役から受けた番号で、`3fa296f7` の木で名乗る所は 0 件だった。
+> 閉じるもの: 台帳 `DFC-2305`（編集）と `DFC-2310`（開く）。当てたので `実測待ち` へ動かした（12 節）。
 
 ---
 
@@ -14,9 +14,9 @@
 
 | 行の読み | `8d776ed6` で見たもの | 本書での扱い |
 |---|---|---|
-| `DFC-2310`: 取り込みの検証が `S-113`・`S-114`・`S-115`・`FR-012` の名で拒み、`RS-15` に落ちる | 正しい。`validate-imported-document.ts` の `validateImportedDocument` は `refusal('S-113', …, 'NT-6')`・`refusal('S-114', …, 'NT-6')`・`refusal('S-115', …, 'NT-6')`・`refusal('FR-012', …, 'NT-1')` を返し、`document-file-flow.ts` の `tellImportRefusals` は 表 T-233 にも 表 T-220 にも無い名を `RS-15` に振り替える | `RS-NEW-1`〜`RS-NEW-4` |
-| `DFC-2305`: 画面の書き込みが `IV-2`・`IV-6`・`IV-9`・`IV-11`・`IV-12`・`IV-14`・`IV-21` で拒まれると `RS-10` に潰れる | 正しい。`src/use-case/edit-document/` の `reject(<命令>, 'IV-…', …)` は 25 か所（`IV-2` 10・`IV-6` 1・`IV-9` 2・`IV-11` 1・`IV-12` 2・`IV-14` 7・`IV-21` 2）。`frame-loop.ts` の `REFUSAL_SITUATIONS` が持つ 表 T-220 の行は `IV-1`（`RS-57`）だけなので、残る 7 つは `NOTICE_REASON_OF_WRITE_REFUSAL` の `refused` → `RS-10` に落ちる | `RS-NEW-5`〜`RS-NEW-11` |
-| `IV-2` は画面からは起きない | 誤り。タスクをコピーし、コピー元のタスクを消してから貼り付けると、`task-paste.ts` の `pasteTasks` が `IV-2` で拒む（`CM-8`）。今は「受け付けられない操作が含まれていたので、まとめて取りやめました」が出る | `RS-NEW-5` の場面の例にした |
+| `DFC-2310`: 取り込みの検証が `S-113`・`S-114`・`S-115`・`FR-012` の名で拒み、`RS-15` に落ちる | 正しい。`validate-imported-document.ts` の `validateImportedDocument` は `refusal('S-113', …, 'NT-6')`・`refusal('S-114', …, 'NT-6')`・`refusal('S-115', …, 'NT-6')`・`refusal('FR-012', …, 'NT-1')` を返し、`document-file-flow.ts` の `tellImportRefusals` は 表 T-233 にも 表 T-220 にも無い名を `RS-15` に振り替える | `RS-78`〜`RS-81` |
+| `DFC-2305`: 画面の書き込みが `IV-2`・`IV-6`・`IV-9`・`IV-11`・`IV-12`・`IV-14`・`IV-21` で拒まれると `RS-10` に潰れる | 正しい。`src/use-case/edit-document/` の `reject(<命令>, 'IV-…', …)` は 25 か所（`IV-2` 10・`IV-6` 1・`IV-9` 2・`IV-11` 1・`IV-12` 2・`IV-14` 7・`IV-21` 2）。`frame-loop.ts` の `REFUSAL_SITUATIONS` が持つ 表 T-220 の行は `IV-1`（`RS-57`）だけなので、残る 7 つは `NOTICE_REASON_OF_WRITE_REFUSAL` の `refused` → `RS-10` に落ちる | `RS-82`〜`RS-88` |
+| `IV-2` は画面からは起きない | 誤り。タスクをコピーし、コピー元のタスクを消してから貼り付けると、`task-paste.ts` の `pasteTasks` が `IV-2` で拒む（`CM-8`）。今は「受け付けられない操作が含まれていたので、まとめて取りやめました」が出る | `RS-82` の場面の例にした |
 | `IV-6` は画面からは起きない | 正しい（健全な文書では）。`edit-task.ts` の `moveTaskToTaskGroup` は、タスクが文書に無ければ先に `IV-2` で拒むので、`IV-6` はタスクが在ってどのタスクグループにも載っていないとき —— 開くときの検証を通った文書では起きない | 行は足す（利用者の 11 行）。表示は「出す」を推す —— 起きたら壊れた文書であり、人が知るべきである |
 
 ### 0.2 裁定の鎖（rulings.md を「RS-15」「RS-10」「S-113」「importMax」「DFC-2305」「DFC-2310」「CR-718」「取り込みの形」「次の一手」「表示しない」で引いた）
@@ -73,23 +73,23 @@
 
 ## 2. 新しい識別子
 
-表 T-233 の 11 行（仮の名 → 当てるときの番号の予定。番号は当てる日の最大の次から振る）:
+表 T-233 の 11 行（当てた番号。起草のときの予定と同じになった）:
 
-| 仮の名 | 予定の番号 | 場面 | 作法 | 出典 | 表示の仕方（推奨） |
+| 行 ID | 起草のときの予定 | 場面 | 作法 | 出典 | 表示の仕方（推奨） |
 |---|---|---|---|---|---|
-| `RS-NEW-1` | `RS-78` | 取り込むファイルの大きさが `S-113` を超える | `NT-6` | `FR-023` ／ 表 T-211 の `S-113` | 出す |
-| `RS-NEW-2` | `RS-79` | 取り込む `Task` の件数が `S-114` を超える | `NT-6` | `FR-023` ／ 表 T-211 の `S-114` | 出す |
-| `RS-NEW-3` | `RS-80` | 取り込む `Task` の入れ子（WBS）の深さが `S-115` を超える | `NT-6` | `FR-023` ／ 表 T-211 の `S-115` | 出す |
-| `RS-NEW-4` | `RS-81` | 取り込む `Task` に `start` か `finish` が無い（表 T-033 の `EX-5` の中身の無い行を除く） | `NT-1` | `FR-012` | 出す |
-| `RS-NEW-5` | `RS-82` | 書き込みが指す相手（`Task`・`TaskGroup`・`Resource`）が文書に無い —— 例: コピー元のタスクを消してから貼り付けた | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-2` | 出す |
-| `RS-NEW-6` | `RS-83` | 載せ替えるタスクが、どのタスクグループにも載っていない | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-6` | 出す |
-| `RS-NEW-7` | `RS-84` | 塗りと線の両方を透明にしようとした | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-9` | 時間で消す |
-| `RS-NEW-8` | `RS-85` | 終了日の無いタスクにフェードを付けようとした | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-11` | 時間で消す |
-| `RS-NEW-9` | `RS-86` | フェードの日数の和がタスクの期間を超える | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-12` | 時間で消す |
-| `RS-NEW-10` | `RS-87` | 日付として読めない値か、扱える範囲（表 T-214）の外の日付を入れた | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-14` | 時間で消す |
-| `RS-NEW-11` | `RS-88` | 実績の終了が実績の開始より前になる | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-21` | 時間で消す |
+| `RS-78` | `RS-78` | 取り込むファイルの大きさが `S-113` を超える | `NT-6` | `FR-023` ／ 表 T-211 の `S-113` | 出す |
+| `RS-79` | `RS-79` | 取り込む `Task` の件数が `S-114` を超える | `NT-6` | `FR-023` ／ 表 T-211 の `S-114` | 出す |
+| `RS-80` | `RS-80` | 取り込む `Task` の入れ子（WBS）の深さが `S-115` を超える | `NT-6` | `FR-023` ／ 表 T-211 の `S-115` | 出す |
+| `RS-81` | `RS-81` | 取り込む `Task` に `start` か `finish` が無い（表 T-033 の `EX-5` の中身の無い行を除く） | `NT-1` | `FR-012` | 出す |
+| `RS-82` | `RS-82` | 書き込みが指す相手（`Task`・`TaskGroup`・`Resource`）が文書に無い —— 例: コピー元のタスクを消してから貼り付けた | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-2` | 出す |
+| `RS-83` | `RS-83` | 載せ替えるタスクが、どのタスクグループにも載っていない | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-6` | 出す |
+| `RS-84` | `RS-84` | 塗りと線の両方を透明にしようとした | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-9` | 時間で消す |
+| `RS-85` | `RS-85` | 終了日の無いタスクにフェードを付けようとした | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-11` | 時間で消す |
+| `RS-86` | `RS-86` | フェードの日数の和がタスクの期間を超える | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-12` | 時間で消す |
+| `RS-87` | `RS-87` | 日付として読めない値か、扱える範囲（表 T-214）の外の日付を入れた | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-14` | 時間で消す |
+| `RS-88` | `RS-88` | 実績の終了が実績の開始より前になる | `NT-1` | Chapter 6.1 の 表 T-220 の `IV-21` | 時間で消す |
 
-並びの置き場（原稿は表が刷る順に並べる）: `RS-NEW-1`〜`RS-NEW-4` は開く行（`RS-14` の後）、`RS-NEW-5`〜`RS-NEW-11` は `RS-58` の後。
+並びの置き場（原稿は表が刷る順に並べる）: `RS-78`〜`RS-81` は開く行（`RS-14` の後）、`RS-82`〜`RS-88` は `RS-58` の後。
 
 ---
 
@@ -101,9 +101,9 @@
 | `FR-023` の「…超えた入力は取り込まずに通知すること（MUST）」 | 「…超えた入力は取り込まず、超えた上限に当たる 表 T-233 の行を通知の仕組みへ運ぶこと（MUST）」（E-06） |
 | `AG-9a` の「拒んだ 表 T-220 の行の行 ID であり、人向けの通知と同じ鍵である」 | 「人向けの通知と同じ鍵である —— 不変条件で拒んだなら 表 T-220 の行、行を持たない拒否なら 表 T-233 の行」（E-07） |
 | `FR-033` の「段が 表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けずに通知すること（MUST）」 | 「…貼り付けを受け付けず、表 T-233 の `RS-24` として通知の仕組みへ運ぶこと（MUST） —— 作法は `FR-076` に従う」（E-08） |
-| `validate-imported-document.ts` の拒否の規則 `S-113`・`S-114`・`S-115`・`FR-012` | `RS-NEW-1`〜`RS-NEW-4` |
-| 編集の拒否 `IV-2`・`IV-6`・`IV-9`・`IV-11`・`IV-12`・`IV-14`・`IV-21` → `RS-10` | → `RS-NEW-5`〜`RS-NEW-11`（`REFUSAL_SITUATIONS` に 7 行） |
-| 試験 `tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts` の「a parent task naming a uid the document does not hold is told RS-10」（`IV-2` → `RS-10` を主張する） | 同じ場面は `RS-NEW-5` を主張する形へ。「行の無い拒否は `RS-10` のまま」の守りは、まだ行の無い規則（例: `CM-15` の `FR-012`、または別々の行に当たる拒否の混ざった束）へ移す |
+| `validate-imported-document.ts` の拒否の規則 `S-113`・`S-114`・`S-115`・`FR-012` | `RS-78`〜`RS-81` |
+| 編集の拒否 `IV-2`・`IV-6`・`IV-9`・`IV-11`・`IV-12`・`IV-14`・`IV-21` → `RS-10` | → `RS-82`〜`RS-88`（`REFUSAL_SITUATIONS` に 7 行） |
+| 試験 `tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts` の「a parent task naming a uid the document does not hold is told RS-10」（`IV-2` → `RS-10` を主張する） | 同じ場面は `RS-82` を主張する形へ。「行の無い拒否は `RS-10` のまま」の守りは、まだ行の無い規則（例: `CM-15` の `FR-012`、または別々の行に当たる拒否の混ざった束）へ移す |
 
 ---
 
@@ -115,19 +115,19 @@
 <!-- EDIT id=E-02 file=docs/spec/_source/display-words.json -->
 `reasons` に 11 項を足す（`rowId` は当てた番号）。語は 11 節の一覧の ja と、下の en:
 
-| 仮の名 | en `text` | en `nextStep` |
+| 行 ID | en `text` | en `nextStep` |
 |---|---|---|
-| `RS-NEW-1` | The file is larger than {importMaxBytes} MB, so it cannot be opened | Split the original file, or take out what is not needed, to bring it to {importMaxBytes} MB or less, then open it |
-| `RS-NEW-2` | The file holds more than {importMaxItems} tasks, so it cannot be opened | Split the original file so that each part holds {importMaxItems} tasks or fewer, then open it |
-| `RS-NEW-3` | Tasks are nested more than {importMaxDepth} levels deep, so this file cannot be opened | Make the nesting {importMaxDepth} levels or shallower in the original file, then open it |
-| `RS-NEW-4` | A task has no start date or no finish date, so this file cannot be opened | Give that task a start and a finish date in the original file, then open it |
-| `RS-NEW-5` | What this change points at (a task, task group or assignee) is no longer in the document, so it was not made | Look over the screen, choose the target again, then try once more |
-| `RS-NEW-6` | The task being moved sits on no task group, so it was not moved | Look over the screen, then try once more |
-| `RS-NEW-7` | The fill and the line cannot both be transparent | Give one of them a colour |
-| `RS-NEW-8` | A task with no finish date cannot have a fade | Enter a finish date first, then add the fade |
-| `RS-NEW-9` | The fade days would add up to more than the task's span, so the change was not made | Shorten the fades, or lengthen the task's span |
-| `RS-NEW-10` | The value is not a date, or is outside the dates that can be handled, so the change was not made | Enter a date from {importMinDate} to {importMaxDate} |
-| `RS-NEW-11` | The actual finish would come before the actual start, so the change was not made | Enter the dates again so that the actual finish is on or after the actual start |
+| `RS-78` | The file is larger than {importMaxBytes} MB, so it cannot be opened | Split the original file, or take out what is not needed, to bring it to {importMaxBytes} MB or less, then open it |
+| `RS-79` | The file holds more than {importMaxItems} tasks, so it cannot be opened | Split the original file so that each part holds {importMaxItems} tasks or fewer, then open it |
+| `RS-80` | Tasks are nested more than {importMaxDepth} levels deep, so this file cannot be opened | Make the nesting {importMaxDepth} levels or shallower in the original file, then open it |
+| `RS-81` | A task has no start date or no finish date, so this file cannot be opened | Give that task a start and a finish date in the original file, then open it |
+| `RS-82` | What this change points at (a task, task group or assignee) is no longer in the document, so it was not made | Look over the screen, choose the target again, then try once more |
+| `RS-83` | The task being moved sits on no task group, so it was not moved | Look over the screen, then try once more |
+| `RS-84` | The fill and the line cannot both be transparent | Give one of them a colour |
+| `RS-85` | A task with no finish date cannot have a fade | Enter a finish date first, then add the fade |
+| `RS-86` | The fade days would add up to more than the task's span, so the change was not made | Shorten the fades, or lengthen the task's span |
+| `RS-87` | The value is not a date, or is outside the dates that can be handled, so the change was not made | Enter a date from {importMinDate} to {importMaxDate} |
+| `RS-88` | The actual finish would come before the actual start, so the change was not made | Enter the dates again so that the actual finish is on or after the actual start |
 
 <!-- EDIT id=E-03 file=docs/spec/01-04-requirements.md -->
 `FR-076` の 表 T-233 の結びの段で、2 か所を変える。
@@ -197,9 +197,9 @@
 
 | ファイル | 変えるもの |
 |---|---|
-| `src/use-case/validate-imported-document/validate-imported-document.ts` | `validateImportedDocument` の `refusal('S-113', …)`（172 行の枝）・`refusal('S-114', …)`（188 行）・`refusal('S-115', …)`（216 行）・`refusal('FR-012', …)`（255 行）の規則を、当てた 表 T-233 の行（`RS-NEW-1`〜`RS-NEW-4`）にする。行は名前を付けた定数に置く（`UNUSABLE_DATE_ROW` と同じ形）。`notice`（`NT-6` ／ `NT-1`）は変えない |
+| `src/use-case/validate-imported-document/validate-imported-document.ts` | `validateImportedDocument` の `refusal('S-113', …)`（172 行の枝）・`refusal('S-114', …)`（188 行）・`refusal('S-115', …)`（216 行）・`refusal('FR-012', …)`（255 行）の規則を、当てた 表 T-233 の行（`RS-78`〜`RS-81`）にする。行は名前を付けた定数に置く（`UNUSABLE_DATE_ROW` と同じ形）。`notice`（`NT-6` ／ `NT-1`）は変えない |
 | `src/framework/single-html-shell/document-file-flow.ts` | 変えない —— `tellImportRefusals` は規則が `NOTICE_DISPLAY_OF_REASON` に在ればその行を運ぶ。生成で行が入れば `RS-15` に落ちなくなる |
-| `src/framework/single-html-shell/frame-loop.ts` | `REFUSAL_SITUATIONS` に 7 行 —— `{ reason: <RS-NEW-5>, command: null, rule: 'IV-2' }` から `IV-21` まで（`RS-57` の `IV-1` と同じ形）。`reasonOfWriteRefusal` は変えない（束の全部が同じ行に当たるときだけその行、X-6） |
+| `src/framework/single-html-shell/frame-loop.ts` | `REFUSAL_SITUATIONS` に 7 行 —— `{ reason: <RS-82>, command: null, rule: 'IV-2' }` から `IV-21` まで（`RS-57` の `IV-1` と同じ形）。`reasonOfWriteRefusal` は変えない（束の全部が同じ行に当たるときだけその行、X-6） |
 | `src/adapter/screen-renderer/notices.ts` | `filledWord` に、設定値の名前の差し込み口を足す（`{importMaxBytes}`・`{importMaxItems}`・`{importMaxDepth}`・`{importMinDate}`・`{importMaxDate}` → 検証が読むのと同じ `SETTINGS_CONSTANTS` の値）。`linkedWordsOf`（`{downloadUrl}`）は変えない |
 | `Agent API` | コードは変えない。`importDocument` の拒否の値の規則が、上の 4 つでは 表 T-233 の行になる（E-07） |
 
@@ -212,6 +212,16 @@
 - `tests/contract/t-233-reason-words-tell-the-row.contract.test.ts` の `PAIRED_ON_2026_09_03` —— 新しい 11 行の指紋を足す（行と語を読み合わせた印）。
 - `tests/contract/dfc-290-d-321-fr-033-copy-and-paste-reach-the-document.test.ts` —— E-08 で替える `FR-033` の `ST-7` の文を逐語で引く（4 か所: 注 2・値 2）。新しい文に合わせる（振る舞いの主張は変えない —— `CR-718` が `e24-…` の試験に行った形）。
 - `tests/contract/cr-718-an-import-refusal-names-its-t-220-task-group.contract.test.ts` の `FR-012` を含まない主張はそのまま通る。E-03 は同ファイルほか 7 本が引く文を残すので、逐語の引きは赤くならない。
+
+
+### 5.2 当てるときに合わせたもの
+
+- E-07: `AG-9a` の今の文は起草が引いた形と違い、「…拒んだ `05-07-design.md` の 表 T-220 の行の行 ID とすること（MUST） —— 人向けの通知と同じ鍵である（…）。」であり、試験 2 本（`tests/contract/cr-718-an-import-refusal-names-its-t-220-task-group.contract.test.ts`・`tests/unit/cr-551-agent-import-checks-every-shape.test.ts`）がこの文を逐語で引く。E-03 と同じ形で、文は**逐語のまま残し**、同じ升の後ろに「⭐ 同表に行を持たない拒否（資源の上限と、`start` か `finish` を持たない `Task`）では、理由の区分は `FR-076` が運ばせる 表 T-233 の行の行 ID である —— これも人向けの通知と同じ鍵である。」を足した（`（MUST）` ±0 —— 義務は E-03 ② の `FR-076` の 1 行が持つ）。
+- 5 節の差し込み口: `notices.ts` の `settingsFilledWord` は、語の中の `{名前}` のうち `SETTINGS_CONSTANTS` が持つ名前（数か文字列）だけを値に替える。5 つの名前を書き並べない —— 新しい差し込み口は語に書くだけで届く。`{downloadUrl}` は今までどおり `linkedWordsOf` が持つ。
+- 5 節の ⚠️: `tests/contract/display-words.contract.test.ts` は、辞書の語を画面と照らす前に、`{downloadUrl}` と同じく設定値の名前を値に戻す（`withSettingValues`）。
+- 5.1 のほか: `tests/contract/cr-712-the-display-manner-of-every-task-group.contract.test.ts` の数（72 → 83 行、出す 28 → 34、時間で消す 14 → 19、辞書の項 67 → 78）と「時間で消す」の列に `RS-84`〜`RS-88` を足した。
+- 編集の拒否の 25 か所は当てる木でも同じ数だった（`IV-2` 10・`IV-6` 1・`IV-9` 2・`IV-11` 1・`IV-12` 2・`IV-14` 7・`IV-21` 2）。コードの `reject` は変えず、`REFUSAL_SITUATIONS` の 7 行が選ぶ。
+- 変更履歴は `4.24`（`4.23` は同じ時期に当たる `CR-720` が持つ）。
 
 ---
 
