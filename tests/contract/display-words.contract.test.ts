@@ -2674,6 +2674,18 @@ const FIGURED_ROWS: ReadonlySet<string> = new Set(
 )
 
 // see FR-036, FR-038
+const FR_076_NO_SETTING_COPIED = '⛔ 設定値を理由の語に書き写してはならない（MUST NOT）'
+
+// see FR-076
+// WHY: a reason word names a setting in braces and the screen prints its value (CR-719 X-2).
+const withSettingValues = (word: string): string => {
+  const settings: Readonly<Record<string, unknown>> = SETTINGS_CONSTANTS
+  return word.replace(/\{([A-Za-z]+)\}/g, (slot: string, name: string) => {
+    const value = settings[name]
+    return typeof value === 'number' || typeof value === 'string' ? String(value) : slot
+  })
+}
+
 const shows = (word: string, strings: readonly string[]): boolean => {
   const glyphs = glyphRowsIn(word)
   if (glyphs.length === 0) return strings.includes(word)
@@ -3302,6 +3314,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       cell.section === 'fileStatus' ||
       cell.section === 'exportFormats' ||
       (cell.section === 'icons' && cell.field === 'label' && ON_U_55.includes(cell.key))
+    expect(readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8')).toContain(FR_076_NO_SETTING_COPIED)
     const owed = written.filter(
       (cell) => !stated.has(`${cell.section}.${cell.key}`) || reachedByTheWholeView(cell),
     )
@@ -3326,7 +3339,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       // STEP: a helpNotes word rides on its own row's entry text (FR-036).
       // STEP: a scaleEcho word rides after the value and % of SE-2's one message (CR-411).
       // STEP: a reason word prints S-350 where it names the {downloadUrl} seat (FR-073).
-      const printed = withDownloadAddress(cell.word)
+      const printed = withSettingValues(withDownloadAddress(cell.word))
       const on =
         cell.section === 'helpNotes'
           ? helpNoteFramesShowing(cell.key, cell.word, cell.language)

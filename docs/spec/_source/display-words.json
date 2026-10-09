@@ -2845,6 +2845,50 @@
    }
   },
   {
+   "rowId": "RS-78",
+   "text": {
+    "ja": "大きさが {importMaxBytes} MB を超えているので、このファイルは開けません",
+    "en": "The file is larger than {importMaxBytes} MB, so it cannot be opened"
+   },
+   "nextStep": {
+    "ja": "元のファイルを分けるか、要らないものを除いて {importMaxBytes} MB 以下にしてから開いてください",
+    "en": "Split the original file, or take out what is not needed, to bring it to {importMaxBytes} MB or less, then open it"
+   }
+  },
+  {
+   "rowId": "RS-79",
+   "text": {
+    "ja": "タスクが {importMaxItems} 件を超えているので、このファイルは開けません",
+    "en": "The file holds more than {importMaxItems} tasks, so it cannot be opened"
+   },
+   "nextStep": {
+    "ja": "元のファイルを、タスクが {importMaxItems} 件以下になるように分けてから開いてください",
+    "en": "Split the original file so that each part holds {importMaxItems} tasks or fewer, then open it"
+   }
+  },
+  {
+   "rowId": "RS-80",
+   "text": {
+    "ja": "親タスクと子タスクの入れ子が {importMaxDepth} 段より深いので、このファイルは開けません",
+    "en": "Tasks are nested more than {importMaxDepth} levels deep, so this file cannot be opened"
+   },
+   "nextStep": {
+    "ja": "元のファイルで入れ子を {importMaxDepth} 段以下に浅くしてから開いてください",
+    "en": "Make the nesting {importMaxDepth} levels or shallower in the original file, then open it"
+   }
+  },
+  {
+   "rowId": "RS-81",
+   "text": {
+    "ja": "開始日か終了日の無いタスクがあるので、このファイルは開けません",
+    "en": "A task has no start date or no finish date, so this file cannot be opened"
+   },
+   "nextStep": {
+    "ja": "元のファイルでそのタスクに開始日と終了日を入れてから開いてください",
+    "en": "Give that task a start and a finish date in the original file, then open it"
+   }
+  },
+  {
    "rowId": "RS-16",
    "text": {
     "ja": "重ねたファイルの一部のタスクは、現在の文書に対応するものが無いので描いていません",
@@ -3271,6 +3315,83 @@
    "nextStep": {
     "ja": "開始と同じ日か、それより後の日を入れてください",
     "en": "Enter the same day as the start, or a later one"
+   }
+  },
+  {
+   "rowId": "RS-82",
+   "text": {
+    "ja": "操作の相手（タスク・タスクグループ・担当者）が、もう文書にないので、行っていません",
+    "en": "What this change points at (a task, task group or assignee) is no longer in the document, so it was not made"
+   },
+   "nextStep": {
+    "ja": "画面を見直して、相手を選び直してから、もう一度行ってください",
+    "en": "Look over the screen, choose the target again, then try once more"
+   }
+  },
+  {
+   "rowId": "RS-83",
+   "text": {
+    "ja": "このタスクはどのタスクグループにも載っていないので、動かせません",
+    "en": "The task being moved sits on no task group, so it was not moved"
+   },
+   "nextStep": {
+    "ja": "画面を見直して、もう一度行ってください",
+    "en": "Look over the screen, then try once more"
+   }
+  },
+  {
+   "rowId": "RS-84",
+   "text": {
+    "ja": "塗りと線の両方を透明にはできません",
+    "en": "The fill and the line cannot both be transparent"
+   },
+   "nextStep": {
+    "ja": "どちらかに色を付けてください",
+    "en": "Give one of them a colour"
+   }
+  },
+  {
+   "rowId": "RS-85",
+   "text": {
+    "ja": "終了日の無いタスクには、フェードを付けられません",
+    "en": "A task with no finish date cannot have a fade"
+   },
+   "nextStep": {
+    "ja": "先に終了日を入れてから、フェードを付けてください",
+    "en": "Enter a finish date first, then add the fade"
+   }
+  },
+  {
+   "rowId": "RS-86",
+   "text": {
+    "ja": "フェードの日数の和がタスクの期間より長くなるので、変えられません",
+    "en": "The fade days would add up to more than the task's span, so the change was not made"
+   },
+   "nextStep": {
+    "ja": "フェードを短くするか、タスクの期間を延ばしてください",
+    "en": "Shorten the fades, or lengthen the task's span"
+   }
+  },
+  {
+   "rowId": "RS-87",
+   "text": {
+    "ja": "日付として読めないか、扱える範囲の外の日付なので、変えられません",
+    "en": "The value is not a date, or is outside the dates that can be handled, so the change was not made"
+   },
+   "nextStep": {
+    "ja": "{importMinDate} から {importMaxDate} までの日付を入れてください",
+    "en": "Enter a date from {importMinDate} to {importMaxDate}"
+   }
+  },
+  {
+   "rowId": "RS-88",
+   "text": {
+    "ja": "実績の終了が実績の開始より前になるので、変えられません",
+    "en": "The actual finish would come before the actual start, so the change was not made"
+   },
+   "nextStep": {
+    "ja": "実績の開始より後に終了が来るように、日付を入れ直してください",
+    "en": "Enter the dates again so that the actual finish is on or after the actual start"
    }
   },
   {

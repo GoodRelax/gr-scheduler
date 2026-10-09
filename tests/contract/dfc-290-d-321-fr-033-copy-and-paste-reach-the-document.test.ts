@@ -14,8 +14,8 @@
 //    れた `Task` だけを**複製すること。タスクグループパネルでは、
 //    選ばれた `TaskGroup` を**部分木ごと**複製すること。」
 //   「複製した `Task` は、複製元と同じタスクグループに載せること（MUST）」
-//   「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けずに通知
-//    すること（MUST）」
+//   「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けず、表 T-233
+//    の `RS-24` として通知の仕組みへ運ぶこと（MUST）」（CR-719 E-08）
 //   「複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）」
 //   「複製に `TaskOrigin` を付けてはならない（MUST NOT）」
 //   「貼り付け先は、選んでいるタスクグループの子とすること（MUST）」
@@ -68,9 +68,9 @@
 // ---------------------------------------------------------------------------
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED
 // ---------------------------------------------------------------------------
-//  1. WHICH ROW OF 表 T-233 A REFUSED PASTE CARRIES. `FR-033` says 「貼り付けを
-//     受け付けずに通知すること（MUST）」 and names NO row; DFC-290's own record says
-//     the choice was the body's and not the user's. So the case below asks only
+//  1. WHICH ROW OF 表 T-233 A REFUSED PASTE CARRIES. Until CR-719 `FR-033` named
+//     NO row; it now names `RS-24` (E-08), which a spec-only case is to hold. The
+//     case below was written before that, and asks only
 //     what 表 T-233's closing rule requires -- that whatever is told IS a row of
 //     that table, in the words `FR-038`'s dictionary holds for it.
 //  2. WHAT AN EMPTY STORE TELLS. Same reason: `FR-033` states no reason row for
@@ -138,7 +138,7 @@ const FR_033_PASTE_UNDER_THE_CHOSEN_TASK_GROUP = '貼り付け先は、選んで
 
 /** ⭐ The clause that ties this requirement to 表 T-014 の `ST-7`. */
 const FR_033_REFUSE_AT_THE_VALVE =
-  '段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けずに通知すること（MUST）'
+  '段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けず、表 T-233 の `RS-24` として通知の仕組みへ運ぶこと（MUST）'
 
 /** 表 T-233's closing rule -- what a telling may carry at all. */
 const T_233_ONLY_ITS_OWN_ROWS =
@@ -632,9 +632,9 @@ describe('FR-033 -- what does NOT change the document', () => {
 // 7. ⭐⭐ FR-033 x 表 T-014 の ST-7 -- the paste that is refused at the valve
 // ===========================================================================
 //
-// 「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けずに通知する
-//  こと（MUST）」 —— 貼り付けだけに逃げ道を作ると、安全弁が場所によって効いたり効か
-//  なかったりする。
+// 「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けず、表 T-233 の
+//  `RS-24` として通知の仕組みへ運ぶこと（MUST） —— 作法は `FR-076` に従う。貼り付け
+//  だけに逃げ道を作ると、安全弁が場所によって効いたり効かなかったりする。」（CR-719 E-08）
 //
 // ⭐ THE CAP IS `S-89`, A TOOL CONSTANT SINCE CR-572: no document can lower it,
 // so the fixture stacks the parent task group up to one under it and reads the number
@@ -675,15 +675,15 @@ describe('FR-033 (MUST) -- a paste that would pass the safety valve is refused A
     expect(
       built.taskUids().length,
       'a paste that would put a stack past the safety valve was taken -- FR-033 (MUST): ' +
-        '「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けずに通知すること」',
+        '「段が表 T-014 の `ST-7` の安全弁に達したときは、貼り付けを受け付けず、表 T-233 の `RS-24` として通知の仕組みへ運ぶこと」',
     ).toBe(afterTheLawfulOne)
   })
 
   it('⭐ and the refusal is TOLD, in the words FR-038 holds for a row of 表 T-233', () => {
-    // 「貼り付けを受け付けずに**通知**すること（MUST）」, and 表 T-233's closing
+    // 「表 T-233 の `RS-24` として通知の仕組みへ運ぶこと（MUST）」, and 表 T-233's closing
     // rule: 「通知が運ぶ理由は 表 T-233 の行とすること（MUST）。同表に無い理由を運
     // んではならない（MUST NOT）」.
-    // ⛔ WHICH row is not asserted: FR-033 names none (see the head of this file).
+    // ⛔ WHICH row is not asserted here (see the head of this file).
     expect(REQUIREMENTS).toContain(T_233_ONLY_ITS_OWN_ROWS)
     const built = stage(documentOfTwoTaskGroups(AT_THE_CAP), TALL)
     built.pressTask(PARENT_TASK)
