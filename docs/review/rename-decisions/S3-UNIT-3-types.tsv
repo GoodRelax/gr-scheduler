@@ -1,0 +1,14 @@
+path	line	col	nth	name	decision	note
+tests/unit/uf-47-48-choosers.test.ts	488	9	0	row	task-group	builds one TaskGroup record of the fixture
+tests/unit/uf-47-48-choosers.test.ts	531	19	0	row	task-group	call of the builder at line 488
+tests/unit/uf-47-48.test.ts	1102	34	0	rows	task-group	uncertain: layout.rows is ScheduleLayout.rows (RowPlacement[]); must match the S2-ENT decision at src/entity/layout-engine/schedule-layout/schedule-layout.ts:158
+tests/unit/uf-47-48.test.ts	1142	40	1	rows	task-group	uncertain: layout.rows is ScheduleLayout.rows (RowPlacement[]); must match the S2-ENT decision at src/entity/layout-engine/schedule-layout/schedule-layout.ts:158
+tests/unit/uf-47-48.test.ts	1171	34	0	rows	task-group	uncertain: layout.rows is ScheduleLayout.rows (RowPlacement[]); must match the S2-ENT decision at src/entity/layout-engine/schedule-layout/schedule-layout.ts:158
+tests/unit/uf-47-48.test.ts	1217	12	0	rows	task-group	local array of TaskGroup records
+tests/unit/uf-47-48.test.ts	1223	8	0	rows	task-group	local array of TaskGroup records
+tests/unit/uf-47-48.test.ts	1236	34	0	rows	task-group	local array of TaskGroup records
+tests/unit/uf-47-48.test.ts	1250	34	0	rows	task-group	uncertain: layout.rows is ScheduleLayout.rows (RowPlacement[]); must match the S2-ENT decision at src/entity/layout-engine/schedule-layout/schedule-layout.ts:158
+tests/unit/uf-47-48.test.ts	1269	34	0	rows	task-group	uncertain: layout.rows is ScheduleLayout.rows (RowPlacement[]); must match the S2-ENT decision at src/entity/layout-engine/schedule-layout/schedule-layout.ts:158
+tests/unit/uf-47-48.test.ts	1288	32	0	rows	task-group	uncertain: layout.rows is ScheduleLayout.rows (RowPlacement[]); must match the S2-ENT decision at src/entity/layout-engine/schedule-layout/schedule-layout.ts:158
+tests/unit/uf-47-48.test.ts	718	34	0	rows	task-group	uncertain: layout.rows is ScheduleLayout.rows (RowPlacement[]); must match the S2-ENT decision at src/entity/layout-engine/schedule-layout/schedule-layout.ts:158
+tests/unit/uf-47-48.test.ts	719	31	0	rows	task-group	uncertain: layout.rows is ScheduleLayout.rows (RowPlacement[]); must match the S2-ENT decision at src/entity/layout-engine/schedule-layout/schedule-layout.ts:158
