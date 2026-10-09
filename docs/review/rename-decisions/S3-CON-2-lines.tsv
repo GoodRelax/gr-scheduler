@@ -1,0 +1,910 @@
+path	line	col	text	decision	rewrite_old	rewrite_new	note
+tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts	32	7	ROWS	keep			
+tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts	116	27	row	keep			
+tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts	125	21	row	keep			
+tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts	216	22	row	keep			
+tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts	267	19	row	keep			
+tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts	269	71	row	keep			
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	47	7	ROWS	keep			
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	60	50	row	keep			
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	62	62	row	keep			
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	148	43	row	keep			
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	201	53	row	task-group			fixture label of a task group
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	330	37	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	331	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	332	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	333	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	334	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	335	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	336	4	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	354	46	row	keep			
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	355	10	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	355	22	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	356	11	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	357	11	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	366	22	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	367	22	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	374	10	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	374	23	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	375	11	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	376	33	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	448	41	row	keep			
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	449	31	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	457	45	row	keep			
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	461	66	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	497	46	row	keep			
+tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts	500	37	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts	1	30	rows	keep			
+tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts	27	7	ROWS	keep			
+tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts	27	63	row	keep			
+tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts	42	41	rows	keep			
+tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts	60	36	row	keep			
+tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts	439	37	ROWS	keep			
+tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts	469	69	rows	task-group			S-78 scrollGroupId: the place is kept in task groups
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	15	72	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	16	9	ROW	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	17	57	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	19	14	ROWS	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	22	25	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	69	7	ROWS	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	161	10	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	161	33	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	171	22	ROW	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	178	53	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	181	82	rows	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	192	24	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	241	6	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	346	35	ROW	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	358	38	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	400	36	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	501	27	ROW	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	518	13	ROW	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	571	22	ROW	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	576	7	ROWS	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	591	36	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	601	10	rows	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	601	52	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	667	77	row	keep			
+tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts	742	43	ROW	keep			
+tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts	22	16	ROW	keep			
+tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts	27	47	ROW	task-group			
+tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts	46	28	ROW	keep			
+tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts	144	29	row	keep			
+tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts	196	55	row	task-group			fixture label of a task group
+tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts	270	8	rows	keep			
+tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts	281	52	row	keep			
+tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts	283	19	row	keep			
+tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts	296	61	row	keep			
+tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts	411	47	row	keep			
+tests/contract/dfc-325-fr-028-a-malformed-request-is-refused-not-thrown.test.ts	186	77	row	keep			
+tests/contract/dfc-325-fr-028-a-malformed-request-is-refused-not-thrown.test.ts	189	31	row	keep			
+tests/contract/dfc-325-fr-028-a-malformed-request-is-refused-not-thrown.test.ts	196	31	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	17	61	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	23	40	ROW	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	29	30	ROW	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	32	53	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	64	44	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	68	7	ROWS	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	86	62	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	89	14	ROW	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	90	51	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	91	17	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	93	8	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	186	37	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	241	10	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	413	60	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	425	38	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	427	19	row	keep			
+tests/contract/dfc-337-fr-029-the-three-file-gates-say-why-on-a-second-press.test.ts	515	12	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	1	10	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	10	7	rows	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	10	53	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	18	45	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	20	50	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	74	68	ROW	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	88	39	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	212	70	rows	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	258	52	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	451	70	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	479	68	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	500	61	rows	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	593	20	rows	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	594	47	rows	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	614	7	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	616	21	rows	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	625	61	rows	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	627	16	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	654	68	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	772	54	row	keep			
+tests/contract/dfc-355-the-four-rulings-of-2026-09-07.test.ts	773	40	row	keep			
+tests/contract/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts	1	10	row	keep			
+tests/contract/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts	24	7	rows	keep			
+tests/contract/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts	24	53	row	keep			
+tests/contract/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts	28	16	row	task-group			
+tests/contract/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts	67	37	row	rewrite	row ceiling	vertical zoom ceiling	CR-708 2.5 rule 7: the row zoom ceiling
+tests/contract/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts	156	37	row	keep			
+tests/contract/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts	177	27	row	task-group			
+tests/contract/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts	449	20	rows	task-group			
+tests/contract/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts	486	39	row	keep			uncertain: S-58 stacks a task group's tasks; the top row is a stacked lane, not a task group
+tests/contract/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts	534	49	row	task-group			
+tests/contract/dfc-377-fr-016-zoom-ceilings-and-ep-9-thickness.test.ts	536	74	row	task-group			
+tests/contract/dfc-378-a-write-that-changed-nothing-answers-the-same-document.test.ts	131	34	row	keep			
+tests/contract/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts	1	25	row	keep			
+tests/contract/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts	99	14	row	keep			
+tests/contract/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts	125	30	rows	task-group			
+tests/contract/dfc-405-gr-21-the-grip-is-a-fraction-of-its-lane.test.ts	137	19	rows	task-group			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	1	26	rows	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	21	65	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	35	34	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	38	22	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	44	43	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	58	48	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	72	17	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	132	68	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	212	67	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	275	14	rows	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	276	41	rows	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	277	23	ROW	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	287	22	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	289	21	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	298	45	rows	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	312	18	rows	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	315	65	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	316	71	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	337	61	row	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	374	54	rows	keep			
+tests/contract/dfc-406-d-411-the-reason-a-refused-write-carries.test.ts	382	52	rows	keep			
+tests/contract/dfc-407-417-418-the-three-fixes-of-2026-09-09.test.ts	32	64	row	keep			
+tests/contract/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts	1	58	row	keep			
+tests/contract/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts	185	22	row	task-group			
+tests/contract/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts	189	31	row	task-group			fixture label of a task group
+tests/contract/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts	197	56	row	task-group			fixture label of a task group
+tests/contract/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts	220	31	row	task-group			fixture label of a task group
+tests/contract/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts	295	28	row	keep			uncertain: fixture label searched verbatim in the SVG text; a longer name could be cut short
+tests/contract/dfc-49-one-indent-for-the-screen-and-the-picture.test.ts	370	39	row	task-group			
+tests/contract/dfc-554-gr-17-released-at-or-left-of-the-dummy-keeps-s-129.test.ts	165	18	row	task-group			fixture label of a task group
+tests/contract/dfc-567-fr-029-a-faint-roster-entrance-that-is-pressed-tells-rs-27.test.ts	1	189	row	keep			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	206	68	row	keep			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	234	10	row	task-group			fixture label of a task group
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	420	62	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	491	76	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	605	77	row	keep			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	620	82	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	625	39	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	625	77	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	646	94	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	651	73	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	653	104	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	661	10	rows	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	724	79	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	725	76	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	733	77	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	756	58	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	763	69	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	766	98	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	778	71	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	782	106	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	783	52	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	787	65	rows	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	788	27	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	788	57	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	791	88	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	792	34	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	795	34	rows	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	803	34	rows	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	803	61	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	806	96	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	807	42	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	810	36	rows	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	810	77	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	857	66	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	858	109	rows	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	869	61	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	877	61	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	885	65	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	893	62	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	917	65	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	921	91	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	922	37	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1128	73	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1128	116	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1132	21	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1140	28	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1144	61	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1147	27	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1227	48	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1227	59	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1231	63	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1232	43	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1233	25	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1236	98	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1245	45	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1245	73	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1249	70	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1250	32	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1254	35	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1258	47	rows	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1265	63	row	task-group			
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	1272	77	row	task-group			
+tests/contract/dfc-572-pv-1-pv-2-actual-finish-is-the-finish-day.test.ts	160	12	row	task-group			fixture label of a task group
+tests/contract/dfc-579-in-5a-dialogue-keys-go-to-the-field.test.ts	176	41	row	keep			
+tests/contract/dfc-579-in-5a-dialogue-keys-go-to-the-field.test.ts	217	22	row	task-group			
+tests/contract/dfc-582-every-invariant-row-has-a-dictionary-entry.test.ts	39	26	rows	keep			
+tests/contract/dfc-587-title-row-entries-are-drawn.test.ts	1	57	rows	keep			
+tests/contract/dfc-587-title-row-entries-are-drawn.test.ts	51	70	row	keep			
+tests/contract/dfc-587-title-row-entries-are-drawn.test.ts	224	61	row	keep			
+tests/contract/dfc-587-title-row-entries-are-drawn.test.ts	247	29	row	keep			
+tests/contract/dfc-615-mk-5-a-horizontal-scroll-leaves-the-row-anchor-alone.test.ts	1	90	row	task-group			
+tests/contract/dfc-615-mk-5-a-horizontal-scroll-leaves-the-row-anchor-alone.test.ts	13	20	row	keep			
+tests/contract/dfc-615-mk-5-a-horizontal-scroll-leaves-the-row-anchor-alone.test.ts	23	64	row	rewrite	`row-${	`task-group-${	CR-708 2.6 id prefix; uncertain: needs the map ids row-1/row-2/row-20 in class a (S3-CON-1)
+tests/contract/dfc-615-mk-5-a-horizontal-scroll-leaves-the-row-anchor-alone.test.ts	54	53	row	task-group			
+tests/contract/dfc-615-mk-5-a-horizontal-scroll-leaves-the-row-anchor-alone.test.ts	56	79	row	task-group			
+tests/contract/dfc-628-641-fr-016-the-band-ceiling-is-the-one-t-253-finds-from-any-start.test.ts	1	73	row	rewrite	row zoom	vertical zoom	CR-708 2.5 rule 7: row zoom -> vertical zoom
+tests/contract/dfc-628-641-fr-016-the-band-ceiling-is-the-one-t-253-finds-from-any-start.test.ts	36	81	row	keep			
+tests/contract/dfc-628-641-fr-016-the-band-ceiling-is-the-one-t-253-finds-from-any-start.test.ts	38	24	row	keep			
+tests/contract/dfc-628-641-fr-016-the-band-ceiling-is-the-one-t-253-finds-from-any-start.test.ts	121	43	row	rewrite	row zoom	vertical zoom	CR-708 2.5 rule 7: row zoom -> vertical zoom
+tests/contract/dfc-628-641-fr-016-the-band-ceiling-is-the-one-t-253-finds-from-any-start.test.ts	158	13	row	keep			
+tests/contract/dfc-628-641-fr-016-the-band-ceiling-is-the-one-t-253-finds-from-any-start.test.ts	159	13	row	keep			
+tests/contract/dfc-628-641-fr-016-the-band-ceiling-is-the-one-t-253-finds-from-any-start.test.ts	170	60	row	keep			
+tests/contract/dfc-628-641-fr-016-the-band-ceiling-is-the-one-t-253-finds-from-any-start.test.ts	182	55	row	task-group			
+tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts	18	40	ROW	keep			
+tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts	27	32	row	keep			
+tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts	34	7	ROWS	keep			
+tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts	34	56	row	keep			
+tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts	67	16	row	keep			
+tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts	83	54	row	keep			
+tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts	184	25	row	keep			
+tests/contract/dfc-66-fr-101-a-save-names-the-file-it-wrote.test.ts	355	64	row	keep			
+tests/contract/dfc-685-a-dateless-pasted-copy-drops-its-slack.test.ts	29	57	row	keep			a data row dropped by the import
+tests/contract/dfc-697-a-display-scale-step-keeps-the-row-area-middle.contract.test.ts	1	72	row	task-group			
+tests/contract/dfc-697-a-display-scale-step-keeps-the-row-area-middle.contract.test.ts	15	20	row	keep			
+tests/contract/dfc-697-a-display-scale-step-keeps-the-row-area-middle.contract.test.ts	18	37	row	task-group			
+tests/contract/dfc-697-a-display-scale-step-keeps-the-row-area-middle.contract.test.ts	28	64	row	rewrite	`row-${	`task-group-${	CR-708 2.6 id prefix; uncertain: needs the map ids row-1/row-2/row-20 in class a (S3-CON-1)
+tests/contract/dfc-697-a-display-scale-step-keeps-the-row-area-middle.contract.test.ts	65	40	row	task-group			
+tests/contract/dfc-697-a-display-scale-step-keeps-the-row-area-middle.contract.test.ts	87	99	row	task-group			
+tests/contract/dfc-697-a-display-scale-step-keeps-the-row-area-middle.contract.test.ts	104	65	row	task-group			
+tests/contract/dfc-697-a-display-scale-step-keeps-the-row-area-middle.contract.test.ts	105	79	row	task-group			
+tests/contract/dfc-699-fr-016-t-253-the-row-zoom-ceiling-follows-the-rows-the-detail-level-draws.test.ts	1	58	row	rewrite	row zoom	vertical zoom	CR-708 2.5 rule 7: row zoom -> vertical zoom
+tests/contract/dfc-699-fr-016-t-253-the-row-zoom-ceiling-follows-the-rows-the-detail-level-draws.test.ts	1	170	row	task-group			
+tests/contract/dfc-699-fr-016-t-253-the-row-zoom-ceiling-follows-the-rows-the-detail-level-draws.test.ts	68	131	rows	task-group			
+tests/contract/dfc-699-fr-016-t-253-the-row-zoom-ceiling-follows-the-rows-the-detail-level-draws.test.ts	74	76	rows	task-group			
+tests/contract/dfc-699-fr-016-t-253-the-row-zoom-ceiling-follows-the-rows-the-detail-level-draws.test.ts	75	24	row	task-group			
+tests/contract/dfc-699-fr-016-t-253-the-row-zoom-ceiling-follows-the-rows-the-detail-level-draws.test.ts	78	53	row	task-group			
+tests/contract/dfc-699-fr-016-t-253-the-row-zoom-ceiling-follows-the-rows-the-detail-level-draws.test.ts	82	10	row	rewrite	row zoom	vertical zoom	CR-708 2.5 rule 7: row zoom -> vertical zoom
+tests/contract/dfc-699-fr-016-t-253-the-row-zoom-ceiling-follows-the-rows-the-detail-level-draws.test.ts	89	52	row	task-group			
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	1	32	row	rewrite	row zoom	vertical zoom	CR-708 2.5 rule 7: row zoom -> vertical zoom
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	61	13	row	keep			
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	62	13	row	keep			
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	81	33	row	task-group			
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	86	81	row	keep			
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	87	23	row	keep			
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	109	76	row	keep			
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	119	48	row	rewrite	row zoom	vertical zoom	CR-708 2.5 rule 7: row zoom -> vertical zoom
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	120	32	row	task-group			
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	128	32	row	task-group			
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	128	97	row	rewrite	row zoom	vertical zoom	CR-708 2.5 rule 7: row zoom -> vertical zoom
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	138	37	rows	task-group			
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	143	82	row	task-group			
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	170	70	row	rewrite	`row-${	`task-group-${	CR-708 2.6 id prefix; uncertain: needs the map ids row-1/row-2/row-20 in class a (S3-CON-1)
+tests/contract/dfc-703-t-280-the-screen-session-names-its-surfaces-by-u-row.test.ts	1	72	row	keep			
+tests/contract/dfc-703-t-280-the-screen-session-names-its-surfaces-by-u-row.test.ts	109	75	row	keep			
+tests/contract/dfc-703-t-280-the-screen-session-names-its-surfaces-by-u-row.test.ts	110	74	row	keep			
+tests/contract/dfc-703-t-280-the-screen-session-names-its-surfaces-by-u-row.test.ts	114	72	row	keep			
+tests/contract/dfc-703-t-280-the-screen-session-names-its-surfaces-by-u-row.test.ts	118	27	row	keep			
+tests/contract/dfc-732-ir-3-the-record-names-the-t-220-row-of-a-refused-import.test.ts	53	116	row	keep			
+tests/contract/dfc-751-a-property-field-focus-answers-retry-or-done.contract.test.ts	127	21	row	keep			
+tests/contract/dfc-756-only-the-confirmation-names-scroll.contract.test.ts	18	36	rows	task-group			uncertain: fixture question text standing for the task group deletion confirmation
+tests/contract/dfc-806-double-clicking-a-highlight-box-focuses-its-frame-colour.test.ts	105	16	row	keep			
+tests/contract/dfc-806-double-clicking-a-highlight-box-focuses-its-frame-colour.test.ts	233	50	row	keep			
+tests/contract/dfc-806-double-clicking-a-highlight-box-focuses-its-frame-colour.test.ts	293	18	row	keep			
+tests/contract/dfc-920-every-colour-the-image-prompt-allows-opens-as-grs-json.test.ts	50	66	row	task-group			
+tests/contract/dfc-920-every-colour-the-image-prompt-allows-opens-as-grs-json.test.ts	64	90	row	task-group			
+tests/contract/dfc-97-sk-11-overwrites-the-open-file.test.ts	14	40	ROW	keep			
+tests/contract/dfc-97-sk-11-overwrites-the-open-file.test.ts	18	46	row	keep			
+tests/contract/dfc-97-sk-11-overwrites-the-open-file.test.ts	32	7	ROWS	keep			
+tests/contract/dfc-97-sk-11-overwrites-the-open-file.test.ts	32	56	row	keep			
+tests/contract/dfc-97-sk-11-overwrites-the-open-file.test.ts	141	9	row	keep			
+tests/contract/dfc-970-a-fit-below-the-floor-draws-the-floor.contract.test.ts	28	64	row	rewrite	`row-${	`task-group-${	CR-708 2.6 id prefix; uncertain: needs the map ids row-1/row-2/row-20 in class a (S3-CON-1)
+tests/contract/dfc-975-a-pulled-dependency-edits-two-tasks.contract.test.ts	60	42	row	rewrite	`row-${	`task-group-${	CR-708 2.6 id prefix; uncertain: needs the map ids row-1/row-2/row-20 in class a (S3-CON-1)
+tests/contract/dfc-975-a-pulled-dependency-edits-two-tasks.contract.test.ts	85	54	row	task-group			fixture label of a task group
+tests/contract/dfc-976-977-field-entry-reads-the-host-it-has.contract.test.ts	59	46	row	task-group			fixture label of a task group
+tests/contract/dfc-978-a-held-drag-applies-its-travel-once.contract.test.ts	59	46	row	task-group			fixture label of a task group
+tests/contract/dfc-978-a-held-drag-applies-its-travel-once.contract.test.ts	181	44	row	task-group			
+tests/contract/display-words.contract.test.ts	33	33	row	keep			
+tests/contract/display-words.contract.test.ts	38	47	row	keep			
+tests/contract/display-words.contract.test.ts	87	14	row	keep			
+tests/contract/display-words.contract.test.ts	89	41	row	keep			
+tests/contract/display-words.contract.test.ts	96	57	row	keep			
+tests/contract/display-words.contract.test.ts	109	10	row	keep			
+tests/contract/display-words.contract.test.ts	116	43	row	keep			
+tests/contract/display-words.contract.test.ts	129	55	rows	keep			
+tests/contract/display-words.contract.test.ts	162	41	row	task-group			
+tests/contract/display-words.contract.test.ts	163	18	ROWS	keep			
+tests/contract/display-words.contract.test.ts	165	77	row	keep			
+tests/contract/display-words.contract.test.ts	170	69	rows	keep			
+tests/contract/display-words.contract.test.ts	276	21	ROW	keep			
+tests/contract/display-words.contract.test.ts	281	21	row	keep			
+tests/contract/display-words.contract.test.ts	281	50	row	keep			
+tests/contract/display-words.contract.test.ts	284	43	ROW	keep			
+tests/contract/display-words.contract.test.ts	293	58	row	keep			
+tests/contract/display-words.contract.test.ts	325	73	row	task-group			
+tests/contract/display-words.contract.test.ts	333	33	row	task-group			
+tests/contract/display-words.contract.test.ts	355	11	ROW	keep			
+tests/contract/display-words.contract.test.ts	361	25	row	keep			
+tests/contract/display-words.contract.test.ts	379	72	row	keep			
+tests/contract/display-words.contract.test.ts	404	86	row	keep			
+tests/contract/display-words.contract.test.ts	476	76	row	keep			
+tests/contract/display-words.contract.test.ts	479	66	row	keep			
+tests/contract/display-words.contract.test.ts	494	60	row	keep			
+tests/contract/display-words.contract.test.ts	562	9	rows	keep			
+tests/contract/display-words.contract.test.ts	585	7	rows	keep			
+tests/contract/display-words.contract.test.ts	790	99	row	keep			
+tests/contract/display-words.contract.test.ts	837	62	rows	keep			
+tests/contract/display-words.contract.test.ts	843	23	rows	keep			
+tests/contract/display-words.contract.test.ts	857	39	row	keep			
+tests/contract/display-words.contract.test.ts	887	55	row	keep			
+tests/contract/display-words.contract.test.ts	1028	22	rows	keep			
+tests/contract/display-words.contract.test.ts	1067	37	row	keep			
+tests/contract/display-words.contract.test.ts	1111	31	row	keep			
+tests/contract/display-words.contract.test.ts	1198	50	row	keep			
+tests/contract/display-words.contract.test.ts	1267	77	row	keep			
+tests/contract/display-words.contract.test.ts	1321	76	row	keep			
+tests/contract/display-words.contract.test.ts	1329	14	ROW	keep			
+tests/contract/display-words.contract.test.ts	1338	35	rows	keep			
+tests/contract/display-words.contract.test.ts	1339	62	row	keep			
+tests/contract/display-words.contract.test.ts	1361	7	row	keep			
+tests/contract/display-words.contract.test.ts	1363	48	ROW	keep			
+tests/contract/display-words.contract.test.ts	1368	52	row	keep			
+tests/contract/display-words.contract.test.ts	1371	23	row	keep			
+tests/contract/display-words.contract.test.ts	1372	10	row	keep			
+tests/contract/display-words.contract.test.ts	1382	108	row	keep			
+tests/contract/display-words.contract.test.ts	1401	5	row	task-group			
+tests/contract/display-words.contract.test.ts	1402	41	rows	keep			
+tests/contract/display-words.contract.test.ts	1412	16	row	task-group			fixture label of a task group
+tests/contract/display-words.contract.test.ts	1421	34	row	task-group			
+tests/contract/display-words.contract.test.ts	1421	106	row	task-group			
+tests/contract/display-words.contract.test.ts	1445	24	row	task-group			
+tests/contract/display-words.contract.test.ts	1514	20	row	keep			
+tests/contract/display-words.contract.test.ts	1560	12	row	keep			
+tests/contract/display-words.contract.test.ts	1578	65	rows	keep			
+tests/contract/display-words.contract.test.ts	1636	30	row	keep			
+tests/contract/display-words.contract.test.ts	1638	8	ROW	keep			
+tests/contract/display-words.contract.test.ts	1656	35	row	keep			
+tests/contract/display-words.contract.test.ts	1663	42	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	1671	11	ROWS	keep			
+tests/contract/display-words.contract.test.ts	1683	13	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	1683	19	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	1683	36	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	1687	70	row	keep			
+tests/contract/display-words.contract.test.ts	1690	14	ROW	keep			
+tests/contract/display-words.contract.test.ts	1691	6	row	keep			
+tests/contract/display-words.contract.test.ts	1695	53	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	1704	17	row	keep			
+tests/contract/display-words.contract.test.ts	1722	16	row	keep			
+tests/contract/display-words.contract.test.ts	1722	71	row	keep			
+tests/contract/display-words.contract.test.ts	1724	73	row	keep			
+tests/contract/display-words.contract.test.ts	1725	52	row	keep			
+tests/contract/display-words.contract.test.ts	1725	63	row	keep			
+tests/contract/display-words.contract.test.ts	1727	14	ROW	keep			
+tests/contract/display-words.contract.test.ts	1732	40	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	1760	88	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	1804	97	row	keep			
+tests/contract/display-words.contract.test.ts	1861	70	row	keep			
+tests/contract/display-words.contract.test.ts	1864	75	row	keep			
+tests/contract/display-words.contract.test.ts	1871	16	row	keep			
+tests/contract/display-words.contract.test.ts	1886	50	row	keep			
+tests/contract/display-words.contract.test.ts	1892	49	row	keep			
+tests/contract/display-words.contract.test.ts	1935	59	row	keep			
+tests/contract/display-words.contract.test.ts	1937	33	row	keep			
+tests/contract/display-words.contract.test.ts	1959	24	row	task-group			
+tests/contract/display-words.contract.test.ts	1992	6	row	keep			
+tests/contract/display-words.contract.test.ts	1992	63	row	task-group			
+tests/contract/display-words.contract.test.ts	2003	34	row	task-group			
+tests/contract/display-words.contract.test.ts	2072	83	row	keep			
+tests/contract/display-words.contract.test.ts	2134	46	row	keep			
+tests/contract/display-words.contract.test.ts	2242	54	row	keep			
+tests/contract/display-words.contract.test.ts	2269	92	rows	keep			uncertain: MH-2 / MH-3 are the lines of the min-height field, not task groups
+tests/contract/display-words.contract.test.ts	2270	48	row	task-group			
+tests/contract/display-words.contract.test.ts	2574	38	row	keep			
+tests/contract/display-words.contract.test.ts	2576	20	row	task-group			
+tests/contract/display-words.contract.test.ts	2651	22	row	task-group			
+tests/contract/display-words.contract.test.ts	3039	38	row	task-group			
+tests/contract/display-words.contract.test.ts	3103	142	rows	keep			
+tests/contract/display-words.contract.test.ts	3110	15	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3110	39	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3111	12	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3111	20	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3115	96	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3118	28	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3121	47	rows	keep			
+tests/contract/display-words.contract.test.ts	3128	19	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3128	29	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3136	11	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3136	21	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3136	29	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3143	23	row	keep			
+tests/contract/display-words.contract.test.ts	3236	52	row	keep			
+tests/contract/display-words.contract.test.ts	3250	50	row	task-group			
+tests/contract/display-words.contract.test.ts	3251	7	row	task-group			
+tests/contract/display-words.contract.test.ts	3316	86	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3320	48	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/display-words.contract.test.ts	3326	49	row	keep			
+tests/contract/display-words.contract.test.ts	3357	84	row	keep			
+tests/contract/document-invariants.contract.test.ts	5	41	row	keep			
+tests/contract/document-invariants.contract.test.ts	11	39	rows	keep			
+tests/contract/document-invariants.contract.test.ts	12	15	row	keep			
+tests/contract/document-invariants.contract.test.ts	12	22	row	keep			
+tests/contract/document-invariants.contract.test.ts	16	65	row	keep			
+tests/contract/document-invariants.contract.test.ts	35	13	row	keep			
+tests/contract/document-invariants.contract.test.ts	35	30	row	keep			
+tests/contract/document-invariants.contract.test.ts	36	70	row	keep			
+tests/contract/document-invariants.contract.test.ts	38	52	row	keep			
+tests/contract/document-invariants.contract.test.ts	40	50	row	keep			
+tests/contract/document-invariants.contract.test.ts	43	47	rows	keep			
+tests/contract/document-invariants.contract.test.ts	49	11	row	keep			
+tests/contract/document-invariants.contract.test.ts	52	22	row	keep			
+tests/contract/document-invariants.contract.test.ts	60	22	row	keep			
+tests/contract/document-invariants.contract.test.ts	60	61	row	keep			
+tests/contract/document-invariants.contract.test.ts	184	62	row	keep			
+tests/contract/document-invariants.contract.test.ts	359	10	row	task-group			fixture label of a task group
+tests/contract/document-invariants.contract.test.ts	371	10	row	task-group			fixture label of a task group
+tests/contract/document-invariants.contract.test.ts	400	3	row	keep			
+tests/contract/document-invariants.contract.test.ts	413	33	row	keep			
+tests/contract/document-invariants.contract.test.ts	464	14	rows	task-group			
+tests/contract/document-invariants.contract.test.ts	488	3	Rows	keep			
+tests/contract/document-invariants.contract.test.ts	493	58	row	keep			
+tests/contract/document-invariants.contract.test.ts	546	22	row	keep			
+tests/contract/document-invariants.contract.test.ts	549	18	row	keep			
+tests/contract/document-invariants.contract.test.ts	557	30	row	keep			
+tests/contract/document-invariants.contract.test.ts	558	3	row	keep			
+tests/contract/document-invariants.contract.test.ts	562	9	rows	keep			
+tests/contract/document-invariants.contract.test.ts	564	17	row	keep			
+tests/contract/document-invariants.contract.test.ts	567	37	row	keep			
+tests/contract/document-invariants.contract.test.ts	571	14	row	task-group			
+tests/contract/document-invariants.contract.test.ts	580	16	rows	task-group			
+tests/contract/document-invariants.contract.test.ts	583	9	row	task-group			
+tests/contract/document-invariants.contract.test.ts	616	7	row	task-group			
+tests/contract/document-invariants.contract.test.ts	658	12	row	keep			
+tests/contract/document-invariants.contract.test.ts	662	11	ROW	keep			
+tests/contract/document-invariants.contract.test.ts	666	60	rows	task-group			
+tests/contract/document-invariants.contract.test.ts	668	35	row	keep			
+tests/contract/document-invariants.contract.test.ts	691	27	row	task-group			
+tests/contract/document-invariants.contract.test.ts	692	9	row	keep			
+tests/contract/document-invariants.contract.test.ts	694	21	ROWS	task-group			
+tests/contract/document-invariants.contract.test.ts	694	58	ROW	keep			
+tests/contract/document-invariants.contract.test.ts	695	21	row	task-group			
+tests/contract/document-invariants.contract.test.ts	698	70	row	keep			
+tests/contract/document-invariants.contract.test.ts	701	14	rows	keep			
+tests/contract/document-invariants.contract.test.ts	701	56	row	keep			
+tests/contract/document-invariants.contract.test.ts	748	13	rows	keep			
+tests/contract/document-invariants.contract.test.ts	777	72	rows	keep			
+tests/contract/document-invariants.contract.test.ts	794	5	rows	keep			
+tests/contract/document-invariants.contract.test.ts	821	20	rows	keep			
+tests/contract/document-invariants.contract.test.ts	833	38	row	keep			
+tests/contract/document-invariants.contract.test.ts	904	38	row	keep			
+tests/contract/document-invariants.contract.test.ts	907	19	ROWS	keep			
+tests/contract/document-invariants.contract.test.ts	945	63	row	keep			
+tests/contract/document-invariants.contract.test.ts	946	52	row	keep			
+tests/contract/document-invariants.contract.test.ts	951	52	row	keep			
+tests/contract/document-invariants.contract.test.ts	965	15	row	keep			
+tests/contract/document-invariants.contract.test.ts	965	51	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	1	73	rows	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	26	112	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	59	21	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	63	11	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	64	11	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	65	11	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	121	11	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	121	46	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	121	64	rows	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	127	19	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	128	19	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	131	52	rows	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	147	49	rows	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	156	63	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	156	79	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	157	12	rows	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	157	35	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	158	74	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	170	26	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	171	26	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	171	36	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	172	42	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	172	78	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	175	19	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	176	45	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	176	71	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	179	59	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	182	56	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	185	19	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	186	45	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	186	71	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	191	69	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	194	44	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	198	34	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	199	59	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	205	44	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	206	51	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	206	75	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	206	117	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	207	76	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	207	85	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	210	19	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	211	45	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	211	71	row	keep			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	214	71	row	task-group			
+tests/contract/e24-paste-refused-while-several-rows-are-chosen.test.ts	214	83	row	keep			
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	33	19	rows	keep			
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	51	20	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	51	33	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	61	38	rows	keep			
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	70	20	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	81	20	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	90	20	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	95	8	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	96	13	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	96	44	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	97	42	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	99	4	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	99	31	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	101	9	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	124	73	row	keep			
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	129	19	row	keep			
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	141	16	row	keep			
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	145	17	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	146	32	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	149	15	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	154	41	rows	keep			
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	157	17	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	158	19	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	158	45	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	158	63	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	175	17	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	176	31	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	182	22	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	195	40	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	195	48	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	207	63	row	keep			
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	208	49	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	208	57	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/erd-seats-are-never-reissued.contract.test.ts	211	21	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	12	11	ROWS	keep			
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	30	57	row	keep			
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	48	49	rows	keep			
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	54	20	rows	keep			
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	93	7	rows	keep			
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	109	8	row	keep			
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	109	36	row	keep			
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	115	46	row	keep			
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	123	30	rows	keep			
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	245	16	row	task-group			fixture label of a task group
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	273	38	row	keep			
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	310	11	row	keep			
+tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts	350	13	ROW	keep			
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	26	45	row	keep			
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	28	69	row	keep			
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	58	52	row	keep			
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	101	36	row	keep			
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	105	50	row	keep			
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	119	36	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	120	13	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	120	26	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	121	26	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	122	28	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	127	13	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	127	18	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	134	21	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	199	2	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	199	19	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	287	23	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	289	25	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	289	67	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	295	44	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/fr-020-the-four-values-live-in-the-tables-not-in-src.test.ts	73	76	row	keep			
+tests/contract/fr-020-the-four-values-live-in-the-tables-not-in-src.test.ts	77	67	row	keep			
+tests/contract/fr-020-the-four-values-live-in-the-tables-not-in-src.test.ts	91	51	row	keep			
+tests/contract/fr-020-the-four-values-live-in-the-tables-not-in-src.test.ts	135	16	row	keep			
+tests/contract/fr-020-the-four-values-live-in-the-tables-not-in-src.test.ts	150	24	row	keep			
+tests/contract/fr-029-glyph-coordinate-system.contract.test.ts	47	71	row	keep			
+tests/contract/fr-029-glyph-coordinate-system.contract.test.ts	67	36	row	keep			
+tests/contract/fr-029-glyph-coordinate-system.contract.test.ts	71	27	row	keep			
+tests/contract/fr-029-glyph-coordinate-system.contract.test.ts	565	8	rows	keep			
+tests/contract/fr-029-glyph-coordinate-system.contract.test.ts	665	43	rows	keep			
+tests/contract/fr-029-glyph-coordinate-system.contract.test.ts	678	35	row	keep			
+tests/contract/fr-029-glyph-coordinate-system.contract.test.ts	739	7	rows	keep			
+tests/contract/fr-029-glyph-coordinate-system.contract.test.ts	785	42	row	keep			
+tests/contract/fr-029-glyph-coordinate-system.contract.test.ts	794	49	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	61	75	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	62	51	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	64	58	rows	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	72	56	rows	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	102	44	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	144	66	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	145	7	rows	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	162	8	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	169	8	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	184	7	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	186	52	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	198	8	rows	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	289	17	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	346	28	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	391	33	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	392	55	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	409	24	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	410	51	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	417	41	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	438	28	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	503	59	rows	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	577	36	rows	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	577	85	row	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	585	59	rows	keep			
+tests/contract/fr-029-in-effect-is-filled-not-rimmed.test.ts	643	26	row	task-group			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	15	44	ROWS	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	33	60	row	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	36	7	ROW	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	81	23	ROW	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	88	42	rows	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	94	29	row	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	96	68	row	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	129	44	row	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	152	68	row	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	173	68	row	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	277	47	row	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	298	62	row	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	362	53	row	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	372	12	ROW	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	459	10	row	keep			
+tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts	476	53	ROWS	keep			
+tests/contract/fr-098-t-233-the-overflowing-band-tells-nobody.test.ts	19	67	row	keep			
+tests/contract/fr-098-t-233-the-overflowing-band-tells-nobody.test.ts	27	53	row	keep			
+tests/contract/fr-098-t-233-the-overflowing-band-tells-nobody.test.ts	35	38	row	task-group			
+tests/contract/fr-101-the-name-stands-above-the-time.test.ts	14	40	ROW	keep			
+tests/contract/fr-101-the-name-stands-above-the-time.test.ts	63	13	row	keep			
+tests/contract/fr-101-the-name-stands-above-the-time.test.ts	119	68	row	keep			
+tests/contract/fr-101-the-name-stands-above-the-time.test.ts	222	35	ROW	keep			
+tests/contract/fr-101-the-name-stands-above-the-time.test.ts	237	100	ROW	keep			
+tests/contract/fr-101-the-name-stands-above-the-time.test.ts	249	55	rows	keep			
+tests/contract/fr-101-the-name-stands-above-the-time.test.ts	278	36	row	keep			
+tests/contract/fr-101-the-name-stands-above-the-time.test.ts	327	55	row	keep			
+tests/contract/fr-101-the-time-is-local-and-its-own-size.test.ts	63	17	ROW	keep			
+tests/contract/fr-101-the-time-is-local-and-its-own-size.test.ts	64	27	row	keep			
+tests/contract/fr-101-the-time-is-local-and-its-own-size.test.ts	112	68	row	keep			
+tests/contract/fr-101-the-time-is-local-and-its-own-size.test.ts	127	68	row	keep			
+tests/contract/fr-101-the-time-is-local-and-its-own-size.test.ts	342	61	row	keep			
+tests/contract/if-1-svg-surface.test.ts	12	8	rows	keep			
+tests/contract/if-1-svg-surface.test.ts	12	58	row	keep			
+tests/contract/if-1-svg-surface.test.ts	38	39	row	keep			
+tests/contract/if-3-file-store.test.ts	646	26	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/if-3-file-store.test.ts	650	44	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/if-3-file-store.test.ts	650	55	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/if-3-file-store.test.ts	650	63	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/if-3-file-store.test.ts	653	23	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/if-3-file-store.test.ts	654	11	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/if-3-file-store.test.ts	654	31	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/if-3-file-store.test.ts	655	8	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/if-3-file-store.test.ts	656	8	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/if-3-file-store.test.ts	657	22	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/if-3-file-store.test.ts	658	33	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/if-7-snapshot-source.test.ts	11	7	row	keep			
+tests/contract/if-7-snapshot-source.test.ts	73	7	rows	keep			
+tests/contract/if-7-snapshot-source.test.ts	285	36	row	keep			
+tests/contract/if-7-snapshot-source.test.ts	452	46	row	keep			
+tests/contract/ix-4-ep-1-the-exported-height-is-whole-and-the-title-stays-inside.test.ts	322	53	row	keep			a pixel row of the screen (height + 1)
+tests/contract/seams.contract.test.ts	71	15	rows	keep			
+tests/contract/seams.contract.test.ts	80	20	rows	keep			
+tests/contract/seams.contract.test.ts	132	25	row	keep			
+tests/contract/seams.contract.test.ts	132	52	row	keep			
+tests/contract/seams.contract.test.ts	152	33	ROW	keep			
+tests/contract/seams.contract.test.ts	154	28	rows	keep			
+tests/contract/seams.contract.test.ts	157	44	row	keep			
+tests/contract/seams.contract.test.ts	211	19	row	keep			
+tests/contract/spec-table-reads-the-whole-cell.contract.test.ts	4	40	row	keep			
+tests/contract/spec-table-reads-the-whole-cell.contract.test.ts	9	44	ROWS	keep			
+tests/contract/spec-table-reads-the-whole-cell.contract.test.ts	36	62	row	keep			
+tests/contract/spec-table-reads-the-whole-cell.contract.test.ts	42	8	row	keep			
+tests/contract/spec-table-reads-the-whole-cell.contract.test.ts	42	61	row	keep			
+tests/contract/spec-table-reads-the-whole-cell.contract.test.ts	45	73	row	keep			
+tests/contract/spec-table.ts	11	25	row	keep			
+tests/contract/spec-table.ts	11	54	row	keep			
+tests/contract/spec-table.ts	22	8	row	keep			
+tests/contract/spec-table.ts	68	7	row	keep			
+tests/contract/spec-table.ts	87	52	rows	keep			
+tests/contract/spec-table.ts	92	17	ROW	keep			
+tests/contract/spec-table.ts	93	22	row	keep			
+tests/contract/spec-table.ts	96	25	rows	keep			
+tests/contract/spec-table.ts	158	45	row	keep			
+tests/contract/spec-table.ts	163	50	rows	keep			
+tests/contract/state-machine-field-entry.contract.test.ts	112	24	row	rewrite	'row'	'taskGroup'	CR-708 2.5 rule 8: kind 'row' -> 'taskGroup' (as S2-UA rewrites src)
+tests/contract/state-machine-gesture.contract.test.ts	89	32	rows	keep			
+tests/contract/state-machine-gesture.contract.test.ts	198	43	row	keep			
+tests/contract/state-machine-notices.contract.test.ts	82	24	rows	keep			
+tests/contract/state-machine-notices.contract.test.ts	331	30	row	keep			
+tests/contract/state-machine-screen-values.contract.test.ts	81	24	rows	keep			
+tests/contract/state-machine-screen-values.contract.test.ts	399	33	rows	keep			
+tests/contract/state-machine-screen-values.contract.test.ts	423	30	row	keep			
+tests/contract/state-machine-selection.contract.test.ts	108	74	row	rewrite	'row'	'taskGroup'	CR-708 2.5 rule 8: kind 'row' -> 'taskGroup' (as S2-UA rewrites src)
+tests/contract/state-machine-selection.contract.test.ts	113	45	ROWS	keep			
+tests/contract/state-machine-selection.contract.test.ts	121	45	rows	task-group			
+tests/contract/state-machine-selection.contract.test.ts	131	69	row	rewrite	'row'	'taskGroup'	CR-708 2.5 rule 8: kind 'row' -> 'taskGroup' (as S2-UA rewrites src)
+tests/contract/state-machine-selection.contract.test.ts	268	37	rows	task-group			
+tests/contract/t-012-sh-5-glyph-binding.test.ts	31	64	row	keep			
+tests/contract/t-012-sh-5-glyph-binding.test.ts	114	68	row	keep			
+tests/contract/t-012-sh-5-glyph-binding.test.ts	180	17	row	keep			
+tests/contract/t-012-sh-5-glyph-binding.test.ts	193	15	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	1	66	ROW	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	9	34	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	14	59	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	15	72	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	16	62	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	24	58	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	37	42	ROW	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	38	10	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	39	45	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	40	68	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	45	19	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	46	75	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	52	3	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	117	15	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	146	74	rows	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	176	13	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	182	5	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	185	52	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	189	42	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	190	73	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	196	43	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	197	34	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	204	40	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	218	42	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	218	94	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	219	23	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	236	61	rows	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	242	48	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	244	38	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	250	96	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	253	61	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	264	31	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	273	27	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	277	40	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	299	40	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	308	78	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	319	56	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	323	5	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	333	60	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	336	11	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	338	43	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	339	54	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	344	40	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	355	69	ROW	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	356	56	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	357	48	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	361	31	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	362	74	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	363	54	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	367	40	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	381	45	ROW	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	383	11	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	385	63	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	390	68	rows	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	391	45	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	397	11	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	400	14	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	408	43	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	418	40	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	427	66	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	429	27	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	431	19	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	436	11	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	438	29	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	439	35	ROW	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	439	67	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	440	32	rows	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	441	35	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	444	46	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	456	43	ROW	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	458	38	ROW	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	461	15	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	462	27	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	472	7	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	473	31	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	483	12	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	492	11	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	501	23	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	502	16	rows	task			uncertain: RS-50 drops Tasks on import (JDG-1664 style), so rows -> tasks
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	502	33	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	508	78	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	509	53	row	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	517	43	rows	task-group			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	529	91	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	541	77	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	544	71	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	566	31	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	566	68	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	583	49	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	593	38	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	595	50	rows	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	601	52	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	602	52	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	607	42	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	608	39	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	608	59	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	609	11	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	610	36	row	keep			
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts	618	44	row	keep			
+tests/contract/t-283-priorities.contract.test.ts	108	41	rows	keep			
+tests/contract/t-283-priorities.contract.test.ts	121	59	row	keep			
+tests/contract/t-283-priorities.contract.test.ts	121	77	row	keep			
+tests/contract/t-283-priorities.contract.test.ts	306	39	row	keep			
+tests/contract/t-283-priorities.contract.test.ts	367	43	row	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	47	34	rows	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	48	70	row	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	80	43	row	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	131	26	rows	task-group			uncertain: fixture question text standing for the task group deletion confirmation
+tests/contract/t-337-screen-z-order.contract.test.ts	132	22	rows	task-group			uncertain: fixture question text standing for the task group deletion confirmation
+tests/contract/t-337-screen-z-order.contract.test.ts	133	19	Row	task-group			
+tests/contract/t-337-screen-z-order.contract.test.ts	250	28	rows	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	261	39	row	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	280	91	row	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	299	33	row	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	299	73	row	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	324	41	row	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	325	3	row	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	337	65	row	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	352	34	row	keep			
+tests/contract/t-337-screen-z-order.contract.test.ts	352	41	row	keep			
+tests/contract/tree-state-machine.contract.test.ts	67	78	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	67	95	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	68	39	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	80	72	rows	task-group			
+tests/contract/tree-state-machine.contract.test.ts	91	74	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	124	45	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	152	38	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	195	71	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	222	55	row	keep			
+tests/contract/tree-state-machine.contract.test.ts	238	50	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	246	29	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	246	73	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	255	54	rows	task-group			
+tests/contract/tree-state-machine.contract.test.ts	256	61	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	264	52	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	269	26	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	269	49	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	285	16	row	task-group			
+tests/contract/tree-state-machine.contract.test.ts	295	30	row	task-group			
+tests/contract/units.contract.test.ts	16	70	row	keep			
+tests/contract/units.contract.test.ts	79	39	row	keep			
+tests/contract/units.contract.test.ts	83	54	row	keep			
+tests/contract/w3-t3-enter-and-the-two-selections.test.ts	1	58	rows	task-group			
+tests/contract/w3-t3-enter-and-the-two-selections.test.ts	1	71	row	task-group			
+tests/contract/w3-t3-enter-and-the-two-selections.test.ts	1	103	row	task-group			
+tests/contract/w3-t3-enter-and-the-two-selections.test.ts	72	42	row	task-group			
+tests/contract/w3-t3-enter-and-the-two-selections.test.ts	100	22	row	task-group			
+tests/contract/w3-t3-enter-and-the-two-selections.test.ts	100	51	rows	task-group			
+tests/contract/w3-t3-enter-and-the-two-selections.test.ts	101	51	row	task-group			
+tests/contract/w3-t3-enter-and-the-two-selections.test.ts	105	44	row	task-group			
+tests/contract/w3-t3-enter-and-the-two-selections.test.ts	116	58	row	task-group			
+tests/contract/w3-t3-enter-and-the-two-selections.test.ts	119	112	row	task-group			
+tests/contract/w3-t3-export-span-picture-and-chooser-line.test.ts	32	71	row	keep			
+tests/contract/w3-t3-export-span-picture-and-chooser-line.test.ts	55	14	rows	task-group			
+tests/contract/w3-t3-export-span-picture-and-chooser-line.test.ts	55	51	row	task-group			
+tests/contract/w3-t3-settings-panel-span-status-date-and-scale-fields.test.ts	116	65	row	keep			
+tests/contract/w3-t3-settings-panel-span-status-date-and-scale-fields.test.ts	122	57	row	keep			
+tests/contract/w3-t3-settings-panel-span-status-date-and-scale-fields.test.ts	140	19	rows	keep			
+tests/contract/w3-t4-a-child-descendant-is-never-a-parent-candidate.test.ts	66	53	row	task-group			
+tests/contract/w3-t4-a-child-descendant-is-never-a-parent-candidate.test.ts	70	55	row	task-group			
+tests/contract/w3-t4-a-merge-tells-no-reason-with-a-zero-count.test.ts	25	29	rows	keep			
+tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts	42	31	row	keep			
+tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts	279	74	rows	task-group			
+tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts	284	57	row	rewrite	data-figure="row-	data-figure="task-group-	CR-708 2.6 DOM id row-${groupId} -> task-group-${groupId}; follows S2-UA schedule-grid.ts:317
+tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts	285	40	row	task-group			
+tests/contract/w3-t5-fr-039-the-drawn-row-title-panel-width-and-its-floor.contract.test.ts	35	8	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/w3-t5-fr-039-the-drawn-row-title-panel-width-and-its-floor.contract.test.ts	35	31	rows	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/w3-t5-fr-039-the-drawn-row-title-panel-width-and-its-floor.contract.test.ts	36	6	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/w3-t5-fr-039-the-drawn-row-title-panel-width-and-its-floor.contract.test.ts	37	9	row	keep			code, not prose: a table row; identifiers are rename_symbols by type
+tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	1	68	rows	task-group			
+tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	68	63	rows	task-group			
+tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	76	31	rows	task-group			
+tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	83	6	rows	task-group			
+tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	100	18	rows	task-group			
+tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	100	90	rows	task-group			
+tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	106	6	rows	task-group			
+tests/contract/w3-t5-in-4-the-selection-rung-stands-for-rows-alone.contract.test.ts	106	59	rows	task-group			
