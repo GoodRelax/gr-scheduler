@@ -96,7 +96,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     const drawnTaskGroups = await page.evaluate(() =>
       [...document.querySelectorAll('[data-figure^="task-group-"][data-figure$="-band"]')]
         .filter((e) => { const r = e.getBoundingClientRect(); return r.y > 80 && r.y + r.height < 1060 })
-        .map((e) => (e.getAttribute('data-figure') ?? '').slice(4, -5)),
+        .map((e) => (e.getAttribute('data-figure') ?? '').slice(11, -5)),
     )
     expect(drawnTaskGroups.length).toBeGreaterThan(0)
     const dayOf = (iso: string) => Math.round(Date.parse(iso.slice(0, 10) + 'T00:00:00Z') / 86400000)

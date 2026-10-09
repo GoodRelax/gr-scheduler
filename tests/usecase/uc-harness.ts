@@ -186,7 +186,7 @@ export const bandAt = (page: Page, y: number): Promise<string | null> =>
   page.evaluate((y) => {
     for (const e of document.querySelectorAll('[data-figure^="task-group-"][data-figure$="-band"]')) {
       const r = e.getBoundingClientRect()
-      if (r.y <= y && y < r.y + r.height) return (e.getAttribute('data-figure') ?? '').slice(4, -5)
+      if (r.y <= y && y < r.y + r.height) return (e.getAttribute('data-figure') ?? '').slice(11, -5)
     }
     return null
   }, y)
