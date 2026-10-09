@@ -43,7 +43,7 @@
 //   表 T-028 IN-4  「`Esc` は閉じる対象または取り消す対象があるときだけ 1 階層ぶん消費し、
 //                   無ければブラウザへ渡すこと。消費する階層は 出ている通知 → 確定していない
 //                   その場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いて
-//                   いるウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード
+//                   いるウィンドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード
 //                   → 出ている説明 → 全画面表示 の順とすること（MUST）」
 //                   ⚠️⚠️ 「選択」 WAS PUT INTO THIS LADDER ON 2026-09-08, and the
 //                   row records what it was before: 「タスクを選ぶと `FR-006` に
@@ -180,9 +180,9 @@ const PANEL_ENTRANCES = specTable('T-109').rows.filter((row) =>
 /** Everything IN-4 and IN-4a write, as one string each. */
 const IN_4 = rowOf('T-028', 'IN-4').cells.join(' ')
 const IN_4A = rowOf('T-028', 'IN-4a').cells.join(' ')
-const IN_4_LADDER = '開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル'
+const IN_4_LADDER = '開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル'
 
-const HN_2 = '「開いているウインドウ」の段に立たない —— ほかに段に立つウインドウが無ければ、次の段へ渡す。'
+const HN_2 = '「開いているウィンドウ」の段に立たない —— ほかに段に立つウィンドウが無ければ、次の段へ渡す。'
 
 const HELP_MODAL = surfacesOf(rowOf('T-109', 'IC-129').by[SURFACE_COLUMN] ?? '')[0] ?? ''
 
@@ -594,7 +594,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(S_99G, 'S-99g still defines a 面 by what Esc closes').toContain('「開いている面」で閉じられるもの')
     // Q20 (2026-09-22): the panel is no 面 any more; IN-4 gives it a rung of its own.
     expect(IN_4, 'IN-4 gives the panel its own rung after the drag and the open windows').toContain(
-      '進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル',
+      '進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル',
     )
   })
 
@@ -674,7 +674,7 @@ describe('the manuscript still says what these cases read', () => {
 
 describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
   it('⛔ MUST: one press of `Esc` takes the panel off the screen', () => {
-    // IN-4: 「消費する階層は … 開いているウインドウ → プロパティパネル
+    // IN-4: 「消費する階層は … 開いているウィンドウ → プロパティパネル
     // → 構え …の順とすること（MUST）」 -- the panel has a rung of its own, so with
     // nothing above it standing, one press of `Esc` takes it.
     const built = withThePanelUp()

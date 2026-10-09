@@ -26,7 +26,7 @@ const STATE_MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec',
 const IF_9_WORD =
   '上の MUST NOT の例外は、検索パネル（`U-64`）の入力欄（`FR-151` の 表 T-330 の `SV-2`）の 1 つだけとする —— 面は、この欄の語が変わるたびに、打ちかけの語をそのまま返すこと（MUST）'
 const IF_9_POINT =
-  '⭐ ウインドウ（`01-04-requirements.md` の `FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄）の上の点には、上の UI パーツと入口の答えに加えて下の 2 つ目を、検索パネルの上の点には 1 つ目も答えること（MUST）'
+  '⭐ ウィンドウ（`01-04-requirements.md` の `FR-036` の 表 T-335 —— ヘルプ・検索パネル・遅延診断レポートの窓・対話欄）の上の点には、上の UI パーツと入口の答えに加えて下の 2 つ目を、検索パネルの上の点には 1 つ目も答えること（MUST）'
 const IF_9_OTHER_CELLS = 'ほかのセルの上では、この答えを `null` とする —— `SJ-1` のとおり、ほかのセルは飛ばない。'
 const IF_9_ENTRY_ONLY = '入口の上では入口だけを答える —— `GR-24` は入口の載っていない所である'
 const SV_5_EACH = '語を 1 文字打つたびに表を作り直す。'
@@ -43,13 +43,13 @@ const SJ_4_CHOOSE = '飛ぶ先のタスクかコメントボックスを選ぶ�
 const SJ_4_PANEL_KEPT =
   '飛ぶことを理由に、プロパティパネル（`_assets/tbl-settings.md` の `S-99h`）を出したり閉じたりしてはならない（MUST NOT）'
 const SV_10_WB_8 = '`FR-036` の 表 T-335 の `WB-8` に従う（掴む帯は `GR-24`）。'
-const SV_10_FOLLOW = '題の行の帯（表 T-023d の `GR-24`）を握っているあいだ、ウインドウをポインタに追従させること（MUST）。'
+const SV_10_FOLLOW = '題の行の帯（表 T-023d の `GR-24`）を握っているあいだ、ウィンドウをポインタに追従させること（MUST）。'
 const SV_10_SETTLE = '位置が決まるのは離した時点、中断では元の位置へ戻す（表 T-028 の `IN-1`）。'
-const SV_11_INSIDE = 'ウインドウを、ウインドウごとの範囲（`WB-3` と同じ）の外へ出してはならない（MUST NOT）'
-const SV_11_EDGE = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウインドウの大きさをポインタに追従させること（MUST）。'
+const SV_11_INSIDE = 'ウィンドウを、ウィンドウごとの範囲（`WB-3` と同じ）の外へ出してはならない（MUST NOT）'
+const SV_11_EDGE = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインタに追従させること（MUST）。'
 const GR_24_WHERE = '題の行の、入口の載っていない所（検索パネルでは 表 T-330 の `SV-1` の見出しの行）。'
 const GR_25_WHERE = '縁の内側と外側に、同じ `_assets/tbl-settings.md` の `S-426` の幅ずつ敷く'
-const RG_16_ROW = '| RG-16 | `Esc` | 開いているウインドウ |'
+const RG_16_ROW = '| RG-16 | `Esc` | 開いているウィンドウ |'
 const AM_25_SAME_ROWS = '語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。'
 const IN_1_ESC = '中断は `Esc` で行い'
 const U_32_NOT_THE_BOX =

@@ -1221,7 +1221,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ConfirmationAnswer` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ConfirmationAnswer` | -- | interface ConfirmationAnswer |
 | `ConfirmationItem` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ConfirmationItem` | -- | interface ConfirmationItem |
 | `DEFAULT_TASK_GROUP_NAME` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#DEFAULT_TASK_GROUP_NAME` | PI-37 | タスクグループを既定の名前で立てるときの語。 |
-| `DEFAULT_WINDOW_PLACE` | entry | const | `src/adapter/screen-renderer/window-box.ts#DEFAULT_WINDOW_PLACE` | PI-37 | 覚えた位置も大きさも無いウインドウの値 —— 既定の箱で描く（表 T-335 の `WB-1`・`WB-6`）。 |
+| `DEFAULT_WINDOW_PLACE` | entry | const | `src/adapter/screen-renderer/window-box.ts#DEFAULT_WINDOW_PLACE` | PI-37 | 覚えた位置も大きさも無いウィンドウの値 —— 既定の箱で描く（表 T-335 の `WB-1`・`WB-6`）。 |
 | `delayDiagnosticsReportAfterEntry` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterEntry` | PI-37 | 遅延診断レポートの窓の入口（表 T-346 の `RW-2`・表 T-330 の `SV-7`・`SV-8`、表 T-335 の `WB-2`・`WB-3`）を押した後の窓の値を答える。 |
 | `delayDiagnosticsReportAfterFilterChange` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterFilterChange` | PI-37 | 列のフィルタの変化（表 T-330 の `SV-7`）を遅延診断レポートの窓の値へ当てる。 |
 | `delayDiagnosticsReportFileNameOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFileNameOf` | PI-37 | 書き出すファイルの提案の名を作る（表 T-346 の `RW-7`）。 |
@@ -1312,11 +1312,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `UNTITLED_DOCUMENT_TITLE` | entry | const | `src/adapter/screen-renderer/open-modals.ts#UNTITLED_DOCUMENT_TITLE` | PI-37 | `AT-3` の文書名が `null` のときに見出しへ出す語 `Untitled`。 |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
 | `verticalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#verticalWholeOf` | PI-37 | つまみが表す全体を配置と各部の矩形から測る —— `GR-21` の「内容の範囲といま見えている範囲の和」。 |
-| `windowBoxAfterGrab` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxAfterGrab` | PI-37 | ウインドウ（`FR-036` の 表 T-335）の題の行の帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、範囲の中と下限（`S-423`・`S-424`）の上に収めて答える（`WB-8`・`WB-9`）。 |
-| `windowBoxOf` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxOf` | PI-37 | ウインドウを描く箱を、表示の状態（通常・最小化・最大化）から答える（表 T-335 の `WB-1` 〜 `WB-3`）。 |
+| `windowBoxAfterGrab` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxAfterGrab` | PI-37 | ウィンドウ（`FR-036` の 表 T-335）の題の行の帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、範囲の中と下限（`S-423`・`S-424`）の上に収めて答える（`WB-8`・`WB-9`）。 |
+| `windowBoxOf` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxOf` | PI-37 | ウィンドウを描く箱を、表示の状態（通常・最小化・最大化）から答える（表 T-335 の `WB-1` 〜 `WB-3`）。 |
 | `windowEdgeAt` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowEdgeAt` | PI-37 | 点が、箱の縁の内と外の掴み代（表 T-023d の `GR-25`、幅は `S-426`）のどの辺か角の上かを答える。 |
 | `WindowName` | entry | type | `src/entity/document-model/screen-state/screen-state.ts#WindowName` | PI-37 | 型。 |
-| `windowNormalBoxOf` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowNormalBoxOf` | PI-37 | ウインドウの `WB-1` の箱を、覚えた位置と大きさ（無ければ既定の箱）から、範囲に収めて答える（表 T-335 の `WB-1`・`WB-6`）。 |
+| `windowNormalBoxOf` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowNormalBoxOf` | PI-37 | ウィンドウの `WB-1` の箱を、覚えた位置と大きさ（無ければ既定の箱）から、範囲に収めて答える（表 T-335 の `WB-1`・`WB-6`）。 |
 | `WindowPlace` | entry | type | `src/adapter/screen-renderer/window-box.ts#WindowPlace` | PI-37 | 型。 |
 | `windowPlaceOf` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowPlaceOf` | PI-37 | 掴みを離した箱を、覚える位置と大きさにする（表 T-335 の `WB-8`・`WB-9`）。 |
 | `WindowShown` | entry | type | `src/adapter/screen-renderer/window-box.ts#WindowShown` | PI-37 | 型。 |
@@ -1571,7 +1571,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileOperationState` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileOperationState` | PI-39 | 型。 |
 | `GrabbedVerticalAxis` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#GrabbedVerticalAxis` | PI-39 | 型。 |
 | `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。 |
-| `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウインドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximised`。 |
+| `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximised`。 |
 | `NOTICE_DISPLAY_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_DISPLAY_OF_REASON` | PI-39 | 理由ごとの表示の仕方 —— 表 T-233 の表示の仕方の欄（`show` ・ `autoDismiss` ・ `hide` ・ `report`）と、取り込みの拒否が運ぶ 表 T-220 の行の家族の値（`_source/notice-reasons.json` から生成）。 |
 | `NOTICE_MANNER_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_MANNER_OF_REASON` | PI-39 | 理由ごとの作法 —— 表 T-233 の作法の欄（表 T-037 の行）。 |
 | `NOTICE_WORDS_ROW_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_WORDS_ROW_OF_REASON` | PI-39 | 理由ごとに語を刷る行 —— 表 T-233 のまとめ方の欄（相乗りしない行は自身、`_source/notice-reasons.json` から生成）。 |

@@ -1281,7 +1281,7 @@ describe('the specification still says what these cases copy', () => {
   it('IN-4 still fixes the order of the levels, and IN-4a still hands the rest to the browser', () => {
     const in4 = rowOf('T-028', 'IN-4').cells.join(' ')
     expect(in4).toContain('1 階層ぶん消費し')
-    expect(in4).toContain('開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え')
+    expect(in4).toContain('開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え')
     expect(rowOf('T-028', 'IN-4a').cells.join(' ')).toContain(
       '消費する対象が 1 つも無いときは、必ずブラウザへ渡すこと（MUST）',
     )

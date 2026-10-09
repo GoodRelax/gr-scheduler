@@ -24,7 +24,7 @@ import { specTable, unbroken } from '../contract/spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const IN_4_ORDER =
-  '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウインドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
+  '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
 const IN_4_FULL_SCREEN_LAST =
   '⭐ **全画面表示を最後に置くのは、利用者が「もう何もキャンセルできない状態になってから」全画面表示を出ると定めたからである**'
 const IN_4_FULL_SCREEN_RUNG_ASKS =

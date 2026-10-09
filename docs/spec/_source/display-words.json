@@ -974,7 +974,7 @@
     "en": "Minimise"
    },
    "hint": {
-    "ja": "ウインドウを最小化する。もう一度押すと戻る",
+    "ja": "ウィンドウを最小化する。もう一度押すと戻る",
     "en": "Minimise the window; press again to restore"
    }
   },
@@ -985,7 +985,7 @@
     "en": "Maximise"
    },
    "hint": {
-    "ja": "ウインドウを最大化する",
+    "ja": "ウィンドウを最大化する",
     "en": "Maximise the window"
    }
   },
@@ -996,7 +996,7 @@
     "en": "Restore"
    },
    "hint": {
-    "ja": "最大化したウインドウを元のサイズに戻す",
+    "ja": "最大化したウィンドウを元のサイズに戻す",
     "en": "Restore the window to its size"
    }
   },
