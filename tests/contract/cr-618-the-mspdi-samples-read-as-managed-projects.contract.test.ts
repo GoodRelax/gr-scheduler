@@ -220,15 +220,21 @@ describe('CR-618 T8 -- each MSPDI sample diagnoses to table S of CR-618 section 
     )
   })
 
-  it.each(cases)('%s: DG-3 from table S - 2 up to the tree ceiling in parens', (file, row) => {
+  // WHY: table S predates CR-716 (JDG-1772), which makes every VS-6 parent DG-1; a VS-6 parent that
+  // table S counted as DG-3 now counts as DG-1, so the DG-3 floor drops and the DG-1 target rises by the VS-6 count.
+  it.each(cases)('%s: DG-3 from table S - 2 - the VS-6 count up to the tree ceiling in parens', (file, row) => {
     const counts = countsOf(file)
+    const vs6 = VS_6_COUNT_OF_SAMPLE.get(row.sample) ?? 0
     expect(counts['DG-3'], JSON.stringify(counts)).toBeLessThanOrEqual(row.pathCeiling)
-    expect(counts['DG-3'], JSON.stringify(counts)).toBeGreaterThanOrEqual(row.pathNumber - PATH_SLACK_BELOW_TABLE_NUMBER)
+    expect(counts['DG-3'], JSON.stringify(counts)).toBeGreaterThanOrEqual(
+      row.pathNumber - PATH_SLACK_BELOW_TABLE_NUMBER - vs6,
+    )
   })
 
-  it.each(cases)('%s: DG-1 unreliable within +-1 of table S', (file, row) => {
+  it.each(cases)('%s: DG-1 unreliable within +-1 of table S + the VS-6 count', (file, row) => {
     const counts = countsOf(file)
-    expect(Math.abs(counts['DG-1'] - row.unreliable), JSON.stringify(counts)).toBeLessThanOrEqual(
+    const vs6 = VS_6_COUNT_OF_SAMPLE.get(row.sample) ?? 0
+    expect(Math.abs(counts['DG-1'] - row.unreliable - vs6), JSON.stringify(counts)).toBeLessThanOrEqual(
       BOTTLENECK_AND_UNRELIABLE_SLACK,
     )
   })

@@ -1089,10 +1089,10 @@ function markerStatesOf(facts: Facts, unreliable: ReadonlySet<number>, bottlenec
   })
 }
 
-// see VO-3, VO-5, DG-1
+// see VO-3, VO-5, VS-6, DG-1
 // WHY: the tasks these rows name are DG-1 but no wall; the doubt reaches only one recorded date, so the flow goes on.
 /** @purity pure */
-function uidsWith(findings: readonly DelayFinding[], row: 'VO-3' | 'VO-5'): ReadonlySet<number> {
+function uidsWith(findings: readonly DelayFinding[], row: 'VO-3' | 'VO-5' | 'VS-6'): ReadonlySet<number> {
   return new Set(findings.filter((one) => one.row === row).map((one) => one.uid))
 }
 
@@ -1132,15 +1132,19 @@ export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCale
     return task !== undefined && !isFinished(task)
   }
   const omissions = omissionsOf(facts)
+  const suspicions = suspicionsOf(facts, project.parentProgressToleranceDays)
   const omittedFinishUids = uidsWith(omissions, 'VO-3')
-  const doubted = new Set([...unreliable, ...omittedFinishUids, ...uidsWith(omissions, 'VO-5')])
+  // see DG-1, VS-6
+  const doubted = new Set([
+    ...unreliable, ...omittedFinishUids, ...uidsWith(omissions, 'VO-5'), ...uidsWith(suspicions, 'VS-6'),
+  ])
   // see VO-3, DG-2
   const bottlenecks = pushing.filter((one) => isOpen(one.uid) && !omittedFinishUids.has(one.uid))
     .map((one) => ({ ...one, path: ancestorsOf(one.uid, facts.parentOf) }))
   return {
     outcome: 'diagnosed',
     statusDate: project.statusDate,
-    findings: [...contradictions, ...suspicionsOf(facts, project.parentProgressToleranceDays), ...omissions],
+    findings: [...contradictions, ...suspicions, ...omissions],
     bottlenecks,
     terminalPushOuts: terminals,
     walls,
