@@ -1,0 +1,735 @@
+path	line	col	text	decision	rewrite_old	rewrite_new	note
+docs/spec/01-04-requirements.md	11	16	行	keep			text line (a quoted line)
+docs/spec/01-04-requirements.md	23	32	行	keep			other schedulers' row (past fact, CR-708 sec 4)
+docs/spec/01-04-requirements.md	25	13	行	keep			a drawn format, not GRS (sec 4)
+docs/spec/01-04-requirements.md	37	21	行	keep			other schedulers' row (sec 4)
+docs/spec/01-04-requirements.md	37	57	行数	keep			other schedulers' row count (sec 4)
+docs/spec/01-04-requirements.md	43	19	行	task			delay: the late item is a task (JDG-1664)
+docs/spec/01-04-requirements.md	43	51	行	task			JDG-1664
+docs/spec/01-04-requirements.md	43	68	行	task			JDG-1664
+docs/spec/01-04-requirements.md	43	118	行	task			JDG-1664
+docs/spec/01-04-requirements.md	62	26	行	task			CH-7 example in CR-708 2.1 (JDG-1664)
+docs/spec/01-04-requirements.md	68	9	行	task-group			
+docs/spec/01-04-requirements.md	73	24	行	task-group			
+docs/spec/01-04-requirements.md	73	58	行	rewrite	全工程を 1 行で見渡せる	全工程を 1 つのタスクグループで見渡せる	count of task groups
+docs/spec/01-04-requirements.md	130	37	行	task			JDG-1664
+docs/spec/01-04-requirements.md	131	9	行	task			JDG-1664
+docs/spec/01-04-requirements.md	134	14	行	task			JDG-1664
+docs/spec/01-04-requirements.md	167	39	行	rewrite	1 行に複数のタスク	1 つのタスクグループに複数のタスク	count of task groups
+docs/spec/01-04-requirements.md	167	64	行	task-group			
+docs/spec/01-04-requirements.md	219	152	行	keep			table row of T-206
+docs/spec/01-04-requirements.md	226	241	行	keep			table row of T-206
+docs/spec/01-04-requirements.md	226	276	行	keep			table row of T-206
+docs/spec/01-04-requirements.md	227	52	行	task-group			
+docs/spec/01-04-requirements.md	227	104	行	task-group			
+docs/spec/01-04-requirements.md	233	17	行	task-group			
+docs/spec/01-04-requirements.md	233	66	行	task-group			
+docs/spec/01-04-requirements.md	233	89	行	task-group			overrides machine keep: the task group band painted from T-294
+docs/spec/01-04-requirements.md	233	150	行	task-group			
+docs/spec/01-04-requirements.md	233	203	行	task-group			
+docs/spec/01-04-requirements.md	233	296	行	task-group			
+docs/spec/01-04-requirements.md	233	401	行	task-group			
+docs/spec/01-04-requirements.md	235	86	行	rewrite	ピン止めした行（`FR-098`）があるときは帯の下の残り）の外に出る点は、描かれず、押しても応えない —— 描かれた最上段の行から上へ向かう線と、帯のすぐ下の行から	ピン止めしたタスクグループ（`FR-098`）があるときは帯の下の残り）の外に出る点は、描かれず、押しても応えない —— 描かれた最上段のタスクグループから上へ向かう線と、帯のすぐ下のタスクグループから	overrides phrase to also cover two verb-guard misses on the line
+docs/spec/01-04-requirements.md	235	398	行	task-group			
+docs/spec/01-04-requirements.md	236	63	行	task-group			
+docs/spec/01-04-requirements.md	236	84	行	task-group			
+docs/spec/01-04-requirements.md	236	176	行	task-group			
+docs/spec/01-04-requirements.md	256	86	行	rewrite	画面に描いたものは行（`Rows`）	画面に描いたものはタスクグループ（`Task Groups`）	U-1 Rows -> Task Groups (2.1)
+docs/spec/01-04-requirements.md	256	89	Rows	rewrite	画面に描いたものは行（`Rows`）	画面に描いたものはタスクグループ（`Task Groups`）	U-1 Rows -> Task Groups (2.1)
+docs/spec/01-04-requirements.md	259	20	行	task-group			
+docs/spec/01-04-requirements.md	260	18	親子	rewrite	タスクの親子の木	親タスクと子タスクの木	G-6 wording of JDG-1730
+docs/spec/01-04-requirements.md	263	58	行	task-group			
+docs/spec/01-04-requirements.md	280	39	行	rewrite	深い **`TaskGroup`** の行を描かない	深い **`TaskGroup`** を描かない	avoid TaskGroup no task group
+docs/spec/01-04-requirements.md	323	36	行数	keep			table rows
+docs/spec/01-04-requirements.md	373	32	行ラベル	keep			comparison table row label
+docs/spec/01-04-requirements.md	383	61	行	rewrite	であり、`A-2`（「行」）のように画面では	であり、画面では	X-5 deletes A-2, so the example goes; uncertain: wording
+docs/spec/01-04-requirements.md	392	8	行	keep			uncertain: X-5 deletes the whole A-2 row by hand at stage 1 (a rewrite cannot remove a table line)
+docs/spec/01-04-requirements.md	392	13	Rows	keep			uncertain: X-5 deletes the whole A-2 row by hand at stage 1
+docs/spec/01-04-requirements.md	407	64	行	keep			table row
+docs/spec/01-04-requirements.md	412	43	行	keep			table rows
+docs/spec/01-04-requirements.md	413	80	行	keep			table row
+docs/spec/01-04-requirements.md	426	26	行	keep			table rows (column name)
+docs/spec/01-04-requirements.md	436	7	行	keep			table row
+docs/spec/01-04-requirements.md	436	13	行	keep			table row
+docs/spec/01-04-requirements.md	437	8	行	keep			table rows (column name)
+docs/spec/01-04-requirements.md	437	23	行	keep			table row
+docs/spec/01-04-requirements.md	494	85	コマンド行	keep			command line
+docs/spec/01-04-requirements.md	586	356	行	keep			anchor into previous-project-result (history)
+docs/spec/01-04-requirements.md	586	417	行	keep			anchor into previous-project-result (history)
+docs/spec/01-04-requirements.md	587	15	行	task-group			
+docs/spec/01-04-requirements.md	587	77	行	keep			anchor into previous-project-result (history)
+docs/spec/01-04-requirements.md	587	134	行	keep			anchor into previous-project-result (history)
+docs/spec/01-04-requirements.md	587	191	行	keep			anchor into previous-project-result (history)
+docs/spec/01-04-requirements.md	592	249	行	keep			anchor into previous-project-result (history)
+docs/spec/01-04-requirements.md	619	19	行	task-group			
+docs/spec/01-04-requirements.md	627	12	行	task-group			
+docs/spec/01-04-requirements.md	649	5	行	task-group			
+docs/spec/01-04-requirements.md	654	43	行	task-group			
+docs/spec/01-04-requirements.md	670	11	行	task-group			
+docs/spec/01-04-requirements.md	821	20	行	task-group			
+docs/spec/01-04-requirements.md	823	12	行	task-group			
+docs/spec/01-04-requirements.md	826	19	行	task-group			
+docs/spec/01-04-requirements.md	858	19	行	task-group			
+docs/spec/01-04-requirements.md	864	11	行	task-group			
+docs/spec/01-04-requirements.md	868	15	行	task-group			
+docs/spec/01-04-requirements.md	869	16	行	task-group			
+docs/spec/01-04-requirements.md	954	20	行	rewrite	行の器	タスクグループ	the container is the task group
+docs/spec/01-04-requirements.md	995	55	行	task-group			
+docs/spec/01-04-requirements.md	997	33	行示	keep			one text line
+docs/spec/01-04-requirements.md	1088	38	行	task			JDG-1664
+docs/spec/01-04-requirements.md	1091	24	行	task			JDG-1664
+docs/spec/01-04-requirements.md	1092	9	行	task			JDG-1664
+docs/spec/01-04-requirements.md	1098	8	行	task			JDG-1664
+docs/spec/01-04-requirements.md	1099	7	行	rewrite	矛盾の行なら、`GRS` はその行から先	矛盾のタスクなら、`GRS` はそのタスクから先	JDG-1664; also covers a verb-guard miss
+docs/spec/01-04-requirements.md	1100	36	行	task			JDG-1664
+docs/spec/01-04-requirements.md	1100	49	行	rewrite	その行をボトルネックとせず、その行から先	そのタスクをボトルネックとせず、そのタスクから先	JDG-1664; also covers a verb-guard miss
+docs/spec/01-04-requirements.md	1101	11	行	task			JDG-1664
+docs/spec/01-04-requirements.md	1134	55	行	task-group			
+docs/spec/01-04-requirements.md	1134	60	行	task-group			
+docs/spec/01-04-requirements.md	1135	32	行	task-group			
+docs/spec/01-04-requirements.md	1136	15	行	task-group			
+docs/spec/01-04-requirements.md	1156	12	行	task-group			
+docs/spec/01-04-requirements.md	1156	89	行	task-group			
+docs/spec/01-04-requirements.md	1156	126	行	task-group			
+docs/spec/01-04-requirements.md	1156	146	行	task-group			
+docs/spec/01-04-requirements.md	1156	172	行	task-group			
+docs/spec/01-04-requirements.md	1156	240	行	task-group			
+docs/spec/01-04-requirements.md	1164	54	行	task-group			
+docs/spec/01-04-requirements.md	1165	31	行	task-group			
+docs/spec/01-04-requirements.md	1165	87	行	task-group			
+docs/spec/01-04-requirements.md	1201	13	行	task-group			
+docs/spec/01-04-requirements.md	1201	60	行	task-group			
+docs/spec/01-04-requirements.md	1201	95	行	task-group			
+docs/spec/01-04-requirements.md	1239	6	行	keep			table rows SP-1..SP-4
+docs/spec/01-04-requirements.md	1351	56	行	rewrite	行をまたぐところで違うと、どこまでが 1 つの行かが読めない	タスクグループをまたぐところで違うと、どこまでが 1 つのタスクグループかが読めない	also covers a verb-guard miss on the line
+docs/spec/01-04-requirements.md	1357	21	行	task-group			
+docs/spec/01-04-requirements.md	1357	35	行	task-group			
+docs/spec/01-04-requirements.md	1357	47	行	task-group			
+docs/spec/01-04-requirements.md	1357	98	行	task-group			
+docs/spec/01-04-requirements.md	1357	108	行	task-group			
+docs/spec/01-04-requirements.md	1360	211	行	task-group			
+docs/spec/01-04-requirements.md	1363	17	行	task-group			
+docs/spec/01-04-requirements.md	1363	114	行	task-group			
+docs/spec/01-04-requirements.md	1451	5	行	keep			table rows
+docs/spec/01-04-requirements.md	1454	19	行	rewrite	（行の名前）	（タスクグループ名）	phrase table spelling
+docs/spec/01-04-requirements.md	1486	16	行	keep			table row
+docs/spec/01-04-requirements.md	1486	41	行	keep			table row
+docs/spec/01-04-requirements.md	1486	74	行	keep			table row
+docs/spec/01-04-requirements.md	1592	52	行	task-group			
+docs/spec/01-04-requirements.md	1594	116	行	task-group			
+docs/spec/01-04-requirements.md	1597	9	行	task-group			
+docs/spec/01-04-requirements.md	1597	27	行高固定	rewrite	行高固定	タスクグループの高さの固定	compound
+docs/spec/01-04-requirements.md	1616	492	行	task-group			
+docs/spec/01-04-requirements.md	1616	1037	行	task-group			
+docs/spec/01-04-requirements.md	1656	5	行	task-group			
+docs/spec/01-04-requirements.md	1662	3	行	task-group			
+docs/spec/01-04-requirements.md	1666	17	行	task-group			
+docs/spec/01-04-requirements.md	1667	2	行	rewrite	1 行 ＝ 1 対象	1 つのタスクグループ ＝ 1 対象	count of task groups
+docs/spec/01-04-requirements.md	1668	34	行	task-group			
+docs/spec/01-04-requirements.md	1673	8	行	task-group			
+docs/spec/01-04-requirements.md	1676	52	行	task-group			
+docs/spec/01-04-requirements.md	1677	27	行	task-group			
+docs/spec/01-04-requirements.md	1678	2	行	task-group			
+docs/spec/01-04-requirements.md	1678	13	行	task-group			
+docs/spec/01-04-requirements.md	1678	45	行	task-group			
+docs/spec/01-04-requirements.md	1678	58	行	task-group			
+docs/spec/01-04-requirements.md	1679	25	行	task-group			
+docs/spec/01-04-requirements.md	1680	66	行	task-group			
+docs/spec/01-04-requirements.md	1685	35	行	task-group			
+docs/spec/01-04-requirements.md	1689	76	行	task-group			
+docs/spec/01-04-requirements.md	1690	22	行	task-group			
+docs/spec/01-04-requirements.md	1691	39	行	task-group			
+docs/spec/01-04-requirements.md	1709	16	行	task-group			
+docs/spec/01-04-requirements.md	1709	40	行	task-group			
+docs/spec/01-04-requirements.md	1709	48	行	keep			one text line of the name
+docs/spec/01-04-requirements.md	1710	54	行	task-group			
+docs/spec/01-04-requirements.md	1711	17	行	task-group			
+docs/spec/01-04-requirements.md	1720	5	行	task-group			
+docs/spec/01-04-requirements.md	1726	2	行	task-group			
+docs/spec/01-04-requirements.md	1739	24	行	task-group			
+docs/spec/01-04-requirements.md	1740	48	行	task-group			
+docs/spec/01-04-requirements.md	1747	67	行	task-group			
+docs/spec/01-04-requirements.md	1748	51	行	task-group			
+docs/spec/01-04-requirements.md	1748	170	行	task-group			
+docs/spec/01-04-requirements.md	1748	327	行	task-group			
+docs/spec/01-04-requirements.md	1748	457	行	task-group			
+docs/spec/01-04-requirements.md	1748	477	行	task-group			
+docs/spec/01-04-requirements.md	1748	500	行	task-group			
+docs/spec/01-04-requirements.md	1748	545	行	task-group			
+docs/spec/01-04-requirements.md	1748	681	行	task-group			
+docs/spec/01-04-requirements.md	1749	125	行自身	task-group			
+docs/spec/01-04-requirements.md	1749	138	行	task-group			
+docs/spec/01-04-requirements.md	1749	172	行	task-group			
+docs/spec/01-04-requirements.md	1752	40	行	task-group			
+docs/spec/01-04-requirements.md	1753	318	行	task-group			
+docs/spec/01-04-requirements.md	1753	377	行	task-group			
+docs/spec/01-04-requirements.md	1754	104	行	rewrite	1 行につき	1 つのタスクグループにつき	count of task groups
+docs/spec/01-04-requirements.md	1754	138	行	task-group			
+docs/spec/01-04-requirements.md	1754	186	行	task-group			
+docs/spec/01-04-requirements.md	1754	589	行	task-group			
+docs/spec/01-04-requirements.md	1754	765	行	task-group			
+docs/spec/01-04-requirements.md	1755	15	行	task-group			
+docs/spec/01-04-requirements.md	1755	33	行	task-group			
+docs/spec/01-04-requirements.md	1755	110	行	task-group			
+docs/spec/01-04-requirements.md	1755	170	行	task-group			
+docs/spec/01-04-requirements.md	1755	372	行	task-group			
+docs/spec/01-04-requirements.md	1755	460	行	rewrite	1 行にならない	1 つのタスクグループにならない	count of task groups
+docs/spec/01-04-requirements.md	1755	568	行	task-group			
+docs/spec/01-04-requirements.md	1755	793	行	task-group			
+docs/spec/01-04-requirements.md	1757	19	各行	task-group			
+docs/spec/01-04-requirements.md	1759	12	行	task-group			
+docs/spec/01-04-requirements.md	1763	18	各行	task-group			
+docs/spec/01-04-requirements.md	1764	131	行	task-group			
+docs/spec/01-04-requirements.md	1764	205	行	keep			table row of T-328
+docs/spec/01-04-requirements.md	1764	224	行	task-group			
+docs/spec/01-04-requirements.md	1764	252	行	task-group			
+docs/spec/01-04-requirements.md	1764	372	行	task-group			
+docs/spec/01-04-requirements.md	1764	456	行	task-group			
+docs/spec/01-04-requirements.md	1765	64	行	task-group			
+docs/spec/01-04-requirements.md	1765	231	行自身	task-group			
+docs/spec/01-04-requirements.md	1765	298	行	task-group			
+docs/spec/01-04-requirements.md	1765	364	行	keep			table row of T-328
+docs/spec/01-04-requirements.md	1767	160	行ボックス	keep			CSS line box
+docs/spec/01-04-requirements.md	1767	579	行	task-group			
+docs/spec/01-04-requirements.md	1768	26	行	task-group			
+docs/spec/01-04-requirements.md	1768	122	行	task-group			
+docs/spec/01-04-requirements.md	1768	198	行	task-group			
+docs/spec/01-04-requirements.md	1768	322	行	task-group			
+docs/spec/01-04-requirements.md	1768	336	行	task-group			
+docs/spec/01-04-requirements.md	1768	402	行	task-group			
+docs/spec/01-04-requirements.md	1768	493	行	task-group			
+docs/spec/01-04-requirements.md	1768	1012	行	task-group			
+docs/spec/01-04-requirements.md	1768	1025	行	task-group			
+docs/spec/01-04-requirements.md	1768	1032	行	task-group			
+docs/spec/01-04-requirements.md	1768	1144	行	task-group			
+docs/spec/01-04-requirements.md	1768	1167	行	task-group			
+docs/spec/01-04-requirements.md	1768	1365	行	keep			a settings table row
+docs/spec/01-04-requirements.md	1768	1541	行	task-group			
+docs/spec/01-04-requirements.md	1768	1619	行	task-group			
+docs/spec/01-04-requirements.md	1768	1630	全行	rewrite	全行を撫でる	すべてのタスクグループを撫でる	compound 全行
+docs/spec/01-04-requirements.md	1768	1770	行	task-group			
+docs/spec/01-04-requirements.md	1769	90	行	task-group			
+docs/spec/01-04-requirements.md	1769	98	行	task-group			
+docs/spec/01-04-requirements.md	1770	32	行	task-group			
+docs/spec/01-04-requirements.md	1770	100	行	keep			table row of T-328
+docs/spec/01-04-requirements.md	1772	127	行	keep			one line of controls
+docs/spec/01-04-requirements.md	1772	158	行	task-group			
+docs/spec/01-04-requirements.md	1772	401	行	task-group			
+docs/spec/01-04-requirements.md	1772	481	行	task-group			
+docs/spec/01-04-requirements.md	1772	530	行	task-group			
+docs/spec/01-04-requirements.md	1772	754	行	task-group			
+docs/spec/01-04-requirements.md	1772	768	行	task-group			
+docs/spec/01-04-requirements.md	1772	1005	行	task-group			
+docs/spec/01-04-requirements.md	1772	1050	行	keep			table row of T-328
+docs/spec/01-04-requirements.md	1772	1107	行	task-group			
+docs/spec/01-04-requirements.md	1773	100	行	task-group			
+docs/spec/01-04-requirements.md	1773	140	行	keep			table row of T-328
+docs/spec/01-04-requirements.md	1773	349	行	task-group			
+docs/spec/01-04-requirements.md	1774	12	行	task-group			
+docs/spec/01-04-requirements.md	1774	414	行	task-group			
+docs/spec/01-04-requirements.md	1774	574	行	task-group			
+docs/spec/01-04-requirements.md	1774	745	行	task-group			
+docs/spec/01-04-requirements.md	1774	883	行	task-group			
+docs/spec/01-04-requirements.md	1774	953	行	task-group			
+docs/spec/01-04-requirements.md	1774	1044	行	task-group			
+docs/spec/01-04-requirements.md	1774	1074	行	task-group			
+docs/spec/01-04-requirements.md	1774	1095	行	task-group			
+docs/spec/01-04-requirements.md	1774	1226	行	task-group			
+docs/spec/01-04-requirements.md	1774	1375	行	task-group			
+docs/spec/01-04-requirements.md	1774	1892	行	task-group			
+docs/spec/01-04-requirements.md	1774	2492	行	task-group			
+docs/spec/01-04-requirements.md	1774	2543	行	task-group			
+docs/spec/01-04-requirements.md	1775	15	行	task-group			
+docs/spec/01-04-requirements.md	1775	24	行	task-group			
+docs/spec/01-04-requirements.md	1775	80	行	task-group			
+docs/spec/01-04-requirements.md	1775	202	行	task-group			
+docs/spec/01-04-requirements.md	1775	222	行	task-group			
+docs/spec/01-04-requirements.md	1775	547	行	task-group			
+docs/spec/01-04-requirements.md	1775	607	行	task-group			
+docs/spec/01-04-requirements.md	1775	627	行	task-group			
+docs/spec/01-04-requirements.md	1775	772	行	keep			table row of T-328
+docs/spec/01-04-requirements.md	1775	883	行	task-group			
+docs/spec/01-04-requirements.md	1775	957	行	task-group			
+docs/spec/01-04-requirements.md	1775	1037	行	task-group			
+docs/spec/01-04-requirements.md	1775	1142	行	task-group			
+docs/spec/01-04-requirements.md	1775	1171	行	task-group			
+docs/spec/01-04-requirements.md	1775	1220	行	task-group			
+docs/spec/01-04-requirements.md	1775	1586	行	task-group			
+docs/spec/01-04-requirements.md	1775	1648	行	task-group			
+docs/spec/01-04-requirements.md	1776	23	行	task-group			
+docs/spec/01-04-requirements.md	1776	423	行	task-group			
+docs/spec/01-04-requirements.md	1776	471	行	keep			table row of T-328
+docs/spec/01-04-requirements.md	1776	552	行	task-group			
+docs/spec/01-04-requirements.md	1776	589	行	task-group			
+docs/spec/01-04-requirements.md	1777	98	行	task-group			
+docs/spec/01-04-requirements.md	1777	138	各行	task-group			
+docs/spec/01-04-requirements.md	1777	168	行	task-group			
+docs/spec/01-04-requirements.md	1777	210	何行	rewrite	いま何行を畳み込んでいるか	いまいくつのタスクグループを畳み込んでいるか	count of task groups
+docs/spec/01-04-requirements.md	1777	247	行	task-group			
+docs/spec/01-04-requirements.md	1778	145	行	task-group			
+docs/spec/01-04-requirements.md	1778	250	行	task-group			
+docs/spec/01-04-requirements.md	1779	33	行	task-group			
+docs/spec/01-04-requirements.md	1779	107	行	task-group			
+docs/spec/01-04-requirements.md	1779	161	行	task-group			
+docs/spec/01-04-requirements.md	1779	176	行	task-group			
+docs/spec/01-04-requirements.md	1779	251	行	task-group			
+docs/spec/01-04-requirements.md	1779	341	行	task-group			
+docs/spec/01-04-requirements.md	1779	386	行	task-group			
+docs/spec/01-04-requirements.md	1779	419	行	task-group			
+docs/spec/01-04-requirements.md	1779	456	行	task-group			
+docs/spec/01-04-requirements.md	1779	488	行	task-group			
+docs/spec/01-04-requirements.md	1780	31	行	task-group			
+docs/spec/01-04-requirements.md	1780	57	行	task-group			
+docs/spec/01-04-requirements.md	1780	220	行	task-group			
+docs/spec/01-04-requirements.md	1780	290	行	task-group			
+docs/spec/01-04-requirements.md	1780	340	行	task-group			
+docs/spec/01-04-requirements.md	1780	702	行	task-group			
+docs/spec/01-04-requirements.md	1780	762	行	rewrite	後の段が作る 1 行が	後の段が作る 1 つのタスクグループが	count of task groups
+docs/spec/01-04-requirements.md	1780	840	行	task-group			
+docs/spec/01-04-requirements.md	1781	45	行	task-group			
+docs/spec/01-04-requirements.md	1781	156	行	task-group			
+docs/spec/01-04-requirements.md	1781	206	行	task-group			
+docs/spec/01-04-requirements.md	1781	231	行	task-group			
+docs/spec/01-04-requirements.md	1781	255	行	task-group			
+docs/spec/01-04-requirements.md	1781	290	行	task-group			
+docs/spec/01-04-requirements.md	1781	315	行	task-group			
+docs/spec/01-04-requirements.md	1781	364	行	task-group			
+docs/spec/01-04-requirements.md	1781	390	行	task-group			
+docs/spec/01-04-requirements.md	1781	417	行	task-group			
+docs/spec/01-04-requirements.md	1781	543	行	task-group			
+docs/spec/01-04-requirements.md	1781	586	行	task-group			
+docs/spec/01-04-requirements.md	1781	1019	行	task-group			
+docs/spec/01-04-requirements.md	1782	22	行	task-group			
+docs/spec/01-04-requirements.md	1782	31	行数	rewrite	その行数を行に示すこと	そのタスクグループの数をタスクグループに示すこと	count of task groups
+docs/spec/01-04-requirements.md	1782	34	行	rewrite	その行数を行に示すこと	そのタスクグループの数をタスクグループに示すこと	count of task groups
+docs/spec/01-04-requirements.md	1782	77	行	task-group			
+docs/spec/01-04-requirements.md	1782	165	行	task-group			
+docs/spec/01-04-requirements.md	1782	200	行	task-group			
+docs/spec/01-04-requirements.md	1782	277	行	task-group			
+docs/spec/01-04-requirements.md	1782	359	行	task-group			
+docs/spec/01-04-requirements.md	1782	465	行	rewrite	行の名前より目立つと、何の行かを読む前に	タスクグループ名より目立つと、何のタスクグループかを読む前に	overrides phrase to also cover a verb-guard miss
+docs/spec/01-04-requirements.md	1782	506	行	task-group			
+docs/spec/01-04-requirements.md	1782	596	行	task-group			
+docs/spec/01-04-requirements.md	1782	745	行	task-group			
+docs/spec/01-04-requirements.md	1782	814	行	task-group			
+docs/spec/01-04-requirements.md	1782	939	行	task-group			
+docs/spec/01-04-requirements.md	1782	1041	行	task-group			
+docs/spec/01-04-requirements.md	1782	1174	行	task-group			
+docs/spec/01-04-requirements.md	1784	85	行	task-group			
+docs/spec/01-04-requirements.md	1785	7	行	task-group			
+docs/spec/01-04-requirements.md	1785	46	行	task-group			
+docs/spec/01-04-requirements.md	1786	12	行	rewrite	描かれる行が 1 行も増減しない	描かれるタスクグループが 1 つも増減しない	count of task groups
+docs/spec/01-04-requirements.md	1786	17	行	rewrite	描かれる行が 1 行も増減しない	描かれるタスクグループが 1 つも増減しない	count of task groups
+docs/spec/01-04-requirements.md	1786	91	行	task-group			
+docs/spec/01-04-requirements.md	1787	36	行	task-group			
+docs/spec/01-04-requirements.md	1787	65	行	task-group			
+docs/spec/01-04-requirements.md	1787	92	行	task-group			
+docs/spec/01-04-requirements.md	1787	106	行	task-group			
+docs/spec/01-04-requirements.md	1787	127	行	task-group			
+docs/spec/01-04-requirements.md	1788	32	行	task-group			
+docs/spec/01-04-requirements.md	1790	25	行	task-group			
+docs/spec/01-04-requirements.md	1792	5	行	task-group			
+docs/spec/01-04-requirements.md	1793	15	行	task-group			
+docs/spec/01-04-requirements.md	1794	6	行	task-group			
+docs/spec/01-04-requirements.md	1794	85	行	rewrite	押した行はすでに開いており、描く絵は押した行から開く	押したタスクグループはすでに開いており、描く絵は押したタスクグループから開く	also covers a verb-guard miss
+docs/spec/01-04-requirements.md	1794	176	行	keep			table row of T-328
+docs/spec/01-04-requirements.md	1798	18	行	task-group			
+docs/spec/01-04-requirements.md	1800	16	行	task-group			
+docs/spec/01-04-requirements.md	1800	87	行	task-group			
+docs/spec/01-04-requirements.md	1802	52	行	task-group			
+docs/spec/01-04-requirements.md	1803	137	行	task-group			
+docs/spec/01-04-requirements.md	1805	38	行	task-group			
+docs/spec/01-04-requirements.md	1809	7	行	task-group			
+docs/spec/01-04-requirements.md	1830	20	行	task-group			
+docs/spec/01-04-requirements.md	1841	33	行	task-group			
+docs/spec/01-04-requirements.md	1843	17	行	task-group			
+docs/spec/01-04-requirements.md	1843	55	行	task-group			
+docs/spec/01-04-requirements.md	1843	88	親子	rewrite	禁止の対象は親子関係である	禁止の対象は親タスクと子タスクの関係である	Task parent and child (2.1)
+docs/spec/01-04-requirements.md	1843	126	行	task-group			
+docs/spec/01-04-requirements.md	1846	11	行	rewrite	行の器	タスクグループ	the container is the task group
+docs/spec/01-04-requirements.md	1848	45	行	task-group			
+docs/spec/01-04-requirements.md	1848	65	行	task-group			
+docs/spec/01-04-requirements.md	1848	72	行	task-group			
+docs/spec/01-04-requirements.md	1849	39	親子	keep			uncertain: HM-8 parent and child of the panel tree (TaskGroup, X-9), not of Task
+docs/spec/01-04-requirements.md	1850	106	行	task-group			
+docs/spec/01-04-requirements.md	1850	197	行	task-group			
+docs/spec/01-04-requirements.md	1850	224	行	task-group			
+docs/spec/01-04-requirements.md	1850	317	行	task-group			
+docs/spec/01-04-requirements.md	1850	382	行	task-group			
+docs/spec/01-04-requirements.md	1850	399	行	task-group			
+docs/spec/01-04-requirements.md	1850	463	行	task-group			
+docs/spec/01-04-requirements.md	1850	487	行	task-group			
+docs/spec/01-04-requirements.md	1850	509	行	task-group			
+docs/spec/01-04-requirements.md	1850	521	行	task-group			
+docs/spec/01-04-requirements.md	1851	20	行	task-group			
+docs/spec/01-04-requirements.md	1851	37	行	task-group			
+docs/spec/01-04-requirements.md	1851	84	行	rewrite	行の器	タスクグループ	the container is the task group
+docs/spec/01-04-requirements.md	1852	26	行	task-group			
+docs/spec/01-04-requirements.md	1853	16	行	task-group			
+docs/spec/01-04-requirements.md	1853	54	行	task-group			
+docs/spec/01-04-requirements.md	1853	62	行	task-group			
+docs/spec/01-04-requirements.md	1853	84	行	task-group			
+docs/spec/01-04-requirements.md	1853	134	行	rewrite	移した先の親の行から行の木を	移した先の親のタスクグループからタスクグループの木を	overrides phrase to also cover a verb-guard miss
+docs/spec/01-04-requirements.md	1853	158	行	task-group			
+docs/spec/01-04-requirements.md	1853	184	行	task-group			
+docs/spec/01-04-requirements.md	1853	196	行	task-group			
+docs/spec/01-04-requirements.md	1853	225	行	task-group			
+docs/spec/01-04-requirements.md	1853	274	行	task-group			
+docs/spec/01-04-requirements.md	1853	285	行	task-group			
+docs/spec/01-04-requirements.md	1853	436	行	task-group			
+docs/spec/01-04-requirements.md	1867	5	行	task-group			
+docs/spec/01-04-requirements.md	1867	24	行	task-group			
+docs/spec/01-04-requirements.md	1872	15	行	task-group			
+docs/spec/01-04-requirements.md	1880	82	行単位	task-group			a paraphrase of JDG-304, not the verbatim words
+docs/spec/01-04-requirements.md	1880	108	行	task-group			
+docs/spec/01-04-requirements.md	1880	119	行	task-group			
+docs/spec/01-04-requirements.md	1880	384	行	task-group			
+docs/spec/01-04-requirements.md	1880	389	行	task-group			
+docs/spec/01-04-requirements.md	1880	414	行	task-group			
+docs/spec/01-04-requirements.md	1880	658	行	task-group			
+docs/spec/01-04-requirements.md	1880	764	行	task-group			
+docs/spec/01-04-requirements.md	1880	788	行	task-group			
+docs/spec/01-04-requirements.md	1880	871	行	task-group			
+docs/spec/01-04-requirements.md	1880	891	行	task-group			
+docs/spec/01-04-requirements.md	1881	15	行	task-group			
+docs/spec/01-04-requirements.md	1881	33	行	task-group			
+docs/spec/01-04-requirements.md	1881	68	行	task-group			
+docs/spec/01-04-requirements.md	1881	101	行	task-group			
+docs/spec/01-04-requirements.md	1882	26	各行	task-group			
+docs/spec/01-04-requirements.md	1883	9	行	task-group			
+docs/spec/01-04-requirements.md	1884	130	行	task-group			
+docs/spec/01-04-requirements.md	1884	191	行	task-group			
+docs/spec/01-04-requirements.md	1885	76	行	task-group			
+docs/spec/01-04-requirements.md	1886	13	行	task-group			
+docs/spec/01-04-requirements.md	1886	60	行	task-group			
+docs/spec/01-04-requirements.md	1886	139	行	task-group			
+docs/spec/01-04-requirements.md	1886	199	行	task-group			
+docs/spec/01-04-requirements.md	1886	232	行	task-group			
+docs/spec/01-04-requirements.md	1886	548	行	rewrite	でない行か、その行に載る	でないタスクグループか、そのタスクグループに載る	overrides phrase to also cover a verb-guard miss
+docs/spec/01-04-requirements.md	1886	639	行	task-group			
+docs/spec/01-04-requirements.md	1886	713	行	task-group			
+docs/spec/01-04-requirements.md	1890	38	行	task-group			
+docs/spec/01-04-requirements.md	1891	33	行	task-group			
+docs/spec/01-04-requirements.md	1912	28	行	keep			table row of T-016
+docs/spec/01-04-requirements.md	1915	6	行	keep			property panel rows (T-016)
+docs/spec/01-04-requirements.md	1915	30	行	keep			property panel rows (T-016)
+docs/spec/01-04-requirements.md	1915	45	行	keep			property panel rows (T-016)
+docs/spec/01-04-requirements.md	1915	54	行	keep			property panel rows (T-016)
+docs/spec/01-04-requirements.md	1916	6	行	keep			property panel rows (T-016)
+docs/spec/01-04-requirements.md	1916	63	行	keep			property panel row
+docs/spec/01-04-requirements.md	1917	40	行	keep			property panel row
+docs/spec/01-04-requirements.md	1926	115	行	keep			one text line
+docs/spec/01-04-requirements.md	1927	5	行	keep			property panel row (T-016)
+docs/spec/01-04-requirements.md	1927	31	行	keep			property panel row (T-016)
+docs/spec/01-04-requirements.md	1928	23	行	keep			property panel row (T-016)
+docs/spec/01-04-requirements.md	1928	37	行	keep			property panel row (T-016)
+docs/spec/01-04-requirements.md	1929	6	行	task-group			
+docs/spec/01-04-requirements.md	1929	14	行	keep			property panel row PR-20
+docs/spec/01-04-requirements.md	1929	58	行	keep			property panel rows (T-338)
+docs/spec/01-04-requirements.md	1929	72	行	keep			property panel row
+docs/spec/01-04-requirements.md	1931	22	行	keep			property panel row
+docs/spec/01-04-requirements.md	1932	5	行	keep			property panel row
+docs/spec/01-04-requirements.md	1933	50	行	keep			table row
+docs/spec/01-04-requirements.md	1935	9	行	keep			property panel rows
+docs/spec/01-04-requirements.md	1936	14	行	keep			property panel rows
+docs/spec/01-04-requirements.md	1936	134	行	keep			property panel rows
+docs/spec/01-04-requirements.md	1936	164	行	keep			property panel rows
+docs/spec/01-04-requirements.md	1937	33	行	keep			property panel rows
+docs/spec/01-04-requirements.md	1938	37	行	task-group			
+docs/spec/01-04-requirements.md	1938	67	行	task-group			
+docs/spec/01-04-requirements.md	1938	129	行	task-group			
+docs/spec/01-04-requirements.md	1938	156	行	keep			property panel row (colour row of the Task)
+docs/spec/01-04-requirements.md	1938	172	行	keep			property panel rows (colour rows)
+docs/spec/01-04-requirements.md	1939	2	行	task-group			
+docs/spec/01-04-requirements.md	1939	11	行	task-group			
+docs/spec/01-04-requirements.md	1939	46	行	task-group			
+docs/spec/01-04-requirements.md	1946	175	行	keep			table row
+docs/spec/01-04-requirements.md	1950	58	行	keep			property panel rows
+docs/spec/01-04-requirements.md	1951	4	行	keep			property panel row
+docs/spec/01-04-requirements.md	1951	17	行	keep			property panel row
+docs/spec/01-04-requirements.md	1951	109	行	keep			property panel row
+docs/spec/01-04-requirements.md	1951	115	行	keep			property panel row
+docs/spec/01-04-requirements.md	1959	2	行	keep			property panel row
+docs/spec/01-04-requirements.md	1959	29	行	keep			property panel row
+docs/spec/01-04-requirements.md	1959	71	行	keep			property panel row
+docs/spec/01-04-requirements.md	1968	52	行数	keep			text lines (count)
+docs/spec/01-04-requirements.md	1974	57	行	keep			one text line
+docs/spec/01-04-requirements.md	2018	15	行	keep			panel heading row
+docs/spec/01-04-requirements.md	2022	52	行	keep			table row
+docs/spec/01-04-requirements.md	2045	3	行	keep			table row
+docs/spec/01-04-requirements.md	2045	24	行	keep			table row
+docs/spec/01-04-requirements.md	2061	92	行	keep			table row of T-016
+docs/spec/01-04-requirements.md	2113	156	行	keep			table row of T-294
+docs/spec/01-04-requirements.md	2114	127	行	keep			layout rows of the colour field
+docs/spec/01-04-requirements.md	2114	134	行	keep			layout rows of the colour field
+docs/spec/01-04-requirements.md	2114	141	行	keep			layout rows of the colour field
+docs/spec/01-04-requirements.md	2114	156	行	keep			layout rows of the colour field
+docs/spec/01-04-requirements.md	2114	1293	行	keep			layout row of the colour field
+docs/spec/01-04-requirements.md	2114	2331	行	task-group			
+docs/spec/01-04-requirements.md	2114	2559	行	task-group			
+docs/spec/01-04-requirements.md	2124	311	行	task-group			
+docs/spec/01-04-requirements.md	2125	103	行	task-group			
+docs/spec/01-04-requirements.md	2129	59	行	keep			table rows
+docs/spec/01-04-requirements.md	2152	68	行	keep			table row of T-236
+docs/spec/01-04-requirements.md	2175	84	行	keep			table row of T-305 (hue chooser)
+docs/spec/01-04-requirements.md	2175	113	回発行	keep			part of the word 発行
+docs/spec/01-04-requirements.md	2177	1	各行	keep			hue chooser rows (T-305)
+docs/spec/01-04-requirements.md	2177	9	行	keep			hue chooser row (T-305)
+docs/spec/01-04-requirements.md	2178	104	行	keep			hue chooser row (T-305)
+docs/spec/01-04-requirements.md	2180	62	行	keep			hue chooser rows (T-305)
+docs/spec/01-04-requirements.md	2181	21	行	keep			hue chooser row (T-305)
+docs/spec/01-04-requirements.md	2182	31	行	keep			hue chooser row (T-305)
+docs/spec/01-04-requirements.md	2183	6	行	keep			hue chooser row (T-305)
+docs/spec/01-04-requirements.md	2186	80	行	keep			table rows of T-236
+docs/spec/01-04-requirements.md	2186	92	行	keep			table rows of T-236
+docs/spec/01-04-requirements.md	2186	98	行	keep			table rows of T-236
+docs/spec/01-04-requirements.md	2187	16	行	keep			table rows of T-236
+docs/spec/01-04-requirements.md	2189	30	行	keep			table rows of T-236
+docs/spec/01-04-requirements.md	2201	0	行	keep			hue rows (T-305)
+docs/spec/01-04-requirements.md	2201	129	行	keep			hue rows (T-305)
+docs/spec/01-04-requirements.md	2225	218	行	keep			table rows of T-236 (quotes L2187)
+docs/spec/01-04-requirements.md	2226	109	行	keep			settings row
+docs/spec/01-04-requirements.md	2238	5	行	task-group			
+docs/spec/01-04-requirements.md	2243	27	行	task-group			
+docs/spec/01-04-requirements.md	2250	4	行	task-group			
+docs/spec/01-04-requirements.md	2251	11	行	task-group			
+docs/spec/01-04-requirements.md	2251	19	行	task-group			
+docs/spec/01-04-requirements.md	2252	15	行	task-group			
+docs/spec/01-04-requirements.md	2256	59	行	rewrite	1 行 ＝ 1 対象がマルチバーの中核なので、境界が見えないとどこまでが 1 行か読めない	1 つのタスクグループ ＝ 1 対象がマルチバーの中核なので、境界が見えないとどこまでが 1 つのタスクグループか読めない	count; also covers a verb-guard miss on the line
+docs/spec/01-04-requirements.md	2257	55	行	task-group			
+docs/spec/01-04-requirements.md	2258	2	行見出	rewrite	線は行見出しパネルの左端から右端まで引き、日程の側の線と切れ目なく続けること（MUST） —— 題の列で線が途切れると、どの題がどの帯の行かを	線はタスクグループパネルの左端から右端まで引き、日程の側の線と切れ目なく続けること（MUST） —— 題の列で線が途切れると、どの題がどの帯のタスクグループかを	overrides phrase to also cover a verb-guard miss
+docs/spec/01-04-requirements.md	2261	202	行	task-group			
+docs/spec/01-04-requirements.md	2262	79	行	task-group			
+docs/spec/01-04-requirements.md	2263	15	行	task-group			
+docs/spec/01-04-requirements.md	2263	43	行	task-group			
+docs/spec/01-04-requirements.md	2263	52	行	task-group			
+docs/spec/01-04-requirements.md	2267	19	行	task-group			quotes ST-9, which becomes task group
+docs/spec/01-04-requirements.md	2269	37	行	rewrite	見出しの行かどうか）、行の位置は縞	見出しのタスクグループかどうか）、タスクグループの位置は縞	also covers a verb-guard miss on the line
+docs/spec/01-04-requirements.md	2270	2	行	task-group			
+docs/spec/01-04-requirements.md	2271	34	行	task-group			
+docs/spec/01-04-requirements.md	2271	47	行	rewrite	**1 行に色を付けた瞬間にその下の全行の縞が反転し**	**1 つのタスクグループに色を付けた瞬間にその下のすべてのタスクグループの縞が反転し**	count of task groups
+docs/spec/01-04-requirements.md	2271	62	全行	rewrite	**1 行に色を付けた瞬間にその下の全行の縞が反転し**	**1 つのタスクグループに色を付けた瞬間にその下のすべてのタスクグループの縞が反転し**	count of task groups
+docs/spec/01-04-requirements.md	2273	12	行	task-group			
+docs/spec/01-04-requirements.md	2277	98	行	keep			one text line
+docs/spec/01-04-requirements.md	2277	243	行	keep			text lines
+docs/spec/01-04-requirements.md	2277	257	行	rewrite	名に行（タスクグループ）を主語	名にタスクグループを主語	drop the gloss
+docs/spec/01-04-requirements.md	2277	285	行	task-group			
+docs/spec/01-04-requirements.md	2278	24	行	keep			a layout line of the panel field
+docs/spec/01-04-requirements.md	2278	159	行	task-group			
+docs/spec/01-04-requirements.md	2279	24	行	keep			a layout line of the panel field
+docs/spec/01-04-requirements.md	2279	37	行	keep			one text line
+docs/spec/01-04-requirements.md	2279	44	行	task-group			
+docs/spec/01-04-requirements.md	2279	77	行	task-group			
+docs/spec/01-04-requirements.md	2279	130	行	task-group			
+docs/spec/01-04-requirements.md	2279	132	行	task-group			
+docs/spec/01-04-requirements.md	2279	238	行	task-group			
+docs/spec/01-04-requirements.md	2280	26	行	task-group			
+docs/spec/01-04-requirements.md	2281	9	行	task-group			
+docs/spec/01-04-requirements.md	2281	26	行	task-group			
+docs/spec/01-04-requirements.md	2281	82	行	keep			the panel line of the current height
+docs/spec/01-04-requirements.md	2281	180	行	task-group			
+docs/spec/01-04-requirements.md	2283	17	行	task-group			
+docs/spec/01-04-requirements.md	2378	356	行	keep			table rows of T-202 (quotes FR-049)
+docs/spec/01-04-requirements.md	2379	83	行	keep			table row of T-027
+docs/spec/01-04-requirements.md	2380	15	行	task-group			
+docs/spec/01-04-requirements.md	2380	465	行	task-group			
+docs/spec/01-04-requirements.md	2380	494	行	task-group			
+docs/spec/01-04-requirements.md	2380	536	行	task-group			quotes IV-3 of 05-07-design (lane S1-C should decide the same)
+docs/spec/01-04-requirements.md	2380	621	行	task-group			
+docs/spec/01-04-requirements.md	2380	754	行	task-group			
+docs/spec/01-04-requirements.md	2380	924	行	task-group			
+docs/spec/01-04-requirements.md	2393	22	行	task-group			
+docs/spec/01-04-requirements.md	2397	46	行	keep			table rows
+docs/spec/01-04-requirements.md	2411	71	行	rewrite	畳みを 1 行ずつ戻すことになると、**積む段数がその文書の行数で決まってしまう	畳みをタスクグループ 1 つずつ戻すことになると、**積む段数がその文書のタスクグループの数で決まってしまう	count of task groups
+docs/spec/01-04-requirements.md	2411	95	行数	rewrite	畳みを 1 行ずつ戻すことになると、**積む段数がその文書の行数で決まってしまう	畳みをタスクグループ 1 つずつ戻すことになると、**積む段数がその文書のタスクグループの数で決まってしまう	count of task groups
+docs/spec/01-04-requirements.md	2423	4	行	rewrite	縦（行の軸）を縮める	縦軸を縮める	overrides phrase: avoids 縦（縦軸）
+docs/spec/01-04-requirements.md	2423	129	行	task-group			
+docs/spec/01-04-requirements.md	2425	26	行	task-group			
+docs/spec/01-04-requirements.md	2464	55	行	task-group			
+docs/spec/01-04-requirements.md	2464	466	行	task-group			
+docs/spec/01-04-requirements.md	2466	400	行	keep			settings rows
+docs/spec/01-04-requirements.md	2467	402	親子	rewrite	親子を選ぶときに絞った	親タスクと子タスクを選ぶときに絞った	Task parent and child (2.1)
+docs/spec/01-04-requirements.md	2477	59	行	task-group			
+docs/spec/01-04-requirements.md	2481	153	行	task-group			
+docs/spec/01-04-requirements.md	2481	181	行	task-group			
+docs/spec/01-04-requirements.md	2483	8	行	task-group			
+docs/spec/01-04-requirements.md	2483	16	行	rewrite	行の軸の倍率	縦軸の倍率	JDG-1660 (phrase 行の軸 missed here)
+docs/spec/01-04-requirements.md	2484	52	行	task-group			
+docs/spec/01-04-requirements.md	2484	60	行	rewrite	行の軸の倍率	縦軸の倍率	JDG-1660 (phrase 行の軸 missed here)
+docs/spec/01-04-requirements.md	2489	5	行	task-group			
+docs/spec/01-04-requirements.md	2489	19	行	task-group			
+docs/spec/01-04-requirements.md	2509	51	行	task-group			
+docs/spec/01-04-requirements.md	2515	0	行	task-group			
+docs/spec/01-04-requirements.md	2520	0	行	task-group			
+docs/spec/01-04-requirements.md	2520	25	行	task-group			
+docs/spec/01-04-requirements.md	2523	9	行	task-group			
+docs/spec/01-04-requirements.md	2523	75	行	task-group			
+docs/spec/01-04-requirements.md	2524	2	行	task-group			
+docs/spec/01-04-requirements.md	2524	18	行	task-group			
+docs/spec/01-04-requirements.md	2527	92	行	task-group			
+docs/spec/01-04-requirements.md	2536	9	行	task-group			
+docs/spec/01-04-requirements.md	2536	82	行	task-group			
+docs/spec/01-04-requirements.md	2536	121	行	task-group			
+docs/spec/01-04-requirements.md	2536	168	行	task-group			
+docs/spec/01-04-requirements.md	2536	248	行	task-group			
+docs/spec/01-04-requirements.md	2537	13	行	task-group			
+docs/spec/01-04-requirements.md	2537	52	行	task-group			
+docs/spec/01-04-requirements.md	2537	125	行	task-group			
+docs/spec/01-04-requirements.md	2537	167	行	task-group			
+docs/spec/01-04-requirements.md	2537	178	行	task-group			
+docs/spec/01-04-requirements.md	2537	195	行	task-group			
+docs/spec/01-04-requirements.md	2537	229	行	task-group			
+docs/spec/01-04-requirements.md	2537	269	行	task-group			
+docs/spec/01-04-requirements.md	2542	6	行	task-group			
+docs/spec/01-04-requirements.md	2542	17	行	task-group			
+docs/spec/01-04-requirements.md	2542	40	行	task-group			
+docs/spec/01-04-requirements.md	2542	93	行	task-group			
+docs/spec/01-04-requirements.md	2542	151	行	task-group			
+docs/spec/01-04-requirements.md	2545	16	行	task-group			
+docs/spec/01-04-requirements.md	2547	90	行	task-group			
+docs/spec/01-04-requirements.md	2548	12	行	task-group			
+docs/spec/01-04-requirements.md	2548	44	行	task-group			
+docs/spec/01-04-requirements.md	2549	36	row	rewrite	`defaultNames` の `row` の語	`defaultNames` の `taskGroup` の語	2.5 rule 8: defaultNames use "row" -> "taskGroup"
+docs/spec/01-04-requirements.md	2551	59	行	task-group			
+docs/spec/01-04-requirements.md	2552	4	行	task-group			
+docs/spec/01-04-requirements.md	2552	31	行	task-group			
+docs/spec/01-04-requirements.md	2553	4	行	task-group			
+docs/spec/01-04-requirements.md	2553	69	行	task-group			
+docs/spec/01-04-requirements.md	2553	88	行	task-group			
+docs/spec/01-04-requirements.md	2554	30	行	task-group			
+docs/spec/01-04-requirements.md	2554	77	行	task-group			
+docs/spec/01-04-requirements.md	2554	81	行	task-group			
+docs/spec/01-04-requirements.md	2555	71	行	task-group			
+docs/spec/01-04-requirements.md	2556	70	行	task-group			
+docs/spec/01-04-requirements.md	2558	10	行	rewrite	最後の 1 行の削除	最後の 1 つのタスクグループの削除	count of task groups
+docs/spec/01-04-requirements.md	2560	26	行	rewrite	作られる 1 行を足して	作られる 1 つのタスクグループを足して	count of task groups
+docs/spec/01-04-requirements.md	2560	74	行	task-group			
+docs/spec/01-04-requirements.md	2562	0	行	task-group			
+docs/spec/01-04-requirements.md	2564	16	行	task-group			
+docs/spec/01-04-requirements.md	2564	42	行	task-group			
+docs/spec/01-04-requirements.md	2564	66	行	task-group			
+docs/spec/01-04-requirements.md	2565	64	行	task-group			
+docs/spec/01-04-requirements.md	2566	5	行	task-group			
+docs/spec/01-04-requirements.md	2567	4	行	task-group			
+docs/spec/01-04-requirements.md	2567	42	行	task-group			
+docs/spec/01-04-requirements.md	2567	58	行	task-group			
+docs/spec/01-04-requirements.md	2575	2	行	task-group			
+docs/spec/01-04-requirements.md	2620	32	行	keep			assignee rows of the resource panel
+docs/spec/01-04-requirements.md	2620	62	行	keep			heading row of the resource panel
+docs/spec/01-04-requirements.md	2620	71	行	keep			overrides phrase: assignee row of the resource panel
+docs/spec/01-04-requirements.md	2620	149	行	keep			overrides phrase: assignee row of the resource panel
+docs/spec/01-04-requirements.md	2620	213	行	keep			assignee row of the resource panel
+docs/spec/01-04-requirements.md	2624	77	行	keep			heading row of the resource panel
+docs/spec/01-04-requirements.md	2624	118	行	keep			title row of the help panel
+docs/spec/01-04-requirements.md	2624	163	行	keep			heading row of the resource panel
+docs/spec/01-04-requirements.md	2645	43	行	task-group			
+docs/spec/01-04-requirements.md	2646	19	行	task-group			
+docs/spec/01-04-requirements.md	2647	9	行	task-group			
+docs/spec/01-04-requirements.md	2671	282	親子	rewrite	親子は、コピーどうしで作るか	親タスクと子タスクの関係は、コピーどうしで作るか	Task parent and child (2.1)
+docs/spec/01-04-requirements.md	2671	384	親子	rewrite	コピーどうしで親子になる	コピーどうしで親タスクと子タスクになる	Task parent and child (2.1)
+docs/spec/01-04-requirements.md	2671	473	行	rewrite	コピーを載せた行から推定すること（MUST） —— その行から行の木を	コピーを載せたタスクグループから推定すること（MUST） —— そのタスクグループからタスクグループの木を	overrides phrase to also cover two verb-guard misses
+docs/spec/01-04-requirements.md	2671	497	行	task-group			
+docs/spec/01-04-requirements.md	2671	567	行	task-group			
+docs/spec/01-04-requirements.md	2671	592	行	rewrite	その行の親の行からたどる	そのタスクグループの親のタスクグループからたどる	also covers a verb-guard miss
+docs/spec/01-04-requirements.md	2671	608	行	task-group			
+docs/spec/01-04-requirements.md	2671	619	行	task-group			
+docs/spec/01-04-requirements.md	2671	653	行	task-group			
+docs/spec/01-04-requirements.md	2671	680	行	task-group			
+docs/spec/01-04-requirements.md	2671	1170	行	task-group			
+docs/spec/01-04-requirements.md	2672	9	行	task-group			
+docs/spec/01-04-requirements.md	2672	284	行	task-group			
+docs/spec/01-04-requirements.md	2672	321	行	task-group			
+docs/spec/01-04-requirements.md	2672	436	行	task-group			
+docs/spec/01-04-requirements.md	2672	547	行	task-group			
+docs/spec/01-04-requirements.md	2672	591	各行	task-group			
+docs/spec/01-04-requirements.md	2672	771	行	task-group			
+docs/spec/01-04-requirements.md	2675	56	行	task-group			
+docs/spec/01-04-requirements.md	2678	12	行	task-group			
+docs/spec/01-04-requirements.md	2680	10	行	task-group			
+docs/spec/01-04-requirements.md	2680	83	行	task-group			
+docs/spec/01-04-requirements.md	2684	16	行	task-group			
+docs/spec/01-04-requirements.md	2685	0	行	task-group			
+docs/spec/01-04-requirements.md	2685	23	行	task-group			
+docs/spec/01-04-requirements.md	2687	27	行	task-group			
+docs/spec/01-04-requirements.md	2703	34	行数	task-group			
+docs/spec/01-04-requirements.md	2703	59	行数	task-group			
+docs/spec/01-04-requirements.md	2703	68	行	task-group			
+docs/spec/01-04-requirements.md	2703	84	行	task-group			
+docs/spec/01-04-requirements.md	2703	92	行	task-group			
+docs/spec/01-04-requirements.md	2703	144	行	task-group			
+docs/spec/01-04-requirements.md	2706	93	行数	task-group			
+docs/spec/01-04-requirements.md	2707	20	行	task-group			
+docs/spec/01-04-requirements.md	2707	38	行	task-group			
+docs/spec/01-04-requirements.md	2707	196	行	rewrite	の行から自分の行へ	のタスクグループから自分のタスクグループへ	also covers a verb-guard miss
+docs/spec/01-04-requirements.md	2838	53	行	keep			table rows of T-018
+docs/spec/01-04-requirements.md	2861	56	行	keep			property panel rows (T-016)
+docs/spec/01-04-requirements.md	2883	190	行	task-group			
+docs/spec/01-04-requirements.md	2883	226	行	task-group			
+docs/spec/01-04-requirements.md	2932	62	行	task-group			
+docs/spec/01-04-requirements.md	2932	85	行	task-group			
+docs/spec/01-04-requirements.md	2932	268	行	task-group			
+docs/spec/01-04-requirements.md	2932	284	行	task-group			
+docs/spec/01-04-requirements.md	2933	23	行	task-group			
+docs/spec/01-04-requirements.md	2933	145	行	task-group			
+docs/spec/01-04-requirements.md	2933	273	行	task-group			
+docs/spec/01-04-requirements.md	2933	280	行	task-group			
+docs/spec/01-04-requirements.md	2933	296	行	task-group			
+docs/spec/01-04-requirements.md	2933	383	行	task-group			
+docs/spec/01-04-requirements.md	2943	53	行	task-group			
+docs/spec/01-04-requirements.md	2943	103	行	task-group			
+docs/spec/01-04-requirements.md	2943	116	行	task-group			
+docs/spec/01-04-requirements.md	2943	202	行	task-group			
+docs/spec/01-04-requirements.md	2948	738	行	task-group			
+docs/spec/01-04-requirements.md	2951	40	行	task-group			
+docs/spec/01-04-requirements.md	2951	188	行	task-group			
+docs/spec/01-04-requirements.md	2951	231	行	task-group			
+docs/spec/01-04-requirements.md	2951	447	行	task-group			
+docs/spec/01-04-requirements.md	2951	460	行	task-group			
+docs/spec/01-04-requirements.md	2951	523	行	task-group			
+docs/spec/01-04-requirements.md	2951	544	行	task-group			
+docs/spec/01-04-requirements.md	2951	551	行	task-group			
+docs/spec/01-04-requirements.md	2951	567	行	task-group			
+docs/spec/01-04-requirements.md	2951	610	行	task-group			
+docs/spec/01-04-requirements.md	2951	850	行	task-group			
+docs/spec/01-04-requirements.md	2951	893	行	task-group			
+docs/spec/01-04-requirements.md	2951	980	行	task-group			
+docs/spec/01-04-requirements.md	2951	1189	行	task-group			
+docs/spec/01-04-requirements.md	2951	1242	行	task-group			
+docs/spec/01-04-requirements.md	2951	1253	行	rewrite	その行の帯の下端とし、描かれていなければ上の規則のとおりとする。<br>両端とも描かれないときは `EL-6` に当たる。<br>⚠️ 描かれた最上段の行から	そのタスクグループの帯の下端とし、描かれていなければ上の規則のとおりとする。<br>両端とも描かれないときは `EL-6` に当たる。<br>⚠️ 描かれた最上段のタスクグループから	overrides phrase to also cover a verb-guard miss
+docs/spec/01-04-requirements.md	2952	165	行	task-group			
+docs/spec/01-04-requirements.md	2952	201	行	task-group			
+docs/spec/01-04-requirements.md	2952	215	行	task-group			
+docs/spec/01-04-requirements.md	2952	454	行	task-group			
+docs/spec/01-04-requirements.md	2972	96	行	keep			table row of T-019
+docs/spec/01-04-requirements.md	2973	16	行	keep			an empty task row of the MSPDI input (EX-5)
+docs/spec/01-04-requirements.md	2993	20	行	keep			table row
+docs/spec/01-04-requirements.md	3049	46	行	keep			table row of T-069
+docs/spec/01-04-requirements.md	3068	1	行	task-group			
+docs/spec/01-04-requirements.md	3068	19	行	task-group			
+docs/spec/01-04-requirements.md	3172	286	行	keep			table rows of T-202
+docs/spec/01-04-requirements.md	3274	30	行	keep			an empty task row of the MSPDI input (EX-5)
+docs/spec/01-04-requirements.md	3276	5	行	keep			an empty task row of the MSPDI input (EX-5)
+docs/spec/01-04-requirements.md	3276	93	行	keep			an empty task row of the MSPDI input (EX-5)
+docs/spec/01-04-requirements.md	3339	12	行	keep			table rows
+docs/spec/01-04-requirements.md	3391	65	行	task-group			
+docs/spec/01-04-requirements.md	3396	372	行	keep			a line of the tooltip (TL-9)
+docs/spec/01-04-requirements.md	3421	173	回発行	keep			part of the word 発行
+docs/spec/01-04-requirements.md	3470	6	行	keep			table rows
+docs/spec/01-04-requirements.md	3498	3	親子	rewrite	導いた親子（`FR-135`）	導いた親タスクと子タスクの関係（`FR-135`）	Task parent and child (2.1)
+docs/spec/01-04-requirements.md	3529	162	回発行	keep			part of the word 発行
+docs/spec/01-04-requirements.md	3577	13	親子	rewrite	親子の関係にある	親タスクと子タスクの関係にある	Task parent and child (2.1)
+docs/spec/01-04-requirements.md	3578	46	行	task			VS-2, the example of JDG-1664
+docs/spec/01-04-requirements.md	3586	40	行	keep			table row
+docs/spec/01-04-requirements.md	3587	75	行	keep			table rows
+docs/spec/01-04-requirements.md	3593	55	行	task			JDG-1664
+docs/spec/01-04-requirements.md	3593	63	行	task			JDG-1664
+docs/spec/01-04-requirements.md	3630	46	行	task			JDG-1664
+docs/spec/01-04-requirements.md	3633	35	行	keep			table rows
+docs/spec/01-04-requirements.md	3635	14	行	task			JDG-1664
+docs/spec/01-04-requirements.md	3635	78	行	task			JDG-1664
+docs/spec/01-04-requirements.md	3637	20	行	task			JDG-1664
+docs/spec/01-04-requirements.md	3649	209	駆動先行	keep			part of the word 先行
+docs/spec/01-04-requirements.md	3666	49	行	task			the items marked purple are tasks (JDG-1664)
+docs/spec/01-04-requirements.md	3669	11	親子	rewrite	縦（親子）	縦（親タスクと子タスク）	Task parent and child (2.1); uncertain: a short axis label grows
+docs/spec/01-04-requirements.md	3670	11	親子	rewrite	縦（親子）	縦（親タスクと子タスク）	Task parent and child (2.1); uncertain: a short axis label grows
+docs/spec/01-04-requirements.md	3702	23	行	task-group			
