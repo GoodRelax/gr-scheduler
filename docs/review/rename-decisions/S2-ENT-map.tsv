@@ -1,0 +1,18 @@
+old	new	class	note
+DocumentRow	DocumentRow	b	an entity record of the document, not a task group
+DocumentRows	DocumentRows	b	entity records of the document
+ROWS_OF_ENTITY	ROWS_OF_ENTITY	b	entity records of the document
+RowArray	RowArray	b	an array of entity records
+TRow	TRow	b	type parameter of nestingOf (any record)
+documentRowsOf	documentRowsOf	b	entity records of the document
+isDownInRowPlace	isDownInTaskGroupPlace	a	the place of the task group
+lastRowReserveOf	lastTaskGroupReserveOf	a	RowPlacement
+liftedRows	liftedTaskGroups	a	RowPlacement
+one-row	one-task-group	a	uncertain: 2 of 3 code places mean one task group; the display-words contract comment means a one-row table
+rowById	taskGroupById	a	RowPlacement by group id; the tests/system helper is a drawn task group too
+rowOf	rowOf	b	mostly spec-table rows in tests; in src a record cast; a few tests use it for a task group (cr-596, cr-555, cr-661) -- one name, one class
+rowOmissions	rowOmissions	b	VO-1 / VO-2 table rows
+rowPathOf	taskGroupPathOf	a	names of the task groups up to the top
+rowsIn	rowsIn	b	entity records of the document
+scrolledRows	scrolledTaskGroups	a	RowPlacement
+scrollingRows	scrollingTaskGroups	a	RowPlacement

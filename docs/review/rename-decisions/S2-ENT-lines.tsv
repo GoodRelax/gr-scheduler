@@ -1,0 +1,81 @@
+path	line	col	text	decision	rewrite_old	rewrite_new	note
+src/entity/document-model/schedule/delay-diagnostics-report-table.ts	1	19	rows	keep			T-347 report table rows
+src/entity/document-model/schedule/delay-diagnostics-report-table.ts	24	30	row	keep			AnalysisWall['row'] is a DW-n table row id
+src/entity/document-model/schedule/delay-diagnostics.ts	353	28	row	task-group			top task group
+src/entity/document-model/schedule/delay-diagnostics.ts	353	39	row	task-group			task group above
+src/entity/document-model/schedule/delay-diagnostics.ts	855	35	row	keep			AnalysisWall['row'] is a DW-n table row id
+src/entity/document-model/schedule/delay-diagnostics.ts	1093	24	rows	keep			VO-3 / VO-5 table rows
+src/entity/document-model/schedule/row-names.ts	1	17	row	task-group			
+src/entity/document-model/schedule/row-names.ts	29	59	rows	task-group			
+src/entity/document-model/schedule/schedule-entities.ts	696	28	row	keep			settings table row S-128
+src/entity/document-model/schedule/schedule-entities.ts	698	33	row	keep			settings table row S-482
+src/entity/document-model/schedule/schedule-entities.ts	700	33	row	keep			settings table row S-483
+src/entity/document-model/schedule/schedule-invariants.ts	1	47	row	keep			table T-220 rows
+src/entity/document-model/schedule/schedule-invariants.ts	79	110	rows	keep			entity records of the document
+src/entity/document-model/schedule/schedule-invariants.ts	149	26	row	task-group			
+src/entity/document-model/schedule/schedule-invariants.ts	149	66	rows	task-group			
+src/entity/document-model/schedule/schedule-invariants.ts	256	24	row	keep			entity records of the document
+src/entity/document-model/schedule/schedule-invariants.ts	256	51	rows	keep			spread of an array of entity records
+src/entity/document-model/schedule/schedule-invariants.ts	434	19	row	task-group			runtime message about group.id
+src/entity/document-model/schedule/schedule-invariants.ts	495	19	row	task-group			runtime message about group.id
+src/entity/document-model/schedule/schedule-invariants.ts	666	78	row	keep			settings table row
+src/entity/document-model/schedule/schedule-invariants.ts	671	79	row	keep			settings table row
+src/entity/document-model/schedule/schedule-invariants.ts	694	69	row	task-group			highlight box top task group
+src/entity/document-model/schedule/schedule-invariants.ts	694	90	row	task-group			highlight box bottom task group
+src/entity/document-model/schedule/schedule-invariants.ts	760	9	rows	keep			invariant rows IV-n (parameter name)
+src/entity/document-model/schedule/schedule-invariants.ts	760	46	row	keep			invariant row IV-n
+src/entity/document-model/schedule/schedule-invariants.ts	760	81	rows	keep			invariant rows IV-n
+src/entity/layout-engine/item-hit-area/dependency-end.ts	46	53	row	task-group			
+src/entity/layout-engine/item-hit-area/drawn-selection.ts	38	41	row	task-group			a task group past the stack safety cap
+src/entity/layout-engine/item-hit-area/drawn-selection.ts	38	78	row	keep			a row of table T-023c
+src/entity/layout-engine/item-hit-area/item-hit-area.ts	286	50	row	keep			uncertain: cross-section line of the actual bar (XS-7), not a task group
+src/entity/layout-engine/item-hit-area/item-hit-area.ts	575	47	row	keep			grab-area table row (GA-n)
+src/entity/layout-engine/item-hit-area/item-hit-area.ts	780	25	row	task-group			
+src/entity/layout-engine/item-hit-area/item-hit-area.ts	1011	13	row	keep			table row order GR-10 / GR-11
+src/entity/layout-engine/item-hit-area/item-hit-area.ts	1030	74	row	keep			uncertain: a row of table T-246
+src/entity/layout-engine/item-hit-area/item-hit-area.ts	1180	18	rows	keep			press / hint rows of table T-023d
+src/entity/layout-engine/item-hit-area/item-hit-area.ts	1180	64	rows	keep			press / hint rows of table T-023d
+src/entity/layout-engine/item-hit-area/item-hit-area.ts	1180	92	row	keep			press / hint rows of table T-023d
+src/entity/layout-engine/item-hit-area/item-hit-area.ts	1195	18	rows	keep			press / hint rows of table T-023d
+src/entity/layout-engine/item-hit-area/item-hit-area.ts	1195	36	rows	keep			press / hint rows of table T-023d
+src/entity/layout-engine/item-hit-area/marquee.ts	43	20	row	task-group			
+src/entity/layout-engine/schedule-geometry/highlight-box.ts	1	80	rows	task-group			
+src/entity/layout-engine/schedule-geometry/highlight-box.ts	39	20	rows	task-group			
+src/entity/layout-engine/schedule-geometry/highlight-box.ts	56	36	row	task-group			
+src/entity/layout-engine/schedule-geometry/highlight-box.ts	56	71	row	task-group			
+src/entity/layout-engine/schedule-geometry/highlight-box.ts	57	24	rows	task-group			
+src/entity/layout-engine/schedule-geometry/highlight-box.ts	57	85	row	task-group			
+src/entity/layout-engine/schedule-geometry/highlight-box.ts	57	103	row	task-group			
+src/entity/layout-engine/schedule-geometry/highlight-box.ts	97	43	rows	task-group			
+src/entity/layout-engine/schedule-geometry/progress-line.ts	39	22	row	task-group			
+src/entity/layout-engine/schedule-geometry/progress-line.ts	39	39	row	task-group			
+src/entity/layout-engine/schedule-geometry/progress-line.ts	39	71	row	task-group			
+src/entity/layout-engine/schedule-geometry/schedule-geometry.ts	331	76	row	task-group			
+src/entity/layout-engine/schedule-geometry/schedule-geometry.ts	406	41	row	task-group			a task group past the stack safety cap
+src/entity/layout-engine/schedule-geometry/schedule-geometry.ts	406	88	row	keep			a row of the group LOD table
+src/entity/layout-engine/schedule-geometry/schedule-geometry.ts	407	76	row	task-group			
+src/entity/layout-engine/schedule-geometry/schedule-geometry.ts	425	18	row	task-group			
+src/entity/layout-engine/schedule-geometry/schedule-geometry.ts	431	88	row	task-group			
+src/entity/layout-engine/schedule-layout/drawn-rows.ts	1	25	rows	task-group			
+src/entity/layout-engine/schedule-layout/drawn-rows.ts	1	69	rows	task-group			
+src/entity/layout-engine/schedule-layout/drawn-rows.ts	13	10	row	task-group			
+src/entity/layout-engine/schedule-layout/drawn-rows.ts	29	63	rows	task-group			
+src/entity/layout-engine/schedule-layout/drawn-rows.ts	66	63	rows	task-group			
+src/entity/layout-engine/schedule-layout/group-level-of-detail.ts	1	40	rows	task-group			
+src/entity/layout-engine/schedule-layout/group-level-of-detail.ts	19	18	rows	keep			table rows TD-1 to TD-3
+src/entity/layout-engine/schedule-layout/group-level-of-detail.ts	19	62	row	task-group			an opened task group
+src/entity/layout-engine/schedule-layout/pinned-band.ts	1	45	rows	task-group			
+src/entity/layout-engine/schedule-layout/pinned-band.ts	55	79	row	task-group			
+src/entity/layout-engine/schedule-layout/pinned-band.ts	110	10	row	task-group			
+src/entity/layout-engine/schedule-layout/row-scroll.ts	1	51	rows	task-group			
+src/entity/layout-engine/schedule-layout/schedule-layout.ts	1	40	rows	task-group			
+src/entity/layout-engine/schedule-layout/schedule-layout.ts	388	60	row	task-group			
+src/entity/layout-engine/schedule-layout/schedule-layout.ts	389	23	row	task-group			task group controls
+src/entity/layout-engine/schedule-layout/schedule-layout.ts	404	10	row	task-group			
+src/entity/layout-engine/schedule-layout/schedule-layout.ts	404	99	row	task-group			
+src/entity/layout-engine/schedule-layout/schedule-layout.ts	412	81	row	task-group			
+src/entity/layout-engine/schedule-layout/schedule-layout.ts	585	34	row	task-group			
+src/entity/layout-engine/schedule-layout/schedule-layout.ts	585	59	row	task-group			
+src/entity/layout-engine/schedule-layout/shape-cross-sections.ts	25	80	row	task-group			uncertain: stacked row read as a task group (CR-708 2.6 fig-hit-stacked-row)
+src/entity/layout-engine/schedule-layout/time-axis.ts	48	45	row	task-group			
+src/entity/layout-engine/screen-regions/screen-regions.ts	79	83	row	keep			settings table rows
