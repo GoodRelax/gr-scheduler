@@ -1,0 +1,18 @@
+path	line	col	nth	name	decision	note
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	265	11	0	rows	task-group	the fixture task group seeds (Fixture.rows); all four places together
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	282	42	0	rows	task-group	the fixture task group seeds (Fixture.rows); all four places together
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	419	37	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]) is renamed by type, as in src
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	671	27	0	rows	task-group	the fixture task group seeds (Fixture.rows); all four places together
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	672	49	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]) is renamed by type, as in src
+tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts	796	26	0	rows	task-group	the fixture task group seeds (Fixture.rows); all four places together
+tests/contract/dfc-628-641-fr-016-the-band-ceiling-is-the-one-t-253-finds-from-any-start.test.ts	170	24	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]) is renamed by type, as in src
+tests/contract/dfc-628-641-fr-016-the-band-ceiling-is-the-one-t-253-finds-from-any-start.test.ts	57	43	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]) is renamed by type, as in src
+tests/contract/dfc-697-a-display-scale-step-keeps-the-row-area-middle.contract.test.ts	58	33	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]) is renamed by type, as in src
+tests/contract/dfc-699-fr-016-t-253-the-row-zoom-ceiling-follows-the-rows-the-detail-level-draws.test.ts	52	87	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]) is renamed by type, as in src
+tests/contract/dfc-699-fr-016-t-253-the-row-zoom-ceiling-follows-the-rows-the-detail-level-draws.test.ts	54	24	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]) is renamed by type, as in src
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	109	40	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]) is renamed by type, as in src
+tests/contract/dfc-699-the-row-zoom-ceiling-and-the-held-day.contract.test.ts	91	87	0	rows	task-group	ScheduleLayout.rows (RowPlacement[]) is renamed by type, as in src
+tests/contract/display-words.contract.test.ts	1683	19	1	row	keep	a table / settings / field row
+tests/contract/t-284-the-shared-step.contract.test.ts	140	75	0	row	keep	a table / settings / field row
+tests/contract/t-284-the-shared-step.contract.test.ts	140	95	1	row	keep	a table / settings / field row
+tests/contract/w3-t4-a-saved-export-span-draws-one-picture.test.ts	336	113	0	row	keep	a table / settings / field row
