@@ -1,4 +1,4 @@
-// CR-722 spec-only contract: each table holds its own Visibility, first Show (TV-2, S-494, S-547, S-548), the eye IC-143 turns that table's Schedule Filter on and off (TV-5), turning off keeps the values (TV-8), and the report leads with DT-8.
+// CR-722 spec-only contract: each table holds its own Visibility, first Show (TV-2, S-560, S-561, S-564, S-565, S-568, S-569), the eye IC-143 turns that table's Schedule Filter on and off (TV-5), turning off keeps the values (TV-8), and the report leads with DT-8.
 
 import { describe, expect, it } from 'vitest'
 
@@ -35,7 +35,7 @@ type Held = { readonly visibility: TableVisibility }
 const visibilityOf = (panel: unknown): TableVisibility => (panel as Held).visibility
 const hiddenOf = (panel: unknown): readonly number[] => [...visibilityOf(panel).hiddenKeys].sort((a, b) => a - b)
 
-describe('FR-151 T-353 TV-2, S-494 / S-547 -- every table starts with every row Show and its Schedule Filter off', () => {
+describe('FR-151 T-353 TV-2, S-560 / S-564 -- every table starts with every row Show and its Schedule Filter off', () => {
   it('the search panel session holds a Visibility that hides nothing and is off', () => {
     expect(visibilityOf(emptySearchPanelSession)).toEqual(ALL_SHOWN)
   })

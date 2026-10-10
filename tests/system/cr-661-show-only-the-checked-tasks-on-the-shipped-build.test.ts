@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { validateDocument } from '../fixtures/grs-document'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
-import { keyOf, openDocument, openStage, readTree, saveDocument, settle, stateOf, type Stage } from './cr-570-tree-state-stage'
+import { UNDO, keyOf, openDocument, openStage, pressEntrance, readTree, saveDocument, settle, stateOf, type Stage } from './cr-570-tree-state-stage'
 import { rowOf } from './sws-case'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
@@ -14,15 +14,15 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_151_RULES =
   '検索の表・遅延診断レポートの表・担当リストの表の表示の列（Visibility）と、表ごとのスケジュールフィルタの入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-143`）で、日程表に描くタスクを絞ること（スケジュールフィルタ）の規則は 表 T-353 に従うこと（MUST）'
-const FR_151_NOT_SAVED = '⛔ 表ごとの表示の列の値とスケジュールフィルタの入切も文書に保存してはならない（MUST NOT）'
-const FR_151_NOT_UNDONE = '取り消しの記録にも載せない'
+const FR_151_SAVED = '⭐ 3 つの表の見え方 —— 表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え —— は文書に保存すること（MUST）'
+const FR_151_ONE_STEP = '表の見え方を変えたら未保存の編集（`FR-100`）であり、取り消しの 1 段である（`FR-031` の 表 T-027 の `UN-20`）。'
 const TV_3_NOT_FAINT = '「描かれていないタスク」）。⛔ 薄く描いてはならない（MUST NOT）'
 const EL_21_SJ_0 = '印の先の端のタスクがスケジュールフィルタ（`FR-151` の 表 T-353）で描かれないときは、先に 表 T-332 の `SJ-0` を行うこと（MUST）'
 const FR_134_JUMP = '表の 1 行の名前を押したら、その行の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）で飛ぶこと（MUST）'
 const IX_11_NO_BAND_WORDS =
   '⛔ 絵にスケジュールフィルタの帯（`_assets/tbl-glossary.md` の `U-67`）の語を書き込んではならない（MUST NOT）'
 
-const CLAUSES = [FR_151_RULES, FR_151_NOT_SAVED, FR_151_NOT_UNDONE, TV_3_NOT_FAINT, EL_21_SJ_0, FR_134_JUMP, IX_11_NO_BAND_WORDS]
+const CLAUSES = [FR_151_RULES, FR_151_SAVED, FR_151_ONE_STEP, TV_3_NOT_FAINT, EL_21_SJ_0, FR_134_JUMP, IX_11_NO_BAND_WORDS]
 
 const T_353 = specTable('T-353')
 const T_332 = specTable('T-332')
@@ -306,22 +306,21 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
     }
   })
 
-  test(`FR-151 (MUST NOT): ${FR_151_NOT_SAVED.slice(-30)} -- Ctrl+Z after entering takes nothing back, and a save holds no Visibility`, async () => {
+  test(`FR-151 (MUST): ${FR_151_SAVED.slice(-30)} -- a save holds the Visibility and the eye, and one undo takes back the eye alone`, async () => {
     const stage = await opened()
     try {
       const { page } = stage
-      const savedBefore = JSON.parse(await saveDocument(page)) as Record<string, unknown>
+      const savedBefore = JSON.parse(await saveDocument(page)) as Record<string, any>
       await enter(page)
       expect(stateOf(await readTree(page), TASK_GROUP_P), 'TV-6: entering opens nothing').toBe('collapsed')
-      await page.keyboard.press('Control+z')
-      await settle(page)
-      expect(stateOf(await readTree(page), TASK_GROUP_P)).toBe('collapsed')
-      expect(await readShown(page), `${FR_151_NOT_UNDONE}: the Visibility and the Schedule Filter stay`).toEqual(NARROWED)
-      expect(await bandText(page)).not.toBeNull()
-      const savedDuring = JSON.parse(await saveDocument(page)) as Record<string, unknown>
+      const savedDuring = JSON.parse(await saveDocument(page)) as Record<string, any>
       expect(savedDuring['schedule']).toEqual(savedBefore['schedule'])
-      expect(savedDuring['documentSettings']).toEqual(savedBefore['documentSettings'])
-      expect(JSON.stringify(savedDuring)).not.toMatch(/shown|showOnly|checked|visibility|hiddenKeys|scheduleFilter/i)
+      expect(savedBefore['documentSettings']['tableViews']['searchPanel']).toMatchObject({ isScheduleFilterApplied: false, hiddenTaskUids: [] })
+      expect(savedDuring['documentSettings']['tableViews']['searchPanel']).toMatchObject({ isScheduleFilterApplied: true, hiddenTaskUids: [BRAVO, DELTA] })
+      expect(await pressEntrance(page, UNDO), 'IC-5 is on the screen').toBe(true)
+      expect(stateOf(await readTree(page), TASK_GROUP_P), `${FR_151_ONE_STEP} -- the undo of the eye opens nothing either`).toBe('collapsed')
+      expect(await readShown(page), 'UN-20: one undo took back the eye, the rows stay Hide').toEqual(NOT_NARROWED)
+      expect(await bandText(page)).toBeNull()
     } finally {
       await stage.close()
     }
