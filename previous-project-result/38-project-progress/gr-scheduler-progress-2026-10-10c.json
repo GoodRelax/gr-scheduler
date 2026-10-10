@@ -12,7 +12,7 @@
    "manager": "coordinator",
    "author": "progress body",
    "created": "2026-10-04T00:00:00",
-   "revision": 8,
+   "revision": 9,
    "startDate": "2026-10-04T08:00:00",
    "statusDate": "2027-06-28T17:00:00",
    "minutesPerDay": null,
@@ -5078,7 +5078,7 @@
     "finish": "2027-08-04T17:00:00",
     "milestone": false,
     "deadline": null,
-    "notes": "実時間 10-10 16:45〜10-11 02:45。進行中。git にまだコミットは無い —— 始まりは push 28f44bf8 の時刻（推定）。見込み 10 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。目安 約 10 時間。",
+    "notes": "実時間 10-10 16:45〜10-11 02:45。進行中。git にまだコミットは無い —— 始まりは推定。見込み 10 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。目安 約 10 時間。始まりは push 28f44bf8 の時刻（推定）。",
     "calendarUid": null,
     "actualStart": "2027-06-26T08:00:00",
     "stop": "2027-06-28T17:00:00",
@@ -5096,12 +5096,58 @@
     "uid": 189,
     "parentTaskUid": null,
     "wbsOrder": 188,
-    "name": "CR-730 米国つづりに統一する 1/2: 準備（約 4,200 か所、識別子も、JDG-1921・1924・1925）",
-    "start": "2027-08-05T08:00:00",
-    "finish": "2027-08-19T17:00:00",
+    "name": "CR-730 段 0 持ち場 A: つづりの対応表・残す表・当てる道具・予行",
+    "start": "2027-06-28T08:00:00",
+    "finish": "2027-07-03T17:00:00",
     "milestone": false,
     "deadline": null,
-    "notes": "実時間 10-11 02:45〜10-11 06:30。見込み 3.6 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。目安は全体で 5〜7 時間 —— そのうち凍結の中（下の行）を除いた分。CR-728 が入ってから始める。",
+    "notes": "実時間 10-10 17:15〜10-10 18:45。進行中。git にまだコミットは無い —— 始まりは推定。見込み 1.5 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。目安 約 1.5 時間。CR-728 と並行（利用者の指示 2026-10-10「エージェントに分担させて…並列でできるだろ？」、調整役の知らせ）。調整役は始まりを 17:35 ごろと知らせたが、この表を作った時刻（10-10 17:26）より後なので、始まりを作った時刻に置いた。",
+    "calendarUid": null,
+    "actualStart": "2027-06-28T08:00:00",
+    "stop": "2027-06-28T17:00:00",
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 17,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 190,
+    "parentTaskUid": null,
+    "wbsOrder": 189,
+    "name": "CR-730 段 0 持ち場 B: 25 の衝突・生成器の文字列・検査 32 の直し",
+    "start": "2027-06-28T08:00:00",
+    "finish": "2027-07-03T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 10-10 17:15〜10-10 18:45。進行中。git にまだコミットは無い —— 始まりは推定。見込み 1.5 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。目安 約 1.5 時間。持ち場 A と CR-728 と並行。調整役は始まりを 17:35 ごろと知らせたが、この表を作った時刻（10-10 17:26）より後なので、始まりを作った時刻に置いた。",
+    "calendarUid": null,
+    "actualStart": "2027-06-28T08:00:00",
+    "stop": "2027-06-28T17:00:00",
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 17,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 191,
+    "parentTaskUid": null,
+    "wbsOrder": 190,
+    "name": "CR-730 書き込みの凍結の中で当てる（道具で当てる・gen・tsc・直し・GT-2、agentApiVersion 2 → 3、.mcpb を作り直す。約 4,200 か所、JDG-1921・1924・1925）",
+    "start": "2027-08-05T08:00:00",
+    "finish": "2027-08-10T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 10-11 02:45〜10-11 04:15。見込み 1.5 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。目安 1〜1.5 時間。CR-728 が入ってから。GT-2 が試験の全部を兼ねる（調整役）。",
     "calendarUid": null,
     "actualStart": null,
     "stop": null,
@@ -5119,31 +5165,7 @@
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
-     }
-    ],
-    "carry": {},
-    "carryElements": []
-   },
-   {
-    "uid": 190,
-    "parentTaskUid": null,
-    "wbsOrder": 189,
-    "name": "CR-730 2/2: 書き込みの凍結の中で当てる（agentApiVersion 2 → 3、.mcpb を作り直す）",
-    "start": "2027-08-20T08:00:00",
-    "finish": "2027-08-29T17:00:00",
-    "milestone": false,
-    "deadline": null,
-    "notes": "実時間 10-11 06:30〜10-11 09:00。見込み 2.4 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。凍結は目安 1.75〜3 時間。",
-    "calendarUid": null,
-    "actualStart": null,
-    "stop": null,
-    "actualFinish": null,
-    "resume": null,
-    "resumeValid": true,
-    "percentComplete": 0,
-    "fadeInDays": null,
-    "fadeOutDays": null,
-    "dependencies": [
+     },
      {
       "predecessorUid": 189,
       "linkType": 1,
@@ -5151,31 +5173,7 @@
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
-     }
-    ],
-    "carry": {},
-    "carryElements": []
-   },
-   {
-    "uid": 191,
-    "parentTaskUid": null,
-    "wbsOrder": 190,
-    "name": "CR-723 表の見え方を GRS JSON に保存する（形式が変わる）",
-    "start": "2027-08-30T08:00:00",
-    "finish": "2027-10-20T17:00:00",
-    "milestone": false,
-    "deadline": null,
-    "notes": "実時間 10-11 09:00〜10-11 22:00。見込み 13 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
-    "calendarUid": null,
-    "actualStart": null,
-    "stop": null,
-    "actualFinish": null,
-    "resume": null,
-    "resumeValid": true,
-    "percentComplete": 0,
-    "fadeInDays": null,
-    "fadeOutDays": null,
-    "dependencies": [
+     },
      {
       "predecessorUid": 190,
       "linkType": 1,
@@ -5192,12 +5190,12 @@
     "uid": 192,
     "parentTaskUid": null,
     "wbsOrder": 191,
-    "name": "範囲選択を重ねる層の CR（DFC-2302、性能の (c)）",
-    "start": "2027-10-21T08:00:00",
-    "finish": "2027-11-09T17:00:00",
+    "name": "CR-723 表の見え方を GRS JSON に保存する（形式が変わる）",
+    "start": "2027-08-11T08:00:00",
+    "finish": "2027-10-01T17:00:00",
     "milestone": false,
     "deadline": null,
-    "notes": "実時間 10-11 22:00〜10-12 03:00。見込み 5 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。目安 4〜6 時間。",
+    "notes": "実時間 10-11 04:15〜10-11 17:15。見込み 13 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
     "calendarUid": null,
     "actualStart": null,
     "stop": null,
@@ -5224,12 +5222,12 @@
     "uid": 193,
     "parentTaskUid": null,
     "wbsOrder": 192,
-    "name": "試験の中の符号位置で書いた語を読み解く検査（新しい検査）",
-    "start": "2027-11-10T08:00:00",
-    "finish": "2027-11-17T17:00:00",
+    "name": "範囲選択を重ねる層の CR（DFC-2302、性能の (c)）",
+    "start": "2027-10-02T08:00:00",
+    "finish": "2027-10-21T17:00:00",
     "milestone": false,
     "deadline": null,
-    "notes": "実時間 10-12 03:00〜10-12 05:00。見込み 2 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
+    "notes": "実時間 10-11 17:15〜10-11 22:15。見込み 5 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。目安 4〜6 時間。",
     "calendarUid": null,
     "actualStart": null,
     "stop": null,
@@ -5256,12 +5254,12 @@
     "uid": 194,
     "parentTaskUid": null,
     "wbsOrder": 193,
-    "name": "タイムゾーンの画面の見本を利用者に見せる",
-    "start": "2027-11-18T08:00:00",
-    "finish": "2027-11-18T08:00:00",
-    "milestone": true,
+    "name": "試験の中の符号位置で書いた語を読み解く検査（新しい検査）",
+    "start": "2027-10-22T08:00:00",
+    "finish": "2027-10-29T17:00:00",
+    "milestone": false,
     "deadline": null,
-    "notes": "実時間 10-12 05:00。推測。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。CR-710 の前（10-10b の調整役）。",
+    "notes": "実時間 10-11 22:15〜10-12 00:15。見込み 2 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
     "calendarUid": null,
     "actualStart": null,
     "stop": null,
@@ -5288,12 +5286,12 @@
     "uid": 195,
     "parentTaskUid": null,
     "wbsOrder": 194,
-    "name": "CR-710 分単位の日程（波 0a〜3b）",
-    "start": "2027-11-18T08:00:00",
-    "finish": "2028-04-05T17:00:00",
-    "milestone": false,
+    "name": "タイムゾーンの画面の見本を利用者に見せる",
+    "start": "2027-10-30T08:00:00",
+    "finish": "2027-10-30T08:00:00",
+    "milestone": true,
     "deadline": null,
-    "notes": "実時間 10-12 05:00〜10-13 16:00。見込み 35 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。目安 30〜40 時間（10-10b の調整役）。",
+    "notes": "実時間 10-12 00:15。推測。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。CR-710 の前（10-10b の調整役）。",
     "calendarUid": null,
     "actualStart": null,
     "stop": null,
@@ -5320,12 +5318,12 @@
     "uid": 196,
     "parentTaskUid": null,
     "wbsOrder": 195,
-    "name": "進捗の表を 1 分 = 1 分で描き直す（CR-710 の後）",
-    "start": "2028-04-06T08:00:00",
-    "finish": "2028-04-09T17:00:00",
+    "name": "CR-710 分単位の日程（波 0a〜3b）",
+    "start": "2027-10-30T08:00:00",
+    "finish": "2028-03-17T17:00:00",
     "milestone": false,
     "deadline": null,
-    "notes": "実時間 10-13 16:00〜10-13 17:00。見込み 1 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。長さは置き場所。",
+    "notes": "実時間 10-12 00:15〜10-13 11:15。見込み 35 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。目安 30〜40 時間（10-10b の調整役）。",
     "calendarUid": null,
     "actualStart": null,
     "stop": null,
@@ -5352,12 +5350,12 @@
     "uid": 197,
     "parentTaskUid": null,
     "wbsOrder": 196,
-    "name": "残り: DFC-1671 休日の面と DFC-2318（RR-2〜5）",
-    "start": "2028-04-10T08:00:00",
-    "finish": "2028-05-07T17:00:00",
+    "name": "進捗の表を 1 分 = 1 分で描き直す（CR-710 の後）",
+    "start": "2028-03-18T08:00:00",
+    "finish": "2028-03-21T17:00:00",
     "milestone": false,
     "deadline": null,
-    "notes": "実時間 10-13 17:00〜10-14 00:00。見込み 7 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。10-10 版の目安（DFC-2318 の分は見込みが無い）。残りの 4 行は並行に置いた（推定）。",
+    "notes": "実時間 10-13 11:15〜10-13 12:15。見込み 1 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。長さは置き場所。",
     "calendarUid": null,
     "actualStart": null,
     "stop": null,
@@ -5384,108 +5382,12 @@
     "uid": 198,
     "parentTaskUid": null,
     "wbsOrder": 197,
-    "name": "残り: DFC-2303 依存の跳び先の印の線と当たり判定をそろえる",
-    "start": "2028-04-10T08:00:00",
-    "finish": "2028-04-21T17:00:00",
+    "name": "残り: DFC-1671 休日の面と DFC-2318（RR-2〜5）",
+    "start": "2028-03-22T08:00:00",
+    "finish": "2028-04-18T17:00:00",
     "milestone": false,
     "deadline": null,
-    "notes": "実時間 10-13 17:00〜10-13 20:00。見込み 3 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
-    "calendarUid": null,
-    "actualStart": null,
-    "stop": null,
-    "actualFinish": null,
-    "resume": null,
-    "resumeValid": true,
-    "percentComplete": 0,
-    "fadeInDays": null,
-    "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 196,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
-    "carry": {},
-    "carryElements": []
-   },
-   {
-    "uid": 199,
-    "parentTaskUid": null,
-    "wbsOrder": 198,
-    "name": "残り: 罠の束（DFC-544・547・548・549）",
-    "start": "2028-04-10T08:00:00",
-    "finish": "2028-04-21T17:00:00",
-    "milestone": false,
-    "deadline": null,
-    "notes": "実時間 10-13 17:00〜10-13 20:00。見込み 3 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
-    "calendarUid": null,
-    "actualStart": null,
-    "stop": null,
-    "actualFinish": null,
-    "resume": null,
-    "resumeValid": true,
-    "percentComplete": 0,
-    "fadeInDays": null,
-    "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 196,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
-    "carry": {},
-    "carryElements": []
-   },
-   {
-    "uid": 200,
-    "parentTaskUid": null,
-    "wbsOrder": 199,
-    "name": "残り: 用語集を JSON にする（DFC-2175）",
-    "start": "2028-04-10T08:00:00",
-    "finish": "2028-04-25T17:00:00",
-    "milestone": false,
-    "deadline": null,
-    "notes": "実時間 10-13 17:00〜10-13 21:00。見込み 4 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
-    "calendarUid": null,
-    "actualStart": null,
-    "stop": null,
-    "actualFinish": null,
-    "resume": null,
-    "resumeValid": true,
-    "percentComplete": 0,
-    "fadeInDays": null,
-    "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 196,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
-    "carry": {},
-    "carryElements": []
-   },
-   {
-    "uid": 201,
-    "parentTaskUid": null,
-    "wbsOrder": 200,
-    "name": "残り: W4 大きなファイルを割る（CR-578 → 579 → 580、CR-581 の後半、properties-panel）",
-    "start": "2028-05-08T08:00:00",
-    "finish": "2028-06-24T17:00:00",
-    "milestone": false,
-    "deadline": null,
-    "notes": "実時間 10-14 00:00〜10-14 12:00。見込み 12 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。10-10 版の目安（10〜14 時間）。",
+    "notes": "実時間 10-13 12:15〜10-13 19:15。見込み 7 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。10-10 版の目安（DFC-2318 の分は見込みが無い）。残りの 4 行は並行に置いた（推定）。",
     "calendarUid": null,
     "actualStart": null,
     "stop": null,
@@ -5503,7 +5405,127 @@
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
-     },
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 199,
+    "parentTaskUid": null,
+    "wbsOrder": 198,
+    "name": "残り: DFC-2303 依存の跳び先の印の線と当たり判定をそろえる",
+    "start": "2028-03-22T08:00:00",
+    "finish": "2028-04-02T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 10-13 12:15〜10-13 15:15。見込み 3 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 197,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 200,
+    "parentTaskUid": null,
+    "wbsOrder": 199,
+    "name": "残り: 罠の束（DFC-544・547・548・549）",
+    "start": "2028-03-22T08:00:00",
+    "finish": "2028-04-02T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 10-13 12:15〜10-13 15:15。見込み 3 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 197,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 201,
+    "parentTaskUid": null,
+    "wbsOrder": 200,
+    "name": "残り: 用語集を JSON にする（DFC-2175）",
+    "start": "2028-03-22T08:00:00",
+    "finish": "2028-04-06T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 10-13 12:15〜10-13 16:15。見込み 4 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 197,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 202,
+    "parentTaskUid": null,
+    "wbsOrder": 201,
+    "name": "残り: W4 大きなファイルを割る（CR-578 → 579 → 580、CR-581 の後半、properties-panel）",
+    "start": "2028-04-19T08:00:00",
+    "finish": "2028-06-05T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 10-13 19:15〜10-14 07:15。見込み 12 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。10-10 版の目安（10〜14 時間）。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
      {
       "predecessorUid": 198,
       "linkType": 1,
@@ -5527,31 +5549,7 @@
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
-     }
-    ],
-    "carry": {},
-    "carryElements": []
-   },
-   {
-    "uid": 202,
-    "parentTaskUid": null,
-    "wbsOrder": 201,
-    "name": "残り: W5 異常系・準正常系を手当てする（約 45 行、DFC-732・DFC-922 を含む）",
-    "start": "2028-06-25T08:00:00",
-    "finish": "2028-08-19T17:00:00",
-    "milestone": false,
-    "deadline": null,
-    "notes": "実時間 10-14 12:00〜10-15 02:00。見込み 14 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。10-10 版の目安（12〜16 時間）。",
-    "calendarUid": null,
-    "actualStart": null,
-    "stop": null,
-    "actualFinish": null,
-    "resume": null,
-    "resumeValid": true,
-    "percentComplete": 0,
-    "fadeInDays": null,
-    "fadeOutDays": null,
-    "dependencies": [
+     },
      {
       "predecessorUid": 201,
       "linkType": 1,
@@ -5568,44 +5566,12 @@
     "uid": 203,
     "parentTaskUid": null,
     "wbsOrder": 202,
-    "name": "残り: AI 連携 CR-695・CR-697・DFC-2214・2215",
-    "start": "2028-06-25T08:00:00",
-    "finish": "2028-08-03T17:00:00",
+    "name": "残り: W5 異常系・準正常系を手当てする（約 45 行、DFC-732・DFC-922 を含む）",
+    "start": "2028-06-06T08:00:00",
+    "finish": "2028-07-31T17:00:00",
     "milestone": false,
     "deadline": null,
-    "notes": "実時間 10-14 12:00〜10-14 22:00。見込み 10 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。10-10 版の目安（8〜12 時間）。W5 と並べた。",
-    "calendarUid": null,
-    "actualStart": null,
-    "stop": null,
-    "actualFinish": null,
-    "resume": null,
-    "resumeValid": true,
-    "percentComplete": 0,
-    "fadeInDays": null,
-    "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 201,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
-    "carry": {},
-    "carryElements": []
-   },
-   {
-    "uid": 204,
-    "parentTaskUid": null,
-    "wbsOrder": 203,
-    "name": "利用者が触る 1 枚のチェックリストを作る",
-    "start": "2028-08-20T08:00:00",
-    "finish": "2028-08-27T17:00:00",
-    "milestone": false,
-    "deadline": null,
-    "notes": "実時間 10-15 02:00〜10-15 04:00。見込み 2 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
+    "notes": "実時間 10-14 07:15〜10-14 21:15。見込み 14 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。10-10 版の目安（12〜16 時間）。",
     "calendarUid": null,
     "actualStart": null,
     "stop": null,
@@ -5623,9 +5589,33 @@
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
-     },
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 204,
+    "parentTaskUid": null,
+    "wbsOrder": 203,
+    "name": "残り: AI 連携 CR-695・CR-697・DFC-2214・2215",
+    "start": "2028-06-06T08:00:00",
+    "finish": "2028-07-15T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 10-14 07:15〜10-14 17:15。見込み 10 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。10-10 版の目安（8〜12 時間）。W5 と並べた。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
      {
-      "predecessorUid": 203,
+      "predecessorUid": 202,
       "linkType": 1,
       "lag": 0,
       "lagFormat": 7,
@@ -5640,12 +5630,12 @@
     "uid": 205,
     "parentTaskUid": null,
     "wbsOrder": 204,
-    "name": "利用者がチェックリストで確かめる",
-    "start": "2028-08-28T08:00:00",
-    "finish": "2028-08-28T08:00:00",
-    "milestone": true,
+    "name": "利用者が触る 1 枚のチェックリストを作る",
+    "start": "2028-08-01T08:00:00",
+    "finish": "2028-08-08T17:00:00",
+    "milestone": false,
     "deadline": null,
-    "notes": "実時間 10-15 04:00。推測。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。確かめる長さは見込みが無い。",
+    "notes": "実時間 10-14 21:15〜10-14 23:15。見込み 2 時間。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。",
     "calendarUid": null,
     "actualStart": null,
     "stop": null,
@@ -5656,6 +5646,14 @@
     "fadeInDays": null,
     "fadeOutDays": null,
     "dependencies": [
+     {
+      "predecessorUid": 203,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     },
      {
       "predecessorUid": 204,
       "linkType": 1,
@@ -5672,12 +5670,12 @@
     "uid": 206,
     "parentTaskUid": null,
     "wbsOrder": 205,
-    "name": "公式の公開はこの後 —— 解明・リファクタ・分単位の日程が済むまで出さない（JDG-1740）",
-    "start": "2028-08-28T08:00:00",
-    "finish": "2028-08-28T08:00:00",
+    "name": "利用者がチェックリストで確かめる",
+    "start": "2028-08-09T08:00:00",
+    "finish": "2028-08-09T08:00:00",
     "milestone": true,
     "deadline": null,
-    "notes": "実時間 10-15 04:00。推測。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。公開の時期は決まっていない。",
+    "notes": "実時間 10-14 23:15。推測。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。確かめる長さは見込みが無い。",
     "calendarUid": null,
     "actualStart": null,
     "stop": null,
@@ -5690,6 +5688,38 @@
     "dependencies": [
      {
       "predecessorUid": 205,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 207,
+    "parentTaskUid": null,
+    "wbsOrder": 206,
+    "name": "公式の公開はこの後 —— 解明・リファクタ・分単位の日程が済むまで出さない（JDG-1740）",
+    "start": "2028-08-09T08:00:00",
+    "finish": "2028-08-09T08:00:00",
+    "milestone": true,
+    "deadline": null,
+    "notes": "実時間 10-14 23:15。推測。見込みは調整役の目安（実時間の作業時間、2026-10-10 17:20 ごろ、CR-730 は 17:40 ごろの訂正）を JDG-1416 で換算した。幅で示されたものは中の値にした。夜や休みは入れていない。公開の時期は決まっていない。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": true,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 206,
       "linkType": 1,
       "lag": 0,
       "lagFormat": 7,
@@ -7196,147 +7226,147 @@
    },
    {
     "uid": 2210,
-    "taskUid": 189,
-    "resourceUid": 1001,
-    "carry": {},
-    "carryElements": []
-   },
-   {
-    "uid": 2211,
     "taskUid": 190,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2212,
-    "taskUid": 190,
-    "resourceUid": 1001,
-    "carry": {},
-    "carryElements": []
-   },
-   {
-    "uid": 2213,
+    "uid": 2211,
     "taskUid": 191,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2214,
+    "uid": 2212,
+    "taskUid": 191,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2213,
     "taskUid": 192,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2215,
+    "uid": 2214,
     "taskUid": 193,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2216,
+    "uid": 2215,
     "taskUid": 194,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2216,
+    "taskUid": 195,
     "resourceUid": 1002,
     "carry": {},
     "carryElements": []
    },
    {
     "uid": 2217,
-    "taskUid": 194,
+    "taskUid": 195,
     "resourceUid": 1001,
     "carry": {},
     "carryElements": []
    },
    {
     "uid": 2218,
-    "taskUid": 195,
-    "resourceUid": 1003,
-    "carry": {},
-    "carryElements": []
-   },
-   {
-    "uid": 2219,
     "taskUid": 196,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2220,
+    "uid": 2219,
     "taskUid": 197,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2221,
+    "uid": 2220,
     "taskUid": 198,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2222,
+    "uid": 2221,
     "taskUid": 199,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2223,
+    "uid": 2222,
     "taskUid": 200,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2224,
+    "uid": 2223,
     "taskUid": 201,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2225,
+    "uid": 2224,
     "taskUid": 202,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2226,
-    "taskUid": 202,
-    "resourceUid": 1001,
-    "carry": {},
-    "carryElements": []
-   },
-   {
-    "uid": 2227,
+    "uid": 2225,
     "taskUid": 203,
     "resourceUid": 1003,
     "carry": {},
     "carryElements": []
    },
    {
-    "uid": 2228,
+    "uid": 2226,
+    "taskUid": 203,
+    "resourceUid": 1001,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2227,
     "taskUid": 204,
+    "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2228,
+    "taskUid": 205,
     "resourceUid": 1001,
     "carry": {},
     "carryElements": []
    },
    {
     "uid": 2229,
-    "taskUid": 205,
+    "taskUid": 206,
     "resourceUid": 1002,
     "carry": {},
     "carryElements": []
    },
    {
     "uid": 2230,
-    "taskUid": 206,
+    "taskUid": 207,
     "resourceUid": 1002,
     "carry": {},
     "carryElements": []
@@ -9544,9 +9574,9 @@
     "editGroup": null
    },
    {
-    "id": "f40cca6e-fe0e-56ea-a634-e9e637e36de9",
+    "id": "90b7226d-45bf-586c-b1fd-d1efea6304aa",
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
-    "label": "CR-730 米国つづりに統一する 1/2: 準備（約 4,200 か所、識別子も、JDG-1921・1924・1925）",
+    "label": "CR-730 段 0 持ち場 A: つづりの対応表・残す表・当てる道具・予行",
     "derivedFromTaskUid": null,
     "order": 1,
     "treeState": "auto",
@@ -9555,11 +9585,22 @@
     "editGroup": null
    },
    {
-    "id": "bfc166b9-ed68-56b2-a506-66ae230ea819",
+    "id": "1c6f9b0d-9766-5351-aebf-2a6c5747cd3c",
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
-    "label": "CR-730 2/2: 書き込みの凍結の中で当てる（agentApiVersion 2 → 3、.mcpb を作り直す）",
+    "label": "CR-730 段 0 持ち場 B: 25 の衝突・生成器の文字列・検査 32 の直し",
     "derivedFromTaskUid": null,
     "order": 2,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "bfc166b9-ed68-56b2-a506-66ae230ea819",
+    "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
+    "label": "CR-730 書き込みの凍結の中で当てる（道具で当てる・gen・tsc・直し・GT-2、agentApiVersion 2 → 3、.mcpb を作り直す。約 4,200 か所、JDG-1921・1924・1925）",
+    "derivedFromTaskUid": null,
+    "order": 3,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9570,7 +9611,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "CR-723 表の見え方を GRS JSON に保存する（形式が変わる）",
     "derivedFromTaskUid": null,
-    "order": 3,
+    "order": 4,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9581,7 +9622,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "範囲選択を重ねる層の CR（DFC-2302、性能の (c)）",
     "derivedFromTaskUid": null,
-    "order": 4,
+    "order": 5,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9592,7 +9633,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "試験の中の符号位置で書いた語を読み解く検査（新しい検査）",
     "derivedFromTaskUid": null,
-    "order": 5,
+    "order": 6,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9603,7 +9644,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "タイムゾーンの画面の見本を利用者に見せる",
     "derivedFromTaskUid": null,
-    "order": 6,
+    "order": 7,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9614,7 +9655,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "CR-710 分単位の日程（波 0a〜3b）",
     "derivedFromTaskUid": null,
-    "order": 7,
+    "order": 8,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9625,7 +9666,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "進捗の表を 1 分 = 1 分で描き直す（CR-710 の後）",
     "derivedFromTaskUid": null,
-    "order": 8,
+    "order": 9,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9636,7 +9677,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "残り: DFC-1671 休日の面と DFC-2318（RR-2〜5）",
     "derivedFromTaskUid": null,
-    "order": 9,
+    "order": 10,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9647,7 +9688,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "残り: DFC-2303 依存の跳び先の印の線と当たり判定をそろえる",
     "derivedFromTaskUid": null,
-    "order": 10,
+    "order": 11,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9658,7 +9699,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "残り: 罠の束（DFC-544・547・548・549）",
     "derivedFromTaskUid": null,
-    "order": 11,
+    "order": 12,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9669,7 +9710,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "残り: 用語集を JSON にする（DFC-2175）",
     "derivedFromTaskUid": null,
-    "order": 12,
+    "order": 13,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9680,7 +9721,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "残り: W4 大きなファイルを割る（CR-578 → 579 → 580、CR-581 の後半、properties-panel）",
     "derivedFromTaskUid": null,
-    "order": 13,
+    "order": 14,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9691,7 +9732,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "残り: W5 異常系・準正常系を手当てする（約 45 行、DFC-732・DFC-922 を含む）",
     "derivedFromTaskUid": null,
-    "order": 14,
+    "order": 15,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9702,7 +9743,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "残り: AI 連携 CR-695・CR-697・DFC-2214・2215",
     "derivedFromTaskUid": null,
-    "order": 15,
+    "order": 16,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9713,7 +9754,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "利用者が触る 1 枚のチェックリストを作る",
     "derivedFromTaskUid": null,
-    "order": 16,
+    "order": 17,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9724,7 +9765,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "利用者がチェックリストで確かめる",
     "derivedFromTaskUid": null,
-    "order": 17,
+    "order": 18,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -9735,7 +9776,7 @@
     "parentId": "a6083c84-9ec5-5300-ba4a-581802619537",
     "label": "公式の公開はこの後 —— 解明・リファクタ・分単位の日程が済むまで出さない（JDG-1740）",
     "derivedFromTaskUid": null,
-    "order": 18,
+    "order": 19,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -10497,74 +10538,78 @@
    },
    {
     "taskUid": 189,
-    "groupId": "f40cca6e-fe0e-56ea-a634-e9e637e36de9"
+    "groupId": "90b7226d-45bf-586c-b1fd-d1efea6304aa"
    },
    {
     "taskUid": 190,
-    "groupId": "bfc166b9-ed68-56b2-a506-66ae230ea819"
+    "groupId": "1c6f9b0d-9766-5351-aebf-2a6c5747cd3c"
    },
    {
     "taskUid": 191,
-    "groupId": "59b9ca28-70ac-540e-b8bb-62feec0e8714"
+    "groupId": "bfc166b9-ed68-56b2-a506-66ae230ea819"
    },
    {
     "taskUid": 192,
-    "groupId": "9914691f-82b6-555b-8587-00ce8f06b1f7"
+    "groupId": "59b9ca28-70ac-540e-b8bb-62feec0e8714"
    },
    {
     "taskUid": 193,
-    "groupId": "328168ac-b954-5fa2-870f-243c9fe302a8"
+    "groupId": "9914691f-82b6-555b-8587-00ce8f06b1f7"
    },
    {
     "taskUid": 194,
-    "groupId": "392e033c-0882-5a14-a0a6-443269d8dd37"
+    "groupId": "328168ac-b954-5fa2-870f-243c9fe302a8"
    },
    {
     "taskUid": 195,
-    "groupId": "19359098-7982-563d-bd8c-27214c586865"
+    "groupId": "392e033c-0882-5a14-a0a6-443269d8dd37"
    },
    {
     "taskUid": 196,
-    "groupId": "4ff45444-cb7f-59ec-9ce0-319464bf0d42"
+    "groupId": "19359098-7982-563d-bd8c-27214c586865"
    },
    {
     "taskUid": 197,
-    "groupId": "eb45ff3d-1087-5941-9dc2-bf3b827e0284"
+    "groupId": "4ff45444-cb7f-59ec-9ce0-319464bf0d42"
    },
    {
     "taskUid": 198,
-    "groupId": "4c391b89-811b-5d36-bc52-3522eca0a3cc"
+    "groupId": "eb45ff3d-1087-5941-9dc2-bf3b827e0284"
    },
    {
     "taskUid": 199,
-    "groupId": "ff017812-927c-54ac-b8b6-04a9e9f03f66"
+    "groupId": "4c391b89-811b-5d36-bc52-3522eca0a3cc"
    },
    {
     "taskUid": 200,
-    "groupId": "23d598c0-fdcd-5576-b086-8ef8d917a6ea"
+    "groupId": "ff017812-927c-54ac-b8b6-04a9e9f03f66"
    },
    {
     "taskUid": 201,
-    "groupId": "ac871a71-4b37-5a47-939c-527e46e8a352"
+    "groupId": "23d598c0-fdcd-5576-b086-8ef8d917a6ea"
    },
    {
     "taskUid": 202,
-    "groupId": "4f893a38-78a7-5677-96f0-fb34e8bf0586"
+    "groupId": "ac871a71-4b37-5a47-939c-527e46e8a352"
    },
    {
     "taskUid": 203,
-    "groupId": "1a80b738-fa41-5c08-8c9e-b5458cbf545f"
+    "groupId": "4f893a38-78a7-5677-96f0-fb34e8bf0586"
    },
    {
     "taskUid": 204,
-    "groupId": "4e0538a0-662b-572e-abcf-8b93f4440e6b"
+    "groupId": "1a80b738-fa41-5c08-8c9e-b5458cbf545f"
    },
    {
     "taskUid": 205,
-    "groupId": "f73f33e0-34b2-5b8d-af28-11f8f242c668"
+    "groupId": "4e0538a0-662b-572e-abcf-8b93f4440e6b"
    },
    {
     "taskUid": 206,
+    "groupId": "f73f33e0-34b2-5b8d-af28-11f8f242c668"
+   },
+   {
+    "taskUid": 207,
     "groupId": "f0a1c73d-bbb6-52b0-8a98-b1a71d2a2bc4"
    }
   ],
@@ -12115,16 +12160,16 @@
    },
    {
     "taskUid": 194,
-    "shapeKind": "milestone",
-    "milestoneGlyph": "diamond",
+    "shapeKind": null,
+    "milestoneGlyph": null,
     "fillColor": null,
     "strokeColor": null,
     "strokeWidthPx": null
    },
    {
     "taskUid": 195,
-    "shapeKind": null,
-    "milestoneGlyph": null,
+    "shapeKind": "milestone",
+    "milestoneGlyph": "diamond",
     "fillColor": null,
     "strokeColor": null,
     "strokeWidthPx": null
@@ -12203,6 +12248,14 @@
    },
    {
     "taskUid": 205,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 206,
     "shapeKind": "milestone",
     "milestoneGlyph": "diamond",
     "fillColor": null,
@@ -12210,7 +12263,7 @@
     "strokeWidthPx": null
    },
    {
-    "taskUid": 206,
+    "taskUid": 207,
     "shapeKind": "milestone",
     "milestoneGlyph": "diamond",
     "fillColor": null,
@@ -12256,9 +12309,9 @@
   "zoomY": 1
  },
  "documentStamp": {
-  "scheduleUpdatedUtc": "2026-10-10T08:22:46Z",
+  "scheduleUpdatedUtc": "2026-10-10T08:26:36Z",
   "lastEditedBy": "progress body",
-  "settingsUpdatedUtc": "2026-10-10T08:22:46Z",
+  "settingsUpdatedUtc": "2026-10-10T08:26:36Z",
   "fileSavedUtc": null
  },
  "changeLog": []
