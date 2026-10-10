@@ -23,7 +23,7 @@ import {
   type InputContext,
   type TranslatedInput,
 } from './input-command-translator'
-import { taskGroupPointIn, topEdgeIn, zoomOnScreen } from './zoom-and-fit'
+import { taskGroupPointIn, topEdgeIn, unstoredZoomWrites, zoomOnScreen } from './zoom-and-fit'
 
 // see FR-039, S-234
 /** @purity pure */
@@ -114,6 +114,7 @@ function displayScaleWrites(
       : taskGroupAnchorIn(afterTaskGroups, topEdge + (landed - centreOf(afterRegions.taskGroupArea).y), seat)
   return [
     scale,
+    ...unstoredZoomWrites(context),
     {
       kind: 'setScrollPosition',
       scrollDate: day.scrollDate,

@@ -363,7 +363,7 @@ function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskU
   const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, member?.groupId ?? null)
   const target = { kind: 'task', taskUid } as const
   const plan = searchJumpWrites(snapshot.document, target, hasRoom, searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, target))
-  const commands = searchJumpCommands(plan)
+  const commands = searchJumpCommands(plan, frame.unstoredZoom ?? null)
   // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
   // so a concurrent edit does not refuse it.
   const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)

@@ -20,6 +20,8 @@ export interface FrameSnapshot {
   readonly layout: ScheduleLayout
   readonly geometry: PictureArguments[3]
   readonly regions: PictureArguments[4]
+  // WHY: optional so a snapshot built by hand need not carry it; absent or null is the stored zoom.
+  readonly unstoredZoom?: Pick<Document['documentSettings'], 'zoomX' | 'zoomY'> | null
 }
 
 export interface AgentSnapshot {

@@ -4,14 +4,17 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
+import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import { dayFromSerial, dayOf, serial, textOfDayStart } from '../../entity/document-model/schedule/schedule'
 import {
+  dateAtX,
   landedShapeBoxOf,
   taskGroupAnchorIn,
   taskPlacement,
   type LandedTarget,
   type TaskGroupPlacement,
+  xFromDay,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -46,6 +49,8 @@ export interface SearchJumpLanding {
   readonly roomHeight: number
   readonly scrollingTaskGroups: readonly Pick<TaskGroupPlacement, 'groupId' | 'y' | 'height'>[]
 }
+
+type UnstoredZoom = Pick<DocumentSettings, 'zoomX' | 'zoomY'>
 
 // see SJ-6, SJ-10
 interface DrawnCommentBoxes {
@@ -105,10 +110,14 @@ export function shownTasksRevealWrites(document: Document, taskUids: readonly nu
   return [...writes.values()]
 }
 
-// see SJ-6, T-038, SJ-7
+// see SJ-6, T-038, SJ-7, LF-15
 /** @purity pure */
 function dateXOf(layout: ScheduleLayout, geometry: DrawnCommentBoxes, target: SearchJumpTarget): number | null {
-  if (target.kind === 'commentBox') return geometry.commentBoxes.find((one) => one.id === target.commentBoxId)?.anchor.x ?? null
+  if (target.kind === 'commentBox') {
+    const drawn = geometry.commentBoxes.filter((one) => one.id === target.commentBoxId)[0]
+    const day = drawn === undefined ? null : dateAtX(layout, drawn.anchor.x)
+    return day === null ? null : xFromDay(layout, day)
+  }
   const placed = taskPlacement(layout, target.taskUid)
   if (placed === null) return null
   return placed.shapeKind === 'milestone' ? placed.x + placed.width / 2 : placed.x
@@ -229,9 +238,12 @@ export function searchJumpWrites(
   return { treeStateWrites, scrollWrite: scrollWriteTo(document, place, reach), isBlockedByPinnedTaskGroups: false }
 }
 
+// see SJ-5, OP-10
 /** @purity pure */
-export function searchJumpCommands(plan: SearchJumpPlan): readonly DocumentCommand[] {
-  return plan.scrollWrite === null ? plan.treeStateWrites : [...plan.treeStateWrites, plan.scrollWrite]
+export function searchJumpCommands(plan: SearchJumpPlan, unstoredZoom: UnstoredZoom | null): readonly DocumentCommand[] {
+  if (plan.scrollWrite === null) return plan.treeStateWrites
+  const zoom = unstoredZoom === null ? [] : [{ kind: 'setZoom', ...unstoredZoom } as const]
+  return [...plan.treeStateWrites, ...zoom, plan.scrollWrite]
 }
 
 // <generated -- do not edit by hand>
