@@ -1,9 +1,10 @@
-// DomScreenSurface -- the two table windows (Search Panel, Delay Diagnostics Report): title row, word field and table.
+// DomScreenSurface -- the three table windows (Search Panel, Delay Diagnostics Report, Resource List): title row, word field and table.
 // @unit      UF-182  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
 import {
+  UNASSIGNED_ROW_KEY,
   isFilterValueListed,
   statusGlyphSvg,
   windowBoxOf,
@@ -12,6 +13,7 @@ import {
   type ScreenPart,
   type SearchFilterChange,
   type SearchPanelView,
+  type VisibilityKey,
   type WindowName,
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -40,31 +42,41 @@ type SearchColumnView = SearchPanelView['columns'][number]
 
 type SearchRowView = SearchPanelView['rows'][number]
 
+// see SJ-1, SQ-10, DT-8, RQ-1, RQ-3
+export interface DrawnRow {
+  readonly cells: readonly string[]
+  readonly glyph?: SearchRowView['glyph']
+  readonly shown?: boolean
+  readonly target?: SearchRowView['target']
+  readonly key?: VisibilityKey
+  readonly isChosen?: boolean | null
+}
+
 type SearchFilterMenuView = NonNullable<SearchPanelView['filterMenu']>
 
 type SearchFilterValueView = Extract<SearchFilterMenuView, { kind: 'values' }>['values'][number]
 
-// see T-330, T-346, RW-3, RW-4
-export type TableWindowView = Omit<SearchPanelView, 'table'> & {
+// see T-330, T-346, T-370, RW-3, RW-4, RO-3
+export type TableWindowView = Omit<SearchPanelView, 'table' | 'rows'> & {
+  readonly rows: readonly DrawnRow[]
+  readonly chosenAt?: number
   readonly toolEntries?: readonly CommandItem[]
   readonly summary?: readonly { readonly text: string; readonly glyph?: SearchRowView['glyph'] }[]
 }
 
-// see T-337, RW-5
+// see T-337, RW-5, SQ-10, DT-8, RQ-1
 export interface TableWindowIdentity {
   readonly window: WindowName
   readonly role: string
+  readonly visibilityColumn: string
 }
 
 // see SV-6, SV-17, SV-18, RW-9, SQ-5, DT-1
-export type DrawnTable = Pick<
-  SearchPanelView,
-  'columns' | 'rows' | 'jumpAt' | 'glyphAt' | 'showAt' | 'showHeading'
->
+export type DrawnTable = Pick<TableWindowView, 'columns' | 'rows' | 'jumpAt' | 'glyphAt' | 'showAt' | 'showHeading' | 'chosenAt'>
 
 const SEARCH_PANEL_ROLE = 'Search Panel'
 
-const SEARCH_PANEL_IDENTITY: TableWindowIdentity = { window: 'searchPanel', role: SEARCH_PANEL_ROLE }
+const SEARCH_PANEL_IDENTITY: TableWindowIdentity = { window: 'searchPanel', role: SEARCH_PANEL_ROLE, visibilityColumn: 'SQ-10' }
 
 const TOOL_LINE_STYLE = 'display:flex;align-items:center;flex:none;'
 
@@ -104,11 +116,16 @@ const COLUMN_ATTRIBUTE = 'data-column'
 
 const FILTER_MENU_ATTRIBUTE = 'data-search-filter-menu'
 
-const SHOWN_TASK_ATTRIBUTE = 'data-search-shown-task'
+const VISIBILITY_KEY_ATTRIBUTE = 'data-visibility-key'
 
 const SHOWN_ALL_ATTRIBUTE = 'data-search-shown-all'
 
-const VISIBILITY_COLUMN = 'SQ-10'
+// see SQ-10, DT-8, RQ-1, S-496
+const VISIBILITY_COLUMNS: readonly string[] = ['SQ-10', 'DT-8', 'RQ-1']
+
+const CHOSEN_ENTRY = 'IC-67'
+
+const UNCHOSEN_ENTRY = 'IC-68'
 
 const NO_BORDER_ATTRIBUTE = 'data-no-border'
 
@@ -228,7 +245,7 @@ function tableRowWidthPx(column: SearchColumnView): number {
 // WHY: the Visibility column keeps its fixed S-496 and has no border to pull, so the floor is not laid on it.
 /** @purity pure */
 export function columnWidthPx(column: SearchColumnView, sizing: ColumnSizing): number {
-  if (column.column === VISIBILITY_COLUMN) return column.width ?? tableRowWidthPx(column)
+  if (VISIBILITY_COLUMNS.includes(column.column)) return column.width ?? tableRowWidthPx(column)
   const byDefault = column.widthSamples === null ? tableRowWidthPx(column) : (sizing.measured.get(column.column) ?? sizing.floor)
   return Math.max(column.width ?? byDefault, sizing.floor)
 }
@@ -386,12 +403,12 @@ function shownBoxElement(host: Document, showHeading: SearchPanelView['showHeadi
   return box
 }
 
-// see SQ-10
+// see SQ-10, DT-8, RQ-1
 /** @purity non-pure */
-function shownTaskBox(host: Document, taskUid: number, isShown: boolean): HTMLInputElement {
+function shownRowBox(host: Document, key: VisibilityKey, isShown: boolean): HTMLInputElement {
   const box = made(host, 'input', 'margin:0;') as HTMLInputElement
   box.setAttribute('type', 'checkbox')
-  box.setAttribute(SHOWN_TASK_ATTRIBUTE, String(taskUid))
+  box.setAttribute(VISIBILITY_KEY_ATTRIBUTE, String(key))
   box.checked = isShown
   if (isShown) box.setAttribute('checked', '')
   return box
@@ -508,27 +525,46 @@ function withListedValues(answer: ScreenPart, layer: Element): ScreenPart {
 
 // see SJ-1, SV-17, SQ-1, SQ-5, DT-1, DT-4
 /** @purity non-pure */
-function bodyRowElement(
-  host: Document,
-  row: SearchRowView,
-  columns: readonly SearchColumnView[],
-  places: { readonly jumpAt: number; readonly glyphAt: number | null; readonly showAt: number | null },
-): HTMLElement {
+function bodyRowElement(host: Document, row: DrawnRow, columns: readonly SearchColumnView[], places: DrawnPlaces): HTMLElement {
   const line = made(host, 'tr', '')
+  const key = visibilityKeyOfRow(row)
+  if (typeof row.key === 'number') line.setAttribute('data-uid', String(row.key))
   row.cells.forEach((text, at) => {
-    const isJump = at === places.jumpAt
+    const isJump = at === places.jumpAt && row.target !== undefined
     const isFixed = columns[at]?.isFixed === true
     const fixed = isFixed ? fixedColumnStyle() + stackStyle('fixedBodyCell') : ''
     const cell = made(host, 'td', cellStyle() + fixed + (isJump ? jumpCellStyle() : ''))
-    if (at === places.glyphAt) cell.replaceChildren(glyphElement(host, row.glyph), text)
-    else if (at === places.showAt && row.target.kind === 'task') cell.replaceChildren(shownTaskBox(host, row.target.taskUid, row.shown === true))
+    if (at === places.glyphAt) cell.replaceChildren(glyphElement(host, row.glyph ?? null), text)
+    else if (at === places.showAt && key !== null) cell.replaceChildren(shownRowBox(host, key, row.shown === true))
+    else if (at === places.chosenAt) cell.replaceChildren(...chosenEntryOf(host, row.isChosen))
     else cell.textContent = text
     if (isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
-    if (isJump && row.target.kind === 'task') cell.setAttribute(SEARCH_JUMP_TASK_ATTRIBUTE, String(row.target.taskUid))
-    if (isJump && row.target.kind === 'commentBox') cell.setAttribute(SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE, row.target.commentBoxId)
+    if (isJump && row.target?.kind === 'task') cell.setAttribute(SEARCH_JUMP_TASK_ATTRIBUTE, String(row.target.taskUid))
+    if (isJump && row.target?.kind === 'commentBox') cell.setAttribute(SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE, row.target.commentBoxId)
     line.append(cell)
   })
   return line
+}
+
+interface DrawnPlaces {
+  readonly jumpAt: number
+  readonly glyphAt: number | null
+  readonly showAt: number | null
+  readonly chosenAt: number | null
+}
+
+/** @purity pure */
+function visibilityKeyOfRow(row: DrawnRow): VisibilityKey | null {
+  if (row.key !== undefined) return row.key
+  return row.target?.kind === 'task' ? row.target.taskUid : null
+}
+
+// see RQ-3, RO-5, IC-67, IC-68
+/** @purity non-pure */
+function chosenEntryOf(host: Document, isChosen: boolean | null | undefined): readonly HTMLElement[] {
+  if (isChosen === null || isChosen === undefined) return []
+  const icon = isChosen ? CHOSEN_ENTRY : UNCHOSEN_ENTRY
+  return [commandEntry(host, { icon, isEnabled: true, isPressed: false, isArmed: false, isChosen: false, label: '' })]
 }
 
 // see SV-6, SV-16, SV-17, SV-18, T-331
@@ -546,7 +582,7 @@ export function searchTableElement(host: Document, view: DrawnTable, fontPx: num
   headings.replaceChildren(...view.columns.map((column, at) => headerCellElement(host, column, at === showAt ? (view.showHeading ?? 'none') : null, sizing)))
   head.append(headings)
   const body = made(host, 'tbody', '')
-  const places = { jumpAt: view.jumpAt ?? 0, glyphAt: view.glyphAt ?? null, showAt }
+  const places = { jumpAt: view.jumpAt ?? 0, glyphAt: view.glyphAt ?? null, showAt, chosenAt: view.chosenAt ?? null }
   body.replaceChildren(...view.rows.map((row) => bodyRowElement(host, row, view.columns, places)))
   table.replaceChildren(columns, head, body)
   box.append(table)
@@ -697,7 +733,7 @@ function tableWindowPartAt(
   if (answer.windowGrab !== undefined) return answer
   const border = columnBorderAt(window, placed, asked, widthFloor)
   if (border !== null) return { ...answer, windowGrab: border }
-  if (first.getAttribute(SHOWN_ALL_ATTRIBUTE) !== null || first.getAttribute(SHOWN_TASK_ATTRIBUTE) !== null) return answer
+  if (first.getAttribute(SHOWN_ALL_ATTRIBUTE) !== null || first.getAttribute(VISIBILITY_KEY_ATTRIBUTE) !== null) return answer
   const column = headingColumnOf(first, window)
   if (column !== null) return { ...answer, entry: FILTER_ENTRY, searchFilterColumn: column }
   return { ...answer, searchJumpTarget: searchJumpFrom(first, window) }
@@ -743,9 +779,9 @@ function withPressedWindowFilter(answer: ScreenPart | null, first: Element | nul
 
 // see SV-7, IF-9
 /** @purity semi-pure-b */
-function filterChangeOf(control: HTMLInputElement | null, layer: Element): SearchFilterChange | null {
+function filterChangeOf(control: HTMLInputElement | null, layer: Element, visibilityColumn: string): SearchFilterChange | null {
   if (control === null || typeof control.getAttribute !== 'function') return null
-  const shown = shownChangeOf(control, layer)
+  const shown = shownChangeOf(control, layer, visibilityColumn)
   if (shown !== null) return shown
   const column = filterColumnAbove(control.parentElement, layer, false)
   if (column === null) return null
@@ -756,23 +792,28 @@ function filterChangeOf(control: HTMLInputElement | null, layer: Element): Searc
   return { kind: 'bound', column, bound, day: control.value === '' ? null : control.value }
 }
 
-// see SQ-10, TV-2
-// WHY: the heading's box names every listed row, read off the drawn boxes, so rows not listed keep their checks.
+/** @purity pure */
+function visibilityKeyFrom(written: string): VisibilityKey {
+  return written === UNASSIGNED_ROW_KEY ? UNASSIGNED_ROW_KEY : Number(written)
+}
+
+// see SQ-10, DT-8, RQ-1, TV-2
+// WHY: the heading's box names every listed row, read off the drawn boxes, so rows not listed keep their values.
 /** @purity semi-pure-b */
-function shownChangeOf(control: HTMLInputElement, layer: Element): SearchFilterChange | null {
-  const one = control.getAttribute(SHOWN_TASK_ATTRIBUTE)
-  if (one !== null) return { kind: 'shown', column: VISIBILITY_COLUMN, taskUids: [Number(one)], isShown: control.checked }
+function shownChangeOf(control: HTMLInputElement, layer: Element, column: string): SearchFilterChange | null {
+  const one = control.getAttribute(VISIBILITY_KEY_ATTRIBUTE)
+  if (one !== null) return { kind: 'shown', column, keys: [visibilityKeyFrom(one)], isShown: control.checked }
   if (control.getAttribute(SHOWN_ALL_ATTRIBUTE) === null) return null
-  const listed = [...layer.querySelectorAll(`[${SHOWN_TASK_ATTRIBUTE}]`)].map((box) => Number(box.getAttribute(SHOWN_TASK_ATTRIBUTE)))
-  return { kind: 'shown', column: VISIBILITY_COLUMN, taskUids: listed, isShown: control.checked }
+  const listed = [...layer.querySelectorAll(`[${VISIBILITY_KEY_ATTRIBUTE}]`)].map((box) => visibilityKeyFrom(box.getAttribute(VISIBILITY_KEY_ATTRIBUTE) ?? ''))
+  return { kind: 'shown', column, keys: listed, isShown: control.checked }
 }
 
 // WHY: input, the one event T-078 lets this layer hear; a check mark or a whole date is settled (IF-9, SV-7).
 /** @purity non-pure */
-export function filterChangeWatch(layer: HTMLElement, onChanged: () => void): { readonly read: () => readonly SearchFilterChange[] } {
+export function filterChangeWatch(layer: HTMLElement, onChanged: () => void, visibilityColumn: string): { readonly read: () => readonly SearchFilterChange[] } {
   let changes: readonly SearchFilterChange[] = []
   layer.addEventListener('input', (event: Event) => {
-    const change = filterChangeOf(event.target as HTMLInputElement | null, layer)
+    const change = filterChangeOf(event.target as HTMLInputElement | null, layer, visibilityColumn)
     if (change === null) return
     changes = [...changes, change]
     onChanged()
@@ -921,7 +962,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
   let tableDrawn = ''
   let placed: PlacedWindow | null = null
   const typedWord = typedWordWatch(layer, onWordTyped)
-  const filterChanges = filterChangeWatch(layer, onWordTyped)
+  const filterChanges = filterChangeWatch(layer, onWordTyped, identity.visibilityColumn)
   const keepFilterSearch = filterSearchKeeper(layer)
   const sizes = tableSizingKeeper(host, layer)
 

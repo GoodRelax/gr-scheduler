@@ -2730,47 +2730,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
   })
 })
 
-describe('FR-099 / NT-1 / NT-3 / NT-3a of 表 T-037', () => {
-  const roster = (unassignedTaskNames: readonly (string | null)[]): ScreenView =>
-    viewWith({
-      openModal: {
-        surface: 'Resource List',
-        heading: 'RosterHeading',
-        commands: [],
-        resources: [{ uid: 7, name: 'ResourceOne', isReferenced: true, isSelected: false, unassignedTaskNames }],
-      },
-    })
-
-  it('⛔ shows what a deletion would unassign BY NAME, never as a count', () => {
-    const built = wire({ 'App Header': 37 })
-    surfaceOf(built).showScreenView(roster(['TaskAlpha', 'TaskBeta']))
-
-    const box = oneByRole(built.root(), 'Resource List')
-    expect(box.textContent).toContain('TaskAlpha')
-    expect(box.textContent).toContain('TaskBeta')
-  })
-
-  it('gives each name an element of its own, so two of one name are two lines', () => {
-    const built = wire({ 'App Header': 37 })
-    surfaceOf(built).showScreenView(roster(['TaskAlpha', 'TaskAlpha']))
-
-    const box = oneByRole(built.root(), 'Resource List')
-    expect(withText(box, 'TaskAlpha')).toHaveLength(2)
-  })
-
-  it('⛔ does not lose a Task that carries no name of its own', () => {
-    const withNull = wire({ 'App Header': 37 })
-    surfaceOf(withNull).showScreenView(roster(['TaskAlpha', null]))
-    const named = wire({ 'App Header': 37 })
-    surfaceOf(named).showScreenView(roster(['TaskAlpha']))
-
-    // ⭐ One more element for the nameless one: losing it between separators is
-    // exactly what turns the list back into the count FR-099 forbids.
-    const counted = (built: Stage): number =>
-      selfAndDescendants(oneByRole(built.root(), 'Resource List')).length
-    expect(counted(withNull)).toBe(counted(named) + 1)
-  })
-
+describe('NT-1 / NT-3 / NT-3a of 表 T-037', () => {
   it('NT-1 / NT-3 / NT-3a: a notice draws its words, its manner, its next steps and its count', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(

@@ -1,4 +1,4 @@
-// CR-551 items 6-9: the monochrome entrance in the App Header (IC-100), the roster's close entrance (RR-6),
+// CR-551 items 6-9: the monochrome entrance in the App Header (IC-100),
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -10,7 +10,7 @@ import type { FrameLoop } from '../../src/framework/single-html-shell/frame-loop
 import { frameLoop } from '../../src/framework/single-html-shell/frame-loop'
 import { keepTooltipsInside, tooltipElement } from '../../src/framework/dom-screen-surface/tooltips-drawing'
 import { bare, specTable, unbroken } from '../contract/spec-table'
-import { byRole, selfAndDescendants, styleMap, surfaceOf, wire, type FakeElement, type Stage } from '../fixtures/fake-browser'
+import { byRole, selfAndDescendants, surfaceOf, wire, type FakeElement, type Stage } from '../fixtures/fake-browser'
 import { pointerOf, taskGroupDocument, SCREEN } from './cr-541-stage'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
@@ -135,77 +135,6 @@ describe('IC-100 -- the monochrome entrance', () => {
     const at = order.indexOf('IC-100')
     expect(at).toBeGreaterThanOrEqual(0)
     expect(order[at + 1]).toBe('IC-16')
-  })
-})
-
-const RR_6 = '閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）を、面のタイトルバーの右端（面の右上）に置くこと（MUST）'
-
-const ROSTER = bare(verticalIn('T-103', 'U-49')?.by['確定名（英）'] ?? '') || 'Resource List'
-
-interface HeadingRow {
-  readonly row: FakeElement
-  readonly close: FakeElement
-}
-
-// WHY: the heading row is the element holding the heading's words; the close entrance must be a child of it.
-function headingRowOf(root: FakeElement, heading: string): HeadingRow {
-  const holders = selfAndDescendants(root).filter((one) => one.textContent === heading && one.children.length === 0)
-  const head = holders[0]
-  if (head === undefined) throw new Error(`no element carries the heading ${heading}`)
-  const row = head.parentNode as FakeElement
-  const close = selfAndDescendants(root).find((one) => one.getAttribute('data-icon') === 'IC-52')
-  if (close === undefined) throw new Error('the surface drew no IC-52')
-  return { row, close }
-}
-
-const elementChildren = (element: FakeElement): FakeElement[] => element.children.filter((one) => one.tagName !== undefined)
-
-describe('RR-6 -- the roster closes from the right end of its heading row', () => {
-  it('RR-6 still says: 面のタイトルバーの右端（面の右上）に置く', () => {
-    expect(REQUIREMENTS).toContain(RR_6)
-  })
-
-  it('RR-6: 面のタイトルバーの右端 -- IC-52 is the last entrance in the roster heading row', () => {
-    // see RR-6
-    const built = bench(oneTaskGroupDocument())
-    built.press('Command Palette', 'IC-62')
-    const modal = built.view().openModal
-    expect(modal?.surface, 'premise: IC-62 opened the roster').toBe(ROSTER)
-    const roster = byRole(built.built.root(), ROSTER)[0] as FakeElement
-    const { row, close } = headingRowOf(roster, modal?.heading ?? '')
-    expect(close.parentNode === row || row.contains?.(close as never) === true, 'RR-6: IC-52 sits in the heading row').toBe(true)
-    const kids = elementChildren(row)
-    expect(kids[kids.length - 1] === close || kids[kids.length - 1]?.contains?.(close as never) === true, 'RR-6: at the right end').toBe(true)
-  })
-
-  it('RR-6: FR-036 がヘルプのタイトルバーに定める置き方と同じ -- in both, the heading row pushes IC-52 to its right end', () => {
-    // see RR-6, FR-036
-    // WHY: in a flex row, the last child reaches the right end only when something before or on it takes the
-    // free room (an auto left margin or a growing sibling); the Help heading row is the reference FR-036 sets.
-    const pushedRight = (row: FakeElement, close: FakeElement): boolean => {
-      const kids = elementChildren(row)
-      const upTo = kids.slice(0, kids.indexOf(close) + 1)
-      const isFlex = /flex/.test(styleMap(row).get('display') ?? '')
-      const justified = /(space-between|flex-end|end)/.test(styleMap(row).get('justify-content') ?? '')
-      const takesRoom = upTo.some((one) => {
-        const style = styleMap(one)
-        return style.get('margin-left') === 'auto' || /^[1-9]/.test(style.get('flex-grow') ?? '') || /^[1-9]/.test(style.get('flex') ?? '')
-      })
-      return isFlex && (justified || takesRoom) && kids[kids.length - 1] === close
-    }
-
-    const help = bench(oneTaskGroupDocument())
-    help.press('App Header', 'IC-22')
-    const helpModal = help.view().helpModal
-    const helpRoot = byRole(help.built.root(), helpModal?.surface ?? '')[0] as FakeElement
-    const helpRow = headingRowOf(helpRoot, helpModal?.heading ?? '')
-    expect(pushedRight(helpRow.row, helpRow.close), 'premise: the Help heading row sets IC-52 at its right end').toBe(true)
-
-    const roster = bench(oneTaskGroupDocument())
-    roster.press('Command Palette', 'IC-62')
-    const rosterRoot = byRole(roster.built.root(), ROSTER)[0] as FakeElement
-    const rosterRow = headingRowOf(rosterRoot, roster.view().openModal?.heading ?? '')
-    expect(pushedRight(rosterRow.row, rosterRow.close), RR_6).toBe(true)
   })
 })
 

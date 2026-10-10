@@ -16,7 +16,6 @@ import {
   type ScreenSurface,
   type ScreenView,
   type SearchFilterChange,
-  type SearchPanelView,
   type TooltipAnchor,
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { WindowName } from '../../adapter/screen-renderer/screen-renderer'
@@ -52,8 +51,8 @@ import {
   taskGroupsTopPx,
 } from './task-group-panel-drawing'
 import { dialogueFieldPainter } from './dialogue-field-drawing'
-import { RESOURCE_LIST_SCROLLER, helpWindowPainter, keepResourceListScroll, modalElement } from './open-modals-drawing'
-import { SEARCH_WORD_ROW, searchPanelPainter } from './search-panel-drawing'
+import { helpWindowPainter, modalElement } from './open-modals-drawing'
+import { SEARCH_WORD_ROW, searchPanelPainter, type TableWindowIdentity, type TableWindowView } from './search-panel-drawing'
 import { WINDOW_GRAB_ATTRIBUTE, type PointAsked } from './window-frame-drawing'
 
 const UNIT_ROW = 'UF-71'
@@ -63,8 +62,11 @@ const HELP_MODAL_SURFACE = 'Help Modal'
 
 const SEARCH_PANEL_SURFACE = 'Search Panel'
 
-// see U-66, RW-5
-const REPORT_IDENTITY = { window: 'delayDiagnosticsReport', role: 'Delay Diagnostics Report' } as const
+// see U-66, RW-5, DT-8
+const REPORT_IDENTITY: TableWindowIdentity = { window: 'delayDiagnosticsReport', role: 'Delay Diagnostics Report', visibilityColumn: 'DT-8' }
+
+// see U-49, RO-6, RQ-1
+const RESOURCE_LIST_IDENTITY: TableWindowIdentity = { window: 'resourceList', role: 'Resource List', visibilityColumn: 'RQ-1' }
 
 export const ROLE = {
   appHeader: 'App Header',
@@ -140,6 +142,8 @@ const PAINT_ROW = {
   groupGridLine: 'S-165',
   link: 'S-503',
   filteredHeading: 'S-183',
+  scheduleFilter: 'S-543',
+  scheduleFilterGlyph: 'S-544',
 } as const
 
 /** @purity pure */
@@ -169,6 +173,8 @@ export const PAINT = {
   groupGridLine: painted('groupGridLine'),
   link: painted('link'),
   filteredHeading: painted('filteredHeading'),
+  scheduleFilter: painted('scheduleFilter'),
+  scheduleFilterGlyph: painted('scheduleFilterGlyph'),
 } as const
 
 /** @purity pure */
@@ -278,12 +284,14 @@ export function entryFaintStyle(gapTaskGroup: EntranceGapTaskGroup = 'S-141'): s
   )
 }
 
+// see FR-029, T-237, EN-8
 const ENTRANCE_STATE_FILL = [
-  ['EN-1', PAINT.armed],
-  ['EN-2', PAINT.pressed],
-  ['EN-3', PAINT.pinned],
-  ['EN-4', PAINT.pressed],
-  ['EN-6', PAINT.pressed],
+  ['EN-8', PAINT.scheduleFilter, PAINT.scheduleFilterGlyph],
+  ['EN-1', PAINT.armed, PAINT.ground],
+  ['EN-2', PAINT.pressed, PAINT.ground],
+  ['EN-3', PAINT.pinned, PAINT.ground],
+  ['EN-4', PAINT.pressed, PAINT.ground],
+  ['EN-6', PAINT.pressed, PAINT.ground],
 ] as const
 
 type EntranceStateRow = (typeof ENTRANCE_STATE_FILL)[number][0]
@@ -291,8 +299,8 @@ type EntranceStateRow = (typeof ENTRANCE_STATE_FILL)[number][0]
 // see FR-029, T-237
 /** @purity pure */
 export function entranceStateFill(standing: readonly EntranceStateRow[]): string {
-  for (const [rowId, colour] of ENTRANCE_STATE_FILL) {
-    if (standing.includes(rowId)) return `background:${colour};color:${PAINT.ground};`
+  for (const [rowId, colour, glyph] of ENTRANCE_STATE_FILL) {
+    if (standing.includes(rowId)) return `background:${colour};color:${glyph};`
   }
   return ''
 }
@@ -749,6 +757,7 @@ export function fillEntry(
 export function commandEntry(host: Document, item: CommandItem): HTMLElement {
   const base = item.isEnabled ? entryStyle() : entryFaintStyle()
   const standing: EntranceStateRow[] = []
+  if (item.isEnabled && item.isScheduleFilterApplied === true) standing.push('EN-8')
   if (item.isEnabled && item.isArmed) standing.push('EN-1')
   if (item.isEnabled && item.isPressed) standing.push('EN-2')
   if (item.isEnabled && item.isChosen) standing.push('EN-6')
@@ -822,11 +831,14 @@ export interface ScreenSurfaceWiring {
   readonly readTheme: () => ScreenTheme
 }
 
+type TableWindowTyped = { readonly word: string | null; readonly changes: readonly SearchFilterChange[] }
+
 export interface WindowReaders {
   readonly readFocusedWindow: () => WindowName | null
   readonly isFocusInPropertiesPanel: () => boolean
   readonly readFilterChanges: () => readonly SearchFilterChange[]
-  readonly readReportInput: () => { readonly word: string | null; readonly changes: readonly SearchFilterChange[] }
+  readonly readReportInput: () => TableWindowTyped
+  readonly readResourceListInput: () => TableWindowTyped
 }
 
 interface TableWindowInput {
@@ -840,7 +852,7 @@ function windowReadersOf(
   host: Document,
   windows: Partial<Readonly<Record<WindowName, Element>>>,
   propertiesPanel: Element,
-  painters: { readonly search: TableWindowInput; readonly report: TableWindowInput },
+  painters: { readonly search: TableWindowInput; readonly report: TableWindowInput; readonly resourceList: TableWindowInput },
 ): WindowReaders {
   /** @purity semi-pure-b */
   const focused = (): Element | null => (host as Partial<Document>).activeElement ?? null
@@ -856,8 +868,10 @@ function windowReadersOf(
     return at !== null && propertiesPanel.contains(at)
   }
   /** @purity semi-pure-b */
-  const readReportInput = () => ({ word: painters.report.readWord(), changes: painters.report.readFilterChanges() })
-  return { readFocusedWindow, isFocusInPropertiesPanel, readFilterChanges: painters.search.readFilterChanges, readReportInput }
+  const readReportInput = (): TableWindowTyped => ({ word: painters.report.readWord(), changes: painters.report.readFilterChanges() })
+  /** @purity semi-pure-b */
+  const readResourceListInput = (): TableWindowTyped => ({ word: painters.resourceList.readWord(), changes: painters.resourceList.readFilterChanges() })
+  return { readFocusedWindow, isFocusInPropertiesPanel, readFilterChanges: painters.search.readFilterChanges, readReportInput, readResourceListInput }
 }
 
 // see T-337
@@ -875,8 +889,9 @@ function screenLayersOf(host: Document) {
     dividerBandLayer: made(host, 'div', STYLE.layer),
     paletteLayer: made(host, 'div', STYLE.layer),
     searchPanelLayer: made(host, 'div', STYLE.layer),
+    resourceListLayer: made(host, 'div', STYLE.layer),
     reportLayer: made(host, 'div', STYLE.layer),
-    showOnlyCheckedBarLayer: made(host, 'div', STYLE.layer),
+    scheduleFilterBarLayer: made(host, 'div', STYLE.layer),
     dialogueField: part(host, 'div', ROLE.dialogueField, STYLE.hidden),
     appHeader: part(host, 'div', ROLE.appHeader, appHeaderStyle()),
     // WHY: (T-337) every open surface but Help, which JDG-666 gives its own layer (helpLayer, UZ-7).
@@ -892,11 +907,12 @@ function screenLayersOf(host: Document) {
     [layers.noticeLayer, 'UZ-4'],
     [layers.paletteLayer, 'UZ-5'],
     [layers.searchPanelLayer, 'UZ-6'],
+    [layers.resourceListLayer, 'UZ-6'],
     [layers.reportLayer, 'UZ-6'],
     [layers.modalLayer, 'UZ-13'],
     [layers.helpLayer, 'UZ-7'],
     [layers.appHeader, 'UZ-8'],
-    [layers.showOnlyCheckedBarLayer, 'UZ-8'],
+    [layers.scheduleFilterBarLayer, 'UZ-8'],
     [layers.dialogueField, 'UZ-9'],
     [layers.dividerBandLayer, 'UZ-10'],
     [layers.taskGroupPanel, 'UZ-11'],
@@ -908,31 +924,64 @@ function screenLayersOf(host: Document) {
   return layers
 }
 
-const SHOW_ONLY_CHECKED_BAR_ROLE = 'Show Only Checked Bar'
+export const SCHEDULE_FILTER_BAR_ROLE = 'Schedule Filter Bar'
 
-const SHOW_ONLY_CHECKED_ENTRY = 'IC-143'
+const SCHEDULE_FILTER_ENTRY = 'IC-143'
 
 // see TV-11, U-67, S-497, S-498
-// WHY: drawn in the band the shell takes off the top of the Schedule Canvas (TV-11), so it covers no task group.
+// WHY: in the band the shell takes off the Schedule Canvas (TV-11); a filter stands only while its window is out.
 /** @purity non-pure */
-function showOnlyCheckedBarElements(host: Document, panel: SearchPanelView | null | undefined): readonly HTMLElement[] {
-  const bar = panel?.showOnlyCheckedBar ?? null
-  if (panel === null || panel === undefined || bar === null) return []
-  const height = NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-497']
+function scheduleFilterBarElements(host: Document, view: ScreenView): readonly HTMLElement[] {
+  const bar = view.scheduleFilterBar ?? null
+  const canvas = (view.searchPanel ?? view.delayDiagnosticsReport ?? view.resourceList)?.canvas
+  if (bar === null || canvas === undefined) return []
+  const height = NOT_STORED_SCHEDULE_FILTER_BAR_SIZES['S-497']
   const band = made(host, 'div',
-    `position:absolute;left:${panel.canvas.x}px;top:${panel.canvas.y - height}px;width:${panel.canvas.width}px;height:${height}px;` +
+    `position:absolute;left:${canvas.x}px;top:${canvas.y - height}px;width:${canvas.width}px;height:${height}px;` +
     `box-sizing:border-box;display:flex;align-items:center;gap:1em;padding:0 0.5em;pointer-events:auto;` +
-    `font-size:${NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-498']}px;font-weight:normal;white-space:nowrap;overflow:hidden;` +
+    `font-size:${NOT_STORED_SCHEDULE_FILTER_BAR_SIZES['S-498']}px;font-weight:normal;white-space:nowrap;overflow:hidden;` +
     `background:${PAINT.ground};color:${PAINT.ink};border-bottom:1px solid ${PAINT.rule};`)
-  band.setAttribute('data-role', SHOW_ONLY_CHECKED_BAR_ROLE)
+  band.setAttribute('data-role', SCHEDULE_FILTER_BAR_ROLE)
   const text = made(host, 'span', '')
   text.textContent = bar.text
-  const showAll = made(host, 'button', `font:inherit;font-weight:normal;`)
-  showAll.setAttribute('type', 'button')
-  showAll.setAttribute('data-icon', SHOW_ONLY_CHECKED_ENTRY)
-  showAll.textContent = bar.showAllLabel
-  band.replaceChildren(text, showAll)
+  const turnOff = made(host, 'button', `font:inherit;font-weight:normal;`)
+  turnOff.setAttribute('type', 'button')
+  turnOff.setAttribute('data-icon', SCHEDULE_FILTER_ENTRY)
+  turnOff.textContent = bar.scheduleFilterOffLabel
+  band.replaceChildren(text, turnOff)
   return [band]
+}
+
+// see RO-3, T-370, T-371
+/** @purity pure */
+function resourceListDrawnOf(view: NonNullable<ScreenView['resourceList']> | null): TableWindowView | null {
+  return view === null ? null : { ...view, toolEntries: view.choiceEntries, jumpAt: NO_JUMP_COLUMN }
+}
+
+const NO_JUMP_COLUMN = -1
+
+type TableWindowPainter = ReturnType<typeof searchPanelPainter>
+
+// see RW-5, RO-6, UZ-6, T-337
+// WHY: the three windows share UZ-6, where the later in the tree is drawn in front; the window opened last moves last.
+/** @purity non-pure */
+function tableWindowsInOrder(nextLayer: HTMLElement, ...windows: readonly (readonly [HTMLElement, TableWindowPainter])[]) {
+  let order = windows
+  return {
+    /** @purity non-pure */
+    order(view: ScreenView): void {
+      const isOtherOut = (view.delayDiagnosticsReport ?? view.resourceList ?? null) !== null
+      const isSearchPanelFront = isOtherOut && view.searchPanel !== null && view.searchPanel !== undefined
+      const front = view.resourceList?.isInFront === true ? 1 : view.delayDiagnosticsReport?.isInFront === true ? 2 : isSearchPanelFront ? 0 : null
+      const wanted = front === null ? undefined : windows[front]
+      if (wanted === undefined || order[order.length - 1] === wanted) return
+      order = [...order.filter((one) => one !== wanted), wanted]
+      wanted[0].parentNode?.insertBefore(wanted[0], nextLayer)
+    },
+    /** @purity semi-pure-b */
+    answerAt: (asked: PointAsked): ScreenPart | null =>
+      order.reduce<ScreenPart | null>((walked, [, painter]) => painter.answerAt({ ...asked, walked }), asked.walked),
+  }
 }
 
 // see IF-9, PI-38
@@ -944,7 +993,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   root.setAttribute('data-unit', UNIT_ROW)
   const layers = screenLayersOf(host)
   const { frameLayer, taskGroupPanel, taskGroupTitleTree, propertiesPanel, dividerBandLayer, paletteLayer, searchPanelLayer } = layers
-  const { dialogueField, appHeader, modalLayer, helpLayer, noticeLayer, confirmationLayer, tooltipLayer, reportLayer } = layers
+  const { dialogueField, appHeader, modalLayer, helpLayer, noticeLayer, confirmationLayer, tooltipLayer, reportLayer, resourceListLayer } = layers
 
   const { openEveryTaskGroup, collapseEveryTaskGroup, openLevelZero, addTopTaskGroup, deleteEveryTaskGroup } =
     headEntryElements(host)
@@ -1012,17 +1061,23 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   const report = searchPanelPainter(host, reportLayer, () => wiring.onSearchWordTyped?.(), REPORT_IDENTITY)
 
-  let isReportInFront = true
+  const resourceList = searchPanelPainter(host, resourceListLayer, () => wiring.onSearchWordTyped?.(), RESOURCE_LIST_IDENTITY)
 
-  // see RW-5, T-337
-  // WHY: both windows sit in UZ-6, where the later in the tree is drawn in front; the layer opened later moves last.
+  const tableWindows = tableWindowsInOrder(
+    layers.scheduleFilterBarLayer,
+    [searchPanelLayer, searchPanel],
+    [resourceListLayer, resourceList],
+    [reportLayer, report],
+  )
+
   /** @purity non-pure */
-  function orderTableWindows(view: ScreenView): void {
-    const inFront = view.delayDiagnosticsReport?.isInFront !== false
-    if (inFront === isReportInFront) return
-    isReportInFront = inFront
-    if (inFront) searchPanelLayer.after(reportLayer)
-    else reportLayer.after(searchPanelLayer)
+  function drawTableWindows(view: ScreenView, changed: (name: string) => boolean): void {
+    const searchAnchors = (): Map<string, HTMLElement> => anchorsOf('searchPanel')
+    drawnKeyedBySurface(searchAnchors, SEARCH_PANEL_SURFACE, (anchors) => searchPanel.draw(view.searchPanel, changed('searchPanel'), anchors))
+    report.draw(view.delayDiagnosticsReport, changed('delayDiagnosticsReport'), () => anchorsOf('delayDiagnosticsReport'))
+    resourceList.draw(resourceListDrawnOf(view.resourceList ?? null), changed('resourceList'), () => anchorsOf('resourceList'))
+    if (changed('scheduleFilterBar')) layers.scheduleFilterBarLayer.replaceChildren(...scheduleFilterBarElements(host, view))
+    tableWindows.order(view)
   }
 
   /** @purity non-pure */
@@ -1077,6 +1132,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       dialogueField: described(view.dialogueField),
       searchPanel: described(view.searchPanel),
       delayDiagnosticsReport: described(view.delayDiagnosticsReport ?? null),
+      resourceList: described(view.resourceList ?? null),
+      scheduleFilterBar: described([view.scheduleFilterBar ?? null, view.searchPanel?.canvas, view.delayDiagnosticsReport?.canvas, view.resourceList?.canvas]),
       tooltips: described(view.tooltips),
     }
     const changed = (name: string): boolean => keys[name] !== lastKeys[name]
@@ -1150,18 +1207,12 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     if (changed('openModal')) {
       const anchors = anchorsOf('openModal')
       const drawnModal = surfaceModal === null ? null : modalElement(host, surfaceModal, anchors)
-      const scrolledBefore = modalLayer.querySelector(RESOURCE_LIST_SCROLLER)
       modalLayer.replaceChildren(...(drawnModal === null ? [] : [drawnModal.element]))
-      keepResourceListScroll(scrolledBefore, modalLayer.querySelector(RESOURCE_LIST_SCROLLER))
       fieldEditing.holdWatermarkUnlock(drawnModal)
     }
     placeOpenModal(modalLayer, view, changed)
     if (changed('helpModal') || changed('helpPlace')) drawHelp(helpModal, changed('helpModal'))
-    const searchAnchors = (): Map<string, HTMLElement> => anchorsOf('searchPanel')
-    drawnKeyedBySurface(searchAnchors, SEARCH_PANEL_SURFACE, (anchors) => searchPanel.draw(view.searchPanel, changed('searchPanel'), anchors))
-    if (changed('searchPanel')) layers.showOnlyCheckedBarLayer.replaceChildren(...showOnlyCheckedBarElements(host, view.searchPanel))
-    report.draw(view.delayDiagnosticsReport, changed('delayDiagnosticsReport'), () => anchorsOf('delayDiagnosticsReport'))
-    orderTableWindows(view)
+    drawTableWindows(view, changed)
     if (changed('notices')) {
       noticeLayer.replaceChildren(...view.notices.map((one) => noticeElement(host, one)))
     }
@@ -1259,9 +1310,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
   /** @purity semi-pure-b */
   const windowsAnswerAt = (asked: PointAsked): ScreenPart | null => {
-    const [back, front] = isReportInFront ? [searchPanel, report] : [report, searchPanel]
-    const tableWindows = front.answerAt({ ...asked, walked: back.answerAt(asked) })
-    return withPropertyLinkJump(dialogue.answerAt({ ...asked, walked: help.answerAt({ ...asked, walked: tableWindows }) }), asked.first)
+    const answered = tableWindows.answerAt(asked)
+    return withPropertyLinkJump(dialogue.answerAt({ ...asked, walked: help.answerAt({ ...asked, walked: answered }) }), asked.first)
   }
 
   // TRAP: onAppHeaderHeightPx fires here, before this factory returns: the callback may not
@@ -1274,8 +1324,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   )
 
   wiring.holdReadWatermarkUnlockAnswer?.(fieldEditing.readWatermarkUnlockAnswer)
-  const windowLayers = { searchPanel: searchPanelLayer, delayDiagnosticsReport: reportLayer, helpModal: helpLayer, dialogueField }
-  wiring.holdWindowReaders?.(windowReadersOf(host, windowLayers, propertiesPanel, { search: searchPanel, report }))
+  const windowLayers = { searchPanel: searchPanelLayer, delayDiagnosticsReport: reportLayer, resourceList: resourceListLayer, helpModal: helpLayer, dialogueField }
+  wiring.holdWindowReaders?.(windowReadersOf(host, windowLayers, propertiesPanel, { search: searchPanel, report, resourceList }))
 
   // WHY: focusPropertyField travels on the wiring: the IF-9 cell of table T-065 names exactly these.
   return {
@@ -1426,7 +1476,7 @@ export const NOT_STORED_HELP_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_RESOURCE_LIST_SIZES: {
+export const NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES: {
   readonly 'S-240': number
   readonly 'S-241': number
 } = {
@@ -1516,7 +1566,7 @@ export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
 }
 
 // see T-206
-const NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES: {
+const NOT_STORED_SCHEDULE_FILTER_BAR_SIZES: {
   readonly 'S-497': number
   readonly 'S-498': number
 } = {

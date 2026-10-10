@@ -1290,7 +1290,7 @@ NOT_STORED_TARGETS = {
     # NOT_STORED_SCROLLBAR_SIZES is -- neither may import the other's.
     # CR-721: IX-11 no longer writes a caption into the picture, so the image
     # exporter is no longer a unit it is printed into.
-    'NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES': (['S-497', 'S-498'], READ_WHERE_THE_FRAME_STANDS),
+    'NOT_STORED_SCHEDULE_FILTER_BAR_SIZES': (['S-497', 'S-498'], READ_WHERE_THE_FRAME_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE. S-171 is the panel's own width and
     # stands where the frame is laid out; S-199 is the room ONE control needs
     # beyond its value, and FR-006 (MUST) makes the side that ESTIMATES carry
@@ -1446,18 +1446,18 @@ NOT_STORED_TARGETS = {
                                'S-423', 'S-424', 'S-426', 'S-453', 'S-454',
                                'S-459'],
                               DRAWN_WITH_WHERE_IT_STANDS),
-    # FR-099's Resource List (table T-257, CR-406): the text factor RR-1 reads
-    # and the rule width RR-5 reads. Not folded into the help line above -- one
+    # FR-088's Holiday Settings list (table T-257, CR-406; moved there from
+    # FR-099 by CR-722): the text factor RR-1 reads and the rule width RR-5 reads. Not folded into the help line above -- one
     # constant per consuming SUBJECT. S-241 is NOT S-237 / S-143 although all
     # three are 1px: the row's own note forbids sharing them.
-    'NOT_STORED_RESOURCE_LIST_SIZES': (['S-240', 'S-241'],
+    'NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES': (['S-240', 'S-241'],
                                          DRAWN_WITH_WHERE_IT_STANDS),
     # CR-681 decision 6: how a wheel turn is counted -- one line (S-514), one
     # notch in pixels (S-515), one notch in lines (S-516). Table T-023's
     # closing rule (MUST NOT) forbids each surface its own line, so one name
     # is printed into both units that count a turn: the input source (the
-    # schedule) and the surface (the Resource List, RR-3). Neither may
-    # import the other's, as NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES.
+    # schedule) and the surface (the Holiday Settings list, RR-3). Neither may
+    # import the other's, as NOT_STORED_SCHEDULE_FILTER_BAR_SIZES.
     'NOT_STORED_WHEEL_UNITS': (['S-514', 'S-515', 'S-516'], READ_WHERE_IT_STANDS),
     # CR-685: the gap between two format buttons of the Export Chooser (FR-096).
     'NOT_STORED_EXPORT_CHOOSER_SIZES': (['S-517'], DRAWN_WITH_WHERE_IT_STANDS),
@@ -3286,7 +3286,7 @@ TARGETS = [
      + not_stored_block('NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_RESOURCE_LIST_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES') + NEWLINE * 2
      # CR-681 / CR-685: the roster's wheel line and the Export Chooser's gap.
      + not_stored_block('NOT_STORED_WHEEL_UNITS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_EXPORT_CHOOSER_SIZES') + NEWLINE * 2
@@ -3295,7 +3295,7 @@ TARGETS = [
      # CR-660: which T-206 row holds each column's default width.
      + search_column_width_rows_block() + NEWLINE * 2
      + search_panel_font_sizes_block() + NEWLINE * 2
-     + not_stored_block('NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_SCHEDULE_FILTER_BAR_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_GROUP_RULE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PALETTE_ROW_CAP') + NEWLINE * 2
      + not_stored_block('NOT_STORED_ARMED_LABEL_SIZES') + NEWLINE * 2
@@ -3376,7 +3376,7 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_PROPERTIES_PANEL_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR') + NEWLINE * 2
      + not_stored_block('NOT_STORED_SCROLLBAR_SIZES') + NEWLINE * 2
-     + not_stored_block('NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_SCHEDULE_FILTER_BAR_SIZES') + NEWLINE * 2
      # ⭐ FR-020's other half, in the one unit that can reach the store S-99a
      # names. ⛔ Not folded into the digest watermark-unlock.ts holds -- that one
      # is a row of table T-207 baked into the artifact, and this is a row of
@@ -3539,7 +3539,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_PALETTE_ROW_CAP',
         'NOT_STORED_ARMED_LABEL_SIZES',
         'NOT_STORED_PROPERTY_FIELD_SIZES',
-        'NOT_STORED_RESOURCE_LIST_SIZES',
+        'NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES',
         'NOT_STORED_TASK_GROUP_BAND_SIZES',
         'NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES',
         'NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES',
