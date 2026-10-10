@@ -2826,6 +2826,152 @@
      }
     },
     {
+     "name": "TableWindowState",
+     "note": {
+      "ja": [
+       "型。",
+       "遅延診断レポートの窓と担当リストのウィンドウの値 —— 表示の状態・表の値・前後（表 T-346 の `RW-5`、表 T-370 の `RO-6`） —— 保存しない（`S-545`・`S-546`）"
+      ]
+     }
+    },
+    {
+     "name": "tableAfterVisibilityChange",
+     "note": {
+      "ja": [
+       "表示の列の印の入れ外しを、表の値の「非表示」の行へ当てる（`FR-151` の 表 T-353 の `TV-2`）。",
+       "変わらないときは同じ値を返す。",
+       "`SingleHtmlShell` が飛ぶ先と作ったタスクを描くものに入れる（`SJ-0`・`TV-7`）ために使う"
+      ]
+     }
+    },
+    {
+     "name": "tableWithScheduleFilterToggled",
+     "note": {
+      "ja": [
+       "表のスケジュールフィルタの入切を返す（表 T-353 の `TV-5`・`TV-8`）。",
+       "`SingleHtmlShell` がウィンドウを閉じたときに解除するために使う"
+      ]
+     }
+    },
+    {
+     "name": "scheduleFilterBarOf",
+     "note": {
+      "ja": [
+       "スケジュールフィルタの帯（`U-67`）の語を、掛けている表の名・文書のタスクの数・描いているタスクの数から作る（表 T-353 の `TV-11`）。",
+       "掛けている表が無ければ `null`"
+      ]
+     }
+    },
+    {
+     "name": "ScheduleFilterBarView",
+     "note": {
+      "ja": [
+       "型。",
+       "帯の語と、すべての表のスケジュールフィルタを解除する語の入口の語（`U-67`）。",
+       "`DomScreenSurface` が帯を描くために読む"
+      ]
+     }
+    },
+    {
+     "name": "UNASSIGNED_ROW_KEY",
+     "note": {
+      "ja": [
+       "担当リストの表の（担当なし）の行の鍵（表 T-370 の `RO-5`）。",
+       "`DomScreenSurface` が表示の列の印の変化に付ける"
+      ]
+     }
+    },
+    {
+     "name": "VisibilityKey",
+     "note": {
+      "ja": [
+       "型。",
+       "表示の列の行の鍵 —— `Task.uid`・`Resource.uid`、または（担当なし）の行"
+      ]
+     }
+    },
+    {
+     "name": "OPENED_RESOURCE_LIST",
+     "note": {
+      "ja": [
+       "開いたばかりの担当リストのウィンドウの値（表 T-370 の `RO-1`、`S-545`）。",
+       "`SingleHtmlShell` が `IC-62` でウィンドウを置くために使う"
+      ]
+     }
+    },
+    {
+     "name": "resourceListFromWindow",
+     "note": {
+      "ja": [
+       "担当リストのウィンドウの中身 —— タイトルバー・タイトルバーの下の 1 行・表 T-371 の表 —— を作る（`FR-099` の 表 T-370）"
+      ]
+     }
+    },
+    {
+     "name": "resourceListAfterEntry",
+     "note": {
+      "ja": [
+       "担当リストのウィンドウの入口（表 T-370 の `RO-1`・`RO-2`・表 T-330 の `SV-7`・`SV-8`、表 T-335 の `WB-2`・`WB-3`）を押した後のウィンドウの値を答える。",
+       "`SingleHtmlShell` が使う"
+      ]
+     }
+    },
+    {
+     "name": "resourceListAfterFilterChange",
+     "note": {
+      "ja": [
+       "列のフィルタの変化と表示の列の印の変化を、担当リストのウィンドウの値へ当てる（表 T-330 の `SV-7`、表 T-353 の `TV-2`）。",
+       "`SingleHtmlShell` が使う"
+      ]
+     }
+    },
+    {
+     "name": "resourceListWithFilterClosed",
+     "note": {
+      "ja": [
+       "開いている列のフィルタを閉じたウィンドウの値を答える（表 T-330 の `SV-14`）。",
+       "`SingleHtmlShell` が `Esc` の段（`IN-4`）と、フィルタの箱の外の押下に使う"
+      ]
+     }
+    },
+    {
+     "name": "resourceListWithColumnWidth",
+     "note": {
+      "ja": [
+       "列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、ウィンドウの値へ当てる（表 T-370 の `RO-9`）。",
+       "`SingleHtmlShell` が使う"
+      ]
+     }
+    },
+    {
+     "name": "resourceListListedUidsOf",
+     "note": {
+      "ja": [
+       "担当リストの表がいま並べている担当の `uid` —— 語と列のフィルタの後 —— を答える（表 T-370 の `RO-3`）。",
+       "`SingleHtmlShell` が `IC-63`・`IC-65` の選ぶ相手を `InputCommandTranslator` へ渡すために使う"
+      ]
+     }
+    },
+    {
+     "name": "ResourceListView",
+     "note": {
+      "ja": [
+       "型。",
+       "担当リストのウィンドウの中身（表 T-370・表 T-371）。",
+       "`DomScreenSurface` が描く"
+      ]
+     }
+    },
+    {
+     "name": "ResourceListRowView",
+     "note": {
+      "ja": [
+       "型。",
+       "担当リストの表の 1 行 —— 鍵・セル・表示の列の値・選択（（担当なし）の行は `null`）"
+      ]
+     }
+    },
+    {
      "name": "exportFileNameOf",
      "note": {
       "ja": [
@@ -3289,6 +3435,33 @@
      "note": {
       "ja": [
        "`SearchPanelSession` の初期の値 —— `_assets/tbl-settings.md` の 表 T-206 の `S-419` ・ `S-420` ・ `S-429` の既定"
+      ]
+     }
+    },
+    {
+     "name": "TableVisibility",
+     "note": {
+      "ja": [
+       "型。",
+       "3 つの表（検索・遅延診断レポート・担当リスト）のそれぞれが持つ表示の列の値とスケジュールフィルタの入切 —— 「非表示」の行の鍵・（担当なし）の行が「非表示」か・掛けているか（`01-04-requirements.md` の 表 T-353 の `TV-2`・`TV-5`、`S-494`・`S-495`・`S-547`・`S-548`）。",
+       "`ScreenRenderer` が表を描き、`SingleHtmlShell` が描くタスク（積）を作るために読む"
+      ]
+     }
+    },
+    {
+     "name": "VisibilityTable",
+     "note": {
+      "ja": [
+       "型。",
+       "スケジュールフィルタを持つ 3 つの表の名（`searchPanel`・`delayDiagnosticsReport`・`resourceList` —— ウィンドウの名と同じ綴り、表 T-107 の `AM-26`）"
+      ]
+     }
+    },
+    {
+     "name": "EVERY_ROW_SHOWN",
+     "note": {
+      "ja": [
+       "`TableVisibility` の初めの値 —— どの行も「表示」で、スケジュールフィルタを掛けていない（表 T-353 の `TV-2`）"
       ]
      }
     },

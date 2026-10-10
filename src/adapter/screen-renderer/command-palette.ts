@@ -118,6 +118,7 @@ interface EntranceFacts {
   readonly isParentTaskLinksShown: boolean
   readonly isWatermarkShown: boolean
   readonly isFlowAwaitingAnswer: boolean
+  readonly isResourceListFiltered: boolean
 }
 
 // see FR-048, T-237, DC-9
@@ -155,6 +156,7 @@ function entranceFactsOf(
     isParentTaskLinksShown: readings.isParentTaskLinksShown === true,
     isWatermarkShown: session.screen.watermarkDisplayState.kind === 'shown',
     isFlowAwaitingAnswer: isFlowSurfaceOpen(session.screen.openSurfaceState),
+    isResourceListFiltered: readings.resourceList?.panel.visibility.isApplied === true,
   }
 }
 
@@ -163,13 +165,18 @@ function isFlowSurfaceOpen(open: ScreenValues['openSurfaceState']): boolean {
   return open.kind === 'open' && FLOW_SURFACES_AWAITING_ANSWER.has(open.surfaceName)
 }
 
-// see FR-029, T-280, RS-27, IC-41, IC-62
+// see FR-029, T-280, RS-27, IC-41
 // WHY: T-280 refuses a surface entry over U-56 / U-61 with RS-27; IC-41 opens one only while shown.
 /** @purity pure */
 function isSurfaceEntryRefused(row: IconRosterRow, facts: EntranceFacts): boolean {
   if (!facts.isFlowAwaitingAnswer) return false
-  if (row.rowId === RESOURCE_LIST_ROW) return true
   return row.rowId === WATERMARK_ROW && facts.isWatermarkShown
+}
+
+// see TV-12, EN-8, IC-62
+/** @purity pure */
+function scheduleFilterMarkOf(row: IconRosterRow, facts: EntranceFacts): Pick<CommandItem, 'isScheduleFilterApplied'> {
+  return row.rowId === RESOURCE_LIST_ROW && facts.isResourceListFiltered ? { isScheduleFilterApplied: true } : {}
 }
 
 // see FR-049, FR-053, FR-102
@@ -190,6 +197,7 @@ function commandItemFor(
     isArmed: row.arms === armed.row && row.armsShape === armed.shape,
     isChosen: isExclusiveChoiceChosen(row, facts),
     label: iconLabel(row.rowId, language),
+    ...scheduleFilterMarkOf(row, facts),
   }
 }
 

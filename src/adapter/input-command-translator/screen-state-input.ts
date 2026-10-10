@@ -34,8 +34,7 @@ import {
 
 const HELP_MODAL = 'Help Modal'
 
-// see T-280, S-99g, U-49, U-54
-const RESOURCE_LIST_ROW = 'U-49'
+// see T-280, S-99g, U-54
 const EXPORT_CHOOSER_ROW = 'U-54'
 
 // TRAP: never an open surface's name; the drawing side would draw the panel as a modal.
@@ -46,10 +45,11 @@ const PROPERTIES_PANEL = 'Properties Panel'
 const SEARCH_PANEL = 'Search Panel'
 const DIALOGUE_FIELD = 'Dialogue Field'
 const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnostics Report'
+const RESOURCE_LIST = 'Resource List'
 
 type WindowEvents = readonly [ScreenValuesEvent, ScreenValuesEvent, ScreenValuesEvent | null]
 
-// WHY: the help's IC-52 stays surfaceCloseAsked (IC-52 of table T-109); the report window has no machine (RW-1).
+// WHY: the help's IC-52 stays surfaceCloseAsked (IC-52 of table T-109); the report and resource list windows have no machine (RW-1, RO-1).
 const WINDOW_EVENTS: Readonly<Record<string, WindowEvents>> = {
   [HELP_MODAL]: [{ type: 'helpMinimiseToggled' }, { type: 'helpMaximiseToggled' }, null],
   [SEARCH_PANEL]: [{ type: 'searchPanelMinimiseToggled' }, { type: 'searchPanelMaximiseToggled' }, { type: 'searchPanelClosePressed' }],
@@ -91,8 +91,6 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
       return HELP_ENTRY_PRESSED
     case ENTRY.fullScreen:
       return FULL_SCREEN_ENTRY_PRESSED
-    case ENTRY.resourceList:
-      return surfaceEntered(RESOURCE_LIST_ROW)
     case ENTRY.dualCursor: {
       const entered = screenEventFromDualCursorEntry(context)
       const isPlacingNothing = entered.type === 'dualCursorEntryPressed' && !entered.hasDaysToPlace
@@ -126,7 +124,7 @@ function screenEventFromEntry(entry: string, context: InputContext): ScreenValue
 // see IC-52, FR-036
 /** @purity pure */
 function surfaceCloseOf(part: string | null): ScreenValuesEvent | null {
-  if (part === PROPERTIES_PANEL || part === DELAY_DIAGNOSTICS_REPORT) return null
+  if (part === PROPERTIES_PANEL || part === DELAY_DIAGNOSTICS_REPORT || part === RESOURCE_LIST) return null
   return part === HELP_MODAL ? HELP_CLOSE_ASKED : SURFACE_CLOSE_ASKED
 }
 

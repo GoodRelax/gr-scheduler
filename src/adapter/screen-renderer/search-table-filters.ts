@@ -105,12 +105,12 @@ const TASK_TABLE: TableColumns<TaskSearchRow> = {
   },
 }
 
-// see SQ-10, SV-7, SV-8
+// see SQ-10, DT-8, RQ-1, SV-7, SV-8
 export const SHOW_VALUE = 'show'
 export const HIDE_VALUE = 'hide'
 const VISIBILITY_COLUMN: SearchColumn = 'SQ-10'
 const SHOWN_RANKS: ReadonlyMap<string, number> = new Map([[SHOW_VALUE, 0], [HIDE_VALUE, 1]])
-const NOTHING_SHOWN: ReadonlySet<number> = new Set()
+const NOTHING_HIDDEN: ReadonlySet<number> = new Set()
 
 // see SV-8
 /** @purity pure */
@@ -118,14 +118,19 @@ function compareShownValues(a: string, b: string): number {
   return (SHOWN_RANKS.get(a) ?? SHOWN_RANKS.size) - (SHOWN_RANKS.get(b) ?? SHOWN_RANKS.size)
 }
 
-// see SQ-10, TV-2
+// WHY: the three tables put the same Visibility column first; each says whether its own row is Show.
 /** @purity pure */
-function taskTableOf(shown: ReadonlySet<number>): TableColumns<TaskSearchRow> {
+export function withVisibilityColumn<Row>(table: TableColumns<Row>, column: SearchColumn, isShown: (row: Row) => boolean): TableColumns<Row> {
   return {
-    ...TASK_TABLE,
-    values: { ...TASK_TABLE.values, [VISIBILITY_COLUMN]: (row) => [shown.has(row.taskUid) ? SHOW_VALUE : HIDE_VALUE] },
-    orders: { ...TASK_TABLE.orders, [VISIBILITY_COLUMN]: compareShownValues },
+    ...table,
+    values: { ...table.values, [column]: (row) => [isShown(row) ? SHOW_VALUE : HIDE_VALUE] },
+    orders: { ...table.orders, [column]: compareShownValues },
   }
+}
+
+/** @purity pure */
+function taskTableOf(hidden: ReadonlySet<number>): TableColumns<TaskSearchRow> {
+  return withVisibilityColumn(TASK_TABLE, VISIBILITY_COLUMN, (row) => !hidden.has(row.taskUid))
 }
 
 const COMMENT_BOX_TABLE: TableColumns<CommentBoxSearchRow> = {
@@ -239,10 +244,10 @@ export function filteredSearchRows(
   rows: SearchRows,
   filters: SearchFilters,
   sort: SearchSort | null,
-  shown: ReadonlySet<number> = NOTHING_SHOWN,
+  hidden: ReadonlySet<number> = NOTHING_HIDDEN,
 ): SearchRows {
   return {
-    taskRows: filteredTableRows(rows.taskRows, taskTableOf(shown), filters, sort),
+    taskRows: filteredTableRows(rows.taskRows, taskTableOf(hidden), filters, sort),
     commentBoxRows: filteredTableRows(rows.commentBoxRows, COMMENT_BOX_TABLE, filters, sort),
   }
 }
@@ -259,8 +264,8 @@ export function tableColumnValues<Row>(rows: readonly Row[], table: TableColumns
 
 // see SV-7
 /** @purity pure */
-export function columnValuesOf(rows: SearchRows, column: SearchColumn, shown: ReadonlySet<number> = NOTHING_SHOWN): readonly string[] {
-  const tasks = taskTableOf(shown)
+export function columnValuesOf(rows: SearchRows, column: SearchColumn, hidden: ReadonlySet<number> = NOTHING_HIDDEN): readonly string[] {
+  const tasks = taskTableOf(hidden)
   if (isColumnOf(tasks, column)) return tableColumnValues(rows.taskRows, tasks, column)
   return tableColumnValues(rows.commentBoxRows, COMMENT_BOX_TABLE, column)
 }

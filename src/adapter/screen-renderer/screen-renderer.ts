@@ -19,6 +19,7 @@ import {
   emptySearchPanelSession,
   type ScreenSession,
   type SearchPanelSession,
+  type VisibilityTable,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import { appHeaderItemsFromDocument, displayScaleMessageText } from './app-header-items'
 import { commandPaletteFromSession } from './command-palette'
@@ -45,6 +46,8 @@ import {
   type DelayDiagnosticsReportView,
   type DelayDiagnosticsReportWindow,
 } from './delay-diagnostics-report'
+import { resourceListFromWindow, type ResourceListView } from './resource-list'
+import { scheduleFilterBarOf, type ScheduleFilterBarView, type TableWindowState } from './table-window'
 import { DEFAULT_WINDOW_PLACE, type WindowPlace, type WindowShown } from './window-box'
 export {
   nextSearchPanelTextSizeStep,
@@ -60,9 +63,28 @@ export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, wi
 export type { WindowPlace, WindowShown } from './window-box'
 export { imageToJsonPromptText } from './app-header-items'
 export { exportFileNameOf, UNTITLED_DOCUMENT_TITLE } from './open-modals'
-export type { SearchFilterChange, SearchPanelShown, SearchPanelView, ShowOnlyCheckedBarView } from './search-panel'
-export { MARK_COLOUR_ROWS, isFilterValueListed, markColourVariableOf, statusGlyphSvg } from './table-window'
-export type { MarkGlyph } from './table-window'
+export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
+export {
+  MARK_COLOUR_ROWS,
+  UNASSIGNED_ROW_KEY,
+  isFilterValueListed,
+  markColourVariableOf,
+  scheduleFilterBarOf,
+  statusGlyphSvg,
+  tableAfterVisibilityChange,
+  tableWithScheduleFilterToggled,
+} from './table-window'
+export type { MarkGlyph, ScheduleFilterBarView, TableWindowState, VisibilityKey } from './table-window'
+export {
+  OPENED_RESOURCE_LIST,
+  resourceListAfterEntry,
+  resourceListAfterFilterChange,
+  resourceListFromWindow,
+  resourceListListedUidsOf,
+  resourceListWithColumnWidth,
+  resourceListWithFilterClosed,
+} from './resource-list'
+export type { ResourceListRowView, ResourceListView } from './resource-list'
 export {
   OPENED_DELAY_DIAGNOSTICS_REPORT,
   delayDiagnosticsReportAfterEntry,
@@ -100,6 +122,8 @@ export interface CommandItem {
   // WHY: not isPressed: a chosen exclusive entry is EN-6 of T-237, not a toggle that is on (EN-2).
   readonly isChosen: boolean
   readonly label: string
+  // see TV-12, EN-8
+  readonly isScheduleFilterApplied?: boolean
 }
 
 export interface ScreenFrame {
@@ -410,19 +434,6 @@ export interface HelpEntry {
   readonly glyphs: readonly IconId[]
 }
 
-export interface ResourceList extends OpenSurface {
-  readonly surface: 'Resource List'
-  readonly resources: readonly ResourceListLine[]
-}
-
-export interface ResourceListLine {
-  readonly uid: number
-  readonly name: string | null
-  readonly isReferenced: boolean
-  readonly isSelected: boolean
-  readonly unassignedTaskNames: readonly (string | null)[]
-}
-
 export interface ExportFormatChoice {
   readonly row: ExportFormatId
   readonly name: string
@@ -439,7 +450,6 @@ export interface ExportChooser extends OpenSurface {
 // @provisional PND-140
 export type OpenModal =
   | HelpModal
-  | ResourceList
   | ExportChooser
   | OpenChooser
   | (OpenSurface & {
@@ -584,6 +594,9 @@ export interface ScreenView {
   // TRAP: optional so literals compile; absent draws no panel (FR-151), the same as null.
   readonly searchPanel?: SearchPanelView | null
   readonly delayDiagnosticsReport?: DelayDiagnosticsReportView | null
+  readonly resourceList?: ResourceListView | null
+  // see TV-11, U-67
+  readonly scheduleFilterBar?: ScheduleFilterBarView | null
   // see FR-039, SE-2, SE-5
   // TRAP: kept out of notices, so the notice count and the Esc / Enter levels never see it;
   // absent while no message stands.
@@ -619,6 +632,8 @@ export interface ScreenViewReadings {
   readonly iconUnderPointer: IconId | null
   readonly isPointerOnHelp?: boolean
   readonly isPointerOnSearchPanel?: boolean
+  // see TV-5, FR-092
+  readonly tableWindowUnderPointer?: VisibilityTable | null
   readonly hintHolderUnderPointer?: Extract<TooltipAnchor, { readonly taskUid: number }> | null
   readonly iconRowUnderPointer?: string | null
   readonly commandPaletteAt: { readonly x: number; readonly y: number }
@@ -680,6 +695,11 @@ export interface ScreenViewReadings {
   } | null
   // see SQ-5, S-445
   readonly bottleneckUids?: ReadonlySet<number>
+  // see RO-1, S-545, S-546
+  readonly resourceList?: TableWindowState | null
+  // see TV-1, TV-11
+  // WHY: the tasks the product draws (null while no Schedule Filter is on); the band counts them.
+  readonly drawnTaskUids?: ReadonlySet<number> | null
 }
 
 // WHY: the shell seats the startup language before the first frame (FR-038); only a root built
@@ -703,6 +723,33 @@ function delayDiagnosticsReportOf(
   const held = readings.delayDiagnosticsReport ?? null
   const textSizeStep = (readings.searchPanel ?? emptySearchPanelSession).textSizeStep
   return delayDiagnosticsReportFromWindow(session, held?.window ?? null, held?.report ?? null, schedule, { canvas, textSizeStep })
+}
+
+// see FR-099, T-370, RO-2
+/** @purity pure */
+function resourceListOf(session: ScreenSession, readings: ScreenViewReadings, schedule: Schedule, canvas: ScreenRect): ResourceListView | null {
+  const textSizeStep = (readings.searchPanel ?? emptySearchPanelSession).textSizeStep
+  const layout = { canvas, textSizeStep }
+  return resourceListFromWindow(session, readings.resourceList ?? null, schedule, readings.selectedResourceUids, layout)
+}
+
+// see TV-1, TV-8, TV-12
+/** @purity pure */
+export function scheduleFilteredTablesOf(readings: ScreenViewReadings): readonly VisibilityTable[] {
+  const report = readings.delayDiagnosticsReport?.window.panel.visibility.isApplied === true
+  return [
+    ...(readings.searchPanel?.visibility.isApplied === true ? ['searchPanel' as const] : []),
+    ...(report ? ['delayDiagnosticsReport' as const] : []),
+    ...(readings.resourceList?.panel.visibility.isApplied === true ? ['resourceList' as const] : []),
+  ]
+}
+
+// see TV-11, U-67
+/** @purity pure */
+function scheduleFilterBarIn(readings: ScreenViewReadings, schedule: Schedule, language: DisplayLanguage): ScheduleFilterBarView | null {
+  const drawn = readings.drawnTaskUids ?? null
+  const drawnCount = drawn === null ? schedule.tasks.length : schedule.tasks.filter((task) => drawn.has(task.uid)).length
+  return scheduleFilterBarOf(scheduleFilteredTablesOf(readings), schedule, drawnCount, language)
 }
 
 // see WB-1, WB-3, WB-8
@@ -784,6 +831,8 @@ export function screenViewFromRegions(
       readings.bottleneckUids,
     ),
     delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, schedule, regions.scheduleCanvas),
+    resourceList: resourceListOf(session, readings, schedule, regions.scheduleCanvas),
+    scheduleFilterBar: scheduleFilterBarIn(readings, schedule, language),
   }
 
   const echo = session.screen.scaleMessageDisplayState

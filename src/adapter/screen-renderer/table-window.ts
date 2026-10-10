@@ -1,17 +1,33 @@
-// What the two table windows share: column views, the one open filter, its menu and the changes to it (T-330, T-346).
+// What the three table windows share: column views, the one open filter, its menu, the Visibility column and the Schedule Filter (T-330, T-346, T-370, T-353).
 // @unit      UF-193  (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import { dayOf, isSearchWordFound } from '../../entity/document-model/schedule/schedule'
+import { dayOf, isSearchWordFound, type Schedule } from '../../entity/document-model/schedule/schedule'
 import { markerGlyphSvg } from '../svg-renderer/svg-renderer'
-import type { SearchPanelSession } from '../../use-case/advance-screen-session/advance-screen-session'
-import type { SearchColumn, SearchColumnFilter, SearchSort } from './search-table-filters'
+import type {
+  SearchPanelSession,
+  TableVisibility,
+  VisibilityTable,
+} from '../../use-case/advance-screen-session/advance-screen-session'
+import { HIDE_VALUE, SHOW_VALUE, type SearchColumn, type SearchColumnFilter, type SearchSort } from './search-table-filters'
 import displayWords from './display-words.json'
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
 import type { WindowShown } from './window-box'
 
-export type TableWindowSession = Omit<SearchPanelSession, 'table' | 'textSizeStep' | 'shownTaskUids' | 'showOnlyChecked'>
+export type TableWindowSession = Omit<SearchPanelSession, 'table' | 'textSizeStep'>
+
+// WHY: held by the shell and never saved (FR-134, FR-099 MUST NOT); the text size is the search panel's (S-429).
+export interface TableWindowState {
+  readonly shown: WindowShown
+  readonly panel: TableWindowSession
+  readonly isInFront: boolean
+}
+
+// WHY: the (Unassigned) row has no Resource.uid, so its key is a word no uid can equal.
+export const UNASSIGNED_ROW_KEY = 'unassigned'
+
+export type VisibilityKey = number | typeof UNASSIGNED_ROW_KEY
 
 const MINIMISE_ENTRY: IconId = 'IC-129'
 const MAXIMISE_ENTRY: IconId = 'IC-130'
@@ -23,6 +39,7 @@ const SORT_DESCENDING_ENTRY: IconId = 'IC-124'
 const SHOW_ALL_ENTRY: IconId = 'IC-125'
 const HIDE_ALL_ENTRY: IconId = 'IC-126'
 const CLEAR_ENTRY: IconId = 'IC-153'
+const SCHEDULE_FILTER_ENTRY: IconId = 'IC-143'
 
 const SORT_DIRECTIONS: { readonly [entry: IconId]: SearchSort['direction'] } = {
   [SORT_ASCENDING_ENTRY]: 'ascending',
@@ -37,6 +54,18 @@ const DATE_PART_DIGITS: readonly number[] = [4, 2, 2]
 const ICON_WORDS = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 
 const FILTER_SEARCH_HINT = displayWords.searchPanel.find((entry) => entry.part === 'filterSearch')?.text
+// WHY: the order the band names the tables in: search panel, report, resource list.
+const VISIBILITY_TABLES: readonly VisibilityTable[] = ['searchPanel', 'delayDiagnosticsReport', 'resourceList']
+
+const TABLE_SURFACES: { readonly [T in VisibilityTable]: string } = {
+  searchPanel: 'Search Panel',
+  delayDiagnosticsReport: 'Delay Diagnostics Report',
+  resourceList: 'Resource List',
+}
+
+const SURFACE_HEADINGS = new Map(displayWords.surfaces.map((entry) => [entry.name, entry.heading]))
+const PANEL_WORDS = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry.text]))
+
 // see SV-7
 const DATE_FROM_WORD = displayWords.searchPanel.find((entry) => entry.part === 'dateFrom')?.text
 const DATE_TO_WORD = displayWords.searchPanel.find((entry) => entry.part === 'dateTo')?.text
@@ -110,7 +139,17 @@ export type SearchFilterChange =
       readonly bound: 'since' | 'until'
       readonly day: string | null
     }
-  | { readonly kind: 'shown'; readonly column: SearchColumn; readonly taskUids: readonly number[]; readonly isShown: boolean }
+  | { readonly kind: 'shown'; readonly column: SearchColumn; readonly keys: readonly VisibilityKey[]; readonly isShown: boolean }
+
+export interface ScheduleFilterBarView {
+  readonly text: string
+  readonly scheduleFilterOffLabel: string
+}
+
+export interface EntryRefusal {
+  readonly icon: IconId
+  readonly reason: string
+}
 
 // see SV-6, SV-7, T-331, T-347
 export interface WindowTable {
@@ -324,4 +363,102 @@ export function tableAfterFilterChange<P extends TableWindowSession>(
 export function tableWithFilterClosed<P extends TableWindowSession>(panel: P, shown: WindowShown | null, table: WindowTable): P | null {
   if (openFilterIn(panel, shown, table) === null) return null
   return { ...panel, filters: { ...panel.filters, open: null } }
+}
+
+/** @purity pure */
+export function isRowShown(visibility: TableVisibility, key: VisibilityKey): boolean {
+  if (key === UNASSIGNED_ROW_KEY) return !visibility.isUnassignedHidden
+  return !visibility.hiddenKeys.includes(key)
+}
+
+// WHY: null for a value of another column, so a caller keeps its own label.
+/** @purity pure */
+export function visibilityLabelOf(value: string, language: DisplayLanguage): string | null {
+  if (value === SHOW_VALUE) return wordOf(PANEL_WORDS.get('showValue'), language)
+  if (value === HIDE_VALUE) return wordOf(PANEL_WORDS.get('hideValue'), language)
+  return null
+}
+
+// WHY: the same panel back when no row changes, so the shell's identity test sees no change.
+/** @purity pure */
+export function tableAfterVisibilityChange<P extends TableWindowSession>(panel: P, keys: readonly VisibilityKey[], isShown: boolean): P {
+  const held = panel.visibility
+  const named = new Set(keys.filter((key): key is number => key !== UNASSIGNED_ROW_KEY))
+  const kept = held.hiddenKeys.filter((key) => !named.has(key))
+  const added = isShown ? [] : [...named].filter((key) => !held.hiddenKeys.includes(key))
+  const isUnassignedHidden = keys.includes(UNASSIGNED_ROW_KEY) ? !isShown : held.isUnassignedHidden
+  const isSame = kept.length === held.hiddenKeys.length && added.length === 0 && isUnassignedHidden === held.isUnassignedHidden
+  if (isSame) return panel
+  return { ...panel, visibility: { ...held, hiddenKeys: [...kept, ...added], isUnassignedHidden } }
+}
+
+/** @purity pure */
+export function tableWithScheduleFilterToggled<P extends TableWindowSession>(panel: P): P {
+  return { ...panel, visibility: { ...panel.visibility, isApplied: !panel.visibility.isApplied } }
+}
+
+// WHY: rowKeysOf lists the table's rows, read only while a key is hidden;
+// a table that leaves a task out (the report) changes the schedule though no row is Hide.
+/** @purity pure */
+export function wouldScheduleFilterChange(
+  visibility: TableVisibility,
+  rowKeysOf: () => ReadonlySet<number>,
+  isEveryTaskRowed: boolean,
+): boolean {
+  if (!isEveryTaskRowed || visibility.isUnassignedHidden) return true
+  if (visibility.hiddenKeys.length === 0) return false
+  const rowKeys = rowKeysOf()
+  return visibility.hiddenKeys.some((key) => rowKeys.has(key))
+}
+
+// see TV-5, TV-12, IC-143, EN-8, FR-092
+/** @purity pure */
+export function scheduleFilterEntryOf(visibility: TableVisibility, wouldChange: boolean, language: DisplayLanguage): CommandItem {
+  const isApplied = visibility.isApplied
+  const entry = entryOf(SCHEDULE_FILTER_ENTRY, language)
+  return { ...entry, isEnabled: isApplied || wouldChange, isPressed: isApplied, isScheduleFilterApplied: isApplied }
+}
+
+/** @purity pure */
+export function scheduleFilterRefusalsOf(entry: CommandItem, language: DisplayLanguage): readonly EntryRefusal[] {
+  if (entry.icon !== SCHEDULE_FILTER_ENTRY || entry.isEnabled) return []
+  return [{ icon: SCHEDULE_FILTER_ENTRY, reason: wordOf(PANEL_WORDS.get('nothingHidden'), language) }]
+}
+
+/** @purity pure */
+export function tableWithScheduleFilterPressed<P extends TableWindowSession>(panel: P, entry: IconId, wouldChange: boolean): P | null {
+  if (entry !== SCHEDULE_FILTER_ENTRY) return null
+  if (!panel.visibility.isApplied && !wouldChange) return null
+  return tableWithScheduleFilterToggled(panel)
+}
+
+/** @purity pure */
+function tableNamesOf(tables: readonly VisibilityTable[], language: DisplayLanguage): string {
+  const named = VISIBILITY_TABLES.filter((table) => tables.includes(table))
+  const separator = wordOf(PANEL_WORDS.get('tableNameSeparator'), language)
+  return named.map((table) => wordOf(SURFACE_HEADINGS.get(TABLE_SURFACES[table]), language)).join(separator)
+}
+
+// WHY: tables are those whose Schedule Filter is on; drawnCount is the tasks the product draws (TV-1).
+/** @purity pure */
+export function scheduleFilterBarOf(
+  tables: readonly VisibilityTable[],
+  schedule: Schedule,
+  drawnCount: number,
+  language: DisplayLanguage,
+): ScheduleFilterBarView | null {
+  if (tables.length === 0) return null
+  const text = wordOf(PANEL_WORDS.get('scheduleFilterBar'), language)
+    .replace('{tables}', tableNamesOf(tables, language))
+    .replace('{total}', String(schedule.tasks.length))
+    .replace('{shown}', String(drawnCount))
+  return { text, scheduleFilterOffLabel: wordOf(PANEL_WORDS.get('scheduleFilterOff'), language) }
+}
+
+// WHY: the heading box of the Visibility column: ticked when every listed row is Show, half when some are.
+/** @purity pure */
+export function visibilityHeadingOf(rows: readonly { readonly shown?: boolean }[]): 'all' | 'some' | 'none' {
+  const ticked = rows.filter((row) => row.shown === true).length
+  if (ticked === 0) return 'none'
+  return ticked === rows.length ? 'all' : 'some'
 }
