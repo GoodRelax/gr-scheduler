@@ -519,7 +519,28 @@ function isSameRecord(
   return fields.every(([key, value]) => Object.hasOwn(right, key) && isSame(value, right[key], key))
 }
 
+// see FR-046, GR-16, DFC-2314
+// WHY: a Status Line drag writes only statusDate, which no layout reads; a new layout re-asks the zoom ends.
+/** @purity pure */
+function isSameScheduleApartFromStatusDate(a: Document['schedule'], b: Document['schedule']): boolean {
+  return isSameRecord(a, b, (x, y, key) =>
+    key === 'project'
+      ? isSameRecord(x as object, y as object, (p, q, field) => field === 'statusDate' || Object.is(p, q))
+      : Object.is(x, y))
+}
+
 // TRAP: the settings and the regions are new objects on every frame; compared by identity, nothing is ever held.
+/** @purity pure */
+function isSameLayoutInputs(a: PictureInputs, b: PictureInputs): boolean {
+  return (
+    a.shownTaskUids === b.shownTaskUids &&
+    a.taskGroupControlsHeightPx === b.taskGroupControlsHeightPx &&
+    isSameScheduleApartFromStatusDate(a.schedule, b.schedule) &&
+    isSameRecord(a.settings, b.settings) &&
+    isSameRecord(a.regions, b.regions, (x, y) => isSameRecord(x as object, y as object))
+  )
+}
+
 /** @purity pure */
 function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
   return (
@@ -528,10 +549,7 @@ function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
     a.dualCursor === b.dualCursor &&
     a.delayDiagnostics === b.delayDiagnostics &&
     a.parentTaskFamilies === b.parentTaskFamilies &&
-    a.shownTaskUids === b.shownTaskUids &&
-    a.taskGroupControlsHeightPx === b.taskGroupControlsHeightPx &&
-    isSameRecord(a.settings, b.settings) &&
-    isSameRecord(a.regions, b.regions, (x, y) => isSameRecord(x as object, y as object))
+    isSameLayoutInputs(a, b)
   )
 }
 
@@ -541,7 +559,9 @@ function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
 function drawnPictureOf(held: DrawnPicture | null, inputs: PictureInputs): DrawnPicture {
   if (held !== null && isSamePictureInputs(held.inputs, inputs)) return held
   const { schedule, settings, regions } = inputs
-  const layout = layoutFromSchedule(schedule, settings, regions, undefined, inputs.taskGroupControlsHeightPx, inputs.shownTaskUids)
+  const layout = held !== null && isSameLayoutInputs(held.inputs, inputs)
+    ? held.layout
+    : layoutFromSchedule(schedule, settings, regions, undefined, inputs.taskGroupControlsHeightPx, inputs.shownTaskUids)
   const geometry = geometryFromLayout(
     schedule, settings, layout, regions, inputs.selection, inputs.dualCursor, inputs.delayDiagnostics,
     inputs.parentTaskFamilies,

@@ -79,7 +79,7 @@ export interface TaskFigureParts {
   readonly labelPartsPinned: readonly string[]
   readonly deadlineParts: readonly string[]
   readonly deadlinePartsPinned: readonly string[]
-  readonly barMaskParts: readonly string[]
+  readonly haloCuts: readonly HaloCut[]
   readonly handleParts: readonly string[]
   readonly selectionParts: readonly string[]
   readonly endOutlineParts: readonly string[]
@@ -96,7 +96,7 @@ export interface DependencyLinksInput {
   readonly themed: (rowId: string) => string
   readonly selectedLinks: ReadonlySet<string>
   readonly landingLink: string | null
-  readonly barMaskParts: readonly string[]
+  readonly haloCuts: readonly HaloCut[]
   readonly arrowId: string
   readonly dependencyHaloMaskId: string
   readonly width: number
@@ -132,13 +132,20 @@ function cornersOfBar(bar: BarGeometry): Path {
 }
 
 // see FR-009, HT-1
+// WHY: the box a halo is not laid on, kept as numbers so each halo's mask takes only the boxes that meet it.
+export interface HaloCut {
+  readonly box: ScreenRect
+  readonly key: string
+}
+
+// see FR-009, HT-1
 // WHY: the ink, not the corners: the outline's or the line's stroke reaches half its width past them (CR-684 X-2).
 /** @purity pure */
-function haloCutOf(bar: BarGeometry | null, outlineWidth: number, key: string): readonly string[] {
+function haloCutOf(bar: BarGeometry | null, outlineWidth: number, key: string): readonly HaloCut[] {
   const box = bar === null ? null : boxOfPoints(cornersOfBar(bar))
   if (bar === null || box === null) return []
   const half = (bar.form === 'outline' ? outlineWidth : bar.strokeWidth) / 2
-  return [barMaskRectSvg({ x: box.x - half, y: box.y - half, width: box.width + half * 2, height: box.height + half * 2 }, key)]
+  return [{ box: { x: box.x - half, y: box.y - half, width: box.width + half * 2, height: box.height + half * 2 }, key }]
 }
 
 // see FR-009
@@ -558,7 +565,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
   const labelPartsPinned: string[] = []
   const deadlineParts: string[] = []
   const deadlinePartsPinned: string[] = []
-  const barMaskParts: string[] = []
+  const haloCuts: HaloCut[] = []
   const handleParts: string[] = []
   const selectionParts: string[] = []
   const endOutlineParts: string[] = []
@@ -613,7 +620,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     const dummy = drawnDummyOf(task, picture)
     // see FR-009
     // WHY: the halo is laid over the faint dummy marks: cutting them out measured no faster (CR-704).
-    barMaskParts.push(
+    haloCuts.push(
       ...haloCutOf(task.plan, outlineWidth, `${taskKey}-plan-mask`),
       ...haloCutOf(task.actual, outlineWidth, `${taskKey}-actual-mask`),
     )
@@ -711,7 +718,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     labelPartsPinned,
     deadlineParts,
     deadlinePartsPinned,
-    barMaskParts,
+    haloCuts,
     handleParts,
     selectionParts,
     endOutlineParts,
@@ -758,18 +765,51 @@ export function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [nu
 // TRAP: the heads are minted before any cull: a <marker> must exist even when the first line is culled.
 /** @purity pure */
 function dependencyDefsOf(input: DependencyLinksInput): readonly string[] {
-  const { settings, themed, barMaskParts, arrowId } = input
-  const defs = [dependencyArrowSvg(arrowId, settings, themed('S-159'))]
-  if (barMaskParts.length > 0) {
-    defs.push(
-      `<mask id="${input.dependencyHaloMaskId}" maskUnits="userSpaceOnUse">` +
-        `<rect x="0" y="0" width="${rounded(input.width)}" height="${rounded(input.height)}"` +
-        ' fill="white"/>' +
-        barMaskParts.join('') +
-        '</mask>',
-    )
-  }
-  return defs
+  const { settings, themed, arrowId } = input
+  return [dependencyArrowSvg(arrowId, settings, themed('S-159'))]
+}
+
+/** @purity pure */
+function isMeeting(a: ScreenRect, b: ScreenRect): boolean {
+  return a.x <= b.x + b.width && b.x <= a.x + a.width && a.y <= b.y + b.height && b.y <= a.y + a.height
+}
+
+/** @purity pure */
+function rectAttributes(box: ScreenRect): string {
+  return `x="${rounded(box.x)}" y="${rounded(box.y)}" width="${rounded(box.width)}" height="${rounded(box.height)}"`
+}
+
+// see FR-009, HT-1
+// WHY: one small mask per halo: one picture-wide mask under every halo was rasterised once per halo (DFC-2314).
+// TRAP: the region must hold all the halo's ink: the default miter limit (4) lets a corner reach twice the
+// stroke width past its point. Outside the picture the white stops, as the picture-wide mask's did.
+/** @purity pure */
+function haloMaskOf(
+  input: Pick<DependencyLinksInput, 'haloCuts' | 'width' | 'height'>,
+  route: ScreenRect,
+  haloWidth: number,
+  id: string,
+): string | null {
+  if (input.haloCuts.length === 0) return null
+  const reach = haloWidth * 2 + 2
+  const region = { x: route.x - reach, y: route.y - reach, width: route.width + reach * 2, height: route.height + reach * 2 }
+  const met = input.haloCuts.filter((cut) => isMeeting(cut.box, region))
+  const left = Math.max(0, region.x)
+  const top = Math.max(0, region.y)
+  const right = Math.min(Number(rounded(input.width)), region.x + region.width)
+  const bottom = Math.min(Number(rounded(input.height)), region.y + region.height)
+  const isWithinPicture = left === region.x && top === region.y &&
+    right === region.x + region.width && bottom === region.y + region.height
+  if (met.length === 0 && isWithinPicture) return null
+  const white = right > left && bottom > top
+    ? `<rect ${rectAttributes({ x: left, y: top, width: right - left, height: bottom - top })} fill="white"/>`
+    : ''
+  return (
+    `<mask id="${id}" maskUnits="userSpaceOnUse" ${rectAttributes(region)}>` +
+    white +
+    met.map((cut) => barMaskRectSvg(cut.box, cut.key)).join('') +
+    '</mask>'
+  )
 }
 
 // see FR-009, SL-8, EL-16
@@ -798,26 +838,30 @@ function inkOf(input: DependencyLinksInput, emphasis: Emphasis, halo: string): L
 // see GD-6, FR-009, EL-19
 /** @purity pure */
 export function dependencyLinkParts(input: DependencyLinksInput): DependencyLinkParts {
-  const { geometry, settings, themed, barMaskParts } = input
+  const { geometry, settings, themed } = input
   const depLinkParts: string[] = []
   const depLinkPartsPinned: string[] = []
   if (!settings.dependencyVisible || geometry.dependencies.length === 0) {
     return { defsParts: [], depLinkParts, depLinkPartsPinned }
   }
   const haloWidth = settings.dependencyWidth * NOT_STORED_DEPENDENCY_SIZES['S-224']
-  const haloMask = barMaskParts.length > 0 ? ` mask="url(#${input.dependencyHaloMaskId})"` : ''
-  const halo = `stroke="${themed('S-146')}" stroke-width="${rounded(haloWidth)}"${haloMask}`
+  const halo = `stroke="${themed('S-146')}" stroke-width="${rounded(haloWidth)}"`
+  const masks: string[] = []
   const ranked = geometry.dependencies.map((link) => ({ link, emphasis: emphasisOf(link, input) }))
   ranked.sort((a, b) => EMPHASIS_DRAW_RANK[a.emphasis] - EMPHASIS_DRAW_RANK[b.emphasis])
   for (const { link, emphasis } of ranked) {
-    const ink = inkOf(input, emphasis, halo)
-    const drawnBox = boxOfPoints(ink.isWholeRoute ? link.points : link.drawnPoints)
+    const isWholeRoute = emphasis === 'landing'
+    const drawnBox = boxOfPoints(isWholeRoute ? link.points : link.drawnPoints)
     if (drawnBox === null || isCulled(drawnBox, input)) continue
+    const maskId = `${input.dependencyHaloMaskId}-${masks.length}`
+    const mask = haloMaskOf(input, drawnBox, haloWidth, maskId)
+    if (mask !== null) masks.push(mask)
+    const ink = inkOf(input, emphasis, mask === null ? halo : `${halo} mask="url(#${maskId})"`)
     ;(isLinkInBand(geometry.pinnedBand, link, ink.isWholeRoute) ? depLinkPartsPinned : depLinkParts).push(
       dependencyLinkSvg(link, ink),
     )
   }
-  return { defsParts: dependencyDefsOf(input), depLinkParts, depLinkPartsPinned }
+  return { defsParts: [...dependencyDefsOf(input), ...masks], depLinkParts, depLinkPartsPinned }
 }
 
 type DependencyLink = ScheduleGeometry['dependencies'][number]

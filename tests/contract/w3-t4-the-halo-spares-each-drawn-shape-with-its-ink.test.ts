@@ -125,11 +125,11 @@ function shapeFiguresOf(svg: string): readonly Figure[] {
 }
 
 // see HT-1
+// WHY: every halo mask is read: each halo may carry its own mask, holding the boxes that meet it (DFC-2314).
 /** @purity pure */
 function sparedBoxesOf(svg: string): readonly Box[] {
-  const mask = /<mask\b[^>]*id="[^"]*halo[^"]*"[^>]*>([\s\S]*?)<\/mask>/.exec(svg)
-  if (mask === null) return []
-  return [...(mask[1] ?? '').matchAll(/<rect\b((?:[^<>"]|"[^"]*")*)\/?>/g)]
+  return [...svg.matchAll(/<mask\b[^>]*id="[^"]*halo[^"]*"[^>]*>([\s\S]*?)<\/mask>/g)]
+    .flatMap((mask) => [...(mask[1] ?? '').matchAll(/<rect\b((?:[^<>"]|"[^"]*")*)\/?>/g)])
     .map((hit) => attrsOf(hit[1] ?? ''))
     .filter((attrs) => attrs['fill'] === 'black')
     .map((attrs) => inkBoxOf('rect', { ...attrs, stroke: 'none' }) as Box)

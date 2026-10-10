@@ -678,6 +678,14 @@ function described(part: unknown): string {
   return JSON.stringify(part) ?? ''
 }
 
+// see FR-053, CR-575, DFC-2314
+// WHY: a pan or a zoom moves only the scroll thumbs, which never move the palette, so its band is not measured again.
+/** @purity pure */
+function frameKeysOf(frame: ScreenView['frame']): { readonly frame: string; readonly framePlace: string } {
+  const tracks = frame.scrollbars.map((one) => ({ axis: one.axis, track: one.track }))
+  return { frame: described(frame), framePlace: described({ ...frame, scrollbars: tracks }) }
+}
+
 /** @purity pure */
 function helpKeysOf(helpModal: ScreenView['openModal']): { readonly helpModal: string; readonly helpPlace: string } {
   if (helpModal === null) return { helpModal: described(null), helpPlace: described(null) }
@@ -1056,7 +1064,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const surfaceModal = isHelpOpenModal ? null : view.openModal
     const helpModal = view.helpModal ?? (isHelpOpenModal ? view.openModal : null)
     const keys: Record<string, string> = {
-      frame: described(view.frame),
+      ...frameKeysOf(view.frame),
       appHeaderItems: described(view.appHeaderItems),
       taskGroupPanel: described(view.taskGroupPanel),
       propertiesPanel: fieldEditing.panelKeyAfterCommits(propertiesPanelKeyOf(view.propertiesPanel)),
@@ -1164,7 +1172,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       )
     }
 
-    if (changed('frame') || changed('commandPalette')) reportPaletteBand()
+    if (changed('framePlace') || changed('commandPalette')) reportPaletteBand()
     if (isHeaderMoved || changed('frame') || changed('propertiesPanel')) placePanels(view)
     if (changed('dialogueField')) dialogue.draw(view.dialogueField ?? null, anchorsOf('dialogueField'), zIndexStyle('UZ-9'))
     if (isHeaderMoved || changed('notices')) {

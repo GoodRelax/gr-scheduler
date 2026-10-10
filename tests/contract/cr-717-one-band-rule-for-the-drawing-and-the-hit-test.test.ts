@@ -96,7 +96,7 @@ const drawnInBand = (isLanding: boolean): boolean => {
     themed: () => '#000000',
     selectedLinks: new Set(),
     landingLink: isLanding && LINE !== undefined ? linkKeyOf(LINE) : null,
-    barMaskParts: [],
+    haloCuts: [],
     arrowId: 'arrow',
     dependencyHaloMaskId: 'halo',
     width: SCREEN.width,
