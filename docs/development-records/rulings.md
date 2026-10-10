@@ -2202,6 +2202,14 @@
 |---|---|---|---|---|
 | JDG-1921 | **「Colorの方がいいだろ？ 普通コーディングでどっちを使う？」** ／ 続く選択: **「識別子まで全部」**（2026-10-10。プロパティパネルの英語の項目名で Color（`PR-19`）と Colour（ほかの 6 欄）が混ざっていること —— `CR-726` の 11 節の問い 2、推奨は Colour にそろえる —— への答え。続けて調整役が範囲を 3 つの択で問い、利用者は「識別子まで全部」を選んだ。ほかの 2 つの択は、調整役の要約で「画面の語と英語の手引き」「画面の語だけ」。⚠️ 推奨（Colour）を覆した） | ⭐ 英語の綴りはアメリカ式の color にそろえる —— 画面の語（`display-words.json` の en）、英語の手引きと画像から GRS JSON を作る頼みの文、仕様の英語の名（設定の値の鍵・公開名・辞書の節の鍵・行 ID の接頭辞の語）と文、`src` の識別子・注釈・文字列・DOM の名、試験、道具と検査、ファイル名のすべて。⭐ 理由（利用者の語）: 普通のコーディングは color を使う。⛔ 変えないもの: 利用者の逐語と、台帳・変更要求・レビューの記録・`previous-project-result/` の中の colour（履歴）、MSPDI と他人の名（MCP の `notifications/cancelled` ほか）。⚠️ color 以外のイギリス式の綴り（centre・grey・minimise・cancelled・licence ほか）を同じく替えるかは、`CR-730` の 11 節の問い 1 で問う。⚠️ `CR-726` の 11 節の問い 2 は本行で閉じた —— `PR-19` の Color はそのまま、ほかの Colour が Color になる。⛔ 覆した裁定: `JDG-966` の綴り（theme colour → theme color。語の選びは保つ） | `change-request/CR-730-one-spelling-american-color-everywhere.md`（当てる先: `docs/spec/_source/display-words.json`・`docs/spec/_source/settings.json`・`docs/development-rules/02-changing-the-spec.md` の 5 節・`.claude/skills/spec-graph-check/style-checks.py`（検査 32）ほか、同書の 1 節） | 指示 —— CR-730 が当てる |
 
+## 2026-10-10 —— ホイールで全部が展開される件の報告（JDG-1695）
+
+⭐ 進捗の席（`JDG-1415`〜`JDG-1419`・`JDG-1694` と同じ席）で、利用者がチャットで直接書いた言葉である。番号の帯 `JDG-1694`〜`JDG-1695` は 2026-10-08 の調整役が配った（これで使い切った）。
+
+| # | 逐語（⛔ 1 文字も変えるな） | 読み | 着地先 | 状態 |
+|---|---|---|---|---|
+| JDG-1695 | **「Analyse the bug-like behaviour the user found<br>は別件の調査をやらせている。 調整役にそう伝えてお前がレポートを書け。」**（2026-10-10 夕。進捗の席が「ホイールで他のタスクグループも展開された」件を調べて調整役へ送ったところ、調整役が分析の席（セッション「Analyse the bug-like behaviour the user found」）へ回すと答えた直後に届いた 1 通。改行は利用者の入力のまま `<br>` で写した） | ⭐ その件の報告は、分析の席ではなく進捗の席が書く —— 調整役に伝え、`DFC-2410`（調整役が配った番号）として台帳に起こす。分析の席は別件を調べ続ける | `docs/development-records/defects.md` の `DFC-2410` | 適用済 |
+
 ## 2026-09-07 以前（⛔ 逐語は確かめてから写すこと）
 
 ⚠️ **次は本書を作る前に下りた裁定である。⛔ 逐語は
