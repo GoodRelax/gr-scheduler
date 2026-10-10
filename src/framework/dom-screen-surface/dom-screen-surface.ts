@@ -918,11 +918,11 @@ const SHOW_ONLY_CHECKED_ENTRY = 'IC-143'
 function showOnlyCheckedBarElements(host: Document, panel: SearchPanelView | null | undefined): readonly HTMLElement[] {
   const bar = panel?.showOnlyCheckedBar ?? null
   if (panel === null || panel === undefined || bar === null) return []
-  const height = NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-497']
+  const height = NOT_STORED_SCHEDULE_FILTER_BAR_SIZES['S-497']
   const band = made(host, 'div',
     `position:absolute;left:${panel.canvas.x}px;top:${panel.canvas.y - height}px;width:${panel.canvas.width}px;height:${height}px;` +
     `box-sizing:border-box;display:flex;align-items:center;gap:1em;padding:0 0.5em;pointer-events:auto;` +
-    `font-size:${NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-498']}px;font-weight:normal;white-space:nowrap;overflow:hidden;` +
+    `font-size:${NOT_STORED_SCHEDULE_FILTER_BAR_SIZES['S-498']}px;font-weight:normal;white-space:nowrap;overflow:hidden;` +
     `background:${PAINT.ground};color:${PAINT.ink};border-bottom:1px solid ${PAINT.rule};`)
   band.setAttribute('data-role', SHOW_ONLY_CHECKED_BAR_ROLE)
   const text = made(host, 'span', '')
@@ -1426,7 +1426,7 @@ export const NOT_STORED_HELP_SIZES: {
 }
 
 // see T-206
-export const NOT_STORED_RESOURCE_LIST_SIZES: {
+export const NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES: {
   readonly 'S-240': number
   readonly 'S-241': number
 } = {
@@ -1516,7 +1516,7 @@ export const NOT_STORED_SEARCH_PANEL_FONT_SIZES: {
 }
 
 // see T-206
-const NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES: {
+const NOT_STORED_SCHEDULE_FILTER_BAR_SIZES: {
   readonly 'S-497': number
   readonly 'S-498': number
 } = {

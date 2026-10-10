@@ -18,7 +18,7 @@ import {
   NOT_STORED_EXPORT_CHOOSER_SIZES,
   NOT_STORED_HELP_SIZES,
   NOT_STORED_ICON_SIZES,
-  NOT_STORED_RESOURCE_LIST_SIZES,
+  NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES,
   NOT_STORED_WHEEL_UNITS,
   PAINT,
   REPORT_REASON_ATTRIBUTE,
@@ -255,7 +255,7 @@ type ResourceListLine = Extract<OpenModal, { readonly resources: unknown }>['res
 function resourceListBoxStyle(): string {
   return (
     'display:flex;flex-direction:column;overflow:hidden;' +
-    `font-size:${NOT_STORED_RESOURCE_LIST_SIZES['S-240']}em;`
+    `font-size:${NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES['S-240']}em;`
   )
 }
 
@@ -263,7 +263,7 @@ function resourceListBoxStyle(): string {
 // TRAP: screen px on purpose; S-234, S-235 and S-240 must not scale it, or the line drops below a pixel.
 /** @purity pure */
 function resourceListRule(): string {
-  return `${NOT_STORED_RESOURCE_LIST_SIZES['S-241']}px solid ${PAINT.rule}`
+  return `${NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES['S-241']}px solid ${PAINT.rule}`
 }
 
 // see RR-4, RR-5

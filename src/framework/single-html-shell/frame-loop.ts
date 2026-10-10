@@ -1145,7 +1145,7 @@ function screenLanguageIn(session: ScreenSession): DisplayLanguage {
 /** @purity pure */
 function environmentForRegionsOf(environment: FrameEnvironment, propertyPanelWidth: number, isShowOnlyChecked: boolean): ScreenEnvironment {
   const { width, height, appHeaderHeight, scrollbarThickness } = environment
-  const topBandHeight = isShowOnlyChecked ? NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES['S-497'] : 0
+  const topBandHeight = isShowOnlyChecked ? NOT_STORED_SCHEDULE_FILTER_BAR_SIZES['S-497'] : 0
   return { width, height, appHeaderHeight, scrollbarThickness, propertyPanelWidth, topBandHeight }
 }
 
@@ -3824,7 +3824,7 @@ export const NOT_STORED_SCROLLBAR_SIZES: {
 }
 
 // see T-206
-const NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES: {
+const NOT_STORED_SCHEDULE_FILTER_BAR_SIZES: {
   readonly 'S-497': number
   readonly 'S-498': number
 } = {
