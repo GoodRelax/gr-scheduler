@@ -198,6 +198,13 @@ function diagnosed(document: Document): unknown {
   return seam(document, scheduleEntry.workingCalendarOf(document.schedule))
 }
 
+// see DX-11, DX-12
+/** @purity pure */
+function reportPartOf(value: unknown): unknown {
+  const fixParts = new Set(['fixProposals', 'fixLog'])
+  return Object.fromEntries(Object.entries(value as Loose).filter(([key]) => !fixParts.has(key)))
+}
+
 function reachable(value: unknown, seen = new Set<unknown>()): readonly object[] {
   if (value === null || typeof value !== 'object' || seen.has(value)) return []
   seen.add(value)
@@ -222,12 +229,12 @@ describe('table T-107 AM-19 -- the clauses these cases are driven by', () => {
 describe(`AM-19 readDelayDiagnostics -- ${AM_19_RETURNS}`, () => {
   it(`${FR_134_TWO_READERS} -- the value is the report diagnoseDelay makes of the open document`, () => {
     const one = bench(F(15))
-    expect(readDelayDiagnosticsOf(one.api)).toEqual(diagnosed(one.state.document))
+    expect(reportPartOf(readDelayDiagnosticsOf(one.api))).toEqual(diagnosed(one.state.document))
   })
 
   it('with no status date it still answers the report (FR-130 DX-1), not a throw', () => {
     const one = bench(null)
-    expect(readDelayDiagnosticsOf(one.api)).toEqual(diagnosed(one.state.document))
+    expect(reportPartOf(readDelayDiagnosticsOf(one.api))).toEqual(diagnosed(one.state.document))
   })
 
   it(`${AG_4_COPY} -- frozen all the way down`, () => {
@@ -248,7 +255,7 @@ describe(`AM-19 readDelayDiagnostics -- ${AM_19_RETURNS}`, () => {
     expect(() => {
       first['tampered'] = true
     }).toThrow()
-    expect(readDelayDiagnosticsOf(one.api)).toEqual(diagnosed(one.state.document))
+    expect(reportPartOf(readDelayDiagnosticsOf(one.api))).toEqual(diagnosed(one.state.document))
   })
 })
 

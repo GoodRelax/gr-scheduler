@@ -176,6 +176,185 @@
      }
     },
     {
+     "name": "proposeDelayFixes",
+     "note": {
+      "ja": [
+       "遅延診断の指摘（表 T-317 の `DX-3`）ごとに、表 T-373 の直し方で直す案の行を作る（`FR-155`）。",
+       "機械の行を表 T-373 の結びの順で当て終えた姿で作り、連鎖の行を元の行の下に足す。",
+       "人が触れた行のチェック・択・日付（表 T-346 の `RW-16`）を保つ"
+      ]
+     }
+    },
+    {
+     "name": "delayFixCommands",
+     "note": {
+      "ja": [
+       "チェックの入った直す案の行から、1 つの束として発行する命令の列を作る（`FR-155`、表 T-027 の `UN-21`）"
+      ]
+     }
+    },
+    {
+     "name": "delayFixLogRowsOf",
+     "note": {
+      "ja": [
+       "発行した束の行から、直した記録の行（表 T-317 の `DX-12`）を作る"
+      ]
+     }
+    },
+    {
+     "name": "DELAY_FIX_TYPES",
+     "note": {
+      "ja": [
+       "表 T-373 の直し方を、表 T-374 の既定の並びの順に並べたもの"
+      ]
+     }
+    },
+    {
+     "name": "DelayFixRow",
+     "note": {
+      "ja": [
+       "型。",
+       "直す案の 1 行（表 T-317 の `DX-11`、表 T-374 の欄の値）"
+      ]
+     }
+    },
+    {
+     "name": "DelayFixLogRow",
+     "note": {
+      "ja": [
+       "型。",
+       "直した記録の 1 行（表 T-317 の `DX-12`）"
+      ]
+     }
+    },
+    {
+     "name": "DelayFixCheck",
+     "note": {
+      "ja": [
+       "型。",
+       "人が直す案の 1 行に入れたチェック・選んだ択・書き換えた日付（表 T-346 の `RW-16`）"
+      ]
+     }
+    },
+    {
+     "name": "DelayFixCommand",
+     "note": {
+      "ja": [
+       "型。",
+       "直しの束に入る命令（表 T-108 の `CM-3` ・ `CM-11` ・ `CM-13` ・ `CM-37` と同じ形）"
+      ]
+     }
+    },
+    {
+     "name": "DelayFixChoice",
+     "note": {
+      "ja": [
+       "型。",
+       "直し方が「選ぶ」の行の択 1 つ（表 T-373）"
+      ]
+     }
+    },
+    {
+     "name": "DelayFixValue",
+     "note": {
+      "ja": [
+       "型。",
+       "表 T-374 の `FM-7` ・ `FM-8` に書く値"
+      ]
+     }
+    },
+    {
+     "name": "DelayFixType",
+     "note": {
+      "ja": [
+       "型。",
+       "表 T-373 の直し方（`FM-3`）"
+      ]
+     }
+    },
+    {
+     "name": "delayFixProposalRows",
+     "note": {
+      "ja": [
+       "直す案の行を 表 T-374 の既定の並びにし、連鎖の行を元の行のすぐ下に置く"
+      ]
+     }
+    },
+    {
+     "name": "delayFixRowsInOrder",
+     "note": {
+      "ja": [
+       "直す案の行を渡された比べ方で並べ、連鎖の行を元の行から離さない（表 T-374）"
+      ]
+     }
+    },
+    {
+     "name": "compareDelayFixRows",
+     "note": {
+      "ja": [
+       "直す案の行の既定の並びの比べ方（表 T-374）"
+      ]
+     }
+    },
+    {
+     "name": "delayFixLogRowsInOrder",
+     "note": {
+      "ja": [
+       "直した記録の行を 表 T-374 の既定の並び（直した日時の新しい順 → 束の中の順）にする"
+      ]
+     }
+    },
+    {
+     "name": "delayFixColumnsOf",
+     "note": {
+      "ja": [
+       "直す案の表と直した記録の表それぞれの欄（表 T-374 の行 ID）を、左からの順で返す"
+      ]
+     }
+    },
+    {
+     "name": "delayFixProposalCells",
+     "note": {
+      "ja": [
+       "直す案の 1 行を、表 T-374 の書き方の文字列の列にする（表 T-346 の `RW-6` の Markdown にも使う）"
+      ]
+     }
+    },
+    {
+     "name": "delayFixLogCells",
+     "note": {
+      "ja": [
+       "直した記録の 1 行を、表 T-374 の書き方の文字列の列にする"
+      ]
+     }
+    },
+    {
+     "name": "delayFixValueText",
+     "note": {
+      "ja": [
+       "表 T-374 の `FM-7` の書き方で値を文字列にする"
+      ]
+     }
+    },
+    {
+     "name": "DelayFixWords",
+     "note": {
+      "ja": [
+       "型。",
+       "`delayFixProposalCells` ・ `delayFixLogCells` に渡す語（辞書の `delayFixColumns` ・ `delayFixes` ほか）"
+      ]
+     }
+    },
+    {
+     "name": "DelayFixMarkdown",
+     "note": {
+      "ja": [
+       "型。",
+       "`delayDiagnosticsReportMarkdown` に渡す、直す案と直した記録の節（表 T-346 の `RW-6`）"
+      ]
+     }
+    },
+    {
      "name": "parentCandidatesOf",
      "note": {
       "ja": [
