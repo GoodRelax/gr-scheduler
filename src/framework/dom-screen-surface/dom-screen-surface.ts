@@ -146,6 +146,7 @@ const PAINT_ROW = {
   scheduleFilter: 'S-543',
   scheduleFilterGlyph: 'S-544',
   dropCue: 'S-151',
+  jumpLanding: 'S-151',
 } as const
 
 /** @purity pure */
@@ -178,6 +179,7 @@ export const PAINT = {
   scheduleFilter: painted('scheduleFilter'),
   scheduleFilterGlyph: painted('scheduleFilterGlyph'),
   dropCue: painted('dropCue'),
+  jumpLanding: painted('jumpLanding'),
 } as const
 
 /** @purity pure */
@@ -1013,10 +1015,12 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const scaleMessageLayer = made(host, 'div', SCALE_MESSAGE_STYLE.layer)
   const readoutLayer = made(host, 'div', STYLE.layer)
   const dropCueLayer = made(host, 'div', STYLE.layer)
+  const jumpRippleLayer = made(host, 'div', STYLE.layer)
   markZOrder(scaleMessageLayer, 'UZ-1')
   markZOrder(readoutLayer, 'UZ-1')
   markZOrder(dropCueLayer, 'UZ-1')
-  root.append(dropCueLayer, scaleMessageLayer, readoutLayer)
+  markZOrder(jumpRippleLayer, 'UZ-12')
+  root.append(jumpRippleLayer, dropCueLayer, scaleMessageLayer, readoutLayer)
 
   // STOP: spec does not decide whether a wheel over a confirmation is left to the host. Looked in MK-1, MK-10, NT-7 (PND-380)
   let lastKeys: Readonly<Record<string, string>> = {}
@@ -1243,6 +1247,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     lastKeys = drawnKeys
     showUnpressableWords(host, scaleMessageLayer, readoutLayer, view)
     showDropCue(host, dropCueLayer, view.dropCue)
+    showJumpRipple(host, jumpRippleLayer, view.jumpRipple)
     // TRAP: shown synchronously, never inside a frame callback: a first paint that waits for one
     // leaves a white screen until an input arrives.
     root.setAttribute('style', STYLE.rootShown + typefaceStyle() + themeStyle(readTheme()))
@@ -1412,6 +1417,72 @@ function showDropCue(host: Document, layer: HTMLElement, cue: ScreenView['dropCu
   if (words.textContent !== cue.text) words.textContent = cue.text
 }
 
+const JUMP_RIPPLE_ROLE = 'Jump Landing Ripple'
+
+const LANDING_ATTRIBUTE = 'data-landing'
+
+const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
+
+// see SJ-10, U-50
+/** @purity pure */
+function rippleClipStyle(within: ScreenRect): string {
+  return (
+    'position:absolute;overflow:hidden;pointer-events:none;' +
+    `left:${within.x}px;top:${within.y}px;width:${within.width}px;height:${within.height}px;`
+  )
+}
+
+// see SJ-10, S-556
+// WHY: an outline drawn from the ring's inner edge, so at offset 0 it lies on the ring and the offset alone spreads it.
+/** @purity pure */
+function rippleStyle(ripple: NonNullable<ScreenView['jumpRipple']>): string {
+  const { inner, within } = ripple
+  return (
+    'position:absolute;box-sizing:border-box;pointer-events:none;' +
+    `left:${inner.x - within.x}px;top:${inner.y - within.y}px;width:${inner.width}px;height:${inner.height}px;` +
+    `outline:${ripple.lineWidth}px solid ${PAINT.jumpLanding};`
+  )
+}
+
+// see SJ-10, S-557, S-558, S-559
+// TRAP: the host animates it and it is dropped when done: no frame is asked, and the SVG rebuilt each frame never restarts it.
+/** @purity non-pure */
+function startJumpRipple(host: Document, layer: HTMLElement, ripple: NonNullable<ScreenView['jumpRipple']>): void {
+  const clip = made(host, 'div', rippleClipStyle(ripple.within))
+  const ring = part(host, 'div', JUMP_RIPPLE_ROLE, rippleStyle(ripple))
+  if (host.defaultView?.matchMedia?.(REDUCED_MOTION_QUERY).matches === true || typeof ring.animate !== 'function') return
+  clip.append(ring)
+  layer.append(clip)
+  const run = ring.animate(
+    [{ outlineOffset: '0px', opacity: 1 }, { outlineOffset: `${NOT_STORED_JUMP_LANDING_RIPPLE['S-559']}px`, opacity: 0 }],
+    { duration: NOT_STORED_JUMP_LANDING_RIPPLE['S-558'], iterations: NOT_STORED_JUMP_LANDING_RIPPLE['S-557'] },
+  )
+  run.onfinish = () => clip.remove()
+}
+
+// see SJ-10, EL-17, UZ-12
+/** @purity non-pure */
+function showJumpRipple(host: Document, layer: HTMLElement, ripple: ScreenView['jumpRipple']): void {
+  if (ripple === undefined) {
+    if (layer.hasAttribute(LANDING_ATTRIBUTE)) layer.replaceChildren()
+    layer.removeAttribute(LANDING_ATTRIBUTE)
+    return
+  }
+  const landing = String(ripple.landing)
+  if (layer.getAttribute(LANDING_ATTRIBUTE) !== landing) {
+    layer.setAttribute(LANDING_ATTRIBUTE, landing)
+    layer.replaceChildren()
+    startJumpRipple(host, layer, ripple)
+    return
+  }
+  const clip = layer.firstElementChild
+  const clipStyle = rippleClipStyle(ripple.within)
+  if (clip !== null && clip.getAttribute('style') !== clipStyle) clip.setAttribute('style', clipStyle)
+  const ring = clip?.firstElementChild ?? null
+  const ringStyle = rippleStyle(ripple)
+  if (ring !== null && ring.getAttribute('style') !== ringStyle) ring.setAttribute('style', ringStyle)
+}
+
 // see FR-039, SE-5
 // WHY: T-260 leaves the place and the look open; this follows CR-411 question 3's recommendation,
 // an upper-middle box that takes no press.
@@ -1545,6 +1616,17 @@ const NOT_STORED_DROP_CUE_SIZES: {
   readonly 'S-553': number
 } = {
   'S-553': 3,
+}
+
+// see T-206
+const NOT_STORED_JUMP_LANDING_RIPPLE: {
+  readonly 'S-557': number
+  readonly 'S-558': number
+  readonly 'S-559': number
+} = {
+  'S-557': 2,
+  'S-558': 600,
+  'S-559': 16,
 }
 
 // see T-206

@@ -1,10 +1,10 @@
 # CR-728 —— 検索で飛んだ先を左右の中央・上から 1/3 に置き、囲みと波紋の印を付ける —— 遅延診断レポート・プロパティパネルの親の名・`focusTask` も同じ
 
-> 起草の状態: 下書き（2026-10-10、作業木 `6f0abdb2` の上）。⛔ 仕様・コード・試験は変えていない。当てる時期と体は調整役が決める。
+> 起草の状態: 当てた（2026-10-10、作業木 `cb96300c` の上。起草は `6f0abdb2` の上）。仕様とコードと既存の試験の付け替えを 1 つの体が当てた。仕様だけを読む試験は調整役が別の体に出す（9 節）。当てるときに起草から変えた所は 14 節。
 > ID の帯: 番号 `CR-728`、裁定 `JDG-1890`〜`JDG-1899`（本書は `JDG-1891`・`JDG-1893`・`JDG-1894` を使う）、台帳 `DFC-2316`〜`DFC-2319`（本書は `DFC-2317`）、問い `PND-870`〜`PND-874`（本書は使わない）を調整役から受けた。`6f0abdb2` の木で `CR-728` を名乗る所は 0 件だった（13 節）。
-> 新しい行は仮の名（`SJ-NEW-1`・`S-NEW-B1`〜`S-NEW-B6`）で書き、当てるときに番号を振る —— `6f0abdb2` で 表 T-332 の最大は `SJ-9`、設定値の最大は `S-542`。`CR-727` も `S-` を 1 つ取るので、当てる体が当てる時点の最大を測り直す。
+> 新しい行の番号は当てるときに振った —— `cb96300c` で測り直すと、表 T-332 の行は `SJ-9` まで、設定値は `S-553` まで（`CR-727` が `S-553` を取った）だったので、`SJ-10`・`S-554`〜`S-559` とした（14 節）。変更履歴の版 `4.32` と `perf-pending` の行 165 は調整役から受けた。
 > 当てる裁定: `JDG-1891`（左右の中央・上から 1/3、飛んだ後のハイライト）・`JDG-1893`（案 2 囲み＋波紋）・`JDG-1894`（`focusTask` も印を出す）。
-> 覆す裁定: `JDG-617` の置き場所（「対象の行を一番上にもってきて」「開始日が左端の少し内側」）—— `JDG-1891` が覆す。当てるときに `JDG-617` の状態を「一部 覆された（`JDG-1891`）」にする。`JDG-877`（左上で担当名や進捗が切れない）は、形が画面より広いときに戻る今の置き方の中に残す。
+> 覆す裁定: `JDG-617` の置き場所（「対象の行を一番上にもってきて」「開始日が左端の少し内側」）—— `JDG-1891` が覆す。当てたときに `JDG-617` の状態を「一部 覆された（`JDG-1891`）」にした。`JDG-877` も「左上」に置く分だけ一部 覆された（14.2 の X-9）—— 名札が切れないことは、形が画面より広いときに戻る今の置き方の中に残す。
 > 閉じるもの: 台帳 `DFC-2317`。見本: `previous-project-result/49-jump-placement-and-highlight/index.html`。
 
 ---
@@ -45,9 +45,9 @@
 
 ### ② レビュー観点のどの条項を当て、何が出たか
 
-- `R1.3`（唯一の正）—— 印の消え方は `EL-17` の 1 か所に置き、`SJ-NEW-1` は引くだけ。横の送り方は `FR-046`・`EL-11` と同じ言い方で書き、新しい式を作らない。
+- `R1.3`（唯一の正）—— 印の消え方は `EL-17` の 1 か所に置き、`SJ-10` は引くだけ。横の送り方は `FR-046`・`EL-11` と同じ言い方で書き、新しい式を作らない。
 - `R1.4`（異常系・準正常系）—— 文書の上の端で送れないとき、形が表示より広いとき、`SJ-8` で出せないとき、飛ぶ先が描かれていないとき、動きを減らす設定のときを決めた（③・E-03）。
-- `R2.7`（マジックナンバーを置かない）—— 1/3・3px・3px・2 回・600ms・16px を設定値 `S-NEW-B1`〜`S-NEW-B6` にする。
+- `R2.7`（マジックナンバーを置かない）—— 1/3・3px・3px・2 回・600ms・16px を設定値 `S-554`〜`S-559` にする。
 - `R4.4`（状態機械ごとに図と表）—— 印の状態は既存の `landingMarkDisplayStateMachine` を広げ、新しい機械を作らない（E-06）。
 - 前例を探す（規則 01 の ⑧）: 横の中点へ送る形は `FR-046`（基準日線を出す）と `EL-11`（続きの印）に在る —— 同じ言い方で書く。飛んだ先の印の消え方は `EL-17` に在る —— 写さずに引く（一つの規則に一つの持ち主）。
 - 一つの語には一つの意味（表 T-006b）: `EL-16` の「送った先の印」と区別して、本書の印を「飛んだ先の印」と呼ぶ。状態機械は 1 つ（`landingMarkDisplayStateMachine`）にまとめ、運ぶ値で分ける（E-06）。
@@ -59,7 +59,7 @@
 |---|---|
 | 横は予定の形の横の中点を `Task Group Area` の横の中点へ置く（担当の札や名前のラベルは数えない） | `FR-046`・`EL-11` と同じ送り方。札を数えると、札の長さで飛んだ先の位置が揺れる |
 | 形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広いときは、今の `SJ-6`（日付か左の占有の左端を左端から `S-428` 内側）に戻る | 長いバーの中点を中央に置くと、開始日が画面の左の外に出る。`JDG-877` の「札が切れない」もこの置き方が守る |
-| 縦は予定の形の縦の中点を、ピン止めの帯の下に残る高さの上から `S-NEW-B1`（1/3）に置く。文書の上の端（最初のタスクグループより上へは送れない）で止まるときは、形はそれより上に来る | 利用者の言葉「上から1/3ぐらい」。送れる範囲を広げる規則は足さない |
+| 縦は予定の形の縦の中点を、ピン止めの帯の下に残る高さの上から `S-554`（1/3）に置く。文書の上の端（最初のタスクグループより上へは送れない）で止まるときは、形はそれより上に来る | 利用者の言葉「上から1/3ぐらい」。送れる範囲を広げる規則は足さない |
 | ピン止めのタスクグループ（`SJ-7`）は今どおり横だけ送る | 帯の中で既に画面に出ている |
 | コメントボックスへ飛ぶとき（`SJ-1` の `SQ-7`）も、箱の中点を同じ所へ置き、箱を囲む | 同じ表の 2 つの種類で置き方を分ける理由が無い |
 | 波紋は、閲覧環境が動きを減らす設定（`prefers-reduced-motion: reduce`）のときは出さず、囲みだけにする | OS の動きを減らす設定は、動きで目が疲れる人のための設定である。囲みは残るので、飛んだ先は読める。仕様に動きの決まりが今まで無かったので、最初の動きと一緒に置く |
@@ -80,17 +80,17 @@
 
 ---
 
-## 2. 新しい識別子（仮の名。当てるときの番号に替える）
+## 2. 新しい識別子（当てた番号。`cb96300c` で測り直した）
 
-| 仮の名 | 行き先 | 中身 | 値の出どころ |
+| 番号 | 行き先 | 中身 | 値の出どころ |
 |---|---|---|---|
-| `SJ-NEW-1` | 表 T-332 | 飛んだ先の印 | — |
-| `S-NEW-B1` | 表 T-206（保存しない） | 飛んだ先を置く縦の位置 —— 帯の下に残る高さに対する、上の縁からの比 | 1/3 🔎（`JDG-1891`「上から1/3ぐらい」） |
-| `S-NEW-B2` | 同上 | 飛んだ先の囲みと予定の形の外接矩形のあいだ | 3px 🔎（見本 49） |
-| `S-NEW-B3` | 同上 | 飛んだ先の囲みの太さ | 3px 🔎（見本 49） |
-| `S-NEW-B4` | 同上 | 波紋の回数 | 2（`JDG-1893` で示した形） |
-| `S-NEW-B5` | 同上 | 波紋 1 回の長さ（続けて出す） | 600ms 🔎（見本 49） |
-| `S-NEW-B6` | 同上 | 波紋が囲みから外へ広がる幅（各辺） | 16px 🔎（見本 49） |
+| `SJ-10` | 表 T-332 | 飛んだ先の印 | — |
+| `S-554` | 表 T-206（保存しない） | 飛んだ先を置く縦の位置 —— 帯の下に残る高さに対する、上の縁からの比 | 1/3 🔎（`JDG-1891`「上から1/3ぐらい」） |
+| `S-555` | 同上 | 飛んだ先の囲みと予定の形の外接矩形のあいだ | 3px 🔎（見本 49） |
+| `S-556` | 同上 | 飛んだ先の囲みの太さ | 3px 🔎（見本 49） |
+| `S-557` | 同上 | 波紋の回数 | 2（`JDG-1893` で示した形） |
+| `S-558` | 同上 | 波紋 1 回の長さ（続けて出す） | 600ms 🔎（見本 49） |
+| `S-559` | 同上 | 波紋が囲みから外へ広がる幅（各辺） | 16px 🔎（見本 49） |
 
 ⚠️ 6 つとも測って決めた値ではない —— 見本 49 で利用者が見て選んだ形の値である。🔎 を付ける。
 
@@ -100,11 +100,11 @@
 
 | 旧 | 新 |
 |---|---|
-| `SJ-5` の「飛ぶ先のタスクグループを、ピン止めの帯（`FR-098`）の下に残る領域の一番上へ置く —— …`S-78` をそのタスクグループにし、タスクグループの中のずれを 0 にする」 | E-01 の文（形の縦の中点を上から `S-NEW-B1` へ） |
+| `SJ-5` の「飛ぶ先のタスクグループを、ピン止めの帯（`FR-098`）の下に残る領域の一番上へ置く —— …`S-78` をそのタスクグループにし、タスクグループの中のずれを 0 にする」 | E-01 の文（形の縦の中点を上から `S-554` へ） |
 | `SJ-6` の「飛ぶ先の日付…が、表示の左端から `S-428` だけ内側に来るよう `S-77` を置く。⭐ ただし…占有の左端が…内側に来るよう置く」 | E-02 の文（形の横の中点を中点へ。広すぎるときに限り旧文の置き方） —— 旧文は消さずに「戻る置き方」として E-02 の中へ移す |
 | `S-428` の名「飛んだ先の左端（日付、または日付より左へ出た占有の左端）と表示の左端のあいだ」 | 「飛ぶ先の形が `Task Group Area` より広いときに、飛んだ先の左端（…）と表示の左端のあいだに空ける幅。中央に置くかを決める幅の余白にも使う」 |
-| `SJ-9` の「`AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8` を行う」 | 「…`SJ-5` 〜 `SJ-8` と `SJ-NEW-1` を行う」 |
-| `FR-134` の本文と `PTL-16` の「（`SJ-0`・`SJ-2` 〜 `SJ-8`）」 | 「（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-NEW-1`）」 |
+| `SJ-9` の「`AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8` を行う」 | 「…`SJ-5` 〜 `SJ-8` と `SJ-10` を行う」 |
+| `FR-134` の本文と `PTL-16` の「（`SJ-0`・`SJ-2` 〜 `SJ-8`）」 | 「（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）」 |
 | `landingMarkDisplayStateMachine.shown` の運ぶ値 `landedLink` ／ `landedTaskUid` | `landedBy`（`continuationMark` ／ `jump`）・`landedLink`（`continuationMark` のときだけ）・`landedTarget`（`Task` の `UID` かコメントボックスの id） —— E-06 |
 
 ---
@@ -113,42 +113,42 @@
 
 ### E-01 —— 表 T-332 の `SJ-5`（縦）
 
-新: 「飛ぶ先の予定の形（タスクは描いた予定の図形、コメントボックスは箱）の縦の中点が、ピン止めの帯（`FR-098`）の下に残る `Task Group Area`（`U-50`）の上の縁から、その高さの `_assets/tbl-settings.md` の `S-NEW-B1` の所に来るよう、`S-78` と `S-176` を置く。<br>⭐ 縦の位置は `SJ-2` で展開した後の割付けで読む —— 展開は飛ぶ先より上のタスクグループの高さを変える。<br>⚠️ 最初のタスクグループより上へは送れない（`S-176` は 0 から） —— 送れる所で止め、形はそれより上に来る。<br>⭐ 上から `S-NEW-B1` に置くのは、飛んだ先の上と下の両方を見せるためである（`JDG-1891`）」
+新: 「飛ぶ先の予定の形（タスクは描いた予定の図形、コメントボックスは箱）の縦の中点が、ピン止めの帯（`FR-098`）の下に残る `Task Group Area`（`U-50`）の上の縁から、その高さの `_assets/tbl-settings.md` の `S-554` の所に来るよう、`S-78` と `S-176` を置く。<br>⭐ 縦の位置は `SJ-2` で展開した後の割付けで読む —— 展開は飛ぶ先より上のタスクグループの高さを変える。<br>⚠️ 最初のタスクグループより上へは送れない（`S-176` は 0 から） —— 送れる所で止め、形はそれより上に来る。<br>⭐ 上から `S-554` に置くのは、飛んだ先の上と下の両方を見せるためである（`JDG-1891`）」
 
 ### E-02 —— 表 T-332 の `SJ-6`（横）
 
 新: 「倍率を変えない。<br>飛ぶ先の予定の形の横の中点が `Task Group Area` の横の中点に来るよう、`S-77` と `S-177` を置く —— 基準日線を出す操作（`FR-046`）と、続きの印の送り方（`FR-009` の 表 T-303 の `EL-11`）と同じ送り方である。<br>⭐ ただし形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広いときは、飛ぶ先の日付（タスクは `AT-28`、コメントボックスは `AT-113`）が表示の左端から `S-428` だけ内側に来るよう置く。飛ぶ先がタスクで、表 T-038 が左へ数える占有（担当と完了率の札 `OC-2` ほか）が日付より左へ出ているときは、その占有の左端を `S-428` だけ内側に置く —— 中点を中央に置くと開始日が表示の左の外に出るので、長い形では始まりを見せる（`JDG-877`）。<br>日付が空で形が描かれていなければ横は動かさない」
 
 
-### E-03 —— 表 T-332 に `SJ-NEW-1`（`SJ-9` の後）
+### E-03 —— 表 T-332 に `SJ-10`（`SJ-9` の後）
 
 | 行 ID | 段 | 定め |
 |---|---|---|
-| `SJ-NEW-1` | 飛んだ先の印 | 飛ぶ先のタスクかコメントボックスに、飛んだ先の印を付けること（MUST）—— 置き場所を変えても、広い日程表の中でどれへ飛んだかは一目では読めない（`JDG-1891`・`JDG-1893`）。<br>印は囲みと波紋とする: ① 囲み —— 描いた予定の形（実績を含めない。コメントボックスは箱）の外接矩形から `_assets/tbl-settings.md` の `S-NEW-B2` だけ外に、表 T-236 の `S-151` の色、太さ `S-NEW-B3` の実線の矩形。選択の破線の枠（表 T-023c の `SL-8`）の外側に描く ② 波紋 —— 印を付けた時から、囲みと同じ色と太さの矩形を、`S-NEW-B5` の長さのあいだに囲みの所から各辺 `S-NEW-B6` だけ外へ広げながら、不透明から透明へ消す。これを `S-NEW-B4` 回続けて出す。<br>波紋の後は囲みだけを残し、`FR-009` の 表 T-303 の `EL-17` の決まりで消すこと（MUST） —— 押下とキーの押下で消え、見る位置と倍率だけを動かす操作では消えない。飛んだ先から前後を辿るあいだに消えると、どこへ飛んだかを見失う。<br>⭐ 閲覧環境が動きを減らす設定（`prefers-reduced-motion: reduce`）のときは波紋を出さず、囲みだけとする。<br>⭐ 押して飛ぶ入口（`SJ-1` のセル、`FR-134` の行、`PTL-16` の親の名、`PR-37`・`PR-38` の名）の押下で古い印を消し、離して飛んだときに新しい印を付ける（`EL-17` の続きの印と同じ）。`AM-16` で付けるときは古い印を新しい印に置き換える。<br>⚠️ `SJ-8` で画面に出せなかったとき、と飛ぶ先が描かれていないとき（`RT-4a` が落とした）は、印を描かない。<br>⛔ 印を文書に保存してはならず、取り消しの対象にしてはならない（MUST NOT） —— 画面の値である（`_assets/tbl-state-machines.md` の 表 T-280 の `landingMarkDisplayStateMachine`）。<br>⚠️ 書き出す絵（`FR-080`）には描かない。<br>⚠️ 掴み代（`FR-105`）と縦の隙間（`FR-094`）は印で変えない |
+| `SJ-10` | 飛んだ先の印 | 飛ぶ先のタスクかコメントボックスに、飛んだ先の印を付けること（MUST）—— 置き場所を変えても、広い日程表の中でどれへ飛んだかは一目では読めない（`JDG-1891`・`JDG-1893`）。<br>印は囲みと波紋とする: ① 囲み —— 描いた予定の形（実績を含めない。コメントボックスは箱）の外接矩形から `_assets/tbl-settings.md` の `S-555` だけ外に、表 T-236 の `S-151` の色、太さ `S-556` の実線の矩形。選択の破線の枠（表 T-023c の `SL-8`）の外側に描く ② 波紋 —— 印を付けた時から、囲みと同じ色と太さの矩形を、`S-558` の長さのあいだに囲みの所から各辺 `S-559` だけ外へ広げながら、不透明から透明へ消す。これを `S-557` 回続けて出す。<br>波紋の後は囲みだけを残し、`FR-009` の 表 T-303 の `EL-17` の決まりで消すこと（MUST） —— 押下とキーの押下で消え、見る位置と倍率だけを動かす操作では消えない。飛んだ先から前後を辿るあいだに消えると、どこへ飛んだかを見失う。<br>⭐ 閲覧環境が動きを減らす設定（`prefers-reduced-motion: reduce`）のときは波紋を出さず、囲みだけとする。<br>⭐ 押して飛ぶ入口（`SJ-1` のセル、`FR-134` の行、`PTL-16` の親の名、`PR-37`・`PR-38` の名）の押下で古い印を消し、離して飛んだときに新しい印を付ける（`EL-17` の続きの印と同じ）。`AM-16` で付けるときは古い印を新しい印に置き換える。<br>⚠️ `SJ-8` で画面に出せなかったとき、と飛ぶ先が描かれていないとき（`RT-4a` が落とした）は、印を描かない。<br>⛔ 印を文書に保存してはならず、取り消しの対象にしてはならない（MUST NOT） —— 画面の値である（`_assets/tbl-state-machines.md` の 表 T-280 の `landingMarkDisplayStateMachine`）。<br>⚠️ 書き出す絵（`FR-080`）には描かない。<br>⚠️ 掴み代（`FR-105`）と縦の隙間（`FR-094`）は印で変えない |
 
 ### E-04 —— 表 T-332 の `SJ-9`
 
 旧: 「`_assets/tbl-glossary.md` の 表 T-107 の `AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8` を行う。」
-新: 「`_assets/tbl-glossary.md` の 表 T-107 の `AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8`・`SJ-NEW-1` を行う —— 印は、AI がどのタスクを見せたのかを人に読ませる（`JDG-1894`）。」（続く「ただし `SJ-4` を行わず、パネルに触れず…」はそのまま）
+新: 「`_assets/tbl-glossary.md` の 表 T-107 の `AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8`・`SJ-10` を行う —— 印は、AI がどのタスクを見せたのかを人に読ませる（`JDG-1894`）。」（続く「ただし `SJ-4` を行わず、パネルに触れず…」はそのまま）
 
 ### E-05 —— `FR-134` の本文（`01-04-requirements.md:3735`）と 表 T-351 の `PTL-16`
 
-両方の「（`SJ-0`・`SJ-2` 〜 `SJ-8`）」を「（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-NEW-1`）」にする。
+両方の「（`SJ-0`・`SJ-2` 〜 `SJ-8`）」を「（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）」にする。
 
 ### E-06 —— 状態機械 `landingMarkDisplayStateMachine`（表 T-280、`_source/state-machines.json:3207`）
 
-- `shown` の運ぶ値を `landedBy`（`continuationMark` ／ `jump`）・`landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ）・`landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id）にする。根拠に `SJ-NEW-1` を足す。
-- 出来事 `screen/searchJumpLanded`（入力: `SJ-1` のセル・`FR-134` の行・`PTL-16` の親の名・`PR-37`・`PR-38` の名を押して離して飛んだ。`AM-16` が寄せた。根拠 `SJ-NEW-1`）を足す: `hidden` → `shown`、`shown` → `shown`（置き換え）。
+- `shown` の運ぶ値を `landedBy`（`continuationMark` ／ `jump`）・`landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ）・`landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id）にする。根拠に `SJ-10` を足す。
+- 出来事 `screen/searchJumpLanded`（入力: `SJ-1` のセル・`FR-134` の行・`PTL-16` の親の名・`PR-37`・`PR-38` の名を押して離して飛んだ。`AM-16` が寄せた。根拠 `SJ-10`）を足す: `hidden` → `shown`、`shown` → `shown`（置き換え）。
 - `screen/landingMarkClearAsked` の入力の文に「飛んだ先の印も」を足す。⚠️ `AM-16` の書き込みは今どおり印を消さない（`EL-17` の「`Agent API` の書き込みでは消さない」）—— `AM-16` が付けるのは消すことではなく置き換えである。
 - ⚠️ `landedTaskUid` の名で読む所（`EL-16`・`EL-19`・`EL-18`・`src/`）は `landedTarget` に替える —— 当てる体が `git grep landedTaskUid` で数える（`6f0abdb2` で `src/` の 6 ファイル）。
 
-### E-07 —— 設定値 `S-NEW-B1`〜`S-NEW-B6`（表 T-206、保存しない）と `S-428` の名
+### E-07 —— 設定値 `S-554`〜`S-559`（表 T-206、保存しない）と `S-428` の名
 
-2 節と 3 節のとおり。備考はどれも「見せ方の値であり保存しない。⛔ 測って決めた値ではない（🔎） —— 見本 49 で利用者が見て選んだ形の値」。`S-NEW-B4` だけは 🔎 を付けない（`JDG-1893` で示した回数）。
+2 節と 3 節のとおり。備考はどれも「見せ方の値であり保存しない。⛔ 測って決めた値ではない（🔎） —— 見本 49 で利用者が見て選んだ形の値」。`S-557` だけは 🔎 を付けない（`JDG-1893` で示した回数）。
 
 ### E-08 —— `S-151` の備考に読み手を 1 つ
 
-「選択と現在位置」に「と飛んだ先の印（表 T-332 の `SJ-NEW-1`）」を足す。
+「選択と現在位置」に「と飛んだ先の印（表 T-332 の `SJ-10`）」を足す。
 
 ### E-09 —— 変更履歴に 1 行
 
@@ -160,19 +160,19 @@
 
 ---
 
-## 5. 継ぎ目（コード）—— `6f0abdb2` の行
+## 5. 継ぎ目（コード）—— 起草（`6f0abdb2`）の見立て。当てたものは 14.3 の表
 
 | ファイル | 変えるもの | 体 |
 |---|---|---|
-| `src/use-case/edit-document/search-jump.ts` | `searchJumpReachOf`（`:88`）が形の外接矩形（`shapeX0`・`shapeX1`・`shapeYMid`）も返す。`scrollWriteTo`（`:113`）を E-01・E-02 に書き替える: 横は `shapeX1 - shapeX0 > areaWidth - 2 × S-428` なら今の式、でなければ中点を `areaWidth / 2` へ。縦は `shapeYMid` を `areaTop + areaHeight × S-NEW-B1` へ置く `scrollGroupId`・`scrollGroupOffset` を割付けから解く（最初のタスクグループで止める）。`SearchJumpReach` に `areaWidth`・`areaHeight` を足す | 体 A |
+| `src/use-case/edit-document/search-jump.ts` | `searchJumpReachOf`（`:88`）が形の外接矩形（`shapeX0`・`shapeX1`・`shapeYMid`）も返す。`scrollWriteTo`（`:113`）を E-01・E-02 に書き替える: 横は `shapeX1 - shapeX0 > areaWidth - 2 × S-428` なら今の式、でなければ中点を `areaWidth / 2` へ。縦は `shapeYMid` を `areaTop + areaHeight × S-554` へ置く `scrollGroupId`・`scrollGroupOffset` を割付けから解く（最初のタスクグループで止める）。`SearchJumpReach` に `areaWidth`・`areaHeight` を足す | 体 A |
 | `src/framework/single-html-shell/frame-loop.ts` | `jumpToSearchHit`（`:1775`）: 飛んだ後に `searchJumpLanded` を送る（`objectsPicked` の後）。⚠️ TRAP: 縦の位置は `SJ-2` の展開の後の割付けで読む —— 今は展開の前のフレームの `frame.layout` を渡している。展開を書いた後の文書を一度割り付けてから `searchJumpReachOf` を呼ぶか、展開を書いたフレームの次のフレームで置く（どちらにするかは体が決め、5 節の継ぎ目の名は変えない） | 体 A |
 | `src/adapter/agent-api-endpoint/agent-api-members.ts` | `focusTaskThrough`（`:329`）: 同じ割付けの TRAP、受け付けたら `searchJumpLanded` を送る（選ばない） | 体 A |
 | `src/use-case/advance-screen-session/screen-values.ts` | `landingMarkDisplayState` の `shown` に `landedBy`・`landedTarget`、出来事 `searchJumpLanded` | 体 B |
-| `src/adapter/svg-renderer/schedule-overlays.ts`・`schedule-task-figures.ts` | `landedBy === 'jump'` のとき囲み（`S-NEW-B2`・`S-NEW-B3`・`S-151`）を描く。`landingLinkOf`（`schedule-task-figures.ts:908`）は `landedBy === 'continuationMark'` のときだけ線を返す | 体 B |
+| `src/adapter/svg-renderer/schedule-overlays.ts`・`schedule-task-figures.ts` | `landedBy === 'jump'` のとき囲み（`S-555`・`S-556`・`S-151`）を描く。`landingLinkOf`（`schedule-task-figures.ts:908`）は `landedBy === 'continuationMark'` のときだけ線を返す | 体 B |
 | `src/framework/dom-screen-surface/`（波紋） | 波紋は日程表の SVG の外の、フレームをまたいで残る 1 つの要素に描き、閲覧環境のアニメーション（Web Animations か SVG の `animate`）で動かす。⚠️ TRAP: 日程表の SVG を毎フレーム組み直す作りの中に波紋を置くと、組み直すたびに動きが始めに戻り、しかも 1.2 秒のあいだ毎フレーム日程表を描き直す（`NFR-002`・`NFR-003`、`LM-19` は今も予算を割っている）。波紋は印を付けた時刻を起点に動き、日程表のフレームを起こさない。`matchMedia('(prefers-reduced-motion: reduce)')` で波紋を出さない | 体 B |
 | `src/adapter/input-command-translator/input-command-translator.ts` | 押して飛ぶ入口の押下でも `landingMarkClearAsked` を出す（今は印が出ているあいだの押下で出す —— 入口の押下が数えられているかを確かめるだけでよいかもしれない） | 体 B |
 
-⭐ 体 A と体 B の継ぎ目の名（2 つの指示に逐語で書く）: `searchJumpLanded`・`landedBy`（`'continuationMark'` ／ `'jump'`）・`landedTarget`・`SearchJumpReach.areaWidth`・`SearchJumpReach.areaHeight`・`S-NEW-B1`〜`S-NEW-B6`（当てた番号）・`data-role="Jump Landing Ring"`・`data-role="Jump Landing Ripple"`。
+⭐ 体 A と体 B の継ぎ目の名（2 つの指示に逐語で書く）: `searchJumpLanded`・`landedBy`（`'continuationMark'` ／ `'jump'`）・`landedTarget`・`SearchJumpReach.areaWidth`・`SearchJumpReach.areaHeight`・`S-554`〜`S-559`（当てた番号）・`data-role="Jump Landing Ring"`・`data-role="Jump Landing Ripple"`。
 
 毎フレームの経路: **はい** —— 囲みは印が出ているあいだ毎フレーム描く（矩形 1 つ）。波紋は日程表のフレームの外で動く。`perf-pending.md` に 1 行（検査 66）。JDG-605 の測りは本書の実装を `main` へ ff する前に（`GRS_PERF=1`）。
 
@@ -193,7 +193,7 @@
 - `SJ-5` を指すのは要求 1 件・4 か所、`SJ-6` は 1 件・4 か所、`SJ-7` は 0、`SJ-8` は 4 件・8 か所、`SJ-9` は 0 件・2 か所、`S-428` は 1 件・2 か所、`EL-16` は 5 件・11 か所、`EL-17` は 1 件・4 か所、`AM-16` は 2 件・5 か所、`SL-8` は 9 件・24 か所。
 - 指しの多い順に 表 T-206 の保存しない値（11）・`FR-151`（10）・`FR-009`（5）。`SJ-5`・`SJ-6` を逐語で引く所は無い（ID で指すだけ）—— 文を替えても指しは壊れない。`EL-16` を指す 5 件は `landedTaskUid` の名を引かない（名を引くのは状態機械の表と `src/`）。
 - `induced.py SJ-0 SJ-4 SJ-5 SJ-6 SJ-7 SJ-8 SJ-9 S-428 EL-16 EL-17 AM-16 SL-8 FR-151 FR-134 PTL-16 S-151 S-447 FR-046 EL-11`: 辺 29、輪 4 —— `S-428` ↔ `SJ-6`・`FR-134` ↔ `SJ-0`・`AM-16` ↔ `SJ-9`・`EL-16` → `S-447` → `SL-8`。どれも「値の行や引く要求が規則の持ち主を指す」決まりの輪である。本書が両方を書くのは `S-428` ↔ `SJ-6`（E-02 と E-07）と `AM-16` ↔ `SJ-9`（E-04。`AM-16` の行は「`SJ-9`」を指すだけで書き替えない）—— E-02 と E-07 は同じ体が 1 回で書く。
-- 新しく指す辺: `SJ-NEW-1` → `S-NEW-B1`〜`S-NEW-B6`・`S-151`・`SL-8`・`EL-17`・`SJ-8`・`FR-080`・表 T-280、`SJ-6` → `FR-046`・`EL-11`、`SJ-9`・`FR-134`・`PTL-16` → `SJ-NEW-1`、`S-151` → `SJ-NEW-1`。`EL-17` は `SJ-NEW-1` を指さない（引くのは `SJ-NEW-1` の側）—— 新しい輪は値の行の 2 つの輪（`SJ-NEW-1` ↔ `S-NEW-B*`、`SJ-NEW-1` ↔ `S-151`）だけ。
+- 新しく指す辺: `SJ-10` → `S-554`〜`S-559`・`S-151`・`SL-8`・`EL-17`・`SJ-8`・`FR-080`・表 T-280、`SJ-6` → `FR-046`・`EL-11`、`SJ-9`・`FR-134`・`PTL-16` → `SJ-10`、`S-151` → `SJ-10`。`EL-17` は `SJ-10` を指さない（引くのは `SJ-10` の側）—— 新しい輪は値の行の 2 つの輪（`SJ-10` ↔ `S-554〜S-559`、`SJ-10` ↔ `S-151`）だけ。
 
 ---
 
@@ -226,10 +226,10 @@
 
 ## 9. 仕様だけを読む試験の継ぎ目（試験の体に名指す名）
 
-1. 縦（`SJ-5`）: 中ほどの行のタスクへ検索から飛ぶ —— 予定の形の縦の中点が、帯の下の `Task Group Area` の上の縁から高さの `S-NEW-B1` の所（±1px）。最初の行のタスクでは、`S-176` が 0 で止まり形はそれより上。
+1. 縦（`SJ-5`）: 中ほどの行のタスクへ検索から飛ぶ —— 予定の形の縦の中点が、帯の下の `Task Group Area` の上の縁から高さの `S-554` の所（±1px）。最初の行のタスクでは、`S-176` が 0 で止まり形はそれより上。
 2. 縦（展開）: 折りたたんだ祖先の下のタスクへ飛ぶ —— 展開した後の割付けで 1. が成り立つ（展開の前の割付けで置いたずれが出ない）。
 3. 横（`SJ-6`）: 短いバー・マイルストーンでは形の横の中点が `Task Group Area` の横の中点（±1px）。`Task Group Area` より広いバーでは、日付（または左の札の左端）が左端から `S-428`。
-4. 印（`SJ-NEW-1`）: 飛んだ後、`[data-role="Jump Landing Ring"]` が形の外接矩形から `S-NEW-B2` 外に太さ `S-NEW-B3`、色 `S-151`。`[data-role="Jump Landing Ripple"]` が `S-NEW-B4` × `S-NEW-B5` のあいだ在り、その後無い。
+4. 印（`SJ-10`）: 飛んだ後、`[data-role="Jump Landing Ring"]` が形の外接矩形から `S-555` 外に太さ `S-556`、色 `S-151`。`[data-role="Jump Landing Ripple"]` が `S-557` × `S-558` のあいだ在り、その後無い。
 5. 消える（`EL-17` を引く）: ホイール・ズームでは囲みが残り、日程表の押下・キーの押下で消える。修飾キーだけでは消えない。
 6. 動きを減らす: `prefers-reduced-motion: reduce` を真似たページでは波紋が出ず、囲みは出る（Playwright の `reducedMotion: 'reduce'`）。
 7. ほかの入口: 遅延診断レポートの行・プロパティパネルの親の名・先行の名（`PR-37`）・`focusTask` でも 1. 3. 4. が成り立つ。`focusTask` は選ばない（`readSelection` が変わらない）。
@@ -290,3 +290,69 @@
 #        python .claude/skills/spec-graph-check/induced.py SJ-0 SJ-4 SJ-5 SJ-6 SJ-7 SJ-8 SJ-9 S-428 EL-16 EL-17 AM-16 SL-8 FR-151 FR-134 PTL-16 S-151 S-447 FR-046 EL-11
 # sample: previous-project-result/49-jump-placement-and-highlight/index.html, screenshots by a Playwright probe in the session scratchpad
 ```
+
+---
+
+## 14. 当てた記録（2026-10-10、`cb96300c` の上）
+
+### 14.1 測り直した数
+
+起草（`6f0abdb2`）の後に `CR-722`（版 4.29）・`CR-727`（4.30）・`CR-729`（4.31）が着いたので、本書の数と行を `cb96300c` で測り直した。
+
+| 何 | 起草（`6f0abdb2`） | 当てる前（`cb96300c`） | 当てた後 |
+|---|---|---|---|
+| 表 T-332 の行 | 10（`SJ-0`〜`SJ-9`） | 同じ | 11（`SJ-10` を足した） |
+| 設定値の番号 | `S-542` まで | `S-553` まで（`CR-722` が `S-543`〜`S-552`、`CR-727` が `S-553`） | `S-559` まで |
+| 接頭辞 `S` の行の数（`_assets/tbl-row-id-prefixes.md` の生成） | — | 478 | 484 |
+| `landedTaskUid` か `landingMark` を名乗る `src/` のファイル | 6 | 6（同じ 6 つ） | 状態機械の運ぶ値は `landedTarget` に替えた。入力の翻訳の答え `TranslatedInput.landingMarked.landedTaskUid` は状態機械の値ではないので名を残した（X-8） |
+| 置き場所を引く既存の試験 | 8 ファイル | 8（同じ） | 付け替えたのは 4（14.4）。名を引くだけの 4 つ（`cr-613` の 2 つ・`uf-185-uf-188`・`cr-555`）は変えずに緑 |
+| `CR-728`・`JDG-1891`・`JDG-1893`・`JDG-1894`・`DFC-2317` を名乗る所 | 起草が足した行だけ | 同じ | — |
+| 仕様の中の「点滅」「アニメ」「パルス」「reduced」 | 0 | 0 | `prefers-reduced-motion` が `SJ-10` に 1 つ |
+
+### 14.2 起草から変えたこと
+
+| 印 | 起草 | 当てたもの | 理由 |
+|---|---|---|---|
+| X-1 | 仮の名 `SJ-NEW-1`・`S-NEW-B1`〜`S-NEW-B6` | `SJ-10`・`S-554`〜`S-559` | 14.1 の数 |
+| X-2 | 仕様の文に `JDG-1891`・`JDG-1893`・`JDG-1894` を書く | 「利用者が定めた」 | 仕様は経緯を持たない —— 仕様の中の `JDG-` は 0 件で、裁定の番号は台帳と本書が持つ |
+| X-3 | `S-554` は 1/3 | `0.33`（×、🔎） | 表 T-206 の値の欄（`settings.schema.json` の `num`）は小数の綴りだけを持てる。利用者の言葉は「1/3ぐらい」 |
+| X-4 | E-06 で `screen/landingMarkClearAsked` の入力の文に「飛んだ先の印も」を足す | 足さない | `SJ-10` が「`EL-17` の決まりで消す」と書き、`landingMarkDisplayStateMachine` の `shown → hidden` は `landedBy` を問わない。入力の文は既存の試験（`cr-601`）が逐語で引く —— 同じことを 2 か所に書かない |
+| X-5 | 「飛ぶ先が描かれていない（`RT-4a` が落とした）」 | 「飛ぶ先の予定の形が描かれていないとき（予定を持たないタスク、予定を表示していないとき —— `S-227` が偽）」 | `RT-4a` は依存線の行で、形を落とす規則ではない |
+| X-6 | 表 T-020 に触れない | `ZO-10` に「飛んだ先の印の囲みと波紋」を足した（E-10） | `FR-110` の表が日程表に描くものの前後を 1 つに決める。囲みは選択の枠と同じ層に描く |
+| X-7 | 縦の位置は展開の後の割付けで読む（体が 2 つの方法から選ぶ） | 押したとき、今の絵で置き場所を解き、展開と同じ書き込みで書く（`AM-16` も同じ 1 つの書き込み —— 書いた人と時刻は `AM-16` のまま、`FR-063`）。今の絵に飛ぶ先が描かれていなかったときだけ、展開した後の最初のフレームで置き場所を解き直して書く（描く前に返り、もう 1 フレーム求める）。印は同じフレームで付ける | 起草の TRAP。`AM-16` の答え（`isScrolled`）と書き手を今のまま保つため。⚠️ `AM-16` で飛ぶ先が折りたたまれていたときの解き直しの書き込みは、画面の側（人）の書き込みになる —— 15 節の問い |
+| X-8 | `landedTaskUid` を名乗る所を `landedTarget` に替える | 状態機械の運ぶ値と出来事は替えた。入力の翻訳の答え `landingMarked.landedTaskUid` はそのまま | 翻訳の答えは表 T-280 の運ぶ値ではない。試験（`cr-596`）がその名で引く |
+| X-9 | `JDG-877` は残す | `JDG-877` の状態を「覆された（一部。`JDG-1891`）」にした | 利用者の言葉「左上ではなく」は、`JDG-877` の「左上で担当者名や進捗が表示できるようにしてジャンプしろ」の「左上」を覆す。名札が切れないことは保たれる（中央なら札は画面の内側、広い形は今の左端寄せ） |
+| X-10 | `EL-18`（2 回目の押下を飲む）に触れない | 飲むのは続きの印のときだけ（`landedBy` が `continuationMark`） | `EL-18` は送った後の 2 回目の押下の規則である。飛んだ先の印が出ているあいだの 2 回目の押下は、その押下自身の意味を持つ |
+| X-12 | E-03 の「⛔ 印を文書に保存してはならず、取り消しの対象にしてはならない（MUST NOT）」 | 「⛔ 保存と取り消しは `EL-16` の送った先の印と同じとする —— 同じ状態機械が持つ」 | 検査 11 —— `EL-16` の同じ文の写しになる。規則の持ち主は 1 つ（`R1.3`） |
+| X-11 | 設計書に触れない | 表 T-064 に `taskGroupAnchorIn`・`taskGroupIndexAtTopEdge`（`ScheduleLayout`、入力の翻訳から移した）・`landedShapeBoxOf`・`LandedTarget`（`ScheduleLayout` —— コメントボックスは箱の形だけを受けるので、`EditDocument` から `ScheduleGeometry` への辺を足さない、検査 59）・`jumpLandingRingOf`（`SvgRenderer`）を足し、`searchJumpReachOf` の注を替えた | 検査 26b —— コンポーネントの外へ出る名は表 T-064 に載る。縦のスクロールの読み方とその逆（`scrollOffsetOf`）を同じファイルに置いた |
+
+### 14.3 当てたコード
+
+| ファイル | 当てたもの |
+|---|---|
+| `src/use-case/edit-document/search-jump.ts` | `searchJumpReachOf(layout, geometry, taskGroupArea, target)` —— 形の箱・日付の位置・`Task Group Area` の幅・帯の下の高さとスクロールするタスクグループを読む（`SearchJumpReach.areaWidth`・`SearchJumpReach.landing`）。`acrossOf`（`SJ-6`）・`downOf`（`SJ-5`、`S-554`、最初のタスクグループで止める）。生成の定数 `NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE` |
+| `src/entity/layout-engine/schedule-layout/schedule-layout.ts` | `landedShapeBoxOf`・`LandedTarget` —— タスクは配置の予定の図形の箱、コメントボックスは箱 |
+| `src/entity/layout-engine/schedule-layout/task-group-scroll.ts` | `taskGroupIndexAtTopEdge`・`taskGroupAnchorIn` を入力の翻訳から移した（振る舞いは同じ）。ホイール・ズーム・表示の倍率の読み手は新しい所から読む |
+| `src/framework/single-html-shell/frame-loop.ts` | `jumpToSearchHit`（今の絵で解いて書く）・`landJump`・`owedJumpHolder`（解き直しと印と、波紋の数）・`landingAgentHolder`（`AM-16` の `holdJumpTarget` が印を求める）・`writeOwedSight`（`runFrame` の作った直後の寄せ `HF-17` を移した） |
+| `src/use-case/advance-screen-session/screen-values.ts` | `onSearchJumpLanded`（表 T-280）。運ぶ値 `landedBy`・`landedLink`（`jump` では `null`）・`landedTarget` |
+| `src/adapter/svg-renderer/schedule-overlays.ts` | `jumpLandingRingOf`（囲みの箱と太さ —— 描かれた予定の図形が無ければ `null`）・`jumpLandingRingParts`（`ZO-10` に `data-role="Jump Landing Ring"` の矩形。帯の下ではスクロールの切り抜きの中）。生成の定数 `NOT_STORED_JUMP_LANDING_RING_SIZES` は `svg-renderer.ts` |
+| `src/adapter/svg-renderer/schedule-task-figures.ts` | `landingLinkOf` —— `landedLink` が `null`（飛んだ先の印）なら線を返さない |
+| `src/adapter/screen-renderer/screen-renderer.ts` | `ScreenView.jumpRipple`（`inner`・`lineWidth`・`within`・`landing`） |
+| `src/framework/dom-screen-surface/dom-screen-surface.ts` | `showJumpRipple`・`startJumpRipple` —— `UZ-12` の層に、`Task Group Area` で切り抜いた `data-role="Jump Landing Ripple"` の要素を 1 つ。`outline` を囲みの所に置き、閲覧環境のアニメーション（`Element.animate`）で `outline-offset` を 0 から `S-559` へ、不透明度を 1 から 0 へ、`S-558` を `S-557` 回。終われば外す。`prefers-reduced-motion: reduce` では出さない。生成の定数 `NOT_STORED_JUMP_LANDING_RIPPLE` |
+| `src/adapter/input-command-translator/input-command-translator.ts` | `isSwallowedSecondPress` は続きの印のときだけ（X-10） |
+| `src/adapter/agent-api-endpoint/agent-api-members.ts` | `focusTaskThrough` が新しい `searchJumpReachOf` を呼ぶ |
+
+### 14.4 既存の試験で直したもの
+
+- 古い置き場所を主張していたもの（退役させ、新しい行を指した）: `tests/contract/cr-571-search-jump.contract.test.ts`（`SJ-5` の「一番上・ずれ 0」の場合を退役。`S-428` の場合は `SJ-6` の ⭐「広いとき」で読む）、`tests/contract/cr-571-agent-api-search.contract.test.ts`（`SJ-9` の文の引用を替え、`SJ-5` の置き場所の主張を外して `isScrolled` だけを残した）、`tests/unit/uf-27-28-29.test.ts`（`AM-16` の「一番上・左端の内側」の場合を退役）。
+- 新しい形を知らなかったもの: `tests/contract/dfc-1282-…`（`SearchJumpReach` の 2 つの欄）、`tests/contract/cr-596-…`・`tests/contract/cr-602-…`（運ぶ値の名）、`tests/contract/state-machine-screen-values.contract.test.ts`（運ぶ値の見本 `landedBy`・`landedTarget`）。`tests/system/cr-661-…`（`FR-134` の文の引用に `SJ-10` を足した）、`tests/contract/cr-592-…`（色の名簿に `jumpLanding` → `S-151`）。
+- 仕様だけを読む試験はまだ（9 節の継ぎ目。継ぎ目の名は 14.3 のとおり）。
+
+### 14.5 検査が求めた、仕様の外の付け足し
+
+- 規則 03 の生成した定数の名簿に 3 つ（検査 30）。生成器の `PUBLISHED_READ_BY_SRC` に `NOT_STORED_JUMP_LANDING_RING_SIZES`。
+- `perf-pending.md` の行 165（検査 66）。
+
+## 15. 調整役への問い（当てたときに出たもの）
+
+- 問い 1 —— `AM-16` で飛ぶ先が折りたたまれていたとき、展開した後の解き直しの書き込みは画面の側の書き込みになり、書き手が人に替わる（X-7）。⭐ 推奨: このままとし、出荷ビルドで AI から飛んだときの書き手の欄を見てから決める —— 解き直しを `Agent API` の書き込みにするには、シェルから `Agent API` の書き込みの道を呼ぶ口が要る。

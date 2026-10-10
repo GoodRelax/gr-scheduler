@@ -11,7 +11,7 @@ import {
   type WindowName,
 } from '../../entity/document-model/screen-state/screen-state'
 import type { Selection } from '../../entity/document-model/selection/selection'
-import type { DocumentCommand } from '../edit-document/edit-document'
+import type { DocumentCommand, SearchJumpTarget } from '../edit-document/edit-document'
 import { assertNever, NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // see FR-072
@@ -45,6 +45,8 @@ interface LandedLink {
   readonly predecessorUid: number
   readonly successorUid: number
 }
+
+type LandedBy = 'continuationMark' | 'jump'
 
 export type SearchTable = 'tasks' | 'commentBoxes'
 
@@ -129,8 +131,9 @@ export interface ScreenValuesStateCarried {
   readonly subject: PropertiesSubject
   readonly percent: number
   readonly end: ScaleEnd
-  readonly landedLink: LandedLink
-  readonly landedTaskUid: number
+  readonly landedLink: LandedLink | null
+  readonly landedBy: LandedBy
+  readonly landedTarget: SearchJumpTarget
 }
 
 export interface ScreenValuesEventCarried {
@@ -159,7 +162,7 @@ export interface ScreenValuesEventCarried {
   readonly rememberedActual: RememberedActual | null
   readonly writes: readonly DocumentCommand[]
   readonly landedLink: LandedLink
-  readonly landedTaskUid: number
+  readonly landedTarget: SearchJumpTarget
   readonly isOpenAccepted: boolean
 }
 
@@ -332,7 +335,7 @@ export type HelpDisplayState =
 
 export type LandingMarkDisplayState =
   | { readonly kind: 'hidden' }
-  | { readonly kind: 'shown'; readonly landedLink: ScreenValuesStateCarried['landedLink']; readonly landedTaskUid: ScreenValuesStateCarried['landedTaskUid'] }
+  | { readonly kind: 'shown'; readonly landedBy: ScreenValuesStateCarried['landedBy']; readonly landedLink: ScreenValuesStateCarried['landedLink']; readonly landedTarget: ScreenValuesStateCarried['landedTarget'] }
 
 export type DropCueDisplayState =
   | { readonly kind: 'hidden' }
@@ -410,8 +413,9 @@ export type ScreenValuesEvent =
   | { readonly type: 'helpEntryPressed' }
   | { readonly type: 'helpMinimiseToggled' }
   | { readonly type: 'helpMaximiseToggled' }
-  | { readonly type: 'continuationMarkClicked'; readonly landedLink: ScreenValuesEventCarried['landedLink']; readonly landedTaskUid: ScreenValuesEventCarried['landedTaskUid'] }
+  | { readonly type: 'continuationMarkClicked'; readonly landedLink: ScreenValuesEventCarried['landedLink']; readonly landedTarget: ScreenValuesEventCarried['landedTarget'] }
   | { readonly type: 'landingMarkClearAsked' }
+  | { readonly type: 'searchJumpLanded'; readonly landedTarget: ScreenValuesEventCarried['landedTarget'] }
   | { readonly type: 'fileDragEntered'; readonly isOpenAccepted: ScreenValuesEventCarried['isOpenAccepted'] }
   | { readonly type: 'fileDragLeft' }
 
@@ -956,8 +960,14 @@ function onContinuationMarkClicked(
   values: ScreenValues,
   event: EventOf<'continuationMarkClicked'>,
 ): ScreenStep {
-  const { landedLink, landedTaskUid } = event
-  return moved(values, { landingMarkDisplayState: { kind: 'shown', landedLink, landedTaskUid } })
+  const { landedLink, landedTarget } = event
+  return moved(values, { landingMarkDisplayState: { kind: 'shown', landedBy: 'continuationMark', landedLink, landedTarget } })
+}
+
+// see T-280, SJ-10
+/** @purity pure */
+function onSearchJumpLanded(values: ScreenValues, event: EventOf<'searchJumpLanded'>): ScreenStep {
+  return moved(values, { landingMarkDisplayState: { kind: 'shown', landedBy: 'jump', landedLink: null, landedTarget: event.landedTarget } })
 }
 
 // see T-280, EL-17
@@ -1105,6 +1115,7 @@ const HANDLERS: {
   helpMaximiseToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MAXIMISE_TOGGLED_TO),
   continuationMarkClicked: onContinuationMarkClicked,
   landingMarkClearAsked: onLandingMarkClearAsked,
+  searchJumpLanded: onSearchJumpLanded,
   fileDragEntered: onFileDragEntered,
   fileDragLeft: onFileDragLeft,
 }

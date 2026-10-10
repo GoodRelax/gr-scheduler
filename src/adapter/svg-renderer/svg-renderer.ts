@@ -26,7 +26,7 @@ import {
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { bandWidthOf, gridParts, rulerSvg, type GridInput } from './schedule-grid'
-import { overlayParts, watermarkSvg, parentTaskParts, type ViewerValues } from './schedule-overlays'
+import { jumpLandingRingParts, overlayParts, watermarkSvg, parentTaskParts, type ViewerValues } from './schedule-overlays'
 import {
   baselineOutlineParts,
   dependencyArrowSvg,
@@ -43,6 +43,8 @@ export { markerGlyphSvg } from './schedule-task-figures'
 export type SchedulePicture = 'screen' | 'export'
 
 export type { ViewerValues }
+
+export { jumpLandingRingOf } from './schedule-overlays'
 
 // see DC-2, DC-8
 export interface DualCursorFollow {
@@ -785,6 +787,7 @@ export function svgFromSchedule(
   })
   defsParts.push(...links.defsParts)
   const overlays = overlayParts(drawing)
+  const ring = jumpLandingRingParts(viewer, drawing)
 
   /** @purity pure */
   const scrolling = (drawn: readonly string[]): string => {
@@ -844,6 +847,7 @@ export function svgFromSchedule(
       ...zoLayer('ZO-9', overlays.annotationParts),
       ...zoLayer('ZO-10', [
         ...figures.endOutlineParts, ...figures.selectionParts, ...overlays.selectionParts, ...figures.handleParts,
+        ...ring.pinned, scrolling(ring.scrolling),
       ]),
       ...zoLayer('ZO-11', tentativeParts),
       ...zoLayer(
@@ -928,6 +932,15 @@ export const NOT_STORED_DUAL_CURSOR_SIZES: {
   'S-194': 1,
   'S-333': 2,
   'S-438': 4,
+}
+
+// see T-206
+export const NOT_STORED_JUMP_LANDING_RING_SIZES: {
+  readonly 'S-555': number
+  readonly 'S-556': number
+} = {
+  'S-555': 3,
+  'S-556': 3,
 }
 
 // see T-206

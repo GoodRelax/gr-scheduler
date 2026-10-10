@@ -64,6 +64,7 @@ const NAME_TO_TASK_GROUP: Readonly<Record<string, string>> = {
   heldTaskGroup: 'S-151',
   caution: 'S-153',
   dropCue: 'S-151',
+  jumpLanding: 'S-151',
 }
 
 // see T-236

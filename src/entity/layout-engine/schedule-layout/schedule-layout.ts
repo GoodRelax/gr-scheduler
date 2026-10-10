@@ -23,6 +23,7 @@ import {
   displayScaleFractionOf,
   drawnSettingsOf,
   taskGroupControlLatticeHeightPx,
+  type ScreenRect,
   type ScreenRegions,
 } from '../screen-regions/screen-regions'
 import { assigneeLabelsOf } from './assignee-label'
@@ -78,6 +79,7 @@ export {
 export type { LabelLayout, LabelReference } from './label-placement'
 export { fitZoom } from './fit-zoom'
 export { hasRoomBelowPinsIn } from './pinned-band'
+export { taskGroupAnchorIn, taskGroupIndexAtTopEdge } from './task-group-scroll'
 export { planDatesSpanYears, planDateText } from './name-label'
 export type { FitToScreen, NotStoredZoom } from './fit-zoom'
 
@@ -704,6 +706,21 @@ export function layoutFromSchedule(
 /** @purity pure */
 export function taskPlacement(layout: ScheduleLayout, taskUid: number): TaskPlacement | null {
   return layout.placements.find((part) => part.taskUid === taskUid) ?? null
+}
+
+export type LandedTarget = { readonly kind: 'task'; readonly taskUid: number } | { readonly kind: 'commentBox'; readonly commentBoxId: string }
+
+// see SJ-5, SJ-6, SJ-10
+// WHY: one box for where a jump lands and what its mark circles: the laid-out plan figure, or a comment box's body.
+/** @purity pure */
+export function landedShapeBoxOf(
+  layout: ScheduleLayout,
+  geometry: { readonly commentBoxes: readonly { readonly id: string; readonly body: ScreenRect }[] },
+  target: LandedTarget,
+): ScreenRect | null {
+  if (target.kind === 'commentBox') return geometry.commentBoxes.find((one) => one.id === target.commentBoxId)?.body ?? null
+  const placed = taskPlacement(layout, target.taskUid)
+  return placed === null ? null : { x: placed.x, y: placed.y, width: placed.width, height: placed.planHeight }
 }
 
 // see FR-016, T-068

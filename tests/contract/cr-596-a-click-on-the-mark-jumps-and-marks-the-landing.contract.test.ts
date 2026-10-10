@@ -402,15 +402,18 @@ type LandingState =
   | { readonly kind: 'hidden' }
   | {
       readonly kind: 'shown'
+      readonly landedBy: 'continuationMark'
       readonly landedLink: { readonly predecessorUid: number; readonly successorUid: number }
-      readonly landedTaskUid: number
+      readonly landedTarget: { readonly kind: 'task'; readonly taskUid: number }
     }
 
 const HIDDEN: LandingState = { kind: 'hidden' }
+// WHY: CR-728 named the far end landedTarget and the source landedBy (SJ-10 shares the machine).
 const landed = (predecessorUid: number, successorUid: number, landedTaskUid: number): LandingState => ({
   kind: 'shown',
+  landedBy: 'continuationMark',
   landedLink: { predecessorUid, successorUid },
-  landedTaskUid,
+  landedTarget: { kind: 'task', taskUid: landedTaskUid },
 })
 
 const sceneOf = (spec: SceneSpec, override: Loose = {}, selection: Selection = emptySelection(), landing: LandingState = HIDDEN): Scene => {
@@ -1407,7 +1410,7 @@ describe(`(c) EP-12 -- ${EP_12_LANDING} and the ${EP_12_SELECTION} are not drawn
 })
 
 const clicked = (predecessorUid: number, successorUid: number, landedTaskUid: number): SessionEvent =>
-  ({ type: 'continuationMarkClicked', landedLink: { predecessorUid, successorUid }, landedTaskUid }) as SessionEvent
+  ({ type: 'continuationMarkClicked', landedLink: { predecessorUid, successorUid }, landedTarget: { kind: 'task', taskUid: landedTaskUid } }) as SessionEvent
 const CLEAR = { type: 'landingMarkClearAsked' } as SessionEvent
 
 const stepped = (session: ScreenSession, event: SessionEvent): ScreenSession => advanceScreenSession(session, event).state
@@ -1417,7 +1420,7 @@ describe('(d) T-280 -- landingMarkDisplayStateMachine', () => {
     expect(emptyScreenSession.screen.landingMarkDisplayState).toEqual({ kind: 'hidden' })
   })
 
-  it(`${T_280_CLICKED}: hidden -> shown, carrying landedLink and landedTaskUid`, () => {
+  it(`${T_280_CLICKED}: hidden -> shown, carrying landedLink and landedTarget`, () => {
     const after = stepped(emptyScreenSession, clicked(1, 2, 2))
     expect(after.screen.landingMarkDisplayState).toEqual(landed(1, 2, 2))
   })

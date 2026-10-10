@@ -88,10 +88,13 @@ function documentWithPinned(pinned: readonly string[]): Document {
 const TO_TASK: SearchJumpTarget = { kind: 'task', taskUid: TARGET_UID }
 
 // WHY: a day is ten pixels wide and nothing of the task reaches left of its date.
+// see SJ-5, SJ-6 -- no picture is read (landing null): the cases here judge SJ-7 and SJ-8 alone
 const reachWith = (drawnTaskGroups: readonly { groupId: string; isPinned?: boolean }[]) => ({
   pxPerDay: 10,
   leftReachPx: 0,
   drawnTaskGroups,
+  areaWidth: 800,
+  landing: null,
 })
 const PINNED_BAND_DRAWS_A = reachWith([{ groupId: TASK_GROUP_A, isPinned: true }])
 const PINNED_BAND_DRAWS_NOTHING = reachWith([])

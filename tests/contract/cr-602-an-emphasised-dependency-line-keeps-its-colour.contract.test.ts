@@ -261,7 +261,7 @@ const svgOf = (wish: SceneWish, picture: 'screen' | 'export' = 'screen', theme: 
   const geometry = geometryFromLayout(schedule, settings, layout, regions, selection, null)
   const landing =
     wish.landing === true
-      ? { kind: 'shown', landedLink: { predecessorUid: 1, successorUid: 2 }, landedTaskUid: 2 }
+      ? { kind: 'shown', landedBy: 'continuationMark', landedLink: { predecessorUid: 1, successorUid: 2 }, landedTarget: { kind: 'task', taskUid: 2 } }
       : { kind: 'hidden' }
   return svgFromSchedule(schedule, settings, layout as never, geometry as never, regions as never, selection, picture, {
     themePreference: theme,

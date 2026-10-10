@@ -206,6 +206,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `labelReferenceOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#labelReferenceOf` | PI-5 | その基準を求める |
 | `labelUnits` | entry | function | `src/entity/layout-engine/schedule-layout/label-width.ts#labelUnits` | PI-5 | `FR-093` の「全角 2・半角 1 で数えた単位数」。 |
 | `labelWidth` | entry | function | `src/entity/layout-engine/schedule-layout/label-width.ts#labelWidth` | PI-5 | `FR-093` の概算の幅（単位数 × 字の大きさ × `S-30`）。 |
+| `landedShapeBoxOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#landedShapeBoxOf` | PI-5 | 飛ぶ先の予定の形の外接矩形 —— タスクは配置の予定の図形（実績を含めない）、コメントボックスは箱（表 T-332 の `SJ-5` ・ `SJ-6` ・ `SJ-10`）。 |
+| `LandedTarget` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#LandedTarget` | PI-5 | 型。 |
 | `layoutFromSchedule` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#layoutFromSchedule` | PI-5 | function layoutFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, regions: ScreenRegions, groupDepthCap?: number, taskGroupControlsHeightPx?... |
 | `markerDiameterOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#markerDiameterOf` | PI-5 | 進捗マーカーの径。 |
 | `MilestoneGlyph` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#MilestoneGlyph` | -- | type MilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']> |
@@ -222,6 +224,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `shownSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#shownSpanOf` | PI-5 | `Task Group Area` の左端の位置と、右端の 1 px 手前の位置が指す 2 つの日を求める。 |
 | `StackSafetyCapStop` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#StackSafetyCapStop` | -- | interface StackSafetyCapStop |
 | `standsUndecidedResume` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#standsUndecidedResume` | -- | function standsUndecidedResume(task: Task, shapeKind: ShapeKind): boolean |
+| `taskGroupAnchorIn` | entry | function | `src/entity/layout-engine/schedule-layout/task-group-scroll.ts#taskGroupAnchorIn` | PI-5 | 表示の上端の y を、`S-78` と `S-176` の組に直す —— 本コンポーネントの縦のスクロールの読み方の逆である。 |
+| `taskGroupIndexAtTopEdge` | entry | function | `src/entity/layout-engine/schedule-layout/task-group-scroll.ts#taskGroupIndexAtTopEdge` | PI-5 | 表示の上端の y が、スクロールするタスクグループのどれの区画に入るか（表 T-203 の `S-78` ・ `S-176`）。 |
 | `TaskGroupPlacement` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#TaskGroupPlacement` | -- | interface TaskGroupPlacement |
 | `taskGroupPlacesAtZoomY` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#taskGroupPlacesAtZoomY` | PI-5 | その倍率でのタスクグループの位置。 |
 | `TaskPlacement` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#TaskPlacement` | -- | interface TaskPlacement |
@@ -437,7 +441,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ResourceCommand` | entry | type | `src/use-case/edit-document/edit-resource.ts#ResourceCommand` | -- | type ResourceCommand = \| { readonly kind: 'createResource'; readonly name: string \| null } \| { readonly kind: 'setResourceName'; readonly uid: number; readon... |
 | `searchJumpCommands` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpCommands` | PI-9 | 飛ぶ書き込み（`searchJumpWrites` の答え）を、1 つの変更として当てる命令の並びにする。 |
 | `SearchJumpPlan` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpPlan` | PI-9 | 型。 |
-| `searchJumpReachOf` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpReachOf` | PI-9 | 飛ぶ先のタスクの占有（表 T-038）が日付より左へ出ている幅と、1 日の幅を、配置から読む（表 T-332 の `SJ-6`）。 |
+| `searchJumpReachOf` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpReachOf` | PI-9 | 飛ぶ先の形が描かれた絵から、表 T-332 の `SJ-5`・`SJ-6` が置き場所を決めるのに読む値を読む —— 形の外接矩形と日付の位置、`Task Group Area` の幅、ピン止めの帯の下に残る高さ、占有（表 T-038）が日付より左へ出ている幅、1 日の幅。 |
 | `SearchJumpTarget` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpTarget` | PI-9 | 型。 |
 | `searchJumpWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpWrites` | PI-9 | 検索の表の行を押して飛ぶときの書き込み —— タスクグループと祖先を展開し、表示を寄せる（`FR-151` の 表 T-332）。 |
 | `SettingsLimits` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#SettingsLimits` | PI-9 | 型。 |
@@ -468,6 +472,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `withSchedule` | file only | function | `src/use-case/edit-document/edit-task.ts#withSchedule` | -- | function withSchedule(document: Document, schedule: Schedule): Document |
 | `withTask` | file only | function | `src/use-case/edit-document/edit-task.ts#withTask` | -- | function withTask(document: Document, next: Task): Document |
 | `PercentCompleteRecount` | file only | interface | `src/use-case/edit-document/percent-complete.ts#PercentCompleteRecount` | -- | interface PercentCompleteRecount |
+| `SearchJumpLanding` | file only | interface | `src/use-case/edit-document/search-jump.ts#SearchJumpLanding` | -- | interface SearchJumpLanding |
 | `SearchJumpReach` | file only | interface | `src/use-case/edit-document/search-jump.ts#SearchJumpReach` | -- | interface SearchJumpReach |
 | `resetTaskVisualColors` | file only | function | `src/use-case/edit-document/task-appearance.ts#resetTaskVisualColors` | -- | function resetTaskVisualColors( document: Document, command: Extract<TaskCommand, { readonly kind: 'resetTaskVisualColors' }>, ): EditResult |
 | `setTaskFadeDays` | file only | function | `src/use-case/edit-document/task-appearance.ts#setTaskFadeDays` | -- | function setTaskFadeDays( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskFadeInDays' \| 'setTaskFadeOutDays' }>, task: Task, ): Ed... |
@@ -698,13 +703,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `selectionFromInput` | entry | function | `src/adapter/input-command-translator/selection-input.ts#selectionFromInput` | PI-18 | 規則は 表 T-023c。 |
 | `serialOfDay` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#serialOfDay` | -- | function serialOfDay(day: CalendarDay): number |
 | `SpentEntranceSituation` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#SpentEntranceSituation` | PI-18 | 型。 |
-| `taskGroupAnchorIn` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupAnchorIn` | -- | function taskGroupAnchorIn( taskGroups: readonly TaskGroupPlacement[], y: number, held: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): Pick<Sc... |
 | `taskGroupAtY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupAtY` | -- | function taskGroupAtY(layout: ScheduleLayout, y: number): TaskGroupPlacement \| null |
 | `taskGroupBandCeilingOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupBandCeilingOf` | PI-18 | `FR-016` の縦軸の上限のうち、いちばん高いタスクグループの帯の高さが初めて `Task Group Area` の高さ以上になった倍率を、表 T-253 の手順で探した答え。 |
 | `taskGroupDepthOfGroup` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupDepthOfGroup` | -- | function taskGroupDepthOfGroup(context: InputContext, groupId: string): number |
 | `TaskGroupGrabAxis` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#TaskGroupGrabAxis` | -- | type TaskGroupGrabAxis = 'position' \| 'depth' |
 | `taskGroupGrabDepthOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupGrabDepthOf` | -- | function taskGroupGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, taskGroup: TaskGroup): number |
-| `taskGroupIndexAtTopEdge` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupIndexAtTopEdge` | -- | function taskGroupIndexAtTopEdge(taskGroups: readonly TaskGroupPlacement[], y: number): number \| null |
 | `taskGroupRankById` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
 | `taskGroupsAtZoomY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupsAtZoomY` | -- | function taskGroupsAtZoomY( context: InputContext, measuredWith: DocumentSettings, zoomY: number, ): readonly TaskGroupPlacement[] |
 | `taskShapeKindOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskShapeKindOf` | -- | function taskShapeKindOf(name: string): TaskShapeKind \| null |
@@ -774,10 +777,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `GROUP_GRID_LINE_WIDTH_PX` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#GROUP_GRID_LINE_WIDTH_PX` | PI-19 | `Group Grid Lines` の罫の太さ。 |
 | `inkOn` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#inkOn` | PI-19 | 色の上に置く字の色（白か黒）を、その色の明度から返す。 |
 | `isScheduleColourRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColourRow` | PI-19 | 表 T-236 の行 ID が、`colourOf` の答えられる行（日程の図も塗る行）かを返す。 |
+| `jumpLandingRingOf` | entry | function | `src/adapter/svg-renderer/schedule-overlays.ts#jumpLandingRingOf` | PI-19 | 飛んだ先の印の囲みの箱と線の太さ（表 T-332 の `SJ-10`、`S-555` ・ `S-556`）。 |
 | `markerGlyphSvg` | entry | function | `src/adapter/svg-renderer/schedule-task-figures.ts#markerGlyphSvg` | PI-19 | 進捗マーカーの図形を、字 1 つぶんの正方形の SVG にして返す（`FR-133`、表 T-021・表 T-315）。 |
 | `NOT_STORED_DELAY_MARK_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DELAY_MARK_SIZES` | -- | const NOT_STORED_DELAY_MARK_SIZES: |
 | `NOT_STORED_DEPENDENCY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DEPENDENCY_SIZES` | -- | const NOT_STORED_DEPENDENCY_SIZES: |
 | `NOT_STORED_DUAL_CURSOR_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DUAL_CURSOR_SIZES` | -- | const NOT_STORED_DUAL_CURSOR_SIZES: |
+| `NOT_STORED_JUMP_LANDING_RING_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_JUMP_LANDING_RING_SIZES` | -- | const NOT_STORED_JUMP_LANDING_RING_SIZES: |
 | `NOT_STORED_NAME_LABEL_WEIGHT` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_NAME_LABEL_WEIGHT` | -- | const NOT_STORED_NAME_LABEL_WEIGHT: |
 | `NOT_STORED_RULER_WEEKDAY_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_RULER_WEEKDAY_SIZES` | -- | const NOT_STORED_RULER_WEEKDAY_SIZES: |
 | `NOT_STORED_SELECTION_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_SELECTION_SIZES` | -- | const NOT_STORED_SELECTION_SIZES: |
@@ -798,6 +803,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `GridParts` | file only | interface | `src/adapter/svg-renderer/schedule-grid.ts#GridParts` | -- | interface GridParts |
 | `gridParts` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#gridParts` | -- | function gridParts(input: GridInput): GridParts |
 | `rulerSvg` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#rulerSvg` | -- | function rulerSvg( layout: ScheduleLayout, settings: DrawnSettings, band: ScreenRect, weekStart: number, ground: string, ink: string, rule: string, weekdayWo... |
+| `JumpLandingRing` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#JumpLandingRing` | -- | interface JumpLandingRing |
+| `jumpLandingRingParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#jumpLandingRingParts` | -- | function jumpLandingRingParts( viewer: ViewerValues, input: Pick<OverlaysInput, 'geometry' \| 'layout' \| 'themed' \| 'drawsOperationState'>, ): { readonly pinn... |
 | `OverlayParts` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#OverlayParts` | -- | interface OverlayParts |
 | `overlayParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#overlayParts` | -- | function overlayParts(input: OverlaysInput): OverlayParts |
 | `OverlaysInput` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#OverlaysInput` | -- | interface OverlaysInput |
@@ -1269,6 +1276,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ImportReportLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ImportReportLine` | -- | interface ImportReportLine |
 | `isFilterValueListed` | entry | function | `src/adapter/screen-renderer/table-window.ts#isFilterValueListed` | PI-37 | 列のフィルタの中の検索欄の語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。 |
 | `isScheduleColourRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColourRow` | PI-37 | `SvgRenderer` の `isScheduleColourRow` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
+| `JumpRipple` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#JumpRipple` | -- | interface JumpRipple |
 | `LinkedWords` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#LinkedWords` | -- | interface LinkedWords |
 | `MARK_COLOUR_ROWS` | entry | const | `src/adapter/screen-renderer/table-window.ts#MARK_COLOUR_ROWS` | PI-37 | `statusGlyphSvg` の絵が塗る 表 T-236 の行の並び。 |
 | `markColourVariableOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#markColourVariableOf` | PI-37 | 表 T-236 の行 ID から、その色を持つ CSS の変数の名を返す。 |
@@ -1729,7 +1737,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FullScreenModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#FullScreenModeState` | -- | type FullScreenModeState = \| { readonly kind: 'normal' } \| { readonly kind: 'full' } export type OpenSurfaceState = \| { readonly kind: 'closed' } \| { readonl... |
 | `HelpDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#HelpDisplayShownState` | -- | type HelpDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimised' } \| { readonly kind: 'maximised' } export type ArmModeState = \| { r... |
 | `HelpDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#HelpDisplayState` | -- | type HelpDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly child: HelpDisplayShownState } export type LandingMarkDisplayState... |
-| `LandingMarkDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#LandingMarkDisplayState` | -- | type LandingMarkDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly landedLink: ScreenValuesStateCarried['landedLink']; readonl... |
+| `LandingMarkDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#LandingMarkDisplayState` | -- | type LandingMarkDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly landedBy: ScreenValuesStateCarried['landedBy']; readonly la... |
 | `MilestoneListDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#MilestoneListDisplayState` | -- | type MilestoneListDisplayState = \| { readonly kind: 'closed' } \| { readonly kind: 'open' } export type FullScreenModeState = \| { readonly kind: 'normal' } \| ... |
 | `OpenSurfaceState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#OpenSurfaceState` | -- | type OpenSurfaceState = \| { readonly kind: 'closed' } \| { readonly kind: 'open'; readonly surfaceName: ScreenValuesStateCarried['surfaceName'] } export type ... |
 | `PaletteDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#PaletteDisplayShownState` | -- | type PaletteDisplayShownState = \| { readonly kind: 'expanded' } \| { readonly kind: 'minimised' } export type DialogueFieldDisplayShownState = \| { readonly ki... |
@@ -1787,4 +1795,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 873 name(s) leave through a public entry (359 of them published by table T-064), 704 more are exported by a file and not by its entry.
+Totals: 878 name(s) leave through a public entry (364 of them published by table T-064), 707 more are exported by a file and not by its entry.
