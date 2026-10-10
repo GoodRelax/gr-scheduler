@@ -39,7 +39,7 @@ export const FIT_SPAN_COPY_TEXT = 'copyCurrent'
 import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { drawnTaskGroupBoxesOf, taskGroupPanelFromSchedule, taskGroupTitleFontPxOf } from './task-group-panel'
-import { searchPanelFromSession, shownCountWordOf, type SearchPanelView } from './search-panel'
+import { searchPanelFromSession, type SearchPanelView } from './search-panel'
 import {
   delayDiagnosticsReportFromWindow,
   type DelayDiagnosticsReportView,
@@ -54,6 +54,7 @@ export {
   searchPanelWithColumnWidth,
   searchPanelWithFilterClosed,
   searchPanelWithFilterOpened,
+  searchPanelWithTableViewsCleared,
 } from './search-panel'
 export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, windowNormalBoxOf, windowPlaceOf } from './window-box'
 export type { WindowPlace, WindowShown } from './window-box'
@@ -580,9 +581,8 @@ export interface ScreenView {
   readonly confirmation: Confirmation | null
   readonly dialogueField: DialogueField | null
   readonly tooltips: readonly Tooltip[]
-  // TRAP: optional so literals compile; absent draws no panel (FR-151) and no caption (IX-11), the same as null.
+  // TRAP: optional so literals compile; absent draws no panel (FR-151), the same as null.
   readonly searchPanel?: SearchPanelView | null
-  readonly showOnlyCheckedCaption?: string | null
   readonly delayDiagnosticsReport?: DelayDiagnosticsReportView | null
   // see FR-039, SE-2, SE-5
   // TRAP: kept out of notices, so the notice count and the Esc / Enter levels never see it;
@@ -784,7 +784,6 @@ export function screenViewFromRegions(
       readings.bottleneckUids,
     ),
     delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, schedule, regions.scheduleCanvas),
-    showOnlyCheckedCaption: shownCountWordOf('showOnlyCheckedCaption', readings.searchPanel ?? emptySearchPanelSession, schedule, language),
   }
 
   const echo = session.screen.scaleMessageDisplayState

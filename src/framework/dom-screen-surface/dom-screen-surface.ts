@@ -139,6 +139,7 @@ const PAINT_ROW = {
   brandingDivider: 'S-493',
   groupGridLine: 'S-165',
   link: 'S-503',
+  filteredHeading: 'S-183',
 } as const
 
 /** @purity pure */
@@ -167,6 +168,7 @@ export const PAINT = {
   brandingDivider: painted('brandingDivider'),
   groupGridLine: painted('groupGridLine'),
   link: painted('link'),
+  filteredHeading: painted('filteredHeading'),
 } as const
 
 /** @purity pure */

@@ -22,6 +22,7 @@ const SORT_ASCENDING_ENTRY: IconId = 'IC-123'
 const SORT_DESCENDING_ENTRY: IconId = 'IC-124'
 const SHOW_ALL_ENTRY: IconId = 'IC-125'
 const HIDE_ALL_ENTRY: IconId = 'IC-126'
+const CLEAR_ENTRY: IconId = 'IC-153'
 
 const SORT_DIRECTIONS: { readonly [entry: IconId]: SearchSort['direction'] } = {
   [SORT_ASCENDING_ENTRY]: 'ascending',
@@ -63,14 +64,16 @@ export function isFilterValueListed(label: string, typed: string): boolean {
   return isSearchWordFound(label, typed)
 }
 
-// see SV-18
-// WHY: null is the column's default row of table T-206, which only the surface reads (generated there).
+// see SV-7, SV-18
+// WHY: width null is the default: T-206's row, or measured by the surface when widthSamples is not null.
 export interface SearchColumnView {
   readonly column: SearchColumn
   readonly heading: string
   readonly isFixed: boolean
   readonly filterEntry: CommandItem
   readonly width: number | null
+  readonly isFiltered: boolean
+  readonly widthSamples: readonly string[] | null
 }
 
 export interface SearchFilterValueView {
@@ -117,6 +120,7 @@ export interface WindowTable {
   readonly isDateColumn: (column: SearchColumn) => boolean
   readonly valuesOf: (column: SearchColumn) => readonly string[]
   readonly labelOf: (column: SearchColumn, value: string) => string
+  readonly widthSamplesOf?: (column: SearchColumn) => readonly string[] | null
 }
 
 /** @purity pure */
@@ -160,13 +164,45 @@ export function dateText(stored: string | null): string {
 
 /** @purity pure */
 export function tableColumnsOf(panel: TableWindowSession, table: WindowTable, language: DisplayLanguage): readonly SearchColumnView[] {
+  const filtered = new Set(panel.filters.columns.filter(isWorkingFilter).map((one) => one.column))
   return table.columns.map((column, at) => ({
     column,
     heading: table.headingOf(column),
     isFixed: at < table.fixedCount,
     filterEntry: entryOf(FILTER_ENTRY, language),
     width: panel.columnWidths[column] ?? null,
+    isFiltered: filtered.has(column),
+    widthSamples: table.widthSamplesOf?.(column) ?? null,
   }))
+}
+
+// WHY: a sort alone is not a filter, so it paints no heading (JDG-1807).
+/** @purity pure */
+function isWorkingFilter(filter: SearchColumnFilter): boolean {
+  return filter.hiddenValues.length > 0 || filter.from !== null || filter.to !== null
+}
+
+/** @purity pure */
+function hasTableViews(panel: TableWindowSession): boolean {
+  return panel.filters.columns.some(isWorkingFilter) || panel.sort !== null
+}
+
+// see SV-1, RW-2, IC-153, FR-092
+/** @purity pure */
+export function clearEntryOf(panel: TableWindowSession, language: DisplayLanguage): CommandItem {
+  return { ...entryOf(CLEAR_ENTRY, language), isEnabled: hasTableViews(panel) }
+}
+
+// see SV-1, RW-2, IC-153
+/** @purity pure */
+export function tableWithViewsCleared<P extends TableWindowSession>(panel: P): P {
+  if (!hasTableViews(panel)) return panel
+  return { ...panel, filters: { columns: [], open: null }, sort: null }
+}
+
+/** @purity pure */
+export function isClearEntry(entry: IconId): boolean {
+  return entry === CLEAR_ENTRY
 }
 
 // see SV-7, SV-14
@@ -218,8 +254,7 @@ export function tableWithColumnWidth<P extends TableWindowSession>(panel: P, col
 /** @purity pure */
 function withColumnFilter<P extends TableWindowSession>(panel: P, filter: SearchColumnFilter): P {
   const others = panel.filters.columns.filter((one) => one.column !== filter.column)
-  const isWorking = filter.hiddenValues.length > 0 || filter.from !== null || filter.to !== null
-  return { ...panel, filters: { ...panel.filters, columns: isWorking ? [...others, filter] : others } }
+  return { ...panel, filters: { ...panel.filters, columns: isWorkingFilter(filter) ? [...others, filter] : others } }
 }
 
 // see SV-7, SV-8, T-109

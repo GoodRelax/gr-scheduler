@@ -45,7 +45,9 @@ function rowOf(table: string, id: string): SpecRow {
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
 const SV_1_ORDER =
-  '左から、面の名（`FR-038` の辞書）・タスクの表の入口 `IC-118`・コメントボックスの表の入口 `IC-119`・スケジュールフィルタの入口 `IC-143`（表 T-353 —— タスクの表を出しているときだけ置き、スケジュールフィルタを掛けているあいだは押された状態を 表 T-237 の `EN-5` で示す）。右端に、左から `IC-127`（字の大きさ）・`IC-129`（最小化）・`IC-130`（最大化 —— 最大化しているあいだは同じ場所に `IC-131`）・`IC-52`（閉じる）。'
+  '左から、面の名（`FR-038` の辞書）・タスクの表の入口 `IC-118`・コメントボックスの表の入口 `IC-119`・列のフィルタと並べ替えを戻す入口 `IC-153`・スケジュールフィルタの入口 `IC-143`（表 T-353 —— タスクの表を出しているときだけ置き、スケジュールフィルタを掛けているあいだは押された状態を 表 T-237 の `EN-5` で示す）。'
+const SV_1_RIGHT =
+  '右端に、左から `IC-127`（字の大きさ）・`IC-129`（最小化）・`IC-130`（最大化 —— 最大化しているあいだは同じ場所に `IC-131`）・`IC-52`（閉じる）。'
 const SV_1_TITLE_FONT = '見出しの行の面の名の字は `SV-16` の段に従う —— 入口の図形は段に従わない。'
 const SV_1_GRAB = '見出しの行は掴んで動かす帯である（表 T-023d の `GR-24`）'
 const SV_2_FIELD = '見出しの行の下に 1 行。'
@@ -306,6 +308,7 @@ describe('FR-151 tables T-330 / T-331 / T-333 -- the clauses these cases are dri
   it('SV-1, SV-2, SV-3, SV-6, SV-9, SV-12, SV-13, SV-16 and SV-17 still read this way', () => {
     const say = (id: string): string => cellOf('T-330', id, '定め')
     expect(say('SV-1')).toContain(SV_1_ORDER)
+    expect(say('SV-1')).toContain(SV_1_RIGHT)
     expect(say('SV-1')).toContain(SV_1_TITLE_FONT)
     expect(say('SV-1')).toContain(SV_1_GRAB)
     expect(say('SV-2')).toContain(SV_2_FIELD)
@@ -421,7 +424,7 @@ describe(`T-330 SV-9 -- ${SV_9_SIZE} ${SV_9_CORNER}`, () => {
 })
 
 describe(`T-330 SV-1 -- ${SV_1_ORDER}`, () => {
-  it.each(LANGUAGES)('%s: the name, then IC-118, IC-119 and IC-143, then IC-127, IC-129, IC-130 and IC-52', (language) => {
+  it.each(LANGUAGES)('%s: the name, then IC-118, IC-119, IC-153 and IC-143, then IC-127, IC-129, IC-130 and IC-52', (language) => {
     const { panel } = drawn(viewOf(sessionIn(language)))
     const title = titleRowOf(panel)
     const order = nodesInOrder(title)
@@ -429,7 +432,7 @@ describe(`T-330 SV-1 -- ${SV_1_ORDER}`, () => {
       const icon = 'tagName' in node ? node.getAttribute('data-icon') : null
       return icon === null ? [] : [icon]
     })
-    expect(icons).toEqual(['IC-118', 'IC-119', 'IC-143', 'IC-127', 'IC-129', 'IC-130', 'IC-52'])
+    expect(icons).toEqual(['IC-118', 'IC-119', 'IC-153', 'IC-143', 'IC-127', 'IC-129', 'IC-130', 'IC-52'])
     const nameAt = order.findIndex((node) => !('tagName' in node) && node.data.trim() === panelNameOf(language))
     const firstEntryAt = order.findIndex((node) => 'tagName' in node && node.getAttribute('data-icon') === 'IC-118')
     expect(nameAt, `the panel name ${panelNameOf(language)} is drawn in the heading row`).toBeGreaterThanOrEqual(0)

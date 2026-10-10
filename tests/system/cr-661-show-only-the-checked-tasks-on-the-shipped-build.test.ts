@@ -19,10 +19,10 @@ const FR_151_NOT_UNDONE = '取り消しの記録にも載せない'
 const TV_3_NOT_FAINT = '「描かれていないタスク」）。⛔ 薄く描いてはならない（MUST NOT）'
 const EL_21_SJ_0 = '印の先の端のタスクがスケジュールフィルタ（`FR-151` の 表 T-353）で描かれないときは、先に 表 T-332 の `SJ-0` を行うこと（MUST）'
 const FR_134_JUMP = '表の 1 行の名前を押したら、その行の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`）で飛ぶこと（MUST）'
-const IX_11_CAPTION =
-  '⭐ 絵の上端に「チェックしたタスクだけを表示（N 件中 M 件）」（`FR-038` の辞書、N と M は 表 T-353 の `TV-11` と同じ）の 1 行を、`_assets/tbl-settings.md` の 表 T-206 の `S-498` の字で書き込むこと（MUST）'
+const IX_11_NO_BAND_WORDS =
+  '⛔ 絵にスケジュールフィルタの帯（`_assets/tbl-glossary.md` の `U-67`）の語を書き込んではならない（MUST NOT）'
 
-const CLAUSES = [FR_151_RULES, FR_151_NOT_SAVED, FR_151_NOT_UNDONE, TV_3_NOT_FAINT, EL_21_SJ_0, FR_134_JUMP, IX_11_CAPTION]
+const CLAUSES = [FR_151_RULES, FR_151_NOT_SAVED, FR_151_NOT_UNDONE, TV_3_NOT_FAINT, EL_21_SJ_0, FR_134_JUMP, IX_11_NO_BAND_WORDS]
 
 const T_353 = specTable('T-353')
 const T_332 = specTable('T-332')
@@ -60,7 +60,6 @@ const OPEN_SEARCH = keyOf('SK-24')
 // see S-497, S-498
 const settingPx = (id: string): number => Number(/^(\d+)px/.exec(unbroken(rowOf(specTable('T-206'), id).by['既定'] ?? ''))?.[1] ?? NaN)
 const BAND_HEIGHT = settingPx('S-497')
-const CAPTION_PX = settingPx('S-498')
 
 const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
@@ -378,7 +377,7 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
     }
   })
 
-  test(`IX-11 (MUST): ${IX_11_CAPTION.slice(-30)} -- the exported picture is narrowed and carries the caption in S-498`, async () => {
+  test(`IX-11 (MUST NOT): ${IX_11_NO_BAND_WORDS.slice(-30)} -- the exported picture is narrowed and carries no band words`, async () => {
     const stage = await opened()
     try {
       const { page } = stage
@@ -389,9 +388,7 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
         return String(made['value'] ?? made['svg'] ?? made['text'] ?? '')
       })
       expect(svg.length).toBeGreaterThan(0)
-      const caption = /<text[^>]*font-size="([\d.]+)(?:px)?"[^>]*>([^<]*(?:4 件中 2 件|2 of 4)[^<]*)<\/text>/.exec(svg)
-      expect(caption, 'the caption line is written into the picture').not.toBeNull()
-      expect(Number(caption?.[1])).toBeCloseTo(CAPTION_PX, 1)
+      expect(/4 件中 2 件|2 of 4/.test(svg), 'no line of the band is written into the picture').toBe(false)
       expect(svg).not.toContain('>Bravo<')
     } finally {
       await stage.close()

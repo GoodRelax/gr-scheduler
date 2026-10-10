@@ -26,6 +26,7 @@ import {
   searchFilterMenuElement,
   searchPanelBoxOf,
   searchPanelElement,
+  unmeasuredSizing,
 } from '../../src/framework/dom-screen-surface/search-panel-drawing'
 import {
   advanceScreenSession,
@@ -56,8 +57,7 @@ const SV_7_LISTED_ONLY = '`IC-125`・`IC-126` は、一覧にいま出ている�
 const SV_7_DATES =
   '日付の列は、値の一覧とフィルタの中の検索欄の代わりに、操作の段（`IC-123`・`IC-124`）の下で「いつから」「いつまで」を宿主の日付の入力で選ばせる。'
 const SV_7_HEADING_WORD = '見出しのセルの語を押したときも、`IC-122` を押したものとして同じに答えること（MUST）'
-const SV_7_CLOSE = '⭐ 開いているフィルタは、同じ列の `IC-122` をもう一度押すか、`Esc`（`SV-14`）で閉じる。'
-const SV_7_NOT_OUTSIDE = '⛔ フィルタの外を押しても閉じてはならない（MUST NOT）'
+const SV_7_CLOSE = '⭐ 開いているフィルタは、同じ列の `IC-122` をもう一度押すか、`Esc`（`SV-14`）か、フィルタの箱の外を押すと閉じる。'
 const SV_18_ROWS =
   '既定は列ごとに `_assets/tbl-settings.md` の 表 T-206 の行が持つ —— `SQ-1` 〜 `SQ-9` は `S-466` 〜 `S-474`、`SQ-11` 〜 `SQ-13` は `S-500` 〜 `S-502`（どちらもこの順）。'
 const RW_9_ROWS = '既定は `_assets/tbl-settings.md` の 表 T-206 の `S-475` 〜 `S-481`（`DT-1` 〜 `DT-7` の順）とする。'
@@ -106,9 +106,14 @@ const WIDTH_ROW: Readonly<Record<string, string>> = {
   'SQ-10': 'S-496',
 }
 
+const FONT_PX = 16
+
+const SIZING = unmeasuredSizing(FONT_PX)
+
 /** @purity pure */
 function settingPx(row: string): number {
   const said = cellOf('T-206', row, '既定')
+  if (said.startsWith('測る')) return SIZING.floor
   const px = /^(\d+)px/.exec(said)
   if (px === null) throw new Error(`T-206 ${row} holds no px default: ${said}`)
   return Number(px[1])
@@ -302,7 +307,7 @@ function drawnPanel(panel: SearchPanelSession): FakeElement {
   const built = stage()
   const view = viewOf(panel)
   const box = searchPanelBoxOf(view, { width: 0.5, height: 0.5 })
-  return searchPanelElement(built.host, view, { box, fontPx: 16 }, new Map<string, HTMLElement>()) as unknown as FakeElement
+  return searchPanelElement(built.host, view, { box, fontPx: FONT_PX }, new Map<string, HTMLElement>()) as unknown as FakeElement
 }
 
 /** @purity non-pure */
@@ -329,7 +334,6 @@ describe('CR-660 -- the clauses this file is driven by', () => {
       SV_7_DATES,
       SV_7_HEADING_WORD,
       SV_7_CLOSE,
-      SV_7_NOT_OUTSIDE,
     ]) {
       expect(cellOf('T-330', 'SV-7', '定め')).toContain(clause)
     }
@@ -553,22 +557,22 @@ describe('T-331 SQ-5 / T-347 DT-1 / T-346 RW-4 -- the leading glyph of a status 
   })
 })
 
-describe('T-330 SV-18 / T-346 RW-9 -- the default width of a column is its T-206 row (area 5)', () => {
+describe('T-330 SV-18 / T-346 RW-9 -- the default width of a column is its T-206 row, or measured (area 5)', () => {
   it('T-206: every width row names the column SV-18 / RW-9 give it', () => {
     for (const [column, row] of Object.entries(WIDTH_ROW)) expect(cellOf('T-206', row, '値'), `${row} -> ${column}`).toContain(`\`${column}\``)
   })
 
-  it('SV-18: each tasks and comment box column starts at its T-206 width', () => {
+  it('SV-18: each tasks and comment box column starts at its T-206 width; a measured one unmeasured reads the S-425 floor', () => {
     for (const panel of [TASK_PANEL, COMMENT_PANEL]) {
       for (const column of viewOf(panel).columns) {
-        expect(columnWidthPx(column), `${column.column} -> ${WIDTH_ROW[column.column]}`).toBe(settingPx(found(WIDTH_ROW[column.column], column.column)))
+        expect(columnWidthPx(column, SIZING), `${column.column} -> ${WIDTH_ROW[column.column]}`).toBe(settingPx(found(WIDTH_ROW[column.column], column.column)))
       }
     }
   })
 
-  it('RW-9: each report column starts at its T-206 width', () => {
+  it('RW-9: each report column starts at its T-206 width; a measured one unmeasured reads the S-425 floor', () => {
     for (const column of reportViewOf(OPENED_DELAY_DIAGNOSTICS_REPORT).columns) {
-      expect(columnWidthPx(column), `${column.column} -> ${WIDTH_ROW[column.column]}`).toBe(settingPx(found(WIDTH_ROW[column.column], column.column)))
+      expect(columnWidthPx(column, SIZING), `${column.column} -> ${WIDTH_ROW[column.column]}`).toBe(settingPx(found(WIDTH_ROW[column.column], column.column)))
     }
   })
 

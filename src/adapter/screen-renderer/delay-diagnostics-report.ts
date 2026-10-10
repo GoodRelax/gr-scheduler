@@ -33,8 +33,10 @@ import {
   type TableColumns,
 } from './search-table-filters'
 import {
+  clearEntryOf,
   dateText,
   entryOf,
+  isClearEntry,
   openFilterIn,
   tableAfterFilterChange,
   tableAfterFilterEntry,
@@ -43,6 +45,7 @@ import {
   tableWithColumnWidth,
   tableWithFilterClosed,
   tableWithFilterOpened,
+  tableWithViewsCleared,
   windowShownAfterEntry,
   windowTitleEntriesOf,
   wordOf,
@@ -86,6 +89,9 @@ const LAST_FIXED_COLUMN = 'DT-4'
 
 // see RW-3
 const UNSEARCHED_COLUMNS: readonly string[] = ['DT-6', 'DT-7']
+
+// see RW-9, SV-18
+const MEASURED_COLUMNS: readonly string[] = ['DT-1', 'DT-3', 'DT-5', 'DT-6']
 
 const WORD_COLUMNS_AT: readonly number[] = DELAY_REPORT_COLUMNS.flatMap((column, at) => (UNSEARCHED_COLUMNS.includes(column) ? [] : [at]))
 
@@ -316,18 +322,36 @@ function isWordFound(shown: ShownTaskGroup, word: string): boolean {
   return word === '' || WORD_COLUMNS_AT.some((at) => isSearchWordFound(shown.cells[at] ?? '', word))
 }
 
+/** @purity pure */
+function taskGroupsWithCells(rows: readonly DelayReportRow[], language: DisplayLanguage): readonly ShownTaskGroup[] {
+  return rows.map((row) => ({ row, cells: cellsOf(row, language) }))
+}
+
 // see RW-3, RW-8, SV-7, SV-8
 /** @purity pure */
 function shownTaskGroupsOf(window: DelayDiagnosticsReportWindow, rows: readonly DelayReportRow[], language: DisplayLanguage): readonly ShownTaskGroup[] {
-  const found = rows
-    .map((row) => ({ row, cells: cellsOf(row, language) }))
-    .filter((shown) => isWordFound(shown, window.panel.word))
+  return shownTaskGroupsFrom(window, taskGroupsWithCells(rows, language))
+}
+
+/** @purity pure */
+function shownTaskGroupsFrom(window: DelayDiagnosticsReportWindow, all: readonly ShownTaskGroup[]): readonly ShownTaskGroup[] {
+  const found = all.filter((shown) => isWordFound(shown, window.panel.word))
   return filteredTableRows(found, REPORT_TABLE, window.panel.filters, window.panel.sort)
+}
+
+// see RW-9, SV-18, DT-1
+/** @purity pure */
+function reportWidthSamplesIn(all: readonly ShownTaskGroup[], language: DisplayLanguage): (column: string) => readonly string[] | null {
+  return (column) => {
+    if (!MEASURED_COLUMNS.includes(column)) return null
+    if (column === STATUS_COLUMN) return DELAY_REPORT_STATUSES.map((status) => statusWordOf(status, language))
+    return [...new Set(all.map((shown) => cellOf(shown, column)))]
+  }
 }
 
 // see T-347, SV-7, RW-10
 /** @purity pure */
-function reportTableOf(found: () => readonly ShownTaskGroup[], language: DisplayLanguage): WindowTable {
+function reportTableOf(found: () => readonly ShownTaskGroup[], language: DisplayLanguage, all?: readonly ShownTaskGroup[]): WindowTable {
   return {
     columns: DELAY_REPORT_COLUMNS,
     fixedCount: DELAY_REPORT_COLUMNS.indexOf(LAST_FIXED_COLUMN) + 1,
@@ -335,6 +359,7 @@ function reportTableOf(found: () => readonly ShownTaskGroup[], language: Display
     isDateColumn: (column) => REPORT_TABLE.dates[column] !== undefined,
     valuesOf: (column) => tableColumnValues(found(), REPORT_TABLE, column),
     labelOf: (column, value) => (column === STATUS_COLUMN ? statusWordOf(value as DelayReportStatus, language) : value),
+    ...(all === undefined ? {} : { widthSamplesOf: reportWidthSamplesIn(all, language) }),
   }
 }
 
@@ -380,8 +405,9 @@ export function delayDiagnosticsReportFromWindow(
   const language = displayLanguageOf(session)
   const isOpen = window.shown !== 'minimised'
   const all = isOpen ? delayDiagnosticsReportRows(report, schedule) : []
-  const found = shownTaskGroupsOf(window, all, language)
-  const table = reportTableOf(() => found, language)
+  const withCells = taskGroupsWithCells(all, language)
+  const found = shownTaskGroupsFrom(window, withCells)
+  const table = reportTableOf(() => found, language, withCells)
   const open = openFilterIn(window.panel, window.shown, table)
   return {
     heading: wordOf(HEADING, language),
@@ -390,7 +416,7 @@ export function delayDiagnosticsReportFromWindow(
     canvas: layout.canvas,
     ...windowPlaceInRange(window.panel, layout.canvas),
     textSizeStep: layout.textSizeStep,
-    tableEntries: [],
+    tableEntries: [clearEntryOf(window.panel, language)],
     titleEntries: [entryOf(TEXT_SIZE_ENTRY, language), ...windowTitleEntriesOf(window.shown, language)],
     toolEntries: [entryOf(EXPORT_ENTRY, language), entryOf(COPY_ENTRY, language)],
     word: window.panel.word,
@@ -408,7 +434,7 @@ export function delayDiagnosticsReportFromWindow(
   }
 }
 
-// see T-346, SV-7, SV-8, WB-2, WB-3, RW-1
+// see T-346, SV-7, SV-8, WB-2, WB-3, RW-1, RW-2, IC-153
 // WHY: { window: null } is a close; null is an entry the window does not answer.
 /** @purity pure */
 export function delayDiagnosticsReportAfterEntry(
@@ -421,6 +447,7 @@ export function delayDiagnosticsReportAfterEntry(
   const shown = windowShownAfterEntry(window.shown, entry)
   if (shown === null) return { window: null }
   if (shown !== undefined) return { window: { ...window, shown } }
+  if (isClearEntry(entry)) return { window: { ...window, panel: tableWithViewsCleared(window.panel) } }
   const unfiltered = { ...window, panel: { ...window.panel, filters: { ...window.panel.filters, columns: [] } } }
   const all = delayDiagnosticsReportRows(rows.report, rows.schedule)
   const table = reportTableOf(() => shownTaskGroupsOf(unfiltered, all, rows.language), rows.language)
