@@ -370,6 +370,12 @@ RESOURCE_LIST_PARTS = ('unassigned', 'taskSeparator')
 # are no table's rows, so they are HELD HERE, the same move as
 # SEARCH_PANEL_PARTS. KEYS, not words.
 OPEN_CHOOSER_PARTS = ('file', 'documentTitle', 'cancel')
+# CR-727: the one line the Drop Cue (U-68) shows while a file is dragged over
+# the window (OP-17 of table T-024a). No table holds it as a row, so it is
+# HELD HERE, the same move as OPEN_CHOOSER_PARTS. KEYS, not words. A section
+# of its own, not a part of openChooser: the line is a sentence, and check 32
+# reads openChooser.text as names in Title Case (JDG-1862).
+DROP_CUE_PARTS = ('dropToOpen',)
 # CR-712: the note the Difference Review (U-61) always shows while it offers
 # "take in as a separate task" (MG-10 of table T-032). No table holds it as a
 # row, so it is HELD HERE, the same move as OPEN_CHOOSER_PARTS. KEYS, not words.
@@ -727,6 +733,7 @@ def roster():
         'fitSpanField': list(FIT_SPAN_FIELD_PARTS),
         'exportChooser': list(EXPORT_CHOOSER_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
+        'dropCue': list(DROP_CUE_PARTS),
         'differenceReview': list(DIFFERENCE_REVIEW_PARTS),
         'parentTaskChoice': list(PARENT_TASK_CHOICE_PARTS),
         'hintLines': hint_lines(),
@@ -809,6 +816,7 @@ SHAPE = {
     'fitSpanField': ('part', ('text',)),
     'exportChooser': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
+    'dropCue': ('part', ('text',)),
     'differenceReview': ('part', ('text',)),
     'parentTaskChoice': ('part', ('text',)),
     'hintLines': ('rowId', ('text',)),
@@ -910,6 +918,7 @@ def build(doc, keys_by_row):
                     'confirmationMarks', 'fileStatus', 'branding',
                     'defaultNames',
                     'exportFormats', 'fitSpanField', 'exportChooser', 'openChooser',
+                    'dropCue',
                     'differenceReview',
                     'assignments', 'arms',
                     'weekdays', 'hintLines',

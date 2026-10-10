@@ -160,6 +160,7 @@ export interface ScreenValuesEventCarried {
   readonly writes: readonly DocumentCommand[]
   readonly landedLink: LandedLink
   readonly landedTaskUid: number
+  readonly isOpenAccepted: boolean
 }
 
 type NoPayload = Readonly<Record<never, never>>
@@ -245,6 +246,8 @@ export type ScreenValuesKey =
   | 'helpDisplayStateMachine.shown.maximised'
   | 'landingMarkDisplayStateMachine.hidden'
   | 'landingMarkDisplayStateMachine.shown'
+  | 'dropCueDisplayStateMachine.hidden'
+  | 'dropCueDisplayStateMachine.shown'
 
 export type PaletteDisplayShownState =
   | { readonly kind: 'expanded' }
@@ -331,6 +334,10 @@ export type LandingMarkDisplayState =
   | { readonly kind: 'hidden' }
   | { readonly kind: 'shown'; readonly landedLink: ScreenValuesStateCarried['landedLink']; readonly landedTaskUid: ScreenValuesStateCarried['landedTaskUid'] }
 
+export type DropCueDisplayState =
+  | { readonly kind: 'hidden' }
+  | { readonly kind: 'shown' }
+
 export interface ScreenValues {
   readonly screenLanguage: ScreenValuesStateCarried['screenLanguage']
   readonly helpLanguage: ScreenValuesStateCarried['helpLanguage']
@@ -353,6 +360,7 @@ export interface ScreenValues {
   readonly searchPanelDisplayState: SearchPanelDisplayState
   readonly helpDisplayState: HelpDisplayState
   readonly landingMarkDisplayState: LandingMarkDisplayState
+  readonly dropCueDisplayState: DropCueDisplayState
 }
 
 export type ScreenValuesAxes = Omit<ScreenValues, 'screenLanguage' | 'helpLanguage' | 'rememberedActuals' | 'themePreference' | 'guideCursorMode' | 'dualCursor' | 'propertyPanelWidth'>
@@ -404,6 +412,8 @@ export type ScreenValuesEvent =
   | { readonly type: 'helpMaximiseToggled' }
   | { readonly type: 'continuationMarkClicked'; readonly landedLink: ScreenValuesEventCarried['landedLink']; readonly landedTaskUid: ScreenValuesEventCarried['landedTaskUid'] }
   | { readonly type: 'landingMarkClearAsked' }
+  | { readonly type: 'fileDragEntered'; readonly isOpenAccepted: ScreenValuesEventCarried['isOpenAccepted'] }
+  | { readonly type: 'fileDragLeft' }
 
 export type ScreenValuesEffectName =
   | 'storeScreenLanguage'
@@ -455,6 +465,7 @@ const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
   searchPanelDisplayState: { kind: 'hidden' },
   helpDisplayState: { kind: 'hidden' },
   landingMarkDisplayState: { kind: 'hidden' },
+  dropCueDisplayState: { kind: 'hidden' },
 }
 // </generated>
 
@@ -956,6 +967,19 @@ function onLandingMarkClearAsked(values: ScreenValues): ScreenStep {
   return moved(values, { landingMarkDisplayState: { kind: 'hidden' } })
 }
 
+// see T-280, OP-17
+/** @purity pure */
+function onFileDragEntered(values: ScreenValues, event: EventOf<'fileDragEntered'>): ScreenStep {
+  if (!event.isOpenAccepted || values.dropCueDisplayState.kind === 'shown') return unchanged(values)
+  return moved(values, { dropCueDisplayState: { kind: 'shown' } })
+}
+
+/** @purity pure */
+function onFileDragLeft(values: ScreenValues): ScreenStep {
+  if (values.dropCueDisplayState.kind === 'hidden') return unchanged(values)
+  return moved(values, { dropCueDisplayState: { kind: 'hidden' } })
+}
+
 type WindowShownKind = SearchPanelDisplayShownState['kind'] &
   HelpDisplayShownState['kind'] &
   DialogueFieldDisplayShownState['kind']
@@ -1081,6 +1105,8 @@ const HANDLERS: {
   helpMaximiseToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MAXIMISE_TOGGLED_TO),
   continuationMarkClicked: onContinuationMarkClicked,
   landingMarkClearAsked: onLandingMarkClearAsked,
+  fileDragEntered: onFileDragEntered,
+  fileDragLeft: onFileDragLeft,
 }
 
 // see SF-2, SF-8, T-280

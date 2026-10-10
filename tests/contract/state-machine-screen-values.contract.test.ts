@@ -248,6 +248,7 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   hasNoUnsettledEntry: [true, false],
   isAgentApiEnabled: [true, false],
   hasDaysToPlace: [true, false],
+  isOpenAccepted: [true, false],
   writes: [[]],
   guideCursor: ['crosshair'],
   landedLink: [NEW_LANDING],
@@ -314,6 +315,7 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
     case 'hasNoUnsettledEntry':
     case 'isAgentApiEnabled':
     case 'hasDaysToPlace':
+    case 'isOpenAccepted':
       return event[name] === true
     case 'isSameArm': {
       const armed = screen['armModeState'] as Loose

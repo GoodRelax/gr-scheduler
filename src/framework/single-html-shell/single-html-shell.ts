@@ -131,8 +131,29 @@ function watchPageHappenings(loopOf: () => FrameLoop | null): void {
   window.addEventListener('change', (event) => {
     if (isHostPickerValue(event.target)) loopOf()?.pressContinued()
   })
+  watchFileDrags(loopOf)
+}
+
+// see OP-17, OP-2, FT-1
+// TRAP: dragenter and dragleave fire again on every element a drag crosses, so only the depth falling to 0 is leaving the window.
+/** @purity non-pure */
+function watchFileDrags(loopOf: () => FrameLoop | null): void {
+  let depth = 0
+  window.addEventListener('dragenter', (event) => {
+    if (!isFileDrop(event)) return
+    depth += 1
+    if (depth === 1) loopOf()?.fileDragMoved(true)
+  })
+  window.addEventListener('dragleave', (event) => {
+    if (!isFileDrop(event) || depth === 0) return
+    depth -= 1
+    if (depth === 0) loopOf()?.fileDragMoved(false)
+  })
   window.addEventListener('drop', (event) => {
-    if (isFileDrop(event)) loopOf()?.fileDropped()
+    if (!isFileDrop(event)) return
+    depth = 0
+    loopOf()?.fileDragMoved(false)
+    loopOf()?.fileDropped()
   })
 }
 

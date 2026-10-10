@@ -85,6 +85,7 @@ NOT_STORED_REPEAT_TIMES              長押しの待ちと刻み（`S-172` / `S-
 NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES 休日の設定の一覧の字の係数と罫線の太さ（`S-240` / `S-241`、表 T-257、`CR-722`）
 NOT_STORED_WHEEL_UNITS               ホイールの 1 行の長さと 1 ノッチの画素・行数（`S-514` 〜 `S-516`、表 T-023 の結び、`CR-681`）。写しは 2 つ —— 日程を送る `DomInputSource` と、名簿を送る `DomScreenSurface`
 NOT_STORED_EXPORT_CHOOSER_SIZES      保存の面の形式のボタンのあいだの隔たり（`S-517`、`FR-096`、`CR-685`）
+NOT_STORED_DROP_CUE_SIZES            ドロップの案内の縁の線の太さ（`S-553`、`OP-17`、`CR-727`）
 NOT_STORED_SCALE_MESSAGE_TIMES       表示の倍率のメッセージを出しておく時間（`S-244`）
 NOT_STORED_NOTICE_TIMES              時間で消す通知を出しておく時間（`S-542`、表 T-037 の `NT-2`。`CR-712`）
 NOT_STORED_ROW_BAND_CEILING_SEARCH   縦軸の上限（帯の側）を探す刻みと許容（`S-238` / `S-239`）

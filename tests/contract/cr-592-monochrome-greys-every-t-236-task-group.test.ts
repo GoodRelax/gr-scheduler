@@ -63,6 +63,7 @@ const NAME_TO_TASK_GROUP: Readonly<Record<string, string>> = {
   grabAxisDepth: 'S-152',
   heldTaskGroup: 'S-151',
   caution: 'S-153',
+  dropCue: 'S-151',
 }
 
 // see T-236

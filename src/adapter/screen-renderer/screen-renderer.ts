@@ -605,6 +605,13 @@ export interface ScreenView {
   // TRAP: never a Tooltip: it neither waits for S-124 nor sits in the tooltip count the shell reads.
   readonly dualCursorReadout?: DualCursorReadout
   readonly guideCursorLabel?: GuideCursorLabel
+  readonly dropCue?: DropCue
+}
+
+// see OP-17, U-68
+export interface DropCue {
+  readonly text: string
+  readonly area: ScreenRect
 }
 
 // see DC-3, IN-3
@@ -802,6 +809,15 @@ function openModalPlaced(
   return { openModal, openModalAt: readings.windowPlaces?.closeOnlyTitledSurface ?? null }
 }
 
+const DROP_CUE_WORDS = displayWords.dropCue.find((one) => one.part === 'dropToOpen')
+
+// see OP-17, U-68, U-32, T-280
+/** @purity pure */
+function dropCueOf(session: ScreenSession, canvas: ScreenRect, language: DisplayLanguage): Pick<ScreenView, 'dropCue'> {
+  if (session.screen.dropCueDisplayState.kind === 'hidden' || DROP_CUE_WORDS === undefined) return {}
+  return { dropCue: { text: DROP_CUE_WORDS.text[language], area: canvas } }
+}
+
 // see PI-37, SF-5
 /** @purity pure */
 export function screenViewFromRegions(
@@ -841,6 +857,7 @@ export function screenViewFromRegions(
   return {
     ...shown,
     ...pointerWordsOf(shown, regions, schedule, settings, session, readings),
+    ...dropCueOf(session, regions.scheduleCanvas, language),
     ...(echo.kind === 'hidden'
       ? {}
       : { scaleMessage: displayScaleMessageText(echo.percent, echo.end, language) }),

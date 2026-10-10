@@ -39,8 +39,8 @@
     "en": "Open"
    },
    "hint": {
-    "ja": "ファイルを開く。読んだ内容の扱いは開いたあとで選ぶ",
-    "en": "Open a file; how its contents are used is chosen after reading"
+    "ja": "ファイルを開く。日程表にファイルを落としても開ける。読んだ内容の扱いは開いたあとで選ぶ",
+    "en": "Open a file (or drop one onto the schedule); how its contents are used is chosen after reading"
    }
   },
   {
@@ -4059,6 +4059,15 @@
    "text": {
     "ja": "キャンセル",
     "en": "Cancel"
+   }
+  }
+ ],
+ "dropCue": [
+  {
+   "part": "dropToOpen",
+   "text": {
+    "ja": "ここに落とすと開きます",
+    "en": "Drop the file to open it"
    }
   }
  ],

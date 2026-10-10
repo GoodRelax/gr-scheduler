@@ -1407,9 +1407,10 @@ NOT_STORED_TARGETS = {
     # S-213 could not join them. S-215's own note says it exists to be READ
     # AGAINST S-214 -- 「`S-214` より濃い値を別に持つ … 同じ濃さでは見分けられ
     # ない」 -- so the pair is a single scale of state grounds with two steps on
-    # it, and three requirements read it: FR-029 (the entrance under the
-    # pointer) and FR-098 (the pinned task group) take S-214, and HF-15 of table T-051
-    # (the task group a hand is holding) takes S-215.
+    # it, and four rows read it: FR-029 (the entrance under the pointer),
+    # FR-098 (the pinned task group) and OP-17 of table T-024a (the Drop Cue,
+    # CR-727) take S-214, and HF-15 of table T-051 (the task group a hand is
+    # holding) takes S-215.
     'NOT_STORED_STATE_GROUND_PERCENTS': (['S-214', 'S-215'],
                                          DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ FR-036's help, whose share of the screen and whose column count are
@@ -1461,6 +1462,11 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_WHEEL_UNITS': (['S-514', 'S-515', 'S-516'], READ_WHERE_IT_STANDS),
     # CR-685: the gap between two format buttons of the Export Chooser (FR-096).
     'NOT_STORED_EXPORT_CHOOSER_SIZES': (['S-517'], DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-727: the rim of the Drop Cue (U-68, OP-17 of table T-024a). Not folded
+    # into NOT_STORED_STATE_GROUND_PERCENTS: S-214 is how faint the cue's ground
+    # is laid and is read from there; this is the line around it, one constant
+    # per consuming SUBJECT.
+    'NOT_STORED_DROP_CUE_SIZES': (['S-553'], DRAWN_WITH_WHERE_IT_STANDS),
     # CR-571: the search panel's default width and height as ratios of the
     # Schedule Canvas (FR-151 SV-9). One constant per consuming SUBJECT, beside
     # the roster's, its sibling floating surface. `dom-screen-surface.ts` reads
@@ -3290,6 +3296,8 @@ TARGETS = [
      # CR-681 / CR-685: the roster's wheel line and the Export Chooser's gap.
      + not_stored_block('NOT_STORED_WHEEL_UNITS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_EXPORT_CHOOSER_SIZES') + NEWLINE * 2
+     # CR-727: the Drop Cue's rim (OP-17).
+     + not_stored_block('NOT_STORED_DROP_CUE_SIZES') + NEWLINE * 2
      # CR-571: the search panel's default size and its four text sizes.
      + not_stored_block('NOT_STORED_SEARCH_PANEL_SIZES') + NEWLINE * 2
      # CR-660: which T-206 row holds each column's default width.

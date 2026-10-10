@@ -352,6 +352,9 @@ export interface FrameLoop {
   pressContinued(): void
   /** @purity non-pure */
   fileDropped(): void
+  // see OP-17
+  /** @purity non-pure */
+  fileDragMoved(isOver: boolean): void
 }
 
 // see FR-071, UF-48
@@ -2130,6 +2133,14 @@ export function isQuestionAskedIn(session: ScreenSession): boolean {
   return session.fileFlow.confirmationState.kind === 'questionAsked'
 }
 
+// see OP-17, OP-8, T-290
+// WHY: the cue invites a drop only while an open would be taken: no file operation runs and no question stands.
+/** @purity pure */
+function fileDragEventIn(session: ScreenSession, isOver: boolean): SessionEvent {
+  if (!isOver) return { type: 'fileDragLeft' }
+  return { type: 'fileDragEntered', isOpenAccepted: session.fileFlow.fileOperationState.kind === 'idle' && !isQuestionAskedIn(session) }
+}
+
 // see FR-091, T-280
 /** @purity pure */
 function isAnySurfaceStanding(session: ScreenSession): boolean {
@@ -3881,6 +3892,13 @@ export function frameLoop(
     /** @purity non-pure */
     fileDropped(): void {
       askToOpenDroppedFile(hands)
+    },
+    // see OP-17, T-280
+    /** @purity non-pure */
+    fileDragMoved(isOver: boolean): void {
+      const before = session
+      sendToSession(fileDragEventIn(session, isOver), values)
+      if (session !== before && isSizeSettled(environment)) ask()
     },
   }
 }

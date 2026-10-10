@@ -1248,6 +1248,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DisplayLanguage` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#DisplayLanguage` | -- | type DisplayLanguage = 'ja' \| 'en' |
 | `displayLanguageOf` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#displayLanguageOf` | -- | function displayLanguageOf(session: ScreenSession): DisplayLanguage |
 | `drawnTaskGroupBoxesOf` | entry | function | `src/adapter/screen-renderer/task-group-panel.ts#drawnTaskGroupBoxesOf` | PI-37 | 描いたタスクグループごとの `Task Group Panel` のタスクグループ見出しの矩形を、配置と各部の矩形から測る（`SC-1`・`FR-098`）。 |
+| `DropCue` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DropCue` | -- | interface DropCue |
 | `DualCursorReadout` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DualCursorReadout` | -- | interface DualCursorReadout |
 | `ExportChooser` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ExportChooser` | -- | interface ExportChooser extends OpenSurface |
 | `exportFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#exportFileNameOf` | PI-37 | 文書名を 表 T-352 で整え、拡張子を付けた提案の名を作る（`FR-096`）。 |
@@ -1721,6 +1722,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ArmModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ArmModeState` | -- | type ArmModeState = \| { readonly kind: 'notArmed' } \| { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] } \| { read... |
 | `DialogueFieldDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DialogueFieldDisplayShownState` | -- | type DialogueFieldDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimised' } \| { readonly kind: 'maximised' } export type DualCursorM... |
 | `DialogueFieldDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DialogueFieldDisplayState` | -- | type DialogueFieldDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly child: DialogueFieldDisplayShownState } export type DualC... |
+| `DropCueDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DropCueDisplayState` | -- | type DropCueDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown' } export interface ScreenValues |
 | `DualCursorModeOnState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DualCursorModeOnState` | -- | type DualCursorModeOnState = \| { readonly kind: 'placingDate1' } \| { readonly kind: 'placingDate2' } export type SearchPanelDisplayShownState = \| { readonly ... |
 | `DualCursorModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DualCursorModeState` | -- | type DualCursorModeState = \| { readonly kind: 'off' } \| { readonly kind: 'on'; readonly child: DualCursorModeOnState } export type ScaleMessageDisplayState =... |
 | `emptyScreenValues` | file only | const | `src/use-case/advance-screen-session/screen-values.ts#emptyScreenValues` | -- | const emptyScreenValues: ScreenValues = |
@@ -1785,4 +1787,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 872 name(s) leave through a public entry (359 of them published by table T-064), 703 more are exported by a file and not by its entry.
+Totals: 873 name(s) leave through a public entry (359 of them published by table T-064), 704 more are exported by a file and not by its entry.
