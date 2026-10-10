@@ -654,3 +654,17 @@ PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/impact.py FR-151 F
 | 辞書の項 | —— | +9（`DT-8`・`RQ-1`〜`RQ-5`・`unassigned`・`taskSeparator`・`tableNameSeparator`） |
 | `（MUST）`・`（MUST NOT）`（`01-04-requirements.md`） | +4 前後 | 1757 → 1759（+2）・939 → 941（+2） |
 | ユニット（表 T-075） | +2 | 180 → 182 |
+
+### 14.3 検査と、波 2 まで赤い試験
+
+- `npm run typecheck`（`tsc --noEmit` と `-p tsconfig.entity.json`）0。`npm run gen:check` 0。`strictdoc export docs/spec` 0（`output` は消した）。
+- check.sh の 1 回目（`3301e0a8`）: 赤は 11・24・33・37・39・46・55・62・66・71。11 は書き写した 13 の組（X-21）、24 は新しいユニットの開発記録の段、33 は変更履歴の 0.29 の段が数えるコンポーネントごとのユニットの数（`ScreenRenderer` 16 → 17・`SingleHtmlShell` 18 → 19）、37 は 表 T-109 の 12 行の指紋（`IC-52`・`IC-122`〜`IC-127`・`IC-129`〜`IC-131`・`IC-143`・`IC-153` —— 辞書の語と読み合わせ、`IC-143` の説明のほかは語を替える要が無いことを確かめて、その 12 行だけを付け直した）、46 は文の終わり 2 つ、55 は `npm run tree` の空のユニットの頭の注（規則 17 の形に合わない —— 頭の 5 行と `export {}` だけにした。⚠️ 生成器の雛形そのものが合わない —— 14.4）、62 は 7 節の「表の最大」の文、66 は `perf-pending` の行、71 は試験の目録。
+- check.sh の 2 回目（`e0d4c82b`）: 赤は 39 だけ —— 試験が逐語で引かない `（MUST）` ／ `（MUST NOT）` が 2121 → 2125（本書の新しい 4 句: `FR-099` の結びと `TV-12`）。仕様だけを読む試験の体（W3、9 節）が閉じる。基準線は動かしていない。
+- 変えた文を逐語で引く試験は、引用だけを替えた: `cr-571-search-panel-view`（`SV-1`）・`cr-571-search-rows`（`SQ-10`）・`cr-660`（`RW-10` と 表 T-347 の行の並び）・`cr-661`（`TD-8`）・`fr-029-in-effect-is-filled-not-rimmed`（表 T-237 の行）・`t-283-priorities`（`RG-16` の根拠）・`cr-406`（表 T-257 の移った文）。
+- 波 2 まで赤い（振る舞いの試験。変えた文を引いてはいない —— 5.2）: 98 ファイルを測って 6 ファイル・11 件 —— `display-words.contract`（読み込みで投げる）・`cr-617`（4）・`cr-648`（4）・`cr-660` の `RW-9`（1）・`dfc-703`（1）・`dfc-1287`（1）。`tests/system` は走らせていない（`cr-721-ix-11-…` が辞書の古い鍵を引く）。
+
+### 14.4 グラフと、本書の外で見つけたもの
+
+- `induced.py FR-099 FR-151 FR-134 FR-088`: 4 つとも解けた。輪は 1 つ、大きさ 2（`FR-099` ↔ `FR-151`）—— 6 節が予測した輪であり、本書の 1 つの計画で書いた。
+- 休日の設定は今、表 T-257 の描き方（`S-240` の字・`S-241` の罫・名前の欄の固定・横の送り）を持っていない —— `open-modals-drawing.ts` の `resourceListBoxStyle`・`resourceListRule` を読むのは担当リストの枝だけである（下書きの E-08 の ⚠️ の確かめ）。`RR-4` の文は今の描き方に合わせて替えていない。食い違いの行を `defects.md` に足すのは調整役（本書は `DFC` の帯を持たない）。
+- `tools/generate_unit_tree.py` が書く空のユニットの頭の注は、規則 17 の注の形（`docs/review/comment-rules-src.md` の 3 節）に合わない（検査 55 が 1 ファイル 7 行と数える）。空のユニットを置く波を分けるたびに当たる。
