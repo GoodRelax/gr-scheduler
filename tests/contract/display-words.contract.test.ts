@@ -343,6 +343,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   exportChooser: 'part',
   // WHY: CR-623 keys the Open Chooser's words by the part they fill.
   openChooser: 'part',
+  // WHY: CR-727 keys the Drop Cue's line (OP-17, U-68) by the part it fills.
+  dropCue: 'part',
   differenceReview: 'part',
   // ⛔ `panelHeadings` IS NOT HERE ANY MORE, and its absence is a claim (CR-272).
   // Chapter 6.2 (MUST NOT) keeps the roster of WHICH words are needed out of the
@@ -2201,6 +2203,24 @@ for (const entry of GENERATED['openChooser'] ?? []) {
       const chooser = view.openModal
       return chooser !== null && 'choices' in chooser ? chooser[member] : undefined
     },
+  })
+}
+
+// see OP-17, U-68
+for (const entry of GENERATED['dropCue'] ?? []) {
+  const part = keyOf('dropCue', entry)
+  if (part !== 'dropToOpen') {
+    drop('dropCue', part, 'OP-17 names no line of the Drop Cue for this part')
+    continue
+  }
+  place({
+    section: 'dropCue',
+    key: part,
+    field: 'text',
+    unit: 'UF-60',
+    what: "the Drop Cue's line",
+    frame: frameWith({ root: rootWith({ dropCueDisplayState: { kind: 'shown' } }) }),
+    read: (view) => view.dropCue?.text,
   })
 }
 

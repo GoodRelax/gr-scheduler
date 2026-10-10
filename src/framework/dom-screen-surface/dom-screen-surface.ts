@@ -94,6 +94,7 @@ export const ROLE = {
   notices: 'Notification Area',
   confirmation: 'Confirmation',
   tooltips: 'Tooltip',
+  dropCue: 'Drop Cue',
 } as const
 
 export const HOST_ENTER = 'Enter'
@@ -144,6 +145,7 @@ const PAINT_ROW = {
   filteredHeading: 'S-183',
   scheduleFilter: 'S-543',
   scheduleFilterGlyph: 'S-544',
+  dropCue: 'S-151',
 } as const
 
 /** @purity pure */
@@ -175,6 +177,7 @@ export const PAINT = {
   filteredHeading: painted('filteredHeading'),
   scheduleFilter: painted('scheduleFilter'),
   scheduleFilterGlyph: painted('scheduleFilterGlyph'),
+  dropCue: painted('dropCue'),
 } as const
 
 /** @purity pure */
@@ -1009,9 +1012,11 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   // see T-337, SE-5
   const scaleMessageLayer = made(host, 'div', SCALE_MESSAGE_STYLE.layer)
   const readoutLayer = made(host, 'div', STYLE.layer)
+  const dropCueLayer = made(host, 'div', STYLE.layer)
   markZOrder(scaleMessageLayer, 'UZ-1')
   markZOrder(readoutLayer, 'UZ-1')
-  root.append(scaleMessageLayer, readoutLayer)
+  markZOrder(dropCueLayer, 'UZ-1')
+  root.append(dropCueLayer, scaleMessageLayer, readoutLayer)
 
   // STOP: spec does not decide whether a wheel over a confirmation is left to the host. Looked in MK-1, MK-10, NT-7 (PND-380)
   let lastKeys: Readonly<Record<string, string>> = {}
@@ -1237,6 +1242,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
 
     lastKeys = drawnKeys
     showUnpressableWords(host, scaleMessageLayer, readoutLayer, view)
+    showDropCue(host, dropCueLayer, view.dropCue)
     // TRAP: shown synchronously, never inside a frame callback: a first paint that waits for one
     // leaves a white screen until an input arrives.
     root.setAttribute('style', STYLE.rootShown + typefaceStyle() + themeStyle(readTheme()))
@@ -1374,6 +1380,38 @@ function showUnpressableWords(
   showPointTip(host, readoutLayer, view.dualCursorReadout ?? (label === undefined ? undefined : { lines: [label.text], at: label.at }))
 }
 
+// see OP-17, U-68, S-214, S-553
+/** @purity pure */
+function dropCueStyle(area: ScreenRect): string {
+  return (
+    'position:absolute;box-sizing:border-box;pointer-events:none;' +
+    'display:flex;align-items:center;justify-content:center;' +
+    `left:${area.x}px;top:${area.y}px;width:${area.width}px;height:${area.height}px;` +
+    `background:${stateGround(PAINT.dropCue, 'S-214')};` +
+    `border:${NOT_STORED_DROP_CUE_SIZES['S-553']}px solid ${PAINT.dropCue};`
+  )
+}
+
+// see OP-17, U-57
+const DROP_CUE_WORDS_STYLE =
+  `padding:0.5em 0.75em;background:${PAINT.ground};color:${PAINT.ink};` +
+  `border:1px solid ${PAINT.rule};pointer-events:none;`
+
+// see OP-17, U-68, UZ-1
+// TRAP: pointer-events:none on every part, so a drop still lands on the window (OP-2) and no press is taken.
+/** @purity non-pure */
+function showDropCue(host: Document, layer: HTMLElement, cue: ScreenView['dropCue']): void {
+  if (cue === undefined) {
+    if (layer.firstElementChild !== null) layer.replaceChildren()
+    return
+  }
+  const box = layer.firstElementChild ?? layer.appendChild(part(host, 'div', ROLE.dropCue, ''))
+  const style = dropCueStyle(cue.area)
+  if (box.getAttribute('style') !== style) box.setAttribute('style', style)
+  const words = box.firstElementChild ?? box.appendChild(made(host, 'span', DROP_CUE_WORDS_STYLE))
+  if (words.textContent !== cue.text) words.textContent = cue.text
+}
+
 // see FR-039, SE-5
 // WHY: T-260 leaves the place and the look open; this follows CR-411 question 3's recommendation,
 // an upper-middle box that takes no press.
@@ -1500,6 +1538,13 @@ export const NOT_STORED_EXPORT_CHOOSER_SIZES: {
   readonly 'S-517': number
 } = {
   'S-517': 1.75,
+}
+
+// see T-206
+const NOT_STORED_DROP_CUE_SIZES: {
+  readonly 'S-553': number
+} = {
+  'S-553': 3,
 }
 
 // see T-206

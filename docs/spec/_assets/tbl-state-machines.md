@@ -102,6 +102,8 @@
 | `screen/helpMaximiseToggled` | 入力（ヘルプのタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `helpDisplayStateMachine` |
 | `screen/continuationMarkClicked` | 入力（続きの印を押して離した（動かさない））: `PE-12` ・ `EL-16` | `landedLink` ／ `landedTaskUid` | `landingMarkDisplayStateMachine` |
 | `screen/landingMarkClearAsked` | 入力（印が出ているあいだの押下・キーの押下。見る位置と倍率だけを動かす操作と修飾キーだけの押下（EL-17 の ⭐）、印を付けた押下の 2 回目（EL-18）を除く）: `EL-17` | — | `landingMarkDisplayStateMachine` |
+| `screen/fileDragEntered` | 入力（ファイルを持つドラッグ（`dataTransfer.types` に `Files`）がウィンドウに入った。ウィンドウの中の UI パーツから UI パーツへ移るだけのものは送らない）: `OP-17` | `isOpenAccepted` | `dropCueDisplayStateMachine` |
+| `screen/fileDragLeft` | 入力（ファイルを持つドラッグがウィンドウの外へ出た、またはドロップした）: `OP-17` | — | `dropCueDisplayStateMachine` |
 
 ### 根 `screen` の値
 
@@ -555,6 +557,28 @@ stateDiagram-v2
 - `landingMarkDisplayStateMachine.shown` —— 運ぶ値 `landedLink`（印を付けた依存線の先行と後続の `UID`） ／ `landedTaskUid`（印の先の端の `Task` の `UID`）。根拠 `EL-16` ・ `EL-19`
 
 表に無い出来事は `landingMarkDisplayStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `dropCueDisplayStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> dropCueDisplayStateMachine_hidden
+    dropCueDisplayStateMachine_hidden : hidden
+    dropCueDisplayStateMachine_shown : shown
+    dropCueDisplayStateMachine_hidden --> dropCueDisplayStateMachine_shown : fileDragEntered
+    dropCueDisplayStateMachine_shown --> dropCueDisplayStateMachine_hidden : fileDragLeft
+```
+
+| 出来事 | `hidden` | `shown` |
+| --- | --- | --- |
+| `screen/fileDragEntered` | → `shown` [`isOpenAccepted`]（`isOpenAccepted` は、表 T-290 の `fileOperationStateMachine` が `idle` で、`confirmationStateMachine` が `notAsked` のとき真 —— 偽なら `fileFlow/documentOpenAsked` が `RS-27` で断るので、案内を出さない）<br>それ以外 → — | — |
+| `screen/fileDragLeft` | — | → `hidden` |
+
+- `dropCueDisplayStateMachine.hidden` —— 初期。根拠 `OP-17`
+- `dropCueDisplayStateMachine.shown` —— 根拠 `OP-17` ・ `U-68`
+
+表に無い出来事は `dropCueDisplayStateMachine` を変えない（同じ参照）。
 
 ## 通知（`notices`）
 

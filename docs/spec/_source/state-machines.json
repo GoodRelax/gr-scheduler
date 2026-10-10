@@ -1243,6 +1243,36 @@
       }
      },
      "carries": []
+    },
+    {
+     "key": "fileDragEntered",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "OP-17"
+      ],
+      "note": {
+       "ja": "ファイルを持つドラッグ（`dataTransfer.types` に `Files`）がウィンドウに入った。ウィンドウの中の UI パーツから UI パーツへ移るだけのものは送らない"
+      }
+     },
+     "carries": [
+      {
+       "name": "isOpenAccepted"
+      }
+     ]
+    },
+    {
+     "key": "fileDragLeft",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "OP-17"
+      ],
+      "note": {
+       "ja": "ファイルを持つドラッグがウィンドウの外へ出た、またはドロップした"
+      }
+     },
+     "carries": []
     }
    ],
    "machines": [
@@ -3261,6 +3291,56 @@
         "to": "hidden",
         "evidence": [
          "EL-17"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "dropCueDisplayStateMachine",
+     "states": [
+      {
+       "key": "hidden",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "OP-17"
+       ]
+      },
+      {
+       "key": "shown",
+       "parent": null,
+       "initial": false,
+       "carries": [],
+       "evidence": [
+        "OP-17",
+        "U-68"
+       ]
+      }
+     ],
+     "transitions": {
+      "fileDragEntered": {
+       "hidden": {
+        "to": "shown",
+        "guard": [
+         {
+          "name": "isOpenAccepted"
+         }
+        ],
+        "evidence": [
+         "OP-17"
+        ],
+        "note": {
+         "ja": "`isOpenAccepted` は、表 T-290 の `fileOperationStateMachine` が `idle` で、`confirmationStateMachine` が `notAsked` のとき真 —— 偽なら `fileFlow/documentOpenAsked` が `RS-27` で断るので、案内を出さない"
+        }
+       }
+      },
+      "fileDragLeft": {
+       "shown": {
+        "to": "hidden",
+        "evidence": [
+         "OP-17"
         ]
        }
       }
