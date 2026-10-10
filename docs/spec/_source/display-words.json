@@ -776,8 +776,8 @@
     "en": "Milestone"
    },
    "hint": {
-    "ja": "マイルストーン形状の一覧を開く。もう一度押すと折りたたむ",
-    "en": "Open the list of milestone glyphs; press again to collapse"
+    "ja": "マイルストーン形状の一覧を展開する。もう一度押すと折りたたむ",
+    "en": "Expand the list of milestone glyphs; press again to collapse"
    }
   },
   {
@@ -5374,8 +5374,8 @@
   {
    "part": "unanalysed",
    "text": {
-    "ja": "解析できなかった {count} 件",
-    "en": "Not analysed {count}"
+    "ja": "信用できない {count} 件",
+    "en": "Unreliable {count}"
    }
   }
  ],
