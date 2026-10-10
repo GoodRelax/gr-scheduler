@@ -267,7 +267,7 @@ function boundTimesOf(linkType: number, clocks: LinkClocks | null): readonly [nu
 }
 
 /** @purity pure */
-function extremeText(texts: readonly (string | null)[], latest: boolean): string | null {
+export function extremeText(texts: readonly (string | null)[], latest: boolean): string | null {
   let best: string | null = null
   for (const text of texts) {
     const day = dayOf(text)

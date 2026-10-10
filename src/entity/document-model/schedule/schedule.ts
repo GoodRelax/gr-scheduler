@@ -82,10 +82,36 @@ export { diagnoseDelay, parentCandidatesOf, parentTaskResolutionsOf } from './de
 export type { DelayDiagnosticsReport, ParentTaskResolution } from './delay-diagnostics'
 export {
   DELAY_REPORT_STATUSES,
+  compareDelayFixRows,
   delayDiagnosticsReportMarkdown,
   delayDiagnosticsReportRows,
+  delayFixColumnsOf,
+  delayFixLogCells,
+  delayFixLogRowsInOrder,
+  delayFixProposalCells,
+  delayFixProposalRows,
+  delayFixRowsInOrder,
+  delayFixValueText,
 } from './delay-diagnostics-report-table'
+export { DELAY_FIX_TYPES, delayFixCommands, delayFixLogRowsOf, proposeDelayFixes } from './delay-fixes'
 export type {
+  DelayFixCheck,
+  DelayFixChoice,
+  DelayFixChoiceWord,
+  DelayFixCommand,
+  DelayFixLink,
+  DelayFixLogRow,
+  DelayFixOpenField,
+  DelayFixPlacement,
+  DelayFixRefusal,
+  DelayFixRow,
+  DelayFixType,
+  DelayFixValue,
+} from './delay-fixes'
+export type {
+  DelayFixMarkdown,
+  DelayFixMarkdownSection,
+  DelayFixWords,
   DelayReportDates,
   DelayReportFilter,
   DelayReportReason,

@@ -9,10 +9,14 @@ import {
   type DialogueMessage,
 } from '../../entity/document-model/dialogue-log/dialogue-log'
 import {
+  delayFixProposalRows,
   diagnoseDelay,
+  proposeDelayFixes,
   searchRowsOf,
   workingCalendarOf,
   type DelayDiagnosticsReport,
+  type DelayFixLogRow,
+  type DelayFixRow,
   type SearchRows,
 } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
@@ -129,6 +133,18 @@ export interface ShownTasksHolder {
   holdJumpTarget(taskUid: number): void
 }
 
+// see AM-19, DX-11, DX-12
+export interface AgentDelayDiagnostics extends DelayDiagnosticsReport {
+  readonly fixProposals: readonly DelayFixRow[]
+  readonly fixLog: readonly DelayFixLogRow[]
+}
+
+// see DX-12, RW-16
+export interface DelayFixLogSource {
+  /** @purity semi-pure-b */
+  readDelayFixLog(): readonly DelayFixLogRow[]
+}
+
 // see AM-8, FR-022
 export type AgentImportSource = Document | { readonly document: Document } | { readonly text: string }
 
@@ -164,7 +180,7 @@ export interface AgentApi {
   /** @purity semi-pure-b */
   readShownTasks(): AgentShownTasks
   /** @purity semi-pure-b */
-  readDelayDiagnostics(): DelayDiagnosticsReport
+  readDelayDiagnostics(): AgentDelayDiagnostics
 
   /** @purity non-pure */
   applyCommands(request: AgentWriteRequest): AgentWriteOutcome
@@ -216,6 +232,9 @@ export interface AgentApiWiring {
     | undefined
   // see AM-26, AM-27
   readonly shownTasks: ShownTasksHolder | undefined
+  // WHY: optional, unlike its siblings: the log is a screen value of the report window, and a page with no window
+  // has written none, so an absent source reads as an empty log.
+  readonly delayFixLog?: DelayFixLogSource | undefined
   // TRAP: must differ from the person's writer name, or AG-6 takes the person's edits for this API's own.
   readonly writerName: string
   readonly schemaVersion: string
@@ -296,6 +315,15 @@ function notAvailable(target: string, snapshot: AgentSnapshot, missing: string):
 // see AM-26, TV-1
 // WHY: a page with no screen draws every task; it answers no product and no table.
 const NO_SHOWN_TASKS: AgentShownTasks = { drawnTaskUids: null, tables: [] }
+
+// see AM-19, DX-11, DX-12, FR-155
+// WHY: the proposals with no row checked or chosen by a person: AM-19 reads no screen value but the log.
+/** @purity semi-pure-b */
+function delayDiagnosticsWithFixes(document: Document, log: DelayFixLogSource | undefined): AgentDelayDiagnostics {
+  const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
+  const fixProposals = delayFixProposalRows(proposeDelayFixes(document, report, []), document.schedule)
+  return { ...report, fixProposals, fixLog: log?.readDelayFixLog() ?? [] }
+}
 
 // see AM-27, TV-5, AG-5, FR-028
 // WHY: untyped caller input; a list naming every task hides no row, and TV-5 keeps the filter from turning on for nothing.
@@ -612,9 +640,9 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     // WHY: diagnosed afresh, never the shell's held report: AM-19 writes no screen value, so it
     // answers whether or not S-445 is on.
     /** @purity semi-pure-b */
-    readDelayDiagnostics(): DelayDiagnosticsReport {
+    readDelayDiagnostics(): AgentDelayDiagnostics {
       const document = source.readSnapshot().document
-      return frozenCopy(diagnoseDelay(document, workingCalendarOf(document.schedule)))
+      return frozenCopy(delayDiagnosticsWithFixes(document, wiring.delayFixLog))
     },
 
     /** @purity non-pure */
