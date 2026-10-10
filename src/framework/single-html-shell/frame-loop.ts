@@ -535,13 +535,36 @@ function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
   )
 }
 
+// see FR-046, GR-16, DFC-2314
+// WHY: a Status Line drag writes only statusDate, which no layout reads; a new layout re-asks the zoom ends.
+/** @purity pure */
+function isSameScheduleApartFromStatusDate(a: Document['schedule'], b: Document['schedule']): boolean {
+  return isSameRecord(a, b, (x, y, key) =>
+    key === 'project'
+      ? isSameRecord(x as object, y as object, (p, q, field) => field === 'statusDate' || Object.is(p, q))
+      : Object.is(x, y))
+}
+
+/** @purity pure */
+function isSameLayoutInputs(a: PictureInputs, b: PictureInputs): boolean {
+  return (
+    a.shownTaskUids === b.shownTaskUids &&
+    a.taskGroupControlsHeightPx === b.taskGroupControlsHeightPx &&
+    isSameScheduleApartFromStatusDate(a.schedule, b.schedule) &&
+    isSameRecord(a.settings, b.settings) &&
+    isSameRecord(a.regions, b.regions, (x, y) => isSameRecord(x as object, y as object))
+  )
+}
+
 // see DFC-1820
 // WHY: the same objects come back while no input moved, so the pointer walk held per drawn geometry is not rebuilt.
 /** @purity pure */
 function drawnPictureOf(held: DrawnPicture | null, inputs: PictureInputs): DrawnPicture {
   if (held !== null && isSamePictureInputs(held.inputs, inputs)) return held
   const { schedule, settings, regions } = inputs
-  const layout = layoutFromSchedule(schedule, settings, regions, undefined, inputs.taskGroupControlsHeightPx, inputs.shownTaskUids)
+  const layout = held !== null && isSameLayoutInputs(held.inputs, inputs)
+    ? held.layout
+    : layoutFromSchedule(schedule, settings, regions, undefined, inputs.taskGroupControlsHeightPx, inputs.shownTaskUids)
   const geometry = geometryFromLayout(
     schedule, settings, layout, regions, inputs.selection, inputs.dualCursor, inputs.delayDiagnostics,
     inputs.parentTaskFamilies,

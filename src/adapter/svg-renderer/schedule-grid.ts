@@ -6,10 +6,12 @@
 import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   DEFAULT_CALENDAR_VALUES,
+  dayOf,
   isNonRecurringException,
+  isWorkingDay,
   workingCalendarOf,
-  workingDaysBetween,
   type CalendarDay,
+  type Exception,
   type Schedule,
   type WeekDay,
   type WorkingCalendar,
@@ -280,6 +282,36 @@ function shadedCalendarOf(schedule: Schedule, tier: ScheduleLayout['tier']): Wor
   return { ...within, weekDays: EVERY_WEEKDAY_WORKS, exceptions: madeOff }
 }
 
+// see FR-054
+// WHY: a reach that holds every day the Exception can cover; a date it cannot read reaches every day.
+/** @purity pure */
+function reachOf(exception: Exception, first: number, last: number): readonly [number, number] {
+  const from = dayOf(exception.fromDate)
+  const to = dayOf(exception.toDate)
+  if (from === null || to === null || serialOf(to) < serialOf(from)) return [first, last]
+  return [Math.max(first, serialOf(from)), Math.min(last, serialOf(to))]
+}
+
+// see FR-054, NFR-013
+// WHY: each day is judged on only the Exceptions that can reach it, so the calendar's index is built over
+// a few rows a day, not every Exception: built per day over all of them, it was 80% of a frame (DFC-2314).
+// TRAP: a superset in the calendar's own order is enough, as isWorkingDay keeps the first row that covers
+// the day; it alone reads what a kept row means. Days past `last` get the whole calendar.
+/** @purity pure */
+function dayCalendarsOf(shaded: WorkingCalendar, first: number, last: number): (atSerial: number) => WorkingCalendar {
+  const bare: WorkingCalendar = { ...shaded, exceptions: [] }
+  const byDay = new Map<number, Exception[]>()
+  for (const exception of shaded.exceptions) {
+    const [from, to] = reachOf(exception, first, last)
+    for (let at = from; at <= to; at++) byDay.set(at, [...(byDay.get(at) ?? []), exception])
+  }
+  return (atSerial) => {
+    if (atSerial < first || atSerial > last) return shaded
+    const kept = byDay.get(atSerial)
+    return kept === undefined ? bare : { ...shaded, exceptions: kept }
+  }
+}
+
 // see T-343, FR-054
 // TRAP: one path for every run in view (OD-6); a rect per day multiplies the elements by the days drawn.
 /** @purity pure */
@@ -302,11 +334,13 @@ function nonWorkingDaysSvg(input: GridInput): string | null {
     if (x1 > x0) runs.push(`M${x0} ${top} H${x1} V${bottom} H${x0} Z`)
     runFrom = null
   }
-  for (let at = serialOf(from); ; at++) {
+  const firstSerial = serialOf(from)
+  const calendarOn = dayCalendarsOf(shaded, firstSerial, firstSerial + Math.ceil((right - left) / layout.pxPerDay) + 1)
+  for (let at = firstSerial; ; at++) {
     const day = dayOfSerial(at)
     const x = xFromDay(layout, day)
     if (x >= right) break
-    const isOff = workingDaysBetween(shaded, day, dayOfSerial(at + 1)) === 0
+    const isOff = !isWorkingDay(calendarOn(at), day)
     if (isOff && runFrom === null) runFrom = x
     if (!isOff) closeRun(x)
   }

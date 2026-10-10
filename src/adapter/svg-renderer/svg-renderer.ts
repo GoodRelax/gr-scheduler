@@ -759,7 +759,7 @@ export function svgFromSchedule(
       `|${geometry.dependencies.length}|${selected.size}|${schedule.project.title ?? ''}`,
   )}`
   const dependencyHaloMaskId = `grs-dependency-halo-mask-${pictureId(
-    `${rounded(width)}x${rounded(height)}|${figures.barMaskParts.length}`,
+    `${rounded(width)}x${rounded(height)}|${figures.haloCuts.length}`,
   )}`
   const defsParts: string[] = []
 
@@ -777,7 +777,7 @@ export function svgFromSchedule(
 
   const links = dependencyLinkParts({
     ...drawing,
-    barMaskParts: figures.barMaskParts,
+    haloCuts: figures.haloCuts,
     arrowId,
     dependencyHaloMaskId,
     width,

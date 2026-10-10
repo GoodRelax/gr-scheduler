@@ -59,12 +59,17 @@ function isSameBand(held: HeldCeiling, context: InputContext, drawnZoomX: number
   )
 }
 
+// see FR-016, DFC-2314
+// WHY: one zoom notch asks at the drawn zoomX and at the zoomX of each step it may take; one held
+// answer was replaced by the next zoomX on every ask, so the band was solved again every frame.
+const HELD_ZOOM_X_COUNT = 4
+
 /** @purity non-pure */
 export function taskGroupBandCeilingCacheOf() {
   // see FR-016
   // TRAP: keyed on all the band is laid out from but zoomY and the scroll place; the zoomX is
   // the one the translator measures at, never the stored zoomX, which OP-10 may not draw.
-  let bandCeilingFrom: HeldCeiling | null = null
+  let bandCeilingsFrom: readonly HeldCeiling[] = []
 
   /** @purity non-pure */
   function bandCeilingFor(
@@ -73,29 +78,40 @@ export function taskGroupBandCeilingCacheOf() {
     upTo: number,
     enough: number = Number.POSITIVE_INFINITY,
   ): number {
-    const held = bandCeilingFrom
-    const same = held !== null && isSameBand(held, context, drawnZoomX, upTo)
+    const held = bandCeilingsFrom.find((one) => isSameBand(one, context, drawnZoomX, upTo))
     // WHY: a ceiling at or above what it was asked for is only a lower bound; asked for more, the
     // walk runs again at the held upTo, so the answer is the one an exact entry would have given.
-    if (same && (held.ceiling < held.enough || enough <= held.ceiling)) return held.ceiling
-    const walkedUpTo = same ? held.upTo : upTo
+    if (held !== undefined && (held.ceiling < held.enough || enough <= held.ceiling)) return held.ceiling
+    const walkedUpTo = held !== undefined ? held.upTo : upTo
     const ceiling = taskGroupBandCeilingOf(context, walkedUpTo, enough)
-    bandCeilingFrom = {
-      schedule: context.document.schedule,
-      settings: context.document.documentSettings,
-      drawnZoomX,
-      taskGroupArea: context.regions.taskGroupArea,
-      taskGroupControlsHeightPx: context.taskGroupControlsHeightPx,
-      zoomMin: context.zoomMin,
-      zoomMax: context.zoomMax,
-      upTo: walkedUpTo,
-      enough,
-      ceiling,
-    }
+    const others = bandCeilingsFrom.filter((one) => one !== held).slice(0, HELD_ZOOM_X_COUNT - 1)
+    bandCeilingsFrom = [heldCeilingOf(context, drawnZoomX, walkedUpTo, enough, ceiling), ...others]
     return ceiling
   }
 
   return { bandCeilingFor }
+}
+
+/** @purity pure */
+function heldCeilingOf(
+  context: InputContext,
+  drawnZoomX: number,
+  upTo: number,
+  enough: number,
+  ceiling: number,
+): HeldCeiling {
+  return {
+    schedule: context.document.schedule,
+    settings: context.document.documentSettings,
+    drawnZoomX,
+    taskGroupArea: context.regions.taskGroupArea,
+    taskGroupControlsHeightPx: context.taskGroupControlsHeightPx,
+    zoomMin: context.zoomMin,
+    zoomMax: context.zoomMax,
+    upTo,
+    enough,
+    ceiling,
+  }
 }
 
 export type TaskGroupBandCeilingCache = ReturnType<typeof taskGroupBandCeilingCacheOf>
