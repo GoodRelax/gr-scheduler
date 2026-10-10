@@ -56,6 +56,8 @@ const SHOW_ALLOWANCE_MS = 1_500
 interface Measured {
   readonly icon: string
   readonly box: { left: number; right: number; top: number; bottom: number }
+  // WHY: the cap of IN-7 holds the box's padding and border too (DFC-1476), so a line has this much less room.
+  readonly sides: number
   readonly lines: readonly { readonly text: string; readonly lineBoxes: number; readonly naturalWidth: number }[]
 }
 
@@ -100,6 +102,10 @@ async function readTooltip(page: Page, icon: string): Promise<Measured | null> {
       const tip = boxes[boxes.length - 1]
       if (tip === undefined) return null
       const rect = tip.getBoundingClientRect()
+      const style = getComputedStyle(tip)
+      const sides = [style.paddingLeft, style.paddingRight, style.borderLeftWidth, style.borderRightWidth]
+        .map((one) => parseFloat(one))
+        .reduce((sum, one) => sum + one, 0)
       const canvas = document.createElement('canvas').getContext('2d')
       const lines: { text: string; lineBoxes: number; naturalWidth: number }[] = []
       const walker = document.createTreeWalker(tip, NodeFilter.SHOW_TEXT)
@@ -123,7 +129,7 @@ async function readTooltip(page: Page, icon: string): Promise<Measured | null> {
           lines.push({ text: segment, lineBoxes: tops.size, naturalWidth: canvas?.measureText(segment).width ?? 0 })
         }
       }
-      return { icon, box: { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom }, lines }
+      return { icon, box: { left: rect.left, right: rect.right, top: rect.top, bottom: rect.bottom }, sides, lines }
     },
     { layerSelector: TOOLTIP_LAYER, icon },
   )
@@ -192,9 +198,12 @@ for (const width of WIDTHS) {
           continue
         }
         for (const line of read.lines) {
-          // see IN-7
-          if (line.lineBoxes > 1 && line.naturalWidth <= cap) {
-            problems.push(`${icon}: "${line.text}" is ${line.lineBoxes} line boxes though ${line.naturalWidth.toFixed(1)}px fits the cap ${cap}px`)
+          // see IN-7, DFC-1476, DFC-2414
+          const room = cap - read.sides
+          if (line.lineBoxes > 1 && line.naturalWidth <= room) {
+            problems.push(
+              `${icon}: "${line.text}" is ${line.lineBoxes} line boxes though ${line.naturalWidth.toFixed(1)}px fits the cap ${cap}px less the padding and border ${read.sides}px`,
+            )
           }
         }
         // see IN-7, S-339
