@@ -24,7 +24,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // see IN-4
 const IN_4_BOTH_SELECTIONS =
-  '⭐ 段「選択」は、表 T-023c の対象を選んでいるときにも、タスクグループパネルのタスクグループだけを選んでいるとき（`FR-085`）にも立ち、両方の選択を解くこと（MUST）'
+  '⭐ 段「選択」は、表 T-023c の対象を選んでいるときにも、タスクグループパネルのタスクグループだけを選んでいるとき（`FR-085`）にも立ち、両方の選択を解除すること（MUST）'
 
 type Loose = Record<string, unknown>
 

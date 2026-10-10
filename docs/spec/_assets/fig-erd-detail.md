@@ -332,7 +332,7 @@ erDiagram
 | AT-19 | `Project` | `themeHue` | 整数（0〜359） | 否 | — | GRS | — | テーマ色の色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73` |
 | AT-156 | `Project` | `parentProgressToleranceDays` | 整数 | 否 | — | GRS | — | 親タスクの進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない |
 | AT-20 | `Project` | `uidHighWaterMark` | 整数 | 否 | — | GRS | — | 発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う** |
-| AT-21 | `Project` | `importSeq` | 整数 | 否 | — | GRS | — | 取込ごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13` |
+| AT-21 | `Project` | `importSeq` | 整数 | 否 | — | GRS | — | 取り込みごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13` |
 | AT-22 | `Project` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しない `Project` 直下のスカラー |
 | AT-23 | `Project` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素（表 T-053 の `DF-3`） |
 | AT-139 | `Project` | `outlineBase` | 整数 | 否 | — | Consume | — | 取り込んだファイルのタスクが`OutlineLevel` を数え始める数（`FR-021`。プロジェクトの要約タスクは数えない —— 表 T-265 の `MR-4`）。書き出しはこの数から書く。**既定は `1`** |

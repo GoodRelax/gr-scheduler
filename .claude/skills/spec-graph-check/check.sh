@@ -49,7 +49,10 @@
 #          baseline, so it cannot go stale. The same check also reds every
 #          spelling the notation table (section 5 of rule 02) marks 止める,
 #          in the spec, the dictionary and the guides -- read from the table,
-#          not held here (JDG-1857, CR-725: ウインドウ -> ウィンドウ)
+#          not held here (JDG-1857, CR-725: ウインドウ -> ウィンドウ;
+#          JDG-1863, CR-726: 取込 -> 取り込み) -- and every English name of
+#          the dictionary's name fields that the table's Title Case row lists
+#          and that is not in Title Case (JDG-1862, CR-726)
 #   33     audit-ch5.py, the Chapter 5 self-audit : the counts Chapter 5
 #          asserts, read against the tables the same file holds. ⛔ It runs
 #          inside this script because a check that a rule asks people to run

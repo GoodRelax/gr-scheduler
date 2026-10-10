@@ -54,7 +54,7 @@ const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/
 describe('CR-631 -- the rows of table T-351 these cases are driven by', () => {
   it.each([
     ['PTL-1', '構える。'],
-    ['PTL-2', '構えを解く。'],
+    ['PTL-2', '構えを解除する。'],
     ['PTL-4', '取るのはバーと実線の矢印であり、破線の矢印は黙って除く'],
     ['PTL-5', 'S の `Task` すべての親を、離した先のバーの `Task` にする'],
     ['PTL-6', '選択を引き始めたバー 1 つに替えてから、`PTL-5` と同じく結ぶ'],

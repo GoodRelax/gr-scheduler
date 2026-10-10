@@ -13,7 +13,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_036_MAXIMISED =
   'ヘルプを最大化したときに占める範囲は、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とする（MUST）'
-const WB_8_FOLLOWS = '題の行の帯（表 T-023d の `GR-24`）を握っているあいだ、ウィンドウをポインタに追従させること（MUST）'
+const WB_8_FOLLOWS = 'タイトルバーの帯（表 T-023d の `GR-24`）を握っているあいだ、ウィンドウをポインタに追従させること（MUST）'
 const WB_8_RANGE = 'ウィンドウを、ウィンドウごとの範囲（`WB-3` と同じ）の外へ出してはならない（MUST NOT）'
 const WB_9_FOLLOWS = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインタに追従させること（MUST）'
 const WB_9_RANGE = 'ウィンドウごとの範囲の外へ広げてはならない（MUST NOT）'

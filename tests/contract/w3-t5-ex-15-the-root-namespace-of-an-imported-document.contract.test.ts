@@ -23,7 +23,7 @@ function currentDocument(): Document {
 
 // see EX-15
 const EX_15_KEEP_THE_IMPORTED_URI =
-  '書き出す根の要素（`Project`）の名前空間 URI は、取り込んだ文書では取込元の根が名乗った URI のまま書くこと（MUST）'
+  '書き出す根の要素（`Project`）の名前空間 URI は、取り込んだ文書では取り込み元の根が名乗った URI のまま書くこと（MUST）'
 const EX_15_PJ12_WHEN_NOT_IMPORTED = 'MSPDI を取り込まずに作った文書では、pj12 の `targetNamespace`（`http://schemas.microsoft.com/project/2007`）を書くこと（MUST）'
 const EX_15_THE_PARTNER_URI = '⚠️ 交換相手が自ら書く URI は `http://schemas.microsoft.com/project` であり、公式スキーマの `targetNamespace` と違う'
 

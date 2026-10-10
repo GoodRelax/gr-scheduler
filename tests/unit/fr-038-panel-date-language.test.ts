@@ -824,7 +824,7 @@ const DATE_FIELD: PropertyField = {
 
 /**
  * ⛔ NO HEADING IS OFFERED. FR-072 (MUST NOT) refuses the panel one -- 「⛔ **パネ
- * ルの先頭に見出しの行を置いてはならない（MUST NOT）**（利用者の指示 2026-08-27）」
+ * ルの先頭にタイトルバーを置いてはならない（MUST NOT）**（利用者の指示 2026-08-27）」
  * (CR-272) -- and this fixture carried one until that row moved.
  *
  * ⚠️ THE CAST IS DELIBERATE AND NARROW: whether the published description still

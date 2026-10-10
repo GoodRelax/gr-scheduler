@@ -247,7 +247,7 @@ describe('DFC-587 premises read from the manuscript', () => {
 describe('DFC-587 help title row: the entrances drawn on it', () => {
   const buttonsOn = (row: FakeElement): readonly string[] => entrancesIn(row).filter((one) => one !== LEGEND_ROW)
 
-  it('FR-036 (MUST): ヘルプの題の行は、左から、題 … 凡例（`IC-102`）・ヘルプの言語の切替（`FR-038` の `IC-128`）・最小化（`IC-129`）・最大化（`IC-130`、最大化しているあいだは同じ場所に `IC-131`）・閉じる入口（`IC-52`）の順に並べ、閉じる入口を右端に置くこと（MUST）', () => {
+  it('FR-036 (MUST): ヘルプのタイトルバーは、左から、題 … 凡例（`IC-102`）・ヘルプの言語の切替（`FR-038` の `IC-128`）・最小化（`IC-129`）・最大化（`IC-130`、最大化しているあいだは同じ場所に `IC-131`）・閉じる入口（`IC-52`）の順に並べ、閉じる入口を右端に置くこと（MUST）', () => {
     for (const language of LANGUAGES) {
       const row = helpTitleRow(drawnHelp(language), language)
       const entrances = entrancesIn(row)
@@ -261,7 +261,7 @@ describe('DFC-587 help title row: the entrances drawn on it', () => {
     }
   })
 
-  it('FR-036 (MUST NOT): ⛔ 題の行に、ほかのものを置いてはならない（MUST NOT）', () => {
+  it('FR-036 (MUST NOT): ⛔ タイトルバーに、ほかのものを置いてはならない（MUST NOT）', () => {
     for (const language of LANGUAGES) {
       const row = helpTitleRow(drawnHelp(language), language)
       expect(buttonsOn(row), `${language}: ${whatWasDrawn(row)}`).toEqual([HELP_LANGUAGE_ROW, MINIMISE_ROW, MAXIMISE_ROW, CLOSE_ROW])

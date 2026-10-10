@@ -36,7 +36,7 @@ const CS_4_QUESTION_FRAME =
   '⭐ 待ちが終わって問いが立つときのフレームは 表 T-078 の `FT-1` である —— その押下の、遅れて来た残りだからである。'
 // see T-024a
 const OP_2_ROUTES = 'ファイル選択、およびドラッグ＆ドロップ（表 T-008 の CHN-1）'
-const OP_2_ONE_ENTRANCE = '入口は本要求の「開く」1 つとし、取込（合流）に別の入口を設けてはならない（MUST NOT）'
+const OP_2_ONE_ENTRANCE = '入口は本要求の「開く」1 つとし、取り込み（合流）に別の入口を設けてはならない（MUST NOT）'
 const OP_3_ASK = '**読んだ内容をどう扱うかを人に選ばせること（MUST）**'
 const OP_3_NOT_BY_ITSELF = '**どちらになるかを`GRS` が勝手に決めてはならない（MUST NOT）。'
 

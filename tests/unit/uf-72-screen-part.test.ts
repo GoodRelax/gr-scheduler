@@ -276,16 +276,16 @@ const T_051 = specTable('T-051')
  * ⛔⛔ DERIVED AND NEVER LISTED, BECAUSE A LIST HERE HAS ALREADY GONE STALE
  * ONCE. This file used to strike out `HF-10` and `HF-12` by a regular
  * expression written over their ids; on 2026-08-30 the head gained `HF-16`
- * (最も浅い段を 1 階層だけ開く) and `HF-17` (最も浅い段へタスクグループを 1 つ足す), and every
+ * (最も浅い段を 1 階層だけ展開する) and `HF-17` (最も浅い段へタスクグループを 1 つ足す), and every
  * case driven by 「the entries on a task group」 silently began asserting that two head
  * controls stand on every task group -- which is what turned twenty-one of them red.
  *
  * ⭐ WHAT THE MANUSCRIPT ITSELF SAYS, and therefore what is matched:
- *   `HF-10` 「**タスクグループパネルの最上部の右寄せに**、すべてのタスクグループを開く操作子を 1 つ
+ *   `HF-10` 「**タスクグループパネルの最上部の右寄せに**、すべてのタスクグループを展開する操作子を 1 つ
  *           置くこと（MUST）」 -- the only row that names the place outright.
- *   `HF-12` 「**`HF-10` の操作子の並びに**、すべてのタスクグループを畳む操作子を 1 つ置くこと
+ *   `HF-12` 「**`HF-10` の操作子の並びに**、すべてのタスクグループを折りたたむ操作子を 1 つ置くこと
  *           （MUST）」
- *   `HF-16` 「**`HF-10` の操作子の並びに**、最も浅い段を 1 階層だけ開く操作子を
+ *   `HF-16` 「**`HF-10` の操作子の並びに**、最も浅い段を 1 階層だけ展開する操作子を
  *           1 つ置くこと（MUST）」
  *   `HF-17` 「**`HF-10` の操作子の並びに**、最も浅い段へタスクグループを 1 つ足す操作子を
  *           1 つ置くこと（MUST）」
@@ -403,21 +403,21 @@ function entranceForRule(rule: string): string {
  *
  * ⭐ 表 T-109, docs/spec/_assets/tbl-glossary.md:
  *   | IC-59 | `Task Group Panel` | — | このタスクグループを隠す              | 表 T-051 の `HF-3`  |
- *   | IC-90 | `Task Group Panel` | — | タスクグループの配下を 1 階層だけ開く | 表 T-051 の `HF-13` |
- *   | IC-77 | `Task Group Panel` | — | タスクグループの配下をすべて畳む      | 表 T-051 の `HF-11` |
- *   | IC-58 | `Task Group Panel` | — | タスクグループの配下をすべて開く      | 表 T-051 の `HF-2`  |
+ *   | IC-90 | `Task Group Panel` | — | タスクグループの配下を 1 階層だけ展開する | 表 T-051 の `HF-13` |
+ *   | IC-77 | `Task Group Panel` | — | タスクグループの配下をすべて折りたたむ      | 表 T-051 の `HF-11` |
+ *   | IC-58 | `Task Group Panel` | — | タスクグループの配下をすべて展開する      | 表 T-051 の `HF-2`  |
  * ⛔ They are FOUR rows of the roster and not one row in four states.
  *
  * ⚠️ THE COUNT IS `HF-1`'s AND MOVED TWICE. 表 T-103's `U-47` holds no count of
  * its own -- 「員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない」 -- and
- * on 2026-08-30 `HF-1` was rewritten to 「**隠す操作子と、配下を 1 階層開く操作子
- * と、配下をすべて閉じる操作子と、配下をすべて開く操作子を 1 つずつ**」. ⇒ FOUR,
+ * on 2026-08-30 `HF-1` was rewritten to 「**隠す操作子と、配下を 1 階層展開する操作子
+ * と、配下をすべて折りたたむ操作子と、配下をすべて展開する操作子を 1 つずつ**」. ⇒ FOUR,
  * and the order below is the one that row states outright: 「並びは 2 × 2 の格子と
  * すること（MUST）」, read column first (see HF-1).
  *
  * ⚠️ WHAT THE CLOSING SIDE MEANS WAS REPLACED ON 2026-08-30 (利用者の裁定,
  * recorded in `HF-3`'s own cell). `IC-59` used to be 表 T-015 の `HR-5`
- * (そのタスクグループ自身を畳む); it is now `HR-6` -- 「**隠す操作子は、そのタスクグループを隠すこと
+ * (そのタスクグループ自身を折りたたむ); it is now `HR-6` -- 「**隠す操作子は、そのタスクグループを隠すこと
  * （MUST）**」 -- and `HR-5` stays in 表 T-015 with no entrance at all. ⛔ It is
  * the MEANING that moved and not the roster row: this unit still owes them
  * nothing but telling a press on one from a press on another.
@@ -427,16 +427,16 @@ const T_109_TASK_GROUP_EXPANDER = [
   {
     row: entranceForRule('HF-13'),
     rule: 'HF-13',
-    gist: 'タスクグループの配下を 1 階層だけ開く',
+    gist: 'タスクグループの配下を 1 階層だけ展開する',
     side: 'openingOneLevel',
   },
   {
     row: entranceForRule('HF-11'),
     rule: 'HF-11',
-    gist: 'タスクグループの配下をすべて畳む',
+    gist: 'タスクグループの配下をすべて折りたたむ',
     side: 'closingBelow',
   },
-  { row: entranceForRule('HF-2'), rule: 'HF-2', gist: 'タスクグループの配下をすべて開く', side: 'opening' },
+  { row: entranceForRule('HF-2'), rule: 'HF-2', gist: 'タスクグループの配下をすべて展開する', side: 'opening' },
 ]
 
 /**
@@ -444,11 +444,11 @@ const T_109_TASK_GROUP_EXPANDER = [
  * task group carries and in what order, copied verbatim.
  */
 const T_051_HF1_FOUR_CONTROLS =
-  '隠す操作子と、配下を 1 階層開く操作子と、配下をすべて閉じる操作子と、配下をすべて開く操作子を 1 つずつ'
+  '隠す操作子と、配下を 1 階層展開する操作子と、配下をすべて折りたたむ操作子と、配下をすべて展開する操作子を 1 つずつ'
 const T_051_HF1_IS_A_LATTICE = '並びは 2 × 2 の格子とすること（MUST）'
 // ⭐⭐ REWORDED 2026-09-05, RULE UNCHANGED. The list is column-major and
 // the old wording read as four controls in a line -- see DFC-260.
-const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 隠す・1 階層開く'
+const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 隠す・1 階層展開する'
 
 /**
  * 表 T-051 `HF-4` — the whole left-to-right run of a task group.
@@ -459,14 +459,14 @@ const T_051_HF1_LEFT_TO_RIGHT = '左の列を上から 隠す・1 階層開く'
  * again, and it is what took the run's left edge off HF-15's grab strip.
  */
 const T_051_HF4_THE_WHOLE_RUN =
-  '折り畳みの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ置くこと（MUST）'
+  '折りたたみの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ置くこと（MUST）'
 
 /** 表 T-051 `HF-4` — which of the pair stands on top, ruled the same day. */
 const T_051_HF4_DELETE_ABOVE_ADD = '消すを上、足すを下に置くこと（MUST）'
 
 /** 表 T-051 `HF-10` — the run at the panel's head, all five on one line (CR-587). */
 const T_051_HF10_THE_HEAD_RUN =
-  '頭の並びは、左から すべて畳む・1 階層開く・すべて開く・足す・すべて消すの順に、1 行に並べること（MUST）'
+  '頭の並びは、左から すべて折りたたむ・1 階層展開する・すべて展開する・足す・すべて消すの順に、1 行に並べること（MUST）'
 
 /** 表 T-051 `HF-10` — why the head is one line and not two tiers. */
 const T_051_HF10_NOT_TWO_TIERS =
@@ -485,7 +485,7 @@ const T_051_HF15_THE_STRIP_IS_ALWAYS_DRAWN = '掴み代は常に描くこと（M
 
 /** 表 T-051 `HF-18` — the count a task group shows for what it holds folded. */
 const T_051_HF18_THE_COUNT =
-  '配下に畳み込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示すこと（MUST）'
+  '配下に折りたたみ込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示すこと（MUST）'
 
 /**
  * `HF-1`'s lattice, LEFT TO RIGHT, each place with the row of 表 T-051 that owns
@@ -497,14 +497,14 @@ const T_051_HF18_THE_COUNT =
  * list quietly outliving the ruling that made it.
  * ⚠️ The pairing of word to rule is prose in the manuscript and cannot be
  * machine-joined: 「隠す」 is `HF-3` because that row is the one that hides,
- * 「1 階層開く」 is `HF-13`, 「配下をすべて畳む」 is `HF-11` and 「配下をすべて
+ * 「1 階層展開する」 is `HF-13`, 「配下をすべて折りたたむ」 is `HF-11` and 「配下をすべて
  * 開く」 is `HF-2`, each in those rows' own words.
  */
 const T_051_HF1_LATTICE = [
   { rule: 'HF-3', word: '隠す' },
-  { rule: 'HF-13', word: '1 階層開く' },
-  { rule: 'HF-11', word: '配下をすべて畳む' },
-  { rule: 'HF-2', word: '配下をすべて開く' },
+  { rule: 'HF-13', word: '1 階層展開する' },
+  { rule: 'HF-11', word: '配下をすべて折りたたむ' },
+  { rule: 'HF-2', word: '配下をすべて展開する' },
 ] as const
 
 /**
@@ -529,15 +529,15 @@ const T_051_EXPANDER = [
   // はならない（MUST NOT）** —— **同じ MUST が 2 か所に載ると、必ず離れていく**」.
   // ⭐ SO THE GIST READ HERE IS THE DELEGATION ITSELF, and the effect each one
   // delegates to is read from 表 T-015 by the rows below it.
-  { row: 'HF-2', gist: '開く操作子の職務は 表 T-015 の `HR-3` である（MUST）' },
-  // ⛔ `HF-3` IS NO LONGER 「そのタスクグループ自身を畳む」. 利用者の裁定 2026-08-30 gave it
+  { row: 'HF-2', gist: '展開する操作子の職務は 表 T-015 の `HR-3` である（MUST）' },
+  // ⛔ `HF-3` IS NO LONGER 「そのタスクグループ自身を折りたたむ」. 利用者の裁定 2026-08-30 gave it
   // 表 T-015 の `HR-6` instead, and 2026-08-31 put that as a delegation too.
   { row: 'HF-3', gist: '隠す操作子の職務は 表 T-015 の `HR-6` である（MUST）' },
   // ⛔⛔ `HF-11` IS `HR-4`, WHICH FOLDS THE PRESSED TASK GROUP ITSELF. The row records
-  // what the old wording cost: 「**2026-08-31 まで、本行は「そのタスクグループ自身を畳んでは
+  // what the old wording cost: 「**2026-08-31 まで、本行は「そのタスクグループ自身を折りたたんでは
   // ならない」と定めていた**」.
-  { row: 'HF-11', gist: '配下をすべて閉じる操作子は、表 T-015 の `HR-4` を行うこと（MUST）' },
-  { row: 'HF-13', gist: '1 階層だけ開く操作子を、タスクグループごとに 1 つ置くこと（MUST）' },
+  { row: 'HF-11', gist: '配下をすべて折りたたむ操作子は、表 T-015 の `HR-4` を行うこと（MUST）' },
+  { row: 'HF-13', gist: '1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと（MUST）' },
   // ⭐ AND `HF-13`'s JOB SENTENCE, which is the one the case below leans on: the
   // one-level entrance is 表 T-015 の `HR-7` and nothing else.
   { row: 'HF-13', gist: 'その職務は 表 T-015 の `HR-7` である（MUST）' },
@@ -1456,7 +1456,7 @@ const AT = {
    * `HF-13`'s entrance, laid one box further left again.
    *
    * ⭐ ITS OWN POINT, WHICH IS THE WHOLE CLAIM. `HF-13` (MUST) 「`HF-2`（配下を
-   * すべて開く）とは別の入口とすること（MUST）。同じ入口に兼ねさせてはならない
+   * すべて展開する）とは別の入口とすること（MUST）。同じ入口に兼ねさせてはならない
    * （MUST NOT）」 -- so a press here and a press on `taskGroupExpanderOpen` have to
    * come back with two different rows of 表 T-109.
    */
@@ -2370,8 +2370,8 @@ describe('the entries of 表 T-109 on the `Task Group Panel`', () => {
   //
   // 表 T-109, docs/spec/_assets/tbl-glossary.md:503-505, holds three entries on
   // the `Task Group Panel`:
-  //   IC-58  タスクグループの配下をすべて開く            表 T-051 の HF-2
-  //   IC-59  そのタスクグループ自身を畳む               表 T-051 の HF-3
+  //   IC-58  タスクグループの配下をすべて展開する            表 T-051 の HF-2
+  //   IC-59  そのタスクグループ自身を折りたたむ               表 T-051 の HF-3
   //   IC-60  タスクグループをピン止めし、同じ入口で外す   FR-098
   //
   // ⭐ IC-58 / IC-59 ARE ANSWERED TOO, and the block below asks for both. The
@@ -2465,9 +2465,9 @@ const EXPANDER_TASK_GROUPS = T_109_TASK_GROUP_EXPANDER.map((one) => one.row).sor
  *
  * ⛔⛔ FOUND BY `data-icon` AND NO LONGER BY `data-role="Task Group Expander"`, and the
  * change is a reading of the specification rather than a convenience. 表 T-103's
- * `U-47` says 「タスクグループの折り畳みの操作子。⛔ **員数と置き方は 表 T-051 の `HF-1` が
+ * `U-47` says 「タスクグループの折りたたみの操作子。⛔ **員数と置き方は 表 T-051 の `HF-1` が
  * 持ち、本行は持たない**」, and `HF-1` enumerates exactly three -- DFC-161 「開く操作子と、
- * そのタスクグループ自身を閉じる操作子と、配下をすべて閉じる操作子を 1 つずつ」. `IC-90`
+ * そのタスクグループ自身を閉じる操作子と、配下をすべて折りたたむ操作子を 1 つずつ」. `IC-90`
  * comes from `HF-13` and `IC-91` from `HF-14`, neither of which `HF-1` counts.
  * ⚠️ WHETHER THOSE TWO ARE PART OF `U-47` IS NOT DECIDED ANYWHERE: `U-47` points
  * its count at `HF-1` (three), while A-appendix.md's entry for version 1.72 says
@@ -2556,7 +2556,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
     // twice over:
     //
     //   `HF-13` (docs/spec/01-04-requirements.md):
-    //     「**1 階層だけ開く操作子を、タスクグループごとに 1 つ置くこと（MUST）**」
+    //     「**1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと（MUST）**」
     //     「⛔ **開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描く
     //       こと（MUST）**」
     //   `HF-14`:
@@ -2601,8 +2601,8 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
 // ⭐ WHAT THE SPECIFICATION SAYS, VERBATIM (docs/spec/01-04-requirements.md,
 // 表 T-051):
 //
-//   `HF-13`: 「**1 階層だけ開く操作子を、タスクグループごとに 1 つ置くこと（MUST）**」 ——
-//     表 T-015 の `HR-7` である。⭐ 「**`HF-2`（配下をすべて開く）とは別の入口と
+//   `HF-13`: 「**1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと（MUST）**」 ——
+//     表 T-015 の `HR-7` である。⭐ 「**`HF-2`（配下をすべて展開する）とは別の入口と
 //     すること（MUST）。同じ入口に兼ねさせてはならない（MUST NOT）**」 ——
 //     「押すたびに違う量が開く入口は、何が起きるかを押す前に読めない」。
 //     ⛔ 「**開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと
@@ -2611,7 +2611,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
 //     表 T-015 の `HR-8` である。⭐ 「**入口は 表 T-109 の `IC-91` である**」
 //
 // ⛔ WHAT THIS UNIT DOES NOT OWE THEM, said plainly so nobody looks for it here.
-// 表 T-015's `HR-7` 「孫より下の畳みに触れてはならない（MUST NOT）」 and `HF-14`'s 「**足したタスクグループは末子とすること（MUST）**」 and
+// 表 T-015's `HR-7` 「孫より下の折りたたみに触れてはならない（MUST NOT）」 and `HF-14`'s 「**足したタスクグループは末子とすること（MUST）**」 and
 // 「**押された瞬間に、既定の名前でタスクグループを立てること（MUST）。そのタスクグループのプロパティパネル
 // を出し、名前の欄で名づけさせること（MUST）**」 are all
 // rules about what is WRITTEN when the entrance is pressed. This unit draws and
@@ -2649,7 +2649,7 @@ const twoTaskGroups = (patch: Partial<TaskGroupTitle> = {}): ScreenView =>
 const everyEntry = (built: Stage, icon: string): FakeElement[] =>
   selfAndDescendants(built.root()).filter((one) => one.getAttribute('data-icon') === icon)
 
-describe('表 T-051 HF-13 -- 1 階層だけ開く操作子を、タスクグループごとに 1 つ (MUST)', () => {
+describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスクグループごとに 1 つ (MUST)', () => {
   it(`GIVEN two task groups WHEN the panel is drawn THEN each carries exactly one ${IC_OPEN_ONE_LEVEL} (「タスクグループごとに 1 つ置くこと（MUST）」)`, () => {
     const built = drawn(twoTaskGroups())
 
@@ -2752,9 +2752,9 @@ describe('表 T-051 HF-13 -- 1 階層だけ開く操作子を、タスクグル�
     const hf13 = specTable('T-051').rows.find((one) => one.id === 'HF-13')
     expect(hf13, '表 T-051 no longer holds HF-13').toBeDefined()
     const cells = hf13?.cells.join(' ') ?? ''
-    expect(cells).toContain('1 階層だけ開く操作子を、タスクグループごとに 1 つ置くこと（MUST）')
+    expect(cells).toContain('1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと（MUST）')
     expect(cells).toContain('同じ入口に兼ねさせてはならない（MUST NOT）')
-    expect(cells).toContain('開ける直下の子が 1 つも無いときは')
+    expect(cells).toContain('展開できる直下の子が 1 つも無いときは')
     // ⭐ The join this file leans on: HF-13 names its own entrance, and
     // `entranceForRule` finds the same row from the other side of 表 T-109.
     expect(cells).toContain(`\`${IC_OPEN_ONE_LEVEL}\``)
@@ -2767,18 +2767,18 @@ describe('表 T-051 HF-13 -- 1 階層だけ開く操作子を、タスクグル�
     // no reason left and these cases have to be re-read.
     //
     // ⛔⛔ THE SENTENCE THIS CASE READ WAS REPLACED ON 2026-08-31 (利用者の指示
-    // 「サンプルと同じ動作にしろ」). It used to read 「孫より下は畳んだままにする
+    // 「サンプルと同じ動作にしろ」). It used to read 「孫より下は折りたたんだままにする
     // こと（MUST）」, which said what the row leaves alone. `HR-7` now says what
-    // the press WRITES -- 「**選択した `TaskGroup` の畳みだけを解くこと（MUST）**」
+    // the press WRITES -- 「**選択した `TaskGroup` の折りたたみだけを解くこと（MUST）**」
     // -- and states the same 「直下の子だけ」 twice over: once as the picture that
     // follows, and once as a MUST NOT. ⭐ Both are read, so a manuscript that
     // dropped either one cannot leave this file green.
     const hr7 = specTable('T-015').rows.find((one) => one.id === 'HR-7')
     expect(hr7, '表 T-015 no longer holds HR-7').toBeDefined()
     const cells = hr7?.cells.join(' ') ?? ''
-    expect(cells).toContain('選択した `TaskGroup` の畳みだけを解くこと（MUST）')
-    expect(cells).toContain('直下の子が描かれ、孫より下は畳まれたままになる')
-    expect(cells).toContain('孫より下の畳みに触れてはならない（MUST NOT）')
+    expect(cells).toContain('選択した `TaskGroup` の折りたたみだけを解くこと（MUST）')
+    expect(cells).toContain('直下の子が描かれ、孫より下は折りたたまれたままになる')
+    expect(cells).toContain('孫より下の折りたたみに触れてはならない（MUST NOT）')
   })
 })
 
@@ -2903,8 +2903,8 @@ describe('表 T-109 IC-58 / IC-59 -- the entry a press on either side answers', 
     const opening = ask(built, AT.taskGroupExpanderOpen.x, AT.taskGroupExpanderOpen.y)
     const closing = ask(built, AT.taskGroupExpanderClose.x, AT.taskGroupExpanderClose.y)
 
-    // ⛔ If one control answered for both, HF-2 (そのタスクグループの配下をすべて開く) and
-    // HF-3 (そのタスクグループ自身を畳む) would have to be told apart by something other than
+    // ⛔ If one control answered for both, HF-2 (そのタスクグループの配下をすべて展開する) and
+    // HF-3 (そのタスクグループ自身を折りたたむ) would have to be told apart by something other than
     // the press -- and 表 T-109 gives them two rows precisely so they need not be.
     expect(opening?.entry).not.toBe(closing?.entry)
     expect([opening?.entry, closing?.entry]).toEqual(['IC-58', 'IC-59'])
@@ -3458,7 +3458,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control takes the pointer', () 
 //
 // FR-098 (docs/spec/01-04-requirements.md:2610) binds the `Task Group Pin` to that row
 // rather than restating it, which is why all three answer to it:
-//   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折り畳みの
+//   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折りたたみの
 //     操作子と同じとする（表 T-051 の `HF-4` 〜 `HF-6` と `HF-9`）」
 // ===========================================================================
 
@@ -3473,7 +3473,7 @@ const FR_098_SAME_AS_THE_EXPANDER = '置き方・大きさ・濃さと'
 //   「タスクグループ名の長さにかかわらず、操作子をタスクグループパネルの右端に揃えること
 //     （MUST）」—— 名前ごとに位置が変わると狙えない
 // FR-098 (:2594) binds the `Task Group Pin` to that rule rather than restating it:
-//   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折り畳みの
+//   「置き方・大きさ・濃さと、並べた結果が収まらないときの扱いは、折りたたみの
 //     操作子と同じとする（表 T-051 の `HF-4` 〜 `HF-6` と `HF-9`）」
 // FR-085 (:1272) is what makes DEPTH the second variable. The room a name gets
 // is the panel width less 「そのタスクグループの深さぶんのインデント」 (`taskGroupTitleIndent`)
@@ -4736,7 +4736,7 @@ describe('GR-20 of 表 T-023d -- タスクグループの左端に敷く掴み�
 //           (see HF-4), with ⛔ 「**足すと消すのあいだに他の
 //           操作子を挟んではならない（MUST NOT）**」 and 「**ピン止めの操作子
 //           （表 T-109 の `IC-60`）を、並びのいちばん外（右端）に置くこと（MUST）**」
-//   `HF-10` ⭐⭐ 「頭の並びは、左から すべて畳む・1 階層開く・すべて開く・足す・
+//   `HF-10` ⭐⭐ 「頭の並びは、左から すべて折りたたむ・1 階層展開する・すべて展開する・足す・
 //           すべて消すの順に、1 行に並べること（MUST）」 (CR-587, 2026-09-26)
 //
 // ⛔ WHAT IS READ, AND WHY IT IS NOT THE CHILD ORDER. Nothing in docs/spec fixes
@@ -4819,7 +4819,7 @@ const HF20_HEAD_DELETE = T_109.rows.find(
   (one) => namesHeadRule(one) && /(^|[^0-9A-Za-z-])HF-20([^0-9-]|$)/.test(one.by['何の入口か'] ?? ''),
 )?.id
 
-/** `HF-10`'s head run, left to right: すべて畳む・1 階層開く・すべて開く・足す・すべて消す. */
+/** `HF-10`'s head run, left to right: すべて折りたたむ・1 階層展開する・すべて展開する・足す・すべて消す. */
 const HF10_LEFT_TO_RIGHT = [
   entranceForRule('HF-12'),
   entranceForRule('HF-16'),
@@ -4925,7 +4925,7 @@ function latticeOf(nodes: readonly FakeElement[]): string[][] {
 }
 
 /**
- * What `HF-4` calls 「折り畳みの 4 つ（`HF-1` の格子）」 -- the four read as ONE
+ * What `HF-4` calls 「折りたたみの 4 つ（`HF-1` の格子）」 -- the four read as ONE
  * member of the task group's run, because that is how `HF-4` counts them.
  */
 const HF1_LATTICE = 'HF-1 の格子'
@@ -4988,7 +4988,7 @@ function runOf(row: FakeElement): string[] {
 
 /**
  * `HF-4`'s run as a reader meets it, left to right, since the ruling of
- * 2026-09-05: 「**折り畳みの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの
+ * 2026-09-05: 「**折りたたみの 4 つ（`HF-1` の格子）、消すと足すの縦の対、ピン止めの
  * 順に、左から右へ置くこと（MUST）**」.
  *
  * ⭐ THREE MEMBERS, NOT SEVEN -- that sentence counts the lattice as one thing,
@@ -5028,7 +5028,7 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
     expect(new Set(HF1_LEFT_TO_RIGHT).size).toBe(4)
   })
 
-  it('⭐ GIVEN a task group is drawn WHEN its four folding controls are read as a lattice THEN the left column then the right gives HF-1’s order (MUST: 左から 隠す・1 階層開く・配下をすべて畳む・配下をすべて開く)', () => {
+  it('⭐ GIVEN a task group is drawn WHEN its four folding controls are read as a lattice THEN the left column then the right gives HF-1’s order (MUST: 左から 隠す・1 階層展開する・配下をすべて折りたたむ・配下をすべて展開する)', () => {
     // ⭐⭐ 表 T-051 `HF-1` (MUST), the whole of what is asserted here:
     //   「並びは 2 × 2 の格子とすること（MUST）」 -- the left column top to bottom,
     //    then the right column (see HF-1).
@@ -5037,10 +5037,10 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
     //
     // ⭐ WHY 「左から」 IS READ DOWN EACH COLUMN AND NOT ALONG EACH RANK. The
     // sentence after it settles which: 「**上下に読めば動作、左右に読めば範囲**」.
-    // 隠す and 1 階層開く act on ONE step, 配下をすべて畳む and 配下をすべて開く on
+    // 隠す and 1 階層展開する act on ONE step, 配下をすべて折りたたむ and 配下をすべて展開する on
     // ALL of it, so those two pairs are the 範囲 and must be told apart LEFT to
-    // RIGHT -- one pair per column. 隠す / 配下をすべて畳む fold and 1 階層開く /
-    // 配下をすべて開く open, so those pairs are the 動作 and are told apart TOP to
+    // RIGHT -- one pair per column. 隠す / 配下をすべて折りたたむ fold and 1 階層展開する /
+    // 配下をすべて展開する open, so those pairs are the 動作 and are told apart TOP to
     // BOTTOM -- one per rank. Read that way 「左から」 names the left column's two
     // first, and the MUST NOT holds: the 1 本 pair (表 T-026 の `RC-13`: 向きが
     // 動作、本数が範囲) is one column and the 2 本 pair the other, never mixed.
@@ -5060,9 +5060,9 @@ describe('表 T-051 HF-1 (MUST) -- the four folding controls, left to right in a
   })
 
   it('⛔ MUST NOT GIVEN a task group is drawn WHEN the lattice is read THEN the single bars share one column and the double bars the other (HF-1: 1 本と 2 本を混ぜて並べてはならない)', () => {
-    // 「上下に読めば動作、左右に読めば範囲」 -- 隠す and 1 階層開く are the single
-    // bars (表 T-026 の `RC-13`: 向きが動作、本数が範囲) and 配下をすべて畳む /
-    // 配下をすべて開く the double ones. ⛔ The lattice is broken exactly when a
+    // 「上下に読めば動作、左右に読めば範囲」 -- 隠す and 1 階層展開する are the single
+    // bars (表 T-026 の `RC-13`: 向きが動作、本数が範囲) and 配下をすべて折りたたむ /
+    // 配下をすべて展開する the double ones. ⛔ The lattice is broken exactly when a
     // column holds one of each, which is what 「1 本と 2 本を混ぜて並べては
     // ならない」 forbids -- and it is broken outright by a single line, where
     // there is no second rank for 動作 to be read down at all.
@@ -5176,8 +5176,8 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a task group, left to right'
     expect([...HF4_LEFT_TO_RIGHT].sort()).toEqual([...T_109_ON_THE_TASK_GROUP.map((one) => one.row)].sort())
   })
 
-  it('⭐ GIVEN a task group is drawn WHEN its run is read from the left THEN the lattice, the 縦の対 and ピン止め stand in HF-4’s order (MUST: 折り畳みの 4 つ（HF-1 の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ)', () => {
-    // ⭐⭐ 表 T-051 `HF-4` (MUST): 「**折り畳みの 4 つ（`HF-1` の格子）、消すと足す
+  it('⭐ GIVEN a task group is drawn WHEN its run is read from the left THEN the lattice, the 縦の対 and ピン止め stand in HF-4’s order (MUST: 折りたたみの 4 つ（HF-1 の格子）、消すと足すの縦の対、ピン止めの順に、左から右へ)', () => {
+    // ⭐⭐ 表 T-051 `HF-4` (MUST): 「**折りたたみの 4 つ（`HF-1` の格子）、消すと足す
     // の縦の対、ピン止めの順に、左から右へ置くこと（MUST）**」. ⭐ THE SENTENCE
     // COUNTS THE FOUR AS ONE MEMBER -- 「（`HF-1` の格子）」 -- and 消す と 足す as
     // one more, so the run this reads has THREE members and not seven; where each
@@ -5288,14 +5288,14 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a task group, left to right'
 })
 
 describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right', () => {
-  it('GIVEN the specification is re-read WHEN HF-10 is looked up THEN it still states the head run and still refuses the outermost place to すべて開く (Chapter 1.9)', () => {
+  it('GIVEN the specification is re-read WHEN HF-10 is looked up THEN it still states the head run and still refuses the outermost place to すべて展開する (Chapter 1.9)', () => {
     const hf10 = (specTable('T-051').rows.find((one) => one.id === 'HF-10')?.cells ?? []).join(' ')
 
     expect(hf10).toContain(T_051_HF10_THE_HEAD_RUN)
-    // ⛔ THE OUTERMOST OF THE HEAD IS NOT 「すべて開く」, which that row says
-    // itself: 「**本行の「すべて開く」を並びのいちばん外へ置いてはならない
-    // （MUST NOT）** —— **頭もタスクグループも、折り畳みの外に立つのはタスクグループを足す入口と消す入口である。**」.
-    expect(hf10).toContain('本行の「すべて開く」を並びのいちばん外へ置いてはならない（MUST NOT）')
+    // ⛔ THE OUTERMOST OF THE HEAD IS NOT 「すべて展開する」, which that row says
+    // itself: 「**本行の「すべて展開する」を並びのいちばん外へ置いてはならない
+    // （MUST NOT）** —— **頭もタスクグループも、折りたたみの外に立つのはタスクグループを足す入口と消す入口である。**」.
+    expect(hf10).toContain('本行の「すべて展開する」を並びのいちばん外へ置いてはならない（MUST NOT）')
 
     expect(hf10, 'HF-10 names the reason the head is not two tiers').toContain(T_051_HF10_NOT_TWO_TIERS)
     const hf20 = (specTable('T-051').rows.find((one) => one.id === 'HF-20')?.cells ?? []).join(' ')
@@ -5314,7 +5314,7 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
     }
   })
 
-  it('⭐ GIVEN the panel is drawn WHEN the head’s controls are read from the left THEN they stand in HF-10’s order (MUST: すべて畳む・1 階層開く・すべて開く・足す・すべて消す)', () => {
+  it('⭐ GIVEN the panel is drawn WHEN the head’s controls are read from the left THEN they stand in HF-10’s order (MUST: すべて折りたたむ・1 階層展開する・すべて展開する・足す・すべて消す)', () => {
     const built = drawn(oneLiveTaskGroup())
 
     expect(leftToRight(nodesFor(built, HF10_LEFT_TO_RIGHT)), T_051_HF10_THE_HEAD_RUN).toEqual(HF10_LEFT_TO_RIGHT)
@@ -5392,7 +5392,7 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
 //   ⭐ 「**掴み代は常に描くこと（MUST）** —— ⛔ **`HF-6`（操作子はポインタが乗って
 //      いるあいだだけ）の対象ではない** —— **掴めることが読めなければ、掴もうと
 //      する手が動かない。**」
-// ⭐ AND ONE OF `HF-18`: 「**配下に畳み込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示す
+// ⭐ AND ONE OF `HF-18`: 「**配下に折りたたみ込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示す
 //   こと（MUST）**」, with ⛔ 「**`HF-6` の対象ではない** —— **ポインタが乗って
 //   いるあいだだけでは、抱えているタスクグループを探して回ることになる**」.
 //
@@ -5566,7 +5566,7 @@ describe('表 T-051 HF-15 (MUST) -- the task group that is held says which axis 
  */
 /**
  * The counts a task group shows, each without the mark HF-18 (MUST) puts in front of
- * it: 「数の前に、畳み込みを表す印を 1 つ置くこと（MUST）」, a down triangle (U+25BE).
+ * it: 「数の前に、折りたたみ込みを表す印を 1 つ置くこと（MUST）」, a down triangle (U+25BE).
  *
  * ⛔ THE MARK IS REQUIRED AND NOT MERELY TOLERATED. A node whose text is the
  * bare number does not match, so an implementation that drops the mark is red
@@ -5589,7 +5589,7 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded 
     // the implementation invented both -- the count was drawn over the second
     // character of the task group's name.
     expect(hf18).toContain('置く先はタスクグループの右端とすること（MUST）')
-    expect(hf18).toContain('数の前に、畳み込みを表す印を 1 つ置くこと（MUST）')
+    expect(hf18).toContain('数の前に、折りたたみ込みを表す印を 1 つ置くこと（MUST）')
     expect(hf18).toContain('色は 表 T-236 の `S-153` とする')
     expect(hf18).toContain('`HF-6` の対象ではない')
     expect(themeColoursOf('S-153').filter((one) => one !== ''), '表 T-236 S-153').toHaveLength(2)
@@ -5618,7 +5618,7 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded 
     ).toEqual(['3'])
   })
 
-  it('⛔ GIVEN a task group that holds NOTHING folded WHEN it is read THEN no count is drawn (HF-18 shows one 「配下に畳み込んでいるタスクグループがあるとき」)', () => {
+  it('⛔ GIVEN a task group that holds NOTHING folded WHEN it is read THEN no count is drawn (HF-18 shows one 「配下に折りたたみ込んでいるタスクグループがあるとき」)', () => {
     const built = drawn(oneLiveTaskGroup())
 
     expect(
@@ -5648,7 +5648,7 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded 
       '7',
     ])
     // ⭐ THE MARK AND THE NUMBER ARE ONE NODE (HF-18, MUST): the count is drawn
-    // 「数の前に、畳み込みを表す印を 1 つ置く」, so the text to look for carries both.
+    // 「数の前に、折りたたみ込みを表す印を 1 つ置く」, so the text to look for carries both.
     const mark = descendants(row).find(
       (one) => one.children.length === 0 && one.textContent.trim() === '▾ 7',
     )

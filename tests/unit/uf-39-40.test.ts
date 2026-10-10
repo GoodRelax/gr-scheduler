@@ -408,7 +408,7 @@ const frameOf = (regions: ScreenRegions = REGIONS): ScreenFrame => ({
 const DIVIDERS = dividersOf(REGIONS)
 
 // ⛔ THERE IS NO PROPERTIES HEADING TO KEEP OUT ANY MORE. FR-072 (MUST NOT):
-// 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**（利用者の指示
+// 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**（利用者の指示
 // 2026-08-27）」 (CR-272). EP-8's claim is unweakened -- the panel still reaches
 // this component carrying a field, and that field's value is what must not
 // arrive in the picture.

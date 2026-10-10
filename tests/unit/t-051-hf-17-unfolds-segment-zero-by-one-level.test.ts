@@ -11,15 +11,15 @@
 // ⭐⭐ THE CLAUSE, VERBATIM (docs/spec/01-04-requirements.md, 表 T-051 の `HF-17`)
 // ---------------------------------------------------------------------------
 //
-//   「⚠️ 本行でタスクグループを足すとき、段 0 が畳まれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ開くこと
+//   「⚠️ 本行でタスクグループを足すとき、段 0 が折りたたまれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ展開すること
 //    （MUST）。すべて開いてはならない（MUST NOT）」（利用者の裁定 2026-09-06
 //    「(a) ただし、1 階層だけ開くこと」） —— 「開かなければ、本行の MUST NOT
-//    （打ち込み口だけを送ってはならない）が破れる。」「すべて開けば `HF-10` と
-//    同じになり、人が畳んだ意思を捨てることになる。」
+//    （打ち込み口だけを送ってはならない）が破れる。」「すべて展開すれば `HF-10` と
+//    同じになり、人が折りたたんだ意思を捨てることになる。」
 //
-// and 表 T-015 の `HR-2` (全畳み), which is how a fixture folds 段 0 at all:
+// and 表 T-015 の `HR-2` (全折りたたみ), which is how a fixture folds 段 0 at all:
 //
-//   「最も浅い段のタスクグループも畳むこと（MUST）」…「段 0 が畳まれているかは
+//   「最も浅い段のタスクグループも折りたたむこと（MUST）」…「段 0 が折りたたまれているかは
 //    `_assets/tbl-settings.md` の 表 T-203 の `S-418` が持つ」
 //
 // ---------------------------------------------------------------------------
@@ -86,17 +86,17 @@ const REQUIREMENTS = unbroken(readFileSync(
 
 /** ⭐⭐ THE CLAUSE CR-368 ADDED TO HF-17 ON 2026-09-06, verbatim. */
 const HF_17_OPENS_ONE_LEVEL =
-  '本行でタスクグループを足すとき、段 0 が畳まれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ開くこと（MUST）。すべて開いてはならない（MUST NOT）'
+  '本行でタスクグループを足すとき、段 0 が折りたたまれていれば（`_assets/tbl-settings.md` の `S-418`）1 階層だけ展開すること（MUST）。すべて展開してはならない（MUST NOT）'
 
 /** 表 T-015 の `HR-2` -- the rule that lets a fixture fold 段 0 in the first place. */
-const HR_2_FOLDS_LEVEL_ZERO_TOO = '最も浅い段のタスクグループも畳むこと（MUST）'
+const HR_2_FOLDS_LEVEL_ZERO_TOO = '最も浅い段のタスクグループも折りたたむこと（MUST）'
 
 describe('the manuscript this file is driven by', () => {
   it('still asks HF-17 to open exactly one level, never every fold', () => {
     expect(REQUIREMENTS).toContain(HF_17_OPENS_ONE_LEVEL)
   })
 
-  it('still lets HR-2 (全畳み) fold 段 0 itself, which is the premise these cases fold with', () => {
+  it('still lets HR-2 (全折りたたみ) fold 段 0 itself, which is the premise these cases fold with', () => {
     expect(REQUIREMENTS).toContain(HR_2_FOLDS_LEVEL_ZERO_TOO)
   })
 })
@@ -365,7 +365,7 @@ describe('premise -- HEAD_FOLD_EVERY_TASK_GROUP (HR-2) folds 段 0 itself', () =
 
     expect(
       drawnTaskGroups(built),
-      'HR-2 (MUST): 最も浅い段のタスクグループも畳むこと -- the roots should have gone with everything else',
+      'HR-2 (MUST): 最も浅い段のタスクグループも折りたたむこと -- the roots should have gone with everything else',
     ).toEqual([])
     expect(canOpenLevelZero(built), 'HF-16 should now be armed to open the fold this made').toBe(
       true,
@@ -389,7 +389,7 @@ describe('HF-17 (MUST) -- adding a task group at 段 0 opens the fold by exactly
     const after = drawnTaskGroups(built)
     expect(
       after,
-      'HF-17 (MUST): 段 0 が畳まれていれば 1 階層だけ開くこと -- pressing the ' +
+      'HF-17 (MUST): 段 0 が折りたたまれていれば 1 階層だけ展開すること -- pressing the ' +
         'entrance at 段 0 while it stood folded left nothing visible, including the task group it just made',
     ).not.toEqual([])
     expect(after, 'Alpha and Zeta are both 段 0’s own children -- both come back').toEqual(
@@ -399,8 +399,8 @@ describe('HF-17 (MUST) -- adding a task group at 段 0 opens the fold by exactly
   })
 
   it('⛔⛔ MUST NOT: Beta and Gamma stay folded away -- only 段 0 opened, not everything (not HF-10’s shape)', () => {
-    // ⛔ THE WHOLE OF THE MUST NOT: 「すべて開いてはならない」 -- 「すべて開けば
-    // `HF-10` と同じになり、人が畳んだ意思を捨てることになる」. Alpha's own fold
+    // ⛔ THE WHOLE OF THE MUST NOT: 「すべて展開してはならない」 -- 「すべて展開すれば
+    // `HF-10` と同じになり、人が折りたたんだ意思を捨てることになる」. Alpha's own fold
     // (its treeState, collapsed by HF-12) is untouched by HF-17 -- only 段 0's S-418
     // is -- so Beta (Alpha's child) must stay hidden.
     const built = stage()
@@ -411,7 +411,7 @@ describe('HF-17 (MUST) -- adding a task group at 段 0 opens the fold by exactly
     const after = drawnTaskGroups(built)
     expect(
       after,
-      'HF-17 (MUST NOT): すべて開いてはならない -- Beta reappeared, which is HF-10’s ' +
+      'HF-17 (MUST NOT): すべて展開してはならない -- Beta reappeared, which is HF-10’s ' +
         'shape and not the one level this row allows',
     ).not.toContain('Beta')
     expect(after).not.toContain('Gamma')

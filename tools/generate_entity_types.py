@@ -1775,7 +1775,7 @@ NOT_STORED_TARGETS = {
     # refused -- 「拒まれた向きへの追従は途中で止めること（MUST）—— 止める割合は
     # ... `S-212`」.
     # ⛔ S-211 IS NOT WITH THEM AND CANNOT BE. That row states a STATE (段 0 が
-    # 畳まれているか) whose value cell is 「畳まれていない」, not a machine value,
+    # 折りたたまれているか) whose value cell is 「折りたたまれていない」, not a machine value,
     # so it has no literal to emit; its own note puts it beside S-99g, and the
     # shell holds it the way it holds that one.
     'NOT_STORED_TASK_GROUP_GRAB_SIZES': (['S-208', 'S-212'], SETTLED_WHERE_IT_STANDS),

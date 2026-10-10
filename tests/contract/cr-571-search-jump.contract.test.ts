@@ -23,7 +23,7 @@ const cellOf = (table: string, id: string, heading: string): string => unbroken(
 
 const SJ_2_OPENS =
   '飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする —— 今の値が `hidden` でも、確かめを問わない。'
-const SJ_2_LEVEL_ZERO = '段 0 が畳まれていれば開く。'
+const SJ_2_LEVEL_ZERO = '段 0 が折りたたまれていれば展開する。'
 const SJ_2_NOTHING_CHANGED = '1 つも変わらなければ段を積まない'
 const SJ_5_TOP = '`_assets/tbl-settings.md` の `S-78` をそのタスクグループにし、タスクグループの中のずれを 0 にする'
 const SJ_6_NO_ZOOM = '倍率を変えない。'

@@ -39,7 +39,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-099 (MUST) -- the roster follows T-257', '一覧（`_assets/tbl-glossary.md` の `U-49`）の字の大きさ・スクロール・罫線は 表 T-257 に従うこと（MUST）'],
   ['T-257 RR-1 (MUST) -- the text is S-240 of the host text', '宿主が与える地の文字の大きさに `_assets/tbl-settings.md` の 表 T-206 の `S-240` を掛けた大きさで描くこと（MUST）'],
   ['T-257 RR-2 (MUST) -- only the assignee rows scroll', 'スクロールするのは担当の行の並びだけとすること（MUST）'],
-  ['T-257 RR-2 (MUST NOT) -- the heading row does not scroll', '⛔ 面の見出しの行（題と、担当の行に載らない入口）をスクロールさせてはならない（MUST NOT）'],
+  ['T-257 RR-2 (MUST NOT) -- the heading row does not scroll', '⛔ 面のタイトルバー（題と、担当の行に載らない入口）をスクロールさせてはならない（MUST NOT）'],
   ['T-257 RR-3 (MUST) -- MK-5 over the roster scrolls it sideways', 'ポインタが一覧の上にあるとき、表 T-023 の `MK-5` の組で一覧を横に送ること（MUST）'],
   ['T-257 RR-3 (MUST NOT) -- the chart does not move', '⛔ 後ろの日程表を動かしてはならない（MUST NOT）'],
   ['T-257 RR-3 (MUST) -- that combination is stopped in the browser', '⭐ その組のブラウザの既定動作を止めること（MUST）'],

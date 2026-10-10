@@ -1175,7 +1175,7 @@ const PALETTE: CommandPalette = {
 
 /**
  * ⛔ NO HEADING IS OFFERED. FR-072 (MUST NOT) refuses the panel one -- 「⛔ **パネ
- * ルの先頭に見出しの行を置いてはならない（MUST NOT）**（利用者の指示 2026-08-27）」
+ * ルの先頭にタイトルバーを置いてはならない（MUST NOT）**（利用者の指示 2026-08-27）」
  * (CR-272) -- so the only word this description carries is its field's item name,
  * which FR-006 (MUST) does put on the screen: 「項目名は値の欄の左に置き、右詰めに
  * すること（MUST）」. The cases below that used to look for the heading look for
@@ -3275,8 +3275,8 @@ const FR_029_NOT_BY_SURFACE = '載る面によって変えてはならない（M
  * ⭐ 表 T-109 (docs/spec/_assets/tbl-glossary.md:465, 497, 503-506):
  *   | IC-20 | `App Header`       | ... | `Agent API` を有効にする・無効にする |
  *   | IC-52 | `Help Modal` / ... | ... | 開いている面を閉じる |
- *   | IC-58 | `Task Group Panel`  | ... | タスクグループの配下をすべて開く |
- *   | IC-59 | `Task Group Panel`  | ... | そのタスクグループ自身を畳む |
+ *   | IC-58 | `Task Group Panel`  | ... | タスクグループの配下をすべて展開する |
+ *   | IC-59 | `Task Group Panel`  | ... | そのタスクグループ自身を折りたたむ |
  *   | IC-60 | `Task Group Panel`  | ... | タスクグループをピン止めし、同じ入口で外す |
  *   | IC-61 | `Command Palette`  | ... | 依存線を構える |
  * ⛔ Four different 面 on purpose: the header, the floating palette, a surface

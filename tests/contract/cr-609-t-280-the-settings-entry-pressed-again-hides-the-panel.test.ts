@@ -20,7 +20,7 @@ const FR_072_CLOSES_WHILE_SHOWN =
   '⭐ パネルが文書の設定を出しているあいだに、設定を出す入口をもう一度押したときは、プロパティパネルを閉じること（MUST）'
 const FR_072_EITHER_WAY = '直前の選択物が在っても無くても同じとし、選択物へは戻さない'
 const FR_072_OPENING_KEEPS_THE_SELECTION = '設定を開いても選択を解除しないこと。'
-const FR_072_CLOSING_KEEPS_THE_SELECTION = '⛔ **パネルを出すのをやめても、選択を解いてはならない（MUST NOT）**'
+const FR_072_CLOSING_KEEPS_THE_SELECTION = '⛔ **パネルを出すのをやめても、選択を解除してはならない（MUST NOT）**'
 const FR_072_SETTINGS_AFTER_A_CLOSE =
   '⭐ 文書の設定を出したままパネルを閉じたあとに、設定を出す入口を押したときは、設定を出すこと（MUST）'
 const FR_072_A_CLOSE_IS_NOT_AGAIN = '閉じたあとの押しは、上の「もう一度」に数えない。'

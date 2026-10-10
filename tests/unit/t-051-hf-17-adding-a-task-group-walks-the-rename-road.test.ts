@@ -65,7 +65,7 @@
 // ---------------------------------------------------------------------------
 //   1. WHETHER THE DETAIL TIER OR A FOLDED ANCESTOR IS OPENED so the new task group is
 //      visible. Those are `HF-14`'s OWN separate MUSTs (「そのタスクグループが描かれるまで
-//      詳しさの段を開くこと」 and 「立てたタスクグループが…畳んだ親の下に入るときは、その親を
+//      詳しさの段を開くこと」 and 「立てたタスクグループが…折りたたんだ親の下に入るときは、その親を
 //      開くこと」), argued and measured independently (`DFC-237`); they are not
 //      part of what makes the OPERATION feel like a rename, which is this
 //      file's one question.

@@ -50,7 +50,7 @@ const HF_3_BY_T_328 = '隠すときにタスクグループが取る値は `_ass
 const HF_8_BY_T_328 =
   '人が全体表示（`FR-055`）を求めたとき、タスクグループと段 0 の値を `_assets/tbl-state-machines.md` の 表 T-328 の `fitPressed` の行と根の升に従って戻すこと（MUST）'
 const HF_10_BY_T_328 = '押したときにタスクグループと段 0 が取る値は 表 T-328 の `everyTaskGroupOpenPressed` の行と根の升に従うこと（MUST）'
-const HF_11_BY_T_328 = '畳むときにタスクグループが取る値は 表 T-328 の `allBelowFoldPressed` の行に従うこと（MUST）'
+const HF_11_BY_T_328 = '折りたたむときにタスクグループが取る値は 表 T-328 の `allBelowFoldPressed` の行に従うこと（MUST）'
 const HF_13_BY_T_328 = '押したタスクグループと隠した直下の子が取る値は 表 T-328 の `oneLevelOpenPressed` の行に従うこと（MUST）'
 const FR_031_SHRINK_WRITES_TWICE = '縦軸を縮める 1 回の入力も、同じ形で 2 つの書き込みに分けること（MUST）'
 

@@ -43,12 +43,12 @@ const rowText = (table: string, id: string): string => unbroken(rowOf(table, id)
 const englishName = (id: string): string => bare(rowOf('T-103', id).by['確定名（英）'] ?? '')
 
 const HF_10_ORDER =
-  '頭の並びは、左から すべて畳む・1 階層開く・すべて開く・足す・すべて消すの順に、1 行に並べること（MUST）'
+  '頭の並びは、左から すべて折りたたむ・1 階層展開する・すべて展開する・足す・すべて消すの順に、1 行に並べること（MUST）'
 const HF_10_NOT_TWO_TIERS =
   '2 段に積まないのは、パネルの頭の高さが 2 段に足りない倍率で、下の段の操作子が隠れて押せなくなるからである。'
 const HF_20_LAST = '並びの最後、`HF-17`（最も浅い段へ足す）の右隣である。'
-const HF_12_COUNT = 'そのときは、頭にいまいくつのタスクグループを畳み込んでいるかを示すこと（MUST）'
-const HF_18_COUNT = '配下に畳み込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示すこと（MUST）'
+const HF_12_COUNT = 'そのときは、頭にいまいくつのタスクグループを折りたたみ込んでいるかを示すこと（MUST）'
+const HF_18_COUNT = '配下に折りたたみ込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示すこと（MUST）'
 const HF_2_FAINT = '押しても何も変わらないときだけ、`FR-029` に従って薄く描くこと（MUST）'
 const HF_2_ARMED = '押したタスクグループの配下に `FR-018` の 表 T-329 で描かれていないタスクグループが 1 つでもあるときである'
 const HF_6_KEEP_PLACE = '描かないあいだも、確保する場所を変えてはならない（MUST NOT）'
@@ -167,7 +167,7 @@ describe('CR-439 Task Group Panel -- the clauses still stand', () => {
 })
 
 describe('the head of the panel (HF-10, HF-12)', () => {
-  it('HF-10 左から すべて畳む・1 階層開く・すべて開く・足す・すべて消すの順 -- the five head entrances stand in that order', () => {
+  it('HF-10 左から すべて折りたたむ・1 階層展開する・すべて展開する・足す・すべて消すの順 -- the five head entrances stand in that order', () => {
     const built = drawn({ pinnedTitles: [], titles: [PLAIN] })
     const wanted = HEAD_RULES.map(iconFor)
     const head = headEntrances(built, wanted)
@@ -194,7 +194,7 @@ describe('the head of the panel (HF-10, HF-12)', () => {
     expect(new Set(tops).size, `${HF_10_ORDER} / ${HF_10_NOT_TWO_TIERS} -- ${tops.join(', ')}`).toBe(1)
   })
 
-  it('HF-12 頭にいまいくつのタスクグループを畳み込んでいるかを示すこと -- the head shows the folded count even with no task group drawn', () => {
+  it('HF-12 頭にいまいくつのタスクグループを折りたたみ込んでいるかを示すこと -- the head shows the folded count even with no task group drawn', () => {
     const built = drawn({ pinnedTitles: [], titles: [], foldedTaskGroupCount: 7 })
     const panel = oneByRole(built.root(), TASK_GROUP_PANEL)
     expect(panel.textContent).toMatch(/(^|\D)7(\D|$)/)

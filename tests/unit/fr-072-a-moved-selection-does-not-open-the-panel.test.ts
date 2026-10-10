@@ -208,7 +208,7 @@ const FR_072_ONLY_A_NAMED_PRESS =
 const FR_072_MUST_NOT_ENUMERATE = 'その入口を本要求が数え上げてはならない（MUST NOT）'
 const FR_072_MOVES_WITH_THE_SELECTION = '出しているあいだは、選択が動けば中身がそれに移る'
 const FR_072_KEEPS_THE_SELECTION =
-  'パネルを出すのをやめても、選択を解いてはならない（MUST NOT）'
+  'パネルを出すのをやめても、選択を解除してはならない（MUST NOT）'
 const T_036_NOT_WHILE_A_SURFACE_STANDS = '`SK-19` の 2 段目を当ててはならない（MUST NOT）'
 
 
@@ -929,7 +929,7 @@ describe('table T-036’s closing rule -- the second stage is off while a 面 st
 
 describe('FR-072 (MUST NOT) -- a closed panel leaves the selection where it was', () => {
   it('⛔ MUST NOT: after `Esc` has taken the panel, SK-3 still has the Task to delete', () => {
-    // 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」（利用者の裁定
+    // 「パネルを出すのをやめても、選択を解除してはならない（MUST NOT）」（利用者の裁定
     //   2026-08-30）. ⭐ WHY DELETING IS THE QUESTION: `FrameLoop` publishes no
     // selection, and SK-3 acts on one -- so the Task going is the selection
     // saying it stood, and the Task staying is it saying it did not.
@@ -942,7 +942,7 @@ describe('FR-072 (MUST NOT) -- a closed panel leaves the selection where it was'
 
     expect(
       built.taskUids(),
-      'FR-072 (MUST NOT): パネルを出すのをやめても、選択を解いてはならない',
+      'FR-072 (MUST NOT): パネルを出すのをやめても、選択を解除してはならない',
     ).toEqual([THE_OTHER_TASK])
   })
 

@@ -161,7 +161,7 @@ const IN_4_THE_LADDER =
  * ledger row it closes, and the row gives the reason in the same breath.
  */
 const IN_4_SELECTION_NOT_ABOVE_THE_ARM =
-  '**構えより前に置いてはならない（MUST NOT）** —— **構えたまま何かを選んでいるとき、構えを解く手立てが `Esc` から消える。**'
+  '**構えより前に置いてはならない（MUST NOT）** —— **構えたまま何かを選んでいるとき、構えを解除する手立てが `Esc` から消える。**'
 
 /** IN-4's refusal of a 「panel not showing」 condition on that rung. */
 const IN_4_NO_PANEL_CONDITION =
@@ -500,7 +500,7 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
   it('leaves the arm reachable while something is selected (MUST NOT: 構えより前に置いてはならない)', () => {
     // ⛔⛔ THE WHOLE OF THE ROW'S MUST NOT. With the rung placed ABOVE 構え, a
     // press made with a shape armed AND a Task selected would answer
-    // 'selection', and 「構えを解く手立てが `Esc` から消える」.
+    // 'selection', and 「構えを解除する手立てが `Esc` から消える」.
     expect(escapeTarget(contextOf({ isSelectionStanding: true, isArmed: true }))).toBe('armed')
     // ⭐ AND THE OTHER WAY ROUND, which is what makes the case above mean
     // something: with nothing armed, the same selection IS what the press finds.
@@ -518,7 +518,7 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
     // ⭐ THE ROW REFUSES A 「パネルが出ていないとき」 CONDITION: the panel's rung,
     // 「プロパティパネル → 構え → 選択」, stands above 選択, so while the panel is
     // up `Esc` is spent there first. ⇒ FR-072's
-    // 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」 is kept by
+    // 「パネルを出すのをやめても、選択を解除してはならない（MUST NOT）」 is kept by
     // the ORDER, not by a second question.
     const withPanel = contextOf({ isSelectionStanding: true, isPropertiesPanelOpen: true })
     expect(escapeTarget(withPanel)).toBe('propertiesPanel')
@@ -547,7 +547,7 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
   })
 
   it('⛔ FR-072 (MUST NOT): the press that puts the panel away leaves the selection alone', () => {
-    // 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」, kept by
+    // 「パネルを出すのをやめても、選択を解除してはならない（MUST NOT）」, kept by
     // the ORDER: with the panel up the press names `'propertiesPanel'`, so this
     // member answers with the selection it was handed.
     const held = selectionWithOneTask()

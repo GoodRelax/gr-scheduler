@@ -1242,7 +1242,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
   })
 
   it('⛔ MUST NOT: and on a task group’s controls -- the surface CR-306 was raised from', () => {
-    // ⚠️ WHAT THE USER ACTUALLY SAW: 「起動直後の画面である —— 何も畳まっていない
+    // ⚠️ WHAT THE USER ACTUALLY SAW: 「起動直後の画面である —— 何も折りたたまれていない
     //   ので、画面上の「開く」は 1 つ残らず死んでいる」. `canOpen` false is that
     //   task group, and HF-2's control is the entrance with nothing to open.
     const built = drawn(oneTaskGroup(NOTHING_TO_OPEN))
@@ -1255,8 +1255,8 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
   })
 
   it('⛔ MUST: and on the panel’s own two entrances -- IC-74 and IC-78', () => {
-    // 表 T-109: IC-74 「すべてのタスクグループを開く」（表 T-051 の `HF-10`）, IC-78 「すべてのタスクグループを
-    //   畳む」（`HF-12`）. ⭐ THEY ARE DRAWN FOR THE PANEL AND NOT PER TASK GROUP, which
+    // 表 T-109: IC-74 「すべてのタスクグループを展開する」（表 T-051 の `HF-10`）, IC-78 「すべてのタスクグループを
+    //   折りたたむ」（`HF-12`）. ⭐ THEY ARE DRAWN FOR THE PANEL AND NOT PER TASK GROUP, which
     //   is why FR-029's closing sentence has to reach them by name: 「本規則は …
     //   表 T-109 の全行に当たる」.
     const built = drawn(

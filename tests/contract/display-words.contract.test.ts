@@ -279,7 +279,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // reports DFC-81 and DFC-84). FR-038 (MUST NOT) admits one store of printed
   // words, so the name moved here and the table kept the column.
   // ⚠️ Keyed by the row and not by the column: a row may carry several columns
-  // and still show ONE name -- PR-14 is 「fade in/out days」 over two.
+  // and still show ONE name -- PR-14 is 「Fade In/Out Days」 over two.
   properties: 'rowId',
   // ⭐ THE NAME THE SAME PANEL SHOWS FOR A ROW OF TABLE T-104 (CR-344,
   // 2026-09-03). The paragraph under table T-006a
@@ -348,7 +348,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // manuscript -- 「名簿は、その語を画面へ出すことを課した要求の側が既に持っており」
   // and 「⛔ ここへ表を並べ直してはならない（MUST NOT）」 (DFC-481: the chapter
   // no longer lists the tables) -- and FR-072 now names no state of the panel for a word to
-  // be printed in: 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**」.
+  // be printed in: 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**」.
   // ⭐ So the section has nowhere to be raised from, and the case below says so
   // by name rather than leaving it to be noticed here.
   assignments: 'rowId',
@@ -855,7 +855,7 @@ const PALETTE_SHOWN = frameWith({
  * ⚠️ THEY NO LONGER CARRY A WORD BETWEEN THEM. FR-072 used to make the heading
  * say which of the two was showing and used to make a cleared selection say so;
  * on 2026-08-27 the reader called the row 「無用」 and CR-272 replaced both with
- * one MUST NOT -- 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**」
+ * one MUST NOT -- 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**」
  * -- leaving 「いま何を出しているかを、入口の押下状態で示すこと（MUST）」 as the
  * whole of what tells a reader anything. ⭐ The frames are kept because the two
  * cases below still ask what the panel IS in each of them.
@@ -2987,7 +2987,7 @@ describe('PND-160 -- an entry with no word still leaves something at its place',
     (language) => {
       // ⛔ THIS CASE IS THE INVERSE OF THE ONE IT REPLACED (CR-272). It used to
       // require the three states to hand on three non-empty, pairwise distinct
-      // headings; FR-072 now says 「⛔ **パネルの先頭に見出しの行を置いてはならない
+      // headings; FR-072 now says 「⛔ **パネルの先頭にタイトルバーを置いてはならない
       // （MUST NOT）**（利用者の指示 2026-08-27）—— **押下状態が同じことを既に示し
       // ており、見出しは同じ答えを 2 か所で言っていた。**」
       //

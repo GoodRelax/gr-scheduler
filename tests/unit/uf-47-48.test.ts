@@ -695,7 +695,7 @@ describe('HF-8 of table T-051 -- what boot must not do', () => {
 
   it('keeps the collapse the person saved', () => {
     // HF-8 (MUST NOT): "起動のときは働かせてはならない（MUST NOT。表 T-024a の
-    // `OP-10`）". OP-10 gives the reason: "起動のたびに畳みを捨てると、`HR-6`
+    // `OP-10`）". OP-10 gives the reason: "起動のたびに折りたたみを捨てると、`HR-6`
     // が `WY-1` のために保存させた状態が消える".
     const document = collapsed()
     expect(validateDocument(document).valid).toBe(true)
@@ -709,7 +709,7 @@ describe('HF-8 of table T-051 -- what boot must not do', () => {
   it('and draws the picture that collapse means -- the task group under it stays undrawn', () => {
     // The half that matters: HF-8 could be honoured in the document and still
     // be applied to the frame. LC-1 of table T-068 drops the collapsed task groups
-    // first, and HR-1a forbids drawing "畳んだ `TaskGroup` の配下のタスクグループと、そのタスクグループ
+    // first, and HR-1a forbids drawing "折りたたんだ `TaskGroup` の配下のタスクグループと、そのタスクグループ
     // に載っている `Task`".
     const pane = host()
     const withCollapse = frameLoop(pane.surface, collapsed(), SCREEN).current()!
@@ -1155,7 +1155,7 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
 
   it('GIVEN a collapsed task group THEN the panel drops the same task group the body drops (HF-8 / HR-1a)', () => {
     // The vertical link is not only the numbers: a task group the body does not draw
-    // is a task group the panel has no line for. HR-1a forbids drawing "畳んだ
+    // is a task group the panel has no line for. HR-1a forbids drawing "折りたたんだ
     // `TaskGroup` の配下のタスクグループ", and HF-8 keeps the saved collapse at boot.
     const pane = host()
     const screen = screenPane()

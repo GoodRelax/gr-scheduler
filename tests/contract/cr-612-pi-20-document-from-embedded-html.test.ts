@@ -55,7 +55,7 @@ describe('PI-20 / IO-7 / FR-067 -- the manuscript still says it', () => {
 
   it('IO-7 is read as well as written, and starts with <', () => {
     const row = specTable('T-024').rows.find((one) => one.id === 'IO-7')
-    expect(row?.cells.join(' ')).toContain('取込 / 書出')
+    expect(row?.cells.join(' ')).toContain('取り込み / 書出')
     expect(row?.cells.join(' ')).toContain('`<`')
     expect(REQUIREMENTS).toContain(READ_ORDER)
   })
@@ -64,9 +64,9 @@ describe('PI-20 / IO-7 / FR-067 -- the manuscript still says it', () => {
 describe('OP-1 -- the open route accepts every row of T-024 that comes in', () => {
   it('OP-1: the rows accepted are the T-024 rows whose direction includes import, and IO-7 is one', () => {
     const op1 = specTable('T-024a').rows.find((one) => one.id === 'OP-1')
-    expect(op1?.cells.join(' ')).toContain('方向に取込を持つ行')
+    expect(op1?.cells.join(' ')).toContain('方向に取り込みを持つ行')
     const incoming = specTable('T-024')
-      .rows.filter((one) => one.cells.some((cell) => cell.includes('取込')))
+      .rows.filter((one) => one.cells.some((cell) => cell.includes('取り込み')))
       .map((one) => one.id)
     expect(incoming).toEqual(expect.arrayContaining(['IO-1', 'IO-2', 'IO-7']))
   })

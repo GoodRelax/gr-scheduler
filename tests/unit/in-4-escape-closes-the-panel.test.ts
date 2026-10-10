@@ -72,7 +72,7 @@
 //                   (CR-304), and these cases were written under it.
 //   `FR-072`       ⛔ 「表 T-023c の選択が動いたことだけを理由に、パネルを出し始めては
 //                   ならない（MUST NOT）」、「出す入口は 表 T-023 の `MK-13` と `IC-17`
-//                   の 2 つである」、「パネルを出すのをやめても、選択を解いてはならない
+//                   の 2 つである」、「パネルを出すのをやめても、選択を解除してはならない
 //                   （MUST NOT）」 -- so the route these cases put the panel up by
 //                   is `MK-13`, and never a press that only selects.
 //   表 T-023 MK-13 「タスク（名称ラベルと本体のどちらでも）＝プロパティパネルを
@@ -724,7 +724,7 @@ describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
     expect(built.panelIsUp(), 'IN-4: 消費する階層は … 開いている面 …の順とすること').toBe(false)
 
     // Rung 2 -- 「選択」. ⭐ THIS IS ALSO FR-072's MUST NOT SEEN FROM THE SIDE:
-    // 「パネルを出すのをやめても、選択を解いてはならない（MUST NOT）」. A loop that
+    // 「パネルを出すのをやめても、選択を解除してはならない（MUST NOT）」. A loop that
     // took the selection away with the panel would have nothing left to spend
     // here and would fall straight through to the browser.
     // ⛔ NOT ASSERTED BY DELETING THE TASK -- that is FR-072's own file
@@ -732,7 +732,7 @@ describe('IN-4 of table T-028 -- `Esc` closes the `Properties Panel`', () => {
     // a `Delete` here would spend the very selection the next press needs.
     expect(
       built.loop.isBrowserDefaultStopped(ESCAPE()),
-      'FR-072 (MUST NOT): パネルを出すのをやめても、選択を解いてはならない -- so 選択 is still a rung',
+      'FR-072 (MUST NOT): パネルを出すのをやめても、選択を解除してはならない -- so 選択 is still a rung',
     ).toBe(true)
     built.send(ESCAPE())
 
