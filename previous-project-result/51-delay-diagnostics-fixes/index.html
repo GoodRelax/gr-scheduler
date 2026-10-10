@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GRS 見本 遅延診断の直す案</title>
+<style>
+:root{
+  --bg:#f3f4f6;--panel:#fff;--text:#1d2127;--muted:#667080;--line:#d3d8df;--thbg:#eef0f3;
+  --link:#1a5fb4;--accent2:#0a8f7a;--selband:rgba(26,95,180,.13);--weekend:rgba(0,0,0,.05);
+  --plan:#7b838f;--actual:#3b7dd8;--dep:#7b838f;--status:#eb6101;--pri:#1a5fb4;--curbar:#d9780a;
+  --k1:#dbe8fb;--k1t:#14437f;--k2:#fdebc8;--k2t:#7a4a00;--k3:#d3f1ea;--k3t:#0b5c4e;--k4:#e6e8ec;--k4t:#40474f;
+  --hl:#d9780a;--toast:#2b3138;
+}
+:root[data-theme="dark"]{
+  --bg:#14171b;--panel:#1d2127;--text:#e6e9ed;--muted:#9aa4b0;--line:#3a414a;--thbg:#262b32;
+  --link:#8ab4f8;--accent2:#4fd1b5;--selband:rgba(138,180,248,.18);--weekend:rgba(255,255,255,.06);
+  --plan:#8e98a4;--actual:#5b9bff;--dep:#8e98a4;--pri:#3b78d1;--curbar:#f0a04b;
+  --k1:#20344f;--k1t:#b9d3fb;--k2:#4a3a14;--k2t:#f6d594;--k3:#1a4a41;--k3t:#a5ead9;--k4:#343a42;--k4t:#d0d5db;
+  --hl:#f0a04b;--toast:#3a414a;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--text);font:14px/1.5 system-ui,"Segoe UI","Hiragino Sans","Yu Gothic UI",sans-serif}
+#app{height:100vh;display:flex;flex-direction:column}
+#hdr{height:40px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;background:var(--panel);border-bottom:1px solid var(--line)}
+#hdr h1{font-size:14px;margin:0;font-weight:600;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.btn{font:inherit;font-size:13px;padding:3px 10px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:5px;cursor:pointer;white-space:nowrap}
+.btn:hover:not(:disabled){border-color:var(--link)}
+.btn.pri{background:var(--pri);border-color:var(--pri);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--link);outline-offset:1px}
+main{flex:1;min-height:0;display:flex}
+#wrap{position:relative;flex:1;min-width:0;overflow:hidden}
+#cv{position:absolute;inset:0;overflow:auto;background:var(--panel)}
+#cv svg{display:block}
+.wk{fill:var(--weekend)}.pl{fill:none;stroke:var(--plan);stroke-width:1.3}
+.ac{fill:var(--actual)}.ac.run{opacity:.5}
+.sl{stroke:var(--status);stroke-width:1.6}.slt{fill:var(--status);font-size:12px;font-weight:600}
+.band{fill:var(--selband)}.glow{fill:none;stroke:var(--accent2);stroke-width:1.8}
+.tn{fill:var(--text);font-size:13px}.tn.g{font-weight:600}.tn.r{fill:var(--accent2);font-weight:700}
+.ax{fill:var(--muted);font-size:12px}.grid{stroke:var(--line);stroke-width:1}
+.dep{fill:none;stroke:var(--dep);stroke-width:1.1}.depa{fill:var(--dep)}
+.lock{fill:var(--muted)}.lockl{fill:none;stroke:var(--muted);stroke-width:1.4}
+.hit{fill:transparent;cursor:pointer}
+#props{width:260px;flex:none;background:var(--panel);border-left:1px solid var(--line);padding:10px 12px;overflow:auto}
+#props h2{font-size:13px;margin:0 0 2px;color:var(--muted);font-weight:600}
+#props .who{font-weight:600;margin-bottom:8px;min-height:21px}
+#props label{display:block;font-size:12px;color:var(--muted);margin:8px 0 2px}
+#props input{width:100%;font:inherit;font-size:13px;padding:3px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--text)}
+#props input.hl{outline:3px solid var(--hl);outline-offset:1px;border-color:var(--hl)}
+#rep{position:absolute;display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.28);z-index:5;overflow:hidden}
+#rtb{flex:none;display:flex;align-items:center;gap:6px;padding:5px 8px 5px 12px;background:var(--thbg);border-bottom:1px solid var(--line);cursor:move;user-select:none}
+#rtb b{flex:1;font-size:13px}
+#rtb span{width:22px;text-align:center;color:var(--muted);cursor:default}
+#rtools{flex:none;display:flex;align-items:center;gap:6px;padding:6px 10px}
+#rtools input{font:inherit;font-size:13px;width:150px;padding:3px 6px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--text)}
+#rtools .sp{flex:1}#cnt{font-size:12px;color:var(--muted);min-width:78px;text-align:center}
+#tabs{flex:none;display:flex;gap:4px;padding:0 10px 6px;border-bottom:1px solid var(--line)}
+.tab{font:inherit;font-size:13px;padding:4px 12px;border:1px solid var(--line);background:var(--bg);color:var(--text);border-radius:5px;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:600}
+#rbody{flex:1;min-height:0;overflow:auto}
+#rfoot{flex:none;display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid var(--line);background:var(--panel)}
+#rfoot div{display:flex;gap:8px}
+table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:13px;line-height:1.45}
+th,td{padding:4px 6px;vertical-align:top;border-bottom:1px solid var(--line);text-align:left;overflow-wrap:anywhere}
+th{position:sticky;top:0;z-index:1;background:var(--thbg);font-weight:600;white-space:nowrap}
+tr{scroll-margin-top:30px}
+tr.cur td:first-child{border-left:4px solid var(--curbar)}tr.cur{background:var(--selband)}
+tr.dis{color:var(--muted)}tr.casc td.f{padding-left:22px}
+a.tl{color:var(--link);text-decoration:underline;cursor:pointer}
+.mut{color:var(--muted)}
+.pill{display:inline-block;padding:0 7px;border-radius:9px;font-size:12px;line-height:1.55;white-space:nowrap}
+.k-機械{background:var(--k1);color:var(--k1t)}.k-選ぶ{background:var(--k2);color:var(--k2t)}
+.k-日付の候補{background:var(--k3);color:var(--k3t)}.k-手で直す{background:var(--k4);color:var(--k4t)}
+td select{width:100%;font:inherit;font-size:13px;padding:2px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:4px}
+td input[type=date]{width:136px;font:inherit;font-size:13px;padding:1px 3px;background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:4px}
+td input[type=checkbox]{width:16px;height:16px;margin:2px 0 0}
+.empty{padding:18px;color:var(--muted)}
+#ov{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:50;display:flex;align-items:center;justify-content:center}
+#dlg{width:min(520px,92vw);background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px 16px;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+#dlg h3{margin:0 0 8px;font-size:15px}#dlg p{margin:0 0 8px}
+#dlg input[type=text],#dlg textarea{width:100%;font:inherit;font-size:13px;padding:5px 7px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--text)}
+#dlg textarea{height:230px;font-family:ui-monospace,Consolas,monospace;resize:vertical}
+#dlg .bt{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+#toasts{position:fixed;left:12px;bottom:12px;z-index:60;display:flex;flex-direction:column;gap:6px;pointer-events:none}
+.toast{background:var(--toast);color:#fff;padding:7px 12px;border-radius:6px;font-size:13px;box-shadow:0 2px 10px rgba(0,0,0,.35);max-width:420px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hdr">
+    <h1>GRS 見本 —— 遅延診断の直す案</h1>
+    <button class="btn" id="btnTheme" type="button">暗い表示</button>
+    <button class="btn" id="btnUndo" type="button" disabled>取り消し</button>
+  </div>
+  <main>
+    <div id="wrap">
+      <div id="cv"></div>
+      <section id="rep" aria-label="遅延診断レポート">
+        <div id="rtb"><b>遅延診断レポート</b><span title="見本では動きません">_</span><span title="見本では動きません">□</span><span title="見本では動きません">×</span></div>
+        <div id="rtools">
+          <button class="btn" id="bMd" type="button">.md</button>
+          <button class="btn" id="bCopy" type="button">コピー</button>
+          <input id="filt" type="search" placeholder="絞り込み" aria-label="絞り込み">
+          <span class="sp"></span>
+          <button class="btn" id="bPrev" type="button">◀ 前へ</button>
+          <span id="cnt"></span>
+          <button class="btn" id="bNext" type="button">次へ ▶</button>
+        </div>
+        <div id="tabs"></div>
+        <div id="rbody"></div>
+        <div id="rfoot"><span id="fcount"></span>
+          <div><button class="btn pri" id="bOver" type="button">上書きして直す</button><button class="btn" id="bBak" type="button">控えを別名で残して直す</button></div>
+        </div>
+      </section>
+    </div>
+    <aside id="props"><h2>プロパティパネル</h2><div class="who" id="who">（タスク未選択）</div><div id="pflds"></div></aside>
+  </main>
+</div>
+<div id="toasts"></div>
+<script>
+'use strict';
+var $ = function (i) { return document.getElementById(i); };
+function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+function D(s) { return s.length === 5 ? '2027-' + s : s; }
+function dn(s) { var p = s.split('-'); return Math.round(Date.UTC(+p[0], p[1] - 1, +p[2]) / 86400000); }
+function fmt(s) { return s ? s.replace(/-/g, '/') : '（空）'; }
+var AX0 = D('05-10'), AX1 = D('06-30'), STATUS = D('06-04');
+var BASE = dn(AX0), NDAYS = dn(AX1) - BASE + 1;
+var FIELD = { '予定開始': 'ps', '予定終了': 'pf', '実績開始': 'as', '実績終了': 'af', '再開予定': 'rs', '進捗': 'pc', '予定': 'pf', '実績': 'as' };
+var PFIELDS = [['名前', 'nm'], ['予定開始', 'ps'], ['予定終了', 'pf'], ['実績開始', 'as'], ['実績終了', 'af'], ['再開予定', 'rs'], ['進捗', 'pc']];
+
+/* ---------- data ---------- */
+function T(name, depth, o) { o = o || {}; o.name = name; o.depth = depth; ['ps', 'pf', 'as', 'af'].forEach(function (k) { if (o[k]) o[k] = D(o[k]); }); return o; }
+function initTasks() {
+  return [
+    T('全体', 0, { g: 1, ps: '05-10', pf: '06-30' }),
+    T('前半', 1, { g: 1, ps: '05-10', pf: '05-21' }),
+    T('準備', 2, { g: 1, ps: '05-10', pf: '05-21' }),
+    T('準備 1', 3, { ps: '05-10', pf: '05-19', as: '05-10', af: '05-19' }),
+    T('準備 2', 3, { ps: '05-17', pf: '05-26', as: '05-17', af: '05-25' }),
+    T('作業', 1, { g: 1, ps: '05-24', pf: '06-11', as: '05-31' }),
+    T('作業 1', 2, { ps: '05-24', pf: '05-28', as: '05-27', af: '05-28', rs: true }),
+    T('作業 2', 2, { ps: '05-31', pf: '06-04', as: '05-31' }),
+    T('作業 3', 2, { ps: '06-07', pf: '06-11' }),
+    T('作業 4', 2, { ps: '06-07', pf: '06-09' }),
+    T('作業 5', 2, { ps: '05-24', pf: '05-28', as: '05-24' }),
+    T('作業 6', 2, { ps: '06-09', pf: '06-11' }),
+    T('作業 7', 2, { ps: '05-31', pf: '06-04', as: '05-28' }),
+    T('作業 8', 2, { ps: '06-01', pf: '06-04' }),
+    T('確認', 1, { g: 1, ps: '06-01', pf: '06-03', as: '06-01' }),
+    T('確認 1', 2, { ps: '06-01', pf: '06-02', as: '06-01', af: '06-02' }),
+    T('確認 2', 2, { ps: '06-02', pf: '06-03', as: '06-02', af: '06-02' }),
+    T('後半', 1, { g: 1, ps: '06-07', pf: '06-30', pc: 60 }),
+    T('後半 1', 2, { ps: '06-07', pf: '06-18' }),
+    T('中間の節目', 1, { ms: 1, ps: '06-01', pf: '06-01' }),
+    T('最終の節目', 1, { ms: 1, ps: '06-20', pf: '06-24' }),
+    T('外部の受け入れ', 1, { g: 1, lock: 1, ps: '06-14', pf: '06-18' }),
+    T('外部の受け入れ 1', 2, { lock: 1, ps: '06-14', pf: '06-21' })
+  ];
+}
+function initDeps() {
+  var d = [['作業 2', '作業 2'], ['作業 2', '作業 3'], ['作業 2', '作業 3'], ['作業 4', '作業 6'], ['作業 6', '作業 4'],
+    ['作業 5', '作業 7'], ['準備', '中間の節目'], ['確認', '中間の節目']];
+  return d.map(function (x) { return { f: x[0], t: x[1] }; });
+}
+var ST_BAD = '? 信用できない・要修正', ST_DOUBT = '疑義・記載漏れ';
+function F(id, kind, finding, task, col, before, after, rel, o) {
+  return Object.assign({ id: id, kind: kind, finding: finding, task: task, col: col, before: before, after: after, rel: rel || [],
+    checked: kind === '機械', memo: true, choice: '', date: '', status: ST_BAD }, o || {});
+}
+function initFixes() {
+  var L = [
+    F(1, '機械', '親の予定の両端が子と合わない', '準備', '予定終了', '2027/05/21', '2027/05/26', ['準備 1', '準備 2']),
+    F(2, '機械', '親の予定の両端が子と合わない', '前半', '予定終了', '2027/05/21', '2027/05/26', ['準備'], { cascadeOf: 1 }),
+    F(3, '機械', '子が全部完了なのに親が未完了', '確認', '実績終了', '（空）', '2027/06/02', ['確認 1', '確認 2']),
+    F(4, '機械', '親の実績の両端が子と合わない', '作業', '実績開始', '2027/05/31', '2027/05/24', ['作業 5']),
+    F(5, '機械', '完了なのに再開予定がある', '作業 1', '再開予定', 'あり', 'なし'),
+    F(6, '機械', '自分自身への依存', '作業 2', '依存', '作業 2 → 作業 2（FS）', '（消す）'),
+    F(7, '機械', '同じ 2 つのタスクの間に同じ依存が 2 本ある', '作業 3', '依存', '作業 2 → 作業 3（FS）× 2', '1 本にする', ['作業 2']),
+    F(8, '機械', 'このマイルストーンは達成してるのでは？', '中間の節目', '実績', '（空）', '2027/06/01（達成日の候補）', ['準備', '確認']),
+    F(9, '機械', '親の予定の両端が子と合わない', '外部の受け入れ', '予定終了', '2027/06/18', '直せない: 読み取り専用のタスクグループ', [], { locked: 1, checked: false }),
+    F(10, '選ぶ', '依存に輪がある', '作業 4', '依存', '作業 4 → 作業 6 → 作業 4', '', ['作業 6'], { opts: ['作業 4 → 作業 6 を消す', '作業 6 → 作業 4 を消す'] }),
+    F(11, '選ぶ', 'マイルストーンなのに開始と終了が違う', '最終の節目', '予定', '2027/06/20 - 2027/06/24', '', [], { opts: ['終了を開始にそろえる（2027/06/20）', '開始を終了にそろえる（2027/06/24）'] }),
+    F(12, '日付の候補', '後続が着手済みなのに、先行に実績終了が無い', '作業 5', '実績終了', '（空）', '', ['作業 7'], { date: '2027-05-28', tip: '後続 作業 7 の実績開始の日', status: ST_DOUBT }),
+    F(13, '日付の候補', '実績が入力されていない', '作業 8', '実績開始', '（空）', '', [], { date: '2027-06-01', tip: '予定開始の日', status: ST_DOUBT }),
+    F(14, '手で直す', '親の進み具合が、配下の作業の進み具合から外れている', '後半', '進捗', '60%', '', ['後半 1'])
+  ];
+  L.forEach(function (r) { if (r.kind === '日付の候補') r.checked = false; });
+  return L;
+}
+var KINDS = ['機械', '選ぶ', '日付の候補', '手で直す'];
+var S, tab = 'fix', filt = '', curId = null, selName = null, relNames = [], fieldKey = null, undoStack = [];
+function initState() {
+  var f = initFixes();
+  f = KINDS.reduce(function (a, k) { return a.concat(f.filter(function (r) { return r.kind === k; })); }, []);
+  S = { tasks: initTasks(), deps: initDeps(), fixes: f, records: [] };
+}
+function byId(id) { return S.fixes.filter(function (r) { return r.id === id; })[0]; }
+function tk(n) { return S.tasks.filter(function (t) { return t.name === n; })[0]; }
+function ftext(r) { return (r.cascadeOf ? '└ 連鎖: ' : '') + r.finding; }
+function isHuman(r) { return r.kind !== '機械'; }
+function disabled(r) {
+  if (r.locked || r.kind === '手で直す') return true;
+  if (r.cascadeOf) { var o = byId(r.cascadeOf); if (o && !o.checked) return true; }
+  if (r.kind === '選ぶ' && r.choice === '') return true;
+  if (r.kind === '日付の候補' && !r.date) return true;
+  return false;
+}
+function setChecked(r, v) {
+  r.checked = v;
+  S.fixes.forEach(function (c) { if (c.cascadeOf === r.id) { if (!v) { c.memo = c.checked; c.checked = false; } else c.checked = c.memo; } });
+}
+function checkedCount() { return S.fixes.filter(function (r) { return r.checked && !disabled(r); }).length; }
+function afterText(r) {
+  if (r.kind === '選ぶ') return r.choice === '' ? '（選ぶ）' : r.opts[+r.choice];
+  if (r.kind === '日付の候補') return r.date ? fmt(r.date) : '（空）';
+  if (r.kind === '手で直す') return '名前を押すと直す欄を開く';
+  return r.after;
+}
+
+/* ---------- applying a fix to the in-memory data ---------- */
+function dropDep(f, t, keepOne) {
+  var seen = 0;
+  S.deps = S.deps.filter(function (d) { if (d.f !== f || d.t !== t) return true; seen++; return keepOne && seen === 1; });
+}
+function applyFix(r) {
+  var t = tk(r.task);
+  switch (r.id) {
+    case 1: t.pf = D('05-26'); break;
+    case 2: t.pf = D('05-26'); break;
+    case 3: t.af = D('06-02'); break;
+    case 4: t.as = D('05-24'); break;
+    case 5: t.rs = false; break;
+    case 6: dropDep('作業 2', '作業 2', false); break;
+    case 7: dropDep('作業 2', '作業 3', true); break;
+    case 8: t.as = D('06-01'); t.af = D('06-01'); break;
+    case 10: if (r.choice === '0') dropDep('作業 4', '作業 6', false); else dropDep('作業 6', '作業 4', false); break;
+    case 11: if (r.choice === '0') t.pf = t.ps; else t.ps = t.pf; break;
+    case 12: t.af = r.date; break;
+    case 13: t.as = r.date; break;
+  }
+}
+
+/* ---------- canvas ---------- */
+var RH = 22, AXH = 38, LBL = 172;
+function bracket(x0, x1, y, h, cls) {
+  return '<path class="' + cls + '" d="M' + x0 + ' ' + y + 'H' + x1 + 'V' + (y + h + 3) + 'L' + (x1 - 3) + ' ' + (y + h) + 'H' + (x0 + 3) + 'L' + x0 + ' ' + (y + h + 3) + 'Z"/>';
+}
+function draw() {
+  var host = $('cv'), W = Math.max(host.clientWidth, 700), dw = (W - LBL - 14) / NDAYS;
+  var H = AXH + S.tasks.length * RH + 10, o = [];
+  var X = function (s) { return LBL + (dn(s) - BASE) * dw; };
+  var idx = {}; S.tasks.forEach(function (t, i) { idx[t.name] = i; });
+  o.push('<svg xmlns="http://www.w3.org/2000/svg" width="' + W + '" height="' + H + '" role="img" aria-label="日程表の見本">');
+  o.push('<defs><marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path class="depa" d="M0 0L8 4L0 8z"/></marker></defs>');
+  for (var i = 0; i < NDAYS; i++) {
+    var dow = (BASE + i + 4) % 7, x = LBL + i * dw;
+    if (dow === 0 || dow === 6) o.push('<rect class="wk" x="' + x + '" y="' + AXH + '" width="' + dw + '" height="' + (H - AXH) + '"/>');
+    if (dow === 1) {
+      var dt = new Date((BASE + i) * 86400000);
+      o.push('<line class="grid" x1="' + x + '" x2="' + x + '" y1="' + (AXH - 8) + '" y2="' + H + '"/>');
+      o.push('<text class="ax" x="' + (x + 3) + '" y="' + (AXH - 12) + '">' + (dt.getUTCMonth() + 1) + '/' + dt.getUTCDate() + '</text>');
+    }
+  }
+  o.push('<text class="ax" x="8" y="' + (AXH - 12) + '">2027 年 5 月 10 日から</text>');
+  o.push('<line class="grid" x1="0" x2="' + W + '" y1="' + AXH + '" y2="' + AXH + '"/>');
+  S.tasks.forEach(function (t, i) {
+    var y = AXH + i * RH;
+    if (t.name === selName) o.push('<rect class="band" x="0" y="' + y + '" width="' + W + '" height="' + RH + '"/>');
+    o.push('<text class="tn' + (t.g ? ' g' : '') + (relNames.indexOf(t.name) >= 0 ? ' r' : '') + '" x="' + (8 + t.depth * 13) + '" y="' + (y + 15) + '">' + esc(t.name) + '</text>');
+    if (t.lock) o.push('<rect class="lock" x="' + (LBL - 22) + '" y="' + (y + 9) + '" width="9" height="7" rx="1"/><path class="lockl" d="M' + (LBL - 20) + ' ' + (y + 9) + 'V' + (y + 6) + 'a2.5 2.5 0 0 1 5 0V' + (y + 9) + '"/>');
+    var x0 = X(t.ps), x1 = X(t.pf) + dw;
+    if (t.ms) {
+      var dm = function (s, f) { var c = X(s) + dw / 2; return '<path class="' + f + '" d="M' + c + ' ' + (y + 3) + 'l7 8l-7 8l-7 -8z"/>'; };
+      if (t.pf !== t.ps) o.push('<line class="grid" x1="' + (X(t.ps) + dw / 2) + '" x2="' + (X(t.pf) + dw / 2) + '" y1="' + (y + 11) + '" y2="' + (y + 11) + '"/>' + dm(t.pf, 'pl'));
+      o.push(dm(t.ps, 'pl'));
+      if (t.as) o.push(dm(t.as, 'ac'));
+    } else if (t.g) {
+      o.push(bracket(x0, x1, y + 3, 4, 'pl'));
+      if (t.as) { var e = t.af ? X(t.af) + dw : X(STATUS) + dw; o.push(bracket(X(t.as), e, y + 11, 4, 'ac' + (t.af ? '' : ' run'))); }
+    } else {
+      o.push('<rect class="pl" x="' + x0 + '" y="' + (y + 4) + '" width="' + (x1 - x0) + '" height="6"/>');
+      if (t.as) { var e2 = t.af ? X(t.af) + dw : X(STATUS) + dw; o.push('<rect class="ac' + (t.af ? '' : ' run') + '" x="' + X(t.as) + '" y="' + (y + 11) + '" width="' + (e2 - X(t.as)) + '" height="6"/>'); }
+    }
+    if (t.pc != null) o.push('<text class="ax" text-anchor="end" x="' + (x1 - 6) + '" y="' + (y + 18) + '">' + t.pc + '%</text>');
+    if (t.rs) o.push('<text class="ax" x="' + (x1 + 6) + '" y="' + (y + 15) + '">再開</text>');
+    o.push('<rect class="hit" data-n="' + esc(t.name) + '" x="0" y="' + y + '" width="' + W + '" height="' + RH + '"/>');
+  });
+  var sx = X(STATUS) + dw / 2;
+  o.push('<line class="sl" x1="' + sx + '" x2="' + sx + '" y1="' + (AXH - 6) + '" y2="' + H + '"/><text class="slt" x="' + (sx + 4) + '" y="12">基準日 6/4</text>');
+  S.tasks.forEach(function (t, i) {
+    if (relNames.indexOf(t.name) >= 0) o.push('<rect class="glow" x="2" y="' + (AXH + i * RH + 1) + '" width="' + (W - 4) + '" height="' + (RH - 2) + '" rx="3"/>');
+  });
+  var seen = {};
+  S.deps.forEach(function (d) {
+    var a = idx[d.f], b = idx[d.t], k = d.f + '>' + d.t; seen[k] = (seen[k] || 0) + 1; var off = (seen[k] - 1) * 3;
+    var pa = tk(d.f), pb = tk(d.t), xa = X(pa.pf) + dw, ya = AXH + a * RH + 7 + off;
+    if (a === b) { o.push('<path class="dep" marker-end="url(#ar)" d="M' + xa + ' ' + ya + 'c14 -10 14 12 -4 8"/>'); return; }
+    var xb = X(pb.ps), yb = AXH + b * RH + 7 + off, xm = Math.max(xa + 5 + off, xb - 6);
+    o.push('<path class="dep" marker-end="url(#ar)" d="M' + xa + ' ' + ya + 'H' + (xa + 5 + off) + 'V' + yb + 'H' + xb + '"/>');
+  });
+  o.push('</svg>');
+  host.innerHTML = o.join('');
+}
+$('cv').addEventListener('click', function (e) {
+  var n = e.target.getAttribute && e.target.getAttribute('data-n'); if (!n) return;
+  selName = n; relNames = []; fieldKey = null; draw(); showProps();
+});
+
+/* ---------- properties panel ---------- */
+(function () {
+  $('pflds').innerHTML = PFIELDS.map(function (p) { return '<label for="f_' + p[1] + '">' + p[0] + '</label><input id="f_' + p[1] + '" data-field="' + p[1] + '" readonly placeholder="（空）">'; }).join('');
+})();
+function showProps() {
+  var t = selName && tk(selName);
+  $('who').textContent = t ? t.name : '（タスク未選択）';
+  PFIELDS.forEach(function (p) {
+    var el = $('f_' + p[1]), v = '';
+    if (t) v = p[1] === 'nm' ? t.name : p[1] === 'rs' ? (t.rs ? 'あり' : 'なし') : p[1] === 'pc' ? (t.pc != null ? t.pc + '%' : '') : (t[p[1]] ? fmt(t[p[1]]) : '');
+    el.value = v; el.classList.remove('hl');
+  });
+  if (t && fieldKey) { var el2 = $('f_' + fieldKey); el2.classList.add('hl'); el2.focus({ preventScroll: true }); }
+}
+
+/* ---------- report window ---------- */
+function hay(r) { return [r.kind, ftext(r), r.task, r.col, r.before, afterText(r), (r.opts || []).join(' '), r.status].join(' ').toLowerCase(); }
+function link(r) { return '<a class="tl" href="#" data-id="' + r.id + '">' + esc(r.task) + '</a>'; }
+function afterCell(r) {
+  if (r.locked) return '<span class="mut">' + esc(r.after) + '</span>';
+  if (r.kind === '手で直す') return '<span class="mut">名前を押すと直す欄を開く</span>';
+  if (r.kind === '選ぶ') return '<select data-id="' + r.id + '" aria-label="修正後"><option value="">（選ぶ）</option>' + r.opts.map(function (o, i) { return '<option value="' + i + '"' + (String(i) === r.choice ? ' selected' : '') + '>' + esc(o) + '</option>'; }).join('') + '</select>';
+  if (r.kind === '日付の候補') return '<input type="date" data-id="' + r.id + '" value="' + r.date + '" aria-label="修正後の日付"> <span class="mut" title="' + esc(r.tip) + '">候補</span>';
+  return esc(r.after);
+}
+function colgroup(w) { return '<colgroup>' + w.map(function (x) { return '<col style="width:' + x + '">'; }).join('') + '</colgroup>'; }
+function fixHtml() {
+  var rows = S.fixes.filter(function (r) { return hay(r).indexOf(filt) >= 0; });
+  if (!rows.length) return '<div class="empty">' + (S.fixes.length ? '絞り込みに合う行はありません' : '直す案はありません') + '</div>';
+  return '<table>' + colgroup(['30px', '90px', '17%', '88px', '74px', '118px', 'auto']) + '<thead><tr><th></th><th>直し方</th><th>指摘</th><th>タスク</th><th>列</th><th>修正前</th><th>修正後</th></tr></thead><tbody>' +
+    rows.map(function (r) {
+      var dis = disabled(r), cb = r.kind === '手で直す' ? '' : '<input type="checkbox" data-id="' + r.id + '" aria-label="直す"' + (r.checked ? ' checked' : '') + (dis ? ' disabled' : '') + '>';
+      var tip = r.locked ? '読み取り専用のタスクグループの中なので、GRS は直せません' : (r.cascadeOf && dis ? '元の直しを外したので、これも外れています' : '');
+      return '<tr data-id="' + r.id + '" class="' + (r.id === curId ? 'cur ' : '') + (r.cascadeOf ? 'casc ' : '') + (r.locked ? 'dis' : '') + '"' + (tip ? ' title="' + esc(tip) + '"' : '') + '><td>' + cb + '</td><td><span class="pill k-' + r.kind + '">' + r.kind + '</span></td><td class="f">' + esc(ftext(r)) + '</td><td>' + link(r) + '</td><td>' + esc(r.col) + '</td><td>' + esc(r.before) + '</td><td>' + afterCell(r) + '</td></tr>';
+    }).join('') + '</tbody></table>';
+}
+function diagHtml() {
+  var rows = S.fixes.filter(function (r) { return hay(r).indexOf(filt) >= 0; });
+  if (!rows.length) return '<div class="empty">' + (S.fixes.length ? '絞り込みに合う行はありません' : '指摘はありません') + '</div>';
+  return '<table>' + colgroup(['170px', '120px', 'auto']) + '<thead><tr><th>ステータス</th><th>タスク</th><th>理由</th></tr></thead><tbody>' +
+    rows.map(function (r) { return '<tr data-id="' + r.id + '" class="' + (r.id === curId ? 'cur' : '') + '"><td>' + esc(r.status) + '</td><td>' + link(r) + '</td><td>' + esc(r.finding) + '</td></tr>'; }).join('') + '</tbody></table>';
+}
+function recHtml() {
+  var rows = S.records.filter(function (r) { return [r.time, r.finding, r.task, r.col, r.before, r.after].join(' ').toLowerCase().indexOf(filt) >= 0; });
+  if (!rows.length) return '<div class="empty">該当する記録はありません</div>';
+  return '<table>' + colgroup(['136px', '22%', '88px', '74px', '118px', 'auto']) + '<thead><tr><th>日時</th><th>指摘</th><th>タスク</th><th>列</th><th>修正前</th><th>修正後</th></tr></thead><tbody>' +
+    rows.map(function (r) { return '<tr><td>' + esc(r.time) + '</td><td>' + esc(r.finding) + '</td><td>' + esc(r.task) + '</td><td>' + esc(r.col) + '</td><td>' + esc(r.before) + '</td><td>' + esc(r.after) + '</td></tr>'; }).join('') + '</tbody></table>';
+}
+function renderRep() {
+  var body = $('rbody'), st = body.scrollTop;
+  if (tab === 'rec' && !S.records.length) tab = 'fix';
+  var tb = function (k, label) { return '<button class="tab" type="button" data-tab="' + k + '" aria-pressed="' + (tab === k) + '">' + label + '</button>'; };
+  $('tabs').innerHTML = tb('diag', '診断結果 (' + S.fixes.length + ')') + tb('fix', '直す案 (' + S.fixes.length + ')') + (S.records.length ? tb('rec', '直した記録 (' + S.records.length + ')') : '');
+  body.innerHTML = tab === 'diag' ? diagHtml() : tab === 'fix' ? fixHtml() : recHtml();
+  body.scrollTop = st;
+  $('rfoot').style.display = tab === 'fix' ? 'flex' : 'none';
+  var n = checkedCount(); $('fcount').textContent = '直す: ' + n + ' 件';
+  $('bOver').disabled = $('bBak').disabled = n === 0;
+  var hs = S.fixes.filter(isHuman), k = hs.map(function (r) { return r.id; }).indexOf(curId) + 1;
+  $('cnt').textContent = '人が直す ' + k + ' / ' + hs.length;
+  $('btnUndo').disabled = !undoStack.length;
+}
+function scrollCur() { var tr = $('rbody').querySelector('tr.cur'); if (tr) tr.scrollIntoView({ block: 'nearest' }); }
+function pick(r) {
+  curId = r.id; selName = r.task; relNames = r.rel.slice(); fieldKey = FIELD[r.col] || null;
+  draw(); showProps(); renderRep(); scrollCur();
+}
+function step(d) {
+  var hs = S.fixes.filter(isHuman); if (!hs.length) return;
+  var i = hs.map(function (r) { return r.id; }).indexOf(curId);
+  var j = i < 0 ? (d > 0 ? 0 : hs.length - 1) : (i + d + hs.length) % hs.length;
+  tab = 'fix'; pick(hs[j]);
+}
+$('rbody').addEventListener('click', function (e) {
+  var a = e.target.closest && e.target.closest('a.tl'); if (!a) return;
+  e.preventDefault(); pick(byId(+a.getAttribute('data-id')));
+});
+$('rbody').addEventListener('change', function (e) {
+  var el = e.target, r = byId(+el.getAttribute('data-id')); if (!r) return;
+  if (el.type === 'checkbox') setChecked(r, el.checked);
+  else if (el.tagName === 'SELECT') { r.choice = el.value; setChecked(r, el.value !== ''); }
+  else if (el.type === 'date') r.date = el.value;
+  renderRep();
+});
+$('tabs').addEventListener('click', function (e) { var k = e.target.getAttribute('data-tab'); if (k) { tab = k; renderRep(); } });
+$('filt').addEventListener('input', function () { filt = this.value.toLowerCase(); renderRep(); });
+$('bPrev').onclick = function () { step(-1); };
+$('bNext').onclick = function () { step(1); };
+
+/* ---------- save, apply, undo ---------- */
+function pad(n) { return (n < 10 ? '0' : '') + n; }
+function stamp() { var d = new Date(); return d.getFullYear() + '/' + pad(d.getMonth() + 1) + '/' + pad(d.getDate()) + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes()); }
+function toast(msg) {
+  var el = document.createElement('div'); el.className = 'toast'; el.textContent = msg; $('toasts').appendChild(el);
+  setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 4500);
+}
+function closeDlg() { var o = $('ov'); if (o) o.parentNode.removeChild(o); }
+function dialog(title, html, btns) {
+  closeDlg();
+  var ov = document.createElement('div'); ov.id = 'ov';
+  ov.innerHTML = '<div id="dlg" role="dialog" aria-modal="true" aria-label="' + esc(title) + '"><h3>' + esc(title) + '</h3>' + html + '<div class="bt"></div></div>';
+  btns.forEach(function (b) {
+    var el = document.createElement('button'); el.type = 'button'; el.className = 'btn' + (b.pri ? ' pri' : ''); el.textContent = b.label;
+    el.onclick = function () { b.fn(); }; ov.querySelector('.bt').appendChild(el);
+  });
+  document.body.appendChild(ov);
+  var f = ov.querySelector('input,textarea'); if (f) { f.focus(); f.select(); }
+}
+document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeDlg(); });
+function commit(msg) {
+  toast(msg);
+  undoStack.push(JSON.stringify(S));
+  var now = stamp(), done = S.fixes.filter(function (r) { return r.checked && !disabled(r); });
+  done.forEach(function (r) {
+    applyFix(r);
+    S.records.push({ time: now, finding: ftext(r), task: r.task, col: r.col, before: r.before, after: afterText(r) });
+  });
+  S.fixes = S.fixes.filter(function (r) { return done.indexOf(r) < 0; });
+  if (curId && !byId(curId)) curId = null;
+  tab = 'rec'; draw(); showProps(); renderRep();
+  toast(done.length + ' 件を直しました。取り消しで 1 回で戻せます');
+}
+function doFix(mode) {
+  if (!checkedCount()) return;
+  if (mode === 'over') { commit('schedule.json に上書きしました（直す前の姿）'); return; }
+  dialog('控えを別名で残す', '<p>直す前の姿を、別の名前で保存してから直します。</p><input type="text" id="bakName" value="schedule_before-fix_2027-06-04.json" aria-label="保存する名前">', [
+    { label: '保存', pri: 1, fn: function () { var v = $('bakName').value.trim(); if (!v) return; closeDlg(); commit(v + ' に保存しました（直す前の姿）'); } },
+    { label: 'キャンセル', fn: closeDlg }]);
+}
+$('bOver').onclick = function () { doFix('over'); };
+$('bBak').onclick = function () { doFix('bak'); };
+function undo() {
+  if (!undoStack.length) return;
+  var n = S.records.length; S = JSON.parse(undoStack.pop()); n -= S.records.length;
+  curId = null; tab = 'fix'; draw(); showProps(); renderRep(); toast(n + ' 件を元に戻しました');
+}
+$('btnUndo').onclick = undo;
+
+/* ---------- markdown ---------- */
+function mc(s) { return String(s).replace(/\|/g, '\\|').replace(/\n/g, ' '); }
+function buildMd() {
+  var L = ['# 遅延診断レポート', '', '文書名: schedule', '基準日: 2027-06-04', '', '## 直す案', '', '| 直す | 直し方 | 指摘 | タスク | 列 | 修正前 | 修正後 |', '| --- | --- | --- | --- | --- | --- | --- |'];
+  S.fixes.forEach(function (r) { L.push('| ' + [(r.checked && !disabled(r)) ? '✓' : '', r.kind, ftext(r), r.task, r.col, r.before, r.locked ? r.after : afterText(r)].map(mc).join(' | ') + ' |'); });
+  if (S.records.length) {
+    L.push('', '## 直した記録', '', '| 日時 | 指摘 | タスク | 列 | 修正前 | 修正後 |', '| --- | --- | --- | --- | --- | --- |');
+    S.records.forEach(function (r) { L.push('| ' + [r.time, r.finding, r.task, r.col, r.before, r.after].map(mc).join(' | ') + ' |'); });
+  }
+  return L.join('\n') + '\n';
+}
+function showMd(note) {
+  dialog('遅延診断レポート（.md）', (note ? '<p>' + esc(note) + '</p>' : '') + '<textarea readonly id="mdText" aria-label="Markdown"></textarea>', [{ label: '閉じる', pri: 1, fn: closeDlg }]);
+  $('mdText').value = buildMd();
+}
+$('bMd').onclick = function () { showMd(''); };
+$('bCopy').onclick = function () {
+  var md = buildMd();
+  try {
+    navigator.clipboard.writeText(md).then(function () { toast('レポートをコピーしました'); }, function () { showMd('クリップボードに書けませんでした。下の文を選んでコピーしてください'); });
+  } catch (err) { showMd('クリップボードに書けませんでした。下の文を選んでコピーしてください'); }
+};
+
+/* ---------- window drag, theme ---------- */
+function place(right) {
+  var w = $('wrap'), r = $('rep'), W = Math.min(840, w.clientWidth - 24), H = Math.min(440, w.clientHeight - 24);
+  r.style.width = W + 'px'; r.style.height = H + 'px';
+  var x = right ? w.clientWidth - W - 12 : parseFloat(r.style.left), y = right ? w.clientHeight - H - 12 : parseFloat(r.style.top);
+  r.style.left = Math.max(0, Math.min(x, w.clientWidth - W)) + 'px'; r.style.top = Math.max(0, Math.min(y, w.clientHeight - H)) + 'px';
+}
+(function () {
+  var drag = null;
+  $('rtb').addEventListener('pointerdown', function (e) {
+    var r = $('rep'); drag = { x: e.clientX - r.offsetLeft, y: e.clientY - r.offsetTop }; this.setPointerCapture(e.pointerId);
+  });
+  $('rtb').addEventListener('pointermove', function (e) {
+    if (!drag) return; var r = $('rep'), w = $('wrap');
+    r.style.left = Math.max(0, Math.min(e.clientX - drag.x, w.clientWidth - r.offsetWidth)) + 'px';
+    r.style.top = Math.max(0, Math.min(e.clientY - drag.y, w.clientHeight - r.offsetHeight)) + 'px';
+  });
+  $('rtb').addEventListener('pointerup', function () { drag = null; });
+})();
+function setTheme(t) { document.documentElement.setAttribute('data-theme', t); $('btnTheme').textContent = t === 'dark' ? '明るい表示' : '暗い表示'; }
+$('btnTheme').onclick = function () { setTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'); };
+window.addEventListener('resize', function () { draw(); place(false); });
+
+initState();
+setTheme(window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+draw(); showProps(); renderRep(); place(true);
+</script>
+</body>
+</html>
