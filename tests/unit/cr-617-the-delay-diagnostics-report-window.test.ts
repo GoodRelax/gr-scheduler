@@ -267,7 +267,7 @@ describe('RW-6 / RW-7 -- the Markdown string and the file name', () => {
 })
 
 describe('IC-108 / IC-140 -- the shell hands the string out', () => {
-  const held = { window: OPENED_DELAY_DIAGNOSTICS_REPORT, report: REPORT, schedule: SCHEDULE, documentName: 'Plan', language: 'ja' as const }
+  const held = { window: OPENED_DELAY_DIAGNOSTICS_REPORT, view: NO_VIEW, report: REPORT, schedule: SCHEDULE, documentName: 'Plan', language: 'ja' as const }
 
   const outletsOf = (copied: ClipboardContent[], written: ChosenFileWrite[], kept: (DelayDiagnosticsReportWindow | null)[]) => ({
     clipboard: {
@@ -286,6 +286,7 @@ describe('IC-108 / IC-140 -- the shell hands the string out', () => {
     raiseCopyRefused: () => undefined,
     raiseFileFault: () => undefined,
     holdWindow: (window: DelayDiagnosticsReportWindow | null) => void kept.push(window),
+    writeView: () => undefined,
   })
 
   it('IC-108 copies the Markdown string as a document text', async () => {

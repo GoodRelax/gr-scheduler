@@ -1894,6 +1894,22 @@ function reportHeldOf(
   return { window, view, report: diagnostics.report, schedule: document.schedule, documentName, language }
 }
 
+// see EL-21, SJ-0, SJ-2, UN-20
+/** @purity semi-pure-b */
+function actionWithJumpViews(
+  translated: ReturnType<typeof commandFromInput>,
+  jumpViewWrites: (taskUid: number) => readonly DocumentCommand[],
+): InputAction | null {
+  const action = translated.action
+  if (translated.landingMarked === undefined) return action
+  const views = jumpViewWrites(translated.landingMarked.landedTaskUid)
+  if (views.length === 0) return action
+  if (action === null) return { kind: 'changeDocument', writes: [views] }
+  if (action.kind !== 'changeDocument') return action
+  const [first = [], ...rest] = action.writes
+  return { ...action, writes: [[...views, ...first], ...rest] }
+}
+
 interface ReportBeforeJump {
   readonly windows: { readonly report: () => DelayDiagnosticsReportWindow | null }
   readonly jumpViewWrites: (taskUid: number) => readonly DocumentCommand[]
@@ -3812,10 +3828,7 @@ export function frameLoop(
     }
     const screenEvent = screenEventFromInput(input, context)
     if (screenEvent !== null && isSentBeforePressDrops(screenEvent, frame)) sendToSession(screenEvent, frame)
-    if (translated.landingMarked !== undefined) {
-      sendToSession(continuationMarkClickedOf(translated.landingMarked), frame)
-      shownTasks.holdJumpTarget(translated.landingMarked.landedTaskUid)
-    }
+    if (translated.landingMarked !== undefined) sendToSession(continuationMarkClickedOf(translated.landingMarked), frame)
     if (escapeLevel === 'confirmation') answerConfirmation(false, frame)
     windows.spendEscapeRung(hands, escapeLevel, frame)
 
@@ -3841,7 +3854,7 @@ export function frameLoop(
         answerWatermarkUnlock(hands, settledAnswer === CONFIRMATION_PROCEED_ANSWER)) ||
       (settledAnswer !== null &&
         answerConfirmation(settledAnswer === CONFIRMATION_PROCEED_ANSWER, frame))
-    if (!spent) carryOutAction(translated.action, frame, didSettleFieldEntry)
+    if (!spent) carryOutAction(actionWithJumpViews(translated, shownTasks.jumpViewWrites), frame, didSettleFieldEntry)
     if (!spent && translated.displayScaleShown !== undefined) {
       showDisplayScaleMessage(translated.displayScaleShown)
     }

@@ -49,7 +49,7 @@ import {
   type SaveFileForm,
 } from '../../adapter/file-gateway/file-gateway'
 import { exportPng, exportSvg, type ExportScene } from '../../adapter/image-exporter/image-exporter'
-import { DEFAULT_TASK_GROUP_NAME, exportFileNameOf, type ExportFormatId } from '../../adapter/screen-renderer/screen-renderer'
+import { DEFAULT_TASK_GROUP_NAME, exportFileNameOf, tableViewsOnTheirColumns, type ExportFormatId } from '../../adapter/screen-renderer/screen-renderer'
 import {
   AGENT_DOCUMENT_HANDED,
   CONFIRMATION_MANNER,
@@ -700,15 +700,16 @@ function landReplacedDocument(
   landOpenedDocument(reading.hands, lines, 'replace', newer, readIn.fileName)
 }
 
-// see OP-18, FR-046, FR-130, S-445, S-564
-// WHY: with no Status Date nothing is diagnosed, so the filter is let go as the file is read, no unsaved edit.
+// see OP-18, T-372, FR-046, FR-130, S-445, S-564
+// WHY: corrections made as a replaced GRS JSON opens, never an unsaved edit: a filter or sort on a column no table holds goes, and so does a report filter with no Status Date to diagnose by.
 /** @purity pure */
-export function withReportFilterDiagnosable(document: Document): Document {
-  const views = document.documentSettings.tableViews
+export function documentAsOpened(document: Document): Document {
+  const held = document.documentSettings.tableViews
+  const views = tableViewsOnTheirColumns(held)
   const report = views.delayDiagnosticsReport
-  if (!report.isScheduleFilterApplied || dayOf(document.schedule.project.statusDate) !== null) return document
-  const tableViews = { ...views, delayDiagnosticsReport: { ...report, isScheduleFilterApplied: false } }
-  return { ...document, documentSettings: { ...document.documentSettings, tableViews } }
+  const isUndiagnosable = report.isScheduleFilterApplied && dayOf(document.schedule.project.statusDate) === null
+  const kept = isUndiagnosable ? { ...views, delayDiagnosticsReport: { ...report, isScheduleFilterApplied: false } } : views
+  return kept === held ? document : { ...document, documentSettings: { ...document.documentSettings, tableViews: kept } }
 }
 
 // see OP-2, OP-5, OP-12, OP-18, T-230
@@ -815,7 +816,7 @@ export async function openDocumentIntoHold(
   }
 
   if (choice === 'replace') {
-    const replaced = hands.replaceHeldDocument({ row: 'RD-4', importing: { ...importing, incoming: withReportFilterDiagnosable(incoming), choice } })
+    const replaced = hands.replaceHeldDocument({ row: 'RD-4', importing: { ...importing, incoming: documentAsOpened(incoming), choice } })
     if (replaced) landReplacedDocument(reading, flow, store, droppedNames, newer, readIn, incoming)
     return replaced
   }

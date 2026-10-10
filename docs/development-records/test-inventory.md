@@ -385,7 +385,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-722-tv-11-the-schedule-filter-bar-names-the-tables.contract.test.ts` | 6 | FR-151 | - | T-353 | TV-11, U-67 | - | - | - | - |
 | `tests/contract/cr-722-tv-5-tv-8-dt-8-each-table-holds-its-own-visibility.contract.test.ts` | 15 | FR-134, FR-151 | - | T-346, T-347, T-353 | DT-8, IC-143, RW-10, S-560, S-561, S-564, S-565, S-568, S-569, TV-2, TV-5, TV-6, TV-8 | - | - | - | - |
 | `tests/contract/cr-723-fr-151-op-18-un-20-the-table-views-are-in-the-document.contract.test.ts` | 22 | FR-099, FR-134, FR-151 | - | T-024a, T-027, T-108, T-203, T-206, T-330, T-335, T-353, T-372 | CD-1, CD-5, CM-92, OP-6, OP-7, OP-18, S-420, S-445, S-546, S-560, S-564, S-567, S-568, S-572, SV-14, TV-6, TV-8, TV-9, UN-14, UN-20, WB-2, WB-6 | - | - | - | - |
-| `tests/contract/cr-723-s-560-s-572-op-18-the-saved-views-come-back.contract.test.ts` | 23 | FR-024, FR-151 | - | - | OP-6, OP-18, S-560, S-572, TV-9 | - | - | - | - |
+| `tests/contract/cr-723-s-560-s-572-op-18-the-saved-views-come-back.contract.test.ts` | 23 | FR-024, FR-151 | - | - | JF-1, OP-6, OP-18, S-560, S-572, TV-9 | - | - | - | - |
 | `tests/contract/cr-723-un-20-cm-92-cd-1-cd-5-a-view-change-is-an-edit-and-one-undo-step.contract.test.ts` | 20 | FR-151 | - | - | CD-1, CD-5, CM-92, TV-2, UN-20 | - | - | - | - |
 | `tests/contract/cr-727-op-17-the-drop-cue-drawn.contract.test.ts` | 19 | FR-087, FR-152 | - | T-024a, T-337 | OP-17, PI-19, S-151, S-214, S-553, U-32, U-68, UZ-1 | - | - | - | - |
 | `tests/contract/cr-727-op-17-the-drop-cue.contract.test.ts` | 17 | FR-087 | VT-2 | T-024a, T-103, T-280, T-337 | IC-1, OP-2, OP-17, S-214, S-553, U-32, U-68, UZ-1 | - | - | - | - |

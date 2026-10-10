@@ -74,6 +74,7 @@ export {
   scheduleFilterBarOf,
   statusGlyphSvg,
   tableAfterVisibilityChange,
+  tableViewsOnTheirColumns,
   tableWithScheduleFilterOff,
   tableWithScheduleFilterToggled,
 } from './table-window'

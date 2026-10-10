@@ -21,10 +21,12 @@ import { searchPanelBoxOf, searchPanelElement } from '../../src/framework/dom-sc
 import {
   advanceScreenSession,
   emptyScreenSession,
+  EVERY_ROW_SHOWN,
   emptySearchPanelSession,
   type ScreenSession,
   type SearchPanelSession,
   type SessionEvent,
+  type TableView,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { selfAndDescendants, stage, type FakeElement } from '../fixtures/fake-browser'
 import { specTable, unbroken, type SpecRow } from './spec-table'
@@ -286,51 +288,71 @@ function sessionIn(language: DisplayLanguage, ...events: readonly string[]): Scr
 }
 
 const JA = sessionIn('ja')
-const TASK_PANEL: SearchPanelSession = { ...emptySearchPanelSession, table: 'tasks' }
-const COMMENT_PANEL: SearchPanelSession = { ...emptySearchPanelSession, table: 'commentBoxes' }
+// WHY: CR-723 -- the column filters and the sort are the search table's view the document holds (FR-151); the panel
+// keeps only the screen's values, so a case carries the two together as one pane and threads it through the steps.
+const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
 
-function viewOf(panel: SearchPanelSession, session: ScreenSession = JA): SearchPanelView {
-  return found(searchPanelFromSession(session, panel, SCHEDULE, CANVAS), 'a view of a shown panel')
+interface Pane {
+  readonly panel: SearchPanelSession
+  readonly view: TableView
 }
 
-const opened = (column: string, panel: SearchPanelSession = TASK_PANEL, session: ScreenSession = JA): SearchPanelSession =>
-  found(searchPanelWithFilterOpened(session, panel, column), `the panel after IC-122 on ${column}`)
+const TASK_PANEL: Pane = { panel: { ...emptySearchPanelSession, table: 'tasks' }, view: NO_VIEW }
+const COMMENT_PANEL: Pane = { panel: { ...emptySearchPanelSession, table: 'commentBoxes' }, view: NO_VIEW }
 
-const changed = (panel: SearchPanelSession, change: SearchFilterChange): SearchPanelSession =>
-  found(searchPanelAfterFilterChange(JA, panel, change), `the panel after ${JSON.stringify(change)}`)
+function viewOf(pane: Pane, session: ScreenSession = JA): SearchPanelView {
+  return found(searchPanelFromSession(session, pane.panel, pane.view, SCHEDULE, CANVAS), 'a view of a shown panel')
+}
 
-const pressed = (panel: SearchPanelSession, entry: string): SearchPanelSession =>
-  found(searchPanelAfterFilterEntry(JA, panel, entry, SCHEDULE), `the panel after ${entry}`)
+const opened = (column: string, pane: Pane = TASK_PANEL, session: ScreenSession = JA): Pane => ({
+  panel: found(searchPanelWithFilterOpened(session, pane.panel, pane.view, column), `the panel after IC-122 on ${column}`),
+  view: pane.view,
+})
+
+const changed = (pane: Pane, change: SearchFilterChange): Pane => ({
+  panel: pane.panel,
+  view: found(searchPanelAfterFilterChange(JA, pane.panel, pane.view, change), `the view after ${JSON.stringify(change)}`),
+})
+
+const pressed = (pane: Pane, entry: string): Pane => ({
+  panel: pane.panel,
+  view: found(searchPanelAfterFilterEntry(JA, pane.panel, pane.view, entry as never, SCHEDULE), `the view after ${entry}`),
+})
+
+const withFilterClosed = (pane: Pane): Pane | null => {
+  const panel = searchPanelWithFilterClosed(JA, pane.panel, pane.view)
+  return panel === null ? null : { panel, view: pane.view }
+}
 
 type Menu = NonNullable<SearchPanelView['filterMenu']>
 type ValuesMenu = Extract<Menu, { kind: 'values' }>
 
-const menuOf = (panel: SearchPanelSession, session: ScreenSession = JA): Menu =>
+const menuOf = (panel: Pane, session: ScreenSession = JA): Menu =>
   found(viewOf(panel, session).filterMenu, 'an open filter in the view')
 
-function valuesOf(panel: SearchPanelSession, session: ScreenSession = JA): ValuesMenu {
+function valuesOf(panel: Pane, session: ScreenSession = JA): ValuesMenu {
   const menu = menuOf(panel, session)
   if (menu.kind !== 'values') throw new Error(`the open filter of ${menu.column} is ${menu.kind}, not values`)
   return menu
 }
 
 // WHY: the seam does not say how a value is spelled, so the case finds it by the label it is shown with.
-const valueLabeled = (panel: SearchPanelSession, label: string): string =>
+const valueLabeled = (panel: Pane, label: string): string =>
   found(
     valuesOf(panel).values.find((one) => one.label === label),
     `an item labeled ${label} in ${menuOf(panel).column}`,
   ).value
 
-const untick = (panel: SearchPanelSession, label: string): SearchPanelSession =>
+const untick = (panel: Pane, label: string): Pane =>
   changed(panel, { kind: 'value', column: menuOf(panel).column, value: valueLabeled(panel, label), isShown: false })
 
-const tick = (panel: SearchPanelSession, label: string): SearchPanelSession =>
+const tick = (panel: Pane, label: string): Pane =>
   changed(panel, { kind: 'value', column: menuOf(panel).column, value: valueLabeled(panel, label), isShown: true })
 
-const bound = (panel: SearchPanelSession, which: 'since' | 'until', day: string | null): SearchPanelSession =>
+const bound = (panel: Pane, which: 'since' | 'until', day: string | null): Pane =>
   changed(panel, { kind: 'bound', column: menuOf(panel).column, bound: which, day })
 
-const isShownOf = (panel: SearchPanelSession, label: string): boolean =>
+const isShownOf = (panel: Pane, label: string): boolean =>
   found(valuesOf(panel).values.find((one) => one.label === label), `item ${label}`).isShown
 
 // WHY: a task row is named by its SQ-1 cell; the two nameless tasks by their SQ-3 cell as well.
@@ -339,19 +361,19 @@ const TASK_KEYS = new Map<string, number>(
 )
 const COMMENT_KEYS = new Map<string, string>(Object.entries(COMMENT_TEXT).map(([id, text]) => [text, id]))
 
-const uidsOf = (panel: SearchPanelSession): readonly number[] =>
+const uidsOf = (panel: Pane): readonly number[] =>
   viewOf(panel).rows.map((line) => {
     const name = line.cells[TASK_COLUMNS.indexOf('SQ-1')] ?? ''
     const key = name === NO_NAME_JA ? `${name}@${line.cells[TASK_COLUMNS.indexOf('SQ-3')] ?? ''}` : name
     return found(TASK_KEYS.get(key), `a fixture task for the row ${JSON.stringify(line.cells)}`)
   })
 
-const idsOf = (panel: SearchPanelSession): readonly string[] =>
+const idsOf = (panel: Pane): readonly string[] =>
   viewOf(panel).rows.map((line) =>
     found(COMMENT_KEYS.get(line.cells[0] ?? ''), `a fixture comment box for the row ${JSON.stringify(line.cells)}`),
   )
 
-const labelsOf = (panel: SearchPanelSession): readonly string[] => valuesOf(panel).values.map((one) => one.label)
+const labelsOf = (panel: Pane): readonly string[] => valuesOf(panel).values.map((one) => one.label)
 const iconsOf = (menu: Menu): readonly string[] => menu.entries.map((one) => one.icon)
 
 
@@ -418,37 +440,37 @@ describe('T-330 SV-7 -- IC-122 on every heading opens the filter of that column,
 
   it.each([...TASK_COLUMNS])('SV-7: pressing IC-122 on %s opens that column\'s filter', (column) => {
     const panel = opened(column)
-    expect(panel.filters.open).toBe(column)
+    expect(panel.panel.filters.open).toBe(column)
     expect(menuOf(panel).column).toBe(column)
   })
 
   it.each([...COMMENT_COLUMNS])('SV-7: pressing IC-122 on %s of the comment box table opens that column\'s filter', (column) => {
     const panel = opened(column, COMMENT_PANEL)
-    expect(panel.filters.open).toBe(column)
+    expect(panel.panel.filters.open).toBe(column)
     expect(menuOf(panel).column).toBe(column)
   })
 
   it('SV-7: only one filter is open at a time -- opening another column\'s filter replaces the first', () => {
     const first = opened('SQ-1')
     const second = opened('SQ-3', first)
-    expect(second.filters.open).toBe('SQ-3')
+    expect(second.panel.filters.open).toBe('SQ-3')
     expect(menuOf(second).column).toBe('SQ-3')
     const third = opened('SQ-2', second)
-    expect(third.filters.open).toBe('SQ-2')
+    expect(third.panel.filters.open).toBe('SQ-2')
     expect(menuOf(third).column).toBe('SQ-2')
   })
 
   it('SV-3: a column of the table not shown has no heading to press', () => {
-    expect(searchPanelWithFilterOpened(JA, TASK_PANEL, 'SQ-7')).toBeNull()
-    expect(searchPanelWithFilterOpened(JA, COMMENT_PANEL, 'SQ-1')).toBeNull()
+    expect(searchPanelWithFilterOpened(JA, TASK_PANEL.panel, TASK_PANEL.view, 'SQ-7')).toBeNull()
+    expect(searchPanelWithFilterOpened(JA, COMMENT_PANEL.panel, COMMENT_PANEL.view, 'SQ-1')).toBeNull()
   })
 
   it('SV-12: a minimized panel shows only its heading row, so no filter opens', () => {
-    expect(searchPanelWithFilterOpened(sessionIn('ja', 'searchPanelMinimizeToggled'), TASK_PANEL, 'SQ-1')).toBeNull()
+    expect(searchPanelWithFilterOpened(sessionIn('ja', 'searchPanelMinimizeToggled'), TASK_PANEL.panel, TASK_PANEL.view, 'SQ-1')).toBeNull()
   })
 
   it('SV-7: a hidden panel opens no filter', () => {
-    expect(searchPanelWithFilterOpened(emptyScreenSession, TASK_PANEL, 'SQ-1')).toBeNull()
+    expect(searchPanelWithFilterOpened(emptyScreenSession, TASK_PANEL.panel, TASK_PANEL.view, 'SQ-1')).toBeNull()
   })
 })
 
@@ -603,12 +625,12 @@ describe('T-330 SV-7 -- check marks and bounds decide which rows stay', () => {
     const noBeta = untick(opened('SQ-1'), 'Beta')
     const alsoSince = bound(opened('SQ-3', noBeta), 'since', '2026-04-06')
     expect(uidsOf(alsoSince), 'the SQ-1 filter still holds after another filter opens').toEqual([5, 6, 4])
-    expect(uidsOf({ ...alsoSince, word: EXAMPLE_KATAKANA.slice(0, 1) })).toEqual([5])
+    expect(uidsOf({ ...alsoSince, panel: { ...alsoSince.panel, word: EXAMPLE_KATAKANA.slice(0, 1) } })).toEqual([5])
   })
 
   it('SV-7: a change for a column whose filter is not the open one is refused', () => {
     const panel = opened('SQ-1')
-    expect(searchPanelAfterFilterChange(JA, panel, { kind: 'value', column: 'SQ-2', value: ANN, isShown: false })).toBeNull()
+    expect(searchPanelAfterFilterChange(JA, panel.panel, panel.view, { kind: 'value', column: 'SQ-2', value: ANN, isShown: false })).toBeNull()
   })
 })
 
@@ -633,8 +655,8 @@ describe('T-330 SV-7 / T-109 -- IC-125 shows every value, IC-126 hides every val
   })
 
   it('SV-7: an entry pressed with no filter open is refused', () => {
-    expect(searchPanelAfterFilterEntry(JA, TASK_PANEL, 'IC-125', SCHEDULE)).toBeNull()
-    expect(searchPanelAfterFilterEntry(JA, TASK_PANEL, 'IC-123', SCHEDULE)).toBeNull()
+    expect(searchPanelAfterFilterEntry(JA, TASK_PANEL.panel, TASK_PANEL.view, 'IC-125', SCHEDULE)).toBeNull()
+    expect(searchPanelAfterFilterEntry(JA, TASK_PANEL.panel, TASK_PANEL.view, 'IC-123', SCHEDULE)).toBeNull()
   })
 })
 
@@ -642,13 +664,13 @@ describe('T-330 SV-7 / T-109 -- IC-125 shows every value, IC-126 hides every val
 describe('T-330 SV-8 -- IC-123 / IC-124 sort by one column, blanks last, ties in the default order', () => {
   it('SV-8 IC-123: sorts the table by the open column, ascending; ties keep the default order, a blank date last', () => {
     const panel = pressed(opened('SQ-3'), 'IC-123')
-    expect(panel.sort).toEqual({ column: 'SQ-3', direction: 'ascending' })
+    expect(panel.view.sort).toEqual({ column: 'SQ-3', direction: 'ascending' })
     expect(uidsOf(panel)).toEqual([1, 3, 2, 5, 6, 4, 7])
   })
 
   it('SV-8 IC-124: sorts the table by the open column, descending; ties keep the default order, a blank date last', () => {
     const panel = pressed(opened('SQ-3'), 'IC-124')
-    expect(panel.sort).toEqual({ column: 'SQ-3', direction: 'descending' })
+    expect(panel.view.sort).toEqual({ column: 'SQ-3', direction: 'descending' })
     expect(uidsOf(panel)).toEqual([4, 6, 2, 5, 3, 1, 7])
   })
 
@@ -668,7 +690,7 @@ describe('T-330 SV-8 -- IC-123 / IC-124 sort by one column, blanks last, ties in
   it('SV-8: one sort column -- a new sort replaces the old one, and its ties fall back to the default order', () => {
     const byName = pressed(opened('SQ-1'), 'IC-124')
     const byState = pressed(opened('SQ-5', byName), 'IC-123')
-    expect(byState.sort).toEqual({ column: 'SQ-5', direction: 'ascending' })
+    expect(byState.view.sort).toEqual({ column: 'SQ-5', direction: 'ascending' })
     expect(uidsOf(byState), 'not started ties are 2, 6, 7 by default, not 7, 2, 6 by the old name sort').toEqual([
       2, 6, 7, 1, 3, 4, 5,
     ])
@@ -687,7 +709,7 @@ describe('T-330 SV-8 -- IC-123 / IC-124 sort by one column, blanks last, ties in
 
 
 describe('T-330 SV-4 -- the word matches a part of the name, an assignee or the body', () => {
-  const withWord = (word: string, panel: SearchPanelSession = TASK_PANEL): SearchPanelSession => ({ ...panel, word })
+  const withWord = (word: string, pane: Pane = TASK_PANEL): Pane => ({ ...pane, panel: { ...pane.panel, word } })
 
   it('SV-4: an empty word keeps every row', () => {
     expect(uidsOf(withWord(''))).toEqual(DEFAULT_ORDER)
@@ -757,29 +779,29 @@ describe('T-330 SV-14 / T-028 IN-4 -- Esc closes the open filter first, then the
 
   it('SV-14: the first Esc closes only the open filter; the panel stays and the filter itself still holds', () => {
     const filtering = untick(opened('SQ-1'), 'Beta')
-    const closed = found(searchPanelWithFilterClosed(JA, filtering), 'the panel after the first Esc')
-    expect(closed.filters.open).toBeNull()
+    const closed = found(withFilterClosed(filtering), 'the panel after the first Esc')
+    expect(closed.panel.filters.open).toBeNull()
     const view = viewOf(closed)
     expect(view.filterMenu).toBeNull()
     expect(uidsOf(closed), 'the SQ-1 filter is remembered (SV-14)').toEqual([1, 3, 5, 6, 4, 7])
   })
 
   it('SV-14: the second Esc finds no filter open, so it closes the panel', () => {
-    const closed = found(searchPanelWithFilterClosed(JA, opened('SQ-1')), 'the panel after the first Esc')
-    expect(searchPanelWithFilterClosed(JA, closed)).toBeNull()
+    const closed = found(withFilterClosed(opened('SQ-1')), 'the panel after the first Esc')
+    expect(withFilterClosed(closed)).toBeNull()
     const after = advanceScreenSession(JA, { type: 'escapePressed', rung: 'searchPanel' } as unknown as SessionEvent).state
-    expect(searchPanelFromSession(after, closed, SCHEDULE, CANVAS)).toBeNull()
+    expect(searchPanelFromSession(after, closed.panel, closed.view, SCHEDULE, CANVAS)).toBeNull()
   })
 
   it('SV-14: with no filter open, the first Esc already closes the panel', () => {
-    expect(searchPanelWithFilterClosed(JA, TASK_PANEL)).toBeNull()
+    expect(withFilterClosed(TASK_PANEL)).toBeNull()
   })
 })
 
 
 // WHY: the painter (searchPanelPainter) does not run on tests/fixtures/fake-browser.ts, so the drawing is read
 // through searchPanelElement, as cr-571-search-panel-view.test.ts does; the change events are not driven here.
-function drawn(panel: SearchPanelSession): FakeElement {
+function drawn(panel: Pane): FakeElement {
   const built = stage()
   const view = viewOf(panel)
   const box = searchPanelBoxOf(view, { width: 0.5, height: 0.5 })

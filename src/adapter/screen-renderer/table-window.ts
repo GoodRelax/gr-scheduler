@@ -217,6 +217,35 @@ export function isScheduleFilterAppliedIn(settings: DocumentSettings, table: Vis
   return tableViewOf(settings, table).visibility.isApplied
 }
 
+type HeldTableViews = DocumentSettings['tableViews']
+
+// see OP-18, T-372, JF-1
+const COLUMNS_OF_TABLE: { readonly [T in VisibilityTable]: ReadonlySet<string> } = {
+  searchPanel: new Set(displayWords.searchColumns.map((entry) => entry.rowId)),
+  delayDiagnosticsReport: new Set(displayWords.delayReportColumns.map((entry) => entry.rowId)),
+  resourceList: new Set(displayWords.resourceListColumns.map((entry) => entry.rowId)),
+}
+
+/** @purity pure */
+function heldViewOnColumns<V extends HeldTableViews[VisibilityTable]>(held: V, columns: ReadonlySet<string>): V {
+  const columnFilters = held.columnFilters.filter((one) => columns.has(one.column))
+  const sort = held.sort !== null && !columns.has(held.sort.column) ? null : held.sort
+  if (columnFilters.length === held.columnFilters.length && sort === held.sort) return held
+  return { ...held, columnFilters, sort }
+}
+
+// see OP-18, T-372
+// WHY: a column filter or sort on a column its table does not hold is dropped silently, never refused; the same views back when none goes.
+/** @purity pure */
+export function tableViewsOnTheirColumns(views: HeldTableViews): HeldTableViews {
+  const kept = {
+    searchPanel: heldViewOnColumns(views.searchPanel, COLUMNS_OF_TABLE.searchPanel),
+    delayDiagnosticsReport: heldViewOnColumns(views.delayDiagnosticsReport, COLUMNS_OF_TABLE.delayDiagnosticsReport),
+    resourceList: heldViewOnColumns(views.resourceList, COLUMNS_OF_TABLE.resourceList),
+  }
+  return VISIBILITY_TABLES.every((table) => kept[table] === views[table]) ? views : kept
+}
+
 /** @purity pure */
 export function tableColumnsOf(
   panel: TableWindowSession,

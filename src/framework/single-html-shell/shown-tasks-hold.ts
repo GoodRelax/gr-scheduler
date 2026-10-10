@@ -8,6 +8,7 @@ import type { DocumentSettings } from '../../entity/document-model/document-sett
 import type { DocumentCommand } from '../../use-case/apply-document-change/apply-document-change'
 import { shownTasksRevealWrites } from '../../use-case/edit-document/edit-document'
 import {
+  VISIBILITY_TABLES,
   tableViewOf,
   type ScreenValuesEvent,
   type SearchPanelSession,
@@ -23,11 +24,6 @@ const SEARCH_PANEL_OPENED: ScreenValuesEvent = { type: 'searchEntryPressed' }
 const SEARCH_PANEL_MINIMIZE_TOGGLED: ScreenValuesEvent = { type: 'searchPanelMinimizeToggled' }
 
 type Schedule = Document['schedule']
-
-// see TV-11
-// WHY: keyed by the document's tableViews, so the order of the Schedule Filter bar names no table of its own.
-const TABLE_PLACE: { readonly [T in keyof DocumentSettings['tableViews']]: number } = { searchPanel: 0, delayDiagnosticsReport: 1, resourceList: 2 }
-const TABLE_ORDER = (Object.keys(TABLE_PLACE) as VisibilityTable[]).sort((a, b) => TABLE_PLACE[a] - TABLE_PLACE[b])
 
 export interface HeldTableWindows {
   readonly searchPanel: () => SearchPanelSession
@@ -107,7 +103,7 @@ export function drawnTaskUidsOf(
 // see TV-1, TV-11, AM-26
 /** @purity pure */
 function appliedTablesOf(tables: TableVisibilities): readonly VisibilityTable[] {
-  return TABLE_ORDER.filter((table) => tables[table].isApplied)
+  return VISIBILITY_TABLES.filter((table) => tables[table].isApplied)
 }
 
 // see TV-6
@@ -162,7 +158,7 @@ function viewWithFilterOff(table: VisibilityTable, view: TableView): TableView {
 // see CM-92, UN-20, TV-6
 /** @purity pure */
 function tableViewWrites(document: Document, held: TableViewsHeld, changes: TableViewChanges): readonly DocumentCommand[] {
-  const tables = TABLE_ORDER.filter((table) => !isSameView(changes[table] ?? held[table], held[table]))
+  const tables = VISIBILITY_TABLES.filter((table) => !isSameView(changes[table] ?? held[table], held[table]))
   if (tables.length === 0) return []
   const viewAfter = (table: VisibilityTable): TableView => changes[table] ?? held[table]
   const before = visibilitiesOf(held)
@@ -364,18 +360,12 @@ function tableViewWriterOf(hands: FrameLoopHands, windows: HeldTableWindows, vie
     letScheduleFilterGo: (table: VisibilityTable, frame: FrameValues | null = hands.readValues()): void =>
       writeViews({ [table]: viewWithFilterOff(table, views()[table]) }, frame),
     /** @purity non-pure */
-    holdJumpTarget(taskUid: number): void {
-      const writes = jumpViewWrites(taskUid)
-      const frame = hands.readValues()
-      if (writes.length > 0 && frame !== null) hands.writeDocument(writes, frame)
-    },
-    /** @purity non-pure */
     holdSearchStep(step: { readonly panel: SearchPanelSession; readonly view: TableView }, frame: FrameValues): void {
       writeViews({ searchPanel: step.view }, frame)
       windows.holdSearchPanel(step.panel)
     },
     turnOffEveryFilter: (frame: FrameValues | null): void =>
-      writeViews(Object.fromEntries(TABLE_ORDER.map((table) => [table, viewWithFilterOff(table, views()[table])])), frame),
+      writeViews(Object.fromEntries(VISIBILITY_TABLES.map((table) => [table, viewWithFilterOff(table, views()[table])])), frame),
   }
 }
 
@@ -430,23 +420,26 @@ export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindow
     visibilities,
     appliedTables: (): readonly VisibilityTable[] => appliedTablesOf(visibilities()),
     holdCreatedTasks: (before: Schedule, after: Schedule): void => created.note(before, after, isFiltered()),
-    agentHolder: (): NonNullable<AgentApiSeams['shownTasks']> => agentShownTasksHolderOf(visibilities, { drawnSet, holdJumpTarget: writer.holdJumpTarget }),
+    agentHolder: (): NonNullable<AgentApiSeams['shownTasks']> => agentShownTasksHolderOf(visibilities, { drawnSet, jumpViewWrites: writer.jumpViewWrites }),
   }
 }
 
 export type ShownTasksHold = ReturnType<typeof shownTasksHoldOf>
 
-// see AM-26, AM-27, SJ-0
+// see AM-26, AM-27, SJ-0, UN-20
+// WHY: AM-16 writes the view changes in its own SJ-2 write (one undo step); holdJumpTarget is
+// left to the frame loop, which owes the landing (SJ-5).
 /** @purity non-pure */
 function agentShownTasksHolderOf(
   visibilities: () => TableVisibilities,
-  hold: { readonly drawnSet: () => ReadonlySet<number> | null; readonly holdJumpTarget: (taskUid: number) => void },
+  hold: { readonly drawnSet: () => ReadonlySet<number> | null; readonly jumpViewWrites: (taskUid: number) => readonly DocumentCommand[] },
 ): NonNullable<AgentApiSeams['shownTasks']> {
   return {
     readShownTasks: () => {
       const drawn = hold.drawnSet()
       return { drawnTaskUids: drawn === null ? null : [...drawn], tables: appliedTablesOf(visibilities()) }
     },
-    holdJumpTarget: hold.holdJumpTarget,
+    jumpViewWrites: hold.jumpViewWrites,
+    holdJumpTarget: () => undefined,
   }
 }

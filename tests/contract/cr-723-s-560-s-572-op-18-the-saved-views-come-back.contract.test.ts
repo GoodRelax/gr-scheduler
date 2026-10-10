@@ -3,6 +3,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { documentFromJson, mspdiFromDocument } from '../../src/adapter/document-codec/document-codec'
+import { documentAsOpened } from '../../src/framework/single-html-shell/document-file-flow'
 import { validateDocument } from '../fixtures/grs-document'
 import {
   ALL_SHOWN,
@@ -164,6 +165,14 @@ describe('OP-18 -- a uid that points at nothing and a column that is in no table
     return tableViewsIn(savedObjectOf(opened.document))
   }
 
+  // WHY: CR-732 -- a uid is dropped as the file is read, a column row ID as the replaced document opens (OP-18),
+  // since only the side that draws the tables knows their columns (JF-1).
+  const openedAsReplaced = (): ReturnType<typeof documentAsOpened> => {
+    const opened = strange()
+    if (!opened.ok) throw new Error('refused')
+    return documentAsOpened(opened.document)
+  }
+
   it('the hidden task that is not in the document is dropped and the one that is stays', () => {
     expect(savedViews()['searchPanel']?.['hiddenTaskUids']).toEqual([ALPHA])
   })
@@ -173,14 +182,13 @@ describe('OP-18 -- a uid that points at nothing and a column that is in no table
   })
 
   it('a column filter on a column that is in no table is dropped and the real one stays; a sort on such a column reads as no sort', () => {
-    const search = savedViews()['searchPanel'] ?? {}
+    const search = tableViewsIn(savedObjectOf(openedAsReplaced()))['searchPanel'] ?? {}
     expect(((search['columnFilters'] ?? []) as Loose[]).map((one) => one['column'])).toEqual(['SQ-5'])
     expect(search['sort']).toBeNull()
   })
 
   it('tableViewOf reads the same kept values', () => {
-    const opened = strange()
-    if (!opened.ok) throw new Error('refused')
+    const opened = { document: openedAsReplaced() }
     const read = tableViewOf(opened.document.documentSettings, 'searchPanel')
     expect(read.visibility.hiddenKeys).toEqual([ALPHA])
     expect(read.columnFilters.map((one: ColumnFilter) => one.column)).toEqual(['SQ-5'])
@@ -189,9 +197,7 @@ describe('OP-18 -- a uid that points at nothing and a column that is in no table
   })
 
   it('the dropped values do not come back in the saved file', () => {
-    const opened = strange()
-    if (!opened.ok) throw new Error('refused')
-    const text = savedTextOf(opened.document)
+    const text = savedTextOf(openedAsReplaced())
     expect(text).not.toContain(String(GONE_TASK))
     expect(text).not.toContain(String(GONE_RESOURCE))
     expect(text).not.toContain(NOWHERE)

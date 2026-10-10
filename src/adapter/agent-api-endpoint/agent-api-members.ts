@@ -119,7 +119,12 @@ export interface AgentShownTasks {
 export interface ShownTasksHolder {
   /** @purity semi-pure-b */
   readShownTasks(): AgentShownTasks
-  // WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which puts the target among the drawn tasks.
+  // see SJ-0, UN-20
+  // WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which puts the target among the drawn tasks;
+  // its view writes ride in the SJ-2 write, so the jump is one undo step.
+  /** @purity semi-pure-b */
+  jumpViewWrites(taskUid: number): readonly DocumentCommand[]
+  // see SJ-5
   /** @purity non-pure */
   holdJumpTarget(taskUid: number): void
 }
@@ -356,7 +361,7 @@ function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskU
   const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, member?.groupId ?? null)
   const target = { kind: 'task', taskUid } as const
   const plan = searchJumpWrites(snapshot.document, target, hasRoom, searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, target))
-  const commands = searchJumpCommands(plan, frame.unstoredZoom ?? null)
+  const commands = [...(wiring.shownTasks?.jumpViewWrites(taskUid) ?? []), ...searchJumpCommands(plan, frame.unstoredZoom ?? null)]
   // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
   // so a concurrent edit does not refuse it.
   const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)
