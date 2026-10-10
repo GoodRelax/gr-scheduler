@@ -519,22 +519,6 @@ function isSameRecord(
   return fields.every(([key, value]) => Object.hasOwn(right, key) && isSame(value, right[key], key))
 }
 
-// TRAP: the settings and the regions are new objects on every frame; compared by identity, nothing is ever held.
-/** @purity pure */
-function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
-  return (
-    a.schedule === b.schedule &&
-    a.selection === b.selection &&
-    a.dualCursor === b.dualCursor &&
-    a.delayDiagnostics === b.delayDiagnostics &&
-    a.parentTaskFamilies === b.parentTaskFamilies &&
-    a.shownTaskUids === b.shownTaskUids &&
-    a.taskGroupControlsHeightPx === b.taskGroupControlsHeightPx &&
-    isSameRecord(a.settings, b.settings) &&
-    isSameRecord(a.regions, b.regions, (x, y) => isSameRecord(x as object, y as object))
-  )
-}
-
 // see FR-046, GR-16, DFC-2314
 // WHY: a Status Line drag writes only statusDate, which no layout reads; a new layout re-asks the zoom ends.
 /** @purity pure */
@@ -545,6 +529,7 @@ function isSameScheduleApartFromStatusDate(a: Document['schedule'], b: Document[
       : Object.is(x, y))
 }
 
+// TRAP: the settings and the regions are new objects on every frame; compared by identity, nothing is ever held.
 /** @purity pure */
 function isSameLayoutInputs(a: PictureInputs, b: PictureInputs): boolean {
   return (
@@ -553,6 +538,18 @@ function isSameLayoutInputs(a: PictureInputs, b: PictureInputs): boolean {
     isSameScheduleApartFromStatusDate(a.schedule, b.schedule) &&
     isSameRecord(a.settings, b.settings) &&
     isSameRecord(a.regions, b.regions, (x, y) => isSameRecord(x as object, y as object))
+  )
+}
+
+/** @purity pure */
+function isSamePictureInputs(a: PictureInputs, b: PictureInputs): boolean {
+  return (
+    a.schedule === b.schedule &&
+    a.selection === b.selection &&
+    a.dualCursor === b.dualCursor &&
+    a.delayDiagnostics === b.delayDiagnostics &&
+    a.parentTaskFamilies === b.parentTaskFamilies &&
+    isSameLayoutInputs(a, b)
   )
 }
 

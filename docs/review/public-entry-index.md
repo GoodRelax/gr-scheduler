@@ -807,6 +807,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DependencyLinkParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#DependencyLinkParts` | -- | interface DependencyLinkParts |
 | `dependencyLinkParts` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#dependencyLinkParts` | -- | function dependencyLinkParts(input: DependencyLinksInput): DependencyLinkParts |
 | `DependencyLinksInput` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#DependencyLinksInput` | -- | interface DependencyLinksInput |
+| `HaloCut` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#HaloCut` | -- | interface HaloCut |
 | `landingLinkOf` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#landingLinkOf` | -- | function landingLinkOf(viewer: ViewerValues): string \| null |
 | `linkKeyOf` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#linkKeyOf` | -- | function linkKeyOf(link: { readonly predecessorUid: number; readonly successorUid: number }): string |
 | `TaskFigureParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#TaskFigureParts` | -- | interface TaskFigureParts |
@@ -1747,4 +1748,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 855 name(s) leave through a public entry (340 of them published by table T-064), 682 more are exported by a file and not by its entry.
+Totals: 855 name(s) leave through a public entry (340 of them published by table T-064), 683 more are exported by a file and not by its entry.
