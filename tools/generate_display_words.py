@@ -431,6 +431,20 @@ DELAY_ASPECT_TABLES = ('T-310', 'T-311')
 DELAY_ASPECTS_WITH_OWN_WORDS = ('VS-6',)
 DELAY_WALL_ROW = re.compile(r'^\| (DW-\d+[a-z]?) \|')
 DELAY_WALL_TABLE = 'T-316'
+# CR-731: the fix proposals and the fix log of the Delay Diagnostics Report
+# (FR-155). The column headings are READ from table T-374, the move
+# `delayReportColumns` makes with table T-347. The count beside the two
+# fix entrances (RW-12), the counter of RW-14, the four fix types of table
+# T-373, the suggested-date mark, the empty choice, the hint of a by-hand row,
+# the cascade prefix, the read-only reason (FM-8, FM-4) and the two notices
+# FR-155 tells are no table's rows: HELD HERE, the same move as
+# DELAY_REPORT_REASON_PARTS. KEYS, not words.
+DELAY_FIX_COLUMN_ROW = re.compile(r'^\| (FM-\d+[a-z]?) \|')
+DELAY_FIX_COLUMN_TABLE = 'T-374'
+DELAY_FIX_PARTS = ('fixCount', 'humanCounter', 'automatic', 'choose',
+                   'suggestedDate', 'byHand', 'suggested', 'choosePlaceholder',
+                   'openFieldHint', 'cascadePrefix', 'readOnlyReason',
+                   'fixedNotice', 'refusedNotice')
 
 HINT_LINE_ROW = re.compile(r'^\| (TL-\d+[a-z]?) \|')
 HINT_LINE_TABLE = 'T-348'
@@ -730,6 +744,10 @@ def roster():
         'delayReportWalls': [row[0] for row in
                              table_rows(REL_REQUIREMENTS, DELAY_WALL_ROW,
                                         DELAY_WALL_TABLE)],
+        'delayFixColumns': [row[0] for row in
+                            table_rows(REL_REQUIREMENTS, DELAY_FIX_COLUMN_ROW,
+                                       DELAY_FIX_COLUMN_TABLE)],
+        'delayFixes': list(DELAY_FIX_PARTS),
         'fitSpanField': list(FIT_SPAN_FIELD_PARTS),
         'exportChooser': list(EXPORT_CHOOSER_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
@@ -813,6 +831,8 @@ SHAPE = {
     'delayReportReasons': ('part', ('text',)),
     'delayReportAspects': ('rowId', ('text',)),
     'delayReportWalls': ('rowId', ('text',)),
+    'delayFixColumns': ('rowId', ('text',)),
+    'delayFixes': ('part', ('text',)),
     'fitSpanField': ('part', ('text',)),
     'exportChooser': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
@@ -931,7 +951,8 @@ def build(doc, keys_by_row):
                     'delayReportColumns',
                     'delayReportStatuses', 'delayReportSummary',
                     'delayReportMarkdown', 'delayReportReasons',
-                    'delayReportAspects', 'delayReportWalls'):
+                    'delayReportAspects', 'delayReportWalls',
+                    'delayFixColumns', 'delayFixes'):
         if section == 'settings':
             out[section] = [{'rowId': entry['rowId'],
                              'keys': keys_by_row[entry['rowId']],

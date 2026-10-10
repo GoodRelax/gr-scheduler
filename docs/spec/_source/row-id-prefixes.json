@@ -483,11 +483,27 @@
    }
   },
   {
+   "prefix": "FA",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "遅延診断の観点ごとの直し方（表 T-373）"
+   }
+  },
+  {
    "prefix": "FD",
    "words": "Fade",
    "owner": "spec",
    "means": {
     "ja": "フェードの形の場合分け"
+   }
+  },
+  {
+   "prefix": "FM",
+   "words": "",
+   "owner": "spec",
+   "means": {
+    "ja": "遅延診断の直す案と直した記録の表の欄（表 T-374）"
    }
   },
   {

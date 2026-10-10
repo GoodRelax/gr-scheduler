@@ -1091,6 +1091,83 @@
    }
   },
   {
+   "rowId": "IC-154",
+   "label": {
+    "ja": "診断結果",
+    "en": "Diagnosis"
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-155",
+   "label": {
+    "ja": "直す案",
+    "en": "Fix Proposals"
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-156",
+   "label": {
+    "ja": "直した記録",
+    "en": "Fix Log"
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-157",
+   "label": {
+    "ja": "上書きして直す",
+    "en": "Overwrite and Fix"
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-158",
+   "label": {
+    "ja": "控えを別名で残して直す",
+    "en": "Save a Backup and Fix"
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-159",
+   "label": {
+    "ja": "前へ",
+    "en": "Previous"
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-160",
+   "label": {
+    "ja": "次へ",
+    "en": "Next"
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
    "rowId": "IC-62",
    "label": {
     "ja": "担当リスト",
@@ -6031,6 +6108,157 @@
    "text": {
     "ja": "先行の無いマイルストーンは診断できない",
     "en": "A milestone with no predecessor cannot be diagnosed"
+   }
+  }
+ ],
+ "delayFixColumns": [
+  {
+   "rowId": "FM-1",
+   "text": {
+    "ja": "直す",
+    "en": "Fix"
+   }
+  },
+  {
+   "rowId": "FM-2",
+   "text": {
+    "ja": "日時",
+    "en": "Date and Time"
+   }
+  },
+  {
+   "rowId": "FM-3",
+   "text": {
+    "ja": "直し方",
+    "en": "Fix Type"
+   }
+  },
+  {
+   "rowId": "FM-4",
+   "text": {
+    "ja": "指摘",
+    "en": "Finding"
+   }
+  },
+  {
+   "rowId": "FM-5",
+   "text": {
+    "ja": "タスク",
+    "en": "Task"
+   }
+  },
+  {
+   "rowId": "FM-6",
+   "text": {
+    "ja": "列",
+    "en": "Field"
+   }
+  },
+  {
+   "rowId": "FM-7",
+   "text": {
+    "ja": "修正前",
+    "en": "Before"
+   }
+  },
+  {
+   "rowId": "FM-8",
+   "text": {
+    "ja": "修正後",
+    "en": "After"
+   }
+  }
+ ],
+ "delayFixes": [
+  {
+   "part": "fixCount",
+   "text": {
+    "ja": "直す: {n} 件",
+    "en": "To fix: {n}"
+   }
+  },
+  {
+   "part": "humanCounter",
+   "text": {
+    "ja": "人が直す {k} / {m}",
+    "en": "By hand {k} / {m}"
+   }
+  },
+  {
+   "part": "automatic",
+   "text": {
+    "ja": "機械",
+    "en": "Automatic"
+   }
+  },
+  {
+   "part": "choose",
+   "text": {
+    "ja": "選ぶ",
+    "en": "Choose"
+   }
+  },
+  {
+   "part": "suggestedDate",
+   "text": {
+    "ja": "日付の候補",
+    "en": "Suggested Date"
+   }
+  },
+  {
+   "part": "byHand",
+   "text": {
+    "ja": "手で直す",
+    "en": "By Hand"
+   }
+  },
+  {
+   "part": "suggested",
+   "text": {
+    "ja": "候補",
+    "en": "Suggested"
+   }
+  },
+  {
+   "part": "choosePlaceholder",
+   "text": {
+    "ja": "（選ぶ）",
+    "en": "(Choose)"
+   }
+  },
+  {
+   "part": "openFieldHint",
+   "text": {
+    "ja": "名前を押すと直す欄を開く",
+    "en": "Click the name to open the field"
+   }
+  },
+  {
+   "part": "cascadePrefix",
+   "text": {
+    "ja": "└ 連鎖:",
+    "en": "└ Follows:"
+   }
+  },
+  {
+   "part": "readOnlyReason",
+   "text": {
+    "ja": "直せない: 読み取り専用のタスクグループ",
+    "en": "Cannot fix: read-only task group"
+   }
+  },
+  {
+   "part": "fixedNotice",
+   "text": {
+    "ja": "{n} 件を直しました。取り消しで 1 回で戻せます",
+    "en": "Fixed {n}. Undo reverts them in one step"
+   }
+  },
+  {
+   "part": "refusedNotice",
+   "text": {
+    "ja": "直しませんでした: {row} —— {reason}",
+    "en": "Nothing was fixed: {row} — {reason}"
    }
   }
  ]
