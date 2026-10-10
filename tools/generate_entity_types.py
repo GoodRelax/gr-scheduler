@@ -1489,6 +1489,21 @@ NOT_STORED_TARGETS = {
     # left edge and where a jump lands. One constant per consuming SUBJECT:
     # the jump is decided by search-jump.ts, which reads it where it stands.
     'NOT_STORED_SEARCH_JUMP_INSET': (['S-428'], READ_WHERE_IT_STANDS),
+    # CR-728: S-554, how far down the room below the pins SJ-5 of table T-332
+    # puts the landed shape's middle. Its own constant, not folded into the
+    # inset above: that one is a width read only when a shape is too wide to
+    # centre (SJ-6), this one is a share of a height read on every jump.
+    'NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE': (['S-554'], READ_WHERE_IT_STANDS),
+    # CR-728: the landing ring SJ-10 of table T-332 draws around a jumped-to
+    # shape -- its gap from the shape (S-555) and its line width (S-556). Drawn
+    # by schedule-overlays.ts in ZO-10, which imports this constant from
+    # svg-renderer.ts as it does the selection's; the ripple reads the ring's
+    # box and width off the same function, so the DOM surface holds neither.
+    'NOT_STORED_JUMP_LANDING_RING_SIZES': (['S-555', 'S-556'], DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-728: the ripple of SJ-10 -- how many times it runs (S-557), how long
+    # one run lasts (S-558) and how far it spreads on each side (S-559). The
+    # DOM surface animates it outside the schedule's SVG, so it alone reads them.
+    'NOT_STORED_JUMP_LANDING_RIPPLE': (['S-557', 'S-558', 'S-559'], DRAWN_WITH_WHERE_IT_STANDS),
     # CR-721: S-425 and the eleven measured columns (S-468 .. S-470, S-474,
     # S-475, S-477, S-479, S-480, S-500 .. S-502) hold the rule 測る (SV-18)
     # and no number, so they left this constant: the surface measures them.
@@ -3258,7 +3273,9 @@ TARGETS = [
      ['docs/spec/_source/settings.json (table T-206)']),
     # DFC-1770: the jump's inset stands in the unit that places the jump (SJ-6).
     (os.path.join(USECASE, 'edit-document', 'search-jump.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_SEARCH_JUMP_INSET'),
+     lambda _erd: not_stored_block('NOT_STORED_SEARCH_JUMP_INSET') + NEWLINE * 2
+     # CR-728: SJ-5's share of the room below the pins.
+     + not_stored_block('NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE'),
      ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),
@@ -3298,6 +3315,8 @@ TARGETS = [
      + not_stored_block('NOT_STORED_EXPORT_CHOOSER_SIZES') + NEWLINE * 2
      # CR-727: the Drop Cue's rim (OP-17).
      + not_stored_block('NOT_STORED_DROP_CUE_SIZES') + NEWLINE * 2
+     # CR-728: the jump landing's ripple (SJ-10).
+     + not_stored_block('NOT_STORED_JUMP_LANDING_RIPPLE') + NEWLINE * 2
      # CR-571: the search panel's default size and its four text sizes.
      + not_stored_block('NOT_STORED_SEARCH_PANEL_SIZES') + NEWLINE * 2
      # CR-660: which T-206 row holds each column's default width.
@@ -3336,6 +3355,8 @@ TARGETS = [
      # outlines add (S-447), drawn only on the screen (EP-12).
      + not_stored_block('NOT_STORED_DEPENDENCY_EMPHASIS_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DUAL_CURSOR_SIZES') + NEWLINE * 2
+     # CR-728: the jump landing's ring (SJ-10), drawn in ZO-10.
+     + not_stored_block('NOT_STORED_JUMP_LANDING_RING_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_DELAY_MARK_SIZES') + NEWLINE * 2
      # CR-588: the pre-change plan's outline dash (BL-3 of table T-339).
      + not_stored_block('NOT_STORED_BASELINE_OUTLINE_SIZES') + NEWLINE * 2
@@ -3504,6 +3525,8 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_DELAY_MARK_SIZES',
         'NOT_STORED_DEPENDENCY_SIZES',
         'NOT_STORED_DUAL_CURSOR_SIZES',
+        # CR-728: schedule-overlays.ts draws the jump landing's ring (SJ-10).
+        'NOT_STORED_JUMP_LANDING_RING_SIZES',
         'NOT_STORED_NAME_LABEL_WEIGHT',
         'NOT_STORED_RULER_WEEKDAY_SIZES',
         'NOT_STORED_SELECTION_SIZES',

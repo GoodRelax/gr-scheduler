@@ -1,4 +1,4 @@
-// Contract test: FR-151 table T-332 (SJ-2, SJ-5 to SJ-8) against searchJumpWrites (PI-9), and the RS-66 row it tells with.
+// Contract test: FR-151 table T-332 (SJ-2, SJ-6 to SJ-8) against searchJumpWrites (PI-9), and the RS-66 row it tells with.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -25,9 +25,9 @@ const SJ_2_OPENS =
   '飛ぶ先のタスクグループ（タスクは `AT-61`、コメントボックスは `AT-114`）と、その祖先のすべての `treeState` を `expanded` にする —— 今の値が `hidden` でも、確かめを問わない。'
 const SJ_2_LEVEL_ZERO = '段 0 が折りたたまれていれば展開する。'
 const SJ_2_NOTHING_CHANGED = '1 つも変わらなければ段を積まない'
-const SJ_5_TOP = '`_assets/tbl-settings.md` の `S-78` をそのタスクグループにし、タスクグループの中のずれを 0 にする'
 const SJ_6_NO_ZOOM = '倍率を変えない。'
 const SJ_6_NO_DATE = '日付が空なら横は動かさない'
+const SJ_6_WIDE = 'ただし形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広いときは'
 const SJ_7_PINNED =
   '飛ぶ先のタスクグループがピン止めのタスクグループ（`S-126`）で、ピン止めの帯（`FR-098`）に描かれているなら、`SJ-5` を行わず、`SJ-6` だけを行う'
 const SJ_8_NO_ROOM =
@@ -35,8 +35,17 @@ const SJ_8_NO_ROOM =
 const SJ_8_STILL = '`SJ-2` と `SJ-4` は行う'
 // see SJ-6
 // WHY: a day is ten pixels wide, and nothing of the task reaches left of its date unless a case says so.
-// No task group stands in the pinned band unless a case says so (SJ-7).
-const NO_REACH = { pxPerDay: 10, leftReachPx: 0, drawnTaskGroups: [] as readonly { groupId: string; isPinned?: boolean }[] }
+// No task group stands in the pinned band unless a case says so (SJ-7), and no picture is read (landing null).
+type SearchJumpReach = Parameters<typeof searchJumpWrites>[3]
+const NO_REACH: SearchJumpReach = {
+  pxPerDay: 10, leftReachPx: 0, drawnTaskGroups: [] as readonly { groupId: string; isPinned?: boolean }[], areaWidth: 800, landing: null,
+}
+// see SJ-6
+// WHY: a shape wider than the area less two S-428 insets, so SJ-6 keeps its start in sight instead of centring it.
+const WIDE: SearchJumpReach = {
+  ...NO_REACH,
+  landing: { shapeFromDatePx: 0, shapeWidthPx: 2000, shapeMiddleY: 300, roomTop: 0, roomHeight: 600, scrollingTaskGroups: [] },
+}
 const IN_BAND = (row: string): typeof NO_REACH => ({ ...NO_REACH, drawnTaskGroups: [{ groupId: row, isPinned: true }] })
 const RS_66_SCENE = '**ピン止めしたタスクグループが多く、検索パネルから飛ぶ先を画面に出せない**'
 
@@ -156,11 +165,11 @@ const everyWrite = (plan: SearchJumpPlan): readonly Loose[] =>
   [...plan.treeStateWrites, ...(plan.scrollWrite === null ? [] : [plan.scrollWrite])] as unknown as readonly Loose[]
 
 describe('table T-332 and RS-66 -- the clauses these cases are driven by', () => {
-  it('SJ-2, SJ-5 to SJ-8 still read this way', () => {
+  it('SJ-2, SJ-6 to SJ-8 still read this way', () => {
     expect(cellOf('T-332', 'SJ-2', '定め')).toContain(SJ_2_OPENS)
     expect(cellOf('T-332', 'SJ-2', '定め')).toContain(SJ_2_LEVEL_ZERO)
     expect(cellOf('T-332', 'SJ-2', '定め')).toContain(SJ_2_NOTHING_CHANGED)
-    expect(cellOf('T-332', 'SJ-5', '定め')).toContain(SJ_5_TOP)
+    expect(cellOf('T-332', 'SJ-6', '定め')).toContain(SJ_6_WIDE)
     expect(cellOf('T-332', 'SJ-6', '定め')).toContain(SJ_6_NO_ZOOM)
     expect(cellOf('T-332', 'SJ-6', '定め')).toContain(SJ_6_NO_DATE)
     expect(cellOf('T-332', 'SJ-7', '定め')).toContain(SJ_7_PINNED)
@@ -204,28 +213,21 @@ describe(`T-332 SJ-2 -- ${SJ_2_OPENS}`, () => {
   })
 })
 
-describe(`T-332 SJ-5 -- ${SJ_5_TOP}`, () => {
-  it('puts the task\'s task group at the top of the view with no offset inside it', () => {
-    const plan = searchJumpWrites(documentOf(), TO_TASK, true, NO_REACH)
-    expect(plan.isBlockedByPinnedTaskGroups).toBe(false)
-    expect(scrollOf(plan)).toMatchObject({ kind: 'setScrollPosition', scrollGroupId: R11, scrollGroupOffset: 0 })
-  })
-
-  it('SJ-6: what the task reaches left of its date moves the view left by that much (CR-629)', () => {
-    const atDate = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, NO_REACH)) as Loose
-    const reached = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, { ...NO_REACH, leftReachPx: 25 })) as Loose
+// WHY: CR-728 retired the SJ-5 case (the task group at the top); the spec-only tests of CR-728 hold the new SJ-5.
+describe(`T-332 SJ-6 -- ${SJ_6_NO_ZOOM}`, () => {
+  it(`SJ-6: ${SJ_6_WIDE} what the task reaches left of its date moves the view left by that much (CR-629)`, () => {
+    const atDate = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, WIDE)) as Loose
+    const reached = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, { ...WIDE, leftReachPx: 25 })) as Loose
     const daysBack =
       (Date.parse(String(atDate['scrollDate'])) - Date.parse(String(reached['scrollDate']))) / 86_400_000
       + Number(atDate['scrollDayOffset']) - Number(reached['scrollDayOffset'])
     expect(daysBack).toBeCloseTo(2.5, 9)
   })
 
-  it(`a comment box with no date moves the task group only -- SJ-6: ${SJ_6_NO_DATE}`, () => {
+  it(`a comment box with no date does not move the view sideways -- SJ-6: ${SJ_6_NO_DATE}`, () => {
     const plan = searchJumpWrites(documentOf(), TO_UNDATED_BOX, true, NO_REACH)
     expect(scrollOf(plan)).toMatchObject({
       kind: 'setScrollPosition',
-      scrollGroupId: R12,
-      scrollGroupOffset: 0,
       scrollDate: START_SCROLL.scrollDate,
       scrollDayOffset: START_SCROLL.scrollDayOffset,
     })

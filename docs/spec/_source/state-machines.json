@@ -1227,7 +1227,7 @@
        "name": "landedLink"
       },
       {
-       "name": "landedTaskUid"
+       "name": "landedTarget"
       }
      ]
     },
@@ -1243,6 +1243,24 @@
       }
      },
      "carries": []
+    },
+    {
+     "key": "searchJumpLanded",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "SJ-10",
+       "AM-16"
+      ],
+      "note": {
+       "ja": "押して飛ぶ入口（SJ-1 のセル・FR-134 の行・PTL-16 の親の名・PR-37 / PR-38 の名）を押して離し、飛んで画面に出した。AM-16 が寄せたときも送る。SJ-8 で出せなかったときは送らない"
+      }
+     },
+     "carries": [
+      {
+       "name": "landedTarget"
+      }
+     ]
     },
     {
      "key": "fileDragEntered",
@@ -3250,21 +3268,28 @@
        "initial": false,
        "carries": [
         {
-         "name": "landedLink",
+         "name": "landedBy",
          "note": {
-          "ja": "印を付けた依存線の先行と後続の `UID`"
+          "ja": "印を付けたもの —— `continuationMark`（続きの印、`EL-16`） ／ `jump`（飛び方、`SJ-10`）"
          }
         },
         {
-         "name": "landedTaskUid",
+         "name": "landedLink",
          "note": {
-          "ja": "印の先の端の `Task` の `UID`"
+          "ja": "印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ持ち、`jump` では `null`"
+         }
+        },
+        {
+         "name": "landedTarget",
+         "note": {
+          "ja": "印の先の `Task` の `UID`、またはコメントボックスの id"
          }
         }
        ],
        "evidence": [
         "EL-16",
-        "EL-19"
+        "EL-19",
+        "SJ-10"
        ]
       }
      ],
@@ -3292,6 +3317,23 @@
         "evidence": [
          "EL-17"
         ]
+       }
+      },
+      "searchJumpLanded": {
+       "hidden": {
+        "to": "shown",
+        "evidence": [
+         "SJ-10"
+        ]
+       },
+       "shown": {
+        "to": "shown",
+        "evidence": [
+         "SJ-10"
+        ],
+        "note": {
+         "ja": "中身を書き換える"
+        }
        }
       }
      }

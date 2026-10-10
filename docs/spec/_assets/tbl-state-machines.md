@@ -100,8 +100,9 @@
 | `screen/helpEntryPressed` | 入力: `IC-22` ・ `SK-13` | — | `helpDisplayStateMachine` |
 | `screen/helpMinimiseToggled` | 入力（ヘルプのタイトルバーの最小化の入口）: `IC-129` | — | `helpDisplayStateMachine` |
 | `screen/helpMaximiseToggled` | 入力（ヘルプのタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `helpDisplayStateMachine` |
-| `screen/continuationMarkClicked` | 入力（続きの印を押して離した（動かさない））: `PE-12` ・ `EL-16` | `landedLink` ／ `landedTaskUid` | `landingMarkDisplayStateMachine` |
+| `screen/continuationMarkClicked` | 入力（続きの印を押して離した（動かさない））: `PE-12` ・ `EL-16` | `landedLink` ／ `landedTarget` | `landingMarkDisplayStateMachine` |
 | `screen/landingMarkClearAsked` | 入力（印が出ているあいだの押下・キーの押下。見る位置と倍率だけを動かす操作と修飾キーだけの押下（EL-17 の ⭐）、印を付けた押下の 2 回目（EL-18）を除く）: `EL-17` | — | `landingMarkDisplayStateMachine` |
+| `screen/searchJumpLanded` | 入力（押して飛ぶ入口（SJ-1 のセル・FR-134 の行・PTL-16 の親の名・PR-37 / PR-38 の名）を押して離し、飛んで画面に出した。AM-16 が寄せたときも送る。SJ-8 で出せなかったときは送らない）: `SJ-10` ・ `AM-16` | `landedTarget` | `landingMarkDisplayStateMachine` |
 | `screen/fileDragEntered` | 入力（ファイルを持つドラッグ（`dataTransfer.types` に `Files`）がウィンドウに入った。ウィンドウの中の UI パーツから UI パーツへ移るだけのものは送らない）: `OP-17` | `isOpenAccepted` | `dropCueDisplayStateMachine` |
 | `screen/fileDragLeft` | 入力（ファイルを持つドラッグがウィンドウの外へ出た、またはドロップした）: `OP-17` | — | `dropCueDisplayStateMachine` |
 
@@ -543,8 +544,8 @@ stateDiagram-v2
     [*] --> landingMarkDisplayStateMachine_hidden
     landingMarkDisplayStateMachine_hidden : hidden
     landingMarkDisplayStateMachine_shown : shown
-    landingMarkDisplayStateMachine_hidden --> landingMarkDisplayStateMachine_shown : continuationMarkClicked
-    landingMarkDisplayStateMachine_shown --> landingMarkDisplayStateMachine_shown : continuationMarkClicked
+    landingMarkDisplayStateMachine_hidden --> landingMarkDisplayStateMachine_shown : continuationMarkClicked, searchJumpLanded
+    landingMarkDisplayStateMachine_shown --> landingMarkDisplayStateMachine_shown : continuationMarkClicked, searchJumpLanded
     landingMarkDisplayStateMachine_shown --> landingMarkDisplayStateMachine_hidden : landingMarkClearAsked
 ```
 
@@ -552,9 +553,10 @@ stateDiagram-v2
 | --- | --- | --- |
 | `screen/continuationMarkClicked` | → `shown` | → 自己（中身を書き換える） |
 | `screen/landingMarkClearAsked` | — | → `hidden` |
+| `screen/searchJumpLanded` | → `shown` | → 自己（中身を書き換える） |
 
 - `landingMarkDisplayStateMachine.hidden` —— 初期。根拠 `EL-17`
-- `landingMarkDisplayStateMachine.shown` —— 運ぶ値 `landedLink`（印を付けた依存線の先行と後続の `UID`） ／ `landedTaskUid`（印の先の端の `Task` の `UID`）。根拠 `EL-16` ・ `EL-19`
+- `landingMarkDisplayStateMachine.shown` —— 運ぶ値 `landedBy`（印を付けたもの —— `continuationMark`（続きの印、`EL-16`） ／ `jump`（飛び方、`SJ-10`）） ／ `landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ持ち、`jump` では `null`） ／ `landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id）。根拠 `EL-16` ・ `EL-19` ・ `SJ-10`
 
 表に無い出来事は `landingMarkDisplayStateMachine` を変えない（同じ参照）。
 

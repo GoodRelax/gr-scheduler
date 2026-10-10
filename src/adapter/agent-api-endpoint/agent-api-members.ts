@@ -340,7 +340,7 @@ function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, t
   return written
 }
 
-// see AM-16, SJ-0, SJ-2, SJ-6, SJ-9
+// see AM-16, SJ-0, SJ-2, SJ-5, SJ-9, SJ-10
 /** @purity non-pure */
 function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskUid: number): AgentFocusOutcome {
   const frame = snapshot.frame
@@ -361,7 +361,8 @@ function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskU
 
   const member = schedule.taskGroupMembers.find((held) => held.taskUid === taskUid)
   const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, member?.groupId ?? null)
-  const plan = searchJumpWrites(snapshot.document, { kind: 'task', taskUid }, hasRoom, searchJumpReachOf(frame.layout, { kind: 'task', taskUid }))
+  const target = { kind: 'task', taskUid } as const
+  const plan = searchJumpWrites(snapshot.document, target, hasRoom, searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, target))
   const commands = searchJumpCommands(plan)
   // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
   // so a concurrent edit does not refuse it.

@@ -906,7 +906,8 @@ export function linkKeyOf(link: { readonly predecessorUid: number; readonly succ
 /** @purity pure */
 export function landingLinkOf(viewer: ViewerValues): string | null {
   const mark = viewer.landingMarkDisplayState
-  return mark?.kind === 'shown' ? linkKeyOf(mark.landedLink) : null
+  // WHY: a jump's mark (SJ-10) circles a shape and lands on no line.
+  return mark?.kind === 'shown' && mark.landedLink !== null ? linkKeyOf(mark.landedLink) : null
 }
 
 // see EL-1, T-303, SL-8

@@ -41,7 +41,7 @@ const AM_25_RETURNS = '語を 1 つ受け、検索パネルの 2 つの表と同
 const AM_25_NO_FILTER = '列のフィルタと並べ替えは当てない。'
 const AM_25_NO_PANEL = 'パネルを読みも変えもしない'
 const AM_16_DOES = '指定したタスクが載るタスクグループと祖先を展開し、見える位置へ表示を寄せる'
-const SJ_9_WHICH_STEPS = '`_assets/tbl-glossary.md` の 表 T-107 の `AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8` を行う。'
+const SJ_9_WHICH_STEPS = '`_assets/tbl-glossary.md` の 表 T-107 の `AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8`・`SJ-10` を行う'
 const SJ_9_ANSWER = 'ただし `SJ-4` を行わず、パネルに触れず、`SJ-8` では告げずに、寄せなかったことを答えの値で返す'
 const SJ_2_ONE_STEP = '値が変われば未保存の編集（`FR-100`）であり、取り消しの 1 段である。'
 const SJ_2_NO_STEP = '1 つも変わらなければ段を積まない'
@@ -293,12 +293,12 @@ describe(`AM-16 focusTask -- ${SJ_9_WHICH_STEPS}`, () => {
     expect(one.state.history.done).toHaveLength(0)
   })
 
-  it('puts the task\'s task group at the top of the view (SJ-5) and answers isScrolled: true', () => {
+  // WHY: CR-728 retired the place this case held (the task group at the top, offset 0): SJ-5 now puts the
+  // shape S-554 down the room, and the spec-only tests of CR-728 hold it.
+  it('answers isScrolled: true when the task can be brought into view (SJ-9)', () => {
     const one = bench('auto', 'auto')
     const outcome = one.api.focusTask(DEEP_UID) as unknown as { accepted: boolean; isScrolled?: unknown }
     expect(outcome.accepted).toBe(true)
-    expect(one.state.document.documentSettings.scrollGroupId).toBe(CHILD)
-    expect(one.state.document.documentSettings.scrollGroupOffset).toBe(0)
     expect(outcome.isScrolled).toBe(true)
   })
 

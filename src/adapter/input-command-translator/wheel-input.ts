@@ -4,6 +4,7 @@
 // @purity    pure
 
 import { isInsideRect } from '../../entity/layout-engine/item-hit-area/item-hit-area'
+import { taskGroupAnchorIn, taskGroupIndexAtTopEdge } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { regionAtPointer, type ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { WheelInput } from './input-source'
 import {
@@ -12,8 +13,6 @@ import {
   changed,
   isCombo,
   isScrollPositionInForce,
-  taskGroupAnchorIn,
-  taskGroupIndexAtTopEdge,
   scrollAreaTopOf,
   scrolledAnchor,
   scrollingTaskGroupsOf,

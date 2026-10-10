@@ -33,6 +33,7 @@ import type {
 import type { ScheduleGeometry } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   dateAtX,
+  taskGroupAnchorIn,
   taskGroupPlacesAtZoomY,
   xFromDay,
   zoomYAtRectangleLabelFont,
@@ -148,8 +149,7 @@ export interface PointerPress {
   // TRAP: the whole the horizontal bar measures against, taken at the press: measured again during the
   // drag, a view past the content's edge shrinks it and the grip falls behind the pointer.
   readonly horizontalWholeAtPress?: HorizontalWhole
-  // TRAP: the vertical twin, held for the same reason: the last task group scrolled to the top runs the view
-  // past the content.
+  // TRAP: the vertical twin, for the same reason: the last task group scrolled to the top runs past the content.
   readonly verticalWholeAtPress?: VerticalWhole
 }
 
@@ -531,18 +531,6 @@ export function commentAnchorAt(
   return { date: textOfDayStart(day), groupId: taskGroup.groupId }
 }
 
-/** @purity pure */
-export function taskGroupIndexAtTopEdge(taskGroups: readonly TaskGroupPlacement[], y: number): number | null {
-  for (let at = 0; at < taskGroups.length; at++) {
-    const taskGroup = taskGroups[at]
-    if (taskGroup === undefined) continue
-    const next = taskGroups[at + 1]
-    const end = next === undefined ? taskGroup.y + taskGroup.height : next.y
-    if (y >= taskGroup.y && y < end) return at
-  }
-  return null
-}
-
 export interface ScrollAnchor {
   readonly scrollDate: string | null
   readonly scrollDayOffset: number
@@ -594,27 +582,6 @@ function taskGroupAnchorAt(
     scrollGroupId: settings.scrollGroupId,
     scrollGroupOffset: settings.scrollGroupOffset,
   })
-}
-
-/** @purity pure */
-export function taskGroupAnchorIn(
-  taskGroups: readonly TaskGroupPlacement[],
-  y: number,
-  held: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
-): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> {
-  const at = taskGroupIndexAtTopEdge(taskGroups, y)
-  if (at === null) return held
-  const taskGroup = taskGroups[at]
-  const below = taskGroups[at + 1]
-  if (taskGroup === undefined) return held
-  // TRAP: scrollOffsetOf (task-group-scroll.ts) inverts this; both must divide by the slab.
-  const slab = below === undefined ? taskGroup.height : below.y - taskGroup.y
-  if (slab <= 0) return held
-  const into = y - taskGroup.y
-  if (into >= slab && below !== undefined) {
-    return { scrollGroupId: below.groupId, scrollGroupOffset: 0 }
-  }
-  return { scrollGroupId: taskGroup.groupId, scrollGroupOffset: unitFraction(into / slab) }
 }
 
 /** @purity pure */
@@ -1052,10 +1019,11 @@ export function isLandingMarkKeptBy(
   return on.entry !== null && VIEW_SCALE_ENTRIES.includes(on.entry)
 }
 
-// see EL-18, MK-13
+// see EL-18, MK-13, SJ-10
 /** @purity pure */
 export function isSwallowedSecondPress(press: PointerPress, context: InputContext): boolean {
-  return press.at.clickCount >= 2 && context.screen.landingMarkDisplayState.kind === 'shown'
+  const mark = context.screen.landingMarkDisplayState
+  return press.at.clickCount >= 2 && mark.kind === 'shown' && mark.landedBy === 'continuationMark'
 }
 
 /** @purity pure */

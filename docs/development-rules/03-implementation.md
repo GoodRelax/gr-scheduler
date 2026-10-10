@@ -86,6 +86,8 @@ NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES 休日の設定の一覧の字の係数�
 NOT_STORED_WHEEL_UNITS               ホイールの 1 行の長さと 1 ノッチの画素・行数（`S-514` 〜 `S-516`、表 T-023 の結び、`CR-681`）。写しは 2 つ —— 日程を送る `DomInputSource` と、名簿を送る `DomScreenSurface`
 NOT_STORED_EXPORT_CHOOSER_SIZES      保存の面の形式のボタンのあいだの隔たり（`S-517`、`FR-096`、`CR-685`）
 NOT_STORED_DROP_CUE_SIZES            ドロップの案内の縁の線の太さ（`S-553`、`OP-17`、`CR-727`）
+NOT_STORED_JUMP_LANDING_RIPPLE       飛んだ先の波紋の回数・1 回の長さ・広がる幅（`S-557` 〜 `S-559`、表 T-332 の `SJ-10`、`CR-728`）
+NOT_STORED_JUMP_LANDING_RING_SIZES   飛んだ先の囲みと形のあいだ・囲みの太さ（`S-555` / `S-556`、表 T-332 の `SJ-10`、`CR-728`）
 NOT_STORED_SCALE_MESSAGE_TIMES       表示の倍率のメッセージを出しておく時間（`S-244`）
 NOT_STORED_NOTICE_TIMES              時間で消す通知を出しておく時間（`S-542`、表 T-037 の `NT-2`。`CR-712`）
 NOT_STORED_ROW_BAND_CEILING_SEARCH   縦軸の上限（帯の側）を探す刻みと許容（`S-238` / `S-239`）
@@ -108,6 +110,7 @@ NOT_STORED_PARENT_TASK_ARROW_SIZES    親タスクと子タスクの矢印の当
 NOT_STORED_SEARCH_PANEL_SIZES        検索パネルの大きさと、検索の表と遅延診断レポートの表の列の幅・下限・境目の掴み代（`S-421` / `S-422`、`CR-571`。`S-425` / `S-465` 〜 `S-474`、`CR-629`。`S-475` 〜 `S-481`、`CR-639`。`S-500` 〜 `S-502`、`CR-660`）
 NOT_STORED_SEARCH_PANEL_FONT_SIZES   検索パネルの字の大きさの段（表 T-333、`CR-571`）。写しは 2 つ —— `DomScreenSurface` が描く px を、`ScreenState` が段の並び（`S-429` の段は行の位置）を `AdvanceScreenSession` へ渡す
 NOT_STORED_SEARCH_JUMP_INSET         検索から飛んだ先の左端と表示の左端のあいだ（`S-428`、表 T-332 の `SJ-6`、`DFC-1770`）
+NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE  飛んだ先の形の縦の中点を置く、帯の下に残る高さの上からの比（`S-554`、表 T-332 の `SJ-5`、`CR-728`）
 NOT_STORED_DEPENDENCY_SIZES          依存線の縁の太さの倍率（`S-224`）
 NOT_STORED_DEPENDENCY_EMPHASIS_SIZES 選んだ依存線と着地の印の線・両端の囲みに足す太さ（`S-447`、`CR-602`）
 NOT_STORED_DOCUMENT_TITLE_SIZES      `Document Title` の字の大きさと左の余白と太さ、`Branding` の縁と席（`S-225` / `S-226` / `S-461` 〜 `S-463`）

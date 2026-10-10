@@ -3,7 +3,7 @@
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
-import { taskGroupPlacesAtZoomY } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import { taskGroupAnchorIn, taskGroupPlacesAtZoomY } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   displayRatioOf,
   drawnSettingsOf,
@@ -18,7 +18,6 @@ import type { DocumentCommand } from '../../use-case/edit-document/edit-document
 import {
   changed,
   dayAnchorAt,
-  taskGroupAnchorIn,
   scrolledAnchor,
   scrollingTaskGroupsOf,
   type InputContext,

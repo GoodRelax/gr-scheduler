@@ -606,6 +606,15 @@ export interface ScreenView {
   readonly dualCursorReadout?: DualCursorReadout
   readonly guideCursorLabel?: GuideCursorLabel
   readonly dropCue?: DropCue
+  readonly jumpRipple?: JumpRipple
+}
+
+// see SJ-10, S-556, S-557, S-558, S-559
+export interface JumpRipple {
+  readonly inner: ScreenRect
+  readonly lineWidth: number
+  readonly within: ScreenRect
+  readonly landing: number
 }
 
 // see OP-17, U-68
@@ -629,6 +638,7 @@ export interface GuideCursorLabel {
 export interface ScreenViewReadings {
   readonly openedFileName: string | null
   readonly fileSavedAt: string | null
+  readonly jumpRipple?: JumpRipple | undefined
   readonly fileSavedByteLength: number | null
   readonly isAgentApiEnabled: boolean
   readonly pointer: { readonly x: number; readonly y: number } | null
@@ -858,6 +868,7 @@ export function screenViewFromRegions(
     ...shown,
     ...pointerWordsOf(shown, regions, schedule, settings, session, readings),
     ...dropCueOf(session, regions.scheduleCanvas, language),
+    ...(readings.jumpRipple === undefined ? {} : { jumpRipple: readings.jumpRipple }),
     ...(echo.kind === 'hidden'
       ? {}
       : { scaleMessage: displayScaleMessageText(echo.percent, echo.end, language) }),

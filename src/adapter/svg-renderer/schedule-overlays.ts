@@ -14,7 +14,9 @@ import {
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   dateAtX,
+  landedShapeBoxOf,
   xFromDay,
+  type LandedTarget,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -24,6 +26,7 @@ import {
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   NOT_STORED_DUAL_CURSOR_SIZES,
+  NOT_STORED_JUMP_LANDING_RING_SIZES,
   NOT_STORED_SELECTION_SIZES,
   WATERMARK_MARKS,
   emphasisedWidthOf,
@@ -39,7 +42,7 @@ import {
   type Watermark,
 } from './svg-renderer'
 
-// see S-72, S-66, EL-16, T-280
+// see S-72, S-66, EL-16, SJ-10, T-280
 // WHY: the screen values the picture reads, spelled here so the renderer
 // depends on no use case; ScreenValues satisfies it as it stands.
 export interface ViewerValues {
@@ -48,8 +51,14 @@ export interface ViewerValues {
   // WHY: optional -- a viewer built before the landing mark carries none, and none reads as hidden.
   readonly landingMarkDisplayState?:
     | { readonly kind: 'hidden' }
-    | { readonly kind: 'shown'; readonly landedLink: { readonly predecessorUid: number;
-        readonly successorUid: number }; readonly landedTaskUid: number }
+    | { readonly kind: 'shown'; readonly landedBy: 'continuationMark' | 'jump'; readonly landedLink: { readonly predecessorUid: number;
+        readonly successorUid: number } | null; readonly landedTarget: LandedTarget }
+}
+
+// see SJ-10, S-555, S-556
+export interface JumpLandingRing {
+  readonly inner: ScreenRect
+  readonly lineWidth: number
 }
 
 export interface OverlaysInput {
@@ -83,6 +92,9 @@ export interface OverlayParts {
 }
 
 const WATERMARK_ROLE = 'Watermark'
+
+// see SJ-10
+const JUMP_LANDING_RING_ROLE = 'Jump Landing Ring'
 
 const UNDECIDED_PARENT_MARK = '?'
 
@@ -414,4 +426,44 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
     }
   }
   return { fillParts, linkParts, progressLineParts, annotationParts, selectionParts }
+}
+
+// see SJ-10, S-555, S-556, S-227
+// WHY: the one box the ring is drawn on and the ripple starts from, so the two cannot part; a task whose
+// plan figure is not drawn (no plan dates, or the plan hidden) gets none.
+/** @purity pure */
+export function jumpLandingRingOf(layout: ScheduleLayout, geometry: ScheduleGeometry, target: LandedTarget): JumpLandingRing | null {
+  if (target.kind === 'task') {
+    const figure = geometry.tasks.find((one) => one.taskUid === target.taskUid)
+    if (figure === undefined || figure.plan === null || figure.hasPlanDates === false) return null
+  }
+  const box = landedShapeBoxOf(layout, geometry, target)
+  if (box === null) return null
+  const gap = NOT_STORED_JUMP_LANDING_RING_SIZES['S-555']
+  return {
+    inner: { x: box.x - gap, y: box.y - gap, width: box.width + 2 * gap, height: box.height + 2 * gap },
+    lineWidth: NOT_STORED_JUMP_LANDING_RING_SIZES['S-556'],
+  }
+}
+
+// see SJ-10, ZO-10, EP-12, FR-098
+// WHY: a ring around a task below the pinned band scrolls under it, so it is handed back apart from one that stands in the band.
+/** @purity pure */
+export function jumpLandingRingParts(
+  viewer: ViewerValues,
+  input: Pick<OverlaysInput, 'geometry' | 'layout' | 'themed' | 'drawsOperationState'>,
+): { readonly pinned: readonly string[]; readonly scrolling: readonly string[] } {
+  const mark = viewer.landingMarkDisplayState
+  if (!input.drawsOperationState || mark?.kind !== 'shown' || mark.landedBy !== 'jump') return { pinned: [], scrolling: [] }
+  const ring = jumpLandingRingOf(input.layout, input.geometry, mark.landedTarget)
+  if (ring === null) return { pinned: [], scrolling: [] }
+  const half = ring.lineWidth / 2
+  const svg =
+    `<rect x="${rounded(ring.inner.x - half)}" y="${rounded(ring.inner.y - half)}"` +
+    ` width="${rounded(ring.inner.width + ring.lineWidth)}" height="${rounded(ring.inner.height + ring.lineWidth)}"` +
+    ` fill="none" stroke="${input.themed('S-151')}" stroke-width="${rounded(ring.lineWidth)}"` +
+    ` data-role="${JUMP_LANDING_RING_ROLE}"${figureKey('jump-landing')}/>`
+  const target = mark.landedTarget
+  const isPinned = target.kind === 'task' && input.geometry.pinnedBand?.pinnedTaskUids.has(target.taskUid) === true
+  return isPinned || target.kind === 'commentBox' ? { pinned: [svg], scrolling: [] } : { pinned: [], scrolling: [svg] }
 }

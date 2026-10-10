@@ -52,6 +52,7 @@ import {
   hasRoomBelowPinsIn,
   layoutFromSchedule,
   shownSpanOf,
+  taskPlacement,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -195,7 +196,7 @@ import {
   type VerticalWhole,
   imageToJsonPromptText,
 } from '../../adapter/screen-renderer/screen-renderer'
-import { svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
+import { jumpLandingRingOf, svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
 import {
   writeClipboard,
   type Clipboard,
@@ -1039,6 +1040,7 @@ interface ScreenViewReadingsTaken {
   readonly isDelayDiagnosticsShown?: boolean
   readonly isParentTaskLinksShown?: boolean
   readonly parentTaskChoice?: NonNullable<ScreenViewReadings['parentTaskChoice']> | null
+  readonly jumpRipple?: ScreenViewReadings['jumpRipple']
 }
 
 // see PI-37, SF-5, SF-10
@@ -1258,7 +1260,7 @@ function landedLinkIn(session: ScreenSession): Parameters<typeof pointerWalkOf>[
 /** @purity pure */
 function continuationMarkClickedOf(landed: NonNullable<ReturnType<typeof commandFromInput>['landingMarked']>): ScreenValuesEvent {
   const { predecessorUid, successorUid, landedTaskUid } = landed
-  return { type: 'continuationMarkClicked', landedLink: { predecessorUid, successorUid }, landedTaskUid }
+  return { type: 'continuationMarkClicked', landedLink: { predecessorUid, successorUid }, landedTarget: { kind: 'task', taskUid: landedTaskUid } }
 }
 
 // see FR-052, U-50
@@ -1868,9 +1870,11 @@ interface ReportBeforeJump {
   readonly windows: { readonly report: () => DelayDiagnosticsReportWindow | null }
   readonly holdJumpTarget: (taskUid: number) => void
   readonly answerReportEntry: (entry: IconId, filterColumn: string | null) => boolean
+  readonly oweLanding: JumpLandingHold['owe']
 }
 
-// see T-332, SJ-0, SJ-2, SJ-3, SJ-4, SJ-6, SJ-8
+// see T-332, SJ-0, SJ-2, SJ-3, SJ-4, SJ-5, SJ-6, SJ-8, SJ-10
+// WHY: placed on this picture; a target this picture does not draw is placed again on the picture its reveal draws (SJ-5).
 /** @purity non-pure */
 function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, frame: FrameValues, report: ReportBeforeJump): void {
   if (cell === null) return
@@ -1880,12 +1884,93 @@ function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, fra
   const document = hands.readHeld().document
   const hit = searchHitOf(document.schedule, cell)
   const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, hit.groupId)
-  const plan = searchJumpWrites(document, cell, hasRoom, searchJumpReachOf(frame.layout, cell))
+  const reach = searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, cell)
+  const plan = searchJumpWrites(document, cell, hasRoom, reach)
   const writes = searchJumpCommands(plan)
   if (writes.length > 0) hands.writeDocument(writes, frame)
   hands.sendToSession({ type: 'objectsPicked', pickedObjects: selectionWith(emptySelection(), hit.item) }, frame)
   noteChoiceMoved(hands, frame)
   if (plan.isBlockedByPinnedTaskGroups) hands.raiseNotice(PINNED_TASK_GROUPS_LEAVE_NO_ROOM_REASON, null)
+  else report.oweLanding(cell, reach.landing === null)
+}
+
+// see SJ-5, SJ-6, SJ-7, SJ-8, SJ-10, AM-16
+// WHY: asked again on the picture after the jump; a target the first picture did not draw is placed now (SJ-5).
+/** @purity non-pure */
+function landJump(hands: FrameLoopHands, owed: OwedJump, frame: FrameValues): boolean {
+  const { target, isPlacedAgain } = owed
+  const document = hands.readHeld().document
+  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, searchHitOf(document.schedule, target).groupId)
+  const plan = searchJumpWrites(document, target, hasRoom, searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, target))
+  if (plan.isBlockedByPinnedTaskGroups) return false
+  if (isPlacedAgain && plan.scrollWrite !== null) hands.writeDocument([plan.scrollWrite], frame)
+  hands.sendToSession({ type: 'searchJumpLanded', landedTarget: target }, frame)
+  return true
+}
+
+// see HF-17
+// TRAP: the resolved day, not the stored null, or the fit undoes the write.
+/** @purity non-pure */
+function writeOwedSight(hands: FrameLoopHands, groupId: string | null, settings: DocumentSettings, frame: FrameValues): boolean {
+  if (groupId === null || drawnTaskGroupBoxesOf(frame.layout, frame.regions).some((one) => one.groupId === groupId)) return false
+  const { scrollDate, scrollDayOffset } = settings
+  hands.writeDocument([{ kind: 'setScrollPosition', scrollDate, scrollGroupId: groupId, scrollDayOffset, scrollGroupOffset: 0 }], frame)
+  return true
+}
+
+interface OwedJump {
+  readonly target: SearchJumpCell
+  readonly isPlacedAgain: boolean
+}
+
+interface JumpLandingHold {
+  readonly owe: (target: SearchJumpCell, isPlacedAgain: boolean) => void
+  readonly land: (hands: FrameLoopHands, frame: FrameValues) => boolean
+  readonly rippleOf: (
+    screen: ScreenSession['screen'], layout: ScheduleLayout, geometry: FrameValues['geometry'], regions: ScreenRegions,
+  ) => ScreenViewReadings['jumpRipple']
+}
+
+// see SJ-5, SJ-10, AM-16
+/** @purity non-pure */
+function owedJumpHolder(ask: () => void): JumpLandingHold {
+  let owed: OwedJump | null = null
+  let landings = 0
+  return {
+    owe(target, isPlacedAgain): void {
+      owed = { target, isPlacedAgain }
+      ask()
+    },
+    land(hands, frame): boolean {
+      const taken = owed
+      owed = null
+      if (taken === null || !landJump(hands, taken, frame)) return false
+      landings += 1
+      return true
+    },
+    rippleOf(screen, layout, geometry, regions) {
+      const mark = screen.landingMarkDisplayState
+      if (mark.kind !== 'shown' || mark.landedBy !== 'jump') return undefined
+      const ring = jumpLandingRingOf(layout, geometry, mark.landedTarget)
+      return ring === null ? undefined : { ...ring, within: regions.taskGroupArea, landing: landings }
+    },
+  }
+}
+
+// see AM-16, SJ-0, SJ-5, SJ-9, SJ-10
+/** @purity non-pure */
+function landingAgentHolder(
+  holder: AgentApiWiring['shownTasks'], oweLanding: JumpLandingHold['owe'], readFrame: () => FrameValues | null,
+): AgentApiWiring['shownTasks'] {
+  if (holder === undefined) return undefined
+  return {
+    ...holder,
+    holdJumpTarget: (taskUid) => {
+      holder.holdJumpTarget(taskUid)
+      const frame = readFrame()
+      oweLanding({ kind: 'task', taskUid }, frame === null || taskPlacement(frame.layout, taskUid) === null)
+    },
+  }
 }
 
 // see SV-7, IF-9
@@ -2500,6 +2585,7 @@ export function frameLoop(
   }
   const { pointerShapeAt } = pressedPointerShapeOf(hands)
   const shownTasks = shownTasksHoldOf(hands, windows, () => delayDiagnosticsNow()?.reportTaskUids ?? null)
+  const owedJump = owedJumpHolder(ask)
   const { bandCeilingFor } = taskGroupBandCeilingCacheOf()
   const zoomEntranceEndsAt = zoomEntranceEndsHoldOf()
   const heldViewPlace = heldViewPlaceOf(hands, startedFromTemplate)
@@ -2605,26 +2691,11 @@ export function frameLoop(
       settingsMeasuredWith: stored,
       isPictureAtStoredZoom: view.isAtStoredZoom,
     }
-    if (addedTaskGroupOwedSight !== null) {
-      const owedSight = addedTaskGroupOwedSight
-      addedTaskGroupOwedSight = null
-      if (!drawnTaskGroupBoxesOf(layout, regions).some((one) => one.groupId === owedSight)) {
-        writeDocument(
-          [
-            {
-              kind: 'setScrollPosition',
-              // TRAP: the resolved day, not the stored null, or the fit undoes this write.
-              scrollDate: settings.scrollDate,
-              scrollGroupId: owedSight,
-              scrollDayOffset: settings.scrollDayOffset,
-              scrollGroupOffset: 0,
-            },
-          ],
-          values,
-        )
-        ask()
-        return
-      }
+    const owedSight = addedTaskGroupOwedSight
+    addedTaskGroupOwedSight = null
+    if (writeOwedSight(hands, owedSight, settings, values) || owedJump.land(hands, values)) {
+      ask()
+      return
     }
     const drawnSvg =
       svgFromSchedule(
@@ -2684,6 +2755,7 @@ export function frameLoop(
           zoomEntranceEnds: zoomEntranceEndsAt(values, held.document, environment.taskGroupControlsHeightPx, collectInputContext),
           ...windows.readings(session, delayDiagnosticsNow(), shownTasks.drawnSet()),
           ...parentTasks.readings(session, delayDiagnosticsShown),
+          jumpRipple: owedJump.rippleOf(session.screen, layout, geometry, regions),
         }),
       )
     isTooltipStanding = screenView.tooltips.length > 0
@@ -3719,7 +3791,7 @@ export function frameLoop(
     if (hasEndedGesture(input) || escapeLevel === 'gesture') endPointerPress(isDragInterrupted, frame)
     if (screenEvent?.type === 'progressMarkerPressed') sendToSession(screenEvent, frame)
     if (escapeLevel === 'gesture') endEntryRepeat()
-    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry, holdJumpTarget: shownTasks.holdJumpTarget })
+    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry, holdJumpTarget: shownTasks.holdJumpTarget, oweLanding: owedJump.owe })
 
     const settledEntry = entrySettledOnRelease(input, context)
     const settledFormat = formatSettledOnRelease(input, context)
@@ -3864,7 +3936,7 @@ export function frameLoop(
       appShell,
       takeInDocument: (incoming, reading) => takeInHandedDocument(hands, documentFileFlow, incoming, reading),
       changeWatchers,
-      shownTasks: shownTasks.agentHolder(),
+      shownTasks: landingAgentHolder(shownTasks.agentHolder(), owedJump.owe, () => values),
       ...dialogueSeams,
     }),
     /** @purity non-pure */
