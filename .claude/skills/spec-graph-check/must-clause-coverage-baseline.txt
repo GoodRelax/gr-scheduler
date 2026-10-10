@@ -1,4 +1,5 @@
-2117
+2115
+# LOWERED 2117 -> 2115 on 2026-10-11 (JDG-520): the CR-723 spec-only tests quote FR-151 and OP-18.
 # LOWERED 2119 -> 2117 on 2026-10-10 (JDG-520): the CR-728 and DFC-2410 spec-only tests quote SJ-10 and the scroll clauses.
 # RAISED 2231 -> 2238 on 2026-10-02 under JDG-1034 (the user approved): CR-629 adds 7 bare MUST clauses (search panel column resize, GR-28, SV-18, a jump keeps the panel); its wave-1/2 tests quote them.
 # RAISED 2214 -> 2231 on 2026-10-02 under JDG-1034 (the user approved): CR-628 adds 17 bare MUST clauses (header logo, table T-349 BR, bold project name); its code-wave tests quote them.
