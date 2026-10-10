@@ -91,6 +91,8 @@ const START_NEW: Loose = { kind: 'startNewDocument' }
 // see FR-153
 const RESET_GRS: Loose = { kind: 'resetGrs' }
 const CANDIDATES = [{ currentUid: 1, currentName: 'Task A', incomingUid: 7, incomingName: 'Task A' }]
+// see FR-155
+const FIX_BUNDLE: readonly Loose[] = [{ fixRow: 'FA-11', taskUid: 3 }]
 
 const FILE_OPERATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
   idle: [{}],
@@ -100,7 +102,7 @@ const FILE_OPERATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
   awaitingDiscardAnswer: [{}],
   importingDocument: [{}],
   awaitingMergeMapping: [{ mergeCandidates: CANDIDATES, unreadColumns: ['Cost'] }],
-  writingDocumentFile: [{}],
+  writingDocumentFile: [{ fixBundle: null }, { fixBundle: FIX_BUNDLE }],
 }
 
 const CONFIRMATION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
@@ -166,7 +168,13 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   // WHY: OP-15 (T-290 openRoute) -- `baseline` is the pre-change-plan entrance when no plan is overlaid.
   documentOpenAsked: ['chooser', 'drop', 'reopen', 'baseline'].map((openRoute) => ({ openRoute })),
   agentDocumentHanded: [{}],
-  documentFileWriteAsked: [{ writeForm: { kind: 'save' } }, { writeForm: { kind: 'export', format: 'MF-1' } }],
+  // see FR-155, SX-3
+  documentFileWriteAsked: [
+    { writeForm: { kind: 'save' }, fixBundle: null },
+    { writeForm: { kind: 'export', format: 'MF-1' }, fixBundle: null },
+    { writeForm: { kind: 'beforeFixOverwrite' }, fixBundle: FIX_BUNDLE },
+    { writeForm: { kind: 'beforeFixBackup' }, fixBundle: FIX_BUNDLE },
+  ],
   openChoiceAnswered: ['replace', 'merge', 'baseline'].map((openChoice) => ({ openChoice, question: question('QN-5') })),
   mergeMappingAnswered: [{ mergeMapping: { kind: 'allSame' } }, { mergeMapping: { kind: 'cancelImport' } }],
   confirmationAnswered: [{ isProceeding: true }, { isProceeding: false }],
@@ -187,6 +195,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   ],
   overwriteQuestionRaised: [{ question: question('QN-4') }],
   documentFileSaved: [{ openedFileName: 'saved.xml' }, { openedFileName: null }],
+  diagnosticFixBackupSaved: [{}],
   documentFileWriteEnded: [{}],
   documentEditLanded: [{}],
   newDocumentLanded: [{}],
@@ -303,6 +312,9 @@ function expectedEffect(branch: RawBranch, flow: Loose, event: Loose): Loose {
       return { type: 'answerOverwriteQuestion', isProceeding: event['isProceeding'] }
     case 'carryOutOwedAction':
       return { type: 'carryOutOwedAction', owedAction: event['type'] === 'newDocumentEntryPressed' ? START_NEW : confirmation['owedAction'] }
+    // see FR-155, UN-21
+    case 'issueDelayFixBundle':
+      return { type: 'issueDelayFixBundle', fixBundle: (flow['fileOperationState'] as Loose)['fixBundle'] }
     default:
       throw new Error(`effect ${String(branch.effect)} is named by the manuscript but not by this file's oracle`)
   }
@@ -317,6 +329,10 @@ function expectedCarried(target: string, before: Loose, event: Loose): Loose {
   }
   if (target === 'readingDocumentFile') return { openRoute: type === 'agentDocumentHanded' ? 'handed' : event['openRoute'] }
   if (target === 'awaitingMergeMapping') return { mergeCandidates: event['mergeCandidates'], unreadColumns: event['unreadColumns'] }
+  if (target === 'writingDocumentFile') {
+    const kind = (event['writeForm'] as Loose)['kind']
+    return { fixBundle: kind === 'beforeFixOverwrite' || kind === 'beforeFixBackup' ? event['fixBundle'] : null }
+  }
   if (target !== 'questionAsked') return {}
   if (type === 'changeQuestionRaised') return { question: event['question'], owedAction: event['owedAction'] }
   if (type === 'newDocumentEntryPressed' && kindOf(before) === 'notAsked') {

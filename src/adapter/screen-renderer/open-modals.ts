@@ -216,6 +216,17 @@ export function exportFileNameOf(documentName: string, extension: string): strin
   return `${body === NO_WORDS ? FILE_NAME_WHEN_EMPTY : body}${extension}`
 }
 
+const BACKUP_FILE_WORD = 'before-fix'
+
+const BACKUP_MINUTE_OF_MOMENT = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}).*$/
+
+/** @purity pure */
+export function delayFixBackupFileNameOf(documentName: string, localMoment: string, extension: string): string {
+  const body = exportNameBodyOf(documentName)
+  const minute = localMoment.replace(BACKUP_MINUTE_OF_MOMENT, '$1-$2$3')
+  return [...(body === NO_WORDS ? [] : [body]), BACKUP_FILE_WORD, minute].join(FILE_NAME_JOINER) + extension
+}
+
 const MOUSE_PRESS_BY_ROW = new Map(
   displayWords.assignments.map((entry) => [entry.rowId, entry]),
 )

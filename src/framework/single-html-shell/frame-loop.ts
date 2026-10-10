@@ -230,6 +230,7 @@ import {
   takeInHandedDocument,
   OPEN_ROUTE_FROM_CHOOSER,
   OPEN_ROUTE_REOPEN,
+  type CarriedFixBundle,
 } from './document-file-flow'
 import {
   drainFieldEditNotices,
@@ -1422,6 +1423,7 @@ interface ScreenEffectHands {
   readonly discardIncomingDocument: () => void
   readonly answerOverwriteQuestion: (isProceeding: boolean) => void
   readonly carryOutOwedAction: (owedAction: FileFlowOwedAction, frame: FrameValues | null) => void
+  readonly issueDelayFixBundle: (fixBundle: CarriedFixBundle, frame: FrameValues | null) => void
   readonly bringCreatedTaskGroupIntoSight: (groupId: string) => void
   readonly beginInteractionRecord: () => void
   readonly handInteractionRecordToClipboard: () => void
@@ -1466,6 +1468,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     discardIncomingDocument: () => hands.discardIncomingDocument(),
     answerOverwriteQuestion: (effect) => hands.answerOverwriteQuestion(effect.isProceeding),
     carryOutOwedAction: (effect, frame) => hands.carryOutOwedAction(effect.owedAction, frame),
+    issueDelayFixBundle: (effect, frame) => hands.issueDelayFixBundle(effect.fixBundle, frame),
 
     bringCreatedTaskGroupIntoSight: (effect) => hands.bringCreatedTaskGroupIntoSight(effect.groupId),
 
@@ -2659,6 +2662,7 @@ export function frameLoop(
     settleIncomingDocument,
     answerOverwriteQuestion,
     readFileSaved,
+    issueDelayFixBundle,
   } = documentFileFlow
 
   // see SF-6, UF-123
@@ -2691,6 +2695,7 @@ export function frameLoop(
     discardIncomingDocument: () => settleIncomingDocument(null),
     answerOverwriteQuestion,
     carryOutOwedAction,
+    issueDelayFixBundle,
     bringCreatedTaskGroupIntoSight: (groupId) => (addedTaskGroupOwedSight = groupId),
     beginInteractionRecord,
     handInteractionRecordToClipboard,
@@ -2855,6 +2860,7 @@ export function frameLoop(
   function showDelayDiagnostics(isShown: boolean): void {
     delayDiagnosticsShown = isShown
     if (!isShown) delayDiagnosticsHeld = null
+    if (!isShown) documentFileFlow.forgetDelayFixLog()
     windows.holdReport(isShown ? windows.reopenedReport() : null)
   }
 
@@ -3529,7 +3535,7 @@ export function frameLoop(
         return
       case 'saveDocumentFile':
         if (files === undefined) return
-        sendToSession({ type: 'documentFileWriteAsked', writeForm: SAVE_WRITE_FORM }, frame)
+        sendToSession({ type: 'documentFileWriteAsked', writeForm: SAVE_WRITE_FORM, fixBundle: null }, frame)
         return
       case 'dismissNotice':
         // WHY: spent at the head of receiveInput (spendNoticeRungFirst), before any other rung (NT-8).

@@ -979,6 +979,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `answerOpenChoice` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#answerOpenChoice` | -- | function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenChoice, frame: FrameValues \| null): void |
 | `answerSettledFormat` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#answerSettledFormat` | -- | function answerSettledFormat(hands: DocumentFileFlowHands, format: ExportFormatId): boolean |
 | `askToOpenDroppedFile` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#askToOpenDroppedFile` | -- | function askToOpenDroppedFile(hands: DocumentFileFlowHands): void |
+| `CarriedFixBundle` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#CarriedFixBundle` | -- | type CarriedFixBundle = Extract<SessionEffect, { readonly type: 'issueDelayFixBundle' }>['fixBundle'] |
+| `DelayFixTelling` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DelayFixTelling` | -- | type DelayFixTelling = \| { readonly kind: 'fixed'; readonly count: number } \| { readonly kind: 'refused'; readonly row: DelayFixRow; readonly refusal: Refusa... |
 | `documentAsOpened` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#documentAsOpened` | -- | function documentAsOpened(document: Document): Document |
 | `DocumentFileFlow` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DocumentFileFlow` | -- | type DocumentFileFlow = ReturnType<typeof documentFileFlowOf> |
 | `DocumentFileFlowHands` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DocumentFileFlowHands` | -- | type DocumentFileFlowHands = Pick< |
@@ -1260,6 +1262,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DelayDiagnosticsReportWindow` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・フィルタ・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
 | `delayDiagnosticsReportWithColumnWidth` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、窓の値へ当てる（表 T-346 の `RW-9`）。 |
 | `delayDiagnosticsReportWithFilterClosed` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた窓の値を答える（表 T-330 の `SV-14`）。 |
+| `delayFixBackupFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#delayFixBackupFileNameOf` | -- | function delayFixBackupFileNameOf(documentName: string, localMoment: string, extension: string): string |
 | `DialogueField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DialogueField` | -- | interface DialogueField |
 | `DialogueInput` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#DialogueInput` | -- | interface DialogueInput |
 | `dialogueMessageFromInput` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#dialogueMessageFromInput` | PI-37 | 対話欄で確定した発話。 |
@@ -1693,6 +1696,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ConfirmationState` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#ConfirmationState` | -- | type ConfirmationState = \| { readonly kind: 'notAsked' } \| { readonly kind: 'questionAsked'; readonly question: FileFlowValuesStateCarried['question']; reado... |
 | `emptyFileFlowValues` | file only | const | `src/use-case/advance-screen-session/file-flow-values.ts#emptyFileFlowValues` | -- | const emptyFileFlowValues: FileFlowValues = |
 | `FileFlowCreatedSubject` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowCreatedSubject` | -- | type FileFlowCreatedSubject = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'taskGroup'; readonly groupId: string } export type FileFl... |
+| `FileFlowFixBundle` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowFixBundle` | -- | type FileFlowFixBundle = readonly { readonly fixRow: string }[] |
 | `FileFlowIncomingFile` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowIncomingFile` | -- | interface FileFlowIncomingFile |
 | `FileFlowMergeCandidate` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowMergeCandidate` | -- | interface FileFlowMergeCandidate |
 | `FileFlowMergeMapping` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowMergeMapping` | -- | type FileFlowMergeMapping = \| { readonly kind: 'allSame' } \| { readonly kind: 'allDifferent' } \| |
@@ -1814,4 +1818,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 888 name(s) leave through a public entry (372 of them published by table T-064), 716 more are exported by a file and not by its entry.
+Totals: 889 name(s) leave through a public entry (372 of them published by table T-064), 719 more are exported by a file and not by its entry.
