@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>52 稼働日の時間帯の見本</title>
+<style>
+/* Colours follow docs/spec/_source/settings.json (S-146..S-168, S-450) with themeHue S-73 = 214. */
+:root {
+  --bg: #ffffff; --ink: #16181d; --muted: #5b6068;
+  --rule: hsl(214 14% 87%); --panel: hsl(214 20% 97%); --grip: hsl(214 14% 82%);
+  --accent: hsl(214 59% 32%); --good: #1f7a3d; --attention: #a8600f; --bad: #a02b2b;
+  --plan-fill: hsl(214 46% 80%); --plan-line: hsl(214 44% 46%);
+  --off: rgba(0, 0, 0, 0.06); --label: #000000; --shadow: rgba(0, 0, 0, 0.28);
+  --new-tint: hsl(38 90% 94%); --new-edge: #a8600f;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: hsl(214 12% 9%); --ink: #e8eaee; --muted: #9aa1ab;
+    --rule: hsl(214 12% 23%); --panel: hsl(214 14% 13%); --grip: hsl(214 12% 28%);
+    --accent: hsl(214 62% 68%); --good: #6fc98d; --attention: #e0a353; --bad: #e07a7a;
+    --plan-fill: hsl(214 32% 26%); --plan-line: hsl(214 46% 66%);
+    --off: rgba(0, 0, 0, 0.25); --label: #ffffff; --shadow: rgba(0, 0, 0, 0.6);
+    --new-tint: hsl(38 40% 16%); --new-edge: #e0a353;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: 16px/1.7 "Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif;
+}
+header {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+  padding: 6px 16px; border-bottom: 1px solid var(--rule);
+}
+header h1 { font-size: 18px; margin: 0; flex: 1 1 auto; }
+header .sub { font-size: 14px; color: var(--muted); }
+.lang { display: inline-flex; border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.lang button { font: inherit; font-size: 14px; border: 0; background: var(--bg); color: var(--ink); padding: 2px 12px; cursor: pointer; }
+.lang button[aria-pressed="true"] { background: var(--accent); color: var(--bg); }
+main { display: flex; flex-wrap: wrap; gap: 16px; padding: 12px 16px 32px; align-items: flex-start; }
+#left { flex: 0 0 470px; max-width: 100%; }
+#right { flex: 1 1 560px; min-width: 0; }
+h2 { font-size: 16px; margin: 0 0 4px; }
+.note { font-size: 14px; color: var(--muted); }
+
+/* The surface: a modal-like panel as the app draws its surfaces (title bar, close at the right). */
+.surface {
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 6px;
+  box-shadow: 0 2px 10px var(--shadow); font-size: 15px;
+}
+.titlebar {
+  display: flex; align-items: center; gap: 8px; padding: 4px 8px 4px 12px;
+  border-bottom: 1px solid var(--rule); font-weight: 600;
+}
+.titlebar span { flex: 1; }
+.surface-body { padding: 8px 12px 12px; }
+.part { padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.part:last-child { border-bottom: 0; }
+.part h3 { font-size: 15px; margin: 0 0 4px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.part.is-new { background: var(--new-tint); border: 1px dashed var(--new-edge); border-radius: 6px; padding: 8px; margin: 6px 0; }
+.badge { font-size: 12px; font-weight: 600; color: var(--new-edge); border: 1px solid var(--new-edge); border-radius: 4px; padding: 0 4px; line-height: 1.5; }
+button.ic {
+  font: inherit; font-size: 14px; background: var(--panel); color: var(--ink);
+  border: 1px solid var(--rule); border-radius: 4px; padding: 0 8px; min-height: 28px; cursor: pointer;
+}
+button.ic:hover:not(:disabled) { border-color: var(--accent); }
+button.ic:disabled { opacity: 0.4; cursor: default; }
+button.ic[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.weekdays { display: flex; gap: 4px; flex-wrap: wrap; }
+.weekdays button.ic { min-width: 44px; }
+select, input[type=text], input[type=date] {
+  font: inherit; font-size: 14px; color: var(--ink); background: var(--bg);
+  border: 1px solid var(--rule); border-radius: 4px; padding: 1px 6px;
+}
+input.time { width: 5.2em; text-align: right; font-variant-numeric: tabular-nums; }
+input.bad { border-color: var(--bad); outline: 1px solid var(--bad); }
+table.ranges { border-collapse: collapse; }
+table.ranges td, table.ranges th { padding: 2px 4px; font-size: 14px; }
+table.ranges th { font-weight: 400; color: var(--muted); text-align: left; }
+.refusal { color: var(--bad); font-size: 14px; margin: 4px 0 0; }
+.refusal:empty { display: none; }
+.wc2 { font-size: 14px; color: var(--muted); margin: 4px 0 0; }
+.wc2:empty { display: none; }
+.total { font-size: 14px; color: var(--muted); }
+.total.differs { color: var(--attention); }
+table.grid { border-collapse: collapse; width: 100%; }
+table.grid th, table.grid td { border: 1px solid var(--rule); padding: 2px 4px; font-size: 14px; text-align: left; }
+table.grid th { font-weight: 400; color: var(--muted); }
+table.grid input[type=text] { width: 100%; min-width: 6em; }
+.footer { display: flex; align-items: center; gap: 12px; padding-top: 8px; }
+.footer .state { font-size: 14px; color: var(--muted); }
+#reopen[hidden], .surface[hidden] { display: none; }
+
+.samplebox { margin-top: 12px; border: 1px solid var(--rule); border-radius: 6px; padding: 8px 12px; font-size: 14px; }
+.samplebox label { display: block; }
+#log { font-size: 14px; margin-top: 8px; min-height: 1.7em; }
+#log.ok { color: var(--good); }
+
+/* Schedule */
+.zoombar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 14px; }
+#zoom { width: 220px; }
+#status { font-size: 14px; color: var(--muted); }
+#chartBox { border: 1px solid var(--rule); border-radius: 6px; overflow-x: auto; overflow-y: hidden; margin-top: 4px; }
+svg { display: block; }
+svg text { font-size: 12px; fill: var(--ink); font-family: inherit; }
+svg .barlabel { fill: var(--label); paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }
+.tablebox { overflow-x: auto; }
+table.tasks { border-collapse: collapse; margin-top: 8px; }
+table.tasks th, table.tasks td { border: 1px solid var(--rule); padding: 2px 8px; font-size: 14px; white-space: nowrap; text-align: left; }
+table.tasks th { background: var(--panel); font-weight: 400; color: var(--muted); }
+section.read { margin-top: 20px; }
+section.read table { border-collapse: collapse; }
+section.read th, section.read td { border: 1px solid var(--rule); padding: 2px 8px; font-size: 14px; vertical-align: top; text-align: left; }
+section.read th { background: var(--panel); font-weight: 400; color: var(--muted); }
+code { font-size: 14px; }
+@media (max-width: 560px) {
+  #left { flex-basis: 100%; }
+  #zoom { width: 140px; }
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>52 稼働日の時間帯の見本</h1>
+  <span class="sub">CR-710（下書き・未適用）の休日の設定の面と、時の目盛の塗り</span>
+  <span class="lang" title="画面の言語（見本の面と日程の字だけが替わる）">
+    <button type="button" data-lang="ja" aria-pressed="true">ja</button>
+    <button type="button" data-lang="en" aria-pressed="false">en</button>
+  </span>
+</header>
+<main>
+  <div id="left">
+    <div class="surface" id="surface">
+      <div class="titlebar"><span id="tTitle"></span><button type="button" class="ic" id="close"></button></div>
+      <div class="surface-body" id="surfaceBody">
+        <div class="part" id="partWeekdays">
+          <h3 id="tWeekdays"></h3>
+          <div class="weekdays" id="weekdayButtons"></div>
+        </div>
+        <div class="part" id="partWeekStart">
+          <h3 id="tWeekStart"></h3>
+          <select id="weekStart"></select>
+        </div>
+        <div class="part is-new" id="partHours">
+          <h3><span id="tHours"></span><span class="badge">CR-710 新WC1</span></h3>
+          <table class="ranges" id="ranges"></table>
+          <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+            <button type="button" class="ic" id="addRange">＋</button>
+            <span class="total" id="total"></span>
+          </div>
+          <p class="refusal" id="refusal"></p>
+          <p class="wc2" id="wc2"></p>
+        </div>
+        <div class="part" id="partExceptions">
+          <h3 id="tExceptions"></h3>
+          <table class="grid" id="exceptions"></table>
+          <div style="margin-top:4px"><button type="button" class="ic" id="addException"></button></div>
+        </div>
+        <div class="footer">
+          <button type="button" class="ic" id="apply"></button>
+          <span class="state" id="draftState"></span>
+        </div>
+      </div>
+    </div>
+    <button type="button" class="ic" id="reopen" hidden></button>
+
+    <div class="samplebox">
+      <strong>見本だけの操作（実物には無い）</strong>
+      <label><input type="checkbox" id="imported" checked> 取り込んだ暦: 月・水が別の時間帯（9:00〜12:00・13:00〜18:00）を持つ</label>
+      <div>面の並びの案:
+        <label style="display:inline"><input type="radio" name="layout" value="A" checked> 案 A 曜日と週の始まりの下</label>
+        <label style="display:inline;margin-left:12px"><input type="radio" name="layout" value="B"> 案 B 例外日の一覧の下</label>
+      </div>
+      <button type="button" class="ic" id="reset" style="margin-top:4px">最初に戻す</button>
+      <div id="log"></div>
+    </div>
+  </div>
+
+  <div id="right">
+    <div class="zoombar">
+      <span>ズーム（1 時間の幅）</span>
+      <input id="zoom" type="range" min="4" max="60" step="1" value="12">
+      <span id="zoomValue"></span>
+      <span id="jumps"></span>
+    </div>
+    <div id="status"></div>
+    <div id="chartBox"><svg id="chart"></svg></div>
+    <div class="tablebox"><table class="tasks" id="tasks"></table></div>
+    <p class="note">灰色の塗り ＝ 数えない時間。時の段（1 時間 12px 以上）では稼働日の時間帯の外も、非稼働日と同じ塗りにする（X-12）。所要は開始から終了までの稼働時間の合計で、1d ＝ 480 分（<code>S-128</code>）。</p>
+
+    <section class="read">
+      <h2>語（ja ／ en を並べる）</h2>
+      <p class="note">「辞書」は <code>display-words.json</code> に今ある語。「見本の案」は CR-710 が当てるときに辞書へ足す語の案である。</p>
+      <div class="tablebox"><table id="glossary"></table></div>
+    </section>
+  </div>
+</main>
+<script>
+'use strict';
+
+// ---------- constants (each names the spec row it stands for) ----------
+const DAY_MIN = 1440;
+const MINUTES_PER_DAY = 480;          // S-128
+const MAX_RANGES = 5;                 // new S9 (XSD maxOccurs="5")
+const DEFAULT_SET = [[480, 720], [780, 1020]];   // new S7: 08:00-12:00, 13:00-17:00
+const OTHER_SET = [[540, 720], [780, 1080]];     // the imported Mon/Wed set of this sample
+const HOUR_TIER_PX_PER_HOUR = 12;     // new S4 = 288 px/day
+const HALF_HOUR_PX_PER_HOUR = 24;     // new S5 = 576 px/day
+const HALF_HOUR_DASH = '2 3';         // new S8
+const WEEK_START_DEFAULT = 1;         // S-108 (Monday)
+// Day 0 of the chart is Thursday 2026-10-29; six days are drawn.
+const CHART_FIRST = { y: 2026, m: 10, d: 29, weekday: 4 };
+const CHART_DAYS = 6;
+const SAMPLE_TODAY = '2026-10-31';    // WC-6 adds rows on "today"; the sample pins it inside the chart
+const RULER_ROW_H = 22;
+const ROW_H = 34;
+const BAR_H = 14;
+const LABEL_PAD = 2;
+
+// ---------- words ----------
+const W = {
+  ja: {
+    title: '休日の設定', close: '閉じる', reopen: '休日の設定を開く',
+    weekdays: '稼働する曜日', weekStart: '週の始まり', hours: '稼働日の時間帯', exceptions: '例外日の一覧',
+    from: '始まり', to: '終わり', del: '削除', add: '追加', apply: '適用',
+    addRangeHint: '時間帯を 1 本足す（5 本まで）',
+    delRangeHint: 'この時間帯を消す（適用するまで文書は変わらない）',
+    timeHint: '時刻を 1 分の単位で打つ（例 8:00、終わりの 0:00 は 24:00）',
+    weekdayHint: 'この曜日を稼働にするか休みにするかを切り替える（適用するまで文書は変わらない）',
+    excName: '名前', excFrom: '始まりの日', excTo: '終わりの日', excKind: '休みか稼働か',
+    off: '休み', on: '稼働',
+    wc2: (days) => days + 'は別の時間帯を持つ —— 取り込んだまま保ち、ここでは直さない',
+    sep: '・',
+    badFormat: (a) => '時刻の形ではない（' + a + '）—— 0:00〜24:00 の形で打つ',
+    badOrder: (a) => '始まりが終わりより前ではない（' + a + '）',
+    overlap: (a, b) => '時間帯が重なっている（' + a + ' と ' + b + '）',
+    noWeekday: '稼働する曜日を 1 つ以上選んでください',
+    total: (t) => '合計 ' + t + '（1d ＝ 8h）',
+    totalDiffers: (t) => '合計 ' + t + ' —— 1d（8h）と違う',
+    same: '下書きは文書と同じ', changed: '適用していない変更がある', invalid: '直すまで適用できない',
+    task: 'タスク', start: '開始', finish: '終了', duration: '所要（稼働時間）',
+    names: ['作業A', '作業B', '確認'],
+    hourTier: '時の段', dayTier: '日の段', halfOn: '30 分の点線あり', halfOff: '30 分の点線なし',
+    perHour: (p) => '1 時間 ＝ ' + p + 'px',
+  },
+  en: {
+    title: 'Holiday Settings', close: 'Close', reopen: 'Open Holiday Settings',
+    weekdays: 'Working Weekdays', weekStart: 'Week Starts On', hours: 'Working Hours', exceptions: 'Exception Days',
+    from: 'From', to: 'To', del: 'Delete', add: 'Add', apply: 'Apply',
+    addRangeHint: 'Add a working-time range (up to 5)',
+    delRangeHint: 'Delete this range (the document changes only when applied)',
+    timeHint: 'Type a time to the minute (e.g. 8:00; an end of 0:00 is 24:00)',
+    weekdayHint: 'Switch this weekday between working and not working (the document changes only when applied)',
+    excName: 'Name', excFrom: 'Start', excTo: 'Finish', excKind: 'Day off or working',
+    off: 'Day Off', on: 'Working',
+    wc2: (days) => days + ' hold other working hours; kept as imported, not edited here',
+    sep: ', ',
+    badFormat: (a) => 'Not a time (' + a + '); type it as 0:00 to 24:00',
+    badOrder: (a) => 'The start is not before the end (' + a + ')',
+    overlap: (a, b) => 'The ranges overlap (' + a + ' and ' + b + ')',
+    noWeekday: 'Choose at least one working weekday',
+    total: (t) => 'Total ' + t + ' (1d = 8h)',
+    totalDiffers: (t) => 'Total ' + t + '; differs from 1d (8h)',
+    same: 'The draft matches the document', changed: 'There are changes not applied', invalid: 'Fix the ranges to apply',
+    task: 'Task', start: 'Start', finish: 'Finish', duration: 'Duration (working time)',
+    names: ['Task A', 'Task B', 'Review'],
+    hourTier: 'hour tier', dayTier: 'day tier', halfOn: 'half-hour dotted lines', halfOff: 'no half-hour lines',
+    perHour: (p) => '1 hour = ' + p + 'px',
+  },
+};
+const WEEKDAY = { ja: ['日', '月', '火', '水', '木', '金', '土'], en: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] };
+let lang = 'ja';
+const w = () => W[lang];
+
+// ---------- time helpers ----------
+const fmtTime = (min) => Math.floor(min / 60) + ':' + String(min % 60).padStart(2, '0');
+const fmtRange = (r) => fmtTime(r[0]) + '–' + fmtTime(r[1]);
+const setKey = (set) => set.map(fmtRange).join(',');
+const copySet = (set) => set.map((r) => [r[0], r[1]]);
+
+/** new T1 row A10: 1d 2h, 2h 30m, 30m; 1d = minutesPerDay. */
+function fmtDuration(min) {
+  if (min <= 0) return '0h';
+  const d = Math.floor(min / MINUTES_PER_DAY);
+  const rest = min - d * MINUTES_PER_DAY;
+  const h = Math.floor(rest / 60);
+  const m = rest % 60;
+  const parts = [];
+  if (d) parts.push(d + 'd');
+  if (h) parts.push(h + 'h');
+  if (m) parts.push(m + 'm');
+  return parts.join(' ');
+}
+
+/** Parses H:MM; an end of 0:00 reads 24:00 (X-19). Returns null when it is not a time. */
+function parseTime(text, isEnd) {
+  const m = /^\s*(\d{1,2}):(\d{2})\s*$/.exec(text);
+  if (!m) return null;
+  const h = Number(m[1]);
+  const mi = Number(m[2]);
+  if (h > 24 || mi > 59 || (h === 24 && mi !== 0)) return null;
+  const v = h * 60 + mi;
+  return isEnd && v === 0 ? DAY_MIN : v;
+}
+
+function chartDate(dayIndex) {
+  const t = new Date(Date.UTC(CHART_FIRST.y, CHART_FIRST.m - 1, CHART_FIRST.d + dayIndex));
+  return { y: t.getUTCFullYear(), m: t.getUTCMonth() + 1, d: t.getUTCDate(), weekday: t.getUTCDay() };
+}
+const isoOf = (dayIndex) => { const c = chartDate(dayIndex); return c.y + '-' + String(c.m).padStart(2, '0') + '-' + String(c.d).padStart(2, '0'); };
+const dayLabel = (dayIndex) => { const c = chartDate(dayIndex); return c.m + '/' + c.d + ' (' + WEEKDAY[lang][c.weekday] + ')'; };
+const instantLabel = (min) => dayLabel(Math.floor(min / DAY_MIN)) + ' ' + fmtTime(min % DAY_MIN);
+
+// ---------- the document's calendar ----------
+function initialDocument(importedOther) {
+  const weekdays = [];
+  for (let d = 0; d < 7; d++) {
+    const working = d >= 1 && d <= 5;
+    const other = importedOther && (d === 1 || d === 3);
+    weekdays.push({ working, ranges: working ? copySet(other ? OTHER_SET : DEFAULT_SET) : [] });
+  }
+  return { weekStart: WEEK_START_DEFAULT, weekdays, exceptions: [] };
+}
+
+/** X-7: the set most working weekdays hold; a tie goes to the first from the week start; none -> new S7. */
+function shownSetOf(doc) {
+  const counts = new Map();
+  const order = [];
+  for (let i = 0; i < 7; i++) {
+    const d = (doc.weekStart + i) % 7;
+    const wd = doc.weekdays[d];
+    if (!wd.working || !wd.ranges || wd.ranges.length === 0) continue;
+    const k = setKey(wd.ranges);
+    if (!counts.has(k)) { counts.set(k, { n: 0, set: wd.ranges }); order.push(k); }
+    counts.get(k).n++;
+  }
+  let best = null;
+  for (const k of order) if (best === null || counts.get(k).n > counts.get(best).n) best = k;
+  return best === null ? copySet(DEFAULT_SET) : copySet(counts.get(best).set);
+}
+
+/** The ranges one chart day holds: an exception wins, then the weekday; a working day without hours reads new S7. */
+function rangesOfDay(doc, dayIndex) {
+  const iso = isoOf(dayIndex);
+  for (const e of doc.exceptions) {
+    if (e.from <= iso && iso <= e.to) return e.working ? (e.ranges && e.ranges.length ? e.ranges : DEFAULT_SET) : [];
+  }
+  const wd = doc.weekdays[chartDate(dayIndex).weekday];
+  if (!wd.working) return [];
+  return wd.ranges && wd.ranges.length ? wd.ranges : DEFAULT_SET;
+}
+
+/** E-103: working minutes from s to e; an end day that is not working counts with the shown set (JDG-1786, X-17). */
+function workingMinutes(doc, s, e) {
+  const first = Math.floor(s / DAY_MIN);
+  const last = Math.floor((e - 1) / DAY_MIN);
+  const shown = shownSetOf(doc);
+  let sum = 0;
+  for (let day = first; day <= last; day++) {
+    let ranges = rangesOfDay(doc, day);
+    if (ranges.length === 0 && (day === first || day === last)) ranges = shown;
+    for (const r of ranges) {
+      const a = Math.max(s, day * DAY_MIN + r[0]);
+      const b = Math.min(e, day * DAY_MIN + r[1]);
+      if (b > a) sum += b - a;
+    }
+  }
+  return sum;
+}
+
+// ---------- state ----------
+const TASKS = [
+  { s: 1 * DAY_MIN + 600, e: 1 * DAY_MIN + 930 },   // Fri 10:00 - Fri 15:30
+  { s: 1 * DAY_MIN + 780, e: 4 * DAY_MIN + 660 },   // Fri 13:00 - Mon 11:00
+  { s: 4 * DAY_MIN + 855, e: 5 * DAY_MIN + 585 },   // Mon 14:15 - Tue 9:45
+];
+let doc;
+let draft;   // { weekStart, working[7], rows: [{from, to}] as typed text, exceptions: [...] }
+let pxPerHour = 12;
+
+function draftFrom(d) {
+  return {
+    weekStart: d.weekStart,
+    working: d.weekdays.map((x) => x.working),
+    rows: shownSetOf(d).map((r) => ({ from: fmtTime(r[0]), to: fmtTime(r[1]) })),
+    exceptions: d.exceptions.map((e) => ({ ...e, ranges: e.ranges ? copySet(e.ranges) : null, added: false })),
+  };
+}
+
+function resetAll() {
+  doc = initialDocument(document.getElementById('imported').checked);
+  draft = draftFrom(doc);
+  setLog('', false);
+  renderSurface();
+  renderChart();
+}
+
+// ---------- invariant new IV1 ----------
+function checkDraft() {
+  const errors = [];
+  const bad = new Set();
+  const parsed = draft.rows.map((row, i) => {
+    const a = parseTime(row.from, false);
+    const b = parseTime(row.to, true);
+    if (a === null) { errors.push(w().badFormat(row.from || '""')); bad.add(i + ':from'); }
+    if (b === null) { errors.push(w().badFormat(row.to || '""')); bad.add(i + ':to'); }
+    if (a !== null && b !== null && a >= b) { errors.push(w().badOrder(row.from + '–' + row.to)); bad.add(i + ':from'); bad.add(i + ':to'); }
+    return a !== null && b !== null && a < b ? { i, r: [a, b] } : null;
+  });
+  const ok = parsed.filter((p) => p !== null).sort((x, y) => x.r[0] - y.r[0]);
+  for (let k = 1; k < ok.length; k++) {
+    const p = ok[k - 1];
+    const q = ok[k];
+    if (p.r[1] > q.r[0]) {
+      errors.push(w().overlap(fmtRange(p.r), fmtRange(q.r)));
+      bad.add(p.i + ':from'); bad.add(p.i + ':to'); bad.add(q.i + ':from'); bad.add(q.i + ':to');
+    }
+  }
+  if (!draft.working.some((x) => x)) errors.push(w().noWeekday);
+  const set = errors.length === 0 ? ok.map((p) => p.r) : null;
+  return { errors, bad, set };
+}
+
+// ---------- apply (X-7) ----------
+function applyDraft() {
+  const check = checkDraft();
+  if (check.set === null) return;
+  const newSet = check.set;
+  const oldKey = setKey(shownSetOf(doc));
+  const written = [];
+  const kept = [];
+  const weekdays = doc.weekdays.map((wd, d) => {
+    if (!draft.working[d]) return { working: false, ranges: [] };
+    const own = wd.ranges;
+    const takesSet = !wd.working || !own || own.length === 0 || setKey(own) === oldKey;
+    (takesSet ? written : kept).push(WEEKDAY[lang][d]);
+    return { working: true, ranges: takesSet ? copySet(newSet) : own };
+  });
+  const exceptions = draft.exceptions.map((e) => {
+    if (!e.working) return { ...e, ranges: [], added: undefined };
+    const ownSet = e.ranges && e.ranges.length > 0 && !e.added;
+    return { name: e.name, from: e.from, to: e.to, working: true, ranges: ownSet ? e.ranges : copySet(newSet) };
+  });
+  doc = { weekStart: draft.weekStart, weekdays, exceptions };
+  draft = draftFrom(doc);
+  const msg = lang === 'ja'
+    ? '適用した: ' + newSet.map(fmtRange).join('・') + ' を ' + (written.join('・') || '無し') + ' に書いた' + (kept.length ? '。' + kept.join('・') + ' は保った' : '')
+    : 'Applied: wrote ' + newSet.map(fmtRange).join(', ') + ' to ' + (written.join(', ') || 'none') + (kept.length ? '; kept ' + kept.join(', ') : '');
+  setLog(msg, true);
+  renderSurface();
+  renderChart();
+}
+
+function setLog(text, ok) {
+  const el = document.getElementById('log');
+  el.textContent = text;
+  el.className = ok ? 'ok' : '';
+}
+
+// ---------- surface ----------
+function el(tag, attrs, children) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) {
+    if (k === 'text') e.textContent = v;
+    else if (k.startsWith('on')) e.addEventListener(k.slice(2), v);
+    else e.setAttribute(k, v);
+  }
+  for (const c of children || []) e.appendChild(c);
+  return e;
+}
+
+function draftDiffersFromDoc() {
+  const base = draftFrom(doc);
+  return JSON.stringify({ ...draft }) !== JSON.stringify(base);
+}
+
+function renderSurface() {
+  const t = w();
+  document.getElementById('tTitle').textContent = t.title;
+  const close = document.getElementById('close');
+  close.textContent = '×'; close.title = t.close;
+  document.getElementById('reopen').textContent = t.reopen;
+  document.getElementById('tWeekdays').textContent = t.weekdays;
+  document.getElementById('tWeekStart').textContent = t.weekStart;
+  document.getElementById('tHours').textContent = t.hours;
+  document.getElementById('tExceptions').textContent = t.exceptions;
+  document.getElementById('addException').textContent = t.add;
+  document.getElementById('apply').textContent = t.apply;
+
+  // WC-2: seven weekday toggles from the week start
+  const box = document.getElementById('weekdayButtons');
+  box.replaceChildren();
+  for (let i = 0; i < 7; i++) {
+    const d = (draft.weekStart + i) % 7;
+    box.appendChild(el('button', {
+      type: 'button', class: 'ic', 'aria-pressed': String(draft.working[d]), title: t.weekdayHint, text: WEEKDAY[lang][d],
+      onclick: () => { draft.working[d] = !draft.working[d]; renderSurface(); },
+    }));
+  }
+  // WC-3
+  const sel = document.getElementById('weekStart');
+  sel.replaceChildren(...WEEKDAY[lang].map((name, d) => el('option', { value: String(d), text: name })));
+  sel.value = String(draft.weekStart);
+
+  // new WC1: the ranges
+  const check = checkDraft();
+  const table = document.getElementById('ranges');
+  table.replaceChildren(el('tr', {}, [el('th', { text: '' }), el('th', { text: t.from }), el('th', { text: '' }), el('th', { text: t.to }), el('th', { text: '' })]));
+  draft.rows.forEach((row, i) => {
+    const mk = (side) => el('input', {
+      type: 'text', class: 'time' + (check.bad.has(i + ':' + side) ? ' bad' : ''), value: row[side],
+      title: t.timeHint, inputmode: 'numeric', 'data-row': String(i), 'data-side': side,
+      oninput: (ev) => { row[side] = ev.target.value; refreshChecks(); },
+      onchange: (ev) => {
+        const v = parseTime(ev.target.value, side === 'to');
+        if (v !== null) { row[side] = fmtTime(v); ev.target.value = row[side]; }
+        refreshChecks();
+      },
+    });
+    table.appendChild(el('tr', {}, [
+      el('td', { class: 'note', text: String(i + 1) }),
+      el('td', {}, [mk('from')]),
+      el('td', { text: '〜' }),
+      el('td', {}, [mk('to')]),
+      el('td', {}, [el('button', {
+        type: 'button', class: 'ic del', title: t.delRangeHint, text: t.del,
+        onclick: () => { draft.rows.splice(i, 1); renderSurface(); },
+      })]),
+    ]));
+  });
+  const add = document.getElementById('addRange');
+  add.title = t.addRangeHint;
+  add.disabled = draft.rows.length >= MAX_RANGES;
+  table.querySelectorAll('button.del').forEach((b) => { b.disabled = draft.rows.length <= 1; });
+
+  // new WC2: weekdays that hold another set
+  const shownKey = setKey(shownSetOf(doc));
+  const others = [];
+  for (let i = 0; i < 7; i++) {
+    const d = (doc.weekStart + i) % 7;
+    const wd = doc.weekdays[d];
+    if (draft.working[d] && wd.working && wd.ranges && wd.ranges.length && setKey(wd.ranges) !== shownKey) others.push(WEEKDAY[lang][d]);
+  }
+  document.getElementById('wc2').textContent = others.length ? t.wc2(others.join(t.sep)) : '';
+
+  // WC-4 / WC-6: exception rows
+  const ex = document.getElementById('exceptions');
+  ex.replaceChildren(el('tr', {}, [t.excName, t.excFrom, t.excTo, t.excKind, ''].map((h) => el('th', { text: h }))));
+  draft.exceptions.forEach((e, i) => {
+    ex.appendChild(el('tr', {}, [
+      el('td', {}, [el('input', { type: 'text', value: e.name, oninput: (ev) => { e.name = ev.target.value; refreshChecks(); } })]),
+      el('td', {}, [el('input', { type: 'date', value: e.from, onchange: (ev) => { e.from = ev.target.value; refreshChecks(); } })]),
+      el('td', {}, [el('input', { type: 'date', value: e.to, onchange: (ev) => { e.to = ev.target.value; refreshChecks(); } })]),
+      el('td', {}, [el('button', {
+        type: 'button', class: 'ic', 'aria-pressed': String(!e.working), text: e.working ? t.on : t.off,
+        onclick: () => { e.working = !e.working; renderSurface(); },
+      })]),
+      el('td', {}, [el('button', { type: 'button', class: 'ic', text: t.del, onclick: () => { draft.exceptions.splice(i, 1); renderSurface(); } })]),
+    ]));
+  });
+  refreshChecks();
+}
+
+/** Re-reads the invariant without rebuilding the inputs, so typing keeps the caret. */
+function refreshChecks() {
+  const t = w();
+  const check = checkDraft();
+  document.querySelectorAll('#ranges input.time').forEach((inp) => {
+    inp.classList.toggle('bad', check.bad.has(inp.dataset.row + ':' + inp.dataset.side));
+  });
+  document.getElementById('refusal').textContent = check.errors.join(' ／ ');
+  const total = document.getElementById('total');
+  if (check.set) {
+    const sum = check.set.reduce((s, r) => s + r[1] - r[0], 0);
+    total.textContent = sum === MINUTES_PER_DAY ? t.total(hoursText(sum)) : t.totalDiffers(hoursText(sum));
+    total.className = 'total' + (sum === MINUTES_PER_DAY ? '' : ' differs');
+  } else {
+    total.textContent = '';
+  }
+  const apply = document.getElementById('apply');
+  apply.disabled = check.set === null;
+  const changed = draftDiffersFromDoc();
+  document.getElementById('draftState').textContent = check.set === null ? t.invalid : (changed ? t.changed : t.same);
+}
+const hoursText = (min) => Math.floor(min / 60) + 'h' + (min % 60 ? ' ' + (min % 60) + 'm' : '');
+
+function placeHoursPart(layout) {
+  const body = document.getElementById('surfaceBody');
+  const hours = document.getElementById('partHours');
+  const anchor = layout === 'B' ? document.getElementById('partExceptions').nextSibling : document.getElementById('partWeekStart').nextSibling;
+  body.insertBefore(hours, anchor);
+}
+
+// ---------- chart ----------
+const SVGNS = 'http://www.w3.org/2000/svg';
+function sv(tag, attrs, text) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function measureTwoDigits() {
+  const probe = document.getElementById('chart').appendChild(sv('text', { x: -100, y: -100 }, '00'));
+  const width = probe.getBBox().width;
+  probe.remove();
+  return width + 2 * LABEL_PAD;
+}
+
+function renderChart() {
+  const svg = document.getElementById('chart');
+  const pxPerMin = pxPerHour / 60;
+  const hourTier = pxPerHour >= HOUR_TIER_PX_PER_HOUR;
+  const halfTier = pxPerHour >= HALF_HOUR_PX_PER_HOUR;
+  const width = Math.round(CHART_DAYS * DAY_MIN * pxPerMin);
+  const top = 2 * RULER_ROW_H;
+  const height = top + TASKS.length * ROW_H + 8;
+  svg.replaceChildren();
+  svg.setAttribute('width', width);
+  svg.setAttribute('height', height);
+  svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+  const css = getComputedStyle(document.documentElement);
+  const color = (name) => css.getPropertyValue(name).trim();
+
+  // non-working paint as one element (OD-6); outside the hours too on the hour tier (X-12, E-210)
+  let d = '';
+  for (let day = 0; day < CHART_DAYS; day++) {
+    const ranges = rangesOfDay(doc, day);
+    const x0 = day * DAY_MIN;
+    const gaps = [];
+    if (ranges.length === 0) gaps.push([0, DAY_MIN]);
+    else if (hourTier) {
+      let at = 0;
+      for (const r of [...ranges].sort((a, b) => a[0] - b[0])) { if (r[0] > at) gaps.push([at, r[0]]); at = Math.max(at, r[1]); }
+      if (at < DAY_MIN) gaps.push([at, DAY_MIN]);
+    }
+    for (const g of gaps) {
+      const x = (x0 + g[0]) * pxPerMin;
+      d += 'M' + x.toFixed(2) + ' ' + top + 'H' + ((x0 + g[1]) * pxPerMin).toFixed(2) + 'V' + height + 'H' + x.toFixed(2) + 'Z';
+    }
+  }
+  svg.appendChild(sv('rect', { x: 0, y: 0, width, height: top, fill: color('--panel') }));
+  if (d) svg.appendChild(sv('path', { d, fill: color('--off'), 'data-figure': 'non-working' }));
+
+  // grid: day lines, hour lines, half-hour dotted lines (E-202, X-13)
+  const rule = color('--rule');
+  let solid = '';
+  let dotted = '';
+  for (let m = 0; m <= CHART_DAYS * DAY_MIN; m += 30) {
+    const x = (m * pxPerMin).toFixed(2);
+    if (m % DAY_MIN === 0) solid += 'M' + x + ' ' + RULER_ROW_H + 'V' + height;
+    else if (hourTier && m % 60 === 0) solid += 'M' + x + ' ' + top + 'V' + height + 'M' + x + ' ' + (top - 6) + 'V' + top;
+    else if (halfTier && m % 60 === 30) dotted += 'M' + x + ' ' + top + 'V' + height;
+  }
+  svg.appendChild(sv('path', { d: solid, stroke: rule, 'stroke-width': 1, fill: 'none' }));
+  if (dotted) svg.appendChild(sv('path', { d: dotted, stroke: rule, 'stroke-width': 1, fill: 'none', 'stroke-dasharray': HALF_HOUR_DASH }));
+  svg.appendChild(sv('path', { d: 'M0 ' + RULER_ROW_H + 'H' + width + 'M0 ' + top + 'H' + width, stroke: rule, 'stroke-width': 1 }));
+
+  // ruler: hour tier = `yyyy/m/d (曜)` over hours; day tier = `yyyy/m` over `d (曜)`
+  const textY1 = RULER_ROW_H - 6;
+  const textY2 = top - 6;
+  if (hourTier) {
+    const labelW = measureTwoDigits();
+    const step = [1, 2, 3].find((s) => s * pxPerHour >= labelW) || 3;
+    for (let day = 0; day < CHART_DAYS; day++) {
+      const c = chartDate(day);
+      svg.appendChild(sv('text', { x: day * DAY_MIN * pxPerMin + LABEL_PAD + 2, y: textY1, 'data-day-start': day * DAY_MIN * pxPerMin, 'data-day-end': (day + 1) * DAY_MIN * pxPerMin }, c.y + '/' + c.m + '/' + c.d + ' (' + WEEKDAY[lang][c.weekday] + ')'));
+      for (let h = 0; h < 24; h += step) {
+        svg.appendChild(sv('text', { x: (day * DAY_MIN + h * 60) * pxPerMin + LABEL_PAD, y: textY2 }, String(h)));
+      }
+    }
+  } else {
+    let lastMonth = -1;
+    for (let day = 0; day < CHART_DAYS; day++) {
+      const c = chartDate(day);
+      const x = day * DAY_MIN * pxPerMin;
+      if (c.m !== lastMonth) { svg.appendChild(sv('text', { x: x + LABEL_PAD + 2, y: textY1 }, c.y + '/' + c.m)); lastMonth = c.m; }
+      svg.appendChild(sv('text', { x: x + LABEL_PAD + 2, y: textY2 }, c.d + ' (' + WEEKDAY[lang][c.weekday] + ')'));
+    }
+  }
+
+  // bars at minute positions
+  TASKS.forEach((task, i) => {
+    const y = top + i * ROW_H + (ROW_H - BAR_H) / 2;
+    const x = task.s * pxPerMin;
+    const bw = Math.max(1, (task.e - task.s) * pxPerMin);
+    const minutes = workingMinutes(doc, task.s, task.e);
+    const g = sv('g', { 'data-figure': 'task-' + i });
+    g.appendChild(sv('title', {}, w().names[i] + '  ' + instantLabel(task.s) + ' – ' + instantLabel(task.e) + '  ' + fmtDuration(minutes)));
+    g.appendChild(sv('rect', { x, y, width: bw, height: BAR_H, fill: color('--plan-fill'), stroke: color('--plan-line'), 'stroke-width': 1 }));
+    g.appendChild(sv('text', { x: x + 4, y: y + BAR_H - 2, class: 'barlabel' }, w().names[i] + '  ' + fmtDuration(minutes)));
+    svg.appendChild(g);
+  });
+
+  keepDayLabelsInView();
+  const t = w();
+  document.getElementById('jumps').replaceChildren(...[1, 4].map((day) => el('button', {
+    type: 'button', class: 'ic', text: dayLabel(day),
+    onclick: () => { document.getElementById('chartBox').scrollLeft = (day * DAY_MIN + 6 * 60) * (pxPerHour / 60); },
+  })));
+  document.getElementById('zoomValue').textContent = t.perHour(pxPerHour);
+  document.getElementById('status').textContent = (hourTier ? t.hourTier : t.dayTier) + ' ／ ' + (halfTier ? t.halfOn : t.halfOff);
+
+  const rows = TASKS.map((task, i) => el('tr', {}, [
+    el('td', { text: t.names[i] }), el('td', { text: instantLabel(task.s) }), el('td', { text: instantLabel(task.e) }),
+    el('td', { text: fmtDuration(workingMinutes(doc, task.s, task.e)) }),
+  ]));
+  document.getElementById('tasks').replaceChildren(el('tr', {}, [t.task, t.start, t.finish, t.duration].map((h) => el('th', { text: h }))), ...rows);
+}
+
+/** The day label of the first ruler row stays readable at the left edge while its day is in view. */
+function keepDayLabelsInView() {
+  const left = document.getElementById('chartBox').scrollLeft;
+  document.querySelectorAll('#chart text[data-day-start]').forEach((label) => {
+    const start = Number(label.dataset.dayStart);
+    const end = Number(label.dataset.dayEnd);
+    const width = label.getComputedTextLength();
+    const x = Math.min(Math.max(start, left) + LABEL_PAD + 2, end - width - LABEL_PAD - 2);
+    label.setAttribute('x', String(Math.max(start + LABEL_PAD + 2, x)));
+  });
+}
+
+function setZoom(p, keepCenter) {
+  const box = document.getElementById('chartBox');
+  const centerMin = (box.scrollLeft + box.clientWidth / 2) / (pxPerHour / 60);
+  pxPerHour = p;
+  document.getElementById('zoom').value = String(p);
+  renderChart();
+  if (keepCenter) box.scrollLeft = centerMin * (pxPerHour / 60) - box.clientWidth / 2;
+  keepDayLabelsInView();
+}
+
+// ---------- glossary ----------
+function renderGlossary() {
+  const rows = [
+    ['U-65', '辞書', W.ja.title, W.en.title],
+    ['IC-133', '辞書', '曜日（' + W.ja.weekdayHint + '）', 'Weekday (' + W.en.weekdayHint + ')'],
+    ['IC-134', '辞書', W.ja.weekStart, W.en.weekStart],
+    ['IC-135 ／ IC-136', '辞書', W.ja.add + ' ／ ' + W.ja.del, W.en.add + ' ／ ' + W.en.del],
+    ['IC-137', '辞書', W.ja.off, W.en.off],
+    ['IC-138', '辞書', W.ja.apply, W.en.apply],
+    ['IV-17', '辞書', W.ja.noWeekday, W.en.noWeekday],
+    ['WC-2 ／ WC-4', '見本の案（今は面の見出しが無い）', W.ja.weekdays + ' ／ ' + W.ja.exceptions, W.en.weekdays + ' ／ ' + W.en.exceptions],
+    ['新WC1', '見本の案', W.ja.hours, W.en.hours],
+    ['新IC3', '見本の案', '＋（' + W.ja.addRangeHint + '）', '+ (' + W.en.addRangeHint + ')'],
+    ['新IC4', '見本の案', W.ja.del + '（' + W.ja.delRangeHint + '）', W.en.del + ' (' + W.en.delRangeHint + ')'],
+    ['新IC5', '見本の案', W.ja.from + ' ／ ' + W.ja.to + '（' + W.ja.timeHint + '）', W.en.from + ' ／ ' + W.en.to + ' (' + W.en.timeHint + ')'],
+    ['新WC2', '見本の案', W.ja.wc2('月・水'), W.en.wc2('Mon, Wed')],
+    ['新IV1', '見本の案', [W.ja.badFormat('8'), W.ja.badOrder('13:00–12:00'), W.ja.overlap('8:00–12:00', '11:00–13:00')].join(' ／ '), [W.en.badFormat('8'), W.en.badOrder('13:00–12:00'), W.en.overlap('8:00–12:00', '11:00–13:00')].join(' ／ ')],
+  ];
+  const table = document.getElementById('glossary');
+  table.replaceChildren(el('tr', {}, ['行', '出どころ', 'ja', 'en'].map((h) => el('th', { text: h }))),
+    ...rows.map((r) => el('tr', {}, r.map((c) => el('td', { text: c })))));
+}
+
+// ---------- wiring ----------
+document.getElementById('addRange').addEventListener('click', () => {
+  if (draft.rows.length >= MAX_RANGES) return;
+  const ends = draft.rows.map((r) => parseTime(r.to, true)).filter((v) => v !== null);
+  const after = ends.length ? Math.max(...ends) : 480;
+  const from = Math.min(after + 60, DAY_MIN - 60);
+  draft.rows.push({ from: fmtTime(from), to: fmtTime(Math.min(from + 60, DAY_MIN)).replace(/^0:00$/, '24:00') });
+  renderSurface();
+});
+document.getElementById('apply').addEventListener('click', applyDraft);
+document.getElementById('weekStart').addEventListener('change', (ev) => { draft.weekStart = Number(ev.target.value); renderSurface(); });
+document.getElementById('addException').addEventListener('click', () => {
+  draft.exceptions.push({ name: '', from: SAMPLE_TODAY, to: SAMPLE_TODAY, working: false, ranges: null, added: true });
+  renderSurface();
+});
+document.getElementById('close').addEventListener('click', () => {
+  draft = draftFrom(doc);   // FR-088: closing drops the draft
+  document.getElementById('surface').hidden = true;
+  document.getElementById('reopen').hidden = false;
+});
+document.getElementById('reopen').addEventListener('click', () => {
+  document.getElementById('surface').hidden = false;
+  document.getElementById('reopen').hidden = true;
+  renderSurface();
+});
+document.getElementById('imported').addEventListener('change', resetAll);
+document.getElementById('reset').addEventListener('click', resetAll);
+document.querySelectorAll('input[name=layout]').forEach((r) => r.addEventListener('change', (ev) => placeHoursPart(ev.target.value)));
+document.querySelectorAll('.lang button').forEach((b) => b.addEventListener('click', () => {
+  lang = b.dataset.lang;
+  document.querySelectorAll('.lang button').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+  renderSurface();
+  renderChart();
+}));
+document.getElementById('zoom').addEventListener('input', (ev) => setZoom(Number(ev.target.value), true));
+document.getElementById('chartBox').addEventListener('wheel', (ev) => {
+  if (!ev.ctrlKey) return;
+  ev.preventDefault();
+  setZoom(Math.max(4, Math.min(60, pxPerHour + (ev.deltaY < 0 ? 2 : -2))), true);
+}, { passive: false });
+
+resetAll();
+renderGlossary();
+document.getElementById('chartBox').addEventListener('scroll', keepDayLabelsInView);
+document.getElementById('chartBox').scrollLeft = (1 * DAY_MIN + 6 * 60) * (pxPerHour / 60);
+keepDayLabelsInView();
+</script>
+</body>
+</html>
