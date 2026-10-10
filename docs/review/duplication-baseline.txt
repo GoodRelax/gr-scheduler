@@ -69,3 +69,4 @@ tbl-settings.md/T:T-236 S-327 + tbl-settings.md/T:T-236 S-386
 01-04-requirements.md/T:T-233 RS-65 + tbl-glossary.md/T:T-109 IC-115
 01-04-requirements.md/FR-038 + 01-04-requirements.md/FR-066
 tbl-glossary.md/T:T-104 K-143 + tbl-glossary.md/T:T-104 K-71
+tbl-glossary.md/T:T-109 IC-159 + tbl-glossary.md/T:T-109 IC-160
