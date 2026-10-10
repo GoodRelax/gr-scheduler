@@ -556,7 +556,6 @@ function visibilityKeyOfRow(row: DrawnRow): VisibilityKey | null {
 }
 
 // see RQ-3, RO-5, IC-67, IC-68
-// WHY: the adapter picks IC-67 or IC-68 and its words; null is the (Unassigned) row, which is never chosen.
 /** @purity non-pure */
 function chosenEntryOf(host: Document, entry: CommandItem | null | undefined): readonly HTMLElement[] {
   return entry === null || entry === undefined ? [] : [commandEntry(host, entry)]
