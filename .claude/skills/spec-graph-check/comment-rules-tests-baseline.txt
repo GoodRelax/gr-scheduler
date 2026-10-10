@@ -38,7 +38,7 @@
 # LOWERED 2026-10-04 to the measured value (tree density 1741 -> 1720 bp) under JDG-520: the CR-631 tests added 86 cases with few comments.
 # LOWERED 2026-10-04 to the measured value (tree density 1720 -> 1711 bp) under JDG-520: the merge of CR-648 (8573378a) into coord, whose tests added cases with few comments.
 # LOWERED 2026-10-04 to the measured value (tree density 1720 -> 1711 bp) under JDG-520: the CR-652 test file added 17 cases with few comments.
-tree-density-basis-points 1552
+tree-density-basis-points 1485
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 341
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0
@@ -131,7 +131,7 @@ tests/contract/fr-006-no-swatch-in-front-of-the-color-control.test.ts 164
 tests/unit/fr-006-panel-fields-drawn.test.ts 516
 tests/unit/fr-006-panel-typography.test.ts 460
 tests/unit/fr-019-no-task-group-for-the-annotation.test.ts 118
-tests/unit/fr-020-both-ways-ic-41.test.ts 120
+tests/unit/fr-020-both-ways-ic-41.test.ts 117
 tests/contract/fr-020-the-four-values-live-in-the-tables-not-in-src.test.ts 0
 tests/unit/fr-020-the-surface-that-asks-for-the-watermark-password.test.ts 133
 tests/unit/fr-021-the-outline-base-of-the-file-comes-back.test.ts 0
