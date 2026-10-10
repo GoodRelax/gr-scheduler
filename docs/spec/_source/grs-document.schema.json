@@ -22,7 +22,7 @@
   },
   "schemaVersion": {
    "type": "string",
-   "const": "2026-10-09T11:56:15Z"
+   "const": "2026-10-10T17:02:00Z"
   },
   "schedule": {
    "type": "object",
@@ -143,6 +143,7 @@
     "scrollGroupId",
     "scrollGroupOffset",
     "stackDirection",
+    "tableViews",
     "taskGroupPanelWidth",
     "taskGroupPanelWidthFixed",
     "themeMonochrome",
@@ -294,6 +295,124 @@
       "down"
      ],
      "default": "up"
+    },
+    "tableViews": {
+     "type": "object",
+     "required": [
+      "delayDiagnosticsReport",
+      "resourceList",
+      "searchPanel"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "delayDiagnosticsReport": {
+       "type": "object",
+       "required": [
+        "columnFilters",
+        "hiddenTaskUids",
+        "isScheduleFilterApplied",
+        "sort"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "columnFilters": {
+         "type": "array",
+         "items": {
+          "$ref": "#/$defs/ColumnFilter"
+         },
+         "default": []
+        },
+        "hiddenTaskUids": {
+         "type": "array",
+         "items": {
+          "type": "integer"
+         },
+         "default": []
+        },
+        "isScheduleFilterApplied": {
+         "type": "boolean",
+         "default": false
+        },
+        "sort": {
+         "$ref": "#/$defs/ColumnSort",
+         "default": null
+        }
+       }
+      },
+      "resourceList": {
+       "type": "object",
+       "required": [
+        "columnFilters",
+        "hiddenResourceUids",
+        "isScheduleFilterApplied",
+        "isUnassignedHidden",
+        "sort"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "columnFilters": {
+         "type": "array",
+         "items": {
+          "$ref": "#/$defs/ColumnFilter"
+         },
+         "default": []
+        },
+        "hiddenResourceUids": {
+         "type": "array",
+         "items": {
+          "type": "integer"
+         },
+         "default": []
+        },
+        "isScheduleFilterApplied": {
+         "type": "boolean",
+         "default": false
+        },
+        "isUnassignedHidden": {
+         "type": "boolean",
+         "default": false
+        },
+        "sort": {
+         "$ref": "#/$defs/ColumnSort",
+         "default": null
+        }
+       }
+      },
+      "searchPanel": {
+       "type": "object",
+       "required": [
+        "columnFilters",
+        "hiddenTaskUids",
+        "isScheduleFilterApplied",
+        "sort"
+       ],
+       "additionalProperties": false,
+       "properties": {
+        "columnFilters": {
+         "type": "array",
+         "items": {
+          "$ref": "#/$defs/ColumnFilter"
+         },
+         "default": []
+        },
+        "hiddenTaskUids": {
+         "type": "array",
+         "items": {
+          "type": "integer"
+         },
+         "default": []
+        },
+        "isScheduleFilterApplied": {
+         "type": "boolean",
+         "default": false
+        },
+        "sort": {
+         "$ref": "#/$defs/ColumnSort",
+         "default": null
+        }
+       }
+      }
+     }
     },
     "taskGroupPanelWidth": {
      "type": "number",
@@ -1476,6 +1595,55 @@
     "null"
    ],
    "pattern": "^\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$"
+  },
+  "ColumnFilter": {
+   "type": "object",
+   "required": [
+    "column",
+    "hiddenValues",
+    "fromDate",
+    "toDate"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "column": {
+     "type": "string"
+    },
+    "hiddenValues": {
+     "type": "array",
+     "items": {
+      "type": "string"
+     }
+    },
+    "fromDate": {
+     "$ref": "#/$defs/DateTime"
+    },
+    "toDate": {
+     "$ref": "#/$defs/DateTime"
+    }
+   }
+  },
+  "ColumnSort": {
+   "type": [
+    "object",
+    "null"
+   ],
+   "required": [
+    "column",
+    "direction"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "column": {
+     "type": "string"
+    },
+    "direction": {
+     "enum": [
+      "ascending",
+      "descending"
+     ]
+    }
+   }
   }
  }
 }

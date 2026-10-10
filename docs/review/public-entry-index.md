@@ -146,6 +146,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `clampedSettings` | entry | function | `src/entity/document-model/document-settings/document-settings.ts#clampedSettings` | PI-2 | 下限・上限に収める |
 | `ClampedValue` | entry | interface | `src/entity/document-model/document-settings/document-settings.ts#ClampedValue` | -- | interface ClampedValue |
 | `ClampResult` | entry | interface | `src/entity/document-model/document-settings/document-settings.ts#ClampResult` | -- | interface ClampResult |
+| `ColumnFilter` | entry | interface | `src/entity/document-model/document-settings/document-settings.ts#ColumnFilter` | -- | interface ColumnFilter |
+| `ColumnSort` | entry | interface | `src/entity/document-model/document-settings/document-settings.ts#ColumnSort` | -- | interface ColumnSort |
 | `DISPLAY_SCALE_STEPS` | entry | const | `src/entity/document-model/document-settings/document-settings.ts#DISPLAY_SCALE_STEPS` | PI-2 | 表示の倍率の段の並び。 |
 | `DocumentSettings` | entry | interface | `src/entity/document-model/document-settings/document-settings.ts#DocumentSettings` | PI-2 | 型。 |
 | `DrawnSettings` | entry | type | `src/entity/document-model/document-settings/document-settings.ts#DrawnSettings` | PI-2 | 型。 |
@@ -1797,4 +1799,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 878 name(s) leave through a public entry (364 of them published by table T-064), 709 more are exported by a file and not by its entry.
+Totals: 880 name(s) leave through a public entry (364 of them published by table T-064), 709 more are exported by a file and not by its entry.

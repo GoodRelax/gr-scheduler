@@ -383,7 +383,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-722-ro-rq-the-resource-list-is-a-table-window.contract.test.ts` | 9 | FR-099 | - | T-370, T-371 | IC-52, IC-129, RO-4, RO-5, RO-7, RQ-1, RQ-2, RQ-5, SV-12, SV-14, U-49 | - | - | - | - |
 | `tests/contract/cr-722-tv-1-tv-2-tv-13-the-drawn-set-is-the-product-of-the-tables.contract.test.ts` | 20 | FR-151 | - | T-353 | IC-143, TV-1, TV-2, TV-5, TV-7, TV-13 | - | - | - | - |
 | `tests/contract/cr-722-tv-11-the-schedule-filter-bar-names-the-tables.contract.test.ts` | 6 | FR-151 | - | T-353 | TV-11, U-67 | - | - | - | - |
-| `tests/contract/cr-722-tv-5-tv-8-dt-8-each-table-holds-its-own-visibility.contract.test.ts` | 15 | FR-134, FR-151 | - | T-346, T-347, T-353 | DT-8, IC-143, RW-10, S-494, S-547, S-548, TV-2, TV-5, TV-6, TV-8 | - | - | - | - |
+| `tests/contract/cr-722-tv-5-tv-8-dt-8-each-table-holds-its-own-visibility.contract.test.ts` | 15 | FR-134, FR-151 | - | T-346, T-347, T-353 | DT-8, IC-143, RW-10, TV-2, TV-5, TV-6, TV-8 | - | - | - | - |
 | `tests/contract/cr-727-op-17-the-drop-cue-drawn.contract.test.ts` | 19 | FR-087, FR-152 | - | T-024a, T-337 | OP-17, PI-19, S-151, S-214, S-553, U-32, U-68, UZ-1 | - | - | - | - |
 | `tests/contract/cr-727-op-17-the-drop-cue.contract.test.ts` | 17 | FR-087 | VT-2 | T-024a, T-103, T-280, T-337 | IC-1, OP-2, OP-17, S-214, S-553, U-32, U-68, UZ-1 | - | - | - | - |
 | `tests/contract/cr-727-op-17-the-shell-shows-the-cue-only-while-an-open-is-taken.test.ts` | 10 | FR-087 | VT-2 | T-024a, T-280, T-290 | OP-2, OP-8, OP-17, QN-5, U-68 | - | - | - | - |

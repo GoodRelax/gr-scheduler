@@ -39,11 +39,46 @@ export interface DocumentSettings {
   readonly scrollGroupId: string | null
   readonly scrollGroupOffset: number
   readonly stackDirection: 'up' | 'down'
+  readonly tableViews: {
+    readonly delayDiagnosticsReport: {
+      readonly columnFilters: readonly ColumnFilter[]
+      readonly hiddenTaskUids: readonly number[]
+      readonly isScheduleFilterApplied: boolean
+      readonly sort: ColumnSort | null
+    }
+    readonly resourceList: {
+      readonly columnFilters: readonly ColumnFilter[]
+      readonly hiddenResourceUids: readonly number[]
+      readonly isScheduleFilterApplied: boolean
+      readonly isUnassignedHidden: boolean
+      readonly sort: ColumnSort | null
+    }
+    readonly searchPanel: {
+      readonly columnFilters: readonly ColumnFilter[]
+      readonly hiddenTaskUids: readonly number[]
+      readonly isScheduleFilterApplied: boolean
+      readonly sort: ColumnSort | null
+    }
+  }
   readonly taskGroupPanelWidth: number
   readonly taskGroupPanelWidthFixed: boolean
   readonly themeMonochrome: boolean
   readonly zoomX: number
   readonly zoomY: number
+}
+
+// see T-372
+export interface ColumnFilter {
+  readonly column: string
+  readonly hiddenValues: readonly string[]
+  readonly fromDate: string | null
+  readonly toDate: string | null
+}
+
+// see T-372
+export interface ColumnSort {
+  readonly column: string
+  readonly direction: 'ascending' | 'descending'
 }
 
 export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
@@ -72,6 +107,19 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'scrollGroupId': null,
   'scrollGroupOffset': 0,
   'stackDirection': 'up',
+  'tableViews.delayDiagnosticsReport.columnFilters': [],
+  'tableViews.delayDiagnosticsReport.hiddenTaskUids': [],
+  'tableViews.delayDiagnosticsReport.isScheduleFilterApplied': false,
+  'tableViews.delayDiagnosticsReport.sort': null,
+  'tableViews.resourceList.columnFilters': [],
+  'tableViews.resourceList.hiddenResourceUids': [],
+  'tableViews.resourceList.isScheduleFilterApplied': false,
+  'tableViews.resourceList.isUnassignedHidden': false,
+  'tableViews.resourceList.sort': null,
+  'tableViews.searchPanel.columnFilters': [],
+  'tableViews.searchPanel.hiddenTaskUids': [],
+  'tableViews.searchPanel.isScheduleFilterApplied': false,
+  'tableViews.searchPanel.sort': null,
   'taskGroupPanelWidth': 300,
   'taskGroupPanelWidthFixed': false,
   'themeMonochrome': false,

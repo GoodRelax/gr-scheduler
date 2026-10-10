@@ -699,6 +699,41 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
     type: ['string', 'null'],
     pattern: '^\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$',
   },
+  ColumnFilter: {
+    type: ['object'],
+    required: ['column', 'hiddenValues', 'fromDate', 'toDate'],
+    closed: true,
+    properties: {
+      column: {
+        type: ['string'],
+      },
+      hiddenValues: {
+        type: ['array'],
+        items: {
+          type: ['string'],
+        },
+      },
+      fromDate: {
+        ref: 'DateTime',
+      },
+      toDate: {
+        ref: 'DateTime',
+      },
+    },
+  },
+  ColumnSort: {
+    type: ['object', 'null'],
+    required: ['column', 'direction'],
+    closed: true,
+    properties: {
+      column: {
+        type: ['string'],
+      },
+      direction: {
+        enum: ['ascending', 'descending'],
+      },
+    },
+  },
 }
 
 // see T-220, OP-6, PI-2
@@ -791,7 +826,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
     },
     documentSettings: {
       type: ['object'],
-      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'fitSpanFinish', 'fitSpanFixed', 'fitSpanStart', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'stackDirection', 'taskGroupPanelWidth', 'taskGroupPanelWidthFixed', 'themeMonochrome', 'zoomX', 'zoomY'],
+      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'fitSpanFinish', 'fitSpanFixed', 'fitSpanStart', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'stackDirection', 'tableViews', 'taskGroupPanelWidth', 'taskGroupPanelWidthFixed', 'themeMonochrome', 'zoomX', 'zoomY'],
       closed: true,
       properties: {
         actualVisible: {
@@ -871,6 +906,91 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         stackDirection: {
           enum: ['up', 'down'],
+        },
+        tableViews: {
+          type: ['object'],
+          required: ['delayDiagnosticsReport', 'resourceList', 'searchPanel'],
+          closed: true,
+          properties: {
+            delayDiagnosticsReport: {
+              type: ['object'],
+              required: ['columnFilters', 'hiddenTaskUids', 'isScheduleFilterApplied', 'sort'],
+              closed: true,
+              properties: {
+                columnFilters: {
+                  type: ['array'],
+                  items: {
+                    ref: 'ColumnFilter',
+                  },
+                },
+                hiddenTaskUids: {
+                  type: ['array'],
+                  items: {
+                    type: ['integer'],
+                  },
+                },
+                isScheduleFilterApplied: {
+                  type: ['boolean'],
+                },
+                sort: {
+                  ref: 'ColumnSort',
+                },
+              },
+            },
+            resourceList: {
+              type: ['object'],
+              required: ['columnFilters', 'hiddenResourceUids', 'isScheduleFilterApplied', 'isUnassignedHidden', 'sort'],
+              closed: true,
+              properties: {
+                columnFilters: {
+                  type: ['array'],
+                  items: {
+                    ref: 'ColumnFilter',
+                  },
+                },
+                hiddenResourceUids: {
+                  type: ['array'],
+                  items: {
+                    type: ['integer'],
+                  },
+                },
+                isScheduleFilterApplied: {
+                  type: ['boolean'],
+                },
+                isUnassignedHidden: {
+                  type: ['boolean'],
+                },
+                sort: {
+                  ref: 'ColumnSort',
+                },
+              },
+            },
+            searchPanel: {
+              type: ['object'],
+              required: ['columnFilters', 'hiddenTaskUids', 'isScheduleFilterApplied', 'sort'],
+              closed: true,
+              properties: {
+                columnFilters: {
+                  type: ['array'],
+                  items: {
+                    ref: 'ColumnFilter',
+                  },
+                },
+                hiddenTaskUids: {
+                  type: ['array'],
+                  items: {
+                    type: ['integer'],
+                  },
+                },
+                isScheduleFilterApplied: {
+                  type: ['boolean'],
+                },
+                sort: {
+                  ref: 'ColumnSort',
+                },
+              },
+            },
+          },
         },
         taskGroupPanelWidth: {
           type: ['number'],

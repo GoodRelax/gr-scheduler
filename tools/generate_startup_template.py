@@ -146,7 +146,8 @@ STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 # CR-699 (JDG-1677, JDG-1693): the shape changed -- every written document
 # carries "$schema" first -- and the version became an instant; check 76
 # holds the format.
-SCHEMA_VERSION = '2026-10-09T11:56:15Z'
+# CR-723: documentSettings gained tableViews (the three tables' saved views).
+SCHEMA_VERSION = '2026-10-10T17:02:00Z'
 # CR-699 (DR-4): the first key of every document this file writes. S-540 of
 # table T-206 holds it; read through the one reader of not-stored strings.
 SCHEMA_ADDRESS = settings_reader.not_stored_string('S-540')
@@ -1055,13 +1056,14 @@ def settings_defaults():
     # ("fontScaleSizes.L"), while the GRS JSON schema wants the object. The
     # dot is the manuscript's own notation for one key inside another, so
     # rebuilding the nesting here is reading it, not reinterpreting it.
+    # CR-723: a dotted key can nest more than once (tableViews.searchPanel.sort).
     out = {}
     for key, value in flat.items():
-        head, dot, tail = key.partition('.')
-        if dot:
-            out.setdefault(head, {})[tail] = value
-        else:
-            out[key] = value
+        parts = key.split('.')
+        node = out
+        for part in parts[:-1]:
+            node = node.setdefault(part, {})
+        node[parts[-1]] = value
     return out
 
 

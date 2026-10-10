@@ -98,7 +98,8 @@
      "kind": {
       "enum": [
        "prose",
-       "table"
+       "table",
+       "shape"
       ]
      }
     },
@@ -131,6 +132,21 @@
       },
       "then": {
        "$ref": "#/$defs/table"
+      }
+     },
+     {
+      "if": {
+       "properties": {
+        "kind": {
+         "const": "shape"
+        }
+       },
+       "required": [
+        "kind"
+       ]
+      },
+      "then": {
+       "$ref": "#/$defs/shape"
       }
      }
     ]
@@ -413,6 +429,112 @@
         "pattern": "^[^\\u3040-\\u30ff\\u4e00-\\u9fff\\uff00-\\uffef]*$"
        }
       ]
+     }
+    }
+   }
+  },
+  "shape": {
+   "description": "CR-723: the shapes a stored settings value takes when it holds fields (a column filter, a sort), printed as one numbered table. ⭐ A shape is held ONCE here and every settings row whose value takes it names it from its own `json` ({\"kind\": \"ref\", \"entity\": NAME}); erd_json_to_schema.py turns each shape into one $defs entry, so three tables that share a shape do not hold three copies of it. Its rows carry no row ID: a field is named by its shape and its name (`ColumnFilter.column`), the way an erd.json column is.",
+   "type": "object",
+   "required": [
+    "kind",
+    "id",
+    "caption",
+    "columns",
+    "separator",
+    "blank_before_header",
+    "fields"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "kind": {
+     "const": "shape"
+    },
+    "id": {
+     "type": "string",
+     "pattern": "^T-[0-9]+[a-z]?$"
+    },
+    "caption": {
+     "$ref": "#/$defs/cell"
+    },
+    "columns": {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "type": "object",
+      "required": [
+       "field",
+       "ja"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "field": {
+        "enum": [
+         "shape",
+         "name",
+         "type",
+         "note"
+        ]
+       },
+       "ja": {
+        "type": "string"
+       },
+       "en": {
+        "type": "string"
+       }
+      }
+     }
+    },
+    "separator": {
+     "type": "string",
+     "pattern": "^\\|"
+    },
+    "blank_before_header": {
+     "type": "string"
+    },
+    "nullable": {
+     "description": "The shapes whose value may also be null (a sort that sorts nothing). The definition admits null, as $defs/DateTime does, because the reading walker resolves a reference and stops: a property cannot add null beside one.",
+     "type": "array",
+     "items": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Za-z]*$"
+     }
+    },
+    "fields": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "object",
+      "required": [
+       "shape",
+       "name",
+       "type",
+       "note",
+       "json"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "shape": {
+        "description": "The shape's name in backquotes, as printed.",
+        "type": "string",
+        "pattern": "^`[A-Z][A-Za-z]*`$"
+       },
+       "name": {
+        "description": "The field's name in backquotes, as printed.",
+        "type": "string",
+        "pattern": "^`[a-z][A-Za-z]*`$"
+       },
+       "type": {
+        "$ref": "#/$defs/cell"
+       },
+       "note": {
+        "$ref": "#/$defs/cell"
+       },
+       "json": {
+        "description": "The field's machine type, in the shape erd.json gives an entity column.",
+        "type": "object"
+       }
+      }
      }
     }
    }

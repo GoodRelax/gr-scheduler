@@ -563,9 +563,60 @@ def stamp_block(erd):
     return '\n\n'.join(blocks)
 
 
+def shape_definitions():
+    """The schema's $defs, read once: the shapes of table T-372 live there (CR-723)."""
+    if not SHAPE_DEFINITIONS:
+        schema = json.load(io.open(SCHEMA, encoding='utf-8'),
+                           object_pairs_hook=collections.OrderedDict)
+        SHAPE_DEFINITIONS.update(schema['$defs'])
+    return SHAPE_DEFINITIONS
+
+
+SHAPE_DEFINITIONS = collections.OrderedDict()
+
+
+def referenced_type(node):
+    """The TypeScript name of a `$ref` node, with `| null` when its definition admits null."""
+    name = node['$ref'].rsplit('/', 1)[-1]
+    kinds = shape_definitions()[name].get('type')
+    return name + (' | null' if isinstance(kinds, list) and 'null' in kinds else '')
+
+
+def shape_field_type(node):
+    """One field of a table T-372 shape, as a TypeScript type (CR-723)."""
+    if '$ref' in node:
+        target = shape_definitions()[node['$ref'].rsplit('/', 1)[-1]]
+        if 'properties' in target:
+            return referenced_type(node)
+        node = target                         # DateTime: a nullable string
+    if 'enum' in node:
+        return ' | '.join('null' if m is None else "'%s'" % m for m in node['enum'])
+    kinds = node['type'] if isinstance(node['type'], list) else [node['type']]
+    if kinds == ['array']:
+        return 'readonly %s[]' % TS_OF[node['items']['type']]
+    return ' | '.join('null' if k == 'null' else TS_OF[k] for k in kinds)
+
+
+def shape_interfaces_block(node):
+    """An interface per shape the presentation group points at (table T-372, CR-723)."""
+    named = sorted(set(re.findall(r'"#/\$defs/(\w+)"', json.dumps(node))))
+    out = []
+    for name in named:
+        shape = shape_definitions()[name]
+        if 'properties' not in shape:
+            continue                          # DateTime: not a shape of T-372
+        lines = ['// see T-372', 'export interface %s {' % name]
+        lines.extend('  readonly %s: %s' % (field, shape_field_type(child))
+                     for field, child in shape['properties'].items())
+        out.append('\n'.join(lines + ['}']))
+    return out
+
+
 def settings_property(name, node, indent):
     """One documentSettings key, from the schema the two sources produced."""
     pad = '  ' * indent
+    if '$ref' in node:
+        return ['%s  readonly %s: %s' % (pad, name, referenced_type(node))]
     if 'enum' in node:
         members = [m for m in node['enum'] if m is not None]
         kind = ' | '.join(("'%s'" % m) if isinstance(m, str) else str(m) for m in members)
@@ -604,8 +655,10 @@ def settings_property(name, node, indent):
         base = ' | '.join('null' if k == 'null' else TS_OF[k] for k in kinds)
         return ['%s  readonly %s: %s' % (pad, name, base)]
     if kinds == 'array':
-        return ['%s  readonly %s: readonly %s[]'
-                % (pad, name, TS_OF[node['items'].get('type', 'string')])]
+        items = node['items']
+        element = (referenced_type(items) if '$ref' in items
+                   else TS_OF[items.get('type', 'string')])
+        return ['%s  readonly %s: readonly %s[]' % (pad, name, element)]
     return ['%s  readonly %s: %s' % (pad, name, TS_OF[kinds])]
 
 
@@ -2732,6 +2785,7 @@ def settings_block(_erd):
     head = '// see DR-3, FR-063'
     body = [head + '\nexport interface DocumentSettings '
             + '\n'.join(settings_object(node, 0))]
+    body.extend(shape_interfaces_block(node))
 
     manuscript = settings_manuscript()
 

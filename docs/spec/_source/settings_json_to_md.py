@@ -297,6 +297,10 @@ def build(doc):
             # requires the printed prose to be held per language, and this is
             # printed prose: it is the paragraphs BETWEEN the tables.
             lines.extend(text(x) for x in block['lines'])
+        elif block['kind'] == 'shape':
+            # CR-723: a shape table prints like any other; its rows are the
+            # fields, and the `json` each field carries is not a column.
+            lines.extend(table(dict(block, rows=block['fields'])))
         else:
             lines.extend(table(block))
     return '\n'.join(lines)

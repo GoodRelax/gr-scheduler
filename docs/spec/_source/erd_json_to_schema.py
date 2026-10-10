@@ -122,6 +122,9 @@ TABLE_GROUP = {
     # The palette colors' drawn values (CR-548). A document stores the NAME
     # (table T-017b CV-1 of 01-04), never these values.
     'T-294': ('notStored', '文書には保存しない'),
+    # CR-723: the shapes a stored value takes (a column filter, a sort). The
+    # table holds fields, not keys; shape_defs() reads it from settings.json.
+    'T-372': ('shape', None),
 }
 
 def manuscript_types():
@@ -414,6 +417,15 @@ def frag_body(spec, open_enums, where):
     if kind == 'array':
         return typed('array', [('items', element(spec['of']))])
 
+    if kind == 'ref':
+        # CR-723: a settings value that takes a shape of table T-372. A
+        # reference takes no siblings (the walker resolves it and stops), so a
+        # shape that may be null says so in its own definition.
+        if nullable:
+            raise SystemExit('%s: a reference cannot add null beside it; name '
+                             'the shape in its table\'s "nullable"' % where)
+        return element(spec)
+
     if kind == 'object':
         props = collections.OrderedDict()
         for name in sorted(spec['fields']):
@@ -491,6 +503,41 @@ def time_def():
         ('type', ['string', 'null']),
         ('pattern', TIME_PATTERN),
     ])
+
+
+def shape_defs(open_enums, taken):
+    """CR-723: one $defs entry per shape of settings.json's shape tables.
+
+    ⭐ Read from the settings manuscript, the second of the two Chapter 6.2
+    names, so the shape is not a third source: three tables that store a
+    column filter point at one definition instead of holding three copies.
+    A date field points at $defs/DateTime like every date column.
+    """
+    doc = json.load(io.open(os.path.join(HERE, 'settings.json'), encoding='utf-8'))
+    defs = collections.OrderedDict()
+    for block in doc['blocks']:
+        if block['kind'] != 'shape':
+            continue
+        nullable = set(block.get('nullable', []))
+        for field in block['fields']:
+            shape, name = field['shape'].strip('`'), field['name'].strip('`')
+            where = '%s %s.%s' % (block['id'], shape, name)
+            if shape in taken:
+                raise SystemExit('%s: the shape name is already a definition' % where)
+            node = defs.setdefault(shape, collections.OrderedDict([
+                ('type', ['object', 'null'] if shape in nullable else 'object'),
+                ('required', []),
+                ('additionalProperties', False),
+                ('properties', collections.OrderedDict())]))
+            spec = field['json']
+            node['required'].append(name)
+            node['properties'][name] = (date_time_ref(spec, where) if spec.get('isDate')
+                                        else frag(spec, open_enums, where))
+        unknown = nullable - set(defs)
+        if unknown:
+            raise SystemExit('%s names %s nullable, but holds no such shape'
+                             % (block['id'], ', '.join(sorted(unknown))))
+    return defs
 
 
 def entity_defs(erd, open_enums):
@@ -888,6 +935,7 @@ def build():
     defs[CARRY_DEF] = carry_def(erd)
     defs[DATE_TIME_DEF] = date_time_def()
     defs[TIME_DEF] = time_def()
+    defs.update(shape_defs(open_enums, set(defs)))
     schedule = schedule_object(erd, reachable)
     settings = document_settings(tables, open_types, skipped)
 
