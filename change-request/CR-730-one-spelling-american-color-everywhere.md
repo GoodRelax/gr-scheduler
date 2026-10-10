@@ -1,6 +1,7 @@
 # CR-730 —— 英語の綴りをアメリカ式にそろえる —— colour を color へ、画面の語から識別子・ファイル名まで（棚卸しと当てる計画）
 
-> 起草の状態: **下書き（当てていない）**。2026-10-10、作業木 `b72dab32` の上で棚卸しを測り、当てる計画を書いた。`docs/spec`・`src`・`tests`・`tools` には何も当てていない。台帳は `rulings.md` に `JDG-1921` の行を足し、`JDG-966` の状態を変えただけ（12 節。行が 1 つ増えたので、生成物 `docs/spec/_assets/tbl-row-id-prefixes.md` の数を `row_id_prefixes_json_to_md.py` で刷り直した）。変更履歴と `perf-pending` は当てるときに書く。
+> 状態: ⭐ **当てた** —— 2026-10-10、凍結（`JDG-1926`）の中で調整役の作業木の体が `5a9ccd80` の上に当てた。範囲は 11 節の問い 1 の案 A（`JDG-1925`）、`unanalysed` → `unreliable`（`JDG-1924`）。台本 `tools/rename/apply_spelling.py` を 1 回（衝突の決めは `docs/review/spelling-decisions-cr730.tsv`）、ほかは生成と 7 節の手作業。番号は `JDG-1924`〜`JDG-1926`・変更履歴 `4.33` を調整役から受けた。
+> 起草の状態（当てる前の記録）: **下書き（当てていない）**。2026-10-10、作業木 `b72dab32` の上で棚卸しを測り、当てる計画を書いた。`docs/spec`・`src`・`tests`・`tools` には何も当てていない。台帳は `rulings.md` に `JDG-1921` の行を足し、`JDG-966` の状態を変えただけ（12 節。行が 1 つ増えたので、生成物 `docs/spec/_assets/tbl-row-id-prefixes.md` の数を `row_id_prefixes_json_to_md.py` で刷り直した）。変更履歴と `perf-pending` は当てるときに書く。
 > ID の帯: 番号 `CR-730` と `JDG-1921` を調整役から受けた。使ったのはこの 2 つだけ。`b72dab32` の木で `CR-730`・`JDG-1921` を名乗る所は 0 件だった。`DFC`・`PND`・表の行・設定値の番号は使わない。
 > 当てる裁定: `JDG-1921`（「Colorの方がいいだろ？ 普通コーディングでどっちを使う？」／「識別子まで全部」）。
 > 覆す裁定: `JDG-966` の一部（en の語 theme colour の綴りだけ。語の選びは保つ）。`CR-726` の 11 節の問い 2（推奨 Colour）は `JDG-1921` が答えた —— `CR-726` は当てた変更要求なので書き足さない（検査 62）。
