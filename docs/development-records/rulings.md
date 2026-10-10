@@ -2202,6 +2202,15 @@
 |---|---|---|---|---|
 | JDG-1921 | **「Colorの方がいいだろ？ 普通コーディングでどっちを使う？」** ／ 続く選択: **「識別子まで全部」**（2026-10-10。プロパティパネルの英語の項目名で Color（`PR-19`）と Colour（ほかの 6 欄）が混ざっていること —— `CR-726` の 11 節の問い 2、推奨は Colour にそろえる —— への答え。続けて調整役が範囲を 3 つの択で問い、利用者は「識別子まで全部」を選んだ。ほかの 2 つの択は、調整役の要約で「画面の語と英語の手引き」「画面の語だけ」。⚠️ 推奨（Colour）を覆した） | ⭐ 英語の綴りはアメリカ式の color にそろえる —— 画面の語（`display-words.json` の en）、英語の手引きと画像から GRS JSON を作る頼みの文、仕様の英語の名（設定の値の鍵・公開名・辞書の節の鍵・行 ID の接頭辞の語）と文、`src` の識別子・注釈・文字列・DOM の名、試験、道具と検査、ファイル名のすべて。⭐ 理由（利用者の語）: 普通のコーディングは color を使う。⛔ 変えないもの: 利用者の逐語と、台帳・変更要求・レビューの記録・`previous-project-result/` の中の colour（履歴）、MSPDI と他人の名（MCP の `notifications/cancelled` ほか）。⚠️ color 以外のイギリス式の綴り（centre・grey・minimise・cancelled・licence ほか）を同じく替えるかは、`CR-730` の 11 節の問い 1 で問う。⚠️ `CR-726` の 11 節の問い 2 は本行で閉じた —— `PR-19` の Color はそのまま、ほかの Colour が Color になる。⛔ 覆した裁定: `JDG-966` の綴り（theme colour → theme color。語の選びは保つ） | `change-request/CR-730-one-spelling-american-color-everywhere.md`（当てる先: `docs/spec/_source/display-words.json`・`docs/spec/_source/settings.json`・`docs/development-rules/02-changing-the-spec.md` の 5 節・`.claude/skills/spec-graph-check/style-checks.py`（検査 32）ほか、同書の 1 節） | 指示 —— CR-730 が当てる |
 
+## 2026-10-10 —— 進捗の表を変更前の予定として重ねたとき（`DFC-2400`。JDG-1930・JDG-1931）
+
+⭐ トリアージの席（調整役「Take over as gr-scheduler coordinator (2026-10-10)」が立てた）で受けた言葉である。`JDG-1930` は利用者がチャットに書いた指摘（画面の写しと、ログ 2 本・文書 2 つの在り処を添えた。在り処の行は個人の絶対パスなので省いた）、`JDG-1931` は本席の問いへの答えである。番号の帯 `JDG-1930`〜`JDG-1939` は調整役が配った。
+
+| # | 逐語（⛔ 1 文字も変えるな） | 読み | 着地先 | 状態 |
+|---|---|---|---|---|
+| JDG-1930 | **「元の日程に重ねて表示させたが、高さが合ってない。 これじゃ比較にならんだろ？<br>量が多いのでlog類はSonnetに調査させろ。」**（2026-10-10 夕。`gr-scheduler-progress-2026-10-10c.json` に `gr-scheduler-progress-2026-10-10b.json` を重ねた画面の写しを添えた） | ⭐ 指摘: 重ねた破線の輪郭が、その行のタスクの前の版の予定になっていない。⭐ 指示: ログの読みは Sonnet の体に任せる | `docs/development-records/defects.md` の `DFC-2400` | 適用済 —— 2026-10-10、本席が指摘を `DFC-2400` に起こし、ログ 2 本を Sonnet の体に読ませた |
+| JDG-1931 | **「進捗ファイルの問題だね。 次からでいいよ。 司令塔と Write the project's progress as a GRS JSON schedule のセクションに注意しといて。」**（2026-10-10 夕。本席の問い「進捗の日程を「変更前の予定（Baseline）」として重ね、前の版と比べられるようにするには、どう直しますか？」への答え。示した択は「進捗ファイルだけ直す (Recommended)」（アプリは変えず、進捗の席が版をまたいで同じ仕事の `UID` を保ち、新しい仕事は文書の次に使う番号から採る）・「ファイルを直し、アプリも知らせる」（番号が同じで名前の違うタスクを重ねたときに一覧で知らせる。CR が 1 つ増える）・「アプリが名前でも結ぶ」（非推奨 —— `JDG-1631` を覆す）） | ⭐ アプリの欠陥ではなく、進捗の表の作り方の問題とする —— アプリは `UID` で結んで仕様どおりに描いている（`OP-9`・表 T-339 の `BL-1`・`BL-2`、`JDG-1631`）。⭐ 次の版から、進捗の席は版をまたいで同じ仕事に同じ `UID` を保ち、新しい仕事には `Project.uidHighWaterMark` から採る。消えた仕事の `UID` を使い回さない。⚠️ 10-10c は作り直さない。⭐ 本席は調整役と進捗の席（「Write the project's progress as a GRS JSON schedule」）へ伝える | `docs/development-records/defects.md` の `DFC-2400` ／ `previous-project-result/38-project-progress/README.md`（進捗の席が次の版で書く） | 指示 —— 進捗の席が次の版から当てる（本席が 2026-10-10 に調整役と進捗の席へ伝えた） |
+
 ## 2026-09-07 以前（⛔ 逐語は確かめてから写すこと）
 
 ⚠️ **次は本書を作る前に下りた裁定である。⛔ 逐語は
