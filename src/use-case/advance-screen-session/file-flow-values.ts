@@ -31,7 +31,15 @@ export interface FileFlowMergeCandidate {
   readonly incomingName: string | null
 }
 
-export type FileFlowWriteForm = { readonly kind: 'save' } | { readonly kind: 'export'; readonly format: string }
+// see FR-155, SX-3
+export type FileFlowWriteForm =
+  | { readonly kind: 'save' }
+  | { readonly kind: 'export'; readonly format: string }
+  | { readonly kind: 'beforeFixOverwrite' }
+  | { readonly kind: 'beforeFixBackup' }
+
+// WHY: the rows of the fix proposals (FR-155), carried opaquely; the shell issues them, so no edge to Schedule.
+export type FileFlowFixBundle = readonly { readonly fixRow: string }[]
 
 // see NT-7, U-55
 export interface FileFlowQuestion {
@@ -81,6 +89,7 @@ export interface FileFlowValuesStateCarried {
   readonly question: FileFlowQuestion
   // WHY: null is a question a file operation raised; its answer is carried on by that machine.
   readonly owedAction: FileFlowOwedAction | null
+  readonly fixBundle: FileFlowFixBundle | null
 }
 
 export interface FileFlowValuesEventCarried {
@@ -100,6 +109,7 @@ export interface FileFlowValuesEventCarried {
   readonly openedFileName: string | null
   readonly mergeCandidates: readonly FileFlowMergeCandidate[]
   readonly unreadColumns: readonly string[]
+  readonly fixBundle: FileFlowFixBundle | null
 }
 
 type NoPayload = Readonly<Record<never, never>>
@@ -113,6 +123,7 @@ interface FileFlowValuesEffectPayloads {
   readonly discardIncomingDocument: NoPayload
   readonly answerOverwriteQuestion: { readonly isProceeding: boolean }
   readonly carryOutOwedAction: { readonly owedAction: FileFlowOwedAction }
+  readonly issueDelayFixBundle: { readonly fixBundle: FileFlowFixBundle | null }
 }
 
 export type FileFlowValuesEffect = {
@@ -336,10 +347,23 @@ function onAgentDocumentHanded(values: FileFlowValues): FileFlowStep {
 }
 
 /** @purity pure */
+function isWriteBeforeFix(writeForm: FileFlowWriteForm): boolean {
+  return writeForm.kind === 'beforeFixOverwrite' || writeForm.kind === 'beforeFixBackup'
+}
+
+// WHY: only a write before a fix carries the bundle on (FR-155); any other carries null.
+/** @purity pure */
 function onDocumentFileWriteAsked(values: FileFlowValues, event: EventOf<'documentFileWriteAsked'>): FileFlowStep {
   if (values.fileOperationState.kind !== 'idle' || isQuestionAsked(values)) return refused(values)
-  const writing: FileOperationState = { kind: 'writingDocumentFile' }
+  const fixBundle = isWriteBeforeFix(event.writeForm) ? event.fixBundle : null
+  const writing: FileOperationState = { kind: 'writingDocumentFile', fixBundle }
   return combined(values, { fileOperationState: writing }, [{ type: 'writeDocumentFile', writeForm: event.writeForm }])
+}
+
+/** @purity pure */
+function fixBundleIssued(operation: FileOperationState): Effects {
+  if (operation.kind !== 'writingDocumentFile') return NO_EFFECTS
+  return [{ type: 'issueDelayFixBundle', fixBundle: operation.fixBundle }]
 }
 
 // see T-290, OP-3, OP-13, OP-15
@@ -466,7 +490,14 @@ function onDocumentFileSaved(values: FileFlowValues, event: EventOf<'documentFil
   const openedFileName = event.openedFileName ?? values.openedFileName
   const fileOperationState = values.fileOperationState.kind === 'writingDocumentFile' ? IDLE : values.fileOperationState
   const unsavedEditsState = unsavedEditsMoved(values.unsavedEditsState, NOTHING_UNSAVED)
-  return combined(values, { openedFileName, fileOperationState, unsavedEditsState }, NO_EFFECTS)
+  return combined(values, { openedFileName, fileOperationState, unsavedEditsState }, fixBundleIssued(values.fileOperationState))
+}
+
+// WHY: a backup is no save (SX-3); the opened file and the unsaved edits stay.
+/** @purity pure */
+function onDiagnosticFixBackupSaved(values: FileFlowValues): FileFlowStep {
+  if (values.fileOperationState.kind !== 'writingDocumentFile') return unchanged(values)
+  return combined(values, { fileOperationState: IDLE }, fixBundleIssued(values.fileOperationState))
 }
 
 // see T-290, FR-100, ZE-4
@@ -545,6 +576,7 @@ const HANDLERS: {
   documentOpenLanded: onDocumentOpenLanded,
   overwriteQuestionRaised: onOverwriteQuestionRaised,
   documentFileSaved: onDocumentFileSaved,
+  diagnosticFixBackupSaved: onDiagnosticFixBackupSaved,
   documentFileWriteEnded: onDocumentFileWriteEnded,
   documentEditLanded: onDocumentEditLanded,
   newDocumentLanded: onNewDocumentLanded,

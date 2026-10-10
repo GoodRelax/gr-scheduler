@@ -131,6 +131,7 @@ describe(`UF-123 -- ${UF_123_EVERY_KIND}`, () => {
       discardIncomingDocument: true,
       handInteractionRecordToClipboard: true,
       importIncomingDocument: true,
+      issueDelayFixBundle: true,
       matchWatermarkUnlock: true,
       raiseFlowSurface: true,
       raiseNotice: true,

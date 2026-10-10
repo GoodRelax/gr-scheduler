@@ -8,8 +8,8 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
-import { dayOf, type Project, type Task } from '../../entity/document-model/schedule/schedule'
-import { editDocument, wbsSubtreesOf } from '../../use-case/edit-document/edit-document'
+import { dayOf, delayFixCommands, type DelayFixRow, type Project, type Task } from '../../entity/document-model/schedule/schedule'
+import { editDocument, wbsSubtreesOf, type Refusal } from '../../use-case/edit-document/edit-document'
 import type {
   FileFlowImportAnswer,
   FileFlowOpenRoute,
@@ -17,6 +17,7 @@ import type {
   FileFlowWriteForm,
   FileOperationState,
   NoticeReason,
+  SessionEffect,
   SessionEvent,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import {
@@ -49,7 +50,13 @@ import {
   type SaveFileForm,
 } from '../../adapter/file-gateway/file-gateway'
 import { exportPng, exportSvg, type ExportScene } from '../../adapter/image-exporter/image-exporter'
-import { DEFAULT_TASK_GROUP_NAME, exportFileNameOf, tableViewsOnTheirColumns, type ExportFormatId } from '../../adapter/screen-renderer/screen-renderer'
+import {
+  DEFAULT_TASK_GROUP_NAME,
+  delayFixBackupFileNameOf,
+  exportFileNameOf,
+  tableViewsOnTheirColumns,
+  type ExportFormatId,
+} from '../../adapter/screen-renderer/screen-renderer'
 import {
   AGENT_DOCUMENT_HANDED,
   CONFIRMATION_MANNER,
@@ -88,6 +95,8 @@ export const STARTUP_TEMPLATE_ELEMENT_ID: string = startupTemplateManifest.conta
 
 // see FR-067
 const OPEN_ROUTE_CONTAINER_ORDER: readonly string[] = [EMBEDDED_DOCUMENT_ELEMENT_ID, STARTUP_TEMPLATE_ELEMENT_ID]
+
+const DIAGNOSTIC_FIX_BACKUP_SAVED: SessionEvent = { type: 'diagnosticFixBackupSaved' }
 
 const NOT_OPENABLE_HTML_REASON: Extract<NoticeReason, 'RS-67'> = 'RS-67'
 
@@ -409,6 +418,7 @@ export type DocumentFileFlowHands = Pick<
   | 'replaceHeldDocument'
   | 'settingsLimitsOf'
   | 'exportScene'
+  | 'writeDocument'
 >
 
 export interface FileSavedReading {
@@ -444,6 +454,83 @@ function fileSavedReadingOf(hands: Pick<DocumentFileFlowHands, 'files'>) {
       hands.files?.forgetOpenedFile()
       fileSaved = NO_FILE_SAVED
       hasSavedOpenedFile = false
+    },
+  }
+}
+
+// TRAP: the session carries the rows opaquely; they are the very DelayFixRow values the report window handed in.
+type CheckedFixRows = readonly DelayFixRow[]
+
+export type CarriedFixBundle = Extract<SessionEffect, { readonly type: 'issueDelayFixBundle' }>['fixBundle']
+
+interface LandedFixBundle {
+  readonly rows: CheckedFixRows
+  readonly before: Document
+  readonly after: Document
+}
+
+// see FR-155, T-374
+export type DelayFixTelling =
+  | { readonly kind: 'fixed'; readonly count: number }
+  | { readonly kind: 'refused'; readonly row: DelayFixRow; readonly refusal: Refusal | null }
+
+type HeldNow = ReturnType<DocumentFileFlowHands['readHeld']>
+
+// WHY: a bundle stands while its own step is done: undone it leaves the log, a replacement drops it (RW-16).
+/** @purity pure */
+function isFixBundleStanding(held: HeldNow, landed: LandedFixBundle): boolean {
+  const done = held.history.done
+  return done.some((one, at) => one.step.document === landed.before && (done[at + 1]?.step.document ?? held.document) === landed.after)
+}
+
+// WHY: the write path refuses a bundle whole and names no row, so the rows are replayed one by one to name it.
+/** @purity pure */
+function firstRefusedFixRow(
+  document: Document,
+  fixBundle: CheckedFixRows,
+  limits: ReturnType<DocumentFileFlowHands['settingsLimitsOf']>,
+): Extract<DelayFixTelling, { readonly kind: 'refused' }> | null {
+  let held = document
+  for (const row of fixBundle) {
+    for (const command of delayFixCommands([row])) {
+      const result = editDocument(held, command, limits, DEFAULT_TASK_GROUP_NAME)
+      if (!result.ok) return { kind: 'refused', row, refusal: result.refusals[0] ?? null }
+      held = result.document
+    }
+  }
+  return null
+}
+
+// WHY: issued as one write, so the bundle lands whole as one undo step (UN-21) or not at all.
+/** @purity non-pure */
+function delayFixBundleHoldOf(hands: DocumentFileFlowHands) {
+  let landed: readonly LandedFixBundle[] = []
+  let telling: DelayFixTelling | null = null
+  return {
+    /** @purity non-pure */
+    issueDelayFixBundle(carried: CarriedFixBundle, frame: FrameValues | null): void {
+      const fixBundle = carried as CheckedFixRows | null
+      if (frame === null || fixBundle === null || fixBundle.length === 0) return
+      const before = hands.readHeld().document
+      telling = firstRefusedFixRow(before, fixBundle, hands.settingsLimitsOf(frame))
+      if (telling !== null) return
+      hands.writeDocument(delayFixCommands(fixBundle), frame)
+      const after = hands.readHeld().document
+      if (after === before) return
+      landed = [...landed, { rows: fixBundle, before, after }]
+      telling = { kind: 'fixed', count: fixBundle.length }
+    },
+    /** @purity semi-pure-b */
+    readDelayFixLog(): CheckedFixRows {
+      const held = hands.readHeld()
+      return landed.filter((one) => isFixBundleStanding(held, one)).flatMap((one) => one.rows)
+    },
+    /** @purity semi-pure-b */
+    readDelayFixTelling: (): DelayFixTelling | null => telling,
+    /** @purity non-pure */
+    forgetDelayFixLog(): void {
+      landed = []
+      telling = null
     },
   }
 }
@@ -510,11 +597,7 @@ export function documentFileFlowOf(
     // WHY: taken here and passed in, so no await inside can swap the document asked for (CS-4).
     // OP-10 gives the written copy the startup template's place; the held document keeps its own.
     const asked = viewPlace.documentToWrite(hands.readHeld().document)
-    const writing =
-      writeForm.kind === 'save'
-        ? saveHeldDocumentToFile(hands, flow, store, asked)
-        : exportHeldDocumentToFile(hands, flow, store, asked, writeForm.format as ExportFormatId)
-    void writing
+    void documentFileWriting(hands, flow, store, asked, writeForm)
       .catch(() => hands.raiseNotice(WRITING_BROKE_REASON, null))
       .finally(() => hands.endFileOperation(DOCUMENT_FILE_WRITE_ENDED))
   }
@@ -550,6 +633,7 @@ export function documentFileFlowOf(
     beginReadingDocumentFile,
     beginWritingDocumentFile,
     ...fileSavedReadingOf(hands),
+    ...delayFixBundleHoldOf(hands),
   }
   return flow
 }
@@ -966,6 +1050,47 @@ async function saveHeldDocumentToFile(
   hands.raiseFileFault(saving.fault)
 }
 
+// see SX-3, RW-15, FR-155
+// TRAP: never through saveDocumentFile, where a GRS JSON becomes the file the next SK-11 writes over (SX-1).
+/** @purity non-pure */
+async function backupHeldDocumentToFile(
+  hands: DocumentFileFlowHands,
+  flow: Pick<DocumentFileFlow, 'askToWriteOverDestination'>,
+  store: FileStore,
+  saved: Document,
+): Promise<void> {
+  const extension = extensionOfForm(SAVE_FORM)
+  const writing = await store.writeChosenFile({
+    bytes: new TextEncoder().encode(savedDocumentText(saved, readInstantOfWrite())),
+    suggestedFileName: delayFixBackupFileNameOf(saved.schedule.project.title ?? '', readLocalMoment(), extension),
+    extension,
+    shouldBecomeOpenedFile: false,
+    askToWriteOver: async (there) => there.kind === 'empty' || (await flow.askToWriteOverDestination()),
+  })
+  if (writing.ok) return hands.sendFromFlow(DIAGNOSTIC_FIX_BACKUP_SAVED)
+  hands.raiseFileFault(writing.fault)
+}
+
+// WHY: the overwrite before a fix is the very save of SK-11; only the backup takes its own road.
+/** @purity non-pure */
+function documentFileWriting(
+  hands: DocumentFileFlowHands,
+  flow: Pick<DocumentFileFlow, 'askToWriteOverDestination' | 'noteFileSaved' | 'hasSavedOpenedFile' | 'readFileSaved'>,
+  store: FileStore,
+  asked: Document,
+  writeForm: FileFlowWriteForm,
+): Promise<void> {
+  switch (writeForm.kind) {
+    case 'save':
+    case 'beforeFixOverwrite':
+      return saveHeldDocumentToFile(hands, flow, store, asked)
+    case 'beforeFixBackup':
+      return backupHeldDocumentToFile(hands, flow, store, asked)
+    case 'export':
+      return exportHeldDocumentToFile(hands, flow, store, asked, writeForm.format as ExportFormatId)
+  }
+}
+
 // see FR-096, SK-12, T-340
 /** @purity non-pure */
 async function exportHeldDocumentToFile(
@@ -1112,7 +1237,7 @@ export function answerSettledFormat(hands: DocumentFileFlowHands, format: Export
     hands.raiseNotice(SEAM_ABSENT_REASON, null)
     return true
   }
-  hands.sendToSession({ type: 'documentFileWriteAsked', writeForm: { kind: 'export', format } }, hands.readValues())
+  hands.sendToSession({ type: 'documentFileWriteAsked', writeForm: { kind: 'export', format }, fixBundle: null }, hands.readValues())
   return true
 }
 

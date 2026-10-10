@@ -36,7 +36,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `CommentBox` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#CommentBox` | -- | interface CommentBox |
 | `CommentBoxSearchRow` | entry | type | `src/entity/document-model/schedule/schedule-search.ts#CommentBoxSearchRow` | PI-1 | 型。 |
 | `compareDays` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#compareDays` | PI-1 | 2 つの日の前後 |
-| `compareDelayFixRows` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#compareDelayFixRows` | PI-1 | 直す案の行の既定の並びの比べ方（表 T-374） |
 | `CustomColor` | entry | interface | `src/entity/document-model/schedule/stored-color.ts#CustomColor` | -- | interface CustomColor |
 | `customColorChosen` | entry | function | `src/entity/document-model/schedule/stored-color.ts#customColorChosen` | PI-1 | カスタムカラーを選んだときの新しい綴り。 |
 | `customColorOf` | entry | function | `src/entity/document-model/schedule/stored-color.ts#customColorOf` | PI-1 | カスタムカラーを明暗の 2 つの側に分ける。 |
@@ -52,35 +51,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DEFAULT_CALENDAR_VALUES` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DEFAULT_CALENDAR_VALUES` | -- | const DEFAULT_CALENDAR_VALUES: |
 | `defaultFinishTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultFinishTimeOf` | PI-1 | 文書の既定の終了時刻。 |
 | `defaultStartTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultStartTimeOf` | PI-1 | 文書の既定の開始時刻。 |
-| `DELAY_FIX_TYPES` | entry | const | `src/entity/document-model/schedule/delay-fixes.ts#DELAY_FIX_TYPES` | PI-1 | 表 T-373 の直し方を、表 T-374 の既定の並びの順に並べたもの |
 | `DELAY_REPORT_STATUSES` | entry | const | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DELAY_REPORT_STATUSES` | PI-1 | 表 T-347 の `DT-1` のステータスを、表の順に並べたもの。 |
 | `DelayDiagnosticsReport` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayDiagnosticsReport` | PI-1 | 型。 |
 | `delayDiagnosticsReportMarkdown` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayDiagnosticsReportMarkdown` | PI-1 | 遅延診断レポートを Markdown の文字列 1 つにする（表 T-346 の `RW-6`）。 |
 | `delayDiagnosticsReportRows` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayDiagnosticsReportRows` | PI-1 | 遅延診断レポートの表（表 T-347）の行を、`AM-19` と同じレポートから、`DT-1` の順・`Task.start`・`Task.uid` の既定の並びで作る（`FR-134`）。 |
-| `DelayFixCheck` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixCheck` | PI-1 | 型。 |
-| `DelayFixChoice` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixChoice` | PI-1 | 型。 |
-| `DelayFixChoiceWord` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixChoiceWord` | -- | type DelayFixChoiceWord = \| 'deleteLinkByEnds' \| 'deleteLink' \| 'keepLink' \| 'setPlannedDate' \| 'clearPause' \| 'markStarted' \| 'clearParentActualFinish' \| 'f... |
-| `delayFixColumnsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixColumnsOf` | PI-1 | 直す案の表と直した記録の表それぞれの欄（表 T-374 の行 ID）を、左からの順で返す |
-| `DelayFixCommand` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixCommand` | PI-1 | 型。 |
-| `delayFixCommands` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#delayFixCommands` | PI-1 | チェックの入った直す案の行から、1 つの束として発行する命令の列を作る（`FR-155`、表 T-027 の `UN-21`） |
-| `DelayFixLink` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixLink` | -- | interface DelayFixLink |
-| `delayFixLogCells` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixLogCells` | PI-1 | 直した記録の 1 行を、表 T-374 の書き方の文字列の列にする |
-| `DelayFixLogRow` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixLogRow` | PI-1 | 型。 |
-| `delayFixLogRowsInOrder` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixLogRowsInOrder` | PI-1 | 直した記録の行を 表 T-374 の既定の並び（直した日時の新しい順 → 束の中の順）にする |
-| `delayFixLogRowsOf` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#delayFixLogRowsOf` | PI-1 | 発行した束の行から、直した記録の行（表 T-317 の `DX-12`）を作る |
-| `DelayFixMarkdown` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayFixMarkdown` | PI-1 | 型。 |
-| `DelayFixMarkdownSection` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayFixMarkdownSection` | -- | interface DelayFixMarkdownSection |
-| `DelayFixOpenField` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixOpenField` | -- | interface DelayFixOpenField |
-| `DelayFixPlacement` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixPlacement` | -- | type DelayFixPlacement = \| { readonly row: 'PA-1' } \| ({ readonly row: 'PA-2' \| 'PA-4'; readonly stop: string } & StartedPlacement) \| ({ readonly row: 'PA-3'... |
-| `delayFixProposalCells` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixProposalCells` | PI-1 | 直す案の 1 行を、表 T-374 の書き方の文字列の列にする（表 T-346 の `RW-6` の Markdown にも使う） |
-| `delayFixProposalRows` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixProposalRows` | PI-1 | 直す案の行を 表 T-374 の既定の並びにし、連鎖の行を元の行のすぐ下に置く |
-| `DelayFixRefusal` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixRefusal` | -- | type DelayFixRefusal = 'readOnly' |
-| `DelayFixRow` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixRow` | PI-1 | 型。 |
-| `delayFixRowsInOrder` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixRowsInOrder` | PI-1 | 直す案の行を渡された比べ方で並べ、連鎖の行を元の行から離さない（表 T-374） |
-| `DelayFixType` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixType` | PI-1 | 型。 |
-| `DelayFixValue` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixValue` | PI-1 | 型。 |
-| `delayFixValueText` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixValueText` | PI-1 | 表 T-374 の `FM-7` の書き方で値を文字列にする |
-| `DelayFixWords` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayFixWords` | PI-1 | 型。 |
 | `DelayReportDates` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportDates` | -- | interface DelayReportDates |
 | `DelayReportFilter` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportFilter` | -- | interface DelayReportFilter |
 | `DelayReportReason` | entry | type | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportReason` | PI-1 | 表 T-347 の `DT-7`（理由）に入れる値の型 |
@@ -118,7 +92,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `plannedDurationMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedDurationMinutesOf` | PI-1 | 予定の長さの分数。 |
 | `progressPointDayOf` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#progressPointDayOf` | PI-1 | 表 T-022 の頂点を打つ日。 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
-| `proposeDelayFixes` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#proposeDelayFixes` | PI-1 | 遅延診断の指摘（表 T-317 の `DX-3`）ごとに、表 T-373 の直し方で直す案の行を作る（`FR-155`）。 |
 | `Resource` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Resource` | -- | interface Resource |
 | `Schedule` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Schedule` | PI-1 | 型。 |
 | `ScheduleViolation` | entry | interface | `src/entity/document-model/schedule/schedule-invariants.ts#ScheduleViolation` | -- | interface ScheduleViolation |
@@ -155,12 +128,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DelayMarkerState` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayMarkerState` | -- | interface DelayMarkerState |
 | `DelayQuantities` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayQuantities` | -- | interface DelayQuantities |
 | `DerivedParentTask` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DerivedParentTask` | -- | interface DerivedParentTask |
-| `extremeText` | file only | function | `src/entity/document-model/schedule/delay-diagnostics.ts#extremeText` | -- | function extremeText(texts: readonly (string \| null)[], latest: boolean): string \| null |
 | `FindingKind` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#FindingKind` | -- | type FindingKind = 'contradiction' \| 'suspicion' \| 'omission' |
 | `FindingValue` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#FindingValue` | -- | type FindingValue = string \| number \| boolean \| null \| readonly number[] |
 | `LateDays` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#LateDays` | -- | interface LateDays |
 | `TerminalPushOut` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#TerminalPushOut` | -- | interface TerminalPushOut |
-| `DelayFixSubject` | file only | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixSubject` | -- | interface DelayFixSubject |
 | `ENTITY_ROWS` | file only | const | `src/entity/document-model/schedule/schedule-entities.ts#ENTITY_ROWS` | -- | const ENTITY_ROWS: readonly EntityRows[] = [ |
 | `taskGroupRankById` | file only | function | `src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
 | `assigneeNamesByTaskUid` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#assigneeNamesByTaskUid` | -- | function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, readonly string[]> |
@@ -655,8 +626,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ShownTasksHolder` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#ShownTasksHolder` | -- | interface ShownTasksHolder |
 | `SnapshotSource` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#SnapshotSource` | PI-17 | 表 T-065 |
 | `agentApiMembers` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#agentApiMembers` | -- | function agentApiMembers(wiring: AgentApiWiring): AgentApi |
-| `AgentDelayDiagnostics` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentDelayDiagnostics` | -- | interface AgentDelayDiagnostics extends DelayDiagnosticsReport |
-| `DelayFixLogSource` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#DelayFixLogSource` | -- | interface DelayFixLogSource |
 | `ImportLanding` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#ImportLanding` | -- | type ImportLanding = \| boolean \| { readonly landed: false; readonly refusals: readonly InvariantRefusal[] } export type AgentChangeReceiver = (notice: Notify... |
 | `messageOf` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#messageOf` | -- | function messageOf(thrown: unknown): string |
 | `VisibilityTable` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#VisibilityTable` | -- | type VisibilityTable = keyof Document['documentSettings']['tableViews'] |
@@ -1010,6 +979,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `answerOpenChoice` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#answerOpenChoice` | -- | function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenChoice, frame: FrameValues \| null): void |
 | `answerSettledFormat` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#answerSettledFormat` | -- | function answerSettledFormat(hands: DocumentFileFlowHands, format: ExportFormatId): boolean |
 | `askToOpenDroppedFile` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#askToOpenDroppedFile` | -- | function askToOpenDroppedFile(hands: DocumentFileFlowHands): void |
+| `CarriedFixBundle` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#CarriedFixBundle` | -- | type CarriedFixBundle = Extract<SessionEffect, { readonly type: 'issueDelayFixBundle' }>['fixBundle'] |
+| `DelayFixTelling` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DelayFixTelling` | -- | type DelayFixTelling = \| { readonly kind: 'fixed'; readonly count: number } \| { readonly kind: 'refused'; readonly row: DelayFixRow; readonly refusal: Refusa... |
 | `documentAsOpened` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#documentAsOpened` | -- | function documentAsOpened(document: Document): Document |
 | `DocumentFileFlow` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DocumentFileFlow` | -- | type DocumentFileFlow = ReturnType<typeof documentFileFlowOf> |
 | `DocumentFileFlowHands` | file only | type | `src/framework/single-html-shell/document-file-flow.ts#DocumentFileFlowHands` | -- | type DocumentFileFlowHands = Pick< |
@@ -1291,6 +1262,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DelayDiagnosticsReportWindow` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・フィルタ・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
 | `delayDiagnosticsReportWithColumnWidth` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、窓の値へ当てる（表 T-346 の `RW-9`）。 |
 | `delayDiagnosticsReportWithFilterClosed` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた窓の値を答える（表 T-330 の `SV-14`）。 |
+| `delayFixBackupFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#delayFixBackupFileNameOf` | -- | function delayFixBackupFileNameOf(documentName: string, localMoment: string, extension: string): string |
 | `DialogueField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DialogueField` | -- | interface DialogueField |
 | `DialogueInput` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#DialogueInput` | -- | interface DialogueInput |
 | `dialogueMessageFromInput` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#dialogueMessageFromInput` | PI-37 | 対話欄で確定した発話。 |
@@ -1724,6 +1696,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ConfirmationState` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#ConfirmationState` | -- | type ConfirmationState = \| { readonly kind: 'notAsked' } \| { readonly kind: 'questionAsked'; readonly question: FileFlowValuesStateCarried['question']; reado... |
 | `emptyFileFlowValues` | file only | const | `src/use-case/advance-screen-session/file-flow-values.ts#emptyFileFlowValues` | -- | const emptyFileFlowValues: FileFlowValues = |
 | `FileFlowCreatedSubject` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowCreatedSubject` | -- | type FileFlowCreatedSubject = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'taskGroup'; readonly groupId: string } export type FileFl... |
+| `FileFlowFixBundle` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowFixBundle` | -- | type FileFlowFixBundle = readonly { readonly fixRow: string }[] |
 | `FileFlowIncomingFile` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowIncomingFile` | -- | interface FileFlowIncomingFile |
 | `FileFlowMergeCandidate` | file only | interface | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowMergeCandidate` | -- | interface FileFlowMergeCandidate |
 | `FileFlowMergeMapping` | file only | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowMergeMapping` | -- | type FileFlowMergeMapping = \| { readonly kind: 'allSame' } \| { readonly kind: 'allDifferent' } \| |
@@ -1845,4 +1818,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 915 name(s) leave through a public entry (393 of them published by table T-064), 720 more are exported by a file and not by its entry.
+Totals: 889 name(s) leave through a public entry (372 of them published by table T-064), 719 more are exported by a file and not by its entry.

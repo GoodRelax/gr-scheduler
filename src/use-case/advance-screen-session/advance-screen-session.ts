@@ -175,6 +175,7 @@ const IS_FILE_FLOW_EVENT: { readonly [T in FileFlowValuesEvent['type']]: true } 
   documentOpenLanded: true,
   overwriteQuestionRaised: true,
   documentFileSaved: true,
+  diagnosticFixBackupSaved: true,
   documentFileWriteEnded: true,
   documentEditLanded: true,
   newDocumentLanded: true,

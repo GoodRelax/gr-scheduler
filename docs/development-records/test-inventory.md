@@ -37,7 +37,7 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 
 | prefix | nodes | named by a test | named by none |
 | --- | --: | --: | --- |
-| FR | 120 | 114 | FR-010, FR-040, FR-079, FR-081, FR-150, FR-155 |
+| FR | 120 | 115 | FR-010, FR-040, FR-079, FR-081, FR-150 |
 | NFR | 13 | 9 | NFR-005, NFR-006, NFR-008, NFR-012 |
 | UC | 15 | 14 | UC-015 |
 | SWS | 8 | 8 | - |
@@ -522,13 +522,13 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/spec-table-reads-the-whole-cell.contract.test.ts` | 12 | FR-036 | - | T-036, T-075, T-109 | IC-52, SK-3, SK-7, SK-20, UF-41 | - | - | - | - |
 | `tests/contract/state-machine-agent-api.contract.test.ts` | 26 | FR-065, FR-066, NFR-010 | VT-2 | T-296 | IC-18, RS-20, S-99i, SD-3, SD-5, SF-3, SS-5, SS-6 | - | - | - | - |
 | `tests/contract/state-machine-field-entry.contract.test.ts` | 8 | FR-035, FR-091 | VT-2 | T-250, T-292 | AT-53, HF-14, HF-17, IF-9, IN-5a, IN-5b, MK-13, PR-1, SD-3, SD-5, SF-3, SS-5, U-60 | - | - | - | - |
-| `tests/contract/state-machine-file-flow.contract.test.ts` | 4 | FR-022, FR-032, FR-095, FR-099, FR-153 | VT-2 | T-250, T-290 | DI-4, IC-4, MG-6, MG-11, MG-14, MM-4, NT-7, OP-2, OP-3, OP-4, OP-13, OP-15, QN-1, QN-4, QN-5, QN-11, RS-27, RS-50, RS-73, SD-3, SF-3, SS-5, U-56, U-61, U-62 | - | - | - | - |
+| `tests/contract/state-machine-file-flow.contract.test.ts` | 4 | FR-022, FR-032, FR-095, FR-099, FR-153, FR-155 | VT-2 | T-250, T-290 | DI-4, IC-4, MG-6, MG-11, MG-14, MM-4, NT-7, OP-2, OP-3, OP-4, OP-13, OP-15, QN-1, QN-4, QN-5, QN-11, RS-27, RS-50, RS-73, SD-3, SF-3, SS-5, SX-3, U-56, U-61, U-62, UN-21 | - | - | - | - |
 | `tests/contract/state-machine-gesture.contract.test.ts` | 6 | FR-018, FR-053 | VT-2 | T-023a, T-027, T-250, T-289 | AG-9, GR-19, HF-15, IC-12, IC-13, IC-14, IC-15, PTD-1, PTD-2, PTD-3, PTD-7, S-172, SD-3, SF-3, SS-5, UN-1, UN-2, UN-4, UN-5, UN-8, UN-9, UN-16 | - | - | 2: DFC-687, DFC-687 | - |
 | `tests/contract/state-machine-interaction-record.contract.test.ts` | 13 | FR-102, NFR-010 | VT-2 | T-295 | IC-76, S-206, SD-3, SD-5, SF-3, SS-6 | - | - | - | - |
 | `tests/contract/state-machine-notices.contract.test.ts` | 8 | - | VT-2 | T-233, T-250, T-286 | AG-6, NT-3, NT-8, SD-3, SF-3, SS-5, SS-6 | - | - | - | - |
 | `tests/contract/state-machine-screen-values.contract.test.ts` | 29 | FR-016, FR-036, FR-038, FR-066, FR-070, FR-072 | VT-2 | T-250, T-280, T-283, T-330, T-332 | EL-16, HN-2, HN-4, HN-5, HN-6, IC-18, IC-52, IN-4, RG-3, RG-16, S-99i, S-434, S-435, SD-3, SF-3, SH-1, SH-2, SH-5, SJ-3, SV-2, SV-14, U-60, WB-1, WB-3, WM-6, WM-8 | - | - | - | - |
 | `tests/contract/state-machine-selection.contract.test.ts` | 8 | FR-072, FR-085, FR-091 | VT-2 | T-023c, T-250, T-293 | IN-4, SD-3, SD-5, SF-3, SK-19, SL-7b, SP-1, SP-2, SP-3, SP-4, SS-5 | - | - | - | - |
-| `tests/contract/state-machine-unsaved-edits.contract.test.ts` | 13 | FR-095, FR-100 | VT-2 | T-290 | OP-3, QN-5, SD-3, SD-5, SS-5 | - | - | - | - |
+| `tests/contract/state-machine-unsaved-edits.contract.test.ts` | 13 | FR-095, FR-100, FR-155 | VT-2 | T-290 | OP-3, QN-5, SD-3, SD-5, SS-5, SX-3 | - | - | - | - |
 | `tests/contract/t-012-sh-5-glyph-binding.test.ts` | 11 | - | - | T-012, T-109 | AR-3, SH-5 | - | - | - | - |
 | `tests/contract/t-020-zo-layer-membership.test.ts` | 5 | FR-019 | - | T-020, T-023c, T-029 | CM-52, CU-2, S-370, SL-3, ZO-1, ZO-2, ZO-3, ZO-5, ZO-6, ZO-8, ZO-9, ZO-12, ZO-14 | - | - | - | - |
 | `tests/contract/t-233-reason-words-tell-the-row.contract.test.ts` | 7 | FR-001, FR-008, FR-009, FR-012, FR-023, FR-038, FR-068, FR-073, FR-083, FR-085, FR-086, FR-111 | - | T-015a, T-037, T-211, T-218, T-220, T-233 | AG-9a, AR-7, HM-4, IC-90, IF-3, IV-1, IV-10, MG-7, MG-11, MG-14, NT-1, NT-3, NT-3a, NT-5, NT-7, PR-33, PTL-8, PTL-12, RS-3, RS-10, RS-19, RS-21, RS-25, RS-26, RS-27, RS-30, RS-36, RS-38, RS-39, RS-46, RS-48, RS-49, RS-50, RS-53, RS-54, RS-55, RS-56, RS-57, RS-58, RS-63, RS-64, SK-11, SP-1, TS-5, WS-2 | - | - | - | - |

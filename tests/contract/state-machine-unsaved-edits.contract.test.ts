@@ -70,6 +70,8 @@ function question(row: string): Loose {
 }
 
 const CANDIDATES = [{ currentUid: 1, currentName: 'Task A', incomingUid: 7, incomingName: 'Task A' }]
+// see FR-155
+const FIX_BUNDLE: readonly Loose[] = [{ fixRow: 'FA-11', taskUid: 3 }]
 
 const OPERATIONS: readonly Loose[] = [
   { kind: 'idle' },
@@ -79,7 +81,8 @@ const OPERATIONS: readonly Loose[] = [
   { kind: 'awaitingDiscardAnswer' },
   { kind: 'importingDocument' },
   { kind: 'awaitingMergeMapping', mergeCandidates: CANDIDATES, unreadColumns: ['Cost'] },
-  { kind: 'writingDocumentFile' },
+  { kind: 'writingDocumentFile', fixBundle: null },
+  { kind: 'writingDocumentFile', fixBundle: FIX_BUNDLE },
 ]
 
 const CONFIRMATIONS: readonly Loose[] = [
@@ -96,7 +99,13 @@ const ROOTS: readonly Loose[] = [
 const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   documentOpenAsked: ['chooser', 'drop', 'reopen'].map((openRoute) => ({ openRoute })),
   agentDocumentHanded: [{}],
-  documentFileWriteAsked: [{ writeForm: { kind: 'save' } }, { writeForm: { kind: 'export', format: 'MF-1' } }],
+  // see FR-155, SX-3
+  documentFileWriteAsked: [
+    { writeForm: { kind: 'save' }, fixBundle: null },
+    { writeForm: { kind: 'export', format: 'MF-1' }, fixBundle: null },
+    { writeForm: { kind: 'beforeFixOverwrite' }, fixBundle: FIX_BUNDLE },
+    { writeForm: { kind: 'beforeFixBackup' }, fixBundle: FIX_BUNDLE },
+  ],
   openChoiceAnswered: ['replace', 'merge', 'baseline'].map((openChoice) => ({ openChoice, question: question('QN-5') })),
   mergeMappingAnswered: [{ mergeMapping: { kind: 'allSame' } }, { mergeMapping: { kind: 'cancelImport' } }],
   confirmationAnswered: [{ isProceeding: true }, { isProceeding: false }],
@@ -115,6 +124,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   ],
   overwriteQuestionRaised: [{ question: question('QN-4') }],
   documentFileSaved: [{ openedFileName: 'saved.xml' }, { openedFileName: null }],
+  diagnosticFixBackupSaved: [{}],
   documentFileWriteEnded: [{}],
   documentEditLanded: [{ isBackToSavedDocument: false }, { isBackToSavedDocument: true }],
   newDocumentLanded: [{}],

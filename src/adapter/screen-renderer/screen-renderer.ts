@@ -64,7 +64,7 @@ export {
 export { DEFAULT_WINDOW_PLACE, windowBoxAfterGrab, windowBoxOf, windowEdgeAt, windowNormalBoxOf, windowPlaceOf } from './window-box'
 export type { WindowPlace, WindowShown } from './window-box'
 export { imageToJsonPromptText } from './app-header-items'
-export { exportFileNameOf, UNTITLED_DOCUMENT_TITLE } from './open-modals'
+export { delayFixBackupFileNameOf, exportFileNameOf, UNTITLED_DOCUMENT_TITLE } from './open-modals'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
 export {
   MARK_COLOR_ROWS,
