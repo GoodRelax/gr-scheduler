@@ -1295,7 +1295,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `rulerWeekdayWords` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#rulerWeekdayWords` | PI-37 | 目盛の第 4 段が刷る曜日 7 語。 |
 | `scheduleFilterBarOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterBarOf` | PI-37 | スケジュールフィルタの帯（`U-67`）の語を、掛けている表の名・文書のタスクの数・描いているタスクの数から作る（表 T-353 の `TV-11`）。 |
 | `ScheduleFilterBarView` | entry | interface | `src/adapter/screen-renderer/table-window.ts#ScheduleFilterBarView` | PI-37 | 型。 |
-| `scheduleFilteredTablesOf` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#scheduleFilteredTablesOf` | -- | function scheduleFilteredTablesOf(readings: ScreenViewReadings): readonly VisibilityTable[] |
 | `ScreenFrame` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ScreenFrame` | -- | interface ScreenFrame |
 | `ScreenPart` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#ScreenPart` | -- | interface ScreenPart |
 | `ScreenSurface` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#ScreenSurface` | PI-37 | 表 T-065 |
@@ -1775,4 +1774,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 872 name(s) leave through a public entry (359 of them published by table T-064), 693 more are exported by a file and not by its entry.
+Totals: 871 name(s) leave through a public entry (359 of them published by table T-064), 693 more are exported by a file and not by its entry.

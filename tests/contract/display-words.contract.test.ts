@@ -2542,7 +2542,7 @@ for (const entry of GENERATED['searchPanel'] ?? []) {
   const part = keyOf('searchPanel', entry)
   const reading = SEARCH_PANEL_READS[part]
   if (part === 'tableNameSeparator') {
-    drop('searchPanel', part, 'the joining word stands only inside the {tables} slot of the band (TV-11, X-14), and a cell-naming word holds no slot to put it in')
+    drop('searchPanel', part, 'the joining word stands only inside the {tables} slot of the band (TV-11), and a cell-naming word holds no slot to put it in')
     continue
   }
   if (reading === undefined) {

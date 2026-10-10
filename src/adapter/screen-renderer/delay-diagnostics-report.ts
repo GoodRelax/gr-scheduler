@@ -91,7 +91,7 @@ const STATUS_COLUMN = 'DT-1'
 
 const VISIBILITY_COLUMN = 'DT-8'
 
-// see RW-6, X-10
+// see RW-6, DT-8
 // WHY: the Visibility column is a tool laid on the schedule, not a finding, so the Markdown neither prints nor filters by it.
 const MARKDOWN_COLUMNS: readonly string[] = DELAY_REPORT_COLUMNS.filter((column) => column !== VISIBILITY_COLUMN)
 
@@ -541,7 +541,7 @@ export function delayDiagnosticsReportWithColumnWidth(
   return panel === window.panel ? window : { ...window, panel }
 }
 
-// see RW-6, X-10
+// see RW-6, DT-8
 /** @purity pure */
 function markdownWindowOf(window: DelayDiagnosticsReportWindow): DelayDiagnosticsReportWindow {
   const columns = window.panel.filters.columns.filter((one) => one.column !== VISIBILITY_COLUMN)

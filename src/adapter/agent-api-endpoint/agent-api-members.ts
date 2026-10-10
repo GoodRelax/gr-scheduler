@@ -105,7 +105,7 @@ export type AgentFocusOutcome =
 // WHY: the same three words as AdvanceScreenSession's VisibilityTable, held here so this component gains no edge to it.
 export type VisibilityTable = 'searchPanel' | 'delayDiagnosticsReport' | 'resourceList'
 
-// see AM-26, TV-1, X-11
+// see AM-26, TV-1
 // WHY: drawnTaskUids is null while no table's Schedule Filter is on; tables are the tables whose filter is on.
 export interface AgentShownTasks {
   readonly drawnTaskUids: readonly number[] | null
@@ -126,7 +126,7 @@ export interface ShownTasksHolder {
   readShownTasks(): AgentShownTasks
   /** @purity semi-pure-b */
   readSearchVisibility(): SearchTableVisibility
-  // WHY: the search table's only (X-11); turning its filter on also shows a hidden Search Panel minimised (TV-8, PND-712).
+  // WHY: the search table's only (AM-27); turning its filter on also shows a hidden Search Panel minimised (TV-8, PND-712).
   /** @purity non-pure */
   holdShownTasks(visibility: SearchTableVisibility): void
   // WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which puts the target among the drawn tasks.
@@ -317,7 +317,7 @@ function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown, held: S
   return null
 }
 
-// see AM-27, TV-5, TV-6, TV-8, X-11, X-16
+// see AM-27, TV-5, TV-6, TV-8
 // WHY: only rows that go from Hide to Show while the filter is already on open their task groups (TV-6, JDG-1868).
 /** @purity non-pure */
 function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskUids: readonly number[] | null): AgentWriteOutcome {

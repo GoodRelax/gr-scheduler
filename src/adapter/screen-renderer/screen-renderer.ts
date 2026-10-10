@@ -731,7 +731,7 @@ function resourceListOf(session: ScreenSession, readings: ScreenViewReadings, sc
 
 // see TV-1, TV-8, TV-12
 /** @purity pure */
-export function scheduleFilteredTablesOf(readings: ScreenViewReadings): readonly VisibilityTable[] {
+function scheduleFilteredTablesOf(readings: ScreenViewReadings): readonly VisibilityTable[] {
   const report = readings.delayDiagnosticsReport?.window.panel.visibility.isApplied === true
   return [
     ...(readings.searchPanel?.visibility.isApplied === true ? ['searchPanel' as const] : []),
