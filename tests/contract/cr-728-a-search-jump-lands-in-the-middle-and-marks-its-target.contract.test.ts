@@ -93,7 +93,7 @@ const PTL_16_JUMP = 'その親の `Task` へ、`FR-151` の 表 T-332 の飛び�
 const T_280_JUMP_ROW = '| `screen/searchJumpLanded` | → `shown` | → 自己（中身を書き換える） |'
 const T_280_CLEAR_ROW = '| `screen/landingMarkClearAsked` | — | → `hidden` |'
 const T_280_SHOWN_CARRIES =
-  '運ぶ値 `landedBy`（印を付けたもの —— `continuationMark`（続きの印、`EL-16`） ／ `jump`（飛び方、`SJ-10`）） ／ `landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ持ち、`jump` では `null`） ／ `landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id）。'
+  '運ぶ値 `landedBy`（印を付けたもの —— `continuationMark`（続きの印、`EL-16`） ／ `jump`（飛び方、`SJ-10`）） ／ `landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ持ち、`jump` では `null`） ／ `landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id）'
 const EL_16_NOT_SAVED = '⛔ 印を文書に保存してはならず、取り消しの対象にしてはならない（MUST NOT）'
 const EL_17_CLEAR = '印が出ているあいだに、人が次のどれかを行ったら、印を消すこと（MUST）: 押下（どのボタンでも、画面のどこでも）、キーの押下。'
 const EL_17_VIEW_KEEPS = '⭐ ただし、見る位置と倍率だけを動かす操作'

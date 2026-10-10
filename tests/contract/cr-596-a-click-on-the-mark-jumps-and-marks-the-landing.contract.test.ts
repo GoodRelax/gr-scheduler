@@ -405,15 +405,18 @@ type LandingState =
       readonly landedBy: 'continuationMark'
       readonly landedLink: { readonly predecessorUid: number; readonly successorUid: number }
       readonly landedTarget: { readonly kind: 'task'; readonly taskUid: number }
+      readonly landedRelatedTasks: readonly number[]
     }
 
 const HIDDEN: LandingState = { kind: 'hidden' }
-// WHY: CR-728 named the far end landedTarget and the source landedBy (SJ-10 shares the machine).
+// WHY: CR-728 named the far end landedTarget and the source landedBy (SJ-10 shares the machine);
+// CR-731 added landedRelatedTasks (RW-13), empty for the continuation mark.
 const landed = (predecessorUid: number, successorUid: number, landedTaskUid: number): LandingState => ({
   kind: 'shown',
   landedBy: 'continuationMark',
   landedLink: { predecessorUid, successorUid },
   landedTarget: { kind: 'task', taskUid: landedTaskUid },
+  landedRelatedTasks: [],
 })
 
 const sceneOf = (spec: SceneSpec, override: Loose = {}, selection: Selection = emptySelection(), landing: LandingState = HIDDEN): Scene => {
