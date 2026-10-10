@@ -23,8 +23,10 @@ const wordsOf = (part: string): readonly string[] => {
   if (held === undefined) throw new Error(`the dictionary holds no ${part}`)
   return [held.ja, held.en]
 }
-// WHY: the band line holds {shown} and {total}; the fixed part before the first brace is what a picture would carry.
-const BAND_WORDS = [...wordsOf('showOnlyCheckedBar').map((text) => text.split('{')[0] ?? ''), ...wordsOf('showAll')].filter((text) => text.length >= 4)
+// WHY: the band line holds {tables}, {total} and {shown} (TV-11); the fixed parts around the braces are what a picture would carry.
+const BAND_WORDS = [...wordsOf('scheduleFilterBar').flatMap((text) => text.split(/\{[^}]*\}/).map((part) => part.trim())), ...wordsOf('scheduleFilterOff')].filter(
+  (text) => text.length >= 4,
+)
 
 let browser: Browser | null = null
 

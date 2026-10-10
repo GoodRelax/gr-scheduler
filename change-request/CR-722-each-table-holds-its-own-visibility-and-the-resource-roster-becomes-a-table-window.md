@@ -428,11 +428,11 @@ export type VisibilityTable = 'searchPanel' | 'delayDiagnosticsReport' | 'resour
 | `SearchPanelSession.visibility`・`TableWindowSession.visibility` | 欄 | A | `S-494`・`S-495`・`S-547`・`S-548` |
 | `tableAfterVisibilityChange(panel, keys, isShown)` | 関数（`table-window.ts`） | A | `TV-2`・`TV-6` |
 | `tableWithScheduleFilterToggled(panel)` | 関数（`table-window.ts`） | A | `TV-5` |
-| `scheduleFilterBarOf(tables, schedule, drawnCount, language)` と `ScreenView.scheduleFilterBar: ScheduleFilterBarView \| null` | 関数と view の欄（帯はどのウィンドウのスケジュールフィルタでも出るので `ScreenView` の頂に置く） | A | `TV-11` |
-| `ResourceListView` と `resourceListFromWindow`・`resourceListAfterEntry`・`resourceListAfterFilterChange`・`resourceListWithColumnWidth` | 型と関数（`resource-list.ts`、`delay-diagnostics-report.ts` の同じ形の関数にそろえる） | A | 表 T-370・表 T-371 |
+| `scheduleFilterBarOf(tables: readonly VisibilityTable[], schedule, drawnCount, language)` と `ScreenView.scheduleFilterBar: ScheduleFilterBarView \| null` | 関数（`table-window.ts`）と view の欄（帯はどのウィンドウのスケジュールフィルタでも出るので `ScreenView` の頂に置く）。`tables` はスケジュールフィルタを掛けている表の名で、渡す順を問わない —— 語は `TV-11` の順につなぐ | A | `TV-11` |
+| `ResourceListView` と `resourceListFromWindow(session, window, schedule, chosenResourceUids, layout)`・`resourceListAfterEntry(window, entry, filterColumn, rows, listed?)`・`resourceListAfterFilterChange`・`resourceListWithColumnWidth` | 型と関数（`resource-list.ts`、`delay-diagnostics-report.ts` の同じ形の関数にそろえる）。`window` は `TableWindowState \| null`、`chosenResourceUids` は選択している担当の `uid`（`RQ-3`）、`layout` は `{ canvas, textSizeStep }`、`rows` は `{ schedule, chosenResourceUids, language }` | A | 表 T-370・表 T-371 |
 | `AgentShownTasks { drawnTaskUids: number[] \| null; tables: VisibilityTable[] }` | 型（`agent-api-members.ts`） | A | `AM-26`・`AM-27`（X-11） |
-| `drawnTaskUidsOf(schedule, search, report, reportTaskUids, resourceList, createdWhileFiltered)` | 関数（`shown-tasks-hold.ts`） —— どの表のスケジュールフィルタも掛けていなければ `null` | B | `TV-1`・`TV-2`・`TV-7`・`TV-13` |
-| `ResourceListWindow`・`answerResourceListEntry` | 型と関数（`resource-list-window.ts`、`delay-diagnostics-report-window.ts` の形） | B | 表 T-370 |
+| `drawnTaskUidsOf(schedule, search, report, reportTaskUids, resourceList, createdWhileFiltered)` | 関数（`shown-tasks-hold.ts`） —— `search`・`report`・`resourceList` は各表の `TableVisibility` そのもの（セッションに包まない）、`reportTaskUids` は `ReadonlySet<number> \| null`、`createdWhileFiltered` は `ReadonlySet<number>`、返すのは `ReadonlySet<number> \| null`。どの表のスケジュールフィルタも掛けていなければ `null` | B | `TV-1`・`TV-2`・`TV-7`・`TV-13` |
+| `ResourceListWindow`（`TableWindowState` と同じ）・`answerTableWindowEntry(pressed, windows, shownTasks, rows)` | 型と、公開する関数（`resource-list-window.ts`）—— 担当リストのウィンドウの入口・`IC-62`・帯（`U-67`）の「スケジュールフィルタを解除」を 1 つで答える。答えなければ `null`。担当リストだけの入口は同じファイルの公開しない `answerResourceListEntry` が答える（`frame-loop.ts` が呼ぶのは `answerTableWindowEntry` だけ） | B | 表 T-370・`TV-11` |
 | `WindowPlaces.resourceList: ResourceListWindow \| null` | 欄（`frame-loop.ts`） | B | `RO-1`・`RO-6` |
 | DOM の `data-role="Resource List"`（ウィンドウ）・`data-role="Schedule Filter Bar"`（帯 —— 今の `'Show Only Checked Bar'` を替える）・ウィンドウの識別 `{ window: 'resourceList', role: 'Resource List' }` | DOM の値 | B | `U-49`・`U-67` |
 | 生成の定数の名を替える: `NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES` → `NOT_STORED_SCHEDULE_FILTER_BAR_SIZES`（`JDG-1869`）、`NOT_STORED_RESOURCE_LIST_SIZES` → `NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES`（`S-240`・`S-241` は休日の設定の一覧の値になった） | `tools/generate_entity_types.py` と、それを読む src（どちらも体 B の持ち場 —— 読むのは `frame-loop.ts`・`dom-screen-surface.ts`・`open-modals-drawing.ts` だけ） | B | `S-497`・`S-498`・`S-240`・`S-241` |
@@ -460,6 +460,22 @@ export type VisibilityTable = 'searchPanel' | 'delayDiagnosticsReport' | 'resour
 - 1 つの集合: `tests/contract/cr-661-only-the-checked-tasks-are-laid-and-drawn.contract.test.ts`、`tests/system/cr-661-show-only-the-checked-tasks-on-the-shipped-build.test.ts`、`tests/contract/cr-571-search-panel-view.test.ts`、`tests/contract/cr-571-search-rows.contract.test.ts`、`tests/unit/uf-39-40.test.ts`、`tests/unit/uf-71.test.ts`、`tests/system/cr-721-ix-11-ep-24-the-export-leaves-the-band-out-and-closes-up.test.ts`（辞書の `showOnlyCheckedBar`・`showAll` を引く）。
 - 担当リストの面: `tests/unit/cr-406-the-resource-roster-is-a-ruled-grid.test.ts`（波 1 は引用だけを 表 T-257 の新しい置き場へ移した —— 振る舞いの場合は担当リストの格子を見ており、波 2 で赤くなる。退役させ、`RR-` の主張を休日の設定へ移すか決める）、`tests/unit/cr-439-open-modals-help-roster-report-export.test.ts`、`tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts`、`tests/contract/dfc-288-d-289-fr-099-deleting-the-chosen-assignees.test.ts`、`tests/contract/dfc-567-fr-029-a-faint-roster-entrance-that-is-pressed-tells-rs-27.test.ts`、`tests/unit/in-4-escape-closes-the-panel.test.ts`。
 - 実物: `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`（担当リストを面として開く手）。
+
+### 5.3 波 2 が着地した形（2026-10-10、`e5dbf5b7` で合わせた後に測った）
+
+3 つの体が並んで書いたので、仕様が決めず 5.1 が言い切っていなかった形を、試験の体と実装が別々に想定した。仕様が黙っている所は実装の形を残し、試験の呼び方だけを合わせた（主張は変えない）。以後の試験と体は下の形で呼ぶ。
+
+| 何 | 決めた形 | 試験の体の想定 |
+|---|---|---|
+| 帯の関数 `scheduleFilterBarOf` | 置き場は `table-window.ts`。第 1 引数は掛けている表の名の列 `readonly VisibilityTable[]`（順は問わない） | 名の列と 3 つの表の記録のどちらにも読める値 —— 列として読まれるので呼び方は変えていない |
+| 積 `drawnTaskUidsOf` | 表ごとの `TableVisibility` を包まずに渡す。uid の集まりは `ReadonlySet<number>`、返り値も `ReadonlySet<number> \| null` | 配列とセットの両方に読める値 —— 型検査が落ちたので `new Set(…)` を渡すように替えた（`tests/contract/cr-722-stage.ts` の `drawn`） |
+| `resourceListFromWindow` | `(session, window, schedule, chosenResourceUids, layout)` —— 選択している担当（`RQ-3`）を 4 番目に受ける | 4 引数 —— 4 番目に `[]` を足した |
+| `resourceListAfterEntry` | 第 4 引数 `rows` は `{ schedule, chosenResourceUids, language }` | `chosenResourceUids` 無し —— `[]` を足した |
+| 表示の列の見出しの箱（`SQ-10`、`RQ-1`、`DT-8`） | DOM の `[data-search-shown-all]`。3 つの表のウィンドウで同じ印（`search-panel-drawing.ts` の `SHOWN_ALL_ATTRIBUTE`）。押すと、絞った後に並ぶ行をまとめて「表示」⇔「非表示」にする | 同じ —— 変えていない |
+| `Agent API` の `showOnlyTasks` | 位置の引数 `showOnlyTasks(taskUids: readonly number[] \| null)`。`readShownTasks()` は `AgentShownTasks` | 同じ —— 変えていない |
+| 担当リストのウィンドウの入口 | 公開するのは `answerTableWindowEntry`（5.1 の表を直した）。`answerResourceListEntry` はファイルの中だけ | —— |
+| 読み物の欄 | `ScreenViewReadings.resourceList: TableWindowState \| null`・`drawnTaskUids: ReadonlySet<number> \| null`・`tableWindowUnderPointer: VisibilityTable \| null`、`InputContext.resourceList`（`shown`・`isInFront`）・`listedResourceUids`、`ShownTasksHolder.readSearchVisibility()`・`holdShownTasks(visibility)` | —— |
+| 休日の設定（`U-65`） | 担当リストの面の枝を外したので、`S-240` を読む所を休日の設定の面に移した（`RR-1` の字だけ。`open-modals-drawing.ts` の `holidaySettingsBoxStyle`）。`RR-2`〜`RR-5` は一覧が描かれてから（`DFC-2318`） | —— |
 
 ---
 
