@@ -29,6 +29,9 @@ const colorOf = (id: string): string => {
 }
 const RED = colorOf('S-543')
 
+// see RO-6, UZ-6
+const RO_6_LATER_IN_FRONT = 'ほかの表のウィンドウと同時に出ているときは、後に開いたものを前に置く'
+
 const VIEW_SETTINGS = (part: Loose): Loose => ({ ...SCROLLED_CLEAR_OF_THE_PALETTE, ...part })
 const NO_VIEWS = (): string => documentText(VIEW_SETTINGS({}))
 
@@ -76,6 +79,31 @@ async function press(page: Page, selector: string): Promise<void> {
   if (box === null) throw new Error(`${selector} is not on the screen`)
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
   await page.mouse.down()
+  await page.mouse.up()
+  await settle(page)
+}
+
+// see RO-6, UZ-6, WB-8, GR-24
+// WHY: a window opened later covers the one under it; a person drags it aside by its title band, a point on no entrance.
+/** @purity non-pure */
+async function dragAside(page: Page, window: string): Promise<void> {
+  const spot = await page.evaluate((wanted: string) => {
+    const one = document.querySelector(wanted)
+    const title = one?.firstElementChild
+    if (one === null || one === undefined || title === null || title === undefined) return null
+    const band = title.getBoundingClientRect()
+    const y = band.top + band.height / 2
+    for (let x = band.left + 2; x < band.right - 2; x += 4) {
+      const top = document.elementFromPoint(x, y)
+      if (top !== null && one.contains(top) && top.closest('[data-icon]') === null) return { x, y, width: one.getBoundingClientRect().width }
+    }
+    return null
+  }, window)
+  if (spot === null) throw new Error(`GR-24: no free point on the title band of ${window} (${RO_6_LATER_IN_FRONT})`)
+  await page.mouse.move(spot.x, spot.y)
+  await page.mouse.down()
+  await page.mouse.move(spot.x + spot.width / 2, spot.y, { steps: 4 })
+  await page.mouse.move(spot.x + spot.width, spot.y, { steps: 4 })
   await page.mouse.up()
   await settle(page)
 }
@@ -166,6 +194,8 @@ test.describe('CR-723 on the shipped build', () => {
       expect(current['hiddenTaskUids'], 'premise: the two Sato tasks are Hide').toEqual([ALPHA, CHARLIE])
       expect(await applyView(page, 'searchPanel', { visibility: { hiddenKeys: [ALPHA, CHARLIE], isUnassignedHidden: false, isApplied: false }, columnFilters: [STATUS_FILTER], sort: BY_RESOURCE })).toBe(true)
       await settle(page)
+      // STEP: RO-6 -- the Resource List opened later stands in front of the Search Panel; drag it aside to reach the search IC-143
+      await dragAside(page, RESOURCE_LIST)
       await press(page, `${SEARCH} [data-icon="${EYE}"]`)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)
       saved = await saveDocument(page)

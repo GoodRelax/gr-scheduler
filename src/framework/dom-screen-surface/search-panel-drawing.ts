@@ -139,6 +139,7 @@ export function windowStyle(): string {
 }
 
 const WORD_FIELD_STYLE = 'flex:none;box-sizing:border-box;width:100%;'
+const WORD_BESIDE_TOOLS_STYLE = 'flex:1 1 0;min-width:0;'
 
 const TABLE_BOX_STYLE = 'flex:1;overflow:auto;'
 
@@ -592,11 +593,12 @@ function summaryItemElement(host: Document, one: NonNullable<TableWindowView['su
   return item
 }
 
-// see RW-3, RW-4
+// see RW-3, RW-4, RO-3
 /** @purity non-pure */
 function aboveTableElements(host: Document, view: TableWindowView, fontPx: number, anchors: Map<string, HTMLElement>, role: string): readonly HTMLElement[] {
-  const word = wordFieldElement(host, view.word, fontPx)
   const tools = view.toolEntries === undefined ? [] : view.toolEntries.map((item) => anchoredEntry(host, item, anchors, role))
+  const word = wordFieldElement(host, view.word, fontPx)
+  if (tools.length > 0) word.setAttribute('style', (word.getAttribute('style') ?? '') + WORD_BESIDE_TOOLS_STYLE)
   const line = made(host, 'div', TOOL_LINE_STYLE)
   line.replaceChildren(...tools, word)
   if (view.summary === undefined) return [tools.length === 0 ? word : line]
