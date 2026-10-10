@@ -344,6 +344,8 @@ import ではないので読み手として数えない。
 ⛔ **文字列の鍵は ASCII だけにする。** ⚠️ 制御文字が 1 つ混じると、成果物のハッシュが変わって
 **アプリ全体が読み込まれなくなる**（[04](04-verification.md)）。
 
+⭐ **試験が画面の語を符号位置で綴るとき**（`String.fromCharCode(...)` など、本節が ASCII を求めるため）、**解いた語は `docs/spec` にそのまま在ること** —— 検査 77（`.claude/skills/spec-graph-check/check-code-point-words.py`）が解いて引き当てる（`CR-726` の語の改名を、古い綴りの試験が素通りした）。⚠️ わざと仕様に無い綴り（符号化の見本など）は `.claude/skills/spec-graph-check/code-point-words-exempt.txt` に理由を添えて書く。
+
 ---
 
 ## 5b. ⛔ パスは相対で書く

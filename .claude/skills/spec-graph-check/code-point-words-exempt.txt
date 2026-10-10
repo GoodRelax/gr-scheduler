@@ -1,0 +1,20 @@
+# Check 77 -- the exemption list of check-code-point-words.py. Baseline 0.
+#
+# A spelling a file of src/ or tests/ writes in code points (fromCharCode /
+# fromCodePoint, or \uXXXX escapes) must be held by docs/spec. A line here
+# names one that is NOT, on purpose -- an encoding sample, a value the test
+# makes up, or a word the spec retired that a test spells to prove it is gone.
+#
+# One line each:  path | spelling | reason
+# The spelling is ASCII with \uXXXX (or \u{X...} above U+FFFF) for every
+# non-ASCII character -- exactly what the check prints in [ ] beside a finding.
+# A line that matches nothing any more reds the check: delete it then.
+#
+# MEASURED 2026-10-11 on 70af1cb2: 113 spellings in 41 files, 6 not in
+# docs/spec, all six encoding or data samples, listed below.
+tests/contract/cr-663-the-tooltip-labels-assignee-and-progress.test.ts | \u{20bb7} | TL-7 sample: one character outside the basic plane, chosen for its width in code units, not a word
+tests/unit/uf-37-38.test.ts | \u65e5\u7a0b \u2014 \u00dc | CN-5 UTF-8 round-trip sample (project name with non-ASCII text), not an on-screen word
+tests/unit/uf-37-38.test.ts | \u0000 \u65e5\u7a0b | sample of text hostile to HTML (NUL beside non-ASCII) carried through the embedded-HTML codec
+tests/unit/uf-41-42.test.ts | \u65e5\u7a0b \u2014 \u00dc | UTF-8 encoding sample read back and written out as the same text
+tests/unit/uf-41-42.test.ts | \u6a4b\u306e\u66f4\u65b0 | made-up project name inside a destination file the test writes over, not an on-screen word
+tests/unit/uf-45-46.test.ts | \u65e5\u7a0b \u2014 \u00dc | clipboard payload sample of text outside ASCII, not an on-screen word
