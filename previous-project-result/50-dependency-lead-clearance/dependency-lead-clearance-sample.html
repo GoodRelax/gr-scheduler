@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>依存線の張り出しと札の隙間</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #16181d; --muted: #5b6270; --panel: #f4f6f9; --line: #d5dae2;
+    --band: #f3f6fa; --plan-fill: hsl(214 46% 80%); --plan-stroke: hsl(214 44% 46%);
+    --actual-fill: hsl(214 62% 34%); --actual-stroke: hsl(214 66% 22%);
+    --dep: #6f472a; --label: #000000; --halo: #ffffff; --marker-fill: #ffffff; --marker-stroke: #16181d;
+    --bad: #c62828; --good: #1b7f3b; --accent: #1d5fbf; --flag: rgba(230, 0, 120, 0.85);
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171a; --fg: #e8eaee; --muted: #a3aab6; --panel: #1d2126; --line: #333a43;
+    --band: #191d22; --plan-fill: #2d3f58; --plan-stroke: hsl(214 40% 60%);
+    --actual-fill: #6a9cdc; --actual-stroke: hsl(214 70% 80%);
+    --dep: #b38461; --label: #ffffff; --halo: #14171a; --marker-fill: #14171a; --marker-stroke: #e8eaee;
+    --bad: #ff6b6b; --good: #5fd38a; --accent: #7fb0ff; --flag: rgba(255, 64, 200, 0.9);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.7 "Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif; }
+  header { padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  header h1 { font-size: 18px; margin: 0 12px 0 0; }
+  button, select { font: inherit; font-size: 14px; padding: 2px 10px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); border-radius: 4px; cursor: pointer; }
+  button.on { outline: 2px solid var(--accent); }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 400px; min-height: calc(100vh - 60px); }
+  #stage { overflow: auto; padding: 12px 16px; }
+  #side { border-left: 1px solid var(--line); background: var(--panel); padding: 12px 16px; overflow: auto; font-size: 14px; }
+  #side h2 { font-size: 15px; margin: 14px 0 6px; }
+  .knob { display: grid; grid-template-columns: 1fr 120px; gap: 2px 8px; align-items: center; margin: 6px 0; }
+  .knob .name { font-size: 13px; }
+  .knob .val { grid-column: 1 / span 2; font-size: 12px; color: var(--muted); }
+  .knob input { width: 120px; }
+  table { border-collapse: collapse; font-size: 13px; width: 100%; }
+  th, td { border: 1px solid var(--line); padding: 2px 6px; text-align: left; vertical-align: top; }
+  .bad { color: var(--bad); font-weight: 700; }
+  .good { color: var(--good); font-weight: 700; }
+  #summary { font-size: 15px; margin: 4px 0 10px; }
+  pre { font-size: 12px; background: var(--bg); border: 1px solid var(--line); padding: 6px; white-space: pre-wrap; user-select: all; }
+  svg text { user-select: none; }
+  .note { font-size: 13px; color: var(--muted); }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } #side { border-left: 0; border-top: 1px solid var(--line); } }
+</style>
+</head>
+<body>
+<header>
+  <h1>依存線の張り出しと札の隙間</h1>
+  <span>案:</span>
+  <span id="presets"></span>
+  <label>表示の倍率 <select id="scale"><option>50</option><option>75</option><option selected>100</option><option>150</option><option>200</option></select></label>
+  <label>拡大して見る <select id="mag"><option value="1">×1</option><option value="2" selected>×2</option><option value="3">×3</option><option value="4">×4</option></select></label>
+  <label><input type="checkbox" id="flags" checked> 重なりに印</label>
+  <button id="theme">明るい ／ 暗い</button>
+</header>
+<main>
+  <div id="stage"><div id="summary"></div><div id="chartHost"></div><p class="note">印（マゼンタの枠）は、依存線（線の芯と矢じり）が札・マーカー・名前の下に潜っている所である。札とマーカーは依存線より手前に描く（アプリと同じ描く順）ので、潜った線はそこで見えなくなる。</p></div>
+  <aside id="side">
+    <h2>依存線と札の寸法（仕様の値。下の灰色は描いた px）</h2>
+    <div id="knobs"></div>
+    <h2>直す経路</h2>
+    <label><input type="checkbox" id="viaCorridor"> 段を斜めにまたぐ線（RP-2 / RP-3）も行間の通路を通す</label>
+    <p class="note">今は、出口と入口の間が空いていると、線は先行の行の高さを中点まで横に走ってから降りる。そのため、先行のマーカーと名前の下、または後続の札の下を通る。</p>
+    <label><input type="checkbox" id="insideGap"> 名前が棒の中に入るとき（LP-1）、開始に立つマーカーも同じ隙間だけ右へ離す</label>
+    <h2>重なり</h2>
+    <div id="table"></div>
+    <h2>今の値（そのまま貼れる）</h2>
+    <pre id="values"></pre>
+  </aside>
+</main>
+<script>
+'use strict'
+// Geometry mirrors the shipped build measured on 2026-10-10 (dist at 6f0abdb2, display scale 100):
+// plan 17.5 px, actual 10 px, marker r 7 px (stroke 0.81), label font 9 px with a 2.7 px halo (paint-order stroke),
+// dependency core 1.5 px with a 4.5 px halo, arrow 6 x 5 px, lead-out 6 px, lead-in 10 px, assignee label 4 px left
+// of the start, LP-2 marker touching the end. Paint order: plan < actual < dependency < marker < labels.
+// Every value below is a stored value; the drawn px is stored x DRAW_RATIO x scale / 100 (FR-039, S-236).
+const DRAW_RATIO = 0.625
+const FIXED = { planH: 28, actualH: 16, markerR: 11.2, markerStroke: 1.3, font: 14.4, haloOfFont: 0.3, labelGap: 9.6, msGap: 9.6, rowPitch: 34.6, dayPx: 17 }
+const KNOBS = [
+  { key: 'leadOut', id: 'S-298', name: '出口の張り出し（dependencyLeadOut）', min: 0, max: 40, step: 0.8 },
+  { key: 'leadIn', id: 'S-299', name: '入口の張り出し・矢じりを含む（dependencyLeadIn）', min: 0, max: 40, step: 0.8 },
+  { key: 'arrowLen', id: 'S-19', name: '矢じりの長さ（dependencyArrowLength）', min: 1.6, max: 40, step: 0.8 },
+  { key: 'arrowWidth', id: 'S-300', name: '矢じりの幅（dependencyArrowWidth）', min: 1.6, max: 40, step: 0.8 },
+  { key: 'lineWidth', id: 'S-18', name: '線の太さ（dependencyWidth）', min: 0.5, max: 4, step: 0.1 },
+  { key: 'assigneeGap', id: 'S-302', name: '担当と進捗の札と開始の隙間（assigneeLabelGap）', min: 0, max: 30, step: 0.8 },
+  { key: 'markerGap', id: '新', name: '終了の右・菱形の右のマーカーとの隙間（いまは 0 で、仕様に行が無い）', min: 0, max: 30, step: 0.8 },
+]
+const PRESETS = [
+  { key: 'now', name: '現状', v: { leadOut: 9.6, leadIn: 16, arrowLen: 9.6, arrowWidth: 8, lineWidth: 2.4, assigneeGap: 6.4, markerGap: 0 }, corridor: false, insideGap: false },
+  { key: 'A', name: '案 A 縮めるだけ', v: { leadOut: 4.8, leadIn: 8, arrowLen: 6.4, arrowWidth: 6.4, lineWidth: 2.4, assigneeGap: 6.4, markerGap: 0 }, corridor: false, insideGap: false },
+  { key: 'B', name: '案 B 離すだけ', v: { leadOut: 9.6, leadIn: 16, arrowLen: 9.6, arrowWidth: 8, lineWidth: 2.4, assigneeGap: 21.6, markerGap: 13.6 }, corridor: false, insideGap: false },
+  { key: 'C', name: '案 C 縮めて少し離す（決定）', v: { leadOut: 4.8, leadIn: 9.6, arrowLen: 6.4, arrowWidth: 6.4, lineWidth: 2.4, assigneeGap: 14.4, markerGap: 8 }, corridor: true, insideGap: true },
+]
+// Rows imitate the reported screen: an FS chain where most successors start on the predecessor's finish (RP-4),
+// a fan-out, a gap that makes RP-2, a long assignee label, a milestone and a bar wide enough to hold its marker (LP-1).
+const TASKS = [
+  { id: 1, name: '表の窓の聞き取り', who: 'user', pct: 100, start: 0, days: 5 },
+  { id: 2, name: 'CR-720 を起草する', who: 'body', pct: 100, start: 5, days: 2 },
+  { id: 3, name: 'CR-720 の仕様だけの試験', who: 'body', pct: 100, start: 7, days: 1 },
+  { id: 4, name: 'CR-719 を起草する', who: 'body', pct: 100, start: 7, days: 2 },
+  { id: 5, name: 'CR-721 表の窓が列の仕組みを共にする', who: 'body', pct: 100, start: 14, days: 4 },
+  { id: 6, name: '語と表の見え方への利用者の裁定', who: 'coordinator +1', pct: 100, start: 18, days: 4 },
+  { id: 7, name: 'push（origin/main）', who: 'coordinator', pct: 100, start: 22, days: 0 },
+  { id: 8, name: '順 1 表ごとのスケジュールフィルタと担当リスト', who: 'body', pct: 20, start: 22, days: 22 },
+  { id: 9, name: '順 2 表の見え方を保存する', who: 'body', pct: 0, start: 44, days: 4 },
+]
+const DEPS = [[1, 2], [2, 3], [2, 4], [3, 5], [4, 6], [5, 6], [6, 7], [7, 8], [8, 9]]
+
+const $ = (id) => document.getElementById(id)
+const state = { v: { ...PRESETS[0].v }, corridor: false, insideGap: false, scale: 100, mag: 2, flags: true, preset: 'now' }
+try { if (localStorage.getItem('dlc-theme') === 'dark') document.documentElement.dataset.theme = 'dark' } catch (e) {}
+if (location.hash === '#dark' || /theme=dark/.test(location.search)) document.documentElement.dataset.theme = 'dark'
+
+const r = () => DRAW_RATIO * state.scale / 100
+const px = (stored) => stored * r()
+const fmt = (n) => (Math.round(n * 100) / 100).toString()
+
+function buildPresets() {
+  const host = $('presets')
+  for (const p of PRESETS) {
+    const b = document.createElement('button')
+    b.textContent = p.name
+    b.dataset.key = p.key
+    b.onclick = () => { state.v = { ...p.v }; state.corridor = p.corridor; state.insideGap = p.insideGap; state.preset = p.key; syncKnobs(); draw() }
+    host.appendChild(b)
+  }
+}
+
+function buildKnobs() {
+  const host = $('knobs')
+  for (const k of KNOBS) {
+    const wrap = document.createElement('div')
+    wrap.className = 'knob'
+    wrap.innerHTML = '<span class="name">' + k.id + ' ' + k.name + '</span><input type="range" min="' + k.min + '" max="' + k.max + '" step="' + k.step + '" id="k-' + k.key + '"><span class="val" id="v-' + k.key + '"></span>'
+    host.appendChild(wrap)
+    wrap.querySelector('input').oninput = (e) => {
+      state.v[k.key] = Number(e.target.value)
+      if (k.key === 'arrowLen' && state.v.leadIn < state.v.arrowLen) state.v.leadIn = state.v.arrowLen
+      if (k.key === 'leadIn' && state.v.leadIn < state.v.arrowLen) state.v.leadIn = state.v.arrowLen
+      state.preset = ''
+      syncKnobs(); draw()
+    }
+  }
+}
+
+function syncKnobs() {
+  for (const k of KNOBS) {
+    $('k-' + k.key).value = String(state.v[k.key])
+    $('v-' + k.key).textContent = fmt(state.v[k.key]) + '（描くと ' + fmt(px(state.v[k.key])) + ' px）'
+  }
+  $('viaCorridor').checked = state.corridor
+  $('insideGap').checked = state.insideGap
+  for (const b of $('presets').children) b.classList.toggle('on', b.dataset.key === state.preset)
+}
+
+const SVGNS = 'http://www.w3.org/2000/svg'
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag)
+  for (const [a, v] of Object.entries(attrs)) e.setAttribute(a, String(v))
+  if (parent) parent.appendChild(e)
+  return e
+}
+
+function layout() {
+  const s = r()
+  const pitch = FIXED.rowPitch * s
+  const leftPad = 140 * s
+  const day = FIXED.dayPx * s
+  const planH = FIXED.planH * s, actH = FIXED.actualH * s
+  const mR = FIXED.markerR * s
+  return TASKS.map((t, i) => {
+    const mid = 24 * s + i * pitch + pitch / 2
+    const x0 = leftPad + t.start * day
+    const w = t.days * day
+    return { t, row: i, mid, top: mid - planH / 2, bottom: mid + planH / 2, x0, x1: x0 + w, w, planH, actH, mR, milestone: t.days === 0 }
+  })
+}
+
+// see T-222 (dependency-route.ts routeOf): FS links only, as the reported screen has.
+function route(a, b) {
+  const s = r()
+  const out = px(state.v.leadOut), inn = px(state.v.leadIn)
+  const fromEdge = a.milestone ? a.x0 + a.planH / 2 : a.x1
+  const toEdge = b.milestone ? b.x0 - b.planH / 2 : b.x0
+  const x1 = fromEdge + out
+  const x2 = toEdge - inn
+  const gap = (2 + state.v.lineWidth) * s
+  const corridor = (a.bottom + b.top) / 2
+  const sameLane = Math.abs(a.mid - b.mid) < 0.5
+  if (!sameLane && x2 >= x1 && !state.corridor) {
+    const m = Math.max(x1, Math.min((fromEdge + toEdge) / 2, x2))
+    return { rp: 'RP-2', pts: [[fromEdge, a.mid], [m, a.mid], [m, b.mid], [toEdge, b.mid]] }
+  }
+  // the app's corridor (corridorY) is midway between the two rows; the corridor variant runs in the gap just above
+  // the successor, so the horizontal never crosses a row in between
+  const above = b.top - (FIXED.rowPitch * s - b.planH) / 2
+  const cy = state.corridor ? above : b.top > a.top ? corridor : a.bottom + gap / 2
+  return { rp: x2 >= x1 ? 'RP-2→通路' : 'RP-4', pts: [[fromEdge, a.mid], [x1, a.mid], [x1, cy], [x2, cy], [x2, b.mid], [toEdge, b.mid]] }
+}
+
+function draw() {
+  const s = r()
+  const rows = layout()
+  const byId = new Map(rows.map((x) => [x.t.id, x]))
+  const width = Math.max(...rows.map((x) => x.x1)) + 340 * s
+  const height = rows[rows.length - 1].bottom + 24 * s
+  const host = $('chartHost')
+  host.innerHTML = ''
+  const svg = el('svg', { width: width * state.mag, height: height * state.mag, viewBox: '0 0 ' + width + ' ' + height }, host)
+  const css = getComputedStyle(document.documentElement)
+  const c = (n) => css.getPropertyValue(n).trim()
+  const defs = el('defs', {}, svg)
+  const font = FIXED.font * s
+  const halo = font * FIXED.haloOfFont
+  const lw = px(state.v.lineWidth)
+  const aL = px(state.v.arrowLen), aW = px(state.v.arrowWidth)
+  const marker = el('marker', { id: 'arrow', viewBox: '0 0 ' + aL + ' ' + aW, refX: aL, refY: aW / 2, markerWidth: aL, markerHeight: aW, markerUnits: 'userSpaceOnUse', orient: 'auto' }, defs)
+  el('path', { d: 'M' + aL + ',' + aW / 2 + ' L0,' + aW + ' L0,0 Z', fill: c('--dep') }, marker)
+  const mask = el('mask', { id: 'halo-mask', maskUnits: 'userSpaceOnUse', x: 0, y: 0, width, height }, defs)
+  el('rect', { x: 0, y: 0, width, height, fill: 'white' }, mask)
+
+  const gBand = el('g', {}, svg), gPlan = el('g', {}, svg), gAct = el('g', {}, svg), gDep = el('g', {}, svg), gMark = el('g', {}, svg), gLab = el('g', {}, svg), gFlag = el('g', {}, svg)
+  for (const x of rows) if (x.row % 2 === 1) el('rect', { x: 0, y: x.mid - FIXED.rowPitch * s / 2, width, height: FIXED.rowPitch * s, fill: c('--band') }, gBand)
+
+  const obstacles = []
+  const labelAttrs = (extra) => Object.assign({ 'font-size': font, 'font-family': '"Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif', fill: c('--label'), stroke: c('--halo'), 'stroke-width': halo, 'stroke-linejoin': 'round', 'paint-order': 'stroke' }, extra)
+  for (const x of rows) {
+    const t = x.t
+    if (x.milestone) {
+      const h = x.planH / 2
+      el('polygon', { points: [[x.x0, x.mid - h], [x.x0 + h, x.mid], [x.x0, x.mid + h], [x.x0 - h, x.mid]].map((p) => p.join(',')).join(' '), fill: c('--actual-fill'), stroke: c('--actual-stroke'), 'stroke-width': 0.63 * s }, gAct)
+      el('rect', { x: x.x0 - h, y: x.mid - h, width: 2 * h, height: 2 * h, fill: 'black' }, mask)
+    } else {
+      el('rect', { x: x.x0, y: x.top, width: x.w, height: x.planH, fill: c('--plan-fill'), stroke: c('--plan-stroke'), 'stroke-width': 0.63 * s }, gPlan)
+      const aw = x.w * Math.max(t.pct, 4) / 100
+      el('rect', { x: x.x0, y: x.mid - x.actH / 2, width: aw, height: x.actH, fill: c('--actual-fill'), stroke: c('--actual-stroke'), 'stroke-width': 0.63 * s }, gAct)
+      el('rect', { x: x.x0, y: x.top, width: x.w, height: x.planH, fill: 'black' }, mask)
+    }
+    // assignee : percent, right-aligned left of the start (T-273, S-302)
+    const startEdge = x.milestone ? x.x0 - x.planH / 2 : x.x0
+    const oc = el('text', labelAttrs({ x: startEdge - px(state.v.assigneeGap), y: x.mid + font * 0.35, 'text-anchor': 'end' }), gLab)
+    oc.textContent = t.who + ' : ' + t.pct + '%'
+    // progress marker: LP-1 inside at the start when the name fits, else LP-2 right of the end (+ markerGap)
+    const nameProbe = el('text', labelAttrs({ x: 0, y: -100, 'font-weight': 600 }), gLab)
+    nameProbe.textContent = t.name
+    const nameW = nameProbe.getComputedTextLength()
+    nameProbe.remove()
+    let cx
+    if (x.milestone) cx = x.x0 + x.planH / 2 + px(state.v.markerGap) + x.mR
+    else if (2 * x.mR + (state.insideGap ? px(state.v.markerGap) : 0) + px(FIXED.labelGap) + nameW + 12 <= x.w) cx = x.x0 + (state.insideGap ? px(state.v.markerGap) : 0) + x.mR
+    else cx = x.x1 + px(state.v.markerGap) + x.mR
+    el('circle', { cx, cy: x.mid, r: x.mR, fill: c('--marker-fill'), stroke: c('--marker-stroke'), 'stroke-width': FIXED.markerStroke * s }, gMark)
+    if (t.pct === 100) el('polyline', { points: [[cx - x.mR / 2, x.mid], [cx - x.mR * 0.1, x.mid + x.mR * 0.35], [cx + x.mR * 0.5, x.mid - x.mR * 0.35]].map((p) => p.join(',')).join(' '), fill: 'none', stroke: c('--marker-stroke'), 'stroke-width': FIXED.markerStroke * s }, gMark)
+    else if (t.pct > 0) el('path', { d: 'M' + cx + ',' + (x.mid - x.mR * 0.6) + ' A' + x.mR * 0.6 + ',' + x.mR * 0.6 + ' 0 0 1 ' + cx + ',' + (x.mid + x.mR * 0.6) + ' Z', fill: c('--marker-stroke') }, gMark)
+    obstacles.push({ kind: 'マーカー', task: t.id, circle: { cx, cy: x.mid, r: x.mR + FIXED.markerStroke * s / 2 } })
+    const nm = el('text', labelAttrs({ x: cx + x.mR + px(x.milestone ? FIXED.msGap : FIXED.labelGap), y: x.mid + font * 0.35, 'font-weight': 600 }), gLab)
+    nm.textContent = t.name
+    obstacles.push({ kind: '札', task: t.id, node: oc })
+    obstacles.push({ kind: '名前', task: t.id, node: nm })
+  }
+
+  const routes = []
+  for (const [f, t] of DEPS) {
+    const a = byId.get(f), b = byId.get(t)
+    const rt = route(a, b)
+    const points = rt.pts.map((p) => p.join(',')).join(' ')
+    el('polyline', { points, fill: 'none', stroke: c('--halo'), 'stroke-width': lw * 3, mask: 'url(#halo-mask)' }, gDep)
+    el('polyline', { points, fill: 'none', stroke: c('--dep'), 'stroke-width': lw, 'marker-end': 'url(#arrow)' }, gDep)
+    routes.push({ f, t, rt })
+  }
+
+  // overlap: the drawn core (half width lw / 2) and the arrow triangle against each label box (+ its halo) and marker
+  const boxes = obstacles.map((o) => {
+    if (o.circle) return o
+    const bb = o.node.getBBox()
+    return { ...o, box: { x0: bb.x - halo / 2, y0: bb.y - halo / 2, x1: bb.x + bb.width + halo / 2, y1: bb.y + bb.height + halo / 2 } }
+  })
+  const results = []
+  for (const R of routes) {
+    const pts = R.rt.pts
+    const segs = []
+    for (let i = 0; i + 1 < pts.length; i++) segs.push([pts[i], pts[i + 1]])
+    const [tip, prev] = [pts[pts.length - 1], pts[pts.length - 2]]
+    const dir = Math.sign(tip[0] - prev[0]) || 1
+    const arrowBox = { x0: Math.min(tip[0], tip[0] - dir * aL), x1: Math.max(tip[0], tip[0] - dir * aL), y0: tip[1] - aW / 2, y1: tip[1] + aW / 2 }
+    const hits = []
+    for (const o of boxes) {
+      // a predecessor's own marker sits on its finish: only the LP-1 inside marker of the successor is not an obstacle
+      // for the arrow tip touching the start edge.
+      let worst = 0
+      if (o.circle) {
+        for (const [p, q] of segs) {
+          const d = distPointSeg(o.circle.cx, o.circle.cy, p, q)
+          const pen = o.circle.r + lw / 2 - d
+          if (pen > 0.05) worst = Math.max(worst, pen)
+        }
+        const dA = rectCircle(arrowBox, o.circle)
+        if (dA > 0.05) worst = Math.max(worst, dA)
+      } else {
+        for (const [p, q] of segs) {
+          const sb = { x0: Math.min(p[0], q[0]) - lw / 2, x1: Math.max(p[0], q[0]) + lw / 2, y0: Math.min(p[1], q[1]) - lw / 2, y1: Math.max(p[1], q[1]) + lw / 2 }
+          worst = Math.max(worst, overlapAlong(sb, o.box))
+        }
+        worst = Math.max(worst, overlapAlong(arrowBox, o.box))
+      }
+      if (worst > 0.05) {
+        const own = o.task === R.f || o.task === R.t
+        hits.push({ kind: o.kind, task: o.task, px: worst, own })
+        if (state.flags && own) {
+          const bx = o.circle ? { x0: o.circle.cx - o.circle.r, y0: o.circle.cy - o.circle.r, x1: o.circle.cx + o.circle.r, y1: o.circle.cy + o.circle.r } : o.box
+          el('rect', { x: bx.x0 - 1, y: bx.y0 - 1, width: bx.x1 - bx.x0 + 2, height: bx.y1 - bx.y0 + 2, fill: 'none', stroke: c('--flag'), 'stroke-width': 1, 'stroke-dasharray': '2 1.5' }, gFlag)
+        }
+      }
+    }
+    results.push({ ...R, hits })
+  }
+  report(results)
+}
+
+function distPointSeg(x, y, p, q) {
+  const dx = q[0] - p[0], dy = q[1] - p[1]
+  const L = dx * dx + dy * dy
+  const t = L === 0 ? 0 : Math.max(0, Math.min(1, ((x - p[0]) * dx + (y - p[1]) * dy) / L))
+  return Math.hypot(x - (p[0] + t * dx), y - (p[1] + t * dy))
+}
+function rectCircle(b, c) {
+  const nx = Math.max(b.x0, Math.min(c.cx, b.x1)), ny = Math.max(b.y0, Math.min(c.cy, b.y1))
+  return c.r - Math.hypot(c.cx - nx, c.cy - ny)
+}
+// the length of line hidden under the obstacle: the longer side of the intersection
+function overlapAlong(a, b) {
+  const w = Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0)
+  const h = Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0)
+  if (w <= 0 || h <= 0) return 0
+  return Math.max(w, h)
+}
+
+function report(results) {
+  const name = (id) => TASKS.find((t) => t.id === id).name
+  let n = 0
+  let html = '<table><tr><th>線</th><th>経路</th><th>潜る先</th></tr>'
+  for (const R of results) {
+    n += R.hits.filter((h) => h.own).length
+    const cell = R.hits.length ? R.hits.map((h) => '<span class="' + (h.own ? 'bad' : 'note') + '">' + (h.task === R.f ? '先行の' : h.task === R.t ? '後続の' : 'タスク ' + h.task + ' の') + h.kind + ' ' + fmt(h.px) + 'px' + (h.own ? '' : '（途中の行。縦に横切るのは RT-5 が許している）') + '</span>').join('<br>') : '<span class="good">なし</span>'
+    html += '<tr><td>' + R.f + ' → ' + R.t + '</td><td>' + R.rt.rp + '</td><td>' + cell + '</td></tr>'
+  }
+  html += '</table><p class="note">タスクの番号: ' + TASKS.map((t) => t.id + ' ' + t.name).join(' ／ ') + '</p>'
+  $('table').innerHTML = html
+  $('summary').innerHTML = n ? '<span class="bad">依存線が札・マーカー・名前の下に潜る所: ' + n + ' 箇所</span>' : '<span class="good">依存線が札・マーカー・名前の下に潜る所: 0 箇所</span>'
+  const v = state.v
+  $('values').textContent =
+    '表示の倍率 ' + state.scale + '（描く比 ' + fmt(r()) + '）\n' +
+    'S-298 出口の張り出し ' + fmt(v.leadOut) + '（' + fmt(px(v.leadOut)) + 'px）\n' +
+    'S-299 入口の張り出し ' + fmt(v.leadIn) + '（' + fmt(px(v.leadIn)) + 'px）\n' +
+    'S-19 矢じりの長さ ' + fmt(v.arrowLen) + '（' + fmt(px(v.arrowLen)) + 'px）\n' +
+    'S-300 矢じりの幅 ' + fmt(v.arrowWidth) + '（' + fmt(px(v.arrowWidth)) + 'px）\n' +
+    'S-18 線の太さ ' + fmt(v.lineWidth) + '（' + fmt(px(v.lineWidth)) + 'px）\n' +
+    'S-302 札の隙間 ' + fmt(v.assigneeGap) + '（' + fmt(px(v.assigneeGap)) + 'px）\n' +
+    '新 マーカーの隙間 ' + fmt(v.markerGap) + '（' + fmt(px(v.markerGap)) + 'px）\n' +
+    '段をまたぐ線を通路に通す ' + (state.corridor ? 'する' : 'しない') + '\n' +
+    '棒の中のマーカーも離す ' + (state.insideGap ? 'する' : 'しない') + '\n' +
+    '潜る所 ' + n + ' 箇所'
+}
+
+buildPresets(); buildKnobs(); syncKnobs()
+$('scale').onchange = (e) => { state.scale = Number(e.target.value); syncKnobs(); draw() }
+$('mag').onchange = (e) => { state.mag = Number(e.target.value); draw() }
+$('flags').onchange = (e) => { state.flags = e.target.checked; draw() }
+$('insideGap').onchange = (e) => { state.insideGap = e.target.checked; state.preset = ''; syncKnobs(); draw() }
+$('viaCorridor').onchange = (e) => { state.corridor = e.target.checked; state.preset = ''; syncKnobs(); draw() }
+$('theme').onclick = () => {
+  const dark = document.documentElement.dataset.theme !== 'dark'
+  document.documentElement.dataset.theme = dark ? 'dark' : 'light'
+  try { localStorage.setItem('dlc-theme', dark ? 'dark' : 'light') } catch (e) {}
+  draw()
+}
+draw()
+</script>
+</body>
+</html>
