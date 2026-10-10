@@ -2406,14 +2406,13 @@ describe('表 T-103 -- the settled names reach the DOM so the parts can be found
     surface.showScreenView(
       viewWith({
         openModal: {
-          surface: 'Resource List',
-          heading: 'RosterHeading',
+          surface: 'Holiday Settings',
+          heading: 'HolidaySettingsHeading',
           commands: [],
-          resources: [],
         },
       }),
     )
-    expect(byRole(built.root(), 'Resource List').length).toBeGreaterThan(0)
+    expect(byRole(built.root(), 'Holiday Settings').length).toBeGreaterThan(0)
   })
 
   it('names U-57 by 表 T-103, which no longer leaves that part unnamed', () => {
@@ -3692,7 +3691,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
 
   it('GIVEN the same entry drawn on two different 面 WHEN both are read THEN neither scales it (FR-029 MUST NOT) -- IC-52', () => {
     // ⚠️ 表 T-109 puts IC-52 on several surfaces at once（`Help Modal` /
-    // `Resource List` / `Export Chooser` / `Open Chooser` and more）, so it is
+    // `Holiday Settings` / `Export Chooser` / `Open Chooser` and more）, so it is
     // the one row that can be drawn on two different 面 and compared without a
     // second row entering the comparison.
     const built = wire({ 'App Header': 37 })
@@ -3704,18 +3703,17 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     surface.showScreenView(
       viewWith({
         openModal: {
-          surface: 'Resource List',
-          heading: 'RosterHeading',
-          commands: [command({ icon: 'IC-52', label: 'CloseRoster' })],
-          resources: [],
+          surface: 'Holiday Settings',
+          heading: 'HolidaySettingsHeading',
+          commands: [command({ icon: 'IC-52', label: 'CloseHolidaySettings' })],
         },
       }),
     )
-    const onRoster = glyphBoxOf(iconEntry(built.root(), 'IC-52'))
+    const onHolidaySettings = glyphBoxOf(iconEntry(built.root(), 'IC-52'))
 
-    expect(onRoster).toEqual(onHelp)
-    expect(pixelsOf(onRoster.width)).toBeCloseTo(S_138.px * S_235, 4)
-    expect(pixelsOf(onRoster.height)).toBeCloseTo(S_138.px * S_235, 4)
+    expect(onHolidaySettings).toEqual(onHelp)
+    expect(pixelsOf(onHolidaySettings.width)).toBeCloseTo(S_138.px * S_235, 4)
+    expect(pixelsOf(onHolidaySettings.height)).toBeCloseTo(S_138.px * S_235, 4)
   })
 })
 

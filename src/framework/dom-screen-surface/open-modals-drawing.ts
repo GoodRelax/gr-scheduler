@@ -17,6 +17,7 @@ import {
   IMPORT_REPORT_DISMISS_ATTRIBUTE,
   NOT_STORED_EXPORT_CHOOSER_SIZES,
   NOT_STORED_HELP_SIZES,
+  NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES,
   NOT_STORED_ICON_SIZES,
   PAINT,
   REPORT_REASON_ATTRIBUTE,
@@ -42,6 +43,7 @@ import type { TextEntryControl } from './field-editing'
 const CLOSE_SURFACE_ENTRY = 'IC-52'
 const HELP_LANGUAGE_ENTRY = 'IC-128'
 const HELP_SURFACE = 'Help Modal'
+const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
 
 const MODAL_BORDER_PX = 1
 
@@ -376,6 +378,7 @@ export function modalElement(
     'div',
     modal.surface,
     modalFrameStyle(modal) +
+      (modal.surface === HOLIDAY_SETTINGS_SURFACE ? holidaySettingsBoxStyle() : '') +
       ('droppedTaskNames' in modal ? STYLE.importReportBox : ''),
   )
   drawn.setAttribute('role', 'dialog')
@@ -463,6 +466,13 @@ export function modalElement(
 
   drawn.replaceChildren(header, ...(isCloseOnlyTitled(modal) ? [closeOnlyTitledBody(host, body)] : body))
   return { element: drawn, watermarkUnlockEntry, helpColumns }
+}
+
+// see FR-088, RR-1
+// WHY: the letters of the surface scale by S-240 of the host's base letters; the entrance boxes keep FR-029.
+/** @purity pure */
+function holidaySettingsBoxStyle(): string {
+  return `font-size:${NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES['S-240']}em;`
 }
 
 /** @purity pure */

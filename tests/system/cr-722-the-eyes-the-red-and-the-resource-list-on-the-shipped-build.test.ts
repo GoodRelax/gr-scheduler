@@ -40,7 +40,6 @@ test.describe('CR-722 the manuscript these cases are driven by', () => {
 
 const roleOf = (id: string): string => `[data-role="${bare(rowOf(specTable('T-103'), id).cells[0] ?? '')}"]`
 const PANEL = roleOf('U-64')
-const REPORT = roleOf('U-66')
 const RESOURCE_LIST = roleOf('U-49')
 const BAND = roleOf('U-67')
 const ICON = (id: string): string => rowOf(specTable('T-109'), id).id

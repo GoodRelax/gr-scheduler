@@ -92,14 +92,6 @@ export const ALL_SHOWN: TableVisibility = { hiddenKeys: [], isUnassignedHidden: 
 
 export const visibility = (part: Partial<TableVisibility>): TableVisibility => ({ ...ALL_SHOWN, ...part })
 
-// WHY: section 5.1 names the arguments but not whether a table is passed bare or inside its session; this value reads as both.
-const table = (held: TableVisibility): TableVisibility => ({ ...held, visibility: held }) as unknown as TableVisibility
-
-// WHY: section 5.1 does not say whether a uid collection is an array or a set; this value answers includes, has and iteration.
-export function uids(list: readonly number[]): readonly number[] {
-  return Object.assign([...list], { has: (uid: number): boolean => list.includes(uid), size: list.length })
-}
-
 export interface Tables {
   readonly search?: TableVisibility
   readonly report?: TableVisibility
@@ -112,12 +104,12 @@ export interface Tables {
 export function drawn(tables: Tables, schedule: Schedule = SCHEDULE): readonly number[] | null {
   const made = drawnTaskUidsOf(
     schedule,
-    table(tables.search ?? ALL_SHOWN),
-    table(tables.report ?? ALL_SHOWN),
-    tables.reportTaskUids === undefined ? null : tables.reportTaskUids === null ? null : uids(tables.reportTaskUids),
-    table(tables.resourceList ?? ALL_SHOWN),
-    uids(tables.created ?? []),
-  ) as Iterable<number> | null
+    tables.search ?? ALL_SHOWN,
+    tables.report ?? ALL_SHOWN,
+    tables.reportTaskUids === undefined || tables.reportTaskUids === null ? null : new Set(tables.reportTaskUids),
+    tables.resourceList ?? ALL_SHOWN,
+    new Set(tables.created ?? []),
+  )
   return made === null ? null : [...made].sort((a, b) => a - b)
 }
 

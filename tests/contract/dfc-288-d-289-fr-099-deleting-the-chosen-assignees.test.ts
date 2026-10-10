@@ -498,8 +498,9 @@ function rosterWith(chosen: readonly number[], language: DisplayLanguage = 'ja')
   return built
 }
 
-const rosterOf = (view: ScreenView): any =>
-  (view.openModal as any)?.surface === surfaceOf('IC-66') ? (view.openModal as any) : null
+// ⚠️ CR-722: the Resource List is a table window (FR-099 table T-370), drawn from
+// ScreenView.resourceList, no longer an open surface (S-99g).
+const rosterOf = (view: ScreenView): any => view.resourceList ?? null
 
 const namesOf = (document: Document, of: 'tasks' | 'resources'): readonly (string | null)[] =>
   ((document as any).schedule[of] as { name: string | null }[]).map((one) => one.name)
@@ -563,9 +564,10 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
 
     const roster = rosterOf(built.view())
     expect(roster, '表 T-109 IC-62 did not open the Resource List').not.toBeNull()
-    expect(
-      (roster.resources as { uid: number }[]).map((one) => one.uid).sort((a, b) => a - b),
-    ).toEqual([ANNA, BORIS])
+    // ⭐ 表 T-370 RO-4 / RO-5: the resources in document order, then the (Unassigned) row.
+    const keys = (roster.rows as { key: number | string }[]).map((one) => one.key)
+    expect(keys.filter((key) => typeof key === 'number').sort((a, b) => (a as number) - (b as number))).toEqual([ANNA, BORIS])
+    expect(keys).toHaveLength(3)
   })
 })
 
