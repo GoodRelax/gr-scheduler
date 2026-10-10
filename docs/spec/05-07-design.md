@@ -248,7 +248,7 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 | --- | --- | --- | --- |
 | SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **39。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **180。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **182。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
@@ -511,8 +511,9 @@ src/
 | UF-123 | `SingleHtmlShell` | `session-effects.ts` | `non-pure` | 状態機械が返した副作用を、返った順に 1 つずつ種類ごとの実行へ渡すこと（`runSessionEffects`）と、その実行の表の型（`EffectRunners` —— 副作用の種類の全数を 1 つ残らず求める。<br>全数は 表 T-280 ・ 表 T-286 ・ 表 T-289 ・ 表 T-290 ・ 表 T-292 ・ 表 T-293 の状態遷移表の升）、まだ結線していない領域の種類の置き場（`unwiredEffect` —— 呼ばれたら投げる。<br>シェルはその領域の出来事を送らないので届かない） | — |
 | UF-188 | `SingleHtmlShell` | `agent-api-relay-link.ts` | `non-pure` | 取次が配ったページで、`Agent API` が有効であり URL の断片に鍵があるあいだだけ、同じ origin の WebSocket で取次へ繋ぎ、届いた呼び出しを `answerRelayedCall` へ渡して答えを返す（表 T-035 の `AG-12` の ② ⑦、`_assets/design-mcp-relay.md` の 3.2） —— 無効になれば閉じる | — |
 | UF-195 | `SingleHtmlShell` | `delay-diagnostics-report-window.ts` | `non-pure` | 遅延診断レポートの窓の入口に答える —— 表と枠の入口は窓の値へ、`IC-108` はクリップボードへ、`IC-140` は `.md` のファイルへ（`01-04-requirements.md` の 表 T-346） | — |
+| UF-200 | `SingleHtmlShell` | `resource-list-window.ts` | `non-pure` | 担当リストのウィンドウの入口に答える —— 表と枠の入口はウィンドウの値へ（`01-04-requirements.md` の 表 T-370） | — |
 | UF-197 | `SingleHtmlShell` | `parent-task-hold.ts` | `non-pure` | 親タスク表示の入切（`S-484`、`IC-141`）と、描く家族の持ち主（`FR-135`）と、混ざった選択の 2 択（表 T-234 の `QN-12`、表 T-351 の `PTL-13`・`PTL-14`）を持つ —— 親の答えは文書が変わったときだけ求め直す | — |
-| UF-198 | `SingleHtmlShell` | `shown-tasks-hold.ts` | `non-pure` | 検索パネルのチェック（`S-494`・`S-495`）を、文書と画面に合わせて保つ（表 T-353） —— 文書から消えたタスクを外し（`TV-2`）、作ったタスクと飛ぶ先を足し（`TV-7`・`SJ-0`）、新しく表示に入ったタスクのタスクグループを展開し（`TV-6`）、文書を置き換えたらスケジュールフィルタを解除し（`TV-9`）、描く集合を絵へ渡し（`TV-1`・`TV-3`）、Agent API の読み書き（`AM-26`・`AM-27`）に応える | — |
+| UF-198 | `SingleHtmlShell` | `shown-tasks-hold.ts` | `non-pure` | 3 つの表の表示の列とスケジュールフィルタ（`S-494`・`S-495`・`S-547`・`S-548`）から日程表に描くタスク（積）を作り、文書と画面に合わせて保つ（表 T-353） —— 文書から消えた行の値を捨て（`TV-2`）、作ったタスクを判定から外し（`TV-7`・`TV-13`）、飛ぶ先を描くものに入れ（`SJ-0`）、「表示」に戻った行のタスクのタスクグループを展開し（`TV-6`）、文書を置き換えたら値を捨ててスケジュールフィルタを解除し（`TV-9`）、描く集合を絵へ渡し（`TV-1`・`TV-3`）、Agent API の読み書き（`AM-26`・`AM-27`）に応える | — |
 | UF-49 | `DomSvgSurface` | `dom-svg-surface.ts` | `non-pure` | `CP-26` | — |
 | UF-50 | `DomInputSource` | `dom-input-source.ts` | `non-pure` | `CP-27` | — |
 | UF-51 | `FileSystemAccessFileStore` | `file-system-access-file-store.ts` | `semi-pure-b` ／ `non-pure` | `CP-28` | — |
@@ -529,15 +530,16 @@ src/
 | UF-63 | `ScreenRenderer` | `task-group-panel.ts` | `pure` | `Task Group Panel` と `Task Group Title Tree`（`FR-085` / `FR-005` / `FR-098`） | `FR-098`（`OW-2`） |
 | UF-64 | `ScreenRenderer` | `properties-panel.ts` | `pure` | `Properties Panel`（`FR-006` / `FR-072`） | `FR-006`（`OW-2`）・`FR-072`（`OW-1`） |
 | UF-65 | `ScreenRenderer` | `command-palette.ts` | `pure` | `Command Palette`（`FR-053` / `FR-083`） | `FR-078`（`OW-2`） |
-| UF-66 | `ScreenRenderer` | `open-modals.ts` | `pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）—— `FR-036` / `FR-074` / `FR-099` / `FR-088` | `FR-036`（`OW-2`）・`FR-074`（`OW-2`）・`FR-099`（`OW-2`） |
+| UF-66 | `ScreenRenderer` | `open-modals.ts` | `pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）—— `FR-036` / `FR-074` / `FR-088` | `FR-036`（`OW-2`）・`FR-074`（`OW-2`） |
 | UF-67 | `ScreenRenderer` | `notices.ts` | `pure` | 通知と確認（`FR-076`。<br>作法は 表 T-037） | `FR-076`（`OW-2`） |
 | UF-68 | `ScreenRenderer` | `dialogue-field.ts` | `pure` | `Dialogue Field`（`FR-066`。<br>順序は 表 T-035 の `AG-11`） | `FR-066`（`OW-2`） |
 | UF-69 | `ScreenRenderer` | `tooltips.ts` | `pure` | ツールチップ（`FR-029` / `FR-037` / `FR-092`） | `FR-037`（`OW-1`） |
 | UF-180 | `ScreenRenderer` | `search-panel.ts` | `pure` | `Search Panel`（`U-64`）の中身 —— タイトルバー・入力欄・出している表とその固定 | `FR-151`（`OW-2`） |
 | UF-181 | `ScreenRenderer` | `search-table-filters.ts` | `pure` | 検索の表に列のフィルタと並べ替えを当て、列ごとの値の一覧を返す（表 T-330 の `SV-7`・`SV-8`） | — |
-| UF-189 | `ScreenRenderer` | `window-box.ts` | `pure` | ウィンドウ（`01-04-requirements.md` の 表 T-335）の箱を、4 つのウィンドウに 1 か所で求める —— 既定と覚えた位置、範囲への収め、最小化と最大化の箱、タイトルバーの帯と縁を引いた後の箱（`WB-8`・`WB-9`、表 T-023d の `GR-24`・`GR-25`） | — |
-| UF-193 | `ScreenRenderer` | `table-window.ts` | `pure` | 表を持つ 2 つのウィンドウ（`Search Panel`・`Delay Diagnostics Report`）に共通の部分 —— 列の見出しと幅、1 つだけ開く列のフィルタとその中身、並べ替え、タイトルバーの入口（表 T-330 の `SV-7`・`SV-8`・`SV-18`、表 T-335 の `WB-7`） | — |
+| UF-189 | `ScreenRenderer` | `window-box.ts` | `pure` | ウィンドウ（`01-04-requirements.md` の 表 T-335）の箱を、5 つのウィンドウに 1 か所で求める —— 既定と覚えた位置、範囲への収め、最小化と最大化の箱、タイトルバーの帯と縁を引いた後の箱（`WB-8`・`WB-9`、表 T-023d の `GR-24`・`GR-25`） | — |
+| UF-193 | `ScreenRenderer` | `table-window.ts` | `pure` | 表を持つ 3 つのウィンドウ（`Search Panel`・`Delay Diagnostics Report`・`Resource List`）に共通の部分 —— 列の見出しと幅、1 つだけ開く列のフィルタとその中身、並べ替え、タイトルバーの入口（表 T-330 の `SV-7`・`SV-8`・`SV-18`、表 T-335 の `WB-7`） | — |
 | UF-194 | `ScreenRenderer` | `delay-diagnostics-report.ts` | `pure` | `Delay Diagnostics Report`（`U-66`）の中身 —— タイトルバー・`IC-140`・`IC-108`・入力欄・まとめ・表 T-347 の表（表 T-346）と、コピーと書き出しの文字列とファイルの名（`RW-6`・`RW-7`） | — |
+| UF-199 | `ScreenRenderer` | `resource-list.ts` | `pure` | `Resource List`（`U-49`）の中身 —— タイトルバー・タイトルバーの下の 1 行（`IC-63` 〜 `IC-66` と入力欄）・表 T-371 の表とその固定（`01-04-requirements.md` の `FR-099` の 表 T-370） | `FR-099`（`OW-2`） |
 | UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） | — |
 | UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38` の残り —— UI パーツを 表 T-337 の重ね順に重ね、記述の変わった UI パーツだけを兄弟に描かせ、画面の点がどの UI パーツのどの入口の上かを答える（`IF-9`）。<br>ヘッダーの高さを測って知らせ、パネルと通知の置き場を決める（`FR-051`）。<br>表示の倍率の告げ（`SE-4`・`SE-5`）を描く。<br>兄弟が共有する語彙 —— 色（表 T-236・`FR-041`）・入口の寸法と見た目（`FR-029`・表 T-237）・見た目の表・UI パーツの名 —— を持つ。<br>⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは兄弟の `UF-104` である** —— `Opened File Name` を `File Saved At` の上に置く。<br>⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と `UF-104` のどちらが正かが読めなくなる | `FR-152`（`OW-1`） |
 | UF-103 | `DomScreenSurface` | `screen-frame-drawing.ts` | `non-pure` | `Panel Divider` の掴み帯と線、`Scrollbars` の溝とつまみを、記述の矩形のとおりに描く（`U-21`・`U-24`・`SC-4`・`GR-22`）。<br>パネルの境の線を記述から引く | — |
@@ -546,7 +548,7 @@ src/
 | UF-106 | `DomScreenSurface` | `properties-panel-drawing.ts` | `non-pure` | `Properties Panel` の欄を、表 T-016 の入力の型ごとの操作子として描く（`U-25`・`FR-006`・`FR-072`）。<br>長い値を折り返して高さを伸ばし、出口の入口を最初の欄の行に置く | — |
 | UF-107 | `DomScreenSurface` | `field-editing.ts` | `non-pure` | 文字入力の欄の編集 —— 焦点を持つ・`Esc` で打つ前へ戻す・`Enter` と欄の外の押しで確定する —— を 表 T-028 の `IN-4`・`IN-6` と `SK-19` に従って扱い、確定した値を欄の行 ID とともに返す（`IF-9`）。<br>欄はプロパティパネルの欄・文書名（`U-27`）・透かし解除の答え（`U-60`）である。<br>入力中かを答え（`IN-5a`）、立っている通知が `Enter` と `Esc` を先に取る（`NT-8`） | — |
 | UF-108 | `DomScreenSurface` | `command-palette-drawing.ts` | `non-pure` | `Command Palette` —— 掴み帯・最小化・群と区切り線 —— を描く（`U-26`・`FR-053`・`GR-19`）。<br>区切り線の太さと間は `S-143` から読む | — |
-| UF-109 | `DomScreenSurface` | `open-modals-drawing.ts` | `non-pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）を、面の種類ごとに描く —— ヘルプ（`FR-036`・表 T-256）・担当リスト（`FR-099`・表 T-257）・書き出しの形式・取り込みの報告（`FR-023`・`U-62`）・設定の欄・透かし解除の問い（`FR-020`）ほか。<br>担当リストの横の送りを `Ctrl` ＋ `Shift` ＋ ホイールで受ける（`RR-3`・`MK-5`） | — |
+| UF-109 | `DomScreenSurface` | `open-modals-drawing.ts` | `non-pure` | 重ねて開く面（定義は 表 T-028 の `IN-4`）を、面の種類ごとに描く —— ヘルプ（`FR-036`・表 T-256）・休日の設定（`FR-088`・表 T-257）・書き出しの形式・取り込みの報告（`FR-023`・`U-62`）・設定の欄・透かし解除の問い（`FR-020`）ほか。<br>休日の設定の一覧の横の送りを `Ctrl` ＋ `Shift` ＋ ホイールで受ける（`RR-3`・`MK-5`） | — |
 | UF-110 | `DomScreenSurface` | `notices-drawing.ts` | `non-pure` | 通知と確認を、表 T-037 の作法で描く（`FR-076`・`NT-1`・`NT-7`・`NT-8`）。<br>確認の一覧と答えを区切り線の上に置く（`CQ-2`・`CQ-4`・表 T-258） | — |
 | UF-111 | `DomScreenSurface` | `dialogue-field-drawing.ts` | `non-pure` | `Dialogue Field` の発話を描き、`Enter` で確定した発話を返す（`FR-066`・`AG-11`）。<br>確定の時刻は `AT-129` の綴りで書く | — |
 | UF-112 | `DomScreenSurface` | `tooltips-drawing.ts` | `non-pure` | ツールチップを、指す物の下に置いて描く（`IN-3`・`EZ-2`）。<br>指す物は UI パーツごとの錨の表から引く | — |

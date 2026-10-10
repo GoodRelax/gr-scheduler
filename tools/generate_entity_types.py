@@ -1486,11 +1486,16 @@ NOT_STORED_TARGETS = {
     # CR-721: S-425 and the eleven measured columns (S-468 .. S-470, S-474,
     # S-475, S-477, S-479, S-480, S-500 .. S-502) hold the rule 測る (SV-18)
     # and no number, so they left this constant: the surface measures them.
+    # CR-722: S-549 and S-552, the default widths of RQ-2 and RQ-5 of the
+    # Resource List's table (RO-9 of table T-370), join for the same reason
+    # S-475 .. S-481 did: the window is drawn as the search panel's sibling.
+    # S-550 / S-551 hold the rule to measure (SV-18) and stay out. S-496 now names the Visibility
+    # column of all three tables (SQ-10, DT-8, RQ-1).
     'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422', 'S-465',
                                        'S-466', 'S-467',
                                        'S-471', 'S-472', 'S-473',
                                        'S-496', 'S-476', 'S-478',
-                                       'S-481'],
+                                       'S-481', 'S-549', 'S-552'],
                                       DRAWN_WITH_WHERE_IT_STANDS),
     # CR-558: S-372 is the side of the square a selected highlight box's grab
     # points are drawn as. They are drawn in ZO-10 beside the selection frame,
@@ -1964,7 +1969,7 @@ COLOUR_TARGETS = {
                        'S-336', 'S-337', 'S-464', 'S-493', 'S-165',
                        'S-503', 'S-161', 'S-162', 'S-326', 'S-327',
                        'S-385', 'S-386', 'S-387', 'S-388', 'S-389',
-                       'S-390'],
+                       'S-390', 'S-543', 'S-544'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labelled "ruler and task groups" and gives ScreenRenderer no
@@ -2246,11 +2251,14 @@ def search_column_width_rows_block():
     """Each search / report table column -> the row of table T-206 that holds
     its default width (CR-660, SV-18 and RW-9).
 
-    The rows S-466 .. S-481 and S-500 .. S-502 each name their column in their
-    value cell (`SQ-n` of table T-331 or `DT-n` of table T-347, the last such
-    name in the cell). The columns are not in the rows' order (SQ-11 .. SQ-13
-    came later), so the surface reads this map instead of counting places, and
-    a hand-kept copy of it would restate the manuscript.
+    The rows S-466 .. S-481, S-500 .. S-502 and S-549 .. S-552 each name their
+    column in their value cell (`SQ-n` of table T-331, `DT-n` of table T-347 or
+    `RQ-n` of table T-371). The columns are not in the rows' order (SQ-11 ..
+    SQ-13 came later), so the surface reads this map instead of counting
+    places, and a hand-kept copy of it would restate the manuscript.
+    CR-722: S-496 names the Visibility column of all three tables (SQ-10,
+    DT-8, RQ-1) and holds one width for the three, so a row maps EVERY column
+    its cell names; a row that names one column maps that one, as before.
     """
     names = NOT_STORED_TARGETS['NOT_STORED_SEARCH_PANEL_SIZES'][0]
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
@@ -2263,9 +2271,8 @@ def search_column_width_rows_block():
     for row_id in names:
         value = by_id.get(row_id, {}).get('value', {})
         text = value.get('ja', '') if isinstance(value, dict) else ''
-        found = re.findall(r'`((?:SQ|DT)-\d+)`', text)
-        if found:
-            got.append((found[-1], row_id))
+        for column in re.findall(r'`((?:SQ|DT|RQ)-\d+)`', text):
+            got.append((column, row_id))
     columns = [column for column, _row in got]
     if len(set(columns)) != len(columns):
         raise SystemExit('two rows of table T-206 name the same column: %s' % columns)

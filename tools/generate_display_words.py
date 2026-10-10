@@ -345,12 +345,26 @@ FIT_SPAN_FIELD_PARTS = ('currentName', 'currentValue', 'copyCurrent')
 # labels of the two date inputs a date column's filter offers (SV-7). CR-721
 # renamed the two SQ-10 values to showValue / hideValue (Show / Hide) and
 # retired the picture caption: IX-11 no longer writes the band's words.
+# CR-722: the band now names the tables whose Schedule Filter is on (TV-11),
+# so its words became scheduleFilterBar with a {tables} slot, the separator
+# between two table names became tableNameSeparator, its word entrance
+# became scheduleFilterOff (it turns every table's Schedule Filter off, TV-8),
+# and the reason IC-143 is disabled became nothingHidden (TV-5).
 SEARCH_COLUMN_ROW = re.compile(r'^\| (SQ-\d+[a-z]?) \|')
 SEARCH_COLUMN_TABLE = 'T-331'
 PLAN_ACTUAL_STATE_ROW = re.compile(r'^\| (PS-\d+[a-z]?) \|')
 PLAN_ACTUAL_STATE_TABLE = 'T-019a'
 SEARCH_PANEL_PARTS = ('blank', 'noName', 'filterSearch', 'dateFrom', 'dateTo', 'showValue',
-                      'hideValue', 'nothingChecked', 'showOnlyCheckedBar', 'showAll')
+                      'hideValue', 'nothingHidden', 'scheduleFilterBar', 'scheduleFilterOff',
+                      'tableNameSeparator')
+# CR-722: the Resource List window (FR-099). Its column headings are READ from
+# table T-371, the move `delayReportColumns` makes with table T-347. The
+# name of the row that holds the tasks with no resource (RO-5) and the
+# separator between two task names in one cell (RQ-5) are no table's rows,
+# so they are HELD HERE, the same move as SEARCH_PANEL_PARTS. KEYS, not words.
+RESOURCE_LIST_COLUMN_ROW = re.compile(r'^\| (RQ-\d+[a-z]?) \|')
+RESOURCE_LIST_COLUMN_TABLE = 'T-371'
+RESOURCE_LIST_PARTS = ('unassigned', 'taskSeparator')
 # CR-623: the Open Chooser (U-56, row OP-16 of table T-024a). The labels of
 # its file line and document-title line, and the word beside its cancel row,
 # are no table's rows, so they are HELD HERE, the same move as
@@ -692,6 +706,10 @@ def roster():
                              table_rows(REL_REQUIREMENTS, PLAN_ACTUAL_STATE_ROW,
                                         PLAN_ACTUAL_STATE_TABLE)],
         'searchPanel': list(SEARCH_PANEL_PARTS),
+        'resourceListColumns': [row[0] for row in
+                                table_rows(REL_REQUIREMENTS, RESOURCE_LIST_COLUMN_ROW,
+                                           RESOURCE_LIST_COLUMN_TABLE)],
+        'resourceList': list(RESOURCE_LIST_PARTS),
         'delayReportColumns': [row[0] for row in
                                table_rows(REL_REQUIREMENTS, DELAY_REPORT_COLUMN_ROW,
                                           DELAY_REPORT_COLUMN_TABLE)],
@@ -779,6 +797,8 @@ SHAPE = {
     'searchColumns': ('rowId', ('text',)),
     'planActualStates': ('rowId', ('text',)),
     'searchPanel': ('part', ('text',)),
+    'resourceListColumns': ('rowId', ('text',)),
+    'resourceList': ('part', ('text',)),
     'delayReportColumns': ('rowId', ('text',)),
     'delayReportStatuses': ('rowId', ('text',)),
     'delayReportSummary': ('part', ('text',)),
@@ -897,7 +917,8 @@ def build(doc, keys_by_row):
                     'rowMinHeightField', 'taskGroupPanelWidthField',
                     'themeHues',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
-                    'planActualStates', 'searchPanel', 'parentTaskChoice',
+                    'planActualStates', 'searchPanel', 'resourceListColumns',
+                    'resourceList', 'parentTaskChoice',
                     'delayReportColumns',
                     'delayReportStatuses', 'delayReportSummary',
                     'delayReportMarkdown', 'delayReportReasons',

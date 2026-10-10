@@ -44,7 +44,7 @@ import { specTable, unbroken, type SpecRow } from './spec-table'
 const T_331_ORDER = '列は、表ごとに本表の行の順に左から並べる'
 const T_347_ORDER = '欄は本表の行の順に左から並べる'
 const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク の 4 列）、コメントボックスの表は `SQ-7` までを左に固定し'
-const RW_10_FIXED = '横は `DT-1`・`DT-3`・`DT-4`（ステータス・進捗・タスク —— 表 T-347 の並びで左の 3 列）を左に固定し'
+const RW_10_FIXED = '横は `DT-8`・`DT-1`・`DT-3`・`DT-4`（表示・ステータス・進捗・タスク —— 表 T-347 の並びで左の 4 列）を左に固定し'
 const FR_134_COLUMNS = '窓には、上から、まとめ・タスクの表を置き、表の欄は 表 T-347 に従うこと（MUST）'
 const SV_7_CONTROLS_FIRST = '⭐ 中身は、上から操作の段と値の一覧である。'
 const SV_7_CONTROLS =
@@ -353,7 +353,7 @@ describe('CR-660 -- the clauses this file is driven by', () => {
   it('premise: the two tables hold the rows the CR-660 cases walk', () => {
     expect(TASK_COLUMNS).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-6'])
     expect(COMMENT_COLUMNS).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
-    expect(REPORT_COLUMNS).toEqual(['DT-1', 'DT-3', 'DT-4', 'DT-2', 'DT-5', 'DT-6', 'DT-7'])
+    expect(REPORT_COLUMNS).toEqual(['DT-8', 'DT-1', 'DT-3', 'DT-4', 'DT-2', 'DT-5', 'DT-6', 'DT-7'])
   })
 })
 
@@ -393,10 +393,10 @@ describe('T-331 / T-347 -- the row order of each table is its column order (area
     expect(viewOf(COMMENT_PANEL).columns.filter((one) => one.isFixed).map((one) => one.column)).toEqual(['SQ-7'])
   })
 
-  it('RW-10: the report fixes DT-1, DT-3 and DT-4 (the left three of T-347) and no other', () => {
+  it('RW-10: the report fixes DT-8, DT-1, DT-3 and DT-4 (the left four of T-347) and no other', () => {
     const fixed = reportViewOf(OPENED_DELAY_DIAGNOSTICS_REPORT).columns.filter((one) => one.isFixed).map((one) => one.column)
     expect(fixed).toEqual(REPORT_COLUMNS.slice(0, REPORT_COLUMNS.indexOf('DT-4') + 1))
-    expect(fixed).toEqual(['DT-1', 'DT-3', 'DT-4'])
+    expect(fixed).toEqual(['DT-8', 'DT-1', 'DT-3', 'DT-4'])
   })
 
   it('SV-6: the drawn tasks table marks the headings of the fixed columns, ending at the task column', () => {

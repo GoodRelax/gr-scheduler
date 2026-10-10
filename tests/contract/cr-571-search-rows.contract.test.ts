@@ -215,7 +215,7 @@ describe('FR-151 -- the clauses these cases are driven by', () => {
   it('table T-331 holds SQ-1..SQ-9, each on the table the seam gives it a field on', () => {
     const all = specTable('T-331').rows
     expect(all[0]?.id).toBe('SQ-10')
-    expect(cellOf('T-331', 'SQ-10', '値')).toContain('`TV-2` の集合')
+    expect(cellOf('T-331', 'SQ-10', '値')).toContain('この表でのそのタスクの行の値（表 T-353 の `TV-2`）')
     const rows = all.filter((row) => row.id !== 'SQ-10')
     expect(rows.map((row) => row.id)).toEqual(Object.keys(T_331_FIELDS))
     for (const row of rows) expect(unbroken(row.by['表'] ?? ''), row.id).toBe(T_331_FIELDS[row.id]?.table)

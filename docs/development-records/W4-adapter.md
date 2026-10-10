@@ -792,6 +792,7 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | UF-189 | `window-box.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-193 | `table-window.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-194 | `delay-diagnostics-report.ts` | 内部 | pure |  | 🔧 実装済 |
+| UF-199 | `resource-list.ts` | 内部 | pure |  | 🔧 空のユニット（`CR-722` の波 1 が置いた。中身は波 2 が書く） |
 
 ### `svg-renderer` —— SvgRenderer（PI-19）
 
