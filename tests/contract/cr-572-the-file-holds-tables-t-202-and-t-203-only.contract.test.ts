@@ -34,7 +34,8 @@ const KEY_COLUMNS = ['キー', '名前', '値', '色']
 /** @purity pure */
 function keyIn(cell: string): string | null {
   // WHY: a T-206 cell is prose that may name another table's key; a key is only the span a cell opens with.
-  const found = /^`([A-Za-z][A-Za-z0-9]*)(?:\.[A-Za-z0-9]+)?`/.exec(cell.trim())
+  // WHY: CR-723 -- a row may name a path (`tableViews.searchPanel.sort`); the key is its first segment.
+  const found = /^`([A-Za-z][A-Za-z0-9]*)(?:\.[A-Za-z0-9]+)*`/.exec(cell.trim())
   return found === null ? null : (found[1] as string)
 }
 
@@ -54,7 +55,8 @@ const NOT_STORED_TABLES: readonly string[] = SETTINGS_TABLES.filter(
   (one) => one.caption.includes(NOT_STORED_MARK) || one.id === VIEWER_TABLE,
 ).map((one) => one.id)
 
-const STORED_KEYS: readonly string[] = STORED_TABLES.flatMap((id) => keysOfTable(id))
+// WHY: CR-723 -- the 13 rows S-560..S-572 each name `tableViews.<table>.<key>`; documentSettings holds the one key `tableViews`, so a key counts once.
+const STORED_KEYS: readonly string[] = [...new Set(STORED_TABLES.flatMap((id) => keysOfTable(id)))]
 
 const NOT_STORED_KEYS: ReadonlySet<string> = new Set(NOT_STORED_TABLES.flatMap((id) => keysOfTable(id)))
 

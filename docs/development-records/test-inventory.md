@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 299 | 3355 | 3 | 4 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 302 | 3420 | 3 | 4 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 80 | 509 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 81 | 516 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 181 | 3880 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 580 | 7854 | 6 | 8 | 12 | 2 |
+| **all** | | | 584 | 7926 | 6 | 8 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -290,7 +290,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-571-search-panel-view.test.ts` | 34 | FR-038, FR-151 | - | T-019a, T-206, T-330, T-331, T-333, T-335 | IC-52, IC-117, IC-118, IC-119, IC-122, IC-127, IC-129, IC-130, IC-131, IC-143, IC-153, S-421, S-422, S-429, S-442, S-496, SK-24, SQ-1, SQ-2, SQ-3, SQ-4, SQ-5, SQ-6, SQ-7, SQ-8, SQ-9, SQ-10, SQ-11, SV-1, SV-2, SV-3, SV-6, SV-9, SV-12, SV-13, SV-16, SV-17, SV-18, WB-4 | - | - | - | - |
 | `tests/contract/cr-571-search-rows.contract.test.ts` | 22 | FR-004, FR-151 | - | T-019a, T-330, T-331 | AT-53, AT-54, AT-55, AT-114, PI-1, SQ-1, SQ-2, SQ-3, SQ-4, SQ-5, SQ-6, SQ-7, SQ-8, SQ-9, SV-4, SV-8, TC-12 | - | - | - | - |
 | `tests/contract/cr-571-search-table-filters.contract.test.ts` | 12 | FR-151 | - | T-019a, T-330, T-331 | SV-7, SV-8, UF-181 | - | - | - | - |
-| `tests/contract/cr-572-the-file-holds-tables-t-202-and-t-203-only.contract.test.ts` | 8 | FR-024, FR-063 | - | T-202, T-203, T-206 | - | - | - | - | - |
+| `tests/contract/cr-572-the-file-holds-tables-t-202-and-t-203-only.contract.test.ts` | 8 | FR-024, FR-063 | - | T-202, T-203, T-206 | S-560, S-572 | - | - | - | - |
 | `tests/contract/cr-576-two-hint-waits-and-the-dismissed-hint.contract.test.ts` | 14 | - | - | T-212 | EZ-6, IN-3, IN-4, S-124, S-439, SD-5 | - | - | - | - |
 | `tests/contract/cr-576-zero-fade-ends-are-flat.contract.test.ts` | 8 | FR-016 | - | T-012a | FD-1, FD-2, FD-4, FD-5, FD-6a, FD-6b, LF-6, S-5, S-43, S-44 | - | - | - | - |
 | `tests/contract/cr-577-a-vertical-zoom-in-below-the-floor-always-changes-the-picture.test.ts` | 17 | FR-003, FR-016, FR-018, FR-055, FR-094 | - | T-036, T-262, T-329 | IC-10, IC-15, MK-2, MK-4, OP-10, S-4, S-5, S-6, S-53, S-54, S-172, S-173, ZE-1, ZE-3, ZE-5, ZE-6 | - | DFC-1024 (flaky) | - | - |
@@ -383,7 +383,10 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-722-ro-rq-the-resource-list-is-a-table-window.contract.test.ts` | 9 | FR-099 | - | T-370, T-371 | IC-52, IC-129, RO-4, RO-5, RO-7, RQ-1, RQ-2, RQ-5, SV-12, SV-14, U-49 | - | - | - | - |
 | `tests/contract/cr-722-tv-1-tv-2-tv-13-the-drawn-set-is-the-product-of-the-tables.contract.test.ts` | 20 | FR-151 | - | T-353 | IC-143, TV-1, TV-2, TV-5, TV-7, TV-13 | - | - | - | - |
 | `tests/contract/cr-722-tv-11-the-schedule-filter-bar-names-the-tables.contract.test.ts` | 6 | FR-151 | - | T-353 | TV-11, U-67 | - | - | - | - |
-| `tests/contract/cr-722-tv-5-tv-8-dt-8-each-table-holds-its-own-visibility.contract.test.ts` | 15 | FR-134, FR-151 | - | T-346, T-347, T-353 | DT-8, IC-143, RW-10, TV-2, TV-5, TV-6, TV-8 | - | - | - | - |
+| `tests/contract/cr-722-tv-5-tv-8-dt-8-each-table-holds-its-own-visibility.contract.test.ts` | 15 | FR-134, FR-151 | - | T-346, T-347, T-353 | DT-8, IC-143, RW-10, S-560, S-561, S-564, S-565, S-568, S-569, TV-2, TV-5, TV-6, TV-8 | - | - | - | - |
+| `tests/contract/cr-723-fr-151-op-18-un-20-the-table-views-are-in-the-document.contract.test.ts` | 22 | FR-099, FR-134, FR-151 | - | T-024a, T-027, T-108, T-203, T-206, T-330, T-335, T-353, T-372 | CD-1, CD-5, CM-92, OP-6, OP-7, OP-18, S-420, S-445, S-546, S-560, S-564, S-567, S-568, S-572, SV-14, TV-6, TV-8, TV-9, UN-14, UN-20, WB-2, WB-6 | - | - | - | - |
+| `tests/contract/cr-723-s-560-s-572-op-18-the-saved-views-come-back.contract.test.ts` | 23 | FR-024, FR-151 | - | - | OP-6, OP-18, S-560, S-572, TV-9 | - | - | - | - |
+| `tests/contract/cr-723-un-20-cm-92-cd-1-cd-5-a-view-change-is-an-edit-and-one-undo-step.contract.test.ts` | 20 | FR-151 | - | - | CD-1, CD-5, CM-92, TV-2, UN-20 | - | - | - | - |
 | `tests/contract/cr-727-op-17-the-drop-cue-drawn.contract.test.ts` | 19 | FR-087, FR-152 | - | T-024a, T-337 | OP-17, PI-19, S-151, S-214, S-553, U-32, U-68, UZ-1 | - | - | - | - |
 | `tests/contract/cr-727-op-17-the-drop-cue.contract.test.ts` | 17 | FR-087 | VT-2 | T-024a, T-103, T-280, T-337 | IC-1, OP-2, OP-17, S-214, S-553, U-32, U-68, UZ-1 | - | - | - | - |
 | `tests/contract/cr-727-op-17-the-shell-shows-the-cue-only-while-an-open-is-taken.test.ts` | 10 | FR-087 | VT-2 | T-024a, T-280, T-290 | OP-2, OP-8, OP-17, QN-5, U-68 | - | - | - | - |
@@ -611,6 +614,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-721-sv-7-an-outside-press-closes-the-filter-and-is-answered.test.ts` | 7 | - | - | T-330 | IC-122, SV-7 | - | - | - | - |
 | `tests/system/cr-721-sv-7-ic-153-the-green-heading-and-the-clear-entry.test.ts` | 8 | - | - | T-109, T-236, T-330, T-346 | IC-153, RW-2, S-146, S-183, SQ-1, SQ-3, SQ-4, SQ-11, SV-1, SV-7 | - | - | - | - |
 | `tests/system/cr-722-the-eyes-the-red-and-the-resource-list-on-the-shipped-build.test.ts` | 11 | FR-099, FR-151 | - | T-109, T-236, T-237, T-353, T-370, T-371 | AM-26, AM-27, EN-5, EN-8, IC-62, IC-117, IC-143, RO-6, S-543, S-544, SJ-0, SQ-10, SV-4, SV-9, TV-8, TV-11, TV-12 | - | - | - | - |
+| `tests/system/cr-723-the-views-are-saved-and-the-windows-come-back-minimized-on-the-shipped-build.test.ts` | 7 | FR-100 | - | T-109, T-236 | AM-27, OP-18, S-445, S-543, S-560, S-564, S-572, SQ-10, SV-4, TV-8, TV-12, UN-20, WB-2 | - | - | - | - |
 | `tests/system/cr-727-op-17-the-drag-over-the-built-page.test.ts` | 9 | - | - | - | FT-1, OP-2, OP-17, S-553, U-32, UZ-1 | - | - | - | - |
 | `tests/system/cr-728-a-search-jump-lands-in-the-middle-and-marks-its-target.test.ts` | 12 | FR-134 | - | T-103, T-109, T-206, T-303, T-332 | AM-16, EL-17, PR-37, PR-38, PTL-16, S-554, S-557, S-558, SJ-1, SJ-2, SJ-5, SJ-6, SJ-9, SJ-10 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1 | - | - | - | - |

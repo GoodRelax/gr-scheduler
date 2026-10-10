@@ -74,7 +74,8 @@ const SV_3_ONE = '表は一度に 1 つだけ出す。'
 const SV_12_ONLY_TITLE = '`FR-036` の 表 T-335 の `WB-2`・`WB-5`（入口は `IC-129`）'
 
 const SV_14_ESC = '列のフィルタが開いていれば、`Esc` はまずフィルタだけを閉じ、次の `Esc` でパネルを閉じる。'
-const SV_14_REMEMBER = '語・表の切り替え・フィルタ・並べ替え・列の幅・位置・大きさは、同じ画面のあいだ覚え、開き直したときに戻す'
+const SV_14_REMEMBER = '語・表の切り替え・列の幅・位置・大きさは、同じ画面のあいだ覚え、開き直したときに戻す'
+const SV_14_STAYS = '表示の列の値（`SQ-10`）・列のフィルタ・並べ替えは、閉じても残る —— 文書が持つ'
 
 const IN_4_ORDER =
   '消費する階層は 出ている通知 → 確定していないその場の編集 → 開いている面 → 進行中のドラッグ・引きかけの矢印 → 開いているウィンドウ → プロパティパネル → 構え → 選択 → `Dual Cursor` モード → 出ている説明 → 全画面表示 の順とすること（MUST）'
@@ -376,6 +377,7 @@ describe('FR-151 / T-330 / T-331 / T-109 / T-028 -- the clauses this file is dri
     expect(say('SV-12')).toContain(SV_12_ONLY_TITLE)
     expect(say('SV-14')).toContain(SV_14_ESC)
     expect(say('SV-14')).toContain(SV_14_REMEMBER)
+    expect(say('SV-14')).toContain(SV_14_STAYS)
     expect(cellOf('T-028', 'IN-4', '作法')).toContain(IN_4_ORDER)
     expect(cellOf('T-028', 'IN-4', '作法')).toContain(IN_4_SEARCH)
     expect(REQUIREMENTS).toContain(FR_151_NOT_SEARCHED)

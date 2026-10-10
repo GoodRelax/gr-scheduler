@@ -14,15 +14,15 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const TV_12_RED =
   'スケジュールフィルタを掛けている表の `IC-143` と、その表を開く起動アイコン（検索パネルは `IC-117`、遅延診断レポートは `IC-107`、担当リストはコマンドパレットの `IC-62`）を、`FR-029` の 表 T-237 の `EN-8` で描くこと（MUST）'
 const TV_12_NOT_RED = '⛔ スケジュールフィルタを掛けていない表の入口を赤くしてはならない（MUST NOT）'
-const FR_099_NOT_SAVED =
-  '⛔ ウィンドウの状態（出ているか・位置・大きさ・語・列のフィルタ・並べ替え・列の幅・選択）を文書に保存してはならない（MUST NOT）'
+const FR_099_NOT_SAVED = '⛔ ウィンドウの状態（出ているか・位置・大きさ・語・列の幅・選択）を文書に保存してはならない（MUST NOT）'
+const FR_099_SAVED = '⚠️ 保存する側の値は `FR-151` が持つ —— 担当リストの表は 表 T-203 の `S-568` 〜 `S-572`。'
 const EN_8_ROW = 'その入口の表のスケジュールフィルタを掛けている（`FR-151` の 表 T-353 の `TV-12` —— その表の `IC-143` と起動アイコン）'
 const EN_TOP_WINS = '⛔ **1 つの入口に 2 行が同時に当たるときは、上の行が勝つこと（MUST）**'
 const SJ_0_ONLY_THAT_ROW = 'スケジュールフィルタを掛けていてそのタスクを「表示」としない検索の表とレポートの表で、そのタスクの行だけを「表示」にし、担当リストの表がそのタスクを「表示」としないときは担当リストの表のスケジュールフィルタを解除してから、`SJ-2` 以降を行う。'
 const SJ_0_KEEPS_HIDE = '担当の行の表示の列の値は変えない —— その担当のほかのタスクまで戻さない（利用者が定めた）。'
 const TV_8_CLOSE = 'その表のウィンドウを閉じる（検索パネルは 表 T-330 の `SV-14`、遅延診断レポートの窓は 表 T-346 の `RW-1`、担当リストのウィンドウは 表 T-370 の `RO-1`）。'
 
-const CLAUSES = [TV_12_RED, TV_12_NOT_RED, FR_099_NOT_SAVED, EN_TOP_WINS, SJ_0_ONLY_THAT_ROW, SJ_0_KEEPS_HIDE, TV_8_CLOSE]
+const CLAUSES = [TV_12_RED, TV_12_NOT_RED, FR_099_NOT_SAVED, FR_099_SAVED, EN_TOP_WINS, SJ_0_ONLY_THAT_ROW, SJ_0_KEEPS_HIDE, TV_8_CLOSE]
 
 test.describe('CR-722 the manuscript these cases are driven by', () => {
   for (const clause of CLAUSES) {
@@ -319,7 +319,7 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
     }
   })
 
-  test(`FR-099 (MUST NOT): ${FR_099_NOT_SAVED.slice(-30)} -- nor the Resource List's Visibility and eye`, async () => {
+  test(`FR-099 (MUST NOT): ${FR_099_NOT_SAVED.slice(-30)} -- only the Resource List's Visibility and eye are saved (${FR_099_SAVED.slice(-24)})`, async () => {
     const stage = await opened()
     try {
       const { page } = stage
@@ -330,8 +330,10 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       expect((await readShown(page)).tables, 'premise: the eye is on').toEqual(['resourceList'])
       const during = JSON.parse(await saveDocument(page)) as Record<string, unknown>
       expect(during['schedule']).toEqual(before['schedule'])
-      expect(during['documentSettings']).toEqual(before['documentSettings'])
-      expect(JSON.stringify(during)).not.toMatch(/resourceList|Resource List|hiddenKeys|isApplied|visibility/i)
+      const settingsOf = (saved: Record<string, unknown>): Record<string, unknown> => saved['documentSettings'] as Record<string, unknown>
+      expect(settingsOf(during)['tableViews']).toMatchObject({ resourceList: { isScheduleFilterApplied: true, hiddenResourceUids: [2002] } })
+      expect({ ...settingsOf(during), tableViews: null }, 'S-546: nothing else of the window is saved').toEqual({ ...settingsOf(before), tableViews: null })
+      expect(JSON.stringify(during)).not.toMatch(/Resource List|hiddenKeys|isApplied|"visibility"/i)
     } finally {
       await stage.close()
     }
