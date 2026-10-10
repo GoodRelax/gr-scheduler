@@ -443,9 +443,6 @@ const PROPERTIES_PANEL_SURFACE = 'Properties Panel'
 // see U-64, FR-151
 const SEARCH_PANEL_SURFACE = 'Search Panel'
 
-// see U-66, FR-134
-const REPORT_SURFACE = 'Delay Diagnostics Report'
-
 // see SJ-3, SV-13
 const REPORT_RESTORE_ENTRY: IconId = 'IC-131'
 
@@ -1669,7 +1666,6 @@ function isFilterPressedOutside(on: ScreenPart | null, surface: string, open: st
 }
 
 // see SV-7, RW-1
-// WHY: only the filter closes; the press itself goes on to what it landed on (JDG-1808).
 /** @purity pure */
 function windowPlacesAfterOutsidePress(session: ScreenSession, held: WindowPlaces, on: ScreenPart | null): WindowPlaces {
   const panel = held.searchPanel
@@ -1677,7 +1673,7 @@ function windowPlacesAfterOutsidePress(session: ScreenSession, held: WindowPlace
     ? (searchPanelWithFilterClosed(session, panel) ?? panel)
     : panel
   const report = held.delayDiagnosticsReport
-  const isReportClosing = report !== null && isFilterPressedOutside(on, REPORT_SURFACE, report.panel.filters.open)
+  const isReportClosing = report !== null && isFilterPressedOutside(on, DELAY_DIAGNOSTICS_REPORT_SURFACE, report.panel.filters.open)
   const delayDiagnosticsReport = isReportClosing ? (delayDiagnosticsReportWithFilterClosed(report) ?? report) : report
   if (searchPanel === panel && delayDiagnosticsReport === report) return held
   return { ...held, searchPanel, delayDiagnosticsReport }

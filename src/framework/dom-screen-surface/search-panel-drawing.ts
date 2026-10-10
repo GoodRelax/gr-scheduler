@@ -870,12 +870,29 @@ export function tableKeyOf(table: DrawnTable, fontPx: number, filterMenu: unknow
   return JSON.stringify([table.rows, table.columns, fontPx, filterMenu])
 }
 
+// see SV-6, SV-7, SV-9
+// TRAP: the typed filter word goes back before the filter is placed; it narrows the list the placing measures.
+/** @purity non-pure */
+function placeDrawnPanel(
+  layer: HTMLElement,
+  drawn: HTMLElement,
+  panel: TableWindowView,
+  keepFilterSearch: (menu: TableWindowView['filterMenu']) => void,
+): void {
+  layer.replaceChildren(drawn)
+  const tableBox = drawn.lastElementChild ?? null
+  if (panel.shown !== 'minimised' && tableBox !== null) pinFixedColumns(tableBox)
+  keepFilterSearch(panel.filterMenu)
+  placeFilterMenu(drawn)
+}
+
 // see SV-18, RW-9, S-425
 // WHY: measured on opening, on a step (IC-127) or a language change, never per frame (JDG-1810).
 /** @purity non-pure */
 function tableSizingKeeper(host: Document, layer: Element) {
   let measuredFor = ''
   let measured: ReadonlyMap<string, number> | null = null
+  let floorDrawn = 0
   return {
     /** @purity non-pure */
     sizingOf(panel: TableWindowView, fontPx: number): ColumnSizing {
@@ -884,8 +901,11 @@ function tableSizingKeeper(host: Document, layer: Element) {
         measuredFor = key
         measured = measureDefaultColumnWidths(host, layer, panel, fontPx)
       }
-      return { floor: measuredWidthFloor(fontPx), measured: measured ?? new Map() }
+      floorDrawn = measuredWidthFloor(fontPx)
+      return { floor: floorDrawn, measured: measured ?? new Map() }
     },
+    /** @purity semi-pure-b */
+    floorDrawn: (): number => floorDrawn,
     /** @purity non-pure */
     forget(): void {
       measured = null
@@ -900,7 +920,6 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
   let frameDrawn = ''
   let tableDrawn = ''
   let placed: PlacedWindow | null = null
-  let widthFloor = 0
   const typedWord = typedWordWatch(layer, onWordTyped)
   const filterChanges = filterChangeWatch(layer, onWordTyped)
   const keepFilterSearch = filterSearchKeeper(layer)
@@ -922,7 +941,6 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     }
     const fontPx = searchPanelFontPxOf(panel.textSizeStep, NOT_STORED_SEARCH_PANEL_FONT_SIZES)
     const sizing = sizes.sizingOf(panel, fontPx)
-    widthFloor = sizing.floor
     // WHY: not the word: only typing changes it, and the typed field already holds it.
     const frameKey = JSON.stringify({ ...panel, rows: [], columns: [], at: null, size: null, canvas: null, word: null })
     const tableKey = tableKeyOf(panel, fontPx, [...sizing.measured])
@@ -935,11 +953,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     }
     frameDrawn = frameKey
     const drawn = searchPanelElement(host, panel, { box: placed.box, fontPx, sizing }, anchorsOf(), identity.role)
-    layer.replaceChildren(drawn)
-    const tableBox = drawn.lastElementChild ?? null
-    if (panel.shown !== 'minimised' && tableBox !== null) pinFixedColumns(tableBox)
-    keepFilterSearch(panel.filterMenu)
-    placeFilterMenu(drawn)
+    placeDrawnPanel(layer, drawn, panel, keepFilterSearch)
   }
 
   return {
@@ -947,7 +961,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     readWord: typedWord.read,
     readFilterChanges: filterChanges.read,
     answerAt: (asked: PointAsked): ScreenPart | null =>
-      withPressedWindowFilter(tableWindowPartAt(layer.firstElementChild, placed, asked, identity.role, widthFloor), asked.first, layer),
+      withPressedWindowFilter(tableWindowPartAt(layer.firstElementChild, placed, asked, identity.role, sizes.floorDrawn()), asked.first, layer),
     focusWord: (): boolean => focusSearchWordIn(layer),
   }
 }
