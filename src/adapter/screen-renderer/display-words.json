@@ -951,7 +951,7 @@
    "rowId": "IC-153",
    "label": {
     "ja": "フィルタをクリア",
-    "en": "Clear filters"
+    "en": "Clear Filters"
    },
    "hint": {
     "ja": "この表のすべての列のフィルタをクリアし、並びを元の順に戻す",
