@@ -164,7 +164,7 @@
 <!-- EDIT id=E-06 file=docs/spec/_source/display-words.json -->
 ### E-06 —— `IC-NEW-A1` の札と説明
 
-`icons` に 1 項。語は利用者が決めた（`$comment` の「EVERY ENTRY IS WRITTEN BY THE USER」。11 節の問い 1、`JDG-1778`・`JDG-1854`）—— 札 ja「フィルタをクリア」／ en「Clear filters」、説明 ja「この表のすべての列のフィルタをクリアし、並びを元の順に戻す」／ en「Clear every column filter in this table and put the rows back in their original order」。
+`icons` に 1 項。語は利用者が決めた（`$comment` の「EVERY ENTRY IS WRITTEN BY THE USER」。11 節の問い 1、`JDG-1778`・`JDG-1854`）—— 札 ja「フィルタをクリア」／ en「Clear Filters」（`JDG-1862` の Title Case。`JDG-1778` の小文字の綴りを覆した）、説明 ja「この表のすべての列のフィルタをクリアし、並びを元の順に戻す」／ en「Clear every column filter in this table and put the rows back in their original order」。
 
 <!-- EDIT id=E-07 file=docs/spec/01-04-requirements.md -->
 ### E-07 —— 表 T-330 の `SV-18`
@@ -337,7 +337,7 @@
 
 | | ja | en |
 |---|---|---|
-| 札 | フィルタをクリア | Clear filters |
+| 札 | フィルタをクリア | Clear Filters（`JDG-1862` —— 名前の en は Title Case） |
 | 説明 | この表のすべての列のフィルタをクリアし、並びを元の順に戻す | Clear every column filter in this table and put the rows back in their original order |
 
 起草の時に示した 3 案（案 A「絞り込みを戻す ／ Reset filters」（推奨）・案 B「フィルタをクリア ／ Clear filters」・案 C「列の絞り込みと並べ替えを解除 ／ Clear filters and sort」）は `docs/development-records/rulings.md` の `JDG-1778` の行が持つ。
