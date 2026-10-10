@@ -965,8 +965,8 @@
     "en": "Schedule Filter"
    },
    "hint": {
-    "ja": "[表示] の列でチェックしたタスクだけを日程表に描く・すべて描くに戻す",
-    "en": "Draw only the tasks checked in the Visibility column, or draw all of them again"
+    "ja": "スケジュールフィルタの切替。この表で「表示」の行のタスクだけを日程表に描く",
+    "en": "Turn the Schedule Filter on or off: draw only the tasks this table shows"
    }
   },
   {
@@ -5515,24 +5515,84 @@
    }
   },
   {
-   "part": "nothingChecked",
+   "part": "nothingHidden",
    "text": {
-    "ja": "チェックが 0 件です",
-    "en": "Nothing is checked"
+    "ja": "この表に非表示の行が無いので、スケジュールフィルタを掛けても日程表は変わりません",
+    "en": "No row in this table is hidden, so the Schedule Filter would not change the schedule"
    }
   },
   {
-   "part": "showOnlyCheckedBar",
+   "part": "scheduleFilterBar",
    "text": {
-    "ja": "チェックしたタスクだけを表示しています（{total} 件中 {shown} 件）",
-    "en": "Showing only the checked tasks ({shown} of {total})"
+    "ja": "{tables}のスケジュールフィルタを掛けています（{total} 件中 {shown} 件）",
+    "en": "Schedule Filter on {tables} ({shown} of {total})"
    }
   },
   {
-   "part": "showAll",
+   "part": "scheduleFilterOff",
    "text": {
-    "ja": "すべて表示に戻す",
-    "en": "Show All"
+    "ja": "スケジュールフィルタを解除",
+    "en": "Turn Off Schedule Filter"
+   }
+  },
+  {
+   "part": "tableNameSeparator",
+   "text": {
+    "ja": "・",
+    "en": ", "
+   }
+  }
+ ],
+ "resourceListColumns": [
+  {
+   "rowId": "RQ-1",
+   "text": {
+    "ja": "表示",
+    "en": "Visibility"
+   }
+  },
+  {
+   "rowId": "RQ-2",
+   "text": {
+    "ja": "担当名",
+    "en": "Resource"
+   }
+  },
+  {
+   "rowId": "RQ-3",
+   "text": {
+    "ja": "選択",
+    "en": "Selected"
+   }
+  },
+  {
+   "rowId": "RQ-4",
+   "text": {
+    "ja": "担当タスク数",
+    "en": "Task Count"
+   }
+  },
+  {
+   "rowId": "RQ-5",
+   "text": {
+    "ja": "担当タスク",
+    "en": "Assigned Tasks"
+   }
+  }
+ ],
+ "resourceList": [
+  {
+   "part": "unassigned",
+   "text": {
+    "ja": "（担当なし）",
+    "en": "(Unassigned)"
+   }
+  },
+  {
+   "part": "taskSeparator",
+   "text": {
+    "ja": "、",
+    "en": ", "
    }
   }
  ],
@@ -5560,6 +5620,13 @@
   }
  ],
  "delayReportColumns": [
+  {
+   "rowId": "DT-8",
+   "text": {
+    "ja": "表示",
+    "en": "Visibility"
+   }
+  },
   {
    "rowId": "DT-1",
    "text": {

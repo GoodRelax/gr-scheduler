@@ -167,7 +167,7 @@ describe(`table T-283, Esc (RG-1..RG-8, RG-14, RG-16 and RG-17) -- IN-4 (MUST): 
         { in: `${window}DisplayStateMachine.shown.maximised` },
       ]),
     )
-    expect(rg16?.evidence).toEqual(['IN-4', 'SV-14', 'HN-2', 'FR-066', 'FR-152', 'RW-1'])
+    expect(rg16?.evidence).toEqual(['IN-4', 'SV-14', 'HN-2', 'FR-066', 'FR-152', 'RW-1', 'RO-1'])
     expect(rg16?.note?.ja ?? '').toContain('`SV-14`')
   })
 

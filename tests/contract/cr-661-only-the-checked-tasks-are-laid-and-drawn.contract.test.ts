@@ -23,7 +23,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_003_LANES = 'スケジュールフィルタ（`FR-151` の 表 T-353）を掛けているあいだは、描くタスクだけで段を割り当てること（MUST）'
 const TD_8_KEEPS_TREE_STATE = '⛔ この条件のために `treeState` を書き換えてはならない（MUST NOT）'
-const TD_8_ANCESTORS = '⭐ 祖先は、子孫にチェックしたタスクがあるので見出しとして描かれる。'
+const TD_8_ANCESTORS = '⭐ 祖先は、子孫に描くタスクがあるので見出しとして描かれる。'
 const TV_3_NOT_FAINT = '「描かれていないタスク」）。⛔ 薄く描いてはならない（MUST NOT）'
 const EL_20_FILTERED_END =
   '⭐ 端の `Task` がスケジュールフィルタ（`FR-151` の 表 T-353 の `TV-3`）で描かれないときも、その端は見えていない端とすること（MUST）'

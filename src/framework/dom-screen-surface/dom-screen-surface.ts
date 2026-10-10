@@ -1466,6 +1466,8 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
   readonly 'S-476': number
   readonly 'S-478': number
   readonly 'S-481': number
+  readonly 'S-549': number
+  readonly 'S-552': number
 } = {
   'S-421': 0.5,
   'S-422': 0.5,
@@ -1479,6 +1481,8 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
   'S-476': 190,
   'S-478': 250,
   'S-481': 380,
+  'S-549': 190,
+  'S-552': 380,
 }
 
 // see SV-18, RW-9, T-206
@@ -1491,9 +1495,13 @@ export const SEARCH_COLUMN_WIDTH_ROWS: {
   'SQ-7': 'S-472',
   'SQ-8': 'S-473',
   'SQ-10': 'S-496',
+  'DT-8': 'S-496',
+  'RQ-1': 'S-496',
   'DT-2': 'S-476',
   'DT-4': 'S-478',
   'DT-7': 'S-481',
+  'RQ-2': 'S-549',
+  'RQ-5': 'S-552',
 }
 
 // see T-333, FR-151
@@ -1650,5 +1658,7 @@ export const SCREEN_COLOURS: {
   'S-388': { light: '#16181d', dark: '#16181d', followsHue: false },
   'S-389': { light: '#9673d3', dark: '#b697ed', followsHue: false },
   'S-390': { light: '#16181d', dark: '#16181d', followsHue: false },
+  'S-543': { light: '#a02b2b', dark: '#e07a7a', followsHue: false },
+  'S-544': { light: '#ffffff', dark: '#ffffff', followsHue: false },
 }
 // </generated>
