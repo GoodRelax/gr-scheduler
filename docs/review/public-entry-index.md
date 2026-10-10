@@ -988,6 +988,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( outer: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore \| null, route: OpenRoute, handed: HandedImport \| null ... |
 | `STARTUP_TEMPLATE_ELEMENT_ID` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#STARTUP_TEMPLATE_ELEMENT_ID` | -- | const STARTUP_TEMPLATE_ELEMENT_ID: string = startupTemplateManifest.containerElementId |
 | `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: HandedFirstReading, ): Promise<boolean> |
+| `withReportFilterDiagnosable` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#withReportFilterDiagnosable` | -- | function withReportFilterDiagnosable(document: Document): Document |
 | `drainFieldEditNotices` | file only | function | `src/framework/single-html-shell/field-entry.ts#drainFieldEditNotices` | -- | function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues \| null): void |
 | `FIELD_ROW_OF_IN_PLACE_TARGET` | file only | const | `src/framework/single-html-shell/field-entry.ts#FIELD_ROW_OF_IN_PLACE_TARGET` | -- | const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>> = |
 | `FieldEntryHands` | file only | type | `src/framework/single-html-shell/field-entry.ts#FieldEntryHands` | -- | type FieldEntryHands = Pick< |
@@ -1088,10 +1089,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PointerShapeHands` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerShapeHands` | -- | type PointerShapeHands = Pick<FrameLoopHands, 'readPressed' \| 'readSession'> |
 | `PressedPointerShape` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PressedPointerShape` | -- | type PressedPointerShape = ReturnType<typeof pressedPointerShapeOf> |
 | `pressedPointerShapeOf` | file only | function | `src/framework/single-html-shell/pointer-shape.ts#pressedPointerShapeOf` | -- | function pressedPointerShapeOf(hands: PointerShapeHands) |
-| `answerTableWindowEntry` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#answerTableWindowEntry` | -- | function answerTableWindowEntry( pressed: TableWindowEntryPressed, windows: HeldResourceList, shownTasks: { readonly turnOffEveryFilter: () => void }, rows: ... |
+| `answerTableWindowEntry` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#answerTableWindowEntry` | -- | function answerTableWindowEntry( pressed: TableWindowEntryPressed, windows: HeldResourceList, shownTasks: Pick<ShownTasksHold, 'turnOffEveryFilter' \| 'views'... |
 | `RESOURCE_LIST_SURFACE` | file only | const | `src/framework/single-html-shell/resource-list-window.ts#RESOURCE_LIST_SURFACE` | -- | const RESOURCE_LIST_SURFACE = 'Resource List' |
 | `ResourceListWindow` | file only | type | `src/framework/single-html-shell/resource-list-window.ts#ResourceListWindow` | -- | type ResourceListWindow = TableWindowState |
-| `tableWindowClosed` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#tableWindowClosed` | -- | function tableWindowClosed<W extends TableWindowState>(window: W): W |
+| `scheduleFilterLetGoOf` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#scheduleFilterLetGoOf` | -- | function scheduleFilterLetGoOf(table: VisibilityTable, view: TableView): Extract<DocumentCommand, { readonly kind: 'setTableView' }> \| null |
 | `tableWindowReopened` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#tableWindowReopened` | -- | function tableWindowReopened<W extends TableWindowState>(held: W \| null, closed: W \| null, opened: W): W |
 | `withTableWindowInFront` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#withTableWindowInFront` | -- | function withTableWindowInFront<R extends TableWindowState, L extends TableWindowState>( before: { readonly report: R \| null; readonly resourceList: L \| null... |
 | `EffectRunner` | file only | type | `src/framework/single-html-shell/session-effects.ts#EffectRunner` | -- | type EffectRunner<E> = (effect: E, frame: FrameValues \| null) => void |
@@ -1100,7 +1101,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `unwiredEffect` | file only | function | `src/framework/single-html-shell/session-effects.ts#unwiredEffect` | -- | function unwiredEffect(effect: { readonly type: string }): never |
 | `drawnTaskUidsOf` | file only | function | `src/framework/single-html-shell/shown-tasks-hold.ts#drawnTaskUidsOf` | -- | function drawnTaskUidsOf( schedule: Schedule, search: TableVisibility, report: TableVisibility, reportTaskUids: ReadonlySet<number> \| null, resourceList: Tab... |
 | `HeldTableWindows` | file only | interface | `src/framework/single-html-shell/shown-tasks-hold.ts#HeldTableWindows` | -- | interface HeldTableWindows |
-| `shownTasksHoldOf` | file only | function | `src/framework/single-html-shell/shown-tasks-hold.ts#shownTasksHoldOf` | -- | function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindows, readReportTaskUids: () => ReadonlySet<number> \| null) |
+| `ShownTasksHold` | file only | type | `src/framework/single-html-shell/shown-tasks-hold.ts#ShownTasksHold` | -- | type ShownTasksHold = ReturnType<typeof shownTasksHoldOf> |
+| `shownTasksHoldOf` | file only | function | `src/framework/single-html-shell/shown-tasks-hold.ts#shownTasksHoldOf` | -- | function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindows, diagnosis: Diagnosis) |
+| `TableViewChanges` | file only | type | `src/framework/single-html-shell/shown-tasks-hold.ts#TableViewChanges` | -- | type TableViewChanges = { readonly [T in VisibilityTable]?: TableView } |
+| `TableViewsHeld` | file only | type | `src/framework/single-html-shell/shown-tasks-hold.ts#TableViewsHeld` | -- | type TableViewsHeld = { readonly [T in VisibilityTable]: TableView } |
 | `TaskGroupBandCeilingCache` | file only | type | `src/framework/single-html-shell/task-group-band-ceiling-cache.ts#TaskGroupBandCeilingCache` | -- | type TaskGroupBandCeilingCache = ReturnType<typeof taskGroupBandCeilingCacheOf> |
 | `taskGroupBandCeilingCacheOf` | file only | function | `src/framework/single-html-shell/task-group-band-ceiling-cache.ts#taskGroupBandCeilingCacheOf` | -- | function taskGroupBandCeilingCacheOf() |
 | `HeldViewPlace` | file only | type | `src/framework/single-html-shell/view-place.ts#HeldViewPlace` | -- | type HeldViewPlace = ReturnType<typeof heldViewPlaceOf> |
@@ -1799,4 +1803,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 880 name(s) leave through a public entry (364 of them published by table T-064), 709 more are exported by a file and not by its entry.
+Totals: 880 name(s) leave through a public entry (364 of them published by table T-064), 713 more are exported by a file and not by its entry.

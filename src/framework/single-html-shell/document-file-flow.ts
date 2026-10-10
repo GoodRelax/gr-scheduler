@@ -8,7 +8,7 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
-import type { Project, Task } from '../../entity/document-model/schedule/schedule'
+import { dayOf, type Project, type Task } from '../../entity/document-model/schedule/schedule'
 import { editDocument, wbsSubtreesOf } from '../../use-case/edit-document/edit-document'
 import type {
   FileFlowImportAnswer,
@@ -700,7 +700,18 @@ function landReplacedDocument(
   landOpenedDocument(reading.hands, lines, 'replace', newer, readIn.fileName)
 }
 
-// see OP-2, OP-5, OP-12, T-230
+// see OP-18, FR-046, FR-130, S-445, S-564
+// WHY: with no Status Date nothing is diagnosed, so the filter is let go as the file is read, no unsaved edit.
+/** @purity pure */
+export function withReportFilterDiagnosable(document: Document): Document {
+  const views = document.documentSettings.tableViews
+  const report = views.delayDiagnosticsReport
+  if (!report.isScheduleFilterApplied || dayOf(document.schedule.project.statusDate) !== null) return document
+  const tableViews = { ...views, delayDiagnosticsReport: { ...report, isScheduleFilterApplied: false } }
+  return { ...document, documentSettings: { ...document.documentSettings, tableViews } }
+}
+
+// see OP-2, OP-5, OP-12, OP-18, T-230
 /** @purity non-pure */
 export async function openDocumentIntoHold(
   outer: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore | null,
@@ -804,7 +815,7 @@ export async function openDocumentIntoHold(
   }
 
   if (choice === 'replace') {
-    const replaced = hands.replaceHeldDocument({ row: 'RD-4', importing: { ...importing, choice } })
+    const replaced = hands.replaceHeldDocument({ row: 'RD-4', importing: { ...importing, incoming: withReportFilterDiagnosable(incoming), choice } })
     if (replaced) landReplacedDocument(reading, flow, store, droppedNames, newer, readIn, incoming)
     return replaced
   }

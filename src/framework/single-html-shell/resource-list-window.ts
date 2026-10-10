@@ -6,16 +6,15 @@
 import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import type { DocumentCommand } from '../../use-case/apply-document-change/apply-document-change'
 import { confirmationOwedByResourceDeletion } from '../../use-case/edit-document/edit-document'
-import type { FileFlowOwedAction } from '../../use-case/advance-screen-session/advance-screen-session'
+import type { FileFlowOwedAction, TableView, VisibilityTable } from '../../use-case/advance-screen-session/advance-screen-session'
 import {
   resourceListAfterEntry,
-  tableWithScheduleFilterToggled,
   type DisplayLanguage,
   type IconId,
   type TableWindowState,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { DELAY_DIAGNOSTICS_REPORT_SURFACE } from './delay-diagnostics-report-window'
-import type { HeldTableWindows } from './shown-tasks-hold'
+import type { HeldTableWindows, ShownTasksHold } from './shown-tasks-hold'
 import { CONFIRMATION_MANNER, NOTHING_TO_DO_REASON, isQuestionAskedIn, type FrameLoopHands, type FrameValues } from './frame-loop'
 
 export const RESOURCE_LIST_SURFACE = 'Resource List'
@@ -41,6 +40,7 @@ interface ResourceListRows {
 
 interface ResourceListHeld extends ResourceListRows {
   readonly window: ResourceListWindow
+  readonly view: TableView
 }
 
 interface TableWindowEntryPressed {
@@ -54,11 +54,12 @@ type HeldResourceList = Pick<HeldTableWindows, 'resourceList' | 'holdResourceLis
   readonly reopenedResourceList: () => ResourceListWindow
 }
 
-// see RO-1, TV-8
+// see RO-1, TV-8, UN-20, CM-92
+// WHY: closing a table's window lets its Schedule Filter go as an edit, so an undo puts it back (TV-8).
 /** @purity pure */
-export function tableWindowClosed<W extends TableWindowState>(window: W): W {
-  if (!window.panel.visibility.isApplied) return window
-  return { ...window, panel: tableWithScheduleFilterToggled(window.panel) }
+export function scheduleFilterLetGoOf(table: VisibilityTable, view: TableView): Extract<DocumentCommand, { readonly kind: 'setTableView' }> | null {
+  if (!view.visibility.isApplied) return null
+  return { kind: 'setTableView', table, view: { ...view, visibility: { ...view.visibility, isApplied: false } } }
 }
 
 // see RO-1, WB-6, S-546
@@ -81,36 +82,37 @@ export function withTableWindowInFront<R extends TableWindowState, L extends Tab
   return after
 }
 
-// see T-370, RO-1, RO-2, RO-3, SV-7, SV-8, WB-2, WB-3
+// see T-370, RO-1, RO-2, RO-3, SV-7, SV-8, WB-2, WB-3, TV-8, UN-20
 /** @purity non-pure */
 function answerResourceListEntry(
   entry: IconId,
   filterColumn: string | null,
   held: ResourceListHeld | null,
-  outlets: { readonly holdWindow: (window: ResourceListWindow | null) => void },
+  outlets: { readonly holdWindow: (window: ResourceListWindow | null) => void; readonly writeView: (view: TableView) => void },
   listed?: readonly string[] | null,
 ): boolean {
   if (held === null) return false
-  const answer = resourceListAfterEntry(held.window, entry, filterColumn, held, listed)
+  const answer = resourceListAfterEntry(held.window, held.view, entry, filterColumn, held, listed)
   if (answer === null) return false
+  outlets.writeView(answer.view)
   outlets.holdWindow(answer.window)
   return true
 }
 
-// see T-370, RO-1, RO-10, TV-8, U-67, IC-127
+// see T-370, RO-1, RO-10, TV-8, U-67, IC-127, UN-20
 // WHY: null hands the entry on; another table window reaches the search panel only with IC-127, the size of S-429.
 /** @purity non-pure */
 export function answerTableWindowEntry(
   pressed: TableWindowEntryPressed,
   windows: HeldResourceList,
-  shownTasks: { readonly turnOffEveryFilter: () => void },
+  shownTasks: Pick<ShownTasksHold, 'turnOffEveryFilter' | 'views' | 'writeViews'>,
   rows: ResourceListRows & { readonly hands: FrameLoopHands; readonly frame: FrameValues },
 ): boolean | null {
   const { entry, surface } = pressed
   if (entry === RESOURCE_DELETE_ENTRY) return answerResourceDeletion(rows.hands, rows.frame)
   if (surface === SCHEDULE_FILTER_BAR_SURFACE) {
     if (entry !== SCHEDULE_FILTER_ENTRY) return null
-    shownTasks.turnOffEveryFilter()
+    shownTasks.turnOffEveryFilter(rows.frame)
     return true
   }
   if (entry === RESOURCE_LIST_ENTRY && surface !== RESOURCE_LIST_SURFACE) {
@@ -118,8 +120,9 @@ export function answerTableWindowEntry(
     return true
   }
   const window = windows.resourceList()
-  const held = surface === RESOURCE_LIST_SURFACE && window !== null ? { ...rows, window } : null
-  if (answerResourceListEntry(entry, pressed.filterColumn, held, { holdWindow: windows.holdResourceList }, pressed.listed)) return true
+  const held = surface === RESOURCE_LIST_SURFACE && window !== null ? { ...rows, window, view: shownTasks.views().resourceList } : null
+  const outlets = { holdWindow: windows.holdResourceList, writeView: (view: TableView) => shownTasks.writeViews({ resourceList: view }, rows.frame) }
+  if (answerResourceListEntry(entry, pressed.filterColumn, held, outlets, pressed.listed)) return true
   const isOtherTableWindow = surface === RESOURCE_LIST_SURFACE || surface === DELAY_DIAGNOSTICS_REPORT_SURFACE
   if (!isOtherTableWindow || entry === TEXT_SIZE_ENTRY) return null
   return false

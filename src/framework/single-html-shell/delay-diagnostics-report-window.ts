@@ -5,6 +5,7 @@
 
 import type { DelayDiagnosticsReport, Schedule } from '../../entity/document-model/schedule/schedule'
 import { writeClipboard, type Clipboard } from '../../adapter/clipboard-gateway/clipboard-gateway'
+import type { TableView } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { DocumentFileFault, FileStore } from '../../adapter/file-gateway/file-gateway'
 import {
   delayDiagnosticsReportAfterEntry,
@@ -23,6 +24,7 @@ const MARKDOWN_EXTENSION = '.md'
 
 export interface ReportHeld {
   readonly window: DelayDiagnosticsReportWindow
+  readonly view: TableView
   readonly report: DelayDiagnosticsReport
   readonly schedule: Schedule
   readonly documentName: string
@@ -36,6 +38,7 @@ export interface ReportOutlets {
   readonly raiseCopyRefused: () => void
   readonly raiseFileFault: (fault: DocumentFileFault) => void
   readonly holdWindow: (window: DelayDiagnosticsReportWindow | null) => void
+  readonly writeView: (view: TableView) => void
 }
 
 // see RW-6
@@ -51,7 +54,7 @@ function madeAtText(now: Date): string {
 /** @purity non-pure */
 function handOutMarkdown(entry: IconId, held: ReportHeld, outlets: ReportOutlets): void {
   const stamp = { documentName: held.documentName, madeAt: madeAtText(new Date()) }
-  const text = delayDiagnosticsReportMarkdownOf(held.window, held.report, held.schedule, held.language, stamp)
+  const text = delayDiagnosticsReportMarkdownOf(held.window, held.view, held.report, held.schedule, held.language, stamp)
   if (entry === COPY_ENTRY) {
     const seam = outlets.clipboard
     if (seam === undefined) return outlets.raiseCopyRefused()
@@ -71,7 +74,8 @@ function handOutMarkdown(entry: IconId, held: ReportHeld, outlets: ReportOutlets
     .then((writing) => (writing.ok ? undefined : outlets.raiseFileFault(writing.fault)))
 }
 
-// see T-346, IC-108, IC-140, RW-1
+// see T-346, IC-108, IC-140, RW-1, TV-8, UN-20
+// WHY: the view is written before the window is held, so a close that lifts the filter writes it once (CM-92).
 /** @purity non-pure */
 export function answerDelayDiagnosticsReportEntry(
   entry: IconId,
@@ -85,8 +89,9 @@ export function answerDelayDiagnosticsReportEntry(
     handOutMarkdown(entry, held, outlets)
     return true
   }
-  const answer = delayDiagnosticsReportAfterEntry(held.window, entry, filterColumn, held, listed)
+  const answer = delayDiagnosticsReportAfterEntry(held.window, held.view, entry, filterColumn, held, listed)
   if (answer === null) return false
+  outlets.writeView(answer.view)
   outlets.holdWindow(answer.window)
   return true
 }
