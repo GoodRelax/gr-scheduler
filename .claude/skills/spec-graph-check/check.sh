@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 73 mechanical checks for the gr-scheduler specification.
+# All 74 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 56. (Recounted 2026-10-08 at check 76
+# The ranges today are 1 + 4 + 8 + 4 + 57. (Recounted 2026-10-11 at check 77
+# (words spelled in code points, CR-726): 56 + 1. Recounted 2026-10-08 at check 76
 # (the GRS JSON version, change ledger and address, CR-699): 55 + 1. Recounted 2026-10-03 at check 75
 # (the schedule-to-grs-json guide, DFC-1790): 54 + 1. Recounted 2026-10-01 at the
 # merge of check 74 (conflict markers, DFC-1461): 53 + 1. Recounted
@@ -357,6 +358,13 @@
 #          $id and the first key of every written document -- is the
 #          generated schema on the published site (DFC-2230: the old $id
 #          was a 404). CR-699. No baseline: 0
+#   77     check-code-point-words.py : a word src/ or tests/ spells in code
+#          points (fromCharCode / fromCodePoint, a spread or mapped array
+#          of numbers, a run of \uXXXX escapes) is decoded and must be an
+#          exact substring of docs/spec. Check 42 reads only comments, so a
+#          CR-726 rename left old spellings that nothing flagged until GT-2
+#          ran 0 cases. Exemptions with a reason per line in
+#          code-point-words-exempt.txt. Baseline 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -1003,6 +1011,21 @@ section "76  the GRS JSON version is an instant, its ledger obeys S-541, its add
 # declaration, a missing row after it and an address outside docs/.
 PYTHONIOENCODING=utf-8 python "$HERE/check-grs-json-ledger.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-grs-json-ledger.py" || failed
+
+echo ""
+section "77  a word spelled in code points is a word docs/spec holds"
+# CR-726 (2026-10-10) renamed on-screen words, and
+# tests/system/rows-fixed-with-nothing-holding-them.test.ts kept the old
+# ones as String.fromCharCode(...) constants: check 42 reads comments only,
+# so GT-2 went red with 0 cases before anything else did (fixed in
+# c098de36). MEASURED 2026-10-11 on 70af1cb2: 113 spellings in 41 files,
+# 6 not in docs/spec, all encoding or data samples, all exempted; the
+# parent of c098de36 gives 2 findings, the two old words. Baseline 0.
+# --self-test feeds a broken source (a fromCharCode call, an escape run and
+# a spread array the in-memory spec lacks) and a clean one, and is red
+# unless it reports exactly the three and none.
+PYTHONIOENCODING=utf-8 python "$HERE/check-code-point-words.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-code-point-words.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"
