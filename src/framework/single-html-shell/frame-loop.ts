@@ -2581,7 +2581,7 @@ export function frameLoop(
       dualCursor: session.screen.dualCursor,
       delayDiagnostics: diagnostics?.drawing,
       parentTaskFamilies: parentTasks.familiesFor(document.schedule, session, hintWalk?.holder ?? null, grabUnderPointer),
-      shownTaskUids: shownTasks.drawnSet(),
+      shownTaskUids: shownTasks.drawnSet(document.schedule),
     })
     const { layout, geometry } = drawnPicture
     const capTold = stackSafetyCapToldAfter(stackSafetyCapToldFor, layout)

@@ -212,9 +212,21 @@ function holdAgentSearchVisibility(hands: FrameLoopHands, panels: TablePanels, v
 /** @purity non-pure */
 function createdTasksKeeper() {
   let created: ReadonlySet<number> = new Set()
+  let preview: { readonly held: Schedule; readonly drawn: Schedule; readonly created: ReadonlySet<number>; readonly with: ReadonlySet<number> } | null = null
   return {
     /** @purity semi-pure-b */
     read: (): ReadonlySet<number> => created,
+    // see TV-7
+    // WHY: a task only a preview holds (a copy being dragged) counts as made, so it is drawn while it is dragged.
+    /** @purity non-pure */
+    readFor(held: Schedule, drawn: Schedule): ReadonlySet<number> {
+      if (drawn === held) return created
+      if (preview?.held === held && preview.drawn === drawn && preview.created === created) return preview.with
+      const present = new Set(held.tasks.map((task) => task.uid))
+      const made = drawn.tasks.map((task) => task.uid).filter((uid) => !present.has(uid))
+      preview = { held, drawn, created, with: new Set([...created, ...made]) }
+      return preview.with
+    },
     /** @purity non-pure */
     note(before: Schedule, after: Schedule, isFiltered: boolean): void {
       if (!isFiltered || before.tasks === after.tasks) return
@@ -263,8 +275,11 @@ export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindow
   const created = createdTasksKeeper()
   const drawnSetOf = drawnSetKeeper()
   const isFiltered = (): boolean => appliedTablesOf(panels.visibilities()).length > 0
-  const drawnSet = (): ReadonlySet<number> | null =>
-    drawnSetOf(hands.readHeld().document.schedule, panels.visibilities(), readReportTaskUids(), created.read())
+  const drawnSet = (drawn?: Schedule): ReadonlySet<number> | null => {
+    const held = hands.readHeld().document.schedule
+    const schedule = drawn ?? held
+    return drawnSetOf(schedule, panels.visibilities(), readReportTaskUids(), created.readFor(held, schedule))
+  }
   const openShownAgain = (before: TableVisibilities, frame: FrameValues): void => {
     const document = hands.readHeld().document
     const writes = shownTasksRevealWrites(document, tasksShownAgain(document.schedule, before, panels.visibilities()))
@@ -294,14 +309,24 @@ export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindow
       change()
       openShownAgain(before, frame)
     },
-    agentHolder: (): NonNullable<AgentApiSeams['shownTasks']> => ({
-      readShownTasks: () => {
-        const drawn = drawnSet()
-        return { drawnTaskUids: drawn === null ? null : [...drawn], tables: appliedTablesOf(panels.visibilities()) }
-      },
-      readSearchVisibility: (): TableVisibility => panels.visibilities().searchPanel,
-      holdShownTasks: (visibility: TableVisibility): void => holdAgentSearchVisibility(hands, panels, visibility),
-      holdJumpTarget,
-    }),
+    agentHolder: (): NonNullable<AgentApiSeams['shownTasks']> => agentShownTasksHolderOf(hands, panels, { drawnSet, holdJumpTarget }),
+  }
+}
+
+// see AM-26, AM-27, SJ-0
+/** @purity non-pure */
+function agentShownTasksHolderOf(
+  hands: FrameLoopHands,
+  panels: TablePanels,
+  hold: { readonly drawnSet: () => ReadonlySet<number> | null; readonly holdJumpTarget: (taskUid: number) => void },
+): NonNullable<AgentApiSeams['shownTasks']> {
+  return {
+    readShownTasks: () => {
+      const drawn = hold.drawnSet()
+      return { drawnTaskUids: drawn === null ? null : [...drawn], tables: appliedTablesOf(panels.visibilities()) }
+    },
+    readSearchVisibility: (): TableVisibility => panels.visibilities().searchPanel,
+    holdShownTasks: (visibility: TableVisibility): void => holdAgentSearchVisibility(hands, panels, visibility),
+    holdJumpTarget: hold.holdJumpTarget,
   }
 }
