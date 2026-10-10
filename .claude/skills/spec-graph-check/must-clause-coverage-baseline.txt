@@ -1,4 +1,4 @@
-2121
+2119
 # RAISED 2231 -> 2238 on 2026-10-02 under JDG-1034 (the user approved): CR-629 adds 7 bare MUST clauses (search panel column resize, GR-28, SV-18, a jump keeps the panel); its wave-1/2 tests quote them.
 # RAISED 2214 -> 2231 on 2026-10-02 under JDG-1034 (the user approved): CR-628 adds 17 bare MUST clauses (header logo, table T-349 BR, bold project name); its code-wave tests quote them.
 # RAISED 2212 -> 2214 on 2026-10-02 under JDG-1034 (the user approved): CR-626 adds 2 bare MUST clauses (dual cursor reads left/right by date, y/m/d written even when 0); its code-wave tests quote them.
