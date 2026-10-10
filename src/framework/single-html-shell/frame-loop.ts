@@ -252,7 +252,6 @@ import { parentTaskHoldOf } from './parent-task-hold'
 import { shownTasksHoldOf } from './shown-tasks-hold'
 import {
   RESOURCE_LIST_SURFACE,
-  answerResourceDeletion,
   answerTableWindowEntry,
   tableWindowClosed,
   tableWindowReopened,
@@ -3248,7 +3247,8 @@ export function frameLoop(
       return true
     }
     if (surface === DELAY_DIAGNOSTICS_REPORT_SURFACE && answerReportEntry(entry, filterColumn, listed)) return true
-    const tableWindowAnswer = answerTableWindowEntry({ entry, surface, filterColumn, listed }, windows, shownTasks, { schedule: held.document.schedule, language: screenLanguageIn(session), chosenResourceUids: session.selection.chosenResources })
+    const rows = { schedule: held.document.schedule, language: screenLanguageIn(session), chosenResourceUids: session.selection.chosenResources, hands, frame }
+    const tableWindowAnswer = answerTableWindowEntry({ entry, surface, filterColumn, listed }, windows, shownTasks, rows)
     if (tableWindowAnswer !== null) return tableWindowAnswer
     const panelAfter = searchPanelAfterEntry(
       windows.searchPanel(), entry, session, held.document.schedule, filterColumn, delayDiagnosticsNow()?.bottleneckUids, listed,
@@ -3298,7 +3298,6 @@ export function frameLoop(
       sendToSession(grsResetEntryPressedOf(held.document, session), frame)
       return true
     }
-    if (answerResourceDeletion(entry, hands, frame)) return true
     const openChoice = OPEN_CHOICE_OF_ENTRY[entry]
     if (openChoice !== undefined) {
       if (fileOperationKindIn(session) !== 'awaitingOpenChoice') return false

@@ -1075,11 +1075,19 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PointerShapeHands` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PointerShapeHands` | -- | type PointerShapeHands = Pick<FrameLoopHands, 'readPressed' \| 'readSession'> |
 | `PressedPointerShape` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#PressedPointerShape` | -- | type PressedPointerShape = ReturnType<typeof pressedPointerShapeOf> |
 | `pressedPointerShapeOf` | file only | function | `src/framework/single-html-shell/pointer-shape.ts#pressedPointerShapeOf` | -- | function pressedPointerShapeOf(hands: PointerShapeHands) |
+| `answerTableWindowEntry` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#answerTableWindowEntry` | -- | function answerTableWindowEntry( pressed: TableWindowEntryPressed, windows: HeldResourceList, shownTasks: { readonly turnOffEveryFilter: () => void }, rows: ... |
+| `RESOURCE_LIST_SURFACE` | file only | const | `src/framework/single-html-shell/resource-list-window.ts#RESOURCE_LIST_SURFACE` | -- | const RESOURCE_LIST_SURFACE = 'Resource List' |
+| `ResourceListWindow` | file only | type | `src/framework/single-html-shell/resource-list-window.ts#ResourceListWindow` | -- | type ResourceListWindow = TableWindowState |
+| `tableWindowClosed` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#tableWindowClosed` | -- | function tableWindowClosed<W extends TableWindowState>(window: W): W |
+| `tableWindowReopened` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#tableWindowReopened` | -- | function tableWindowReopened<W extends TableWindowState>(held: W \| null, closed: W \| null, opened: W): W |
+| `withTableWindowInFront` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#withTableWindowInFront` | -- | function withTableWindowInFront<R extends TableWindowState, L extends TableWindowState>( before: { readonly report: R \| null; readonly resourceList: L \| null... |
 | `EffectRunner` | file only | type | `src/framework/single-html-shell/session-effects.ts#EffectRunner` | -- | type EffectRunner<E> = (effect: E, frame: FrameValues \| null) => void |
 | `EffectRunners` | file only | type | `src/framework/single-html-shell/session-effects.ts#EffectRunners` | -- | type EffectRunners<E extends { readonly type: string }> = |
 | `runSessionEffects` | file only | function | `src/framework/single-html-shell/session-effects.ts#runSessionEffects` | -- | function runSessionEffects( effects: readonly SessionEffect[], runners: EffectRunners<SessionEffect>, frame: FrameValues \| null, ): void |
 | `unwiredEffect` | file only | function | `src/framework/single-html-shell/session-effects.ts#unwiredEffect` | -- | function unwiredEffect(effect: { readonly type: string }): never |
-| `shownTasksHoldOf` | file only | function | `src/framework/single-html-shell/shown-tasks-hold.ts#shownTasksHoldOf` | -- | function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldSearchPanel) |
+| `drawnTaskUidsOf` | file only | function | `src/framework/single-html-shell/shown-tasks-hold.ts#drawnTaskUidsOf` | -- | function drawnTaskUidsOf( schedule: Schedule, search: TableVisibility, report: TableVisibility, reportTaskUids: ReadonlySet<number> \| null, resourceList: Tab... |
+| `HeldTableWindows` | file only | interface | `src/framework/single-html-shell/shown-tasks-hold.ts#HeldTableWindows` | -- | interface HeldTableWindows |
+| `shownTasksHoldOf` | file only | function | `src/framework/single-html-shell/shown-tasks-hold.ts#shownTasksHoldOf` | -- | function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindows, readReportTaskUids: () => ReadonlySet<number> \| null) |
 | `TaskGroupBandCeilingCache` | file only | type | `src/framework/single-html-shell/task-group-band-ceiling-cache.ts#TaskGroupBandCeilingCache` | -- | type TaskGroupBandCeilingCache = ReturnType<typeof taskGroupBandCeilingCacheOf> |
 | `taskGroupBandCeilingCacheOf` | file only | function | `src/framework/single-html-shell/task-group-band-ceiling-cache.ts#taskGroupBandCeilingCacheOf` | -- | function taskGroupBandCeilingCacheOf() |
 | `HeldViewPlace` | file only | type | `src/framework/single-html-shell/view-place.ts#HeldViewPlace` | -- | type HeldViewPlace = ReturnType<typeof heldViewPlaceOf> |
@@ -1434,11 +1442,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_DOCUMENT_TITLE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_DOCUMENT_TITLE_SIZES` | -- | const NOT_STORED_DOCUMENT_TITLE_SIZES: |
 | `NOT_STORED_EXPORT_CHOOSER_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_EXPORT_CHOOSER_SIZES` | -- | const NOT_STORED_EXPORT_CHOOSER_SIZES: |
 | `NOT_STORED_HELP_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_HELP_SIZES` | -- | const NOT_STORED_HELP_SIZES: |
+| `NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES` | -- | const NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES: |
 | `NOT_STORED_ICON_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_ICON_SIZES` | -- | const NOT_STORED_ICON_SIZES: |
 | `NOT_STORED_PALETTE_GROUP_RULE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PALETTE_GROUP_RULE_SIZES` | -- | const NOT_STORED_PALETTE_GROUP_RULE_SIZES: |
 | `NOT_STORED_PALETTE_ROW_CAP` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PALETTE_ROW_CAP` | -- | const NOT_STORED_PALETTE_ROW_CAP: |
 | `NOT_STORED_PROPERTY_FIELD_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PROPERTY_FIELD_SIZES` | -- | const NOT_STORED_PROPERTY_FIELD_SIZES: |
-| `NOT_STORED_RESOURCE_LIST_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_RESOURCE_LIST_SIZES` | -- | const NOT_STORED_RESOURCE_LIST_SIZES: |
 | `NOT_STORED_SEARCH_PANEL_FONT_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_FONT_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_FONT_SIZES: |
 | `NOT_STORED_SEARCH_PANEL_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_SIZES: |
 | `NOT_STORED_TASK_GROUP_BAND_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_BAND_SIZES` | -- | const NOT_STORED_TASK_GROUP_BAND_SIZES: |
@@ -1453,6 +1461,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `part` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#part` | -- | function part(host: Document, tag: string, role: string, style: string): HTMLElement |
 | `REPORT_REASON_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#REPORT_REASON_ATTRIBUTE` | -- | const REPORT_REASON_ATTRIBUTE = 'data-report-reason' |
 | `ROLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE` | -- | const ROLE = |
+| `SCHEDULE_FILTER_BAR_ROLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCHEDULE_FILTER_BAR_ROLE` | -- | const SCHEDULE_FILTER_BAR_ROLE = 'Schedule Filter Bar' |
 | `SCREEN_COLOURS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_COLOURS` | -- | const SCREEN_COLOURS: |
 | `SCREEN_Z_ORDER` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_Z_ORDER` | -- | const SCREEN_Z_ORDER: readonly string[] = [ |
 | `SCREEN_Z_ORDER_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_Z_ORDER_ATTRIBUTE` | -- | const SCREEN_Z_ORDER_ATTRIBUTE = 'data-uz' |
@@ -1493,9 +1502,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `nextStepElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#nextStepElement` | -- | function nextStepElement(host: Document, text: string, link?: LinkedWords \| null): HTMLElement |
 | `noticeElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#noticeElement` | -- | function noticeElement(host: Document, notice: Notice): HTMLElement |
 | `helpWindowPainter` | file only | function | `src/framework/dom-screen-surface/open-modals-drawing.ts#helpWindowPainter` | -- | function helpWindowPainter(host: Document, helpLayer: HTMLElement) |
-| `keepResourceListScroll` | file only | function | `src/framework/dom-screen-surface/open-modals-drawing.ts#keepResourceListScroll` | -- | function keepResourceListScroll(before: Element \| null, after: Element \| null): void |
 | `modalElement` | file only | function | `src/framework/dom-screen-surface/open-modals-drawing.ts#modalElement` | -- | function modalElement( host: Document, modal: OpenModal, anchors: Map<string, HTMLElement>, ): DrawnModal |
-| `RESOURCE_LIST_SCROLLER` | file only | const | `src/framework/dom-screen-surface/open-modals-drawing.ts#RESOURCE_LIST_SCROLLER` | -- | const RESOURCE_LIST_SCROLLER = '[data-resource-list-scroller]' |
 | `fieldElement` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#fieldElement` | -- | function fieldElement( host: Document, field: PropertyField, typedByRow: Map<string, TextEntryControl> \| null, ): HTMLElement |
 | `fillPropertiesPanel` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#fillPropertiesPanel` | -- | function fillPropertiesPanel( host: Document, panel: HTMLElement, description: PropertiesPanel, anchors: Map<string, HTMLElement>, typedByRow: Map<string, Te... |
 | `growWrappingFields` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#growWrappingFields` | -- | function growWrappingFields(panel: HTMLElement): void |
@@ -1509,8 +1516,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `panelEdge` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#panelEdge` | -- | function panelEdge( frame: ScreenFrame, panel: 'taskGroupPanel' \| 'propertiesPanel', ): ScreenRect \| null |
 | `ColumnSizing` | file only | interface | `src/framework/dom-screen-surface/search-panel-drawing.ts#ColumnSizing` | -- | interface ColumnSizing |
 | `columnWidthPx` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#columnWidthPx` | -- | function columnWidthPx(column: SearchColumnView, sizing: ColumnSizing): number |
-| `DrawnTable` | file only | type | `src/framework/dom-screen-surface/search-panel-drawing.ts#DrawnTable` | -- | type DrawnTable = Pick< |
-| `filterChangeWatch` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#filterChangeWatch` | -- | function filterChangeWatch(layer: HTMLElement, onChanged: () => void): { readonly read: () => readonly SearchFilterChange[] } |
+| `DrawnRow` | file only | interface | `src/framework/dom-screen-surface/search-panel-drawing.ts#DrawnRow` | -- | interface DrawnRow |
+| `DrawnTable` | file only | type | `src/framework/dom-screen-surface/search-panel-drawing.ts#DrawnTable` | -- | type DrawnTable = Pick<TableWindowView, 'columns' \| 'rows' \| 'jumpAt' \| 'glyphAt' \| 'showAt' \| 'showHeading' \| 'chosenAt'> |
+| `filterChangeWatch` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#filterChangeWatch` | -- | function filterChangeWatch(layer: HTMLElement, onChanged: () => void, visibilityColumn: string): { readonly read: () => readonly SearchFilterChange[] } |
 | `focusSearchWordIn` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#focusSearchWordIn` | -- | function focusSearchWordIn(panel: HTMLElement): boolean |
 | `measuredWidthFloor` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#measuredWidthFloor` | -- | function measuredWidthFloor(fontPx: number): number |
 | `pinFixedColumns` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#pinFixedColumns` | -- | function pinFixedColumns(tableBox: Element): void |
@@ -1531,7 +1539,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchTableElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchTableElement` | -- | function searchTableElement(host: Document, view: DrawnTable, fontPx: number, sizing: ColumnSizing = unmeasuredSizing(fontPx)): HTMLElement |
 | `tableKeyOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#tableKeyOf` | -- | function tableKeyOf(table: DrawnTable, fontPx: number, filterMenu: unknown): string |
 | `TableWindowIdentity` | file only | interface | `src/framework/dom-screen-surface/search-panel-drawing.ts#TableWindowIdentity` | -- | interface TableWindowIdentity |
-| `TableWindowView` | file only | type | `src/framework/dom-screen-surface/search-panel-drawing.ts#TableWindowView` | -- | type TableWindowView = Omit<SearchPanelView, 'table'> & |
+| `TableWindowView` | file only | type | `src/framework/dom-screen-surface/search-panel-drawing.ts#TableWindowView` | -- | type TableWindowView = Omit<SearchPanelView, 'table' \| 'rows'> & |
 | `typedWordWatch` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#typedWordWatch` | -- | function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { readonly read: () => string \| null } |
 | `unmeasuredSizing` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#unmeasuredSizing` | -- | function unmeasuredSizing(fontPx: number): ColumnSizing |
 | `windowStyle` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#windowStyle` | -- | function windowStyle(): string |
@@ -1748,4 +1756,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 855 name(s) leave through a public entry (340 of them published by table T-064), 683 more are exported by a file and not by its entry.
+Totals: 856 name(s) leave through a public entry (340 of them published by table T-064), 690 more are exported by a file and not by its entry.

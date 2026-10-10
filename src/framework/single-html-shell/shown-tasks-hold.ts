@@ -42,7 +42,12 @@ export interface HeldTableWindows {
 }
 
 // see TV-1, TV-2
-export type TableVisibilities = { readonly [T in VisibilityTable]: TableVisibility }
+type TableVisibilities = { readonly [T in VisibilityTable]: TableVisibility }
+
+/** @purity pure */
+function taskUidsOf(schedule: Schedule): ReadonlySet<number> {
+  return new Set(schedule.tasks.map((task) => task.uid))
+}
 
 // see TV-2, TV-13
 /** @purity pure */
@@ -98,7 +103,7 @@ export function drawnTaskUidsOf(
 
 // see TV-1, TV-11, AM-26
 /** @purity pure */
-export function appliedTablesOf(tables: TableVisibilities): readonly VisibilityTable[] {
+function appliedTablesOf(tables: TableVisibilities): readonly VisibilityTable[] {
   return TABLE_ORDER.filter((table) => tables[table].isApplied)
 }
 
@@ -129,8 +134,8 @@ function tasksOfResourcesShownAgain(schedule: Schedule, shown: ReturnType<typeof
 
 // see TV-6, SJ-2
 /** @purity pure */
-export function tasksShownAgain(schedule: Schedule, before: TableVisibilities, after: TableVisibilities): readonly number[] {
-  const present = new Set(schedule.tasks.map((task) => task.uid))
+function tasksShownAgain(schedule: Schedule, before: TableVisibilities, after: TableVisibilities): readonly number[] {
+  const present = taskUidsOf(schedule)
   const fromSearch = keysShownAgain(before.searchPanel, after.searchPanel).keys
   const fromReport = keysShownAgain(before.delayDiagnosticsReport, after.delayDiagnosticsReport).keys
   const fromResources = tasksOfResourcesShownAgain(schedule, keysShownAgain(before.resourceList, after.resourceList))
@@ -197,7 +202,7 @@ function holdJumpTargetIn(panels: TablePanels, schedule: Schedule, taskUid: numb
 }
 
 // see AM-27, TV-5, TV-8, PND-712
-// WHY: the Agent API hands the search table's whole Visibility (X-11); a filter turned on shows a hidden panel minimised.
+// WHY: the Agent API hands the search table's whole Visibility; a filter turned on shows a hidden panel minimised.
 /** @purity non-pure */
 function holdAgentSearchVisibility(hands: FrameLoopHands, panels: TablePanels, visibility: TableVisibility): void {
   panels.change('searchPanel', (panel) => ({ ...panel, visibility }))
@@ -222,7 +227,7 @@ function createdTasksKeeper() {
     readFor(held: Schedule, drawn: Schedule): ReadonlySet<number> {
       if (drawn === held) return created
       if (preview?.held === held && preview.drawn === drawn && preview.created === created) return preview.with
-      const present = new Set(held.tasks.map((task) => task.uid))
+      const present = taskUidsOf(held)
       const made = drawn.tasks.map((task) => task.uid).filter((uid) => !present.has(uid))
       preview = { held, drawn, created, with: new Set([...created, ...made]) }
       return preview.with
@@ -261,7 +266,7 @@ function drawnSetKeeper() {
 // see TV-2, TV-7
 /** @purity non-pure */
 function keepTablesWithinSchedule(panels: TablePanels, schedule: Schedule): void {
-  const tasks = new Set(schedule.tasks.map((task) => task.uid))
+  const tasks = taskUidsOf(schedule)
   const resources = new Set(schedule.resources.map((resource) => resource.uid))
   panels.change('searchPanel', (panel) => panelWithinKeys(panel, tasks))
   panels.change('delayDiagnosticsReport', (panel) => panelWithinKeys(panel, tasks))
@@ -293,7 +298,7 @@ export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindow
     appliedTables: (): readonly VisibilityTable[] => appliedTablesOf(panels.visibilities()),
     keepWithinSchedule(schedule: Schedule): void {
       keepTablesWithinSchedule(panels, schedule)
-      created.keepWithin(new Set(schedule.tasks.map((task) => task.uid)), isFiltered())
+      created.keepWithin(taskUidsOf(schedule), isFiltered())
     },
     holdJumpTarget,
     holdCreatedTasks: (before: Schedule, after: Schedule): void => created.note(before, after, isFiltered()),

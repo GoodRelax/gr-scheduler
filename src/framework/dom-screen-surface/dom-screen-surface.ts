@@ -868,9 +868,9 @@ function windowReadersOf(
     return at !== null && propertiesPanel.contains(at)
   }
   /** @purity semi-pure-b */
-  const typedIn = (painter: TableWindowInput) => (): TableWindowTyped => ({ word: painter.readWord(), changes: painter.readFilterChanges() })
-  const readReportInput = typedIn(painters.report)
-  const readResourceListInput = typedIn(painters.resourceList)
+  const readReportInput = (): TableWindowTyped => ({ word: painters.report.readWord(), changes: painters.report.readFilterChanges() })
+  /** @purity semi-pure-b */
+  const readResourceListInput = (): TableWindowTyped => ({ word: painters.resourceList.readWord(), changes: painters.resourceList.readFilterChanges() })
   return { readFocusedWindow, isFocusInPropertiesPanel, readFilterChanges: painters.search.readFilterChanges, readReportInput, readResourceListInput }
 }
 

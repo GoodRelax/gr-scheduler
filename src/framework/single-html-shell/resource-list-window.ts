@@ -15,6 +15,7 @@ import {
   type TableWindowState,
 } from '../../adapter/screen-renderer/screen-renderer'
 import { DELAY_DIAGNOSTICS_REPORT_SURFACE } from './delay-diagnostics-report-window'
+import type { HeldTableWindows } from './shown-tasks-hold'
 import { CONFIRMATION_MANNER, NOTHING_TO_DO_REASON, isQuestionAskedIn, type FrameLoopHands, type FrameValues } from './frame-loop'
 
 export const RESOURCE_LIST_SURFACE = 'Resource List'
@@ -32,26 +33,24 @@ const TEXT_SIZE_ENTRY: IconId = 'IC-127'
 // see RO-1, RO-6, S-545, S-546
 export type ResourceListWindow = TableWindowState
 
-export interface ResourceListRows {
+interface ResourceListRows {
   readonly schedule: Schedule
   readonly language: DisplayLanguage
   readonly chosenResourceUids: readonly number[]
 }
 
-export interface ResourceListHeld extends ResourceListRows {
+interface ResourceListHeld extends ResourceListRows {
   readonly window: ResourceListWindow
 }
 
-export interface TableWindowEntryPressed {
+interface TableWindowEntryPressed {
   readonly entry: IconId
   readonly surface: string | null
   readonly filterColumn: string | null
   readonly listed: readonly string[] | null
 }
 
-interface HeldResourceList {
-  readonly resourceList: () => ResourceListWindow | null
-  readonly holdResourceList: (window: ResourceListWindow | null) => void
+type HeldResourceList = Pick<HeldTableWindows, 'resourceList' | 'holdResourceList'> & {
   readonly reopenedResourceList: () => ResourceListWindow
 }
 
@@ -84,7 +83,7 @@ export function withTableWindowInFront<R extends TableWindowState, L extends Tab
 
 // see T-370, RO-1, RO-2, RO-3, SV-7, SV-8, WB-2, WB-3
 /** @purity non-pure */
-export function answerResourceListEntry(
+function answerResourceListEntry(
   entry: IconId,
   filterColumn: string | null,
   held: ResourceListHeld | null,
@@ -98,16 +97,17 @@ export function answerResourceListEntry(
   return true
 }
 
-// see T-370, RO-1, TV-8, U-67, IC-127
-// WHY: null hands the entry on; another table window reaches the search panel only with IC-127 (S-429) and IC-66.
+// see T-370, RO-1, RO-10, TV-8, U-67, IC-127
+// WHY: null hands the entry on; another table window reaches the search panel only with IC-127, the size of S-429.
 /** @purity non-pure */
 export function answerTableWindowEntry(
   pressed: TableWindowEntryPressed,
   windows: HeldResourceList,
   shownTasks: { readonly turnOffEveryFilter: () => void },
-  rows: ResourceListRows,
+  rows: ResourceListRows & { readonly hands: FrameLoopHands; readonly frame: FrameValues },
 ): boolean | null {
   const { entry, surface } = pressed
+  if (entry === RESOURCE_DELETE_ENTRY) return answerResourceDeletion(rows.hands, rows.frame)
   if (surface === SCHEDULE_FILTER_BAR_SURFACE) {
     if (entry !== SCHEDULE_FILTER_ENTRY) return null
     shownTasks.turnOffEveryFilter()
@@ -121,14 +121,13 @@ export function answerTableWindowEntry(
   const held = surface === RESOURCE_LIST_SURFACE && window !== null ? { ...rows, window } : null
   if (answerResourceListEntry(entry, pressed.filterColumn, held, { holdWindow: windows.holdResourceList }, pressed.listed)) return true
   const isOtherTableWindow = surface === RESOURCE_LIST_SURFACE || surface === DELAY_DIAGNOSTICS_REPORT_SURFACE
-  if (!isOtherTableWindow || entry === TEXT_SIZE_ENTRY || entry === RESOURCE_DELETE_ENTRY) return null
+  if (!isOtherTableWindow || entry === TEXT_SIZE_ENTRY) return null
   return false
 }
 
 // see RO-10, FR-099, CD-5
 /** @purity non-pure */
-export function answerResourceDeletion(entry: IconId, hands: FrameLoopHands, frame: FrameValues): boolean {
-  if (entry !== RESOURCE_DELETE_ENTRY) return false
+function answerResourceDeletion(hands: FrameLoopHands, frame: FrameValues): boolean {
   const chosen = hands.readSession().selection.chosenResources
   if (chosen.length === 0) {
     hands.raiseNotice(NOTHING_TO_DO_REASON, null)
