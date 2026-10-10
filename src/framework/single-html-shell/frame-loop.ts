@@ -4,6 +4,7 @@
 // @purity    non-pure
 
 import type { Document } from '../../entity/document-model/document/document'
+import type { DelayFixRow } from '../../entity/document-model/schedule/delay-fixes'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import { emptyDialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
@@ -162,7 +163,7 @@ import {
   searchPanelAfterFilterEntry,
   searchPanelWithColumnWidth,
   OPENED_DELAY_DIAGNOSTICS_REPORT,
-  delayDiagnosticsReportAfterFilterChange,
+  delayDiagnosticsReportWithInput,
   delayDiagnosticsReportWithColumnWidth,
   delayDiagnosticsReportWithFilterClosed,
   resourceListAfterFilterChange,
@@ -219,7 +220,14 @@ import {
   type ShowPointerShape,
 } from './pointer-shape'
 import { copyForPaste, landCopyDrag, pasteWhatWasCopied } from './copy-and-paste'
-import { DELAY_DIAGNOSTICS_REPORT_SURFACE, answerDelayDiagnosticsReportEntry } from './delay-diagnostics-report-window'
+import {
+  DELAY_DIAGNOSTICS_REPORT_SURFACE,
+  answerDelayDiagnosticsReportEntry,
+  delayFixTablesKeeper,
+  type DelayFixTables,
+  jumpLandingOf,
+  withoutDelayFixes,
+} from './delay-diagnostics-report-window'
 import {
   answerOpenChoice,
   answerSettledFormat,
@@ -1675,9 +1683,7 @@ interface TypedTable<W> {
 // see RW-3, RW-8, SV-7, UN-20
 /** @purity pure */
 function reportWithInput(window: DelayDiagnosticsReportWindow | null, view: TableView, input: ReportInput | undefined): TypedTable<DelayDiagnosticsReportWindow> {
-  if (window === null || input === undefined) return { window, view }
-  const typed = input.word === null ? window : { ...window, panel: { ...window.panel, word: input.word } }
-  return { window: typed, view: input.changes.reduce((held, change) => delayDiagnosticsReportAfterFilterChange(typed, held, change), view) }
+  return delayDiagnosticsReportWithInput(window, view, input)
 }
 
 // see RO-3, SV-7, RQ-1, UN-20
@@ -1708,7 +1714,7 @@ function windowPlacesAfterTyping(
 
 // see WB-6, RW-1, S-451, SQ-5
 /** @purity pure */
-function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnostics, 'report' | 'bottleneckUids'> | null, drawnTaskUids: ReadonlySet<number> | null) {
+function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'bottleneckUids'> | null, drawnTaskUids: ReadonlySet<number> | null, fixTablesOf: () => DelayFixTables | undefined) {
   const window = held.delayDiagnosticsReport
   const report = diagnostics?.report ?? null
   return {
@@ -1716,7 +1722,7 @@ function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnos
     resourceList: held.resourceList,
     drawnTaskUids,
     windowPlaces: { helpModal: held.helpModal, dialogueField: held.dialogueField, closeOnlyTitledSurface: held.closeOnlyTitledSurface },
-    delayDiagnosticsReport: window === null || report === null ? null : { window, report },
+    delayDiagnosticsReport: window === null || report === null ? null : { window, report, fixTables: fixTablesOf() },
     bottleneckUids: diagnostics?.bottleneckUids,
   }
 }
@@ -1817,13 +1823,19 @@ function closingHoldOf(read: () => WindowPlaces, write: (next: WindowPlaces) => 
 // see T-335, RO-1, RW-1, TV-8, WB-6
 /** @purity non-pure */
 function tableWindowsHeldIn(read: () => WindowPlaces, write: (next: WindowPlaces) => void) {
+  const fixTables = delayFixTablesKeeper()
   return {
+    // see DX-11, DX-12, RW-16
+    fixTablesNow(diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report'> | null, fixLog: readonly DelayFixRow[]): DelayFixTables | undefined {
+      const window = read().delayDiagnosticsReport
+      return diagnostics === null || window === null ? undefined : fixTables(diagnostics, window, fixLog)
+    },
     searchPanel: (): SearchPanelSession => read().searchPanel,
     holdSearchPanel: (panel: SearchPanelSession): void => write({ ...read(), searchPanel: panel }),
     report: (): DelayDiagnosticsReportWindow | null => read().delayDiagnosticsReport,
     holdReport: (report: DelayDiagnosticsReportWindow | null): void => write(withTableWindows(read(), report, read().resourceList)),
     reopenedReport: (): DelayDiagnosticsReportWindow =>
-      read().delayDiagnosticsReport ?? tableWindowReopened(null, read().closedReport, OPENED_DELAY_DIAGNOSTICS_REPORT),
+      read().delayDiagnosticsReport ?? withoutDelayFixes(tableWindowReopened(null, read().closedReport, OPENED_DELAY_DIAGNOSTICS_REPORT)),
     resourceList: (): ResourceListWindow | null => read().resourceList,
     reopenedResourceList: (): ResourceListWindow => tableWindowReopened(read().resourceList, read().closedResourceList, OPENED_RESOURCE_LIST),
     holdResourceList: (list: ResourceListWindow | null): void => write(withTableWindows(read(), read().delayDiagnosticsReport, list)),
@@ -1837,9 +1849,9 @@ function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letSche
   let atPress: WindowPlaces | null = null
   let wasSearchPanelShown = false
   const hold = closingHoldOf(() => held, (next) => void (held = next), (table) => shownTasks().letScheduleFilterGo(table))
-
+  const windowsHeld = tableWindowsHeldIn(() => held, hold)
   return {
-    ...tableWindowsHeldIn(() => held, hold),
+    ...windowsHeld,
     /** @purity non-pure */
     takeTypedInput(session: ScreenSession, screen: ScreenWiring | undefined): TableViewChanges {
       const typed = windowPlacesAfterTyping(held, session, screen, shownTasks().views())
@@ -1847,11 +1859,11 @@ function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letSche
       return typed.views
     },
     /** @purity non-pure */
-    readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'report' | 'bottleneckUids'> | null, drawn: ReadonlySet<number> | null) {
+    readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'bottleneckUids'> | null, drawn: ReadonlySet<number> | null, fixLog: readonly DelayFixRow[] = []) {
       const isSearchPanelShown = session.screen.searchPanelDisplayState.kind !== 'hidden'
       held = windowsBehindNewSearchPanel(held, wasSearchPanelShown, isSearchPanelShown)
       wasSearchPanelShown = isSearchPanelShown
-      return windowReadingsOf(held, diagnostics, drawn)
+      return windowReadingsOf(held, diagnostics, drawn, () => windowsHeld.fixTablesNow(diagnostics, fixLog))
     },
     notePress: (on: ScreenPart | null): void => void (atPress = on?.windowGrab === undefined ? null : held),
     closeFiltersPressedOutside: (session: ScreenSession, on: ScreenPart | null): void =>
@@ -1890,11 +1902,18 @@ function reportHeldOf(
   diagnostics: { readonly report: DelayDiagnosticsReport } | null,
   document: Document,
   language: DisplayLanguage,
+  fixTables?: DelayFixTables,
 ) {
   if (window === null || diagnostics === null) return null
   const documentName = document.schedule.project.title ?? ''
   const view = tableViewOf(document.documentSettings, 'delayDiagnosticsReport')
-  return { window, view, report: diagnostics.report, schedule: document.schedule, documentName, language }
+  return { window, view, report: diagnostics.report, schedule: document.schedule, documentName, language, ...(fixTables === undefined ? {} : { fixTables }) }
+}
+
+// see RW-16, DX-12
+/** @purity semi-pure-b */
+function fixLogOf(flow: { readonly readDelayFixLog?: () => readonly DelayFixRow[] }): readonly DelayFixRow[] {
+  return flow.readDelayFixLog?.() ?? []
 }
 
 // see EL-21, SJ-0, SJ-2, UN-20
@@ -1918,6 +1937,7 @@ interface ReportBeforeJump {
   readonly jumpViewWrites: (taskUid: number) => readonly DocumentCommand[]
   readonly answerReportEntry: (entry: IconId, filterColumn: string | null) => boolean
   readonly oweLanding: JumpLandingHold['owe']
+  readonly openField?: (row: string) => void
 }
 
 // see T-332, SJ-0, SJ-2, SJ-3, SJ-4, SJ-5, SJ-6, SJ-8, SJ-10, UN-20
@@ -1937,6 +1957,7 @@ function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, fra
   if (writes.length > 0) hands.writeDocument(writes, frame)
   hands.sendToSession({ type: 'objectsPicked', pickedObjects: selectionWith(emptySelection(), hit.item) }, frame)
   noteChoiceMoved(hands, frame)
+  if (cell.kind === 'task' && typeof cell.openField === 'string') report.openField?.(cell.openField)
   if (plan.isBlockedByPinnedTaskGroups) hands.raiseNotice(PINNED_TASK_GROUPS_LEAVE_NO_ROOM_REASON, null)
   else report.oweLanding(cell, reach.landing === null)
 }
@@ -1952,7 +1973,7 @@ function landJump(hands: FrameLoopHands, owed: OwedJump, frame: FrameValues): bo
   if (plan.isBlockedByPinnedTaskGroups) return false
   const placedAgain = isPlacedAgain ? searchJumpCommands({ ...plan, treeStateWrites: [] }, frame.unstoredZoom) : []
   if (placedAgain.length > 0) hands.writeDocument(placedAgain, frame)
-  hands.sendToSession({ type: 'searchJumpLanded', landedTarget: target }, frame)
+  hands.sendToSession({ type: 'searchJumpLanded', ...jumpLandingOf(target) }, frame)
   return true
 }
 
@@ -2812,7 +2833,7 @@ export function frameLoop(
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
           zoomEntranceEnds: zoomEntranceEndsAt(values, held.document, environment.taskGroupControlsHeightPx, collectInputContext),
-          ...windows.readings(session, delayDiagnosticsNow(), shownTasks.drawnSet()),
+          ...windows.readings(session, delayDiagnosticsNow(), shownTasks.drawnSet(), fixLogOf(documentFileFlow)),
           ...parentTasks.readings(session, delayDiagnosticsShown),
           jumpRipple: owedJump.rippleOf(session.screen, layout, geometry, regions),
         }),
@@ -2864,17 +2885,16 @@ export function frameLoop(
     windows.holdReport(isShown ? windows.reopenedReport() : null)
   }
 
-  // see FR-134, T-346, RW-6, RW-7
+  // see FR-134, FR-155, T-346, RW-6, RW-7, RW-12, RW-14
   /** @purity non-pure */
   function answerReportEntry(entry: IconId, filterColumn: string | null, listed?: readonly string[] | null): boolean {
-    const reportHeld = reportHeldOf(windows.report(), delayDiagnosticsNow(), held.document, screenLanguageIn(session))
+    const reportHeld = reportHeldOf(windows.report(), delayDiagnosticsNow(), held.document, screenLanguageIn(session), windows.fixTablesNow(delayDiagnosticsNow(), fixLogOf(documentFileFlow)))
     return answerDelayDiagnosticsReportEntry(entry, filterColumn, reportHeld, {
-      clipboard,
-      files,
+      clipboard, files, raiseFileFault, holdWindow: windows.holdReport,
       confirmOverwrite: documentFileFlow.askToWriteOverDestination,
       raiseCopyRefused: () => raiseNotice(PROMPT_NOT_COPIED_REASON, null),
-      raiseFileFault,
-      holdWindow: windows.holdReport,
+      askFixWrite: (writeForm, fixBundle) => sendToSession({ type: 'documentFileWriteAsked', writeForm: { kind: writeForm }, fixBundle }, values),
+      jumpToFix: (cell) => void (values !== null && jumpToSearchHit(hands, cell, values, { windows, answerReportEntry, jumpViewWrites: shownTasks.jumpViewWrites, oweLanding: owedJump.owe, openField: (row) => void (showPropertiesOfChoice(), wantFieldFocused(row)) })),
       writeView: (view) => shownTasks.writeViews({ delayDiagnosticsReport: view }),
     }, listed)
   }
@@ -3846,7 +3866,7 @@ export function frameLoop(
     if (hasEndedGesture(input) || escapeLevel === 'gesture') endPointerPress(isDragInterrupted, frame)
     if (screenEvent?.type === 'progressMarkerPressed') sendToSession(screenEvent, frame)
     if (escapeLevel === 'gesture') endEntryRepeat()
-    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry, jumpViewWrites: shownTasks.jumpViewWrites, oweLanding: owedJump.owe })
+    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry, jumpViewWrites: shownTasks.jumpViewWrites, oweLanding: owedJump.owe, openField: (row) => void (showPropertiesOfChoice(), wantFieldFocused(row)) })
 
     const settledEntry = entrySettledOnRelease(input, context)
     const settledFormat = formatSettledOnRelease(input, context)

@@ -52,7 +52,7 @@ export interface ViewerValues {
   readonly landingMarkDisplayState?:
     | { readonly kind: 'hidden' }
     | { readonly kind: 'shown'; readonly landedBy: 'continuationMark' | 'jump'; readonly landedLink: { readonly predecessorUid: number;
-        readonly successorUid: number } | null; readonly landedTarget: LandedTarget }
+        readonly successorUid: number } | null; readonly landedTarget: LandedTarget; readonly landedRelatedTasks?: readonly number[] }
 }
 
 // see SJ-10, S-555, S-556
@@ -95,6 +95,9 @@ const WATERMARK_ROLE = 'Watermark'
 
 // see SJ-10
 const JUMP_LANDING_RING_ROLE = 'Jump Landing Ring'
+
+// see RW-13, S-573
+const RELATED_TASK_RING_ROLE = 'Jump Landing Related Ring'
 
 const UNDECIDED_PARENT_MARK = '?'
 
@@ -456,14 +459,47 @@ export function jumpLandingRingParts(
   const mark = viewer.landingMarkDisplayState
   if (!input.drawsOperationState || mark?.kind !== 'shown' || mark.landedBy !== 'jump') return { pinned: [], scrolling: [] }
   const ring = jumpLandingRingOf(input.layout, input.geometry, mark.landedTarget)
-  if (ring === null) return { pinned: [], scrolling: [] }
+  const related = relatedTaskRingParts(mark.landedRelatedTasks ?? [], input)
+  if (ring === null) return related
+  const svg = ringSvg(ring, input.themed('S-151'), JUMP_LANDING_RING_ROLE, 'jump-landing')
+  const target = mark.landedTarget
+  const isPinned = target.kind === 'task' && isPinnedTask(input, target.taskUid)
+  const placed = isPinned || target.kind === 'commentBox' ? { pinned: [svg], scrolling: [] } : { pinned: [], scrolling: [svg] }
+  return { pinned: [...related.pinned, ...placed.pinned], scrolling: [...related.scrolling, ...placed.scrolling] }
+}
+
+/** @purity pure */
+function isPinnedTask(input: Pick<OverlaysInput, 'geometry'>, taskUid: number): boolean {
+  return input.geometry.pinnedBand?.pinnedTaskUids.has(taskUid) === true
+}
+
+// see SJ-10, S-556
+/** @purity pure */
+function ringSvg(ring: JumpLandingRing, stroke: string, role: string, key: string): string {
   const half = ring.lineWidth / 2
-  const svg =
+  return (
     `<rect x="${rounded(ring.inner.x - half)}" y="${rounded(ring.inner.y - half)}"` +
     ` width="${rounded(ring.inner.width + ring.lineWidth)}" height="${rounded(ring.inner.height + ring.lineWidth)}"` +
-    ` fill="none" stroke="${input.themed('S-151')}" stroke-width="${rounded(ring.lineWidth)}"` +
-    ` data-role="${JUMP_LANDING_RING_ROLE}"${figureKey('jump-landing')}/>`
-  const target = mark.landedTarget
-  const isPinned = target.kind === 'task' && input.geometry.pinnedBand?.pinnedTaskUids.has(target.taskUid) === true
-  return isPinned || target.kind === 'commentBox' ? { pinned: [svg], scrolling: [] } : { pinned: [], scrolling: [svg] }
+    ` fill="none" stroke="${stroke}" stroke-width="${rounded(ring.lineWidth)}"` +
+    ` data-role="${role}"${figureKey(key)}/>`
+  )
+}
+
+// see RW-13, SJ-10, S-573, TV-3, EL-17
+// WHY: SJ-10's ring in S-573 and with no ripple; a related task the picture does not draw gets none (RW-13).
+/** @purity pure */
+function relatedTaskRingParts(
+  taskUids: readonly number[],
+  input: Pick<OverlaysInput, 'geometry' | 'layout' | 'themed'>,
+): { readonly pinned: readonly string[]; readonly scrolling: readonly string[] } {
+  const pinned: string[] = []
+  const scrolling: string[] = []
+  for (const taskUid of taskUids) {
+    const ring = jumpLandingRingOf(input.layout, input.geometry, { kind: 'task', taskUid })
+    if (ring === null) continue
+    const svg = ringSvg(ring, input.themed('S-573'), RELATED_TASK_RING_ROLE, `jump-related-${taskUid}`)
+    if (isPinnedTask(input, taskUid)) pinned.push(svg)
+    else scrolling.push(svg)
+  }
+  return { pinned, scrolling }
 }

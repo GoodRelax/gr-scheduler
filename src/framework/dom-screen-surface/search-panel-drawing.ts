@@ -1,4 +1,4 @@
-// DomScreenSurface -- the three table windows (Search Panel, Delay Diagnostics Report, Resource List): title row, word field and table.
+// DomScreenSurface -- the three table windows (Search Panel, Delay Diagnostics Report, Resource List): title row, word field, table and the report's fix rows.
 // @unit      UF-182  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -11,6 +11,7 @@ import {
   windowNormalBoxOf,
   type CommandItem,
   type ScreenPart,
+  type ScreenView,
   type SearchFilterChange,
   type SearchPanelView,
   type VisibilityKey,
@@ -50,6 +51,18 @@ export interface DrawnRow {
   readonly target?: SearchRowView['target']
   readonly key?: VisibilityKey
   readonly chosenEntry?: CommandItem | null
+  readonly fix?: FixCell | null
+}
+
+// WHY: read off the published report view, so no further name leaves ScreenRenderer (T-064).
+type ReportView = NonNullable<ScreenView['delayDiagnosticsReport']>
+type FixCell = NonNullable<Extract<ReportView['rows'][number], { readonly status: null }>['fix']>
+type FixFooter = NonNullable<ReportView['fixFooter']>
+
+interface EntryPlace {
+  readonly fontPx: number
+  readonly anchors: Map<string, HTMLElement>
+  readonly role: string
 }
 
 type SearchFilterMenuView = NonNullable<SearchPanelView['filterMenu']>
@@ -62,6 +75,12 @@ export type TableWindowView = Omit<SearchPanelView, 'table' | 'rows'> & {
   readonly chosenAt?: number
   readonly toolEntries?: readonly CommandItem[]
   readonly summary?: readonly { readonly text: string; readonly glyph?: SearchRowView['glyph'] }[]
+  readonly tabEntries?: readonly CommandItem[]
+  readonly tabCounts?: { readonly [entry: string]: number }
+  readonly walkEntries?: readonly CommandItem[]
+  readonly walkCounter?: string
+  readonly fixFooter?: FixFooter | null
+  readonly fixTable?: 'proposals' | 'log' | null
 }
 
 // see T-337, RW-5, SQ-10, DT-8, RQ-1
@@ -72,7 +91,7 @@ export interface TableWindowIdentity {
 }
 
 // see SV-6, SV-17, SV-18, RW-9, SQ-5, DT-1
-export type DrawnTable = Pick<TableWindowView, 'columns' | 'rows' | 'jumpAt' | 'glyphAt' | 'showAt' | 'showHeading' | 'chosenAt'>
+export type DrawnTable = Pick<TableWindowView, 'columns' | 'rows' | 'jumpAt' | 'glyphAt' | 'showAt' | 'showHeading' | 'chosenAt' | 'fixTable'>
 
 const SEARCH_PANEL_ROLE = 'Search Panel'
 
@@ -109,6 +128,38 @@ const FILTER_LIST_ATTRIBUTE = 'data-search-filter-list'
 export const SEARCH_JUMP_TASK_ATTRIBUTE = 'data-search-task'
 
 export const SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE = 'data-search-comment-box'
+
+// see RW-13
+const SEARCH_JUMP_RELATED_ATTRIBUTE = 'data-search-related'
+
+const SEARCH_JUMP_OPEN_FIELD_ATTRIBUTE = 'data-search-open-field'
+
+// see RW-16, FM-1, FM-8
+const DELAY_FIX_KEY_ATTRIBUTE = 'data-delay-fix-key'
+
+const DELAY_FIX_PART_ATTRIBUTE = 'data-delay-fix-part'
+
+const TABLE_BOX_ATTRIBUTE = 'data-table-box'
+
+// see RW-11, RW-12, T-374
+const FIX_TABLE_ROLES = { proposals: 'Delay Fix Proposals', log: 'Delay Fix Log' } as const
+
+const DELAY_FIX_FOOTER_ROLE = 'Delay Fix Footer'
+
+const FIX_LINE_STYLE = 'flex:none;display:flex;align-items:center;column-gap:0.5em;padding:0.25em 0.5em;'
+
+const FIX_CHECK_COLUMN = 'FM-1'
+
+const FIX_AFTER_COLUMN = 'FM-8'
+
+const UID_JOIN = ','
+
+// see T-374, S-496, S-481, S-478
+const FIX_COLUMN_WIDTH_ROWS: { readonly [column: string]: keyof typeof NOT_STORED_SEARCH_PANEL_SIZES } = {
+  [FIX_CHECK_COLUMN]: 'S-496',
+  'FM-4': 'S-481',
+  'FM-5': 'S-478',
+}
 
 const ENTRY_ICON_ATTRIBUTE = 'data-icon'
 
@@ -233,7 +284,7 @@ export function unmeasuredSizing(fontPx: number): ColumnSizing {
 
 /** @purity pure */
 function tableRowWidthPx(column: SearchColumnView): number {
-  const row = SEARCH_COLUMN_WIDTH_ROWS[column.column]
+  const row = SEARCH_COLUMN_WIDTH_ROWS[column.column] ?? FIX_COLUMN_WIDTH_ROWS[column.column]
   if (row === undefined) throw new RangeError(`table T-206 holds no default width for column ${column.column}`)
   return NOT_STORED_SEARCH_PANEL_SIZES[row]
 }
@@ -242,7 +293,7 @@ function tableRowWidthPx(column: SearchColumnView): number {
 // WHY: the Visibility column keeps its fixed S-496 and has no border to pull, so the floor is not laid on it.
 /** @purity pure */
 export function columnWidthPx(column: SearchColumnView, sizing: ColumnSizing): number {
-  if (VISIBILITY_COLUMNS.includes(column.column)) return column.width ?? tableRowWidthPx(column)
+  if (VISIBILITY_COLUMNS.includes(column.column) || column.column === FIX_CHECK_COLUMN) return column.width ?? tableRowWidthPx(column)
   const byDefault = column.widthSamples === null ? tableRowWidthPx(column) : (sizing.measured.get(column.column) ?? sizing.floor)
   return Math.max(column.width ?? byDefault, sizing.floor)
 }
@@ -319,11 +370,21 @@ function searchPanelPlaceOf(view: TableWindowView, defaultRatio: SizeRatio): Scr
 function searchJumpFrom(start: Element, layer: Element): SearchJumpCell | null {
   for (let node: Element | null = start; node !== null && node !== layer; node = node.parentElement) {
     const task = node.getAttribute(SEARCH_JUMP_TASK_ATTRIBUTE)
-    if (task !== null) return { kind: 'task', taskUid: Number(task) }
+    if (task !== null) return { kind: 'task', taskUid: Number(task), ...fixLandingFrom(node) }
     const box = node.getAttribute(SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE)
     if (box !== null) return { kind: 'commentBox', commentBoxId: box }
   }
   return null
+}
+
+/** @purity semi-pure-b */
+function fixLandingFrom(node: Element): { readonly relatedTaskUids?: readonly number[]; readonly openField?: string } {
+  const related = node.getAttribute(SEARCH_JUMP_RELATED_ATTRIBUTE)
+  const field = node.getAttribute(SEARCH_JUMP_OPEN_FIELD_ATTRIBUTE)
+  return {
+    ...(related === null || related === '' ? {} : { relatedTaskUids: related.split(UID_JOIN).map(Number) }),
+    ...(field === null ? {} : { openField: field }),
+  }
 }
 
 // see SV-16, T-333
@@ -370,6 +431,7 @@ function headerCellElement(
   cell.setAttribute('data-width', String(columnWidthPx(column, sizing)))
   if (column.isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
   if (column.isFiltered) cell.setAttribute(FILTERED_ATTRIBUTE, 'true')
+  if (column.column === FIX_CHECK_COLUMN) cell.setAttribute(NO_BORDER_ATTRIBUTE, 'true')
   const line = made(host, 'div', HEADING_LINE_STYLE)
   const filter = commandEntry(host, column.filterEntry)
   if (column.isFiltered) filter.setAttribute('style', (filter.getAttribute('style') ?? '') + filteredEntryStyle())
@@ -520,10 +582,68 @@ function withListedValues(answer: ScreenPart, layer: Element): ScreenPart {
   return { ...answer, searchFilterListed: listedFilterValues(layer) }
 }
 
+// see SJ-1, RW-13
+/** @purity non-pure */
+function markJumpCell(cell: HTMLElement, target: Extract<NonNullable<DrawnRow['target']>, { readonly kind: 'task' }>): void {
+  cell.setAttribute(SEARCH_JUMP_TASK_ATTRIBUTE, String(target.taskUid))
+  if ((target.relatedTaskUids ?? []).length > 0) cell.setAttribute(SEARCH_JUMP_RELATED_ATTRIBUTE, (target.relatedTaskUids ?? []).join(UID_JOIN))
+  if (typeof target.openField === 'string') cell.setAttribute(SEARCH_JUMP_OPEN_FIELD_ATTRIBUTE, target.openField)
+}
+
+/** @purity non-pure */
+function fixInput(host: Document, tag: string, fix: FixCell, fixPart: string): HTMLInputElement {
+  const control = made(host, tag, 'margin:0;max-width:100%;font:inherit;') as HTMLInputElement
+  control.setAttribute(DELAY_FIX_KEY_ATTRIBUTE, fix.key)
+  control.setAttribute(DELAY_FIX_PART_ATTRIBUTE, fixPart)
+  return control
+}
+
+/** @purity non-pure */
+function fixCheckElement(host: Document, fix: FixCell): HTMLElement | null {
+  if (fix.check === 'none') return null
+  const box = fixInput(host, 'input', fix, 'check')
+  box.setAttribute('type', 'checkbox')
+  box.checked = fix.check === 'on'
+  box.disabled = fix.check === 'disabled'
+  return box
+}
+
+// see FM-8, T-373
+/** @purity non-pure */
+function fixAfterElement(host: Document, fix: FixCell): HTMLElement | null {
+  if (fix.choices !== null) {
+    const list = fixInput(host, 'select', fix, 'choice')
+    const blank = host.createElement('option')
+    blank.setAttribute('value', '')
+    const options = fix.choices.map((choice, at) => {
+      const option = host.createElement('option')
+      option.setAttribute('value', String(at))
+      option.textContent = choice.label
+      if (choice.isChosen) option.setAttribute('selected', '')
+      return option
+    })
+    list.replaceChildren(blank, ...options)
+    return list
+  }
+  if (fix.date === null) return null
+  const field = fixInput(host, 'input', fix, 'date')
+  field.setAttribute('type', 'date')
+  field.value = fix.date.slice(0, 10)
+  return field
+}
+
+// see FM-1, FM-8, RW-16
+/** @purity non-pure */
+function fixControlOf(host: Document, fix: DrawnRow['fix'], column: string | undefined): HTMLElement | null {
+  if (fix === null || fix === undefined) return null
+  if (column === FIX_CHECK_COLUMN) return fixCheckElement(host, fix)
+  return column === FIX_AFTER_COLUMN ? fixAfterElement(host, fix) : null
+}
+
 // see SJ-1, SV-17, SQ-1, SQ-5, DT-1, DT-4
 /** @purity non-pure */
 function bodyRowElement(host: Document, row: DrawnRow, columns: readonly SearchColumnView[], places: DrawnPlaces): HTMLElement {
-  const line = made(host, 'tr', '')
+  const line = made(host, 'tr', row.fix?.isCurrent === true ? `outline:2px solid ${PAINT.pinned};outline-offset:-2px;` : '')
   const key = visibilityKeyOfRow(row)
   if (typeof row.key === 'number') line.setAttribute('data-uid', String(row.key))
   row.cells.forEach((text, at) => {
@@ -531,12 +651,14 @@ function bodyRowElement(host: Document, row: DrawnRow, columns: readonly SearchC
     const isFixed = columns[at]?.isFixed === true
     const fixed = isFixed ? fixedColumnStyle() + stackStyle('fixedBodyCell') : ''
     const cell = made(host, 'td', cellStyle() + fixed + (isJump ? jumpCellStyle() : ''))
+    const fixControl = fixControlOf(host, row.fix, columns[at]?.column)
     if (at === places.glyphAt) cell.replaceChildren(glyphElement(host, row.glyph ?? null), text)
     else if (at === places.showAt && key !== null) cell.replaceChildren(shownRowBox(host, key, row.shown === true))
     else if (at === places.chosenAt) cell.replaceChildren(...chosenEntryOf(host, row.chosenEntry))
+    else if (fixControl !== null) cell.replaceChildren(fixControl)
     else cell.textContent = text
     if (isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
-    if (isJump && row.target?.kind === 'task') cell.setAttribute(SEARCH_JUMP_TASK_ATTRIBUTE, String(row.target.taskUid))
+    if (isJump && row.target?.kind === 'task') markJumpCell(cell, row.target)
     if (isJump && row.target?.kind === 'commentBox') cell.setAttribute(SEARCH_JUMP_COMMENT_BOX_ATTRIBUTE, row.target.commentBoxId)
     line.append(cell)
   })
@@ -565,7 +687,8 @@ function chosenEntryOf(host: Document, entry: CommandItem | null | undefined): r
 // see SV-6, SV-16, SV-17, SV-18, T-331
 /** @purity non-pure */
 export function searchTableElement(host: Document, view: DrawnTable, fontPx: number, sizing: ColumnSizing = unmeasuredSizing(fontPx)): HTMLElement {
-  const box = made(host, 'div', TABLE_BOX_STYLE)
+  const box = view.fixTable === undefined || view.fixTable === null ? made(host, 'div', TABLE_BOX_STYLE) : part(host, 'div', FIX_TABLE_ROLES[view.fixTable], TABLE_BOX_STYLE)
+  box.setAttribute(TABLE_BOX_ATTRIBUTE, 'true')
   const widths = view.columns.map((column) => columnWidthPx(column, sizing))
   const width = widths.reduce((sum, one) => sum + one, 0)
   const table = made(host, 'table', TABLE_STYLE + `width:${width}px;font-size:${fontPx}px;`)
@@ -600,11 +723,53 @@ function aboveTableElements(host: Document, view: TableWindowView, fontPx: numbe
   const word = wordFieldElement(host, view.word, fontPx)
   if (tools.length > 0) word.setAttribute('style', (word.getAttribute('style') ?? '') + WORD_BESIDE_TOOLS_STYLE)
   const line = made(host, 'div', TOOL_LINE_STYLE)
-  line.replaceChildren(...tools, word)
-  if (view.summary === undefined) return [tools.length === 0 ? word : line]
+  line.replaceChildren(...tools, word, ...walkElements(host, view, anchors, role))
+  const tabs = fixTabsElements(host, view, { fontPx, anchors, role })
+  if (view.summary === undefined || view.summary.length === 0) return [tools.length === 0 ? word : line, ...tabs]
   const summary = made(host, 'div', SUMMARY_LINE_STYLE + `font-size:${fontPx}px;`)
   summary.replaceChildren(...view.summary.map((one) => summaryItemElement(host, one)))
-  return [line, summary]
+  return [line, ...tabs, summary]
+}
+
+// see RW-11, RW-12, IC-154, IC-155, IC-156, IC-157, IC-158
+// WHY: these entries carry words (the count, RW-11), so the word is drawn beside the picture.
+/** @purity non-pure */
+function wordedEntry(host: Document, item: CommandItem, anchors: Map<string, HTMLElement>, role: string, count?: number): HTMLElement {
+  const entry = anchoredEntry(host, item, anchors, role)
+  entry.append(count === undefined ? item.label : `${item.label} (${count})`)
+  entry.setAttribute('style', (entry.getAttribute('style') ?? '') + 'width:auto;padding:0 0.5em;white-space:nowrap;')
+  return entry
+}
+
+// see RW-11
+/** @purity non-pure */
+function fixTabsElements(host: Document, view: TableWindowView, at: EntryPlace): readonly HTMLElement[] {
+  if (view.tabEntries === undefined) return []
+  const tabs = made(host, 'div', FIX_LINE_STYLE + `font-size:${at.fontPx}px;`)
+  tabs.replaceChildren(...view.tabEntries.map((item) => wordedEntry(host, item, at.anchors, at.role, view.tabCounts?.[item.icon])))
+  return [tabs]
+}
+
+// see RW-14, IC-159, IC-160
+/** @purity non-pure */
+function walkElements(host: Document, view: TableWindowView, anchors: Map<string, HTMLElement>, role: string): readonly HTMLElement[] {
+  if (view.walkEntries === undefined) return []
+  const counter = made(host, 'span', 'flex:none;white-space:nowrap;padding:0 0.5em;')
+  counter.textContent = view.walkCounter ?? ''
+  return [...view.walkEntries.map((item) => anchoredEntry(host, item, anchors, role)), counter]
+}
+
+// see RW-12, IC-157, IC-158
+/** @purity non-pure */
+function fixFooterElements(host: Document, footer: FixFooter | null | undefined, at: EntryPlace): readonly HTMLElement[] {
+  if (footer === undefined || footer === null) return []
+  const band = part(host, 'div', DELAY_FIX_FOOTER_ROLE, FIX_LINE_STYLE + `font-size:${at.fontPx}px;justify-content:space-between;`)
+  const count = made(host, 'span', 'white-space:nowrap;')
+  count.textContent = footer.text
+  const entries = made(host, 'span', 'display:flex;column-gap:0.5em;')
+  entries.replaceChildren(...footer.entries.map((item) => wordedEntry(host, item, at.anchors, at.role)))
+  band.replaceChildren(count, entries)
+  return [band]
 }
 
 // see U-64, U-66, FR-134, FR-151, T-330, T-346
@@ -624,9 +789,10 @@ export function searchPanelElement(
     return panel
   }
   const menu = view.filterMenu === null ? [] : [searchFilterMenuElement(host, view.filterMenu, placed.fontPx, anchors)]
-  // TRAP: the table stays the last child; redrawInPlace replaces the last child as the table.
+  // TRAP: redrawInPlace finds the table by its data-table-box mark; the fix footer (RW-12) stands under it.
   const table = searchTableElement(host, view, placed.fontPx, placed.sizing ?? unmeasuredSizing(placed.fontPx))
-  panel.replaceChildren(title, ...aboveTableElements(host, view, placed.fontPx, anchors, role), ...menu, table)
+  const footer = fixFooterElements(host, view.fixFooter, { fontPx: placed.fontPx, anchors, role })
+  panel.replaceChildren(title, ...aboveTableElements(host, view, placed.fontPx, anchors, role), ...menu, table, ...footer)
   return panel
 }
 
@@ -635,7 +801,7 @@ export function searchPanelElement(
 /** @purity non-pure */
 function placeFilterMenu(window: HTMLElement): void {
   const menu = window.querySelector<HTMLElement>(`[${FILTER_MENU_ATTRIBUTE}]`)
-  const tableBox = window.lastElementChild
+  const tableBox = tableBoxIn(window)
   const column = menu?.getAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE) ?? null
   const cell = column === null ? null : window.querySelector(`thead th[${COLUMN_ATTRIBUTE}="${column}"]`)
   if (menu === null || tableBox === null || cell === null || typeof cell.getBoundingClientRect !== 'function') return
@@ -663,6 +829,12 @@ export function pinFixedColumns(tableBox: Element): void {
   }
 }
 
+// see RW-12
+/** @purity semi-pure-b */
+function tableBoxIn(window: Element): Element | null {
+  return window.querySelector(`[${TABLE_BOX_ATTRIBUTE}]`) ?? window.lastElementChild
+}
+
 // see SV-2
 /** @purity non-pure */
 export function focusSearchWordIn(panel: HTMLElement): boolean {
@@ -686,7 +858,7 @@ function panelPlacedOf(panel: TableWindowView, window: WindowName): PlacedWindow
 /** @purity semi-pure-b */
 function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked, widthFloor: number): NonNullable<ScreenPart['windowGrab']> | null {
   const head = window.querySelector('thead')
-  const tableBox = window.lastElementChild
+  const tableBox = tableBoxIn(window)
   if (head === null || tableBox === null || typeof head.getBoundingClientRect !== 'function') return null
   const row = head.getBoundingClientRect()
   if (asked.y < row.top || asked.y > row.bottom) return null
@@ -745,7 +917,7 @@ function redrawInPlace(
   table: { readonly fontPx: number; readonly sizing: ColumnSizing } | null,
 ): void {
   drawnPanel.setAttribute('style', boxStyle(box) + windowStyle())
-  const drawnTable = drawnPanel.lastElementChild
+  const drawnTable = tableBoxIn(drawnPanel)
   if (table === null || drawnTable === null) return
   const redrawn = searchTableElement(host, panel, table.fontPx, table.sizing)
   drawnTable.replaceWith(redrawn)
@@ -777,6 +949,8 @@ function withPressedWindowFilter(answer: ScreenPart | null, first: Element | nul
 /** @purity semi-pure-b */
 function filterChangeOf(control: HTMLInputElement | null, layer: Element, visibilityColumn: string): SearchFilterChange | null {
   if (control === null || typeof control.getAttribute !== 'function') return null
+  const pick = fixPickOf(control)
+  if (pick !== null) return pick
   const shown = shownChangeOf(control, layer, visibilityColumn)
   if (shown !== null) return shown
   const column = filterColumnAbove(control.parentElement, layer, false)
@@ -786,6 +960,16 @@ function filterChangeOf(control: HTMLInputElement | null, layer: Element, visibi
   const bound = control.getAttribute(SEARCH_FILTER_BOUND_ATTRIBUTE)
   if (bound !== 'since' && bound !== 'until') return null
   return { kind: 'bound', column, bound, day: control.value === '' ? null : control.value }
+}
+
+// see RW-16, FM-1, FM-8
+/** @purity semi-pure-b */
+function fixPickOf(control: HTMLInputElement): SearchFilterChange | null {
+  const key = control.getAttribute(DELAY_FIX_KEY_ATTRIBUTE)
+  const fixPart = control.getAttribute(DELAY_FIX_PART_ATTRIBUTE)
+  if (key === null || (fixPart !== 'check' && fixPart !== 'choice' && fixPart !== 'date')) return null
+  const value = fixPart === 'check' ? (control.checked ? '\u2713' : '') : control.value
+  return { kind: 'fixPick', column: fixPart === 'check' ? FIX_CHECK_COLUMN : FIX_AFTER_COLUMN, key, part: fixPart, value }
 }
 
 /** @purity pure */
@@ -830,6 +1014,8 @@ const FOCUS_MARKS: readonly string[] = [
   SEARCH_FILTER_BOUND_ATTRIBUTE,
   ENTRY_ICON_ATTRIBUTE,
   SEARCH_FILTER_COLUMN_ATTRIBUTE,
+  DELAY_FIX_KEY_ATTRIBUTE,
+  DELAY_FIX_PART_ATTRIBUTE,
 ]
 
 type FocusMark = readonly (readonly [string, string | null])[]
@@ -846,7 +1032,7 @@ function focusMarkIn(host: Document, layer: Element): FocusMark | null {
 /** @purity non-pure */
 function focusKeptIn(host: Document, layer: Element, mark: FocusMark | null): void {
   if (mark === null || isInside(layer, (host as Partial<Document>).activeElement ?? null)) return
-  const controls = [...layer.querySelectorAll<HTMLElement>('input, button')]
+  const controls = [...layer.querySelectorAll<HTMLElement>('input, button, select')]
   const twin = controls.find((node) => mark.every(([name, value]) => node.getAttribute(name) === value))
   const target = twin ?? layer.querySelector<HTMLElement>(`[${SEARCH_WORD_FIELD_ATTRIBUTE}]`)
   target?.focus()
@@ -917,7 +1103,7 @@ function placeDrawnPanel(
   keepFilterSearch: (menu: TableWindowView['filterMenu']) => void,
 ): void {
   layer.replaceChildren(drawn)
-  const tableBox = drawn.lastElementChild ?? null
+  const tableBox = tableBoxIn(drawn)
   if (panel.shown !== 'minimized' && tableBox !== null) pinFixedColumns(tableBox)
   keepFilterSearch(panel.filterMenu)
   placeFilterMenu(drawn)

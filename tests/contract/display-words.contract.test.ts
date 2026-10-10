@@ -208,7 +208,7 @@ import {
   type ScreenViewReadings,
   type ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { OPENED_DELAY_DIAGNOSTICS_REPORT } from '../../src/adapter/screen-renderer/delay-diagnostics-report'
+import { NO_DELAY_FIX_VALUES, OPENED_DELAY_DIAGNOSTICS_REPORT } from '../../src/adapter/screen-renderer/delay-diagnostics-report'
 import { OPENED_RESOURCE_LIST } from '../../src/adapter/screen-renderer/resource-list'
 import {
   emptyScreenSession,
@@ -417,6 +417,9 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   // WHY: CR-670 keys DT-7's aspect words by their row of table T-310 / T-311 and its wall words by their row of T-316.
   delayReportAspects: 'rowId',
   delayReportWalls: 'rowId',
+  // WHY: CR-731 keys the fix tables' headings by their row of table T-374 and the other fix words by part (FR-155).
+  delayFixColumns: 'rowId',
+  delayFixes: 'part',
 }
 
 const isWords = (value: unknown): value is Words =>
@@ -1012,12 +1015,23 @@ const NO_DELAY_FOUND: DelayDiagnosticsReport = {
 
 // WHY: a filter stands open, so IC-123 .. IC-126 stand in its menu (RW-2, SV-7).
 const REPORT_FILTER_OPEN = { ...OPENED_DELAY_DIAGNOSTICS_REPORT.panel, filters: { open: 'DT-1' } }
-const delayReportShown = (shown: 'normal' | 'maximized'): Frame =>
+// WHY: CR-731 -- IC-157 and IC-158 stand in the footer under the fix proposals only (RW-12), so their frame shows that table.
+const delayReportShown = (shown: 'normal' | 'maximized', table: 'diagnosis' | 'proposals' = 'diagnosis'): Frame =>
   frameWith({
     readings: sessionWith({
-      delayDiagnosticsReport: { window: { ...OPENED_DELAY_DIAGNOSTICS_REPORT, shown, panel: REPORT_FILTER_OPEN }, report: NO_DELAY_FOUND },
+      delayDiagnosticsReport: {
+        window: { ...OPENED_DELAY_DIAGNOSTICS_REPORT, shown, panel: REPORT_FILTER_OPEN, fixes: { ...NO_DELAY_FIX_VALUES, table } },
+        report: NO_DELAY_FOUND,
+        fixTables: ONE_FIX_LOGGED,
+      },
     }),
   })
+
+// see RW-12
+const FIX_FOOTER_ENTRIES: readonly string[] = ['IC-157', 'IC-158']
+
+// WHY: CR-731 -- IC-156 stands only once the fix log holds a row (RW-11); the row's own fields are not read here.
+const ONE_FIX_LOGGED = { proposals: [], log: [{ row: { findingRow: 'VC-11', taskUid: 1, column: null } as never, fixedAt: null }] }
 
 // see FR-099, T-370, T-371, S-545
 // WHY: the one resource of SCHEDULE is chosen for IC-67 and not for IC-68 (RQ-3), and a filter stands open for IC-123 .. IC-126.
@@ -1047,6 +1061,7 @@ const tableWindowEntries = (window: TableWindowView | null | undefined): readonl
         ...window.titleEntries,
         ...window.tableEntries,
         ...('toolEntries' in window ? window.toolEntries : []),
+        ...('tabEntries' in window ? [...(window.tabEntries ?? []), ...(window.walkEntries ?? []), ...(window.fixFooter?.entries ?? [])] : []),
         ...('choiceEntries' in window ? [...window.choiceEntries, ...window.rows.flatMap((row) => row.chosenEntry ?? [])] : []),
         ...window.columns.map((column) => column.filterEntry),
         ...(window.filterMenu?.entries ?? []),
@@ -1091,7 +1106,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     'Delay Diagnostics Report',
     {
-      frame: (rowId) => delayReportShown(rowId === RESTORE_ENTRY ? 'maximized' : 'normal'),
+      frame: (rowId) => delayReportShown(rowId === RESTORE_ENTRY ? 'maximized' : 'normal', FIX_FOOTER_ENTRIES.includes(rowId ?? '') ? 'proposals' : 'diagnosis'),
       heading: (view) => view.delayDiagnosticsReport?.heading,
       entries: (view) => tableWindowEntries(view.delayDiagnosticsReport),
     },
@@ -2601,7 +2616,7 @@ for (const section of ['resourceListColumns', 'resourceList']) {
   }
 }
 
-for (const section of ['delayReportColumns', 'delayReportStatuses', 'delayReportSummary', 'delayReportMarkdown', 'delayReportReasons', 'delayReportAspects', 'delayReportWalls']) {
+for (const section of ['delayReportColumns', 'delayReportStatuses', 'delayReportSummary', 'delayReportMarkdown', 'delayReportReasons', 'delayReportAspects', 'delayReportWalls', 'delayFixColumns', 'delayFixes']) {
   for (const entry of GENERATED[section] ?? []) {
     drop(
       section,

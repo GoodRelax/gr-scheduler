@@ -140,7 +140,12 @@ export interface SearchRowView {
   readonly glyph: MarkGlyph | null
   readonly shown?: boolean
   readonly target:
-    | { readonly kind: 'task'; readonly taskUid: TaskSearchRow['taskUid'] }
+    | {
+        readonly kind: 'task'
+        readonly taskUid: TaskSearchRow['taskUid']
+        readonly relatedTaskUids?: readonly number[]
+        readonly openField?: string | null
+      }
     | { readonly kind: 'commentBox'; readonly commentBoxId: CommentBoxSearchRow['commentBoxId'] }
 }
 

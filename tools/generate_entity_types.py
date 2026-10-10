@@ -2043,7 +2043,10 @@ COLOR_TARGETS = {
                        'S-336', 'S-337', 'S-464', 'S-493', 'S-165',
                        'S-503', 'S-161', 'S-162', 'S-326', 'S-327',
                        'S-385', 'S-386', 'S-387', 'S-388', 'S-389',
-                       'S-390', 'S-543', 'S-544'],
+                       'S-390', 'S-543', 'S-544',
+                       # CR-731: the related-task ring's color (RW-13), the same
+                       # shape as S-503: one row read by both units.
+                       'S-573'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labeled "ruler and task groups" and gives ScreenRenderer no
@@ -2084,7 +2087,10 @@ COLOR_TARGETS = {
                          'S-450',
                          # CR-683: the link ink, measured on the ground by CF-5 of table
                          # T-366, and the fade grab point's face and rim (FR-075).
-                         'S-503', 'S-527', 'S-528'],
+                         'S-503', 'S-527', 'S-528',
+                         # CR-731: the ring on the tasks related to a fix-proposal row
+                         # (RW-13): SJ-10's ring in its own color, without the ripple.
+                         'S-573'],
 }
 
 COLOR_NOTE = [

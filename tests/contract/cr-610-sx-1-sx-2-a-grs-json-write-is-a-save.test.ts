@@ -17,7 +17,7 @@ const T_340 = specTable('T-340')
 const SX_1_MOVES_THE_TARGET =
   '書けたファイルが上書きする先になるかは、`FR-096` の 表 T-340 に従うこと（MUST）'
 const FORM_NOT_ENTRANCE = '書けた後に何が動くかは、入口ではなく書いた形式で決まる'
-// WHY: CR-731 added a third row (the backup before a delay fix), so the closing line reads every row, not both.
+// WHY: CR-731 added SX-3, so the note now says "every row" where it said "either row".
 const NOTHING_MOVES_ON_FAILURE = '書けなかったときは、どの行でも何も動かさないこと（MUST）'
 
 const PLAIN_SHELL =
@@ -36,9 +36,9 @@ function eventSource(key: string): readonly string[] {
 }
 
 describe('T-340 / FR-060 / T-290 -- the manuscript still says it', () => {
-  // WHY: CR-731 added a third row after them; its clause belongs to the tests of the delay fixes, not to this file.
-  it('T-340 opens with SX-1 and SX-2, a save that sends documentFileSaved and an export that sends documentFileWriteEnded', () => {
-    expect(T_340.rows.map((one) => one.id).slice(0, 2)).toEqual(['SX-1', 'SX-2'])
+  // WHY: CR-731 added SX-3 (the backup before a fix); SX-1 and SX-2 still lead the table unchanged.
+  it('T-340 holds SX-1 and SX-2 first, a save that sends documentFileSaved and an export that sends documentFileWriteEnded', () => {
+    expect(T_340.rows.map((one) => one.id)).toEqual(['SX-1', 'SX-2', 'SX-3'])
     expect(T_340.rows[0]?.cells.join(' ')).toContain('fileFlow/documentFileSaved')
     expect(T_340.rows[1]?.cells.join(' ')).toContain('fileFlow/documentFileWriteEnded')
   })

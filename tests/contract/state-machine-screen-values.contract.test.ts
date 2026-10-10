@@ -164,6 +164,7 @@ const STATE_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   landedBy: ['continuationMark'],
   landedLink: [STORED_LANDING],
   landedTarget: [{ kind: 'task', taskUid: STORED_LANDING.successorUid }],
+  landedRelatedTasks: [[]],
 }
 
 function memberFor(row: SmRow | undefined, kind: string): Loose[] {
@@ -254,6 +255,7 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   guideCursor: ['crosshair'],
   landedLink: [NEW_LANDING],
   landedTarget: [{ kind: 'task', taskUid: NEW_LANDING.successorUid }],
+  landedRelatedTasks: [[], [NEW_LANDING.predecessorUid]],
 }
 
 const ARM_KINDS = STATES.filter((s) => s.parent === ROOT && s.key.startsWith('armModeStateMachine.') && !s.initial).map(

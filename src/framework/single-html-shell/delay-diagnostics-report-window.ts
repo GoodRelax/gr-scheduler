@@ -1,8 +1,10 @@
-// SingleHtmlShell -- answers the Delay Diagnostics Report window's entries: its table and frame, IC-108 and IC-140.
+// SingleHtmlShell -- answers the Delay Diagnostics Report window's entries: its tables and frame, IC-108, IC-140 and the fixes (IC-154 .. IC-160).
 // @unit      UF-195  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
 
+import type { Document } from '../../entity/document-model/document/document'
+import { proposeDelayFixes, type DelayFixRow } from '../../entity/document-model/schedule/delay-fixes'
 import type { DelayDiagnosticsReport, Schedule } from '../../entity/document-model/schedule/schedule'
 import { writeClipboard, type Clipboard } from '../../adapter/clipboard-gateway/clipboard-gateway'
 import type { TableView } from '../../use-case/advance-screen-session/advance-screen-session'
@@ -14,6 +16,7 @@ import {
   type DelayDiagnosticsReportWindow,
   type DisplayLanguage,
   type IconId,
+  type ScreenPart,
 } from '../../adapter/screen-renderer/screen-renderer'
 
 export const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnostics Report'
@@ -29,7 +32,13 @@ export interface ReportHeld {
   readonly schedule: Schedule
   readonly documentName: string
   readonly language: DisplayLanguage
+  readonly fixTables?: DelayFixTables
 }
+
+export type DelayFixTables = NonNullable<Parameters<typeof delayDiagnosticsReportAfterEntry>[4]['fixTables']>
+type DelayReportAsk = NonNullable<NonNullable<ReturnType<typeof delayDiagnosticsReportAfterEntry>>['asked']>
+type DelayFixWriteForm = Extract<DelayReportAsk, { readonly kind: 'fixWrite' }>['writeForm']
+type FixJumpCell = Extract<DelayReportAsk, { readonly kind: 'fixJump' }>['target']
 
 export interface ReportOutlets {
   readonly clipboard: Clipboard | undefined
@@ -39,6 +48,8 @@ export interface ReportOutlets {
   readonly raiseFileFault: (fault: DocumentFileFault) => void
   readonly holdWindow: (window: DelayDiagnosticsReportWindow | null) => void
   readonly writeView: (view: TableView) => void
+  readonly askFixWrite?: (writeForm: DelayFixWriteForm, fixBundle: readonly DelayFixRow[]) => void
+  readonly jumpToFix?: (target: FixJumpCell) => void
 }
 
 // see RW-6
@@ -90,8 +101,42 @@ export function answerDelayDiagnosticsReportEntry(
     return true
   }
   const answer = delayDiagnosticsReportAfterEntry(held.window, held.view, entry, filterColumn, held, listed)
-  if (answer === null) return false
+  return answer !== null && handOn(answer, outlets)
+}
+
+// see RW-12, RW-14, FR-155
+/** @purity non-pure */
+function handOn(answer: NonNullable<ReturnType<typeof delayDiagnosticsReportAfterEntry>>, outlets: ReportOutlets): true {
   outlets.writeView(answer.view)
   outlets.holdWindow(answer.window)
+  if (answer.asked?.kind === 'fixWrite') outlets.askFixWrite?.(answer.asked.writeForm, answer.asked.fixBundle)
+  if (answer.asked?.kind === 'fixJump') outlets.jumpToFix?.(answer.asked.target)
   return true
+}
+
+/** @purity pure */
+export function jumpLandingOf(cell: NonNullable<ScreenPart['searchJumpTarget']>) {
+  if (cell.kind !== 'task') return { landedTarget: cell, landedRelatedTasks: [] }
+  return { landedTarget: { kind: 'task' as const, taskUid: cell.taskUid }, landedRelatedTasks: cell.relatedTaskUids ?? [] }
+}
+
+/** @purity pure */
+export function withoutDelayFixes(window: DelayDiagnosticsReportWindow): DelayDiagnosticsReportWindow {
+  if (window.fixes === undefined) return window
+  return { shown: window.shown, panel: window.panel, isInFront: window.isInFront }
+}
+
+const NO_PICKS = {}
+
+// see RW-16, DX-11, DX-12, FR-155
+// WHY: the proposals are made again on each diagnosis (a new document) and each pick, never per frame (rule 04).
+/** @purity non-pure */
+export function delayFixTablesKeeper() {
+  let made: { readonly of: Document; readonly report: DelayDiagnosticsReport; readonly picks: unknown; readonly rows: readonly DelayFixRow[] } | null = null
+  return (diagnosis: { readonly of: Document; readonly report: DelayDiagnosticsReport }, window: DelayDiagnosticsReportWindow, log: readonly DelayFixRow[]): DelayFixTables => {
+    const picks = window.fixes?.picks ?? NO_PICKS
+    const isFresh = made !== null && made.of === diagnosis.of && made.report === diagnosis.report && made.picks === picks
+    if (!isFresh) made = { ...diagnosis, picks, rows: proposeDelayFixes(diagnosis.of, diagnosis.report, picks) }
+    return { proposals: made?.rows ?? [], log: log.map((row) => ({ row, fixedAt: null })) }
+  }
 }

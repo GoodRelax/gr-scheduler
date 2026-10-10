@@ -47,6 +47,7 @@ import {
   delayDiagnosticsReportFromWindow,
   type DelayDiagnosticsReportView,
   type DelayDiagnosticsReportWindow,
+  type DelayFixTables,
 } from './delay-diagnostics-report'
 import { resourceListFromWindow, type ResourceListView } from './resource-list'
 import { isScheduleFilterAppliedIn, scheduleFilterBarOf, type ScheduleFilterBarView, type TableWindowState } from './table-window'
@@ -97,6 +98,7 @@ export {
   delayDiagnosticsReportMarkdownOf,
   delayDiagnosticsReportWithColumnWidth,
   delayDiagnosticsReportWithFilterClosed,
+  delayDiagnosticsReportWithInput,
 } from './delay-diagnostics-report'
 export type { DelayDiagnosticsReportView, DelayDiagnosticsReportWindow } from './delay-diagnostics-report'
 
@@ -712,6 +714,7 @@ export interface ScreenViewReadings {
   readonly delayDiagnosticsReport?: {
     readonly window: DelayDiagnosticsReportWindow
     readonly report: DelayDiagnosticsReport
+    readonly fixTables?: DelayFixTables
   } | null
   // see SQ-5, S-445
   readonly bottleneckUids?: ReadonlySet<number>
@@ -743,7 +746,7 @@ function delayDiagnosticsReportOf(session: ScreenSession, readings: ScreenViewRe
   const textSizeStep = (readings.searchPanel ?? emptySearchPanelSession).textSizeStep
   const view = tableViewOf(source.settings, 'delayDiagnosticsReport')
   const layout = { canvas: source.canvas, textSizeStep }
-  return delayDiagnosticsReportFromWindow(session, held?.window ?? null, view, held?.report ?? null, source.schedule, layout)
+  return delayDiagnosticsReportFromWindow(session, held?.window ?? null, view, held?.report ?? null, source.schedule, layout, held?.fixTables)
 }
 
 /** @purity pure */

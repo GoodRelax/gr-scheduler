@@ -151,6 +151,7 @@ export type SearchFilterChange =
       readonly day: string | null
     }
   | { readonly kind: 'shown'; readonly column: SearchColumn; readonly keys: readonly VisibilityKey[]; readonly isShown: boolean }
+  | { readonly kind: 'fixPick'; readonly column: SearchColumn; readonly key: string; readonly part: 'check' | 'choice' | 'date'; readonly value: string }
 
 export interface ScheduleFilterBarView {
   readonly text: string
@@ -405,7 +406,7 @@ export function tableAfterFilterChange(
   table: WindowTable,
 ): TableView | null {
   const column = openFilterIn(panel, shown, table)
-  if (change.kind === 'shown' || column === null || column !== change.column) return null
+  if (change.kind === 'shown' || change.kind === 'fixPick' || column === null || column !== change.column) return null
   const filter = columnFilterOf(view, column)
   if (change.kind === 'bound') {
     if (!table.isDateColumn(column)) return null
