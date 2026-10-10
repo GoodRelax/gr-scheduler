@@ -100,7 +100,7 @@ export {
   delayDiagnosticsReportWithFilterClosed,
   delayDiagnosticsReportWithInput,
 } from './delay-diagnostics-report'
-export type { DelayDiagnosticsReportView, DelayDiagnosticsReportWindow } from './delay-diagnostics-report'
+export type { DelayDiagnosticsReportView, DelayDiagnosticsReportWindow, DelayFixTelling } from './delay-diagnostics-report'
 
 export { drawnTaskGroupBoxesOf, taskGroupTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'

@@ -4,7 +4,7 @@
 // @purity    non-pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { DelayFixRow } from '../../entity/document-model/schedule/delay-fixes'
+import type { DelayFixLogRow } from '../../entity/document-model/schedule/schedule'
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import { emptyDialogueLog } from '../../entity/document-model/dialogue-log/dialogue-log'
@@ -225,6 +225,7 @@ import {
   answerDelayDiagnosticsReportEntry,
   delayFixTablesKeeper,
   type DelayFixTables,
+  type DelayFixTelling,
   jumpLandingOf,
   withoutDelayFixes,
 } from './delay-diagnostics-report-window'
@@ -866,14 +867,17 @@ function situationReasonOf(one: Refusal): NoticeReason | null {
   return null
 }
 
+// see T-233, WS-3, RS-10, RW-17
+/** @purity pure */
+export function noticeReasonOfRefusals(refusals: readonly Refusal[]): NoticeReason {
+  const first = refusals.length > 0 ? situationReasonOf(refusals[0] as Refusal) : null
+  return first !== null && refusals.every((one) => situationReasonOf(one) === first) ? first : 'RS-10'
+}
+
 // see T-233, WS-3
 /** @purity pure */
 function reasonOfWriteRefusal(refusal: PlanRefusal | ReplacementRefusal): NoticeReason | null {
-  if (refusal.step === 'WS-3' && refusal.reason === 'refused') {
-    const all = refusal.refusals
-    const first = all.length > 0 ? situationReasonOf(all[0] as Refusal) : null
-    if (first !== null && all.every((one) => situationReasonOf(one) === first)) return first
-  }
+  if (refusal.step === 'WS-3' && refusal.reason === 'refused') return noticeReasonOfRefusals(refusal.refusals)
   return NOTICE_REASON_OF_WRITE_REFUSAL[refusal.reason]
 }
 
@@ -1826,9 +1830,10 @@ function tableWindowsHeldIn(read: () => WindowPlaces, write: (next: WindowPlaces
   const fixTables = delayFixTablesKeeper()
   return {
     // see DX-11, DX-12, RW-16
-    fixTablesNow(diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report'> | null, fixLog: readonly DelayFixRow[]): DelayFixTables | undefined {
+    fixTablesNow(diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report'> | null, fixLog: FixLogSource): DelayFixTables | undefined {
       const window = read().delayDiagnosticsReport
-      return diagnostics === null || window === null ? undefined : fixTables(diagnostics, window, fixLog)
+      if (diagnostics === null || window === null) return undefined
+      return { ...fixTables(diagnostics, window, fixLog.readDelayFixLog?.() ?? []), telling: fixLog.readDelayFixTelling?.() ?? null }
     },
     searchPanel: (): SearchPanelSession => read().searchPanel,
     holdSearchPanel: (panel: SearchPanelSession): void => write({ ...read(), searchPanel: panel }),
@@ -1859,7 +1864,7 @@ function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letSche
       return typed.views
     },
     /** @purity non-pure */
-    readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'bottleneckUids'> | null, drawn: ReadonlySet<number> | null, fixLog: readonly DelayFixRow[] = []) {
+    readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'bottleneckUids'> | null, drawn: ReadonlySet<number> | null, fixLog: FixLogSource = {}) {
       const isSearchPanelShown = session.screen.searchPanelDisplayState.kind !== 'hidden'
       held = windowsBehindNewSearchPanel(held, wasSearchPanelShown, isSearchPanelShown)
       wasSearchPanelShown = isSearchPanelShown
@@ -1910,10 +1915,10 @@ function reportHeldOf(
   return { window, view, report: diagnostics.report, schedule: document.schedule, documentName, language, ...(fixTables === undefined ? {} : { fixTables }) }
 }
 
-// see RW-16, DX-12
-/** @purity semi-pure-b */
-function fixLogOf(flow: { readonly readDelayFixLog?: () => readonly DelayFixRow[] }): readonly DelayFixRow[] {
-  return flow.readDelayFixLog?.() ?? []
+// see RW-16, RW-17, DX-12
+interface FixLogSource {
+  readonly readDelayFixLog?: () => readonly DelayFixLogRow[]
+  readonly readDelayFixTelling?: () => DelayFixTelling | null
 }
 
 // see EL-21, SJ-0, SJ-2, UN-20
@@ -2833,7 +2838,7 @@ export function frameLoop(
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
           zoomEntranceEnds: zoomEntranceEndsAt(values, held.document, environment.taskGroupControlsHeightPx, collectInputContext),
-          ...windows.readings(session, delayDiagnosticsNow(), shownTasks.drawnSet(), fixLogOf(documentFileFlow)),
+          ...windows.readings(session, delayDiagnosticsNow(), shownTasks.drawnSet(), documentFileFlow),
           ...parentTasks.readings(session, delayDiagnosticsShown),
           jumpRipple: owedJump.rippleOf(session.screen, layout, geometry, regions),
         }),
@@ -2888,7 +2893,7 @@ export function frameLoop(
   // see FR-134, FR-155, T-346, RW-6, RW-7, RW-12, RW-14
   /** @purity non-pure */
   function answerReportEntry(entry: IconId, filterColumn: string | null, listed?: readonly string[] | null): boolean {
-    const reportHeld = reportHeldOf(windows.report(), delayDiagnosticsNow(), held.document, screenLanguageIn(session), windows.fixTablesNow(delayDiagnosticsNow(), fixLogOf(documentFileFlow)))
+    const reportHeld = reportHeldOf(windows.report(), delayDiagnosticsNow(), held.document, screenLanguageIn(session), windows.fixTablesNow(delayDiagnosticsNow(), documentFileFlow))
     return answerDelayDiagnosticsReportEntry(entry, filterColumn, reportHeld, {
       clipboard, files, raiseFileFault, holdWindow: windows.holdReport,
       confirmOverwrite: documentFileFlow.askToWriteOverDestination,
@@ -4012,6 +4017,7 @@ export function frameLoop(
       takeInDocument: (incoming, reading) => takeInHandedDocument(hands, documentFileFlow, incoming, reading),
       changeWatchers,
       shownTasks: landingAgentHolder(shownTasks.agentHolder(), owedJump.owe, () => values),
+      delayFixLog: documentFileFlow,
       ...dialogueSeams,
     }),
     /** @purity non-pure */

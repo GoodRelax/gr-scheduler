@@ -182,7 +182,8 @@ test.describe('item 5 -- FA-24: a suggested date waits for the box, and one undo
   test('the box is empty at first; checked, IC-157 puts 2027-05-28 on the predecessor; one undo empties it again', async () => {
     const { page, close } = await proposalsOver(STARTED_SUCCESSOR())
     try {
-      const boxes = page.locator(`${PROPOSALS} input[type="checkbox"]`)
+      // WHY: FM-8 -- the row of a suggested date is the one holding a date field; the choice rows (FA-23) sort before it.
+      const boxes = page.locator(`${PROPOSALS} tr:has(input[type="date"]) input[type="checkbox"]`)
       expect((await checkedCount(page)).some((one) => one.checked), 'no suggested date is checked at first').toBe(false)
       await boxes.first().click()
       await settle(page)

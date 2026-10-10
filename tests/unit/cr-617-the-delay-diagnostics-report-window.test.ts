@@ -220,6 +220,11 @@ describe('RW-6 / RW-7 -- the Markdown string and the file name', () => {
   const stamp = { documentName: 'Plan', madeAt: '2026/10/03 10:00' }
   const text = delayDiagnosticsReportMarkdownOf(OPENED_DELAY_DIAGNOSTICS_REPORT, NO_VIEW, REPORT, SCHEDULE, 'ja', stamp)
   const lines = text.split('\n')
+  // WHY: CR-731 RW-6 writes the fix proposals (and the log) as sections after the diagnosis table; these cases read the diagnosis table.
+  const diagnosisTableOf = (all: readonly string[]): readonly string[] => {
+    const fixes = all.findIndex((line) => line.startsWith('## '))
+    return (fixes < 0 ? all : all.slice(0, fixes)).filter((line) => line.startsWith('| '))
+  }
 
   it('opens with the heading, then the document name, the status date and the moment it was made', () => {
     expect(lines[0]).toMatch(/^# /)
@@ -227,7 +232,7 @@ describe('RW-6 / RW-7 -- the Markdown string and the file name', () => {
   })
 
   it('writes the table rows in the window order, with a cell pipe escaped', () => {
-    const table = lines.filter((line) => line.startsWith('| '))
+    const table = diagnosisTableOf(lines)
     expect(table).toHaveLength(2 + 6)
     expect(table.some((line) => line.includes('Foxtrot\\|Pipe'))).toBe(true)
   })
@@ -239,7 +244,7 @@ describe('RW-6 / RW-7 -- the Markdown string and the file name', () => {
   it('names the filter that stands, and the rows it keeps', () => {
     const filtered = delayDiagnosticsReportMarkdownOf(withWord('Bravo'), NO_VIEW, REPORT, SCHEDULE, 'ja', stamp)
     expect(filtered).toContain('- フィルタ: Bravo')
-    expect(filtered.split('\n').filter((line) => line.startsWith('| '))).toHaveLength(3)
+    expect(diagnosisTableOf(filtered.split('\n'))).toHaveLength(3)
   })
 
   it('delayDiagnosticsReportMarkdown writes the summary line it is handed, and no legend (CR-648)', () => {

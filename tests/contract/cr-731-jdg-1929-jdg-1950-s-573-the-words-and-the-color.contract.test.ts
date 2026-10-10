@@ -20,7 +20,8 @@ const HINTS: Readonly<Record<string, Words>> = {
 }
 
 const CHOICES: readonly (readonly [string, Words])[] = [
-  ['FA-1', { ja: '{先行} → {後続} を消す', en: 'Delete {Predecessor} → {Successor}' }],
+  // WHY: JDG-1950 writes the slots the user read as Predecessor and Successor as {predecessor} and {successor} in the dictionary.
+  ['FA-1', { ja: '{predecessor} → {successor} を消す', en: 'Delete {predecessor} → {successor}' }],
   ['FA-3', { ja: 'この依存線を残す', en: 'Keep This Dependency Line' }],
   ['FA-4', { ja: '予定日を {date} にする', en: 'Set Planned Date to {date}' }],
   ['FA-7', { ja: '中断の値を外す', en: 'Clear the Pause Values' }],

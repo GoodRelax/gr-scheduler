@@ -192,7 +192,9 @@ describe('CR-648 RW-4 / RW-6 / RW-10 -- the summary line, no legend, the flame, 
   it('RW-6: the Markdown holds one summary line and no legend section', () => {
     const summary = lines.filter((line) => line.startsWith(wordIn('delayReportSummary', 'part', 'statusDate').ja.replace(' {date}', '')))
     expect(summary).toHaveLength(1)
-    expect(lines.some((line) => line.startsWith('## '))).toBe(false)
+    // WHY: CR-731 RW-6 -- the only second-level sections are the fix tables, under the words of IC-155 and IC-156.
+    const fixHeadings = ['IC-155', 'IC-156'].map((icon) => `## ${MANUSCRIPT['icons']?.find((entry) => entry['rowId'] === icon)?.label?.ja ?? icon}`)
+    expect(lines.filter((line) => line.startsWith('## ') && !fixHeadings.includes(line))).toEqual([])
   })
 
   it('RW-6: DG-2 is written with the flame U+1F525 before its word', () => {

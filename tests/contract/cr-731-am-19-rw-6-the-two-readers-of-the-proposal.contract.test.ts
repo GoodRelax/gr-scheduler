@@ -133,7 +133,9 @@ describe('item 13 -- RW-6: the Markdown of IC-108 holds the proposal and, with a
     const heading = labelOf('IC-155')
     expect(text).toContain(heading)
     const from = text.indexOf(heading)
-    const columns = ['FM-1', 'FM-3', 'FM-4', 'FM-5', 'FM-6', 'FM-7', 'FM-8'].map((row) => text.indexOf(wordOf('delayFixColumns', row, 'rowId'), from))
+    // WHY: the heading's own word (IC-155) holds FM-1's word, so the columns are looked for after the heading, not inside it.
+    const after = from + heading.length
+    const columns = ['FM-1', 'FM-3', 'FM-4', 'FM-5', 'FM-6', 'FM-7', 'FM-8'].map((row) => text.indexOf(wordOf('delayFixColumns', row, 'rowId'), after))
     expect(columns.every((one) => one > from), JSON.stringify(columns)).toBe(true)
     expect([...columns].sort((a, b) => a - b)).toEqual(columns)
   })

@@ -4,25 +4,38 @@
 // @purity    pure
 
 import {
+  DELAY_FIX_TYPES,
   DELAY_REPORT_STATUSES,
   delayDiagnosticsReportMarkdown,
   delayDiagnosticsReportRows,
+  delayFixColumnsOf,
+  delayFixLogCells,
+  delayFixLogRowsInOrder,
+  delayFixProposalCells,
+  delayFixRowsInOrder,
   isSameDay,
   isSearchWordFound,
   type DelayDiagnosticsReport,
+  type DelayFixCheck,
+  type DelayFixChoice,
+  type DelayFixLogRow,
+  type DelayFixMarkdown,
+  type DelayFixMarkdownSection,
+  type DelayFixRow,
+  type DelayFixWords,
   type DelayReportReason,
   type DelayReportRow,
   type DelayReportStatus,
   type DelayReportWords,
   type Schedule,
 } from '../../entity/document-model/schedule/schedule'
-import type { DelayFixRow } from '../../entity/document-model/schedule/delay-fixes'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   emptySearchPanelSession,
   type ScreenSession,
   type TableView,
 } from '../../use-case/advance-screen-session/advance-screen-session'
+import dependencyKinds from './dependency-kinds.json'
 import displayWords from './display-words.json'
 import propertyItems from './property-items.json'
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
@@ -113,6 +126,9 @@ const WORD_COLUMNS_AT: readonly number[] = DELAY_REPORT_COLUMNS.flatMap((column,
 // see VO-5, VS-6
 const MILESTONE_ACHIEVED_ROW = 'VO-5'
 const PARENT_PROGRESS_OUTSIDE_ROW = 'VS-6'
+
+// see T-312
+const OMISSION_ROW_HEAD = 'VO-'
 
 // see DT-5, DT-6, TL-5
 const DATE_RANGE = ' - '
@@ -447,7 +463,7 @@ export function delayDiagnosticsReportFromWindow(
 ): DelayDiagnosticsReportView | null {
   if (window === null || report === null) return null
   const diagnosis = diagnosisReportViewOf(session, window, view, report, schedule, layout)
-  const words = fixWordsOf(schedule, displayLanguageOf(session))
+  const words = fixWordsOf(schedule, displayLanguageOf(session), report)
   const values = delayFixValuesOf(window)
   const fixView = delayFixViewOf(values, fixTables, words)
   if (values.table === 'diagnosis') return { ...diagnosis, ...fixView }
@@ -520,7 +536,7 @@ export function delayDiagnosticsReportAfterEntry(
   listed?: readonly string[] | null,
 ): DelayReportStep | null {
   const tables = rows.fixTables ?? NO_DELAY_FIX_TABLES
-  const words = fixWordsOf(rows.schedule, rows.language)
+  const words = fixWordsOf(rows.schedule, rows.language, rows.report)
   const fixed = delayFixStepAfterEntry(window, view, entry, tables, words) ?? fixTableStepAfterEntry(window, view, entry, filterColumn, { tables, words, listed: listed ?? null })
   if (fixed !== null || delayFixValuesOf(window).table !== 'diagnosis') return fixed
   const all = delayDiagnosticsReportRows(rows.report, rows.schedule)
@@ -595,7 +611,14 @@ function markdownWordsOf(language: DisplayLanguage): DelayReportWords {
   }
 }
 
-// see FR-134, RW-4, RW-6, IC-108, IC-140
+// see RW-6, SV-7
+/** @purity pure */
+function filterConditionText(one: TableView['columnFilters'][number], labelOf: (value: string) => string): string {
+  if (one.hiddenValues.length > 0) return `-(${one.hiddenValues.map(labelOf).join(WORD_JOIN)})`
+  return `${dateText(one.fromDate)}${DATE_RANGE}${dateText(one.toDate)}`
+}
+
+// see FR-134, FR-155, RW-4, RW-6, IC-108, IC-140
 /** @purity pure */
 export function delayDiagnosticsReportMarkdownOf(
   window: DelayDiagnosticsReportWindow,
@@ -604,6 +627,7 @@ export function delayDiagnosticsReportMarkdownOf(
   schedule: Schedule,
   language: DisplayLanguage,
   stamp: { readonly documentName: string; readonly madeAt: string },
+  fixTables: DelayFixTables = NO_DELAY_FIX_TABLES,
 ): string {
   const all = delayDiagnosticsReportRows(report, schedule)
   const printed = markdownViewOf(view)
@@ -611,7 +635,7 @@ export function delayDiagnosticsReportMarkdownOf(
   const rows = shownTaskGroupsOf(look, all, language).map((shown) => ({ status: shown.row.status, cells: markdownCellsOf(shown.cells) }))
   const columns = printed.columnFilters.map((one) => ({
     heading: partWordOf(COLUMN_WORDS, one.column, language),
-    condition: one.hiddenValues.length > 0 ? `-(${one.hiddenValues.map((value) => (one.column === STATUS_COLUMN ? statusText(value as DelayReportStatus, language) : value)).join(WORD_JOIN)})` : `${dateText(one.fromDate)}${DATE_RANGE}${dateText(one.toDate)}`,
+    condition: filterConditionText(one, (value) => (one.column === STATUS_COLUMN ? statusText(value as DelayReportStatus, language) : value)),
   }))
   const summary = summaryOf(report, all, language, false)
   const dates = {
@@ -620,7 +644,8 @@ export function delayDiagnosticsReportMarkdownOf(
     madeAt: stamp.madeAt,
     summaryLine: summaryLineOf(summary, language),
   }
-  return delayDiagnosticsReportMarkdown(rows, { word: window.panel.word, columns }, markdownWordsOf(language), dates)
+  const fixes = fixMarkdownOf(window, fixTables, fixWordsOf(schedule, language, report))
+  return delayDiagnosticsReportMarkdown(rows, { word: window.panel.word, columns }, markdownWordsOf(language), dates, fixes)
 }
 
 // see RW-7, FN-5
@@ -664,21 +689,28 @@ const ITEM_OF_TASK_COLUMN: ReadonlyMap<string, string> = new Map(
   propertyItems.items.filter((item) => item.appliesTo === 'Task' && item.columns.length === 1).map((item) => [item.columns[0] ?? '', item.rowId]),
 )
 
-// see T-374
-// WHY: the rows in their order, less the ones T-374 keeps to the other table.
+const LINK_TYPE_ABBREVIATIONS: ReadonlyMap<number, string> = new Map(
+  dependencyKinds.dependencyKinds.map((kind) => [kind.linkType, kind.abbreviation]),
+)
+
 const FIX_COLUMNS: readonly string[] = displayWords.delayFixColumns.map((entry) => entry.rowId)
-const PROPOSAL_COLUMNS: readonly string[] = FIX_COLUMNS.filter((column) => column !== 'FM-2')
-const LOG_COLUMNS: readonly string[] = FIX_COLUMNS.filter((column) => column !== 'FM-1' && column !== 'FM-3')
+const PROPOSAL_COLUMNS: readonly string[] = delayFixColumnsOf('proposals', FIX_COLUMNS)
+const LOG_COLUMNS: readonly string[] = delayFixColumnsOf('log', FIX_COLUMNS)
+
+const CHECK_MARK = '\u2713'
 
 const FIX_JUMP_COLUMN = 'FM-5'
 
+const TELLING_JOIN = '    '
+
+const FIX_DATE_COLUMN = 'FM-2'
+
+const FIX_AFTER_COLUMN = 'FM-8'
+
+const FIX_WORD_COLUMNS: readonly string[] = ['FM-4', 'FM-5', 'FM-6']
+
 // see T-374, RW-9, SV-18
 const DEFAULT_WIDTH_FIX_COLUMNS: readonly string[] = ['FM-1', 'FM-4', 'FM-5']
-
-// see FM-1, SV-7
-const CHECK_MARK = '✓'
-
-const FIX_TYPE_ORDER: readonly DelayFixRow['fixType'][] = ['automatic', 'choose', 'suggestedDate', 'byHand']
 
 export type DelayReportTable = 'diagnosis' | 'proposals' | 'log'
 
@@ -686,31 +718,26 @@ type FixTable = Exclude<DelayReportTable, 'diagnosis'>
 
 export type DelayFixWriteForm = 'beforeFixOverwrite' | 'beforeFixBackup'
 
-// see RW-16, FM-1, FM-8
-export interface DelayFixPick {
-  readonly isChecked: boolean | null
-  readonly choice: number | null
-  readonly date: string | null
-}
-
 // see RW-11, RW-14, RW-16, FR-155
-// WHY: screen values the window holds and never saves (FR-155 MUST NOT); views keep each fix table's own filters and sort.
+// WHY: never saved (FR-155 MUST NOT); each fix table keeps its own view, and picks are proposeDelayFixes' checks by row key.
 export interface DelayFixWindowValues {
   readonly table: DelayReportTable
   readonly views: Readonly<Record<FixTable, TableView>>
-  readonly picks: Readonly<Record<string, DelayFixPick>>
+  readonly picks: Readonly<Record<string, DelayFixCheck>>
   readonly at: string | null
 }
 
-// see DX-11, DX-12, T-374
-export interface DelayFixLogEntry {
-  readonly row: DelayFixRow
-  readonly fixedAt: string | null
-}
+// see FR-155, RW-17, RS-10, T-233
+export type DelayFixTelling =
+  | { readonly kind: 'fixed'; readonly count: number }
+  | { readonly kind: 'refused'; readonly row: DelayFixRow; readonly reason: string }
 
+// see DX-11, DX-12, T-374, RW-17
+// WHY: the proposals come in the default order of T-374; telling is what the last bundle came to, absent before any.
 export interface DelayFixTables {
   readonly proposals: readonly DelayFixRow[]
-  readonly log: readonly DelayFixLogEntry[]
+  readonly log: readonly DelayFixLogRow[]
+  readonly telling?: DelayFixTelling | null
 }
 
 export const NO_DELAY_FIX_TABLES: DelayFixTables = { proposals: [], log: [] }
@@ -729,11 +756,14 @@ export const NO_DELAY_FIX_VALUES: DelayFixWindowValues = {
 }
 
 // see FM-1, FM-8, T-373
+// WHY: a choice answers by its key, never by its place; dateNote is the cell's text drawn after the date field (FM-8).
 export interface DelayFixCellView {
   readonly key: string
-  readonly check: 'on' | 'off' | 'disabled' | 'none'
-  readonly choices: readonly { readonly label: string; readonly isChosen: boolean }[] | null
+  readonly check: 'on' | 'off' | 'held' | 'disabled' | 'none'
+  readonly choices: readonly { readonly key: string; readonly label: string; readonly isChosen: boolean }[] | null
+  readonly blankChoice: string
   readonly date: string | null
+  readonly dateNote: string | null
   readonly isCurrent: boolean
 }
 
@@ -766,147 +796,94 @@ function withFixValues(window: DelayDiagnosticsReportWindow, changed: Partial<De
   return { ...window, fixes: { ...delayFixValuesOf(window), ...changed } }
 }
 
-// see RW-16
-/** @purity pure */
-export function delayFixKeyOf(row: Pick<DelayFixRow, 'findingRow' | 'taskUid' | 'column'>): string {
-  return `${row.findingRow}|${row.taskUid}|${row.column ?? ''}`
-}
-
 /** @purity pure */
 function fixWordOf(part: string, language: DisplayLanguage): string {
   return partWordOf(FIX_WORDS, part, language)
 }
 
-// see FM-7, FM-8, SV-7
+// see FM-4, DT-7, VO-5
+// WHY: a finding of the report reads as its DT-7 text; a chain row's finding is no finding of the report, so it reads as its aspect.
 /** @purity pure */
-function fixValueText(value: unknown, language: DisplayLanguage): string {
-  if (value === null || value === undefined || value === '') return wordOf(BLANK_WORD, language)
-  if (typeof value === 'boolean') return value ? CHECK_MARK : BLANK_SEARCH_VALUE
-  if (typeof value === 'string' && dateText(value) !== '') return dateText(value)
-  return String(value)
+function fixFindingWordOf(report: DelayDiagnosticsReport | null, findingRow: string, taskUid: number, language: DisplayLanguage): string {
+  const finding = report?.findings.find((one) => one.row === findingRow && one.uid === taskUid)
+  if (finding !== undefined) return findingText(finding, language)
+  if (findingRow === MILESTONE_ACHIEVED_ROW) return partWordOf(REASON_WORDS, 'milestoneAchieved', language)
+  if (!ASPECT_WORDS.has(findingRow) && findingRow.startsWith(OMISSION_ROW_HEAD)) return partWordOf(REASON_WORDS, 'missingActual', language)
+  return rowWordOf(ASPECT_WORDS, findingRow, language)
 }
 
 // see FM-6, T-016
 /** @purity pure */
-function fixColumnWordOf(column: string | null, language: DisplayLanguage): string {
-  if (column === null) return BLANK_SEARCH_VALUE
+function fixColumnWordOf(column: string, language: DisplayLanguage): string {
   const item = ITEM_WORDS.has(column) ? column : ITEM_OF_TASK_COLUMN.get(column)
   return item === undefined ? column : rowWordOf(ITEM_WORDS, item, language)
 }
 
-// see FM-4, DT-7, VO-5
+// see FM-8, T-373, JDG-1950
 /** @purity pure */
-function fixFindingText(row: DelayFixRow, language: DisplayLanguage): string {
-  const aspect = row.findingRow === MILESTONE_ACHIEVED_ROW ? partWordOf(REASON_WORDS, 'milestoneAchieved', language) : rowWordOf(ASPECT_WORDS, row.findingRow, language)
-  return row.causedBy === null || row.causedBy === undefined ? aspect : `${fixWordOf('cascadePrefix', language)} ${aspect}`
-}
-
-// see FM-8, T-373
-/** @purity pure */
-function fixChoiceText(choice: unknown, language: DisplayLanguage): string {
-  if (typeof choice === 'string') return FIX_WORDS.has(choice) ? fixWordOf(choice, language) : choice
-  const held = (choice ?? {}) as { readonly part?: unknown; readonly slots?: Readonly<Record<string, unknown>> }
-  const slots = Object.fromEntries(Object.entries(held.slots ?? {}).map(([slot, value]) => [slot, fixValueText(value, language)]))
-  return typeof held.part === 'string' ? filled(fixWordOf(held.part, language), slots) : BLANK_SEARCH_VALUE
-}
-
-// see FM-8, T-373, RW-13
-/** @purity pure */
-function fixAfterText(row: DelayFixRow, pick: DelayFixPick | undefined, language: DisplayLanguage): string {
-  if (isRefused(row)) return fixWordOf('readOnlyReason', language)
-  if (row.fixType === 'byHand') return fixWordOf('openFieldHint', language)
-  if (isChoiceOpen(row, pick)) return fixWordOf('choosePlaceholder', language)
-  const after = fixValueText(row.after, language)
-  return row.fixType === 'suggestedDate' ? `${after} ${fixWordOf('suggested', language)}` : after
-}
-
-/** @purity pure */
-function originOf(row: DelayFixRow, rows: readonly DelayFixRow[]): DelayFixRow | null {
-  const by: unknown = row.causedBy
-  if (typeof by === 'number') return rows[by] ?? null
-  if (typeof by !== 'string') return null
-  return rows.find((one) => delayFixKeyOf(one) === by || one.fixRow === by) ?? null
-}
-
-/** @purity pure */
-function isChoiceOpen(row: DelayFixRow, pick: DelayFixPick | undefined): boolean {
-  return row.fixType === 'choose' && (pick?.choice ?? null) === null
-}
-
-/** @purity pure */
-function isRefused(row: DelayFixRow): boolean {
-  return row.refusal !== null && row.refusal !== undefined
-}
-
-// see FM-1, T-373, RW-16
-// WHY: a cascade row whose origin is not checked can never be checked (RW-16), and a read-only one never.
-/** @purity pure */
-export function isDelayFixChecked(row: DelayFixRow, rows: readonly DelayFixRow[], picks: DelayFixWindowValues['picks']): boolean {
-  if (row.fixType === 'byHand' || isRefused(row)) return false
-  const origin = originOf(row, rows)
-  if (origin !== null && !isDelayFixChecked(origin, rows, picks)) return false
-  const pick = picks[delayFixKeyOf(row)]
-  if (isChoiceOpen(row, pick)) return false
-  return pick?.isChecked ?? (row.fixType === 'automatic' || row.fixType === 'choose')
-}
-
-// see FM-1
-/** @purity pure */
-function fixCheckOf(row: DelayFixRow, rows: readonly DelayFixRow[], picks: DelayFixWindowValues['picks']): DelayFixCellView['check'] {
-  if (row.fixType === 'byHand') return 'none'
-  const origin = originOf(row, rows)
-  const isOff = isRefused(row) || (origin !== null && !isDelayFixChecked(origin, rows, picks))
-  if (isOff) return 'disabled'
-  return isDelayFixChecked(row, rows, picks) ? 'on' : 'off'
-}
-
-/** @purity pure */
-function proposalCellsOf(row: DelayFixRow, rows: readonly DelayFixRow[], picks: DelayFixWindowValues['picks'], words: FixWords): readonly string[] {
-  const cells: Readonly<Record<string, string>> = {
-    'FM-1': isDelayFixChecked(row, rows, picks) ? CHECK_MARK : BLANK_SEARCH_VALUE,
-    'FM-3': fixWordOf(row.fixType, words.language),
-    ...sharedFixCellsOf(row, picks[delayFixKeyOf(row)], words),
-  }
-  return PROPOSAL_COLUMNS.map((column) => cells[column] ?? BLANK_SEARCH_VALUE)
+function fixChoiceWordOf(choice: DelayFixChoice, nameOf: (taskUid: number) => string, language: DisplayLanguage): string {
+  return filled(fixWordOf(choice.word, language), {
+    predecessor: choice.predecessorUid === null ? '' : nameOf(choice.predecessorUid),
+    successor: choice.successorUid === null ? '' : nameOf(choice.successorUid),
+    date: dateText(choice.date),
+  })
 }
 
 interface FixWords {
   readonly language: DisplayLanguage
-  readonly nameOf: (taskUid: number) => string
+  readonly cells: DelayFixWords
 }
 
+// see T-374, FM-3, FM-8
 /** @purity pure */
-function fixWordsOf(schedule: Schedule, language: DisplayLanguage): FixWords {
+function fixWordsOf(schedule: Schedule, language: DisplayLanguage, report: DelayDiagnosticsReport | null): FixWords {
   const names = new Map(schedule.tasks.map((task) => [task.uid, task.name]))
-  return { language, nameOf: (taskUid) => names.get(taskUid) ?? String(taskUid) }
-}
-
-/** @purity pure */
-function sharedFixCellsOf(row: DelayFixRow, pick: DelayFixPick | undefined, words: FixWords): Readonly<Record<string, string>> {
-  const language = words.language
+  const nameOf = (taskUid: number): string => names.get(taskUid) ?? String(taskUid)
+  const word = (part: string): string => fixWordOf(part, language)
   return {
-    'FM-4': fixFindingText(row, language),
-    'FM-5': words.nameOf(row.taskUid),
-    'FM-6': fixColumnWordOf(row.column, language),
-    'FM-7': fixValueText(row.before, language),
-    'FM-8': fixAfterText(row, pick, language),
+    language,
+    cells: {
+      empty: wordOf(BLANK_WORD, language),
+      suggested: word('suggested'),
+      choosePlaceholder: word('choosePlaceholder'),
+      openFieldHint: word('openFieldHint'),
+      cascadePrefix: word('cascadePrefix'),
+      readOnlyReason: word('readOnlyReason'),
+      fixTypeOf: word,
+      findingOf: (findingRow, taskUid) => fixFindingWordOf(report, findingRow, taskUid, language),
+      columnOf: (column) => fixColumnWordOf(column, language),
+      choiceOf: (choice) => fixChoiceWordOf(choice, nameOf, language),
+      taskNameOf: nameOf,
+      linkTypeOf: (linkType) => LINK_TYPE_ABBREVIATIONS.get(linkType) ?? String(linkType),
+    },
   }
 }
 
-// see FM-2
+// see FM-1, T-373, RW-16
+// WHY: proposeDelayFixes settled each box; a row an earlier row mends stays checked with that row and is held there.
 /** @purity pure */
-function logCellsOf(entry: DelayFixLogEntry, words: FixWords): readonly string[] {
-  const cells: Readonly<Record<string, string>> = {
-    'FM-2': entry.fixedAt ?? BLANK_SEARCH_VALUE,
-    ...sharedFixCellsOf(entry.row, { isChecked: true, choice: 0, date: null }, words),
-  }
-  return LOG_COLUMNS.map((column) => cells[column] ?? BLANK_SEARCH_VALUE)
+function fixCheckOf(row: DelayFixRow): DelayFixCellView['check'] {
+  if (row.fixType === 'byHand') return 'none'
+  if (row.isCheckable) return row.checked ? 'on' : 'off'
+  if (row.refusal === null && row.fixType === 'choose' && row.chosen === null) return 'off'
+  return row.checked ? 'held' : 'disabled'
+}
+
+// see FR-155, RW-12
+/** @purity pure */
+export function delayFixBundleOf(rows: readonly DelayFixRow[]): readonly DelayFixRow[] {
+  return rows.filter((row) => row.checked && row.isCheckable)
 }
 
 interface ShownFixRow {
-  readonly row: DelayFixRow
+  readonly row: DelayFixRow | DelayFixLogRow
   readonly cells: readonly string[]
   readonly columns: readonly string[]
+}
+
+/** @purity pure */
+function proposalOf(shown: ShownFixRow): DelayFixRow | null {
+  return 'key' in shown.row ? shown.row : null
 }
 
 /** @purity pure */
@@ -916,10 +893,12 @@ function fixCellOf(shown: ShownFixRow, column: string): string {
 
 // see T-374, SV-7, SV-8, FM-2
 const FIX_TABLE: TableColumns<ShownFixRow> = {
-  values: Object.fromEntries(PROPOSAL_COLUMNS.map((column) => [column, (shown: ShownFixRow) => [fixCellOf(shown, column)]])),
-  dates: { 'FM-2': (shown) => (shown.columns.includes('FM-2') ? fixCellOf(shown, 'FM-2').replace(/\//g, '-').slice(0, 10) : null) },
+  values: Object.fromEntries(FIX_COLUMNS.map((column) => [column, (shown: ShownFixRow) => [fixCellOf(shown, column)]])),
+  dates: {
+    [FIX_DATE_COLUMN]: (shown) => (shown.columns.includes(FIX_DATE_COLUMN) ? fixCellOf(shown, FIX_DATE_COLUMN).replace(/\//g, '-').slice(0, 10) : null),
+  },
   orders: {
-    'FM-3': (a, b) => FIX_TYPE_ORDER.findIndex((type) => fixTypeWordMatches(type, a)) - FIX_TYPE_ORDER.findIndex((type) => fixTypeWordMatches(type, b)),
+    'FM-3': (a, b) => DELAY_FIX_TYPES.findIndex((type) => fixTypeWordMatches(type, a)) - DELAY_FIX_TYPES.findIndex((type) => fixTypeWordMatches(type, b)),
   },
 }
 
@@ -929,31 +908,28 @@ function fixTypeWordMatches(type: DelayFixRow['fixType'], word: string): boolean
 }
 
 // see T-374
-// WHY: a cascade row stays right under its origin, however the table is sorted.
+// WHY: a chain row stays right under its source row, however the table is sorted.
 /** @purity pure */
 function withCascadesUnderOrigins(kept: readonly ShownFixRow[]): readonly ShownFixRow[] {
-  const keys = new Set(kept.map((shown) => delayFixKeyOf(shown.row)))
-  const isUnder = (shown: ShownFixRow): boolean => typeof shown.row.causedBy === 'string' && keys.has(shown.row.causedBy)
-  const placed: ShownFixRow[] = []
-  const place = (shown: ShownFixRow): void => {
-    placed.push(shown)
-    kept.filter((one) => one.row.causedBy === delayFixKeyOf(shown.row)).forEach(place)
-  }
-  kept.filter((shown) => !isUnder(shown)).forEach(place)
-  return placed
+  const proposals = kept.flatMap((shown) => proposalOf(shown) ?? [])
+  if (proposals.length !== kept.length) return kept
+  const at = new Map(proposals.map((row, index) => [row.key, index]))
+  const placeOf = (row: DelayFixRow): number => at.get(row.key) ?? 0
+  return delayFixRowsInOrder(proposals, (a, b) => placeOf(a) - placeOf(b)).flatMap((row) => kept[placeOf(row)] ?? [])
 }
 
 // see RW-11, SV-4
 /** @purity pure */
 function isFixWordFound(shown: ShownFixRow, word: string): boolean {
-  if (word === '') return true
-  return ['FM-4', 'FM-5', 'FM-6'].some((column) => isSearchWordFound(fixCellOf(shown, column), word))
+  return word === '' || FIX_WORD_COLUMNS.some((column) => isSearchWordFound(fixCellOf(shown, column), word))
 }
 
 /** @purity pure */
-function shownFixRowsOf(table: FixTable, tables: DelayFixTables, values: DelayFixWindowValues, words: FixWords): readonly ShownFixRow[] {
-  if (table === 'log') return tables.log.map((entry) => ({ row: entry.row, cells: logCellsOf(entry, words), columns: LOG_COLUMNS }))
-  return tables.proposals.map((row) => ({ row, cells: proposalCellsOf(row, tables.proposals, values.picks, words), columns: PROPOSAL_COLUMNS }))
+function shownFixRowsOf(table: FixTable, tables: DelayFixTables, words: FixWords): readonly ShownFixRow[] {
+  if (table === 'log') {
+    return delayFixLogRowsInOrder(tables.log).map((row) => ({ row, cells: delayFixLogCells(row, words.cells, FIX_COLUMNS), columns: LOG_COLUMNS }))
+  }
+  return tables.proposals.map((row) => ({ row, cells: delayFixProposalCells(row, words.cells, FIX_COLUMNS), columns: PROPOSAL_COLUMNS }))
 }
 
 /** @purity pure */
@@ -970,59 +946,58 @@ function fixWindowTableOf(table: FixTable, found: () => readonly ShownFixRow[], 
     columns,
     fixedCount: columns.indexOf(FIX_JUMP_COLUMN) + 1,
     headingOf: (column) => partWordOf(FIX_COLUMN_WORDS, column, language),
-    isDateColumn: (column) => column === 'FM-2',
+    isDateColumn: (column) => column === FIX_DATE_COLUMN,
     valuesOf: (column) => tableColumnValues(found(), FIX_TABLE, column),
     labelOf: (_column, value) => (value === BLANK_SEARCH_VALUE ? wordOf(BLANK_WORD, language) : value),
     widthSamplesOf: (column) => (DEFAULT_WIDTH_FIX_COLUMNS.includes(column) ? null : [...new Set(found().map((shown) => fixCellOf(shown, column)))]),
   }
 }
 
-// see RW-13, T-373
-// WHY: what the proposals tell of a row's landing: the task jumped to, the field opened, the tasks ringed in S-573.
-interface DelayFixLanding {
-  readonly jumpTaskUid?: number
-  readonly openField?: string | null
-  readonly relatedTaskUids?: readonly number[]
-}
-
-// see RW-13, T-373
+// see RW-13, T-373, SJ-0
+// WHY: a proposal row jumps to the task holding its field and rings the related tasks (RW-13); a log row jumps as a search row does.
 /** @purity pure */
-function fixTargetOf(row: DelayFixRow): SearchRowView['target'] {
-  const landing = row as DelayFixRow & DelayFixLanding
-  const jumpUid = landing.jumpTaskUid ?? row.taskUid
+function fixTargetOf(shown: ShownFixRow): SearchRowView['target'] {
+  const row = proposalOf(shown)
+  if (row === null) return { kind: 'task', taskUid: shown.row.taskUid }
+  const jumpUid = row.openField?.taskUid ?? row.taskUid
   return {
     kind: 'task',
     taskUid: jumpUid,
-    relatedTaskUids: (landing.relatedTaskUids ?? []).filter((uid: number) => uid !== jumpUid),
-    openField: landing.openField ?? null,
+    relatedTaskUids: row.relatedTaskUids.filter((uid) => uid !== jumpUid),
+    openField: row.openField?.field ?? null,
   }
 }
 
+// see FM-1, FM-8, T-373
 /** @purity pure */
-function fixCellViewOf(shown: ShownFixRow, tables: DelayFixTables, values: DelayFixWindowValues, language: DisplayLanguage): DelayFixCellView {
-  const row = shown.row
-  const key = delayFixKeyOf(row)
-  const pick = values.picks[key]
-  const offered: readonly unknown[] = row.choices ?? []
-  const choices = row.fixType === 'choose' ? offered.map((choice, at) => ({ label: fixChoiceText(choice, language), isChosen: pick?.choice === at })) : null
+function fixCellViewOf(shown: ShownFixRow, row: DelayFixRow, values: DelayFixWindowValues, words: FixWords): DelayFixCellView {
+  const isOpen = row.refusal === null
+  const isDated = isOpen && row.fixType === 'suggestedDate'
   return {
-    key,
-    check: fixCheckOf(row, tables.proposals, values.picks),
-    choices,
-    date: row.fixType === 'suggestedDate' ? (pick?.date ?? (typeof row.after === 'string' ? row.after : null)) : null,
-    isCurrent: values.at === key,
+    key: row.key,
+    check: fixCheckOf(row),
+    choices: isOpen && row.fixType === 'choose'
+      ? row.choices.map((choice) => ({ key: choice.key, label: words.cells.choiceOf(choice), isChosen: row.chosen === choice.key }))
+      : null,
+    blankChoice: words.cells.choosePlaceholder,
+    date: isDated ? (row.after?.kind === 'date' ? row.after.text : row.suggested) : null,
+    dateNote: isDated ? fixCellOf(shown, FIX_AFTER_COLUMN) : null,
+    isCurrent: values.at === row.key,
   }
 }
 
 /** @purity pure */
-function fixRowViewsOf(table: FixTable, found: readonly ShownFixRow[], tables: DelayFixTables, values: DelayFixWindowValues, language: DisplayLanguage): readonly DelayFixRowView[] {
-  return found.map((shown) => ({
-    cells: shown.cells,
-    glyph: null,
-    status: null,
-    target: fixTargetOf(shown.row),
-    fix: table === 'proposals' ? fixCellViewOf(shown, tables, values, language) : null,
-  }))
+function fixRowViewsOf(found: readonly ShownFixRow[], values: DelayFixWindowValues, words: FixWords): readonly DelayFixRowView[] {
+  return found.map((shown) => {
+    const row = proposalOf(shown)
+    return {
+      cells: shown.cells,
+      glyph: null,
+      status: null,
+      target: fixTargetOf(shown),
+      fix: row === null ? null : fixCellViewOf(shown, row, values, words),
+    }
+  })
 }
 
 // see RW-11, IC-154, IC-155, IC-156, EN-6
@@ -1032,29 +1007,38 @@ function delayReportTabEntriesOf(values: DelayFixWindowValues, tables: DelayFixT
   return tables.log.length === 0 ? tabs : [...tabs, entryOf(LOG_ENTRY, language, values.table === 'log')]
 }
 
-// see RW-12, IC-157, IC-158, FR-092
+const REASON_ROW_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.reasons.map((entry) => [entry.rowId, entry.text]))
+
+// see RW-17, FR-155, NT-1, T-233
 /** @purity pure */
-function delayFixFooterOf(values: DelayFixWindowValues, tables: DelayFixTables, language: DisplayLanguage): DelayFixFooterView | null {
-  if (values.table !== 'proposals') return null
-  const count = delayFixBundleOf(tables.proposals, values.picks).length
-  const entries = [OVERWRITE_FIX_ENTRY, BACKUP_FIX_ENTRY].map((icon) => ({ ...entryOf(icon, language), isEnabled: count > 0 }))
-  return { text: filled(fixWordOf('fixCount', language), { n: count }), entries }
+function delayFixTellingText(telling: DelayFixTelling, words: FixWords): string {
+  const language = words.language
+  if (telling.kind === 'fixed') return filled(fixWordOf('fixedNotice', language), { n: telling.count })
+  const row = `${words.cells.findingOf(telling.row.findingRow, telling.row.taskUid)} / ${words.cells.taskNameOf(telling.row.taskUid)}`
+  return filled(fixWordOf('refusedNotice', language), { row, reason: rowWordOf(REASON_ROW_WORDS, telling.reason, language) })
 }
 
-// see FR-155, RW-12
+// see RW-12, RW-17, IC-157, IC-158, FR-092
 /** @purity pure */
-export function delayFixBundleOf(rows: readonly DelayFixRow[], picks: DelayFixWindowValues['picks']): readonly DelayFixRow[] {
-  return rows.filter((row) => isDelayFixChecked(row, rows, picks))
+function delayFixFooterOf(values: DelayFixWindowValues, tables: DelayFixTables, words: FixWords): DelayFixFooterView | null {
+  if (values.table !== 'proposals') return null
+  const language = words.language
+  const count = delayFixBundleOf(tables.proposals).length
+  const entries = [OVERWRITE_FIX_ENTRY, BACKUP_FIX_ENTRY].map((icon) => ({ ...entryOf(icon, language), isEnabled: count > 0 }))
+  const told = tables.telling === undefined || tables.telling === null ? [] : [delayFixTellingText(tables.telling, words)]
+  return { text: [filled(fixWordOf('fixCount', language), { n: count }), ...told].join(TELLING_JOIN), entries }
 }
 
 // see RW-14
 /** @purity pure */
 function byHandKeysOf(tables: DelayFixTables, values: DelayFixWindowValues, words: FixWords): readonly string[] {
-  const shown = foundFixRowsOf(shownFixRowsOf('proposals', tables, values, words), '', values.views.proposals)
-  return shown.filter((one) => one.row.fixType !== 'automatic').map((one) => delayFixKeyOf(one.row))
+  const shown = foundFixRowsOf(shownFixRowsOf('proposals', tables, words), '', values.views.proposals)
+  return shown.flatMap((one) => {
+    const row = proposalOf(one)
+    return row === null || row.fixType === 'automatic' ? [] : [row.key]
+  })
 }
 
-// see RW-14
 /** @purity pure */
 function walkPlaceOf(tables: DelayFixTables, values: DelayFixWindowValues, words: FixWords): { readonly keys: readonly string[]; readonly at: number } {
   const keys = byHandKeysOf(tables, values, words)
@@ -1093,7 +1077,7 @@ function delayFixViewOf(values: DelayFixWindowValues, tables: DelayFixTables, wo
     tabCounts: { [PROPOSALS_ENTRY]: tables.proposals.length, [LOG_ENTRY]: tables.log.length },
     walkEntries: walk.entries,
     walkCounter: walk.counter,
-    fixFooter: delayFixFooterOf(values, tables, language),
+    fixFooter: delayFixFooterOf(values, tables, words),
     fixTable: values.table === 'diagnosis' ? null : values.table,
   }
 }
@@ -1109,18 +1093,43 @@ function fixTableViewOf(
   const language = words.language
   const values = delayFixValuesOf(window)
   const view = values.views[table]
-  const all = window.shown === 'minimized' ? [] : shownFixRowsOf(table, tables, values, words)
+  const all = window.shown === 'minimized' ? [] : shownFixRowsOf(table, tables, words)
   const found = foundFixRowsOf(all, window.panel.word, view)
   const shape = fixWindowTableOf(table, () => found, language)
   return {
     ...windowColumnsViewOf(window, view, shape, language),
-    rows: fixRowViewsOf(table, found, tables, values, language),
+    rows: fixRowViewsOf(found, values, words),
     jumpAt: shape.columns.indexOf(FIX_JUMP_COLUMN),
     tableEntries: [clearEntryOf(view, language)],
   }
 }
 
-// see RW-11, RW-14
+// see RW-6, T-374
+/** @purity pure */
+function fixMarkdownSectionOf(table: FixTable, window: DelayDiagnosticsReportWindow, tables: DelayFixTables, words: FixWords): DelayFixMarkdownSection {
+  const language = words.language
+  const view = delayFixValuesOf(window).views[table]
+  const found = foundFixRowsOf(shownFixRowsOf(table, tables, words), window.panel.word, view)
+  const columns = table === 'log' ? LOG_COLUMNS : PROPOSAL_COLUMNS
+  const filters = view.columnFilters.map((one) => ({
+    heading: partWordOf(FIX_COLUMN_WORDS, one.column, language),
+    condition: filterConditionText(one, (value) => value),
+  }))
+  return {
+    heading: entryOf(table === 'log' ? LOG_ENTRY : PROPOSALS_ENTRY, language).label,
+    filter: { word: window.panel.word, columns: filters },
+    columns: columns.map((column) => partWordOf(FIX_COLUMN_WORDS, column, language)),
+    rows: found.map((shown) => shown.cells),
+  }
+}
+
+// see RW-6
+/** @purity pure */
+function fixMarkdownOf(window: DelayDiagnosticsReportWindow, tables: DelayFixTables, words: FixWords): DelayFixMarkdown {
+  const log = tables.log.length === 0 ? null : fixMarkdownSectionOf('log', window, tables, words)
+  return { proposals: fixMarkdownSectionOf('proposals', window, tables, words), log }
+}
+
 /** @purity pure */
 function windowOnTable(window: DelayDiagnosticsReportWindow, table: DelayReportTable): DelayDiagnosticsReportWindow {
   if (delayFixValuesOf(window).table === table) return window
@@ -1133,17 +1142,17 @@ function stepAfterWalk(window: DelayDiagnosticsReportWindow, view: TableView, st
   const values = delayFixValuesOf(window)
   const { keys, at } = walkPlaceOf(tables, values, words)
   const next = keys[at + step]
-  const row = tables.proposals.find((one) => delayFixKeyOf(one) === next)
+  const row = tables.proposals.find((one) => one.key === next)
   if (next === undefined || at + step < 0 || row === undefined) return null
   const moved = withFixValues(windowOnTable(window, 'proposals'), { at: next })
-  return { window: moved, view, asked: { kind: 'fixJump', target: fixTargetOf(row) } }
+  return { window: moved, view, asked: { kind: 'fixJump', target: fixTargetOf({ row, cells: [], columns: [] }) } }
 }
 
 // see RW-12, FR-155, T-290
 /** @purity pure */
 function stepAfterFixWrite(window: DelayDiagnosticsReportWindow, view: TableView, writeForm: DelayFixWriteForm, tables: DelayFixTables): DelayReportStep | null {
   const values = delayFixValuesOf(window)
-  const fixBundle = delayFixBundleOf(tables.proposals, values.picks)
+  const fixBundle = delayFixBundleOf(tables.proposals)
   if (values.table !== 'proposals' || fixBundle.length === 0) return null
   return { window, view, asked: { kind: 'fixWrite', writeForm, fixBundle } }
 }
@@ -1179,7 +1188,7 @@ function fixTableStepAfterEntry(
   const values = delayFixValuesOf(window)
   if (values.table === 'diagnosis') return null
   const table = values.table
-  const all = shownFixRowsOf(table, answers.tables, values, answers.words)
+  const all = shownFixRowsOf(table, answers.tables, answers.words)
   const word = window.panel.word
   const step = windowAfterEntry(window, values.views[table], entry, filterColumn, {
     wouldChange: () => false,
@@ -1192,13 +1201,14 @@ function fixTableStepAfterEntry(
 
 export type DelayFixPickChange = Extract<SearchFilterChange, { readonly kind: 'fixPick' }>
 
+// see RW-16, FM-1, FM-8
 /** @purity pure */
-function pickAfterChange(held: DelayFixPick | undefined, change: DelayFixPickChange): DelayFixPick {
-  const pick = held ?? { isChecked: null, choice: null, date: null }
-  if (change.part === 'check') return { ...pick, isChecked: change.value === CHECK_MARK }
-  if (change.part === 'date') return { ...pick, date: change.value === '' ? null : change.value, isChecked: true }
-  const choice = change.value === '' ? null : Number(change.value)
-  return { ...pick, choice, isChecked: choice !== null }
+function pickAfterChange(held: DelayFixCheck | undefined, change: DelayFixPickChange): DelayFixCheck {
+  const pick = held ?? { key: change.key, checked: null, choice: null, date: null }
+  if (change.part === 'check') return { ...pick, checked: change.value === CHECK_MARK }
+  if (change.part === 'date') return { ...pick, date: change.value === '' ? null : change.value, checked: true }
+  const choice = change.value === '' ? null : change.value
+  return { ...pick, choice, checked: choice !== null }
 }
 
 // see RW-16, FM-1, FM-8

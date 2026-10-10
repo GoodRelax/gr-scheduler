@@ -54,7 +54,7 @@ const related = (svg: string): string[] =>
   tagsOf(svg, 'rect').filter((one) => [LIGHT, DARK].includes((attr(one, 'stroke') ?? '').toLowerCase()))
 const rings = (svg: string): string[] => tagsOf(svg, 'rect').filter((one) => attr(one, 'data-role') === 'Jump Landing Ring')
 const planOf = (svg: string, uid: number): string => {
-  const found = (svg.match(/<[a-z]+[^>]*>/g) ?? []).find((one) => attr(one, 'data-figure') === `task-${String(uid)}-plan`)
+  const found = (svg.match(/<[a-z]+\b[^>]*>/g) ?? []).find((one) => attr(one, 'data-figure') === `task-${String(uid)}-plan`)
   if (found === undefined) throw new Error(`task ${String(uid)} draws no plan figure`)
   return found
 }

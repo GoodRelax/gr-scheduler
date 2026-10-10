@@ -66,20 +66,20 @@ export type DelayFixCommand =
 
 // see T-373
 export type DelayFixChoiceWord =
-  | 'deleteLinkByEnds'
+  | 'deleteLinkBetween'
   | 'deleteLink'
-  | 'keepLink'
+  | 'keepThisLink'
   | 'setPlannedDate'
-  | 'clearPause'
-  | 'markStarted'
+  | 'clearPauseValues'
+  | 'markAsStarted'
   | 'clearParentActualFinish'
-  | 'finishOpenChildren'
+  | 'finishChildrenOnParentFinish'
   | 'clearMilestoneActuals'
-  | 'finishOpenPredecessors'
-  | 'moveSuccessor'
-  | 'moveStatusDate'
-  | 'markFinished'
-  | 'markInProgress'
+  | 'finishPredecessorsOnMilestoneDate'
+  | 'moveSuccessorToEarliestDate'
+  | 'moveStatusDateToActual'
+  | 'markAsFinished'
+  | 'markAsStillInProgress'
 
 // see T-373, FM-8
 // WHY: predecessorUid, successorUid and date fill the placeholders of the choice's words.
@@ -196,6 +196,7 @@ type FixBuilder = (context: FixContext, finding: DelayFinding) => readonly FixDr
 type AppliesRow = (row: DelayFixRow) => boolean
 
 interface SettleRules {
+  readonly original: Schedule
   readonly calendar: WorkingCalendar
   readonly checks: ReadonlyMap<string, DelayFixCheck>
   readonly applies: AppliesRow
@@ -533,7 +534,7 @@ function ringDrafts(context: FixContext, finding: DelayFinding): readonly FixDra
   const links = context.schedule.tasks.filter((task) => ring.has(task.uid)).flatMap((task) => task.dependencies
     .filter((one) => one.predecessorUid !== task.uid && ring.has(one.predecessorUid)).map((one) => linkOf(task.uid, one)))
   const choices = uniqueLines(links).map((line) =>
-    deleteChoiceOf(line, linksValue(links.filter((one) => lineKeyOf(one) !== lineKeyOf(line))), 'deleteLinkByEnds'))
+    deleteChoiceOf(line, linksValue(links.filter((one) => lineKeyOf(one) !== lineKeyOf(line))), 'deleteLinkBetween'))
   const related = [...ring].filter((one) => one !== finding.uid)
   return [draftOf({ fixType: 'choose', before: linksValue(links), choices, related })]
 }
@@ -582,7 +583,7 @@ function duplicateDrafts(context: FixContext, finding: DelayFinding): readonly F
   }
   const choices = links.flatMap((kept, at) => {
     const outcome = keepOutcome(links, kept)
-    return outcome === null ? [] : [choiceOf(`keep:${at}`, 'keepLink', kept, outcome)]
+    return outcome === null ? [] : [choiceOf(`keep:${at}`, 'keepThisLink', kept, outcome)]
   })
   return [draftOf({ ...base, fixType: 'choose', choices })]
 }
@@ -661,8 +662,8 @@ function pauseDrafts(context: FixContext, finding: DelayFinding): readonly FixDr
   const day = earlierDay(dayOf(task.start), dayOf(task.stop))
   const started = day === null ? null : actualStartOn(context, task, day)
   const choices = [
-    ...(cleared === null ? [] : [choiceOf('clearPause', 'clearPause', {}, cleared)]),
-    ...(started === null ? [] : [choiceOf('markStarted', 'markStarted', {}, started)]),
+    ...(cleared === null ? [] : [choiceOf('clearPauseValues', 'clearPauseValues', {}, cleared)]),
+    ...(started === null ? [] : [choiceOf('markAsStarted', 'markAsStarted', {}, started)]),
   ]
   const before = datesValue([task.stop, task.resume])
   return [draftOf({ fixType: 'choose', column: 'PR-4', before, choices, openField: field(task.uid, 'PR-4') })]
@@ -711,7 +712,7 @@ function parentFinishedDrafts(context: FixContext, finding: DelayFinding): reado
   const cleared = actualsOutcome(parent, { actualFinish: null, stop: finish, resume: null, resumeValid: true }, EMPTY)
   const choices = [
     ...(cleared === null ? [] : [choiceOf('clearParentActualFinish', 'clearParentActualFinish', {}, cleared)]),
-    ...(finish === null || finishDay === null ? [] : [choiceOf('finishOpenChildren', 'finishOpenChildren', { date: finish }, {
+    ...(finish === null || finishDay === null ? [] : [choiceOf('finishChildrenOnParentFinish', 'finishChildrenOnParentFinish', { date: finish }, {
       after: dateValue(finish), commands: finishOnCommands(context, open, finish, finishDay),
     })]),
   ]
@@ -829,7 +830,7 @@ function milestoneActualDrafts(context: FixContext, finding: DelayFinding): read
   const cleared = actualsOutcome(milestone, { actualStart: null }, datesValue([null, null]))
   const choices = [
     ...(cleared === null ? [] : [choiceOf('clearMilestoneActuals', 'clearMilestoneActuals', {}, cleared)]),
-    ...(finish === null || finishDay === null ? [] : [choiceOf('finishOpenPredecessors', 'finishOpenPredecessors', { date: finish }, {
+    ...(finish === null || finishDay === null ? [] : [choiceOf('finishPredecessorsOnMilestoneDate', 'finishPredecessorsOnMilestoneDate', { date: finish }, {
       after: dateValue(finish), commands: finishOnCommands(context, open, finish, finishDay),
     })]),
   ]
@@ -877,7 +878,7 @@ function planLinkDrafts(context: FixContext, finding: DelayFinding): readonly Fi
   const link = linkOf(ends.successor.uid, dependency)
   const moved = movedSuccessorOutcome(context, ends.predecessor, ends.successor, dependency)
   const choices = [
-    ...(moved === null ? [] : [choiceOf('moveSuccessor', 'moveSuccessor', link, moved)]),
+    ...(moved === null ? [] : [choiceOf('moveSuccessorToEarliestDate', 'moveSuccessorToEarliestDate', link, moved)]),
     deleteChoiceOf(link, EMPTY),
   ]
   const openField = field(ends.successor.uid, 'PR-3')
@@ -930,7 +931,7 @@ function statusDateDrafts(context: FixContext, finding: DelayFinding): readonly 
   const day = task === undefined ? null : dayOf(extremeText([task.actualStart, task.stop, task.actualFinish], true))
   if (day === null || compareDates(textOfDay(day), status) <= 0) return []
   const date = onDay(status, day, textOfDay(day))
-  const choices = [choiceOf('moveStatusDate', 'moveStatusDate', { date }, {
+  const choices = [choiceOf('moveStatusDateToActual', 'moveStatusDateToActual', { date }, {
     after: dateValue(date), commands: [{ kind: 'setStatusDate', date }],
   })]
   return [draftOf({ fixType: 'choose', before: dateValue(status), choices })]
@@ -959,8 +960,8 @@ function unfinishedDrafts(context: FixContext, finding: DelayFinding): readonly 
   const stop = statusDay === null ? null : finishSideOn(context, task.stop ?? task.finish, statusDay)
   const working = stop === null ? null : actualsOutcome(task, { stop }, dateValue(stop))
   const choices = [
-    ...(finished === null || task.finish === null ? [] : [choiceOf('markFinished', 'markFinished', {}, finished)]),
-    ...(working === null ? [] : [choiceOf('markInProgress', 'markInProgress', {}, working)]),
+    ...(finished === null || task.finish === null ? [] : [choiceOf('markAsFinished', 'markAsFinished', {}, finished)]),
+    ...(working === null ? [] : [choiceOf('markAsStillInProgress', 'markAsStillInProgress', {}, working)]),
   ]
   const openField = field(task.uid, 'PR-6')
   return [draftOf({ fixType: 'choose', column: 'PR-6', before: dateValue(task.actualFinish), choices, openField })]
@@ -1125,7 +1126,7 @@ function depthOf(context: FixContext, uid: number): number {
 
 // see T-373, FM-1, RW-16
 /** @purity pure */
-function rowOf(context: FixContext, seed: Seed, fixRow: string, draft: FixDraft, check: DelayFixCheck | null): Omit<DelayFixRow, 'applyOrder'> {
+function rowOf(context: FixContext, seed: Seed, draft: FixDraft, check: DelayFixCheck | null): Omit<DelayFixRow, 'applyOrder'> {
   const { finding } = seed
   const chosen = chosenOf(draft, check)
   const outcome = outcomeOf(draft, chosen, check)
@@ -1133,7 +1134,7 @@ function rowOf(context: FixContext, seed: Seed, fixRow: string, draft: FixDraft,
   const isCheckable = refusal === null && outcome !== null
   return {
     key: rowKeyOf(finding, draft),
-    fixRow,
+    fixRow: fixWayOf(finding.row)?.fixRow ?? '',
     findingRow: finding.row,
     taskUid: finding.uid,
     taskName: context.byUid.get(finding.uid)?.name ?? null,
@@ -1166,10 +1167,9 @@ function settleColumn(rules: SettleRules, settled: Settled, seed: Seed, column: 
   const context = contextOf(settled.schedule, rules.calendar)
   const draft = draftsOf(context, seed).find((one) => one.column === column)
   if (draft === undefined || (seed.causedBy !== null && draft.fixType !== 'automatic')) return settled
-  const fixRow = fixWayOf(seed.finding.row)?.fixRow ?? ''
-  const resolved = rowOf(context, seed, fixRow, draft, rules.checks.get(rowKeyOf(seed.finding, draft)) ?? null)
+  const resolved = rowOf(context, seed, draft, rules.checks.get(rowKeyOf(seed.finding, draft)) ?? null)
   const row: DelayFixRow = { ...resolved, applyOrder: settled.rows.length }
-  if (!rules.applies(row)) return { ...settled, rows: [...settled.rows, row] }
+  if (!rules.applies(row)) return withRowShown(settled, row)
   const schedule = row.commands.reduce(scheduleAfter, settled.schedule)
   return { schedule, rows: [...settled.rows, row], applied: [...settled.applied, row] }
 }
@@ -1179,7 +1179,27 @@ function settleColumn(rules: SettleRules, settled: Settled, seed: Seed, column: 
 /** @purity pure */
 function settleSeed(rules: SettleRules, settled: Settled, seed: Seed): Settled {
   const columns = draftsOf(contextOf(settled.schedule, rules.calendar), seed).map((draft) => draft.column)
+  if (columns.length === 0) return settleCovered(rules, settled, seed)
   return columns.reduce((held, column) => settleColumn(rules, held, seed, column), settled)
+}
+
+// see FR-155, DX-3, T-373
+// WHY: one row for each finding of the report: a machine finding an earlier applied row already mended (VC-12 after
+// FA-10 on the same parent) keeps its row, under that row, checked with it and with no command of its own.
+/** @purity pure */
+function settleCovered(rules: SettleRules, settled: Settled, seed: Seed): Settled {
+  const cause = causeOf(seed.finding, settled.applied)
+  if (seed.causedBy !== null || settled.applied.length === 0 || cause === null) return settled
+  const original = contextOf(rules.original, rules.calendar)
+  const draft = draftsOf(original, seed)[0]
+  if (draft === undefined || draft.fixType !== 'automatic') return settled
+  const row = { ...rowOf(original, seed, draft, null), causedBy: cause, checked: true, isCheckable: false, commands: [] }
+  return withRowShown(settled, { ...row, applyOrder: settled.rows.length })
+}
+
+/** @purity pure */
+function withRowShown(settled: Settled, row: DelayFixRow): Settled {
+  return { ...settled, rows: [...settled.rows, row] }
 }
 
 // see T-373
@@ -1265,7 +1285,11 @@ export function proposeDelayFixes(
   checks: readonly DelayFixCheck[],
 ): readonly DelayFixRow[] {
   if (report.outcome !== 'diagnosed') return []
-  const rules = { calendar: workingCalendarOf(document.schedule), checks: new Map(checks.map((one) => [one.key, one])) }
+  const rules = {
+    original: document.schedule,
+    calendar: workingCalendarOf(document.schedule),
+    checks: new Map(checks.map((one) => [one.key, one])),
+  }
   const seeds = report.findings.map((finding) => ({ finding, causedBy: null }))
   const settled = settledRows({ ...rules, applies: isIssued }, document.schedule, seeds)
   if (!settled.some(isWithheld)) return settled

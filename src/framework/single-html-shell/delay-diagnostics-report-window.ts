@@ -4,8 +4,14 @@
 // @purity    non-pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import { proposeDelayFixes, type DelayFixRow } from '../../entity/document-model/schedule/delay-fixes'
-import type { DelayDiagnosticsReport, Schedule } from '../../entity/document-model/schedule/schedule'
+import {
+  delayFixProposalRows,
+  proposeDelayFixes,
+  type DelayDiagnosticsReport,
+  type DelayFixLogRow,
+  type DelayFixRow,
+  type Schedule,
+} from '../../entity/document-model/schedule/schedule'
 import { writeClipboard, type Clipboard } from '../../adapter/clipboard-gateway/clipboard-gateway'
 import type { TableView } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { DocumentFileFault, FileStore } from '../../adapter/file-gateway/file-gateway'
@@ -36,6 +42,7 @@ export interface ReportHeld {
 }
 
 export type DelayFixTables = NonNullable<Parameters<typeof delayDiagnosticsReportAfterEntry>[4]['fixTables']>
+export type DelayFixTelling = NonNullable<DelayFixTables['telling']>
 type DelayReportAsk = NonNullable<NonNullable<ReturnType<typeof delayDiagnosticsReportAfterEntry>>['asked']>
 type DelayFixWriteForm = Extract<DelayReportAsk, { readonly kind: 'fixWrite' }>['writeForm']
 type FixJumpCell = Extract<DelayReportAsk, { readonly kind: 'fixJump' }>['target']
@@ -65,7 +72,7 @@ function madeAtText(now: Date): string {
 /** @purity non-pure */
 function handOutMarkdown(entry: IconId, held: ReportHeld, outlets: ReportOutlets): void {
   const stamp = { documentName: held.documentName, madeAt: madeAtText(new Date()) }
-  const text = delayDiagnosticsReportMarkdownOf(held.window, held.view, held.report, held.schedule, held.language, stamp)
+  const text = delayDiagnosticsReportMarkdownOf(held.window, held.view, held.report, held.schedule, held.language, stamp, held.fixTables)
   if (entry === COPY_ENTRY) {
     const seam = outlets.clipboard
     if (seam === undefined) return outlets.raiseCopyRefused()
@@ -126,17 +133,20 @@ export function withoutDelayFixes(window: DelayDiagnosticsReportWindow): DelayDi
   return { shown: window.shown, panel: window.panel, isInFront: window.isInFront }
 }
 
-const NO_PICKS = {}
+const NO_PICKS: NonNullable<DelayDiagnosticsReportWindow['fixes']>['picks'] = {}
 
-// see RW-16, DX-11, DX-12, FR-155
+// see RW-16, DX-11, DX-12, FR-155, T-374
 // WHY: the proposals are made again on each diagnosis (a new document) and each pick, never per frame (rule 04).
 /** @purity non-pure */
 export function delayFixTablesKeeper() {
-  let made: { readonly of: Document; readonly report: DelayDiagnosticsReport; readonly picks: unknown; readonly rows: readonly DelayFixRow[] } | null = null
-  return (diagnosis: { readonly of: Document; readonly report: DelayDiagnosticsReport }, window: DelayDiagnosticsReportWindow, log: readonly DelayFixRow[]): DelayFixTables => {
+  let made: { readonly of: Document; readonly report: DelayDiagnosticsReport; readonly picks: typeof NO_PICKS; readonly rows: readonly DelayFixRow[] } | null = null
+  return (diagnosis: { readonly of: Document; readonly report: DelayDiagnosticsReport }, window: DelayDiagnosticsReportWindow, log: readonly DelayFixLogRow[]): DelayFixTables => {
     const picks = window.fixes?.picks ?? NO_PICKS
     const isFresh = made !== null && made.of === diagnosis.of && made.report === diagnosis.report && made.picks === picks
-    if (!isFresh) made = { ...diagnosis, picks, rows: proposeDelayFixes(diagnosis.of, diagnosis.report, picks) }
-    return { proposals: made?.rows ?? [], log: log.map((row) => ({ row, fixedAt: null })) }
+    if (made === null || !isFresh) {
+      const proposed = proposeDelayFixes(diagnosis.of, diagnosis.report, Object.values(picks))
+      made = { ...diagnosis, picks, rows: delayFixProposalRows(proposed, diagnosis.of.schedule) }
+    }
+    return { proposals: made.rows, log }
   }
 }

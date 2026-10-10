@@ -1031,7 +1031,21 @@ const delayReportShown = (shown: 'normal' | 'maximized', table: 'diagnosis' | 'p
 const FIX_FOOTER_ENTRIES: readonly string[] = ['IC-157', 'IC-158']
 
 // WHY: CR-731 -- IC-156 stands only once the fix log holds a row (RW-11); the row's own fields are not read here.
-const ONE_FIX_LOGGED = { proposals: [], log: [{ row: { findingRow: 'VC-11', taskUid: 1, column: null } as never, fixedAt: null }] }
+const ONE_FIX_LOGGED = {
+  proposals: [],
+  log: [{
+    fixedAt: '2027-05-02T09:00:00',
+    order: 0,
+    fixRow: 'FA-11',
+    findingRow: 'VC-11',
+    taskUid: 1,
+    taskName: null,
+    column: null,
+    before: { kind: 'empty' as const },
+    after: { kind: 'empty' as const },
+    isCascade: false,
+  }],
+}
 
 // see FR-099, T-370, T-371, S-545
 // WHY: the one resource of SCHEDULE is chosen for IC-67 and not for IC-68 (RQ-3), and a filter stands open for IC-123 .. IC-126.

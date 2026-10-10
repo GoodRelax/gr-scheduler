@@ -603,8 +603,8 @@ function fixCheckElement(host: Document, fix: FixCell): HTMLElement | null {
   if (fix.check === 'none') return null
   const box = fixInput(host, 'input', fix, 'check')
   box.setAttribute('type', 'checkbox')
-  box.checked = fix.check === 'on'
-  box.disabled = fix.check === 'disabled'
+  box.checked = fix.check === 'on' || fix.check === 'held'
+  box.disabled = fix.check === 'disabled' || fix.check === 'held'
   return box
 }
 
@@ -615,9 +615,10 @@ function fixAfterElement(host: Document, fix: FixCell): HTMLElement | null {
     const list = fixInput(host, 'select', fix, 'choice')
     const blank = host.createElement('option')
     blank.setAttribute('value', '')
-    const options = fix.choices.map((choice, at) => {
+    blank.textContent = fix.blankChoice
+    const options = fix.choices.map((choice) => {
       const option = host.createElement('option')
-      option.setAttribute('value', String(at))
+      option.setAttribute('value', choice.key)
       option.textContent = choice.label
       if (choice.isChosen) option.setAttribute('selected', '')
       return option
@@ -629,7 +630,10 @@ function fixAfterElement(host: Document, fix: FixCell): HTMLElement | null {
   const field = fixInput(host, 'input', fix, 'date')
   field.setAttribute('type', 'date')
   field.value = fix.date.slice(0, 10)
-  return field
+  if (fix.dateNote === null || fix.dateNote === '') return field
+  const held = made(host, 'span', 'white-space:nowrap;')
+  held.replaceChildren(field, ` ${fix.dateNote}`)
+  return held
 }
 
 // see FM-1, FM-8, RW-16
@@ -768,7 +772,7 @@ function fixFooterElements(host: Document, footer: FixFooter | null | undefined,
   count.textContent = footer.text
   const entries = made(host, 'span', 'display:flex;column-gap:0.5em;')
   entries.replaceChildren(...footer.entries.map((item) => wordedEntry(host, item, at.anchors, at.role)))
-  band.replaceChildren(count, entries)
+  band.replaceChildren(count, ' ', entries)
   return [band]
 }
 

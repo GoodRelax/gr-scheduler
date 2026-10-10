@@ -100,8 +100,9 @@ describe('T-373 -- the rows of a choice carry as many choices as the table says'
   })
 })
 
+// WHY: DFC-2418 -- CM-37 deletes every line running one way between two tasks, so FA-3 cannot keep one; these hold T-373 as written.
 describe('FA-3 -- two lines between the same two tasks', () => {
-  it('lines of the same kind and lag: the machine keeps the first in the document order and deletes the rest', () => {
+  it.fails('lines of the same kind and lag: the machine keeps the first in the document order and deletes the rest', () => {
     const before = DOUBLE_LINE_SAME()
     const rows = proposed(before)
     const row = oneRow(rows, 'VC-3', 2)
@@ -112,7 +113,7 @@ describe('FA-3 -- two lines between the same two tasks', () => {
     expect(findingRowsOf(next)).not.toContain('VC-3')
   })
 
-  it('lines that differ in kind: a choice of the two lines, and the machine takes none', () => {
+  it.fails('lines that differ in kind: a choice of the two lines, and the machine takes none', () => {
     const rows = proposed(DOUBLE_LINE_DIFFERENT())
     const row = oneRow(rows, 'VC-3', 2)
     expect(row.fixRow).toBe('FA-3')

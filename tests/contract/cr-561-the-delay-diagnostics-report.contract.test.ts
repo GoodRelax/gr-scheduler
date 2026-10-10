@@ -475,7 +475,9 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('T-313 BD-1 .. BD-4, T-314 DQ-1 .. DQ-4 and T-317 DX-1 .. DX-10 are still the rows read here', () => {
+  // WHY: CR-731 added DX-11 (the fix proposals) and DX-12 (the fix log) after DX-10; the cases here read DX-1 .. DX-10,
+  // and the cr-731 cases read the two new rows.
+  it('T-313 BD-1 .. BD-4, T-314 DQ-1 .. DQ-4 and T-317 DX-1 .. DX-10 are still the rows read here, DX-11 and DX-12 after them', () => {
     expect(specTable('T-313').rows.map((row) => row.id)).toEqual(['BD-1', 'BD-2', 'BD-3', 'BD-4'])
     expect(specTable('T-314').rows.map((row) => bare(row.by['英（コード）'] ?? ''))).toEqual([
       'projectedFinish',
@@ -494,6 +496,8 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
       'DX-8',
       'DX-9',
       'DX-10',
+      'DX-11',
+      'DX-12',
     ])
     expect(cellOf('T-313', 'BD-1', '何をするか')).toContain('着手済みで未完了は 基準日 ＋ 残りの日数 とし')
     expect(cellOf('T-314', 'DQ-3', '定義')).toContain('max(0, `DQ-1` − (最早開始 ＋ 計画期間))')

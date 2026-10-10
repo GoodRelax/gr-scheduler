@@ -355,6 +355,16 @@
      }
     },
     {
+     "name": "DelayFixMarkdownSection",
+     "note": {
+      "ja": [
+       "型。",
+       "`DelayFixMarkdown` の 1 節 —— 見出し・フィルタの条件・欄・行（表 T-346 の `RW-6`）。",
+       "`ScreenRenderer` が節を組む"
+      ]
+     }
+    },
+    {
      "name": "parentCandidatesOf",
      "note": {
       "ja": [
@@ -3069,6 +3079,15 @@
      }
     },
     {
+     "name": "delayDiagnosticsReportWithInput",
+     "note": {
+      "ja": [
+       "窓の入力欄の語・出している表の列のフィルタの変化・直す案のチェックと択と日付（表 T-346 の `RW-3`・`RW-11`・`RW-16`）を、窓の値と診断結果の表の見え方へ当てる。",
+       "`SingleHtmlShell` が毎フレームの読み取りに使う"
+      ]
+     }
+    },
+    {
      "name": "delayDiagnosticsReportMarkdownOf",
      "note": {
       "ja": [
@@ -3084,6 +3103,16 @@
        "書き出すファイルの提案の名を作る（表 T-346 の `RW-7`）。",
        "文書名は `exportFileNameOf` と同じ 表 T-352 で整える。",
        "`SingleHtmlShell` が `IC-140` に使う"
+      ]
+     }
+    },
+    {
+     "name": "DelayFixTelling",
+     "note": {
+      "ja": [
+       "型。",
+       "直しの束が当たった（件数）か、断られた（断った行と 表 T-233 の理由の行）か（表 T-346 の `RW-17`）。",
+       "`SingleHtmlShell` が束の結果を持ち、窓の下の段に渡す"
       ]
      }
     },
@@ -3251,6 +3280,16 @@
        "文書名を 表 T-352 で整え、拡張子を付けた提案の名を作る（`FR-096`）。",
        "整えた名が空なら `FN-5` の名を使う。",
        "`SingleHtmlShell` が書き出しの選択面に渡す名に使う —— 名を整える規則を 1 か所に置くために公開した"
+      ]
+     }
+    },
+    {
+     "name": "delayFixBackupFileNameOf",
+     "note": {
+      "ja": [
+       "直す前の控えの提案の名を作る（表 T-346 の `RW-15`）。",
+       "文書名は `exportFileNameOf` と同じ 表 T-352 で整える。",
+       "`SingleHtmlShell` が `IC-158` に使う"
       ]
      }
     },

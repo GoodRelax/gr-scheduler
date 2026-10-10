@@ -8,8 +8,8 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
-import { dayOf, delayFixCommands, type DelayFixRow, type Project, type Task } from '../../entity/document-model/schedule/schedule'
-import { editDocument, wbsSubtreesOf, type Refusal } from '../../use-case/edit-document/edit-document'
+import { dayOf, delayFixCommands, delayFixLogRowsOf, type DelayFixLogRow, type DelayFixRow, type Project, type Task } from '../../entity/document-model/schedule/schedule'
+import { editDocument, wbsSubtreesOf } from '../../use-case/edit-document/edit-document'
 import type {
   FileFlowImportAnswer,
   FileFlowOpenRoute,
@@ -55,6 +55,7 @@ import {
   delayFixBackupFileNameOf,
   exportFileNameOf,
   tableViewsOnTheirColumns,
+  type DelayFixTelling,
   type ExportFormatId,
 } from '../../adapter/screen-renderer/screen-renderer'
 import {
@@ -74,6 +75,7 @@ import {
   discardQuestionOf,
   isSizeSettled,
   noWorkingWeekdayReason,
+  noticeReasonOfRefusals,
   readInstantOfWrite,
   readLocalMoment,
   type ConfirmationQuestion,
@@ -463,16 +465,13 @@ type CheckedFixRows = readonly DelayFixRow[]
 
 export type CarriedFixBundle = Extract<SessionEffect, { readonly type: 'issueDelayFixBundle' }>['fixBundle']
 
+// see DX-12, FM-2
+// WHY: the log rows carry the minute they were fixed, so the window, the Markdown and AM-19 read one log.
 interface LandedFixBundle {
-  readonly rows: CheckedFixRows
+  readonly logRows: readonly DelayFixLogRow[]
   readonly before: Document
   readonly after: Document
 }
-
-// see FR-155, T-374
-export type DelayFixTelling =
-  | { readonly kind: 'fixed'; readonly count: number }
-  | { readonly kind: 'refused'; readonly row: DelayFixRow; readonly refusal: Refusal | null }
 
 type HeldNow = ReturnType<DocumentFileFlowHands['readHeld']>
 
@@ -494,7 +493,7 @@ function firstRefusedFixRow(
   for (const row of fixBundle) {
     for (const command of delayFixCommands([row])) {
       const result = editDocument(held, command, limits, DEFAULT_TASK_GROUP_NAME)
-      if (!result.ok) return { kind: 'refused', row, refusal: result.refusals[0] ?? null }
+      if (!result.ok) return { kind: 'refused', row, reason: noticeReasonOfRefusals(result.refusals) }
       held = result.document
     }
   }
@@ -517,13 +516,13 @@ function delayFixBundleHoldOf(hands: DocumentFileFlowHands) {
       hands.writeDocument(delayFixCommands(fixBundle), frame)
       const after = hands.readHeld().document
       if (after === before) return
-      landed = [...landed, { rows: fixBundle, before, after }]
+      landed = [...landed, { logRows: delayFixLogRowsOf(fixBundle, readLocalMoment()), before, after }]
       telling = { kind: 'fixed', count: fixBundle.length }
     },
     /** @purity semi-pure-b */
-    readDelayFixLog(): CheckedFixRows {
+    readDelayFixLog(): readonly DelayFixLogRow[] {
       const held = hands.readHeld()
-      return landed.filter((one) => isFixBundleStanding(held, one)).flatMap((one) => one.rows)
+      return landed.filter((one) => isFixBundleStanding(held, one)).flatMap((one) => one.logRows)
     },
     /** @purity semi-pure-b */
     readDelayFixTelling: (): DelayFixTelling | null => telling,
