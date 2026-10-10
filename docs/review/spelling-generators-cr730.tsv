@@ -1,0 +1,47 @@
+file	line	literal	new	note
+docs/spec/_source/settings_json_to_md.py	103	'colour' in value	'color' in value	reads the settings cell key (table T-236 rows); stale -> the cell falls through, SILENT
+docs/spec/_source/settings_json_to_md.py	110	value.get('colour')	value.get('color')	same key; stale -> body None printed into tbl-settings.md, SILENT (CR-730 section 5)
+docs/spec/_source/settings.schema.json	256	"required": ["colour"]	"required": ["color"]	the schema of settings.json; validates the 150 cell keys
+docs/spec/_source/settings.schema.json	365	"colour": { ... }	"color": { ... }	the property definition of the same key
+tools/generate_entity_types.py	2062	'colour' not in cell	'color' not in cell	reads the settings cell key of table T-236; stale -> SystemExit (loud)
+tools/generate_entity_types.py	2068	cell['colour']	cell['color']	same key
+tools/generate_entity_types.py	2128	'colour' in cell	'color' in cell	palette_cell over table T-294; stale -> falls to the sameAs and not-drawn branches, SILENT
+tools/generate_entity_types.py	2129	cell['colour']	cell['color']	same key
+tools/generate_entity_types.py	1973	'SCREEN_COLOURS'	'SCREEN_COLORS'	key of COLOUR_TARGETS; the name is EMITTED into src as export const SCREEN_COLOURS
+tools/generate_entity_types.py	2000	'SCHEDULE_COLOURS'	'SCHEDULE_COLORS'	emitted name, same as above
+tools/generate_entity_types.py	2154	export const COLOUR_NAME_VALUES	export const COLOR_NAME_VALUES	emitted name; hand-written src imports it
+tools/generate_entity_types.py	3318	colour_block('SCREEN_COLOURS')	color_block('SCREEN_COLORS')	selects the emitted block by name
+tools/generate_entity_types.py	3353	colour_block('SCHEDULE_COLOURS')	color_block('SCHEDULE_COLORS')	same
+tools/generate_entity_types.py	3354	colour_sources_block('SCHEDULE_COLOURS')	color_sources_block('SCHEDULE_COLORS')	same
+tools/generate_entity_types.py	3556	'SCREEN_COLOURS'	'SCREEN_COLORS'	the list of generated names expected in src/framework/dom-screen-surface/dom-screen-surface.ts
+docs/spec/_source/erd_json_to_schema.py	251	'A null colour or width follows the ' ... 'dark colour cannot be derived' (251-254)	color	description text EMITTED into the generated GRS JSON schema (CR-730 2.3: description only, no SCHEMA_VERSION change)
+tools/generate_display_words.py	295	'defaultColour' (COLOUR_FIELD_PARTS)	'defaultColor'	part key of the manuscript section colourField; read by src properties-panel.ts:1464 and two tests
+tools/generate_display_words.py	419	'unanalysed' (DELAY_REPORT_SUMMARY_PARTS)	'unreliable'	JDG-1924; part key of delayReportSummary; read by src delay-diagnostics-report.ts:411
+tools/generate_display_words.py	701	'colourNames'	'colorNames'	section key emitted into src/adapter/screen-renderer/display-words.json
+tools/generate_display_words.py	702	'colourField'	'colorField'	section key emitted, same
+tools/generate_display_words.py	796	'colourNames': ('spelling', ...)	'colorNames'	section shape keyed by the manuscript key
+tools/generate_display_words.py	797	'colourField': ('part', ...)	'colorField'	same
+tools/generate_display_words.py	925	'colourNames', 'colourField'	'colorNames', 'colorField'	list of manuscript sections the generator expects
+tools/generate_licence.py	37	'licence.json' (OUT)	'license.json'	output path; must match the git mv of src/adapter/screen-renderer/licence.json and the import in src/adapter/screen-renderer/open-modals.ts:36
+tools/generate_licence.py	38	'src/adapter/screen-renderer/licence.json' (REL_OUT)	'src/adapter/screen-renderer/license.json'	same path, printed and checked by --check
+tools/generate_licence.py	39	'tools/generate_licence.py' (REL_SELF)	'tools/generate_license.py'	EMITTED into the generated header of license.json; must match the git mv of the script
+tools/generate_licence.py	95	'licenceText'	'licenseText'	JSON key EMITTED; read by open-modals.ts:410 and screen-renderer.ts:388
+tools/generate_licence.py	108	built['licenceText']	built['licenseText']	same key, read back by --check
+package.json	25	npm run licence (in gen)	npm run license	script name
+package.json	26	npm run licence:check (in gen:check)	npm run license:check	script name
+package.json	68	"licence": "python tools/generate_licence.py"	"license": "python tools/generate_license.py"	script name and the moved path
+package.json	69	"licence:check": "python tools/generate_licence.py --check"	"license:check": "python tools/generate_license.py --check"	same
+.claude/skills/spec-graph-check/check.sh	544	python tools/generate_licence.py --check	python tools/generate_license.py --check	the moved path (CR-730 section 9)
+.claude/skills/spec-graph-check/literal-restatement-baseline.txt	47	ColourForm | union | generated COLOUR_NAME_VALUES.*.* keys	ColorForm | union | generated COLOR_NAME_VALUES.*.* keys	baseline KEY matched against code names by check-literal-restatement.py; the why: lines (48, 75, 86) are prose
+.claude/skills/spec-graph-check/literal-restatement-baseline.txt	74	THEME_ROW_OF_FORM | keys | generated COLOUR_NAME_VALUES.*.* keys	... COLOR_NAME_VALUES ...	same
+.claude/skills/spec-graph-check/literal-restatement-baseline.txt	85	COLOUR_FORM_OF_COLUMN | values | generated COLOUR_NAME_VALUES.*.* keys	COLOR_FORM_OF_COLUMN | values | generated COLOR_NAME_VALUES.*.* keys	same
+.claude/skills/spec-graph-check/comment-rules-tests-baseline.txt	67	tests/system/divider-colour-corner-and-sticky-field.test.ts	tests/system/divider-color-corner-and-sticky-field.test.ts	baseline keyed by test PATH; follows the git mv
+.claude/skills/spec-graph-check/comment-rules-tests-baseline.txt	130	tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts	...-the-color-control.test.ts	same
+.claude/skills/spec-graph-check/comment-rules-tests-baseline.txt	152	tests/unit/fr-053-re-showing-clears-the-minimise.test.ts	...-clears-the-minimize.test.ts	same
+.claude/skills/spec-graph-check/list-asserted-claims.py	273	stays?\s+burnt (regex)	stays?\s+burned	matches comments of src and tests, which the rename rewrites; not a gate (list-)
+tools/probe/grab-figures.mjs	279	(behaviour)	(behavior)	text EMITTED into the committed figures docs/spec/_assets/fig-*.svg; re-export under the lock (CR-730 stage 1)
+tools/probe/grab-figures.mjs	396	coloured by the resolved grab area	colored	aria-label emitted into fig-hit-stacked-task-group.svg
+tools/probe/grab-figures.mjs	557	including its neighbour	neighbor	aria-label emitted into fig-grab-map-milestone.svg
+tools/generate_startup_template.py	959	'Product Development Programme' (also 963 Programme Manager A, 692 Stabilise, 767 localisation)	Program / Stabilize / localization	EMITTED into src/framework/single-html-shell/startup-template.json and tests/fixtures/measuring-document.json. Measured: the renamed generator writes exactly the renamed template (1012761 bytes, equal) -- fraction() hashes row ids from task group labels, none British, so no value moves
+tools/rename/rename_common.py	435	'MARK_COLOUR_ROWS', 'isScheduleColourRow' (B_NAMES, 435-436)	'MARK_COLOR_ROWS', 'isScheduleColorRow'	CR-708 list of names that are never the task group; keeps it true for a re-run; not used by a gate
+.claude/skills/spec-graph-check/dictionary-table-pairing.txt	-	(fingerprints of check 37)	re-pin	no British word in the file, but the en of the paired entries changes (colour 17, A +8): re-pin in the same commit (CR-730 section 6)
