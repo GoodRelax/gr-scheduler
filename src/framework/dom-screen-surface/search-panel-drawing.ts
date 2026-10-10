@@ -258,7 +258,7 @@ function measureTableElement(host: Document, column: SearchColumnView, hasGlyph:
 // see SV-18, RW-9
 // TRAP: a host with no layout reads 0; such a width is dropped, and the column falls back to the floor.
 /** @purity non-pure */
-export function measureDefaultColumnWidths(host: Document, layer: Element, table: DrawnTable, fontPx: number): ReadonlyMap<string, number> {
+function measureDefaultColumnWidths(host: Document, layer: Element, table: DrawnTable, fontPx: number): ReadonlyMap<string, number> {
   const measured = table.columns.flatMap((column, at) => (column.widthSamples === null ? [] : [{ column, at }]))
   if (measured.length === 0) return new Map()
   const box = made(host, 'div', MEASURE_BOX_STYLE)
