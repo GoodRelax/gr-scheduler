@@ -52,6 +52,9 @@ const DELIVERABLE = join(process.cwd(), 'dist', 'index.html')
 // WHY: see settled.
 const QUIET_MS = 250
 
+// WHY: a wait for the IO-6 seam, not a pass mark -- a row that never reaches it still reads moved=false.
+const IO_6_REACH_MS = 10_000
+
 const SWEEP_MS = 2_400_000
 
 // see NFR-004
@@ -1677,7 +1680,20 @@ const PROBES: readonly Probe[] = [
     // IO-6: CR-120 「現在の画面を画像として他のアプリへ渡す」, IC-3 in the header.
     rows: ['IO-6'],
     expect: 'answers',
-    act: async (p) => press(p, 'IC-3'),
+    act: async (p) => {
+      const start = await read(p)
+      const before = start.clipboardWrites + start.notices.length
+      await press(p, 'IC-3')
+      // WHY: DFC-2413 -- the picture reaches the seam about 350 ms after the press (500 ms loaded), past
+      // WHY: one QUIET_MS pair, and leaves the drawing unchanged, so settled() read it before it came.
+      const deadline = Date.now() + IO_6_REACH_MS
+      while (Date.now() < deadline) {
+        const now = await read(p)
+        if (now.clipboardWrites + now.notices.length > before) break
+        await p.waitForTimeout(QUIET_MS)
+      }
+      return null
+    },
   },
 
   {
