@@ -1837,5 +1837,6 @@ export const SCREEN_COLORS: {
   'S-390': { light: '#16181d', dark: '#16181d', followsHue: false },
   'S-543': { light: '#a02b2b', dark: '#e07a7a', followsHue: false },
   'S-544': { light: '#ffffff', dark: '#ffffff', followsHue: false },
+  'S-573': { light: '#07695a', dark: '#4fd1b5', followsHue: false },
 }
 // </generated>

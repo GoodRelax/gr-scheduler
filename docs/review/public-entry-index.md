@@ -974,8 +974,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `pasteWhatWasCopied` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteWhatWasCopied` | -- | function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues): void |
 | `answerDelayDiagnosticsReportEntry` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#answerDelayDiagnosticsReportEntry` | -- | function answerDelayDiagnosticsReportEntry( entry: IconId, filterColumn: string \| null, held: ReportHeld \| null, outlets: ReportOutlets, listed?: readonly st... |
 | `DELAY_DIAGNOSTICS_REPORT_SURFACE` | file only | const | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#DELAY_DIAGNOSTICS_REPORT_SURFACE` | -- | const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnostics Report' |
+| `delayFixTablesKeeper` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#delayFixTablesKeeper` | -- | function delayFixTablesKeeper() |
+| `jumpLandingOf` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#jumpLandingOf` | -- | function jumpLandingOf(cell: NonNullable<ScreenPart['searchJumpTarget']>) |
 | `ReportHeld` | file only | interface | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#ReportHeld` | -- | interface ReportHeld |
 | `ReportOutlets` | file only | interface | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#ReportOutlets` | -- | interface ReportOutlets |
+| `withoutDelayFixes` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#withoutDelayFixes` | -- | function withoutDelayFixes(window: DelayDiagnosticsReportWindow): DelayDiagnosticsReportWindow |
 | `answerOpenChoice` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#answerOpenChoice` | -- | function answerOpenChoice(hands: DocumentFileFlowHands, openChoice: OpenChoice, frame: FrameValues \| null): void |
 | `answerSettledFormat` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#answerSettledFormat` | -- | function answerSettledFormat(hands: DocumentFileFlowHands, format: ExportFormatId): boolean |
 | `askToOpenDroppedFile` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#askToOpenDroppedFile` | -- | function askToOpenDroppedFile(hands: DocumentFileFlowHands): void |
@@ -1256,10 +1259,18 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayDiagnosticsReportAfterFilterChange` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterFilterChange` | PI-37 | 列のフィルタの変化（表 T-330 の `SV-7`）を遅延診断レポートの窓の値へ当てる。 |
 | `delayDiagnosticsReportFileNameOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFileNameOf` | PI-37 | 書き出すファイルの提案の名を作る（表 T-346 の `RW-7`）。 |
 | `delayDiagnosticsReportMarkdownOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportMarkdownOf` | PI-37 | 窓のいまの並べ替えとフィルタで、コピーと書き出しの Markdown の文字列を作る（表 T-346 の `RW-6`）。 |
-| `DelayDiagnosticsReportView` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportView` | -- | interface DelayDiagnosticsReportView extends Omit<SearchPanelView, 'table' \| 'rows'> |
-| `DelayDiagnosticsReportWindow` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・フィルタ・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
+| `DelayDiagnosticsReportView` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportView` | -- | interface DelayDiagnosticsReportView extends Omit<SearchPanelView, 'table' \| 'rows'>, Partial<DelayFixView> |
+| `DelayDiagnosticsReportWindow` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・フィルタ・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
 | `delayDiagnosticsReportWithColumnWidth` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、窓の値へ当てる（表 T-346 の `RW-9`）。 |
 | `delayDiagnosticsReportWithFilterClosed` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた窓の値を答える（表 T-330 の `SV-14`）。 |
+| `delayDiagnosticsReportWithInput` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithInput` | -- | function delayDiagnosticsReportWithInput( window: DelayDiagnosticsReportWindow \| null, view: TableView, input: { readonly word: string \| null; readonly chang... |
+| `DelayFixCellView` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixCellView` | -- | interface DelayFixCellView |
+| `DelayFixFooterView` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixFooterView` | -- | interface DelayFixFooterView |
+| `DelayFixLogEntry` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixLogEntry` | -- | interface DelayFixLogEntry |
+| `DelayFixTables` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixTables` | -- | interface DelayFixTables |
+| `delayFixValuesOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixValuesOf` | -- | function delayFixValuesOf(window: DelayDiagnosticsReportWindow): DelayFixWindowValues |
+| `DelayFixWriteForm` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixWriteForm` | -- | type DelayFixWriteForm = 'beforeFixOverwrite' \| 'beforeFixBackup' |
+| `DelayReportAsk` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportAsk` | -- | type DelayReportAsk = \| { readonly kind: 'fixWrite'; readonly writeForm: DelayFixWriteForm; readonly fixBundle: readonly DelayFixRow[] } \| { readonly kind: '... |
 | `DialogueField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DialogueField` | -- | interface DialogueField |
 | `DialogueInput` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#DialogueInput` | -- | interface DialogueInput |
 | `dialogueMessageFromInput` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#dialogueMessageFromInput` | PI-37 | 対話欄で確定した発話。 |
@@ -1376,8 +1387,21 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `commandPaletteFromSession` | file only | function | `src/adapter/screen-renderer/command-palette.ts#commandPaletteFromSession` | -- | function commandPaletteFromSession( session: ScreenSession, settings: DocumentSettings, selection: Selection, readings: ScreenViewReadings, schedule?: Schedu... |
 | `DELAY_REPORT_COLUMNS` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DELAY_REPORT_COLUMNS` | -- | const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.rowId) |
 | `delayDiagnosticsReportFromWindow` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFromWindow` | -- | function delayDiagnosticsReportFromWindow( session: ScreenSession, window: DelayDiagnosticsReportWindow \| null, view: TableView, report: DelayDiagnosticsRepo... |
+| `delayDiagnosticsReportWithPick` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithPick` | -- | function delayDiagnosticsReportWithPick(window: DelayDiagnosticsReportWindow, change: DelayFixPickChange): DelayDiagnosticsReportWindow |
+| `delayFixBundleOf` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixBundleOf` | -- | function delayFixBundleOf(rows: readonly DelayFixRow[], picks: DelayFixWindowValues['picks']): readonly DelayFixRow[] |
+| `delayFixKeyOf` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixKeyOf` | -- | function delayFixKeyOf(row: Pick<DelayFixRow, 'findingRow' \| 'taskUid' \| 'column'>): string |
+| `DelayFixPick` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixPick` | -- | interface DelayFixPick |
+| `DelayFixPickChange` | file only | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixPickChange` | -- | type DelayFixPickChange = Extract<SearchFilterChange, { readonly kind: 'fixPick' }> |
+| `DelayFixRowView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixRowView` | -- | interface DelayFixRowView extends SearchRowView |
+| `DelayFixView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixView` | -- | interface DelayFixView |
+| `DelayFixWindowValues` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixWindowValues` | -- | interface DelayFixWindowValues |
 | `DelayReportLine` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportLine` | -- | interface DelayReportLine |
 | `DelayReportRowView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportRowView` | -- | interface DelayReportRowView extends SearchRowView |
+| `DelayReportStep` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportStep` | -- | interface DelayReportStep extends WindowStep |
+| `DelayReportTable` | file only | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportTable` | -- | type DelayReportTable = 'diagnosis' \| 'proposals' \| 'log' |
+| `isDelayFixChecked` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#isDelayFixChecked` | -- | function isDelayFixChecked(row: DelayFixRow, rows: readonly DelayFixRow[], picks: DelayFixWindowValues['picks']): boolean |
+| `NO_DELAY_FIX_TABLES` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#NO_DELAY_FIX_TABLES` | -- | const NO_DELAY_FIX_TABLES: DelayFixTables = { proposals: [], log: [] } |
+| `NO_DELAY_FIX_VALUES` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#NO_DELAY_FIX_VALUES` | -- | const NO_DELAY_FIX_VALUES: DelayFixWindowValues = |
 | `dialogueFieldFromLog` | file only | function | `src/adapter/screen-renderer/dialogue-field.ts#dialogueFieldFromLog` | -- | function dialogueFieldFromLog( log: DialogueLog, session: ScreenSession, readings: ScreenViewReadings, canvas: ScreenRect, ): DialogueField \| null |
 | `confirmationAnswers` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationAnswers` | -- | function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] |
 | `confirmationFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationFromSession` | -- | function confirmationFromSession( session: ScreenSession, readings: ScreenViewReadings, ): Confirmation \| null |
@@ -1570,7 +1594,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ColumnSizing` | file only | interface | `src/framework/dom-screen-surface/search-panel-drawing.ts#ColumnSizing` | -- | interface ColumnSizing |
 | `columnWidthPx` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#columnWidthPx` | -- | function columnWidthPx(column: SearchColumnView, sizing: ColumnSizing): number |
 | `DrawnRow` | file only | interface | `src/framework/dom-screen-surface/search-panel-drawing.ts#DrawnRow` | -- | interface DrawnRow |
-| `DrawnTable` | file only | type | `src/framework/dom-screen-surface/search-panel-drawing.ts#DrawnTable` | -- | type DrawnTable = Pick<TableWindowView, 'columns' \| 'rows' \| 'jumpAt' \| 'glyphAt' \| 'showAt' \| 'showHeading' \| 'chosenAt'> |
+| `DrawnTable` | file only | type | `src/framework/dom-screen-surface/search-panel-drawing.ts#DrawnTable` | -- | type DrawnTable = Pick<TableWindowView, 'columns' \| 'rows' \| 'jumpAt' \| 'glyphAt' \| 'showAt' \| 'showHeading' \| 'chosenAt' \| 'fixTable'> |
 | `filterChangeWatch` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#filterChangeWatch` | -- | function filterChangeWatch(layer: HTMLElement, onChanged: () => void, visibilityColumn: string): { readonly read: () => readonly SearchFilterChange[] } |
 | `focusSearchWordIn` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#focusSearchWordIn` | -- | function focusSearchWordIn(panel: HTMLElement): boolean |
 | `measuredWidthFloor` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#measuredWidthFloor` | -- | function measuredWidthFloor(fontPx: number): number |
@@ -1814,4 +1838,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 888 name(s) leave through a public entry (372 of them published by table T-064), 716 more are exported by a file and not by its entry.
+Totals: 896 name(s) leave through a public entry (372 of them published by table T-064), 732 more are exported by a file and not by its entry.

@@ -130,6 +130,7 @@ export interface ScreenValuesStateCarried {
   readonly landedLink: LandedLink | null
   readonly landedBy: LandedBy
   readonly landedTarget: SearchJumpTarget
+  readonly landedRelatedTasks: readonly number[]
 }
 
 export interface ScreenValuesEventCarried {
@@ -159,6 +160,7 @@ export interface ScreenValuesEventCarried {
   readonly writes: readonly DocumentCommand[]
   readonly landedLink: LandedLink
   readonly landedTarget: SearchJumpTarget
+  readonly landedRelatedTasks: readonly number[]
   readonly isOpenAccepted: boolean
 }
 
@@ -957,13 +959,14 @@ function onContinuationMarkClicked(
   event: EventOf<'continuationMarkClicked'>,
 ): ScreenStep {
   const { landedLink, landedTarget } = event
-  return moved(values, { landingMarkDisplayState: { kind: 'shown', landedBy: 'continuationMark', landedLink, landedTarget } })
+  return moved(values, { landingMarkDisplayState: { kind: 'shown', landedBy: 'continuationMark', landedLink, landedTarget, landedRelatedTasks: [] } })
 }
 
 // see T-280, SJ-10
 /** @purity pure */
 function onSearchJumpLanded(values: ScreenValues, event: EventOf<'searchJumpLanded'>): ScreenStep {
-  return moved(values, { landingMarkDisplayState: { kind: 'shown', landedBy: 'jump', landedLink: null, landedTarget: event.landedTarget } })
+  const { landedTarget, landedRelatedTasks } = event
+  return moved(values, { landingMarkDisplayState: { kind: 'shown', landedBy: 'jump', landedLink: null, landedTarget, landedRelatedTasks } })
 }
 
 // see T-280, EL-17
