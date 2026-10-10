@@ -144,7 +144,7 @@ export type FileOperationState =
   | { readonly kind: 'awaitingDiscardAnswer' }
   | { readonly kind: 'importingDocument' }
   | { readonly kind: 'awaitingMergeMapping'; readonly mergeCandidates: FileFlowValuesStateCarried['mergeCandidates']; readonly unreadColumns: FileFlowValuesStateCarried['unreadColumns'] }
-  | { readonly kind: 'writingDocumentFile' }
+  | { readonly kind: 'writingDocumentFile'; readonly fixBundle: FileFlowValuesStateCarried['fixBundle'] }
 
 export type ConfirmationState =
   | { readonly kind: 'notAsked' }
@@ -169,7 +169,7 @@ export type FileFlowValuesAxes = Omit<FileFlowValues, 'openedFileName' | 'droppe
 export type FileFlowValuesEvent =
   | { readonly type: 'documentOpenAsked'; readonly openRoute: FileFlowValuesEventCarried['openRoute'] }
   | { readonly type: 'agentDocumentHanded' }
-  | { readonly type: 'documentFileWriteAsked'; readonly writeForm: FileFlowValuesEventCarried['writeForm'] }
+  | { readonly type: 'documentFileWriteAsked'; readonly writeForm: FileFlowValuesEventCarried['writeForm']; readonly fixBundle: FileFlowValuesEventCarried['fixBundle'] }
   | { readonly type: 'openChoiceAnswered'; readonly openChoice: FileFlowValuesEventCarried['openChoice']; readonly question: FileFlowValuesEventCarried['question'] }
   | { readonly type: 'mergeMappingAnswered'; readonly mergeMapping: FileFlowValuesEventCarried['mergeMapping'] }
   | { readonly type: 'confirmationAnswered'; readonly isProceeding: FileFlowValuesEventCarried['isProceeding'] }
@@ -183,6 +183,7 @@ export type FileFlowValuesEvent =
   | { readonly type: 'documentOpenLanded'; readonly droppedTaskNames: FileFlowValuesEventCarried['droppedTaskNames']; readonly missingTaskNames: FileFlowValuesEventCarried['missingTaskNames']; readonly reportedCounts: FileFlowValuesEventCarried['reportedCounts']; readonly openedFileName: FileFlowValuesEventCarried['openedFileName']; readonly openChoice: FileFlowValuesEventCarried['openChoice'] }
   | { readonly type: 'overwriteQuestionRaised'; readonly question: FileFlowValuesEventCarried['question'] }
   | { readonly type: 'documentFileSaved'; readonly openedFileName: FileFlowValuesEventCarried['openedFileName'] }
+  | { readonly type: 'diagnosticFixBackupSaved' }
   | { readonly type: 'documentFileWriteEnded' }
   | { readonly type: 'documentEditLanded'; readonly isBackToSavedDocument: FileFlowValuesEventCarried['isBackToSavedDocument'] }
   | { readonly type: 'newDocumentLanded' }
@@ -196,6 +197,7 @@ export type FileFlowValuesEffectName =
   | 'importIncomingDocument'
   | 'discardIncomingDocument'
   | 'answerOverwriteQuestion'
+  | 'issueDelayFixBundle'
   | 'carryOutOwedAction'
 
 const FILE_FLOW_VALUES_INITIAL_AXES: FileFlowValuesAxes = {

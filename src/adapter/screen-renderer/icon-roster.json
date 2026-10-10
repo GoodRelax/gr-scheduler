@@ -1137,6 +1137,83 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-154",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "遅延診断レポートの窓に、まとめと 表 T-347 の診断結果の表を出す（`FR-155`）",
+   "authority": "表 T-346 の `RW-11`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-155",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "直す案を、チェック・修正前・修正後を並べた 表 T-374 の表で出す（`FR-155`）",
+   "authority": "表 T-346 の `RW-11`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-156",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "直した行の記録の表（表 T-374）を出す —— 記録が 1 行以上あるときだけ置く",
+   "authority": "`FR-155` ・ 表 T-346 の `RW-11`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-157",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "いまのファイルへ上書きして保存し、書けたらチェックの入った直しを 1 つの束で発行する",
+   "authority": "`FR-155` ・ 表 T-346 の `RW-12`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-158",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "直す前の文書を控えとして別名で保存し、書けたら `IC-157` と同じく発行する",
+   "authority": "表 T-346 の `RW-15` ・ 表 T-340 の `SX-3`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-159",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "人が直す指摘のうち、いまの行の 1 つ前へ移って飛ぶ",
+   "authority": "表 T-346 の `RW-14`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
+   "rowId": "IC-160",
+   "surfaces": [
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "人が直す指摘のうち、いまの行の次へ移って飛ぶ",
+   "authority": "`FR-155` の 表 T-346 の `RW-14`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-62",
    "surfaces": [
     "Command Palette"

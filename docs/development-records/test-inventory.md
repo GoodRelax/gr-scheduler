@@ -37,7 +37,7 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 
 | prefix | nodes | named by a test | named by none |
 | --- | --: | --: | --- |
-| FR | 119 | 114 | FR-010, FR-040, FR-079, FR-081, FR-150 |
+| FR | 120 | 114 | FR-010, FR-040, FR-079, FR-081, FR-150, FR-155 |
 | NFR | 13 | 9 | NFR-005, NFR-006, NFR-008, NFR-012 |
 | UC | 15 | 14 | UC-015 |
 | SWS | 8 | 8 | - |

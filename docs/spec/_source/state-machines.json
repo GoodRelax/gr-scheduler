@@ -1250,15 +1250,19 @@
       "kind": "input",
       "rows": [
        "SJ-10",
-       "AM-16"
+       "AM-16",
+       "RW-13"
       ],
       "note": {
-       "ja": "押して飛ぶ入口（SJ-1 のセル・FR-134 の行・PTL-16 の親の名・PR-37 / PR-38 の名）を押して離し、飛んで画面に出した。AM-16 が寄せたときも送る。SJ-8 で出せなかったときは送らない"
+       "ja": "押して飛ぶ入口（SJ-1 のセル・FR-134 の行・RW-13 の直す案の行・PTL-16 の親の名・PR-37 / PR-38 の名）を押して離し、飛んで画面に出した。AM-16 が寄せたときも送る。SJ-8 で出せなかったときは送らない"
       }
      },
      "carries": [
       {
        "name": "landedTarget"
+      },
+      {
+       "name": "landedRelatedTasks"
       }
      ]
     },
@@ -3284,12 +3288,19 @@
          "note": {
           "ja": "印の先の `Task` の `UID`、またはコメントボックスの id"
          }
+        },
+        {
+         "name": "landedRelatedTasks",
+         "note": {
+          "ja": "遅延診断の直す案の行から飛んだとき（表 T-346 の `RW-13`）の、行の関係するタスクの `UID` の列 —— `S-573` の色の囲みを描く。ほかの飛び方と続きの印では空"
+         }
         }
        ],
        "evidence": [
         "EL-16",
         "EL-19",
-        "SJ-10"
+        "SJ-10",
+        "RW-13"
        ]
       }
      ],
@@ -4515,10 +4526,13 @@
        "FR-060",
        "SK-12",
        "FR-096",
-       "U-54"
+       "U-54",
+       "IC-157",
+       "IC-158",
+       "FR-155"
       ],
       "note": {
-       "ja": "`Ctrl` ＋ `S`、書き出しの形式を選んだ"
+       "ja": "`Ctrl` ＋ `S`、書き出しの形式を選んだ、遅延診断の直す案の `IC-157` ・ `IC-158` を押した"
       }
      },
      "carries": [
@@ -4526,10 +4540,22 @@
        "name": "writeForm",
        "rows": [
         "FR-060",
-        "FR-096"
+        "FR-096",
+        "FR-155",
+        "SX-3"
        ],
        "note": {
-        "ja": "保存（`Ctrl` ＋ `S`）か、`U-54` で選んだ書き出しの形式"
+        "ja": "保存（`Ctrl` ＋ `S`）か、`U-54` で選んだ書き出しの形式か、直す前の保存 —— `beforeFixOverwrite`（`IC-157`。`SK-11` と同じ道で `GRS JSON` を書く）／ `beforeFixBackup`（`IC-158`。`RW-15` の選択面で控えを書く —— `SX-3`）"
+       }
+      },
+      {
+       "name": "fixBundle",
+       "rows": [
+        "FR-155",
+        "UN-21"
+       ],
+       "note": {
+        "ja": "`writeForm` が `beforeFixOverwrite` ／ `beforeFixBackup` のときだけ持つ —— チェックの入った行の直し（表 T-373 の命令の列）。ほかでは `null`"
        }
       }
      ]
@@ -4915,6 +4941,21 @@
      ]
     },
     {
+     "key": "diagnosticFixBackupSaved",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "SX-3",
+       "FR-155",
+       "RW-15"
+      ],
+      "note": {
+       "ja": "直す前の控えの `GRS JSON` が書けた（表 T-340 の `SX-3`）。保存ではない —— 上書きする先・未保存の編集・ヘッダーのファイルの状態を変えない"
+      }
+     },
+     "carries": []
+    },
+    {
      "key": "documentFileWriteEnded",
      "source": {
       "kind": "effectResult",
@@ -5093,12 +5134,20 @@
        "key": "writingDocumentFile",
        "parent": null,
        "initial": false,
-       "carries": [],
+       "carries": [
+        {
+         "name": "fixBundle",
+         "note": {
+          "ja": "書けたら 1 つの束として発行する直し（`FR-155`）。直す前の保存でなければ `null`"
+         }
+        }
+       ],
        "evidence": [
         "FR-060",
         "FR-096",
         "DI-4",
-        "CS-4"
+        "CS-4",
+        "FR-155"
        ]
       }
      ],
@@ -5552,8 +5601,28 @@
        "writingDocumentFile": {
         "to": "idle",
         "evidence": [
-         "FR-060"
-        ]
+         "FR-060",
+         "FR-155",
+         "UN-21"
+        ],
+        "effect": "issueDelayFixBundle",
+        "note": {
+         "ja": "運んだ `fixBundle` があれば 1 つの束として発行する（`writeForm` が `beforeFixOverwrite` のとき）。束のどれかを命令が断ったら何も当てず、断った行と理由を告げる"
+        }
+       }
+      },
+      "diagnosticFixBackupSaved": {
+       "writingDocumentFile": {
+        "to": "idle",
+        "effect": "issueDelayFixBundle",
+        "evidence": [
+         "SX-3",
+         "FR-155",
+         "UN-21"
+        ],
+        "note": {
+         "ja": "運んだ `fixBundle` を 1 つの束として発行する。`unsavedEditsStateMachine` とヘッダーのファイルの状態は動かさない（`SX-3`）"
+        }
        }
       },
       "documentFileWriteEnded": {
@@ -5561,8 +5630,12 @@
         "to": "idle",
         "evidence": [
          "FR-096",
-         "CS-4"
-        ]
+         "CS-4",
+         "FR-155"
+        ],
+        "note": {
+         "ja": "運んだ `fixBundle` は捨てる —— 書けなかったときは直さない（`FR-155`）"
+        }
        }
       }
      }

@@ -331,7 +331,7 @@ export type HelpDisplayState =
 
 export type LandingMarkDisplayState =
   | { readonly kind: 'hidden' }
-  | { readonly kind: 'shown'; readonly landedBy: ScreenValuesStateCarried['landedBy']; readonly landedLink: ScreenValuesStateCarried['landedLink']; readonly landedTarget: ScreenValuesStateCarried['landedTarget'] }
+  | { readonly kind: 'shown'; readonly landedBy: ScreenValuesStateCarried['landedBy']; readonly landedLink: ScreenValuesStateCarried['landedLink']; readonly landedTarget: ScreenValuesStateCarried['landedTarget']; readonly landedRelatedTasks: ScreenValuesStateCarried['landedRelatedTasks'] }
 
 export type DropCueDisplayState =
   | { readonly kind: 'hidden' }
@@ -411,7 +411,7 @@ export type ScreenValuesEvent =
   | { readonly type: 'helpMaximizeToggled' }
   | { readonly type: 'continuationMarkClicked'; readonly landedLink: ScreenValuesEventCarried['landedLink']; readonly landedTarget: ScreenValuesEventCarried['landedTarget'] }
   | { readonly type: 'landingMarkClearAsked' }
-  | { readonly type: 'searchJumpLanded'; readonly landedTarget: ScreenValuesEventCarried['landedTarget'] }
+  | { readonly type: 'searchJumpLanded'; readonly landedTarget: ScreenValuesEventCarried['landedTarget']; readonly landedRelatedTasks: ScreenValuesEventCarried['landedRelatedTasks'] }
   | { readonly type: 'fileDragEntered'; readonly isOpenAccepted: ScreenValuesEventCarried['isOpenAccepted'] }
   | { readonly type: 'fileDragLeft' }
 
