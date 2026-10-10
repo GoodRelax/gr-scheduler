@@ -158,14 +158,19 @@ const realRaf = (globalThis as any).requestAnimationFrame
 function host(): {
   readonly surface: { showSvg(svg: string): void }
   runAnimationFrames(): void
+  frameAsked(): Promise<void>
 } {
   const waiting: ((time: number) => void)[] = []
+  const askedListeners: (() => void)[] = []
   let handle = 0
   ;(globalThis as any).requestAnimationFrame = (callback: (time: number) => void): number => {
     waiting.push(callback)
+    for (const heard of askedListeners.splice(0, askedListeners.length)) heard()
     return ++handle
   }
   return {
+    frameAsked: () =>
+      waiting.length > 0 ? Promise.resolve() : new Promise<void>((done) => void askedListeners.push(done)),
     surface: { showSvg: () => undefined },
     runAnimationFrames: () => {
       for (let turn = 0; turn < 8 && waiting.length > 0; turn += 1) {
@@ -279,10 +284,8 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
       send(pointer('down', 700, 400))
       send(pointer('up', 700, 400))
       drawn(null)
-      // ⚠️ TWO TURNS OF THE MACROTASK QUEUE, not one: the digest is a promise of
-      // the host's and the frame it asks for is scheduled after it settles.
-      await new Promise((done) => setTimeout(done, 0))
-      await new Promise((done) => setTimeout(done, 0))
+      // WHY: the match ends by asking for a frame (UF-166); a fixed count of turns loses to a loaded digest worker (DFC-2417).
+      await pen.frameAsked()
       pen.runAnimationFrames()
     },
   }
