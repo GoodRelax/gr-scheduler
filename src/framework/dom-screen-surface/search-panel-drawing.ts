@@ -10,9 +10,8 @@ import {
   windowBoxOf,
   windowNormalBoxOf,
   type CommandItem,
-  type DelayFixCellView,
-  type DelayFixFooterView,
   type ScreenPart,
+  type ScreenView,
   type SearchFilterChange,
   type SearchPanelView,
   type VisibilityKey,
@@ -52,7 +51,18 @@ export interface DrawnRow {
   readonly target?: SearchRowView['target']
   readonly key?: VisibilityKey
   readonly chosenEntry?: CommandItem | null
-  readonly fix?: DelayFixCellView | null
+  readonly fix?: FixCell | null
+}
+
+// WHY: read off the published report view, so no further name leaves ScreenRenderer (T-064).
+type ReportView = NonNullable<ScreenView['delayDiagnosticsReport']>
+type FixCell = NonNullable<Extract<ReportView['rows'][number], { readonly status: null }>['fix']>
+type FixFooter = NonNullable<ReportView['fixFooter']>
+
+interface EntryPlace {
+  readonly fontPx: number
+  readonly anchors: Map<string, HTMLElement>
+  readonly role: string
 }
 
 type SearchFilterMenuView = NonNullable<SearchPanelView['filterMenu']>
@@ -69,7 +79,7 @@ export type TableWindowView = Omit<SearchPanelView, 'table' | 'rows'> & {
   readonly tabCounts?: { readonly [entry: string]: number }
   readonly walkEntries?: readonly CommandItem[]
   readonly walkCounter?: string
-  readonly fixFooter?: DelayFixFooterView | null
+  readonly fixFooter?: FixFooter | null
   readonly fixTable?: 'proposals' | 'log' | null
 }
 
@@ -143,6 +153,13 @@ const FIX_CHECK_COLUMN = 'FM-1'
 const FIX_AFTER_COLUMN = 'FM-8'
 
 const UID_JOIN = ','
+
+// see T-374, S-496, S-481, S-478
+const FIX_COLUMN_WIDTH_ROWS: { readonly [column: string]: keyof typeof NOT_STORED_SEARCH_PANEL_SIZES } = {
+  [FIX_CHECK_COLUMN]: 'S-496',
+  'FM-4': 'S-481',
+  'FM-5': 'S-478',
+}
 
 const ENTRY_ICON_ATTRIBUTE = 'data-icon'
 
@@ -267,7 +284,7 @@ export function unmeasuredSizing(fontPx: number): ColumnSizing {
 
 /** @purity pure */
 function tableRowWidthPx(column: SearchColumnView): number {
-  const row = SEARCH_COLUMN_WIDTH_ROWS[column.column]
+  const row = SEARCH_COLUMN_WIDTH_ROWS[column.column] ?? FIX_COLUMN_WIDTH_ROWS[column.column]
   if (row === undefined) throw new RangeError(`table T-206 holds no default width for column ${column.column}`)
   return NOT_STORED_SEARCH_PANEL_SIZES[row]
 }
@@ -276,7 +293,7 @@ function tableRowWidthPx(column: SearchColumnView): number {
 // WHY: the Visibility column keeps its fixed S-496 and has no border to pull, so the floor is not laid on it.
 /** @purity pure */
 export function columnWidthPx(column: SearchColumnView, sizing: ColumnSizing): number {
-  if (VISIBILITY_COLUMNS.includes(column.column)) return column.width ?? tableRowWidthPx(column)
+  if (VISIBILITY_COLUMNS.includes(column.column) || column.column === FIX_CHECK_COLUMN) return column.width ?? tableRowWidthPx(column)
   const byDefault = column.widthSamples === null ? tableRowWidthPx(column) : (sizing.measured.get(column.column) ?? sizing.floor)
   return Math.max(column.width ?? byDefault, sizing.floor)
 }
@@ -414,6 +431,7 @@ function headerCellElement(
   cell.setAttribute('data-width', String(columnWidthPx(column, sizing)))
   if (column.isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
   if (column.isFiltered) cell.setAttribute(FILTERED_ATTRIBUTE, 'true')
+  if (column.column === FIX_CHECK_COLUMN) cell.setAttribute(NO_BORDER_ATTRIBUTE, 'true')
   const line = made(host, 'div', HEADING_LINE_STYLE)
   const filter = commandEntry(host, column.filterEntry)
   if (column.isFiltered) filter.setAttribute('style', (filter.getAttribute('style') ?? '') + filteredEntryStyle())
@@ -573,7 +591,7 @@ function markJumpCell(cell: HTMLElement, target: Extract<NonNullable<DrawnRow['t
 }
 
 /** @purity non-pure */
-function fixInput(host: Document, tag: string, fix: DelayFixCellView, fixPart: string): HTMLInputElement {
+function fixInput(host: Document, tag: string, fix: FixCell, fixPart: string): HTMLInputElement {
   const control = made(host, tag, 'margin:0;max-width:100%;font:inherit;') as HTMLInputElement
   control.setAttribute(DELAY_FIX_KEY_ATTRIBUTE, fix.key)
   control.setAttribute(DELAY_FIX_PART_ATTRIBUTE, fixPart)
@@ -581,7 +599,7 @@ function fixInput(host: Document, tag: string, fix: DelayFixCellView, fixPart: s
 }
 
 /** @purity non-pure */
-function fixCheckElement(host: Document, fix: DelayFixCellView): HTMLElement | null {
+function fixCheckElement(host: Document, fix: FixCell): HTMLElement | null {
   if (fix.check === 'none') return null
   const box = fixInput(host, 'input', fix, 'check')
   box.setAttribute('type', 'checkbox')
@@ -592,7 +610,7 @@ function fixCheckElement(host: Document, fix: DelayFixCellView): HTMLElement | n
 
 // see FM-8, T-373
 /** @purity non-pure */
-function fixAfterElement(host: Document, fix: DelayFixCellView): HTMLElement | null {
+function fixAfterElement(host: Document, fix: FixCell): HTMLElement | null {
   if (fix.choices !== null) {
     const list = fixInput(host, 'select', fix, 'choice')
     const blank = host.createElement('option')
@@ -706,7 +724,7 @@ function aboveTableElements(host: Document, view: TableWindowView, fontPx: numbe
   if (tools.length > 0) word.setAttribute('style', (word.getAttribute('style') ?? '') + WORD_BESIDE_TOOLS_STYLE)
   const line = made(host, 'div', TOOL_LINE_STYLE)
   line.replaceChildren(...tools, word, ...walkElements(host, view, anchors, role))
-  const tabs = fixTabsElements(host, view, fontPx, anchors, role)
+  const tabs = fixTabsElements(host, view, { fontPx, anchors, role })
   if (view.summary === undefined || view.summary.length === 0) return [tools.length === 0 ? word : line, ...tabs]
   const summary = made(host, 'div', SUMMARY_LINE_STYLE + `font-size:${fontPx}px;`)
   summary.replaceChildren(...view.summary.map((one) => summaryItemElement(host, one)))
@@ -725,10 +743,10 @@ function wordedEntry(host: Document, item: CommandItem, anchors: Map<string, HTM
 
 // see RW-11
 /** @purity non-pure */
-function fixTabsElements(host: Document, view: TableWindowView, fontPx: number, anchors: Map<string, HTMLElement>, role: string): readonly HTMLElement[] {
+function fixTabsElements(host: Document, view: TableWindowView, at: EntryPlace): readonly HTMLElement[] {
   if (view.tabEntries === undefined) return []
-  const tabs = made(host, 'div', FIX_LINE_STYLE + `font-size:${fontPx}px;`)
-  tabs.replaceChildren(...view.tabEntries.map((item) => wordedEntry(host, item, anchors, role, view.tabCounts?.[item.icon])))
+  const tabs = made(host, 'div', FIX_LINE_STYLE + `font-size:${at.fontPx}px;`)
+  tabs.replaceChildren(...view.tabEntries.map((item) => wordedEntry(host, item, at.anchors, at.role, view.tabCounts?.[item.icon])))
   return [tabs]
 }
 
@@ -743,14 +761,13 @@ function walkElements(host: Document, view: TableWindowView, anchors: Map<string
 
 // see RW-12, IC-157, IC-158
 /** @purity non-pure */
-function fixFooterElements(host: Document, view: TableWindowView, fontPx: number, anchors: Map<string, HTMLElement>, role: string): readonly HTMLElement[] {
-  const footer = view.fixFooter
+function fixFooterElements(host: Document, footer: FixFooter | null | undefined, at: EntryPlace): readonly HTMLElement[] {
   if (footer === undefined || footer === null) return []
-  const band = part(host, 'div', DELAY_FIX_FOOTER_ROLE, FIX_LINE_STYLE + `font-size:${fontPx}px;justify-content:space-between;`)
+  const band = part(host, 'div', DELAY_FIX_FOOTER_ROLE, FIX_LINE_STYLE + `font-size:${at.fontPx}px;justify-content:space-between;`)
   const count = made(host, 'span', 'white-space:nowrap;')
   count.textContent = footer.text
   const entries = made(host, 'span', 'display:flex;column-gap:0.5em;')
-  entries.replaceChildren(...footer.entries.map((item) => wordedEntry(host, item, anchors, role)))
+  entries.replaceChildren(...footer.entries.map((item) => wordedEntry(host, item, at.anchors, at.role)))
   band.replaceChildren(count, entries)
   return [band]
 }
@@ -774,7 +791,7 @@ export function searchPanelElement(
   const menu = view.filterMenu === null ? [] : [searchFilterMenuElement(host, view.filterMenu, placed.fontPx, anchors)]
   // TRAP: redrawInPlace finds the table by its data-table-box mark; the fix footer (RW-12) stands under it.
   const table = searchTableElement(host, view, placed.fontPx, placed.sizing ?? unmeasuredSizing(placed.fontPx))
-  const footer = fixFooterElements(host, view, placed.fontPx, anchors, role)
+  const footer = fixFooterElements(host, view.fixFooter, { fontPx: placed.fontPx, anchors, role })
   panel.replaceChildren(title, ...aboveTableElements(host, view, placed.fontPx, anchors, role), ...menu, table, ...footer)
   return panel
 }

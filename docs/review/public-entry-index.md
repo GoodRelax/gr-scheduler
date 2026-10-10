@@ -974,6 +974,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `pasteWhatWasCopied` | file only | function | `src/framework/single-html-shell/copy-and-paste.ts#pasteWhatWasCopied` | -- | function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues): void |
 | `answerDelayDiagnosticsReportEntry` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#answerDelayDiagnosticsReportEntry` | -- | function answerDelayDiagnosticsReportEntry( entry: IconId, filterColumn: string \| null, held: ReportHeld \| null, outlets: ReportOutlets, listed?: readonly st... |
 | `DELAY_DIAGNOSTICS_REPORT_SURFACE` | file only | const | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#DELAY_DIAGNOSTICS_REPORT_SURFACE` | -- | const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnostics Report' |
+| `DelayFixTables` | file only | type | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#DelayFixTables` | -- | type DelayFixTables = NonNullable<Parameters<typeof delayDiagnosticsReportAfterEntry>[4]['fixTables']> |
 | `delayFixTablesKeeper` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#delayFixTablesKeeper` | -- | function delayFixTablesKeeper() |
 | `jumpLandingOf` | file only | function | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#jumpLandingOf` | -- | function jumpLandingOf(cell: NonNullable<ScreenPart['searchJumpTarget']>) |
 | `ReportHeld` | file only | interface | `src/framework/single-html-shell/delay-diagnostics-report-window.ts#ReportHeld` | -- | interface ReportHeld |
@@ -1264,13 +1265,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayDiagnosticsReportWithColumnWidth` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、窓の値へ当てる（表 T-346 の `RW-9`）。 |
 | `delayDiagnosticsReportWithFilterClosed` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた窓の値を答える（表 T-330 の `SV-14`）。 |
 | `delayDiagnosticsReportWithInput` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithInput` | -- | function delayDiagnosticsReportWithInput( window: DelayDiagnosticsReportWindow \| null, view: TableView, input: { readonly word: string \| null; readonly chang... |
-| `DelayFixCellView` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixCellView` | -- | interface DelayFixCellView |
-| `DelayFixFooterView` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixFooterView` | -- | interface DelayFixFooterView |
-| `DelayFixLogEntry` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixLogEntry` | -- | interface DelayFixLogEntry |
-| `DelayFixTables` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixTables` | -- | interface DelayFixTables |
-| `delayFixValuesOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixValuesOf` | -- | function delayFixValuesOf(window: DelayDiagnosticsReportWindow): DelayFixWindowValues |
-| `DelayFixWriteForm` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixWriteForm` | -- | type DelayFixWriteForm = 'beforeFixOverwrite' \| 'beforeFixBackup' |
-| `DelayReportAsk` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportAsk` | -- | type DelayReportAsk = \| { readonly kind: 'fixWrite'; readonly writeForm: DelayFixWriteForm; readonly fixBundle: readonly DelayFixRow[] } \| { readonly kind: '... |
 | `DialogueField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DialogueField` | -- | interface DialogueField |
 | `DialogueInput` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#DialogueInput` | -- | interface DialogueInput |
 | `dialogueMessageFromInput` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#dialogueMessageFromInput` | PI-37 | 対話欄で確定した発話。 |
@@ -1389,12 +1383,19 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayDiagnosticsReportFromWindow` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFromWindow` | -- | function delayDiagnosticsReportFromWindow( session: ScreenSession, window: DelayDiagnosticsReportWindow \| null, view: TableView, report: DelayDiagnosticsRepo... |
 | `delayDiagnosticsReportWithPick` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithPick` | -- | function delayDiagnosticsReportWithPick(window: DelayDiagnosticsReportWindow, change: DelayFixPickChange): DelayDiagnosticsReportWindow |
 | `delayFixBundleOf` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixBundleOf` | -- | function delayFixBundleOf(rows: readonly DelayFixRow[], picks: DelayFixWindowValues['picks']): readonly DelayFixRow[] |
+| `DelayFixCellView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixCellView` | -- | interface DelayFixCellView |
+| `DelayFixFooterView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixFooterView` | -- | interface DelayFixFooterView |
 | `delayFixKeyOf` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixKeyOf` | -- | function delayFixKeyOf(row: Pick<DelayFixRow, 'findingRow' \| 'taskUid' \| 'column'>): string |
+| `DelayFixLogEntry` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixLogEntry` | -- | interface DelayFixLogEntry |
 | `DelayFixPick` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixPick` | -- | interface DelayFixPick |
 | `DelayFixPickChange` | file only | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixPickChange` | -- | type DelayFixPickChange = Extract<SearchFilterChange, { readonly kind: 'fixPick' }> |
 | `DelayFixRowView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixRowView` | -- | interface DelayFixRowView extends SearchRowView |
+| `DelayFixTables` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixTables` | -- | interface DelayFixTables |
+| `delayFixValuesOf` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixValuesOf` | -- | function delayFixValuesOf(window: DelayDiagnosticsReportWindow): DelayFixWindowValues |
 | `DelayFixView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixView` | -- | interface DelayFixView |
 | `DelayFixWindowValues` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixWindowValues` | -- | interface DelayFixWindowValues |
+| `DelayFixWriteForm` | file only | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixWriteForm` | -- | type DelayFixWriteForm = 'beforeFixOverwrite' \| 'beforeFixBackup' |
+| `DelayReportAsk` | file only | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportAsk` | -- | type DelayReportAsk = \| { readonly kind: 'fixWrite'; readonly writeForm: DelayFixWriteForm; readonly fixBundle: readonly DelayFixRow[] } \| { readonly kind: '... |
 | `DelayReportLine` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportLine` | -- | interface DelayReportLine |
 | `DelayReportRowView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportRowView` | -- | interface DelayReportRowView extends SearchRowView |
 | `DelayReportStep` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayReportStep` | -- | interface DelayReportStep extends WindowStep |
@@ -1838,4 +1839,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 896 name(s) leave through a public entry (372 of them published by table T-064), 732 more are exported by a file and not by its entry.
+Totals: 889 name(s) leave through a public entry (372 of them published by table T-064), 740 more are exported by a file and not by its entry.

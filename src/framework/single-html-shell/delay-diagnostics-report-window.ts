@@ -13,11 +13,7 @@ import {
   delayDiagnosticsReportAfterEntry,
   delayDiagnosticsReportFileNameOf,
   delayDiagnosticsReportMarkdownOf,
-  delayFixValuesOf,
   type DelayDiagnosticsReportWindow,
-  type DelayFixTables,
-  type DelayFixWriteForm,
-  type DelayReportAsk,
   type DisplayLanguage,
   type IconId,
   type ScreenPart,
@@ -39,6 +35,9 @@ export interface ReportHeld {
   readonly fixTables?: DelayFixTables
 }
 
+export type DelayFixTables = NonNullable<Parameters<typeof delayDiagnosticsReportAfterEntry>[4]['fixTables']>
+type DelayReportAsk = NonNullable<NonNullable<ReturnType<typeof delayDiagnosticsReportAfterEntry>>['asked']>
+type DelayFixWriteForm = Extract<DelayReportAsk, { readonly kind: 'fixWrite' }>['writeForm']
 type FixJumpCell = Extract<DelayReportAsk, { readonly kind: 'fixJump' }>['target']
 
 export interface ReportOutlets {
@@ -102,20 +101,19 @@ export function answerDelayDiagnosticsReportEntry(
     return true
   }
   const answer = delayDiagnosticsReportAfterEntry(held.window, held.view, entry, filterColumn, held, listed)
-  if (answer === null) return false
+  return answer !== null && handOn(answer, outlets)
+}
+
+// see RW-12, RW-14, FR-155
+/** @purity non-pure */
+function handOn(answer: NonNullable<ReturnType<typeof delayDiagnosticsReportAfterEntry>>, outlets: ReportOutlets): true {
   outlets.writeView(answer.view)
   outlets.holdWindow(answer.window)
-  if (answer.asked !== undefined) handOnAsk(answer.asked, outlets)
+  if (answer.asked?.kind === 'fixWrite') outlets.askFixWrite?.(answer.asked.writeForm, answer.asked.fixBundle)
+  if (answer.asked?.kind === 'fixJump') outlets.jumpToFix?.(answer.asked.target)
   return true
 }
 
-/** @purity non-pure */
-function handOnAsk(asked: DelayReportAsk, outlets: ReportOutlets): void {
-  if (asked.kind === 'fixWrite') outlets.askFixWrite?.(asked.writeForm, asked.fixBundle)
-  else outlets.jumpToFix?.(asked.target)
-}
-
-// see RW-13, SJ-10, T-280
 /** @purity pure */
 export function jumpLandingOf(cell: NonNullable<ScreenPart['searchJumpTarget']>) {
   if (cell.kind !== 'task') return { landedTarget: cell, landedRelatedTasks: [] }
@@ -128,13 +126,15 @@ export function withoutDelayFixes(window: DelayDiagnosticsReportWindow): DelayDi
   return { shown: window.shown, panel: window.panel, isInFront: window.isInFront }
 }
 
+const NO_PICKS = {}
+
 // see RW-16, DX-11, DX-12, FR-155
 // WHY: the proposals are made again on each diagnosis (a new document) and each pick, never per frame (rule 04).
 /** @purity non-pure */
 export function delayFixTablesKeeper() {
   let made: { readonly of: Document; readonly report: DelayDiagnosticsReport; readonly picks: unknown; readonly rows: readonly DelayFixRow[] } | null = null
   return (diagnosis: { readonly of: Document; readonly report: DelayDiagnosticsReport }, window: DelayDiagnosticsReportWindow, log: readonly DelayFixRow[]): DelayFixTables => {
-    const picks = delayFixValuesOf(window).picks
+    const picks = window.fixes?.picks ?? NO_PICKS
     const isFresh = made !== null && made.of === diagnosis.of && made.report === diagnosis.report && made.picks === picks
     if (!isFresh) made = { ...diagnosis, picks, rows: proposeDelayFixes(diagnosis.of, diagnosis.report, picks) }
     return { proposals: made?.rows ?? [], log: log.map((row) => ({ row, fixedAt: null })) }

@@ -99,18 +99,8 @@ export {
   delayDiagnosticsReportWithColumnWidth,
   delayDiagnosticsReportWithFilterClosed,
   delayDiagnosticsReportWithInput,
-  delayFixValuesOf,
 } from './delay-diagnostics-report'
-export type {
-  DelayDiagnosticsReportView,
-  DelayDiagnosticsReportWindow,
-  DelayFixCellView,
-  DelayFixFooterView,
-  DelayFixLogEntry,
-  DelayFixTables,
-  DelayFixWriteForm,
-  DelayReportAsk,
-} from './delay-diagnostics-report'
+export type { DelayDiagnosticsReportView, DelayDiagnosticsReportWindow } from './delay-diagnostics-report'
 
 export { drawnTaskGroupBoxesOf, taskGroupTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
@@ -724,7 +714,6 @@ export interface ScreenViewReadings {
   readonly delayDiagnosticsReport?: {
     readonly window: DelayDiagnosticsReportWindow
     readonly report: DelayDiagnosticsReport
-    // see DX-11, DX-12, FR-155
     readonly fixTables?: DelayFixTables
   } | null
   // see SQ-5, S-445

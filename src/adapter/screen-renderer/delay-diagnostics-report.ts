@@ -434,7 +434,7 @@ function summaryLineOf(summary: readonly DelayReportLine[], language: DisplayLan
   return `${date ?? ''}${word('afterStatusDate')}${rest.join(word('between'))}`
 }
 
-// see FR-134, FR-155, T-346, RW-2, RW-3, RW-4, RW-9, RW-11, S-564
+// see FR-134, FR-155, T-346, RW-2, RW-11, S-564
 /** @purity pure */
 export function delayDiagnosticsReportFromWindow(
   session: ScreenSession,
@@ -446,40 +446,26 @@ export function delayDiagnosticsReportFromWindow(
   fixTables: DelayFixTables = NO_DELAY_FIX_TABLES,
 ): DelayDiagnosticsReportView | null {
   if (window === null || report === null) return null
-  const language = displayLanguageOf(session)
-  const words = fixWordsOf(schedule, language)
+  const diagnosis = diagnosisReportViewOf(session, window, view, report, schedule, layout)
+  const words = fixWordsOf(schedule, displayLanguageOf(session))
   const values = delayFixValuesOf(window)
-  const table = values.table === 'diagnosis' ? diagnosisTableViewOf(window, view, report, schedule, language) : fixTableViewOf(window, values.table, fixTables, words)
-  return {
-    heading: wordOf(HEADING, language),
-    shown: window.shown,
-    isInFront: window.isInFront,
-    canvas: layout.canvas,
-    ...windowPlaceInRange(window.panel, layout.canvas),
-    textSizeStep: layout.textSizeStep,
-    titleEntries: [entryOf(TEXT_SIZE_ENTRY, language), ...windowTitleEntriesOf(window.shown, language)],
-    toolEntries: [entryOf(EXPORT_ENTRY, language), entryOf(COPY_ENTRY, language)],
-    word: window.panel.word,
-    summary: [],
-    glyphAt: null,
-    showAt: null,
-    showHeading: 'none',
-    entryRefusals: [],
-    ...table,
-    ...delayFixViewOf(values, fixTables, words),
-  }
+  const fixView = delayFixViewOf(values, fixTables, words)
+  if (values.table === 'diagnosis') return { ...diagnosis, ...fixView }
+  const table = fixTableViewOf(window, values.table, fixTables, words)
+  return { ...diagnosis, ...table, summary: [], glyphAt: null, showAt: null, showHeading: 'none', entryRefusals: [], ...fixView }
 }
 
 // see FR-134, T-346, RW-2, RW-3, RW-4, RW-9, S-564
-// WHY: IC-143 and the summary stand only while the diagnosis table is shown (RW-2, RW-11).
 /** @purity pure */
-function diagnosisTableViewOf(
+function diagnosisReportViewOf(
+  session: ScreenSession,
   window: DelayDiagnosticsReportWindow,
   view: TableView,
   report: DelayDiagnosticsReport,
   schedule: Schedule,
-  language: DisplayLanguage,
-): Partial<DelayDiagnosticsReportView> & Pick<DelayDiagnosticsReportView, 'rows' | 'columns' | 'filterMenu' | 'jumpAt' | 'tableEntries'> {
+  layout: { readonly canvas: ScreenRect; readonly textSizeStep: number },
+): DelayDiagnosticsReportView {
+  const language = displayLanguageOf(session)
   const isOpen = window.shown !== 'minimized'
   const reported = delayDiagnosticsReportRows(report, schedule)
   const all = isOpen ? reported : []
@@ -489,7 +475,16 @@ function diagnosisTableViewOf(
   const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldReportFilterChange(view, reported, schedule), language)
   const rows = reportRowViewsOf(view, found)
   return {
+    heading: wordOf(HEADING, language),
+    shown: window.shown,
+    isInFront: window.isInFront,
+    canvas: layout.canvas,
+    ...windowPlaceInRange(window.panel, layout.canvas),
+    textSizeStep: layout.textSizeStep,
     tableEntries: [clearEntryOf(view, language), scheduleFilter],
+    titleEntries: [entryOf(TEXT_SIZE_ENTRY, language), ...windowTitleEntriesOf(window.shown, language)],
+    toolEntries: [entryOf(EXPORT_ENTRY, language), entryOf(COPY_ENTRY, language)],
+    word: window.panel.word,
     summary: isOpen ? summaryOf(report, all, language, true) : [],
     ...windowColumnsViewOf(window, view, table, language),
     rows,
@@ -553,7 +548,9 @@ export function delayDiagnosticsReportAfterFilterChange(
 // see SV-14, IN-4
 /** @purity pure */
 export function delayDiagnosticsReportWithFilterClosed(window: DelayDiagnosticsReportWindow, view: TableView): DelayDiagnosticsReportWindow | null {
-  const panel = tableWithFilterClosed(window.panel, window.shown, reportTableOf(view, () => [], COLUMNS_ONLY_LANGUAGE))
+  const table = delayFixValuesOf(window).table
+  const shape = table === 'diagnosis' ? reportTableOf(view, () => [], COLUMNS_ONLY_LANGUAGE) : fixWindowTableOf(table, () => [], COLUMNS_ONLY_LANGUAGE)
+  const panel = tableWithFilterClosed(window.panel, window.shown, shape)
   return panel === null ? null : { ...window, panel }
 }
 
@@ -659,7 +656,8 @@ const STEP_OF_ENTRY: { readonly [entry: IconId]: number } = { [PREVIOUS_FIX_ENTR
 const FIX_COLUMN_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayFixColumns.map((entry) => [entry.rowId, entry.text]))
 const FIX_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delayFixes.map((entry) => [entry.part, entry.text]))
 const ITEM_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.properties.map((entry) => [entry.rowId, entry.label]))
-const PANEL_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry.text]))
+// see FM-7, SV-7
+const BLANK_WORD = displayWords.searchPanel.find((entry) => entry.part === 'blank')?.text
 
 // see FM-6, T-016
 const ITEM_OF_TASK_COLUMN: ReadonlyMap<string, string> = new Map(
@@ -667,10 +665,15 @@ const ITEM_OF_TASK_COLUMN: ReadonlyMap<string, string> = new Map(
 )
 
 // see T-374
-const PROPOSAL_COLUMNS: readonly string[] = ['FM-1', 'FM-3', 'FM-4', 'FM-5', 'FM-6', 'FM-7', 'FM-8']
-const LOG_COLUMNS: readonly string[] = ['FM-2', 'FM-4', 'FM-5', 'FM-6', 'FM-7', 'FM-8']
+// WHY: the rows in their order, less the ones T-374 keeps to the other table.
+const FIX_COLUMNS: readonly string[] = displayWords.delayFixColumns.map((entry) => entry.rowId)
+const PROPOSAL_COLUMNS: readonly string[] = FIX_COLUMNS.filter((column) => column !== 'FM-2')
+const LOG_COLUMNS: readonly string[] = FIX_COLUMNS.filter((column) => column !== 'FM-1' && column !== 'FM-3')
 
 const FIX_JUMP_COLUMN = 'FM-5'
+
+// see T-374, RW-9, SV-18
+const DEFAULT_WIDTH_FIX_COLUMNS: readonly string[] = ['FM-1', 'FM-4', 'FM-5']
 
 // see FM-1, SV-7
 const CHECK_MARK = '✓'
@@ -713,9 +716,9 @@ export interface DelayFixTables {
 export const NO_DELAY_FIX_TABLES: DelayFixTables = { proposals: [], log: [] }
 
 const NO_FIX_VIEW: TableView = {
-  visibility: { hiddenKeys: [], isUnassignedHidden: false, isApplied: false },
   columnFilters: [],
   sort: null,
+  visibility: { isApplied: false, isUnassignedHidden: false, hiddenKeys: [] },
 }
 
 export const NO_DELAY_FIX_VALUES: DelayFixWindowValues = {
@@ -777,7 +780,7 @@ function fixWordOf(part: string, language: DisplayLanguage): string {
 // see FM-7, FM-8, SV-7
 /** @purity pure */
 function fixValueText(value: unknown, language: DisplayLanguage): string {
-  if (value === null || value === undefined || value === '') return wordOf(PANEL_WORDS.get('blank'), language)
+  if (value === null || value === undefined || value === '') return wordOf(BLANK_WORD, language)
   if (typeof value === 'boolean') return value ? CHECK_MARK : BLANK_SEARCH_VALUE
   if (typeof value === 'string' && dateText(value) !== '') return dateText(value)
   return String(value)
@@ -812,18 +815,22 @@ function fixChoiceText(choice: unknown, language: DisplayLanguage): string {
 function fixAfterText(row: DelayFixRow, pick: DelayFixPick | undefined, language: DisplayLanguage): string {
   if (isRefused(row)) return fixWordOf('readOnlyReason', language)
   if (row.fixType === 'byHand') return fixWordOf('openFieldHint', language)
-  if (row.fixType === 'choose' && (pick?.choice ?? null) === null) return fixWordOf('choosePlaceholder', language)
+  if (isChoiceOpen(row, pick)) return fixWordOf('choosePlaceholder', language)
   const after = fixValueText(row.after, language)
   return row.fixType === 'suggestedDate' ? `${after} ${fixWordOf('suggested', language)}` : after
 }
 
-// see RW-16, T-374
 /** @purity pure */
 function originOf(row: DelayFixRow, rows: readonly DelayFixRow[]): DelayFixRow | null {
   const by: unknown = row.causedBy
   if (typeof by === 'number') return rows[by] ?? null
   if (typeof by !== 'string') return null
   return rows.find((one) => delayFixKeyOf(one) === by || one.fixRow === by) ?? null
+}
+
+/** @purity pure */
+function isChoiceOpen(row: DelayFixRow, pick: DelayFixPick | undefined): boolean {
+  return row.fixType === 'choose' && (pick?.choice ?? null) === null
 }
 
 /** @purity pure */
@@ -839,7 +846,7 @@ export function isDelayFixChecked(row: DelayFixRow, rows: readonly DelayFixRow[]
   const origin = originOf(row, rows)
   if (origin !== null && !isDelayFixChecked(origin, rows, picks)) return false
   const pick = picks[delayFixKeyOf(row)]
-  if (row.fixType === 'choose' && (pick?.choice ?? null) === null) return false
+  if (isChoiceOpen(row, pick)) return false
   return pick?.isChecked ?? (row.fixType === 'automatic' || row.fixType === 'choose')
 }
 
@@ -909,7 +916,7 @@ function fixCellOf(shown: ShownFixRow, column: string): string {
 
 // see T-374, SV-7, SV-8, FM-2
 const FIX_TABLE: TableColumns<ShownFixRow> = {
-  values: Object.fromEntries(['FM-1', 'FM-3', 'FM-4', 'FM-5', 'FM-6', 'FM-7', 'FM-8'].map((column) => [column, (shown: ShownFixRow) => [fixCellOf(shown, column)]])),
+  values: Object.fromEntries(PROPOSAL_COLUMNS.map((column) => [column, (shown: ShownFixRow) => [fixCellOf(shown, column)]])),
   dates: { 'FM-2': (shown) => (shown.columns.includes('FM-2') ? fixCellOf(shown, 'FM-2').replace(/\//g, '-').slice(0, 10) : null) },
   orders: {
     'FM-3': (a, b) => FIX_TYPE_ORDER.findIndex((type) => fixTypeWordMatches(type, a)) - FIX_TYPE_ORDER.findIndex((type) => fixTypeWordMatches(type, b)),
@@ -940,7 +947,7 @@ function withCascadesUnderOrigins(kept: readonly ShownFixRow[]): readonly ShownF
 /** @purity pure */
 function isFixWordFound(shown: ShownFixRow, word: string): boolean {
   if (word === '') return true
-  return ['FM-4', 'FM-5', 'FM-6', 'FM-7', 'FM-8'].some((column) => isSearchWordFound(fixCellOf(shown, column), word))
+  return ['FM-4', 'FM-5', 'FM-6'].some((column) => isSearchWordFound(fixCellOf(shown, column), word))
 }
 
 /** @purity pure */
@@ -965,8 +972,8 @@ function fixWindowTableOf(table: FixTable, found: () => readonly ShownFixRow[], 
     headingOf: (column) => partWordOf(FIX_COLUMN_WORDS, column, language),
     isDateColumn: (column) => column === 'FM-2',
     valuesOf: (column) => tableColumnValues(found(), FIX_TABLE, column),
-    labelOf: (_column, value) => (value === BLANK_SEARCH_VALUE ? wordOf(PANEL_WORDS.get('blank'), language) : value),
-    widthSamplesOf: (column) => (column === 'FM-1' ? null : [...new Set(found().map((shown) => fixCellOf(shown, column)))]),
+    labelOf: (_column, value) => (value === BLANK_SEARCH_VALUE ? wordOf(BLANK_WORD, language) : value),
+    widthSamplesOf: (column) => (DEFAULT_WIDTH_FIX_COLUMNS.includes(column) ? null : [...new Set(found().map((shown) => fixCellOf(shown, column)))]),
   }
 }
 
@@ -1047,12 +1054,18 @@ function byHandKeysOf(tables: DelayFixTables, values: DelayFixWindowValues, word
   return shown.filter((one) => one.row.fixType !== 'automatic').map((one) => delayFixKeyOf(one.row))
 }
 
+// see RW-14
+/** @purity pure */
+function walkPlaceOf(tables: DelayFixTables, values: DelayFixWindowValues, words: FixWords): { readonly keys: readonly string[]; readonly at: number } {
+  const keys = byHandKeysOf(tables, values, words)
+  return { keys, at: values.at === null ? -1 : keys.indexOf(values.at) }
+}
+
 // see RW-14, IC-159, IC-160, FR-092
 /** @purity pure */
 function delayFixWalkOf(values: DelayFixWindowValues, tables: DelayFixTables, words: FixWords): { readonly entries: readonly CommandItem[]; readonly counter: string } {
   const language = words.language
-  const keys = byHandKeysOf(tables, values, words)
-  const at = values.at === null ? -1 : keys.indexOf(values.at)
+  const { keys, at } = walkPlaceOf(tables, values, words)
   const entries = [
     { ...entryOf(PREVIOUS_FIX_ENTRY, language), isEnabled: at > 0 },
     { ...entryOf(NEXT_FIX_ENTRY, language), isEnabled: at < keys.length - 1 },
@@ -1118,8 +1131,7 @@ function windowOnTable(window: DelayDiagnosticsReportWindow, table: DelayReportT
 /** @purity pure */
 function stepAfterWalk(window: DelayDiagnosticsReportWindow, view: TableView, step: number, tables: DelayFixTables, words: FixWords): DelayReportStep | null {
   const values = delayFixValuesOf(window)
-  const keys = byHandKeysOf(tables, values, words)
-  const at = values.at === null ? -1 : keys.indexOf(values.at)
+  const { keys, at } = walkPlaceOf(tables, values, words)
   const next = keys[at + step]
   const row = tables.proposals.find((one) => delayFixKeyOf(one) === next)
   if (next === undefined || at + step < 0 || row === undefined) return null

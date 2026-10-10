@@ -172,7 +172,6 @@ import {
   resourceListWithFilterClosed,
   OPENED_RESOURCE_LIST,
   type DelayDiagnosticsReportWindow,
-  type DelayFixTables,
   drawnTaskGroupBoxesOf,
   windowBoxAfterGrab,
   windowPlaceOf,
@@ -225,6 +224,7 @@ import {
   DELAY_DIAGNOSTICS_REPORT_SURFACE,
   answerDelayDiagnosticsReportEntry,
   delayFixTablesKeeper,
+  type DelayFixTables,
   jumpLandingOf,
   withoutDelayFixes,
 } from './delay-diagnostics-report-window'
