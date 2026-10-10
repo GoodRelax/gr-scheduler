@@ -261,6 +261,9 @@ KATAKANA_WORD = re.compile(r'^[ァ-ヶー]+$')
 # The ruling that must stay gated: the self-test reads the real table and is
 # red when this row is gone (JDG-1857).
 MUST_GATE = ('ウィンドウ', 'ウインドウ')
+# CR-721 gated three more rows the coordinator decided (JDG-1850, JDG-1855);
+# the self-test is red when one of them stops being gated.
+ALSO_GATED = (('フィルタ', 'フィルター'), ('マーカー', 'マーカ'), ('ヘッダー', 'ヘッダ'))
 
 
 def gated_spellings(lines):
@@ -294,11 +297,15 @@ def misspelt_at(line, written, banned):
     """Columns where `banned` stands and is not the start of `written`.
 
     ヘッダー begins with ヘッダ: a gated ヘッダ must not redden the written word.
+    ⚠️ Only when the written word is the LONGER one: フィルター begins with the
+    written フィルタ, and skipping on a written prefix there would let every
+    banned フィルター through (CR-721).
     """
     found = []
+    shields = written.startswith(banned) and len(written) > len(banned)
     at = line.find(banned)
     while at >= 0:
-        if not line.startswith(written, at):
+        if not (shields and line.startswith(written, at)):
             found.append(at)
         at = line.find(banned, at + 1)
     return found
@@ -339,17 +346,23 @@ def self_test():
         '| ウィンドウ | ウインドウ | JDG | 止める | |',
         '| ヘッダー | ヘッダ | JDG | 止める | |',
         '| フィルタ | フィルター | JDG | 止めない | |',
+        '| マーカー | マーカ | JDG | 止めない | |',
         '## 6. next',
         '| ポインタ | ポインター | JDG | 止める | |',
     ]
     pairs = gated_spellings(table)
     lines = [('t.md', ['開いているウインドウ', '開いているウィンドウ',
                        'ヘッダーの帯', 'ヘッダの帯', 'フィルターの欄',
-                       'ポインターの先'])]
+                       'ポインターの先', 'マーカの色'])]
     hits = [(rel, i) for rel, i, _, _ in scan_spellings(pairs, lines)]
+    # CR-721: the written word may be the SHORTER one (フィルタ / フィルター).
+    shorter = gated_spellings(['## 5. 表記の表', '| フィルタ | フィルター | JDG | 止める | |',
+                               '| マーカー | マーカ | JDG | 止める | |'])
+    shorter_hits = [(rel, i) for rel, i, _, _ in scan_spellings(
+        shorter, [('s.md', ['フィルターの欄', 'フィルタの欄', 'マーカーの色', 'マーカの色'])])]
     real = gated_spellings(read(NOTATION_RULES))
     checks = (
-        ('two gated rows read, the 止めない row and the row under the next '
+        ('two gated rows read, the 止めない rows and the row under the next '
          'heading skipped', len(pairs) == 2),
         ('ウインドウ red on line 1', ('t.md', 1) in hits),
         ('ウィンドウ green on line 2', ('t.md', 2) not in hits),
@@ -357,9 +370,15 @@ def self_test():
          ('t.md', 3) not in hits),
         ('ヘッダ red on line 4', ('t.md', 4) in hits),
         ('exactly 2 hits in all', len(hits) == 2),
+        ('フィルター red although it begins with the written フィルタ',
+         ('s.md', 1) in shorter_hits),
+        ('フィルタ green, マーカー green, マーカ red: exactly 2 hits',
+         sorted(shorter_hits) == [('s.md', 1), ('s.md', 4)]),
         ('the real table still gates %s -> %s' % (MUST_GATE[1], MUST_GATE[0]),
          MUST_GATE in real),
-    )
+    ) + tuple(
+        ('the real table gates %s -> %s (CR-721, JDG-1850 / JDG-1855)' % (b, w),
+         (w, b) in real) for w, b in ALSO_GATED)
     bad = [name for name, ok in checks if not ok]
     for name, ok in checks:
         print('%s  self-test: %s' % ('OK      ' if ok else 'PROBLEM ', name))

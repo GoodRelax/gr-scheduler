@@ -1446,52 +1446,28 @@ export const NOT_STORED_EXPORT_CHOOSER_SIZES: {
 export const NOT_STORED_SEARCH_PANEL_SIZES: {
   readonly 'S-421': number
   readonly 'S-422': number
-  readonly 'S-425': number
   readonly 'S-465': number
   readonly 'S-466': number
   readonly 'S-467': number
-  readonly 'S-468': number
-  readonly 'S-469': number
-  readonly 'S-470': number
   readonly 'S-471': number
   readonly 'S-472': number
   readonly 'S-473': number
-  readonly 'S-474': number
-  readonly 'S-500': number
-  readonly 'S-501': number
-  readonly 'S-502': number
   readonly 'S-496': number
-  readonly 'S-475': number
   readonly 'S-476': number
-  readonly 'S-477': number
   readonly 'S-478': number
-  readonly 'S-479': number
-  readonly 'S-480': number
   readonly 'S-481': number
 } = {
   'S-421': 0.5,
   'S-422': 0.5,
-  'S-425': 64,
   'S-465': 6,
   'S-466': 250,
   'S-467': 190,
-  'S-468': 99,
-  'S-469': 105,
-  'S-470': 152,
   'S-471': 380,
   'S-472': 300,
   'S-473': 240,
-  'S-474': 70,
-  'S-500': 73,
-  'S-501': 89,
-  'S-502': 95,
   'S-496': 28,
-  'S-475': 138,
   'S-476': 190,
-  'S-477': 73,
   'S-478': 250,
-  'S-479': 142,
-  'S-480': 142,
   'S-481': 380,
 }
 
@@ -1501,23 +1477,12 @@ export const SEARCH_COLUMN_WIDTH_ROWS: {
 } = {
   'SQ-1': 'S-466',
   'SQ-2': 'S-467',
-  'SQ-3': 'S-468',
-  'SQ-4': 'S-469',
-  'SQ-5': 'S-470',
   'SQ-6': 'S-471',
   'SQ-7': 'S-472',
   'SQ-8': 'S-473',
-  'SQ-9': 'S-474',
-  'SQ-11': 'S-500',
-  'SQ-12': 'S-501',
-  'SQ-13': 'S-502',
   'SQ-10': 'S-496',
-  'DT-1': 'S-475',
   'DT-2': 'S-476',
-  'DT-3': 'S-477',
   'DT-4': 'S-478',
-  'DT-5': 'S-479',
-  'DT-6': 'S-480',
   'DT-7': 'S-481',
 }
 

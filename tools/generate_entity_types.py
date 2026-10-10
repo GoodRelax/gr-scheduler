@@ -1288,8 +1288,8 @@ NOT_STORED_TARGETS = {
     # takes off the top of the Schedule Canvas, and S-498 its text size, which
     # the surface draws with. One name printed into both units, as
     # NOT_STORED_SCROLLBAR_SIZES is -- neither may import the other's.
-    # IX-11 writes the caption of a filtered picture in the same S-498, so the
-    # image exporter is the third unit it is printed into (one name, one set).
+    # CR-721: IX-11 no longer writes a caption into the picture, so the image
+    # exporter is no longer a unit it is printed into.
     'NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES': (['S-497', 'S-498'], READ_WHERE_THE_FRAME_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE. S-171 is the panel's own width and
     # stands where the frame is laid out; S-199 is the room ONE control needs
@@ -1483,12 +1483,14 @@ NOT_STORED_TARGETS = {
     # left edge and where a jump lands. One constant per consuming SUBJECT:
     # the jump is decided by search-jump.ts, which reads it where it stands.
     'NOT_STORED_SEARCH_JUMP_INSET': (['S-428'], READ_WHERE_IT_STANDS),
-    'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422', 'S-425', 'S-465',
-                                       'S-466', 'S-467', 'S-468', 'S-469',
-                                       'S-470', 'S-471', 'S-472', 'S-473',
-                                       'S-474', 'S-500', 'S-501', 'S-502',
-                                       'S-496', 'S-475', 'S-476', 'S-477', 'S-478',
-                                       'S-479', 'S-480', 'S-481'],
+    # CR-721: S-425 and the eleven measured columns (S-468 .. S-470, S-474,
+    # S-475, S-477, S-479, S-480, S-500 .. S-502) hold the rule 測る (SV-18)
+    # and no number, so they left this constant: the surface measures them.
+    'NOT_STORED_SEARCH_PANEL_SIZES': (['S-421', 'S-422', 'S-465',
+                                       'S-466', 'S-467',
+                                       'S-471', 'S-472', 'S-473',
+                                       'S-496', 'S-476', 'S-478',
+                                       'S-481'],
                                       DRAWN_WITH_WHERE_IT_STANDS),
     # CR-558: S-372 is the side of the square a selected highlight box's grab
     # points are drawn as. They are drawn in ZO-10 beside the selection frame,
@@ -3356,9 +3358,7 @@ TARGETS = [
      # ⭐ CR-419: the title and task group names this unit draws AROUND the chart's
      # SVG are texts of the exported picture too (FR-039 MUST), and the chart's
      # own texts already carry the list inside that SVG.
-     + not_stored_block('NOT_STORED_TYPEFACES') + NEWLINE * 2
-     # CR-661: IX-11's caption is written in S-498, the band's text size.
-     + not_stored_block('NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES'),
+     + not_stored_block('NOT_STORED_TYPEFACES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # ⭐ The width the properties panel opens to, which only the shell can put
     # into force: S-80 is what the DOCUMENT keeps and 0 is what "closed" means

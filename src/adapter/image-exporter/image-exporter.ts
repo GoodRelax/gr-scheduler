@@ -302,13 +302,4 @@ const NOT_STORED_TYPEFACES: {
 } = {
   'S-246': '"Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif',
 }
-
-// see T-206
-const NOT_STORED_SHOW_ONLY_CHECKED_BAR_SIZES: {
-  readonly 'S-497': number
-  readonly 'S-498': number
-} = {
-  'S-497': 24,
-  'S-498': 12,
-}
 // </generated>

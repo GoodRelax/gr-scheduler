@@ -948,6 +948,17 @@
    }
   },
   {
+   "rowId": "IC-153",
+   "label": {
+    "ja": "フィルタをクリア",
+    "en": "Clear filters"
+   },
+   "hint": {
+    "ja": "この表のすべての列のフィルタをクリアし、並びを元の順に戻す",
+    "en": "Clear every column filter in this table and put the rows back in their original order"
+   }
+  },
+  {
    "rowId": "IC-143",
    "label": {
     "ja": "スケジュールフィルタ",
@@ -5328,7 +5339,7 @@
    "rowId": "SQ-10",
    "text": {
     "ja": "表示",
-    "en": "Show"
+    "en": "Visibility"
    }
   },
   {
@@ -5490,17 +5501,17 @@
    }
   },
   {
-   "part": "shownValue",
+   "part": "showValue",
    "text": {
-    "ja": "表示に入れた",
-    "en": "Shown"
+    "ja": "表示",
+    "en": "Show"
    }
   },
   {
-   "part": "notShownValue",
+   "part": "hideValue",
    "text": {
-    "ja": "入れていない",
-    "en": "Not shown"
+    "ja": "非表示",
+    "en": "Hide"
    }
   },
   {
@@ -5522,13 +5533,6 @@
    "text": {
     "ja": "すべて表示に戻す",
     "en": "Show all"
-   }
-  },
-  {
-   "part": "showOnlyCheckedCaption",
-   "text": {
-    "ja": "チェックしたタスクだけを表示（{total} 件中 {shown} 件）",
-    "en": "Checked tasks only ({shown} of {total})"
    }
   }
  ],

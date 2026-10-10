@@ -964,6 +964,18 @@
    "armsShape": null
   },
   {
+   "rowId": "IC-153",
+   "surfaces": [
+    "Search Panel",
+    "Delay Diagnostics Report"
+   ],
+   "group": null,
+   "entryTo": "その表のすべての列のフィルタをクリアし、並びを既定の並び（`FR-151` の 表 T-330 の `SV-8`）へ戻す。<br>⭐ 語・表示の列の値・スケジュールフィルタ（`IC-143`）は変えない。<br>戻すものが無いあいだは効かない",
+   "authority": "`FR-151` の 表 T-330 の `SV-1`",
+   "arms": null,
+   "armsShape": null
+  },
+  {
    "rowId": "IC-143",
    "surfaces": [
     "Search Panel"
