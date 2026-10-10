@@ -16,7 +16,7 @@ const SV_7_CLOSE = '⭐ 開いているフィルタは、同じ列の `IC-122` �
 const SV_7_OUTSIDE = '外を押して閉じたときは、その押下を押した先（日程表のタスク・ほかの窓・`App Header`・同じ窓のほかの所）にも渡すこと（MUST）'
 const SV_7_DROPDOWN = 'フィルタは、押した列の見出しのセルの下に、表の上に重ねるドロップダウンとして開くこと（MUST）'
 const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク の 4 列）、コメントボックスの表は `SQ-7` までを左に固定し'
-const RW_10_FIXED = '横は `DT-1`・`DT-3`・`DT-4`（ステータス・進捗・タスク —— 表 T-347 の並びで左の 3 列）を左に固定し'
+const RW_10_FIXED = '横は `DT-8`・`DT-1`・`DT-3`・`DT-4`（表示・ステータス・進捗・タスク —— 表 T-347 の並びで左の 4 列）を左に固定し'
 const SV_18_MEASURED =
   '⭐ 中身の字の幅が決まる列（ステータス・進捗・日付 —— `SQ-5`・`SQ-11`・`SQ-3`・`SQ-4`・`SQ-12`・`SQ-13`・`SQ-9`）の既定は、そのときの言語（`FR-038`）と字の段（`SV-16`）で、見出し（語と `IC-122`）も値も省略記号で切られない最小の幅とすること（MUST）'
 const RW_9_MEASURED = '中身の字の幅が決まる列（`DT-1`・`DT-3`・`DT-5`・`DT-6`）の既定は、`SV-18` と同じ規則で測る'
@@ -56,6 +56,7 @@ const WIDTH_ROW: Readonly<Record<string, string>> = {
   ...Object.fromEntries([11, 12, 13].map((n) => [`SQ-${n}`, `S-${489 + n}`])),
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((n) => [`DT-${n}`, `S-${474 + n}`])),
   'SQ-10': 'S-496',
+  'DT-8': 'S-496',
 }
 
 /** @purity pure */
@@ -418,7 +419,7 @@ test.describe('T-331 / T-347 / SV-6 / RW-10 -- column order and the fixed column
     }
   })
 
-  test('T-347 / RW-10: the report heads its columns in T-347 order, and DT-1, DT-3, DT-4 stay while the rest scroll', async () => {
+  test('T-347 / RW-10: the report heads its columns in T-347 order, and DT-8, DT-1, DT-3, DT-4 stay while the rest scroll', async () => {
     const stage = await withReport()
     try {
       const page = stage.page

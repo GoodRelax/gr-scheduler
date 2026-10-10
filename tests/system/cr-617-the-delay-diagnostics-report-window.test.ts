@@ -62,7 +62,7 @@ test.describe('CR-617 -- the report window on the shipped build', () => {
       await expect(page.locator(REPORT)).toHaveCount(1)
       await expect(page.locator(`${REPORT} [data-icon="${EXPORT}"]`)).toHaveCount(1)
       await expect(page.locator(`${REPORT} [data-icon="${COPY}"]`)).toHaveCount(1)
-      await expect(page.locator(`${REPORT} thead th`)).toHaveCount(7)
+      await expect(page.locator(`${REPORT} thead th`)).toHaveCount(specTable('T-347').rows.length)
     } finally {
       await stage.close()
     }

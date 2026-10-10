@@ -579,14 +579,14 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-597-the-search-panel-word-jump-and-grab.test.ts` | 14 | - | - | T-103, T-107, T-109 | AM-25, AT-114, GR-24, GR-25, IF-9, IN-1, IN-4, RG-16, SJ-1, SJ-2, SJ-4, SQ-1, SQ-2, SQ-7, SV-2, SV-5, SV-10, SV-11, U-32, UZ-9, WS-2 | - | - | - | - |
 | `tests/system/cr-610-cr-612-the-built-page-saves-and-opens.test.ts` | 8 | FR-027, FR-067, FR-095 | - | T-024, T-226, T-342 | BT-1, BT-4, HS-1, HS-2, HS-3, HS-8, IC-2, NT-1, OP-2, OP-3, RS-67, SK-11, SK-25, SX-1, U-31 | - | - | - | - |
 | `tests/system/cr-613-cr-620-built-relay.test.ts` | 8 | NFR-004 | - | T-232 | AG-12, CN-1, PO-7 | - | - | - | - |
-| `tests/system/cr-617-the-delay-diagnostics-report-window.test.ts` | 3 | - | - | T-103, T-109 | IC-52, IC-107, IC-108, IC-140, RG-16, RW-1, RW-2, RW-3, RW-5 | - | - | - | - |
+| `tests/system/cr-617-the-delay-diagnostics-report-window.test.ts` | 3 | - | - | T-103, T-109, T-347 | IC-52, IC-107, IC-108, IC-140, RG-16, RW-1, RW-2, RW-3, RW-5 | - | - | - | - |
 | `tests/system/cr-648-the-delay-diagnostics-report-window-fixes.test.ts` | 3 | FR-134 | - | T-023, T-103, T-109, T-333, T-337, T-347 | DT-4, IC-127, S-429, SJ-1, SJ-3, SV-15, SV-16, U-66, UZ-5, UZ-6 | - | - | - | - |
 | `tests/system/cr-650-the-title-and-the-file-name-share-the-header.test.ts` | 1 | - | - | T-025, T-109, T-206, T-341, T-349 | BR-7, HS-8, HS-9, HS-10, IC-1, IC-71, U-55 | - | - | - | - |
 | `tests/system/cr-653-an-icon-tooltip-takes-no-press.test.ts` | 4 | FR-038 | - | T-103, T-109, T-212, T-337 | EZ-2, GR-19, IC-90, IN-3, S-124, U-26, U-53, UZ-2 | - | - | - | - |
 | `tests/system/cr-657-group-grid-lines-across-the-task-group-panel.test.ts` | 2 | FR-042 | - | T-025 | IC-43, S-68, U-18, U-22 | - | - | - | - |
 | `tests/system/cr-659-the-header-mark-margins-on-the-shipped-build.test.ts` | 2 | - | - | T-025, T-206, T-349 | BR-2, BR-3, BR-7, HS-9, S-461, S-462 | - | - | - | - |
-| `tests/system/cr-660-the-two-table-windows-on-the-shipped-build.test.ts` | 21 | - | - | T-019a, T-103, T-109, T-206, T-330, T-331, T-333, T-346, T-347 | DG-2, DT-1, DT-3, DT-4, IC-122, IC-126, RW-4, RW-9, RW-10, SQ-1, SQ-5, SQ-10, SQ-11, SV-6, SV-7, SV-11, SV-14, SV-18, U-32, UZ-9 | - | - | - | - |
-| `tests/system/cr-661-show-only-the-checked-tasks-on-the-shipped-build.test.ts` | 10 | FR-134, FR-151 | - | T-109, T-206, T-332, T-353 | AM-26, EL-21, IC-143, IX-11, S-497, S-498, SJ-0, SQ-10, SV-4, TV-1, TV-3, TV-6, TV-8, TV-11 | - | - | - | - |
+| `tests/system/cr-660-the-two-table-windows-on-the-shipped-build.test.ts` | 21 | - | - | T-019a, T-103, T-109, T-206, T-330, T-331, T-333, T-346, T-347 | DG-2, DT-1, DT-3, DT-4, DT-8, IC-122, IC-126, RW-4, RW-9, RW-10, SQ-1, SQ-5, SQ-10, SQ-11, SV-6, SV-7, SV-11, SV-14, SV-18, U-32, UZ-9 | - | - | - | - |
+| `tests/system/cr-661-show-only-the-checked-tasks-on-the-shipped-build.test.ts` | 10 | FR-134, FR-151 | - | T-109, T-206, T-332, T-353 | AM-26, EL-21, IC-143, IX-11, S-497, S-498, SJ-0, SQ-10, SV-4, TV-1, TV-2, TV-3, TV-6, TV-8, TV-11 | - | - | - | - |
 | `tests/system/cr-664-the-colour-rows-line-up-with-the-other-fields.test.ts` | 2 | FR-006, FR-052 | - | T-016, T-025, T-206 | CV-9, S-248 | - | - | - | - |
 | `tests/system/cr-665-help-fits-one-screen.test.ts` | 7 | FR-036, FR-069 | - | T-025, T-103, T-109, T-206, T-256 | MC-6, S-203 | - | - | - | - |
 | `tests/system/cr-666-escape-lock-and-held-esc.test.ts` | 5 | - | - | T-025, T-103, T-109 | - | - | - | - | - |
@@ -605,7 +605,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-721-sv-18-the-default-widths-are-measured-once-and-a-drag-stops-at-the-floor.test.ts` | 11 | - | - | T-206, T-330, T-346 | RW-9, S-425, S-496, SV-18 | - | - | - | - |
 | `tests/system/cr-721-sv-7-an-outside-press-closes-the-filter-and-is-answered.test.ts` | 7 | - | - | T-330 | IC-122, SV-7 | - | - | - | - |
 | `tests/system/cr-721-sv-7-ic-153-the-green-heading-and-the-clear-entry.test.ts` | 8 | - | - | T-109, T-236, T-330, T-346 | IC-153, RW-2, S-146, S-183, SQ-1, SQ-3, SQ-4, SQ-11, SV-1, SV-7 | - | - | - | - |
-| `tests/system/cr-722-the-eyes-the-red-and-the-resource-list-on-the-shipped-build.test.ts` | 11 | FR-099, FR-151 | - | T-109, T-236, T-237, T-353, T-370, T-371 | AM-26, AM-27, EN-5, EN-8, IC-62, IC-117, IC-143, S-543, S-544, SJ-0, SQ-10, SV-4, TV-8, TV-11, TV-12 | - | - | - | - |
+| `tests/system/cr-722-the-eyes-the-red-and-the-resource-list-on-the-shipped-build.test.ts` | 11 | FR-099, FR-151 | - | T-109, T-236, T-237, T-353, T-370, T-371 | AM-26, AM-27, EN-5, EN-8, IC-62, IC-117, IC-143, RO-6, S-543, S-544, SJ-0, SQ-10, SV-4, SV-9, TV-8, TV-11, TV-12 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-colour-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |

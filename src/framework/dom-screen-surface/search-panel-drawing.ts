@@ -49,7 +49,7 @@ export interface DrawnRow {
   readonly shown?: boolean
   readonly target?: SearchRowView['target']
   readonly key?: VisibilityKey
-  readonly isChosen?: boolean | null
+  readonly chosenEntry?: CommandItem | null
 }
 
 type SearchFilterMenuView = NonNullable<SearchPanelView['filterMenu']>
@@ -122,10 +122,6 @@ const SHOWN_ALL_ATTRIBUTE = 'data-search-shown-all'
 
 // see SQ-10, DT-8, RQ-1, S-496
 const VISIBILITY_COLUMNS: readonly string[] = ['SQ-10', 'DT-8', 'RQ-1']
-
-const CHOSEN_ENTRY = 'IC-67'
-
-const UNCHOSEN_ENTRY = 'IC-68'
 
 const NO_BORDER_ATTRIBUTE = 'data-no-border'
 
@@ -536,7 +532,7 @@ function bodyRowElement(host: Document, row: DrawnRow, columns: readonly SearchC
     const cell = made(host, 'td', cellStyle() + fixed + (isJump ? jumpCellStyle() : ''))
     if (at === places.glyphAt) cell.replaceChildren(glyphElement(host, row.glyph ?? null), text)
     else if (at === places.showAt && key !== null) cell.replaceChildren(shownRowBox(host, key, row.shown === true))
-    else if (at === places.chosenAt) cell.replaceChildren(...chosenEntryOf(host, row.isChosen))
+    else if (at === places.chosenAt) cell.replaceChildren(...chosenEntryOf(host, row.chosenEntry))
     else cell.textContent = text
     if (isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
     if (isJump && row.target?.kind === 'task') cell.setAttribute(SEARCH_JUMP_TASK_ATTRIBUTE, String(row.target.taskUid))
@@ -560,11 +556,10 @@ function visibilityKeyOfRow(row: DrawnRow): VisibilityKey | null {
 }
 
 // see RQ-3, RO-5, IC-67, IC-68
+// WHY: the adapter picks IC-67 or IC-68 and its words; null is the (Unassigned) row, which is never chosen.
 /** @purity non-pure */
-function chosenEntryOf(host: Document, isChosen: boolean | null | undefined): readonly HTMLElement[] {
-  if (isChosen === null || isChosen === undefined) return []
-  const icon = isChosen ? CHOSEN_ENTRY : UNCHOSEN_ENTRY
-  return [commandEntry(host, { icon, isEnabled: true, isPressed: false, isArmed: false, isChosen: false, label: '' })]
+function chosenEntryOf(host: Document, entry: CommandItem | null | undefined): readonly HTMLElement[] {
+  return entry === null || entry === undefined ? [] : [commandEntry(host, entry)]
 }
 
 // see SV-6, SV-16, SV-17, SV-18, T-331

@@ -24,7 +24,7 @@ const FR_036_ONE_SCREEN =
 const S_203_FITS_BOTH =
   '⭐ 収めるためにヘルプの字を小さくしてよい —— `_assets/tbl-settings.md` の 表 T-206 の `S-203` は、上の 2 つの環境で日英の両方が収まる値とすること（MUST）'
 // WHY: plain sentences the cases below lean on; no marker of their own.
-const WB_3_RANGE = 'ヘルプ・検索パネル・遅延診断レポートの窓・対話欄のどれも `Schedule Canvas`（`U-32`）の全体'
+const WB_3_RANGE = 'ヘルプ・検索パネル・遅延診断レポートの窓・対話欄・担当リストのウィンドウのどれも `Schedule Canvas`（`U-32`）の全体'
 const FR_036_HEADER_STAYS = 'ヘルプを実物の横へ寄せて見比べるあいだも、`App Header` の入口は隠れない'
 const FR_036_ONE_SPACE = '項目の説明は名の語と添える語を半角の空白 1 つで繋ぐ'
 const FR_036_IN_THE_DICTIONARY = '括弧は辞書の語の中に持ち、描き手は足さない'

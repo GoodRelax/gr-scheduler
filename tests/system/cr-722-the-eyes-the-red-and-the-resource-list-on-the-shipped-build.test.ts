@@ -459,6 +459,8 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       await press(page, `${PANEL} [data-search-task="${String(BRAVO)}"]`)
       expect(await readShown(page), 'the Resource List eye is off, so nothing narrows').toEqual({ drawnTaskUids: null, tables: [] })
       expect(await drawnTaskUids(page)).toContain(BRAVO)
+      // WHY: RO-6 puts the Resource List where SV-9 puts the search panel, and the later one stands in front; close the panel to reach the eye.
+      await press(page, `${PANEL} [data-icon="${ICON('IC-52')}"]`)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)
       expect((await readShown(page)).drawnTaskUids, 'Tanaka is still Hide: Bravo and Delta go again').toEqual([ALPHA, CHARLIE, ECHO])
     } finally {

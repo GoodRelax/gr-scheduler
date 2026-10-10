@@ -1,4 +1,4 @@
-// CR-661 on the shipped build: narrow to one assignee, check the Show column (SQ-10), press IC-143; the band, minimise and close, SJ-0's three doors, undo, save and export.
+// CR-661 on the shipped build, read after CR-722: narrow to one assignee, set its rows Hide in the Visibility column (SQ-10), press IC-143; the band, minimise and close, SJ-0's three doors, undo, save and export.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -13,8 +13,8 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_151_RULES =
-  '表の [表示] の列（表 T-331 の `SQ-10`）でチェックしたタスクだけを日程表に描くこと（スケジュールフィルタ）の規則は 表 T-353 に従うこと（MUST）'
-const FR_151_NOT_SAVED = '⛔ チェックとスケジュールフィルタの入切も文書に保存してはならない（MUST NOT）'
+  '検索の表・遅延診断レポートの表・担当リストの表の表示の列（Visibility）と、表ごとのスケジュールフィルタの入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-143`）で、日程表に描くタスクを絞ること（スケジュールフィルタ）の規則は 表 T-353 に従うこと（MUST）'
+const FR_151_NOT_SAVED = '⛔ 表ごとの表示の列の値とスケジュールフィルタの入切も文書に保存してはならない（MUST NOT）'
 const FR_151_NOT_UNDONE = '取り消しの記録にも載せない'
 const TV_3_NOT_FAINT = '「描かれていないタスク」）。⛔ 薄く描いてはならない（MUST NOT）'
 const EL_21_SJ_0 = '印の先の端のタスクがスケジュールフィルタ（`FR-151` の 表 T-353）で描かれないときは、先に 表 T-332 の `SJ-0` を行うこと（MUST）'
@@ -35,12 +35,13 @@ test.describe('CR-661 the manuscript these cases are driven by', () => {
     })
   }
   test('T-353 and T-332 still hold the rows these cases press', () => {
-    expect(cellOf(T_353, 'TV-5')).toContain('`IC-143` を押すと入る')
-    expect(cellOf(T_353, 'TV-6')).toContain('1 回の入り、または 1 回の入れ（見出しのまとめての入れを含む）が取り消しの 1 段である')
-    expect(cellOf(T_353, 'TV-8')).toContain('⭐ 最小化（`SV-12`）では終えない')
-    expect(cellOf(T_353, 'TV-8')).toContain('終えてもチェックは残る')
+    expect(cellOf(T_353, 'TV-2')).toContain('初めはどの表のどの行も「表示」')
+    expect(cellOf(T_353, 'TV-5')).toContain('`IC-143` を押すと、その表のスケジュールフィルタを掛け')
+    expect(cellOf(T_353, 'TV-6')).toContain('スケジュールフィルタを掛けるときは、タスクグループを展開しない')
+    expect(cellOf(T_353, 'TV-8')).toContain('⭐ 最小化（`SV-12`）では解除しない')
+    expect(cellOf(T_353, 'TV-8')).toContain('解除しても表示の列の値は残る')
     expect(cellOf(T_353, 'TV-11')).toContain('N は文書のタスクの数、M は描いているタスクの数')
-    expect(unbroken(rowOf(T_332, 'SJ-0').by['定め'] ?? '')).toContain('そのタスクをチェックに入れてから `SJ-2` 以降を行う')
+    expect(unbroken(rowOf(T_332, 'SJ-0').by['定め'] ?? '')).toContain('そのタスクの行だけを「表示」にし')
   })
 })
 
@@ -74,6 +75,7 @@ const TASK_GROUP_P = '5c000000-0000-4000-8000-000000006620'
 const TASK_GROUP_C = '5c000000-0000-4000-8000-000000006621'
 const TASK_GROUP_Q = '5c000000-0000-4000-8000-000000006622'
 const SATO = 'Sato Hanako'
+const TANAKA = 'Tanaka Jiro'
 const ALPHA = 1
 const BRAVO = 2
 const CHARLIE = 3
@@ -104,8 +106,11 @@ const taskRow = (uid: number, from: number, to: number, dependencies: readonly u
   carryElements: [],
 })
 
+// WHY: TV-6 opens nothing on entering, so a case that needs Alpha drawn opens task group P in the document itself.
+type FoldOfP = 'collapsed' | 'expanded'
+
 /** @purity pure */
-function fixture(): string {
+function fixture(foldOfP: FoldOfP): string {
   const group = TEMPLATE.schedule['taskGroups'][0] as Record<string, unknown>
   const resource = TEMPLATE.schedule['resources'][0] as Record<string, unknown>
   const link = { predecessorUid: ALPHA, linkType: 1, lag: 0, lagFormat: 7, carry: {}, carryElements: [] }
@@ -119,7 +124,7 @@ function fixture(): string {
       tasks,
       resources: [
         { ...resource, uid: 2001, name: SATO },
-        { ...resource, uid: 2002, name: 'Tanaka Jiro' },
+        { ...resource, uid: 2002, name: TANAKA },
       ],
       assignments: [
         { uid: 2101, taskUid: ALPHA, resourceUid: 2001, carry: {}, carryElements: [] },
@@ -128,7 +133,7 @@ function fixture(): string {
         { uid: 2104, taskUid: DELTA, resourceUid: 2002, carry: {}, carryElements: [] },
       ],
       taskGroups: [
-        { ...group, id: TASK_GROUP_P, parentId: null, label: 'Row P', order: 0, treeState: 'collapsed', minHeight: null },
+        { ...group, id: TASK_GROUP_P, parentId: null, label: 'Row P', order: 0, treeState: foldOfP, minHeight: null },
         { ...group, id: TASK_GROUP_C, parentId: TASK_GROUP_P, label: 'Row C', order: 1, treeState: 'auto', minHeight: null },
         { ...group, id: TASK_GROUP_Q, parentId: null, label: 'Row Q', order: 2, treeState: 'auto', minHeight: null },
       ],
@@ -154,19 +159,22 @@ function fixture(): string {
 }
 
 interface Shown {
-  readonly taskUids: readonly number[]
-  readonly isShowOnlyChecked: boolean
+  readonly drawnTaskUids: readonly number[] | null
+  readonly tables: readonly string[]
 }
 
 // see AM-26
 /** @purity semi-pure-b */
 async function readShown(page: Page): Promise<Shown> {
   const shown = await page.evaluate(() => {
-    const api = (window as unknown as { grSchedulerAgentApi: { readShownTasks(): { taskUids: number[]; isShowOnlyChecked: boolean } } }).grSchedulerAgentApi
+    const api = (window as unknown as { grSchedulerAgentApi: { readShownTasks(): { drawnTaskUids: number[] | null; tables: string[] } } }).grSchedulerAgentApi
     return api.readShownTasks()
   })
-  return { taskUids: [...shown.taskUids].sort((a, b) => a - b), isShowOnlyChecked: shown.isShowOnlyChecked }
+  return { drawnTaskUids: shown.drawnTaskUids === null ? null : [...shown.drawnTaskUids].sort((a, b) => a - b), tables: [...shown.tables] }
 }
+
+const NARROWED = { drawnTaskUids: [ALPHA, CHARLIE], tables: ['searchPanel'] }
+const NOT_NARROWED = { drawnTaskUids: null, tables: [] }
 
 // WHY: every task figure is keyed task-<uid>-... (the drawing's own keys), so the drawn tasks are read off the keys.
 /** @purity semi-pure-b */
@@ -222,46 +230,53 @@ test.afterAll(async () => {
 })
 
 /** @purity non-pure */
-async function opened(): Promise<Stage> {
+async function opened(foldOfP: FoldOfP = 'collapsed'): Promise<Stage> {
   if (browser === null) throw new Error('no browser')
   const stage = await openStage(browser)
-  await openDocument(stage.page, 'cr-661.json', fixture())
+  await openDocument(stage.page, 'cr-661.json', fixture(foldOfP))
   return stage
 }
 
-// WHY: the word narrows the table to one assignee (SV-4), the heading box checks every listed row (SQ-10).
+// WHY: every row starts Show (TV-2); the word narrows the table to Tanaka (SV-4), the heading box sets every listed row Hide (SQ-10), and the word is cleared again.
 /** @purity non-pure */
-async function checkSato(page: Page): Promise<void> {
+async function hideTanaka(page: Page): Promise<void> {
   await page.keyboard.press(OPEN_SEARCH)
   await settle(page)
-  await page.keyboard.type(SATO)
+  await page.keyboard.type(TANAKA)
   await settle(page)
   await press(page, `${PANEL} [data-search-shown-all]`)
+  await press(page, `${PANEL} input`)
+  await page.keyboard.press('Control+a')
+  await page.keyboard.press('Backspace')
+  await settle(page)
 }
 
 /** @purity non-pure */
 async function enter(page: Page): Promise<void> {
-  await checkSato(page)
+  await hideTanaka(page)
   await press(page, `${PANEL} [data-icon="${ENTER}"]`)
 }
 
 test.describe('FR-151 / T-353 on the shipped build', () => {
   test.setTimeout(180_000)
 
-  test(`FR-151 (MUST): ${FR_151_RULES.slice(-30)} -- the checked tasks only, the band, the task groups opened on entering`, async () => {
+  test(`FR-151 (MUST): ${FR_151_RULES.slice(-30)} -- the Show tasks only, the band, no task group opened on entering`, async () => {
     const stage = await opened()
     try {
       const { page } = stage
       const rulerBefore = await boxOf(page, RULER)
-      await checkSato(page)
-      expect(await readShown(page)).toEqual({ taskUids: [ALPHA, CHARLIE], isShowOnlyChecked: false })
+      await hideTanaka(page)
+      expect(await readShown(page)).toEqual(NOT_NARROWED)
       expect(await bandText(page), 'no band before IC-143').toBeNull()
       await press(page, `${PANEL} [data-icon="${ENTER}"]`)
-      expect(await readShown(page)).toEqual({ taskUids: [ALPHA, CHARLIE], isShowOnlyChecked: true })
+      expect(await readShown(page)).toEqual(NARROWED)
       // see TV-6
-      expect(stateOf(await readTree(page), TASK_GROUP_P), 'entering opens the folded task group above Alpha').toBe('expanded')
+      expect(stateOf(await readTree(page), TASK_GROUP_P), 'entering leaves the folded task group above Alpha folded').toBe('collapsed')
       // see TV-1, TV-3
-      expect(await drawnTaskUids(page)).toEqual([ALPHA, CHARLIE])
+      const drawn = await drawnTaskUids(page)
+      expect(drawn).toContain(CHARLIE)
+      expect(drawn).not.toContain(BRAVO)
+      expect(drawn).not.toContain(DELTA)
       // see TV-11
       expect(await bandText(page) ?? '').toMatch(/4 件中 2 件|2 of 4/)
       const band = await boxOf(page, BAND)
@@ -283,7 +298,7 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
       expect(drawn).not.toContain(BRAVO)
       expect(drawn).not.toContain(DELTA)
       const words = await drawnTexts(page)
-      expect(words).toContain(NAMES[ALPHA])
+      expect(words).toContain(NAMES[CHARLIE])
       expect(words).not.toContain(NAMES[BRAVO])
       expect(words).not.toContain(NAMES[DELTA])
     } finally {
@@ -291,86 +306,86 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
     }
   })
 
-  test(`FR-151 (MUST NOT): ${FR_151_NOT_SAVED.slice(-30)} -- Ctrl+Z after entering takes back the opened task groups only, and a save holds no check`, async () => {
+  test(`FR-151 (MUST NOT): ${FR_151_NOT_SAVED.slice(-30)} -- Ctrl+Z after entering takes nothing back, and a save holds no Visibility`, async () => {
     const stage = await opened()
     try {
       const { page } = stage
       const savedBefore = JSON.parse(await saveDocument(page)) as Record<string, unknown>
       await enter(page)
-      expect(stateOf(await readTree(page), TASK_GROUP_P)).toBe('expanded')
+      expect(stateOf(await readTree(page), TASK_GROUP_P), 'TV-6: entering opens nothing').toBe('collapsed')
       await page.keyboard.press('Control+z')
       await settle(page)
-      expect(stateOf(await readTree(page), TASK_GROUP_P), 'the one undo step is the opening').toBe('collapsed')
-      expect(await readShown(page), `${FR_151_NOT_UNDONE}: the checks and the narrowing stay`).toEqual({ taskUids: [ALPHA, CHARLIE], isShowOnlyChecked: true })
+      expect(stateOf(await readTree(page), TASK_GROUP_P)).toBe('collapsed')
+      expect(await readShown(page), `${FR_151_NOT_UNDONE}: the Visibility and the Schedule Filter stay`).toEqual(NARROWED)
       expect(await bandText(page)).not.toBeNull()
       const savedDuring = JSON.parse(await saveDocument(page)) as Record<string, unknown>
       expect(savedDuring['schedule']).toEqual(savedBefore['schedule'])
       expect(savedDuring['documentSettings']).toEqual(savedBefore['documentSettings'])
-      expect(JSON.stringify(savedDuring)).not.toMatch(/shown|showOnly|checked/i)
+      expect(JSON.stringify(savedDuring)).not.toMatch(/shown|showOnly|checked|visibility|hiddenKeys|scheduleFilter/i)
     } finally {
       await stage.close()
     }
   })
 
-  test('TV-8: minimising keeps the narrowing; closing the panel ends it and keeps the checks', async () => {
-    const stage = await opened()
+  test('TV-8: minimising keeps the Schedule Filter; closing the panel turns it off and keeps the Visibility', async () => {
+    const stage = await opened('expanded')
     try {
       const { page } = stage
       await enter(page)
       await press(page, `${PANEL} [data-icon="${MINIMISE}"]`)
-      expect((await readShown(page)).isShowOnlyChecked).toBe(true)
+      expect(await readShown(page)).toEqual(NARROWED)
       expect(await bandText(page)).not.toBeNull()
-      expect(await drawnTaskUids(page)).toEqual([ALPHA, CHARLIE])
       await press(page, `${PANEL} [data-icon="${CLOSE}"]`)
-      expect(await readShown(page)).toEqual({ taskUids: [ALPHA, CHARLIE], isShowOnlyChecked: false })
+      expect(await readShown(page)).toEqual(NOT_NARROWED)
       expect(await bandText(page)).toBeNull()
       expect(await drawnTaskUids(page)).toEqual([ALPHA, BRAVO, CHARLIE, DELTA])
+      await page.keyboard.press(OPEN_SEARCH)
+      await settle(page)
+      await press(page, `${PANEL} [data-icon="${ENTER}"]`)
+      expect(await readShown(page), 'the Visibility outlived the close').toEqual(NARROWED)
     } finally {
       await stage.close()
     }
   })
 
-  test('SJ-0: a jump from the search table to an unchecked task checks it first and draws it', async () => {
+  test('SJ-0: a jump from the search table to a Hide task sets its row Show first and draws it', async () => {
     const stage = await opened()
     try {
       const { page } = stage
       await enter(page)
-      await page.keyboard.press(OPEN_SEARCH)
-      await page.keyboard.press('Backspace')
-      await settle(page)
       await press(page, `${PANEL} [data-search-task="${BRAVO}"]`)
-      expect(await readShown(page)).toEqual({ taskUids: [ALPHA, BRAVO, CHARLIE], isShowOnlyChecked: true })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, BRAVO, CHARLIE], tables: ['searchPanel'] })
       expect(await drawnTaskUids(page)).toContain(BRAVO)
     } finally {
       await stage.close()
     }
   })
 
-  test(`EL-21 (MUST): ${EL_21_SJ_0.slice(-30)} -- pressing the continuation mark toward Delta checks Delta`, async () => {
-    const stage = await opened()
+  test(`EL-21 (MUST): ${EL_21_SJ_0.slice(-30)} -- pressing the continuation mark toward Delta sets Delta Show`, async () => {
+    const stage = await opened('expanded')
     try {
       const { page } = stage
       await enter(page)
       const dot = `circle[data-figure="dep-${ALPHA}-${DELTA}"]`
-      expect(await boxOf(page, dot), 'the link to the unchecked Delta ends in the continuation mark (EL-20)').not.toBeNull()
+      expect(await boxOf(page, dot), 'the link to the Hide Delta ends in the continuation mark (EL-20)').not.toBeNull()
       await press(page, dot)
-      expect(await readShown(page)).toEqual({ taskUids: [ALPHA, CHARLIE, DELTA], isShowOnlyChecked: true })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, CHARLIE, DELTA], tables: ['searchPanel'] })
       expect(await drawnTaskUids(page)).toContain(DELTA)
     } finally {
       await stage.close()
     }
   })
 
-  test(`FR-134 (MUST): ${FR_134_JUMP.slice(-30)} -- a report row's name checks its unchecked task first`, async () => {
+  test(`FR-134 (MUST): ${FR_134_JUMP.slice(-30)} -- a report row's name sets its Hide task Show first`, async () => {
     const stage = await opened()
     try {
       const { page } = stage
       await enter(page)
       await press(page, `[data-icon="${DIAGNOSE}"]`)
       const cell = `${REPORT} [data-search-task="${DELTA}"]`
-      expect(await boxOf(page, cell), 'TV-10: the report lists Delta although it is not checked').not.toBeNull()
+      expect(await boxOf(page, cell), 'TV-10: the report lists Delta although the search table hides it').not.toBeNull()
       await press(page, cell)
-      expect((await readShown(page)).taskUids).toContain(DELTA)
+      expect((await readShown(page)).drawnTaskUids).toContain(DELTA)
       expect(await drawnTaskUids(page)).toContain(DELTA)
     } finally {
       await stage.close()
