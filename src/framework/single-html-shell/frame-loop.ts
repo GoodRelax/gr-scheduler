@@ -22,6 +22,7 @@ import {
   type HistoryLimits,
 } from '../../entity/document-model/edit-history/edit-history'
 import {
+  delayDiagnosticsReportRows,
   diagnoseDelay,
   scheduleViolations,
   textOfDay,
@@ -76,7 +77,6 @@ import {
 } from '../../use-case/apply-document-change/apply-document-change'
 import {
   confirmationOwedBy,
-  confirmationOwedByResourceDeletion,
   searchJumpReachOf,
   searchJumpWrites,
   searchJumpCommands,
@@ -88,6 +88,7 @@ import {
   NOTICE_MANNER_OF_REASON,
   advanceScreenSession,
   emptyScreenSession,
+  EVERY_ROW_SHOWN,
   emptySearchPanelSession,
   isHelpStandingIn,
   isWindowStandingIn,
@@ -161,6 +162,12 @@ import {
   delayDiagnosticsReportAfterFilterChange,
   delayDiagnosticsReportWithColumnWidth,
   delayDiagnosticsReportWithFilterClosed,
+  resourceListAfterFilterChange,
+  resourceListListedUidsOf,
+  resourceListWithColumnWidth,
+  resourceListWithFilterClosed,
+  tableWithScheduleFilterToggled,
+  OPENED_RESOURCE_LIST,
   type DelayDiagnosticsReportWindow,
   drawnTaskGroupBoxesOf,
   windowBoxAfterGrab,
@@ -243,6 +250,15 @@ import {
 } from './held-press-preview'
 import { parentTaskHoldOf } from './parent-task-hold'
 import { shownTasksHoldOf } from './shown-tasks-hold'
+import {
+  RESOURCE_LIST_SURFACE,
+  answerResourceDeletion,
+  answerTableWindowEntry,
+  tableWindowClosed,
+  tableWindowReopened,
+  withTableWindowInFront,
+  type ResourceListWindow,
+} from './resource-list-window'
 import {
   interactionRecorderOf,
   isRecordingInteractionsIn,
@@ -369,6 +385,10 @@ export interface ScreenWiring {
     readonly word: string | null
     readonly changes: readonly SearchFilterChange[]
   }
+  readonly readResourceListInput?: () => {
+    readonly word: string | null
+    readonly changes: readonly SearchFilterChange[]
+  }
 }
 
 export interface FrameLoopHands {
@@ -430,8 +450,6 @@ function isConfirmationAnswerKey(key: string): boolean {
   return key === CONFIRMATION_PROCEED_KEY || key === CONFIRMATION_CANCEL_KEY
 }
 
-const RESOURCE_LIST_DELETE_ENTRY: IconId = 'IC-66'
-
 const NEW_DOCUMENT_ENTRY: IconId = 'IC-98'
 
 const PALETTE_GRAB_BAND_ENTRY: IconId = 'IC-53'
@@ -472,6 +490,7 @@ interface HeldDelayDiagnostics {
   readonly drawing: DelayDiagnosticsDrawing
   // see SQ-5
   readonly bottleneckUids: ReadonlySet<number>
+  readonly reportTaskUids: ReadonlySet<number>
 }
 
 // see FR-133, T-315, S-3
@@ -482,7 +501,8 @@ function delayDiagnosticsOf(document: Document): HeldDelayDiagnostics {
   const symbolByUid = new Map<number, 'DG-1' | 'DG-2' | 'DG-3'>()
   for (const one of report.markerStates) if (one.row !== 'DG-4') symbolByUid.set(one.uid, one.row)
   const bottleneckUids = new Set(report.bottlenecks.map((one) => one.uid))
-  return { of: document, report, drawing: { shown: true, symbolByUid }, bottleneckUids }
+  const reportTaskUids = new Set(delayDiagnosticsReportRows(report, document.schedule).map((row) => row.taskUid))
+  return { of: document, report, drawing: { shown: true, symbolByUid }, bottleneckUids, reportTaskUids }
 }
 
 type GeometryArguments = Parameters<typeof geometryFromLayout>
@@ -733,6 +753,7 @@ const ESCAPE_RUNG_EVENTS: { readonly [R in EscapeTarget]: ScreenValuesEvent | nu
   searchPanel: ESCAPE_SEARCH_PANEL,
   helpModal: ESCAPE_HELP,
   delayDiagnosticsReport: null,
+  resourceList: null,
   dialogueField: ESCAPE_DIALOGUE_FIELD,
   propertiesPanel: ESCAPE_SURFACE,
   armed: ESCAPE_ARMED,
@@ -747,6 +768,7 @@ const WINDOW_DISPLAY_KEYS: { readonly [W in WindowName]: Parameters<typeof isWin
   searchPanel: 'searchPanelDisplayState',
   helpModal: 'helpDisplayState',
   delayDiagnosticsReport: null,
+  resourceList: null,
   dialogueField: 'dialogueFieldDisplayState',
 }
 
@@ -1009,6 +1031,8 @@ interface ScreenViewReadingsTaken {
   readonly canRedo?: boolean
   readonly zoomEntranceEnds?: ZoomEntranceEnds
   readonly searchPanel?: SearchPanelSession
+  readonly resourceList?: ResourceListWindow | null
+  readonly drawnTaskUids?: ReadonlySet<number> | null
   readonly windowPlaces?: NonNullable<ScreenViewReadings['windowPlaces']>
   readonly isDelayDiagnosticsShown?: boolean
   readonly isParentTaskLinksShown?: boolean
@@ -1143,9 +1167,9 @@ function screenLanguageIn(session: ScreenSession): DisplayLanguage {
 
 // see FR-051, TV-11, S-497
 /** @purity pure */
-function environmentForRegionsOf(environment: FrameEnvironment, propertyPanelWidth: number, isShowOnlyChecked: boolean): ScreenEnvironment {
+function environmentForRegionsOf(environment: FrameEnvironment, propertyPanelWidth: number, isScheduleFiltered: boolean): ScreenEnvironment {
   const { width, height, appHeaderHeight, scrollbarThickness } = environment
-  const topBandHeight = isShowOnlyChecked ? NOT_STORED_SCHEDULE_FILTER_BAR_SIZES['S-497'] : 0
+  const topBandHeight = isScheduleFiltered ? NOT_STORED_SCHEDULE_FILTER_BAR_SIZES['S-497'] : 0
   return { width, height, appHeaderHeight, scrollbarThickness, propertyPanelWidth, topBandHeight }
 }
 
@@ -1565,6 +1589,9 @@ interface WindowPlaces {
   readonly helpModal: WindowPlace
   readonly dialogueField: WindowPlace
   readonly delayDiagnosticsReport: DelayDiagnosticsReportWindow | null
+  readonly resourceList: ResourceListWindow | null
+  readonly closedReport: DelayDiagnosticsReportWindow | null
+  readonly closedResourceList: ResourceListWindow | null
   readonly closeOnlyTitledSurface: { readonly x: number; readonly y: number } | null
 }
 
@@ -1573,7 +1600,32 @@ const STARTING_WINDOW_PLACES: WindowPlaces = {
   helpModal: DEFAULT_WINDOW_PLACE,
   dialogueField: DEFAULT_WINDOW_PLACE,
   delayDiagnosticsReport: null,
+  resourceList: null,
+  closedReport: null,
+  closedResourceList: null,
   closeOnlyTitledSurface: null,
+}
+
+type ResourceListInput = ReturnType<NonNullable<ScreenWiring['readResourceListInput']>>
+
+// see RO-1, RW-1, RW-5, RO-6, TV-8, WB-6
+// WHY: a closed window is remembered with its Schedule Filter let go; the window opened or raised goes in front.
+/** @purity pure */
+function withTableWindows(
+  held: WindowPlaces,
+  report: DelayDiagnosticsReportWindow | null,
+  resourceList: ResourceListWindow | null,
+): WindowPlaces {
+  const before = held.delayDiagnosticsReport
+  const list = held.resourceList
+  const fronted = withTableWindowInFront({ report: before, resourceList: list }, { report, resourceList })
+  return {
+    ...held,
+    delayDiagnosticsReport: fronted.report,
+    resourceList: fronted.resourceList,
+    closedReport: report === null && before !== null ? tableWindowClosed(before) : held.closedReport,
+    closedResourceList: resourceList === null && list !== null ? tableWindowClosed(list) : held.closedResourceList,
+  }
 }
 
 type ReportInput = ReturnType<NonNullable<ScreenWiring['readDelayDiagnosticsReportInput']>>
@@ -1583,8 +1635,10 @@ type ReportInput = ReturnType<NonNullable<ScreenWiring['readDelayDiagnosticsRepo
 function windowPlacesAfterGrab(held: WindowPlaces, grab: WindowGrab, box: ScreenRect): WindowPlaces {
   const place = windowPlaceOf(box)
   const report = held.delayDiagnosticsReport
+  const list = held.resourceList
   if (grab.window === 'closeOnlyTitledSurface') return { ...held, closeOnlyTitledSurface: { x: box.x, y: box.y } }
   if (grab.window === 'searchPanel') return { ...held, searchPanel: { ...held.searchPanel, ...place } }
+  if (grab.window === 'resourceList') return list === null ? held : { ...held, resourceList: { ...list, panel: { ...list.panel, ...place } } }
   if (grab.window !== 'delayDiagnosticsReport') return { ...held, [grab.window]: place }
   return report === null ? held : { ...held, delayDiagnosticsReport: { ...report, panel: { ...report.panel, ...place } } }
 }
@@ -1595,6 +1649,8 @@ function windowPlacesAfterColumnDrag(held: WindowPlaces, grab: Extract<WindowGra
   const width = Math.min(Math.max(grab.widthAtPress + dx, grab.widthFloor), grab.widthCeiling)
   const report = held.delayDiagnosticsReport
   if (grab.window === 'searchPanel') return { ...held, searchPanel: searchPanelWithColumnWidth(held.searchPanel, grab.column, width) }
+  const list = held.resourceList
+  if (grab.window === 'resourceList') return list === null ? held : { ...held, resourceList: resourceListWithColumnWidth(list, grab.column, width) }
   if (grab.window !== 'delayDiagnosticsReport' || report === null) return held
   return { ...held, delayDiagnosticsReport: delayDiagnosticsReportWithColumnWidth(report, grab.column, width) }
 }
@@ -1607,41 +1663,57 @@ function reportWithInput(window: DelayDiagnosticsReportWindow | null, input: Rep
   return input.changes.reduce(delayDiagnosticsReportAfterFilterChange, typed)
 }
 
+// see RO-3, SV-7, RQ-1
+/** @purity pure */
+function resourceListWithInput(window: ResourceListWindow | null, input: ResourceListInput | undefined): ResourceListWindow | null {
+  if (window === null || input === undefined) return window
+  const typed = input.word === null ? window : { ...window, panel: { ...window.panel, word: input.word } }
+  return input.changes.reduce(resourceListAfterFilterChange, typed)
+}
+
 // see SV-2, SV-7, RW-3, IF-9
 /** @purity semi-pure-b */
 function windowPlacesAfterTyping(held: WindowPlaces, session: ScreenSession, screen: ScreenWiring | undefined): WindowPlaces {
   const searchPanel = searchPanelWithFilterChanges(searchPanelWithTypedWord(held.searchPanel, screen?.surface), session, screen)
   const report = reportWithInput(held.delayDiagnosticsReport, screen?.readDelayDiagnosticsReportInput?.())
-  return { ...held, searchPanel, delayDiagnosticsReport: report }
+  const resourceList = resourceListWithInput(held.resourceList, screen?.readResourceListInput?.())
+  return { ...held, searchPanel, delayDiagnosticsReport: report, resourceList }
 }
 
 // see WB-6, RW-1, S-451, SQ-5
 /** @purity pure */
-function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnostics, 'report' | 'bottleneckUids'> | null) {
+function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnostics, 'report' | 'bottleneckUids'> | null, drawnTaskUids: ReadonlySet<number> | null) {
   const window = held.delayDiagnosticsReport
   const report = diagnostics?.report ?? null
   return {
     searchPanel: held.searchPanel,
+    resourceList: held.resourceList,
+    drawnTaskUids,
     windowPlaces: { helpModal: held.helpModal, dialogueField: held.dialogueField, closeOnlyTitledSurface: held.closeOnlyTitledSurface },
     delayDiagnosticsReport: window === null || report === null ? null : { window, report },
     bottleneckUids: diagnostics?.bottleneckUids,
   }
 }
 
-// see RW-5, T-337
-// WHY: the window opened later is in front; the report opens in front, so only a search panel opening after it changes that.
+// see RW-5, RO-6, T-337
+// WHY: the window opened later is in front; the others open in front, so only a search panel opening after them changes that.
 /** @purity pure */
-function reportBehindNewSearchPanel(held: WindowPlaces, wasShown: boolean, isShown: boolean): WindowPlaces {
+function windowsBehindNewSearchPanel(held: WindowPlaces, wasShown: boolean, isShown: boolean): WindowPlaces {
   const report = held.delayDiagnosticsReport
-  if (report === null || wasShown || !isShown || !report.isInFront) return held
-  return { ...held, delayDiagnosticsReport: { ...report, isInFront: false } }
+  const list = held.resourceList
+  if (wasShown || !isShown || (report?.isInFront !== true && list?.isInFront !== true)) return held
+  return {
+    ...held,
+    delayDiagnosticsReport: report === null ? null : { ...report, isInFront: false },
+    resourceList: list === null ? null : { ...list, isInFront: false },
+  }
 }
 
 // see TV-8, SV-14, S-495
 /** @purity pure */
 function filterEndedWithClosedPanel(held: WindowPlaces, isShown: boolean): WindowPlaces {
-  if (isShown || !held.searchPanel.showOnlyChecked) return held
-  return { ...held, searchPanel: { ...held.searchPanel, showOnlyChecked: false } }
+  if (isShown || !held.searchPanel.visibility.isApplied) return held
+  return { ...held, searchPanel: tableWithScheduleFilterToggled(held.searchPanel) }
 }
 
 // see WB-6, WB-10
@@ -1661,6 +1733,7 @@ function windowPlacesAfterClosing(held: WindowPlaces, session: ScreenSession): W
 function grabbedShown(session: ScreenSession, held: WindowPlaces, window: WindowGrab['window']): WindowShown | null {
   if (window === 'closeOnlyTitledSurface') return 'normal'
   if (window === 'delayDiagnosticsReport') return held.delayDiagnosticsReport?.shown ?? null
+  if (window === 'resourceList') return held.resourceList?.shown ?? null
   return windowShownIn(session, window)
 }
 
@@ -1672,8 +1745,10 @@ function windowPlacesAfterEscape(session: ScreenSession, held: WindowPlaces, lev
     const closed = searchPanelWithFilterClosed(session, held.searchPanel)
     return closed === null ? null : { ...held, searchPanel: closed }
   }
+  const list = held.resourceList
+  if (level === 'resourceList' && list !== null) return withTableWindows(held, report, resourceListWithFilterClosed(list))
   if (level !== 'delayDiagnosticsReport' || report === null) return null
-  return { ...held, delayDiagnosticsReport: delayDiagnosticsReportWithFilterClosed(report) }
+  return withTableWindows(held, delayDiagnosticsReportWithFilterClosed(report), list)
 }
 
 // see SV-7
@@ -1695,8 +1770,34 @@ function windowPlacesAfterOutsidePress(session: ScreenSession, held: WindowPlace
   const report = held.delayDiagnosticsReport
   const isReportClosing = report !== null && isFilterPressedOutside(on, DELAY_DIAGNOSTICS_REPORT_SURFACE, report.panel.filters.open)
   const delayDiagnosticsReport = isReportClosing ? (delayDiagnosticsReportWithFilterClosed(report) ?? report) : report
-  if (searchPanel === panel && delayDiagnosticsReport === report) return held
-  return { ...held, searchPanel, delayDiagnosticsReport }
+  const list = held.resourceList
+  const isListClosing = list !== null && isFilterPressedOutside(on, RESOURCE_LIST_SURFACE, list.panel.filters.open)
+  const resourceList = isListClosing ? (resourceListWithFilterClosed(list) ?? list) : list
+  if (searchPanel === panel && delayDiagnosticsReport === report && resourceList === list) return held
+  return { ...held, searchPanel, delayDiagnosticsReport, resourceList }
+}
+
+// see T-335, RO-1, RW-1, TV-8, WB-6
+/** @purity non-pure */
+function tableWindowsHeldIn(read: () => WindowPlaces, write: (next: WindowPlaces) => void) {
+  return {
+    searchPanel: (): SearchPanelSession => read().searchPanel,
+    holdSearchPanel: (panel: SearchPanelSession): void => write({ ...read(), searchPanel: panel }),
+    report: (): DelayDiagnosticsReportWindow | null => read().delayDiagnosticsReport,
+    holdReport: (report: DelayDiagnosticsReportWindow | null): void => write(withTableWindows(read(), report, read().resourceList)),
+    reopenedReport: (): DelayDiagnosticsReportWindow =>
+      read().delayDiagnosticsReport ?? tableWindowReopened(null, read().closedReport, OPENED_DELAY_DIAGNOSTICS_REPORT),
+    resourceList: (): ResourceListWindow | null => read().resourceList,
+    reopenedResourceList: (): ResourceListWindow => tableWindowReopened(read().resourceList, read().closedResourceList, OPENED_RESOURCE_LIST),
+    holdResourceList: (list: ResourceListWindow | null): void => write(withTableWindows(read(), read().delayDiagnosticsReport, list)),
+    dropClosedValues: (): void => write({ ...read(), closedReport: valuesDropped(read().closedReport), closedResourceList: valuesDropped(read().closedResourceList) }),
+  }
+}
+
+// see TV-9
+/** @purity pure */
+function valuesDropped<W extends ResourceListWindow>(window: W | null): W | null {
+  return window === null ? null : { ...window, panel: { ...window.panel, visibility: EVERY_ROW_SHOWN } }
 }
 
 // see T-335, WB-6, WB-8, WB-9, SV-14, SV-18, S-419, S-451, S-455, S-456
@@ -1707,19 +1808,16 @@ function heldWindowsOf() {
   let wasSearchPanelShown = false
 
   return {
-    searchPanel: (): SearchPanelSession => held.searchPanel,
-    holdSearchPanel: (panel: SearchPanelSession): void => void (held = { ...held, searchPanel: panel }),
-    report: (): DelayDiagnosticsReportWindow | null => held.delayDiagnosticsReport,
-    holdReport: (report: DelayDiagnosticsReportWindow | null): void => void (held = { ...held, delayDiagnosticsReport: report }),
+    ...tableWindowsHeldIn(() => held, (next) => void (held = next)),
     takeTypedInput: (session: ScreenSession, screen: ScreenWiring | undefined): void =>
       void (held = windowPlacesAfterTyping(held, session, screen)),
     /** @purity non-pure */
-    readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'report' | 'bottleneckUids'> | null) {
+    readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'report' | 'bottleneckUids'> | null, drawn: ReadonlySet<number> | null) {
       const isSearchPanelShown = session.screen.searchPanelDisplayState.kind !== 'hidden'
-      held = reportBehindNewSearchPanel(held, wasSearchPanelShown, isSearchPanelShown)
+      held = windowsBehindNewSearchPanel(held, wasSearchPanelShown, isSearchPanelShown)
       held = filterEndedWithClosedPanel(held, isSearchPanelShown)
       wasSearchPanelShown = isSearchPanelShown
-      return windowReadingsOf(held, diagnostics)
+      return windowReadingsOf(held, diagnostics, drawn)
     },
     notePress: (on: ScreenPart | null): void => void (atPress = on?.windowGrab === undefined ? null : held),
     closeFiltersPressedOutside: (session: ScreenSession, on: ScreenPart | null): void =>
@@ -1825,7 +1923,7 @@ function searchPanelWithTypedWord(held: SearchPanelSession, surface: ScreenSurfa
 function isOnTableWindowBody(input: HumanInput, surface: ScreenSurface | undefined): boolean {
   if (input.kind === 'key' || surface === undefined) return false
   const on = surface.readScreenPartAt(input.x, input.y)
-  const isTableWindow = on?.part === SEARCH_PANEL_SURFACE || on?.part === DELAY_DIAGNOSTICS_REPORT_SURFACE
+  const isTableWindow = on?.part === SEARCH_PANEL_SURFACE || on?.part === DELAY_DIAGNOSTICS_REPORT_SURFACE || on?.part === RESOURCE_LIST_SURFACE
   return isTableWindow && (input.kind === 'wheel' || on.entry === null)
 }
 
@@ -1893,13 +1991,16 @@ function escapeLevelOf(
 function windowFocusContextOf(
   screen: ScreenWiring | undefined,
   session: ScreenSession,
-  report: DelayDiagnosticsReportWindow | null,
-): Pick<InputContext, 'focusedWindow' | 'isFocusInPropertiesPanel' | 'isAgentApiEnabled' | 'delayDiagnosticsReport'> {
+  windows: { readonly report: DelayDiagnosticsReportWindow | null; readonly resourceList: ResourceListWindow | null; readonly schedule: Document['schedule'] },
+): Pick<InputContext, 'focusedWindow' | 'isFocusInPropertiesPanel' | 'isAgentApiEnabled' | 'delayDiagnosticsReport' | 'resourceList' | 'listedResourceUids'> {
+  const { report, resourceList } = windows
   return {
     focusedWindow: screen?.readFocusedWindow?.() ?? null,
     isFocusInPropertiesPanel: screen?.isFocusInPropertiesPanel?.() === true,
     isAgentApiEnabled: isAgentApiEnabledIn(session),
     delayDiagnosticsReport: report === null ? null : { shown: report.shown, isInFront: report.isInFront },
+    resourceList: resourceList === null ? null : { shown: resourceList.shown, isInFront: resourceList.isInFront },
+    ...(resourceList === null ? {} : { listedResourceUids: resourceListListedUidsOf(resourceList, windows.schedule, session.selection.chosenResources) }),
   }
 }
 
@@ -2388,7 +2489,7 @@ export function frameLoop(
     exportScene,
   }
   const { pointerShapeAt } = pressedPointerShapeOf(hands)
-  const shownTasks = shownTasksHoldOf(hands, windows)
+  const shownTasks = shownTasksHoldOf(hands, windows, () => delayDiagnosticsNow()?.reportTaskUids ?? null)
   const { bandCeilingFor } = taskGroupBandCeilingCacheOf()
   const zoomEntranceEndsAt = zoomEntranceEndsHoldOf()
   const heldViewPlace = heldViewPlaceOf(hands, startedFromTemplate)
@@ -2463,7 +2564,7 @@ export function frameLoop(
     const stored = document.documentSettings
     shownTasks.keepWithinSchedule(held.document.schedule)
     const panelWidth = propertiesPanelWidthOf(session, heldPropertyPanelWidth)
-    const regions = regionsFromScreen(environmentForRegionsOf(environment, panelWidth, windows.searchPanel().showOnlyChecked), stored)
+    const regions = regionsFromScreen(environmentForRegionsOf(environment, panelWidth, shownTasks.appliedTables().length > 0), stored)
     // TRAP: not the preview; a longer bar would refit and shrink the axis under the drag.
     const view = viewSettingsOnce(held.document, stored, regions)
     const settings = view.settings
@@ -2571,7 +2672,7 @@ export function frameLoop(
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
           zoomEntranceEnds: zoomEntranceEndsAt(values, held.document, environment.taskGroupControlsHeightPx, collectInputContext),
-          ...windows.readings(session, delayDiagnosticsNow()),
+          ...windows.readings(session, delayDiagnosticsNow(), shownTasks.drawnSet()),
           ...parentTasks.readings(session, delayDiagnosticsShown),
         }),
       )
@@ -2618,7 +2719,7 @@ export function frameLoop(
   function showDelayDiagnostics(isShown: boolean): void {
     delayDiagnosticsShown = isShown
     if (!isShown) delayDiagnosticsHeld = null
-    windows.holdReport(isShown ? (windows.report() ?? OPENED_DELAY_DIAGNOSTICS_REPORT) : null)
+    windows.holdReport(isShown ? windows.reopenedReport() : null)
   }
 
   // see FR-134, T-346, RW-6, RW-7
@@ -2661,9 +2762,9 @@ export function frameLoop(
   /** @purity non-pure */
   function runAskedFrame(): void {
     if (values !== null) spendFieldCommit(hands, values)
-    const panelBefore = windows.searchPanel()
+    const tablesBefore = shownTasks.visibilities()
     windows.takeTypedInput(session, screen)
-    if (values !== null) shownTasks.openNewlyShown(panelBefore, values)
+    if (values !== null) shownTasks.openShownAgain(tablesBefore, values)
     runFrame()
   }
 
@@ -3019,7 +3120,7 @@ export function frameLoop(
       isTextEntryUnsettled: isEditingField(hands),
       isTextFieldFocusWanted: isFieldFocusWanted(hands),
       isSearchWordFocused: SEARCH_FIELD_ROWS.has(screen?.readFocusPosition?.() ?? ''),
-      ...windowFocusContextOf(screen, session, windows.report()),
+      ...windowFocusContextOf(screen, session, { report: windows.report(), resourceList: windows.resourceList(), schedule: held.document.schedule }),
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
       drawnTaskGroupIds: drawnTaskGroupBoxes.map((one) => one.groupId),
@@ -3147,11 +3248,13 @@ export function frameLoop(
       return true
     }
     if (surface === DELAY_DIAGNOSTICS_REPORT_SURFACE && answerReportEntry(entry, filterColumn, listed)) return true
+    const tableWindowAnswer = answerTableWindowEntry({ entry, surface, filterColumn, listed }, windows, shownTasks, { schedule: held.document.schedule, language: screenLanguageIn(session), chosenResourceUids: session.selection.chosenResources })
+    if (tableWindowAnswer !== null) return tableWindowAnswer
     const panelAfter = searchPanelAfterEntry(
       windows.searchPanel(), entry, session, held.document.schedule, filterColumn, delayDiagnosticsNow()?.bottleneckUids, listed,
     )
     if (panelAfter !== null) {
-      shownTasks.holdOpeningShown(panelAfter, frame)
+      shownTasks.holdChangeRevealing(() => windows.holdSearchPanel(panelAfter), frame)
       return true
     }
     if (entry === DELAY_DIAGNOSTICS_ENTRY) {
@@ -3195,22 +3298,7 @@ export function frameLoop(
       sendToSession(grsResetEntryPressedOf(held.document, session), frame)
       return true
     }
-    if (entry === RESOURCE_LIST_DELETE_ENTRY) {
-      const chosen = session.selection.chosenResources
-      if (chosen.length === 0) {
-        raiseNotice(NOTHING_TO_DO_REASON, null)
-        return true
-      }
-      const writes: readonly DocumentCommand[] = [{ kind: 'deleteResource', uids: chosen }]
-      const owedQuestion = confirmationOwedByResourceDeletion(chosen, held.document)
-      if (owedQuestion === null || isQuestionAskedIn(session)) {
-        writeDocument(writes, frame)
-        return true
-      }
-      const owedAction: FileFlowOwedAction = { kind: 'changeDocument', writes: [writes], created: null }
-      sendToSession({ type: 'changeQuestionRaised', question: { manner: CONFIRMATION_MANNER, ...owedQuestion }, owedAction }, frame)
-      return true
-    }
+    if (answerResourceDeletion(entry, hands, frame)) return true
     const openChoice = OPEN_CHOICE_OF_ENTRY[entry]
     if (openChoice !== undefined) {
       if (fileOperationKindIn(session) !== 'awaitingOpenChoice') return false

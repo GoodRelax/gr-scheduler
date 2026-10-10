@@ -96,6 +96,8 @@ function windowReadersOf(read: () => WindowReaders | null) {
     readSearchFilterChanges: (): readonly SearchFilterChange[] => read()?.readFilterChanges() ?? [],
     /** @purity semi-pure-b */
     readDelayDiagnosticsReportInput: () => read()?.readReportInput() ?? { word: null, changes: [] },
+    /** @purity semi-pure-b */
+    readResourceListInput: () => read()?.readResourceListInput() ?? { word: null, changes: [] },
   }
 }
 

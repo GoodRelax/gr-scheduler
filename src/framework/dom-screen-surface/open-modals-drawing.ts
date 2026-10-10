@@ -18,8 +18,6 @@ import {
   NOT_STORED_EXPORT_CHOOSER_SIZES,
   NOT_STORED_HELP_SIZES,
   NOT_STORED_ICON_SIZES,
-  NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES,
-  NOT_STORED_WHEEL_UNITS,
   PAINT,
   REPORT_REASON_ATTRIBUTE,
   SEPARATE_NOTE_ATTRIBUTE,
@@ -41,9 +39,7 @@ import { windowPartAt, windowPartOf, windowTitleRowElement, type PlacedWindow, t
 import { paletteGroupRuleStyle } from './command-palette-drawing'
 import type { TextEntryControl } from './field-editing'
 
-const RESOURCE_LIST_CHOSEN_ENTRY = 'IC-67'
 const CLOSE_SURFACE_ENTRY = 'IC-52'
-const RESOURCE_LIST_UNCHOSEN_ENTRY = 'IC-68'
 const HELP_LANGUAGE_ENTRY = 'IC-128'
 const HELP_SURFACE = 'Help Modal'
 
@@ -178,18 +174,6 @@ function helpItemStyles(glyphCount: number): {
   }
 }
 
-// see FR-099
-/** @purity non-pure */
-function resourceListSelectionEntry(host: Document, isSelected: boolean): HTMLElement {
-  const icon = isSelected ? RESOURCE_LIST_CHOSEN_ENTRY : RESOURCE_LIST_UNCHOSEN_ENTRY
-  const entry = made(host, 'button', entryStyle())
-  entry.setAttribute('type', 'button')
-  entry.setAttribute('data-icon', icon)
-  entry.setAttribute('aria-label', icon)
-  fillEntry(host, entry, icon)
-  return entry
-}
-
 // see FR-036, IC-102
 // WHY: no data-icon, so the pointer never reads the legend as an entrance to press.
 /** @purity non-pure */
@@ -246,107 +230,6 @@ type OpenHelpEntry = Extract<OpenModal, { readonly entries: unknown }>['entries'
 type OpenChooser = Extract<OpenModal, { readonly choices: unknown }>
 
 type ExportChooser = Extract<OpenModal, { readonly formats: unknown }>
-
-type ResourceListLine = Extract<OpenModal, { readonly resources: unknown }>['resources'][number]
-
-// see FR-099, RR-1, RR-2
-// WHY: a column box, so the scroller below takes what is left and the heading row stays put.
-/** @purity pure */
-function resourceListBoxStyle(): string {
-  return (
-    'display:flex;flex-direction:column;overflow:hidden;' +
-    `font-size:${NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES['S-240']}em;`
-  )
-}
-
-// see RR-5
-// TRAP: screen px on purpose; S-234, S-235 and S-240 must not scale it, or the line drops below a pixel.
-/** @purity pure */
-function resourceListRule(): string {
-  return `${NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES['S-241']}px solid ${PAINT.rule}`
-}
-
-// see RR-4, RR-5
-/** @purity pure */
-function resourceListCellStyle(isNameColumn: boolean, isFirstLine: boolean): string {
-  return (
-    `border-right:${resourceListRule()};border-bottom:${resourceListRule()};` +
-    (isNameColumn ? `border-left:${resourceListRule()};position:sticky;left:0;z-index:1;` : '') +
-    (isFirstLine ? `border-top:${resourceListRule()};` : '') +
-    `padding:0.125em 0.5em;white-space:nowrap;vertical-align:middle;background:${PAINT.ground};`
-  )
-}
-
-export const RESOURCE_LIST_SCROLLER = '[data-resource-list-scroller]'
-
-// see RR-2, RR-3
-// WHY: choosing a line redraws the Resource List, and a fresh box would jump back to the first column.
-/** @purity non-pure */
-export function keepResourceListScroll(before: Element | null, after: Element | null): void {
-  if (before === null || after === null) return
-  after.scrollLeft = before.scrollLeft
-  after.scrollTop = before.scrollTop
-}
-
-// TRAP: a window or element wheel listener is passive by default, and a passive preventDefault is ignored.
-const WHEEL_MAY_STOP_DEFAULT: AddEventListenerOptions = { passive: false }
-
-// see FR-099, T-257
-// WHY: every line has as many cells as the longest, so every column is ruled on every line (RR-5).
-/** @purity non-pure */
-function resourceListGridElement(host: Document, resources: readonly ResourceListLine[]): HTMLElement {
-  const scroller = made(host, 'div', 'flex:1 1 auto;min-height:0;overflow:auto;')
-  scroller.setAttribute('data-resource-list-scroller', 'true')
-  const grid = made(host, 'table', 'border-collapse:separate;border-spacing:0;')
-  const lines = made(host, 'tbody', '')
-  const widest = resources.reduce((most, one) => Math.max(most, one.unassignedTaskNames.length), 0)
-  resources.forEach((resource, at) => {
-    const isFirstLine = at === 0
-    const line = made(host, 'tr', '')
-    line.setAttribute('data-uid', String(resource.uid))
-    line.setAttribute('data-referenced', String(resource.isReferenced))
-    line.setAttribute('data-selected', String(resource.isSelected))
-    const name = made(host, 'td', resourceListCellStyle(true, isFirstLine))
-    name.setAttribute('data-resource-list-name', 'true')
-    name.textContent = resource.name
-    const choice = made(host, 'td', resourceListCellStyle(false, isFirstLine))
-    choice.append(resourceListSelectionEntry(host, resource.isSelected))
-    line.append(name, choice)
-    for (let column = 0; column < widest; column += 1) {
-      const cell = made(host, 'td', resourceListCellStyle(false, isFirstLine))
-      if (column < resource.unassignedTaskNames.length) {
-        const taskName = resource.unassignedTaskNames[column] ?? null
-        cell.setAttribute('data-unnamed', String(taskName === null))
-        cell.textContent = taskName
-      }
-      line.append(cell)
-    }
-    lines.append(line)
-  })
-  grid.append(lines)
-  scroller.append(grid)
-  return scroller
-}
-
-// see RR-3, MK-5, T-023
-// WHY: the translator already leaves the chart still while a surface stands, so the one exception
-// T-023 names is kept where the scrolled box lives.
-/** @purity non-pure */
-function resourceListSidewaysWheel(scroller: HTMLElement): (event: WheelEvent) => void {
-  return (event) => {
-    if (!event.ctrlKey || !event.shiftKey || event.altKey || event.metaKey) return
-    event.preventDefault()
-    const turned = event.deltaX !== 0 ? event.deltaX : event.deltaY
-    scroller.scrollLeft += turned * wheelUnitPx(event, scroller)
-  }
-}
-
-/** @purity semi-pure-b */
-function wheelUnitPx(event: WheelEvent, scroller: HTMLElement): number {
-  if (event.deltaMode === event.DOM_DELTA_PAGE) return scroller.clientWidth
-  if (event.deltaMode === event.DOM_DELTA_LINE) return NOT_STORED_WHEEL_UNITS['S-514']
-  return 1
-}
 
 // see FR-036, FR-053, T-256
 // WHY: each entry names its column (table T-256), so a block is placed, never flowed.
@@ -493,7 +376,6 @@ export function modalElement(
     'div',
     modal.surface,
     modalFrameStyle(modal) +
-      ('resources' in modal ? resourceListBoxStyle() : '') +
       ('droppedTaskNames' in modal ? STYLE.importReportBox : ''),
   )
   drawn.setAttribute('role', 'dialog')
@@ -512,12 +394,6 @@ export function modalElement(
   }
 
   if ('formats' in modal) body.push(...exportChooserBodyElements(host, modal))
-
-  if ('resources' in modal) {
-    const scroller = resourceListGridElement(host, modal.resources)
-    drawn.addEventListener('wheel', resourceListSidewaysWheel(scroller), WHEEL_MAY_STOP_DEFAULT)
-    body.push(scroller)
-  }
 
   if ('candidates' in modal) {
     for (const candidate of modal.candidates) {
