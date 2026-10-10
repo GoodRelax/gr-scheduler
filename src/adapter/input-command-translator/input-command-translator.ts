@@ -101,6 +101,7 @@ import {
   keyZoomFactor,
   verticalZoomAnswer,
   statusLineWrites,
+  unstoredZoomWrites,
   zoomTimes,
   zoomWrites,
 } from './zoom-and-fit'
@@ -588,6 +589,7 @@ function taskGroupAnchorAt(
 export function panTo(context: InputContext, dx: number, dy: number): TranslatedInput {
   const moved = scrolledAnchor(context, dx, dy)
   return changed([
+    ...unstoredZoomWrites(context),
     {
       kind: 'setScrollPosition',
       scrollDate: moved.scrollDate,

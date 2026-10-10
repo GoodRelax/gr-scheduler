@@ -299,6 +299,7 @@ export interface FrameValues {
   readonly geometry: ScheduleGeometry
   readonly settingsMeasuredWith: DocumentSettings
   readonly isPictureAtStoredZoom: boolean
+  readonly unstoredZoom: Pick<DocumentSettings, 'zoomX' | 'zoomY'> | null
 }
 
 export type HeldDocumentCall = Extract<ReplacementCall, { readonly row: 'RD-6' }>
@@ -1886,7 +1887,7 @@ function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, fra
   const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, hit.groupId)
   const reach = searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, cell)
   const plan = searchJumpWrites(document, cell, hasRoom, reach)
-  const writes = searchJumpCommands(plan)
+  const writes = searchJumpCommands(plan, frame.unstoredZoom)
   if (writes.length > 0) hands.writeDocument(writes, frame)
   hands.sendToSession({ type: 'objectsPicked', pickedObjects: selectionWith(emptySelection(), hit.item) }, frame)
   noteChoiceMoved(hands, frame)
@@ -1903,9 +1904,16 @@ function landJump(hands: FrameLoopHands, owed: OwedJump, frame: FrameValues): bo
   const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, searchHitOf(document.schedule, target).groupId)
   const plan = searchJumpWrites(document, target, hasRoom, searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, target))
   if (plan.isBlockedByPinnedTaskGroups) return false
-  if (isPlacedAgain && plan.scrollWrite !== null) hands.writeDocument([plan.scrollWrite], frame)
+  const placedAgain = isPlacedAgain ? searchJumpCommands({ ...plan, treeStateWrites: [] }, frame.unstoredZoom) : []
+  if (placedAgain.length > 0) hands.writeDocument(placedAgain, frame)
   hands.sendToSession({ type: 'searchJumpLanded', landedTarget: target }, frame)
   return true
+}
+
+// see OP-10, FR-055
+/** @purity pure */
+function unstoredZoomOf(view: { readonly settings: DocumentSettings; readonly isAtStoredZoom: boolean }): FrameValues['unstoredZoom'] {
+  return view.isAtStoredZoom ? null : { zoomX: view.settings.zoomX, zoomY: view.settings.zoomY }
 }
 
 // see HF-17
@@ -1914,7 +1922,8 @@ function landJump(hands: FrameLoopHands, owed: OwedJump, frame: FrameValues): bo
 function writeOwedSight(hands: FrameLoopHands, groupId: string | null, settings: DocumentSettings, frame: FrameValues): boolean {
   if (groupId === null || drawnTaskGroupBoxesOf(frame.layout, frame.regions).some((one) => one.groupId === groupId)) return false
   const { scrollDate, scrollDayOffset } = settings
-  hands.writeDocument([{ kind: 'setScrollPosition', scrollDate, scrollGroupId: groupId, scrollDayOffset, scrollGroupOffset: 0 }], frame)
+  const kept = frame.unstoredZoom === null ? [] : [{ kind: 'setZoom', ...frame.unstoredZoom } as const]
+  hands.writeDocument([...kept, { kind: 'setScrollPosition', scrollDate, scrollGroupId: groupId, scrollDayOffset, scrollGroupOffset: 0 }], frame)
   return true
 }
 
@@ -2690,6 +2699,7 @@ export function frameLoop(
       geometry,
       settingsMeasuredWith: stored,
       isPictureAtStoredZoom: view.isAtStoredZoom,
+      unstoredZoom: unstoredZoomOf(view),
     }
     const owedSight = addedTaskGroupOwedSight
     addedTaskGroupOwedSight = null

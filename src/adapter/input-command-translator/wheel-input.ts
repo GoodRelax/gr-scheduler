@@ -20,12 +20,7 @@ import {
   type ScrollAnchor,
   type TranslatedInput,
 } from './input-command-translator'
-import {
-  verticalZoomAnswer,
-  zoomStepAnswer,
-  zoomTimes,
-  zoomWrites,
-} from './zoom-and-fit'
+import { isPlaceSeatedIn, unstoredZoomWrites, verticalZoomAnswer, zoomStepAnswer, zoomTimes, zoomWrites } from './zoom-and-fit'
 
 type TaskGroupAnchor = Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>
 
@@ -33,6 +28,15 @@ type TaskGroupAnchor = Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>
 function taskGroupHeldOf(context: InputContext): TaskGroupAnchor {
   const settings = context.document.documentSettings
   return { scrollGroupId: settings.scrollGroupId, scrollGroupOffset: settings.scrollGroupOffset }
+}
+
+// see MK-5, OP-10
+// WHY: with no stored place the drawn top task group is kept, as statusLineCentred does; the stored null names no place.
+/** @purity pure */
+function taskGroupKeptOf(context: InputContext): TaskGroupAnchor {
+  if (isPlaceSeatedIn(context)) return taskGroupHeldOf(context)
+  const drawn = scrolledAnchor(context, 0, 0)
+  return { scrollGroupId: drawn.scrollGroupId, scrollGroupOffset: drawn.scrollGroupOffset }
 }
 
 // see FR-016, MK-1, S-176
@@ -106,13 +110,21 @@ export function commandFromWheel(
     ? scrolledAnchor(context, 0, input.scrollPx.y)
     : scrolledAnchor(context, sideways, 0)
   // TRAP: MK-5 moves no task group, and a round trip through drawn px loses the rounding (DFC-615).
-  const row = plain ? taskGroupTurnedTo(context, input.scrollPx.y) : taskGroupHeldOf(context)
+  const row = plain ? taskGroupTurnedTo(context, input.scrollPx.y) : taskGroupKeptOf(context)
   const to = {
     kind: 'setScrollPosition',
     scrollDate: moved.scrollDate,
     scrollDayOffset: moved.scrollDayOffset,
     ...row,
   } as const
-  // WHY: the position in force is not written again: an accepted write marks unsaved edits even if nothing moved.
+  return scrollWriteAnswer(context, to)
+}
+
+// see MK-1, MK-5, OP-10
+// WHY: the position in force is not written again: an accepted write marks unsaved edits even if nothing moved.
+/** @purity pure */
+function scrollWriteAnswer(context: InputContext, to: Parameters<typeof isScrollPositionInForce>[1]): TranslatedInput {
+  const zoom = unstoredZoomWrites(context)
+  if (zoom.length > 0) return changed([...zoom, to])
   return isScrollPositionInForce(context, to) ? CONSUMED_ELSEWHERE : changed([to])
 }

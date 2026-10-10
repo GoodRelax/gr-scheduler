@@ -251,6 +251,19 @@ const TEMPLATE_PATH = join(
 const fixtureDocument = (): Document =>
   JSON.parse(readFileSync(TEMPLATE_PATH, 'utf8')) as unknown as Document
 
+// see OP-10, T-024a, FR-055, S-77, S-78
+// WHY: at the fit the whole schedule is in view and the grip has no room to run; a scroll keeps the fit's zoom (DFC-2410).
+const placedDocument = (): Document => {
+  const held = fixtureDocument() as any
+  const first = held.schedule.taskGroups.find((one: any) => one.parentId === null && one.order === 0)
+  held.documentSettings = {
+    ...held.documentSettings,
+    scrollDate: `${String(held.schedule.project.startDate).slice(0, 10)}T00:00:00`,
+    scrollGroupId: first.id,
+  }
+  return held as Document
+}
+
 const SCREEN: FrameEnvironment = {
   width: 1400,
   height: 800,
@@ -365,10 +378,10 @@ interface Stage {
   send(input: HumanInput): void
 }
 
-function stage(): Stage {
+function stage(document: Document = fixtureDocument()): Stage {
   const drawn = pane()
   const pen = host()
-  const loop = frameLoop(pen.surface as any, fixtureDocument(), SCREEN, drawn.wiring)
+  const loop = frameLoop(pen.surface as any, document, SCREEN, drawn.wiring)
   pen.runAnimationFrames()
   return {
     loop,
@@ -445,13 +458,8 @@ describe('DFC-420 -- table T-023d has GR-21 follow the pointer while it is held'
           ? pointer('move', from.x + by, from.y)
           : pointer('move', from.x, from.y + by)
 
-      const one = stage()
-      // ⚠️ ONE DRAG IS SPENT FIRST, AND IT IS NOT PART OF THE MEASUREMENT.
-      // OP-10 of table T-024a draws FR-055's fit while the document names no
-      // place, so the FIRST write to reach S-77 / S-78 also takes the picture
-      // off the fit and onto the document's own zoom -- a change of scale this
-      // case is not about. Everything below is measured after that has
-      // happened, where one pixel of pointer means one pixel of grip.
+      const one = stage(placedDocument())
+      // WHY: a warm-up drag first, so the measured drag is never the first write after the open.
       const warm = gripCentreOf(one.pane, axis)
       one.send(pointer('down', warm.x, warm.y))
       one.send(to(warm, TRAVEL))

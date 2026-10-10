@@ -746,12 +746,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `treeWritesOf` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#treeWritesOf` | -- | function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] |
 | `commandFromWheel` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#commandFromWheel` | -- | function commandFromWheel( input: WheelInput, context: InputContext, searchPanelBox: ScreenRect \| null = null, |
 | `fitWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#fitWrites` | -- | function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] |
+| `isPlaceSeatedIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#isPlaceSeatedIn` | -- | function isPlaceSeatedIn(context: InputContext): boolean |
 | `keyZoomFactor` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#keyZoomFactor` | -- | function keyZoomFactor(context: InputContext, isIn: boolean): number |
 | `namesAPlace` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#namesAPlace` | -- | function namesAPlace( schedule: Schedule, scrollDate: string \| null, scrollGroupId: string \| null, ): boolean |
 | `statusLineCentred` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineCentred` | -- | function statusLineCentred(context: InputContext, date: string): readonly DocumentCommand[] |
 | `statusLineWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineWrites` | -- | function statusLineWrites(context: InputContext): readonly DocumentCommand[] |
 | `taskGroupPointIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupPointIn` | -- | function taskGroupPointIn( taskGroups: readonly TaskGroupPlacement[], anchor: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): number \| null |
 | `topEdgeIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#topEdgeIn` | -- | function topEdgeIn( taskGroups: readonly TaskGroupPlacement[], anchor: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): number \| null |
+| `unstoredZoomWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#unstoredZoomWrites` | -- | function unstoredZoomWrites(context: InputContext): readonly DocumentCommand[] |
 | `verticalZoomAnswer` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#verticalZoomAnswer` | -- | function verticalZoomAnswer( context: InputContext, factor: number, pointerX: number \| null, pointerY: number \| null, ): TranslatedInput |
 | `ZoomEntranceEnds` | file only | interface | `src/adapter/input-command-translator/zoom-and-fit.ts#ZoomEntranceEnds` | -- | interface ZoomEntranceEnds |
 | `zoomOnScreen` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomOnScreen` | -- | function zoomOnScreen(context: InputContext): { readonly x: number; readonly y: number } |
@@ -1795,4 +1797,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 878 name(s) leave through a public entry (364 of them published by table T-064), 707 more are exported by a file and not by its entry.
+Totals: 878 name(s) leave through a public entry (364 of them published by table T-064), 709 more are exported by a file and not by its entry.

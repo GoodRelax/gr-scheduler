@@ -633,17 +633,26 @@ export function statusLineWrites(context: InputContext): readonly DocumentComman
   return [{ kind: 'setStatusDate', date: context.today }, ...statusLineCentred(context, context.today)]
 }
 
+// WHY: a picture drawn at the fit stores no zoom; a place written alone moves the next picture to the stored zoom (DFC-2410).
+/** @purity pure */
+export function unstoredZoomWrites(context: InputContext): readonly DocumentCommand[] {
+  return (context.isPictureAtStoredZoom ?? isPlaceSeatedIn(context)) ? [] : [zoomCommand(context, null, null)]
+}
+
+/** @purity pure */
+export function isPlaceSeatedIn(context: InputContext): boolean {
+  const held = context.document.documentSettings
+  return namesAPlace(context.document.schedule, held.scrollDate, held.scrollGroupId)
+}
+
 // see FR-046, OP-10
-// WHY: a picture drawn at the fit (OP-10) stores no zoom; the drawn zoom is written with the place so it stays.
 /** @purity pure */
 export function statusLineCentred(context: InputContext, date: string): readonly DocumentCommand[] {
   const day = dayOf(date)
   if (day === null) return []
-  const settings = context.document.documentSettings
-  const isSeated = namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
   const area = context.regions.taskGroupArea
   const onDay = dayAnchorAt(context, xFromDay(context.layout, day) - area.width / 2)
-  const rows = isSeated ? settings : scrolledAnchor(context, 0, 0)
+  const rows = isPlaceSeatedIn(context) ? context.document.documentSettings : scrolledAnchor(context, 0, 0)
   const to = {
     kind: 'setScrollPosition',
     scrollDate: onDay.scrollDate,
@@ -651,7 +660,8 @@ export function statusLineCentred(context: InputContext, date: string): readonly
     scrollGroupId: rows.scrollGroupId,
     scrollGroupOffset: rows.scrollGroupOffset,
   } as const
-  if (!(context.isPictureAtStoredZoom ?? isSeated)) return [zoomCommand(context, null, null), to]
+  const zoom = unstoredZoomWrites(context)
+  if (zoom.length > 0) return [...zoom, to]
   return isScrollPositionInForce(context, to) ? [] : [to]
 }
 
