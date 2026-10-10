@@ -37,24 +37,17 @@ import {
   clearEntryOf,
   dateText,
   entryOf,
-  isClearEntry,
-  openFilterIn,
   scheduleFilterEntryOf,
   scheduleFilterRefusalsOf,
   tableAfterFilterChange,
-  tableAfterFilterEntry,
   tableAfterVisibilityChange,
-  tableColumnsOf,
-  tableFilterMenuOf,
-  tableWithColumnWidth,
   tableWithFilterClosed,
-  tableWithFilterOpened,
-  tableWithScheduleFilterPressed,
-  tableWithViewsCleared,
   visibilityHeadingOf,
   visibilityLabelOf,
-  windowShownAfterEntry,
+  windowAfterEntry,
+  windowColumnsViewOf,
   windowTitleEntriesOf,
+  windowWithColumnWidth,
   wordOf,
   wouldScheduleFilterChange,
   type MarkGlyph,
@@ -69,7 +62,6 @@ const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnostics Report'
 const EXPORT_ENTRY: IconId = 'IC-140'
 const COPY_ENTRY: IconId = 'IC-108'
 const TEXT_SIZE_ENTRY: IconId = 'IC-127'
-const FILTER_ENTRY: IconId = 'IC-122'
 
 const HEADING = displayWords.surfaces.find((entry) => entry.name === DELAY_DIAGNOSTICS_REPORT)?.heading
 
@@ -91,7 +83,6 @@ const STATUS_COLUMN = 'DT-1'
 
 const VISIBILITY_COLUMN = 'DT-8'
 
-// see RW-6, DT-8
 // WHY: the Visibility column is a tool laid on the schedule, not a finding, so the Markdown neither prints nor filters by it.
 const MARKDOWN_COLUMNS: readonly string[] = DELAY_REPORT_COLUMNS.filter((column) => column !== VISIBILITY_COLUMN)
 
@@ -446,7 +437,6 @@ export function delayDiagnosticsReportFromWindow(
   const withCells = taskGroupsWithCells(all, language)
   const found = shownTaskGroupsFrom(window, withCells)
   const table = reportTableOf(window, () => found, language, withCells)
-  const open = openFilterIn(window.panel, window.shown, table)
   const scheduleFilter = scheduleFilterEntryOf(window.panel.visibility, wouldReportFilterChange(window, reported, schedule), language)
   const rows = reportRowViewsOf(window, found)
   return {
@@ -461,8 +451,7 @@ export function delayDiagnosticsReportFromWindow(
     toolEntries: [entryOf(EXPORT_ENTRY, language), entryOf(COPY_ENTRY, language)],
     word: window.panel.word,
     summary: isOpen ? summaryOf(report, all, language, true) : [],
-    columns: tableColumnsOf(window.panel, table, language),
-    filterMenu: open === null ? null : tableFilterMenuOf(window.panel, open, table, language),
+    ...windowColumnsViewOf(window, table, language),
     rows,
     jumpAt: JUMP_COLUMN_AT,
     glyphAt: DELAY_REPORT_COLUMNS.indexOf(STATUS_COLUMN),
@@ -494,20 +483,11 @@ export function delayDiagnosticsReportAfterEntry(
   rows: { readonly report: DelayDiagnosticsReport; readonly schedule: Schedule; readonly language: DisplayLanguage },
   listed?: readonly string[] | null,
 ): { readonly window: DelayDiagnosticsReportWindow | null } | null {
-  const shown = windowShownAfterEntry(window.shown, entry)
-  if (shown === null) return { window: null }
-  if (shown !== undefined) return { window: { ...window, shown } }
-  if (isClearEntry(entry)) return { window: { ...window, panel: tableWithViewsCleared(window.panel) } }
   const all = delayDiagnosticsReportRows(rows.report, rows.schedule)
-  const filtered = tableWithScheduleFilterPressed(window.panel, entry, wouldReportFilterChange(window, all, rows.schedule))
-  if (filtered !== null) return { window: { ...window, panel: filtered } }
-  const unfiltered = { ...window, panel: { ...window.panel, filters: { ...window.panel.filters, columns: [] } } }
-  const table = reportTableOf(window, () => shownTaskGroupsOf(unfiltered, all, rows.language), rows.language)
-  const panel =
-    entry === FILTER_ENTRY
-      ? filterColumn === null ? null : tableWithFilterOpened(window.panel, window.shown, filterColumn, table)
-      : tableAfterFilterEntry(window.panel, window.shown, entry, table, listed)
-  return panel === null ? null : { window: { ...window, panel } }
+  return windowAfterEntry(window, entry, filterColumn, {
+    wouldChange: () => wouldReportFilterChange(window, all, rows.schedule),
+    tableOf: (unfiltered) => reportTableOf(window, () => shownTaskGroupsOf(unfiltered, all, rows.language), rows.language),
+  }, listed)
 }
 
 // see SV-7, DT-8, TV-2
@@ -537,8 +517,7 @@ export function delayDiagnosticsReportWithColumnWidth(
   column: string,
   width: number,
 ): DelayDiagnosticsReportWindow {
-  const panel = tableWithColumnWidth(window.panel, column, width)
-  return panel === window.panel ? window : { ...window, panel }
+  return windowWithColumnWidth(window, column, width)
 }
 
 // see RW-6, DT-8

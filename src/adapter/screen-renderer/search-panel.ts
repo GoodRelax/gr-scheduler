@@ -337,7 +337,7 @@ export function searchPanelAfterFilterEntry(
   bottleneckUids?: ReadonlySet<number>,
   listed?: readonly string[] | null,
 ): SearchPanelSession | null {
-  const filtered = tableWithScheduleFilterPressed(panel, entry, wouldSearchFilterChange(panel, schedule))
+  const filtered = tableWithScheduleFilterPressed(panel, entry, () => wouldSearchFilterChange(panel, schedule))
   if (filtered !== null) return filtered
   const table = searchTableOf(session, panel, () => searchRowsOf(schedule, panel.word, bottleneckUids))
   return tableAfterFilterEntry(panel, shownIn(session), entry, table, listed)

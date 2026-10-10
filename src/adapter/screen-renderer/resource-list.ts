@@ -15,25 +15,18 @@ import {
   UNASSIGNED_ROW_KEY,
   clearEntryOf,
   entryOf,
-  isClearEntry,
   isRowShown,
-  openFilterIn,
   scheduleFilterEntryOf,
   scheduleFilterRefusalsOf,
   tableAfterFilterChange,
-  tableAfterFilterEntry,
   tableAfterVisibilityChange,
-  tableColumnsOf,
-  tableFilterMenuOf,
-  tableWithColumnWidth,
   tableWithFilterClosed,
-  tableWithFilterOpened,
-  tableWithScheduleFilterPressed,
-  tableWithViewsCleared,
   visibilityHeadingOf,
   visibilityLabelOf,
-  windowShownAfterEntry,
+  windowAfterEntry,
+  windowColumnsViewOf,
   windowTitleEntriesOf,
+  windowWithColumnWidth,
   wordOf,
   wouldScheduleFilterChange,
   type SearchFilterChange,
@@ -47,7 +40,6 @@ import { windowPlaceInRange } from './window-box'
 const RESOURCE_LIST = 'Resource List'
 
 const TEXT_SIZE_ENTRY: IconId = 'IC-127'
-const FILTER_ENTRY: IconId = 'IC-122'
 const CHOOSE_ALL_ENTRY: IconId = 'IC-63'
 const CLEAR_CHOSEN_ENTRY: IconId = 'IC-64'
 const CHOOSE_UNREFERENCED_ENTRY: IconId = 'IC-65'
@@ -63,7 +55,8 @@ const VISIBILITY_COLUMN = 'RQ-1'
 const CHOSEN_COLUMN = 'RQ-3'
 const COUNT_COLUMN = 'RQ-4'
 
-const LAST_FIXED_COLUMN = 'RQ-2'
+// see RO-7
+const FIXED_COLUMN_COUNT = RESOURCE_LIST_COLUMNS.indexOf('RQ-2') + 1
 
 const MEASURED_COLUMNS: readonly string[] = [CHOSEN_COLUMN, COUNT_COLUMN]
 
@@ -119,19 +112,14 @@ interface LinesInput {
 }
 
 /** @purity pure */
-function partWordOf(words: ReadonlyMap<string, LanguageWord>, part: string, language: DisplayLanguage): string {
-  return wordOf(words.get(part), language)
-}
-
-/** @purity pure */
 function nameText(name: string, language: DisplayLanguage): string {
-  return name === '' ? partWordOf(PANEL_WORDS, 'noName', language) : name
+  return name === '' ? wordOf(PANEL_WORDS.get('noName'), language) : name
 }
 
 // WHY: task uids in the task group tree's order, then Task.start, then Task.uid -- the search table's order (RQ-5).
 /** @purity pure */
 function tasksOfEachResource(schedule: Schedule): { readonly byResource: ReadonlyMap<number, readonly number[]>; readonly unassigned: readonly number[] } {
-  const resources = new Set(schedule.resources.map((one) => one.uid))
+  const resources = resourceUidsOf(schedule)
   const resourcesOfTask = new Map<number, number[]>()
   for (const assignment of schedule.assignments) {
     if (assignment.taskUid === null || assignment.resourceUid === null || !resources.has(assignment.resourceUid)) continue
@@ -147,16 +135,21 @@ function tasksOfEachResource(schedule: Schedule): { readonly byResource: Readonl
   return { byResource, unassigned }
 }
 
+/** @purity pure */
+function resourceUidsOf(schedule: Schedule): ReadonlySet<number> {
+  return new Set(schedule.resources.map((resource) => resource.uid))
+}
+
 // TRAP: join on resourceUid, never the name, or a referenced twin hides an unreferenced one.
 /** @purity pure */
 function referencedResourcesOf(schedule: Schedule): ReadonlySet<number> {
-  return new Set(schedule.assignments.flatMap((one) => (one.resourceUid === null ? [] : [one.resourceUid])))
+  return new Set(schedule.assignments.map((seat) => seat.resourceUid).filter((uid): uid is number => uid !== null))
 }
 
 /** @purity pure */
 function lineOf(key: VisibilityKey, name: string, taskUids: readonly number[], facts: { readonly isChosen: boolean | null; readonly isReferenced: boolean }, input: LinesInput, namesByUid: ReadonlyMap<number, string>): ResourceLine {
   const taskNameValues = taskUids.map((uid) => namesByUid.get(uid) ?? '')
-  const separator = partWordOf(LIST_WORDS, 'taskSeparator', input.language)
+  const separator = wordOf(LIST_WORDS.get('taskSeparator'), input.language)
   const cells = [
     '',
     key === UNASSIGNED_ROW_KEY ? name : nameText(name, input.language),
@@ -181,7 +174,7 @@ function resourceLinesOf(input: LinesInput): readonly ResourceLine[] {
       isReferenced: referenced.has(resource.uid),
     }, input, namesByUid),
   )
-  const unassignedName = partWordOf(LIST_WORDS, 'unassigned', input.language)
+  const unassignedName = wordOf(LIST_WORDS.get('unassigned'), input.language)
   return [...lines, lineOf(UNASSIGNED_ROW_KEY, unassignedName, tasks.unassigned, { isChosen: null, isReferenced: true }, input, namesByUid)]
 }
 
@@ -230,7 +223,7 @@ function listedLinesOf(window: TableWindowState, all: readonly ResourceLine[]): 
 /** @purity pure */
 function lineLabelOf(column: string, value: string, language: DisplayLanguage): string {
   if (column === VISIBILITY_COLUMN) return visibilityLabelOf(value, language) ?? value
-  if (value === BLANK_SEARCH_VALUE) return partWordOf(PANEL_WORDS, 'blank', language)
+  if (value === BLANK_SEARCH_VALUE) return wordOf(PANEL_WORDS.get('blank'), language)
   if (column !== CHOSEN_COLUMN) return value
   return iconLabel(value === CHOSEN_VALUE ? CHOSEN_ENTRY : UNCHOSEN_ENTRY, language)
 }
@@ -247,14 +240,14 @@ function widthSamplesIn(all: readonly ResourceLine[], language: DisplayLanguage)
 
 // see T-371, SV-7, RO-7
 /** @purity pure */
-function lineTableOf(window: TableWindowState, found: () => readonly ResourceLine[], language: DisplayLanguage, all?: readonly ResourceLine[]): WindowTable {
-  const columns = lineColumnsOf(window)
+function lineTableOf(window: TableWindowState, listed: () => readonly ResourceLine[], language: DisplayLanguage, all?: readonly ResourceLine[]): WindowTable {
+  const lineColumns = lineColumnsOf(window)
   return {
     columns: RESOURCE_LIST_COLUMNS,
-    fixedCount: RESOURCE_LIST_COLUMNS.indexOf(LAST_FIXED_COLUMN) + 1,
-    headingOf: (column) => partWordOf(COLUMN_WORDS, column, language),
+    fixedCount: FIXED_COLUMN_COUNT,
+    headingOf: (column) => wordOf(COLUMN_WORDS.get(column), language),
     isDateColumn: () => false,
-    valuesOf: (column) => tableColumnValues(found(), columns, column),
+    valuesOf: (column) => tableColumnValues(listed(), lineColumns, column),
     labelOf: (column, value) => lineLabelOf(column, value, language),
     ...(all === undefined ? {} : { widthSamplesOf: widthSamplesIn(all, language) }),
   }
@@ -263,7 +256,7 @@ function lineTableOf(window: TableWindowState, found: () => readonly ResourceLin
 // WHY: the table rows every task (a resource's or the (Unassigned) row's), so only a Hide row changes the schedule.
 /** @purity pure */
 function wouldResourceFilterChange(window: TableWindowState, schedule: Schedule): boolean {
-  return wouldScheduleFilterChange(window.panel.visibility, () => new Set(schedule.resources.map((one) => one.uid)), true)
+  return wouldScheduleFilterChange(window.panel.visibility, () => resourceUidsOf(schedule), true)
 }
 
 // see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66, RO-3
@@ -308,7 +301,6 @@ export function resourceListFromWindow(
   const all = resourceLinesOf({ schedule, chosenResourceUids, language })
   const listed = window.shown === 'minimised' ? [] : listedLinesOf(window, all)
   const table = lineTableOf(window, () => listed, language, all)
-  const open = openFilterIn(window.panel, window.shown, table)
   const scheduleFilter = scheduleFilterEntryOf(window.panel.visibility, wouldResourceFilterChange(window, schedule), language)
   const rows = listed.map((line) => rowViewOf(window, line, language))
   return {
@@ -322,8 +314,7 @@ export function resourceListFromWindow(
     titleEntries: [entryOf(TEXT_SIZE_ENTRY, language), ...windowTitleEntriesOf(window.shown, language)],
     choiceEntries: choiceEntriesOf(listed, all, language),
     word: window.panel.word,
-    columns: tableColumnsOf(window.panel, table, language),
-    filterMenu: open === null ? null : tableFilterMenuOf(window.panel, open, table, language),
+    ...windowColumnsViewOf(window, table, language),
     rows,
     chosenAt: RESOURCE_LIST_COLUMNS.indexOf(CHOSEN_COLUMN),
     showAt: RESOURCE_LIST_COLUMNS.indexOf(VISIBILITY_COLUMN),
@@ -350,20 +341,10 @@ export function resourceListAfterEntry(
   rows: { readonly schedule: Schedule; readonly chosenResourceUids: readonly number[]; readonly language: DisplayLanguage },
   listed?: readonly string[] | null,
 ): { readonly window: TableWindowState | null } | null {
-  const shown = windowShownAfterEntry(window.shown, entry)
-  if (shown === null) return { window: null }
-  if (shown !== undefined) return { window: { ...window, shown } }
-  if (isClearEntry(entry)) return { window: { ...window, panel: tableWithViewsCleared(window.panel) } }
-  const filtered = tableWithScheduleFilterPressed(window.panel, entry, wouldResourceFilterChange(window, rows.schedule))
-  if (filtered !== null) return { window: { ...window, panel: filtered } }
-  const all = resourceLinesOf(rows)
-  const unfiltered = { ...window, panel: { ...window.panel, filters: { ...window.panel.filters, columns: [] } } }
-  const table = lineTableOf(window, () => listedLinesOf(unfiltered, all), rows.language)
-  const panel =
-    entry === FILTER_ENTRY
-      ? filterColumn === null ? null : tableWithFilterOpened(window.panel, window.shown, filterColumn, table)
-      : tableAfterFilterEntry(window.panel, window.shown, entry, table, listed)
-  return panel === null ? null : { window: { ...window, panel } }
+  return windowAfterEntry(window, entry, filterColumn, {
+    wouldChange: () => wouldResourceFilterChange(window, rows.schedule),
+    tableOf: (unfiltered) => lineTableOf(window, () => listedLinesOf(unfiltered, resourceLinesOf(rows)), rows.language),
+  }, listed)
 }
 
 // see SV-7, RQ-1, TV-2, TV-6
@@ -386,6 +367,5 @@ export function resourceListWithFilterClosed(window: TableWindowState): TableWin
 // see RO-9, SV-18, GR-28
 /** @purity pure */
 export function resourceListWithColumnWidth(window: TableWindowState, column: string, width: number): TableWindowState {
-  const panel = tableWithColumnWidth(window.panel, column, width)
-  return panel === window.panel ? window : { ...window, panel }
+  return windowWithColumnWidth(window, column, width)
 }

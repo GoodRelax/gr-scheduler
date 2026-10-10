@@ -12,6 +12,7 @@ import type {
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import { HIDE_VALUE, SHOW_VALUE, type SearchColumn, type SearchColumnFilter, type SearchSort } from './search-table-filters'
 import displayWords from './display-words.json'
+import iconRoster from './icon-roster.json'
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
 import type { WindowShown } from './window-box'
 
@@ -54,14 +55,9 @@ const DATE_PART_DIGITS: readonly number[] = [4, 2, 2]
 const ICON_WORDS = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 
 const FILTER_SEARCH_HINT = displayWords.searchPanel.find((entry) => entry.part === 'filterSearch')?.text
-// WHY: the order the band names the tables in: search panel, report, resource list.
+// WHY: the band names the tables in this order (TV-11), which is the order T-109 lists the surfaces of IC-143 in.
 const VISIBILITY_TABLES: readonly VisibilityTable[] = ['searchPanel', 'delayDiagnosticsReport', 'resourceList']
-
-const TABLE_SURFACES: { readonly [T in VisibilityTable]: string } = {
-  searchPanel: 'Search Panel',
-  delayDiagnosticsReport: 'Delay Diagnostics Report',
-  resourceList: 'Resource List',
-}
+const TABLE_SURFACES: readonly string[] = iconRoster.icons.find((row) => row.rowId === SCHEDULE_FILTER_ENTRY)?.surfaces ?? []
 
 const SURFACE_HEADINGS = new Map(displayWords.surfaces.map((entry) => [entry.name, entry.heading]))
 const PANEL_WORDS = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry.text]))
@@ -426,9 +422,9 @@ export function scheduleFilterRefusalsOf(entry: CommandItem, language: DisplayLa
 }
 
 /** @purity pure */
-export function tableWithScheduleFilterPressed<P extends TableWindowSession>(panel: P, entry: IconId, wouldChange: boolean): P | null {
+export function tableWithScheduleFilterPressed<P extends TableWindowSession>(panel: P, entry: IconId, wouldChange: () => boolean): P | null {
   if (entry !== SCHEDULE_FILTER_ENTRY) return null
-  if (!panel.visibility.isApplied && !wouldChange) return null
+  if (!panel.visibility.isApplied && !wouldChange()) return null
   return tableWithScheduleFilterToggled(panel)
 }
 
@@ -436,7 +432,7 @@ export function tableWithScheduleFilterPressed<P extends TableWindowSession>(pan
 function tableNamesOf(tables: readonly VisibilityTable[], language: DisplayLanguage): string {
   const named = VISIBILITY_TABLES.filter((table) => tables.includes(table))
   const separator = wordOf(PANEL_WORDS.get('tableNameSeparator'), language)
-  return named.map((table) => wordOf(SURFACE_HEADINGS.get(TABLE_SURFACES[table]), language)).join(separator)
+  return named.map((table) => wordOf(SURFACE_HEADINGS.get(TABLE_SURFACES[VISIBILITY_TABLES.indexOf(table)] ?? ''), language)).join(separator)
 }
 
 // WHY: tables are those whose Schedule Filter is on; drawnCount is the tasks the product draws (TV-1).
@@ -461,4 +457,55 @@ export function visibilityHeadingOf(rows: readonly { readonly shown?: boolean }[
   const ticked = rows.filter((row) => row.shown === true).length
   if (ticked === 0) return 'none'
   return ticked === rows.length ? 'all' : 'some'
+}
+
+// see RW-9, RO-9, SV-18, GR-28
+/** @purity pure */
+export function windowWithColumnWidth(window: TableWindowState, column: SearchColumn, width: number): TableWindowState {
+  const panel = tableWithColumnWidth(window.panel, column, width)
+  return panel === window.panel ? window : { ...window, panel }
+}
+
+/** @purity pure */
+export function windowColumnsViewOf(
+  window: TableWindowState,
+  table: WindowTable,
+  language: DisplayLanguage,
+): { readonly columns: readonly SearchColumnView[]; readonly filterMenu: SearchFilterMenuView | null } {
+  const open = openFilterIn(window.panel, window.shown, table)
+  return {
+    columns: tableColumnsOf(window.panel, table, language),
+    filterMenu: open === null ? null : tableFilterMenuOf(window.panel, open, table, language),
+  }
+}
+
+// see T-346, T-370, SV-7, SV-8, WB-2, WB-3, IC-153, IC-143
+// WHY: { window: null } is a close and null an entry the window does not answer; a menu lists the values of the table with no column filter.
+/** @purity pure */
+export function windowAfterEntry(
+  window: TableWindowState,
+  entry: IconId,
+  filterColumn: string | null,
+  answers: { readonly wouldChange: () => boolean; readonly tableOf: (unfiltered: TableWindowState) => WindowTable },
+  listed?: readonly string[] | null,
+): { readonly window: TableWindowState | null } | null {
+  const shown = windowShownAfterEntry(window.shown, entry)
+  if (shown === null) return { window: null }
+  if (shown !== undefined) return { window: { ...window, shown } }
+  if (isClearEntry(entry)) return { window: { ...window, panel: tableWithViewsCleared(window.panel) } }
+  const panel = tableWithScheduleFilterPressed(window.panel, entry, answers.wouldChange) ?? panelAfterFilterEntry(window, entry, filterColumn, answers.tableOf, listed)
+  return panel === null ? null : { window: { ...window, panel } }
+}
+
+/** @purity pure */
+function panelAfterFilterEntry(
+  window: TableWindowState,
+  entry: IconId,
+  filterColumn: string | null,
+  tableOf: (unfiltered: TableWindowState) => WindowTable,
+  listed?: readonly string[] | null,
+): TableWindowSession | null {
+  const table = tableOf({ ...window, panel: { ...window.panel, filters: { ...window.panel.filters, columns: [] } } })
+  if (entry !== FILTER_ENTRY) return tableAfterFilterEntry(window.panel, window.shown, entry, table, listed)
+  return filterColumn === null ? null : tableWithFilterOpened(window.panel, window.shown, filterColumn, table)
 }
