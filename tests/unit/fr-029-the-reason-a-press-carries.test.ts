@@ -41,7 +41,7 @@
 //              NOT）」／⛔ 「ポインタが乗っただけで理由を出してはならない（MUST
 //              NOT）」（利用者の裁定 2026-08-30「薄く描け。押下した場合のみ理由を
 //              説明するポップアップを出せ」）
-//   表 T-233   RS-28 「配下に、開けるタスクグループが 1 つも無い」（正: 表 T-051 の `HF-2`）
+//   表 T-233   RS-28 「配下に、展開できるタスクグループが 1 つも無い」（正: 表 T-051 の `HF-2`）
 //              RS-29 「そのタスクグループは、描かれている子を 1 つも持たない」（`HF-11`）
 //              RS-30 「直下に、画面へ戻せる子が 1 つも無い」（`HF-13`）
 //                    ⛔⛔ THE ROW MOVED ON 2026-08-31（利用者の指示「サンプルと
@@ -52,7 +52,7 @@
 //                    ときは、`FR-029` に従って薄く描くこと（MUST）」 -- and the
 //                    roster below carries it again, on `IC-90`.
 //              RS-31 「描かれていないタスクグループが 1 つも無い」（`HF-10`）
-//              RS-32 「開いているタスクグループが 1 つも無い」（`HF-12`）
+//              RS-32 「展開しているタスクグループが 1 つも無い」（`HF-12`）
 //              RS-33 「予定と実績のうち、いま出ているのが一方だけである」（`FR-049`）
 //              RS-34 「揃える相手の `Task` が選ばれていない」（`FR-034`）
 //              RS-27 「押した入口が、いま行えることを持たない」（`FR-029`）
@@ -594,7 +594,7 @@ const SPENT: readonly Spent[] = [
     // 表 T-015's `HR-2` IS WHY: 「**最も浅い段のタスクグループも折りたたむこと（MUST）**—— ⭐ パネルの頭は最も浅い段のさらに上、
     // すなわち段 0 として扱う」, and
     // `HF-12` repeats it. ⇒ while ALPHA alone is folded there is still 段 0 to
-    // fold, and the press acts. ⭐ The 場面 「開いているタスクグループが 1 つも無い」 is
+    // fold, and the press acts. ⭐ The 場面 「展開しているタスクグループが 1 つも無い」 is
     // reached only once 段 0 itself is down, which is the state a first press
     // on this same entrance leaves behind.
     primedBy: [{ entry: 'IC-78', onTaskGroup: null }],

@@ -2562,7 +2562,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
     //   `HF-14`:
     //     「**配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（MUST）**」
     //
-    // ⭐ 「開ける直下の子が 1 つも無いとき」 IS THIS TASK GROUP, and the rule for it is
+    // ⭐ 「展開できる直下の子が 1 つも無いとき」 IS THIS TASK GROUP, and the rule for it is
     // 薄く描く -- faint, not absent. A task group with nothing under it is the case the
     // MUST was written for, so it is the case that must draw them.
     // ⚠️ HF-14 is not spent by a childless task group at all: the closing paragraph
@@ -2604,7 +2604,7 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
 //   `HF-13`: 「**1 階層だけ展開する操作子を、タスクグループごとに 1 つ置くこと（MUST）**」 ——
 //     表 T-015 の `HR-7` である。⭐ 「**`HF-2`（配下をすべて展開する）とは別の入口と
 //     すること（MUST）。同じ入口に兼ねさせてはならない（MUST NOT）**」 ——
-//     「押すたびに違う量が開く入口は、何が起きるかを押す前に読めない」。
+//     「押すたびに違う量を展開する入口は、何が起きるかを押す前に読めない」。
 //     ⛔ 「**開ける直下の子が 1 つも無いときは、`FR-029` に従って薄く描くこと
 //     （MUST）。**」⭐ 「**入口は 表 T-109 の `IC-90` である**」
 //   `HF-14`: 「**配下にタスクグループを足す操作子を、タスクグループごとに 1 つ置くこと（MUST）**」 ——

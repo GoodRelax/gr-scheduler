@@ -386,10 +386,14 @@ def title_case_rule(lines):
 
 
 def lower_words(value, small):
-    """The words of an English name that break Title Case."""
+    """The words of an English name that break Title Case.
+
+    The first and the last word are capitalised whatever they are; a small
+    word anywhere else may stay lower case (Path from Top, Week Starts On).
+    """
     words = WORD.findall(PLACEHOLDER.sub(' ', value))
     return [w for i, w in enumerate(words)
-            if w[0].islower() and (i == 0 or w not in small)]
+            if w[0].islower() and (i in (0, len(words) - 1) or w not in small)]
 
 
 def scan_title_case(rule, dictionary):
@@ -456,7 +460,7 @@ def self_test():
                    ['Select all', 'Select All', 'Path from Top', 'parent task', '.md',
                     'Status Date {date}', 'from Top', 'Fade In/Out Days'])],
                'u': [{'part': 'k1', 'text': {'ja': '-', 'en': 'a sentence, not a name'}},
-                     {'part': 'k2', 'text': {'ja': '-', 'en': 'Made by hand'}}]}
+                     {'part': 'k2', 'text': {'ja': '-', 'en': 'Made at'}}]}
     tc_hits = scan_title_case(tc_rule, tc_dict) if tc_rule else []
     tc_bad = sorted(en for _, en, _ in tc_hits if en)
     real_tc = title_case_rule(read(NOTATION_RULES))
@@ -477,10 +481,10 @@ def self_test():
          MUST_GATE in real),
         ('the in-memory Title Case row is read with its 3 selectors and 4 small words',
          tc_rule is not None and len(tc_rule[0]) == 3 and len(tc_rule[1]) == 4),
-        ('Title Case: Select all, parent task, from Top and Made by hand red; Select All, '
+        ('Title Case: Select all, parent task, from Top and Made at (a small word last) red; Select All, '
          'Path from Top, .md, Status Date {date}, Fade In/Out Days and the unlisted '
          'sentence green',
-         tc_bad == ['Made by hand', 'Select all', 'from Top', 'parent task']),
+         tc_bad == ['Made at', 'Select all', 'from Top', 'parent task']),
         ('Title Case: a selector naming no entry (gone.name) is red',
          any(en is None and where == 'gone.name' for where, en, _ in tc_hits)),
         ('the real table still has its Title Case row with at least %d name fields '

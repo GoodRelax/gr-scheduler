@@ -1006,7 +1006,7 @@ describe('表 T-015 の HR-6 -- the two ways back from a hide, and their one dif
   })
 
   it('⭐⭐ MUST: the parent’s 配下をすべて control brings the task group AND its subtree (HR-6 through HF-2)', () => {
-    // 「⭐⭐ **「配下をすべて開く」操作子でも戻せること（MUST）**（利用者の裁定
+    // 「⭐⭐ **「配下をすべて展開する」操作子でも戻せること（MUST）**（利用者の裁定
     // 2026-08-31）…**2 本は配下のすべて**」, and `HR-3` (MUST NOT) 「**折りたたみだけを解いて
     // 隠しを残してはならない**」.
     const built = stage({ hidden: [BETA], folded: [BETA, GAMMA, DELTA], atStoredZoom: true })
@@ -1290,7 +1290,7 @@ describe('FR-029 -- the arming of every entrance the panel carries', () => {
   })
 
   it('⛔ MUST: HF-16 is faint with no level to open, and armed once 段 0 is folded', () => {
-    // 「⛔ **開ける段が無いときは、`FR-029` に従って薄く描くこと（MUST）**」, and
+    // 「⛔ **展開できる段が無いときは、`FR-029` に従って薄く描くこと（MUST）**」, and
     // `HR-2` names this control as the way back from the fold it describes.
     const open = stage()
     expect(
