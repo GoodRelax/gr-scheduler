@@ -1,25 +1,23 @@
-// SingleHtmlShell -- makes the tasks drawn from the three tables' Visibility and Schedule Filter, and holds them to the document (table T-353, SJ-0).
+// SingleHtmlShell -- makes the tasks drawn from the three tables' views the document holds, writes their changes as edits, and opens the window of a table whose Schedule Filter comes on (table T-353, SJ-0, OP-18).
 // @unit      UF-198  (docs/spec/05-07-design.md, table T-075)
 // @component SingleHtmlShell, layer Framework (table T-062)
 // @purity    non-pure
 
 import type { Document } from '../../entity/document-model/document/document'
+import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import type { DocumentCommand } from '../../use-case/apply-document-change/apply-document-change'
 import { shownTasksRevealWrites } from '../../use-case/edit-document/edit-document'
 import {
-  EVERY_ROW_SHOWN,
+  tableViewOf,
   type ScreenValuesEvent,
   type SearchPanelSession,
+  type TableView,
   type TableVisibility,
   type VisibilityTable,
 } from '../../use-case/advance-screen-session/advance-screen-session'
-import {
-  tableAfterVisibilityChange,
-  tableWithScheduleFilterToggled,
-  type DelayDiagnosticsReportWindow,
-  type TableWindowState,
-} from '../../adapter/screen-renderer/screen-renderer'
-import type { ResourceListWindow } from './resource-list-window'
-import { isSizeSettled, type AgentApiSeams, type FrameLoopHands, type FrameValues } from './frame-loop'
+import type { DelayDiagnosticsReportWindow } from '../../adapter/screen-renderer/screen-renderer'
+import { scheduleFilterLetGoOf, type ResourceListWindow } from './resource-list-window'
+import type { AgentApiSeams, FrameLoopHands, FrameValues } from './frame-loop'
 
 const SEARCH_PANEL_OPENED: ScreenValuesEvent = { type: 'searchEntryPressed' }
 const SEARCH_PANEL_MINIMIZE_TOGGLED: ScreenValuesEvent = { type: 'searchPanelMinimizeToggled' }
@@ -27,9 +25,9 @@ const SEARCH_PANEL_MINIMIZE_TOGGLED: ScreenValuesEvent = { type: 'searchPanelMin
 type Schedule = Document['schedule']
 
 // see TV-11
-const TABLE_ORDER: readonly VisibilityTable[] = ['searchPanel', 'delayDiagnosticsReport', 'resourceList']
-
-type VisibilityPanel = TableWindowState['panel']
+// WHY: keyed by the document's tableViews, so the order of the Schedule Filter bar names no table of its own.
+const TABLE_PLACE: { readonly [T in keyof DocumentSettings['tableViews']]: number } = { searchPanel: 0, delayDiagnosticsReport: 1, resourceList: 2 }
+const TABLE_ORDER = (Object.keys(TABLE_PLACE) as VisibilityTable[]).sort((a, b) => TABLE_PLACE[a] - TABLE_PLACE[b])
 
 export interface HeldTableWindows {
   readonly searchPanel: () => SearchPanelSession
@@ -37,12 +35,17 @@ export interface HeldTableWindows {
   readonly report: () => DelayDiagnosticsReportWindow | null
   readonly holdReport: (window: DelayDiagnosticsReportWindow | null) => void
   readonly resourceList: () => ResourceListWindow | null
+  readonly reopenedResourceList: () => ResourceListWindow
   readonly holdResourceList: (window: ResourceListWindow | null) => void
-  readonly dropClosedValues: () => void
 }
+
+// see TV-1, TV-2, FR-151
+export type TableViewsHeld = { readonly [T in VisibilityTable]: TableView }
 
 // see TV-1, TV-2
 type TableVisibilities = { readonly [T in VisibilityTable]: TableVisibility }
+
+export type TableViewChanges = { readonly [T in VisibilityTable]?: TableView }
 
 /** @purity pure */
 function taskUidsOf(schedule: Schedule): ReadonlySet<number> {
@@ -142,75 +145,87 @@ function tasksShownAgain(schedule: Schedule, before: TableVisibilities, after: T
   return [...new Set([...fromSearch, ...fromReport, ...fromResources])].filter((uid) => present.has(uid))
 }
 
-// see TV-2, RO-10
+// see TV-6, SJ-0
 /** @purity pure */
-function panelWithinKeys<P extends VisibilityPanel>(panel: P, present: ReadonlySet<number>): P {
-  const gone = panel.visibility.hiddenKeys.filter((key) => !present.has(key))
-  return gone.length === 0 ? panel : tableAfterVisibilityChange(panel, gone, true)
+function viewWithKeyShown(view: TableView, key: number): TableView {
+  const visibility = view.visibility
+  return { ...view, visibility: { ...visibility, hiddenKeys: visibility.hiddenKeys.filter((one) => one !== key) } }
 }
 
-// see TV-5, TV-8
+// see TV-8, SJ-0
 /** @purity pure */
-function panelWithFilterOff<P extends VisibilityPanel>(panel: P): P {
-  return panel.visibility.isApplied ? tableWithScheduleFilterToggled(panel) : panel
+function viewWithFilterOff(table: VisibilityTable, view: TableView): TableView {
+  const letGo = scheduleFilterLetGoOf(table, view)
+  return letGo === null ? view : letGo.view
 }
 
-// see TV-9
+// see CM-92, UN-20, TV-6
 /** @purity pure */
-function panelWithValuesDropped<P extends VisibilityPanel>(panel: P): P {
-  return panel.visibility === EVERY_ROW_SHOWN ? panel : { ...panel, visibility: EVERY_ROW_SHOWN }
+function tableViewWrites(document: Document, held: TableViewsHeld, changes: TableViewChanges): readonly DocumentCommand[] {
+  const tables = TABLE_ORDER.filter((table) => !isSameView(changes[table] ?? held[table], held[table]))
+  if (tables.length === 0) return []
+  const viewAfter = (table: VisibilityTable): TableView => changes[table] ?? held[table]
+  const before = visibilitiesOf(held)
+  const after = { searchPanel: viewAfter('searchPanel').visibility, delayDiagnosticsReport: viewAfter('delayDiagnosticsReport').visibility, resourceList: viewAfter('resourceList').visibility }
+  const reveal = shownTasksRevealWrites(document, tasksShownAgain(document.schedule, before, after))
+  const views: readonly DocumentCommand[] = tables.map((table) => ({ kind: 'setTableView', table, view: viewAfter(table) }))
+  return [...views, ...reveal]
 }
 
-/** @purity non-pure */
-function tablePanelsOf(windows: HeldTableWindows) {
+// WHY: by content, so an entry answering an equal view writes no empty undo step.
+/** @purity pure */
+function isSameView(a: TableView, b: TableView): boolean {
+  return a === b || JSON.stringify(a) === JSON.stringify(b)
+}
+
+/** @purity pure */
+function visibilitiesOf(views: TableViewsHeld): TableVisibilities {
   return {
-    /** @purity semi-pure-b */
-    visibilities: (): TableVisibilities => ({
-      searchPanel: windows.searchPanel().visibility,
-      delayDiagnosticsReport: windows.report()?.panel.visibility ?? EVERY_ROW_SHOWN,
-      resourceList: windows.resourceList()?.panel.visibility ?? EVERY_ROW_SHOWN,
-    }),
-    /** @purity non-pure */
-    change(table: VisibilityTable, next: <P extends VisibilityPanel>(panel: P) => P): void {
-      if (table === 'searchPanel') return windows.holdSearchPanel(next(windows.searchPanel()))
-      const report = windows.report()
-      if (table === 'delayDiagnosticsReport') return report === null ? undefined : windows.holdReport({ ...report, panel: next(report.panel) })
-      const list = windows.resourceList()
-      if (list !== null) windows.holdResourceList({ ...list, panel: next(list.panel) })
-    },
+    searchPanel: views.searchPanel.visibility,
+    delayDiagnosticsReport: views.delayDiagnosticsReport.visibility,
+    resourceList: views.resourceList.visibility,
   }
 }
 
-type TablePanels = ReturnType<typeof tablePanelsOf>
-
-// see SJ-0, TV-13
-/** @purity non-pure */
-function holdJumpTargetIn(panels: TablePanels, schedule: Schedule, taskUid: number, judged: { readonly reportTaskUids: ReadonlySet<number> | null; readonly created: ReadonlySet<number> }): void {
-  const tables = panels.visibilities()
+// see SJ-0, TV-13, UN-20
+/** @purity pure */
+function jumpViewChangesOf(
+  views: TableViewsHeld,
+  schedule: Schedule,
+  taskUid: number,
+  judged: { readonly reportTaskUids: ReadonlySet<number> | null; readonly created: ReadonlySet<number> },
+): TableViewChanges {
   const isCreated = judged.created.has(taskUid)
-  if (tables.searchPanel.isApplied && tables.searchPanel.hiddenKeys.includes(taskUid)) {
-    panels.change('searchPanel', (panel) => tableAfterVisibilityChange(panel, [taskUid], true))
-  }
-  if (tables.delayDiagnosticsReport.isApplied && !isShownByReport(taskUid, new Set(tables.delayDiagnosticsReport.hiddenKeys), judged.reportTaskUids, isCreated)) {
-    const isCarried = judged.reportTaskUids?.has(taskUid) === true
-    panels.change('delayDiagnosticsReport', (panel) => (isCarried ? tableAfterVisibilityChange(panel, [taskUid], true) : panelWithFilterOff(panel)))
-  }
+  const search = views.searchPanel.visibility
+  const isSearchHiding = search.isApplied && search.hiddenKeys.includes(taskUid)
+  const report = views.delayDiagnosticsReport.visibility
+  const isReportHiding = report.isApplied && !isShownByReport(taskUid, new Set(report.hiddenKeys), judged.reportTaskUids, isCreated)
+  const isCarried = judged.reportTaskUids?.has(taskUid) === true
+  const list = views.resourceList.visibility
   const resourceUids = resourceUidsByTask(schedule).get(taskUid)
-  if (tables.resourceList.isApplied && !isShownByResourceList(resourceUids, new Set(tables.resourceList.hiddenKeys), tables.resourceList, isCreated)) {
-    panels.change('resourceList', panelWithFilterOff)
+  const isListHiding = list.isApplied && !isShownByResourceList(resourceUids, new Set(list.hiddenKeys), list, isCreated)
+  return {
+    ...(isSearchHiding ? { searchPanel: viewWithKeyShown(views.searchPanel, taskUid) } : {}),
+    ...(isReportHiding ? { delayDiagnosticsReport: isCarried ? viewWithKeyShown(views.delayDiagnosticsReport, taskUid) : viewWithFilterOff('delayDiagnosticsReport', views.delayDiagnosticsReport) } : {}),
+    ...(isListHiding ? { resourceList: viewWithFilterOff('resourceList', views.resourceList) } : {}),
   }
 }
 
-// see AM-27, TV-5, TV-8, PND-712
-// WHY: the Agent API hands the search table's whole Visibility; a filter turned on shows a hidden panel minimized.
+// see TV-1, FR-151, DFC-1820
 /** @purity non-pure */
-function holdAgentSearchVisibility(hands: FrameLoopHands, panels: TablePanels, visibility: TableVisibility): void {
-  panels.change('searchPanel', (panel) => ({ ...panel, visibility }))
-  if (visibility.isApplied && hands.readSession().screen.searchPanelDisplayState.kind === 'hidden') {
-    hands.sendToSession(SEARCH_PANEL_OPENED, hands.readValues())
-    hands.sendToSession(SEARCH_PANEL_MINIMIZE_TOGGLED, hands.readValues())
+function tableViewsKeeper() {
+  let readFrom: DocumentSettings['tableViews'] | null = null
+  let held: TableViewsHeld | null = null
+  return (settings: DocumentSettings): TableViewsHeld => {
+    if (held !== null && settings.tableViews === readFrom) return held
+    readFrom = settings.tableViews
+    held = {
+      searchPanel: tableViewOf(settings, 'searchPanel'),
+      delayDiagnosticsReport: tableViewOf(settings, 'delayDiagnosticsReport'),
+      resourceList: tableViewOf(settings, 'resourceList'),
+    }
+    return held
   }
-  if (isSizeSettled(hands.readEnvironment())) hands.ask()
 }
 
 // see TV-7, TV-13
@@ -263,75 +278,175 @@ function drawnSetKeeper() {
   }
 }
 
-// see TV-2, TV-7
+// see OP-18, TV-8, TV-12, WB-2, AM-27
 /** @purity non-pure */
-function keepTablesWithinSchedule(panels: TablePanels, schedule: Schedule): void {
-  const tasks = taskUidsOf(schedule)
-  const resources = new Set(schedule.resources.map((resource) => resource.uid))
-  panels.change('searchPanel', (panel) => panelWithinKeys(panel, tasks))
-  panels.change('delayDiagnosticsReport', (panel) => panelWithinKeys(panel, tasks))
-  panels.change('resourceList', (panel) => panelWithinKeys(panel, resources))
+function openSearchPanelMinimized(hands: FrameLoopHands, windows: HeldTableWindows, isReplaced: boolean): void {
+  const shown = hands.readSession().screen.searchPanelDisplayState
+  if (shown.kind === 'hidden') hands.sendToSession(SEARCH_PANEL_OPENED, hands.readValues())
+  if (shown.kind === 'hidden' || (isReplaced && shown.child.kind === 'normal')) hands.sendToSession(SEARCH_PANEL_MINIMIZE_TOGGLED, hands.readValues())
+  const panel = windows.searchPanel()
+  if (panel.table !== 'tasks') windows.holdSearchPanel({ ...panel, table: 'tasks' })
 }
 
-// see TV-1, TV-2, TV-6, TV-7, TV-8, TV-9, TV-13, SJ-0, SJ-9, EL-21, AM-26, AM-27
+// see OP-18, TV-8, TV-12, WB-2, FR-130, S-445, S-564
+// WHY: the report's table is narrowed by the diagnosis, so its filter coming on starts the diagnosis (OP-18).
 /** @purity non-pure */
-export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindows, readReportTaskUids: () => ReadonlySet<number> | null) {
-  const panels = tablePanelsOf(windows)
+function openTableWindowMinimized(
+  table: VisibilityTable,
+  opener: { readonly hands: FrameLoopHands; readonly windows: HeldTableWindows; readonly startDelayDiagnostics: () => void },
+  isReplaced: boolean,
+): void {
+  const { windows } = opener
+  if (table === 'searchPanel') return openSearchPanelMinimized(opener.hands, windows, isReplaced)
+  if (table === 'delayDiagnosticsReport') {
+    const wasClosed = windows.report() === null
+    if (wasClosed) opener.startDelayDiagnostics()
+    const report = windows.report()
+    if (report !== null && (wasClosed || isReplaced)) windows.holdReport({ ...report, shown: 'minimized' })
+    return
+  }
+  const list = windows.resourceList()
+  if (list === null || isReplaced) windows.holdResourceList({ ...(list ?? windows.reopenedResourceList()), shown: 'minimized' })
+}
+
+// see OP-18, TV-8, AM-27
+/** @purity non-pure */
+function appliedFilterFollower() {
+  let seen: DocumentSettings['tableViews'] | null = null
+  let wasApplied: TableVisibilities | null = null
+  let isReplaced = true
+  return {
+    /** @purity non-pure */
+    noteReplaced: (): void => void (isReplaced = true),
+    /** @purity non-pure */
+    follow(settings: DocumentSettings, tables: TableVisibilities, open: (table: VisibilityTable, isReplaced: boolean) => void): void {
+      if (settings.tableViews === seen && !isReplaced) return
+      const replaced = isReplaced
+      const before = wasApplied
+      seen = settings.tableViews
+      wasApplied = tables
+      isReplaced = false
+      for (const table of appliedTablesOf(tables)) if (replaced || before?.[table].isApplied !== true) open(table, replaced)
+    },
+  }
+}
+
+// see TV-8, SV-14, UN-20
+/** @purity non-pure */
+function searchPanelClosingFollower() {
+  let wasShown = false
+  return (isShown: boolean): boolean => {
+    const isClosed = wasShown && !isShown
+    wasShown = isShown
+    return isClosed
+  }
+}
+
+type Diagnosis = { readonly readReportTaskUids: () => ReadonlySet<number> | null; readonly startDelayDiagnostics: () => void }
+
+type CreatedTasks = ReturnType<typeof createdTasksKeeper>
+
+// see CM-92, UN-20, TV-6, TV-8, SJ-0
+/** @purity non-pure */
+function tableViewWriterOf(hands: FrameLoopHands, windows: HeldTableWindows, views: () => TableViewsHeld, judged: { readonly diagnosis: Diagnosis; readonly created: CreatedTasks }) {
+  const writeViews = (changes: TableViewChanges, frame: FrameValues | null = hands.readValues()): void => {
+    const writes = tableViewWrites(hands.readHeld().document, views(), changes)
+    if (writes.length > 0 && frame !== null) hands.writeDocument(writes, frame)
+  }
+  const jumpViewWrites = (taskUid: number): readonly DocumentCommand[] => {
+    const document = hands.readHeld().document
+    const of = { reportTaskUids: judged.diagnosis.readReportTaskUids(), created: judged.created.read() }
+    return tableViewWrites(document, views(), jumpViewChangesOf(views(), document.schedule, taskUid, of)).filter((one) => one.kind === 'setTableView')
+  }
+  return {
+    writeViews,
+    jumpViewWrites,
+    letScheduleFilterGo: (table: VisibilityTable, frame: FrameValues | null = hands.readValues()): void =>
+      writeViews({ [table]: viewWithFilterOff(table, views()[table]) }, frame),
+    /** @purity non-pure */
+    holdJumpTarget(taskUid: number): void {
+      const writes = jumpViewWrites(taskUid)
+      const frame = hands.readValues()
+      if (writes.length > 0 && frame !== null) hands.writeDocument(writes, frame)
+    },
+    /** @purity non-pure */
+    holdSearchStep(step: { readonly panel: SearchPanelSession; readonly view: TableView }, frame: FrameValues): void {
+      writeViews({ searchPanel: step.view }, frame)
+      windows.holdSearchPanel(step.panel)
+    },
+    turnOffEveryFilter: (frame: FrameValues | null): void =>
+      writeViews(Object.fromEntries(TABLE_ORDER.map((table) => [table, viewWithFilterOff(table, views()[table])])), frame),
+  }
+}
+
+// see OP-18, TV-7, TV-8, TV-9
+// WHY: once at the head of a frame: a closed search panel lets its filter go, and a filter come on opens its window.
+/** @purity non-pure */
+function frameFollowerOf(hands: FrameLoopHands, windows: HeldTableWindows, views: () => TableViewsHeld, held: { readonly diagnosis: Diagnosis; readonly created: CreatedTasks; readonly letGo: (table: VisibilityTable) => void }) {
+  const filters = appliedFilterFollower()
+  const isSearchPanelClosed = searchPanelClosingFollower()
+  const opener = { hands, windows, startDelayDiagnostics: held.diagnosis.startDelayDiagnostics }
+  const isSearchPanelShown = (): boolean => hands.readSession().screen.searchPanelDisplayState.kind !== 'hidden'
+  return {
+    /** @purity non-pure */
+    followFrame(): void {
+      if (isSearchPanelClosed(isSearchPanelShown()) && views().searchPanel.visibility.isApplied) held.letGo('searchPanel')
+      const document = hands.readHeld().document
+      const visibilities = visibilitiesOf(views())
+      held.created.keepWithin(taskUidsOf(document.schedule), appliedTablesOf(visibilities).length > 0)
+      filters.follow(document.documentSettings, visibilities, (table, isReplaced) => openTableWindowMinimized(table, opener, isReplaced))
+      isSearchPanelClosed(isSearchPanelShown())
+    },
+    // WHY: the replaced document's own views stand; the report is closed unless its filter is on (OP-18).
+    /** @purity non-pure */
+    noteDocumentReplaced(closeReport: () => void): void {
+      held.created.keepWithin(new Set(), false)
+      filters.noteReplaced()
+      if (!views().delayDiagnosticsReport.visibility.isApplied) closeReport()
+    },
+  }
+}
+
+// see TV-1, TV-2, TV-6, TV-7, TV-8, TV-9, TV-13, SJ-0, SJ-9, EL-21, AM-26, AM-27, OP-18, UN-20
+/** @purity non-pure */
+export function shownTasksHoldOf(hands: FrameLoopHands, windows: HeldTableWindows, diagnosis: Diagnosis) {
+  const viewsOf = tableViewsKeeper()
   const created = createdTasksKeeper()
   const drawnSetOf = drawnSetKeeper()
-  const isFiltered = (): boolean => appliedTablesOf(panels.visibilities()).length > 0
+  const views = (): TableViewsHeld => viewsOf(hands.readHeld().document.documentSettings)
+  const visibilities = (): TableVisibilities => visibilitiesOf(views())
+  const isFiltered = (): boolean => appliedTablesOf(visibilities()).length > 0
   const drawnSet = (drawn?: Schedule): ReadonlySet<number> | null => {
     const held = hands.readHeld().document.schedule
     const schedule = drawn ?? held
-    return drawnSetOf(schedule, panels.visibilities(), readReportTaskUids(), created.readFor(held, schedule))
+    return drawnSetOf(schedule, visibilities(), diagnosis.readReportTaskUids(), created.readFor(held, schedule))
   }
-  const openShownAgain = (before: TableVisibilities, frame: FrameValues): void => {
-    const document = hands.readHeld().document
-    const writes = shownTasksRevealWrites(document, tasksShownAgain(document.schedule, before, panels.visibilities()))
-    if (writes.length > 0) hands.writeDocument(writes, frame)
-  }
-  const holdJumpTarget = (taskUid: number): void =>
-    holdJumpTargetIn(panels, hands.readHeld().document.schedule, taskUid, { reportTaskUids: readReportTaskUids(), created: created.read() })
+  const writer = tableViewWriterOf(hands, windows, views, { diagnosis, created })
   return {
+    ...writer,
+    ...frameFollowerOf(hands, windows, views, { diagnosis, created, letGo: writer.letScheduleFilterGo }),
     drawnSet,
-    visibilities: panels.visibilities,
-    appliedTables: (): readonly VisibilityTable[] => appliedTablesOf(panels.visibilities()),
-    keepWithinSchedule(schedule: Schedule): void {
-      keepTablesWithinSchedule(panels, schedule)
-      created.keepWithin(taskUidsOf(schedule), isFiltered())
-    },
-    holdJumpTarget,
+    views,
+    visibilities,
+    appliedTables: (): readonly VisibilityTable[] => appliedTablesOf(visibilities()),
     holdCreatedTasks: (before: Schedule, after: Schedule): void => created.note(before, after, isFiltered()),
-    turnOffEveryFilter: (): void => TABLE_ORDER.forEach((table) => panels.change(table, panelWithFilterOff)),
-    end(): void {
-      TABLE_ORDER.forEach((table) => panels.change(table, panelWithValuesDropped))
-      windows.dropClosedValues()
-    },
-    openShownAgain,
-    /** @purity non-pure */
-    holdChangeRevealing(change: () => void, frame: FrameValues): void {
-      const before = panels.visibilities()
-      change()
-      openShownAgain(before, frame)
-    },
-    agentHolder: (): NonNullable<AgentApiSeams['shownTasks']> => agentShownTasksHolderOf(hands, panels, { drawnSet, holdJumpTarget }),
+    agentHolder: (): NonNullable<AgentApiSeams['shownTasks']> => agentShownTasksHolderOf(visibilities, { drawnSet, holdJumpTarget: writer.holdJumpTarget }),
   }
 }
+
+export type ShownTasksHold = ReturnType<typeof shownTasksHoldOf>
 
 // see AM-26, AM-27, SJ-0
 /** @purity non-pure */
 function agentShownTasksHolderOf(
-  hands: FrameLoopHands,
-  panels: TablePanels,
+  visibilities: () => TableVisibilities,
   hold: { readonly drawnSet: () => ReadonlySet<number> | null; readonly holdJumpTarget: (taskUid: number) => void },
 ): NonNullable<AgentApiSeams['shownTasks']> {
   return {
     readShownTasks: () => {
       const drawn = hold.drawnSet()
-      return { drawnTaskUids: drawn === null ? null : [...drawn], tables: appliedTablesOf(panels.visibilities()) }
+      return { drawnTaskUids: drawn === null ? null : [...drawn], tables: appliedTablesOf(visibilities()) }
     },
-    readSearchVisibility: (): TableVisibility => panels.visibilities().searchPanel,
-    holdShownTasks: (visibility: TableVisibility): void => holdAgentSearchVisibility(hands, panels, visibility),
     holdJumpTarget: hold.holdJumpTarget,
   }
 }
