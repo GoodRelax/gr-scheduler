@@ -1106,8 +1106,8 @@
     "en": "Diagnosis"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "診断の結果の表を出す",
+    "en": "Show the diagnosis table"
    }
   },
   {
@@ -1117,8 +1117,8 @@
     "en": "Fix Proposals"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "直す案の表を出す（修正前と修正後）",
+    "en": "Show the fix proposals (before and after)"
    }
   },
   {
@@ -1128,8 +1128,8 @@
     "en": "Fix Log"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "直した記録の表を出す",
+    "en": "Show the log of fixes"
    }
   },
   {
@@ -1139,8 +1139,8 @@
     "en": "Overwrite and Fix"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "今のファイルに上書きして保存してから、チェックした行を直す",
+    "en": "Save over the current file, then fix the checked rows"
    }
   },
   {
@@ -1150,8 +1150,8 @@
     "en": "Save a Backup and Fix"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "直す前の文書を別名で保存してから、チェックした行を直す",
+    "en": "Save a backup under another name, then fix the checked rows"
    }
   },
   {
@@ -1161,8 +1161,8 @@
     "en": "Previous"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "人が直す 1 つ前の指摘へ移る",
+    "en": "Go to the previous finding to fix by hand"
    }
   },
   {
@@ -1172,8 +1172,8 @@
     "en": "Next"
    },
    "hint": {
-    "ja": "",
-    "en": ""
+    "ja": "人が直す次の指摘へ移る",
+    "en": "Go to the next finding to fix by hand"
    }
   },
   {
@@ -5880,6 +5880,104 @@
    "text": {
     "ja": "直しませんでした: {row} —— {reason}",
     "en": "Nothing was fixed: {row} — {reason}"
+   }
+  },
+  {
+   "part": "deleteLinkBetween",
+   "text": {
+    "ja": "{predecessor} → {successor} を消す",
+    "en": "Delete {predecessor} → {successor}"
+   }
+  },
+  {
+   "part": "keepThisLink",
+   "text": {
+    "ja": "この依存線を残す",
+    "en": "Keep This Dependency Line"
+   }
+  },
+  {
+   "part": "setPlannedDate",
+   "text": {
+    "ja": "予定日を {date} にする",
+    "en": "Set Planned Date to {date}"
+   }
+  },
+  {
+   "part": "clearPauseValues",
+   "text": {
+    "ja": "中断の値を外す",
+    "en": "Clear the Pause Values"
+   }
+  },
+  {
+   "part": "markAsStarted",
+   "text": {
+    "ja": "着手したことにする",
+    "en": "Mark as Started"
+   }
+  },
+  {
+   "part": "clearParentActualFinish",
+   "text": {
+    "ja": "親の実績終了日を外す",
+    "en": "Clear the Parent Task's Actual Finish"
+   }
+  },
+  {
+   "part": "finishChildrenOnParentFinish",
+   "text": {
+    "ja": "未完了の子をすべて親の実績終了日で完了にする",
+    "en": "Finish Every Unfinished Child on the Parent Task's Actual Finish"
+   }
+  },
+  {
+   "part": "clearMilestoneActuals",
+   "text": {
+    "ja": "マイルストーンの実績を外す",
+    "en": "Clear the Milestone's Actuals"
+   }
+  },
+  {
+   "part": "finishPredecessorsOnMilestoneDate",
+   "text": {
+    "ja": "未完了の先行をすべてマイルストーンの日で完了にする",
+    "en": "Finish Every Unfinished Predecessor on the Milestone's Date"
+   }
+  },
+  {
+   "part": "moveSuccessorToEarliestDate",
+   "text": {
+    "ja": "後続の予定を依存線が求める最も早い日へ送る",
+    "en": "Move the Successor to the Earliest Date the Dependency Line Allows"
+   }
+  },
+  {
+   "part": "deleteLink",
+   "text": {
+    "ja": "その依存線を消す",
+    "en": "Delete the Dependency Line"
+   }
+  },
+  {
+   "part": "moveStatusDateToActual",
+   "text": {
+    "ja": "基準日をその実績の日へ進める",
+    "en": "Move the Status Date to the Actual Date"
+   }
+  },
+  {
+   "part": "markAsFinished",
+   "text": {
+    "ja": "完了にする",
+    "en": "Mark as Finished"
+   }
+  },
+  {
+   "part": "markAsStillInProgress",
+   "text": {
+    "ja": "まだ作業中とする",
+    "en": "Mark as Still in Progress"
    }
   }
  ]
