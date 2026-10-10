@@ -1,0 +1,360 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jump placement and highlight</title>
+<style>
+  :root {
+    --ground:#ffffff; --page:#f6f7f9; --ink:#1d2733; --muted:#5b6673; --rowline:#e3e7ec; --head:#eef1f5;
+    --planFill:#b9d2ee; --planLine:#2f5f96; --actual:#1f4f8a; --dep:#6f472a; --accent:hsl(214 59% 32%);
+    --link:#214b82; --today:#008a7c; --wknd:#f3f4f6;
+  }
+  body { margin:0; padding:16px; font:16px/1.7 system-ui, sans-serif; color:var(--ink); background:var(--page); }
+  h1 { font-size:20px; margin:0 0 6px; }
+  p { margin:4px 0 10px; max-width:70em; }
+  .controls { display:flex; flex-wrap:wrap; gap:8px 20px; align-items:flex-start; margin:8px 0 12px; }
+  fieldset { border:1px solid #d5dbe2; border-radius:8px; padding:6px 12px 8px; background:#fff; margin:0; }
+  legend { font-size:14px; color:var(--muted); padding:0 4px; }
+  fieldset label { display:block; font-size:15px; cursor:pointer; }
+  .layout { display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap; }
+  .panel { width:290px; background:#fff; border:1px solid #c9d1da; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,.08); font-size:14px; }
+  .panel .title { background:var(--head); padding:4px 10px; font-weight:600; border-bottom:1px solid #d5dbe2; border-radius:6px 6px 0 0; }
+  .panel .query { padding:6px 10px; border-bottom:1px solid #e3e7ec; }
+  .panel .query input { width:100%; box-sizing:border-box; font:inherit; padding:2px 6px; }
+  .panel table { border-collapse:collapse; width:100%; }
+  .panel th, .panel td { text-align:left; padding:2px 10px; border-bottom:1px solid #eef1f5; white-space:nowrap; }
+  .panel th { font-weight:600; color:var(--muted); font-size:13px; }
+  .panel td a { color:var(--link); text-decoration:underline; cursor:pointer; }
+  .panel tr.cur td { background:#e8f0fa; }
+  .screen { position:relative; display:flex; border:1px solid #c9d1da; background:#fff; overflow:hidden; max-width:100%; }
+  .rowHeads { width:150px; flex:none; position:relative; overflow:hidden; border-right:1px solid #c9d1da; background:#fff; }
+  .rowHeads .axisPad { position:relative; z-index:2; height:44px; border-bottom:1px solid #c9d1da; background:var(--head); box-sizing:border-box; }
+  .rowHeads .inner { position:absolute; left:0; right:0; top:44px; }
+  .rowHead { position:absolute; left:0; right:0; padding-left:8px; font-size:13px; border-bottom:1px solid var(--rowline); box-sizing:border-box; overflow:hidden; white-space:nowrap; }
+  .chart { position:relative; overflow:hidden; flex:none; }
+  .chart svg { display:block; position:absolute; left:0; top:0; }
+  .status { font-size:14px; color:var(--muted); margin-top:6px; min-height:1.7em; }
+  .note { font-size:14px; color:var(--muted); }
+  .guide line { stroke:#e0007a; stroke-dasharray:4 3; stroke-width:1; }
+  .guide text { fill:#e0007a; font-size:11px; }
+</style>
+</head>
+<body>
+<h1>問の見本: 検索の結果へ飛んだときの置き場所と、飛んだ先の印</h1>
+<p>場面: 40 行ほどの日程表で、検索パネル（Search Panel）に「確認」と打ち、結果の名前（青い下線のリンク）を押して飛ぶ。
+左の択で <b>置き場所</b>（今の左上 ／ 左右中央・上から 1/3）と <b>飛んだ先の印</b>（4 案）を切り替え、同じ結果へ何度でも飛んで比べられる。
+どの案でも、飛んだ先は今どおり選ばれる（破線の枠、表 T-023c の <code>SL-8</code>）。</p>
+<p class="note">印を消す決まりは、依存線の続きの印から飛んだときの「送った先の印」（表 T-303 の <code>EL-17</code>）と同じにしてある —— 日程表のどこかを押すか、キーを押すと消える。ホイールのスクロールでは消えない（飛んだ先から前後を辿るあいだに消えない）。</p>
+
+<div class="controls">
+  <fieldset><legend>置き場所</legend>
+    <label><input type="radio" name="place" value="now"> 今: 左上（行を一番上、開始日を左端から 24px 内側）</label>
+    <label><input type="radio" name="place" value="third" checked> 新: 左右中央・上から 1/3</label>
+  </fieldset>
+  <fieldset><legend>飛んだ先の印</legend>
+    <label><input type="radio" name="mark" value="none"> なし（今: 選択の破線の枠だけ）</label>
+    <label><input type="radio" name="mark" value="ring"> 案 1 囲み（送った先の印と同じ形、強調の色で太く）</label>
+    <label><input type="radio" name="mark" value="pulse" checked> 案 2 囲み ＋ 最初に 2 回だけ波紋（約 1.2 秒）</label>
+    <label><input type="radio" name="mark" value="band"> 案 3 行の帯（行の端から端まで薄く塗る） ＋ 囲み</label>
+    <label><input type="radio" name="mark" value="spot"> 案 4 まわりを暗くする（1.5 秒で戻す） ＋ 囲み</label>
+  </fieldset>
+  <fieldset><legend>見せ方</legend>
+    <label><input type="checkbox" id="guide" checked> 中央と 1/3 の補助線を桃色の破線で見せる（実物には出さない）</label>
+    <label><input type="checkbox" id="slow"> 波紋と暗転をゆっくり（4 倍）見せる</label>
+  </fieldset>
+</div>
+
+<div class="layout">
+  <div class="panel">
+    <div class="title">検索パネル ／ Search Panel</div>
+    <div class="query"><input id="q" value="確認"></div>
+    <table><thead><tr><th>タスク（マイルストーン）</th><th>開始</th></tr></thead><tbody id="hits"></tbody></table>
+  </div>
+  <div>
+    <div class="screen" id="screen">
+      <div class="rowHeads"><div class="axisPad"></div><div class="inner" id="heads"></div></div>
+      <div class="chart" id="chart"><svg id="svg"></svg></div>
+    </div>
+    <div class="status" id="status">結果の名前を押すと飛ぶ。日程表の上でホイール（Shift ＋ ホイールで横）を回すとスクロールする。</div>
+  </div>
+</div>
+
+<script>
+// Model: one task group per row, one lane; zoom fixed at 6 px per day.
+var DAY = 6, ROW = 28, AXIS = 44, BAR_H = 12, INSET = 24, VIEW_W = 900, VIEW_H = 470;
+var PULSE_SPREAD = 16;                      // ripple growth on every side, px
+var START = Date.UTC(2026, 3, 1);           // 2026-04-01, axis origin
+var DAYS = 400;
+var NAMES = [
+  ['全体', [['計画の承認', 0, 0, 'ms'], ['全体の工程', 0, 380]]],
+  ['方針', [['方針の整理', 4, 20], ['方針の確認', 26, 0, 'ms']]],
+  ['要件 A', [['要件の聞き取り', 20, 25], ['要件の整理', 48, 18]]],
+  ['要件 B', [['現状の調査', 24, 30], ['要件の確認', 58, 8]]],
+  ['要件 C', [['利用場面の洗い出し', 30, 22], ['場面の見直し', 55, 14]]],
+  ['要件のまとめ', [['要件書の作成', 70, 20], ['要件の確認会', 92, 0, 'ms']]],
+  ['設計 A', [['画面の設計', 95, 30], ['設計の確認', 128, 6]]],
+  ['設計 B', [['データの設計', 98, 35]]],
+  ['設計 C', [['連携の設計', 104, 28], ['連携の確認', 134, 5]]],
+  ['設計 D', [['帳票の設計', 110, 24]]],
+  ['設計のまとめ', [['設計書の取りまとめ', 140, 14], ['設計の承認', 156, 0, 'ms']]],
+  ['作成 A1', [['画面の作成（前半）', 158, 30]]],
+  ['作成 A2', [['画面の作成（後半）', 190, 28]]],
+  ['作成 B1', [['データ部の作成', 160, 40]]],
+  ['作成 B2', [['移行の準備', 175, 30], ['移行手順の確認', 208, 7]]],
+  ['作成 C1', [['連携部の作成', 165, 36]]],
+  ['作成 C2', [['連携先との調整', 170, 50]]],
+  ['作成 D1', [['帳票の作成', 172, 26]]],
+  ['作成 D2', [['帳票の見直し', 200, 16]]],
+  ['単体の確かめ A', [['画面の確かめ', 220, 18]]],
+  ['単体の確かめ B', [['データ部の確かめ', 205, 20]]],
+  ['単体の確かめ C', [['連携部の確かめ', 204, 22], ['連携の動作確認', 228, 9]]],
+  ['単体の確かめ D', [['帳票の確かめ', 200, 14]]],
+  ['結合 1', [['結合の準備', 232, 10], ['結合の試し 1', 244, 20]]],
+  ['結合 2', [['結合の試し 2', 266, 18]]],
+  ['結合 3', [['結合の試し 3', 286, 16], ['結合結果の確認', 304, 6]]],
+  ['総合 1', [['総合の試し 1', 300, 20]]],
+  ['総合 2', [['総合の試し 2', 322, 14]]],
+  ['利用者の確かめ', [['利用者の試用', 330, 20], ['受け入れの確認', 352, 0, 'ms']]],
+  ['移行 1', [['移行の予行', 336, 8], ['予行結果の確認', 345, 4]]],
+  ['移行 2', [['本番の移行', 358, 4]]],
+  ['教育', [['手引きの作成', 300, 30], ['説明会', 340, 6]]],
+  ['運用の準備', [['運用手順の作成', 310, 30], ['運用体制の確認', 344, 5]]],
+  ['開始', [['稼働の開始', 363, 0, 'ms']]],
+  ['振り返り', [['振り返りの会', 370, 3], ['報告書', 374, 10]]],
+  ['終了', [['完了の確認', 386, 0, 'ms']]]
+];
+var rows = [], tasks = [];
+NAMES.forEach(function (r, i) {
+  rows.push({ name: r[0], y: AXIS + i * ROW });
+  var free = 0;                                // first day after the previous task's name label
+  r[1].forEach(function (t) {
+    var ms = t[3] === 'ms';
+    var start = Math.max(t[1], free);
+    tasks.push({ name: t[0], row: i, start: start, len: ms ? 0 : t[2], ms: ms, id: tasks.length });
+    free = start + (ms ? 0 : t[2]) + Math.ceil((t[0].length * 12 + 16) / DAY);
+  });
+});
+var CONTENT_W = DAYS * DAY, CONTENT_H = AXIS + rows.length * ROW;
+// Dependencies: each task to the next task in the list that starts after it ends, within 3 rows.
+var deps = [];
+tasks.forEach(function (a) {
+  var end = a.start + a.len;
+  for (var j = a.id + 1; j < tasks.length && deps.filter(function (d) { return d[0] === a.id; }).length < 1; j++) {
+    var b = tasks[j];
+    if (b.start >= end && b.row !== a.row && b.row - a.row <= 3) deps.push([a.id, b.id]);
+  }
+});
+
+var svgNS = 'http://www.w3.org/2000/svg';
+function el(name, attrs, parent) {
+  var e = document.createElementNS(svgNS, name);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function dateOf(d) { var t = new Date(START + d * 86400000); return t.getUTCFullYear() + '-' + ('0' + (t.getUTCMonth() + 1)).slice(-2) + '-' + ('0' + t.getUTCDate()).slice(-2); }
+function shapeBox(t) {           // planned shape in content coordinates
+  var y = rows[t.row].y + (ROW - BAR_H) / 2;
+  if (t.ms) return { x: t.start * DAY - 7, y: y - 1, w: 14, h: 14 };
+  return { x: t.start * DAY, y: y, w: Math.max(t.len * DAY, 2), h: BAR_H };
+}
+function labelBox(t) {           // name label right of the shape (OC-1 style occupancy)
+  var b = shapeBox(t);
+  return { x: b.x + b.w + 5, w: t.name.length * 12 + 4 };
+}
+
+var svg = document.getElementById('svg');
+svg.setAttribute('width', CONTENT_W); svg.setAttribute('height', CONTENT_H);
+var chart = document.getElementById('chart');
+chart.style.width = VIEW_W + 'px'; chart.style.height = VIEW_H + 'px';
+document.getElementById('screen').style.height = VIEW_H + 'px';
+
+// --- static drawing (once) ---
+var gBody = el('g', {}, svg);
+for (var d = 0; d < DAYS; d++) {
+  var wd = new Date(START + d * 86400000).getUTCDay();
+  if (wd === 0 || wd === 6) el('rect', { x: d * DAY, y: AXIS, width: DAY, height: CONTENT_H - AXIS, fill: 'var(--wknd)' }, gBody);
+}
+rows.forEach(function (r) { el('line', { x1: 0, x2: CONTENT_W, y1: r.y + ROW - 0.5, y2: r.y + ROW - 0.5, stroke: 'var(--rowline)' }, gBody); });
+var gBand = el('g', {}, svg);                 // row band highlight goes under shapes
+var gDeps = el('g', { fill: 'none', stroke: 'var(--dep)', 'stroke-width': 1 }, svg);
+deps.forEach(function (p) {
+  var a = shapeBox(tasks[p[0]]), b = shapeBox(tasks[p[1]]);
+  var x1 = a.x + a.w, y1 = a.y + a.h / 2, x2 = b.x, y2 = b.y + b.h / 2, mx = x1 + 6;
+  el('path', { d: 'M' + x1 + ' ' + y1 + 'H' + mx + 'V' + y2 + 'H' + (x2 - 1) }, gDeps);
+  el('path', { d: 'M' + (x2 - 5) + ' ' + (y2 - 3) + 'L' + (x2 - 1) + ' ' + y2 + 'L' + (x2 - 5) + ' ' + (y2 + 3), 'stroke-width': 1 }, gDeps);
+});
+var gShapes = el('g', {}, svg);
+tasks.forEach(function (t) {
+  var b = shapeBox(t);
+  if (t.ms) {
+    var cx = b.x + 7, cy = b.y + 7;
+    el('path', { d: 'M' + cx + ' ' + (cy - 7) + 'L' + (cx + 7) + ' ' + cy + 'L' + cx + ' ' + (cy + 7) + 'L' + (cx - 7) + ' ' + cy + 'Z', fill: '#fff', stroke: 'var(--planLine)', 'stroke-width': 1.2 }, gShapes);
+  } else {
+    el('rect', { x: b.x, y: b.y, width: b.w, height: b.h, fill: 'var(--planFill)', stroke: 'var(--planLine)', 'stroke-width': 1 }, gShapes);
+    if (t.start < 230) el('rect', { x: b.x, y: b.y + 3, width: Math.min(b.w, Math.max(0, (230 - t.start) * DAY)), height: b.h - 6, fill: 'var(--actual)' }, gShapes);
+  }
+  var lb = labelBox(t);
+  var tx = el('text', { x: lb.x, y: b.y + b.h / 2 + 4, 'font-size': 12, fill: 'var(--ink)' }, gShapes);
+  tx.textContent = t.name;
+});
+el('line', { x1: 230 * DAY, x2: 230 * DAY, y1: AXIS, y2: CONTENT_H, stroke: 'var(--today)', 'stroke-width': 1.5 }, svg);
+var gMarks = el('g', {}, svg);                // ring, selection, pulse
+// time axis (drawn in content coords; it is moved only horizontally)
+var gAxis = el('g', {}, svg);
+el('rect', { x: 0, y: 0, width: CONTENT_W, height: AXIS, fill: 'var(--head)' }, gAxis);
+el('line', { x1: 0, x2: CONTENT_W, y1: AXIS - 0.5, y2: AXIS - 0.5, stroke: '#c9d1da' }, gAxis);
+for (var m = 0; m < 14; m++) {
+  var md = Math.round((Date.UTC(2026, 3 + m, 1) - START) / 86400000);
+  if (md >= DAYS) break;
+  el('line', { x1: md * DAY, x2: md * DAY, y1: 0, y2: AXIS, stroke: '#c9d1da' }, gAxis);
+  var mt = el('text', { x: md * DAY + 4, y: 16, 'font-size': 12, fill: 'var(--muted)' }, gAxis);
+  var dt = new Date(START + md * 86400000);
+  mt.textContent = dt.getUTCFullYear() + '-' + ('0' + (dt.getUTCMonth() + 1)).slice(-2);
+}
+for (var w = 0; w < DAYS; w += 7) {
+  var wt = el('text', { x: w * DAY + 2, y: 36, 'font-size': 10, fill: 'var(--muted)' }, gAxis);
+  wt.textContent = new Date(START + w * 86400000).getUTCDate();
+}
+var gSpot = el('g', { 'pointer-events': 'none' }, svg);
+var gGuide = el('g', { 'class': 'guide' }, svg);
+
+var heads = document.getElementById('heads');
+rows.forEach(function (r) {
+  var h = document.createElement('div');
+  h.className = 'rowHead'; h.style.top = (r.y - AXIS) + 'px'; h.style.height = ROW + 'px'; h.style.lineHeight = ROW + 'px';
+  h.textContent = r.name; heads.appendChild(h);
+});
+var headBand = document.createElement('div');
+headBand.style.cssText = 'position:absolute;left:0;right:0;display:none;pointer-events:none';
+heads.appendChild(headBand);
+
+// --- scrolling ---
+var scrollX = 0, scrollY = 0;
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+function applyScroll() {
+  scrollX = clamp(scrollX, 0, CONTENT_W - VIEW_W);
+  scrollY = clamp(scrollY, 0, CONTENT_H - VIEW_H);
+  svg.style.transform = 'translate(' + (-scrollX) + 'px,' + (-scrollY) + 'px)';
+  gAxis.setAttribute('transform', 'translate(0,' + scrollY + ')');   // axis stays on top
+  heads.style.transform = 'translateY(' + (-scrollY) + 'px)';
+  drawGuide();
+}
+chart.addEventListener('wheel', function (e) {
+  e.preventDefault();
+  if (e.shiftKey) scrollX += e.deltaY; else { scrollY += e.deltaY; scrollX += e.deltaX; }
+  applyScroll();                                // wheel never clears the mark (EL-17)
+}, { passive: false });
+
+function drawGuide() {
+  gGuide.innerHTML = '';
+  if (!document.getElementById('guide').checked) return;
+  var cx = scrollX + VIEW_W / 2, area = VIEW_H - AXIS, ty = scrollY + AXIS + area / 3;
+  el('line', { x1: cx, x2: cx, y1: scrollY + AXIS, y2: scrollY + VIEW_H }, gGuide);
+  el('line', { x1: scrollX, x2: scrollX + VIEW_W, y1: ty, y2: ty }, gGuide);
+  var t1 = el('text', { x: cx + 4, y: scrollY + VIEW_H - 6 }, gGuide); t1.textContent = '左右の中央';
+  var t2 = el('text', { x: scrollX + 4, y: ty - 4 }, gGuide); t2.textContent = '上から 1/3';
+}
+
+// --- jump ---
+function placeFor(t, mode) {
+  var b = shapeBox(t), area = VIEW_H - AXIS;
+  if (mode === 'now') {
+    return { x: b.x - INSET, y: rows[t.row].y - AXIS };           // SJ-5 / SJ-6 today
+  }
+  // Horizontal: the planned shape's middle at the middle of the view (as EL-11 / FR-046 do).
+  // A shape wider than the view less both insets falls back to today's left inset (SJ-6).
+  var x = b.w > VIEW_W - 2 * INSET ? b.x - INSET : b.x + b.w / 2 - VIEW_W / 2;
+  // Vertical: the shape's middle at one third of the area under the axis.
+  var y = (b.y + b.h / 2) - AXIS - area / 3;
+  return { x: x, y: y };
+}
+
+var markTimers = [];
+function clearMarks() {
+  markTimers.forEach(clearTimeout); markTimers = [];
+  gMarks.innerHTML = ''; gBand.innerHTML = ''; gSpot.innerHTML = ''; headBand.style.display = 'none';
+}
+function ringPath(b, pad) {
+  return { x: b.x - pad, y: b.y - pad, width: b.w + 2 * pad, height: b.h + 2 * pad, rx: 2 };
+}
+function jumpTo(t) {
+  clearMarks();
+  var mode = document.querySelector('input[name=place]:checked').value;
+  var mark = document.querySelector('input[name=mark]:checked').value;
+  var slow = document.getElementById('slow').checked ? 4 : 1;
+  var p = placeFor(t, mode);
+  scrollX = p.x; scrollY = p.y; applyScroll();
+  var b = shapeBox(t);
+  var reach = { x: b.x, y: b.y, w: Math.max(b.w, 2), h: b.h };
+  var ringColour = 'var(--accent)';
+  if (mark === 'band') {
+    var ry = rows[t.row].y;
+    el('rect', { x: 0, y: ry, width: CONTENT_W, height: ROW - 1, fill: 'hsl(214 70% 50% / .14)' }, gBand);
+    headBand.style.top = (ry - AXIS) + 'px'; headBand.style.height = (ROW - 1) + 'px';
+    headBand.style.background = 'hsl(214 70% 50% / .14)'; headBand.style.display = 'block';
+  }
+  if (mark !== 'none') {
+    el('rect', Object.assign(ringPath(reach, 3), { fill: 'none', stroke: ringColour, 'stroke-width': 3 }), gMarks);
+  }
+  // selection: dashed box around the bounding box (SL-8, S-174 1px, S-175 2x1)
+  el('rect', Object.assign(ringPath(reach, 1.5), { fill: 'none', stroke: 'var(--accent)', 'stroke-width': 1, 'stroke-dasharray': '2 1' }), gMarks);
+  if (mark === 'pulse') {
+    [0, 600 * slow].forEach(function (delay) {
+      markTimers.push(setTimeout(function () {
+        // The ripple grows outward by PULSE_SPREAD px on every side (not by a scale, which would
+        // stretch a long bar far sideways) while it fades out.
+        var from = ringPath(reach, 3), to = ringPath(reach, 3 + PULSE_SPREAD);
+        var r = el('rect', Object.assign({}, from, { fill: 'none', stroke: ringColour, 'stroke-width': 3, opacity: 0.95 }), gMarks);
+        var dur = (600 * slow) + 'ms';
+        ['x', 'y', 'width', 'height'].forEach(function (k) {
+          el('animate', { attributeName: k, from: from[k], to: to[k], dur: dur, begin: 'indefinite', fill: 'freeze' }, r);
+        });
+        el('animate', { attributeName: 'opacity', from: 0.95, to: 0, dur: dur, begin: 'indefinite', fill: 'freeze' }, r);
+        Array.prototype.forEach.call(r.children, function (a) { a.beginElement(); });
+        markTimers.push(setTimeout(function () { if (r.parentNode) r.parentNode.removeChild(r); }, 650 * slow));
+      }, delay));
+    });
+  }
+  if (mark === 'spot') {
+    var mask = el('mask', { id: 'hole' }, gSpot);
+    el('rect', { x: 0, y: 0, width: CONTENT_W, height: CONTENT_H, fill: '#fff' }, mask);
+    el('rect', Object.assign(ringPath({ x: b.x, y: b.y, w: Math.max(b.w, 2) + labelBox(t).w + 5, h: b.h }, 10), { fill: '#000' }), mask);
+    var veil = el('rect', { x: 0, y: AXIS, width: CONTENT_W, height: CONTENT_H, fill: 'rgba(20,28,40,.45)', mask: 'url(#hole)' }, gSpot);
+    veil.style.transition = 'opacity ' + (500 * slow) + 'ms';
+    markTimers.push(setTimeout(function () { veil.style.opacity = '0'; }, 1000 * slow));
+    markTimers.push(setTimeout(function () { gSpot.innerHTML = ''; }, 1600 * slow));
+  }
+  document.getElementById('status').textContent = '「' + t.name + '」へ飛んだ（' + (mode === 'now' ? '今の左上' : '左右中央・上から 1/3') + '）。日程表を押すかキーを押すと印が消える。ホイールでは消えない。';
+}
+chart.addEventListener('mousedown', function () { clearMarks(); });
+document.addEventListener('keydown', function (e) {
+  if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'text') return;
+  if (['Shift', 'Control', 'Alt', 'Meta'].indexOf(e.key) >= 0) return;   // modifiers alone keep it (EL-17)
+  clearMarks();
+});
+
+// --- search panel ---
+function renderHits() {
+  var q = document.getElementById('q').value.trim();
+  var body = document.getElementById('hits'); body.innerHTML = '';
+  tasks.filter(function (t) { return q !== '' && t.name.indexOf(q) >= 0; }).forEach(function (t) {
+    var tr = document.createElement('tr');
+    var a = document.createElement('a'); a.textContent = (t.ms ? '◇ ' : '') + t.name;
+    a.addEventListener('click', function () {
+      Array.prototype.forEach.call(body.children, function (c) { c.classList.remove('cur'); });
+      tr.classList.add('cur'); jumpTo(t);
+    });
+    var td1 = document.createElement('td'); td1.appendChild(a);
+    var td2 = document.createElement('td'); td2.textContent = dateOf(t.start);
+    tr.appendChild(td1); tr.appendChild(td2); body.appendChild(tr);
+  });
+}
+document.getElementById('q').addEventListener('input', renderHits);
+document.getElementById('guide').addEventListener('change', drawGuide);
+renderHits();
+applyScroll();
+</script>
+</body>
+</html>
