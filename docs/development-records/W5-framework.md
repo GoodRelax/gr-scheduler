@@ -1184,7 +1184,7 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-123 | `session-effects.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-188 | `agent-api-relay-link.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-195 | `delay-diagnostics-report-window.ts` | 内部 | non-pure |  | 🔧 実装済 |
-| UF-200 | `resource-list-window.ts` | 内部 | non-pure |  | 🔧 空のユニット（`CR-722` の波 1 が置いた。中身は波 2 が書く） |
+| UF-200 | `resource-list-window.ts` | 内部 | non-pure |  | 🔧 実装済（`CR-722` の波 2） |
 | UF-197 | `parent-task-hold.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-198 | `shown-tasks-hold.ts` | 内部 | non-pure |  | 🔧 実装済 |
 
@@ -1269,3 +1269,4 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | 2026-08-23 | 判断 | ⚠️ **赤 2 件を意図して残した** —— `AG-9` は「パンと範囲選択は拒否しない」と明文で除外するのに、`WS-2` に答えるシェルは押下中のすべてを拒否している。⛔ **どの行で始まった押下かを問う道が公開されていない**（`PND-169`）。⭐ **広いほうの誤りを採った** —— **`AG-9` の MUST を守るほうを残した。** 規則 05 の 1. のとおり、赤の理由をここまで絞って記録して止まる |
 | 2026-08-23 | 実測 | ⭐ **本日の総計。** 試験 2361 → **3263 件**（緑 3259）。⛔ **赤 4 件** —— 既知の `AM-13` 2 件と、上の `AG-9` の 2 件。機械検査 26 本 ALL GREEN ／ `audit-ch5` PASS ／ 描画 PASS ／ `typecheck` ／ `layers` ／ `gen:check` 12 本 OK ／ 生成器 7 → **9 本**（交換形式・アイコン図形）|
 | 2026-10-01 | 実装 | ⭐ **MCP の取次の `Framework` 側を置いた**（`CR-613` ・ `CR-620`、枝 `mcp-relay`）—— `UF-187` `mcp-relay-server.ts`（依存なしの手書きの WebSocket と MCP の stdio、`JDG-1046`）と `UF-188` `agent-api-relay-link.ts`。`UF-188` はページの中にあって単体の試験が無く、実物の確かめ（取次 ＋ 組み立てたページ ＋ Playwright、15 項目）だけが通した |
+| 2026-10-10 | 実装 | ⭐ **`CR-722` 波 2 の体 B（`Framework` 側）** —— `UF-200` `resource-list-window.ts` を書いた: `IC-62` が担当リストのウィンドウを開く・前に出す・最小化から戻す（表 T-370 の `RO-1`）。タイトルバーと表の入口は `resourceListAfterEntry` へ渡し（`answerResourceListEntry`）、閉じるとその表のスケジュールフィルタを解除して窓を覚え、開き直すと戻す（`S-546`、`TV-8`）。`IC-66` は `frame-loop.ts` から移した。`UF-198` `shown-tasks-hold.ts` は 3 つの表の積（`drawnTaskUidsOf`、表 T-353 の `TV-1`・`TV-2`・`TV-7`・`TV-13`）を作る。`frame-loop.ts` は `WindowPlaces.resourceList` と閉じた窓を持ち、レポートの窓も同じく閉じれば目が切れる。`DomScreenSurface` は 3 つ目の表の窓（`data-role="Resource List"`）・帯（`data-role="Schedule Filter Bar"`）・`EN-8` を描き、担当リストの面の枝を `open-modals-drawing.ts` から外した。⚠️ 休日の設定が 表 T-257 の描き方を持たないことを `DFC-2318` に記録した（直していない）。⚠️ 波 2 の体 A（アダプタ）の名を読む —— 単独の作業木では型検査が赤い |

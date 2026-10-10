@@ -6,7 +6,6 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import type {
-  CommandItem,
   OpenModal,
   ScreenPart,
   ScreenSurface,
@@ -19,7 +18,6 @@ import {
 import {
   descendants,
   FakeElement,
-  iconEntry,
   oneByRole,
   selfAndDescendants,
   stage,
@@ -63,15 +61,6 @@ const [IMPORT_REPORT] = englishNames('U-62') as [string]
 const [EXPORT_CHOOSER] = englishNames('U-54') as [string]
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
-
-const command = (icon: string): CommandItem => ({
-  icon,
-  isEnabled: true,
-  isPressed: false,
-  isArmed: false,
-  isChosen: false,
-  label: `label of ${icon}`,
-})
 
 function viewWith(openModal: OpenModal): ScreenView {
   return {
@@ -141,16 +130,6 @@ const HELP = {
   ],
 } as unknown as OpenModal
 
-const ROSTER: OpenModal = {
-  surface: 'Resource List',
-  heading: 'Roster heading',
-  commands: [command('IC-80')],
-  resources: [
-    { uid: 7, name: 'Alice', isReferenced: true, isSelected: false, unassignedTaskNames: ['Design review'] },
-    { uid: 8, name: 'Bob', isReferenced: false, isSelected: true, unassignedTaskNames: [] },
-  ],
-}
-
 const HOSTILE_NAME = '<img src=x onerror=alert(1)>'
 
 const REPORT: OpenModal = {
@@ -215,33 +194,6 @@ describe('Help Modal (U-30) -- FR-036', () => {
     expect(text).toContain('Licence text')
     expect(text).toContain('Copyright notice')
     expect(text).toContain('An attribution')
-  })
-})
-
-describe('Resource List (U-49) -- FR-099', () => {
-  it('FR-099 文書が持つ担当の一覧を出し -- every resource is listed by name', () => {
-    const { built } = drawn(ROSTER)
-    const roster = oneByRole(built.root(), RESOURCE_LIST)
-    expect(roster.textContent).toContain('Alice')
-    expect(roster.textContent).toContain('Bob')
-    expect(roster.textContent).toContain('Design review')
-  })
-
-  it('IF-9 画面上の点がどの UI パーツ -- a press on a resource answers the roster and that resource', () => {
-    const { built, surface } = drawn(ROSTER)
-    const roster = oneByRole(built.root(), RESOURCE_LIST)
-    const bobText = descendants(roster).find((one) =>
-      one.childNodes.some((child) => !(child instanceof FakeElement) && child.data === 'Bob'),
-    ) as FakeElement
-    expect(bobText).toBeDefined()
-    const part = partOn(built, surface, bobText)
-    expect(part?.part).toBe(RESOURCE_LIST)
-    expect(part?.resourceUid).toBe(8)
-  })
-
-  it('the entrances the description gives the roster are drawn on it', () => {
-    const { built } = drawn(ROSTER)
-    expect(iconEntry(oneByRole(built.root(), RESOURCE_LIST), 'IC-80')).toBeDefined()
   })
 })
 

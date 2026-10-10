@@ -889,8 +889,8 @@ function screenLayersOf(host: Document) {
     dividerBandLayer: made(host, 'div', STYLE.layer),
     paletteLayer: made(host, 'div', STYLE.layer),
     searchPanelLayer: made(host, 'div', STYLE.layer),
-    reportLayer: made(host, 'div', STYLE.layer),
     resourceListLayer: made(host, 'div', STYLE.layer),
+    reportLayer: made(host, 'div', STYLE.layer),
     scheduleFilterBarLayer: made(host, 'div', STYLE.layer),
     dialogueField: part(host, 'div', ROLE.dialogueField, STYLE.hidden),
     appHeader: part(host, 'div', ROLE.appHeader, appHeaderStyle()),
@@ -907,8 +907,8 @@ function screenLayersOf(host: Document) {
     [layers.noticeLayer, 'UZ-4'],
     [layers.paletteLayer, 'UZ-5'],
     [layers.searchPanelLayer, 'UZ-6'],
-    [layers.reportLayer, 'UZ-6'],
     [layers.resourceListLayer, 'UZ-6'],
+    [layers.reportLayer, 'UZ-6'],
     [layers.modalLayer, 'UZ-13'],
     [layers.helpLayer, 'UZ-7'],
     [layers.appHeader, 'UZ-8'],
@@ -965,16 +965,18 @@ type TableWindowPainter = ReturnType<typeof searchPanelPainter>
 // see RW-5, RO-6, UZ-6, T-337
 // WHY: the three windows share UZ-6, where the later in the tree is drawn in front; the window opened last moves last.
 /** @purity non-pure */
-function tableWindowsInOrder(...windows: readonly (readonly [HTMLElement, TableWindowPainter])[]) {
+function tableWindowsInOrder(nextLayer: HTMLElement, ...windows: readonly (readonly [HTMLElement, TableWindowPainter])[]) {
   let order = windows
   return {
     /** @purity non-pure */
     order(view: ScreenView): void {
-      const front = view.resourceList?.isInFront === true ? 2 : view.delayDiagnosticsReport?.isInFront === true ? 1 : 0
-      const wanted = windows[front]
+      const isOtherOut = (view.delayDiagnosticsReport ?? view.resourceList ?? null) !== null
+      const isSearchPanelFront = isOtherOut && view.searchPanel !== null && view.searchPanel !== undefined
+      const front = view.resourceList?.isInFront === true ? 1 : view.delayDiagnosticsReport?.isInFront === true ? 2 : isSearchPanelFront ? 0 : null
+      const wanted = front === null ? undefined : windows[front]
       if (wanted === undefined || order[order.length - 1] === wanted) return
       order = [...order.filter((one) => one !== wanted), wanted]
-      order[order.length - 2]?.[0].after(wanted[0])
+      wanted[0].parentNode?.insertBefore(wanted[0], nextLayer)
     },
     /** @purity semi-pure-b */
     answerAt: (asked: PointAsked): ScreenPart | null =>
@@ -1062,9 +1064,10 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const resourceList = searchPanelPainter(host, resourceListLayer, () => wiring.onSearchWordTyped?.(), RESOURCE_LIST_IDENTITY)
 
   const tableWindows = tableWindowsInOrder(
+    layers.scheduleFilterBarLayer,
     [searchPanelLayer, searchPanel],
-    [reportLayer, report],
     [resourceListLayer, resourceList],
+    [reportLayer, report],
   )
 
   /** @purity non-pure */

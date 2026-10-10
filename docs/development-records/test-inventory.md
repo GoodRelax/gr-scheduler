@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 77 | 477 | 0 | 0 | 0 | 0 |
-| `unit` | TS-6 | - | 182 | 3909 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 181 | 3881 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 569 | 7674 | 6 | 8 | 12 | 2 |
+| **all** | | | 568 | 7646 | 6 | 8 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -65,12 +65,12 @@ named either way: 1 of 6.
 | `tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016 (via known-red) |
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 
-## 6. The unit files kept for now (182) -- listing only
+## 6. The unit files kept for now (181) -- listing only
 
 Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 24 of 182.
+`semi-pure-a` (rule 04 table UO, row UO-1): 24 of 181.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -82,7 +82,6 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-389-fr-071-full-screen-is-asked-of-the-browser.test.ts` | frameLoop (non-pure) | - | FR-038, FR-071, T-036, T-078, T-109, T-233 |
 | `tests/unit/cr-404-a-task-group-opened-by-hand-stays-open.test.ts` | commandFromInput (pure), documentFromJson (pure), editTaskGroup (pure), emptySelection (pure), frameLoop (non-pure), geometryFromLayout (pure), jsonFromDocument (pure), layoutFromSchedule (pure), mspdiFromDocument (pure), regionsFromScreen (pure), taskGroupBandCeilingOf (pure) | - | FR-016, FR-018, FR-029, FR-031, FR-055, T-109, T-328, T-329 |
 | `tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts` | frameLoop (non-pure), helpModalFromSession (pure) | - | FR-036, FR-038, T-023, T-036, T-109, T-206, T-216, T-236, T-255, T-256 |
-| `tests/unit/cr-406-the-resource-roster-is-a-ruled-grid.test.ts` | frameLoop (non-pure) | - | FR-029, FR-088, FR-099, T-023, T-109, T-206, T-257, T-370 |
 | `tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts` | domScreenSurface (non-pure), frameLoop (non-pure) | - | FR-006, FR-052, FR-072, T-016, T-023d, T-206 |
 | `tests/unit/cr-409-the-display-scale-counts-the-new-look-as-100.test.ts` | displayRatioOf (pure), documentFromJson (pure), frameLoop (non-pure), layoutFromSchedule (pure), regionsFromScreen (pure) | - | FR-029, FR-039, T-201, T-202 |
 | `tests/unit/cr-410-ctrl-shift-keys-move-and-reset-the-display-scale.test.ts` | domInputSource (non-pure), frameLoop (non-pure) | - | FR-036, T-036, T-202, T-255 |
@@ -113,7 +112,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts` | frameLoop (non-pure) | - | FR-006, FR-007, FR-038, T-016, T-109, T-234, T-294 |
 | `tests/unit/cr-551-fit-status-line-and-cursors.test.ts` | frameLoop (non-pure), showPointTip (non-pure) | - | FR-046, FR-048, FR-055, FR-082, FR-106, T-023d, T-109 |
 | `tests/unit/cr-551-focus-withdrawal-and-frame-colour.test.ts` | frameLoop (non-pure) | - | FR-019, FR-038, T-016, T-109, T-236, T-294 |
-| `tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts` | frameLoop (non-pure), keepTooltipsInside (non-pure), tooltipElement (non-pure) | - | FR-036, FR-041, FR-051, T-028 |
+| `tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts` | frameLoop (non-pure), keepTooltipsInside (non-pure), tooltipElement (non-pure) | - | FR-041, FR-051, T-028 |
 | `tests/unit/cr-551-monochrome-swatches.test.ts` | frameLoop (non-pure) | - | T-016, T-294 |
 | `tests/unit/cr-551-plan-dates-delay-mark-chevron-and-old-documents.test.ts` | documentFromJson (pure), frameLoop (non-pure), jsonFromDocument (pure) | - | FR-002, FR-013, FR-093, FR-094, T-012a, T-251, T-273, T-297 |
 | `tests/unit/cr-551-probe-real-app.test.ts` | frameLoop (non-pure) | - | FR-006, FR-051, FR-055, T-016, T-020, T-023d, T-078, T-103, T-206 |
@@ -642,7 +641,6 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-389-fr-071-full-screen-is-asked-of-the-browser.test.ts` | 23 | FR-038, FR-071 | - | T-036, T-078, T-109, T-233 | FT-6, IC-11, NT-3a, RS-59, S-99e, S-99f, SK-15, UF-48 | - | - | - | - |
 | `tests/unit/cr-404-a-task-group-opened-by-hand-stays-open.test.ts` | 50 | FR-016, FR-018, FR-029, FR-031, FR-055 | - | T-109, T-328, T-329 | AT-153, CM-72, CM-85, CM-86, DU-2, HF-2, HF-3, HF-8, HF-10, HF-11, HF-12, HF-13, HF-16, RS-28, RS-30, S-54, S-87, S-88, S-418, TD-1, TD-3, TD-5, TD-6, TD-7, UN-14, UN-17 | - | - | - | - |
 | `tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts` | 28 | FR-036, FR-038 | - | T-023, T-036, T-109, T-206, T-216, T-236, T-255, T-256 | BF-1, BF-2, HC-1, HC-2, HC-3, HC-4, IC-52, IC-53, IC-75, MK-10, S-149, S-202, S-437, S-457, S-458, SK-8 | - | - | - | - |
-| `tests/unit/cr-406-the-resource-roster-is-a-ruled-grid.test.ts` | 19 | FR-029, FR-088, FR-099 | - | T-023, T-109, T-206, T-257, T-370 | IC-63, IC-66, IC-67, IC-68, MK-5, RR-1, RR-2, RR-3, RR-4, RR-5, S-234, S-240, S-241 | - | - | - | - |
 | `tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts` | 21 | FR-006, FR-052, FR-072 | - | T-016, T-023d, T-206 | GR-19, GR-22, GR-24, GR-25, GR-28, IC-52, MK-13, PR-1, PR-2, PR-18, PR-21, S-134, S-171, S-193 | - | - | - | - |
 | `tests/unit/cr-409-the-display-scale-counts-the-new-look-as-100.test.ts` | 12 | FR-029, FR-039 | - | T-201, T-202 | IC-104, IC-105, OP-6, RS-25, S-1, S-234, S-236 | - | - | - | - |
 | `tests/unit/cr-410-ctrl-shift-keys-move-and-reset-the-display-scale.test.ts` | 15 | FR-036 | - | T-036, T-202, T-255 | BF-1, BF-2, IC-104, IC-105, MK-10, S-234, SK-22, SK-23 | - | - | - | - |
@@ -659,7 +657,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-439-command-palette-armed-and-grab-band.test.ts` | 8 | FR-053 | - | T-109 | EN-1, IC-53, S-183, SC-6 | - | - | - | - |
 | `tests/unit/cr-439-dialogue-field-utterances.test.ts` | 6 | FR-066 | - | - | AG-11, IF-9 | - | - | - | - |
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | 10 | - | - | - | NT-1, NT-3, NT-5, NT-7, NT-8, NT-9, U-55, U-57 | - | - | 1: none | - |
-| `tests/unit/cr-439-open-modals-help-roster-report-export.test.ts` | 11 | FR-023, FR-036, FR-099 | - | T-024 | IF-9, U-30, U-49, U-54, U-62 | - | - | - | - |
+| `tests/unit/cr-439-open-modals-help-roster-report-export.test.ts` | 8 | FR-023, FR-036, FR-099 | - | T-024 | IF-9, U-30, U-54, U-62 | - | - | - | - |
 | `tests/unit/cr-439-properties-panel-fields.test.ts` | 8 | FR-006, FR-007 | - | T-016, T-017, T-294 | CL-1, CV-9, IF-9, PR-1, PR-9, PR-17 | - | - | - | - |
 | `tests/unit/cr-439-screen-frame-divider-and-scrollbars.test.ts` | 8 | FR-052 | - | T-103 | IF-9, SC-4, U-21, U-24 | - | - | - | - |
 | `tests/unit/cr-439-task-group-panel-controls-and-pins.test.ts` | 10 | FR-029, FR-032, FR-098 | - | T-051, T-109, T-329 | HF-2, HF-6, HF-10, HF-12, HF-15, HF-18, HF-20, IC-60, IC-82, IC-106 | - | - | - | - |
@@ -673,7 +671,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-551-delete-all-rows-date-fields-and-colour-field.test.ts` | 26 | FR-006, FR-007, FR-038 | - | T-016, T-109, T-234, T-294 | CD-2, CD-6, CV-1, CV-2, CV-3, CV-5, CV-9, HF-10, HF-12, HF-16, HF-17, HF-20, IC-106, IN-3, MK-13, NT-7, PR-3, PR-10, PR-47, QN-10, S-315, S-335, S-336, S-337, S-338, S-530, S-531, SK-6 | - | - | - | - |
 | `tests/unit/cr-551-fit-status-line-and-cursors.test.ts` | 18 | FR-046, FR-048, FR-055, FR-082, FR-106 | - | T-023d, T-109 | CU-2, CU-3, DC-3, DC-4, DC-7, DC-8, DC-9, EN-7, GR-10, GR-16, GR-22, GR-23, IC-44, IC-45, IC-48, LC-5, OC-2, PK-10, S-30, S-65, S-66, S-163, S-177, S-183, S-194, S-195, S-332, S-333, S-334, S-340, SL-8 | - | - | - | - |
 | `tests/unit/cr-551-focus-withdrawal-and-frame-colour.test.ts` | 10 | FR-019, FR-038 | - | T-016, T-109, T-236, T-294 | CM-55, CV-9, GR-14, HF-14, IN-5a, IR-1, MK-13, PR-22, S-312, SK-6, SK-14, SL-1 | - | - | - | - |
-| `tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts` | 17 | FR-036, FR-041, FR-051 | - | T-028 | IC-16, IC-52, IC-100, IN-7, RR-6, S-339 | - | - | - | - |
+| `tests/unit/cr-551-header-roster-tooltips-and-scrollbars.test.ts` | 14 | FR-041, FR-051 | - | T-028 | IC-16, IC-100, IN-7, S-339 | - | - | - | - |
 | `tests/unit/cr-551-monochrome-swatches.test.ts` | 7 | - | - | T-016, T-294 | CV-6, CV-7, CV-9, IC-100, S-72, S-74 | - | - | - | - |
 | `tests/unit/cr-551-plan-dates-delay-mark-chevron-and-old-documents.test.ts` | 22 | FR-002, FR-013, FR-093, FR-094 | - | T-012a, T-251, T-273, T-297 | FD-5, LC-5, ND-5, OC-1, PM-4, RK-1, RK-2, S-24, S-30, S-63, S-232, S-325, S-326, S-327, S-328, S-329, S-330, S-331 | - | - | - | - |
 | `tests/unit/cr-551-probe-real-app.test.ts` | 9 | FR-006, FR-051, FR-055 | - | T-016, T-020, T-023d, T-078, T-103, T-206 | CV-9, EP-5, FT-1, GR-21, IC-10, IF-9, OP-10, PR-3, PR-10, S-332 | - | - | - | - |
@@ -810,7 +808,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/uf-50.test.ts` | 65 | FR-151, NFR-010 | - | T-023, T-023a, T-023d, T-024a, T-035, T-036, T-060, T-062, T-064, T-065, T-075, T-078, T-218 | AG-9, CP-27, FT-1, FT-3, FT-4, IF-2, IN-1, IN-1a, IN-4, IN-4a, IN-5a, LY-5, MK-1, MK-2, MK-3, MK-4, MK-5, MK-6, MK-7, MK-8, MK-10, MK-11, MK-12, MK-13, MK-15, OP-13, PI-27, PI-35, S-53, S-77, S-78, S-96, SK-1, SK-1a, SK-19, SK-21, SK-24, TS-6, UF-50 | - | - | - | - |
 | `tests/unit/uf-51.test.ts` | 81 | FR-023, FR-028, FR-060, FR-087, FR-096 | - | T-024, T-024a, T-290 | CN-2, CN-5, DI-1, DI-3, DI-4, IF-3, LM-14, LY-5, NT-1, NT-3a, NT-4, NT-7, OP-2, OP-3, OP-4, OP-8, OP-11, S-113, UF-51 | - | - | - | - |
 | `tests/unit/uf-71-confirmation.test.ts` | 51 | FR-023, FR-029, FR-031, FR-032, FR-038, FR-041, FR-053, FR-060, FR-076 | - | T-023a, T-023d, T-024a, T-026, T-028, T-031, T-037, T-050, T-052, T-062, T-064, T-065, T-077, T-103, T-109, T-216, T-218, T-227, T-234 | AT-27, BO-1, CD-2, CP-38, DI-4, DI-5, DR-5, GR-21, IC-52, IC-54, IF-9, IN-3, LY-5, NT-3, NT-7, OP-4, PI-38, PTD-5, RC-13, S-72, S-73, S-99, S-142, SC-4, TS-6, U-55, UF-67, UF-71 | - | - | - | - |
-| `tests/unit/uf-71.test.ts` | 104 | FR-006, FR-018, FR-023, FR-029, FR-035, FR-036, FR-038, FR-041, FR-051, FR-053, FR-058, FR-066, FR-069, FR-072, FR-073, FR-085, FR-098, FR-099, FR-101, NFR-010, NFR-011 | - | T-006a, T-023, T-023d, T-028, T-031, T-035, T-036, T-037, T-040, T-050, T-051, T-052, T-060, T-062, T-064, T-065, T-075, T-076, T-077, T-078, T-103, T-109, T-201, T-206, T-212, T-216, T-218, T-233, T-236 | AG-11, AT-53, AT-54, BO-1, CP-21, CP-38, DR-5, EP-1, EP-4, EZ-2, FT-1, FT-3, FT-4, GR-19, GR-20, HF-1, HF-5, HF-6, HF-14, HF-15, IC-20, IC-52, IC-54, IC-58, IC-59, IC-60, IC-61, IC-75, IF-1, IF-2, IF-9, IN-3, IN-4, IN-6, LR-6, LY-5, MK-13, NT-1, NT-3, NT-3a, NT-5, NT-8, PI-37, PI-38, RS-46, S-36, S-37, S-38, S-72, S-73, S-99, S-99g, S-116, S-124, S-135a, S-138, S-140, S-141, S-146, S-218, SC-1, SC-3, SC-4, SC-5, SK-19, TS-6, U-23, U-27, U-30, U-34, U-35, U-57, U-58, UF-65, UF-67, UF-71, UZ-2, W-4, W-6 | - | - | - | - |
+| `tests/unit/uf-71.test.ts` | 101 | FR-006, FR-018, FR-023, FR-029, FR-035, FR-036, FR-038, FR-041, FR-051, FR-053, FR-058, FR-066, FR-069, FR-072, FR-073, FR-085, FR-098, FR-099, FR-101, NFR-010, NFR-011 | - | T-006a, T-023, T-023d, T-028, T-031, T-035, T-036, T-037, T-040, T-050, T-051, T-052, T-060, T-062, T-064, T-065, T-075, T-076, T-077, T-078, T-103, T-109, T-201, T-206, T-212, T-216, T-218, T-233, T-236 | AG-11, AT-53, AT-54, BO-1, CP-21, CP-38, DR-5, EP-1, EP-4, EZ-2, FT-1, FT-3, FT-4, GR-19, GR-20, HF-1, HF-5, HF-6, HF-14, HF-15, IC-20, IC-52, IC-54, IC-58, IC-59, IC-60, IC-61, IC-75, IF-1, IF-2, IF-9, IN-3, IN-4, IN-6, LR-6, LY-5, MK-13, NT-1, NT-3, NT-3a, NT-5, NT-8, PI-37, PI-38, RS-46, S-36, S-37, S-38, S-72, S-73, S-99, S-99g, S-116, S-124, S-135a, S-138, S-140, S-141, S-146, S-218, SC-1, SC-3, SC-4, SC-5, SK-19, TS-6, U-23, U-27, U-30, U-34, U-35, U-57, U-58, UF-65, UF-67, UF-71, UZ-2, W-4, W-6 | - | - | - | - |
 | `tests/unit/uf-72-screen-part.test.ts` | 162 | FR-023, FR-029, FR-032, FR-038, FR-041, FR-048, FR-052, FR-053, FR-083, FR-085, FR-098, NFR-010 | - | T-006a, T-015, T-023a, T-023b, T-023c, T-023d, T-026, T-028, T-040, T-051, T-052, T-060, T-062, T-064, T-065, T-075, T-076, T-077, T-078, T-103, T-109, T-206, T-211, T-216, T-218, T-233, T-236, T-337 | AR-1, AR-4, AR-5, AR-6, AT-51, BO-1, CP-38, DR-5, EP-4, EZ-2, GR-19, GR-20, HF-1, HF-2, HF-3, HF-4, HF-5, HF-6, HF-9, HF-10, HF-11, HF-12, HF-13, HF-14, HF-15, HF-16, HF-17, HF-18, HF-20, HR-3, HR-4, HR-5, HR-6, HR-7, HR-8, IC-5, IC-12, IC-13, IC-50, IC-52, IC-53, IC-54, IC-58, IC-59, IC-60, IC-77, IC-82, IC-90, IC-91, IC-106, IF-9, IN-3, IN-4, LY-5, NT-8, PI-35, PI-38, PTD-5, RC-13, RS-30, S-37, S-72, S-73, S-99, S-99e, S-99g, S-116, S-125, S-135a, S-138, S-140, S-149, S-151, S-152, S-213, SP-1, SP-4, TS-6, U-23, U-30, U-34, U-35, U-46, U-47, U-48, U-57, UF-62, UF-63, UF-67, UF-69, UF-71, UZ-2, W-4, W-6 | - | - | - | - |
 | `tests/unit/uf-8-9-history-depth.test.ts` | 18 | FR-031 | - | T-027, T-108, T-206, T-368 | BT-4, CM-9, CM-91, CP-8, LY-5, PR-1, S-94, S-95, UN-3, UN-16, WF-1, WS-4, WS-7 | - | - | - | - |
 | `tests/unit/uf-8-9-replace-document.test.ts` | 41 | FR-023, FR-028, FR-031, FR-062, FR-063, FR-095 | - | T-004, T-024a, T-027, T-028, T-032a, T-034, T-035, T-058, T-062, T-064, T-067, T-075, T-108, T-214, T-218, T-220, T-230, T-342 | AG-2, AG-6, AG-9, AG-9a, AG-10, BT-4, CM-62, CP-8, CP-17, IN-1a, IV-6, LM-9, MG-12, MM-1, OP-3, OP-4, OP-5, OP-8, PI-8, PI-11, PI-15, RD-1, RD-2, RD-3, RD-4, RD-6, RD-7, TS-6, UF-8, UF-9, UN-6, WS-1, WS-2, WS-3, WS-4, WS-5, WS-6, WS-7 | - | - | - | - |
