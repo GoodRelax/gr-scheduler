@@ -35,8 +35,8 @@ ASSETS = os.path.abspath(os.path.join(HERE, '..', '_assets'))
 KEYS = ('', 'PK', 'FK', 'PK/FK')
 ORIGINS = ('Own', 'Consume', 'GRS', 'Carry')
 
-PK_COLOUR = '#C00000'
-FK_COLOUR = '#008000'
+PK_COLOR = '#C00000'
+FK_COLOR = '#008000'
 
 # multiplicity written as "parent side ─ child side"
 CROWS_FOOT = {
@@ -141,7 +141,7 @@ def figure(doc):
                                      if detail else '')
             marker = (' ' + c['key'].replace('/', ',')) if c['key'] else ''
             # A key column keeps its name in bold, the way the red and the
-            # green did before. erDiagram cannot colour one attribute, but it
+            # green did before. erDiagram cannot color one attribute, but it
             # runs the name through its markdown renderer, and it measures the
             # bold text too, so the box stays the right size.
             name = '**%s**' % c['name'] if c['key'] else c['name']

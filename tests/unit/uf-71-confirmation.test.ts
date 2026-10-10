@@ -338,7 +338,7 @@ const ANSWER_KEYS: readonly string[] = MANUSCRIPT_ANSWERS.map((one) => one.answe
  * The word one answer carries in the display language these cases are drawn in.
  *
  * ⭐ READ, NEVER WRITTEN: FR-038 (MUST) keeps every printed word in the one
- * dictionary, and a test that spelt one would be a second store of them.
+ * dictionary, and a test that spelled one would be a second store of them.
  */
 function answerWordFor(answer: string): string {
   const held = MANUSCRIPT_ANSWERS.find((one) => one.answer === answer)?.text[LANGUAGE]
@@ -358,7 +358,7 @@ const NT_7_COUNT_IS_NO_SUBSTITUTE = '件数は名前の代わりにできない'
 const NT_7_ONLY_WHERE_ASKED = '問うてよいのは、要求が確認を求めると定めた場面だけとすること（MUST）'
 /** The sentence CR-327 added: the answers are words, not shapes. */
 const NT_7_WORD_BUTTONS = '答えの入口は、図形ではなく語のボタンとすること（MUST）'
-/** ⛔ And where those words come from, spelt the same in every display language. */
+/** ⛔ And where those words come from, spelled the same in every display language. */
 // WHY: CR-574 dropped the word "display" from this clause of T-037 NT-7.
 const NT_7_SAME_IN_EVERY_LANGUAGE =
   '`FR-038` の辞書の `confirmation` の語を、どの言語でも `Yes` / `No` と綴ること（MUST）'
@@ -970,7 +970,7 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
     },
     // ⭐ `THEME` is the same pair the session below carries, and it is declared
     // beside it: a question is words and two answers, so no case here reads a
-    // colour back. The member is REQUIRED all the same -- FR-041 (MUST NOT)
+    // color back. The member is REQUIRED all the same -- FR-041 (MUST NOT)
     // leaves the environment no say -- so the bench has to state one.
     readTheme: (): ScreenTheme => THEME,
   }
@@ -1450,14 +1450,14 @@ describe('the specification still says what these cases copy', () => {
     expect(ROSTER.columns['rowId']).toBe('行 ID')
   })
 
-  it('GIVEN the manuscript dictionary WHEN its confirmation section is read THEN it holds one word per answer, spelt the same in every display language (NT-7 MUST)', () => {
+  it('GIVEN the manuscript dictionary WHEN its confirmation section is read THEN it holds one word per answer, spelled the same in every display language (NT-7 MUST)', () => {
     // ⛔ 「どの表示言語でも `Yes` / `No` と綴ること（MUST）。訳してはならない
     // （MUST NOT）—— 頭文字が下の打鍵を指さなくなる」. ⭐ The reason is the whole
     // point, so the head letter is asserted beside the word.
-    // ⚠️ READ AND NEVER SPELT HERE: this file may not settle a word (FR-038).
+    // ⚠️ READ AND NEVER SPELLED HERE: this file may not settle a word (FR-038).
     for (const held of MANUSCRIPT_ANSWERS) {
       const spellings = new Set(Object.values(held.text))
-      expect(spellings.size, `${held.answer} is spelt differently by language`).toBe(1)
+      expect(spellings.size, `${held.answer} is spelled differently by language`).toBe(1)
       const word = answerWordFor(held.answer)
       expect(word.length, `${held.answer} has no word to draw a head letter from`).toBeGreaterThan(0)
     }
@@ -1685,7 +1685,7 @@ describe('table T-037 NT-7 (MUST) -- going on or calling it off is CHOSEN', () =
   it('⭐ GIVEN a question stands WHEN each answer is read THEN it carries the whole word, with its FIRST character drawn bold (NT-7 MUST)', () => {
     // ⭐ 「頭の 1 文字（`Y` と `N`）を太字にすること（MUST）—— 打鍵で答えられる
     // ことを、ボタン自身に名乗らせるためである」.
-    // ⛔ THE WORD IS NOT SPELT HERE: it is read out of the manuscript, so a
+    // ⛔ THE WORD IS NOT SPELLED HERE: it is read out of the manuscript, so a
     // change to the dictionary moves this case with it.
     // ⚠️ THE WHOLE WORD IS ASKED FOR BESIDE THE HEAD, because a surface that
     // drew ONLY the bold head would satisfy a head-alone claim and leave the

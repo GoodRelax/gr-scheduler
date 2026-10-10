@@ -65,10 +65,10 @@ export { imageToJsonPromptText } from './app-header-items'
 export { exportFileNameOf, UNTITLED_DOCUMENT_TITLE } from './open-modals'
 export type { SearchFilterChange, SearchPanelShown, SearchPanelView } from './search-panel'
 export {
-  MARK_COLOUR_ROWS,
+  MARK_COLOR_ROWS,
   UNASSIGNED_ROW_KEY,
   isFilterValueListed,
-  markColourVariableOf,
+  markColorVariableOf,
   scheduleFilterBarOf,
   statusGlyphSvg,
   tableAfterVisibilityChange,
@@ -100,7 +100,7 @@ export { drawnTaskGroupBoxesOf, taskGroupTitleFontPxOf }
 import { screenFrameFromRegions } from './screen-frame'
 export { horizontalWholeOf, scrollExtentOf, verticalWholeOf } from './screen-frame'
 export type { HorizontalWhole, VerticalWhole } from './screen-frame'
-export { achromatic, colourOf, isScheduleColourRow } from '../svg-renderer/svg-renderer'
+export { achromatic, colorOf, isScheduleColorRow } from '../svg-renderer/svg-renderer'
 import type { DialogueInput } from './screen-surface'
 import { dualCursorReadoutOf, guideCursorLabelOf, tooltipsFromScreenView } from './tooltips'
 
@@ -231,22 +231,22 @@ export type PropertyControlKind =
 
 // see CV-9
 // WHY: swatches run beside choiceValues; the custom entrance commits one #rrggbb (CV-4).
-export interface ColourField {
+export interface ColorField {
   readonly swatches: readonly string[]
   readonly inks: readonly string[]
   readonly customWord: string
   readonly customValue: string
   // WHY: optional, so a description written before it still draws; absent, only the offered names show.
-  readonly names?: readonly ColourName[]
-  readonly theme: ColourEntrance
-  readonly custom: ColourEntrance
+  readonly names?: readonly ColorName[]
+  readonly theme: ColorEntrance
+  readonly custom: ColorEntrance
   readonly transparentWord?: string
   // see PI-37, PI-1
   readonly transparentName: string
 }
 
 // see CV-9, CV-5, CV-7
-export interface ColourEntrance {
+export interface ColorEntrance {
   readonly glyph: string
   readonly hint: string
   readonly paint: string | null
@@ -275,7 +275,7 @@ export interface AssigneeCandidate {
 }
 
 // see CV-9, T-294
-export interface ColourName {
+export interface ColorName {
   readonly name: string
   readonly isOffered: boolean
 }
@@ -286,8 +286,8 @@ export interface PropertyControl {
   readonly text: string
   readonly choices: readonly string[] | null
   readonly choiceValues?: readonly string[]
-  readonly colour?: ColourField
-  // WHY: bare swatches beside choiceValues; ColourField brings entrances FR-041's hue field must not have.
+  readonly color?: ColorField
+  // WHY: bare swatches beside choiceValues; ColorField brings entrances FR-041's hue field must not have.
   readonly swatches?: readonly string[]
   readonly assignee?: AssigneeCombo
   readonly min: number | null
@@ -362,9 +362,9 @@ export interface CommandPalette {
   readonly at: { readonly x: number; readonly y: number }
   // TRAP: the surface must draw the band inside the palette part, or the palette fades while grabbed.
   readonly grabBandHeight: number
-  readonly minimise: CommandItem
+  readonly minimize: CommandItem
   readonly bandRecord?: CommandItem | null
-  readonly isMinimised: boolean
+  readonly isMinimized: boolean
   readonly groups: readonly PaletteGroup[]
   readonly armedText: string | null
 }
@@ -384,8 +384,8 @@ export interface HelpModal extends OpenSurface {
   readonly entries: readonly HelpEntry[]
   readonly legend: IconId
   readonly helpLanguage: DisplayLanguage
-  readonly windowState: 'normal' | 'minimised' | 'maximised'
-  readonly licenceText: string
+  readonly windowState: 'normal' | 'minimized' | 'maximized'
+  readonly licenseText: string
   readonly copyrightNotice: string
   readonly attributions: readonly string[]
   readonly footnotes: readonly HelpFootnote[]
@@ -416,7 +416,7 @@ export interface OpenChooser extends OpenSurface {
 }
 
 // see FR-036, FR-069
-// WHY: note *1 stands below the columns, above the licence line (CR-665), so it names no column.
+// WHY: note *1 stands below the columns, above the license line (CR-665), so it names no column.
 export type HelpFootnote = LinkedWords
 
 export interface HelpEntry {

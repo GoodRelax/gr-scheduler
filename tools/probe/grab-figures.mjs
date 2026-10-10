@@ -8,7 +8,7 @@
 // ⛔ DO NOT DRAW THESE BY HAND. This probe is the only way they are produced.
 //
 // ⭐ SAFETY GATE (CR-430 4.4 step 3): the sample's own sliders already carry the NEW values this CR
-// proposes (its "behavioural ground truth" role -- see previous-project-result/16-grab-area-sizing/
+// proposes (its "behavioral ground truth" role -- see previous-project-result/16-grab-area-sizing/
 // README.md). Whether those values are safe to draw INTO THE SPEC's assets depends on whether
 // docs/spec/_source/settings.json already carries them too. This probe reads a curated set of
 // settings.json rows (chosen from CR-430 section 4.3 and the spec draft's section 5) and refuses to
@@ -230,7 +230,7 @@ async function applyBaselineDisplay(page) {
 }
 
 // Task A-F / Milestone A / Assignee A-C, per section 1 item 1 of this task's brief: never ship the
-// sample's own industry-flavoured example names into a figure that lands in the specification.
+// sample's own industry-flavored example names into a figure that lands in the specification.
 // The two places the ORIGINAL data reused the same real assignee (task & arrow: '設計担当') map to the
 // same neutral label, so the figures still show that two tasks share one assignee.
 const NEUTRAL = {
@@ -276,7 +276,7 @@ function provenanceComment(figureFile) {
   // NOTE: XML/SVG comments may not contain "--" anywhere in their content, so this text avoids the
   // double-hyphen dash style used elsewhere in this file's own (non-XML) comments.
   return `<!-- GENERATED ARTIFACT: do not hand-edit.
-     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behaviour)
+     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behavior)
              + docs/spec/_source/settings.json (values, gated: see the probe's settings-gate)
      regenerate: node tools/probe/grab-figures.mjs
      produced this file: docs/spec/_assets/${figureFile}
@@ -356,8 +356,8 @@ async function buildTaskGroupMapFigure(page, { file, title, ariaLabel, owners, n
 
 /** Figure 4 (fig-hit-stacked-task-group.svg): CR-430 4.4 decision 6 -- hitAt() sampled every 1 screen px
  *  across the stacked task group, horizontally-adjacent pixels with the SAME resolved answer merged into one
- *  rect, painted with that zone's own grab-area colour (z.fill, straight from the sample -- not a
- *  colour table this probe maintains separately). Painted on top of the ordinary drawing, same as the
+ *  rect, painted with that zone's own grab-area color (z.fill, straight from the sample -- not a
+ *  color table this probe maintains separately). Painted on top of the ordinary drawing, same as the
  *  sample's own "掴み代の面" toggle already does (zones is the topmost paint layer), except here every
  *  rect is the RESOLVED single winner rather than every raw, possibly-overlapping declared box. */
 async function buildHitStackedFigure(page) {
@@ -393,7 +393,7 @@ async function buildHitStackedFigure(page) {
     svg: svgDocument({
       file: 'fig-hit-stacked-task-group.svg', title: '図 F-023 -- 積んだタスクグループの応え方（hitAt を 1px 刻みで塗る）',
       width, height, viewBox: `0 ${y0} ${width} ${height}`,
-      ariaLabel: 'stacked task group hit-test raster, 1px steps, coloured by the resolved grab area',
+      ariaLabel: 'stacked task group hit-test raster, 1px steps, colored by the resolved grab area',
       body,
     }),
     note: `raster rects: ${raster.length}`,
@@ -554,7 +554,7 @@ export async function run({ outDir = OUT_DIR, skipGate = false } = {}) {
     }))
     figures.push(await buildTaskGroupMapFigure(page, {
       file: 'fig-grab-map-milestone.svg', title: '図 F-022 -- ◆ の掴み代の地図（④、隣接を含む）',
-      ariaLabel: 'grab-area map for a milestone, including its neighbour', owners: ['ms', 'ms2'],
+      ariaLabel: 'grab-area map for a milestone, including its neighbor', owners: ['ms', 'ms2'],
     }))
     figures.push(await buildHitStackedFigure(page))
     figures.push(await buildLabelPlacementFigure(page))

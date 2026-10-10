@@ -28,7 +28,7 @@
 //               over the screen's width; the SAME ratio on both axes (MUST),
 //               never one per axis (MUST NOT); no margin at the edge (MUST
 //               NOT); a part that is not drawn leaves its room empty (MUST) and
-//               its neighbours do not close up (MUST NOT)
+//               its neighbors do not close up (MUST NOT)
 //   table T-041  WY-3: for every part table T-076 draws, the screen's bounding
 //               rectangle times the ratio IS the rectangle in the export
 //   table T-076  EP-1 .. EP-14, which part of the screen reaches the picture
@@ -88,7 +88,7 @@ import type {
   ScreenView,
   Scrollbar,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { colourOf } from '../../src/adapter/svg-renderer/svg-renderer'
+import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import {
   SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
@@ -493,7 +493,7 @@ const viewOf = (
     // rule 03 section 1 keeps it in one place, and `tests/unit/uf-65.test.ts` is
     // the bench that holds the described band to the manuscript.
     grabBandHeight: 7,
-    minimise: {
+    minimize: {
       icon: 'IC-75',
       label: 'IC-75',
       isEnabled: true,
@@ -501,7 +501,7 @@ const viewOf = (
       isArmed: false,
       isChosen: false,
     },
-    isMinimised: false,
+    isMinimized: false,
     groups: [{ name: PALETTE_GROUP_NAME, commands: [commandOf('EP-11 palette command')] }],
     armedText: PALETTE_ARMED_TEXT,
   },
@@ -603,13 +603,13 @@ const T_037_REASONS: readonly { readonly reason: RasterFaultReason; readonly nex
   ]
 
 /**
- * Table T-041 -- the three judgements of WYSIWYG. ⚠️ Only `WY-3` is inside one
- * unit's reach: `WY-1` runs a write, an initialisation and a read, and `WY-2`
+ * Table T-041 -- the three judgments of WYSIWYG. ⚠️ Only `WY-3` is inside one
+ * unit's reach: `WY-1` runs a write, an initialization and a read, and `WY-2`
  * compares two whole exports made in one environment. Both are named here so
  * that the two left out are left out on purpose.
  */
 const T_041_ROWS = [
-  { id: 'WY-1', reach: 'whole product -- write, initialise, read back' },
+  { id: 'WY-1', reach: 'whole product -- write, initialize, read back' },
   { id: 'WY-2', reach: 'whole product -- two exports of one document' },
   { id: 'WY-3', reach: 'this unit -- the screen rectangle times the ratio' },
 ] as const
@@ -733,7 +733,7 @@ const isGroundOf = (scene: ExportScene, root: Drawn | undefined) => (drawn: Draw
   num(drawn.attrs, 'y') === 0 &&
   num(drawn.attrs, 'width') === num(root.attrs, 'width') &&
   num(drawn.attrs, 'height') === num(root.attrs, 'height') &&
-  drawn.attrs['fill'] === colourOf('S-146', scene.themeHue, scene.themePreference === 'dark', false)
+  drawn.attrs['fill'] === colorOf('S-146', scene.themeHue, scene.themePreference === 'dark', false)
 
 const assembledOf = (result: Picture, scene: ExportScene): Assembled => {
   const parts = result.svg.split(scene.svg)
@@ -926,7 +926,7 @@ describe('FR-080 -- one ratio, both axes, over the whole screen', () => {
   })
 })
 
-describe('table T-041 -- which rows of the WYSIWYG judgement one unit can answer', () => {
+describe('table T-041 -- which rows of the WYSIWYG judgment one unit can answer', () => {
   it('names all three rows and says which is inside this unit (one case walks the table)', () => {
     expect(T_041_ROWS.map((row) => row.id)).toEqual(['WY-1', 'WY-2', 'WY-3'])
     const here = T_041_ROWS.filter((row) => row.reach.startsWith('this unit'))
@@ -1117,10 +1117,10 @@ describe('table T-076 -- which UI parts reach the picture', () => {
 
 // ---------------------------------------------------------------------------
 // FR-080 -- the room of a part that is not drawn stays empty (MUST) and its
-// neighbours do not close up (MUST NOT)
+// neighbors do not close up (MUST NOT)
 // ---------------------------------------------------------------------------
 
-describe('FR-080 -- a part left out leaves a gap, it does not move its neighbours', () => {
+describe('FR-080 -- a part left out leaves a gap, it does not move its neighbors', () => {
   it('keeps the App Header band at its screen height (MUST NOT: squeeze it)', async () => {
     const assembled = await exportedOf(TALL_SCENE)
     const band = assembled.rects.find((drawn) => near(rectOf(drawn).y, 0))
@@ -1730,7 +1730,7 @@ describe('IF-6 -- the seam goes one way, so there is no round trip to test', () 
 // unit
 //
 // ⭐ WHY THESE CASES EXIST. WY-2 of table T-041 judges "the drawing, once the
-// watermark layer is set aside, to be the same SVG / PNG after normalisation".
+// watermark layer is set aside, to be the same SVG / PNG after normalization".
 // A whole-product run of that row is out of one unit's reach -- it loads a JSON
 // and performs the fit of FR-055 first -- but the half that says the SVG and
 // the PNG of ONE state are ONE drawing is not: it is exactly the two entries
@@ -1743,8 +1743,8 @@ describe('PI-21 exportSvg -- IO-3 and IO-4 are one assembly (WY-2 of table T-041
     const { rasterizer } = watchedRasterizer()
     const svgOnly = fitOrThrow(exportSvg(TALL_SCENE))
     const both = await pngOf(rasterizer, TALL_SCENE)
-    // ⛔ Not "equal after normalisation" but the SAME string: FR-080 admits
-    // normalisation because two DRAWERS spell a picture differently, and there
+    // ⛔ Not "equal after normalization" but the SAME string: FR-080 admits
+    // normalization because two DRAWERS spell a picture differently, and there
     // is only one drawer here. A difference of any kind would be a second
     // assembly, which is the thing CR-196 closed.
     expect(svgOnly.svg).toBe(both.svg)

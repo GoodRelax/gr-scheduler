@@ -1,6 +1,6 @@
 // FR-053 (MUST) as the user ruled it on 2026-09-01: DFC-179 「ヘッダーでコマンドパレット
 // を再表示した時、コマンドパレットは標準サイズで表示しろ」 -- when S-99e goes from
-// hidden to shown, S-200 goes back to not minimised.
+// hidden to shown, S-200 goes back to not minimized.
 //
 // Unit under test: UF-48 of table T-075 (`frame-loop.ts`, component CP-25 of
 // table T-062). It is the only layer that may hold a current value (LY-5 of
@@ -35,9 +35,9 @@
 //            担い ... 既定は最小化していない」.
 //            ⚠️ 「非表示（`S-99e`）とは別の状態である」 -- which is why the
 //            clearing is one direction only, and why a case below holds the
-//            minimise itself standing when nothing hid the palette.
+//            minimize itself standing when nothing hid the palette.
 //   T-109    IC-7 (`App Header`, 「コマンドパレットを表示する・非表示にする
-//            （`S-99e`）」) and IC-75 (the minimise toggle, `S-200`).
+//            （`S-99e`）」) and IC-75 (the minimize toggle, `S-200`).
 //   T-036    SK-14, which moves the same row from the keyboard.
 //   T-206    S-99e (表示状態、既定は表示) and S-200 (最小化しているか、既定は
 //            最小化していない).
@@ -89,8 +89,8 @@ const SURFACE_COLUMN = '面'
 
 /** S-99e -- whether the palette is shown. The join both sides spell. */
 const PALETTE_SHOWN_SETTING = 'S-99e'
-/** S-200 -- whether it is minimised. */
-const PALETTE_MINIMISED_SETTING = 'S-200'
+/** S-200 -- whether it is minimized. */
+const PALETTE_MINIMIZED_SETTING = 'S-200'
 
 /** The one entrance of table T-109 that moves S-99e, and the surface it is on. */
 const SHOW_HIDE = ((): { readonly row: string; readonly surface: string } => {
@@ -105,12 +105,12 @@ const SHOW_HIDE = ((): { readonly row: string; readonly surface: string } => {
 })()
 
 /** The one entrance that moves S-200, and the surface it rides on. */
-const MINIMISE = ((): { readonly row: string; readonly surface: string } => {
+const MINIMIZE = ((): { readonly row: string; readonly surface: string } => {
   const found = specTable('T-109').rows.filter((row) =>
-    (row.by[ENTRANCE_COLUMN] ?? '').includes(PALETTE_MINIMISED_SETTING),
+    (row.by[ENTRANCE_COLUMN] ?? '').includes(PALETTE_MINIMIZED_SETTING),
   )
   if (found.length !== 1) {
-    throw new Error(`table T-109 names ${PALETTE_MINIMISED_SETTING} in ${found.length} rows`)
+    throw new Error(`table T-109 names ${PALETTE_MINIMIZED_SETTING} in ${found.length} rows`)
   }
   const row = found[0] as (typeof found)[number]
   return { row: row.id, surface: bare(row.by[SURFACE_COLUMN] ?? '') }
@@ -306,11 +306,11 @@ function stage(): Stage {
   }
 }
 
-/** Whether the frame just drawn says the palette is minimised. */
-function isMinimised(built: Stage): boolean {
+/** Whether the frame just drawn says the palette is minimized. */
+function isMinimized(built: Stage): boolean {
   const drawn = built.palette()
   if (drawn === null) throw new Error('the palette is hidden, so it says nothing about S-200')
-  return drawn.isMinimised
+  return drawn.isMinimized
 }
 
 // ===========================================================================
@@ -322,12 +322,12 @@ describe('the manuscript still says what these cases read', () => {
     // GOES RED IF: a second entrance for either state is added to table T-109,
     // or SK-14 loses its assignment.
     expect(SHOW_HIDE.surface).toBe('App Header')
-    expect(MINIMISE.surface).toBe('Command Palette')
-    expect(SHOW_HIDE.row).not.toBe(MINIMISE.row)
+    expect(MINIMIZE.surface).toBe('Command Palette')
+    expect(SHOW_HIDE.row).not.toBe(MINIMIZE.row)
     expect(PALETTE_KEY.length).toBeGreaterThan(0)
   })
 
-  it('⛔ FR-053 still says that re-showing clears the minimise', () => {
+  it('⛔ FR-053 still says that re-showing clears the minimize', () => {
     // ⭐ THE GROUND OF THIS WHOLE FILE, read rather than typed: if the ruling of
     // 2026-09-01 is ever reversed, this case says so in one line.
     expect(REQUIREMENTS).toContain(FR_053_RE_SHOWING_CLEARS_IT)
@@ -339,41 +339,41 @@ describe('the manuscript still says what these cases read', () => {
 // ===========================================================================
 
 describe('FR-053 (MUST): S-99e going from hidden to shown clears S-200', () => {
-  it('⭐ the palette starts shown and not minimised, as table T-206 states', () => {
+  it('⭐ the palette starts shown and not minimized, as table T-206 states', () => {
     // GOES RED IF: either default is turned round, which would make every case
     // below start from a state the manuscript does not describe.
     const built = stage()
     expect(built.palette()).not.toBeNull()
-    expect(isMinimised(built)).toBe(false)
+    expect(isMinimized(built)).toBe(false)
   })
 
-  it('⭐ the minimise entrance still minimises, and nothing else undoes it', () => {
-    // ⚠️ THE CONTROL CASE. Without it, a unit that simply never minimised would
+  it('⭐ the minimize entrance still minimizes, and nothing else undoes it', () => {
+    // ⚠️ THE CONTROL CASE. Without it, a unit that simply never minimized would
     // pass the case below.
     // GOES RED IF: IC-75 stops moving S-200, or something clears it on a frame
     // where the palette was never hidden.
     const built = stage()
-    built.press(MINIMISE.surface, MINIMISE.row)
-    expect(isMinimised(built)).toBe(true)
+    built.press(MINIMIZE.surface, MINIMIZE.row)
+    expect(isMinimized(built)).toBe(true)
     built.send(pointer('down', 700, 400))
     built.send(pointer('up', 700, 400))
-    expect(isMinimised(built), 'S-200 stands until something moves it').toBe(true)
+    expect(isMinimized(built), 'S-200 stands until something moves it').toBe(true)
   })
 
   it('⭐ showing it again from the header brings it back at its standard size', () => {
     // ⭐ THE USER'S RULING, MEASURED AT THE UNIT: DFC-179 「ヘッダーでコマンドパレットを
     // 再表示した時、コマンドパレットは標準サイズで表示しろ」.
     // GOES RED IF: the two states go back to being independent, which is what
-    // they were until 2026-09-01 -- the palette then came back minimised and
+    // they were until 2026-09-01 -- the palette then came back minimized and
     // the only way out was to find the toggle on the band again.
     const built = stage()
-    built.press(MINIMISE.surface, MINIMISE.row)
-    expect(isMinimised(built)).toBe(true)
+    built.press(MINIMIZE.surface, MINIMIZE.row)
+    expect(isMinimized(built)).toBe(true)
     built.press(SHOW_HIDE.surface, SHOW_HIDE.row)
     expect(built.palette(), 'the palette is hidden now').toBeNull()
     built.press(SHOW_HIDE.surface, SHOW_HIDE.row)
     expect(built.palette(), 'and shown again').not.toBeNull()
-    expect(isMinimised(built)).toBe(false)
+    expect(isMinimized(built)).toBe(false)
   })
 
   it('⭐ the key SK-14 assigns brings it back the same way', () => {
@@ -383,24 +383,24 @@ describe('FR-053 (MUST): S-99e going from hidden to shown clears S-200', () => {
     // GOES RED IF: the clearing is hung on the header press rather than on the
     // change of state.
     const built = stage()
-    built.press(MINIMISE.surface, MINIMISE.row)
+    built.press(MINIMIZE.surface, MINIMIZE.row)
     built.send(key(PALETTE_KEY))
     expect(built.palette(), 'the palette is hidden now').toBeNull()
     built.send(key(PALETTE_KEY))
-    expect(isMinimised(built)).toBe(false)
+    expect(isMinimized(built)).toBe(false)
   })
 
   it('⛔ the entries come back with it, so the palette is whole again', () => {
     // ⚠️ 「標準サイズ」 is what the person sees, and what makes the palette its
     // standard size is that FR-053's entrance list is offered again -- 「入口の
-    // 並びは最小化のあいだ出さない」 is the sentence the minimise stands on.
+    // 並びは最小化のあいだ出さない」 is the sentence the minimize stands on.
     // GOES RED IF: S-200 is cleared on the description while the entries are
     // still withheld, which would clear the flag and change nothing on screen.
     const built = stage()
     const whole = built.palette()?.groups.length ?? 0
     expect(whole, 'the palette offers entrances at all').toBeGreaterThan(0)
-    built.press(MINIMISE.surface, MINIMISE.row)
-    expect(built.palette()?.groups.length, 'minimised withdraws them').toBe(0)
+    built.press(MINIMIZE.surface, MINIMIZE.row)
+    expect(built.palette()?.groups.length, 'minimized withdraws them').toBe(0)
     built.press(SHOW_HIDE.surface, SHOW_HIDE.row)
     built.press(SHOW_HIDE.surface, SHOW_HIDE.row)
     expect(built.palette()?.groups.length).toBe(whole)

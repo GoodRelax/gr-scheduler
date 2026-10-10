@@ -47,20 +47,20 @@ const EYE = ICON('IC-143')
 const OPEN_RESOURCE_LIST = ICON('IC-62')
 const OPEN_SEARCH_ICON = ICON('IC-117')
 const DIAGNOSE = ICON('IC-107')
-const MINIMISE = ICON('IC-129')
+const MINIMIZE = ICON('IC-129')
 const CLOSE = ICON('IC-52')
 const SELECT_ALL = ICON('IC-63')
 const OPEN_SEARCH = keyOf('SK-24')
 
 // see S-543, S-544
-const colourOf = (id: string, theme: '明るいテーマ' | '暗いテーマ'): string => {
+const colorOf = (id: string, theme: '明るいテーマ' | '暗いテーマ'): string => {
   const hex = /#([0-9a-f]{6})/i.exec(rowOf(specTable('T-236'), id).by[theme] ?? '')?.[1] ?? ''
   const at = (from: number): number => parseInt(hex.slice(from, from + 2), 16)
   return `rgb(${String(at(0))}, ${String(at(2))}, ${String(at(4))})`
 }
-const RED_LIGHT = colourOf('S-543', '明るいテーマ')
-const RED_DARK = colourOf('S-543', '暗いテーマ')
-const GLYPH_DARK = colourOf('S-544', '暗いテーマ')
+const RED_LIGHT = colorOf('S-543', '明るいテーマ')
+const RED_DARK = colorOf('S-543', '暗いテーマ')
+const GLYPH_DARK = colorOf('S-544', '暗いテーマ')
 
 type Words = Record<'ja' | 'en', string>
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as Record<
@@ -205,7 +205,7 @@ async function textOf(page: Page, selector: string): Promise<string | null> {
   return page.evaluate((wanted: string) => document.querySelector(wanted)?.textContent ?? null, selector)
 }
 
-// WHY: the spec says the box is filled and the glyph drawn, not which element carries which; every colour in the entrance is read.
+// WHY: the spec says the box is filled and the glyph drawn, not which element carries which; every color in the entrance is read.
 /** @purity semi-pure-b */
 async function paintsOf(page: Page, selector: string): Promise<{ readonly fills: readonly string[]; readonly inks: readonly string[] }> {
   return page.evaluate((wanted: string) => {
@@ -403,7 +403,7 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
     }
   })
 
-  test(`TV-8: ${TV_8_CLOSE.slice(0, 20)} -- minimising keeps the Resource List eye, closing drops it, reopening keeps the Hide rows`, async () => {
+  test(`TV-8: ${TV_8_CLOSE.slice(0, 20)} -- minimizing keeps the Resource List eye, closing drops it, reopening keeps the Hide rows`, async () => {
     const stage = await opened()
     try {
       const { page } = stage
@@ -413,8 +413,8 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       await hideListedIn(page, RESOURCE_LIST, TANAKA)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)
       expect((await readShown(page)).drawnTaskUids).toEqual([ALPHA, CHARLIE, ECHO])
-      await press(page, `${RESOURCE_LIST} [data-icon="${MINIMISE}"]`)
-      expect((await readShown(page)).tables, 'SV-12: minimising keeps the eye').toEqual(['resourceList'])
+      await press(page, `${RESOURCE_LIST} [data-icon="${MINIMIZE}"]`)
+      expect((await readShown(page)).tables, 'SV-12: minimizing keeps the eye').toEqual(['resourceList'])
       expect(await textOf(page, BAND)).not.toBeNull()
       await openResourceList(page)
       await press(page, `${RESOURCE_LIST} [data-icon="${CLOSE}"]`)

@@ -66,7 +66,7 @@ const HOUSE_RULES = `
 Measured in the built deliverable, in a real browser: pressing the \`App Header\`
 entry \`IC-7\` hides the palette and \`P\` (\`SK-14\`) brings it back. ⭐ The
 show/hide toggle works, in the specification and in the product. The user's
-"minimise" is that same hiding (their ruling of 2026-08-23), so ⛔ NOTHING new is
+"minimize" is that same hiding (their ruling of 2026-08-23), so ⛔ NOTHING new is
 to be built for it and no third state is to be invented.
 
 # What to report

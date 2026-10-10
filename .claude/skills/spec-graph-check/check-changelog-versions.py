@@ -21,7 +21,7 @@ has.
     python .claude/skills/spec-graph-check/check-changelog-versions.py
 
 Run with PYTHONIOENCODING=utf-8 (not required for this check's own output,
-which is plain ASCII, but kept for the same invocation as its neighbours).
+which is plain ASCII, but kept for the same invocation as its neighbors).
 """
 import io
 import os

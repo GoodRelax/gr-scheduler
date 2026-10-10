@@ -107,7 +107,7 @@ function mergedFlip(shapeIsMilestone: boolean, flip: boolean): MergeScene {
   )
   if (visual === undefined) throw new Error('premise: the template holds such a visual')
   const taskUid = visual['taskUid'] as number
-  // WHY: MG-8 keeps colours; null colours would keep themselves by doing nothing, so the scene paints them.
+  // WHY: MG-8 keeps colors; null colors would keep themselves by doing nothing, so the scene paints them.
   visual['fillColor'] = PALETTE[3]
   visual['strokeColor'] = PALETTE[4]
   const current = decoded(json)

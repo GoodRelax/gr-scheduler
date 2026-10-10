@@ -68,7 +68,7 @@ const PRESS_OR_DRAG_PX = settingOf('S-208')
 // see S-193
 const MULTILINE_ROWS = settingOf('S-193')
 
-// WHY: table T-236 holds five cells after the row ID -- what the colour is,
+// WHY: table T-236 holds five cells after the row ID -- what the color is,
 // the light theme, the dark theme, whether it follows the hue, and the note.
 const T236_COLUMNS = 5
 const T236_LIGHT = 1
@@ -80,7 +80,7 @@ const FOLLOWS_THE_HUE = String.fromCharCode(0x25cb)
 // WHY: the row writes its hue as a letter and the other two parts as
 // percentages, so only those two are taken; the hue comes from AT-19.
 /** @purity pure */
-function ruleColourParts(dark: boolean): { saturation: number; lightness: number } {
+function ruleColorParts(dark: boolean): { saturation: number; lightness: number } {
   const said = cellOf(T236, 'S-149', dark ? T236_DARK : T236_LIGHT, T236_COLUMNS)
   const found = /(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%/.exec(said)
   if (found === null) {
@@ -93,8 +93,8 @@ function ruleColourParts(dark: boolean): { saturation: number; lightness: number
 }
 
 // WHY: a guard, not an assertion of its own -- the case below resolves the
-// colour at the document's hue, which is only right while this mark holds.
-const RULE_COLOUR_FOLLOWS_THE_HUE = cellOf(
+// color at the document's hue, which is only right while this mark holds.
+const RULE_COLOR_FOLLOWS_THE_HUE = cellOf(
   T236,
   'S-149',
   T236_FOLLOWS_HUE,
@@ -479,15 +479,15 @@ async function dividerLines(page: Page): Promise<Painted[]> {
   }, DIVIDER)
 }
 
-// WHY: goes red if the line's colour is not S-149 at the document's own hue
+// WHY: goes red if the line's color is not S-149 at the document's own hue
 // (AT-19); resolved by the browser itself, so no rounding rule can disagree.
-test('S-149: the screen paints the Panel Divider line with the colour table T-236 states', async ({
+test('S-149: the screen paints the Panel Divider line with the color table T-236 states', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
   expect(
-    RULE_COLOUR_FOLLOWS_THE_HUE,
-    'table T-236 row S-149 still says its colour follows the document hue, which is what makes ' +
+    RULE_COLOR_FOLLOWS_THE_HUE,
+    'table T-236 row S-149 still says its color follows the document hue, which is what makes ' +
       "the document's own AT-19 the right hue to resolve it at",
   ).toBe(true)
 
@@ -504,7 +504,7 @@ test('S-149: the screen paints the Panel Divider line with the colour table T-23
         schedule?: { project?: { themeHue?: unknown } }
       }
       // WHY: S-72 is not in the document (FR-039); a start paints the browser's
-      // colour scheme, light when unread, and this case never presses IC-16.
+      // color scheme, light when unread, and this case never presses IC-16.
       let dark = false
       try {
         dark = window.matchMedia?.('(prefers-color-scheme: dark)')?.matches === true
@@ -523,13 +523,13 @@ test('S-149: the screen paints the Panel Divider line with the colour table T-23
         `project; it handed ${JSON.stringify(document_)}`,
     ).toBe('number')
     const dark = document_?.preference === 'dark'
-    const parts = ruleColourParts(dark)
+    const parts = ruleColorParts(dark)
     const said = `hsl(${String(document_?.hue)} ${String(parts.saturation)}% ${String(parts.lightness)}%)`
 
-    const wanted = await page.evaluate((colour: string) => {
+    const wanted = await page.evaluate((color: string) => {
       const probe = window.document.createElement('div')
       window.document.body.appendChild(probe)
-      probe.style.color = colour
+      probe.style.color = color
       const resolved = window.getComputedStyle(probe).color
       probe.remove()
       return resolved
@@ -570,7 +570,7 @@ async function panelFields(page: Page): Promise<Field[]> {
     const shown = document.querySelector(panel)
     if (shown === null) return []
     const out: Field[] = []
-    // WHY: a field's line is the element marked editable or not (FR-072); a colour swatch also
+    // WHY: a field's line is the element marked editable or not (FR-072); a color swatch also
     // names its row so MK-13 can focus it, and read as a field it repeated PR-28 once per swatch.
     for (const field of Array.from(shown.querySelectorAll('[data-field-row][data-editable]'))) {
       if (field.hasAttribute('data-field-kind')) continue

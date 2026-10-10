@@ -67,7 +67,7 @@ const INVALID_PARAMS = -32602
 const INTERNAL_ERROR = -32603
 const KEY_PRESENTED = 'relayKeyPresented'
 const CHANGE_NOTICED = 'changeNoticed'
-const CANCELLED = 'notifications/cancelled'
+const CANCELED = 'notifications/cancelled'
 const WATCH_CHANGES = 'watchChanges'
 const LONGEST_TIMER_MS = 2 ** 31 - 1
 
@@ -451,13 +451,13 @@ function answerHttp(state: RelayState, request: IncomingMessage, response: Serve
 }
 
 /** @purity non-pure */
-function pageResultOf(state: RelayState, call: RelayedCall, cancelled: Promise<null>): Promise<McpToolResult> {
+function pageResultOf(state: RelayState, call: RelayedCall, canceled: Promise<null>): Promise<McpToolResult> {
   const page = state.page
   if (page === null) return Promise.resolve(pageNotConnectedResult(state.pageUrl))
   const callId = state.nextPageCallId
   state.nextPageCallId += 1
   const answer = new Promise<RelayedAnswer | null>((resolve) => state.pageCalls.set(callId, resolve))
-  void cancelled.then(() => state.pageCalls.delete(callId))
+  void canceled.then(() => state.pageCalls.delete(callId))
   sendText(page, JSON.stringify({ jsonrpc: JSON_RPC_VERSION, id: callId, method: call.member, params: call.params }))
   return answer.then((received) =>
     received === null ? pageNotConnectedResult(state.pageUrl) : mcpToolResultOf(call.member, received),
@@ -465,7 +465,7 @@ function pageResultOf(state: RelayState, call: RelayedCall, cancelled: Promise<n
 }
 
 /** @purity non-pure */
-function noticeOrTimeout(state: RelayState, waitMs: number, cancelled: Promise<null>): Promise<void> {
+function noticeOrTimeout(state: RelayState, waitMs: number, canceled: Promise<null>): Promise<void> {
   return new Promise((resolve) => {
     const done = (): void => {
       clearTimeout(timer)
@@ -474,7 +474,7 @@ function noticeOrTimeout(state: RelayState, waitMs: number, cancelled: Promise<n
     }
     const timer = setTimeout(done, Math.min(waitMs, LONGEST_TIMER_MS))
     state.noticeWaiters.add(done)
-    void cancelled.then(done)
+    void canceled.then(done)
   })
 }
 
@@ -490,20 +490,20 @@ async function watchResultOf(
   state: RelayState,
   call: RelayedCall,
   waitMs: number,
-  cancelled: Promise<null>,
+  canceled: Promise<null>,
 ): Promise<McpToolResult> {
   const page = state.page
   if (page === null) return pageNotConnectedResult(state.pageUrl)
   if (!state.watchSubscribed) {
     state.watchSubscribed = true
-    const subscribed = await pageResultOf(state, call, cancelled)
+    const subscribed = await pageResultOf(state, call, canceled)
     if (state.page !== page) return pageNotConnectedResult(state.pageUrl)
     if (subscribed.isError === true) {
       state.watchSubscribed = false
       return subscribed
     }
   }
-  if (state.notices.length === 0 && waitMs > 0) await noticeOrTimeout(state, waitMs, cancelled)
+  if (state.notices.length === 0 && waitMs > 0) await noticeOrTimeout(state, waitMs, canceled)
   if (state.page !== page) return pageNotConnectedResult(state.pageUrl)
   const notices = state.notices
   state.notices = []
@@ -519,16 +519,16 @@ async function toolCallReplyOf(state: RelayState, id: unknown, params: unknown):
   if (call === null) return { error: { code: INVALID_PARAMS, message: `Unknown tool: ${name}` } }
   const cancelKey = JSON.stringify(id)
   let cancel = (): void => undefined
-  const cancelled = new Promise<null>((resolve) => {
+  const canceled = new Promise<null>((resolve) => {
     cancel = () => resolve(null)
   })
   state.mcpCancels.set(cancelKey, cancel)
   const work =
     call.member === WATCH_CHANGES
-      ? watchResultOf(state, call, waitMsOf(toolArguments), cancelled)
-      : pageResultOf(state, call, cancelled)
+      ? watchResultOf(state, call, waitMsOf(toolArguments), canceled)
+      : pageResultOf(state, call, canceled)
   try {
-    const result = await Promise.race([work, cancelled])
+    const result = await Promise.race([work, canceled])
     return result === null ? null : { result }
   } finally {
     state.mcpCancels.delete(cancelKey)
@@ -569,7 +569,7 @@ async function answerMcpRequest(state: RelayState, id: unknown, method: string, 
 
 /** @purity non-pure */
 function handleMcpNotification(state: RelayState, method: string, params: unknown): void {
-  if (method !== CANCELLED || !isPlainRecord(params)) return
+  if (method !== CANCELED || !isPlainRecord(params)) return
   state.mcpCancels.get(JSON.stringify(params['requestId']))?.()
 }
 

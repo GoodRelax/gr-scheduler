@@ -38,7 +38,7 @@ const CLAUSE_STATUS_DATE_FIELD =
 const CLAUSE_STATUS_DATE_NAME = '欄の名は `FR-038` の辞書が 表 T-109 の `IC-44` に持つ語とすること（MUST）'
 const CLAUSE_SCALE_FIELD =
   '⭐ 表示の倍率を選ぶ欄を、文書の設定の面（`FR-072`、面を出す入口は `_assets/tbl-glossary.md` の 表 T-109 の `IC-17`）の、`FR-072` の 表 T-369 の `FO-3` の場所に置き、`S-234` の型の欄の段を同じ順に並べて選ばせ、選ばれた段で 表 T-108 の `CM-74` を 1 回発行すること（MUST）'
-// WHY: in table T-369 FO-9's fix, FO-7's read-out and FO-2's theme colour stand right above these three.
+// WHY: in table T-369 FO-9's fix, FO-7's read-out and FO-2's theme color stand right above these three.
 const K_SPAN_FIX = 'K-142'
 const DRAWN_WIDTH_READOUT = 'WF-3'
 const K_THEME = 'K-60'
@@ -178,7 +178,7 @@ describe('FR-046 -- the status date field', () => {
 })
 
 describe('FR-039 -- the display scale field', () => {
-  it(`"${CLAUSE_SCALE_FIELD}" -- it stands right below FO-2's theme colour field`, () => {
+  it(`"${CLAUSE_SCALE_FIELD}" -- it stands right below FO-2's theme color field`, () => {
     const panel = settingsPanel()
     expect(placeOf(panel, K_SCALE)).toBe(placeOf(panel, K_THEME) + 1)
   })

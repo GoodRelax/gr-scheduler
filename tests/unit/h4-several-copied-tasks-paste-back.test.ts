@@ -110,7 +110,7 @@ describe('copiedForPasteOf -- the seam the copy key goes through', () => {
 })
 
 // WHY: these two are the parent brief's seam contract; no clause of docs/spec decides them
-// (PND-449 records them as the old behaviour). Kept apart so a spec reader can drop them.
+// (PND-449 records them as the old behavior). Kept apart so a spec reader can drop them.
 describe('copiedForPasteOf -- the brief contract, NOT a spec clause', () => {
   it('brief: the task copy lists the Tasks in pick order (SL-7b keeps that order)', () => {
     expect(uidsOf(copiedForPasteOf([], picked(task(7), task(3), task(5))))).toEqual([7, 3, 5])

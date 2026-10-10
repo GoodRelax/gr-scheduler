@@ -263,7 +263,7 @@ describe('CR-716 T-311 -- the other rows of T-311 do not make DG-1', () => {
   })
 })
 
-describe('CR-716 DX-7 -- the count not analysed equals the number of DG-1 tasks', () => {
+describe('CR-716 DX-7 -- the count not analyzed equals the number of DG-1 tasks', () => {
   // WHY: a finished predecessor 330 and a milestone 331 with no actualFinish: every predecessor is done, so VO-5 stands and the milestone is DG-1 as well.
   const withMilestone = (tolerance: number): Document =>
     documentOf(
@@ -289,10 +289,10 @@ describe('CR-716 DX-7 -- the count not analysed equals the number of DG-1 tasks'
     ['the tolerance widened: none', bottleneckBelow(WIDE_TOLERANCE), 0],
     ['a VS-6 parent and a VO-5 milestone', withMilestone(DEFAULT_TOLERANCE), 2],
     ['the same with the tolerance widened: the milestone alone', withMilestone(WIDE_TOLERANCE), 1],
-  ] as const)('%s: unanalysedCount is the number of DG-1 tasks (%i)', (_name, document, expected) => {
+  ] as const)('%s: unreliableCount is the number of DG-1 tasks (%i)', (_name, document, expected) => {
     const report = diagnose(document)
     expect(dg1Count(report)).toBe(expected)
-    expect(report.unanalysedCount).toBe(expected)
+    expect(report.unreliableCount).toBe(expected)
   })
 })
 

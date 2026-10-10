@@ -61,7 +61,7 @@ function chainDocument(statusDate: string | null): Document {
   raw.schedule.project.statusDate = statusDate
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = [
-    taskOf(100, { name: 'Programme', start: S(6), finish: F(10), actualStart: S(6) }),
+    taskOf(100, { name: 'Program', start: S(6), finish: F(10), actualStart: S(6) }),
     taskOf(101, { name: 'Design', parentTaskUid: 100, start: S(6), finish: F(8), actualStart: S(6), percentComplete: 40 }),
     taskOf(102, {
       name: 'Build',

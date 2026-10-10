@@ -66,7 +66,7 @@
 //   2. HOW THE EXPLANATION AND THE ASSIGNMENT ARE JOINED. `EZ-2` says 「説明の
 //      後ろに」 and stops; tests/unit/fr-036-assignment-of-an-entrance.test.ts
 //      records the same silence.
-//   3. THAT THE TOOLTIP IS SMALLER THAN ANY NEIGHBOUR IN PARTICULAR. The ruling
+//   3. THAT THE TOOLTIP IS SMALLER THAN ANY NEIGHBOR IN PARTICULAR. The ruling
 //      that produced `S-204` is a RATIO against the host's own base, which is
 //      what the cases below drive; 「2 段階」 names no other part of the screen.
 //   4. THE WAIT BEFORE IT APPEARS. EZ-2 counts `S-124` from entering (「待ちは、ポイ
@@ -276,7 +276,7 @@ function customProperty(element: FakeElement, name: string): string | null {
   return null
 }
 
-/** ⚠️ NO FALLBACK IS HONOURED -- `var(--x, 1em)` is left alone and refused below. */
+/** ⚠️ NO FALLBACK IS HONORED -- `var(--x, 1em)` is left alone and refused below. */
 function expandVariables(element: FakeElement, value: string, depth = 0): string | null {
   if (depth > 8) return null
   const named = /var\(\s*(--[a-z0-9-]+)\s*\)/i.exec(value)

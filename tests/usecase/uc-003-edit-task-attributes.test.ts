@@ -38,14 +38,14 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await expect(page.locator(PANEL + 'textarea[data-field-row="PR-1"]')).toHaveValue(taskOf(await readDocument(page)).name)
   })
 
-  await test.step('UC-003 step 3: the author changes date, shape, colour, outline width and assignee (PR-3, SP-2, PR-39, PR-40, PR-16)', async () => {
+  await test.step('UC-003 step 3: the author changes date, shape, color, outline width and assignee (PR-3, SP-2, PR-39, PR-40, PR-16)', async () => {
     const before = await readDocument(page)
     await page.fill(PANEL + 'input[data-field-row="PR-3"] >> nth=0', '2026-05-01')
     await commit(page)
     expect(taskOf(await readDocument(page)).start.slice(0, 10)).toBe('2026-05-01')
     await press(page, 'IC-24')
     expect(visualOf(await readDocument(page)).shapeKind).toBe('chevron')
-    await page.click(PANEL + '[data-colour-palette="PR-39"] >> nth=0 >> [data-colour-choice="red"]')
+    await page.click(PANEL + '[data-color-palette="PR-39"] >> nth=0 >> [data-color-choice="red"]')
     await settle(page)
     expect(visualOf(await readDocument(page)).strokeColor).toBe('red')
     await page.fill(PANEL + 'input[data-field-row="PR-40"]', '3')
@@ -109,9 +109,9 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await page.mouse.dblclick(plan.x + plan.w / 2, plan.y + plan.h / 2)
     await settle(page)
     await page.keyboard.press('Escape')
-    await page.click(PANEL + '[data-colour-palette="PR-39"] >> nth=0 >> [data-colour-choice="transparent"]')
+    await page.click(PANEL + '[data-color-palette="PR-39"] >> nth=0 >> [data-color-choice="transparent"]')
     await settle(page)
-    await page.click(PANEL + '[data-colour-palette="PR-12"] >> nth=0 >> [data-colour-choice="transparent"]')
+    await page.click(PANEL + '[data-color-palette="PR-12"] >> nth=0 >> [data-color-choice="transparent"]')
     await settle(page)
     const visual = visualOf(await readDocument(page))
     expect(visual.strokeColor === 'transparent' && visual.fillColor === 'transparent').toBe(false)

@@ -180,7 +180,7 @@ describe('CR-633 T-312 VO-3 / T-315 DG-1 / DG-2 -- a predecessor whose missing f
   it('T-316: VO-3 raises no wall for P, and DX-7 counts P', () => {
     const report = diagnose(make())
     expect(report.walls.filter((one) => one.causeUid === P)).toEqual([])
-    expect(report.unanalysedCount).toBeGreaterThanOrEqual(1)
+    expect(report.unreliableCount).toBeGreaterThanOrEqual(1)
   })
 })
 

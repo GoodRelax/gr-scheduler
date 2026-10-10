@@ -73,7 +73,7 @@ const REPORT: DelayDiagnosticsReport = {
   bottlenecks: [{ uid: 2, name: 'Bravo', ...QUANTITIES, path: [2] }, { uid: 1, name: 'Alpha', ...QUANTITIES, path: [1] }],
   terminalPushOuts: [],
   walls: [],
-  unanalysedCount: 0,
+  unreliableCount: 0,
   markerStates: [
     { uid: 1, row: 'DG-2' },
     { uid: 2, row: 'DG-2' },

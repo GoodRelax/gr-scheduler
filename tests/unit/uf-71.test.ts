@@ -790,7 +790,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
  * settings and no generated constant carries it.
  *
  * ⭐ THE DEFAULT RENDERING IS THE HONEST NEUTRAL HERE. No case in this file
- * reads a colour back: `readTheme` is a REQUIRED member of
+ * reads a color back: `readTheme` is a REQUIRED member of
  * `ScreenSurfaceWiring` (FR-041 MUST NOT leaves the environment no say), so the
  * cases need a theme to build the surface at all, not a particular one. A file
  * that meant dark would say dark.
@@ -926,10 +926,10 @@ function serialize(element: FakeElement): string {
  * What this node's `color` was WRITTEN as, lower case.
  *
  * ⚠️ Written and not resolved: FR-041 (MUST) has one declaration on the root
- * carry 表 T-236 for the whole tree, so a part states which colour it takes and
- * this answers that name. `paintedColour` below resolves it.
+ * carry 表 T-236 for the whole tree, so a part states which color it takes and
+ * this answers that name. `paintedColor` below resolves it.
  */
-const colourOf = (element: FakeElement): string =>
+const colorOf = (element: FakeElement): string =>
   (styleMap(element).get('color') ?? '').trim().toLowerCase()
 
 /**
@@ -1155,7 +1155,7 @@ const PALETTE: CommandPalette = {
   // described band to the manuscript. What THIS unit owes the band is where it
   // is drawn and what it is marked with, not how tall the description says it is.
   grabBandHeight: 10,
-  minimise: {
+  minimize: {
     icon: 'IC-75',
     label: 'IC-75',
     isEnabled: true,
@@ -1163,7 +1163,7 @@ const PALETTE: CommandPalette = {
     isArmed: false,
     isChosen: false,
   },
-  isMinimised: false,
+  isMinimized: false,
   groups: [
     {
       name: 'PaletteGroupOne',
@@ -1210,7 +1210,7 @@ const HELP_MODAL: HelpModal = {
   legend: 'IC-102',
   helpLanguage: 'en',
   windowState: 'normal',
-  licenceText: 'LicenceTextHere',
+  licenseText: 'LicenseTextHere',
   copyrightNotice: 'CopyrightNoticeHere',
   attributions: ['AttributionOne'],
   helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
@@ -1307,7 +1307,7 @@ describe('the tables these cases copy still say what the copies say', () => {
   })
 })
 
-describe('IF-9 / PI-38 -- the seam is realised and not widened', () => {
+describe('IF-9 / PI-38 -- the seam is realized and not widened', () => {
   // ⭐ ONE MEMBER PER SUPPLY THE IF-9 CELL NAMES, and the cell names five.
   // 表 T-065's IF-9 names five duties, in this order: put the description on
   // the screen, hand back the settled utterance, hand back the settled value of
@@ -1409,7 +1409,7 @@ describe('BO-1 of 表 T-077 (MUST) -- nothing is drawn until the dimensions are 
     // at 0 x 0. So the measurement of 0 is the case that matters MOST, not the
     // one to skip: BO-1 has to be told what the environment answered, and
     // `ScreenSurfaceWiring` says onAppHeaderHeightPx is called once BEFORE this
-    // factory returns. ⛔ Measured behaviour: nothing is reported at all, and
+    // factory returns. ⛔ Measured behavior: nothing is reported at all, and
     // the number first arrives at the redraw that measures something else -- so
     // whatever the caller's own starting value is stands in for the
     // measurement, which is FR-051's MUST NOT.
@@ -2078,16 +2078,16 @@ describe('FR-066 -- no dialogue field while the Agent API is off', () => {
 })
 
 /**
- * 表 T-236 — the colours the screen is painted in, in the rendering `THEME`
+ * 表 T-236 — the colors the screen is painted in, in the rendering `THEME`
  * wired, read from the manuscript at load time.
  *
- * ⛔ NO COLOUR IS TYPED HERE, for the reason rule 03 section 1 gives. The rows
+ * ⛔ NO COLOR IS TYPED HERE, for the reason rule 03 section 1 gives. The rows
  * that follow the hue write it as the letter `H`, which the table's own 色相追随
  * column marks and which S-73 fills in -- so the hue read for `THEME` is
  * substituted the once, exactly as the manuscript writes it.
  *
- * ⚠️ TWO ROWS STATE ANOTHER ROW INSTEAD OF A COLOUR (`S-146` に同じ) and are
- * left out: they are not a second colour, and resolving them here would be this
+ * ⚠️ TWO ROWS STATE ANOTHER ROW INSTEAD OF A COLOR (`S-146` に同じ) and are
+ * left out: they are not a second color, and resolving them here would be this
  * file deciding what a cell means. That only ever makes the set SMALLER, which
  * is the safe direction for a membership check.
  */
@@ -2101,20 +2101,20 @@ const T_236_AS_WIRED = new Set(
 )
 
 /**
- * The colour a node is painted, resolved through the theme declaration the unit
+ * The color a node is painted, resolved through the theme declaration the unit
  * wrote on its own root.
  *
  * ⭐ WHY IT HAS TO BE RESOLVED. FR-041 (MUST) has one declaration carry 表 T-236
- * for the whole tree, so a part states which colour it takes and not what that
- * colour is. Reading the part alone would compare a NAME with a colour and fail
+ * for the whole tree, so a part states which color it takes and not what that
+ * color is. Reading the part alone would compare a NAME with a color and fail
  * whatever the unit painted.
  *
- * ⚠️ No fallback is honoured (`var(--x, y)` is left unresolved and will not be
+ * ⚠️ No fallback is honored (`var(--x, y)` is left unresolved and will not be
  * found in the table). FR-041 (MUST NOT) is what forbids one, so a case that
  * quietly accepted it would sleep through the very defect the requirement names.
  */
-function paintedColour(built: Stage, element: FakeElement): string {
-  const written = colourOf(element)
+function paintedColor(built: Stage, element: FakeElement): string {
+  const written = colorOf(element)
   const named = /^var\((--[a-z0-9-]+)\)$/.exec(written)
   if (named === null) return written.replace(/\s+/g, '')
   const property = named[1] as string
@@ -2165,27 +2165,27 @@ describe('FR-029 (MUST) -- the shape tells, the word names, and what cannot be u
     expect(shapeIn(entry).textContent).toBe('')
   })
 
-  it('draws it faint -- a colour of its own, and one 表 T-236 states for the rendering that was wired', () => {
+  it('draws it faint -- a color of its own, and one 表 T-236 states for the rendering that was wired', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(disabledView)
 
-    // ⚠️ The COLOUR the words are drawn in, not any use of the value: an entry
-    // that can be used may still be BORDERED in a subdued colour, and a border
+    // ⚠️ The COLOR the words are drawn in, not any use of the value: an entry
+    // that can be used may still be BORDERED in a subdued color, and a border
     // is not 「薄く描く」.
-    const cannot = paintedColour(built, entryFor(built.root(), 'IC-20'))
-    const can = paintedColour(built, entryFor(built.root(), 'IC-21'))
+    const cannot = paintedColor(built, entryFor(built.root(), 'IC-20'))
+    const can = paintedColor(built, entryFor(built.root(), 'IC-21'))
 
     // ⛔ FR-029 (MUST): 「使えないものは薄く描く」. Two entries painted alike are
     // one of them told apart from nothing.
     expect(cannot, 'the entry that cannot be used is painted like the one that can').not.toBe(can)
     // ⛔ FR-041 (MUST): 「画面の色は `_assets/tbl-settings.md` の 表 T-236 に従う
     // こと」, and (MUST NOT) 「閲覧環境のシステム色に委ねてはならない」. 表 T-236
-    // holds no system colour, so membership IS that MUST NOT: a `GrayText` here
+    // holds no system color, so membership IS that MUST NOT: a `GrayText` here
     // would follow the OPERATING SYSTEM's light or dark and not the
     // `themePreference` the reader chose.
     expect(
       T_236_AS_WIRED.has(cannot),
-      `${cannot} is not a colour 表 T-236 states for the rendering ${THEME.preference}`,
+      `${cannot} is not a color 表 T-236 states for the rendering ${THEME.preference}`,
     ).toBe(true)
   })
 
@@ -2669,7 +2669,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
       taskGroupTitle({ ...shape, expander: { canOpen: false, canClose: false, canCloseBelow: false } }),
     )
     // ⚠️ `isPinned` IS HELD EQUAL ON BOTH SIDES. `FR-098` gives a pinned task group a
-    // ground of its own, which is a colour and not room; letting it vary here
+    // ground of its own, which is a color and not room; letting it vary here
     // would make this case about that instead.
     const busy = drawnTaskGroup(
       taskGroupTitle({ ...shape, expander: { canOpen: true, canClose: true, canCloseBelow: true } }),
@@ -2750,7 +2750,7 @@ describe('NT-1 / NT-3 / NT-3a of 表 T-037', () => {
     expect(box.textContent).toContain('NextStepOne')
     expect(box.textContent).toContain('NextStepTwo')
     // ⛔ NT-3 asks the COUNT to be added to what the person is told. Measured
-    // behaviour: it reaches the page only as `data-affected-count`, which no
+    // behavior: it reaches the page only as `data-affected-count`, which no
     // reader can see -- and NT-1, in the same table, forbids telling by
     // anything but words (MUST NOT). The next steps beside it are drawn as
     // words, so drawing this one was available.
@@ -2822,43 +2822,43 @@ describe('FR-038 -- the words are carried, and the language is readable before t
     expect(named.length).toBeGreaterThan(0)
   })
 
-  it('carries the three licence values FR-069 asks for into the help surface', () => {
+  it('carries the three license values FR-069 asks for into the help surface', () => {
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(RICH_VIEW)
 
     const help = oneByRole(built.root(), 'Help Modal')
-    expect(help.textContent).toContain('LicenceTextHere')
+    expect(help.textContent).toContain('LicenseTextHere')
     expect(help.textContent).toContain('CopyrightNoticeHere')
     expect(help.textContent).toContain('AttributionOne')
   })
 })
 
-describe('FR-053 (MUST) -- a minimised palette shows the grab band and nothing else', () => {
+describe('FR-053 (MUST) -- a minimized palette shows the grab band and nothing else', () => {
   // ⭐ THE USER'S RULING OF 2026-09-01: 「コマンドパレットを最小化した時は、コマン
   // ドパレットの掴みどころ `::` と `-` の部分 だけを表示しろ」 -- it overrode the
-  // 2026-08-28 ruling that had also kept the armed reading on a minimised
+  // 2026-08-28 ruling that had also kept the armed reading on a minimized
   // palette. FR-053 now says 「最小化しているあいだに出すのは掴み帯だけとし、ほか
   // は何も出さないこと（MUST）」 and (MUST NOT) that the armed reading is not
   // drawn there.
   //
-  // ⛔ WHAT THIS UNIT OWES AND WHAT IT DOES NOT. UF-65 decides that a minimised
+  // ⛔ WHAT THIS UNIT OWES AND WHAT IT DOES NOT. UF-65 decides that a minimized
   // palette carries no `armedText` -- that is the adapter's answer and
-  // tests/unit/fr-053-minimised-shows-the-band-alone.test.ts holds it. What THIS
+  // tests/unit/fr-053-minimized-shows-the-band-alone.test.ts holds it. What THIS
   // unit owes is that a description carrying no reading draws no box for one:
   // an empty word laid out is still something on the screen beside the band.
 
-  const minimised = (armedText: string | null): ScreenView =>
+  const minimized = (armedText: string | null): ScreenView =>
     viewWith({
-      commandPalette: { ...PALETTE, isMinimised: true, groups: [], armedText },
+      commandPalette: { ...PALETTE, isMinimized: true, groups: [], armedText },
     })
 
   it('⭐ prints no word at all when the description carries none', () => {
     // GOES RED IF: the reading comes back as an empty box, or the entries are
-    // drawn again while minimised. ⚠️ The word compared against is the one the
-    // NOT-minimised fixture carries, so this case cannot pass by the fixture
+    // drawn again while minimized. ⚠️ The word compared against is the one the
+    // NOT-minimized fixture carries, so this case cannot pass by the fixture
     // going silent.
     const built = wire({ 'App Header': 37 })
-    surfaceOf(built).showScreenView(minimised(null))
+    surfaceOf(built).showScreenView(minimized(null))
 
     const palette = oneByRole(built.root(), 'Command Palette')
     expect(shownText(palette), 'the band alone, with no word beside it').toBe('')
@@ -2874,12 +2874,12 @@ describe('FR-053 (MUST) -- a minimised palette shows the grab band and nothing e
     // ⛔ WHY THE CASE ABOVE IS NOT ENOUGH. That one reads the WORDS and the
     // group roles, and an empty contents box carries neither -- so a drawing
     // side that laid one out anyway passed it in silence. Measured on the
-    // shipped build of 2026-09-02: the minimised palette is 44x26 with one
+    // shipped build of 2026-09-02: the minimized palette is 44x26 with one
     // child; with the empty box drawn it is 44x42 with two, which is 16px of
     // nothing under a band the user asked to be alone.
-    // GOES RED IF: a second child is appended to a minimised palette.
+    // GOES RED IF: a second child is appended to a minimized palette.
     const built = wire({ 'App Header': 37 })
-    surfaceOf(built).showScreenView(minimised(null))
+    surfaceOf(built).showScreenView(minimized(null))
 
     const palette = oneByRole(built.root(), 'Command Palette')
     expect(palette.children, 'the band, and nothing beside it').toHaveLength(1)
@@ -2897,7 +2897,7 @@ describe('FR-053 (MUST) -- a minimised palette shows the grab band and nothing e
     // GOES RED IF: the drawing side reads "show only the grab area" as "show
     // less", and takes the band's own marks with the word.
     const built = wire({ 'App Header': 37 })
-    surfaceOf(built).showScreenView(minimised(null))
+    surfaceOf(built).showScreenView(minimized(null))
 
     const palette = oneByRole(built.root(), 'Command Palette')
     const marks = selfAndDescendants(palette)
@@ -2910,7 +2910,7 @@ describe('FR-053 (MUST) -- a minimised palette shows the grab band and nothing e
   it('⭐ prints the word again as soon as the description carries one', () => {
     // ⚠️ THE CONTROL CASE. Without it a unit that never printed `armedText` at
     // all would pass the first case, and FR-053 still makes the reading a MUST
-    // everywhere but the minimised state.
+    // everywhere but the minimized state.
     // GOES RED IF: the null branch is written as "never draw the reading".
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(viewWith({ commandPalette: PALETTE }))
@@ -3008,7 +3008,7 @@ describe('showScreenView twice -- the whole description each time', () => {
     // ⚠️ `start` stands where `PropertiesHeading` did: FR-072 (MUST NOT) leaves
     // the panel no heading row, so the word the closed panel has to take away
     // with it is its field's item name (CR-272).
-    for (const gone of ['TitleOne', 'NoticeOne', 'NoticeTwo', 'NoticeThree', 'StepOne', 'HelpHeading', 'LicenceTextHere', 'PaletteCommandOne', 'start', 'MessageOne', 'TooltipOne']) {
+    for (const gone of ['TitleOne', 'NoticeOne', 'NoticeTwo', 'NoticeThree', 'StepOne', 'HelpHeading', 'LicenseTextHere', 'PaletteCommandOne', 'start', 'MessageOne', 'TooltipOne']) {
       expect(text, gone).not.toContain(gone)
     }
     expect(text).toContain('TitleTwo')
@@ -3569,11 +3569,11 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     // this side of the seam.
     //
     // ⭐ AND HF-5 (MUST) NOW LEVELS THE CONTROLS WITH THE TOP OF THE NAME,
-    // forbidding both centring them and setting them down from it (MUST NOT).
+    // forbidding both centering them and setting them down from it (MUST NOT).
     // Nothing on IF-9 carries a set-down, so the two things this side can be
     // held to are asserted below:
     // no control carries a top offset of its own, and the task group that holds them
-    // starts them at its top rather than centring them.
+    // starts them at its top rather than centering them.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(
       viewWith({
@@ -3633,14 +3633,14 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     }
   })
 
-  it("⭐ GIVEN a task group whose name is far bigger than its controls WHEN the task group is read THEN the controls are LEVEL with the name's top and are neither centred nor set down (表 T-051 HF-5)", () => {
+  it("⭐ GIVEN a task group whose name is far bigger than its controls WHEN the task group is read THEN the controls are LEVEL with the name's top and are neither centered nor set down (表 T-051 HF-5)", () => {
     // HF-5 states the condition in as many words -- 「名前が操作子より大きいとき
     // は、名前の上端に揃えること（MUST）」 -- so the task group here is drawn far
     // taller than S-138, which is the case the row is about.
     // ⛔ 「中央で揃えてはならない（MUST NOT）」 and ⛔ 「上端から下げては
     // ならない（MUST NOT）」 are the two ways of failing it, and both are
     // asked below: nothing may pull the trio down the band, and nothing may
-    // centre it in one.
+    // center it in one.
     const built = wire({ 'App Header': 37 })
     surfaceOf(built).showScreenView(
       viewWith({
@@ -3651,7 +3651,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
               groupId: 'g-tall',
               label: 'A task group whose name is drawn much larger than the controls beside it',
               depth: 1,
-              // Six times S-138 tall, so a centred trio would sit a long way
+              // Six times S-138 tall, so a centered trio would sit a long way
               // from the top and a set-down one a long way from where it does.
               box: rect(0, 0, 170, S_138.px * 6),
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
@@ -3665,7 +3665,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
     expect(rows, 'the panel drew no task group').toHaveLength(1)
     const row = rows[0] as FakeElement
 
-    // ⛔ THE MUST NOT AGAINST CENTRING, read on the box that lays the name and
+    // ⛔ THE MUST NOT AGAINST CENTERING, read on the box that lays the name and
     // the controls out together: whatever spelling it takes, it is not a middle
     // one and not a bottom one.
     const alignment = styleMap(row).get('align-items')

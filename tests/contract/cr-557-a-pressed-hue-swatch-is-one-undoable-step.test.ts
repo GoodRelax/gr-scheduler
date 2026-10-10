@@ -295,7 +295,7 @@ function raise(built: Stage, node: FakeElement, type: string): void {
 }
 
 // WHY: the shared fake has no dispatchEvent, so the change a browser would bubble from the pressed
-// entrance is raised after the click, the way tests of the colour field press a swatch.
+// entrance is raised after the click, the way tests of the color field press a swatch.
 function press(built: Stage, node: FakeElement): FieldCommit | null {
   raise(built, node, 'click')
   raise(built, node, 'change')

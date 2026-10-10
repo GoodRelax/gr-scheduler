@@ -1,11 +1,11 @@
-// W3 spec-only cases for FR-041 table T-366: CF-1 / CF-4 / CF-6 -- the theme colours are solved per hue, measured by WCAG 2.1 on 8-bit sRGB.
+// W3 spec-only cases for FR-041 table T-366: CF-1 / CF-4 / CF-6 -- the theme colors are solved per hue, measured by WCAG 2.1 on 8-bit sRGB.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { colourOf } from '../../src/adapter/svg-renderer/svg-renderer'
+import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import { bare, specTable, unbroken } from './spec-table'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
@@ -113,11 +113,11 @@ const kOf = (dark: boolean, hue: number): number => {
 
 // see PI-19
 const drawnHsl = (id: string, hue: number, dark: boolean, monochrome = false): Hsl => {
-  const said = colourOf(id, hue, dark, monochrome).trim()
+  const said = colorOf(id, hue, dark, monochrome).trim()
   const hsl = /^hsl\(\s*([\d.]+)(?:deg)?[ ,]+([\d.]+)%[ ,]+([\d.]+)%\s*\)$/.exec(said)
   if (hsl !== null) return { h: Number(hsl[1]), s: Number(hsl[2]), l: Number(hsl[3]) }
   if (/^#ffffff$/i.test(said)) return { h: hue, s: 0, l: 100 }
-  throw new Error(`colourOf(${id}) said ${said}, which is neither hsl() nor white`)
+  throw new Error(`colorOf(${id}) said ${said}, which is neither hsl() nor white`)
 }
 
 const HUES = Array.from({ length: 360 }, (_one, index) => index)
@@ -149,7 +149,7 @@ describe(`CF-6 "${CF_6.slice(-60)}"`, () => {
           }
         }
       }
-      expect(wrong.slice(0, 8), `${wrong.length} colours off the solve`).toEqual([])
+      expect(wrong.slice(0, 8), `${wrong.length} colors off the solve`).toEqual([])
     })
   }
 })
@@ -171,10 +171,10 @@ describe(`CF-1 "${CF_1.slice(-60)}"`, () => {
     }
   })
 
-  it('the solve is a function of the hue alone: asking twice gives the same colour (nothing remembered between asks)', () => {
-    const first = HUES.map((hue) => colourOf('S-155', hue, false, false))
-    colourOf('S-155', 52, true, true)
-    expect(HUES.map((hue) => colourOf('S-155', hue, false, false))).toEqual(first)
+  it('the solve is a function of the hue alone: asking twice gives the same color (nothing remembered between asks)', () => {
+    const first = HUES.map((hue) => colorOf('S-155', hue, false, false))
+    colorOf('S-155', 52, true, true)
+    expect(HUES.map((hue) => colorOf('S-155', hue, false, false))).toEqual(first)
   })
 })
 

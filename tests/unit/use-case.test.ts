@@ -482,8 +482,8 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         // reason table T-067 fixes this order.
         expect(given.schedule.project.title).toBe('B')
         expect(held.document).toBe(given)
-        // WHY: AG-6 selects a live watcher by WS-5's judgement, and R2.7
-        // carries that judgement to the audience rather than re-derive it.
+        // WHY: AG-6 selects a live watcher by WS-5's judgment, and R2.7
+        // carries that judgment to the audience rather than re-derive it.
         expect(hasMovedSchedule).toBe(true)
       },
     }

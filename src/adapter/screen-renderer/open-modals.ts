@@ -33,14 +33,14 @@ import iconRoster from './icon-roster.json'
 import exportFormats from './export-formats.json'
 import displayWords from './display-words.json'
 import helpRoster from './help-roster.json'
-import licence from './licence.json'
+import license from './license.json'
 
 const HELP_MODAL = 'Help Modal'
 
 const ICON_TABLE = 'T-109'
 
 // see WB-4
-const MAXIMISE_ICON: IconId = 'IC-130'
+const MAXIMIZE_ICON: IconId = 'IC-130'
 const RESTORE_ICON: IconId = 'IC-131'
 
 const EXPORT_CHOOSER = 'Export Chooser'
@@ -398,7 +398,7 @@ export function helpModalFromSession(session: ScreenSession, area: HelpWindowAre
   if (help.kind === 'hidden') return null
   const helpLanguage = session.screen.helpLanguage ?? displayLanguageOf(session)
   const windowState = help.child.kind
-  const absent = windowState === 'maximised' ? MAXIMISE_ICON : RESTORE_ICON
+  const absent = windowState === 'maximized' ? MAXIMIZE_ICON : RESTORE_ICON
   return {
     surface: HELP_MODAL,
     heading: surfaceHeading(HELP_MODAL, helpLanguage),
@@ -407,9 +407,9 @@ export function helpModalFromSession(session: ScreenSession, area: HelpWindowAre
     windowState,
     entries: helpEntries(helpLanguage),
     legend: helpRoster.legend,
-    licenceText: licence.licenceText,
-    copyrightNotice: licence.copyrightNotice,
-    attributions: licence.attributions,
+    licenseText: license.licenseText,
+    copyrightNotice: license.copyrightNotice,
+    attributions: license.attributions,
     footnotes: helpFootnotes(helpLanguage),
     helpLegal: helpLegalWords(helpLanguage),
     area,

@@ -117,19 +117,19 @@
       "in": "searchPanelDisplayStateMachine.shown.normal"
      },
      {
-      "in": "searchPanelDisplayStateMachine.shown.maximised"
+      "in": "searchPanelDisplayStateMachine.shown.maximized"
      },
      {
       "in": "helpDisplayStateMachine.shown.normal"
      },
      {
-      "in": "helpDisplayStateMachine.shown.maximised"
+      "in": "helpDisplayStateMachine.shown.maximized"
      },
      {
       "in": "dialogueFieldDisplayStateMachine.shown.normal"
      },
      {
-      "in": "dialogueFieldDisplayStateMachine.shown.maximised"
+      "in": "dialogueFieldDisplayStateMachine.shown.maximized"
      }
     ],
     "also": {
@@ -516,7 +516,7 @@
      "carries": []
     },
     {
-     "key": "paletteMinimiseToggled",
+     "key": "paletteMinimizeToggled",
      "source": {
       "kind": "input",
       "rows": [
@@ -844,7 +844,7 @@
      ]
     },
     {
-     "key": "dialogueFieldMinimiseToggled",
+     "key": "dialogueFieldMinimizeToggled",
      "source": {
       "kind": "input",
       "rows": [
@@ -857,7 +857,7 @@
      "carries": []
     },
     {
-     "key": "dialogueFieldMaximiseToggled",
+     "key": "dialogueFieldMaximizeToggled",
      "source": {
       "kind": "input",
       "rows": [
@@ -1120,7 +1120,7 @@
      "carries": []
     },
     {
-     "key": "searchPanelMinimiseToggled",
+     "key": "searchPanelMinimizeToggled",
      "source": {
       "kind": "input",
       "rows": [
@@ -1133,7 +1133,7 @@
      "carries": []
     },
     {
-     "key": "searchPanelMaximiseToggled",
+     "key": "searchPanelMaximizeToggled",
      "source": {
       "kind": "input",
       "rows": [
@@ -1184,7 +1184,7 @@
      "carries": []
     },
     {
-     "key": "helpMinimiseToggled",
+     "key": "helpMinimizeToggled",
      "source": {
       "kind": "input",
       "rows": [
@@ -1197,7 +1197,7 @@
      "carries": []
     },
     {
-     "key": "helpMaximiseToggled",
+     "key": "helpMaximizeToggled",
      "source": {
       "kind": "input",
       "rows": [
@@ -1727,7 +1727,7 @@
        ]
       },
       {
-       "key": "shown.minimised",
+       "key": "shown.minimized",
        "parent": "shown",
        "initial": false,
        "carries": [],
@@ -1764,14 +1764,14 @@
         ]
        }
       },
-      "paletteMinimiseToggled": {
+      "paletteMinimizeToggled": {
        "shown.expanded": {
-        "to": "shown.minimised",
+        "to": "shown.minimized",
         "evidence": [
          "FR-053"
         ]
        },
-       "shown.minimised": {
+       "shown.minimized": {
         "to": "shown.expanded",
         "evidence": [
          "FR-053",
@@ -2505,7 +2505,7 @@
        ]
       },
       {
-       "key": "shown.minimised",
+       "key": "shown.minimized",
        "parent": "shown",
        "initial": false,
        "carries": [],
@@ -2516,7 +2516,7 @@
        ]
       },
       {
-       "key": "shown.maximised",
+       "key": "shown.maximized",
        "parent": "shown",
        "initial": false,
        "carries": [],
@@ -2571,45 +2571,45 @@
         }
        ]
       },
-      "dialogueFieldMinimiseToggled": {
+      "dialogueFieldMinimizeToggled": {
        "shown.normal": {
-        "to": "shown.minimised",
+        "to": "shown.minimized",
         "evidence": [
          "WB-1",
          "IC-129"
         ]
        },
-       "shown.minimised": {
+       "shown.minimized": {
         "to": "shown.normal",
         "evidence": [
          "WB-2",
          "WB-5"
         ]
        },
-       "shown.maximised": {
-        "to": "shown.minimised",
+       "shown.maximized": {
+        "to": "shown.minimized",
         "evidence": [
          "WB-3",
          "IC-129"
         ]
        }
       },
-      "dialogueFieldMaximiseToggled": {
+      "dialogueFieldMaximizeToggled": {
        "shown.normal": {
-        "to": "shown.maximised",
+        "to": "shown.maximized",
         "evidence": [
          "WB-1",
          "IC-130"
         ]
        },
-       "shown.minimised": {
-        "to": "shown.maximised",
+       "shown.minimized": {
+        "to": "shown.maximized",
         "evidence": [
          "WB-2",
          "IC-130"
         ]
        },
-       "shown.maximised": {
+       "shown.maximized": {
         "to": "shown.normal",
         "evidence": [
          "WB-3",
@@ -2642,7 +2642,7 @@
          "ja": "`Agent API` は有効のまま（`FR-066`）"
         }
        },
-       "shown.maximised": {
+       "shown.maximized": {
         "to": "hidden",
         "guard": [
          {
@@ -2939,7 +2939,7 @@
        ]
       },
       {
-       "key": "shown.minimised",
+       "key": "shown.minimized",
        "parent": "shown",
        "initial": false,
        "carries": [],
@@ -2950,7 +2950,7 @@
        ]
       },
       {
-       "key": "shown.maximised",
+       "key": "shown.maximized",
        "parent": "shown",
        "initial": false,
        "carries": [],
@@ -2980,7 +2980,7 @@
          "SK-24"
         ]
        },
-       "shown.minimised": {
+       "shown.minimized": {
         "to": "shown.normal",
         "effect": "focusSearchWord",
         "evidence": [
@@ -2988,8 +2988,8 @@
          "SV-12"
         ]
        },
-       "shown.maximised": {
-        "to": "shown.maximised",
+       "shown.maximized": {
+        "to": "shown.maximized",
         "effect": "focusSearchWord",
         "evidence": [
          "SV-2",
@@ -2997,45 +2997,45 @@
         ]
        }
       },
-      "searchPanelMinimiseToggled": {
+      "searchPanelMinimizeToggled": {
        "shown.normal": {
-        "to": "shown.minimised",
+        "to": "shown.minimized",
         "evidence": [
          "SV-12",
          "IC-129"
         ]
        },
-       "shown.minimised": {
+       "shown.minimized": {
         "to": "shown.normal",
         "evidence": [
          "SV-12",
          "IC-129"
         ]
        },
-       "shown.maximised": {
-        "to": "shown.minimised",
+       "shown.maximized": {
+        "to": "shown.minimized",
         "evidence": [
          "SV-12",
          "IC-129"
         ]
        }
       },
-      "searchPanelMaximiseToggled": {
+      "searchPanelMaximizeToggled": {
        "shown.normal": {
-        "to": "shown.maximised",
+        "to": "shown.maximized",
         "evidence": [
          "SV-13",
          "IC-130"
         ]
        },
-       "shown.minimised": {
-        "to": "shown.maximised",
+       "shown.minimized": {
+        "to": "shown.maximized",
         "evidence": [
          "SV-13",
          "IC-130"
         ]
        },
-       "shown.maximised": {
+       "shown.maximized": {
         "to": "shown.normal",
         "evidence": [
          "SV-13",
@@ -3065,7 +3065,7 @@
          "IN-4"
         ]
        },
-       "shown.maximised": {
+       "shown.maximized": {
         "to": "hidden",
         "guard": [
          {
@@ -3079,7 +3079,7 @@
        }
       },
       "searchHitJumped": {
-       "shown.maximised": {
+       "shown.maximized": {
         "to": "shown.normal",
         "evidence": [
          "SJ-3",
@@ -3122,7 +3122,7 @@
        ]
       },
       {
-       "key": "shown.minimised",
+       "key": "shown.minimized",
        "parent": "shown",
        "initial": false,
        "carries": [],
@@ -3133,7 +3133,7 @@
        ]
       },
       {
-       "key": "shown.maximised",
+       "key": "shown.maximized",
        "parent": "shown",
        "initial": false,
        "carries": [],
@@ -3155,52 +3155,52 @@
          "WB-1"
         ]
        },
-       "shown.minimised": {
+       "shown.minimized": {
         "to": "shown.normal",
         "evidence": [
          "HN-5"
         ]
        }
       },
-      "helpMinimiseToggled": {
+      "helpMinimizeToggled": {
        "shown.normal": {
-        "to": "shown.minimised",
+        "to": "shown.minimized",
         "evidence": [
          "WB-1",
          "IC-129"
         ]
        },
-       "shown.minimised": {
+       "shown.minimized": {
         "to": "shown.normal",
         "evidence": [
          "WB-2",
          "WB-5"
         ]
        },
-       "shown.maximised": {
-        "to": "shown.minimised",
+       "shown.maximized": {
+        "to": "shown.minimized",
         "evidence": [
          "WB-3",
          "IC-129"
         ]
        }
       },
-      "helpMaximiseToggled": {
+      "helpMaximizeToggled": {
        "shown.normal": {
-        "to": "shown.maximised",
+        "to": "shown.maximized",
         "evidence": [
          "WB-1",
          "IC-130"
         ]
        },
-       "shown.minimised": {
-        "to": "shown.maximised",
+       "shown.minimized": {
+        "to": "shown.maximized",
         "evidence": [
          "WB-2",
          "IC-130"
         ]
        },
-       "shown.maximised": {
+       "shown.maximized": {
         "to": "shown.normal",
         "evidence": [
          "WB-3",
@@ -3235,7 +3235,7 @@
          "HN-2"
         ]
        },
-       "shown.maximised": {
+       "shown.maximized": {
         "to": "hidden",
         "guard": [
          {
@@ -5482,7 +5482,7 @@
          "to": "idle",
          "guard": [
           {
-           "name": "isImportCancelled"
+           "name": "isImportCanceled"
           }
          ],
          "effect": "discardIncomingDocument",
@@ -5495,7 +5495,7 @@
          "to": "importingDocument",
          "guard": [
           {
-           "name": "isImportCancelled",
+           "name": "isImportCanceled",
            "not": true
           }
          ],

@@ -454,7 +454,7 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
     // WS-7 of table T-067: the audience is told after the swap. Handing it on to
     // PI-15 is what a running shell does, and it is what lets AM-17 be observed.
     audience: {
-      // ⚠️ WS-5's judgement is the SECOND argument of `ChangeAudience.deliver`
+      // ⚠️ WS-5's judgment is the SECOND argument of `ChangeAudience.deliver`
       // and has to be carried through: AG-6 of table T-035 selects a live
       // watcher by it (MUST), and nothing downstream can work it out again.
       deliver: (document, hasMovedSchedule) => {
@@ -600,7 +600,7 @@ const RENAME = { kind: 'setProjectTitle', title: 'a new document name' } as cons
 const BAD_RENAME = { kind: 'setProjectTitle', title: '' } as const
 // UN-13 of table T-027 keeps the theme in the presentation group, so FR-063
 // does not move the schedule-data instant for it.
-const RECOLOUR = { kind: 'setThemeMonochrome', monochrome: true } as const
+const RECOLOR = { kind: 'setThemeMonochrome', monochrome: true } as const
 
 function accepted<TOutcome extends { readonly accepted: boolean }>(
   outcome: TOutcome,
@@ -762,11 +762,11 @@ describe('AM-1 / AM-2 -- the two versions', () => {
     expect(Number.isFinite(version)).toBe(true)
   })
 
-  it('AM-1 is 2 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
+  it('AM-1 is 3 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
     // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
     // 6.1 states the starting value. This case is what falls over when the
-    // pending decision is settled the other way. CR-708 raised it from 1 (AG-1).
-    expect(bench().api.agentApiVersion).toBe(2)
+    // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3.
+    expect(bench().api.agentApiVersion).toBe(3)
   })
 
   it("AM-2 answers the build's version, not the open document's (T-107 AM-2)", () => {
@@ -917,7 +917,7 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
   it('does NOT move the schedule instant for a presentation-group change (FR-063 MUST NOT)', () => {
     const one = bench()
     const outcome = accepted(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RECOLOUR] }),
+      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RECOLOR] }),
     )
 
     expect(outcome.hasMovedSchedule).toBe(false)
@@ -927,7 +927,7 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
   it('refreshes who wrote and when even when the schedule instant did not move (FR-063 MUST)', () => {
     const one = bench()
     const outcome = accepted(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RECOLOUR] }),
+      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RECOLOR] }),
     )
 
     expect(outcome.stamp.lastEditedBy).toBe(one.writerName)
@@ -1057,7 +1057,7 @@ describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060
     const one = bench()
     // FR-052 is judged against `taskGroupAreaWidthWithoutPanels`, which only the
     // snapshot carries. A width that overruns it can be refused only if the
-    // bound travelled, so the refusal IS the evidence that it did.
+    // bound traveled, so the refusal IS the evidence that it did.
     const { refusal } = refused(
       one.api.applyCommands({
         readStamp: one.api.readStamp(),
@@ -1111,7 +1111,7 @@ describe('Chapter 5.5 -- a write attempted while notices are going out', () => {
     one.api.watchChanges(() => {
       fromInside = one.api.applyCommands({
         readStamp: one.api.readStamp(),
-        commands: [RECOLOUR],
+        commands: [RECOLOR],
       })
     })
 
@@ -1686,7 +1686,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
     // The write is somebody else's, so AG-6 does wake the watcher that throws.
     expect(() => one.writeAsPerson([RENAME], 'a person at the keyboard')).not.toThrow()
     expect(() =>
-      accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RECOLOUR] })),
+      accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RECOLOR] })),
     ).not.toThrow()
   })
 })

@@ -84,13 +84,13 @@ test('OP-17: the rim is a solid 3px line (S-553) and the box takes no pointer (U
       width: style.borderTopWidth,
       line: style.borderTopStyle,
       noPointer: everything.map((one) => getComputedStyle(one).pointerEvents),
-      centreIsInsideCue: under !== null && box.contains(under),
+      centerIsInsideCue: under !== null && box.contains(under),
     }
   }, CUE)
   expect(read.width).toBe('3px')
   expect(read.line).toBe('solid')
   expect(new Set(read.noPointer)).toEqual(new Set(['none']))
-  expect(read.centreIsInsideCue, 'UZ-1 (MUST): 押下を受けず、下へ通す -- the point under the cue is answered by the cue').toBe(false)
+  expect(read.centerIsInsideCue, 'UZ-1 (MUST): 押下を受けず、下へ通す -- the point under the cue is answered by the cue').toBe(false)
 })
 
 test('OP-17 (MUST NOT): a drag without Files shows no cue', async ({ page }) => {

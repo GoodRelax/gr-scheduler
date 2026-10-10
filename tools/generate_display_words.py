@@ -140,11 +140,11 @@ HELP_NOTES = ('IC-54', 'IC-20')
 # setting S-350 names. A note is not a row of any table, so it is keyed by its
 # number, never by a minted row id. ⚠️ These are KEYS, not words.
 HELP_FOOTNOTES = (1,)
-# CR-622: the two words of the licence lines below the help's columns
-# (FR-069): the line naming the licence, and the word that opens the folded
+# CR-622: the two words of the license lines below the help's columns
+# (FR-069): the line naming the license, and the word that opens the folded
 # full text. No table holds them as rows, so they are HELD HERE, the same move
 # as SEARCH_PANEL_PARTS. The copyright line is not a word: it is NOTICE's own
-# spelling, carried by generate_licence.py. These are KEYS, not words.
+# spelling, carried by generate_license.py. These are KEYS, not words.
 HELP_LEGAL_PARTS = ('licensedUnder', 'fullText')
 # The browser's own functions FR-036 lists on the help (table T-255, CR-405).
 # Every row takes a word, including one the help does not show today: whether
@@ -276,8 +276,8 @@ SCALE_ECHO_ENDS = ('max', 'min')
 # prose and no table holds them as rows (CR-550, CR-626). KEYS, not words.
 DUAL_CURSOR_READOUT_LINES = ('left', 'right', 'span', 'days', 'oneDay')
 
-# The parts of the colour field of the properties panel (CV-9 of table
-# T-017b, CR-548): the entrance to a custom colour, the two theme swatches and
+# The parts of the color field of the properties panel (CV-9 of table
+# T-017b, CR-548): the entrance to a custom color, the two theme swatches and
 # the note on an undefined side, and the entrance back to the theme with the
 # hint it shows (E-44, JDG-405). HELD HERE, the same move as SCALE_ECHO_ENDS:
 # CV-9 states them in prose and no table holds them as rows. KEYS, not words.
@@ -285,20 +285,20 @@ DUAL_CURSOR_READOUT_LINES = ('left', 'right', 'span', 'days', 'oneDay')
 #
 # CR-606 (CV-9's new order, JDG-863 / JDG-990): the transparent entrance reads
 # noFill on a fill field and noLine on a line field; the null marks themeMark /
-# defaultMark stand where the value would; defaultColour is the word of the
+# defaultMark stand where the value would; defaultColor is the word of the
 # entrance back to a null that does not follow the theme hue (S-312, S-147).
 #
 # CR-689 (JDG-1556, JDG-1656): the field is two rows of swatches only. The
 # light/dark side rows, their notes and the null marks left; the entrances are
 # swatches carrying a glyph (themeGlyph, customGlyph) and say what they are in
 # their tooltips; customValue is the custom entrance's tooltip with the value.
-COLOUR_FIELD_PARTS = ('custom', 'themeHint', 'noFill', 'noLine', 'defaultColour',
+COLOR_FIELD_PARTS = ('custom', 'themeHint', 'noFill', 'noLine', 'defaultColor',
                       'themeGlyph', 'customGlyph', 'customValue')
 
 # CR-606 E-28: the words of the properties panel's rows that no table holds as
 # rows -- how one end of a dependency is written ({name} and {uid} slots, the
 # read-only rows PR-37/PR-38/PR-43/PR-44) and the item that adds a resource
-# (AS-5, {name} slot). HELD HERE, the same move as COLOUR_FIELD_PARTS. KEYS,
+# (AS-5, {name} slot). HELD HERE, the same move as COLOR_FIELD_PARTS. KEYS,
 # not words.
 #
 # CR-689: the three words of the parent task field (PTL-15 2-4, JDG-1133 /
@@ -314,7 +314,7 @@ PROPERTY_FIELD_PARTS = ('dependencyEnd', 'addResource', 'derivedParent',
 # CR-582: the parts of a task group's min height field (table T-338): the unit beside
 # the value (MH-1), the current height with its `{px}` slot (MH-3), the word an
 # empty field shows (MH-2), and the word that replaces the current height while
-# the task group is not drawn (MH-6). HELD HERE, the same move as COLOUR_FIELD_PARTS:
+# the task group is not drawn (MH-6). HELD HERE, the same move as COLOR_FIELD_PARTS:
 # table T-338 states them in prose and no table holds them as rows. KEYS, not
 # words.
 #
@@ -336,8 +336,8 @@ FIT_SPAN_FIELD_PARTS = ('currentName', 'currentValue', 'copyCurrent')
 # T-331 and the state words from table T-019a, the move `reasons` makes with
 # table T-233. The two words no table holds as rows -- the value list's
 # blank entry (SV-7) and the name of a nameless task (SQ-1) -- are HELD HERE,
-# the same move as COLOUR_FIELD_PARTS. KEYS, not words. CR-621 retired the
-# third (the label IC-121 carried while maximised): the window title row draws
+# the same move as COLOR_FIELD_PARTS. KEYS, not words. CR-621 retired the
+# third (the label IC-121 carried while maximized): the window title row draws
 # IC-131 in its place instead (table T-335). CR-661 added the two values of the
 # SQ-10 value list, the reason IC-143 is disabled (TV-5), the band U-67 (TV-11)
 # with its word entrance (no row of table T-109: a word, not an icon) and the
@@ -416,7 +416,7 @@ DELAY_REPORT_ROW = re.compile(r'^\| (DX-\d+[a-z]?) \|')
 DELAY_REPORT_TABLE = 'T-317'
 DELAY_REPORT_STATUSES = ('DG-1', 'DX-3', 'DG-2', 'DG-3', 'DG-4', 'DX-9')
 DELAY_REPORT_SUMMARY_PARTS = ('statusDate', 'afterStatusDate', 'count', 'between',
-                              'unanalysed')
+                              'unreliable')
 DELAY_REPORT_MARKDOWN_PARTS = ('documentName', 'madeAt', 'filter', 'none')
 DELAY_REPORT_REASON_PARTS = ('bottleneck', 'bottleneckPath', 'late', 'settled',
                              'finding', 'wall', 'missingActual',
@@ -436,8 +436,8 @@ HINT_LINE_ROW = re.compile(r'^\| (TL-\d+[a-z]?) \|')
 HINT_LINE_TABLE = 'T-348'
 HINT_LINES = ('TL-5', 'TL-6')
 
-# The palette colours are keyed by their stored spelling, READ from the key
-# column of table T-294 in settings.json, so a new colour needs no edit here.
+# The palette colors are keyed by their stored spelling, READ from the key
+# column of table T-294 in settings.json, so a new color needs no edit here.
 REL_SETTINGS = 'docs/spec/_source/settings.json'
 PALETTE_TABLE = 'T-294'
 
@@ -506,7 +506,7 @@ def table_rows(rel, row_pattern, table):
     found = [row.cells for row in spec_tables.read(rel, table)
              if row_pattern.match('| %s |' % row.id)]
     if not found:
-        raise SystemExit('%s: table %s has no rows the caller recognises -- '
+        raise SystemExit('%s: table %s has no rows the caller recognizes -- '
                          'the needle no longer matches the document'
                          % (rel, table))
     return found
@@ -562,7 +562,7 @@ def settings_keys():
                                       SETTINGS_TABLE))
 
 
-def colour_spellings():
+def color_spellings():
     """The stored spellings of table T-294, in the table's order.
 
     @purity semi-pure-b
@@ -698,8 +698,8 @@ def roster():
         'branding': list(BRANDING_PARTS),
         'defaultNames': list(DEFAULT_NAMES),
         'weekdays': list(WEEKDAYS),
-        'colourNames': colour_spellings(),
-        'colourField': list(COLOUR_FIELD_PARTS),
+        'colorNames': color_spellings(),
+        'colorField': list(COLOR_FIELD_PARTS),
         'propertyField': list(PROPERTY_FIELD_PARTS),
         'rowMinHeightField': list(ROW_MIN_HEIGHT_FIELD_PARTS),
         'taskGroupPanelWidthField': list(TASK_GROUP_PANEL_WIDTH_FIELD_PARTS),
@@ -793,8 +793,8 @@ SHAPE = {
     'reasons': ('rowId', ('text', 'nextStep')),
     'questions': ('rowId', ('text',)),
     'weekdays': ('weekday', ('text',)),
-    'colourNames': ('spelling', ('text',)),
-    'colourField': ('part', ('text',)),
+    'colorNames': ('spelling', ('text',)),
+    'colorField': ('part', ('text',)),
     'propertyField': ('part', ('text',)),
     'rowMinHeightField': ('part', ('text',)),
     'taskGroupPanelWidthField': ('part', ('text',)),
@@ -922,7 +922,7 @@ def build(doc, keys_by_row):
                     'differenceReview',
                     'assignments', 'arms',
                     'weekdays', 'hintLines',
-                    'colourNames', 'colourField', 'propertyField',
+                    'colorNames', 'colorField', 'propertyField',
                     'rowMinHeightField', 'taskGroupPanelWidthField',
                     'themeHues',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',

@@ -106,7 +106,7 @@ describe('CR-576 claim 6a -- S-124 and S-439 are two rows with two keys, and the
   })
 })
 
-// WHY: claim 6a as behaviour -- the generated constants are replaced for one import of the tooltip queries.
+// WHY: claim 6a as behavior -- the generated constants are replaced for one import of the tooltip queries.
 
 const ICON: IconId = 'IC-7'
 

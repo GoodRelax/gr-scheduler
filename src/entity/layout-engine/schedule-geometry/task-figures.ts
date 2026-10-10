@@ -116,7 +116,7 @@ function chevronBarOf(placed: TaskPlacement, x0: number, x1: number, top: number
 
 /** @purity pure */
 function regularCorners(
-  centre: Point,
+  center: Point,
   radius: number,
   count: number,
   startTurn: number,
@@ -125,7 +125,7 @@ function regularCorners(
   for (let step = 0; step < count; step += 1) {
     const turn = startTurn + step / count
     const angle = turn * 2 * Math.PI
-    out.push(point(centre.x + radius * Math.sin(angle), centre.y - radius * Math.cos(angle)))
+    out.push(point(center.x + radius * Math.sin(angle), center.y - radius * Math.cos(angle)))
   }
   return out
 }
@@ -222,7 +222,7 @@ function quadraticPoints(from: Point, curve: { readonly control: Point; readonly
 type ArcSegment = Extract<PathSegment, { command: 'A' }>
 
 interface ArcFrame {
-  readonly centre: Point
+  readonly center: Point
   readonly rx: number
   readonly ry: number
   readonly cos: number
@@ -231,7 +231,7 @@ interface ArcFrame {
   readonly swept: number
 }
 
-// WHY: the endpoint-to-centre conversion of the SVG arc, so the hit outline follows the drawn curve.
+// WHY: the endpoint-to-center conversion of the SVG arc, so the hit outline follows the drawn curve.
 /** @purity pure */
 function arcFrameOf(from: Point, arc: ArcSegment): ArcFrame {
   const turn = (arc.rotation * Math.PI) / 180
@@ -253,8 +253,8 @@ function arcFrameOf(from: Point, arc: ArcSegment): ArcFrame {
   let swept = Math.atan2((-y1 - cy1) / ry, (-x1 - cx1) / rx) - first
   if (arc.sweep && swept < 0) swept += 2 * Math.PI
   if (!arc.sweep && swept > 0) swept -= 2 * Math.PI
-  const centre = point(cos * cx1 - sin * cy1 + (from.x + arc.to.x) / 2, sin * cx1 + cos * cy1 + (from.y + arc.to.y) / 2)
-  return { centre, rx, ry, cos, sin, first, swept }
+  const center = point(cos * cx1 - sin * cy1 + (from.x + arc.to.x) / 2, sin * cx1 + cos * cy1 + (from.y + arc.to.y) / 2)
+  return { center, rx, ry, cos, sin, first, swept }
 }
 
 /** @purity pure */
@@ -262,7 +262,7 @@ function onArc(frame: ArcFrame, fraction: number): Point {
   const angle = frame.first + frame.swept * fraction
   const ex = frame.rx * Math.cos(angle)
   const ey = frame.ry * Math.sin(angle)
-  return point(frame.cos * ex - frame.sin * ey + frame.centre.x, frame.sin * ex + frame.cos * ey + frame.centre.y)
+  return point(frame.cos * ex - frame.sin * ey + frame.center.x, frame.sin * ex + frame.cos * ey + frame.center.y)
 }
 
 /** @purity pure */
@@ -398,14 +398,14 @@ function shapeOfGlyph(glyph: MilestoneGlyph, starInnerOfOuter: number): UnitShap
 }
 
 /** @purity pure */
-function placedPoint(one: Point, centre: Point, half: number): Point {
-  return point(centre.x + half * one.x, centre.y + half * one.y)
+function placedPoint(one: Point, center: Point, half: number): Point {
+  return point(center.x + half * one.x, center.y + half * one.y)
 }
 
 /** @purity pure */
-function placedSegment(segment: PathSegment, centre: Point, half: number): PathSegment {
+function placedSegment(segment: PathSegment, center: Point, half: number): PathSegment {
   /** @purity pure */
-  const at = (one: Point): Point => placedPoint(one, centre, half)
+  const at = (one: Point): Point => placedPoint(one, center, half)
   switch (segment.command) {
     case 'Z':
       return segment
@@ -420,17 +420,17 @@ function placedSegment(segment: PathSegment, centre: Point, half: number): PathS
 
 // see LF-10, LF-18, DM-4
 /** @purity pure */
-function milestoneBarOf(centre: Point, side: number, glyph: MilestoneGlyph,
+function milestoneBarOf(center: Point, side: number, glyph: MilestoneGlyph,
                         starInnerOfOuter: number): BarGeometry {
   const unit = shapeOfGlyph(glyph, starInnerOfOuter)
   const half = side / 2
   return {
     form: 'outline',
-    points: unit.outline.map((one) => placedPoint(one, centre, half)),
+    points: unit.outline.map((one) => placedPoint(one, center, half)),
     layers: unit.layers.map((layer) => ({
       role: layer.role,
       evenOdd: layer.evenOdd,
-      segments: layer.segments.map((segment) => placedSegment(segment, centre, half)),
+      segments: layer.segments.map((segment) => placedSegment(segment, center, half)),
     })),
   }
 }
@@ -602,7 +602,7 @@ function markerOf(inputs: GeometryInputs, task: Task,
   const radius = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings) / 2
   return {
     symbol: diagnosedSymbolOf(inputs, task.uid) ?? progressSymbolOf(task, inputs.statusDate),
-    centre: point(markerLeft + radius, labelTierMiddleOf(placed, settings)),
+    center: point(markerLeft + radius, labelTierMiddleOf(placed, settings)),
     radius,
   }
 }
@@ -831,7 +831,7 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
         : null,
     dummies,
     // TRAP: gate on the selection here, not only when drawing: itemAtPointer asks GA-7 / GA-8 of every Task
-    // before GA-1 / GA-2, so handles on an unselected Task swallow a neighbour's plan-bar end.
+    // before GA-1 / GA-2, so handles on an unselected Task swallow a neighbor's plan-bar end.
     fadeHandles:
       placed.actualPlacement === 'inside' && inputs.selectedTaskUids.has(placed.taskUid)
         ? fadeHandlePoints(placed, planTop)

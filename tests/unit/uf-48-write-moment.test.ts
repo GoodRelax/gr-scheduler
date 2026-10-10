@@ -372,8 +372,8 @@ const ESCAPE = (): HumanInput => key('Esc')
 // Reading the frame
 // ---------------------------------------------------------------------------
 
-/** The centre of a Task's plan bar, in the frame of reference a press speaks in. */
-function planCentre(loop: FrameLoop, uid: number): { x: number; y: number } {
+/** The center of a Task's plan bar, in the frame of reference a press speaks in. */
+function planCenter(loop: FrameLoop, uid: number): { x: number; y: number } {
   const values = loop.current()
   if (values === null) throw new Error('the loop has run no frame, so it has drawn no bar')
   const drawn = values.geometry.tasks.find((one) => one.taskUid === uid)
@@ -428,7 +428,7 @@ function clearanceFrom(loop: FrameLoop, spot: { x: number; y: number }): number 
       ...pointsOfBar(drawn.actual),
       ...drawn.dummies.map((one) => one.at),
       ...drawn.fadeHandles,
-      ...(drawn.marker === null ? [] : [drawn.marker.centre]),
+      ...(drawn.marker === null ? [] : [drawn.marker.center]),
     ]
     for (const point of points) nearest = Math.min(nearest, Math.abs(point.y - spot.y))
     const label = drawn.label
@@ -505,12 +505,12 @@ describe('the premises these cases rest on', () => {
     // after a press, IN-4's level 2 stands and the key is taken.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
     expect(pressIsInFlight(loop), 'IN-4a: nothing to consume, so Esc goes to the browser').toBe(
       false,
     )
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     expect(pressIsInFlight(loop), 'IN-4 level 2: a drag in flight is something to consume').toBe(
       true,
     )
@@ -555,9 +555,9 @@ describe('AG-9 of table T-035 / WS-2 of table T-067 -- a write while a gesture i
     // cannot be confused with 「nothing was selected to write to」.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     expect(pressIsInFlight(loop)).toBe(true)
     const before = loop.document()
 
@@ -590,14 +590,14 @@ describe('AG-9 of table T-035 / WS-2 of table T-067 -- a write while a gesture i
     // writes today into it -- the toggle never got its first half.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     const before = loop.document()
     loop.receiveInput(BASE_DATE_LINE())
     expectDocumentUntouched(loop, before, 'AG-9 (MUST): the press is still down, so the write is refused')
 
-    loop.receiveInput(pointer('up', centre.x, centre.y))
+    loop.receiveInput(pointer('up', center.x, center.y))
 
     loop.receiveInput(BASE_DATE_LINE())
 
@@ -613,9 +613,9 @@ describe('AG-9 of table T-035 / WS-2 of table T-067 -- a write while a gesture i
     // left to refuse for.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     loop.receiveInput(ESCAPE())
     expect(pressIsInFlight(loop), 'IN-4 level 2: the Esc consumed the drag in flight').toBe(false)
 
@@ -633,10 +633,10 @@ describe('AG-9 of table T-035 / WS-2 of table T-067 -- a write while a gesture i
     // が以後ずっと拒否される（表 T-035 の AG-9）.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
-    loop.receiveInput(pointer('lost', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
+    loop.receiveInput(pointer('lost', center.x, center.y))
     expect(pressIsInFlight(loop), 'IN-1a ended the drag as an interruption').toBe(false)
 
     loop.receiveInput(BASE_DATE_LINE())
@@ -655,7 +655,7 @@ describe('table T-230 -- undo and redo walk the same seven steps, so WS-2 gates 
   it('a base date line has been written and a press is in flight -> Ctrl+Z arrives -> the document is unchanged', () => {
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
     // UN-13 of table T-027 puts 基準日（出す / 動かす / 消すのいずれも） among
     // the undo targets, so this write left a step to undo.
@@ -663,7 +663,7 @@ describe('table T-230 -- undo and redo walk the same seven steps, so WS-2 gates 
     const written = statusDateOf(loop)
     expect(written, 'the premise: there is now something to undo').not.toBeNull()
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     expect(pressIsInFlight(loop)).toBe(true)
     const before = loop.document()
 
@@ -680,12 +680,12 @@ describe('table T-230 -- undo and redo walk the same seven steps, so WS-2 gates 
     // second undo step and change what Ctrl+Z is undoing.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
     loop.receiveInput(BASE_DATE_LINE())
     expect(statusDateOf(loop)).not.toBeNull()
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     loop.receiveInput(ESCAPE())
     expect(pressIsInFlight(loop)).toBe(false)
 
@@ -698,13 +698,13 @@ describe('table T-230 -- undo and redo walk the same seven steps, so WS-2 gates 
   it('an undo has been made and a press is in flight -> Ctrl+Y arrives -> the document is unchanged', () => {
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
     loop.receiveInput(BASE_DATE_LINE())
     loop.receiveInput(UNDO())
     expect(statusDateOf(loop), 'the premise: there is now something to redo').toBeNull()
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     expect(pressIsInFlight(loop)).toBe(true)
     const before = loop.document()
 
@@ -718,14 +718,14 @@ describe('table T-230 -- undo and redo walk the same seven steps, so WS-2 gates 
     // ⭐ THE CONTROL for the case above.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
     loop.receiveInput(BASE_DATE_LINE())
     const written = statusDateOf(loop)
     loop.receiveInput(UNDO())
     expect(statusDateOf(loop)).toBeNull()
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     loop.receiveInput(ESCAPE())
     expect(pressIsInFlight(loop)).toBe(false)
 
@@ -772,9 +772,9 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
     // names as not refused.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
-    loop.receiveInput(pointer('down', centre.x, centre.y, { modifiers: { ctrl: true } }))
+    loop.receiveInput(pointer('down', center.x, center.y, { modifiers: { ctrl: true } }))
 
     loop.receiveInput(BASE_DATE_LINE())
 
@@ -1783,7 +1783,7 @@ describe('FR-049 (MUST) -- only a boolean row is a toggle, so nothing else in T-
 describe('an entrance moves its own key and no other key of the presentation group', () => {
   // ⭐ THE SAME MUST, ASKED OF THE WHOLE GROUP rather than of table T-202's
   // thirteen rows. FR-049 makes the boolean rows the whole of what a toggle may
-  // reach, and FR-041 (MUST NOT) forbids a solved colour from being saved at
+  // reach, and FR-041 (MUST NOT) forbids a solved color from being saved at
   // all -- 派生する色を保存してはならない -- so IC-16 in particular may move
   // S-72 and nothing beside it. DR-3 of table T-052 is the group being compared.
   for (const entrance of ENTRANCES) {

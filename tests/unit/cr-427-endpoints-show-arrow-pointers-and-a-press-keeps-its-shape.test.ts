@@ -1,4 +1,4 @@
-// CR-427: the four end points show T-269 arrow images of S-249 px with a centre hotspot, falling back to ew-resize.
+// CR-427: the four end points show T-269 arrow images of S-249 px with a center hotspot, falling back to ew-resize.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -25,14 +25,14 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // WHY: one row since CR-441 -- the plan's white and the actual's black are the two fills of PK-1.
 const PK_1_SQUARE =
   '| PK-1 | 箱の矢印 | 幅の広い箱型の矢印（← ／ →） | 予定は 白 ／ 黒、実績とダミーは 黒 ／ 白（本表の結びの約束） | 丸め | 一辺 `S-249` | 中心 |'
-const FR_106_COLOURS =
+const FR_106_COLORS =
   '⭐ 白 ＝ 予定、黒 ＝ 実績とダミー、の約束を、箱の矢印と円で揃えること（MUST）。'
 const FR_106_FALLBACK =
   '⭐ 画像のポインタを描けない環境では、動く向きを示す環境の形に替えること（MUST）'
 const FR_106_NO_DISPLAY_SCALE = '⛔ ポインタの画像に表示の倍率を掛けてはならない（MUST NOT）'
 
 describe('CR-427 -- the manuscript these cases are driven by', () => {
-  it.each([PK_1_SQUARE, FR_106_COLOURS, FR_106_FALLBACK, FR_106_NO_DISPLAY_SCALE])(
+  it.each([PK_1_SQUARE, FR_106_COLORS, FR_106_FALLBACK, FR_106_NO_DISPLAY_SCALE])(
     'still says it, word for word: %s',
     (clause) => {
       expect(REQUIREMENTS).toContain(clause)
@@ -346,11 +346,11 @@ const shapeOf = (svg: string): Shape => {
   // WHY: the path is drawn in viewBox units, which need not be the image's px side.
   const box = (attributeOf(root, 'viewBox') ?? '').trim().split(/[\s,]+/).map(Number)
   const [gridWidth, gridHeight] = box.length === 4 ? [box[2]!, box[3]!] : [width, height]
-  const centre = gridWidth / 2
+  const center = gridWidth / 2
   const spread = Math.max(...points.map((one) => Math.abs(one.y - gridHeight / 2)))
   const head = points.filter((one) => Math.abs(one.y - gridHeight / 2) >= spread * 0.9)
   const headX = head.reduce((sum, one) => sum + one.x, 0) / Math.max(head.length, 1)
-  return { side: width === height ? width : Number.NaN, fills, strokes, pointsLeft: headX < centre }
+  return { side: width === height ? width : Number.NaN, fills, strokes, pointsLeft: headX < center }
 }
 
 const WANTED = {
@@ -367,7 +367,7 @@ const hoverAt = (built: Bench, at: Point): string | null => {
 
 describe('T-269 -- the image each end shows', () => {
   it.each(Object.keys(WANTED) as (keyof typeof WANTED)[])(
-    `%s: an S-249 square image with a centre hotspot: ${PK_1_SQUARE}`,
+    `%s: an S-249 square image with a center hotspot: ${PK_1_SQUARE}`,
     (row) => {
       const built = benchAt(DEFAULT_DISPLAY_SCALE)
       const written = hoverAt(built, endsOf(built.loop)[row])
@@ -378,14 +378,14 @@ describe('T-269 -- the image each end shows', () => {
     },
   )
 
-  it.each(Object.keys(WANTED) as (keyof typeof WANTED)[])(`%s: the direction and the paint: ${FR_106_COLOURS}`, (row) => {
+  it.each(Object.keys(WANTED) as (keyof typeof WANTED)[])(`%s: the direction and the paint: ${FR_106_COLORS}`, (row) => {
     const built = benchAt(DEFAULT_DISPLAY_SCALE)
     const cursor = cursorOf(hoverAt(built, endsOf(built.loop)[row]))
     expect(cursor, row).not.toBeNull()
     const shape = shapeOf(cursor!.svg)
     expect(shape.pointsLeft, `${row} points ${WANTED[row].left ? 'left' : 'right'}`).toBe(WANTED[row].left)
-    expect(new Set(shape.fills), `${row}: ${FR_106_COLOURS}`).toEqual(new Set([WANTED[row].fill]))
-    expect(new Set(shape.strokes), `${row}: ${FR_106_COLOURS}`).toEqual(new Set([WANTED[row].stroke]))
+    expect(new Set(shape.fills), `${row}: ${FR_106_COLORS}`).toEqual(new Set([WANTED[row].fill]))
+    expect(new Set(shape.strokes), `${row}: ${FR_106_COLORS}`).toEqual(new Set([WANTED[row].stroke]))
   })
 
   it.each(Object.keys(WANTED) as (keyof typeof WANTED)[])(`%s: ends with ew-resize: ${FR_106_FALLBACK}`, (row) => {
@@ -398,7 +398,7 @@ describe('T-269 -- the image each end shows', () => {
 
 describe(`FR-106 (MUST NOT) -- ${FR_106_NO_DISPLAY_SCALE}`, () => {
   it.each([DISPLAY_SCALE_STEPS[0]!, DISPLAY_SCALE_STEPS[DISPLAY_SCALE_STEPS.length - 1]!])(
-    'keeps the image S-249 wide and the hotspot at its centre at display scale %s',
+    'keeps the image S-249 wide and the hotspot at its center at display scale %s',
     (scale) => {
       const built = benchAt(scale)
       for (const row of Object.keys(WANTED) as (keyof typeof WANTED)[]) {

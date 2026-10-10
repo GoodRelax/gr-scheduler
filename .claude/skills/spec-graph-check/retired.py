@@ -7,7 +7,7 @@ literal cannot notice that another file holds a different one. A short second
 copy is what everything reading `specindex.known` would read -- edge building
 in `graph.py`, seed classification in `graph.py` and `induced.py` -- so
 references to retired ids would be classified as names the specification never
-defined rather than as seats it burnt, and the edges those references make
+defined rather than as seats it burned, and the edges those references make
 would be silently absent from the blast radius the next round is planned with.
 ⇒ One literal, and everyone imports it.
 
@@ -18,14 +18,14 @@ so a single import back the other way would close a cycle. And
 literal out of `md-checks.py` with `ast.literal_eval` for one reason only:
 `md-checks.py` runs checks 5 through 15 at module level, so importing it to
 reach a set would have executed and printed every one of them. A file that
-holds data and no behaviour costs them nothing to import, which is the whole
+holds data and no behavior costs them nothing to import, which is the whole
 point of moving the set here.
 
 ⛔ WHAT A SEAT IN THIS SET DOES NOT MEAN.
   - NOT that a reference naming the id is wrong. A withdrawal is recorded by
     the documents that name the withdrawn row, and those records are true of
     the day they were written.
-  - NOT that the number is free. The opposite: the seat stays burnt so that a
+  - NOT that the number is free. The opposite: the seat stays burned so that a
     later row or table cannot quietly take a used number, which is why an
     entry is never removed to "make the reference resolve".
   - NOT that the row ever shipped. Some of these lived hours.
@@ -45,11 +45,11 @@ the language it is written in; those code points are data.
 #
 # T-044..T-047 and F-002..F-007 belong to a discarded Chapter 5/6 design.
 # The changelog names them so the numbers are never handed to something
-# else; the seats stay burnt. Do NOT remove them from this set to "make the
+# else; the seats stay burned. Do NOT remove them from this set to "make the
 # reference resolve" -- resolving it would mean a new table had taken a used
 # seat number.
 # FR-026 / FR-061 and the rows below them are the autosave CR-280 removed.
-# The changelog names them, so their seats stay burnt like every other
+# The changelog names them, so their seats stay burned like every other
 # retirement in this set.
 RETIRED = {'FR-050', 'T-030',
            'FR-026', 'FR-061', 'BT-3', 'LM-17', 'RS-17', 'RS-18',
@@ -57,21 +57,21 @@ RETIRED = {'FR-050', 'T-030',
            'IC-55', 'IC-56', 'IC-57', 'IF-4', 'RD-5', 'CP-23', 'CP-29',
            # IC-46 (guide cursor -> 'none') and IC-49 (guide cursor ->
            # 'double-vertical') left table T-109 with CR-369. The changelog of
-           # 1.15 names IC-49 as the neighbour a glyph had to be told apart
+           # 1.15 names IC-49 as the neighbor a glyph had to be told apart
            # from, and that record is true of the day it was written, so the
-           # seats stay burnt.
+           # seats stay burned.
            'IC-46', 'IC-49',
            # SK-17 (Ctrl + Shift + 0, reset the display scale and the chart
            # zoom) left table T-036 with CR-541 on the user's ruling JDG-301
            # of 2026-09-22 ("discard the function, remove it from the help
            # too"). CR-410, CR-411 and the ledgers name it, so the seat
-           # stays burnt.
+           # stays burned.
            'SK-17',
            # AT-35 (Task.actualDuration) and DV-9 (the written Task/Stop) left
            # tables T-058 and T-059 with CR-376: the actual is held as dates
            # (JDG-69), the length is counted from them by FR-011, and Stop is
            # the stored column AT-141. Change requests and the ledgers name
-           # both, so the seats stay burnt.
+           # both, so the seats stay burned.
            'AT-35', 'DV-9',
            'UF-43', 'UF-44', 'UF-52', 'PI-23', 'PI-29',
            'T-044', 'T-045', 'T-046', 'T-047',
@@ -80,7 +80,7 @@ RETIRED = {'FR-050', 'T-030',
            # S-59 (planActualDisplay) and K-74, its key, split into two
            # independent booleans (PND-442): S-227 planVisible and S-228
            # actualVisible, K-122 and K-123. The changelog names S-59, so the
-           # seat stays burnt.
+           # seat stays burned.
            'S-59', 'K-74',
            # CM-57 (setPlanActualDisplay) went with them: with the pair as two
            # ordinary boolean rows of table T-202, CM-58 setElementVisible is
@@ -101,10 +101,10 @@ RETIRED = {'FR-050', 'T-030',
            # AS-11 gave CM-41 setResourceName the entrance table T-225 never
            # had: an unknown name committed on a task that ALREADY has an
            # assignee would rename that person rather than swap in a new one.
-           # It was withdrawn in favour of the swap, because the assignee can
+           # It was withdrawn in favor of the swap, because the assignee can
            # already be changed from the Properties Panel and removed from the
            # assignee list -- so AS-7 takes the input.
-           # ⭐ The seat stays burnt because AS-7's own row cites AS-11 as the
+           # ⭐ The seat stays burned because AS-7's own row cites AS-11 as the
            # thing it no longer has to be told apart from, and that record is
            # true of the day it was written.
            # ⚠️ CM-41 is a command no human entrance reaches. It is still
@@ -119,7 +119,7 @@ RETIRED = {'FR-050', 'T-030',
            # shorter than five days at the default magnification. The closing
            # rule of table T-023d, S-180's note, FR-043 and the appendix all
            # record the withdrawal by naming the row, and those records are
-           # true of the day they were written, so the seat stays burnt like
+           # true of the day they were written, so the seat stays burned like
            # every other retirement here.
            'S-93',
            # U-29 (the hidden-group tab) went with CR-320, when the task group
@@ -137,7 +137,7 @@ RETIRED = {'FR-050', 'T-030',
            # 「⚠️ **IC-51 は廃していない**」. That was true of 1.15, where only
            # the glyph changed; version 1.25 SUPERSEDES it and is what retired the
            # row. ⛔ Do not read 1.15 as evidence that this booking is a mistake:
-           # 1.25 is the later record, and the seat stays burnt.
+           # 1.25 is the later record, and the seat stays burned.
            'IC-51',
            # IC-69 (丸囲みの ✓) and IC-70 (丸囲みの ✕) were the two glyphs a
            # confirmation was answered with. CR-327 replaced them with word
@@ -201,9 +201,9 @@ RETIRED = {'FR-050', 'T-030',
            # changelog's 2.51 row lists them by name, and defects.md rows name
            # them as the place a defect was found. Those records are true of the
            # day they were written, so the references are correct and the seats
-           # stay burnt: a later table or row must not take a used number.
+           # stay burned: a later table or row must not take a used number.
            #
-           # ⛔ The seats are burnt for the NUMBER, never for the prefix. GR,
+           # ⛔ The seats are burned for the NUMBER, never for the prefix. GR,
            # DM, OR, LF and S all have live rows either side of these gaps --
            # GR-10 / GR-11 / GR-14 / GR-16 / GR-19 .. GR-23 are the nine rows
            # table T-023d kept -- so anything that renumbered into a gap would
@@ -242,7 +242,7 @@ RETIRED = {'FR-050', 'T-030',
            'S-20', 'S-23', 'S-40', 'S-41', 'S-42', 'S-45', 'S-47',
            'S-90', 'S-91', 'S-92',
            'K-20', 'K-23',
-           # ⭐ CR-441 (2026-09-22) normalised five of those nine tables by the
+           # ⭐ CR-441 (2026-09-22) normalized five of those nine tables by the
            # rules that already decide their rows (CR-441 section 3): a dummy
            # counts as an actual (FR-043), a variant another MUST already
            # decides is not a row of its own, and two rows with identical
@@ -252,7 +252,7 @@ RETIRED = {'FR-050', 'T-030',
            # PE-8 (table T-270); XS-11 -> XS-10, XS-13 -> XS-12, XS-14 -> XS-6
            # (table T-271); RF-2 -> RF-1 (table T-272, whose column 実績がある
            # left with it). rulings.md still names them in the landing column
-           # of the rulings that decided them, and the seats stay burnt.
+           # of the rulings that decided them, and the seats stay burned.
            'PK-2', 'PK-6',
            'PE-2', 'PE-4', 'PE-5', 'PE-9',
            'XS-11', 'XS-13', 'XS-14',
@@ -263,7 +263,7 @@ RETIRED = {'FR-050', 'T-030',
            # of table T-005a), S-86 (its threshold, taskLevelOfDetailReadablePx),
            # DS-2 (the display-scale row that multiplied S-86) and K-55 (the
            # key row of table T-104) left with it. rulings.md (JDG-399) and the
-           # change requests still name them, and the seats stay burnt.
+           # change requests still name them, and the seats stay burned.
            'L-2', 'S-86', 'DS-2', 'K-55',
            # CR-570 (2026-09-26, ruling JDG-596): a task group's three booleans --
            # AT-56 isCollapsed, AT-57 isHidden, AT-142 isKeptOpen -- became one
@@ -277,7 +277,7 @@ RETIRED = {'FR-050', 'T-030',
            # S-211 (the unsaved level-zero fold of table T-206) left on ruling
            # JDG-600: level zero's fold is now saved, as S-418 of table T-203.
            # CR-570 and rulings.md still name all of them, and the seats stay
-           # burnt.
+           # burned.
            'AT-56', 'AT-57', 'AT-142',
            'T-254', 'KO-1', 'KO-2', 'KO-3', 'KO-4', 'KO-5', 'KO-6', 'KO-7',
            'N-15', 'CM-33', 'CM-34', 'CM-75',
@@ -290,29 +290,29 @@ RETIRED = {'FR-050', 'T-030',
            # the Agent API is off) left table T-233 when pressing IC-18 while
            # the Agent API is off began to turn it on, which leaves the reason
            # no scene. CR-562, CR-563 and the ledgers name both, so the seats
-           # stay burnt.
+           # stay burned.
            'IC-19', 'RS-35',
            # CR-602 (2026-10-01, rulings JDG-910 .. JDG-919): S-446 (the landing
-           # line's width, S-18 times 3, table T-206) and S-448 (the colour of a
+           # line's width, S-18 times 3, table T-206) and S-448 (the color of a
            # selected dependency line, of the landing line and of their end
            # outlines, table T-236) left. A selected or landing line keeps the
-           # dependency colour S-159 and is drawn at its own width plus S-447,
+           # dependency color S-159 and is drawn at its own width plus S-447,
            # and S-447 also widens the plan outline its end Tasks are traced
            # with. CR-596, CR-602 and the ledgers name both, so the seats stay
-           # burnt.
+           # burned.
            'S-446', 'S-448',
            # CR-621 (2026-10-02, rulings JDG-1080 / JDG-1081): IC-120 and IC-121
-           # (the minimise and maximise entries of the search panel and the delay
+           # (the minimize and maximize entries of the search panel and the delay
            # diagnostics report, table T-109)
            # left when the four windows of table T-335 came to share one frame;
            # their place is taken by IC-129 .. IC-131, which every window carries.
-           # CR-621, CR-629 and the ledgers name both, so the seats stay burnt.
+           # CR-621, CR-629 and the ledgers name both, so the seats stay burned.
            'IC-120', 'IC-121',
            # CR-630 (2026-10-02, rulings JDG-850 / JDG-1082 / JDG-1083): RG-15
            # (the Esc rung for a search panel holding focus) left when Esc came to close the
            # window in front, whichever of the four windows of table T-335 it is;
            # the new rung is RG-16. CR-630 and the ledgers name it, so the seat
-           # stays burnt.
+           # stays burned.
            'RG-15',
            # CR-646 (2026-10-03, rulings JDG-1195 / JDG-1210): AT-62
            # (TaskGroupMember.stackOrder, a lane nobody read -- ST-2 stacks a
@@ -323,12 +323,12 @@ RETIRED = {'FR-050', 'T-030',
            # data word stackOrder, table T-101) left with them; G-4 of table
            # T-005 now names the concept 積み順 instead. CR-646, rulings.md and
            # the review docs/review/grs-json-schema-self-explanation-2026-10-03.md
-           # name them, so the seats stay burnt.
+           # name them, so the seats stay burned.
            'AT-62', 'AT-11', 'PF-10', 'N-4',
            # CR-648 (2026-10-04, ruling JDG-1232): table T-333 went from
            # four text-size steps to three (9 / 10 / 12 px), so S-433 (the
            # fourth step, 20 px) left it. CR-571, CR-617 and the changelog
-           # name it, so the seat stays burnt.
+           # name it, so the seat stays burned.
            'S-433',
            # CR-701 (2026-10-08, rulings JDG-1610 / JDG-1611): FR-154 (ask
            # whether to make a non-working day a working day when a task end is
@@ -337,7 +337,7 @@ RETIRED = {'FR-050', 'T-030',
            # question: an end is placed on a non-working day as it is and the
            # document calendar is not changed; the export drift this leaves is
            # LM-22. CR-668 (which added them), CR-682, CR-689, CR-701, the
-           # changelog and rulings.md name them, so the seats stay burnt.
+           # changelog and rulings.md name them, so the seats stay burned.
            'FR-154', 'T-354', 'QN-13',
            'HW-1', 'HW-2', 'HW-3', 'HW-4', 'HW-5', 'HW-6', 'HW-7', 'HW-8',
            'HW-9', 'HW-10', 'HW-11', 'HW-12',
@@ -345,12 +345,12 @@ RETIRED = {'FR-050', 'T-030',
            # field of table T-338 became three lines (check, value, current
            # height), so the rule between the unit and the current height (MH-5)
            # and its thickness and gap (S-440, S-441) left. CR-582, CR-689, the
-           # changelog and rulings.md name them, so the seats stay burnt.
+           # changelog and rulings.md name them, so the seats stay burned.
            'MH-5', 'S-440', 'S-441',
            # CR-690 (2026-10-08, rulings JDG-1560 / JDG-1626): the export span is
            # no longer an export-only value, so its value and field rules moved to
            # table T-367 of FR-055 and its place to table T-369 of FR-072; IX-17
            # left table T-241. CR-677, CR-694, the changelog and rulings.md name
-           # it, so the seat stays burnt.
+           # it, so the seat stays burned.
            'IX-17',
            'T-006'}

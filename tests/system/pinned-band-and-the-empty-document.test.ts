@@ -107,7 +107,7 @@ function escOrderOf(word: string, what: string): number {
 // has dist/ hold one .html file, which tests/nfr/ assembles and judges.
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 
-// WHY: the same handles the neighbouring System files lean on; a change to
+// WHY: the same handles the neighboring System files lean on; a change to
 // how the shell marks a part breaks these cases, as it should.
 const PROPERTIES = '[data-role="Properties Panel"]'
 
@@ -353,7 +353,7 @@ test(`HF-17: with no task group drawn at all, ${ADD_AT_SHALLOWEST} draws the tas
 })
 
 // WHY: goes red if adding a task group opens every tier under S-418, not the one tier
-// HF-17 (MUST NOT) allows. The Esc that follows is not part of the judgement.
+// HF-17 (MUST NOT) allows. The Esc that follows is not part of the judgment.
 test(`HF-17 (MUST NOT): ${ADD_AT_SHALLOWEST} opens one tier of the fold, not every tier`, async () => {
   test.setTimeout(180_000)
   const opened = await openTheApp()

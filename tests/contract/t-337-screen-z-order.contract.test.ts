@@ -108,8 +108,8 @@ const EMPTY_HEADER: AppHeaderItems = {
 const PALETTE = {
   at: { x: 400, y: 300 },
   grabBandHeight: 24,
-  minimise: command({ icon: 'IC-75' }),
-  isMinimised: false,
+  minimize: command({ icon: 'IC-75' }),
+  isMinimized: false,
   groups: [{ name: 'PaletteGroupOne', commands: [command({ icon: 'IC-61', label: 'PaletteCommandOne' })] } as PaletteGroup],
   armedText: 'ArmedWordHere',
 } as CommandPalette

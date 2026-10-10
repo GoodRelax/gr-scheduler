@@ -57,7 +57,7 @@
 //     fixture is a rectangle and nothing here speaks for the rest.
 //   - HOW A CLIPPED FADE IS DRAWN. The cases read `TaskPlacement`'s two fade
 //     measurements because that is where appendix version 1.43 says FD-6's
-//     answer is carried; no case claims a shape or a colour.
+//     answer is carried; no case claims a shape or a color.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

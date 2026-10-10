@@ -113,10 +113,10 @@ describe('EX-16: an imported fade value goes back to where it was read', () => {
   it(EX_16_MARKER, () => {
     const document = read(fixture())
     const task = document.schedule.tasks.find((one) => one.uid === FADE_TASK)
-    // WHY: the clause binds only a value EX-6 recognised; an unrecognised one is carried whole (DF-2), and then no marker is due.
-    const recognised = task?.fadeInDays === FADE_DAYS
+    // WHY: the clause binds only a value EX-6 recognized; an unrecognized one is carried whole (DF-2), and then no marker is due.
+    const recognized = task?.fadeInDays === FADE_DAYS
     const kept = (task?.carryElements ?? []).filter((one) => one.name === 'ExtendedAttribute')
-    if (recognised) {
+    if (recognized) {
       const markers = kept.filter((one) => !('Value' in one.fields))
       expect(markers, 'the interpreted fade value left no marker without Value').toHaveLength(1)
       expect(markers[0]?.fields['FieldID']).toBe(String(FADE_IN_FRAME?.fieldId))

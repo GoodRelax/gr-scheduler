@@ -32,7 +32,7 @@
 // 表 T-036 `SK-3` / `SK-7` / `SK-20`, 表 T-109 `IC-52`, 表 T-075 `UF-41`. If one
 // of those cells stops enumerating, the case says so instead of going quietly
 // green on a shape that is no longer there. The SHAPE cases -- a span with
-// prose after it, a cell with no span at all -- are spelt out here, because
+// prose after it, a cell with no span at all -- are spelled out here, because
 // they are statements about the reader and not about any one row.
 
 import { describe, expect, it } from 'vitest'

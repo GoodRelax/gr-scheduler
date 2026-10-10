@@ -1,4 +1,4 @@
-// CR-586 spec-only cases: the task group colour list is one generated list (CV-9), CM-30 and the GRS JSON read refuse the rest.
+// CR-586 spec-only cases: the task group color list is one generated list (CV-9), CM-30 and the GRS JSON read refuse the rest.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -71,7 +71,7 @@ const isBandless = (row: SpecRow): boolean =>
   (row.by[H_LIGHT_BAND] ?? '').startsWith(DASH) || (row.by[H_DARK_BAND] ?? '').startsWith(DASH)
 
 const PALETTE: readonly string[] = T_294.rows.map(nameOf)
-const TASK_GROUP_COLOURS: readonly string[] = T_294.rows.filter((row) => !isBandless(row)).map(nameOf)
+const TASK_GROUP_COLORS: readonly string[] = T_294.rows.filter((row) => !isBandless(row)).map(nameOf)
 const BANDLESS: readonly string[] = T_294.rows.filter(isBandless).map(nameOf)
 const TRANSPARENT = nameOf(rowOf(T_294, 'S-324'))
 
@@ -90,14 +90,14 @@ describe('CR-586 premise -- the clauses these cases are built from', () => {
 
   it('T-294 leaves at least one name without a task group band (S-315), and transparent keeps one', () => {
     expect(BANDLESS).toContain(nameOf(rowOf(T_294, 'S-315')))
-    expect(TASK_GROUP_COLOURS).toContain(TRANSPARENT)
-    expect(TASK_GROUP_COLOURS.length + BANDLESS.length).toBe(PALETTE.length)
+    expect(TASK_GROUP_COLORS).toContain(TRANSPARENT)
+    expect(TASK_GROUP_COLORS.length + BANDLESS.length).toBe(PALETTE.length)
   })
 })
 
 describe(`CV-9: ${CV_9_GENERATED}`, () => {
   it(`${CV_9_ONE_LIST} -- the generated TaskGroup.color choices are exactly those names, in T-294 order`, () => {
-    expect(COLUMN_SHAPES.TaskGroup['color']?.choices).toEqual(TASK_GROUP_COLOURS)
+    expect(COLUMN_SHAPES.TaskGroup['color']?.choices).toEqual(TASK_GROUP_COLORS)
   })
 
   it(`${CV_9_FRAME_TRANSPARENT} ${CV_9_COMMENT_NO_TRANSPARENT} -- the fill columns and the highlight frame take transparent, the comment line and text do not`, () => {
@@ -115,38 +115,38 @@ const ROW_ID = 'g1'
 const oneTaskGroup = (): Document =>
   taskGroupDocument([{ id: ROW_ID, parentId: null }]) as unknown as Document
 
-const colourOf = (document: Document): string | null =>
+const colorOf = (document: Document): string | null =>
   document.schedule.taskGroups.find((one) => one.id === ROW_ID)?.color ?? null
 
 // see CM-30
-const setTaskGroupColour = (color: string) => {
+const editWithSetTaskGroupColor = (color: string) => {
   const command: TaskGroupCommand = { kind: 'setTaskGroupColor', groupId: ROW_ID, color }
   return editDocument(oneTaskGroup(), command, LIMITS, 'row')
 }
 
 describe(`CM-30 setTaskGroupColor takes the one list (CV-9, CR-586 seam S-4)`, () => {
-  it.each(TASK_GROUP_COLOURS.map((name) => [name]))('every name the task group colour field offers is accepted: %s', (name) => {
-    const result = setTaskGroupColour(name)
+  it.each(TASK_GROUP_COLORS.map((name) => [name]))('every name the task group color field offers is accepted: %s', (name) => {
+    const result = editWithSetTaskGroupColor(name)
     expect(result.ok, JSON.stringify(result)).toBe(true)
-    if (result.ok) expect(colourOf(result.document)).toBe(name)
+    if (result.ok) expect(colorOf(result.document)).toBe(name)
   })
 
   it.each(BANDLESS.map((name) => [name]))(`${CV_9_REFUSED} -- %s is refused with CM-30 / CV-9`, (name) => {
-    const result = setTaskGroupColour(name)
+    const result = editWithSetTaskGroupColor(name)
     expect(result.ok, JSON.stringify(result)).toBe(false)
     if (result.ok) return
     expect(result.refusals.some((one) => one.command === 'CM-30' && one.rule === 'CV-9'), JSON.stringify(result.refusals)).toBe(true)
   })
 
-  it(`${CV_2_TWO_VALUES} -- a custom colour is still accepted`, () => {
+  it(`${CV_2_TWO_VALUES} -- a custom color is still accepted`, () => {
     const custom = '#123456/#abcdef'
-    const result = setTaskGroupColour(custom)
+    const result = editWithSetTaskGroupColor(custom)
     expect(result.ok, JSON.stringify(result)).toBe(true)
-    if (result.ok) expect(colourOf(result.document)).toBe(custom)
+    if (result.ok) expect(colorOf(result.document)).toBe(custom)
   })
 
-  it('a name that is neither on the list nor a custom colour is refused', () => {
-    expect(setTaskGroupColour('notAPaletteName').ok).toBe(false)
+  it('a name that is neither on the list nor a custom color is refused', () => {
+    expect(editWithSetTaskGroupColor('notAPaletteName').ok).toBe(false)
   })
 })
 
@@ -155,23 +155,23 @@ const TEMPLATE_TEXT = readFileSync(
   'utf8',
 )
 
-function templateWithRowColour(color: string): string {
+function templateWithRowColor(color: string): string {
   const json = JSON.parse(TEMPLATE_TEXT) as Record<string, any>
   json['schedule']['taskGroups'][0]['color'] = color
   return JSON.stringify(json)
 }
 
 describe(`GRS JSON read (CV-9, RS-25, CR-586 seam S-5)`, () => {
-  it.each(BANDLESS.map((name) => [name]))(`${CV_9_REFUSED} -- a task group coloured %s is refused with RS-25`, (name) => {
-    const read = documentFromJson(templateWithRowColour(name))
+  it.each(BANDLESS.map((name) => [name]))(`${CV_9_REFUSED} -- a task group colored %s is refused with RS-25`, (name) => {
+    const read = documentFromJson(templateWithRowColor(name))
     expect(read.ok).toBe(false)
     if (read.ok) return
     expect(read.reason).toBe('RS-25')
     expect(read.faults.some((one) => one.at.includes('taskGroups/0/color')), JSON.stringify(read.faults)).toBe(true)
   })
 
-  it.each(TASK_GROUP_COLOURS.map((name) => [name]))('control: a task group coloured %s is read', (name) => {
-    const read = documentFromJson(templateWithRowColour(name))
+  it.each(TASK_GROUP_COLORS.map((name) => [name]))('control: a task group colored %s is read', (name) => {
+    const read = documentFromJson(templateWithRowColor(name))
     expect(read.ok, read.ok ? '' : JSON.stringify(read.faults)).toBe(true)
   })
 })
@@ -250,7 +250,7 @@ const ENTITY_OF_HOLDER: Readonly<Record<string, keyof typeof COLUMN_SHAPES>> = {
   commentBox: 'CommentBox',
 }
 
-function colourControls(item: ItemRef | null, groupIds: readonly string[]): readonly PropertyControl[] {
+function colorControls(item: ItemRef | null, groupIds: readonly string[]): readonly PropertyControl[] {
   const selection = item === null ? emptySelection() : selectionWith(emptySelection(), item)
   const panel = propertiesPanelFromSelection(
     PANEL_SCHEDULE, SETTINGS, selection, sessionShowing(selection, groupIds), READINGS(groupIds),
@@ -262,7 +262,7 @@ function colourControls(item: ItemRef | null, groupIds: readonly string[]): read
 function choicesFor(control: PropertyControl): readonly string[] {
   const key = control.key as { readonly holder: string; readonly column: string }
   const entity = ENTITY_OF_HOLDER[key.holder]
-  if (entity === undefined) throw new Error(`a colour field of holder ${key.holder} has no mapped entity`)
+  if (entity === undefined) throw new Error(`a color field of holder ${key.holder} has no mapped entity`)
   const shape = (COLUMN_SHAPES[entity] as Record<string, { readonly choices: readonly string[] | null }>)[key.column]
   return shape?.choices ?? []
 }
@@ -274,15 +274,15 @@ const SCENES: readonly (readonly [string, ItemRef | null, readonly string[], str
   ['a comment box', { kind: 'commentBox', id: COMMENT_ID }, [], 'commentBox'],
 ]
 
-describe(`the panel's colour fields offer each column's generated choices (CV-9, CR-586 seam S-4)`, () => {
+describe(`the panel's color fields offer each column's generated choices (CV-9, CR-586 seam S-4)`, () => {
   it.each(SCENES)(`${CV_9_SLOTS_KEPT} -- %s`, (_label, item, groupIds, holder) => {
-    const controls = colourControls(item, groupIds).filter(
+    const controls = colorControls(item, groupIds).filter(
       (control) => (control.key as { readonly holder: string }).holder === holder,
     )
-    expect(controls.length, `premise: the panel of ${_label} has a colour field`).toBeGreaterThan(0)
+    expect(controls.length, `premise: the panel of ${_label} has a color field`).toBeGreaterThan(0)
     for (const control of controls) {
       const column = (control.key as { readonly column: string }).column
-      const names = control.colour?.names ?? []
+      const names = control.color?.names ?? []
       expect(names.map((one) => one.name), `${holder}.${column}: every T-294 slot, in order`).toEqual(PALETTE)
       expect(
         names.filter((one) => one.isOffered).map((one) => one.name),
@@ -291,12 +291,12 @@ describe(`the panel's colour fields offer each column's generated choices (CV-9,
     }
   })
 
-  it(`${CV_9_ONE_LIST} -- the task group colour field offers the one list and not the bandless names`, () => {
-    const control = colourControls(null, [ROW_ID]).find(
+  it(`${CV_9_ONE_LIST} -- the task group color field offers the one list and not the bandless names`, () => {
+    const control = colorControls(null, [ROW_ID]).find(
       (one) => (one.key as { readonly holder: string }).holder === 'taskGroup',
     )
-    const offered = (control?.colour?.names ?? []).filter((one) => one.isOffered).map((one) => one.name)
-    expect(offered).toEqual(TASK_GROUP_COLOURS)
+    const offered = (control?.color?.names ?? []).filter((one) => one.isOffered).map((one) => one.name)
+    expect(offered).toEqual(TASK_GROUP_COLORS)
     for (const name of BANDLESS) expect(offered).not.toContain(name)
   })
 })

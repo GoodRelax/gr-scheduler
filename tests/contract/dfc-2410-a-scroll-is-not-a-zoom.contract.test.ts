@@ -86,7 +86,7 @@ function pictureOf(built: ShellBench): Picture {
   }
 }
 
-const centreOfArea = (built: ShellBench): { readonly x: number; readonly y: number } => {
+const centerOfArea = (built: ShellBench): { readonly x: number; readonly y: number } => {
   const area = built.loop.current()!.regions.taskGroupArea
   return { x: area.x + area.width / 2, y: area.y + area.height / 2 }
 }
@@ -97,7 +97,7 @@ const wheel = (
   scrollPx: { readonly x: number; readonly y: number },
   notches = 1,
 ): void => {
-  const at = centreOfArea(built)
+  const at = centerOfArea(built)
   built.send({ kind: 'wheel', x: at.x, y: at.y, modifiers: { ...NO_MODS, ...modifiers }, notches, scrollPx } as HumanInput)
 }
 

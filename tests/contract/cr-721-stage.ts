@@ -136,7 +136,7 @@ export function valuesOf(panel: SearchPanelSession, language: DisplayLanguage = 
 // WHY: opens the column, takes one value off by the label it is shown with, and leaves the filter open.
 export function withValueOff(column: string, label: string, panel: SearchPanelSession = TASK_PANEL, language: DisplayLanguage = 'ja'): SearchPanelSession {
   const there = opened(column, panel, language)
-  const value = found(valuesOf(there, language).values.find((one) => one.label === label), `an item labelled ${label} in ${column}`).value
+  const value = found(valuesOf(there, language).values.find((one) => one.label === label), `an item labeled ${label} in ${column}`).value
   return changed(there, { kind: 'value', column: column as never, value, isShown: false }, language)
 }
 
@@ -192,7 +192,7 @@ export const REPORT: DelayDiagnosticsReport = {
   bottlenecks: [{ uid: 2, name: 'Bravo', ...QUANTITIES, path: [3, 2] }],
   terminalPushOuts: [],
   walls: [],
-  unanalysedCount: 0,
+  unreliableCount: 0,
   markerStates: [
     { uid: 1, row: 'DG-1' },
     { uid: 2, row: 'DG-2' },

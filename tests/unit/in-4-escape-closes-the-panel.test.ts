@@ -22,7 +22,7 @@
 // `document-settings.ts` (`SETTINGS_DEFAULTS`). ⛔ NO FUNCTION BODY WAS READ.
 //
 // ⭐ THE SHAPE IS COPIED, NOT INVENTED. `host` / `screenPane` / `twoTaskGroupDocument`
-// / `key` / `pointer` / `planCentre` are tests/unit/uf-48-input.test.ts's, which
+// / `key` / `pointer` / `planCenter` are tests/unit/uf-48-input.test.ts's, which
 // drives this same unit through the same seams.
 //
 // ---------------------------------------------------------------------------
@@ -314,7 +314,7 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
 /**
  * BO-1 of table T-077 has already settled these by the time a loop exists.
  *
- * ⚠️ WIDER THAN THE NEIGHBOUR'S, on purpose: the fixture's document opens with
+ * ⚠️ WIDER THAN THE NEIGHBOR'S, on purpose: the fixture's document opens with
  * the panel taking `S-171` from the `Schedule Canvas`, and these cases press on
  * a bar that has to be inside the `Task Group Area` for FR-006 to be reached at all.
  * ⭐ It decides nothing -- FR-051 keeps the window out of the settings, and a
@@ -470,7 +470,7 @@ function stage(): Stage {
     screen,
     send,
     panelIsUp: () => screen.last().propertiesPanel !== null,
-    modalIsUp: () => ['normal', 'maximised'].includes(screen.last().helpModal?.windowState ?? ''),
+    modalIsUp: () => ['normal', 'maximized'].includes(screen.last().helpModal?.windowState ?? ''),
     helpWindow: () => screen.last().helpModal?.windowState ?? null,
     aimAt: (part, entry) => {
       screen.drawAt({
@@ -497,7 +497,7 @@ function stage(): Stage {
  * mark FR-043 draws, sized by S-180 of table T-206), and the square lands on the
  * middle of this fixture's bar. ⛔ GA-18 IS ABOVE GA-9 IN TABLE T-023d and is
  * not one of MK-13's destinations, so a press there is a state cycle and not the
- * panel -- which is the behaviour these cases are not about. The point is taken
+ * panel -- which is the behavior these cases are not about. The point is taken
  * from the part of the body the marker does not stand on.
  */
 function middleOfTheBar(built: Stage): { readonly x: number; readonly y: number } {
@@ -517,7 +517,7 @@ function middleOfTheBar(built: Stage): { readonly x: number; readonly y: number 
   const left =
     marker === null
       ? Math.min(...xs)
-      : Math.max(Math.min(...xs), marker.centre.x + marker.radius)
+      : Math.max(Math.min(...xs), marker.center.x + marker.radius)
   if (left >= right) throw new Error(`Task ${THE_TASK} has no body the marker leaves free`)
   return { x: (left + right) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
@@ -773,12 +773,12 @@ describe('IN-4 of table T-028 -- one press spends exactly ONE level', () => {
     built.send(pointer('down', 700, 20))
     built.send(pointer('up', 700, 20))
     built.screen.drawAt(null)
-    expect(built.helpWindow(), 'premise: IC-129 minimised the help').toBe('minimised')
+    expect(built.helpWindow(), 'premise: IC-129 minimized the help').toBe('minimized')
 
     built.send(ESCAPE())
 
     expect(built.panelIsUp(), 'HN-2: the rung is skipped and the next one is spent').toBe(false)
-    expect(built.helpWindow(), 'HN-2: ヘルプは閉じない').toBe('minimised')
+    expect(built.helpWindow(), 'HN-2: ヘルプは閉じない').toBe('minimized')
   })
 
   it('⛔ MUST: the second press takes the other one', () => {

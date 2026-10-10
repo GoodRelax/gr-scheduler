@@ -301,7 +301,7 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   notices: 'rowId',
   shortcuts: 'rowId',
   helpHeadings: 'block',
-  // WHY: CR-622 keys the help's two licence words (FR-069) by the part they fill.
+  // WHY: CR-622 keys the help's two license words (FR-069) by the part they fill.
   helpLegal: 'part',
   helpNotes: 'rowId',
   // see FR-036, CR-620
@@ -378,10 +378,10 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   weekdays: 'weekday',
   // WHY: CR-624 keys a bar tooltip's line words by their row of table T-348.
   hintLines: 'rowId',
-  // WHY: CR-548 keys a palette colour by its stored spelling (table T-294) and a
-  // part of the colour field by the part it names (CV-9); neither is a row.
-  colourNames: 'spelling',
-  colourField: 'part',
+  // WHY: CR-548 keys a palette color by its stored spelling (table T-294) and a
+  // part of the color field by the part it names (CV-9); neither is a row.
+  colorNames: 'spelling',
+  colorField: 'part',
   // WHY: CR-606 keys the words a property field fills around a value (a dependency end, the
   // assignee field's add item) by the part they fill; no row of table T-016 numbers them.
   propertyField: 'part',
@@ -584,7 +584,7 @@ const AT_17_ORDER: readonly string[] = [
 /** Table T-103 -- the settled names, of which U-55 is the one NT-7 asks on. */
 const T103 = specTable('T-103')
 
-/** U-55's settled name, read out of table T-103 rather than spelt here. */
+/** U-55's settled name, read out of table T-103 rather than spelled here. */
 const U_55_CONFIRMATION = bare(T103.rows.find((row) => row.id === 'U-55')?.cells[0] ?? '')
 
 /**
@@ -620,7 +620,7 @@ const rect = (x: number, y: number, width: number, height: number): ScreenRect =
 })
 
 /** The middle of a region, so a pointer put there is on it however it is cut. */
-const centreOf = (region: ScreenRect): { readonly x: number; readonly y: number } => ({
+const centerOf = (region: ScreenRect): { readonly x: number; readonly y: number } => ({
   x: region.x + region.width / 2,
   y: region.y + region.height / 2,
 })
@@ -711,7 +711,7 @@ const SCHEDULE = {
       taskUid: THE_TASK,
       shapeKind: null,
       milestoneGlyph: null,
-      // WHY: one custom colour with each side left undefined, so the colour field
+      // WHY: one custom color with each side left undefined, so the color field
       // prints both notes of CV-9 (CR-548).
       fillColor: '#c0504d/',
       strokeColor: '/#3a5f8a',
@@ -921,7 +921,7 @@ const SCHEDULE_TO_SEARCH = {
   taskVisuals: [],
 } as unknown as Schedule
 
-const searchFrame = (shown: 'normal' | 'maximised' | 'minimised', panel: Partial<SearchPanelSession>): Frame =>
+const searchFrame = (shown: 'normal' | 'maximized' | 'minimized', panel: Partial<SearchPanelSession>): Frame =>
   frameWith({
     schedule: SCHEDULE_TO_SEARCH,
     selection: emptySelection(),
@@ -932,7 +932,7 @@ const searchFrame = (shown: 'normal' | 'maximised' | 'minimised', panel: Partial
 const ASSIGNEE_COLUMN = 'SQ-2'
 const STATE_COLUMN = 'SQ-5'
 const NAME_COLUMN = 'SQ-1'
-const MAXIMISE_ENTRY = 'IC-121'
+const MAXIMIZE_ENTRY = 'IC-121'
 const COMMENT_BOX_COLUMNS: ReadonlySet<string> = new Set(['SQ-7', 'SQ-8', 'SQ-9'])
 
 const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN } })
@@ -948,7 +948,7 @@ const hiddenExcept = (shown: readonly number[], isApplied: boolean): SearchPanel
 const SEARCH_SHOW_FILTER_OPEN = searchFrame('normal', { filters: { columns: [], open: SHOW_COLUMN }, visibility: hiddenExcept(SHOWN_SEARCH_UIDS, false) })
 // WHY: the shell hands the product in as a reading (TV-1); the band counts it.
 const SEARCH_SCHEDULE_FILTERED: Frame = (() => {
-  const frame = searchFrame('minimised', { visibility: hiddenExcept(SHOWN_SEARCH_UIDS, true) })
+  const frame = searchFrame('minimized', { visibility: hiddenExcept(SHOWN_SEARCH_UIDS, true) })
   return { ...frame, readings: { ...frame.readings, drawnTaskUids: new Set(SHOWN_SEARCH_UIDS) } }
 })()
 // WHY: TV-11 fills {tables}, {total} and {shown}, so the table name and the digits are put back to see the literal word
@@ -962,20 +962,20 @@ const countSlotsOf = (text: string | null | undefined, tables: string | undefine
         .replace(new RegExp(`(?<![0-9])${SHOWN_SEARCH_UIDS.length}(?![0-9])`), '{shown}')
 
 const SEARCH_COMMENT_BOXES_SHOWN = searchFrame('normal', { table: 'commentBoxes' })
-const SEARCH_MAXIMISED = searchFrame('maximised', {})
+const SEARCH_MAXIMIZED = searchFrame('maximized', {})
 
 /** S-99g says which surface is open (IN-4 of table T-028). */
 const surfaceOpen = (surface: string): Frame => frameWith({ root: rootWithSurface(surface) })
 
 const HELP_SURFACE = surfacesOf('IC-129')[0] ?? ''
 
-const helpShown = (window: 'normal' | 'maximised'): Frame =>
+const helpShown = (window: 'normal' | 'maximized'): Frame =>
   frameWith({ root: rootWith({ helpDisplayState: { kind: 'shown', child: { kind: window } } }) })
 
 const HELP_SHOWN = helpShown('normal')
 
-// WHY: T-335 WB-4 draws IC-131 only while the help is maximised (WB-3), in the place of IC-130.
-const HELP_MAXIMISED = helpShown('maximised')
+// WHY: T-335 WB-4 draws IC-131 only while the help is maximized (WB-3), in the place of IC-130.
+const HELP_MAXIMIZED = helpShown('maximized')
 
 // see T-335, WB-3, WB-4
 const RESTORE_ENTRY = 'IC-131'
@@ -992,7 +992,7 @@ const NO_DELAY_FOUND: DelayDiagnosticsReport = {
   bottlenecks: [],
   terminalPushOuts: [],
   walls: [],
-  unanalysedCount: 0,
+  unreliableCount: 0,
   markerStates: [],
   settledPushOuts: [],
   derivedParentTasks: [],
@@ -1001,7 +1001,7 @@ const NO_DELAY_FOUND: DelayDiagnosticsReport = {
 
 // WHY: a filter stands open, so IC-123 .. IC-126 stand in its menu (RW-2, SV-7).
 const REPORT_FILTER_OPEN = { ...OPENED_DELAY_DIAGNOSTICS_REPORT.panel, filters: { columns: [], open: 'DT-1' } }
-const delayReportShown = (shown: 'normal' | 'maximised'): Frame =>
+const delayReportShown = (shown: 'normal' | 'maximized'): Frame =>
   frameWith({
     readings: sessionWith({
       delayDiagnosticsReport: { window: { ...OPENED_DELAY_DIAGNOSTICS_REPORT, shown, panel: REPORT_FILTER_OPEN }, report: NO_DELAY_FOUND },
@@ -1010,14 +1010,14 @@ const delayReportShown = (shown: 'normal' | 'maximised'): Frame =>
 
 // see FR-099, T-370, T-371, S-545
 // WHY: the one resource of SCHEDULE is chosen for IC-67 and not for IC-68 (RQ-3), and a filter stands open for IC-123 .. IC-126.
-const resourceListShown = (shown: 'normal' | 'maximised', isChosen: boolean): Frame => {
+const resourceListShown = (shown: 'normal' | 'maximized', isChosen: boolean): Frame => {
   const panel = { ...OPENED_RESOURCE_LIST.panel, filters: { columns: [], open: 'RQ-2' } }
   const resourceList = { ...OPENED_RESOURCE_LIST, shown, panel }
   return frameWith({ readings: sessionWith({ resourceList, selectedResourceUids: isChosen ? [1] : [] }) })
 }
 
 // see FR-066, S-99i
-const dialogueFieldShown = (shown: 'normal' | 'maximised'): Frame =>
+const dialogueFieldShown = (shown: 'normal' | 'maximized'): Frame =>
   frameWith({
     root: rootWith({ dialogueFieldDisplayState: { kind: 'shown', child: { kind: shown } } }),
     readings: sessionWith({ isAgentApiEnabled: true }),
@@ -1064,7 +1064,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     HELP_SURFACE,
     {
-      frame: (rowId) => (rowId === RESTORE_ENTRY ? HELP_MAXIMISED : HELP_SHOWN),
+      frame: (rowId) => (rowId === RESTORE_ENTRY ? HELP_MAXIMIZED : HELP_SHOWN),
       heading: (view) => view.helpModal?.heading,
       entries: (view) => view.helpModal?.commands,
     },
@@ -1072,7 +1072,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     'Search Panel',
     {
-      frame: (rowId) => (rowId === RESTORE_ENTRY ? SEARCH_MAXIMISED : SEARCH_TASKS_CHECKED),
+      frame: (rowId) => (rowId === RESTORE_ENTRY ? SEARCH_MAXIMIZED : SEARCH_TASKS_CHECKED),
       heading: (view) => view.searchPanel?.heading,
       entries: (view) => tableWindowEntries(view.searchPanel),
     },
@@ -1080,7 +1080,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     'Delay Diagnostics Report',
     {
-      frame: (rowId) => delayReportShown(rowId === RESTORE_ENTRY ? 'maximised' : 'normal'),
+      frame: (rowId) => delayReportShown(rowId === RESTORE_ENTRY ? 'maximized' : 'normal'),
       heading: (view) => view.delayDiagnosticsReport?.heading,
       entries: (view) => tableWindowEntries(view.delayDiagnosticsReport),
     },
@@ -1088,7 +1088,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     'Resource List',
     {
-      frame: (rowId) => resourceListShown(rowId === RESTORE_ENTRY ? 'maximised' : 'normal', rowId === 'IC-67'),
+      frame: (rowId) => resourceListShown(rowId === RESTORE_ENTRY ? 'maximized' : 'normal', rowId === 'IC-67'),
       heading: (view) => view.resourceList?.heading,
       entries: (view) => tableWindowEntries(view.resourceList),
     },
@@ -1096,7 +1096,7 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     'Dialogue Field',
     {
-      frame: (rowId) => dialogueFieldShown(rowId === RESTORE_ENTRY ? 'maximised' : 'normal'),
+      frame: (rowId) => dialogueFieldShown(rowId === RESTORE_ENTRY ? 'maximized' : 'normal'),
       heading: (view) => view.dialogueField?.heading,
       entries: (view) => view.dialogueField?.titleEntries,
     },
@@ -1165,13 +1165,13 @@ const labelIn = (commands: readonly CommandItem[] | undefined, icon: string): st
  * its grab band.
  *
  * ⭐ THE BAND'S OWN IS NOT IN A GROUP AND CANNOT BE. Table T-109 gives IC-75 no
- * 群 -- FR-053 (MUST) puts the minimise toggle on the band, beside IC-53 -- so
+ * 群 -- FR-053 (MUST) puts the minimize toggle on the band, beside IC-53 -- so
  * `groups` alone would miss a row whose word the dictionary holds, and this file
  * would report it as a word reaching nowhere.
  */
 const paletteCommands = (view: ScreenView): readonly CommandItem[] => {
   const inGroups = (view.commandPalette?.groups ?? []).flatMap((group) => group.commands)
-  const onBand = view.commandPalette?.minimise
+  const onBand = view.commandPalette?.minimize
   return onBand === undefined ? inGroups : [...inGroups, onBand]
 }
 
@@ -1185,7 +1185,7 @@ const scrollbarTooltip = (view: ScreenView, axis: string): string | undefined =>
  * Where the palette floats this frame (FR-053 has the person drag it there).
  *
  * ⭐ A POINT, NOT A RECTANGLE: FR-053 (MUST) makes the palette's size follow its
- * contents, so no description carries an extent to take a centre of. Nothing
+ * contents, so no description carries an extent to take a center of. Nothing
  * below needs one -- the pointer only has to be somewhere on the palette for
  * EZ-2 to be asked, and which entry it rests on is `iconUnderPointer`'s answer.
  */
@@ -1267,7 +1267,7 @@ for (const entry of GENERATED['icons'] ?? []) {
     unit: string,
     frame: Frame,
     // ⚠️ A POINT rather than a rectangle: the palette has no extent to take a
-    // centre of (FR-053, MUST NOT), so each caller hands over the point it
+    // center of (FR-053, MUST NOT), so each caller hands over the point it
     // means directly.
     pointer: { readonly x: number; readonly y: number },
     read: (view: ScreenView) => string | undefined,
@@ -1288,7 +1288,7 @@ for (const entry of GENERATED['icons'] ?? []) {
   }
 
   if (surfaces.includes('App Header')) {
-    on(`the App Header entry ${rowId}`, 'UF-62', BASE, centreOf(REGIONS.appHeader), (view) =>
+    on(`the App Header entry ${rowId}`, 'UF-62', BASE, centerOf(REGIONS.appHeader), (view) =>
       labelIn(view.appHeaderItems.commands, rowId),
     )
   }
@@ -1298,7 +1298,7 @@ for (const entry of GENERATED['icons'] ?? []) {
     )
   }
   for (const surface of surfaces.filter((name) => SURFACE_NAMES.includes(name))) {
-    on(`the ${surface} entry ${rowId}`, 'UF-66', surfaceFrame(surface, rowId), centreOf(REGIONS.scheduleCanvas), (view) =>
+    on(`the ${surface} entry ${rowId}`, 'UF-66', surfaceFrame(surface, rowId), centerOf(REGIONS.scheduleCanvas), (view) =>
       labelIn(sceneOf(surface).entries(view), rowId),
     )
   }
@@ -1962,8 +1962,8 @@ for (const entry of GENERATED['arms'] ?? []) {
       root: withScreen(PALETTE_SHOWN.root, { armModeState: armed }),
     },
     // ⚠️ `?? undefined` FOLDS THE ONE NULL STATE INTO "no reading at all", and
-    // it cannot arise here: `PALETTE_SHOWN` is not minimised, and FR-053 makes
-    // minimised the only state whose `armedText` is null (ruling 2026-09-01).
+    // it cannot arise here: `PALETTE_SHOWN` is not minimized, and FR-053 makes
+    // minimized the only state whose `armedText` is null (ruling 2026-09-01).
     read: (view) => view.commandPalette?.armedText ?? undefined,
   })
 }
@@ -2032,7 +2032,7 @@ for (const section of ['fileStatus', 'exportFormats']) {
 // ⛔ NOR COULD A FRAME BE RAISED THAT WOULD PRINT IT HONESTLY. To put the word
 // on the screen this file would first have to write it into `SCHEDULE` as a
 // `TaskGroup.label` itself -- and then the case would be finding its own input,
-// which is the trap the stand-ins in `ASKING` and `TELLING` are spelt in ASCII
+// which is the trap the stand-ins in `ASKING` and `TELLING` are spelled in ASCII
 // to avoid. ⭐ So this omission is of the STRONGEST kind, the kind omission 6
 // makes for the weekdays: not "the member is one this file may not name" (those
 // six sections are still held by the whole-view reading), but "no frame this
@@ -2041,7 +2041,7 @@ for (const section of ['fileStatus', 'exportFormats']) {
 // ⭐ THE WORD IS STILL RIGHTLY IN THE DICTIONARY, and this file must not be read
 // as saying otherwise. FR-032 sends it here BY NAME -- 「⭐ **語は `FR-038` の辞書
 // が持ち、ここに綴らない。**」 -- because the alternative is a Japanese and an
-// English string spelt into a unit or into a requirement, which FR-038 (MUST
+// English string spelled into a unit or into a requirement, which FR-038 (MUST
 // NOT) forbids. ⚠️ Being kept in the dictionary and being printed by a frame are
 // two different claims, and only the second is this file's.
 //
@@ -2152,7 +2152,7 @@ for (const entry of GENERATED['helpLegal'] ?? []) {
     key: part,
     field: 'text',
     unit: 'UF-66',
-    what: `the help's licence word ${part}`,
+    what: `the help's license word ${part}`,
     frame: HELP_SHOWN,
     read: (view) => view.helpModal?.helpLegal[part],
   })
@@ -2410,7 +2410,7 @@ for (const entry of GENERATED['themeHues'] ?? []) {
     key: rowId,
     field: 'text',
     unit: 'UF-64',
-    what: `the choice ${rowId} of table T-305 on the settings face's theme colour field`,
+    what: `the choice ${rowId} of table T-305 on the settings face's theme color field`,
     frame: PANEL_STATES['documentSettings'] as Frame,
     read: (view) => themeHueControlOf(view)?.choices?.[T305_ROWS.indexOf(rowId)],
   })
@@ -2419,19 +2419,19 @@ for (const entry of GENERATED['themeHues'] ?? []) {
 // see CV-9, T-294, FR-019, DFC-1640
 // WHY: CV-9 bans neither black nor transparent on a highlight box; its fill's null follows the
 // theme (S-155) and its frame's is the fixed S-312, so one box prints both forms of entrance 2.
-const colourControlOf = (view: ScreenView, holder: string, column: string) =>
+const colorControlOf = (view: ScreenView, holder: string, column: string) =>
   view.propertiesPanel?.fields
     .flatMap((field) => field.controls)
     .find((control) => control.key.holder === holder && control.key.column === column)
-const BOX_FILL = (view: ScreenView) => colourControlOf(view, 'highlightBox', 'fillColor')
-const BOX_FRAME = (view: ScreenView) => colourControlOf(view, 'highlightBox', 'strokeColor')
+const BOX_FILL = (view: ScreenView) => colorControlOf(view, 'highlightBox', 'fillColor')
+const BOX_FRAME = (view: ScreenView) => colorControlOf(view, 'highlightBox', 'strokeColor')
 // WHY: SCHEDULE's task holds a custom fill (CR-548), so the custom entrance's tooltip names its value (CV-9).
-const TASK_FILL = (view: ScreenView) => colourControlOf(view, 'taskVisual', 'fillColor')
+const TASK_FILL = (view: ScreenView) => colorControlOf(view, 'taskVisual', 'fillColor')
 const CUSTOM_VALUE_SLOT = '{value}'
-for (const entry of GENERATED['colourNames'] ?? []) {
-  const spelling = keyOf('colourNames', entry)
+for (const entry of GENERATED['colorNames'] ?? []) {
+  const spelling = keyOf('colorNames', entry)
   place({
-    section: 'colourNames',
+    section: 'colorNames',
     key: spelling,
     field: 'text',
     unit: 'UF-67',
@@ -2444,31 +2444,31 @@ for (const entry of GENERATED['colourNames'] ?? []) {
     },
   })
 }
-const COLOUR_FIELD_READS: Readonly<
+const COLOR_FIELD_READS: Readonly<
   Record<string, { readonly frame: Frame; readonly read: (view: ScreenView) => string | undefined }>
 > = {
-  custom: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.custom.hint },
-  themeHint: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.theme.hint },
-  noFill: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.transparentWord },
-  noLine: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FRAME(view)?.colour?.transparentWord },
-  defaultColour: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FRAME(view)?.colour?.theme.hint },
-  themeGlyph: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.theme.glyph },
-  customGlyph: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.colour?.custom.glyph },
+  custom: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.color?.custom.hint },
+  themeHint: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.color?.theme.hint },
+  noFill: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.color?.transparentWord },
+  noLine: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FRAME(view)?.color?.transparentWord },
+  defaultColor: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FRAME(view)?.color?.theme.hint },
+  themeGlyph: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.color?.theme.glyph },
+  customGlyph: { frame: HIGHLIGHT_BOX_PICKED, read: (view) => BOX_FILL(view)?.color?.custom.glyph },
   customValue: {
     frame: BASE,
-    read: (view) => TASK_FILL(view)?.colour?.custom.hint.replace(/#[0-9A-F]{6}/, CUSTOM_VALUE_SLOT),
+    read: (view) => TASK_FILL(view)?.color?.custom.hint.replace(/#[0-9A-F]{6}/, CUSTOM_VALUE_SLOT),
   },
 }
-for (const entry of GENERATED['colourField'] ?? []) {
-  const part = keyOf('colourField', entry)
-  const at = COLOUR_FIELD_READS[part]
+for (const entry of GENERATED['colorField'] ?? []) {
+  const part = keyOf('colorField', entry)
+  const at = COLOR_FIELD_READS[part]
   if (at === undefined) continue
   place({
-    section: 'colourField',
+    section: 'colorField',
     key: part,
     field: 'text',
     unit: 'UF-67',
-    what: `the ${part} word CV-9 of table T-017b has a colour field show`,
+    what: `the ${part} word CV-9 of table T-017b has a color field show`,
     frame: at.frame,
     read: at.read,
   })
@@ -2527,8 +2527,8 @@ const SEARCH_PANEL_READS: Readonly<
     read: (view) => searchCellOf(view, SEARCH_TASK_BY_STATE['PS-1']?.uid ?? 0, NAME_COLUMN),
   },
   restore: {
-    frame: SEARCH_MAXIMISED,
-    read: (view) => labelIn(view.searchPanel?.titleEntries, MAXIMISE_ENTRY),
+    frame: SEARCH_MAXIMIZED,
+    read: (view) => labelIn(view.searchPanel?.titleEntries, MAXIMIZE_ENTRY),
   },
   showValue: {
     frame: SEARCH_SHOW_FILTER_OPEN,
@@ -2889,7 +2889,7 @@ const shownSpanFramesShowing = (
 }
 
 // see CV-9, FR-038, CR-689
-// WHY: `customValue` fills `{value}` with the stored custom colour, so its slot is matched open.
+// WHY: `customValue` fills `{value}` with the stored custom color, so its slot is matched open.
 const customValueFramesShowing = (
   word: string,
   language: string,
@@ -3166,7 +3166,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
         .flatMap(([section, entries]) => entries.map((entry) => ({ section, key: keyOf(section, entry) })))
         .filter((one) => one.key === '')
         .map((one) => one.section),
-      'an entry with no key is an entry this file reads under the same name as its neighbours',
+      'an entry with no key is an entry this file reads under the same name as its neighbors',
     ).toEqual([])
 
     const accounted = new Set([
@@ -3456,7 +3456,7 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
                 ? shownSpanFramesShowing(cell.word, cell.language)
                 : cell.section === 'propertyField'
                 ? propertyFieldFramesShowing(cell.word, cell.language)
-                : cell.section === 'colourField' && cell.key === 'customValue'
+                : cell.section === 'colorField' && cell.key === 'customValue'
                 ? customValueFramesShowing(cell.word, cell.language)
                 : cell.section === 'searchPanel' && COUNT_SLOTTED_SEARCH_PANEL_PARTS.has(cell.key)
                 ? countSlottedFramesShowing(cell.word, cell.language)
@@ -3481,9 +3481,9 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
       // place to the written word in EACH language, which is the same claim
       // made against ONE member instead of against every string in the view.
       // ⚠️ Made here too, the whole-view reading turns false the moment a word
-      // is spelt like something the view carries untranslated: the settled
+      // is spelled like something the view carries untranslated: the settled
       // names of table T-103 travel on `openModal.surface` in either language,
-      // and one entry's English word is spelt exactly like the surface it
+      // and one entry's English word is spelled exactly like the surface it
       // opens. That is FR-038 working, not failing -- table T-103 holds names,
       // not screen text.
       if (PLACES.some((one) => one.section === cell.section && one.key === cell.key)) continue

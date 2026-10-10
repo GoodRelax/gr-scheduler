@@ -792,7 +792,7 @@
       "ja": "テーマ色の色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73`"
      },
      "schemaNote": {
-      "en": "The hue that tasks and task groups without a colour of their own are drawn in. It belongs to the project, not to the reader, so it is here and not in documentSettings."
+      "en": "The hue that tasks and task groups without a color of their own are drawn in. It belongs to the project, not to the reader, so it is here and not in documentSettings."
      }
     },
     {
@@ -2356,7 +2356,7 @@
    "name": "TaskVisual",
    "description": {
     "ja": "タスクの見せ方。形と色。どのタスクもちょうど 1 つ持つ",
-    "en": "How a task is drawn: its shape and its colours; every task has exactly one, so that no other way of drawing a task is needed."
+    "en": "How a task is drawn: its shape and its colors; every task has exactly one, so that no other way of drawing a task is needed."
    },
    "export": false,
    "carry": false,

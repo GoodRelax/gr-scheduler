@@ -141,7 +141,7 @@ function isNameField(fieldRow: string): boolean {
   return fieldRow === TASK_NAME_FIELD_ROW
 }
 
-// WHY: an end of the name field, committed or cancelled, makes the next Enter the one that settles the name (FR-091).
+// WHY: an end of the name field, committed or canceled, makes the next Enter the one that settles the name (FR-091).
 /** @purity pure */
 function nameEnded(naming: CreatedTaskNamingState, fieldRow: string): CreatedTaskNamingState {
   if (naming.kind !== 'namingCreatedTask' || !isNameField(fieldRow)) return naming

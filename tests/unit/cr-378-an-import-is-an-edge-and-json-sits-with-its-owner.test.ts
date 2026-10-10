@@ -235,16 +235,16 @@ describe('CR-378 table T-247: what a component edge is, read against src/', () =
       next.add(keyOf(one.to))
       sameLayer.set(keyOf(one.from), next)
     }
-    const colour = new Map<string, 'open' | 'done'>()
+    const color = new Map<string, 'open' | 'done'>()
     const visit = (node: string, trail: readonly string[]): void => {
-      colour.set(node, 'open')
+      color.set(node, 'open')
       for (const next of [...(sameLayer.get(node) ?? [])].sort()) {
-        if (colour.get(next) === 'open') violations.push(`LR-3: ${[...trail, next].join(' -> ')}`)
-        else if (colour.get(next) === undefined) visit(next, [...trail, next])
+        if (color.get(next) === 'open') violations.push(`LR-3: ${[...trail, next].join(' -> ')}`)
+        else if (color.get(next) === undefined) visit(next, [...trail, next])
       }
-      colour.set(node, 'done')
+      color.set(node, 'done')
     }
-    for (const node of [...sameLayer.keys()].sort()) if (colour.get(node) === undefined) visit(node, [node])
+    for (const node of [...sameLayer.keys()].sort()) if (color.get(node) === undefined) visit(node, [node])
     expect(violations).toEqual([])
   })
 })

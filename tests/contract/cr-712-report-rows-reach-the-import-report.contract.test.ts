@@ -181,10 +181,10 @@ describe(`a landed reading with counts raises U-62 -- ${FR_076_REPORT_ROWS_GO_TO
   })
 
   it('a reading that never lands leaves no count in the session', () => {
-    const cancelled = stepped(emptyScreenSession, [
+    const canceled = stepped(emptyScreenSession, [
       ...MERGING.slice(0, 2),
       { type: 'flowSurfaceClosed', surfaceName: 'U-56' },
     ])
-    expect(isEmptyHeld(reportedOf(cancelled)), 'reportedCounts starts empty and stays empty').toBe(true)
+    expect(isEmptyHeld(reportedOf(canceled)), 'reportedCounts starts empty and stays empty').toBe(true)
   })
 })

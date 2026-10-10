@@ -42,12 +42,12 @@ const cellOf = (table: string, id: string, heading: string): string => {
   if (cell === undefined) throw new Error(`table ${table} has no cell ${id} / ${heading}`)
   return cell
 }
-const colourOf = (id: string, theme: Theme): string => {
+const colorOf = (id: string, theme: Theme): string => {
   const cell = cellOf('T-236', id, THEME_COLUMN[theme])
   const same = /(S-\d+[a-z]?)`?\s*に同じ/.exec(cell)
-  if (same !== null) return colourOf(same[1] as string, theme)
+  if (same !== null) return colorOf(same[1] as string, theme)
   const hex = /#[0-9a-fA-F]{6}/.exec(cell)
-  if (hex === null) throw new Error(`no colour in ${id}: ${cell}`)
+  if (hex === null) throw new Error(`no color in ${id}: ${cell}`)
   return hex[0].toLowerCase()
 }
 const settingIdOf = (cell: string): string => {
@@ -116,8 +116,8 @@ function stageOf(monochrome: boolean): Stage {
   return { schedule, settings, regions, layout, geometry }
 }
 
-const COLOURED = stageOf(false)
-const GREY = stageOf(true)
+const COLORED = stageOf(false)
+const GRAY = stageOf(true)
 
 function pictureOf(stage: Stage, theme: Theme): string {
   return svgFromSchedule(stage.schedule, stage.settings, stage.layout, stage.geometry, stage.regions, emptySelection(), 'screen', {
@@ -142,7 +142,7 @@ function markOf(stage: Stage, theme: Theme, uid: number): Mark {
     .filter((one) => key.test(one))
   const isDisc = (shape: string): boolean =>
     shape.startsWith('<circle') && Math.abs(attr(shape, 'r') - marker.radius) < 0.01 &&
-    Math.abs(attr(shape, 'cx') - marker.centre.x) < 0.01
+    Math.abs(attr(shape, 'cx') - marker.center.x) < 0.01
   const disc = shapes.find(isDisc)
   if (disc === undefined) throw new Error(`task ${uid}: no disc among ${shapes.join('')}`)
   return { symbol: marker.symbol, disc, symbolShapes: shapes.filter((one) => one !== disc) }
@@ -161,30 +161,30 @@ describe('CR-616 -- the clauses read here are still in the specification', () =>
 
   it('premise: the stage draws DG-1 .. DG-4, PM-2 and PM-3 where it means to', () => {
     // WHY: T-315 makes DG-4 the PM-4 mark itself, so the geometry names it PM-4.
-    for (const row of DG_ROWS) expect(markOf(COLOURED, 'light', UID_OF[row]).symbol, row).toBe(row === 'DG-4' ? 'PM-4' : row)
-    expect(markOf(COLOURED, 'light', DONE).symbol).toBe('PM-2')
-    expect(markOf(COLOURED, 'light', SUSPENDED).symbol).toBe('PM-3')
+    for (const row of DG_ROWS) expect(markOf(COLORED, 'light', UID_OF[row]).symbol, row).toBe(row === 'DG-4' ? 'PM-4' : row)
+    expect(markOf(COLORED, 'light', DONE).symbol).toBe('PM-2')
+    expect(markOf(COLORED, 'light', SUSPENDED).symbol).toBe('PM-3')
   })
 })
 
-describe('FR-013 (CR-616 E-10) -- the edge of every DG mark is the colour of its symbol, S-24 thick', () => {
+describe('FR-013 (CR-616 E-10) -- the edge of every DG mark is the color of its symbol, S-24 thick', () => {
   for (const theme of THEMES) {
-    it(`DG-1 .. DG-4 (${theme}): one edge colour for the four states, the S-327 value`, () => {
-      const edges = DG_ROWS.map((row) => paintOf(markOf(COLOURED, theme, UID_OF[row]).disc, 'stroke'))
+    it(`DG-1 .. DG-4 (${theme}): one edge color for the four states, the S-327 value`, () => {
+      const edges = DG_ROWS.map((row) => paintOf(markOf(COLORED, theme, UID_OF[row]).disc, 'stroke'))
       expect(new Set(edges).size, edges.join(' ')).toBe(1)
-      expect(edges[0]).toBe(colourOf('S-327', theme))
+      expect(edges[0]).toBe(colorOf('S-327', theme))
     })
 
     for (const row of DG_ROWS) {
       it(`${row} (${theme}): the edge is the ${inkIdOf(row)} value, as wide as S-24`, () => {
-        const mark = markOf(COLOURED, theme, UID_OF[row])
-        expect(paintOf(mark.disc, 'stroke')).toBe(colourOf(inkIdOf(row), theme))
-        expect(attr(mark.disc, 'stroke-width')).toBeCloseTo(drawnEdgeWidth(COLOURED), 1)
+        const mark = markOf(COLORED, theme, UID_OF[row])
+        expect(paintOf(mark.disc, 'stroke')).toBe(colorOf(inkIdOf(row), theme))
+        expect(attr(mark.disc, 'stroke-width')).toBeCloseTo(drawnEdgeWidth(COLORED), 1)
       })
 
       it(`${row} (${theme}): the symbol is painted in the S-327 value and nothing else`, () => {
-        const ink = colourOf('S-327', theme)
-        const mark = markOf(COLOURED, theme, UID_OF[row])
+        const ink = colorOf('S-327', theme)
+        const mark = markOf(COLORED, theme, UID_OF[row])
         expect(mark.symbolShapes.length, mark.disc).toBeGreaterThan(0)
         for (const shape of mark.symbolShapes) {
           expect([ink, 'none'], shape).toContain(paintOf(shape, 'fill'))
@@ -195,39 +195,39 @@ describe('FR-013 (CR-616 E-10) -- the edge of every DG mark is the colour of its
 
     for (const row of ['DG-1', 'DG-2', 'DG-3'] as const) {
       it(`${row} (${theme}): the disc is filled with the ${groundIdOf(row)} value (T-236, T-315)`, () => {
-        expect(paintOf(markOf(COLOURED, theme, UID_OF[row]).disc, 'fill')).toBe(colourOf(groundIdOf(row), theme))
+        expect(paintOf(markOf(COLORED, theme, UID_OF[row]).disc, 'fill')).toBe(colorOf(groundIdOf(row), theme))
       })
     }
 
-    it(`PM-2 and PM-3 (${theme}): the edge follows the same rule, the S-161 symbol colour`, () => {
+    it(`PM-2 and PM-3 (${theme}): the edge follows the same rule, the S-161 symbol color`, () => {
       for (const uid of [DONE, SUSPENDED]) {
-        const mark = markOf(COLOURED, theme, uid)
-        expect(paintOf(mark.disc, 'stroke'), mark.symbol).toBe(colourOf('S-161', theme))
-        expect(attr(mark.disc, 'stroke-width'), mark.symbol).toBeCloseTo(drawnEdgeWidth(COLOURED), 1)
+        const mark = markOf(COLORED, theme, uid)
+        expect(paintOf(mark.disc, 'stroke'), mark.symbol).toBe(colorOf('S-161', theme))
+        expect(attr(mark.disc, 'stroke-width'), mark.symbol).toBeCloseTo(drawnEdgeWidth(COLORED), 1)
       }
     })
   }
 })
 
-describe('FR-133 (CR-616 E-13) -- in monochrome (FR-041) the close colours are told apart by shape', () => {
+describe('FR-133 (CR-616 E-13) -- in monochrome (FR-041) the close colors are told apart by shape', () => {
   const shapeOf = (row: DgRow): string =>
-    markOf(GREY, 'light', UID_OF[row]).symbolShapes.map((one) => /^<([a-z]+)/.exec(one)?.[1] ?? '').join(' ')
+    markOf(GRAY, 'light', UID_OF[row]).symbolShapes.map((one) => /^<([a-z]+)/.exec(one)?.[1] ?? '').join(' ')
 
   it('DG-2, DG-3 and DG-4 draw three different symbol shapes', () => {
     const shapes = (['DG-2', 'DG-3', 'DG-4'] as const).map(shapeOf)
     expect(new Set(shapes).size, shapes.join(' | ')).toBe(3)
   })
 
-  it('control: monochrome is on -- the DG-3 ground is drawn grey', () => {
-    const fill = paintOf(markOf(GREY, 'light', UID_OF['DG-3']).disc, 'fill')
-    expect(fill).not.toBe(colourOf('S-385', 'light'))
+  it('control: monochrome is on -- the DG-3 ground is drawn gray', () => {
+    const fill = paintOf(markOf(GRAY, 'light', UID_OF['DG-3']).disc, 'fill')
+    expect(fill).not.toBe(colorOf('S-385', 'light'))
   })
 })
 
 describe('T-236 (CR-616 decision 3) -- S-398 stays apart from S-387', () => {
   it('S-398 is not the S-387 value in either theme, and reads at the NFR-007 text ratio on the light ground', () => {
     const textRatio = Number(/文字について ([\d.]+) : 1/.exec(NFR_007_TEXT)?.[1] ?? 'NaN')
-    for (const theme of THEMES) expect(colourOf('S-398', theme), theme).not.toBe(colourOf('S-387', theme))
-    expect(contrastOf(colourOf('S-398', 'light'), colourOf('S-146', 'light'))).toBeGreaterThanOrEqual(textRatio)
+    for (const theme of THEMES) expect(colorOf('S-398', theme), theme).not.toBe(colorOf('S-387', theme))
+    expect(contrastOf(colorOf('S-398', 'light'), colorOf('S-146', 'light'))).toBeGreaterThanOrEqual(textRatio)
   })
 })

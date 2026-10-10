@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import type { ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import {
-  paintedColour,
+  paintedColor,
   paintedGround,
   resolved,
   selfAndDescendants,
@@ -38,11 +38,11 @@ const VIEW = {
   tooltips: [{ anchor: { kind: 'task', taskUid: 1 }, text: 'first line\nsecond line', assignment: null, at: { x: 40, y: 60 } }],
 } as unknown as ScreenView
 
-// WHY: the table writes a hue-driven colour as `hsl(H 14% 87%)`; the drawn hue stands for the H.
-const colourOf = (id: string, theme: 'light' | 'dark', hue: number): string => {
+// WHY: the table writes a hue-driven color as `hsl(H 14% 87%)`; the drawn hue stands for the H.
+const colorOf = (id: string, theme: 'light' | 'dark', hue: number): string => {
   const row = specTable('T-236').rows.find((one) => one.id === id)
   const cell = row?.by[theme === 'light' ? '明るいテーマ' : '暗いテーマ']
-  if (cell === undefined) throw new Error(`table T-236 row ${id} has no ${theme} colour`)
+  if (cell === undefined) throw new Error(`table T-236 row ${id} has no ${theme} color`)
   return cell.replace(/`/g, '').replace(/\bH\b/, String(hue)).replace(/\s+/g, '').toLowerCase()
 }
 
@@ -55,7 +55,7 @@ const tipOf = (theme: ScreenTheme): { readonly built: ReturnType<typeof wire>; r
   return { built, tip }
 }
 
-const borderColourOf = (built: ReturnType<typeof wire>, tip: FakeElement): string => {
+const borderColorOf = (built: ReturnType<typeof wire>, tip: FakeElement): string => {
   const written = styleMap(tip).get('border-color') ?? /(var\([^)]*\)|#[0-9a-f]{3,8}|hsl\([^)]*\))\s*$/i.exec(styleMap(tip).get('border') ?? '')?.[1] ?? ''
   return resolved(built, written)
 }
@@ -67,23 +67,23 @@ const THEMES: readonly ScreenTheme[] = [
   { preference: 'dark', hue: 300 },
 ]
 
-describe('DFC-1655: the tooltip colours are the three rows IN-7 names (T-236 S-146, S-147, S-149)', () => {
+describe('DFC-1655: the tooltip colors are the three rows IN-7 names (T-236 S-146, S-147, S-149)', () => {
   for (const theme of THEMES) {
     const name = `${theme.preference} theme, hue ${theme.hue}`
 
     it(`IN-7 the ground of a tooltip is S-146 in the ${name}`, () => {
       const { built, tip } = tipOf(theme)
-      expect(paintedGround(built, tip)).toBe(colourOf('S-146', theme.preference, theme.hue))
+      expect(paintedGround(built, tip)).toBe(colorOf('S-146', theme.preference, theme.hue))
     })
 
     it(`IN-7 the ink of a tooltip is S-147 in the ${name}`, () => {
       const { built, tip } = tipOf(theme)
-      expect(paintedColour(built, tip)).toBe(colourOf('S-147', theme.preference, theme.hue))
+      expect(paintedColor(built, tip)).toBe(colorOf('S-147', theme.preference, theme.hue))
     })
 
     it(`IN-7 the edge of a tooltip is S-149 in the ${name}`, () => {
       const { built, tip } = tipOf(theme)
-      expect(borderColourOf(built, tip)).toBe(colourOf('S-149', theme.preference, theme.hue))
+      expect(borderColorOf(built, tip)).toBe(colorOf('S-149', theme.preference, theme.hue))
     })
   }
 })

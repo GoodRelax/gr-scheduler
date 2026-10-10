@@ -336,12 +336,12 @@ function markerPullRow(context: InputContext, uid: number): 'PE-8' | 'PE-10' {
   // dummy is gone and the actual it will put stands, so read the dummy only when no actual is drawn.
   if (state === 'notStarted' && drawn.actual === null) {
     const inks = drawn.dummies.map((one) => one.ink.x + one.ink.width)
-    return inks.length > 0 && marker.centre.x >= Math.max(...inks) ? 'PE-8' : 'PE-10'
+    return inks.length > 0 && marker.center.x >= Math.max(...inks) ? 'PE-8' : 'PE-10'
   }
   if (state === 'suspendedResumeUnknown' || state === 'suspendedResumePlanned') return 'PE-10'
   const bar = drawn.actual
   const rightEdge = bar === null ? null : rightEdgeOfBar(bar)
-  return rightEdge !== null && marker.centre.x >= rightEdge ? 'PE-8' : 'PE-10'
+  return rightEdge !== null && marker.center.x >= rightEdge ? 'PE-8' : 'PE-10'
 }
 
 /** @purity pure */
@@ -748,7 +748,7 @@ function highlightTaskGroupSpanOf(
 }
 
 // see CM-54, FR-019, WT-10
-// TRAP: normalise here, not in edit-annotation.ts: CM-54 checks no direction, so a reversed pair would be stored as dragged.
+// TRAP: normalize here, not in edit-annotation.ts: CM-54 checks no direction, so a reversed pair would be stored as dragged.
 /** @purity pure */
 function highlightRangeWrite(
   context: InputContext,

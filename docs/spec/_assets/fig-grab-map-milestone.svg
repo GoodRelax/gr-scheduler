@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 310 900 30" width="900" height="30" role="img" aria-label="grab-area map for a milestone, including its neighbour">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 310 900 30" width="900" height="30" role="img" aria-label="grab-area map for a milestone, including its neighbor">
   <title>図 F-022 -- ◆ の掴み代の地図（④、隣接を含む）</title>
   <!-- GENERATED ARTIFACT: do not hand-edit.
-     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behaviour)
+     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behavior)
              + docs/spec/_source/settings.json (values, gated: see the probe's settings-gate)
      regenerate: node tools/probe/grab-figures.mjs
      produced this file: docs/spec/_assets/fig-grab-map-milestone.svg

@@ -55,8 +55,8 @@ const onlyRowOf = (id: string): Readonly<Record<string, string>> => {
 const LEGEND_ROW = 'IC-102'
 const CLOSE_ROW = 'IC-52'
 const HELP_LANGUAGE_ROW = 'IC-128'
-const MINIMISE_ROW = 'IC-129'
-const MAXIMISE_ROW = 'IC-130'
+const MINIMIZE_ROW = 'IC-129'
+const MAXIMIZE_ROW = 'IC-130'
 const RESTORE_ROW = 'IC-131'
 const HELP_SURFACE = bare(onlyRowOf(LEGEND_ROW)[H_SURFACE] ?? '')
 const PANEL_SURFACE = 'Properties Panel'
@@ -94,7 +94,7 @@ const READINGS: ScreenViewReadings = {
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }
 
-type HelpWindow = 'normal' | 'minimised' | 'maximised'
+type HelpWindow = 'normal' | 'minimized' | 'maximized'
 
 const helpShown = (language: DisplayLanguage, window: HelpWindow): ScreenSession =>
   ({
@@ -236,7 +236,7 @@ function drawnPanel(showing: 'selection' | 'documentSettings'): FakeElement {
 describe('DFC-587 premises read from the manuscript', () => {
   it('T-109 places the legend on the help and at least the close entrance on the panel', () => {
     expect(HELP_SURFACE).toBe('Help Modal')
-    for (const row of [CLOSE_ROW, HELP_LANGUAGE_ROW, MINIMISE_ROW, MAXIMISE_ROW, RESTORE_ROW]) {
+    for (const row of [CLOSE_ROW, HELP_LANGUAGE_ROW, MINIMIZE_ROW, MAXIMIZE_ROW, RESTORE_ROW]) {
       expect(taskGroupsPlacedOn(HELP_SURFACE), row).toContain(row)
     }
     expect(PANEL_TASK_GROUPS).toContain(CLOSE_ROW)
@@ -252,7 +252,7 @@ describe('DFC-587 help title row: the entrances drawn on it', () => {
       const row = helpTitleRow(drawnHelp(language), language)
       const entrances = entrancesIn(row)
       const buttons = buttonsOn(row)
-      const order = [HELP_LANGUAGE_ROW, MINIMISE_ROW, MAXIMISE_ROW, CLOSE_ROW].map((one) => buttons.indexOf(one))
+      const order = [HELP_LANGUAGE_ROW, MINIMIZE_ROW, MAXIMIZE_ROW, CLOSE_ROW].map((one) => buttons.indexOf(one))
       expect(order.every((at) => at >= 0), `${language}: ${whatWasDrawn(row)}`).toBe(true)
       expect([...order].sort((a, b) => a - b), `${language}: ${whatWasDrawn(row)}`).toEqual(order)
       expect(entrances[entrances.length - 1], `${language}: ${whatWasDrawn(row)}`).toBe(CLOSE_ROW)
@@ -264,14 +264,14 @@ describe('DFC-587 help title row: the entrances drawn on it', () => {
   it('FR-036 (MUST NOT): ⛔ タイトルバーに、ほかのものを置いてはならない（MUST NOT）', () => {
     for (const language of LANGUAGES) {
       const row = helpTitleRow(drawnHelp(language), language)
-      expect(buttonsOn(row), `${language}: ${whatWasDrawn(row)}`).toEqual([HELP_LANGUAGE_ROW, MINIMISE_ROW, MAXIMISE_ROW, CLOSE_ROW])
+      expect(buttonsOn(row), `${language}: ${whatWasDrawn(row)}`).toEqual([HELP_LANGUAGE_ROW, MINIMIZE_ROW, MAXIMIZE_ROW, CLOSE_ROW])
     }
   })
 
   it('T-335 WB-4: 最大化の入口は、`WB-3` のあいだだけ `IC-131` に替えて同じ場所に描く', () => {
     for (const language of LANGUAGES) {
-      const row = helpTitleRow(drawnHelp(language, 'maximised'), language)
-      expect(buttonsOn(row), `${language}: ${whatWasDrawn(row)}`).toEqual([HELP_LANGUAGE_ROW, MINIMISE_ROW, RESTORE_ROW, CLOSE_ROW])
+      const row = helpTitleRow(drawnHelp(language, 'maximized'), language)
+      expect(buttonsOn(row), `${language}: ${whatWasDrawn(row)}`).toEqual([HELP_LANGUAGE_ROW, MINIMIZE_ROW, RESTORE_ROW, CLOSE_ROW])
     }
   })
 })

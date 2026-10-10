@@ -102,13 +102,13 @@ const S_175 = dashPairOf('T-206', 'S-175', '既定')
 const S_104 = dashPairOf('T-208', 'S-104', '値')
 
 const THEME_HUE = Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? ''))
-const normalColour = (text: string): string => text.replace(/\s+/g, '').toLowerCase()
+const normalColor = (text: string): string => text.replace(/\s+/g, '').toLowerCase()
 // see T-236
 const t236 = (id: string, preference: 'light' | 'dark'): string => {
   const cell = bare(rowOf('T-236', id).by[preference === 'dark' ? '暗いテーマ' : '明るいテーマ'] ?? '')
   if (/^S-\d+$/.test(cell)) return t236(cell, preference)
-  if (!/^(#|hsl\(|rgba?\()/.test(cell)) throw new Error(`table T-236 ${id} states no colour: ${cell}`)
-  return normalColour(cell.replace('H', String(THEME_HUE)))
+  if (!/^(#|hsl\(|rgba?\()/.test(cell)) throw new Error(`table T-236 ${id} states no color: ${cell}`)
+  return normalColor(cell.replace('H', String(THEME_HUE)))
 }
 
 // WHY: the SVG writes coordinates to two decimals, so a drawn value is compared to 0.006.
@@ -467,7 +467,7 @@ describe('BL-2 -- where the outline stands and its shape', () => {
     }
   })
 
-  it(`BL-2 「${BL_2_SHAPE}」: a milestone -- a diamond centred on x(start), both diagonals the band's height`, () => {
+  it(`BL-2 「${BL_2_SHAPE}」: a milestone -- a diamond centered on x(start), both diagonals the band's height`, () => {
     const stage = stageOf({ tasks: [PLAIN], baselines: [{ uid: 1, start: day(8), finish: day(8), milestone: true }] })
     const band = planBandOf(stage, 1)
     const xStart = planBandOf(stageOf({ tasks: [taskOf({ uid: 1, start: day(8), finish: day(12) })], baselines: [] }), 1).left
@@ -546,13 +546,13 @@ describe('BL-3 -- the line', () => {
     }
   })
 
-  it(`BL-3 「${BL_3_VALUES}」: the colour is S-443, in the light and in the dark theme`, () => {
+  it(`BL-3 「${BL_3_VALUES}」: the color is S-443, in the light and in the dark theme`, () => {
     expect(t236('S-443', 'light'), 'premise: the two themes differ').not.toBe(t236('S-443', 'dark'))
     for (const preference of ['light', 'dark'] as const) {
       const shapes = outlineShapesOf(stage().svg(preference))
       expect(shapes.length, 'premise: the outline is drawn').toBeGreaterThan(0)
       for (const one of shapes) {
-        expect(normalColour(painted(one, 'stroke') ?? ''), `${BL_3_VALUES} (${preference})`).toBe(t236('S-443', preference))
+        expect(normalColor(painted(one, 'stroke') ?? ''), `${BL_3_VALUES} (${preference})`).toBe(t236('S-443', preference))
       }
     }
   })
@@ -677,6 +677,6 @@ describe('S-3, FR-108 -- the outline takes no press', () => {
   it('FR-108 control: the same probe on the current bar does find the Task', () => {
     const stage = stageOf({ tasks: [CURRENT], baselines: [] })
     const band = planBandOf(stage, 1)
-    expect(itemAtPointer(stage.geometry as never, (band.left + band.right) / 2, band.centre, sizes)).not.toBeNull()
+    expect(itemAtPointer(stage.geometry as never, (band.left + band.right) / 2, band.center, sizes)).not.toBeNull()
   })
 })

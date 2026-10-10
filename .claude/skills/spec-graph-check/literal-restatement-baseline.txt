@@ -44,8 +44,8 @@ why: restates the appliesTo column of docs/spec/_source/property-items.json (src
 ARMED_BY_ENTRY | keys | icon-roster.json $.icons[arms].rowId
 why: restates the IC rows of table T-109 that carry an arm (icon-roster.json); keyed by Record<string, ...>, so a new arming icon compiles and arms nothing.
 
-ColourForm | union | generated COLOUR_NAME_VALUES.*.* keys
-why: restates the four colour forms of table T-236 (docs/spec/_source/settings.json), printed as PaletteForms in svg-renderer.ts; could be keyof PaletteForms.
+ColorForm | union | generated COLOR_NAME_VALUES.*.* keys
+why: restates the four color forms of table T-236 (docs/spec/_source/settings.json), printed as PaletteForms in svg-renderer.ts; could be keyof PaletteForms.
 
 FONT_SCALE_STEPS | array | generated DocumentSettings.fontScale union
 why: restates the fontScale values of docs/spec/_source/settings.json (DocumentSettings.fontScale); typed FontScale, so a removed step fails to compile but a new one is never reached.
@@ -71,8 +71,8 @@ why: restates TaskVisual.shapeKind of docs/spec/_source/erd.json; MilestoneGlyph
 TABLE_ROW_OF_SAVE_FORM | values | display-words.json $.exportFormats[].rowId
 why: restates the out-direction IO rows of table T-024 (display-words.json / export-formats.json); its TRAP comment names a second hand copy in document-codec.ts.
 
-THEME_ROW_OF_FORM | keys | generated COLOUR_NAME_VALUES.*.* keys
-why: restates the colour forms of table T-236 through the hand union ColourForm; becomes compile-guarded once ColourForm is derived.
+THEME_ROW_OF_FORM | keys | generated COLOR_NAME_VALUES.*.* keys
+why: restates the color forms of table T-236 through the hand union ColorForm; becomes compile-guarded once ColorForm is derived.
 
 WRITTEN_PROPERTIES | keys | mcp-tool-descriptions.json $.tools[].name
 why: restates the member names of table T-107 (mcp-tool-descriptions.json) as the MCP input-schema keys; the satisfies Record<keyof AgentApi> is the 1:1 compile guard CR-613 section 9 asks for, and tests/contract/cr-613-seam-2 holds the names and order against the table. Registered by the coordinator's leave, 2026-10-01.
@@ -82,8 +82,8 @@ why: restates the member names of table T-107 (mcp-tool-descriptions.json) as th
 CALENDAR_CONSUMED | array | mspdi-child-order.json $.parents.Project/Calendars/Calendar.children
 why: coincidental: the 6 Calendar children the MSPDI codec reads, a chosen subset of the XSD child order (8), not a copy of it.
 
-COLOUR_FORM_OF_COLUMN | values | generated COLOUR_NAME_VALUES.*.* keys
-why: coincidental: maps the colour columns to the form each is drawn in; the forms are its values, typed against ColourForm, not a list of the forms.
+COLOR_FORM_OF_COLUMN | values | generated COLOR_NAME_VALUES.*.* keys
+why: coincidental: maps the color columns to the form each is drawn in; the forms are its values, typed against ColorForm, not a list of the forms.
 
 KEY | values | help-roster.json $.entries[].keys~words
 why: coincidental: the spellings of the keys the translator compares; the help roster names the same keys because shortcuts are keys, not because KEY copies it.

@@ -47,7 +47,7 @@ const numberOf = (cell: string): number => {
 }
 const hexOf = (cell: string): string => {
   const found = /#[0-9a-fA-F]{6}/.exec(cell)
-  if (found === null) throw new Error(`no colour in ${JSON.stringify(cell)}`)
+  if (found === null) throw new Error(`no color in ${JSON.stringify(cell)}`)
   return found[0].toLowerCase()
 }
 const settingIdOf = (cell: string): string => {
@@ -58,11 +58,11 @@ const settingIdOf = (cell: string): string => {
 
 type Theme = 'light' | 'dark'
 const THEME_COLUMN: Record<Theme, string> = { light: '明るいテーマ', dark: '暗いテーマ' }
-// WHY: CR-616 made S-386 / S-388 / S-390 cells point at S-327; the colour is the one that row holds.
-const colourOf = (id: string, theme: Theme): string => {
+// WHY: CR-616 made S-386 / S-388 / S-390 cells point at S-327; the color is the one that row holds.
+const colorOf = (id: string, theme: Theme): string => {
   const cell = cellOf('T-236', id, THEME_COLUMN[theme])
   const same = /(S-\d+[a-z]?)`?\s*に同じ/.exec(cell)
-  return same === null ? hexOf(cell) : colourOf(same[1] as string, theme)
+  return same === null ? hexOf(cell) : colorOf(same[1] as string, theme)
 }
 const ratioOf = (id: string): number => numberOf(cellOf('T-206', id, '既定'))
 
@@ -398,7 +398,7 @@ const boxOf = (points: readonly Pt[]) => ({
 
 interface Reading {
   readonly mark: string
-  readonly centre: Pt
+  readonly center: Pt
   readonly radius: number
   readonly grounds: string[]
   readonly ink: Drawn[]
@@ -409,8 +409,8 @@ interface Reading {
 function readingOf(uid: number, diagnostics: Diagnostics | undefined, theme: Theme, groundId: string, inkId: string): Reading {
   const mark = markOf(pictureOf(uid, diagnostics, theme), uid)
   const figure = taskFigureOf(uid, diagnostics).marker
-  const ground = colourOf(groundId, theme)
-  const ink = colourOf(inkId, theme)
+  const ground = colorOf(groundId, theme)
+  const ink = colorOf(inkId, theme)
   const grounds = shapesIn(mark).filter((one) => one.startsWith('<circle') && paintOf(one, 'fill') === ground)
   const inked = drawnShapesOf(mark).filter(
     (one) => !grounds.includes(one.tag) && (paintOf(one.tag, 'fill') === ink || paintOf(one.tag, 'stroke') === ink),
@@ -424,7 +424,7 @@ function readingOf(uid: number, diagnostics: Diagnostics | undefined, theme: The
   const strokes = inked.filter((one) => paintOf(one.tag, 'stroke') === ink)
   return {
     mark,
-    centre: figure?.centre ?? { x: NaN, y: NaN },
+    center: figure?.center ?? { x: NaN, y: NaN },
     radius: figure?.radius ?? NaN,
     grounds,
     ink: inked,
@@ -508,7 +508,7 @@ describe('FR-013 / T-315 -- the ground and the ink of each DG mark, both themes'
 
       it(`${row} (${theme}): 同表が指す記号の色 -- the symbol is painted ${inkIdOf(row)}`, () => {
         const read = readingOf(LATE, shownWith(LATE, row), theme, groundIdOf(row), inkIdOf(row))
-        const ink = colourOf(inkIdOf(row), theme)
+        const ink = colorOf(inkIdOf(row), theme)
         const texts = textsIn(read.mark).filter((one) => paintOf(one.tag, 'fill') === ink)
         expect(read.ink.length + texts.length, `ink ${ink} in ${read.mark}`).toBeGreaterThanOrEqual(1)
       })
@@ -520,7 +520,7 @@ describe('FR-013 / T-315 -- the ground and the ink of each DG mark, both themes'
       expect(groundIdOf('DG-4'), 'premise: T-315 names S-326 for DG-4').toBe('S-326')
       expect(read.grounds.length, read.mark).toBeGreaterThanOrEqual(1)
       for (const row of ['DG-1', 'DG-2', 'DG-3'] as const) {
-        const other = colourOf(groundIdOf(row), theme)
+        const other = colorOf(groundIdOf(row), theme)
         expect(shapesIn(read.mark).some((one) => paintOf(one, 'fill') === other), `${row} ground in ${read.mark}`).toBe(false)
       }
     })
@@ -530,7 +530,7 @@ describe('FR-013 / T-315 -- the ground and the ink of each DG mark, both themes'
       const read = readingOf(LATE, hidden, theme, 'S-326', 'S-327')
       expect(read.grounds.length, read.mark).toBeGreaterThanOrEqual(1)
       for (const row of ['DG-1', 'DG-2', 'DG-3'] as const) {
-        const other = colourOf(groundIdOf(row), theme)
+        const other = colorOf(groundIdOf(row), theme)
         expect(shapesIn(read.mark).some((one) => paintOf(one, 'fill') === other), `${row} ground in ${read.mark}`).toBe(false)
       }
     })
@@ -546,14 +546,14 @@ describe('FR-133 / T-315 -- the shape of each symbol', () => {
     expect(read.strokes.length, `a stroked line: ${read.mark}`).toBeGreaterThanOrEqual(1)
     const dot = read.dots[0] as { cx: number; cy: number; r: number }
     expect(dot.r, 'S-331: the dot radius').toBeCloseTo(S_331 * read.radius, 1)
-    expect(dot.cy - read.centre.y, 'S-330 x S-341: the dot centre below the centre').toBeCloseTo(S_330 * S_341 * read.radius, 1)
+    expect(dot.cy - read.center.y, 'S-330 x S-341: the dot center below the center').toBeCloseTo(S_330 * S_341 * read.radius, 1)
   })
 
   it('DG-1: `?` の鉤（S-392 ・ S-393）と縦の線の下端（S-394） -- the hook top and the stem bottom', () => {
-    // WHY: counted from the top of the mark, whose diameter is the unit; the hook top is its centre less its radius.
+    // WHY: counted from the top of the mark, whose diameter is the unit; the hook top is its center less its radius.
     const read = readingOf(LATE, shownWith(LATE, 'DG-1'), 'light', 'S-389', 'S-390')
     const diameter = 2 * read.radius
-    const top = read.centre.y - read.radius
+    const top = read.center.y - read.radius
     const box = boxOf(read.strokes.flatMap((one) => one.points))
     expect(box.minY - top, 'S-392 - S-393: the top of the hook').toBeCloseTo((S_392 - S_393) * diameter, 1)
     expect(box.maxY - top, 'S-394: the bottom of the stem').toBeCloseTo(S_394 * diameter, 1)
@@ -568,7 +568,7 @@ describe('FR-133 / T-315 -- the shape of each symbol', () => {
 
   it('DG-2: 炎（S-395 ・ S-396） -- the flame is S-395 scaled to S-396 x the diameter, filled with S-388', () => {
     const read = readingOf(LATE, shownWith(LATE, 'DG-2'), 'light', 'S-387', 'S-388')
-    const ink = colourOf('S-388', 'light')
+    const ink = colorOf('S-388', 'light')
     const unit = sampledPath(S_395)
     const flames = read.ink.filter((one) => one.tag.startsWith('<path') && paintOf(one.tag, 'fill') === ink && one.points.length === unit.length)
     expect(flames.length, `a filled path shaped as S-395 (${unit.length} samples): ${read.mark}`).toBe(1)
@@ -591,24 +591,24 @@ describe('FR-133 / T-315 -- the shape of each symbol', () => {
     expect(read.strokes.length, `two bars: ${read.mark}`).toBe(2)
     const a = read.dots[0] as { cx: number }
     const b = read.dots[1] as { cx: number }
-    expect(Math.abs(a.cx - b.cx), 'S-391: the centres of the two !').toBeCloseTo(S_391 * 2 * read.radius, 1)
+    expect(Math.abs(a.cx - b.cx), 'S-391: the centers of the two !').toBeCloseTo(S_391 * 2 * read.radius, 1)
     const barXs = read.strokes.map((one) => { const box = boxOf(one.points); return (box.minX + box.maxX) / 2 }).sort((x, y) => x - y)
     const dotXs = read.dots.map((one) => one.cx).sort((x, y) => x - y)
     expect(barXs[0], 'each bar stands over its dot').toBeCloseTo(dotXs[0] as number, 1)
     expect(barXs[1], 'each bar stands over its dot').toBeCloseTo(dotXs[1] as number, 1)
   })
 
-  it('DG-3: 各 `!` は S-328 〜 S-331 ・ S-341 -- bar width, bar bottom, dot centre, dot radius', () => {
+  it('DG-3: 各 `!` は S-328 〜 S-331 ・ S-341 -- bar width, bar bottom, dot center, dot radius', () => {
     const read = readingOf(LATE, shownWith(LATE, 'DG-3'), 'light', 'S-385', 'S-386')
     const half = S_341 * read.radius
     expect(read.strokes.length, read.mark).toBe(2)
     for (const bar of read.strokes) {
       expect(attr(bar.tag, 'stroke-width'), 'S-328').toBeCloseTo(delayBarWidth('light'), 1)
-      expect(boxOf(bar.points).maxY - read.centre.y, 'S-329 x S-341: the bar bottom').toBeCloseTo(S_329 * half, 1)
+      expect(boxOf(bar.points).maxY - read.center.y, 'S-329 x S-341: the bar bottom').toBeCloseTo(S_329 * half, 1)
     }
     expect(read.dots.length, read.mark).toBe(2)
     for (const dot of read.dots) {
-      expect(dot.cy - read.centre.y, 'S-330 x S-341: the dot centre').toBeCloseTo(S_330 * half, 1)
+      expect(dot.cy - read.center.y, 'S-330 x S-341: the dot center').toBeCloseTo(S_330 * half, 1)
       expect(dot.r, 'S-331: the dot radius').toBeCloseTo(S_331 * read.radius, 1)
     }
   })

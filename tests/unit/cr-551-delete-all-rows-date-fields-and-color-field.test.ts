@@ -1,4 +1,4 @@
-// CR-551 items 13-16: deleting every task group from the head (HF-20, CD-6, QN-10), the date fields and the colour rows
+// CR-551 items 13-16: deleting every task group from the head (HF-20, CD-6, QN-10), the date fields and the color rows
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -25,8 +25,8 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   questions: { rowId: string; text: { ja: string } }[]
   confirmation: { answer: string; text: { ja: string } }[]
-  colourNames: { spelling: string; text: { ja: string } }[]
-  colourField: { part: string; text: { ja: string } }[]
+  colorNames: { spelling: string; text: { ja: string } }[]
+  colorField: { part: string; text: { ja: string } }[]
 }
 
 const verticalIn = (table: string, id: string) => {
@@ -41,8 +41,8 @@ const numberOf = (cell: string): number => {
   return value
 }
 const hexIn = (cell: string): string => (/#[0-9a-fA-F]{6}/.exec(cell)?.[0] ?? '').toLowerCase()
-const wordOf = (part: string): string => WORDS.colourField.find((one) => one.part === part)?.text.ja ?? ''
-const colourWord = (spelling: string): string => WORDS.colourNames.find((one) => one.spelling === spelling)?.text.ja ?? ''
+const wordOf = (part: string): string => WORDS.colorField.find((one) => one.part === part)?.text.ja ?? ''
+const colorWord = (spelling: string): string => WORDS.colorNames.find((one) => one.spelling === spelling)?.text.ja ?? ''
 
 // see S-335, S-336, S-337, S-338
 const S_335 = numberOf(verticalIn('T-206', 'S-335').by['既定'] ?? '')
@@ -281,7 +281,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
 const FR_006_DELETE = '日付の欄（表 T-016 の入力の型が `日付` の行）を編集しているあいだに `Delete` か `Backspace` を押したときは、欄の字をすべて消して空にすること（MUST）'
 const FR_006_EMPTY_COMMIT =
   '空のまま確定したときは、`start` ／ `finish` の欄なら何も書かずに欄を元の値へ戻し、それ以外の日付の欄なら `null` を書くこと（MUST）'
-const FR_006_COLOUR_LAST =
+const FR_006_COLOR_LAST =
   '見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅の行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
 const FR_006_WIDTH_AFTER =
   '見た目の行どうしは、どの対象でも 枠線の幅 → 枠線の色 → 塗りの色 → 塗りの透過率 → 字の色 の順に並べ、1 つの行に色を 1 つだけ持たせること（MUST）'
@@ -322,7 +322,7 @@ describe('FR-006 -- the date fields', () => {
   it('FR-006 still says: Delete か Backspace ... 空に / null を許す列なら null / start ・ finish は元の値へ / 色の行は末尾', () => {
     expect(REQUIREMENTS).toContain(FR_006_DELETE)
     expect(REQUIREMENTS).toContain(FR_006_EMPTY_COMMIT)
-    expect(REQUIREMENTS).toContain(FR_006_COLOUR_LAST)
+    expect(REQUIREMENTS).toContain(FR_006_COLOR_LAST)
     expect(REQUIREMENTS).toContain(FR_006_WIDTH_AFTER)
   })
 
@@ -375,24 +375,24 @@ describe('FR-006 E-28 -- the look rows are last in their object order', () => {
       const all = T_016.rows.filter((row) => subjectOf(row) === subject)
       const listed = `${subject}: ${all.map((row) => row.id).join(' ')}`
       const ranks = all.map(lookRank)
-      expect(ranks.some(Number.isNaN), `${FR_006_WIDTH_AFTER} (one colour per row); ${listed}`).toBe(false)
+      expect(ranks.some(Number.isNaN), `${FR_006_WIDTH_AFTER} (one color per row); ${listed}`).toBe(false)
       const first = ranks.findIndex((rank) => rank >= 0)
       if (first < 0) continue
       const tail = ranks.slice(first)
-      expect(tail.every((rank) => rank >= 0), `${FR_006_COLOUR_LAST}; ${listed}`).toBe(true)
+      expect(tail.every((rank) => rank >= 0), `${FR_006_COLOR_LAST}; ${listed}`).toBe(true)
       expect(tail, `${FR_006_WIDTH_AFTER}; ${listed}`).toEqual([...tail].sort((a, b) => a - b))
     }
   })
 
-  it('FR-006: the panel on a (non-milestone) Task shows the outline width row, then its colour rows, last', () => {
+  it('FR-006: the panel on a (non-milestone) Task shows the outline width row, then its color rows, last', () => {
     // STEP: the rows T-016 shows for this kind (FR-006)
     const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     const rows = built.view().propertiesPanel?.fields.map((one) => one.row) ?? []
     const taskRows = T_016.rows.filter((row) => subjectOf(row) === 'Task' && ['task', 'both'].includes(shownForOf(row)))
-    const colourRows = taskRows.filter((row) => kindOf(row).includes('色')).map((row) => row.id)
+    const colorRows = taskRows.filter((row) => kindOf(row).includes('色')).map((row) => row.id)
     const widthRow = taskRows.filter(isTaskWidthRow).map((row) => row.id)
-    expect(colourRows.length, 'premise: a task shows colour rows').toBeGreaterThan(0)
-    const tail = [...widthRow, ...colourRows]
+    expect(colorRows.length, 'premise: a task shows color rows').toBeGreaterThan(0)
+    const tail = [...widthRow, ...colorRows]
     expect(rows.slice(rows.length - tail.length)).toEqual(tail)
   })
 })
@@ -425,7 +425,7 @@ const S_530 = numberOf(verticalIn('T-206', 'S-530').by['既定'] ?? '')
 const S_531 = numberOf(verticalIn('T-206', 'S-531').by['既定'] ?? '')
 
 // see T-016
-// WHY: the Task colour rows are found by the column they edit, whatever row id they carry.
+// WHY: the Task color rows are found by the column they edit, whatever row id they carry.
 const taskRowOf = (column: string): string => {
   const found = T_016.rows.find((row) => subjectOf(row) === 'Task' && columnsOf(row).length === 1 && columnsOf(row)[0] === column)
   if (found === undefined) throw new Error(`table T-016 has no Task row for ${column}`)
@@ -437,7 +437,7 @@ const TASK_LINE = taskRowOf('strokeColor')
 const tipOf = (one: FakeElement): string => one.getAttribute('title') ?? ''
 
 // see CV-9
-// WHY: one grid per colour field holds both rows; a cell reads as its name, an entrance, or '' for an empty place.
+// WHY: one grid per color field holds both rows; a cell reads as its name, an entrance, or '' for an empty place.
 function gridOf(built: Bench, row: string): FakeElement {
   const field = inField(built, row)[0]
   if (field === undefined) throw new Error(`the panel drew no field ${row}`)
@@ -446,10 +446,10 @@ function gridOf(built: Bench, row: string): FakeElement {
   return grids[0] as FakeElement
 }
 const cellOf = (one: FakeElement): string => {
-  if (one.getAttribute('data-colour-theme-entry') !== null) return 'theme'
-  if (one.getAttribute('data-colour-custom-entry') !== null) return 'custom'
-  if (one.getAttribute('data-colour-transparent-slot') !== null) return 'transparent slot'
-  return one.getAttribute('data-colour-choice') ?? ''
+  if (one.getAttribute('data-color-theme-entry') !== null) return 'theme'
+  if (one.getAttribute('data-color-custom-entry') !== null) return 'custom'
+  if (one.getAttribute('data-color-transparent-slot') !== null) return 'transparent slot'
+  return one.getAttribute('data-color-choice') ?? ''
 }
 const cellsOf = (built: Bench, row: string): string[] => gridOf(built, row).children.map(cellOf)
 const entranceOf = (built: Bench, row: string, cell: string): FakeElement => {
@@ -458,7 +458,7 @@ const entranceOf = (built: Bench, row: string, cell: string): FakeElement => {
   return found
 }
 const chosenOf = (built: Bench, row: string): string[] =>
-  gridOf(built, row).children.filter((one) => one.getAttribute('data-colour-chosen') === 'true').map(cellOf)
+  gridOf(built, row).children.filter((one) => one.getAttribute('data-color-chosen') === 'true').map(cellOf)
 
 // WHY: CV-9's two rows, read in order: S-338 names and the theme entrance, then the rest, transparent, custom.
 const twoTiers = (): string[] => {
@@ -481,11 +481,11 @@ function taskGroupPanelBox(built: Bench): string {
   built.doubleClickAt(box.x + box.width / 2, box.y + box.height / 2, partOn('Task Group Panel', null, 'g1'))
   const fields = built.view().propertiesPanel?.fields ?? []
   const found = fields.find((one) => one.controls.some((control) => control.key.holder === 'taskGroup' && control.key.column === 'color'))
-  if (found === undefined) throw new Error('the task group properties panel shows no task group colour')
+  if (found === undefined) throw new Error('the task group properties panel shows no task group color')
   return found.row
 }
 
-describe('CV-9 -- the colour field', () => {
+describe('CV-9 -- the color field', () => {
   it('CV-9 still says: 2 段だけ / 並べ方 / 語を見本の外に書かない / 透明の入口の語 / 太い縁 / テーマ追随へ戻す / 押したときにだけ / 空けたまま / ツールチップに値 / 市松', () => {
     for (const clause of [
       CV_9_TWO_ROWS,
@@ -521,10 +521,10 @@ describe('CV-9 -- the colour field', () => {
     const name = built.view().propertiesPanel?.fields.find((one) => one.row === TASK_FILL)?.name ?? ''
     expect(field.children[0]?.textContent, 'the name is the first thing on the line').toBe(name)
     const drawn = selfAndDescendants(field)
-    expect(drawn.filter((one) => one.getAttribute('data-colour-sides') !== null || one.getAttribute('data-colour-swatch') !== null)).toEqual([])
+    expect(drawn.filter((one) => one.getAttribute('data-color-sides') !== null || one.getAttribute('data-color-swatch') !== null)).toEqual([])
   })
 
-  it('CV-9 (2): transparent then custom closes the second row of every colour field (task fill, task line, task group colour)', () => {
+  it('CV-9 (2): transparent then custom closes the second row of every color field (task fill, task line, task group color)', () => {
     // see CV-9, CV-5, FR-007
     const task = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
     for (const row of [TASK_FILL, TASK_LINE]) expect(cellsOf(task, row).slice(-2), row).toEqual([TRANSPARENT, 'custom'])
@@ -562,7 +562,7 @@ describe('CV-9 -- the colour field', () => {
     ['null', null, TASK_FILL, 'theme'],
     ['a palette name', { strokeColor: 'red' }, TASK_LINE, 'red'],
     ['transparent', { fillColor: TRANSPARENT }, TASK_FILL, TRANSPARENT],
-    ['a custom colour', { fillColor: '#aabbcc/#112233' }, TASK_FILL, 'custom'],
+    ['a custom color', { fillColor: '#aabbcc/#112233' }, TASK_FILL, 'custom'],
   ] as const) {
     it(`${CV_9_CHOSEN} -- a value of ${what} outlines the ${chosen} cell alone (S-530, S-531)`, () => {
       // see CV-9, S-530, S-531
@@ -583,7 +583,7 @@ describe('CV-9 -- the colour field', () => {
   })
 
   for (const [name, column, row, value] of [
-    ['a custom colour', 'fillColor', TASK_FILL, '#aabbcc/#112233'],
+    ['a custom color', 'fillColor', TASK_FILL, '#aabbcc/#112233'],
     ['a palette name', 'strokeColor', TASK_LINE, 'red'],
   ] as const) {
     it(`CV-9 / CV-5 E-44: 押したらその欄の色をテーマ追随（null）へ戻す -- ${name} on ${column}, undone in one step`, () => {
@@ -591,24 +591,24 @@ describe('CV-9 -- the colour field', () => {
       const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha'], { [column]: value }))
       const visual = (): Record<string, unknown> =>
         (built.loop.document().schedule.taskVisuals.find((one) => one.taskUid === 1) ?? {}) as Record<string, unknown>
-      expect(visual()[column], 'premise: the colour is set').toBe(value)
+      expect(visual()[column], 'premise: the color is set').toBe(value)
       pressEntry(built, entranceOf(built, row, 'theme'))
       built.frame()
       expect(visual()[column] ?? null, CV_9_THEME).toBeNull()
       built.press('App Header', 'IC-5')
-      expect(visual()[column], 'one undo brings the colour back').toBe(value)
+      expect(visual()[column], 'one undo brings the color back').toBe(value)
     })
   }
 
-  it(`${CV_9_EMPTY_SLOT} -- the task group colour field keeps black's place empty and every later cell in its place`, () => {
+  it(`${CV_9_EMPTY_SLOT} -- the task group color field keeps black's place empty and every later cell in its place`, () => {
     // see CV-9, S-315
     const built = bench(documentWith([{ id: 'g1', parentId: null }], ['Alpha']))
-    const rowColour = taskGroupPanelBox(built)
+    const rowColor = taskGroupPanelBox(built)
     const fields = built.view().propertiesPanel?.fields ?? []
-    expect(fields[fields.length - 1]?.row, 'FR-006: the colour row is last for a TaskGroup too').toBe(rowColour)
+    expect(fields[fields.length - 1]?.row, 'FR-006: the color row is last for a TaskGroup too').toBe(rowColor)
     const expected = twoTiers().map((cell) => (cell === BLACK ? '' : cell))
     expect(expected, 'premise: black is one of the names').not.toEqual(twoTiers())
-    expect(cellsOf(built, rowColour), CV_9_EMPTY_SLOT).toEqual(expected)
+    expect(cellsOf(built, rowColor), CV_9_EMPTY_SLOT).toEqual(expected)
   })
 
   it('CV-9 (JDG-397): 閲覧環境の色の入力は、カスタムカラーの入口を押したときにだけ出す', () => {
@@ -636,7 +636,7 @@ describe('CV-9 -- the colour field', () => {
   it('CV-9: a name swatch is named by its word, as a tooltip', () => {
     // see CV-9, IN-3
     const built = panelOnTask(documentWith([{ id: 'g1', parentId: null }], ['Alpha'], { strokeColor: 'red' }))
-    expect(tipOf(entranceOf(built, TASK_LINE, 'red'))).toBe(colourWord('red'))
+    expect(tipOf(entranceOf(built, TASK_LINE, 'red'))).toBe(colorWord('red'))
   })
 
   it(`${CV_9_CHECKER} (S-335 cells a side, S-336 / S-337)`, () => {

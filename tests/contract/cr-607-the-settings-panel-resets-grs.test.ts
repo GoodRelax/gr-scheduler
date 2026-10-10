@@ -581,7 +581,7 @@ describe(`FR-153 "${FR_153_PLACE}" -- the entry row heads the settings face`, ()
     expect(panel?.fields[0]?.row).toBe(K_60)
   })
 
-  it.each(LANGUAGES)('the IC-139 entry is drawn once, above the theme colour field K-60 (%s)', async (language) => {
+  it.each(LANGUAGES)('the IC-139 entry is drawn once, above the theme color field K-60 (%s)', async (language) => {
     const built = await bench(language)
     await openSettings(built)
     const stage = drawn({ propertiesPanel: built.last().propertiesPanel }, language)
@@ -590,7 +590,7 @@ describe(`FR-153 "${FR_153_PLACE}" -- the entry row heads the settings face`, ()
     const entries = order.filter((one) => one.getAttribute('data-icon') === IC_139)
     expect(entries, `no ${IC_139} entry on the settings face: ${whatWasDrawn(panel)}`).toHaveLength(1)
     const fields = order.filter((one) => one.getAttribute('data-field-row') !== null)
-    expect(fields[0]?.getAttribute('data-field-row'), 'the first field drawn is the theme colour field').toBe(K_60)
+    expect(fields[0]?.getAttribute('data-field-row'), 'the first field drawn is the theme color field').toBe(K_60)
     const entry = entries[0] as FakeElement
     const firstField = fields[0] as FakeElement
     expect(order.indexOf(entry), `${IC_139} must be drawn before (above) the ${K_60} field`).toBeLessThan(

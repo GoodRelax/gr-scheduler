@@ -267,7 +267,7 @@ const SCRIPT = [
   //     to stop a pinned task group being drawn,
   //   - hid a pinned task group with `hideSelf`.
   //
-  // ⛔ THE FIRST OF THEM IS A NORMALISER, NOT A QUESTION. The twenty-five above
+  // ⛔ THE FIRST OF THEM IS A NORMALIZER, NOT A QUESTION. The twenty-five above
   // leave the board in a state this file does not spell out anywhere, and a
   // move whose meaning depends on an unstated state is a move nobody can read.
   // `headOpenAll` is still compared like every other step.
@@ -378,7 +378,7 @@ const SCRIPT = [
   // would blind every other move. ⭐ So this block holds at most FOUR pins, and
   // the cap stays a question for a test that can name it.
 
-  // ⛔ A NORMALISER AND A QUESTION AT ONCE. The fifty leave the board open, so
+  // ⛔ A NORMALIZER AND A QUESTION AT ONCE. The fifty leave the board open, so
   // this press is the head's open-all with nothing left to open -- the first
   // SPENT HEAD entrance this file presses. FR-029 (MUST NOT) lets the press
   // through so the reason can be told; ⛔ what must not happen is a change.
@@ -464,7 +464,7 @@ const say = (step) => step[0] === 'head' ? `head:${step[1]}` : `${step[1]}:${ste
  * Readings where the sample and GRS are MEANT to differ, and why.
  *
  * ⛔⛔ THE SAMPLE IS NOT THE AUTHORITY -- the specification is. The sample is a
- * design reference the user approved for look and behaviour, and where a
+ * design reference the user approved for look and behavior, and where a
  * requirement decides something the sample got another way, the requirement
  * wins. ⚠️ Without this list a justified difference prints as ⛔ for ever, and
  * the obvious way to make the number go up is to break the requirement.
@@ -621,7 +621,7 @@ function theMechanismWorks() {
   const complaints = []
   const ok = (claim, why) => { if (claim !== true) complaints.push(why) }
   ok(defectIn(pretend, 'head:headOne', 'counts') !== null,
-    'a move and reading that ARE pinned were not recognised')
+    'a move and reading that ARE pinned were not recognized')
   ok(defectIn(pretend, 'head:headOne', 'rows  ') === null,
     'a pin leaked onto a reading it does not name')
   ok(defectIn(pretend, 'head:headOpenAll', 'counts') === null,

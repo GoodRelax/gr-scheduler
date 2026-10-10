@@ -60,8 +60,8 @@ const command = (icon: string, isArmed: boolean): CommandItem => ({
 const PALETTE: CommandPalette = {
   at: { x: 300, y: 120 },
   grabBandHeight: 10,
-  minimise: command('IC-99', false),
-  isMinimised: false,
+  minimize: command('IC-99', false),
+  isMinimized: false,
   groups: [{ name: 'place', commands: [command('IC-23', true), command('IC-24', false)] }],
   armedText: 'Rectangle armed',
 }

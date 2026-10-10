@@ -94,7 +94,7 @@
 // ---------------------------------------------------------------------------
 //   - HOW THE STRIP IS PAINTED. GR-20 gives it a width and a place and no ink;
 //     表 T-026 makes a new figure the user's ruling (RC-13), so a case naming a
-//     colour or a shape would be inventing one.
+//     color or a shape would be inventing one.
 //   - WHETHER A GAP OR A DROP MARK IS OPENED FOR THE HELD TASK GROUP. No row of 表
 //     T-103 gives a part for a place-to-land and no row of 表 T-109 an entrance,
 //     so a case demanding either would be asserting a thing the manuscript
@@ -639,9 +639,9 @@ const HF_15_REASONS = ['RS-36', 'RS-37', 'RS-38', 'RS-39'] as const
 
 /**
  * The refusal was told, it was told the NT-1 way, and it was told with THIS
- * row's words and none of its three neighbours'.
+ * row's words and none of its three neighbors'.
  *
- * ⬛ WHY THE NEIGHBOURS ARE NAMED. All four reasons refuse the same gesture,
+ * ⬛ WHY THE NEIGHBORS ARE NAMED. All four reasons refuse the same gesture,
  * so a build that answered one of them for everything would satisfy a case that
  * only asked 「a reason was told」 -- and FR-029's whole point is that the person
  * is told WHICH.
@@ -811,7 +811,7 @@ describe('the specification still says what these cases are driven by', () => {
 })
 
 // ===========================================================================
-// The premise every behavioural case rests on: the fixture is drawn the way
+// The premise every behavioral case rests on: the fixture is drawn the way
 // the tree above says, and the strip is reachable.
 // ===========================================================================
 
@@ -1330,7 +1330,7 @@ describe('表 T-023d (MUST NOT) -- 掴んでいるあいだ値を文書へ書い
     expect(parents(after), 'the release moved a parent task (HM-3)').toEqual(parents(before))
 
     // HM-5 (MUST NOT): タスクグループの器を作り直してはならない -- the same task groups come back,
-    // carrying the same names, colours and heights.
+    // carrying the same names, colors and heights.
     const shape = (doc: any) =>
       [...doc.schedule.taskGroups]
         .map((one: any) => ({
@@ -1430,7 +1430,7 @@ describe('GR-20 -- the strip is what the drag is taken on, and nothing else on t
 // the DESCRIPTION it hands the surface, so what these cases can see is
 // `TaskGroupTitle.heldOnAxis` -- which axis the held task group is to be drawn marked with --
 // and the BOX the held task group is described in. ⚠️ The bands themselves, their two
-// colours and the ground under the held task group are DRAWN, and are held in
+// colors and the ground under the held task group are DRAWN, and are held in
 // tests/unit/uf-72-screen-part.test.ts; ⛔ nothing here asserts a pixel of paint.
 // ===========================================================================
 
@@ -1448,7 +1448,7 @@ function heldAxes(built: Stage): Map<string, unknown> {
 }
 
 describe('HF-15 (MUST) -- いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと', () => {
-  it('表 T-051 still asks for the mark, the bands, the ground and the always-drawn strip, and 表 T-236 still holds the two colours', () => {
+  it('表 T-051 still asks for the mark, the bands, the ground and the always-drawn strip, and 表 T-236 still holds the two colors', () => {
     const hf15 = saysOf('T-051', 'HF-15')
     for (const clause of [
       'いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと（MUST）',

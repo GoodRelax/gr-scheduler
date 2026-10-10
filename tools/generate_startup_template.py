@@ -187,7 +187,7 @@ PHASES = (
 # many levels hang under it. ⭐ This is the shape of the plan, and height is
 # the right key rather than depth: a task group with nothing under it is where a
 # component is actually built, wherever it sits in the tree, and a task group with
-# four levels under it is co-ordinating a programme. Reading down the task group
+# four levels under it is coordinating a program. Reading down the task group
 # titles therefore reads left to right along the time axis, which is what
 # makes the vertical axis mean something.
 # ⛔ A weight of zero is the point of the leaf task groups: a component is not
@@ -357,7 +357,7 @@ TREE = (
 # ⭐ WHAT KIND OF THING EACH TASK GROUP IS. The kind decides the task group's vocabulary of
 # work, and it comes from where the task group sits in the tree: a task group inherits its
 # parent's kind, and only the places where the kind CHANGES are named here. A
-# top-level task group that names no kind co-ordinates a programme.
+# top-level task group that names no kind coordinates a program.
 # ⛔ This is the whole answer to "task group Documentation contains Draw the
 # Documentation data model": a documentation task group does documentation work
 # because the work is drawn from its kind, not from a list every task group shares.
@@ -447,12 +447,12 @@ PHASE_HANDOFF_GAPS = ((1, 6), (2, 6), (3, 5), (5, 4), (8, 3), (13, 2), (21, 1))
 # How eagerly a task group pulls its next phase block up against the last one, by the
 # task group's height. ⭐ 0 means "the day the window opens or the day the last block
 # ended, whichever is later" -- which is what makes a leaf task group's work a band
-# rather than a smear. A task group with levels under it is co-ordinating, and
-# co-ordination genuinely does run through the whole of a phase window.
+# rather than a smear. A task group with levels under it is coordinating, and
+# coordination genuinely does run through the whole of a phase window.
 BAND_PULL = {0: 0.0, 1: 0.10, 2: 0.34, 3: 0.50, 4: 0.55}
 
 # How far a task group's gaps are stretched, by height, for the same reason. ⭐ A leaf
-# task group's queue is back to back; a programme task group's five survey tasks are spread
+# task group's queue is back to back; a program task group's five survey tasks are spread
 # through the survey, which is what keeps every month of the plan carrying a
 # start (A9) without any task group lapping its window.
 GAP_STRETCH = {0: 1.0, 1: 1.4, 2: 3.0, 3: 4.5, 4: 5.5}
@@ -584,7 +584,7 @@ def lag_of_working_days(days):
 # the next phase the kind can work. No kind has one today; the fallback is what
 # keeps the weights and the vocabulary from going out of step the day one does.
 WORK_BY_KIND = {
-    # A top-level product tree: nobody builds a "programme", they steer one.
+    # A top-level product tree: nobody builds a "program", they steer one.
     'program': (
         ('Collect the %s requirements', 'Interview the %s stakeholders',
          'Map the %s workflow', 'Assess the %s risks',
@@ -689,7 +689,7 @@ WORK_BY_KIND = {
         ('Write the %s cases', 'Review the %s cases',
          'Choose the %s fixtures', 'Sign off the %s cases'),
         ('Build the %s harness', 'Automate the %s cases',
-         'Wire the %s into the pipeline', 'Stabilise the flaky %s cases',
+         'Wire the %s into the pipeline', 'Stabilize the flaky %s cases',
          'Review the %s harness'),
         ('Run the %s', 'Triage the %s failures', 'Report the %s coverage',
          'Rerun the %s after the fixes', 'Close the %s test report'),
@@ -764,7 +764,7 @@ WORK_OBJECTS = {
                  'smoke gate', 'container image', 'nightly build'),
     'qa': ('smoke suite', 'regression suite', 'contract suite', 'load suite',
            'accessibility suite', 'upgrade suite', 'offline suite',
-           'permission suite', 'localisation suite', 'boundary suite',
+           'permission suite', 'localization suite', 'boundary suite',
            'recovery suite', 'compatibility suite', 'soak suite',
            'security suite', 'data suite', 'exploratory charter'),
     'doc': ('getting-started guide', 'reference pages', 'release notes',
@@ -815,7 +815,7 @@ DELIVERY_PHASE = 6
 DELIVERABLE_TAILS = (' workstream', ' phase', ' complete', ' ready',
                      ' frozen', ' accepted', ' handed over')
 # ⚠️ A roll-up and a milestone DO carry the task group label, and that is the
-# difference: neither is work. One is the task group itself summarised and the other
+# difference: neither is work. One is the task group itself summarized and the other
 # is the task group itself signed off, and a reader meets both in the WBS outline --
 # away from the task group header, where nothing else would identify them.
 MILESTONE_TAILS = ('%s ready', '%s frozen', '%s accepted', '%s handed over')
@@ -885,7 +885,7 @@ SHAPE_KINDS = ('rectangle', 'chevron', 'arrow', 'endpointSpan', 'milestone')
 # This document carries its own.
 # ⛔ NEUTRALITY (FR-027, which puts identifier VALUES in scope): not one of
 # these names a country, a culture, a religion or a festival. A year-end
-# shutdown stated in neutral words is a fact about an organisation's calendar;
+# shutdown stated in neutral words is a fact about an organization's calendar;
 # naming the festival it happens to sit next to is not.
 # ⚠️ `recurrenceKind` is 1 with no `Period`, the one-off kind GRS adds
 # (erd.json, `Exception`, AT-82; T-344 WC-6; CR-654): FR-054 says GRS does NOT
@@ -924,7 +924,7 @@ PHASE_RESOURCES = (
     (10, 11), (12, 13),
 )
 
-# Colours an author chose, so FR-007's override is exercised rather than every
+# Colors an author chose, so FR-007's override is exercised rather than every
 # bar taking the theme. They are stored names of table T-294 (CV-1 of table
 # T-017b, CR-548), which also holds what each draws. ⛔ Never both transparent
 # (IV-9). The third value is the outline width in px (AT-104 strokeWidthPx,
@@ -937,7 +937,7 @@ AUTHOR_PAINT = (
     ('yellow', 'dimgray', 1),
 )
 
-# The task groups that carry a colour of their own, so FR-042's override is drawn.
+# The task groups that carry a color of their own, so FR-042's override is drawn.
 TASK_GROUP_PAINT = (('Quality And Release', 'lightgray'), ('Mobile Client', 'orange'))
 
 # The document's one calendar (FR-054), and who the document stamp says last
@@ -956,11 +956,11 @@ STAMP_AUTHOR = 'template'
 # (PF-1). They are different fields with different owners, so they are not the
 # same string.
 PROJECT_TITLE = 'Sample Project - Press N to start a new one'  # FR-035, SK-25 (JDG-972)
-PROJECT_NAME = 'Product Development Programme'     # PF-1
+PROJECT_NAME = 'Product Development Program'     # PF-1
 PROJECT_SUBJECT = 'Building and delivering the product over three years'
 PROJECT_CATEGORY = 'Software Development'
 PROJECT_COMPANY = 'Product Organization'
-PROJECT_MANAGER = 'Programme Manager A'
+PROJECT_MANAGER = 'Program Manager A'
 PROJECT_AUTHOR = 'Planner A'
 PROJECT_CREATED = date(2026, 3, 6)
 # PF-7: the exchange partner's save count, which is NOT the document's stamp
@@ -1287,7 +1287,7 @@ def text_of_day_end(day):
 def fraction(*parts):
     """A number in [0, 1) that depends only on what it is asked about.
 
-    ⛔ Not `random` and not `hash()`: Python randomises string hashing per
+    ⛔ Not `random` and not `hash()`: Python randomizes string hashing per
     process, and a template whose bytes moved every run would show up as a
     diff in every commit.
 
@@ -1772,8 +1772,8 @@ class Builder(object):
         window instead of piling on its first day. Every block after it starts
         as soon as the task group's PULL lets it: a task group with nothing under it pulls
         its next block up against the last one, because that is where the
-        component is built; a task group co-ordinating a programme spreads its blocks
-        through the windows, because that is what co-ordination is.
+        component is built; a task group coordinating a program spreads its blocks
+        through the windows, because that is what coordination is.
 
         Gives back `None` when a block no longer fits the room its window has
         left, which is the signal to measure the band again at shorter
@@ -1878,7 +1878,7 @@ class Builder(object):
         each (template, object) pair once in the whole document.
 
         ⚠️ A milestone and a roll-up are the exception and DO name the task group --
-        they are the task group signed off and the task group summarised, and a reader meets
+        they are the task group signed off and the task group summarized, and a reader meets
         them in the WBS outline where nothing else identifies them.
 
         ⭐ Where in the kind's list a task group starts is drawn from the task group's id, so
@@ -2020,7 +2020,7 @@ class Builder(object):
     def apply_actuals(self, status_at):
         """Actuals that agree with the status date, by table T-019a.
 
-        ⭐ WITH REAL VARIANCE. Fourteen months into a three-year programme,
+        ⭐ WITH REAL VARIANCE. Fourteen months into a three-year program,
         some work started late, some finished quicker than planned, some ran
         over and is still open past the day it was due, and some has not been
         touched although its planned start has passed. A plan where every one
@@ -2049,7 +2049,7 @@ class Builder(object):
             if task['uid'] in self.rollups or self.is_band(task):
                 continue
             self.begin_actuals(task, status_at)
-        self.honour_links(status_at)
+        self.honor_links(status_at)
         self.suspend_some(status_at)
         self.derive_actuals(status_at)
         for task in self.tasks:
@@ -2156,7 +2156,7 @@ class Builder(object):
         return max(1, int(round(
             span * weighed(roster, task['uid'], 'progress'))))
 
-    def honour_links(self, status_at):
+    def honor_links(self, status_at):
         """Nothing is complete whose predecessor is not (A16).
 
         ⛔ Read by link type, because the four types constrain different ends
@@ -2340,7 +2340,7 @@ class Builder(object):
         naming an owner on it would put the same work in two lanes.
 
         ⛔ NEITHER DOES A BAND OF THE FIRST TREE. "Implementation phase" is a
-        band over eighteen months of the programme, and making it one named
+        band over eighteen months of the program, and making it one named
         person's task -- the longest task in the plan -- says that person is
         doing all of it. TP-4 calls the first tree the task group that overviews the
         WHOLE, which is the same argument as the roll-up's. ⚠️ An unassigned
@@ -2609,7 +2609,7 @@ class Builder(object):
             elif task['uid'] in self.watched:
                 self.visuals.append(self.visual(task['uid'], 'endpointSpan'))
         # ⭐ The piece of work that closes each top-level component's planning
-        # is given a colour of its own, so the six of them read as one set
+        # is given a color of its own, so the six of them read as one set
         # across the whole chart -- which is what FR-007 lets an author do, and
         # what nothing in the artifact this replaces was doing.
         planning = 2
@@ -2710,8 +2710,8 @@ class Builder(object):
         """@purity semi-pure-a"""
         out = []
         for row in self.rows:
-            # ⭐ A couple of task groups carry a colour of their own (TASK_GROUP_PAINT), so
-            # FR-042's colour override is exercised. The rest are resolved
+            # ⭐ A couple of task groups carry a color of their own (TASK_GROUP_PAINT), so
+            # FR-042's color override is exercised. The rest are resolved
             # from the theme and the number of stacked levels. DFC-1002:
             # OVERVIEW_TASK_GROUP used to force height 64 here for no reason T-226
             # asks for, drawing it taller than its natural one-lane height
@@ -3050,7 +3050,7 @@ def check_names(built):
     # ⛔ THE BAR SAYS WHAT THE WORK IS; THE TASK GROUP SAYS WHAT THE THING IS. 985 of
     # a thousand names restated their own task group's label, which the task group header
     # was already showing. ⚠️ A roll-up and a milestone are exempt because
-    # neither is work: one is the task group summarised and the other is the task group
+    # neither is work: one is the task group summarized and the other is the task group
     # signed off, and both are read in the WBS outline away from the header.
     for row in built.rows:
         if row['label'] in OVERVIEW_TASK_GROUPS:
@@ -3165,7 +3165,7 @@ def check_dead_data(built, status_at):
     painted = [one for one in built.visuals
                if one['fillColor'] is not None or one['strokeColor'] is not None]
     insist(len(painted) >= 3,
-           'A12: %d task(s) carry a colour of their own, so FR-007 is not '
+           'A12: %d task(s) carry a color of their own, so FR-007 is not '
            'exercised' % len(painted))
     faded = [one for one in built.tasks
              if one['fadeInDays'] is not None or one['fadeOutDays'] is not None]
@@ -3175,9 +3175,9 @@ def check_dead_data(built, status_at):
         insist(drawn_as.get(task['uid']) in ('rectangle', 'chevron'),
                'A12: %s fades and is drawn as %s, which FD-5 forbids'
                % (task['name'], drawn_as.get(task['uid'])))
-    coloured = [one for one in built.task_groups() if one['color'] is not None]
-    insist(coloured,
-           'A12: no task group carries a colour of its own (FR-042)')
+    colored = [one for one in built.task_groups() if one['color'] is not None]
+    insist(colored,
+           'A12: no task group carries a color of its own (FR-042)')
     # ⛔ A band of the first tree is not one person's task. B7 of the second
     # audit: "Implementation phase" was a 395-day leaf owned solely by
     # Developer B, and it was the longest task in the plan.
@@ -4495,7 +4495,7 @@ def build():
 
     # ⛔ The links are drawn BEFORE the actuals, because the actuals read them:
     # nothing may be complete whose predecessor is not, and that cannot be
-    # honoured by a pass that runs before the graph exists (A16).
+    # honored by a pass that runs before the graph exists (A16).
     built.build_dependencies()
     # 40% of the way through, which is where a plan is worth looking at: some
     # of it is behind, some of it is running, and most of it is still ahead.

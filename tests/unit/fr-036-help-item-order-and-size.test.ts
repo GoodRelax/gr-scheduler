@@ -21,7 +21,7 @@
 // 2026-08-29 -- FR-036 now states the user's own order and sends the size to
 // `S-203` -- and the ledger's own note says what is left: 「残るのは実物での 1 画面
 // 確認だけである」. Nothing in tests/ asks for either. tests/unit/uf-66.test.ts
-// refuses the neighbouring question in as many words (「THE ORDER two entries
+// refuses the neighboring question in as many words (「THE ORDER two entries
 // stand in on one surface」), and that is a different order: the order of the
 // ITEMS, not the order of the three parts INSIDE one item.
 //
@@ -287,7 +287,7 @@ const helpWith = (entries: readonly HelpItem[]): OpenModal =>
     entries,
     legend: 'IC-102',
     language: 'ja',
-    licenceText: 'LicenceTextHere',
+    licenseText: 'LicenseTextHere',
     copyrightNotice: 'CopyrightNoticeHere',
     attributions: ['AttributionOne'],
     helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
@@ -451,7 +451,7 @@ function customProperty(element: FakeElement, name: string): string | null {
   return null
 }
 
-/** ⚠️ NO FALLBACK IS HONOURED -- `var(--x, 1em)` is left alone and refused below. */
+/** ⚠️ NO FALLBACK IS HONORED -- `var(--x, 1em)` is left alone and refused below. */
 function expandVariables(element: FakeElement, value: string, depth = 0): string | null {
   if (depth > 8) return null
   const named = /var\(\s*(--[a-z0-9-]+)\s*\)/i.exec(value)

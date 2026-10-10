@@ -81,7 +81,7 @@ async function openSearch(page: Page, word: string): Promise<void> {
 }
 
 /** @purity semi-pure-b */
-async function centreOf(page: Page, selector: string): Promise<Spot> {
+async function centerOf(page: Page, selector: string): Promise<Spot> {
   const found = await page.evaluate((wanted: string) => {
     const box = document.querySelector(wanted)?.getBoundingClientRect()
     return box === undefined ? null : { x: box.x + Math.min(box.width / 2, 40), y: box.y + box.height / 2 }
@@ -91,7 +91,7 @@ async function centreOf(page: Page, selector: string): Promise<Spot> {
 }
 
 /** @purity semi-pure-b */
-async function barCentre(page: Page, uid: number): Promise<Spot> {
+async function barCenter(page: Page, uid: number): Promise<Spot> {
   const at = await page.evaluate((wanted: number) => {
     const r = document.querySelector(`[data-figure="task-${String(wanted)}-plan"]`)?.getBoundingClientRect()
     return r === undefined ? null : { x: r.x + r.width / 2, y: r.y + r.height / 2 }
@@ -272,7 +272,7 @@ test.describe('CR-728 -- SJ-1: a press on a name in the Search Panel', () => {
     try {
       await openSearch(opened.page, TO_SEARCH_NAME)
       expect(await opened.page.locator(RIPPLE).count(), 'no ripple before the press').toBe(0)
-      const spot = await centreOf(opened.page, `${SEARCH_PANEL} tbody tr [data-search-task]`)
+      const spot = await centerOf(opened.page, `${SEARCH_PANEL} tbody tr [data-search-task]`)
       const seen = await pressAndSeeRipple(opened.page, spot)
       expect(seen, 'a ripple at the start').toBe(1)
       await opened.page.waitForTimeout(S_558 * 1.3)
@@ -287,7 +287,7 @@ test.describe('CR-728 -- SJ-1: a press on a name in the Search Panel', () => {
     try {
       await opened.page.emulateMedia({ reducedMotion: 'reduce' })
       await openSearch(opened.page, TO_SEARCH_NAME)
-      const spot = await centreOf(opened.page, `${SEARCH_PANEL} tbody tr [data-search-task]`)
+      const spot = await centerOf(opened.page, `${SEARCH_PANEL} tbody tr [data-search-task]`)
       await pressAt(opened.page, spot)
       for (const wait of [30, 200, 400, 800]) {
         await opened.page.waitForTimeout(wait)
@@ -379,7 +379,7 @@ test.describe('CR-728 -- the other entrances that press and jump', () => {
   /** @purity non-pure */
   async function openPanelOn(page: Page, uid: number): Promise<void> {
     await focusTask(page, uid)
-    const at = await barCentre(page, uid)
+    const at = await barCenter(page, uid)
     await page.mouse.dblclick(at.x, at.y)
     await settle(page)
     expect(await ringCount(page), 'EL-17: the press cleared the older mark').toBe(0)
@@ -387,7 +387,7 @@ test.describe('CR-728 -- the other entrances that press and jump', () => {
 
   /** @purity non-pure */
   async function pressLinkAndLand(page: Page, selector: string, uid: number): Promise<void> {
-    const spot = await centreOf(page, selector)
+    const spot = await centerOf(page, selector)
     expect(await pressAndSeeRipple(page, spot), 'SJ-10 ②: a ripple starts').toBeGreaterThan(0)
     await settle(page)
     await expectLanded(page, uid)
@@ -431,7 +431,7 @@ test.describe('CR-728 -- the other entrances that press and jump', () => {
       await openDocument(opened.page, 'sample-large-erp-program.ja.xml', ERP_SAMPLE)
       expect(await pressEntrance(opened.page, HEAD_FOLD_EVERY_TASK_GROUP), 'HF-12 is on the screen').toBe(true)
       await openSearch(opened.page, 'UAT')
-      const spot = await centreOf(opened.page, `${SEARCH_PANEL} tbody tr [data-search-task]`)
+      const spot = await centerOf(opened.page, `${SEARCH_PANEL} tbody tr [data-search-task]`)
       expect(await pressAndSeeRipple(opened.page, spot), 'SJ-10 ②: a ripple starts').toBeGreaterThan(0)
       await settle(opened.page)
       await expectLandedOnTheChosen(opened.page)

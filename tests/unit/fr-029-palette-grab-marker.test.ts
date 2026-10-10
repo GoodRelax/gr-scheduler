@@ -84,7 +84,7 @@
 // ⚠️ WHAT IS DELIBERATELY NOT ASSERTED, each searched for before being given up
 // ---------------------------------------------------------------------------
 //
-//   1. WHERE THE MARKER SITS INSIDE THE BAND -- left, centre or right. ⛔ NO ROW
+//   1. WHERE THE MARKER SITS INSIDE THE BAND -- left, center or right. ⛔ NO ROW
 //      STATES IT. GR-19 states where the BAND goes 「パレットの上端に敷く帯」 and
 //      表 T-206's `S-135a` how far down it reaches; table T-109 gives IC-53 an
 //      em dash for its 群, so not even the ordering column speaks for it. ⚠️ This
@@ -596,7 +596,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
 /**
  * The rendering and hue every case below wires the surface with.
  *
- * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1). ⭐ No case reads a colour
+ * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1). ⭐ No case reads a color
  * back -- `readTheme` is a REQUIRED member of `ScreenSurfaceWiring`, so the
  * cases need a theme to build the surface at all, not a particular one.
  */
@@ -857,7 +857,7 @@ const groupOf = (entryCount: number, from = 0): PaletteGroup =>
 const paletteWith = (patch: Partial<CommandPalette> = {}): CommandPalette => ({
   at: { x: 400, y: 300 },
   grabBandHeight: GRAB_BAND_HEIGHT_PX,
-  minimise: {
+  minimize: {
     icon: 'IC-75',
     label: 'IC-75',
     isEnabled: true,
@@ -865,7 +865,7 @@ const paletteWith = (patch: Partial<CommandPalette> = {}): CommandPalette => ({
     isArmed: false,
     isChosen: false,
   },
-  isMinimised: false,
+  isMinimized: false,
   groups: [groupOf(2)],
   armedText: ARMED_WORD,
   ...patch,
@@ -933,7 +933,7 @@ describe('FR-029 (MUST) -- IC-53 is drawn on the palette, with 図 F-019\'s shap
 
   it('draws exactly one, however many groups and entries the palette holds', () => {
     // ⭐ FR-029 (MUST NOT) forbids one function two entrances, and IC-53 is ONE
-    // row of table T-109 -- not one per group and not one per neighbour. ⚠️ A
+    // row of table T-109 -- not one per group and not one per neighbor. ⚠️ A
     // marker repeated down the palette would also be a second thing to grab in a
     // table whose first row (GR-19) is about grabbing exactly one.
     // ⚠️ THE SHAPES ARE DRIVEN, NOT COUNTED: the real palette's groups are

@@ -654,9 +654,9 @@ def generated_name(decl, path, shape):
 def merge_repeats(pool):
     """One entry per set a generated declaration prints more than once.
 
-    COLOUR_NAME_VALUES prints the same four forms under every colour and
+    COLOR_NAME_VALUES prints the same four forms under every color and
     under light and dark; named after whichever copy sorts first, a record
-    would change its name when that colour went away. The copies are folded
+    would change its name when that color went away. The copies are folded
     into one entry whose varying key segments read `*`.
     """
     groups, order = {}, []

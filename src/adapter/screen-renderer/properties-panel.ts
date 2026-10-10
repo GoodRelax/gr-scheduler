@@ -14,7 +14,7 @@ import {
   DATE_COLUMNS,
   actualLastDay,
   actualLengthOf,
-  customColourOf,
+  customColorOf,
   customSideOf,
   dayOf,
   isSearchWordFound,
@@ -39,18 +39,18 @@ import {
 } from '../../entity/document-model/selection/selection'
 import {
   labelUnits,
-  labelledAssigneeUidOf,
+  labeledAssigneeUidOf,
   type TaskGroupPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type {
   PropertiesSubject,
   ScreenSession,
 } from '../../use-case/advance-screen-session/advance-screen-session'
-import { colourOf, inkOn, swatchOf } from '../svg-renderer/svg-renderer'
+import { colorOf, inkOn, swatchOf } from '../svg-renderer/svg-renderer'
 import type {
   AssigneeCandidate,
   AssigneeCombo,
-  ColourEntrance,
+  ColorEntrance,
   CommandItem,
   DisplayLanguage,
   IconId,
@@ -592,8 +592,8 @@ function assigneeControls(
   const people = assigneeChoices(schedule)
   const names = people.map((person) => person.name)
   const seated = [...new Set(assigneesOf(schedule, taskUid).map((person) => person.uid))]
-  const labelled = labelledAssigneeUidOf(schedule, taskUid)
-  const focused = labelled !== null && seated.includes(labelled) ? labelled : null
+  const labeled = labeledAssigneeUidOf(schedule, taskUid)
+  const focused = labeled !== null && seated.includes(labeled) ? labeled : null
   const assignee = assigneeComboOf(schedule, language)
   return [...seated, null].map((resourceUid): PropertyControl => {
     const text = resourceUid === null ? '' : String(resourceUid)
@@ -1096,7 +1096,7 @@ const THEME_HUE_KEY = { holder: 'project', column: 'themeHue' } as const
 const THEME_HUE_SWATCH_ROW = 'S-151'
 
 // see FR-041, T-305, K-60, S-74
-// WHY: the swatches grey with the rest under monochrome (JDG-1244 6): the author picks by the grey each hue becomes.
+// WHY: the swatches gray with the rest under monochrome (JDG-1244 6): the author picks by the gray each hue becomes.
 /** @purity pure */
 function themeHueField(hue: number, dark: boolean, monochrome: boolean, language: DisplayLanguage): PropertyField {
   const words = themeHueRoster.map((one) => THEME_HUE_WORDS.get(one.rowId)?.[language] ?? '')
@@ -1114,7 +1114,7 @@ function themeHueField(hue: number, dark: boolean, monochrome: boolean, language
         text,
         choices: words,
         choiceValues: themeHueRoster.map((one) => String(one.hue)),
-        swatches: themeHueRoster.map((one) => colourOf(THEME_HUE_SWATCH_ROW, one.hue, dark, monochrome)),
+        swatches: themeHueRoster.map((one) => colorOf(THEME_HUE_SWATCH_ROW, one.hue, dark, monochrome)),
         min: null,
         max: null,
         widthInFontSizes: widthOf(text, words, SETTINGS_CONSTANTS.labelCoef),
@@ -1371,10 +1371,10 @@ function settingsFields(
   ]
 }
 
-type ColourHolderColumn = keyof TaskVisual | keyof TaskGroup | keyof CommentBox | keyof HighlightBox
+type ColorHolderColumn = keyof TaskVisual | keyof TaskGroup | keyof CommentBox | keyof HighlightBox
 
 // see CV-6, CV-9, FR-019
-const COLOUR_FORM_OF_COLUMN: Readonly<Partial<Record<ColourHolderColumn, ColourForm>>> = {
+const COLOR_FORM_OF_COLUMN: Readonly<Partial<Record<ColorHolderColumn, ColorForm>>> = {
   fillColor: 'fill',
   strokeColor: 'outline',
   textColor: 'outline',
@@ -1383,7 +1383,7 @@ const COLOUR_FORM_OF_COLUMN: Readonly<Partial<Record<ColourHolderColumn, ColourF
 
 // see CV-9, AT-58, FR-019
 /** @purity pure */
-function colourChoicesOf(key: PropertyFieldKey): readonly string[] | null {
+function colorChoicesOf(key: PropertyFieldKey): readonly string[] | null {
   switch (key.holder) {
     case 'taskVisual':
       return COLUMN_SHAPES.TaskVisual[key.column]?.choices ?? null
@@ -1400,18 +1400,18 @@ function colourChoicesOf(key: PropertyFieldKey): readonly string[] | null {
 
 const HEX_PAINT = /^#[0-9a-f]{6}$/
 
-const COLOUR_NAME_WORDS = new Map(displayWords.colourNames.map((entry) => [entry.spelling, entry.text]))
+const COLOR_NAME_WORDS = new Map(displayWords.colorNames.map((entry) => [entry.spelling, entry.text]))
 
-const COLOUR_FIELD_WORDS = new Map(displayWords.colourField.map((entry) => [entry.part, entry.text]))
+const COLOR_FIELD_WORDS = new Map(displayWords.colorField.map((entry) => [entry.part, entry.text]))
 
-interface ColourLook {
+interface ColorLook {
   readonly hue: number
   readonly dark: boolean
   readonly monochrome: boolean
   readonly language: DisplayLanguage
 }
 
-type ColourForm = Parameters<typeof swatchOf>[1]
+type ColorForm = Parameters<typeof swatchOf>[1]
 
 // see FR-007, FR-019, FR-042, CV-9
 // WHY: the T-236 row each field's null draws; its hue column names the null theme or default.
@@ -1434,69 +1434,69 @@ const TRANSPARENT_WORD_OF_COLUMN: Readonly<Partial<Record<string, string>>> = {
 }
 
 // see T-236, CV-9
-// WHY: a row follows the theme hue (its hue column is a circle) exactly when its colour moves with
-// the hue; read through colourOf, the one published reading of table T-236.
+// WHY: a row follows the theme hue (its hue column is a circle) exactly when its color moves with
+// the hue; read through colorOf, the one published reading of table T-236.
 const HUES_APART: readonly [number, number] = [0, 180]
 
 /** @purity pure */
 function followsThemeHue(rowId: string): boolean {
   const [one, other] = HUES_APART
-  return [false, true].some((dark) => colourOf(rowId, one, dark, false) !== colourOf(rowId, other, dark, false))
+  return [false, true].some((dark) => colorOf(rowId, one, dark, false) !== colorOf(rowId, other, dark, false))
 }
 
 /** @purity pure */
-function colourWord(part: string, language: DisplayLanguage): string {
-  return COLOUR_FIELD_WORDS.get(part)?.[language] ?? ''
+function colorWord(part: string, language: DisplayLanguage): string {
+  return COLOR_FIELD_WORDS.get(part)?.[language] ?? ''
 }
 
 const VALUE_SLOT = '{value}'
 
 // see CV-9, CV-5, CV-7
 /** @purity pure */
-function themeEntranceOf(form: ColourForm, nullRow: string | undefined, look: ColourLook): ColourEntrance {
+function themeEntranceOf(form: ColorForm, nullRow: string | undefined, look: ColorLook): ColorEntrance {
   const isThemeNull = nullRow === undefined || followsThemeHue(nullRow)
   const paint =
     nullRow === undefined
       ? swatchOf(null, form, look.hue, look.dark, look.monochrome).paint
-      : colourOf(nullRow, look.hue, look.dark, look.monochrome)
+      : colorOf(nullRow, look.hue, look.dark, look.monochrome)
   return {
-    glyph: colourWord('themeGlyph', look.language),
-    hint: colourWord(isThemeNull ? 'themeHint' : 'defaultColour', look.language),
+    glyph: colorWord('themeGlyph', look.language),
+    hint: colorWord(isThemeNull ? 'themeHint' : 'defaultColor', look.language),
     paint,
     ink: inkOn(paint),
   }
 }
 
 // see CV-9, CV-3, CV-7
-// WHY: the tooltip names the value drawn now, not the greyed paint, so monochrome still reads the chosen colour.
+// WHY: the tooltip names the value drawn now, not the grayed paint, so monochrome still reads the chosen color.
 /** @purity pure */
-function customEntranceOf(stored: string | null, form: ColourForm, look: ColourLook): ColourEntrance {
-  const glyph = colourWord('customGlyph', look.language)
-  if (stored === null || customColourOf(stored) === null) {
-    return { glyph, hint: colourWord('custom', look.language), paint: null, ink: '' }
+function customEntranceOf(stored: string | null, form: ColorForm, look: ColorLook): ColorEntrance {
+  const glyph = colorWord('customGlyph', look.language)
+  if (stored === null || customColorOf(stored) === null) {
+    return { glyph, hint: colorWord('custom', look.language), paint: null, ink: '' }
   }
   const paint = swatchOf(stored, form, look.hue, look.dark, look.monochrome).paint
   const value = swatchOf(stored, form, look.hue, look.dark, false).paint.toUpperCase()
-  return { glyph, hint: colourWord('customValue', look.language).replace(VALUE_SLOT, () => value), paint, ink: inkOn(paint) }
+  return { glyph, hint: colorWord('customValue', look.language).replace(VALUE_SLOT, () => value), paint, ink: inkOn(paint) }
 }
 
 // see CV-9, CV-4, CV-5, CV-7
 /** @purity pure */
-function withColourField(control: PropertyControl, look: ColourLook): PropertyControl {
-  const forms: Readonly<Partial<Record<string, ColourForm>>> = COLOUR_FORM_OF_COLUMN
+function withColorField(control: PropertyControl, look: ColorLook): PropertyControl {
+  const forms: Readonly<Partial<Record<string, ColorForm>>> = COLOR_FORM_OF_COLUMN
   const form = forms[control.key.column]
-  const offered = colourChoicesOf(control.key)
+  const offered = colorChoicesOf(control.key)
   if (control.kind !== 'color' || form === undefined || offered === null) return control
   const stored = control.text === '' ? null : control.text
-  const custom = stored === null ? null : customColourOf(stored)
-  const order = displayWords.colourNames.map((entry) => entry.spelling)
+  const custom = stored === null ? null : customColorOf(stored)
+  const order = displayWords.colorNames.map((entry) => entry.spelling)
   const names = order.filter((name) => offered.includes(name))
-  const customWord = colourWord('custom', look.language)
+  const customWord = colorWord('custom', look.language)
   const nullRow = NULL_ROW_OF_FIELD[`${control.key.holder}.${control.key.column}`]
   const transparentPart = TRANSPARENT_WORD_OF_COLUMN[control.key.column]
   const values = ['', ...names, ...(custom === null || stored === null ? [] : [stored])]
-  // WHY: the colour input is seeded with a value to choose, not a swatch, so it keeps
-  // the hue while monochrome is on; CV-7 greys only what is painted.
+  // WHY: the color input is seeded with a value to choose, not a swatch, so it keeps
+  // the hue while monochrome is on; CV-7 grays only what is painted.
   const drawn = swatchOf(stored, form, look.hue, look.dark, false).paint
   const swatches = values.map((value) =>
     swatchOf(value === '' ? null : value, form, look.hue, look.dark, look.monochrome),
@@ -1504,10 +1504,10 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
   return {
     ...control,
     choices: values.map((value) =>
-      value === stored && custom !== null ? customWord : (COLOUR_NAME_WORDS.get(value)?.[look.language] ?? ''),
+      value === stored && custom !== null ? customWord : (COLOR_NAME_WORDS.get(value)?.[look.language] ?? ''),
     ),
     choiceValues: values,
-    colour: {
+    color: {
       swatches: swatches.map((one) => one.paint),
       inks: swatches.map((one) => one.ink),
       customWord,
@@ -1517,7 +1517,7 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
       custom: customEntranceOf(stored, form, look),
       ...(transparentPart === undefined || !names.includes(TRANSPARENT)
         ? {}
-        : { transparentWord: colourWord(transparentPart, look.language) }),
+        : { transparentWord: colorWord(transparentPart, look.language) }),
       transparentName: TRANSPARENT,
     },
   }
@@ -1525,10 +1525,10 @@ function withColourField(control: PropertyControl, look: ColourLook): PropertyCo
 
 // see CV-9, FR-006
 /** @purity pure */
-function withColourFields(fields: readonly PropertyField[], look: ColourLook): readonly PropertyField[] {
+function withColorFields(fields: readonly PropertyField[], look: ColorLook): readonly PropertyField[] {
   return fields.map((field) =>
     field.controls.some((one) => one.kind === 'color')
-      ? { ...field, controls: field.controls.map((one) => withColourField(one, look)) }
+      ? { ...field, controls: field.controls.map((one) => withColorField(one, look)) }
       : field,
   )
 }
@@ -1599,7 +1599,7 @@ export function propertiesPanelFromSelection(
     monochrome: settings.themeMonochrome,
     language,
   }
-  const fields = described === null ? null : withFieldWords(withColourFields(described, look), language)
+  const fields = described === null ? null : withFieldWords(withColorFields(described, look), language)
 
   const isSubjectGone = isNothingPicked || fields === null
 

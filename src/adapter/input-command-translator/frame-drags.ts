@@ -122,23 +122,23 @@ export function screenEventFromPanelDivider(
   press: PointerPress,
   context: InputContext,
 ): ScreenValuesEvent | null {
-  const travelled = release.x - press.at.x
-  if (travelled === 0) return null
+  const traveled = release.x - press.at.x
+  if (traveled === 0) return null
   const drawnAtPress = press.propertyPanelWidthAtPress ?? context.regions.propertiesPanel.width
-  const propertyPanelWidth = Math.max(NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248'], drawnAtPress - travelled)
+  const propertyPanelWidth = Math.max(NOT_STORED_PROPERTIES_PANEL_FLOOR['S-248'], drawnAtPress - traveled)
   return { type: 'propertyPanelWidthSettled', propertyPanelWidth }
 }
 
 // see FR-052, FR-039, T-252
 /** @purity pure */
-function taskGroupPanelWidthAfterDrag(settings: DocumentSettings, travelled: number): number {
+function taskGroupPanelWidthAfterDrag(settings: DocumentSettings, traveled: number): number {
   const stored = settings.taskGroupPanelWidth
   const ratio = displayRatioOf(settings)
   const drawnAtPress = drawnSettingsOf(settings).taskGroupPanelWidth
   const floor = drawnSettingsOf({ ...settings, taskGroupPanelWidth: 0 }).taskGroupPanelWidth
-  const isWiderThanFloor = drawnAtPress + travelled > floor
+  const isWiderThanFloor = drawnAtPress + traveled > floor
   if (!isWiderThanFloor) return Math.min(stored, floor / ratio)
-  const drawnTravel = drawnAtPress - stored * ratio + travelled
+  const drawnTravel = drawnAtPress - stored * ratio + traveled
   return stored + drawnTravel / ratio
 }
 

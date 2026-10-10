@@ -299,7 +299,7 @@ export function resourceListFromWindow(
   if (window === null) return null
   const language = displayLanguageOf(session)
   const all = resourceLinesOf({ schedule, chosenResourceUids, language })
-  const listed = window.shown === 'minimised' ? [] : listedLinesOf(window, all)
+  const listed = window.shown === 'minimized' ? [] : listedLinesOf(window, all)
   const table = lineTableOf(window, () => listed, language, all)
   const scheduleFilter = scheduleFilterEntryOf(window.panel.visibility, wouldResourceFilterChange(window, schedule), language)
   const rows = listed.map((line) => rowViewOf(window, line, language))

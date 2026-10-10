@@ -6,7 +6,7 @@
 
 // see FR-025
 // TRAP: PNG bytes, never SVG text: FR-025 puts one image/png item on the board and
-// forbids the SVG text beside it, so a text-shaped picture arm cannot be honoured.
+// forbids the SVG text beside it, so a text-shaped picture arm cannot be honored.
 export type ClipboardContent =
   | {
       readonly kind: 'picture'

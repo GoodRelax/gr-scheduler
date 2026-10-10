@@ -43,9 +43,9 @@ describe('CR-410 -- the manuscript these cases are driven by', () => {
       if (found === undefined) throw new Error(`table T-036 has no row ${id}`)
       return found
     }
-    const spelt = (id: string): string => (rowOf(id).by['割当'] ?? '').replace(/[`\s]/g, '')
-    expect(spelt('SK-22')).toBe('Ctrl＋Shift＋+')
-    expect(spelt('SK-23')).toBe('Ctrl＋Shift＋-')
+    const spelled = (id: string): string => (rowOf(id).by['割当'] ?? '').replace(/[`\s]/g, '')
+    expect(spelled('SK-22')).toBe('Ctrl＋Shift＋+')
+    expect(spelled('SK-23')).toBe('Ctrl＋Shift＋-')
     const spellings = specTable('T-036').rows.map((one) => (one.by['割当'] ?? '').replace(/[`\s]/g, ''))
     expect(spellings, 'JDG-301 retired the reset key').not.toContain('Ctrl＋Shift＋0')
     expect((rowOf('SK-22').by['入口'] ?? '').trim()).toBe('IC-105')
@@ -286,7 +286,7 @@ describe('FR-036 / T-255 -- the help lists both browser functions and the Ctrl +
   })
 
   it('carries Ctrl + Shift + 0 on no entry, now that JDG-301 retired that key', () => {
-    const spelt = ROSTER.entries.map((one) => (one.keys ?? '').replace(/\s/g, ''))
-    expect(spelt.filter((keys) => /Ctrl.*Shift.*[^0-9]0$/.test(keys))).toEqual([])
+    const spelled = ROSTER.entries.map((one) => (one.keys ?? '').replace(/\s/g, ''))
+    expect(spelled.filter((keys) => /Ctrl.*Shift.*[^0-9]0$/.test(keys))).toEqual([])
   })
 })

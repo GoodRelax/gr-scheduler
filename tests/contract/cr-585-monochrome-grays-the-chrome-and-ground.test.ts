@@ -1,11 +1,11 @@
-// CR-585 spec-only tests: monochrome greys the rows of table T-236 on chrome, ground and export alike.
+// CR-585 spec-only tests: monochrome grays the rows of table T-236 on chrome, ground and export alike.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { colourOf } from '../../src/adapter/svg-renderer/svg-renderer'
+import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import {
   pageGroundStyle,
   themeStyle,
@@ -24,7 +24,7 @@ const CLAUSE_MONOCHROME =
 const CLAUSE_SAME_VALUE = '⭐ 画面と書き出した絵とで、同じ行を同じ値で塗ること（MUST）'
 const CLAUSE_ANY_HUE_COLUMN =
   '⚠️ 本段落は、色相の欄を問わず 表 T-236 のすべての行を灰にする —— 色相の欄が決めるのはテーマ色に追随するかだけである。'
-// WHY: no MUST states how the grey is chosen; table T-294's preamble is the one sentence that
+// WHY: no MUST states how the gray is chosen; table T-294's preamble is the one sentence that
 // names the method the specification measures monochrome by, so case (7) rests on it.
 const CLAUSE_KEEP_LIGHTNESS = 'モノクロは、その値を HSL の明度を保ったまま彩度 0 にして測った'
 
@@ -50,11 +50,11 @@ const S_146 = 'S-146'
 // see T-216
 const S_73_DEFAULT = Number(bare(specTable('T-216').rows.find((one) => one.id === 'S-73')?.by['既定'] ?? ''))
 
-// WHY: several hues, so a greying that only works at the default hue (or only strips one H) is caught.
+// WHY: several hues, so a graying that only works at the default hue (or only strips one H) is caught.
 const HUES = [S_73_DEFAULT, 0, 60, 140, 285]
 
 // WHY: the DOM surface keeps its name->row pairing (PAINT_ROW) private; only the pairing is
-// copied to tie a --gr-<name> custom property to its T-236 row, never a colour.
+// copied to tie a --gr-<name> custom property to its T-236 row, never a color.
 const NAME_TO_TASK_GROUP: Readonly<Record<string, string>> = {
   ground: 'S-146',
   ink: 'S-147',
@@ -101,7 +101,7 @@ function t236(id: string): T236Row {
   }
 }
 
-// WHY: a row whose two cells both name another row (S-162, S-169, S-311) carries that row's value, grey or not.
+// WHY: a row whose two cells both name another row (S-162, S-169, S-311) carries that row's value, gray or not.
 function inheritedRowOf(id: string): string | null {
   const row = T236.rows.find((one) => one.id === id)
   const light = bare(row?.by['明るいテーマ'] ?? '')
@@ -114,7 +114,7 @@ const HUE_ROWS = T236.rows.filter((row) => (row.by['色相追随'] ?? '').trim()
 const writtenOf = (row: T236Row, preference: Preference, hue: number): string =>
   (preference === 'dark' ? row.dark : row.light).replace(/\bH\b/g, String(hue))
 
-// WHY: T-236 spells colours as #rrggbb, hsl(), rgb() and rgba(), so all four are read.
+// WHY: T-236 spells colors as #rrggbb, hsl(), rgb() and rgba(), so all four are read.
 
 type Rgb = readonly [number, number, number]
 
@@ -160,7 +160,7 @@ function paintOf(text: string): Paint | null {
 
 function mustPaint(text: string, what: string): Paint {
   const paint = paintOf(text)
-  if (paint === null) throw new Error(`${what} is not a colour this test can read: ${JSON.stringify(text)}`)
+  if (paint === null) throw new Error(`${what} is not a color this test can read: ${JSON.stringify(text)}`)
   return paint
 }
 
@@ -181,7 +181,7 @@ const isShiftOf = (drawn: string, written: string, preference: Preference): bool
   return d[1] === w[1] && d[2] === w[2] && (preference === 'dark' ? moved >= 0 : moved <= 0)
 }
 
-const isGrey = (paint: Paint): boolean =>
+const isGray = (paint: Paint): boolean =>
   Math.abs(paint.rgb[0] - paint.rgb[1]) <= CHANNEL_TOLERANCE &&
   Math.abs(paint.rgb[1] - paint.rgb[2]) <= CHANNEL_TOLERANCE
 
@@ -189,8 +189,8 @@ const lightnessOf = (paint: Paint): number =>
   ((Math.max(...paint.rgb) + Math.min(...paint.rgb)) / 2 / CHANNEL_MAX) * PERCENT
 
 // see T-294
-function greyOf(coloured: Paint): Paint {
-  return { rgb: rgbOfHsl(0, 0, lightnessOf(coloured)), alpha: coloured.alpha }
+function grayOf(colored: Paint): Paint {
+  return { rgb: rgbOfHsl(0, 0, lightnessOf(colored)), alpha: colored.alpha }
 }
 
 // see FR-041
@@ -217,10 +217,10 @@ function groundOf(theme: ScreenTheme): string {
   return (found[1] ?? '').trim()
 }
 
-// WHY: a row the export does not draw (the grab strip S-231 is chrome only) has no export colour.
-function exportColourOf(rowId: string, hue: number, preference: Preference, monochrome: boolean): string | null {
+// WHY: a row the export does not draw (the grab strip S-231 is chrome only) has no export color.
+function exportColorOf(rowId: string, hue: number, preference: Preference, monochrome: boolean): string | null {
   try {
-    return colourOf(rowId, hue, preference === 'dark', monochrome)
+    return colorOf(rowId, hue, preference === 'dark', monochrome)
   } catch {
     return null
   }
@@ -269,9 +269,9 @@ describe(`CR-585 (1)(7) FR-041 "${CLAUSE_MONOCHROME}" / T-294 "${CLAUSE_KEEP_LIG
           const rowId = NAME_TO_TASK_GROUP[name] ?? ''
           const written = propertyOf(theme(preference, hue, true), name)
           const drawn = mustPaint(written, `--gr-${name} (${rowId})`)
-          const coloured = mustPaint(writtenOf(t236(rowId), preference, hue), `T-236 ${rowId}`)
-          expect(isGrey(drawn), `${name} (${rowId}) is not grey: ${written}`).toBe(true)
-          expect(samePaint(drawn, greyOf(coloured)), `${name} (${rowId}): ${written} keeps L of ${writtenOf(t236(rowId), preference, hue)}`).toBe(true)
+          const colored = mustPaint(writtenOf(t236(rowId), preference, hue), `T-236 ${rowId}`)
+          expect(isGray(drawn), `${name} (${rowId}) is not gray: ${written}`).toBe(true)
+          expect(samePaint(drawn, grayOf(colored)), `${name} (${rowId}): ${written} keeps L of ${writtenOf(t236(rowId), preference, hue)}`).toBe(true)
         }
       })
     }
@@ -286,9 +286,9 @@ describe(`CR-585 (2) FR-041 "${CLAUSE_ANY_HUE_COLUMN}" / T-294 "${CLAUSE_KEEP_LI
           const rowId = NAME_TO_TASK_GROUP[name] ?? ''
           const written = propertyOf(theme(preference, hue, true), name)
           const drawn = mustPaint(written, `--gr-${name} (${rowId})`)
-          const coloured = mustPaint(writtenOf(t236(rowId), preference, hue), `T-236 ${rowId}`)
-          expect(isGrey(drawn), `${name} (${rowId}) is not grey: ${written}`).toBe(true)
-          expect(samePaint(drawn, greyOf(coloured)), `${name} (${rowId}): ${written} keeps L of ${writtenOf(t236(rowId), preference, hue)}`).toBe(true)
+          const colored = mustPaint(writtenOf(t236(rowId), preference, hue), `T-236 ${rowId}`)
+          expect(isGray(drawn), `${name} (${rowId}) is not gray: ${written}`).toBe(true)
+          expect(samePaint(drawn, grayOf(colored)), `${name} (${rowId}): ${written} keeps L of ${writtenOf(t236(rowId), preference, hue)}`).toBe(true)
         }
       })
     }
@@ -313,7 +313,7 @@ describe(`CR-585 (3) FR-041 "${CLAUSE_FOLLOW_T236}" -- monochrome off`, () => {
     }
   }
 
-  it('an absent monochrome is read as off (the theme before CR-585 still paints in colour)', () => {
+  it('an absent monochrome is read as off (the theme before CR-585 still paints in color)', () => {
     for (const preference of PREFERENCES) {
       expect(themeStyle({ preference, hue: S_73_DEFAULT })).toBe(themeStyle(theme(preference, S_73_DEFAULT, false)))
       expect(pageGroundStyle({ preference, hue: S_73_DEFAULT })).toBe(pageGroundStyle(theme(preference, S_73_DEFAULT, false)))
@@ -321,16 +321,16 @@ describe(`CR-585 (3) FR-041 "${CLAUSE_FOLLOW_T236}" -- monochrome off`, () => {
   })
 })
 
-describe(`CR-585 (4) FR-041 "${CLAUSE_GROUND}" -- the page ground greys the same way`, () => {
+describe(`CR-585 (4) FR-041 "${CLAUSE_GROUND}" -- the page ground grays the same way`, () => {
   for (const preference of PREFERENCES) {
     for (const hue of HUES) {
-      it(`${preference}, hue ${hue}: S-146 is grey with its lightness under monochrome, its T-236 value otherwise`, () => {
-        const coloured = mustPaint(writtenOf(t236(S_146), preference, hue), `T-236 ${S_146}`)
+      it(`${preference}, hue ${hue}: S-146 is gray with its lightness under monochrome, its T-236 value otherwise`, () => {
+        const colored = mustPaint(writtenOf(t236(S_146), preference, hue), `T-236 ${S_146}`)
         const on = mustPaint(groundOf(theme(preference, hue, true)), 'page ground (monochrome)')
         const off = mustPaint(groundOf(theme(preference, hue, false)), 'page ground')
-        expect(isGrey(on), `page ground is not grey: ${groundOf(theme(preference, hue, true))}`).toBe(true)
-        expect(samePaint(on, greyOf(coloured))).toBe(true)
-        expect(samePaint(off, coloured)).toBe(true)
+        expect(isGray(on), `page ground is not gray: ${groundOf(theme(preference, hue, true))}`).toBe(true)
+        expect(samePaint(on, grayOf(colored))).toBe(true)
+        expect(samePaint(off, colored)).toBe(true)
         expect(groundOf(theme(preference, hue, true))).toBe(propertyOf(theme(preference, hue, true), 'ground'))
       })
     }
@@ -338,7 +338,7 @@ describe(`CR-585 (4) FR-041 "${CLAUSE_GROUND}" -- the page ground greys the same
 })
 
 describe(`CR-585 (5) FR-041 "${CLAUSE_SAME_VALUE}"`, () => {
-  const both = HUE_NAMES.filter((name) => exportColourOf(NAME_TO_TASK_GROUP[name] ?? '', S_73_DEFAULT, 'light', false) !== null)
+  const both = HUE_NAMES.filter((name) => exportColorOf(NAME_TO_TASK_GROUP[name] ?? '', S_73_DEFAULT, 'light', false) !== null)
 
   it('premise: the export draws the ground and at least one other chrome row', () => {
     expect(both).toContain('ground')
@@ -348,15 +348,15 @@ describe(`CR-585 (5) FR-041 "${CLAUSE_SAME_VALUE}"`, () => {
   for (const preference of PREFERENCES) {
     for (const hue of HUES) {
       for (const monochrome of [true, false]) {
-        it(`${preference}, hue ${hue}, monochrome ${monochrome}: --gr-<name> equals the export's colour for the same row`, () => {
+        it(`${preference}, hue ${hue}, monochrome ${monochrome}: --gr-<name> equals the export's color for the same row`, () => {
           for (const name of both) {
             const rowId = NAME_TO_TASK_GROUP[name] ?? ''
             expect(propertyOf(theme(preference, hue, monochrome), name), `${name} (${rowId})`).toBe(
-              exportColourOf(rowId, hue, preference, monochrome),
+              exportColorOf(rowId, hue, preference, monochrome),
             )
           }
           expect(groundOf(theme(preference, hue, monochrome)), 'page ground vs export S-146').toBe(
-            exportColourOf(S_146, hue, preference, monochrome),
+            exportColorOf(S_146, hue, preference, monochrome),
           )
         })
       }
@@ -364,29 +364,29 @@ describe(`CR-585 (5) FR-041 "${CLAUSE_SAME_VALUE}"`, () => {
   }
 })
 
-describe(`CR-585 (1)(7) FR-041 "${CLAUSE_MONOCHROME}" / T-294 "${CLAUSE_KEEP_LIGHTNESS}" -- the schedule picture (export colours)`, () => {
+describe(`CR-585 (1)(7) FR-041 "${CLAUSE_MONOCHROME}" / T-294 "${CLAUSE_KEEP_LIGHTNESS}" -- the schedule picture (export colors)`, () => {
   for (const preference of PREFERENCES) {
     for (const hue of HUES) {
-      it(`${preference}, hue ${hue}: every row the picture draws ("o" and "-") is grey with its lightness`, () => {
+      it(`${preference}, hue ${hue}: every row the picture draws ("o" and "-") is gray with its lightness`, () => {
         let drawnTaskGroups = 0
         for (const row of T236.rows) {
-          const on = exportColourOf(row.id, hue, preference, true)
-          const off = exportColourOf(row.id, hue, preference, false)
+          const on = exportColorOf(row.id, hue, preference, true)
+          const off = exportColorOf(row.id, hue, preference, false)
           if (on === null || off === null) continue
           drawnTaskGroups += 1
           const spec = t236(row.id)
-          const coloured = mustPaint(writtenOf(spec, preference, hue), `T-236 ${row.id}`)
+          const colored = mustPaint(writtenOf(spec, preference, hue), `T-236 ${row.id}`)
           const inherited = inheritedRowOf(row.id)
           if (inherited !== null) {
-            expect(on, `${row.id} inherits ${inherited}`).toBe(exportColourOf(inherited, hue, preference, true))
-            expect(off, `${row.id} inherits ${inherited}`).toBe(exportColourOf(inherited, hue, preference, false))
+            expect(on, `${row.id} inherits ${inherited}`).toBe(exportColorOf(inherited, hue, preference, true))
+            expect(off, `${row.id} inherits ${inherited}`).toBe(exportColorOf(inherited, hue, preference, false))
           } else {
             const drawn = mustPaint(on, `export ${row.id}`)
-            expect(isGrey(drawn), `${row.id} is not grey: ${on}`).toBe(true)
-            expect(samePaint(drawn, greyOf(coloured)), `${row.id}: ${on}`).toBe(true)
+            expect(isGray(drawn), `${row.id} is not gray: ${on}`).toBe(true)
+            expect(samePaint(drawn, grayOf(colored)), `${row.id}: ${on}`).toBe(true)
             const keeps = T366_SHIFTED_ROWS.includes(row.id)
               ? isShiftOf(off, writtenOf(spec, preference, hue), preference)
-              : samePaint(mustPaint(off, row.id), coloured)
+              : samePaint(mustPaint(off, row.id), colored)
             expect(keeps, `${row.id} off: ${off}`).toBe(true)
           }
         }

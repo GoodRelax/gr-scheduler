@@ -1,4 +1,4 @@
-// CR-673 spec-only cases: FR-041 grey hue swatches, the IC-127 word, FR-109 stopped actual line, PK-4 head width, IF-9 notices.
+// CR-673 spec-only cases: FR-041 gray hue swatches, the IC-127 word, FR-109 stopped actual line, PK-4 head width, IF-9 notices.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -48,11 +48,11 @@ const rowOf = (table: string, id: string) => {
 }
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-const FR_041_ALL_GREY =
+const FR_041_ALL_GRAY =
   '画面の枠（罫 `S-149`・パネルの地 `S-150`・強調 `S-151`・掴み代の印 `S-231`・文字 `S-147`・押下の緑 `S-183` ほか）にも、無彩色にして描くこと（MUST）'
 const FR_041_SWATCH_PAINT =
   '各行の見本は、その行の色相で解いた `_assets/tbl-settings.md` の 表 T-236 の `S-151` を、いま描いている明暗の値で塗ること（MUST）'
-const FR_041_SWATCH_GREY =
+const FR_041_SWATCH_GRAY =
   '⚠️ モノクロ（`S-74`）が入っているあいだは、見本も次の段落のとおり灰で描く —— 灰は HSL の明度を保つので（`_assets/tbl-settings.md` の 表 T-294 の前文）、どの行の見本も `S-151` の明度の同じ灰になり'
 const FR_041_NO_EXCEPTION = '⚠️ 例外を置かない —— 上の段落のテーマ色の欄の見本も灰で描く。'
 const FR_109_STOPPED =
@@ -64,7 +64,7 @@ const PK_4_HEAD = '矢じりの幅（軸に直角の広さ）は一辺の 4 分�
 
 describe('CR-673 -- the clauses these cases are driven by', () => {
   it('FR-041, FR-109, IF-9 and PK-4 still read this way', () => {
-    for (const clause of [FR_041_ALL_GREY, FR_041_SWATCH_PAINT, FR_041_SWATCH_GREY, FR_041_NO_EXCEPTION, FR_109_STOPPED]) {
+    for (const clause of [FR_041_ALL_GRAY, FR_041_SWATCH_PAINT, FR_041_SWATCH_GRAY, FR_041_NO_EXCEPTION, FR_109_STOPPED]) {
       expect(REQUIREMENTS, clause).toContain(clause)
     }
     expect(REQUIREMENTS, 'the retired FR-041 exception is gone').not.toContain('見本にモノクロ（`S-74`）を効かせてはならない')
@@ -142,7 +142,7 @@ const READINGS_BASE = {
   commandPaletteAt: { x: 0, y: 0 },
   iconUnderPointer: null,
   isMilestoneListOpen: false,
-  isPaletteMinimised: false,
+  isPaletteMinimized: false,
   dualCursorFollowing: null,
   selectedGroupIds: [],
   selectedResourceUids: [],
@@ -218,7 +218,7 @@ function groundsOf(built: Stage, element: FakeElement): string[] {
 }
 
 // see T-236, T-294
-// WHY: the grey keeps the HSL lightness (T-294's preamble), so S-151's written lightness is the grey every hue gives.
+// WHY: the gray keeps the HSL lightness (T-294's preamble), so S-151's written lightness is the gray every hue gives.
 function s151LightnessOf(preference: Preference): number {
   const written = bare(rowOf('T-236', 'S-151').by[preference === 'light' ? '明るいテーマ' : '暗いテーマ'] ?? '')
   const lightness = /([\d.]+)%\s*\)$/.exec(written)
@@ -227,7 +227,7 @@ function s151LightnessOf(preference: Preference): number {
 }
 
 // see K-60
-function swatchColours(preference: Preference, monochrome: boolean): Rgb[] {
+function swatchColors(preference: Preference, monochrome: boolean): Rgb[] {
   const built = wire({ preference, hue: S_73_DEFAULT, monochrome }, HEADER_HEIGHT)
   surfaceOf(built).showScreenView({ ...EMPTY_VIEW, propertiesPanel: settingsPanel(preference, monochrome) })
   const panel = oneByRole(built.root(), U_25)
@@ -253,31 +253,31 @@ function swatchColours(preference: Preference, monochrome: boolean): Rgb[] {
   })
 }
 
-describe(`CR-673 FR-041 "${FR_041_SWATCH_GREY}"`, () => {
+describe(`CR-673 FR-041 "${FR_041_SWATCH_GRAY}"`, () => {
   for (const preference of PREFERENCES) {
     it(`${preference}: with S-74 on, every K-60 swatch is achromatic`, () => {
-      const colours = swatchColours(preference, true)
-      expect(colours, 'one swatch per T-305 row').toHaveLength(ROSTER.length)
-      colours.forEach((rgb, index) => {
-        expect(isAchromatic(rgb), `${ROSTER[index]?.rowId}: rgb(${rgb.map(Math.round).join(',')}) is grey`).toBe(true)
+      const colors = swatchColors(preference, true)
+      expect(colors, 'one swatch per T-305 row').toHaveLength(ROSTER.length)
+      colors.forEach((rgb, index) => {
+        expect(isAchromatic(rgb), `${ROSTER[index]?.rowId}: rgb(${rgb.map(Math.round).join(',')}) is gray`).toBe(true)
       })
     })
 
-    it(`${preference}: with S-74 on, every K-60 swatch is the one grey of S-151's lightness`, () => {
-      const grey = CHANNEL_MAX * s151LightnessOf(preference) / PERCENT
-      const colours = swatchColours(preference, true)
-      expect(colours).toHaveLength(ROSTER.length)
-      colours.forEach((rgb, index) => {
+    it(`${preference}: with S-74 on, every K-60 swatch is the one gray of S-151's lightness`, () => {
+      const gray = CHANNEL_MAX * s151LightnessOf(preference) / PERCENT
+      const colors = swatchColors(preference, true)
+      expect(colors).toHaveLength(ROSTER.length)
+      colors.forEach((rgb, index) => {
         rgb.forEach((channel) => {
-          expect(Math.abs(channel - grey), `${ROSTER[index]?.rowId}: rgb(${rgb.map(Math.round).join(',')})`).toBeLessThanOrEqual(CHANNEL_TOLERANCE)
+          expect(Math.abs(channel - gray), `${ROSTER[index]?.rowId}: rgb(${rgb.map(Math.round).join(',')})`).toBeLessThanOrEqual(CHANNEL_TOLERANCE)
         })
       })
     })
 
-    it(`${preference}: with S-74 off, the swatches keep their hues (the grey comes from S-74, not from the field)`, () => {
-      const colours = swatchColours(preference, false)
-      expect(colours).toHaveLength(ROSTER.length)
-      expect(colours.filter((rgb) => !isAchromatic(rgb)).length, 'coloured swatches').toBeGreaterThan(0)
+    it(`${preference}: with S-74 off, the swatches keep their hues (the gray comes from S-74, not from the field)`, () => {
+      const colors = swatchColors(preference, false)
+      expect(colors).toHaveLength(ROSTER.length)
+      expect(colors.filter((rgb) => !isAchromatic(rgb)).length, 'colored swatches').toBeGreaterThan(0)
     })
   }
 })

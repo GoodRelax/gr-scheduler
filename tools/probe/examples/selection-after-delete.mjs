@@ -18,7 +18,7 @@ await key('Delete')
 // ⛔ THE ANSWER IS A WORD BUTTON, NOT AN ICON (NT-7 of table T-037). It
 // carries `data-confirmation-answer` and no `data-icon`, so `IC-69`
 // and `IC-70` were retired from table T-109 and figure F-019. `press()` only
-// knows `data-icon`, so the button is reached with a real pointer at its centre.
+// knows `data-icon`, so the button is reached with a real pointer at its center.
 const PROCEED = '[data-confirmation-answer="proceed"]'
 const asked = await until(async () => (await count(PROCEED)) === 1,
   'the confirmation stands', { timeout: 3000 }).catch(() => false)

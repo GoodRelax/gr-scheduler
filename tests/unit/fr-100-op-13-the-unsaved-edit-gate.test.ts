@@ -28,7 +28,7 @@
 //
 // ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
 // 04-verification.md, section 1). ⛔ NO FILE UNDER src/ WAS READ. The host, the
-// fake surface, the fake `FileStore` and the way a key of table T-036 is spelt
+// fake surface, the fake `FileStore` and the way a key of table T-036 is spelled
 // are copied from tests/unit/uf-47-48-choosers.test.ts and
 // tests/unit/fr-029-the-reason-a-press-carries.test.ts, which are tests;
 // `startup-template.json` is a generated document read as data.
@@ -47,7 +47,7 @@
 //
 // ⭐ WHAT THIS FILE HOLDS INSTEAD is the CONDITION the whole of FR-100 is
 // written on -- 「未保存の編集を持ったまま」 and its MUST NOT 「未保存の編集が無い
-// ときに出させてはならない」. `FrameLoop.hasUnsavedEdits()` is the only judgement
+// ときに出させてはならない」. `FrameLoop.hasUnsavedEdits()` is the only judgment
 // of it anywhere below the shell; a shell that asked no one would have to invent
 // a second one, and a warning raised on a wrong answer is wrong however faithful
 // the registration is.
@@ -114,7 +114,7 @@ const cellOf = (table: { rows: readonly { id: string; cells: readonly string[] }
   return cell
 }
 
-/** One row of table T-036, spelt as its assignment column spells it. */
+/** One row of table T-036, spelled as its assignment column spells it. */
 const keyOf = (id: string): KeyInput => {
   const parts = (cellOf(T_036, id, T_036_ASSIGNMENT).split('/')[0] ?? '')
     .replace(/`/g, '')

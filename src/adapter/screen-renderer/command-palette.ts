@@ -33,7 +33,7 @@ const ALIGN_REQUIREMENT = 'FR-034'
 
 const NOT_BUTTON_ROWS: readonly string[] = ['IC-53', 'IC-54']
 
-const MINIMISE_ROW: IconId = 'IC-75'
+const MINIMIZE_ROW: IconId = 'IC-75'
 
 const INTERACTION_RECORD_ROW: IconId = 'IC-76'
 
@@ -329,7 +329,7 @@ export function commandPaletteFromSession(
   const drawnTasks = drawnTaskUids(schedule, readings)
   const language = displayLanguageOf(session)
   const armed = session.screen.armModeState
-  const isMinimised = palette.child.kind === 'minimised'
+  const isMinimized = palette.child.kind === 'minimized'
   const facts = entranceFactsOf(settings, session, schedule, readings)
   const isRecording = isRecordingInteractions(readings)
   const bandItem = (rowId: IconId): CommandItem =>
@@ -338,11 +338,11 @@ export function commandPaletteFromSession(
   return {
     at: readings.commandPaletteAt,
     grabBandHeight: NOT_STORED_COMMAND_PALETTE_SIZES['S-135a'],
-    minimise: bandItem(MINIMISE_ROW),
+    minimize: bandItem(MINIMIZE_ROW),
     // see FR-053, FR-102, S-206
-    bandRecord: isMinimised && isRecording ? bandItem(INTERACTION_RECORD_ROW) : null,
-    isMinimised,
-    groups: isMinimised
+    bandRecord: isMinimized && isRecording ? bandItem(INTERACTION_RECORD_ROW) : null,
+    isMinimized,
+    groups: isMinimized
       ? []
       : paletteGroups(
           selection,
@@ -353,7 +353,7 @@ export function commandPaletteFromSession(
           isRecording,
           facts,
         ),
-    armedText: isMinimised ? null : armedWord(armed, language),
+    armedText: isMinimized ? null : armedWord(armed, language),
   }
 }
 

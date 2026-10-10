@@ -108,7 +108,7 @@ export type ProgressSymbol = 'PM-1' | 'PM-1a' | 'PM-2' | 'PM-3' | 'PM-4' | 'DG-1
 
 export interface MarkerGeometry {
   readonly symbol: ProgressSymbol
-  readonly centre: Point
+  readonly center: Point
   readonly radius: number
 }
 
@@ -204,7 +204,7 @@ export interface HighlightGeometry {
   readonly box: ScreenRect
   readonly cornerRadiusPx: number | null
   readonly strokeWidthPx: number
-  // WHY: null is the project theme colour (FR-019, AT-146), painted from the theme by the renderer.
+  // WHY: null is the project theme color (FR-019, AT-146), painted from the theme by the renderer.
   readonly fillColor: string | null
   readonly fillOpacity: number
   readonly hasSideHandles: { readonly leftRight: boolean; readonly topBottom: boolean }

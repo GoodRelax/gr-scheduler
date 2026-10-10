@@ -81,9 +81,9 @@ describe.each(LANGUAGES)('CR-716 DX-8 -- the large sample (%s)', (language) => {
     for (const uid of parents) expect(markOf(report, uid), `uid ${uid}`).toBe('DG-1')
   })
 
-  it('DX-7: the count not analysed equals the number of DG-1 tasks and is at least the VS-6 parents', () => {
+  it('DX-7: the count not analyzed equals the number of DG-1 tasks and is at least the VS-6 parents', () => {
     const dg1 = report.markerStates.filter((one) => one.row === 'DG-1').length
-    expect(report.unanalysedCount).toBe(dg1)
+    expect(report.unreliableCount).toBe(dg1)
     expect(dg1).toBeGreaterThanOrEqual(VS_6_PARENTS)
   })
 

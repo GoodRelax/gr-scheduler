@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 228 900 31" width="900" height="31" role="img" aria-label="grab-area map for the ---> line-only task, 3 stacked stages">
   <title>図 F-021 -- ---> の掴み代の地図（③ 3 段）</title>
   <!-- GENERATED ARTIFACT: do not hand-edit.
-     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behaviour)
+     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behavior)
              + docs/spec/_source/settings.json (values, gated: see the probe's settings-gate)
      regenerate: node tools/probe/grab-figures.mjs
      produced this file: docs/spec/_assets/fig-grab-map-arrow.svg

@@ -107,7 +107,7 @@ const HELP = {
   language: 'ja',
   helpLanguage: 'ja',
   windowState: 'normal',
-  licenceText: 'Licence text',
+  licenseText: 'License text',
   copyrightNotice: 'Copyright notice',
   attributions: ['An attribution'],
   helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
@@ -188,10 +188,10 @@ describe('Help Modal (U-30) -- FR-036', () => {
     expect(selfAndDescendants(modal).some((one) => one.tagName === 'SVG')).toBe(true)
   })
 
-  it('the licence, the copyright notice and the attributions the description carries are shown', () => {
+  it('the license, the copyright notice and the attributions the description carries are shown', () => {
     const { built } = drawn(HELP)
     const text = oneByRole(built.root(), HELP_MODAL).textContent
-    expect(text).toContain('Licence text')
+    expect(text).toContain('License text')
     expect(text).toContain('Copyright notice')
     expect(text).toContain('An attribution')
   })

@@ -109,7 +109,7 @@ test('UC-010 exchange with an external WBS master (FR-087 OP-3 OP-5, FR-023, FR-
     expect(doc.schedule.tasks.some((t) => Object.keys(t.carry ?? {}).length > 0 || (t.carryElements ?? []).length > 0)).toBe(true)
   })
 
-  await test.step('UC-010 step 6 (no edit): writing back without an edit gives the same file after normalisation (FR-021, T-228)', async () => {
+  await test.step('UC-010 step 6 (no edit): writing back without an edit gives the same file after normalization (FR-021, T-228)', async () => {
     const written = await exportMspdiByUi(page)
     unedited = await mspdiDifferences(page, original, written, true)
     expect.soft(unedited).toEqual([])

@@ -539,7 +539,7 @@ describe('IF-3 FileStore -- CS-4 of table T-066: what is collected, and when', (
             form: 'grsJson',
             identity: MY_IDENTITY,
             identityOfDestination: (text) => {
-              expect(text, 'CS-4: the judgement saw characters other than the destination')
+              expect(text, 'CS-4: the judgment saw characters other than the destination')
                 .toBe(SOMEBODY_ELSE)
               return { projectName: 'Beta', projectId: 'P-2' }
             },

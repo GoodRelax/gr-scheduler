@@ -1,4 +1,4 @@
-// W3 spec-only tester 5: table T-067 WS-2 -- the four moments the caller hands in, and the UN-8 judgement only WS-2 makes.
+// W3 spec-only tester 5: table T-067 WS-2 -- the four moments the caller hands in, and the UN-8 judgment only WS-2 makes.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

@@ -17,7 +17,7 @@ docs/development-rules/usability-principles-ja.md	400	centercentre.com	URL domai
 *		<url>	every URL is someone else's name
 *		23-status-date-line-colour	names a history path that is not moved (X-1)
 *		25-colour-input-layout	names a history path that is not moved (X-1)
-*	docs/spec/_assets/tbl-settings.md:620	43-theme-colour-solve	names a history path that is not moved (X-1)
+*	docs/spec/_assets/tbl-settings.md:626	43-theme-colour-solve	names a history path that is not moved (X-1)
 *		CR-185-the-renderer-that-could-not-reach-colour	names a history path that is not moved (X-1)
 *		CR-323-the-colours-a-control-takes-by-state	names a history path that is not moved (X-1)
 *		CR-415-a-stacked-neighbour-grab-margin-yields-to-the-drawn-shape	names a history path that is not moved (X-1)

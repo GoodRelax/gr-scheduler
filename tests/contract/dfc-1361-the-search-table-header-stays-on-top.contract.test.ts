@@ -236,7 +236,7 @@ function coverings(root: FakeElement, uppers: readonly FakeElement[], lowers: re
   return wrong
 }
 
-// WHY: FR-041 forbids a fallback inside var(), so a colour is either one bare custom property or an opaque literal.
+// WHY: FR-041 forbids a fallback inside var(), so a color is either one bare custom property or an opaque literal.
 function isOpaqueGround(written: string): boolean {
   const flat = written.trim().toLowerCase()
   if (flat === '' || flat === 'transparent' || flat === 'none' || flat === 'inherit' || flat === 'initial') return false

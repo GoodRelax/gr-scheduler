@@ -172,7 +172,7 @@ function markdownCell(text: string): string {
 }
 
 /** @purity pure */
-function labelled(label: string, value: string): string {
+function labeled(label: string, value: string): string {
   return label === '' ? `- ${value}` : `- ${label}: ${value}`
 }
 
@@ -212,10 +212,10 @@ export function delayDiagnosticsReportMarkdown(
   return [
     `# ${words.heading}`,
     '',
-    labelled(words.documentName, dates.documentName),
-    labelled('', dates.statusDateLine),
-    labelled(words.madeAt, dates.madeAt),
-    labelled(words.filter, filterText(filter, words.none)),
+    labeled(words.documentName, dates.documentName),
+    labeled('', dates.statusDateLine),
+    labeled(words.madeAt, dates.madeAt),
+    labeled(words.filter, filterText(filter, words.none)),
     '',
     dates.summaryLine,
     '',

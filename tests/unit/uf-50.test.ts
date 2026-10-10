@@ -45,7 +45,7 @@
 //                   consume; with nothing to consume it MUST reach the browser
 //   IN-5a           `Ctrl+C` / `Ctrl+V` during unsettled text entry reach the
 //                   browser as character operations (MUST)
-//   MK-10           the browser's own behaviour is stopped for an input this
+//   MK-10           the browser's own behavior is stopped for an input this
 //                   tool assigned (MUST) and NOT stopped for one it did not
 //                   (MUST NOT); the canvas alone is not enough
 //   MK-12           the unit of an assignment is the COMBINATION, so all four
@@ -143,7 +143,7 @@ const T_036_KEYS = [
 ] as const
 
 /**
- * The same three signs off the numeric keypad. PND-93 recognises `+` / `-` / `0`
+ * The same three signs off the numeric keypad. PND-93 recognizes `+` / `-` / `0`
  * by the physical key, and the keypad is the second physical key that produces
  * each of them.
  */
@@ -1478,7 +1478,7 @@ describe('表 T-036 -- the key is spelled as the assignment column spells it', (
 // throws (a browser throws `NotFoundError` from `setPointerCapture` when the
 // pointer id is no longer active). `InputSource` has no channel to answer with
 // -- both its members return nothing -- and the note under 表 T-078 forbids
-// widening IF-2 to give it one, so the only two possible behaviours are to
+// widening IF-2 to give it one, so the only two possible behaviors are to
 // swallow the throw or to let it out, and no requirement chooses between them.
 // A case either way would be inventing the decision, so the choice is left to
 // the pending-decision list instead (04-verification.md §1: 仕様が曖昧ならその

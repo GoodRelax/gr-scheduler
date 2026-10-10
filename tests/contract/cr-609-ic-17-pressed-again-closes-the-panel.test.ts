@@ -176,7 +176,7 @@ function bench(): Bench {
       const xs = task.plan.points.map((one) => one.x)
       const ys = task.plan.points.map((one) => one.y)
       const right = Math.max(...xs)
-      const left = task.marker === null ? Math.min(...xs) : Math.max(Math.min(...xs), task.marker.centre.x + task.marker.radius)
+      const left = task.marker === null ? Math.min(...xs) : Math.max(Math.min(...xs), task.marker.center.x + task.marker.radius)
       const at = { x: (left + right) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
       send(pointer('down', at.x, at.y, 2))
       send(pointer('up', at.x, at.y, 2))

@@ -543,7 +543,7 @@ interface Figure {
   /** Every enclosing `<g opacity>` multiplied into the element's own. */
   readonly opacity: number
   /** `fill` and `stroke` as written, so FR-041's 「独立した色を保存しない」 can be checked. */
-  readonly colours: readonly string[]
+  readonly colors: readonly string[]
 }
 
 const ELEMENT = /<(\/?)([A-Za-z][\w-]*)((?:[^<>"]|"[^"]*")*?)(\/?)>/g
@@ -661,7 +661,7 @@ const figuresOf = (svg: string): readonly Figure[] => {
       text,
       box: boxOfElement(tag, attrs),
       opacity: effective() * ownOpacityOf(attrs),
-      colours: ['fill', 'stroke']
+      colors: ['fill', 'stroke']
         .map((name) => attrOf(attrs, name))
         .filter((one): one is string => one !== null),
     })
@@ -705,7 +705,7 @@ const drawnAt = (withDummy: string, withoutDummy: string, x: number): readonly F
 
 /**
  * The FIGURE the started twin draws for the milestone's own actual (LF-10 of
- * table T-221: 「a smaller figure at the actual day」), normalised.
+ * table T-221: 「a smaller figure at the actual day」), normalized.
  */
 const actualMilestoneShapeOf = (started: Drawn): string => {
   const actual = geometryOf(started, UNDER_TEST).actual
@@ -749,9 +749,9 @@ const verticesOf = (figure: Figure): readonly (readonly [number, number])[] => {
  * exception (利用者の裁定 2026-09-08) says 「**ダミーの図形は、そのマイルストーン
  * の実績の図形と同じとすること（MUST）**」 while the段 above it keeps the dummy's
  * own width and the actual figure keeps its own (LF-10 of table T-221), so the
- * two are never the same SIZE and may never be compared as pixels. Normalising
+ * two are never the same SIZE and may never be compared as pixels. Normalizing
  * each to its own box leaves exactly what the MUST names.
- * ⛔ A ◇ normalises to its four edge midpoints and a rectangle to its four
+ * ⛔ A ◇ normalizes to its four edge midpoints and a rectangle to its four
  * corners, so the two can never be mistaken for one another -- which is the
  * MUST NOT beside it: 「**矩形で描いてはならない（MUST NOT）**」.
  */
@@ -769,7 +769,7 @@ const shapeOf = (points: readonly (readonly [number, number])[]): string => {
     .join(' ')
 }
 
-/** The figure a rectangle of any size normalises to, written out once. */
+/** The figure a rectangle of any size normalizes to, written out once. */
 const RECTANGLE_SHAPE = shapeOf([
   [0, 0],
   [1, 0],
@@ -874,7 +874,7 @@ const gr18SquareSideOf = (fresh: Drawn): number => {
  * ⭐ SELECTED WITHOUT USING AN x, so a case may measure one. What the fresh
  * picture draws and the started twin does not is the dummy and the not-started
  * marker (PM-1a and PM-1 are different figures), and the marker is named by its
- * own centre rather than by a place this file computed -- GA-18 puts it
+ * own center rather than by a place this file computed -- GA-18 puts it
  * 「マイルストーンのときは図形の外側」, which is not a pixel any row fixes.
  *
  * ⛔ Throws when there is no ink at all, so a case cannot pass over a picture
@@ -886,8 +886,8 @@ const gr18InkOf = (fresh: Drawn, started: Drawn): readonly Figure[] => {
     throw new Error('FR-013 drew no not-started marker, so the dummy cannot be told from it')
   }
   const isTheMarker = (box: Box): boolean =>
-    sameOnGrid((box.x0 + box.x1) / 2, marker.centre.x) &&
-    sameOnGrid((box.y0 + box.y1) / 2, marker.centre.y)
+    sameOnGrid((box.x0 + box.x1) / 2, marker.center.x) &&
+    sameOnGrid((box.y0 + box.y1) / 2, marker.center.y)
   const found = onlyIn(fresh.svg, started.svg).filter(
     (one) => one.box !== null && !isTheMarker(one.box),
   )
@@ -914,7 +914,7 @@ const gr18InkOf = (fresh: Drawn, started: Drawn): readonly Figure[] => {
  * `S-4` (28px), so the band is now 16.002px tall and the marker's 16px square
  * lands on the same rounded top and bottom. ⇒ Selecting on the band alone
  * answers TWO figures for one mark, and every case that counted them read the
- * marker as a second dummy. ⭐ Named by the marker's own centre, exactly the
+ * marker as a second dummy. ⭐ Named by the marker's own center, exactly the
  * way `gr18InkOf` above names it.
  */
 const dummyFiguresOf = (fresh: Drawn, started: Drawn): readonly Figure[] => {
@@ -922,8 +922,8 @@ const dummyFiguresOf = (fresh: Drawn, started: Drawn): readonly Figure[] => {
   const marker = geometryOf(fresh, UNDER_TEST).marker
   const isTheMarker = (box: Box): boolean =>
     marker !== null &&
-    sameOnGrid((box.x0 + box.x1) / 2, marker.centre.x) &&
-    sameOnGrid((box.y0 + box.y1) / 2, marker.centre.y)
+    sameOnGrid((box.x0 + box.x1) / 2, marker.center.x) &&
+    sameOnGrid((box.y0 + box.y1) / 2, marker.center.y)
   return onlyIn(fresh.svg, started.svg).filter(
     (figure) =>
       figure.box !== null &&
@@ -981,7 +981,7 @@ describe('the reader this file measures pictures with', () => {
     const started = draw(startedSchedule(), NARROW_DAY_ZOOM)
     const band = actualBandOf(started)
     const bar = figuresOf(started.svg).filter((one) => sameBoxAs(one.box, band))
-    const fill = bar.flatMap((one) => one.colours)[0]
+    const fill = bar.flatMap((one) => one.colors)[0]
     expect(fill).toBeDefined()
     // ⭐⭐ THE CONTROL SPLICES **TWO** FIGURES ON PURPOSE, at both of table
     // T-023d's grab columns -- and this is NOT the product's picture. A control
@@ -1186,7 +1186,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     }
   })
 
-  it('FR-041 keeps the dummy on the actual bar colours and gives it none of its own', () => {
+  it('FR-041 keeps the dummy on the actual bar colors and gives it none of its own', () => {
     // FR-013: 「色は実績バーの色を継ぎ、独立した色を保存しない（`FR-041`）」.
     const fresh = draw(notStartedSchedule(), NARROW_DAY_ZOOM)
     const started = draw(startedSchedule(), NARROW_DAY_ZOOM)
@@ -1195,15 +1195,15 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
     const band = actualBandOf(started)
     const bar = figuresOf(started.svg).filter((one) => sameBoxAs(one.box, band))
     expect(bar.length, 'the twin drew no actual bar').toBeGreaterThan(0)
-    const inherited = new Set(bar.flatMap((one) => one.colours))
+    const inherited = new Set(bar.flatMap((one) => one.colors))
     const inks = dummyFiguresOf(fresh, started)
     // ⭐ ONE (FR-043, 利用者の裁定 2026-09-08), for the same reason the faintness
     // case above states its count: an empty loop would prove nothing.
-    expect(inks.length, 'no dummy ink to judge the colours of').toBe(1)
+    expect(inks.length, 'no dummy ink to judge the colors of').toBe(1)
     for (const figure of inks) {
-      for (const colour of figure.colours) {
-        if (colour === 'none') continue
-        expect(inherited, `a dummy paints itself ${colour}`).toContain(colour)
+      for (const color of figure.colors) {
+        if (color === 'none') continue
+        expect(inherited, `a dummy paints itself ${color}`).toContain(color)
       }
     }
   })
@@ -1239,7 +1239,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       expect(onGrid(box.y1 - box.y0), 'GA-17 height').toBeCloseTo(onGrid(side), 2)
     })
 
-    it(`GA-17 (MUST) is centred where the same-day actual milestone figure is centred at ${days}`, () => {
+    it(`GA-17 (MUST) is centered where the same-day actual milestone figure is centered at ${days}`, () => {
       const fresh = draw(milestoneSchedule(), zoomX)
       const started = draw(startedMilestoneSchedule(), zoomX)
       const box = gr18InkBoxOf(fresh)
@@ -1271,7 +1271,7 @@ describe('FR-043 / table T-206 S-180 -- the Actual Operation Dummy is drawn', ()
       // （MUST）**」. ⭐ THE OTHER SIDE OF THE COMPARISON IS A DRAWING THE
       // SPECIFICATION PUTS BESIDE IT, not a value out of `src/`: the started
       // twin is the same milestone with an actual, and LF-10 of table T-221 is
-      // what draws its figure. Normalising both to their own boxes is what the
+      // what draws its figure. Normalizing both to their own boxes is what the
       // MUST asks about -- FR-043 keeps the dummy's own width in the段 above
       // (DFC-488 「大きさは例外ではない」), so the two are the same FIGURE at two sizes.
       const fresh = draw(milestoneSchedule(), zoomX)
@@ -1444,8 +1444,8 @@ describe('EP-14 of table T-076 -- an export draws no dummy, and moves nothing', 
         .filter(
           (one) =>
             one.box !== null &&
-            sameOnGrid((one.box.x0 + one.box.x1) / 2, marker!.centre.x) &&
-            sameOnGrid((one.box.y0 + one.box.y1) / 2, marker!.centre.y),
+            sameOnGrid((one.box.x0 + one.box.x1) / 2, marker!.center.x) &&
+            sameOnGrid((one.box.y0 + one.box.y1) / 2, marker!.center.y),
         )
         .map((one) => one.text)
         .sort()

@@ -50,7 +50,7 @@ const SEAMS = [
 read each, and decide ONE of two things -- never assume the first:
 
   (a) THE BENCH IS BEHIND. The case was written when the dictionary was empty and
-      asserts the stand-in behaviour ("mints no word, because no table settles
+      asserts the stand-in behavior ("mints no word, because no table settles
       one"). A word is settled now, so the case must be rewritten to hold what the
       specification actually requires -- ⛔ not merely re-pointed at whatever the
       code returns.

@@ -108,8 +108,8 @@ describe(`T-273 LP-1 -- ${says('LP-1')}`, () => {
     const scene = rectangle(WIDE_ACTUAL)
     const basis = basisOf(scene)
     const marker = markerOf(scene)
-    expect(marker.centre.x - marker.radius, says('LP-1')).toBeCloseTo(basis.left, 6)
-    expect(nameStartOf(scene), says('LP-1')).toBeCloseTo(marker.centre.x + marker.radius + LABEL_GAP, 6)
+    expect(marker.center.x - marker.radius, says('LP-1')).toBeCloseTo(basis.left, 6)
+    expect(nameStartOf(scene), says('LP-1')).toBeCloseTo(marker.center.x + marker.radius + LABEL_GAP, 6)
   })
 
   it(`${LP_WHAT_FITS_MEANS} ${LP_ONLY_THE_FINISH_SIDE_IS_RESERVED}`, () => {
@@ -126,8 +126,8 @@ describe(`T-273 LP-2 -- ${says('LP-2')}`, () => {
     const scene = rectangle(NARROW_ACTUAL, {}, LONG)
     const basis = basisOf(scene)
     const marker = markerOf(scene)
-    expect(marker.centre.x - marker.radius, says('LP-2')).toBeCloseTo(basis.right, 6)
-    expect(nameStartOf(scene), says('LP-2')).toBeCloseTo(marker.centre.x + marker.radius + LABEL_GAP, 6)
+    expect(marker.center.x - marker.radius, says('LP-2')).toBeCloseTo(basis.right, 6)
+    expect(nameStartOf(scene), says('LP-2')).toBeCloseTo(marker.center.x + marker.radius + LABEL_GAP, 6)
   })
 
   it('switches from LP-1 to LP-2 once and never back as the basis narrows', () => {
@@ -135,7 +135,7 @@ describe(`T-273 LP-2 -- ${says('LP-2')}`, () => {
       const scene = rectangle({ actualStart: day(2), actualFinish: day(lastDay), percentComplete: 50 }, {}, LONG)
       const basis = basisOf(scene)
       const marker = markerOf(scene)
-      return { lastDay, inside: Math.abs(marker.centre.x - marker.radius - basis.left) <= EPS }
+      return { lastDay, inside: Math.abs(marker.center.x - marker.radius - basis.left) <= EPS }
     })
     expect(frames.some((one) => one.inside), `premise: ${says('LP-1')}`).toBe(true)
     expect(frames.some((one) => !one.inside), `premise: ${says('LP-2')}`).toBe(true)
@@ -175,8 +175,8 @@ describe(`T-273 LP-5 -- ${says('LP-5')}`, () => {
       for (const scene of [wide, narrow]) {
         const basis = basisOf(scene)
         const marker = markerOf(scene)
-        expect(marker.centre.x - marker.radius, says('LP-5')).toBeCloseTo(basis.left, 6)
-        expect(nameStartOf(scene), says('LP-5')).toBeCloseTo(marker.centre.x + marker.radius + LABEL_GAP, 6)
+        expect(marker.center.x - marker.radius, says('LP-5')).toBeCloseTo(basis.left, 6)
+        expect(nameStartOf(scene), says('LP-5')).toBeCloseTo(marker.center.x + marker.radius + LABEL_GAP, 6)
       }
     })
   }
@@ -200,9 +200,9 @@ describe(`T-273 LP-7 -- ${says('LP-7')}`, () => {
     const scene = milestone({ actualStart: day(6), actualFinish: day(6), percentComplete: 100 })
     const basis = basisOf(scene)
     const marker = markerOf(scene)
-    expect(marker.centre.x - marker.radius, says('LP-7')).toBeCloseTo(basis.right, 6)
+    expect(marker.center.x - marker.radius, says('LP-7')).toBeCloseTo(basis.right, 6)
     expect(nameStartOf(scene), says('LP-7')).toBeCloseTo(
-      marker.centre.x + marker.radius + MILESTONE_NAME_GAP,
+      marker.center.x + marker.radius + MILESTONE_NAME_GAP,
       6,
     )
   })
@@ -224,7 +224,7 @@ describe('T-273 the closing rules of the table', () => {
     )
     for (const scene of frames) {
       const marker = markerOf(scene)
-      expect(marker.centre.x + marker.radius, LP_NEVER_THE_NAME_LEFT_OF_THE_MARKER).toBeLessThanOrEqual(
+      expect(marker.center.x + marker.radius, LP_NEVER_THE_NAME_LEFT_OF_THE_MARKER).toBeLessThanOrEqual(
         nameStartOf(scene) + EPS,
       )
     }
@@ -267,7 +267,7 @@ describe('T-273 the closing rules of the table', () => {
     const box = bandOfRect(mustBe(resume.box, 'the resume icon carries a box'))
     const marker = markerOf(undecided)
     expect(box.left, LP_WHEN_IT_DOES_NOT_FIT_AND_THE_ICON_IS_REACHED).toBeCloseTo(basis.right, 6)
-    expect(marker.centre.x - marker.radius, LP_WHEN_IT_DOES_NOT_FIT_AND_THE_ICON_IS_REACHED).toBeCloseTo(
+    expect(marker.center.x - marker.radius, LP_WHEN_IT_DOES_NOT_FIT_AND_THE_ICON_IS_REACHED).toBeCloseTo(
       box.right,
       6,
     )

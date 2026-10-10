@@ -13,7 +13,7 @@ import type {
   ScreenView,
   ScreenViewReadings,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { colourOf, GROUP_GRID_LINE_WIDTH_PX } from '../../src/adapter/svg-renderer/svg-renderer'
+import { colorOf, GROUP_GRID_LINE_WIDTH_PX } from '../../src/adapter/svg-renderer/svg-renderer'
 import {
   SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
@@ -168,7 +168,7 @@ describe('FR-042 (MUST) -- 「タスクグループパネル（`U-22`）のタ�
     expect(linesOf(panel)).toHaveLength(titles.length)
   })
 
-  it('draws it at the thickness of U-18, centred on the boundary as the schedule side strokes it', () => {
+  it('draws it at the thickness of U-18, centered on the boundary as the schedule side strokes it', () => {
     for (const title of titlesOf(panel)) {
       const line = lineAtBottomOf(panel, title.box) as ScreenRect
       expect(line.height, `${title.groupId}'s line thickness`).toBe(GROUP_GRID_LINE_WIDTH_PX)
@@ -338,12 +338,12 @@ const pictureOf = (scene: ExportScene): string => {
 const ROUNDING = 0.5
 
 describe('T-076 EP-3 -- 「タスクグループの境のグループ罫線（`U-18`）も画面のとおり描く」', () => {
-  it('draws every panel-side line into the picture at its screen rectangle times the export ratio, in U-18\'s colour', () => {
+  it('draws every panel-side line into the picture at its screen rectangle times the export ratio, in U-18\'s color', () => {
     expect(RATIO, 'the fixture is built so the ratio is not 1').not.toBe(1)
     const settings = exportSettingsOf(true)
     const panel = panelOf(settings)
     expect(linesOf(panel).length, 'the screen carries the lines this case scales').toBe(IDS.length)
-    const ink = colourOf('S-165', THEME_HUE, false, settings.themeMonochrome)
+    const ink = colorOf('S-165', THEME_HUE, false, settings.themeMonochrome)
     const rects = rectsOf(pictureOf(sceneOf(settings, panel)))
     for (const line of linesOf(panel)) {
       const want = { x: line.x * RATIO, y: line.y * RATIO, width: line.width * RATIO, height: line.height * RATIO }
@@ -355,13 +355,13 @@ describe('T-076 EP-3 -- 「タスクグループの境のグループ罫線（`U
           Math.abs(one.height - want.height) < ROUNDING,
       )
       expect(drawn, `a rect at ${JSON.stringify(want)} in the picture`).toBeDefined()
-      expect((drawn as DrawnRect).fill, 'drawn in the colour of the schedule-side line').toBe(ink)
+      expect((drawn as DrawnRect).fill, 'drawn in the color of the schedule-side line').toBe(ink)
     }
   })
 
   it('draws no panel-side line into the picture when S-68 is false', () => {
     const settings = exportSettingsOf(false)
-    const ink = colourOf('S-165', THEME_HUE, false, settings.themeMonochrome)
+    const ink = colorOf('S-165', THEME_HUE, false, settings.themeMonochrome)
     const rects = rectsOf(pictureOf(sceneOf(settings, panelOf(settings))))
     const thin = rects.filter(
       (one) => one.fill === ink && Math.abs(one.height - GROUP_GRID_LINE_WIDTH_PX * RATIO) < ROUNDING,

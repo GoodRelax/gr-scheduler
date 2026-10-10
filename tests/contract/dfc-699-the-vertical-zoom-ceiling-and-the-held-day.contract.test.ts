@@ -173,7 +173,7 @@ const timeAxisBench = (): ShellBench =>
     ),
   )
 
-describe('DFC-699 / FR-016, MK-3, SK-16 -- a time-axis zoom leaves the day at its centre where it was', () => {
+describe('DFC-699 / FR-016, MK-3, SK-16 -- a time-axis zoom leaves the day at its center where it was', () => {
   it(`MK-3 at a pointer left of the middle -- ${FR_016_POINTER_HOLDS}`, () => {
     const built = timeAxisBench()
     const before = frameOf(built)

@@ -13,7 +13,7 @@ import {
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import { selectionOfAll, type Selection } from '../../src/entity/document-model/selection/selection'
 import { grabSizesOf, itemAtPointer } from '../../src/entity/layout-engine/item-hit-area/item-hit-area'
-import { barOf, cellOf, centreOf, G, MODS, numberIn, pointerAt, pressOf, Q, rowText, sceneOf, type Loose, type Pt, type Scene } from './cr-631-scene'
+import { barOf, cellOf, centerOf, G, MODS, numberIn, pointerAt, pressOf, Q, rowText, sceneOf, type Loose, type Pt, type Scene } from './cr-631-scene'
 
 const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/\*\*/g, '').replace(/\s*\n\s*/g, '')
 
@@ -75,8 +75,8 @@ const A = G
 const B = Q
 
 const bodyOf = (scene: Scene, uid: number): Pt => {
-  const at = centreOf(barOf(scene, uid))
-  expect(BODY_GRABS, `the centre of task ${uid} is a body grab`).toContain(grabAt(scene, at))
+  const at = centerOf(barOf(scene, uid))
+  expect(BODY_GRABS, `the center of task ${uid} is a body grab`).toContain(grabAt(scene, at))
   return at
 }
 

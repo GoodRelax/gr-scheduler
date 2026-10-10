@@ -26,7 +26,7 @@
 // いた。**それがこの行の正体である。**」 CR-280 raised `FR-101` to say what the
 // screen owes instead, and the row's own note says the fix is 「まだ半分しか見て
 // いない」: nothing in tests/ presses save and asks what the header carries
-// afterwards. ⭐ tests/unit/uf-62.test.ts:426 asks the neighbouring question --
+// afterwards. ⭐ tests/unit/uf-62.test.ts:426 asks the neighboring question --
 // that a session ALREADY carrying a name and a moment reaches the two members --
 // and can be green while no save ever fills that session in.
 //

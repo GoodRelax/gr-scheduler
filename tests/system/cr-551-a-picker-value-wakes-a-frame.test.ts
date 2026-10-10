@@ -1,4 +1,4 @@
-// CR-551 JDG-407 (FT-1): a value chosen in the browser's colour picker lands with no further input, swept live.
+// CR-551 JDG-407 (FT-1): a value chosen in the browser's color picker lands with no further input, swept live.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -43,7 +43,7 @@ test('FT-1 still says: 選ぶ窓 ... で選んだ値が届いたことも、そ�
   expect(LINE_ROW).not.toBe('')
 })
 
-test('FT-1 / CV-9: a colour chosen in the picker shows on the bar and in the field with no pointer or key input afterwards', async ({
+test('FT-1 / CV-9: a color chosen in the picker shows on the bar and in the field with no pointer or key input afterwards', async ({
   baseURL,
 }) => {
   // see FT-1, CV-9, CV-4, CV-6
@@ -61,7 +61,7 @@ test('FT-1 / CV-9: a colour chosen in the picker shows on the bar and in the fie
     await page.mouse.dblclick(target.x, target.y)
     const field = `${PROPERTIES_PANEL} [data-field-row="${LINE_ROW}"]`
     await page.waitForSelector(field)
-    await page.locator(`${field} [data-colour-custom-entry]`).first().click()
+    await page.locator(`${field} [data-color-custom-entry]`).first().click()
     const picker = page.locator(`${field} input[type="color"]`).first()
     await picker.waitFor({ state: 'attached' })
     // WHY: what the browser does when its picker window closes: the value is set and input / change fire.
@@ -78,11 +78,11 @@ test('FT-1 / CV-9: a colour chosen in the picker shows on the bar and in the fie
     )
     expect(stroke.toLowerCase(), 'CV-6: the bar draws the chosen value').toBe(PICKED)
     // WHY: CV-9 (CR-689) has no sides line; the custom entrance names the value in its tooltip and is outlined.
-    const custom = page.locator(`${field} [data-colour-custom-entry]`).first()
+    const custom = page.locator(`${field} [data-color-custom-entry]`).first()
     expect(await custom.getAttribute('title'), 'CV-9: the custom entrance tooltip shows the uppercase hex').toContain(
       PICKED.toUpperCase(),
     )
-    expect(await custom.getAttribute('data-colour-chosen'), 'CV-9: the custom entrance is the chosen swatch').toBe('true')
+    expect(await custom.getAttribute('data-color-chosen'), 'CV-9: the custom entrance is the chosen swatch').toBe('true')
   } finally {
     await context.close()
   }

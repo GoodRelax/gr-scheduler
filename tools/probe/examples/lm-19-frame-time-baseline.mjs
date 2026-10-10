@@ -18,7 +18,7 @@
 // tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts (its FRAME_PROBE
 // constant), so this script and that test record frames with one and the same
 // code. If the constant cannot be found the run fails rather than falling back
-// to a private copy. The arithmetic below mirrors that file's `summarise`
+// to a private copy. The arithmetic below mirrors that file's `summarize`
 // (one frame per distinct rAF stamp, frames cut by the marks on `enter`,
 // nearest-rank percentile); it is not exported there, and tests/ is not edited
 // from here.

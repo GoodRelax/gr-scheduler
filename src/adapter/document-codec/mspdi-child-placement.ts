@@ -115,7 +115,7 @@ function inSchemaOrder(
   // TRAP: at one rank the held come first, so a written fade value follows the carried ones of its name.
   declared.sort((a, b) => a.rank - b.rank
     || Number(a.isWritten) - Number(b.isWritten) || a.arrival - b.arrival)
-  const undeclared = undeclaredByNeighbour(ranks, held, anchors)
+  const undeclared = undeclaredByNeighbor(ranks, held, anchors)
   const ordered: XmlElement[] = []
   for (const one of declared) {
     ordered.push(...undeclared.before.get(one.element) ?? [], one.element)
@@ -132,15 +132,15 @@ interface UndeclaredPlaces {
 
 // see EX-10
 /** @purity pure */
-function undeclaredByNeighbour(
+function undeclaredByNeighbor(
   ranks: ReadonlyMap<string, number>,
   held: readonly XmlElement[],
   anchors: ChildAnchors,
 ): UndeclaredPlaces {
-  if (anchors === 'siblings') return placesByNeighbour(ranks, held)
+  if (anchors === 'siblings') return placesByNeighbor(ranks, held)
   const isLeaf = (element: XmlElement): boolean => element.children.length === 0
-  const byLeaves = placesByNeighbour(ranks, held.filter(isLeaf))
-  const byElements = placesByNeighbour(ranks, held.filter((element) => !isLeaf(element)))
+  const byLeaves = placesByNeighbor(ranks, held.filter(isLeaf))
+  const byElements = placesByNeighbor(ranks, held.filter((element) => !isLeaf(element)))
   return mergedInArrival(held, [byLeaves, byElements])
 }
 
@@ -161,9 +161,9 @@ function mergedInArrival(held: readonly XmlElement[], places: readonly Undeclare
 }
 
 // WHY: a child neither schema declares has no rank, so it rides with the declared child before it, or
-// with the one after it when it came first; with no declared neighbour at all it goes last.
+// with the one after it when it came first; with no declared neighbor at all it goes last.
 /** @purity pure */
-function placesByNeighbour(
+function placesByNeighbor(
   ranks: ReadonlyMap<string, number>,
   held: readonly XmlElement[],
 ): UndeclaredPlaces {

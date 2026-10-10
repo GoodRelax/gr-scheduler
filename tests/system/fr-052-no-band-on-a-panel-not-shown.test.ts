@@ -39,7 +39,7 @@ const PRESS_OR_DRAG_PX = settingOf('S-208')
 
 const REACH_PX = 120
 
-// WHY: the same selectors the neighbouring System files lean on -- no spec
+// WHY: the same selectors the neighboring System files lean on -- no spec
 // row fixes how a part is marked in the page.
 const PROPERTIES = '[data-role="Properties Panel"]'
 const SCROLLBARS = '[data-role="Scrollbars"]'

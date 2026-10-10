@@ -333,8 +333,8 @@
    "source": "ImageExporter",
    "target": "SvgRenderer",
    "arrow": "dependency",
-   "label": "SVG string and every colour",
-   "description": "takes the SVG string, and asks the same renderer for every colour it paints, AT THE DOCUMENT'S HUE -- EP-9 forbids a new settings key for it and table T-236's S-149 already holds the line colour, so it is asked rather than written as a literal; and without the hue the answer comes back at hue 0"
+   "label": "SVG string and every color",
+   "description": "takes the SVG string, and asks the same renderer for every color it paints, AT THE DOCUMENT'S HUE -- EP-9 forbids a new settings key for it and table T-236's S-149 already holds the line color, so it is asked rather than written as a literal; and without the hue the answer comes back at hue 0"
   },
   {
    "source": "FileGateway",
@@ -355,7 +355,7 @@
    "target": "ImageExporter",
    "arrow": "dependency",
    "label": "image out",
-   "description": "gets the raster image to send out, handing over the document's theme colour with the request"
+   "description": "gets the raster image to send out, handing over the document's theme color with the request"
   },
   {
    "source": "InputCommandTranslator",
@@ -565,7 +565,7 @@
    "target": "ImageExporter",
    "arrow": "dependency",
    "label": "image out",
-   "description": "gets the raster image, handing over the document's theme colour with the request"
+   "description": "gets the raster image, handing over the document's theme color with the request"
   },
   {
    "source": "AgentApiEndpoint",
@@ -586,14 +586,14 @@
    "target": "Selection",
    "arrow": "dependency",
    "label": "what is selected",
-   "description": "shows the selection by more than colour"
+   "description": "shows the selection by more than color"
   },
   {
    "source": "SvgRenderer",
    "target": "Schedule",
    "arrow": "dependency",
-   "label": "colours + theme colour",
-   "description": "reads themeHue (AT-19), the per-Task colours and the task group colour, none of which the geometry carries"
+   "label": "colors + theme color",
+   "description": "reads themeHue (AT-19), the per-Task colors and the task group color, none of which the geometry carries"
   },
   {
    "source": "SvgRenderer",
@@ -712,7 +712,7 @@
    "target": "ImageExporter",
    "arrow": "dependency",
    "label": "image out",
-   "description": "writes the image out for a person, and hands over the document's theme colour (Project.themeHue, AT-19) with the request"
+   "description": "writes the image out for a person, and hands over the document's theme color (Project.themeHue, AT-19) with the request"
   },
   {
    "source": "SingleHtmlShell",

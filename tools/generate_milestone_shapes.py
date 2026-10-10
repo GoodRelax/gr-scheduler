@@ -7,7 +7,7 @@ them against the palette's glyphs (figure F-019).
 
 CR-583 put the chart's fifteen milestone shapes into the specification as a
 figure of their own, `docs/spec/_assets/fig-milestone-shapes.svg` (figure
-F-044): each shape is drawn in the unit square [-1, 1] x [-1, 1] with the centre
+F-044): each shape is drawn in the unit square [-1, 1] x [-1, 1] with the center
 of its bounding box at the origin (LF-10 of table T-221), as a list of layers
 whose class is the layer's role (LF-18): `body` (filled, outlined), `inner` (a
 line on the fill), `dot` (a filled point) and `shade` (a partly filled face).
@@ -19,7 +19,7 @@ WHAT THIS SCRIPT CHECKS BEFORE IT WRITES A BYTE.
 
   1. Figure F-044 draws exactly the spellings `_source/erd.json` settles for
      `TaskVisual.milestoneGlyph`, once each and in that order (SH-5's order).
-  2. Every shape lies inside the unit square, and the centre of its bounding
+  2. Every shape lies inside the unit square, and the center of its bounding
      box is the origin, on both axes (LF-10). The box is the geometry's; a
      stroke has no width in unit coordinates.
   3. Every shape is the glyph figure F-019 draws for the same spelling (the row
@@ -32,7 +32,7 @@ WHAT THIS SCRIPT CHECKS BEFORE IT WRITES A BYTE.
      the glyph, which has no fill to hide them behind).
 
 ⭐ THE SCALE IS READ, NEVER TYPED. The geometric shapes keep the glyph's circle
-(IC-27): the centre of the cell and the scale are that circle's centre and its
+(IC-27): the center of the cell and the scale are that circle's center and its
 radius over the unit circle's. The pictures keep the floppy disk's height
 (IC-85): their scale is the glyph's floppy height over the unit floppy height.
 Which shapes are geometric is SH-5's order: the first eight (FR-078).
@@ -99,9 +99,9 @@ FLOPPY = 'floppyDisk'
 
 # The figure's own precision: F-019 states no coordinate past two decimals.
 TOLERANCE = 0.01
-# How far from the origin the centre of a bounding box may stand: rounding of
+# How far from the origin the center of a bounding box may stand: rounding of
 # the figure's four decimals, and nothing more.
-CENTRE_TOLERANCE = 0.0005
+CENTER_TOLERANCE = 0.0005
 
 SHAPE = re.compile(
     r'<g transform="translate\((-?[\d.]+) (-?[\d.]+)\) scale\(([\d.]+)\)">(.*?)</g>\s*'
@@ -121,7 +121,7 @@ BANNER = (
     'T-221), after checking every shape against the glyph figure %s draws for '
     'the same spelling. Rebuild: npm run gen -- npm run gen:check fails on '
     'drift. The generator is %s. Each shape is in the unit square with the '
-    'centre of its bounding box at the origin; each layer is SVG path data '
+    'center of its bounding box at the origin; each layer is SVG path data '
     'with its role (body, inner, dot, shade).'
     % (REL_FIGURE, FIGURE_ID, GLYPH_FIGURE_ID, REL_SELF))
 
@@ -211,20 +211,20 @@ def read_shapes():
 
 
 def check_frame(glyph, elements):
-    """LF-10: inside the unit square, the centre of the box at the origin."""
+    """LF-10: inside the unit square, the center of the box at the origin."""
     # @purity pure
     where = '%s in %s' % (glyph, REL_FIGURE)
     box = None
     for element in elements:
         box = generate_icon_glyphs.joined(box, box_of(element, where))
-    if box[0] < -1 - CENTRE_TOLERANCE or box[1] < -1 - CENTRE_TOLERANCE \
-            or box[2] > 1 + CENTRE_TOLERANCE or box[3] > 1 + CENTRE_TOLERANCE:
+    if box[0] < -1 - CENTER_TOLERANCE or box[1] < -1 - CENTER_TOLERANCE \
+            or box[2] > 1 + CENTER_TOLERANCE or box[3] > 1 + CENTER_TOLERANCE:
         fail('%s leaves the unit square (box %s)'
              % (where, ' '.join(trimmed(one) for one in box)))
-    centre = ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2)
-    if abs(centre[0]) > CENTRE_TOLERANCE or abs(centre[1]) > CENTRE_TOLERANCE:
-        fail('the bounding box of %s is centred on (%s, %s), and LF-10 puts it '
-             'on the origin' % (where, trimmed(centre[0]), trimmed(centre[1])))
+    center = ((box[0] + box[2]) / 2, (box[1] + box[3]) / 2)
+    if abs(center[0]) > CENTER_TOLERANCE or abs(center[1]) > CENTER_TOLERANCE:
+        fail('the bounding box of %s is centered on (%s, %s), and LF-10 puts it '
+             'on the origin' % (where, trimmed(center[0]), trimmed(center[1])))
 
 
 def glyph_elements():
@@ -258,7 +258,7 @@ def height_of(element, where):
 
 
 def scales(shapes, glyphs):
-    """(centre, geometric scale, pictorial scale), read off the two figures."""
+    """(center, geometric scale, pictorial scale), read off the two figures."""
     # @purity pure
     unit = dict(shapes)
     circle, glyph_circle = unit[CIRCLE][0], glyphs[CIRCLE][1][0]
@@ -266,45 +266,45 @@ def scales(shapes, glyphs):
         fail('the %s of both figures has to be one <circle>, the anchor of the '
              'geometric scale' % CIRCLE)
     if float(circle[2]['cx']) != 0 or float(circle[2]['cy']) != 0:
-        fail('the unit %s of %s is not centred on the origin' % (CIRCLE, REL_FIGURE))
-    centre = (float(glyph_circle[2]['cx']), float(glyph_circle[2]['cy']))
+        fail('the unit %s of %s is not centered on the origin' % (CIRCLE, REL_FIGURE))
+    center = (float(glyph_circle[2]['cx']), float(glyph_circle[2]['cy']))
     geometric = float(glyph_circle[2]['r']) / float(circle[2]['r'])
     floppy = height_of(unit[FLOPPY][0], FLOPPY)
     glyph_floppy = height_of(glyphs[FLOPPY][1][0], glyphs[FLOPPY][0])
-    return centre, geometric, glyph_floppy / floppy
+    return center, geometric, glyph_floppy / floppy
 
 
-def placed_steps(steps, centre, k):
+def placed_steps(steps, center, k):
     """A unit path's steps, scaled into the glyph's cell."""
     # @purity pure
     out = []
     for letter, values in steps:
         if letter in 'MLQ':
-            moved = [centre[at % 2] + k * one for at, one in enumerate(values)]
+            moved = [center[at % 2] + k * one for at, one in enumerate(values)]
         elif letter == 'H':
-            moved = [centre[0] + k * one for one in values]
+            moved = [center[0] + k * one for one in values]
         elif letter == 'V':
-            moved = [centre[1] + k * one for one in values]
+            moved = [center[1] + k * one for one in values]
         elif letter == 'A':
             moved = []
             for at in range(0, len(values), 7):
                 rx, ry, turn, large, sweep, x, y = values[at:at + 7]
                 moved += [k * rx, k * ry, turn, large, sweep,
-                          centre[0] + k * x, centre[1] + k * y]
+                          center[0] + k * x, center[1] + k * y]
         else:
             moved = []
         out.append((letter, moved))
     return out
 
 
-def placed_values(element, centre, k):
+def placed_values(element, center, k):
     """The numbers of a circle or a rect, scaled into the glyph's cell."""
     # @purity pure
     tag, _role, values = element
     if tag == 'circle':
-        return [centre[0] + k * float(values['cx']), centre[1] + k * float(values['cy']),
+        return [center[0] + k * float(values['cx']), center[1] + k * float(values['cy']),
                 k * float(values['r'])]
-    return [centre[0] + k * float(values['x']), centre[1] + k * float(values['y']),
+    return [center[0] + k * float(values['x']), center[1] + k * float(values['y']),
             k * float(values['width']), k * float(values['height'])]
 
 
@@ -323,7 +323,7 @@ def differs(wanted, found):
         abs(a - b) > TOLERANCE for a, b in zip(wanted, found))
 
 
-def compare(glyph, elements, glyph_entry, centre, k):
+def compare(glyph, elements, glyph_entry, center, k):
     """Figure F-044's shape against figure F-019's glyph, element by element."""
     # @purity pure
     row_id, drawn = glyph_entry
@@ -344,7 +344,7 @@ def compare(glyph, elements, glyph_entry, centre, k):
         if (glyph, at) in ALLOWED:
             continue
         if tag == 'path':
-            wanted = placed_steps(steps_of(values['d'], where), centre, k)
+            wanted = placed_steps(steps_of(values['d'], where), center, k)
             found = steps_of(glyph_one[2].get('d', ''), where)
             if [one[0] for one in wanted] != [one[0] for one in found] or any(
                     differs(a[1], b[1]) for a, b in zip(wanted, found)):
@@ -354,11 +354,11 @@ def compare(glyph, elements, glyph_entry, centre, k):
                         ' '.join(letter + ' '.join(trimmed(v) for v in nums)
                                  for letter, nums in wanted),
                         GLYPH_FIGURE_ID, glyph_one[2].get('d', '')))
-        elif differs(placed_values(unit, centre, k), glyph_values(glyph_one)):
+        elif differs(placed_values(unit, center, k), glyph_values(glyph_one)):
             fail('element %d of %s is not the glyph: figure %s scales to %s, '
                  'figure %s draws %s'
                  % (at, where, FIGURE_ID,
-                    ' '.join(trimmed(v) for v in placed_values(unit, centre, k)),
+                    ' '.join(trimmed(v) for v in placed_values(unit, center, k)),
                     GLYPH_FIGURE_ID,
                     ' '.join(trimmed(v) for v in glyph_values(glyph_one))))
 
@@ -396,12 +396,12 @@ def build():
     if missing:
         fail('no row of table T-109 arms %s, so figure %s has no glyph to check '
              'against' % (', '.join(missing), GLYPH_FIGURE_ID))
-    centre, geometric, pictorial = scales(shapes, glyphs)
+    center, geometric, pictorial = scales(shapes, glyphs)
     entries = []
     for at, (glyph, elements) in enumerate(shapes):
         check_frame(glyph, elements)
         k = geometric if at < GEOMETRIC_COUNT else pictorial
-        compare(glyph, elements, glyphs[glyph], centre, k)
+        compare(glyph, elements, glyphs[glyph], center, k)
         layers = []
         for element in elements:
             layer = {'role': element[1], 'd': path_data(element)}

@@ -13,7 +13,7 @@
 // tests/unit/.
 //
 // ⭐ THE HOST, THE FIXTURE DOCUMENT AND THE STAGE ARE COPIED from
-// tests/unit/fr-053-re-showing-clears-the-minimise.test.ts, which drives this
+// tests/unit/fr-053-re-showing-clears-the-minimize.test.ts, which drives this
 // same unit through the same seams. ⚠️ tests/unit/fr-020-the-surface-that-asks-
 // for-the-watermark-password.test.ts is the SURFACE's file; this one is the
 // entrance's.

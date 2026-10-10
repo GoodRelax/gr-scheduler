@@ -20,10 +20,10 @@ carried shape has no stylesheet, so each element leaves here with the very
 declarations its own classes hold, as a `style` attribute. ⛔ No declaration is
 invented and none is dropped -- a class this script has no rule for stops it.
 
-⛔ THE FIGURE'S OWN COLOUR IS NOT CARRIED. Its stylesheet paints `svg { color }`
+⛔ THE FIGURE'S OWN COLOR IS NOT CARRIED. Its stylesheet paints `svg { color }`
 and switches that on the viewer's light/dark preference; the app has a theme of
-its own (`FR-041`) and system colours of its own, so what travels is
-`currentColor` -- the shapes take whatever colour the surface that draws them is
+its own (`FR-041`) and system colors of its own, so what travels is
+`currentColor` -- the shapes take whatever color the surface that draws them is
 already using. ⛔ The media query stays in the figure. This script refuses to
 carry any rule of one, so it cannot leak into the app by accident.
 
@@ -135,7 +135,7 @@ BANNER = (
     '%s so that neither can move without the other. Rebuild: npm run gen -- npm '
     'run gen:check fails on drift. The generator is %s. Each shape is carried as '
     'it was drawn: the figure paints through a stylesheet, so each element '
-    'leaves with the declarations its own classes held, and the colour is '
+    'leaves with the declarations its own classes held, and the color is '
     'currentColor because the app has a theme of its own (FR-041). The '
     'coordinate system is the frame the shapes themselves circumscribe, '
     'measured from their geometry and their own stroke widths, and it is one '
@@ -185,7 +185,7 @@ def roster_rows():
 
 
 def declarations(body):
-    """One rule's declarations, each normalised to a single line."""
+    """One rule's declarations, each normalized to a single line."""
     # @purity pure
     out = []
     for one in body.split(';'):
@@ -210,7 +210,7 @@ def paint_rules(figure):
     sheet = blocks[0]
 
     # ⛔ A rule inside a media query is never carried. The figure switches its
-    # own colour on the viewer's light/dark preference and the app must not
+    # own color on the viewer's light/dark preference and the app must not
     # inherit that switch (FR-041), so a media query that reached a SHAPE would
     # be drift this script cannot resolve -- it stops instead.
     for query in MEDIA_BLOCK.findall(sheet):
@@ -316,18 +316,18 @@ def swept_angle(from_x, from_y, to_x, to_y):
     return -found if from_x * to_y - from_y * to_x < 0 else found
 
 
-def ellipse_point(centre, radii, turn, angle):
-    """One point of an ellipse, at the angle its own parameterisation counts."""
+def ellipse_point(center, radii, turn, angle):
+    """One point of an ellipse, at the angle its own parameterization counts."""
     # @purity pure
     across, down = math.cos(angle) * radii[0], math.sin(angle) * radii[1]
-    return (centre[0] + across * turn[0] - down * turn[1],
-            centre[1] + across * turn[1] + down * turn[0])
+    return (center[0] + across * turn[0] - down * turn[1],
+            center[1] + across * turn[1] + down * turn[0])
 
 
 def arc_points(start, end, step):
     """One elliptical arc's two ends, and the points at which it turns back.
 
-    The endpoint-to-centre parameterisation SVG states, then the angles at which
+    The endpoint-to-center parameterization SVG states, then the angles at which
     such an ellipse stands farthest along each axis. ⭐ THE TURNS ARE SOLVED,
     NEVER SAMPLED -- a sampled arc falls short of its own extreme by however
     coarse the sampling was, and the box measured here may not fall short: the
@@ -335,7 +335,7 @@ def arc_points(start, end, step):
     """
     # @purity pure
     if start == end:
-        # SVG omits an arc whose two ends are the same point, and the centre of
+        # SVG omits an arc whose two ends are the same point, and the center of
         # one cannot be solved for -- the division below would be by zero.
         return [start]
     radius_x, radius_y = abs(step[0]), abs(step[1])
@@ -359,15 +359,15 @@ def arc_points(start, end, step):
     reach = math.sqrt(max(0.0, room / squares))
     if large_arc == sweep:
         reach = -reach
-    centre_x = reach * radius_x * half_y / radius_y
-    centre_y = -reach * radius_y * half_x / radius_x
-    centre = (turn[0] * centre_x - turn[1] * centre_y + (start[0] + end[0]) / 2.0,
-              turn[1] * centre_x + turn[0] * centre_y + (start[1] + end[1]) / 2.0)
+    center_x = reach * radius_x * half_y / radius_y
+    center_y = -reach * radius_y * half_x / radius_x
+    center = (turn[0] * center_x - turn[1] * center_y + (start[0] + end[0]) / 2.0,
+              turn[1] * center_x + turn[0] * center_y + (start[1] + end[1]) / 2.0)
 
-    from_x = (half_x - centre_x) / radius_x
-    from_y = (half_y - centre_y) / radius_y
-    to_x = (-half_x - centre_x) / radius_x
-    to_y = (-half_y - centre_y) / radius_y
+    from_x = (half_x - center_x) / radius_x
+    from_y = (half_y - center_y) / radius_y
+    to_x = (-half_x - center_x) / radius_x
+    to_y = (-half_y - center_y) / radius_y
     begin = swept_angle(1.0, 0.0, from_x, from_y)
     swept = swept_angle(from_x, from_y, to_x, to_y)
     if not sweep and swept > 0:
@@ -387,7 +387,7 @@ def arc_points(start, end, step):
             while angle > highest:
                 angle -= 2 * math.pi
             if lowest <= angle <= highest:
-                points.append(ellipse_point(centre, radii, turn, angle))
+                points.append(ellipse_point(center, radii, turn, angle))
     return points
 
 
@@ -525,7 +525,7 @@ def stroke_reach(values, tag, row_id):
         sys.exit('generate_icon_glyphs: a <%s> of %s is stroked and states no '
                  'stroke-width, and SVG\'s initial width of 1 would be a number '
                  'this script invented' % (tag, row_id))
-    # ⛔ A mitred join reaches PAST half the width -- as far as the miter limit
+    # ⛔ A mitered join reaches PAST half the width -- as far as the miter limit
     # lets it -- so half the width would be short of the ink and the outer svg
     # would clip the point off. ⭐ A round join reaches exactly half the width in
     # every direction, which is what makes this measurement exact rather than
@@ -630,9 +630,9 @@ def figure_glyphs():
         if row_id in glyphs:
             sys.exit('generate_icon_glyphs: %s prints %s under two shapes'
                      % (REL_FIGURE, row_id))
-        # ⭐ THE CELL IS MEASURED, NEVER TYPED. The figure centres each label
+        # ⭐ THE CELL IS MEASURED, NEVER TYPED. The figure centers each label
         # under its own shape, so twice the distance from the group's left edge
-        # to that centre IS the width of the cell the shape was drawn in.
+        # to that center IS the width of the cell the shape was drawn in.
         # ⛔ THE CELL IS NOT THE COORDINATE SYSTEM -- see below.
         size = 2 * (float(label_x) - float(left))
         if float(label_y) <= float(top):

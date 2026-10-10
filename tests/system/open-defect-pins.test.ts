@@ -383,7 +383,7 @@ const DATE_RULES = 'IC-42'
 
 // WHY: proves the palette itself still answers a press, so the DFC-147 case
 // below cannot pass merely because nothing here reaches the product.
-test('control for DFC-147: a neighbouring entrance of the same palette group answers a press', async ({
+test('control for DFC-147: a neighboring entrance of the same palette group answers a press', async ({
   baseURL,
 }) => {
   test.setTimeout(180_000)
@@ -567,7 +567,7 @@ async function dropTheDummy(page: Page, steps: number): Promise<Dropped> {
   ).toBe(Math.round(MARK_HEIGHT_PX))
 
   // WHY: pressed a quarter into the mark -- inside GA-5's (start) half and
-  // short of the centre pixel, which FR-043 routes to GA-6 (finish) instead.
+  // short of the center pixel, which FR-043 routes to GA-6 (finish) instead.
   // WHY: a move no further than S-208 is a press, not a drag, so the product writes
   // WHY: nothing; the mark is a few px here, so three of them may not reach that boundary.
   const carriedPx = Math.max(steps * step, PRESS_OR_DRAG_PX + step)

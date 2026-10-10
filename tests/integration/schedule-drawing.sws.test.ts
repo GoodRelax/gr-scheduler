@@ -14,7 +14,7 @@
 //   SWS-4  the vertices of what is drawn         FR-094   LF-6..LF-11, LF-13
 //   SWS-5  the vertices of the progress line     FR-014   LF-12
 //
-// SWS-6 (normalising two MSPDI files before comparing them, FR-021, W3C
+// SWS-6 (normalizing two MSPDI files before comparing them, FR-021, W3C
 // Canonical XML) HAS NO CASE HERE ON PURPOSE: the unit that would answer it is
 // not written yet, so a case would only assert that nothing exists. When
 // DocumentCodec (PI-20) grows the comparison, its cases belong in this file
@@ -1543,7 +1543,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       covers: ['LF-9'],
       given: 'a rectangle, which overlays its actual, and an arrow, which drops it below',
       when: 'geometryFromLayout places the actual bar',
-      then: 'the overlay is centred in the plan and the drop clears it by actualGap',
+      then: 'the overlay is centered in the plan and the drop clears it by actualGap',
     }),
     () => {
       // LF-9: "a shape that overlays the actual inside itself drops it by half
@@ -1580,7 +1580,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       const planLine = lineOf(geometryOf(below, 1).plan)
       const actualLine = lineOf(geometryOf(below, 1).actual)
       // A line carries no top of its own: it is drawn down the middle of its
-      // band, so the two bands' tops are the two centres less half of each.
+      // band, so the two bands' tops are the two centers less half of each.
       // XS-6: 線の上の縁を、予定の線の下の縁から `S-10` 下に置く -- the drop is
       // one stroke plus the gap, measured edge to edge and not from a strip.
       const stroke = (SETTINGS_CONSTANTS.thinStrokeWidth as number) * DISPLAY_RATIO
@@ -1598,11 +1598,11 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       covers: ['LF-10'],
       given: 'a milestone that has an actual date of its own',
       when: 'geometryFromLayout draws both figures',
-      then: 'the plan is a side of its plan height centred on start, the actual that times actualOfPlan centred on its own day, at the same middle',
+      then: 'the plan is a side of its plan height centered on start, the actual that times actualOfPlan centered on its own day, at the same middle',
     }),
     () => {
       // LF-10: "the plan is a figure whose side is that Task's plan height,
-      // centred on start. The actual is that times actualOfPlan, centred on the
+      // centered on start. The actual is that times actualOfPlan, centered on the
       // actual date. The vertical middle is the same as the plan's."
       mentions(T221, 'LF-10', 'actualOfPlan')
       const drawn = draw(
@@ -1633,7 +1633,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
 
       expect(plan.right - plan.left, 'the plan side').toBeCloseTo(side, 6)
       expect(plan.bottom - plan.top, 'the plan side').toBeCloseTo(side, 6)
-      expect((plan.left + plan.right) / 2, 'centred on start').toBeCloseTo(
+      expect((plan.left + plan.right) / 2, 'centered on start').toBeCloseTo(
         xOfDay(5, drawn.regions, drawn.layout.pxPerDay),
         6,
       )
@@ -1641,7 +1641,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         side * SETTINGS_CONSTANTS.actualOfPlan,
         6,
       )
-      expect((actual.left + actual.right) / 2, 'centred on the actual day').toBeCloseTo(
+      expect((actual.left + actual.right) / 2, 'centered on the actual day').toBeCloseTo(
         xOfDay(8, drawn.regions, drawn.layout.pxPerDay),
         6,
       )
@@ -1695,13 +1695,13 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         SETTINGS_CONSTANTS.markerSize * DISPLAY_RATIO,
         6,
       )
-      expect(marker.centre.y, 'the middle of the plan bar').toBeCloseTo(
+      expect(marker.center.y, 'the middle of the plan bar').toBeCloseTo(
         placed.y + placed.planHeight / 2,
         6,
       )
       expect(placed.labelPlacement, '| LP-1 | `===` | 出す | 入る | 基準の開始 | マーカーの右端 ＋ `S-32` |').toBe('inside')
       expect(
-        marker.centre.x - marker.radius,
+        marker.center.x - marker.radius,
         '| LP-1 | `===` | 出す | 入る | 基準の開始 | マーカーの右端 ＋ `S-32` |',
       ).toBeCloseTo(placed.actualX ?? 0, 6)
       const label = geometryOf(drawn, 1).label
@@ -1712,7 +1712,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         '⭐ 「入る」とは、（マーカーを出すなら マーカーの径 ＋ `S-32`、出さないなら `S-31`）＋ 名前の幅 ＋ 実績の終了の内側の幅（表 T-206 の `S-260`）が、基準の幅以下であることとすること（MUST）。',
       ).toBeLessThanOrEqual(actualRight + 1e-9)
       expect(
-        marker.centre.x + marker.radius,
+        marker.center.x + marker.radius,
         '⛔ 名称ラベルをマーカーの左に置いてはならない（MUST NOT） —— どのタスクグループでも左から マーカー → 名前 の順である。',
       ).toBeCloseTo(label.x - SETTINGS_CONSTANTS.labelGap * DISPLAY_RATIO, 6)
     },
@@ -1743,12 +1743,12 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       const marker = geometryOf(drawn, 1).marker
       expect(marker).not.toBeNull()
       if (marker === null) return
-      expect(marker.centre.y).toBeCloseTo(placed.y + placed.planHeight / 2, 6)
+      expect(marker.center.y).toBeCloseTo(placed.y + placed.planHeight / 2, 6)
       const holdRight =
         xOfDay(2, drawn.regions, drawn.layout.pxPerDay) +
         Math.min(SETTINGS_CONSTANTS.markerSize * DISPLAY_RATIO * S_247, settingNumber('S-180'))
       expect(
-        marker.centre.x - marker.radius - holdRight,
+        marker.center.x - marker.radius - holdRight,
         '⛔ 実績バーの右端と進捗マーカーのあいだに隙間を空けてはならない（MUST NOT）',
       ).toBeCloseTo(0, 6)
     },
@@ -1818,16 +1818,16 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
           xOfDay(8, drawn.regions, drawn.layout.pxPerDay),
           6,
         )
-        // XS-10 centres the icon's BOX on the actual band's centre line, which
-        // is the marker's own centre; LF-13's `resumeScaleInvalid` shrinks what
+        // XS-10 centers the icon's BOX on the actual band's center line, which
+        // is the marker's own center; LF-13's `resumeScaleInvalid` shrinks what
         // is DRAWN inside that box, so the foot follows the side, not the box.
         expect(foot.y, 'its foot on the bottom of the drawn figure').toBeCloseTo(
-          marker.centre.y + side / 2,
+          marker.center.y + side / 2,
           6,
         )
         expect(corner.x, 'the upright of the L').toBeCloseTo(foot.x, 6)
-        expect(corner.y, 'turning at the middle of the marker').toBeCloseTo(marker.centre.y, 6)
-        expect(armEnd.y).toBeCloseTo(marker.centre.y, 6)
+        expect(corner.y, 'turning at the middle of the marker').toBeCloseTo(marker.center.y, 6)
+        expect(armEnd.y).toBeCloseTo(marker.center.y, 6)
         expect(armEnd.x - corner.x, 'the arm').toBeCloseTo(
           side * SETTINGS_CONSTANTS.resumeArmOfMarker,
           6,
@@ -1840,7 +1840,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
           side * SETTINGS_CONSTANTS.resumeHeadOfMarker,
           6,
         )
-        expect(point.y, 'the point at the middle of the marker').toBeCloseTo(marker.centre.y, 6)
+        expect(point.y, 'the point at the middle of the marker').toBeCloseTo(marker.center.y, 6)
       }
     },
   )
@@ -1899,9 +1899,9 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // rather than cutting a hole in it) and 「顔の目は点で塗る」 (the eyes are
       // filled dots). `milestone-shapes.json`'s `smile` entry is exactly those
       // four layers, so this is the minimal case that ties the geometry to the
-      // rule rather than to one glyph's numbers -- the deep colour / order /
+      // rule rather than to one glyph's numbers -- the deep color / order /
       // curve claims of LF-18 are tests/contract/cr-583-milestone-figures-
-      // sit-on-the-task-group-centre.contract.test.ts's, read at svgFromSchedule's end
+      // sit-on-the-task-group-center.contract.test.ts's, read at svgFromSchedule's end
       // of the same chain.
       mentions(T221, 'LF-18', '外形は塗り', '塗りに穴を開けずに', '顔の目は点で塗る')
       const drawn = draw(
@@ -2105,7 +2105,7 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
       covers: ['LF-15'],
       given: 'two task groups, and a comment box anchored to day 5 of the second, once plain and once with that task group pinned',
       when: 'geometryFromLayout places the anchor',
-      then: 'the anchor stands at the centre of the day 5 column and the centre of the band the task group is drawn in',
+      then: 'the anchor stands at the center of the day 5 column and the center of the band the task group is drawn in',
     }),
     () => {
       mentions(T221, 'LF-15', '`anchorDate` の日の列の中央', '`anchorGroupId` のタスクグループが描かれた帯', '`LF-14`')
@@ -2137,9 +2137,9 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
         const anchor = geometry.commentBoxes.find((one) => one.id === 'c1')?.anchor
         if (anchor === undefined) throw new Error(`pinned ${pinned.length}: the geometry placed no comment box`)
         const taskGroup = taskGroupByIdOf(drawn, 'g2')
-        const columnCentre = xOfDay(5, drawn.regions, layout.pxPerDay) + layout.pxPerDay / 2
-        expect(anchor.x, `pinned ${pinned.length}: not the centre of the day 5 column`).toBeCloseTo(columnCentre, 6)
-        expect(anchor.y, `pinned ${pinned.length}: not the centre of the task group band`).toBeCloseTo(taskGroup.y + taskGroup.height / 2, 6)
+        const columnCenter = xOfDay(5, drawn.regions, layout.pxPerDay) + layout.pxPerDay / 2
+        expect(anchor.x, `pinned ${pinned.length}: not the center of the day 5 column`).toBeCloseTo(columnCenter, 6)
+        expect(anchor.y, `pinned ${pinned.length}: not the center of the task group band`).toBeCloseTo(taskGroup.y + taskGroup.height / 2, 6)
       }
     },
   )

@@ -1,5 +1,5 @@
 {
- "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/fig-milestone-shapes.svg, figure F-044 (the authority for the chart's milestone shapes, LF-10 and LF-18 of table T-221), after checking every shape against the glyph figure F-019 draws for the same spelling. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_milestone_shapes.py. Each shape is in the unit square with the centre of its bounding box at the origin; each layer is SVG path data with its role (body, inner, dot, shade).",
+ "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_assets/fig-milestone-shapes.svg, figure F-044 (the authority for the chart's milestone shapes, LF-10 and LF-18 of table T-221), after checking every shape against the glyph figure F-019 draws for the same spelling. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is tools/generate_milestone_shapes.py. Each shape is in the unit square with the center of its bounding box at the origin; each layer is SVG path data with its role (body, inner, dot, shade).",
  "shapes": [
   {
    "glyph": "circle",

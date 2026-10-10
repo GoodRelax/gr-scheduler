@@ -67,9 +67,9 @@ describe('CR-621 one frame for every window (GR-24, GR-25, WB-8, WB-9)', () => {
     expect(answerAt('normal', 200, 110, TITLE_WORD)?.windowGrab).toMatchObject({ window: 'searchPanel', region: 'titleBand', windowBox: BOX })
   })
 
-  it('a minimised window still moves by its title band, but has no edge (WB-2, GR-25)', () => {
-    expect(answerAt('minimised', 200, 110, TITLE_WORD)?.windowGrab?.region).toBe('titleBand')
-    expect(answerAt('minimised', BOX.x + BOX.width + REACH - 1, 200, null)).toBeNull()
+  it('a minimized window still moves by its title band, but has no edge (WB-2, GR-25)', () => {
+    expect(answerAt('minimized', 200, 110, TITLE_WORD)?.windowGrab?.region).toBe('titleBand')
+    expect(answerAt('minimized', BOX.x + BOX.width + REACH - 1, 200, null)).toBeNull()
   })
 
   it('a point just outside the right edge of a normal window grabs that edge, and the floor is S-423 x S-424', () => {
@@ -84,9 +84,9 @@ describe('CR-621 one frame for every window (GR-24, GR-25, WB-8, WB-9)', () => {
     expect(answerAt('normal', BOX.x + 1, BOX.y + BOX.height - 1, BODY_CELL)?.windowGrab?.region).toBe('bottomLeft')
   })
 
-  it('a maximised window neither moves nor resizes (WB-3)', () => {
-    expect(answerAt('maximised', 200, 110, TITLE_WORD)?.windowGrab).toBeUndefined()
-    expect(answerAt('maximised', BOX.x + BOX.width + REACH - 1, 200, null)).toBeNull()
+  it('a maximized window neither moves nor resizes (WB-3)', () => {
+    expect(answerAt('maximized', 200, 110, TITLE_WORD)?.windowGrab).toBeUndefined()
+    expect(answerAt('maximized', BOX.x + BOX.width + REACH - 1, 200, null)).toBeNull()
   })
 
   it('a point inside the body away from the edges is the window, not a grab', () => {

@@ -259,7 +259,7 @@ const CHAIN_TASK_GROUPS = (statusDate: string | null): Document =>
     {
       id: 'r0',
       parentId: null,
-      tasks: [taskOf(P, { name: 'Programme', start: S(6), finish: F(10), actualStart: S(6) })],
+      tasks: [taskOf(P, { name: 'Program', start: S(6), finish: F(10), actualStart: S(6) })],
     },
     {
       id: 'r1',

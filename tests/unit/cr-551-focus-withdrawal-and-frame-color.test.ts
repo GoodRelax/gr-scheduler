@@ -1,4 +1,4 @@
-// CR-551 JDG-406 / JDG-408: a withdrawn focus request lets its keys go (IN-5a), and the highlight box frame colour field (PR-22, CV-9).
+// CR-551 JDG-406 / JDG-408: a withdrawn focus request lets its keys go (IN-5a), and the highlight box frame color field (PR-22, CV-9).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -25,7 +25,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   properties: { rowId: string; label: { ja: string } }[]
-  colourField: { part: string; text: { ja: string } }[]
+  colorField: { part: string; text: { ja: string } }[]
 }
 
 const verticalIn = (table: string, id: string) => {
@@ -33,7 +33,7 @@ const verticalIn = (table: string, id: string) => {
   if (found === undefined) throw new Error(`table ${table} has no row ${id}`)
   return found
 }
-const wordOf = (part: string): string => WORDS.colourField.find((one) => one.part === part)?.text.ja ?? ''
+const wordOf = (part: string): string => WORDS.colorField.find((one) => one.part === part)?.text.ja ?? ''
 
 const IN_5A_WITHDRAWN =
   '焦点を置く求めが取り下げられたとき（`IN-4` の `Esc`、欄の外の押し、パネルを閉じたとき、人が焦点を別の所へ動かしたとき、選択が変わったとき、求めた欄がパネルに無いとき）は、本段を当てない。'
@@ -59,7 +59,7 @@ const NO_LINE_WORD = wordOf('noLine')
 // see CV-9, PR-22, T-236
 // WHY: the frame's null draws S-312; its hue column says theme or default.
 const S_312_FOLLOWS_HUE = bare(verticalIn('T-236', 'S-312').by['色相追随'] ?? '') === '○'
-const ENTRANCE_WORD = wordOf(S_312_FOLLOWS_HUE ? 'themeHint' : 'defaultColour')
+const ENTRANCE_WORD = wordOf(S_312_FOLLOWS_HUE ? 'themeHint' : 'defaultColor')
 const PROPERTIES_PANEL = bare(verticalIn('T-103', 'U-25').by['確定名（英）'] ?? '')
 
 const GLOBAL = globalThis as unknown as Record<string, unknown>
@@ -331,19 +331,19 @@ const frameField = (built: Bench): FakeElement[] => {
 }
 const frameGrid = (built: Bench): FakeElement => {
   const found = frameField(built).find((one) => /grid/.test(styleMap(one).get('display') ?? ''))
-  if (found === undefined) throw new Error('the frame colour field lays out no palette')
+  if (found === undefined) throw new Error('the frame color field lays out no palette')
   return found
 }
-const choiceOf = (node: FakeElement): string => node.getAttribute('data-colour-choice') ?? ''
+const choiceOf = (node: FakeElement): string => node.getAttribute('data-color-choice') ?? ''
 // WHY: CV-9 (CR-689) holds the names and every entrance in one grid of two rows.
 const cellOf = (node: FakeElement): string => {
-  if (node.getAttribute('data-colour-theme-entry') !== null) return 'theme'
-  if (node.getAttribute('data-colour-custom-entry') !== null) return 'custom'
-  if (node.getAttribute('data-colour-transparent-slot') !== null) return 'empty'
+  if (node.getAttribute('data-color-theme-entry') !== null) return 'theme'
+  if (node.getAttribute('data-color-custom-entry') !== null) return 'custom'
+  if (node.getAttribute('data-color-transparent-slot') !== null) return 'empty'
   return choiceOf(node)
 }
 
-describe('PR-22 / CV-9 -- the highlight box frame colour field', () => {
+describe('PR-22 / CV-9 -- the highlight box frame color field', () => {
   it('PR-22 / CV-9 still say: HighlightBox strokeColor, null = S-312 / 枠の欄にも透明（線なし）を並べる / テーマに戻す入口の語', () => {
     expect(bare(PR_22.by['対象'] ?? '')).toBe('HighlightBox')
     expect(PR_22.by['列（`GRS JSON`）'] ?? '').toContain('`strokeColor`')
@@ -355,7 +355,7 @@ describe('PR-22 / CV-9 -- the highlight box frame colour field', () => {
     expect([NO_LINE_WORD, ENTRANCE_WORD].every((one) => one !== '')).toBe(true)
   })
 
-  it('PR-22: selecting a highlight box shows the frame colour field under the dictionary words', () => {
+  it('PR-22: selecting a highlight box shows the frame color field under the dictionary words', () => {
     // see PR-22, FR-038, IR-1
     const built = panelOnHighlight()
     const field = built.view().propertiesPanel?.fields.find((one) => one.row === FRAME_ROW)

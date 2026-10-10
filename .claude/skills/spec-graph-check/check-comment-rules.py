@@ -25,7 +25,7 @@ WHAT A LINE IS
 Comments are found by a lexer, not by a line regex: strings, template literals
 with `${}` nesting, regex literals, and block and line comments. It is a port
 of the Node lexer the cleanup round measured with, kept faithful to it --
-including where that lexer approximates (a regex literal is recognised from
+including where that lexer approximates (a regex literal is recognized from
 the previous significant character) -- so that the two agree to the line.
 
 THE THREE MEASURES
@@ -848,7 +848,7 @@ def held_of(result):
     return len(result['non_ascii']) + len(result['form']) + result['excess']
 
 
-def summarise(results):
+def summarize(results):
     code = sum(r['code'] for r in results)
     comment = sum(r['comment'] for r in results)
     a = sum(len(r['non_ascii']) for r in results)
@@ -1003,7 +1003,7 @@ def read_tests_baseline():
 
 
 def write_tests_baseline(results):
-    s = summarise(results)
+    s = summarize(results)
     with io.open(TESTS_BASELINE, 'w', encoding='utf-8', newline='\n') as out:
         out.write(TESTS_BASELINE_HEAD)
         out.write(u'%s %d\n' % (DENSITY_KEY, basis_points(s['comment'],
@@ -1019,7 +1019,7 @@ def write_tests_baseline(results):
 
 def tests_verdict(results, base):
     """(red, lines to print) for tests/ against a read_tests_baseline() map."""
-    s = summarise(results)
+    s = summarize(results)
     now_bp = basis_points(s['comment'], s['code'])
     out = []
     worse = []
@@ -1083,7 +1083,7 @@ def tests_gate(ledger):
         return 1
     base = read_tests_baseline()
     if base is None:
-        s = summarise(results)
+        s = summarize(results)
         say('PROBLEM  %s has not been written yet; measured %d = %d non-ASCII '
             '+ %d form -- run --write-tests-baseline on purpose'
             % (REL_TESTS_BASELINE, s['a'] + s['b'], s['a'], s['b']))
@@ -1129,7 +1129,7 @@ def self_test():
     """Break a held-in-memory test file on purpose; red each time, then green."""
     ledger = {}
     clean = measure_text(SELF_TEST_CLEAN, SELF_TEST_REL, ledger, 'tests')
-    s = summarise([clean])
+    s = summarize([clean])
     base = {'files': {SELF_TEST_REL: held_of(clean)},
             'density': basis_points(s['comment'], s['code'])}
     failures = []
@@ -1185,14 +1185,14 @@ def main(argv):
             [measure(p, ledger, 'tests') for p in source_files(TESTS)])
     if '--list' in argv and 'tests' in argv:
         results = [measure(p, ledger, 'tests') for p in source_files(TESTS)]
-        return show_list(results, summarise(results))
+        return show_list(results, summarize(results))
 
     results = [measure(path, ledger) for path in source_files()]
     if not results:
         say('PROBLEM  no .ts file under src/ -- nothing was measured, and a '
             'count of 0 would read as a clean tree')
         return 1
-    s = summarise(results)
+    s = summarize(results)
     if '--list' in argv:
         return show_list(results, s)
 

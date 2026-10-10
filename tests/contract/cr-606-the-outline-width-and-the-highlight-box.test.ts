@@ -347,7 +347,7 @@ describe(`FR-019 -- ${FR_019_NO_LINE}`, () => {
     if (result.ok) expect(result.document.schedule.highlightBoxes[0]?.strokeColor).toBe(TRANSPARENT)
   })
 
-  it('CM-55 places a transparent outline on a box whose fill is null (the theme colour, not transparent)', () => {
+  it('CM-55 places a transparent outline on a box whose fill is null (the theme color, not transparent)', () => {
     expect(run(boxDocument({ fillColor: null }), { kind: 'setHighlightBoxStrokeColor', id: BOX, strokeColor: TRANSPARENT }).ok).toBe(true)
   })
 })
@@ -371,7 +371,7 @@ describe(`FR-019 / IV-9 -- ${FR_019_NOT_BOTH}`, () => {
     expect(isIv9(result), JSON.stringify(result)).toBe(true)
   })
 
-  it('control: a transparent fill under a coloured outline is accepted', () => {
+  it('control: a transparent fill under a colored outline is accepted', () => {
     expect(run(boxDocument({ strokeColor: 'red' }), { kind: 'setHighlightBoxFillColor', id: BOX, fillColor: TRANSPARENT }).ok).toBe(true)
   })
 
@@ -419,8 +419,8 @@ describe(`FR-019 -- ${FR_019_NULL_FILL}`, () => {
   it(`a null fill is painted with S-155 at ${FR_019_NULL_DEFAULTS}`, () => {
     const fill = fillOf(boxSvg({ fillColor: null }))
     expect(fill, 'a null fill is painted').toBeDefined()
-    const colour = painted(fill as SvgElement, 'fill') ?? ''
-    expect(hslNumbers(colour), `${colour} vs ${s155}`).toEqual(hslNumbers(s155))
+    const color = painted(fill as SvgElement, 'fill') ?? ''
+    expect(hslNumbers(color), `${color} vs ${s155}`).toEqual(hslNumbers(s155))
     expect(Number(painted(fill as SvgElement, 'fill-opacity'))).toBeCloseTo(1 - s371 / 100, 6)
   })
 
@@ -438,14 +438,14 @@ describe(`HB-12 -- ${HB_12_SAME_BAND}`, () => {
     return drawn(schedule).geometry
   }
 
-  it('the frame answers the same presses whether its line is coloured or transparent', () => {
-    const coloured = geometryOf('red')
+  it('the frame answers the same presses whether its line is colored or transparent', () => {
+    const colored = geometryOf('red')
     const clear = geometryOf(TRANSPARENT)
-    const box = coloured.highlightBoxes.find((one) => one.id === BOX)?.box
+    const box = colored.highlightBoxes.find((one) => one.id === BOX)?.box
     if (box === undefined) throw new Error('premise: the box is laid out')
     const sizes = grabSizesOf()
     const middle = box.y + box.height / 2
-    const onTheLine = itemAtPointer(coloured, box.x, middle, sizes)
+    const onTheLine = itemAtPointer(colored, box.x, middle, sizes)
     expect(onTheLine?.item, 'premise: a press on the left frame line takes the box').toEqual({ kind: 'highlightBox', id: BOX })
     for (let dx = -8; dx <= 8; dx += 1) {
       for (const [x, y] of [
@@ -453,7 +453,7 @@ describe(`HB-12 -- ${HB_12_SAME_BAND}`, () => {
         [box.x + box.width + dx, middle],
         [box.x + box.width / 2, box.y + dx],
       ] as const) {
-        expect(itemAtPointer(clear, x, y, sizes), `at (${x}, ${y})`).toEqual(itemAtPointer(coloured, x, y, sizes))
+        expect(itemAtPointer(clear, x, y, sizes), `at (${x}, ${y})`).toEqual(itemAtPointer(colored, x, y, sizes))
       }
     }
   })

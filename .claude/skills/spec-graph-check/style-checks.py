@@ -19,7 +19,9 @@ checks gate the types mechanically, so the next round cannot recreate them.
                                      every spelling the notation table
                                      (section 5 of rule 02) marks 止める,
                                      in the spec, the dictionary and the
-                                     guides (JDG-1857, CR-725, JDG-1863);
+                                     guides (JDG-1857, CR-725, JDG-1863),
+                                     an all-ASCII spelling in every case
+                                     (JDG-1921, CR-730);
                                      and the English names of the screen
                                      in Title Case, read from the name
                                      fields that table's Title Case row
@@ -31,10 +33,11 @@ Exit code 1 if check 12 or 32 reports a finding.
 `--self-test` feeds the spelling scan an in-memory table and in-memory lines
 (a gated spelling is red, the written spelling is green, a row marked
 止めない gates nothing, a written spelling that begins with the gated one is
-not red), feeds the Title Case scan an in-memory row and dictionary, and then
-reads the real table: it is red when the table no longer yields the ウインドウ
-row, the 取込 row or the Title Case row, so deleting a row cannot silence the
-check.
+not red, an all-ASCII gated spelling is red in any case and its written
+spelling green in any case), feeds the Title Case scan an in-memory row and
+dictionary, and then reads the real table: it is red when the table no longer
+yields the ウインドウ row, the 取込 row, the American color row or the Title
+Case row, so deleting a row cannot silence the check.
 
 NOTE ON NON-ASCII: the patterns hold Japanese text because the
 specification is written in Japanese; those code points are data.
@@ -73,7 +76,7 @@ STATES_RULE = re.compile(r'（MUST）|（MUST NOT）|してはならない|し�
 MUST = re.compile(r'（MUST(?: NOT)?）')
 
 # The glossary owns names, so a prohibition about WORDING belongs there.
-# Anything else it forbids (behaviour, data shape, values) does not.
+# Anything else it forbids (behavior, data shape, values) does not.
 NAMING_RULE = re.compile(
     r'呼んではならない|と書く|と書くこと|書いてはならない|略さない|略してはならない|'
     r'名前に使わない|訳語|直訳|語順|別語|意訳|表記')
@@ -274,7 +277,12 @@ MUST_GATE = ('ウィンドウ', 'ウインドウ')
 # and CR-726 the user's 取り込み (JDG-1863); the self-test is red when one of
 # them stops being gated.
 ALSO_GATED = (('フィルタ', 'フィルター'), ('マーカー', 'マーカ'), ('ヘッダー', 'ヘッダ'),
-              ('取り込み', '取込'))
+              ('取り込み', '取込'), ('color', 'colour'))
+# JDG-1921 (CR-730): American spelling everywhere. A row whose banned spelling
+# is all ASCII is matched in every case, so the one row for the lower-case
+# word also stops the capitalized and the upper-case word (E-09). Only A-Z is
+# folded, so a column stays a column of the line as written.
+ASCII_FOLD = str.maketrans('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')
 
 
 def notation_rows(lines):
@@ -318,8 +326,13 @@ def misspelt_at(line, written, banned):
     ⚠️ Only when the written word is the LONGER one: フィルター begins with the
     written フィルタ, and skipping on a written prefix there would let every
     banned フィルター through (CR-721).
+    An all-ASCII banned spelling is matched in every case (JDG-1921, CR-730).
     """
     found = []
+    if banned.isascii():
+        line = line.translate(ASCII_FOLD)
+        written = written.translate(ASCII_FOLD)
+        banned = banned.translate(ASCII_FOLD)
     shields = written.startswith(banned) and len(written) > len(banned)
     at = line.find(banned)
     while at >= 0:
@@ -343,6 +356,17 @@ def spelling_targets():
     return sorted(found)
 
 
+# A path into the history folders, in backticks, names a file that is never
+# renamed (CR-730 X-1: change-request/ and previous-project-result/ keep their
+# spelling), so the spelling inside it is not the writer's and is not matched.
+HISTORY_PATH = re.compile(r'`(?:change-request|previous-project-result)/[^`\s]*`')
+
+
+def without_history_paths(line):
+    """The line with every backticked history path blanked, columns kept."""
+    return HISTORY_PATH.sub(lambda m: ' ' * len(m.group(0)), line)
+
+
 def scan_spellings(pairs, files):
     """files: [(rel, lines)] -> [(rel, lineno, written, banned)]."""
     hits = []
@@ -351,7 +375,7 @@ def scan_spellings(pairs, files):
             continue
         for rel, lines in files:
             for i, line in enumerate(lines, 1):
-                for _ in misspelt_at(line, written, banned):
+                for _ in misspelt_at(without_history_paths(line), written, banned):
                     hits.append((rel, i, written, banned))
     return hits
 
@@ -388,7 +412,7 @@ def title_case_rule(lines):
 def lower_words(value, small):
     """The words of an English name that break Title Case.
 
-    The first and the last word are capitalised whatever they are; a small
+    The first and the last word are capitalized whatever they are; a small
     word anywhere else may stay lower case (Path from Top, Week Starts On).
     """
     words = WORD.findall(PLACEHOLDER.sub(' ', value))
@@ -447,6 +471,17 @@ def self_test():
                                '| マーカー | マーカ | JDG | 止める | |'])
     shorter_hits = [(rel, i) for rel, i, _, _ in scan_spellings(
         shorter, [('s.md', ['フィルターの欄', 'フィルタの欄', 'マーカーの色', 'マーカの色'])])]
+    # JDG-1921 (CR-730): one all-ASCII row stops every case; the written word stays green.
+    english = gated_spellings(['## 5. 表記の表', '| color | colour | JDG | 止める | |'])
+    english_hits = [(rel, i) for rel, i, _, _ in scan_spellings(
+        english, [('e.md', ['the colour field', 'Fill Colour', 'COLOUR_NAME_VALUES',
+                            'defaultColour', 'the color field', 'Fill Color',
+                            'COLOR_NAME_VALUES', 'defaultColor'])])]
+    # CR-730 X-1: a backticked history path keeps its spelling; the same word outside stays red.
+    history_hits = [(rel, i) for rel, i, _, _ in scan_spellings(
+        english, [('h.md', ['see `previous-project-result/43-theme-colour-solve/`',
+                            'see `change-request/CR-683-the-theme-colours-are-solved-per-hue.md`',
+                            'see `docs/colour.md`', 'the colour of `previous-project-result/x/`'])])]
     real = gated_spellings(read(NOTATION_RULES))
     # JDG-1862: an in-memory Title Case row over an in-memory dictionary.
     tc_rule = title_case_rule([
@@ -477,6 +512,12 @@ def self_test():
          ('s.md', 1) in shorter_hits),
         ('フィルタ green, マーカー green, マーカ red: exactly 2 hits',
          sorted(shorter_hits) == [('s.md', 1), ('s.md', 4)]),
+        ('colour, Colour, COLOUR and defaultColour red; color, Color, COLOR and '
+         'defaultColor green: exactly 4 hits (JDG-1921, CR-730)',
+         sorted(english_hits) == [('e.md', 1), ('e.md', 2), ('e.md', 3), ('e.md', 4)]),
+        ('a backticked change-request/ or previous-project-result/ path is green; '
+         'colour in another path or in prose is red: exactly 2 hits (CR-730 X-1)',
+         sorted(history_hits) == [('h.md', 3), ('h.md', 4)]),
         ('the real table still gates %s -> %s' % (MUST_GATE[1], MUST_GATE[0]),
          MUST_GATE in real),
         ('the in-memory Title Case row is read with its 3 selectors and 4 small words',
@@ -491,8 +532,8 @@ def self_test():
          '(JDG-1862)' % MIN_SELECTORS,
          real_tc is not None and len(real_tc[0]) >= MIN_SELECTORS and len(real_tc[1]) > 0),
     ) + tuple(
-        ('the real table gates %s -> %s (CR-721 / CR-726, JDG-1850 / JDG-1855 / '
-         'JDG-1863)' % (b, w),
+        ('the real table gates %s -> %s (CR-721 / CR-726 / CR-730, JDG-1850 / JDG-1855 / '
+         'JDG-1863 / JDG-1921)' % (b, w),
          (w, b) in real) for w, b in ALSO_GATED)
     bad = [name for name, ok in checks if not ok]
     for name, ok in checks:

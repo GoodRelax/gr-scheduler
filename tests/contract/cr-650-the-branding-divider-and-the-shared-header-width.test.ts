@@ -15,7 +15,7 @@ import { appHeaderStyle, fillAppHeader } from '../../src/framework/dom-screen-su
 import {
   NOT_STORED_DOCUMENT_TITLE_SIZES,
   PAINT,
-  SCREEN_COLOURS,
+  SCREEN_COLORS,
   themeStyle,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import { stage, styleMap, type FakeElement } from '../fixtures/fake-browser'
@@ -55,14 +55,14 @@ const S_492 = setting('S-492')
 const S_210 = setting('S-210')
 const S_449 = setting('S-449')
 
-// WHY: a T-236 cell either spells a colour or names the row it copies (S-493 names S-149).
-const colourOf = (id: string, column: string, seen: readonly string[] = []): string => {
+// WHY: a T-236 cell either spells a color or names the row it copies (S-493 names S-149).
+const colorOf = (id: string, column: string, seen: readonly string[] = []): string => {
   const cell = (rowOf('T-236', id).by[column] ?? '').trim()
   const named = /^`(S-\d+)`/.exec(cell)
   if (named !== null) {
     const next = named[1] as string
     if (seen.includes(next)) throw new Error(`T-236 ${id} names a loop through ${next}`)
-    return colourOf(next, column, [...seen, id])
+    return colorOf(next, column, [...seen, id])
   }
   return bare(cell).replace(/`/g, '')
 }
@@ -116,20 +116,20 @@ describe('CR-650 -- T-206 / T-236 rows read from the manuscript', () => {
     expect(inOrder(ep1, ['S-490', 'S-462', 'S-226', 'S-492']), 'EP-1 names where the seat, gap and width come from').toBe(true)
   })
 
-  it('T-236 S-493: the divider colour resolves to S-149 of the theme, in light and in dark', () => {
-    const row = SCREEN_COLOURS['S-493']
+  it('T-236 S-493: the divider color resolves to S-149 of the theme, in light and in dark', () => {
+    const row = SCREEN_COLORS['S-493']
     expect(row, 'premise: the screen holds S-493').toBeDefined()
-    const light = huedAt(colourOf('S-493', LIGHT_COLUMN), HUE)
-    const dark = huedAt(colourOf('S-493', DARK_COLUMN), HUE)
-    expect(light).toBe(huedAt(colourOf('S-149', LIGHT_COLUMN), HUE))
-    expect(dark).toBe(huedAt(colourOf('S-149', DARK_COLUMN), HUE))
+    const light = huedAt(colorOf('S-493', LIGHT_COLUMN), HUE)
+    const dark = huedAt(colorOf('S-493', DARK_COLUMN), HUE)
+    expect(light).toBe(huedAt(colorOf('S-149', LIGHT_COLUMN), HUE))
+    expect(dark).toBe(huedAt(colorOf('S-149', DARK_COLUMN), HUE))
     expect(themeStyle({ preference: 'light', hue: HUE })).toContain(`--gr-brandingDivider:${light};`)
     expect(themeStyle({ preference: 'dark', hue: HUE })).toContain(`--gr-brandingDivider:${dark};`)
   })
 
   it('T-236 S-146: the ground var the title is painted with resolves to S-146 in light and in dark', () => {
-    const light = huedAt(colourOf('S-146', LIGHT_COLUMN), HUE)
-    const dark = huedAt(colourOf('S-146', DARK_COLUMN), HUE)
+    const light = huedAt(colorOf('S-146', LIGHT_COLUMN), HUE)
+    const dark = huedAt(colorOf('S-146', DARK_COLUMN), HUE)
     expect(themeStyle({ preference: 'light', hue: HUE })).toContain(`--gr-ground:${light};`)
     expect(themeStyle({ preference: 'dark', hue: HUE })).toContain(`--gr-ground:${dark};`)
   })
@@ -182,7 +182,7 @@ describe('CR-650 BR-7 -- the divider between the Branding and the Document Title
     expect(style.get('flex-shrink'), 'a 1px line squeezed by flex would vanish').toBe('0')
   })
 
-  it('BR-7 S-493: the divider is painted in the S-493 colour', () => {
+  it('BR-7 S-493: the divider is painted in the S-493 color', () => {
     const style = styleMap(drawnHeader().byRole('Branding Divider'))
     expect(style.get('background') ?? style.get('background-color')).toBe(PAINT.brandingDivider)
   })
@@ -312,8 +312,8 @@ describe('CR-650 EP-1 / BR-6 -- the export picture leaves the seat and the divid
       const svg = pictureOf(scene)
       const ratio = ratioOf(scene)
       const bandBottom = (scene.regions.appHeader.y + scene.regions.appHeader.height) * ratio
-      const dividerColour = huedAt(colourOf('S-493', preference === 'dark' ? DARK_COLUMN : LIGHT_COLUMN), HUE)
-      expect(svg.includes(dividerColour), `EP-1: nothing in the picture is painted ${dividerColour}`).toBe(false)
+      const dividerColor = huedAt(colorOf('S-493', preference === 'dark' ? DARK_COLUMN : LIGHT_COLUMN), HUE)
+      expect(svg.includes(dividerColor), `EP-1: nothing in the picture is painted ${dividerColor}`).toBe(false)
       const thin = [...svg.matchAll(/<(rect|line|path|polyline)\b[^>]*>/g)].map((one) => one[0]).filter((tag) => {
         if (tag.startsWith('<line') || tag.startsWith('<path') || tag.startsWith('<polyline')) {
           const y1 = Number(attrOf(tag, 'y1') ?? attrOf(tag, 'y') ?? NaN)

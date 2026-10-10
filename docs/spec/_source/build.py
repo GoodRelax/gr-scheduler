@@ -4,7 +4,7 @@
 components.json is the single source of truth. It holds ONLY node-level edges.
 
 The overview figure is DERIVED, never hand-written: each node-level edge is
-collapsed onto the innermost labelled cluster of its endpoints, and every
+collapsed onto the innermost labeled cluster of its endpoints, and every
 collapsed edge must be backed by at least one real node-level edge. An arrow
 that nothing supports cannot be drawn, and a backed pair with no label stops
 the build. That is what keeps the overview honest without a second source.
@@ -87,7 +87,7 @@ DRAWIO_MARK = (
     " docs/spec/_source/components.json, the single source of truth."
     " Rebuild: python docs/spec/_source/build.py")
 
-# An older build wrote the mark as an XML comment just after <root>. Recognised
+# An older build wrote the mark as an XML comment just after <root>. Recognized
 # here only so such a file is migrated on the next run.
 LEGACY_DRAWIO_COMMENT = re.compile(r'<!--\s*GENERATED --.*?-->', re.S)
 
@@ -145,8 +145,8 @@ def stamp(path):
         handle.write(BANNER + body)
 
 
-def labelled_cluster_of(layout):
-    """Map every node name to the innermost labelled cluster that holds it."""
+def labeled_cluster_of(layout):
+    """Map every node name to the innermost labeled cluster that holds it."""
     owner = {}
 
     def walk(cluster, nearest):
@@ -162,10 +162,10 @@ def labelled_cluster_of(layout):
 
 def collapse(model):
     """Collapse node-level edges onto cluster pairs, with their backing counts."""
-    owner = labelled_cluster_of(model["layout"])
+    owner = labeled_cluster_of(model["layout"])
     missing = sorted(n["name"] for n in model["nodes"] if owner.get(n["name"]) is None)
     if missing:
-        sys.exit("build: node(s) outside every labelled cluster: %s" % ", ".join(missing))
+        sys.exit("build: node(s) outside every labeled cluster: %s" % ", ".join(missing))
     backing = {}
     for edge in model["edges"]:
         pair = (owner[edge["source"]], owner[edge["target"]])
@@ -176,11 +176,11 @@ def collapse(model):
 
 
 def build_overview(model, backing, write=True):
-    unlabelled = sorted(backing.keys() - CLUSTER_EDGE_LABELS.keys())
+    unlabeled = sorted(backing.keys() - CLUSTER_EDGE_LABELS.keys())
     unbacked = sorted(CLUSTER_EDGE_LABELS.keys() - backing.keys())
-    if unlabelled:
+    if unlabeled:
         sys.exit("build: cluster pair(s) with no label: %s"
-                 % ", ".join("%s -> %s" % p for p in unlabelled))
+                 % ", ".join("%s -> %s" % p for p in unlabeled))
     if unbacked:
         sys.exit("build: label(s) with no backing edge in components.json: %s"
                  % ", ".join("%s -> %s" % p for p in unbacked))
@@ -253,7 +253,7 @@ def _trimmed(path, src_rect, dst_rect, steps=400):
     """The visible part of an edge.
 
     draw.io clips an edge to the borders of the two shapes, so a fraction along
-    the centre-to-centre polyline is not the fraction the label is drawn at.
+    the center-to-center polyline is not the fraction the label is drawn at.
     Sampling and dropping the ends that fall inside the shapes brings the two
     back into agreement -- without this, two labels the placer believes are
     apart still print on top of each other.
@@ -271,7 +271,7 @@ def place_labels(drawio_path):
     geom = {m.group(1): tuple(map(float, m.groups()[2:])) for m in CELL_RE.finditer(text)}
     boxes = [geom[i] for i in geom if i.startswith("n_")]
 
-    def centre(cell_id):
+    def center(cell_id):
         x, y, w, h = geom[cell_id]
         return (x + w / 2, y + h / 2)
 
@@ -294,7 +294,7 @@ def place_labels(drawio_path):
     def visible_path(body, src, dst):
         waypoints = [(float(a), float(b))
                      for a, b in re.findall(r'<mxPoint x="([-\d.]+)" y="([-\d.]+)"/>', body)]
-        return _trimmed([centre(src)] + waypoints + [centre(dst)],
+        return _trimmed([center(src)] + waypoints + [center(dst)],
                         geom[src], geom[dst])
 
     def span(path):
@@ -302,18 +302,18 @@ def place_labels(drawio_path):
 
     # ⛔ The shortest edge chooses first. Placement is first-come, so in
     # document order a long arrow crossing several bands can take the only
-    # points a short arrow between two neighbouring boxes has, and that short
+    # points a short arrow between two neighboring boxes has, and that short
     # arrow then has nowhere left -- it stopped the build the day the
     # ScreenRenderer -> SvgRenderer edge was drawn, blocked by "layout once per
     # frame" and "geometry once per frame", which have a whole corridor to move
     # along. An edge with more room to give yields it.
-    labelled = [(m, visible_path(m.group(6), m.group(4), m.group(5)))
+    labeled = [(m, visible_path(m.group(6), m.group(4), m.group(5)))
                 for m in EDGE_RE.finditer(text) if m.group(2)]
-    labelled.sort(key=lambda pair: span(pair[1]))
+    labeled.sort(key=lambda pair: span(pair[1]))
 
     taken = []
     moved, stuck = [], []
-    for match, path in labelled:
+    for match, path in labeled:
         eid, label, rest, src, dst, body = match.groups()
         chosen = next((f for f in LABEL_FRACTIONS
                        if clear_of_boxes(_point_at(path, f))

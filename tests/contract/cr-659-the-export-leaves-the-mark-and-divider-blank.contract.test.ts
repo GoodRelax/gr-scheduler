@@ -40,10 +40,10 @@ const setting = (id: string): number => {
 const TITLE_LEFT = (3 * setting('S-226') + setting('S-490') * setting('S-462')) * setting('S-235') + setting('S-492')
 
 // see T-236
-const colourIn = (id: string, column: string, hue: number): string => {
+const colorIn = (id: string, column: string, hue: number): string => {
   const cell = (rowOf('T-236', id).by[column] ?? '').trim()
   const named = /^`(S-\d+)`/.exec(cell)
-  if (named !== null) return colourIn(named[1] as string, column, hue)
+  if (named !== null) return colorIn(named[1] as string, column, hue)
   return bare(cell).replace(/`/g, '').replace(/\bH\b/g, String(hue))
 }
 
@@ -120,12 +120,12 @@ describe('CR-659 -- the clauses these cases are driven by', () => {
 
 describe(`CR-659 BR-6 "${BR_6}"`, () => {
   for (const preference of ['light', 'dark'] as const) {
-    it(`${preference}: the picture holds no GRS text and nothing in the divider colour`, () => {
+    it(`${preference}: the picture holds no GRS text and nothing in the divider color`, () => {
       const svg = pictureOf(sceneOf(preference))
       const texts = [...svg.matchAll(/<text\b[^>]*>([^<]*)<\/text>/g)].map((one) => one[1] ?? '')
       expect(texts.filter((one) => one.includes(LOGO)), 'EP-1: Branding is not drawn').toEqual([])
-      const divider = colourIn('S-493', preference === 'dark' ? '暗いテーマ' : '明るいテーマ', HUE)
-      expect(divider, 'premise: S-493 resolves to a colour').not.toBe('')
+      const divider = colorIn('S-493', preference === 'dark' ? '暗いテーマ' : '明るいテーマ', HUE)
+      expect(divider, 'premise: S-493 resolves to a color').not.toBe('')
       const strokes = [...svg.matchAll(/<(?:line|rect|path)\b[^>]*>/g)].map((one) => one[0])
       expect(strokes.filter((tag) => tag.includes(`"${divider}"`)), 'EP-1: no divider line').toEqual([])
     })

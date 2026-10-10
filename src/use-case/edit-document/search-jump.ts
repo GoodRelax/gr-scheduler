@@ -180,8 +180,8 @@ function acrossOf(held: ScrollAnchor, date: string | null, reach: SearchJumpReac
   if (day === null || reach.pxPerDay <= 0) return { scrollDate: held.scrollDate, scrollDayOffset: held.scrollDayOffset }
   const inset = NOT_STORED_SEARCH_JUMP_INSET['S-428']
   const landing = reach.landing
-  const isCentred = landing !== null && landing.shapeWidthPx <= reach.areaWidth - 2 * inset
-  const leftPx = isCentred
+  const isCentered = landing !== null && landing.shapeWidthPx <= reach.areaWidth - 2 * inset
+  const leftPx = isCentered
     ? reach.areaWidth / 2 - landing.shapeFromDatePx - landing.shapeWidthPx / 2
     : reach.leftReachPx + inset
   const left = serial(day) - leftPx / reach.pxPerDay

@@ -43,7 +43,7 @@ const INSIDE_PASSES_THROUGH =
 const FR_106_HIGHLIGHT =
   '⭐ ハイライトボックスの掴み代（表 T-023d の `GR-14`）では、`FR-016` の 表 T-246 の `HB-8` 〜 `HB-12` が名指す形とすること（MUST）'
 // see FR-019
-// WHY: the fill's null is no longer T-217's default but the theme colour (CR-606 E-31).
+// WHY: the fill's null is no longer T-217's default but the theme color (CR-606 E-31).
 const NULL_DRAWS_THE_DEFAULT = '⭐ 線の太さと透過率の列が `null` のときは、表 T-217 の同じ列の既定で描くこと（MUST）'
 const NULL_FILL_IS_THE_THEME =
   '⭐ 塗りの色の列が `null` のときは、テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）で塗ること（MUST）'
@@ -106,8 +106,8 @@ const paletteFills = (spelling: string): readonly string[] => {
   return [row.by['明るいテーマの塗り'] ?? '', row.by['暗いテーマの塗り'] ?? ''].map((one) => one.replace(/`/g, ''))
 }
 
-// WHY: a T-236 colour may carry the theme hue H, so it is read as a pattern with H any whole number.
-const themeColourPattern = (row: string): RegExp => {
+// WHY: a T-236 color may carry the theme hue H, so it is read as a pattern with H any whole number.
+const themeColorPattern = (row: string): RegExp => {
   const cells = [cellOf('T-236', row, '明るいテーマ'), cellOf('T-236', row, '暗いテーマ')].map((one) =>
     one.replace(/`/g, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\bH\b/, '\\d+(?:\\.\\d+)?'),
   )
@@ -670,27 +670,27 @@ describe(`T-023d: ${DRAWN_WHILE_SELECTED}`, () => {
     for (const square of squares) expect(layerOf(svg, square.at), square.text).toBe('ZO-10')
   })
 
-  it('each square is S-372 on a side, centred on its point, with the S-146 ground, the S-151 edge and the S-174 edge width', () => {
+  it('each square is S-372 on a side, centered on its point, with the S-146 ground, the S-151 edge and the S-174 edge width', () => {
     const built = stage()
     const box = drawnBox(built.loop).box
     click(built, onTheFrame(box))
     const squares = tagsOf(built.lastSvg(), GRAB_FIGURE(BOX_ID))
-    const centres = squares.map((one) => ({
+    const centers = squares.map((one) => ({
       x: numberAttribute(one.text, 'x') + numberAttribute(one.text, 'width') / 2,
       y: numberAttribute(one.text, 'y') + numberAttribute(one.text, 'height') / 2,
     }))
     for (const point of GRAB_POINTS) {
       const wanted = point.at(box)
       expect(
-        centres.some((one) => Math.abs(one.x - wanted.x) < 0.05 && Math.abs(one.y - wanted.y) < 0.05),
-        `no square is centred on the ${point.name} point`,
+        centers.some((one) => Math.abs(one.x - wanted.x) < 0.05 && Math.abs(one.y - wanted.y) < 0.05),
+        `no square is centered on the ${point.name} point`,
       ).toBe(true)
     }
     for (const square of squares) {
       expect(numberAttribute(square.text, 'width')).toBe(S_372)
       expect(numberAttribute(square.text, 'height')).toBe(S_372)
-      expect(attributeOf(square.text, 'fill') ?? '').toMatch(themeColourPattern('S-146'))
-      expect(attributeOf(square.text, 'stroke') ?? '').toMatch(themeColourPattern('S-151'))
+      expect(attributeOf(square.text, 'fill') ?? '').toMatch(themeColorPattern('S-146'))
+      expect(attributeOf(square.text, 'stroke') ?? '').toMatch(themeColorPattern('S-151'))
       expect(numberAttribute(square.text, 'stroke-width')).toBe(S_174)
     }
   })
@@ -725,7 +725,7 @@ describe('FR-019: the stroke width and the fill a box is drawn with', () => {
     }
   })
 
-  it('a custom colour is drawn with the value it holds (CV-3 / CV-6)', () => {
+  it('a custom color is drawn with the value it holds (CV-3 / CV-6)', () => {
     const fill = tagsOf(drawnSvg({ fillColor: '#123456/', fillTransparencyPercent: 0 }), FILL_FIGURE(BOX_ID))[0]
     expect(attributeOf(fill?.text ?? '', 'fill')?.toLowerCase()).toBe('#123456')
   })
@@ -846,12 +846,12 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
     }
   })
 
-  it(`CM-78 places a palette name, a custom colour, transparent and null (${FILL_MAY_BE_TRANSPARENT}), and refuses what is not a colour (CV-1)`, () => {
-    for (const colour of ['red', '#123456/', 'transparent', null]) {
-      expect(acceptedBox({ kind: 'setHighlightBoxFillColor', id: BOX_ID, fillColor: colour })['fillColor']).toBe(colour)
+  it(`CM-78 places a palette name, a custom color, transparent and null (${FILL_MAY_BE_TRANSPARENT}), and refuses what is not a color (CV-1)`, () => {
+    for (const color of ['red', '#123456/', 'transparent', null]) {
+      expect(acceptedBox({ kind: 'setHighlightBoxFillColor', id: BOX_ID, fillColor: color })['fillColor']).toBe(color)
     }
-    for (const colour of ['crimson', '#12345', '']) {
-      expect(refusalOf({ kind: 'setHighlightBoxFillColor', id: BOX_ID, fillColor: colour }), `colour ${colour}`).toEqual(
+    for (const color of ['crimson', '#12345', '']) {
+      expect(refusalOf({ kind: 'setHighlightBoxFillColor', id: BOX_ID, fillColor: color }), `color ${color}`).toEqual(
         expect.objectContaining({ command: 'CM-78', rule: 'CV-1' }),
       )
     }

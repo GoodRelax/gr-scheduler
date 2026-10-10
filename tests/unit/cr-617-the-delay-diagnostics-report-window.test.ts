@@ -63,7 +63,7 @@ const REPORT: DelayDiagnosticsReport = {
   bottlenecks: [{ uid: 2, name: 'Bravo', ...QUANTITIES, path: [3, 2] }],
   terminalPushOuts: [],
   walls: [],
-  unanalysedCount: 1,
+  unreliableCount: 1,
   markerStates: [
     { uid: 1, row: 'DG-1' },
     { uid: 2, row: 'DG-2' },
@@ -180,13 +180,13 @@ describe('T-346 / T-335 -- the window entries (WB-2, WB-3, WB-5, SV-7, SV-8, SV-
   const after = (window: DelayDiagnosticsReportWindow, entry: string, column: string | null = null) =>
     delayDiagnosticsReportAfterEntry(window, entry, column, rows)
 
-  it('IC-129 minimises and restores; IC-130 maximises and IC-131 restores', () => {
-    const minimised = after(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-129')?.window
-    expect(minimised?.shown).toBe('minimised')
-    expect(after(minimised as DelayDiagnosticsReportWindow, 'IC-129')?.window?.shown).toBe('normal')
-    const maximised = after(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-130')?.window
-    expect(maximised?.shown).toBe('maximised')
-    expect(after(maximised as DelayDiagnosticsReportWindow, 'IC-131')?.window?.shown).toBe('normal')
+  it('IC-129 minimizes and restores; IC-130 maximizes and IC-131 restores', () => {
+    const minimized = after(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-129')?.window
+    expect(minimized?.shown).toBe('minimized')
+    expect(after(minimized as DelayDiagnosticsReportWindow, 'IC-129')?.window?.shown).toBe('normal')
+    const maximized = after(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-130')?.window
+    expect(maximized?.shown).toBe('maximized')
+    expect(after(maximized as DelayDiagnosticsReportWindow, 'IC-131')?.window?.shown).toBe('normal')
   })
 
   it('IC-52 closes the window alone (RW-1)', () => {

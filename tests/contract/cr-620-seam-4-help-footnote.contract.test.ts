@@ -178,7 +178,7 @@ describe('SEAM-4 the note *1 at the end of the IC-20 column (FR-036, FR-073, S-3
 })
 
 // WHY: CR-665 retired the two cases that put note *1 in the IC-20 column (JDG-1048 overturned);
-// the note now stands below the columns, above the licence line, and names no column.
+// the note now stands below the columns, above the license line, and names no column.
 describe('SEAM-4 the note is not an item (FR-036, S-202)', () => {
   it('FR-036: no item of the help carries the note\'s words or the S-350 address', () => {
     for (const language of LANGUAGES) {

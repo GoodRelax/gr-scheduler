@@ -245,7 +245,7 @@ async function drawnTaskUids(page: Page): Promise<number[]> {
 
 // WHY: the column a cell stands in is read from the heading above it, which the view marks per SQ row.
 /** @purity semi-pure-b */
-async function cellCentre(page: Page, column: string, rowIndex: number): Promise<Spot> {
+async function cellCenter(page: Page, column: string, rowIndex: number): Promise<Spot> {
   const found = await page.evaluate(
     (asked: { panel: string; column: string; row: number }) => {
       const panel = document.querySelector(asked.panel)
@@ -434,7 +434,7 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
       const folded = await readTree(one.page)
       expect(taskGroupAndAncestors(folded, row).map((id) => folded.rows.find((r) => r.id === id)?.treeState)).not.toContain('expanded')
 
-      await pressAt(one.page, await cellCentre(one.page, 'SQ-1', 0))
+      await pressAt(one.page, await cellCenter(one.page, 'SQ-1', 0))
 
       const opened = await readTree(one.page)
       for (const id of taskGroupAndAncestors(opened, row)) {
@@ -455,11 +455,11 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
       await foldEverything(one.page)
       const before = statesOf(await readTree(one.page))
       await openSearch(one.page, TASK_WORD)
-      const jump = await cellCentre(one.page, 'SQ-1', 0)
+      const jump = await cellCenter(one.page, 'SQ-1', 0)
       await pressAt(one.page, jump)
       const after = statesOf(await readTree(one.page))
       expect(after, 'the jump has to change something, or the undo proves nothing').not.toBe(before)
-      await pressAt(one.page, await cellCentre(one.page, 'SQ-1', 0))
+      await pressAt(one.page, await cellCenter(one.page, 'SQ-1', 0))
       expect(statesOf(await readTree(one.page)), 'the second jump found everything open').toBe(after)
 
       await one.page.keyboard.press(UNDO_KEY)
@@ -478,7 +478,7 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
       await openSearch(one.page, TASK_WORD)
       const before = statesOf(await readTree(one.page))
       const chosen = await selection(one.page)
-      await pressAt(one.page, await cellCentre(one.page, 'SQ-2', 0))
+      await pressAt(one.page, await cellCenter(one.page, 'SQ-2', 0))
       expect(statesOf(await readTree(one.page))).toBe(before)
       expect(await selection(one.page)).toBe(chosen)
     } finally {
@@ -496,7 +496,7 @@ test.describe(`SJ-1 -- ${SJ_1_WHERE}${SJ_1_OTHERS}`, () => {
       await openSearch(one.page, COMMENT_BOX_WORD)
       expect(await pressEntrance(one.page, COMMENT_BOX_TABLE), `${COMMENT_BOX_TABLE} is on the screen`).toBe(true)
 
-      await pressAt(one.page, await cellCentre(one.page, 'SQ-7', 0))
+      await pressAt(one.page, await cellCenter(one.page, 'SQ-7', 0))
 
       const opened = await readTree(one.page)
       for (const id of taskGroupAndAncestors(opened, row)) {

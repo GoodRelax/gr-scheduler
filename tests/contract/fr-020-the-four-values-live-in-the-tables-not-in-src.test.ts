@@ -139,8 +139,8 @@ describe('the ruling of 2026-09-05: the watermark keeps its default name for now
   })
 })
 
-describe('table T-236 still holds S-223, the fourth of the four values (the ink colour)', () => {
-  it('S-223 -- the ink colour -- is the same as S-148 (the muted text colour), in both themes', () => {
+describe('table T-236 still holds S-223, the fourth of the four values (the ink color)', () => {
+  it('S-223 -- the ink color -- is the same as S-148 (the muted text color), in both themes', () => {
     const row = rowOf(T_236, 'S-223')
     // WHY: bare() reads the first backtick span, so this comparison is
     // exact even though the raw sentence carries more than one span.

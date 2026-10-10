@@ -207,7 +207,7 @@ const rename = (name: string): DocumentCommand =>
 const NAME_BEFORE = firstTaskNameIn(START)
 const NAME_AFTER = 'RenamedWhileATaskGroupWasPinned'
 
-describe('表 T-027 -- pinning is 対象, and the neighbouring row says so too', () => {
+describe('表 T-027 -- pinning is 対象, and the neighboring row says so too', () => {
   it('⭐ files UN-14 under 対象, which is the whole premise of this file', () => {
     expect(undoClassOf('UN-14')).toBe(INSIDE)
   })

@@ -1,4 +1,4 @@
-// DFC-920: every colour spelling the copied image-to-data prompt (FR-068) allows is one the GRS JSON read path opens (AT-102, AT-58).
+// DFC-920: every color spelling the copied image-to-data prompt (FR-068) allows is one the GRS JSON read path opens (AT-102, AT-58).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -47,21 +47,21 @@ const SAMPLE_DIGITS = 'ff8800'
 const spellingsIn = (manuscript: string): string[] =>
   [...manuscript.matchAll(/"(#[^"\s]*)"/g)].map((one) => (one[1] ?? '').replace(/rrggbb/i, SAMPLE_DIGITS))
 
-// WHY: the shared bench decodes a document with one task and one task group, whose visual and band colours are the ones under test.
-function documentWith(colour: string): string {
+// WHY: the shared bench decodes a document with one task and one task group, whose visual and band colors are the ones under test.
+function documentWith(color: string): string {
   const raw = taskGroupDocument([{ id: 'r1', parentId: null }])
-  raw['schedule'].taskVisuals[0].fillColor = colour
-  raw['schedule'].taskVisuals[0].strokeColor = colour
-  raw['schedule'].taskGroups[0].color = colour
+  raw['schedule'].taskVisuals[0].fillColor = color
+  raw['schedule'].taskVisuals[0].strokeColor = color
+  raw['schedule'].taskGroups[0].color = color
   return JSON.stringify(raw)
 }
 
-describe('FR-068 / AT-102 (MUST): the prompt offers the author a custom colour only in a spelling GRS opens (DFC-920)', () => {
-  it.each(LANGUAGES)('the %s prompt names at least one custom colour spelling', async (language) => {
+describe('FR-068 / AT-102 (MUST): the prompt offers the author a custom color only in a spelling GRS opens (DFC-920)', () => {
+  it.each(LANGUAGES)('the %s prompt names at least one custom color spelling', async (language) => {
     expect(spellingsIn(manuscriptOf(await copiedPrompt(language))).length).toBeGreaterThan(0)
   })
 
-  it.each(LANGUAGES)('every custom colour the %s prompt allows opens as fill, outline and task group band', async (language) => {
+  it.each(LANGUAGES)('every custom color the %s prompt allows opens as fill, outline and task group band', async (language) => {
     for (const spelling of spellingsIn(manuscriptOf(await copiedPrompt(language)))) {
       const read = documentFromJson(documentWith(spelling))
       expect(read.ok, `${language} prompt allows ${JSON.stringify(spelling)}`).toBe(true)

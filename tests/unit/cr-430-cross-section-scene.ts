@@ -128,7 +128,7 @@ export interface Bar {
 
 export interface Marker {
   readonly symbol: string
-  readonly centre: Pt
+  readonly center: Pt
   readonly radius: number
 }
 
@@ -179,7 +179,7 @@ export interface Placed {
 export interface Band {
   readonly top: number
   readonly bottom: number
-  readonly centre: number
+  readonly center: number
   readonly height: number
   readonly left: number
   readonly right: number
@@ -190,11 +190,11 @@ export const bandOf = (bar: Bar): Band => {
     const from = bar.from as Pt
     const to = bar.to as Pt
     const stroke = bar.strokeWidth ?? 0
-    const centre = (from.y + to.y) / 2
+    const center = (from.y + to.y) / 2
     return {
-      top: centre - stroke / 2,
-      bottom: centre + stroke / 2,
-      centre,
+      top: center - stroke / 2,
+      bottom: center + stroke / 2,
+      center,
       height: stroke,
       left: Math.min(from.x, to.x),
       right: Math.max(from.x, to.x),
@@ -209,7 +209,7 @@ export const bandOf = (bar: Bar): Band => {
   return {
     top,
     bottom,
-    centre: (top + bottom) / 2,
+    center: (top + bottom) / 2,
     height: bottom - top,
     left: Math.min(...xs),
     right: Math.max(...xs),
@@ -219,7 +219,7 @@ export const bandOf = (bar: Bar): Band => {
 export const bandOfRect = (rect: Rect): Band => ({
   top: rect.y,
   bottom: rect.y + rect.height,
-  centre: rect.y + rect.height / 2,
+  center: rect.y + rect.height / 2,
   height: rect.height,
   left: rect.x,
   right: rect.x + rect.width,

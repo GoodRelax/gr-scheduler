@@ -161,7 +161,7 @@ BACKTICKED_ID = re.compile(r'`(CR-\d+|PND-\d{3,})`')
 #     regular expression, and a gate that cries at a regex gets turned off
 ABSOLUTE_PATH = re.compile(
     r'''(?<![A-Za-z0-9/])(?:[A-Za-z]:[\\/]|/home/|/Users/)''')
-ANONYMISED = re.compile(r'''[A-Za-z]:[\\/]\.\.\.''')
+ANONYMIZED = re.compile(r'''[A-Za-z]:[\\/]\.\.\.''')
 SCHEME = re.compile(r'''[A-Za-z][A-Za-z0-9+.-]*://''')
 
 
@@ -173,7 +173,7 @@ def trap_absolute_path(relative, lines):
         return []
     found = []
     for number, line in enumerate(lines, start=1):
-        bare = SCHEME.sub('', ANONYMISED.sub('', line))
+        bare = SCHEME.sub('', ANONYMIZED.sub('', line))
         if ABSOLUTE_PATH.search(bare):
             found.append(
                 '%s:%d  an absolute path -- write it relative to the repository '

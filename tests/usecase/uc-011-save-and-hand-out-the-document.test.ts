@@ -18,7 +18,7 @@ const saveAs = async (page: Page, format: 'IO-2' | 'IO-3' | 'IO-4'): Promise<{ n
 const exportSvg = (page: Page): Promise<string> => page.evaluate(() => (window as any).grSchedulerAgentApi.exportSvg().value)
 
 // see T-231
-const normalisedSvg = (svg: string): string => svg.replace(STAMP, 'STAMP').replace(/-?\d+\.\d+/g, (n) => Number(n).toFixed(2)).replace(/>\s+</g, '><')
+const normalizedSvg = (svg: string): string => svg.replace(STAMP, 'STAMP').replace(/-?\d+\.\d+/g, (n) => Number(n).toFixed(2)).replace(/>\s+</g, '><')
 
 test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, T-204 S-81, FR-027, FR-095)', async ({ page }) => {
   test.setTimeout(120000)
@@ -39,7 +39,7 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
   })
 
   await test.step('UC-011 step 2: that JSON carries enough to draw the same picture again (FR-024, OP-6)', async () => {
-    const pictureBefore = normalisedSvg(await exportSvg(page))
+    const pictureBefore = normalizedSvg(await exportSvg(page))
     const documentBefore = await readDocument(page)
     await openByDrop(page, saved.name, saved.text)
     const documentAfter = await readDocument(page)
@@ -50,12 +50,12 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     expect(documentAfter.documentSettings.scrollDate).not.toBeNull()
     expect(documentAfter.documentSettings.scrollGroupId).not.toBeNull()
     expect(placeless(documentAfter.documentSettings)).toEqual(placeless(documentBefore.documentSettings))
-    expect.soft(normalisedSvg(await exportSvg(page)) === pictureBefore).toBe(true)
+    expect.soft(normalizedSvg(await exportSvg(page)) === pictureBefore).toBe(true)
     await press(page, 'IC-13')
-    const viewSet = normalisedSvg(await exportSvg(page))
+    const viewSet = normalizedSvg(await exportSvg(page))
     saved = await saveAs(page, 'IO-2')
     await openByDrop(page, saved.name, saved.text)
-    expect(normalisedSvg(await exportSvg(page)) === viewSet).toBe(true)
+    expect(normalizedSvg(await exportSvg(page)) === viewSet).toBe(true)
   })
 
   await test.step('UC-011 step 3: the author writes the schedule out as images (IO-3, IO-4)', async () => {
@@ -72,7 +72,7 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     const size = SETTINGS_CONSTANTS.exportCanvas
     const first = await saveAs(page, 'IO-3')
     const second = await saveAs(page, 'IO-3')
-    expect(normalisedSvg(second.text)).toBe(normalisedSvg(first.text))
+    expect(normalizedSvg(second.text)).toBe(normalizedSvg(first.text))
     expect(first.text).toContain('width="' + size.width + '"')
     expect(first.text).toContain('height="' + size.height + '"')
     expect(settings.fontScale).toBeTruthy()

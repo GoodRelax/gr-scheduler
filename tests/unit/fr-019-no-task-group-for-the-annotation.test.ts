@@ -12,7 +12,7 @@
 // tests/unit/.
 //
 // ⭐ THE HOST, THE FIXTURE DOCUMENT AND THE STAGE ARE COPIED from
-// tests/unit/fr-053-re-showing-clears-the-minimise.test.ts, which drives this
+// tests/unit/fr-053-re-showing-clears-the-minimize.test.ts, which drives this
 // same unit through the same seams.
 //
 // ---------------------------------------------------------------------------
@@ -364,7 +364,7 @@ describe('FR-019 (MUST): an annotation with no task group under it is refused, a
   })
 
   it('⛔ creates nothing -- タスクグループを 1 つ作って載せてはならない (MUST NOT)', () => {
-    // ⭐ THE OTHER HALF OF THE SAME RULING, and the half FR-001's neighbouring
+    // ⭐ THE OTHER HALF OF THE SAME RULING, and the half FR-001's neighboring
     // sentence could have been borrowed for. A task group minted for an annotation
     // would carry neither a name nor a 導出元 (AT-54, FR-058).
     // GOES RED IF: the refusal is turned into FR-001's answer for a Task.

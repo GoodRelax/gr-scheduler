@@ -5,11 +5,11 @@
 // @publishes table T-064 row PI-38
 
 import {
-  MARK_COLOUR_ROWS,
+  MARK_COLOR_ROWS,
   achromatic,
-  colourOf,
-  isScheduleColourRow,
-  markColourVariableOf,
+  colorOf,
+  isScheduleColorRow,
+  markColorVariableOf,
   type CommandItem,
   type ScreenFrame,
   type ScreenPart,
@@ -120,7 +120,7 @@ function noticeBoxOf(first: Element | null): Pick<ScreenPart, 'noticeBoxReasons'
   return box === undefined || box === null ? {} : { noticeBoxReasons: box.split(NOTICE_BOX_REASON_SEPARATOR) }
 }
 
-// WHY: members that share a row stay apart; each follows its own rule and may be recoloured alone.
+// WHY: members that share a row stay apart; each follows its own rule and may be recolored alone.
 const PAINT_ROW = {
   ground: 'S-146',
   ink: 'S-147',
@@ -304,8 +304,8 @@ type EntranceStateRow = (typeof ENTRANCE_STATE_FILL)[number][0]
 // see FR-029, T-237
 /** @purity pure */
 export function entranceStateFill(standing: readonly EntranceStateRow[]): string {
-  for (const [rowId, colour, glyph] of ENTRANCE_STATE_FILL) {
-    if (standing.includes(rowId)) return `background:${colour};color:${glyph};`
+  for (const [rowId, color, glyph] of ENTRANCE_STATE_FILL) {
+    if (standing.includes(rowId)) return `background:${color};color:${glyph};`
   }
   return ''
 }
@@ -402,7 +402,7 @@ export const STYLE = {
   paletteGrabBand:
     'display:flex;align-items:center;justify-content:flex-end;' +
     'cursor:grab;pointer-events:auto;position:relative;',
-  paletteMinimise:
+  paletteMinimize:
     'position:relative;display:flex;align-items:center;' +
     'cursor:pointer;pointer-events:auto;',
   paletteContents: 'padding:0.5em;',
@@ -482,20 +482,20 @@ export interface ScreenTheme {
   readonly preference: 'light' | 'dark'
   readonly hue: number
   // see S-74
-  // WHY: optional, so a theme read before monochrome reached the screen still paints in colour.
+  // WHY: optional, so a theme read before monochrome reached the screen still paints in color.
   readonly monochrome?: boolean
 }
 
 // see FR-041, S-74, CF-1
-// TRAP: every H, not the first (DFC-754); and the one greying of SvgRenderer, so screen and export agree.
+// TRAP: every H, not the first (DFC-754); and the one graying of SvgRenderer, so screen and export agree.
 // WHY: a row the schedule picture also paints takes the picture's solved value (T-366), never its own cell.
 /** @purity pure */
 function hued(rowId: string, written: string, followsHue: boolean, theme: ScreenTheme): string {
-  if (isScheduleColourRow(rowId)) {
-    return colourOf(rowId, theme.hue, theme.preference === 'dark', theme.monochrome === true)
+  if (isScheduleColorRow(rowId)) {
+    return colorOf(rowId, theme.hue, theme.preference === 'dark', theme.monochrome === true)
   }
-  const coloured = followsHue ? written.replace(/\bH\b/g, String(theme.hue)) : written
-  return theme.monochrome === true ? achromatic(coloured) : coloured
+  const colored = followsHue ? written.replace(/\bH\b/g, String(theme.hue)) : written
+  return theme.monochrome === true ? achromatic(colored) : colored
 }
 
 // see FR-041
@@ -503,17 +503,17 @@ function hued(rowId: string, written: string, followsHue: boolean, theme: Screen
 export function themeStyle(theme: ScreenTheme): string {
   let written = `color-scheme:${theme.preference};`
   for (const [name, rowId] of Object.entries(PAINT_ROW)) {
-    const row = SCREEN_COLOURS[rowId]
+    const row = SCREEN_COLORS[rowId]
     if (row === undefined) continue
     const chosen = theme.preference === 'dark' ? row.dark : row.light
     written += `--gr-${name}:${hued(rowId, chosen, row.followsHue, theme)};`
   }
   // see FR-133, SQ-5, DT-1
-  for (const rowId of MARK_COLOUR_ROWS) {
-    const row = SCREEN_COLOURS[rowId]
+  for (const rowId of MARK_COLOR_ROWS) {
+    const row = SCREEN_COLORS[rowId]
     if (row === undefined) continue
     const chosen = theme.preference === 'dark' ? row.dark : row.light
-    written += `${markColourVariableOf(rowId)}:${hued(rowId, chosen, row.followsHue, theme)};`
+    written += `${markColorVariableOf(rowId)}:${hued(rowId, chosen, row.followsHue, theme)};`
   }
   return written
 }
@@ -527,7 +527,7 @@ function typefaceStyle(): string {
 // see FR-041
 /** @purity pure */
 export function pageGroundStyle(theme: ScreenTheme): string {
-  const ground = SCREEN_COLOURS[PAINT_ROW.ground]
+  const ground = SCREEN_COLORS[PAINT_ROW.ground]
   if (ground === undefined) {
     throw new Error(`table T-236 has no ${PAINT_ROW.ground}: rebuild with npm run gen`)
   }
@@ -1800,7 +1800,7 @@ const NOT_STORED_TYPEFACES: {
 }
 
 // see T-236, S-73
-export const SCREEN_COLOURS: {
+export const SCREEN_COLORS: {
   readonly [rowId: string]: {
     readonly light: string
     readonly dark: string

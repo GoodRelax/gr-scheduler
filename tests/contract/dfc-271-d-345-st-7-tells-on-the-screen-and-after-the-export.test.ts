@@ -278,7 +278,7 @@ const TEMPLATE = JSON.parse(
  * The valve these cases are driven at: `S-89`, read from the generated constants.
  *
  * ⭐ A TOOL CONSTANT SINCE CR-572, so no document can lower it and the fixture
- * has to stack that many Tasks. `ST-7` states the BEHAVIOUR at the cap; the
+ * has to stack that many Tasks. `ST-7` states the BEHAVIOR at the cap; the
  * sibling file (`st-7-rs-24-...`) holds the number to the manuscript.
  */
 const CAP = SETTINGS_CONSTANTS.stackSafetyCap
@@ -700,7 +700,7 @@ describe('ST-7 (MUST) -- a task group that reaches the valve is TOLD, not merely
     expect(stage(documentOfOverlaps(CAP + 1)).notices().length).toBeGreaterThan(0)
   })
 
-  it('⭐ the words follow the display language, so a ROW travelled and not a sentence', () => {
+  it('⭐ the words follow the display language, so a ROW traveled and not a sentence', () => {
     // ⛔ WITHOUT THIS, a loop that wrote the Japanese sentence at the point it
     // raises would pass every case above. FR-038 (MUST NOT) keeps the words in
     // one dictionary and the row id is the join.

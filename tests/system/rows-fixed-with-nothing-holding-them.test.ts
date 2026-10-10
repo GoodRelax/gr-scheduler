@@ -152,7 +152,7 @@ interface Opened {
   close(): Promise<void>
 }
 
-// WHY: the same selectors the neighbouring System files lean on -- no spec
+// WHY: the same selectors the neighboring System files lean on -- no spec
 // row fixes how a part is marked in the page.
 const CANVAS = '[data-role="Schedule Canvas"] svg'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'

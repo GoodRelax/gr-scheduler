@@ -39,11 +39,11 @@ const labelOf = (spec: FamiliesSpec | null, uid: number): Readonly<Record<string
 }
 
 describe('DFC-1228: the parent name label of the pointed Task (FR-135, S-398, S-399)', () => {
-  it('S-398 premise: the colour is read from the table', () => {
+  it('S-398 premise: the color is read from the table', () => {
     expect(S_398).not.toBe('')
   })
 
-  it('FR-135 a stated parent: pointing F draws the name of P in the S-398 colour', () => {
+  it('FR-135 a stated parent: pointing F draws the name of P in the S-398 color', () => {
     expect(labelOf({ ownerUids: [], pointedUid: F }, P)['fill']).toBe(S_398)
   })
 
@@ -51,7 +51,7 @@ describe('DFC-1228: the parent name label of the pointed Task (FR-135, S-398, S-
     expect(Number(labelOf({ ownerUids: [], pointedUid: F }, P)['font-weight'])).toBe(S_399)
   })
 
-  it('FR-135 a derived parent: pointing D draws the name of Q in the S-398 colour and the S-399 weight', () => {
+  it('FR-135 a derived parent: pointing D draws the name of Q in the S-398 color and the S-399 weight', () => {
     const label = labelOf({ ownerUids: [], pointedUid: D }, Q)
     expect(label['fill']).toBe(S_398)
     expect(Number(label['font-weight'])).toBe(S_399)

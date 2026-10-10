@@ -8,12 +8,12 @@
 //   DFC-52   the written picture carries no trace of what was selected
 //   DFC-65   the header's time is written small, and in the reader's own clock
 //   DFC-66   a second save writes again, and asks no second time where to
-//   DFC-82   nothing stands in front of a colour control showing its value
+//   DFC-82   nothing stands in front of a color control showing its value
 //   DFC-91   the weekday tier is ticked exactly where the day tier is
 //   DFC-92   the ruler band keeps its height and divides it evenly
 //   DFC-97   the save key writes GRS JSON, and the second press asks nothing
 //   DFC-98   with no file open, the reload key does nothing
-//   DFC-103  the minimise entrance rides the palette's grab band, not a group
+//   DFC-103  the minimize entrance rides the palette's grab band, not a group
 //   DFC-105  a help item reads shape, description, assignment -- at S-203
 //   DFC-106  the words a tooltip puts up are drawn at S-204
 //   DFC-126  the file's name stands above the time it was written
@@ -83,7 +83,7 @@
 //   SCHEMA, and that schema is forbidden a condition over more than one column
 //   (「1 つの列だけで決まる条件を本表に書いてはならない（MUST NOT）」, read the
 //   other way round); `IV-19` is over four columns. `FR-019` closes the other
-//   door: values that came from a drag are normalised on release and can never
+//   door: values that came from a drag are normalized on release and can never
 //   break the row, and table T-016 gives the Properties Panel no row for a
 //   box's dates, so there is nothing to type either. ⇒ The seam is where this
 //   agreement can be watched, and
@@ -113,7 +113,7 @@
 // `tests/system/user-reported-fixes.test.ts` gives: table T-219 (row TW-2) has
 // Chapter 9's cases GENERATED from those declarations and hung from a
 // `SWS-xxx` node of Chapter 6.1, and not one of `SWS-1`..`SWS-8` is about a
-// header stamp, a tooltip's size, or where a minimise entrance stands. The
+// header stamp, a tooltip's size, or where a minimize entrance stands. The
 // rows each case leans on are quoted in prose at the case instead.
 //
 // ⭐ WHAT IS PRESSED IS THE SHIPPED BUILD -- `dist/index.html`, opened over
@@ -592,21 +592,21 @@ function keyedShortcutRows(): ReadonlyArray<readonly [string, string, string]> {
 }
 
 /**
- * The rows of table T-016 whose input kind names a colour.
+ * The rows of table T-016 whose input kind names a color.
  *
  * ⭐ Taken from the table's own input-kind column rather than named here, so
- * that a property which becomes a colour is swept without editing this file.
+ * that a property which becomes a color is swept without editing this file.
  * ⚠️ The kind is written in Japanese (U+8272), given by code point for the
  * reason rule 03 section 5 gives.
  *
  * @purity pure
  */
-function colourPropertyRows(): readonly string[] {
-  const colour = String.fromCharCode(0x8272)
+function colorPropertyRows(): readonly string[] {
+  const color = String.fromCharCode(0x8272)
   const found = T016.rows
-    .filter((row) => cellOf(T016, row.id, T016_INPUT_KIND, T016_COLUMNS).includes(colour))
+    .filter((row) => cellOf(T016, row.id, T016_INPUT_KIND, T016_COLUMNS).includes(color))
     .map((row) => row.id)
-  if (found.length === 0) throw new Error('table T-016 marks no property as a colour')
+  if (found.length === 0) throw new Error('table T-016 marks no property as a color')
   return found
 }
 
@@ -637,8 +637,8 @@ function entranceBy(column: number, ...texts: readonly string[]): string {
 /**
  * The entrance another entrance's own row names.
  *
- * ⭐ Table T-109 says of the minimise entrance 「⭐ **`IC-53` の右に並ぶ**
- * （`FR-053`）」 -- it names the band it rides. Reading the neighbour out of that
+ * ⭐ Table T-109 says of the minimize entrance 「⭐ **`IC-53` の右に並ぶ**
+ * （`FR-053`）」 -- it names the band it rides. Reading the neighbor out of that
  * cell keeps both row IDs in the manuscript and neither in this file.
  *
  * @purity pure
@@ -1195,10 +1195,10 @@ async function pressExportFormat(page: Page, chooser: string, ending: string): P
 }
 
 // ---------------------------------------------------------------------------
-// DFC-103 -- where the minimise entrance stands
+// DFC-103 -- where the minimize entrance stands
 // ---------------------------------------------------------------------------
 
-// GOES RED IF: the entrance that minimises the command palette is drawn inside
+// GOES RED IF: the entrance that minimizes the command palette is drawn inside
 // a `Palette Groups` or a `Palette Commands` box, or stops sitting at the right
 // end of the grab band, or stops standing to the right of the band's own mark.
 // Table T-109 says of that row 「掴み帯の右端で、パレットを最小化し、同じ入口で
@@ -1207,21 +1207,21 @@ async function pressExportFormat(page: Page, chooser: string, ending: string): P
 // button inside the other, which is exactly what the boxes must not hold.
 //
 // ⚠️ THE BAND ITSELF CARRIES A `data-icon`. Asking the page for the band's mark
-// answers the band, not a glyph inside it, and the minimise entrance is one of
+// answers the band, not a glyph inside it, and the minimize entrance is one of
 // its children. A reading that took the innermost marked node would report the
 // two as unrelated.
-test('DFC-103: the minimise entrance rides the palette grab band, right of its mark, in no group', async () => {
+test('DFC-103: the minimize entrance rides the palette grab band, right of its mark, in no group', async () => {
   test.setTimeout(120_000)
   const page = shared()
 
-  const minimise = entranceBy(T109_PURPOSE, 'S-200')
-  const band = entranceNamedIn(minimise)
+  const minimize = entranceBy(T109_PURPOSE, 'S-200')
+  const band = entranceNamedIn(minimize)
 
   const bandBox = await entranceBox(page, band)
-  const minimiseBox = await entranceBox(page, minimise)
+  const minimizeBox = await entranceBox(page, minimize)
   expect(bandBox, `the grab band ${band} is not on the screen`).not.toBeNull()
-  expect(minimiseBox, `the minimise entrance ${minimise} is not on the screen`).not.toBeNull()
-  if (bandBox === null || minimiseBox === null) return
+  expect(minimizeBox, `the minimize entrance ${minimize} is not on the screen`).not.toBeNull()
+  if (bandBox === null || minimizeBox === null) return
 
   const inside = await page.evaluate((wanted: string) => {
     const element = document.querySelector(`[data-icon="${wanted}"]`)
@@ -1231,30 +1231,30 @@ test('DFC-103: the minimise entrance rides the palette grab band, right of its m
       commands: element.closest('[data-role="Palette Commands"]') !== null,
       inPalette: element.closest('[data-role="Command Palette"]') !== null,
     }
-  }, minimise)
-  expect(inside, `${minimise} vanished between two readings`).not.toBeNull()
+  }, minimize)
+  expect(inside, `${minimize} vanished between two readings`).not.toBeNull()
   if (inside === null) return
 
   expect(
     inside.inPalette,
-    `${minimise} is not drawn inside the Command Palette at all, and FR-053 puts it on its band`,
+    `${minimize} is not drawn inside the Command Palette at all, and FR-053 puts it on its band`,
   ).toBe(true)
   expect(
     inside.groups,
-    `${minimise} is drawn inside a Palette Groups box; table T-109 puts it on the grab band`,
+    `${minimize} is drawn inside a Palette Groups box; table T-109 puts it on the grab band`,
   ).toBe(false)
   expect(
     inside.commands,
-    `${minimise} is drawn inside a Palette Commands box; table T-109 puts it on the grab band`,
+    `${minimize} is drawn inside a Palette Commands box; table T-109 puts it on the grab band`,
   ).toBe(false)
 
   expect(
-    minimiseBox.x,
-    `${minimise} does not stand to the right of ${band}, and table T-109 says it lines up right of it`,
+    minimizeBox.x,
+    `${minimize} does not stand to the right of ${band}, and table T-109 says it lines up right of it`,
   ).toBeGreaterThan(bandBox.x)
   expect(
-    Math.round(minimiseBox.x + minimiseBox.width),
-    `${minimise} is not at the right end of the band (band ends at ` +
+    Math.round(minimizeBox.x + minimizeBox.width),
+    `${minimize} is not at the right end of the band (band ends at ` +
       `${Math.round(bandBox.x + bandBox.width)})`,
   ).toBe(Math.round(bandBox.x + bandBox.width))
 })
@@ -1732,11 +1732,11 @@ test('DFC-43: double-clicking a task opens the panel with all of the name select
 })
 
 // ---------------------------------------------------------------------------
-// DFC-82 -- nothing in front of a colour control
+// DFC-82 -- nothing in front of a color control
 // ---------------------------------------------------------------------------
 
-// GOES RED IF: once the custom-colour entrance of a colour field is pressed,
-// anything drawn over the host colour input it brings up shows that input's
+// GOES RED IF: once the custom-color entrance of a color field is pressed,
+// anything drawn over the host color input it brings up shows that input's
 // value -- painted with it, filled with it, or printing it. FR-006 (MUST NOT)
 // forbids drawing the current value in front of the control that shows it.
 // Table T-017b row CV-9 (MUST) brings the host input up only on that press
@@ -1745,24 +1745,24 @@ test('DFC-43: double-clicking a task opens the panel with all of the name select
 // WHY: anything merely beside the input is left out, the custom entrance CV-9 paints with the
 // value among them (CR-689): whether a swatch next to the input breaks FR-006 is a question the
 // specification does not settle yet (DFC-979), and this case takes neither side of it.
-test('DFC-82: nothing drawn over a colour control shows the colour it holds', async () => {
+test('DFC-82: nothing drawn over a color control shows the color it holds', async () => {
   test.setTimeout(120_000)
   const page = shared()
 
-  const colourRows = colourPropertyRows()
+  const colorRows = colorPropertyRows()
   const judged: Array<{ row: string; value: string; over: string[] }> = []
   let pressed = 0
-  for (const rowId of colourRows) {
+  for (const rowId of colorRows) {
     const row = page.locator(`${PANEL} div[data-field-row="${rowId}"]`).first()
     if ((await row.count()) === 0) continue
-    const entrances = row.locator('button[data-colour-custom-entry]')
+    const entrances = row.locator('button[data-color-custom-entry]')
     const count = await entrances.count()
     for (let index = 0; index < count; index += 1) {
       await entrances.nth(index).click()
       pressed += 1
       await expect
         .poll(async () => row.locator('input[type="color"]').count(), {
-          message: `pressing the custom-colour entrance of ${rowId} brought up no host colour input (CV-9)`,
+          message: `pressing the custom-color entrance of ${rowId} brought up no host color input (CV-9)`,
           timeout: 5_000,
         })
         .toBeGreaterThan(0)
@@ -1812,10 +1812,10 @@ test('DFC-82: nothing drawn over a colour control shows the colour it holds', as
 
   expect(
     pressed,
-    `the panel drew no custom-colour entrance for any of ${colourRows.join(', ')}, which table T-016 marks ` +
-      'as colours -- so this case would pass on an empty panel',
+    `the panel drew no custom-color entrance for any of ${colorRows.join(', ')}, which table T-016 marks ` +
+      'as colors -- so this case would pass on an empty panel',
   ).toBeGreaterThan(0)
-  expect(judged.length, 'no host colour input was there to judge').toBeGreaterThan(0)
+  expect(judged.length, 'no host color input was there to judge').toBeGreaterThan(0)
   const showing = judged.flatMap((one) => one.over.map((said) => `${one.row}: ${said} over the control`))
   expect(showing, 'FR-006 (MUST NOT) forbids drawing the value over the control that shows it').toEqual([])
 })
@@ -3691,7 +3691,7 @@ interface Standing {
  * build stands in the one `Notification Area` (measured 2026-09-03: three
  * presses of a dead entrance gave one area holding three sheets, so a case that
  * counted what `readNotices` answers would have read 1 and called `NT-3`
- * honoured). The sheets are that area's own element children.
+ * honored). The sheets are that area's own element children.
  *
  * @purity semi-pure-b
  */

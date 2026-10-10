@@ -1,4 +1,4 @@
-// CR-660 on the shipped build: column order and fixed columns, the filter's search field and how it closes, status glyphs, the link colour, default widths and grips (T-330, T-331, T-346, T-347).
+// CR-660 on the shipped build: column order and fixed columns, the filter's search field and how it closes, status glyphs, the link color, default widths and grips (T-330, T-331, T-346, T-347).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -312,14 +312,14 @@ async function glyphCells(page: Page, window: string, column: string): Promise<{
 }
 
 /** @purity semi-pure-b */
-async function linkCells(page: Page, window: string, column: string): Promise<{ readonly colour: string; readonly line: string }[]> {
+async function linkCells(page: Page, window: string, column: string): Promise<{ readonly color: string; readonly line: string }[]> {
   return page.evaluate(
     (asked: { window: string; column: string }) => {
       const heads = Array.from(document.querySelectorAll(`${asked.window} thead th`))
       const at = heads.findIndex((one) => one.getAttribute('data-column') === asked.column)
       return Array.from(document.querySelectorAll(`${asked.window} tbody tr`)).slice(0, 20).map((row) => {
         const style = getComputedStyle(row.children[at] as Element)
-        return { colour: style.color, line: style.textDecorationLine }
+        return { color: style.color, line: style.textDecorationLine }
       })
     },
     { window, column },
@@ -694,7 +694,7 @@ test.describe('T-331 SQ-5 / T-347 DT-1 / T-346 RW-4 -- the status glyph (area 4)
           const cells = await linkCells(page, window, column)
           expect(cells.length, `premise: ${column} has cells`).toBeGreaterThan(0)
           for (const cell of cells) {
-            expect(cell.colour, `${column} in S-503 (${scheme})`).toBe(LINK[scheme])
+            expect(cell.color, `${column} in S-503 (${scheme})`).toBe(LINK[scheme])
             expect(cell.line, `${column} underlined`).toContain('underline')
           }
         }

@@ -1,7 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1344.9375 143" width="1344.9375" height="143" role="img" aria-label="8 small windows, one per table LP row">
   <title>図 F-024 -- 表 LP（札の配置）の 8 行を 8 つの小窓に</title>
   <!-- GENERATED ARTIFACT: do not hand-edit.
-     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behaviour)
+     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behavior)
              + docs/spec/_source/settings.json (values, gated: see the probe's settings-gate)
      regenerate: node tools/probe/grab-figures.mjs
      produced this file: docs/spec/_assets/fig-label-placement.svg

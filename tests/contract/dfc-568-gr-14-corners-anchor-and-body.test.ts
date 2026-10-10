@@ -138,7 +138,7 @@ const HB_6_BOTTOM_UP =
   '下の隅を合わせた境目が `topGroupId` のタスクグループの上の境目か、それより上に在るときは、`topGroupId` ＝ その境目のすぐ下のタスクグループ、`bottomGroupId` ＝ 元の `topGroupId` のタスクグループとする。'
 const HB_6_TOP_DOWN =
   '上の隅を合わせた境目が `bottomGroupId` のタスクグループの下の境目か、それより下に在るときは、`topGroupId` ＝ 元の `bottomGroupId` のタスクグループ、`bottomGroupId` ＝ その境目のすぐ上のタスクグループとする。'
-const HB_6_NORMALISE = '離した時点で `HB-2` と同じく木の順位で持ち直す'
+const HB_6_NORMALIZE = '離した時点で `HB-2` と同じく木の順位で持ち直す'
 const HB_6_EXAMPLE =
   '例: 箱の日が 5 日 〜 7 日のとき、右の隅を 9 日の左の境目で離すと 5 日 〜 8 日、8 日の左で 5 日 〜 7 日、6 日の左で 5 日 〜 5 日、5 日の左で 5 日 〜 5 日、4 日の左で 4 日 〜 5 日、3 日の左で 3 日 〜 5 日となる。'
 const HB_6_WIDTHS = '幅は順に 4・3・1・1・2・3 日であり、どの幅にも届く位置が在る'
@@ -606,7 +606,7 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
     const rows: readonly (readonly [string, readonly string[]])[] = [
       [HB_4_HEAD, [HB_4_NEAREST, HB_4_TIE, HB_4_DAYS, HB_4_KEEP, HB_4_REACH]],
       [HB_5_HEAD, [HB_5_GAP, HB_5_DISTANCE, HB_5_ENDS, HB_5_TIE, HB_5_TASK_GROUPS, HB_5_HORIZONTAL, HB_5_NO_REFUSAL, HB_4_REACH]],
-      [HB_6_HEAD, [HB_6_RIGHT, HB_6_LEFT, HB_6_BOTTOM_UP, HB_6_TOP_DOWN, HB_6_NORMALISE, HB_6_EXAMPLE, HB_6_WIDTHS]],
+      [HB_6_HEAD, [HB_6_RIGHT, HB_6_LEFT, HB_6_BOTTOM_UP, HB_6_TOP_DOWN, HB_6_NORMALIZE, HB_6_EXAMPLE, HB_6_WIDTHS]],
       [HB_12_HEAD, [HB_12_REACH]],
     ]
     for (const [head, clauses] of rows) {
@@ -775,7 +775,7 @@ describe('DFC-568 T-246 HB-2: a corner dragged past its opposite is swapped, not
     expectRange(built.loop, { start: 2, end: 6, top: TASK_GROUP_B, bottom: TASK_GROUP_B }, 'HB-2 both axes')
   })
 
-  it(`${HB_6_NORMALISE} -- bottom-left released in the top of a pinned task group F drawn above is held B..F in tree order`, () => {
+  it(`${HB_6_NORMALIZE} -- bottom-left released in the top of a pinned task group F drawn above is held B..F in tree order`, () => {
     const built = stage({ pinned: [TASK_GROUP_F] })
     const press = justInside(built.loop, 'bottom-left')
     releaseAt(built, press, { x: press.x, y: bandTop(built.loop, TASK_GROUP_F) + 2 })
@@ -1042,7 +1042,7 @@ const ANCHOR_DAY = 22
 
 const dayColumnLeft = (built: Stage, d: number): number => dayLeftX(built, START_OF(DEFAULT_RANGE), d)
 
-const bandCentre = (loop: FrameLoop, groupId: string): number => {
+const bandCenter = (loop: FrameLoop, groupId: string): number => {
   const taskGroup = drawnTaskGroup(loop, groupId)
   return taskGroup.y + taskGroup.height / 2
 }
@@ -1136,18 +1136,18 @@ describe('DFC-568 JDG-72 premises: the anchor clauses read verbatim', () => {
   })
 })
 
-describe('DFC-568 T-221 LF-15: the anchor is drawn at the day column centre and the band centre', () => {
+describe('DFC-568 T-221 LF-15: the anchor is drawn at the day column center and the band center', () => {
   it(`${LF_15} -- day 22 of task group F`, () => {
     const built = stage()
     const anchor = commentDrawn(built.loop).anchor
-    expect(anchor.x, 'the anchor is not at the centre of the day 22 column').toBeCloseTo(dayColumnLeft(built, ANCHOR_DAY) + pxPerDay(built.loop) / 2, 1)
-    expect(anchor.y, 'the anchor is not at the centre of the task group F band').toBeCloseTo(bandCentre(built.loop, TASK_GROUP_F), 1)
+    expect(anchor.x, 'the anchor is not at the center of the day 22 column').toBeCloseTo(dayColumnLeft(built, ANCHOR_DAY) + pxPerDay(built.loop) / 2, 1)
+    expect(anchor.y, 'the anchor is not at the center of the task group F band').toBeCloseTo(bandCenter(built.loop, TASK_GROUP_F), 1)
   })
 
   it(`${LF_15} -- a pinned task group F is drawn in the LF-14 band, and the anchor follows it`, () => {
     const built = stage({ pinned: [TASK_GROUP_F] })
     const anchor = commentDrawn(built.loop).anchor
-    expect(anchor.y).toBeCloseTo(bandCentre(built.loop, TASK_GROUP_F), 1)
+    expect(anchor.y).toBeCloseTo(bandCenter(built.loop, TASK_GROUP_F), 1)
     expect(anchor.x).toBeCloseTo(dayColumnLeft(built, ANCHOR_DAY) + pxPerDay(built.loop) / 2, 1)
   })
 })
@@ -1162,10 +1162,10 @@ describe('DFC-568 FR-019: the body and the leader stand on the drawn anchor', ()
 
   it(`${COMMENT_ANCHOR_ALONE} -- after the anchor moves, the offset is re-written from the new anchor to the unmoved box`, () => {
     const built = stage()
-    const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandCentre(built.loop, TASK_GROUP_C) })
+    const moved = moveAnchor(built, DEAD_ON, { x: dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, y: bandCenter(built.loop, TASK_GROUP_C) })
     const drawn = commentDrawn(built.loop)
     expect(drawn.anchor.x).toBeCloseTo(dayColumnLeft(built, 25) + pxPerDay(built.loop) / 2, 1)
-    expect(drawn.anchor.y).toBeCloseTo(bandCentre(built.loop, TASK_GROUP_C), 1)
+    expect(drawn.anchor.y).toBeCloseTo(bandCenter(built.loop, TASK_GROUP_C), 1)
     expect(drawn.body.x, 'the box moved with the anchor').toBeCloseTo(moved.body.x, 1)
     expect(drawn.body.y, 'the box moved with the anchor').toBeCloseTo(moved.body.y, 1)
     const offset = moved.after['bodyOffsetPx'] as { dx: number; dy: number }
@@ -1201,7 +1201,7 @@ describe('DFC-568 FR-019: the body and the leader stand on the drawn anchor', ()
 describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by the travel', () => {
   it(`${ANCHOR_SAME_AS_PLACING} -- pressed right of the anchor, released in the left third of day 25, pins day 25`, () => {
     const built = stage()
-    const moved = moveAnchor(built, NEAR_RIGHT, { x: dayColumnLeft(built, 25) + 0.1 * pxPerDay(built.loop), y: bandCentre(built.loop, TASK_GROUP_F) })
+    const moved = moveAnchor(built, NEAR_RIGHT, { x: dayColumnLeft(built, 25) + 0.1 * pxPerDay(built.loop), y: bandCenter(built.loop, TASK_GROUP_F) })
     expectAnchor(built.loop, { day: 25, row: TASK_GROUP_F }, 'left third of day 25')
     expectBundleKeepsTheBox(built, moved, 'left third of day 25')
     expectNoRs44(built, 'left third of day 25')
@@ -1209,7 +1209,7 @@ describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by th
 
   it(`${ANCHOR_NOT_NEAREST} -- pressed left of the anchor, released on the right side of day 25, pins day 25, not the nearer boundary's day 26`, () => {
     const built = stage()
-    const moved = moveAnchor(built, NEAR_LEFT, { x: dayColumnLeft(built, 25) + 0.9 * pxPerDay(built.loop), y: bandCentre(built.loop, TASK_GROUP_F) })
+    const moved = moveAnchor(built, NEAR_LEFT, { x: dayColumnLeft(built, 25) + 0.9 * pxPerDay(built.loop), y: bandCenter(built.loop, TASK_GROUP_F) })
     expectAnchor(built.loop, { day: 25, row: TASK_GROUP_F }, 'right side of day 25')
     expectBundleKeepsTheBox(built, moved, 'right side of day 25')
   })
@@ -1227,7 +1227,7 @@ describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by th
   it(`${ANCHOR_READ} -- released straight up in task group C pins task group C and keeps day 22`, () => {
     const built = stage()
     const anchor = commentDrawn(built.loop).anchor
-    const moved = moveAnchor(built, DEAD_ON, { x: anchor.x, y: bandCentre(built.loop, TASK_GROUP_C) })
+    const moved = moveAnchor(built, DEAD_ON, { x: anchor.x, y: bandCenter(built.loop, TASK_GROUP_C) })
     expectAnchor(built.loop, { day: ANCHOR_DAY, row: TASK_GROUP_C }, 'task group C')
     expectBundleKeepsTheBox(built, moved, 'task group C')
     expectNoRs44(built, 'task group C')
@@ -1245,7 +1245,7 @@ describe('DFC-568 JDG-72: a moved anchor is read where it is released, not by th
   it(`${ANCHOR_READ} -- released in a pinned task group A drawn at the top pins task group A`, () => {
     const built = stage({ pinned: [TASK_GROUP_A] })
     const anchor = commentDrawn(built.loop).anchor
-    moveAnchor(built, DEAD_ON, { x: anchor.x, y: bandCentre(built.loop, TASK_GROUP_A) })
+    moveAnchor(built, DEAD_ON, { x: anchor.x, y: bandCenter(built.loop, TASK_GROUP_A) })
     expectAnchor(built.loop, { day: ANCHOR_DAY, row: TASK_GROUP_A }, 'pinned task group A')
     expectNoRs44(built, 'pinned task group A')
   })
@@ -1264,7 +1264,7 @@ describe('DFC-568 JDG-72: placing and moving read the same place for the same po
   for (const [label, fraction] of [['left third', 0.1], ['right side', 0.9]] as const) {
     it(`${ANCHOR_SAME_AS_PLACING} -- the ${label} of day 25 in task group A`, () => {
       const placed = stage()
-      const at: Point = { x: dayColumnLeft(placed, 25) + fraction * pxPerDay(placed.loop), y: bandCentre(placed.loop, TASK_GROUP_A) }
+      const at: Point = { x: dayColumnLeft(placed, 25) + fraction * pxPerDay(placed.loop), y: bandCenter(placed.loop, TASK_GROUP_A) }
       const created = createdAnchorAt(placed, at)
       const moving = stage()
       moveAnchor(moving, DEAD_ON, at)

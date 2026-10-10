@@ -209,7 +209,7 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
   const INNER = '内側'
 
   // WHY: only the inner value the clause names, never the row's other two: GA-3's inner reach
-  // WHY: stops at the marker's centre, which stands nearer than S-257 ever does, so raising it
+  // WHY: stops at the marker's center, which stands nearer than S-257 ever does, so raising it
   // WHY: cannot move an answer -- while S-256 and S-258 of the same row still can.
   const cappedByTheMarker = (settingId: string): boolean => {
     const across = ownerOf(settingId).across
@@ -233,9 +233,9 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
   )
 
   // WHY: one Task's answers, not the row's: every Task drawn carries the same row of table T-266,
-  // WHY: so a bounding box over all three widens as soon as a neighbour's own grab starts answering.
+  // WHY: so a bounding box over all three widens as soon as a neighbor's own grab starts answering.
   // WHY: one Task's answers, not the row's: every Task drawn carries the same row of table T-266,
-  // WHY: so a bounding box over all three widens as soon as a neighbour's own grab starts answering.
+  // WHY: so a bounding box over all three widens as soon as a neighbor's own grab starts answering.
   const answeringPoints = (scene: Scene, probes: readonly Probe[], sizes: GrabSizes, id: string) =>
     probes.filter((at) => {
       const answer = answerAt(scene, at.x, at.y, sizes)
@@ -266,7 +266,7 @@ describe(`table T-266 -- one value moves one target and one direction: ${FR_104_
   )
 
   // WHY: the lines the grab already owned, not the whole grid: a taller band exposes columns that a
-  // WHY: neighbouring task group shadowed at every earlier height, and that is reach gained, not reach moved.
+  // WHY: neighboring task group shadowed at every earlier height, and that is reach gained, not reach moved.
   it.each(oneWay)(`%s moves its target in one direction only: ${T_266_ONE_TARGET_A_ROW}`, (settingId) => {
     const owner = ownerOf(settingId)
     const kind = sceneKindOfRow(owner)
@@ -431,7 +431,7 @@ describe('GA-10 through GA-14 -- the line-only shape keeps plan above the mid-li
   it.each([
     ['GA-10', 'S-270'],
     ['GA-11', 'S-272'],
-  ] as const)('%s answers within its centred width and not beyond it', (id, settingId) => {
+  ] as const)('%s answers within its centered width and not beyond it', (id, settingId) => {
     const half = defaultOf(settingId) / 2
     const at = id === 'GA-10' ? plan.left : plan.right
     expect(spanTakes(id, at - half, at + half, plan.middleY)).toBe(true)
@@ -441,7 +441,7 @@ describe('GA-10 through GA-14 -- the line-only shape keeps plan above the mid-li
   it.each([
     ['GA-12', 'S-274'],
     ['GA-13', 'S-276'],
-  ] as const)('%s answers within its centred width on the actual line', (id, settingId) => {
+  ] as const)('%s answers within its centered width on the actual line', (id, settingId) => {
     const half = defaultOf(settingId) / 2
     const at = id === 'GA-12' ? actual.left : actual.right
     expect(spanTakes(id, at - half, at + half, actual.middleY)).toBe(true)
@@ -487,17 +487,17 @@ describe('GA-18 -- the progress marker is grabbed on the marker itself', () => {
     expect(marker, 'no marker was drawn, so this file cannot ask its question').not.toBeNull()
   })
 
-  it('answers right of the centre of the drawn marker', () => {
-    expect(grabAt(RECTANGLE, marker!.centre.x + 1, marker!.centre.y)).toBe('GA-18')
+  it('answers right of the center of the drawn marker', () => {
+    expect(grabAt(RECTANGLE, marker!.center.x + 1, marker!.center.y)).toBe('GA-18')
   })
 
-  it('leaves the centre itself to the actual start, whose inner reach table T-266 stops there', () => {
-    expect(grabAt(RECTANGLE, marker!.centre.x, marker!.centre.y)).toBe('GA-3')
+  it('leaves the center itself to the actual start, whose inner reach table T-266 stops there', () => {
+    expect(grabAt(RECTANGLE, marker!.center.x, marker!.center.y)).toBe('GA-3')
   })
 
   it('stops S-284 outside the drawn marker', () => {
     const reach = marker!.radius + defaultOf('S-284')
-    expect(grabAt(RECTANGLE, marker!.centre.x + reach + 3, marker!.centre.y)).not.toBe('GA-18')
+    expect(grabAt(RECTANGLE, marker!.center.x + reach + 3, marker!.center.y)).not.toBe('GA-18')
   })
 })
 
@@ -520,7 +520,7 @@ describe('GA-20 -- the resume icon is grabbed on a box that does not shrink', ()
     expect(resume!.box, 'ResumeGeometry carries no box').toBeDefined()
   })
 
-  it('answers at the centre of that box', () => {
+  it('answers at the center of that box', () => {
     const box = boxOfRect(resume!.box)
     expect(grabAt(RECTANGLE, box.middleX, box.middleY)).toBe('GA-20')
   })
@@ -536,7 +536,7 @@ describe('GA-20 -- the resume icon is grabbed on a box that does not shrink', ()
   })
 })
 
-describe('GA-21 / GA-22 -- the dummy of a line-only shape splits at the centre of its mark', () => {
+describe('GA-21 / GA-22 -- the dummy of a line-only shape splits at the center of its mark', () => {
   const dummies = dummiesOf(ARROW.unstarted)
 
   it('premise: the line-only shape draws a mark for the Task that has not started', () => {

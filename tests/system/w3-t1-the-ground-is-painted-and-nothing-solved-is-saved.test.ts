@@ -1,10 +1,10 @@
-// W3 spec-only cases for FR-041 on the shipped build: GRS paints its own ground (S-146), never the browser's system colour, and saves no solved colour (CF-1).
+// W3 spec-only cases for FR-041 on the shipped build: GRS paints its own ground (S-146), never the browser's system color, and saves no solved color (CF-1).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { colourOf } from '../../src/adapter/svg-renderer/svg-renderer'
+import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { BASE_SCREEN, pressEntrance, settle, SHIPPED_BUILD } from './cr-570-tree-state-stage'
 import { CLEARING_UP_MS, launchReferenceBrowser, readSettledDrawnSvg } from './live-app'
@@ -38,7 +38,7 @@ interface Opened {
   close(): Promise<void>
 }
 
-// WHY: the system colour scheme is the context's; the shell stage cannot choose it, so this opens its own context.
+// WHY: the system color scheme is the context's; the shell stage cannot choose it, so this opens its own context.
 /** @purity non-pure */
 async function openUnder(scheme: 'light' | 'dark'): Promise<Opened> {
   if (browser === null) throw new Error('no browser')
@@ -50,13 +50,13 @@ async function openUnder(scheme: 'light' | 'dark'): Promise<Opened> {
 }
 
 // WHY: what shows behind the Schedule Canvas is the nearest ancestor that paints an opaque background;
-// when none does, the browser's own canvas colour (the system colour) shows through.
+// when none does, the browser's own canvas color (the system color) shows through.
 /** @purity semi-pure-b */
 async function groundBehind(page: Page, want: string): Promise<{ want: string; behind: string; painter: string }> {
   return page.evaluate(
-    ({ colour, canvas }: { colour: string; canvas: string }) => {
+    ({ color, canvas }: { color: string; canvas: string }) => {
       const probe = document.createElement('div')
-      probe.style.backgroundColor = colour
+      probe.style.backgroundColor = color
       document.body.appendChild(probe)
       const wanted = getComputedStyle(probe).backgroundColor
       probe.remove()
@@ -64,9 +64,9 @@ async function groundBehind(page: Page, want: string): Promise<{ want: string; b
         const painted = getComputedStyle(at).backgroundColor
         if (painted !== 'rgba(0, 0, 0, 0)' && painted !== 'transparent') return { want: wanted, behind: painted, painter: at.tagName }
       }
-      return { want: wanted, behind: 'the system colour', painter: 'none' }
+      return { want: wanted, behind: 'the system color', painter: 'none' }
     },
-    { colour: want, canvas: SCHEDULE_CANVAS },
+    { color: want, canvas: SCHEDULE_CANVAS },
   )
 }
 
@@ -99,7 +99,7 @@ test.describe(`FR-041 (MUST NOT): ${FR_041_OWN_GROUND}`, () => {
       try {
         expect(await pressEntrance(opened.page, THEME_TOGGLE), 'IC-16 is on the screen').toBe(true)
         await settle(opened.page)
-        const said = await groundBehind(opened.page, colourOf('S-146', HUE, chosen === 'dark', false))
+        const said = await groundBehind(opened.page, colorOf('S-146', HUE, chosen === 'dark', false))
         expect(said.behind, `the ground behind the Schedule Canvas (painted by ${said.painter})`).toBe(said.want)
       } finally {
         await opened.close()

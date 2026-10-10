@@ -28,7 +28,7 @@ const T_267_STOPS_EARLY = '前の手順で 1 つに決まれば、後の手順�
 const T_267_SCHEDULE_ONLY =
   '⚠️ 本表と表 T-268 が持つのは日程の形の中の順だけである —— 日程の形でないものの順は 表 T-023d が持つ。'
 const HT_1_OWN_TASK_ONLY = '描いた形の上では、その形のタスクの掴み代だけが応えること（MUST）。'
-const HT_1_NO_NEIGHBOUR = '⛔ 上か下の隣のタスクの掴み代を、その形の上へ届かせてはならない（MUST NOT）。'
+const HT_1_NO_NEIGHBOR = '⛔ 上か下の隣のタスクの掴み代を、その形の上へ届かせてはならない（MUST NOT）。'
 const HT_1_SHAPE_BY_SHAPE = '⭐ 描いた形は形ごとに読むこと（MUST）'
 const HT_1_GAPS_ARE_OUTSIDE =
   '⚠️ 形と形のあいだ（線だけの形の 2 本の線のあいだ、短い実績の右の空き）は形の外である。'
@@ -43,7 +43,7 @@ const HT_3_MARKER_EXCEPTION =
   '⭐ ただし進捗マーカーと再開アイコンの描いた箱の上では、実績の端の次にそれらが応え、ほかの種別（フェードの掴み点・依存線・予定の端・マイルストーンの予定・本体）はその後へ回ること（MUST）'
 const HT_3_MARKER_LEFT_HALF =
   '⚠️ 実績の開始に立つマーカーの左半分は、表 T-268 で実績の端がマーカーより先に在るので、実績の開始が応える'
-const HT_4_NEAREST_CENTRE = '掴み代の中心までの直線の距離が近いほうが応えること（MUST）。'
+const HT_4_NEAREST_CENTER = '掴み代の中心までの直線の距離が近いほうが応えること（MUST）。'
 const HT_4_TIE_GOES_LATER = '距離が同じときは、日付の遅いほう（終了の側）が応えること（MUST）。'
 const HT_4_NOT_PAINT_ORDER = '⛔ 描く前後を根拠にしてはならない（MUST NOT）'
 
@@ -87,12 +87,12 @@ describe(`HT-1 -- on a drawn shape only that Task answers: ${HT_1_OWN_TASK_ONLY}
     expect(strangers.slice(0, 5), HT_1_OWN_TASK_ONLY).toEqual([])
   })
 
-  it(`keeps a stacked neighbour off the drawn shape even when its margin is widened: ${HT_1_NO_NEIGHBOUR}`, () => {
+  it(`keeps a stacked neighbor off the drawn shape even when its margin is widened: ${HT_1_NO_NEIGHBOR}`, () => {
     const wide = sizesWith(STACKED.sizes, 'S-252', defaultOf('S-252') + 40)
     const strangers = gridOver((STACKED.unstarted as unknown as { plan: unknown }).plan)
       .map((at) => ({ at, seen: answerAt(STACKED, at.x, at.y, wide) }))
       .filter((one) => one.seen.taskUid !== null && one.seen.taskUid !== UNSTARTED_UID)
-    expect(strangers.slice(0, 5), HT_1_NO_NEIGHBOUR).toEqual([])
+    expect(strangers.slice(0, 5), HT_1_NO_NEIGHBOR).toEqual([])
   })
 
   // WHY: shape by shape decides what counts as ON a shape, never who wins there -- table T-266 gives
@@ -179,8 +179,8 @@ describe(`HT-3 -- within one step the type order of table T-268 decides: ${HT_3_
     const marker = markerOf(ROWS.started)
     const plan = boxOf((ROWS.started as unknown as { plan: unknown }).plan)
     expect(marker, 'premise: a marker is drawn').not.toBeNull()
-    const reaching = sizesWith(ROWS.sizes, 'S-254', plan.right - marker!.centre.x + marker!.radius)
-    expect(grabAt(ROWS, marker!.centre.x, marker!.centre.y, reaching), HT_3_MARKER_EXCEPTION).toBe('GA-18')
+    const reaching = sizesWith(ROWS.sizes, 'S-254', plan.right - marker!.center.x + marker!.radius)
+    expect(grabAt(ROWS, marker!.center.x, marker!.center.y, reaching), HT_3_MARKER_EXCEPTION).toBe('GA-18')
   })
 
   it(`still gives the left half of a marker on the actual start to the actual: ${HT_3_MARKER_LEFT_HALF}`, () => {
@@ -188,12 +188,12 @@ describe(`HT-3 -- within one step the type order of table T-268 decides: ${HT_3_
     const marker = markerOf(notStartedYet.started)
     const actual = boxOf(actualOf(notStartedYet.started))
     expect(marker, 'premise: a marker is drawn').not.toBeNull()
-    const onTheActualStart = Math.abs(marker!.centre.x - actual.left) < marker!.radius
+    const onTheActualStart = Math.abs(marker!.center.x - actual.left) < marker!.radius
     if (!onTheActualStart) {
       expect(cellOf('T-267', 'HT-3', '規則'), HT_3_MARKER_LEFT_HALF).toContain('実績の開始が応える')
       return
     }
-    expect(grabAt(notStartedYet, marker!.centre.x - marker!.radius / 2, marker!.centre.y), HT_3_MARKER_LEFT_HALF).toBe(
+    expect(grabAt(notStartedYet, marker!.center.x - marker!.radius / 2, marker!.center.y), HT_3_MARKER_LEFT_HALF).toBe(
       'GA-3',
     )
   })
@@ -207,17 +207,17 @@ describe(`HT-3 -- within one step the type order of table T-268 decides: ${HT_3_
   })
 })
 
-describe(`HT-4 -- among grabs of one type the nearer centre answers: ${HT_4_NEAREST_CENTRE}`, () => {
+describe(`HT-4 -- among grabs of one type the nearer center answers: ${HT_4_NEAREST_CENTER}`, () => {
   const dummies = dummiesOf(ROWS.unstarted)
 
   it('premise: the Task that has not started carries a mark with two grabs', () => {
     expect(dummies.length, 'the fixture drew no dummy').toBeGreaterThan(0)
   })
 
-  it(`takes the half nearer the pressed point: ${HT_4_NEAREST_CENTRE}`, () => {
+  it(`takes the half nearer the pressed point: ${HT_4_NEAREST_CENTER}`, () => {
     const ink = boxOfRect(dummies[0]!.ink)
-    expect(grabAt(ROWS, ink.left + ink.width * 0.2, ink.middleY), HT_4_NEAREST_CENTRE).toBe('GA-5')
-    expect(grabAt(ROWS, ink.left + ink.width * 0.8, ink.middleY), HT_4_NEAREST_CENTRE).toBe('GA-6')
+    expect(grabAt(ROWS, ink.left + ink.width * 0.2, ink.middleY), HT_4_NEAREST_CENTER).toBe('GA-5')
+    expect(grabAt(ROWS, ink.left + ink.width * 0.8, ink.middleY), HT_4_NEAREST_CENTER).toBe('GA-6')
   })
 
   it(`hands a tie to the later date, the finish side: ${HT_4_TIE_GOES_LATER}`, () => {
@@ -231,7 +231,7 @@ describe(`HT-4 -- among grabs of one type the nearer centre answers: ${HT_4_NEAR
 })
 
 describe(`the steps stop as soon as one decides: ${T_267_STOPS_EARLY}`, () => {
-  it('HT-1 settles a point on a drawn shape although HT-2 would prefer the nearer neighbour', () => {
+  it('HT-1 settles a point on a drawn shape although HT-2 would prefer the nearer neighbor', () => {
     const tall = sizesWith(STACKED.sizes, 'S-255', defaultOf('S-255') + 60)
     const own = boxOf((STACKED.unstarted as unknown as { plan: unknown }).plan)
     const near = { x: own.left + own.width * 0.5, y: own.top + 1 }

@@ -119,7 +119,7 @@ def path_of(relative):
 
 
 def read_text(path):
-    """Normalised on read: this tree mixes CRLF and LF."""
+    """Normalized on read: this tree mixes CRLF and LF."""
     return io.open(path, encoding='utf-8', newline='').read().replace('\r\n', '\n')
 
 

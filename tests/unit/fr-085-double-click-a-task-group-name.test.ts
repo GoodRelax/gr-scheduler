@@ -417,15 +417,15 @@ describe('FR-042 (MUST): the task group s name is a field of the panel', () => {
     // FR-072's RATIONALE puts the most frequently touched item at the top --
     // 「落とした高さは、最も頻繁に触る項目が上へ来るぶんである」 -- which is the
     // place PR-1 takes among a Task's.
-    // GOES RED IF: the name is appended after the colour and the height.
+    // GOES RED IF: the name is appended after the color and the height.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)
     expect(built.panel()?.fields[0]?.row).toBe(TASK_GROUP_NAME_FIELD)
   })
 
-  it('⚠️ the colour and the height are still there beside it', () => {
+  it('⚠️ the color and the height are still there beside it', () => {
     // ⛔ THE RULING ADDED A FIELD AND TOOK NONE AWAY. FR-042's first sentence
-    // still (MUST) puts the task group's colour and height on this panel.
+    // still (MUST) puts the task group's color and height on this panel.
     // GOES RED IF: the name is put in place of one of them.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)

@@ -97,7 +97,7 @@ const S_159_LIGHT = cellOf('T-236', 'S-159', '明るいテーマ').replace(/`/g,
 // see FR-039, T-252
 const ratioAt = (displayScale: number): number => (T206('S-236') * displayScale) / 100
 // see SL-8, EL-16, S-447
-const EMPHASISED_WIDTH = (displayScale: number): number => T201('S-18') * ratioAt(displayScale) + T206('S-447')
+const EMPHASIZED_WIDTH = (displayScale: number): number => T201('S-18') * ratioAt(displayScale) + T206('S-447')
 
 // WHY: the SVG prints two decimals.
 const SVG_EPS = 0.006
@@ -168,12 +168,12 @@ const samePath = (actual: readonly Pt[], expected: readonly Pt[]): boolean =>
 const strokeOf = (one: Element): string => (attrOf(one.attrs, 'stroke') ?? '').toLowerCase()
 
 // see EL-16, SL-8
-const emphasisedLines = (svg: string, displayScale: number): readonly Element[] =>
+const emphasizedLines = (svg: string, displayScale: number): readonly Element[] =>
   elementsOf(svg).filter(
     (one) =>
       one.tag === 'polyline' &&
       strokeOf(one) === S_159_LIGHT &&
-      Math.abs(Number(attrOf(one.attrs, 'stroke-width')) - EMPHASISED_WIDTH(displayScale)) <= SVG_EPS,
+      Math.abs(Number(attrOf(one.attrs, 'stroke-width')) - EMPHASIZED_WIDTH(displayScale)) <= SVG_EPS,
   )
 
 // see EL-16, ZO-10
@@ -448,7 +448,7 @@ const clickAt = (shell: Shell, at: Pt, button: PointerInput['button'] = 'left'):
 const displayScaleOf = (shell: Shell): number => Number(shell.loop.document().documentSettings.displayScale ?? 100)
 
 // see EL-16
-const isLandingShown = (shell: Shell): boolean => emphasisedLines(shell.svg(), displayScaleOf(shell)).length > 0
+const isLandingShown = (shell: Shell): boolean => emphasizedLines(shell.svg(), displayScaleOf(shell)).length > 0
 
 const emptyPlace = (shell: Shell): Pt => {
   const area = shell.taskGroupArea()
@@ -507,7 +507,7 @@ const isInTaskGroupArea = (shell: Shell, uid: number): boolean => {
 
 // WHY: an end the view has moved off is not outlined, so the outline is asked of an end inside the Task Group Area only.
 const keepsIt = (shell: Shell, clause: string): void => {
-  expect(isLandingShown(shell), `${clause} (the emphasised line stays)`).toBe(true)
+  expect(isLandingShown(shell), `${clause} (the emphasized line stays)`).toBe(true)
   if (isInTaskGroupArea(shell, 1) || isInTaskGroupArea(shell, 2)) {
     expect(outlinesOf(shell.svg()).length, `${clause} (the end outline stays)`).toBeGreaterThan(0)
   }
@@ -660,14 +660,14 @@ describe(`(c) the shell -- ${EL_17_STAR}`, () => {
     expect(viewOf(shell), 'premise: the view moved').not.toBe(before)
     keepsIt(shell, EL_17_VIEW_ONLY)
     expect(
-      emphasisedLines(shell.svg(), displayScaleOf(shell)).some((one) => samePath(pointsAttr(one.attrs), routeOf(shell, 1, 2))),
+      emphasizedLines(shell.svg(), displayScaleOf(shell)).some((one) => samePath(pointsAttr(one.attrs), routeOf(shell, 1, 2))),
       'premise: 1 -> 2 is the landed line',
     ).toBe(true)
     // STEP: one click on the mark of 2 -> 3
     clickAt(shell, markOf(shell, 2, 3))
-    const emphasised = emphasisedLines(shell.svg(), displayScaleOf(shell))
-    expect(emphasised.length, EL_17_STAR).toBe(1)
-    expect(samePath(pointsAttr(emphasised[0]!.attrs), routeOf(shell, 2, 3)), EL_17_STAR).toBe(true)
+    const emphasized = emphasizedLines(shell.svg(), displayScaleOf(shell))
+    expect(emphasized.length, EL_17_STAR).toBe(1)
+    expect(samePath(pointsAttr(emphasized[0]!.attrs), routeOf(shell, 2, 3)), EL_17_STAR).toBe(true)
   })
 })
 

@@ -210,11 +210,11 @@ const AT_73_DAY_TYPE = [1, 2, 3, 4, 5, 6, 7] as const
 const SAMPLE = {
   saveVersion: '12',
   projectId: 'PRJ-1',
-  projectName: 'Riverside programme',
-  projectTitle: 'Riverside programme plan',
+  projectName: 'Riverside program',
+  projectTitle: 'Riverside program plan',
   projectSubject: 'Delivery of the riverside works',
   projectCategory: 'Construction',
-  projectCompany: 'Client organisation',
+  projectCompany: 'Client organization',
   projectManager: 'Manager A',
   projectAuthor: 'Planner A',
   projectCreated: '2026-03-06T09:15:00',
@@ -900,7 +900,7 @@ describe('FR-028 -- a failure is a VALUE, never a throw', () => {
   it('loses nothing when an element the schema allows cannot become a row -- DELIBERATELY LEFT FAILING', () => {
     // AT-24, AT-63, AT-85 and AT-92 all mark the uid a non-null primary key,
     // but the official schema declares every one of those UIDs minOccurs="0"
-    // (mspdi_pj12.xsd:1615 and its neighbours), so a file without one is still
+    // (mspdi_pj12.xsd:1615 and its neighbors), so a file without one is still
     // an MSPDI document and FR-023 leaves the value checks to CP-13.
     // FR-021 (docs/spec/01-04-requirements.md:2811) asks for every item this
     // software does not use to be carried and written back, and DF-3 of table
@@ -1921,7 +1921,7 @@ const ROSTER = JSON.parse(readFileSync(ROSTER_PATH, 'utf8')) as Roster
 /**
  * EX-6 tells GRS's own frame from the import source's by the DEFINITION's
  * `Alias`. Since CR-702 the manuscript names both aliases after the column
- * (`fadeInDays` / `fadeOutDays`), so GRS recognises its own frame. The empty
+ * (`fadeInDays` / `fadeOutDays`), so GRS recognizes its own frame. The empty
  * case (no frame GRS may claim, the "nowhere to go" arm of EX-6) stays
  * covered below, guarded by ROSTER_ALIASES_ARE_USABLE: emptying an alias in
  * the manuscript moves these expectations, which is the point of reading it.
@@ -2203,7 +2203,7 @@ describe('EX-6 and DF-2 -- reading a custom-field frame', () => {
     expect(carriedNames(task)).toContain('ExtendedAttribute')
   })
 
-  it('GIVEN an unrecognised frame WHEN read THEN it is not gathered at the root (DF-2 MUST NOT)', () => {
+  it('GIVEN an unrecognized frame WHEN read THEN it is not gathered at the root (DF-2 MUST NOT)', () => {
     const frame = rosterFrame('fadeInDays')
     const text = fadeFileText(
       [definitionXml(frame.fieldId, 'Number1', 'The import source owns this')],
@@ -2217,7 +2217,7 @@ describe('EX-6 and DF-2 -- reading a custom-field frame', () => {
     expect(carriedOnProject).toHaveLength(0)
   })
 
-  it('GIVEN an unrecognised frame WHEN written back THEN it comes back untouched (DF-2, FR-021)', () => {
+  it('GIVEN an unrecognized frame WHEN written back THEN it comes back untouched (DF-2, FR-021)', () => {
     const frame = rosterFrame('fadeInDays')
     const text = fadeFileText(
       [definitionXml(frame.fieldId, 'Number1', 'The import source owns this')],
@@ -2239,7 +2239,7 @@ describe('EX-6 and DF-2 -- reading a custom-field frame', () => {
     )
     const task = instanceOf(accepted(text), 'Task')
     // The manuscript's own note: an empty alias is no alias, so GRS cannot
-    // recognise its own frame and must not claim one. Fill the alias in
+    // recognize its own frame and must not claim one. Fill the alias in
     // `_source/mspdi-custom-fields.json` and this expectation moves.
     expect(task['fadeInDays']).toBe(ROSTER_ALIASES_ARE_USABLE ? FADE_IN_DAYS : null)
     if (!ROSTER_ALIASES_ARE_USABLE) expect(carriedNames(task)).toContain('ExtendedAttribute')
@@ -2481,7 +2481,7 @@ describe('EX-8 -- the definition collection', () => {
 //                    about a second one or one further in, so those two cases
 //                    assert only what holds under either reading: the answer
 //                    is a VALUE (FR-028) and no mark reaches the document.
-//   CR-199 section 7 while an alias is empty GRS cannot recognise its own
+//   CR-199 section 7 while an alias is empty GRS cannot recognize its own
 //                    frame and must not claim one. Every case below is written
 //                    so that filling an alias in the manuscript moves it.
 //   rule 04 sect. 2  a manuscript value only counts as reaching the code if
@@ -2569,7 +2569,7 @@ describe('the roster the code reads is the roster the manuscript states (rule 04
   it('GIVEN an empty alias in the manuscript WHEN a file offers that frame THEN nothing is claimed on either side (CR-199 section 7)', () => {
     // Since CR-702 both aliases are filled, so the first branch below runs.
     // The second keeps the old rule: while an alias is empty GRS cannot
-    // recognise its own frame and must not claim one, so import reads the
+    // recognize its own frame and must not claim one, so import reads the
     // column null, and export writes no fade day.
     const frame = rosterFrame('fadeInDays')
     const offered = fadeFileText(
@@ -2590,9 +2590,9 @@ describe('the roster the code reads is the roster the manuscript states (rule 04
   })
 
   it('GIVEN a frame GRS claims WHEN written THEN its definition carries the roster`s own alias and types', () => {
-    // EX-6 recognises GRS's own frame by the DEFINITION's `Alias`, so the
+    // EX-6 recognizes GRS's own frame by the DEFINITION's `Alias`, so the
     // alias GRS writes has to be the roster's, character for character, or the
-    // next import would not recognise what this export just wrote. The types
+    // next import would not recognize what this export just wrote. The types
     // are the roster's too: CFType 5 (Number) and ElemType 20 (Task).
     // ⚠️ While the manuscript keeps the aliases empty there is no claimed
     // frame to look at, and this case has nothing to assert -- filling one
@@ -2820,7 +2820,7 @@ describe('AT-40 and AT-41 -- a Value that is not a whole number', () => {
   })
 })
 
-describe('DF-2 -- an extension element the tool does not recognise', () => {
+describe('DF-2 -- an extension element the tool does not recognize', () => {
   const outsideFrame = (value: string): string =>
     fadeFileText(
       [definitionXml(OUTSIDE_FIELD_ID, 'Number9', 'The import source owns this one')],
@@ -2858,12 +2858,12 @@ describe('DF-2 -- an extension element the tool does not recognise', () => {
     const row = childrenNamed(writtenInstance(root, 'Task'), 'ExtendedAttribute').find(
       (each) => textAt(each, 'FieldID') === String(OUTSIDE_FIELD_ID),
     )
-    expect(row, 'the unrecognised row is written back').toBeDefined()
+    expect(row, 'the unrecognized row is written back').toBeDefined()
     expect(textAt(row ?? ({} as XmlNode), 'ValueGUID')).toBe('7')
     expect(textAt(row ?? ({} as XmlNode), 'DurationFormat')).toBe('7')
   })
 
-  it('GIVEN a file of unrecognised frames WHEN round-tripped THEN no element goes missing (FR-021)', () => {
+  it('GIVEN a file of unrecognized frames WHEN round-tripped THEN no element goes missing (FR-021)', () => {
     const text = fadeFileText(
       [
         definitionXml(OUTSIDE_FIELD_ID, 'Number9', 'Held elsewhere'),
@@ -2879,7 +2879,7 @@ describe('DF-2 -- an extension element the tool does not recognise', () => {
     expect(after).toBeGreaterThanOrEqual(before)
   })
 
-  it('GIVEN an unrecognised frame WHEN the document is written twice THEN the second text is the first (stability)', () => {
+  it('GIVEN an unrecognized frame WHEN the document is written twice THEN the second text is the first (stability)', () => {
     const once = mspdiFromDocument(accepted(outsideFrame('42')), LAST_SAVED_AT).text
     const twice = mspdiFromDocument(accepted(once), LAST_SAVED_AT).text
     expect(twice).toBe(once)

@@ -617,7 +617,7 @@ export function searchPanelElement(
   const panel = part(host, 'div', role, boxStyle(placed.box) + windowStyle())
   const entries = { before: view.tableEntries, titled: view.titleEntries }
   const title = windowTitleRowElement(host, view.heading, entries, anchors, role, placed.fontPx)
-  if (view.shown === 'minimised') {
+  if (view.shown === 'minimized') {
     panel.replaceChildren(title)
     return panel
   }
@@ -916,7 +916,7 @@ function placeDrawnPanel(
 ): void {
   layer.replaceChildren(drawn)
   const tableBox = drawn.lastElementChild ?? null
-  if (panel.shown !== 'minimised' && tableBox !== null) pinFixedColumns(tableBox)
+  if (panel.shown !== 'minimized' && tableBox !== null) pinFixedColumns(tableBox)
   keepFilterSearch(panel.filterMenu)
   placeFilterMenu(drawn)
 }
@@ -932,7 +932,7 @@ function tableSizingKeeper(host: Document, layer: Element) {
     /** @purity non-pure */
     sizingOf(panel: TableWindowView, fontPx: number): ColumnSizing {
       const key = JSON.stringify([fontPx, panel.columns.map((column) => [column.column, column.heading])])
-      if (panel.shown !== 'minimised' && (measured === null || key !== measuredFor)) {
+      if (panel.shown !== 'minimized' && (measured === null || key !== measuredFor)) {
         measuredFor = key
         measured = measureDefaultColumnWidths(host, layer, panel, fontPx)
       }
@@ -982,7 +982,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     const drawnPanel = layer.firstElementChild as HTMLElement | null
     const isTableKept = tableKey === tableDrawn
     tableDrawn = tableKey
-    if (frameKey === frameDrawn && panel.shown !== 'minimised' && drawnPanel !== null) {
+    if (frameKey === frameDrawn && panel.shown !== 'minimized' && drawnPanel !== null) {
       redrawInPlace(host, drawnPanel, panel, placed.box, isTableKept ? null : { fontPx, sizing })
       return
     }

@@ -52,7 +52,7 @@ counting them would both inflate the count and make it jump the moment somebody
 opens or sweeps the StrictDoc launcher. ⇒ The spec counts here are of the
 manuscript only, whether or not the residue happens to be present.
 
-  - characters are counted AFTER newline normalisation (the files are read in
+  - characters are counted AFTER newline normalization (the files are read in
     text mode, so a CRLF counts as one character, not two). ⚠️ This tree has
     MIXED line endings, so counting bytes instead would make the number depend
     on which files a round happened to rewrite.
@@ -121,7 +121,7 @@ SPEC_SKIP_DIRS = ('output',)
 
 
 def read_text(path):
-    """The file's text with newlines normalised, or None if it cannot be read."""
+    """The file's text with newlines normalized, or None if it cannot be read."""
     try:
         with io.open(path, encoding='utf-8', errors='replace') as handle:
             return handle.read()
@@ -344,7 +344,7 @@ def main(argv):
     only_print = '--print' in argv[1:]
     unknown = [a for a in argv[1:] if a != '--print']
     if unknown:
-        print('PROBLEM  unrecognised argument(s): %s' % (' '.join(unknown),))
+        print('PROBLEM  unrecognized argument(s): %s' % (' '.join(unknown),))
         return 1
 
     row = build_row()

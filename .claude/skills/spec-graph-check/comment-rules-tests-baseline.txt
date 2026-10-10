@@ -64,7 +64,7 @@ tests/nfr/nfr-004-single-file.test.ts 0
 tests/system/cr-381-task-group-names-drawn-at-their-own-size.test.ts 0
 tests/system/cr-389-full-screen-is-asked-of-the-browser.test.ts 0
 tests/system/display-words-reasons-and-watermark.test.ts 0
-tests/system/divider-colour-corner-and-sticky-field.test.ts 0
+tests/system/divider-color-corner-and-sticky-field.test.ts 0
 tests/system/drawn-svg-normalization.sws.test.ts 0
 tests/system/duplicate-paste-and-dual-cursor.test.ts 0
 tests/system/first-frame-is-the-settled-frame.test.ts 0
@@ -127,7 +127,7 @@ tests/contract/dfc-97-sk-11-overwrites-the-open-file.test.ts 182
 tests/unit/document-model.test.ts 96
 tests/unit/edit-calendar.test.ts 295
 tests/unit/fr-001-fr-083-the-toggle-and-the-drag.test.ts 512
-tests/contract/fr-006-no-swatch-in-front-of-the-colour-control.test.ts 164
+tests/contract/fr-006-no-swatch-in-front-of-the-color-control.test.ts 164
 tests/unit/fr-006-panel-fields-drawn.test.ts 516
 tests/unit/fr-006-panel-typography.test.ts 460
 tests/unit/fr-019-no-task-group-for-the-annotation.test.ts 118
@@ -149,7 +149,7 @@ tests/unit/fr-043-dummy-drawn.test.ts 625
 tests/unit/fr-052-t-023d-picture-while-held.test.ts 495
 tests/unit/fr-053-palette-group-boundary.test.ts 257
 tests/unit/fr-053-palette-group-rule-isotropic-gap.test.ts 297
-tests/unit/fr-053-re-showing-clears-the-minimise.test.ts 134
+tests/unit/fr-053-re-showing-clears-the-minimize.test.ts 134
 tests/contract/fr-053-where-the-band-carries-its-two-marks.test.ts 301
 tests/unit/fr-072-a-moved-selection-does-not-open-the-panel.test.ts 404
 tests/unit/fr-085-double-click-a-task-group-name.test.ts 179

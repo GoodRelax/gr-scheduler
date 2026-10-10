@@ -10,7 +10,7 @@ import {
   NOT_STORED_DOCUMENT_TITLE_SIZES,
   NOT_STORED_HELP_SIZES,
   PAINT,
-  SCREEN_COLOURS,
+  SCREEN_COLORS,
   chromeScaledPx,
   themeStyle,
 } from '../../src/framework/dom-screen-surface/dom-screen-surface'
@@ -75,7 +75,7 @@ describe('BR-1 / BR-4 -- the Branding is a link to S-459, before the Document Ti
 })
 
 describe('BR-3 -- the rim is S-461 of the glyph size in S-464, under the fill', () => {
-  it('stroke width is twice the rim, its colour S-464, painted before the fill', () => {
+  it('stroke width is twice the rim, its color S-464, painted before the fill', () => {
     const style = styleMap(drawnHeader().branding)
     const rim = chromeScaledPx(SIZES['S-490']) * SIZES['S-461']
     expect(px(style.get('-webkit-text-stroke-width'))).toBeCloseTo(2 * rim, 6)
@@ -84,8 +84,8 @@ describe('BR-3 -- the rim is S-461 of the glyph size in S-464, under the fill', 
     expect(px(style.get('padding-left')), 'the left rim touches the seat edge').toBeCloseTo(rim, 6)
   })
 
-  it('the rim colour is S-464 of the theme in light and in dark', () => {
-    const row = SCREEN_COLOURS['S-464']
+  it('the rim color is S-464 of the theme in light and in dark', () => {
+    const row = SCREEN_COLORS['S-464']
     expect(row, 'premise: table T-236 holds S-464').toBeDefined()
     expect(themeStyle({ preference: 'light', hue: 214 })).toContain(`--gr-brandingRim:${row?.light};`)
     expect(themeStyle({ preference: 'dark', hue: 214 })).toContain(`--gr-brandingRim:${row?.dark};`)

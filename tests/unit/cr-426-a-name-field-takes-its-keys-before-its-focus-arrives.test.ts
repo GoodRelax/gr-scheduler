@@ -249,7 +249,7 @@ const bodyOfTheBar = (loop: FrameLoop): Point => {
   const xs = drawn.plan.points.map((one) => one.x)
   const ys = drawn.plan.points.map((one) => one.y)
   const marker = drawn.marker
-  const left = marker === null ? Math.min(...xs) : Math.max(Math.min(...xs), marker.centre.x + marker.radius)
+  const left = marker === null ? Math.min(...xs) : Math.max(Math.min(...xs), marker.center.x + marker.radius)
   return { x: (left + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
 

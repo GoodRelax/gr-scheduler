@@ -15,7 +15,7 @@ import {
   NOT_STORED_PROPERTY_FIELD_SIZES,
   NOT_STORED_WHEEL_UNITS,
   PAINT,
-  SCREEN_COLOURS,
+  SCREEN_COLORS,
   STYLE,
   anchoredEntry,
   commandEntry,
@@ -374,39 +374,39 @@ function optionElement(host: Document, value: string, choice: string): HTMLEleme
   return option
 }
 
-type ColourField = NonNullable<PropertyControl['colour']>
+type ColorField = NonNullable<PropertyControl['color']>
 
-type ColourName = NonNullable<ColourField['names']>[number]
+type ColorName = NonNullable<ColorField['names']>[number]
 
-type ColourEntrance = ColourField['theme']
+type ColorEntrance = ColorField['theme']
 
-// TRAP: the light side only: S-336 and S-337 hold one colour for both themes, and a row that
+// TRAP: the light side only: S-336 and S-337 hold one color for both themes, and a row that
 // split them would need the theme passed down to this side.
 /** @purity pure */
-function checkerColour(row: 'S-336' | 'S-337'): string {
-  return SCREEN_COLOURS[row]?.light ?? ''
+function checkerColor(row: 'S-336' | 'S-337'): string {
+  return SCREEN_COLORS[row]?.light ?? ''
 }
 
 // see T-294, CV-9
-const UNSET_COLOUR_VALUE = ''
-// TRAP: change with NOT_DRAWN in svg-renderer.ts; a mismatch paints transparent as the ink colour.
+const UNSET_COLOR_VALUE = ''
+// TRAP: change with NOT_DRAWN in svg-renderer.ts; a mismatch paints transparent as the ink color.
 const TRANSPARENT_PAINT = 'none'
 const CHECKER_TILE_SPAN = 2
 const SWATCH_BORDER_PX = 1
-const COLOUR_CHOICE_ATTRIBUTE = 'data-colour-choice'
+const COLOR_CHOICE_ATTRIBUTE = 'data-color-choice'
 const HOST_CHANGE = 'change'
 const HOST_CLICK = 'click'
 const PRESSED_ATTRIBUTE = 'aria-pressed'
 const PRESSED_VALUE = 'true'
 const FIELD_ROW_ATTRIBUTE = 'data-field-row'
-const CHOSEN_ATTRIBUTE = 'data-colour-chosen'
+const CHOSEN_ATTRIBUTE = 'data-color-chosen'
 
 // see CV-9, S-335, S-336, S-337
 /** @purity pure */
 function checkerPattern(side: string): string {
   const tile = `calc(${side} * ${CHECKER_TILE_SPAN} / ${NOT_STORED_PROPERTY_FIELD_SIZES['S-335']})`
   return (
-    `repeating-conic-gradient(${checkerColour('S-337')} 0 25%, ${checkerColour('S-336')} 0 50%)` +
+    `repeating-conic-gradient(${checkerColor('S-337')} 0 25%, ${checkerColor('S-336')} 0 50%)` +
     ` 0 0/${tile} ${tile}`
   )
 }
@@ -453,31 +453,31 @@ function markChosen(entry: HTMLElement, isChosen: boolean): void {
 /** @purity pure */
 function paletteNamesOf(control: PropertyControl): readonly string[] {
   const words = control.choices ?? []
-  const customWord = control.colour?.customWord
+  const customWord = control.color?.customWord
   return (control.choiceValues ?? []).filter(
-    (value, at) => value !== UNSET_COLOUR_VALUE && words[at] !== customWord,
+    (value, at) => value !== UNSET_COLOR_VALUE && words[at] !== customWord,
   )
 }
 
-// WHY: the one field whose host colour input stands; only a press on the custom entrance opens it.
-const openCustomColour: { identity: string | null } = { identity: null }
+// WHY: the one field whose host color input stands; only a press on the custom entrance opens it.
+const openCustomColor: { identity: string | null } = { identity: null }
 
 /** @purity pure */
-function colourFieldIdentity(row: string, control: PropertyControl): string {
+function colorFieldIdentity(row: string, control: PropertyControl): string {
   return `${row}|${JSON.stringify(control.key)}`
 }
 
 // see CV-9, CV-4
 // WHY: the custom entrance commits one #rrggbb; the translator writes it to the side being drawn.
 /** @purity non-pure */
-function hostColourInput(host: Document, row: string, control: PropertyControl, colour: ColourField): HTMLElement {
+function hostColorInput(host: Document, row: string, control: PropertyControl, color: ColorField): HTMLElement {
   const custom = made(host, 'input', propertyColorStyle())
   custom.setAttribute('type', 'color')
-  custom.setAttribute('title', colour.customWord)
-  custom.setAttribute('aria-label', colour.customWord)
+  custom.setAttribute('title', color.customWord)
+  custom.setAttribute('aria-label', color.customWord)
   custom.setAttribute('data-field-row', row)
-  custom.setAttribute('data-colour-custom', 'true')
-  if (colour.customValue !== '') (custom as HTMLInputElement).value = colour.customValue
+  custom.setAttribute('data-color-custom', 'true')
+  if (color.customValue !== '') (custom as HTMLInputElement).value = color.customValue
   CONTROL_KEYS.set(custom, { row, key: control.key })
   letGoOnChange(custom)
   return custom
@@ -499,7 +499,7 @@ function letGoOnChange(entry: HTMLElement): void {
 function commitOnPress(entry: HTMLElement): void {
   if (typeof entry.addEventListener !== 'function') return
   entry.addEventListener(HOST_CLICK, () => {
-    openCustomColour.identity = null
+    openCustomColor.identity = null
     if (typeof entry.dispatchEvent === 'function') {
       entry.dispatchEvent(new Event(HOST_CHANGE, { bubbles: true }))
     }
@@ -519,16 +519,16 @@ function swatchButton(host: Document, row: string, style: string, hint: string):
 
 // see CV-9, T-294
 /** @purity non-pure */
-function colourChoiceElement(host: Document, row: string, control: PropertyControl, name: string): HTMLElement {
+function colorChoiceElement(host: Document, row: string, control: PropertyControl, name: string): HTMLElement {
   const at = (control.choiceValues ?? []).indexOf(name)
   if (at < 0) return made(host, 'span', swatchBox(choiceSide()))
-  const paint = (control.colour?.swatches ?? control.swatches)?.[at] ?? ''
+  const paint = (control.color?.swatches ?? control.swatches)?.[at] ?? ''
   const isChosen = control.text === name
   const style = swatchBox(choiceSide()) + swatchPaint(paint, choiceSide()) + choiceSwatchBorder() + chosenOutline(isChosen)
   const choice = swatchButton(host, row, style, control.choices?.[at] ?? name)
   choice.setAttribute('value', name)
   ;(choice as HTMLButtonElement).value = name
-  choice.setAttribute(COLOUR_CHOICE_ATTRIBUTE, name)
+  choice.setAttribute(COLOR_CHOICE_ATTRIBUTE, name)
   markChosen(choice, isChosen)
   CONTROL_KEYS.set(choice, { row, key: control.key })
   commitOnPress(choice)
@@ -537,27 +537,27 @@ function colourChoiceElement(host: Document, row: string, control: PropertyContr
 
 // see CV-9, T-294
 /** @purity pure */
-function paletteOrderOf(control: PropertyControl, colour: ColourField): readonly ColourName[] {
-  return colour.names ?? paletteNamesOf(control).map((name) => ({ name, isOffered: true }))
+function paletteOrderOf(control: PropertyControl, color: ColorField): readonly ColorName[] {
+  return color.names ?? paletteNamesOf(control).map((name) => ({ name, isOffered: true }))
 }
 
 /** @purity pure */
-function transparentOf(control: PropertyControl, colour: ColourField): ColourName {
-  const listed = paletteOrderOf(control, colour).find((one) => one.name === colour.transparentName)
-  return listed ?? { name: colour.transparentName, isOffered: false }
+function transparentOf(control: PropertyControl, color: ColorField): ColorName {
+  const listed = paletteOrderOf(control, color).find((one) => one.name === color.transparentName)
+  return listed ?? { name: color.transparentName, isOffered: false }
 }
 
 // see CV-9
-// WHY: an unoffered name keeps its place as an empty slot, so a colour stays where it is learnt.
+// WHY: an unoffered name keeps its place as an empty slot, so a color stays where it is learned.
 /** @purity non-pure */
-function colourSlotElement(host: Document, row: string, control: PropertyControl, one: ColourName): HTMLElement {
+function colorSlotElement(host: Document, row: string, control: PropertyControl, one: ColorName): HTMLElement {
   if (!one.isOffered) return made(host, 'span', swatchBox(choiceSide()))
-  return colourChoiceElement(host, row, control, one.name)
+  return colorChoiceElement(host, row, control, one.name)
 }
 
 // see CV-9, S-338, S-368
 /** @purity pure */
-function colourGridStyle(perLine: number): string {
+function colorGridStyle(perLine: number): string {
   return (
     `display:grid;grid-template-columns:repeat(${perLine},max-content);` +
     `gap:${fieldSizes().taskGroupGap}px;`
@@ -566,7 +566,7 @@ function colourGridStyle(perLine: number): string {
 
 // see CV-9
 /** @purity pure */
-function glyphSwatchStyle(entrance: ColourEntrance, isChosen: boolean): string {
+function glyphSwatchStyle(entrance: ColorEntrance, isChosen: boolean): string {
   const ground = entrance.paint === null ? `background:${PAINT.ground};` : swatchPaint(entrance.paint, choiceSide())
   const ink = entrance.ink === '' ? PAINT.ink : entrance.ink
   return (
@@ -580,19 +580,19 @@ function customEntryElement(
   host: Document,
   row: string,
   control: PropertyControl,
-  colour: ColourField,
+  color: ColorField,
   slot: HTMLElement,
 ): HTMLElement {
-  const isChosen = control.text !== UNSET_COLOUR_VALUE && !paletteNamesOf(control).includes(control.text) &&
-    control.text !== colour.transparentName
-  const entry = swatchButton(host, row, glyphSwatchStyle(colour.custom, isChosen), colour.custom.hint)
-  entry.setAttribute('data-colour-custom-entry', 'true')
-  entry.textContent = colour.custom.glyph
+  const isChosen = control.text !== UNSET_COLOR_VALUE && !paletteNamesOf(control).includes(control.text) &&
+    control.text !== color.transparentName
+  const entry = swatchButton(host, row, glyphSwatchStyle(color.custom, isChosen), color.custom.hint)
+  entry.setAttribute('data-color-custom-entry', 'true')
+  entry.textContent = color.custom.glyph
   markChosen(entry, isChosen)
   if (typeof entry.addEventListener !== 'function') return entry
   entry.addEventListener(HOST_CLICK, () => {
-    openCustomColour.identity = colourFieldIdentity(row, control)
-    slot.replaceChildren(hostColourInput(host, row, control, colour))
+    openCustomColor.identity = colorFieldIdentity(row, control)
+    slot.replaceChildren(hostColorInput(host, row, control, color))
     if (typeof entry.blur === 'function') entry.blur()
   })
   return entry
@@ -600,13 +600,13 @@ function customEntryElement(
 
 // see CV-9, CV-5, FR-007
 /** @purity non-pure */
-function themeEntryElement(host: Document, row: string, control: PropertyControl, colour: ColourField): HTMLElement {
-  const isChosen = control.text === UNSET_COLOUR_VALUE
-  const entry = swatchButton(host, row, glyphSwatchStyle(colour.theme, isChosen), colour.theme.hint)
-  entry.setAttribute('value', UNSET_COLOUR_VALUE)
-  ;(entry as HTMLButtonElement).value = UNSET_COLOUR_VALUE
-  entry.setAttribute('data-colour-theme-entry', 'true')
-  entry.textContent = colour.theme.glyph
+function themeEntryElement(host: Document, row: string, control: PropertyControl, color: ColorField): HTMLElement {
+  const isChosen = control.text === UNSET_COLOR_VALUE
+  const entry = swatchButton(host, row, glyphSwatchStyle(color.theme, isChosen), color.theme.hint)
+  entry.setAttribute('value', UNSET_COLOR_VALUE)
+  ;(entry as HTMLButtonElement).value = UNSET_COLOR_VALUE
+  entry.setAttribute('data-color-theme-entry', 'true')
+  entry.textContent = color.theme.glyph
   markChosen(entry, isChosen)
   CONTROL_KEYS.set(entry, { row, key: control.key })
   commitOnPress(entry)
@@ -616,28 +616,28 @@ function themeEntryElement(host: Document, row: string, control: PropertyControl
 // see CV-9
 // WHY: a field that refuses transparent keeps the slot empty, so the custom entrance stays in its place.
 /** @purity non-pure */
-function transparentEntryElement(host: Document, row: string, control: PropertyControl, colour: ColourField): HTMLElement {
-  const word = colour.transparentWord
-  if (word === undefined || !transparentOf(control, colour).isOffered) {
+function transparentEntryElement(host: Document, row: string, control: PropertyControl, color: ColorField): HTMLElement {
+  const word = color.transparentWord
+  if (word === undefined || !transparentOf(control, color).isOffered) {
     const slot = made(host, 'span', swatchBox(choiceSide()))
-    slot.setAttribute('data-colour-transparent-slot', 'true')
+    slot.setAttribute('data-color-transparent-slot', 'true')
     return slot
   }
-  const isChosen = control.text === colour.transparentName
+  const isChosen = control.text === color.transparentName
   const style = swatchBox(choiceSide()) + swatchPaint(TRANSPARENT_PAINT, choiceSide()) + choiceSwatchBorder() + chosenOutline(isChosen)
   const entry = swatchButton(host, row, style, word)
-  entry.setAttribute('value', colour.transparentName)
-  ;(entry as HTMLButtonElement).value = colour.transparentName
-  entry.setAttribute(COLOUR_CHOICE_ATTRIBUTE, colour.transparentName)
+  entry.setAttribute('value', color.transparentName)
+  ;(entry as HTMLButtonElement).value = color.transparentName
+  entry.setAttribute(COLOR_CHOICE_ATTRIBUTE, color.transparentName)
   markChosen(entry, isChosen)
   CONTROL_KEYS.set(entry, { row, key: control.key })
   commitOnPress(entry)
   return entry
 }
 
-// WHY: MK-13 focuses a colour field (JDG-410), which takes no text: the value's swatch, else the first.
+// WHY: MK-13 focuses a color field (JDG-410), which takes no text: the value's swatch, else the first.
 /** @purity non-pure */
-function holdColourFocusTarget(
+function holdColorFocusTarget(
   focusByRow: Map<string, TextEntryControl> | null,
   row: string,
   slots: readonly HTMLElement[],
@@ -650,29 +650,29 @@ function holdColourFocusTarget(
 
 // see CV-9, CV-4, S-338
 /** @purity non-pure */
-function colourFieldElements(
+function colorFieldElements(
   host: Document,
   row: string,
   control: PropertyControl,
   focusByRow: Map<string, TextEntryControl> | null,
 ): readonly HTMLElement[] {
-  const colour = control.colour
-  if (colour === undefined) return []
+  const color = control.color
+  if (color === undefined) return []
   const perLine = NOT_STORED_PROPERTY_FIELD_SIZES['S-338']
-  const named = paletteOrderOf(control, colour).filter((one) => one.name !== colour.transparentName)
-  const slots = named.map((one) => colourSlotElement(host, row, control, one))
+  const named = paletteOrderOf(control, color).filter((one) => one.name !== color.transparentName)
+  const slots = named.map((one) => colorSlotElement(host, row, control, one))
   const slot = made(host, 'span', 'flex:1 1 100%;')
-  if (openCustomColour.identity === colourFieldIdentity(row, control)) {
-    slot.append(hostColourInput(host, row, control, colour))
+  if (openCustomColor.identity === colorFieldIdentity(row, control)) {
+    slot.append(hostColorInput(host, row, control, color))
   }
-  const theme = themeEntryElement(host, row, control, colour)
-  const transparent = transparentEntryElement(host, row, control, colour)
-  const custom = customEntryElement(host, row, control, colour, slot)
-  const grid = made(host, 'div', colourGridStyle(perLine + 2))
+  const theme = themeEntryElement(host, row, control, color)
+  const transparent = transparentEntryElement(host, row, control, color)
+  const custom = customEntryElement(host, row, control, color, slot)
+  const grid = made(host, 'div', colorGridStyle(perLine + 2))
   grid.append(...slots.slice(0, perLine), theme, made(host, 'span', ''), ...slots.slice(perLine), transparent, custom)
-  holdColourFocusTarget(focusByRow, row, [...slots, theme, transparent, custom])
+  holdColorFocusTarget(focusByRow, row, [...slots, theme, transparent, custom])
   const palette = made(host, 'div', 'flex:1 1 100%;display:flex;flex-wrap:wrap;')
-  palette.setAttribute('data-colour-palette', row)
+  palette.setAttribute('data-color-palette', row)
   palette.setAttribute('data-field-kind', control.kind)
   palette.append(grid, slot)
   return [palette]
@@ -686,12 +686,12 @@ function swatchFieldElements(
   control: PropertyControl,
   focusByRow: Map<string, TextEntryControl> | null,
 ): readonly HTMLElement[] {
-  const grid = made(host, 'div', colourGridStyle(NOT_STORED_PROPERTY_FIELD_SIZES['S-368']))
-  const slots = (control.choiceValues ?? []).map((value) => colourChoiceElement(host, field.row, control, value))
+  const grid = made(host, 'div', colorGridStyle(NOT_STORED_PROPERTY_FIELD_SIZES['S-368']))
+  const slots = (control.choiceValues ?? []).map((value) => colorChoiceElement(host, field.row, control, value))
   grid.append(...slots)
-  holdColourFocusTarget(focusByRow, field.row, slots)
+  holdColorFocusTarget(focusByRow, field.row, slots)
   const palette = made(host, 'div', 'flex:1 1 100%;')
-  palette.setAttribute('data-colour-palette', field.row)
+  palette.setAttribute('data-color-palette', field.row)
   palette.setAttribute('data-field-kind', control.kind)
   palette.append(grid)
   if ((control.choiceValues ?? []).includes(control.text)) return [palette]
@@ -716,14 +716,14 @@ function pressElement(host: Document, row: string, control: PropertyControl, wor
   return entry
 }
 
-// WHY: a field no longer described closes its host colour input, so it stands only after a press.
+// WHY: a field no longer described closes its host color input, so it stands only after a press.
 /** @purity non-pure */
-function forgetClosedCustomColour(description: PropertiesPanel): void {
+function forgetClosedCustomColor(description: PropertiesPanel): void {
   const standing = description.fields.flatMap((field) =>
-    field.controls.map((control) => colourFieldIdentity(field.row, control)),
+    field.controls.map((control) => colorFieldIdentity(field.row, control)),
   )
-  if (openCustomColour.identity !== null && !standing.includes(openCustomColour.identity)) {
-    openCustomColour.identity = null
+  if (openCustomColor.identity !== null && !standing.includes(openCustomColor.identity)) {
+    openCustomColor.identity = null
   }
 }
 
@@ -980,7 +980,7 @@ function controlElementsOf(
   control: PropertyControl,
   typedByRow: Map<string, TextEntryControl> | null,
 ): readonly HTMLElement[] {
-  if (control.colour !== undefined) return colourFieldElements(host, field.row, control, typedByRow)
+  if (control.color !== undefined) return colorFieldElements(host, field.row, control, typedByRow)
   if (control.swatches !== undefined) return swatchFieldElements(host, field, control, typedByRow)
   if (control.press !== undefined) return [pressElement(host, field.row, control, control.press)]
   if (control.assignee !== undefined) return assigneeComboElements(host, field.row, control, control.assignee, typedByRow)
@@ -1071,7 +1071,7 @@ export function fillPropertiesPanel(
 ): void {
   // TRAP: clear first, as anchorsOf does: a leftover row would name a control no longer drawn.
   typedByRow.clear()
-  forgetClosedCustomColour(description)
+  forgetClosedCustomColor(description)
   const drawn = description.fields.map((field) => fieldElement(host, field, typedByRow))
   const entries = description.commands.map((item) => anchoredEntry(host, item, anchors))
   if (entries.length > 0) {

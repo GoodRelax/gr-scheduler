@@ -490,7 +490,7 @@
      }
     },
     {
-     "name": "isStoredColour",
+     "name": "isStoredColor",
      "note": {
       "ja": [
        "色の列が取る綴りか。",
@@ -499,7 +499,7 @@
      }
     },
     {
-     "name": "customColourOf",
+     "name": "customColorOf",
      "note": {
       "ja": [
        "カスタムカラーを明暗の 2 つの側に分ける。",
@@ -517,7 +517,7 @@
      }
     },
     {
-     "name": "customColourChosen",
+     "name": "customColorChosen",
      "note": {
       "ja": [
        "カスタムカラーを選んだときの新しい綴り。",
@@ -988,7 +988,7 @@
      }
     },
     {
-     "name": "labelledAssigneeUidOf",
+     "name": "labeledAssigneeUidOf",
      "note": {
       "ja": [
        "担当ラベルが名を出す担当、すなわち `FR-059` の絞りと並びで先頭に来る 1 名の資源の `uid`。",
@@ -1922,7 +1922,7 @@
      }
     },
     {
-     "name": "colourOf",
+     "name": "colorOf",
      "note": {
       "ja": [
        "表 T-236 の行 ID と、いまの色の好みから 1 色を返す。",
@@ -1931,11 +1931,11 @@
      }
     },
     {
-     "name": "isScheduleColourRow",
+     "name": "isScheduleColorRow",
      "note": {
       "ja": [
-       "表 T-236 の行 ID が、`colourOf` の答えられる行（日程の図も塗る行）かを返す。",
-       "`FR-041` の 表 T-366 の `CF-1` が、画面と書き出す絵に同じ解を使えと定めるので、画面の枠（`DomScreenSurface`）は日程の図も塗る行だけを `colourOf` から読み、ほかの行は自分の表の値を描く —— 行の名簿をコピーせずに見分けるために問う"
+       "表 T-236 の行 ID が、`colorOf` の答えられる行（日程の図も塗る行）かを返す。",
+       "`FR-041` の 表 T-366 の `CF-1` が、画面と書き出す絵に同じ解を使えと定めるので、画面の枠（`DomScreenSurface`）は日程の図も塗る行だけを `colorOf` から読み、ほかの行は自分の表の値を描く —— 行の名簿をコピーせずに見分けるために問う"
       ]
      }
     },
@@ -3078,12 +3078,12 @@
      "note": {
       "ja": [
        "表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。",
-       "色は `MARK_COLOUR_ROWS` の行ごとの CSS の変数で塗る —— `DomScreenSurface` がテーマに合わせて変数を置く"
+       "色は `MARK_COLOR_ROWS` の行ごとの CSS の変数で塗る —— `DomScreenSurface` がテーマに合わせて変数を置く"
       ]
      }
     },
     {
-     "name": "MARK_COLOUR_ROWS",
+     "name": "MARK_COLOR_ROWS",
      "note": {
       "ja": [
        "`statusGlyphSvg` の絵が塗る 表 T-236 の行の並び。",
@@ -3092,7 +3092,7 @@
      }
     },
     {
-     "name": "markColourVariableOf",
+     "name": "markColorVariableOf",
      "note": {
       "ja": [
        "表 T-236 の行 ID から、その色を持つ CSS の変数の名を返す。",
@@ -3174,20 +3174,20 @@
      }
     },
     {
-     "name": "colourOf",
+     "name": "colorOf",
      "note": {
       "ja": [
-       "`SvgRenderer` の `colourOf` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。",
+       "`SvgRenderer` の `colorOf` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。",
        "`FR-041` の 表 T-366 の `CF-1` が、画面と書き出す絵に同じ解を使えと定めるので、画面の主題の色（表 T-236）のうち日程の図も塗る行は、この 1 本から読む —— `DomScreenSurface` から `SvgRenderer` への辺は無い"
       ]
      }
     },
     {
-     "name": "isScheduleColourRow",
+     "name": "isScheduleColorRow",
      "note": {
       "ja": [
-       "`SvgRenderer` の `isScheduleColourRow` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。",
-       "`colourOf` に問える行かを、画面の側が行の名簿をコピーせずに知るため"
+       "`SvgRenderer` の `isScheduleColorRow` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。",
+       "`colorOf` に問える行かを、画面の側が行の名簿をコピーせずに知るため"
       ]
      }
     },
@@ -3522,7 +3522,7 @@
      "name": "isHelpStandingIn",
      "note": {
       "ja": [
-       "ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。",
+       "ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximized`）。",
        "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-16`）と、面が立っているかの判じに読む"
       ]
      }
@@ -3531,7 +3531,7 @@
      "name": "isWindowStandingIn",
      "note": {
       "ja": [
-       "ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximised`。",
+       "ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximized`。",
        "`InputCommandTranslator` が `Esc` の段（表 T-283 の `RG-16`）に読む"
       ]
      }

@@ -89,7 +89,7 @@ def outside_quotation(cell):
 # ⭐ WHERE A SENTENCE STARTS, in the ledger's house style. Cells are one long
 # line, so 。 is not the only boundary: the marks ⭐ / ⛔ / ⚠️ and the arrow ⇒
 # each open a new statement. Splitting on all four is what lets ONE sentence be
-# struck without taking its neighbours with it.
+# struck without taking its neighbors with it.
 #
 # ⭐ A RUN OF MARKS IS ONE OPENING, not several. 「⚠️⚠️ **実測（…」 doubles the
 # mark for weight, so the lookbehind refuses to split between two marks; only

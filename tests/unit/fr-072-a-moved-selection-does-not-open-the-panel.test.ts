@@ -431,7 +431,7 @@ const ENTER = (): HumanInput => key('Enter')
 const ESCAPE = (): HumanInput => key('Esc')
 /** SK-13 of table T-036 -- the one 面 these cases raise from outside. */
 const OPEN_HELP = (): HumanInput => key('F1')
-/** SK-3 of table T-036, read out of the row rather than spelt here. */
+/** SK-3 of table T-036, read out of the row rather than spelled here. */
 const DELETE_SELECTION = (): HumanInput => key(deleteSpelling())
 
 /**
@@ -534,7 +534,7 @@ function middleOfTheBar(built: Stage, uid: number): { readonly x: number; readon
   const left =
     marker === null
       ? Math.min(...xs)
-      : Math.max(Math.min(...xs), marker.centre.x + marker.radius)
+      : Math.max(Math.min(...xs), marker.center.x + marker.radius)
   if (left >= right) throw new Error(`Task ${uid} has no body the marker leaves free`)
   return { x: (left + right) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }

@@ -103,7 +103,7 @@
 //      once. IN-4 orders the LEVELS against each other and never orders two 面
 //      against each other; no case below raises two.
 //   4. WHAT `Ctrl+S` DOES while a surface stands -- only that the browser's own
-//      behaviour is still stopped, which is MK-10's MUST and is untouched by
+//      behavior is still stopped, which is MK-10's MUST and is untouched by
 //      this rule. Whether the save should be refused while a surface stands is
 //      not written anywhere and is not asserted.
 //   5. THE POINTER. The rule is about the wheel and the keys; PTD-1 〜 PTD-5 of
@@ -463,7 +463,7 @@ const HN_1 = '表 T-023 の後の段の「面が立っているあいだ」に�
 interface Stage {
   readonly loop: FrameLoop
   send(input: HumanInput): void
-  /** One turn of the wheel over the `Task Group Area`, spelt for one handed-over row. */
+  /** One turn of the wheel over the `Task Group Area`, spelled for one handed-over row. */
   wheel(modifiers: InputModifiers, sign?: 1 | -1): WheelInput
   /** MK-10's answer for one happening, asked before the loop hears it. */
   stops(input: HumanInput): boolean
@@ -471,7 +471,7 @@ interface Stage {
   snapshot(): string
   modalIsUp(): boolean
   helpWindow(): string | null
-  pressMinimise(): void
+  pressMinimize(): void
   /** Whether a `Confirmation` (U-55) is standing. */
   confirmationIsUp(): boolean
 }
@@ -507,9 +507,9 @@ function stage(): Stage {
     }),
     stops: (input) => loop.isBrowserDefaultStopped(input),
     snapshot: () => JSON.stringify(loop.document()),
-    modalIsUp: () => ['normal', 'maximised'].includes(screen.last().helpModal?.windowState ?? ''),
+    modalIsUp: () => ['normal', 'maximized'].includes(screen.last().helpModal?.windowState ?? ''),
     helpWindow: () => screen.last().helpModal?.windowState ?? null,
-    pressMinimise: () => {
+    pressMinimize: () => {
       screen.drawAt({
         part: HELP_MODAL,
         entry: 'IC-129',
@@ -538,9 +538,9 @@ function withTheHelpUp(): Stage {
   return built
 }
 
-function withTheHelpMinimised(): Stage {
+function withTheHelpMinimized(): Stage {
   const built = withTheHelpUp()
-  built.pressMinimise()
+  built.pressMinimize()
   return built
 }
 
@@ -719,12 +719,12 @@ describe(`HN-1 of table T-336: ${HN_1}`, () => {
     expect(row?.cells.join(' ') ?? '').toContain(HN_1)
   })
 
-  it('with the help minimised, every handed-over turn moves the document as with nothing standing', () => {
+  it('with the help minimized, every handed-over turn moves the document as with nothing standing', () => {
     // WHY: the same control as above, run with WB-2 up; one of the two directions may rightly move nothing (ZE-2 / ZE-3).
     for (const one of HANDED_OVER) {
       const moved = ([1, -1] as const).some((sign) => {
-        const built = withTheHelpMinimised()
-        expect(built.helpWindow(), 'premise: IC-129 minimised the help').toBe('minimised')
+        const built = withTheHelpMinimized()
+        expect(built.helpWindow(), 'premise: IC-129 minimized the help').toBe('minimized')
         const before = built.snapshot()
         built.send(built.wheel(one.modifiers, sign))
         return built.snapshot() !== before
@@ -744,7 +744,7 @@ describe('表 T-023 の結び -- the keys are NOT what this rule hands over', ()
       // 「⛔ **キーの割当は本規則の対象ではない（MUST NOT）** —— 表 T-028 の `IN-4`
       // が面の上で `Esc` を要求しており、キーまで渡すと面を閉じる手立てが消える」.
       // IN-4 gives an open 面 a level of `Esc`, so there IS something to consume
-      // and the browser's own behaviour is stopped.
+      // and the browser's own behavior is stopped.
       const built = surface.raise()
       expect(built.stops(ESCAPE())).toBe(true)
     })

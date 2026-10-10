@@ -366,11 +366,11 @@ const pointsAttr = (attrs: string): readonly Pt[] =>
 
 const polylinesOf = (svg: string): readonly Element[] => elementsOf(svg).filter((one) => one.tag === 'polyline')
 
-const circlesAt = (svg: string, centres: readonly Pt[]): readonly Element[] =>
+const circlesAt = (svg: string, centers: readonly Pt[]): readonly Element[] =>
   elementsOf(svg).filter(
     (one) =>
       one.tag === 'circle' &&
-      centres.some((centre) => near({ x: Number(attrOf(one.attrs, 'cx')), y: Number(attrOf(one.attrs, 'cy')) }, centre, SVG_EPS)),
+      centers.some((center) => near({ x: Number(attrOf(one.attrs, 'cx')), y: Number(attrOf(one.attrs, 'cy')) }, center, SVG_EPS)),
   )
 
 // see FR-098
@@ -833,13 +833,13 @@ describe('the drawn picture follows T-303', () => {
     const line = lineOf(scene, 1, 2)
     const svg = svgOf(scene)
     const inked = polylinesOf(svg).filter((one) => attrOf(one.attrs, 'stroke') === dependencyInk)
-    expect(inked.length, 'one line drawn in the dependency colour').toBe(1)
+    expect(inked.length, 'one line drawn in the dependency color').toBe(1)
     expect(samePathEitherWay(pointsAttr(inked[0]!.attrs), line.drawnPoints ?? [], SVG_EPS)).toBe(true)
     expect(polylinesOf(svg).some((one) => samePath(pointsAttr(one.attrs), line.points, SVG_EPS))).toBe(false)
     expect(attrOf(inked[0]!.attrs, 'marker-end'), 'EL-4: no head').toBeNull()
   })
 
-  it('EL-9: three dots in the dependency colour (S-159) at the continuation, radius half of S-362', () => {
+  it('EL-9: three dots in the dependency color (S-159) at the continuation, radius half of S-362', () => {
     const scene = predecessorOnly()
     const line = lineOf(scene, 1, 2)
     const dots = circlesAt(svgOf(scene), line.continuation?.dots ?? [])
@@ -858,7 +858,7 @@ describe('the drawn picture follows T-303', () => {
     for (const dot of dots) expect(attrOf(dot.attrs, 'fill')).toBe(DARK('S-159'))
   })
 
-  it('EL-9 (the ground-colour halo S-224 lies under the short line, not under the dots)', () => {
+  it('EL-9 (the ground-color halo S-224 lies under the short line, not under the dots)', () => {
     const scene = predecessorOnly()
     const line = lineOf(scene, 1, 2)
     const svg = svgOf(scene)
@@ -880,7 +880,7 @@ describe('the drawn picture follows T-303', () => {
     expect(attrOf(inked[0]!.attrs, 'marker-end')).not.toBeNull()
   })
 
-  it('EL-6: nothing of the line is drawn -- no line in its colour, no dot', () => {
+  it('EL-6: nothing of the line is drawn -- no line in its color, no dot', () => {
     const scene = neitherEnd()
     const svg = svgOf(scene)
     expect(polylinesOf(svg).filter((one) => attrOf(one.attrs, 'stroke') === dependencyInk)).toEqual([])
@@ -1086,7 +1086,7 @@ describe('EL-14 -- elided lines are still drawn objects for selection', () => {
       const lineOnly = marqueeRound(stroke, SHORT_OF_THE_MARK)
       const inside = (at: Pt): boolean =>
         at.x >= lineOnly.x && at.x <= lineOnly.x + lineOnly.width && at.y >= lineOnly.y && at.y <= lineOnly.y + lineOnly.height
-      expect(dots.some(inside), 'premise: the rectangle leaves every dot centre out').toBe(false)
+      expect(dots.some(inside), 'premise: the rectangle leaves every dot center out').toBe(false)
       expect(taken(itemsInMarquee(scene.geometry, lineOnly), 1, 2), `${SL_3_WHOLLY} ${T_303_MARK_IS_PART_OF_THE_LINE}`).toBe(
         false,
       )

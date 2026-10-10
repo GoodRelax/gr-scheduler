@@ -320,7 +320,7 @@ describe('DFC-322 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(FR_035_NO_EMPTY_STRING)
   })
 
-  it('still forbids half-typed text reaching the document when the edit is cancelled', () => {
+  it('still forbids half-typed text reaching the document when the edit is canceled', () => {
     expect(REQUIREMENTS).toContain(IN_4_NOTHING_HALF_TYPED_IS_WRITTEN)
   })
 

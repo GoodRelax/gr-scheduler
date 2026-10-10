@@ -74,7 +74,7 @@ const EVERY_OPEN_ROUTE: Readonly<Record<OpenRoute, true>> = {
 }
 
 const EVERY_STORE_REASON: Readonly<Record<FileStoreFaultReason, true>> = {
-  cancelled: true,
+  canceled: true,
   permissionLost: true,
   noOpenedFile: true,
   unavailable: true,
@@ -363,7 +363,7 @@ describe('openDocumentFile -- one file, read and decoded, and nothing made of it
     expect(good).not.toHaveProperty('fault')
 
     const bad = await openDocumentFile(
-      storeThat({ reading: { ok: false, fault: { reason: 'cancelled', what: 'dismissed' } } }).store,
+      storeThat({ reading: { ok: false, fault: { reason: 'canceled', what: 'dismissed' } } }).store,
       'chooser',
     )
     expect(bad.ok).toBe(false)
@@ -647,14 +647,14 @@ describe('FR-028 / AG-8 -- failures come back as values, and nothing throws', ()
 
   it('keeps a dismissal tellable apart, so NT-3a can leave it un-notified', async () => {
     const reading = await refusedOpen(
-      storeThat({ reading: { ok: false, fault: { reason: 'cancelled', what: 'dismissed' } } }).store,
+      storeThat({ reading: { ok: false, fault: { reason: 'canceled', what: 'dismissed' } } }).store,
     )
     const writing = await refusedSave(
-      storeThat({ chosen: { ok: false, fault: { reason: 'cancelled', what: 'dismissed' } } }).store,
+      storeThat({ chosen: { ok: false, fault: { reason: 'canceled', what: 'dismissed' } } }).store,
       chosenRequest('grsJson', { text: 'A' }, 'a'),
     )
-    expect(reading.reason).toBe('cancelled')
-    expect(writing.reason).toBe('cancelled')
+    expect(reading.reason).toBe('canceled')
+    expect(writing.reason).toBe('canceled')
   })
 
   it('reports LM-14 own case as a reason rather than as a silent success', async () => {
@@ -748,9 +748,9 @@ describe('NT-1 / NT-3a -- every refusal carries a reason and words behind it', (
     }
   })
 
-  it('tells the reasons apart by what can be done next (NT-3a), cancelling included', async () => {
+  it('tells the reasons apart by what can be done next (NT-3a), canceling included', async () => {
     const raised = (await everyRefusal()).map((one) => one.fault.reason)
-    expect(raised).toContain('cancelled')
+    expect(raised).toContain('canceled')
     expect(new Set(raised).size).toBe(Object.keys(EVERY_GATEWAY_REASON).length)
   })
 })
@@ -822,7 +822,7 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
 
 
 const T_227_ROWS = [
-  { row: 'DI-1', subject: 'how the same document is recognised' },
+  { row: 'DI-1', subject: 'how the same document is recognized' },
   { row: 'DI-2', subject: 'what null means' },
   { row: 'DI-3', subject: 'a destination that cannot be read' },
   { row: 'DI-4', subject: 'the overwrite question' },
@@ -963,8 +963,8 @@ interface AskingStandIn {
   readonly permissions: readonly boolean[]
 }
 
-const CANCELLED_BY_THE_ANSWER: FileStoreFault = {
-  reason: 'cancelled',
+const CANCELED_BY_THE_ANSWER: FileStoreFault = {
+  reason: 'canceled',
   what: 'the overwrite question was answered no, so nothing was written',
 }
 
@@ -997,7 +997,7 @@ function storeAt(
       calls.push({ member: 'writeChosenFile', argument: write })
       const mayWrite = await write.askToWriteOver(destination)
       permissions.push(mayWrite)
-      if (!mayWrite) return { ok: false, fault: CANCELLED_BY_THE_ANSWER }
+      if (!mayWrite) return { ok: false, fault: CANCELED_BY_THE_ANSWER }
       calls.push({ member: 'putTheBytesDown', argument: write.bytes })
       return onWrite
     },
@@ -1223,7 +1223,7 @@ describe('table T-227 DI-4 -- the overwrite question and the answer to it', () =
     expect(stand.permissions).toEqual([false])
     expect(stand.calls.map((call) => call.member)).toEqual(['writeChosenFile'])
     expect(result.ok).toBe(false)
-    if (!result.ok) expect(result.fault.reason).toBe('cancelled')
+    if (!result.ok) expect(result.fault.reason).toBe('canceled')
   })
 
   it('GIVEN one chosen write WHEN the destination is not this document THEN the question is put exactly once, before anything is written', async () => {

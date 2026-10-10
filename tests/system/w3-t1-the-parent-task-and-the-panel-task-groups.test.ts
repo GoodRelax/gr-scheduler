@@ -1,9 +1,9 @@
-// W3 spec-only cases on the shipped build: T-351 parent task hands and field, FR-075 grab colours, trailing look rows, the FX-5 field.
+// W3 spec-only cases on the shipped build: T-351 parent task hands and field, FR-075 grab colors, trailing look rows, the FX-5 field.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { colourOf } from '../../src/adapter/svg-renderer/svg-renderer'
+import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import { bare, specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import { openDocument, openStage, pressEntrance, reasonWords, settle, type Stage } from './cr-570-tree-state-stage'
@@ -15,7 +15,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_135_FIELD = 'プロパティパネルの親タスクの欄の出し方と、押したときの動きは、表 T-351 の `PTL-15` 〜 `PTL-17` に従うこと（MUST）'
 const FR_135_HANDS = '—— 候補がどれかを図の上で読み、そのまま引いて結べる。親タスクを結ぶ・外す手は 表 T-351 に従うこと（MUST）'
-const FR_075_COLOURS = '掴み点の寸法は `_assets/tbl-settings.md` の表 T-210 が持つ。掴み点の面と縁は、同書の 表 T-236 の `S-527` と `S-528` の色で描くこと（MUST）'
+const FR_075_COLORS = '掴み点の寸法は `_assets/tbl-settings.md` の表 T-210 が持つ。掴み点の面と縁は、同書の 表 T-236 の `S-527` と `S-528` の色で描くこと（MUST）'
 const FR_006_LOOK_LAST =
   '⭐ 見た目の行（表 T-016 の入力の型に `色` を含む行と、塗りの透過率・枠線の幅の行）は、同じ対象の行の並びの末尾に置くこと（MUST）'
 // WHY: CR-690 -- the old span row retired; the field rule is FX-5 of table T-367 (one settle, written only while fixed).
@@ -66,7 +66,7 @@ async function stage(): Promise<Stage> {
 }
 
 /** @purity semi-pure-b */
-async function barCentre(page: Page, uid: number): Promise<{ x: number; y: number }> {
+async function barCenter(page: Page, uid: number): Promise<{ x: number; y: number }> {
   const at = await page.evaluate((wanted: number) => {
     const r = document.querySelector(`[data-figure="task-${wanted}-plan"]`)?.getBoundingClientRect()
     return r === undefined ? null : { x: r.x + r.width / 2, y: r.y + r.height / 2 }
@@ -77,7 +77,7 @@ async function barCentre(page: Page, uid: number): Promise<{ x: number; y: numbe
 
 /** @purity non-pure */
 async function openPanelOf(page: Page, uid: number): Promise<void> {
-  const at = await barCentre(page, uid)
+  const at = await barCenter(page, uid)
   await page.mouse.dblclick(at.x, at.y)
   await settle(page)
 }
@@ -90,8 +90,8 @@ async function parentOf(page: Page, uid: number): Promise<number | null> {
 
 /** @purity non-pure */
 async function dragBar(page: Page, from: number, to: number): Promise<void> {
-  const start = await barCentre(page, from)
-  const end = await barCentre(page, to)
+  const start = await barCenter(page, from)
+  const end = await barCenter(page, to)
   await page.mouse.move(start.x, start.y)
   await page.mouse.down()
   await page.mouse.move(end.x, end.y, { steps: 10 })
@@ -108,7 +108,7 @@ async function panelTaskGroups(page: Page): Promise<string[]> {
 }
 
 /** @purity semi-pure-b */
-async function inkOf(page: Page, colour: string): Promise<string> {
+async function inkOf(page: Page, color: string): Promise<string> {
   return page.evaluate((wanted: string) => {
     const probe = document.createElement('span')
     probe.style.color = wanted
@@ -116,12 +116,12 @@ async function inkOf(page: Page, colour: string): Promise<string> {
     const said = getComputedStyle(probe).color
     probe.remove()
     return said
-  }, colour)
+  }, color)
 }
 
 test.describe('W3-T1 the manuscript these cases are driven by', () => {
   test('FR-135, FR-075, the look rows and FX-5 still read this way', () => {
-    for (const clause of [FR_135_FIELD, FR_135_HANDS, FR_075_COLOURS, FR_006_LOOK_LAST, IX_17_FIELD]) expect(REQUIREMENTS, clause).toContain(clause)
+    for (const clause of [FR_135_FIELD, FR_135_HANDS, FR_075_COLORS, FR_006_LOOK_LAST, IX_17_FIELD]) expect(REQUIREMENTS, clause).toContain(clause)
     expect(LOOK_ROWS_OF_A_TASK, 'premise: T-016 names the look rows of a Task, in the CR-689 order').toEqual(['PR-40', 'PR-39', 'PR-12'])
     expect(SPAN_LABELS.length, 'premise: the dictionary holds the K-141 word').toBe(2)
   })
@@ -195,7 +195,7 @@ test.describe(`FR-135 (MUST): ${FR_135_HANDS.slice(-40)}`, () => {
   test('PTL-1 / PTL-5: armed, a drag from the chosen child onto a bar binds it; one undo unbinds', async () => {
     const opened = await stage()
     try {
-      const child = await barCentre(opened.page, 3)
+      const child = await barCenter(opened.page, 3)
       await opened.page.mouse.click(child.x, child.y)
       await settle(opened.page)
       expect(await pressEntrance(opened.page, ARM_PARENT_TASK), 'IC-142 is on the screen').toBe(true)
@@ -214,7 +214,7 @@ test.describe(`FR-135 (MUST): ${FR_135_HANDS.slice(-40)}`, () => {
   test('PTL-8: armed, a release on a milestone writes nothing and tells RS-69', async () => {
     const opened = await stage()
     try {
-      const child = await barCentre(opened.page, 3)
+      const child = await barCenter(opened.page, 3)
       await opened.page.mouse.click(child.x, child.y)
       await settle(opened.page)
       expect(await pressEntrance(opened.page, ARM_PARENT_TASK)).toBe(true)
@@ -229,7 +229,7 @@ test.describe(`FR-135 (MUST): ${FR_135_HANDS.slice(-40)}`, () => {
   })
 })
 
-test.describe(`FR-075 (MUST): ${FR_075_COLOURS.slice(-40)}`, () => {
+test.describe(`FR-075 (MUST): ${FR_075_COLORS.slice(-40)}`, () => {
   test.setTimeout(180_000)
 
   test('the grab points of the chosen task take S-527 / S-528, and follow a dark theme and a new hue', async () => {
@@ -246,7 +246,7 @@ test.describe(`FR-075 (MUST): ${FR_075_COLOURS.slice(-40)}`, () => {
       await openPanelOf(opened.page, 2)
       const light = await handles()
       expect(light.length, 'premise: the chosen task shows its grab points (S-111)').toBeGreaterThan(0)
-      for (const one of light) expect(one).toEqual({ fill: colourOf('S-527', 214, false, false), stroke: colourOf('S-528', 214, false, false) })
+      for (const one of light) expect(one).toEqual({ fill: colorOf('S-527', 214, false, false), stroke: colorOf('S-528', 214, false, false) })
       // WHY: an open panel holds an unsettled field, and AG-9 refuses a write then; close it first.
       await opened.page.keyboard.press('Escape')
       await opened.page.keyboard.press('Escape')
@@ -255,10 +255,10 @@ test.describe(`FR-075 (MUST): ${FR_075_COLOURS.slice(-40)}`, () => {
       expect(await pressEntrance(opened.page, THEME_TOGGLE)).toBe(true)
       await openPanelOf(opened.page, 2)
       const plan = await opened.page.evaluate(() => document.querySelector('[data-role="Schedule Canvas"] svg [data-figure="task-1-plan"]')?.getAttribute('stroke') ?? '')
-      expect(plan, 'premise: the plan bars already follow the dark theme and the new hue').toBe(colourOf('S-156', 52, true, false))
+      expect(plan, 'premise: the plan bars already follow the dark theme and the new hue').toBe(colorOf('S-156', 52, true, false))
       const dark = await handles()
       expect(dark.length).toBeGreaterThan(0)
-      for (const one of dark) expect(one).toEqual({ fill: colourOf('S-527', 52, true, false), stroke: colourOf('S-528', 52, true, false) })
+      for (const one of dark) expect(one).toEqual({ fill: colorOf('S-527', 52, true, false), stroke: colorOf('S-528', 52, true, false) })
     } finally {
       await opened.close()
     }
@@ -268,7 +268,7 @@ test.describe(`FR-075 (MUST): ${FR_075_COLOURS.slice(-40)}`, () => {
 test.describe(`FR-006 (MUST): ${FR_006_LOOK_LAST.slice(-40)}`, () => {
   test.setTimeout(120_000)
 
-  test('a task panel ends with its look rows, outline width before outline colour before fill colour', async () => {
+  test('a task panel ends with its look rows, outline width before outline color before fill color', async () => {
     const opened = await stage()
     try {
       await openPanelOf(opened.page, 2)

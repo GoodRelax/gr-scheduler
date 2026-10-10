@@ -27,7 +27,7 @@ import {
   arrowOf,
   barOf,
   C,
-  centreOf,
+  centerOf,
   cellOf,
   D,
   emptyPoint,
@@ -253,19 +253,19 @@ describe('PTL-1 / PTL-2 / AR-7 -- arming the parent link', () => {
 describe('PTL-3 / PTL-5 .. PTL-8 -- armed, a release picks and a drag links', () => {
   it('PTD-3 / AR-7: armed, a press on a bar is PTD-3, not a T-023d grab row', () => {
     const scene = sceneOf(DRAWN, emptySelection(), true)
-    expect(pressRowOf(pressOf(scene, centreOf(barOf(scene, C))), scene.context)).toBe('PTD-3')
+    expect(pressRowOf(pressOf(scene, centerOf(barOf(scene, C))), scene.context)).toBe('PTD-3')
   })
 
   it('PTL-3: armed, a still release on a bar selects it and writes nothing', () => {
     const scene = sceneOf(DRAWN, pick(task(F)), true)
-    const done = gesture(scene, centreOf(barOf(scene, C)))
+    const done = gesture(scene, centerOf(barOf(scene, C)))
     expect(kindsOf(done.selection)).toEqual([`task ${C}`])
     expect(writeGroupsOf(done.out)).toEqual([])
   })
 
   it('PTL-3 / SL-4: armed, an unmoved Ctrl click on a bar adds it as Shift does', () => {
     const scene = sceneOf(DRAWN, pick(task(F)), true)
-    const at = centreOf(barOf(scene, C))
+    const at = centerOf(barOf(scene, C))
     const done = gesture(scene, at, at, { ctrl: true })
     expect(isParentPickingCtrlClick(done.press, at, scene.context)).toBe(true)
     expect(kindsOf(done.selection)).toEqual([`task ${C}`, `task ${F}`].sort())
@@ -274,7 +274,7 @@ describe('PTL-3 / PTL-5 .. PTL-8 -- armed, a release picks and a drag links', ()
   it('PTL-5: a drag from a bar in S to another bar links every task of S in one writes entry; the selection stays', () => {
     const selection = pick(task(C), task(F))
     const scene = sceneOf(DRAWN, selection, true)
-    const done = gesture(scene, centreOf(barOf(scene, C)), centreOf(barOf(scene, Q)))
+    const done = gesture(scene, centerOf(barOf(scene, C)), centerOf(barOf(scene, Q)))
     const groups = writeGroupsOf(done.out)
     expect(groups.length, 'FR-135: one call').toBe(1)
     expect([...groups[0]!].sort((a, b) => Number(a['uid']) - Number(b['uid']))).toEqual([
@@ -286,21 +286,21 @@ describe('PTL-3 / PTL-5 .. PTL-8 -- armed, a release picks and a drag links', ()
 
   it('PTL-6: a drag from a bar outside S replaces the selection with that bar and links it alone', () => {
     const scene = sceneOf(DRAWN, pick(task(F)), true)
-    const done = gesture(scene, centreOf(barOf(scene, C)), centreOf(barOf(scene, Q)))
+    const done = gesture(scene, centerOf(barOf(scene, C)), centerOf(barOf(scene, Q)))
     expect(writeGroupsOf(done.out).flat()).toEqual([{ kind: 'setTaskParentTask', uid: C, parentUid: Q }])
     expect(kindsOf(done.selection)).toEqual([`task ${C}`])
   })
 
   it('PTL-7: a drag released where nothing answers does nothing', () => {
     const scene = sceneOf(DRAWN, pick(task(C)), true)
-    const done = gesture(scene, centreOf(barOf(scene, C)), emptyPoint(scene))
+    const done = gesture(scene, centerOf(barOf(scene, C)), emptyPoint(scene))
     expect(writeGroupsOf(done.out)).toEqual([])
     expect(actionOf(done.out)?.['kind'] ?? null).not.toBe('tellEntryHasNothingToDo')
   })
 
   it('PTL-8 / RS-69: a drag released on a milestone writes nothing and tells milestoneCannotBeAParent once', () => {
     const scene = sceneOf(DRAWN, pick(task(C), task(F)), true)
-    const done = gesture(scene, centreOf(barOf(scene, C)), centreOf(barOf(scene, M)))
+    const done = gesture(scene, centerOf(barOf(scene, C)), centerOf(barOf(scene, M)))
     expect(actionOf(done.out)).toEqual({ kind: 'tellEntryHasNothingToDo', situation: 'milestoneCannotBeAParent' })
     expect(writeGroupsOf(done.out)).toEqual([])
   })

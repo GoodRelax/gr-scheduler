@@ -174,9 +174,9 @@ function minHeightFillingTheAreaExactly(): number {
   const probe = flooredTaskGroupBench(1)
   const height = frameOf(probe).regions.taskGroupArea.height
   const scale = Number(probe.loop.document().documentSettings.displayScale) / PERCENT
-  const centre = height / scale
+  const center = height / scale
   for (let nudge = -16; nudge <= 16; nudge++) {
-    const candidate = centre + nudge * Number.EPSILON * centre
+    const candidate = center + nudge * Number.EPSILON * center
     if (flooredBandOf(flooredTaskGroupBench(candidate)) === height) return candidate
   }
   throw new Error('premise: some floor lands the first task group exactly on the Task Group Area height')

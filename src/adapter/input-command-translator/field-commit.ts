@@ -4,7 +4,7 @@
 // @purity    pure
 
 import {
-  customColourChosen,
+  customColorChosen,
   dayOf,
   lastDayForLength,
   planActualState,
@@ -35,7 +35,7 @@ import {
   type InputContext,
   type PlacedPlanActual,
 } from './input-command-translator'
-import { statusLineCentred } from './zoom-and-fit'
+import { statusLineCentered } from './zoom-and-fit'
 
 /** @purity pure */
 function settledText(text: string): string | null {
@@ -73,12 +73,12 @@ function settledDay(text: string, sideText: SideText): string | null | undefined
 }
 
 // see CV-4, CV-5
-// WHY: the colour field commits a palette name, an empty text (back to the theme) or one #rrggbb
+// WHY: the color field commits a palette name, an empty text (back to the theme) or one #rrggbb
 // from its custom entrance; only the last is folded into the side of the theme being drawn.
 /** @purity pure */
-function settledColour(text: string, previous: string | null, dark: boolean): string | null {
+function settledColor(text: string, previous: string | null, dark: boolean): string | null {
   const held = settledText(text)
-  return held === null ? null : (customColourChosen(previous, held, dark) ?? held)
+  return held === null ? null : (customColorChosen(previous, held, dark) ?? held)
 }
 
 /** @purity pure */
@@ -205,7 +205,7 @@ function commandFromTaskColumn(
 
 // see FR-007, CM-22, CM-23, CV-4, CV-5
 /** @purity pure */
-function commandsFromVisualColour(
+function commandsFromVisualColor(
   visual: Schedule['taskVisuals'][number] | null,
   uid: number,
   isStroke: boolean,
@@ -213,7 +213,7 @@ function commandsFromVisualColour(
   dark: boolean,
 ): readonly DocumentCommand[] {
   const held = (isStroke ? visual?.strokeColor : visual?.fillColor) ?? null
-  const chosen = text === null ? null : settledColour(text, held, dark)
+  const chosen = text === null ? null : settledColor(text, held, dark)
   const other = (isStroke ? visual?.fillColor : visual?.strokeColor) ?? null
   if (chosen === null && other === null) return [{ kind: 'resetTaskVisualColors', uid }]
   const strokeColor = isStroke ? chosen : other
@@ -241,7 +241,7 @@ function commandFromVisualColumn(
     }
     case 'strokeColor':
     case 'fillColor':
-      return commandsFromVisualColour(visual, uid, column === 'strokeColor', settledText(text), dark)
+      return commandsFromVisualColor(visual, uid, column === 'strokeColor', settledText(text), dark)
     case 'strokeWidthPx': {
       const strokeWidthPx = settledNumber(text)
       return strokeWidthPx === undefined ? [] : [{ kind: 'setTaskVisualStrokeWidth', uid, strokeWidthPx }]
@@ -265,7 +265,7 @@ function commandFromGroupColumn(
       return [{ kind: 'setTaskGroupLabel', groupId, label: settledText(text) }]
     }
     case 'color': {
-      const color = settledColour(text, group.color, dark)
+      const color = settledColor(text, group.color, dark)
       return color === null
         ? [{ kind: 'resetTaskGroupColor', groupId }]
         : [{ kind: 'setTaskGroupColor', groupId, color }]
@@ -308,9 +308,9 @@ function commandFromHighlightBoxColumn(
   const number = settledNumber(text)
   switch (column) {
     case 'strokeColor':
-      return [{ kind: 'setHighlightBoxStrokeColor', id, strokeColor: settledColour(text, box.strokeColor, dark) }]
+      return [{ kind: 'setHighlightBoxStrokeColor', id, strokeColor: settledColor(text, box.strokeColor, dark) }]
     case 'fillColor':
-      return [{ kind: 'setHighlightBoxFillColor', id, fillColor: settledColour(text, box.fillColor, dark) }]
+      return [{ kind: 'setHighlightBoxFillColor', id, fillColor: settledColor(text, box.fillColor, dark) }]
     case 'strokeWidthPx':
       return number === undefined ? [] : [{ kind: 'setHighlightBoxStrokeWidth', id, strokeWidthPx: number }]
     case 'fillTransparencyPercent':
@@ -325,7 +325,7 @@ function commandFromHighlightBoxColumn(
 type CommentBox = Schedule['commentBoxes'][number]
 
 // see PR-21, PR-26, PR-27, PR-28, CM-48, CM-80, CM-81, CM-82, CM-83, CM-84
-// WHY: dispatched by column: one field per column, and PR-28's three colours must not land in the text (S-7).
+// WHY: dispatched by column: one field per column, and PR-28's three colors must not land in the text (S-7).
 /** @purity pure */
 function commandFromCommentBoxColumn(
   box: CommentBox,
@@ -339,11 +339,11 @@ function commandFromCommentBoxColumn(
     case 'text':
       return [{ kind: 'setCommentBoxText', id, text: settledText(text) }]
     case 'strokeColor':
-      return [{ kind: 'setCommentBoxStrokeColor', id, strokeColor: settledColour(text, box.strokeColor, dark) }]
+      return [{ kind: 'setCommentBoxStrokeColor', id, strokeColor: settledColor(text, box.strokeColor, dark) }]
     case 'fillColor':
-      return [{ kind: 'setCommentBoxFillColor', id, fillColor: settledColour(text, box.fillColor, dark) }]
+      return [{ kind: 'setCommentBoxFillColor', id, fillColor: settledColor(text, box.fillColor, dark) }]
     case 'textColor':
-      return [{ kind: 'setCommentBoxTextColor', id, textColor: settledColour(text, box.textColor, dark) }]
+      return [{ kind: 'setCommentBoxTextColor', id, textColor: settledColor(text, box.textColor, dark) }]
     case 'strokeWidthPx':
       return number === undefined ? [] : [{ kind: 'setCommentBoxStrokeWidth', id, strokeWidthPx: number }]
     case 'fillTransparencyPercent':
@@ -413,7 +413,7 @@ function commandsFromStatusDate(text: string, context: InputContext): readonly D
   const date = settledDay(text, (day) => textOfFinishSide(day, context.document.schedule.project))
   if (date === undefined) return []
   if (date === null) return [{ kind: 'clearStatusDate' }]
-  return [{ kind: 'setStatusDate', date }, ...statusLineCentred(context, date)]
+  return [{ kind: 'setStatusDate', date }, ...statusLineCentered(context, date)]
 }
 
 // see FR-035, CM-1, FR-041, FR-131, FR-046

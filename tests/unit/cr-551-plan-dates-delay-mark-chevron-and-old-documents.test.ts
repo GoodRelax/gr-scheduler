@@ -29,7 +29,7 @@ const numberOf = (cell: string): number => {
 }
 const hexOf = (cell: string): string => {
   const found = /#[0-9a-fA-F]{6}/.exec(cell)
-  if (found === null) throw new Error(`no colour in ${JSON.stringify(cell)}`)
+  if (found === null) throw new Error(`no color in ${JSON.stringify(cell)}`)
   return found[0].toLowerCase()
 }
 
@@ -220,14 +220,14 @@ describe('FR-002 -- plan dates at the name size x S-325', () => {
 })
 
 
-const FR_013_COLOURS =
+const FR_013_COLORS =
   'ただし遅れ（表 T-021 の `PM-4`）のマーカーは、地を `_assets/tbl-settings.md` の 表 T-236 の `S-326`、記号を同表の `S-327` で塗ること（MUST）'
 const FR_013_BAR = '遅れの記号 `(!)` の縦棒の太さは、`S-24` に 表 T-206 の `S-328` を掛けた値とすること（MUST）'
 const FR_013_PARTS = '縦棒の下端・点の中心・点の半径は、同表の `S-329` ・ `S-330` ・ `S-331` とすること（MUST）'
 
 interface DelayMark {
   readonly svg: string
-  readonly centre: { x: number; y: number }
+  readonly center: { x: number; y: number }
   readonly radius: number
 }
 
@@ -245,7 +245,7 @@ function delayMark(): DelayMark {
     .map((one) => one[0])
     .join('\n')
   const group = /<g\b[^>]*data-figure="task-1-marker"[^>]*>[\s\S]*?<\/g>/.exec(built.svg())?.[0]
-  return { svg: group ?? svg, centre: marker?.centre as { x: number; y: number }, radius: marker?.radius as number }
+  return { svg: group ?? svg, center: marker?.center as { x: number; y: number }, radius: marker?.radius as number }
 }
 
 const shapesIn = (svg: string): string[] => [...svg.matchAll(/<(circle|line|path|rect|polygon)\b[^>]*>/g)].map((one) => one[0])
@@ -254,7 +254,7 @@ const paintOf = (shape: string, name: 'fill' | 'stroke'): string =>
 
 describe('FR-013 -- the delay mark', () => {
   it('FR-013 still says: 地を S-326、記号を S-327 / S-24 に S-328 を掛けた値 / S-329 ・ S-330 ・ S-331', () => {
-    expect(REQUIREMENTS).toContain(FR_013_COLOURS)
+    expect(REQUIREMENTS).toContain(FR_013_COLORS)
     expect(REQUIREMENTS).toContain(FR_013_BAR)
     expect(REQUIREMENTS).toContain(FR_013_PARTS)
   })
@@ -293,7 +293,7 @@ describe('FR-013 -- the delay mark', () => {
     // see S-329, S-330, S-331
     // TRAP: S-329 / S-330 measure against the half height of the symbol, which no row sizes;
     // so both are checked against ONE common half height, and S-331 against the radius it names.
-    const { svg, centre, radius } = delayMark()
+    const { svg, center, radius } = delayMark()
     const shapes = shapesIn(svg)
     const bar = shapes.find((one) => /^<(line|path)/.test(one) && paintOf(one, 'stroke') === S_327_LIGHT) ?? ''
     const dot = shapes.find((one) => one.startsWith('<circle') && paintOf(one, 'fill') === S_327_LIGHT) ?? ''
@@ -301,10 +301,10 @@ describe('FR-013 -- the delay mark', () => {
       ? [attr(bar, 'y1'), attr(bar, 'y2')]
       : [...(/\bd="([^"]+)"/.exec(bar)?.[1] ?? '').matchAll(/-?\d+(?:\.\d+)?/g)].map((one) => Number(one[0])).filter((_v, i) => i % 2 === 1)
     const barBottom = Math.max(...ys)
-    const halfHeight = (barBottom - centre.y) / S_329
-    expect(halfHeight, 'S-329: the bar ends below the centre').toBeGreaterThan(0)
+    const halfHeight = (barBottom - center.y) / S_329
+    expect(halfHeight, 'S-329: the bar ends below the center').toBeGreaterThan(0)
     expect(halfHeight, 'the half height of the symbol stays inside the mark').toBeLessThanOrEqual(radius + 0.05)
-    expect((attr(dot, 'cy') - centre.y) / halfHeight, 'S-330 against the same half height as S-329').toBeCloseTo(S_330, 1)
+    expect((attr(dot, 'cy') - center.y) / halfHeight, 'S-330 against the same half height as S-329').toBeCloseTo(S_330, 1)
     expect(attr(dot, 'r'), 'S-331: dot radius').toBeCloseTo(S_331 * radius, 1)
     expect(attr(dot, 'cy') - attr(dot, 'r'), 'a gap between the bar and the dot').toBeGreaterThan(barBottom)
   })

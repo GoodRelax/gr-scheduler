@@ -131,7 +131,7 @@ export function dialogueFieldPainter(
     }
     titleSlot.replaceChildren(windowTitleRowElement(host, field.heading, { before: [], titled: field.titleEntries }, anchors, DIALOGUE_FIELD_ROLE))
     // WHY: hidden, not removed: moving the entry out of the tree drops the focus and the typed words (WB-2).
-    const unseen = field.shown === 'minimised' ? STYLE.hidden : ''
+    const unseen = field.shown === 'minimized' ? STYLE.hidden : ''
     dialogueMessages.setAttribute('style', STYLE.dialogueMessages + unseen)
     dialogueEntry.setAttribute('style', STYLE.dialogueEntry + unseen)
     fillDialogueMessages(host, dialogueMessages, field)

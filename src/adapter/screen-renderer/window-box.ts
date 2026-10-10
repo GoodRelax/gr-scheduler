@@ -6,7 +6,7 @@
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { SearchPanelSession } from '../../use-case/advance-screen-session/advance-screen-session'
 
-export type WindowShown = 'normal' | 'minimised' | 'maximised'
+export type WindowShown = 'normal' | 'minimized' | 'maximized'
 
 // see WB-6, S-419, S-455, S-456
 export type WindowPlace = Pick<SearchPanelSession, 'at' | 'size'>
@@ -127,7 +127,7 @@ export function windowBoxOf(
   range: ScreenRect,
   titleHeight: number,
 ): ScreenRect {
-  if (shown === 'maximised') return range
+  if (shown === 'maximized') return range
   if (shown === 'normal') return normalBox
   return { x: normalBox.x, y: normalBox.y + normalBox.height - titleHeight, width: normalBox.width, height: titleHeight }
 }

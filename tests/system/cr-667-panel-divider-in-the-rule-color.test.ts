@@ -29,11 +29,11 @@ const THEME_HUE = (
 type Theme = 'light' | 'dark'
 const COLUMN: Readonly<Record<Theme, string>> = { light: '明るいテーマ', dark: '暗いテーマ' }
 
-const colourIn = (id: string, theme: Theme): string =>
+const colorIn = (id: string, theme: Theme): string =>
   bare(rowOf(T_236, id).by[COLUMN[theme]] ?? '').replace(/\bH\b/g, String(THEME_HUE))
 
 interface DividerReading {
-  readonly lines: readonly { readonly width: number; readonly height: number; readonly colour: string }[]
+  readonly lines: readonly { readonly width: number; readonly height: number; readonly color: string }[]
   readonly s149: string
   readonly s165: string
   readonly ruleWidthsPx: readonly number[]
@@ -69,17 +69,17 @@ async function readDivider(page: Page, theme: Theme): Promise<DividerReading> {
       const around = band.getBoundingClientRect()
       const lines = [...document.querySelectorAll('div')]
         .filter((one) => one !== band && !band.contains(one) && !one.contains(band))
-        .map((one) => ({ one, box: one.getBoundingClientRect(), colour: getComputedStyle(one).backgroundColor }))
+        .map((one) => ({ one, box: one.getBoundingClientRect(), color: getComputedStyle(one).backgroundColor }))
         .filter(
-          ({ box, colour }) =>
-            colour !== 'rgba(0, 0, 0, 0)' &&
+          ({ box, color }) =>
+            color !== 'rgba(0, 0, 0, 0)' &&
             box.width > 0 &&
             box.width < around.width &&
             box.left >= around.left - 0.5 &&
             box.right <= around.right + 0.5 &&
             box.height >= around.height * 0.5,
         )
-        .map(({ box, colour }) => ({ width: box.width, height: box.height, colour }))
+        .map(({ box, color }) => ({ width: box.width, height: box.height, color }))
       const rules = [...document.querySelectorAll('[data-role="Schedule Canvas"] svg [data-figure$="-rule"]')].map((one) => {
         const matrix = (one as SVGGraphicsElement).getScreenCTM()
         const scale = matrix === null ? 1 : Math.hypot(matrix.c, matrix.d)
@@ -87,7 +87,7 @@ async function readDivider(page: Page, theme: Theme): Promise<DividerReading> {
       })
       return { lines, s149: painted(asked.s149), s165: painted(asked.s165), ruleWidthsPx: rules }
     },
-    { divider: DIVIDER, s149: colourIn('S-149', theme), s165: colourIn('S-165', theme) },
+    { divider: DIVIDER, s149: colorIn('S-149', theme), s165: colorIn('S-165', theme) },
   )
 }
 
@@ -108,8 +108,8 @@ for (const theme of ['light', 'dark'] as const) {
       expect(read.lines, 'one divider line is drawn along the task group panel band').toHaveLength(1)
       const line = read.lines[0]
       if (line === undefined) throw new Error('no divider line')
-      expect(line.colour, 'the line is S-149').toBe(read.s149)
-      expect(line.colour, 'the line is not S-165').not.toBe(read.s165)
+      expect(line.color, 'the line is S-149').toBe(read.s149)
+      expect(line.color, 'the line is not S-165').not.toBe(read.s165)
       expect(read.ruleWidthsPx.length, 'premise: the canvas draws Group Grid Lines').toBeGreaterThan(0)
       for (const width of read.ruleWidthsPx) expect(line.width, 'as thick as the Group Grid Lines').toBeCloseTo(width, 1)
     } finally {

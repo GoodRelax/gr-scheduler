@@ -1,4 +1,4 @@
-// DFC-754: the screen colours carry the theme hue in every place a T-236 cell writes the H, none is left standing (FR-041, T-236).
+// DFC-754: the screen colors carry the theme hue in every place a T-236 cell writes the H, none is left standing (FR-041, T-236).
 
 import { describe, expect, it } from 'vitest'
 
@@ -29,7 +29,7 @@ describe('DFC-754: the hue stands for every H of a cell (FR-041)', () => {
         expect(stand(written)).toBe(0)
       })
 
-      it(`FR-041 the hue ${hue} is written into the hued colours of the ${preference} theme`, () => {
+      it(`FR-041 the hue ${hue} is written into the hued colors of the ${preference} theme`, () => {
         expect(written).toContain(`hsl(${hue} `)
       })
     }

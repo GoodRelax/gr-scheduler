@@ -188,7 +188,7 @@ function numberAttribute(element: GlyphElement, name: string, where: string): nu
  * Half the width of the ink one shape's stroke lays down, or zero where it is
  * not stroked.
  *
- * ⭐ WHY HALF, AND WHY IN EVERY DIRECTION. A stroke is centred on the geometry,
+ * ⭐ WHY HALF, AND WHY IN EVERY DIRECTION. A stroke is centered on the geometry,
  * so it reaches half its width outside it; with a ROUND cap it reaches that far
  * beyond an endpoint too, and with a ROUND join it never reaches further at a
  * corner. ⛔ So the caps and the joins are asserted rather than assumed: a
@@ -231,7 +231,7 @@ function onEllipse(
 }
 
 /**
- * The points of one `A` / `a` arc, by the endpoint-to-centre conversion SVG's
+ * The points of one `A` / `a` arc, by the endpoint-to-center conversion SVG's
  * own grammar defines.
  *
  * ⛔ THE ARCS ARE NOT SKIPPED. Every rounded corner in 図 F-019 is one, and the

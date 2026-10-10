@@ -38,7 +38,7 @@ const HEAL = [
 
 const HOUSE = [
   'RULES (the project own rules, in docs/development-rules/ -- read 03-implementation.md first):',
-  ' - src/ is English and ASCII prose, apart from the project own comment marks the neighbours use.',
+  ' - src/ is English and ASCII prose, apart from the project own comment marks the neighbors use.',
   ' - You MAY run the python generators and python one-liners to measure.',
   '   You may NOT run npm test / typecheck / build / check.sh -- the front session verifies.',
   ' - DO NOT run git commit / push / add / merge.',
@@ -162,7 +162,7 @@ const proposals = await parallel(
         ' - the MECHANISM: why it behaves as it does, with file:line and a number. Not the symptom.',
         ' - MEASURED: numbers you produced yourself. Say how. Do not quote another report.',
         ' - the row IDs your change reaches, and the steps you would take.',
-        ' - what a tester who may read ONLY docs/spec could assert, and which row authorises it.',
+        ' - what a tester who may read ONLY docs/spec could assert, and which row authorizes it.',
         '',
         '⛔ OPEN VALUES -- the part that most often goes wrong. For EVERY value the specification does',
         'not settle, read docs/development-rules/06-pending-decisions.md and classify it. Ask its two',
@@ -232,7 +232,7 @@ const built = await parallel(
             (p.proposal.testable || []).map((t) => ' - ' + t).join('\n'),
             '',
             'Read those rows yourself and quote what you relied on. Follow the conventions already in',
-            'tests/ -- read several neighbours first.',
+            'tests/ -- read several neighbors first.',
           ].join('\n'),
           { label: 'test:' + p.key, phase: 'Build', isolation: 'worktree', schema: REPORT },
         ),

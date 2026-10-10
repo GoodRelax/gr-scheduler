@@ -9,9 +9,9 @@ row ids, prose counts drifted from the rows they count, generated artifacts out
 of step with their source. ⛔ NOT ONE OF THEM OPENS A FILE UNDER `src/` OR
 `tests/`. So when a row leaves the manuscript, the withdrawal is checked into
 the manuscript and the code that names the row is never looked at again: the
-comment above the function goes on explaining behaviour by a row number that
+comment above the function goes on explaining behavior by a row number that
 means nothing, and the test beside it goes on printing green while quoting a
-seat that was burnt months ago. Places under `src/` and `tests/` do name IDs
+seat that was burned months ago. Places under `src/` and `tests/` do name IDs
 the specification has retired on purpose, and IDs that resolve nowhere at all;
 this check counts them.
 
@@ -121,7 +121,7 @@ resolve perfectly well and are not this check's business.
 ⭐ THE BASELINE IS A RATCHET, in the shape `must-clause-coverage-baseline.txt`
 and `stale-blocked-baseline.txt` already use: line 1 is the number, everything
 after it is commentary. The count rising above the number FAILS the round --
-new code may not be written against a burnt seat. The count falling prints OK
+new code may not be written against a burned seat. The count falling prints OK
 and invites lowering the number so the ground cannot be given back.
 
     python .claude/skills/spec-graph-check/check-spec-id-references.py
@@ -304,7 +304,7 @@ def main():
         shown = hits[:12]
         say('FAIL     src/ and tests/: references to a retired or undefined '
             'specification ID went %d -> %d (%d retired, %d undefined). ⛔ New '
-            'code may not be written against a burnt seat. ⛔ Repair the '
+            'code may not be written against a burned seat. ⛔ Repair the '
             'reference; raise the number in %s only to book a withdrawal '
             'deliberately, and say why in the commit.'
             % (held, count, n_retired, n_undefined, REL_BASELINE))

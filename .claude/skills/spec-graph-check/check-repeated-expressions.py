@@ -30,12 +30,12 @@ token sequence occurs at two or more places. Each group is printed with a
 `file:line` for every member, so a reader can go and look rather than take
 this file's word for it. The baseline holds the NUMBER OF GROUPS.
 
-HOW IT DECIDES -- the three judgements, each of which can be refuted.
+HOW IT DECIDES -- the three judgments, each of which can be refuted.
 
-1. NORMALISATION: WHITESPACE ONLY. Tokens are compared verbatim. Identifiers
+1. NORMALIZATION: WHITESPACE ONLY. Tokens are compared verbatim. Identifiers
    are NOT renamed to a placeholder and literals are NOT blanked. That is the
    conservative half of the classic type-2 clone detector, taken deliberately:
-   normalising identifiers turns "the same code" into "the same SHAPE", and
+   normalizing identifiers turns "the same code" into "the same SHAPE", and
    shape matching in a tree like this one pairs every `for` over a different
    array with every other. ⭐ Measured on this tree at floor 10, everything
    else held equal: 460 groups with identifiers kept, 1130 with every
@@ -89,7 +89,7 @@ price of a boundary the design chose on purpose -- `task-group-panel.ts` says
 in as many words that `_source/components.json` gives it no edge to
 `ScheduleLayout`, so its copy of the counting is the boundary's price. This
 check makes the copies VISIBLE and holds their number; which ones earn a home
-is a person's judgement and belongs in a change request.
+is a person's judgment and belongs in a change request.
 
 ⛔ IT IS NOT A SEMANTIC DUPLICATE DETECTOR. A rule paraphrased into different
 code is invisible here, exactly as check 11 is blind to a paraphrased
@@ -105,7 +105,7 @@ in the middle of a generic.
 dependencies (`package.json` holds ajv, playwright, typescript, vite, vitest
 and nothing that exposes a syntax tree to Python), so the tokenizer below is
 hand-rolled: comments, strings, template literals and regular-expression
-literals are recognised so that a `/` inside `/\//g` is not mistaken for the
+literals are recognized so that a `/` inside `/\//g` is not mistaken for the
 start of a comment, and everything else falls into a name, a number or a
 single punctuation character.
 

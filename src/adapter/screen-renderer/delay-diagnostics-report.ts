@@ -408,7 +408,7 @@ function summaryOf(
   return [
     { status: null, text: filled(word('statusDate'), { date: dateText(report.statusDate) }) },
     ...counts,
-    { status: null, text: filled(word('unanalysed'), { count: report.unanalysedCount }) },
+    { status: null, text: filled(word('unreliable'), { count: report.unreliableCount }) },
   ]
 }
 
@@ -431,7 +431,7 @@ export function delayDiagnosticsReportFromWindow(
 ): DelayDiagnosticsReportView | null {
   if (window === null || report === null) return null
   const language = displayLanguageOf(session)
-  const isOpen = window.shown !== 'minimised'
+  const isOpen = window.shown !== 'minimized'
   const reported = delayDiagnosticsReportRows(report, schedule)
   const all = isOpen ? reported : []
   const withCells = taskGroupsWithCells(all, language)

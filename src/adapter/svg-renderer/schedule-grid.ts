@@ -31,7 +31,7 @@ import {
   figureKey,
   rounded,
   typefaceAttribute,
-  type ChosenColour,
+  type ChosenColor,
 } from './svg-renderer'
 
 export interface GridInput {
@@ -43,8 +43,8 @@ export interface GridInput {
   readonly scrollTop: number
   readonly monochrome: boolean
   readonly themed: (rowId: string) => string
-  readonly chosen: ChosenColour
-  readonly colourOfGroup: ReadonlyMap<
+  readonly chosen: ChosenColor
+  readonly colorOfGroup: ReadonlyMap<
     Schedule['taskGroups'][number]['id'],
     Schedule['taskGroups'][number]['color']
   >
@@ -385,14 +385,14 @@ function dateGridParts(input: GridInput): readonly string[] {
 // see FR-089, FR-042, OD-4
 /** @purity pure */
 export function gridParts(input: GridInput): GridParts {
-  const { settings, layout, area, areaBottom, scrollTop, themed, chosen, colourOfGroup } = input
+  const { settings, layout, area, areaBottom, scrollTop, themed, chosen, colorOfGroup } = input
   const bandParts: string[] = []
   const ruleParts: string[] = []
   for (const [position, taskGroup] of layout.taskGroups.entries()) {
     const top = Math.max(taskGroup.y, taskGroup.isPinned === true ? area.y : scrollTop)
     const bottom = Math.min(taskGroup.y + taskGroup.height, areaBottom)
     if (bottom <= top) continue
-    const band = chosen(colourOfGroup.get(taskGroup.groupId) ?? null, 'band') ?? themed(bandTaskGroupOf(taskGroup.depth, position))
+    const band = chosen(colorOfGroup.get(taskGroup.groupId) ?? null, 'band') ?? themed(bandTaskGroupOf(taskGroup.depth, position))
     const taskGroupKey = `task-group-${taskGroup.groupId}`
     bandParts.push(
       `<rect x="${rounded(area.x)}" y="${rounded(top)}"` +

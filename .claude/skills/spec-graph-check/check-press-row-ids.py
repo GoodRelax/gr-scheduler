@@ -95,7 +95,7 @@ def rows_of_table(root):
             if m:
                 found.append(m.group(1))
     if not found:
-        return None, (u'表 T-023a holds no row this check recognises -- '
+        return None, (u'表 T-023a holds no row this check recognizes -- '
                       u'the caption moved, or the row shape changed')
     return found, None
 

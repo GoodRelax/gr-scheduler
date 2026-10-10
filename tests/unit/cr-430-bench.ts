@@ -142,8 +142,8 @@ export function boxOfRect(
 /** @purity pure */
 export function markerBoxOf(drawn: TaskGeometry): Box | null {
   if (drawn.marker === null) return null
-  const { centre, radius } = drawn.marker
-  return { x0: centre.x - radius, x1: centre.x + radius, y0: centre.y - radius, y1: centre.y + radius }
+  const { center, radius } = drawn.marker
+  return { x0: center.x - radius, x1: center.x + radius, y0: center.y - radius, y1: center.y + radius }
 }
 
 /** @purity pure */
@@ -233,7 +233,7 @@ export function scanGrabAreas(
 }
 
 // WHY: the first answering point sits on the area's outer corner, where a press
-// WHY: lands in a neighbouring region; the middlemost one is inside the area.
+// WHY: lands in a neighboring region; the middlemost one is inside the area.
 /** @purity pure */
 function middlemost(all: readonly Point[]): Point {
   const cx = all.reduce((sum, one) => sum + one.x, 0) / all.length

@@ -1,4 +1,4 @@
-// Rewrites how a Task looks: its shape, figure, colours, outline width and fades.
+// Rewrites how a Task looks: its shape, figure, colors, outline width and fades.
 // @unit      UF-76   (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
@@ -9,7 +9,7 @@ import {
   blankTaskVisual,
   calendarDaysBetween,
   dayOf,
-  isStoredColour,
+  isStoredColor,
   TRANSPARENT,
   type Task,
   type TaskVisual,
@@ -125,8 +125,8 @@ export function setTaskVisualColors(
     return refused([reject('CM-22', 'IV-9', 'the fill and the stroke may not both be transparent')])
   }
   for (const chosen of [command.fillColor, command.strokeColor]) {
-    if (chosen !== null && !isStoredColour(chosen, true)) {
-      return refused([reject('CM-22', 'CV-1', `not a palette name or a custom colour: ${chosen}`)])
+    if (chosen !== null && !isStoredColor(chosen, true)) {
+      return refused([reject('CM-22', 'CV-1', `not a palette name or a custom color: ${chosen}`)])
     }
   }
   const visual = visualOf(schedule, command.uid)

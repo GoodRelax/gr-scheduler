@@ -1,4 +1,4 @@
-// CR-602 spec-only cases: an emphasised dependency line keeps S-159 and adds S-447, and its end Tasks' plans are traced.
+// CR-602 spec-only cases: an emphasized dependency line keeps S-159 and adds S-447, and its end Tasks' plans are traced.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -44,9 +44,9 @@ const numbersOf = (text: string): readonly number[] => [...text.matchAll(/-?\d+(
 // see T-201, T-206, T-236
 const T201 = (id: string): number => numberIn(cellOf('T-201', id, '既定値'))
 const T206 = (id: string): number => numberIn(cellOf('T-206', id, '既定'))
-const colourOf = (id: string, column: string): string => cellOf('T-236', id, column).replace(/`/g, '').trim().toLowerCase()
-const LIGHT = (id: string): string => colourOf(id, '明るいテーマ')
-const DARK = (id: string): string => colourOf(id, '暗いテーマ')
+const colorOf = (id: string, column: string): string => cellOf('T-236', id, column).replace(/`/g, '').trim().toLowerCase()
+const LIGHT = (id: string): string => colorOf(id, '明るいテーマ')
+const DARK = (id: string): string => colorOf(id, '暗いテーマ')
 const keyOf = (table: string, id: string): string => bare(cellOf(table, id, 'キー'))
 
 const SL_8 = rowCells('T-023c', 'SL-8')
@@ -61,7 +61,7 @@ const S_447 = rowCells('T-206', 'S-447')
 
 const SL_8_WIDTH =
   '依存線は、その線自身の太さに 表 T-206 の `S-447` を足した太さで描き、色は変えないこと（MUST） —— 色は依存線の色（同書の 表 T-236 の `S-159`）のままとし、矢じりと、`FR-009` の 表 T-303 の `EL-9` の続きの印の点も同じとする。'
-const SL_8_WHY_COLOUR =
+const SL_8_WHY_COLOR =
   '⭐ 色を変えないのは、選んだ線に別の色を当てると、その色が同表のほかの線の色（カーソルの `S-195`、基準日線の `S-163`）と紛れるからである。'
 const SL_8_ENDS =
   '選んだ依存線の両端の `Task`（マイルストーンを含む）は、描いた予定の図形を、その輪郭と同じ所・同じ形の線で囲むこと（MUST） —— どのタスクがどのタスクに依存するかを、線のまわりで読ませる。'
@@ -94,7 +94,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 describe('CR-602 -- the manuscript these cases are driven by', () => {
   it.each([
     ['T-023c SL-8 (width)', SL_8, SL_8_WIDTH],
-    ['T-023c SL-8 (why the colour stays)', SL_8, SL_8_WHY_COLOUR],
+    ['T-023c SL-8 (why the color stays)', SL_8, SL_8_WHY_COLOR],
     ['T-023c SL-8 (ends)', SL_8, SL_8_ENDS],
     ['T-023c SL-8 (outline ink)', SL_8, SL_8_OUTLINE_INK],
     ['T-023c SL-8 (not the actual)', SL_8, SL_8_NOT_ACTUAL],
@@ -126,7 +126,7 @@ const DRAW_RATIO_AT_100 = T206('S-236')
 const ratioAt = (displayScale: number): number => (DRAW_RATIO_AT_100 * displayScale) / 100
 const LINE_WIDTH = (displayScale = 100): number => T201('S-18') * ratioAt(displayScale)
 // see SL-8, EL-16, S-447
-const EMPHASISED_WIDTH = (displayScale = 100): number => LINE_WIDTH(displayScale) + T206('S-447')
+const EMPHASIZED_WIDTH = (displayScale = 100): number => LINE_WIDTH(displayScale) + T206('S-447')
 // see SL-8, S-39
 const PLAN_OUTLINE_WIDTH = (displayScale = 100): number => T201('S-39') * ratioAt(displayScale)
 // see SL-8, S-447
@@ -140,7 +140,7 @@ describe(`S-447 -- ${S_447_AT_100}`, () => {
     const [scale, ratio, lineBefore, lineAfter, outlineBefore, outlineAfter] = numbersOf(S_447_AT_100.replace(/`S-\d+`/g, ''))
     expect(ratioAt(scale!), 'S-236').toBeCloseTo(ratio!, 9)
     expect(LINE_WIDTH(scale!), S_447_AT_100).toBeCloseTo(lineBefore!, 9)
-    expect(EMPHASISED_WIDTH(scale!), S_447_AT_100).toBeCloseTo(lineAfter!, 9)
+    expect(EMPHASIZED_WIDTH(scale!), S_447_AT_100).toBeCloseTo(lineAfter!, 9)
     expect(PLAN_OUTLINE_WIDTH(scale!), S_447_AT_100).toBeCloseTo(outlineBefore!, 9)
     expect(OUTLINE_WIDTH(scale!), S_447_AT_100).toBeCloseTo(outlineAfter!, 9)
   })
@@ -352,7 +352,7 @@ const verticesOf = (one: Element): readonly Pt[] => {
 const sameVertices = (a: readonly Pt[], b: readonly Pt[]): boolean =>
   a.length > 0 && a.every((one) => b.some((other) => near(one, other))) && b.every((one) => a.some((other) => near(one, other)))
 
-// WHY: a circle is the same figure only with the same centre and the same radius.
+// WHY: a circle is the same figure only with the same center and the same radius.
 const sameFigure = (a: Element, b: Element): boolean =>
   sameVertices(verticesOf(a), verticesOf(b)) &&
   (a.tag !== 'circle' || Math.abs(Number(attrOf(a.attrs, 'r')) - Number(attrOf(b.attrs, 'r'))) <= SVG_EPS)
@@ -364,8 +364,8 @@ const figuresOf = (svg: string, uid: number, part: 'plan' | 'actual'): readonly 
 const inkedLines = (svg: string, theme: Theme = 'light'): readonly Element[] =>
   elementsOf(svg).filter((one) => one.tag === 'polyline' && strokeOf(one) === themed('S-159', theme))
 
-const emphasisedLines = (svg: string, displayScale = 100, theme: Theme = 'light'): readonly Element[] =>
-  inkedLines(svg, theme).filter((one) => Math.abs(widthOf(one) - EMPHASISED_WIDTH(displayScale)) <= SVG_EPS)
+const emphasizedLines = (svg: string, displayScale = 100, theme: Theme = 'light'): readonly Element[] =>
+  inkedLines(svg, theme).filter((one) => Math.abs(widthOf(one) - EMPHASIZED_WIDTH(displayScale)) <= SVG_EPS)
 
 // see SL-8, ZO-10
 const outlinesOf = (svg: string, theme: Theme = 'light'): readonly Element[] =>
@@ -382,7 +382,7 @@ const EMPHASES = [
 ] as const
 
 describe(`SL-8 -- ${SL_8_WIDTH}`, () => {
-  const colours = (svg: string): ReadonlySet<string> => {
+  const colors = (svg: string): ReadonlySet<string> => {
     const out = new Set<string>()
     for (const one of elementsOf(svg)) {
       for (const paint of [strokeOf(one), fillOf(one)]) if (paint !== '' && paint !== 'none') out.add(paint)
@@ -395,11 +395,11 @@ describe(`SL-8 -- ${SL_8_WIDTH}`, () => {
 
   for (const [name, wish] of EMPHASES) {
     for (const theme of ['light', 'dark'] as const) {
-      it(`${name} (${theme}) brings in no colour the plain picture does not hold -- ${SL_8_WHY_COLOUR}`, () => {
-        const plain = colours(svgOf({}, 'screen', theme))
-        const emphasised = svgOf(wish, 'screen', theme)
-        expect(emphasisedLines(emphasised, 100, theme).length, 'premise: the line is emphasised').toBe(1)
-        expect([...colours(emphasised)].filter((one) => !plain.has(one)), SL_8_WIDTH).toEqual([])
+      it(`${name} (${theme}) brings in no color the plain picture does not hold -- ${SL_8_WHY_COLOR}`, () => {
+        const plain = colors(svgOf({}, 'screen', theme))
+        const emphasized = svgOf(wish, 'screen', theme)
+        expect(emphasizedLines(emphasized, 100, theme).length, 'premise: the line is emphasized').toBe(1)
+        expect([...colors(emphasized)].filter((one) => !plain.has(one)), SL_8_WIDTH).toEqual([])
       })
     }
   }
@@ -502,7 +502,7 @@ describe(`S-447 -- ${S_447_PX}; ${DS_7_NOT_SCALED}`, () => {
   for (const [name, wish] of EMPHASES) {
     it(`${name} at display scale ${AT}: the line is S-18 x ratio + S-447 and the outline S-39 x ratio + S-447`, () => {
       const svg = svgOf({ ...wish, settings: { [DISPLAY_SCALE]: AT } })
-      expect(emphasisedLines(svg, AT).length, SL_8_WIDTH).toBe(1)
+      expect(emphasizedLines(svg, AT).length, SL_8_WIDTH).toBe(1)
       const outlines = outlinesOf(svg)
       expect(outlines.length, 'premise: two outlines').toBe(2)
       for (const one of outlines) expect(Math.abs(widthOf(one) - OUTLINE_WIDTH(AT)), S_447_PX).toBeLessThanOrEqual(SVG_EPS)
@@ -539,7 +539,7 @@ describe('EP-12 -- an exported picture draws neither the emphasis nor the outlin
   for (const shape of ['rectangle', 'milestone', 'arrow'] as const) {
     it(`${shape}: a selected line and a landing in an export -- no wider line, no trace`, () => {
       const svg = svgOf({ selection: LINE_1_2, landing: true, shape, tasks: shape === 'milestone' ? MILESTONES : PAIR }, 'export')
-      expect(emphasisedLines(svg), 'EP-12').toEqual([])
+      expect(emphasizedLines(svg), 'EP-12').toEqual([])
       expect(outlinesOf(svg), 'EP-12').toEqual([])
       expect(inkedLines(svg).length, 'premise: the line itself is exported').toBe(1)
     })

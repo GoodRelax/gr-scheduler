@@ -38,7 +38,7 @@
 //
 // Both were「左右の空き」until the same 2026-08-29 ruling changed the row's
 // own 値 column and this sentence together (`git show 2a679cb` -- the commit
-// that carried the ruling in). Neither mentions a colour for this line
+// that carried the ruling in). Neither mentions a color for this line
 // anywhere in either passage.
 //
 // ---------------------------------------------------------------------------
@@ -47,19 +47,19 @@
 // ---------------------------------------------------------------------------
 //
 // What was read: docs/spec/ for S-143, FR-053 and table T-236 (searched for a
-// colour row naming this line -- see below), docs/development-rules/, and of
+// color row naming this line -- see below), docs/development-rules/, and of
 // `src/` nothing but the exported declarations these cases must call or name:
 // `domScreenSurface`, `ScreenSurfaceWiring`, `ScreenTheme`, the `ScreenView`
 // family and `SETTINGS_DEFAULTS`. ⛔ NO BODY WAS READ. In particular nothing
 // was read about which CSS property this unit states a gap in, nor whether it
 // states the same property on every side.
 //
-// COLOUR: searched table T-236 (「画面の色」) and every place FR-053's text
-// names a T-236 row (`S-183` for the armed entry's colour, `S-151` for the
+// COLOR: searched table T-236 (「画面の色」) and every place FR-053's text
+// names a T-236 row (`S-183` for the armed entry's color, `S-151` for the
 // selection frame elsewhere in the specification) -- neither FR-053's
 // boundary paragraph nor S-143's own row names one for this line. S-143's
 // remark states outright that the row holds a thickness and a gap and
-// "nothing else" (⚠️ 図形でもない…). ⛔ SO NO COLOUR CASE IS WRITTEN, matching
+// "nothing else" (⚠️ 図形でもない…). ⛔ SO NO COLOR CASE IS WRITTEN, matching
 // the conclusion tests/unit/fr-053-palette-group-boundary.test.ts already
 // reached for the same row.
 //
@@ -76,7 +76,7 @@
 //
 // ⛔ WHAT IS NEW HERE AND WHY: `sideGapsOf` in the sibling file reads only the
 // horizontal margin properties, because that was the whole of S-143's second
-// number before the ruling. `effectiveMarginPx` below is its generalisation:
+// number before the ruling. `effectiveMarginPx` below is its generalization:
 // it resolves the CSS margin shorthand (1/2/3/4-value forms), the physical
 // longhands, and the logical shorthands/longhands (`margin-block(-start/end)`,
 // `margin-inline(-start/end)`, read as LTR -- the specification carries no
@@ -109,7 +109,7 @@
 //      number and no other. This file measures the SIDES; the sibling file's
 //      "was really driven by the manuscript" case already proves the number
 //      itself was read rather than invented.
-//   3. WHAT COLOUR THE LINE IS -- searched and not found, see above.
+//   3. WHAT COLOR THE LINE IS -- searched and not found, see above.
 //   4. WHERE THE LINE STANDS relative to the two boxes it separates. No row
 //      states it and there is no layout engine here to ask (unchanged from
 //      the sibling file).
@@ -602,7 +602,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
  *
  * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1): S-72's default arrives
  * through the generated `SETTINGS_DEFAULTS` and S-73's is read out of table
- * T-216 at load time. ⭐ No case reads a colour back -- `readTheme` is a
+ * T-216 at load time. ⭐ No case reads a color back -- `readTheme` is a
  * REQUIRED member of `ScreenSurfaceWiring`, so the cases need a theme to build
  * the surface at all, not a particular one.
  */
@@ -784,7 +784,7 @@ const rulesIn = (palette: FakeElement): FakeElement[] => selfAndDescendants(pale
 //
 // `sideGapsOf` in the sibling file only reads the horizontal margin
 // properties, because before the 2026-08-29 ruling that was the whole of
-// S-143's second number. `effectiveMarginPx` below generalises it: it resolves
+// S-143's second number. `effectiveMarginPx` below generalizes it: it resolves
 // the CSS margin shorthand's 1/2/3/4-value forms, the physical longhands, and
 // the logical shorthands/longhands (read as LTR, which is all this
 // specification ever asks for) down to one value per physical side --
@@ -934,7 +934,7 @@ const entryFor = (icon: string): CommandItem => ({
 const paletteOf = (groupCount: number): CommandPalette => ({
   at: { x: 400, y: 300 },
   grabBandHeight: 0,
-  minimise: {
+  minimize: {
     icon: 'IC-75',
     label: 'IC-75',
     isEnabled: true,
@@ -942,7 +942,7 @@ const paletteOf = (groupCount: number): CommandPalette => ({
     isArmed: false,
     isChosen: false,
   },
-  isMinimised: false,
+  isMinimized: false,
   groups: Array.from(
     { length: groupCount },
     (_absent, at): PaletteGroup => ({
@@ -1037,13 +1037,13 @@ describe('S-143 (利用者の裁定 2026-08-29) -- the gap reaches every side of
 })
 
 // ---------------------------------------------------------------------------
-// ⚠️ NO COLOUR CASE. Searched: FR-053's full statement (the paragraph that
+// ⚠️ NO COLOR CASE. Searched: FR-053's full statement (the paragraph that
 // carries S-143, and the rest of the requirement) and S-143's own row in table
 // T-206. Neither names a row of table T-236 for this line -- the T-236
-// reference FR-053's text does carry is for ANOTHER mark (`S-183`, the colour
+// reference FR-053's text does carry is for ANOTHER mark (`S-183`, the color
 // 表 T-237's `EN-1` fills the armed entry's glyph box with), not
 // for the group boundary. S-143's remark states, in as many words, that the row holds
 // a thickness and a gap and nothing else (⚠️ 図形でもない…). Per the task's own
-// rule ("if neither names one, say so and write no colour case"), none is
+// rule ("if neither names one, say so and write no color case"), none is
 // written here.
 // ---------------------------------------------------------------------------

@@ -97,11 +97,11 @@ describe(`FR-099 T-370 RO-4 / RO-5 -- ${RO_4_ORDER}`, () => {
 })
 
 describe(`FR-099 (MUST): ${FR_099_WINDOW.slice(-40)} -- the window entrances of SV-12 / SV-14`, () => {
-  it('IC-129 minimises the window', () => {
+  it('IC-129 minimizes the window', () => {
     const after = resourceListAfterEntry(OPENED as never, 'IC-129' as never, null, { schedule: SCHEDULE, chosenResourceUids: [], language: 'ja' } as never) as unknown as {
       readonly window: { readonly shown: string } | null
     } | null
-    expect(after?.window?.shown).toBe('minimised')
+    expect(after?.window?.shown).toBe('minimized')
   })
 
   it('IC-52 closes the window', () => {

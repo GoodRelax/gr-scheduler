@@ -1,7 +1,7 @@
 // NFR-004, judged over the population the clause names, from `file://`.
 //
 // ⭐ WHY THIS FILE EXISTS. NFR-004 (:4272 of docs/spec/01-04-requirements.md)
-// settles its own judgement: the requirement is met when 「表 T-023a・表 T-023b・
+// settles its own judgment: the requirement is met when 「表 T-023a・表 T-023b・
 // 表 T-023c・表 T-023d・表 T-023 ・表 T-036 が挙げる操作と、表 T-024 の書出の形式」
 // work with the network cut, and 「判定は、ファイルを直接開いた状態でも行うこと
 // （MUST）」. Until this file, the only two cases that opened the deliverable as
@@ -21,7 +21,7 @@
 // ⚠️ WHAT THE STUBBED HOST DIALOG CAN AND CANNOT SHOW. `showSaveFilePicker` and
 // `showOpenFilePicker` are replaced before the page loads, because a driven
 // browser cannot answer a host chooser. That means every export row below shows
-// only THE BEHAVIOUR AFTER THE HANDLE IS IN HAND -- whether the tool asked for a
+// only THE BEHAVIOR AFTER THE HANDLE IS IN HAND -- whether the tool asked for a
 // destination and then wrote bytes to it. It does NOT show whether the host
 // would have opened the chooser at all from a `file://` page. LM-14 is the row
 // that says that second question is open, and it is not answered here.
@@ -91,7 +91,7 @@ function outwardFormatsOfT024(): readonly string[] {
  * behind.
  */
 const EXCLUDED_BY_LM_14: Readonly<Record<string, string>> = {
-  'SK-11': 'LM-14: 上書き保存 (FR-060) is outside NFR-004 judgement under file://',
+  'SK-11': 'LM-14: 上書き保存 (FR-060) is outside NFR-004 judgment under file://',
   'IO-5': 'LM-14: localStorage is the 別枠 store of table T-206',
 }
 
@@ -294,7 +294,7 @@ const GEOMETRY_SCRIPT = `(() => {
   const svg = canvas ? canvas.querySelector('svg') : null
   if (!svg) return null
   const area = canvas.getBoundingClientRect()
-  // ⛔ A BAR WIDER THAN THE SCREEN HAS NO CENTRE TO PRESS. Measured on the
+  // ⛔ A BAR WIDER THAN THE SCREEN HAS NO CENTER TO PRESS. Measured on the
   // startup document: the widest shape drawn is 6348px across, so its middle
   // lands 1556px outside the window and every gesture aimed there is dispatched
   // into nothing. SL-3 states the same fact from the specification's side --
@@ -451,7 +451,7 @@ const GEOMETRY_SCRIPT = `(() => {
     return r ? { x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2) } : null
   })()
   // ⛔⛔ A DEPENDENCY IS PRESSED ON ITS OWN INK, AND ITS KEY IS WHAT FINDS IT.
-  // What stood here took the CENTRE OF THE BOUNDING RECTANGLE of the first
+  // What stood here took the CENTER OF THE BOUNDING RECTANGLE of the first
   // <polyline> in document order that was not tiny and was clear of every bar,
   // and both halves of that were wrong. Measured 2026-09-09 on this build,
   // with the point that chooser returned then clicked:
@@ -467,7 +467,7 @@ const GEOMETRY_SCRIPT = `(() => {
   // reading is the worse one: a guide DID move the drawing, so on another day
   // the same chooser would have reported GA-19 green for pressing something
   // that is not a dependency.
-  // ⛔ AND A BOUNDING RECTANGLE'S CENTRE IS NOT ON THE LINE. A dependency is
+  // ⛔ AND A BOUNDING RECTANGLE'S CENTER IS NOT ON THE LINE. A dependency is
   // drawn as an orthogonal Z (measured: '1454,1563 1461,1563 1461,979
   // 1437,979 1437,388 1451,388'), so its rectangle's middle sits in the open
   // space the Z encloses, and one of those middles was 227px ABOVE the window.

@@ -40,7 +40,7 @@ tools/generate_entity_types.py  公開する写しの一覧（`PUBLISHED_READ_BY
 **`not_stored_block` は 表 T-206 専用である**（`S-132` は 表 T-217 なので `annotation_defaults_block` を足した）。
 ```
 AGENT_API_VALUES_INITIAL_AXES        `Agent API` の状態機械の初期の種類（表 T-296 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
-COLOUR_NAME_VALUES                   パレット色の名ごとの描く値（表 T-294。`SvgRenderer` が塗る）
+COLOR_NAME_VALUES                   パレット色の名ごとの描く値（表 T-294。`SvgRenderer` が塗る）
 COLUMN_DEFAULTS                      列の既定値（表 T-058 が刷る）
 COLUMN_SHAPES                        列の入力の形・選択肢・下限上限（`erd.json`）
 DATE_COLUMNS                         日付列の全数（表 T-058）
@@ -126,10 +126,10 @@ NOTICE_DISPLAY_OF_REASON             通知の理由ごとの表示の仕方（�
 NOTICE_WORDS_ROW_OF_REASON           通知の理由ごとに語を刷る行（表 T-233 のまとめ方の欄。相乗りしない行は自身。同じ生成器。`CR-712`）
 NOTICE_VALUES_INITIAL_AXES           通知の各状態機械の初期の種類（表 T-286 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 QUESTION_DISPLAY_OF_ROW              問いごとの問うか（表 T-234 の問うかの欄。同じ生成器。`CR-712`）
-SCHEDULE_COLOURS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
-SCHEDULE_COLOURS_SOURCES             その行のうち、ほかの行を継ぐ行と継ぎ先（表 T-366 で寄せた行を継ぐ行が、寄せた値で描かれるため。`CR-683`）
+SCHEDULE_COLORS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
+SCHEDULE_COLORS_SOURCES             その行のうち、ほかの行を継ぐ行と継ぎ先（表 T-366 で寄せた行を継ぐ行が、寄せた値で描かれるため。`CR-683`）
 SCHEMA_DEFS                          そのスキーマの `$defs`（`GRS_DOCUMENT_SCHEMA` と同じ生成器）
-SCREEN_COLOURS                       画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
+SCREEN_COLORS                       画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
 SCREEN_VALUES_INITIAL_AXES           画面の値の各状態機械の初期の種類（表 T-280 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 SCREEN_VALUES_INITIAL_CHILDREN       入れ子の状態に入ったときの子の種類（表 T-280 の状態の一覧の初期。同じ生成器）
 SEARCH_COLUMN_WIDTH_ROWS             検索の表と遅延診断レポートの表の列ごとに、既定の幅を持つ 表 T-206 の行（`S-466` 〜 `S-481`・`S-500` 〜 `S-502` の値の欄が名指す列から、`CR-660`）

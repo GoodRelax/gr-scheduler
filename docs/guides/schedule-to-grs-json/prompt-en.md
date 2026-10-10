@@ -1,7 +1,7 @@
 # An AI prompt that turns schedule images, slides and spreadsheets into GRS JSON
 
 This prompt lets you hand an AI a schedule drawn in a drawing tool (such as PowerPoint) or a spreadsheet (such as Excel), or a screenshot of one, and have it write a `GRS JSON` document that GRS can open.
-It matches the colours, gradients, shapes, fades and horizontal lines of the original as closely as GRS can hold them.
+It matches the colors, gradients, shapes, fades and horizontal lines of the original as closely as GRS can hold them.
 The Japanese version is [prompt-ja.md](prompt-ja.md).
 
 ## How to use it
@@ -12,14 +12,14 @@ The Japanese version is [prompt-ja.md](prompt-ja.md).
 2. Attach to an AI that can read images and files the schedule to convert (an image, a slide file or a spreadsheet file; several are fine) and the two files from step 1.
 3. Paste the block under "Prompt" as it is, and fill in the `[ ]` parts.
 4. Save the JSON the AI returns as `something.json` and open it with GRS's open command.
-5. Check the AI's "Estimates" table against the original, above all the key dates, colours and how the task groups were split.
+5. Check the AI's "Estimates" table against the original, above all the key dates, colors and how the task groups were split.
 
 ⚠️ Do not use the JSON files in `sample-schedule/` as a base. They no longer validate against the schema (checked 2026-09-16). The base is `grs-skeleton.json`.
 
 ## Prompt
 
 ````text
-You are an expert at reading and converting schedule charts. Read the attached schedule (images, slides or spreadsheets) and write one "GRS JSON" document that the Gantt chart tool GRS can open. Match not only the dates but also the colours, gradients, shapes, fades and horizontal lines of the original as closely as you can.
+You are an expert at reading and converting schedule charts. Read the attached schedule (images, slides or spreadsheets) and write one "GRS JSON" document that the Gantt chart tool GRS can open. Match not only the dates but also the colors, gradients, shapes, fades and horizontal lines of the original as closely as you can.
 
 # Attachments
 - The original schedule: [file names; list all of them]
@@ -30,9 +30,9 @@ You are an expert at reading and converting schedule charts. Read the attached s
 - Base year: [the year to use when the original does not show one, e.g. 2026]
 - Days off: [e.g. Saturdays and Sundays; if left blank, keep grs-skeleton.json's calendar (Monday to Friday are working days)]
 - How to split rows: [e.g. one row per heading at the left edge / one row per person; if blank, follow the original's layout]
-- Colour mode: [palette / free; if blank, palette]
-  - palette: pick the closest of these 11 names: "white" "black" "dimgray" (dark grey) "lightgray" (light grey) "red" "blue" "yellow" "green" "orange" "purple" "transparent". The colours can be chosen again inside GRS later
-  - free: "#rrggbb/" colours are allowed as well as the 11 names (write the light-theme colour only and leave the part after / empty). Closer to the original, but the colour is not one of GRS's choices
+- Color mode: [palette / free; if blank, palette]
+  - palette: pick the closest of these 11 names: "white" "black" "dimgray" (dark gray) "lightgray" (light gray) "red" "blue" "yellow" "green" "orange" "purple" "transparent". The colors can be chosen again inside GRS later
+  - free: "#rrggbb/" colors are allowed as well as the 11 names (write the light-theme color only and leave the part after / empty). Closer to the original, but the color is not one of GRS's choices
 
 # How to build it
 1. Copy grs-skeleton.json whole and change only the following. Leave every other value ("$schema", documentSettings, calendars, schemaVersion and so on) unchanged, and keep "$schema" as the first key: GRS refuses a document without it.
@@ -50,7 +50,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
    - Put the heading's text in label. derivedFromTaskUid is null.
    - For nested headings, set parentId to the parent's id.
    - order is the position from the top among rows with the same parent (from 0). treeState is "auto": a still image cannot show whether a row was left collapsed, expanded or hidden inside the app, so always write "auto" here (GRS's other four values — "collapsed" stops drawing everything below the row, "expanded" keeps one level of children open, "temporarilyExpanded" keeps all children open until the next zoom-out, and "hidden" stops drawing the row itself — describe states a person set inside GRS, not something a still image can show). editGroup is null (anyone may edit the row) and minHeight is null.
-   - color is the row band (background) colour of the original, chosen by the colour mode, except that a row cannot be "black". null if the band has no colour.
+   - color is the row band (background) color of the original, chosen by the color mode, except that a row cannot be "black". null if the band has no color.
    - Always have at least one TaskGroup.
 4. Keep horizontal lines (important)
    - Within one row, GRS stacks tasks automatically, earliest start first, into the topmost lane where they do not overlap. So items that sat in one horizontal line in the original can be pushed into different lanes by other items in the same row. To prevent this:
@@ -75,13 +75,13 @@ You are an expert at reading and converting schedule charts. Read the attached s
    - For a dependency (an arrow joining two tasks), add {"predecessorUid": uid of the earlier task, "linkType": 1, "lag": 0, "lagFormat": 7, "carry": {}, "carryElements": []} to the later task's dependencies. linkType is 0 = finish to finish, 1 = finish to start, 2 = start to finish, 3 = start to start. lag is in tenths of a minute whatever lagFormat says (lagFormat 7 only says it is shown in days). A day is project.minutesPerDay minutes, 480 when that is null: no lag is 0, and a lag of 2 days is 2 × the minutes of a day × 10 (2 × 480 × 10 when project.minutesPerDay is null). With no arrows, [].
 6. Fades, and gradients that fade out (fadeInDays / fadeOutDays)
    - A fade in GRS slants the end of a planned bar (it marks dates that are not yet firm). Start side only gives a trapezoid with a slanted left edge, finish side only a trapezoid with a slanted right edge, both a parallelogram.
-   - When an end of a bar in the original is slanted, tapered, or its colour fades out through a gradient into the background or transparency, put the horizontal length of that part in calendar days into fadeInDays for the start side and fadeOutDays for the finish side. null for a side without one.
+   - When an end of a bar in the original is slanted, tapered, or its color fades out through a gradient into the background or transparency, put the horizontal length of that part in calendar days into fadeInDays for the start side and fadeOutDays for the finish side. null for a side without one.
    - Only tasks shaped "rectangle" or "chevron" may have fades. Arrows, endpoint spans and milestones never do (null).
    - fadeInDays and fadeOutDays are 0 or more, and together do not exceed the calendar days of finish − start. A task with a fade has a finish. GRS refuses to open a document that breaks this.
    - Actual bars have no fades. Do not read slants or fading on actuals.
 7. Which row holds each task (taskGroupMembers)
    - Every task is pointed at by exactly one {"taskUid": uid, "groupId": row id}. Write no lane within the row (GRS stacks a row's tasks itself). Choose the row in which the original draws the bar (including the child rows made in step 4).
-8. Shapes and colours (taskVisuals)
+8. Shapes and colors (taskVisuals)
    - Put exactly one for every task.
    - shapeKind:
      - A rectangular bar (including bars with slanted or fading ends): "rectangle"
@@ -89,13 +89,13 @@ You are an expert at reading and converting schedule charts. Read the attached s
      - A thin arrow (--->): "arrow"
      - A line with dots at both ends (*----*): "endpointSpan"
      - A symbol (milestone): "milestone". Set milestoneGlyph to the closest of "circle" / "hexagon" / "pentagon" / "diamond" / "square" / "star" / "triangleUp" / "triangleDown" / "file" / "box" / "floppyDisk" / "cylinder" / "person" / "smile" / "beerMug". For any other shape, milestoneGlyph is null.
-   - Choose fillColor (the fill) and strokeColor (the outline) from the original's colours by the colour mode. A bar with no fill (outline only) gets fillColor "transparent"; a bar with no outline gets strokeColor "transparent". Never make both "transparent".
-   - Match colour gradients to the original:
-     - A gradient that fades into the background or transparency: use the strong end's colour as the fill, and express the fading part as a fade from step 6.
-     - A gradient between two colours: use the colour covering more of the bar as the fill (the middle colour if it is half and half), and list it under "Could not match".
-   - Leave the bar colour used most in the original as null, and instead set project.themeHue to that colour's hue (an integer 0 to 359: red 0, yellow 60, green 120, blue about 210, purple about 280). A null colour is drawn in the colour made from themeHue, and actual bars and marks follow it. If the original is nearly colourless, leave themeHue at 214.
+   - Choose fillColor (the fill) and strokeColor (the outline) from the original's colors by the color mode. A bar with no fill (outline only) gets fillColor "transparent"; a bar with no outline gets strokeColor "transparent". Never make both "transparent".
+   - Match color gradients to the original:
+     - A gradient that fades into the background or transparency: use the strong end's color as the fill, and express the fading part as a fade from step 6.
+     - A gradient between two colors: use the color covering more of the bar as the fill (the middle color if it is half and half), and list it under "Could not match".
+   - Leave the bar color used most in the original as null, and instead set project.themeHue to that color's hue (an integer 0 to 359: red 0, yellow 60, green 120, blue about 210, purple about 280). A null color is drawn in the color made from themeHue, and actual bars and marks follow it. If the original is nearly colorless, leave themeHue at 214.
    - strokeWidthPx is the outline thickness compared within the original, as an integer from 1 to 10 (px). When you see three weights, thin / medium / thick, write 1 / 2 / 3. null when no difference is visible.
-   - Shape of one entry: {"taskUid": uid, "shapeKind": value above, "milestoneGlyph": value above or null, "fillColor": colour or null, "strokeColor": colour or null, "strokeWidthPx": weight or null}
+   - Shape of one entry: {"taskUid": uid, "shapeKind": value above, "milestoneGlyph": value above or null, "fillColor": color or null, "strokeColor": color or null, "strokeWidthPx": weight or null}
 9. People (only when readable)
    - resources gets {"uid": integer, "name": person's name, "resourceKind": 1, "isCostResource": false, "calendarUid": null, "carry": {}, "carryElements": []}, and assignments gets {"uid": integer, "taskUid": uid, "resourceUid": the person's uid, "carry": {}, "carryElements": []}. These uids may be counted from 1 separately from tasks.
 10. project
@@ -103,14 +103,14 @@ You are an expert at reading and converting schedule charts. Read the attached s
 
 # Rules for reading images
 - Read dates from the time scale and round to whole days. When the scale shows only months or weeks, estimate days in proportion from the position of the bar ends.
-- Judge whether items sit at the same height by their vertical centres. If they look slightly off but the original clearly means one line, treat them as one line.
-- Judge a colour by the item's main colour, ignoring shadows and gloss. Handle gradients as in steps 6 and 8.
+- Judge whether items sit at the same height by their vertical centers. If they look slightly off but the original clearly means one line, treat them as one line.
+- Judge a color by the item's main color, ignoring shadows and gloss. Handle gradients as in steps 6 and 8.
 - Never invent what cannot be read. Always list estimates under "Estimates".
 - Do not add headings, tasks or dependencies the original does not have (the child rows of step 4 may be added).
 
 # Output
 1. An "Estimates" table (columns: item / estimated value / reason). Write "none" if there are no estimates. Always include the themeHue value and every child row you created (with its label).
-2. Bullet lists "Could not read" and "Could not match" (colours, shapes, two-colour gradients and so on that GRS does not have). Write "none" if empty.
+2. Bullet lists "Could not read" and "Could not match" (colors, shapes, two-color gradients and so on that GRS does not have). Write "none" if empty.
 3. The finished GRS JSON in one code block. Output all of it, with no ellipsis (...).
 4. Before output, check the following yourself and write the result of each on one line.
    - uids in tasks, resources and assignments, and ids in taskGroups, are each unique
@@ -120,7 +120,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
    - No task has finish before start. Milestones have the same start and finish
    - Tasks with fades are rectangle or chevron, have a finish, and fadeInDays plus fadeOutDays does not exceed the span in calendar days
    - Items that sat in one horizontal line at the same height (even with different shapes) are in one row that holds only them (except a heading row that holds nothing but that line). Child row labels are at most 3 words in English and 2 words in Japanese. Row depth is 3 or less
-   - Colours use only the values the colour mode allows, and no entry has both fillColor and strokeColor "transparent"
+   - Colors use only the values the color mode allows, and no entry has both fillColor and strokeColor "transparent"
    - No key the schema does not list was added
 ````
 
@@ -129,9 +129,9 @@ You are an expert at reading and converting schedule charts. Read the attached s
 For an English schedule with one heading task group, one child task group below it and four tasks, this is the part of `schedule` you rewrite.
 
 - "Draft the plan": an orange bar whose finish end fades out through a gradient (done). The strong orange is the fill, and the 5 fading days are the fade-out
-- "Plan approved", "Budget review", "Budget approved": a ◇, a grey bar and a ◇ at the same height. The shapes are mixed but they form one line, so all three sit in one child task group labelled "Approvals". The heading task group also holds "Draft the plan", so the child task group is needed
+- "Plan approved", "Budget review", "Budget approved": a ◇, a gray bar and a ◇ at the same height. The shapes are mixed but they form one line, so all three sit in one child task group labeled "Approvals". The heading task group also holds "Draft the plan", so the child task group is needed
 
-Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to `4`, it validates against the schema (checked 2026-10-03). If the colour used most in the original is blue, `schedule.project.themeHue` stays at `214`.
+Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to `4`, it validates against the schema (checked 2026-10-03). If the color used most in the original is blue, `schedule.project.themeHue` stays at `214`.
 
 ```json
 {
@@ -234,14 +234,14 @@ python -c "import json,sys,jsonschema; s=json.load(open('grs-document.schema.jso
 
 - **Horizontal lines**: a name label placed outside its shape also counts toward the width an item takes in its task group (table T-038's `OC-1` in `docs/spec/01-04-requirements.md`). If items in a line sit close together and their names are long, they still split into two lanes inside the child task group.
 - **Deep task groups**: a task group of depth d (d ≥ 2) is drawn only when the vertical zoom is at least `0.32 × 1.875^(d − 2)` (table T-205's `S-87` / `S-88`). At zoom 1 that is depth 3; depth 4 needs 1.125 and depth 5 needs 2.11, close to the zoom ceiling. That is why the prompt keeps depth at 3.
-- **Gradients**: GRS cannot draw colour gradients. A gradient that fades out is approximated by a fade, which slants the end. A fade means "these dates are not yet firm", so a decorative gradient in the original gets a mark with that meaning. A two-colour gradient becomes one colour.
-- **Colours**: the palette has 11 colours, and shadows and gloss cannot be drawn.
-- **Name placement and text colour**: GRS places names. A document cannot hold text colours.
+- **Gradients**: GRS cannot draw color gradients. A gradient that fades out is approximated by a fade, which slants the end. A fade means "these dates are not yet firm", so a decorative gradient in the original gets a mark with that meaning. A two-color gradient becomes one color.
+- **Colors**: the palette has 11 colors, and shadows and gloss cannot be drawn.
+- **Name placement and text color**: GRS places names. A document cannot hold text colors.
 
 ## Notes for developers
 
 If you only use the app, you can skip this section.
 
 - The authority on the shape is `docs/spec/_source/grs-document.schema.json` (section 6.2 of `docs/spec/05-07-design.md`). The rules here were taken from it, from the `IV-` rows of section 6.1, and from `docs/spec/01-04-requirements.md`'s table T-052 (4.1), table T-012a for fades (`FD-`), table T-014 for stacking (`ST-`) and table T-017 for the palette (`CL-`). When the specification changes, review this guide, the Japanese version and `grs-skeleton.json`.
-- The specification has not yet fixed how the palette colours are spelled (`PND-494`). This guide follows the spellings (`dimgray` and so on) used by GRS's startup template, `src/framework/single-html-shell/startup-template.json`.
+- The specification has not yet fixed how the palette colors are spelled (`PND-494`). This guide follows the spellings (`dimgray` and so on) used by GRS's startup template, `src/framework/single-html-shell/startup-template.json`.
 - `grs-skeleton.json` was made from the same template by emptying the schedule and keeping one task group. ⚠️ It is not a generated file, so `npm run gen:check` does not catch drift. Check 75 of `.claude/skills/spec-graph-check/check.sh` (`check-guide-grs-json.py`) does: it validates `grs-skeleton.json`, and each prompt's worked example merged into it, against the schema, and goes red when a prompt names a `TaskVisual` / `Project` / `TaskGroup` key the schema does not define or leaves out a `TaskVisual` / `TaskGroup` key the schema requires. It does not read what the prose says about allowed values.

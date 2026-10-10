@@ -125,7 +125,7 @@ inventory).
    does anything under \`src/entity/\` or \`src/use-case/\` name a DOM type, a
    browser global, \`window\`, \`document\`, \`localStorage\`, \`fetch\`, \`Date.now\`,
    \`Math.random\`, or \`crypto\`? Quote every hit with its line.
-4. **The seams that are declared but not honoured.** Search \`src/\` for STOP
+4. **The seams that are declared but not honored.** Search \`src/\` for STOP
    notes (\`grep -rn "STOP --" src/\`). Group them: which are "the specification
    has not settled this", and which are "this seam is declared but nothing
    implements it"? Count each group. ⭐ The second group is architecture debt.

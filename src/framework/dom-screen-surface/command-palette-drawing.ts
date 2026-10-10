@@ -1,4 +1,4 @@
-// DomScreenSurface -- the Command Palette: its grab band, minimise entry, groups and rules.
+// DomScreenSurface -- the Command Palette: its grab band, minimize entry, groups and rules.
 // @unit      UF-108  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
@@ -63,7 +63,7 @@ function grabBandElement(
   palette: CommandPalette,
   anchors: Map<string, HTMLElement>,
 ): HTMLElement {
-  const { grabBandHeight: heightPx, minimise, isMinimised } = palette
+  const { grabBandHeight: heightPx, minimize, isMinimized } = palette
   const band = made(host, 'div', STYLE.paletteGrabBand + `height:${heightPx}px;`)
   band.setAttribute('data-icon', PALETTE_GRAB_BAND_ENTRY)
   fillEntry(host, band, PALETTE_GRAB_BAND_ENTRY)
@@ -71,10 +71,10 @@ function grabBandElement(
   const record = palette.bandRecord ?? null
   if (record !== null) band.prepend(anchoredEntry(host, record, anchors))
 
-  const toggle = commandEntry(host, minimise)
-  toggle.setAttribute('style', toggle.getAttribute('style') + STYLE.paletteMinimise)
-  toggle.setAttribute('aria-pressed', String(isMinimised))
-  anchors.set(anchorKey({ kind: 'icon', icon: minimise.icon }), toggle)
+  const toggle = commandEntry(host, minimize)
+  toggle.setAttribute('style', toggle.getAttribute('style') + STYLE.paletteMinimize)
+  toggle.setAttribute('aria-pressed', String(isMinimized))
+  anchors.set(anchorKey({ kind: 'icon', icon: minimize.icon }), toggle)
   band.append(toggle)
   return band
 }
@@ -113,7 +113,7 @@ export function paletteElement(
   const band = grabBandElement(host, palette, anchors)
   anchors.set(anchorKey({ kind: 'icon', icon: PALETTE_GRAB_BAND_ENTRY }), band)
 
-  if (palette.isMinimised) {
+  if (palette.isMinimized) {
     drawn.replaceChildren(band)
     return drawn
   }

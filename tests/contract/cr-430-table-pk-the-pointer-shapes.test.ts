@@ -334,7 +334,7 @@ describe('table T-269 -- the image each row draws', () => {
   })
 
   it.each(VARIANT_CASES.filter(({ variant }) => cellOf(variant.row, HOTSPOT) === '中心'))(
-    '$label: the hotspot is the centre of the image',
+    '$label: the hotspot is the center of the image',
     async ({ variant }) => {
       const cursor = await imageOfVariant(variant)
       expect(cursor, labelOf(variant)).not.toBeNull()

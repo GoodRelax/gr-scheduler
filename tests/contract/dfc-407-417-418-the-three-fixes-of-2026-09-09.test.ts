@@ -298,9 +298,9 @@ describe('DFC-418: the write path judges the figure (AG-5, FR-078)', () => {
   const SH_5_FIGURE_COUNT = ((): number => {
     const row = specTable('T-012').rows.find((one) => one.id === 'SH-5')
     if (row === undefined) throw new Error('table T-012 has no row SH-5')
-    const spelt = row.by['表記']
-    if (spelt === undefined) throw new Error('table T-012 row SH-5 has no 表記 cell')
-    return spelt.trim().split(/\s+/).length
+    const spelled = row.by['表記']
+    if (spelled === undefined) throw new Error('table T-012 row SH-5 has no 表記 cell')
+    return spelled.trim().split(/\s+/).length
   })()
 
   const GLYPHS = COLUMN_SHAPES.TaskVisual.milestoneGlyph?.choices ?? []

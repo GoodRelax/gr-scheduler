@@ -726,7 +726,7 @@ describe('⛔ a milestone is placed with the figure that is armed (FR-001)', () 
     // ⭐ THE CASE THAT KEEPS THE ONE BELOW HONEST. AR-1 of 表 T-023b is 「なし
     // （既定）」 and MK-11 of 表 T-023 makes a click on empty canvas clear the
     // selection rather than place anything. Without it, a road that placed a
-    // milestone whatever was armed would look like a road that honoured the arm.
+    // milestone whatever was armed would look like a road that honored the arm.
     const app = stage(emptyTaskGroupDocument())
     app.clickEmptyCanvas()
     expect(scheduleOf(app.loop).tasks).toHaveLength(0)

@@ -30,8 +30,8 @@ export const UNASSIGNED_ROW_KEY = 'unassigned'
 
 export type VisibilityKey = number | typeof UNASSIGNED_ROW_KEY
 
-const MINIMISE_ENTRY: IconId = 'IC-129'
-const MAXIMISE_ENTRY: IconId = 'IC-130'
+const MINIMIZE_ENTRY: IconId = 'IC-129'
+const MAXIMIZE_ENTRY: IconId = 'IC-130'
 const RESTORE_ENTRY: IconId = 'IC-131'
 const CLOSE_ENTRY: IconId = 'IC-52'
 const FILTER_ENTRY: IconId = 'IC-122'
@@ -69,19 +69,19 @@ const DATE_TO_WORD = displayWords.searchPanel.find((entry) => entry.part === 'da
 export type MarkGlyph = Parameters<typeof markerGlyphSvg>[0]
 
 // see FR-133, T-236, T-021, T-315
-export const MARK_COLOUR_ROWS: readonly string[] = [
+export const MARK_COLOR_ROWS: readonly string[] = [
   'S-161', 'S-162', 'S-326', 'S-327', 'S-385', 'S-386', 'S-387', 'S-388', 'S-389', 'S-390',
 ]
 
 /** @purity pure */
-export function markColourVariableOf(rowId: string): string {
+export function markColorVariableOf(rowId: string): string {
   return `--gr-mark-${rowId}`
 }
 
 // see SQ-5, DT-1, RW-4, FR-133
 /** @purity pure */
 export function statusGlyphSvg(symbol: MarkGlyph): string {
-  return markerGlyphSvg(symbol, (rowId) => `var(${markColourVariableOf(rowId)})`)
+  return markerGlyphSvg(symbol, (rowId) => `var(${markColorVariableOf(rowId)})`)
 }
 
 /** @purity pure */
@@ -171,23 +171,23 @@ export function entryOf(icon: IconId, language: DisplayLanguage, isChosen = fals
 
 /** @purity pure */
 export function windowTitleEntriesOf(shown: WindowShown, language: DisplayLanguage): readonly CommandItem[] {
-  const maximise = shown === 'maximised' ? RESTORE_ENTRY : MAXIMISE_ENTRY
-  return [entryOf(MINIMISE_ENTRY, language), entryOf(maximise, language), entryOf(CLOSE_ENTRY, language)]
+  const maximize = shown === 'maximized' ? RESTORE_ENTRY : MAXIMIZE_ENTRY
+  return [entryOf(MINIMIZE_ENTRY, language), entryOf(maximize, language), entryOf(CLOSE_ENTRY, language)]
 }
 
 // see WB-2, WB-3, WB-5, IC-52
 // WHY: null is a close; undefined is an entry of no title row, which the window leaves to others.
 /** @purity pure */
 export function windowShownAfterEntry(shown: WindowShown, entry: IconId): WindowShown | null | undefined {
-  if (entry === MINIMISE_ENTRY) return shown === 'minimised' ? 'normal' : 'minimised'
-  if (entry === MAXIMISE_ENTRY) return 'maximised'
+  if (entry === MINIMIZE_ENTRY) return shown === 'minimized' ? 'normal' : 'minimized'
+  if (entry === MAXIMIZE_ENTRY) return 'maximized'
   if (entry === RESTORE_ENTRY) return 'normal'
   return entry === CLOSE_ENTRY ? null : undefined
 }
 
 /** @purity pure */
 function isTableDrawn(shown: WindowShown | null): shown is WindowShown {
-  return shown !== null && shown !== 'minimised'
+  return shown !== null && shown !== 'minimized'
 }
 
 /** @purity pure */

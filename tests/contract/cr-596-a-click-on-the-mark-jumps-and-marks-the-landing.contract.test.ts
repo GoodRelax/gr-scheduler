@@ -1,4 +1,4 @@
-// CR-596 spec-only cases, as CR-598 and CR-602 revised them: the continuation mark click, the landing mark, the emphasised line and its end outlines.
+// CR-596 spec-only cases, as CR-598 and CR-602 revised them: the continuation mark click, the landing mark, the emphasized line and its end outlines.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -64,9 +64,9 @@ const STATE_MACHINES = unbroken(
 // see T-201, T-206, T-236
 const T201 = (id: string): number => numberIn(cellOf('T-201', id, '既定値'))
 const T206 = (id: string): number => numberIn(cellOf('T-206', id, '既定'))
-const colourOf = (id: string, column: string): string => cellOf('T-236', id, column).replace(/`/g, '').trim().toLowerCase()
-const LIGHT = (id: string): string => colourOf(id, '明るいテーマ')
-const DARK = (id: string): string => colourOf(id, '暗いテーマ')
+const colorOf = (id: string, column: string): string => cellOf('T-236', id, column).replace(/`/g, '').trim().toLowerCase()
+const LIGHT = (id: string): string => colorOf(id, '明るいテーマ')
+const DARK = (id: string): string => colorOf(id, '暗いテーマ')
 
 const commandKindOf = (commandRow: string): string => {
   const named = bare(cellOf('T-108', commandRow, '確定名'))
@@ -102,7 +102,7 @@ const SJ_2 = rowCells('T-332', 'SJ-2')
 const S_447 = rowCells('T-206', 'S-447')
 
 const EL_6_NONE = '描かない（MUST NOT）。'
-const EL_9_COLOUR = '色は依存線の色（表 T-236 の `S-159`）とすること（MUST） —— 選んだ線（表 T-023c の `SL-8`）でも変えない。'
+const EL_9_COLOR = '色は依存線の色（表 T-236 の `S-159`）とすること（MUST） —— 選んだ線（表 T-023c の `SL-8`）でも変えない。'
 const EL_10_FOLDED = '⚠️ 先の端が `EL-20` の端のときは、倍率を変えずに `EL-21` で開く。'
 const EL_12_OPENED = '`EL-21` でタスクグループを展開したときは、その端のタスクグループが帯の下の残りの上端に来るよう、表示位置を縦に送ること（MUST）'
 const EL_12_HOW = '`S-78` をそのタスクグループに、`S-176` を 0 にする'
@@ -181,7 +181,7 @@ const T_328_HIDDEN_OPENS = 'treeStateMachine_hidden --> treeStateMachine_expande
 describe('CR-596 -- the manuscript these cases are driven by', () => {
   it.each([
     ['T-303 EL-6', EL_6, EL_6_NONE],
-    ['T-303 EL-9', EL_9, EL_9_COLOUR],
+    ['T-303 EL-9', EL_9, EL_9_COLOR],
     ['T-303 EL-10', EL_10, EL_10_FOLDED],
     ['T-303 EL-12 (opened)', EL_12, EL_12_OPENED],
     ['T-303 EL-12 (how)', EL_12, EL_12_HOW],
@@ -244,7 +244,7 @@ describe('CR-596 -- the manuscript these cases are driven by', () => {
     }
   })
 
-  it(`the values: S-447 is a positive addend (${S_447_ADDS}); S-159 is a colour in both themes`, () => {
+  it(`the values: S-447 is a positive addend (${S_447_ADDS}); S-159 is a color in both themes`, () => {
     expect(T206('S-447')).toBeGreaterThan(0)
     expect(LIGHT('S-159')).toMatch(/^#[0-9a-f]{6}$/)
     expect(DARK('S-159')).toMatch(/^#[0-9a-f]{6}$/)
@@ -256,7 +256,7 @@ const DRAW_RATIO_AT_100 = T206('S-236')
 const ratioAt = (displayScale: number): number => (DRAW_RATIO_AT_100 * displayScale) / 100
 const LINE_WIDTH = (displayScale = 100): number => T201('S-18') * ratioAt(displayScale)
 // see SL-8, EL-16, S-447
-const EMPHASISED_WIDTH = (displayScale = 100): number => LINE_WIDTH(displayScale) + T206('S-447')
+const EMPHASIZED_WIDTH = (displayScale = 100): number => LINE_WIDTH(displayScale) + T206('S-447')
 // see SL-8, S-39, S-447
 const OUTLINE_WIDTH = (displayScale = 100): number => T201('S-39') * ratioAt(displayScale) + T206('S-447')
 const DRAG_PAST = T206('S-208') * 5
@@ -920,7 +920,7 @@ describe(`(b) EL-20 -- ${EL_20_STAND}`, () => {
     expect(lineOf(scene, 1, 2).points.at(-1)!.y, EL_20_STAND).toBeCloseTo(foot.y + foot.height, 9)
   })
 
-  it(`the mark of a folded end is drawn: three dots in the line colour (EL-9)`, () => {
+  it(`the mark of a folded end is drawn: three dots in the line color (EL-9)`, () => {
     const scene = sceneOf(FOLDED)
     const dots = lineOf(scene, 1, 2).continuation?.dots ?? []
     expect(dots.length, EL_20_NOT_SEEN).toBe(3)
@@ -1073,21 +1073,21 @@ const svgOf = (scene: Scene, picture: 'screen' | 'export' = 'screen', landing: L
 const inkedLines = (svg: string, theme: Theme): readonly Element[] =>
   elementsOf(svg).filter((one) => one.tag === 'polyline' && strokeOf(one) === themed('S-159', theme))
 
-// WHY: an emphasised line keeps S-159 (SL-8, EL-16), so only its width tells it apart.
-const isEmphasised = (one: Element, displayScale = 100): boolean =>
-  Math.abs(widthOf(one) - EMPHASISED_WIDTH(displayScale)) <= SVG_EPS
+// WHY: an emphasized line keeps S-159 (SL-8, EL-16), so only its width tells it apart.
+const isEmphasized = (one: Element, displayScale = 100): boolean =>
+  Math.abs(widthOf(one) - EMPHASIZED_WIDTH(displayScale)) <= SVG_EPS
 
-const emphasisedLines = (svg: string, theme: Theme = 'light', displayScale = 100): readonly Element[] =>
-  inkedLines(svg, theme).filter((one) => isEmphasised(one, displayScale))
+const emphasizedLines = (svg: string, theme: Theme = 'light', displayScale = 100): readonly Element[] =>
+  inkedLines(svg, theme).filter((one) => isEmphasized(one, displayScale))
 
 const lineDrawnAs = (svg: string, route: readonly Pt[], theme: Theme = 'light'): Element | undefined =>
   inkedLines(svg, theme).find((one) => samePath(pointsAttr(one.attrs), route))
 
-const circlesAt = (svg: string, centres: readonly Pt[]): readonly Element[] =>
+const circlesAt = (svg: string, centers: readonly Pt[]): readonly Element[] =>
   elementsOf(svg).filter(
     (one) =>
       one.tag === 'circle' &&
-      centres.some((centre) => near({ x: Number(attrOf(one.attrs, 'cx')), y: Number(attrOf(one.attrs, 'cy')) }, centre)),
+      centers.some((center) => near({ x: Number(attrOf(one.attrs, 'cx')), y: Number(attrOf(one.attrs, 'cy')) }, center)),
   )
 
 const markerFillOf = (svg: string, line: Element): string | null => {
@@ -1179,9 +1179,9 @@ describe(`(c) EL-16 / EL-19 -- the landing line: ${EL_19_WHOLE}`, () => {
     const svg = svgOf(scene, 'screen', landed(1, 2, 2))
     const landing = lineDrawnAs(svg, line.points)
     expect(landing, EL_19_WHOLE).toBeDefined()
-    expect(widthOf(landing!), EL_16_LOOK).toBeCloseTo(EMPHASISED_WIDTH(), 2)
+    expect(widthOf(landing!), EL_16_LOOK).toBeCloseTo(EMPHASIZED_WIDTH(), 2)
     expect(markerFillOf(svg, landing!), `${EL_19_WHOLE} / ${EL_16_LOOK} (矢じりを含む)`).toBe(LIGHT('S-159'))
-    expect(emphasisedLines(svg).length, EL_16_LOOK).toBe(1)
+    expect(emphasizedLines(svg).length, EL_16_LOOK).toBe(1)
   })
 
   it(`no dots are drawn on the landing line (${EL_19_NO_DOTS})`, () => {
@@ -1196,7 +1196,7 @@ describe(`(c) EL-16 / EL-19 -- the landing line: ${EL_19_WHOLE}`, () => {
     const svg = svgOf(scene, 'screen', landed(1, 2, 2), 'dark')
     const landing = lineDrawnAs(svg, lineOf(scene, 1, 2).points, 'dark')
     expect(landing, EL_16_LOOK).toBeDefined()
-    expect(widthOf(landing!), EL_16_LOOK).toBeCloseTo(EMPHASISED_WIDTH(), 2)
+    expect(widthOf(landing!), EL_16_LOOK).toBeCloseTo(EMPHASIZED_WIDTH(), 2)
   })
 
   it(`${EL_19_EL_6}: an EL-6 line marked as landed draws its whole route`, () => {
@@ -1204,14 +1204,14 @@ describe(`(c) EL-16 / EL-19 -- the landing line: ${EL_19_WHOLE}`, () => {
     const line = lineOf(scene, 1, 2)
     const landing = lineDrawnAs(svgOf(scene, 'screen', landed(1, 2, 2)), line.points)
     expect(landing, EL_19_EL_6).toBeDefined()
-    expect(widthOf(landing!), EL_16_LOOK).toBeCloseTo(EMPHASISED_WIDTH(), 2)
+    expect(widthOf(landing!), EL_16_LOOK).toBeCloseTo(EMPHASIZED_WIDTH(), 2)
   })
 
   it(`control (${EL_19_BACK}): the same line with the mark hidden is drawn short at its own width, with its dots`, () => {
     const scene = offRight()
     const line = lineOf(scene, 1, 2)
     const svg = svgOf(scene)
-    expect(emphasisedLines(svg), 'nothing emphasised').toEqual([])
+    expect(emphasizedLines(svg), 'nothing emphasized').toEqual([])
     expect(outlinesOf(svg), 'nothing traced').toEqual([])
     const inked = inkedLines(svg, 'light')
     expect(inked.length).toBe(1)
@@ -1234,13 +1234,13 @@ describe(`(c) EL-16 / EL-19 -- the landing line: ${EL_19_WHOLE}`, () => {
       expect(inZo4.length, 'premise: three lines drawn in ZO-4').toBe(3)
       const last = inZo4.at(-1)!
       expect(samePath(pointsAttr(last.attrs), route), FR_009_ZERO).toBe(true)
-      expect(widthOf(last), FR_009_ZERO).toBeCloseTo(EMPHASISED_WIDTH(), 2)
+      expect(widthOf(last), FR_009_ZERO).toBeCloseTo(EMPHASIZED_WIDTH(), 2)
     }
   })
 
-  it(`${EL_16_UNDRAWN}: a landing that names a line the document does not hold emphasises and traces nothing`, () => {
+  it(`${EL_16_UNDRAWN}: a landing that names a line the document does not hold emphasizes and traces nothing`, () => {
     const svg = svgOf(bothSeen(), 'screen', landed(7, 8, 8))
-    expect(emphasisedLines(svg), EL_16_UNDRAWN).toEqual([])
+    expect(emphasizedLines(svg), EL_16_UNDRAWN).toEqual([])
     expect(outlinesOf(svg), EL_16_UNDRAWN).toEqual([])
   })
 })
@@ -1300,7 +1300,7 @@ describe(`(c) EL-16 / SL-8 -- the end outlines: ${EL_16_ENDS}`, () => {
     for (const one of outlines) expect(Math.abs(widthOf(one) - OUTLINE_WIDTH(200)), S_447_PX).toBeLessThanOrEqual(SVG_EPS)
     const chosen = lineDrawnAs(svg, lineOf(scene, 1, 2).points)
     expect(chosen, 'premise: the selected line is drawn').toBeDefined()
-    expect(widthOf(chosen!), S_447_PX).toBeCloseTo(EMPHASISED_WIDTH(200), 2)
+    expect(widthOf(chosen!), S_447_PX).toBeCloseTo(EMPHASIZED_WIDTH(200), 2)
   })
 
   it('control: with nothing selected and no landing, nothing is traced', () => {
@@ -1315,8 +1315,8 @@ describe(`(c) SL-8 -- the selected line: ${SL_8_WIDTH}`, () => {
     const chosen = lineDrawnAs(svg, lineOf(scene, 1, 2).points)
     expect(chosen, 'the drawn form is unchanged').toBeDefined()
     expect(markerFillOf(svg, chosen!), `${SL_8_WIDTH} (矢じり)`).toBe(LIGHT('S-159'))
-    expect(widthOf(chosen!), SL_8_WIDTH).toBeCloseTo(EMPHASISED_WIDTH(), 2)
-    expect(emphasisedLines(svg).length, SL_8_WIDTH).toBe(1)
+    expect(widthOf(chosen!), SL_8_WIDTH).toBeCloseTo(EMPHASIZED_WIDTH(), 2)
+    expect(emphasizedLines(svg).length, SL_8_WIDTH).toBe(1)
   })
 
   it('the unselected lines of the same picture stay in S-159 at S-18 x ratio (control)', () => {
@@ -1331,23 +1331,23 @@ describe(`(c) SL-8 -- the selected line: ${SL_8_WIDTH}`, () => {
     const scene = bothSeen(LINE_1_2)
     const chosen = lineDrawnAs(svgOf(scene, 'screen', HIDDEN, 'dark'), lineOf(scene, 1, 2).points, 'dark')
     expect(chosen, SL_8_WIDTH).toBeDefined()
-    expect(widthOf(chosen!), SL_8_WIDTH).toBeCloseTo(EMPHASISED_WIDTH(), 2)
+    expect(widthOf(chosen!), SL_8_WIDTH).toBeCloseTo(EMPHASIZED_WIDTH(), 2)
   })
 
-  it(`a selected EL-4 line keeps its short form, S-159 and wider, its dots in S-159 at their own size (${EL_9_COLOUR})`, () => {
+  it(`a selected EL-4 line keeps its short form, S-159 and wider, its dots in S-159 at their own size (${EL_9_COLOR})`, () => {
     const scene = offRight(LINE_1_2)
     const line = lineOf(scene, 1, 2)
     const svg = svgOf(scene)
     const chosen = inkedLines(svg, 'light')
     expect(chosen.length).toBe(1)
     expect(samePath(pointsAttr(chosen[0]!.attrs), line.drawnPoints ?? []), 'the drawn form is as today').toBe(true)
-    expect(widthOf(chosen[0]!), SL_8_WIDTH).toBeCloseTo(EMPHASISED_WIDTH(), 2)
+    expect(widthOf(chosen[0]!), SL_8_WIDTH).toBeCloseTo(EMPHASIZED_WIDTH(), 2)
     const dots = circlesAt(svg, line.continuation?.dots ?? [])
     expect(dots.length, 'premise: three dots').toBe(3)
     const plainDots = circlesAt(svgOf(offRight()), line.continuation?.dots ?? [])
     expect(plainDots.length, 'premise: three dots when not selected').toBe(3)
     for (const dot of dots) {
-      expect(fillOf(dot), EL_9_COLOUR).toBe(LIGHT('S-159'))
+      expect(fillOf(dot), EL_9_COLOR).toBe(LIGHT('S-159'))
       expect(attrOf(dot.attrs, 'r'), 'EL-9: the dot keeps its size').toBe(attrOf(plainDots[0]!.attrs, 'r'))
     }
   })
@@ -1364,7 +1364,7 @@ describe(`(c) SL-8 -- the selected line: ${SL_8_WIDTH}`, () => {
       { kind: 'dependency', successorUid: 3, ordinal: 1 },
     )
     const svg = svgOf(bothSeen(both))
-    expect(emphasisedLines(svg).length, 'premise: two lines selected').toBe(2)
+    expect(emphasizedLines(svg).length, 'premise: two lines selected').toBe(2)
     expect(outlinedUids(svg, [1, 2, 3]), SL_8_ONCE).toEqual([1, 2, 3])
     expect(outlinesOf(svg).length, SL_8_ONCE).toBe(3)
   })
@@ -1390,11 +1390,11 @@ describe(`(c) SL-8 -- the selected line: ${SL_8_WIDTH}`, () => {
 })
 
 describe(`(c) EP-12 -- ${EP_12_LANDING} and the ${EP_12_SELECTION} are not drawn in an export`, () => {
-  it('an exported picture with a selected line and a landing holds no emphasised line and no trace', () => {
+  it('an exported picture with a selected line and a landing holds no emphasized line and no trace', () => {
     const scene = offRight(LINE_1_2)
     const line = lineOf(scene, 1, 2)
     const svg = svgOf(scene, 'export', landed(1, 2, 2))
-    expect(emphasisedLines(svg), EP_12_LANDING).toEqual([])
+    expect(emphasizedLines(svg), EP_12_LANDING).toEqual([])
     expect(outlinesOf(svg), EP_12_SELECTION).toEqual([])
     expect(
       inkedLines(svg, 'light').some((one) => samePath(pointsAttr(one.attrs), line.points)),
@@ -1404,7 +1404,7 @@ describe(`(c) EP-12 -- ${EP_12_LANDING} and the ${EP_12_SELECTION} are not drawn
 
   it('control: the same scene on the screen draws both', () => {
     const svg = svgOf(offRight(LINE_1_2), 'screen', landed(1, 2, 2))
-    expect(emphasisedLines(svg).length).toBeGreaterThan(0)
+    expect(emphasizedLines(svg).length).toBeGreaterThan(0)
     expect(outlinesOf(svg).length).toBeGreaterThan(0)
   })
 })
@@ -1642,7 +1642,7 @@ const clickAt = (shell: Shell, at: Pt, clickCount = 1, button: PointerInput['but
 }
 
 // see EL-16
-const isLandingShown = (shell: Shell): boolean => emphasisedLines(shell.svg(), 'light', displayScaleOf(shell)).length > 0
+const isLandingShown = (shell: Shell): boolean => emphasizedLines(shell.svg(), 'light', displayScaleOf(shell)).length > 0
 
 const displayScaleOf = (shell: Shell): number => Number(shell.loop.document().documentSettings.displayScale ?? 100)
 
@@ -1725,7 +1725,7 @@ describe(`(e) the shell -- EL-17: ${EL_17_CLEAR}`, () => {
   it(`control (${EL_19_BACK}): once cleared, the line is drawn short again with its dots`, () => {
     const shell = landedShell()
     shell.send({ kind: 'key', key: 'Enter', modifiers: MODS })
-    expect(emphasisedLines(shell.svg()), 'no emphasised line once cleared').toEqual([])
+    expect(emphasizedLines(shell.svg()), 'no emphasized line once cleared').toEqual([])
     expect(outlinesOf(shell.svg()), 'no trace once cleared').toEqual([])
   })
 })

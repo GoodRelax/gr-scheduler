@@ -12,7 +12,7 @@ import type {
   ScreenFrame,
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
-import { colourOf } from '../../src/adapter/svg-renderer/svg-renderer'
+import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import {
   SETTINGS_CONSTANTS,
   SETTINGS_DEFAULTS,
@@ -34,7 +34,7 @@ const MANUSCRIPT: unknown = JSON.parse(
 interface ManuscriptRow {
   readonly id: string
   readonly default?: { readonly num?: string; readonly pair?: readonly string[] }
-  readonly light?: { readonly colour?: string }
+  readonly light?: { readonly color?: string }
 }
 
 // see T-201, T-204, T-205, T-206, T-236
@@ -162,7 +162,7 @@ describe('FR-017 with table T-205 -- S-83 and S-84 are the edges where the label
     const label = widestLabelWidthOf(MONTHS)
     expect(
       SHORTEST_MONTH * S_83,
-      'T-205 note: "the threshold is the edge where neighbouring labels fit the shortest tick" -- 28 days at S-83 holds the label',
+      'T-205 note: "the threshold is the edge where neighboring labels fit the shortest tick" -- 28 days at S-83 holds the label',
     ).toBeGreaterThanOrEqual(label)
     expect(
       S_83,
@@ -277,7 +277,7 @@ describe('IX-10 -- the blanks of the picture are painted S-146, never left trans
     const picture = pictureOrThrow(exportSvg(sceneOn(screen, theme)))
     const root = rootOf(picture.svg)
     const first = firstDrawnInsideTheClip(picture.svg)
-    const ground = colourOf('S-146', THEME_HUE, theme === 'dark', false)
+    const ground = colorOf('S-146', THEME_HUE, theme === 'dark', false)
 
     expect(first.tag, 'IX-10 (MUST) "paint the blanks in S-146" (MUST NOT "leave them transparent"): painted before anything else').toBe(
       'rect',
@@ -292,8 +292,8 @@ describe('IX-10 -- the blanks of the picture are painted S-146, never left trans
     ).toEqual([Number(root.attrs['width']), picture.heightPx])
     expect(first.attrs['fill'], `IX-10 (MUST) "paint the blanks in S-146 of table T-236" (${theme})`).toBe(ground)
     if (theme === 'light') {
-      expect(ground, 'T-236 S-146: the light ground is the colour the table writes').toBe(
-        manuscriptRowOf('S-146').light?.colour,
+      expect(ground, 'T-236 S-146: the light ground is the color the table writes').toBe(
+        manuscriptRowOf('S-146').light?.color,
       )
     }
   })
@@ -305,7 +305,7 @@ const TITLED: readonly Screen[] = [
   { width: 2560, height: 1440, appHeaderHeight: 48, why: 'a wider screen and band, ratio under 1' },
 ]
 
-describe('T-076 EP-1 -- the exported Document Title baseline sits S-225 x S-235 x S-33 below the band centre (CR-584 T6)', () => {
+describe('T-076 EP-1 -- the exported Document Title baseline sits S-225 x S-235 x S-33 below the band center (CR-584 T6)', () => {
   it.each(TITLED)('$width x $height with a $appHeaderHeight px band ($why)', (screen) => {
     const scene = sceneOn(screen, 'light')
     const ratio = S_81_WIDTH / screen.width
@@ -317,7 +317,7 @@ describe('T-076 EP-1 -- the exported Document Title baseline sits S-225 x S-235 
 
     expect(
       Math.abs(baseline - wanted),
-      `EP-1 (MUST) "the baseline stands below the band's vertical centre by S-225 x S-235 x S-33", times the FR-080 ratio, to the NS-3 0.01 px grid: wanted ${wanted}, drew ${baseline}`,
+      `EP-1 (MUST) "the baseline stands below the band's vertical center by S-225 x S-235 x S-33", times the FR-080 ratio, to the NS-3 0.01 px grid: wanted ${wanted}, drew ${baseline}`,
     ).toBeLessThanOrEqual(0.005 + 1e-9)
   })
 })

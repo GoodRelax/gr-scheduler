@@ -486,10 +486,10 @@ describe('FR-036 (MUST) -- every block stands in a frame of its own (CR-622)', (
     for (const block of BLOCK_ORDER) {
       const frame = frameOf(help, block)
       if (frame === null) throw new Error(`the ${block} block has no frame of its own: ${whatWasDrawn(help).slice(0, 400)}`)
-      const [width, kind, ...colour] = (styleMap(frame).get('border') ?? '').trim().split(/\s+/)
+      const [width, kind, ...color] = (styleMap(frame).get('border') ?? '').trim().split(/\s+/)
       expect(width, block).toBe(`${S_437_PX}px`)
       expect(kind, block).toBe('solid')
-      expect(resolved(built, colour.join(' ')), block).toBe(S_149_LIGHT)
+      expect(resolved(built, color.join(' ')), block).toBe(S_149_LIGHT)
       expect(styleMap(frame).get('padding'), block).toBe(`${S_457_EM}em`)
     }
   })

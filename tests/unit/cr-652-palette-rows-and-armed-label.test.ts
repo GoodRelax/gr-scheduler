@@ -92,8 +92,8 @@ const groupOf = (name: string, count: number): PaletteGroup => ({
 const paletteWith = (counts: readonly number[]): CommandPalette => ({
   at: { x: 400, y: 300 },
   grabBandHeight: settingNumber('S-135a'),
-  minimise: entryFor('IC-75'),
-  isMinimised: false,
+  minimize: entryFor('IC-75'),
+  isMinimized: false,
   groups: counts.map((count, at) => groupOf(`GroupWord${at}`, count)),
   armedText: ARMED_WORD,
 })

@@ -9,7 +9,7 @@ import {
   REPORT,
   boxOf,
   cellOf,
-  colourOfHeading,
+  colorOfHeading,
   dragBorder,
   openFilter,
   pressAt,
@@ -108,20 +108,20 @@ for (const scheme of ['light', 'dark'] as const) {
       const stage = await withSearch(need(), scheme)
       try {
         const page = stage.page
-        const plain = await colourOfHeading(page, PANEL, 'SQ-2')
+        const plain = await colorOfHeading(page, PANEL, 'SQ-2')
         expect(plain.fill, 'premise: a plain heading is not green').not.toBe(S_183[scheme])
         await openFilter(page, PANEL, 'SQ-1')
         await uncheckFirstValue(page, PANEL)
         await page.keyboard.press('Escape')
         await settle(page)
-        const marked = await colourOfHeading(page, PANEL, 'SQ-1')
+        const marked = await colorOfHeading(page, PANEL, 'SQ-1')
         expect(marked.fill, 'the filtered heading is filled with S-183').toBe(S_183[scheme])
         expect(marked.word, 'its word is not the plain ink').not.toBe(plain.word)
         if (scheme === 'light') {
           expect(marked.word, 'its word is S-146').toBe(S_146_LIGHT)
           expect(marked.icon, 'its IC-122 picture is S-146').toContain(S_146_LIGHT)
         }
-        expect((await colourOfHeading(page, PANEL, 'SQ-2')).fill, 'the other headings stay plain').toBe(plain.fill)
+        expect((await colorOfHeading(page, PANEL, 'SQ-2')).fill, 'the other headings stay plain').toBe(plain.fill)
       } finally {
         await stage.close()
       }
@@ -131,13 +131,13 @@ for (const scheme of ['light', 'dark'] as const) {
       const stage = await withSearch(need(), scheme)
       try {
         const page = stage.page
-        const plain = await colourOfHeading(page, PANEL, 'SQ-2')
+        const plain = await colorOfHeading(page, PANEL, 'SQ-2')
         await openFilter(page, PANEL, 'SQ-4')
         await pressMenuEntry(page, PANEL, 'IC-123')
         await page.keyboard.press('Escape')
         await settle(page)
-        expect(await colourOfHeading(page, PANEL, 'SQ-4'), 'a column only sorted is painted like a plain one').toEqual(await colourOfHeading(page, PANEL, 'SQ-2'))
-        expect((await colourOfHeading(page, PANEL, 'SQ-4')).fill).toBe(plain.fill)
+        expect(await colorOfHeading(page, PANEL, 'SQ-4'), 'a column only sorted is painted like a plain one').toEqual(await colorOfHeading(page, PANEL, 'SQ-2'))
+        expect((await colorOfHeading(page, PANEL, 'SQ-4')).fill).toBe(plain.fill)
       } finally {
         await stage.close()
       }
@@ -157,7 +157,7 @@ test.describe('T-330 SV-7 -- a date bound paints the heading too', () => {
       await settle(page)
       await page.keyboard.press('Escape')
       await settle(page)
-      expect((await colourOfHeading(page, PANEL, 'SQ-3')).fill).toBe(S_183.light)
+      expect((await colorOfHeading(page, PANEL, 'SQ-3')).fill).toBe(S_183.light)
     } finally {
       await stage.close()
     }
@@ -198,11 +198,11 @@ test.describe('T-330 SV-1 / T-109 IC-153 -- Clear Filters on the Search Panel', 
       await pressMenuEntry(page, PANEL, 'IC-123')
       await page.keyboard.press('Escape')
       await settle(page)
-      expect((await colourOfHeading(page, PANEL, 'SQ-1')).fill, 'premise: SQ-1 is painted').toBe(S_183.light)
+      expect((await colorOfHeading(page, PANEL, 'SQ-1')).fill, 'premise: SQ-1 is painted').toBe(S_183.light)
       expect(await isEntryIdle(page, PANEL, CLEAR), 'the entry works now').toBe(false)
       const widthsBefore = await widthsOf(page, PANEL)
       await pressSelector(page, `${PANEL} [data-icon="${CLEAR}"]`)
-      expect((await colourOfHeading(page, PANEL, 'SQ-1')).fill, 'the paint is gone').not.toBe(S_183.light)
+      expect((await colorOfHeading(page, PANEL, 'SQ-1')).fill, 'the paint is gone').not.toBe(S_183.light)
       expect(await rowCount(page, PANEL), 'the rows are those of the word again').toBe(wordRows)
       expect(await wordFieldValue(page), 'the word stays').toBe('UAT')
       expect(
@@ -247,10 +247,10 @@ test.describe('T-346 RW-2 -- Clear Filters on the report window', () => {
       await uncheckFirstValue(page, REPORT)
       await page.keyboard.press('Escape')
       await settle(page)
-      expect((await colourOfHeading(page, REPORT, 'DT-1')).fill).toBe(S_183.light)
+      expect((await colorOfHeading(page, REPORT, 'DT-1')).fill).toBe(S_183.light)
       expect(await rowCount(page, REPORT), 'premise: the filter narrows the report').toBeLessThan(rows)
       await pressSelector(page, `${REPORT} [data-icon="${CLEAR}"]`)
-      expect((await colourOfHeading(page, REPORT, 'DT-1')).fill).not.toBe(S_183.light)
+      expect((await colorOfHeading(page, REPORT, 'DT-1')).fill).not.toBe(S_183.light)
       expect(await rowCount(page, REPORT)).toBe(rows)
       expect(await isEntryIdle(page, REPORT, CLEAR)).toBe(true)
     } finally {

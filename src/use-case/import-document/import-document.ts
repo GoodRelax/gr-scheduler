@@ -76,14 +76,14 @@ export interface MergeCandidate {
   readonly currentTaskName: string | null
 }
 
-export type SourceJudgement = 'sameMaster' | 'differentMaster' | 'undecidable' | 'notJudged'
+export type SourceJudgment = 'sameMaster' | 'differentMaster' | 'undecidable' | 'notJudged'
 
 // see T-024a, T-032
 export type ImportRefusal =
   | { readonly reason: 'openInProgress'; readonly rule: 'OP-8'; readonly what: string }
   | { readonly reason: 'notValidated'; readonly rule: 'OP-5'; readonly what: string }
   | { readonly reason: 'unsavedEditsNotConfirmed'; readonly rule: 'OP-4'; readonly what: string }
-  | { readonly reason: 'importCancelled'; readonly rule: 'MG-6'; readonly what: string }
+  | { readonly reason: 'importCanceled'; readonly rule: 'MG-6'; readonly what: string }
   | {
       readonly reason: 'mappingNotChosen'
       readonly rule: 'FR-022'
@@ -135,7 +135,7 @@ export interface ImportReport {
   readonly undo: UndoDisposition
   readonly discardsHistory: boolean
   readonly fitToScreenRequired: boolean
-  readonly source: SourceJudgement
+  readonly source: SourceJudgment
   readonly importSeq: number
   readonly candidates: readonly MergeCandidate[]
   readonly overwrittenTaskUids: readonly number[]
@@ -403,7 +403,7 @@ function currentIndexOf(schedule: Schedule): CurrentIndex {
 
 // see MG-1, AT-1
 /** @purity pure */
-function judgedSource(incoming: Project, index: CurrentIndex): SourceJudgement {
+function judgedSource(incoming: Project, index: CurrentIndex): SourceJudgment {
   if (incoming.id === null) return 'undecidable'
   return index.sourceProjectUids.has(incoming.id) ? 'sameMaster' : 'differentMaster'
 }
@@ -419,7 +419,7 @@ type IncomingPlan =
 function plannedIncomingTasks(
   incoming: Schedule,
   index: CurrentIndex,
-  source: SourceJudgement,
+  source: SourceJudgment,
 ): Map<number, IncomingPlan> {
   const plans = new Map<number, IncomingPlan>()
   for (const task of incoming.tasks) {
@@ -530,14 +530,14 @@ function mergedDocument(request: ImportRequest): ImportOutcome {
 
   if (mapping !== null && mapping.kind === 'cancelImport') {
     return refuse({
-      reason: 'importCancelled',
+      reason: 'importCanceled',
       rule: 'MG-6',
       what: 'MM-4: the person stopped the import',
     })
   }
   if (answers.profileConflict === 'cancelImport' || answers.settingsConflict === 'cancelImport') {
     return refuse({
-      reason: 'importCancelled',
+      reason: 'importCanceled',
       rule: 'MG-6',
       what: 'MG-4: the person stopped the import',
     })
@@ -628,7 +628,7 @@ interface MergeInput {
   readonly request: ImportRequest
   readonly index: CurrentIndex
   readonly answers: MergeChoices
-  readonly source: SourceJudgement
+  readonly source: SourceJudgment
   readonly plans: ReadonlyMap<number, IncomingPlan>
   readonly candidates: readonly MergeCandidate[]
   readonly decided: ReadonlyMap<number, TaskMapping>

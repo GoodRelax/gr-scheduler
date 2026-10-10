@@ -1,4 +1,4 @@
-// CR-551 FT-1: a colour swatch pressed with Space settles with no further pointer input, swept live.
+// CR-551 FT-1: a color swatch pressed with Space settles with no further pointer input, swept live.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -13,7 +13,7 @@ const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-
 const FT_1_INPUT = '人の入力（ポインタとキー）'
 
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
-  colourNames: { spelling: string; text: { ja: string; en: string } }[]
+  colorNames: { spelling: string; text: { ja: string; en: string } }[]
 }
 
 // see T-294
@@ -33,7 +33,7 @@ const LINE_ROW = specTable('T-016').rows.find(
 // see MC-6
 const SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
 
-// WHY: the colour lands in the frames the page asks for by itself; this is how long the case lets them run.
+// WHY: the color lands in the frames the page asks for by itself; this is how long the case lets them run.
 const SETTLE_MS = 1_500
 
 let browser: Browser | null = null
@@ -52,7 +52,7 @@ test('FT-1 still says: 人の入力（ポインタとキー）', () => {
   expect(LINE_ROW).not.toBe('')
 })
 
-test('FT-1: Space on a focused swatch shows its colour in the field and on the schedule, and undo is enabled, with no pointer movement', async ({
+test('FT-1: Space on a focused swatch shows its color in the field and on the schedule, and undo is enabled, with no pointer movement', async ({
   baseURL,
 }) => {
   // see FT-1, CV-6, CV-9, SK-6
@@ -71,19 +71,19 @@ test('FT-1: Space on a focused swatch shows its colour in the field and on the s
     await page.waitForSelector(`${PROPERTIES_PANEL} [data-field-row="${LINE_ROW}"]`)
     const undoBefore = await page.getAttribute('[data-icon="IC-5"]', 'data-enabled')
     const swatch = page
-      .locator(`${PROPERTIES_PANEL} [data-field-row="${LINE_ROW}"][data-colour-choice]:not([aria-pressed="true"])`)
-      .filter({ hasNot: page.locator('[data-colour-choice="transparent"]') })
+      .locator(`${PROPERTIES_PANEL} [data-field-row="${LINE_ROW}"][data-color-choice]:not([aria-pressed="true"])`)
+      .filter({ hasNot: page.locator('[data-color-choice="transparent"]') })
       .first()
-    const name = (await swatch.getAttribute('data-colour-choice')) ?? ''
-    expect(name, 'premise: the line colour field offers a name to choose').not.toBe('')
+    const name = (await swatch.getAttribute('data-color-choice')) ?? ''
+    expect(name, 'premise: the line color field offers a name to choose').not.toBe('')
     await swatch.focus()
     await page.keyboard.press('Space')
     await page.waitForTimeout(SETTLE_MS)
     // WHY: CV-9 (CR-689) shows the value by outlining its swatch, named by its tooltip; no sides line remains.
-    const words = WORDS.colourNames.find((one) => one.spelling === name)?.text
-    const chosen = page.locator(`${PROPERTIES_PANEL} [data-field-row="${LINE_ROW}"][data-colour-chosen="true"]`)
+    const words = WORDS.colorNames.find((one) => one.spelling === name)?.text
+    const chosen = page.locator(`${PROPERTIES_PANEL} [data-field-row="${LINE_ROW}"][data-color-chosen="true"]`)
     await expect(chosen, 'CV-9: one swatch is outlined as the value').toHaveCount(1)
-    expect(await chosen.getAttribute('data-colour-choice'), 'CV-9: the outlined swatch is the pressed name').toBe(name)
+    expect(await chosen.getAttribute('data-color-choice'), 'CV-9: the outlined swatch is the pressed name').toBe(name)
     const tip = (await chosen.getAttribute('title')) ?? ''
     expect([words?.ja, words?.en], `the chosen swatch tooltip: ${tip}`).toContain(tip)
     const stroke = await page.evaluate(

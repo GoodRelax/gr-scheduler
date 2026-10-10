@@ -1,4 +1,4 @@
-// W3 tester 4: FR-009 dependency lines -- the ground-coloured halo is not laid over the box of a plan or actual shape, ink included.
+// W3 tester 4: FR-009 dependency lines -- the ground-colored halo is not laid over the box of a plan or actual shape, ink included.
 
 // WHY: the drawn picture is read from the frame loop's export scene (the same SVG the screen draws); every box is measured
 // from the figure's own coordinates and stroke width, never from a number written here.

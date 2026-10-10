@@ -15,13 +15,13 @@ import {
 /** @purity pure */
 export function screenEventFromDualCursorEntry(context: InputContext): ScreenValuesEvent {
   const taskGroupArea = context.regions.taskGroupArea
-  const atCentre = dayAtX(context.layout, taskGroupArea.x + taskGroupArea.width / 2)
+  const atCenter = dayAtX(context.layout, taskGroupArea.x + taskGroupArea.width / 2)
   // STOP: spec does not decide IC-45 where the axis has no day. Looked in DC-1, BO-1
   // @provisional PND-313
   return {
     type: 'dualCursorEntryPressed',
-    date: atCentre === null ? '' : textOfDay(atCentre),
-    hasDaysToPlace: atCentre !== null,
+    date: atCenter === null ? '' : textOfDay(atCenter),
+    hasDaysToPlace: atCenter !== null,
   }
 }
 

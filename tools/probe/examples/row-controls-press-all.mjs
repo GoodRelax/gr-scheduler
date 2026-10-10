@@ -6,7 +6,7 @@
 // task groups and IC-74 at the panel's head. ⛔ THE WIRING IS NOT STALE: fold
 // something first and the very same control works.
 // The real fault is that a DISARMED entry and an ARMED one are identical on
-// screen -- same opacity, same colour, same `pointer` cursor, no `disabled`
+// screen -- same opacity, same color, same `pointer` cursor, no `disabled`
 // attribute -- so at startup, when nothing is folded, every "open" on screen is
 // dead and nothing says so.
 //

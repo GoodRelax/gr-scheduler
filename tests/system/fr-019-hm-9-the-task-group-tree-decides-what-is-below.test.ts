@@ -387,7 +387,7 @@ async function barBodyOn(page: Page, row: DrawnTaskGroup): Promise<{ x: number; 
 }
 
 /**
- * The centre of the grab strip `GR-20` of table T-023d lays on one task group.
+ * The center of the grab strip `GR-20` of table T-023d lays on one task group.
  *
  * ⭐ Held verbatim -- row `GR-20` (table T-023d):
  * 「タスクグループの左端に敷く掴み代」, and 「タスクグループの左端とは、そのタスクグループの字下げの後ろである
@@ -408,7 +408,7 @@ async function barBodyOn(page: Page, row: DrawnTaskGroup): Promise<{ x: number; 
  *
  * @purity semi-pure-b
  */
-async function grabStripCentreOn(
+async function grabStripCenterOn(
   page: Page,
   id: string,
 ): Promise<{ x: number; y: number } | null> {
@@ -759,7 +759,7 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
       // ⭐ Held verbatim -- check 39, row `HM-9` (table T-015a), the row's own
       // opening marker (what this drag ultimately feeds into `HM-9` for):
       // 「| HM-9 | 並べ替えた順序も WBS へ伝わること（MUST）」
-      const grab = sibling === undefined ? null : await grabStripCentreOn(page, sibling.id)
+      const grab = sibling === undefined ? null : await grabStripCenterOn(page, sibling.id)
       expect
         .soft(grab, `${GR_20} (MUST) lays a grab strip on the task group this drag takes hold of`)
         .not.toBeNull()
@@ -767,7 +767,7 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
       if (sibling !== undefined && above !== undefined && grab !== null) {
         const to = rows.find((one) => one.id === above.id) as DrawnTaskGroup
         // ⭐ THE GRAB IS TAKEN WHERE GR-20 PUT IT, read off the drawn task group --
-        // see `grabStripCentreOn`. ⛔ No x is written here, because GR-20 (MUST)
+        // see `grabStripCenterOn`. ⛔ No x is written here, because GR-20 (MUST)
         // 「掴み代はタスクグループ名の直前に立ち、段の字下げとともに動くこと」 moves the
         // strip with the task group's depth, and until today this case pressed a fixed
         // x=60 that stood on the task group's NAME.

@@ -54,7 +54,7 @@ const markerShapesOf = (svg: string, uid: number): readonly Shape[] =>
 
 interface DrawnMark {
   readonly symbol: string
-  readonly centre: { readonly x: number; readonly y: number }
+  readonly center: { readonly x: number; readonly y: number }
   readonly radius: number
   readonly ring: Shape
   readonly glyph: readonly Shape[]
@@ -72,7 +72,7 @@ const drawnMarkOf = (scene: Scene, uid: number): DrawnMark => {
   const ring = rings[0] as Shape
   return {
     symbol: marker.symbol,
-    centre: marker.centre,
+    center: marker.center,
     radius: marker.radius,
     ring,
     glyph: shapes.filter((one) => one !== ring),
@@ -140,7 +140,7 @@ describe('T-021 PM-3 -- the symbol cell', () => {
   })
 })
 
-describe('FR-013 -- the pause mark PM-3 is one horizontal bar through the centre', () => {
+describe('FR-013 -- the pause mark PM-3 is one horizontal bar through the center', () => {
   for (const [name, pause] of [
     ['PA-4 (中断・再開日未定)', PA_4],
     ['PA-3 (中断・再開予定あり)', PA_3],
@@ -157,9 +157,9 @@ describe('FR-013 -- the pause mark PM-3 is one horizontal bar through the centre
       const cx = numOf(mark.ring, 'cx')
       const cy = numOf(mark.ring, 'cy')
       expect(Math.abs(numOf(bar, 'y1') - numOf(bar, 'y2')), 'horizontal').toBeLessThanOrEqual(1e-9)
-      expect(Math.abs(numOf(bar, 'y1') - cy), 'through the centre (y)').toBeLessThanOrEqual(2 * ROUND)
-      expect(Math.abs(numOf(bar, 'x1') + numOf(bar, 'x2') - 2 * cx), 'centred on cx').toBeLessThanOrEqual(4 * ROUND)
-      expect(Math.abs(cx - mark.centre.x), 'premise: the ring sits on the marker centre').toBeLessThanOrEqual(ROUND)
+      expect(Math.abs(numOf(bar, 'y1') - cy), 'through the center (y)').toBeLessThanOrEqual(2 * ROUND)
+      expect(Math.abs(numOf(bar, 'x1') + numOf(bar, 'x2') - 2 * cx), 'centered on cx').toBeLessThanOrEqual(4 * ROUND)
+      expect(Math.abs(cx - mark.center.x), 'premise: the ring sits on the marker center').toBeLessThanOrEqual(ROUND)
     })
 
     it(`${name}: 半分の長さを円の半径に S-341 を掛けた値 -- length == 2 x r x S-341`, () => {

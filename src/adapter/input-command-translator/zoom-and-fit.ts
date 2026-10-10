@@ -422,13 +422,13 @@ function placeSeated(context: InputContext): readonly DocumentCommand[] {
 }
 
 /** @purity pure */
-function zoomCentreX(context: InputContext, pointerX: number | null): number {
+function zoomCenterX(context: InputContext, pointerX: number | null): number {
   const area = context.regions.taskGroupArea
   return pointerX === null ? area.x + area.width / 2 : pointerX
 }
 
 /** @purity pure */
-function zoomCentreY(context: InputContext, pointerY: number | null): number {
+function zoomCenterY(context: InputContext, pointerY: number | null): number {
   const area = context.regions.taskGroupArea
   return pointerY === null ? area.y + area.height / 2 : pointerY
 }
@@ -471,13 +471,13 @@ function zoomWithinBounds(context: InputContext, value: number): number {
 function dayHeldStill(
   context: InputContext,
   zoomX: number | null,
-  centreX: number,
+  centerX: number,
 ): Pick<ScrollAnchor, 'scrollDate' | 'scrollDayOffset'> | null {
   if (zoomX === null) return null
   const area = context.regions.taskGroupArea
   const factor = zoomWithinBounds(context, zoomX) / zoomOnScreen(context).x
   if (!Number.isFinite(factor) || factor <= 0) return null
-  return dayAnchorAt(context, centreX - (centreX - area.x) / factor)
+  return dayAnchorAt(context, centerX - (centerX - area.x) / factor)
 }
 
 // see FR-016, PI-5
@@ -486,14 +486,14 @@ function taskGroupHeldStill(
   context: InputContext,
   zoomX: number | null,
   zoomY: number | null,
-  centreY: number,
+  centerY: number,
 ): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> | null {
   if (zoomY === null) return null
   const on = zoomOnScreen(context)
   const willBe = zoomWithinBounds(context, zoomY)
   if (!(willBe > 0) || willBe === on.y) return null
   const seat = scrolledAnchor(context, 0, 0)
-  const held = taskGroupAnchorIn(scrollingTaskGroupsOf(context.layout), centreY, seat)
+  const held = taskGroupAnchorIn(scrollingTaskGroupsOf(context.layout), centerY, seat)
   // TRAP: lay the candidate out at the new zoomX too: lanes follow horizontal overlap (ST-2, ST-3).
   const after = taskGroupPlacesAtZoomY(
     context.document.schedule,
@@ -512,7 +512,7 @@ function taskGroupHeldStill(
   const landed = taskGroupPointIn(after, held)
   const topEdge = topEdgeIn(after, seat)
   if (landed === null || topEdge === null) return null
-  return taskGroupAnchorIn(after, topEdge + (landed - centreY), seat)
+  return taskGroupAnchorIn(after, topEdge + (landed - centerY), seat)
 }
 
 // see FR-016, OP-10
@@ -521,11 +521,11 @@ function placeHeldStill(
   context: InputContext,
   zoomX: number | null,
   zoomY: number | null,
-  centreX: number,
-  centreY: number,
+  centerX: number,
+  centerY: number,
 ): readonly DocumentCommand[] {
-  const day = dayHeldStill(context, zoomX, centreX)
-  const row = taskGroupHeldStill(context, zoomX, zoomY, centreY)
+  const day = dayHeldStill(context, zoomX, centerX)
+  const row = taskGroupHeldStill(context, zoomX, zoomY, centerY)
   if (day === null && row === null) return placeSeated(context)
   const seat = scrolledAnchor(context, 0, 0)
   const heldDay = day ?? seat
@@ -557,8 +557,8 @@ export function zoomWrites(
       context,
       zoomX,
       zoomY,
-      zoomCentreX(context, pointerX),
-      zoomCentreY(context, pointerY),
+      zoomCenterX(context, pointerX),
+      zoomCenterY(context, pointerY),
     ),
     zoomCommand(context, zoomX, zoomY),
   ]
@@ -630,7 +630,7 @@ function fittedAsDrawn(context: InputContext) {
 /** @purity pure */
 export function statusLineWrites(context: InputContext): readonly DocumentCommand[] {
   if (context.document.schedule.project.statusDate !== null) return [{ kind: 'clearStatusDate' }]
-  return [{ kind: 'setStatusDate', date: context.today }, ...statusLineCentred(context, context.today)]
+  return [{ kind: 'setStatusDate', date: context.today }, ...statusLineCentered(context, context.today)]
 }
 
 // WHY: a picture drawn at the fit stores no zoom; a place written alone moves the next picture to the stored zoom (DFC-2410).
@@ -647,7 +647,7 @@ export function isPlaceSeatedIn(context: InputContext): boolean {
 
 // see FR-046, OP-10
 /** @purity pure */
-export function statusLineCentred(context: InputContext, date: string): readonly DocumentCommand[] {
+export function statusLineCentered(context: InputContext, date: string): readonly DocumentCommand[] {
   const day = dayOf(date)
   if (day === null) return []
   const area = context.regions.taskGroupArea

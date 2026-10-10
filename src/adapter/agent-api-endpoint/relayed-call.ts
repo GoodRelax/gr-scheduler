@@ -47,7 +47,7 @@ export type RelayedAnswer =
   | { readonly result: unknown }
   | { readonly error: { readonly code: number; readonly message: string } }
 
-type ParameterisedMember = {
+type ParameterizedMember = {
   [K in keyof AgentApi]: keyof RelayedParams[K] extends never ? never : K
 }[keyof AgentApi]
 
@@ -59,13 +59,13 @@ const MEMBER_PARAMETERS = {
   focusTask: ['taskUid'],
   showOnlyTasks: ['taskUids'],
   postDialogueMessage: ['text'],
-} as const satisfies { readonly [K in ParameterisedMember]: readonly (keyof RelayedParams[K])[] }
+} as const satisfies { readonly [K in ParameterizedMember]: readonly (keyof RelayedParams[K])[] }
 
 type ArgumentsNamed<TParams, TNames> = {
   -readonly [I in keyof TNames]: TParams[TNames[I] & keyof TParams]
 }
 
-type ListedArguments<K extends keyof AgentApi> = K extends ParameterisedMember
+type ListedArguments<K extends keyof AgentApi> = K extends ParameterizedMember
   ? ArgumentsNamed<RelayedParams[K], (typeof MEMBER_PARAMETERS)[K]>
   : []
 
@@ -102,7 +102,7 @@ function isMemberName(api: AgentApi, member: unknown): member is keyof AgentApi 
 }
 
 /** @purity pure */
-function isParameterised(member: keyof AgentApi): member is ParameterisedMember {
+function isParameterized(member: keyof AgentApi): member is ParameterizedMember {
   return Object.prototype.hasOwnProperty.call(MEMBER_PARAMETERS, member)
 }
 
@@ -131,7 +131,7 @@ async function answerMember(
   if (member === 'watchChanges') return answerWatch(api, sendNotice)
   if (member === 'exportPng') return answerPng(api)
   const held = (typeof params === 'object' && params !== null ? params : {}) as Record<string, unknown>
-  const names: readonly string[] = isParameterised(member) ? MEMBER_PARAMETERS[member] : []
+  const names: readonly string[] = isParameterized(member) ? MEMBER_PARAMETERS[member] : []
   const argumentsInOrder = names.map((name) => held[name])
   const method = api[member] as (...args: unknown[]) => unknown
   return { result: await method.apply(api, argumentsInOrder) }

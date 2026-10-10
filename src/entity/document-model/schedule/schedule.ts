@@ -95,13 +95,13 @@ export type {
   DelayReportWords,
 } from './delay-diagnostics-report-table'
 export {
-  customColourChosen,
-  customColourOf,
+  customColorChosen,
+  customColorOf,
   customSideOf,
-  isStoredColour,
+  isStoredColor,
   TRANSPARENT,
-} from './stored-colour'
-export type { CustomColour } from './stored-colour'
+} from './stored-color'
+export type { CustomColor } from './stored-color'
 export { scheduleViolations } from './schedule-invariants'
 export type { InvariantKind, ScheduleViolation } from './schedule-invariants'
 export { taskGroupNameOf } from './task-group-names'
@@ -114,7 +114,7 @@ export function taskByUid(schedule: Schedule, uid: number): Task | null {
 }
 
 // see IV-23, AT-97
-// WHY: a Task whose colour and shape nobody chose still holds its one TaskVisual, so no reader needs
+// WHY: a Task whose color and shape nobody chose still holds its one TaskVisual, so no reader needs
 // a second way to draw a Task without one.
 /** @purity pure */
 export function blankTaskVisual(taskUid: number): TaskVisual {

@@ -3,7 +3,7 @@
 //   RULING A -- the palette entrance is a TOGGLE. `SP-4` of `FR-083` used to
 //   fire only while nothing was selected; the ruling took that condition out,
 //   and the closing paragraph of table T-023b took it out a second time.
-//   RULING B -- a bar-shaped task needs a DRAG. A press that never travelled
+//   RULING B -- a bar-shaped task needs a DRAG. A press that never traveled
 //   past `S-208` makes no bar-shaped task and is TOLD that it made none;
 //   a milestone is exempt, in both directions.
 //
@@ -95,7 +95,7 @@
 //
 // ⭐ THE HOST FAKE, THE EMPTY DOCUMENT AND THE `stage` HELPER of section 4 are
 // copied from tests/unit/fr-019-no-task-group-for-the-annotation.test.ts, which drives
-// UF-48 through the same seams for the neighbouring ruling.
+// UF-48 through the same seams for the neighboring ruling.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -727,7 +727,7 @@ describe('FR-001 / FR-083: a bar shape is made by a drag and by nothing else', (
     expect(made[0].start < made[0].finish, 'the span drawn was not carried').toBe(true)
   })
 
-  it('⭐⭐ THE RULING: a bar shape released without travelling makes NO task', () => {
+  it('⭐⭐ THE RULING: a bar shape released without traveling makes NO task', () => {
     // FR-001 (MUST NOT) and FR-083's RATIONALE (MUST NOT). Until 2026-09-07
     // this press made a task of zero length, which is the build the ruling was
     // given against.
@@ -951,7 +951,7 @@ interface Stage {
   armedText(): string | null
   pressEntry(entrance: Entrance): void
   pressGround(x: number, y: number): void
-  /** The same press, travelled past `S-208` -- which is what makes a bar task. */
+  /** The same press, traveled past `S-208` -- which is what makes a bar task. */
   dragGround(from: { x: number; y: number }, to: { x: number; y: number }): void
   /**
    * A press LEFT HELD -- the only moment `PTD-4`'s picture can be looked at, and
@@ -1018,7 +1018,7 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
 
 describe('FR-029 / table T-233: the press carries RS-53, which table T-233 does not show (CR-712)', () => {
   for (const language of ['ja', 'en'] as const) {
-    it(`⭐ a bar shape released without travelling shows neither RS-53's nor RS-27's words in ${language}`, () => {
+    it(`⭐ a bar shape released without traveling shows neither RS-53's nor RS-27's words in ${language}`, () => {
       // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR. With no row for the situation
       // the dictionary answers with its fallback and the reader is told RS-27
       // -- 「押した入口が、いま行えることを持たない」 -- which is untrue here and
@@ -1234,7 +1234,7 @@ describe('table T-023a PTD-4: the held press draws what it would place', () => {
     )
   })
 
-  it('⛔ FR-001 (MUST NOT): a bar shape that has not travelled draws nothing either', () => {
+  it('⛔ FR-001 (MUST NOT): a bar shape that has not traveled draws nothing either', () => {
     // ⭐ THE PICTURE FOLLOWS THE WRITE, which is what makes 「描く側と置く側が同じ
     // 表を引く」 measurable from outside: a press that would make no task shows no
     // task while it is held.

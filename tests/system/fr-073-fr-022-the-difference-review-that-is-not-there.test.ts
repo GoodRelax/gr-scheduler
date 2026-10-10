@@ -15,23 +15,23 @@
 // MAKE IT GREEN.
 //
 // ⛔ WHAT WAS READ OF `src/`: nothing. Every handle used here is one the
-// neighbouring System files already lean on (`[data-role]`, `[data-icon]`), and
+// neighboring System files already lean on (`[data-role]`, `[data-icon]`), and
 // the specification settles none of them -- `tests/system/live-app.ts` says so
 // of `DRAWN_SVG`. The published identifier `grSchedulerAgentApi` IS settled:
 // `_assets/tbl-glossary.md` names it above table T-107, and `AM-2` / `AM-3` /
 // `AM-8` / `AM-11` name the four members this file reads and writes through.
 //
 // ⭐ THE CLAUSES PINNED HERE ARE QUOTED VERBATIM, in Japanese, beside the
-// judgement that presses each one, with the row that carries it. Rule 03
+// judgment that presses each one, with the row that carries it. Rule 03
 // section 5 bans TRANSLATING the manuscript into the tree; a quotation is not a
 // translation, and 164 of this project's 175 test files already carry the
-// manuscript's own words. A clause is quoted only where a judgement below
+// manuscript's own words. A clause is quoted only where a judgment below
 // actually presses it.
 //
 // ⛔ NO `swsCase` IS DECLARED. Table T-219 row `TW-2` has Chapter 9's cases
 // generated from those declarations and hung from an `SWS-xxx` node of Chapter
 // 6.1, and none of today's nodes is about the difference review. The rows each
-// judgement leans on are named in prose instead, as
+// judgment leans on are named in prose instead, as
 // `tests/system/three-rows-read-from-the-spec-alone.test.ts` does.
 //
 // ⭐ ONE LAUNCH, ONE SWEEP. Every measurement below is taken in a single run of
@@ -87,7 +87,7 @@ const MERGE_CHOICES: readonly string[] = T032A.rows.map((row) => row.id)
  *
  * ⛔ `IC-97` (`MM-4`, 取り込みをやめる) IS DELIBERATELY ABSENT. `MG-6` has that
  * choice put the document back exactly as it was before the intake, so
- * answering with it would carry nothing through -- and the judgement below that
+ * answering with it would carry nothing through -- and the judgment below that
  * asks whether the unreadable column survived the write would then go red for a
  * reason that is not a breach of anything.
  */
@@ -106,7 +106,7 @@ const REASON_NEWER_VERSION = rowOf(T233, 'RS-48').id
  * by anything: `data-reason` is on no element of the shipped build, and FR-076
  * has a telling carry the row as its REASON while Chapter 6.2 has the words a
  * person reads come from the dictionary, so a screen printing 「RS-48」 at a
- * person would be the breach rather than the proof. So the judgement below
+ * person would be the breach rather than the proof. So the judgment below
  * could not have gone green however right the product was.
  * ⭐ WHAT IS SETTLED IS THE WORDS. Chapter 6.2 (MUST) has them written in
  * `docs/spec/_source/display-words.json` and reach `src/` by generation, and

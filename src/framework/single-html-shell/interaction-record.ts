@@ -27,11 +27,11 @@ const PANEL_NOT_SHOWN_IN_RECORD = 'none'
 export const FOCUS_ON_DOCUMENT_BODY = 'body'
 
 // see T-280
-// WHY: paletteDisplayStateMachine.hidden has no child, so a hidden palette is never minimised.
+// WHY: paletteDisplayStateMachine.hidden has no child, so a hidden palette is never minimized.
 /** @purity pure */
-function paletteMinimisedForRecordOf(session: ScreenSession): boolean {
+function paletteMinimizedForRecordOf(session: ScreenSession): boolean {
   const palette = session.screen.paletteDisplayState
-  return palette.kind === 'shown' && palette.child.kind === 'minimised'
+  return palette.kind === 'shown' && palette.child.kind === 'minimized'
 }
 
 /** @purity pure */
@@ -184,7 +184,7 @@ export function recordFrame(
     `w=${hands.readEnvironment().width} h=${hands.readEnvironment().height} ` +
       `taskGroups=${drawnLayout.taskGroups.length} bars=${drawnLayout.placements.length} ` +
       `svgBytes=${svg.length} ${census} follow=${dualCursorFollowingIn(session) ?? '-'} ` +
-      `minimised=${paletteMinimisedForRecordOf(session)} ` +
+      `minimized=${paletteMinimizedForRecordOf(session)} ` +
       `glyphList=${session.screen.milestoneListDisplayState.kind === 'open'} ` +
       `notices=${standingNoticesIn(session).length} asking=${isQuestionAskedIn(session)} ` +
       `focus=${hands.screen?.readFocusPosition?.() ?? UNREAD_IN_RECORD} ` +

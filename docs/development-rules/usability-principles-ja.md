@@ -384,7 +384,7 @@ WCAG 2.2 の達成基準 2.5.8（押す目標の最小寸法 24 × 24 CSS ピク
 | [S1] | ISO 9241-11:2018, Ergonomics of human-system interaction — Part 11: Usability: Definitions and concepts. ISO. |
 | [S2] | ISO/IEC 25010:2023, Systems and software engineering — Systems and software Quality Requirements and Evaluation (SQuaRE) — Product quality model. ISO/IEC. 概要: https://quality.arc42.org/articles/iso-25010-update-2023 |
 | [S3] | ISO 9241-110:2020, Ergonomics of human-system interaction — Part 110: Interaction principles. ISO. サンプル頁: https://cdn.standards.iteh.ai/samples/75258/1d33833551994efeb4c4896a3c22bab4/ISO-9241-110-2020.pdf ／ 解説: https://www.dialogdesign.dk/isos-dialogue-principles-2019/ |
-| [S4] | ISO 9241-210:2019, Ergonomics of human-system interaction — Part 210: Human-centred design for interactive systems. ISO. |
+| [S4] | ISO 9241-210:2019, Ergonomics of human-system interaction — Part 210: Human-centered design for interactive systems. ISO. |
 | [S28] | W3C (2023). Web Content Accessibility Guidelines (WCAG) 2.2. W3C Recommendation. |
 | [S31] | ISO/IEC 25062:2006, Software engineering — Software product Quality Requirements and Evaluation (SQuaRE) — Common Industry Format (CIF) for usability test reports. https://www.iso.org/standard/43046.html ／ 改訂版 ISO 25062:2025, Common Industry Format (CIF) for reporting usability evaluations. https://www.iso.org/standard/84255.html |
 

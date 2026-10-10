@@ -266,13 +266,13 @@ async function readChosenFile(
   try {
     chosen = await picker({ ...place, multiple: false })
   } catch (thrown) {
-    if (isDismissal(thrown)) return { ok: false, fault: fault('cancelled', whyOf(thrown)) }
+    if (isDismissal(thrown)) return { ok: false, fault: fault('canceled', whyOf(thrown)) }
     return { ok: false, fault: fault('unavailable', whyOf(thrown)) }
   }
 
   const handle = chosen[0]
   if (handle === undefined) {
-    return { ok: false, fault: fault('cancelled', 'the chooser named no file') }
+    return { ok: false, fault: fault('canceled', 'the chooser named no file') }
   }
 
   try {
@@ -354,7 +354,7 @@ export function fileSystemAccessFileStore(
   async function readOpenedFileAgain(): Promise<FileReading> {
     const handle = openedHandle
     if (handle === null) {
-      return { ok: false, fault: fault('cancelled', 'no file is open to read again') }
+      return { ok: false, fault: fault('canceled', 'no file is open to read again') }
     }
     try {
       const file = await handle.getFile()
@@ -371,7 +371,7 @@ export function fileSystemAccessFileStore(
     const drop = droppedFile
     droppedFile = null
     if (drop === null) {
-      return { ok: false, fault: fault('cancelled', 'nothing was dropped') }
+      return { ok: false, fault: fault('canceled', 'nothing was dropped') }
     }
 
     const dropped = drop.handle === null ? null : await drop.handle
@@ -504,7 +504,7 @@ export function fileSystemAccessFileStore(
           handle = await picker(saveChooserOptionsOf(write, chooserPlaceOf(lastHandle)))
         } catch (thrown) {
           if (isDismissal(thrown)) {
-            return { ok: false, fault: fault('cancelled', whyOf(thrown)) }
+            return { ok: false, fault: fault('canceled', whyOf(thrown)) }
           }
           return { ok: false, fault: fault('unavailable', whyOf(thrown)) }
         }
@@ -524,7 +524,7 @@ export function fileSystemAccessFileStore(
         if (!mayWriteOver) {
           return {
             ok: false,
-            fault: fault('cancelled', `${handle.name}: the overwrite was not agreed to`),
+            fault: fault('canceled', `${handle.name}: the overwrite was not agreed to`),
           }
         }
 

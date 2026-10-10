@@ -55,9 +55,9 @@ const QUIET_MS = 2_000
 const WIDE = { width: 1280, height: 800 }
 const NARROW = { width: 375, height: 812 }
 
-type Labelled = { rowId: string; label?: Record<Lang, string> }
+type Labeled = { rowId: string; label?: Record<Lang, string> }
 type Glyph = { rowId: string; elements: { tag: string; attributes: { name: string; value: string }[] }[] }
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as { icons: Labelled[] }
+const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as { icons: Labeled[] }
 const GLYPHS = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'dom-screen-surface', 'icon-glyphs.json'), 'utf8'),
 ) as { viewBox: string; glyphs: Glyph[] }
@@ -69,7 +69,7 @@ function labelOf(rowId: string, lang: Lang): string {
   return found
 }
 
-const numbersNormalised = (text: string): string => text.replace(/-?\d*\.?\d+/g, (number) => String(Number(number)))
+const numbersNormalized = (text: string): string => text.replace(/-?\d*\.?\d+/g, (number) => String(Number(number)))
 
 // see F-019
 function glyphOf(rowId: string): string {
@@ -79,7 +79,7 @@ function glyphOf(rowId: string): string {
     const geometry = element.attributes.filter((one) => one.name !== 'style').map((one) => `${one.name}=${one.value}`)
     return `${element.tag}(${geometry.sort().join(',')})`
   })
-  return numbersNormalised(`${GLYPHS.viewBox}|${parts.sort().join(';')}`)
+  return numbersNormalized(`${GLYPHS.viewBox}|${parts.sort().join(';')}`)
 }
 
 const beside = (name: string): string => new URL(name, PAGE_URL).href
@@ -331,7 +331,7 @@ for (const lang of LANGS) {
 
   test(`F-019: the ${lang} block draws IC-1, IC-2 and IC-20 with their own glyphs`, async ({ page }) => {
     await openIn(page, lang)
-    const drawn = (await readGlyphs(page)).map(numbersNormalised)
+    const drawn = (await readGlyphs(page)).map(numbersNormalized)
     for (const rowId of ['IC-1', 'IC-2', 'IC-20']) expect(drawn, rowId).toContain(glyphOf(rowId))
   })
 }

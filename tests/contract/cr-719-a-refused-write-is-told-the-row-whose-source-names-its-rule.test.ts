@@ -36,12 +36,12 @@ describe('FR-076 -- the clauses this file is driven by still stand', () => {
 })
 
 describe(`IV-9 -- ${FR_076_A_T_220_REFUSAL_CARRIES_ITS_ROW}: a fill and a line both transparent`, () => {
-  it('settling the second of the two colours as transparent is told RS-84 and not RS-10', () => {
+  it('settling the second of the two colors as transparent is told RS-84 and not RS-10', () => {
     const document = templateDocument()
     const task = firstTask(document)
     const one = settleLoop(document)
     one.settle({ row: 'PR-12', key: { holder: 'taskVisual', uid: task.uid, column: 'fillColor' }, text: 'transparent' })
-    expect(one.notices(), 'premise: the first transparent colour is accepted').toEqual([])
+    expect(one.notices(), 'premise: the first transparent color is accepted').toEqual([])
     one.settle({ row: 'PR-39', key: { holder: 'taskVisual', uid: task.uid, column: 'strokeColor' }, text: 'transparent' })
     const told = one.notices()
     expect(told.length, 'FR-076 (MUST): the refusal is told').toBe(1)

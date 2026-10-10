@@ -34,7 +34,7 @@ so it can seed the number but never raise it.
     python .claude/skills/spec-graph-check/check-purity-honesty.py [--list]
     python .claude/skills/spec-graph-check/check-purity-honesty.py --write-baseline
 
-Run with PYTHONIOENCODING=utf-8 like its neighbours.
+Run with PYTHONIOENCODING=utf-8 like its neighbors.
 """
 import io
 import json

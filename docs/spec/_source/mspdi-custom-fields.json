@@ -38,5 +38,5 @@
    "alias": "fadeOutDays"
   }
  ],
- "aliasNote": "EVERY alias IS THE NAME OF THE COLUMN ITS FRAME CARRIES (the frame's prefers, a column of table T-058), spelt in camelCase like every other identifier and with no product name in front (EX-6). It is written into the partner's file and shows as a column heading in the partner's tool, and it is also the key EX-6 uses to tell a frame GRS wrote from a frame the import source wrote, and to read the fade back. It is NOT a word the screen prints, so it is not in display-words.json and MUST NOT be translated. tools/generate_mspdi_custom_fields.py refuses an alias that is not its frame's prefers."
+ "aliasNote": "EVERY alias IS THE NAME OF THE COLUMN ITS FRAME CARRIES (the frame's prefers, a column of table T-058), spelled in camelCase like every other identifier and with no product name in front (EX-6). It is written into the partner's file and shows as a column heading in the partner's tool, and it is also the key EX-6 uses to tell a frame GRS wrote from a frame the import source wrote, and to read the fade back. It is NOT a word the screen prints, so it is not in display-words.json and MUST NOT be translated. tools/generate_mspdi_custom_fields.py refuses an alias that is not its frame's prefers."
 }

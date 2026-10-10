@@ -187,8 +187,8 @@ export interface InputContext {
   readonly isFocusInPropertiesPanel?: boolean
   readonly isAgentApiEnabled?: boolean
   // see RW-1, RW-5, RO-1, RO-6, S-451, S-545
-  readonly delayDiagnosticsReport?: { readonly shown: 'normal' | 'minimised' | 'maximised'; readonly isInFront: boolean } | null
-  readonly resourceList?: { readonly shown: 'normal' | 'minimised' | 'maximised'; readonly isInFront: boolean } | null
+  readonly delayDiagnosticsReport?: { readonly shown: 'normal' | 'minimized' | 'maximized'; readonly isInFront: boolean } | null
+  readonly resourceList?: { readonly shown: 'normal' | 'minimized' | 'maximized'; readonly isInFront: boolean } | null
   // WHY: the resources the Resource List lists after its word and filters; absent, every resource of the document.
   readonly listedResourceUids?: readonly number[]
   readonly isSurfaceStanding: boolean
@@ -292,7 +292,7 @@ export type InputAction =
   | { readonly kind: 'toggleDialogueFieldVisible' }
   | { readonly kind: 'copyImageToJsonPrompt' }
   | { readonly kind: 'toggleMilestoneList' }
-  | { readonly kind: 'togglePaletteMinimised' }
+  | { readonly kind: 'togglePaletteMinimized' }
   | { readonly kind: 'toggleInteractionRecord' }
 
 export interface TranslatedInput {
@@ -732,7 +732,7 @@ export const ENTRY = {
   alignFinish: 'IC-38',
   dualCursor: 'IC-45',
   milestoneList: 'IC-50',
-  paletteMinimise: 'IC-75',
+  paletteMinimize: 'IC-75',
   interactionRecord: 'IC-76',
   closeSurface: 'IC-52',
   paletteGrabBand: 'IC-53',
@@ -755,8 +755,8 @@ export const ENTRY = {
   resourceListChosen: 'IC-67',
   resourceListUnchosen: 'IC-68',
   search: 'IC-117',
-  windowMinimise: 'IC-129',
-  windowMaximise: 'IC-130',
+  windowMinimize: 'IC-129',
+  windowMaximize: 'IC-130',
   windowRestore: 'IC-131',
 } as const
 
@@ -1141,8 +1141,8 @@ function commandFromEntry(
     }
     case ENTRY.statusLine:
       return changed(statusLineWrites(context))
-    case ENTRY.paletteMinimise:
-      return acted({ kind: 'togglePaletteMinimised' })
+    case ENTRY.paletteMinimize:
+      return acted({ kind: 'togglePaletteMinimized' })
     case ENTRY.interactionRecord:
       return acted({ kind: 'toggleInteractionRecord' })
     case ENTRY.milestoneList:
@@ -1278,7 +1278,7 @@ export function drawnTaskGroupsCrossed(taskGroups: readonly TaskGroupPlacement[]
 function chosenDrawnTaskCount(context: InputContext): number {
   const chosen = context.selection.items.filter((one) => one.kind === 'task')
   const drawnIds = context.drawnTaskGroupIds
-  // TRAP: absent means no picture was handed over (keep the wider count); an empty array is honoured.
+  // TRAP: absent means no picture was handed over (keep the wider count); an empty array is honored.
   if (drawnIds === undefined) return chosen.length
   const drawn = new Set(drawnIds)
   const drawnTaskUids = new Set<number>()
@@ -1402,12 +1402,12 @@ export function escapeContextOf(context: InputContext): EscapeContext {
     gestureInFlight: context.pressed !== null,
     isSearchPanelStanding: isWindowStandingIn(context.screen, 'searchPanelDisplayState'),
     isHelpStanding: isWindowStandingIn(context.screen, 'helpDisplayState'),
-    isDelayDiagnosticsReportStanding: report !== null && report.shown !== 'minimised',
+    isDelayDiagnosticsReportStanding: report !== null && report.shown !== 'minimized',
     isDialogueFieldStanding:
       context.isAgentApiEnabled === true && isWindowStandingIn(context.screen, 'dialogueFieldDisplayState'),
     focusedWindow: context.focusedWindow ?? null,
     isDelayDiagnosticsReportInFront: report?.isInFront === true,
-    isResourceListStanding: resourceList !== null && resourceList.shown !== 'minimised',
+    isResourceListStanding: resourceList !== null && resourceList.shown !== 'minimized',
     isResourceListInFront: resourceList?.isInFront === true,
     isFocusInPropertiesPanel: context.isFocusInPropertiesPanel === true,
     isArmed: context.screen.armModeState.kind !== 'notArmed',

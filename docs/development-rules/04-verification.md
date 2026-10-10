@@ -335,7 +335,7 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 ⚠️ Playwright の locator.check() / uncheck() / click() はページをスクロールする
    ⇒ その前に測った箱は古い。ポインタを動かす前に、毎回箱を読み直せ
 ⛔ 属性は効果ではない
-   ⇒ 探り針は data-colour-swatch の属性を画面の字と取り違えた（PND-532）。
+   ⇒ 探り針は data-color-swatch の属性を画面の字と取り違えた（PND-532）。
      F11・Esc による全画面の出入りはブラウザのアクセラレータを通るので Playwright には見えず、
      DOM の属性の反転を「効いた」と数えた（DFC-104）
    ⇒ 効果（画面の字、document.fullscreenElement）を主張させ、届かない所は利用者に手で確かめてもらう

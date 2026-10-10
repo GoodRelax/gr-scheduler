@@ -129,7 +129,7 @@ export async function selectedTaskUids(page: Page): Promise<readonly number[]> {
 }
 
 /** @purity semi-pure-b */
-export async function colourOfHeading(page: Page, window: string, column: string): Promise<{ readonly fill: string; readonly word: string; readonly icon: string }> {
+export async function colorOfHeading(page: Page, window: string, column: string): Promise<{ readonly fill: string; readonly word: string; readonly icon: string }> {
   return page.evaluate(
     (asked: { window: string; column: string }) => {
       const cell = document.querySelector(`${asked.window} thead th[data-column="${asked.column}"]`)

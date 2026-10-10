@@ -25,7 +25,7 @@ ANONYMISED	ANONYMIZED	identifier	1	2
 atCentre	atCenter	identifier	1	4	
 bandCentre	bandCenter	identifier	1	10	
 bandless_colour_names	bandless_color_names	identifier	2	3	
-barCentre	barCenter	identifier	1	6	
+barCentre	barCenter	identifier	2	8	
 behaviour	behavior	identifier	1	3	
 borderColourOf	borderColorOf	identifier	1	2	
 CANCELLED	CANCELED	identifier	1	2	
@@ -39,8 +39,10 @@ centre_x	center_x	identifier	1	5
 centre_y	center_y	identifier	1	5	
 centred	centered	identifier	1	3	
 centredSpan	centeredSpan	identifier	1	10	
+centreGap	centerGap	identifier	1	4	
 centreIsInsideCue	centerIsInsideCue	identifier	1	2	
-centreOf	centerOf	identifier	12	87	
+centreOf	centerOf	identifier	13	92	
+centreOfArea	centerOfArea	identifier	1	2	
 centres	centers	identifier	3	6	
 centreX	centerX	identifier	4	15	
 centreY	centerY	identifier	4	14	
@@ -93,6 +95,7 @@ colourNames	colorNames	identifier	6	15
 colourOf	colorOf	identifier	27	117	
 colourOfGroup	colorOfGroup	identifier	2	5	
 colourOfHeading	colorOfHeading	identifier	2	14	
+colourOnly	colorOnly	identifier	1	4	
 colourPropertyRows	colorPropertyRows	identifier	1	2	
 colourRows	colorRows	identifier	4	12	
 colours	colors	identifier	3	17	
@@ -158,6 +161,7 @@ HT_4_NEAREST_CENTRE	HT_4_NEAREST_CENTER	identifier	1	5
 IC_MINIMISE	IC_MINIMIZE	identifier	1	9	
 importCancelled	importCanceled	identifier	1	3	
 INSTANT_FLAVOURS	INSTANT_FLAVORS	identifier	1	5	
+isCentred	isCentered	identifier	1	2	
 isCentringBox	isCenteringBox	identifier	1	2	
 isEmphasised	isEmphasized	identifier	1	2	
 isGrey	isGray	identifier	3	14	
@@ -247,7 +251,7 @@ showsTheColour	showsTheColor	identifier	1	3
 SL_8_WHY_COLOUR	SL_8_WHY_COLOR	identifier	1	3	
 SourceJudgement	SourceJudgment	identifier	1	5	
 spelt	spelled	identifier	3	31	lane-B
-statusLineCentred	statusLineCentered	identifier	2	4	
+statusLineCentred	statusLineCentered	identifier	3	5	
 StoreBehaviour	StoreBehavior	identifier	1	2	
 summarise	summarize	identifier	3	15	
 swatchColours	swatchColors	identifier	1	4	
@@ -339,17 +343,17 @@ cancelled	canceled	prose	10	40
 cancelling	canceling	prose	3	3	
 capitalised	capitalized	prose	2	2	
 CENTRE	CENTER	prose	3	7	
-centre	center	prose	48	91	lane-B
-centred	centered	prose	17	33	
-centres	centers	prose	6	12	
+centre	center	prose	49	95	lane-B
+centred	centered	prose	18	35	
+centres	centers	prose	7	13	
 CENTRING	CENTERING	prose	1	1	
-centring	centering	prose	2	3	
+centring	centering	prose	3	4	
 co-ordinates	coordinates	prose	1	1	
 co-ordinating	coordinating	prose	1	2	
 co-ordination	coordination	prose	1	1	
 COLOUR	COLOR	prose	10	16	
 Colour	Color	prose	4	12	
-colour	color	prose	132	514	lane-B
+colour	color	prose	133	517	lane-B
 coloured	colored	prose	6	8	
 colourless	colorless	prose	2	2	
 COLOURS	COLORS	prose	1	1	

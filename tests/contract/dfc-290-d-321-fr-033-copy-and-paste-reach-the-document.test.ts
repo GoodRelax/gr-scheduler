@@ -159,7 +159,7 @@ function rowOf(table: SpecTable, id: string): SpecRow {
 /**
  * The keystroke 表 T-036 assigns one row, read out of its 割当 column.
  * ⚠️ Copied from tests/unit/dfc-337-....test.ts, including its warning against
- * `bare`, which would answer `Ctrl` for an assignment spelt 「`Ctrl` ＋ `R`」.
+ * `bare`, which would answer `Ctrl` for an assignment spelled 「`Ctrl` ＋ `R`」.
  */
 function keyOf(id: string): KeyInput {
   const parts = ((rowOf(T_036, id).by['割当'] ?? '').split('/')[0] ?? '')
@@ -489,7 +489,7 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
   })
 
   it('the fixture really holds the two subtrees the STATEMENT speaks of', () => {
-    // ⛔ WITHOUT THIS, a "the subtree travelled" case could pass on a fixture
+    // ⛔ WITHOUT THIS, a "the subtree traveled" case could pass on a fixture
     // whose subtree was one node deep.
     const built = stage(documentOfTwoTaskGroups())
     expect(built.taskUids()).toEqual([PARENT_TASK, CHILD_TASK])

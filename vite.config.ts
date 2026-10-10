@@ -10,9 +10,9 @@ import { defineConfig, type Plugin } from 'vite'
 // Chapter 1.4 and NFR-004 decide the shape of the deliverable: one `.html` with
 // the generated JavaScript and CSS embedded in it, holding nothing that has to
 // be fetched from outside (table T-003 CN-1 and CN-6). NFR-004 also says the
-// judgement is made with the file opened directly, and on `file://` an
+// judgment is made with the file opened directly, and on `file://` an
 // EXTERNAL module script is refused by CORS -- so the inline
-// `<script type="module">` below is not a size optimisation, it is the only
+// `<script type="module">` below is not a size optimization, it is the only
 // form that runs at all.
 // ⚠️ FR-067 (table T-024 IO-7) is a different deliverable -- the running
 // program writing itself and a document out as one `.html` -- and stays the
@@ -230,7 +230,7 @@ function startupTemplateContainer(): Plugin {
 // ⛔ `strictPort` is on ONLY when a port was assigned: an assigned port that is
 // already taken has to fail loudly rather than let Vite pick the next one, which
 // would drift again. Started by hand with no PORT, Vite keeps its own default
-// behaviour of stepping to the next free port.
+// behavior of stepping to the next free port.
 const assignedPort = Number(process.env.PORT)
 const hasAssignedPort = Number.isInteger(assignedPort) && assignedPort > 0
 

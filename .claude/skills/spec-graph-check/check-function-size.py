@@ -98,11 +98,11 @@ commits `function-size-baseline.txt` (memory: "Baseline moves need the
 user's OK").
 
 WHAT THIS DOES NOT SEE: a function whose own text does not change size or
-branch count but whose BEHAVIOUR does (dead code, a moved condition that
+branch count but whose BEHAVIOR does (dead code, a moved condition that
 nets to the same branch count); a change that moves a function between
 files without changing its name (key changes, so it reads as "deleted" +
 "new" rather than "moved" -- both halves still judged correctly, just not
-specially recognised as a move); an overload signature or an ambient
+specially recognized as a move); an overload signature or an ambient
 `declare function` (no body, so `TSDeclareFunction` is never treated as a
 measurable function -- only the implementation is counted).
 
@@ -238,7 +238,7 @@ def measure_tree():
 # The ratchet itself: totals and the two-way per-function ledger.
 # ---------------------------------------------------------------------------
 
-def summarise(functions):
+def summarize(functions):
     excess_lines = sum(max(0, f['lines'] - LINE_BAND) for f in functions)
     excess_branches = sum(max(0, f['branches'] - BRANCH_BAND)
                           for f in functions)
@@ -320,7 +320,7 @@ def verdict(functions, duplicates, baseline):
             'choice for a person to fix by renaming'
             % (dup['file'], dup['name'], dup['count']))
 
-    summary = summarise(functions)
+    summary = summarize(functions)
     banded = banded_map(functions)
 
     if summary['excess_lines'] > baseline['excess_lines']:
@@ -397,7 +397,7 @@ def gate():
             say('PROBLEM  %s' % problem)
         return 1
     if baseline is None:
-        summary = summarise(functions)
+        summary = summarize(functions)
         banded = banded_map(functions)
         say('PROBLEM  %s has not been written yet; measured excess-lines=%d '
             'excess-branches=%d, %d function(s) over the band -- run '
@@ -412,7 +412,7 @@ def gate():
         say(problem)
     if red:
         return 1
-    summary = summarise(functions)
+    summary = summarize(functions)
     say('OK       %d function(s) measured in src/**/*.ts against %s: '
         'excess-lines=%d excess-branches=%d, %d function(s) held over the '
         'band (JDG-54 ratchet; values agreed in JDG-124)'
@@ -455,7 +455,7 @@ def print_baseline():
             'trustworthy until it is fixed\n'
             % (dup['file'], dup['name'], dup['count']))
     functions = result.get('functions', [])
-    summary = summarise(functions)
+    summary = summarize(functions)
     banded = banded_map(functions)
     sys.stdout.write(format_baseline(summary, banded))
     return 1 if (errors or duplicates) else 0
@@ -482,7 +482,7 @@ def pad_function(name, total_lines, branch_count):
 
 
 def baseline_of(functions):
-    summary = summarise(functions)
+    summary = summarize(functions)
     banded = banded_map(functions)
     return {'excess_lines': summary['excess_lines'],
            'excess_branches': summary['excess_branches'], 'held': banded}

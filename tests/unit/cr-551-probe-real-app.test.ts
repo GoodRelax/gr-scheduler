@@ -182,26 +182,26 @@ describe('B: GR-21 -- while the grip is held, the view stays inside the whole he
     built.aim(partOf('Scrollbars', null, { scrollbarAxis: 'horizontal' }))
     built.send(pointerOf('down', at.x, at.y))
     const step = 40
-    let travelled = 0
+    let traveled = 0
     let lastThumb = bar.thumb.x
     let sawEnd = false
     for (let turn = 0; turn < 60; turn += 1) {
-      travelled += step
-      built.send(pointerOf('move', at.x + travelled, at.y))
+      traveled += step
+      built.send(pointerOf('move', at.x + traveled, at.y))
       const now = horizontalBarOf(built)
       const area = built.loop.current()?.regions.taskGroupArea
       const layout = built.loop.current()?.layout
       if (area === undefined || layout === undefined) throw new Error('no frame')
       const contentRight = (layout.contentX0 ?? area.x) + layout.contentWidth
-      expect(contentRight, `the view ran past the whole at ${travelled}px`).toBeGreaterThanOrEqual(
+      expect(contentRight, `the view ran past the whole at ${traveled}px`).toBeGreaterThanOrEqual(
         area.x + area.width - 0.5,
       )
       const isAtEnd = now.thumb.x + now.thumb.width >= now.track.x + now.track.width - 0.5
-      if (!isAtEnd) expect(now.thumb.x - lastThumb, `grip at ${travelled}px`).toBeCloseTo(step, 0)
+      if (!isAtEnd) expect(now.thumb.x - lastThumb, `grip at ${traveled}px`).toBeCloseTo(step, 0)
       sawEnd = sawEnd || isAtEnd
       lastThumb = now.thumb.x
     }
-    built.send(pointerOf('up', at.x + travelled, at.y))
+    built.send(pointerOf('up', at.x + traveled, at.y))
     expect(sawEnd, 'premise: the drag reaches the lane end').toBe(true)
   })
 })
@@ -222,20 +222,20 @@ describe('B (the vertical twin): GR-21 -- the vertical grip holds the same whole
     built.aim(partOf('Scrollbars', null, { scrollbarAxis: 'vertical' }))
     built.send(pointerOf('down', at.x, at.y))
     const step = 40
-    let travelled = 0
+    let traveled = 0
     let lastThumb = bar.thumb.y
     let heldAt: number | null = null
     for (let turn = 0; turn < 40; turn += 1) {
-      travelled += step
-      built.send(pointerOf('move', at.x, at.y + travelled))
+      traveled += step
+      built.send(pointerOf('move', at.x, at.y + traveled))
       const now = barOf()
       const isAtEnd = now.thumb.y + now.thumb.height >= now.track.y + now.track.height - 0.5
-      if (!isAtEnd) expect(now.thumb.y - lastThumb, `grip at ${travelled}px`).toBeCloseTo(step, 0)
+      if (!isAtEnd) expect(now.thumb.y - lastThumb, `grip at ${traveled}px`).toBeCloseTo(step, 0)
       if (isAtEnd && heldAt === null) heldAt = firstTaskGroupY()
-      if (heldAt !== null) expect(firstTaskGroupY(), `the view moved on at ${travelled}px`).toBeCloseTo(heldAt, 0)
+      if (heldAt !== null) expect(firstTaskGroupY(), `the view moved on at ${traveled}px`).toBeCloseTo(heldAt, 0)
       lastThumb = now.thumb.y
     }
-    built.send(pointerOf('up', at.x, at.y + travelled))
+    built.send(pointerOf('up', at.x, at.y + traveled))
     expect(heldAt, 'premise: the drag reaches the lane end').not.toBeNull()
   })
 })
@@ -461,15 +461,15 @@ describe('C: FR-006 -- an emptied date field commits with the events a browser r
   }
 })
 
-describe('D: CV-9 / JDG-397 -- a press on a colour swatch lands in the frame its press asked for', () => {
-  it('the swatch press writes the colour, draws it and lets undo be pressed without a further input', () => {
+describe('D: CV-9 / JDG-397 -- a press on a color swatch lands in the frame its press asked for', () => {
+  it('the swatch press writes the color, draws it and lets undo be pressed without a further input', () => {
     // see CV-9, T-078, FT-1, IF-9
     const bench = taskPanel({}, null)
     const swatch = selfAndDescendants(panelRootOf(bench)).find(
-      (one) => one.tagName === 'BUTTON' && (one.getAttribute('data-colour-choice') ?? '') !== '' && one.getAttribute('aria-pressed') !== 'true',
+      (one) => one.tagName === 'BUTTON' && (one.getAttribute('data-color-choice') ?? '') !== '' && one.getAttribute('aria-pressed') !== 'true',
     )
-    if (swatch === undefined) throw new Error('the panel drew no colour swatch')
-    const name = swatch.getAttribute('data-colour-choice')
+    if (swatch === undefined) throw new Error('the panel drew no color swatch')
+    const name = swatch.getAttribute('data-color-choice')
     ;(swatch as unknown as { dispatchEvent: (event: Event) => boolean }).dispatchEvent = (event) => {
       raise(bench.built, swatch, event.type)
       return true

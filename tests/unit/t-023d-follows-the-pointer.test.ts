@@ -275,7 +275,7 @@ function writeBanLine(): string {
  */
 function closingRuleRows(): readonly string[] {
   const rule = closingRuleLine()
-  // ⛔ The SENTENCE, not the paragraph: a row named by a neighbouring
+  // ⛔ The SENTENCE, not the paragraph: a row named by a neighboring
   // sentence is not a row this rule names.
   const at = rule.indexOf('を掴んでいるあいだ')
   const head = rule.slice(rule.lastIndexOf('。', at) + 1, at)
@@ -792,7 +792,7 @@ interface Follower {
 /**
  * ⚠️ EVERY PRESS POINT IS TAKEN FROM THE PICTURE, never from a number.
  * 表 T-023d sends 掴み代 and 当たり判定 to 表 T-206 and this file states none of
- * them: it presses the drawn edge, the drawn centre or the drawn icon, which is
+ * them: it presses the drawn edge, the drawn center or the drawn icon, which is
  * inside any allowance those rows can hold.
  */
 const FOLLOWERS: readonly Follower[] = [
@@ -1011,7 +1011,7 @@ describe('the fixture draws every figure the nine rows are grabbed on', () => {
     // ⛔ THE PRESS POINT MUST BE OUTSIDE THE MARKER, because table T-023d puts
     // GA-18 above GA-20: a press inside the marker's circle is GA-18's.
     const at = resumePoint(built.loop, SUSPENDED_UID)
-    const away = Math.hypot(at.x - marker.centre.x, at.y - marker.centre.y)
+    const away = Math.hypot(at.x - marker.center.x, at.y - marker.center.y)
     expect(away, 'table T-023d GA-20: 再開アイコンはマーカーのさらに外側').toBeGreaterThan(
       marker.radius,
     )
@@ -1070,7 +1070,7 @@ describe.each(FOLLOWERS.map((one) => [one.row, one] as [string, Follower]))(
       // ⚠️ WITHIN ONE DAY, and not to the pixel. 「置くことになる姿」 is the
       // figure that WOULD be placed, and what would be placed is a day -- the
       // rule just above forbids nudging a placed day onto a working one, which
-      // is a statement about days. A picture quantised to the day is therefore
+      // is a statement about days. A picture quantized to the day is therefore
       // one the specification permits, and a case demanding pixel identity
       // would fail it.
       expect(
@@ -1468,11 +1468,11 @@ describe('table T-023d GA-18: the progress marker is pressed, not carried', () =
     // ⭐ 何もしない is measured against the UNPRESSED picture, not against the
     // still press, which previews the state 押下の巡り would put.
     const unpressed = structuredClone(drawnTask(built.loop, SUSPENDED_UID))
-    const pressX = marker.centre.x + marker.radius / 2
-    built.send(pointer('down', pressX, marker.centre.y))
+    const pressX = marker.center.x + marker.radius / 2
+    built.send(pointer('down', pressX, marker.center.y))
     const oneDay = pxPerDay(built.loop)
     for (const days of [1, 2, 3, 4]) {
-      built.send(pointer('move', pressX + days * oneDay, marker.centre.y))
+      built.send(pointer('move', pressX + days * oneDay, marker.center.y))
       expect(
         structuredClone(drawnTask(built.loop, SUSPENDED_UID)),
         'table T-270 `PE-10`（進捗マーカー、中断のあいだ）: 横に引く ＝ 何もしない',
@@ -1487,8 +1487,8 @@ describe('table T-023d GA-18: the progress marker is pressed, not carried', () =
     const built = stage()
     const before = structuredClone(built.loop.document())
     const marker = markerOf(built.loop, SUSPENDED_UID)
-    built.send(pointer('down', marker.centre.x, marker.centre.y))
-    built.send(pointer('move', marker.centre.x + 4 * pxPerDay(built.loop), marker.centre.y))
+    built.send(pointer('down', marker.center.x, marker.center.y))
+    built.send(pointer('move', marker.center.x + 4 * pxPerDay(built.loop), marker.center.y))
     expect(
       built.loop.document(),
       'table T-028 IN-1: ポインタ操作は押した時点で実行せず、離した時点で確定すること',
@@ -1501,9 +1501,9 @@ describe('table T-023d GA-18 / table T-280 progressMarkerPressed (DFC-708): the 
     const built = stage()
     const before = structuredClone(drawnTask(built.loop, SUSPENDED_UID))
     const marker = markerOf(built.loop, SUSPENDED_UID)
-    const pressX = marker.centre.x + marker.radius / 2
-    built.send(pointer('down', pressX, marker.centre.y))
-    built.send(pointer('up', pressX, marker.centre.y))
+    const pressX = marker.center.x + marker.radius / 2
+    built.send(pointer('down', pressX, marker.center.y))
+    built.send(pointer('up', pressX, marker.center.y))
     expect(built.loop.hasUnsavedEdits(), 'GA-18 cycles the state on release: the write landed (WS-2 did not refuse it)').toBe(true)
     expect(structuredClone(drawnTask(built.loop, SUSPENDED_UID)), 'the Task is drawn in its next state').not.toEqual(before)
   })
@@ -1608,7 +1608,7 @@ function laneStage(): LaneStage {
     // GR-21's road in, and the only true answer for a point on one of the two
     // lanes this surface just showed is the axis that lane stands for -- the
     // grip and the band around it alike, because table T-023d itself leaves
-    // the band's OWN behaviour undecided and answers only where the point is.
+    // the band's OWN behavior undecided and answers only where the point is.
     readScreenPartAt: (x, y): ScreenPart | null => {
       const last = views[views.length - 1]
       if (last === undefined) return null
@@ -1660,7 +1660,7 @@ function laneOf(built: LaneStage, axis: 'horizontal' | 'vertical') {
   return found
 }
 
-const thumbCentre = (built: LaneStage, axis: 'horizontal' | 'vertical'): Point => {
+const thumbCenter = (built: LaneStage, axis: 'horizontal' | 'vertical'): Point => {
   const bar = laneOf(built, axis)
   return { x: bar.thumb.x + bar.thumb.width / 2, y: bar.thumb.y + bar.thumb.height / 2 }
 }
@@ -1687,7 +1687,7 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
   // (2026-09-08): it said `scrollbarIn` (`screen-frame.ts`) draws
   // `thumb: track`, which stopped being true when DFC-298's length landed on
   // 2026-09-08 and stopped being true of the START on the same day. The press
-  // point is still taken from the thumb's own rectangle (`thumbCentre`),
+  // point is still taken from the thumb's own rectangle (`thumbCenter`),
   // which is now a point on the GRIP rather than anywhere on the lane -- and
   // that is the stronger reading, since GR-21 is the grip.
   //
@@ -1758,7 +1758,7 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
       // ⚠️ Reads `frameOf(loop)`, the same picture the nine `FOLLOWERS` read
       // theirs off, never `document()` -- this is asking about the PICTURE.
       const built = laneStage()
-      const at = thumbCentre(built, axis)
+      const at = thumbCenter(built, axis)
       // ⚠️ `OVERFLOW_UID`, NOT `PLAIN_UID`. At the floor zoom this fixture's
       // 30-year span forces, `PLAIN_UID`'s 18-day plan bar is too thin a
       // fraction of the picture for the layout to place at all -- measured:
@@ -1783,7 +1783,7 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
       // / `S-78` of table T-203, `setScrollPosition` CM-66 of table T-108).
       const built = laneStage()
       const before = built.loop.document().documentSettings
-      const at = thumbCentre(built, axis)
+      const at = thumbCenter(built, axis)
       const to = axis === 'vertical' ? { x: at.x, y: at.y + 120 } : { x: at.x + 120, y: at.y }
       built.send(pointer('down', at.x, at.y))
       built.send(pointer('move', to.x, to.y))

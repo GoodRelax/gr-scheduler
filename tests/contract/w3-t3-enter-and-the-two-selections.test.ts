@@ -39,7 +39,7 @@ const TASK_GROUPS = [
   { id: 'task-group-c', parentId: null },
 ]
 
-// WHY: a long plan, so the body centre stands clear of the progress marker and dummy that answer first (T-266).
+// WHY: a long plan, so the body center stands clear of the progress marker and dummy that answer first (T-266).
 const LONG_PLAN = { start: '2026-04-06T08:00:00', finish: '2026-06-26T17:00:00' }
 
 const documentWithTaskGroups = (): Document =>

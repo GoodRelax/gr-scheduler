@@ -28,15 +28,15 @@
 // ⭐ THE RULE THESE CASES ARE DRIVEN BY:
 //
 //   表 T-230 「まるごと差し替えるときの呼び手ごとの扱い」, every row it prints
-//             (RD-1 .. RD-4, RD-6 and RD-7 -- the gap is a burnt seat, since
+//             (RD-1 .. RD-4, RD-6 and RD-7 -- the gap is a burned seat, since
 //             行 ID は席の番号であり、詰めない; and RD-7 「`FR-095` の初期化」
-//             has both its cells AND its behaviour driven, section 12 at the
-//             foot of this file being where the behaviour is),
+//             has both its cells AND its behavior driven, section 12 at the
+//             foot of this file being where the behavior is),
 //             read out of docs/spec/05-07-design.md at load time through
 //             `specTable` rather than copied. Chapter 1.9 (:275) asks that a
 //             test of a requirement pointing at a table be driven by the table,
 //             so every block below asserts the CELL it is about before it
-//             asserts the behaviour: a manuscript that moves a cell reaches
+//             asserts the behavior: a manuscript that moves a cell reaches
 //             this file rather than sliding past it.
 //   表 T-067  WS-1 .. WS-7, the seven steps 「文書をまるごと差し替える道も、本表
 //             の 7 つの順を踏む」
@@ -144,7 +144,7 @@ const cellOf = (row: string, column: string): string => {
 const ROWS = T_230.rows.map((row) => row.id)
 
 /**
- * The rows whose behaviour is driven below -- all of them.
+ * The rows whose behavior is driven below -- all of them.
  *
  * ⭐ RD-7 WAS THE ONE ROW THIS FILE COULD NOT DRIVE, until 2026-09-07. It
  * joined table T-230 that day with the same MUST over it as the other five --
@@ -373,7 +373,7 @@ const THE_BUNDLED_TEMPLATE = rowed(
   }),
 )
 
-/** The same template with the 日程データの群の刻 already current -- the `match` flavour. */
+/** The same template with the 日程データの群の刻 already current -- the `match` flavor. */
 const TEMPLATE_SAME_SCHEDULE_STAMP = rowed(
   [taskOf({ uid: 7, name: 'the bundled template' })],
   stampOf({ settingsUpdatedUtc: FROM_A_FILE, lastEditedBy: 'whoever wrote the template' }),
@@ -579,7 +579,7 @@ interface RowDrive {
  */
 type Instants = 'differ' | 'match'
 
-const INSTANT_FLAVOURS: readonly Instants[] = ['differ', 'match']
+const INSTANT_FLAVORS: readonly Instants[] = ['differ', 'match']
 
 function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
   const start = instants === 'differ' ? heldWithOneStep() : heldWithOneSettingsStep()
@@ -710,7 +710,7 @@ describe('表 T-230 -- the whole set of callers, before any of them is driven', 
     expect(closing, 'the prose under table T-230 counts the rows it prints').toContain(
       `本表の ${ROWS.length} つが、まるごと差し替える呼び手の全数である`,
     )
-    for (const instants of INSTANT_FLAVOURS) {
+    for (const instants of INSTANT_FLAVORS) {
       for (const row of ROWS) expect(() => driveOf(row, instants), `${row} / ${instants}`).not.toThrow()
     }
   })
@@ -1237,7 +1237,7 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
 
   it('GIVEN two equal `scheduleUpdatedUtc` WHEN the replacement lands THEN WS-7 is told it did not move, however different the rest is', () => {
     // AG-6: 「見せ方の群だけが動いた書き込みで起きてはならない（MUST NOT）」 --
-    // and the judgement is the equality of that ONE field, not of the 刻印.
+    // and the judgment is the equality of that ONE field, not of the 刻印.
     expect(SAME_SCHEDULE_STAMP.documentStamp.scheduleUpdatedUtc).toBe(
       CURRENT.documentStamp.scheduleUpdatedUtc,
     )
@@ -1267,16 +1267,16 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     // that never judged at all would pass it -- which is exactly how a case
     // that recomputed its expectation from the holder stayed green while the
     // unit compared the wrong pair of instants.
-    const expectations = INSTANT_FLAVOURS.map((instants) =>
+    const expectations = INSTANT_FLAVORS.map((instants) =>
       ROWS.map((row) => {
         const drive = driveOf(row, instants)
         return drive.outgoingScheduleUpdatedUtc !== drive.incomingScheduleUpdatedUtc
       }),
     )
-    expect(expectations[0], 'the `differ` flavour must expect 動いた on every row').toEqual(
+    expect(expectations[0], 'the `differ` flavor must expect 動いた on every row').toEqual(
       ROWS.map(() => true),
     )
-    expect(expectations[1], 'the `match` flavour must expect 動いていない on every row').toEqual(
+    expect(expectations[1], 'the `match` flavor must expect 動いていない on every row').toEqual(
       ROWS.map(() => false),
     )
   })
@@ -1290,7 +1290,7 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     // expectation a copy of the answer (FR-063: 「どの判定も等値で行うこと」 is
     // a claim about which two values are compared, and a case that reads one of
     // them from the unit's own output cannot check that claim at all).
-    for (const instants of INSTANT_FLAVOURS) {
+    for (const instants of INSTANT_FLAVORS) {
       for (const row of DRIVEN_ROWS) {
         const where = `${row} / ${instants}`
         const drive = driveOf(row, instants)
@@ -1321,7 +1321,7 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     // ことだけを理由に拒否してはならない（MUST NOT）」 leaves a write with no
     // declaration at all, which a derivation reading `readStamp` could not
     // answer for.
-    for (const instants of INSTANT_FLAVOURS) {
+    for (const instants of INSTANT_FLAVORS) {
       const drive = driveOf('RD-6', instants)
       const moved = drive.outgoingScheduleUpdatedUtc !== drive.incomingScheduleUpdatedUtc
       const one = bench(drive.start)
@@ -1335,11 +1335,11 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
 // ---------------------------------------------------------------------------
 // 12. RD-7 -- 「`FR-095` の初期化」, seated in table T-230 on 2026-09-07.
 //
-// ⛔⛔ THE ROW IS READ HERE AND ITS BEHAVIOUR IS NOT DRIVEN, and the reason is
+// ⛔⛔ THE ROW IS READ HERE AND ITS BEHAVIOR IS NOT DRIVEN, and the reason is
 // measured rather than assumed. See `NOT_YET_DRIVABLE` above for what was
 // measured; what follows is (a) the row's four cells, read out of the
 // manuscript so a re-ruling reaches this file, (b) one pin on the measured
-// state, which fails the day the road lands, and (c) the behaviour itself,
+// state, which fails the day the road lands, and (c) the behavior itself,
 // written out and skipped so that unskipping it is the whole of the work.
 //
 // ⭐ WHY THE CELLS ARE ASSERTED AGAINST RD-4's RATHER THAN TYPED. The

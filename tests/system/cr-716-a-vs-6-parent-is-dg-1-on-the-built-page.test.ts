@@ -21,7 +21,7 @@ const callApi = <T>(page: Page, body: string): Promise<T> =>
 interface Report {
   readonly findings: readonly { row: string; uid: number }[]
   readonly markerStates: readonly { uid: number; row: string }[]
-  readonly unanalysedCount: number
+  readonly unreliableCount: number
 }
 
 const reportOf = (answer: unknown): Report => {
@@ -56,6 +56,6 @@ test('DX-8 / T-315 DG-1: on the shipped build every VS-6 parent of the large sam
   }
   const marked = (uid: number): string | undefined => report.markerStates.find((one) => one.uid === uid)?.row
   for (const uid of parents) expect(marked(uid), `uid ${uid}`).toBe('DG-1')
-  expect(report.unanalysedCount).toBe(report.markerStates.filter((one) => one.row === 'DG-1').length)
-  expect(report.unanalysedCount).toBeGreaterThanOrEqual(parents.length)
+  expect(report.unreliableCount).toBe(report.markerStates.filter((one) => one.row === 'DG-1').length)
+  expect(report.unreliableCount).toBeGreaterThanOrEqual(parents.length)
 })

@@ -59,7 +59,7 @@ import { rulerTierOf, serialOf, timeAxisOf, xOnTimeAxis } from './time-axis'
 export { dateAtX, fixedFitSpanOf, rulerTierOf, shownSpanOf, tickStrideOf, timeAxisOf, xFromDay } from './time-axis'
 export type { TimeAxis } from './time-axis'
 export { labelUnits, labelWidth } from './label-width'
-export { labelledAssigneeUidOf } from './assignee-label'
+export { labeledAssigneeUidOf } from './assignee-label'
 export {
   markerDiameterOf,
   thinEndHalfHeightOf,
@@ -109,7 +109,7 @@ export interface TaskPlacement {
   readonly actualPlacement: 'inside' | 'below' | 'sideways'
   readonly actualX: number | null
   readonly actualWidth: number
-  // TRAP: not actualX + actualWidth: a milestone's figure is centred on a zero-width span.
+  // TRAP: not actualX + actualWidth: a milestone's figure is centered on a zero-width span.
   readonly actualReach: number | null
   readonly dummyReach: number | null
   // TRAP: an unset (null) fade reads 0 here; a chevron end tells unset from 0 only by fadeInUnset / fadeOutUnset.
@@ -342,13 +342,13 @@ export function deadlineHeadHalfWidthOf(markerDiameter: number): number {
 // see OC-9, DA-2
 /** @purity pure */
 function occupiedSpanOf(
-  labelled: { readonly x0: number; readonly x1: number },
+  labeled: { readonly x0: number; readonly x1: number },
   spread: { readonly x: number; readonly width: number } | null,
   deadlineX: number | null,
   markerDiameter: number,
 ): { readonly x0: number; readonly x1: number } {
-  const x0 = spread === null ? labelled.x0 : Math.min(labelled.x0, spread.x)
-  const x1 = spread === null ? labelled.x1 : Math.max(labelled.x1, spread.x + spread.width)
+  const x0 = spread === null ? labeled.x0 : Math.min(labeled.x0, spread.x)
+  const x1 = spread === null ? labeled.x1 : Math.max(labeled.x1, spread.x + spread.width)
   if (deadlineX === null) return { x0, x1 }
   const half = deadlineHeadHalfWidthOf(markerDiameter)
   return { x0: Math.min(x0, deadlineX - half), x1: Math.max(x1, deadlineX + half) }
@@ -541,7 +541,7 @@ export function layoutFromSchedule(
       const markerAnchorX = laid.markerLeft
       const placement: LabelPlacement = laid.fits ? 'inside' : 'right'
       const labelX = laid.nameX
-      const labelledX1 = namedFromPlanStart
+      const labeledX1 = namedFromPlanStart
         ? Math.max(planRight, laid.nameX + text)
         : Math.max(planRight, referenceEnd, laid.nameX + text)
       // TRAP: never condition this on planActualDisplay: a toggle must not move a Task (T-038).
@@ -561,9 +561,9 @@ export function layoutFromSchedule(
         settings,
       )
       const deadlineX = deadlineXOf(task, kind, reader, originSerial, pxPerDay, originX)
-      const labelled = { x0: assigneeAnchor - outsideWidth, x1: labelledX1 }
+      const labeled = { x0: assigneeAnchor - outsideWidth, x1: labeledX1 }
       // WHY: OC-8 is never counted: the late count is shown only in the EZ-6 tip (TL-12), never drawn.
-      const occupied = occupiedSpanOf(labelled, spread, deadlineX, markerDiameter)
+      const occupied = occupiedSpanOf(labeled, spread, deadlineX, markerDiameter)
       return { task, kind, glyph, oneDay, outline, x, width, named, font, placement, actual, labelX,
                actualReach, dummyReach, fade, outsideLabel, outsideLabelWidth,
                occupiedX0: occupied.x0, occupiedX1: occupied.x1, markerAnchorX, text, deadlineX }

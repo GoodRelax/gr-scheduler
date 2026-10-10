@@ -55,7 +55,7 @@ NOT reached a testing state (it is an `elif` after the status arm). ⭐ The
 baseline file already carries the falsified premise this rests on -- under
 the 押してから問え order (`DFC-262`), pressing is what RAISES a ruling, so a
 ✅ is not evidence that one has come down. ⛔ Retiring or gating that arm is
-a separate change; do not take it on one body's own judgement.
+a separate change; do not take it on one body's own judgment.
 
 ⚠️ THE EXCEPTION THIS CANNOT TELL APART. A row may legitimately say "the
 first question was ruled, a second one is now open" -- an early decision

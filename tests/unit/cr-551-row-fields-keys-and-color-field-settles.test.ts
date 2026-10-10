@@ -1,4 +1,4 @@
-// CR-551 follow-ups: the task group fields carry their T-016 IDs (IR-1), and the custom colour input settles (CV-9).
+// CR-551 follow-ups: the task group fields carry their T-016 IDs (IR-1), and the custom color input settles (CV-9).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -210,7 +210,7 @@ const hostInputs = (built: Bench, row: string): FakeElement[] =>
   inField(built, row).filter((one) => one.tagName === 'INPUT' && one.getAttribute('type') === 'color')
 const linePalette = (built: Bench): FakeElement => {
   const grids = inField(built, LINE_ROW).filter((one) => /grid/.test(styleMap(one).get('display') ?? ''))
-  if (grids[0] === undefined) throw new Error('the line colour field lays out no palette')
+  if (grids[0] === undefined) throw new Error('the line color field lays out no palette')
   return grids[0]
 }
 // see CV-9, CR-689
@@ -222,14 +222,14 @@ const cellWith = (grid: FakeElement, attribute: string, value: string | null = n
   if (found === undefined) throw new Error(`the palette draws no cell ${attribute}${value === null ? '' : `=${value}`}`)
   return found
 }
-const themeEntryOf = (grid: FakeElement): FakeElement => cellWith(grid, 'data-colour-theme-entry')
-const transparentOf = (grid: FakeElement): FakeElement => cellWith(grid, 'data-colour-choice', TRANSPARENT)
-const swatchOf = (grid: FakeElement, name: string): FakeElement => cellWith(grid, 'data-colour-choice', name)
+const themeEntryOf = (grid: FakeElement): FakeElement => cellWith(grid, 'data-color-theme-entry')
+const transparentOf = (grid: FakeElement): FakeElement => cellWith(grid, 'data-color-choice', TRANSPARENT)
+const swatchOf = (grid: FakeElement, name: string): FakeElement => cellWith(grid, 'data-color-choice', name)
 
 function openCustom(built: Bench): FakeElement {
-  pointerPress(built, cellWith(linePalette(built), 'data-colour-custom-entry'))
+  pointerPress(built, cellWith(linePalette(built), 'data-color-custom-entry'))
   const input = hostInputs(built, LINE_ROW)[0]
-  if (input === undefined) throw new Error('pressing Custom drew no host colour input')
+  if (input === undefined) throw new Error('pressing Custom drew no host color input')
   return input
 }
 
@@ -238,7 +238,7 @@ describe('IR-1 -- the task group fields carry their T-016 row IDs', () => {
     expect(REQUIREMENTS).toContain(IR_1)
   })
 
-  it('IR-1: the task group colour field is the T-016 color row, the height value field the T-016 height row (its check MH-2 of T-338), the name field AT-53', () => {
+  it('IR-1: the task group color field is the T-016 color row, the height value field the T-016 height row (its check MH-2 of T-338), the name field AT-53', () => {
     // see IR-1, T-016, AT-53, MH-2
     const built = bench(documentWith())
     const box = built.view().taskGroupPanel.titles[0]?.box
@@ -261,7 +261,7 @@ describe('IR-1 -- the task group fields carry their T-016 row IDs', () => {
   })
 })
 
-describe('CV-9 / JDG-397 -- the custom colour input', () => {
+describe('CV-9 / JDG-397 -- the custom color input', () => {
   it('CV-9 still says: 押したときにだけ出す', () => {
     expect(REQUIREMENTS).toContain(CV_9_HOST_INPUT)
   })

@@ -441,7 +441,7 @@ export const EDITED_BY_SCREEN = 'user'
 const SCREEN_LANGUAGE_ENTRY: IconId = 'IC-21'
 const HELP_LANGUAGE_ENTRY: IconId = 'IC-128'
 const MILESTONE_LIST_ENTRY: IconId = 'IC-50'
-const PALETTE_MINIMISE_ENTRY: IconId = 'IC-75'
+const PALETTE_MINIMIZE_ENTRY: IconId = 'IC-75'
 const INTERACTION_RECORD_ENTRY: IconId = 'IC-76'
 const CONFIRMATION_PROCEED_ANSWER = 'proceed'
 
@@ -798,7 +798,7 @@ const GRS_RESET_QUESTION: ConfirmationQuestion = 'QN-11'
 const NOTICE_REASON_OF_FILE_FAULT: Readonly<
   Record<DocumentFileFaultReason, NoticeReason | null>
 > = {
-  cancelled: null,
+  canceled: null,
   permissionLost: 'RS-1',
   noOpenedFile: 'RS-2',
   unavailable: 'RS-3',
@@ -1581,10 +1581,10 @@ function windowShownIn(session: ScreenSession, window: WindowName): WindowShown 
 }
 
 // see WB-8, WB-9, GR-24, GR-25, GR-28, SV-18
-// WHY: a maximised window neither moves nor resizes, and a minimised one only moves; its restore box moves with it.
+// WHY: a maximized window neither moves nor resizes, and a minimized one only moves; its restore box moves with it.
 /** @purity pure */
 function grabbedWindowBox(grab: WindowGrab, shown: WindowShown | null, travel: { readonly dx: number; readonly dy: number }): ScreenRect | null {
-  if (grab.region === 'columnBorder' || shown === null || shown === 'maximised') return null
+  if (grab.region === 'columnBorder' || shown === null || shown === 'maximized') return null
   if (grab.region !== 'titleBand' && shown !== 'normal') return null
   return windowBoxAfterGrab(grab.region, grab.windowBox, travel, grab.range, grab.floor)
 }
@@ -1880,7 +1880,7 @@ interface ReportBeforeJump {
 function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, frame: FrameValues, report: ReportBeforeJump): void {
   if (cell === null) return
   if (cell.kind === 'task') report.holdJumpTarget(cell.taskUid)
-  if (report.windows.report()?.shown === 'maximised') report.answerReportEntry(REPORT_RESTORE_ENTRY, null)
+  if (report.windows.report()?.shown === 'maximized') report.answerReportEntry(REPORT_RESTORE_ENTRY, null)
   hands.sendToSession(SEARCH_HIT_JUMPED, frame)
   const document = hands.readHeld().document
   const hit = searchHitOf(document.schedule, cell)
@@ -2850,7 +2850,7 @@ export function frameLoop(
     else runAskedFrame()
   }
 
-  // WHY: the change a press raises (a colour swatch's click, FT-1) comes after the release asked this frame.
+  // WHY: the change a press raises (a color swatch's click, FT-1) comes after the release asked this frame.
   /** @purity non-pure */
   function runAskedFrame(): void {
     if (values !== null) spendFieldCommit(hands, values)
@@ -3371,8 +3371,8 @@ export function frameLoop(
       sendToSession({ type: 'helpLanguageChosen', helpLanguage }, frame)
       return true
     }
-    if (entry === PALETTE_MINIMISE_ENTRY) {
-      sendToSession({ type: 'paletteMinimiseToggled' }, frame)
+    if (entry === PALETTE_MINIMIZE_ENTRY) {
+      sendToSession({ type: 'paletteMinimizeToggled' }, frame)
       return true
     }
     if (entry === INTERACTION_RECORD_ENTRY) {

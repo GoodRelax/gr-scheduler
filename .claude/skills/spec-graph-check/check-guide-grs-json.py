@@ -30,7 +30,7 @@ WHAT IT CHECKS, against docs/spec/_source/grs-document.schema.json
      Project's required keys are not asked of the prompt: the prompt has
      the AI copy them from the skeleton, which step 1 already validates.
 
-WHAT IT DOES NOT SEE. What the prose says about values (a colour form,
+WHAT IT DOES NOT SEE. What the prose says about values (a color form,
 a range, "is null" for a key whose type does not allow null); a lowercase
 single-word key written in prose without quotes (it is only caught when it
 displaces a required key, as `height` for minHeight would); whether ja and

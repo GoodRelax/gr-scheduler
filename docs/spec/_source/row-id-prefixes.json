@@ -156,7 +156,7 @@
   },
   {
    "prefix": "CF",
-   "words": "Colour Fit",
+   "words": "Color Fit",
    "owner": "spec",
    "means": {
     "ja": "テーマ色を色相ごとに解く段"
@@ -252,7 +252,7 @@
   },
   {
    "prefix": "CV",
-   "words": "Colour Value",
+   "words": "Color Value",
    "owner": "spec",
    "means": {
     "ja": "作成者が選んだ色の持ち方と描き方"
@@ -620,7 +620,7 @@
   },
   {
    "prefix": "HN",
-   "words": "Help miNimised",
+   "words": "Help miNimized",
    "owner": "spec",
    "means": {
     "ja": "最小化したヘルプと、ほかの入力"
@@ -722,7 +722,7 @@
   },
   {
    "prefix": "JDG",
-   "words": "Judgement",
+   "words": "Judgment",
    "owner": "records",
    "means": {
     "ja": "利用者の裁定（⛔ `R-` はデータの経路と紛れるので使わない。`RL` が「実体のあいだの関係」であり `RLG-` は 1 字違い、`RUL-` は「規則」と紛れるので選ばなかった）"
@@ -1406,7 +1406,7 @@
   },
   {
    "prefix": "TH",
-   "words": "Theme Colour (Hue)",
+   "words": "Theme Color (Hue)",
    "owner": "spec",
    "means": {
     "ja": "画面で選べるテーマ色"
@@ -1601,7 +1601,7 @@
   },
   {
    "prefix": "WB",
-   "words": "Window Behaviour",
+   "words": "Window Behavior",
    "owner": "spec",
    "means": {
     "ja": "ウィンドウの状態と振舞い（通常・最小化・最大化・タイトルバー・動かす・大きさを変える）"

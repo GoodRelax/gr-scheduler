@@ -40,7 +40,7 @@ const CLAUSES: readonly (readonly [string, string])[] = [
   ['FR-012 an on-plan finish is 100', FR_012_ON_PLAN_IS_100],
   ['FR-011 (MUST) both end days count', FR_011_ENDS_COUNT],
   ['EP-9 (MUST) one line, U-18 thick, S-149', EP_9_S_149],
-  ['EP-9 the colour is not S-165', EP_9_NOT_S_165],
+  ['EP-9 the color is not S-165', EP_9_NOT_S_165],
 ]
 
 describe('CR-667 the manuscript these cases are driven by', () => {

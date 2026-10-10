@@ -486,7 +486,7 @@ describe('FR-083 SP-1 / SP-4 -- the arming entrances still arm and still un-arm'
   it('the guide-cursor entrances touch the arm at neither end (FR-048)', () => {
     // ⚠️ 表 T-029a's closing note: 「`+`（十字）と `|`（縦 1 本）のガイドカーソル
     // は表示だけであり、編集を妨げない。**排他になるのは `Dual Cursor` だけで
-    // ある。**」 -- so the guide-cursor entrances are the nearest neighbours of
+    // ある。**」 -- so the guide-cursor entrances are the nearest neighbors of
     // IC-45 that must NOT drop the arm, and they are what stops "any cursor
     // entrance clears it" from passing.
     // ⭐ TWO, NOT FOUR: 表 T-109 gives FR-048 exactly the pair below, because

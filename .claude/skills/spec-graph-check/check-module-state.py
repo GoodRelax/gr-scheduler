@@ -86,7 +86,7 @@ to stdout, exit 0 -- it never reads or requires module-state-baseline.txt to
 exist, and this script never writes it either: the file is installed once by
 the session wiring the four stage-3 gates together, with the printed content
 shown to the user first (common premise 6 of the gates proposal, section 0).
-Only the DEFAULT run (the gate's own judgement, and `--list`, which shares
+Only the DEFAULT run (the gate's own judgment, and `--list`, which shares
 its scan) PROBLEMs and exits non-zero when the file is missing -- there is
 nothing yet to judge the tree against. `--self-test` breaks four cases held
 in memory (none of them written to src/) and is red unless each goes the way

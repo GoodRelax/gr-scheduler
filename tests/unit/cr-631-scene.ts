@@ -229,7 +229,7 @@ export const barOf = (scene: Scene, uid: number): Box => {
   return { x: found['x'] as number, y: found['y'] as number, width: found['width'] as number, height: found['planHeight'] as number }
 }
 
-export const centreOf = (box: Box): Pt => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 })
+export const centerOf = (box: Box): Pt => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 })
 
 export const MODS = { ctrl: false, shift: false, alt: false, meta: false }
 

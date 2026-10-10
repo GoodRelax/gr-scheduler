@@ -7,7 +7,7 @@
 import { SETTINGS_CONSTANTS, type DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   DEFAULT_CALENDAR_VALUES,
-  customColourOf,
+  customColorOf,
   customSideOf,
   type Schedule,
 } from '../../entity/document-model/schedule/schedule'
@@ -110,7 +110,7 @@ export function boxOfPoints(path: Path): ScreenRect | null {
 
 // see SL-8
 /** @purity pure */
-export function selectionFrameSvg(box: ScreenRect, colour: string, key: string): string {
+export function selectionFrameSvg(box: ScreenRect, color: string, key: string): string {
   const stroke = NOT_STORED_SELECTION_SIZES['S-174']
   const [on, off] = NOT_STORED_SELECTION_SIZES['S-175']
   const width = Math.max(box.width, stroke)
@@ -119,14 +119,14 @@ export function selectionFrameSvg(box: ScreenRect, colour: string, key: string):
     `<rect x="${rounded(box.x - (width - box.width) / 2)}"` +
     ` y="${rounded(box.y - (height - box.height) / 2)}"` +
     ` width="${rounded(width)}" height="${rounded(height)}"` +
-    ` fill="none" stroke="${colour}" stroke-width="${rounded(stroke)}"` +
+    ` fill="none" stroke="${color}" stroke-width="${rounded(stroke)}"` +
     ` stroke-dasharray="${rounded(on)} ${rounded(off)}"${figureKey(key)}/>`
   )
 }
 
 // see SL-8, EL-16
 /** @purity pure */
-export function emphasisedWidthOf(own: number): number {
+export function emphasizedWidthOf(own: number): number {
   return own + NOT_STORED_DEPENDENCY_EMPHASIS_SIZES['S-447']
 }
 
@@ -144,17 +144,17 @@ export function bandBaselineYOf(band: ScreenRect, fontPx: number): number {
 
 // see CF-1
 /** @purity pure */
-export function isScheduleColourRow(rowId: string): boolean {
-  return SCHEDULE_COLOURS[rowId] !== undefined
+export function isScheduleColorRow(rowId: string): boolean {
+  return SCHEDULE_COLORS[rowId] !== undefined
 }
 
 // see FR-041
 /** @purity pure */
-export function achromatic(colour: string): string {
-  const asHsl = /^hsla?\(\s*[\d.]+\s*[, ]\s*[\d.]+%\s*[, ]\s*([\d.]+)%/.exec(colour.trim())
+export function achromatic(color: string): string {
+  const asHsl = /^hsla?\(\s*[\d.]+\s*[, ]\s*[\d.]+%\s*[, ]\s*([\d.]+)%/.exec(color.trim())
   if (asHsl !== null) return `hsl(0 0% ${asHsl[1] as string}%)`
-  const asHex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(colour.trim())
-  if (asHex === null) return colour
+  const asHex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.exec(color.trim())
+  if (asHex === null) return color
   const digits = asHex[1] as string
   const wide = digits.length === 3 ? digits.replace(/./g, (one) => one + one) : digits
   const channels = [0, 2, 4].map((at) => parseInt(wide.slice(at, at + 2), 16) / 255)
@@ -165,14 +165,14 @@ export function achromatic(colour: string): string {
 // see T-236, FR-041, CF-1
 // WHY: a row whose cell names another row (S-527, S-528) is drawn as that row, so it shifts with it (T-366).
 /** @purity pure */
-export function colourOf(rowId: string, hue: number, dark: boolean, monochrome: boolean): string {
-  const named = SCHEDULE_COLOURS_SOURCES[rowId]?.[dark ? 'dark' : 'light']
-  const drawnTaskGroup = named !== undefined && SCHEDULE_COLOURS[named] !== undefined ? named : rowId
-  const row = SCHEDULE_COLOURS[drawnTaskGroup]
+export function colorOf(rowId: string, hue: number, dark: boolean, monochrome: boolean): string {
+  const named = SCHEDULE_COLORS_SOURCES[rowId]?.[dark ? 'dark' : 'light']
+  const drawnTaskGroup = named !== undefined && SCHEDULE_COLORS[named] !== undefined ? named : rowId
+  const row = SCHEDULE_COLORS[drawnTaskGroup]
   if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${rowId}`)
   const written = solvedCellOf(drawnTaskGroup, dark ? row.dark : row.light, themeSolveOf(hue, dark, monochrome), dark)
-  const coloured = row.followsHue ? written.replace(/\bH\b/g, rounded(hue)) : written
-  return monochrome ? achromatic(coloured) : coloured
+  const colored = row.followsHue ? written.replace(/\bH\b/g, rounded(hue)) : written
+  return monochrome ? achromatic(colored) : colored
 }
 
 interface ThemeSolve {
@@ -197,7 +197,7 @@ const TEXT_ON_GROUND_FLOOR = 4.5
 const TEXT_ROWS_ON_GROUND = ['S-147', 'S-148', 'S-503'] as const
 const LINE_ROWS_ON_GROUND = ['S-159', 'S-160', 'S-163', 'S-195', 'S-312', 'S-364'] as const
 
-// WHY: white is the ground's own colour (S-314), so CV-8 leaves it out; transparent has no string cell.
+// WHY: white is the ground's own color (S-314), so CV-8 leaves it out; transparent has no string cell.
 const PALETTE_ROWS_OFF_THE_GROUND: readonly string[] = ['S-314']
 
 const TENTHS = 10
@@ -244,7 +244,7 @@ function withSaturation(written: string, saturation: number): string {
 function measuredCellOf(written: string, hue: number, monochrome: boolean): readonly [number, number, number] {
   const cell = HSL_CELL.exec(written)
   const rgb = cell === null ? hexChannelsOf(written) : hslToRgbChannels(hue, Number(cell[1]), Number(cell[2]))
-  return monochrome ? greyChannelsOf(rgb) : rgb
+  return monochrome ? grayChannelsOf(rgb) : rgb
 }
 
 /** @purity pure */
@@ -255,7 +255,7 @@ function hexChannelsOf(hex: string): readonly [number, number, number] {
 
 /** @purity pure */
 function themeCellOf(rowId: string, dark: boolean): string {
-  const row = SCHEDULE_COLOURS[rowId]
+  const row = SCHEDULE_COLORS[rowId]
   if (row === undefined) throw new Error(`table T-236 does not reach this unit with ${rowId}`)
   return dark ? row.dark : row.light
 }
@@ -307,7 +307,7 @@ function fixedGroundPairsOf(dark: boolean): readonly GroundPair[] {
     ...TEXT_ROWS_ON_GROUND.map((rowId) => [themeCellOf(rowId, dark), TEXT_ON_GROUND_FLOOR] as const),
     ...LINE_ROWS_ON_GROUND.map((rowId) => [themeCellOf(rowId, dark), CT_FLOOR['CT-4']] as const),
   ]
-  for (const named of Object.values(COLOUR_NAME_VALUES)) {
+  for (const named of Object.values(COLOR_NAME_VALUES)) {
     if (PALETTE_ROWS_OFF_THE_GROUND.includes(named.rowId)) continue
     const forms = dark ? named.dark : named.light
     if (typeof forms.outline === 'string') pairs.push([forms.outline, CT_FLOOR['CT-4']])
@@ -344,7 +344,7 @@ function groundSaturationOf(hue: number, dark: boolean, shift: number, fixed: re
   return found >= top ? null : found
 }
 
-// WHY: monochrome draws S-146 grey whatever its saturation, so CF-4's 0 is the table's own cell greyed.
+// WHY: monochrome draws S-146 gray whatever its saturation, so CF-4's 0 is the table's own cell grayed.
 /** @purity pure */
 function solvedThemeOf(hue: number, dark: boolean, monochrome: boolean, fixed: readonly GroundPair[]): ThemeSolve {
   const shift = shiftOf(hue, dark, monochrome)
@@ -377,15 +377,15 @@ function solvedThemeTableOf(): readonly (readonly ThemeSolve[])[] {
 // see T-236, FR-041, CV-9
 // WHY: one reader of the theme rows for the drawing and the panel's swatches, so the two cannot drift.
 /** @purity pure */
-function themedColours(hue: number, dark: boolean, monochrome: boolean): (rowId: string) => string {
-  return (rowId) => colourOf(rowId, hue, dark, monochrome)
+function themedColors(hue: number, dark: boolean, monochrome: boolean): (rowId: string) => string {
+  return (rowId) => colorOf(rowId, hue, dark, monochrome)
 }
 
 // see CV-6
-export type ColourForm = 'fill' | 'outline' | 'actual' | 'band'
+export type ColorForm = 'fill' | 'outline' | 'actual' | 'band'
 
 // see CV-6
-export type ChosenColour = (stored: string | null, form: ColourForm) => string | null
+export type ChosenColor = (stored: string | null, form: ColorForm) => string | null
 
 const NOT_DRAWN = 'none'
 
@@ -395,7 +395,7 @@ const HSL_CELL = /^hsl\(\s*\S+\s+([\d.]+)%\s+([\d.]+)%\s*\)$/
 /** @purity pure */
 function planToActualShift(dark: boolean): { readonly s: number; readonly l: number } {
   const cellOf = (rowId: string): string => {
-    const row = SCHEDULE_COLOURS[rowId]
+    const row = SCHEDULE_COLORS[rowId]
     return (dark ? row?.dark : row?.light) ?? ''
   }
   const plan = HSL_CELL.exec(cellOf('S-155'))
@@ -454,16 +454,16 @@ function hslToRgbChannels(hue: number, saturation: number, lightness: number): r
 
 // see CV-10, CV-7
 /** @purity pure */
-function greyChannelsOf(rgb: readonly [number, number, number]): readonly [number, number, number] {
-  const grey = Math.round(((Math.max(...rgb) + Math.min(...rgb)) / 2 / 255) * 255)
-  return [grey, grey, grey]
+function grayChannelsOf(rgb: readonly [number, number, number]): readonly [number, number, number] {
+  const gray = Math.round(((Math.max(...rgb) + Math.min(...rgb)) / 2 / 255) * 255)
+  return [gray, gray, gray]
 }
 
 // see CV-10
 /** @purity pure */
 function measuredRgbOf(hsl: Hsl, monochrome: boolean): readonly [number, number, number] {
   const rgb = hslToRgbChannels(hsl.h, hsl.s, hsl.l)
-  return monochrome ? greyChannelsOf(rgb) : rgb
+  return monochrome ? grayChannelsOf(rgb) : rgb
 }
 
 const LUMINANCE_THRESHOLD = 0.03928
@@ -544,30 +544,30 @@ export function actualOfCustom(hex: string, dark: boolean, monochrome: boolean):
 /** @purity pure */
 function drawnChoice(
   stored: string,
-  form: ColourForm,
+  form: ColorForm,
   dark: boolean,
   monochrome: boolean,
   themed: (rowId: string) => string,
 ): string | null {
-  const named = COLOUR_NAME_VALUES[stored]
+  const named = COLOR_NAME_VALUES[stored]
   if (named !== undefined) {
     const cell = (dark ? named.dark : named.light)[form]
     if (cell === null) return NOT_DRAWN
     if (cell === false) return null
     return typeof cell === 'string' ? cell : themed(cell.sameAs)
   }
-  const custom = customColourOf(stored)
+  const custom = customColorOf(stored)
   if (custom === null) return null
   const side = customSideOf(custom, dark)
   return form === 'actual' ? actualOfCustom(side, dark, monochrome) : side
 }
 
 // see CV-6, CV-7, FR-041
-// WHY: null keeps the theme's colour: nothing chosen, or a form the chosen name offers no value for.
+// WHY: null keeps the theme's color: nothing chosen, or a form the chosen name offers no value for.
 /** @purity pure */
-function chosenColourOf(
+function chosenColorOf(
   stored: string | null,
-  form: ColourForm,
+  form: ColorForm,
   dark: boolean,
   monochrome: boolean,
   themed: (rowId: string) => string,
@@ -579,14 +579,14 @@ function chosenColourOf(
 }
 
 // see CV-9, T-236
-const THEME_ROW_OF_FORM: Readonly<Record<ColourForm, string>> = {
+const THEME_ROW_OF_FORM: Readonly<Record<ColorForm, string>> = {
   fill: 'S-155',
   outline: 'S-156',
   actual: 'S-157',
   band: 'S-164',
 }
 
-const GREY_LIGHTNESS = /([\d.]+)%\)$/
+const GRAY_LIGHTNESS = /([\d.]+)%\)$/
 
 const INK_ON_LIGHT = '#000000'
 const INK_ON_DARK = '#ffffff'
@@ -594,7 +594,7 @@ const INK_TURNS_AT_LIGHTNESS = 50
 
 /** @purity pure */
 export function inkOn(paint: string): string {
-  const lightness = GREY_LIGHTNESS.exec(achromatic(paint))
+  const lightness = GRAY_LIGHTNESS.exec(achromatic(paint))
   if (lightness === null) return ''
   return Number(lightness[1]) < INK_TURNS_AT_LIGHTNESS ? INK_ON_DARK : INK_ON_LIGHT
 }
@@ -603,13 +603,13 @@ export function inkOn(paint: string): string {
 /** @purity pure */
 export function swatchOf(
   stored: string | null,
-  form: ColourForm,
+  form: ColorForm,
   hue: number,
   dark: boolean,
   monochrome: boolean,
 ): { readonly paint: string; readonly ink: string } {
-  const themed = themedColours(hue, dark, monochrome)
-  const paint = chosenColourOf(stored, form, dark, monochrome, themed) ?? themed(THEME_ROW_OF_FORM[form])
+  const themed = themedColors(hue, dark, monochrome)
+  const paint = chosenColorOf(stored, form, dark, monochrome, themed) ?? themed(THEME_ROW_OF_FORM[form])
   return { paint, ink: inkOn(paint) }
 }
 
@@ -684,12 +684,12 @@ export function svgFromSchedule(
   const hue = schedule.project.themeHue
   const monochrome = settings.themeMonochrome
   const dark = viewer.themePreference === 'dark'
-  const themed = themedColours(hue, dark, monochrome)
-  const chosen: ChosenColour = (stored, form) => chosenColourOf(stored, form, dark, monochrome, themed)
+  const themed = themedColors(hue, dark, monochrome)
+  const chosen: ChosenColor = (stored, form) => chosenColorOf(stored, form, dark, monochrome, themed)
   const placedOf = new Map(layout.placements.map((one) => [one.taskUid, one]))
   const visualOf = new Map(schedule.taskVisuals.map((one) => [one.taskUid, one]))
   const strokeOfBox = new Map(schedule.highlightBoxes.map((one) => [one.id, one.strokeColor]))
-  const colourOfGroup = new Map(schedule.taskGroups.map((one) => [one.id, one.color]))
+  const colorOfGroup = new Map(schedule.taskGroups.map((one) => [one.id, one.color]))
   // TRAP: gate every operation mark on drawsOperationState, or it leaks into an export (EP-12, DC-8); marquee is ungated and relies on the export call passing null.
   const drawsOperationState = picture === 'screen'
   const marks: readonly ItemRef[] = drawsOperationState ? selection.items : []
@@ -733,7 +733,7 @@ export function svgFromSchedule(
     monochrome,
     themed,
     chosen,
-    colourOfGroup,
+    colorOfGroup,
     visualOf,
     placedOf,
     strokeOfBox,
@@ -806,7 +806,7 @@ export function svgFromSchedule(
   }
 
   // see FR-009
-  // WHY: FR-009 calls it a tentative dependency line, so it takes the line's own colour, width and head.
+  // WHY: FR-009 calls it a tentative dependency line, so it takes the line's own color, width and head.
   const tentative = drawsOperationState ? tentativeLink : null
   const tentativeArrowId = `grs-tentative-arrow-${pictureId(`${rounded(width)}x${rounded(height)}`)}`
   // TRAP: the head is a definition, not ink: inside ZO-11's group it would sit in a drawn layer.
@@ -1029,7 +1029,7 @@ export const NOT_STORED_NAME_LABEL_WEIGHT: {
 }
 
 // see T-236, S-73
-const SCHEDULE_COLOURS: {
+const SCHEDULE_COLORS: {
   readonly [rowId: string]: {
     readonly light: string
     readonly dark: string
@@ -1078,7 +1078,7 @@ const SCHEDULE_COLOURS: {
 }
 
 // see T-236, T-366
-const SCHEDULE_COLOURS_SOURCES: {
+const SCHEDULE_COLORS_SOURCES: {
   readonly [rowId: string]: { readonly light: string; readonly dark: string }
 } = {
   'S-162': { light: 'S-146', dark: 'S-146' },
@@ -1100,7 +1100,7 @@ interface PaletteForms {
   readonly actual: PaletteCell
   readonly band: PaletteCell
 }
-const COLOUR_NAME_VALUES: {
+const COLOR_NAME_VALUES: {
   readonly [spelling: string]: {
     readonly rowId: string
     readonly light: PaletteForms
@@ -1179,5 +1179,5 @@ export const WATERMARK_MARKS: {
 // </generated>
 
 // see CF-1
-// WHY: solved once per hue, light/dark and monochrome when the module loads, never per frame; colourOf reads it.
+// WHY: solved once per hue, light/dark and monochrome when the module loads, never per frame; colorOf reads it.
 const SOLVED_THEMES = solvedThemeTableOf()

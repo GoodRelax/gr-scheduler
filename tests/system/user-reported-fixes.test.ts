@@ -685,7 +685,7 @@ interface DividerReading {
 }
 
 /** @purity semi-pure-b */
-async function dividerColoursOnBothSides(
+async function dividerColorsOnBothSides(
   page: Page,
   names: { readonly read: string; readonly picture: string; readonly divider: string; readonly canvas: string },
 ): Promise<DividerReading> {
@@ -724,9 +724,9 @@ async function dividerColoursOnBothSides(
 
     const probe = window.document.createElement('div')
     window.document.body.appendChild(probe)
-    const resolved = (colour: string): string => {
+    const resolved = (color: string): string => {
       probe.style.color = 'rgb(1, 2, 3)'
-      probe.style.color = colour
+      probe.style.color = color
       return window.getComputedStyle(probe).color
     }
 
@@ -772,14 +772,14 @@ async function dividerColoursOnBothSides(
   }, names)
 }
 
-test('DFC-277: the picture fills the Panel Divider line with the colour the screen paints it', async ({
+test('DFC-277: the picture fills the Panel Divider line with the color the screen paints it', async ({
   baseURL,
 }) => {
   test.setTimeout(240_000)
   const app = await openTheApp(baseURL)
   try {
     await openTheAgentApi(app.page)
-    const reading = await dividerColoursOnBothSides(app.page, {
+    const reading = await dividerColorsOnBothSides(app.page, {
       read: AM_3,
       picture: AM_13,
       divider: '[data-role="Panel Divider"]',
@@ -810,7 +810,7 @@ test('DFC-277: the picture fills the Panel Divider line with the colour the scre
     expect(
       reading.pairs.map((one) => `${one.at} exported=${one.exported}`),
       `FR-080 with WY-2 of table T-041: the picture is the screen shrunk, so each divider line is ` +
-        `filled with the colour the screen paints it. Resolved at the open document's own hue ` +
+        `filled with the color the screen paints it. Resolved at the open document's own hue ` +
         `${String(reading.hue)}`,
     ).toEqual(reading.pairs.map((one) => `${one.at} exported=${one.screen}`))
   } finally {
@@ -1035,7 +1035,7 @@ test('DFC-297: a zoom holds the date under the pointer, and the middle date when
     expect(
       Math.abs(at - middle),
       `the point the wheel is turned at (${String(at)}) is the middle of the Task Group Area, so this ` +
-        'case could not tell a pointer-centred zoom from a middle-centred one',
+        'case could not tell a pointer-centered zoom from a middle-centered one',
     ).toBeGreaterThan(before.pxPerDay)
     const heldByPointer = dayUnder(before, at)
 
@@ -1072,7 +1072,7 @@ test('DFC-297: a zoom holds the date under the pointer, and the middle date when
     expect(
       dayUnder(afterKey, middle),
       `FR-016 (MUST): a route that carries no pointer takes the middle of the Task Group Area as the ` +
-        `centre, so the date at x=${String(Math.round(middle))} does not move. The pointer was ` +
+        `center, so the date at x=${String(Math.round(middle))} does not move. The pointer was ` +
         `parked at x=${String(Math.round(band.x + band.width * 0.1))}, where the date was ` +
         `${dayUnder(beforeKey, band.x + band.width * 0.1)}`,
     ).toBe(heldByMiddle)

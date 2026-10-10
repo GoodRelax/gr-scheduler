@@ -126,7 +126,7 @@ export interface ShownTasksHolder {
   readShownTasks(): AgentShownTasks
   /** @purity semi-pure-b */
   readSearchVisibility(): SearchTableVisibility
-  // WHY: the search table's only (AM-27); turning its filter on also shows a hidden Search Panel minimised (TV-8, PND-712).
+  // WHY: the search table's only (AM-27); turning its filter on also shows a hidden Search Panel minimized (TV-8, PND-712).
   /** @purity non-pure */
   holdShownTasks(visibility: SearchTableVisibility): void
   // WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which puts the target among the drawn tasks.
@@ -226,7 +226,7 @@ export interface AgentApiWiring {
   readonly schemaVersion: string
 }
 
-const AGENT_API_VERSION = 2
+const AGENT_API_VERSION = 3
 
 // see AG-4
 // WHY: a walk, not structuredClone or a JSON round trip: both throw on some values (FR-028).
@@ -428,16 +428,16 @@ function textOfHanded(handed: AgentImportSource): HandedText {
   const bag = handed as Record<string, unknown>
   if (typeof bag['text'] === 'string') return { ok: true, json: bag['text'] }
   const named = bag['document']
-  if (named !== null && typeof named === 'object') return serialisedDocument(named)
+  if (named !== null && typeof named === 'object') return serializedDocument(named)
   return typeof bag['schedule'] === 'object' && bag['schedule'] !== null
-    ? serialisedDocument(handed)
+    ? serializedDocument(handed)
     : { ok: false, what: NONE_OF_THE_SHAPES }
 }
 
 // WHY: caught despite ST-7: a handed value may hold a cycle or a bigint, and writing either
 // as JSON throws, which FR-028 forbids passing on.
 /** @purity pure */
-function serialisedDocument(value: object): HandedText {
+function serializedDocument(value: object): HandedText {
   try {
     return { ok: true, json: jsonFromDocument(value as Document) }
   } catch (thrown) {

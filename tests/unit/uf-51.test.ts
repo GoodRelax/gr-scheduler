@@ -91,7 +91,7 @@ const IF_3_PERMISSION = [
 // WHY: NT-3a is why these four are not flattened into one -- a failure
 // notice must carry a next step, and only the reason can decide which step.
 const IF_3_REASONS: readonly FileStoreFaultReason[] = [
-  'cancelled',
+  'canceled',
   'permissionLost',
   'noOpenedFile',
   'unavailable',
@@ -450,7 +450,7 @@ describe('construction -- the drop surface (OP-2, OP-4)', () => {
     await settled()
     await expect(store.readFileToOpen('drop')).resolves.toEqual({
       ok: false,
-      fault: { reason: 'cancelled', what: expect.any(String) as unknown as string },
+      fault: { reason: 'canceled', what: expect.any(String) as unknown as string },
     })
   })
 })
@@ -919,14 +919,14 @@ describe('writeChosenFile -- a file the person points at', () => {
     await expect(store.readOpenedFileState()).resolves.toEqual({ kind: 'none' })
   })
 
-  it('calls a dismissed chooser cancelled, not a failure', async () => {
+  it('calls a dismissed chooser canceled, not a failure', async () => {
     const store = fileSystemAccessFileStore(
       browser({ opens: 'noApi', saves: { rejectsWith: dismissal() } }).environment,
     )
     const writing = await store.writeChosenFile(request({}))
     expect(writing.ok).toBe(false)
     if (writing.ok) return
-    expect(writing.fault.reason, 'the person who stopped has not been failed').toBe('cancelled')
+    expect(writing.fault.reason, 'the person who stopped has not been failed').toBe('canceled')
   })
 
   it('writes nothing when the chooser was dismissed', async () => {
@@ -1033,7 +1033,7 @@ describe('writeChosenFile -- a file the person points at', () => {
     ])
   })
 
-  it('writes nothing and calls a refusal cancelled (DI-4 / NT-7)', async () => {
+  it('writes nothing and calls a refusal canceled (DI-4 / NT-7)', async () => {
     // WHY: NT-7 makes calling off a CHOICE; a store that wrote anyway would
     // leave the person a question that decided nothing, so this is not a failure.
     const chosen = fileHandle({ name: 'their-name.json', bytes: MSPDI_BYTES })
@@ -1050,7 +1050,7 @@ describe('writeChosenFile -- a file the person points at', () => {
     expect(chosen.written).toEqual([])
     expect(writing.ok).toBe(false)
     if (writing.ok) return
-    expect(writing.fault.reason).toBe('cancelled')
+    expect(writing.fault.reason).toBe('canceled')
   })
 
   it('leaves the opened file untouched when the write was called off', async () => {
@@ -1200,7 +1200,7 @@ describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
     await expect(store.readOpenedFileState()).resolves.toEqual({ kind: 'none' })
   })
 
-  it('calls a drop that carried no file cancelled', async () => {
+  it('calls a drop that carried no file canceled', async () => {
     const fake = browser({ opens: 'noApi', saves: 'noApi' })
     const store = fileSystemAccessFileStore(fake.environment)
     fake.drop(dropData([droppedItem({ kind: 'string', file: null })]))
@@ -1208,26 +1208,26 @@ describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
     const reading = await store.readFileToOpen('drop')
     expect(reading.ok).toBe(false)
     if (reading.ok) return
-    expect(reading.fault.reason).toBe('cancelled')
+    expect(reading.fault.reason).toBe('canceled')
   })
 
-  it('calls an empty drop cancelled', async () => {
+  it('calls an empty drop canceled', async () => {
     const fake = browser({ opens: 'noApi', saves: 'noApi' })
     const store = fileSystemAccessFileStore(fake.environment)
     fake.drop(dropData([]))
     await settled()
     await expect(store.readFileToOpen('drop')).resolves.toMatchObject({
       ok: false,
-      fault: { reason: 'cancelled' },
+      fault: { reason: 'canceled' },
     })
   })
 
-  it('calls "nothing was dropped at all" cancelled', async () => {
+  it('calls "nothing was dropped at all" canceled', async () => {
     const fake = browser({ opens: 'noApi', saves: 'noApi' })
     const store = fileSystemAccessFileStore(fake.environment)
     await expect(store.readFileToOpen('drop')).resolves.toMatchObject({
       ok: false,
-      fault: { reason: 'cancelled' },
+      fault: { reason: 'canceled' },
     })
   })
 
@@ -1242,7 +1242,7 @@ describe("readFileToOpen('drop') -- the drop route (OP-2)", () => {
     await expect(store.readFileToOpen('drop')).resolves.toMatchObject({ ok: true })
     await expect(store.readFileToOpen('drop')).resolves.toMatchObject({
       ok: false,
-      fault: { reason: 'cancelled' },
+      fault: { reason: 'canceled' },
     })
   })
 
@@ -1371,7 +1371,7 @@ describe('表 T-024a OP-2 -- one entry, and both routes end in the same place', 
 
 describe('FR-028 / NT-3a -- the four reasons, each reachable and told apart', () => {
   const situations: Record<FileStoreFaultReason, () => Promise<{ reason: string; what: string }>> = {
-    cancelled: async () => {
+    canceled: async () => {
       const store = fileSystemAccessFileStore(
         browser({ opens: { rejectsWith: dismissal() }, saves: 'noApi' }).environment,
       )
@@ -1447,11 +1447,11 @@ describe('FR-028 / NT-3a -- the four reasons, each reachable and told apart', ()
     const reading = await store.readFileToOpen('chooser')
     expect(reading.ok).toBe(false)
     if (reading.ok) return
-    expect(reading.fault.reason).toBe('cancelled')
+    expect(reading.fault.reason).toBe('canceled')
     await expect(store.readOpenedFileState()).resolves.toEqual({ kind: 'none' })
   })
 
-  it('calls a browser failure to open unavailable, not cancelled', async () => {
+  it('calls a browser failure to open unavailable, not canceled', async () => {
     const store = fileSystemAccessFileStore(
       browser({ opens: { rejectsWith: new Error('the browser gave up') }, saves: 'noApi' })
         .environment,
@@ -1479,14 +1479,14 @@ describe('FR-028 / NT-3a -- the four reasons, each reachable and told apart', ()
 })
 
 describe('boundaries', () => {
-  it('treats a chooser that came back with no file as cancelled', async () => {
+  it('treats a chooser that came back with no file as canceled', async () => {
     const store = fileSystemAccessFileStore(
       browser({ opens: { handles: [] }, saves: 'noApi' }).environment,
     )
     const reading = await store.readFileToOpen('chooser')
     expect(reading.ok).toBe(false)
     if (reading.ok) return
-    expect(reading.fault.reason).toBe('cancelled')
+    expect(reading.fault.reason).toBe('canceled')
     await expect(store.readOpenedFileState()).resolves.toEqual({ kind: 'none' })
   })
 

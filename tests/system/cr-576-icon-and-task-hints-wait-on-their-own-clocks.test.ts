@@ -107,7 +107,7 @@ interface Log {
   readonly seen: readonly Seen[]
 }
 
-const centreOf = (rect: Rect): Point => ({ x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 })
+const centerOf = (rect: Rect): Point => ({ x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 })
 
 const said = (rect: Rect | null): string =>
   rect === null ? '(none)' : `[${rect.left.toFixed(1)}, ${rect.top.toFixed(1)}] - [${rect.right.toFixed(1)}, ${rect.bottom.toFixed(1)}]`
@@ -202,7 +202,7 @@ async function shownNow(page: Page): Promise<{ text: string; rect: Rect | null }
 }
 
 // WHY: two entrances of the App Header that carry a description, are wholly on the screen and are the front at
-// their centre, wide enough to move a few pixels inside.
+// their center, wide enough to move a few pixels inside.
 /** @purity semi-pure-b */
 async function twoHintedEntrances(page: Page): Promise<readonly { icon: string; rect: Rect }[]> {
   const found = await page.evaluate(
@@ -230,8 +230,8 @@ async function twoHintedEntrances(page: Page): Promise<readonly { icon: string; 
 
 // see EZ-2
 /** @purity pure */
-function pointOfTheBoxOutside(box: Rect, icon: Rect, centre: Point): Point | null {
-  const at = { x: Math.min(Math.max(centre.x, box.left + 2), box.right - 2), y: (box.top + box.bottom) / 2 }
+function pointOfTheBoxOutside(box: Rect, icon: Rect, center: Point): Point | null {
+  const at = { x: Math.min(Math.max(center.x, box.left + 2), box.right - 2), y: (box.top + box.bottom) / 2 }
   const outside = at.y < icon.top || at.y > icon.bottom || at.x < icon.left || at.x > icon.right
   return outside ? at : null
 }
@@ -265,7 +265,7 @@ async function goNowhere(page: Page): Promise<Point> {
 }
 
 /** @purity non-pure */
-async function wiggleInside(page: Page, centre: Point, times: number): Promise<void> {
+async function wiggleInside(page: Page, center: Point, times: number): Promise<void> {
   const steps: readonly Point[] = [
     { x: WIGGLE_PX, y: 0 },
     { x: 0, y: WIGGLE_PX },
@@ -275,7 +275,7 @@ async function wiggleInside(page: Page, centre: Point, times: number): Promise<v
   for (let at = 0; at < times; at += 1) {
     await page.waitForTimeout(WIGGLE_EVERY_MS)
     const step = steps[at % steps.length] ?? { x: 0, y: 0 }
-    await page.mouse.move(centre.x + step.x, centre.y + step.y)
+    await page.mouse.move(center.x + step.x, center.y + step.y)
   }
 }
 
@@ -320,10 +320,10 @@ test.describe('CR-576 claim 3 -- the icon wait counts from entering the icon (EZ
       if (one === undefined) throw new Error('premise: no entrance')
       await goNowhere(page)
       const since = await nowOf(page)
-      const centre = centreOf(one.rect)
+      const center = centerOf(one.rect)
       // STEP: enter at once, then keep moving a few pixels every fifth of S-124 for twice S-124
-      await page.mouse.move(centre.x, centre.y)
-      await wiggleInside(page, centre, 10)
+      await page.mouse.move(center.x, center.y)
+      await wiggleInside(page, center, 10)
       await page.waitForTimeout(S_124_MS + SHOW_ALLOWANCE_MS)
 
       const log = await logSince(page, since)
@@ -355,12 +355,12 @@ test.describe('CR-576 claim 4 -- a shown icon description stays put while the po
       const [one] = await twoHintedEntrances(page)
       if (one === undefined) throw new Error('premise: no entrance')
       await goNowhere(page)
-      const centre = centreOf(one.rect)
-      const first = await restUntilShown(page, centre, `premise: resting on ${one.icon} shows its description`)
+      const center = centerOf(one.rect)
+      const first = await restUntilShown(page, center, `premise: resting on ${one.icon} shows its description`)
 
       const since = await nowOf(page)
       // STEP: move a few pixels inside the icon again and again, then stay past S-124
-      await wiggleInside(page, centre, 10)
+      await wiggleInside(page, center, 10)
       await page.waitForTimeout(S_124_MS + SHOW_ALLOWANCE_MS)
 
       const log = await logSince(page, since)
@@ -385,9 +385,9 @@ test.describe('CR-576 claim 4 -- a shown icon description stays put while the po
       const [one] = await twoHintedEntrances(page)
       if (one === undefined) throw new Error('premise: no entrance')
       await goNowhere(page)
-      const centre = centreOf(one.rect)
-      const first = await restUntilShown(page, centre, `premise: resting on ${one.icon} shows its description`)
-      const inTheBox = pointOfTheBoxOutside(first.rect, one.rect, centre)
+      const center = centerOf(one.rect)
+      const first = await restUntilShown(page, center, `premise: resting on ${one.icon} shows its description`)
+      const inTheBox = pointOfTheBoxOutside(first.rect, one.rect, center)
       expect(inTheBox, `premise: a point of the box ${said(first.rect)} lies outside ${one.icon} ${said(one.rect)}`).not.toBeNull()
       if (inTheBox === null) return
       expect(await frontIsTheTooltip(page, inTheBox), `${EZ_2_THE_BOX_IS_OUTSIDE} -- the box takes the pointer at ${JSON.stringify(inTheBox)}`).toBe(false)
@@ -413,14 +413,14 @@ test.describe('CR-576 claim 4 -- a shown icon description stays put while the po
       const nowhere = await goNowhere(page)
 
       // STEP: leave to a spot that is neither the icon nor its box -- the description goes
-      const first = await restUntilShown(page, centreOf(one.rect), `premise: resting on ${one.icon} shows its description`)
+      const first = await restUntilShown(page, centerOf(one.rect), `premise: resting on ${one.icon} shows its description`)
       await page.mouse.move(nowhere.x, nowhere.y)
       await expect.poll(async () => (await shownNow(page)).text, { timeout: SHOW_ALLOWANCE_MS, message: EZ_2_LEAVING }).not.toBe(first.text)
 
       // STEP: from a shown description, straight into another icon -- the old one goes and the new wait starts at entering
-      const again = await restUntilShown(page, centreOf(one.rect), `premise: resting on ${one.icon} again shows its description`)
+      const again = await restUntilShown(page, centerOf(one.rect), `premise: resting on ${one.icon} again shows its description`)
       const since = await nowOf(page)
-      const target = centreOf(two.rect)
+      const target = centerOf(two.rect)
       await page.mouse.move(target.x, target.y)
       await page.waitForTimeout(S_124_MS + SHOW_ALLOWANCE_MS)
 
@@ -453,14 +453,14 @@ test.describe('CR-576 claim 5 -- a description put away with Esc stays away on t
       for (let at = 0; at < 5; at += 1) await page.keyboard.press('Escape')
       await settle(page)
 
-      const centre = centreOf(one.rect)
-      await restUntilShown(page, centre, `premise: resting on ${one.icon} shows its description`)
+      const center = centerOf(one.rect)
+      await restUntilShown(page, center, `premise: resting on ${one.icon} shows its description`)
       await page.keyboard.press('Escape')
       await expect.poll(async () => (await shownNow(page)).text, { timeout: SHOW_ALLOWANCE_MS, message: `${IN_4_EXPLANATION_RUNG} (${one.icon})` }).toBe('')
 
       // STEP: move on inside the same icon for well past S-124 -- the hint target has not changed
       const since = await nowOf(page)
-      await wiggleInside(page, centre, 10)
+      await wiggleInside(page, center, 10)
       await page.waitForTimeout(S_124_MS + SHOW_ALLOWANCE_MS)
       const log = await logSince(page, since)
       expect(log.moves.length, 'premise: the page saw the moves').toBeGreaterThanOrEqual(10)
@@ -472,13 +472,13 @@ test.describe('CR-576 claim 5 -- a description put away with Esc stays away on t
       // STEP: out to nowhere and back -- going nowhere is a change of target, so the next wait shows it again
       await page.mouse.move(nowhere.x, nowhere.y)
       await page.waitForTimeout(WIGGLE_EVERY_MS)
-      const back = await restUntilShown(page, centre, `${MACHINE_ROW_TARGET} -- leaving ${one.icon} and coming back`)
+      const back = await restUntilShown(page, center, `${MACHINE_ROW_TARGET} -- leaving ${one.icon} and coming back`)
       expect(isHintOf(one.icon, back.text), `the box shows the description of ${one.icon}: ${JSON.stringify(back.text)}`).toBe(true)
 
       // STEP: put it away again, then straight into another icon
       await page.keyboard.press('Escape')
       await expect.poll(async () => (await shownNow(page)).text, { timeout: SHOW_ALLOWANCE_MS, message: IN_4_EXPLANATION_RUNG }).toBe('')
-      const other = await restUntilShown(page, centreOf(two.rect), `${MACHINE_ROW_TARGET} -- moving from ${one.icon} into ${two.icon}`)
+      const other = await restUntilShown(page, centerOf(two.rect), `${MACHINE_ROW_TARGET} -- moving from ${one.icon} into ${two.icon}`)
       expect(isHintOf(two.icon, other.text), `the box shows the description of ${two.icon}: ${JSON.stringify(other.text)}`).toBe(true)
     } finally {
       await stage.close()
@@ -513,7 +513,7 @@ async function barsOnScreen(page: Page): Promise<readonly Rect[]> {
 async function aTaskToRestOn(page: Page): Promise<Point> {
   for (const bar of await barsOnScreen(page)) {
     await goNowhere(page)
-    const at = centreOf(bar)
+    const at = centerOf(bar)
     await page.mouse.move(at.x, at.y)
     await page.waitForTimeout(S_439_MS + SHOW_ALLOWANCE_MS)
     if (TELLING.test((await shownNow(page)).text)) return at

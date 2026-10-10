@@ -23,7 +23,7 @@ question that catches them binds the quotation to the seat the prose NAMES:
 
 ⭐ NOTHING HERE IS NEW MACHINERY. `specindex.build()` already owns where a
 seat begins and ends -- `row_owner` locates every row ID, `owner_at` maps a
-line to the UID that owns it, `lines` holds the text. The normalisation is
+line to the UID that owns it, `lines` holds the text. The normalization is
 check 42's, because the manuscripts and their quoters disagree about emphasis,
 backticks and full-width spaces in exactly the same ways.
 

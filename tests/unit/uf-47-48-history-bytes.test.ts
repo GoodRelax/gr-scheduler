@@ -18,7 +18,7 @@
 // bodies of `historyWithStep` / `previousStep` / `nextStep` passed under the
 // eye. NOTHING below is expected because of what they do -- every number comes
 // from `docs/spec/_source/settings.json` or is computed from the document under
-// test, and every behaviour from a requirement or a table row.
+// test, and every behavior from a requirement or a table row.
 // ⚠️ A SECOND HONEST EXCEPTION, from the pass that added block D: searching
 // `frame-loop.ts` for the factor showed the one line that holds it,
 // `BYTES_PER_MEGABYTE`, and the comment above it. That line had to be found to

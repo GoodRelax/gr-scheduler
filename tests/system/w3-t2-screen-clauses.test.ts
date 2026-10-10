@@ -40,7 +40,7 @@ const WHEEL_UNITS =
   '行で報告されたときの 1 行の長さ、画素で報告されたときの 1 ノッチの長さ、行で報告されたときの 1 ノッチの行数は、`_assets/tbl-settings.md` の 表 T-206 の `S-514`・`S-515`・`S-516` に従うこと（MUST）'
 
 // see IN-7, T-028
-const TOOLTIP_COLOURS = '⭐ 説明の地・字・縁の色は、`_assets/tbl-settings.md` の 表 T-236 の `S-146`・`S-147`・`S-149` とすること（MUST）'
+const TOOLTIP_COLORS = '⭐ 説明の地・字・縁の色は、`_assets/tbl-settings.md` の 表 T-236 の `S-146`・`S-147`・`S-149` とすること（MUST）'
 
 // see FR-100
 const NO_WARNING_WORDS = '印の遷移は `_assets/tbl-state-machines.md` の 表 T-290 の `unsavedEditsStateMachine` が持つ。**警告の文言を `GRS` が決めてはならない（MUST NOT）'
@@ -66,7 +66,7 @@ const CLAUSES = [
   CHOOSERS_FOLLOW_WB_10,
   CHOOSERS_ARE_NOT_WINDOWS,
   WHEEL_UNITS,
-  TOOLTIP_COLOURS,
+  TOOLTIP_COLORS,
   NO_WARNING_WORDS,
   FIELD_SCROLLS_LIKE_THE_ENTRANCE,
   OPEN_ALL_NOT_OUTERMOST,
@@ -112,7 +112,7 @@ const rgbOfPaint = (paint: string, hue = 0): Rgb => {
   if (hsl !== null) return rgbOfHsl(Number(hsl[1]), Number(hsl[2]), Number(hsl[3]))
   const rgb = /^rgba?\(\s*([\d.]+)[\s,]+([\d.]+)[\s,]+([\d.]+)/.exec(text)
   if (rgb !== null) return [Number(rgb[1]), Number(rgb[2]), Number(rgb[3])]
-  throw new Error(`not a colour: ${paint}`)
+  throw new Error(`not a color: ${paint}`)
 }
 
 const farthestChannel = (a: Rgb, b: Rgb): number => Math.max(...a.map((value, i) => Math.abs(value - (b[i] ?? 0))))
@@ -287,7 +287,7 @@ test(`CF-1: ${SOLVE_BEFORE_DRAWING}`, async ({ page }) => {
       }
     }).observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['fill', 'style'] })
   })
-  await page.click(`[data-colour-choice="${TH_3}"]`)
+  await page.click(`[data-color-choice="${TH_3}"]`)
   await settle(page)
   const afterSwatch = await readDocument(page)
   expect(afterSwatch.schedule.project['themeHue'], 'precondition: the swatch set the hue').toBe(TH_3)
@@ -300,7 +300,7 @@ test(`CF-1: ${SOLVE_BEFORE_DRAWING}`, async ({ page }) => {
   const drawn = ofThemeRow(recorded.map((one) => [one.slice(0, one.indexOf(' ')), one.slice(one.indexOf(' ') + 1)] as [string, string]))
   const onHue = drawn.map((fill) => rgbOfPaint(fill)).filter((rgb) => farthestChannel(rgb, unsolved) < 4 || farthestChannel(rgb, solved) < 4)
   expect(onHue.length, 'precondition: plan bars were drawn in the new hue').toBeGreaterThan(0)
-  for (const rgb of onHue) expect(farthestChannel(rgb, solved), `a frame drew S-155 as ${rgb.join(',')} instead of the solved colour`).toBeLessThanOrEqual(0.75)
+  for (const rgb of onHue) expect(farthestChannel(rgb, solved), `a frame drew S-155 as ${rgb.join(',')} instead of the solved color`).toBeLessThanOrEqual(0.75)
   // STEP: CF-1 -- the exported picture uses the same solve
   const svg: string = await page.evaluate(() => (window as any).grSchedulerAgentApi.exportSvg().value)
   const exported = ofThemeRow(
@@ -417,7 +417,7 @@ test(`T-023: ${WHEEL_UNITS}`, async ({ browser }) => {
   expect(notchByLines['zoomX']).toEqual(notchByPixels['zoomX'])
 })
 
-test(`IN-7: ${TOOLTIP_COLOURS}`, async ({ page }) => {
+test(`IN-7: ${TOOLTIP_COLORS}`, async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   const hue = Number((await readDocument(page)).schedule.project['themeHue'])
@@ -562,7 +562,7 @@ test(`FR-016: ${FADE_FROM_POINTER}`, async ({ page }) => {
       handle,
     )
     expect(covering, 'precondition: no panel covers the fade-out grab point').toEqual([])
-    // STEP: the press lands off the handle centre; the pointer position alone decides the count
+    // STEP: the press lands off the handle center; the pointer position alone decides the count
     await page.mouse.move(handle.x - 1, handle.y - 1)
     await page.mouse.down()
     await page.mouse.move(xOfDay(endDay - pointerDays), handle.y - 1, { steps: 8 })

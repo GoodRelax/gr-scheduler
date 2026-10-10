@@ -89,7 +89,7 @@ const box = (commentBoxId: string, text: string, taskGroupName: string, anchorDa
   groupId: `g-${commentBoxId}`,
 })
 
-const P1 = '1. Programme'
+const P1 = '1. Program'
 const P15 = '1.5 Steering'
 const P2 = '2. Review'
 

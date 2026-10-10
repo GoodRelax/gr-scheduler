@@ -480,26 +480,26 @@ const pointer = (
  * and both of those conditions are driven by cases of their own below.
  */
 const T_036_DRIVEN = [
-  { row: 'SK-2', spelt: 'Ctrl+A', input: () => key('A', { ctrl: true }) },
-  { row: 'SK-3', spelt: 'Delete', input: () => key('Delete') },
-  { row: 'SK-4', spelt: 'Ctrl+C', input: () => key('C', { ctrl: true }) },
-  { row: 'SK-5', spelt: 'Ctrl+V', input: () => key('V', { ctrl: true }) },
-  { row: 'SK-6', spelt: 'Ctrl+Z', input: () => key('Z', { ctrl: true }) },
-  { row: 'SK-7', spelt: 'Ctrl+Y', input: () => key('Y', { ctrl: true }) },
-  { row: 'SK-9', spelt: 'F2', input: () => key('F2') },
-  { row: 'SK-10', spelt: 'Ctrl+O', input: () => key('O', { ctrl: true }) },
-  { row: 'SK-11', spelt: 'Ctrl+S', input: () => key('S', { ctrl: true }) },
-  { row: 'SK-12', spelt: 'Ctrl+Shift+E', input: () => key('E', { ctrl: true, shift: true }) },
-  { row: 'SK-13', spelt: 'F1', input: () => key('F1') },
-  { row: 'SK-14', spelt: 'P', input: () => key('P') },
-  { row: 'SK-15', spelt: 'F11', input: () => key('F11') },
-  { row: 'SK-16', spelt: 'Shift++', input: () => key('+', { shift: true }) },
-  { row: 'SK-16a', spelt: 'Alt++', input: () => key('+', { alt: true }) },
-  { row: 'SK-22', spelt: 'Ctrl+Shift++', input: () => key('+', { ctrl: true, shift: true }) },
-  { row: 'SK-23', spelt: 'Ctrl+Shift+-', input: () => key('-', { ctrl: true, shift: true }) },
-  { row: 'SK-18', spelt: 'F', input: () => key('F') },
-  { row: 'SK-24', spelt: 'Ctrl+F', input: () => key('F', { ctrl: true }) },
-  { row: 'SK-20', spelt: 'Ctrl+Shift+D', input: () => key('D', { ctrl: true, shift: true }) },
+  { row: 'SK-2', spelled: 'Ctrl+A', input: () => key('A', { ctrl: true }) },
+  { row: 'SK-3', spelled: 'Delete', input: () => key('Delete') },
+  { row: 'SK-4', spelled: 'Ctrl+C', input: () => key('C', { ctrl: true }) },
+  { row: 'SK-5', spelled: 'Ctrl+V', input: () => key('V', { ctrl: true }) },
+  { row: 'SK-6', spelled: 'Ctrl+Z', input: () => key('Z', { ctrl: true }) },
+  { row: 'SK-7', spelled: 'Ctrl+Y', input: () => key('Y', { ctrl: true }) },
+  { row: 'SK-9', spelled: 'F2', input: () => key('F2') },
+  { row: 'SK-10', spelled: 'Ctrl+O', input: () => key('O', { ctrl: true }) },
+  { row: 'SK-11', spelled: 'Ctrl+S', input: () => key('S', { ctrl: true }) },
+  { row: 'SK-12', spelled: 'Ctrl+Shift+E', input: () => key('E', { ctrl: true, shift: true }) },
+  { row: 'SK-13', spelled: 'F1', input: () => key('F1') },
+  { row: 'SK-14', spelled: 'P', input: () => key('P') },
+  { row: 'SK-15', spelled: 'F11', input: () => key('F11') },
+  { row: 'SK-16', spelled: 'Shift++', input: () => key('+', { shift: true }) },
+  { row: 'SK-16a', spelled: 'Alt++', input: () => key('+', { alt: true }) },
+  { row: 'SK-22', spelled: 'Ctrl+Shift++', input: () => key('+', { ctrl: true, shift: true }) },
+  { row: 'SK-23', spelled: 'Ctrl+Shift+-', input: () => key('-', { ctrl: true, shift: true }) },
+  { row: 'SK-18', spelled: 'F', input: () => key('F') },
+  { row: 'SK-24', spelled: 'Ctrl+F', input: () => key('F', { ctrl: true }) },
+  { row: 'SK-20', spelled: 'Ctrl+Shift+D', input: () => key('D', { ctrl: true, shift: true }) },
 ] as const
 
 /**
@@ -518,8 +518,8 @@ const NOT_ASSIGNED = [
   },
 ] as const
 
-/** The centre of a Task's plan bar, in the frame of reference a press speaks in. */
-function planCentre(loop: ReturnType<typeof frameLoop>, uid: number): { x: number; y: number } {
+/** The center of a Task's plan bar, in the frame of reference a press speaks in. */
+function planCenter(loop: ReturnType<typeof frameLoop>, uid: number): { x: number; y: number } {
   const values = loop.current()
   if (values === null) throw new Error('the loop has run no frame, so it has drawn no bar')
   const drawn = values.geometry.tasks.find((one) => one.taskUid === uid)
@@ -542,7 +542,7 @@ function planCentre(loop: ReturnType<typeof frameLoop>, uid: number): { x: numbe
   const left =
     marker === null
       ? Math.min(...xs)
-      : Math.max(Math.min(...xs), marker.centre.x + marker.radius)
+      : Math.max(Math.min(...xs), marker.center.x + marker.radius)
   if (left >= right) throw new Error(`Task ${uid} has no body the marker leaves free`)
   return { x: (left + right) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
 }
@@ -688,7 +688,7 @@ describe('MK-10 of table T-023 -- the browser is stopped for what this tool assi
     for (const row of T_036_DRIVEN) {
       expect(
         loop.isBrowserDefaultStopped(row.input()),
-        `${row.row} (${row.spelt}) of table T-036 is an assignment, so MK-10 requires the browser default to be stopped`,
+        `${row.row} (${row.spelled}) of table T-036 is an assignment, so MK-10 requires the browser default to be stopped`,
       ).toBe(true)
     }
   })
@@ -752,10 +752,10 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
     loop.receiveInput(key('F1'))
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     expect(loop.isBrowserDefaultStopped(key('Esc'))).toBe(true)
 
     loop.receiveInput(key('Esc'))
@@ -792,9 +792,9 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     // `EscapeContext` exists at all. So the dropping of the press is UF-48's.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     expect(loop.isBrowserDefaultStopped(key('Esc'))).toBe(true)
 
     loop.receiveInput(key('Esc'))
@@ -809,10 +809,10 @@ describe('IN-4 of table T-028 -- Esc consumes one level per press', () => {
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
     loop.receiveInput(key('F1'))
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     loop.receiveInput(key('Esc'))
     loop.receiveInput(key('Esc'))
 
@@ -891,13 +891,13 @@ describe('CS-2 of table T-066 -- the gesture is about the press, not about the r
     // ⚠️ Only the direction is asserted: no row fixes how a partial day rounds.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
     const width = planWidth(loop, 1)
     const before = loop.document()
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
-    loop.receiveInput(pointer('move', centre.x + width, centre.y))
-    loop.receiveInput(pointer('up', centre.x + width, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
+    loop.receiveInput(pointer('move', center.x + width, center.y))
+    loop.receiveInput(pointer('up', center.x + width, center.y))
     pane.runAnimationFrames()
 
     const after = loop.document()
@@ -919,13 +919,13 @@ describe('IN-1a of table T-028 -- a lost pointer ends the gesture as an abort', 
     // document is the same value.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
     const width = planWidth(loop, 1)
     const before = loop.document()
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
-    loop.receiveInput(pointer('move', centre.x + width, centre.y))
-    loop.receiveInput(pointer('lost', centre.x + width, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
+    loop.receiveInput(pointer('move', center.x + width, center.y))
+    loop.receiveInput(pointer('lost', center.x + width, center.y))
     pane.runAnimationFrames()
 
     expect(loop.document()).toBe(before)
@@ -939,12 +939,12 @@ describe('IN-1a of table T-028 -- a lost pointer ends the gesture as an abort', 
     // one to consume is a drag that never ended.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     expect(loop.isBrowserDefaultStopped(key('Esc'))).toBe(true)
 
-    loop.receiveInput(pointer('lost', centre.x, centre.y))
+    loop.receiveInput(pointer('lost', center.x, center.y))
 
     expect(
       loop.isBrowserDefaultStopped(key('Esc')),
@@ -959,9 +959,9 @@ describe('IN-1a of table T-028 -- a lost pointer ends the gesture as an abort', 
     // IN-4's second level answering.
     const pane = host()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     loop.receiveInput(pointer('move', -400, -400))
 
     expect(loop.isBrowserDefaultStopped(key('Esc'))).toBe(true)
@@ -993,7 +993,7 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
     screen.drawAt({ part: U_26_PART, entry: T_109_GRAB_BAND, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null })
   }
 
-  it('FR-053 (MUST): the palette ends up the distance the pointer travelled away', () => {
+  it('FR-053 (MUST): the palette ends up the distance the pointer traveled away', () => {
     const pane = host()
     const screen = screenPane()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN, screen.wiring)
@@ -1097,7 +1097,7 @@ describe('GR-19 of table T-023d -- a drag on the band moves the `Command Palette
 describe('FR-046 and SK-20 -- the day written into statusDate is the LOCAL calendar day', () => {
   // ⭐ Each case freezes the clock at an instant where the reader's calendar day
   // and UTC's differ, in both directions, so a loop that read the UTC day
-  // answers with the neighbouring day and fails.
+  // answers with the neighboring day and fails.
   const AHEAD = {
     zone: 'Pacific/Kiritimati', // UTC+14
     instant: '2026-08-21T13:00:00Z',
@@ -1240,8 +1240,8 @@ describe('the specification still says what these cases copy', () => {
       const cell = rowOf('T-036', row.row).by['割当'] ?? ''
       expect(
         sameSpelling(cell),
-        `table T-036 row ${row.row} no longer spells ${row.spelt}`,
-      ).toContain(sameSpelling(row.spelt))
+        `table T-036 row ${row.row} no longer spells ${row.spelled}`,
+      ).toContain(sameSpelling(row.spelled))
     }
   })
 

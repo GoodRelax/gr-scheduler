@@ -8,7 +8,7 @@
 export type OpenRoute = 'chooser' | 'drop' | 'reopen' | 'baseline'
 
 export type FileStoreFaultReason =
-  | 'cancelled'
+  | 'canceled'
   | 'permissionLost'
   | 'noOpenedFile'
   | 'unavailable'

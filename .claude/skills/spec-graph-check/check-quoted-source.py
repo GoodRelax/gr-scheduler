@@ -5,7 +5,7 @@
 足す）には親が無いので当たらない」 as though it were a row of 表 T-051, and
 built on it: the code did not unfold 段 0 because "the specification says the
 rule does not apply here". ⚠️ NO SUCH SENTENCE IS IN `docs/spec`. It was a
-paraphrase that had travelled out of the ledger and hardened into a citation,
+paraphrase that had traveled out of the ledger and hardened into a citation,
 and it kept `DFC-318` open -- a row a person could add and never see.
 
 ⭐⭐ THE RULE THIS ENFORCES IS ALREADY WRITTEN, and only as a principle:

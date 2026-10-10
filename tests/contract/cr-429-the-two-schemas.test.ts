@@ -112,7 +112,7 @@ describe('the judge the cases use -- it has to refuse before its passes mean any
 
   it('EX-1: a child moved out of xsd:sequence order, a missing required child and a mistyped value are all refused', () => {
     const text = mspdiText(pj12Fixture())
-    const moved = text.replace(/(<SaveVersion>12<\/SaveVersion>)([\s\S]*?)(<Name>Bridge programme<\/Name>)/, '$3$2$1')
+    const moved = text.replace(/(<SaveVersion>12<\/SaveVersion>)([\s\S]*?)(<Name>Bridge program<\/Name>)/, '$3$2$1')
     const noCurrency = text.replace(/<CurrencyCode>EUR<\/CurrencyCode>/, '')
     const mistyped = text.replace('<MinutesPerDay>480</MinutesPerDay>', '<MinutesPerDay>eight hours</MinutesPerDay>')
     expect(moved).not.toBe(text)

@@ -41,7 +41,7 @@
 // ⭐⭐ AND THEY WERE BUILT. `DFC-356` (2026-09-07) wired `AM-14` / `AM-15` and
 // `DFC-357` (2026-09-07) wired `AM-8`; measured again 2026-09-10 on the shipped
 // build, none of the four answers `notAvailable` any more. ⛔ THREE OF THIS
-// FILE'S OWN JUDGEMENTS WERE STALE AGAINST THAT, and each was measured before
+// FILE'S OWN JUDGMENTS WERE STALE AGAINST THAT, and each was measured before
 // being changed -- the change is in the harness, not in a bar:
 //   * `AM-15` answers `AgentExport<string>`, not a bare string, so a written
 //     2,036,280-character `.html` was reported as 「wrote no .html」.
@@ -78,9 +78,9 @@
 // `_assets/tbl-glossary.md` names it above table T-107.
 //
 // ⭐ THE CLAUSES PINNED HERE ARE QUOTED VERBATIM, in Japanese, beside the
-// judgement that presses each one, with the row that carries it. Rule 03
+// judgment that presses each one, with the row that carries it. Rule 03
 // section 5 bans TRANSLATING the manuscript into the tree; a quotation is not a
-// translation. A clause is quoted only where a judgement below actually
+// translation. A clause is quoted only where a judgment below actually
 // presses it.
 //
 // ⭐ ONE LAUNCH, ONE SWEEP. Every measurement below is taken in a single run of
@@ -190,7 +190,7 @@ const EXPORT_HEIGHT_CAP = numberIn(rowOf(T204, 'S-217').by['既定値'] ?? '')
 /** `TP-6` -- how many `Task` the startup template holds. */
 const TEMPLATE_TASKS = numberIn(rowOf(T226, 'TP-6').cells[1] ?? '')
 
-/** `MC-7` -- the target scale, read for the message rather than the judgement. */
+/** `MC-7` -- the target scale, read for the message rather than the judgment. */
 const TARGET_SCALE = rowOf(T025, 'MC-7').cells[1] ?? ''
 
 /**
@@ -654,7 +654,7 @@ async function sweep(
   context: import('@playwright/test').BrowserContext,
   page: Page,
 ): Promise<Measured> {
-  const centre = await page.evaluate((selector: string) => {
+  const center = await page.evaluate((selector: string) => {
     const svg = document.querySelector(selector)
     const box = (svg ?? document.body).getBoundingClientRect()
     return { x: box.x + box.width / 2, y: box.y + box.height / 2, w: box.width, h: box.height }
@@ -679,8 +679,8 @@ async function sweep(
       const phase = (round * count + step) / 7
       return {
         type: 'mouseMoved' as const,
-        x: centre.x + Math.sin(phase) * (centre.w / 5),
-        y: centre.y + Math.cos(phase / 2) * (centre.h / 5),
+        x: center.x + Math.sin(phase) * (center.w / 5),
+        y: center.y + Math.cos(phase / 2) * (center.h / 5),
         button: 'left' as const,
         buttons: 1,
         modifiers: held,
@@ -694,8 +694,8 @@ async function sweep(
     'warm-up',
     async () => {
       await burst(cdp, [
-        { type: 'mouseMoved', x: centre.x, y: centre.y },
-        { type: 'mouseWheel', x: centre.x, y: centre.y, deltaX: 0, deltaY: 60 },
+        { type: 'mouseMoved', x: center.x, y: center.y },
+        { type: 'mouseWheel', x: center.x, y: center.y, deltaX: 0, deltaY: 60 },
       ])
     },
     8,
@@ -709,8 +709,8 @@ async function sweep(
         cdp,
         Array.from({ length: PER_BURST }, (_unused, step) => ({
           type: 'mouseWheel' as const,
-          x: centre.x,
-          y: centre.y,
+          x: center.x,
+          y: center.y,
           deltaX: 0,
           deltaY: (round + step) % 12 < 6 ? 90 : -90,
         })),
@@ -727,8 +727,8 @@ async function sweep(
         cdp,
         Array.from({ length: PER_BURST }, (_unused, step) => ({
           type: 'mouseWheel' as const,
-          x: centre.x,
-          y: centre.y,
+          x: center.x,
+          y: center.y,
           deltaX: 0,
           deltaY: (round + step) % 8 < 4 ? 80 : -80,
           modifiers: CTRL,
@@ -739,11 +739,11 @@ async function sweep(
   )
 
   await burst(cdp, [
-    { type: 'mouseMoved', x: centre.x, y: centre.y, modifiers: CTRL },
+    { type: 'mouseMoved', x: center.x, y: center.y, modifiers: CTRL },
     {
       type: 'mousePressed',
-      x: centre.x,
-      y: centre.y,
+      x: center.x,
+      y: center.y,
       button: 'left',
       buttons: 1,
       clickCount: 1,
@@ -759,10 +759,10 @@ async function sweep(
     DRAG_ROUNDS,
   )
   await burst(cdp, [
-    { type: 'mouseReleased', x: centre.x, y: centre.y, button: 'left', buttons: 0, clickCount: 1 },
+    { type: 'mouseReleased', x: center.x, y: center.y, button: 'left', buttons: 0, clickCount: 1 },
   ])
 
-  const from = await bareCanvasPoint(page, { x: centre.x - centre.w / 3, y: centre.y - centre.h / 3 })
+  const from = await bareCanvasPoint(page, { x: center.x - center.w / 3, y: center.y - center.h / 3 })
   if (from === null) throw new Error('MK-6 found no spot in the drawing that hits nothing to press on')
   await burst(cdp, [
     { type: 'mouseMoved', x: from.x, y: from.y },
@@ -781,7 +781,7 @@ async function sweep(
     DRAWN_SVG,
   )
   await burst(cdp, [
-    { type: 'mouseReleased', x: centre.x, y: centre.y, button: 'left', buttons: 0, clickCount: 1 },
+    { type: 'mouseReleased', x: center.x, y: center.y, button: 'left', buttons: 0, clickCount: 1 },
   ])
   if (!isMarqueeDrawn) throw new Error(`MK-6 pressed at ${from.x},${from.y} but drew no range-select frame`)
   await page.waitForTimeout(300)
@@ -799,7 +799,7 @@ async function sweep(
     return { samples: probe?.samples ?? [], marks: probe?.marks ?? [], inputs: probe?.inputs ?? [] }
   })
 
-  const { segments, barren } = summarise(raw.samples, raw.marks, raw.inputs)
+  const { segments, barren } = summarize(raw.samples, raw.marks, raw.inputs)
 
   // -------------------------------------------------------------------------
   // The machine and the browser the numbers were taken on
@@ -879,7 +879,7 @@ async function sweep(
       // it, and that build carries the literal `notAvailable` -- one of
       // `AgentRefusalReason`'s rows; `dist/index.html` holds it. So a SUCCESSFUL
       // 2,036,280-character answer read as `notAvailable`, IO-7 was counted a
-      // format this build cannot write, and the FR-029 judgement below then
+      // format this build cannot write, and the FR-029 judgment below then
       // demanded RS-40 for a format that writes -- ⛔ the very false reason
       // `DFC-334` refuses to raise (「5 形式とも書けるので、立てれば偽の理由に
       // なる」).
@@ -947,7 +947,7 @@ async function sweep(
  *
  * @purity pure
  */
-function summarise(
+function summarize(
   samples: readonly [number, number, number][],
   marks: readonly [string, string, number][],
   inputs: readonly number[],
@@ -1202,7 +1202,7 @@ async function measureEmbeddedHtml(
  * quantity) are NOT applied, and the last case says so rather than letting a
  * pass look wider than it is.
  */
-const XML_CANONICALISER = `(xml) => {
+const XML_CANONICALIZER = `(xml) => {
   const doc = new DOMParser().parseFromString(xml, 'application/xml');
   if (doc.getElementsByTagName('parsererror').length > 0) return null;
   const out = [];
@@ -1235,7 +1235,7 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
 }> {
   const source = existsSync(MSPDI_SAMPLE) ? readFileSync(MSPDI_SAMPLE, 'utf8') : ''
   return page.evaluate(
-    async ([canoniserSource, importMember, exportMember, given]: [
+    async ([canonizerSource, importMember, exportMember, given]: [
       string,
       string,
       string,
@@ -1244,7 +1244,7 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
       type Bag = Record<string, unknown>
       const api = (window as unknown as Record<string, Bag | undefined>).grSchedulerAgentApi ?? {}
       // eslint-disable-next-line no-eval
-      const canonical = eval(`(${canoniserSource})`) as (xml: string) => string | null
+      const canonical = eval(`(${canonizerSource})`) as (xml: string) => string | null
 
       // ⭐ THE COMPARATOR'S OWN SELF-CHECK, and it is what makes the MUST NOT
       // below a measured fact rather than a promise: two documents whose BYTES
@@ -1344,7 +1344,7 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
         mspdiFirstDifference: firstDifference,
       }
     },
-    [XML_CANONICALISER, AM_8, AM_12, source] as [string, string, string, string],
+    [XML_CANONICALIZER, AM_8, AM_12, source] as [string, string, string, string],
   )
 }
 
@@ -1492,7 +1492,7 @@ test('MC-8 -- every driven stretch delivered frames to measure', () => {
 })
 
 test('T-043 -- the interval between frames and the time inside the call are two numbers', () => {
-  // ⛔⛔ THE CENTRE OF THIS FILE. Table T-043's preamble, verbatim:
+  // ⛔⛔ THE CENTER OF THIS FILE. Table T-043's preamble, verbatim:
   // 「フレーム時間」とは、届いたフレームとフレームの間隔である（MUST）。描き直しの呼び出しの中で過ごす時間を、フレーム時間として測ってはならない（MUST NOT）
   //
   // ⭐ HOW THE MUST NOT IS PRESSED. If the two were the same number, taking
@@ -1562,8 +1562,8 @@ test('FR-021 -- the comparison is of canonical XML, never of the bytes', () => {
   // `SWS-6` of Chapter 6.1, verbatim -- and it is the T-228 sentence, not the
   // T-231 one that words itself the same way about two pictures:
   // **MSPDI を比べる前の正規化の全数を 表 T-228 に示す。** **双方へ同じ段取りを当てること（MUST）。片側だけに当ててはならない（MUST NOT）**
-  // -- the comparator runs the one normalisation over both sides; there is no
-  // path here that normalises one and not the other.
+  // -- the comparator runs the one normalization over both sides; there is no
+  // path here that normalizes one and not the other.
   const m = taken()
   expect(
     m.comparatorIgnoresBytes,
@@ -1660,7 +1660,7 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
   // ⛔ NOT A FALSE GREEN. A test cannot pin a machine's GPU, so what it can do
   // is refuse to let a number stand as though `MC-4` had been met when the
   // renderer says otherwise. `MC-4` names the integrated part; a driven browser
-  // reports a software rasteriser unless the host hands it one.
+  // reports a software rasterizer unless the host hands it one.
   const integrated = /intel|uhd|iris/i.test(m.renderer)
   const discrete = /nvidia|geforce|radeon|rtx|gtx/i.test(m.renderer)
   if (!integrated) {
@@ -1748,7 +1748,7 @@ test('NFR-002 / NFR-003 / FR-025 / FR-067 / FR-021 / FR-029 -- the gates and the
   // `FR-021`, verbatim:
   // **1 つの MSPDI を取り込み、合流させずに、編集せずに書き出したとき**、`GRS` は、XML 正規化して比べたときに元のファイルと同じものを出すこと。
   //
-  // ⛔ The judgement is on the canonical forms. The comparator was shown to
+  // ⛔ The judgment is on the canonical forms. The comparator was shown to
   // ignore bytes in the case above; ⚠️ `NR-4` (typed value spellings) and
   // `NR-5` (a length compared as a quantity) of table T-228 are NOT applied
   // here, so a difference this reports may still be one of those two.

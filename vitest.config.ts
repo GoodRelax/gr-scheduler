@@ -35,7 +35,7 @@ import { configDefaults, defineConfig } from 'vitest/config'
 // every worktree.
 //
 // `--sequence.concurrent` is a different thing: it makes every `it` in a file
-// run AT THE SAME TIME AS ITS NEIGHBOURS. Seven files fall over under it, and
+// run AT THE SAME TIME AS ITS NEIGHBORS. Seven files fall over under it, and
 // MEASURED 2026-09-07 each of the seven falls over ALONE as well, so nothing
 // leaks between files. Three mechanisms, none of which has a per-test form:
 //
@@ -45,7 +45,7 @@ import { configDefaults, defineConfig } from 'vitest/config'
 //      overwrite each other's pump.
 //   2. `vi.resetModules()` / `vi.doMock`. The module registry is per FILE.
 //      uf-67 and display-words.contract swap the generated dictionary for a
-//      dictionary of marks for the length of ONE case; a neighbour reading the
+//      dictionary of marks for the length of ONE case; a neighbor reading the
 //      real dictionary at that moment reads the marks, or waits for a registry
 //      that is being reset under it and times out.
 //   3. `expect.soft`. Vitest refuses the global `expect.soft` inside a

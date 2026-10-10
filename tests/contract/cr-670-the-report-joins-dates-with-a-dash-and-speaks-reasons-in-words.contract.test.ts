@@ -99,7 +99,7 @@ const EMPTY_REPORT: DelayDiagnosticsReport = {
   bottlenecks: [],
   terminalPushOuts: [],
   walls: [],
-  unanalysedCount: 0,
+  unreliableCount: 0,
   markerStates: [],
   settledPushOuts: [],
   derivedParentTasks: [],
@@ -305,14 +305,14 @@ describe(`CR-670 RW-4 "${RW_4_BLANK}"`, () => {
   const tasks = [plainTask(1, 'One')]
   const report: DelayDiagnosticsReport = { ...EMPTY_REPORT, markerStates: [{ uid: 1, row: 'DG-4' }] }
 
-  it('the status items carry a picture slot (blank for the doubtful and the settled); the base date and not-analysed items carry none', () => {
+  it('the status items carry a picture slot (blank for the doubtful and the settled); the base date and not-analyzed items carry none', () => {
     const summary = viewOf(report, scheduleOf(tasks), 'ja').summary
     const first = summary[0]
     const last = summary[summary.length - 1]
     expect(first?.status ?? null).toBeNull()
     expect(last?.status ?? null).toBeNull()
     expect(first !== undefined && 'glyph' in first && first.glyph !== undefined, 'base date: no picture slot').toBe(false)
-    expect(last !== undefined && 'glyph' in last && last.glyph !== undefined, 'not analysed: no picture slot').toBe(false)
+    expect(last !== undefined && 'glyph' in last && last.glyph !== undefined, 'not analyzed: no picture slot').toBe(false)
     const statuses = summary.slice(1, -1)
     expect(statuses.length).toBe(6)
     for (const one of statuses) {

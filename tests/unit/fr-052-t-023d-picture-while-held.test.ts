@@ -96,7 +96,7 @@
 //   S-171     `propertyPanelWidth`, the screen value the panel starts at (CR-572).
 //   S-134     「`Panel Divider` の掴み帯（`FR-051`）| 境界に重なる 8px」 -- the
 //             band is ON the boundary, which is why every divider case below
-//             presses its CENTRE (see `boundaryOf`).
+//             presses its CENTER (see `boundaryOf`).
 //   T-031 SC-3   タスクグループパネルは拡大しても常に表示されている -- the reason
 //             FR-052 forbids a width of 0.
 //   U-50 / FR-052's own formula: `Task Group Area` の幅 = `Schedule Canvas` の幅 −
@@ -632,15 +632,15 @@ function bandOf(built: Stage, panel: 'taskGroupPanel' | 'propertiesPanel') {
 }
 
 /**
- * The point a divider case presses: the CENTRE of S-134's band.
+ * The point a divider case presses: the CENTER of S-134's band.
  *
- * ⭐ WHY THE CENTRE AND NOWHERE ELSE. S-134 is 「境界に重なる 8px」 -- the band
- * lies ON the boundary -- so at its centre the pointer stands exactly where the
+ * ⭐ WHY THE CENTER AND NOWHERE ELSE. S-134 is 「境界に重なる 8px」 -- the band
+ * lies ON the boundary -- so at its center the pointer stands exactly where the
  * boundary is. That makes FR-052's 「その時点のポインタ位置が決める 2 つの幅」
  * one number under either reading of it (the width the pointer stands at, or the
  * width the press began with plus the travel since), and a case pressing
  * anywhere else would be judged on a difference the specification does not fix.
- * A premise below pins that the centre really is the panel's edge.
+ * A premise below pins that the center really is the panel's edge.
  */
 function boundaryOf(built: Stage, panel: 'taskGroupPanel' | 'propertiesPanel'): Point {
   const band = bandOf(built, panel)
@@ -1105,7 +1105,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     const boundary = boundaryOf(built, 'taskGroupPanel')
     const panel = frameOf(built.loop).regions.taskGroupPanel
     expect(band.width, 'S-134: 境界に重なる 8px').toBeGreaterThan(0)
-    // The premise every divider case rests on: the band's centre IS the
+    // The premise every divider case rests on: the band's center IS the
     // boundary, so the width the pointer stands at and the width the press began
     // with plus its travel are the same number.
     expect(boundary.x, 'S-134: the band lies ON the boundary').toBeCloseTo(panel.x + panel.width, 6)
@@ -1400,7 +1400,7 @@ describe('FD-6 and IV-12: the fade a release writes is cut to the Task', () => {
   })
 
   it('never draws the grab point outside the bar it belongs to', () => {
-    // ⭐ THE JUDGEMENT THIS CASE RESTS ON. T-023d asks for 「置くことになる
+    // ⭐ THE JUDGMENT THIS CASE RESTS ON. T-023d asks for 「置くことになる
     // フェード」 to be drawn -- the fade that WOULD be placed -- and the very next
     // rule cuts what would be placed with FD-6. Where the two sentences pull
     // apart (掴み点はポインタが決める日に置くこと, against a day FD-6 refuses),

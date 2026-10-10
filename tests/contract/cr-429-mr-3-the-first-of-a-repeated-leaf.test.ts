@@ -123,7 +123,7 @@ describe('MR-3 -- the first of a repeated leaf is taken, and the rest are counte
       insertedAfter(children, 'Title', leaf('Title', 'Another plan')),
     )
     const read = accepted(mspdiText(twice))
-    expect(read.document.schedule.project.title).toBe('Bridge programme plan')
+    expect(read.document.schedule.project.title).toBe('Bridge program plan')
     expect(read.duplicateLeaves).toBe(1)
   })
 

@@ -88,15 +88,15 @@
 //      panel's size were stated in a rule rather than on the node, these cases
 //      would read the inherited size and fail. That failure would be this
 //      file's blindness and not a defect -- ⚠️ REPORT IT, do not tune the
-//      case. The neighbours' evidence is that this unit styles inline
+//      case. The neighbors' evidence is that this unit styles inline
 //      (uf-71.test.ts reads `visibility`, `color` and a custom property off
 //      the nodes themselves; uf-72-screen-part.test.ts reads `padding` and
 //      `flex`), which is why the risk is taken rather than the question
 //      dropped.
 //   2. `var(--x)` is chased through the custom properties the unit wrote on the
-//      node and its ancestors. ⚠️ A FALLBACK IS NOT HONOURED (`var(--x, 1em)`
+//      node and its ancestors. ⚠️ A FALLBACK IS NOT HONORED (`var(--x, 1em)`
 //      is left unresolved and the case fails saying so) -- the same choice
-//      uf-71.test.ts makes for colours, for the same reason: a resolver that
+//      uf-71.test.ts makes for colors, for the same reason: a resolver that
 //      quietly accepted a fallback would sleep through the defect.
 //   3. `rem` is resolved against the same base as the inherited size. The two
 //      are the same thing for this rule: FR-006 says 「宿主が与える地の文字の
@@ -633,7 +633,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
  *
  * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1): S-72's default arrives
  * through the generated `SETTINGS_DEFAULTS` and S-73's is read out of table
- * T-216 at load time. ⭐ No case reads a colour back -- `readTheme` is a
+ * T-216 at load time. ⭐ No case reads a color back -- `readTheme` is a
  * REQUIRED member of `ScreenSurfaceWiring`, so the cases need a theme to build
  * the surface at all, not a particular one.
  */
@@ -829,7 +829,7 @@ function customProperty(element: FakeElement, name: string): string | null {
  * The same expression with every `var(--x)` replaced by what the tree declares
  * for it, or `null` when one of them cannot be resolved.
  *
- * ⚠️ NO FALLBACK IS HONOURED -- `var(--x, 1em)` is left alone, does not match,
+ * ⚠️ NO FALLBACK IS HONORED -- `var(--x, 1em)` is left alone, does not match,
  * and the arithmetic below then refuses it. A resolver that accepted the
  * fallback would report a size the page never draws.
  */
@@ -1133,13 +1133,13 @@ const EDITABLE_FIELDS: readonly PropertyField[] = [
   {
     row: 'PR-12',
     name: 'strokeColor',
-    text: 'ColourTextHere',
+    text: 'ColorTextHere',
     isEditable: true,
     controls: [
       controlOf({
         key: { holder: 'taskVisual', uid: 1, column: 'strokeColor' },
         kind: 'color',
-        text: 'ColourTextHere',
+        text: 'ColorTextHere',
       }),
     ],
   },

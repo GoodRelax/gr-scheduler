@@ -289,7 +289,7 @@ describe('T-109 IC-141 / IC-142 -- the two palette entries', () => {
 })
 
 describe('T-269 PK-17 / PK-18 -- the pointer over the arrows', () => {
-  it('PK-17: the link pointer is a drawn image whose hot spot is the centre of an S-249 square', () => {
+  it('PK-17: the link pointer is a drawn image whose hot spot is the center of an S-249 square', () => {
     const shape = String(pointerImageOf('PK-17' as never))
     expect(shape.startsWith('url(data:image/svg+xml')).toBe(true)
     const spot = shape.match(/\)\s+(-?\d+(?:\.\d+)?)\s+(-?\d+(?:\.\d+)?)/)

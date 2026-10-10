@@ -47,7 +47,7 @@ const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
 
 const MODAL_BORDER_PX = 1
 
-// WHY: right-aligned above the licence line (JDG-1396); anywhere, as the address has no space to break at.
+// WHY: right-aligned above the license line (JDG-1396); anywhere, as the address has no space to break at.
 const HELP_FOOTNOTE_STYLE = 'text-align:right;overflow-wrap:anywhere;'
 
 // STOP: spec does not decide how parts with no T-103 or T-109 row are marked for read-back. Looked in W-4, IF-9
@@ -113,7 +113,7 @@ function helpWindowStyle(placed: PlacedWindow): string {
   const frame =
     `${STYLE.modal}display:flex;flex-direction:column;overflow:hidden;padding:0;` +
     `transform:none;max-width:none;max-height:none;font-size:${NOT_STORED_HELP_SIZES['S-203']}em;`
-  if (placed.shown !== 'minimised') return frame + boxStyle(placed.box)
+  if (placed.shown !== 'minimized') return frame + boxStyle(placed.box)
   // WHY: WB-2 shrinks the title row to its content, so only the restore box's bottom-right corner is placed.
   const { range, place } = placed
   const right = range.x + range.width - (place.x + place.width)
@@ -392,7 +392,7 @@ export function modalElement(
   if ('entries' in modal) {
     drawn.setAttribute('data-language', modal.helpLanguage)
     drawn.setAttribute('lang', modal.helpLanguage)
-    if (modal.windowState !== 'minimised') helpColumns = helpBodyElement(host, modal)
+    if (modal.windowState !== 'minimized') helpColumns = helpBodyElement(host, modal)
     if (helpColumns !== null) body.push(helpColumns.body)
   }
 
@@ -516,7 +516,7 @@ function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
   const summary = made(host, 'summary', STYLE.helpLegalSummary)
   summary.textContent = modal.helpLegal.fullText
   fullText.append(summary)
-  for (const text of [modal.licenceText, ...modal.attributions]) {
+  for (const text of [modal.licenseText, ...modal.attributions]) {
     const line = made(host, 'p', STYLE.helpLegalText)
     line.textContent = text
     fullText.append(line)

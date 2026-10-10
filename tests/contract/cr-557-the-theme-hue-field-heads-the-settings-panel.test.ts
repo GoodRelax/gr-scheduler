@@ -43,7 +43,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly themeHues: readonly { readonly rowId: string; readonly text: Record<DisplayLanguage, string> }[]
   readonly settings: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
-  readonly colourField: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
+  readonly colorField: readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
 }
 
 // WHY: CR-690 -- the place moved to table T-369 (FO-2, the first field under the GRS reset entrance FO-1).
@@ -150,11 +150,11 @@ const sameRgb = (left: Rgb, right: Rgb): boolean =>
   left.every((value, index) => Math.abs(value - (right[index] ?? Number.NaN)) <= CHANNEL_TOLERANCE)
 
 // WHY: seam S-2 names the swatch paint per row but not the member that carries it, so any
-// string list of the roster's length whose every entry is a colour is taken as the paint.
+// string list of the roster's length whose every entry is a color is taken as the paint.
 function paintsOf(control: PropertyControl): readonly string[] {
   const places: unknown[] = [
     ...Object.values(control as unknown as Record<string, unknown>),
-    ...Object.values((control.colour ?? {}) as unknown as Record<string, unknown>),
+    ...Object.values((control.color ?? {}) as unknown as Record<string, unknown>),
   ]
   const found = places.find(
     (one): one is readonly string[] =>
@@ -215,7 +215,7 @@ function settingsPanel(look: Partial<Look> = {}): PropertiesPanel {
     themePreference: preference,
     themeHue: hue,
     isMilestoneListOpen: false,
-    isPaletteMinimised: false,
+    isPaletteMinimized: false,
     dualCursorFollowing: null,
     selectedGroupIds: [],
     selectedResourceUids: [],
@@ -428,8 +428,8 @@ describe('CR-557 S-2 -- nothing else enters the field, and every other setting i
     const control = hueControl(settingsPanel())
     expect(control.choiceValues).toEqual(ROSTER.map((one) => String(one.hue)))
     expect(control.choices).toHaveLength(ROSTER.length)
-    expect(control.colour?.theme).toBeUndefined()
-    expect(control.colour?.customWord ?? '').toBe('')
+    expect(control.color?.theme).toBeUndefined()
+    expect(control.color?.customWord ?? '').toBe('')
   })
 
   it(`FR-072 "${CLAUSE_READ_ONLY}" / "${CLAUSE_EXCEPTION}"`, () => {
@@ -456,11 +456,11 @@ describe('CR-557 S-4 -- the drawn field: buttons in a grid of S-368 per line', (
     expect(columnsOfGrid(grid)).toBe(S_368)
   })
 
-  it(`FR-041 "${CLAUSE_NO_ENTRANCES}" -- no colour input, no transparent, no theme entrance is drawn`, () => {
+  it(`FR-041 "${CLAUSE_NO_ENTRANCES}" -- no color input, no transparent, no theme entrance is drawn`, () => {
     const field = drawnHueField()
     expect(field.filter((one) => one.tagName === 'INPUT' && one.getAttribute('type') === 'color')).toEqual([])
-    expect(field.filter((one) => one.getAttribute('data-colour-choice') === 'transparent')).toEqual([])
-    const entranceWords = WORDS.colourField
+    expect(field.filter((one) => one.getAttribute('data-color-choice') === 'transparent')).toEqual([])
+    const entranceWords = WORDS.colorField
       .filter((one) => ['custom', 'theme', 'themeHint'].includes(one.part))
       .map((one) => one.text.ja)
     const texts = field.flatMap((one) => selfAndDescendants(one)).map((one) => one.textContent ?? '')

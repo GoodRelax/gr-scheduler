@@ -1,4 +1,4 @@
-// CR-583: T-221 LF-10 / LF-18, figure F-044 -- milestone figures centred on their box, drawn in layers.
+// CR-583: T-221 LF-10 / LF-18, figure F-044 -- milestone figures centered on their box, drawn in layers.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -37,7 +37,7 @@ const cellText = (table: string, id: string): string => plain(Object.values(rowO
 const LF_10_PLAN = '予定は、その `Task` の予定の縦幅を一辺とする図形とし、`start` の位置を中心に置く。'
 const LF_10_ACTUAL = '実績はそれに `actualOfPlan` を掛けた大きさとし、実績の日付を中心に置く。'
 const LF_10_SAME_MIDDLE = '上下の中心は予定と同じとする'
-const LF_10_BOX_CENTRE = '⭐ 図形の中心は、その図形の外接枠の中心とする（上下も左右も）。'
+const LF_10_BOX_CENTER = '⭐ 図形の中心は、その図形の外接枠の中心とする（上下も左右も）。'
 const LF_10_NOT_THE_CIRCLE = '⛔ 頂点を置いた円の中心を中心としてはならない —— △ ▽ 五角形 ☆ が上下にずれ、横に並べたとき揃って見えない'
 
 const LF_18_BODY = '外形は塗り、縁の線で囲む。'
@@ -45,7 +45,7 @@ const LF_18_INNER =
   '絵の中の線（箱の稜線・円筒と杯の上面の手前の弧・フロッピーの窓・顔の口）は、塗りに穴を開けずに、塗りの上に線で描く。'
 const LF_18_DOT = '顔の目は点で塗る。'
 const LF_18_SHADE = '書類の折り返しは、塗りの上に薄く塗った面（`shade`）で描く'
-const LF_18_COLOUR = '⭐ 中の線・点・面の色は、予定では予定の縁の色、実績とダミーでは予定の塗りの色とする'
+const LF_18_COLOR = '⭐ 中の線・点・面の色は、予定では予定の縁の色、実績とダミーでは予定の塗りの色とする'
 const LF_18_CUSTOM = 'カスタムカラーのタスクでは、そのタスクの予定の塗りの色である。'
 const LF_18_ORDER = '⭐ 重なる部分は、奥から順に描く —— 人は胴の上に頭、杯は取っ手の上に胴。'
 const LF_18_CURVES = '⭐ 円・顔の輪郭・円筒・杯の丸みは曲線で描き、多角形で近似しない'
@@ -87,7 +87,7 @@ const numbersOf = (text: string): number[] => (text.match(NUMBER) ?? []).map(Num
 const angleBetween = (ux: number, uy: number, vx: number, vy: number): number =>
   Math.atan2(ux * vy - uy * vx, ux * vx + uy * vy)
 
-// WHY: an arc is sampled from its centre form (SVG 1.1 appendix F.6.5) so its extent is measured,
+// WHY: an arc is sampled from its center form (SVG 1.1 appendix F.6.5) so its extent is measured,
 // WHY: not guessed from its end points.
 const arcRun = (from: Pt, rxIn: number, ryIn: number, tilt: number, large: number, sweep: number, to: Pt): Pt[] => {
   let rx = Math.abs(rxIn)
@@ -427,11 +427,11 @@ const paintOf = (element: Element, name: string): string | null => {
   return null
 }
 
-const colour = (text: string | null): string => (text ?? '').replace(/\s+/g, '').toLowerCase()
+const color = (text: string | null): string => (text ?? '').replace(/\s+/g, '').toLowerCase()
 // WHY: an absent fill paints black in SVG, so only an explicit none leaves a shape unfilled.
-const isFilled = (element: Element): boolean => colour(paintOf(element, 'fill')) !== 'none'
+const isFilled = (element: Element): boolean => color(paintOf(element, 'fill')) !== 'none'
 const isStroked = (element: Element): boolean => {
-  const stroke = colour(paintOf(element, 'stroke'))
+  const stroke = color(paintOf(element, 'stroke'))
   return stroke !== '' && stroke !== 'none'
 }
 const isLine = (element: Element): boolean => !isFilled(element) && isStroked(element)
@@ -539,24 +539,24 @@ const stageFor = (glyph: string): Stage => {
 }
 
 interface Place {
-  readonly centre: Pt
+  readonly center: Pt
   readonly half: number
 }
 
 // see F-044, LF-10
-const mapped = (p: Pt, place: Place): Pt => ({ x: place.centre.x + p.x * place.half, y: place.centre.y + p.y * place.half })
+const mapped = (p: Pt, place: Place): Pt => ({ x: place.center.x + p.x * place.half, y: place.center.y + p.y * place.half })
 
 const planPlace = (stage: Stage): Place => ({
-  centre: { x: stage.startX(PLAN_DAY), y: stage.planMiddleY(STARTED_UID) },
+  center: { x: stage.startX(PLAN_DAY), y: stage.planMiddleY(STARTED_UID) },
   half: stage.planSide(STARTED_UID) / 2,
 })
 const actualPlace = (stage: Stage): Place => ({
-  centre: { x: stage.startX(ACTUAL_DAY), y: stage.planMiddleY(STARTED_UID) },
+  center: { x: stage.startX(ACTUAL_DAY), y: stage.planMiddleY(STARTED_UID) },
   half: (stage.planSide(STARTED_UID) / 2) * S_5,
 })
 // see DM-12
 const dummyPlace = (stage: Stage): Place => ({
-  centre: { x: stage.startX(UNSTARTED_DAY), y: stage.planMiddleY(UNSTARTED_UID) },
+  center: { x: stage.startX(UNSTARTED_DAY), y: stage.planMiddleY(UNSTARTED_UID) },
   half: (stage.planSide(UNSTARTED_UID) / 2) * S_5,
 })
 
@@ -595,15 +595,15 @@ const bodyOf = (figure: readonly Element[], glyph: string, place: Place): Elemen
 // see LF-18
 const expectedInk = (stage: Stage, part: Part): string => {
   const planBody = bodyOf(figureOf(stage.elements, STARTED_UID, 'plan'), stage.glyph, planPlace(stage))
-  return part === 'plan' ? colour(paintOf(planBody, 'stroke')) : colour(paintOf(planBody, 'fill'))
+  return part === 'plan' ? color(paintOf(planBody, 'stroke')) : color(paintOf(planBody, 'fill'))
 }
 
 const expectFigureAt = (figure: readonly Element[], glyph: string, place: Place, what: string): void => {
   const unit = unitExtentOf(glyph)
   const drawn = extentOf(figure.map((one) => one.outline))
   const middle = middleOf(drawn)
-  expect(Math.abs(middle.y - place.centre.y), `${glyph} ${what}: the bounding box's vertical centre`).toBeLessThanOrEqual(EPS)
-  expect(Math.abs(middle.x - place.centre.x), `${glyph} ${what}: the bounding box's horizontal centre`).toBeLessThanOrEqual(EPS)
+  expect(Math.abs(middle.y - place.center.y), `${glyph} ${what}: the bounding box's vertical center`).toBeLessThanOrEqual(EPS)
+  expect(Math.abs(middle.x - place.center.x), `${glyph} ${what}: the bounding box's horizontal center`).toBeLessThanOrEqual(EPS)
   expect(Math.abs(drawn.right - drawn.left - (unit.right - unit.left) * place.half), `${glyph} ${what}: width`).toBeLessThanOrEqual(EPS)
   expect(Math.abs(drawn.bottom - drawn.top - (unit.bottom - unit.top) * place.half), `${glyph} ${what}: height`).toBeLessThanOrEqual(EPS)
 }
@@ -622,7 +622,7 @@ const expectF044Points = (figure: readonly Element[], glyph: string, place: Plac
 describe('CR-583 -- the clauses these cases quote still stand', () => {
   it('T-221 LF-10 and LF-18', () => {
     const lf10 = cellText('T-221', 'LF-10')
-    for (const clause of [LF_10_PLAN, LF_10_ACTUAL, LF_10_SAME_MIDDLE, LF_10_BOX_CENTRE, LF_10_NOT_THE_CIRCLE]) {
+    for (const clause of [LF_10_PLAN, LF_10_ACTUAL, LF_10_SAME_MIDDLE, LF_10_BOX_CENTER, LF_10_NOT_THE_CIRCLE]) {
       expect(lf10).toContain(clause)
     }
     const lf18 = cellText('T-221', 'LF-18')
@@ -631,7 +631,7 @@ describe('CR-583 -- the clauses these cases quote still stand', () => {
       LF_18_INNER,
       LF_18_DOT,
       LF_18_SHADE,
-      LF_18_COLOUR,
+      LF_18_COLOR,
       LF_18_CUSTOM,
       LF_18_ORDER,
       LF_18_CURVES,
@@ -660,7 +660,7 @@ describe('CR-583 -- the clauses these cases quote still stand', () => {
   })
 })
 
-describe('F-044 / SH-5 / AT-101 -- premises: the figure holds the fifteen shapes of SH-5, each centred', () => {
+describe('F-044 / SH-5 / AT-101 -- premises: the figure holds the fifteen shapes of SH-5, each centered', () => {
   it('SH-5 pairs fifteen spellings (AT-101 "列挙（15 値）") and figure F-044 draws exactly those, in that order', () => {
     expect(GLYPHS).toHaveLength(15)
     expect(F_044.map((one) => one.glyph)).toEqual(GLYPHS)
@@ -675,12 +675,12 @@ describe('F-044 / SH-5 / AT-101 -- premises: the figure holds the fifteen shapes
   })
 })
 
-describe('LF-10 -- the plan figure: side = the plan height, bounding-box centre on start and the plan middle', () => {
+describe('LF-10 -- the plan figure: side = the plan height, bounding-box center on start and the plan middle', () => {
   it('premise: the plan height of a milestone is the rectangle height times S-17', () => {
     expect(stageFor('diamond').planSide(STARTED_UID)).toBeCloseTo(H * S_17, 6)
   })
 
-  it.each(GLYPHS)("LF-10 %s plan: F-044's bounding box at the plan side, centred on (start, the plan middle)", (glyph) => {
+  it.each(GLYPHS)("LF-10 %s plan: F-044's bounding box at the plan side, centered on (start, the plan middle)", (glyph) => {
     const stage = stageFor(glyph)
     expectFigureAt(figureOf(stage.elements, STARTED_UID, 'plan'), glyph, planPlace(stage), 'plan')
   })
@@ -690,15 +690,15 @@ describe('LF-10 -- the plan figure: side = the plan height, bounding-box centre 
     expectF044Points(figureOf(stage.elements, STARTED_UID, 'plan'), glyph, planPlace(stage), 'plan')
   })
 
-  it.each(MOVED_GLYPHS)("LF-10 ⛔ %s: its bounding box and the diamond's share one vertical centre", (glyph) => {
-    const centreOf = (stage: Stage): number =>
+  it.each(MOVED_GLYPHS)("LF-10 ⛔ %s: its bounding box and the diamond's share one vertical center", (glyph) => {
+    const centerOf = (stage: Stage): number =>
       middleOf(extentOf(figureOf(stage.elements, STARTED_UID, 'plan').map((one) => one.outline))).y
-    expect(Math.abs(centreOf(stageFor(glyph)) - centreOf(stageFor('diamond')))).toBeLessThanOrEqual(EPS)
+    expect(Math.abs(centerOf(stageFor(glyph)) - centerOf(stageFor('diamond')))).toBeLessThanOrEqual(EPS)
   })
 })
 
 describe('LF-10 -- the actual figure: S-5 times the plan, on its own day, the same middle', () => {
-  it.each(GLYPHS)('LF-10 %s actual: F-044 at S-5 times the plan side, centred on (actual day, the plan middle)', (glyph) => {
+  it.each(GLYPHS)('LF-10 %s actual: F-044 at S-5 times the plan side, centered on (actual day, the plan middle)', (glyph) => {
     const stage = stageFor(glyph)
     const figure = figureOf(stage.elements, STARTED_UID, 'actual')
     expectFigureAt(figure, glyph, actualPlace(stage), 'actual')
@@ -707,7 +707,7 @@ describe('LF-10 -- the actual figure: S-5 times the plan, on its own day, the sa
 })
 
 describe("DM-4 / DM-8 / DM-9 / DM-12 -- the dummy has the actual's figure, on the plan's day", () => {
-  it.each(GLYPHS)("DM-4 %s dummy: the actual's figure (F-044 at S-5), centred where the plan stands", (glyph) => {
+  it.each(GLYPHS)("DM-4 %s dummy: the actual's figure (F-044 at S-5), centered where the plan stands", (glyph) => {
     const stage = stageFor(glyph)
     const figure = figureOf(stage.elements, UNSTARTED_UID, 'dummies')
     expectFigureAt(figure, glyph, dummyPlace(stage), 'dummy')
@@ -747,21 +747,21 @@ describe('LF-18 -- the inner lines are lines over the fill, not holes in it', ()
   }
 })
 
-describe('LF-18 -- the colour of the inner lines and dots', () => {
-  it('premise: the plan fill, the plan edge and the actual fill are three different colours', () => {
+describe('LF-18 -- the color of the inner lines and dots', () => {
+  it('premise: the plan fill, the plan edge and the actual fill are three different colors', () => {
     const stage = stageFor('box')
     const planBody = bodyOf(figureOf(stage.elements, STARTED_UID, 'plan'), 'box', planPlace(stage))
     const actualBody = bodyOf(figureOf(stage.elements, STARTED_UID, 'actual'), 'box', actualPlace(stage))
     const inks = new Set([
-      colour(paintOf(planBody, 'fill')),
-      colour(paintOf(planBody, 'stroke')),
-      colour(paintOf(actualBody, 'fill')),
+      color(paintOf(planBody, 'fill')),
+      color(paintOf(planBody, 'stroke')),
+      color(paintOf(actualBody, 'fill')),
     ])
     expect(inks.size).toBe(3)
   })
 
   for (const seen of SEEN) {
-    const ink = seen.part === 'plan' ? 'the plan edge colour' : 'the plan fill colour'
+    const ink = seen.part === 'plan' ? 'the plan edge color' : 'the plan fill color'
 
     it.each(INNER_GLYPHS)(`LF-18 %s ${seen.part}: the inner lines are ${ink}`, (glyph) => {
       const stage = stageFor(glyph)
@@ -771,7 +771,7 @@ describe('LF-18 -- the colour of the inner lines and dots', () => {
       for (const layer of layersOf(glyph, 'inner')) {
         for (const anchor of probesOf(layer)) {
           const lines = carriers(figure, mapped(anchor, place)).filter(isLine)
-          expect(lines.map((one) => colour(paintOf(one, 'stroke'))), `${glyph} ${seen.part} at (${anchor.x}, ${anchor.y})`).toContain(want)
+          expect(lines.map((one) => color(paintOf(one, 'stroke'))), `${glyph} ${seen.part} at (${anchor.x}, ${anchor.y})`).toContain(want)
         }
       }
     })
@@ -784,10 +784,10 @@ describe('LF-18 -- the colour of the inner lines and dots', () => {
       for (const layer of layersOf(glyph, 'dot')) {
         const unit = extentOf([layer.outline])
         const wanted: Extent = {
-          left: place.centre.x + unit.left * place.half,
-          right: place.centre.x + unit.right * place.half,
-          top: place.centre.y + unit.top * place.half,
-          bottom: place.centre.y + unit.bottom * place.half,
+          left: place.center.x + unit.left * place.half,
+          right: place.center.x + unit.right * place.half,
+          top: place.center.y + unit.top * place.half,
+          bottom: place.center.y + unit.bottom * place.half,
         }
         // WHY: LF-18 does not say one element per dot, so a dot is any sub-path of a filled element.
         const dots = figure.filter((one) =>
@@ -803,7 +803,7 @@ describe('LF-18 -- the colour of the inner lines and dots', () => {
           }),
         )
         expect(dots.length, `${glyph} ${seen.part}: no filled dot where F-044 puts one`).toBeGreaterThan(0)
-        expect(dots.map((one) => colour(paintOf(one, 'fill')))).toContain(want)
+        expect(dots.map((one) => color(paintOf(one, 'fill')))).toContain(want)
       }
     })
   }
@@ -815,7 +815,7 @@ describe('LF-18 -- the colour of the inner lines and dots', () => {
   })
 
   for (const seen of SEEN.filter((one) => one.part !== 'dummies')) {
-    const ink = seen.part === 'plan' ? 'the plan edge colour' : 'the plan fill colour'
+    const ink = seen.part === 'plan' ? 'the plan edge color' : 'the plan fill color'
 
     it(`LF-18 「${LF_18_SHADE}」 ${FILE_GLYPH} ${seen.part}: exactly one shade element, filled with ${ink}`, () => {
       const stage = stageFor(FILE_GLYPH)
@@ -827,22 +827,22 @@ describe('LF-18 -- the colour of the inner lines and dots', () => {
         (one) => isFilled(one) && shade.outline.anchors.every((p) => distanceTo(one.outline, mapped(p, place)) <= EPS),
       )
       expect(matches.length, `${FILE_GLYPH} ${seen.part}: exactly one shade element`).toBe(1)
-      expect(colour(paintOf(matches[0] as Element, 'fill')), `${FILE_GLYPH} ${seen.part} shade fill`).toBe(want)
+      expect(color(paintOf(matches[0] as Element, 'fill')), `${FILE_GLYPH} ${seen.part} shade fill`).toBe(want)
     })
   }
 
   it("LF-18 \"カスタムカラーのタスクでは、そのタスクの予定の塗りの色\" -- a custom fill: the actual's and dummy's box edges take it", () => {
     const custom = stageOf('box', '#c0504d/')
-    const want = colour(paintOf(bodyOf(figureOf(custom.elements, STARTED_UID, 'plan'), 'box', planPlace(custom)), 'fill'))
+    const want = color(paintOf(bodyOf(figureOf(custom.elements, STARTED_UID, 'plan'), 'box', planPlace(custom)), 'fill'))
     const themed = stageFor('box')
-    const themedFill = colour(paintOf(bodyOf(figureOf(themed.elements, STARTED_UID, 'plan'), 'box', planPlace(themed)), 'fill'))
+    const themedFill = color(paintOf(bodyOf(figureOf(themed.elements, STARTED_UID, 'plan'), 'box', planPlace(themed)), 'fill'))
     expect(want, 'premise: the custom fill changes the plan fill').not.toBe(themedFill)
     for (const seen of SEEN.filter((one) => one.part !== 'plan')) {
       const figure = figureOf(custom.elements, seen.uid, seen.part)
       const place = seen.place(custom)
       for (const anchor of probesOf(layersOf('box', 'inner')[0] as Layer)) {
         const lines = carriers(figure, mapped(anchor, place)).filter(isLine)
-        expect(lines.map((one) => colour(paintOf(one, 'stroke'))), `${seen.part} at (${anchor.x}, ${anchor.y})`).toContain(want)
+        expect(lines.map((one) => color(paintOf(one, 'stroke'))), `${seen.part} at (${anchor.x}, ${anchor.y})`).toContain(want)
       }
     }
   })
@@ -924,7 +924,7 @@ describe('HT-1 / GA-15 -- the hit test reads the drawn outline of a moved triang
   const hitOf = (glyph: string, dy: number): ReturnType<typeof itemAtPointer> => {
     const stage = stageFor(glyph)
     const place = planPlace(stage)
-    return itemAtPointer(stage.geometry, place.centre.x, place.centre.y + dy * place.half, grabSizesOf())
+    return itemAtPointer(stage.geometry, place.center.x, place.center.y + dy * place.half, grabSizesOf())
   }
 
   // WHY: 0.65 of a half side is inside the redrawn triangle and past the old one's base (0.5).

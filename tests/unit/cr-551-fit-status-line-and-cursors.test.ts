@@ -39,7 +39,7 @@ const numberOf = (cell: string): number => {
 }
 const lightOf = (id: string): string => {
   const found = /#[0-9a-fA-F]{6}/.exec(verticalIn('T-236', id).by['明るいテーマ'] ?? '')
-  if (found === null) throw new Error(`table T-236 row ${id} holds no light colour`)
+  if (found === null) throw new Error(`table T-236 row ${id} holds no light color`)
   return found[0].toLowerCase()
 }
 
@@ -246,7 +246,7 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
   })
 })
 
-const FR_046_CENTRE = '基準日線を出す操作では、倍率を変えずに、基準日線が `Task Group Area` の横の中点に来るよう表示位置を横に送ること（MUST）'
+const FR_046_CENTER = '基準日線を出す操作では、倍率を変えずに、基準日線が `Task Group Area` の横の中点に来るよう表示位置を横に送ること（MUST）'
 const FR_046_NOT_VERTICAL = '縦の表示位置は動かさないこと（MUST）。'
 const FR_046_INK = '基準日線は、色を `_assets/tbl-settings.md` の 表 T-236 の `S-163`、太さを同書の 表 T-206 の `S-333` で描くこと（MUST）'
 const FR_046_EN_7 = '基準日線を描いているあいだ、基準日の入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-44`）を `FR-029` の 表 T-237 の `EN-7` で塗ること（MUST）'
@@ -266,7 +266,7 @@ const attrOf = (tag: string, name: string): string => new RegExp(`\\b${name}="([
 
 describe('FR-046 / FR-106 -- the status-date line', () => {
   it('FR-046 / FR-106 still say: 横の中点に来るよう / 縦の表示位置は動かさない / S-163 ・ S-333 / EN-7 / PK-10', () => {
-    expect(REQUIREMENTS).toContain(FR_046_CENTRE)
+    expect(REQUIREMENTS).toContain(FR_046_CENTER)
     expect(REQUIREMENTS).toContain(FR_046_NOT_VERTICAL)
     expect(REQUIREMENTS).toContain(FR_046_INK)
     expect(REQUIREMENTS).toContain(FR_046_EN_7)

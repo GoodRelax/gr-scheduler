@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { colourOf } from '../../src/adapter/svg-renderer/svg-renderer'
+import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import type { DisplayLanguage } from '../../src/adapter/screen-renderer/screen-renderer'
 import { domScreenSurface, type ScreenTheme } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import {
@@ -79,7 +79,7 @@ const textOf = (element: FakeElement): string => element.textContent.trim()
 interface Rim {
   readonly width: number
   readonly style: string
-  readonly colour: string
+  readonly color: string
 }
 
 // WHY: no row says how the rim is spelled, so the shorthand and the three longhands are both read.
@@ -87,12 +87,12 @@ function rimOf(built: Stage, element: FakeElement): Rim {
   const style = styleMap(element)
   const shorthand = /^(-?[\d.]+)px\s+(\w+)\s+(.+)$/.exec((style.get('border') ?? '').trim())
   if (shorthand !== null) {
-    return { width: Number(shorthand[1]), style: shorthand[2] ?? '', colour: resolved(built, shorthand[3] ?? '') }
+    return { width: Number(shorthand[1]), style: shorthand[2] ?? '', color: resolved(built, shorthand[3] ?? '') }
   }
   return {
     width: pxOf(element, 'border-width'),
     style: (style.get('border-style') ?? '').trim(),
-    colour: resolved(built, style.get('border-color') ?? ''),
+    color: resolved(built, style.get('border-color') ?? ''),
   }
 }
 
@@ -101,7 +101,7 @@ interface Ground {
   readonly percent: number
 }
 
-// WHY: a translucent ground is spelled as color-mix() or as an alpha colour; both are read, neither is demanded.
+// WHY: a translucent ground is spelled as color-mix() or as an alpha color; both are read, neither is demanded.
 function groundOf(built: Stage, element: FakeElement): Ground | null {
   const written = (styleMap(element).get('background-color') ?? styleMap(element).get('background') ?? '').trim()
   const mixed = /^color-mix\(\s*in srgb\s*,\s*(.+?)\s+([\d.]+)%\s*,\s*transparent\s*\)$/.exec(written)
@@ -138,7 +138,7 @@ function rgbOf(text: string): readonly number[] | null {
   return null
 }
 
-function sameColour(drawn: string, expected: string): boolean {
+function sameColor(drawn: string, expected: string): boolean {
   const left = rgbOf(drawn)
   const right = rgbOf(expected)
   if (left === null || right === null || left.length !== RGB_CHANNELS || right.length !== RGB_CHANNELS) return false
@@ -146,7 +146,7 @@ function sameColour(drawn: string, expected: string): boolean {
 }
 
 // see S-151, PI-19
-const accentOf = (theme: ScreenTheme): string => colourOf('S-151', theme.hue, theme.preference === 'dark', false)
+const accentOf = (theme: ScreenTheme): string => colorOf('S-151', theme.hue, theme.preference === 'dark', false)
 
 const wordOf = (language: DisplayLanguage): string =>
   GENERATED_WORDS['dropCue']?.find((one) => one.part === 'dropToOpen')?.text?.[language] ?? ''
@@ -155,7 +155,7 @@ const wordOf = (language: DisplayLanguage): string =>
 const wordsUnder = (cue: FakeElement): FakeElement[] => selfAndDescendants(cue).filter((one) => textOf(one) !== '' && one.children.every((child) => textOf(child) === ''))
 
 describe('CR-727 the manuscript these cases are driven by', () => {
-  it('OP-17 still says how the cue is laid, coloured, worded and layered, word for word', () => {
+  it('OP-17 still says how the cue is laid, colored, worded and layered, word for word', () => {
     for (const clause of [OP_17_AREA, OP_17_RIM_AND_GROUND, OP_17_SAME_TYPE, OP_17_NO_PRESS]) {
       expect(opCell()).toContain(clause)
     }
@@ -214,13 +214,13 @@ describe(`FR-087 OP-17 -- ${OP_17_AREA} (U-32)`, () => {
 })
 
 describe(`FR-087 OP-17 -- ${OP_17_RIM_AND_GROUND}`, () => {
-  it.each(THEMES)('the rim is a solid S-553 px line in the S-151 colour (%o)', (theme) => {
+  it.each(THEMES)('the rim is a solid S-553 px line in the S-151 color (%o)', (theme) => {
     const { built, show } = surfaceUnder(theme)
     show(shownSession())
     const rim = rimOf(built, cueOf(built))
     expect(rim.width).toBe(settingNumber('S-553'))
     expect(rim.style).toBe('solid')
-    expect(sameColour(rim.colour, accentOf(theme)), `rim ${rim.colour} vs S-151 ${accentOf(theme)}`).toBe(true)
+    expect(sameColor(rim.color, accentOf(theme)), `rim ${rim.color} vs S-151 ${accentOf(theme)}`).toBe(true)
   })
 
   it.each(THEMES)('the ground is S-151 laid at the S-214 density (%o)', (theme) => {
@@ -229,7 +229,7 @@ describe(`FR-087 OP-17 -- ${OP_17_RIM_AND_GROUND}`, () => {
     const ground = groundOf(built, cueOf(built))
     expect(ground, `the cue's ground is not a translucent S-151: ${serialize(cueOf(built))}`).not.toBeNull()
     expect(ground?.percent).toBe(settingNumber('S-214'))
-    expect(sameColour(ground?.paint ?? '', accentOf(theme)), `ground ${ground?.paint} vs S-151 ${accentOf(theme)}`).toBe(true)
+    expect(sameColor(ground?.paint ?? '', accentOf(theme)), `ground ${ground?.paint} vs S-151 ${accentOf(theme)}`).toBe(true)
   })
 
   it.each(LANGUAGES)('the words are the dictionary line dropCue.dropToOpen (%s), once, in the cue', (language) => {
@@ -248,16 +248,16 @@ describe(`FR-087 OP-17 -- ${OP_17_RIM_AND_GROUND}`, () => {
     expect(textOf(cueOf(built))).toBe(wordOf('en'))
   })
 
-  it('the words sit at the centre of the cue', () => {
+  it('the words sit at the center of the cue', () => {
     const { built, show } = surfaceUnder(THEMES[0] as ScreenTheme)
     show(shownSession())
     const style = styleMap(cueOf(built))
     const display = (style.get('display') ?? '').trim()
-    const centred = (property: string): boolean => (style.get(property) ?? '').trim() === 'center'
-    const isCentringBox =
-      (['flex', 'inline-flex', 'grid'].includes(display) && centred('align-items') && centred('justify-content')) ||
+    const centered = (property: string): boolean => (style.get(property) ?? '').trim() === 'center'
+    const isCenteringBox =
+      (['flex', 'inline-flex', 'grid'].includes(display) && centered('align-items') && centered('justify-content')) ||
       (display === 'grid' && (style.get('place-items') ?? '').trim() === 'center')
-    expect(isCentringBox, `中央に案内の語を置く: ${serialize(cueOf(built))}`).toBe(true)
+    expect(isCenteringBox, `中央に案内の語を置く: ${serialize(cueOf(built))}`).toBe(true)
   })
 })
 

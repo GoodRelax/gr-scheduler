@@ -633,7 +633,7 @@ def build():
         kind == 'function' and tag in EXCUSED_BY_TAG for _, kind, tag in f.imports)]
     w('## 6. The unit files kept for now (%d) -- listing only' % len(unit))
     w('')
-    w('Re-sorting them waits for the change-request organisation (handoff 2026-09-26). "Imports"')
+    w('Re-sorting them waits for the change-request organization (handoff 2026-09-26). "Imports"')
     w('are the callables the file imports by name from `src/`, each with the `@purity` tag above')
     w('its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /')
     w('`semi-pure-a` (rule 04 table UO, row UO-1): %d of %d.' % (len(candidates), len(unit)))

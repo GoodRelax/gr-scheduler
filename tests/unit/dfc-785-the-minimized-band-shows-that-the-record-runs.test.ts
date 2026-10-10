@@ -1,4 +1,4 @@
-// DFC-785: FR-053 / FR-102 -- a minimised Command Palette shows IC-76 pressed on its grab band while the interaction record runs.
+// DFC-785: FR-053 / FR-102 -- a minimized Command Palette shows IC-76 pressed on its grab band while the interaction record runs.
 
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -11,7 +11,7 @@ afterEach(() => {
 })
 
 const RECORD = 'IC-76'
-const MINIMISE = 'IC-75'
+const MINIMIZE = 'IC-75'
 const PALETTE_KEY = 'P'
 
 const take = (built: ShellBench, icon: string): void => {
@@ -25,33 +25,33 @@ const bandRecordOf = (built: ShellBench): { icon: string; isPressed: boolean } |
   return (palette?.bandRecord as { icon: string; isPressed: boolean } | null | undefined) ?? null
 }
 
-describe('FR-053 / FR-102 (DFC-785) -- the record can be read from a minimised palette', () => {
+describe('FR-053 / FR-102 (DFC-785) -- the record can be read from a minimized palette', () => {
   const benchOf = (): ShellBench => {
     const built = shell(taskGroupDocument([{ id: 'g1', parentId: null }]))
     benches.push(built)
     return built
   }
 
-  it('minimised and recording: IC-76 stands on the band, pressed', () => {
+  it('minimized and recording: IC-76 stands on the band, pressed', () => {
     const built = benchOf()
     take(built, RECORD)
-    take(built, MINIMISE)
-    expect(built.last().commandPalette?.isMinimised, 'premise: the palette is minimised').toBe(true)
+    take(built, MINIMIZE)
+    expect(built.last().commandPalette?.isMinimized, 'premise: the palette is minimized').toBe(true)
     expect(bandRecordOf(built)?.icon).toBe(RECORD)
     expect(bandRecordOf(built)?.isPressed).toBe(true)
   })
 
-  it('minimised and not recording: nothing of the record stands on the band', () => {
+  it('minimized and not recording: nothing of the record stands on the band', () => {
     const built = benchOf()
-    take(built, MINIMISE)
-    expect(built.last().commandPalette?.isMinimised).toBe(true)
+    take(built, MINIMIZE)
+    expect(built.last().commandPalette?.isMinimized).toBe(true)
     expect(bandRecordOf(built)).toBeNull()
   })
 
   it('shown in full and recording: the band carries nothing (the entrance stands among the others)', () => {
     const built = benchOf()
     take(built, RECORD)
-    expect(built.last().commandPalette?.isMinimised).toBe(false)
+    expect(built.last().commandPalette?.isMinimized).toBe(false)
     expect(bandRecordOf(built)).toBeNull()
   })
 
@@ -65,9 +65,9 @@ describe('FR-053 / FR-102 (DFC-785) -- the record can be read from a minimised p
   it('stopping the record from the band takes IC-76 off it', () => {
     const built = benchOf()
     take(built, RECORD)
-    take(built, MINIMISE)
+    take(built, MINIMIZE)
     take(built, RECORD)
-    expect(built.last().commandPalette?.isMinimised).toBe(true)
+    expect(built.last().commandPalette?.isMinimized).toBe(true)
     expect(bandRecordOf(built)).toBeNull()
   })
 })

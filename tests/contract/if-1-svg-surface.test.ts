@@ -9,7 +9,7 @@
 //
 // Driven by a fixed copy of table T-065 row IF-1 (Chapter 1.9 :275). The copy
 // is transcribed rather than parsed: `seams.contract.test.ts` already walks all
-// nine rows structurally, and this file is about the one row's behaviour, so a
+// nine rows structurally, and this file is about the one row's behavior, so a
 // failure here names IF-1 and nothing else.
 //
 // The specification this file is held to:
@@ -195,14 +195,14 @@ describe(`${IF_1.id} ${IF_1.seam} -- showing the same picture twice`, () => {
   // Nothing in the specification requires this. NFR-010 and table T-078 govern
   // whether a FRAME RUNS -- "本表に無い契機でフレームを起こしてはならない
   // （MUST NOT）" -- not what the surface does once a frame has already handed
-  // it a string. FR-048 puts the same judgement on "描く内容" at the shell, not
+  // it a string. FR-048 puts the same judgment on "描く内容" at the shell, not
   // at the seam. Table T-065 IF-1 says only "作った SVG 文字列を画面に載せる",
   // and svg-surface.ts's own declaration records that no requirement states a
   // diffing rule.
   //
   // So skipping an identical write is DomSvgSurface's discretion, which LY-5
   // permits (`Framework` is the layer allowed to hold a current value). This
-  // case pins the behaviour that is there so that dropping it is a decision
+  // case pins the behavior that is there so that dropping it is a decision
   // rather than an accident. ⚠️ A failure here is not a defect against the
   // specification.
   it('does not write the host again (implementation discretion)', () => {

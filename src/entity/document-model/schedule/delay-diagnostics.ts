@@ -87,7 +87,7 @@ export interface DelayDiagnosticsReport {
   readonly bottlenecks: readonly Bottleneck[]
   readonly terminalPushOuts: readonly TerminalPushOut[]
   readonly walls: readonly AnalysisWall[]
-  readonly unanalysedCount: number
+  readonly unreliableCount: number
   readonly markerStates: readonly DelayMarkerState[]
   readonly settledPushOuts: readonly DelayQuantities[]
   readonly derivedParentTasks: readonly DerivedParentTask[]
@@ -1100,7 +1100,7 @@ function uidsWith(findings: readonly DelayFinding[], row: 'VO-3' | 'VO-5' | 'VS-
 function emptyReport(statusDate: string | null): DelayDiagnosticsReport {
   return {
     outcome: 'notDiagnosed', statusDate, findings: [], bottlenecks: [], terminalPushOuts: [], walls: [],
-    unanalysedCount: 0, markerStates: [], settledPushOuts: [], derivedParentTasks: [], lateDays: [],
+    unreliableCount: 0, markerStates: [], settledPushOuts: [], derivedParentTasks: [], lateDays: [],
   }
 }
 
@@ -1148,7 +1148,7 @@ export function diagnoseDelay(document: DiagnosedDocument, calendar: WorkingCale
     bottlenecks,
     terminalPushOuts: terminals,
     walls,
-    unanalysedCount: facts.tasks.filter((task) => doubted.has(task.uid)).length,
+    unreliableCount: facts.tasks.filter((task) => doubted.has(task.uid)).length,
     markerStates: markerStatesOf(facts, doubted, bottlenecks),
     settledPushOuts: pushing.filter((one) => !isOpen(one.uid)),
     derivedParentTasks: [...facts.derivations]

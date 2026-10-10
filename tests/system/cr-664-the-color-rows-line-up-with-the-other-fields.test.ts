@@ -1,4 +1,4 @@
-// CR-664 / CR-689 (FR-006, CV-9): the colour rows of the properties panel share the other rows' name edge and value edge, swept live.
+// CR-664 / CR-689 (FR-006, CV-9): the color rows of the properties panel share the other rows' name edge and value edge, swept live.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -20,9 +20,9 @@ const roleOf = (id: string): string =>
 const PROPERTIES_PANEL = roleOf('U-25')
 const PANEL_DIVIDER = roleOf('U-24')
 
-const COLOUR_FORM = '色'
-const COLOUR_ROWS = specTable('T-016')
-  .rows.filter((row) => bare(row.by['入力の型'] ?? '') === COLOUR_FORM && bare(row.by['対象'] ?? '') === 'Task')
+const COLOR_FORM = '色'
+const COLOR_ROWS = specTable('T-016')
+  .rows.filter((row) => bare(row.by['入力の型'] ?? '') === COLOR_FORM && bare(row.by['対象'] ?? '') === 'Task')
   .map((row) => row.id)
 
 const S_248 = ((): number => {
@@ -100,7 +100,7 @@ async function openOnATask(page: Page): Promise<void> {
   expect(target, 'premise: a task plan wide enough to double-click is drawn').not.toBeNull()
   if (target === null) return
   await page.mouse.dblclick(target.x, target.y)
-  await page.waitForSelector(`${PROPERTIES_PANEL} [data-field-row="${COLOUR_ROWS[0] ?? ''}"]`)
+  await page.waitForSelector(`${PROPERTIES_PANEL} [data-field-row="${COLOR_ROWS[0] ?? ''}"]`)
   await page.waitForTimeout(SETTLE_MS)
 }
 
@@ -137,14 +137,14 @@ async function narrowToTheFloor(page: Page): Promise<void> {
 }
 
 /** @purity non-pure */
-function expectTheColourRowsLineUp(fields: readonly Field[], where: string): void {
-  const others = fields.filter((one) => !COLOUR_ROWS.includes(one.row))
-  expect(others.length, `premise (${where}): the panel draws rows other than the colour rows`).toBeGreaterThan(2)
+function expectTheColorRowsLineUp(fields: readonly Field[], where: string): void {
+  const others = fields.filter((one) => !COLOR_ROWS.includes(one.row))
+  expect(others.length, `premise (${where}): the panel draws rows other than the color rows`).toBeGreaterThan(2)
   const nameEdge = mostCommon(others.map((one) => one.nameRight))
   const valueEdge = mostCommon(others.map((one) => one.valueLeft))
-  for (const row of COLOUR_ROWS) {
+  for (const row of COLOR_ROWS) {
     const field = fields.find((one) => one.row === row)
-    expect(field, `premise (${where}): the panel draws the colour row ${row}`).toBeDefined()
+    expect(field, `premise (${where}): the panel draws the color row ${row}`).toBeDefined()
     if (field === undefined) continue
     expect(field.nameBottom, `${row} (${where}): ${FR_006_SAME_EDGES} -- the name stands beside the first row, not above`).toBeGreaterThan(
       field.valueTop + SAME_EDGE_PX,
@@ -173,7 +173,7 @@ async function swatchRowsOf(page: Page): Promise<SwatchRows[]> {
     ({ panel, rows }: { panel: string; rows: readonly string[] }) => {
       const out: SwatchRows[] = []
       for (const row of rows) {
-        const entry = document.querySelector(`${panel} [data-field-row="${row}"][data-colour-choice="transparent"]`)
+        const entry = document.querySelector(`${panel} [data-field-row="${row}"][data-color-choice="transparent"]`)
         const grid = entry?.parentElement
         if (grid === null || grid === undefined) continue
         const kids = Array.from(grid.children)
@@ -183,7 +183,7 @@ async function swatchRowsOf(page: Page): Promise<SwatchRows[]> {
       }
       return out
     },
-    { panel: PROPERTIES_PANEL, rows: COLOUR_ROWS },
+    { panel: PROPERTIES_PANEL, rows: COLOR_ROWS },
   )
 }
 
@@ -191,7 +191,7 @@ test('FR-006 still says what the cases press', () => {
   for (const said of [FR_006_RIGHT_ALIGNED, FR_006_SAME_EDGES, CV_9_TWO_ROWS]) {
     expect(REQUIREMENTS, said).toContain(unbroken(said))
   }
-  expect(COLOUR_ROWS.length, 'premise: table T-016 holds colour rows for a Task').toBeGreaterThan(0)
+  expect(COLOR_ROWS.length, 'premise: table T-016 holds color rows for a Task').toBeGreaterThan(0)
   expect(S_248).toBeGreaterThan(0)
 })
 
@@ -204,15 +204,15 @@ for (const scheme of ['light', 'dark'] as const) {
     const page = await context.newPage()
     try {
       await openOnATask(page)
-      expectTheColourRowsLineUp(await fieldsOf(page), `${scheme}, default width ${await panelWidthOf(page)}px`)
+      expectTheColorRowsLineUp(await fieldsOf(page), `${scheme}, default width ${await panelWidthOf(page)}px`)
 
       await narrowToTheFloor(page)
       const width = await panelWidthOf(page)
       expect(Math.abs(width - S_248), `premise: the drag stopped at S-248 (${S_248}px); the panel is ${width}px`).toBeLessThanOrEqual(2)
-      expectTheColourRowsLineUp(await fieldsOf(page), `${scheme}, S-248 width ${width}px`)
+      expectTheColorRowsLineUp(await fieldsOf(page), `${scheme}, S-248 width ${width}px`)
 
       const grids = await swatchRowsOf(page)
-      expect(grids.length, 'premise: every colour row draws its grid').toBe(COLOUR_ROWS.length)
+      expect(grids.length, 'premise: every color row draws its grid').toBe(COLOR_ROWS.length)
       for (const grid of grids) expect(grid.tops, `${grid.row}: ${CV_9_TWO_ROWS} -- ${JSON.stringify(grid)}`).toBe(2)
     } finally {
       await context.close()

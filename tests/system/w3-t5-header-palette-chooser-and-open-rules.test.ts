@@ -253,7 +253,7 @@ test(`FR-053: "${FR_053_RECORDING_ON_THE_BAND}"`, async ({ page }) => {
   await page.click(icon('IC-75', palette))
   await settle(page)
   const drawn = await page.evaluate((palette) => [...document.querySelectorAll(`${palette} [data-icon]`)].map((one) => one.getAttribute('data-icon')), palette)
-  expect([...drawn].sort(), 'minimised: the band holds IC-53, IC-75 and, while recording, IC-76 only').toEqual(['IC-53', 'IC-75', 'IC-76'])
+  expect([...drawn].sort(), 'minimized: the band holds IC-53, IC-75 and, while recording, IC-76 only').toEqual(['IC-53', 'IC-75', 'IC-76'])
   expect(await page.getAttribute(`${palette} ${icon('IC-76')}`, 'aria-pressed'), FR_053_RECORDING_ON_THE_BAND).toBe('true')
   const recording = await rectOf(page, `${palette} ${icon('IC-76')}`)
   const grabMark = await rectOf(page, `${palette} ${icon('IC-53')} > svg`)

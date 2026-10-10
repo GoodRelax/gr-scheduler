@@ -31,7 +31,7 @@ function taskGroupHeldOf(context: InputContext): TaskGroupAnchor {
 }
 
 // see MK-5, OP-10
-// WHY: with no stored place the drawn top task group is kept, as statusLineCentred does; the stored null names no place.
+// WHY: with no stored place the drawn top task group is kept, as statusLineCentered does; the stored null names no place.
 /** @purity pure */
 function taskGroupKeptOf(context: InputContext): TaskGroupAnchor {
   if (isPlaceSeatedIn(context)) return taskGroupHeldOf(context)

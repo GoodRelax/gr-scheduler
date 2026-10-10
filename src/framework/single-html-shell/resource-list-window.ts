@@ -65,7 +65,7 @@ export function tableWindowClosed<W extends TableWindowState>(window: W): W {
 /** @purity pure */
 export function tableWindowReopened<W extends TableWindowState>(held: W | null, closed: W | null, opened: W): W {
   if (held === null) return closed === null ? opened : { ...closed, shown: 'normal', isInFront: true }
-  return { ...held, shown: held.shown === 'minimised' ? 'normal' : held.shown, isInFront: true }
+  return { ...held, shown: held.shown === 'minimized' ? 'normal' : held.shown, isInFront: true }
 }
 
 // see RW-5, RO-6, UZ-6

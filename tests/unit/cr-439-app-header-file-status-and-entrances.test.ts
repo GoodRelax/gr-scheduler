@@ -20,7 +20,7 @@ import {
   FakeElement,
   iconEntry,
   oneByRole,
-  paintedColour,
+  paintedColor,
   selfAndDescendants,
   stage,
   styleMap,
@@ -234,8 +234,8 @@ describe('FR-029 -- an entrance that can change nothing is drawn faint, not disa
     const { built } = drawn()
     const faint = iconEntry(built.root(), 'IC-5')
     const live = iconEntry(built.root(), 'IC-6')
-    expect(paintedColour(built, faint)).toBe(S_149_LIGHT)
-    expect(paintedColour(built, live)).not.toBe(S_149_LIGHT)
+    expect(paintedColor(built, faint)).toBe(S_149_LIGHT)
+    expect(paintedColor(built, live)).not.toBe(S_149_LIGHT)
   })
 
   it('FR-029 薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT） -- the press still arrives', () => {

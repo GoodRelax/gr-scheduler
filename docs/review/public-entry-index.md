@@ -36,10 +36,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `CommentBox` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#CommentBox` | -- | interface CommentBox |
 | `CommentBoxSearchRow` | entry | type | `src/entity/document-model/schedule/schedule-search.ts#CommentBoxSearchRow` | PI-1 | 型。 |
 | `compareDays` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#compareDays` | PI-1 | 2 つの日の前後 |
-| `CustomColour` | entry | interface | `src/entity/document-model/schedule/stored-colour.ts#CustomColour` | -- | interface CustomColour |
-| `customColourChosen` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#customColourChosen` | PI-1 | カスタムカラーを選んだときの新しい綴り。 |
-| `customColourOf` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#customColourOf` | PI-1 | カスタムカラーを明暗の 2 つの側に分ける。 |
-| `customSideOf` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#customSideOf` | PI-1 | 未定義の側を他方で埋めて、描く側の値を返す。 |
+| `CustomColor` | entry | interface | `src/entity/document-model/schedule/stored-color.ts#CustomColor` | -- | interface CustomColor |
+| `customColorChosen` | entry | function | `src/entity/document-model/schedule/stored-color.ts#customColorChosen` | PI-1 | カスタムカラーを選んだときの新しい綴り。 |
+| `customColorOf` | entry | function | `src/entity/document-model/schedule/stored-color.ts#customColorOf` | PI-1 | カスタムカラーを明暗の 2 つの側に分ける。 |
+| `customSideOf` | entry | function | `src/entity/document-model/schedule/stored-color.ts#customSideOf` | PI-1 | 未定義の側を他方で埋めて、描く側の値を返す。 |
 | `DAILY_RECURRENCE_KIND` | entry | const | `src/entity/document-model/schedule/working-calendar.ts#DAILY_RECURRENCE_KIND` | PI-1 | 日次の繰り返しの種別 `1`（`AT-82`）。 |
 | `DATE_COLUMNS` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DATE_COLUMNS` | PI-1 | 表 T-058 の型の欄が日付とする列の全数。 |
 | `dateFromWorkingDays` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#dateFromWorkingDays` | PI-1 | 起点の日付に稼働日を加えた日 |
@@ -75,7 +75,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isNonRecurringException` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isNonRecurringException` | PI-1 | 例外日が繰り返しの無いものか。 |
 | `isSameDay` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#isSameDay` | PI-1 | 2 つの日時の字が同じ日か。 |
 | `isSearchWordFound` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#isSearchWordFound` | PI-1 | 名や本文が語に当たるか（表 T-330 の `SV-4` の比べ方） |
-| `isStoredColour` | entry | function | `src/entity/document-model/schedule/stored-colour.ts#isStoredColour` | PI-1 | 色の列が取る綴りか。 |
+| `isStoredColor` | entry | function | `src/entity/document-model/schedule/stored-color.ts#isStoredColor` | PI-1 | 色の列が取る綴りか。 |
 | `isWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isWorkingDay` | PI-1 | その日が文書の暦の稼働日か（`FR-054`） |
 | `lagOfWorkingDays` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#lagOfWorkingDays` | PI-1 | 稼働日のラグを、保存する 0.1 分にする（`FR-009`・`AT-47`） |
 | `lagWorkingDaysOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#lagWorkingDaysOf` | PI-1 | ラグを稼働日で読む。 |
@@ -113,7 +113,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `textOfDayStart` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayStart` | PI-1 | 丸 1 日の範囲の始まりと 1 つの日の字（表 T-350 の `WT-6`・`WT-8`） |
 | `textOfFinishSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfFinishSide` | PI-1 | 終了の側の列へ書く日時の字（表 T-350 の `WT-2`・`WT-4`） |
 | `textOfStartSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfStartSide` | PI-1 | 開始の側の列へ書く日時の字。 |
-| `TRANSPARENT` | entry | const | `src/entity/document-model/schedule/stored-colour.ts#TRANSPARENT` | PI-1 | 透明の色の綴り（`_assets/tbl-settings.md` の `S-324`）。 |
+| `TRANSPARENT` | entry | const | `src/entity/document-model/schedule/stored-color.ts#TRANSPARENT` | PI-1 | 透明の色の綴り（`_assets/tbl-settings.md` の `S-324`）。 |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
 | `WORKING_DAY_LAG_FORMAT` | entry | const | `src/entity/document-model/schedule/working-calendar.ts#WORKING_DAY_LAG_FORMAT` | PI-1 | `GRS` が解するラグの形式 `7`（`FR-009`・`AT-48`） |
 | `WorkingCalendar` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingCalendar` | -- | interface WorkingCalendar |
@@ -198,9 +198,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `inTreeOrder` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#inTreeOrder` | PI-5 | タスクグループを木の順（`05-07-design.md` の 表 T-068 の `LC-9`）に並べる。 |
 | `isDroppedByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#isDroppedByTreeState` | PI-5 | そのタスクグループが、人が折りたたんだタスクグループか隠したタスクグループのために描かれないか —— タスクグループそのものが隠されている、祖先が折りたたまれているか隠されている、段 0 が折りたたまれている（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）。 |
 | `keptInViewByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#keptInViewByTreeState` | PI-5 | `expanded` と `temporarilyExpanded` が倍率によらず描かせるタスクグループ。 |
+| `labeledAssigneeUidOf` | entry | function | `src/entity/layout-engine/schedule-layout/assignee-label.ts#labeledAssigneeUidOf` | PI-5 | 担当ラベルが名を出す担当、すなわち `FR-059` の絞りと並びで先頭に来る 1 名の資源の `uid`。 |
 | `LabelLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/label-placement.ts#LabelLayout` | PI-5 | 型。 |
 | `labelLayoutOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#labelLayoutOf` | PI-5 | その配置を求める |
-| `labelledAssigneeUidOf` | entry | function | `src/entity/layout-engine/schedule-layout/assignee-label.ts#labelledAssigneeUidOf` | PI-5 | 担当ラベルが名を出す担当、すなわち `FR-059` の絞りと並びで先頭に来る 1 名の資源の `uid`。 |
 | `LabelPlacement` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#LabelPlacement` | -- | type LabelPlacement = 'inside' \| 'right' |
 | `LabelReference` | entry | interface | `src/entity/layout-engine/schedule-layout/label-placement.ts#LabelReference` | PI-5 | 型。 |
 | `labelReferenceOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#labelReferenceOf` | PI-5 | その基準を求める |
@@ -522,7 +522,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `MergeChoices` | entry | interface | `src/use-case/import-document/import-document.ts#MergeChoices` | -- | interface MergeChoices |
 | `MergeMapping` | entry | type | `src/use-case/import-document/import-document.ts#MergeMapping` | -- | type MergeMapping = \| { readonly kind: 'allSame' } \| { readonly kind: 'allDifferent' } \| |
 | `OpenChoice` | entry | type | `src/use-case/import-document/import-document.ts#OpenChoice` | -- | type OpenChoice = 'replace' \| 'merge' \| 'baseline' |
-| `SourceJudgement` | entry | type | `src/use-case/import-document/import-document.ts#SourceJudgement` | -- | type SourceJudgement = 'sameMaster' \| 'differentMaster' \| 'undecidable' \| 'notJudged' |
+| `SourceJudgment` | entry | type | `src/use-case/import-document/import-document.ts#SourceJudgment` | -- | type SourceJudgment = 'sameMaster' \| 'differentMaster' \| 'undecidable' \| 'notJudged' |
 | `TaskMapping` | entry | type | `src/use-case/import-document/import-document.ts#TaskMapping` | -- | type TaskMapping = 'same' \| 'different' |
 | `TaskMappingDecision` | entry | interface | `src/use-case/import-document/import-document.ts#TaskMappingDecision` | -- | interface TaskMappingDecision |
 | `UndoDisposition` | entry | type | `src/use-case/import-document/import-document.ts#UndoDisposition` | -- | type UndoDisposition = 'oneStep' \| 'notUndoable' |
@@ -613,7 +613,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `answerRelayedCall` | entry | function | `src/adapter/agent-api-endpoint/relayed-call.ts#answerRelayedCall` | PI-17 | `non-pure`。 |
 | `FrameSnapshot` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#FrameSnapshot` | -- | interface FrameSnapshot |
 | `installAgentApi` | entry | function | `src/adapter/agent-api-endpoint/agent-api-endpoint.ts#installAgentApi` | PI-17 | `non-pure`。 |
-| `RelayedAnswer` | entry | type | `src/adapter/agent-api-endpoint/relayed-call.ts#RelayedAnswer` | -- | type RelayedAnswer = \| { readonly result: unknown } \| { readonly error: { readonly code: number; readonly message: string } } type ParameterisedMember = |
+| `RelayedAnswer` | entry | type | `src/adapter/agent-api-endpoint/relayed-call.ts#RelayedAnswer` | -- | type RelayedAnswer = \| { readonly result: unknown } \| { readonly error: { readonly code: number; readonly message: string } } type ParameterizedMember = |
 | `RelayedCall` | entry | type | `src/adapter/agent-api-endpoint/relayed-call.ts#RelayedCall` | -- | type RelayedCall = |
 | `RelayedParams` | entry | interface | `src/adapter/agent-api-endpoint/relayed-call.ts#RelayedParams` | -- | interface RelayedParams |
 | `ShownTasksHolder` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#ShownTasksHolder` | -- | interface ShownTasksHolder |
@@ -749,7 +749,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isPlaceSeatedIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#isPlaceSeatedIn` | -- | function isPlaceSeatedIn(context: InputContext): boolean |
 | `keyZoomFactor` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#keyZoomFactor` | -- | function keyZoomFactor(context: InputContext, isIn: boolean): number |
 | `namesAPlace` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#namesAPlace` | -- | function namesAPlace( schedule: Schedule, scrollDate: string \| null, scrollGroupId: string \| null, ): boolean |
-| `statusLineCentred` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineCentred` | -- | function statusLineCentred(context: InputContext, date: string): readonly DocumentCommand[] |
+| `statusLineCentered` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineCentered` | -- | function statusLineCentered(context: InputContext, date: string): readonly DocumentCommand[] |
 | `statusLineWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineWrites` | -- | function statusLineWrites(context: InputContext): readonly DocumentCommand[] |
 | `taskGroupPointIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupPointIn` | -- | function taskGroupPointIn( taskGroups: readonly TaskGroupPlacement[], anchor: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): number \| null |
 | `topEdgeIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#topEdgeIn` | -- | function topEdgeIn( taskGroups: readonly TaskGroupPlacement[], anchor: Pick<ScrollAnchor, 'scrollGroupId' \| 'scrollGroupOffset'>, ): number \| null |
@@ -769,16 +769,16 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `actualOfCustom` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#actualOfCustom` | -- | function actualOfCustom(hex: string, dark: boolean, monochrome: boolean): string |
 | `bandBaselineYOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#bandBaselineYOf` | PI-19 | 帯の箱と字の大きさから、字のベースラインの縦の位置を返す —— 帯の縦の中点から、字の大きさに 表 T-201 の `S-33` を掛けた長さだけ下である。 |
 | `boxOfPoints` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#boxOfPoints` | -- | function boxOfPoints(path: Path): ScreenRect \| null |
-| `ChosenColour` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ChosenColour` | -- | type ChosenColour = (stored: string \| null, form: ColourForm) => string \| null |
-| `ColourForm` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ColourForm` | -- | type ColourForm = 'fill' \| 'outline' \| 'actual' \| 'band' |
-| `colourOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#colourOf` | PI-19 | 表 T-236 の行 ID と、いまの色の好みから 1 色を返す。 |
+| `ChosenColor` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ChosenColor` | -- | type ChosenColor = (stored: string \| null, form: ColorForm) => string \| null |
+| `ColorForm` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ColorForm` | -- | type ColorForm = 'fill' \| 'outline' \| 'actual' \| 'band' |
+| `colorOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#colorOf` | PI-19 | 表 T-236 の行 ID と、いまの色の好みから 1 色を返す。 |
 | `DualCursorFollow` | entry | interface | `src/adapter/svg-renderer/svg-renderer.ts#DualCursorFollow` | -- | interface DualCursorFollow |
-| `emphasisedWidthOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#emphasisedWidthOf` | -- | function emphasisedWidthOf(own: number): number |
+| `emphasizedWidthOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#emphasizedWidthOf` | -- | function emphasizedWidthOf(own: number): number |
 | `escaped` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#escaped` | -- | function escaped(text: string): string |
 | `figureKey` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#figureKey` | -- | function figureKey(key: string): string |
 | `GROUP_GRID_LINE_WIDTH_PX` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#GROUP_GRID_LINE_WIDTH_PX` | PI-19 | `Group Grid Lines` の罫の太さ。 |
 | `inkOn` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#inkOn` | PI-19 | 色の上に置く字の色（白か黒）を、その色の明度から返す。 |
-| `isScheduleColourRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColourRow` | PI-19 | 表 T-236 の行 ID が、`colourOf` の答えられる行（日程の図も塗る行）かを返す。 |
+| `isScheduleColorRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColorRow` | PI-19 | 表 T-236 の行 ID が、`colorOf` の答えられる行（日程の図も塗る行）かを返す。 |
 | `jumpLandingRingOf` | entry | function | `src/adapter/svg-renderer/schedule-overlays.ts#jumpLandingRingOf` | PI-19 | 飛んだ先の印の囲みの箱と線の太さ（表 T-332 の `SJ-10`、`S-555` ・ `S-556`）。 |
 | `markerGlyphSvg` | entry | function | `src/adapter/svg-renderer/schedule-task-figures.ts#markerGlyphSvg` | PI-19 | 進捗マーカーの図形を、字 1 つぶんの正方形の SVG にして返す（`FR-133`、表 T-021・表 T-315）。 |
 | `NOT_STORED_DELAY_MARK_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DELAY_MARK_SIZES` | -- | const NOT_STORED_DELAY_MARK_SIZES: |
@@ -792,7 +792,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `rounded` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#rounded` | -- | function rounded(value: number): string |
 | `SchedulePicture` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#SchedulePicture` | -- | type SchedulePicture = 'screen' \| 'export' |
 | `selectedLineWidth` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#selectedLineWidth` | -- | function selectedLineWidth(own: number, selected: boolean): number |
-| `selectionFrameSvg` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#selectionFrameSvg` | -- | function selectionFrameSvg(box: ScreenRect, colour: string, key: string): string |
+| `selectionFrameSvg` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#selectionFrameSvg` | -- | function selectionFrameSvg(box: ScreenRect, color: string, key: string): string |
 | `svgFromSchedule` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#svgFromSchedule` | PI-19 | `FR-080` |
 | `SvgSurface` | entry | interface | `src/adapter/svg-renderer/svg-surface.ts#SvgSurface` | PI-19 | 表 T-065 |
 | `swatchOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#swatchOf` | PI-19 | 色の欄の見本の色。 |
@@ -814,7 +814,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `watermarkSvg` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#watermarkSvg` | -- | function watermarkSvg( area: ScreenRect, pictureWidth: number, mark: Watermark, ink: string, clipId: string, ): string |
 | `BaselineOutlineParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#BaselineOutlineParts` | -- | interface BaselineOutlineParts |
 | `baselineOutlineParts` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#baselineOutlineParts` | -- | function baselineOutlineParts(input: TaskFiguresInput, dash: readonly [number, number]): BaselineOutlineParts |
-| `dependencyArrowSvg` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#dependencyArrowSvg` | -- | function dependencyArrowSvg( id: string, settings: Pick<DrawnSettings, 'dependencyArrowLength' \| 'dependencyArrowWidth'>, colour: string, ): string |
+| `dependencyArrowSvg` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#dependencyArrowSvg` | -- | function dependencyArrowSvg( id: string, settings: Pick<DrawnSettings, 'dependencyArrowLength' \| 'dependencyArrowWidth'>, color: string, ): string |
 | `DependencyLinkParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#DependencyLinkParts` | -- | interface DependencyLinkParts |
 | `dependencyLinkParts` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#dependencyLinkParts` | -- | function dependencyLinkParts(input: DependencyLinksInput): DependencyLinkParts |
 | `DependencyLinksInput` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#DependencyLinksInput` | -- | interface DependencyLinksInput |
@@ -925,7 +925,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileReading` | entry | type | `src/adapter/file-gateway/file-store.ts#FileReading` | -- | type FileReading = \| |
 | `FileStore` | entry | interface | `src/adapter/file-gateway/file-store.ts#FileStore` | PI-22 | 表 T-065 |
 | `FileStoreFault` | entry | interface | `src/adapter/file-gateway/file-store.ts#FileStoreFault` | -- | interface FileStoreFault |
-| `FileStoreFaultReason` | entry | type | `src/adapter/file-gateway/file-store.ts#FileStoreFaultReason` | -- | type FileStoreFaultReason = \| 'cancelled' \| 'permissionLost' \| 'noOpenedFile' \| 'unavailable' export interface FileStoreFault |
+| `FileStoreFaultReason` | entry | type | `src/adapter/file-gateway/file-store.ts#FileStoreFaultReason` | -- | type FileStoreFaultReason = \| 'canceled' \| 'permissionLost' \| 'noOpenedFile' \| 'unavailable' export interface FileStoreFault |
 | `FileWriting` | entry | type | `src/adapter/file-gateway/file-store.ts#FileWriting` | -- | type FileWriting = \| { readonly ok: true; readonly openedFile: OpenedFileState } \| { readonly ok: false; readonly fault: FileStoreFault } export type ChosenW... |
 | `openDocumentFile` | entry | function | `src/adapter/file-gateway/file-gateway.ts#openDocumentFile` | PI-22 | `semi-pure-b` |
 | `OpenedDocumentFile` | entry | interface | `src/adapter/file-gateway/file-gateway.ts#OpenedDocumentFile` | -- | interface OpenedDocumentFile |
@@ -1231,10 +1231,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AppHeaderItems` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AppHeaderItems` | -- | interface AppHeaderItems |
 | `AssigneeCandidate` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AssigneeCandidate` | -- | interface AssigneeCandidate |
 | `AssigneeCombo` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#AssigneeCombo` | -- | interface AssigneeCombo |
-| `ColourEntrance` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourEntrance` | -- | interface ColourEntrance |
-| `ColourField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourField` | -- | interface ColourField |
-| `ColourName` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColourName` | -- | interface ColourName |
-| `colourOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#colourOf` | PI-37 | `SvgRenderer` の `colourOf` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
+| `ColorEntrance` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColorEntrance` | -- | interface ColorEntrance |
+| `ColorField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColorField` | -- | interface ColorField |
+| `ColorName` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ColorName` | -- | interface ColorName |
+| `colorOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#colorOf` | PI-37 | `SvgRenderer` の `colorOf` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
 | `CommandItem` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#CommandItem` | -- | interface CommandItem |
 | `CommandPalette` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#CommandPalette` | -- | interface CommandPalette |
 | `Confirmation` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Confirmation` | -- | interface Confirmation extends RaisedConfirmation |
@@ -1277,11 +1277,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `imageToJsonPromptText` | entry | function | `src/adapter/screen-renderer/app-header-items.ts#imageToJsonPromptText` | PI-37 | `IC-115` がコピーする、画像から `GRS JSON` を作るプロンプトの全文を、画面の言語と版で組む。 |
 | `ImportReportLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ImportReportLine` | -- | interface ImportReportLine |
 | `isFilterValueListed` | entry | function | `src/adapter/screen-renderer/table-window.ts#isFilterValueListed` | PI-37 | 列のフィルタの中の検索欄の語が、その項目の語に当たるか（`FR-151` の 表 T-330 の `SV-7`、比べ方は `SV-4`）。 |
-| `isScheduleColourRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColourRow` | PI-37 | `SvgRenderer` の `isScheduleColourRow` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
+| `isScheduleColorRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColorRow` | PI-37 | `SvgRenderer` の `isScheduleColorRow` を、`DomScreenSurface` へ渡すためにコピーせずに公開し直したもの。 |
 | `JumpRipple` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#JumpRipple` | -- | interface JumpRipple |
 | `LinkedWords` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#LinkedWords` | -- | interface LinkedWords |
-| `MARK_COLOUR_ROWS` | entry | const | `src/adapter/screen-renderer/table-window.ts#MARK_COLOUR_ROWS` | PI-37 | `statusGlyphSvg` の絵が塗る 表 T-236 の行の並び。 |
-| `markColourVariableOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#markColourVariableOf` | PI-37 | 表 T-236 の行 ID から、その色を持つ CSS の変数の名を返す。 |
+| `MARK_COLOR_ROWS` | entry | const | `src/adapter/screen-renderer/table-window.ts#MARK_COLOR_ROWS` | PI-37 | `statusGlyphSvg` の絵が塗る 表 T-236 の行の並び。 |
+| `markColorVariableOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#markColorVariableOf` | PI-37 | 表 T-236 の行 ID から、その色を持つ CSS の変数の名を返す。 |
 | `MarkGlyph` | entry | type | `src/adapter/screen-renderer/table-window.ts#MarkGlyph` | -- | type MarkGlyph = Parameters<typeof markerGlyphSvg>[0] |
 | `MergeCandidateLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#MergeCandidateLine` | -- | interface MergeCandidateLine |
 | `nextSearchPanelTextSizeStep` | entry | function | `src/adapter/screen-renderer/search-panel.ts#nextSearchPanelTextSizeStep` | PI-37 | `IC-127` の押下で、字の大きさの段を表 T-333 の並びの次へ進める（末尾の次は先頭 —— `FR-151` の 表 T-330 の `SV-16`） |
@@ -1499,7 +1499,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `REPORT_REASON_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#REPORT_REASON_ATTRIBUTE` | -- | const REPORT_REASON_ATTRIBUTE = 'data-report-reason' |
 | `ROLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#ROLE` | -- | const ROLE = |
 | `SCHEDULE_FILTER_BAR_ROLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCHEDULE_FILTER_BAR_ROLE` | -- | const SCHEDULE_FILTER_BAR_ROLE = 'Schedule Filter Bar' |
-| `SCREEN_COLOURS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_COLOURS` | -- | const SCREEN_COLOURS: |
+| `SCREEN_COLORS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_COLORS` | -- | const SCREEN_COLORS: |
 | `SCREEN_Z_ORDER` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_Z_ORDER` | -- | const SCREEN_Z_ORDER: readonly string[] = [ |
 | `SCREEN_Z_ORDER_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCREEN_Z_ORDER_ATTRIBUTE` | -- | const SCREEN_Z_ORDER_ATTRIBUTE = 'data-uz' |
 | `ScreenSurfaceWiring` | entry | interface | `src/framework/dom-screen-surface/dom-screen-surface.ts#ScreenSurfaceWiring` | -- | interface ScreenSurfaceWiring |
@@ -1623,8 +1623,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileFlowWriteForm` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowWriteForm` | PI-39 | 型。 |
 | `FileOperationState` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileOperationState` | PI-39 | 型。 |
 | `GrabbedVerticalAxis` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#GrabbedVerticalAxis` | PI-39 | 型。 |
-| `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximised`）。 |
-| `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximised`。 |
+| `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximized`）。 |
+| `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximized`。 |
 | `NOTICE_DISPLAY_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_DISPLAY_OF_REASON` | PI-39 | 理由ごとの表示の仕方 —— 表 T-233 の表示の仕方の欄（`show` ・ `autoDismiss` ・ `hide` ・ `report`）と、取り込みの拒否が運ぶ 表 T-220 の行の家族の値（`_source/notice-reasons.json` から生成）。 |
 | `NOTICE_MANNER_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_MANNER_OF_REASON` | PI-39 | 理由ごとの作法 —— 表 T-233 の作法の欄（表 T-037 の行）。 |
 | `NOTICE_WORDS_ROW_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_WORDS_ROW_OF_REASON` | PI-39 | 理由ごとに語を刷る行 —— 表 T-233 のまとめ方の欄（相乗りしない行は自身、`_source/notice-reasons.json` から生成）。 |
@@ -1730,19 +1730,19 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ReasonRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#ReasonRow` | -- | type ReasonRow = \| 'RS-1' \| 'RS-2' \| 'RS-3' \| 'RS-4' \| 'RS-5' \| 'RS-6' \| 'RS-7' \| 'RS-8' \| 'RS-9' \| 'RS-10' \| 'RS-11' |
 | `stepNoticeValues` | file only | function | `src/use-case/advance-screen-session/notice-values.ts#stepNoticeValues` | -- | function stepNoticeValues(values: NoticeValues, event: NoticeValuesEvent): NoticeStep |
 | `ArmModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ArmModeState` | -- | type ArmModeState = \| { readonly kind: 'notArmed' } \| { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] } \| { read... |
-| `DialogueFieldDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DialogueFieldDisplayShownState` | -- | type DialogueFieldDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimised' } \| { readonly kind: 'maximised' } export type DualCursorM... |
+| `DialogueFieldDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DialogueFieldDisplayShownState` | -- | type DialogueFieldDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimized' } \| { readonly kind: 'maximized' } export type DualCursorM... |
 | `DialogueFieldDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DialogueFieldDisplayState` | -- | type DialogueFieldDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly child: DialogueFieldDisplayShownState } export type DualC... |
 | `DropCueDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DropCueDisplayState` | -- | type DropCueDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown' } export interface ScreenValues |
 | `DualCursorModeOnState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DualCursorModeOnState` | -- | type DualCursorModeOnState = \| { readonly kind: 'placingDate1' } \| { readonly kind: 'placingDate2' } export type SearchPanelDisplayShownState = \| { readonly ... |
 | `DualCursorModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DualCursorModeState` | -- | type DualCursorModeState = \| { readonly kind: 'off' } \| { readonly kind: 'on'; readonly child: DualCursorModeOnState } export type ScaleMessageDisplayState =... |
 | `emptyScreenValues` | file only | const | `src/use-case/advance-screen-session/screen-values.ts#emptyScreenValues` | -- | const emptyScreenValues: ScreenValues = |
 | `FullScreenModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#FullScreenModeState` | -- | type FullScreenModeState = \| { readonly kind: 'normal' } \| { readonly kind: 'full' } export type OpenSurfaceState = \| { readonly kind: 'closed' } \| { readonl... |
-| `HelpDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#HelpDisplayShownState` | -- | type HelpDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimised' } \| { readonly kind: 'maximised' } export type ArmModeState = \| { r... |
+| `HelpDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#HelpDisplayShownState` | -- | type HelpDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimized' } \| { readonly kind: 'maximized' } export type ArmModeState = \| { r... |
 | `HelpDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#HelpDisplayState` | -- | type HelpDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly child: HelpDisplayShownState } export type LandingMarkDisplayState... |
 | `LandingMarkDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#LandingMarkDisplayState` | -- | type LandingMarkDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly landedBy: ScreenValuesStateCarried['landedBy']; readonly la... |
 | `MilestoneListDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#MilestoneListDisplayState` | -- | type MilestoneListDisplayState = \| { readonly kind: 'closed' } \| { readonly kind: 'open' } export type FullScreenModeState = \| { readonly kind: 'normal' } \| ... |
 | `OpenSurfaceState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#OpenSurfaceState` | -- | type OpenSurfaceState = \| { readonly kind: 'closed' } \| { readonly kind: 'open'; readonly surfaceName: ScreenValuesStateCarried['surfaceName'] } export type ... |
-| `PaletteDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#PaletteDisplayShownState` | -- | type PaletteDisplayShownState = \| { readonly kind: 'expanded' } \| { readonly kind: 'minimised' } export type DialogueFieldDisplayShownState = \| { readonly ki... |
+| `PaletteDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#PaletteDisplayShownState` | -- | type PaletteDisplayShownState = \| { readonly kind: 'expanded' } \| { readonly kind: 'minimized' } export type DialogueFieldDisplayShownState = \| { readonly ki... |
 | `PaletteDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#PaletteDisplayState` | -- | type PaletteDisplayState = \| { readonly kind: 'shown'; readonly child: PaletteDisplayShownState } \| { readonly kind: 'hidden' } export type MilestoneListDisp... |
 | `PropertiesPanelContentState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#PropertiesPanelContentState` | -- | type PropertiesPanelContentState = \| { readonly kind: 'hidden' } \| { readonly kind: 'selectionDisplayed'; readonly subject: ScreenValuesStateCarried['subject... |
 | `ScaleMessageDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScaleMessageDisplayState` | -- | type ScaleMessageDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly percent: ScreenValuesStateCarried['percent']; readonly end... |
@@ -1753,7 +1753,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ScreenValuesKey` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesKey` | -- | type ScreenValuesKey = \| 'screen' \| 'armModeStateMachine.notArmed' \| 'armModeStateMachine.taskShapeArmed' \| 'armModeStateMachine.milestoneShapeArmed' \| 'armM... |
 | `ScreenValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/screen-values.ts#ScreenValuesStateCarried` | -- | interface ScreenValuesStateCarried |
 | `SearchFilters` | file only | interface | `src/use-case/advance-screen-session/screen-values.ts#SearchFilters` | -- | interface SearchFilters |
-| `SearchPanelDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelDisplayShownState` | -- | type SearchPanelDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimised' } \| { readonly kind: 'maximised' } export type HelpDisplaySh... |
+| `SearchPanelDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelDisplayShownState` | -- | type SearchPanelDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimized' } \| { readonly kind: 'maximized' } export type HelpDisplaySh... |
 | `SearchPanelDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#SearchPanelDisplayState` | -- | type SearchPanelDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly child: SearchPanelDisplayShownState } export type HelpDispl... |
 | `stepScreenValues` | file only | function | `src/use-case/advance-screen-session/screen-values.ts#stepScreenValues` | -- | function stepScreenValues(values: ScreenValues, event: ScreenValuesEvent): ScreenStep |
 | `ToggleableWindowKey` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ToggleableWindowKey` | -- | type ToggleableWindowKey = 'searchPanelDisplayState' \| 'helpDisplayState' \| 'dialogueFieldDisplayState' |

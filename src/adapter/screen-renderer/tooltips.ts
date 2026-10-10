@@ -23,7 +23,7 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import {
   dateAtX,
-  labelledAssigneeUidOf,
+  labeledAssigneeUidOf,
   planDatesSpanYears,
   planDateText,
   timeAxisOf,
@@ -148,12 +148,12 @@ function isYearWrittenIn(schedule: Schedule): boolean {
 }
 
 // see TL-7, FR-059
-// WHY: asked of labelledAssigneeUidOf one name at a time, so FR-059's filter and order stay in ScheduleLayout alone.
+// WHY: asked of labeledAssigneeUidOf one name at a time, so FR-059's filter and order stay in ScheduleLayout alone.
 /** @purity pure */
 function assigneeNamesOf(schedule: Schedule, taskUid: number): readonly string[] {
   const names: string[] = []
   let left = schedule
-  for (let next = labelledAssigneeUidOf(left, taskUid); next !== null; next = labelledAssigneeUidOf(left, taskUid)) {
+  for (let next = labeledAssigneeUidOf(left, taskUid); next !== null; next = labeledAssigneeUidOf(left, taskUid)) {
     const named = next
     names.push(left.resources.find((one) => one.uid === named)?.name ?? '')
     left = { ...left, resources: left.resources.filter((one) => one.uid !== named) }

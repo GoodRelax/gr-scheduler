@@ -169,8 +169,8 @@ const stored = (day: string): string => `${day}T00:00:00`
 const dayPart = (value: string): string => value.slice(0, 10)
 
 /**
- * 実行日 -- the calendar day of the host running this case, spelt the way a
- * date column is spelt.
+ * 実行日 -- the calendar day of the host running this case, spelled the way a
+ * date column is spelled.
  *
  * ⛔ NOT `toISOString().slice(0, 10)`, WHICH IS WHAT THIS CASE ROTTED ON.
  * That reads the day in UTC, and 5.4 (FR-054) forbids reaching a day by

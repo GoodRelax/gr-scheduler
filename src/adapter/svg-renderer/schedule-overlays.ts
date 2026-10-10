@@ -29,7 +29,7 @@ import {
   NOT_STORED_JUMP_LANDING_RING_SIZES,
   NOT_STORED_SELECTION_SIZES,
   WATERMARK_MARKS,
-  emphasisedWidthOf,
+  emphasizedWidthOf,
   escaped,
   figureKey,
   pointsOf,
@@ -37,7 +37,7 @@ import {
   selectedLineWidth,
   selectionFrameSvg,
   typefaceAttribute,
-  type ChosenColour,
+  type ChosenColor,
   type DualCursorFollow,
   type Watermark,
 } from './svg-renderer'
@@ -68,7 +68,7 @@ export interface OverlaysInput {
   readonly layout: ScheduleLayout
   readonly regions: ScreenRegions
   readonly themed: (rowId: string) => string
-  readonly chosen: ChosenColour
+  readonly chosen: ChosenColor
   readonly drawsOperationState: boolean
   readonly pointer: Point | null
   readonly following: DualCursorFollow | null
@@ -111,7 +111,7 @@ export function parentTaskParts(
   const parts: string[] = []
   const ink = themed('S-398')
   for (const arrow of drawing.arrows) {
-    const width = arrow.isSelected ? emphasisedWidthOf(settings.dependencyWidth) : settings.dependencyWidth
+    const width = arrow.isSelected ? emphasizedWidthOf(settings.dependencyWidth) : settings.dependencyWidth
     const dash = arrow.dash === null ? '' : ` stroke-dasharray="${rounded(arrow.dash[0])} ${rounded(arrow.dash[1])}"`
     const key = `parent-task-${arrow.childUid}`
     // see FR-135, EL-20, TV-3
@@ -162,14 +162,14 @@ export function watermarkSvg(
   const size = Number(WATERMARK_MARKS['S-221']) * pictureWidth
   const step = Number(WATERMARK_MARKS['S-222']) * size
   if (!(size > 0) || !(step > 0) || area.width <= 0 || area.height <= 0) return ''
-  const centreX = area.x + area.width / 2
-  const centreY = area.y + area.height / 2
+  const centerX = area.x + area.width / 2
+  const centerY = area.y + area.height / 2
   const reach = Math.hypot(area.width, area.height) / 2
   const text = escaped(`${mark.openedBy} ${mark.stampedAt}`)
   const typeface = typefaceAttribute()
   const marks: string[] = []
-  for (let y = centreY - reach; y <= centreY + reach; y += step) {
-    for (let x = centreX - reach; x <= centreX + reach; x += step) {
+  for (let y = centerY - reach; y <= centerY + reach; y += step) {
+    for (let x = centerX - reach; x <= centerX + reach; x += step) {
       marks.push(
         `<text x="${rounded(x)}" y="${rounded(y)}"${typeface} xml:space="preserve">${text}</text>`,
       )
@@ -180,8 +180,8 @@ export function watermarkSvg(
     `<g data-role="${WATERMARK_ROLE}" clip-path="url(#${clipId})"` +
     ` opacity="${WATERMARK_MARKS['S-102']}" fill="${ink}"` +
     ` font-size="${rounded(size)}" text-anchor="middle">` +
-    `<g transform="rotate(${WATERMARK_MARKS['S-220']} ${rounded(centreX)}` +
-    ` ${rounded(centreY)})">` +
+    `<g transform="rotate(${WATERMARK_MARKS['S-220']} ${rounded(centerX)}` +
+    ` ${rounded(centerY)})">` +
     marks.join('') +
     '</g></g>'
   )
@@ -223,7 +223,7 @@ function grabPointSquares(box: HighlightGeometry, ground: string, edge: string):
 /** @purity pure */
 function highlightFillSvg(
   box: HighlightGeometry,
-  chosen: ChosenColour,
+  chosen: ChosenColor,
   themed: (rowId: string) => string,
   rounding: string,
 ): readonly string[] {
@@ -244,11 +244,11 @@ function highlightFillSvg(
 function highlightBoxSvg(
   box: HighlightGeometry,
   input: OverlaysInput,
-  annotationColour: string,
+  annotationColor: string,
 ): { readonly fill: readonly string[]; readonly frame: string; readonly selection: readonly string[] } {
   const { chosen, themed, strokeOfBox } = input
   // see CV-6
-  const stroke = chosen(strokeOfBox.get(box.id) ?? null, 'outline') ?? annotationColour
+  const stroke = chosen(strokeOfBox.get(box.id) ?? null, 'outline') ?? annotationColor
   const radius = box.cornerRadiusPx
   const rounding = radius !== null && radius > 0 ? ` rx="${rounded(radius)}"` : ''
   const frame =
@@ -265,12 +265,12 @@ function highlightBoxSvg(
 }
 
 // see FR-019, CV-6, LF-17
-// WHY: one colour and one width for the frame and the leader, which read as one line from the note to its point;
+// WHY: one color and one width for the frame and the leader, which read as one line from the note to its point;
 // transparency is laid on the fill alone.
 /** @purity pure */
-function commentBoxSvg(box: CommentGeometry, input: OverlaysInput, annotationColour: string): readonly string[] {
+function commentBoxSvg(box: CommentGeometry, input: OverlaysInput, annotationColor: string): readonly string[] {
   const { chosen, themed, settings } = input
-  const stroke = chosen(box.strokeColor, 'outline') ?? annotationColour
+  const stroke = chosen(box.strokeColor, 'outline') ?? annotationColor
   const fill = chosen(box.fillColor, 'fill') ?? themed('S-146')
   const ink = chosen(box.textColor, 'outline') ?? themed('S-147')
   const width = rounded(box.strokeWidthPx)
@@ -318,7 +318,7 @@ function dualCursorLines(input: OverlaysInput): readonly string[] {
   const { geometry, layout, themed, following } = input
   const cursors = geometry.dualCursor
   if (cursors === null) return []
-  const colour = themed('S-195')
+  const color = themed('S-195')
   const followedDay =
     following === null || following.x === null ? null : dateAtX(layout, following.x)
   const followedX = followedDay === null ? null : xFromDay(layout, followedDay)
@@ -331,7 +331,7 @@ function dualCursorLines(input: OverlaysInput): readonly string[] {
     lines.push(
       `<line x1="${rounded(x)}" y1="${rounded(cursors.top)}"` +
         ` x2="${rounded(x)}" y2="${rounded(cursors.bottom)}"` +
-        ` stroke="${colour}" stroke-width="${rounded(width)}"` +
+        ` stroke="${color}" stroke-width="${rounded(width)}"` +
         `${figureKey(`dual-cursor-${side}`)}/>`,
     )
   }
@@ -357,7 +357,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   const progressLineParts: string[] = []
   const annotationParts: string[] = []
   const selectionParts: string[] = []
-  const annotationColour = themed('S-312')
+  const annotationColor = themed('S-312')
 
   // see FR-110, ZO-16
   if (geometry.progressLine.length > 0 && settings.progressLineVisible) {
@@ -388,19 +388,19 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
     // see CU-2, DC-3
     // WHY: the reading that owns the point, so the drawn guide and the dual cursor readout agree on the edge (DFC-1053).
     if (regionAtPointer(regions, pointer.x, pointer.y) === 'taskGroupArea') {
-      const guideColour = themed('S-195')
+      const guideColor = themed('S-195')
       const guideWidth = NOT_STORED_DUAL_CURSOR_SIZES['S-194']
       const vertical = (x: number): string =>
         `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
         ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
-        ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"` +
+        ` stroke="${guideColor}" stroke-width="${rounded(guideWidth)}"` +
         `${figureKey('guide-cursor-vertical')}/>`
       if (guideCursorMode === 'crosshair') {
         linkParts.push(vertical(pointer.x))
         linkParts.push(
           `<line x1="${rounded(area.x)}" y1="${rounded(pointer.y)}"` +
             ` x2="${rounded(area.x + area.width)}" y2="${rounded(pointer.y)}"` +
-            ` stroke="${guideColour}" stroke-width="${rounded(guideWidth)}"` +
+            ` stroke="${guideColor}" stroke-width="${rounded(guideWidth)}"` +
             `${figureKey('guide-cursor-horizontal')}/>`,
         )
       } else if (guideCursorMode === 'single-vertical') {
@@ -410,14 +410,14 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   }
 
   for (const box of geometry.highlightBoxes) {
-    const drawn = highlightBoxSvg(box, input, annotationColour)
+    const drawn = highlightBoxSvg(box, input, annotationColor)
     fillParts.push(...drawn.fill)
     linkParts.push(drawn.frame)
     if (selectedBoxes.has(box.id)) selectionParts.push(...drawn.selection)
   }
 
   for (const box of geometry.commentBoxes) {
-    annotationParts.push(...commentBoxSvg(box, input, annotationColour))
+    annotationParts.push(...commentBoxSvg(box, input, annotationColor))
     if (selectedComments.has(box.id)) {
       selectionParts.push(
         selectionFrameSvg(box.body, themed('S-151'), `comment-${box.id}-frame`),

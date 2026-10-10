@@ -576,7 +576,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
 /**
  * The rendering and hue every case below wires the surface with.
  *
- * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1). ⭐ No case reads a colour
+ * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1). ⭐ No case reads a color
  * back -- `readTheme` is a REQUIRED member of `ScreenSurfaceWiring`, so the
  * cases need a theme to build the surface at all, not a particular one.
  */
@@ -888,7 +888,7 @@ describe('the manuscript still says what these cases read', () => {
     // ⭐ THE PREMISE THE WHOLE ROW RESTS ON. MK-13 (MUST) asks for a state of the
     // page, and every member of IF-9 is a question -- so if nothing is handed
     // over, the row cannot be carried out at all and every case below would be
-    // failing for want of a seam rather than for want of the behaviour.
+    // failing for want of a seam rather than for want of the behavior.
     expect(drawPanel().focusField).not.toBeNull()
   })
 

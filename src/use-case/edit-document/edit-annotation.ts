@@ -5,7 +5,7 @@
 
 import type { Document } from '../../entity/document-model/document/document'
 import type { CommentBox, HighlightBox, Schedule } from '../../entity/document-model/schedule/schedule'
-import { dayOf, isSameDay, isStoredColour, TRANSPARENT } from '../../entity/document-model/schedule/schedule'
+import { dayOf, isSameDay, isStoredColor, TRANSPARENT } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 
@@ -76,8 +76,8 @@ export type AnnotationCommand =
 // WHY: the outline takes transparent (no line); the pair with the fill is IV-9's, checked on the result.
 /** @purity pure */
 function boxStrokeRefusal(strokeColor: string | null): Refusal | null {
-  if (strokeColor === null || isStoredColour(strokeColor, true)) return null
-  return reject('CM-55', 'CV-1', `not a palette name or a custom colour: ${strokeColor}`)
+  if (strokeColor === null || isStoredColor(strokeColor, true)) return null
+  return reject('CM-55', 'CV-1', `not a palette name or a custom color: ${strokeColor}`)
 }
 
 // see IV-9, FR-019, FR-007
@@ -88,9 +88,9 @@ function boxDrawnWithNothing(box: HighlightBox): boolean {
 
 // see CV-1, CV-9
 /** @purity pure */
-function lookColourRefusal(command: string, colour: string | null, allowsTransparent: boolean): Refusal | null {
-  if (colour === null || isStoredColour(colour, allowsTransparent)) return null
-  return reject(command, 'CV-1', `not a palette name or a custom colour: ${colour}`)
+function lookColorRefusal(command: string, color: string | null, allowsTransparent: boolean): Refusal | null {
+  if (color === null || isStoredColor(color, allowsTransparent)) return null
+  return reject(command, 'CV-1', `not a palette name or a custom color: ${color}`)
 }
 
 type AnnotationNumberRow = keyof typeof NOT_STORED_ANNOTATION_BOUNDS
@@ -260,7 +260,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         strokeColor: null,
         cornerRadiusPx: NOT_STORED_ANNOTATION_SIZES['S-132'],
         strokeWidthPx: null,
-        // WHY: placed unfilled (S-370); a null fill would paint the theme colour (FR-019).
+        // WHY: placed unfilled (S-370); a null fill would paint the theme color (FR-019).
         fillColor: NOT_STORED_ANNOTATION_SIZES['S-370'],
         fillTransparencyPercent: null,
       }
@@ -344,7 +344,7 @@ function highlightBoxLookChange(
     case 'setHighlightBoxFillColor':
       return {
         commandRow: 'CM-78',
-        refusal: lookColourRefusal('CM-78', command.fillColor, true),
+        refusal: lookColorRefusal('CM-78', command.fillColor, true),
         look: { fillColor: command.fillColor },
       }
     case 'setHighlightBoxFillTransparency':
@@ -386,9 +386,9 @@ type CommentBoxLookCommand = Extract<
 // WHY: the line and the text may not be transparent: a vanished leader no longer says what the note is about,
 // and vanished text empties the note.
 /** @purity pure */
-function opaqueColourRefusal(command: string, colour: string | null): Refusal | null {
-  if (colour === TRANSPARENT) return reject(command, 'FR-019', 'a comment box line and text may not be transparent')
-  return lookColourRefusal(command, colour, false)
+function opaqueColorRefusal(command: string, color: string | null): Refusal | null {
+  if (color === TRANSPARENT) return reject(command, 'FR-019', 'a comment box line and text may not be transparent')
+  return lookColorRefusal(command, color, false)
 }
 
 const COMMENT_BOX_LOOK_KINDS: ReadonlySet<AnnotationCommand['kind']> = new Set<CommentBoxLookCommand['kind']>([
@@ -419,7 +419,7 @@ function commentBoxLookChange(
     case 'setCommentBoxStrokeColor':
       return {
         commandRow: 'CM-80',
-        refusal: opaqueColourRefusal('CM-80', command.strokeColor),
+        refusal: opaqueColorRefusal('CM-80', command.strokeColor),
         look: { strokeColor: command.strokeColor },
       }
     case 'setCommentBoxStrokeWidth':
@@ -431,7 +431,7 @@ function commentBoxLookChange(
     case 'setCommentBoxFillColor':
       return {
         commandRow: 'CM-82',
-        refusal: lookColourRefusal('CM-82', command.fillColor, true),
+        refusal: lookColorRefusal('CM-82', command.fillColor, true),
         look: { fillColor: command.fillColor },
       }
     case 'setCommentBoxFillTransparency':
@@ -443,7 +443,7 @@ function commentBoxLookChange(
     case 'setCommentBoxTextColor':
       return {
         commandRow: 'CM-84',
-        refusal: opaqueColourRefusal('CM-84', command.textColor),
+        refusal: opaqueColorRefusal('CM-84', command.textColor),
         look: { textColor: command.textColor },
       }
   }

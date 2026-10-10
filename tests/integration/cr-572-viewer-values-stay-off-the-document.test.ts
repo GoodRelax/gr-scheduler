@@ -613,7 +613,7 @@ describe('CR-572 item 10 -- the exported picture uses the exporter\'s light/dark
     expect(scene.settings.themeMonochrome).toBe(true)
   })
 
-  it('control: the other way round -- light exporter, colour document', () => {
+  it('control: the other way round -- light exporter, color document', () => {
     browserPrefers('dark')
     const built = bench()
     built.press('IC-16')

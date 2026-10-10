@@ -26,14 +26,14 @@ import {
   NOT_STORED_NAME_LABEL_WEIGHT,
   bandBaselineYOf,
   boxOfPoints,
-  emphasisedWidthOf,
+  emphasizedWidthOf,
   escaped,
   figureKey,
   pointsOf,
   rounded,
   selectionFrameSvg,
   typefaceAttribute,
-  type ChosenColour,
+  type ChosenColor,
   type SchedulePicture,
   type ViewerValues,
 } from './svg-renderer'
@@ -51,7 +51,7 @@ export interface TaskFiguresInput {
   readonly settings: DrawnSettings
   readonly picture: SchedulePicture
   readonly themed: (rowId: string) => string
-  readonly chosen: ChosenColour
+  readonly chosen: ChosenColor
   readonly placedOf: ReadonlyMap<number, Placed>
   readonly visualOf: ReadonlyMap<number, Schedule['taskVisuals'][number]>
   readonly selected: ReadonlySet<number>
@@ -210,7 +210,7 @@ function isCulled(box: ScreenRect | null, input: Pick<TaskFiguresInput,
 
 // see T-021, T-236, T-315, FR-013, FR-133
 /** @purity pure */
-function markColoursOf(
+function markColorsOf(
   symbol: MarkerGeometry['symbol'],
   themed: (rowId: string) => string,
 ): { readonly ground: string; readonly ink: string } {
@@ -233,7 +233,7 @@ function markColoursOf(
 function markDotSvg(x: number, marker: MarkerGeometry, ink: string, named: string): string {
   const r = marker.radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
   return (
-    `<circle cx="${rounded(x)}" cy="${rounded(marker.centre.y + r * NOT_STORED_DELAY_MARK_SIZES['S-330'])}"` +
+    `<circle cx="${rounded(x)}" cy="${rounded(marker.center.y + r * NOT_STORED_DELAY_MARK_SIZES['S-330'])}"` +
     ` r="${rounded(marker.radius * NOT_STORED_DELAY_MARK_SIZES['S-331'])}" fill="${ink}"${named}/>`
   )
 }
@@ -243,8 +243,8 @@ function markDotSvg(x: number, marker: MarkerGeometry, ink: string, named: strin
 function bangSvg(x: number, marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
   const r = marker.radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
   return (
-    `<line x1="${rounded(x)}" y1="${rounded(marker.centre.y - r)}` +
-    `" x2="${rounded(x)}" y2="${rounded(marker.centre.y + r * NOT_STORED_DELAY_MARK_SIZES['S-329'])}"` +
+    `<line x1="${rounded(x)}" y1="${rounded(marker.center.y - r)}` +
+    `" x2="${rounded(x)}" y2="${rounded(marker.center.y + r * NOT_STORED_DELAY_MARK_SIZES['S-329'])}"` +
     ` stroke="${ink}" stroke-width="${rounded(settings.markerStroke * NOT_STORED_DELAY_MARK_SIZES['S-328'])}"${named}/>` +
     markDotSvg(x, marker, ink, named)
   )
@@ -253,17 +253,17 @@ function bangSvg(x: number, marker: MarkerGeometry, ink: string, settings: Marke
 // see T-315, S-328, S-392, S-393, S-394
 /** @purity pure */
 function questionSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
-  const { centre, radius } = marker
-  const top = centre.y - radius
+  const { center, radius } = marker
+  const top = center.y - radius
   const hookY = top + radius * 2 * NOT_STORED_DELAY_MARK_SIZES['S-392']
   const hook = radius * 2 * NOT_STORED_DELAY_MARK_SIZES['S-393']
   const stemBottom = top + radius * 2 * NOT_STORED_DELAY_MARK_SIZES['S-394']
   return (
-    `<path d="M${rounded(centre.x - hook)} ${rounded(hookY)}` +
-    ` A${rounded(hook)} ${rounded(hook)} 0 1 1 ${rounded(centre.x)} ${rounded(hookY + hook)}` +
-    ` L${rounded(centre.x)} ${rounded(stemBottom)}"` +
+    `<path d="M${rounded(center.x - hook)} ${rounded(hookY)}` +
+    ` A${rounded(hook)} ${rounded(hook)} 0 1 1 ${rounded(center.x)} ${rounded(hookY + hook)}` +
+    ` L${rounded(center.x)} ${rounded(stemBottom)}"` +
     ` fill="none" stroke="${ink}" stroke-width="${rounded(settings.markerStroke * NOT_STORED_DELAY_MARK_SIZES['S-328'])}"${named}/>` +
-    markDotSvg(centre.x, marker, ink, named)
+    markDotSvg(center.x, marker, ink, named)
   )
 }
 
@@ -273,7 +273,7 @@ function flameSvg(marker: MarkerGeometry, ink: string, named: string): string {
   const side = marker.radius * 2 * NOT_STORED_DELAY_MARK_SIZES['S-396']
   return (
     `<path d="${NOT_STORED_DELAY_MARK_SIZES['S-395']}"` +
-    ` transform="translate(${rounded(marker.centre.x - side / 2)} ${rounded(marker.centre.y - side / 2)})` +
+    ` transform="translate(${rounded(marker.center.x - side / 2)} ${rounded(marker.center.y - side / 2)})` +
     ` scale(${rounded(side)})" fill="${ink}"${named}/>`
   )
 }
@@ -281,36 +281,36 @@ function flameSvg(marker: MarkerGeometry, ink: string, named: string): string {
 // see ZO-3, T-021, T-315, FR-013
 /** @purity pure */
 function markSymbolSvg(marker: MarkerGeometry, ink: string, settings: MarkerStroke, named: string): string {
-  const { centre, radius } = marker
+  const { center, radius } = marker
   const stroke = rounded(settings.markerStroke)
   const r = radius * NOT_STORED_DELAY_MARK_SIZES['S-341']
   switch (marker.symbol) {
     case 'PM-1':
       return ''
     case 'PM-1a':
-      return `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius * 0.18)}" fill="${ink}"${named}/>`
+      return `<circle cx="${rounded(center.x)}" cy="${rounded(center.y)}" r="${rounded(radius * 0.18)}" fill="${ink}"${named}/>`
     case 'PM-2':
       return (
-        `<polyline points="${rounded(centre.x - r)},${rounded(centre.y)}` +
-        ` ${rounded(centre.x - r * 0.2)},${rounded(centre.y + r * 0.7)}` +
-        ` ${rounded(centre.x + r)},${rounded(centre.y - r * 0.7)}"` +
+        `<polyline points="${rounded(center.x - r)},${rounded(center.y)}` +
+        ` ${rounded(center.x - r * 0.2)},${rounded(center.y + r * 0.7)}` +
+        ` ${rounded(center.x + r)},${rounded(center.y - r * 0.7)}"` +
         ` fill="none" stroke="${ink}" stroke-width="${stroke}"${named}/>`
       )
     case 'PM-3':
       return (
-        `<line x1="${rounded(centre.x - r)}" y1="${rounded(centre.y)}` +
-        `" x2="${rounded(centre.x + r)}" y2="${rounded(centre.y)}"` +
+        `<line x1="${rounded(center.x - r)}" y1="${rounded(center.y)}` +
+        `" x2="${rounded(center.x + r)}" y2="${rounded(center.y)}"` +
         ` stroke="${ink}" stroke-width="${rounded(settings.markerStroke * NOT_STORED_DELAY_MARK_SIZES['S-328'])}"${named}/>`
       )
     case 'PM-4':
-      return bangSvg(centre.x, marker, ink, settings, named)
+      return bangSvg(center.x, marker, ink, settings, named)
     case 'DG-1':
       return questionSvg(marker, ink, settings, named)
     case 'DG-2':
       return flameSvg(marker, ink, named)
     case 'DG-3': {
       const half = radius * NOT_STORED_DELAY_MARK_SIZES['S-391']
-      return bangSvg(centre.x - half, marker, ink, settings, named) + bangSvg(centre.x + half, marker, ink, settings, named)
+      return bangSvg(center.x - half, marker, ink, settings, named) + bangSvg(center.x + half, marker, ink, settings, named)
     }
   }
 }
@@ -324,11 +324,11 @@ function markerSvg(
   settings: MarkerStroke,
   key: string,
 ): string {
-  const { centre, radius } = marker
+  const { center, radius } = marker
   const named = figureKey(key)
-  const { ground, ink } = markColoursOf(marker.symbol, themed)
+  const { ground, ink } = markColorsOf(marker.symbol, themed)
   const disc =
-    `<circle cx="${rounded(centre.x)}" cy="${rounded(centre.y)}" r="${rounded(radius)}"` +
+    `<circle cx="${rounded(center.x)}" cy="${rounded(center.y)}" r="${rounded(radius)}"` +
     ` fill="${ground}" stroke="${ink}" stroke-width="${rounded(settings.markerStroke)}"${named}/>`
   const drawn = disc + markSymbolSvg(marker, ink, settings, named)
   // TRAP: one group opacity, not one per shape: overlapping translucent shapes darken the symbol past S-131.
@@ -341,7 +341,7 @@ function markerSvg(
 export function markerGlyphSvg(symbol: MarkerGeometry['symbol'], themed: (rowId: string) => string): string {
   const side = SETTINGS_CONSTANTS.markerSize
   const stroke = SETTINGS_CONSTANTS.markerStroke
-  const marker = { symbol, centre: { x: side / 2, y: side / 2 }, radius: (side - stroke) / 2 }
+  const marker = { symbol, center: { x: side / 2, y: side / 2 }, radius: (side - stroke) / 2 }
   const drawn = markerSvg(marker, themed, SETTINGS_CONSTANTS.dummyOpacity, { markerStroke: stroke }, `glyph-${symbol}`)
   return `<svg viewBox="0 0 ${rounded(side)} ${rounded(side)}" width="1em" height="1em" aria-hidden="true">${drawn}</svg>`
 }
@@ -510,7 +510,7 @@ function barSvg(bar: BarGeometry, paint: Paint, innerInk: string, key: string): 
 export function dependencyArrowSvg(
   id: string,
   settings: Pick<DrawnSettings, 'dependencyArrowLength' | 'dependencyArrowWidth'>,
-  colour: string,
+  color: string,
 ): string {
   const length = settings.dependencyArrowLength
   const base = settings.dependencyArrowWidth
@@ -522,7 +522,7 @@ export function dependencyArrowSvg(
     ` markerWidth="${rounded(length)}" markerHeight="${rounded(base)}"` +
     ` markerUnits="userSpaceOnUse" orient="auto">` +
     `<path d="${corners.map((one, index) => `${index === 0 ? 'M' : 'L'}${rounded(one.x)},${rounded(one.y)}`).join(' ')} Z"` +
-    ` fill="${colour}"/></marker></defs>`
+    ` fill="${color}"/></marker></defs>`
   )
 }
 
@@ -548,10 +548,10 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     hover.item.taskUid === taskUid &&
     rows.includes(hover.grab)
   /** @purity pure */
-  const handInside = (centre: Point, width: number, height: number): boolean =>
+  const handInside = (center: Point, width: number, height: number): boolean =>
     hand !== null &&
-    Math.abs(hand.x - centre.x) <= width / 2 &&
-    Math.abs(hand.y - centre.y) <= height / 2
+    Math.abs(hand.x - center.x) <= width / 2 &&
+    Math.abs(hand.y - center.y) <= height / 2
 
   const planParts: string[] = []
   const guideParts: string[] = []
@@ -780,7 +780,7 @@ function rectAttributes(box: ScreenRect): string {
 }
 
 // see FR-009, HT-1
-// WHY: one small mask per halo: one picture-wide mask under every halo was rasterised once per halo (DFC-2314).
+// WHY: one small mask per halo: one picture-wide mask under every halo was rasterized once per halo (DFC-2314).
 // TRAP: the region must hold all the halo's ink: the default miter limit (4) lets a corner reach twice the
 // stroke width past its point. Outside the picture the white stops, as the picture-wide mask's did.
 /** @purity pure */
@@ -830,9 +830,9 @@ function emphasisOf(link: DependencyLink, input: Pick<DependencyLinksInput, 'sel
 /** @purity pure */
 function inkOf(input: DependencyLinksInput, emphasis: Emphasis, halo: string): LinkInk {
   const own = input.settings.dependencyWidth
-  const width = emphasis === 'none' ? own : emphasisedWidthOf(own)
-  // WHY: one head for every line: the colour is the same, and markerUnits="userSpaceOnUse" keeps it off the width.
-  return { halo, colour: input.themed('S-159'), width, arrowId: input.arrowId, isWholeRoute: emphasis === 'landing' }
+  const width = emphasis === 'none' ? own : emphasizedWidthOf(own)
+  // WHY: one head for every line: the color is the same, and markerUnits="userSpaceOnUse" keeps it off the width.
+  return { halo, color: input.themed('S-159'), width, arrowId: input.arrowId, isWholeRoute: emphasis === 'landing' }
 }
 
 // see GD-6, FR-009, EL-19
@@ -868,7 +868,7 @@ type DependencyLink = ScheduleGeometry['dependencies'][number]
 
 interface LinkInk {
   readonly halo: string
-  readonly colour: string
+  readonly color: string
   readonly width: number
   readonly arrowId: string
   readonly isWholeRoute: boolean
@@ -884,12 +884,12 @@ function dependencyLinkSvg(link: DependencyLink, ink: LinkInk): string {
   const dots = mark === null ? [] : mark.dots.map(
     (dot) =>
       `<circle cx="${rounded(dot.x)}" cy="${rounded(dot.y)}"` +
-      ` r="${rounded(mark.radius)}" fill="${ink.colour}"${linkKey}/>`,
+      ` r="${rounded(mark.radius)}" fill="${ink.color}"${linkKey}/>`,
   )
   return (
     `<polyline points="${points}" fill="none" ${ink.halo}${linkKey}/>` +
     `<polyline points="${points}" fill="none"` +
-    ` stroke="${ink.colour}" stroke-width="${rounded(ink.width)}"${head}${linkKey}/>` +
+    ` stroke="${ink.color}" stroke-width="${rounded(ink.width)}"${head}${linkKey}/>` +
     dots.join('')
   )
 }
@@ -938,7 +938,7 @@ function endedTasksOf(input: TaskFiguresInput): ReadonlySet<number> {
 // WHY: around every drawn figure -- plan, actual and the actual's dummy -- the box SL-8 builds from the seen figures only.
 /** @purity pure */
 function aroundTaskSvg(
-  task: ScheduleGeometry['tasks'][number], picture: SchedulePicture, colour: string, key: string,
+  task: ScheduleGeometry['tasks'][number], picture: SchedulePicture, color: string, key: string,
 ): readonly string[] {
   const dummy = drawnDummyOf(task, picture)
   const box = boxOfPoints([
@@ -946,7 +946,7 @@ function aroundTaskSvg(
     ...(task.actual === null ? [] : cornersOfBar(task.actual)),
     ...(dummy === null ? [] : cornersOfBar(dummy.figure)),
   ])
-  return box === null ? [] : [selectionFrameSvg(box, colour, key)]
+  return box === null ? [] : [selectionFrameSvg(box, color, key)]
 }
 
 // see T-240, PI-5, EP-14
@@ -964,11 +964,11 @@ function drawnDummyOf(
 
 // see SL-8, EL-16, ZO-10
 /** @purity pure */
-function endOutlineSvg(plan: BarGeometry, colour: string, planStroke: number, key: string): string {
-  const ink = ` fill="none" stroke="${colour}"`
+function endOutlineSvg(plan: BarGeometry, color: string, planStroke: number, key: string): string {
+  const ink = ` fill="none" stroke="${color}"`
   const named = figureKey(key)
   if (plan.form === 'outline') {
-    const outline = `${ink} stroke-width="${rounded(emphasisedWidthOf(planStroke))}"${named}/>`
+    const outline = `${ink} stroke-width="${rounded(emphasizedWidthOf(planStroke))}"${named}/>`
     if (plan.layers === undefined) return `<polygon points="${pointsOf(plan.points)}"${outline}`
     return plan.layers
       .filter((layer) => layer.role === 'body')
@@ -979,11 +979,11 @@ function endOutlineSvg(plan: BarGeometry, colour: string, planStroke: number, ke
       .join('')
   }
   // WHY: a head or a dot has no stroke of its own (width 0), so its edge is the addend alone.
-  const edged = `${ink} stroke-width="${rounded(emphasisedWidthOf(0))}"${named}/>`
+  const edged = `${ink} stroke-width="${rounded(emphasizedWidthOf(0))}"${named}/>`
   const line =
     `<line x1="${rounded(plan.from.x)}" y1="${rounded(plan.from.y)}"` +
     ` x2="${rounded(plan.to.x)}" y2="${rounded(plan.to.y)}"` +
-    `${ink} stroke-width="${rounded(emphasisedWidthOf(plan.strokeWidth))}"${named}/>`
+    `${ink} stroke-width="${rounded(emphasizedWidthOf(plan.strokeWidth))}"${named}/>`
   const head = plan.head === null ? '' : `<polygon points="${pointsOf(plan.head)}"${edged}`
   const dots = plan.dots.map((dot) => `<circle cx="${rounded(dot.at.x)}" cy="${rounded(dot.at.y)}" r="${rounded(dot.radius)}"${edged}`)
   return line + head + dots.join('')

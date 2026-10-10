@@ -93,7 +93,7 @@ export const launch = async (page: Page): Promise<void> => {
 
 export const icon = (id: string, within = ''): string => (within ? within + ' ' : '') + '[data-icon="' + id + '"]'
 
-// TRAP: the hint of the last pressed entry covers its neighbour until the pointer leaves it.
+// TRAP: the hint of the last pressed entry covers its neighbor until the pointer leaves it.
 export const press = async (page: Page, id: string, within = ''): Promise<void> => {
   await page.mouse.move(VIEWPORT.width / 2, 14)
   await page.waitForTimeout(50)

@@ -62,14 +62,14 @@ export const itemOf = (id: string): T016Item => {
   return found
 }
 
-export const COLOUR_KIND = '色'
+export const COLOR_KIND = '色'
 
 type Words = { readonly ja: string; readonly en: string }
 type Part = { readonly part: string; readonly text: Words }
 
 const DICTIONARY = JSON.parse(readSpec('_source', 'display-words.json')) as {
   readonly properties: readonly { readonly rowId: string; readonly label: Words; readonly milestoneLabel?: Words }[]
-  readonly colourField: readonly Part[]
+  readonly colorField: readonly Part[]
   readonly propertyField: readonly Part[]
 }
 
@@ -88,7 +88,7 @@ const partOf = (section: readonly Part[], name: string, part: string): string =>
   return found.text[LANGUAGE]
 }
 
-export const colourWordOf = (part: string): string => partOf(DICTIONARY.colourField, 'colourField', part)
+export const colorWordOf = (part: string): string => partOf(DICTIONARY.colorField, 'colorField', part)
 export const propertyFieldWordOf = (part: string): string => partOf(DICTIONARY.propertyField, 'propertyField', part)
 
 export const dependencyEndOf = (name: string | null, uid: number): string =>

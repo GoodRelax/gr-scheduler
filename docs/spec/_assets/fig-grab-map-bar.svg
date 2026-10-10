@@ -1,7 +1,7 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 42 900 132" width="900" height="132" role="img" aria-label="grab-area map for the === bar tasks (rows 1 and 2)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 42 900 132" width="900" height="132" role="img" aria-label="grab-area map for the === bar tasks (task groups 1 and 2)">
   <title>図 F-020 -- === の掴み代の地図（① ②）</title>
   <!-- GENERATED ARTIFACT: do not hand-edit.
-     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behaviour)
+     source: previous-project-result/16-grab-area-sizing/grab-area-sizing-sample.html (behavior)
              + docs/spec/_source/settings.json (values, gated: see the probe's settings-gate)
      regenerate: node tools/probe/grab-figures.mjs
      produced this file: docs/spec/_assets/fig-grab-map-bar.svg

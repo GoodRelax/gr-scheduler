@@ -140,7 +140,7 @@ const D = (day: string): string => `${day}T00:00:00`
 
 // WHY: R12 comes before R11 in the array but after it by AT-55 order, so array order cannot pass for tree order.
 const GROUPS = [
-  group(R1, null, 0, '1. Programme', null),
+  group(R1, null, 0, '1. Program', null),
   group(R12, R1, 1, null, 203),
   group(R11, R1, 0, '1.5 Steering', null),
   group(R2, null, 1, '2. Review Delivery', null),
@@ -268,7 +268,7 @@ describe(`T-330 SV-4 -- ${SV_4_WHERE}`, () => {
     expect(uidsOf(searchRowsOf(SCHEDULE, 'steering').taskRows)).toEqual([])
     expect(idsOf(searchRowsOf(SCHEDULE, 'steering').commentBoxRows)).toEqual([])
     expect(uidsOf(searchRowsOf(SCHEDULE, 'review').taskRows)).toEqual([])
-    expect(uidsOf(searchRowsOf(SCHEDULE, 'Programme').taskRows)).toEqual([])
+    expect(uidsOf(searchRowsOf(SCHEDULE, 'Program').taskRows)).toEqual([])
   })
 })
 
@@ -341,8 +341,8 @@ describe('T-331 -- the value column of each row, on one task and one comment box
   })
 
   it(`SQ-6 -- from the task group the task sits on up to the top, ${SQ_6_TOP_FIRST}`, () => {
-    expect(taskRowOf(201).rowPath).toEqual(['1. Programme', '1.5 Steering'])
-    expect(taskRowOf(205).rowPath).toEqual(['1. Programme'])
+    expect(taskRowOf(201).rowPath).toEqual(['1. Program', '1.5 Steering'])
+    expect(taskRowOf(205).rowPath).toEqual(['1. Program'])
     expect(taskRowOf(202).rowPath).toEqual(['2. Review Delivery'])
   })
 
@@ -350,14 +350,14 @@ describe('T-331 -- the value column of each row, on one task and one comment box
     // STEP: R12 has no label and takes its name from task 203 (AT-54, FR-004 TC-12)
     expect(taskGroupNameOf(SCHEDULE, R12)).toBe('Design')
     expect(taskGroupNameOf(SCHEDULE, R11)).toBe('1.5 Steering')
-    expect(taskRowOf(203).rowPath).toEqual(['1. Programme', 'Design'])
+    expect(taskRowOf(203).rowPath).toEqual(['1. Program', 'Design'])
   })
 
   it('SQ-7 text, SQ-8 the name of the AT-114 task group, SQ-9 anchorDate, and the task group it sits on', () => {
     const rows = searchRowsOf(SCHEDULE, '').commentBoxRows
     const box = rows.find((row) => row.commentBoxId === 'c-3')
     expect(box?.text).toBe('pm again')
-    expect(box?.taskGroupName).toBe('1. Programme')
+    expect(box?.taskGroupName).toBe('1. Program')
     expect(box?.anchorDate).toBe(D('2026-04-20'))
     expect(box?.groupId).toBe(R1)
     expect(rows.find((row) => row.commentBoxId === 'c-1')?.taskGroupName).toBe('1.5 Steering')

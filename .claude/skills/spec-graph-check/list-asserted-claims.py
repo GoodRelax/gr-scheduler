@@ -14,7 +14,7 @@ WHY IT EXISTS. Comments in this tree rot where nothing looks. Most lines under
 `src/` and a large share of those under `tests/` are comment lines, and nothing
 in the check suite reads a single one of them for truth. Meanwhile the
 specification retires rows: the withdrawal set this file reads holds IDs whose
-seats are burnt on purpose.
+seats are burned on purpose.
 A comment that says, today, that a withdrawn row governs something is a lie
 sitting in the tree, and it is worse in a test than in `src/` -- a wrong
 comment in `src/` can be caught by pressing the shipped build, a wrong comment
@@ -54,7 +54,7 @@ a wasted read and a false negative costs nothing this tool promises.
   (`た` `だった` `ていた` `した`); a Japanese history word (`かつて` `以前`
   `廃止` `廃した` `撤回` `やめた` `もはや`); an English past or history marker
   (`was` `were` `used to` `until` `no longer` `previously` `formerly`
-  `retired` `withdrawn` `is gone` `went with` `left table` `stays burnt`
+  `retired` `withdrawn` `is gone` `went with` `left table` `stays burned`
   `as of` `the old`).
 
   ASSERTION otherwise, if the sentence carries a Japanese present copula or
@@ -270,7 +270,7 @@ EN_HISTORY_RE = re.compile(
     r'\b(?:was|were|used\s+to|until|no\s+longer|previously|formerly|'
     r'retired|retirement|withdrawn|withdrew|deprecated|obsolete|'
     r'had\s+been|has\s+been\s+retired|is\s+gone|are\s+gone|went\s+with|'
-    r'went\s+on|left\s+table|stays?\s+burnt|as\s+of|the\s+old\b|'
+    r'went\s+on|left\s+table|stays?\s+burned|as\s+of|the\s+old\b|'
     r'discarded|superseded|removed\s+on|ran\s+to|read\s+.{0,40}\buntil)\b',
     re.IGNORECASE)
 

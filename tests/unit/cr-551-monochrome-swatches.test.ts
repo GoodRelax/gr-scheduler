@@ -1,4 +1,4 @@
-// CR-551 DFC-910 / E-48: with monochrome on (S-74), the colour field paints its swatches as the drawing paints the colour (CV-9, CV-7).
+// CR-551 DFC-910 / E-48: with monochrome on (S-74), the color field paints its swatches as the drawing paints the color (CV-9, CV-7).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -22,7 +22,7 @@ import { pointerOf, taskGroupDocument, taskOf, SCREEN } from './cr-541-stage'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-  colourNames: { spelling: string; text: { ja: string } }[]
+  colorNames: { spelling: string; text: { ja: string } }[]
 }
 
 const verticalIn = (table: string, id: string) => {
@@ -42,9 +42,9 @@ const MONO_KEY = bare(verticalIn('T-203', 'S-74').by['キー'] ?? '')
 const TRANSPARENT = bare(verticalIn('T-294', 'S-324').cells[1] ?? '')
 const NAMED = specTable('T-294').rows.map((row) => bare(row.cells[1] ?? '')).filter((one) => one !== TRANSPARENT)
 const RED = bare(verticalIn('T-294', 'S-318').cells[1] ?? '')
-const colourWord = (spelling: string): string => WORDS.colourNames.find((one) => one.spelling === spelling)?.text.ja ?? ''
+const colorWord = (spelling: string): string => WORDS.colorNames.find((one) => one.spelling === spelling)?.text.ja ?? ''
 // see T-016
-// WHY: the Task line and fill colours are two rows, found by the column each edits.
+// WHY: the Task line and fill colors are two rows, found by the column each edits.
 const taskRowOf = (column: string): string =>
   specTable('T-016').rows.find(
     (row) => bare(row.by['対象'] ?? '') === 'Task' && (row.by['列（`GRS JSON`）'] ?? '').includes(`\`${column}\``),
@@ -124,7 +124,7 @@ function bench(document: Record<string, unknown>, side: Side): Bench {
 }
 
 // WHY: one task per palette name, each drawn in that name for its fill and its line, so the drawing itself
-// says what each name is painted as; task 1 carries the colour the field shows.
+// says what each name is painted as; task 1 carries the color the field shows.
 function documentOf(mono: boolean, first: Record<string, unknown> = {}) {
   const rows = NAMED.map((_name, index) => ({ id: `g${index + 1}`, parentId: null }))
   const document = taskGroupDocument(rows, { progressMarkerVisible: false, [MONO_KEY]: mono })
@@ -152,7 +152,7 @@ function panelOnTask(document: Record<string, unknown>, side: Side): Bench {
   return built
 }
 
-// WHY: colours are compared as numbers, whatever notation each side writes them in.
+// WHY: colors are compared as numbers, whatever notation each side writes them in.
 function rgbOf(written: string): readonly [number, number, number] | null {
   const text = written.trim().toLowerCase()
   const hex = /^#([0-9a-f]{6})$/.exec(text)
@@ -181,7 +181,7 @@ function rgbOf(written: string): readonly [number, number, number] | null {
   return null
 }
 
-const sameColour = (a: string, b: string): boolean => {
+const sameColor = (a: string, b: string): boolean => {
   const x = rgbOf(a)
   const y = rgbOf(b)
   return x !== null && y !== null && x.every((one, index) => Math.abs(one - (y[index] as number)) <= 1.5)
@@ -214,16 +214,16 @@ const cellOf = (built: Bench, row: string, attribute: string, value: string | nu
 function namesPaintedAsDrawn(built: Bench): string[] {
   const [line] = palettes(built, LINE_ROW)
   const [fill] = palettes(built, FILL_ROW)
-  if (line === undefined || fill === undefined) throw new Error('the line and fill colour fields lay out no palette each')
+  if (line === undefined || fill === undefined) throw new Error('the line and fill color fields lay out no palette each')
   const wrong: string[] = []
   NAMED.forEach((name, index) => {
     for (const [grid, paint] of [
       [line, 'stroke'],
       [fill, 'fill'],
     ] as const) {
-      const swatch = grid.children.find((one) => one.getAttribute('data-colour-choice') === name)
+      const swatch = grid.children.find((one) => one.getAttribute('data-color-choice') === name)
       const drawn = drawnPaint(built, index + 1, paint)
-      if (swatch === undefined || !sameColour(groundOf(swatch), drawn)) {
+      if (swatch === undefined || !sameColor(groundOf(swatch), drawn)) {
         wrong.push(`${paint} ${name}: swatch ${swatch === undefined ? '(none)' : groundOf(swatch)} vs drawn ${drawn}`)
       }
     }
@@ -231,12 +231,12 @@ function namesPaintedAsDrawn(built: Bench): string[] {
   return wrong
 }
 
-const isGrey = (written: string): boolean => {
+const isGray = (written: string): boolean => {
   const rgb = rgbOf(written)
   return rgb !== null && Math.max(...rgb) - Math.min(...rgb) <= 1.5
 }
 
-describe('CV-9 E-48 -- the colour field in monochrome', () => {
+describe('CV-9 E-48 -- the color field in monochrome', () => {
   it('CV-9 / CV-7 still say: 名の見本と、テーマに戻す入口・カスタムカラーの入口の見本を、CV-7 で無彩色にした値で塗る / 透明の市松はそのまま', () => {
     expect(REQUIREMENTS).toContain(CV_9_MONO)
     expect(REQUIREMENTS).toContain(CV_9_KEPT)
@@ -247,7 +247,7 @@ describe('CV-9 E-48 -- the colour field in monochrome', () => {
   it('CV-9 / CV-7: with S-74 on, every name swatch is painted as the drawing paints that name in monochrome', () => {
     // see CV-9, CV-7, S-74
     const built = panelOnTask(documentOf(true), 'light')
-    expect(isGrey(drawnPaint(built, NAMED.indexOf(RED) + 1, 'fill')), 'premise: the drawing is monochrome').toBe(true)
+    expect(isGray(drawnPaint(built, NAMED.indexOf(RED) + 1, 'fill')), 'premise: the drawing is monochrome').toBe(true)
     expect(namesPaintedAsDrawn(built)).toEqual([])
   })
 
@@ -255,33 +255,33 @@ describe('CV-9 E-48 -- the colour field in monochrome', () => {
     it(`CV-9 / CV-7: with S-74 on, the theme entrance of an unset fill is the drawing's monochrome value (${side})`, () => {
       // see CV-9, CV-7, S-74
       const built = panelOnTask(documentOf(true, { fillColor: null }), side)
-      const theme = groundOf(cellOf(built, FILL_ROW, 'data-colour-theme-entry'))
-      expect(isGrey(theme), theme).toBe(true)
-      expect(sameColour(theme, drawnPaint(built, 1, 'fill')), `${theme} vs ${drawnPaint(built, 1, 'fill')}`).toBe(true)
+      const theme = groundOf(cellOf(built, FILL_ROW, 'data-color-theme-entry'))
+      expect(isGray(theme), theme).toBe(true)
+      expect(sameColor(theme, drawnPaint(built, 1, 'fill')), `${theme} vs ${drawnPaint(built, 1, 'fill')}`).toBe(true)
     })
   }
 
   it('CV-9 / CV-7: with S-74 on, a name swatch keeps its word as its tooltip', () => {
     const built = panelOnTask(documentOf(true), 'light')
     const name = NAMED[0] as string
-    expect(cellOf(built, FILL_ROW, 'data-colour-choice', name).getAttribute('title')).toBe(colourWord(name))
+    expect(cellOf(built, FILL_ROW, 'data-color-choice', name).getAttribute('title')).toBe(colorWord(name))
   })
 
-  it('CV-9: with S-74 on, a custom colour keeps its uppercase hex in the custom entrance tooltip while its swatch turns grey', () => {
+  it('CV-9: with S-74 on, a custom color keeps its uppercase hex in the custom entrance tooltip while its swatch turns gray', () => {
     // see CV-9, CV-7
     const built = panelOnTask(documentOf(true, { fillColor: '#c0504d/' }), 'light')
-    const custom = cellOf(built, FILL_ROW, 'data-colour-custom-entry')
+    const custom = cellOf(built, FILL_ROW, 'data-color-custom-entry')
     expect(custom.getAttribute('title') ?? '').toContain('#C0504D')
-    expect(isGrey(groundOf(custom)), groundOf(custom)).toBe(true)
-    expect(sameColour(groundOf(custom), drawnPaint(built, 1, 'fill'))).toBe(true)
+    expect(isGray(groundOf(custom)), groundOf(custom)).toBe(true)
+    expect(sameColor(groundOf(custom), drawnPaint(built, 1, 'fill'))).toBe(true)
   })
 
-  it('CV-9: turning S-74 off (IC-100) restores the colours the drawing paints', () => {
+  it('CV-9: turning S-74 off (IC-100) restores the colors the drawing paints', () => {
     // see CV-9, S-74, IC-100
     const built = panelOnTask(documentOf(true), 'light')
     built.press('App Header', 'IC-100')
     expect(built.loop.document().documentSettings[MONO_KEY as 'themeMonochrome'], 'premise: IC-100 turned S-74 off').toBe(false)
-    expect(isGrey(drawnPaint(built, NAMED.indexOf(RED) + 1, 'fill')), 'premise: the drawing is in colour').toBe(false)
+    expect(isGray(drawnPaint(built, NAMED.indexOf(RED) + 1, 'fill')), 'premise: the drawing is in color').toBe(false)
     expect(namesPaintedAsDrawn(built)).toEqual([])
   })
 
@@ -289,7 +289,7 @@ describe('CV-9 E-48 -- the colour field in monochrome', () => {
     // see CV-9
     const style = (mono: boolean): string[] => {
       const built = panelOnTask(documentOf(mono, { strokeColor: TRANSPARENT }), 'light')
-      return [LINE_ROW, FILL_ROW].map((row) => styleMap(cellOf(built, row, 'data-colour-choice', TRANSPARENT)).get('background') ?? '')
+      return [LINE_ROW, FILL_ROW].map((row) => styleMap(cellOf(built, row, 'data-color-choice', TRANSPARENT)).get('background') ?? '')
     }
     const off = style(false)
     expect(off.every((one) => /gradient\(/.test(one)), 'premise: the transparent entrance shows a checkerboard').toBe(true)

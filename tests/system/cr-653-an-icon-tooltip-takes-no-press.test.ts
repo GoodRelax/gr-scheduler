@@ -94,7 +94,7 @@ interface Front {
   readonly entrance: string | null
 }
 
-const centreOf = (rect: Rect): Point => ({ x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 })
+const centerOf = (rect: Rect): Point => ({ x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 })
 
 const holds = (rect: Rect, point: Point): boolean =>
   point.x >= rect.left && point.x < rect.right && point.y >= rect.top && point.y < rect.bottom
@@ -121,7 +121,7 @@ function pointOfOverlap(box: Rect, covered: Rect, column: number): Point | null 
 // see EZ-2
 /** @purity pure */
 function pointOfTheBoxOutside(box: Rect, icon: Rect): Point | null {
-  const x = Math.min(Math.max(centreOf(icon).x, box.left + INSET_PX), box.right - INSET_PX)
+  const x = Math.min(Math.max(centerOf(icon).x, box.left + INSET_PX), box.right - INSET_PX)
   const below = { x, y: (Math.max(box.top, icon.bottom) + box.bottom) / 2 }
   if (holds(box, below) && !holds(icon, below)) return below
   const above = { x, y: (box.top + Math.min(box.bottom, icon.top)) / 2 }
@@ -294,8 +294,8 @@ test.describe('CR-653 (a) -- the description of a task group control covers the 
       const hide = await rectIn(page, scope, TASK_GROUP_HIDE)
       const below = await rectIn(page, scope, TASK_GROUP_OPEN_ONE_LEVEL)
 
-      const shown = await restUntilHinted(page, TASK_GROUP_HIDE, centreOf(hide))
-      const at = pointOfOverlap(shown.rect, below, centreOf(hide).x)
+      const shown = await restUntilHinted(page, TASK_GROUP_HIDE, centerOf(hide))
+      const at = pointOfOverlap(shown.rect, below, centerOf(hide).x)
       expect(at, `premise: the description ${said(shown.rect)} of ${TASK_GROUP_HIDE} covers ${TASK_GROUP_OPEN_ONE_LEVEL} ${said(below)}`).not.toBeNull()
       if (at === null) return
       expect(holds(hide, at), `premise: ${JSON.stringify(at)} lies outside ${TASK_GROUP_HIDE} ${said(hide)}`).toBe(false)
@@ -326,8 +326,8 @@ test.describe('CR-653 (b) -- the description of a palette entrance covers the ne
       const below = await rectIn(page, PALETTE, ARM_A_DEPENDENCY)
       expect(await isArmed(page, ARM_A_DEPENDENCY), `premise: ${ARM_A_DEPENDENCY} is not armed yet`).toBe(false)
 
-      const shown = await restUntilHinted(page, PLACE_A_RECTANGLE, centreOf(above))
-      const at = pointOfOverlap(shown.rect, below, centreOf(above).x)
+      const shown = await restUntilHinted(page, PLACE_A_RECTANGLE, centerOf(above))
+      const at = pointOfOverlap(shown.rect, below, centerOf(above).x)
       expect(at, `premise: the description ${said(shown.rect)} of ${PLACE_A_RECTANGLE} covers ${ARM_A_DEPENDENCY} ${said(below)}`).not.toBeNull()
       if (at === null) return
 
@@ -353,7 +353,7 @@ test.describe('CR-653 (c) -- moving from the icon onto its own description puts 
     try {
       const { page } = stage
       const icon = await rectIn(page, PALETTE, PLACE_A_RECTANGLE)
-      const shown = await restUntilHinted(page, PLACE_A_RECTANGLE, centreOf(icon))
+      const shown = await restUntilHinted(page, PLACE_A_RECTANGLE, centerOf(icon))
       const at = pointOfTheBoxOutside(shown.rect, icon)
       expect(at, `premise: a point of the box ${said(shown.rect)} lies outside ${PLACE_A_RECTANGLE} ${said(icon)}`).not.toBeNull()
       if (at === null) return

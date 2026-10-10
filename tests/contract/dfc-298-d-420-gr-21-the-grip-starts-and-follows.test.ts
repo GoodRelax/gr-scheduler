@@ -405,7 +405,7 @@ const placeOf = (loop: FrameLoop): string => {
 }
 
 /** The middle of one lane's grip, read off the picture that was drawn. */
-function gripCentreOf(shown: Pane, axis: 'horizontal' | 'vertical'): { x: number; y: number } {
+function gripCenterOf(shown: Pane, axis: 'horizontal' | 'vertical'): { x: number; y: number } {
   const bar = shown.last().frame.scrollbars.find((one) => one.axis === axis)
   if (bar === undefined) throw new Error(`SC-4 of table T-031 draws no ${axis} bar`)
   return { x: bar.thumb.x + bar.thumb.width / 2, y: bar.thumb.y + bar.thumb.height / 2 }
@@ -418,7 +418,7 @@ describe('DFC-420 -- table T-023d has GR-21 follow the pointer while it is held'
     'moves the display position on the MOVE and not only on the release (%s)',
     (axis) => {
       const one = stage()
-      const from = gripCentreOf(one.pane, axis)
+      const from = gripCenterOf(one.pane, axis)
       one.send(pointer('down', from.x, from.y))
       const atPress = placeOf(one.loop)
       one.send(
@@ -460,7 +460,7 @@ describe('DFC-420 -- table T-023d has GR-21 follow the pointer while it is held'
 
       const one = stage(placedDocument())
       // WHY: a warm-up drag first, so the measured drag is never the first write after the open.
-      const warm = gripCentreOf(one.pane, axis)
+      const warm = gripCenterOf(one.pane, axis)
       one.send(pointer('down', warm.x, warm.y))
       one.send(to(warm, TRAVEL))
       one.send(
@@ -469,16 +469,16 @@ describe('DFC-420 -- table T-023d has GR-21 follow the pointer while it is held'
           : pointer('up', warm.x, warm.y + TRAVEL),
       )
 
-      const from = gripCentreOf(one.pane, axis)
+      const from = gripCenterOf(one.pane, axis)
       const began = along(from)
       one.send(pointer('down', from.x, from.y))
       one.send(to(from, TRAVEL))
       // ⚠️ ONE PIXEL OF SLACK, and it is the drawn rectangle's rounding rather
       // than a tolerance on the rule: the place is kept in days and task groups
       // (S-77 / S-177, S-78 / S-176) and comes back as a fraction of one.
-      expect(Math.abs(along(gripCentreOf(one.pane, axis)) - began - TRAVEL)).toBeLessThan(1)
+      expect(Math.abs(along(gripCenterOf(one.pane, axis)) - began - TRAVEL)).toBeLessThan(1)
       one.send(to(from, TRAVEL * 2))
-      expect(Math.abs(along(gripCentreOf(one.pane, axis)) - began - TRAVEL * 2)).toBeLessThan(1)
+      expect(Math.abs(along(gripCenterOf(one.pane, axis)) - began - TRAVEL * 2)).toBeLessThan(1)
     },
   )
 
@@ -487,7 +487,7 @@ describe('DFC-420 -- table T-023d has GR-21 follow the pointer while it is held'
     // raised one (FR-076), so the record read `doc=same notices=1` -- and a
     // telling standing over the schedule is what the reader actually saw.
     const one = stage()
-    const from = gripCentreOf(one.pane, 'horizontal')
+    const from = gripCenterOf(one.pane, 'horizontal')
     one.send(pointer('down', from.x, from.y))
     one.send(pointer('move', from.x + TRAVEL, from.y))
     expect(one.pane.last().notices.length).toBe(0)

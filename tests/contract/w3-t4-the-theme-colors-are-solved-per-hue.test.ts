@@ -1,14 +1,14 @@
-// W3 tester 4: FR-041 table T-366 CF-2 / CF-3 -- the drawn plan, outline, actual and accent colours are solved per hue, never stored.
+// W3 tester 4: FR-041 table T-366 CF-2 / CF-3 -- the drawn plan, outline, actual and accent colors are solved per hue, never stored.
 
 // WHY: every number is read from docs/spec (T-236 cells, T-206 S-520..S-525); the solve is re-derived here from the
-// words of CF-2, CF-3 and CF-6 alone and compared with what the public colourOf (PI-19) draws.
+// words of CF-2, CF-3 and CF-6 alone and compared with what the public colorOf (PI-19) draws.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { colourOf } from '../../src/adapter/svg-renderer/svg-renderer'
+import { colorOf } from '../../src/adapter/svg-renderer/svg-renderer'
 import { settingNumber, settingRow } from '../fixtures/setting-number'
 import { unbroken } from './spec-table'
 
@@ -70,23 +70,23 @@ function hslToRgb({ h, s, l }: Hsl): Rgb {
 }
 
 /** @purity pure */
-function parsedColour(text: string, hue: number): Rgb {
+function parsedColor(text: string, hue: number): Rgb {
   const written = text.trim().replace(/\bH\b/g, String(hue))
   const hex = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(written)
   if (hex !== null) return { r: parseInt(hex[1] ?? '', 16), g: parseInt(hex[2] ?? '', 16), b: parseInt(hex[3] ?? '', 16) }
   const hsl = /^hsl\(\s*(-?[\d.]+)(?:deg)?[\s,]+([\d.]+)%[\s,]+([\d.]+)%\s*\)$/i.exec(written)
   if (hsl !== null) return hslToRgb({ h: Number(hsl[1]), s: Number(hsl[2]), l: Number(hsl[3]) })
-  throw new Error(`a colour this file cannot read: ${JSON.stringify(text)}`)
+  throw new Error(`a color this file cannot read: ${JSON.stringify(text)}`)
 }
 
 /** @purity pure */
 function cellHsl(id: string, side: Side, hue: number): Hsl {
-  const cell = String(settingRow(id)[side]?.['colour'] ?? '').replace(/\bH\b/g, String(hue))
+  const cell = String(settingRow(id)[side]?.['color'] ?? '').replace(/\bH\b/g, String(hue))
   const found = /^hsl\(\s*([\d.]+)\s+([\d.]+)%\s+([\d.]+)%\s*\)$/.exec(cell)
   if (found !== null) return { h: Number(found[1]), s: Number(found[2]), l: Number(found[3]) }
-  const rgb = parsedColour(cell, hue)
+  const rgb = parsedColor(cell, hue)
   if (rgb.r === rgb.g && rgb.g === rgb.b) return { h: hue, s: 0, l: (rgb.r / 255) * 100 }
-  throw new Error(`table T-236 ${id} (${side}) is neither an hsl cell nor a grey: ${cell}`)
+  throw new Error(`table T-236 ${id} (${side}) is neither an hsl cell nor a gray: ${cell}`)
 }
 
 /** @purity pure */
@@ -163,21 +163,21 @@ describe(`T-366 CF-2 -- ${CF_2}`, () => {
       const k = solvedK(side, hue)
       for (const id of SHIFTED_ROWS) {
         const wanted = hslToRgb(shiftedHsl(id, side, hue, k))
-        const drawnText = colourOf(id, hue, side === 'dark', false)
-        const drawn = parsedColour(drawnText, hue)
+        const drawnText = colorOf(id, hue, side === 'dark', false)
+        const drawn = parsedColor(drawnText, hue)
         if (!sameRgb(drawn, wanted)) wrong.push(`hue ${hue} k ${k} ${id}: drew ${drawnText}`)
       }
     }
     expect(wrong.slice(0, 12), `${FR_041_SOLVE} (${wrong.length} cells differ)`).toEqual([])
   })
 
-  it('at a hue whose solve is k > 0 the drawn colours move away from the T-236 cell, at a k = 0 hue they do not', () => {
+  it('at a hue whose solve is k > 0 the drawn colors move away from the T-236 cell, at a k = 0 hue they do not', () => {
     const moved = HUES.find((hue) => solvedK('light', hue) > 0)
     const still = HUES.find((hue) => solvedK('light', hue) === 0)
     if (moved === undefined || still === undefined) throw new Error('the solve has no hue of each kind')
     const cell = (hue: number): Rgb => hslToRgb(cellHsl('S-157', 'light', hue))
-    expect(sameRgb(parsedColour(colourOf('S-157', moved, false, false), moved), cell(moved)), `${CF_2}: hue ${moved}`).toBe(false)
-    expect(sameRgb(parsedColour(colourOf('S-157', still, false, false), still), cell(still)), 'T-366 CF-3: k 0 is the T-236 value').toBe(
+    expect(sameRgb(parsedColor(colorOf('S-157', moved, false, false), moved), cell(moved)), `${CF_2}: hue ${moved}`).toBe(false)
+    expect(sameRgb(parsedColor(colorOf('S-157', still, false, false), still), cell(still)), 'T-366 CF-3: k 0 is the T-236 value').toBe(
       true,
     )
   })

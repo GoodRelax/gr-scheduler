@@ -707,7 +707,7 @@ describe('SEAM-3 relaying a call to the page and back (design 3.2, AG-5, AG-9a)'
     expect(result).toEqual(pageNotConnectedResult(theRelay().pageUrl))
   })
 
-  it('design 5: a late answer for a cancelled call is dropped', async () => {
+  it('design 5: a late answer for a canceled call is dropped', async () => {
     let held: Json | null = null
     const page = await connectPage((call, self) => {
       if (call['method'] === 'exportSvg') {

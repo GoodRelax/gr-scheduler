@@ -1,4 +1,4 @@
-// CR-669 on the shipped build: the help maximises, moves and widens only within the Schedule Canvas, and brackets its added words.
+// CR-669 on the shipped build: the help maximizes, moves and widens only within the Schedule Canvas, and brackets its added words.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { existsSync, readFileSync } from 'node:fs'
@@ -11,7 +11,7 @@ import { rowOf } from './sws-case'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
-const FR_036_MAXIMISED =
+const FR_036_MAXIMIZED =
   'ヘルプを最大化したときに占める範囲は、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とする（MUST）'
 const WB_8_FOLLOWS = 'タイトルバーの帯（表 T-023d の `GR-24`）を握っているあいだ、ウィンドウをポインタに追従させること（MUST）'
 const WB_8_RANGE = 'ウィンドウを、ウィンドウごとの範囲（`WB-3` と同じ）の外へ出してはならない（MUST NOT）'
@@ -43,7 +43,7 @@ const iconOf = (id: string): string => rowOf(T_109, id).id
 const OPEN_HELP = iconOf('IC-22')
 const SCREEN_LANGUAGE = iconOf('IC-21')
 const HELP_LANGUAGE = iconOf('IC-128')
-const MAXIMISE = iconOf('IC-130')
+const MAXIMIZE = iconOf('IC-130')
 const RESTORE = iconOf('IC-131')
 const CLOSE = iconOf('IC-52')
 
@@ -208,8 +208,8 @@ async function dragBy(page: Page, from: Point, by: Point): Promise<void> {
 
 test.describe('CR-669 the manuscript these cases are driven by', () => {
   for (const [name, clause] of [
-    ['FR-036 (MUST) the maximised help fills the Schedule Canvas', FR_036_MAXIMISED],
-    ['T-335 WB-3 every window maximises to the Schedule Canvas', WB_3_RANGE],
+    ['FR-036 (MUST) the maximized help fills the Schedule Canvas', FR_036_MAXIMIZED],
+    ['T-335 WB-3 every window maximizes to the Schedule Canvas', WB_3_RANGE],
     ['T-335 WB-8 (MUST) the window follows the title band', WB_8_FOLLOWS],
     ['T-335 WB-8 (MUST NOT) not outside the range', WB_8_RANGE],
     ['T-335 WB-9 (MUST) the size follows the edge', WB_9_FOLLOWS],
@@ -231,15 +231,15 @@ test.describe('CR-669 the manuscript these cases are driven by', () => {
   }
 })
 
-test.describe('CR-669 FR-036 / WB-3 -- the maximised help', () => {
-  test(`FR-036 (MUST): ${FR_036_MAXIMISED}`, async () => {
+test.describe('CR-669 FR-036 / WB-3 -- the maximized help', () => {
+  test(`FR-036 (MUST): ${FR_036_MAXIMIZED}`, async () => {
     test.setTimeout(180_000)
     const app = await openApp(LOW_SCREEN)
     try {
       const { page } = app
       await openHelp(page)
-      await press(page, `${HELP} [data-icon="${MAXIMISE}"]`)
-      await expect.poll(async () => (await boxOf(page, `${HELP} [data-icon="${RESTORE}"]`)) !== null, { message: 'WB-4: IC-131 while maximised' }).toBe(true)
+      await press(page, `${HELP} [data-icon="${MAXIMIZE}"]`)
+      await expect.poll(async () => (await boxOf(page, `${HELP} [data-icon="${RESTORE}"]`)) !== null, { message: 'WB-4: IC-131 while maximized' }).toBe(true)
       const box = await helpBox(page)
       const canvas = await scheduleCanvasBox(page)
       for (const side of ['left', 'top', 'right', 'bottom'] as const) {
@@ -250,13 +250,13 @@ test.describe('CR-669 FR-036 / WB-3 -- the maximised help', () => {
     }
   })
 
-  test(`FR-036: ${FR_036_HEADER_STAYS} -- every App Header entrance is the front while the help is maximised, and one press reaches it`, async () => {
+  test(`FR-036: ${FR_036_HEADER_STAYS} -- every App Header entrance is the front while the help is maximized, and one press reaches it`, async () => {
     test.setTimeout(180_000)
     const app = await openApp(LOW_SCREEN)
     try {
       const { page } = app
       await openHelp(page)
-      await press(page, `${HELP} [data-icon="${MAXIMISE}"]`)
+      await press(page, `${HELP} [data-icon="${MAXIMIZE}"]`)
       await expect.poll(async () => (await boxOf(page, `${HELP} [data-icon="${RESTORE}"]`)) !== null).toBe(true)
       const entrances = await page.evaluate((header: string) => {
         return [...document.querySelectorAll(`${header} [data-icon]`)]
@@ -271,7 +271,7 @@ test.describe('CR-669 FR-036 / WB-3 -- the maximised help', () => {
       for (const icon of entrances) {
         if ((await frontPointOf(page, `${HEADER} [data-icon="${icon}"]`)) === null) hidden.push(icon)
       }
-      expect(hidden, `${T_337_THE_FRONT_ONE_TAKES_THE_PRESS}: App Header entrances under the maximised help`).toEqual([])
+      expect(hidden, `${T_337_THE_FRONT_ONE_TAKES_THE_PRESS}: App Header entrances under the maximized help`).toEqual([])
 
       // STEP: T-336 HN-6 -- the screen language entrance is pressed through; the help keeps its language and its box
       const before = await helpBox(page)
@@ -279,13 +279,13 @@ test.describe('CR-669 FR-036 / WB-3 -- the maximised help', () => {
       const screenLanguage = await page.evaluate(() => document.documentElement.lang)
       await press(page, `${HEADER} [data-icon="${SCREEN_LANGUAGE}"]`)
       await expect
-        .poll(() => page.evaluate(() => document.documentElement.lang), { message: `${SCREEN_LANGUAGE} pressed while the help is maximised` })
+        .poll(() => page.evaluate(() => document.documentElement.lang), { message: `${SCREEN_LANGUAGE} pressed while the help is maximized` })
         .not.toBe(screenLanguage)
       expect(await page.evaluate((help: string) => document.querySelector(help)?.getAttribute('data-language') ?? '', HELP), FR_038_HELP_LANGUAGE_ONLY).toBe(
         helpLanguage,
       )
       const after = await helpBox(page)
-      expect(near(after.top, before.top) && near(after.bottom, before.bottom), `still maximised: ${said(after)} vs ${said(before)}`).toBe(true)
+      expect(near(after.top, before.top) && near(after.bottom, before.bottom), `still maximized: ${said(after)} vs ${said(before)}`).toBe(true)
     } finally {
       await app.close()
     }

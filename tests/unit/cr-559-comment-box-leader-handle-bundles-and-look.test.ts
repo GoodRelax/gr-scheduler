@@ -61,7 +61,7 @@ const LEADER_ONE_CORNER =
 const NULLS_DRAW_DEFAULTS =
   '⭐ 太さと透過率の列が `null` のときは 表 T-217 の同じ列の既定で、色の 3 列が `null` のときは、線を注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）、塗りを地の色（同表の `S-146`）、字を文字の色（同表の `S-147`）で描くこと（MUST） —— 5 列がすべて `null` の箱は、列を足す前と同じ絵になる。'
 const PLACED_WITH_NULLS = '⭐ 置くとき（`_assets/tbl-glossary.md` の 表 T-108 の `CM-46`）は 5 列を `null` とすること（MUST）'
-const ONE_COLOUR_ONE_WIDTH = '⭐ 枠と引出し線は 1 つの色と 1 つの太さで描く'
+const ONE_COLOR_ONE_WIDTH = '⭐ 枠と引出し線は 1 つの色と 1 つの太さで描く'
 const WIDTH_NOT_SCALED = '⛔ 線の太さに倍率を掛けてはならない（MUST NOT）'
 const FILL_RULE =
   '⭐ `CommentBox.fillColor`（`AT-150`）は、本文の箱の中を、その色の塗りの値で、不透明度を 1 − `AT-151` ÷ 100 として塗ること（MUST）'
@@ -133,8 +133,8 @@ const paletteValues = (spelling: string, kind: '塗り' | '縁'): readonly strin
   return [row.by[`明るいテーマの${kind}`] ?? '', row.by[`暗いテーマの${kind}`] ?? ''].map((one) => one.replace(/`/g, '').toLowerCase())
 }
 
-// WHY: a T-236 colour may carry the theme hue H, so it is read as a pattern with H any whole number.
-const themeColourPattern = (row: string): RegExp => {
+// WHY: a T-236 color may carry the theme hue H, so it is read as a pattern with H any whole number.
+const themeColorPattern = (row: string): RegExp => {
   const cells = [cellOf('T-236', row, '明るいテーマ'), cellOf('T-236', row, '暗いテーマ')].map((one) =>
     one.replace(/`/g, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&').replace(/\bH\b/, '\\d+(?:\\.\\d+)?'),
   )
@@ -399,7 +399,7 @@ function click(built: Stage, at: Point): void {
   built.send(pointer('up', at))
 }
 
-const centreOf = (box: ScreenRect): Point => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 })
+const centerOf = (box: ScreenRect): Point => ({ x: box.x + box.width / 2, y: box.y + box.height / 2 })
 
 interface Tag {
   readonly text: string
@@ -479,7 +479,7 @@ describe('CR-559 premises: the clauses these cases read, and the fixture they st
       LEADER_ONE_CORNER,
       NULLS_DRAW_DEFAULTS,
       PLACED_WITH_NULLS,
-      ONE_COLOUR_ONE_WIDTH,
+      ONE_COLOR_ONE_WIDTH,
       WIDTH_NOT_SCALED,
       FILL_RULE,
       STROKE_RULE,
@@ -535,10 +535,10 @@ describe('CR-559 premises: the clauses these cases read, and the fixture they st
 describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
   const pull = (loop: FrameLoop): Point => ({ x: Math.round(3.3 * pxPerDay(loop)), y: Math.round(taskGroupStep(loop)) + 3 })
 
-  it('premise: the body centre answers as the body and the leader midpoint as the leader', () => {
+  it('premise: the body center answers as the body and the leader midpoint as the leader', () => {
     const built = stage()
     const note = drawnNote(built.loop)
-    expect(hitAt(built.loop, centreOf(note.body))?.boxPart).toEqual({ kind: 'body' })
+    expect(hitAt(built.loop, centerOf(note.body))?.boxPart).toEqual({ kind: 'body' })
     const leader = leaderOf(note)
     expect(leader).not.toBeNull()
     const middle = { x: (leader![0]!.x + leader![1]!.x) / 2, y: (leader![0]!.y + leader![1]!.y) / 2 }
@@ -553,7 +553,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
       const before = drawnNote(built.loop)
       const leader = leaderOf(before)!
       const press =
-        part === 'body' ? centreOf(before.body) : { x: (leader[0]!.x + leader[1]!.x) / 2, y: (leader[0]!.y + leader[1]!.y) / 2 }
+        part === 'body' ? centerOf(before.body) : { x: (leader[0]!.x + leader[1]!.x) / 2, y: (leader[0]!.y + leader[1]!.y) / 2 }
       const by = pull(built.loop)
       drag(built, press, by.x, by.y)
       expect(anchorText(built.loop), `${part}: the anchor was not re-read at the moved point`).toBe('13 F')
@@ -573,7 +573,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
     // WHY: the pull stays clear of S-208 (the press/pull split FR-019 names for placing) and under half a day.
     const by = Math.floor(pxPerDay(built.loop) / 2) - 1
     expect(by, 'premise: the pull is longer than S-208').toBeGreaterThan(t206('S-208'))
-    drag(built, centreOf(before.body), by, 0)
+    drag(built, centerOf(before.body), by, 0)
     expect(anchorText(built.loop)).toBe(`${ANCHOR_DAY} ${ANCHOR_TASK_GROUP}`)
     const after = drawnNote(built.loop)
     expect(after.body.x).toBeCloseTo(before.body.x + by, 1)
@@ -586,7 +586,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
     const stored = storedNote(built.loop)
     const before = drawnNote(built.loop)
     const by = pull(built.loop)
-    drag(built, centreOf(before.body), by.x, by.y)
+    drag(built, centerOf(before.body), by.x, by.y)
     const moved = storedNote(built.loop)
     expect(moved['anchorDate'], 'premise: the anchor moved').not.toEqual(stored['anchorDate'])
     expect(moved['bodyOffsetPx'], 'premise: the offset moved').not.toEqual(stored['bodyOffsetPx'])
@@ -601,7 +601,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
     const stored = storedNote(built.loop)
     const bottom = taskGroupBand(built.loop, 'F').y + taskGroupBand(built.loop, 'F').height
     const by = Math.round(bottom - note.anchor.y + 2 * S_292)
-    drag(built, centreOf(note.body), 0, by)
+    drag(built, centerOf(note.body), 0, by)
     expect(storedNote(built.loop), 'a pull with no task group under the moved anchor moved something').toEqual(stored)
     expect(built.noticeTexts(), 'RS-44 is hidden (表 T-233, CR-712)').not.toContain(RS_44_WORDS)
   })
@@ -619,7 +619,7 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
         const built = stage()
         const before = drawnNote(built.loop)
         const by = pullOf(built.loop)
-        dragInSteps(built, centreOf(before.body), by.x, by.y, steps)
+        dragInSteps(built, centerOf(before.body), by.x, by.y, steps)
         expect(anchorText(built.loop), 'the anchor').toBe(pinned)
         const after = drawnNote(built.loop)
         expect(after.body.x - before.body.x, 'the box did not move across by the pull').toBeCloseTo(by.x, 1)
@@ -736,7 +736,7 @@ describe(`T-221 LF-17: ${LEADER_ONE_CORNER}`, () => {
   }
 
   const INSIDE: readonly (readonly [string, Point])[] = [
-    ['the centre', { x: 140, y: 120 }],
+    ['the center', { x: 140, y: 120 }],
     ['inside, up-left of the middle', { x: 110, y: 105 }],
     ['on the left edge', { x: 100, y: 120 }],
     ['on the right edge', { x: 180, y: 130 }],
@@ -824,7 +824,7 @@ describe(`T-023d: ${HANDLE_WHILE_SELECTED}`, () => {
 
   it(`selecting one note draws its handle alone, ${HANDLE_AT_ZO_10}`, () => {
     const built = stage(TWO_NOTES)
-    click(built, centreOf(drawnNote(built.loop).body))
+    click(built, centerOf(drawnNote(built.loop).body))
     const svg = built.lastSvg()
     const handles = tagsOf(svg, 'rect', HANDLE_FIGURE(NOTE_ID))
     expect(handles).toHaveLength(1)
@@ -835,7 +835,7 @@ describe(`T-023d: ${HANDLE_WHILE_SELECTED}`, () => {
   it(`${HANDLE_SHAPE}`, () => {
     const built = stage()
     const note = drawnNote(built.loop)
-    click(built, centreOf(note.body))
+    click(built, centerOf(note.body))
     const handle = tagsOf(built.lastSvg(), 'rect', HANDLE_FIGURE())[0]
     expect(handle, 'no handle').toBeDefined()
     const tag = handle!.text
@@ -843,15 +843,15 @@ describe(`T-023d: ${HANDLE_WHILE_SELECTED}`, () => {
     expect(numberAttribute(tag, 'height')).toBe(S_376)
     expect(numberAttribute(tag, 'x') + S_376 / 2).toBeCloseTo(note.anchor.x, 1)
     expect(numberAttribute(tag, 'y') + S_376 / 2).toBeCloseTo(note.anchor.y, 1)
-    expect(attributeOf(tag, 'fill') ?? '').toMatch(themeColourPattern('S-146'))
-    expect(attributeOf(tag, 'stroke') ?? '').toMatch(themeColourPattern('S-151'))
+    expect(attributeOf(tag, 'fill') ?? '').toMatch(themeColorPattern('S-146'))
+    expect(attributeOf(tag, 'stroke') ?? '').toMatch(themeColorPattern('S-151'))
     expect(numberAttribute(tag, 'stroke-width')).toBe(S_174)
   })
 
   it(`${HANDLE_NOT_SCALED} -- at twice and half the zoom the side is still S-376`, () => {
     for (const zoomFactor of [2, 0.5]) {
       const built = stage({ zoomFactor })
-      click(built, centreOf(drawnNote(built.loop).body))
+      click(built, centerOf(drawnNote(built.loop).body))
       const handle = tagsOf(built.lastSvg(), 'rect', HANDLE_FIGURE())[0]
       expect(handle, `zoom x${zoomFactor}: no handle`).toBeDefined()
       expect(numberAttribute(handle!.text, 'width'), `zoom x${zoomFactor}`).toBe(S_376)
@@ -877,7 +877,7 @@ describe(`FR-106: ${FR_106_ANCHOR}`, () => {
     const built = stage()
     const note = drawnNote(built.loop)
     const leader = leaderOf(note)!
-    const body = hitAt(built.loop, centreOf(note.body))
+    const body = hitAt(built.loop, centerOf(note.body))
     const line = hitAt(built.loop, { x: (leader[0]!.x + leader[1]!.x) / 2, y: (leader[0]!.y + leader[1]!.y) / 2 })
     expect(body?.boxPart).toEqual({ kind: 'body' })
     expect(line?.boxPart).toEqual({ kind: 'leader' })
@@ -890,7 +890,7 @@ describe(`FR-106: ${FR_106_ANCHOR}`, () => {
       const built = stage()
       const note = drawnNote(built.loop)
       if (selected) {
-        click(built, centreOf(note.body))
+        click(built, centerOf(note.body))
         expect(tagsOf(built.lastSvg(), 'rect', HANDLE_FIGURE()), 'premise: selected').toHaveLength(1)
       }
       const anchor = drawnNote(built.loop).anchor
@@ -944,15 +944,15 @@ describe('FR-019: the five look columns AT-148 .. AT-152 as drawn', () => {
     expect(numberAttribute(body, 'stroke-width')).toBe(S_374.fallback)
     expect(numberAttribute(leader, 'stroke-width')).toBe(S_374.fallback)
     expect(numberAttribute(body, 'fill-opacity')).toBeCloseTo(1 - S_375.fallback / 100, 6)
-    expect(attributeOf(body, 'stroke') ?? '').toMatch(themeColourPattern('S-312'))
-    expect(attributeOf(leader, 'stroke') ?? '').toMatch(themeColourPattern('S-312'))
-    expect(attributeOf(body, 'fill') ?? '').toMatch(themeColourPattern('S-146'))
+    expect(attributeOf(body, 'stroke') ?? '').toMatch(themeColorPattern('S-312'))
+    expect(attributeOf(leader, 'stroke') ?? '').toMatch(themeColorPattern('S-312'))
+    expect(attributeOf(body, 'fill') ?? '').toMatch(themeColorPattern('S-146'))
     const texts = textTags(svg)
     expect(texts.length, 'no text line drawn').toBeGreaterThan(0)
-    for (const text of texts) expect(attributeOf(text.text, 'fill') ?? '', text.text).toMatch(themeColourPattern('S-147'))
+    for (const text of texts) expect(attributeOf(text.text, 'fill') ?? '', text.text).toMatch(themeColorPattern('S-147'))
   })
 
-  it(`${STROKE_RULE} ${ONE_COLOUR_ONE_WIDTH} -- red draws the T-294 outline value on the frame and the leader`, () => {
+  it(`${STROKE_RULE} ${ONE_COLOR_ONE_WIDTH} -- red draws the T-294 outline value on the frame and the leader`, () => {
     const svg = drawnSvg({ strokeColor: 'red', strokeWidthPx: 3 })
     const body = bodyTag(svg)
     const leader = leaderTags(svg)[0]?.text ?? ''
@@ -973,7 +973,7 @@ describe('FR-019: the five look columns AT-148 .. AT-152 as drawn', () => {
     for (const text of texts) expect(paletteValues('green', '縁')).toContain((attributeOf(text.text, 'fill') ?? '').toLowerCase())
   })
 
-  it('a custom colour is drawn with the value it holds (CV-3 / CV-6) on the line, the fill and the text', () => {
+  it('a custom color is drawn with the value it holds (CV-3 / CV-6) on the line, the fill and the text', () => {
     const svg = drawnSvg({ strokeColor: '#123456/', fillColor: '#234567/', textColor: '#345678/' })
     expect(attributeOf(bodyTag(svg), 'stroke')?.toLowerCase()).toBe('#123456')
     expect(attributeOf(leaderTags(svg)[0]?.text ?? '', 'stroke')?.toLowerCase()).toBe('#123456')
@@ -1113,12 +1113,12 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
     }
   })
 
-  it(`CM-82 places a palette name, a custom colour, transparent and null (${FILL_MAY_BE_TRANSPARENT}), and refuses what is not a colour (CV-1)`, () => {
-    for (const colour of ['red', '#123456/', 'transparent', null]) {
-      expect(acceptedNote({ kind: 'setCommentBoxFillColor', id: NOTE_ID, fillColor: colour })['fillColor']).toBe(colour)
+  it(`CM-82 places a palette name, a custom color, transparent and null (${FILL_MAY_BE_TRANSPARENT}), and refuses what is not a color (CV-1)`, () => {
+    for (const color of ['red', '#123456/', 'transparent', null]) {
+      expect(acceptedNote({ kind: 'setCommentBoxFillColor', id: NOTE_ID, fillColor: color })['fillColor']).toBe(color)
     }
-    for (const colour of ['crimson', '#12345', '']) {
-      expect(refusalOf({ kind: 'setCommentBoxFillColor', id: NOTE_ID, fillColor: colour }), `colour ${colour}`).toEqual(
+    for (const color of ['crimson', '#12345', '']) {
+      expect(refusalOf({ kind: 'setCommentBoxFillColor', id: NOTE_ID, fillColor: color }), `color ${color}`).toEqual(
         expect.objectContaining({ command: 'CM-82', rule: 'CV-1' }),
       )
     }
@@ -1128,15 +1128,15 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
     ['CM-80', 'setCommentBoxStrokeColor', 'strokeColor'],
     ['CM-84', 'setCommentBoxTextColor', 'textColor'],
   ] as const) {
-    it(`${row} places a palette name, a custom colour and null, refuses transparent (FR-019) and what is not a colour (CV-1)`, () => {
-      for (const colour of ['red', '#123456/', null]) {
-        expect(acceptedNote({ kind, id: NOTE_ID, [key]: colour } as Command)[key], `colour ${String(colour)}`).toBe(colour)
+    it(`${row} places a palette name, a custom color and null, refuses transparent (FR-019) and what is not a color (CV-1)`, () => {
+      for (const color of ['red', '#123456/', null]) {
+        expect(acceptedNote({ kind, id: NOTE_ID, [key]: color } as Command)[key], `color ${String(color)}`).toBe(color)
       }
       expect(refusalOf({ kind, id: NOTE_ID, [key]: 'transparent' } as Command), 'transparent').toEqual(
         expect.objectContaining({ command: row, rule: 'FR-019' }),
       )
-      for (const colour of ['crimson', '#12345', '']) {
-        expect(refusalOf({ kind, id: NOTE_ID, [key]: colour } as Command), `colour ${colour}`).toEqual(
+      for (const color of ['crimson', '#12345', '']) {
+        expect(refusalOf({ kind, id: NOTE_ID, [key]: color } as Command), `color ${color}`).toEqual(
           expect.objectContaining({ command: row, rule: 'CV-1' }),
         )
       }

@@ -159,20 +159,20 @@ interface TaskSpec {
   readonly group: string
 }
 
-const G_PROGRAMME = 'g-programme'
+const G_PROGRAM = 'g-program'
 const G_STEERING = 'g-steering'
 const G_REVIEW = 'g-review'
 const G_ARCHIVE = 'g-archive'
-const PROGRAMME = 'Programme'
+const PROGRAM = 'Program'
 const STEERING = 'Steering'
 const REVIEW = 'Review'
 const ARCHIVE = 'Archive'
 
 // WHY: uids 2 and 5 tie on start, 3 and 6 have no name, 7 has no date and sits alone on its task group;
-// the default order (SV-8) is Programme [1, 2], Steering [3], Review [5, 6, 4], Archive [7].
+// the default order (SV-8) is Program [1, 2], Steering [3], Review [5, 6, 4], Archive [7].
 const TASKS: readonly TaskSpec[] = [
-  { uid: 1, name: 'PM review', start: '2026-04-01', state: 'inProgress', group: G_PROGRAMME },
-  { uid: 2, name: 'Beta', start: '2026-04-10', state: 'notStarted', group: G_PROGRAMME },
+  { uid: 1, name: 'PM review', start: '2026-04-01', state: 'inProgress', group: G_PROGRAM },
+  { uid: 2, name: 'Beta', start: '2026-04-10', state: 'notStarted', group: G_PROGRAM },
   { uid: 3, name: '', start: '2026-04-05', state: 'finished', group: G_STEERING },
   { uid: 4, name: 'Gamma', start: '2026-04-20', state: 'resumePlanned', group: G_REVIEW },
   { uid: 5, name: EXAMPLE_KATAKANA, start: '2026-04-10', state: 'resumeUnknown', group: G_REVIEW },
@@ -246,8 +246,8 @@ const SCHEDULE = {
   ...TEMPLATE.schedule,
   tasks: TASKS.map(taskOf),
   taskGroups: [
-    groupOf(G_PROGRAMME, null, 0, PROGRAMME),
-    groupOf(G_STEERING, G_PROGRAMME, 0, STEERING),
+    groupOf(G_PROGRAM, null, 0, PROGRAM),
+    groupOf(G_STEERING, G_PROGRAM, 0, STEERING),
     groupOf(G_REVIEW, null, 1, REVIEW),
     groupOf(G_ARCHIVE, null, 2, ARCHIVE),
   ],
@@ -314,17 +314,17 @@ function valuesOf(panel: SearchPanelSession, session: ScreenSession = JA): Value
 }
 
 // WHY: the seam does not say how a value is spelled, so the case finds it by the label it is shown with.
-const valueLabelled = (panel: SearchPanelSession, label: string): string =>
+const valueLabeled = (panel: SearchPanelSession, label: string): string =>
   found(
     valuesOf(panel).values.find((one) => one.label === label),
-    `an item labelled ${label} in ${menuOf(panel).column}`,
+    `an item labeled ${label} in ${menuOf(panel).column}`,
   ).value
 
 const untick = (panel: SearchPanelSession, label: string): SearchPanelSession =>
-  changed(panel, { kind: 'value', column: menuOf(panel).column, value: valueLabelled(panel, label), isShown: false })
+  changed(panel, { kind: 'value', column: menuOf(panel).column, value: valueLabeled(panel, label), isShown: false })
 
 const tick = (panel: SearchPanelSession, label: string): SearchPanelSession =>
-  changed(panel, { kind: 'value', column: menuOf(panel).column, value: valueLabelled(panel, label), isShown: true })
+  changed(panel, { kind: 'value', column: menuOf(panel).column, value: valueLabeled(panel, label), isShown: true })
 
 const bound = (panel: SearchPanelSession, which: 'since' | 'until', day: string | null): SearchPanelSession =>
   changed(panel, { kind: 'bound', column: menuOf(panel).column, bound: which, day })
@@ -441,8 +441,8 @@ describe('T-330 SV-7 -- IC-122 on every heading opens the filter of that column,
     expect(searchPanelWithFilterOpened(JA, COMMENT_PANEL, 'SQ-1')).toBeNull()
   })
 
-  it('SV-12: a minimised panel shows only its heading row, so no filter opens', () => {
-    expect(searchPanelWithFilterOpened(sessionIn('ja', 'searchPanelMinimiseToggled'), TASK_PANEL, 'SQ-1')).toBeNull()
+  it('SV-12: a minimized panel shows only its heading row, so no filter opens', () => {
+    expect(searchPanelWithFilterOpened(sessionIn('ja', 'searchPanelMinimizeToggled'), TASK_PANEL, 'SQ-1')).toBeNull()
   })
 
   it('SV-7: a hidden panel opens no filter', () => {
@@ -452,7 +452,7 @@ describe('T-330 SV-7 -- IC-122 on every heading opens the filter of that column,
 
 
 describe('T-330 SV-7 -- the value list of the open filter, and the date bounds instead of it', () => {
-  it('SV-7: the name column offers each name once and one blank item labelled with the dictionary word', () => {
+  it('SV-7: the name column offers each name once and one blank item labeled with the dictionary word', () => {
     const panel = opened('SQ-1')
     const menu = valuesOf(panel)
     const labels = labelsOf(panel)
@@ -465,7 +465,7 @@ describe('T-330 SV-7 -- the value list of the open filter, and the date bounds i
     expect(labels, 'the no-name word of SQ-1 is not the blank item').not.toContain(NO_NAME_JA)
   })
 
-  it.each(['ja', 'en'] as const)('SV-7: %s: the blank item is labelled with the dictionary word for blank', (language) => {
+  it.each(['ja', 'en'] as const)('SV-7: %s: the blank item is labeled with the dictionary word for blank', (language) => {
     const session = sessionIn(language)
     const panel = opened('SQ-1', TASK_PANEL, session)
     const blank = found(
@@ -493,7 +493,7 @@ describe('T-330 SV-7 -- the value list of the open filter, and the date bounds i
 
   it('SV-7: the path column offers each path once, written as table T-331 SQ-6 writes it', () => {
     const labels = labelsOf(opened('SQ-6'))
-    expect(labels).toEqual(expect.arrayContaining([PROGRAMME, `${PROGRAMME} → ${STEERING}`, REVIEW, ARCHIVE]))
+    expect(labels).toEqual(expect.arrayContaining([PROGRAM, `${PROGRAM} → ${STEERING}`, REVIEW, ARCHIVE]))
     expect(new Set(labels).size).toBe(labels.length)
   })
 
@@ -713,7 +713,7 @@ describe('T-330 SV-4 -- the word matches a part of the name, an assignee or the 
   })
 
   it('FR-151: a task group name and Task.notes are not searched', () => {
-    expect(uidsOf(withWord(PROGRAMME))).toEqual([])
+    expect(uidsOf(withWord(PROGRAM))).toEqual([])
     expect(uidsOf(withWord(HIDDEN_NOTE))).toEqual([])
   })
 

@@ -66,7 +66,7 @@
 //   FR-029          what cannot be used is drawn faint and gives its reason
 //                   rather than going quiet -- so a disabled entry still answers
 //   表 T-040 EZ-2   the explanation belongs to the icon the pointer rests ON;
-//                   one entry, not its neighbour and not every icon
+//                   one entry, not its neighbor and not every icon
 //   表 T-103        U-23 (MUST): an entrance is named by the `Task Group Panel`
 //                   and never by the `Task Group Title Tree`; and 表 T-109's 面 column
 //                   is the containing surface, not the grouping inside it
@@ -641,7 +641,7 @@ class FakeElement {
 
   getAttribute(name: string): string | null {
     // ⛔⛔ THE TRAILING `;` IS THE BROWSER'S AND WAS MISSING HERE. A real
-    // `getAttribute('style')` hands back the SERIALISED declaration block, and
+    // `getAttribute('style')` hands back the SERIALIZED declaration block, and
     // every browser ends that block with a semicolon; `inlineStyle` below joins
     // the declarations with one and stops. ⚠️ THE UNIT READS ITS OWN STYLE BACK
     // AND APPENDS TO IT -- `open.getAttribute('style') + taskGroupControlRight(...)`
@@ -1161,7 +1161,7 @@ function stage(layout: Map<string, ScreenRect>): Stage {
  *
  * ⭐ WHY THE BENCH HAS TO STATE ONE. `readTheme` is a REQUIRED member of
  * `ScreenSurfaceWiring` because FR-041 (MUST NOT) leaves the viewing environment
- * no say over the rendering. ⚠️ No case in this file reads a colour back -- the
+ * no say over the rendering. ⚠️ No case in this file reads a color back -- the
  * cases here are about which parts are drawn and where -- so the manuscript's
  * default is the honest neutral; a case that meant dark would say dark.
  */
@@ -1544,7 +1544,7 @@ const PALETTE: CommandPalette = {
   // the edge the band is laid along, and the band's width is the palette's own.
   // ⚠️ The number is this file's own; see `GRAB_BAND_HEIGHT`.
   grabBandHeight: GRAB_BAND_HEIGHT,
-  minimise: {
+  minimize: {
     icon: 'IC-75',
     label: 'IC-75',
     isEnabled: true,
@@ -1552,7 +1552,7 @@ const PALETTE: CommandPalette = {
     isArmed: false,
     isChosen: false,
   },
-  isMinimised: false,
+  isMinimized: false,
   groups: [
     {
       name: 'PlaceGroup',
@@ -1573,7 +1573,7 @@ const HELP_MODAL: HelpModal = {
   legend: 'IC-102',
   helpLanguage: 'en',
   windowState: 'normal',
-  licenceText: 'LicenceTextHere',
+  licenseText: 'LicenseTextHere',
   copyrightNotice: 'CopyrightNoticeHere',
   attributions: ['AttributionOne'],
   helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
@@ -2138,7 +2138,7 @@ describe('EZ-2 of 表 T-040 -- the icon the pointer rests ON', () => {
     expect(ask(built, AT.entryIc13.x, AT.entryIc13.y)?.entry).toBe('IC-13')
   })
 
-  it('⛔ does not answer the neighbour that shares an edge with it', () => {
+  it('⛔ does not answer the neighbor that shares an edge with it', () => {
     const built = drawn(viewWith({}))
 
     // IC-13 occupies x 180..204 and IC-12 x 204..228. R3.4 makes the interval
@@ -2729,7 +2729,7 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
     expect(ask(built, AT.taskGroupOpenOneLevel.x, AT.taskGroupOpenOneLevel.y)?.entry).toBe(IC_OPEN_ONE_LEVEL)
   })
 
-  it(`⭐ GIVEN a spent ${IC_OPEN_ONE_LEVEL} and a spent entrance on ANOTHER surface WHEN the two are read THEN both are faint in the same colour (FR-029: 載る面によって薄くしない入口があってはならない (MUST NOT))`, () => {
+  it(`⭐ GIVEN a spent ${IC_OPEN_ONE_LEVEL} and a spent entrance on ANOTHER surface WHEN the two are read THEN both are faint in the same color (FR-029: 載る面によって薄くしない入口があってはならない (MUST NOT))`, () => {
     const built = drawn(twoTaskGroups({ canOpenOneLevel: false }))
     const onTheTaskGroup = everyEntry(built, IC_OPEN_ONE_LEVEL)[0] as FakeElement
     // IC-5 stands in the header fixture with `isEnabled: false` -- the same
@@ -2739,12 +2739,12 @@ describe('表 T-051 HF-13 -- 1 階層だけ展開する操作子を、タスク�
     // ⭐ FR-029 (MUST): 「薄さは `_assets/tbl-settings.md` の 表 T-236 の `S-149`
     // の色で示すこと」, and then DFC-265 「⚠️ 本規則は 表 T-109 の全行に当たる …
     // ⛔ 載る面によって薄くしない入口があってはならない（MUST NOT）」. ⚠️ WHAT THE
-    // COLOUR RESOLVES TO IS NOT ASKED HERE -- tests/unit/fr-029-in-effect-is-
+    // COLOR RESOLVES TO IS NOT ASKED HERE -- tests/unit/fr-029-in-effect-is-
     // filled-not-rimmed.test.ts holds it against 表 T-236. What is asked is that
     // the task group is not given a faintness of its own.
     expect(
       styleMap(onTheTaskGroup).get('color'),
-      'the task group control and the header entrance are faint in different colours',
+      'the task group control and the header entrance are faint in different colors',
     ).toBe(styleMap(onTheHeader).get('color'))
   })
 
@@ -4344,7 +4344,7 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
 // S-139 of 表 T-206; that row is RETIRED and `TaskGroupTitle` carries no amount any
 // more. So the cases that drove an amount across IF-9 are gone -- there is no
 // number left to drive -- and what stands is what HF-5 now states outright:
-// nothing centres the control (MUST NOT), nothing sets it down (MUST NOT), and
+// nothing centers the control (MUST NOT), nothing sets it down (MUST NOT), and
 // the line the controls sit in starts them at its top (MUST).
 //
 // ⭐ WHICH PROPERTY CARRIES A PLACEMENT IS STILL NOT ASSERTED -- PND-151 records
@@ -4354,11 +4354,11 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
 
 /** 表 T-051 HF-5's three placement rules, copied from docs/spec/01-04-requirements.md. */
 const T_051_HF5_LEVEL_WITH_TOP = '名前が操作子より大きいときは、名前の上端に揃えること（MUST）'
-const T_051_HF5_NOT_CENTRED = '中央で揃えてはならない（MUST NOT）'
+const T_051_HF5_NOT_CENTERED = '中央で揃えてはならない（MUST NOT）'
 const T_051_HF5_NOT_SET_DOWN = '上端から下げてはならない（MUST NOT）'
 
-/** The declarations that would centre a control on the line it sits in. */
-const CENTRING_PROPERTIES = [
+/** The declarations that would center a control on the line it sits in. */
+const CENTERING_PROPERTIES = [
   'align-items',
   'align-self',
   'align-content',
@@ -4369,24 +4369,24 @@ const CENTRING_PROPERTIES = [
 ] as const
 
 /**
- * The centring declarations this node carries, if any.
+ * The centering declarations this node carries, if any.
  *
  * ⭐ `vertical-align: middle` is counted, because on a control that sits in the
  * name's line it is exactly 中央 by another spelling; `middle` and `center` are
- * the two words for it. ⚠️ `text-align` is NOT counted -- it centres what is
+ * the two words for it. ⚠️ `text-align` is NOT counted -- it centers what is
  * INSIDE the box, which is the other axis and none of HF-5's business.
  */
-function centringOn(element: FakeElement): string[] {
+function centeringOn(element: FakeElement): string[] {
   const declared = styleMap(element)
   const found: string[] = []
-  for (const property of CENTRING_PROPERTIES) {
+  for (const property of CENTERING_PROPERTIES) {
     const value = (declared.get(property) ?? '').trim().toLowerCase()
     if (value === '') continue
     if (value.includes('center') || (property === 'vertical-align' && value.includes('middle'))) {
       found.push(`${property}:${value}`)
     }
   }
-  // ⭐ The fourth way to centre a flex item on its line, which carries no word
+  // ⭐ The fourth way to center a flex item on its line, which carries no word
   // for it at all: an auto margin on both ends of the block axis.
   const top = insetOf(element, 'margin', 'top').trim().toLowerCase()
   const bottom = insetOf(element, 'margin', 'bottom').trim().toLowerCase()
@@ -4431,26 +4431,26 @@ const taskGroupWithControls = (): ScreenView =>
     },
   })
 
-describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the name, never centred and never set down', () => {
-  it('GIVEN the specification is re-read WHEN 表 T-051 HF-5 is looked up THEN it asks for the top edge and forbids both the centre and the set-down in as many words (Chapter 1.9: the case is driven by the table)', () => {
+describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the name, never centered and never set down', () => {
+  it('GIVEN the specification is re-read WHEN 表 T-051 HF-5 is looked up THEN it asks for the top edge and forbids both the center and the set-down in as many words (Chapter 1.9: the case is driven by the table)', () => {
     const hf5 = specTable('T-051').rows.find((one) => one.id === 'HF-5')
     expect(hf5, '表 T-051 no longer holds HF-5').toBeDefined()
     expect(hf5?.cells.join(' ')).toContain(T_051_HF5_LEVEL_WITH_TOP)
-    expect(hf5?.cells.join(' ')).toContain(T_051_HF5_NOT_CENTRED)
+    expect(hf5?.cells.join(' ')).toContain(T_051_HF5_NOT_CENTERED)
     expect(hf5?.cells.join(' ')).toContain(T_051_HF5_NOT_SET_DOWN)
     // ⛔ AND NO AMOUNT IS HELD ANYWHERE. S-139 of 表 T-206 carried the set-down
     // for one day and is retired -- were it ever to come back, the cases below
     // would be asserting the absence of something the specification asks for.
     expect(hf5?.cells.join(' ')).not.toContain('S-139')
     expect(specTable('T-206').rows.find((one) => one.id === 'S-139')).toBeUndefined()
-    expect(specText('01-04-requirements.md')).toContain(T_051_HF5_NOT_CENTRED)
+    expect(specText('01-04-requirements.md')).toContain(T_051_HF5_NOT_CENTERED)
     // ⛔ FR-098 does not restate the rule; it refers the 置き方 to HF-4 .. HF-6,
     // so the pin answers to this case for the same reason the expander does.
     expect(specText('01-04-requirements.md')).toContain(FR_098_SAME_AS_THE_EXPANDER)
   })
 
   it.each(T_109_ON_THE_TASK_GROUP)(
-    '⛔ GIVEN $row is drawn WHEN the control and the line it sits in are read THEN neither centres it (表 T-051 HF-5 MUST NOT: 中央で揃えてはならない) -- $row',
+    '⛔ GIVEN $row is drawn WHEN the control and the line it sits in are read THEN neither centers it (表 T-051 HF-5 MUST NOT: 中央で揃えてはならない) -- $row',
     ({ row }) => {
       const built = drawn(taskGroupWithControls())
       const control = entryFor(built.root(), row)
@@ -4458,12 +4458,12 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
 
       expect(line, `${row} is not inside anything`).not.toBeNull()
       expect(
-        centringOn(control),
-        `${row} centres itself on the line it sits in: ${inlineStyle(control)}`,
+        centeringOn(control),
+        `${row} centers itself on the line it sits in: ${inlineStyle(control)}`,
       ).toEqual([])
       expect(
-        centringOn(line as FakeElement),
-        `the task group centres its controls: ${inlineStyle(line as FakeElement)}`,
+        centeringOn(line as FakeElement),
+        `the task group centers its controls: ${inlineStyle(line as FakeElement)}`,
       ).toEqual([])
     },
   )
@@ -4484,7 +4484,7 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
   it.each(T_109_ON_THE_TASK_GROUP)(
     '⭐ GIVEN $row is drawn WHEN the line it sits in is read THEN that line starts its items at its top (表 T-051 HF-5 MUST: 名前の上端に揃えること) -- $row',
     ({ row }) => {
-      // ⭐ THE POSITIVE HALF OF THE RULE. Forbidding the centre and the set-down
+      // ⭐ THE POSITIVE HALF OF THE RULE. Forbidding the center and the set-down
       // still leaves 「どこにも揃えない」 open, so one case reads the placement
       // itself: the task group lays its name and its controls out in one line box, and
       // where that box starts its items IS where the controls sit against the
@@ -4504,7 +4504,7 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
     const built = drawn(taskGroupWithControls())
 
     // ⚠️ Built by hand rather than drawn: the point is the PREDICATES, and a
-    // predicate that could not name a centred or a set-down control would pass
+    // predicate that could not name a centered or a set-down control would pass
     // every case above no matter what the unit did.
     const make = (css: string): FakeElement => {
       const node = new FakeElement('button', built.world)
@@ -4512,17 +4512,17 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
       return node
     }
 
-    expect(centringOn(make('align-self:center'))).toEqual(['align-self:center'])
-    expect(centringOn(make('vertical-align:middle'))).toEqual(['vertical-align:middle'])
-    expect(centringOn(make('align-items:center'))).toEqual(['align-items:center'])
-    expect(centringOn(make('margin:auto 0'))).toEqual(['margin-top:auto;margin-bottom:auto'])
+    expect(centeringOn(make('align-self:center'))).toEqual(['align-self:center'])
+    expect(centeringOn(make('vertical-align:middle'))).toEqual(['vertical-align:middle'])
+    expect(centeringOn(make('align-items:center'))).toEqual(['align-items:center'])
+    expect(centeringOn(make('margin:auto 0'))).toEqual(['margin-top:auto;margin-bottom:auto'])
     expect(setDownOn(make('margin-top:7px'))).toEqual(['margin-top:7px'])
     expect(setDownOn(make('padding:7px 0 0 0'))).toEqual(['padding-top:7px'])
     expect(setDownOn(make('position:relative;top:0.5em'))).toEqual(['top:0.5em'])
     // ⭐ And what HF-5 ALLOWS is not caught, or the cases above would be
     // unpassable rather than true.
-    expect(centringOn(make('align-self:flex-start'))).toEqual([])
-    expect(centringOn(make('text-align:center'))).toEqual([])
+    expect(centeringOn(make('align-self:flex-start'))).toEqual([])
+    expect(centeringOn(make('text-align:center'))).toEqual([])
     expect(setDownOn(make('padding:0 0.125em'))).toEqual([])
     expect(setDownOn(make('margin-top:0'))).toEqual([])
   })
@@ -4546,7 +4546,7 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
     for (const one of T_109_ON_THE_TASK_GROUP) {
       const control = entryFor(built.root(), one.row)
       const line = control.parentNode as FakeElement
-      expect(centringOn(control), `${one.row} on a pinned task group centres itself`).toEqual([])
+      expect(centeringOn(control), `${one.row} on a pinned task group centers itself`).toEqual([])
       expect(
         setDownOn(control),
         `${one.row} on a pinned task group is set down: ${inlineStyle(control)}`,
@@ -5400,13 +5400,13 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
 // of 表 T-206, which `HF-15` and `HF-18` BOTH name -- 「タスクグループの辺に引く 1 本の帯」 is
 // one thing and holds one number. ⛔ Until that day neither band had a source
 // and this unit carried two invented ones, 2px and 3px.
-// ⚠️ WHAT IS STILL NOT ASSERTED. The GROUND'S COLOUR under the held task group:
-// `HF-15` (MUST) asks for a ground and names no colour, and no row of 表 T-236
+// ⚠️ WHAT IS STILL NOT ASSERTED. The GROUND'S COLOR under the held task group:
+// `HF-15` (MUST) asks for a ground and names no color, and no row of 表 T-236
 // does either -- ⛔ so a case that fixed one would be inventing it.
 // ===========================================================================
 
-/** The two colours 表 T-236 gives HF-15's bands, read out of the table. */
-const themeColoursOf = (row: string): readonly string[] => {
+/** The two colors 表 T-236 gives HF-15's bands, read out of the table. */
+const themeColorsOf = (row: string): readonly string[] => {
   const found = specTable('T-236').rows.find((one) => one.id === row)
   if (found === undefined) throw new Error(`表 T-236 no longer holds ${row}`)
   return ['明るいテーマ', '暗いテーマ'].map((column) => bare(found.by[column] ?? ''))
@@ -5447,10 +5447,10 @@ describe('表 T-051 HF-15 (MUST) -- the task group that is held says which axis 
     expect(hf15).toContain(T_051_HF15_THE_BANDS)
     expect(hf15).toContain(T_051_HF15_THE_GROUND)
     expect(hf15).toContain(T_051_HF15_THE_STRIP_IS_ALWAYS_DRAWN)
-    // ⭐ The two colours are named by row, and 表 T-236 still holds both.
+    // ⭐ The two colors are named by row, and 表 T-236 still holds both.
     expect(hf15).toContain('`S-151`（上下）と `S-152`（左右）')
     for (const row of ['S-151', 'S-152']) {
-      expect(themeColoursOf(row).filter((one) => one !== ''), `表 T-236 ${row}`).toHaveLength(2)
+      expect(themeColorsOf(row).filter((one) => one !== ''), `表 T-236 ${row}`).toHaveLength(2)
     }
     // ⭐ AND THE THICKNESS, which the row states since 2026-08-31.
     expect(hf15).toContain('太さは 表 T-206 の `S-213` とすること（MUST）')
@@ -5501,11 +5501,11 @@ describe('表 T-051 HF-15 (MUST) -- the task group that is held says which axis 
   })
 
   it('⭐ GIVEN the two axes WHEN the bands are compared THEN they are NOT painted alike (HF-15: 色は S-151（上下）と S-152（左右）)', () => {
-    // ⚠️ WHICH INK IS WHICH IS NOT READ HERE -- 表 T-236 states each colour twice
+    // ⚠️ WHICH INK IS WHICH IS NOT READ HERE -- 表 T-236 states each color twice
     // (one per theme) and this unit resolves the theme, so a case that fixed the
     // string would be asserting the theme and not the rule. ⛔ What the rule
-    // decides, and what is read, is that the two axes are told APART by colour:
-    // one task group, two colours, and 「どちらの軸が生きているか」 unreadable if they
+    // decides, and what is read, is that the two axes are told APART by color:
+    // one task group, two colors, and 「どちらの軸が生きているか」 unreadable if they
     // were the same.
     const onPosition = [...bordersOf(theTaskGroupOf(drawn(taskGroupHeldOn('position')))).values()]
     const onDepth = [...bordersOf(theTaskGroupOf(drawn(taskGroupHeldOn('depth')))).values()]
@@ -5514,7 +5514,7 @@ describe('表 T-051 HF-15 (MUST) -- the task group that is held says which axis 
     expect(onDepth, 'the depth axis drew no band').not.toHaveLength(0)
     expect(new Set(onPosition).size, 'the two bands of one axis differ').toBe(1)
     expect(new Set(onDepth).size, 'the two bands of one axis differ').toBe(1)
-    expect(onPosition[0], 'the two axes are drawn in one and the same colour').not.toBe(onDepth[0])
+    expect(onPosition[0], 'the two axes are drawn in one and the same color').not.toBe(onDepth[0])
   })
 
   it('⭐ MUST GIVEN a task group is held WHEN it is compared with the same task group unheld THEN it is given a ground of its own (HF-15: 掴んでいるタスクグループには地を敷くこと)', () => {
@@ -5579,7 +5579,7 @@ const numberMarksOf = (row: FakeElement): string[] =>
     .map((one) => one.textContent.trim().replace(/^\u25be\s/, ''))
 
 describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded is drawn, and not only under a pointer', () => {
-  it('GIVEN the specification is re-read WHEN HF-18 is looked up THEN it still asks for the count, the mark and the colour, and still says HF-6 does not reach it (Chapter 1.9)', () => {
+  it('GIVEN the specification is re-read WHEN HF-18 is looked up THEN it still asks for the count, the mark and the color, and still says HF-6 does not reach it (Chapter 1.9)', () => {
     const hf18 = (specTable('T-051').rows.find((one) => one.id === 'HF-18')?.cells ?? []).join(' ')
 
     expect(hf18).toContain(T_051_HF18_THE_COUNT)
@@ -5592,7 +5592,7 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded 
     expect(hf18).toContain('数の前に、折りたたみ込みを表す印を 1 つ置くこと（MUST）')
     expect(hf18).toContain('色は 表 T-236 の `S-153` とする')
     expect(hf18).toContain('`HF-6` の対象ではない')
-    expect(themeColoursOf('S-153').filter((one) => one !== ''), '表 T-236 S-153').toHaveLength(2)
+    expect(themeColorsOf('S-153').filter((one) => one !== ''), '表 T-236 S-153').toHaveLength(2)
   })
 
   it('⭐ MUST GIVEN a task group that holds three task groups folded WHEN it is read THEN the count is drawn on it (HF-18: そのタスクグループ数をタスクグループに示すこと)', () => {
@@ -5677,7 +5677,7 @@ const TIPPED_PALETTE: ScreenView = viewWith({
 
 // WHY: a browser skips a node whose pointer-events resolve to none; the shared fake does not, so only this bench does.
 /** @purity non-pure */
-function drawnHonouringPointerEvents(view: ScreenView): Stage {
+function drawnHonoringPointerEvents(view: ScreenView): Stage {
   const built = stage(TIP_OVER_THE_ENTRY)
   const takes = (one: FakeElement): boolean => inheritedPointerEvents(one).value !== 'none'
   const made = built.host as unknown as { createElement(tagName: string): FakeElement }
@@ -5686,10 +5686,10 @@ function drawnHonouringPointerEvents(view: ScreenView): Stage {
     elementFromPoint: (x: number, y: number): FakeElement | null => stackAt(built.mount, x, y).find(takes) ?? null,
     elementsFromPoint: (x: number, y: number): FakeElement[] => stackAt(built.mount, x, y).filter(takes),
   } as unknown as Document
-  const honouring: Stage = { ...built, host }
-  honouring.surface = domScreenSurface(wiringOf(honouring))
-  surfaceOf(honouring).showScreenView(view)
-  return honouring
+  const honoring: Stage = { ...built, host }
+  honoring.surface = domScreenSurface(wiringOf(honoring))
+  surfaceOf(honoring).showScreenView(view)
+  return honoring
 }
 
 describe('IN-3 of table T-028 / UZ-2 of table T-337 -- an icon tooltip drawn over an entrance takes no press', () => {
@@ -5719,7 +5719,7 @@ describe('IN-3 of table T-028 / UZ-2 of table T-337 -- an icon tooltip drawn ove
   })
 
   it('IN-3 / UZ-2 -- a press under the tooltip answers the entrance beneath it, in a host that skips what takes no pointer', () => {
-    const built = drawnHonouringPointerEvents(TIPPED_PALETTE)
+    const built = drawnHonoringPointerEvents(TIPPED_PALETTE)
     const answer = ask(built, UNDER_THE_TIP.x, UNDER_THE_TIP.y)
     expect(answer?.part, UZ_2_PASSES_THE_PRESS).toBe(partName('U-26'))
     expect(answer?.entry, UZ_2_PASSES_THE_PRESS).toBe(COVERED_ENTRY)

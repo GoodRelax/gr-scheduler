@@ -255,8 +255,8 @@ export function pj12Fixture(options: FixtureOptions = {}): Spec {
   const project = node(
     'Project',
     leaf('SaveVersion', options.saveVersion ?? '12'),
-    leaf('Name', 'Bridge programme'),
-    leaf('Title', 'Bridge programme plan'),
+    leaf('Name', 'Bridge program'),
+    leaf('Title', 'Bridge program plan'),
     leaf('StartDate', day(6)),
     leaf('FinishDate', day(30)),
     leaf('CurrencyCode', 'EUR'),

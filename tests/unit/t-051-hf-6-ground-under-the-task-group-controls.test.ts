@@ -19,10 +19,10 @@
 //
 //   1. THE GROUND. `HF-6` gained it on 2026-08-30 (CR-305) and nothing has
 //      asked for it since -- neither that it is there, nor that it is ONE, nor
-//      what colour it is, nor how far it reaches.
+//      what color it is, nor how far it reaches.
 //   2. THE FAINTNESS, BEYOND ONE SURFACE. tests/unit/uf-71.test.ts asks that a
 //      header entry which cannot be used is painted differently from one that
-//      can, and that the colour is SOME row of 表 T-236. ⛔ It does not ask
+//      can, and that the color is SOME row of 表 T-236. ⛔ It does not ask
 //      WHICH row, and FR-029 now names one: 「薄さは … 表 T-236 の `S-149` の色
 //      で示すこと（MUST）」. ⛔ And it asks it on the `App Header` alone, while
 //      the same requirement closes with 「本規則は … 表 T-109 の全行に当たる ——
@@ -57,7 +57,7 @@
 //                  work. ⭐ A task group whose `canOpen` is false is exactly FR-029's
 //                  「押しても、いま文書にも画面にも何も変えられない」.
 //   `FR-041`       「画面の色は … 表 T-236 に従うこと（MUST）」 and (MUST NOT)
-//                  「閲覧環境のシステム色に委ねてはならない」 -- why a colour is
+//                  「閲覧環境のシステム色に委ねてはならない」 -- why a color is
 //                  resolved through the one declaration on the root rather than
 //                  read off the part.
 //
@@ -579,7 +579,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
 /**
  * The rendering and hue every case below wires the surface with.
  *
- * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1). ⭐ No case reads a colour
+ * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1). ⭐ No case reads a color
  * back -- `readTheme` is a REQUIRED member of `ScreenSurfaceWiring`, so the
  * cases need a theme to build the surface at all, not a particular one.
  */
@@ -719,7 +719,7 @@ function matchesSimple(element: FakeElement, selector: string): boolean {
 /**
  * One row of 表 T-236 as this rendering paints it.
  *
- * ⛔ NO COLOUR IS TYPED HERE (rule 03 section 1). The rows that follow the hue
+ * ⛔ NO COLOR IS TYPED HERE (rule 03 section 1). The rows that follow the hue
  * write it as the letter `H`, which the table's own 色相追随 column marks and
  * which `S-73` fills in -- so the hue read for `THEME` is substituted the once,
  * exactly as the manuscript writes it. ⭐ Copied from tests/unit/uf-71.test.ts.
@@ -728,7 +728,7 @@ function t236(rowId: string): string {
   const row = rowOf('T-236', rowId)
   const cell = bare(row.by[THEME.preference === 'dark' ? '暗いテーマ' : '明るいテーマ'] ?? '')
   if (!/^(#|hsl\(|rgba?\()/.test(cell)) {
-    throw new Error(`表 T-236 ${rowId} states no colour for this rendering: ${cell}`)
+    throw new Error(`表 T-236 ${rowId} states no color for this rendering: ${cell}`)
   }
   return cell.replace('H', String(THEME.hue)).replace(/\s+/g, '').toLowerCase()
 }
@@ -743,9 +743,9 @@ const S_149 = t236('S-149')
  * put on its own root.
  *
  * ⭐ WHY IT HAS TO BE RESOLVED. FR-041 (MUST) has one declaration carry 表 T-236
- * for the whole tree, so a part states which colour it takes and not what that
- * colour is. Reading the part alone would compare a NAME with a colour and fail
- * whatever the unit painted. ⚠️ No fallback is honoured (`var(--x, y)` is left
+ * for the whole tree, so a part states which color it takes and not what that
+ * color is. Reading the part alone would compare a NAME with a color and fail
+ * whatever the unit painted. ⚠️ No fallback is honored (`var(--x, y)` is left
  * unresolved and will match no row), because FR-041 (MUST NOT) forbids one.
  * ⭐ Copied from tests/unit/uf-71.test.ts.
  */
@@ -759,12 +759,12 @@ function resolved(built: Stage, written: string): string {
     .toLowerCase()
 }
 
-/** The colour this node's WORDS are painted in. */
-const paintedColour = (built: Stage, element: FakeElement): string =>
+/** The color this node's WORDS are painted in. */
+const paintedColor = (built: Stage, element: FakeElement): string =>
   resolved(built, styleMap(element).get('color') ?? '')
 
 /**
- * The colour this node's GROUND is painted in, whichever of the spellings a
+ * The color this node's GROUND is painted in, whichever of the spellings a
  * ground can be written with.
  *
  * ⚠️ SEVERAL SPELLINGS AND NOT ONE, because no row of the specification settles
@@ -897,8 +897,8 @@ const paletteWith = (commands: readonly CommandItem[]): CommandPalette =>
   ({
     at: { x: 400, y: 300 },
     grabBandHeight: 12,
-    minimise: command({ icon: 'IC-75' }),
-    isMinimised: false,
+    minimize: command({ icon: 'IC-75' }),
+    isMinimized: false,
     groups: [{ name: 'PaletteGroupWordHere', commands } as PaletteGroup],
     armedText: 'ArmedWordHere',
   }) as CommandPalette
@@ -957,7 +957,7 @@ function taskGroupElement(built: Stage): FakeElement {
 }
 
 /**
- * Every node laid INSIDE this task group whose ground is painted the colour HF-6 names.
+ * Every node laid INSIDE this task group whose ground is painted the color HF-6 names.
  *
  * ⛔ THE TASK GROUP ITSELF IS NOT ONE OF THEM, and leaving it in would make the count
  * below a count of something else. The task group is a strip of the `Task Group Panel`,
@@ -1024,8 +1024,8 @@ describe('the manuscripts still say what these cases read', () => {
     expect(S_150.length).toBeGreaterThan(0)
     expect(S_149.length).toBeGreaterThan(0)
     // ⛔ Two rows of one table that painted alike would make every case below
-    // pass on either colour.
-    expect(S_150, '表 T-236: the ground and the rule colour are two colours').not.toBe(S_149)
+    // pass on either color.
+    expect(S_150, '表 T-236: the ground and the rule color are two colors').not.toBe(S_149)
   })
 
   it('⛔ HF-6 still asks for ONE ground, in S-150, down to the lower of the task group and the lattice, and counts it as the group', () => {
@@ -1040,11 +1040,11 @@ describe('the manuscripts still say what these cases read', () => {
     const fr029 = FR_029_TEXT
     expect(fr029).toContain('`S-149` の色で示すこと（MUST）')
     // ⛔ THE ROW THAT WAS TAKEN AWAY, PINNED TOO. A unit still painting S-148
-    // would be painting the colour the manuscript forbids for this purpose --
+    // would be painting the color the manuscript forbids for this purpose --
     // it reads as an entrance that CAN be used.
     expect(fr029).toContain('`S-148` を使ってはならない（MUST NOT）')
     expect(fr029).not.toContain('`S-148` の色で示すこと（MUST）')
-    expect(S_149, '表 T-236: S-148 and S-149 are two colours').not.toBe(t236('S-148'))
+    expect(S_149, '表 T-236: S-148 and S-149 are two colors').not.toBe(t236('S-148'))
     expect(fr029).toContain('薄く描いた入口を、宿主の意味で無効にしてはならない（MUST NOT）')
     expect(fr029).toContain('載る面によって薄くしない入口があってはならない（MUST NOT）')
   })
@@ -1203,15 +1203,15 @@ describe('表 T-051 HF-6 -- the ground laid under a task group’s controls', ()
 })
 
 // ===========================================================================
-// (b) FR-029 -- the faintness, and which colour it is
+// (b) FR-029 -- the faintness, and which color it is
 // ===========================================================================
 
 describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () => {
-  it('⛔ MUST: on the `App Header`, the faint colour is 表 T-236’s S-149', () => {
+  it('⛔ MUST: on the `App Header`, the faint color is 表 T-236’s S-149', () => {
     // 「その入口を押しても、いま文書にも画面にも何も変えられないときは、その入口を
     //   薄く描くこと（MUST）。薄さは … 表 T-236 の `S-149` の色で示すこと（MUST）」
     // ⛔ WHICH ROW, AND NOT MERELY "SOME ROW". tests/unit/uf-71.test.ts already
-    // asks that the colour is a row of 表 T-236 and that it differs from an
+    // asks that the color is a row of 表 T-236 and that it differs from an
     // entry that can be used; CR-306 named the row, and nothing asked for it.
     const built = drawn(
       viewWith({
@@ -1223,7 +1223,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
     )
 
     expect(
-      paintedColour(built, iconEntry(built.root(), IC_HEADER)),
+      paintedColor(built, iconEntry(built.root(), IC_HEADER)),
       'FR-029 (MUST): 薄さは 表 T-236 の `S-149` の色で示すこと',
     ).toBe(S_149)
   })
@@ -1236,7 +1236,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
     )
 
     expect(
-      paintedColour(built, iconEntry(oneByRole(built.root(), U_26), IC_PALETTE)),
+      paintedColor(built, iconEntry(oneByRole(built.root(), U_26), IC_PALETTE)),
       'FR-029 (MUST NOT): 載る面によって薄くしない入口があってはならない',
     ).toBe(S_149)
   })
@@ -1249,7 +1249,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
     const row = taskGroupElement(built)
 
     expect(
-      paintedColour(built, iconEntry(row, IC_TASK_GROUP_OPEN)),
+      paintedColor(built, iconEntry(row, IC_TASK_GROUP_OPEN)),
       `FR-029 (MUST): the task group control with nothing to open is not painted S-149: ${whatWasDrawn(row)}`,
     ).toBe(S_149)
   })
@@ -1273,7 +1273,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
 
     for (const icon of [IC_OPEN_EVERY_TASK_GROUP, IC_CLOSE_EVERY_TASK_GROUP]) {
       expect(
-        paintedColour(built, iconEntry(root, icon)),
+        paintedColor(built, iconEntry(root, icon)),
         `FR-029 (MUST): ${icon} has nothing to do and is not painted S-149`,
       ).toBe(S_149)
     }
@@ -1295,13 +1295,13 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
     const root = built.root()
 
     for (const icon of [IC_OPEN_EVERY_TASK_GROUP, IC_CLOSE_EVERY_TASK_GROUP]) {
-      expect(paintedColour(built, iconEntry(root, icon)), `${icon} still has task groups to reach`).not.toBe(
+      expect(paintedColor(built, iconEntry(root, icon)), `${icon} still has task groups to reach`).not.toBe(
         S_149,
       )
     }
   })
 
-  it('⭐ and an entrance that CAN be used is not painted that colour', () => {
+  it('⭐ and an entrance that CAN be used is not painted that color', () => {
     // ⛔ WITHOUT THIS PAIR, A UNIT THAT PAINTED EVERY ENTRANCE S-149 WOULD PASS
     // ALL THREE CASES ABOVE and would be telling a person nothing at all.
     const built = drawn(
@@ -1313,7 +1313,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
       }),
     )
 
-    expect(paintedColour(built, iconEntry(built.root(), IC_HEADER))).not.toBe(S_149)
+    expect(paintedColor(built, iconEntry(built.root(), IC_HEADER))).not.toBe(S_149)
   })
 
   it('⛔ MUST NOT: a faint entrance is never disabled in the host’s own sense', () => {

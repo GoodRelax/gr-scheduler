@@ -20,7 +20,7 @@ import {
   FakeElement,
   iconEntry,
   oneByRole,
-  paintedColour,
+  paintedColor,
   selfAndDescendants,
   stage,
   styleMap,
@@ -213,8 +213,8 @@ describe('each task group (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
     const openAll = iconFor('HF-2')
     const faint = iconEntry(taskGroupNode(built, 'g-plain')[0] as FakeElement, openAll)
     const live = iconEntry(taskGroupNode(built, 'g-live')[0] as FakeElement, openAll)
-    expect(paintedColour(built, faint)).toBe(S_149_LIGHT)
-    expect(paintedColour(built, live)).not.toBe(S_149_LIGHT)
+    expect(paintedColor(built, faint)).toBe(S_149_LIGHT)
+    expect(paintedColor(built, live)).not.toBe(S_149_LIGHT)
     expect(faint.hasAttribute('disabled')).toBe(false)
   })
 

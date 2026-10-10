@@ -147,8 +147,8 @@ describe(`TY-2 / TY-3 -- the marker outside the actual and the resume icon answe
     const marker = markerOf(SHORT.started)
     const plan = boxOf((SHORT.started as unknown as { plan: unknown }).plan)
     expect(marker, 'premise: a marker is drawn').not.toBeNull()
-    const reaching = sizesWith(SHORT.sizes, 'S-254', plan.right - marker!.centre.x + marker!.radius)
-    expect(grabAt(SHORT, marker!.centre.x, marker!.centre.y, reaching), T_268_TOP_FIRST).toBe('GA-18')
+    const reaching = sizesWith(SHORT.sizes, 'S-254', plan.right - marker!.center.x + marker!.radius)
+    expect(grabAt(SHORT, marker!.center.x, marker!.center.y, reaching), T_268_TOP_FIRST).toBe('GA-18')
   })
 })
 
@@ -185,7 +185,7 @@ describe('TY-5 -- the dependency line falls behind the shapes on a drawn shape a
 })
 
 describe('TY-8 / TY-9 -- the milestone plan and the body answer last', () => {
-  it('gives the centre of a started milestone to the actual, not to the plan', () => {
+  it('gives the center of a started milestone to the actual, not to the plan', () => {
     const actual = boxOf(actualOf(MILESTONE.started))
     expect(grabAt(MILESTONE, actual.middleX, actual.middleY), T_268_TOP_FIRST).toBe('GA-16')
   })

@@ -1,14 +1,14 @@
-// CR-606 spec-only cases: the words and marks of every colour field (T-017b CV-9): the transparent
+// CR-606 spec-only cases: the words and marks of every color field (T-017b CV-9): the transparent
 
 import { describe, expect, it } from 'vitest'
 
-import type { ColourField, PropertyControl } from '../../src/adapter/screen-renderer/screen-renderer'
+import type { ColorField, PropertyControl } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { ItemRef } from '../../src/entity/document-model/selection/selection'
 import {
   GROUP_ID,
   PROPERTY_ITEMS_TABLE,
   REQUIREMENTS,
-  colourWordOf,
+  colorWordOf,
   commentBoxOf,
   controlsOf,
   documentOf,
@@ -92,7 +92,7 @@ const hslToRgb = (h: number, s: number, l: number): Rgb => {
   return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)]
 }
 
-// WHY: the panel may spell a colour as hex, hsl() or rgb(); the cases compare the colour, not the spelling.
+// WHY: the panel may spell a color as hex, hsl() or rgb(); the cases compare the color, not the spelling.
 const rgbOf = (text: string): Rgb | null => {
   const value = text.trim().toLowerCase()
   const hex = /^#([0-9a-f]{6})$/.exec(value)?.[1] ?? null
@@ -108,7 +108,7 @@ const rgbOf = (text: string): Rgb | null => {
   return null
 }
 
-const sameColour = (drawn: string | undefined, expected: string): boolean => {
+const sameColor = (drawn: string | undefined, expected: string): boolean => {
   const a = rgbOf(drawn ?? '')
   const b = rgbOf(expected)
   if (a === null || b === null) return false
@@ -134,7 +134,7 @@ const DOCUMENT = documentOf({
 })
 
 const THEME_HUE = DOCUMENT.schedule.project.themeHue ?? 0
-const t236Colour = (id: string, column: string): string => {
+const t236Color = (id: string, column: string): string => {
   const cell = bare(t236Row(id).by[column] ?? '')
   return cell.replace('H', String(THEME_HUE))
 }
@@ -146,19 +146,19 @@ const SCENES: Readonly<Record<string, readonly [ItemRef | null, readonly string[
   commentBox: [{ kind: 'commentBox', id: NOTE }, []],
 }
 
-const colourControlOf = (holder: string, column: string, item?: ItemRef): PropertyControl => {
+const colorControlOf = (holder: string, column: string, item?: ItemRef): PropertyControl => {
   const [sceneItem, groupIds] = SCENES[holder] ?? [null, []]
   const controls = controlsOf(panelOf(DOCUMENT, item ?? sceneItem, groupIds)).filter((one) => {
     const key = one.key as { readonly holder: string; readonly column: string }
     return one.kind === 'color' && key.holder === holder && key.column === column
   })
-  if (controls.length !== 1) throw new Error(`premise: one colour control of ${holder}.${column}, got ${controls.length}`)
+  if (controls.length !== 1) throw new Error(`premise: one color control of ${holder}.${column}, got ${controls.length}`)
   return controls[0] as PropertyControl
 }
 
-const colourOf = (control: PropertyControl): ColourField => {
-  if (control.colour === undefined) throw new Error('premise: the colour control carries its ColourField')
-  return control.colour
+const colorOf = (control: PropertyControl): ColorField => {
+  if (control.color === undefined) throw new Error('premise: the color control carries its ColorField')
+  return control.color
 }
 
 // WHY: what each field's transparent entry says (CV-9 (4)); null where CV-9 leaves the slot empty.
@@ -183,30 +183,30 @@ const NULL_ROWS: readonly (readonly [string, string, string])[] = [
 ]
 
 describe(`CV-9 (4) -- ${CV_9_TRANSPARENT_WORD}`, () => {
-  it.each(FIELDS.filter(([, , word]) => word !== null))('%s.%s: the transparent entry reads colourField.%s', (holder, column, word) => {
-    expect(colourOf(colourControlOf(holder, column)).transparentWord).toBe(colourWordOf(word as string))
+  it.each(FIELDS.filter(([, , word]) => word !== null))('%s.%s: the transparent entry reads colorField.%s', (holder, column, word) => {
+    expect(colorOf(colorControlOf(holder, column)).transparentWord).toBe(colorWordOf(word as string))
   })
 
   it.each(FIELDS.filter(([, , word]) => word === null))(`${CV_9_COMMENT_NO_TRANSPARENT} -- %s.%s offers no transparent entry`, (holder, column) => {
-    expect(colourOf(colourControlOf(holder, column)).transparentWord).toBeUndefined()
+    expect(colorOf(colorControlOf(holder, column)).transparentWord).toBeUndefined()
   })
 
   it(`${CV_9_FRAME_NO_LINE} -- the highlight box outline offers the transparent name`, () => {
     const transparent = bare(specTable('T-294').rows.find((one) => one.id === 'S-324')?.by['保存する綴り'] ?? '')
     expect(transparent).toBe('transparent')
-    const names = colourOf(colourControlOf('highlightBox', 'strokeColor')).names ?? []
+    const names = colorOf(colorControlOf('highlightBox', 'strokeColor')).names ?? []
     expect(names.find((one) => one.name === transparent)?.isOffered).toBe(true)
   })
 
   it('control: no fill and no line are two different words', () => {
-    expect(colourWordOf('noFill')).not.toBe(colourWordOf('noLine'))
+    expect(colorWordOf('noFill')).not.toBe(colorWordOf('noLine'))
   })
 })
 
 describe(`CV-9 (2) -- ${CV_9_THEME_OR_DEFAULT}`, () => {
   it.each(NULL_ROWS)('%s.%s: null draws %s, so the entrance tooltip reads by its hue column', (holder, column, row) => {
-    const expected = followsHue(row) ? colourWordOf('themeHint') : colourWordOf('defaultColour')
-    expect(colourOf(colourControlOf(holder, column)).theme.hint).toBe(expected)
+    const expected = followsHue(row) ? colorWordOf('themeHint') : colorWordOf('defaultColor')
+    expect(colorOf(colorControlOf(holder, column)).theme.hint).toBe(expected)
   })
 
   it('premise: the five rows split both ways (S-155 and S-146 follow the hue; S-312 and S-147 do not)', () => {
@@ -220,42 +220,42 @@ describe(`CV-9 (2) -- ${CV_9_THEME_OR_DEFAULT}`, () => {
     ['taskVisual', 'fillColor'],
     ['taskVisual', 'strokeColor'],
     ['taskGroup', 'color'],
-  ] as const)(`${CV_9_THEME_ENTRY_IS_NULL} -- %s.%s follows the theme, so the tooltip reads colourField.themeHint`, (holder, column) => {
-    expect(colourOf(colourControlOf(holder, column)).theme.hint).toBe(colourWordOf('themeHint'))
+  ] as const)(`${CV_9_THEME_ENTRY_IS_NULL} -- %s.%s follows the theme, so the tooltip reads colorField.themeHint`, (holder, column) => {
+    expect(colorOf(colorControlOf(holder, column)).theme.hint).toBe(colorWordOf('themeHint'))
   })
 
   it.each(NULL_ROWS)(`${CV_9_THEME_PAINT} -- %s.%s: the entrance is painted with %s (light)`, (holder, column, row) => {
-    const paint = colourOf(colourControlOf(holder, column)).theme.paint ?? undefined
-    const expected = t236Colour(row, LIGHT_COLUMN)
-    expect(sameColour(paint, expected), `${String(paint)} vs ${expected}`).toBe(true)
+    const paint = colorOf(colorControlOf(holder, column)).theme.paint ?? undefined
+    const expected = t236Color(row, LIGHT_COLUMN)
+    expect(sameColor(paint, expected), `${String(paint)} vs ${expected}`).toBe(true)
   })
 })
 
 describe(`CV-9 -- ${CV_9_GLYPHS}`, () => {
-  it.each(FIELDS)('%s.%s: the theme entrance carries colourField.themeGlyph and the custom one customGlyph', (holder, column) => {
-    const field = colourOf(colourControlOf(holder, column))
-    expect(field.theme.glyph).toBe(colourWordOf('themeGlyph'))
-    expect(field.custom.glyph).toBe(colourWordOf('customGlyph'))
+  it.each(FIELDS)('%s.%s: the theme entrance carries colorField.themeGlyph and the custom one customGlyph', (holder, column) => {
+    const field = colorOf(colorControlOf(holder, column))
+    expect(field.theme.glyph).toBe(colorWordOf('themeGlyph'))
+    expect(field.custom.glyph).toBe(colorWordOf('customGlyph'))
   })
 
   it('premise: the dictionary spells the two glyphs T and O', () => {
-    expect([colourWordOf('themeGlyph'), colourWordOf('customGlyph')]).toEqual(['T', 'O'])
+    expect([colorWordOf('themeGlyph'), colorWordOf('customGlyph')]).toEqual(['T', 'O'])
   })
 })
 
 describe(`CV-9 -- ${CV_9_CUSTOM_VALUE}`, () => {
-  it('a task filled with a custom colour: the custom entrance is painted with it and its tooltip names it', () => {
-    const custom = colourOf(colourControlOf('taskVisual', 'fillColor', taskItem(CUSTOM))).custom
-    expect(sameColour(custom.paint ?? undefined, CUSTOM_LIGHT), `${String(custom.paint)} vs ${CUSTOM_LIGHT}`).toBe(true)
-    expect(custom.hint).toBe(colourWordOf('customValue').replace('{value}', CUSTOM_LIGHT.toUpperCase()))
+  it('a task filled with a custom color: the custom entrance is painted with it and its tooltip names it', () => {
+    const custom = colorOf(colorControlOf('taskVisual', 'fillColor', taskItem(CUSTOM))).custom
+    expect(sameColor(custom.paint ?? undefined, CUSTOM_LIGHT), `${String(custom.paint)} vs ${CUSTOM_LIGHT}`).toBe(true)
+    expect(custom.hint).toBe(colorWordOf('customValue').replace('{value}', CUSTOM_LIGHT.toUpperCase()))
   })
 
   it.each([
     ['a palette name', FILLED],
     ['null', PLAIN],
   ] as const)('a task whose fill is %s: the custom entrance is unpainted and names only the entrance', (_what, uid) => {
-    const custom = colourOf(colourControlOf('taskVisual', 'fillColor', taskItem(uid))).custom
+    const custom = colorOf(colorControlOf('taskVisual', 'fillColor', taskItem(uid))).custom
     expect(custom.paint).toBeNull()
-    expect(custom.hint).toBe(colourWordOf('custom'))
+    expect(custom.hint).toBe(colorWordOf('custom'))
   })
 })

@@ -320,7 +320,7 @@ function escOrderOf(key: string): number {
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 
 /**
- * ⛔ THE SAME HANDLES the neighbouring System files lean on, and no others.
+ * ⛔ THE SAME HANDLES the neighboring System files lean on, and no others.
  * Nothing in the specification says how a part is marked in the page; the shell
  * writes the part's settled name of `_assets/tbl-glossary.md`, and a change to
  * that marking breaks these cases, as it should.
@@ -710,7 +710,7 @@ test(`S-132: a placed highlight box is drawn with a corner radius of ${CORNER_RA
 // ⚠️ A CONFIRMATION IS ANSWERED WHEN ONE STANDS. `FR-032` (MUST) asks for one
 // when a task group is deleted and when a `Task` with WBS descendants is, and table
 // T-037 row `NT-7` (MUST) has it answerable by the `y` keystroke. Answering it
-// is part of asking for the deletion, not a weakening of the judgement.
+// is part of asking for the deletion, not a weakening of the judgment.
 for (const key of SK3_KEYS) {
   test(`SK-3: ${key} deletes every task ${SK2_KEY} selected`, async () => {
     test.setTimeout(180_000)

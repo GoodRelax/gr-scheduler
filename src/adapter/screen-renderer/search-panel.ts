@@ -283,7 +283,7 @@ export function searchPanelFromSession(
   const shown = shownIn(session)
   if (shown === null) return null
   const language = displayLanguageOf(session)
-  const found = shown === 'minimised' ? null : searchRowsOf(schedule, panel.word, bottleneckUids)
+  const found = shown === 'minimized' ? null : searchRowsOf(schedule, panel.word, bottleneckUids)
   const all = found === null || panel.word === '' ? found : searchRowsOf(schedule, '', bottleneckUids)
   const table = searchTableOf(session, panel, () => found ?? NOTHING_FOUND, all ?? undefined)
   const open = openFilterIn(panel, shown, table)

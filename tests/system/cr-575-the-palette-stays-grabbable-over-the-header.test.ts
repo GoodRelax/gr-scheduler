@@ -11,7 +11,7 @@ const FR_053_FOLLOWS_THE_POINTER = '**掴み帯を握っているあいだ、パ
 const FR_053_NEVER_OUT_OF_THE_WINDOW = '⛔ 掴み帯を閲覧環境の窓の外へ出してはならない（MUST NOT）。'
 const FR_053_WHAT_STAYS_IN =
   '帯の上端と下端が窓の中に在り、帯の右端の `IC-53` と `IC-75` が窓の中に在ること（MUST） —— 追従しているあいだも、離して角が決まるときも、窓の大きさが変わったときも同じである。'
-const FR_053_MINIMISED_SHOWS_THE_BAND_ONLY =
+const FR_053_MINIMIZED_SHOWS_THE_BAND_ONLY =
   '⛔ 最小化しているあいだに出すのは掴み帯だけとし、ほかは何も出さないこと（MUST） —— 帯には掴めることを示す 表 T-109 の `IC-53` と、最小化の入口（同表の `IC-75`）が載ったままである。'
 const FR_152_FOLLOW_T_337 = '前後は `FR-152` の 表 T-337 に従うこと。'
 const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）。'
@@ -25,7 +25,7 @@ const CLAUSES: readonly string[] = [
   FR_053_FOLLOWS_THE_POINTER,
   FR_053_NEVER_OUT_OF_THE_WINDOW,
   FR_053_WHAT_STAYS_IN,
-  FR_053_MINIMISED_SHOWS_THE_BAND_ONLY,
+  FR_053_MINIMIZED_SHOWS_THE_BAND_ONLY,
   FR_152_FOLLOW_T_337,
   T_337_THE_FRONT_ONE_TAKES_THE_PRESS,
   T_337_NO_PART_STOPS_PRESSES_OUTSIDE,
@@ -42,7 +42,7 @@ const HELP = partOf('U-30')
 const TOOLTIP = partOf('U-53')
 
 const GRAB_MARK = rowOf(T_109, 'IC-53').id
-const MINIMISE = rowOf(T_109, 'IC-75').id
+const MINIMIZE = rowOf(T_109, 'IC-75').id
 const OPEN_HELP = rowOf(T_109, 'IC-22').id
 
 const PALETTE_NAME = bare(rowOf(T_103, 'U-26').by['確定名（英）'] ?? '')
@@ -87,11 +87,11 @@ interface Band {
   readonly band: Rect
   readonly palette: Rect
   readonly grabMark: Rect
-  readonly minimise: Rect
+  readonly minimize: Rect
   readonly window: { readonly width: number; readonly height: number }
 }
 
-const centreOf = (rect: Rect): Point => ({ x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 })
+const centerOf = (rect: Rect): Point => ({ x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 })
 
 const holds = (rect: Rect, point: Point): boolean =>
   point.x >= rect.left && point.x < rect.right && point.y >= rect.top && point.y < rect.bottom
@@ -137,14 +137,14 @@ async function rectOf(page: Page, selector: string): Promise<Rect | null> {
 // see GR-19, FR-053
 async function readBand(page: Page): Promise<Band> {
   const read = await page.evaluate(
-    ({ palette, grabMark, minimise }: { palette: string; grabMark: string; minimise: string }) => {
+    ({ palette, grabMark, minimize }: { palette: string; grabMark: string; minimize: string }) => {
       const rect = (element: Element): { left: number; top: number; right: number; bottom: number } => {
         const box = element.getBoundingClientRect()
         return { left: box.left, top: box.top, right: box.right, bottom: box.bottom }
       }
       const whole = document.querySelector(palette)
       const grab = whole?.querySelector(`[data-icon="${grabMark}"]`) ?? null
-      const small = whole?.querySelector(`[data-icon="${minimise}"]`) ?? null
+      const small = whole?.querySelector(`[data-icon="${minimize}"]`) ?? null
       if (whole === null || grab === null || small === null) return null
       let band: Element | null = grab
       while (band !== null && band.parentElement !== whole) band = band.parentElement
@@ -153,13 +153,13 @@ async function readBand(page: Page): Promise<Band> {
         band: rect(band),
         palette: rect(whole),
         grabMark: rect(grab),
-        minimise: rect(small),
+        minimize: rect(small),
         window: { width: window.innerWidth, height: window.innerHeight },
       }
     },
-    { palette: PALETTE, grabMark: `${GRAB_MARK}`, minimise: `${MINIMISE}` },
+    { palette: PALETTE, grabMark: `${GRAB_MARK}`, minimize: `${MINIMIZE}` },
   )
-  if (read === null) throw new Error(`no ${PALETTE} carrying ${GRAB_MARK} and ${MINIMISE} is on the screen`)
+  if (read === null) throw new Error(`no ${PALETTE} carrying ${GRAB_MARK} and ${MINIMIZE} is on the screen`)
   return read
 }
 
@@ -212,8 +212,8 @@ async function carryOverTheHeader(page: Page): Promise<{ before: Band; after: Ba
   const header = await rectOf(page, HEADER)
   if (header === null) throw new Error(`no ${HEADER} is on the screen`)
   const before = await readBand(page)
-  const from = centreOf(before.band)
-  await carry(page, from, { x: from.x, y: centreOf(header).y })
+  const from = centerOf(before.band)
+  await carry(page, from, { x: from.x, y: centerOf(header).y })
   return { before, after: await readBand(page), header }
 }
 
@@ -227,23 +227,23 @@ async function isArmed(page: Page, icon: string): Promise<boolean> {
 
 test('CR-575 -- FR-053, FR-152, T-337 and IN-3 still say what these cases press, word for word', () => {
   for (const clause of CLAUSES) expect(REQUIREMENTS, clause).toContain(clause)
-  expect(rowOf(T_109, MINIMISE).by['何の入口か'] ?? '', IC_75_SAME_ENTRANCE_RESTORES).toContain(IC_75_SAME_ENTRANCE_RESTORES)
+  expect(rowOf(T_109, MINIMIZE).by['何の入口か'] ?? '', IC_75_SAME_ENTRANCE_RESTORES).toContain(IC_75_SAME_ENTRANCE_RESTORES)
   expect(ARMING_IN_THE_PALETTE.length, 'premise: table T-109 names entrances of the palette that arm').toBeGreaterThan(0)
   expect(S_124_MS, 'premise: S-124 reads as a wait').toBeGreaterThan(0)
 })
 
 test.describe('CR-575 item 2 -- the band is carried over the App Header and stays the front there (FR-053, T-337 UZ-5 over UZ-8)', () => {
-  test('FR-053 / T-337: over the header the band centre shows the palette, and the band carries it back', async () => {
+  test('FR-053 / T-337: over the header the band center shows the palette, and the band carries it back', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {
       const { page } = stage
       const { before, after, header } = await carryOverTheHeader(page)
-      const centre = centreOf(after.band)
-      expect(holds(header, centre), `${FR_053_OVER_THE_HEADER} band ${said(after.band)}, header ${said(header)}`).toBe(true)
-      expect(await frontIsInside(page, centre, PALETTE), T_337_THE_FRONT_ONE_TAKES_THE_PRESS).toBe(true)
+      const center = centerOf(after.band)
+      expect(holds(header, center), `${FR_053_OVER_THE_HEADER} band ${said(after.band)}, header ${said(header)}`).toBe(true)
+      expect(await frontIsInside(page, center, PALETTE), T_337_THE_FRONT_ONE_TAKES_THE_PRESS).toBe(true)
 
-      await carry(page, centre, centreOf(before.band))
+      await carry(page, center, centerOf(before.band))
       const back = await readBand(page)
       expect(Math.abs(back.palette.left - before.palette.left), `${FR_053_FOLLOWS_THE_POINTER} ${said(back.palette)} vs ${said(before.palette)}`).toBeLessThanOrEqual(SUBPIXEL)
       expect(Math.abs(back.palette.top - before.palette.top), `${FR_053_FOLLOWS_THE_POINTER} ${said(back.palette)} vs ${said(before.palette)}`).toBeLessThanOrEqual(SUBPIXEL)
@@ -252,29 +252,29 @@ test.describe('CR-575 item 2 -- the band is carried over the App Header and stay
     }
   })
 
-  test('FR-053 / IC-75: over the header IC-75 minimises to the band alone, and the same entrance restores it in place', async () => {
+  test('FR-053 / IC-75: over the header IC-75 minimizes to the band alone, and the same entrance restores it in place', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {
       const { page } = stage
       const { after, header } = await carryOverTheHeader(page)
       const open = await visibleEntrancesIn(page, PALETTE)
-      expect(open.filter((one) => one !== GRAB_MARK && one !== MINIMISE).length, 'premise: the palette shows entrances before it is minimised').toBeGreaterThan(0)
-      const minimiseAt = centreOf(after.minimise)
-      expect(await frontIsInside(page, minimiseAt, PALETTE), `${T_337_THE_FRONT_ONE_TAKES_THE_PRESS} (${MINIMISE})`).toBe(true)
+      expect(open.filter((one) => one !== GRAB_MARK && one !== MINIMIZE).length, 'premise: the palette shows entrances before it is minimized').toBeGreaterThan(0)
+      const minimizeAt = centerOf(after.minimize)
+      expect(await frontIsInside(page, minimizeAt, PALETTE), `${T_337_THE_FRONT_ONE_TAKES_THE_PRESS} (${MINIMIZE})`).toBe(true)
 
-      await pressAt(page, minimiseAt)
-      const minimised = await visibleEntrancesIn(page, PALETTE)
-      expect(minimised.filter((one) => one !== GRAB_MARK && one !== MINIMISE), FR_053_MINIMISED_SHOWS_THE_BAND_ONLY).toEqual([])
-      expect(minimised, FR_053_MINIMISED_SHOWS_THE_BAND_ONLY).toEqual(expect.arrayContaining([GRAB_MARK, MINIMISE]))
+      await pressAt(page, minimizeAt)
+      const minimized = await visibleEntrancesIn(page, PALETTE)
+      expect(minimized.filter((one) => one !== GRAB_MARK && one !== MINIMIZE), FR_053_MINIMIZED_SHOWS_THE_BAND_ONLY).toEqual([])
+      expect(minimized, FR_053_MINIMIZED_SHOWS_THE_BAND_ONLY).toEqual(expect.arrayContaining([GRAB_MARK, MINIMIZE]))
       const small = await readBand(page)
-      expect(holds(header, centreOf(small.band)), `${FR_053_OVER_THE_HEADER} band ${said(small.band)}`).toBe(true)
+      expect(holds(header, centerOf(small.band)), `${FR_053_OVER_THE_HEADER} band ${said(small.band)}`).toBe(true)
 
-      await pressAt(page, centreOf(small.minimise))
+      await pressAt(page, centerOf(small.minimize))
       const restored = await visibleEntrancesIn(page, PALETTE)
-      expect(restored.filter((one) => one !== GRAB_MARK && one !== MINIMISE).length, IC_75_SAME_ENTRANCE_RESTORES).toBeGreaterThan(0)
+      expect(restored.filter((one) => one !== GRAB_MARK && one !== MINIMIZE).length, IC_75_SAME_ENTRANCE_RESTORES).toBeGreaterThan(0)
       const again = await readBand(page)
-      expect(holds(header, centreOf(again.band)), `${FR_053_OVER_THE_HEADER} band ${said(again.band)}`).toBe(true)
+      expect(holds(header, centerOf(again.band)), `${FR_053_OVER_THE_HEADER} band ${said(again.band)}`).toBe(true)
     } finally {
       await stage.close()
     }
@@ -289,7 +289,7 @@ test.describe('CR-575 item 3 -- the palette over the open help is in front and a
       const { page } = stage
       const helpEntrance = await rectOf(page, `[data-icon="${OPEN_HELP}"]`)
       if (helpEntrance === null) throw new Error(`${OPEN_HELP} is not on the screen`)
-      await pressAt(page, centreOf(helpEntrance))
+      await pressAt(page, centerOf(helpEntrance))
       const help = await rectOf(page, HELP)
       if (help === null) throw new Error(`${OPEN_HELP} opened no ${HELP}`)
 
@@ -300,16 +300,16 @@ test.describe('CR-575 item 3 -- the palette over the open help is in front and a
       const entrance = await rectOf(page, `${PALETTE} [data-icon="${arming}"]`)
       if (entrance === null) throw new Error(`${arming} is not in the palette`)
       const before = await readBand(page)
-      const shift = { x: centreOf(help).x - centreOf(entrance).x, y: centreOf(help).y - centreOf(entrance).y }
-      const from = centreOf(before.band)
+      const shift = { x: centerOf(help).x - centerOf(entrance).x, y: centerOf(help).y - centerOf(entrance).y }
+      const from = centerOf(before.band)
       await carry(page, from, { x: from.x + shift.x, y: from.y + shift.y })
 
       const moved = await rectOf(page, `${PALETTE} [data-icon="${arming}"]`)
       if (moved === null) throw new Error(`${arming} left the palette`)
-      const target = centreOf(moved)
+      const target = centerOf(moved)
       expect(holds(help, target), `premise: ${arming} ${said(moved)} lies over ${HELP} ${said(help)}`).toBe(true)
       expect(await frontIsInside(page, target, PALETTE), T_337_THE_FRONT_ONE_TAKES_THE_PRESS).toBe(true)
-      expect(await frontIsInside(page, centreOf((await readBand(page)).band), PALETTE), T_337_THE_FRONT_ONE_TAKES_THE_PRESS).toBe(true)
+      expect(await frontIsInside(page, centerOf((await readBand(page)).band), PALETTE), T_337_THE_FRONT_ONE_TAKES_THE_PRESS).toBe(true)
 
       await pressAt(page, target)
       // WHY: data-armed is the mark the use-case tests read an armed entrance by; no row names one.
@@ -326,7 +326,7 @@ test.describe('CR-575 item 4 -- the band never leaves the window (FR-053, JDG-66
     expect(read.band.top, `${FR_053_WHAT_STAYS_IN} ${when}: band ${said(read.band)}`).toBeGreaterThanOrEqual(-SUBPIXEL)
     expect(read.band.bottom, `${FR_053_WHAT_STAYS_IN} ${when}: band ${said(read.band)}`).toBeLessThanOrEqual(read.window.height + SUBPIXEL)
     expect(insideWindow(read.grabMark, read.window), `${FR_053_WHAT_STAYS_IN} ${when}: ${GRAB_MARK} ${said(read.grabMark)}`).toBe(true)
-    expect(insideWindow(read.minimise, read.window), `${FR_053_WHAT_STAYS_IN} ${when}: ${MINIMISE} ${said(read.minimise)}`).toBe(true)
+    expect(insideWindow(read.minimize, read.window), `${FR_053_WHAT_STAYS_IN} ${when}: ${MINIMIZE} ${said(read.minimize)}`).toBe(true)
   }
 
   test('FR-053: thrown past the top and the right edge, the band stays in while held and after release', async () => {
@@ -334,7 +334,7 @@ test.describe('CR-575 item 4 -- the band never leaves the window (FR-053, JDG-66
     const stage = await openTheSample(TALL)
     try {
       const { page } = stage
-      const from = centreOf((await readBand(page)).band)
+      const from = centerOf((await readBand(page)).band)
       const width = TALL.width
       await page.mouse.move(from.x, from.y)
       await page.mouse.down()
@@ -357,7 +357,7 @@ test.describe('CR-575 item 4 -- the band never leaves the window (FR-053, JDG-66
     const stage = await openTheSample(TALL)
     try {
       const { page } = stage
-      const from = centreOf((await readBand(page)).band)
+      const from = centerOf((await readBand(page)).band)
       await carry(page, from, { x: TALL.width - 1, y: TALL.height - 1 })
       expectInside(await readBand(page), `after release at the bottom right corner of ${TALL.width} x ${TALL.height}`)
       await page.setViewportSize(LOW)
@@ -381,7 +381,7 @@ test.describe('CR-575 item 5 -- pressing an entrance drops its description (IN-3
       const { page } = stage
       const entrance = await rectOf(page, `[data-icon="${OPEN_HELP}"]`)
       if (entrance === null) throw new Error(`${OPEN_HELP} is not on the screen`)
-      const at = centreOf(entrance)
+      const at = centerOf(entrance)
       await page.mouse.move(at.x, at.y)
       await expect
         .poll(() => tooltipText(page), { timeout: S_124_MS + SHOW_ALLOWANCE_MS, message: `premise: resting on ${OPEN_HELP} shows its description` })

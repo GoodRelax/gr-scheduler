@@ -1,4 +1,4 @@
-// DFC-806 / JDG-410: a double click on a highlight box puts the panel up and focuses its frame colour field (MK-13, PR-22).
+// DFC-806 / JDG-410: a double click on a highlight box puts the panel up and focuses its frame color field (MK-13, PR-22).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -241,8 +241,8 @@ describe('the manuscript and the ruling these cases read', () => {
   })
 })
 
-describe('MK-13 (JDG-410) -- a double click on a highlight box focuses its frame colour field', () => {
-  it('MUST: the panel is put up and it draws the frame colour field', () => {
+describe('MK-13 (JDG-410) -- a double click on a highlight box focuses its frame color field', () => {
+  it('MUST: the panel is put up and it draws the frame color field', () => {
     // see MK-13, PR-22
     const built = bench()
     built.doubleClick(onTheHighlightFrame(built))
@@ -307,7 +307,7 @@ const inPanel = (built: Bench, element: FakeElement | null): boolean => {
 const customEntranceOf = (built: Bench, row: string): FakeElement | undefined => {
   const panel = byRole(built.built.root(), PROPERTIES_PANEL)[0]
   if (panel === undefined) return undefined
-  return selfAndDescendants(panel).find((one) => fieldRowOf(one) === row && one.getAttribute('data-colour-custom-entry') !== null)
+  return selfAndDescendants(panel).find((one) => fieldRowOf(one) === row && one.getAttribute('data-color-custom-entry') !== null)
 }
 const pressedIn = (built: Bench, row: string): FakeElement[] => {
   const panel = byRole(built.built.root(), PROPERTIES_PANEL)[0]
@@ -317,8 +317,8 @@ const pressedIn = (built: Bench, row: string): FakeElement[] => {
 const TEXT_CONTROL_TAGS = ['TEXTAREA', 'INPUT']
 const CUSTOM_STROKE = '#123456'
 
-describe('MK-13 (JDG-410) through the real seam -- the focus lands in the frame colour field', () => {
-  it('no stroke colour set: the focus lands on the pressed control of the PR-22 field', () => {
+describe('MK-13 (JDG-410) through the real seam -- the focus lands in the frame color field', () => {
+  it('no stroke color set: the focus lands on the pressed control of the PR-22 field', () => {
     // see MK-13, PR-22, CV-9
     const built = bench({ realFocus: true })
     built.doubleClick(onTheHighlightFrame(built))
@@ -330,7 +330,7 @@ describe('MK-13 (JDG-410) through the real seam -- the focus lands in the frame 
     expect(pressed, 'the focused control is the pressed one').toContain(active)
   })
 
-  it('a custom stroke colour: the focus lands on the custom entrance, the swatch CV-9 now outlines for the value', () => {
+  it('a custom stroke color: the focus lands on the custom entrance, the swatch CV-9 now outlines for the value', () => {
     // see MK-13, PR-22, CV-9, CR-689
     const built = bench({ realFocus: true, strokeColor: CUSTOM_STROKE })
     built.doubleClick(onTheHighlightFrame(built))

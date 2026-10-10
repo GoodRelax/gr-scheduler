@@ -51,7 +51,7 @@ const LEFT_OFF_ROWS: readonly string[] = [
 
 // see FR-036, MC-6
 const SCREENS: readonly (readonly [string, { width: number; height: number }])[] = [
-  ['1280 x 627 (1920 x 1080 at 150 %, maximised)', { width: 1280, height: 627 }],
+  ['1280 x 627 (1920 x 1080 at 150 %, maximized)', { width: 1280, height: 627 }],
   ['MC-6', screenOf(rowOf(specTable('T-025'), 'MC-6'))],
 ]
 
@@ -79,7 +79,7 @@ interface HelpLayout {
   readonly allRows: readonly string[]
   readonly note: { readonly box: Box; readonly text: Box; readonly lineTops: readonly number[]; readonly isInAColumn: boolean } | null
   readonly copyright: Box | null
-  readonly licence: Box | null
+  readonly license: Box | null
   readonly fullText: Box | null
   readonly isFullTextOpen: boolean
 }
@@ -165,7 +165,7 @@ async function readLayout(page: Page): Promise<HelpLayout> {
     const legal = note?.parentElement ?? null
     const copyright =
       legal === null ? null : [...legal.children].find((one) => one !== note && one.tagName !== 'DETAILS' && one.querySelector('a') !== null) ?? null
-    const licence = copyright?.nextElementSibling ?? null
+    const license = copyright?.nextElementSibling ?? null
     const details = legal?.querySelector('details') ?? null
     return {
       language: modal.getAttribute('data-language') ?? '',
@@ -179,7 +179,7 @@ async function readLayout(page: Page): Promise<HelpLayout> {
       allRows: [...modal.querySelectorAll('[data-row]')].map((one) => one.getAttribute('data-row') ?? ''),
       note: noteRead,
       copyright: textBoxOf(copyright),
-      licence: textBoxOf(licence),
+      license: textBoxOf(license),
       fullText: textBoxOf(details?.querySelector('summary')),
       isFullTextOpen: details?.open ?? false,
     }
@@ -213,15 +213,15 @@ async function openHelpIn(size: { width: number; height: number }): Promise<{ pa
   }
 }
 
-const centreY = (box: Box): number => (box.top + box.bottom) / 2
+const centerY = (box: Box): number => (box.top + box.bottom) / 2
 const holdsY = (box: Box, y: number): boolean => y >= box.top - EDGE && y <= box.bottom + EDGE
 
 test.describe('CR-665 the manuscript these cases are driven by', () => {
   for (const [name, clause] of [
     ['FR-036 (MUST) one screen in both environments and both languages', FR_036_ONE_SCREEN],
     ['S-203 (MUST) a value that fits both', S_203_FITS_BOTH],
-    ['FR-036 (MUST) note *1 below the columns, above the licence, one right-aligned line', FR_036_NOTE_1],
-    ['FR-069 (MUST) copyright, licence name and the full-text entrance on one line', FR_069_ONE_LINE],
+    ['FR-036 (MUST) note *1 below the columns, above the license, one right-aligned line', FR_036_NOTE_1],
+    ['FR-069 (MUST) copyright, license name and the full-text entrance on one line', FR_069_ONE_LINE],
     ['T-256 (MUST) the align group moves under the Task Group Panel', T_256_SPLIT],
     ['FR-036 the low environment is about 1280 x 627 in CSS', FR_036_LOW_SCREEN],
   ] as const) {
@@ -278,23 +278,23 @@ for (const [screenName, size] of SCREENS) {
         expect(Math.abs(note.text.right - note.box.right), `${one.language}: the note is right-aligned`).toBeLessThanOrEqual(EDGE)
         expect(note.text.left - note.box.left, `${one.language}: the note does not start at the left`).toBeGreaterThan(EDGE)
         if (one.copyright === null) throw new Error(`${one.language}: no copyright line`)
-        expect(note.box.bottom, `${one.language}: the note is above the licence line`).toBeLessThanOrEqual(one.copyright.top + EDGE)
+        expect(note.box.bottom, `${one.language}: the note is above the license line`).toBeLessThanOrEqual(one.copyright.top + EDGE)
       }
     })
 
     test(`FR-069 (MUST): ${FR_069_ONE_LINE}`, () => {
       for (const one of layouts()) {
-        const { copyright, licence, fullText } = one
-        if (copyright === null || licence === null || fullText === null) throw new Error(`${one.language}: a part of the licence line is missing`)
+        const { copyright, license, fullText } = one
+        if (copyright === null || license === null || fullText === null) throw new Error(`${one.language}: a part of the license line is missing`)
         for (const [name, other] of [
-          ['the licence name', licence],
+          ['the license name', license],
           ['the full-text entrance', fullText],
         ] as const) {
-          expect(holdsY(copyright, centreY(other)), `${one.language}: ${name} shares the copyright line`).toBe(true)
-          expect(holdsY(other, centreY(copyright)), `${one.language}: the copyright shares the line of ${name}`).toBe(true)
+          expect(holdsY(copyright, centerY(other)), `${one.language}: ${name} shares the copyright line`).toBe(true)
+          expect(holdsY(other, centerY(copyright)), `${one.language}: the copyright shares the line of ${name}`).toBe(true)
         }
-        expect(copyright.right, `${one.language}: copyright, then the licence name`).toBeLessThanOrEqual(licence.left + EDGE)
-        expect(licence.right, `${one.language}: the licence name, then the full-text entrance`).toBeLessThanOrEqual(fullText.left + EDGE)
+        expect(copyright.right, `${one.language}: copyright, then the license name`).toBeLessThanOrEqual(license.left + EDGE)
+        expect(license.right, `${one.language}: the license name, then the full-text entrance`).toBeLessThanOrEqual(fullText.left + EDGE)
         expect(one.isFullTextOpen, `${one.language}: the full text stays folded`).toBe(false)
       }
     })

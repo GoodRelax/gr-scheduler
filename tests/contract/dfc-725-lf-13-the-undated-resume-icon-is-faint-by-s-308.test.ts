@@ -1,4 +1,4 @@
-// DFC-725: a resume icon that is not valid is drawn faint by S-308, in the colour of S-310 (= S-161) (LF-13, FR-044).
+// DFC-725: a resume icon that is not valid is drawn faint by S-308, in the color of S-310 (= S-161) (LF-13, FR-044).
 
 import { describe, expect, it } from 'vitest'
 
@@ -49,7 +49,7 @@ describe('DFC-725: the resume icon follows S-308 and S-310 (LF-13, FR-044)', () 
     expect(resumeParts(iconOf(day(7), false))).toContain(`opacity="${S_308}"`)
   })
 
-  it('S-310 the resume icon is inked in the colour of S-161 (DFC-725)', () => {
+  it('S-310 the resume icon is inked in the color of S-161 (DFC-725)', () => {
     expect(S_161_LIGHT).not.toBe('')
     const parts = resumeParts(iconOf(day(7), true))
     expect(parts).toContain(`stroke="${S_161_LIGHT}"`)

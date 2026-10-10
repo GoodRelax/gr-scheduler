@@ -628,7 +628,7 @@ describe('FR-099 (MUST) -- IC-66 deletes the CHOSEN assignees', () => {
 
     built.send(answerKeyFor(CANCEL))
 
-    expect(built.document(), 'the cancelling answer wrote something').toBe(before)
+    expect(built.document(), 'the canceling answer wrote something').toBe(before)
     expect(built.view().confirmation, 'the question stayed up after being answered').toBeNull()
   })
 })

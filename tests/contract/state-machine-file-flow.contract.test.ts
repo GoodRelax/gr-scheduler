@@ -238,7 +238,7 @@ function guardHolds(guard: RawGuard, flow: Loose, event: Loose): boolean {
     // question (FR-032, FR-099) or the new-document one (FR-095) owes the action it carries.
     case 'isFileOperationQuestion':
       return confirmation['owedAction'] === null
-    case 'isImportCancelled':
+    case 'isImportCanceled':
       return (event['mergeMapping'] as Loose)['kind'] === 'cancelImport'
     case 'isOpenChooserSurface':
       return event['surfaceName'] === 'U-56'

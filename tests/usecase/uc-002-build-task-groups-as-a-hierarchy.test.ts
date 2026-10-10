@@ -30,7 +30,7 @@ test('UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2,
   await openByDrop(page, ERP, readSample(ERP))
 
   let madeId = ''
-  await test.step('UC-002 step 1: make a TaskGroup, name it, set its colour and height (FR-085, HF-17, FR-042)', async () => {
+  await test.step('UC-002 step 1: make a TaskGroup, name it, set its color and height (FR-085, HF-17, FR-042)', async () => {
     const before = (await readDocument(page)).schedule.taskGroups.map((g) => g.id)
     await press(page, 'IC-93')
     const made = (await readDocument(page)).schedule.taskGroups.find((g) => !before.includes(g.id))!
@@ -40,7 +40,7 @@ test('UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2,
     await page.keyboard.type('Review board')
     await page.keyboard.press('Enter')
     await settle(page)
-    await page.click('[data-role="Properties Panel"] [data-colour-choice="green"]')
+    await page.click('[data-role="Properties Panel"] [data-color-choice="green"]')
     await settle(page)
     // WHY: T-338 MH-2 (CR-689): the value input opens only once its check is ticked, which writes the band now.
     await expect(page.locator('[data-role="Properties Panel"] input[data-field-row="PR-20"]')).toBeDisabled()

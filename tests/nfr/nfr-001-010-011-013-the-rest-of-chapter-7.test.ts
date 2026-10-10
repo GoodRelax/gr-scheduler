@@ -66,7 +66,7 @@
 // find a bar to grab for `PG-8`. Nothing is judged on its spelling.
 //
 // ⭐ THE CLAUSES PINNED HERE ARE QUOTED VERBATIM, in Japanese, beside the
-// judgement that presses each one. Rule 03 section 5 bans TRANSLATING the
+// judgment that presses each one. Rule 03 section 5 bans TRANSLATING the
 // manuscript into the tree; a quotation is not a translation.
 //
 // ⚠️ WHY THE SHIPPED BUILD AND NOT THE DEV SERVER. The rows of table T-043 are
@@ -647,7 +647,7 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
       figures: all.filter((e) => e.hasAttribute('data-figure')).length,
       elements: all.length,
       characters: svg?.outerHTML.length ?? 0,
-      centre: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
+      center: { x: box.x + box.width / 2, y: box.y + box.height / 2 },
       area: { x: box.x, y: box.y, width: box.width, height: box.height },
     }
   }, DRAWN_SVG)
@@ -848,8 +848,8 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
           const phase = (round * PER_BURST + step) / 7
           return {
             type: 'mouseMoved' as const,
-            x: about.centre.x + Math.sin(phase) * (about.area.width / 5),
-            y: about.centre.y + Math.cos(phase / 2) * (about.area.height / 5),
+            x: about.center.x + Math.sin(phase) * (about.area.width / 5),
+            y: about.center.y + Math.cos(phase / 2) * (about.area.height / 5),
             button: 'none' as const,
             buttons: 0,
           }
@@ -898,8 +898,8 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
     await burst(cdp, [
       {
         type: 'mouseWheel',
-        x: about.centre.x,
-        y: about.centre.y,
+        x: about.center.x,
+        y: about.center.y,
         deltaX: 0,
         deltaY: 240,
         modifiers: 2,
@@ -917,8 +917,8 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
     cdp,
     Array.from({ length: 14 - densestStep }, () => ({
       type: 'mouseWheel' as const,
-      x: about.centre.x,
-      y: about.centre.y,
+      x: about.center.x,
+      y: about.center.y,
       deltaX: 0,
       deltaY: -240,
       modifiers: 2,
@@ -935,8 +935,8 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
         cdp,
         Array.from({ length: PER_BURST }, (_unused, step) => ({
           type: 'mouseWheel' as const,
-          x: about.centre.x,
-          y: about.centre.y,
+          x: about.center.x,
+          y: about.center.y,
           deltaX: 0,
           deltaY: (round + step) % 12 < 6 ? 90 : -90,
         })),
@@ -955,8 +955,8 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
     cdp,
     Array.from({ length: 8 }, () => ({
       type: 'mouseWheel' as const,
-      x: about.centre.x,
-      y: about.centre.y,
+      x: about.center.x,
+      y: about.center.y,
       deltaX: 0,
       deltaY: -240,
       modifiers: 2,
@@ -980,8 +980,8 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
         cdp,
         Array.from({ length: PER_BURST }, (_unused, step) => ({
           type: 'mouseWheel' as const,
-          x: about.centre.x,
-          y: about.centre.y,
+          x: about.center.x,
+          y: about.center.y,
           deltaX: 0,
           deltaY: (round + step) % 12 < 6 ? 90 : -90,
         })),
@@ -1039,8 +1039,8 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
             cdp,
             Array.from({ length: PER_BURST }, (_unused, step) => ({
               type: 'mouseWheel' as const,
-              x: about.centre.x,
-              y: about.centre.y,
+              x: about.center.x,
+              y: about.center.y,
               deltaX: 0,
               deltaY: (round + step) % 12 < 6 ? 90 : -90,
             })),
@@ -1164,7 +1164,7 @@ test('PG-6 / PG-7 -- the two rows table T-043 marks 記録のみ', () => {
     ].join('\n'),
   )
   // ⛔ NEITHER IS A GATE. Table T-043 marks both 記録のみ, and `PG-7`'s own
-  // cell says 上限は定めない。増え方を見る. A judgement here would invent a
+  // cell says 上限は定めない。増え方を見る. A judgment here would invent a
   // ceiling the specification refuses to state.
   expect(m.svgElements).toBeGreaterThan(0)
   expect(m.shippedBytes).toBeGreaterThan(0)
@@ -1299,7 +1299,7 @@ test('PG-1 / PG-4 / PG-5 / PG-8 / PG-9 / PG-10 / PG-12 / PG-14 -- the gates of t
     // 何も変わらないポインタの移動は含めない —— 描き直しが起きないので測る母数
     // が無い（`NFR-010`）. ⭐ Whether it redrew was measured by comparing the
     // picture either side of the stretch, never inferred from the timings this
-    // very judgement is about. The numbers are printed above regardless.
+    // very judgment is about. The numbers are printed above regardless.
     if (!one.redrawing) continue
     if (one.frameRate < FRAME_RATE_FLOOR) {
       broken.push(

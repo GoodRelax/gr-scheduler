@@ -239,7 +239,7 @@ def main(argv):
     dry_run = '--dry-run' in argv[1:]
     unknown = [a for a in argv[1:] if a != '--dry-run']
     if unknown:
-        print('PROBLEM  unrecognised argument(s): %s' % (' '.join(unknown),))
+        print('PROBLEM  unrecognized argument(s): %s' % (' '.join(unknown),))
         return 1
 
     problems = path_is_sound()

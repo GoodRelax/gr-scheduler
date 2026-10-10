@@ -51,7 +51,7 @@
 //   schedule-entities.ts          the entity types this fixture writes out
 //
 // ⛔ NOT ONE NUMBER BELOW IS COPIED OUT OF `src/`. `S-174` and `S-175` are read
-// out of 表 T-206 at run time; the colour is not written down at all but taken
+// out of 表 T-206 at run time; the color is not written down at all but taken
 // as a RELATION -- 「どれも `SL-8` の選択の枠が既に読んでいる行である」 -- so
 // the case compares the rectangle against the frame the same run draws.
 //
@@ -77,7 +77,7 @@
 //           沿った破線の枠で囲むこと（MUST）…枠の太さと破線の刻みは
 //           `_assets/tbl-settings.md` の 表 T-206 の `S-174` ／ `S-175`、色は
 //           同書の 表 T-236 の `S-151` が持つ」-- the row `SL-3` says it is
-//           reading, and therefore the row a colour can be compared against.
+//           reading, and therefore the row a color can be compared against.
 //   T-023a PTD-5  「何にも当たらない かつ 構えていない（AR-1）| **範囲選択**」
 //   T-023a PTD-1  「中ボタンドラッグ、または **`Ctrl` だけを伴う**左ドラッグ |
 //           **パン。** 構えと当たりによらず優先する」-- the row evaluated first,
@@ -95,7 +95,7 @@
 //     specification settles the markup, so a case demanding one would be
 //     inventing it. What is asked is that ONE element appear that was not there
 //     before, that it be a rectangle, and that it wear the three values.
-//   - THE COLOUR AS A LITERAL. 表 T-236 writes `S-151` with an `H` that stands
+//   - THE COLOR AS A LITERAL. 表 T-236 writes `S-151` with an `H` that stands
 //     for `themeHue`, and resolving it here would put a second copy of that
 //     substitution in the tree. `SL-3` says the row is one 「`SL-8` の選択の枠が
 //     既に読んでいる」, so the case compares the two strokes instead.
@@ -854,7 +854,7 @@ describe('table T-023c SL-3: the rectangle being taken is drawn while it is held
     expect(dash, 'table T-206 S-175 -- 描く長さと空ける長さの組').toEqual([...FRAME_DASH])
   })
 
-  it('draws it in the colour the selection frame already wears (S-151)', () => {
+  it('draws it in the color the selection frame already wears (S-151)', () => {
     // 「色は同書の 表 T-236 の `S-151`」 and ⛔「新しい値を起こさない —— どれも
     // `SL-8` の選択の枠が既に読んでいる行である」. ⭐ So the expected value is
     // not written here at all: it is whatever THIS run paints the `SL-8` frame

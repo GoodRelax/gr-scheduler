@@ -347,8 +347,8 @@ export const fadeHandlesOf = (task: TaskGeometry): readonly { readonly x: number
 
 export const markerOf = (
   task: TaskGeometry,
-): { readonly centre: { x: number; y: number }; readonly radius: number } | null =>
-  (task as unknown as { readonly marker: { centre: { x: number; y: number }; radius: number } | null }).marker ?? null
+): { readonly center: { x: number; y: number }; readonly radius: number } | null =>
+  (task as unknown as { readonly marker: { center: { x: number; y: number }; radius: number } | null }).marker ?? null
 
 export const resumeOf = (task: TaskGeometry): { readonly box?: unknown; readonly undecided?: boolean } | null =>
   (task as unknown as { readonly resume: { box?: unknown; undecided?: boolean } | null }).resume ?? null

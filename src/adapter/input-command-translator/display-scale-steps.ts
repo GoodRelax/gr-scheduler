@@ -60,7 +60,7 @@ export function displayScaleStep(context: InputContext, towards: 1 | -1): Transl
 }
 
 /** @purity pure */
-function centreOf(area: ScreenRect): { readonly x: number; readonly y: number } {
+function centerOf(area: ScreenRect): { readonly x: number; readonly y: number } {
   return { x: area.x + area.width / 2, y: area.y + area.height / 2 }
 }
 
@@ -86,10 +86,10 @@ function displayScaleWrites(
   const after = displayRatioOf({ ...settings, displayScale: next })
   if (!(before > 0) || !(after > 0)) return [scale]
   const area = context.regions.taskGroupArea
-  const { x: centreX, y: centreY } = centreOf(area)
+  const { x: centerX, y: centerY } = centerOf(area)
   const seat = scrolledAnchor(context, 0, 0)
-  const day = dayAnchorAt(context, centreX - taskGroupAreaWidthAt(context, next) / 2 / (after / before))
-  const held = taskGroupAnchorIn(scrollingTaskGroupsOf(context.layout), centreY, seat)
+  const day = dayAnchorAt(context, centerX - taskGroupAreaWidthAt(context, next) / 2 / (after / before))
+  const held = taskGroupAnchorIn(scrollingTaskGroupsOf(context.layout), centerY, seat)
   const afterRegions = regionsAtDisplayScale(context.regions, settings, next)
   // TRAP: ask PI-5 at the new ratio; the band is not linear in it, so no arithmetic answers.
   const afterTaskGroups = taskGroupPlacesAtZoomY(
@@ -111,7 +111,7 @@ function displayScaleWrites(
   const row =
     landed === null || topEdge === null
       ? null
-      : taskGroupAnchorIn(afterTaskGroups, topEdge + (landed - centreOf(afterRegions.taskGroupArea).y), seat)
+      : taskGroupAnchorIn(afterTaskGroups, topEdge + (landed - centerOf(afterRegions.taskGroupArea).y), seat)
   return [
     scale,
     ...unstoredZoomWrites(context),

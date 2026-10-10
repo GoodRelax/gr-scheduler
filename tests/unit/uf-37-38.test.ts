@@ -31,7 +31,7 @@ const T_024 = [
   { row: 'IO-6', format: 'clipboard', isRead: false, isWritten: true },
 ] as const
 
-// WHY: a retired row keeps its burnt-seat id (BT-4 stays rank 3), so this
+// WHY: a retired row keeps its burned-seat id (BT-4 stays rank 3), so this
 // copy is held against the table at read time rather than trusted.
 const T_034 = [
   { row: 'BT-1', rank: 1, isFedByThisUnit: true },

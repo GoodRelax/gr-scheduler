@@ -17,7 +17,7 @@ import {
   type Schedule,
   type TaskGroup,
 } from './schedule-entities'
-import { TRANSPARENT } from './stored-colour'
+import { TRANSPARENT } from './stored-color'
 import { actualLastDay, actualLengthOf, workingCalendarOf } from './working-calendar'
 
 export type InvariantKind =

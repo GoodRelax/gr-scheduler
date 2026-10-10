@@ -95,7 +95,7 @@
 // because the shell is the caller that satisfies `ChangeAudience` for the
 // screen's writes and hands `ApplyDocumentChange` one that tells nobody. 図
 // F-014's own edge 「`ApplyDocumentChange` → `NotifyChangeWatchers`（what was
-// confirmed）」 is therefore travelled only when the `Agent API` is the writer.
+// confirmed）」 is therefore traveled only when the `Agent API` is the writer.
 // ⚠️ The two cases are NOT weakened to match: WS-7 is one of the five steps the
 // second entrance skips, and a suite that asserts the other four while excusing
 // this one would leave AG-6 guarded by nothing.
@@ -385,15 +385,15 @@ const UNDO: HumanInput = key('Z', { ctrl: true })
 const REDO: HumanInput = key('Y', { ctrl: true })
 
 // see FR-046, UN-8
-// WHY: showing the status line slides the view to centre it, and undo leaves the view where it is;
+// WHY: showing the status line slides the view to center it, and undo leaves the view where it is;
 // Task 1 spans INSTANT, so its bar stays under the pointer after the one edit.
 function underTheStatusLine(draft: any): void {
   draft.schedule.tasks[0].start = '2026-08-14T00:00:00'
   draft.schedule.tasks[0].finish = '2026-08-28T00:00:00'
 }
 
-/** The centre of a Task's plan bar, in the frame of reference a press speaks in. */
-function planCentre(loop: ReturnType<typeof frameLoop>, uid: number): { x: number; y: number } {
+/** The center of a Task's plan bar, in the frame of reference a press speaks in. */
+function planCenter(loop: ReturnType<typeof frameLoop>, uid: number): { x: number; y: number } {
   const values = loop.current()
   if (values === null) throw new Error('the loop has run no frame, so it has drawn no bar')
   const drawn = values.geometry.tasks.find((one) => one.taskUid === uid)
@@ -570,11 +570,11 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
     pane.runAnimationFrames()
     const edited = loop.document()
 
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
     const taskGroupArea = loop.current()!.regions.taskGroupArea
-    expect(centre.x, 'premise: the bar is still in the Task Group Area').toBeGreaterThan(taskGroupArea.x)
-    expect(centre.x, 'premise: the bar is still in the Task Group Area').toBeLessThan(taskGroupArea.x + taskGroupArea.width)
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    expect(center.x, 'premise: the bar is still in the Task Group Area').toBeGreaterThan(taskGroupArea.x)
+    expect(center.x, 'premise: the bar is still in the Task Group Area').toBeLessThan(taskGroupArea.x + taskGroupArea.width)
+    loop.receiveInput(pointer('down', center.x, center.y))
     loop.receiveInput(UNDO)
 
     expect(loop.document()).toBe(edited)
@@ -594,11 +594,11 @@ describe('表 T-067 WS-2 -- the moment refuses the walk as it refuses any other 
 
     loop.receiveInput(THE_ONE_EDIT)
     pane.runAnimationFrames()
-    const centre = planCentre(loop, 1)
+    const center = planCenter(loop, 1)
 
-    loop.receiveInput(pointer('down', centre.x, centre.y))
+    loop.receiveInput(pointer('down', center.x, center.y))
     loop.receiveInput(UNDO)
-    loop.receiveInput(pointer('lost', centre.x, centre.y))
+    loop.receiveInput(pointer('lost', center.x, center.y))
     loop.receiveInput(UNDO)
 
     expect(projectOf(loop.document()).statusDate).toBeNull()

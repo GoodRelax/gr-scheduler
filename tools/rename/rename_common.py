@@ -432,8 +432,8 @@ B_NAMES = frozenset([
     'rowId', 'rowIds', 'row-id', 'row-ids', 'ROW_ID', 'ROW_IDS', 'RowId', 'rowIdOf',
     'rowPath', 'rowsOf', 'grid-row', 'grid-template-rows', 'row-gap', 'row-reverse',
     'readSearchRows', 'SearchRows', 'TaskSearchRow', 'fieldRow', 'data-field-row',
-    'commandRow', 'IconRosterRow', 'data-row', 'DelayReportRow', 'MARK_COLOUR_ROWS',
-    'isScheduleColourRow', 'windowTitleRowElement', 'PressRow', 'check-press-row-ids',
+    'commandRow', 'IconRosterRow', 'data-row', 'DelayReportRow', 'MARK_COLOR_ROWS',
+    'isScheduleColorRow', 'windowTitleRowElement', 'PressRow', 'check-press-row-ids',
     'row-id-prefixes', 'tbl-row-id-prefixes', 'row_id_prefixes_json_to_md',
 ])
 GENERIC_WORDS = frozenset(['row', 'rows', 'Row', 'Rows', 'ROW', 'ROWS'])

@@ -159,11 +159,11 @@
 #          is to lower the standing count
 #   44     check-spec-id-references.py : the first check that reads src/ and
 #          tests/ at all. It faults a reference from them to an id the
-#          specification RETIRED (a burnt seat) or never defined -- every
+#          specification RETIRED (a burned seat) or never defined -- every
 #          check above it reads only docs/, so a withdrawn id could go on being
 #          cited by the code with every gate green. ⚠️ It matches ids OUTSIDE
 #          backticks too, because most references in code carry no code span
-#   45     check-repeated-expressions.py : one expression, normalised, written
+#   45     check-repeated-expressions.py : one expression, normalized, written
 #          in two or more places in src/. ⛔ Gated at a token floor of 20, not
 #          10: read by hand, far more of the groups are real at 20, and a gate
 #          that is often wrong teaches people to ignore red. ⚠️ So it does not
@@ -541,7 +541,7 @@ PYTHONIOENCODING=utf-8 python tools/generate_mspdi_child_order.py --check || fai
 PYTHONIOENCODING=utf-8 python tools/generate_exchange_formats.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_help_roster.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_property_items.py --check || failed
-PYTHONIOENCODING=utf-8 python tools/generate_licence.py --check || failed
+PYTHONIOENCODING=utf-8 python tools/generate_license.py --check || failed
 PYTHONIOENCODING=utf-8 python docs/spec/_source/property_items_json_to_md.py --check || failed
 PYTHONIOENCODING=utf-8 python docs/spec/_source/state_machines_json_to_md.py --check || failed
 # Tables T-334 and T-218 of Chapter 7, one manuscript (CR-573, JDG-607).
@@ -619,7 +619,7 @@ section "39  MUST / MUST NOT clauses held verbatim by a test"
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-must-clause-coverage.py || failed
 
 echo ""
-section "44  src/ and tests/ against a burnt or unknown specification ID"
+section "44  src/ and tests/ against a burned or unknown specification ID"
 PYTHONIOENCODING=utf-8 python .claude/skills/spec-graph-check/check-spec-id-references.py || failed
 
 echo ""
@@ -984,7 +984,7 @@ section "75  the schedule-to-grs-json guide still yields a document the schema a
 # 633db463: 32 problems (2 in the skeleton, 15 in each prompt). The guide is
 # hand-written for app users who only download files, so no generator and no
 # gen:check stands behind it. It does NOT read what the prose says about
-# values (colour forms, ranges), nor whether ja and en agree; the in-app
+# values (color forms, ranges), nor whether ja and en agree; the in-app
 # prompt is gen:check's. --self-test feeds a skeleton without sourceFormat
 # and a prompt naming lineWeight and omitting editGroup, and is red unless
 # all three are reported and a clean pair reports none.

@@ -50,7 +50,7 @@ script wired into check.sh for the same reason -- it can be run standalone
 with the interpreter this worktree actually has. This one follows suit rather
 than inventing a second convention.
 
-WHAT "READ TOGETHER" MEANS HERE, GENERALISED. The precedent pairs one column
+WHAT "READ TOGETHER" MEANS HERE, GENERALIZED. The precedent pairs one column
 (場面) with the dictionary's word fields, because every row of T-233 has a
 場面 column. The twelve tables below do NOT share a column name -- 何の入口か,
 規則, 動作, 掴み領域, 場面, 日本語, 事項, 構え, 条件, 操作 -- so this check
@@ -239,7 +239,7 @@ def dictionary_groups():
 def fingerprint(table_row, dict_entry):
     """sha256, first 16 hex characters, of the table row and the dictionary
     entry read together -- every cell but 行 ID, every field but rowId, each
-    serialised through a canonical (sorted-key) JSON encoding so the shape of
+    serialized through a canonical (sorted-key) JSON encoding so the shape of
     either side (however many fields it has) is caught without this check
     naming a single column or field by hand."""
     payload = json.dumps(

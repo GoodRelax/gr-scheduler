@@ -71,8 +71,8 @@
 //      assigns and ask for the answer; how the unit hears the press is its own.
 //   2. THE OTHER FOURTEEN EDITABLE ROWS OF 表 T-016. The ledger measured them
 //      as already arriving, and they settle on the key that changes the value
-//      rather than on `Enter`. ⛔ `PR-12`'s two colour controls cannot be driven
-//      at all without the host's colour chooser, which the ledger records as
+//      rather than on `Enter`. ⛔ `PR-12`'s two color controls cannot be driven
+//      at all without the host's color chooser, which the ledger records as
 //      DFC-130 「壊れているとも動くとも示せていない」.
 //   3. THAT PRESSING `Enter` A SECOND TIME PUTS THE PANEL AWAY. That is
 //      `SK-19`'s second stage and

@@ -55,7 +55,7 @@ const placementOf = (scene: Scene): unknown =>
 const markerRightOf = (scene: Scene): number => {
   const marker = scene.taskOf(1).marker
   if (marker === null) throw new Error('premise: a marker is drawn')
-  return marker.centre.x + marker.radius
+  return marker.center.x + marker.radius
 }
 
 const basisOf = (scene: Scene): Band => {

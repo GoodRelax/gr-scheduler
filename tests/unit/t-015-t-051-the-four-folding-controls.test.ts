@@ -6,7 +6,7 @@
 //
 // WRITTEN WITHOUT READING ONE LINE OF `src/` (docs/development-rules/
 // 04-verification.md, section 1). What was read: docs/spec/ for every rule
-// below, and the neighbouring test files for the shape of the published surface
+// below, and the neighboring test files for the shape of the published surface
 // -- how `frameLoop`, `domScreenSurface` and `ScreenView` are driven. No
 // expected value here was taken from how a unit computes its answer.
 //

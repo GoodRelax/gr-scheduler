@@ -377,7 +377,7 @@ describe(`T-332 SJ-5 / SJ-6 -- ${SJ_5_MIDDLE}`, () => {
     expect(Math.abs(middleOfTask(after, 15).y - wanted), SJ_5_MIDDLE).toBeLessThanOrEqual(WITHIN_A_PIXEL)
   })
 
-  it('SJ-7: a target in a pinned task group is centred across and the vertical anchor is left alone', () => {
+  it('SJ-7: a target in a pinned task group is centered across and the vertical anchor is left alone', () => {
     const pinned: SceneSpec = { ...LONG_LIST, settings: { pinnedGroupIds: ['g0', 'g1'] } }
     const { plan, after } = jump(pinned, TASK(1), FAR_START)
     expect(Math.abs(middleOfTask(after, 1).x - areaMiddleX(after)), SJ_6_MIDDLE).toBeLessThanOrEqual(WITHIN_A_PIXEL)
@@ -447,7 +447,7 @@ describe(`T-332 SJ-5 -- ${SJ_5_FIRST}`, () => {
     expect(scrollFieldsOf(plan)['scrollGroupId'], SJ_5_FIRST).toBe('g0')
     expect(scrollFieldsOf(plan)['scrollGroupOffset'], SJ_5_FIRST).toBe(0)
     expect(middleOfTask(after, uid).y, SJ_5_FIRST).toBeLessThan(wantedMiddleY(after))
-    expect(Math.abs(middleOfTask(after, uid).x - areaMiddleX(after)), 'SJ-6 still centres it').toBeLessThanOrEqual(WITHIN_A_PIXEL)
+    expect(Math.abs(middleOfTask(after, uid).x - areaMiddleX(after)), 'SJ-6 still centers it').toBeLessThanOrEqual(WITHIN_A_PIXEL)
   })
 
   it('the offset the plan writes is never below 0 and below 1 (S-176)', () => {
@@ -469,7 +469,7 @@ describe(`T-332 SJ-6 -- ${SJ_6_WIDE}`, () => {
     tasks: LONG_LIST.tasks.map(([task, group]) => (task['uid'] === 15 ? ([taskOf(15, 45, days), group] as const) : ([task, group] as const))),
   })
 
-  it('a shape well under the width less two insets is centred', () => {
+  it('a shape well under the width less two insets is centered', () => {
     const spec = withWidth(daysFor(areaWidth - 2 * S_428 - 120))
     const { after } = jump(spec, TASK(15), FAR_START)
     expect(placementOf(after, 15).width, 'premise: the shape is narrower than the limit').toBeLessThan(areaWidth - 2 * S_428)
@@ -560,9 +560,9 @@ const svgOf = (scene: Scene, landing: LandingState, picture: 'screen' | 'export'
   )
 
 const S_151 = (theme: Theme): string => cellOf('T-236', 'S-151', theme === 'light' ? '明るいテーマ' : '暗いテーマ').replace(/`/g, '').trim()
-// WHY: the colour row is written with the theme hue as H (the project's hue is 214 in these scenes).
+// WHY: the color row is written with the theme hue as H (the project's hue is 214 in these scenes).
 const inkOf = (theme: Theme): string => S_151(theme).replace(/\bH\b/, '214').toLowerCase()
-const colourOnly = (value: string | null): string => (value ?? '').toLowerCase().replace(/\s+/g, ' ').trim()
+const colorOnly = (value: string | null): string => (value ?? '').toLowerCase().replace(/\s+/g, ' ').trim()
 
 const boxOfRing = (ring: Element): { x: number; y: number; width: number; height: number; stroke: number } => ({
   x: Number(attrOf(ring.attrs, 'x')),
@@ -587,35 +587,35 @@ describe(`T-332 SJ-10 -- ${SJ_10_RING}`, () => {
     expect(ringsOf(svgOf(scene, HIDDEN)), SJ_10_MARK).toEqual([])
   })
 
-  it('the ring is a frame: S-556 thick, the S-151 colour (light), no fill', () => {
+  it('the ring is a frame: S-556 thick, the S-151 color (light), no fill', () => {
     const ring = ringsOf(svg)[0]!
     expect(Number(attrOf(ring.attrs, 'stroke-width')), 'S-556').toBeCloseTo(S_556, 6)
-    expect(colourOnly(attrOf(ring.attrs, 'stroke')), 'S-151 light').toBe(inkOf('light'))
-    const fill = colourOnly(attrOf(ring.attrs, 'fill'))
+    expect(colorOnly(attrOf(ring.attrs, 'stroke')), 'S-151 light').toBe(inkOf('light'))
+    const fill = colorOnly(attrOf(ring.attrs, 'fill'))
     expect(fill === 'none' || fill === 'transparent' || Number(attrOf(ring.attrs, 'fill-opacity') ?? '1') === 0, 'a frame, not a patch').toBe(true)
     expect(attrOf(ring.attrs, 'stroke-dasharray'), 'a solid line (SJ-10 ①)').toBeNull()
   })
 
-  it('the ring takes the dark theme S-151 colour in the dark theme', () => {
+  it('the ring takes the dark theme S-151 color in the dark theme', () => {
     const ring = ringsOf(svgOf(scene, landedOn(TASK(15)), 'screen', 'dark'))[0]!
-    expect(colourOnly(attrOf(ring.attrs, 'stroke')), 'S-151 dark').toBe(inkOf('dark'))
+    expect(colorOnly(attrOf(ring.attrs, 'stroke')), 'S-151 dark').toBe(inkOf('dark'))
   })
 
   // WHY: the spec says "S-555 outside the bounding box" and the stroke is S-556 wide; a reader may count the gap to the
-  // stroke's inner edge or to its centre line, so both readings are accepted and the case says which it saw.
+  // stroke's inner edge or to its center line, so both readings are accepted and the case says which it saw.
   it('the ring stands S-555 outside the plan figure (the box without the actual), on every side', () => {
     const placed = placementOf(scene, 15)
     const ring = boxOfRing(ringsOf(svg)[0]!)
-    const centreGap = (side: 'left' | 'top' | 'right' | 'bottom'): number => {
+    const centerGap = (side: 'left' | 'top' | 'right' | 'bottom'): number => {
       if (side === 'left') return placed.x - ring.x
       if (side === 'top') return placed.y - ring.y
       if (side === 'right') return ring.x + ring.width - (placed.x + placed.width)
       return ring.y + ring.height - (placed.y + placed.planHeight)
     }
     for (const side of ['left', 'top', 'right', 'bottom'] as const) {
-      const innerEdgeGap = centreGap(side) - S_556 / 2
-      const reading = Math.abs(innerEdgeGap - S_555) <= 0.5 ? 'inner edge' : Math.abs(centreGap(side) - S_555) <= 0.5 ? 'centre line' : 'neither'
-      expect(reading, `${side}: gap ${String(innerEdgeGap)} to the inner edge, ${String(centreGap(side))} to the centre line`).not.toBe('neither')
+      const innerEdgeGap = centerGap(side) - S_556 / 2
+      const reading = Math.abs(innerEdgeGap - S_555) <= 0.5 ? 'inner edge' : Math.abs(centerGap(side) - S_555) <= 0.5 ? 'center line' : 'neither'
+      expect(reading, `${side}: gap ${String(innerEdgeGap)} to the inner edge, ${String(centerGap(side))} to the center line`).not.toBe('neither')
     }
   })
 

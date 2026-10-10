@@ -42,7 +42,7 @@ each one means there: none of them refuses the document.
 
 ⛔ `format` is dropped. Its 15 uses are 2 dates, 3
 datetimes and 10 uuids. The dates and datetimes are already held as a condition
-by `IV-14` of table T-220, so honouring `format` here would be the second key
+by `IV-14` of table T-220, so honoring `format` here would be the second key
 for one thing. ⛔ THE 10 uuid COLUMNS ARE THEREFORE CHECKED BY NOBODY -- see
 the list this tool prints, and PND-189, which has not been ruled on.
 
@@ -80,7 +80,7 @@ SOURCES = [
 ]
 
 # The eleven keywords this generator turns into something the walker obeys.
-# 'pattern' is the shape of a chosen colour (CR-548, table T-017b of 01-04).
+# 'pattern' is the shape of a chosen color (CR-548, table T-017b of 01-04).
 EXPRESSED = frozenset((
     'type', 'required', 'properties', '$ref', 'items',
     'additionalProperties', 'enum', 'minimum', 'maximum', 'maxLength',

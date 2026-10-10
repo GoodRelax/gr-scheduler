@@ -26,7 +26,7 @@ const OP_17_REFUSED =
   '⚠️ ドロップしても受け付けないあいだ —— ファイルの操作が進行中、または問いが開いている（`OP-8`、`_assets/tbl-state-machines.md` の 表 T-290 の `fileFlow/documentOpenAsked` が `RS-27` で断る状態） —— は出してはならない（MUST NOT）'
 const OP_17_HIDE_ON_DROP =
   'ドラッグがウィンドウの外へ出たとき、とドロップしたときは消すこと（MUST）'
-const OP_17_NO_JUDGEMENT = '⚠️ ドラッグのあいだはファイルの形式を判じない —— 閲覧環境はドラッグのあいだファイルの名前を見せない。'
+const OP_17_NO_JUDGMENT = '⚠️ ドラッグのあいだはファイルの形式を判じない —— 閲覧環境はドラッグのあいだファイルの名前を見せない。'
 const T_280_IS_OPEN_ACCEPTED =
   '`isOpenAccepted` は、表 T-290 の `fileOperationStateMachine` が `idle` で、`confirmationStateMachine` が `notAsked` のとき真'
 
@@ -45,7 +45,7 @@ async function dragIs(built: ShellStage, isOver: boolean): Promise<void> {
 
 describe('CR-727 the manuscript these cases are driven by', () => {
   it('OP-17 and T-280 still say when the cue is shown and refused, word for word', () => {
-    for (const clause of [OP_17_SHOW, OP_17_REFUSED, OP_17_HIDE_ON_DROP, OP_17_NO_JUDGEMENT]) {
+    for (const clause of [OP_17_SHOW, OP_17_REFUSED, OP_17_HIDE_ON_DROP, OP_17_NO_JUDGMENT]) {
       expect(opCell()).toContain(clause)
     }
   })

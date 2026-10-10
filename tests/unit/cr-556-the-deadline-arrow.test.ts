@@ -62,7 +62,7 @@ const DA_4_AT_THE_DAY = '軸の中心（矢じりの先端）を、`deadline` �
 const DA_4_FINISH = '`finish` と `deadline` が同じ日なら、先端は予定の右端に立つ'
 const DA_4_MILESTONE = 'マイルストーンで `start` と `deadline` が同じ日なら、先端は菱形の中心に立つ'
 const DA_4_NO_SNAP = '非稼働日の期限を稼働日へ寄せてはならない（MUST NOT）'
-const DA_5_CENTRE = '箱の中心を予定と同じ中心に置くこと（MUST）'
+const DA_5_CENTER = '箱の中心を予定と同じ中心に置くこと（MUST）'
 const DA_5_TIER_ONE = '箱を 1 段目（表 T-271 の `XS-4`）に置くこと（MUST） —— 先端が 2 段目の予定の線を指す'
 const DA_5_MILESTONE = '箱の中心を予定の菱形と同じ中心に置くこと（MUST）'
 const DA_5_SAME_BAND = '箱はマーカーと同じ帯に収まる'
@@ -101,10 +101,10 @@ const S_439_MS = ((): number => {
 const THEME_HUE = Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? ''))
 const t236 = (id: string, preference: 'light' | 'dark'): string => {
   const cell = bare(rowOf('T-236', id).by[preference === 'dark' ? '暗いテーマ' : '明るいテーマ'] ?? '')
-  if (!/^(#|hsl\(|rgba?\()/.test(cell)) throw new Error(`table T-236 ${id} states no colour: ${cell}`)
-  return normalColour(cell.replace('H', String(THEME_HUE)))
+  if (!/^(#|hsl\(|rgba?\()/.test(cell)) throw new Error(`table T-236 ${id} states no color: ${cell}`)
+  return normalColor(cell.replace('H', String(THEME_HUE)))
 }
-const normalColour = (text: string): string => text.replace(/\s+/g, '').toLowerCase()
+const normalColor = (text: string): string => text.replace(/\s+/g, '').toLowerCase()
 
 // see T-012
 const KIND_OF = (id: string): string => cellOf('T-012', id, '値').replace(/'/g, '')
@@ -141,7 +141,7 @@ interface MarkedTask {
   readonly plan: Bar | null
   readonly actual: Bar | null
   readonly milestoneFigure: Bar | null
-  readonly marker: { readonly centre: Pt; readonly radius: number } | null
+  readonly marker: { readonly center: Pt; readonly radius: number } | null
   readonly deadline?: DeadlineShape | null
 }
 
@@ -229,7 +229,7 @@ interface ArrowParts {
   readonly headHeight: number
   readonly shaftWidth: number
   readonly shaftBottom: number
-  readonly centreX: number
+  readonly centerX: number
 }
 
 const partsOf = (outline: readonly Pt[]): ArrowParts => {
@@ -246,7 +246,7 @@ const partsOf = (outline: readonly Pt[]): ArrowParts => {
     headHeight: tip.y - (headLeft.y + headRight.y) / 2,
     shaftWidth: shaftTopRight.x - shaftTopLeft.x,
     shaftBottom: (shaftBottomLeft.y + shaftBottomRight.y) / 2,
-    centreX: (shaftTopLeft.x + shaftTopRight.x) / 2,
+    centerX: (shaftTopLeft.x + shaftTopRight.x) / 2,
   }
 }
 
@@ -363,7 +363,7 @@ describe('CR-556 -- the clauses these cases quote still stand', () => {
     expect(rowText('T-304', 'DA-4')).toContain(DA_4_FINISH)
     expect(rowText('T-304', 'DA-4')).toContain(DA_4_MILESTONE)
     expect(rowText('T-304', 'DA-4')).toContain(DA_4_NO_SNAP)
-    expect(rowText('T-304', 'DA-5')).toContain(DA_5_CENTRE)
+    expect(rowText('T-304', 'DA-5')).toContain(DA_5_CENTER)
     expect(rowText('T-304', 'DA-5')).toContain(DA_5_TIER_ONE)
     expect(rowText('T-304', 'DA-5')).toContain(DA_5_MILESTONE)
     expect(rowText('T-304', 'DA-5')).toContain(DA_5_SAME_BAND)
@@ -458,7 +458,7 @@ describe('DA-2 -- the shape: one filled down arrow, its box as tall as the marke
       expect(parts.headHeight, `${sh} head height = d x S-366`).toBeCloseTo(d * S_366, 6)
       expect(parts.shaftWidth, `${sh} shaft = d x S-367`).toBeCloseTo(d * S_367, 6)
       expect(parts.shaftBottom, `${sh} the shaft runs down to the head's base`).toBeCloseTo(parts.bottom - d * S_366, 6)
-      expect(parts.centreX, `${sh} the shaft is centred on the tip`).toBeCloseTo(parts.tip.x, 6)
+      expect(parts.centerX, `${sh} the shaft is centered on the tip`).toBeCloseTo(parts.tip.x, 6)
     })
   }
 
@@ -487,20 +487,20 @@ describe('DA-2 -- the shape: one filled down arrow, its box as tall as the marke
   })
 })
 
-describe('DA-3 -- the colours and the halo', () => {
+describe('DA-3 -- the colors and the halo', () => {
   for (const preference of ['light', 'dark'] as const) {
     it(`DA-3 「${DA_3_FILL}」 and 「${DA_3_HALO}」 (${preference})`, () => {
       const scene = oneTask({ deadline: day(12) })
       const d = diameterOf(scene, 1, 'SH-1')
       expect(markOf(scene, 1).haloWidth, 'S-2 haloWidth = d x S-34').toBeCloseTo(d * S_34, 6)
       const element = markElementOf(scene.svg('screen', preference), 1)
-      expect(normalColour(attrOf(element.attrs, 'fill') ?? ''), 'fill S-364').toBe(t236('S-364', preference))
-      expect(normalColour(attrOf(element.attrs, 'stroke') ?? ''), 'halo S-146').toBe(t236('S-146', preference))
+      expect(normalColor(attrOf(element.attrs, 'fill') ?? ''), 'fill S-364').toBe(t236('S-364', preference))
+      expect(normalColor(attrOf(element.attrs, 'stroke') ?? ''), 'halo S-146').toBe(t236('S-146', preference))
       expect(Number(attrOf(element.attrs, 'stroke-width'))).toBeCloseTo(d * S_34, 2)
     })
   }
 
-  it('DA-3 control: S-364 is not the ground colour, so a fill of S-146 would fail the fill case', () => {
+  it('DA-3 control: S-364 is not the ground color, so a fill of S-146 would fail the fill case', () => {
     expect(t236('S-364', 'light')).not.toBe(t236('S-146', 'light'))
     expect(t236('S-364', 'dark')).not.toBe(t236('S-146', 'dark'))
   })
@@ -568,17 +568,17 @@ describe('DA-5 -- where the box stands down the task group', () => {
       const marker = drawnOf(scene, 1).marker
       if (marker === null) throw new Error(`premise: ${sh} draws its marker with S-63 true`)
       const parts = partsOf(markOf(scene, 1).outline)
-      expect((parts.top + parts.bottom) / 2, `${sh} box centre = marker centre`).toBeCloseTo(marker.centre.y, 6)
+      expect((parts.top + parts.bottom) / 2, `${sh} box center = marker center`).toBeCloseTo(marker.center.y, 6)
     })
   }
 
   for (const sh of ['SH-1', 'SH-2'] as const) {
-    it(`DA-5 「${DA_5_CENTRE}」 ${sh}`, () => {
+    it(`DA-5 「${DA_5_CENTER}」 ${sh}`, () => {
       const scene = oneTask({ deadline: day(12) }, {}, KIND_OF(sh))
       const plan = drawnOf(scene, 1).plan
       if (plan === null) throw new Error('premise: the plan is drawn')
       const parts = partsOf(markOf(scene, 1).outline)
-      expect((parts.top + parts.bottom) / 2).toBeCloseTo(bandOf(plan).centre, 6)
+      expect((parts.top + parts.bottom) / 2).toBeCloseTo(bandOf(plan).center, 6)
     })
   }
 
@@ -590,7 +590,7 @@ describe('DA-5 -- where the box stands down the task group', () => {
       const parts = partsOf(markOf(scene, 1).outline)
       const line = bandOf(plan)
       expect(parts.tip.y).toBeLessThanOrEqual(line.top + GEO_EPS)
-      expect(line.centre + (parts.bottom - parts.top) / 2).toBeGreaterThan(line.top)
+      expect(line.center + (parts.bottom - parts.top) / 2).toBeGreaterThan(line.top)
     })
   }
 
@@ -599,7 +599,7 @@ describe('DA-5 -- where the box stands down the task group', () => {
     const figure = drawnOf(scene, 1).plan ?? drawnOf(scene, 1).milestoneFigure
     if (figure === null) throw new Error('premise: the diamond is drawn')
     const parts = partsOf(markOf(scene, 1).outline)
-    expect((parts.top + parts.bottom) / 2).toBeCloseTo(bandOf(figure).centre, 6)
+    expect((parts.top + parts.bottom) / 2).toBeCloseTo(bandOf(figure).center, 6)
   })
 
   it('DA-5 ⭐ 印のために縦の占有を足さない: the task group and the Task stand where they stand without a deadline', () => {
@@ -626,7 +626,7 @@ describe('DA-6 -- the mark takes no press, and a rest on it tells its own hint',
       expect(placedOf(withMark, 1).x, 'premise: one Task, placed alike').toBeCloseTo(placedOf(without, 1).x, 6)
       const parts = partsOf(markOf(withMark, 1).outline)
       const xs = markOf(withMark, 1).outline.map((one) => one.x)
-      const probes: Pt[] = [parts.tip, { x: parts.centreX, y: (parts.top + parts.bottom) / 2 }]
+      const probes: Pt[] = [parts.tip, { x: parts.centerX, y: (parts.top + parts.bottom) / 2 }]
       for (let x = Math.min(...xs); x <= Math.max(...xs); x += 1) {
         for (let y = parts.top; y <= parts.bottom; y += 1) probes.push({ x, y })
       }
@@ -643,8 +643,8 @@ describe('DA-6 -- the mark takes no press, and a rest on it tells its own hint',
   it(`DA-6 「${DA_6_OWN_HINT}」: a rest on the mark far right of the bar names the deadline hint`, () => {
     const withMark = oneTask({ deadline: day(20) })
     const tip = partsOf(markOf(withMark, 1).outline).tip
-    const centre = { x: tip.x, y: tip.y - 1 }
-    expect(itemAtPointer(withMark.whole as never, centre.x, centre.y, sizes, 'hint')).toEqual({
+    const center = { x: tip.x, y: tip.y - 1 }
+    expect(itemAtPointer(withMark.whole as never, center.x, center.y, sizes, 'hint')).toEqual({
       kind: 'deadline',
       taskUid: 1,
     })
@@ -654,8 +654,8 @@ describe('DA-6 -- the mark takes no press, and a rest on it tells its own hint',
     const without = oneTask({ deadline: null })
     const withMark = oneTask({ deadline: day(20) })
     const tip = partsOf(markOf(withMark, 1).outline).tip
-    const centre = { x: tip.x, y: tip.y - 1 }
-    expect(itemAtPointer(without.whole as never, centre.x, centre.y, grabSizesOf())).toBeNull()
+    const center = { x: tip.x, y: tip.y - 1 }
+    expect(itemAtPointer(without.whole as never, center.x, center.y, grabSizesOf())).toBeNull()
   })
 })
 

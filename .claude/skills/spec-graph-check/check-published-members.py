@@ -28,7 +28,7 @@ and only the first is followed by "（".
 ⛔ A noisy gate is worse than no gate -- it gets legitimate text "fixed", which
 is why checks 13 and 14 were demoted to advisory. So this one never guesses.
 Where the cell is prose, or the entry uses an export form this file does not
-recognise, it counts a skip and says so; a skip is never a failure, and the
+recognize, it counts a skip and says so; a skip is never a failure, and the
 count is printed on every run so nobody reads the check as covering more than
 it does. `--skips` lists exactly what was not covered.
 
@@ -49,7 +49,7 @@ already uses for the 26 standing duplications: the run is GREEN when the gaps
 it finds are EXACTLY the ones held there, RED when a gap appears that is not
 held there, and RED when a held line no longer matches a real gap -- a debt
 that was paid must leave the file, or the baseline rots into permission.
-⛔ A baselined gap is still a defect. The line is a debt, not a licence, and
+⛔ A baselined gap is still a defect. The line is a debt, not a license, and
 closing it means deleting the line in the change that writes the member.
 
 ⭐ THE REVERSE DIRECTION. Everything above walks the table

@@ -363,7 +363,7 @@ test.describe(`WB-10 (MUST): ${WB_10_MOVE.slice(-40)}`, () => {
     }, selector)
   }
 
-  test('the Export Chooser follows its title band, stays where released, and opens in the centre again', async () => {
+  test('the Export Chooser follows its title band, stays where released, and opens in the center again', async () => {
     const opened = await stageWith(4, {})
     try {
       expect(await pressEntrance(opened.page, OPEN_EXPORT_CHOOSER)).toBe(true)

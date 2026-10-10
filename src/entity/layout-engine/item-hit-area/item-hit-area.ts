@@ -103,7 +103,7 @@ export function bottomOf(box: ScreenRect): number {
 }
 
 /** @purity pure */
-function centreOf(box: ScreenRect): Point {
+function centerOf(box: ScreenRect): Point {
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
 }
 
@@ -239,8 +239,8 @@ function boxOfMarker(marker: MarkerGeometry | null): ScreenRect | null {
   if (marker === null) return null
   const side = marker.radius * 2
   return {
-    x: marker.centre.x - marker.radius,
-    y: marker.centre.y - marker.radius,
+    x: marker.center.x - marker.radius,
+    y: marker.center.y - marker.radius,
     width: side,
     height: side,
   }
@@ -287,7 +287,7 @@ export type TaskShape = {
 /** @purity pure */
 function midlineOf(plan: ScreenRect | null, below: ScreenRect | null): number | null {
   if (plan === null || below === null) return null
-  return (centreOf(plan).y + centreOf(below).y) / 2
+  return (centerOf(plan).y + centerOf(below).y) / 2
 }
 
 // TRAP: reads the first dummy's ink only; task-figures.ts gives every dummy of a Task the same one.
@@ -381,7 +381,7 @@ type Region = {
   readonly grab: GrabArea
   readonly type: TypeName
   readonly item: Item
-  readonly centre: Point
+  readonly center: Point
   readonly anchorX: number
   readonly finishSide: boolean
   readonly taskUid: number | null
@@ -398,7 +398,7 @@ function taskRegion(seed: RegionSeed, across: Span, down: Span): Region | null {
     grab: seed.grab,
     type: seed.type,
     item: { kind: 'task', taskUid: seed.taskUid },
-    centre: centreOf(rect),
+    center: centerOf(rect),
     anchorX: seed.anchorX,
     finishSide: seed.finishSide === true,
     taskUid: seed.taskUid,
@@ -433,7 +433,7 @@ function endSpan(edge: number, outward: number, inward: number, side: 'left' | '
 
 // see GA-10, GA-11, GA-12, GA-13, GA-15, GA-21, GA-22
 /** @purity pure */
-function centredSpan(at: number, width: number): Span {
+function centeredSpan(at: number, width: number): Span {
   return { from: at - width / 2, to: at + width / 2 }
 }
 
@@ -461,11 +461,11 @@ function lineEndOf(bar: BarGeometry, side: 'left' | 'right'): Point {
   if (bar.form === 'outline') {
     const box = boxOfPath(bar.points)
     if (box === null) return { x: 0, y: 0 }
-    return { x: side === 'left' ? box.x : rightOf(box), y: centreOf(box).y }
+    return { x: side === 'left' ? box.x : rightOf(box), y: centerOf(box).y }
   }
   if (side === 'left') return bar.from
   const head = boxOfPath(bar.head ?? [])
-  return head === null ? bar.to : centreOf(head)
+  return head === null ? bar.to : centerOf(head)
 }
 
 // see GA-1, GA-2, GA-10, GA-11, GA-15
@@ -476,10 +476,10 @@ function planRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | n
   if (band === null || bar === null) return []
   const uid = shape.task.taskUid
   if (shape.family === 'milestone') {
-    const middle = centreOf(band).x
+    const middle = centerOf(band).x
     return [taskRegion(
       { grab: 'GA-15', type: 'milestonePlan', taskUid: uid, anchorX: middle },
-      centredSpan(middle, band.width * sizes['S-278']),
+      centeredSpan(middle, band.width * sizes['S-278']),
       bandSpan(band, sizes['S-279']),
     )]
   }
@@ -489,12 +489,12 @@ function planRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | n
     return [
       taskRegion(
         { grab: 'GA-10', type: 'planEnd', taskUid: uid, anchorX: start.x },
-        centredSpan(start.x, sizes['S-270']),
+        centeredSpan(start.x, sizes['S-270']),
         clippedToMidline(bandSpan(band, sizes['S-271']), shape.midline, 'above'),
       ),
       taskRegion(
         { grab: 'GA-11', type: 'planEnd', taskUid: uid, anchorX: finish.x, finishSide: true },
-        centredSpan(finish.x, sizes['S-272']),
+        centeredSpan(finish.x, sizes['S-272']),
         clippedToMidline(bandSpan(band, sizes['S-273']), shape.midline, 'above'),
       ),
     ]
@@ -514,15 +514,15 @@ function planRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | n
 }
 
 // see GA-3
-// WHY: the marker's centre caps the inward reach, so a marker standing on the actual's start keeps
+// WHY: the marker's center caps the inward reach, so a marker standing on the actual's start keeps
 // its right half, which HT-3 leaves to it.
 /** @purity pure */
 function actualStartInwardOf(shape: TaskShape, sizes: GrabSizes, half: number): number {
   const inward = Math.min(sizes['S-257'], half)
   const marker = shape.task.marker
   if (shape.actualBand === null || marker === null) return inward
-  const toCentre = marker.centre.x - shape.actualBand.x
-  return toCentre >= 0 ? Math.min(inward, toCentre) : inward
+  const toCenter = marker.center.x - shape.actualBand.x
+  return toCenter >= 0 ? Math.min(inward, toCenter) : inward
 }
 
 // see GA-3, GA-4, GA-12, GA-13, GA-16
@@ -535,7 +535,7 @@ function actualRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region |
   if (shape.family === 'milestone') {
     const box = grown(band, sizes['S-280'], sizes['S-281'])
     return [taskRegion(
-      { grab: 'GA-16', type: 'actualEnd', taskUid: uid, anchorX: centreOf(band).x, finishSide: true },
+      { grab: 'GA-16', type: 'actualEnd', taskUid: uid, anchorX: centerOf(band).x, finishSide: true },
       acrossOf(box),
       downOf(box),
     )]
@@ -546,12 +546,12 @@ function actualRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region |
     return [
       taskRegion(
         { grab: 'GA-12', type: 'actualEnd', taskUid: uid, anchorX: start.x },
-        centredSpan(start.x, sizes['S-274']),
+        centeredSpan(start.x, sizes['S-274']),
         clippedToMidline(bandSpan(band, sizes['S-275']), shape.midline, 'below'),
       ),
       taskRegion(
         { grab: 'GA-13', type: 'actualEnd', taskUid: uid, anchorX: finish.x, finishSide: true },
-        centredSpan(finish.x, sizes['S-276']),
+        centeredSpan(finish.x, sizes['S-276']),
         clippedToMidline(bandSpan(band, sizes['S-277']), shape.midline, 'below'),
       ),
     ]
@@ -578,7 +578,7 @@ function dummyRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | 
   const ink = shape.dummyInk
   if (ink === null) return []
   const uid = shape.task.taskUid
-  const middle = centreOf(ink).x
+  const middle = centerOf(ink).x
   if (shape.family === 'milestone') {
     const box = grown(ink, sizes['S-282'], sizes['S-283'])
     return [taskRegion(
@@ -591,12 +591,12 @@ function dummyRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | 
     return [
       taskRegion(
         { grab: 'GA-21', type: 'dummy', taskUid: uid, anchorX: ink.x },
-        clippedAcross(centredSpan(ink.x, sizes['S-287']), middle, 'left'),
+        clippedAcross(centeredSpan(ink.x, sizes['S-287']), middle, 'left'),
         clippedToMidline(bandSpan(ink, sizes['S-288']), shape.midline, 'below'),
       ),
       taskRegion(
         { grab: 'GA-22', type: 'dummy', taskUid: uid, anchorX: rightOf(ink), finishSide: true },
-        clippedAcross(centredSpan(rightOf(ink), sizes['S-289']), middle, 'right'),
+        clippedAcross(centeredSpan(rightOf(ink), sizes['S-289']), middle, 'right'),
         clippedToMidline(bandSpan(ink, sizes['S-290']), shape.midline, 'below'),
       ),
     ]
@@ -630,8 +630,8 @@ function fadeRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | n
     if (at === undefined) return null
     return taskRegion(
       { grab, type: 'fade', taskUid: uid, anchorX: at.x },
-      centredSpan(at.x, side),
-      centredSpan(at.y, side),
+      centeredSpan(at.x, side),
+      centeredSpan(at.y, side),
     )
   })
 }
@@ -644,14 +644,14 @@ function markerRegionOf(shape: TaskShape, sizes: GrabSizes): Region | null {
   const marker = shape.task.marker
   if (box === null || marker === null) return null
   const actual = shape.actualBand
-  const inside = actual !== null && marker.centre.x >= actual.x && marker.centre.x <= rightOf(actual)
+  const inside = actual !== null && marker.center.x >= actual.x && marker.center.x <= rightOf(actual)
   const grab = grown(box, sizes['S-284'], sizes['S-284'])
   return taskRegion(
     {
       grab: 'GA-18',
       type: inside ? 'markerInside' : 'markerOutside',
       taskUid: shape.task.taskUid,
-      anchorX: marker.centre.x,
+      anchorX: marker.center.x,
     },
     acrossOf(grab),
     downOf(grab),
@@ -682,7 +682,7 @@ function bodyRegionOf(shape: TaskShape): Region | null {
     grab: shape.family === 'line' ? 'GA-14' : 'GA-9',
     type: 'body',
     taskUid: shape.task.taskUid,
-    anchorX: centreOf(band).x,
+    anchorX: centerOf(band).x,
   }
   if (bar.form === 'line') {
     return taskRegion(seed, acrossOf(band), clippedToMidline(downOf(band), shape.midline, 'above'))
@@ -738,7 +738,7 @@ function lineRegionOf(
   covers: (x: number, y: number) => boolean,
 ): Region {
   return {
-    grab, type, item: dependencyItemOf(line), centre: centreOf(box), anchorX: rightOf(box),
+    grab, type, item: dependencyItemOf(line), center: centerOf(box), anchorX: rightOf(box),
     finishSide: false, taskUid: null, covers,
   }
 }
@@ -916,7 +916,7 @@ function claimingRegions(walk: PointerWalk, x: number, y: number, onShape: boole
 }
 
 // see HT-1
-// WHY: the Tasks under the pointer, never the one drawn last, nor a neighbour stacked over it.
+// WHY: the Tasks under the pointer, never the one drawn last, nor a neighbor stacked over it.
 /** @purity pure */
 function keptOnTheShape(regions: readonly Region[], covered: readonly TaskShape[]): readonly Region[] {
   const uids = new Set(covered.map((one) => one.task.taskUid))
@@ -970,8 +970,8 @@ function beats(one: Region, held: Region, order: readonly TypeName[], x: number,
   const mine = order.indexOf(one.type)
   const theirs = order.indexOf(held.type)
   if (mine !== theirs) return mine < theirs
-  const near = Math.hypot(x - one.centre.x, y - one.centre.y)
-  const far = Math.hypot(x - held.centre.x, y - held.centre.y)
+  const near = Math.hypot(x - one.center.x, y - one.center.y)
+  const far = Math.hypot(x - held.center.x, y - held.center.y)
   if (near !== far) return near < far
   const rank = nearnessOrder(one.nearness, held.nearness)
   if (rank !== 0) return rank < 0
@@ -1167,9 +1167,9 @@ function baselineHintOf(geometry: ScheduleGeometry, x: number, y: number): HintH
   const cut = geometry.pinnedBand ?? null
   for (const outline of geometry.baselineOutlines) {
     if (isCutAway(cut, !outline.isPinned, y)) continue
-    const centre = centreOf(outline.box)
-    const across = Math.abs(x - centre.x) / (outline.box.width / 2)
-    const down = Math.abs(y - centre.y) / (outline.box.height / 2)
+    const center = centerOf(outline.box)
+    const across = Math.abs(x - center.x) / (outline.box.width / 2)
+    const down = Math.abs(y - center.y) / (outline.box.height / 2)
     const isInside = outline.kind === 'diamond' ? across + down <= 1 : isInsideRect(x, y, outline.box)
     if (isInside) return { kind: 'baseline', taskUid: outline.taskUid }
   }

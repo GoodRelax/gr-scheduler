@@ -288,7 +288,7 @@ const bringing = (row: string, document: Document): HeldDocumentCall =>
 const RESTORED = (document: Document): HeldDocumentCall => bringing('RD-6', document)
 
 // ---------------------------------------------------------------------------
-// The two keys the shell is asked with, spelt by table T-036
+// The two keys the shell is asked with, spelled by table T-036
 // ---------------------------------------------------------------------------
 
 /**
@@ -416,7 +416,7 @@ function drawnPoints(svg: string): { readonly x: number; readonly y: number }[] 
 /**
  * Every word the picture prints, in the order it prints them.
  *
- * ⭐ The shape of one label is the neighbour's, not this file's guess:
+ * ⭐ The shape of one label is the neighbor's, not this file's guess:
  * tests/unit/uf-32-ruler-band.test.ts reads a 目盛ラベル the same way, and it is
  * the file that owns what the band draws.
  */
@@ -707,7 +707,7 @@ describe('HF-8 of table T-051 -- what boot must not do', () => {
   })
 
   it('and draws the picture that collapse means -- the task group under it stays undrawn', () => {
-    // The half that matters: HF-8 could be honoured in the document and still
+    // The half that matters: HF-8 could be honored in the document and still
     // be applied to the frame. LC-1 of table T-068 drops the collapsed task groups
     // first, and HR-1a forbids drawing "折りたたんだ `TaskGroup` の配下のタスクグループと、そのタスクグループ
     // に載っている `Task`".
@@ -1465,7 +1465,7 @@ describe('FR-038 -- the display language is the environment, not the document', 
     const english = screenPane('en')
 
     // ⭐ The premise, asked of the dictionary rather than assumed: two languages
-    // that spelt a weekday alike would make every expectation below vacuous.
+    // that spelled a weekday alike would make every expectation below vacuous.
     const inJa = rulerWeekdayWords('ja')
     const inEn = rulerWeekdayWords('en')
     // PI-37 of 表 T-064:「`rulerWeekdayWords`（目盛の第 4 段が刷る曜日 7 語。

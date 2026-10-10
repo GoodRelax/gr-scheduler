@@ -26,7 +26,7 @@ const HEAL = [
 
 const HOUSE = [
   'RULES (the project own rules, in docs/development-rules/ -- read 03-implementation.md first):',
-  ' - src/ is English and ASCII prose, apart from the project own comment marks the neighbours use.',
+  ' - src/ is English and ASCII prose, apart from the project own comment marks the neighbors use.',
   ' - You MAY run the python generators and python one-liners to measure.',
   '   You may NOT run npm test / typecheck / build / check.sh -- the front session verifies.',
   ' - DO NOT run git commit / push / add / merge (apart from the ff-only heal above).',
@@ -71,7 +71,7 @@ const built = await parallel(
           [
             HEAL,
             'Implement the plan below. It was proposed by another agent from the specification and has been',
-            'ACCEPTED by the front session, including the judgements the front session added.',
+            'ACCEPTED by the front session, including the judgments the front session added.',
             '⚠️ If implementing it shows the plan to be wrong, STOP that part and report it rather than',
             'improvising a different design.',
             '',
@@ -109,7 +109,7 @@ const built = await parallel(
             'WHAT IS TESTABLE FROM THE SPECIFICATION: ' + (it.testable || '(derive it yourself)'),
             '',
             'Read those rows yourself and quote what you relied on. Follow the conventions already in',
-            'tests/ -- read several neighbours first. ⛔ Do not duplicate a case that already exists;',
+            'tests/ -- read several neighbors first. ⛔ Do not duplicate a case that already exists;',
             'the duplication detector fails on one new pair.',
           ].join('\n'),
           { label: 'test:' + it.key, phase: 'Build', isolation: 'worktree', schema: REPORT },

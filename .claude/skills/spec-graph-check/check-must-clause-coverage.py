@@ -13,7 +13,7 @@ artifacts. Not one of them asks whether a TEST agrees with the specification.
 
 ⭐⭐ THE SAME DAY, A COUNTEREXAMPLE. DFC-257 moved `S-220` / `S-221` / `S-222` /
 `S-102` (FR-020's four generated-constant values) and `S-223` (its ink
-colour): four cases in `tests/unit/fr-020-the-four-values-live-in-the-tables-
+color): four cases in `tests/unit/fr-020-the-four-values-live-in-the-tables-
 not-in-src.test.ts` went red, each naming the row it caught. DFC-260 moved the
 `HF-4` wording (the order of the four TaskGroup grab-band icons) and nine
 cases in `tests/unit/uf-72-screen-part.test.ts` shifted with it. ⇒ The cover
@@ -53,7 +53,7 @@ literal count of the marker text, including any case where the specification
 cites its own earlier requirement's MUST wording a second time elsewhere (the
 non-marker "上の MUST NOT のとおり" style of reference is NOT counted, since it
 carries no `（MUST）` / `（MUST NOT）` text of its own) -- deduplicating two
-markers that happen to restate the same rule is a judgement call this
+markers that happen to restate the same rule is a judgment call this
 mechanical count does not make.
 
 HOW "HELD" IS DECIDED -- stated plainly, as the ledger asked for. For each
@@ -92,7 +92,7 @@ job: to fail the round that writes a NEW MUST / MUST NOT clause with nothing
 under tests/ quoting it, exactly as DFC-254 found for its seven. ⛔ THE STANDING
 COUNT IS NOT OWED. No round may write a test whose purpose is to lower this
 number. A test written to close a clause nobody pressed holds WORDS, not
-behaviour -- this check says so about itself two paragraphs above, where it
+behavior -- this check says so about itself two paragraphs above, where it
 disclaims any knowledge that the test's assertion is correct or even about the
 right thing.
 
@@ -112,7 +112,7 @@ Measured 2026-09-11 with `git log --numstat --no-merges`, counting a commit as
 idle when it touched no path under `docs/spec` and none under `src/`: 26.8%
 over the last forty commits, but only 8.6% over the whole history (19,457 of
 225,001). ⇒ The habit is RECENT and growing. ⛔ Do not quote the recent
-window as this project's lifetime behaviour.
+window as this project's lifetime behavior.
 ⇒ Repayment buys the least productive of the six ways this product is
 observed to find a defect.
 
@@ -243,7 +243,7 @@ def load_test_corpus():
     thing the count is for -- knowing which clauses a change would break -- is
     exactly what a comment-only hold destroys.
 
-    ⚠️ THIS IS NOT A JUDGEMENT THAT THE REMAINING 351 ASSERT THE RIGHT THING.
+    ⚠️ THIS IS NOT A JUDGMENT THAT THE REMAINING 351 ASSERT THE RIGHT THING.
     The disclaimer in the docstring above still stands in full; this only
     removes the holds that could not possibly have been assertions."""
     parts = []

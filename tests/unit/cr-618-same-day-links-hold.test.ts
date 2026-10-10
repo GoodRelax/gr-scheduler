@@ -195,7 +195,7 @@ function documentOf(statusDate: string, children: readonly Child[]): Document {
   const started = children.flatMap((one) => (one.actualStart === undefined ? [] : [one.actualStart]))
   const allDone = children.every((one) => one.actualFinish !== undefined)
   const root = taskOf(P, {
-    name: 'Programme',
+    name: 'Program',
     start: earliest(children.map((one) => one.start)),
     finish: latest(children.map((one) => one.finish)),
     actualStart: started.length > 0 ? earliest(started) : null,

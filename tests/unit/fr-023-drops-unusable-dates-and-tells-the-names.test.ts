@@ -155,7 +155,7 @@ const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
     .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
     .filter((keys) => keys.length > 0)
 
-/** One row of table T-036, spelt as its assignment column spells it. */
+/** One row of table T-036, spelled as its assignment column spells it. */
 function keyOf(id: string): KeyInput {
   const parts = assignmentsIn(rowOf(T_036, id).by['割当'] ?? '')[0] ?? []
   const last = parts[parts.length - 1]

@@ -265,7 +265,7 @@ const REPORT: DelayDiagnosticsReport = {
   bottlenecks: [{ uid: 2, name: 'Bravo', ...QUANTITIES, path: [3, 2] }],
   terminalPushOuts: [],
   walls: [],
-  unanalysedCount: 1,
+  unreliableCount: 1,
   markerStates: [
     { uid: 1, row: 'DG-1' },
     { uid: 2, row: 'DG-2' },
@@ -551,7 +551,7 @@ describe('T-331 SQ-5 / T-347 DT-1 / T-346 RW-4 -- the leading glyph of a status 
     }
   })
 
-  it(`SQ-1 「${SQ_1_LINK}」 -- the drawn task names are underlined (the colour is checked in the browser)`, () => {
+  it(`SQ-1 「${SQ_1_LINK}」 -- the drawn task names are underlined (the color is checked in the browser)`, () => {
     const jump = selfAndDescendants(drawnPanel(TASK_PANEL)).filter((one) => one.tagName === 'TD' && one.getAttribute('data-search-task') !== null)
     expect(jump.length).toBe(TASKS.length)
     for (const cell of jump) expect((cell.getAttribute('style') ?? '').replace(/\s+/g, ''), cell.textContent ?? '').toContain('text-decoration:underline')

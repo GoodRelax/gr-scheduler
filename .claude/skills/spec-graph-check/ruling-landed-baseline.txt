@@ -139,7 +139,7 @@
 # rulings.md's JDG-71 row already reads 適用済 -- but this number was left at
 # 3 in that commit, and check 43 counted 2 against it. Remaining at 2: JDG-67
 # and JDG-69, held below for their own reasons. JDG-72 (the comment-box
-# anchor is read by where it is released, and drawn at the centre of its day
+# anchor is read by where it is released, and drawn at the center of its day
 # column and row band) was appended in this same change already landed
 # (GR-14's paragraph and FR-019 in 01-04-requirements.md, table T-221's LF-15
 # in 05-07-design.md), so it does not count.

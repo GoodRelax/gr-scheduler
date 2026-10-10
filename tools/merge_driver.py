@@ -250,7 +250,7 @@ REQUIRED = {
 def check():
     """Check 67: .gitattributes still routes the colliding files to a driver
     this file defines, every path it names is tracked, and every generated
-    block the ledger driver neutralises is still where it looks for it."""
+    block the ledger driver neutralizes is still where it looks for it."""
     faults = []
     attributes = io.open(os.path.join(ROOT, '.gitattributes'), encoding='utf-8').read()
     for number, line in enumerate(attributes.split('\n'), start=1):

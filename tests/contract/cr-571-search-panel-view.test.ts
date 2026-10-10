@@ -370,9 +370,9 @@ describe(`T-330 SV-3 -- ${SV_3_DEFAULT} ${SV_3_CHOSEN}`, () => {
 })
 
 describe(`T-335 WB-4 -- ${SV_13_LABEL}`, () => {
-  it.each(LANGUAGES)('%s: IC-131 stands where IC-130 stood while maximised, and IC-130 otherwise', (language) => {
+  it.each(LANGUAGES)('%s: IC-131 stands where IC-130 stood while maximized, and IC-130 otherwise', (language) => {
     const icons = (view: SearchPanelView): readonly string[] => view.titleEntries.map((one) => one.icon)
-    expect(icons(viewOf(sessionIn(language, 'searchPanelMaximiseToggled')))).toEqual(['IC-127', 'IC-129', 'IC-131', 'IC-52'])
+    expect(icons(viewOf(sessionIn(language, 'searchPanelMaximizeToggled')))).toEqual(['IC-127', 'IC-129', 'IC-131', 'IC-52'])
     expect(icons(viewOf(sessionIn(language)))).toEqual(['IC-127', 'IC-129', 'IC-130', 'IC-52'])
   })
 })
@@ -411,15 +411,15 @@ describe(`T-330 SV-9 -- ${SV_9_SIZE} ${SV_9_CORNER}`, () => {
   })
 
   it(`SV-13: ${SV_13_FILL}`, () => {
-    const box = searchPanelBoxOf(viewOf(sessionIn('ja', 'searchPanelMaximiseToggled')), DEFAULT_RATIO)
+    const box = searchPanelBoxOf(viewOf(sessionIn('ja', 'searchPanelMaximizeToggled')), DEFAULT_RATIO)
     expect(box).toEqual(CANVAS)
   })
 
   it(`SV-12: ${SV_12_BOTTOM}`, () => {
     const normal = searchPanelBoxOf(viewOf(sessionIn('ja')), DEFAULT_RATIO)
-    const minimised = searchPanelBoxOf(viewOf(sessionIn('ja', 'searchPanelMinimiseToggled')), DEFAULT_RATIO)
-    expect(minimised.y + minimised.height).toBeCloseTo(normal.y + normal.height)
-    expect(minimised.height).toBeLessThan(normal.height)
+    const minimized = searchPanelBoxOf(viewOf(sessionIn('ja', 'searchPanelMinimizeToggled')), DEFAULT_RATIO)
+    expect(minimized.y + minimized.height).toBeCloseTo(normal.y + normal.height)
+    expect(minimized.height).toBeLessThan(normal.height)
   })
 })
 
@@ -608,8 +608,8 @@ describe(`T-330 SV-17 -- ${SV_17_ELLIPSIS} / SV-16 -- ${SV_16_RULE}`, () => {
 })
 
 describe(`T-330 SV-12 -- ${SV_12_ONLY_TITLE}`, () => {
-  it('a minimised panel draws its heading row and neither the field nor the table', () => {
-    const { panel } = drawn(viewOf(sessionIn('ja', 'searchPanelMinimiseToggled')))
+  it('a minimized panel draws its heading row and neither the field nor the table', () => {
+    const { panel } = drawn(viewOf(sessionIn('ja', 'searchPanelMinimizeToggled')))
     expect(titleRowOf(panel)).toBeDefined()
     expect(byTag(panel, 'INPUT')).toHaveLength(0)
     expect(byTag(panel, 'TABLE')).toHaveLength(0)

@@ -18,12 +18,12 @@
 // `docs/development-records/defects.md` DFC-68 and DFC-103. Both marks are proved
 // to EXIST on the band and neither is proved to be anywhere in particular:
 //
-//   tests/unit/uf-71.test.ts:2611          the minimised band carries IC-53 and
+//   tests/unit/uf-71.test.ts:2611          the minimized band carries IC-53 and
 //                                          IC-75 -- `arrayContaining`, so the
 //                                          two could be in either order, in
 //                                          either box, at either end.
-//   tests/unit/fr-053-minimised-shows-the-band-alone.test.ts:229
-//                                          `palette.minimise.icon` is IC-75 --
+//   tests/unit/fr-053-minimized-shows-the-band-alone.test.ts:229
+//                                          `palette.minimize.icon` is IC-75 --
 //                                          the DESCRIPTION carries it, which
 //                                          says nothing about the page.
 //   tests/unit/fr-029-palette-grab-marker.test.ts:91
@@ -85,7 +85,7 @@
 //      history of CR-263). ⛔ AND THE SPECIFICATION EXCLUDES THE SUBJECT: LM-2
 //      of 表 T-004 says the tool does not claim WCAG 2.1 AA 「支援技術による読み
 //      上げを対象外にしたため」. 表 T-237 states the five states an entrance is
-//      PAINTED for, and none of its five rows is the minimise: `EN-5` is 「その
+//      PAINTED for, and none of its five rows is the minimize: `EN-5` is 「その
 //      入口が表示・非表示を切り替えるものを、いま表示している」 and FR-053 says in
 //      as many words 「非表示（`S-99e`）とは別の状態である —— 最小化は出ている状態
 //      の一種であり」, so reading `EN-5` onto IC-75 would be minting a rule.
@@ -155,7 +155,7 @@ const U_26 = ((): string => {
 
 /** The two rows of table T-109 the sentence places, in the order it places them. */
 const IC_GRAB_MARKER = 'IC-53'
-const IC_MINIMISE = 'IC-75'
+const IC_MINIMIZE = 'IC-75'
 
 /**
  * What table T-109 says IC-75 is the entrance to, read rather than copied.
@@ -169,7 +169,7 @@ const IC_75_CELL = ((): string => {
   if (!table.headings.includes(COLUMN)) {
     throw new Error(`table T-109 no longer has a ${COLUMN} column: ${table.headings.join(' | ')}`)
   }
-  const row = table.rows.find((one) => one.id === IC_MINIMISE)
+  const row = table.rows.find((one) => one.id === IC_MINIMIZE)
   if (row === undefined) throw new Error('table T-109 no longer has row IC-75')
   return row.by[COLUMN] ?? ''
 })()
@@ -228,8 +228,8 @@ const paletteWith = (patch: Partial<CommandPalette> = {}): CommandPalette =>
   ({
     at: { x: 400, y: 300 },
     grabBandHeight: 24,
-    minimise: command({ icon: IC_MINIMISE }),
-    isMinimised: false,
+    minimize: command({ icon: IC_MINIMIZE }),
+    isMinimized: false,
     groups: [
       {
         name: 'PaletteGroupOne',
@@ -295,7 +295,7 @@ const orderIn = (root: FakeElement): FakeElement[] => selfAndDescendants(root)
 /**
  * 「右端に」, however a box states it.
  *
- * ⭐ EVERY SPELLING A BROWSER HONOURS IS ACCEPTED, because no row of the
+ * ⭐ EVERY SPELLING A BROWSER HONORS IS ACCEPTED, because no row of the
  * specification says WHICH property may push a mark to the end of its band, and
  * a case that demanded one would be asserting a mechanism the manuscript never
  * chose. What every accepted spelling has in common is that the content ends at
@@ -394,35 +394,35 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
   it('⭐ both marks are drawn, on ONE band, which is a child of the palette', () => {
     // 「帯には ... `IC-53` と、最小化の入口（同表の `IC-75`）が載ったままである」.
     // ⭐ THIS IS ALSO WHAT DFC-103 OWES: nothing anywhere asked where IC-75 is
-    // DRAWN. `CommandPalette.minimise` carries it in the description
-    // (tests/unit/fr-053-minimised-shows-the-band-alone.test.ts:229) and
+    // DRAWN. `CommandPalette.minimize` carries it in the description
+    // (tests/unit/fr-053-minimized-shows-the-band-alone.test.ts:229) and
     // tests/unit/uf-65.test.ts holds it OUT of `groups` -- so until this case,
-    // a unit that had described the minimise entrance and then drawn it nowhere
+    // a unit that had described the minimize entrance and then drawn it nowhere
     // at all passed every bench in the tree.
     // GOES RED IF: either mark is missing, or the two land on different boxes.
     const { palette } = drawn(paletteWith())
 
     const grab = markOf(palette, IC_GRAB_MARKER)
-    const minimise = markOf(palette, IC_MINIMISE)
+    const minimize = markOf(palette, IC_MINIMIZE)
 
     expect(bandHolding(palette, grab), 'one band carries both marks').toBe(
-      bandHolding(palette, minimise),
+      bandHolding(palette, minimize),
     )
   })
 
   it('⛔ IC-75 rides on the band and not among the palette’s entries (DFC-103)', () => {
     // 「掴み帯の右端で、パレットを最小化し」（表 T-109 の `IC-75`）. ⚠️ 表 T-109
     // gives IC-75 no 群, and FR-053 keeps the entries out of the band -- so the
-    // minimise entrance may not be drawn inside the box the entries are laid in.
-    // GOES RED IF: the minimise entrance is drawn as one more command in a
+    // minimize entrance may not be drawn inside the box the entries are laid in.
+    // GOES RED IF: the minimize entrance is drawn as one more command in a
     // group, which is the shape it would take if it were laid out with them.
     const { built, palette } = drawn(paletteWith())
 
-    const minimise = markOf(palette, IC_MINIMISE)
+    const minimize = markOf(palette, IC_MINIMIZE)
     for (const role of ['Palette Groups', 'Palette Commands']) {
       for (const box of byRole(built.root(), role)) {
         expect(
-          selfAndDescendants(box).includes(minimise),
+          selfAndDescendants(box).includes(minimize),
           `IC-75 is not inside a ${role} box`,
         ).toBe(false)
       }
@@ -434,10 +434,10 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
     // ⚠️ WHAT THIS SEAM CAN SEE is what the unit WROTE, and there is no layout
     // engine here to ask where a box landed -- so what is asked is that the
     // band, or the mark itself, states that the content ends at the right edge.
-    // Every spelling a browser honours is accepted (see `pushedToTheRightEnd`);
+    // Every spelling a browser honors is accepted (see `pushedToTheRightEnd`);
     // stating nothing is not one of them, because default flow puts content at
     // the LEFT.
-    // GOES RED IF: the mark is left where the flow puts it, or centred.
+    // GOES RED IF: the mark is left where the flow puts it, or centered.
     const { palette } = drawn(paletteWith())
 
     const grab = markOf(palette, IC_GRAB_MARKER)
@@ -464,10 +464,10 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
     const order = orderIn(band)
 
     const grabAt = order.indexOf(markOf(band, IC_GRAB_MARKER))
-    const minimiseAt = order.indexOf(markOf(band, IC_MINIMISE))
+    const minimizeAt = order.indexOf(markOf(band, IC_MINIMIZE))
 
     expect(grabAt).toBeGreaterThanOrEqual(0)
-    expect(minimiseAt, `the band reads ${howItWasLaidOut(band)}`).toBeGreaterThan(grabAt)
+    expect(minimizeAt, `the band reads ${howItWasLaidOut(band)}`).toBeGreaterThan(grabAt)
   })
 
   it('⛔ nothing of table T-109 is drawn to the right of IC-75 on the band', () => {
@@ -475,7 +475,7 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
     // sentence puts on the band, so a third mark after it is a mark the
     // sentence did not place. ⚠️ It asks only about ROWS OF 表 T-109: whether a
     // band may carry anything else at all is settled by FR-053 for the
-    // MINIMISED state only, and tests/unit/uf-71.test.ts:2611 holds that.
+    // MINIMIZED state only, and tests/unit/uf-71.test.ts:2611 holds that.
     // GOES RED IF: a further entrance is appended to the band.
     const { palette } = drawn(paletteWith())
 
@@ -484,43 +484,43 @@ describe('FR-053 (MUST) -- the band carries IC-53 and IC-75, and nothing else', 
 
     expect(drawnMarks, `the band reads ${howItWasLaidOut(band)}`).toEqual([
       IC_GRAB_MARKER,
-      IC_MINIMISE,
+      IC_MINIMIZE,
     ])
   })
 })
 
 // ===========================================================================
-// The same band, minimised -- FR-053 says the two marks stay on it
+// The same band, minimized -- FR-053 says the two marks stay on it
 // ===========================================================================
 
-describe('FR-053 (MUST) -- minimising moves neither mark', () => {
-  const MINIMISED = paletteWith({ isMinimised: true, groups: [], armedText: null })
+describe('FR-053 (MUST) -- minimizing moves neither mark', () => {
+  const MINIMIZED = paletteWith({ isMinimized: true, groups: [], armedText: null })
 
   it('⭐ the band still carries both, in the same order', () => {
     // 「最小化しているあいだに出すのは掴み帯だけとし ... 帯には ... `IC-53` と、
     //   最小化の入口（同表の `IC-75`）が載ったままである」.
     // ⚠️ tests/unit/uf-71.test.ts:2611 already asks that BOTH ARE THERE, with
     // `arrayContaining`, which passes in either order. This asks the order.
-    // GOES RED IF: the minimised band draws them the other way round, or drops
+    // GOES RED IF: the minimized band draws them the other way round, or drops
     // one of them.
-    const { palette } = drawn(MINIMISED)
+    const { palette } = drawn(MINIMIZED)
 
     const band = bandHolding(palette, markOf(palette, IC_GRAB_MARKER))
     const drawnMarks = marksIn(band).map((one) => one.getAttribute('data-icon'))
 
-    expect(drawnMarks, `the minimised band reads ${howItWasLaidOut(band)}`).toEqual([
+    expect(drawnMarks, `the minimized band reads ${howItWasLaidOut(band)}`).toEqual([
       IC_GRAB_MARKER,
-      IC_MINIMISE,
+      IC_MINIMIZE,
     ])
   })
 
-  it('⛔ MUST: IC-53 is still at the right end when the palette is minimised', () => {
+  it('⛔ MUST: IC-53 is still at the right end when the palette is minimized', () => {
     // ⚠️ FR-053 states the placement once, for the band, and carves out no
-    // exception for the minimised state -- the state's own sentence says the
+    // exception for the minimized state -- the state's own sentence says the
     // two marks 「載ったままである」.
-    // GOES RED IF: the minimised band lays its marks out differently from the
+    // GOES RED IF: the minimized band lays its marks out differently from the
     // shown one, which is the drift a second layout path would bring.
-    const { palette } = drawn(MINIMISED)
+    const { palette } = drawn(MINIMIZED)
 
     const grab = markOf(palette, IC_GRAB_MARKER)
     const band = bandHolding(palette, grab)
@@ -532,9 +532,9 @@ describe('FR-053 (MUST) -- minimising moves neither mark', () => {
   })
 })
 
-describe('FR-053 / FR-102 (DFC-785 MUST) -- a recording palette shows IC-76 pressed on its minimised band', () => {
+describe('FR-053 / FR-102 (DFC-785 MUST) -- a recording palette shows IC-76 pressed on its minimized band', () => {
   const RECORDING = paletteWith({
-    isMinimised: true,
+    isMinimized: true,
     groups: [],
     armedText: null,
     bandRecord: command({ icon: 'IC-76', isPressed: true }),
@@ -547,12 +547,12 @@ describe('FR-053 / FR-102 (DFC-785 MUST) -- a recording palette shows IC-76 pres
     const order = orderIn(band)
     const record = markOf(band, 'IC-76')
 
-    expect(order.indexOf(record), `the band reads ${howItWasLaidOut(band)}`).toBeLessThan(order.indexOf(markOf(band, IC_MINIMISE)))
+    expect(order.indexOf(record), `the band reads ${howItWasLaidOut(band)}`).toBeLessThan(order.indexOf(markOf(band, IC_MINIMIZE)))
     expect(record.getAttribute('aria-pressed') ?? '', 'IC-76 is pressed while the record runs').toBe('true')
   })
 
   it('the same palette without a record to show carries no IC-76', () => {
-    const { palette } = drawn(paletteWith({ isMinimised: true, groups: [], armedText: null }))
+    const { palette } = drawn(paletteWith({ isMinimized: true, groups: [], armedText: null }))
     expect(marksIn(palette).some((one) => one.getAttribute('data-icon') === 'IC-76')).toBe(false)
   })
 })

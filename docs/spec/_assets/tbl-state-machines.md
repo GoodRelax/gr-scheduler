@@ -29,7 +29,7 @@
 | RG-2 | `Esc` | 確定していないその場の編集 | `fieldEditStateMachine.editingField` | `IN-4` | 面が消費する（`IF-9`） |
 | RG-3 | `Esc` | 開いている面 | `confirmationStateMachine.questionAsked` ／ `openSurfaceStateMachine.open` | `IN-4` ・ `FR-070` | 同じ段の中は、問い → 面の順。問いか面が立っているあいだは `SK-19` の 2 段目を当てない（`FR-070`）。ヘルプはこの段に立たない —— 開いているウィンドウの段に立つ（`IN-4`） |
 | RG-4 | `Esc` | 進行中のドラッグ・引きかけの矢印 | `pointerPressStateMachine.changingDocument` ／ `pointerPressStateMachine.viewingDocument` | `IN-4` | — |
-| RG-16 | `Esc` | 開いているウィンドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximised` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximised` ／ `dialogueFieldDisplayStateMachine.shown.normal` ／ `dialogueFieldDisplayStateMachine.shown.maximised` と、フレームの値（焦点がどのウィンドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓は状態機械を持たず、出ていて（`S-451`）最小化していないときに立つ。担当リストのウィンドウも同じ（`S-545`） | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-066` ・ `FR-152` ・ `RW-1` ・ `RO-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウィンドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウィンドウは立たない。検索パネルは、列のフィルタが開いていればフィルタだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。担当リストのウィンドウを閉じると担当リストの表のスケジュールフィルタを解除する（`RO-1`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `resourceList` ・ `dialogueField` |
+| RG-16 | `Esc` | 開いているウィンドウ | `searchPanelDisplayStateMachine.shown.normal` ／ `searchPanelDisplayStateMachine.shown.maximized` ／ `helpDisplayStateMachine.shown.normal` ／ `helpDisplayStateMachine.shown.maximized` ／ `dialogueFieldDisplayStateMachine.shown.normal` ／ `dialogueFieldDisplayStateMachine.shown.maximized` と、フレームの値（焦点がどのウィンドウの中にあるか、焦点がプロパティパネルの中にあるか）。遅延診断レポートの窓は状態機械を持たず、出ていて（`S-451`）最小化していないときに立つ。担当リストのウィンドウも同じ（`S-545`） | `IN-4` ・ `SV-14` ・ `HN-2` ・ `FR-066` ・ `FR-152` ・ `RW-1` ・ `RO-1` | 1 度の `Esc` で 1 つだけ閉じる。焦点がその中にあるウィンドウが先、ほかは 表 T-337 の手前から（`IN-4`）。焦点がプロパティパネルの中にあるあいだは立たない —— `RG-14` が先に受ける（`IN-4`）。最小化したウィンドウは立たない。検索パネルは、列のフィルタが開いていればフィルタだけを閉じる（`SV-14`）。遅延診断レポートの窓は窓だけを閉じ、診断の表示は終えない（`RW-1`）。担当リストのウィンドウを閉じると担当リストの表のスケジュールフィルタを解除する（`RO-1`）。対話欄は `Agent API` が有効なあいだだけ立つ（`FR-066`）。`escapePressed` の `rung` の語は `searchPanel` ・ `helpModal` ・ `delayDiagnosticsReport` ・ `resourceList` ・ `dialogueField` |
 | RG-14 | `Esc` | プロパティパネル | `propertiesPanelContentStateMachine`（`hidden` 以外） | `IN-4` | 面ではない（`S-99g`、`S-99h`）。進行中のドラッグと開いているウィンドウの後に置く（`IN-4`）。番号は最後の次を採り、並びは表の上下が持つ |
 | RG-5 | `Esc` | 構え | `armModeStateMachine`（`notArmed` 以外） | `IN-4` | — |
 | RG-6 | `Esc` | 選択 | `selectionStateMachine.objectsSelected` と、根の値 `chosenTaskGroups`（空でないとき）のどちらか —— タスクグループパネルのタスクグループだけを選んでいるときも立つ（`FR-085`） | `IN-4` ・ `FR-085` | 構えより前に置かない（`IN-4`） |
@@ -57,7 +57,7 @@
 | 出来事 | どこから来るか | 運ぶ値 | 動かすもの |
 | --- | --- | --- | --- |
 | `screen/paletteToggled` | 入力: `IC-7` ・ `SK-14` | — | `paletteDisplayStateMachine` |
-| `screen/paletteMinimiseToggled` | 入力: `IC-75` | — | `paletteDisplayStateMachine` |
+| `screen/paletteMinimizeToggled` | 入力: `IC-75` | — | `paletteDisplayStateMachine` |
 | `screen/milestoneListToggled` | 入力: `IC-50` | — | `milestoneListDisplayStateMachine` |
 | `screen/fullScreenEntryPressed` | 入力: `IC-11` ・ `SK-15` | — | `fullScreenModeStateMachine` |
 | `screen/fullScreenChanged` | 副作用の結果（ブラウザの `fullscreenchange`）: `FR-071` | `isFullScreen` | `fullScreenModeStateMachine` |
@@ -77,8 +77,8 @@
 | `screen/createdNameSettled` | 入力（作った直後の名前の欄の編集が終わった後の `Enter` —— 表 T-292 の `createdTaskNamingStateMachine` が `createdNameEnded` に居るとき（表 T-283 の `RG-10`）。名前付けのあいだでも、ほかの欄の編集を終えた `Enter` では送らない）: `FR-091` ・ `SK-19` | — | `propertiesPanelContentStateMachine` |
 | `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasNoSurfaceOrConfirmation` ／ `hasNoUnsettledEntry` | `propertiesPanelContentStateMachine` |
 | `screen/dialogueFieldEntryPressed` | 入力: `IC-18` ・ `FR-066` | `isAgentApiEnabled` | `dialogueFieldDisplayStateMachine` |
-| `screen/dialogueFieldMinimiseToggled` | 入力（対話欄のタイトルバーの最小化の入口）: `IC-129` | — | `dialogueFieldDisplayStateMachine` |
-| `screen/dialogueFieldMaximiseToggled` | 入力（対話欄のタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `dialogueFieldDisplayStateMachine` |
+| `screen/dialogueFieldMinimizeToggled` | 入力（対話欄のタイトルバーの最小化の入口）: `IC-129` | — | `dialogueFieldDisplayStateMachine` |
+| `screen/dialogueFieldMaximizeToggled` | 入力（対話欄のタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `dialogueFieldDisplayStateMachine` |
 | `screen/dialogueFieldClosePressed` | 入力（対話欄の閉じる入口）: `IC-52` | — | `dialogueFieldDisplayStateMachine` |
 | `screen/dualCursorEntryPressed` | 入力: `IC-45` ・ `DC-1` ・ `DC-4` | `date`（置く日付） ／ `hasDaysToPlace` | `armModeStateMachine` ・ `dualCursorModeStateMachine` |
 | `screen/guideCursorEntryPressed` | 入力: `IC-47` ・ `IC-48` ・ `DC-9` | `guideCursor`（押したガイドカーソルの値（`S-66`）） | 根 ・ `dualCursorModeStateMachine` |
@@ -93,13 +93,13 @@
 | `screen/progressMarkerPressed` | 入力（進捗マーカーの押下が離れた（`GA-18`）。押下の最中には送らない —— 副作用の書き込みが `WS-2` に拒まれる）: `GA-18` ・ `FR-107` ・ `PV-4` | `taskUid` ／ `rememberedActual`（覚える実績） ／ `writes`（文書に書く命令。入力の翻訳係が作る。書くものが無ければ空） | 根 |
 | `screen/hintTargetChanged` | 入力: `EZ-2` ・ `EZ-6` ・ `FR-037` ・ `IN-3` | — | `tooltipDisplayStateMachine` |
 | `screen/searchEntryPressed` | 入力: `IC-117` ・ `SK-24` | — | `searchPanelDisplayStateMachine` |
-| `screen/searchPanelMinimiseToggled` | 入力（検索パネルのタイトルバーの最小化の入口）: `IC-129` | — | `searchPanelDisplayStateMachine` |
-| `screen/searchPanelMaximiseToggled` | 入力（検索パネルのタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `searchPanelDisplayStateMachine` |
+| `screen/searchPanelMinimizeToggled` | 入力（検索パネルのタイトルバーの最小化の入口）: `IC-129` | — | `searchPanelDisplayStateMachine` |
+| `screen/searchPanelMaximizeToggled` | 入力（検索パネルのタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `searchPanelDisplayStateMachine` |
 | `screen/searchPanelClosePressed` | 入力（検索パネルの閉じる入口）: `IC-52` | — | `searchPanelDisplayStateMachine` |
 | `screen/searchHitJumped` | 入力（検索の表の行を押して飛んだ）: `SJ-1` | — | `searchPanelDisplayStateMachine` |
 | `screen/helpEntryPressed` | 入力: `IC-22` ・ `SK-13` | — | `helpDisplayStateMachine` |
-| `screen/helpMinimiseToggled` | 入力（ヘルプのタイトルバーの最小化の入口）: `IC-129` | — | `helpDisplayStateMachine` |
-| `screen/helpMaximiseToggled` | 入力（ヘルプのタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `helpDisplayStateMachine` |
+| `screen/helpMinimizeToggled` | 入力（ヘルプのタイトルバーの最小化の入口）: `IC-129` | — | `helpDisplayStateMachine` |
+| `screen/helpMaximizeToggled` | 入力（ヘルプのタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `helpDisplayStateMachine` |
 | `screen/continuationMarkClicked` | 入力（続きの印を押して離した（動かさない））: `PE-12` ・ `EL-16` | `landedLink` ／ `landedTarget` | `landingMarkDisplayStateMachine` |
 | `screen/landingMarkClearAsked` | 入力（印が出ているあいだの押下・キーの押下。見る位置と倍率だけを動かす操作と修飾キーだけの押下（EL-17 の ⭐）、印を付けた押下の 2 回目（EL-18）を除く）: `EL-17` | — | `landingMarkDisplayStateMachine` |
 | `screen/searchJumpLanded` | 入力（押して飛ぶ入口（SJ-1 のセル・FR-134 の行・PTL-16 の親の名・PR-37 / PR-38 の名）を押して離し、飛んで画面に出した。AM-16 が寄せたときも送る。SJ-8 で出せなかったときは送らない）: `SJ-10` ・ `AM-16` | `landedTarget` | `landingMarkDisplayStateMachine` |
@@ -174,23 +174,23 @@ stateDiagram-v2
     state paletteDisplayStateMachine_shown {
         [*] --> paletteDisplayStateMachine_shown_expanded
         paletteDisplayStateMachine_shown_expanded : expanded
-        paletteDisplayStateMachine_shown_minimised : minimised
-        paletteDisplayStateMachine_shown_expanded --> paletteDisplayStateMachine_shown_minimised : paletteMinimiseToggled
-        paletteDisplayStateMachine_shown_minimised --> paletteDisplayStateMachine_shown_expanded : paletteMinimiseToggled
+        paletteDisplayStateMachine_shown_minimized : minimized
+        paletteDisplayStateMachine_shown_expanded --> paletteDisplayStateMachine_shown_minimized : paletteMinimizeToggled
+        paletteDisplayStateMachine_shown_minimized --> paletteDisplayStateMachine_shown_expanded : paletteMinimizeToggled
     }
     paletteDisplayStateMachine_hidden : hidden
     paletteDisplayStateMachine_shown --> paletteDisplayStateMachine_hidden : paletteToggled
     paletteDisplayStateMachine_hidden --> paletteDisplayStateMachine_shown : paletteToggled
 ```
 
-| 出来事 | `shown.expanded` | `shown.minimised` | `hidden` |
+| 出来事 | `shown.expanded` | `shown.minimized` | `hidden` |
 | --- | --- | --- | --- |
 | `screen/paletteToggled` | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） | → `shown` |
-| `screen/paletteMinimiseToggled` | → `shown.minimised` | → `shown.expanded` | — |
+| `screen/paletteMinimizeToggled` | → `shown.minimized` | → `shown.expanded` | — |
 
 - `paletteDisplayStateMachine.shown` —— 初期。根拠 `S-99e`
 - `paletteDisplayStateMachine.shown.expanded` —— 初期。親 `paletteDisplayStateMachine.shown`。根拠 `S-200` ・ `FR-053`
-- `paletteDisplayStateMachine.shown.minimised` —— 親 `paletteDisplayStateMachine.shown`。根拠 `S-200` ・ `IC-75`
+- `paletteDisplayStateMachine.shown.minimized` —— 親 `paletteDisplayStateMachine.shown`。根拠 `S-200` ・ `IC-75`
 - `paletteDisplayStateMachine.hidden` —— 根拠 `S-99e`
 
 表に無い出来事は `paletteDisplayStateMachine` を変えない（同じ参照）。
@@ -338,35 +338,35 @@ stateDiagram-v2
     state dialogueFieldDisplayStateMachine_shown {
         [*] --> dialogueFieldDisplayStateMachine_shown_normal
         dialogueFieldDisplayStateMachine_shown_normal : normal
-        dialogueFieldDisplayStateMachine_shown_minimised : minimised
-        dialogueFieldDisplayStateMachine_shown_maximised : maximised
-        dialogueFieldDisplayStateMachine_shown_normal --> dialogueFieldDisplayStateMachine_shown_minimised : dialogueFieldMinimiseToggled
-        dialogueFieldDisplayStateMachine_shown_minimised --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldMinimiseToggled
-        dialogueFieldDisplayStateMachine_shown_maximised --> dialogueFieldDisplayStateMachine_shown_minimised : dialogueFieldMinimiseToggled
-        dialogueFieldDisplayStateMachine_shown_normal --> dialogueFieldDisplayStateMachine_shown_maximised : dialogueFieldMaximiseToggled
-        dialogueFieldDisplayStateMachine_shown_minimised --> dialogueFieldDisplayStateMachine_shown_maximised : dialogueFieldMaximiseToggled
-        dialogueFieldDisplayStateMachine_shown_maximised --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldMaximiseToggled
+        dialogueFieldDisplayStateMachine_shown_minimized : minimized
+        dialogueFieldDisplayStateMachine_shown_maximized : maximized
+        dialogueFieldDisplayStateMachine_shown_normal --> dialogueFieldDisplayStateMachine_shown_minimized : dialogueFieldMinimizeToggled
+        dialogueFieldDisplayStateMachine_shown_minimized --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldMinimizeToggled
+        dialogueFieldDisplayStateMachine_shown_maximized --> dialogueFieldDisplayStateMachine_shown_minimized : dialogueFieldMinimizeToggled
+        dialogueFieldDisplayStateMachine_shown_normal --> dialogueFieldDisplayStateMachine_shown_maximized : dialogueFieldMaximizeToggled
+        dialogueFieldDisplayStateMachine_shown_minimized --> dialogueFieldDisplayStateMachine_shown_maximized : dialogueFieldMaximizeToggled
+        dialogueFieldDisplayStateMachine_shown_maximized --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldMaximizeToggled
     }
     dialogueFieldDisplayStateMachine_hidden --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldEntryPressed
     dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_hidden : dialogueFieldEntryPressed, dialogueFieldClosePressed
     dialogueFieldDisplayStateMachine_shown --> dialogueFieldDisplayStateMachine_shown_normal : dialogueFieldEntryPressed
     dialogueFieldDisplayStateMachine_shown_normal --> dialogueFieldDisplayStateMachine_hidden : escapePressed
-    dialogueFieldDisplayStateMachine_shown_maximised --> dialogueFieldDisplayStateMachine_hidden : escapePressed
+    dialogueFieldDisplayStateMachine_shown_maximized --> dialogueFieldDisplayStateMachine_hidden : escapePressed
 ```
 
-| 出来事 | `hidden` | `shown.normal` | `shown.minimised` | `shown.maximised` |
+| 出来事 | `hidden` | `shown.normal` | `shown.minimized` | `shown.maximized` |
 | --- | --- | --- | --- | --- |
 | `screen/dialogueFieldEntryPressed` | → `shown.normal`（`Agent API` が無効なら、同じ押しで有効にもなる（`agentApi/enablingAskedByDialogueField`）） | → `hidden` [`isAgentApiEnabled`]<br>→ `shown.normal` [not `isAgentApiEnabled`]（欄を通常で出し直す。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`））（親 `shown` の升） | → `hidden` [`isAgentApiEnabled`]<br>→ `shown.normal` [not `isAgentApiEnabled`]（欄を通常で出し直す。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`））（親 `shown` の升） | → `hidden` [`isAgentApiEnabled`]<br>→ `shown.normal` [not `isAgentApiEnabled`]（欄を通常で出し直す。同じ押しで `Agent API` が有効になるので欄が出る（`agentApi/enablingAskedByDialogueField`））（親 `shown` の升） |
-| `screen/dialogueFieldMinimiseToggled` | — | → `shown.minimised` | → `shown.normal` | → `shown.minimised` |
-| `screen/dialogueFieldMaximiseToggled` | — | → `shown.maximised` | → `shown.maximised` | → `shown.normal` |
+| `screen/dialogueFieldMinimizeToggled` | — | → `shown.minimized` | → `shown.normal` | → `shown.minimized` |
+| `screen/dialogueFieldMaximizeToggled` | — | → `shown.maximized` | → `shown.maximized` | → `shown.normal` |
 | `screen/dialogueFieldClosePressed` | — | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） |
 | `screen/escapePressed` | — | → `hidden` [`isRungDialogueField`]（`Agent API` は有効のまま（`FR-066`））<br>それ以外 → — | — | → `hidden` [`isRungDialogueField`]（`Agent API` は有効のまま（`FR-066`））<br>それ以外 → — |
 
 - `dialogueFieldDisplayStateMachine.hidden` —— 初期。根拠 `S-99i` ・ `FR-066`
 - `dialogueFieldDisplayStateMachine.shown` —— 根拠 `S-99i` ・ `FR-066`
 - `dialogueFieldDisplayStateMachine.shown.normal` —— 初期。親 `dialogueFieldDisplayStateMachine.shown`。根拠 `S-99i` ・ `WB-1`
-- `dialogueFieldDisplayStateMachine.shown.minimised` —— 親 `dialogueFieldDisplayStateMachine.shown`。根拠 `S-99i` ・ `WB-2` ・ `IC-129`
-- `dialogueFieldDisplayStateMachine.shown.maximised` —— 親 `dialogueFieldDisplayStateMachine.shown`。根拠 `S-99i` ・ `WB-3` ・ `IC-130`
+- `dialogueFieldDisplayStateMachine.shown.minimized` —— 親 `dialogueFieldDisplayStateMachine.shown`。根拠 `S-99i` ・ `WB-2` ・ `IC-129`
+- `dialogueFieldDisplayStateMachine.shown.maximized` —— 親 `dialogueFieldDisplayStateMachine.shown`。根拠 `S-99i` ・ `WB-3` ・ `IC-130`
 
 表に無い出来事は `dialogueFieldDisplayStateMachine` を変えない（同じ参照）。
 
@@ -460,28 +460,28 @@ stateDiagram-v2
     state searchPanelDisplayStateMachine_shown {
         [*] --> searchPanelDisplayStateMachine_shown_normal
         searchPanelDisplayStateMachine_shown_normal : normal
-        searchPanelDisplayStateMachine_shown_minimised : minimised
-        searchPanelDisplayStateMachine_shown_maximised : maximised
+        searchPanelDisplayStateMachine_shown_minimized : minimized
+        searchPanelDisplayStateMachine_shown_maximized : maximized
         searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_shown_normal : searchEntryPressed
-        searchPanelDisplayStateMachine_shown_minimised --> searchPanelDisplayStateMachine_shown_normal : searchEntryPressed, searchPanelMinimiseToggled
-        searchPanelDisplayStateMachine_shown_maximised --> searchPanelDisplayStateMachine_shown_maximised : searchEntryPressed
-        searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_shown_minimised : searchPanelMinimiseToggled
-        searchPanelDisplayStateMachine_shown_maximised --> searchPanelDisplayStateMachine_shown_minimised : searchPanelMinimiseToggled
-        searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_shown_maximised : searchPanelMaximiseToggled
-        searchPanelDisplayStateMachine_shown_minimised --> searchPanelDisplayStateMachine_shown_maximised : searchPanelMaximiseToggled
-        searchPanelDisplayStateMachine_shown_maximised --> searchPanelDisplayStateMachine_shown_normal : searchPanelMaximiseToggled, searchHitJumped
+        searchPanelDisplayStateMachine_shown_minimized --> searchPanelDisplayStateMachine_shown_normal : searchEntryPressed, searchPanelMinimizeToggled
+        searchPanelDisplayStateMachine_shown_maximized --> searchPanelDisplayStateMachine_shown_maximized : searchEntryPressed
+        searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_shown_minimized : searchPanelMinimizeToggled
+        searchPanelDisplayStateMachine_shown_maximized --> searchPanelDisplayStateMachine_shown_minimized : searchPanelMinimizeToggled
+        searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_shown_maximized : searchPanelMaximizeToggled
+        searchPanelDisplayStateMachine_shown_minimized --> searchPanelDisplayStateMachine_shown_maximized : searchPanelMaximizeToggled
+        searchPanelDisplayStateMachine_shown_maximized --> searchPanelDisplayStateMachine_shown_normal : searchPanelMaximizeToggled, searchHitJumped
     }
     searchPanelDisplayStateMachine_hidden --> searchPanelDisplayStateMachine_shown_normal : searchEntryPressed
     searchPanelDisplayStateMachine_shown --> searchPanelDisplayStateMachine_hidden : searchPanelClosePressed
     searchPanelDisplayStateMachine_shown_normal --> searchPanelDisplayStateMachine_hidden : escapePressed
-    searchPanelDisplayStateMachine_shown_maximised --> searchPanelDisplayStateMachine_hidden : escapePressed
+    searchPanelDisplayStateMachine_shown_maximized --> searchPanelDisplayStateMachine_hidden : escapePressed
 ```
 
-| 出来事 | `hidden` | `shown.normal` | `shown.minimised` | `shown.maximised` |
+| 出来事 | `hidden` | `shown.normal` | `shown.minimized` | `shown.maximized` |
 | --- | --- | --- | --- | --- |
 | `screen/searchEntryPressed` | → `shown.normal` / `focusSearchWord` | → 自己 / `focusSearchWord` | → `shown.normal` / `focusSearchWord` | → 自己 / `focusSearchWord` |
-| `screen/searchPanelMinimiseToggled` | — | → `shown.minimised` | → `shown.normal` | → `shown.minimised` |
-| `screen/searchPanelMaximiseToggled` | — | → `shown.maximised` | → `shown.maximised` | → `shown.normal` |
+| `screen/searchPanelMinimizeToggled` | — | → `shown.minimized` | → `shown.normal` | → `shown.minimized` |
+| `screen/searchPanelMaximizeToggled` | — | → `shown.maximized` | → `shown.maximized` | → `shown.normal` |
 | `screen/searchPanelClosePressed` | — | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） | → `hidden`（親 `shown` の升） |
 | `screen/escapePressed` | — | → `hidden` [`isRungSearchPanel`]<br>それ以外 → — | — | → `hidden` [`isRungSearchPanel`]<br>それ以外 → — |
 | `screen/searchHitJumped` | — | — | — | → `shown.normal` |
@@ -489,8 +489,8 @@ stateDiagram-v2
 - `searchPanelDisplayStateMachine.hidden` —— 初期。根拠 `S-442`
 - `searchPanelDisplayStateMachine.shown` —— 根拠 `S-442` ・ `FR-151`
 - `searchPanelDisplayStateMachine.shown.normal` —— 初期。親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-9`
-- `searchPanelDisplayStateMachine.shown.minimised` —— 親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-12` ・ `IC-129`
-- `searchPanelDisplayStateMachine.shown.maximised` —— 親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-13` ・ `IC-130`
+- `searchPanelDisplayStateMachine.shown.minimized` —— 親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-12` ・ `IC-129`
+- `searchPanelDisplayStateMachine.shown.maximized` —— 親 `searchPanelDisplayStateMachine.shown`。根拠 `S-442` ・ `SV-13` ・ `IC-130`
 
 表に無い出来事は `searchPanelDisplayStateMachine` を変えない（同じ参照）。
 
@@ -505,34 +505,34 @@ stateDiagram-v2
     state helpDisplayStateMachine_shown {
         [*] --> helpDisplayStateMachine_shown_normal
         helpDisplayStateMachine_shown_normal : normal
-        helpDisplayStateMachine_shown_minimised : minimised
-        helpDisplayStateMachine_shown_maximised : maximised
-        helpDisplayStateMachine_shown_minimised --> helpDisplayStateMachine_shown_normal : helpEntryPressed, helpMinimiseToggled
-        helpDisplayStateMachine_shown_normal --> helpDisplayStateMachine_shown_minimised : helpMinimiseToggled
-        helpDisplayStateMachine_shown_maximised --> helpDisplayStateMachine_shown_minimised : helpMinimiseToggled
-        helpDisplayStateMachine_shown_normal --> helpDisplayStateMachine_shown_maximised : helpMaximiseToggled
-        helpDisplayStateMachine_shown_minimised --> helpDisplayStateMachine_shown_maximised : helpMaximiseToggled
-        helpDisplayStateMachine_shown_maximised --> helpDisplayStateMachine_shown_normal : helpMaximiseToggled
+        helpDisplayStateMachine_shown_minimized : minimized
+        helpDisplayStateMachine_shown_maximized : maximized
+        helpDisplayStateMachine_shown_minimized --> helpDisplayStateMachine_shown_normal : helpEntryPressed, helpMinimizeToggled
+        helpDisplayStateMachine_shown_normal --> helpDisplayStateMachine_shown_minimized : helpMinimizeToggled
+        helpDisplayStateMachine_shown_maximized --> helpDisplayStateMachine_shown_minimized : helpMinimizeToggled
+        helpDisplayStateMachine_shown_normal --> helpDisplayStateMachine_shown_maximized : helpMaximizeToggled
+        helpDisplayStateMachine_shown_minimized --> helpDisplayStateMachine_shown_maximized : helpMaximizeToggled
+        helpDisplayStateMachine_shown_maximized --> helpDisplayStateMachine_shown_normal : helpMaximizeToggled
     }
     helpDisplayStateMachine_hidden --> helpDisplayStateMachine_shown_normal : helpEntryPressed
     helpDisplayStateMachine_shown --> helpDisplayStateMachine_hidden : surfaceCloseAsked
     helpDisplayStateMachine_shown_normal --> helpDisplayStateMachine_hidden : escapePressed
-    helpDisplayStateMachine_shown_maximised --> helpDisplayStateMachine_hidden : escapePressed
+    helpDisplayStateMachine_shown_maximized --> helpDisplayStateMachine_hidden : escapePressed
 ```
 
-| 出来事 | `hidden` | `shown.normal` | `shown.minimised` | `shown.maximised` |
+| 出来事 | `hidden` | `shown.normal` | `shown.minimized` | `shown.maximized` |
 | --- | --- | --- | --- | --- |
 | `screen/helpEntryPressed` | → `shown.normal` / `seedHelpLanguage` | — | → `shown.normal` | — |
-| `screen/helpMinimiseToggled` | — | → `shown.minimised` | → `shown.normal` | → `shown.minimised` |
-| `screen/helpMaximiseToggled` | — | → `shown.maximised` | → `shown.maximised` | → `shown.normal` |
+| `screen/helpMinimizeToggled` | — | → `shown.minimized` | → `shown.normal` | → `shown.minimized` |
+| `screen/helpMaximizeToggled` | — | → `shown.maximized` | → `shown.maximized` | → `shown.normal` |
 | `screen/surfaceCloseAsked` | — | → `hidden` [`isHelpTarget`]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isHelpTarget`]<br>それ以外 → —（親 `shown` の升） | → `hidden` [`isHelpTarget`]<br>それ以外 → —（親 `shown` の升） |
 | `screen/escapePressed` | — | → `hidden` [`isRungHelp`]<br>それ以外 → — | — | → `hidden` [`isRungHelp`]<br>それ以外 → — |
 
 - `helpDisplayStateMachine.hidden` —— 初期。根拠 `S-435`
 - `helpDisplayStateMachine.shown` —— 根拠 `S-435` ・ `FR-036`
 - `helpDisplayStateMachine.shown.normal` —— 初期。親 `helpDisplayStateMachine.shown`。根拠 `S-435` ・ `WB-1`
-- `helpDisplayStateMachine.shown.minimised` —— 親 `helpDisplayStateMachine.shown`。根拠 `S-435` ・ `WB-2` ・ `IC-129`
-- `helpDisplayStateMachine.shown.maximised` —— 親 `helpDisplayStateMachine.shown`。根拠 `S-435` ・ `WB-3` ・ `IC-130`
+- `helpDisplayStateMachine.shown.minimized` —— 親 `helpDisplayStateMachine.shown`。根拠 `S-435` ・ `WB-2` ・ `IC-129`
+- `helpDisplayStateMachine.shown.maximized` —— 親 `helpDisplayStateMachine.shown`。根拠 `S-435` ・ `WB-3` ・ `IC-130`
 
 表に無い出来事は `helpDisplayStateMachine` を変えない（同じ参照）。
 
@@ -862,7 +862,7 @@ stateDiagram-v2
 | `fileFlow/openChoiceAnswered` | — | — | → `awaitingDiscardAnswer` [`isReplaceChoice` & `unsavedEditsStateMachine.editsUnsaved` にいる]<br>→ `importingDocument` [`isReplaceChoice` & `unsavedEditsStateMachine.nothingUnsaved` にいる] / `importIncomingDocument`（保存していない編集が無いので問わずに置き換える（表 T-234 の `QN-5` の問うか））<br>→ `importingDocument` [not `isReplaceChoice`] / `importIncomingDocument` | — | — | — | — |
 | `fileFlow/confirmationAnswered` | — | — | — | → `importingDocument` [`isProceeding`] / `importIncomingDocument`<br>→ `idle` [not `isProceeding`] / `discardIncomingDocument` | — | — | → 自己 [`isOverwriteQuestion`] / `answerOverwriteQuestion`<br>それ以外 → — |
 | `fileFlow/mergeMappingAsked` | — | — | — | — | → `awaitingMergeMapping` / `raiseFlowSurface`（`U-61`） | — | — |
-| `fileFlow/mergeMappingAnswered` | — | — | — | — | — | → `idle` [`isImportCancelled`] / `discardIncomingDocument`<br>→ `importingDocument` [not `isImportCancelled`] / `importIncomingDocument` | — |
+| `fileFlow/mergeMappingAnswered` | — | — | — | — | — | → `idle` [`isImportCanceled`] / `discardIncomingDocument`<br>→ `importingDocument` [not `isImportCanceled`] / `importIncomingDocument` | — |
 | `fileFlow/flowSurfaceClosed` | — | — | → `idle` [`isOpenChooserSurface`] / `discardIncomingDocument`<br>それ以外 → — | — | — | → `idle` [`isDifferenceReviewSurface`] / `discardIncomingDocument`<br>それ以外 → — | — |
 | `fileFlow/documentOpenLanded` | — | — | — | — | → `idle` | — | — |
 | `fileFlow/documentFileSaved` | — | — | — | — | — | — | → `idle` |

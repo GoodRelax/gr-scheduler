@@ -11,7 +11,7 @@
 // of the eighteen are already held, verbatim, by
 // tests/system/user-reported-fixes.test.ts (grep confirms: 「拡大の側には」、
 // 「縦軸でも掴んだタスクグループを留めること」、「Adapter に自前の割付けをさせてはならない」
-// and six neighbours). ⭐ THE REMAINING NINE -- four of FR-016's, five of
+// and six neighbors). ⭐ THE REMAINING NINE -- four of FR-016's, five of
 // EP-9's -- are what this file holds. The count and the location the brief
 // handed over were both checked against the manuscript and the commit that
 // wrote them before being used, per the standing instruction to refute rather
@@ -297,7 +297,7 @@ describe('T-076 EP-9 (MUST) -- 「太さが同じであること」／「描く�
   // exactly why the check being paid back is a manuscript-text check (section
   // 1) and not only a numeric one: check 39 does not ask whether the code
   // agrees with itself, it asks whether a test holds the SENTENCE, so a
-  // future re-typing of the number is a defect this file's behavioural case
+  // future re-typing of the number is a defect this file's behavioral case
   // cannot promise to catch, only the clause reading it says so.
 })
 

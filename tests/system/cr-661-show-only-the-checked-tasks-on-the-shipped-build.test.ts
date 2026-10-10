@@ -1,4 +1,4 @@
-// CR-661 on the shipped build, read after CR-722: narrow to one assignee, set its rows Hide in the Visibility column (SQ-10), press IC-143; the band, minimise and close, SJ-0's three doors, undo, save and export.
+// CR-661 on the shipped build, read after CR-722: narrow to one assignee, set its rows Hide in the Visibility column (SQ-10), press IC-143; the band, minimize and close, SJ-0's three doors, undo, save and export.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
@@ -53,7 +53,7 @@ const CANVAS = roleOf('U-32')
 // WHY: the canvas element spans the window; the ruler's ground is drawn at the top of the region the band moves down.
 const RULER = '[data-figure="ruler-ground"]'
 const ENTER = rowOf(specTable('T-109'), 'IC-143').id
-const MINIMISE = rowOf(specTable('T-109'), 'IC-129').id
+const MINIMIZE = rowOf(specTable('T-109'), 'IC-129').id
 const CLOSE = rowOf(specTable('T-109'), 'IC-52').id
 const DIAGNOSE = rowOf(specTable('T-109'), 'IC-107').id
 const OPEN_SEARCH = keyOf('SK-24')
@@ -327,12 +327,12 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
     }
   })
 
-  test('TV-8: minimising keeps the Schedule Filter; closing the panel turns it off and keeps the Visibility', async () => {
+  test('TV-8: minimizing keeps the Schedule Filter; closing the panel turns it off and keeps the Visibility', async () => {
     const stage = await opened('expanded')
     try {
       const { page } = stage
       await enter(page)
-      await press(page, `${PANEL} [data-icon="${MINIMISE}"]`)
+      await press(page, `${PANEL} [data-icon="${MINIMIZE}"]`)
       expect(await readShown(page)).toEqual(NARROWED)
       expect(await bandText(page)).not.toBeNull()
       await press(page, `${PANEL} [data-icon="${CLOSE}"]`)

@@ -563,32 +563,32 @@ function effectTypesOf(session: ScreenSession, event: Loose): string[] {
 describe('T-280 manuscript: helpDisplayStateMachine holds the states and cells CR-574 4.8 names', () => {
   const machine = rawMachine(HELP)
 
-  it('states hidden (initial), shown, shown.normal (initial child), shown.minimised, shown.maximised (S-435, WB-1..WB-3)', () => {
+  it('states hidden (initial), shown, shown.normal (initial child), shown.minimized, shown.maximized (S-435, WB-1..WB-3)', () => {
     expect(machine.states.map((s) => [s.key, s.parent, s.initial])).toEqual([
       ['hidden', null, true],
       ['shown', null, false],
       ['shown.normal', 'shown', true],
-      ['shown.minimised', 'shown', false],
-      ['shown.maximised', 'shown', false],
+      ['shown.minimized', 'shown', false],
+      ['shown.maximized', 'shown', false],
     ])
   })
 
-  it('HN-2: no escapePressed cell stands on shown.minimised or on the parent shown, and RG-16 lists only normal and maximised', () => {
-    expect(Object.keys(machine.transitions['escapePressed'] ?? {}).sort()).toEqual(['shown.maximised', 'shown.normal'])
+  it('HN-2: no escapePressed cell stands on shown.minimized or on the parent shown, and RG-16 lists only normal and maximized', () => {
+    expect(Object.keys(machine.transitions['escapePressed'] ?? {}).sort()).toEqual(['shown.maximized', 'shown.normal'])
     const rungs = (MANUSCRIPT as unknown as { priorities: { rungs: { id: string; states: { in?: string }[] }[] } }).priorities.rungs
     const rg16 = rungs.find((r) => r.id === 'RG-16')
     expect(rg16?.states.map((s) => s.in).filter((k) => k?.startsWith(`${HELP}.`) === true)).toEqual([
       `${HELP}.shown.normal`,
-      `${HELP}.shown.maximised`,
+      `${HELP}.shown.maximized`,
     ])
   })
 
-  it('HN-5, FR-036: helpEntryPressed seeds the language only from hidden; shown.minimised goes to shown.normal with no effect', () => {
+  it('HN-5, FR-036: helpEntryPressed seeds the language only from hidden; shown.minimized goes to shown.normal with no effect', () => {
     const cells = machine.transitions['helpEntryPressed'] ?? {}
-    expect(Object.keys(cells).sort()).toEqual(['hidden', 'shown.minimised'])
+    expect(Object.keys(cells).sort()).toEqual(['hidden', 'shown.minimized'])
     expect(cells['hidden']).toMatchObject({ to: 'shown.normal', effect: 'seedHelpLanguage' })
-    expect(cells['shown.minimised']).toMatchObject({ to: 'shown.normal' })
-    expect((cells['shown.minimised'] as RawBranch).effect).toBeUndefined()
+    expect(cells['shown.minimized']).toMatchObject({ to: 'shown.normal' })
+    expect((cells['shown.minimized'] as RawBranch).effect).toBeUndefined()
   })
 })
 
@@ -600,22 +600,22 @@ describe('CR-574 4.8 (T-280): helpDisplayStateMachine cells against advanceScree
     expect(effectTypesOf(session, { type: 'helpEntryPressed' })).toEqual(['seedHelpLanguage'])
   })
 
-  it('HN-5: shown.minimised x helpEntryPressed -> shown.normal, no seedHelpLanguage, helpLanguage kept', () => {
-    const session = sessionIn(`${HELP}.shown.minimised`)
+  it('HN-5: shown.minimized x helpEntryPressed -> shown.normal, no seedHelpLanguage, helpLanguage kept', () => {
+    const session = sessionIn(`${HELP}.shown.minimized`)
     const result = step(session, { type: 'helpEntryPressed' })
     expect(kindPath(screenOf(result.state)[HELP_AXIS])).toEqual(['shown', 'normal'])
     expect(result.effects).toEqual([])
     expect(screenOf(result.state)['helpLanguage']).toBe(screenOf(session)['helpLanguage'])
   })
 
-  it.each([`${HELP}.shown.normal`, `${HELP}.shown.maximised`])('%s x helpEntryPressed: no cell, the same reference', (key) => {
+  it.each([`${HELP}.shown.normal`, `${HELP}.shown.maximized`])('%s x helpEntryPressed: no cell, the same reference', (key) => {
     const session = sessionIn(key)
     expect(step(session, { type: 'helpEntryPressed' }).state).toBe(session)
   })
 
   it.each(HELP_LEAVES)('seedHelpLanguage fires only on hidden x helpEntryPressed: %s', (key) => {
     const session = sessionIn(key)
-    for (const type of ['helpEntryPressed', 'helpMinimiseToggled', 'helpMaximiseToggled']) {
+    for (const type of ['helpEntryPressed', 'helpMinimizeToggled', 'helpMaximizeToggled']) {
       const seeded = effectTypesOf(session, { type }).filter((t) => t === 'seedHelpLanguage').length
       expect(seeded, `${key} x ${type}`).toBe(key === `${HELP}.hidden` && type === 'helpEntryPressed' ? 1 : 0)
     }
@@ -635,8 +635,8 @@ describe('CR-574 4.8 (T-280): helpDisplayStateMachine cells against advanceScree
     expect(screenOf(step(session, event).state)[HELP_AXIS]).toBe(screenOf(session)[HELP_AXIS])
   })
 
-  it.each(RUNGS.map((rung) => [rung] as const))('HN-2: shown.minimised x escapePressed(rung=%s) leaves the help as it is', (rung) => {
-    const session = sessionIn(`${HELP}.shown.minimised`)
+  it.each(RUNGS.map((rung) => [rung] as const))('HN-2: shown.minimized x escapePressed(rung=%s) leaves the help as it is', (rung) => {
+    const session = sessionIn(`${HELP}.shown.minimized`)
     expectStepMatchesManuscript(session, { type: 'escapePressed', rung })
     expect(screenOf(step(session, { type: 'escapePressed', rung }).state)[HELP_AXIS]).toBe(screenOf(session)[HELP_AXIS])
   })
@@ -660,7 +660,7 @@ describe('HN-4 and RG-3 (T-280, T-283): the help and another surface stand toget
     expect(after[HELP_AXIS]).toBe(screenOf(session)[HELP_AXIS])
   })
 
-  const standing = [`${HELP}.shown.normal`, `${HELP}.shown.maximised`]
+  const standing = [`${HELP}.shown.normal`, `${HELP}.shown.maximized`]
 
   it.each(standing)('IN-4, RG-3: surface open & %s x escapePressed(rung=surface) closes the surface first, keeps the help', (help) => {
     const session = sessionIn('openSurfaceStateMachine.open', help)
@@ -685,7 +685,7 @@ describe('CR-571 (T-280, T-330, T-332): searchPanelDisplayStateMachine cells', (
     expectStepMatchesManuscript(session, { type: 'searchEntryPressed' })
     expect(effectTypesOf(session, { type: 'searchEntryPressed' })).toEqual(['focusSearchWord'])
     const landed = kindPath(screenOf(step(session, { type: 'searchEntryPressed' }).state)[SEARCH_AXIS])
-    expect(landed).toEqual(key === `${SEARCH}.shown.maximised` ? ['shown', 'maximised'] : ['shown', 'normal'])
+    expect(landed).toEqual(key === `${SEARCH}.shown.maximized` ? ['shown', 'maximized'] : ['shown', 'normal'])
   })
 
   it.each(SEARCH_LEAVES)('SV-14: %s x searchPanelClosePressed closes a shown panel', (key) => {
@@ -697,12 +697,12 @@ describe('CR-571 (T-280, T-330, T-332): searchPanelDisplayStateMachine cells', (
     else expect(kindPath(screenOf(result.state)[SEARCH_AXIS])).toEqual(['hidden'])
   })
 
-  it.each(SEARCH_LEAVES)('SJ-3: %s x searchHitJumped restores only a maximised panel', (key) => {
+  it.each(SEARCH_LEAVES)('SJ-3: %s x searchHitJumped restores only a maximized panel', (key) => {
     const session = sessionIn(key)
     const event = { type: 'searchHitJumped' }
     expectStepMatchesManuscript(session, event)
     const result = step(session, event)
-    if (key === `${SEARCH}.shown.maximised`) expect(kindPath(screenOf(result.state)[SEARCH_AXIS])).toEqual(['shown', 'normal'])
+    if (key === `${SEARCH}.shown.maximized`) expect(kindPath(screenOf(result.state)[SEARCH_AXIS])).toEqual(['shown', 'normal'])
     else expect(result.state).toBe(session)
   })
 })
@@ -717,8 +717,8 @@ describe('CR-562 (T-280, FR-066, IC-18): the dialogue field entry while Agent AP
   it.each([
     'dialogueFieldDisplayStateMachine.hidden',
     'dialogueFieldDisplayStateMachine.shown.normal',
-    'dialogueFieldDisplayStateMachine.shown.minimised',
-    'dialogueFieldDisplayStateMachine.shown.maximised',
+    'dialogueFieldDisplayStateMachine.shown.minimized',
+    'dialogueFieldDisplayStateMachine.shown.maximized',
   ])(
     '%s x dialogueFieldEntryPressed [not isAgentApiEnabled] -> shown.normal, no notice, no effect',
     (key) => {

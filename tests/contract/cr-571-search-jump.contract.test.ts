@@ -41,7 +41,7 @@ const NO_REACH: SearchJumpReach = {
   pxPerDay: 10, leftReachPx: 0, drawnTaskGroups: [] as readonly { groupId: string; isPinned?: boolean }[], areaWidth: 800, landing: null,
 }
 // see SJ-6
-// WHY: a shape wider than the area less two S-428 insets, so SJ-6 keeps its start in sight instead of centring it.
+// WHY: a shape wider than the area less two S-428 insets, so SJ-6 keeps its start in sight instead of centering it.
 const WIDE: SearchJumpReach = {
   ...NO_REACH,
   landing: { shapeFromDatePx: 0, shapeWidthPx: 2000, shapeMiddleY: 300, roomTop: 0, roomHeight: 600, scrollingTaskGroups: [] },

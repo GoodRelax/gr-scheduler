@@ -233,20 +233,20 @@ def main():
 
     # LR-3: the same-layer graph carries no cycle.
     cycles = []
-    colour = {}
+    color = {}
 
     def walk(node, trail):
-        colour[node] = 'open'
+        color[node] = 'open'
         for nxt in sorted(graph.get(node, ())):
-            if colour.get(nxt) == 'open':
+            if color.get(nxt) == 'open':
                 cycles.append(trail[trail.index(nxt):] + [nxt]
                               if nxt in trail else trail + [nxt])
-            elif colour.get(nxt) is None:
+            elif color.get(nxt) is None:
                 walk(nxt, trail + [nxt])
-        colour[node] = 'done'
+        color[node] = 'done'
 
     for node in sorted(graph):
-        if colour.get(node) is None:
+        if color.get(node) is None:
             walk(node, [node])
     for cycle in cycles:
         violations.append('LR-3 -- a cycle inside a layer: %s'

@@ -558,7 +558,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
  *
  * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1): S-72's default arrives
  * through the generated `SETTINGS_DEFAULTS` and S-73's is read out of table
- * T-216 at load time. ⭐ No case reads a colour back.
+ * T-216 at load time. ⭐ No case reads a color back.
  */
 const S_73 = specTable('T-216').rows.find((row) => row.id === 'S-73')
 if (S_73 === undefined) throw new Error('table T-216 no longer has row S-73')

@@ -194,7 +194,7 @@
    },
    "hint": {
     "ja": "モノクロで描く。もう一度押すと色に戻す",
-    "en": "Draw in monochrome; press again to go back to colour"
+    "en": "Draw in monochrome; press again to go back to color"
    }
   },
   {
@@ -293,7 +293,7 @@
    },
    "hint": {
     "ja": "文書の描画設定をプロパティパネルに表示する。もう一度押すとパネルを閉じる。テーマ色もここで選ぶ",
-    "en": "Show the document's drawing settings in the Properties Panel, where the theme colour is chosen; press again to close the panel"
+    "en": "Show the document's drawing settings in the Properties Panel, where the theme color is chosen; press again to close the panel"
    }
   },
   {
@@ -806,11 +806,11 @@
    "rowId": "IC-75",
    "label": {
     "ja": "最小化",
-    "en": "Minimise"
+    "en": "Minimize"
    },
    "hint": {
     "ja": "コマンドパレットを最小化する。もう一度押すと戻る",
-    "en": "Minimise the Command Palette; press again to restore"
+    "en": "Minimize the Command Palette; press again to restore"
    }
   },
   {
@@ -982,22 +982,22 @@
    "rowId": "IC-129",
    "label": {
     "ja": "最小化",
-    "en": "Minimise"
+    "en": "Minimize"
    },
    "hint": {
     "ja": "ウィンドウを最小化する。もう一度押すと戻る",
-    "en": "Minimise the window; press again to restore"
+    "en": "Minimize the window; press again to restore"
    }
   },
   {
    "rowId": "IC-130",
    "label": {
     "ja": "最大化",
-    "en": "Maximise"
+    "en": "Maximize"
    },
    "hint": {
     "ja": "ウィンドウを最大化する",
-    "en": "Maximise the window"
+    "en": "Maximize the window"
    }
   },
   {
@@ -1542,14 +1542,14 @@
    "rowId": "PR-39",
    "label": {
     "ja": "枠線色",
-    "en": "Outline Colour"
+    "en": "Outline Color"
    }
   },
   {
    "rowId": "PR-12",
    "label": {
     "ja": "塗潰し色",
-    "en": "Fill Colour"
+    "en": "Fill Color"
    }
   },
   {
@@ -1598,14 +1598,14 @@
    "rowId": "PR-28",
    "label": {
     "ja": "枠線色",
-    "en": "Outline Colour"
+    "en": "Outline Color"
    }
   },
   {
    "rowId": "PR-45",
    "label": {
     "ja": "塗潰し色",
-    "en": "Fill Colour"
+    "en": "Fill Color"
    }
   },
   {
@@ -1619,7 +1619,7 @@
    "rowId": "PR-46",
    "label": {
     "ja": "文字色",
-    "en": "Text Colour"
+    "en": "Text Color"
    }
   },
   {
@@ -1633,14 +1633,14 @@
    "rowId": "PR-22",
    "label": {
     "ja": "枠線色",
-    "en": "Outline Colour"
+    "en": "Outline Color"
    }
   },
   {
    "rowId": "PR-25",
    "label": {
     "ja": "塗潰し色",
-    "en": "Fill Colour"
+    "en": "Fill Color"
    }
   },
   {
@@ -2139,7 +2139,7 @@
    "rowId": "K-60",
    "label": {
     "ja": "テーマ色",
-    "en": "theme colour"
+    "en": "theme color"
    }
   },
   {
@@ -3358,7 +3358,7 @@
    },
    "nextStep": {
     "ja": "どちらかに色を付けてください",
-    "en": "Give one of them a colour"
+    "en": "Give one of them a color"
    }
   },
   {
@@ -3784,7 +3784,7 @@
    },
    "nextStep": {
     "ja": "どちらかに色を付けてください",
-    "en": "Give one of them a colour"
+    "en": "Give one of them a color"
    }
   },
   {
@@ -4313,7 +4313,7 @@
    "rowId": "MK-2",
    "text": {
     "ja": "ポインタを中心に両軸をズームする",
-    "en": "Zoom both axes, centred on the pointer"
+    "en": "Zoom both axes, centered on the pointer"
    },
    "press": {
     "ja": "Ctrl ＋ {IC-102}",
@@ -4445,7 +4445,7 @@
    "rowId": "MK-13",
    "text": {
     "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、ハイライトボックス＝プロパティパネルを開いて枠の色を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当を編集、タスクと実績＝プロパティパネルを開いて名前を編集、タスクグループ見出し＝タスクグループ名",
-    "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame colour; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; task group title: the task group name"
+    "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame color; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; task group title: the task group name"
    },
    "press": {
     "ja": "ダブルクリック",
@@ -4542,7 +4542,7 @@
    }
   }
  ],
- "colourNames": [
+ "colorNames": [
   {
    "spelling": "white",
    "text": {
@@ -4621,19 +4621,19 @@
    }
   }
  ],
- "colourField": [
+ "colorField": [
   {
    "part": "custom",
    "text": {
     "ja": "その他の色",
-    "en": "Custom colour"
+    "en": "Custom color"
    }
   },
   {
    "part": "themeHint",
    "text": {
     "ja": "プロジェクトテーマ色に従う",
-    "en": "Follow the project theme colour"
+    "en": "Follow the project theme color"
    }
   },
   {
@@ -4651,10 +4651,10 @@
    }
   },
   {
-   "part": "defaultColour",
+   "part": "defaultColor",
    "text": {
     "ja": "既定の色に従う",
-    "en": "Follow the default colour"
+    "en": "Follow the default color"
    }
   },
   {
@@ -4675,7 +4675,7 @@
    "part": "customValue",
    "text": {
     "ja": "その他の色（いまの値 {value}）",
-    "en": "Custom colour (now {value})"
+    "en": "Custom color (now {value})"
    }
   }
  ],
@@ -5381,7 +5381,7 @@
    }
   },
   {
-   "part": "unanalysed",
+   "part": "unreliable",
    "text": {
     "ja": "信用できない {count} 件",
     "en": "Unreliable {count}"

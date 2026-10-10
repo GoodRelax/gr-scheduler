@@ -576,7 +576,7 @@ function boxOf(bar: BarGeometry | null, what: string): ScreenRect {
 }
 
 const midY = (box: ScreenRect): number => box.y + box.height / 2
-const centre = (box: ScreenRect): Point => ({ x: box.x + box.width / 2, y: midY(box) })
+const center = (box: ScreenRect): Point => ({ x: box.x + box.width / 2, y: midY(box) })
 
 // ---------------------------------------------------------------------------
 // The places IN-2 names, as points on this fixture's screen
@@ -592,7 +592,7 @@ function emptyCanvas(loop: FrameLoop): Point {
  * A probe on an endpoint, kept inside the `Task Group Area`.
  *
  * ⭐ THE TASK GROUP AREA IS HALF-OPEN AT THE RIGHT, which is R3.4's convention and the
- * one `screen-regions.ts` follows so that neighbouring regions never both claim
+ * one `screen-regions.ts` follows so that neighboring regions never both claim
  * a point. The note under table T-023a binds that table to the schedule's
  * drawing area (MUST), so a point AT `taskGroupArea.x + taskGroupArea.width` is on no region
  * at all and IN-2 names no shape there.
@@ -634,7 +634,7 @@ function actualEnds(loop: FrameLoop): readonly Point[] {
  * タスクの本体 -- GA-9, 「端点を除いた中間」.
  *
  * ⭐ HALFWAY BETWEEN THE ACTUAL'S RIGHT END AND THE PLAN'S RIGHT END, rather
- * than simply the plan bar's centre: that is the widest stretch of the plan bar
+ * than simply the plan bar's center: that is the widest stretch of the plan bar
  * with no end of either bar inside it, so the probe clears S-250 / S-253's allowance and
  * S-257 / S-260's by the largest margin this fixture can give. A premise measures both.
  */
@@ -646,15 +646,15 @@ function barBody(loop: FrameLoop): Point {
 
 /** マイルストーンの図形 -- the started one, whose 実績の図形 is GA-16. */
 const startedMilestone = (loop: FrameLoop): Point =>
-  centre(boxOf(drawnTask(loop, STONE_UID).plan, "the started milestone's figure"))
+  center(boxOf(drawnTask(loop, STONE_UID).plan, "the started milestone's figure"))
 
 /** マイルストーンの図形 -- the one nobody has started. See the last describe. */
 const newMilestone = (loop: FrameLoop): Point =>
-  centre(boxOf(drawnTask(loop, NEW_STONE_UID).plan, "the not-started milestone's figure"))
+  center(boxOf(drawnTask(loop, NEW_STONE_UID).plan, "the not-started milestone's figure"))
 
 /** The タイムルーラー, which table T-023a's own note keeps out of that order. */
 function timeRuler(loop: FrameLoop): Point {
-  return centre(frameOf(loop).regions.timeRuler)
+  return center(frameOf(loop).regions.timeRuler)
 }
 
 // ---------------------------------------------------------------------------
@@ -685,7 +685,7 @@ function shapeWhilePanning(built: Stage, at: Point, how: HowPressed): PointerSha
 
 /** Press the palette entry whose 構え column is AR-2, and let IN-1 settle it. */
 function arm(built: Stage): void {
-  const at = centre(PALETTE_BOX)
+  const at = center(PALETTE_BOX)
   built.send(pointer('down', at))
   built.send(pointer('up', at))
 }
@@ -1086,7 +1086,7 @@ describe('T-028 IN-2 names five places and no more', () => {
     // The same note lists 浮遊するコマンドパレット among the faces the decision
     // order does not reach; `FR-053` holds that one instead. IN-2 names no place
     // on it, so nothing may be invented for it.
-    expect(shapeAt(built, centre(PALETTE_BOX))).toBeNull()
+    expect(shapeAt(built, center(PALETTE_BOX))).toBeNull()
   })
 
   it('answers the ruler the same way every time the pointer comes back to it', () => {

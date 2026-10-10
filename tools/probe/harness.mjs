@@ -384,7 +384,7 @@ export async function emptyPoint({ x0 = 300, x1 = 1700, y0 = 300, y1 = 1000, ste
  *
  * ⚠️ `fill` IS HOW A KIND IS TOLD FROM A KIND. Table T-236's rows are the only
  * thing separating a plan bar from an actual one in the drawing -- there is no
- * class and no `data-` on them. Pass the colour the theme resolved (measure it
+ * class and no `data-` on them. Pass the color the theme resolved (measure it
  * once with no filter rather than deriving it).
  */
 export async function shapes({ fill = null, minWidth = 4, minHeight = 4, within = null } = {}) {
@@ -477,7 +477,7 @@ export async function taskGroupBands() {
  * Drag with a real pointer, reporting what the picture did at every step.
  *
  * ⭐⭐ THIS IS THE MEASUREMENT THAT FOUND DFC-138. A drag reported in ONE jump
- * hides a quantisation; the same drag swept in small steps showed the picture
+ * hides a quantization; the same drag swept in small steps showed the picture
  * overshoot by exactly the gap between two bands at one boundary and nowhere
  * else. ⛔ Never conclude 等倍 from a single long drag.
  */
@@ -572,7 +572,7 @@ export async function panelEntries(taskGroupTopPx = null, { panelRightPx = null 
           icon: entry.getAttribute('data-icon'),
           role: entry.getAttribute('data-role'),
           // ⛔ THE ARMING IS AN ATTRIBUTE AND NOTHING ELSE. A disarmed
-          // entry and an armed one match on opacity, colour, cursor and
+          // entry and an armed one match on opacity, color, cursor and
           // `disabled` -- the ledger's DFC-142.
           arming: entry.getAttributeNames()
             .filter((name) => name.startsWith('data-can') || name === 'data-pinned')
@@ -628,12 +628,12 @@ export function diff(before, after) {
  * A fingerprint of every inline `style` on the page.
  *
  * ⛔⛔ WITHOUT THIS, A REPAINT LOOKS LIKE A DEAD ENTRY. IC-16 (the theme)
- * recolours the whole page through inline styles and changes no element count,
+ * recolors the whole page through inline styles and changes no element count,
  * no `data-role`, and not even `document.body`'s own background -- so a board
  * built from `census()` and `roles()` alone reports a working entry as dead.
  * ⚠️ A hand-written board that leaves out the `svg line` and arrow counts
  * `census()` carries reports dead entries that are not dead, for the
- * neighbouring reason.
+ * neighboring reason.
  * ⭐ Board an entry press with `census()` AND this, not with a narrower reading.
  */
 export async function styleSignature() {

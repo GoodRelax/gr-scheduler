@@ -156,7 +156,7 @@ describe(`table T-283, Esc (RG-1..RG-8, RG-14, RG-16 and RG-17) -- IN-4 (MUST): 
     ])
   })
 
-  it(`RG-16 is every window shown and not minimised, and cites SV-14 -- ${IN_4_SEARCH_PANEL_RUNG}`, () => {
+  it(`RG-16 is every window shown and not minimized, and cites SV-14 -- ${IN_4_SEARCH_PANEL_RUNG}`, () => {
     expect(REQUIREMENTS).toContain(IN_4_SEARCH_PANEL_RUNG)
     expect(REQUIREMENTS).toContain(SV_14_FILTER_FIRST)
     const rg16 = RUNGS.find((r) => r.id === 'RG-16')
@@ -164,7 +164,7 @@ describe(`table T-283, Esc (RG-1..RG-8, RG-14, RG-16 and RG-17) -- IN-4 (MUST): 
     expect(rg16?.states).toEqual(
       ['searchPanel', 'help', 'dialogueField'].flatMap((window) => [
         { in: `${window}DisplayStateMachine.shown.normal` },
-        { in: `${window}DisplayStateMachine.shown.maximised` },
+        { in: `${window}DisplayStateMachine.shown.maximized` },
       ]),
     )
     expect(rg16?.evidence).toEqual(['IN-4', 'SV-14', 'HN-2', 'FR-066', 'FR-152', 'RW-1', 'RO-1'])

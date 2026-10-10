@@ -31,7 +31,7 @@
 //                              `ScreenRenderer`, CP-19 of table T-062)
 //                              -- whether an explanation is still answered.
 // ⛔ ONE WITHOUT THE OTHER PROVES NOTHING, and DFC-307's own record is the
-// argument: the rung was added on 2026-09-05 and the behaviour did not change,
+// argument: the rung was added on 2026-09-05 and the behavior did not change,
 // because the raiser answered the same explanation from the same rest and the
 // same place on the very next frame. A file that only asked `escapeTarget`
 // would have gone green over that.
@@ -344,7 +344,7 @@ describe('DFC-307 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(IN_4_THE_LADDER)
     expect(REQUIREMENTS).toContain(IN_4_WHY_LAST)
     // ⭐ THE ORDER READ OUT OF THE ROW, not retyped from memory. A ladder whose
-    // last rung moved would take this red before any behaviour case ran.
+    // last rung moved would take this red before any behavior case ran.
     const at = LADDER_AS_PRINTED.map((rung) => IN_4_THE_LADDER.indexOf(rung))
     expect(at.every((where) => where >= 0), IN_4_THE_LADDER).toBe(true)
     expect([...at].sort((a, b) => a - b)).toEqual([...at])
@@ -357,7 +357,7 @@ describe('DFC-307 -- the manuscript these cases are driven by', () => {
   it('still puts 選択 between 構え and the Dual Cursor mode, and still forbids it above 構え', () => {
     // ⭐ DFC-398. The rung joined the row on 2026-09-08 and the two clauses below
     // are what fix its place; a re-wording of either takes this file red before
-    // any behaviour case runs.
+    // any behavior case runs.
     expect(IN_4_THE_LADDER).toContain('構え → 選択 → `Dual Cursor` モード')
     expect(REQUIREMENTS).toContain(IN_4_SELECTION_NOT_ABOVE_THE_ARM)
     expect(REQUIREMENTS).toContain(IN_4_NO_PANEL_CONDITION)
@@ -538,7 +538,7 @@ describe('T-028 IN-4 (MUST, 利用者の裁定 2026-09-08) -- the selection is a
   it('and the rung is actually SPENT: the press that names it clears the selection', () => {
     // ⛔ WITHOUT THIS THE FIVE CASES ABOVE PROVE ONLY THAT A NAME WAS ANSWERED.
     // DFC-307's own record is the argument: a rung was added there in 2026-09-05
-    // and the behaviour did not change, because nobody spent it.
+    // and the behavior did not change, because nobody spent it.
     // ⭐ `selectionFromInput` is the member that answers the selection (UN-9
     // keeps it out of the document), so this is where the rung is spent.
     const held = selectionWithOneTask()
@@ -665,7 +665,7 @@ describe('T-023 MK-13 / table T-023d (MUST, 利用者の裁定 2026-09-08) -- th
     expect(REQUIREMENTS).toContain(T_023D_MK_13_FIRST)
     expect(REQUIREMENTS).toContain(T_023D_NOT_BY_THE_ORDER)
     // ⭐ THE SIX REGIONS ARE READ OUT OF THE TABLE, not typed from memory: a row
-    // that left table T-266 would take this red before any behaviour case ran.
+    // that left table T-266 would take this red before any behavior case ran.
     const rows = specTable('T-266').rows.map((row) => row.id)
     for (const row of THE_ACTUALS_ROWS) expect(rows, row).toContain(row)
     expect(rows).toContain(THE_BODY_ROW)

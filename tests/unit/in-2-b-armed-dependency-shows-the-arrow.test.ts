@@ -353,7 +353,7 @@ function boxOf(bar: BarGeometry | null, what: string): ScreenRect {
 }
 
 const midY = (box: ScreenRect): number => box.y + box.height / 2
-const centre = (box: ScreenRect): Point => ({ x: box.x + box.width / 2, y: midY(box) })
+const center = (box: ScreenRect): Point => ({ x: box.x + box.width / 2, y: midY(box) })
 
 function emptyCanvas(loop: FrameLoop): Point {
   const area = frameOf(loop).regions.taskGroupArea
@@ -383,7 +383,7 @@ function barBody(loop: FrameLoop): Point {
 }
 
 const startedMilestone = (loop: FrameLoop): Point =>
-  centre(boxOf(drawnTask(loop, STONE_UID).plan, "the started milestone's figure"))
+  center(boxOf(drawnTask(loop, STONE_UID).plan, "the started milestone's figure"))
 
 // see GA-5, GA-6, GA-17
 function dummyProbe(loop: FrameLoop, taskUid: number, grab: 'GA-5' | 'GA-6' | 'GA-17'): Point {
@@ -405,7 +405,7 @@ function shapeAt(built: Stage, at: Point): PointerShape | null {
 
 // see AR-4
 function armDependency(built: Stage): void {
-  const at = centre(PALETTE_BOX)
+  const at = center(PALETTE_BOX)
   built.send(pointer('down', at))
   built.send(pointer('up', at))
 }

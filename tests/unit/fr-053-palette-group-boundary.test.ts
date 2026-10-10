@@ -62,7 +62,7 @@
 // 'node'`), so there is no layout engine here and no computed style. What the
 // fake records is what the unit WROTE: inline declarations, in order. So a rule
 // that arrived through a style sheet would be invisible here -- ⚠️ REPORT that,
-// do not tune the case. The neighbours' evidence is that this unit styles
+// do not tune the case. The neighbors' evidence is that this unit styles
 // inline and that there is no `.css` file under `src/` at all.
 //
 // ⛔ WHAT COUNTS AS A LINE, AND WHY IT IS A LIST RATHER THAN ONE PROPERTY.
@@ -87,7 +87,7 @@
 //      lines.
 //   2. WHERE THE LINE STANDS -- above the group, below it, or between the two
 //      boxes. No row states it, and there is no layout engine here to ask.
-//   3. WHAT COLOUR THE LINE IS. Table T-236 holds no row for it; S-143 states a
+//   3. WHAT COLOR THE LINE IS. Table T-236 holds no row for it; S-143 states a
 //      thickness and a gap and says in as many words that it holds nothing
 //      else.
 
@@ -585,7 +585,7 @@ function stage(heightsByRole: Record<string, number> = {}): Stage {
  *
  * ⛔ NEITHER VALUE IS TYPED HERE (rule 03 section 1): S-72's default arrives
  * through the generated `SETTINGS_DEFAULTS` and S-73's is read out of table
- * T-216 at load time. ⭐ No case reads a colour back -- `readTheme` is a
+ * T-216 at load time. ⭐ No case reads a color back -- `readTheme` is a
  * REQUIRED member of `ScreenSurfaceWiring`, so the cases need a theme to build
  * the surface at all, not a particular one.
  */
@@ -850,7 +850,7 @@ const entryFor = (icon: string): CommandItem => ({
 const paletteOf = (groupCount: number): CommandPalette => ({
   at: { x: 400, y: 300 },
   grabBandHeight: GRAB_BAND_HEIGHT_PX,
-  minimise: {
+  minimize: {
     icon: 'IC-75',
     label: 'IC-75',
     isEnabled: true,
@@ -858,7 +858,7 @@ const paletteOf = (groupCount: number): CommandPalette => ({
     isArmed: false,
     isChosen: false,
   },
-  isMinimised: false,
+  isMinimized: false,
   groups: Array.from(
     { length: groupCount },
     (_absent, at): PaletteGroup => ({

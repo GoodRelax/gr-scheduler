@@ -156,7 +156,7 @@ def main(argv):
         return 1
     if not rows['T-007'] or not rows['T-008']:
         say(u'FAIL     表 T-007 or 表 T-008 holds no row this check '
-            u'recognises (found %d and %d) -- the caption or the row shape moved'
+            u'recognizes (found %d and %d) -- the caption or the row shape moved'
             % (len(rows['T-007']), len(rows['T-008'])))
         return 1
 

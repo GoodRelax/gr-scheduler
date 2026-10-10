@@ -27,7 +27,7 @@ turns this check red and has to be argued for.
 
 ⚠️ EACH NAMED SERIES CARRIES ITS SIZE, AND THE SIZE IS CHECKED. If a document
 grows its series past the highest row recorded here, the check goes red: the
-exemption covers the rows that were ruled on, not a licence to add more.
+exemption covers the rows that were ruled on, not a license to add more.
 
 WHAT IT LOOKS FOR. `D-` or `R-` immediately followed by a digit, in either
 case, over every file git tracks. ⛔ NOT bare `D` or `R`: single letters stand
@@ -204,7 +204,7 @@ def main(argv):
     if overgrown:
         say(u'FAIL     a document grew its own %s- series past the row the '
             u'ruling covered. ⛔ The exemption is for the rows that were '
-            u'ruled on, not a licence to add more.' % overgrown[0][2][0])
+            u'ruled on, not a license to add more.' % overgrown[0][2][0])
         for rel, n, tok, top in overgrown[:20]:
             say(u'         %s:%d  %s, and the recorded series ends at %d'
                 % (rel, n, tok, top))

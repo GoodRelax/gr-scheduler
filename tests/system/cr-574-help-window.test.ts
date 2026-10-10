@@ -17,8 +17,8 @@ const FR_036_TITLE_OUTSIDE_THE_SCROLL =
   '⛔ タイトルバーを本文のスクロールの中に置いてはならない（MUST NOT） —— 中に置いて上端に留めると、送った本文がタイトルバーの縁に透け、送る前はタイトルバーが最初の見出しを覆う。'
 const FR_036_GAP = '⭐ 説明と割当のあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-436` を下限としてあけること（MUST）。'
 const FR_036_RIGHT_END = '⭐ 割当は、その項目の行の右端（枠の内側の右の縁）へ寄せて置くこと（MUST）'
-// WHY: CR-669 moved the maximised help from the browser window to the Schedule Canvas.
-const FR_036_MAXIMISED = 'ヘルプを最大化したときに占める範囲は、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とする（MUST）'
+// WHY: CR-669 moved the maximized help from the browser window to the Schedule Canvas.
+const FR_036_MAXIMIZED = 'ヘルプを最大化したときに占める範囲は、`Schedule Canvas`（`_assets/tbl-glossary.md` の `U-32`）の全体とする（MUST）'
 const FR_036_NOT_A_SURFACE =
   '⭐ ヘルプは `_assets/tbl-settings.md` の `S-99g` の面ではない —— ほかの面を立ててもヘルプを閉じず、ヘルプの状態も言語も変えないこと（MUST）。'
 const FR_036_OTHERS_IN_FRONT = 'ほかの面はヘルプより手前に描く（`FR-152` の 表 T-337）。'
@@ -52,7 +52,7 @@ const CLAUSES: readonly string[] = [
   FR_036_TITLE_OUTSIDE_THE_SCROLL,
   FR_036_GAP,
   FR_036_RIGHT_END,
-  FR_036_MAXIMISED,
+  FR_036_MAXIMIZED,
   FR_036_NOT_A_SURFACE,
   FR_036_OTHERS_IN_FRONT,
   FR_038_HELP_ONLY,
@@ -103,8 +103,8 @@ const CANVAS = partOf('U-32')
 
 const OPEN_HELP = rowOf(T_109, 'IC-22').id
 const HELP_LANGUAGE = rowOf(T_109, 'IC-128').id
-const MINIMISE = rowOf(T_109, 'IC-129').id
-const MAXIMISE = rowOf(T_109, 'IC-130').id
+const MINIMIZE = rowOf(T_109, 'IC-129').id
+const MAXIMIZE = rowOf(T_109, 'IC-130').id
 const RESTORE = rowOf(T_109, 'IC-131').id
 const CLOSE = rowOf(T_109, 'IC-52').id
 const LEGEND = rowOf(T_109, 'IC-102').id
@@ -213,7 +213,7 @@ interface HelpReading {
   readonly gaps: readonly Gap[]
 }
 
-const centreOf = (rect: Rect): Point => ({ x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 })
+const centerOf = (rect: Rect): Point => ({ x: (rect.left + rect.right) / 2, y: (rect.top + rect.bottom) / 2 })
 
 const holds = (rect: Rect, point: Point): boolean =>
   point.x >= rect.left && point.x < rect.right && point.y >= rect.top && point.y < rect.bottom
@@ -575,11 +575,11 @@ test('CR-574 -- FR-036, FR-038, IN-4, T-335, T-336 and T-337 still say what thes
   expect(cellOf(T_335, 'WB-4', '状態') + cellOf(T_335, 'WB-4', '描くもの')).toContain(WB_4_SAME_PLACE)
   expect(cellOf(T_335, 'WB-5', '状態') + cellOf(T_335, 'WB-5', '描くもの')).toContain(WB_5_BACK_TO_NORMAL)
   expect(cellOf(T_335, 'WB-6', '状態') + cellOf(T_335, 'WB-6', '描くもの')).toContain(WB_6_NOT_SAVED)
-  const whenMinimised = T_336.headings[2] ?? ''
-  expect(cellOf(T_336, 'HN-1', whenMinimised)).toContain(HN_1_WHEEL)
-  expect(cellOf(T_336, 'HN-2', whenMinimised)).toContain(HN_2_ESC)
-  expect(cellOf(T_336, 'HN-4', whenMinimised)).toContain(HN_4_OTHER_SURFACE)
-  expect(cellOf(T_336, 'HN-5', whenMinimised)).toContain(HN_5_BACK)
+  const whenMinimized = T_336.headings[2] ?? ''
+  expect(cellOf(T_336, 'HN-1', whenMinimized)).toContain(HN_1_WHEEL)
+  expect(cellOf(T_336, 'HN-2', whenMinimized)).toContain(HN_2_ESC)
+  expect(cellOf(T_336, 'HN-4', whenMinimized)).toContain(HN_4_OTHER_SURFACE)
+  expect(cellOf(T_336, 'HN-5', whenMinimized)).toContain(HN_5_BACK)
   expect([HELP_LAYER, SURFACE_LAYER]).toEqual(['UZ-7', 'UZ-13'])
   expect(S_436_EM, 'premise: S-436 reads as a number of em').toBeGreaterThan(0)
   expect(KEY_SPELLINGS.length, 'premise: table T-036 spells keys').toBeGreaterThan(0)
@@ -600,7 +600,7 @@ test.describe('CR-574 items 1-2 -- the title row and the body are two regions (F
       for (let turn = 0; turn < 40; turn += 1) {
         const now = await readHelp(page)
         if (now.scroll === null || now.scroll.top + now.scroll.client >= now.scroll.height - 1) break
-        await wheelAt(page, centreOf(now.body ?? now.box), 1, 400)
+        await wheelAt(page, centerOf(now.body ?? now.box), 1, 400)
       }
       const sent = await readHelp(page)
       expect(sent.scroll === null ? -1 : sent.scroll.top + sent.scroll.client, 'premise: the body reached its end').toBeGreaterThanOrEqual((sent.scroll?.height ?? 0) - 1)
@@ -630,7 +630,7 @@ test.describe('CR-574 items 1-2 -- the title row and the body are two regions (F
 })
 
 test.describe('CR-574 item 3 -- what the title row holds, left to right (FR-036, T-335 WB-4)', () => {
-  test('item 3: title, legend, IC-128, IC-129, IC-130, IC-52 and nothing else; IC-131 in the place of IC-130 while maximised', async () => {
+  test('item 3: title, legend, IC-128, IC-129, IC-130, IC-52 and nothing else; IC-131 in the place of IC-130 while maximized', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {
@@ -638,7 +638,7 @@ test.describe('CR-574 item 3 -- what the title row holds, left to right (FR-036,
       const normal = await openHelp(page)
       const language = normal.language
       if (language === null) throw new Error(`${FR_036_TITLE_ORDER} -- the legend word is not in the title row: ${normal.titleText}`)
-      expect(normal.entrances.filter((one) => one !== LEGEND), FR_036_TITLE_ORDER).toEqual([HELP_LANGUAGE, MINIMISE, MAXIMISE, CLOSE])
+      expect(normal.entrances.filter((one) => one !== LEGEND), FR_036_TITLE_ORDER).toEqual([HELP_LANGUAGE, MINIMIZE, MAXIMIZE, CLOSE])
       expect(normal.entrances[normal.entrances.length - 1], FR_036_TITLE_ORDER).toBe(CLOSE)
       const legendAt = normal.entrances.indexOf(LEGEND)
       if (legendAt >= 0) expect(legendAt, FR_036_TITLE_ORDER).toBeLessThan(normal.entrances.indexOf(HELP_LANGUAGE))
@@ -647,14 +647,14 @@ test.describe('CR-574 item 3 -- what the title row holds, left to right (FR-036,
       const rights = Object.values(normal.entranceRects).map((one) => one.right)
       expect(normal.entranceRects[CLOSE]?.right ?? -Infinity, FR_036_TITLE_ORDER).toBe(Math.max(...rights))
 
-      await press(page, inHelp(MAXIMISE))
-      const maximised = await readHelp(page)
-      expect(maximised.entrances.filter((one) => one !== LEGEND), `${WB_4_SAME_PLACE} / ${FR_036_NOTHING_ELSE}`).toEqual([HELP_LANGUAGE, MINIMISE, RESTORE, CLOSE])
-      const before = normal.entranceRects[MAXIMISE]
-      const after = maximised.entranceRects[RESTORE]
+      await press(page, inHelp(MAXIMIZE))
+      const maximized = await readHelp(page)
+      expect(maximized.entrances.filter((one) => one !== LEGEND), `${WB_4_SAME_PLACE} / ${FR_036_NOTHING_ELSE}`).toEqual([HELP_LANGUAGE, MINIMIZE, RESTORE, CLOSE])
+      const before = normal.entranceRects[MAXIMIZE]
+      const after = maximized.entranceRects[RESTORE]
       if (before === undefined || after === undefined) throw new Error(WB_4_SAME_PLACE)
       expect(after.right - after.left, WB_4_SAME_PLACE).toBeCloseTo(before.right - before.left, 0)
-      expect(maximised.entranceRects[CLOSE]!.right - after.right, WB_4_SAME_PLACE).toBeCloseTo(normal.entranceRects[CLOSE]!.right - before.right, 0)
+      expect(maximized.entranceRects[CLOSE]!.right - after.right, WB_4_SAME_PLACE).toBeCloseTo(normal.entranceRects[CLOSE]!.right - before.right, 0)
     } finally {
       await stage.close()
     }
@@ -745,8 +745,8 @@ test.describe('CR-574 items 5-6 -- the help has a language of its own (FR-038, S
   })
 })
 
-test.describe('CR-574 items 7-8 -- the minimised help (T-335 WB-2, T-336 HN-1, HN-2, HN-5)', () => {
-  test('item 7: minimised, only the title row is left at WB-2; the wheel reaches the schedule; Esc does not close it', async () => {
+test.describe('CR-574 items 7-8 -- the minimized help (T-335 WB-2, T-336 HN-1, HN-2, HN-5)', () => {
+  test('item 7: minimized, only the title row is left at WB-2; the wheel reaches the schedule; Esc does not close it', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {
@@ -759,19 +759,19 @@ test.describe('CR-574 items 7-8 -- the minimised help (T-335 WB-2, T-336 HN-1, H
       await wheelAt(page, spot, 3, 400)
       expect(await readSettledDrawnSvg(page), 'control: T-023 -- a standing help keeps the wheel from the schedule').toBe(untouched)
 
-      await press(page, inHelp(MINIMISE))
+      await press(page, inHelp(MINIMIZE))
       const small = await readHelp(page)
       expect(small.itemsShown, `${WB_2_DRAWS} (${said(small.box)})`).toBe(0)
-      expect(small.entrances, WB_2_DRAWS).toContain(MINIMISE)
+      expect(small.entrances, WB_2_DRAWS).toContain(MINIMIZE)
       expect(Math.abs(small.title.right - normal.box.right), `${WB_2_PLACE}: ${said(small.title)} vs ${said(normal.box)}`).toBeLessThanOrEqual(EDGE)
       expect(Math.abs(small.title.bottom - normal.box.bottom), `${WB_2_PLACE}: ${said(small.title)} vs ${said(normal.box)}`).toBeLessThanOrEqual(EDGE)
       expect(small.title.right - small.title.left, WB_2_PLACE).toBeLessThan(normal.box.right - normal.box.left)
 
-      expect(holds(small.title, spot), `premise: ${JSON.stringify(spot)} is off the minimised title row`).toBe(false)
+      expect(holds(small.title, spot), `premise: ${JSON.stringify(spot)} is off the minimized title row`).toBe(false)
       expect(await page.evaluate(({ at, canvas }: { at: Point; canvas: string }) => {
         const hit = document.elementFromPoint(at.x, at.y)
         return hit !== null && document.querySelector(canvas)?.contains(hit) === true
-      }, { at: spot, canvas: CANVAS }), `${HELP} minimised leaves ${CANVAS} the front at ${JSON.stringify(spot)}`).toBe(true)
+      }, { at: spot, canvas: CANVAS }), `${HELP} minimized leaves ${CANVAS} the front at ${JSON.stringify(spot)}`).toBe(true)
       const before = await readSettledDrawnSvg(page)
       await wheelAt(page, spot, 3, 400)
       expect(await readSettledDrawnSvg(page), HN_1_WHEEL).not.toBe(before)
@@ -785,7 +785,7 @@ test.describe('CR-574 items 7-8 -- the minimised help (T-335 WB-2, T-336 HN-1, H
     }
   })
 
-  test('item 8: IC-22 on the minimised help brings it back to normal with the help language it had', async () => {
+  test('item 8: IC-22 on the minimized help brings it back to normal with the help language it had', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {
@@ -794,7 +794,7 @@ test.describe('CR-574 items 7-8 -- the minimised help (T-335 WB-2, T-336 HN-1, H
       if (normal.language === null) throw new Error(`the legend word is not in the title row: ${normal.titleText}`)
       await press(page, inHelp(HELP_LANGUAGE))
       const chosen = otherThan(normal.language)
-      await press(page, inHelp(MINIMISE))
+      await press(page, inHelp(MINIMIZE))
       expect((await readHelp(page)).itemsShown, `premise: ${WB_2_DRAWS}`).toBe(0)
 
       await press(page, `${HEADER} [data-icon="${OPEN_HELP}"]`)
@@ -809,13 +809,13 @@ test.describe('CR-574 items 7-8 -- the minimised help (T-335 WB-2, T-336 HN-1, H
 })
 
 test.describe('CR-574 items 9 and 9a, CR-575 item 5a -- another surface stands in front of the help (T-336 HN-4, T-337, IN-4)', () => {
-  test('item 9: IC-62 on the minimised help opens the roster and leaves the help minimised', async () => {
+  test('item 9: IC-62 on the minimized help opens the roster and leaves the help minimized', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {
       const { page } = stage
       const opened = await openHelp(page)
-      await press(page, inHelp(MINIMISE))
+      await press(page, inHelp(MINIMIZE))
       const small = await readHelp(page)
       expect(small.itemsShown, `premise: ${WB_2_DRAWS}`).toBe(0)
 
@@ -856,7 +856,7 @@ test.describe('CR-574 items 9 and 9a, CR-575 item 5a -- another surface stands i
         return box === undefined ? null : { left: box.left, top: box.top, right: box.right, bottom: box.bottom }
       }, EXPORT_CHOOSER)
       if (chooser === null) throw new Error(`no ${EXPORT_CHOOSER} is on the screen`)
-      const middle = centreOf(chooser)
+      const middle = centerOf(chooser)
       expect(holds(kept.box, middle), `premise: ${EXPORT_CHOOSER} ${said(chooser)} lies over ${HELP} ${said(kept.box)}`).toBe(true)
       expect(await page.evaluate(({ at, wanted }: { at: Point; wanted: string }) => {
         const hit = document.elementFromPoint(at.x, at.y)
@@ -874,9 +874,9 @@ test.describe('CR-574 items 9 and 9a, CR-575 item 5a -- another surface stands i
   })
 })
 
-test.describe('CR-574 item 10 -- maximise and restore (T-335 WB-3, WB-4, WB-5)', () => {
+test.describe('CR-574 item 10 -- maximize and restore (T-335 WB-3, WB-4, WB-5)', () => {
   // @provisional PND-746
-  test('item 10: maximised the help fills the Schedule Canvas below the App Header; IC-131 restores it; maximised then minimised, IC-129 brings it to normal', async () => {
+  test('item 10: maximized the help fills the Schedule Canvas below the App Header; IC-131 restores it; maximized then minimized, IC-129 brings it to normal', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {
@@ -887,23 +887,23 @@ test.describe('CR-574 item 10 -- maximise and restore (T-335 WB-3, WB-4, WB-5)',
         return { left: 0, top: bottom, right: window.innerWidth, bottom: window.innerHeight }
       }, HEADER)
 
-      await press(page, inHelp(MAXIMISE))
-      const maximised = await readHelp(page)
-      expect(sameRect(maximised.box, whole), `${FR_036_MAXIMISED}: ${said(maximised.box)} vs ${said(whole)}`).toBe(true)
-      expect(maximised.itemsShown, 'WB-3 draws the title row and the body').toBeGreaterThan(0)
+      await press(page, inHelp(MAXIMIZE))
+      const maximized = await readHelp(page)
+      expect(sameRect(maximized.box, whole), `${FR_036_MAXIMIZED}: ${said(maximized.box)} vs ${said(whole)}`).toBe(true)
+      expect(maximized.itemsShown, 'WB-3 draws the title row and the body').toBeGreaterThan(0)
 
       await press(page, inHelp(RESTORE))
       const restored = await readHelp(page)
       expect(sameRect(restored.box, normal.box), `${WB_4_SAME_PLACE}: ${said(restored.box)} vs ${said(normal.box)}`).toBe(true)
-      expect(restored.entrances, WB_4_SAME_PLACE).toContain(MAXIMISE)
+      expect(restored.entrances, WB_4_SAME_PLACE).toContain(MAXIMIZE)
 
-      await press(page, inHelp(MAXIMISE))
-      await press(page, inHelp(MINIMISE))
+      await press(page, inHelp(MAXIMIZE))
+      await press(page, inHelp(MINIMIZE))
       expect((await readHelp(page)).itemsShown, `premise: ${WB_2_DRAWS}`).toBe(0)
-      await press(page, inHelp(MINIMISE))
+      await press(page, inHelp(MINIMIZE))
       const back = await readHelp(page)
       expect(sameRect(back.box, normal.box), `${WB_5_BACK_TO_NORMAL}: ${said(back.box)} vs ${said(normal.box)}`).toBe(true)
-      expect(back.entrances, WB_5_BACK_TO_NORMAL).toContain(MAXIMISE)
+      expect(back.entrances, WB_5_BACK_TO_NORMAL).toContain(MAXIMIZE)
       expect(back.entrances, WB_5_BACK_TO_NORMAL).not.toContain(RESTORE)
     } finally {
       await stage.close()
@@ -912,7 +912,7 @@ test.describe('CR-574 item 10 -- maximise and restore (T-335 WB-3, WB-4, WB-5)',
 })
 
 test.describe('CR-574 item 11 -- nothing of the help reaches the saved document (T-335 WB-6, FR-038)', () => {
-  test('item 11: saved with the help maximised or minimised in its other language, the GRS JSON differs only where two plain saves differ', async () => {
+  test('item 11: saved with the help maximized or minimized in its other language, the GRS JSON differs only where two plain saves differ', async () => {
     test.setTimeout(300_000)
     const stage = await openTheSample(TALL)
     try {
@@ -920,18 +920,18 @@ test.describe('CR-574 item 11 -- nothing of the help reaches the saved document 
       const plain = await saveDocument(page)
       await openHelp(page)
       await press(page, inHelp(HELP_LANGUAGE))
-      await press(page, inHelp(MAXIMISE))
-      const whileMaximised = await saveDocument(page)
-      await press(page, inHelp(MINIMISE))
-      const whileMinimised = await saveDocument(page)
+      await press(page, inHelp(MAXIMIZE))
+      const whileMaximized = await saveDocument(page)
+      await press(page, inHelp(MINIMIZE))
+      const whileMinimized = await saveDocument(page)
       await press(page, inHelp(CLOSE))
       await expect.poll(() => isShown(page, HELP), { message: `${CLOSE} closes ${HELP}` }).toBe(false)
       const plainAgain = await saveDocument(page)
 
       // WHY: two saves with the help closed are the control -- a path that differs between them (a save time) is no finding.
       const control = new Set(differingPaths(plain, plainAgain))
-      expect(differingPaths(plain, whileMaximised).filter((one) => !control.has(one)), `${WB_6_NOT_SAVED} / ${FR_038_NOT_STORED}`).toEqual([])
-      expect(differingPaths(plain, whileMinimised).filter((one) => !control.has(one)), `${WB_6_NOT_SAVED} / ${FR_038_NOT_STORED}`).toEqual([])
+      expect(differingPaths(plain, whileMaximized).filter((one) => !control.has(one)), `${WB_6_NOT_SAVED} / ${FR_038_NOT_STORED}`).toEqual([])
+      expect(differingPaths(plain, whileMinimized).filter((one) => !control.has(one)), `${WB_6_NOT_SAVED} / ${FR_038_NOT_STORED}`).toEqual([])
     } finally {
       await stage.close()
     }
@@ -939,7 +939,7 @@ test.describe('CR-574 item 11 -- nothing of the help reaches the saved document 
 })
 
 /** @purity semi-pure-b */
-async function readLicenceLines(page: Page) {
+async function readLicenseLines(page: Page) {
   return page.evaluate((help: string) => {
     // WHY: the last link outside the fold; the S-350 note link stands earlier, inside the columns.
     const link = [...document.querySelectorAll(`${help} a[target="_blank"]`)].filter((one) => one.closest('details') === null).at(-1)
@@ -958,8 +958,8 @@ async function readLicenceLines(page: Page) {
   }, HELP)
 }
 
-test.describe('CR-622 -- where the help opens, and the licence line (FR-036, FR-069)', () => {
-  test('item 12: opened, the help stands centred in the window below the App Header at S-201 of it, and its body does not scroll sideways', async () => {
+test.describe('CR-622 -- where the help opens, and the license line (FR-036, FR-069)', () => {
+  test('item 12: opened, the help stands centered in the window below the App Header at S-201 of it, and its body does not scroll sideways', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {
@@ -980,20 +980,20 @@ test.describe('CR-622 -- where the help opens, and the licence line (FR-036, FR-
       for (const side of ['left', 'top', 'right', 'bottom'] as const) {
         expect(Math.abs(opened.box[side] - wanted[side]), `${FR_036_UNDER_THE_HEADER}: ${said(opened.box)} vs ${said(wanted)}`).toBeLessThanOrEqual(EDGE)
       }
-      const lines = await readLicenceLines(page)
+      const lines = await readLicenseLines(page)
       expect(lines.sideways, FR_036_NOT_SIDEWAYS_WHEN_OPENED).toBe(0)
     } finally {
       await stage.close()
     }
   })
 
-  test('item 13: below the columns, the copyright links S-459 in a new tab, the licence name stands next, and the full text is folded', async () => {
+  test('item 13: below the columns, the copyright links S-459 in a new tab, the license name stands next, and the full text is folded', async () => {
     test.setTimeout(240_000)
     const stage = await openTheSample(TALL)
     try {
       const { page } = stage
       await openHelp(page)
-      const lines = await readLicenceLines(page)
+      const lines = await readLicenseLines(page)
       expect(lines.href, FR_069_NEW_TAB).toBe(S_459_ADDRESS)
       expect(lines.rel, FR_069_NEW_TAB).toBe('noopener noreferrer')
       expect(lines.linkText ?? '', FR_069_ONE_LINE).not.toBe('')

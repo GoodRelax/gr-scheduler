@@ -6,14 +6,14 @@
 # RAISED 2199 -> 2212 on 2026-10-02 under JDG-1034 (the user approved): CR-625 adds 13 bare MUST clauses (pointer tip below the cursor, flips at the edges); its wave-2 tests quote them.
 # RAISED 2177 -> 2199 on 2026-10-02 under JDG-1034 (the user approved): CR-624 adds 22 bare MUST clauses (bar tooltip lines, table T-348); its code-round contract tests quote them.
 # RAISED 2166 -> 2177 on 2026-10-02 under JDG-1034 (the user approved): CR-623 adds 11 bare MUST clauses (open chooser lists its choices, a copy is told); its wave-1/2 tests quote them.
-# RAISED 2161 -> 2166 on 2026-10-02 under JDG-1034 (the user approved): CR-622 adds 15 bare MUST/MUST NOT clauses (help in frames, two-line licence); its wave-2 contract tests quote them.
+# RAISED 2161 -> 2166 on 2026-10-02 under JDG-1034 (the user approved): CR-622 adds 15 bare MUST/MUST NOT clauses (help in frames, two-line license); its wave-2 contract tests quote them.
 # LOWERED 2163 -> 2161 on 2026-09-27 under JDG-743 / JDG-520: the CR-572 wave 3 spec-only tests quote two more MUST clauses (stage A, branch stage-a).
-# RAISED 2136 -> 2163 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W5 of cr-organise applied CR-577, CR-582, CR-586 and CR-583; the code lanes L1 and L3 write the tests that quote them.
-# RAISED 2052 -> 2136 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W4b of cr-organise applied CR-562, CR-561, CR-563 and CR-589; the code lanes L1 and L4 write the tests that quote them.
-# RAISED 2003 -> 2052 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W4a of cr-organise applied CR-575, CR-588, CR-571 and CR-574; the code lanes L1 and L4 write the tests that quote them.
-# RAISED 1935 -> 2003 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W3 of cr-organise applied CR-558, CR-556, CR-559 and CR-560; the code lanes L1 and L2 write the tests that quote them.
-# RAISED 1911 -> 1935 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W2 of cr-organise applied CR-572 waves 1 and 2a, CR-557, CR-585 and CR-576; the code lane L3 writes the tests that quote them.
-# RAISED 1886 -> 1911 on 2026-09-26 under JDG-743 (the user approved): wave W1 of cr-organise applied CR-555 (+21), CR-584 (+5) and CR-587 (-1); the code lanes L1 and L5 write the tests that quote them.
+# RAISED 2136 -> 2163 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W5 of cr-organize applied CR-577, CR-582, CR-586 and CR-583; the code lanes L1 and L3 write the tests that quote them.
+# RAISED 2052 -> 2136 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W4b of cr-organize applied CR-562, CR-561, CR-563 and CR-589; the code lanes L1 and L4 write the tests that quote them.
+# RAISED 2003 -> 2052 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W4a of cr-organize applied CR-575, CR-588, CR-571 and CR-574; the code lanes L1 and L4 write the tests that quote them.
+# RAISED 1935 -> 2003 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W3 of cr-organize applied CR-558, CR-556, CR-559 and CR-560; the code lanes L1 and L2 write the tests that quote them.
+# RAISED 1911 -> 1935 on 2026-09-26 under JDG-743 (same reason, reported per wave): wave W2 of cr-organize applied CR-572 waves 1 and 2a, CR-557, CR-585 and CR-576; the code lane L3 writes the tests that quote them.
+# RAISED 1886 -> 1911 on 2026-09-26 under JDG-743 (the user approved): wave W1 of cr-organize applied CR-555 (+21), CR-584 (+5) and CR-587 (-1); the code lanes L1 and L5 write the tests that quote them.
 # RAISED 1282 -> 1886 on 2026-09-26 under JDG-672 (the user approved the re-measured value): CR-573 deleted the omissible unit tests and check 39 now reads tests/contract, tests/system and tests/usecase only.
 # LOWERED 1286 -> 1282 on 2026-09-26 under JDG-520: CR-573 wave 0 retired four test-chapter MUST clauses; measured on 42d1e51c merged into refactor.
 # LOWERED 1305 -> 1286 on 2026-09-26 under JDG-520: the CR-570 spec-only tester quoted the new treeState clauses verbatim; measured on 31313b06 plus the CR-570 waves 2-3.
@@ -50,7 +50,7 @@
 # when stage 3 / 7 / 8 lets those clauses be anchored.
 # RAISED 1340 -> 1369 on 2026-09-14: applying CR-376 (actuals held as dates) and CR-377
 # (the help as a list of keys and icons) wrote 29 new MUST / MUST NOT clauses that no test
-# holds verbatim yet. The spec-only tests of that wave assert the behaviour; tying the
+# holds verbatim yet. The spec-only tests of that wave assert the behavior; tying the
 # clauses verbatim is left for the next repair wave (write the anchor sentence into a test).
 # LOWERED 1348 -> 1340 on 2026-09-14: DFC-568's anchor and corner tests now
 # hold 8 more MUST clauses verbatim (check 39 reported 1340 at f9db11c).

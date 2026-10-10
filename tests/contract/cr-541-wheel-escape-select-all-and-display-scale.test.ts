@@ -170,17 +170,17 @@ describe('IN-4 -- Esc cancels the drag before the panel', () => {
     if (plan === null || plan === undefined || plan.form !== 'outline') throw new Error('premise: task 1 is drawn as an outline')
     const xs = plan.points.map((one) => one.x)
     const ys = plan.points.map((one) => one.y)
-    const centre = { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
+    const center = { x: (Math.min(...xs) + Math.max(...xs)) / 2, y: (Math.min(...ys) + Math.max(...ys)) / 2 }
     pressHeader(built, 'IC-17')
     expect(built.last().propertiesPanel, 'premise: IC-17 puts the properties panel out').not.toBeNull()
     const before = JSON.stringify((built.loop.document().schedule as any).tasks[0])
-    built.send(pointerOf('down', centre.x, centre.y))
-    built.send(pointerOf('move', centre.x + 40, centre.y))
-    built.send(pointerOf('move', centre.x + 80, centre.y))
+    built.send(pointerOf('down', center.x, center.y))
+    built.send(pointerOf('move', center.x + 40, center.y))
+    built.send(pointerOf('move', center.x + 80, center.y))
     built.send(keyOf('Escape'))
     expect(built.last().propertiesPanel, 'the first Esc leaves the panel out').not.toBeNull()
-    built.send(pointerOf('up', centre.x + 80, centre.y))
-    expect(JSON.stringify((built.loop.document().schedule as any).tasks[0]), 'the first Esc cancelled the drag').toBe(before)
+    built.send(pointerOf('up', center.x + 80, center.y))
+    expect(JSON.stringify((built.loop.document().schedule as any).tasks[0]), 'the first Esc canceled the drag').toBe(before)
   })
 })
 

@@ -1,4 +1,4 @@
-// DFC-1412 spec-only cases: FR-006 -- on every target the look rows run outline width, outline colour, fill colour, fill transparency, text colour, and a colour row holds one colour.
+// DFC-1412 spec-only cases: FR-006 -- on every target the look rows run outline width, outline color, fill color, fill transparency, text color, and a color row holds one color.
 
 import { describe, expect, it } from 'vitest'
 
@@ -64,7 +64,7 @@ describe('DFC-1412 premise -- the clause these cases press still stands', () => 
 })
 
 describe(`FR-006 -- ${FR_006_VISUAL_ORDER}`, () => {
-  // WHY: a task group has one colour (TaskGroup.color), which is none of the five looks, so it has no order to keep.
+  // WHY: a task group has one color (TaskGroup.color), which is none of the five looks, so it has no order to keep.
   it.each(SCENES.filter(([name]) => name !== 'a task group'))('%s: the look rows the panel shows keep the order of the clause', (_name, item, groupIds) => {
     const shown = looksOf(panelOf(DOCUMENT, item, groupIds))
     expect(shown.length, 'premise: the target shows at least one look row').toBeGreaterThan(0)
@@ -73,7 +73,7 @@ describe(`FR-006 -- ${FR_006_VISUAL_ORDER}`, () => {
     )
   })
 
-  it('the highlight box shows outline width, outline colour, fill colour, fill transparency, and no text colour', () => {
+  it('the highlight box shows outline width, outline color, fill color, fill transparency, and no text color', () => {
     expect(looksOf(panelOf(DOCUMENT, { kind: 'highlightBox', id: BOX }, []))).toEqual([
       'strokeWidthPx',
       'strokeColor',
@@ -82,25 +82,25 @@ describe(`FR-006 -- ${FR_006_VISUAL_ORDER}`, () => {
     ])
   })
 
-  it('the comment box shows all five looks, ending with the text colour', () => {
+  it('the comment box shows all five looks, ending with the text color', () => {
     expect(looksOf(panelOf(DOCUMENT, { kind: 'commentBox', id: NOTE }, []))).toEqual(LOOK_COLUMNS)
   })
 
-  it.each(SCENES)('%s: every colour row holds exactly one colour control', (_name, item, groupIds) => {
+  it.each(SCENES)('%s: every color row holds exactly one color control', (_name, item, groupIds) => {
     const panel = panelOf(DOCUMENT, item, groupIds)
-    let colourRows = 0
+    let colorRows = 0
     for (const field of panel.fields) {
       if (!itemOf(field.row).inputKinds.includes('色')) continue
-      colourRows += 1
+      colorRows += 1
       expect(
         field.controls.filter((control) => control.kind === 'color').length,
         `${FR_006_VISUAL_ORDER} -- row ${field.row}`,
       ).toBe(1)
     }
-    expect(colourRows, 'premise: the target shows a colour row').toBeGreaterThan(0)
+    expect(colorRows, 'premise: the target shows a color row').toBeGreaterThan(0)
   })
 
-  it('no colour row of a box shares its row with another look: one row, one column', () => {
+  it('no color row of a box shares its row with another look: one row, one column', () => {
     for (const item of [{ kind: 'highlightBox', id: BOX }, { kind: 'commentBox', id: NOTE }] as const) {
       for (const field of panelOf(DOCUMENT, item, []).fields) {
         const looks = itemOf(field.row).columns.filter((column) => LOOK_COLUMNS.includes(column))

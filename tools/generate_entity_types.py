@@ -74,7 +74,7 @@ STAMP_ENTITIES = ('documentStamp', 'changeLog')
 # type, so a rename in the manuscript emitted the same interface twice and
 # only `tsc` said so (CR-205 renamed `revisionStamp` to `documentStamp`).
 # ⚠️ `changeLog` is a collection in the document and one entry in the type,
-# which is why the two names are not simply capitalised.
+# which is why the two names are not simply capitalized.
 TS_NAME_OF_STAMP_ENTITY = {
     'documentStamp': 'DocumentStamp',
     'changeLog': 'ChangeLogEntry',
@@ -167,9 +167,9 @@ def date_columns_block(erd):
 # has to DERIVE them, and nothing carried the manuscript's enumerations and
 # bounds into src/ at all. ⛔ Six entities and not all eighteen: FR-006's table
 # T-016 is the `Task` roster (with `TaskVisual` for the drawn columns), FR-042
-# adds a task group's colour and min height (`TaskGroup`), FR-009 adds the dependency
+# adds a task group's color and min height (`TaskGroup`), FR-009 adds the dependency
 # line, PR-21 of table T-016 (対象 `CommentBox`) adds the comment box, and
-# PR-22 (対象 `HighlightBox`, JDG-408) adds a highlight box's outline colour. A
+# PR-22 (対象 `HighlightBox`, JDG-408) adds a highlight box's outline color. A
 # roster of every entity would state a shape for columns no surface offers.
 #
 # ⚠️ `HighlightBox` CAME IN WITH PR-22, NOT WITH DFC-314. What is broken there
@@ -195,7 +195,7 @@ def column_shape(node):
     """One column's accepted shape, read off the 型 column of table T-058.
 
     A 'color' column's choices are the palette names of table T-294 (CR-548);
-    a custom colour is accepted beside them (CV-2 of table T-017b).
+    a custom color is accepted beside them (CV-2 of table T-017b).
     """
     values = node.get('values')
     if node.get('kind') == 'color':
@@ -213,7 +213,7 @@ def bandless_spellings():
     """The stored spellings of table T-294 whose row band is a dash.
 
     The dash is read by is_palette_dash, the one reading palette_cell uses
-    too. ⚠️ docs/spec/_source/erd_json_to_schema.py's bandless_colour_names
+    too. ⚠️ docs/spec/_source/erd_json_to_schema.py's bandless_color_names
     reads it the same way for the schema; a change to one is a change to both.
     """
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
@@ -1492,7 +1492,7 @@ NOT_STORED_TARGETS = {
     # CR-728: S-554, how far down the room below the pins SJ-5 of table T-332
     # puts the landed shape's middle. Its own constant, not folded into the
     # inset above: that one is a width read only when a shape is too wide to
-    # centre (SJ-6), this one is a share of a height read on every jump.
+    # center (SJ-6), this one is a share of a height read on every jump.
     'NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE': (['S-554'], READ_WHERE_IT_STANDS),
     # CR-728: the landing ring SJ-10 of table T-332 draws around a jumped-to
     # shape -- its gap from the shape (S-555) and its line width (S-556). Drawn
@@ -1580,7 +1580,7 @@ NOT_STORED_TARGETS = {
                                      DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⭐ CR-551: the four numbers FR-013 (MUST) draws the delay mark `(!)` of
     # PM-4 with -- the bar's width against S-24, its lower end, the dot's
-    # centre and the dot's radius. ⛔ A NEW CONSTANT, not folded into any line
+    # center and the dot's radius. ⛔ A NEW CONSTANT, not folded into any line
     # of svg-renderer.ts: one constant per consuming SUBJECT, and none of the
     # others is the progress marker's glyph. Read by schedule-task-figures.ts.
     # ⭐ CR-551 (E-42): S-341 joins them -- the symbol's half-height as a ratio
@@ -1621,16 +1621,16 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_RULER_WEEKDAY_SIZES': (['S-219'],
                                        DRAWN_INTO_THE_EXPORTED_PICTURE),
     # ⭐ CR-564: the HSL lightness floor and ceiling CV-10 clamps a custom
-    # colour's actual fill to, so that the derived value never crushes into
+    # color's actual fill to, so that the derived value never crushes into
     # black or white and loses the hue CV-10 keeps. Read by actualOfCustom,
-    # the one function that derives a custom colour's actual fill, so the
+    # the one function that derives a custom color's actual fill, so the
     # subject is that derivation and not any other svg-renderer.ts drawing.
     'NOT_STORED_CUSTOM_ACTUAL_LIGHTNESS': (['S-415', 'S-416'],
                                            DRAWN_WITH_WHERE_IT_STANDS),
-    # CR-683: the numbers table T-366 (FR-041) solves the theme colours with --
+    # CR-683: the numbers table T-366 (FR-041) solves the theme colors with --
     # the shift step and cap (S-520, S-521), the four rows' ratios (S-522 ..
     # S-525) and the ground search's halvings (S-526). Read by the one solve in
-    # svg-renderer.ts that colourOf reads, so the screen and the export agree.
+    # svg-renderer.ts that colorOf reads, so the screen and the export agree.
     'NOT_STORED_THEME_SOLVE': (['S-520', 'S-521', 'S-522', 'S-523', 'S-524',
                                 'S-525', 'S-526'],
                                DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
@@ -1664,7 +1664,7 @@ NOT_STORED_TARGETS = {
     # shape and S-186 .. S-193 are the property fields', and a shared constant
     # would make one of the two paragraphs a lie.
     'NOT_STORED_PROPERTY_FIELD_SIZES': (
-        # CR-551: S-335 and S-338 are COUNTS of CV-9's colour field (squares
+        # CR-551: S-335 and S-338 are COUNTS of CV-9's color field (squares
         # on a checker side, swatches in one row), drawn by the same unit.
         # CR-557: S-368 is the same count for the theme-hue field of FR-041
         # (table T-305), drawn in the same swatch box; its own note forbids
@@ -1674,7 +1674,7 @@ NOT_STORED_TARGETS = {
         # by the same unit; their own notes forbid sharing S-190 / S-241.
         # CR-689 retired S-440 / S-441 with MH-5 (the field became three
         # lines) and added S-530 / S-531, the outline round the swatch that
-        # holds the colour field's value (CV-9).
+        # holds the color field's value (CV-9).
         ['S-186', 'S-187', 'S-188', 'S-189', 'S-190', 'S-191', 'S-192', 'S-193',
          'S-197', 'S-198', 'S-335', 'S-338', 'S-368', 'S-530', 'S-531'],
         DRAWN_WITH_WHERE_IT_STANDS),
@@ -1944,9 +1944,9 @@ def pointed_row(cell, everywhere):
 
 NEWLINE = chr(10)
 
-# ---- table T-236: the screen's colours ------------------------------------
+# ---- table T-236: the screen's colors ------------------------------------
 #
-# ⛔ ONE ROW, TWO CELLS. A colour is one decision with two renderings, so the
+# ⛔ ONE ROW, TWO CELLS. A color is one decision with two renderings, so the
 # light and the dark cell are carried out of the SAME row. Two tables, or two
 # constants, could drift apart without anything noticing.
 #
@@ -1956,7 +1956,7 @@ NEWLINE = chr(10)
 # substitutes. A row whose 色相追随 column is not ○ states its own number and
 # is left exactly as written (FR-041: the dependency and progress lines do NOT
 # follow the theme).
-COLOUR_TARGETS = {
+COLOR_TARGETS = {
     # The chrome: the ground, the ink, the panels, the shadow. Only this unit
     # can paint them, and only this unit can set `color-scheme` (FR-041).
     # ⛔ S-168 AND S-169 (the ink and halo of a label ON A BAR) do not belong
@@ -1975,17 +1975,17 @@ COLOUR_TARGETS = {
     # ⭐ S-231 IS THE TASK GROUP PANEL'S ALONE (DFC-601 / CR-385): the task group's
     # grab strip mark (HF-15, GR-20) is drawn by this unit only, and S-149
     # (the rule) no longer stands in for it -- that is the whole point of the
-    # change request (`the grip no longer borrows the rule's colour`).
+    # change request (`the grip no longer borrows the rule's color`).
     # ⭐ CR-551: S-336 / S-337 are CV-9's checker squares, which the property
     # panel draws on this side (properties-panel-drawing.ts), so they are the
     # chrome's too.
     # CR-628: S-464, the Branding outline (BR-3 of table T-349), drawn in the
     # App Header on this side; it names S-148 through sameAs.
     # CR-650: S-493, the App Header divider rule (BR-7), names S-149 likewise.
-    # CR-657: S-165, the Group Grid Lines colour, which FR-042 now has drawn
+    # CR-657: S-165, the Group Grid Lines color, which FR-042 now has drawn
     # across the Task Group Panel too -- the panel is DOM, so it reads the row
     # here. ONE row read by two units, like S-151 above.
-    'SCREEN_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-231',
+    'SCREEN_COLORS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-231',
                        'S-151', 'S-152', 'S-183', 'S-153', 'S-154', 'S-170',
                        'S-336', 'S-337', 'S-464', 'S-493', 'S-165',
                        'S-503', 'S-161', 'S-162', 'S-326', 'S-327',
@@ -1993,7 +1993,7 @@ COLOUR_TARGETS = {
                        'S-390', 'S-543', 'S-544'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
-    # SvgRenderer the edge labelled "ruler and task groups" and gives ScreenRenderer no
+    # SvgRenderer the edge labeled "ruler and task groups" and gives ScreenRenderer no
     # edge to ScheduleLayout at all).
     # ⭐ S-146, S-147 AND S-149 STAND IN BOTH ROSTERS ON PURPOSE. They are the
     # ground, the ink and the rule, and both units draw with them: the chrome
@@ -2001,7 +2001,7 @@ COLOUR_TARGETS = {
     # own. ⛔ Without S-146 on this side the ruler has lines and text and
     # nothing under them, so whatever lies behind the band shows through --
     # and the row's own note in table T-236 says an unpainted ground falls back
-    # to the OS default. ⚠️ S-162 and S-169 already carry this colour into this
+    # to the OS default. ⚠️ S-162 and S-169 already carry this color into this
     # constant, but only as their own cells' `sameAs`; nothing here could name
     # the ground itself. ⛔ Two rows would be the drift the note above forbids;
     # ONE row read by two units is not.
@@ -2009,17 +2009,17 @@ COLOUR_TARGETS = {
     # cursor (CU-3 of table T-029) is drawn on this side, table T-236 holds no
     # row of its own for it, and the muted neutral is what the table keeps for
     # what is secondary. ⛔ NOT A NEW VALUE -- the row already stands, and the
-    # colour it lends is deliberately neither S-163's nor S-195's, which is what
+    # color it lends is deliberately neither S-163's nor S-195's, which is what
     # FR-048's closing MUST asks of a line that carries no date. @provisional
     # PND-341
-    'SCHEDULE_COLOURS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-151', 'S-155', 'S-156',
+    'SCHEDULE_COLORS': ['S-146', 'S-147', 'S-148', 'S-149', 'S-150', 'S-151', 'S-155', 'S-156',
                          'S-157', 'S-158', 'S-159', 'S-160', 'S-312', 'S-161', 'S-162',
                          'S-163', 'S-164', 'S-165', 'S-166', 'S-167', 'S-168',
                          'S-169', 'S-195', 'S-223',
                          # CR-551: the delay marker's ground and symbol (PM-4, FR-013).
                          'S-326', 'S-327',
                          # CR-561: the Delay Diagnostics markers' grounds and symbols
-                         # (table T-315) and the parent label's colour (FR-135).
+                         # (table T-315) and the parent label's color (FR-135).
                          'S-385', 'S-386', 'S-387', 'S-388', 'S-389', 'S-390', 'S-398',
                          # CR-556: the deadline mark's fill (DA-3 of table T-304, FR-045).
                          'S-364',
@@ -2034,19 +2034,19 @@ COLOUR_TARGETS = {
                          'S-503', 'S-527', 'S-528'],
 }
 
-COLOUR_NOTE = [
+COLOR_NOTE = [
     '// see T-236, S-73',
 ]
 
 
-def colour_block(name):
+def color_block(name):
     """The rows of table T-236 one unit needs, by row ID."""
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     block = [b for b in doc['blocks'] if b.get('id') == 'T-236']
     if not block:
         raise SystemExit('settings.json holds no table T-236')
     by_id = {r['id']: r for r in block[0]['rows']}
-    out = list(COLOUR_NOTE) + [
+    out = list(COLOR_NOTE) + [
            'export const %s: {' % name,
            '  readonly [rowId: string]: {',
            '    readonly light: string',
@@ -2054,14 +2054,14 @@ def colour_block(name):
            '    readonly followsHue: boolean',
            '  }',
            '} = {']
-    for row_id in COLOUR_TARGETS[name]:
+    for row_id in COLOR_TARGETS[name]:
         if row_id not in by_id:
             raise SystemExit('table T-236 has no row %s' % row_id)
         row = by_id[row_id]
         cells = {}
         for side in ('light', 'dark'):
             cell = row.get(side)
-            # ⛔ A cell may NAME another row rather than restate its colour, so
+            # ⛔ A cell may NAME another row rather than restate its color, so
             # that one value is stated once. Follow it before reading.
             seen = set()
             while isinstance(cell, dict) and 'sameAs' in cell:
@@ -2074,13 +2074,13 @@ def colour_block(name):
                     raise SystemExit('table T-236 row %s names %s, which the table '
                                      'has not' % (row_id, named))
                 cell = by_id[named].get(side)
-            if not isinstance(cell, dict) or 'colour' not in cell:
+            if not isinstance(cell, dict) or 'color' not in cell:
                 raise SystemExit(
-                    'table T-236 row %s states no colour for its %s cell, so '
+                    'table T-236 row %s states no color for its %s cell, so '
                     '%s cannot be generated. A row that inherits another names '
                     'it in prose and cannot be carried by this constant.'
                     % (row_id, side, name))
-            cells[side] = cell['colour']
+            cells[side] = cell['color']
         follows = 'H' in cells['light'] or 'H' in cells['dark']
         out.append("  '%s': { light: '%s', dark: '%s', followsHue: %s },"
                    % (row_id, cells['light'], cells['dark'],
@@ -2089,10 +2089,10 @@ def colour_block(name):
     return NEWLINE.join(out)
 
 
-def colour_sources_block(name):
-    """The rows of one colour constant whose cell names another row (CR-683).
+def color_sources_block(name):
+    """The rows of one color constant whose cell names another row (CR-683).
 
-    colour_block prints the colour a sameAs chain ends at, so the name is lost;
+    color_block prints the color a sameAs chain ends at, so the name is lost;
     table T-366 shifts S-146, S-151 and S-155 .. S-157 per hue, and a row that
     names one of them (S-527 names S-146, S-528 names S-156) must be drawn with
     the shifted value, so the renderer needs the row the chain ends at.
@@ -2104,7 +2104,7 @@ def colour_sources_block(name):
            'export const %s_SOURCES: {' % name,
            '  readonly [rowId: string]: { readonly light: string; readonly dark: string }',
            '} = {']
-    for row_id in COLOUR_TARGETS[name]:
+    for row_id in COLOR_TARGETS[name]:
         ends = {}
         for side in ('light', 'dark'):
             cell = by_id[row_id].get(side)
@@ -2120,15 +2120,15 @@ def colour_sources_block(name):
     return NEWLINE.join(out)
 
 
-# ---- table T-294: the palette colours (CR-548) ---------------------------
+# ---- table T-294: the palette colors (CR-548) ---------------------------
 #
-# ⭐ ONE ROW PER COLOUR, EIGHT CELLS: the four drawn forms (fill, outline,
+# ⭐ ONE ROW PER COLOR, EIGHT CELLS: the four drawn forms (fill, outline,
 # actual fill, task group band) in both themes. The document stores the row's KEY
 # (CV-1 of table T-017b); these values are baked into the artifact.
 # A cell is '#rrggbb', null (描かない: not drawn), the row ID a `sameAs`
 # names -- that row is a row of table T-236 which follows the hue, so the
 # renderer resolves it through its own themed() -- or false for a dash (—):
-# the colour offers no value for that form (black's task group band, CV-9), and the
+# the color offers no value for that form (black's task group band, CV-9), and the
 # form keeps the theme's.
 
 PALETTE_FORMS = ('fill', 'outline', 'actual', 'band')
@@ -2140,8 +2140,8 @@ def is_palette_dash(cell):
 
 
 def palette_cell(cell, row_id, field):
-    if isinstance(cell, dict) and 'colour' in cell:
-        return "'%s'" % cell['colour']
+    if isinstance(cell, dict) and 'color' in cell:
+        return "'%s'" % cell['color']
     if isinstance(cell, dict) and 'sameAs' in cell:
         return "{ sameAs: '%s' }" % cell['sameAs']
     if isinstance(cell, dict) and cell.get('ja') == '描かない':
@@ -2153,7 +2153,7 @@ def palette_cell(cell, row_id, field):
 
 
 def palette_block():
-    """COLOUR_NAME_VALUES: table T-294 keyed by the stored spelling."""
+    """COLOR_NAME_VALUES: table T-294 keyed by the stored spelling."""
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     block = [b for b in doc['blocks'] if b.get('id') == 'T-294']
     if not block:
@@ -2166,7 +2166,7 @@ def palette_block():
            '  readonly actual: PaletteCell',
            '  readonly band: PaletteCell',
            '}',
-           'export const COLOUR_NAME_VALUES: {',
+           'export const COLOR_NAME_VALUES: {',
            '  readonly [spelling: string]: {',
            '    readonly rowId: string',
            '    readonly light: PaletteForms',
@@ -2254,7 +2254,7 @@ def not_stored_block(name):
 # given, which is table T-217's own default cell and answers to no row of
 # table T-206.
 # CR-558: EVERY ROW OF THE TABLE, NOT S-132 ALONE. S-369 .. S-371 give the
-# highlight box's stroke width, fill colour and fill transparency the value a
+# highlight box's stroke width, fill color and fill transparency the value a
 # `null` column is drawn with (FR-019), and a newly created box starts from
 # `null`, so the drawing side reads these defaults. The key stays the row ID,
 # as in every other not-stored constant; the `HighlightBox.` head of the key
@@ -2404,7 +2404,7 @@ def annotation_bounds_block():
     the schema (CR-558 decision 9), and FR-019 (MUST) clamps a read value into
     them and refuses a command outside them. The key cell rides along so the
     Properties Panel can find a column's row without a second hand-typed map.
-    ⛔ A colour row (S-370) states no bounds and is left out, not printed as
+    ⛔ A color row (S-370) states no bounds and is left out, not printed as
     null -- a caller asking for its bounds has asked the wrong question.
     """
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
@@ -2460,15 +2460,15 @@ def annotation_bounds_block():
 # ⭐ `watermarkSvg` in svg-renderer.ts spends all four. A value that reaches no
 # reader is dropped from the build as dead code, and a value that reaches no
 # reader is a value the artifact does not carry.
-# ⛔ S-223 IS NOT HERE. It is a colour, so it is a row of table T-236 and
-# rides with the other colours in SCHEDULE_COLOURS; only a value with no
+# ⛔ S-223 IS NOT HERE. It is a color, so it is a row of table T-236 and
+# rides with the other colors in SCHEDULE_COLORS; only a value with no
 # light and dark rendering belongs in this constant.
 WATERMARK_TARGETS = {
     # The raw password (S-100) stays out, and FR-020 (MUST NOT) is why; the
     # digest S-99c keeps in `localStorage` replaces this one when it is set.
     'WATERMARK_UNLOCK_DIGEST': (['S-101'], []),
     # The angle, the size, the spacing and the opacity; the ink is S-223 and
-    # rides in SCHEDULE_COLOURS.
+    # rides in SCHEDULE_COLORS.
     'WATERMARK_MARKS': (['S-220', 'S-221', 'S-222', 'S-102'], []),
 }
 
@@ -2629,8 +2629,8 @@ def constant_rows():
             cell = row.get('default', row.get('value'))
             if cell is None:
                 # A key with no value column at all: table T-294 names each
-                # palette colour and keeps its drawn values in eight columns
-                # of their own, which SCHEDULE_COLOURS prints.
+                # palette color and keeps its drawn values in eight columns
+                # of their own, which SCHEDULE_COLORS prints.
                 continue
             out.append((row['id'], key, cell))
     if not tables:
@@ -3280,22 +3280,22 @@ TARGETS = [
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),
      ['docs/spec/_source/settings.json (table T-206, which names table T-201)']),
-    # ⭐ The colours, split by who paints what. The chrome and `color-scheme`
-    # are the surface's alone (FR-041); the schedule's own colours belong to
+    # ⭐ The colors, split by who paints what. The chrome and `color-scheme`
+    # are the surface's alone (FR-041); the schedule's own colors belong to
     # whoever draws the picture.
     # ⛔ NOT FOLDED INTO EITHER LINE ABOVE, though both land here: one
     # constant per consuming SUBJECT. S-138 and S-141 are the box every
     # entrance keeps, and S-143 is the line between two GROUPS of them -- a
     # decoration nothing can point at, arm or be reported for.
     # ⛔ NO RIM THICKNESS HERE (S-185 is retired): FR-029 and table T-237 draw
-    # the armed entrance as a FILL, not a RIM, whose two colours are rows of
-    # table T-236 and reach this unit through `SCREEN_COLOURS`. A thickness
+    # the armed entrance as a FILL, not a RIM, whose two colors are rows of
+    # table T-236 and reach this unit through `SCREEN_COLORS`. A thickness
     # has no reader.
-    # ⭐ S-214 AND S-215 COME BESIDE THE COLOURS AND NOT AMONG THEM. Table T-236
-    # states WHICH colour a state's ground takes and table T-206 states HOW
+    # ⭐ S-214 AND S-215 COME BESIDE THE COLORS AND NOT AMONG THEM. Table T-236
+    # states WHICH color a state's ground takes and table T-206 states HOW
     # FAINT it is laid, so the two halves arrive on the two roads their own
-    # tables put them on -- ⛔ a percentage written into a colour row, or a
-    # colour written into a settings row, would be one decision in two places.
+    # tables put them on -- ⛔ a percentage written into a color row, or a
+    # color written into a settings row, would be one decision in two places.
     # ⭐⭐ S-225 AND S-226 ARE HANDED TO TWO FILES ON PURPOSE, and that is the
     # whole of EP-1 of table T-076 (MUST): 「字の大きさと左の余白は、画面と書き
     # 出しが同じ 1 つの行を読むこと」. `image-exporter.ts` reads the same pair a
@@ -3334,9 +3334,9 @@ TARGETS = [
      # DOM surface under it inherits one list (FR-039 MUST NOT: no per-surface
      # list). See the entry in NOT_STORED_TARGETS.
      + not_stored_block('NOT_STORED_TYPEFACES') + NEWLINE * 2
-     + colour_block('SCREEN_COLOURS'),
+     + color_block('SCREEN_COLORS'),
      ['docs/spec/_source/settings.json (tables T-206 and T-236)']),
-    # ⭐ The selection frame's own two lengths land beside the colours, in the
+    # ⭐ The selection frame's own two lengths land beside the colors, in the
     # one unit that draws the picture SL-8 puts the frame on.
     # ⭐ The dummy's drawn width is NOT here (DFC-619): table T-023d's closing
     # rule made the drawn rectangle a fact the hit test needs, so `task-figures.ts`
@@ -3371,12 +3371,12 @@ TARGETS = [
      # NOT_STORED_TARGETS.
      + not_stored_block('NOT_STORED_TYPEFACES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_NAME_LABEL_WEIGHT') + NEWLINE * 2
-     + colour_block('SCHEDULE_COLOURS') + NEWLINE * 2
-     + colour_sources_block('SCHEDULE_COLOURS') + NEWLINE * 2
-     # ⭐ CR-548: the palette colours' drawn values, beside the theme's own.
+     + color_block('SCHEDULE_COLORS') + NEWLINE * 2
+     + color_sources_block('SCHEDULE_COLORS') + NEWLINE * 2
+     # ⭐ CR-548: the palette colors' drawn values, beside the theme's own.
      + palette_block()
      # ⭐ FR-020's four, in the unit that lays the mark over the Task Group Area. The
-     # ink rides in SCHEDULE_COLOURS above, because it is a row of table T-236
+     # ink rides in SCHEDULE_COLORS above, because it is a row of table T-236
      # and has a light and a dark rendering; the angle, the size, the spacing
      # and the opacity have one value each and are rows of table T-207.
      # ⛔ Not in the shell beside WATERMARK_UNLOCK_DIGEST -- that one is
@@ -3576,7 +3576,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES',
         'NOT_STORED_SEARCH_PANEL_FONT_SIZES',
         'NOT_STORED_SEARCH_PANEL_SIZES',
-        'SCREEN_COLOURS',
+        'SCREEN_COLORS',
         'SEARCH_COLUMN_WIDTH_ROWS',
         'NOT_STORED_WHEEL_UNITS',
     ),
@@ -3692,7 +3692,7 @@ def region(text, body, rel='the unit'):
 
     Only what sits between the two markers belongs to this generator. What a
     person writes after the region is theirs, so the separating blank line is
-    normalised rather than eaten -- otherwise --check would call a filled-in
+    normalized rather than eaten -- otherwise --check would call a filled-in
     unit "drifted" for a newline nobody typed.
     """
     refuse_quoted_open_marker(rel, text)
@@ -3702,12 +3702,12 @@ def region(text, body, rel='the unit'):
         _old, tail = rest.split(CLOSE, 1)
         tail = tail.lstrip('\n')
         return head + block + ('\n' + tail if tail else '')
-    # ⛔ A marker this generator no longer recognises. Appending would leave two
+    # ⛔ A marker this generator no longer recognizes. Appending would leave two
     # regions in the file and nothing would say so, which is exactly what
     # happened when CR-175 moved the manuscript.
     if STALE in text:
         raise SystemExit(
-            'generate_entity_types: found an unrecognised generated marker.\n'
+            'generate_entity_types: found an unrecognized generated marker.\n'
             '  Replace the "%s…" line with:\n    %s\n  then run this again.'
             % (STALE, OPEN))
     if text and not text.endswith('\n'):

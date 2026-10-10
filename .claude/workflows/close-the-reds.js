@@ -109,7 +109,7 @@ write a row out by hand.
    ⭐ \`settings.json\` no longer writes \`1 − ε\`; an open bound is now
    \`{"num": "1", "exclusive": true}\`. \`SETTINGS_BOUNDS\` carries only numbers today --
    make it carry the exclusivity and the bounds that name another key, then drive IV-16.
-   ⚠️ Whatever reads \`SETTINGS_BOUNDS\` must keep honouring an open bound as strict.`,
+   ⚠️ Whatever reads \`SETTINGS_BOUNDS\` must keep honoring an open bound as strict.`,
   },
   {
     key: 'shell',
@@ -158,7 +158,7 @@ match what the code now returns.`,
 1. ⛔ NOTHING CARRIES A REFUSAL OR A FAULT TO THE PERSON. \`frame-loop.ts\` records this
    at three STOPs: a refused write, a refused edit, and a file fault all end as a value
    nobody shows. \`FR-028\` makes a refusal a VALUE (never an exception), and table T-037
-   settles the manner -- \`NT-1\` (input not accepted: in words, MUST NOT colour alone),
+   settles the manner -- \`NT-1\` (input not accepted: in words, MUST NOT color alone),
    \`NT-3a\` (a failure must carry the next step, MUST). Draw them.
    ⚠️ \`FR-038\` (MUST) keeps every printed word in the generated dictionary, and it holds
    no row for these yet. ⛔ Do NOT invent sentences in this component -- carry the row id

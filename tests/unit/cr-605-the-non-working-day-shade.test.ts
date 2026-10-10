@@ -1,4 +1,4 @@
-// CR-605 part A: non-working days are shaded in the Task Group Area (FR-054, table T-343, colour S-450).
+// CR-605 part A: non-working days are shaded in the Task Group Area (FR-054, table T-343, color S-450).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -51,7 +51,7 @@ const OD_3_NOT_RULER = '⛔ `Time Ruler`（`U-19`）の帯は塗らない（MUST
 // see OD-4
 const OD_4_ORDER = 'タスクグループの帯とタスクグループの色（`FR-042`）の上、日付罫線（`U-17`）・グループ罫線（`U-18`）と日程の図形の下に描くこと（MUST）'
 // see OD-5
-const OD_5_COLOUR = '`_assets/tbl-settings.md` の 表 T-236 の `S-450` で塗ること（MUST）。'
+const OD_5_COLOR = '`_assets/tbl-settings.md` の 表 T-236 の `S-450` で塗ること（MUST）。'
 // see OD-6
 const OD_6_ONE = '続いた非稼働日を 1 つの矩形にまとめ、見えている矩形をすべて 1 つの図形の要素にまとめて描くこと（MUST）'
 // see OD-7
@@ -75,9 +75,9 @@ const PINNED_KEY = cellOf('T-203', 'S-126', 'キー')
 
 // see T-236, T-216
 const THEME_HUE = Number(bare(rowOf('T-216', 'S-73').by['既定'] ?? ''))
-const normalColour = (text: string): string => text.replace(/\s+/g, '').toLowerCase()
+const normalColor = (text: string): string => text.replace(/\s+/g, '').toLowerCase()
 const t236 = (id: string, preference: 'light' | 'dark'): string =>
-  normalColour(bare(rowOf('T-236', id).by[preference === 'dark' ? '暗いテーマ' : '明るいテーマ'] ?? '').replace('H', String(THEME_HUE)))
+  normalColor(bare(rowOf('T-236', id).by[preference === 'dark' ? '暗いテーマ' : '明るいテーマ'] ?? '').replace('H', String(THEME_HUE)))
 
 type Tier = 'year' | 'yearMonth' | 'yearMonthWeek' | 'yearMonthDayWeekday'
 
@@ -360,12 +360,12 @@ describe('CR-605 -- the clauses these cases rest on still stand', () => {
     for (const one of [OD_2_TIERS, OD_2_DAY, OD_2_WEEK_MONTH, OD_2_YEAR]) expect(ruleOf('OD-2')).toContain(one)
     for (const one of [OD_3_EXTENT, OD_3_PINNED, OD_3_NOT_RULER]) expect(ruleOf('OD-3')).toContain(one)
     expect(ruleOf('OD-4')).toContain(OD_4_ORDER)
-    expect(ruleOf('OD-5')).toContain(OD_5_COLOUR)
+    expect(ruleOf('OD-5')).toContain(OD_5_COLOR)
     expect(ruleOf('OD-6')).toContain(OD_6_ONE)
     expect(ruleOf('OD-7')).toContain(OD_7_EXPORT)
   })
 
-  it('S-450 is a colour on both sides that does not follow the hue; AT-82 says 9 is no recurrence', () => {
+  it('S-450 is a color on both sides that does not follow the hue; AT-82 says 9 is no recurrence', () => {
     for (const side of ['light', 'dark'] as const) expect(t236('S-450', side)).toMatch(/^rgba\(/)
     expect(rowOf('T-236', 'S-450').by['備考'] ?? '').toContain(S_450_NO_HUE)
     const at82 = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'), 'utf8')
@@ -538,18 +538,18 @@ describe('OD-4 -- the shade is above the task group bands and below every line a
   })
 })
 
-describe('OD-5 -- the colour is S-450', () => {
+describe('OD-5 -- the color is S-450', () => {
   for (const preference of ['light', 'dark'] as const) {
-    it(`「${OD_5_COLOUR}」 ${preference}: fill is the ${preference} side of S-450`, () => {
+    it(`「${OD_5_COLOR}」 ${preference}: fill is the ${preference} side of S-450`, () => {
       const shade = shadeOf(tierFrame('yearMonthDayWeekday').svg('screen', preference))
-      expect(normalColour(attrOf(shade.attrs, 'fill') ?? '')).toBe(t236('S-450', preference))
+      expect(normalColor(attrOf(shade.attrs, 'fill') ?? '')).toBe(t236('S-450', preference))
     })
   }
 
   it(`「${S_450_NO_HUE}」 another theme hue leaves the fill as it is`, () => {
     const other = (THEME_HUE + 150) % 360
     const shade = shadeOf(tierFrame('yearMonthDayWeekday', { themeHue: other }).svg())
-    expect(normalColour(attrOf(shade.attrs, 'fill') ?? '')).toBe(t236('S-450', 'light'))
+    expect(normalColor(attrOf(shade.attrs, 'fill') ?? '')).toBe(t236('S-450', 'light'))
   })
 })
 
@@ -593,7 +593,7 @@ describe('OD-7 -- the image export shades the same days the same way', () => {
       const screen = shadeOf(frame.svg('screen', preference))
       const exported = shadeOf(frame.svg('export', preference))
       expect(exported.zo).toContain('ZO-7')
-      expect(normalColour(attrOf(exported.attrs, 'fill') ?? '')).toBe(t236('S-450', preference))
+      expect(normalColor(attrOf(exported.attrs, 'fill') ?? '')).toBe(t236('S-450', preference))
       sameRuns(runsOf(exported), runsOf(screen), `export (${preference})`)
     })
   }

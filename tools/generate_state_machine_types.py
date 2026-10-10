@@ -321,7 +321,7 @@ class Printer(object):
                  '']
         lines += self.keys()
         # WHY: SD-5 -- a documentData region's state type is an erd.json
-        # column, and it has no unsaved root to hold or initialise.
+        # column, and it has no unsaved root to hold or initialize.
         saved = self.region.holds_document_data
         if not saved:
             lines += self.unions()

@@ -41,7 +41,7 @@
 // The nearest thing is 表 T-037's `NT-1` 「どの項目が、なぜ誤りかを文字で示すこと
 // （MUST）」 -- a notice must say WHY -- which no machine can weigh over prose.
 //
-// ⇒ SO THE LAST GROUP BELOW IS A REVIEW LATCH AND NOT A CLAIM ABOUT BEHAVIOUR.
+// ⇒ SO THE LAST GROUP BELOW IS A REVIEW LATCH AND NOT A CLAIM ABOUT BEHAVIOR.
 // It records, per row, the fingerprint of the 場面 AND the words TAKEN TOGETHER,
 // as they were last read against each other. Either side moving fails the row
 // and asks a person to read the pair again. ⛔ It does not, and cannot, assert
@@ -259,7 +259,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   ⛔ THE FIRST DRAFT TOLD ONLY HALF THE SCENE and was corrected before this
   //   fingerprint was taken: it said the format was newer and never said that
   //   anything had failed to read -- which is the half the ruling is about.
-  //   ⚠️ IT STAYS CLEAR OF ITS TWO NEIGHBOURS, and the distinction is WHY the
+  //   ⚠️ IT STAYS CLEAR OF ITS TWO NEIGHBORS, and the distinction is WHY the
   //   item could not be read. `RS-25` docs/development-records/pending-decisions.md 「列が決められた形に合わない」 is a value
   //   that is malformed; this row is a value that is well formed and UNKNOWN.
   //   `RS-26` 「起動時に渡された文書が読めなかった」 is the document not opening
@@ -553,7 +553,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-81': 'bdcb97db885040c8',
   'RS-82': '061e56575e3dc8a7',
   'RS-83': '124e158fd4882867',
-  'RS-84': '3bd1c89160dc93fd',
+  'RS-84': '9c63222ecd445da3',
   'RS-85': 'cbc5744a3c912700',
   'RS-86': 'c64ce1bbc9c9cf28',
   'RS-87': 'f14d9e550cb2c93e',

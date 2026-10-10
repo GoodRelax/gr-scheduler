@@ -22,7 +22,7 @@ import type { ResourceListWindow } from './resource-list-window'
 import { isSizeSettled, type AgentApiSeams, type FrameLoopHands, type FrameValues } from './frame-loop'
 
 const SEARCH_PANEL_OPENED: ScreenValuesEvent = { type: 'searchEntryPressed' }
-const SEARCH_PANEL_MINIMISE_TOGGLED: ScreenValuesEvent = { type: 'searchPanelMinimiseToggled' }
+const SEARCH_PANEL_MINIMIZE_TOGGLED: ScreenValuesEvent = { type: 'searchPanelMinimizeToggled' }
 
 type Schedule = Document['schedule']
 
@@ -202,13 +202,13 @@ function holdJumpTargetIn(panels: TablePanels, schedule: Schedule, taskUid: numb
 }
 
 // see AM-27, TV-5, TV-8, PND-712
-// WHY: the Agent API hands the search table's whole Visibility; a filter turned on shows a hidden panel minimised.
+// WHY: the Agent API hands the search table's whole Visibility; a filter turned on shows a hidden panel minimized.
 /** @purity non-pure */
 function holdAgentSearchVisibility(hands: FrameLoopHands, panels: TablePanels, visibility: TableVisibility): void {
   panels.change('searchPanel', (panel) => ({ ...panel, visibility }))
   if (visibility.isApplied && hands.readSession().screen.searchPanelDisplayState.kind === 'hidden') {
     hands.sendToSession(SEARCH_PANEL_OPENED, hands.readValues())
-    hands.sendToSession(SEARCH_PANEL_MINIMISE_TOGGLED, hands.readValues())
+    hands.sendToSession(SEARCH_PANEL_MINIMIZE_TOGGLED, hands.readValues())
   }
   if (isSizeSettled(hands.readEnvironment())) hands.ask()
 }

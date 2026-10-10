@@ -76,7 +76,7 @@ const T109_PURPOSE = 2
 const T109_SOURCE = 3
 
 // WHY: anchored so FR-04 cannot be found by asking for FR-048, and a
-// three-digit neighbour cannot answer for a two-digit one.
+// three-digit neighbor cannot answer for a two-digit one.
 /** @purity pure */
 function entrancesServing(requirement: string): readonly string[] {
   const wanted = new RegExp(`${requirement}(?![0-9])`)
@@ -204,7 +204,7 @@ const MAX_GROUP_DEPTH = (() => {
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 
 // WHY: not decided by the specification, but the same two markings the
-// neighbouring System files lean on, and no others.
+// neighboring System files lean on, and no others.
 const TASK_GROUP_PANEL_BOX = '[data-role="Task Group Panel"]'
 const CANVAS_PART = '[data-role="Schedule Canvas"]'
 

@@ -51,11 +51,11 @@ type WindowEvents = readonly [ScreenValuesEvent, ScreenValuesEvent, ScreenValues
 
 // WHY: the help's IC-52 stays surfaceCloseAsked (IC-52 of table T-109); the report and resource list windows have no machine (RW-1, RO-1).
 const WINDOW_EVENTS: Readonly<Record<string, WindowEvents>> = {
-  [HELP_MODAL]: [{ type: 'helpMinimiseToggled' }, { type: 'helpMaximiseToggled' }, null],
-  [SEARCH_PANEL]: [{ type: 'searchPanelMinimiseToggled' }, { type: 'searchPanelMaximiseToggled' }, { type: 'searchPanelClosePressed' }],
+  [HELP_MODAL]: [{ type: 'helpMinimizeToggled' }, { type: 'helpMaximizeToggled' }, null],
+  [SEARCH_PANEL]: [{ type: 'searchPanelMinimizeToggled' }, { type: 'searchPanelMaximizeToggled' }, { type: 'searchPanelClosePressed' }],
   [DIALOGUE_FIELD]: [
-    { type: 'dialogueFieldMinimiseToggled' },
-    { type: 'dialogueFieldMaximiseToggled' },
+    { type: 'dialogueFieldMinimizeToggled' },
+    { type: 'dialogueFieldMaximizeToggled' },
     { type: 'dialogueFieldClosePressed' },
   ],
 }
@@ -134,9 +134,9 @@ function windowEventOf(entry: string, part: string): ScreenValuesEvent | null {
   if (entry === ENTRY.search) return SEARCH_ENTRY_PRESSED
   const events = WINDOW_EVENTS[part]
   if (events === undefined) return null
-  const [minimised, maximised, closed] = events
-  if (entry === ENTRY.windowMinimise) return minimised
-  if (entry === ENTRY.windowMaximise || entry === ENTRY.windowRestore) return maximised
+  const [minimized, maximized, closed] = events
+  if (entry === ENTRY.windowMinimize) return minimized
+  if (entry === ENTRY.windowMaximize || entry === ENTRY.windowRestore) return maximized
   return entry === ENTRY.closeSurface ? closed : null
 }
 

@@ -67,7 +67,7 @@ including newlines and the ideographic space, and the decorative marks ⭐⚠⛔
 are struck -- and the outer 「」/『』 are peeled off the quotation. Three
 measured reasons, not taste:
 
-  1. THE BOOK EMPHASISES AND THE MANUSCRIPT DOES NOT, or the other way. This
+  1. THE BOOK EMPHASIZES AND THE MANUSCRIPT DOES NOT, or the other way. This
      tree writes `**bold**` around most of its prose and the same sentence
      appears both ways.
   2. THE MANUSCRIPT WRAPS. ⚠️ MEASURED: of eleven

@@ -18,7 +18,7 @@ interface ScheduleRule {
   readonly x: number
   readonly y: number
   readonly thickness: number
-  readonly colour: string
+  readonly color: string
 }
 
 interface PanelLine {
@@ -26,7 +26,7 @@ interface PanelLine {
   readonly y: number
   readonly width: number
   readonly height: number
-  readonly colour: string
+  readonly color: string
 }
 
 interface Measured {
@@ -71,15 +71,15 @@ async function measure(page: Page): Promise<Measured> {
         x: box.x,
         y: box.y + box.height / 2,
         thickness: Number.parseFloat(style.strokeWidth),
-        colour: style.stroke,
+        color: style.stroke,
       }
     })
-    const inks = new Set(scheduleRules.map((rule) => rule.colour))
+    const inks = new Set(scheduleRules.map((rule) => rule.color))
     const tree = document.querySelector('[data-role="Task Group Title Tree"]')
     const panelLines = Array.from(tree?.querySelectorAll('*') ?? [])
-      .map((node) => ({ box: node.getBoundingClientRect(), colour: getComputedStyle(node).backgroundColor }))
-      .filter(({ box, colour }) => box.height > 0 && box.height <= 2 && box.width > 0 && (inks.size === 0 || inks.has(colour)))
-      .map(({ box, colour }) => ({ x: box.x, y: box.y, width: box.width, height: box.height, colour }))
+      .map((node) => ({ box: node.getBoundingClientRect(), color: getComputedStyle(node).backgroundColor }))
+      .filter(({ box, color }) => box.height > 0 && box.height <= 2 && box.width > 0 && (inks.size === 0 || inks.has(color)))
+      .map(({ box, color }) => ({ x: box.x, y: box.y, width: box.width, height: box.height, color }))
     return { panelLeft, panelRight, panelBottom, scheduleRules, panelLines }
   }, DRAWN_SVG)
 }
@@ -121,7 +121,7 @@ function expectSameLineOnBothSides(measured: Measured): void {
     expect(line, `the panel carries a line at the boundary of ${rule.key} (y ${rule.y})`).toBeDefined()
     const drawn = line as PanelLine
     expect(drawn.height, `${rule.key}: the same thickness`).toBeCloseTo(rule.thickness, 2)
-    expect(drawn.colour, `${rule.key}: the same colour`).toBe(rule.colour)
+    expect(drawn.color, `${rule.key}: the same color`).toBe(rule.color)
     expect(drawn.x, `${rule.key}: from the panel's left edge`).toBeCloseTo(measured.panelLeft, 2)
     expect(drawn.x + drawn.width, `${rule.key}: to the panel's right edge`).toBeCloseTo(measured.panelRight, 2)
     expect(drawn.x + drawn.width, `${rule.key}: unbroken into the schedule side's line`).toBeCloseTo(rule.x, 2)

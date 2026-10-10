@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-"""Carry the licence, the copyright notice and the attributions into src/.
+"""Carry the license, the copyright notice and the attributions into src/.
 
-    python tools/generate_licence.py
-    python tools/generate_licence.py --check
+    python tools/generate_license.py
+    python tools/generate_license.py --check
 
-FR-069 (MUST) has the deliverable carry its own licence in full, its copyright
+FR-069 (MUST) has the deliverable carry its own license in full, its copyright
 notice, and the attribution of every third-party library, and has the help be
 where they are read. Its RATIONALE says why a link will not do: the product is
 one file that runs with no network, so a reader who cannot fetch anything can
@@ -12,7 +12,7 @@ only read what is inside.
 
 THE TEXT IS THE REPOSITORY'S OWN FILES AND IS NEVER RETYPED. LICENSE and
 NOTICE are what the project is licensed by; a second copy in src/ would be a
-licence that could drift from the one that governs, which is the one defect
+license that could drift from the one that governs, which is the one defect
 this file exists to make impossible.
 
 THE ATTRIBUTIONS ARE EMPTY, AND THAT IS MEASURED RATHER THAN ASSUMED. The
@@ -31,12 +31,12 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-LICENCE = os.path.join(ROOT, 'LICENSE')
+LICENSE_PATH = os.path.join(ROOT, 'LICENSE')
 NOTICE = os.path.join(ROOT, 'NOTICE')
 PACKAGE = os.path.join(ROOT, 'package.json')
-OUT = os.path.join(ROOT, 'src', 'adapter', 'screen-renderer', 'licence.json')
-REL_OUT = 'src/adapter/screen-renderer/licence.json'
-REL_SELF = 'tools/generate_licence.py'
+OUT = os.path.join(ROOT, 'src', 'adapter', 'screen-renderer', 'license.json')
+REL_OUT = 'src/adapter/screen-renderer/license.json'
+REL_SELF = 'tools/generate_license.py'
 
 COPYRIGHT_MARK = 'Copyright'
 
@@ -44,7 +44,7 @@ BANNER = (
     'GENERATED from LICENSE and NOTICE by %s -- do not edit by hand. '
     'Rebuild: npm run gen  |  npm run gen:check fails on drift. '
     'FR-069 requires the full text inside the deliverable, so this is the '
-    'licence that governs and not a copy of it.' % REL_SELF
+    'license that governs and not a copy of it.' % REL_SELF
 )
 
 
@@ -92,7 +92,7 @@ def build():
     """
     return {
         '$comment': BANNER,
-        'licenceText': io.open(LICENCE, encoding='utf-8').read(),
+        'licenseText': io.open(LICENSE_PATH, encoding='utf-8').read(),
         'copyrightNotice': copyright_notice(),
         'attributions': attributions(),
     }
@@ -105,7 +105,7 @@ def main():
     """
     built = build()
     body = json.dumps(built, ensure_ascii=False, indent=1) + '\n'
-    lines = built['licenceText'].count('\n')
+    lines = built['licenseText'].count('\n')
     if '--check' in sys.argv:
         if not os.path.exists(OUT):
             say('PROBLEM  %s has not been written yet' % REL_OUT)
@@ -115,11 +115,11 @@ def main():
             say('PROBLEM  %s has drifted from LICENSE or NOTICE -- run '
                 '`python %s`' % (REL_OUT, REL_SELF))
             return 1
-        say('OK       the licence matches LICENSE and NOTICE (%d lines, %d '
+        say('OK       the license matches LICENSE and NOTICE (%d lines, %d '
             'attribution(s))' % (lines, len(built['attributions'])))
         return 0
     io.open(OUT, 'w', encoding='utf-8', newline='\n').write(body)
-    say('wrote %s (%d licence lines, %d attribution(s))'
+    say('wrote %s (%d license lines, %d attribution(s))'
         % (REL_OUT, lines, len(built['attributions'])))
     return 0
 

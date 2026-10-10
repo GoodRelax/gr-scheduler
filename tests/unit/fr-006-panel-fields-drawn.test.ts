@@ -101,7 +101,7 @@
 // unit WROTE: inline declarations, attributes and text, in order. A width that
 // arrives through a style sheet is invisible here, and that failure would be
 // this file's blindness rather than a defect -- ⚠️ REPORT IT, do not tune the
-// case. The neighbours' evidence is that this unit styles inline.
+// case. The neighbors' evidence is that this unit styles inline.
 //
 // ⛔ THE ARGUABLE CASE, AND IT IS THE ONE THAT MATTERS. "Every digit fits" is
 // asked as 「the control states room for at least the units its text carries」,
@@ -809,7 +809,7 @@ function customProperty(element: FakeElement, name: string): string | null {
 /**
  * The same expression with every `var(--x)` replaced by what the tree declares.
  *
- * ⚠️ NO FALLBACK IS HONOURED -- a resolver that accepted `var(--x, 1em)`'s
+ * ⚠️ NO FALLBACK IS HONORED -- a resolver that accepted `var(--x, 1em)`'s
  * fallback would report a length the page never draws.
  */
 function expandVariables(element: FakeElement, value: string, depth = 0): string | null {

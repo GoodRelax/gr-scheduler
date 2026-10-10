@@ -211,7 +211,7 @@ export type ScreenValuesKey =
   | 'armModeStateMachine.parentTaskArmed'
   | 'paletteDisplayStateMachine.shown'
   | 'paletteDisplayStateMachine.shown.expanded'
-  | 'paletteDisplayStateMachine.shown.minimised'
+  | 'paletteDisplayStateMachine.shown.minimized'
   | 'paletteDisplayStateMachine.hidden'
   | 'milestoneListDisplayStateMachine.closed'
   | 'milestoneListDisplayStateMachine.open'
@@ -227,8 +227,8 @@ export type ScreenValuesKey =
   | 'dialogueFieldDisplayStateMachine.hidden'
   | 'dialogueFieldDisplayStateMachine.shown'
   | 'dialogueFieldDisplayStateMachine.shown.normal'
-  | 'dialogueFieldDisplayStateMachine.shown.minimised'
-  | 'dialogueFieldDisplayStateMachine.shown.maximised'
+  | 'dialogueFieldDisplayStateMachine.shown.minimized'
+  | 'dialogueFieldDisplayStateMachine.shown.maximized'
   | 'dualCursorModeStateMachine.off'
   | 'dualCursorModeStateMachine.on'
   | 'dualCursorModeStateMachine.on.placingDate1'
@@ -240,13 +240,13 @@ export type ScreenValuesKey =
   | 'searchPanelDisplayStateMachine.hidden'
   | 'searchPanelDisplayStateMachine.shown'
   | 'searchPanelDisplayStateMachine.shown.normal'
-  | 'searchPanelDisplayStateMachine.shown.minimised'
-  | 'searchPanelDisplayStateMachine.shown.maximised'
+  | 'searchPanelDisplayStateMachine.shown.minimized'
+  | 'searchPanelDisplayStateMachine.shown.maximized'
   | 'helpDisplayStateMachine.hidden'
   | 'helpDisplayStateMachine.shown'
   | 'helpDisplayStateMachine.shown.normal'
-  | 'helpDisplayStateMachine.shown.minimised'
-  | 'helpDisplayStateMachine.shown.maximised'
+  | 'helpDisplayStateMachine.shown.minimized'
+  | 'helpDisplayStateMachine.shown.maximized'
   | 'landingMarkDisplayStateMachine.hidden'
   | 'landingMarkDisplayStateMachine.shown'
   | 'dropCueDisplayStateMachine.hidden'
@@ -254,12 +254,12 @@ export type ScreenValuesKey =
 
 export type PaletteDisplayShownState =
   | { readonly kind: 'expanded' }
-  | { readonly kind: 'minimised' }
+  | { readonly kind: 'minimized' }
 
 export type DialogueFieldDisplayShownState =
   | { readonly kind: 'normal' }
-  | { readonly kind: 'minimised' }
-  | { readonly kind: 'maximised' }
+  | { readonly kind: 'minimized' }
+  | { readonly kind: 'maximized' }
 
 export type DualCursorModeOnState =
   | { readonly kind: 'placingDate1' }
@@ -267,13 +267,13 @@ export type DualCursorModeOnState =
 
 export type SearchPanelDisplayShownState =
   | { readonly kind: 'normal' }
-  | { readonly kind: 'minimised' }
-  | { readonly kind: 'maximised' }
+  | { readonly kind: 'minimized' }
+  | { readonly kind: 'maximized' }
 
 export type HelpDisplayShownState =
   | { readonly kind: 'normal' }
-  | { readonly kind: 'minimised' }
-  | { readonly kind: 'maximised' }
+  | { readonly kind: 'minimized' }
+  | { readonly kind: 'maximized' }
 
 export type ArmModeState =
   | { readonly kind: 'notArmed' }
@@ -370,7 +370,7 @@ export type ScreenValuesAxes = Omit<ScreenValues, 'screenLanguage' | 'helpLangua
 
 export type ScreenValuesEvent =
   | { readonly type: 'paletteToggled' }
-  | { readonly type: 'paletteMinimiseToggled' }
+  | { readonly type: 'paletteMinimizeToggled' }
   | { readonly type: 'milestoneListToggled' }
   | { readonly type: 'fullScreenEntryPressed' }
   | { readonly type: 'fullScreenChanged'; readonly isFullScreen: ScreenValuesEventCarried['isFullScreen'] }
@@ -390,8 +390,8 @@ export type ScreenValuesEvent =
   | { readonly type: 'createdNameSettled' }
   | { readonly type: 'settleKeyPressed'; readonly hasNoSurfaceOrConfirmation: ScreenValuesEventCarried['hasNoSurfaceOrConfirmation']; readonly hasNoUnsettledEntry: ScreenValuesEventCarried['hasNoUnsettledEntry'] }
   | { readonly type: 'dialogueFieldEntryPressed'; readonly isAgentApiEnabled: ScreenValuesEventCarried['isAgentApiEnabled'] }
-  | { readonly type: 'dialogueFieldMinimiseToggled' }
-  | { readonly type: 'dialogueFieldMaximiseToggled' }
+  | { readonly type: 'dialogueFieldMinimizeToggled' }
+  | { readonly type: 'dialogueFieldMaximizeToggled' }
   | { readonly type: 'dialogueFieldClosePressed' }
   | { readonly type: 'dualCursorEntryPressed'; readonly date: ScreenValuesEventCarried['date']; readonly hasDaysToPlace: ScreenValuesEventCarried['hasDaysToPlace'] }
   | { readonly type: 'guideCursorEntryPressed'; readonly guideCursor: ScreenValuesEventCarried['guideCursor'] }
@@ -406,13 +406,13 @@ export type ScreenValuesEvent =
   | { readonly type: 'progressMarkerPressed'; readonly taskUid: ScreenValuesEventCarried['taskUid']; readonly rememberedActual: ScreenValuesEventCarried['rememberedActual']; readonly writes: ScreenValuesEventCarried['writes'] }
   | { readonly type: 'hintTargetChanged' }
   | { readonly type: 'searchEntryPressed' }
-  | { readonly type: 'searchPanelMinimiseToggled' }
-  | { readonly type: 'searchPanelMaximiseToggled' }
+  | { readonly type: 'searchPanelMinimizeToggled' }
+  | { readonly type: 'searchPanelMaximizeToggled' }
   | { readonly type: 'searchPanelClosePressed' }
   | { readonly type: 'searchHitJumped' }
   | { readonly type: 'helpEntryPressed' }
-  | { readonly type: 'helpMinimiseToggled' }
-  | { readonly type: 'helpMaximiseToggled' }
+  | { readonly type: 'helpMinimizeToggled' }
+  | { readonly type: 'helpMaximizeToggled' }
   | { readonly type: 'continuationMarkClicked'; readonly landedLink: ScreenValuesEventCarried['landedLink']; readonly landedTarget: ScreenValuesEventCarried['landedTarget'] }
   | { readonly type: 'landingMarkClearAsked' }
   | { readonly type: 'searchJumpLanded'; readonly landedTarget: ScreenValuesEventCarried['landedTarget'] }
@@ -522,10 +522,10 @@ function onPaletteToggled(values: ScreenValues): ScreenStep {
 
 // see T-280
 /** @purity pure */
-function onPaletteMinimiseToggled(values: ScreenValues): ScreenStep {
+function onPaletteMinimizeToggled(values: ScreenValues): ScreenStep {
   const palette = values.paletteDisplayState
   if (palette.kind === 'hidden') return unchanged(values)
-  const kind = palette.child.kind === 'expanded' ? 'minimised' : 'expanded'
+  const kind = palette.child.kind === 'expanded' ? 'minimized' : 'expanded'
   return moved(values, { paletteDisplayState: { kind: 'shown', child: { kind } } })
 }
 
@@ -647,7 +647,7 @@ export type ToggleableWindowKey = 'searchPanelDisplayState' | 'helpDisplayState'
 /** @purity pure */
 export function isWindowStandingIn(values: ScreenValues, key: ToggleableWindowKey): boolean {
   const display = values[key]
-  return display.kind === 'shown' && display.child.kind !== 'minimised'
+  return display.kind === 'shown' && display.child.kind !== 'minimized'
 }
 
 // see S-99g, HN-1, HN-2, HN-3
@@ -996,23 +996,23 @@ type WindowShownKind = SearchPanelDisplayShownState['kind'] &
 
 const FOCUS_SEARCH_WORD: readonly ScreenValuesEffect[] = [{ type: 'focusSearchWord' }]
 
-const MINIMISE_TOGGLED_TO: { readonly [K in WindowShownKind]: WindowShownKind } = {
-  normal: 'minimised',
-  minimised: 'normal',
-  maximised: 'minimised',
+const MINIMIZE_TOGGLED_TO: { readonly [K in WindowShownKind]: WindowShownKind } = {
+  normal: 'minimized',
+  minimized: 'normal',
+  maximized: 'minimized',
 }
 
-const MAXIMISE_TOGGLED_TO: { readonly [K in WindowShownKind]: WindowShownKind } = {
-  normal: 'maximised',
-  minimised: 'maximised',
-  maximised: 'normal',
+const MAXIMIZE_TOGGLED_TO: { readonly [K in WindowShownKind]: WindowShownKind } = {
+  normal: 'maximized',
+  minimized: 'maximized',
+  maximized: 'normal',
 }
 
 // see T-280, SV-2
 /** @purity pure */
 function onSearchEntryPressed(values: ScreenValues): ScreenStep {
   const panel = values.searchPanelDisplayState
-  if (panel.kind === 'shown' && panel.child.kind !== 'minimised') return stayed(values, FOCUS_SEARCH_WORD)
+  if (panel.kind === 'shown' && panel.child.kind !== 'minimized') return stayed(values, FOCUS_SEARCH_WORD)
   const child = SCREEN_VALUES_INITIAL_CHILDREN['searchPanelDisplayStateMachine.shown']
   return moved(values, { searchPanelDisplayState: { kind: 'shown', child } }, FOCUS_SEARCH_WORD)
 }
@@ -1041,7 +1041,7 @@ function onSearchPanelClosePressed(values: ScreenValues): ScreenStep {
 /** @purity pure */
 function onSearchHitJumped(values: ScreenValues): ScreenStep {
   const panel = values.searchPanelDisplayState
-  if (panel.kind === 'hidden' || panel.child.kind !== 'maximised') return unchanged(values)
+  if (panel.kind === 'hidden' || panel.child.kind !== 'maximized') return unchanged(values)
   const child = SCREEN_VALUES_INITIAL_CHILDREN['searchPanelDisplayStateMachine.shown']
   return moved(values, { searchPanelDisplayState: { kind: 'shown', child } })
 }
@@ -1055,7 +1055,7 @@ function onHelpEntryPressed(values: ScreenValues): ScreenStep {
     const seeded = { helpDisplayState: { kind: 'shown', child }, helpLanguage: values.screenLanguage } as const
     return moved(values, seeded, [{ type: 'seedHelpLanguage' }])
   }
-  if (help.child.kind !== 'minimised') return unchanged(values)
+  if (help.child.kind !== 'minimized') return unchanged(values)
   return moved(values, { helpDisplayState: { kind: 'shown', child } })
 }
 
@@ -1070,7 +1070,7 @@ const HANDLERS: {
   readonly [T in ScreenValuesEvent['type']]: (values: ScreenValues, event: EventOf<T>) => ScreenStep
 } = {
   paletteToggled: onPaletteToggled,
-  paletteMinimiseToggled: onPaletteMinimiseToggled,
+  paletteMinimizeToggled: onPaletteMinimizeToggled,
   milestoneListToggled: onMilestoneListToggled,
   fullScreenEntryPressed: onFullScreenEntryPressed,
   fullScreenChanged: onFullScreenChanged,
@@ -1090,8 +1090,8 @@ const HANDLERS: {
   createdNameSettled: onCreatedNameSettled,
   settleKeyPressed: onSettleKeyPressed,
   dialogueFieldEntryPressed: onDialogueFieldEntryPressed,
-  dialogueFieldMinimiseToggled: (values) => windowDisplayToggled(values, 'dialogueFieldDisplayState', MINIMISE_TOGGLED_TO),
-  dialogueFieldMaximiseToggled: (values) => windowDisplayToggled(values, 'dialogueFieldDisplayState', MAXIMISE_TOGGLED_TO),
+  dialogueFieldMinimizeToggled: (values) => windowDisplayToggled(values, 'dialogueFieldDisplayState', MINIMIZE_TOGGLED_TO),
+  dialogueFieldMaximizeToggled: (values) => windowDisplayToggled(values, 'dialogueFieldDisplayState', MAXIMIZE_TOGGLED_TO),
   dialogueFieldClosePressed: dialogueFieldHidden,
   dualCursorEntryPressed: onDualCursorEntryPressed,
   guideCursorEntryPressed: onGuideCursorEntryPressed,
@@ -1106,13 +1106,13 @@ const HANDLERS: {
   progressMarkerPressed: onProgressMarkerPressed,
   hintTargetChanged: onHintTargetChanged,
   searchEntryPressed: onSearchEntryPressed,
-  searchPanelMinimiseToggled: (values) => windowDisplayToggled(values, 'searchPanelDisplayState', MINIMISE_TOGGLED_TO),
-  searchPanelMaximiseToggled: (values) => windowDisplayToggled(values, 'searchPanelDisplayState', MAXIMISE_TOGGLED_TO),
+  searchPanelMinimizeToggled: (values) => windowDisplayToggled(values, 'searchPanelDisplayState', MINIMIZE_TOGGLED_TO),
+  searchPanelMaximizeToggled: (values) => windowDisplayToggled(values, 'searchPanelDisplayState', MAXIMIZE_TOGGLED_TO),
   searchPanelClosePressed: onSearchPanelClosePressed,
   searchHitJumped: onSearchHitJumped,
   helpEntryPressed: onHelpEntryPressed,
-  helpMinimiseToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MINIMISE_TOGGLED_TO),
-  helpMaximiseToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MAXIMISE_TOGGLED_TO),
+  helpMinimizeToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MINIMIZE_TOGGLED_TO),
+  helpMaximizeToggled: (values) => windowDisplayToggled(values, 'helpDisplayState', MAXIMIZE_TOGGLED_TO),
   continuationMarkClicked: onContinuationMarkClicked,
   landingMarkClearAsked: onLandingMarkClearAsked,
   searchJumpLanded: onSearchJumpLanded,

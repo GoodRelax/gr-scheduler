@@ -396,7 +396,7 @@ const ASSIGNMENT: Assignment = {
   carryElements: [],
 }
 
-// IV-9 weighs two colours against each other, so the sound document carries a
+// IV-9 weighs two colors against each other, so the sound document carries a
 // row for it to weigh. Both are unchosen, which P-19 says is not transparent.
 const VISUAL: TaskVisual = {
   taskUid: TASK_A_UID,
@@ -619,7 +619,7 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       taskGroups: [{ ...GROUP_ONE, label: null, derivedFromTaskUid: null }, GROUP_TWO],
     }),
 
-  // Both colours transparent. P-19 is the value that means transparent, and it
+  // Both colors transparent. P-19 is the value that means transparent, and it
   // is not `null`, which means unchosen.
   'IV-9': () =>
     withSchedule({

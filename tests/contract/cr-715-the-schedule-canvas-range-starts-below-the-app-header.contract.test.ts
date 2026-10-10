@@ -40,7 +40,7 @@ describe('CR-715 -- the manuscript these cases are driven by', () => {
     ['U-32 -- the range runs from the App Header lower edge to the window bottom', GLOSSARY, U_32_THE_RANGE],
     ['U-32 -- the U-67 band moves the range down while it shows', GLOSSARY, U_32_THE_BAND],
     ['U-32 -- the element with the role is a drawing layer over the whole window', GLOSSARY, U_32_THE_LAYER],
-    ['WB-3 -- a maximised window takes the range, not the layer', REQUIREMENTS, WB_3_THE_RANGE],
+    ['WB-3 -- a maximized window takes the range, not the layer', REQUIREMENTS, WB_3_THE_RANGE],
   ])('still says it, word for word: %s', (_name, text, clause) => {
     expect(text).toContain(clause)
   })

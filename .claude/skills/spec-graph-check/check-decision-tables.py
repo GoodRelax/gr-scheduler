@@ -125,7 +125,7 @@ def say(message):
 
 
 def read_lines(path):
-    """Normalise on read -- this tree mixes CRLF and LF."""
+    """Normalize on read -- this tree mixes CRLF and LF."""
     text = io.open(path, 'rb').read().decode('utf-8')
     return text.replace('\r\n', '\n').split('\n')
 

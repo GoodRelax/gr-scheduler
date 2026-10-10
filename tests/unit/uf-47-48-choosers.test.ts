@@ -223,7 +223,7 @@ function entriesOn(surface: string): readonly string[] {
  *
  * ⚠️ THE ONE PLACE A JAPANESE WORD IS MATCHED, and rule 03 section 5 admits it
  * for exactly this: the direction column is Japanese prose and there is no
- * other join. Table T-024's own note says why the neighbouring columns cannot
+ * other join. Table T-024's own note says why the neighboring columns cannot
  * stand in -- the extension and the first character belong to the two rows OP-1
  * accepts on intake, and the write-only rows carry an em dash in both.
  */
@@ -391,7 +391,7 @@ function mannerFor(rowId: string): string {
 }
 
 /**
- * One row of table T-036, spelt as its assignment column spells it.
+ * One row of table T-036, spelled as its assignment column spells it.
  *
  * ⭐ Read rather than typed, and taken from tests/unit/uf-47-48.test.ts, which
  * drives the same table for the same reason.
@@ -687,7 +687,7 @@ interface StoreProbe {
  * ⛔ The default is a store that works: a case that asks for a fault says so,
  * so that a fault never rides in unnoticed.
  */
-interface StoreBehaviour {
+interface StoreBehavior {
   /** Make every chosen write fail with this reason instead of landing. */
   readonly chosenWriteFault?: FileStoreFaultReason
 }
@@ -706,7 +706,7 @@ interface StoreBehaviour {
  *
  * @purity non-pure
  */
-function fileStore(behaviour: StoreBehaviour = {}): StoreProbe {
+function fileStore(behavior: StoreBehavior = {}): StoreProbe {
   const written: ChosenFileWrite[] = []
   const waiting: ((reading: FileReading) => void)[] = []
   const store: FileStore = {
@@ -724,10 +724,10 @@ function fileStore(behaviour: StoreBehaviour = {}): StoreProbe {
     }),
     writeChosenFile: async (write) => {
       written.push(write)
-      if (behaviour.chosenWriteFault !== undefined) {
+      if (behavior.chosenWriteFault !== undefined) {
         return {
           ok: false,
-          fault: { reason: behaviour.chosenWriteFault, what: 'the case asked the store to fail' },
+          fault: { reason: behavior.chosenWriteFault, what: 'the case asked the store to fail' },
         }
       }
       return { ok: true, openedFile: { kind: 'writable', fileName: write.suggestedFileName } }
@@ -1162,7 +1162,7 @@ describe('OP-3 answered -- table T-230 says where each of the three lands', () =
   })
 
   it('the question is no longer standing once it has been answered', async () => {
-    // ⛔ NOT SPELT BY ANY ROW: no line of docs/spec says the surface closes when
+    // ⛔ NOT SPELLED BY ANY ROW: no line of docs/spec says the surface closes when
     // one of the three is taken. What IS stated is that OP-3 of table T-024a
     // (MUST) has a person choose one of three, and that OP-8 (MUST NOT) refuses
     // another open while one is in progress -- so a question still standing
@@ -1258,7 +1258,7 @@ describe('OP-4 -- replacing asks before it discards', () => {
     }
   })
 
-  it('the cancelling answer leaves the current document exactly as it was', async () => {
+  it('the canceling answer leaves the current document exactly as it was', async () => {
     // NT-7 (MUST) is what makes calling it off one of the two answers:
     // 「続けるか取りやめるかを選ばせること（MUST）」. ⛔ The MUST NOT
     // OP-4 states is about discarding in silence; discarding after being told
@@ -1308,7 +1308,7 @@ describe('OP-4 -- replacing asks before it discards', () => {
   })
 
   it('IC-73: overlaying is exempt for the same reason -- nothing of the current document goes', async () => {
-    // ⛔ NOT SPELT BY OP-4, which names only 置き換え and 合流. What settles it
+    // ⛔ NOT SPELLED BY OP-4, which names only 置き換え and 合流. What settles it
     // is OP-9 (MUST NOT) -- 「現在の文書を置き換えも合流もしないこと（MUST NOT）」
     // -- together with FR-031 (MUST NOT), which limits confirmations to losing
     // what undoing cannot give back. Nothing of the current document is lost, so
@@ -1355,11 +1355,11 @@ describe('OP-4 -- replacing asks before it discards', () => {
 /**
  * The key one answer is given on -- the HEAD of the word NT-7 (MUST) bolds.
  *
- * ⭐ DERIVED AND NOT SPELT, which is the row's own reasoning: 「頭の 1 文字
+ * ⭐ DERIVED AND NOT SPELLED, which is the row's own reasoning: 「頭の 1 文字
  * （`Y` と `N`）を太字にすること（MUST）—— 打鍵で答えられることを、ボタン自身に
  * 名乗らせるためである」, and 「訳してはならない（MUST NOT）—— 頭文字が下の打鍵を
  * 指さなくなる」. So the head letter and the key are one fact, and a test that
- * spelt the key separately would be holding the code to a second copy of it.
+ * spelled the key separately would be holding the code to a second copy of it.
  * ⚠️ Upper case is how a single character reaches `KeyInput.key` -- table T-036
  * prints `P` and `F`, and `keyOf` above produces the same.
  */
@@ -1901,8 +1901,8 @@ describe('FR-096 -- the name the chooser proposes', () => {
     //   IO-3 `.svg` and IO-7 単一 `.html` -- nothing is written and a notice IS
     //        raised, which is the state DFC-173 left them in.
     //   IO-4 `.png` -- nothing is written AND nothing is said. The picture is
-    //        drawn by a rasteriser the host supplies, and this file's loop runs
-    //        in `node`, where there is none. ⛔ No rasteriser is invented to
+    //        drawn by a rasterizer the host supplies, and this file's loop runs
+    //        in `node`, where there is none. ⛔ No rasterizer is invented to
     //        reach it: inventing a host would be testing the invention.
     // ⭐ The case below fails if the roster stops carrying one of them, so this
     // exclusion cannot outlive the state that earns it.
@@ -2090,7 +2090,7 @@ describe('FR-029 / DFC-173 -- a format that cannot be written says so', () => {
     // and says nothing. ⚠️ DFC-173's own record says the picture itself works --
     // 「⭐ **同日のうちに `.png` が配線され、実測で 256,367 バイトの本物の PNG が
     // 書き出せている**」 -- so what is red is the case where the host supplies no
-    // rasteriser, which is this file's `node` and is also any host that has
+    // rasterizer, which is this file's `node` and is also any host that has
     // none. ⛔ THE CASE IS LEFT RED RATHER THAN NARROWED: 表 T-233 already holds
     // the row for it -- RS-3 「書き込みを試みたが、この環境では行えなかった」,
     // whose 正 is LM-14 of 表 T-004 -- so nothing has to be invented to say it,
@@ -2120,7 +2120,7 @@ describe('FR-029 / DFC-173 -- a format that cannot be written says so', () => {
     // exactly this 場面, and the describe below pins it. ⭐ This case stays the
     // wide one -- ANY row of 表 T-233, told in that row's own words -- so that a
     // format refused for some OTHER reason (`RS-3`, an environment with no
-    // rasteriser) is still walked rather than excluded.
+    // rasterizer) is still walked rather than excluded.
     //
     // ⛔ WHAT WOULD MAKE THIS GO RED: a notice whose text is composed at the
     // point it is raised rather than looked up by a row ID, which is what
@@ -2182,7 +2182,7 @@ describe('FR-029 / DFC-173 -- a format that cannot be written says so', () => {
 // that is a fact of the build and not of the specification. So the walk asks
 // only that NO refused format lands on `RS-15`, and that the words of `RS-40`
 // reach the screen at least once. ⚠️ A format refused for a DIFFERENT situation
-// keeps its own row: `RS-3` is what a host with no rasteriser answers `.png`
+// keeps its own row: `RS-3` is what a host with no rasterizer answers `.png`
 // with, and this walk leaves that alone.
 describe('FR-076 / RS-40 -- an unwritable form carries its own row, not RS-15', () => {
   /**
@@ -2363,8 +2363,8 @@ describe('FR-076 -- a notice raised while a file is opened carries a row of tabl
     expect(screen.last().notices[0]?.text).toBe(words.text.en)
   })
 
-  it('⛔ cancelled is owed nothing: IF-3 keeps it apart so that it is not reported', async () => {
-    // 「`cancelled` is in the list precisely so that it can be told apart from
+  it('⛔ canceled is owed nothing: IF-3 keeps it apart so that it is not reported', async () => {
+    // 「`canceled` is in the list precisely so that it can be told apart from
     //   the other three and left un-notified」 -- and table T-233 gives it no
     // row, which FR-076 (MUST NOT) makes decisive: a reason the table does not
     // hold may not be carried, and RS-15's fallback is for reasons that OUGHT to
@@ -2377,7 +2377,7 @@ describe('FR-076 -- a notice raised while a file is opened carries a row of tabl
     loop.receiveInput(SK_10)
     pane.runAnimationFrames()
     await settle()
-    files.failOpen('cancelled')
+    files.failOpen('canceled')
     await settle()
     pane.runAnimationFrames()
 
@@ -2726,7 +2726,7 @@ describe('the tables are read by position, so the positions are pinned', () => {
 // application's own HTML for IO-7; a host that hands neither can write neither,
 // and that is LM-14's environment rather than a defect.
 describe('table T-024 / FR-096 -- the three picture forms are written', () => {
-  /** IF-6, answering with bytes a case can recognise. */
+  /** IF-6, answering with bytes a case can recognize. */
   const paintingRasterizer = (): Rasterizer => ({
     rasterizePng: async (_svg: string, sizePx: RasterSizePx): Promise<Rastering> => ({
       ok: true,
@@ -2744,7 +2744,7 @@ describe('table T-024 / FR-096 -- the three picture forms are written', () => {
 
   const APP_SHELL_HTML = '<!DOCTYPE html>\n<html><head></head><body>GRS</body></html>\n'
 
-  /** IF-8, answering with an application a case can recognise. */
+  /** IF-8, answering with an application a case can recognize. */
   const readableAppShell = (): AppShellSource => ({
     readAppShell: async (): Promise<AppShellReading> => ({
       ok: true,

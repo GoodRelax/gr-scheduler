@@ -595,8 +595,8 @@ export const whatWasDrawn = (part: FakeElement): string =>
  * put on its own root.
  *
  * ⭐ WHY IT HAS TO BE RESOLVED. FR-041 (MUST) has one declaration carry 表 T-236
- * for the whole tree, so a part states which colour it takes and not what that
- * colour is. ⚠️ No fallback is honoured (`var(--x, y)` is left unresolved and
+ * for the whole tree, so a part states which color it takes and not what that
+ * color is. ⚠️ No fallback is honored (`var(--x, y)` is left unresolved and
  * will match no row), because FR-041 (MUST NOT) forbids one.
  */
 export function resolved(built: Stage, written: string): string {
@@ -609,12 +609,12 @@ export function resolved(built: Stage, written: string): string {
     .toLowerCase()
 }
 
-/** The colour this node's WORDS (and, through `currentColor`, its glyph) take. */
-export const paintedColour = (built: Stage, element: FakeElement): string =>
+/** The color this node's WORDS (and, through `currentColor`, its glyph) take. */
+export const paintedColor = (built: Stage, element: FakeElement): string =>
   resolved(built, styleMap(element).get('color') ?? '')
 
 /**
- * The colour this node's GROUND is painted in, whichever of the spellings a
+ * The color this node's GROUND is painted in, whichever of the spellings a
  * ground can be written with.
  *
  * ⚠️ SEVERAL SPELLINGS AND NOT ONE, because no row of the specification settles

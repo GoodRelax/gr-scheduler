@@ -115,11 +115,11 @@ TABLE_GROUP = {
     'T-217': ('schedule', '本表の値は日程データの群に入る'),
     'T-206': ('notStored', '保存しないもの'),
     'T-207': ('notStored', '文書には保存しない'),
-    # ⭐ The screen's colours (CR-243). Like T-207 they are constants baked
-    # into the artifact: FR-041 (MUST NOT) forbids saving a derived colour,
+    # ⭐ The screen's colors (CR-243). Like T-207 they are constants baked
+    # into the artifact: FR-041 (MUST NOT) forbids saving a derived color,
     # so none of these may reach documentSettings.
     'T-236': ('notStored', '文書には保存しない'),
-    # The palette colours' drawn values (CR-548). A document stores the NAME
+    # The palette colors' drawn values (CR-548). A document stores the NAME
     # (table T-017b CV-1 of 01-04), never these values.
     'T-294': ('notStored', '文書には保存しない'),
 }
@@ -170,24 +170,24 @@ def manuscript_notes():
 MANUSCRIPT_NOTES = manuscript_notes()
 
 
-def colour_names():
-    """The stored spellings of the palette colours: table T-294's key column.
+def color_names():
+    """The stored spellings of the palette colors: table T-294's key column.
 
-    Read from settings.json in row order, so a new colour needs no edit here.
+    Read from settings.json in row order, so a new color needs no edit here.
     """
     doc = json.load(io.open(os.path.join(HERE, 'settings.json'), encoding='utf-8'))
     for block in doc['blocks']:
         if block['kind'] == 'table' and block.get('id') == 'T-294':
             return [row['key'].strip('`') for row in block['rows']]
-    raise SystemExit('settings.json holds no table T-294 (the palette colours)')
+    raise SystemExit('settings.json holds no table T-294 (the palette colors)')
 
 
-def bandless_colour_names():
+def bandless_color_names():
     """The palette names that offer no task group band: table T-294's band cells.
 
-    CR-586: a colour column flagged "band" (AT-58, TaskGroup.color) takes only
+    CR-586: a color column flagged "band" (AT-58, TaskGroup.color) takes only
     the names whose task-group-band cells (lightBand, darkBand) are not a dash; the
-    dash (black, S-315) is what CV-9 leaves off the task group colour field. The dash
+    dash (black, S-315) is what CV-9 leaves off the task group color field. The dash
     is read the way tools/generate_entity_types.py's palette_cell reads it --
     a cell whose `ja` starts with it -- so the two generators agree; a change
     to one reading is a change to both.
@@ -199,12 +199,12 @@ def bandless_colour_names():
                     if any(isinstance(row.get(field), dict)
                            and row[field].get('ja', '').startswith('—')
                            for field in ('lightBand', 'darkBand'))]
-    raise SystemExit('settings.json holds no table T-294 (the palette colours)')
+    raise SystemExit('settings.json holds no table T-294 (the palette colors)')
 
 
-# A custom colour: <light>/<dark>, each #rrggbb or empty, never both empty
+# A custom color: <light>/<dark>, each #rrggbb or empty, never both empty
 # (table T-017b CV-2 of 01-04).
-CUSTOM_COLOUR = '#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6}'
+CUSTOM_COLOR = '#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6}'
 
 # ⭐ The lexical form of xsd:dateTime: fractional seconds and a zone are
 # allowed, because a value imported from MS Project keeps its spelling (EX-4
@@ -248,10 +248,10 @@ ROOT_DESCRIPTION = (
     'already means the right instant when times are used. A last day (finish, '
     'actualFinish, stop, endDate) is included. Record instants (documentStamp, '
     'changeLog) are UTC, so that every reader sees them in their own local time. '
-    'A null colour or width follows the '
-    'theme. A custom colour gives the light-theme and the dark-theme value '
+    'A null color or width follows the '
+    'theme. A custom color gives the light-theme and the dark-theme value '
     '("#light/#dark"; an empty side is drawn with the other), because a readable '
-    'dark colour cannot be derived from a light one.')
+    'dark color cannot be derived from a light one.')
 SCHEDULE_DESCRIPTION = ('The data: what is exported to MS Project, and what GRS '
                         'adds to draw it.')
 SETTINGS_DESCRIPTION = ('How the document is drawn when opened. Every key is '
@@ -389,12 +389,12 @@ def frag_body(spec, open_enums, where):
         return typed('string', extra)
 
     if kind == 'color':
-        refused = bandless_colour_names() if spec.get('band') else []
-        names = [n for n in colour_names()
+        refused = bandless_color_names() if spec.get('band') else []
+        names = [n for n in color_names()
                  if (spec.get('transparent', True) or n != 'transparent')
                  and n not in refused]
         return typed('string', [('pattern', '^(?:%s|%s)$'
-                                 % ('|'.join(names), CUSTOM_COLOUR))])
+                                 % ('|'.join(names), CUSTOM_COLOR))])
 
     if kind == 'enum':
         if 'values' in spec:

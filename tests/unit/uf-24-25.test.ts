@@ -60,7 +60,7 @@ const logOf = (...utterances: readonly (readonly [author: string, text: string])
   )
 
 // WHY: document and dialogue sit side by side because FR-066 keeps the
-// conversation out of the document; hasMovedSchedule is WS-5's own judgement.
+// conversation out of the document; hasMovedSchedule is WS-5's own judgment.
 const confirmedOf = (
   document: Document,
   dialogue: DialogueLog = emptyDialogueLog(),
@@ -210,7 +210,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
 
   it('AG-6 MUST NOT wake a writer for its OWN write, whatever moved and however far behind it is', () => {
     // WHY: the veto is on the writer's identity, so neither half of the
-    // selection can talk round it -- not WS-5's judgement, not the mark equality.
+    // selection can talk round it -- not WS-5's judgment, not the mark equality.
     for (const movedSchedule of [true, false]) {
       for (const held of [T0, T2]) {
         const confirmed = confirmedOf(documentOf(T1, SELF), emptyDialogueLog(), movedSchedule)
@@ -392,7 +392,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
 
   it('AG-2 settles a same-instant collision as last-writer-wins: the watcher ends on the SECOND', () => {
     // WHY: both writes carry the SAME scheduleUpdatedUtc, so the stamp alone
-    // cannot tell them apart; AG-6 selects on WS-5's judgement instead.
+    // cannot tell them apart; AG-6 selects on WS-5's judgment instead.
     const SECOND_WRITER = 'user-2'
     const start = confirmedOf(documentOf(T0, OTHER))
     const heard: ChangeNotice[] = []

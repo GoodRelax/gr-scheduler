@@ -136,7 +136,7 @@ two roads that stop half way.
    manner table T-037 settles and the ROW OF TABLE T-233 as the reason.
    ⚠️ Table T-233 tells you which row each situation is: the five file faults, the five
    write refusals (\`PlanRefusal\` -- table T-067's \`WS-1\` / \`WS-2\` / \`WS-3\`), the
-   three format mismatches, and \`OP-11\`'s caution. ⛔ \`cancelled\` is owed nothing and
+   three format mismatches, and \`OP-11\`'s caution. ⛔ \`canceled\` is owed nothing and
    has no row -- \`IF-3\` keeps it apart precisely so that it is not reported.
    ⛔ Do NOT compose a sentence here. FR-038 (MUST NOT) forbids a second store of
    translated strings; you hand over a row id and nothing else.
@@ -158,7 +158,7 @@ two roads that stop half way.
    call says so: 「SK-12 opens the Export Chooser here, and nothing carries the export out」.
    Take the format press and write the document out through the road \`SK-11\` already uses.
    ⛔ SVG and PNG cannot be written in this build -- \`ImageExporter\` (PI-21) is a stub.
-   Say so in a \`⛔\` note rather than inventing a rasteriser; the exchange formats can go.
+   Say so in a \`⛔\` note rather than inventing a rasterizer; the exchange formats can go.
 
 ⛔ Do not touch \`src/adapter/**\`. Say what ScreenRenderer must draw.`,
     repair: `⚠️ FOUR CASES OF tests/unit/uf-47-48-choosers.test.ts are red.
@@ -209,7 +209,7 @@ nothing to lose.
 
 1. Retire the STOP and say instead which row decides it. ⚠️ The note currently argues
    BOTH sides ("\`occupied\` looks safer") -- that argument is settled, so it goes.
-2. Make the judgement follow the row rather than the file's existence: a destination
+2. Make the judgment follow the row rather than the file's existence: a destination
    that is there but holds no bytes is \`empty\`. ⛔ Check that nothing downstream then
    asks DI-4's question for it -- \`askToWriteOver\` in \`file-gateway.ts\` returns true
    for \`empty\` already, so what matters is which side the destination is built on.
@@ -238,14 +238,14 @@ side and another owner may be in it. If the store must report something new, say
     owns: 'src/use-case/import-document/** and src/adapter/document-codec/**',
     testOwns: 'tests/unit/uf-34-format-from-file.test.ts',
     what: `Two notes now disagree with the specification they cite. Neither is a change of
-behaviour -- both are notes that went false when the manuscript moved.
+behavior -- both are notes that went false when the manuscript moved.
 
 1. \`import-document.ts\`, \`baselinedDocument\`. The note reads 「That the unmatched ones
    are dropped rather than held and skipped is this file's decision」. ⭐ IT IS NOT THIS
    FILE'S DECISION ANY MORE: \`OP-9\` of table T-024a now states it -- 「その枠へ入れる
    のは、現在の文書のタスクと \`UID\` が一致するものだけとする（MUST）」 -- and adds
    「一致が 1 つも無いときは枠が空になる。重ねを行わなかったのではない」.
-   ⛔ Cite the row instead of claiming the choice. ⚠️ The BEHAVIOUR does not change:
+   ⛔ Cite the row instead of claiming the choice. ⚠️ The BEHAVIOR does not change:
    the ruling of 2026-08-23 settled it as what the code already does.
    ⚠️ Check that \`report.baselineTaskUidsNotDrawn\` still carries every unmatched
    \`UID\` -- FR-015 (MUST) requires them TOLD, and that is the half that reaches a person.

@@ -1,4 +1,4 @@
-// CR-709 spec-only cases: T-017a CT-4 (a shape with no outline draws its plan in the outline colour) and FR-102 (the record's start and stop lines).
+// CR-709 spec-only cases: T-017a CT-4 (a shape with no outline draws its plan in the outline color) and FR-102 (the record's start and stop lines).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -17,7 +17,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 // see CT-4
-const CT_4_LINE_COLOUR =
+const CT_4_LINE_COLOR =
   '予定の線・矢じり・端点を、予定の輪郭線と同じ色（表 T-017b の `CV-6` の縁の値 —— テーマに従うときは `_assets/tbl-settings.md` の `S-156`）で描くこと（MUST）'
 // see FR-102
 const FR_102_START_AND_STOP =
@@ -41,7 +41,7 @@ const shapeKindOf = (id: string): string => {
 
 describe('CR-709 -- the clauses these cases are driven by', () => {
   it('CT-4 and FR-102 still read this way', () => {
-    for (const clause of [CT_4_LINE_COLOUR, FR_102_START_AND_STOP, FR_102_SPELLING]) {
+    for (const clause of [CT_4_LINE_COLOR, FR_102_START_AND_STOP, FR_102_SPELLING]) {
       expect(REQUIREMENTS, clause).toContain(clause)
     }
     expect(REQUIREMENTS, 'the retired fill-against-background clause is gone').not.toContain('予定の塗りと背景の比')
@@ -96,7 +96,7 @@ const silentSurface = (part: () => ScreenPart | null): ScreenSurface =>
 
 
 // see T-294
-// WHY: a palette name the line-colour field offers; the drawn value is the table's, never typed here.
+// WHY: a palette name the line-color field offers; the drawn value is the table's, never typed here.
 const CHOSEN_STROKE = 'red'
 
 interface Figure {
@@ -105,7 +105,7 @@ interface Figure {
   readonly stroke: string | null
 }
 
-// WHY: one rectangle and one of each line shape, theme-coloured, then the same three with a chosen line colour.
+// WHY: one rectangle and one of each line shape, theme-colored, then the same three with a chosen line color.
 const FIGURES: readonly Figure[] = [
   { uid: 1, shape: 'SH-1', stroke: null },
   { uid: 2, shape: 'SH-3', stroke: null },
@@ -196,10 +196,10 @@ function planMarksOf(picture: string, uid: number): readonly Mark[] {
   return marks
 }
 
-// WHY: a line draws with its stroke; a head and a dot are filled. Each takes the colour it shows.
+// WHY: a line draws with its stroke; a head and a dot are filled. Each takes the color it shows.
 const inkOf = (mark: Mark): string | null => (mark.tag === 'line' || mark.tag === 'polyline' ? mark.stroke : mark.fill)
 
-describe(`CT-4 -- ${CT_4_LINE_COLOUR}`, () => {
+describe(`CT-4 -- ${CT_4_LINE_COLOR}`, () => {
   const picture = drawnPicture()
   const rectangle = (uid: number) => {
     const [body] = planMarksOf(picture, uid)
@@ -207,7 +207,7 @@ describe(`CT-4 -- ${CT_4_LINE_COLOUR}`, () => {
     return body
   }
 
-  it('premise: the rectangle (SH-1) draws its outline in a colour other than its fill', () => {
+  it('premise: the rectangle (SH-1) draws its outline in a color other than its fill', () => {
     const body = rectangle(1)
     expect(body.stroke).not.toBeNull()
     expect(body.fill).not.toBeNull()
@@ -217,25 +217,25 @@ describe(`CT-4 -- ${CT_4_LINE_COLOUR}`, () => {
   it.each([
     ['SH-3', 2],
     ['SH-4', 3],
-  ] as const)('%s following the theme: every mark of the plan is drawn in the outline colour, not the fill', (_shape, uid) => {
+  ] as const)('%s following the theme: every mark of the plan is drawn in the outline color, not the fill', (_shape, uid) => {
     const outline = rectangle(1)
     const marks = planMarksOf(picture, uid)
     expect(marks.some((one) => one.tag === 'line'), 'premise: the plan is drawn as a line').toBe(true)
     expect(marks.length, 'premise: a line shape draws its head or its end dots too').toBeGreaterThan(1)
     for (const mark of marks) {
-      expect(inkOf(mark), `${CT_4_LINE_COLOUR} -- <${mark.tag}>`).toBe(outline.stroke)
-      expect(inkOf(mark), `${CT_4_LINE_COLOUR} -- <${mark.tag}> is not the plan fill`).not.toBe(outline.fill)
+      expect(inkOf(mark), `${CT_4_LINE_COLOR} -- <${mark.tag}>`).toBe(outline.stroke)
+      expect(inkOf(mark), `${CT_4_LINE_COLOR} -- <${mark.tag}> is not the plan fill`).not.toBe(outline.fill)
     }
   })
 
   it.each([
     ['SH-3', 5],
     ['SH-4', 6],
-  ] as const)('%s with a chosen line colour: every mark of the plan takes that colour (CV-6), as the rectangle outline does', (_shape, uid) => {
+  ] as const)('%s with a chosen line color: every mark of the plan takes that color (CV-6), as the rectangle outline does', (_shape, uid) => {
     const chosen = rectangle(4)
-    expect(chosen.stroke, 'premise: a chosen line colour changes the rectangle outline').not.toBe(rectangle(1).stroke)
+    expect(chosen.stroke, 'premise: a chosen line color changes the rectangle outline').not.toBe(rectangle(1).stroke)
     for (const mark of planMarksOf(picture, uid)) {
-      expect(inkOf(mark), `${CT_4_LINE_COLOUR} -- <${mark.tag}>`).toBe(chosen.stroke)
+      expect(inkOf(mark), `${CT_4_LINE_COLOR} -- <${mark.tag}>`).toBe(chosen.stroke)
     }
   })
 })

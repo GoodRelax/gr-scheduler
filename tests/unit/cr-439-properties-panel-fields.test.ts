@@ -44,7 +44,7 @@ const FR_007 =
 const IF_9_COMMIT = '**編集できる欄で確定した値を、その欄が名乗る行 ID とともに返し**'
 
 // WHY: since CR-548 the cell goes on, after the list's full stop, to point at table T-294.
-const CL_1_COLOURS = ((rowOf('T-017', 'CL-1').cells[1] ?? '').split('。')[0] ?? '')
+const CL_1_COLORS = ((rowOf('T-017', 'CL-1').cells[1] ?? '').split('。')[0] ?? '')
   .split('/')
   .map((one) => one.replace(/[*。]/g, '').trim())
   .filter((one) => one !== '')
@@ -78,15 +78,15 @@ const FIELDS: PropertyField[] = [
   // WHY: the renderer gives a read-only row no control, so this description gives none either.
   { row: 'PR-9', name: 'Percent label', text: '50', isEditable: false, controls: [] },
   field('PR-17', 'Glyph label', true, [controlOf('milestoneGlyph', 'choice', 'circle', ['circle', 'diamond', 'star'])]),
-  // WHY: the colour control as the renderer describes it after CR-689 (CV-9): a blank for the
+  // WHY: the color control as the renderer describes it after CR-689 (CV-9): a blank for the
   // theme, the palette names, a swatch per choice and the theme and custom entrances.
   field('PR-12', 'Stroke label', true, [
     {
-      ...controlOf('strokeColor', 'color', 'red', ['', ...CL_1_COLOURS]),
-      choiceValues: ['', ...CL_1_COLOURS.map((_one, index) => `name-${index}`)],
-      colour: {
-        swatches: ['', ...CL_1_COLOURS.map(() => '#a94c42')],
-        inks: ['', ...CL_1_COLOURS.map(() => '#ffffff')],
+      ...controlOf('strokeColor', 'color', 'red', ['', ...CL_1_COLORS]),
+      choiceValues: ['', ...CL_1_COLORS.map((_one, index) => `name-${index}`)],
+      color: {
+        swatches: ['', ...CL_1_COLORS.map(() => '#a94c42')],
+        inks: ['', ...CL_1_COLORS.map(() => '#ffffff')],
         customWord: 'Custom',
         customValue: '',
         theme: { glyph: 'T', hint: 'Theme', paint: '#a94c42', ink: '#ffffff' },
@@ -184,8 +184,8 @@ describe('CR-439 Properties Panel -- the clauses still stand', () => {
     expect(REQUIREMENTS).toContain(FR_006)
     expect(REQUIREMENTS).toContain(FR_007)
     expect(unbroken(rowOf('T-065', 'IF-9').cells.join(' '))).toContain(IF_9_COMMIT)
-    expect(CL_1_COLOURS).toHaveLength(11)
-    expect(CL_1_COLOURS).toContain('透明')
+    expect(CL_1_COLORS).toHaveLength(11)
+    expect(CL_1_COLORS).toContain('透明')
     expect(rowOf('T-016', 'PR-9').by['入力の型']).toContain('読み取り専用')
     expect(rowOf('T-016', 'PR-17').by['入力の型']).toBe('選択')
     expect(rowOf('T-016', 'PR-12').by['入力の型']).toContain('色')
@@ -243,22 +243,22 @@ describe('FR-006 -- 表 T-016 の項目をプロパティパネルに出し', ()
   })
 
   // see CV-9
-  it('FR-007 表 T-017 のパレット色から選ばせ -- the colour field offers the CL-1 palette, and the host picker only after the custom entrance is pressed (CV-9)', () => {
+  it('FR-007 表 T-017 のパレット色から選ばせ -- the color field offers the CL-1 palette, and the host picker only after the custom entrance is pressed (CV-9)', () => {
     const { built } = drawn()
     const pickersOf = (): FakeElement[] =>
       entriesOf(built, 'PR-12').filter((one) => one.getAttribute('type') === 'color')
     expect(pickersOf(), 'no host picker before the custom entrance is pressed').toHaveLength(0)
     const panel = oneByRole(built.root(), PROPERTIES_PANEL)
     const choices = descendants(panel).filter(
-      (one) => one.getAttribute('data-field-row') === 'PR-12' && one.getAttribute('data-colour-choice') !== null,
+      (one) => one.getAttribute('data-field-row') === 'PR-12' && one.getAttribute('data-color-choice') !== null,
     )
-    expect(choices).toHaveLength(CL_1_COLOURS.length)
-    const palette = descendants(panel).find((one) => one.getAttribute('data-colour-palette') === 'PR-12') as FakeElement
-    const custom = descendants(palette).filter((one) => one.getAttribute('data-colour-custom-entry') === 'true')
+    expect(choices).toHaveLength(CL_1_COLORS.length)
+    const palette = descendants(panel).find((one) => one.getAttribute('data-color-palette') === 'PR-12') as FakeElement
+    const custom = descendants(palette).filter((one) => one.getAttribute('data-color-custom-entry') === 'true')
     expect(custom, 'one custom entrance').toHaveLength(1)
     raise(built, custom[0] as FakeElement, 'click')
     const pickers = pickersOf()
     expect(pickers).toHaveLength(1)
-    expect(pickers[0]?.getAttribute('data-colour-custom')).toBe('true')
+    expect(pickers[0]?.getAttribute('data-color-custom')).toBe('true')
   })
 })
