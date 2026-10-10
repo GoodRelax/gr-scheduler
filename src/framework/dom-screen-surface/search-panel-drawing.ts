@@ -66,6 +66,7 @@ export type TableWindowView = Omit<SearchPanelView, 'table' | 'rows'> & {
   readonly toolEntries?: readonly CommandItem[]
   readonly summary?: readonly { readonly text: string; readonly glyph?: SearchRowView['glyph'] }[]
   readonly tabEntries?: readonly CommandItem[]
+  readonly tabCounts?: { readonly [entry: string]: number }
   readonly walkEntries?: readonly CommandItem[]
   readonly walkCounter?: string
   readonly fixFooter?: DelayFixFooterView | null
@@ -715,9 +716,9 @@ function aboveTableElements(host: Document, view: TableWindowView, fontPx: numbe
 // see RW-11, RW-12, IC-154, IC-155, IC-156, IC-157, IC-158
 // WHY: these entries carry words (the count, RW-11), so the word is drawn beside the picture.
 /** @purity non-pure */
-function wordedEntry(host: Document, item: CommandItem, anchors: Map<string, HTMLElement>, role: string): HTMLElement {
+function wordedEntry(host: Document, item: CommandItem, anchors: Map<string, HTMLElement>, role: string, count?: number): HTMLElement {
   const entry = anchoredEntry(host, item, anchors, role)
-  entry.append(item.label)
+  entry.append(count === undefined ? item.label : `${item.label} (${count})`)
   entry.setAttribute('style', (entry.getAttribute('style') ?? '') + 'width:auto;padding:0 0.5em;white-space:nowrap;')
   return entry
 }
@@ -727,7 +728,7 @@ function wordedEntry(host: Document, item: CommandItem, anchors: Map<string, HTM
 function fixTabsElements(host: Document, view: TableWindowView, fontPx: number, anchors: Map<string, HTMLElement>, role: string): readonly HTMLElement[] {
   if (view.tabEntries === undefined) return []
   const tabs = made(host, 'div', FIX_LINE_STYLE + `font-size:${fontPx}px;`)
-  tabs.replaceChildren(...view.tabEntries.map((item) => wordedEntry(host, item, anchors, role)))
+  tabs.replaceChildren(...view.tabEntries.map((item) => wordedEntry(host, item, anchors, role, view.tabCounts?.[item.icon])))
   return [tabs]
 }
 

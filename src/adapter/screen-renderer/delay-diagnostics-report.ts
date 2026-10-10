@@ -677,9 +677,6 @@ const CHECK_MARK = '✓'
 
 const FIX_TYPE_ORDER: readonly DelayFixRow['fixType'][] = ['automatic', 'choose', 'suggestedDate', 'byHand']
 
-const FIX_COUNT_OPEN = ' ('
-const FIX_COUNT_CLOSE = ')'
-
 export type DelayReportTable = 'diagnosis' | 'proposals' | 'log'
 
 type FixTable = Exclude<DelayReportTable, 'diagnosis'>
@@ -1021,20 +1018,11 @@ function fixRowViewsOf(table: FixTable, found: readonly ShownFixRow[], tables: D
   }))
 }
 
-/** @purity pure */
-function countedEntryOf(icon: IconId, language: DisplayLanguage, isChosen: boolean, count: number | null): CommandItem {
-  const plain = entryOf(icon, language, isChosen)
-  return count === null ? plain : { ...plain, label: `${plain.label}${FIX_COUNT_OPEN}${count}${FIX_COUNT_CLOSE}` }
-}
-
 // see RW-11, IC-154, IC-155, IC-156, EN-6
 /** @purity pure */
 function delayReportTabEntriesOf(values: DelayFixWindowValues, tables: DelayFixTables, language: DisplayLanguage): readonly CommandItem[] {
-  const tabs = [
-    countedEntryOf(DIAGNOSIS_ENTRY, language, values.table === 'diagnosis', null),
-    countedEntryOf(PROPOSALS_ENTRY, language, values.table === 'proposals', tables.proposals.length),
-  ]
-  return tables.log.length === 0 ? tabs : [...tabs, countedEntryOf(LOG_ENTRY, language, values.table === 'log', tables.log.length)]
+  const tabs = [entryOf(DIAGNOSIS_ENTRY, language, values.table === 'diagnosis'), entryOf(PROPOSALS_ENTRY, language, values.table === 'proposals')]
+  return tables.log.length === 0 ? tabs : [...tabs, entryOf(LOG_ENTRY, language, values.table === 'log')]
 }
 
 // see RW-12, IC-157, IC-158, FR-092
@@ -1073,8 +1061,10 @@ function delayFixWalkOf(values: DelayFixWindowValues, tables: DelayFixTables, wo
 }
 
 // see RW-11, RW-12, RW-14, T-374
+// WHY: tabCounts is the count each tab adds after its word (RW-11); the entry's label stays the dictionary's word (FR-038).
 export interface DelayFixView {
   readonly tabEntries: readonly CommandItem[]
+  readonly tabCounts: { readonly [entry: IconId]: number }
   readonly walkEntries: readonly CommandItem[]
   readonly walkCounter: string
   readonly fixFooter: DelayFixFooterView | null
@@ -1087,6 +1077,7 @@ function delayFixViewOf(values: DelayFixWindowValues, tables: DelayFixTables, wo
   const walk = delayFixWalkOf(values, tables, words)
   return {
     tabEntries: delayReportTabEntriesOf(values, tables, language),
+    tabCounts: { [PROPOSALS_ENTRY]: tables.proposals.length, [LOG_ENTRY]: tables.log.length },
     walkEntries: walk.entries,
     walkCounter: walk.counter,
     fixFooter: delayFixFooterOf(values, tables, language),

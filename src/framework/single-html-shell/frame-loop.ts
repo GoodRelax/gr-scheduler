@@ -1907,6 +1907,12 @@ function reportHeldOf(
   return { window, view, report: diagnostics.report, schedule: document.schedule, documentName, language, ...(fixTables === undefined ? {} : { fixTables }) }
 }
 
+// see RW-16, DX-12
+/** @purity semi-pure-b */
+function fixLogOf(flow: { readonly readDelayFixLog?: () => readonly DelayFixRow[] }): readonly DelayFixRow[] {
+  return flow.readDelayFixLog?.() ?? []
+}
+
 // see EL-21, SJ-0, SJ-2, UN-20
 /** @purity semi-pure-b */
 function actionWithJumpViews(
@@ -2822,7 +2828,7 @@ export function frameLoop(
           canUndo: held.history.done.length > 0,
           canRedo: held.history.undone.length > 0,
           zoomEntranceEnds: zoomEntranceEndsAt(values, held.document, environment.taskGroupControlsHeightPx, collectInputContext),
-          ...windows.readings(session, delayDiagnosticsNow(), shownTasks.drawnSet(), (documentFileFlow.readDelayFixLog?.() ?? [])),
+          ...windows.readings(session, delayDiagnosticsNow(), shownTasks.drawnSet(), fixLogOf(documentFileFlow)),
           ...parentTasks.readings(session, delayDiagnosticsShown),
           jumpRipple: owedJump.rippleOf(session.screen, layout, geometry, regions),
         }),
@@ -2876,7 +2882,7 @@ export function frameLoop(
   // see FR-134, FR-155, T-346, RW-6, RW-7, RW-12, RW-14
   /** @purity non-pure */
   function answerReportEntry(entry: IconId, filterColumn: string | null, listed?: readonly string[] | null): boolean {
-    const reportHeld = reportHeldOf(windows.report(), delayDiagnosticsNow(), held.document, screenLanguageIn(session), windows.fixTablesNow(delayDiagnosticsNow(), (documentFileFlow.readDelayFixLog?.() ?? [])))
+    const reportHeld = reportHeldOf(windows.report(), delayDiagnosticsNow(), held.document, screenLanguageIn(session), windows.fixTablesNow(delayDiagnosticsNow(), fixLogOf(documentFileFlow)))
     return answerDelayDiagnosticsReportEntry(entry, filterColumn, reportHeld, {
       clipboard, files, raiseFileFault, holdWindow: windows.holdReport,
       confirmOverwrite: documentFileFlow.askToWriteOverDestination,
