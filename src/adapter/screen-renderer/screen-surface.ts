@@ -63,6 +63,8 @@ export interface ScreenPart {
   readonly searchFilterColumn?: string | null
   // see IF-9, SV-7, IC-125, IC-126
   readonly searchFilterListed?: readonly string[] | null
+  // see SV-7
+  readonly isInFilterMenu?: boolean
 }
 
 export interface DialogueInput {

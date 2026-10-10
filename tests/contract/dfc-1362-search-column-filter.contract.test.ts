@@ -389,7 +389,7 @@ describe('FR-151 / T-330 / T-331 / T-109 / T-028 -- the clauses this file is dri
     for (const id of ['SQ-5', 'SQ-6', 'SQ-7', 'SQ-8']) expect(cellOf('T-331', id, 'フィルタ')).toBe('値の一覧')
     for (const [icon, words] of Object.entries(IC_WORDS)) expect(cellOf('T-109', icon, '何の入口か'), icon).toBe(words)
     expect(BLANK_JA).toBe('（空白）')
-    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe('値の一覧（「表示に入れた」「入れていない」）')
+    expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe('値の一覧（「表示」「非表示」）')
     expect(TASK_COLUMNS).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-6'])
     expect(COMMENT_COLUMNS).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
   })

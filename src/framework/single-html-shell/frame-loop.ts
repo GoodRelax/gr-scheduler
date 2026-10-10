@@ -170,6 +170,7 @@ import {
   type WindowShown,
   searchPanelWithFilterClosed,
   searchPanelWithFilterOpened,
+  searchPanelWithTableViewsCleared,
   screenViewFromRegions,
   scrollExtentOf,
   verticalWholeOf,
@@ -458,6 +459,7 @@ const SEARCH_TASKS_ENTRY: IconId = 'IC-118'
 const SEARCH_COMMENT_BOXES_ENTRY: IconId = 'IC-119'
 const SEARCH_TEXT_SIZE_ENTRY: IconId = 'IC-127'
 const SEARCH_FILTER_ENTRY: IconId = 'IC-122'
+const SEARCH_CLEAR_ENTRY: IconId = 'IC-153'
 
 const DELAY_DIAGNOSTICS_ENTRY: IconId = 'IC-107'
 const PROGRESS_MARKER_ENTRY: IconId = 'IC-40'
@@ -1445,7 +1447,7 @@ export function isSizeSettled(env: FrameEnvironment): boolean {
   return env.width > 0 && env.height > 0
 }
 
-// see SV-3, SV-7, SV-16, IC-122, IC-127, SQ-5
+// see SV-1, SV-3, SV-7, SV-16, IC-122, IC-127, IC-153, SQ-5
 /** @purity pure */
 function searchPanelAfterEntry(
   held: SearchPanelSession,
@@ -1459,6 +1461,7 @@ function searchPanelAfterEntry(
   if (entry === SEARCH_FILTER_ENTRY) {
     return filterColumn === null ? null : searchPanelWithFilterOpened(session, held, filterColumn)
   }
+  if (entry === SEARCH_CLEAR_ENTRY) return searchPanelWithTableViewsCleared(held)
   if (entry === SEARCH_TASKS_ENTRY) return { ...held, table: 'tasks' }
   if (entry === SEARCH_COMMENT_BOXES_ENTRY) return { ...held, table: 'commentBoxes' }
   if (entry !== SEARCH_TEXT_SIZE_ENTRY) return searchPanelAfterFilterEntry(session, held, entry, schedule, bottleneckUids, listed)
@@ -1653,6 +1656,29 @@ function windowPlacesAfterEscape(session: ScreenSession, held: WindowPlaces, lev
   return { ...held, delayDiagnosticsReport: delayDiagnosticsReportWithFilterClosed(report) }
 }
 
+// see SV-7
+// WHY: the open filter's own IC-122 is not outside: its press closes the filter by itself on release.
+/** @purity pure */
+function isFilterPressedOutside(on: ScreenPart | null, surface: string, open: string | null): boolean {
+  if (open === null) return false
+  if (on?.part !== surface) return true
+  return on.isInFilterMenu !== true && !(on.entry === SEARCH_FILTER_ENTRY && on.searchFilterColumn === open)
+}
+
+// see SV-7, RW-1
+/** @purity pure */
+function windowPlacesAfterOutsidePress(session: ScreenSession, held: WindowPlaces, on: ScreenPart | null): WindowPlaces {
+  const panel = held.searchPanel
+  const searchPanel = isFilterPressedOutside(on, SEARCH_PANEL_SURFACE, panel.filters.open)
+    ? (searchPanelWithFilterClosed(session, panel) ?? panel)
+    : panel
+  const report = held.delayDiagnosticsReport
+  const isReportClosing = report !== null && isFilterPressedOutside(on, DELAY_DIAGNOSTICS_REPORT_SURFACE, report.panel.filters.open)
+  const delayDiagnosticsReport = isReportClosing ? (delayDiagnosticsReportWithFilterClosed(report) ?? report) : report
+  if (searchPanel === panel && delayDiagnosticsReport === report) return held
+  return { ...held, searchPanel, delayDiagnosticsReport }
+}
+
 // see T-335, WB-6, WB-8, WB-9, SV-14, SV-18, S-419, S-451, S-455, S-456
 /** @purity non-pure */
 function heldWindowsOf() {
@@ -1676,6 +1702,8 @@ function heldWindowsOf() {
       return windowReadingsOf(held, diagnostics)
     },
     notePress: (on: ScreenPart | null): void => void (atPress = on?.windowGrab === undefined ? null : held),
+    closeFiltersPressedOutside: (session: ScreenSession, on: ScreenPart | null): void =>
+      void (held = windowPlacesAfterOutsidePress(session, held, on)),
     /** @purity non-pure */
     endPress(isInterrupted: boolean): void {
       if (isInterrupted && atPress !== null) held = atPress
@@ -2659,6 +2687,7 @@ export function frameLoop(
   function beginPointerPress(press: PointerPress, on: ScreenPart | null, frame: FrameValues): void {
     if (session.gesture.pointerPressState.kind !== 'notPressed') sendToSession(POINTER_RELEASED, frame)
     sendToSession({ type: 'pointerPressed', pressRow: press.pressRow, pressedOn: pressedOnOf(on, press.hit) }, frame)
+    windows.closeFiltersPressedOutside(session, on)
     windows.notePress(on)
   }
 

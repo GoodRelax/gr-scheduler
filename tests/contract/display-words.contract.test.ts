@@ -930,12 +930,12 @@ const MAXIMISE_ENTRY = 'IC-121'
 const COMMENT_BOX_COLUMNS: ReadonlySet<string> = new Set(['SQ-7', 'SQ-8', 'SQ-9'])
 
 const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN } })
-// see SQ-10, TV-11, IX-11
+// see SQ-10, TV-11
 const SHOW_COLUMN = 'SQ-10'
 const SEARCH_SHOW_FILTER_OPEN = searchFrame('normal', { filters: { columns: [], open: SHOW_COLUMN }, shownTaskUids: [2, 3] })
 const SHOWN_SEARCH_UIDS: readonly number[] = [2, 3]
 const SEARCH_SHOWING_ONLY_CHECKED = searchFrame('minimised', { shownTaskUids: SHOWN_SEARCH_UIDS, showOnlyChecked: true })
-// WHY: TV-11 and IX-11 fill {total} and {shown} with the counts, so the digits are put back to see the literal word
+// WHY: TV-11 fills {total} and {shown} with the counts, so the digits are put back to see the literal word
 // (as minHeightWordOf does for MH-3); a sentinel holds no digit standing alone and passes unchanged.
 const countSlotsOf = (text: string | null | undefined): string | undefined =>
   text === null || text === undefined
@@ -2470,18 +2470,18 @@ const SEARCH_PANEL_READS: Readonly<
     frame: SEARCH_MAXIMISED,
     read: (view) => labelIn(view.searchPanel?.titleEntries, MAXIMISE_ENTRY),
   },
-  shownValue: {
+  showValue: {
     frame: SEARCH_SHOW_FILTER_OPEN,
     read: (view) => {
       const menu = view.searchPanel?.filterMenu
-      return menu?.kind === 'values' ? menu.values.find((one) => one.value === 'shown')?.label : undefined
+      return menu?.kind === 'values' ? menu.values.find((one) => one.value === 'show')?.label : undefined
     },
   },
-  notShownValue: {
+  hideValue: {
     frame: SEARCH_SHOW_FILTER_OPEN,
     read: (view) => {
       const menu = view.searchPanel?.filterMenu
-      return menu?.kind === 'values' ? menu.values.find((one) => one.value === 'notShown')?.label : undefined
+      return menu?.kind === 'values' ? menu.values.find((one) => one.value === 'hide')?.label : undefined
     },
   },
   nothingChecked: {
@@ -2495,10 +2495,6 @@ const SEARCH_PANEL_READS: Readonly<
   showAll: {
     frame: SEARCH_SHOWING_ONLY_CHECKED,
     read: (view) => view.searchPanel?.showOnlyCheckedBar?.showAllLabel,
-  },
-  showOnlyCheckedCaption: {
-    frame: SEARCH_SHOWING_ONLY_CHECKED,
-    read: (view) => countSlotsOf(view.showOnlyCheckedCaption),
   },
 }
 
@@ -2850,9 +2846,9 @@ const propertyFieldFramesShowing = (
   )
 }
 
-// see TV-11, IX-11
-// WHY: the band and the caption fill {total} and {shown} with counts, so the word is matched with its slots open.
-const COUNT_SLOTTED_SEARCH_PANEL_PARTS: ReadonlySet<string> = new Set(['showOnlyCheckedBar', 'showOnlyCheckedCaption'])
+// see TV-11
+// WHY: the band fills {total} and {shown} with counts, so the word is matched with its slots open.
+const COUNT_SLOTTED_SEARCH_PANEL_PARTS: ReadonlySet<string> = new Set(['showOnlyCheckedBar'])
 const countSlottedFramesShowing = (
   word: string,
   language: string,

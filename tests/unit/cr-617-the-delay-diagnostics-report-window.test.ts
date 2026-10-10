@@ -22,7 +22,7 @@ import {
 } from '../../src/entity/document-model/schedule/schedule'
 import type { ScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NOT_STORED_SEARCH_PANEL_SIZES } from '../../src/framework/dom-screen-surface/dom-screen-surface'
-import { columnWidthPx } from '../../src/framework/dom-screen-surface/search-panel-drawing'
+import { columnWidthPx, unmeasuredSizing } from '../../src/framework/dom-screen-surface/search-panel-drawing'
 import { answerDelayDiagnosticsReportEntry } from '../../src/framework/single-html-shell/delay-diagnostics-report-window'
 
 const task = (uid: number, name: string, start: string, extra: Record<string, unknown> = {}) => ({
@@ -125,9 +125,10 @@ describe('T-347 -- the rows of the report table (FR-134, DT-1)', () => {
 describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
   const view = viewOf(OPENED_DELAY_DIAGNOSTICS_REPORT)
 
-  it('RW-2: the title row holds IC-127, IC-129, IC-130 and IC-52, and no IC-118 or IC-119', () => {
+  it('RW-2: the title row holds IC-153 by the name, then IC-127, IC-129, IC-130 and IC-52, and no IC-118 or IC-119', () => {
     expect(view?.titleEntries.map((one) => one.icon)).toEqual(['IC-127', 'IC-129', 'IC-130', 'IC-52'])
-    expect(view?.tableEntries).toEqual([])
+    expect(view?.tableEntries.map((one) => one.icon)).toEqual(['IC-153'])
+    expect(view?.tableEntries[0]?.isEnabled).toBe(false)
   })
 
   it('RW-3: the line under the title holds IC-140 then IC-108, before the word field', () => {
@@ -145,13 +146,15 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
     expect(view?.jumpAt).toBe(REPORT_ORDER.indexOf('DT-4'))
   })
 
-  it('RW-9 / CR-639: a column starts at S-475 .. S-481 and a held width replaces it', () => {
+  it('RW-9 / CR-721: DT-2, DT-4 and DT-7 start at S-476, S-478 and S-481, the measured ones unmeasured at the floor, and a held width replaces it', () => {
     const columns = view?.columns ?? []
-    expect(columns.map(columnWidthPx)).toEqual(
-      ['S-475', 'S-477', 'S-478', 'S-476', 'S-479', 'S-480', 'S-481'].map(
-        (row) => NOT_STORED_SEARCH_PANEL_SIZES[row as keyof typeof NOT_STORED_SEARCH_PANEL_SIZES],
+    const sizing = unmeasuredSizing(16)
+    expect(columns.map((one) => columnWidthPx(one, sizing))).toEqual(
+      [null, null, 'S-478', 'S-476', null, null, 'S-481'].map((row) =>
+        row === null ? sizing.floor : NOT_STORED_SEARCH_PANEL_SIZES[row as keyof typeof NOT_STORED_SEARCH_PANEL_SIZES],
       ),
     )
+    expect(columns.filter((one) => one.widthSamples !== null).map((one) => one.column)).toEqual(['DT-1', 'DT-3', 'DT-5', 'DT-6'])
     const widened = delayDiagnosticsReportWithColumnWidth(OPENED_DELAY_DIAGNOSTICS_REPORT, 'DT-4', 333)
     expect(viewOf(widened)?.columns[REPORT_ORDER.indexOf('DT-4')]?.width).toBe(333)
   })

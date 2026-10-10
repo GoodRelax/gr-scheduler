@@ -24,6 +24,7 @@ import {
   boxStyle,
   commandEntry,
   entranceOuterHeightPx,
+  entranceOuterWidthPx,
   made,
   part,
 } from './dom-screen-surface'
@@ -107,7 +108,7 @@ const SHOWN_TASK_ATTRIBUTE = 'data-search-shown-task'
 
 const SHOWN_ALL_ATTRIBUTE = 'data-search-shown-all'
 
-const SHOW_COLUMN = 'SQ-10'
+const VISIBILITY_COLUMN = 'SQ-10'
 
 const NO_BORDER_ATTRIBUTE = 'data-no-border'
 
@@ -155,9 +156,14 @@ const FILTER_BOUND_WORD_STYLE = 'margin-right:0.25em;'
 
 const GLYPH_STYLE = 'display:inline-block;width:1em;height:1em;vertical-align:-0.125em;margin-right:0.25em;'
 
+// see SV-17, S-425
+const CELL_PADDING_EM = 0.25
+
+const CELL_RULE_PX = 1
+
 /** @purity pure */
 function cellStyle(): string {
-  return `border:1px solid ${PAINT.rule};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 0.25em;`
+  return `border:${CELL_RULE_PX}px solid ${PAINT.rule};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 ${CELL_PADDING_EM}em;`
 }
 
 // see SV-6
@@ -184,6 +190,8 @@ function headerCellStyle(isFixed: boolean): string {
 
 const FIXED_COLUMN_ATTRIBUTE = 'data-fixed-column'
 
+const FILTERED_ATTRIBUTE = 'data-filtered-column'
+
 // see SQ-1, DT-4, SJ-1, S-503
 /** @purity pure */
 function jumpCellStyle(): string {
@@ -192,13 +200,78 @@ function jumpCellStyle(): string {
 
 type SearchJumpCell = NonNullable<ScreenPart['searchJumpTarget']>
 
-// see SV-18, RW-9
+// see SV-18, RW-9, S-425
+export interface ColumnSizing {
+  readonly floor: number
+  readonly measured: ReadonlyMap<string, number>
+}
+
+// see S-425, SV-18, IC-122
 /** @purity pure */
-export function columnWidthPx(column: SearchColumnView): number {
-  if (column.width !== null) return column.width
+export function measuredWidthFloor(fontPx: number): number {
+  return Math.ceil(entranceOuterWidthPx() + CELL_PADDING_EM * 2 * fontPx + CELL_RULE_PX)
+}
+
+/** @purity pure */
+export function unmeasuredSizing(fontPx: number): ColumnSizing {
+  return { floor: measuredWidthFloor(fontPx), measured: new Map() }
+}
+
+/** @purity pure */
+function tableRowWidthPx(column: SearchColumnView): number {
   const row = SEARCH_COLUMN_WIDTH_ROWS[column.column]
   if (row === undefined) throw new RangeError(`table T-206 holds no default width for column ${column.column}`)
   return NOT_STORED_SEARCH_PANEL_SIZES[row]
+}
+
+// see SV-18, RW-9, S-425, S-496
+// WHY: the Visibility column keeps its fixed S-496 and has no border to pull, so the floor is not laid on it.
+/** @purity pure */
+export function columnWidthPx(column: SearchColumnView, sizing: ColumnSizing): number {
+  if (column.column === VISIBILITY_COLUMN) return column.width ?? tableRowWidthPx(column)
+  const byDefault = column.widthSamples === null ? tableRowWidthPx(column) : (sizing.measured.get(column.column) ?? sizing.floor)
+  return Math.max(column.width ?? byDefault, sizing.floor)
+}
+
+const MEASURE_BOX_STYLE = 'position:fixed;left:0;top:0;width:max-content;visibility:hidden;pointer-events:none;'
+
+const MEASURE_TABLE_STYLE = 'border-collapse:collapse;table-layout:auto;'
+
+// see SV-18, RW-9, SV-17
+/** @purity non-pure */
+function measureTableElement(host: Document, column: SearchColumnView, hasGlyph: boolean, fontPx: number): HTMLElement {
+  const table = made(host, 'table', MEASURE_TABLE_STYLE + `font-size:${fontPx}px;`)
+  const head = made(host, 'tr', '')
+  head.replaceChildren(headerCellElement(host, column, null, unmeasuredSizing(fontPx)))
+  const lines = (column.widthSamples ?? []).map((text) => {
+    const line = made(host, 'tr', '')
+    const cell = made(host, 'td', cellStyle())
+    if (hasGlyph) cell.replaceChildren(glyphElement(host, null), text)
+    else cell.textContent = text
+    line.append(cell)
+    return line
+  })
+  table.replaceChildren(head, ...lines)
+  return table
+}
+
+// see SV-18, RW-9
+// TRAP: a host with no layout reads 0; such a width is dropped, and the column falls back to the floor.
+/** @purity non-pure */
+function measureDefaultColumnWidths(host: Document, layer: Element, table: DrawnTable, fontPx: number): ReadonlyMap<string, number> {
+  const measured = table.columns.flatMap((column, at) => (column.widthSamples === null ? [] : [{ column, at }]))
+  if (measured.length === 0) return new Map()
+  const box = made(host, 'div', MEASURE_BOX_STYLE)
+  const sheets = measured.map(({ column, at }) => measureTableElement(host, column, at === table.glyphAt, fontPx))
+  box.replaceChildren(...sheets)
+  layer.append(box)
+  const widths = measured.flatMap(({ column }, at) => {
+    const heading = sheets[at]?.querySelector('th') ?? null
+    const width = heading === null || typeof heading.getBoundingClientRect !== 'function' ? 0 : heading.getBoundingClientRect().width
+    return width > 0 ? [[column.column, Math.ceil(width)] as const] : []
+  })
+  box.remove()
+  return new Map(widths)
 }
 
 // see SQ-5, DT-1, RW-4, FR-133
@@ -259,15 +332,33 @@ export function wordFieldElement(host: Document, word: string, fontPx: number): 
   return field
 }
 
+// see SV-7, S-183, S-146
+/** @purity pure */
+function filteredHeadingStyle(): string {
+  return `background:${PAINT.filteredHeading};color:${PAINT.ground};`
+}
+
+/** @purity pure */
+function filteredEntryStyle(): string {
+  return `background:transparent;color:${PAINT.ground};border-color:${PAINT.ground};`
+}
+
 // see SV-7, SV-18
 /** @purity non-pure */
-function headerCellElement(host: Document, column: SearchColumnView, showHeading: SearchPanelView['showHeading'] | null): HTMLElement {
-  const cell = made(host, 'th', headerCellStyle(column.isFixed))
+function headerCellElement(
+  host: Document,
+  column: SearchColumnView,
+  showHeading: SearchPanelView['showHeading'] | null,
+  sizing: ColumnSizing,
+): HTMLElement {
+  const cell = made(host, 'th', headerCellStyle(column.isFixed) + (column.isFiltered ? filteredHeadingStyle() : ''))
   cell.setAttribute(COLUMN_ATTRIBUTE, column.column)
-  cell.setAttribute('data-width', String(columnWidthPx(column)))
+  cell.setAttribute('data-width', String(columnWidthPx(column, sizing)))
   if (column.isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
+  if (column.isFiltered) cell.setAttribute(FILTERED_ATTRIBUTE, 'true')
   const line = made(host, 'div', HEADING_LINE_STYLE)
   const filter = commandEntry(host, column.filterEntry)
+  if (column.isFiltered) filter.setAttribute('style', (filter.getAttribute('style') ?? '') + filteredEntryStyle())
   filter.setAttribute(SEARCH_FILTER_COLUMN_ATTRIBUTE, column.column)
   if (showHeading !== null) {
     cell.setAttribute(NO_BORDER_ATTRIBUTE, 'true')
@@ -442,9 +533,9 @@ function bodyRowElement(
 
 // see SV-6, SV-16, SV-17, SV-18, T-331
 /** @purity non-pure */
-export function searchTableElement(host: Document, view: DrawnTable, fontPx: number): HTMLElement {
+export function searchTableElement(host: Document, view: DrawnTable, fontPx: number, sizing: ColumnSizing = unmeasuredSizing(fontPx)): HTMLElement {
   const box = made(host, 'div', TABLE_BOX_STYLE)
-  const widths = view.columns.map(columnWidthPx)
+  const widths = view.columns.map((column) => columnWidthPx(column, sizing))
   const width = widths.reduce((sum, one) => sum + one, 0)
   const table = made(host, 'table', TABLE_STYLE + `width:${width}px;font-size:${fontPx}px;`)
   const columns = made(host, 'colgroup', '')
@@ -452,7 +543,7 @@ export function searchTableElement(host: Document, view: DrawnTable, fontPx: num
   const head = made(host, 'thead', '')
   const headings = made(host, 'tr', '')
   const showAt = view.showAt ?? null
-  headings.replaceChildren(...view.columns.map((column, at) => headerCellElement(host, column, at === showAt ? (view.showHeading ?? 'none') : null)))
+  headings.replaceChildren(...view.columns.map((column, at) => headerCellElement(host, column, at === showAt ? (view.showHeading ?? 'none') : null, sizing)))
   head.append(headings)
   const body = made(host, 'tbody', '')
   const places = { jumpAt: view.jumpAt ?? 0, glyphAt: view.glyphAt ?? null, showAt }
@@ -489,7 +580,7 @@ function aboveTableElements(host: Document, view: TableWindowView, fontPx: numbe
 export function searchPanelElement(
   host: Document,
   view: TableWindowView,
-  placed: { readonly box: ScreenRect; readonly fontPx: number },
+  placed: { readonly box: ScreenRect; readonly fontPx: number; readonly sizing?: ColumnSizing },
   anchors: Map<string, HTMLElement>,
   role: string = SEARCH_PANEL_ROLE,
 ): HTMLElement {
@@ -502,7 +593,8 @@ export function searchPanelElement(
   }
   const menu = view.filterMenu === null ? [] : [searchFilterMenuElement(host, view.filterMenu, placed.fontPx, anchors)]
   // TRAP: the table stays the last child; redrawInPlace replaces the last child as the table.
-  panel.replaceChildren(title, ...aboveTableElements(host, view, placed.fontPx, anchors, role), ...menu, searchTableElement(host, view, placed.fontPx))
+  const table = searchTableElement(host, view, placed.fontPx, placed.sizing ?? unmeasuredSizing(placed.fontPx))
+  panel.replaceChildren(title, ...aboveTableElements(host, view, placed.fontPx, anchors, role), ...menu, table)
   return panel
 }
 
@@ -560,7 +652,7 @@ function panelPlacedOf(panel: TableWindowView, window: WindowName): PlacedWindow
 // see GR-28, SV-18, RW-9
 // WHY: on the heading row only, within S-465 of a column's right border; an entrance and GR-24 / GR-25 answer first.
 /** @purity semi-pure-b */
-function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked): NonNullable<ScreenPart['windowGrab']> | null {
+function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked, widthFloor: number): NonNullable<ScreenPart['windowGrab']> | null {
   const head = window.querySelector('thead')
   const tableBox = window.lastElementChild
   if (head === null || tableBox === null || typeof head.getBoundingClientRect !== 'function') return null
@@ -574,8 +666,8 @@ function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked
     if (Math.abs(asked.x - drawn.right) > reach || drawn.right > shown.right + reach) continue
     const column = cell.getAttribute(COLUMN_ATTRIBUTE) ?? ''
     const widthAtPress = Number(cell.getAttribute('data-width'))
-    const widthCeiling = Math.max(shown.right - drawn.left, NOT_STORED_SEARCH_PANEL_SIZES['S-425'])
-    return { window: placed.window, region: 'columnBorder', column, widthAtPress, widthFloor: NOT_STORED_SEARCH_PANEL_SIZES['S-425'], widthCeiling }
+    const widthCeiling = Math.max(shown.right - drawn.left, widthFloor)
+    return { window: placed.window, region: 'columnBorder', column, widthAtPress, widthFloor, widthCeiling }
   }
   return null
 }
@@ -592,12 +684,18 @@ function headingColumnOf(start: Element, window: Element): string | null {
 // see IF-9, GR-24, GR-25, GR-28, SJ-1, SV-7, T-023d
 // WHY: the heading word of a column answers as that column's IC-122 (SV-7), below the border band.
 /** @purity semi-pure-b */
-function tableWindowPartAt(window: Element | null, placed: PlacedWindow | null, asked: PointAsked, role: string): ScreenPart | null {
+function tableWindowPartAt(
+  window: Element | null,
+  placed: PlacedWindow | null,
+  asked: PointAsked,
+  role: string,
+  widthFloor: number,
+): ScreenPart | null {
   const answer = windowPartAt(window, placed, asked, windowPartOf(role))
   const first = asked.first
   if (window === null || placed === null || answer === null || answer.entry !== null || first === null || !window.contains(first)) return answer
   if (answer.windowGrab !== undefined) return answer
-  const border = columnBorderAt(window, placed, asked)
+  const border = columnBorderAt(window, placed, asked, widthFloor)
   if (border !== null) return { ...answer, windowGrab: border }
   if (first.getAttribute(SHOWN_ALL_ATTRIBUTE) !== null || first.getAttribute(SHOWN_TASK_ATTRIBUTE) !== null) return answer
   const column = headingColumnOf(first, window)
@@ -607,11 +705,17 @@ function tableWindowPartAt(window: Element | null, placed: PlacedWindow | null, 
 
 // see SV-5, SV-10, SV-11
 /** @purity non-pure */
-function redrawInPlace(host: Document, drawnPanel: HTMLElement, panel: DrawnTable, box: ScreenRect, tableFontPx: number | null): void {
+function redrawInPlace(
+  host: Document,
+  drawnPanel: HTMLElement,
+  panel: DrawnTable,
+  box: ScreenRect,
+  table: { readonly fontPx: number; readonly sizing: ColumnSizing } | null,
+): void {
   drawnPanel.setAttribute('style', boxStyle(box) + windowStyle())
   const drawnTable = drawnPanel.lastElementChild
-  if (tableFontPx === null || drawnTable === null) return
-  const redrawn = searchTableElement(host, panel, tableFontPx)
+  if (table === null || drawnTable === null) return
+  const redrawn = searchTableElement(host, panel, table.fontPx, table.sizing)
   drawnTable.replaceWith(redrawn)
   pinFixedColumns(redrawn)
 }
@@ -633,7 +737,8 @@ function withPressedWindowFilter(answer: ScreenPart | null, first: Element | nul
   if (answer === null || first === null || !layer.contains(first)) return answer
   const column = filterColumnAbove(first, layer, true)
   const listed = withListedValues(answer, layer)
-  return column === null ? listed : { ...listed, searchFilterColumn: column }
+  const inMenu = filterColumnAbove(first, layer, false) === null ? listed : { ...listed, isInFilterMenu: true }
+  return column === null ? inMenu : { ...inMenu, searchFilterColumn: column }
 }
 
 // see SV-7, IF-9
@@ -656,10 +761,10 @@ function filterChangeOf(control: HTMLInputElement | null, layer: Element): Searc
 /** @purity semi-pure-b */
 function shownChangeOf(control: HTMLInputElement, layer: Element): SearchFilterChange | null {
   const one = control.getAttribute(SHOWN_TASK_ATTRIBUTE)
-  if (one !== null) return { kind: 'shown', column: SHOW_COLUMN, taskUids: [Number(one)], isShown: control.checked }
+  if (one !== null) return { kind: 'shown', column: VISIBILITY_COLUMN, taskUids: [Number(one)], isShown: control.checked }
   if (control.getAttribute(SHOWN_ALL_ATTRIBUTE) === null) return null
   const listed = [...layer.querySelectorAll(`[${SHOWN_TASK_ATTRIBUTE}]`)].map((box) => Number(box.getAttribute(SHOWN_TASK_ATTRIBUTE)))
-  return { kind: 'shown', column: SHOW_COLUMN, taskUids: listed, isShown: control.checked }
+  return { kind: 'shown', column: VISIBILITY_COLUMN, taskUids: listed, isShown: control.checked }
 }
 
 // WHY: input, the one event T-078 lets this layer hear; a check mark or a whole date is settled (IF-9, SV-7).
@@ -765,7 +870,50 @@ export function tableKeyOf(table: DrawnTable, fontPx: number, filterMenu: unknow
   return JSON.stringify([table.rows, table.columns, fontPx, filterMenu])
 }
 
-// see FR-151, SV-5, SV-9, SV-16, IF-9
+// see SV-6, SV-7, SV-9
+// TRAP: the typed filter word goes back before the filter is placed; it narrows the list the placing measures.
+/** @purity non-pure */
+function placeDrawnPanel(
+  layer: HTMLElement,
+  drawn: HTMLElement,
+  panel: TableWindowView,
+  keepFilterSearch: (menu: TableWindowView['filterMenu']) => void,
+): void {
+  layer.replaceChildren(drawn)
+  const tableBox = drawn.lastElementChild ?? null
+  if (panel.shown !== 'minimised' && tableBox !== null) pinFixedColumns(tableBox)
+  keepFilterSearch(panel.filterMenu)
+  placeFilterMenu(drawn)
+}
+
+// see SV-18, RW-9, S-425
+// WHY: measured on opening, on a step (IC-127) or a language change, never per frame (JDG-1810).
+/** @purity non-pure */
+function tableSizingKeeper(host: Document, layer: Element) {
+  let measuredFor = ''
+  let measured: ReadonlyMap<string, number> | null = null
+  let floorDrawn = 0
+  return {
+    /** @purity non-pure */
+    sizingOf(panel: TableWindowView, fontPx: number): ColumnSizing {
+      const key = JSON.stringify([fontPx, panel.columns.map((column) => [column.column, column.heading])])
+      if (panel.shown !== 'minimised' && (measured === null || key !== measuredFor)) {
+        measuredFor = key
+        measured = measureDefaultColumnWidths(host, layer, panel, fontPx)
+      }
+      floorDrawn = measuredWidthFloor(fontPx)
+      return { floor: floorDrawn, measured: measured ?? new Map() }
+    },
+    /** @purity semi-pure-b */
+    floorDrawn: (): number => floorDrawn,
+    /** @purity non-pure */
+    forget(): void {
+      measured = null
+    },
+  }
+}
+
+// see FR-151, SV-5, SV-9, SV-16, SV-18, IF-9
 // TRAP: the table alone when nothing else moved; a rebuilt word field loses the caret and the typed word.
 /** @purity non-pure */
 export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyped: () => void, identity = SEARCH_PANEL_IDENTITY) {
@@ -775,6 +923,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
   const typedWord = typedWordWatch(layer, onWordTyped)
   const filterChanges = filterChangeWatch(layer, onWordTyped)
   const keepFilterSearch = filterSearchKeeper(layer)
+  const sizes = tableSizingKeeper(host, layer)
 
   /** @purity non-pure */
   function draw(panel: TableWindowView | null | undefined, isChanged: boolean, anchorsOf: () => Map<string, HTMLElement>): void {
@@ -786,27 +935,25 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     placed = panel === null || panel === undefined ? null : panelPlacedOf(panel, identity.window)
     if (panel === null || panel === undefined || placed === null) {
       frameDrawn = ''
+      sizes.forget()
       layer.replaceChildren()
       return
     }
     const fontPx = searchPanelFontPxOf(panel.textSizeStep, NOT_STORED_SEARCH_PANEL_FONT_SIZES)
+    const sizing = sizes.sizingOf(panel, fontPx)
     // WHY: not the word: only typing changes it, and the typed field already holds it.
     const frameKey = JSON.stringify({ ...panel, rows: [], columns: [], at: null, size: null, canvas: null, word: null })
-    const tableKey = tableKeyOf(panel, fontPx, null)
+    const tableKey = tableKeyOf(panel, fontPx, [...sizing.measured])
     const drawnPanel = layer.firstElementChild as HTMLElement | null
     const isTableKept = tableKey === tableDrawn
     tableDrawn = tableKey
     if (frameKey === frameDrawn && panel.shown !== 'minimised' && drawnPanel !== null) {
-      redrawInPlace(host, drawnPanel, panel, placed.box, isTableKept ? null : fontPx)
+      redrawInPlace(host, drawnPanel, panel, placed.box, isTableKept ? null : { fontPx, sizing })
       return
     }
     frameDrawn = frameKey
-    const drawn = searchPanelElement(host, panel, { box: placed.box, fontPx }, anchorsOf(), identity.role)
-    layer.replaceChildren(drawn)
-    const tableBox = drawn.lastElementChild ?? null
-    if (panel.shown !== 'minimised' && tableBox !== null) pinFixedColumns(tableBox)
-    keepFilterSearch(panel.filterMenu)
-    placeFilterMenu(drawn)
+    const drawn = searchPanelElement(host, panel, { box: placed.box, fontPx, sizing }, anchorsOf(), identity.role)
+    placeDrawnPanel(layer, drawn, panel, keepFilterSearch)
   }
 
   return {
@@ -814,7 +961,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     readWord: typedWord.read,
     readFilterChanges: filterChanges.read,
     answerAt: (asked: PointAsked): ScreenPart | null =>
-      withPressedWindowFilter(tableWindowPartAt(layer.firstElementChild, placed, asked, identity.role), asked.first, layer),
+      withPressedWindowFilter(tableWindowPartAt(layer.firstElementChild, placed, asked, identity.role, sizes.floorDrawn()), asked.first, layer),
     focusWord: (): boolean => focusSearchWordIn(layer),
   }
 }

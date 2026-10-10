@@ -342,14 +342,15 @@ FIT_SPAN_FIELD_PARTS = ('currentName', 'currentValue', 'copyCurrent')
 # SQ-10 value list, the reason IC-143 is disabled (TV-5), the band U-67 (TV-11)
 # with its word entrance (no row of table T-109: a word, not an icon) and the
 # picture caption IX-11: no table holds them as rows either. CR-686 added the
-# labels of the two date inputs a date column's filter offers (SV-7).
+# labels of the two date inputs a date column's filter offers (SV-7). CR-721
+# renamed the two SQ-10 values to showValue / hideValue (Show / Hide) and
+# retired the picture caption: IX-11 no longer writes the band's words.
 SEARCH_COLUMN_ROW = re.compile(r'^\| (SQ-\d+[a-z]?) \|')
 SEARCH_COLUMN_TABLE = 'T-331'
 PLAN_ACTUAL_STATE_ROW = re.compile(r'^\| (PS-\d+[a-z]?) \|')
 PLAN_ACTUAL_STATE_TABLE = 'T-019a'
-SEARCH_PANEL_PARTS = ('blank', 'noName', 'filterSearch', 'dateFrom', 'dateTo', 'shownValue',
-                      'notShownValue', 'nothingChecked', 'showOnlyCheckedBar', 'showAll',
-                      'showOnlyCheckedCaption')
+SEARCH_PANEL_PARTS = ('blank', 'noName', 'filterSearch', 'dateFrom', 'dateTo', 'showValue',
+                      'hideValue', 'nothingChecked', 'showOnlyCheckedBar', 'showAll')
 # CR-623: the Open Chooser (U-56, row OP-16 of table T-024a). The labels of
 # its file line and document-title line, and the word beside its cancel row,
 # are no table's rows, so they are HELD HERE, the same move as

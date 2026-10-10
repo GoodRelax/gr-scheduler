@@ -16,7 +16,7 @@ import { isSizeSettled, type AgentApiSeams, type FrameLoopHands, type FrameValue
 const SEARCH_PANEL_OPENED: ScreenValuesEvent = { type: 'searchEntryPressed' }
 const SEARCH_PANEL_MINIMISE_TOGGLED: ScreenValuesEvent = { type: 'searchPanelMinimiseToggled' }
 
-const SHOW_COLUMN = 'SQ-10'
+const VISIBILITY_COLUMN = 'SQ-10'
 
 type Schedule = Document['schedule']
 
@@ -47,7 +47,7 @@ function shownSetKeeper(): (panel: SearchPanelSession) => ReadonlySet<number> | 
 /** @purity pure */
 function panelWithShownChange(session: ScreenSession, panel: SearchPanelSession, taskUids: readonly number[], isShown: boolean): SearchPanelSession {
   if (taskUids.length === 0) return panel
-  return searchPanelAfterFilterChange(session, panel, { kind: 'shown', column: SHOW_COLUMN, taskUids, isShown }) ?? panel
+  return searchPanelAfterFilterChange(session, panel, { kind: 'shown', column: VISIBILITY_COLUMN, taskUids, isShown }) ?? panel
 }
 
 // see SJ-0, SJ-9

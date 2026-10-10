@@ -106,10 +106,10 @@ const TASK_TABLE: TableColumns<TaskSearchRow> = {
 }
 
 // see SQ-10, SV-7, SV-8
-export const SHOWN_SEARCH_VALUE = 'shown'
-export const NOT_SHOWN_SEARCH_VALUE = 'notShown'
-const SHOW_COLUMN: SearchColumn = 'SQ-10'
-const SHOWN_RANKS: ReadonlyMap<string, number> = new Map([[SHOWN_SEARCH_VALUE, 0], [NOT_SHOWN_SEARCH_VALUE, 1]])
+export const SHOW_VALUE = 'show'
+export const HIDE_VALUE = 'hide'
+const VISIBILITY_COLUMN: SearchColumn = 'SQ-10'
+const SHOWN_RANKS: ReadonlyMap<string, number> = new Map([[SHOW_VALUE, 0], [HIDE_VALUE, 1]])
 const NOTHING_SHOWN: ReadonlySet<number> = new Set()
 
 // see SV-8
@@ -123,8 +123,8 @@ function compareShownValues(a: string, b: string): number {
 function taskTableOf(shown: ReadonlySet<number>): TableColumns<TaskSearchRow> {
   return {
     ...TASK_TABLE,
-    values: { ...TASK_TABLE.values, [SHOW_COLUMN]: (row) => [shown.has(row.taskUid) ? SHOWN_SEARCH_VALUE : NOT_SHOWN_SEARCH_VALUE] },
-    orders: { ...TASK_TABLE.orders, [SHOW_COLUMN]: compareShownValues },
+    values: { ...TASK_TABLE.values, [VISIBILITY_COLUMN]: (row) => [shown.has(row.taskUid) ? SHOW_VALUE : HIDE_VALUE] },
+    orders: { ...TASK_TABLE.orders, [VISIBILITY_COLUMN]: compareShownValues },
   }
 }
 

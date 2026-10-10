@@ -1301,6 +1301,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchPanelWithColumnWidth` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、検索パネルの覚えている列の幅へ当てる（`FR-151` の 表 T-330 の `SV-18`）。 |
 | `searchPanelWithFilterClosed` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた検索パネルの値を答える。 |
 | `searchPanelWithFilterOpened` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterOpened` | PI-37 | 列の見出しの `IC-122` の押下を、その列のフィルタを開いた検索パネルの値へ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
+| `searchPanelWithTableViewsCleared` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithTableViewsCleared` | PI-37 | `IC-153` の押下で、タスクの表とコメントボックスの表の列のフィルタと並べ替えを戻し、開いているフィルタを閉じた検索パネルの値を答える（`FR-151` の 表 T-330 の `SV-1`）。 |
 | `ShowOnlyCheckedBarView` | entry | interface | `src/adapter/screen-renderer/search-panel.ts#ShowOnlyCheckedBarView` | -- | interface ShowOnlyCheckedBarView |
 | `statusGlyphSvg` | entry | function | `src/adapter/screen-renderer/table-window.ts#statusGlyphSvg` | PI-37 | 表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。 |
 | `TaskGroupExpander` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupExpander` | -- | interface TaskGroupExpander |
@@ -1350,7 +1351,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchFilterValueView` | file only | interface | `src/adapter/screen-renderer/table-window.ts#SearchFilterValueView` | -- | interface SearchFilterValueView |
 | `searchPanelWithShownTasks` | file only | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithShownTasks` | -- | function searchPanelWithShownTasks(panel: SearchPanelSession, taskUids: readonly number[], isShown: boolean): SearchPanelSession |
 | `SearchRowView` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#SearchRowView` | -- | interface SearchRowView |
-| `shownCountWordOf` | file only | function | `src/adapter/screen-renderer/search-panel.ts#shownCountWordOf` | -- | function shownCountWordOf(part: string, panel: SearchPanelSession, schedule: Schedule, language: DisplayLanguage): string \| null |
 | `windowTitleEntriesOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowTitleEntriesOf` | -- | function windowTitleEntriesOf(shown: WindowShown, language: DisplayLanguage): readonly CommandItem[] |
 | `ASSIGNEE_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#ASSIGNEE_SEPARATOR` | -- | const ASSIGNEE_SEPARATOR = ', ' |
 | `BLANK_SEARCH_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#BLANK_SEARCH_VALUE` | -- | const BLANK_SEARCH_VALUE = '' |
@@ -1360,8 +1360,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `comparePercentTexts` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#comparePercentTexts` | -- | function comparePercentTexts(a: string, b: string): number |
 | `filteredSearchRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredSearchRows` | -- | function filteredSearchRows( rows: SearchRows, filters: SearchFilters, sort: SearchSort \| null, shown: ReadonlySet<number> = NOTHING_SHOWN, |
 | `filteredTableRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredTableRows` | -- | function filteredTableRows<Row>( rows: readonly Row[], table: TableColumns<Row>, filters: SearchFilters, sort: SearchSort \| null, ): readonly Row[] |
+| `HIDE_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#HIDE_VALUE` | -- | const HIDE_VALUE = 'hide' |
 | `isDateSearchColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#isDateSearchColumn` | -- | function isDateSearchColumn(column: SearchColumn): boolean |
-| `NOT_SHOWN_SEARCH_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#NOT_SHOWN_SEARCH_VALUE` | -- | const NOT_SHOWN_SEARCH_VALUE = 'notShown' |
 | `percentText` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#percentText` | -- | function percentText(percent: number \| null): string |
 | `searchBodyTextOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchBodyTextOf` | -- | function searchBodyTextOf(text: string): string |
 | `SearchColumn` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchColumn` | -- | type SearchColumn = SearchColumnFilter['column'] |
@@ -1369,13 +1369,15 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchSort` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchSort` | -- | type SearchSort = NonNullable<SearchPanelSession['sort']> |
 | `SearchTaskState` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchTaskState` | -- | type SearchTaskState = TaskSearchRow['planActualState'] \| typeof BOTTLENECK_STATE |
 | `searchTaskStateOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchTaskStateOf` | -- | function searchTaskStateOf(row: TaskSearchRow): SearchTaskState |
-| `SHOWN_SEARCH_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#SHOWN_SEARCH_VALUE` | -- | const SHOWN_SEARCH_VALUE = 'shown' |
+| `SHOW_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#SHOW_VALUE` | -- | const SHOW_VALUE = 'show' |
 | `TableColumns` | file only | interface | `src/adapter/screen-renderer/search-table-filters.ts#TableColumns` | -- | interface TableColumns<Row> |
 | `tableColumnValues` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#tableColumnValues` | -- | function tableColumnValues<Row>(rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn): readonly string[] |
 | `TASK_GROUP_PATH_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_GROUP_PATH_SEPARATOR` | -- | const TASK_GROUP_PATH_SEPARATOR = ' \u2192 ' |
 | `TASK_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_SEARCH_COLUMNS` | -- | const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchColumns |
+| `clearEntryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#clearEntryOf` | -- | function clearEntryOf(panel: TableWindowSession, language: DisplayLanguage): CommandItem |
 | `dateText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateText` | -- | function dateText(stored: string \| null): string |
 | `entryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#entryOf` | -- | function entryOf(icon: IconId, language: DisplayLanguage, isChosen = false, label?: string): CommandItem |
+| `isClearEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#isClearEntry` | -- | function isClearEntry(entry: IconId): boolean |
 | `openFilterIn` | file only | function | `src/adapter/screen-renderer/table-window.ts#openFilterIn` | -- | function openFilterIn(panel: TableWindowSession, shown: WindowShown \| null, table: WindowTable): SearchColumn \| null |
 | `tableAfterFilterChange` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterChange` | -- | function tableAfterFilterChange<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, change: SearchFilterChange, table: WindowTable, ): P \| null |
 | `tableAfterFilterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterEntry` | -- | function tableAfterFilterEntry<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, entry: IconId, table: WindowTable, listed?: readonly strin... |
@@ -1385,6 +1387,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `tableWithColumnWidth` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithColumnWidth` | -- | function tableWithColumnWidth<P extends TableWindowSession>(panel: P, column: SearchColumn, width: number): P |
 | `tableWithFilterClosed` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithFilterClosed` | -- | function tableWithFilterClosed<P extends TableWindowSession>(panel: P, shown: WindowShown \| null, table: WindowTable): P \| null |
 | `tableWithFilterOpened` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithFilterOpened` | -- | function tableWithFilterOpened<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, column: SearchColumn, table: WindowTable, ): P \| null |
+| `tableWithViewsCleared` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithViewsCleared` | -- | function tableWithViewsCleared<P extends TableWindowSession>(panel: P): P |
 | `windowShownAfterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowShownAfterEntry` | -- | function windowShownAfterEntry(shown: WindowShown, entry: IconId): WindowShown \| null \| undefined |
 | `WindowTable` | file only | interface | `src/adapter/screen-renderer/table-window.ts#WindowTable` | -- | interface WindowTable |
 | `wordOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#wordOf` | -- | function wordOf(held: { readonly [L in DisplayLanguage]: string } \| undefined, language: DisplayLanguage): string |
@@ -1503,10 +1506,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `fillScreenFrame` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#fillScreenFrame` | -- | function fillScreenFrame( host: Document, layer: HTMLElement, bandLayer: HTMLElement, frame: ScreenFrame, anchors: Map<string, HTMLElement>, ): void |
 | `horizontalScrollbar` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#horizontalScrollbar` | -- | function horizontalScrollbar(frame: ScreenFrame): ScreenFrame['scrollbars'][number] \| undefined |
 | `panelEdge` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#panelEdge` | -- | function panelEdge( frame: ScreenFrame, panel: 'taskGroupPanel' \| 'propertiesPanel', ): ScreenRect \| null |
-| `columnWidthPx` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#columnWidthPx` | -- | function columnWidthPx(column: SearchColumnView): number |
+| `ColumnSizing` | file only | interface | `src/framework/dom-screen-surface/search-panel-drawing.ts#ColumnSizing` | -- | interface ColumnSizing |
+| `columnWidthPx` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#columnWidthPx` | -- | function columnWidthPx(column: SearchColumnView, sizing: ColumnSizing): number |
 | `DrawnTable` | file only | type | `src/framework/dom-screen-surface/search-panel-drawing.ts#DrawnTable` | -- | type DrawnTable = Pick< |
 | `filterChangeWatch` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#filterChangeWatch` | -- | function filterChangeWatch(layer: HTMLElement, onChanged: () => void): { readonly read: () => readonly SearchFilterChange[] } |
 | `focusSearchWordIn` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#focusSearchWordIn` | -- | function focusSearchWordIn(panel: HTMLElement): boolean |
+| `measuredWidthFloor` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#measuredWidthFloor` | -- | function measuredWidthFloor(fontPx: number): number |
 | `pinFixedColumns` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#pinFixedColumns` | -- | function pinFixedColumns(tableBox: Element): void |
 | `SEARCH_FILTER_BOUND_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_FILTER_BOUND_ATTRIBUTE` | -- | const SEARCH_FILTER_BOUND_ATTRIBUTE = 'data-search-filter-bound' |
 | `SEARCH_FILTER_COLUMN_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_FILTER_COLUMN_ATTRIBUTE` | -- | const SEARCH_FILTER_COLUMN_ATTRIBUTE = 'data-search-filter-column' |
@@ -1519,14 +1524,15 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SEARCH_WORD_ROW` | file only | const | `src/framework/dom-screen-surface/search-panel-drawing.ts#SEARCH_WORD_ROW` | -- | const SEARCH_WORD_ROW = 'SV-2' |
 | `searchFilterMenuElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchFilterMenuElement` | -- | function searchFilterMenuElement( host: Document, menu: SearchFilterMenuView, fontPx: number, anchors: Map<string, HTMLElement>, ): HTMLElement |
 | `searchPanelBoxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelBoxOf` | -- | function searchPanelBoxOf(view: TableWindowView, defaultRatio: SizeRatio): ScreenRect |
-| `searchPanelElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelElement` | -- | function searchPanelElement( host: Document, view: TableWindowView, placed: { readonly box: ScreenRect; readonly fontPx: number }, anchors: Map<string, HTMLE... |
+| `searchPanelElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelElement` | -- | function searchPanelElement( host: Document, view: TableWindowView, placed: { readonly box: ScreenRect; readonly fontPx: number; readonly sizing?: ColumnSizi... |
 | `searchPanelFontPxOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelFontPxOf` | -- | function searchPanelFontPxOf(textSizeStep: number, sizes: { readonly [row: string]: number }): number |
 | `searchPanelPainter` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchPanelPainter` | -- | function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyped: () => void, identity = SEARCH_PANEL_IDENTITY) |
-| `searchTableElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchTableElement` | -- | function searchTableElement(host: Document, view: DrawnTable, fontPx: number): HTMLElement |
+| `searchTableElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#searchTableElement` | -- | function searchTableElement(host: Document, view: DrawnTable, fontPx: number, sizing: ColumnSizing = unmeasuredSizing(fontPx)): HTMLElement |
 | `tableKeyOf` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#tableKeyOf` | -- | function tableKeyOf(table: DrawnTable, fontPx: number, filterMenu: unknown): string |
 | `TableWindowIdentity` | file only | interface | `src/framework/dom-screen-surface/search-panel-drawing.ts#TableWindowIdentity` | -- | interface TableWindowIdentity |
 | `TableWindowView` | file only | type | `src/framework/dom-screen-surface/search-panel-drawing.ts#TableWindowView` | -- | type TableWindowView = Omit<SearchPanelView, 'table'> & |
 | `typedWordWatch` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#typedWordWatch` | -- | function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { readonly read: () => string \| null } |
+| `unmeasuredSizing` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#unmeasuredSizing` | -- | function unmeasuredSizing(fontPx: number): ColumnSizing |
 | `windowStyle` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#windowStyle` | -- | function windowStyle(): string |
 | `wordFieldElement` | file only | function | `src/framework/dom-screen-surface/search-panel-drawing.ts#wordFieldElement` | -- | function wordFieldElement(host: Document, word: string, fontPx: number): HTMLElement |
 | `ADD_CHILD_ROW_ENTRY` | file only | const | `src/framework/dom-screen-surface/task-group-panel-drawing.ts#ADD_CHILD_ROW_ENTRY` | -- | const ADD_CHILD_ROW_ENTRY = 'IC-91' |
@@ -1741,4 +1747,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 854 name(s) leave through a public entry (339 of them published by table T-064), 677 more are exported by a file and not by its entry.
+Totals: 855 name(s) leave through a public entry (340 of them published by table T-064), 682 more are exported by a file and not by its entry.

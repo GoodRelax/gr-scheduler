@@ -12,14 +12,14 @@ const SV_7_CONTROLS_STAY = '操作の段をフィルタの一番上に置き、�
 const SV_7_MARKS_KEPT = '⛔ 打った語で、値ごとのチェックを変えてはならない（MUST NOT）'
 const SV_7_LISTED_ONLY = '`IC-125`・`IC-126` は、一覧にいま出ている項目のチェックだけを変え、検索で一覧に出ていない項目のチェックは変えない。'
 const SV_7_HEADING_WORD = '見出しのセルの語を押したときも、`IC-122` を押したものとして同じに答えること（MUST）'
-const SV_7_CLOSE = '⭐ 開いているフィルタは、同じ列の `IC-122` をもう一度押すか、`Esc`（`SV-14`）で閉じる。'
-const SV_7_NOT_OUTSIDE = '⛔ フィルタの外を押しても閉じてはならない（MUST NOT）'
+const SV_7_CLOSE = '⭐ 開いているフィルタは、同じ列の `IC-122` をもう一度押すか、`Esc`（`SV-14`）か、フィルタの箱の外を押すと閉じる。'
+const SV_7_OUTSIDE = '外を押して閉じたときは、その押下を押した先（日程表のタスク・ほかの窓・`App Header`・同じ窓のほかの所）にも渡すこと（MUST）'
 const SV_7_DROPDOWN = 'フィルタは、押した列の見出しのセルの下に、表の上に重ねるドロップダウンとして開くこと（MUST）'
 const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク の 4 列）、コメントボックスの表は `SQ-7` までを左に固定し'
 const RW_10_FIXED = '横は `DT-1`・`DT-3`・`DT-4`（ステータス・進捗・タスク —— 表 T-347 の並びで左の 3 列）を左に固定し'
 const SV_18_MEASURED =
-  '⭐ 中身の字の幅が決まる列（ステータス・進捗・日付 —— `SQ-5`・`SQ-11`・`SQ-3`・`SQ-4`・`SQ-12`・`SQ-13`・`SQ-9`）の既定は、表 T-333 のどの段でも、どちらの言語でも、値も見出し（語と `IC-122`）も省略記号で切られない最小の幅とする'
-const RW_9_MEASURED = '中身の字の幅が決まる列（`DT-1`・`DT-3`・`DT-5`・`DT-6`）の既定は、`SV-18` と同じく測った最小の幅とする'
+  '⭐ 中身の字の幅が決まる列（ステータス・進捗・日付 —— `SQ-5`・`SQ-11`・`SQ-3`・`SQ-4`・`SQ-12`・`SQ-13`・`SQ-9`）の既定は、そのときの言語（`FR-038`）と字の段（`SV-16`）で、見出し（語と `IC-122`）も値も省略記号で切られない最小の幅とすること（MUST）'
+const RW_9_MEASURED = '中身の字の幅が決まる列（`DT-1`・`DT-3`・`DT-5`・`DT-6`）の既定は、`SV-18` と同じ規則で測る'
 const SV_18_FOLLOW = '握っているあいだ、列の幅をポインタに追従させること（MUST）'
 const SV_18_OTHERS = 'その境目の左の列の幅を変える —— ほかの列の幅は変えず、右の列はその分だけ動く。'
 const SV_11_EDGE = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインタに追従させること（MUST）'
@@ -59,8 +59,9 @@ const WIDTH_ROW: Readonly<Record<string, string>> = {
 }
 
 /** @purity pure */
-function settingPx(column: string): number {
+function settingPx(column: string): number | null {
   const said = cellOf('T-206', WIDTH_ROW[column] ?? '', '既定')
+  if (said.startsWith('測る')) return null
   const px = /^(\d+)px/.exec(said)
   if (px === null) throw new Error(`T-206 holds no px default for ${column}: ${said}`)
   return Number(px[1])
@@ -372,7 +373,7 @@ async function dragBorder(page: Page, window: string, column: string, dx: number
 
 test.describe('CR-660 -- the clauses these cases are driven by', () => {
   test('SV-6, SV-7, SV-11, SV-18, RW-4, RW-9, RW-10, SQ-1, SQ-5, DT-1 and DT-4 still read this way', () => {
-    for (const clause of [SV_7_CONTROLS_STAY, SV_7_MARKS_KEPT, SV_7_LISTED_ONLY, SV_7_HEADING_WORD, SV_7_CLOSE, SV_7_NOT_OUTSIDE, SV_7_DROPDOWN]) {
+    for (const clause of [SV_7_CONTROLS_STAY, SV_7_MARKS_KEPT, SV_7_LISTED_ONLY, SV_7_HEADING_WORD, SV_7_CLOSE, SV_7_OUTSIDE, SV_7_DROPDOWN]) {
       expect(cellOf('T-330', 'SV-7', '定め')).toContain(clause)
     }
     expect(cellOf('T-330', 'SV-6', '定め')).toContain(SV_6_FIXED)
@@ -549,7 +550,7 @@ test.describe('T-330 SV-7 -- how the open filter closes (area 3)', () => {
     }
   })
 
-  test(`SV-7 「${SV_7_NOT_OUTSIDE}」, and Esc closes the filter before the panel (SV-14)`, async () => {
+  test(`SV-7 「${SV_7_CLOSE}」 -- a press outside closes the filter, and Esc closes it before the panel (SV-14)`, async () => {
     const stage = await withSearch()
     try {
       const page = stage.page
@@ -559,7 +560,9 @@ test.describe('T-330 SV-7 -- how the open filter closes (area 3)', () => {
       if (panel === null) throw new Error('premise: the panel is on the screen')
       // STEP: press the schedule outside the panel, above its top edge
       await pressAt(page, canvas.right - 60, Math.max(canvas.y + 30, panel.y - 30))
-      expect(await menuCount(page, PANEL), SV_7_NOT_OUTSIDE).toBe(1)
+      expect(await menuCount(page, PANEL), SV_7_CLOSE).toBe(0)
+      await openFilter(page, PANEL, 'SQ-2')
+      expect(await menuCount(page, PANEL)).toBe(1)
       await page.keyboard.press('Escape')
       await settle(page)
       expect(await menuCount(page, PANEL), 'SV-14: Esc closes the filter').toBe(0)
@@ -569,7 +572,7 @@ test.describe('T-330 SV-7 -- how the open filter closes (area 3)', () => {
     }
   })
 
-  test('SV-7 on the report: IC-122 pressed again closes, a press outside does not', async () => {
+  test('SV-7 on the report: IC-122 pressed again closes, and so does a press outside', async () => {
     const stage = await withReport()
     try {
       const page = stage.page
@@ -579,7 +582,9 @@ test.describe('T-330 SV-7 -- how the open filter closes (area 3)', () => {
       const report = await boxOf(page, REPORT)
       if (report === null) throw new Error('premise: the report is on the screen')
       await pressAt(page, canvas.right - 60, Math.max(canvas.y + 30, report.y - 30))
-      expect(await menuCount(page, REPORT), SV_7_NOT_OUTSIDE).toBe(1)
+      expect(await menuCount(page, REPORT), SV_7_CLOSE).toBe(0)
+      await openFilter(page, REPORT, 'DT-3')
+      expect(await menuCount(page, REPORT)).toBe(1)
       await openFilter(page, REPORT, 'DT-3')
       expect(await menuCount(page, REPORT)).toBe(0)
     } finally {
@@ -702,22 +707,24 @@ test.describe('T-331 SQ-5 / T-347 DT-1 / T-346 RW-4 -- the status glyph (area 4)
 test.describe('T-330 SV-18 / T-346 RW-9 -- default widths and the grips (areas 5 and 6)', () => {
   test.setTimeout(180_000)
 
-  test('SV-18: each tasks table column starts at its T-206 width', async () => {
+  test('SV-18: each tasks table column T-206 sizes starts at its T-206 width', async () => {
     const stage = await withSearch()
     try {
       for (const one of await headingColumns(stage.page, PANEL)) {
-        expect(Math.abs(one.box.width - settingPx(one.column)), `${one.column} -> ${WIDTH_ROW[one.column]}`).toBeLessThanOrEqual(1)
+        const px = settingPx(one.column)
+        if (px !== null) expect(Math.abs(one.box.width - px), `${one.column} -> ${WIDTH_ROW[one.column]}`).toBeLessThanOrEqual(1)
       }
     } finally {
       await stage.close()
     }
   })
 
-  test('RW-9: each report column starts at its T-206 width', async () => {
+  test('RW-9: each report column T-206 sizes starts at its T-206 width', async () => {
     const stage = await withReport()
     try {
       for (const one of await headingColumns(stage.page, REPORT)) {
-        expect(Math.abs(one.box.width - settingPx(one.column)), `${one.column} -> ${WIDTH_ROW[one.column]}`).toBeLessThanOrEqual(1)
+        const px = settingPx(one.column)
+        if (px !== null) expect(Math.abs(one.box.width - px), `${one.column} -> ${WIDTH_ROW[one.column]}`).toBeLessThanOrEqual(1)
       }
     } finally {
       await stage.close()
