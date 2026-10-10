@@ -42,7 +42,7 @@
 //   FR-029   「アイコンの名簿と置き場は `_assets/tbl-glossary.md` の 表 T-109 に
 //            ……従うこと（MUST）」 -- 表 T-109 is 「アイコンの全数」.
 //   FR-053   「どの入口がどの構えかは 表 T-109 の `構え` の欄が持つ」
-//   表 T-109 IC-50  「マイルストーンの図形の一覧を、同じ入口で開閉する（`S-142`）。
+//   表 T-109 IC-50  「マイルストーンの図形の一覧を、同じ入口で展開し、折りたたむ（`S-142`）。
 //            ⭐ トグルは 1 つである」 -- the entrance a person opens the fifteen
 //            with, and the one these cases open them with too.
 //   the note under 表 T-012  ⛔ 「`SH-5` が並べる 15 の印と
@@ -191,7 +191,7 @@ const COMMAND_PALETTE = 'Command Palette'
 /** The row of 表 T-023b the milestone entrances arm. */
 const MILESTONE_ARM = 'AR-3'
 /**
- * IC-50 of 表 T-109 -- 「マイルストーンの図形の一覧を、同じ入口で開閉する」.
+ * IC-50 of 表 T-109 -- 「マイルストーンの図形の一覧を、同じ入口で展開し、折りたたむ」.
  *
  * ⚠️ THE ONE ROW ID THIS FILE NAMES. The table gives it no arm and no mark, so
  * nothing in the fifteen rows below leads to it; it is the toggle that has to be
