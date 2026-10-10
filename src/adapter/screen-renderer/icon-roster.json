@@ -1147,7 +1147,7 @@
     "Resource List"
    ],
    "group": null,
-   "entryTo": "一覧のすべてを選ぶ",
+   "entryTo": "一覧のすべてを選択する",
    "authority": "`FR-099`",
    "arms": null,
    "armsShape": null
@@ -1169,7 +1169,7 @@
     "Resource List"
    ],
    "group": null,
-   "entryTo": "どの割当からも参照されていない担当を選ぶ",
+   "entryTo": "どの割当からも参照されていない担当を選択する",
    "authority": "`FR-099`（表 T-108 の `CM-43` は、本行と `IC-66` の 2 手で果たす。<br>⭐ **本行は選ぶだけであり、`CM-43` を単独で出す行ではない** —— **2 手で果たす規則と、消す入口をちょうど 1 つにする理由は同要求が持つ**）",
    "arms": null,
    "armsShape": null
@@ -1191,7 +1191,7 @@
     "Resource List"
    ],
    "group": null,
-   "entryTo": "選ばれていることを示し、同じ入口で解く",
+   "entryTo": "選ばれていることを示し、同じ入口で選択を解除する",
    "authority": "`FR-099`",
    "arms": null,
    "armsShape": null
@@ -1202,7 +1202,7 @@
     "Resource List"
    ],
    "group": null,
-   "entryTo": "選ばれていないことを示し、同じ入口で選ぶ",
+   "entryTo": "選ばれていないことを示し、同じ入口で選択する",
    "authority": "`FR-099`",
    "arms": null,
    "armsShape": null
