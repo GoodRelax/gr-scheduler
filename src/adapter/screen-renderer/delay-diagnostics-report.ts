@@ -1,4 +1,4 @@
-// Builds the Delay Diagnostics Report window for one frame, and the Markdown its IC-108 and IC-140 hand out.
+// Builds the Delay Diagnostics Report window for one frame, its Visibility column, and the Markdown its IC-108 and IC-140 hand out.
 // @unit      UF-194  (docs/spec/05-07-design.md, table T-075)
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
@@ -30,38 +30,38 @@ import {
   filteredTableRows,
   percentText,
   tableColumnValues,
+  withVisibilityColumn,
   type TableColumns,
 } from './search-table-filters'
 import {
   clearEntryOf,
   dateText,
   entryOf,
-  isClearEntry,
-  openFilterIn,
+  scheduleFilterEntryOf,
+  scheduleFilterRefusalsOf,
   tableAfterFilterChange,
-  tableAfterFilterEntry,
-  tableColumnsOf,
-  tableFilterMenuOf,
-  tableWithColumnWidth,
+  tableAfterVisibilityChange,
   tableWithFilterClosed,
-  tableWithFilterOpened,
-  tableWithViewsCleared,
-  windowShownAfterEntry,
+  visibilityHeadingOf,
+  visibilityLabelOf,
+  windowAfterEntry,
+  windowColumnsViewOf,
   windowTitleEntriesOf,
+  windowWithColumnWidth,
   wordOf,
+  wouldScheduleFilterChange,
   type MarkGlyph,
   type SearchFilterChange,
-  type TableWindowSession,
+  type TableWindowState,
   type WindowTable,
 } from './table-window'
-import { windowPlaceInRange, type WindowShown } from './window-box'
+import { windowPlaceInRange } from './window-box'
 
 const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnostics Report'
 
 const EXPORT_ENTRY: IconId = 'IC-140'
 const COPY_ENTRY: IconId = 'IC-108'
 const TEXT_SIZE_ENTRY: IconId = 'IC-127'
-const FILTER_ENTRY: IconId = 'IC-122'
 
 const HEADING = displayWords.surfaces.find((entry) => entry.name === DELAY_DIAGNOSTICS_REPORT)?.heading
 
@@ -80,6 +80,11 @@ const WALL_WORDS: ReadonlyMap<string, LanguageWord> = new Map(displayWords.delay
 export const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.rowId)
 
 const STATUS_COLUMN = 'DT-1'
+
+const VISIBILITY_COLUMN = 'DT-8'
+
+// WHY: the Visibility column is a tool laid on the schedule, not a finding, so the Markdown neither prints nor filters by it.
+const MARKDOWN_COLUMNS: readonly string[] = DELAY_REPORT_COLUMNS.filter((column) => column !== VISIBILITY_COLUMN)
 
 // see DT-4, SJ-1
 const JUMP_COLUMN_AT = DELAY_REPORT_COLUMNS.indexOf('DT-4')
@@ -137,13 +142,9 @@ const STATUS_GLYPHS: Readonly<Record<DelayReportStatus, MarkGlyph | null>> = {
   settled: null,
 }
 
-// see RW-1, RW-5, RW-8, S-451, WB-6
+// see RW-1, RW-5, RW-8, S-451, S-547, WB-6
 // WHY: held by the shell and never saved (FR-134 MUST NOT); the text size is the search panel's (CR-617 decision 3).
-export interface DelayDiagnosticsReportWindow {
-  readonly shown: WindowShown
-  readonly panel: TableWindowSession
-  readonly isInFront: boolean
-}
+export type DelayDiagnosticsReportWindow = TableWindowState
 
 export const OPENED_DELAY_DIAGNOSTICS_REPORT: DelayDiagnosticsReportWindow = {
   shown: 'normal',
@@ -292,6 +293,13 @@ function cellsOf(row: DelayReportRow, language: DisplayLanguage): readonly strin
   return DELAY_REPORT_COLUMNS.map((column) => cells[column] ?? BLANK_SEARCH_VALUE)
 }
 
+// see DT-8, TV-2
+/** @purity pure */
+function reportColumnsOf(window: DelayDiagnosticsReportWindow): TableColumns<ShownTaskGroup> {
+  const hidden = new Set(window.panel.visibility.hiddenKeys)
+  return withVisibilityColumn(REPORT_TABLE, VISIBILITY_COLUMN, (shown) => !hidden.has(shown.row.taskUid))
+}
+
 /** @purity pure */
 function cellOf(shown: ShownTaskGroup, column: string): string {
   return shown.cells[DELAY_REPORT_COLUMNS.indexOf(column)] ?? BLANK_SEARCH_VALUE
@@ -336,7 +344,7 @@ function shownTaskGroupsOf(window: DelayDiagnosticsReportWindow, rows: readonly 
 /** @purity pure */
 function shownTaskGroupsFrom(window: DelayDiagnosticsReportWindow, all: readonly ShownTaskGroup[]): readonly ShownTaskGroup[] {
   const found = all.filter((shown) => isWordFound(shown, window.panel.word))
-  return filteredTableRows(found, REPORT_TABLE, window.panel.filters, window.panel.sort)
+  return filteredTableRows(found, reportColumnsOf(window), window.panel.filters, window.panel.sort)
 }
 
 // see RW-9, SV-18, DT-1
@@ -349,18 +357,38 @@ function reportWidthSamplesIn(all: readonly ShownTaskGroup[], language: DisplayL
   }
 }
 
+/** @purity pure */
+function reportLabelOf(column: string, value: string, language: DisplayLanguage): string {
+  if (column === VISIBILITY_COLUMN) return visibilityLabelOf(value, language) ?? value
+  return column === STATUS_COLUMN ? statusWordOf(value as DelayReportStatus, language) : value
+}
+
 // see T-347, SV-7, RW-10
 /** @purity pure */
-function reportTableOf(found: () => readonly ShownTaskGroup[], language: DisplayLanguage, all?: readonly ShownTaskGroup[]): WindowTable {
+function reportTableOf(
+  window: DelayDiagnosticsReportWindow,
+  found: () => readonly ShownTaskGroup[],
+  language: DisplayLanguage,
+  all?: readonly ShownTaskGroup[],
+): WindowTable {
+  const columns = reportColumnsOf(window)
   return {
     columns: DELAY_REPORT_COLUMNS,
     fixedCount: DELAY_REPORT_COLUMNS.indexOf(LAST_FIXED_COLUMN) + 1,
     headingOf: (column) => partWordOf(COLUMN_WORDS, column, language),
     isDateColumn: (column) => REPORT_TABLE.dates[column] !== undefined,
-    valuesOf: (column) => tableColumnValues(found(), REPORT_TABLE, column),
-    labelOf: (column, value) => (column === STATUS_COLUMN ? statusWordOf(value as DelayReportStatus, language) : value),
+    valuesOf: (column) => tableColumnValues(found(), columns, column),
+    labelOf: (column, value) => reportLabelOf(column, value, language),
     ...(all === undefined ? {} : { widthSamplesOf: reportWidthSamplesIn(all, language) }),
   }
+}
+
+// WHY: the report shows only the tasks it rows, so a report that leaves one out changes the schedule with no row Hide.
+/** @purity pure */
+function wouldReportFilterChange(window: DelayDiagnosticsReportWindow, rows: readonly DelayReportRow[], schedule: Schedule): boolean {
+  const rowed = new Set(rows.map((row) => row.taskUid))
+  const isEveryTaskRowed = schedule.tasks.every((task) => rowed.has(task.uid))
+  return wouldScheduleFilterChange(window.panel.visibility, () => rowed, isEveryTaskRowed)
 }
 
 // see RW-4, DX-2, DX-7
@@ -404,11 +432,13 @@ export function delayDiagnosticsReportFromWindow(
   if (window === null || report === null) return null
   const language = displayLanguageOf(session)
   const isOpen = window.shown !== 'minimised'
-  const all = isOpen ? delayDiagnosticsReportRows(report, schedule) : []
+  const reported = delayDiagnosticsReportRows(report, schedule)
+  const all = isOpen ? reported : []
   const withCells = taskGroupsWithCells(all, language)
   const found = shownTaskGroupsFrom(window, withCells)
-  const table = reportTableOf(() => found, language, withCells)
-  const open = openFilterIn(window.panel, window.shown, table)
+  const table = reportTableOf(window, () => found, language, withCells)
+  const scheduleFilter = scheduleFilterEntryOf(window.panel.visibility, wouldReportFilterChange(window, reported, schedule), language)
+  const rows = reportRowViewsOf(window, found)
   return {
     heading: wordOf(HEADING, language),
     shown: window.shown,
@@ -416,22 +446,31 @@ export function delayDiagnosticsReportFromWindow(
     canvas: layout.canvas,
     ...windowPlaceInRange(window.panel, layout.canvas),
     textSizeStep: layout.textSizeStep,
-    tableEntries: [clearEntryOf(window.panel, language)],
+    tableEntries: [clearEntryOf(window.panel, language), scheduleFilter],
     titleEntries: [entryOf(TEXT_SIZE_ENTRY, language), ...windowTitleEntriesOf(window.shown, language)],
     toolEntries: [entryOf(EXPORT_ENTRY, language), entryOf(COPY_ENTRY, language)],
     word: window.panel.word,
     summary: isOpen ? summaryOf(report, all, language, true) : [],
-    columns: tableColumnsOf(window.panel, table, language),
-    filterMenu: open === null ? null : tableFilterMenuOf(window.panel, open, table, language),
-    rows: found.map((shown) => ({
-      cells: shown.cells,
-      glyph: STATUS_GLYPHS[shown.row.status],
-      status: shown.row.status,
-      target: { kind: 'task', taskUid: shown.row.taskUid },
-    })),
+    ...windowColumnsViewOf(window, table, language),
+    rows,
     jumpAt: JUMP_COLUMN_AT,
     glyphAt: DELAY_REPORT_COLUMNS.indexOf(STATUS_COLUMN),
+    showAt: DELAY_REPORT_COLUMNS.indexOf(VISIBILITY_COLUMN),
+    showHeading: visibilityHeadingOf(rows),
+    entryRefusals: scheduleFilterRefusalsOf(scheduleFilter, language),
   }
+}
+
+/** @purity pure */
+function reportRowViewsOf(window: DelayDiagnosticsReportWindow, found: readonly ShownTaskGroup[]): readonly DelayReportRowView[] {
+  const hidden = new Set(window.panel.visibility.hiddenKeys)
+  return found.map((shown) => ({
+    cells: shown.cells,
+    glyph: STATUS_GLYPHS[shown.row.status],
+    status: shown.row.status,
+    shown: !hidden.has(shown.row.taskUid),
+    target: { kind: 'task', taskUid: shown.row.taskUid },
+  }))
 }
 
 // see T-346, SV-7, SV-8, WB-2, WB-3, RW-1, RW-2, IC-153
@@ -444,34 +483,30 @@ export function delayDiagnosticsReportAfterEntry(
   rows: { readonly report: DelayDiagnosticsReport; readonly schedule: Schedule; readonly language: DisplayLanguage },
   listed?: readonly string[] | null,
 ): { readonly window: DelayDiagnosticsReportWindow | null } | null {
-  const shown = windowShownAfterEntry(window.shown, entry)
-  if (shown === null) return { window: null }
-  if (shown !== undefined) return { window: { ...window, shown } }
-  if (isClearEntry(entry)) return { window: { ...window, panel: tableWithViewsCleared(window.panel) } }
-  const unfiltered = { ...window, panel: { ...window.panel, filters: { ...window.panel.filters, columns: [] } } }
   const all = delayDiagnosticsReportRows(rows.report, rows.schedule)
-  const table = reportTableOf(() => shownTaskGroupsOf(unfiltered, all, rows.language), rows.language)
-  const panel =
-    entry === FILTER_ENTRY
-      ? filterColumn === null ? null : tableWithFilterOpened(window.panel, window.shown, filterColumn, table)
-      : tableAfterFilterEntry(window.panel, window.shown, entry, table, listed)
-  return panel === null ? null : { window: { ...window, panel } }
+  return windowAfterEntry(window, entry, filterColumn, {
+    wouldChange: () => wouldReportFilterChange(window, all, rows.schedule),
+    tableOf: (unfiltered) => reportTableOf(window, () => shownTaskGroupsOf(unfiltered, all, rows.language), rows.language),
+  }, listed)
 }
 
-// see SV-7
+// see SV-7, DT-8, TV-2
 /** @purity pure */
 export function delayDiagnosticsReportAfterFilterChange(
   window: DelayDiagnosticsReportWindow,
   change: SearchFilterChange,
 ): DelayDiagnosticsReportWindow {
-  const panel = tableAfterFilterChange(window.panel, window.shown, change, reportTableOf(() => [], COLUMNS_ONLY_LANGUAGE))
-  return panel === null ? window : { ...window, panel }
+  const panel =
+    change.kind === 'shown'
+      ? tableAfterVisibilityChange(window.panel, change.keys, change.isShown)
+      : tableAfterFilterChange(window.panel, window.shown, change, reportTableOf(window, () => [], COLUMNS_ONLY_LANGUAGE))
+  return panel === null || panel === window.panel ? window : { ...window, panel }
 }
 
 // see SV-14, IN-4
 /** @purity pure */
 export function delayDiagnosticsReportWithFilterClosed(window: DelayDiagnosticsReportWindow): DelayDiagnosticsReportWindow | null {
-  const panel = tableWithFilterClosed(window.panel, window.shown, reportTableOf(() => [], COLUMNS_ONLY_LANGUAGE))
+  const panel = tableWithFilterClosed(window.panel, window.shown, reportTableOf(window, () => [], COLUMNS_ONLY_LANGUAGE))
   return panel === null ? null : { ...window, panel }
 }
 
@@ -482,8 +517,20 @@ export function delayDiagnosticsReportWithColumnWidth(
   column: string,
   width: number,
 ): DelayDiagnosticsReportWindow {
-  const panel = tableWithColumnWidth(window.panel, column, width)
-  return panel === window.panel ? window : { ...window, panel }
+  return windowWithColumnWidth(window, column, width)
+}
+
+// see RW-6, DT-8
+/** @purity pure */
+function markdownWindowOf(window: DelayDiagnosticsReportWindow): DelayDiagnosticsReportWindow {
+  const columns = window.panel.filters.columns.filter((one) => one.column !== VISIBILITY_COLUMN)
+  const sort = window.panel.sort?.column === VISIBILITY_COLUMN ? null : window.panel.sort
+  return { ...window, panel: { ...window.panel, filters: { ...window.panel.filters, columns }, sort } }
+}
+
+/** @purity pure */
+function markdownCellsOf(cells: readonly string[]): readonly string[] {
+  return cells.filter((_, at) => DELAY_REPORT_COLUMNS[at] !== VISIBILITY_COLUMN)
 }
 
 // see RW-6, T-315
@@ -499,7 +546,7 @@ function markdownWordsOf(language: DisplayLanguage): DelayReportWords {
     madeAt: word('madeAt'),
     filter: word('filter'),
     none: word('none'),
-    columns: DELAY_REPORT_COLUMNS.map((column) => partWordOf(COLUMN_WORDS, column, language)),
+    columns: MARKDOWN_COLUMNS.map((column) => partWordOf(COLUMN_WORDS, column, language)),
     statuses,
   }
 }
@@ -514,8 +561,9 @@ export function delayDiagnosticsReportMarkdownOf(
   stamp: { readonly documentName: string; readonly madeAt: string },
 ): string {
   const all = delayDiagnosticsReportRows(report, schedule)
-  const rows = shownTaskGroupsOf(window, all, language).map((shown) => ({ status: shown.row.status, cells: shown.cells }))
-  const columns = window.panel.filters.columns.map((one) => ({
+  const printed = markdownWindowOf(window)
+  const rows = shownTaskGroupsOf(printed, all, language).map((shown) => ({ status: shown.row.status, cells: markdownCellsOf(shown.cells) }))
+  const columns = printed.panel.filters.columns.map((one) => ({
     heading: partWordOf(COLUMN_WORDS, one.column, language),
     condition: one.hiddenValues.length > 0 ? `-(${one.hiddenValues.map((value) => (one.column === STATUS_COLUMN ? statusText(value as DelayReportStatus, language) : value)).join(WORD_JOIN)})` : `${dateText(one.from)}${DATE_RANGE}${dateText(one.to)}`,
   }))

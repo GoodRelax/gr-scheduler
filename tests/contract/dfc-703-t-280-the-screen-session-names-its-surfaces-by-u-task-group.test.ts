@@ -107,8 +107,8 @@ describe('DFC-703 -- the manuscript these cases are driven by', () => {
 })
 
 describe('DFC-703 -- PI-18 the surface an entrance opens is named by its U row', () => {
-  it('IC-62 makes surfaceEntryPressed naming the Resource List by its U row', () => {
-    expect(eventOfPressOn(ROSTER_ENTRANCE)).toEqual({ type: 'surfaceEntryPressed', surfaceName: uRowNamed('Resource List') })
+  it('CR-722 RO-1: IC-62 opens the Resource List window, so it makes no surfaceEntryPressed', () => {
+    expect(eventOfPressOn(ROSTER_ENTRANCE)).toBeNull()
   })
 
   it('IC-2 makes surfaceEntryPressed naming the Export Chooser by its U row', () => {
@@ -122,8 +122,8 @@ describe('DFC-703 -- PI-18 the surface an entrance opens is named by its U row',
     })
   })
 
-  it('each surface the entrances open is a value T-280 allows', () => {
-    expect(OPEN_STATE_ROWS).toContain(uRowNamed('Resource List'))
+  it('each surface the entrances open is a value T-280 allows, and the Resource List is none of them (CR-722 X-2)', () => {
+    expect(OPEN_STATE_ROWS).not.toContain(uRowNamed('Resource List'))
     expect(OPEN_STATE_ROWS).toContain(uRowNamed('Export Chooser'))
   })
 })
@@ -150,11 +150,11 @@ describe('DFC-703 -- T-280 surfaceEntryPressed x open: the road surface that awa
     expect(built.surfaceName()).toBe('Difference Review')
   })
 
-  it('U-54 stands (it awaits no road answer): IC-62 replaces it with the roster and tells nothing', async () => {
+  it('U-54 stands: IC-62 opens a window and leaves the surface standing, telling nothing (CR-722 RO-1)', async () => {
     const built = await paletteStage()
     await built.press(surfaceOfEntrance(EXPORT_ENTRANCE), EXPORT_ENTRANCE)
     await built.press(surfaceOfEntrance(ROSTER_ENTRANCE), ROSTER_ENTRANCE)
-    expect(built.surfaceName()).toBe('Resource List')
+    expect(built.surfaceName()).toBe('Export Chooser')
     expect(toldReasons(built.last())).not.toContain(REFUSAL)
   })
 })

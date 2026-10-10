@@ -185,8 +185,11 @@ export interface InputContext {
   readonly focusedWindow?: WindowName | null
   readonly isFocusInPropertiesPanel?: boolean
   readonly isAgentApiEnabled?: boolean
-  // see RW-1, RW-5, S-451
+  // see RW-1, RW-5, RO-1, RO-6, S-451, S-545
   readonly delayDiagnosticsReport?: { readonly shown: 'normal' | 'minimised' | 'maximised'; readonly isInFront: boolean } | null
+  readonly resourceList?: { readonly shown: 'normal' | 'minimised' | 'maximised'; readonly isInFront: boolean } | null
+  // WHY: the resources the Resource List lists after its word and filters; absent, every resource of the document.
+  readonly listedResourceUids?: readonly number[]
   readonly isSurfaceStanding: boolean
   readonly dualCursorFollowing: DualCursorSide | null
   readonly today: string
@@ -1237,7 +1240,7 @@ function commandFromVisibleElement(element: VisibleElement, context: InputContex
 /** @purity pure */
 function resourceListChoiceCommand(entry: string, context: InputContext): TranslatedInput {
   const schedule = context.document.schedule
-  const uids = resourceListChoiceOfEntry(entry, schedule)
+  const uids = resourceListChoiceOfEntry(entry, schedule, context.listedResourceUids)
   const listed = new Set(schedule.resources.map((one) => one.uid))
   const chosen = new Set((context.chosenResources ?? []).filter((uid) => listed.has(uid)))
   const isSameChoice = uids.length === chosen.size && uids.every((uid) => chosen.has(uid))
@@ -1246,14 +1249,16 @@ function resourceListChoiceCommand(entry: string, context: InputContext): Transl
 }
 
 /** @purity pure */
-function resourceListChoiceOfEntry(entry: string, schedule: Schedule): readonly number[] {
+function resourceListChoiceOfEntry(entry: string, schedule: Schedule, listedUids?: readonly number[]): readonly number[] {
   if (entry === ENTRY.resourceListClearChosen) return []
-  if (entry === ENTRY.resourceListChooseAll) return schedule.resources.map((one) => one.uid)
+  const listed = listedUids === undefined ? null : new Set(listedUids)
+  const resources = schedule.resources.filter((one) => listed === null || listed.has(one.uid))
+  if (entry === ENTRY.resourceListChooseAll) return resources.map((one) => one.uid)
   const referred = new Set<number>()
   for (const assignment of schedule.assignments) {
     if (assignment.resourceUid !== null) referred.add(assignment.resourceUid)
   }
-  return schedule.resources.filter((one) => !referred.has(one.uid)).map((one) => one.uid)
+  return resources.filter((one) => !referred.has(one.uid)).map((one) => one.uid)
 }
 
 /** @purity pure */
@@ -1419,6 +1424,7 @@ export function taskGroupsAtZoomY(
 /** @purity pure */
 export function escapeContextOf(context: InputContext): EscapeContext {
   const report = context.delayDiagnosticsReport ?? null
+  const resourceList = context.resourceList ?? null
   return {
     isNoticeStanding: context.isNoticeStanding === true,
     isTextEntryUnsettled: context.isTextEntryUnsettled,
@@ -1431,6 +1437,8 @@ export function escapeContextOf(context: InputContext): EscapeContext {
       context.isAgentApiEnabled === true && isWindowStandingIn(context.screen, 'dialogueFieldDisplayState'),
     focusedWindow: context.focusedWindow ?? null,
     isDelayDiagnosticsReportInFront: report?.isInFront === true,
+    isResourceListStanding: resourceList !== null && resourceList.shown !== 'minimised',
+    isResourceListInFront: resourceList?.isInFront === true,
     isFocusInPropertiesPanel: context.isFocusInPropertiesPanel === true,
     isArmed: context.screen.armModeState.kind !== 'notArmed',
     isPropertiesPanelOpen: context.isPropertiesPanelShowing === true,

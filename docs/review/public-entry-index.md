@@ -616,6 +616,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `agentApiMembers` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#agentApiMembers` | -- | function agentApiMembers(wiring: AgentApiWiring): AgentApi |
 | `ImportLanding` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#ImportLanding` | -- | type ImportLanding = \| boolean \| { readonly landed: false; readonly refusals: readonly InvariantRefusal[] } export type AgentChangeReceiver = (notice: Notify... |
 | `messageOf` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#messageOf` | -- | function messageOf(thrown: unknown): string |
+| `SearchTableVisibility` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#SearchTableVisibility` | -- | interface SearchTableVisibility |
+| `VisibilityTable` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#VisibilityTable` | -- | type VisibilityTable = 'searchPanel' \| 'delayDiagnosticsReport' \| 'resourceList' |
 
 ## InputCommandTranslator (PI-18, `src/adapter/input-command-translator/input-command-translator.ts`)
 
@@ -1228,7 +1230,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayDiagnosticsReportFileNameOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFileNameOf` | PI-37 | 書き出すファイルの提案の名を作る（表 T-346 の `RW-7`）。 |
 | `delayDiagnosticsReportMarkdownOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportMarkdownOf` | PI-37 | 窓のいまの並べ替えとフィルタで、コピーと書き出しの Markdown の文字列を作る（表 T-346 の `RW-6`）。 |
 | `DelayDiagnosticsReportView` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportView` | -- | interface DelayDiagnosticsReportView extends Omit<SearchPanelView, 'table' \| 'rows'> |
-| `DelayDiagnosticsReportWindow` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・フィルタ・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
+| `DelayDiagnosticsReportWindow` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・フィルタ・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
 | `delayDiagnosticsReportWithColumnWidth` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、窓の値へ当てる（表 T-346 の `RW-9`）。 |
 | `delayDiagnosticsReportWithFilterClosed` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた窓の値を答える（表 T-330 の `SV-14`）。 |
 | `DialogueField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DialogueField` | -- | interface DialogueField |
@@ -1268,7 +1270,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OpenChoiceLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#OpenChoiceLine` | -- | interface OpenChoiceLine |
 | `OpenChooser` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#OpenChooser` | -- | interface OpenChooser extends OpenSurface |
 | `OPENED_DELAY_DIAGNOSTICS_REPORT` | entry | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#OPENED_DELAY_DIAGNOSTICS_REPORT` | PI-37 | 開いたばかりの遅延診断レポートの窓の値（表 T-346 の `RW-1`、`S-451`）。 |
-| `OpenModal` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#OpenModal` | -- | type OpenModal = \| HelpModal \| ResourceList \| ExportChooser \| OpenChooser \| (OpenSurface & |
+| `OPENED_RESOURCE_LIST` | entry | const | `src/adapter/screen-renderer/resource-list.ts#OPENED_RESOURCE_LIST` | PI-37 | 開いたばかりの担当リストのウィンドウの値（表 T-370 の `RO-1`、`S-545`）。 |
+| `OpenModal` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#OpenModal` | -- | type OpenModal = \| HelpModal \| ExportChooser \| OpenChooser \| (OpenSurface & |
 | `PaletteGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PaletteGroup` | -- | interface PaletteGroup |
 | `PanelDivider` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PanelDivider` | -- | interface PanelDivider |
 | `ParentTaskChoice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ParentTaskChoice` | -- | interface ParentTaskChoice |
@@ -1281,9 +1284,17 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PropertyLink` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyLink` | -- | interface PropertyLink |
 | `RaisedConfirmation` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RaisedConfirmation` | -- | interface RaisedConfirmation |
 | `RaisedNotice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RaisedNotice` | -- | interface RaisedNotice |
-| `ResourceList` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ResourceList` | -- | interface ResourceList extends OpenSurface |
-| `ResourceListLine` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ResourceListLine` | -- | interface ResourceListLine |
+| `resourceListAfterEntry` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListAfterEntry` | PI-37 | 担当リストのウィンドウの入口（表 T-370 の `RO-1`・`RO-2`・表 T-330 の `SV-7`・`SV-8`、表 T-335 の `WB-2`・`WB-3`）を押した後のウィンドウの値を答える。 |
+| `resourceListAfterFilterChange` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListAfterFilterChange` | PI-37 | 列のフィルタの変化と表示の列の印の変化を、担当リストのウィンドウの値へ当てる（表 T-330 の `SV-7`、表 T-353 の `TV-2`）。 |
+| `resourceListFromWindow` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListFromWindow` | PI-37 | 担当リストのウィンドウの中身 —— タイトルバー・タイトルバーの下の 1 行・表 T-371 の表 —— を作る（`FR-099` の 表 T-370） |
+| `resourceListListedUidsOf` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListListedUidsOf` | PI-37 | 担当リストの表がいま並べている担当の `uid` —— 語と列のフィルタの後 —— を答える（表 T-370 の `RO-3`）。 |
+| `ResourceListRowView` | entry | interface | `src/adapter/screen-renderer/resource-list.ts#ResourceListRowView` | PI-37 | 型。 |
+| `ResourceListView` | entry | interface | `src/adapter/screen-renderer/resource-list.ts#ResourceListView` | PI-37 | 型。 |
+| `resourceListWithColumnWidth` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、ウィンドウの値へ当てる（表 T-370 の `RO-9`）。 |
+| `resourceListWithFilterClosed` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じたウィンドウの値を答える（表 T-330 の `SV-14`）。 |
 | `rulerWeekdayWords` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#rulerWeekdayWords` | PI-37 | 目盛の第 4 段が刷る曜日 7 語。 |
+| `scheduleFilterBarOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterBarOf` | PI-37 | スケジュールフィルタの帯（`U-67`）の語を、掛けている表の名・文書のタスクの数・描いているタスクの数から作る（表 T-353 の `TV-11`）。 |
+| `ScheduleFilterBarView` | entry | interface | `src/adapter/screen-renderer/table-window.ts#ScheduleFilterBarView` | PI-37 | 型。 |
 | `ScreenFrame` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ScreenFrame` | -- | interface ScreenFrame |
 | `ScreenPart` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#ScreenPart` | -- | interface ScreenPart |
 | `ScreenSurface` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#ScreenSurface` | PI-37 | 表 T-065 |
@@ -1303,17 +1314,21 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchPanelWithFilterClosed` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた検索パネルの値を答える。 |
 | `searchPanelWithFilterOpened` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterOpened` | PI-37 | 列の見出しの `IC-122` の押下を、その列のフィルタを開いた検索パネルの値へ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
 | `searchPanelWithTableViewsCleared` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithTableViewsCleared` | PI-37 | `IC-153` の押下で、タスクの表とコメントボックスの表の列のフィルタと並べ替えを戻し、開いているフィルタを閉じた検索パネルの値を答える（`FR-151` の 表 T-330 の `SV-1`）。 |
-| `ShowOnlyCheckedBarView` | entry | interface | `src/adapter/screen-renderer/search-panel.ts#ShowOnlyCheckedBarView` | -- | interface ShowOnlyCheckedBarView |
 | `statusGlyphSvg` | entry | function | `src/adapter/screen-renderer/table-window.ts#statusGlyphSvg` | PI-37 | 表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。 |
+| `tableAfterVisibilityChange` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableAfterVisibilityChange` | PI-37 | 表示の列の印の入れ外しを、表の値の「非表示」の行へ当てる（`FR-151` の 表 T-353 の `TV-2`）。 |
+| `TableWindowState` | entry | interface | `src/adapter/screen-renderer/table-window.ts#TableWindowState` | PI-37 | 型。 |
+| `tableWithScheduleFilterToggled` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterToggled` | PI-37 | 表のスケジュールフィルタの入切を返す（表 T-353 の `TV-5`・`TV-8`）。 |
 | `TaskGroupExpander` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupExpander` | -- | interface TaskGroupExpander |
 | `TaskGroupPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupPanel` | -- | interface TaskGroupPanel |
 | `TaskGroupTitle` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupTitle` | -- | interface TaskGroupTitle |
 | `taskGroupTitleFontPxOf` | entry | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupTitleFontPxOf` | PI-37 | タスクグループ名の字の大きさ。 |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
 | `TooltipAnchor` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipAnchor` | -- | type TooltipAnchor = \| { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly groupId?: string } \| { readonly kind: 'task'; read... |
+| `UNASSIGNED_ROW_KEY` | entry | const | `src/adapter/screen-renderer/table-window.ts#UNASSIGNED_ROW_KEY` | PI-37 | 担当リストの表の（担当なし）の行の鍵（表 T-370 の `RO-5`）。 |
 | `UNTITLED_DOCUMENT_TITLE` | entry | const | `src/adapter/screen-renderer/open-modals.ts#UNTITLED_DOCUMENT_TITLE` | PI-37 | `AT-3` の文書名が `null` のときに見出しへ出す語 `Untitled`。 |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
 | `verticalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#verticalWholeOf` | PI-37 | つまみが表す全体を配置と各部の矩形から測る —— `GR-21` の「内容の範囲といま見えている範囲の和」。 |
+| `VisibilityKey` | entry | type | `src/adapter/screen-renderer/table-window.ts#VisibilityKey` | PI-37 | 型。 |
 | `windowBoxAfterGrab` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxAfterGrab` | PI-37 | ウィンドウ（`FR-036` の 表 T-335）のタイトルバーの帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、範囲の中と下限（`S-423`・`S-424`）の上に収めて答える（`WB-8`・`WB-9`）。 |
 | `windowBoxOf` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxOf` | PI-37 | ウィンドウを描く箱を、表示の状態（通常・最小化・最大化）から答える（表 T-335 の `WB-1` 〜 `WB-3`）。 |
 | `windowEdgeAt` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowEdgeAt` | PI-37 | 点が、箱の縁の内と外の掴み代（表 T-023d の `GR-25`、幅は `S-426`）のどの辺か角の上かを答える。 |
@@ -1340,26 +1355,26 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `reasonSurfaceWords` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonSurfaceWords` | -- | function reasonSurfaceWords( reason: string, language: DisplayLanguage, ): { readonly text: string; readonly nextStep: string; readonly dismissText: string } |
 | `exportNameBodyOf` | file only | function | `src/adapter/screen-renderer/open-modals.ts#exportNameBodyOf` | -- | function exportNameBodyOf(documentName: string): string |
 | `helpModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#helpModalFromSession` | -- | function helpModalFromSession(session: ScreenSession, area: HelpWindowArea): HelpModal \| null |
-| `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, schedule: Schedule, readings: ScreenViewReadings, settings: DocumentSettings, ): OpenModal \| null |
+| `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, _schedule: Schedule, readings: ScreenViewReadings, settings: DocumentSettings, ): OpenModal \| null |
 | `assigneeCandidatesOf` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#assigneeCandidatesOf` | -- | function assigneeCandidatesOf( combo: Omit<AssigneeCombo, 'candidatesOf'>, typed: string, isDescending: boolean, ): readonly AssigneeCandidate[] |
 | `propertiesPanelFromSelection` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#propertiesPanelFromSelection` | -- | function propertiesPanelFromSelection( schedule: Schedule, settings: DocumentSettings, selection: Selection, session: ScreenSession, readings: ScreenViewRead... |
+| `RESOURCE_LIST_COLUMNS` | file only | const | `src/adapter/screen-renderer/resource-list.ts#RESOURCE_LIST_COLUMNS` | -- | const RESOURCE_LIST_COLUMNS: readonly string[] = displayWords.resourceListColumns.map((entry) => entry.rowId) |
 | `screenFrameFromRegions` | file only | function | `src/adapter/screen-renderer/screen-frame.ts#screenFrameFromRegions` | -- | function screenFrameFromRegions( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): ScreenFrame |
 | `GrabbedWindowName` | file only | type | `src/adapter/screen-renderer/screen-surface.ts#GrabbedWindowName` | -- | type GrabbedWindowName = WindowName \| 'closeOnlyTitledSurface' |
 | `WindowGrab` | file only | type | `src/adapter/screen-renderer/screen-surface.ts#WindowGrab` | -- | type WindowGrab = \| |
-| `EntryRefusal` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#EntryRefusal` | -- | interface EntryRefusal |
+| `EntryRefusal` | file only | interface | `src/adapter/screen-renderer/table-window.ts#EntryRefusal` | -- | interface EntryRefusal |
 | `SearchColumnView` | file only | interface | `src/adapter/screen-renderer/table-window.ts#SearchColumnView` | -- | interface SearchColumnView |
 | `SearchFilterMenuView` | file only | type | `src/adapter/screen-renderer/table-window.ts#SearchFilterMenuView` | -- | type SearchFilterMenuView = \| |
 | `SearchFilterValueView` | file only | interface | `src/adapter/screen-renderer/table-window.ts#SearchFilterValueView` | -- | interface SearchFilterValueView |
-| `searchPanelWithShownTasks` | file only | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithShownTasks` | -- | function searchPanelWithShownTasks(panel: SearchPanelSession, taskUids: readonly number[], isShown: boolean): SearchPanelSession |
 | `SearchRowView` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#SearchRowView` | -- | interface SearchRowView |
 | `windowTitleEntriesOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowTitleEntriesOf` | -- | function windowTitleEntriesOf(shown: WindowShown, language: DisplayLanguage): readonly CommandItem[] |
 | `ASSIGNEE_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#ASSIGNEE_SEPARATOR` | -- | const ASSIGNEE_SEPARATOR = ', ' |
 | `BLANK_SEARCH_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#BLANK_SEARCH_VALUE` | -- | const BLANK_SEARCH_VALUE = '' |
 | `BOTTLENECK_STATE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#BOTTLENECK_STATE` | -- | const BOTTLENECK_STATE = 'bottleneck' |
-| `columnValuesOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnValuesOf` | -- | function columnValuesOf(rows: SearchRows, column: SearchColumn, shown: ReadonlySet<number> = NOTHING_SHOWN): readonly string[] |
+| `columnValuesOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnValuesOf` | -- | function columnValuesOf(rows: SearchRows, column: SearchColumn, hidden: ReadonlySet<number> = NOTHING_HIDDEN): readonly string[] |
 | `COMMENT_BOX_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#COMMENT_BOX_SEARCH_COLUMNS` | -- | const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9'] |
 | `comparePercentTexts` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#comparePercentTexts` | -- | function comparePercentTexts(a: string, b: string): number |
-| `filteredSearchRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredSearchRows` | -- | function filteredSearchRows( rows: SearchRows, filters: SearchFilters, sort: SearchSort \| null, shown: ReadonlySet<number> = NOTHING_SHOWN, |
+| `filteredSearchRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredSearchRows` | -- | function filteredSearchRows( rows: SearchRows, filters: SearchFilters, sort: SearchSort \| null, hidden: ReadonlySet<number> = NOTHING_HIDDEN, |
 | `filteredTableRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredTableRows` | -- | function filteredTableRows<Row>( rows: readonly Row[], table: TableColumns<Row>, filters: SearchFilters, sort: SearchSort \| null, ): readonly Row[] |
 | `HIDE_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#HIDE_VALUE` | -- | const HIDE_VALUE = 'hide' |
 | `isDateSearchColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#isDateSearchColumn` | -- | function isDateSearchColumn(column: SearchColumn): boolean |
@@ -1375,23 +1390,34 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `tableColumnValues` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#tableColumnValues` | -- | function tableColumnValues<Row>(rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn): readonly string[] |
 | `TASK_GROUP_PATH_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_GROUP_PATH_SEPARATOR` | -- | const TASK_GROUP_PATH_SEPARATOR = ' \u2192 ' |
 | `TASK_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_SEARCH_COLUMNS` | -- | const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchColumns |
+| `withVisibilityColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#withVisibilityColumn` | -- | function withVisibilityColumn<Row>(table: TableColumns<Row>, column: SearchColumn, isShown: (row: Row) => boolean): TableColumns<Row> |
 | `clearEntryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#clearEntryOf` | -- | function clearEntryOf(panel: TableWindowSession, language: DisplayLanguage): CommandItem |
 | `dateText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateText` | -- | function dateText(stored: string \| null): string |
 | `entryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#entryOf` | -- | function entryOf(icon: IconId, language: DisplayLanguage, isChosen = false, label?: string): CommandItem |
 | `isClearEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#isClearEntry` | -- | function isClearEntry(entry: IconId): boolean |
+| `isRowShown` | file only | function | `src/adapter/screen-renderer/table-window.ts#isRowShown` | -- | function isRowShown(visibility: TableVisibility, key: VisibilityKey): boolean |
 | `openFilterIn` | file only | function | `src/adapter/screen-renderer/table-window.ts#openFilterIn` | -- | function openFilterIn(panel: TableWindowSession, shown: WindowShown \| null, table: WindowTable): SearchColumn \| null |
+| `scheduleFilterEntryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterEntryOf` | -- | function scheduleFilterEntryOf(visibility: TableVisibility, wouldChange: boolean, language: DisplayLanguage): CommandItem |
+| `scheduleFilterRefusalsOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterRefusalsOf` | -- | function scheduleFilterRefusalsOf(entry: CommandItem, language: DisplayLanguage): readonly EntryRefusal[] |
 | `tableAfterFilterChange` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterChange` | -- | function tableAfterFilterChange<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, change: SearchFilterChange, table: WindowTable, ): P \| null |
 | `tableAfterFilterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterEntry` | -- | function tableAfterFilterEntry<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, entry: IconId, table: WindowTable, listed?: readonly strin... |
 | `tableColumnsOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableColumnsOf` | -- | function tableColumnsOf(panel: TableWindowSession, table: WindowTable, language: DisplayLanguage): readonly SearchColumnView[] |
 | `tableFilterMenuOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableFilterMenuOf` | -- | function tableFilterMenuOf( panel: TableWindowSession, column: SearchColumn, table: WindowTable, language: DisplayLanguage, ): SearchFilterMenuView |
-| `TableWindowSession` | file only | type | `src/adapter/screen-renderer/table-window.ts#TableWindowSession` | -- | type TableWindowSession = Omit<SearchPanelSession, 'table' \| 'textSizeStep' \| 'shownTaskUids' \| 'showOnlyChecked'> |
+| `TableWindowSession` | file only | type | `src/adapter/screen-renderer/table-window.ts#TableWindowSession` | -- | type TableWindowSession = Omit<SearchPanelSession, 'table' \| 'textSizeStep'> |
 | `tableWithColumnWidth` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithColumnWidth` | -- | function tableWithColumnWidth<P extends TableWindowSession>(panel: P, column: SearchColumn, width: number): P |
 | `tableWithFilterClosed` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithFilterClosed` | -- | function tableWithFilterClosed<P extends TableWindowSession>(panel: P, shown: WindowShown \| null, table: WindowTable): P \| null |
 | `tableWithFilterOpened` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithFilterOpened` | -- | function tableWithFilterOpened<P extends TableWindowSession>( panel: P, shown: WindowShown \| null, column: SearchColumn, table: WindowTable, ): P \| null |
+| `tableWithScheduleFilterPressed` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterPressed` | -- | function tableWithScheduleFilterPressed<P extends TableWindowSession>(panel: P, entry: IconId, wouldChange: () => boolean): P \| null |
 | `tableWithViewsCleared` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableWithViewsCleared` | -- | function tableWithViewsCleared<P extends TableWindowSession>(panel: P): P |
+| `visibilityHeadingOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#visibilityHeadingOf` | -- | function visibilityHeadingOf(rows: readonly { readonly shown?: boolean }[]): 'all' \| 'some' \| 'none' |
+| `visibilityLabelOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#visibilityLabelOf` | -- | function visibilityLabelOf(value: string, language: DisplayLanguage): string \| null |
+| `windowAfterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowAfterEntry` | -- | function windowAfterEntry( window: TableWindowState, entry: IconId, filterColumn: string \| null, answers: { readonly wouldChange: () => boolean; readonly tab... |
+| `windowColumnsViewOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowColumnsViewOf` | -- | function windowColumnsViewOf( window: TableWindowState, table: WindowTable, language: DisplayLanguage, ): { readonly columns: readonly SearchColumnView[]; re... |
 | `windowShownAfterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowShownAfterEntry` | -- | function windowShownAfterEntry(shown: WindowShown, entry: IconId): WindowShown \| null \| undefined |
 | `WindowTable` | file only | interface | `src/adapter/screen-renderer/table-window.ts#WindowTable` | -- | interface WindowTable |
+| `windowWithColumnWidth` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowWithColumnWidth` | -- | function windowWithColumnWidth(window: TableWindowState, column: SearchColumn, width: number): TableWindowState |
 | `wordOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#wordOf` | -- | function wordOf(held: { readonly [L in DisplayLanguage]: string } \| undefined, language: DisplayLanguage): string |
+| `wouldScheduleFilterChange` | file only | function | `src/adapter/screen-renderer/table-window.ts#wouldScheduleFilterChange` | -- | function wouldScheduleFilterChange( visibility: TableVisibility, rowKeysOf: () => ReadonlySet<number>, isEveryTaskRowed: boolean, ): boolean |
 | `taskGroupPanelFromSchedule` | file only | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupPanelFromSchedule` | -- | function taskGroupPanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVi... |
 | `baselineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#baselineHint` | -- | function baselineHint(baseline: BaselineTask, schedule: Schedule \| null, language: DisplayLanguage): string |
 | `cursorDateText` | file only | function | `src/adapter/screen-renderer/tooltips.ts#cursorDateText` | -- | function cursorDateText(day: CalendarDay, language: DisplayLanguage): string |
@@ -1569,6 +1595,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ArmKind` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#ArmKind` | PI-39 | 型。 |
 | `emptyScreenSession` | entry | const | `src/use-case/advance-screen-session/advance-screen-session.ts#emptyScreenSession` | PI-39 | 初期の状態。 |
 | `emptySearchPanelSession` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#emptySearchPanelSession` | PI-39 | `SearchPanelSession` の初期の値 —— `_assets/tbl-settings.md` の 表 T-206 の `S-419` ・ `S-420` ・ `S-429` の既定 |
+| `EVERY_ROW_SHOWN` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#EVERY_ROW_SHOWN` | PI-39 | `TableVisibility` の初めの値 —— どの行も「表示」で、スケジュールフィルタを掛けていない（表 T-353 の `TV-2`） |
 | `FileFlowImportAnswer` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowImportAnswer` | PI-39 | 型。 |
 | `FileFlowOpenRoute` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOpenRoute` | PI-39 | 型。 |
 | `FileFlowOwedAction` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOwedAction` | PI-39 | 型。 |
@@ -1598,6 +1625,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SessionEffect` | entry | type | `src/use-case/advance-screen-session/advance-screen-session.ts#SessionEffect` | PI-39 | 型。 |
 | `SessionEvent` | entry | type | `src/use-case/advance-screen-session/advance-screen-session.ts#SessionEvent` | PI-39 | 型。 |
 | `StandingNotice` | entry | interface | `src/use-case/advance-screen-session/notice-values.ts#StandingNotice` | PI-39 | 型。 |
+| `TableVisibility` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#TableVisibility` | PI-39 | 型。 |
+| `VisibilityTable` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#VisibilityTable` | PI-39 | 型。 |
 | `WindowName` | entry | type | `src/entity/document-model/screen-state/screen-state.ts#WindowName` | PI-39 | 型。 |
 | `AgentApiEnablingState` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiEnablingState` | -- | type AgentApiEnablingState = \| { readonly kind: 'disabled' } \| { readonly kind: 'enabled' } export interface AgentApiValues |
 | `AgentApiValues` | file only | interface | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValues` | -- | interface AgentApiValues |
@@ -1748,4 +1777,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 855 name(s) leave through a public entry (340 of them published by table T-064), 683 more are exported by a file and not by its entry.
+Totals: 871 name(s) leave through a public entry (359 of them published by table T-064), 696 more are exported by a file and not by its entry.

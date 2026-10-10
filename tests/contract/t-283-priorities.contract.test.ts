@@ -262,7 +262,7 @@ describe(`PI-36 -- ${PI_36_ESCAPE_TARGET.join(' ')}`, () => {
   })
 })
 
-type Flag = Exclude<keyof EscapeContext, 'focusedWindow' | 'isDelayDiagnosticsReportInFront' | 'isFocusInPropertiesPanel'>
+type Flag = Exclude<keyof EscapeContext, 'focusedWindow' | 'isDelayDiagnosticsReportInFront' | 'isResourceListInFront' | 'isFocusInPropertiesPanel'>
 
 const NOTHING_ON: Required<Pick<EscapeContext, Flag>> = {
   isNoticeStanding: false,
@@ -271,6 +271,7 @@ const NOTHING_ON: Required<Pick<EscapeContext, Flag>> = {
   gestureInFlight: false,
   isSearchPanelStanding: false,
   isDelayDiagnosticsReportStanding: false,
+  isResourceListStanding: false,
   isHelpStanding: false,
   isDialogueFieldStanding: false,
   isArmed: false,
@@ -293,6 +294,7 @@ const LADDER: readonly (readonly [string, EscapeTarget, Flag])[] = [
   ['RG-4', 'gesture', 'gestureInFlight'],
   ['RG-16', 'searchPanel', 'isSearchPanelStanding'],
   ['RG-16', 'delayDiagnosticsReport', 'isDelayDiagnosticsReportStanding'],
+  ['RG-16', 'resourceList', 'isResourceListStanding'],
   ['RG-16', 'helpModal', 'isHelpStanding'],
   ['RG-16', 'dialogueField', 'isDialogueFieldStanding'],
   ['RG-14', 'propertiesPanel', 'isPropertiesPanelOpen'],
@@ -308,6 +310,7 @@ const EVERY_WORD: Record<EscapeTarget, true> = {
   notice: true,
   searchPanel: true,
   delayDiagnosticsReport: true,
+  resourceList: true,
   dialogueField: true,
   textEntry: true,
   confirmation: true,

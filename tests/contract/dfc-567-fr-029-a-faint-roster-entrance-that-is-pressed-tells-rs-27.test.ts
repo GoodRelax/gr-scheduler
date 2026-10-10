@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import type { OpenModal, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
+import type { ResourceListView, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import { documentOf, personOf, seatOf, taskOf } from './cr-606-stage'
 import { REQUIREMENTS } from './cr-610-file-flow-stage'
 import { specTable } from './spec-table'
@@ -31,15 +31,16 @@ const adaAndBob = () =>
     assignments: [seatOf(21, 1, ADA)],
   })
 
-const rosterOf = (view: ScreenView): Extract<OpenModal, { surface: 'Resource List' }> => {
-  const modal = view.openModal as { surface?: string } | null
-  if (modal === null || modal.surface !== ROSTER) throw new Error('the Resource List is not standing')
-  return modal as Extract<OpenModal, { surface: 'Resource List' }>
+// WHY: CR-722 RO-1 -- the Resource List is a window (ScreenView.resourceList); IC-63 .. IC-66 stand in its row of choice entries (RO-3).
+const rosterOf = (view: ScreenView): ResourceListView => {
+  const window = view.resourceList ?? null
+  if (window === null) throw new Error('the Resource List is not standing')
+  return window
 }
 const chosenUids = (built: PaletteStage): readonly number[] =>
-  rosterOf(built.last()).resources.filter((one) => one.isSelected).map((one) => one.uid)
+  rosterOf(built.last()).rows.flatMap((one) => (one.chosenEntry?.icon === 'IC-67' && typeof one.key === 'number' ? [one.key] : []))
 const entranceOf = (built: PaletteStage, icon: string) => {
-  const found = rosterOf(built.last()).commands.filter((one) => one.icon === icon)
+  const found = rosterOf(built.last()).choiceEntries.filter((one) => one.icon === icon)
   if (found.length !== 1) throw new Error(`the roster carries ${found.length} items for ${icon}`)
   return found[0]
 }
@@ -49,7 +50,7 @@ const refusals = (view: ScreenView): number =>
 async function rosterWith(document: ReturnType<typeof noResources>): Promise<PaletteStage> {
   const built = await paletteStage({ document: document as never })
   await built.press(surfaceOfEntrance(ROSTER_ENTRANCE), ROSTER_ENTRANCE)
-  expect(built.surfaceName(), 'precondition: IC-62 raised no roster').toBe(ROSTER)
+  expect(built.last().resourceList?.heading, 'precondition: IC-62 raised no roster').toBeDefined()
   return built
 }
 

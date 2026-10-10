@@ -44,6 +44,7 @@ const DOCUMENT_SETTINGS_ENTRY: IconId = 'IC-17'
 const DIALOGUE_FIELD_ENTRY: IconId = 'IC-18'
 const AGENT_API_ENTRY: IconId = 'IC-20'
 const DELAY_DIAGNOSTICS_ENTRY: IconId = 'IC-107'
+const SEARCH_ENTRY: IconId = 'IC-117'
 
 const NO_WORDS = ''
 
@@ -175,7 +176,16 @@ function commandItemFor(
     isArmed: false,
     isChosen: false,
     label: iconLabel(icon, displayLanguageOf(session)),
+    ...scheduleFilterMarkOf(icon, readings),
   }
+}
+
+// see TV-12, EN-8, IC-117, IC-107
+/** @purity pure */
+function scheduleFilterMarkOf(icon: IconId, readings: ScreenViewReadings): Pick<CommandItem, 'isScheduleFilterApplied'> {
+  const isSearchFiltered = icon === SEARCH_ENTRY && readings.searchPanel?.visibility.isApplied === true
+  const isReportFiltered = icon === DELAY_DIAGNOSTICS_ENTRY && readings.delayDiagnosticsReport?.window.panel.visibility.isApplied === true
+  return isSearchFiltered || isReportFiltered ? { isScheduleFilterApplied: true } : {}
 }
 
 // see T-109, BR-5

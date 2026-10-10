@@ -70,9 +70,12 @@ export type {
   SearchPanelTextSizeRow,
   SearchSort,
   SearchTable,
+  TableVisibility,
+  VisibilityTable,
 } from './screen-values'
 export type { WindowName } from '../../entity/document-model/screen-state/screen-state'
 export {
+  EVERY_ROW_SHOWN,
   SEARCH_PANEL_TEXT_SIZE_ROWS,
   emptySearchPanelSession,
   isHelpStandingIn,

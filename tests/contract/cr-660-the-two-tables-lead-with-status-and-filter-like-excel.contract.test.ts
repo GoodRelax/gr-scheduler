@@ -104,6 +104,7 @@ const WIDTH_ROW: Readonly<Record<string, string>> = {
   ...Object.fromEntries([11, 12, 13].map((n) => [`SQ-${n}`, `S-${489 + n}`])),
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((n) => [`DT-${n}`, `S-${474 + n}`])),
   'SQ-10': 'S-496',
+  'DT-8': 'S-496',
 }
 
 const FONT_PX = 16

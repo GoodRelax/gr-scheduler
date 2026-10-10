@@ -12,7 +12,7 @@ afterEach(() => {
 })
 
 const surfaceOf = (icon: string): string => bareAll(rowOf('T-109', icon).by['面'] ?? '')[0] ?? ''
-const ROSTER_ENTRANCE = 'IC-62'
+// WHY: CR-722 RO-1 made the Resource List (IC-62) a window, so the two surface entrances left take its place here.
 const EXPORT_ENTRANCE = 'IC-2'
 const WATERMARK_ENTRANCE = 'IC-41'
 
@@ -30,29 +30,30 @@ describe('S-99g / table T-280 (DFC-705) -- one surface is open at a time, and a 
     return built
   }
 
-  it('the roster is replaced by the Export Chooser, which is replaced by the roster again', () => {
+  it('the Export Chooser is replaced by the watermark surface, which is replaced by the Export Chooser again', () => {
     const built = benchOf()
-    take(built, ROSTER_ENTRANCE)
-    expect(openSurface(built), 'premise').toBe(surfaceOf('IC-66'))
     take(built, EXPORT_ENTRANCE)
-    expect(openSurface(built), 'the second entrance wins').toBe('Export Chooser')
-    take(built, ROSTER_ENTRANCE)
-    expect(openSurface(built), 'and the first wins back').toBe(surfaceOf('IC-66'))
+    expect(openSurface(built), 'premise').toBe('Export Chooser')
+    take(built, WATERMARK_ENTRANCE)
+    expect(openSurface(built), 'the second entrance wins').not.toBe('Export Chooser')
+    expect(openSurface(built), 'a surface stands').not.toBeNull()
+    take(built, EXPORT_ENTRANCE)
+    expect(openSurface(built), 'and the first wins back').toBe('Export Chooser')
   })
 
   it('the watermark entrance replaces an open surface the same way, and no notice is told for it', () => {
     const built = benchOf()
-    take(built, ROSTER_ENTRANCE)
+    take(built, EXPORT_ENTRANCE)
     take(built, WATERMARK_ENTRANCE)
-    expect(openSurface(built)).not.toBe(surfaceOf('IC-66'))
+    expect(openSurface(built)).not.toBe('Export Chooser')
     expect(openSurface(built), 'a surface stands').not.toBeNull()
     expect(built.last().notices).toEqual([])
   })
 
   it('the same entrance pressed again leaves its surface open (self, no change)', () => {
     const built = benchOf()
-    take(built, ROSTER_ENTRANCE)
-    take(built, ROSTER_ENTRANCE)
-    expect(openSurface(built)).toBe(surfaceOf('IC-66'))
+    take(built, EXPORT_ENTRANCE)
+    take(built, EXPORT_ENTRANCE)
+    expect(openSurface(built)).toBe('Export Chooser')
   })
 })

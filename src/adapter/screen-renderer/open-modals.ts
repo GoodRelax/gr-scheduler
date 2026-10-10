@@ -4,11 +4,7 @@
 // @purity    pure
 
 import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
-import {
-  type Assignment,
-  type Schedule,
-  type Task,
-} from '../../entity/document-model/schedule/schedule'
+import type { Schedule } from '../../entity/document-model/schedule/schedule'
 import {
   NOTICE_DISPLAY_OF_REASON,
   type ScreenSession,
@@ -26,7 +22,6 @@ import type {
   LinkedWords,
   OpenChooser,
   OpenModal,
-  ResourceListLine,
   ScreenViewReadings,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
@@ -48,18 +43,11 @@ const ICON_TABLE = 'T-109'
 const MAXIMISE_ICON: IconId = 'IC-130'
 const RESTORE_ICON: IconId = 'IC-131'
 
-const RESOURCE_LIST = 'Resource List'
-
 const EXPORT_CHOOSER = 'Export Chooser'
 
 const OPEN_CHOOSER = 'Open Chooser'
 
 const CLOSE_SURFACE_ENTRY: IconId = 'IC-52'
-
-const RESOURCE_LIST_CHOOSE_ALL_ENTRY: IconId = 'IC-63'
-const RESOURCE_LIST_CLEAR_CHOSEN_ENTRY: IconId = 'IC-64'
-const RESOURCE_LIST_CHOOSE_UNREFERENCED_ENTRY: IconId = 'IC-65'
-const RESOURCE_LIST_DELETE_ENTRY: IconId = 'IC-66'
 
 // see FR-035, OP-16, PI-37
 export const UNTITLED_DOCUMENT_TITLE = 'Untitled'
@@ -82,7 +70,6 @@ const HOLIDAY_SETTINGS = 'Holiday Settings'
 
 // see T-103, T-280
 const SURFACE_OF_ROW: ReadonlyMap<string, string> = new Map([
-  ['U-49', RESOURCE_LIST],
   ['U-54', EXPORT_CHOOSER],
   ['U-56', OPEN_CHOOSER],
   ['U-60', WATERMARK_UNLOCK],
@@ -346,70 +333,6 @@ function commandsOnSurface(surface: string, language: DisplayLanguage): readonly
     .map((row) => commandItemFor(row.rowId, language))
 }
 
-// see CD-5
-// TRAP: join on resourceUid, never the name, or a referenced twin hides an unreferenced one.
-/** @purity pure */
-function tasksReachedByEachResource(
-  assignments: readonly Assignment[],
-): ReadonlyMap<number, ReadonlySet<number>> {
-  const reached = new Map<number, Set<number>>()
-  for (const assignment of assignments) {
-    const resourceUid = assignment.resourceUid
-    if (resourceUid === null) continue
-    const taskUids = reached.get(resourceUid) ?? new Set<number>()
-    if (assignment.taskUid !== null) taskUids.add(assignment.taskUid)
-    reached.set(resourceUid, taskUids)
-  }
-  return reached
-}
-
-/** @purity pure */
-function unassignedTaskNamesOf(
-  taskUids: ReadonlySet<number> | undefined,
-  tasksByUid: ReadonlyMap<number, Task>,
-): readonly (string | null)[] {
-  if (taskUids === undefined) return []
-  const names: (string | null)[] = []
-  for (const taskUid of taskUids) {
-    const task = tasksByUid.get(taskUid)
-    if (task !== undefined) names.push(task.name)
-  }
-  return names
-}
-
-// see FR-099
-// TRAP: list every resource kind; one left out could never be deleted.
-/** @purity pure */
-function resourceListLinesOf(
-  schedule: Schedule,
-  readings: ScreenViewReadings,
-): readonly ResourceListLine[] {
-  const tasksReached = tasksReachedByEachResource(schedule.assignments)
-  const tasksByUid = new Map<number, Task>(schedule.tasks.map((task) => [task.uid, task]))
-  const selectedUids = new Set<number>(readings.selectedResourceUids)
-
-  return schedule.resources.map((resource) => ({
-    uid: resource.uid,
-    name: resource.name,
-    isReferenced: tasksReached.has(resource.uid),
-    isSelected: selectedUids.has(resource.uid),
-    unassignedTaskNames: unassignedTaskNamesOf(tasksReached.get(resource.uid), tasksByUid),
-  }))
-}
-
-// see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66
-// WHY: counted on the drawn Resource List (FR-029); IC-65 replaces the choice, so it is idle once the
-// choice already is exactly the unreferenced resources.
-/** @purity pure */
-function hasResourceListTarget(icon: IconId, resources: readonly ResourceListLine[]): boolean {
-  const isChosenSome = resources.some((one) => one.isSelected)
-  if (icon === RESOURCE_LIST_CHOOSE_ALL_ENTRY) return resources.some((one) => !one.isSelected)
-  if (icon === RESOURCE_LIST_CLEAR_CHOSEN_ENTRY || icon === RESOURCE_LIST_DELETE_ENTRY) return isChosenSome
-  if (icon !== RESOURCE_LIST_CHOOSE_UNREFERENCED_ENTRY) return true
-  const hasUnreferenced = resources.some((one) => !one.isReferenced)
-  return hasUnreferenced && resources.some((one) => one.isSelected === one.isReferenced)
-}
-
 // see FR-069
 /** @purity pure */
 function helpLegalWords(language: DisplayLanguage): HelpModal['helpLegal'] {
@@ -494,10 +417,11 @@ export function helpModalFromSession(session: ScreenSession, area: HelpWindowAre
 }
 
 // see FR-029, FR-038
+// WHY: the schedule is no longer read since the Resource List left the surfaces (FR-099); the place is kept for the callers.
 /** @purity pure */
 export function openModalFromSession(
   session: ScreenSession,
-  schedule: Schedule,
+  _schedule: Schedule,
   readings: ScreenViewReadings,
   settings: DocumentSettings,
 ): OpenModal | null {
@@ -506,12 +430,6 @@ export function openModalFromSession(
   const language = displayLanguageOf(session)
   const commands = commandsOnSurface(surface, language)
   const heading = surfaceHeading(surface, language)
-
-  if (surface === RESOURCE_LIST) {
-    const resources = resourceListLinesOf(schedule, readings)
-    const resourceListCommands = commands.map((item) => ({ ...item, isEnabled: hasResourceListTarget(item.icon, resources) }))
-    return { surface: RESOURCE_LIST, heading, commands: resourceListCommands, resources }
-  }
 
   if (surface === EXPORT_CHOOSER) {
     return {

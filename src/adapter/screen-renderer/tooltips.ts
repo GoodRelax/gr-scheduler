@@ -369,6 +369,15 @@ function surfaceAnchorOf(readings: ScreenViewReadings): { readonly surface?: str
   return {}
 }
 
+// WHY: IC-143 sits in the three table windows; the refusal is the one of the window under the pointer.
+/** @purity pure */
+function entryRefusalUnderPointer(shown: Omit<ScreenView, 'tooltips'>, readings: ScreenViewReadings, icon: IconId): string | null {
+  const underPointer = readings.tableWindowUnderPointer ?? (readings.isPointerOnSearchPanel === true ? 'searchPanel' : null)
+  if (underPointer === null) return null
+  const view = underPointer === 'searchPanel' ? shown.searchPanel : underPointer === 'resourceList' ? shown.resourceList : shown.delayDiagnosticsReport
+  return view?.entryRefusals?.find((one) => one.icon === icon)?.reason ?? null
+}
+
 // see EZ-2, IN-3, S-124, TV-5, FR-092
 // WHY: the shell keeps the icon under the pointer while the pointer is on the icon's shown box,
 // and hintTargetDwellMs counts from entering the icon, so a move inside neither restarts nor hides it.
@@ -385,7 +394,7 @@ function iconTooltipOf(
   const help = isOnHelp ? (shown.helpModal ?? null) : null
   const hintLanguage = help === null ? displayLanguageOf(session) : help.helpLanguage
   const row = readings.iconRowUnderPointer ?? null
-  const refusal = shown.searchPanel?.entryRefusals?.find((one) => one.icon === icon)?.reason ?? null
+  const refusal = entryRefusalUnderPointer(shown, readings, icon)
   const hint = iconHint(icon, hintLanguage)
   return {
     anchor: { kind: 'icon', icon, ...surfaceAnchorOf(readings), ...(row === null ? {} : { groupId: row }) },

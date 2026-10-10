@@ -25,9 +25,7 @@ import {
   BLANK_SEARCH_VALUE,
   BOTTLENECK_STATE,
   COMMENT_BOX_SEARCH_COLUMNS,
-  HIDE_VALUE,
   TASK_GROUP_PATH_SEPARATOR,
-  SHOW_VALUE,
   TASK_SEARCH_COLUMNS,
   columnValuesOf,
   filteredSearchRows,
@@ -42,16 +40,24 @@ import {
   dateText,
   entryOf,
   openFilterIn,
+  scheduleFilterEntryOf,
+  scheduleFilterRefusalsOf,
   tableAfterFilterChange,
   tableAfterFilterEntry,
+  tableAfterVisibilityChange,
   tableColumnsOf,
   tableFilterMenuOf,
   tableWithColumnWidth,
   tableWithFilterClosed,
   tableWithFilterOpened,
+  tableWithScheduleFilterPressed,
   tableWithViewsCleared,
+  visibilityHeadingOf,
+  visibilityLabelOf,
   windowTitleEntriesOf,
   wordOf,
+  wouldScheduleFilterChange,
+  type EntryRefusal,
   type MarkGlyph,
   type SearchColumnView,
   type SearchFilterChange,
@@ -60,14 +66,13 @@ import {
 } from './table-window'
 
 export { windowTitleEntriesOf }
-export type { SearchColumnView, SearchFilterChange, SearchFilterMenuView, SearchFilterValueView } from './table-window'
+export type { EntryRefusal, SearchColumnView, SearchFilterChange, SearchFilterMenuView, SearchFilterValueView } from './table-window'
 
 const SEARCH_PANEL = 'Search Panel'
 
 const TASKS_TABLE_ENTRY: IconId = 'IC-118'
 const COMMENT_BOXES_TABLE_ENTRY: IconId = 'IC-119'
 const TEXT_SIZE_ENTRY: IconId = 'IC-127'
-const SHOW_ONLY_CHECKED_ENTRY: IconId = 'IC-143'
 
 type SearchTable = SearchPanelSession['table']
 
@@ -78,12 +83,6 @@ type PlanActualState = TaskSearchRow['planActualState']
 const STATUS_COLUMN: SearchColumn = 'SQ-5'
 
 const VISIBILITY_COLUMN: SearchColumn = 'SQ-10'
-
-// see SV-7, SQ-10
-const VISIBILITY_VALUE_PARTS: ReadonlyMap<string, string> = new Map([
-  [SHOW_VALUE, 'showValue'],
-  [HIDE_VALUE, 'hideValue'],
-])
 
 // see SV-18
 const MEASURED_COLUMNS: ReadonlySet<SearchColumn> = new Set(['SQ-5', 'SQ-11', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-9'])
@@ -162,19 +161,7 @@ export interface SearchPanelView {
   readonly glyphAt?: number | null
   readonly showAt?: number | null
   readonly showHeading?: 'all' | 'some' | 'none'
-  readonly showOnlyCheckedBar?: ShowOnlyCheckedBarView | null
   readonly entryRefusals?: readonly EntryRefusal[]
-}
-
-export interface EntryRefusal {
-  readonly icon: IconId
-  readonly reason: string
-}
-
-// see TV-11, U-67, S-497
-export interface ShowOnlyCheckedBarView {
-  readonly text: string
-  readonly showAllLabel: string
 }
 
 // see SQ-5, T-019a, T-315
@@ -212,11 +199,11 @@ function commentBoxCells(row: CommentBoxSearchRow): readonly string[] {
 /** @purity pure */
 function rowsOf(found: SearchRows, panel: SearchPanelSession, language: DisplayLanguage): readonly SearchRowView[] {
   if (panel.table === 'tasks') {
-    const shown = new Set(panel.shownTaskUids)
+    const hidden = hiddenTasksOf(panel)
     return found.taskRows.map((row) => ({
       cells: taskCells(row, language),
       glyph: STATE_GLYPHS[searchTaskStateOf(row)],
-      shown: shown.has(row.taskUid),
+      shown: !hidden.has(row.taskUid),
       target: { kind: 'task', taskUid: row.taskUid },
     }))
   }
@@ -227,11 +214,17 @@ function rowsOf(found: SearchRows, panel: SearchPanelSession, language: DisplayL
   }))
 }
 
+// see SQ-10, TV-2
+/** @purity pure */
+function hiddenTasksOf(panel: SearchPanelSession): ReadonlySet<number> {
+  return new Set(panel.visibility.hiddenKeys)
+}
+
 // see SV-7, SQ-5, T-331
 /** @purity pure */
 function valueLabelOf(column: SearchColumn, value: string, language: DisplayLanguage): string {
   if (value === BLANK_SEARCH_VALUE) return wordOf(PANEL_WORDS.get('blank')?.text, language)
-  if (column === VISIBILITY_COLUMN) return wordOf(PANEL_WORDS.get(VISIBILITY_VALUE_PARTS.get(value) ?? '')?.text, language)
+  if (column === VISIBILITY_COLUMN) return visibilityLabelOf(value, language) ?? value
   if (column !== STATUS_COLUMN) return value
   return stateWordOf(value as SearchTaskState, language)
 }
@@ -259,7 +252,7 @@ function searchTableOf(session: ScreenSession, panel: SearchPanelSession, found:
     fixedCount: columns.indexOf(JUMP_COLUMN[panel.table]) + 1,
     headingOf: (column) => wordOf(COLUMN_WORDS.get(column)?.text, language),
     isDateColumn: isDateSearchColumn,
-    valuesOf: (column) => columnValuesOf(found(), column, new Set(panel.shownTaskUids)),
+    valuesOf: (column) => columnValuesOf(found(), column, hiddenTasksOf(panel)),
     labelOf: (column, value) => valueLabelOf(column, value, language),
     ...(all === undefined ? {} : { widthSamplesOf: widthSamplesIn(all, panel, language) }),
   }
@@ -271,44 +264,11 @@ function shownIn(session: ScreenSession): SearchPanelShown | null {
   return display.kind === 'hidden' ? null : display.child.kind
 }
 
-// see SQ-10
+// see TV-5, SQ-10
+// WHY: the search table rows every task, so only a Hide row of a task still in the document changes the schedule.
 /** @purity pure */
-function showHeadingOf(rows: readonly SearchRowView[]): 'all' | 'some' | 'none' {
-  const ticked = rows.filter((row) => row.shown === true).length
-  if (ticked === 0) return 'none'
-  return ticked === rows.length ? 'all' : 'some'
-}
-
-// see SV-1, TV-5, EN-5
-/** @purity pure */
-function showOnlyCheckedEntryOf(panel: SearchPanelSession, language: DisplayLanguage): CommandItem {
-  const entry = entryOf(SHOW_ONLY_CHECKED_ENTRY, language)
-  return { ...entry, isEnabled: panel.showOnlyChecked || panel.shownTaskUids.length > 0, isPressed: panel.showOnlyChecked }
-}
-
-// see TV-5, FR-092
-/** @purity pure */
-function entryRefusalsOf(panel: SearchPanelSession, language: DisplayLanguage): readonly EntryRefusal[] {
-  if (panel.table !== 'tasks' || panel.showOnlyChecked || panel.shownTaskUids.length > 0) return []
-  return [{ icon: SHOW_ONLY_CHECKED_ENTRY, reason: wordOf(PANEL_WORDS.get('nothingChecked')?.text, language) }]
-}
-
-// see TV-11, U-67
-/** @purity pure */
-function showOnlyCheckedBarOf(panel: SearchPanelSession, schedule: Schedule, language: DisplayLanguage): ShowOnlyCheckedBarView | null {
-  const text = shownCountWordOf('showOnlyCheckedBar', panel, schedule, language)
-  return text === null ? null : { text, showAllLabel: wordOf(PANEL_WORDS.get('showAll')?.text, language) }
-}
-
-// see TV-11
-/** @purity pure */
-function shownCountWordOf(part: string, panel: SearchPanelSession, schedule: Schedule, language: DisplayLanguage): string | null {
-  if (!panel.showOnlyChecked) return null
-  const shown = new Set(panel.shownTaskUids)
-  const counted = schedule.tasks.filter((task) => shown.has(task.uid)).length
-  return wordOf(PANEL_WORDS.get(part)?.text, language)
-    .replace('{total}', String(schedule.tasks.length))
-    .replace('{shown}', String(counted))
+function wouldSearchFilterChange(panel: SearchPanelSession, schedule: Schedule): boolean {
+  return wouldScheduleFilterChange(panel.visibility, () => new Set(schedule.tasks.map((task) => task.uid)), true)
 }
 
 // see FR-151, T-330, S-442, SQ-5
@@ -327,7 +287,8 @@ export function searchPanelFromSession(
   const all = found === null || panel.word === '' ? found : searchRowsOf(schedule, '', bottleneckUids)
   const table = searchTableOf(session, panel, () => found ?? NOTHING_FOUND, all ?? undefined)
   const open = openFilterIn(panel, shown, table)
-  const rows = found === null ? [] : rowsOf(filteredSearchRows(found, panel.filters, panel.sort, new Set(panel.shownTaskUids)), panel, language)
+  const rows = found === null ? [] : rowsOf(filteredSearchRows(found, panel.filters, panel.sort, hiddenTasksOf(panel)), panel, language)
+  const scheduleFilter = scheduleFilterEntryOf(panel.visibility, wouldSearchFilterChange(panel, schedule), language)
   return {
     heading: wordOf(PANEL_HEADING, language),
     shown,
@@ -338,7 +299,7 @@ export function searchPanelFromSession(
       entryOf(TASKS_TABLE_ENTRY, language, panel.table === 'tasks'),
       entryOf(COMMENT_BOXES_TABLE_ENTRY, language, panel.table === 'commentBoxes'),
       clearEntryOf(panel, language),
-      ...(panel.table === 'tasks' ? [showOnlyCheckedEntryOf(panel, language)] : []),
+      ...(panel.table === 'tasks' ? [scheduleFilter] : []),
     ],
     titleEntries: [entryOf(TEXT_SIZE_ENTRY, language), ...windowTitleEntriesOf(shown, language)],
     word: panel.word,
@@ -349,9 +310,8 @@ export function searchPanelFromSession(
     jumpAt: TABLE_COLUMNS[panel.table].indexOf(JUMP_COLUMN[panel.table]),
     glyphAt: panel.table === 'tasks' ? TABLE_COLUMNS.tasks.indexOf(STATUS_COLUMN) : null,
     showAt: panel.table === 'tasks' ? TABLE_COLUMNS.tasks.indexOf(VISIBILITY_COLUMN) : null,
-    showHeading: showHeadingOf(rows),
-    showOnlyCheckedBar: showOnlyCheckedBarOf(panel, schedule, language),
-    entryRefusals: entryRefusalsOf(panel, language),
+    showHeading: visibilityHeadingOf(rows),
+    entryRefusals: panel.table === 'tasks' ? scheduleFilterRefusalsOf(scheduleFilter, language) : [],
   }
 }
 
@@ -377,7 +337,8 @@ export function searchPanelAfterFilterEntry(
   bottleneckUids?: ReadonlySet<number>,
   listed?: readonly string[] | null,
 ): SearchPanelSession | null {
-  if (entry === SHOW_ONLY_CHECKED_ENTRY) return searchPanelAfterShowOnlyChecked(panel)
+  const filtered = tableWithScheduleFilterPressed(panel, entry, () => wouldSearchFilterChange(panel, schedule))
+  if (filtered !== null) return filtered
   const table = searchTableOf(session, panel, () => searchRowsOf(schedule, panel.word, bottleneckUids))
   return tableAfterFilterEntry(panel, shownIn(session), entry, table, listed)
 }
@@ -399,7 +360,7 @@ export function searchPanelAfterFilterChange(
   panel: SearchPanelSession,
   change: SearchFilterChange,
 ): SearchPanelSession | null {
-  if (change.kind === 'shown') return searchPanelWithShownTasks(panel, change.taskUids, change.isShown)
+  if (change.kind === 'shown') return tableAfterVisibilityChange(panel, change.keys, change.isShown)
   return tableAfterFilterChange(panel, shownIn(session), change, searchTableOf(session, panel, () => NOTHING_FOUND))
 }
 
@@ -414,19 +375,3 @@ export function searchPanelWithFilterClosed(session: ScreenSession, panel: Searc
 export function searchPanelWithTableViewsCleared(panel: SearchPanelSession): SearchPanelSession {
   return tableWithViewsCleared(panel)
 }
-
-// see SQ-10, TV-2
-/** @purity pure */
-export function searchPanelWithShownTasks(panel: SearchPanelSession, taskUids: readonly number[], isShown: boolean): SearchPanelSession {
-  const named = new Set(taskUids)
-  const kept = panel.shownTaskUids.filter((uid) => !named.has(uid))
-  return { ...panel, shownTaskUids: isShown ? [...kept, ...taskUids] : kept }
-}
-
-// see TV-5, TV-8, IC-143
-/** @purity pure */
-function searchPanelAfterShowOnlyChecked(panel: SearchPanelSession): SearchPanelSession {
-  if (panel.showOnlyChecked) return { ...panel, showOnlyChecked: false }
-  return panel.shownTaskUids.length === 0 ? panel : { ...panel, showOnlyChecked: true }
-}
-

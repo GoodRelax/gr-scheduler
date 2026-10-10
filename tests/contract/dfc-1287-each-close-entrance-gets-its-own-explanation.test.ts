@@ -22,13 +22,14 @@ const verticalIn = (table: string, id: string) => {
 // WHY: IN-3 and the two UZ rows are the clauses; their words are read from the tables so the cases follow the manuscript.
 const IN_3_PER_PLACE = '押す場所ごとに'
 const HELP_SURFACE = bare(verticalIn('T-103', 'U-30').by['確定名（英）'] ?? '')
-const ROSTER_SURFACE = bare(verticalIn('T-103', 'U-49').by['確定名（英）'] ?? '')
+// WHY: CR-722 made the Resource List (U-49) a window, so the Export Chooser (U-54) is the other surface UZ-13 lists.
+const OTHER_SURFACE = bare(verticalIn('T-103', 'U-54').by['確定名（英）'] ?? '')
 const CLOSE = 'IC-52'
 
 describe('DFC-1287 the manuscript these cases are driven by', () => {
   it('UZ-7 lets the Help stand beside other surfaces, UZ-13 lists the other surfaces', () => {
     expect(verticalIn('T-337', 'UZ-7').cells.join(' ')).toContain('ほかの面を開いても閉じない')
-    expect(verticalIn('T-337', 'UZ-13').cells.join(' ')).toContain(ROSTER_SURFACE)
+    expect(verticalIn('T-337', 'UZ-13').cells.join(' ')).toContain(OTHER_SURFACE)
   })
 
   it('IN-3 still asks an explanation per entrance (EZ-2)', () => {
@@ -111,17 +112,17 @@ function tipsOn(view: ScreenView, isOnHelp: boolean): readonly Tooltip[] {
 function bothStanding() {
   const built = bench()
   built.press('App Header', 'IC-22')
-  built.press('Command Palette', 'IC-62')
+  built.press('App Header', 'IC-2')
   const view = built.view()
   return { built, view }
 }
 
 describe('IN-3 / UZ-7 / UZ-13 (MUST): the explanation of IC-52 is anchored to the surface the pointer is on (DFC-1287)', () => {
-  it('premise: the Help and the Resource List stand together, each with its own IC-52', () => {
+  it('premise: the Help and the Export Chooser stand together, each with its own IC-52', () => {
     const { built, view } = bothStanding()
     expect(view.helpModal, 'UZ-7: the Help stays when another surface opens').not.toBeNull()
-    expect(view.openModal, 'UZ-13: the roster stands').not.toBeNull()
-    for (const surface of [HELP_SURFACE, ROSTER_SURFACE]) {
+    expect(view.openModal, 'UZ-13: the other surface stands').not.toBeNull()
+    for (const surface of [HELP_SURFACE, OTHER_SURFACE]) {
       const root = byRole(built.built.root(), surface)[0] as FakeElement
       expect(selfAndDescendants(root).filter((one) => one.getAttribute('data-icon') === CLOSE), surface).toHaveLength(1)
     }
@@ -140,7 +141,7 @@ describe('IN-3 / UZ-7 / UZ-13 (MUST): the explanation of IC-52 is anchored to th
   function tooltipPlaceFor(isOnHelp: boolean): { readonly left: number; readonly top: number } {
     const { built, view } = bothStanding()
     const helpClose = selfAndDescendants(byRole(built.built.root(), HELP_SURFACE)[0] as FakeElement).find((one) => one.getAttribute('data-icon') === CLOSE) as FakeElement
-    const otherClose = selfAndDescendants(byRole(built.built.root(), ROSTER_SURFACE)[0] as FakeElement).find((one) => one.getAttribute('data-icon') === CLOSE) as FakeElement
+    const otherClose = selfAndDescendants(byRole(built.built.root(), OTHER_SURFACE)[0] as FakeElement).find((one) => one.getAttribute('data-icon') === CLOSE) as FakeElement
     const rect = (left: number, bottom: number) => () => ({ x: left, y: bottom - 20, left, top: bottom - 20, right: left + 20, bottom, width: 20, height: 20 })
     ;(helpClose as unknown as { getBoundingClientRect: unknown }).getBoundingClientRect = rect(700, 60)
     ;(otherClose as unknown as { getBoundingClientRect: unknown }).getBoundingClientRect = rect(300, 400)
