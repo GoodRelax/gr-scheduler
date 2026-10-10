@@ -102,8 +102,10 @@ export type AgentFocusOutcome =
   | Extract<AgentWriteOutcome, { readonly accepted: false }>
 
 // see AM-26, TV-1
-// WHY: the same three words as AdvanceScreenSession's VisibilityTable, held here so this component gains no edge to it.
-export type VisibilityTable = 'searchPanel' | 'delayDiagnosticsReport' | 'resourceList'
+// WHY: the keys of the document's tableViews, read off the document so this component gains no edge to AdvanceScreenSession.
+export type VisibilityTable = keyof Document['documentSettings']['tableViews']
+
+type SearchTableView = Document['documentSettings']['tableViews']['searchPanel']
 
 // see AM-26, TV-1
 // WHY: drawnTaskUids is null while no table's Schedule Filter is on; tables are the tables whose filter is on.
@@ -112,23 +114,11 @@ export interface AgentShownTasks {
   readonly tables: readonly VisibilityTable[]
 }
 
-// see AM-27, TV-2, TV-5, S-494, S-495
-export interface SearchTableVisibility {
-  readonly hiddenKeys: readonly number[]
-  readonly isUnassignedHidden: boolean
-  readonly isApplied: boolean
-}
-
-// see AM-26, AM-27, SJ-0, TV-8
-// WHY: the Visibility columns are a screen value the shell holds (S-494, S-495), never the document; this is the one way to them.
+// see AM-26, AM-16, SJ-0
+// WHY: the table views are the document's (FR-151, S-560); AM-27 writes them with setTableView (CM-92).
 export interface ShownTasksHolder {
   /** @purity semi-pure-b */
   readShownTasks(): AgentShownTasks
-  /** @purity semi-pure-b */
-  readSearchVisibility(): SearchTableVisibility
-  // WHY: the search table's only (AM-27); turning its filter on also shows a hidden Search Panel minimized (TV-8, PND-712).
-  /** @purity non-pure */
-  holdShownTasks(visibility: SearchTableVisibility): void
   // WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which puts the target among the drawn tasks.
   /** @purity non-pure */
   holdJumpTarget(taskUid: number): void
@@ -305,7 +295,7 @@ const NO_SHOWN_TASKS: AgentShownTasks = { drawnTaskUids: null, tables: [] }
 // see AM-27, TV-5, AG-5, FR-028
 // WHY: untyped caller input; a list naming every task hides no row, and TV-5 keeps the filter from turning on for nothing.
 /** @purity pure */
-function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown, held: SearchTableVisibility): AgentRefusal | null {
+function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown, held: SearchTableView): AgentRefusal | null {
   if (!Array.isArray(taskUids) || taskUids.some((uid) => typeof uid !== 'number')) {
     return agentRefusal('AM-27', 'malformedRequest', snapshot, 'taskUids is neither null nor a list of numbers', [])
   }
@@ -313,31 +303,34 @@ function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown, held: S
   const unknown = taskUids.filter((uid) => !known.has(uid))
   if (unknown.length > 0) return agentRefusal('AM-27', 'unknownTask', snapshot, `no task carries these uids: ${unknown.join(', ')}`, [])
   const isNothingHidden = new Set(taskUids).size === known.size
-  if (isNothingHidden && !held.isApplied) return agentRefusal('AM-27', 'commandRefused', snapshot, 'TV-5: no row would be hidden', [])
+  if (isNothingHidden && !held.isScheduleFilterApplied) return agentRefusal('AM-27', 'commandRefused', snapshot, 'TV-5: no row would be hidden', [])
   return null
 }
 
-// see AM-27, TV-5, TV-6, TV-8
-// WHY: only rows that go from Hide to Show while the filter is already on open their task groups (TV-6, JDG-1868).
+// see AM-27, CM-92, S-560, S-561
+/** @purity pure */
+function searchTableViewWrite(held: SearchTableView, hiddenKeys: readonly number[], isApplied: boolean): DocumentCommand {
+  const visibility = { hiddenKeys, isUnassignedHidden: false, isApplied }
+  return { kind: 'setTableView', table: 'searchPanel', view: { visibility, columnFilters: held.columnFilters, sort: held.sort } }
+}
+
+// see AM-27, TV-5, TV-6, TV-8, UN-20, FR-100
+// WHY: one setTableView and the TV-6 reveal writes in one step (JDG-1868); WS-1 gets the stamp just read, as AM-16 does.
 /** @purity non-pure */
 function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskUids: readonly number[] | null): AgentWriteOutcome {
-  const holder = wiring.shownTasks
-  if (holder === undefined) return { accepted: false, refusal: notAvailable('AM-27', snapshot, 'a screen holding the Visibility columns') }
-  const held = holder.readSearchVisibility()
+  const held = snapshot.document.documentSettings.tableViews.searchPanel
+  const stamp = snapshot.document.documentStamp
   if (taskUids === null) {
-    holder.holdShownTasks({ ...held, isApplied: false })
-    return { accepted: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasMovedSchedule: false }
+    if (!held.isScheduleFilterApplied) return { accepted: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasMovedSchedule: false }
+    return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, [searchTableViewWrite(held, held.hiddenTaskUids, false)])
   }
   const refusal = shownTasksRefusalOf(snapshot, taskUids, held)
   if (refusal !== null) return { accepted: false, refusal }
   const named = new Set(taskUids)
   const hiddenKeys = snapshot.document.schedule.tasks.map((task) => task.uid).filter((uid) => !named.has(uid))
-  const opened = held.isApplied ? [...named].filter((uid) => held.hiddenKeys.includes(uid)) : []
-  const commands = shownTasksRevealWrites(snapshot.document, opened)
-  // WHY: WS-1 gets the stamp just read, as AM-16 does: the caller named tasks, not a document it read.
-  const written = writeThroughTheOnePath(wiring, snapshot, 'AM-27', snapshot.document.documentStamp, commands)
-  if (written.accepted) holder.holdShownTasks({ ...held, hiddenKeys, isApplied: true })
-  return written
+  const opened = held.isScheduleFilterApplied ? [...named].filter((uid) => held.hiddenTaskUids.includes(uid)) : []
+  const commands = [searchTableViewWrite(held, hiddenKeys, true), ...shownTasksRevealWrites(snapshot.document, opened)]
+  return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, commands)
 }
 
 // see AM-16, SJ-0, SJ-2, SJ-5, SJ-9, SJ-10

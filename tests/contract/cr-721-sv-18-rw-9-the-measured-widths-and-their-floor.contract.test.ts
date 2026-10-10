@@ -5,12 +5,14 @@ import { describe, expect, it } from 'vitest'
 import { columnWidthPx, measuredWidthFloor, unmeasuredSizing } from '../../src/framework/dom-screen-surface/search-panel-drawing'
 import { searchPanelWithColumnWidth } from '../../src/adapter/screen-renderer/search-panel'
 import {
-  OPENED_DELAY_DIAGNOSTICS_REPORT,
+  OPENED_REPORT,
   TASK_PANEL,
   WORDS,
   columnOf,
   reportViewOf,
   viewOf,
+  type Pane,
+  type SearchPanelSession,
 } from './cr-721-stage'
 import { specTable, unbroken } from './spec-table'
 
@@ -53,6 +55,10 @@ describe('CR-721 the manuscript these cases are driven by', () => {
   })
 })
 
+// WHY: CR-723 -- the pane holds the screen's panel beside the document's table view; a case here changes only the panel.
+const withPanel = (patch: Partial<SearchPanelSession>): Pane => ({ ...TASK_PANEL, panel: { ...TASK_PANEL.panel, ...patch } })
+const withWidth = (column: string, width: number): Pane => ({ ...TASK_PANEL, panel: searchPanelWithColumnWidth(TASK_PANEL.panel, column, width) })
+
 const MEASURED_TASK_COLUMNS = ['SQ-5', 'SQ-11', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13']
 const MEASURED_REPORT_COLUMNS = ['DT-1', 'DT-3', 'DT-5', 'DT-6']
 
@@ -63,12 +69,12 @@ describe('FR-151 T-330 SV-18 -- 見出しも値も省略記号で切られない
   })
 
   it('the comment box table measures its date column and no other', () => {
-    const measured = viewOf({ ...TASK_PANEL, table: 'commentBoxes' }).columns.filter((one) => one.widthSamples !== null).map((one) => one.column)
+    const measured = viewOf(withPanel({ table: 'commentBoxes' })).columns.filter((one) => one.widthSamples !== null).map((one) => one.column)
     expect(measured).toEqual(['SQ-9'])
   })
 
   it('RW-9: the report measures DT-1, DT-3, DT-5 and DT-6 and no other', () => {
-    const measured = reportViewOf(OPENED_DELAY_DIAGNOSTICS_REPORT).columns.filter((one) => one.widthSamples !== null).map((one) => one.column)
+    const measured = reportViewOf(OPENED_REPORT).columns.filter((one) => one.widthSamples !== null).map((one) => one.column)
     expect(measured).toEqual(MEASURED_REPORT_COLUMNS)
   })
 })
@@ -76,8 +82,8 @@ describe('FR-151 T-330 SV-18 -- 見出しも値も省略記号で切られない
 describe('FR-151 T-330 SV-18 -- 測る相手は、見出しと、その表がいま持つすべての行の値（一覧に出ていない行を含む）', () => {
   it('a word that lists one row still hands the dates of all three tasks to the measure', () => {
     const all = columnOf(viewOf(TASK_PANEL), 'SQ-3').widthSamples ?? []
-    const narrowed = columnOf(viewOf({ ...TASK_PANEL, word: 'alpha' }), 'SQ-3').widthSamples ?? []
-    expect(viewOf({ ...TASK_PANEL, word: 'alpha' }).rows.length, 'premise: the word lists one row').toBe(1)
+    const narrowed = columnOf(viewOf(withPanel({ word: 'alpha' })), 'SQ-3').widthSamples ?? []
+    expect(viewOf(withPanel({ word: 'alpha' })).rows.length, 'premise: the word lists one row').toBe(1)
     expect([...narrowed].sort()).toEqual([...all].sort())
     expect(all).toEqual(expect.arrayContaining(['2026/04/01', '2026/04/02', '2026/04/03']))
   })
@@ -92,7 +98,7 @@ describe('FR-151 T-330 SV-18 -- 測る相手は、見出しと、その表がい
   })
 
   it('a filter on another column does not shrink the samples', () => {
-    const narrowed = viewOf({ ...TASK_PANEL, word: 'alpha' })
+    const narrowed = viewOf(withPanel({ word: 'alpha' }))
     expect(columnOf(narrowed, 'SQ-5').widthSamples).toEqual(columnOf(viewOf(TASK_PANEL), 'SQ-5').widthSamples)
   })
 })
@@ -112,17 +118,17 @@ describe('FR-151 T-330 SV-18 / T-206 S-425 -- the floor is the filter mark plus 
 
   it('a column never under its floor: a narrower dragged width is raised to the floor', () => {
     const sizing = unmeasuredSizing(16)
-    const dragged = columnOf(viewOf(searchPanelWithColumnWidth(TASK_PANEL, 'SQ-1', 5)), 'SQ-1')
+    const dragged = columnOf(viewOf(withWidth('SQ-1', 5)), 'SQ-1')
     expect(columnWidthPx(dragged, sizing)).toBeGreaterThanOrEqual(sizing.floor)
   })
 
   it('a column dragged wider than the floor keeps the dragged width, however the type size moves', () => {
-    const wide = columnOf(viewOf(searchPanelWithColumnWidth(TASK_PANEL, 'SQ-1', 400)), 'SQ-1')
+    const wide = columnOf(viewOf(withWidth('SQ-1', 400)), 'SQ-1')
     for (const px of [9, 12, 16]) expect(columnWidthPx(wide, unmeasuredSizing(px))).toBe(400)
   })
 
   it('a measured column that was dragged is not measured again: its width stays when the measure changes', () => {
-    const dragged = columnOf(viewOf(searchPanelWithColumnWidth(TASK_PANEL, 'SQ-5', 333)), 'SQ-5')
+    const dragged = columnOf(viewOf(withWidth('SQ-5', 333)), 'SQ-5')
     const first = { floor: 23, measured: new Map([['SQ-5', 150]]) }
     const second = { floor: 23, measured: new Map([['SQ-5', 260]]) }
     expect(columnWidthPx(dragged, first)).toBe(333)

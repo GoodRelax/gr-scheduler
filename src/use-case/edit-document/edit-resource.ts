@@ -11,6 +11,7 @@ import type {
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
+import { documentWithTableViewsKept } from './edit-document-settings'
 
 export type ResourceCommand =
   | { readonly kind: 'createResource'; readonly name: string | null }
@@ -84,12 +85,12 @@ export function editResource(document: Document, command: ResourceCommand): Edit
       }
       const going = new Set(command.uids)
       return edited(
-        withSchedule(document, {
+        documentWithTableViewsKept(withSchedule(document, {
           resources: resources.filter((one) => !going.has(one.uid)),
           assignments: assignments.filter(
             (one) => one.resourceUid === null || !going.has(one.resourceUid),
           ),
-        }),
+        })),
       )
     }
 
@@ -99,7 +100,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
       )
       const kept = resources.filter((one) => referenced.has(one.uid))
       if (kept.length === resources.length) return edited(document)
-      return edited(withSchedule(document, { resources: kept }))
+      return edited(documentWithTableViewsKept(withSchedule(document, { resources: kept })))
     }
 
     case 'createAssignment': {

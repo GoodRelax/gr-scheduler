@@ -20,7 +20,11 @@ import {
   type DelayDiagnosticsReport,
   type Schedule,
 } from '../../src/entity/document-model/schedule/schedule'
-import type { ScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
+import {
+  EVERY_ROW_SHOWN,
+  type ScreenSession,
+  type TableView,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NOT_STORED_SEARCH_PANEL_SIZES } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import { columnWidthPx, unmeasuredSizing } from '../../src/framework/dom-screen-surface/search-panel-drawing'
 import { answerDelayDiagnosticsReportEntry } from '../../src/framework/single-html-shell/delay-diagnostics-report-window'
@@ -80,8 +84,12 @@ const SESSION = { screen: { screenLanguage: 'ja' } } as unknown as ScreenSession
 
 const CANVAS = { x: 0, y: 40, width: 1000, height: 600 }
 
-const viewOf = (window: DelayDiagnosticsReportWindow) =>
-  delayDiagnosticsReportFromWindow(SESSION, window, REPORT, SCHEDULE, { canvas: CANVAS, textSizeStep: 1 })
+// WHY: CR-723 -- the table's view (Visibility column, Schedule Filter, column filters, sort) is the document's, so it is
+// handed in beside the window and the steps that change it answer it back.
+const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+
+const viewOf = (window: DelayDiagnosticsReportWindow, view: TableView = NO_VIEW) =>
+  delayDiagnosticsReportFromWindow(SESSION, window, view, REPORT, SCHEDULE, { canvas: CANVAS, textSizeStep: 1 })
 
 const withWord = (word: string): DelayDiagnosticsReportWindow => ({
   ...OPENED_DELAY_DIAGNOSTICS_REPORT,
@@ -171,14 +179,14 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
   })
 
   it('draws nothing while no window or no report is held (RW-1)', () => {
-    expect(delayDiagnosticsReportFromWindow(SESSION, null, REPORT, SCHEDULE, { canvas: CANVAS, textSizeStep: 1 })).toBeNull()
+    expect(delayDiagnosticsReportFromWindow(SESSION, null, NO_VIEW, REPORT, SCHEDULE, { canvas: CANVAS, textSizeStep: 1 })).toBeNull()
   })
 })
 
 describe('T-346 / T-335 -- the window entries (WB-2, WB-3, WB-5, SV-7, SV-8, SV-14)', () => {
   const rows = { report: REPORT, schedule: SCHEDULE, language: 'ja' as const }
-  const after = (window: DelayDiagnosticsReportWindow, entry: string, column: string | null = null) =>
-    delayDiagnosticsReportAfterEntry(window, entry, column, rows)
+  const after = (window: DelayDiagnosticsReportWindow, entry: string, column: string | null = null, view: TableView = NO_VIEW) =>
+    delayDiagnosticsReportAfterEntry(window, view, entry, column, rows)
 
   it('IC-129 minimizes and restores; IC-130 maximizes and IC-131 restores', () => {
     const minimized = after(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-129')?.window
@@ -190,17 +198,17 @@ describe('T-346 / T-335 -- the window entries (WB-2, WB-3, WB-5, SV-7, SV-8, SV-
   })
 
   it('IC-52 closes the window alone (RW-1)', () => {
-    expect(after(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-52')).toEqual({ window: null })
+    expect(after(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-52')).toEqual({ window: null, view: NO_VIEW })
   })
 
   it('IC-122 opens a column filter, IC-124 sorts it, and Esc closes the filter first', () => {
-    const opened = after(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-122', 'DT-4')?.window as DelayDiagnosticsReportWindow
-    expect(opened.panel.filters.open).toBe('DT-4')
-    const sorted = after(opened, 'IC-124')?.window as DelayDiagnosticsReportWindow
-    expect(sorted.panel.sort).toEqual({ column: 'DT-4', direction: 'descending' })
-    expect(viewOf(sorted)?.rows.map((one) => one.cells[REPORT_ORDER.indexOf('DT-4')])).toEqual(['Foxtrot|Pipe', 'Echo', 'Delta', 'Charlie', 'Bravo', 'Alpha'])
-    expect(delayDiagnosticsReportWithFilterClosed(sorted)?.panel.filters.open).toBeNull()
-    expect(delayDiagnosticsReportWithFilterClosed(OPENED_DELAY_DIAGNOSTICS_REPORT)).toBeNull()
+    const opened = after(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-122', 'DT-4') as { window: DelayDiagnosticsReportWindow; view: TableView }
+    expect(opened.window.panel.filters.open).toBe('DT-4')
+    const sorted = after(opened.window, 'IC-124', null, opened.view) as { window: DelayDiagnosticsReportWindow; view: TableView }
+    expect(sorted.view.sort).toEqual({ column: 'DT-4', direction: 'descending' })
+    expect(viewOf(sorted.window, sorted.view)?.rows.map((one) => one.cells[REPORT_ORDER.indexOf('DT-4')])).toEqual(['Foxtrot|Pipe', 'Echo', 'Delta', 'Charlie', 'Bravo', 'Alpha'])
+    expect(delayDiagnosticsReportWithFilterClosed(sorted.window, sorted.view)?.panel.filters.open).toBeNull()
+    expect(delayDiagnosticsReportWithFilterClosed(OPENED_DELAY_DIAGNOSTICS_REPORT, NO_VIEW)).toBeNull()
   })
 
   it('an entry the window does not hold is not answered', () => {
@@ -210,7 +218,7 @@ describe('T-346 / T-335 -- the window entries (WB-2, WB-3, WB-5, SV-7, SV-8, SV-
 
 describe('RW-6 / RW-7 -- the Markdown string and the file name', () => {
   const stamp = { documentName: 'Plan', madeAt: '2026/10/03 10:00' }
-  const text = delayDiagnosticsReportMarkdownOf(OPENED_DELAY_DIAGNOSTICS_REPORT, REPORT, SCHEDULE, 'ja', stamp)
+  const text = delayDiagnosticsReportMarkdownOf(OPENED_DELAY_DIAGNOSTICS_REPORT, NO_VIEW, REPORT, SCHEDULE, 'ja', stamp)
   const lines = text.split('\n')
 
   it('opens with the heading, then the document name, the status date and the moment it was made', () => {
@@ -225,11 +233,11 @@ describe('RW-6 / RW-7 -- the Markdown string and the file name', () => {
   })
 
   it('is the same string for the same window, so IC-108 and IC-140 never differ', () => {
-    expect(delayDiagnosticsReportMarkdownOf(OPENED_DELAY_DIAGNOSTICS_REPORT, REPORT, SCHEDULE, 'ja', stamp)).toBe(text)
+    expect(delayDiagnosticsReportMarkdownOf(OPENED_DELAY_DIAGNOSTICS_REPORT, NO_VIEW, REPORT, SCHEDULE, 'ja', stamp)).toBe(text)
   })
 
   it('names the filter that stands, and the rows it keeps', () => {
-    const filtered = delayDiagnosticsReportMarkdownOf(withWord('Bravo'), REPORT, SCHEDULE, 'ja', stamp)
+    const filtered = delayDiagnosticsReportMarkdownOf(withWord('Bravo'), NO_VIEW, REPORT, SCHEDULE, 'ja', stamp)
     expect(filtered).toContain('- フィルタ: Bravo')
     expect(filtered.split('\n').filter((line) => line.startsWith('| '))).toHaveLength(3)
   })

@@ -16,7 +16,9 @@ import type {
 import type { TaskGroupPlacement } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { SettledUtterance } from '../../use-case/post-dialogue-message/post-dialogue-message'
 import {
+  VISIBILITY_TABLES,
   emptySearchPanelSession,
+  tableViewOf,
   type ScreenSession,
   type SearchPanelSession,
   type VisibilityTable,
@@ -47,7 +49,7 @@ import {
   type DelayDiagnosticsReportWindow,
 } from './delay-diagnostics-report'
 import { resourceListFromWindow, type ResourceListView } from './resource-list'
-import { scheduleFilterBarOf, type ScheduleFilterBarView, type TableWindowState } from './table-window'
+import { isScheduleFilterAppliedIn, scheduleFilterBarOf, type ScheduleFilterBarView, type TableWindowState } from './table-window'
 import { DEFAULT_WINDOW_PLACE, type WindowPlace, type WindowShown } from './window-box'
 export {
   nextSearchPanelTextSizeStep,
@@ -72,9 +74,10 @@ export {
   scheduleFilterBarOf,
   statusGlyphSvg,
   tableAfterVisibilityChange,
+  tableWithScheduleFilterOff,
   tableWithScheduleFilterToggled,
 } from './table-window'
-export type { MarkGlyph, ScheduleFilterBarView, TableWindowState, VisibilityKey } from './table-window'
+export type { MarkGlyph, ScheduleFilterBarView, TableWindowState, VisibilityKey, WindowStep } from './table-window'
 export {
   OPENED_RESOURCE_LIST,
   resourceListAfterEntry,
@@ -726,57 +729,53 @@ export function displayLanguageOf(session: ScreenSession): DisplayLanguage {
   return session.screen.screenLanguage ?? DEFAULT_DISPLAY_LANGUAGE
 }
 
-// see RW-1, RW-5, S-451
+interface TableWindowSource {
+  readonly schedule: Schedule
+  readonly settings: DocumentSettings
+  readonly canvas: ScreenRect
+}
+
+// see RW-1, RW-5, S-451, S-564
 /** @purity pure */
-function delayDiagnosticsReportOf(
-  session: ScreenSession,
-  readings: ScreenViewReadings,
-  schedule: Schedule,
-  canvas: ScreenRect,
-): DelayDiagnosticsReportView | null {
+function delayDiagnosticsReportOf(session: ScreenSession, readings: ScreenViewReadings, source: TableWindowSource): DelayDiagnosticsReportView | null {
   const held = readings.delayDiagnosticsReport ?? null
   const textSizeStep = (readings.searchPanel ?? emptySearchPanelSession).textSizeStep
-  return delayDiagnosticsReportFromWindow(session, held?.window ?? null, held?.report ?? null, schedule, { canvas, textSizeStep })
+  const view = tableViewOf(source.settings, 'delayDiagnosticsReport')
+  const layout = { canvas: source.canvas, textSizeStep }
+  return delayDiagnosticsReportFromWindow(session, held?.window ?? null, view, held?.report ?? null, source.schedule, layout)
 }
 
 /** @purity pure */
-function resourceListOf(session: ScreenSession, readings: ScreenViewReadings, schedule: Schedule, canvas: ScreenRect): ResourceListView | null {
+function resourceListOf(session: ScreenSession, readings: ScreenViewReadings, source: TableWindowSource): ResourceListView | null {
   const textSizeStep = (readings.searchPanel ?? emptySearchPanelSession).textSizeStep
-  const layout = { canvas, textSizeStep }
-  return resourceListFromWindow(session, readings.resourceList ?? null, schedule, readings.selectedResourceUids, layout)
+  const layout = { canvas: source.canvas, textSizeStep }
+  const view = tableViewOf(source.settings, 'resourceList')
+  return resourceListFromWindow(session, readings.resourceList ?? null, view, source.schedule, readings.selectedResourceUids, layout)
 }
 
-// see TV-1, TV-8, TV-12
+// see TV-1, TV-8, TV-11, TV-12, S-560, S-564, S-568
 /** @purity pure */
-function scheduleFilteredTablesOf(readings: ScreenViewReadings): readonly VisibilityTable[] {
-  const report = readings.delayDiagnosticsReport?.window.panel.visibility.isApplied === true
-  return [
-    ...(readings.searchPanel?.visibility.isApplied === true ? ['searchPanel' as const] : []),
-    ...(report ? ['delayDiagnosticsReport' as const] : []),
-    ...(readings.resourceList?.panel.visibility.isApplied === true ? ['resourceList' as const] : []),
-  ]
-}
-
-/** @purity pure */
-function scheduleFilterBarIn(readings: ScreenViewReadings, schedule: Schedule, language: DisplayLanguage): ScheduleFilterBarView | null {
+function scheduleFilterBarIn(source: TableWindowSource, readings: ScreenViewReadings, language: DisplayLanguage): ScheduleFilterBarView | null {
+  const schedule = source.schedule
   const drawn = readings.drawnTaskUids ?? null
   const drawnCount = drawn === null ? schedule.tasks.length : schedule.tasks.filter((task) => drawn.has(task.uid)).length
-  return scheduleFilterBarOf(scheduleFilteredTablesOf(readings), schedule, drawnCount, language)
+  const tables = VISIBILITY_TABLES.filter((table) => isScheduleFilterAppliedIn(source.settings, table))
+  return scheduleFilterBarOf(tables, schedule, drawnCount, language)
 }
 
 /** @purity pure */
 function tableWindowsOf(
   session: ScreenSession,
   readings: ScreenViewReadings,
-  schedule: Schedule,
-  canvas: ScreenRect,
-): Pick<ScreenView, 'searchPanel' | 'delayDiagnosticsReport' | 'resourceList' | 'scheduleFilterBar'> {
+  source: TableWindowSource,
+): Pick<ScreenView, VisibilityTable | 'scheduleFilterBar'> {
   const panel = readings.searchPanel ?? emptySearchPanelSession
+  const view = tableViewOf(source.settings, 'searchPanel')
   return {
-    searchPanel: searchPanelFromSession(session, panel, schedule, canvas, readings.bottleneckUids),
-    delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, schedule, canvas),
-    resourceList: resourceListOf(session, readings, schedule, canvas),
-    scheduleFilterBar: scheduleFilterBarIn(readings, schedule, displayLanguageOf(session)),
+    searchPanel: searchPanelFromSession(session, panel, view, source.schedule, source.canvas, readings.bottleneckUids),
+    delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, source),
+    resourceList: resourceListOf(session, readings, source),
+    scheduleFilterBar: scheduleFilterBarIn(source, readings, displayLanguageOf(session)),
   }
 }
 
@@ -860,7 +859,7 @@ export function screenViewFromRegions(
     notices: noticesFromSession(session, readings),
     confirmation: confirmationFromSession(session, readings),
     dialogueField: dialogueFieldFromLog(dialogueLog, session, readings, regions.scheduleCanvas),
-    ...tableWindowsOf(session, readings, schedule, regions.scheduleCanvas),
+    ...tableWindowsOf(session, readings, { schedule, settings, canvas: regions.scheduleCanvas }),
   }
 
   const echo = session.screen.scaleMessageDisplayState

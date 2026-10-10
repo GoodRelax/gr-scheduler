@@ -20,6 +20,7 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
+import { documentWithTableViewsKept } from './edit-document-settings'
 import { settledTaskGroup, tasksRankedByTheTaskGroupTree, wbsSubtreesOf } from './edit-task-group'
 import { createTask } from './task-create'
 import { pasteTasks } from './task-paste'
@@ -232,7 +233,7 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
             : one,
         )
       return edited(
-        withSchedule(document, {
+        documentWithTableViewsKept(withSchedule(document, {
           ...schedule,
           tasks,
           taskVisuals: schedule.taskVisuals.filter((one) => !doomed.has(one.taskUid)),
@@ -242,7 +243,7 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
             (one) => one.taskUid === null || !doomed.has(one.taskUid),
           ),
           taskGroups,
-        }),
+        })),
       )
     }
 

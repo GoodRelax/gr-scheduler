@@ -18,8 +18,10 @@ import {
   type Schedule,
 } from '../../src/entity/document-model/schedule/schedule'
 import {
+  EVERY_ROW_SHOWN,
   emptySearchPanelSession,
   type ScreenSession,
+  type TableView,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { NOT_STORED_SEARCH_PANEL_FONT_SIZES } from '../../src/framework/dom-screen-surface/dom-screen-surface'
 import { bare, specTable } from '../contract/spec-table'
@@ -85,10 +87,13 @@ const REPORT: DelayDiagnosticsReport = {
   lateDays: [],
 }
 
+// WHY: CR-723 -- the table's view is the document's and is handed in beside the window; none is set here.
+const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+
 const sessionIn = (language: 'ja' | 'en') => ({ screen: { screenLanguage: language } }) as unknown as ScreenSession
 
 const viewIn = (language: 'ja' | 'en') =>
-  delayDiagnosticsReportFromWindow(sessionIn(language), OPENED_DELAY_DIAGNOSTICS_REPORT, REPORT, SCHEDULE, {
+  delayDiagnosticsReportFromWindow(sessionIn(language), OPENED_DELAY_DIAGNOSTICS_REPORT, NO_VIEW, REPORT, SCHEDULE, {
     canvas: { x: 0, y: 40, width: 1000, height: 600 },
     textSizeStep: 0,
   })
@@ -156,7 +161,7 @@ describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en'
     }
     const slots = { parent: '2027/05/03', leftmost: '2027/05/10', rightmost: '2027/05/12', days: '5', tolerance: '1' }
     for (const language of ['ja', 'en'] as const) {
-      const view = delayDiagnosticsReportFromWindow(sessionIn(language), OPENED_DELAY_DIAGNOSTICS_REPORT, report, SCHEDULE, {
+      const view = delayDiagnosticsReportFromWindow(sessionIn(language), OPENED_DELAY_DIAGNOSTICS_REPORT, NO_VIEW, report, SCHEDULE, {
         canvas: { x: 0, y: 40, width: 1000, height: 600 },
         textSizeStep: 0,
       })
@@ -182,7 +187,7 @@ describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en'
 })
 
 describe('CR-648 RW-4 / RW-6 / RW-10 -- the summary line, no legend, the flame, the fixed columns', () => {
-  const lines = delayDiagnosticsReportMarkdownOf(OPENED_DELAY_DIAGNOSTICS_REPORT, REPORT, SCHEDULE, 'ja', STAMP).split('\n')
+  const lines = delayDiagnosticsReportMarkdownOf(OPENED_DELAY_DIAGNOSTICS_REPORT, NO_VIEW, REPORT, SCHEDULE, 'ja', STAMP).split('\n')
 
   it('RW-6: the Markdown holds one summary line and no legend section', () => {
     const summary = lines.filter((line) => line.startsWith(wordIn('delayReportSummary', 'part', 'statusDate').ja.replace(' {date}', '')))

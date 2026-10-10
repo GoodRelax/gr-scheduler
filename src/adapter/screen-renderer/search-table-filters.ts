@@ -10,16 +10,14 @@ import {
   type SearchRows,
   type TaskSearchRow,
 } from '../../entity/document-model/schedule/schedule'
-import type { SearchPanelSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import type { TableView } from '../../use-case/advance-screen-session/advance-screen-session'
 import displayWords from './display-words.json'
 
-type SearchFilters = SearchPanelSession['filters']
+export type ColumnFilter = TableView['columnFilters'][number]
 
-export type SearchColumnFilter = SearchFilters['columns'][number]
+export type SearchColumn = ColumnFilter['column']
 
-export type SearchColumn = SearchColumnFilter['column']
-
-export type SearchSort = NonNullable<SearchPanelSession['sort']>
+export type ColumnSort = NonNullable<TableView['sort']>
 
 export const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9']
 
@@ -199,7 +197,7 @@ function columnOrderOf<Row>(table: TableColumns<Row>, column: SearchColumn): Col
 
 // see SV-8
 /** @purity pure */
-function sortedRows<Row>(rows: readonly Row[], order: ColumnOrder<Row>, direction: SearchSort['direction']): readonly Row[] {
+function sortedRows<Row>(rows: readonly Row[], order: ColumnOrder<Row>, direction: ColumnSort['direction']): readonly Row[] {
   const sign = direction === 'ascending' ? 1 : -1
   const filled = rows.filter((row) => !order.isBlank(row)).sort((a, b) => sign * order.compare(a, b))
   return [...filled, ...rows.filter((row) => order.isBlank(row))]
@@ -216,9 +214,9 @@ function isWithinDates(stored: string | null, from: string | null, to: string | 
 }
 
 /** @purity pure */
-function isKept<Row>(row: Row, filter: SearchColumnFilter, table: TableColumns<Row>): boolean {
+function isKept<Row>(row: Row, filter: ColumnFilter, table: TableColumns<Row>): boolean {
   const date = table.dates[filter.column]
-  if (date !== undefined) return isWithinDates(date(row), filter.from, filter.to)
+  if (date !== undefined) return isWithinDates(date(row), filter.fromDate, filter.toDate)
   const values = table.values[filter.column]
   if (values === undefined || filter.hiddenValues.length === 0) return true
   const hidden = new Set(filter.hiddenValues)
@@ -229,10 +227,10 @@ function isKept<Row>(row: Row, filter: SearchColumnFilter, table: TableColumns<R
 export function filteredTableRows<Row>(
   rows: readonly Row[],
   table: TableColumns<Row>,
-  filters: SearchFilters,
-  sort: SearchSort | null,
+  columnFilters: readonly ColumnFilter[],
+  sort: ColumnSort | null,
 ): readonly Row[] {
-  const own = filters.columns.filter((filter) => isColumnOf(table, filter.column))
+  const own = columnFilters.filter((filter) => isColumnOf(table, filter.column))
   const kept = own.length === 0 ? rows : rows.filter((row) => own.every((filter) => isKept(row, filter, table)))
   const order = sort === null ? null : columnOrderOf(table, sort.column)
   return order === null || sort === null ? kept : sortedRows(kept, order, sort.direction)
@@ -242,13 +240,13 @@ export function filteredTableRows<Row>(
 /** @purity pure */
 export function filteredSearchRows(
   rows: SearchRows,
-  filters: SearchFilters,
-  sort: SearchSort | null,
+  columnFilters: readonly ColumnFilter[],
+  sort: ColumnSort | null,
   hidden: ReadonlySet<number> = NOTHING_HIDDEN,
 ): SearchRows {
   return {
-    taskRows: filteredTableRows(rows.taskRows, taskTableOf(hidden), filters, sort),
-    commentBoxRows: filteredTableRows(rows.commentBoxRows, COMMENT_BOX_TABLE, filters, sort),
+    taskRows: filteredTableRows(rows.taskRows, taskTableOf(hidden), columnFilters, sort),
+    commentBoxRows: filteredTableRows(rows.commentBoxRows, COMMENT_BOX_TABLE, columnFilters, sort),
   }
 }
 

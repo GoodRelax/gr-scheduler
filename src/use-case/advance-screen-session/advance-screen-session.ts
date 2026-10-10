@@ -65,11 +65,10 @@ import { unchanged, type Step } from './session-step'
 export type { ArmKind, PropertiesSubject, ScreenValues, ScreenValuesEvent } from './screen-values'
 export type {
   SearchColumn,
-  SearchColumnFilter,
   SearchPanelSession,
   SearchPanelTextSizeRow,
-  SearchSort,
   SearchTable,
+  TableView,
   TableVisibility,
   VisibilityTable,
 } from './screen-values'
@@ -77,9 +76,11 @@ export type { WindowName } from '../../entity/document-model/screen-state/screen
 export {
   EVERY_ROW_SHOWN,
   SEARCH_PANEL_TEXT_SIZE_ROWS,
+  VISIBILITY_TABLES,
   emptySearchPanelSession,
   isHelpStandingIn,
   isWindowStandingIn,
+  tableViewOf,
 } from './screen-values'
 export type {
   FileFlowImportAnswer,

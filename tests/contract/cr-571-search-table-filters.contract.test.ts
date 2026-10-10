@@ -5,12 +5,12 @@ import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
-import { columnValuesOf, filteredSearchRows } from '../../src/adapter/screen-renderer/search-table-filters'
-import type {
-  SearchColumnFilter,
-  SearchPanelSession,
-  SearchSort,
-} from '../../src/use-case/advance-screen-session/advance-screen-session'
+import {
+  columnValuesOf,
+  filteredSearchRows,
+  type ColumnFilter,
+  type ColumnSort,
+} from '../../src/adapter/screen-renderer/search-table-filters'
 import type {
   CommentBoxSearchRow,
   PlanActualState,
@@ -111,25 +111,25 @@ const ROWS: SearchRows = {
   ],
 }
 
-type Filters = SearchPanelSession['filters']
+type Filters = readonly ColumnFilter[]
 
-const NO_FILTERS: Filters = { columns: [], open: null }
+const NO_FILTERS: Filters = []
 
-const hiding = (column: string, hiddenValues: readonly string[]): SearchColumnFilter => ({
+const hiding = (column: string, hiddenValues: readonly string[]): ColumnFilter => ({
   column,
   hiddenValues,
-  from: null,
-  to: null,
+  fromDate: null,
+  toDate: null,
 })
 
-const between = (column: string, from: string | null, to: string | null): SearchColumnFilter => ({
+const between = (column: string, from: string | null, to: string | null): ColumnFilter => ({
   column,
   hiddenValues: [],
-  from,
-  to,
+  fromDate: from,
+  toDate: to,
 })
 
-const filtersOf = (...columns: readonly SearchColumnFilter[]): Filters => ({ columns, open: null })
+const filtersOf = (...columns: readonly ColumnFilter[]): Filters => columns
 
 const uidsOf = (rows: SearchRows): readonly number[] => rows.taskRows.map((row) => row.taskUid)
 const idsOf = (rows: SearchRows): readonly string[] => rows.commentBoxRows.map((row) => row.commentBoxId)
@@ -144,7 +144,7 @@ const blankItemOf = (column: string, nonBlank: readonly string[]): string => {
   return others[0] as string
 }
 
-const sorted = (column: string, direction: SearchSort['direction']): SearchRows =>
+const sorted = (column: string, direction: ColumnSort['direction']): SearchRows =>
   filteredSearchRows(ROWS, NO_FILTERS, { column, direction })
 
 describe('FR-151 table T-330 SV-7 / SV-8 -- the search tables filter and sort their rows', () => {

@@ -15,6 +15,7 @@ import {
   SEARCH_PANEL_TEXT_SIZE_ROWS,
   type ScreenSession,
   type SearchPanelSession,
+  type TableView,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
@@ -40,6 +41,7 @@ import {
   dateText,
   entryOf,
   openFilterIn,
+  panelWithFilterShut,
   scheduleFilterEntryOf,
   scheduleFilterRefusalsOf,
   tableAfterFilterChange,
@@ -197,9 +199,9 @@ function commentBoxCells(row: CommentBoxSearchRow): readonly string[] {
 
 // see SV-4, SV-7, SV-8, SJ-1
 /** @purity pure */
-function rowsOf(found: SearchRows, panel: SearchPanelSession, language: DisplayLanguage): readonly SearchRowView[] {
+function rowsOf(found: SearchRows, panel: SearchPanelSession, view: TableView, language: DisplayLanguage): readonly SearchRowView[] {
   if (panel.table === 'tasks') {
-    const hidden = hiddenTasksOf(panel)
+    const hidden = hiddenTasksOf(view)
     return found.taskRows.map((row) => ({
       cells: taskCells(row, language),
       glyph: STATE_GLYPHS[searchTaskStateOf(row)],
@@ -214,10 +216,10 @@ function rowsOf(found: SearchRows, panel: SearchPanelSession, language: DisplayL
   }))
 }
 
-// see SQ-10, TV-2
+// see SQ-10, TV-2, S-561
 /** @purity pure */
-function hiddenTasksOf(panel: SearchPanelSession): ReadonlySet<number> {
-  return new Set(panel.visibility.hiddenKeys)
+function hiddenTasksOf(view: TableView): ReadonlySet<number> {
+  return new Set(view.visibility.hiddenKeys)
 }
 
 // see SV-7, SQ-5, T-331
@@ -244,7 +246,13 @@ function widthSamplesIn(all: SearchRows, panel: SearchPanelSession, language: Di
 
 // see SV-6, SV-7, SV-18, T-331
 /** @purity pure */
-function searchTableOf(session: ScreenSession, panel: SearchPanelSession, found: () => SearchRows, all?: SearchRows): WindowTable {
+function searchTableOf(
+  session: ScreenSession,
+  panel: SearchPanelSession,
+  view: TableView,
+  found: () => SearchRows,
+  all?: SearchRows,
+): WindowTable {
   const language = displayLanguageOf(session)
   const columns = TABLE_COLUMNS[panel.table]
   return {
@@ -252,7 +260,7 @@ function searchTableOf(session: ScreenSession, panel: SearchPanelSession, found:
     fixedCount: columns.indexOf(JUMP_COLUMN[panel.table]) + 1,
     headingOf: (column) => wordOf(COLUMN_WORDS.get(column)?.text, language),
     isDateColumn: isDateSearchColumn,
-    valuesOf: (column) => columnValuesOf(found(), column, hiddenTasksOf(panel)),
+    valuesOf: (column) => columnValuesOf(found(), column, hiddenTasksOf(view)),
     labelOf: (column, value) => valueLabelOf(column, value, language),
     ...(all === undefined ? {} : { widthSamplesOf: widthSamplesIn(all, panel, language) }),
   }
@@ -267,15 +275,17 @@ function shownIn(session: ScreenSession): SearchPanelShown | null {
 // see TV-5, SQ-10
 // WHY: the search table rows every task, so only a Hide row of a task still in the document changes the schedule.
 /** @purity pure */
-function wouldSearchFilterChange(panel: SearchPanelSession, schedule: Schedule): boolean {
-  return wouldScheduleFilterChange(panel.visibility, () => new Set(schedule.tasks.map((task) => task.uid)), true)
+function wouldSearchFilterChange(view: TableView, schedule: Schedule): boolean {
+  return wouldScheduleFilterChange(view.visibility, () => new Set(schedule.tasks.map((task) => task.uid)), true)
 }
 
-// see FR-151, T-330, S-442, SQ-5
+// see FR-151, T-330, S-442, SQ-5, S-560
+// WHY: view is the search table's view the document holds (tableViewOf), the panel the screen-only values.
 /** @purity pure */
 export function searchPanelFromSession(
   session: ScreenSession,
   panel: SearchPanelSession,
+  view: TableView,
   schedule: Schedule,
   canvas: ScreenRect,
   bottleneckUids?: ReadonlySet<number>,
@@ -285,10 +295,11 @@ export function searchPanelFromSession(
   const language = displayLanguageOf(session)
   const found = shown === 'minimized' ? null : searchRowsOf(schedule, panel.word, bottleneckUids)
   const all = found === null || panel.word === '' ? found : searchRowsOf(schedule, '', bottleneckUids)
-  const table = searchTableOf(session, panel, () => found ?? NOTHING_FOUND, all ?? undefined)
+  const table = searchTableOf(session, panel, view, () => found ?? NOTHING_FOUND, all ?? undefined)
   const open = openFilterIn(panel, shown, table)
-  const rows = found === null ? [] : rowsOf(filteredSearchRows(found, panel.filters, panel.sort, hiddenTasksOf(panel)), panel, language)
-  const scheduleFilter = scheduleFilterEntryOf(panel.visibility, wouldSearchFilterChange(panel, schedule), language)
+  const kept = found === null ? null : filteredSearchRows(found, view.columnFilters, view.sort, hiddenTasksOf(view))
+  const rows = kept === null ? [] : rowsOf(kept, panel, view, language)
+  const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldSearchFilterChange(view, schedule), language)
   return {
     heading: wordOf(PANEL_HEADING, language),
     shown,
@@ -298,14 +309,14 @@ export function searchPanelFromSession(
     tableEntries: [
       entryOf(TASKS_TABLE_ENTRY, language, panel.table === 'tasks'),
       entryOf(COMMENT_BOXES_TABLE_ENTRY, language, panel.table === 'commentBoxes'),
-      clearEntryOf(panel, language),
+      clearEntryOf(view, language),
       ...(panel.table === 'tasks' ? [scheduleFilter] : []),
     ],
     titleEntries: [entryOf(TEXT_SIZE_ENTRY, language), ...windowTitleEntriesOf(shown, language)],
     word: panel.word,
     table: panel.table,
-    columns: tableColumnsOf(panel, table, language),
-    filterMenu: open === null || found === null ? null : tableFilterMenuOf(panel, open, table, language),
+    columns: tableColumnsOf(panel, view, table, language),
+    filterMenu: open === null || found === null ? null : tableFilterMenuOf(view, open, table, language),
     rows,
     jumpAt: TABLE_COLUMNS[panel.table].indexOf(JUMP_COLUMN[panel.table]),
     glyphAt: panel.table === 'tasks' ? TABLE_COLUMNS.tasks.indexOf(STATUS_COLUMN) : null,
@@ -327,20 +338,23 @@ export function searchPanelWithColumnWidth(panel: SearchPanelSession, column: Se
   return tableWithColumnWidth(panel, column, width)
 }
 
-// see SV-7, SV-8, T-109, SQ-5
+// see SV-7, SV-8, T-109, SQ-5, UN-20
+// WHY: every entry this answers changes the search table's view, so it answers the view after it
+// (written by the shell with setTableView, CM-92); null is an entry it does not answer.
 /** @purity pure */
 export function searchPanelAfterFilterEntry(
   session: ScreenSession,
   panel: SearchPanelSession,
+  view: TableView,
   entry: IconId,
   schedule: Schedule,
   bottleneckUids?: ReadonlySet<number>,
   listed?: readonly string[] | null,
-): SearchPanelSession | null {
-  const filtered = tableWithScheduleFilterPressed(panel, entry, () => wouldSearchFilterChange(panel, schedule))
+): TableView | null {
+  const filtered = tableWithScheduleFilterPressed(view, entry, () => wouldSearchFilterChange(view, schedule))
   if (filtered !== null) return filtered
-  const table = searchTableOf(session, panel, () => searchRowsOf(schedule, panel.word, bottleneckUids))
-  return tableAfterFilterEntry(panel, shownIn(session), entry, table, listed)
+  const table = searchTableOf(session, panel, view, () => searchRowsOf(schedule, panel.word, bottleneckUids))
+  return tableAfterFilterEntry(panel, view, shownIn(session), entry, table, listed)
 }
 
 // see SV-7, IC-122
@@ -348,30 +362,36 @@ export function searchPanelAfterFilterEntry(
 export function searchPanelWithFilterOpened(
   session: ScreenSession,
   panel: SearchPanelSession,
+  view: TableView,
   column: SearchColumn,
 ): SearchPanelSession | null {
-  return tableWithFilterOpened(panel, shownIn(session), column, searchTableOf(session, panel, () => NOTHING_FOUND))
+  return tableWithFilterOpened(panel, shownIn(session), column, searchTableOf(session, panel, view, () => NOTHING_FOUND))
 }
 
-// see SV-7
+// see SV-7, TV-2, UN-20
 /** @purity pure */
 export function searchPanelAfterFilterChange(
   session: ScreenSession,
   panel: SearchPanelSession,
+  view: TableView,
   change: SearchFilterChange,
-): SearchPanelSession | null {
-  if (change.kind === 'shown') return tableAfterVisibilityChange(panel, change.keys, change.isShown)
-  return tableAfterFilterChange(panel, shownIn(session), change, searchTableOf(session, panel, () => NOTHING_FOUND))
+): TableView | null {
+  if (change.kind === 'shown') return tableAfterVisibilityChange(view, change.keys, change.isShown)
+  return tableAfterFilterChange(panel, view, shownIn(session), change, searchTableOf(session, panel, view, () => NOTHING_FOUND))
 }
 
 // see SV-14, IN-4
 /** @purity pure */
-export function searchPanelWithFilterClosed(session: ScreenSession, panel: SearchPanelSession): SearchPanelSession | null {
-  return tableWithFilterClosed(panel, shownIn(session), searchTableOf(session, panel, () => NOTHING_FOUND))
+export function searchPanelWithFilterClosed(session: ScreenSession, panel: SearchPanelSession, view: TableView): SearchPanelSession | null {
+  return tableWithFilterClosed(panel, shownIn(session), searchTableOf(session, panel, view, () => NOTHING_FOUND))
 }
 
-// see SV-1, IC-153
+// see SV-1, IC-153, UN-20
+// WHY: the open filter shuts with the clear; the view after it is written with setTableView (CM-92).
 /** @purity pure */
-export function searchPanelWithTableViewsCleared(panel: SearchPanelSession): SearchPanelSession {
-  return tableWithViewsCleared(panel)
+export function searchPanelWithTableViewsCleared(
+  panel: SearchPanelSession,
+  view: TableView,
+): { readonly panel: SearchPanelSession; readonly view: TableView } {
+  return { panel: panelWithFilterShut(panel), view: tableWithViewsCleared(view) }
 }

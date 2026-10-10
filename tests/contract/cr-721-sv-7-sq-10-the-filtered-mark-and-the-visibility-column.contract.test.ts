@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import { delayDiagnosticsReportAfterFilterChange } from '../../src/adapter/screen-renderer/delay-diagnostics-report'
 import {
-  OPENED_DELAY_DIAGNOSTICS_REPORT,
+  OPENED_REPORT,
   TASK_PANEL,
   TASK_UIDS,
   changed,
@@ -18,6 +18,8 @@ import {
   valuesOf,
   viewOf,
   withValueOff,
+  type Pane,
+  type ReportPane,
 } from './cr-721-stage'
 import { specTable, unbroken } from './spec-table'
 
@@ -50,16 +52,16 @@ describe('CR-721 the manuscript these cases are driven by', () => {
 })
 
 // WHY: CR-722 TV-2 -- every row starts as Show, so a case that needs some rows Hide hides every task but the named ones.
-const onlyShown = (panel: typeof TASK_PANEL, uids: readonly number[]): typeof TASK_PANEL => ({
-  ...panel,
-  visibility: { ...panel.visibility, hiddenKeys: TASK_UIDS.filter((uid) => !uids.includes(uid)) },
+const onlyShown = (pane: Pane, uids: readonly number[]): Pane => ({
+  ...pane,
+  view: { ...pane.view, visibility: { ...pane.view.visibility, hiddenKeys: TASK_UIDS.filter((uid) => !uids.includes(uid)) } },
 })
 
 // WHY: a value list holds one item per value the cells carry (SV-7), so both words need one checked and one unchecked task.
 const MIXED = onlyShown(TASK_PANEL, [1])
 
-const filteredColumns = (panel: typeof TASK_PANEL): readonly string[] =>
-  viewOf({ ...panel, filters: { ...panel.filters, open: null } }).columns.filter((one) => one.isFiltered).map((one) => one.column)
+const filteredColumns = (pane: Pane): readonly string[] =>
+  viewOf({ ...pane, panel: { ...pane.panel, filters: { ...pane.panel.filters, open: null } } }).columns.filter((one) => one.isFiltered).map((one) => one.column)
 
 describe('FR-151 T-330 SV-7 -- 列のフィルタを掛けている列: a column with one value unchecked is filtered', () => {
   it('a fresh table has no filtered heading', () => {
@@ -106,7 +108,7 @@ describe('FR-151 T-330 SV-7 -- 並べ替えだけを掛けた列の見出しは�
     ['IC-124', 'descending'],
   ] as const)('%s (%s) on a column marks no heading', (entry: string, _direction: string) => {
     const sorted = pressed(opened('SQ-1'), entry)
-    expect(sorted.sort, 'premise: a sort is set').not.toBeNull()
+    expect(sorted.view.sort, 'premise: a sort is set').not.toBeNull()
     expect(filteredColumns(sorted)).toEqual([])
   })
 
@@ -162,7 +164,7 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
   })
 
   it('SQ-10 is not a column of the comment box table', () => {
-    expect(viewOf({ ...TASK_PANEL, table: 'commentBoxes' }).columns.map((one) => one.column)).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
+    expect(viewOf({ ...TASK_PANEL, panel: { ...TASK_PANEL.panel, table: 'commentBoxes' } }).columns.map((one) => one.column)).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
   })
 })
 
@@ -174,7 +176,7 @@ describe('FR-151 T-331 SQ-10 -- the heading box shows all, some or none of the l
   })
 
   it('a word that lists one row makes that row the whole list', () => {
-    const narrowed = { ...onlyShown(TASK_PANEL, [1]), word: 'alpha' }
+    const narrowed = { ...onlyShown(TASK_PANEL, [1]), panel: { ...TASK_PANEL.panel, word: 'alpha' } }
     expect(viewOf(narrowed).rows.length, 'premise: the word lists one row').toBe(1)
     expect(viewOf(narrowed).showHeading).toBe('all')
   })
@@ -188,15 +190,18 @@ describe('FR-151 T-331 SQ-10 -- the heading box shows all, some or none of the l
 
 describe('FR-134 T-346 RW-2 -- the report window marks a filtered heading the same way', () => {
   it('a report column with one value unchecked is filtered, and one only sorted is not', () => {
-    const there = reportAfter(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-122', 'DT-1')
+    const there = reportAfter(OPENED_REPORT, 'IC-122', 'DT-1')
     const menu = reportViewOf(there).filterMenu
     if (menu === null || menu.kind !== 'values') throw new Error('the report status filter lists no values')
-    const filtered = delayDiagnosticsReportAfterFilterChange(there, { kind: 'value', column: 'DT-1', value: menu.values[0]?.value ?? '', isShown: false })
-    const marked = (window: typeof there): readonly string[] =>
-      reportViewOf({ ...window, panel: { ...window.panel, filters: { ...window.panel.filters, open: null } } }).columns.filter((one) => one.isFiltered).map((one) => one.column)
+    const filtered: ReportPane = {
+      window: there.window,
+      view: delayDiagnosticsReportAfterFilterChange(there.window, there.view, { kind: 'value', column: 'DT-1', value: menu.values[0]?.value ?? '', isShown: false }),
+    }
+    const marked = (pane: ReportPane): readonly string[] =>
+      reportViewOf({ ...pane, window: { ...pane.window, panel: { ...pane.window.panel, filters: { ...pane.window.panel.filters, open: null } } } }).columns.filter((one) => one.isFiltered).map((one) => one.column)
     expect(marked(filtered)).toEqual(['DT-1'])
-    const sorted = reportAfter(reportAfter(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-122', 'DT-3'), 'IC-123', 'DT-3')
-    expect(sorted.panel.sort, 'premise: a sort is set').not.toBeNull()
+    const sorted = reportAfter(reportAfter(OPENED_REPORT, 'IC-122', 'DT-3'), 'IC-123', 'DT-3')
+    expect(sorted.view.sort, 'premise: a sort is set').not.toBeNull()
     expect(marked(sorted)).toEqual([])
   })
 })

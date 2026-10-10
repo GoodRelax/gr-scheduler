@@ -18,6 +18,7 @@ import type {
   ScreenViewReadings,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
+import { isScheduleFilterAppliedIn } from './table-window'
 import iconRoster from './icon-roster.json'
 import { iconLabel } from './tooltips'
 import displayWords from './display-words.json'
@@ -176,15 +177,15 @@ function commandItemFor(
     isArmed: false,
     isChosen: false,
     label: iconLabel(icon, displayLanguageOf(session)),
-    ...scheduleFilterMarkOf(icon, readings),
+    ...scheduleFilterMarkOf(icon, settings),
   }
 }
 
-// see TV-12, EN-8, IC-117, IC-107
+// see TV-12, EN-8, IC-117, IC-107, S-560, S-564
 /** @purity pure */
-function scheduleFilterMarkOf(icon: IconId, readings: ScreenViewReadings): Pick<CommandItem, 'isScheduleFilterApplied'> {
-  const isSearchFiltered = icon === SEARCH_ENTRY && readings.searchPanel?.visibility.isApplied === true
-  const isReportFiltered = icon === DELAY_DIAGNOSTICS_ENTRY && readings.delayDiagnosticsReport?.window.panel.visibility.isApplied === true
+function scheduleFilterMarkOf(icon: IconId, settings: DocumentSettings): Pick<CommandItem, 'isScheduleFilterApplied'> {
+  const isSearchFiltered = icon === SEARCH_ENTRY && isScheduleFilterAppliedIn(settings, 'searchPanel')
+  const isReportFiltered = icon === DELAY_DIAGNOSTICS_ENTRY && isScheduleFilterAppliedIn(settings, 'delayDiagnosticsReport')
   return isSearchFiltered || isReportFiltered ? { isScheduleFilterApplied: true } : {}
 }
 

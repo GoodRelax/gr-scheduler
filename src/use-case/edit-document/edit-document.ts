@@ -36,8 +36,10 @@ export type { ProjectCommand, ProjectProfileFields } from './edit-project'
 export type {
   DocumentSettingsCommand,
   SettingsLimits,
+  TableView,
   VisibleElement,
 } from './edit-document-settings'
+export { tableViewOf, tableViewsKeptIn } from './edit-document-settings'
 
 import { editTask, type TaskCommand } from './edit-task'
 import { editTaskGroup, type TaskGroupCommand } from './edit-task-group'
@@ -253,6 +255,7 @@ const SETTINGS_KINDS = [
   'clearFitSpan',
   'setFitSpanFixed',
   'setTaskGroupPanelWidthFixed',
+  'setTableView',
 ] as const satisfies readonly DocumentSettingsCommand['kind'][]
 
 const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {

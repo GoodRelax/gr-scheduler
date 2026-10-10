@@ -8,12 +8,14 @@ import {
   SETTINGS_CONSTANTS,
   SETTINGS_DERIVED,
   type DocumentSettings,
+  type TableViews,
 } from '../../entity/document-model/document-settings/document-settings'
 import {
   compareDays,
   dayOf,
   textOfDayEnd,
   textOfDayStart,
+  type Schedule,
 } from '../../entity/document-model/schedule/schedule'
 import { displayRatioOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { EditResult } from './edit-document'
@@ -74,6 +76,171 @@ export type DocumentSettingsCommand =
     }
   // see CM-91, WF-1
   | { readonly kind: 'setTaskGroupPanelWidthFixed'; readonly taskGroupPanelWidthFixed: boolean }
+  // see CM-92, FR-151, UN-20
+  | { readonly kind: 'setTableView'; readonly table: VisibilityTable; readonly view: TableView }
+
+type VisibilityTable = keyof TableViews
+
+type ColumnFilter = TableViews[VisibilityTable]['columnFilters'][number]
+
+type ColumnSort = NonNullable<TableViews[VisibilityTable]['sort']>
+
+// see CM-92, FR-151, T-372, TV-2, RO-5, S-560
+// WHY: hiddenKeys are Task.uid, or Resource.uid in the resource list, whose (Unassigned) row isUnassignedHidden is (TV-2).
+export interface TableView {
+  readonly visibility: {
+    readonly hiddenKeys: readonly number[]
+    readonly isUnassignedHidden: boolean
+    readonly isApplied: boolean
+  }
+  readonly columnFilters: readonly ColumnFilter[]
+  readonly sort: ColumnSort | null
+}
+
+type TableVisibility = TableView['visibility']
+
+const DEFAULT_TABLE_VIEW: TableView = {
+  visibility: { hiddenKeys: [], isUnassignedHidden: false, isApplied: false },
+  columnFilters: [],
+  sort: null,
+}
+
+const TABLE_NAMES: Readonly<Record<VisibilityTable, true>> = {
+  searchPanel: true,
+  delayDiagnosticsReport: true,
+  resourceList: true,
+}
+
+const SORT_DIRECTIONS: Readonly<Record<ColumnSort['direction'], true>> = { ascending: true, descending: true }
+
+type HeldTableView = TableViews[VisibilityTable]
+
+/** @purity pure */
+function visibilityOf(held: HeldTableView): TableVisibility {
+  if ('hiddenResourceUids' in held) {
+    return { hiddenKeys: held.hiddenResourceUids, isUnassignedHidden: held.isUnassignedHidden, isApplied: held.isScheduleFilterApplied }
+  }
+  return { hiddenKeys: held.hiddenTaskUids, isUnassignedHidden: false, isApplied: held.isScheduleFilterApplied }
+}
+
+// see FR-151, TV-2, S-560
+// TRAP: a document read before OP-6 fills the group may lack tableViews; it reads as the defaults.
+/** @purity pure */
+export function tableViewOf(settings: DocumentSettings, table: VisibilityTable): TableView {
+  const views = settings.tableViews as TableViews | undefined
+  const held = views?.[table]
+  if (held === undefined) return DEFAULT_TABLE_VIEW
+  return { visibility: visibilityOf(held), columnFilters: held.columnFilters, sort: held.sort }
+}
+
+// WHY: rebuilt field by field, so a caller's extra keys never reach the document and two equal views print alike.
+/** @purity pure */
+function heldColumnFilter(filter: ColumnFilter): ColumnFilter {
+  return { column: filter.column, hiddenValues: [...filter.hiddenValues], fromDate: filter.fromDate, toDate: filter.toDate }
+}
+
+/** @purity pure */
+function heldViewOf(table: VisibilityTable, view: TableView): HeldTableView {
+  const columnFilters = view.columnFilters.map(heldColumnFilter)
+  const sort = view.sort === null ? null : { column: view.sort.column, direction: view.sort.direction }
+  const isScheduleFilterApplied = view.visibility.isApplied
+  const hiddenKeys = [...view.visibility.hiddenKeys]
+  if (table !== 'resourceList') return { columnFilters, hiddenTaskUids: hiddenKeys, isScheduleFilterApplied, sort }
+  const isUnassignedHidden = view.visibility.isUnassignedHidden
+  return { columnFilters, hiddenResourceUids: hiddenKeys, isScheduleFilterApplied, isUnassignedHidden, sort }
+}
+
+/** @purity pure */
+function fieldOf(value: unknown, key: string): unknown {
+  return value instanceof Object ? (value as Readonly<Record<string, unknown>>)[key] : undefined
+}
+
+/** @purity pure */
+function isBoundDay(value: unknown): boolean {
+  return value === null || (typeof value === 'string' && dayOf(value) !== null)
+}
+
+/** @purity pure */
+function isListOf(value: unknown, isOne: (one: unknown) => boolean): boolean {
+  return Array.isArray(value) && value.every(isOne)
+}
+
+/** @purity pure */
+function isColumnFilter(value: unknown): boolean {
+  const isHiddenList = isListOf(fieldOf(value, 'hiddenValues'), (one) => typeof one === 'string')
+  const isBounded = isBoundDay(fieldOf(value, 'fromDate')) && isBoundDay(fieldOf(value, 'toDate'))
+  return typeof fieldOf(value, 'column') === 'string' && isHiddenList && isBounded
+}
+
+/** @purity pure */
+function isColumnSort(value: unknown): boolean {
+  if (value === null) return true
+  const direction = fieldOf(value, 'direction')
+  return typeof fieldOf(value, 'column') === 'string' && typeof direction === 'string' && Object.hasOwn(SORT_DIRECTIONS, direction)
+}
+
+/** @purity pure */
+function isTableVisibility(value: unknown): boolean {
+  if (!isListOf(fieldOf(value, 'hiddenKeys'), Number.isInteger)) return false
+  return typeof fieldOf(value, 'isUnassignedHidden') === 'boolean' && typeof fieldOf(value, 'isApplied') === 'boolean'
+}
+
+// see CM-92, AG-5, T-372
+// WHY: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
+/** @purity pure */
+function tableViewFaultOf(table: unknown, view: unknown): string | null {
+  if (typeof table !== 'string' || !Object.hasOwn(TABLE_NAMES, table)) return `not a table tableViews holds: ${String(table)}`
+  if (!isTableVisibility(fieldOf(view, 'visibility'))) return 'the view carries no visibility of the shape TV-2 gives'
+  if (!isListOf(fieldOf(view, 'columnFilters'), isColumnFilter)) return 'a column filter is not of the shape table T-372 gives'
+  return isColumnSort(fieldOf(view, 'sort')) ? null : 'the sort is neither null nor of the shape table T-372 gives'
+}
+
+// see CM-92, FR-151, UN-20
+// WHY: an unchanged view writes nothing, so a repeated press adds no undo step.
+/** @purity pure */
+function tableViewEdited(
+  settings: DocumentSettings,
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'setTableView' }>,
+  put: SettingsPut,
+): EditResult {
+  const fault = tableViewFaultOf(command.table, command.view)
+  if (fault !== null) return refused([reject('CM-92', 'FR-151', fault)])
+  const held = heldViewOf(command.table, command.view)
+  const before = heldViewOf(command.table, tableViewOf(settings, command.table))
+  if (JSON.stringify(held) === JSON.stringify(before)) return put({})
+  return put({ tableViews: { ...settings.tableViews, [command.table]: held } })
+}
+
+/** @purity pure */
+function keptUids<V>(held: V | undefined, key: keyof V, present: ReadonlySet<number>): V | undefined {
+  const uids = held?.[key]
+  if (!Array.isArray(uids) || uids.every((uid) => present.has(uid))) return held
+  return { ...(held as V), [key]: uids.filter((uid) => present.has(uid)) }
+}
+
+// see CD-1, CD-2, CD-5, OP-18, TV-2
+// WHY: the same settings back when no hidden uid goes; a value not yet settled by OP-6 is passed through.
+/** @purity pure */
+export function tableViewsKeptIn(settings: DocumentSettings, schedule: Schedule): DocumentSettings {
+  const views = settings.tableViews as Partial<TableViews> | undefined
+  if (views === undefined) return settings
+  const tasks = new Set(schedule.tasks.map((task) => task.uid))
+  const resources = new Set(schedule.resources.map((resource) => resource.uid))
+  const kept = {
+    searchPanel: keptUids(views.searchPanel, 'hiddenTaskUids', tasks),
+    delayDiagnosticsReport: keptUids(views.delayDiagnosticsReport, 'hiddenTaskUids', tasks),
+    resourceList: keptUids(views.resourceList, 'hiddenResourceUids', resources),
+  }
+  const isSame = kept.searchPanel === views.searchPanel && kept.delayDiagnosticsReport === views.delayDiagnosticsReport
+  if (isSame && kept.resourceList === views.resourceList) return settings
+  return { ...settings, tableViews: { ...views, ...kept } as TableViews }
+}
+
+/** @purity pure */
+export function documentWithTableViewsKept(document: Document): Document {
+  const settings = tableViewsKeptIn(document.documentSettings, document.schedule)
+  return settings === document.documentSettings ? document : withSettings(document, settings)
+}
 
 // WHY: a Record over the type, so a value added to S-418 fails to compile here.
 const LEVEL_ZERO_TREE_STATES: Readonly<Record<DocumentSettings['levelZeroTreeState'], true>> = {
@@ -205,15 +372,25 @@ function fitSpanFixedEdited(
 
 type FitSpanCommand = Extract<DocumentSettingsCommand, { readonly kind: 'setFitSpan' | 'clearFitSpan' | 'setFitSpanFixed' }>
 
-const FIT_SPAN_KINDS: Readonly<Record<FitSpanCommand['kind'], true>> = {
+// WHY: the commands that write a group of columns under rules of their own, edited ahead of the switch below.
+type ComposedCommand = FitSpanCommand | Extract<DocumentSettingsCommand, { readonly kind: 'setTableView' }>
+
+const COMPOSED_KINDS: Readonly<Record<ComposedCommand['kind'], true>> = {
   setFitSpan: true,
   clearFitSpan: true,
   setFitSpanFixed: true,
+  setTableView: true,
 }
 
 /** @purity pure */
-function isFitSpanCommand(command: DocumentSettingsCommand): command is FitSpanCommand {
-  return Object.prototype.hasOwnProperty.call(FIT_SPAN_KINDS, command.kind)
+function isComposedCommand(command: DocumentSettingsCommand): command is ComposedCommand {
+  return Object.prototype.hasOwnProperty.call(COMPOSED_KINDS, command.kind)
+}
+
+/** @purity pure */
+function composedCommandEdited(settings: DocumentSettings, command: ComposedCommand, put: SettingsPut): EditResult {
+  if (command.kind === 'setTableView') return tableViewEdited(settings, command, put)
+  return fitSpanCommandEdited(settings, command, put)
 }
 
 // see CM-88, CM-89, CM-90, FX-1, FX-4, FX-5
@@ -240,7 +417,7 @@ export function editDocumentSettings(
   }
   const clamp = (value: number): number =>
     Math.max(limits.zoomMin, Math.min(limits.zoomMax, value))
-  if (isFitSpanCommand(command)) return fitSpanCommandEdited(settings, command, put)
+  if (isComposedCommand(command)) return composedCommandEdited(settings, command, put)
 
   switch (command.kind) {
     case 'setStackDirection':
@@ -311,6 +488,7 @@ export function editDocumentSettings(
 
     case 'setTaskGroupPanelWidthFixed':
       return put({ taskGroupPanelWidthFixed: command.taskGroupPanelWidthFixed })
+
   }
 }
 

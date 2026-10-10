@@ -25,9 +25,11 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
+  EVERY_ROW_SHOWN,
   type ScreenSession,
   type SearchPanelSession,
   type SessionEvent,
+  type TableView,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { specTable, unbroken } from '../contract/spec-table'
 import { taskGroupDocument, taskOf } from './cr-541-stage'
@@ -186,9 +188,11 @@ function sessionIn(language: DisplayLanguage): ScreenSession {
   return { ...shown, screen: { ...shown.screen, screenLanguage: language, helpLanguage: language } } as unknown as ScreenSession
 }
 const TASK_PANEL: SearchPanelSession = { ...emptySearchPanelSession, table: 'tasks' }
+// WHY: CR-723 -- the table's view is the document's and is handed in beside the panel; none is set here.
+const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
 
 function viewOf(language: DisplayLanguage, bottleneckUids?: ReadonlySet<number>): SearchPanelView {
-  const view = searchPanelFromSession(sessionIn(language), TASK_PANEL, SCHEDULE, CANVAS, bottleneckUids)
+  const view = searchPanelFromSession(sessionIn(language), TASK_PANEL, NO_VIEW, SCHEDULE, CANVAS, bottleneckUids)
   if (view === null) throw new Error('premise: a shown panel has a view')
   return view
 }
@@ -225,20 +229,20 @@ describe('CR-655 SQ-5 / SV-8 (tables T-331, T-330) -- the bottleneck in the sear
 
   it('SV-8: ascending puts the bottleneck first, descending puts it last', () => {
     const rows = scheduleEntry.searchRowsOf(SCHEDULE, '', BOTTLENECKS)
-    const up = filteredSearchRows(rows, TASK_PANEL.filters, { column: 'SQ-5', direction: 'ascending' })
+    const up = filteredSearchRows(rows, NO_VIEW.columnFilters, { column: 'SQ-5', direction: 'ascending' })
     expect(uidsOf(up.taskRows)).toEqual([LEAD, LATER, TRAIL, DONE])
-    const down = filteredSearchRows(rows, TASK_PANEL.filters, { column: 'SQ-5', direction: 'descending' })
+    const down = filteredSearchRows(rows, NO_VIEW.columnFilters, { column: 'SQ-5', direction: 'descending' })
     expect(uidsOf(down.taskRows)).toEqual([DONE, TRAIL, LATER, LEAD])
   })
 
   it('SV-7 / SV-8: the state filter lists the bottleneck first, and IC-126 hides it with the rest', () => {
     const rows = scheduleEntry.searchRowsOf(SCHEDULE, '', BOTTLENECKS)
     expect(columnValuesOf(rows, 'SQ-5')[0]).toBe('bottleneck')
-    const opened = searchPanelWithFilterOpened(sessionIn('ja'), TASK_PANEL, 'SQ-5')
+    const opened = searchPanelWithFilterOpened(sessionIn('ja'), TASK_PANEL, NO_VIEW, 'SQ-5')
     if (opened === null) throw new Error('premise: the SQ-5 filter opens')
-    const hidden = searchPanelAfterFilterEntry(sessionIn('ja'), opened, 'IC-126', SCHEDULE, BOTTLENECKS)
+    const hidden = searchPanelAfterFilterEntry(sessionIn('ja'), opened, NO_VIEW, 'IC-126', SCHEDULE, BOTTLENECKS)
     if (hidden === null) throw new Error('premise: IC-126 answers on an open values filter')
-    const view = searchPanelFromSession(sessionIn('ja'), hidden, SCHEDULE, CANVAS, BOTTLENECKS)
+    const view = searchPanelFromSession(sessionIn('ja'), opened, hidden, SCHEDULE, CANVAS, BOTTLENECKS)
     expect(view?.rows ?? null).toEqual([])
   })
 })

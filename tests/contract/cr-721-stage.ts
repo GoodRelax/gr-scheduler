@@ -24,13 +24,15 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
+  EVERY_ROW_SHOWN,
   type ScreenSession,
   type SearchPanelSession,
   type SessionEvent,
+  type TableView,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 
 export { OPENED_DELAY_DIAGNOSTICS_REPORT }
-export type { DelayDiagnosticsReportWindow, SearchPanelSession, SearchPanelView }
+export type { DelayDiagnosticsReportWindow, SearchPanelSession, SearchPanelView, TableView }
 
 type Loose = Record<string, unknown>
 
@@ -108,34 +110,49 @@ export function sessionIn(language: DisplayLanguage): ScreenSession {
   return { ...shown, screen: { ...shown.screen, screenLanguage: language, helpLanguage: language } } as unknown as ScreenSession
 }
 
-export const TASK_PANEL: SearchPanelSession = { ...emptySearchPanelSession, table: 'tasks' }
-export const COMMENT_PANEL: SearchPanelSession = { ...emptySearchPanelSession, table: 'commentBoxes' }
-export const TASK_UIDS: readonly number[] = TASKS.map((one) => one.uid)
+// WHY: CR-723 -- the table view (Visibility column, Schedule Filter, column filters, sort) is the document's, the panel
+// holds only the screen's own values, so a case carries both together as one pane and threads it through the steps.
+export const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
 
-export function viewOf(panel: SearchPanelSession, language: DisplayLanguage = 'ja'): SearchPanelView {
-  return found(searchPanelFromSession(sessionIn(language), panel, SCHEDULE, CANVAS), 'a view of a shown panel')
+export interface Pane {
+  readonly panel: SearchPanelSession
+  readonly view: TableView
 }
 
-export const opened = (column: string, panel: SearchPanelSession = TASK_PANEL, language: DisplayLanguage = 'ja'): SearchPanelSession =>
-  found(searchPanelWithFilterOpened(sessionIn(language), panel, column), `the panel after IC-122 on ${column}`)
+export const TASK_PANEL: Pane = { panel: { ...emptySearchPanelSession, table: 'tasks' }, view: NO_VIEW }
+export const COMMENT_PANEL: Pane = { panel: { ...emptySearchPanelSession, table: 'commentBoxes' }, view: NO_VIEW }
+export const TASK_UIDS: readonly number[] = TASKS.map((one) => one.uid)
 
-export const changed = (panel: SearchPanelSession, change: SearchFilterChange, language: DisplayLanguage = 'ja'): SearchPanelSession =>
-  found(searchPanelAfterFilterChange(sessionIn(language), panel, change), `the panel after ${JSON.stringify(change)}`)
+export function viewOf(pane: Pane, language: DisplayLanguage = 'ja'): SearchPanelView {
+  return found(searchPanelFromSession(sessionIn(language), pane.panel, pane.view, SCHEDULE, CANVAS), 'a view of a shown panel')
+}
 
-export const pressed = (panel: SearchPanelSession, entry: string, language: DisplayLanguage = 'ja'): SearchPanelSession =>
-  found(searchPanelAfterFilterEntry(sessionIn(language), panel, entry as never, SCHEDULE), `the panel after ${entry}`)
+export const opened = (column: string, pane: Pane = TASK_PANEL, language: DisplayLanguage = 'ja'): Pane => ({
+  panel: found(searchPanelWithFilterOpened(sessionIn(language), pane.panel, pane.view, column), `the panel after IC-122 on ${column}`),
+  view: pane.view,
+})
+
+export const changed = (pane: Pane, change: SearchFilterChange, language: DisplayLanguage = 'ja'): Pane => ({
+  panel: pane.panel,
+  view: found(searchPanelAfterFilterChange(sessionIn(language), pane.panel, pane.view, change), `the view after ${JSON.stringify(change)}`),
+})
+
+export const pressed = (pane: Pane, entry: string, language: DisplayLanguage = 'ja'): Pane => ({
+  panel: pane.panel,
+  view: found(searchPanelAfterFilterEntry(sessionIn(language), pane.panel, pane.view, entry as never, SCHEDULE), `the view after ${entry}`),
+})
 
 export type ValuesMenu = Extract<NonNullable<SearchPanelView['filterMenu']>, { kind: 'values' }>
 
-export function valuesOf(panel: SearchPanelSession, language: DisplayLanguage = 'ja'): ValuesMenu {
-  const menu = found(viewOf(panel, language).filterMenu, 'an open filter')
+export function valuesOf(pane: Pane, language: DisplayLanguage = 'ja'): ValuesMenu {
+  const menu = found(viewOf(pane, language).filterMenu, 'an open filter')
   if (menu.kind !== 'values') throw new Error(`the open filter of ${menu.column} is ${menu.kind}`)
   return menu
 }
 
 // WHY: opens the column, takes one value off by the label it is shown with, and leaves the filter open.
-export function withValueOff(column: string, label: string, panel: SearchPanelSession = TASK_PANEL, language: DisplayLanguage = 'ja'): SearchPanelSession {
-  const there = opened(column, panel, language)
+export function withValueOff(column: string, label: string, pane: Pane = TASK_PANEL, language: DisplayLanguage = 'ja'): Pane {
+  const there = opened(column, pane, language)
   const value = found(valuesOf(there, language).values.find((one) => one.label === label), `an item labeled ${label} in ${column}`).value
   return changed(there, { kind: 'value', column: column as never, value, isShown: false }, language)
 }
@@ -204,16 +221,24 @@ export const REPORT: DelayDiagnosticsReport = {
 
 const REPORT_SESSION = { screen: { screenLanguage: 'ja' } } as unknown as ScreenSession
 
-export const reportViewOf = (window: DelayDiagnosticsReportWindow): DelayDiagnosticsReportView =>
+// WHY: the report window (screen only) and the report table's view (the document's), carried together as the panel is.
+export interface ReportPane {
+  readonly window: DelayDiagnosticsReportWindow
+  readonly view: TableView
+}
+
+export const OPENED_REPORT: ReportPane = { window: OPENED_DELAY_DIAGNOSTICS_REPORT, view: NO_VIEW }
+
+export const reportViewOf = (pane: ReportPane): DelayDiagnosticsReportView =>
   found(
-    delayDiagnosticsReportFromWindow(REPORT_SESSION, window, REPORT, REPORT_SCHEDULE, { canvas: CANVAS, textSizeStep: 1 }),
+    delayDiagnosticsReportFromWindow(REPORT_SESSION, pane.window, pane.view, REPORT, REPORT_SCHEDULE, { canvas: CANVAS, textSizeStep: 1 }),
     'a view of the report window',
   )
 
-export function reportAfter(window: DelayDiagnosticsReportWindow, entry: string, column: string | null): DelayDiagnosticsReportWindow {
+export function reportAfter(pane: ReportPane, entry: string, column: string | null): ReportPane {
   const after = found(
-    delayDiagnosticsReportAfterEntry(window, entry as never, column, { report: REPORT, schedule: REPORT_SCHEDULE, language: 'ja' }),
+    delayDiagnosticsReportAfterEntry(pane.window, pane.view, entry as never, column, { report: REPORT, schedule: REPORT_SCHEDULE, language: 'ja' }),
     `the report after ${entry}`,
   )
-  return found(after.window, `the report window after ${entry}`)
+  return { window: found(after.window, `the report window after ${entry}`), view: after.view }
 }

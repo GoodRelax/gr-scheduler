@@ -5,7 +5,11 @@
 
 import { isSearchWordFound, searchRowsOf, type Schedule } from '../../entity/document-model/schedule/schedule'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
-import { emptySearchPanelSession, type ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+import {
+  emptySearchPanelSession,
+  type ScreenSession,
+  type TableView,
+} from '../../use-case/advance-screen-session/advance-screen-session'
 import displayWords from './display-words.json'
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
@@ -30,8 +34,10 @@ import {
   wordOf,
   wouldScheduleFilterChange,
   type SearchFilterChange,
+  type TableLook,
   type TableWindowState,
   type VisibilityKey,
+  type WindowStep,
   type WindowTable,
 } from './table-window'
 import { iconLabel } from './tooltips'
@@ -201,10 +207,10 @@ const LINE_TABLE: TableColumns<ResourceLine> = {
   orders: { [COUNT_COLUMN]: compareCounts },
 }
 
-// see RQ-1, TV-2, TV-13
+// see RQ-1, TV-2, TV-13, S-569, S-570
 /** @purity pure */
-function lineColumnsOf(window: TableWindowState): TableColumns<ResourceLine> {
-  return withVisibilityColumn(LINE_TABLE, VISIBILITY_COLUMN, (line) => isRowShown(window.panel.visibility, line.key))
+function lineColumnsOf(view: TableView): TableColumns<ResourceLine> {
+  return withVisibilityColumn(LINE_TABLE, VISIBILITY_COLUMN, (line) => isRowShown(view.visibility, line.key))
 }
 
 // see RO-3, SV-4
@@ -215,9 +221,9 @@ function isWordFound(line: ResourceLine, word: string): boolean {
 }
 
 /** @purity pure */
-function listedLinesOf(window: TableWindowState, all: readonly ResourceLine[]): readonly ResourceLine[] {
-  const found = all.filter((line) => isWordFound(line, window.panel.word))
-  return filteredTableRows(found, lineColumnsOf(window), window.panel.filters, window.panel.sort)
+function listedLinesOf(look: TableLook, all: readonly ResourceLine[]): readonly ResourceLine[] {
+  const found = all.filter((line) => isWordFound(line, look.word))
+  return filteredTableRows(found, lineColumnsOf(look.view), look.view.columnFilters, look.view.sort)
 }
 
 /** @purity pure */
@@ -240,8 +246,8 @@ function widthSamplesIn(all: readonly ResourceLine[], language: DisplayLanguage)
 
 // see T-371, SV-7, RO-7
 /** @purity pure */
-function lineTableOf(window: TableWindowState, listed: () => readonly ResourceLine[], language: DisplayLanguage, all?: readonly ResourceLine[]): WindowTable {
-  const lineColumns = lineColumnsOf(window)
+function lineTableOf(view: TableView, listed: () => readonly ResourceLine[], language: DisplayLanguage, all?: readonly ResourceLine[]): WindowTable {
+  const lineColumns = lineColumnsOf(view)
   return {
     columns: RESOURCE_LIST_COLUMNS,
     fixedCount: FIXED_COLUMN_COUNT,
@@ -255,8 +261,8 @@ function lineTableOf(window: TableWindowState, listed: () => readonly ResourceLi
 
 // WHY: the table rows every task (a resource's or the (Unassigned) row's), so only a Hide row changes the schedule.
 /** @purity pure */
-function wouldResourceFilterChange(window: TableWindowState, schedule: Schedule): boolean {
-  return wouldScheduleFilterChange(window.panel.visibility, () => resourceUidsOf(schedule), true)
+function wouldResourceFilterChange(view: TableView, schedule: Schedule): boolean {
+  return wouldScheduleFilterChange(view.visibility, () => resourceUidsOf(schedule), true)
 }
 
 // see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66, RO-3
@@ -282,16 +288,17 @@ function choiceEntriesOf(listed: readonly ResourceLine[], all: readonly Resource
 
 // see RQ-1, RQ-3, SV-17
 /** @purity pure */
-function rowViewOf(window: TableWindowState, line: ResourceLine, language: DisplayLanguage): ResourceListRowView {
+function rowViewOf(view: TableView, line: ResourceLine, language: DisplayLanguage): ResourceListRowView {
   const chosenEntry = line.isChosen === null ? null : entryOf(line.isChosen ? CHOSEN_ENTRY : UNCHOSEN_ENTRY, language)
-  return { key: line.key, cells: line.cells, shown: isRowShown(window.panel.visibility, line.key), chosenEntry }
+  return { key: line.key, cells: line.cells, shown: isRowShown(view.visibility, line.key), chosenEntry }
 }
 
-// see FR-099, T-370, T-371, RO-2, RO-3, RO-8
+// see FR-099, T-370, T-371, RO-2, RO-3, RO-8, S-568
 /** @purity pure */
 export function resourceListFromWindow(
   session: ScreenSession,
   window: TableWindowState | null,
+  view: TableView,
   schedule: Schedule,
   chosenResourceUids: readonly number[],
   layout: { readonly canvas: ScreenRect; readonly textSizeStep: number },
@@ -299,10 +306,10 @@ export function resourceListFromWindow(
   if (window === null) return null
   const language = displayLanguageOf(session)
   const all = resourceLinesOf({ schedule, chosenResourceUids, language })
-  const listed = window.shown === 'minimized' ? [] : listedLinesOf(window, all)
-  const table = lineTableOf(window, () => listed, language, all)
-  const scheduleFilter = scheduleFilterEntryOf(window.panel.visibility, wouldResourceFilterChange(window, schedule), language)
-  const rows = listed.map((line) => rowViewOf(window, line, language))
+  const listed = window.shown === 'minimized' ? [] : listedLinesOf({ word: window.panel.word, view }, all)
+  const table = lineTableOf(view, () => listed, language, all)
+  const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldResourceFilterChange(view, schedule), language)
+  const rows = listed.map((line) => rowViewOf(view, line, language))
   return {
     heading: wordOf(HEADING, language),
     shown: window.shown,
@@ -310,11 +317,11 @@ export function resourceListFromWindow(
     canvas: layout.canvas,
     ...windowPlaceInRange(window.panel, layout.canvas),
     textSizeStep: layout.textSizeStep,
-    tableEntries: [clearEntryOf(window.panel, language), scheduleFilter],
+    tableEntries: [clearEntryOf(view, language), scheduleFilter],
     titleEntries: [entryOf(TEXT_SIZE_ENTRY, language), ...windowTitleEntriesOf(window.shown, language)],
     choiceEntries: choiceEntriesOf(listed, all, language),
     word: window.panel.word,
-    ...windowColumnsViewOf(window, table, language),
+    ...windowColumnsViewOf(window, view, table, language),
     rows,
     chosenAt: RESOURCE_LIST_COLUMNS.indexOf(CHOSEN_COLUMN),
     showAt: RESOURCE_LIST_COLUMNS.indexOf(VISIBILITY_COLUMN),
@@ -326,41 +333,48 @@ export function resourceListFromWindow(
 // see RO-3, IC-63, IC-65
 // WHY: the Resource uids the table lists now, after its word and column filters -- the ones IC-63 and IC-65 choose among.
 /** @purity pure */
-export function resourceListListedUidsOf(window: TableWindowState, schedule: Schedule, chosenResourceUids: readonly number[]): readonly number[] {
+export function resourceListListedUidsOf(
+  window: TableWindowState,
+  view: TableView,
+  schedule: Schedule,
+  chosenResourceUids: readonly number[],
+): readonly number[] {
   const all = resourceLinesOf({ schedule, chosenResourceUids, language: COLUMNS_ONLY_LANGUAGE })
-  return listedLinesOf(window, all).flatMap((line) => (line.key === UNASSIGNED_ROW_KEY ? [] : [line.key]))
+  return listedLinesOf({ word: window.panel.word, view }, all).flatMap((line) => (line.key === UNASSIGNED_ROW_KEY ? [] : [line.key]))
 }
 
-// see T-370, SV-7, SV-8, WB-2, WB-3, RO-1, RO-2, IC-153, IC-143
+// see T-370, SV-7, SV-8, WB-2, WB-3, RO-1, RO-2, IC-153, IC-143, TV-8, UN-20
 // WHY: { window: null } is a close; null is an entry the window does not answer.
 /** @purity pure */
 export function resourceListAfterEntry(
   window: TableWindowState,
+  view: TableView,
   entry: IconId,
   filterColumn: string | null,
   rows: { readonly schedule: Schedule; readonly chosenResourceUids: readonly number[]; readonly language: DisplayLanguage },
   listed?: readonly string[] | null,
-): { readonly window: TableWindowState | null } | null {
-  return windowAfterEntry(window, entry, filterColumn, {
-    wouldChange: () => wouldResourceFilterChange(window, rows.schedule),
-    tableOf: (unfiltered) => lineTableOf(window, () => listedLinesOf(unfiltered, resourceLinesOf(rows)), rows.language),
+): WindowStep | null {
+  const word = window.panel.word
+  return windowAfterEntry(window, view, entry, filterColumn, {
+    wouldChange: () => wouldResourceFilterChange(view, rows.schedule),
+    tableOf: (unfiltered) => lineTableOf(view, () => listedLinesOf({ word, view: unfiltered }, resourceLinesOf(rows)), rows.language),
   }, listed)
 }
 
-// see SV-7, RQ-1, TV-2, TV-6
+// see SV-7, RQ-1, TV-2, TV-6, UN-20
 /** @purity pure */
-export function resourceListAfterFilterChange(window: TableWindowState, change: SearchFilterChange): TableWindowState {
-  const panel =
+export function resourceListAfterFilterChange(window: TableWindowState, view: TableView, change: SearchFilterChange): TableView {
+  const after =
     change.kind === 'shown'
-      ? tableAfterVisibilityChange(window.panel, change.keys, change.isShown)
-      : tableAfterFilterChange(window.panel, window.shown, change, lineTableOf(window, () => [], COLUMNS_ONLY_LANGUAGE))
-  return panel === null || panel === window.panel ? window : { ...window, panel }
+      ? tableAfterVisibilityChange(view, change.keys, change.isShown)
+      : tableAfterFilterChange(window.panel, view, window.shown, change, lineTableOf(view, () => [], COLUMNS_ONLY_LANGUAGE))
+  return after ?? view
 }
 
 // see SV-14, IN-4
 /** @purity pure */
-export function resourceListWithFilterClosed(window: TableWindowState): TableWindowState | null {
-  const panel = tableWithFilterClosed(window.panel, window.shown, lineTableOf(window, () => [], COLUMNS_ONLY_LANGUAGE))
+export function resourceListWithFilterClosed(window: TableWindowState, view: TableView): TableWindowState | null {
+  const panel = tableWithFilterClosed(window.panel, window.shown, lineTableOf(view, () => [], COLUMNS_ONLY_LANGUAGE))
   return panel === null ? null : { ...window, panel }
 }
 

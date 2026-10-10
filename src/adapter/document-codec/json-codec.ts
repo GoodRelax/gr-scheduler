@@ -18,7 +18,7 @@ import {
   textOfFinishSide,
   workingCalendarOf,
 } from '../../entity/document-model/schedule/schedule'
-import { recountedPercentComplete } from '../../use-case/edit-document/edit-document'
+import { recountedPercentComplete, tableViewsKeptIn } from '../../use-case/edit-document/edit-document'
 import {
   collectSchemaFaults,
   collectionNamesOfEntity,
@@ -426,7 +426,8 @@ function pairedFitSpan(settings: DocumentSettings): DocumentSettings {
   }
 }
 
-// see FR-012, OP-6, RS-51, RS-52
+// see FR-012, OP-6, RS-51, RS-52, OP-18
+// WHY: a hidden uid the schedule does not hold is dropped silently, never refused (OP-18), and counts toward no notice.
 /** @purity pure */
 function settledReading(
   read: Document,
@@ -437,7 +438,7 @@ function settledReading(
   const recounted = recount.schedule === read.schedule ? read : { ...read, schedule: recount.schedule }
   const recountedCount = recount.movedTaskUids.length
 
-  const paired = pairedFitSpan(recounted.documentSettings)
+  const paired = pairedFitSpan(tableViewsKeptIn(recounted.documentSettings, recounted.schedule))
   const clamp = clampedSettings(paired)
   if (clamp.clamped.length === 0) {
     const settled = paired === recounted.documentSettings ? recounted : { ...recounted, documentSettings: paired }

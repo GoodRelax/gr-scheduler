@@ -16,6 +16,7 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
+  EVERY_ROW_SHOWN,
   type ScreenSession,
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
@@ -193,7 +194,7 @@ const CANVAS: ScreenRect = { x: 0, y: 56, width: 1000, height: 600 }
 const searchViewOf = (): SearchPanelView => {
   const shown = advanceScreenSession(emptyScreenSession, { type: 'searchEntryPressed' } as unknown as SessionEvent).state
   const session = { ...shown, screen: { ...shown.screen, screenLanguage: 'ja', helpLanguage: 'ja' } } as unknown as ScreenSession
-  const view = searchPanelFromSession(session, emptySearchPanelSession, SEARCH_SCHEDULE, CANVAS)
+  const view = searchPanelFromSession(session, emptySearchPanelSession, { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }, SEARCH_SCHEDULE, CANVAS)
   if (view === null) throw new Error('a shown search panel has a view')
   return view
 }

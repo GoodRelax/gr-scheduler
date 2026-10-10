@@ -14,7 +14,11 @@ import type { Document } from '../../src/entity/document-model/document/document
 import * as scheduleEntry from '../../src/entity/document-model/schedule/schedule'
 import type { DelayDiagnosticsReport, Schedule } from '../../src/entity/document-model/schedule/schedule'
 import { searchPanelBoxOf, searchPanelElement } from '../../src/framework/dom-screen-surface/search-panel-drawing'
-import type { ScreenSession } from '../../src/use-case/advance-screen-session/advance-screen-session'
+import {
+  EVERY_ROW_SHOWN,
+  type ScreenSession,
+  type TableView,
+} from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { descendants, stage, styleMap, type FakeElement } from '../fixtures/fake-browser'
 import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 import { bare, specTable, unbroken } from './spec-table'
@@ -73,10 +77,12 @@ const WALL_ROWS = specTable('T-316').rows.map((one) => one.id)
 
 const ROW_ID = /\b(?:VC|VS|VO|DW|DG|DL|DX|DT)-\d+\b/
 
+const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+
 const sessionIn = (language: Language) => ({ screen: { screenLanguage: language } }) as unknown as ScreenSession
 
 const viewOf = (report: DelayDiagnosticsReport, schedule: Schedule, language: Language) => {
-  const view = delayDiagnosticsReportFromWindow(sessionIn(language), OPENED_DELAY_DIAGNOSTICS_REPORT, report, schedule, {
+  const view = delayDiagnosticsReportFromWindow(sessionIn(language), OPENED_DELAY_DIAGNOSTICS_REPORT, NO_VIEW, report, schedule, {
     canvas: { x: 0, y: 40, width: 1000, height: 600 },
     textSizeStep: 0,
   })

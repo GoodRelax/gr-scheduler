@@ -21,9 +21,11 @@ import {
 import {
   advanceScreenSession,
   emptyScreenSession,
+  EVERY_ROW_SHOWN,
   emptySearchPanelSession,
   type ScreenSession,
   type SearchPanelSession,
+  type TableView,
   type SessionEvent,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import {
@@ -217,8 +219,10 @@ function sessionIn(language: DisplayLanguage, ...events: readonly string[]): Scr
   } as unknown as ScreenSession
 }
 
+const EMPTY_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
+
 function viewOf(session: ScreenSession, panel: Partial<SearchPanelSession> = {}): SearchPanelView {
-  const view = searchPanelFromSession(session, { ...emptySearchPanelSession, ...panel }, SCHEDULE, CANVAS)
+  const view = searchPanelFromSession(session, { ...emptySearchPanelSession, ...panel }, EMPTY_VIEW, SCHEDULE, CANVAS)
   if (view === null) throw new Error('premise: a shown panel has a view')
   return view
 }
@@ -346,11 +350,11 @@ describe('FR-151 tables T-330 / T-331 / T-333 -- the clauses these cases are dri
 
 describe(`S-442 -- the panel starts ${S_442_DEFAULT}`, () => {
   it('a session that never pressed SK-24 / IC-117 has no panel to draw', () => {
-    expect(searchPanelFromSession(emptyScreenSession, emptySearchPanelSession, SCHEDULE, CANVAS)).toBeNull()
+    expect(searchPanelFromSession(emptyScreenSession, emptySearchPanelSession, EMPTY_VIEW, SCHEDULE, CANVAS)).toBeNull()
   })
 
   it('after searchEntryPressed it has one', () => {
-    expect(searchPanelFromSession(sessionIn('ja'), emptySearchPanelSession, SCHEDULE, CANVAS)).not.toBeNull()
+    expect(searchPanelFromSession(sessionIn('ja'), emptySearchPanelSession, EMPTY_VIEW, SCHEDULE, CANVAS)).not.toBeNull()
   })
 })
 

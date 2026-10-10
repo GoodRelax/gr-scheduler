@@ -15,6 +15,7 @@ import type {
 import { taskByUid, workingCalendarOf } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
+import { documentWithTableViewsKept } from './edit-document-settings'
 import { createTaskGroup, setTaskGroupLabel } from './task-group-naming'
 import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupMinHeight } from './task-group-look'
 import { resetTaskGroupTreeStates, setTaskGroupTreeState } from './task-group-folding'
@@ -320,7 +321,7 @@ export function editTaskGroup(
           : settings
 
       // WHY: baselineTasks match by uid rather than by reference, and resources are kept.
-      return edited({
+      return edited(documentWithTableViewsKept({
         ...document,
         schedule: {
           ...schedule,
@@ -344,7 +345,7 @@ export function editTaskGroup(
           ),
         },
         documentSettings,
-      })
+      }))
     }
 
     case 'pasteTaskGroupSubtree':

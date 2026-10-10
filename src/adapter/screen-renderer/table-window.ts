@@ -5,12 +5,16 @@
 
 import { dayOf, isSearchWordFound, type Schedule } from '../../entity/document-model/schedule/schedule'
 import { markerGlyphSvg } from '../svg-renderer/svg-renderer'
-import type {
-  SearchPanelSession,
-  TableVisibility,
-  VisibilityTable,
+import {
+  VISIBILITY_TABLES,
+  tableViewOf,
+  type SearchPanelSession,
+  type TableView,
+  type TableVisibility,
+  type VisibilityTable,
 } from '../../use-case/advance-screen-session/advance-screen-session'
-import { HIDE_VALUE, SHOW_VALUE, type SearchColumn, type SearchColumnFilter, type SearchSort } from './search-table-filters'
+import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import { HIDE_VALUE, SHOW_VALUE, type ColumnFilter, type ColumnSort, type SearchColumn } from './search-table-filters'
 import displayWords from './display-words.json'
 import iconRoster from './icon-roster.json'
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
@@ -23,6 +27,18 @@ export interface TableWindowState {
   readonly shown: WindowShown
   readonly panel: TableWindowSession
   readonly isInFront: boolean
+}
+
+// WHY: the word is the window's; the column filters, sort and Visibility column are the document's view (FR-151).
+export interface TableLook {
+  readonly word: string
+  readonly view: TableView
+}
+
+// WHY: { window: null } is a close; the view is the same reference unless the entry changed it.
+export interface WindowStep {
+  readonly window: TableWindowState | null
+  readonly view: TableView
 }
 
 // WHY: the (Unassigned) row has no Resource.uid, so its key is a word no uid can equal.
@@ -42,7 +58,7 @@ const HIDE_ALL_ENTRY: IconId = 'IC-126'
 const CLEAR_ENTRY: IconId = 'IC-153'
 const SCHEDULE_FILTER_ENTRY: IconId = 'IC-143'
 
-const SORT_DIRECTIONS: { readonly [entry: IconId]: SearchSort['direction'] } = {
+const SORT_DIRECTIONS: { readonly [entry: IconId]: ColumnSort['direction'] } = {
   [SORT_ASCENDING_ENTRY]: 'ascending',
   [SORT_DESCENDING_ENTRY]: 'descending',
 }
@@ -55,8 +71,7 @@ const DATE_PART_DIGITS: readonly number[] = [4, 2, 2]
 const ICON_WORDS = new Map(displayWords.icons.map((entry) => [entry.rowId, entry]))
 
 const FILTER_SEARCH_HINT = displayWords.searchPanel.find((entry) => entry.part === 'filterSearch')?.text
-// WHY: the band names the tables in this order (TV-11), which is the order T-109 lists the surfaces of IC-143 in.
-const VISIBILITY_TABLES: readonly VisibilityTable[] = ['searchPanel', 'delayDiagnosticsReport', 'resourceList']
+// WHY: VISIBILITY_TABLES is in the order T-109 lists the surfaces of IC-143 in, the order the band names them (TV-11).
 const TABLE_SURFACES: readonly string[] = iconRoster.icons.find((row) => row.rowId === SCHEDULE_FILTER_ENTRY)?.surfaces ?? []
 
 const SURFACE_HEADINGS = new Map(displayWords.surfaces.map((entry) => [entry.name, entry.heading]))
@@ -198,8 +213,18 @@ export function dateText(stored: string | null): string {
 }
 
 /** @purity pure */
-export function tableColumnsOf(panel: TableWindowSession, table: WindowTable, language: DisplayLanguage): readonly SearchColumnView[] {
-  const filtered = new Set(panel.filters.columns.filter(isWorkingFilter).map((one) => one.column))
+export function isScheduleFilterAppliedIn(settings: DocumentSettings, table: VisibilityTable): boolean {
+  return tableViewOf(settings, table).visibility.isApplied
+}
+
+/** @purity pure */
+export function tableColumnsOf(
+  panel: TableWindowSession,
+  view: TableView,
+  table: WindowTable,
+  language: DisplayLanguage,
+): readonly SearchColumnView[] {
+  const filtered = new Set(view.columnFilters.filter(isWorkingFilter).map((one) => one.column))
   return table.columns.map((column, at) => ({
     column,
     heading: table.headingOf(column),
@@ -213,26 +238,32 @@ export function tableColumnsOf(panel: TableWindowSession, table: WindowTable, la
 
 // WHY: a sort alone is not a filter, so it paints no heading (JDG-1807).
 /** @purity pure */
-function isWorkingFilter(filter: SearchColumnFilter): boolean {
-  return filter.hiddenValues.length > 0 || filter.from !== null || filter.to !== null
+function isWorkingFilter(filter: ColumnFilter): boolean {
+  return filter.hiddenValues.length > 0 || filter.fromDate !== null || filter.toDate !== null
 }
 
 /** @purity pure */
-function hasTableViews(panel: TableWindowSession): boolean {
-  return panel.filters.columns.some(isWorkingFilter) || panel.sort !== null
+function hasColumnViews(view: TableView): boolean {
+  return view.columnFilters.some(isWorkingFilter) || view.sort !== null
 }
 
 // see SV-1, RW-2, IC-153, FR-092
 /** @purity pure */
-export function clearEntryOf(panel: TableWindowSession, language: DisplayLanguage): CommandItem {
-  return { ...entryOf(CLEAR_ENTRY, language), isEnabled: hasTableViews(panel) }
+export function clearEntryOf(view: TableView, language: DisplayLanguage): CommandItem {
+  return { ...entryOf(CLEAR_ENTRY, language), isEnabled: hasColumnViews(view) }
 }
 
-// see SV-1, RW-2, IC-153
+// see SV-1, RW-2, IC-153, UN-20
+// WHY: the Visibility column and the Schedule Filter stay; IC-153 clears the column filters and the sort only.
 /** @purity pure */
-export function tableWithViewsCleared<P extends TableWindowSession>(panel: P): P {
-  if (!hasTableViews(panel)) return panel
-  return { ...panel, filters: { columns: [], open: null }, sort: null }
+export function tableWithViewsCleared(view: TableView): TableView {
+  if (!hasColumnViews(view)) return view
+  return { ...view, columnFilters: [], sort: null }
+}
+
+/** @purity pure */
+export function panelWithFilterShut<P extends TableWindowSession>(panel: P): P {
+  return panel.filters.open === null ? panel : { ...panel, filters: { ...panel.filters, open: null } }
 }
 
 /** @purity pure */
@@ -249,24 +280,24 @@ export function openFilterIn(panel: TableWindowSession, shown: WindowShown | nul
 }
 
 /** @purity pure */
-function columnFilterOf(panel: TableWindowSession, column: SearchColumn): SearchColumnFilter {
-  const held = panel.filters.columns.find((one) => one.column === column)
-  return held ?? { column, hiddenValues: [], from: null, to: null }
+function columnFilterOf(view: TableView, column: SearchColumn): ColumnFilter {
+  const held = view.columnFilters.find((one) => one.column === column)
+  return held ?? { column, hiddenValues: [], fromDate: null, toDate: null }
 }
 
 // see SV-7
 /** @purity pure */
 export function tableFilterMenuOf(
-  panel: TableWindowSession,
+  view: TableView,
   column: SearchColumn,
   table: WindowTable,
   language: DisplayLanguage,
 ): SearchFilterMenuView {
-  const filter = columnFilterOf(panel, column)
+  const filter = columnFilterOf(view, column)
   const sorts = [entryOf(SORT_ASCENDING_ENTRY, language), entryOf(SORT_DESCENDING_ENTRY, language)]
   if (table.isDateColumn(column)) {
     const words = { fromWord: wordOf(DATE_FROM_WORD, language), toWord: wordOf(DATE_TO_WORD, language) }
-    return { kind: 'dates', column, from: filter.from, to: filter.to, ...words, entries: sorts }
+    return { kind: 'dates', column, from: filter.fromDate, to: filter.toDate, ...words, entries: sorts }
   }
   const hidden = new Set(filter.hiddenValues)
   const values = table.valuesOf(column).map((value) => ({
@@ -287,32 +318,33 @@ export function tableWithColumnWidth<P extends TableWindowSession>(panel: P, col
 // see SV-7
 // WHY: a filter that hides nothing and bounds nothing is dropped, so the held filters list only working ones.
 /** @purity pure */
-function withColumnFilter<P extends TableWindowSession>(panel: P, filter: SearchColumnFilter): P {
-  const others = panel.filters.columns.filter((one) => one.column !== filter.column)
-  return { ...panel, filters: { ...panel.filters, columns: isWorkingFilter(filter) ? [...others, filter] : others } }
+function withColumnFilter(view: TableView, filter: ColumnFilter): TableView {
+  const others = view.columnFilters.filter((one) => one.column !== filter.column)
+  return { ...view, columnFilters: isWorkingFilter(filter) ? [...others, filter] : others }
 }
 
-// see SV-7, SV-8, T-109
+// see SV-7, SV-8, T-109, UN-20
 /** @purity pure */
-export function tableAfterFilterEntry<P extends TableWindowSession>(
-  panel: P,
+export function tableAfterFilterEntry(
+  panel: TableWindowSession,
+  view: TableView,
   shown: WindowShown | null,
   entry: IconId,
   table: WindowTable,
   listed?: readonly string[] | null,
-): P | null {
+): TableView | null {
   const column = openFilterIn(panel, shown, table)
   if (column === null) return null
   const direction = SORT_DIRECTIONS[entry]
-  if (direction !== undefined) return { ...panel, sort: { column, direction } }
+  if (direction !== undefined) return { ...view, sort: { column, direction } }
   if (table.isDateColumn(column)) return null
-  const filter = columnFilterOf(panel, column)
+  const filter = columnFilterOf(view, column)
   // see SV-7
   const reached = listed === undefined || listed === null ? null : new Set(listed)
   const untouched = reached === null ? [] : filter.hiddenValues.filter((value) => !reached.has(value))
-  if (entry === SHOW_ALL_ENTRY) return withColumnFilter(panel, { ...filter, hiddenValues: untouched })
+  if (entry === SHOW_ALL_ENTRY) return withColumnFilter(view, { ...filter, hiddenValues: untouched })
   if (entry !== HIDE_ALL_ENTRY) return null
-  return withColumnFilter(panel, { ...filter, hiddenValues: [...untouched, ...(reached ?? table.valuesOf(column))] })
+  return withColumnFilter(view, { ...filter, hiddenValues: [...untouched, ...(reached ?? table.valuesOf(column))] })
 }
 
 // see SV-7, IC-122
@@ -334,25 +366,26 @@ function boundDayOf(day: string | null): string | null {
   return day === null || dayOf(day) === null ? null : day.trim()
 }
 
-// see SV-7
+// see SV-7, UN-20
 /** @purity pure */
-export function tableAfterFilterChange<P extends TableWindowSession>(
-  panel: P,
+export function tableAfterFilterChange(
+  panel: TableWindowSession,
+  view: TableView,
   shown: WindowShown | null,
   change: SearchFilterChange,
   table: WindowTable,
-): P | null {
+): TableView | null {
   const column = openFilterIn(panel, shown, table)
   if (change.kind === 'shown' || column === null || column !== change.column) return null
-  const filter = columnFilterOf(panel, column)
+  const filter = columnFilterOf(view, column)
   if (change.kind === 'bound') {
     if (!table.isDateColumn(column)) return null
     const day = boundDayOf(change.day)
-    return withColumnFilter(panel, change.bound === 'since' ? { ...filter, from: day } : { ...filter, to: day })
+    return withColumnFilter(view, change.bound === 'since' ? { ...filter, fromDate: day } : { ...filter, toDate: day })
   }
   if (table.isDateColumn(column)) return null
   const others = filter.hiddenValues.filter((value) => value !== change.value)
-  return withColumnFilter(panel, { ...filter, hiddenValues: change.isShown ? others : [...others, change.value] })
+  return withColumnFilter(view, { ...filter, hiddenValues: change.isShown ? others : [...others, change.value] })
 }
 
 /** @purity pure */
@@ -375,22 +408,29 @@ export function visibilityLabelOf(value: string, language: DisplayLanguage): str
   return null
 }
 
-// WHY: the same panel back when no row changes, so the shell's identity test sees no change.
+// see TV-2, UN-20
+// WHY: the same view back when no row changes, so the shell writes nothing.
 /** @purity pure */
-export function tableAfterVisibilityChange<P extends TableWindowSession>(panel: P, keys: readonly VisibilityKey[], isShown: boolean): P {
-  const held = panel.visibility
+export function tableAfterVisibilityChange(view: TableView, keys: readonly VisibilityKey[], isShown: boolean): TableView {
+  const held = view.visibility
   const named = new Set(keys.filter((key): key is number => key !== UNASSIGNED_ROW_KEY))
   const kept = held.hiddenKeys.filter((key) => !named.has(key))
   const added = isShown ? [] : [...named].filter((key) => !held.hiddenKeys.includes(key))
   const isUnassignedHidden = keys.includes(UNASSIGNED_ROW_KEY) ? !isShown : held.isUnassignedHidden
   const isSame = kept.length === held.hiddenKeys.length && added.length === 0 && isUnassignedHidden === held.isUnassignedHidden
-  if (isSame) return panel
-  return { ...panel, visibility: { ...held, hiddenKeys: [...kept, ...added], isUnassignedHidden } }
+  if (isSame) return view
+  return { ...view, visibility: { ...held, hiddenKeys: [...kept, ...added], isUnassignedHidden } }
 }
 
 /** @purity pure */
-export function tableWithScheduleFilterToggled<P extends TableWindowSession>(panel: P): P {
-  return { ...panel, visibility: { ...panel.visibility, isApplied: !panel.visibility.isApplied } }
+export function tableWithScheduleFilterToggled(view: TableView): TableView {
+  return { ...view, visibility: { ...view.visibility, isApplied: !view.visibility.isApplied } }
+}
+
+// see TV-8, UN-20
+/** @purity pure */
+export function tableWithScheduleFilterOff(view: TableView): TableView {
+  return view.visibility.isApplied ? tableWithScheduleFilterToggled(view) : view
 }
 
 // WHY: rowKeysOf lists the table's rows, read only while a key is hidden;
@@ -422,10 +462,10 @@ export function scheduleFilterRefusalsOf(entry: CommandItem, language: DisplayLa
 }
 
 /** @purity pure */
-export function tableWithScheduleFilterPressed<P extends TableWindowSession>(panel: P, entry: IconId, wouldChange: () => boolean): P | null {
+export function tableWithScheduleFilterPressed(view: TableView, entry: IconId, wouldChange: () => boolean): TableView | null {
   if (entry !== SCHEDULE_FILTER_ENTRY) return null
-  if (!panel.visibility.isApplied && !wouldChange()) return null
-  return tableWithScheduleFilterToggled(panel)
+  if (!view.visibility.isApplied && !wouldChange()) return null
+  return tableWithScheduleFilterToggled(view)
 }
 
 /** @purity pure */
@@ -469,43 +509,51 @@ export function windowWithColumnWidth(window: TableWindowState, column: SearchCo
 /** @purity pure */
 export function windowColumnsViewOf(
   window: TableWindowState,
+  view: TableView,
   table: WindowTable,
   language: DisplayLanguage,
 ): { readonly columns: readonly SearchColumnView[]; readonly filterMenu: SearchFilterMenuView | null } {
   const open = openFilterIn(window.panel, window.shown, table)
   return {
-    columns: tableColumnsOf(window.panel, table, language),
-    filterMenu: open === null ? null : tableFilterMenuOf(window.panel, open, table, language),
+    columns: tableColumnsOf(window.panel, view, table, language),
+    filterMenu: open === null ? null : tableFilterMenuOf(view, open, table, language),
   }
 }
 
-// see T-346, T-370, SV-7, SV-8, WB-2, WB-3, IC-153, IC-143
-// WHY: { window: null } is a close and null an entry the window does not answer; a menu lists the values of the table with no column filter.
+// see T-346, T-370, SV-7, SV-8, WB-2, WB-3, IC-153, IC-143, TV-8
+// WHY: null is an entry the window does not answer; a menu lists the values of the table with no column filter.
 /** @purity pure */
 export function windowAfterEntry(
   window: TableWindowState,
+  view: TableView,
   entry: IconId,
   filterColumn: string | null,
-  answers: { readonly wouldChange: () => boolean; readonly tableOf: (unfiltered: TableWindowState) => WindowTable },
+  answers: { readonly wouldChange: () => boolean; readonly tableOf: (unfiltered: TableView) => WindowTable },
   listed?: readonly string[] | null,
-): { readonly window: TableWindowState | null } | null {
+): WindowStep | null {
   const shown = windowShownAfterEntry(window.shown, entry)
-  if (shown === null) return { window: null }
-  if (shown !== undefined) return { window: { ...window, shown } }
-  if (isClearEntry(entry)) return { window: { ...window, panel: tableWithViewsCleared(window.panel) } }
-  const panel = tableWithScheduleFilterPressed(window.panel, entry, answers.wouldChange) ?? panelAfterFilterEntry(window, entry, filterColumn, answers.tableOf, listed)
-  return panel === null ? null : { window: { ...window, panel } }
+  if (shown === null) return { window: null, view: tableWithScheduleFilterOff(view) }
+  if (shown !== undefined) return { window: { ...window, shown }, view }
+  if (isClearEntry(entry)) return { window: { ...window, panel: panelWithFilterShut(window.panel) }, view: tableWithViewsCleared(view) }
+  const filtered = tableWithScheduleFilterPressed(view, entry, answers.wouldChange)
+  if (filtered !== null) return { window, view: filtered }
+  return windowAfterFilterEntry(window, view, entry, filterColumn, answers.tableOf, listed)
 }
 
 /** @purity pure */
-function panelAfterFilterEntry(
+function windowAfterFilterEntry(
   window: TableWindowState,
+  view: TableView,
   entry: IconId,
   filterColumn: string | null,
-  tableOf: (unfiltered: TableWindowState) => WindowTable,
+  tableOf: (unfiltered: TableView) => WindowTable,
   listed?: readonly string[] | null,
-): TableWindowSession | null {
-  const table = tableOf({ ...window, panel: { ...window.panel, filters: { ...window.panel.filters, columns: [] } } })
-  if (entry !== FILTER_ENTRY) return tableAfterFilterEntry(window.panel, window.shown, entry, table, listed)
-  return filterColumn === null ? null : tableWithFilterOpened(window.panel, window.shown, filterColumn, table)
+): WindowStep | null {
+  const table = tableOf({ ...view, columnFilters: [] })
+  if (entry !== FILTER_ENTRY) {
+    const after = tableAfterFilterEntry(window.panel, view, window.shown, entry, table, listed)
+    return after === null ? null : { window, view: after }
+  }
+  const panel = filterColumn === null ? null : tableWithFilterOpened(window.panel, window.shown, filterColumn, table)
+  return panel === null ? null : { window: { ...window, panel }, view }
 }

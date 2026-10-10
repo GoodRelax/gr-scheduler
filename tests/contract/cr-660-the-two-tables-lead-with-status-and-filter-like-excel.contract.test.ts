@@ -32,9 +32,11 @@ import {
   advanceScreenSession,
   emptyScreenSession,
   emptySearchPanelSession,
+  EVERY_ROW_SHOWN,
   type ScreenSession,
   type SearchPanelSession,
   type SessionEvent,
+  type TableView,
 } from '../../src/use-case/advance-screen-session/advance-screen-session'
 import { selfAndDescendants, stage, type FakeElement } from '../fixtures/fake-browser'
 import { specTable, unbroken, type SpecRow } from './spec-table'
@@ -196,19 +198,34 @@ const step = (session: ScreenSession, type: string): ScreenSession =>
 
 const SHOWN = step(emptyScreenSession, 'searchEntryPressed')
 const JA = { ...SHOWN, screen: { ...SHOWN.screen, screenLanguage: 'ja', helpLanguage: 'ja' } } as unknown as ScreenSession
-const TASK_PANEL: SearchPanelSession = { ...emptySearchPanelSession, table: 'tasks' }
-const COMMENT_PANEL: SearchPanelSession = { ...emptySearchPanelSession, table: 'commentBoxes' }
+const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
 
-const viewOf = (panel: SearchPanelSession, bottlenecks?: ReadonlySet<number>): SearchPanelView =>
-  found(searchPanelFromSession(JA, panel, SCHEDULE, CANVAS, bottlenecks), 'a view of a shown panel')
+// WHY: CR-723 split the panel (screen only) from the table's view (the document's); a pane carries both.
+interface Pane {
+  readonly panel: SearchPanelSession
+  readonly view: TableView
+}
 
-const opened = (column: string, panel: SearchPanelSession = TASK_PANEL): SearchPanelSession =>
-  found(searchPanelWithFilterOpened(JA, panel, column), `the panel after IC-122 on ${column}`)
+const TASK_PANEL: Pane = { panel: { ...emptySearchPanelSession, table: 'tasks' }, view: NO_VIEW }
+const COMMENT_PANEL: Pane = { panel: { ...emptySearchPanelSession, table: 'commentBoxes' }, view: NO_VIEW }
+
+const viewOf = (pane: Pane, bottlenecks?: ReadonlySet<number>): SearchPanelView =>
+  found(searchPanelFromSession(JA, pane.panel, pane.view, SCHEDULE, CANVAS, bottlenecks), 'a view of a shown panel')
+
+const opened = (column: string, pane: Pane = TASK_PANEL): Pane => ({
+  panel: found(searchPanelWithFilterOpened(JA, pane.panel, pane.view, column), `the panel after IC-122 on ${column}`),
+  view: pane.view,
+})
+
+const entered = (pane: Pane, entry: string, what: string, listed?: readonly string[] | null): Pane => ({
+  panel: pane.panel,
+  view: found(searchPanelAfterFilterEntry(JA, pane.panel, pane.view, entry, SCHEDULE, undefined, listed), what),
+})
 
 type ValuesMenu = Extract<NonNullable<SearchPanelView['filterMenu']>, { kind: 'values' }>
 
-function valuesOf(panel: SearchPanelSession): ValuesMenu {
-  const menu = found(viewOf(panel).filterMenu, 'an open filter')
+function valuesOf(pane: Pane): ValuesMenu {
+  const menu = found(viewOf(pane).filterMenu, 'an open filter')
   if (menu.kind !== 'values') throw new Error(`the open filter of ${menu.column} is ${menu.kind}`)
   return menu
 }
@@ -282,39 +299,46 @@ const REPORT_GLYPH: Readonly<Record<number, string | null>> = { 1: 'DG-1', 6: nu
 
 const REPORT_SESSION = { screen: { screenLanguage: 'ja' } } as unknown as ScreenSession
 
-const reportViewOf = (window: DelayDiagnosticsReportWindow): DelayDiagnosticsReportView =>
+interface ReportPane {
+  readonly window: DelayDiagnosticsReportWindow
+  readonly view: TableView
+}
+
+const OPENED_REPORT: ReportPane = { window: OPENED_DELAY_DIAGNOSTICS_REPORT, view: NO_VIEW }
+
+const reportViewOf = (pane: ReportPane): DelayDiagnosticsReportView =>
   found(
-    delayDiagnosticsReportFromWindow(REPORT_SESSION, window, REPORT, REPORT_SCHEDULE, { canvas: CANVAS, textSizeStep: 1 }),
+    delayDiagnosticsReportFromWindow(REPORT_SESSION, pane.window, pane.view, REPORT, REPORT_SCHEDULE, { canvas: CANVAS, textSizeStep: 1 }),
     'a view of the report window',
   )
 
 const REPORT_ROWS = { report: REPORT, schedule: REPORT_SCHEDULE, language: 'ja' as const }
 
-function reportAfter(window: DelayDiagnosticsReportWindow, entry: string, column: string | null, listed?: readonly string[]): DelayDiagnosticsReportWindow {
-  const after = found(delayDiagnosticsReportAfterEntry(window, entry, column, REPORT_ROWS, listed), `the report after ${entry}`)
-  return found(after.window, `the report window after ${entry}`)
+function reportAfter(pane: ReportPane, entry: string, column: string | null, listed?: readonly string[]): ReportPane {
+  const after = found(delayDiagnosticsReportAfterEntry(pane.window, pane.view, entry, column, REPORT_ROWS, listed), `the report after ${entry}`)
+  return { window: found(after.window, `the report window after ${entry}`), view: after.view }
 }
 
 type ReportValuesMenu = Extract<NonNullable<DelayDiagnosticsReportView['filterMenu']>, { kind: 'values' }>
 
-function reportValuesOf(window: DelayDiagnosticsReportWindow): ReportValuesMenu {
-  const menu = found(reportViewOf(window).filterMenu, 'an open report filter')
+function reportValuesOf(pane: ReportPane): ReportValuesMenu {
+  const menu = found(reportViewOf(pane).filterMenu, 'an open report filter')
   if (menu.kind !== 'values') throw new Error(`the open report filter of ${menu.column} is ${menu.kind}`)
   return menu
 }
 
 /** @purity non-pure */
-function drawnPanel(panel: SearchPanelSession): FakeElement {
+function drawnPanel(pane: Pane): FakeElement {
   const built = stage()
-  const view = viewOf(panel)
+  const view = viewOf(pane)
   const box = searchPanelBoxOf(view, { width: 0.5, height: 0.5 })
   return searchPanelElement(built.host, view, { box, fontPx: FONT_PX }, new Map<string, HTMLElement>()) as unknown as FakeElement
 }
 
 /** @purity non-pure */
-function drawnMenu(panel: SearchPanelSession): readonly FakeElement[] {
+function drawnMenu(pane: Pane): readonly FakeElement[] {
   const built = stage()
-  const menu = found(viewOf(panel).filterMenu, 'an open filter')
+  const menu = found(viewOf(pane).filterMenu, 'an open filter')
   return selfAndDescendants(searchFilterMenuElement(built.host, menu, 16, new Map<string, HTMLElement>()) as unknown as FakeElement)
 }
 
@@ -368,7 +392,7 @@ describe('T-331 / T-347 -- the row order of each table is its column order (area
   })
 
   it('T-347 / FR-134: the report table lays its columns out in the row order of table T-347', () => {
-    expect(reportViewOf(OPENED_DELAY_DIAGNOSTICS_REPORT).columns.map((one) => one.column)).toEqual(REPORT_COLUMNS)
+    expect(reportViewOf(OPENED_REPORT).columns.map((one) => one.column)).toEqual(REPORT_COLUMNS)
   })
 
   it('T-331 / T-347: each heading is the dictionary word of its column', () => {
@@ -377,7 +401,7 @@ describe('T-331 / T-347 -- the row order of each table is its column order (area
       expect(column.heading, column.column).toBe(word.text.ja)
       expect(column.heading, `${column.column} heading cell of T-331`).toBe(cellOf('T-331', column.column, '列の見出し（辞書）'))
     }
-    for (const column of reportViewOf(OPENED_DELAY_DIAGNOSTICS_REPORT).columns) {
+    for (const column of reportViewOf(OPENED_REPORT).columns) {
       const word = found(WORDS.delayReportColumns.find((one) => one.rowId === column.column), `the word of ${column.column}`)
       expect(column.heading, column.column).toBe(word.text.ja)
       expect(column.heading, `${column.column} heading cell of T-347`).toBe(cellOf('T-347', column.column, '欄の見出し（辞書）'))
@@ -395,7 +419,7 @@ describe('T-331 / T-347 -- the row order of each table is its column order (area
   })
 
   it('RW-10: the report fixes DT-8, DT-1, DT-3 and DT-4 (the left four of T-347) and no other', () => {
-    const fixed = reportViewOf(OPENED_DELAY_DIAGNOSTICS_REPORT).columns.filter((one) => one.isFixed).map((one) => one.column)
+    const fixed = reportViewOf(OPENED_REPORT).columns.filter((one) => one.isFixed).map((one) => one.column)
     expect(fixed).toEqual(REPORT_COLUMNS.slice(0, REPORT_COLUMNS.indexOf('DT-4') + 1))
     expect(fixed).toEqual(['DT-8', 'DT-1', 'DT-3', 'DT-4'])
   })
@@ -410,7 +434,7 @@ describe('T-331 / T-347 -- the row order of each table is its column order (area
 
   it('SJ-1 / DT-4: the jump is the task column of each table, wherever T-331 / T-347 place it', () => {
     expect(viewOf(TASK_PANEL).jumpAt).toBe(TASK_COLUMNS.indexOf('SQ-1'))
-    expect(reportViewOf(OPENED_DELAY_DIAGNOSTICS_REPORT).jumpAt).toBe(REPORT_COLUMNS.indexOf('DT-4'))
+    expect(reportViewOf(OPENED_REPORT).jumpAt).toBe(REPORT_COLUMNS.indexOf('DT-4'))
   })
 
   it('SQ-11 / SQ-12 / SQ-13: progress as an integer percent, actual start and finish as dates, empty when not yet', () => {
@@ -438,22 +462,22 @@ describe('T-330 SV-7 -- the search field of a value filter narrows the list, nev
     const menu = valuesOf(panel)
     const listed = listedFor(menu, 'alp')
     expect(listed.length, 'premise: the word lists two of the names').toBe(2)
-    const after = found(searchPanelAfterFilterEntry(JA, panel, 'IC-126', SCHEDULE, undefined, listed), 'the panel after IC-126')
+    const after = entered(panel, 'IC-126', 'the panel after IC-126', listed)
     expect(shownMarks(valuesOf(after))).toEqual({ Alpha: false, Alpine: false, Bravo: true, Charlie: true, Delta: true })
     const names = viewOf(after).rows.map((row) => cellsByColumn(viewOf(after), row.target.kind === 'task' ? row.target.taskUid : 0)['SQ-1'])
     expect(names).toEqual(['Bravo', 'Charlie', 'Delta'])
   })
 
   it(`SV-7 「${SV_7_LISTED_ONLY}」 -- IC-125 with a narrowed list shows only the listed values`, () => {
-    const hidden = found(searchPanelAfterFilterEntry(JA, opened('SQ-1'), 'IC-126', SCHEDULE), 'the panel after IC-126 on all')
+    const hidden = entered(opened('SQ-1'), 'IC-126', 'the panel after IC-126 on all')
     const listed = listedFor(valuesOf(hidden), 'alpi')
     expect(listed.length, 'premise: the word lists one name').toBe(1)
-    const after = found(searchPanelAfterFilterEntry(JA, hidden, 'IC-125', SCHEDULE, undefined, listed), 'the panel after IC-125')
+    const after = entered(hidden, 'IC-125', 'the panel after IC-125', listed)
     expect(shownMarks(valuesOf(after))).toEqual({ Alpha: false, Alpine: true, Bravo: false, Charlie: false, Delta: false })
   })
 
   it('SV-7 IC-125 / IC-126 on the report: a narrowed list changes only the listed values', () => {
-    const open = reportAfter(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-122', 'DT-4')
+    const open = reportAfter(OPENED_REPORT, 'IC-122', 'DT-4')
     const menu = reportValuesOf(open)
     const listed = menu.values.filter((one) => isFilterValueListed(one.label, 'a')).map((one) => one.value)
     const unlisted = menu.values.filter((one) => !isFilterValueListed(one.label, 'a')).map((one) => one.label)
@@ -463,7 +487,7 @@ describe('T-330 SV-7 -- the search field of a value filter narrows the list, nev
   })
 
   it('SV-7: with no narrowed list IC-126 still hides every value (the list is the whole list)', () => {
-    const after = found(searchPanelAfterFilterEntry(JA, opened('SQ-1'), 'IC-126', SCHEDULE, undefined, null), 'IC-126')
+    const after = entered(opened('SQ-1'), 'IC-126', 'IC-126', null)
     expect(Object.values(shownMarks(valuesOf(after))).every((one) => !one)).toBe(true)
   })
 
@@ -504,7 +528,7 @@ describe('T-330 SV-7 -- the open filter closes on its own entrance pressed again
   })
 
   it('SV-7 / T-346: IC-122 of the same column closes the report filter too', () => {
-    const open = reportAfter(OPENED_DELAY_DIAGNOSTICS_REPORT, 'IC-122', 'DT-3')
+    const open = reportAfter(OPENED_REPORT, 'IC-122', 'DT-3')
     expect(reportViewOf(open).filterMenu?.column).toBe('DT-3')
     expect(reportViewOf(reportAfter(open, 'IC-122', 'DT-3')).filterMenu).toBeNull()
   })
@@ -532,7 +556,7 @@ describe('T-331 SQ-5 / T-347 DT-1 / T-346 RW-4 -- the leading glyph of a status 
   })
 
   it(`DT-1 「${DT_1_GLYPHS}」, and none for the doubtful and the settled`, () => {
-    const view = reportViewOf(OPENED_DELAY_DIAGNOSTICS_REPORT)
+    const view = reportViewOf(OPENED_REPORT)
     expect(view.glyphAt).toBe(REPORT_COLUMNS.indexOf('DT-1'))
     expect(view.rows.length, 'premise: the report holds one row per status').toBe(6)
     for (const row of view.rows) {
@@ -542,7 +566,7 @@ describe('T-331 SQ-5 / T-347 DT-1 / T-346 RW-4 -- the leading glyph of a status 
   })
 
   it(`RW-4 「${RW_4_GLYPHS}」`, () => {
-    const view = reportViewOf(OPENED_DELAY_DIAGNOSTICS_REPORT)
+    const view = reportViewOf(OPENED_REPORT)
     const byStatus = new Map(view.rows.map((row) => [row.status, row.glyph]))
     const statusLines = view.summary.filter((one) => one.status !== null)
     expect(statusLines.length, 'premise: the summary has a line per status').toBeGreaterThan(0)
@@ -572,7 +596,7 @@ describe('T-330 SV-18 / T-346 RW-9 -- the default width of a column is its T-206
   })
 
   it('RW-9: each report column starts at its T-206 width; a measured one unmeasured reads the S-425 floor', () => {
-    for (const column of reportViewOf(OPENED_DELAY_DIAGNOSTICS_REPORT).columns) {
+    for (const column of reportViewOf(OPENED_REPORT).columns) {
       expect(columnWidthPx(column, SIZING), `${column.column} -> ${WIDTH_ROW[column.column]}`).toBe(settingPx(found(WIDTH_ROW[column.column], column.column)))
     }
   })

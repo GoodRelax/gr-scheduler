@@ -395,6 +395,10 @@ export const DISPLAY_SCALE_STEPS: readonly DocumentSettings['displayScale'][] = 
   50, 67, 75, 90, 100, 110, 125, 150, 175, 200,
 ]
 
+// see FR-151, T-203, T-372
+// WHY: the views of the three tables, one key each; the table names everywhere are this type's keys.
+export type TableViews = DocumentSettings['tableViews']
+
 export interface ClampedValue {
   readonly key: string
   readonly was: number

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import type { DisplayLanguage } from '../../src/adapter/screen-renderer/screen-renderer'
 import { resourceListAfterEntry, resourceListFromWindow } from '../../src/adapter/screen-renderer/resource-list'
 import { REQUIREMENTS, SCHEDULE, wordOf } from './cr-722-stage'
-import { CANVAS, OPENED_DELAY_DIAGNOSTICS_REPORT, sessionIn } from './cr-721-stage'
+import { CANVAS, NO_VIEW, OPENED_DELAY_DIAGNOSTICS_REPORT, sessionIn } from './cr-721-stage'
 import { specTable, unbroken } from './spec-table'
 
 const FR_099_WINDOW =
@@ -46,7 +46,7 @@ interface ViewLike {
 }
 
 function viewIn(language: DisplayLanguage, window: unknown = OPENED): ViewLike {
-  const view = resourceListFromWindow(sessionIn(language), window as never, SCHEDULE, [], { canvas: CANVAS, textSizeStep: 1 } as never)
+  const view = resourceListFromWindow(sessionIn(language), window as never, NO_VIEW, SCHEDULE, [], { canvas: CANVAS, textSizeStep: 1 } as never)
   if (view === null || view === undefined) throw new Error('the opened Resource List has no view')
   return view as unknown as ViewLike
 }
@@ -89,7 +89,7 @@ describe(`FR-099 T-370 RO-4 / RO-5 -- ${RO_4_ORDER}`, () => {
 
   it(`${RO_5_ALWAYS.slice(0, 30)} -- the (Unassigned) row stands with no unassigned task`, () => {
     const none = { ...SCHEDULE, tasks: SCHEDULE.tasks.filter((one) => one.uid !== 4 && one.uid !== 5) }
-    const view = resourceListFromWindow(sessionIn('en'), OPENED as never, none as never, [], { canvas: CANVAS, textSizeStep: 1 } as never) as unknown as ViewLike
+    const view = resourceListFromWindow(sessionIn('en'), OPENED as never, NO_VIEW, none as never, [], { canvas: CANVAS, textSizeStep: 1 } as never) as unknown as ViewLike
     const rows = view.rows.map(said)
     expect(rows.length).toBe(4)
     expect(rows[3]).toContain(inJson(wordOf('resourceList', 'unassigned', 'en')))
@@ -98,14 +98,14 @@ describe(`FR-099 T-370 RO-4 / RO-5 -- ${RO_4_ORDER}`, () => {
 
 describe(`FR-099 (MUST): ${FR_099_WINDOW.slice(-40)} -- the window entrances of SV-12 / SV-14`, () => {
   it('IC-129 minimizes the window', () => {
-    const after = resourceListAfterEntry(OPENED as never, 'IC-129' as never, null, { schedule: SCHEDULE, chosenResourceUids: [], language: 'ja' } as never) as unknown as {
+    const after = resourceListAfterEntry(OPENED as never, NO_VIEW, 'IC-129' as never, null, { schedule: SCHEDULE, chosenResourceUids: [], language: 'ja' } as never) as unknown as {
       readonly window: { readonly shown: string } | null
     } | null
     expect(after?.window?.shown).toBe('minimized')
   })
 
   it('IC-52 closes the window', () => {
-    const after = resourceListAfterEntry(OPENED as never, 'IC-52' as never, null, { schedule: SCHEDULE, chosenResourceUids: [], language: 'ja' } as never) as unknown as {
+    const after = resourceListAfterEntry(OPENED as never, NO_VIEW, 'IC-52' as never, null, { schedule: SCHEDULE, chosenResourceUids: [], language: 'ja' } as never) as unknown as {
       readonly window: unknown
     } | null
     expect(after).not.toBeNull()

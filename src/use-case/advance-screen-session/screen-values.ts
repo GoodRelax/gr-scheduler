@@ -8,10 +8,14 @@ import {
   NOT_STORED_SEARCH_PANEL_FONT_SIZES,
   type EscapeTarget,
   type RememberedActual,
-  type WindowName,
 } from '../../entity/document-model/screen-state/screen-state'
 import type { Selection } from '../../entity/document-model/selection/selection'
-import type { DocumentCommand, SearchJumpTarget } from '../edit-document/edit-document'
+import {
+  tableViewOf,
+  type DocumentCommand,
+  type SearchJumpTarget,
+  type TableView,
+} from '../edit-document/edit-document'
 import { assertNever, NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // see FR-072
@@ -53,45 +57,39 @@ export type SearchTable = 'tasks' | 'commentBoxes'
 // see T-331
 export type SearchColumn = string
 
-export interface SearchColumnFilter {
-  readonly column: SearchColumn
-  readonly hiddenValues: readonly string[]
-  readonly from: string | null
-  readonly to: string | null
-}
-
 export interface SearchFilters {
-  readonly columns: readonly SearchColumnFilter[]
   readonly open: SearchColumn | null
 }
 
-export interface SearchSort {
-  readonly column: SearchColumn
-  readonly direction: 'ascending' | 'descending'
-}
+export { tableViewOf }
+export type { TableView }
 
-// see TV-2, TV-5, RO-5, S-494, S-495, S-547, S-548
-export interface TableVisibility {
-  readonly hiddenKeys: readonly number[]
-  readonly isUnassignedHidden: boolean
-  readonly isApplied: boolean
-}
+export type TableVisibility = TableView['visibility']
 
-export type VisibilityTable = Extract<WindowName, 'searchPanel' | 'delayDiagnosticsReport' | 'resourceList'>
+export type VisibilityTable = Extract<DocumentCommand, { readonly kind: 'setTableView' }>['table']
 
 export const EVERY_ROW_SHOWN: TableVisibility = { hiddenKeys: [], isUnassignedHidden: false, isApplied: false }
 
-// see S-419, S-420, S-429, SV-7, SV-8, SV-18
+// see TV-11, IC-143
+const TABLE_RANKS: Readonly<Record<VisibilityTable, number>> = {
+  searchPanel: 0,
+  delayDiagnosticsReport: 1,
+  resourceList: 2,
+}
+
+export const VISIBILITY_TABLES: readonly VisibilityTable[] = (Object.keys(TABLE_RANKS) as VisibilityTable[]).sort(
+  (a, b) => TABLE_RANKS[a] - TABLE_RANKS[b],
+)
+
+// see S-419, S-420, S-429, SV-7, SV-18
 export interface SearchPanelSession {
   readonly word: string
   readonly table: SearchTable
   readonly filters: SearchFilters
-  readonly sort: SearchSort | null
   readonly at: { readonly x: number; readonly y: number } | null
   readonly size: { readonly width: number; readonly height: number } | null
   readonly textSizeStep: number
   readonly columnWidths: Readonly<Record<SearchColumn, number>>
-  readonly visibility: TableVisibility
 }
 
 export type SearchPanelTextSizeRow = keyof typeof NOT_STORED_SEARCH_PANEL_FONT_SIZES
@@ -107,13 +105,11 @@ const DEFAULT_TEXT_SIZE_ROW: SearchPanelTextSizeRow = 'S-430'
 export const emptySearchPanelSession: SearchPanelSession = {
   word: '',
   table: 'tasks',
-  filters: { columns: [], open: null },
-  sort: null,
+  filters: { open: null },
   at: null,
   size: null,
   textSizeStep: SEARCH_PANEL_TEXT_SIZE_ROWS.indexOf(DEFAULT_TEXT_SIZE_ROW),
   columnWidths: {},
-  visibility: EVERY_ROW_SHOWN,
 }
 
 export interface ScreenValuesStateCarried {

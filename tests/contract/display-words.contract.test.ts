@@ -921,8 +921,20 @@ const SCHEDULE_TO_SEARCH = {
   taskVisuals: [],
 } as unknown as Schedule
 
-const searchFrame = (shown: 'normal' | 'maximized' | 'minimized', panel: Partial<SearchPanelSession>): Frame =>
+// WHY: CR-723 -- the search table's view (Visibility column, Schedule Filter, column filters, sort) is the document's, so it
+// is handed in through the settings the frame carries, not through the panel reading.
+type SearchTableViewSetting = DocumentSettings['tableViews']['searchPanel']
+
+// TRAP: SETTINGS is built from the flat SETTINGS_DEFAULTS, so it holds no nested tableViews group of its own.
+const NO_SEARCH_VIEW: SearchTableViewSetting = { columnFilters: [], hiddenTaskUids: [], isScheduleFilterApplied: false, sort: null }
+
+const searchFrame = (
+  shown: 'normal' | 'maximized' | 'minimized',
+  panel: Partial<SearchPanelSession>,
+  view: Partial<SearchTableViewSetting> = {},
+): Frame =>
   frameWith({
+    settings: { ...SETTINGS, tableViews: { ...SETTINGS.tableViews, searchPanel: { ...NO_SEARCH_VIEW, ...view } } },
     schedule: SCHEDULE_TO_SEARCH,
     selection: emptySelection(),
     root: rootWith({ searchPanelDisplayState: { kind: 'shown', child: { kind: shown } } }),
@@ -935,20 +947,19 @@ const NAME_COLUMN = 'SQ-1'
 const MAXIMIZE_ENTRY = 'IC-121'
 const COMMENT_BOX_COLUMNS: ReadonlySet<string> = new Set(['SQ-7', 'SQ-8', 'SQ-9'])
 
-const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN } })
+const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { open: ASSIGNEE_COLUMN } })
 // see SQ-10, TV-11
 const SHOW_COLUMN = 'SQ-10'
 const SHOWN_SEARCH_UIDS: readonly number[] = [2, 3]
 // WHY: CR-722 TV-2 -- every row starts as Show, so the rows not named are the Hide ones.
-const hiddenExcept = (shown: readonly number[], isApplied: boolean): SearchPanelSession['visibility'] => ({
-  hiddenKeys: Object.values(SEARCH_TASK_BY_STATE).map((one) => one.uid).filter((uid) => !shown.includes(uid)),
-  isUnassignedHidden: false,
-  isApplied,
+const hiddenExcept = (shown: readonly number[], isApplied: boolean): Partial<SearchTableViewSetting> => ({
+  hiddenTaskUids: Object.values(SEARCH_TASK_BY_STATE).map((one) => one.uid).filter((uid) => !shown.includes(uid)),
+  isScheduleFilterApplied: isApplied,
 })
-const SEARCH_SHOW_FILTER_OPEN = searchFrame('normal', { filters: { columns: [], open: SHOW_COLUMN }, visibility: hiddenExcept(SHOWN_SEARCH_UIDS, false) })
+const SEARCH_SHOW_FILTER_OPEN = searchFrame('normal', { filters: { open: SHOW_COLUMN } }, hiddenExcept(SHOWN_SEARCH_UIDS, false))
 // WHY: the shell hands the product in as a reading (TV-1); the band counts it.
 const SEARCH_SCHEDULE_FILTERED: Frame = (() => {
-  const frame = searchFrame('minimized', { visibility: hiddenExcept(SHOWN_SEARCH_UIDS, true) })
+  const frame = searchFrame('minimized', {}, hiddenExcept(SHOWN_SEARCH_UIDS, true))
   return { ...frame, readings: { ...frame.readings, drawnTaskUids: new Set(SHOWN_SEARCH_UIDS) } }
 })()
 // WHY: TV-11 fills {tables}, {total} and {shown}, so the table name and the digits are put back to see the literal word
@@ -981,7 +992,7 @@ const HELP_MAXIMIZED = helpShown('maximized')
 const RESTORE_ENTRY = 'IC-131'
 
 // WHY: IC-143 refuses while no row is Hide (TV-5), and its hint would then carry the reason too.
-const SEARCH_TASKS_CHECKED = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN }, visibility: hiddenExcept(SHOWN_SEARCH_UIDS, false) })
+const SEARCH_TASKS_CHECKED = searchFrame('normal', { filters: { open: ASSIGNEE_COLUMN } }, hiddenExcept(SHOWN_SEARCH_UIDS, false))
 
 // see S-451, RW-1
 // WHY: the shell holds the report and hands it in as a reading; an empty diagnosis still raises the window.
@@ -1000,7 +1011,7 @@ const NO_DELAY_FOUND: DelayDiagnosticsReport = {
 }
 
 // WHY: a filter stands open, so IC-123 .. IC-126 stand in its menu (RW-2, SV-7).
-const REPORT_FILTER_OPEN = { ...OPENED_DELAY_DIAGNOSTICS_REPORT.panel, filters: { columns: [], open: 'DT-1' } }
+const REPORT_FILTER_OPEN = { ...OPENED_DELAY_DIAGNOSTICS_REPORT.panel, filters: { open: 'DT-1' } }
 const delayReportShown = (shown: 'normal' | 'maximized'): Frame =>
   frameWith({
     readings: sessionWith({
@@ -1011,7 +1022,7 @@ const delayReportShown = (shown: 'normal' | 'maximized'): Frame =>
 // see FR-099, T-370, T-371, S-545
 // WHY: the one resource of SCHEDULE is chosen for IC-67 and not for IC-68 (RQ-3), and a filter stands open for IC-123 .. IC-126.
 const resourceListShown = (shown: 'normal' | 'maximized', isChosen: boolean): Frame => {
-  const panel = { ...OPENED_RESOURCE_LIST.panel, filters: { columns: [], open: 'RQ-2' } }
+  const panel = { ...OPENED_RESOURCE_LIST.panel, filters: { open: 'RQ-2' } }
   const resourceList = { ...OPENED_RESOURCE_LIST, shown, panel }
   return frameWith({ readings: sessionWith({ resourceList, selectedResourceUids: isChosen ? [1] : [] }) })
 }

@@ -21,6 +21,7 @@ import type {
   ScreenViewReadings,
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
+import { isScheduleFilterAppliedIn } from './table-window'
 import iconRoster from './icon-roster.json'
 import { iconLabel } from './tooltips'
 import displayWords from './display-words.json'
@@ -156,7 +157,7 @@ function entranceFactsOf(
     isParentTaskLinksShown: readings.isParentTaskLinksShown === true,
     isWatermarkShown: session.screen.watermarkDisplayState.kind === 'shown',
     isFlowAwaitingAnswer: isFlowSurfaceOpen(session.screen.openSurfaceState),
-    isResourceListFiltered: readings.resourceList?.panel.visibility.isApplied === true,
+    isResourceListFiltered: isScheduleFilterAppliedIn(settings, 'resourceList'),
   }
 }
 
