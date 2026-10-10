@@ -67,24 +67,24 @@ describe('DFC-2260 -- FR-029 the palette entrances beside a surface that awaits 
     expect(built.item(WATERMARK_ENTRANCE).isEnabled).toBe(true)
   })
 
-  it('U-56 awaits: IC-62 and IC-41 (the watermark shows) are faint', async () => {
+  it('U-56 awaits: IC-41 (the watermark shows) is faint, IC-62 opens a window and is not (CR-722 RO-1)', async () => {
     const built = await withOpenChooser()
-    expect(built.item(ROSTER_ENTRANCE).isEnabled).toBe(false)
+    expect(built.item(ROSTER_ENTRANCE).isEnabled).toBe(true)
     expect(built.item(WATERMARK_ENTRANCE).isEnabled).toBe(false)
   })
 
-  it('U-56 awaits and the watermark is hidden: IC-62 is faint, IC-41 is not (pressing it shows the watermark)', async () => {
+  it('U-56 awaits and the watermark is hidden: neither IC-62 (a window, CR-722 RO-1) nor IC-41 (pressing it shows the watermark) is faint', async () => {
     const built = await paletteStage()
     await built.hideWatermark()
     await built.open(built.file('theirs.json', jsonBytes(there())))
     expect(built.surfaceName(), 'precondition: SK-10 raised no U-56').toBe(OPEN_CHOOSER())
-    expect(built.item(ROSTER_ENTRANCE).isEnabled).toBe(false)
+    expect(built.item(ROSTER_ENTRANCE).isEnabled).toBe(true)
     expect(built.item(WATERMARK_ENTRANCE).isEnabled).toBe(true)
   })
 
-  it('U-61 awaits: IC-62 and IC-41 (the watermark shows) are faint', async () => {
+  it('U-61 awaits: IC-41 (the watermark shows) is faint, IC-62 opens a window and is not (CR-722 RO-1)', async () => {
     const built = await withDifferenceReview()
-    expect(built.item(ROSTER_ENTRANCE).isEnabled).toBe(false)
+    expect(built.item(ROSTER_ENTRANCE).isEnabled).toBe(true)
     expect(built.item(WATERMARK_ENTRANCE).isEnabled).toBe(false)
   })
 
@@ -106,7 +106,7 @@ describe('DFC-2260 -- FR-029 the palette entrances beside a surface that awaits 
 })
 
 describe('DFC-2260 -- T-280 pressing a faint entrance', () => {
-  it('IC-62 while U-56 awaits: RS-27 is carried unseen (CR-712) and U-56 stays', async () => {
+  it('IC-62 while U-56 awaits: it is no surface entry (CR-722 RO-1), so nothing is told and U-56 stays', async () => {
     const built = await withOpenChooser()
     await built.press(surfaceOfEntrance(ROSTER_ENTRANCE), ROSTER_ENTRANCE)
     expect(toldReasons(built.last())).not.toContain(REFUSAL)

@@ -86,12 +86,12 @@ export const OPENED_RESOURCE_LIST: TableWindowState = {
   isInFront: true,
 }
 
-// WHY: isChosen is null on the (Unassigned) row, which is never chosen (RO-5).
+// WHY: chosenEntry (IC-67 or IC-68 in the RQ-3 cell) is null on the (Unassigned) row, which is never chosen (RO-5).
 export interface ResourceListRowView {
   readonly key: VisibilityKey
   readonly cells: readonly string[]
   readonly shown: boolean
-  readonly isChosen: boolean | null
+  readonly chosenEntry: CommandItem | null
 }
 
 // see FR-099, T-370, T-371
@@ -289,8 +289,9 @@ function choiceEntriesOf(listed: readonly ResourceLine[], all: readonly Resource
 
 // see RQ-1, RQ-3, SV-17
 /** @purity pure */
-function rowViewOf(window: TableWindowState, line: ResourceLine): ResourceListRowView {
-  return { key: line.key, cells: line.cells, shown: isRowShown(window.panel.visibility, line.key), isChosen: line.isChosen }
+function rowViewOf(window: TableWindowState, line: ResourceLine, language: DisplayLanguage): ResourceListRowView {
+  const chosenEntry = line.isChosen === null ? null : entryOf(line.isChosen ? CHOSEN_ENTRY : UNCHOSEN_ENTRY, language)
+  return { key: line.key, cells: line.cells, shown: isRowShown(window.panel.visibility, line.key), chosenEntry }
 }
 
 // see FR-099, T-370, T-371, RO-2, RO-3, RO-8
@@ -309,7 +310,7 @@ export function resourceListFromWindow(
   const table = lineTableOf(window, () => listed, language, all)
   const open = openFilterIn(window.panel, window.shown, table)
   const scheduleFilter = scheduleFilterEntryOf(window.panel.visibility, wouldResourceFilterChange(window, schedule), language)
-  const rows = listed.map((line) => rowViewOf(window, line))
+  const rows = listed.map((line) => rowViewOf(window, line, language))
   return {
     heading: wordOf(HEADING, language),
     shown: window.shown,

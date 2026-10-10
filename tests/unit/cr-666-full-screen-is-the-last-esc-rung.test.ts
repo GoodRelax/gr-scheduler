@@ -71,7 +71,7 @@ describe('CR-666 -- the manuscript these cases are driven by', () => {
   })
 })
 
-type Flag = Exclude<keyof EscapeContext, 'focusedWindow' | 'isDelayDiagnosticsReportInFront' | 'isFocusInPropertiesPanel'>
+type Flag = Exclude<keyof EscapeContext, 'focusedWindow' | 'isDelayDiagnosticsReportInFront' | 'isResourceListInFront' | 'isFocusInPropertiesPanel'>
 
 const NOTHING_ON: Required<Pick<EscapeContext, Flag>> = {
   isNoticeStanding: false,
@@ -82,6 +82,7 @@ const NOTHING_ON: Required<Pick<EscapeContext, Flag>> = {
   isSearchPanelStanding: false,
   isHelpStanding: false,
   isDelayDiagnosticsReportStanding: false,
+  isResourceListStanding: false,
   isDialogueFieldStanding: false,
   isPropertiesPanelOpen: false,
   isArmed: false,

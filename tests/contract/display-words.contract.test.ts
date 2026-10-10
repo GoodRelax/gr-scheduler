@@ -209,6 +209,7 @@ import {
   type ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { OPENED_DELAY_DIAGNOSTICS_REPORT } from '../../src/adapter/screen-renderer/delay-diagnostics-report'
+import { OPENED_RESOURCE_LIST } from '../../src/adapter/screen-renderer/resource-list'
 import {
   emptyScreenSession,
   emptySearchPanelSession,
@@ -398,6 +399,9 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   searchColumns: 'rowId',
   planActualStates: 'rowId',
   searchPanel: 'part',
+  // WHY: CR-722 keys the Resource List's headings by their row of table T-371, and its (Unassigned) and joining words by part.
+  resourceListColumns: 'rowId',
+  resourceList: 'part',
   // WHY: CR-631 keys QN-12's two choices by the part they fill (PTL-13): the armed and the unarmed
   // wording of the first choice, then the arrows; no table row numbers them.
   parentTaskChoice: 'part',
@@ -932,17 +936,29 @@ const COMMENT_BOX_COLUMNS: ReadonlySet<string> = new Set(['SQ-7', 'SQ-8', 'SQ-9'
 const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN } })
 // see SQ-10, TV-11
 const SHOW_COLUMN = 'SQ-10'
-const SEARCH_SHOW_FILTER_OPEN = searchFrame('normal', { filters: { columns: [], open: SHOW_COLUMN }, shownTaskUids: [2, 3] })
 const SHOWN_SEARCH_UIDS: readonly number[] = [2, 3]
-const SEARCH_SHOWING_ONLY_CHECKED = searchFrame('minimised', { shownTaskUids: SHOWN_SEARCH_UIDS, showOnlyChecked: true })
-// WHY: TV-11 fills {total} and {shown} with the counts, so the digits are put back to see the literal word
+// WHY: CR-722 TV-2 -- every row starts as Show, so the rows not named are the Hide ones.
+const hiddenExcept = (shown: readonly number[], isApplied: boolean): SearchPanelSession['visibility'] => ({
+  hiddenKeys: Object.values(SEARCH_TASK_BY_STATE).map((one) => one.uid).filter((uid) => !shown.includes(uid)),
+  isUnassignedHidden: false,
+  isApplied,
+})
+const SEARCH_SHOW_FILTER_OPEN = searchFrame('normal', { filters: { columns: [], open: SHOW_COLUMN }, visibility: hiddenExcept(SHOWN_SEARCH_UIDS, false) })
+// WHY: the shell hands the product in as a reading (TV-1); the band counts it.
+const SEARCH_SCHEDULE_FILTERED: Frame = (() => {
+  const frame = searchFrame('minimised', { visibility: hiddenExcept(SHOWN_SEARCH_UIDS, true) })
+  return { ...frame, readings: { ...frame.readings, drawnTaskUids: new Set(SHOWN_SEARCH_UIDS) } }
+})()
+// WHY: TV-11 fills {tables}, {total} and {shown}, so the table name and the digits are put back to see the literal word
 // (as minHeightWordOf does for MH-3); a sentinel holds no digit standing alone and passes unchanged.
-const countSlotsOf = (text: string | null | undefined): string | undefined =>
-  text === null || text === undefined
+const countSlotsOf = (text: string | null | undefined, tables: string | undefined): string | undefined =>
+  text === null || text === undefined || tables === undefined
     ? undefined
     : text
+        .replace(tables, '{tables}')
         .replace(new RegExp(`(?<![0-9])${Object.keys(SEARCH_TASK_BY_STATE).length}(?![0-9])`), '{total}')
         .replace(new RegExp(`(?<![0-9])${SHOWN_SEARCH_UIDS.length}(?![0-9])`), '{shown}')
+
 const SEARCH_COMMENT_BOXES_SHOWN = searchFrame('normal', { table: 'commentBoxes' })
 const SEARCH_MAXIMISED = searchFrame('maximised', {})
 
@@ -962,8 +978,8 @@ const HELP_MAXIMISED = helpShown('maximised')
 // see T-335, WB-3, WB-4
 const RESTORE_ENTRY = 'IC-131'
 
-// WHY: IC-143 refuses while nothing is checked (TV-5), and its hint would then carry the reason too.
-const SEARCH_TASKS_CHECKED = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN }, shownTaskUids: SHOWN_SEARCH_UIDS })
+// WHY: IC-143 refuses while no row is Hide (TV-5), and its hint would then carry the reason too.
+const SEARCH_TASKS_CHECKED = searchFrame('normal', { filters: { columns: [], open: ASSIGNEE_COLUMN }, visibility: hiddenExcept(SHOWN_SEARCH_UIDS, false) })
 
 // see S-451, RW-1
 // WHY: the shell holds the report and hands it in as a reading; an empty diagnosis still raises the window.
@@ -981,10 +997,22 @@ const NO_DELAY_FOUND: DelayDiagnosticsReport = {
   lateDays: [],
 }
 
+// WHY: a filter stands open, so IC-123 .. IC-126 stand in its menu (RW-2, SV-7).
+const REPORT_FILTER_OPEN = { ...OPENED_DELAY_DIAGNOSTICS_REPORT.panel, filters: { columns: [], open: 'DT-1' } }
 const delayReportShown = (shown: 'normal' | 'maximised'): Frame =>
   frameWith({
-    readings: sessionWith({ delayDiagnosticsReport: { window: { ...OPENED_DELAY_DIAGNOSTICS_REPORT, shown }, report: NO_DELAY_FOUND } }),
+    readings: sessionWith({
+      delayDiagnosticsReport: { window: { ...OPENED_DELAY_DIAGNOSTICS_REPORT, shown, panel: REPORT_FILTER_OPEN }, report: NO_DELAY_FOUND },
+    }),
   })
+
+// see FR-099, T-370, T-371, S-545
+// WHY: the one resource of SCHEDULE is chosen for IC-67 and not for IC-68 (RQ-3), and a filter stands open for IC-123 .. IC-126.
+const resourceListShown = (shown: 'normal' | 'maximised', isChosen: boolean): Frame => {
+  const panel = { ...OPENED_RESOURCE_LIST.panel, filters: { columns: [], open: 'RQ-2' } }
+  const resourceList = { ...OPENED_RESOURCE_LIST, shown, panel }
+  return frameWith({ readings: sessionWith({ resourceList, selectedResourceUids: isChosen ? [1] : [] }) })
+}
 
 // see FR-066, S-99i
 const dialogueFieldShown = (shown: 'normal' | 'maximised'): Frame =>
@@ -993,7 +1021,10 @@ const dialogueFieldShown = (shown: 'normal' | 'maximised'): Frame =>
     readings: sessionWith({ isAgentApiEnabled: true }),
   })
 
-type TableWindowView = NonNullable<ScreenView['searchPanel']> | NonNullable<ScreenView['delayDiagnosticsReport']>
+type TableWindowView =
+  | NonNullable<ScreenView['searchPanel']>
+  | NonNullable<ScreenView['delayDiagnosticsReport']>
+  | NonNullable<ScreenView['resourceList']>
 
 // see FR-151, FR-134, T-335, SV-7
 const tableWindowEntries = (window: TableWindowView | null | undefined): readonly CommandItem[] | undefined =>
@@ -1003,6 +1034,7 @@ const tableWindowEntries = (window: TableWindowView | null | undefined): readonl
         ...window.titleEntries,
         ...window.tableEntries,
         ...('toolEntries' in window ? window.toolEntries : []),
+        ...('choiceEntries' in window ? [...window.choiceEntries, ...window.rows.flatMap((row) => row.chosenEntry ?? [])] : []),
         ...window.columns.map((column) => column.filterEntry),
         ...(window.filterMenu?.entries ?? []),
       ]
@@ -1049,6 +1081,14 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
       frame: (rowId) => delayReportShown(rowId === RESTORE_ENTRY ? 'maximised' : 'normal'),
       heading: (view) => view.delayDiagnosticsReport?.heading,
       entries: (view) => tableWindowEntries(view.delayDiagnosticsReport),
+    },
+  ],
+  [
+    'Resource List',
+    {
+      frame: (rowId) => resourceListShown(rowId === RESTORE_ENTRY ? 'maximised' : 'normal', rowId === 'IC-67'),
+      heading: (view) => view.resourceList?.heading,
+      entries: (view) => tableWindowEntries(view.resourceList),
     },
   ],
   [
@@ -2484,23 +2524,27 @@ const SEARCH_PANEL_READS: Readonly<
       return menu?.kind === 'values' ? menu.values.find((one) => one.value === 'hide')?.label : undefined
     },
   },
-  nothingChecked: {
+  nothingHidden: {
     frame: SEARCH_TASKS_SHOWN,
     read: (view) => view.searchPanel?.entryRefusals?.find((one) => one.icon === 'IC-143')?.reason,
   },
-  showOnlyCheckedBar: {
-    frame: SEARCH_SHOWING_ONLY_CHECKED,
-    read: (view) => countSlotsOf(view.searchPanel?.showOnlyCheckedBar?.text),
+  scheduleFilterBar: {
+    frame: SEARCH_SCHEDULE_FILTERED,
+    read: (view) => countSlotsOf(view.scheduleFilterBar?.text, view.searchPanel?.heading),
   },
-  showAll: {
-    frame: SEARCH_SHOWING_ONLY_CHECKED,
-    read: (view) => view.searchPanel?.showOnlyCheckedBar?.showAllLabel,
+  scheduleFilterOff: {
+    frame: SEARCH_SCHEDULE_FILTERED,
+    read: (view) => view.scheduleFilterBar?.scheduleFilterOffLabel,
   },
 }
 
 for (const entry of GENERATED['searchPanel'] ?? []) {
   const part = keyOf('searchPanel', entry)
   const reading = SEARCH_PANEL_READS[part]
+  if (part === 'tableNameSeparator') {
+    drop('searchPanel', part, 'the joining word stands only inside the {tables} slot of the band (TV-11, X-14), and a cell-naming word holds no slot to put it in')
+    continue
+  }
   if (reading === undefined) {
     drop('searchPanel', part, 'no requirement of FR-151 names where this part of the Search Panel is printed')
     continue
@@ -2514,6 +2558,16 @@ for (const entry of GENERATED['searchPanel'] ?? []) {
     frame: reading.frame,
     read: reading.read,
   })
+}
+
+for (const section of ['resourceListColumns', 'resourceList']) {
+  for (const entry of GENERATED[section] ?? []) {
+    drop(
+      section,
+      keyOf(section, entry),
+      'the Resource List window is held by the shell and never by the session (S-545); this file raises it only for its heading and its entries (IC-52), and its column words and (Unassigned) are read off the view by the CR-722 tests',
+    )
+  }
 }
 
 for (const section of ['delayReportColumns', 'delayReportStatuses', 'delayReportSummary', 'delayReportMarkdown', 'delayReportReasons', 'delayReportAspects', 'delayReportWalls']) {
@@ -2848,12 +2902,13 @@ const propertyFieldFramesShowing = (
 
 // see TV-11
 // WHY: the band fills {total} and {shown} with counts, so the word is matched with its slots open.
-const COUNT_SLOTTED_SEARCH_PANEL_PARTS: ReadonlySet<string> = new Set(['showOnlyCheckedBar'])
+const COUNT_SLOTTED_SEARCH_PANEL_PARTS: ReadonlySet<string> = new Set(['scheduleFilterBar'])
 const countSlottedFramesShowing = (
   word: string,
   language: string,
 ): readonly { readonly what: string; readonly frame: Frame }[] => {
-  const pattern = new RegExp(`^${word.split(/\{total\}|\{shown\}/).map(escapeForRegExp).join('[0-9]+')}$`)
+  const slot = (one: string): string => (one === '{tables}' ? '.+' : one.startsWith('{') ? '[0-9]+' : escapeForRegExp(one))
+  const pattern = new RegExp(`^${word.split(/(\{total\}|\{shown\}|\{tables\})/).map(slot).join('')}$`)
   return FRAMES.filter((one) =>
     stringsOfView(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
   )

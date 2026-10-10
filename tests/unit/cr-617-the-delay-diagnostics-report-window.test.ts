@@ -89,8 +89,8 @@ const withWord = (word: string): DelayDiagnosticsReportWindow => ({
 })
 
 
-// see T-347
-const REPORT_ORDER: readonly string[] = ['DT-1', 'DT-3', 'DT-4', 'DT-2', 'DT-5', 'DT-6', 'DT-7']
+// see T-347, DT-8
+const REPORT_ORDER: readonly string[] = ['DT-8', 'DT-1', 'DT-3', 'DT-4', 'DT-2', 'DT-5', 'DT-6', 'DT-7']
 
 describe('T-347 -- the rows of the report table (FR-134, DT-1)', () => {
   const rows = delayDiagnosticsReportRows(REPORT, SCHEDULE)
@@ -125,9 +125,9 @@ describe('T-347 -- the rows of the report table (FR-134, DT-1)', () => {
 describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
   const view = viewOf(OPENED_DELAY_DIAGNOSTICS_REPORT)
 
-  it('RW-2: the title row holds IC-153 by the name, then IC-127, IC-129, IC-130 and IC-52, and no IC-118 or IC-119', () => {
+  it('RW-2: the title row holds IC-153 and IC-143 by the name, then IC-127, IC-129, IC-130 and IC-52, and no IC-118 or IC-119', () => {
     expect(view?.titleEntries.map((one) => one.icon)).toEqual(['IC-127', 'IC-129', 'IC-130', 'IC-52'])
-    expect(view?.tableEntries.map((one) => one.icon)).toEqual(['IC-153'])
+    expect(view?.tableEntries.map((one) => one.icon)).toEqual(['IC-153', 'IC-143'])
     expect(view?.tableEntries[0]?.isEnabled).toBe(false)
   })
 
@@ -141,7 +141,7 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
     expect(view?.summary).toHaveLength(8)
   })
 
-  it('T-347: the columns are DT-1, DT-3, DT-4, DT-2, DT-5, DT-6, DT-7, and the name cell DT-4 is the one a press jumps from', () => {
+  it('T-347: the columns are DT-8, DT-1, DT-3, DT-4, DT-2, DT-5, DT-6, DT-7, and the name cell DT-4 is the one a press jumps from', () => {
     expect(view?.columns.map((one) => one.column)).toEqual(REPORT_ORDER)
     expect(view?.jumpAt).toBe(REPORT_ORDER.indexOf('DT-4'))
   })
@@ -150,7 +150,7 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
     const columns = view?.columns ?? []
     const sizing = unmeasuredSizing(16)
     expect(columns.map((one) => columnWidthPx(one, sizing))).toEqual(
-      [null, null, 'S-478', 'S-476', null, null, 'S-481'].map((row) =>
+      ['S-496', null, null, 'S-478', 'S-476', null, null, 'S-481'].map((row) =>
         row === null ? sizing.floor : NOT_STORED_SEARCH_PANEL_SIZES[row as keyof typeof NOT_STORED_SEARCH_PANEL_SIZES],
       ),
     )

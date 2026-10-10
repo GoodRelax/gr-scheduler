@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import { installAgentApi } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import type { ScreenPart } from '../../src/adapter/screen-renderer/screen-renderer'
+import displayWords from '../../src/adapter/screen-renderer/display-words.json'
 import { bareAll } from '../contract/spec-table'
 import { keyOf, taskGroupDocument, rowOf, shell, TEMPLATE, type ShellBench } from './cr-541-stage'
 
@@ -57,10 +58,14 @@ const seat = (uid: number, taskUid: number | null, resourceUid: number | null): 
   carryElements: [],
 })
 
-const rosterOf = (built: ShellBench): readonly any[] => {
-  const modal: any = built.last().openModal
-  return modal?.surface === ROSTER ? modal.resources : []
-}
+// WHY: CR-722 RO-1 -- the Resource List is a window of its own (ScreenView.resourceList), its rows those of table T-371.
+const RESOURCE_COUNT_AT = 3
+const RESOURCE_TASKS_AT = 4
+const rosterOf = (built: ShellBench): readonly { uid: number; isSelected: boolean; cells: readonly string[] }[] =>
+  (built.last().resourceList?.rows ?? []).flatMap((row) =>
+    typeof row.key === 'number' ? [{ uid: row.key, isSelected: row.chosenEntry?.icon === 'IC-67', cells: row.cells }] : [],
+  )
+const NO_NAME_WORDS = Object.values(displayWords.searchPanel.find((one) => one.part === 'noName')?.text ?? {})
 
 describe('FR-099 (DFC-541 1) -- the roster\'s chosen assignees follow the document', () => {
   it('after the chosen assignee is deleted, a second press of IC-66 finds nobody chosen and carries RS-27 unseen (CR-712), not a refusal naming a gone assignee', () => {
@@ -85,10 +90,11 @@ describe('CD-5 / FR-099 (DFC-540 7) -- the roster counts what an assignment poin
       assignments: [seat(91, null, 41)],
     })
     take(built, 'Command Palette', 'IC-62')
-    const [anna, boris] = rosterOf(built)
-    expect(anna?.isReferenced, 'CD-5: the assignment points at Anna').toBe(true)
-    expect(anna?.unassignedTaskNames, 'there is no Task to name').toEqual([])
-    expect(boris?.isReferenced, 'control: nobody points at Boris').toBe(false)
+    const [anna] = rosterOf(built)
+    expect(anna?.cells[RESOURCE_COUNT_AT], 'RQ-4: there is no Task to count').toBe('0')
+    expect(anna?.cells[RESOURCE_TASKS_AT], 'RQ-5: there is no Task to name').toBe('')
+    take(built, ROSTER, 'IC-65')
+    expect(rosterOf(built).filter((one) => one.isSelected).map((one) => one.uid), 'CD-5: IC-65 leaves Anna, whom the assignment points at').toEqual([42])
   })
 
   it('a Task that is not in the document is not listed, a Task without a name is listed as null', () => {
@@ -100,8 +106,9 @@ describe('CD-5 / FR-099 (DFC-540 7) -- the roster counts what an assignment poin
     benches.push(built)
     take(built, 'Command Palette', 'IC-62')
     const [anna, boris] = rosterOf(built)
-    expect(anna?.unassignedTaskNames, 'Task 77 is not there, so it is not named').toEqual(['Task1'])
-    expect(boris?.unassignedTaskNames, 'FR-099: an unnamed Task is told apart from a missing one').toEqual([null])
+    expect(anna?.cells[RESOURCE_TASKS_AT], 'Task 77 is not there, so it is not named').toBe('Task1')
+    expect(anna?.cells[RESOURCE_COUNT_AT], 'RQ-4: nor counted').toBe('1')
+    expect(NO_NAME_WORDS, 'RQ-5: an unnamed Task is told apart from a missing one').toContain(boris?.cells[RESOURCE_TASKS_AT])
   })
 })
 

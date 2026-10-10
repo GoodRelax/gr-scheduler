@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { clearEntryOf, tableWithViewsCleared } from '../../src/adapter/screen-renderer/table-window'
-import { searchPanelWithColumnWidth, searchPanelWithShownTasks, searchPanelWithTableViewsCleared } from '../../src/adapter/screen-renderer/search-panel'
+import { searchPanelWithColumnWidth, searchPanelWithTableViewsCleared } from '../../src/adapter/screen-renderer/search-panel'
 import { delayDiagnosticsReportAfterFilterChange, delayDiagnosticsReportWithColumnWidth } from '../../src/adapter/screen-renderer/delay-diagnostics-report'
 import {
   COMMENT_PANEL,
@@ -52,12 +52,9 @@ describe('CR-721 the manuscript these cases are driven by', () => {
   })
 })
 
-// WHY: a word, a column width, two checked tasks and Show-only-checked stand for what the clear must leave alone.
-const KEPT: SearchPanelSession = searchPanelWithShownTasks(
-  searchPanelWithColumnWidth({ ...TASK_PANEL, word: 'al', showOnlyChecked: true }, 'SQ-1', 333),
-  [1, 2],
-  true,
-)
+// WHY: a word, a column width, one Hide row and the Schedule Filter on stand for what the clear must leave alone (CR-722 TV-2).
+const KEPT_VISIBILITY = { hiddenKeys: [3], isUnassignedHidden: false, isApplied: true }
+const KEPT: SearchPanelSession = searchPanelWithColumnWidth({ ...TASK_PANEL, word: 'al', visibility: KEPT_VISIBILITY }, 'SQ-1', 333)
 
 const filteredAndSorted = (): SearchPanelSession => {
   const sorted = pressed(opened('SQ-1', KEPT), 'IC-123')
@@ -113,8 +110,7 @@ describe('FR-151 T-330 SV-1 -- what the clear keeps: the words, the Visibility v
   it('the word, the checked tasks, Show only checked and a dragged width are as they were', () => {
     const after = searchPanelWithTableViewsCleared(filteredAndSorted())
     expect(after.word).toBe('al')
-    expect(after.shownTaskUids).toEqual([1, 2])
-    expect(after.showOnlyChecked).toBe(true)
+    expect(after.visibility).toEqual(KEPT_VISIBILITY)
     expect(columnOf(viewOf(after), 'SQ-1').width).toBe(333)
     expect(after.table).toBe('tasks')
   })
@@ -124,8 +120,7 @@ describe('FR-151 T-330 SV-1 -- what the clear keeps: the words, the Visibility v
     const hidden = changed(there, { kind: 'value', column: 'SQ-10', value: valuesOf(there).values[0]?.value ?? '', isShown: false })
     expect(viewOf(hidden).columns.some((one) => one.column === 'SQ-10' && one.isFiltered), 'premise: the Visibility column is filtered').toBe(true)
     const after = searchPanelWithTableViewsCleared(hidden)
-    expect(after.shownTaskUids).toEqual([1, 2])
-    expect(after.showOnlyChecked).toBe(true)
+    expect(after.visibility).toEqual(KEPT_VISIBILITY)
   })
 })
 

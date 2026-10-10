@@ -632,7 +632,6 @@ export interface ScreenViewReadings {
   readonly iconUnderPointer: IconId | null
   readonly isPointerOnHelp?: boolean
   readonly isPointerOnSearchPanel?: boolean
-  // see TV-5, FR-092
   readonly tableWindowUnderPointer?: VisibilityTable | null
   readonly hintHolderUnderPointer?: Extract<TooltipAnchor, { readonly taskUid: number }> | null
   readonly iconRowUnderPointer?: string | null
@@ -695,9 +694,7 @@ export interface ScreenViewReadings {
   } | null
   // see SQ-5, S-445
   readonly bottleneckUids?: ReadonlySet<number>
-  // see RO-1, S-545, S-546
   readonly resourceList?: TableWindowState | null
-  // see TV-1, TV-11
   // WHY: the tasks the product draws (null while no Schedule Filter is on); the band counts them.
   readonly drawnTaskUids?: ReadonlySet<number> | null
 }
@@ -725,7 +722,6 @@ function delayDiagnosticsReportOf(
   return delayDiagnosticsReportFromWindow(session, held?.window ?? null, held?.report ?? null, schedule, { canvas, textSizeStep })
 }
 
-// see FR-099, T-370, RO-2
 /** @purity pure */
 function resourceListOf(session: ScreenSession, readings: ScreenViewReadings, schedule: Schedule, canvas: ScreenRect): ResourceListView | null {
   const textSizeStep = (readings.searchPanel ?? emptySearchPanelSession).textSizeStep
@@ -744,12 +740,27 @@ export function scheduleFilteredTablesOf(readings: ScreenViewReadings): readonly
   ]
 }
 
-// see TV-11, U-67
 /** @purity pure */
 function scheduleFilterBarIn(readings: ScreenViewReadings, schedule: Schedule, language: DisplayLanguage): ScheduleFilterBarView | null {
   const drawn = readings.drawnTaskUids ?? null
   const drawnCount = drawn === null ? schedule.tasks.length : schedule.tasks.filter((task) => drawn.has(task.uid)).length
   return scheduleFilterBarOf(scheduleFilteredTablesOf(readings), schedule, drawnCount, language)
+}
+
+/** @purity pure */
+function tableWindowsOf(
+  session: ScreenSession,
+  readings: ScreenViewReadings,
+  schedule: Schedule,
+  canvas: ScreenRect,
+): Pick<ScreenView, 'searchPanel' | 'delayDiagnosticsReport' | 'resourceList' | 'scheduleFilterBar'> {
+  const panel = readings.searchPanel ?? emptySearchPanelSession
+  return {
+    searchPanel: searchPanelFromSession(session, panel, schedule, canvas, readings.bottleneckUids),
+    delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, schedule, canvas),
+    resourceList: resourceListOf(session, readings, schedule, canvas),
+    scheduleFilterBar: scheduleFilterBarIn(readings, schedule, displayLanguageOf(session)),
+  }
 }
 
 // see WB-1, WB-3, WB-8
@@ -823,16 +834,7 @@ export function screenViewFromRegions(
     notices: noticesFromSession(session, readings),
     confirmation: confirmationFromSession(session, readings),
     dialogueField: dialogueFieldFromLog(dialogueLog, session, readings, regions.scheduleCanvas),
-    searchPanel: searchPanelFromSession(
-      session,
-      readings.searchPanel ?? emptySearchPanelSession,
-      schedule,
-      regions.scheduleCanvas,
-      readings.bottleneckUids,
-    ),
-    delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, schedule, regions.scheduleCanvas),
-    resourceList: resourceListOf(session, readings, schedule, regions.scheduleCanvas),
-    scheduleFilterBar: scheduleFilterBarIn(readings, schedule, language),
+    ...tableWindowsOf(session, readings, schedule, regions.scheduleCanvas),
   }
 
   const echo = session.screen.scaleMessageDisplayState

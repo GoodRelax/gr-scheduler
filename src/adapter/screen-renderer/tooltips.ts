@@ -369,7 +369,6 @@ function surfaceAnchorOf(readings: ScreenViewReadings): { readonly surface?: str
   return {}
 }
 
-// see TV-5, FR-092
 // WHY: IC-143 sits in the three table windows; the refusal is the one of the window under the pointer.
 /** @purity pure */
 function entryRefusalUnderPointer(shown: Omit<ScreenView, 'tooltips'>, readings: ScreenViewReadings, icon: IconId): string | null {

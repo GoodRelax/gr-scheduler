@@ -185,11 +185,9 @@ export interface InputContext {
   readonly focusedWindow?: WindowName | null
   readonly isFocusInPropertiesPanel?: boolean
   readonly isAgentApiEnabled?: boolean
-  // see RW-1, RW-5, S-451
+  // see RW-1, RW-5, RO-1, RO-6, S-451, S-545
   readonly delayDiagnosticsReport?: { readonly shown: 'normal' | 'minimised' | 'maximised'; readonly isInFront: boolean } | null
-  // see RO-1, RO-6, S-545
   readonly resourceList?: { readonly shown: 'normal' | 'minimised' | 'maximised'; readonly isInFront: boolean } | null
-  // see RO-3, IC-63, IC-65
   // WHY: the resources the Resource List lists after its word and filters; absent, every resource of the document.
   readonly listedResourceUids?: readonly number[]
   readonly isSurfaceStanding: boolean
@@ -1250,8 +1248,6 @@ function resourceListChoiceCommand(entry: string, context: InputContext): Transl
   return isIdle ? nothingToDo(null) : acted({ kind: 'chooseResources', uids })
 }
 
-// see RO-3, RO-5
-// WHY: IC-63 and IC-65 choose among the listed resources; the (Unassigned) row is never listed here (RO-5).
 /** @purity pure */
 function resourceListChoiceOfEntry(entry: string, schedule: Schedule, listedUids?: readonly number[]): readonly number[] {
   if (entry === ENTRY.resourceListClearChosen) return []

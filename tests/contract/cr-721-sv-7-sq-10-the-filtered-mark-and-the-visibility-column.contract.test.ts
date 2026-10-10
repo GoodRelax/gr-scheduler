@@ -3,7 +3,6 @@
 import { describe, expect, it } from 'vitest'
 
 import { delayDiagnosticsReportAfterFilterChange } from '../../src/adapter/screen-renderer/delay-diagnostics-report'
-import { searchPanelWithShownTasks } from '../../src/adapter/screen-renderer/search-panel'
 import {
   OPENED_DELAY_DIAGNOSTICS_REPORT,
   TASK_PANEL,
@@ -50,8 +49,14 @@ describe('CR-721 the manuscript these cases are driven by', () => {
   })
 })
 
+// WHY: CR-722 TV-2 -- every row starts as Show, so a case that needs some rows Hide hides every task but the named ones.
+const onlyShown = (panel: typeof TASK_PANEL, uids: readonly number[]): typeof TASK_PANEL => ({
+  ...panel,
+  visibility: { ...panel.visibility, hiddenKeys: TASK_UIDS.filter((uid) => !uids.includes(uid)) },
+})
+
 // WHY: a value list holds one item per value the cells carry (SV-7), so both words need one checked and one unchecked task.
-const MIXED = searchPanelWithShownTasks(TASK_PANEL, [1], true)
+const MIXED = onlyShown(TASK_PANEL, [1])
 
 const filteredColumns = (panel: typeof TASK_PANEL): readonly string[] =>
   viewOf({ ...panel, filters: { ...panel.filters, open: null } }).columns.filter((one) => one.isFiltered).map((one) => one.column)
@@ -129,15 +134,15 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
     }
   })
 
-  it('a task is Hide until its uid is checked, then Show', () => {
+  it('CR-722 TV-2: a task is Show until its row is unchecked, then Hide', () => {
     const before = viewOf(TASK_PANEL).rows.map((one) => one.shown)
-    expect(before.every((shown) => shown === false)).toBe(true)
-    const after = viewOf(searchPanelWithShownTasks(TASK_PANEL, [TASK_UIDS[1] ?? 0], true)).rows.map((one) => one.shown)
-    expect(after).toEqual([false, true, false])
+    expect(before.every((shown) => shown === true)).toBe(true)
+    const after = changed(TASK_PANEL, { kind: 'shown', column: 'SQ-10', keys: [TASK_UIDS[1] ?? 0], isShown: false })
+    expect(viewOf(after).rows.map((one) => one.shown)).toEqual([true, false, true])
   })
 
   it('SV-8: ascending puts Show before Hide, descending the reverse, ties in the default order', () => {
-    const checked = searchPanelWithShownTasks(TASK_PANEL, [3], true)
+    const checked = onlyShown(TASK_PANEL, [3])
     const order = (entry: string): readonly number[] =>
       viewOf(pressed(opened('SQ-10', checked), entry)).rows.map((one) => (one.target.kind === 'task' ? one.target.taskUid : -1))
     expect(order('IC-123')).toEqual([3, 1, 2])
@@ -145,7 +150,7 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
   })
 
   it('unchecking Hide in its filter leaves only the checked tasks in the table', () => {
-    const checked = searchPanelWithShownTasks(TASK_PANEL, [2], true)
+    const checked = onlyShown(TASK_PANEL, [2])
     const panel = withValueOff('SQ-10', panelWordOf('hideValue', 'ja'), checked)
     expect(viewOf(panel).rows.map((one) => (one.target.kind === 'task' ? one.target.taskUid : -1))).toEqual([2])
   })
@@ -162,21 +167,21 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
 })
 
 describe('FR-151 T-331 SQ-10 -- the heading box shows all, some or none of the listed rows', () => {
-  it('none, some and all are read over the rows the list shows', () => {
-    expect(viewOf(TASK_PANEL).showHeading).toBe('none')
-    expect(viewOf(searchPanelWithShownTasks(TASK_PANEL, [1], true)).showHeading).toBe('some')
-    expect(viewOf(searchPanelWithShownTasks(TASK_PANEL, TASK_UIDS, true)).showHeading).toBe('all')
+  it('none, some and all are read over the rows the list shows (all at first, CR-722 TV-2)', () => {
+    expect(viewOf(TASK_PANEL).showHeading).toBe('all')
+    expect(viewOf(onlyShown(TASK_PANEL, [])).showHeading).toBe('none')
+    expect(viewOf(onlyShown(TASK_PANEL, [1])).showHeading).toBe('some')
   })
 
   it('a word that lists one row makes that row the whole list', () => {
-    const narrowed = { ...searchPanelWithShownTasks(TASK_PANEL, [1], true), word: 'alpha' }
+    const narrowed = { ...onlyShown(TASK_PANEL, [1]), word: 'alpha' }
     expect(viewOf(narrowed).rows.length, 'premise: the word lists one row').toBe(1)
     expect(viewOf(narrowed).showHeading).toBe('all')
   })
 
   it('pressing the heading box with every listed row in takes every listed row out', () => {
-    const all = searchPanelWithShownTasks(TASK_PANEL, TASK_UIDS, true)
-    const out = changed(all, { kind: 'shown', column: 'SQ-10', taskUids: TASK_UIDS, isShown: false })
+    const all = onlyShown(TASK_PANEL, TASK_UIDS)
+    const out = changed(all, { kind: 'shown', column: 'SQ-10', keys: TASK_UIDS, isShown: false })
     expect(viewOf(out).showHeading).toBe('none')
   })
 })
