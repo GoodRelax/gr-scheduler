@@ -43,7 +43,7 @@ const T_262_NOT_FOR_MK_2 = '⚠️ 本表は `MK-2`（両軸のズーム）に�
 const UN_8_ZOOM_IS_NO_STEP = '⚠️ 縦軸のズームは、もともと取り消しの対象外である（表 T-027 の `UN-8`）'
 const FR_031_SHRINK_TWO_WRITES = '⭐ 縦軸を縮める 1 回の入力も、同じ形で 2 つの書き込みに分けること（MUST）'
 const FR_031_AT_THE_END_ONLY_THE_TREE = '⚠️ 縮める側の端で倍率を書き換えないとき（`FR-016` の 表 T-262 の `ZE-2`）は ① を書かず、② だけを書く'
-const FR_018_ONLY_T_328 = '⭐ 値を書き換える入口と先の値は、段 0 の畳み（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST） —— 同表に無い操作で値を書き換えてはならない（MUST NOT）'
+const FR_018_ONLY_T_328 = '⭐ 値を書き換える入口と先の値は、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST） —— 同表に無い操作で値を書き換えてはならない（MUST NOT）'
 
 describe('CR-423 -- the manuscript these cases are driven by', () => {
   it.each([

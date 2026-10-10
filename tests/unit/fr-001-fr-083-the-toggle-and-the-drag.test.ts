@@ -176,7 +176,7 @@ const REQUIREMENTS = unbroken(readFileSync(
 const SP_4_DOES_NOT_TURN_ON_THE_SELECTION = '*`SP-4` は選択の有無で変わらないこと（MUST）'
 
 const SP_4_DISARM_IS_NOT_REFUSED_FOR_A_SELECTION =
-  '構えを解くかどうかを人が選べるようにする。**既に構えている入口を再び押したなら、何を選んでいても構えは解ける。**⛔ 選んでいるものが在ることを理由に、この解除を拒んではならない（MUST NOT）'
+  '構えを解除するかどうかを人が選べるようにする。**既に構えている入口を再び押したなら、何を選んでいても構えは解除される。**⛔ 選んでいるものが在ることを理由に、この解除を拒んではならない（MUST NOT）'
 
 const T_023B_THE_REPRESS_MEANS_THE_SAME =
   '`、またはパレットの同じ入口の再押下とすること（MUST）**（入口はトグルとし、解く手を人が選べるようにする） —— ⛔ 選んでいるものの有無で、この再押下の意味を変えてはならない（MUST NOT）'
@@ -259,7 +259,7 @@ const PD_4_NOTHING_IS_WRITTEN_WHILE_HELD =
 
 /** ⚠️ HELD AT 60 -- the longer windows reach back across the paragraph break. */
 const FR_091_ONE_PRESS_CLOSES_AND_LETS_GO =
-  '後の名称を `Enter` で確定したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解くこと（MUST）'
+  '後の名称を `Enter` で確定したときは、同じ 1 回の押下でプロパティパネルを閉じ、その選択を解除すること（MUST）'
 
 /** Every clause this file holds, with the name the two rulings know it by. */
 const CLAUSES: readonly (readonly [string, string])[] = [
@@ -1330,7 +1330,7 @@ describe('FR-091: the created name is settled by ONE press', () => {
   })
 
   // ⛔⛔ FR-072's HALF IS NOT DRIVEN HERE, AND IT IS NAMED RATHER THAN CLAIMED
-  // AWAY. Its MUST NOT -- 「パネルを出すのをやめても、選択を解いてはならない」 (利用者
+  // AWAY. Its MUST NOT -- 「パネルを出すのをやめても、選択を解除してはならない」 (利用者
   // の裁定 2026-08-30) -- is about a rename made LATER, and the only road to a
   // later rename is MK-13's double click on a task that is already drawn, which
   // this fixture's screen has no `Hit` to answer with (`pressed.hit` is `null`
@@ -1361,7 +1361,7 @@ describe('FR-091: the created name is settled by ONE press', () => {
   })
 
   it('⛔ FR-091 (MUST NOT): the arming stands through that press', () => {
-    // 「構えはこの押下で解けない（MUST NOT）—— 構えの持続は 表 T-023b が定めており、
+    // 「構えはこの押下で解除されない（MUST NOT）—— 構えの持続は 表 T-023b が定めており、
     // 解除は `Esc` と同じ入口の再押下だけである」, which is the 構えは続き half of
     // 利用者の逐語 above.
     const built = drawnTask()

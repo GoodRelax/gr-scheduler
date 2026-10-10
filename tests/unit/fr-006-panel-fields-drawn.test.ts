@@ -64,7 +64,7 @@
 //               so two same-named people stay two candidates in the chooser.
 //   T-103 U-25  the settled name `Properties Panel`, which W-4 of table T-006a
 //               (MUST) carries into the DOM as a `data-role`.
-//   FR-072      ⛔ 「**パネルの先頭に見出しの行を置いてはならない（MUST NOT）**
+//   FR-072      ⛔ 「**パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**
 //               （利用者の指示 2026-08-27）—— **押下状態が同じことを既に示してお
 //               り、見出しは同じ答えを 2 か所で言っていた。**⭐ **落とした高さは、
 //               最も頻繁に触る項目が上へ来るぶんである**（表 T-016 の刷る順）。」
@@ -1072,7 +1072,7 @@ const ASSIGNEE_FIELD: PropertyField = {
 
 /**
  * ⛔ NO HEADING IS OFFERED, because FR-072 (MUST NOT) refuses the panel one:
- * 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**（利用者の指示
+ * 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**（利用者の指示
  * 2026-08-27）—— **押下状態が同じことを既に示しており、見出しは同じ答えを 2 か所
  * で言っていた。**」 (CR-272; the fixture carried one until that row moved.)
  *
@@ -1299,7 +1299,7 @@ function firstWordsDrawn(panel: FakeElement): string {
 
 describe('FR-072 (MUST NOT) -- no heading row stands at the head of the panel', () => {
   it('⛔ draws the panel\'s first item first, and nothing above it', () => {
-    // FR-072: 「⛔ **パネルの先頭に見出しの行を置いてはならない（MUST NOT）**
+    // FR-072: 「⛔ **パネルの先頭にタイトルバーを置いてはならない（MUST NOT）**
     // （利用者の指示 2026-08-27）—— **押下状態が同じことを既に示しており、見出しは
     // 同じ答えを 2 か所で言っていた。**⭐ **落とした高さは、最も頻繁に触る項目が上
     // へ来るぶんである**（表 T-016 の刷る順）。」 ⭐ THE HEIGHT IS THE POINT: what

@@ -10,7 +10,7 @@
 // ---------------------------------------------------------------------------
 //
 // On 2026-08-31 the 場面 of `RS-30` was rewritten and the dictionary was not.
-// A person who pressed a spent `IC-90` was told DFC-166 「この行は既に畳まれています」
+// A person who pressed a spent `IC-90` was told DFC-166 「この行は既に折りたたまれています」
 // while the reason the notice was raised for was that the task group was NOT folded.
 // ⛔ EVERY MACHINE CHECK STAYED GREEN, because they all ask whether the row's
 // word REACHED the screen and never whether it says what the row says:
@@ -206,19 +206,19 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // origin record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  'RS-22': '24811e339ceb651f',
+  'RS-22': '653c7f3c181a890a',
   'RS-23': '35646140a764e5e2',
   'RS-24': 'b0d947880efec7e6',
   'RS-25': '0ede3e728aff5d5c',
   'RS-26': '8edc74bc14553b8e',
   'RS-27': '173885a124f06ac3',
-  'RS-28': 'ca3b75685ba06995',
-  'RS-29': '63120010bec78be3',
-  'RS-30': '09d5db2e53a6e7ea',
+  'RS-28': '0e965ecd20e51dbd',
+  'RS-29': '89c449ebe78c5a57',
+  'RS-30': '376c4c7494bbc330',
   // WHY: CR-570 rewrote the scene to 'no task group is left undrawn'; read against the words (every task group open
   // and drawn; fold a task group or zoom out vertically) they still tell it, so only the fingerprint is re-keyed.
-  'RS-31': 'f7b48481687e24dc',
-  'RS-32': '2e79c67916d28ef5',
+  'RS-31': '7fd52c9a611496f8',
+  'RS-32': '0f0c514d32fcb421',
   'RS-33': '140b0a58e73b1f52',
   'RS-34': '89ad57e7d522bc58',
   'RS-36': '8be4f91d1c036f2e',
@@ -230,7 +230,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
   'RS-42': '935fc971ed4c12fc',
-  'RS-43': '82801203805502a2',
+  'RS-43': '47681049c5cc8b79',
   'RS-44': '40451d7ffa68e3c6',
   // ---------------------------------------------------------------------
   // ⭐ READ AGAINST EACH OTHER ON 2026-09-03 (CR-340, ledger rows DFC-202 and
@@ -420,7 +420,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  'RS-54': '316af57e6beee5e8',
+  'RS-54': '992dcf8a4d100136',
   // -----------------------------------------------------------------------
   // ⭐ READ AGAINST EACH OTHER ON 2026-09-09 (the four write refusals table
   // T-233 gained with 表 T-015a の `HM-4` / `FR-009` / `IV-1` / `IV-10` for
@@ -461,7 +461,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   is this row's. The words name only the first, so they cannot be read
   //   over a refusal this row is not carried for.
   // ⭐ THE NEXT STEP IS THE ROAD THE SAME CLAUSE LEAVES STANDING: 「引きかけの
-  //   矢印だけを捨てて構えは解かない」, so the arming survives the refusal and
+  //   矢印だけを捨てて構えは解除しない」, so the arming survives the refusal and
   //   drawing to another task is the very next thing a person can do.
   // ⇒ the words tell the scene.
   'RS-56': '772c6497e64774be',

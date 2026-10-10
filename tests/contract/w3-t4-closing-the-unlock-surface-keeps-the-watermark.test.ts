@@ -8,8 +8,8 @@ import { describe, expect, it } from 'vitest'
 import { REQUIREMENTS, shellStage, surfaceOfEntrance } from './cr-610-file-flow-stage'
 
 const WM_9_KEEP =
-  ' の「面」である（MUST） —— `Esc` の「開いている面」の段で閉じる（表 T-028 の `IN-4`）。⛔ **閉じたときに透かしを消してはならない（MUST NOT）'
-const WM_6_SURFACE = '透かしを消す入口（表 T-109 の `IC-41`）が押されたとき、透かし解除の面（`_assets/tbl-glossary.md` の 表 T-103 の `U-60`）を立てること（MUST）。'
+  ' の「面」である（MUST） —— `Esc` の「開いている面」の段で閉じる（表 T-028 の `IN-4`）。⛔ **閉じたときに透かしを非表示にしてはならない（MUST NOT）'
+const WM_6_SURFACE = '透かしを非表示にする入口（表 T-109 の `IC-41`）が押されたとき、透かし解除の面（`_assets/tbl-glossary.md` の 表 T-103 の `U-60`）を立てること（MUST）。'
 
 const UNLOCK_SURFACE = 'Watermark Unlock'
 

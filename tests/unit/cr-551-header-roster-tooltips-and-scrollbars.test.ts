@@ -138,7 +138,7 @@ describe('IC-100 -- the monochrome entrance', () => {
   })
 })
 
-const RR_6 = '閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）を、面の見出しの行の右端（面の右上）に置くこと（MUST）'
+const RR_6 = '閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）を、面のタイトルバーの右端（面の右上）に置くこと（MUST）'
 
 const ROSTER = bare(verticalIn('T-103', 'U-49')?.by['確定名（英）'] ?? '') || 'Resource List'
 
@@ -161,11 +161,11 @@ function headingRowOf(root: FakeElement, heading: string): HeadingRow {
 const elementChildren = (element: FakeElement): FakeElement[] => element.children.filter((one) => one.tagName !== undefined)
 
 describe('RR-6 -- the roster closes from the right end of its heading row', () => {
-  it('RR-6 still says: 面の見出しの行の右端（面の右上）に置く', () => {
+  it('RR-6 still says: 面のタイトルバーの右端（面の右上）に置く', () => {
     expect(REQUIREMENTS).toContain(RR_6)
   })
 
-  it('RR-6: 面の見出しの行の右端 -- IC-52 is the last entrance in the roster heading row', () => {
+  it('RR-6: 面のタイトルバーの右端 -- IC-52 is the last entrance in the roster heading row', () => {
     // see RR-6
     const built = bench(oneTaskGroupDocument())
     built.press('Command Palette', 'IC-62')
@@ -178,7 +178,7 @@ describe('RR-6 -- the roster closes from the right end of its heading row', () =
     expect(kids[kids.length - 1] === close || kids[kids.length - 1]?.contains?.(close as never) === true, 'RR-6: at the right end').toBe(true)
   })
 
-  it('RR-6: FR-036 がヘルプの題の行に定める置き方と同じ -- in both, the heading row pushes IC-52 to its right end', () => {
+  it('RR-6: FR-036 がヘルプのタイトルバーに定める置き方と同じ -- in both, the heading row pushes IC-52 to its right end', () => {
     // see RR-6, FR-036
     // WHY: in a flex row, the last child reaches the right end only when something before or on it takes the
     // free room (an auto left margin or a growing sibling); the Help heading row is the reference FR-036 sets.

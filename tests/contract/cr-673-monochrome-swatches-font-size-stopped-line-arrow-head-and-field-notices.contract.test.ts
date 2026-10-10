@@ -303,7 +303,7 @@ describe('CR-673 IC-127 -- the dictionary names IC-127 as it names IC-99', () =>
     it(`${where}: IC-127's label equals IC-99's in ja and in en`, () => {
       const icons = iconsIn(path)
       const ic99 = labelIn(icons, 'IC-99')
-      expect(ic99, 'IC-99 reads 文字サイズ / Font size').toEqual({ ja: '文字サイズ', en: 'Font size' })
+      expect(ic99, 'IC-99 reads 文字サイズ / Font Size').toEqual({ ja: '文字サイズ', en: 'Font Size' })
       expect(labelIn(icons, 'IC-127')).toEqual(ic99)
     })
   }

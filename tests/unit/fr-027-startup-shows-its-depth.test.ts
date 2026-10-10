@@ -523,7 +523,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
 
   it('HF-8 (MUST NOT): boot discards nothing -- the shipped settings still say what they said', () => {
     // HF-8: 「起動のときは働かせてはならない（MUST NOT。表 T-024a の `OP-10`）」,
-    // and OP-10 gives the reason: 「起動のたびに畳みを捨てると、`HR-6` が `WY-1`
+    // and OP-10 gives the reason: 「起動のたびに折りたたみを捨てると、`HR-6` が `WY-1`
     // のために保存させた状態が消える」. FR-051 puts OP-10 on the reading side, so
     // the document itself comes through a boot unedited either way.
     const held = bootFrame.held.documentSettings as DocumentSettings

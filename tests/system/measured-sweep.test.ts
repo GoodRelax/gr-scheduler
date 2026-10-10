@@ -3293,7 +3293,7 @@ async function panelLinesOnScreen(page: Page): Promise<PanelLine[]> {
  *
  * ⛔ THE HEAD'S BAND IS CUT OFF DELIBERATELY, and `HF-12` of table T-051 is the
  * reason: folding every task group 「タスクグループが 1 つも描かれない状態になりうる」 and the head
- * then 「頭にいまいくつのタスクグループを畳み込んでいるかを示すこと（MUST）」. That count stands in
+ * then 「頭にいまいくつのタスクグループを折りたたみ込んでいるかを示すこと（MUST）」. That count stands in
  * the head, above the tree, and it is not a task group -- counting it as one would have
  * a build that obeys `HF-12` reported as drawing a task group the screen does not.
  * `EP-1`'s `Document Title` sits higher still and is cut off by the same edge.

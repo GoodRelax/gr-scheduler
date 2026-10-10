@@ -297,7 +297,7 @@ that 2-cycle *is* the convention (`FR-039 ↔ S-2/S-3`, `MG-13 ↔ S-71`).
 | `check.sh` | every numbered check (the count is on its line 2) |
 | `specindex.py` | shared parser: tables, rows, owners, references |
 | `md-checks.py` | checks 5–10 and 15 (Markdown structure, figure seat numbers) |
-| `style-checks.py` | checks 12–14 (recurring defect types) and 32 (the forbidden word, and the spellings the notation table in section 5 of rule 02 gates; `--self-test`) |
+| `style-checks.py` | checks 12–14 (recurring defect types) and 32 (the forbidden word, the spellings the notation table in section 5 of rule 02 gates, and the Title Case of the dictionary's English names that table's Title Case row lists; `--self-test`) |
 | `impact.py` | blast radius for one object, two hops |
 | `graph.py` | cycles, depth measurement, unit partition |
 | `induced.py` | cycles among the objects one change touches — run before editing |

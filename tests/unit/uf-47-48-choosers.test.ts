@@ -238,7 +238,7 @@ function outDirectionRows(): readonly string[] {
     .map((row) => row.id)
 }
 
-const IN_DIRECTION = '取込'
+const IN_DIRECTION = '取り込み'
 
 // see OP-1
 /** @purity pure */

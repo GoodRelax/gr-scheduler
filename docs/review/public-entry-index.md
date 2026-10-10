@@ -196,7 +196,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `groupDepthThresholdOf` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#groupDepthThresholdOf` | PI-5 | その段を描くのに要る倍率。 |
 | `hasRoomBelowPinsIn` | entry | function | `src/entity/layout-engine/schedule-layout/pinned-band.ts#hasRoomBelowPinsIn` | PI-5 | タスクグループの領域の中で、固定したタスクグループの帯の下に、そのタスクグループを描く余地が残るか。 |
 | `inTreeOrder` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#inTreeOrder` | PI-5 | タスクグループを木の順（`05-07-design.md` の 表 T-068 の `LC-9`）に並べる。 |
-| `isDroppedByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#isDroppedByTreeState` | PI-5 | そのタスクグループが、人が畳んだタスクグループか隠したタスクグループのために描かれないか —— タスクグループそのものが隠されている、祖先が畳まれているか隠されている、段 0 が畳まれている（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）。 |
+| `isDroppedByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#isDroppedByTreeState` | PI-5 | そのタスクグループが、人が折りたたんだタスクグループか隠したタスクグループのために描かれないか —— タスクグループそのものが隠されている、祖先が折りたたまれているか隠されている、段 0 が折りたたまれている（`FR-018` の 表 T-329 の `TD-1` ／ `TD-2` ／ `TD-3`）。 |
 | `keptInViewByTreeState` | entry | function | `src/entity/layout-engine/schedule-layout/group-level-of-detail.ts#keptInViewByTreeState` | PI-5 | `expanded` と `temporarilyExpanded` が倍率によらず描かせるタスクグループ。 |
 | `LabelLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/label-placement.ts#LabelLayout` | PI-5 | 型。 |
 | `labelLayoutOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#labelLayoutOf` | PI-5 | その配置を求める |
@@ -439,9 +439,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchJumpPlan` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpPlan` | PI-9 | 型。 |
 | `searchJumpReachOf` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpReachOf` | PI-9 | 飛ぶ先のタスクの占有（表 T-038）が日付より左へ出ている幅と、1 日の幅を、配置から読む（表 T-332 の `SJ-6`）。 |
 | `SearchJumpTarget` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpTarget` | PI-9 | 型。 |
-| `searchJumpWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpWrites` | PI-9 | 検索の表の行を押して飛ぶときの書き込み —— タスクグループと祖先を開き、表示を寄せる（`FR-151` の 表 T-332）。 |
+| `searchJumpWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpWrites` | PI-9 | 検索の表の行を押して飛ぶときの書き込み —— タスクグループと祖先を展開し、表示を寄せる（`FR-151` の 表 T-332）。 |
 | `SettingsLimits` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#SettingsLimits` | PI-9 | 型。 |
-| `shownTasksRevealWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#shownTasksRevealWrites` | PI-9 | スケジュールフィルタで新たにチェックされたタスクのタスクグループと祖先を開く書き込み（`FR-151` の 表 T-353 の `TV-6`、表 T-332 の `SJ-2`）。 |
+| `shownTasksRevealWrites` | entry | function | `src/use-case/edit-document/search-jump.ts#shownTasksRevealWrites` | PI-9 | スケジュールフィルタで新たにチェックされたタスクのタスクグループと祖先を展開する書き込み（`FR-151` の 表 T-353 の `TV-6`、表 T-332 の `SJ-2`）。 |
 | `TaskCommand` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskCommand` | -- | type TaskCommand = \| |
 | `TaskGroupCommand` | entry | type | `src/use-case/edit-document/edit-task-group.ts#TaskGroupCommand` | -- | type TaskGroupCommand = \| |
 | `TaskMilestoneGlyph` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskMilestoneGlyph` | -- | type TaskMilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']> |
@@ -1313,7 +1313,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `UNTITLED_DOCUMENT_TITLE` | entry | const | `src/adapter/screen-renderer/open-modals.ts#UNTITLED_DOCUMENT_TITLE` | PI-37 | `AT-3` の文書名が `null` のときに見出しへ出す語 `Untitled`。 |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
 | `verticalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#verticalWholeOf` | PI-37 | つまみが表す全体を配置と各部の矩形から測る —— `GR-21` の「内容の範囲といま見えている範囲の和」。 |
-| `windowBoxAfterGrab` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxAfterGrab` | PI-37 | ウィンドウ（`FR-036` の 表 T-335）の題の行の帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、範囲の中と下限（`S-423`・`S-424`）の上に収めて答える（`WB-8`・`WB-9`）。 |
+| `windowBoxAfterGrab` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxAfterGrab` | PI-37 | ウィンドウ（`FR-036` の 表 T-335）のタイトルバーの帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、範囲の中と下限（`S-423`・`S-424`）の上に収めて答える（`WB-8`・`WB-9`）。 |
 | `windowBoxOf` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxOf` | PI-37 | ウィンドウを描く箱を、表示の状態（通常・最小化・最大化）から答える（表 T-335 の `WB-1` 〜 `WB-3`）。 |
 | `windowEdgeAt` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowEdgeAt` | PI-37 | 点が、箱の縁の内と外の掴み代（表 T-023d の `GR-25`、幅は `S-426`）のどの辺か角の上かを答える。 |
 | `WindowName` | entry | type | `src/entity/document-model/screen-state/screen-state.ts#WindowName` | PI-37 | 型。 |

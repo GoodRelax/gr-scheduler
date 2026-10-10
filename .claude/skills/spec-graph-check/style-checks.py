@@ -19,7 +19,11 @@ checks gate the types mechanically, so the next round cannot recreate them.
                                      every spelling the notation table
                                      (section 5 of rule 02) marks 止める,
                                      in the spec, the dictionary and the
-                                     guides (JDG-1857, CR-725)
+                                     guides (JDG-1857, CR-725, JDG-1863);
+                                     and the English names of the screen
+                                     in Title Case, read from the name
+                                     fields that table's Title Case row
+                                     lists (JDG-1862, CR-726)
 
 Usage: python style-checks.py [repo-root] [--self-test]
 Exit code 1 if check 12 or 32 reports a finding.
@@ -27,13 +31,16 @@ Exit code 1 if check 12 or 32 reports a finding.
 `--self-test` feeds the spelling scan an in-memory table and in-memory lines
 (a gated spelling is red, the written spelling is green, a row marked
 止めない gates nothing, a written spelling that begins with the gated one is
-not red) and then reads the real table: it is red when the table no longer
-yields the ウインドウ row, so deleting the table cannot silence the check.
+not red), feeds the Title Case scan an in-memory row and dictionary, and then
+reads the real table: it is red when the table no longer yields the ウインドウ
+row, the 取込 row or the Title Case row, so deleting a row cannot silence the
+check.
 
 NOTE ON NON-ASCII: the patterns hold Japanese text because the
 specification is written in Japanese; those code points are data.
 """
 import io
+import json
 import os
 import re
 import sys
@@ -257,36 +264,47 @@ for rel in spec_markdown():
 NOTATION_RULES = 'docs/development-rules/02-changing-the-spec.md'
 NOTATION_HEADING = '表記の表'
 GATED = '止める'
-KATAKANA_WORD = re.compile(r'^[ァ-ヶー]+$')
+# A spelling row holds one word per cell: no space, no punctuation (JDG-1863
+# added 取込 -> 取り込み, so the cells are no longer katakana alone).
+ONE_WORD = re.compile(r'^[^\s|、。・（）()「」`*]+$')
 # The ruling that must stay gated: the self-test reads the real table and is
 # red when this row is gone (JDG-1857).
 MUST_GATE = ('ウィンドウ', 'ウインドウ')
-# CR-721 gated three more rows the coordinator decided (JDG-1850, JDG-1855);
-# the self-test is red when one of them stops being gated.
-ALSO_GATED = (('フィルタ', 'フィルター'), ('マーカー', 'マーカ'), ('ヘッダー', 'ヘッダ'))
+# CR-721 gated three more rows the coordinator decided (JDG-1850, JDG-1855),
+# and CR-726 the user's 取り込み (JDG-1863); the self-test is red when one of
+# them stops being gated.
+ALSO_GATED = (('フィルタ', 'フィルター'), ('マーカー', 'マーカ'), ('ヘッダー', 'ヘッダ'),
+              ('取り込み', '取込'))
 
 
-def gated_spellings(lines):
-    """(written, banned) pairs of the first table under the heading.
-
-    A gated row must hold one katakana word per cell; a row that does not is
-    returned with banned None, so the caller reports it instead of guessing.
-    """
-    pairs = []
+def notation_rows(lines):
+    """The cells of every row of the first table under the heading."""
+    rows = []
     under = False
     for line in lines:
         if line.startswith('#'):
-            if under and pairs:
+            if under and rows:
                 break
             under = NOTATION_HEADING in line
             continue
         if not under or not line.startswith('|'):
             continue
-        cells = [c.strip() for c in line.strip().strip('|').split('|')]
-        if len(cells) < 4 or not cells[3].startswith(GATED):
+        rows.append([c.strip() for c in line.strip().strip('|').split('|')])
+    return rows
+
+
+def gated_spellings(lines):
+    """(written, banned) pairs of the rows whose 検査 32 cell is 止める.
+
+    A gated row must hold one word per cell; a row that does not is returned
+    with banned None, so the caller reports it instead of guessing.
+    """
+    pairs = []
+    for cells in notation_rows(lines):
+        if len(cells) < 4 or cells[3] != GATED:
             continue
         written, banned = cells[0], cells[1]
-        if not (KATAKANA_WORD.match(written) and KATAKANA_WORD.match(banned)):
+        if not (ONE_WORD.match(written) and ONE_WORD.match(banned)):
             pairs.append((written, None))
             continue
         pairs.append((written, banned))
@@ -338,6 +356,75 @@ def scan_spellings(pairs, files):
     return hits
 
 
+# ------------------------------------------------------- check 32, Title Case
+
+# ⭐ THE NAME FIELDS AND THE SMALL WORDS ARE READ FROM THE NOTATION TABLE TOO.
+# Its Title Case row (検査 32 cell 止める（Title Case）) lists, in backticks,
+# every dictionary field whose English value names a thing on the screen
+# (`section.field`, or `section/key.field` for one entry), and the small
+# words that stay lower case after the first word (JDG-1862). Sentences and
+# values keep sentence case and are simply not listed.
+TITLE_CASE_GATE = '止める（Title Case）'
+DICTIONARY = 'docs/spec/_source/display-words.json'
+SELECTOR = re.compile(r'`([A-Za-z]+)(?:/([A-Za-z0-9-]+))?\.([A-Za-z]+)`')
+SMALL_WORDS = re.compile(r'小さい語（([a-z・]+)）')
+PLACEHOLDER = re.compile(r'\{[^}]*\}')
+# A letter run that is not the tail of a file extension such as .md.
+WORD = re.compile(r"(?<![.A-Za-z])[A-Za-z][A-Za-z']*")
+# At least this many name fields must stay listed (CR-726 listed 22).
+MIN_SELECTORS = 10
+
+
+def title_case_rule(lines):
+    """(selectors, small words) of the Title Case row, or None without one."""
+    for cells in notation_rows(lines):
+        if len(cells) >= 5 and cells[3] == TITLE_CASE_GATE:
+            selectors = SELECTOR.findall(cells[4])
+            small = SMALL_WORDS.search(cells[4])
+            return selectors, set(small.group(1).split('・')) if small else set()
+    return None
+
+
+def lower_words(value, small):
+    """The words of an English name that break Title Case.
+
+    The first and the last word are capitalised whatever they are; a small
+    word anywhere else may stay lower case (Path from Top, Week Starts On).
+    """
+    words = WORD.findall(PLACEHOLDER.sub(' ', value))
+    return [w for i, w in enumerate(words)
+            if w[0].islower() and (i in (0, len(words) - 1) or w not in small)]
+
+
+def scan_title_case(rule, dictionary):
+    """[(where, en, bad words)]; a selector naming nothing is reported too."""
+    selectors, small = rule
+    hits = []
+    for section, key, field in selectors:
+        entries = [e for e in dictionary.get(section, [])
+                   if key == '' or any(not isinstance(v, dict) and str(v) == key
+                                       for v in e.values())]
+        values = [e[field]['en'] for e in entries
+                  if isinstance(e.get(field), dict) and 'en' in e[field]]
+        if not values:
+            hits.append(('%s%s.%s' % (section, '/' + key if key else '', field),
+                         None, []))
+            continue
+        for en in values:
+            bad = lower_words(en, small)
+            if bad:
+                hits.append(('%s.%s' % (section, field), en, bad))
+    return hits
+
+
+def line_of(lines, en):
+    needle = '"en": %s' % json.dumps(en, ensure_ascii=False)
+    for i, line in enumerate(lines, 1):
+        if needle in line:
+            return i
+    return 0
+
+
 def self_test():
     table = [
         '## 5. ⭐ 表記の表 —— example',
@@ -361,6 +448,22 @@ def self_test():
     shorter_hits = [(rel, i) for rel, i, _, _ in scan_spellings(
         shorter, [('s.md', ['フィルターの欄', 'フィルタの欄', 'マーカーの色', 'マーカの色'])])]
     real = gated_spellings(read(NOTATION_RULES))
+    # JDG-1862: an in-memory Title Case row over an in-memory dictionary.
+    tc_rule = title_case_rule([
+        '## 5. 表記の表',
+        '| 書く | 書かない | 裁定 | 検査 32 | 注 |',
+        '| 取り込み | 取込 | JDG | 止める | |',
+        '| Title Case | x | JDG | 止める（Title Case） | 名前の欄: `t.name`・`u/k2.text`・`gone.name`。'
+        '小さい語（a・of・to・from）は頭以外で小文字 |',
+    ])
+    tc_dict = {'t': [{'id': str(i), 'name': {'ja': '-', 'en': en}} for i, en in enumerate(
+                   ['Select all', 'Select All', 'Path from Top', 'parent task', '.md',
+                    'Status Date {date}', 'from Top', 'Fade In/Out Days'])],
+               'u': [{'part': 'k1', 'text': {'ja': '-', 'en': 'a sentence, not a name'}},
+                     {'part': 'k2', 'text': {'ja': '-', 'en': 'Made at'}}]}
+    tc_hits = scan_title_case(tc_rule, tc_dict) if tc_rule else []
+    tc_bad = sorted(en for _, en, _ in tc_hits if en)
+    real_tc = title_case_rule(read(NOTATION_RULES))
     checks = (
         ('two gated rows read, the 止めない rows and the row under the next '
          'heading skipped', len(pairs) == 2),
@@ -376,8 +479,20 @@ def self_test():
          sorted(shorter_hits) == [('s.md', 1), ('s.md', 4)]),
         ('the real table still gates %s -> %s' % (MUST_GATE[1], MUST_GATE[0]),
          MUST_GATE in real),
+        ('the in-memory Title Case row is read with its 3 selectors and 4 small words',
+         tc_rule is not None and len(tc_rule[0]) == 3 and len(tc_rule[1]) == 4),
+        ('Title Case: Select all, parent task, from Top and Made at (a small word last) red; Select All, '
+         'Path from Top, .md, Status Date {date}, Fade In/Out Days and the unlisted '
+         'sentence green',
+         tc_bad == ['Made at', 'Select all', 'from Top', 'parent task']),
+        ('Title Case: a selector naming no entry (gone.name) is red',
+         any(en is None and where == 'gone.name' for where, en, _ in tc_hits)),
+        ('the real table still has its Title Case row with at least %d name fields '
+         '(JDG-1862)' % MIN_SELECTORS,
+         real_tc is not None and len(real_tc[0]) >= MIN_SELECTORS and len(real_tc[1]) > 0),
     ) + tuple(
-        ('the real table gates %s -> %s (CR-721, JDG-1850 / JDG-1855)' % (b, w),
+        ('the real table gates %s -> %s (CR-721 / CR-726, JDG-1850 / JDG-1855 / '
+         'JDG-1863)' % (b, w),
          (w, b) in real) for w, b in ALSO_GATED)
     bad = [name for name, ok in checks if not ok]
     for name, ok in checks:
@@ -392,8 +507,8 @@ SPELLING_PAIRS = gated_spellings(read(NOTATION_RULES))
 for written, banned in SPELLING_PAIRS:
     if banned is None:
         report('32', NOTATION_RULES, 0,
-               'a 止める row of the notation table must hold one katakana '
-               'word in 書く and one in 書かない (row: %s)' % written)
+               'a 止める row of the notation table must hold one word in '
+               '書く and one in 書かない (row: %s)' % written)
 if MUST_GATE not in SPELLING_PAIRS:
     report('32', NOTATION_RULES, 0,
            'the notation table no longer gates %s -> %s (JDG-1857)'
@@ -403,6 +518,27 @@ for rel, i, written, banned in scan_spellings(
     report('32', rel, i,
            'the spelling %s -- write %s (the notation table, section 5 of %s)'
            % (banned, written, NOTATION_RULES))
+
+TITLE_CASE_RULE = title_case_rule(read(NOTATION_RULES))
+TITLE_CASE_HITS = []
+if TITLE_CASE_RULE is None or len(TITLE_CASE_RULE[0]) < MIN_SELECTORS:
+    report('32', NOTATION_RULES, 0,
+           'the notation table no longer has its Title Case row with at least '
+           '%d name fields (JDG-1862)' % MIN_SELECTORS)
+else:
+    dictionary_lines = read(DICTIONARY)
+    TITLE_CASE_HITS = scan_title_case(
+        TITLE_CASE_RULE, json.loads('\n'.join(dictionary_lines)))
+    for where, en, bad in TITLE_CASE_HITS:
+        if en is None:
+            report('32', NOTATION_RULES, 0,
+                   'the Title Case row names %s, which holds no English value '
+                   'in %s' % (where, DICTIONARY))
+            continue
+        report('32', DICTIONARY, line_of(dictionary_lines, en),
+               'the name %r (%s) is not in Title Case: %s -- the notation '
+               'table, section 5 of %s (JDG-1862)'
+               % (en, where, ' '.join(bad), NOTATION_RULES))
 
 # ------------------------------------------------------- output
 
@@ -424,6 +560,10 @@ print('check 32 (gated spellings)            : %d rows of the notation '
       'table gate %s'
       % (len([p for p in SPELLING_PAIRS if p[1]]),
          ' '.join('%s->%s' % (b, w) for w, b in SPELLING_PAIRS if b)))
+print('check 32 (Title Case names)           : %d name fields read, %d not in '
+      'Title Case'
+      % (len(TITLE_CASE_RULE[0]) if TITLE_CASE_RULE else 0,
+         len([h for h in TITLE_CASE_HITS if h[1]])))
 if advisory:
     print('')
     print('-- advisory: these are candidates to read, not proven defects.')

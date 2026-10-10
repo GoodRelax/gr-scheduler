@@ -19,7 +19,7 @@ import { DESIGN, REQUIREMENTS, taskGroupDocument, shell, TEMPLATE, type ShellBen
 
 const LAST_SAVED_AT = '2026-10-03T09:00:00'
 
-const Q29 = '⭐ 同じ id のタスクグループ（`TaskGroup`）または注記が両側にあり、中身が違うときは、現在の文書の中身を保ち、取込元の違いを捨てること（MUST）'
+const Q29 = '⭐ 同じ id のタスクグループ（`TaskGroup`）または注記が両側にあり、中身が違うときは、現在の文書の中身を保ち、取り込み元の違いを捨てること（MUST）'
 const Q30 = '⭐ 置き換えを選んで MSPDI を読んだときは、`documentSettings` のすべての項目を既定値とすること（MUST）'
 const Q31 = '⭐ 同じ名前（表 T-229 の `ED-2`）で 2 度購読したときは、新しい購読が古い購読を置き換えること（MUST）'
 const Q32 = '置き換えたことを、新しい購読の戻り値で答えること（MUST）'

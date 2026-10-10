@@ -58,7 +58,7 @@ const printedTransitions = (): readonly { readonly state: string; readonly event
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_018_BY_T_328 =
-  '値を書き換える入口と先の値は、段 0 の畳み（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST）'
+  '値を書き換える入口と先の値は、段 0 の折りたたみ（`_assets/tbl-settings.md` の 表 T-203 の `S-418`）を含めて、`_assets/tbl-state-machines.md` の 表 T-328 に従うこと（MUST）'
 const FR_018_NO_OTHER_WRITER = '同表に無い操作で値を書き換えてはならない（MUST NOT）'
 const FR_018_BY_T_329 =
   'タスクグループの木の状態（`_assets/fig-erd-detail.md` の `AT-153`、`TaskGroup.treeState`）によって、本要求の対象から外すタスクグループを 表 T-329 に従って決めること（MUST）'

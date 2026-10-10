@@ -1161,7 +1161,7 @@ const PROBES: readonly Probe[] = [
     act: async (p) => press(p, 'IC-27'),
   },
   {
-    // PTD-4a: 「何もしない。引きかけの矢印があれば捨てる。構えは解かない」 -- so
+    // PTD-4a: 「何もしない。引きかけの矢印があれば捨てる。構えは解除しない」 -- so
     // the drawing must NOT gain a shape. ⛔ The arm is taken in `setUp`, because
     // arming marks the palette and that marking is a screen change of its own.
     rows: ['AR-4', 'PTD-4a'],

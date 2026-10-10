@@ -24,7 +24,7 @@ const FR_020_ISO_8601 =
 const FR_020_NOT_SAVED = '透かしの設定を文書に保存してはならない（MUST NOT）'
 const FR_020_NOT_OUTSIDE_TASK_GROUP_AREA = '`Task Group Area` の外へ重ねてはならない（MUST NOT）'
 const FR_020_HIDE_PROPAGATES_TO_EXPORT =
-  '画面から透かしを消したときは、書き出す絵からも消すこと（MUST）'
+  '画面で透かしを非表示にしたときは、書き出す絵からも消すこと（MUST）'
 const FR_020_FOUR_VALUES =
   '斜めに繰り返し薄く重ねるときの 4 つの量 —— 斜めの角度・文字の大きさ・繰り返しの間隔・インクの色 —— は、`_assets/tbl-settings.md` の 表 T-207 の `S-220`（角度）・`S-221`（文字の大きさの係数）・`S-222`（繰り返しの間隔の係数）と、表 T-236 の `S-223`（インクの色）が持つこと（MUST）'
 const FR_020_NOT_HARDCODED =

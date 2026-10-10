@@ -32,7 +32,7 @@ const SOLVE_BEFORE_DRAWING =
 
 // see FR-036, T-335
 const CHOOSERS_FOLLOW_WB_10 =
-  '⭐ 保存の面（`_assets/tbl-glossary.md` の `U-54`、`FR-096`）と開く面（`U-56`、表 T-024a の `OP-16`）は、ウィンドウではなく `_assets/tbl-settings.md` の `S-99g` の面のままとし、題の行と動かし方だけを本表の `WB-10` に従うこと（MUST）'
+  '⭐ 保存の面（`_assets/tbl-glossary.md` の `U-54`、`FR-096`）と開く面（`U-56`、表 T-024a の `OP-16`）は、ウィンドウではなく `_assets/tbl-settings.md` の `S-99g` の面のままとし、タイトルバーと動かし方だけを本表の `WB-10` に従うこと（MUST）'
 const CHOOSERS_ARE_NOT_WINDOWS = 'ほかの操作を止めたままとすると定めた。⛔ 2 つに `WB-1` 〜 `WB-9` を当ててはならない（MUST NOT）'
 
 // see T-023, S-514, S-515, S-516
@@ -51,7 +51,7 @@ const FIELD_SCROLLS_LIKE_THE_ENTRANCE =
 
 // see HF-10, T-051
 const OPEN_ALL_NOT_OUTERMOST =
-  '⭐ 焦点が `Tab` で進む順も、この並びの左から右とすること（MUST） —— 見た目と違う順で焦点が飛ぶと、次に押されるのがどれかを読めない。⛔ **本行の「すべて開く」を並びのいちばん外へ置いてはならない（MUST NOT）'
+  '⭐ 焦点が `Tab` で進む順も、この並びの左から右とすること（MUST） —— 見た目と違う順で焦点が飛ぶと、次に押されるのがどれかを読めない。⛔ **本行の「すべて展開する」を並びのいちばん外へ置いてはならない（MUST NOT）'
 
 // see FR-016, GA-7
 const FADE_FROM_POINTER = 'フェードの日数は、ポインタの位置から求めること（MUST）'

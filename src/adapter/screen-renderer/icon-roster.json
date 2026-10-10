@@ -859,7 +859,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "タスクグループの配下をすべて開く",
+   "entryTo": "タスクグループの配下をすべて展開する",
    "authority": "表 T-051 の `HF-2`",
    "arms": null,
    "armsShape": null
@@ -881,7 +881,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "タスクグループの配下をすべて畳む",
+   "entryTo": "タスクグループの配下をすべて折りたたむ",
    "authority": "表 T-051 の `HF-11`",
    "arms": null,
    "armsShape": null
@@ -892,7 +892,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "タスクグループの配下を 1 階層だけ開く",
+   "entryTo": "タスクグループの配下を 1 階層だけ展開する",
    "authority": "表 T-051 の `HF-13`",
    "arms": null,
    "armsShape": null
@@ -1092,7 +1092,7 @@
     "Delay Diagnostics Report"
    ],
    "group": null,
-   "entryTo": "表・入力欄・見出しの行の面の名の字の大きさの段（`S-429`、3 値排他）を変え、検索パネルと遅延診断レポートはその 1 つの段を共に使うので、どちらの窓で押しても両方の字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
+   "entryTo": "表・入力欄・タイトルバーの面の名の字の大きさの段（`S-429`、3 値排他）を変え、検索パネルと遅延診断レポートはその 1 つの段を共に使うので、どちらの窓で押しても両方の字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方）",
    "authority": "`FR-151` の 表 T-330 の `SV-16`",
    "arms": null,
    "armsShape": null
@@ -1147,7 +1147,7 @@
     "Resource List"
    ],
    "group": null,
-   "entryTo": "一覧のすべてを選ぶ",
+   "entryTo": "一覧のすべてを選択する",
    "authority": "`FR-099`",
    "arms": null,
    "armsShape": null
@@ -1158,7 +1158,7 @@
     "Resource List"
    ],
    "group": null,
-   "entryTo": "一覧の選択をすべて解く",
+   "entryTo": "一覧の選択をすべて解除する",
    "authority": "`FR-099`",
    "arms": null,
    "armsShape": null
@@ -1169,7 +1169,7 @@
     "Resource List"
    ],
    "group": null,
-   "entryTo": "どの割当からも参照されていない担当を選ぶ",
+   "entryTo": "どの割当からも参照されていない担当を選択する",
    "authority": "`FR-099`（表 T-108 の `CM-43` は、本行と `IC-66` の 2 手で果たす。<br>⭐ **本行は選ぶだけであり、`CM-43` を単独で出す行ではない** —— **2 手で果たす規則と、消す入口をちょうど 1 つにする理由は同要求が持つ**）",
    "arms": null,
    "armsShape": null
@@ -1191,7 +1191,7 @@
     "Resource List"
    ],
    "group": null,
-   "entryTo": "選ばれていることを示し、同じ入口で解く",
+   "entryTo": "選ばれていることを示し、同じ入口で選択を解除する",
    "authority": "`FR-099`",
    "arms": null,
    "armsShape": null
@@ -1202,7 +1202,7 @@
     "Resource List"
    ],
    "group": null,
-   "entryTo": "選ばれていないことを示し、同じ入口で選ぶ",
+   "entryTo": "選ばれていないことを示し、同じ入口で選択する",
    "authority": "`FR-099`",
    "arms": null,
    "armsShape": null
@@ -1312,7 +1312,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "すべてのタスクグループを開く",
+   "entryTo": "すべてのタスクグループを展開する",
    "authority": "表 T-051 の `HF-10`",
    "arms": null,
    "armsShape": null
@@ -1323,7 +1323,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "すべてのタスクグループを畳む",
+   "entryTo": "すべてのタスクグループを折りたたむ",
    "authority": "表 T-051 の `HF-12`",
    "arms": null,
    "armsShape": null
@@ -1334,7 +1334,7 @@
     "Task Group Panel"
    ],
    "group": null,
-   "entryTo": "最も浅い段を 1 階層だけ開く",
+   "entryTo": "最も浅い段を 1 階層だけ展開する",
    "authority": "表 T-051 の `HF-16`",
    "arms": null,
    "armsShape": null
@@ -1389,7 +1389,7 @@
     "Difference Review"
    ],
    "group": null,
-   "entryTo": "取込をやめ、取込前の状態へ戻す（表 T-032a の `MM-4`）",
+   "entryTo": "取り込みをやめ、取り込み前の状態へ戻す（表 T-032a の `MM-4`）",
    "authority": "`FR-022`",
    "arms": null,
    "armsShape": null

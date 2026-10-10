@@ -44,7 +44,7 @@
 //      ("`HF-14`（配下に足す）も同じとすること（MUST）"), but the task that
 //      asked for this file draws the line itself: "HF-17（タスクグループが見える位置ま
 //      で送る）とは別の約束である。送っても、落とされたタスクグループは現れない。" ここで
-//      問うのは詳しさの段と畳みだけであり、表示位置（scrollDate 等）そのもの
+//      問うのは詳しさの段と折りたたみだけであり、表示位置（scrollDate 等）そのもの
 //      は問わない。
 //   3. WHETHER THE ADD AND THE OPEN SHARE ONE UNDO STEP OR TWO. 表 T-027's
 //      `UN-1` / `UN-14` put 「タスクグループ（`TaskGroup`）の追加」and「タスクグループの木の状態（`treeState`）」
@@ -55,7 +55,7 @@
 //      when one user gesture must write BOTH a counted change and a
 //      `UN-8`-excluded one: two separate writes, ordered, only one counted
 //      ("全体表示の 1 回の押下は、2 つの書き込みに分けて行うこと（MUST）…①
-//      倍率と表示位置を置く（`UN-8` により段を積まない）② 畳んだタスクグループをすべて開
+//      倍率と表示位置を置く（`UN-8` により段を積まない）② 折りたたんだタスクグループをすべて開
 //      く（`UN-17` により段を 1 つ積む）"). Whether HF-14's task-group-add and the
 //      parent's open share one step is never
 //      stated by 表 T-051's `HF-14` itself, and no other row was found that
@@ -430,15 +430,15 @@ describe('the manuscript still says what these cases read', () => {
   })
 
   it('⛔⛔ HF-14 still opens only the one parent that was pressed', () => {
-    expect(says('T-051', 'HF-14')).toContain('開いてよいのは押した親 1 つだけである')
+    expect(says('T-051', 'HF-14')).toContain('展開してよいのは押した親 1 つだけである')
     expect(says('T-051', 'HF-14')).toContain('その先祖を書き換えてはならない（MUST NOT）')
   })
 
   it('⭐ HF-14 scopes its open against HF-7, and HF-7 lets an added task group outrank the zoom', () => {
     expect(says('T-051', 'HF-14')).toContain(
-      '`HF-7` の畳みは人が自分でしたことなので、製品が動かすのは押した親の畳みを開くこの 1 つの場合に限る',
+      '`HF-7` の折りたたみは人が自分でしたことなので、製品が動かすのは押した親の折りたたみを展開するこの 1 つの場合に限る',
     )
-    expect(says('T-051', 'HF-7')).toContain('人が畳んだ状態は、表示量の増減（`FR-018`）より優先する')
+    expect(says('T-051', 'HF-7')).toContain('人が折りたたんだ状態は、表示量の増減（`FR-018`）より優先する')
     expect(says('T-051', 'HF-7')).toContain('人が足したタスクグループ（`HF-14`）も、表示量の増減より優先する')
   })
 
@@ -460,7 +460,7 @@ describe('the manuscript still says what these cases read', () => {
     // and 表 T-015's `HR-1a` (MUST NOT) hides a collapsed group's entire
     // subtree, not just its direct children:
     expect(says('T-015', 'HR-1a')).toContain(
-      '畳んだ `TaskGroup` の配下のタスクグループと、そのタスクグループに載っている `Task` を描いてはならない（MUST NOT）',
+      '折りたたんだ `TaskGroup` の配下のタスクグループと、そのタスクグループに載っている `Task` を描いてはならない（MUST NOT）',
     )
     // ⛔ So a task group with a COLLAPSED ancestor is never drawn, and can never be
     // the task group this file presses `IC-91` on. The half-2 case below therefore
@@ -475,7 +475,7 @@ describe('the manuscript still says what these cases read', () => {
     // 表 T-027: the ADD (`UN-1` / `UN-14`) and the FOLD-OPEN (`UN-14`) are both
     // counted targets; `zoomY` (`UN-8`) never is.
     expect(says('T-027', 'UN-14')).toContain(
-      'タスクグループ（`TaskGroup`）の追加・削除・名前の変更、タスクグループの色と高さの変更、タスクグループの木の状態（`treeState`）と段 0 の畳み',
+      'タスクグループ（`TaskGroup`）の追加・削除・名前の変更、タスクグループの色と高さの変更、タスクグループの木の状態（`treeState`）と段 0 の折りたたみ',
     )
     expect(says('T-027', 'UN-8')).toContain('ズーム・スクロール・パン')
     // FR-055 shows the split the codebase already uses for a gesture that
@@ -579,7 +579,7 @@ describe('表 T-051 HF-14 (MUST): a task group raised past the drawn tier is dra
 // that only reads `pressed` itself.
 // ===========================================================================
 
-describe('表 T-051 HF-14 half 2 (畳み, MUST / MUST NOT): only the one pressed parent opens', () => {
+describe('表 T-051 HF-14 half 2 (折りたたみ, MUST / MUST NOT): only the one pressed parent opens', () => {
   it('⛔⛔ the pressed, human-collapsed parent opens, and an unrelated collapsed task group elsewhere does not', () => {
     const root = uuidOf(4)
     const pressed = uuidOf(5)

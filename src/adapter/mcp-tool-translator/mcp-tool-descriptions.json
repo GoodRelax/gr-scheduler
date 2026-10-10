@@ -75,7 +75,7 @@
   },
   {
    "name": "focusTask",
-   "description": "指定したタスクが載るタスクグループと祖先を開き、見える位置へ表示を寄せる"
+   "description": "指定したタスクが載るタスクグループと祖先を展開し、見える位置へ表示を寄せる"
   },
   {
    "name": "showOnlyTasks",

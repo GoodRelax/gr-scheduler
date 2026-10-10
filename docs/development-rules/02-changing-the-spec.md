@@ -221,11 +221,12 @@ Error: table T-016 holds PR-21, and nothing says which entity holds its value
 ⚠️ **`（MUST）` を置いてよい場所と、置いてはならない場所は別の話である** ——
 **値の表と用語集には置かない**（上の箇条書き）。⭐ **`RATIONALE` は要求の一部なので、置いてよい。**
 
-## 5. ⭐ 表記の表 —— カタカナの長音と小書き
+## 5. ⭐ 表記の表 —— カタカナの長音と小書き・送り仮名・画面の名前の英語の大文字
 
-⭐ **カタカナ語の長音と小書きは、下の表が SSOT である。** 語を書く前に引け。表に無い語は、表に行を足してから書け。
+⭐ **カタカナ語の長音と小書き、送り仮名、画面の名前の英語の大文字は、下の表が SSOT である。** 語を書く前に引け。表に無い語は、表に行を足してから書け。
 
 ⭐ **「止める」の行は、検査 32（`.claude/skills/spec-graph-check/style-checks.py`）がこの表から読む。** その行の「書かない」綴りが、仕様（docs/spec の .md と .json）・辞書（`src/adapter/screen-renderer/display-words.json`）・手引き（docs/guides）に 1 つでも在ると赤。⚠️ 「止めない」の行も守る規則である —— 機械が止めないだけである。
+⭐ **「止める（Title Case）」の行は、注の欄に `` ` `` で囲んで並べた辞書の欄（`節.欄`、1 項だけなら `節/鍵.欄`）の en を読み、頭の語か、注が挙げる小さい語でない語が小文字で始まれば赤にする**（`JDG-1862`、`CR-726`）。欄を足すときは注に足す —— 検査のコードには欄を書かない。
 
 | 書く | 書かない | 裁定 | 検査 32 | 注 |
 |---|---|---|---|---|
@@ -234,6 +235,8 @@ Error: table T-016 holds PR-21, and nothing says which entity holds its value
 | 新しく書く語は、末尾の長音を付けない（旧 JIS の原則） | 末尾に長音を付けた新しい語 | `JDG-1850` | 止めない | 綴りの集まりが閉じていないので、機械は綴りで止められない。今ある「ブラウザ」「ポインタ」はそのまま |
 | マーカー | マーカ | `JDG-1855`（止めたのは `CR-721`） | 止める | 長音の原則の例外 —— 今ある語を保つ。「マーカー」の中の「マーカ」は赤にならない |
 | ヘッダー | ヘッダ | `JDG-1855`（調整役が選んだ。止めたのは `CR-721`） | 止める | 長音の原則の例外。「ヘッダー」の中の「ヘッダ」は赤にならない |
+| 取り込み | 取込 | `JDG-1863`（`CR-726`） | 止める | 送り仮名を付ける本則（公用文）。複合語も 取り込み元・取り込み前・取り込みの連番。⛔ 利用者の逐語（rulings.md）と、台帳・変更要求・レビューの記録の中の「取込」は履歴であり、直さない |
+| 画面で何かを指す名前の en は Title Case | 名前の en の、頭が小文字の語 | `JDG-1862`（`CR-726`） | 止める（Title Case） | 名前の欄: `icons.label`・`properties.label`・`properties.milestoneLabel`・`paletteGroups.name`・`surfaces.heading`・`helpHeadings.text`・`exportFormats.name`・`arms.text`・`searchColumns.text`・`delayReportColumns.text`・`openChooser.text`・`confirmation.text`・`noticeDismiss.text`・`delayReportMarkdown/documentName.text`・`delayReportMarkdown/madeAt.text`・`delayReportSummary/statusDate.text`・`fitSpanField/currentName.text`・`fitSpanField/copyCurrent.text`・`rowMinHeightField/enable.text`・`rowMinHeightField/currentName.text`・`taskGroupPanelWidthField/currentName.text`・`searchPanel/showAll.text`。小さい語（a・an・the・and・or・of・to・in・on・at・by・as・for・from・with・per・via）は頭と末尾以外で小文字（Path from Top・Week Starts On）。⚠️ 文と値（説明・理由・知らせ・問い・状態の語・選べる値）は Sentence case のまま。⛔ 範囲は辞書の en の値だけ —— 設定の項目名の en（識別子そのもの）・MSPDI の要素名・GRS JSON の欄の名・設定の鍵・用語集の確定名・コードの識別子は変えない |
 
 ⛔ **行を「止める」にするのは、その綴りを仕様・辞書・手引きで 0 件にしてからである。** 先に止めると、検査 32 が今ある行で赤になる。
 ⚠️ **この表は仕様の表記規約（1.9）には書かない**（`CR-724` の X-7）。仕様が定めるのは製品であり、書き手の作法はここに置く。

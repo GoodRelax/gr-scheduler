@@ -31,8 +31,8 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   confirmation: { answer: string; text: { ja: string } }[]
 }
 
-const HF_20_OPENS = '消すときは、段 0 の畳み（`_assets/tbl-settings.md` の `S-418`）を開くこと（MUST）'
-const HF_20_ONE_STEP = '取り消し 1 回で、消す前のタスクグループと畳みへ戻る'
+const HF_20_OPENS = '消すときは、段 0 の折りたたみ（`_assets/tbl-settings.md` の `S-418`）を展開すること（MUST）'
+const HF_20_ONE_STEP = '取り消し 1 回で、消す前のタスクグループと折りたたみへ戻る'
 const HF_20_NO_VIEW_WRITE = '倍率と表示位置は書かない'
 const FR_032_VALUE = 'そのタスクグループの `treeState` も `temporarilyExpanded` とすること（MUST）'
 const FR_032_ANY_ROAD = 'タスクグループを 0 にしたのがどの操作でも同じ値で立てる'

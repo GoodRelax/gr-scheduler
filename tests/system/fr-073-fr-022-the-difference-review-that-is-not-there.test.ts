@@ -85,7 +85,7 @@ const MERGE_CHOICES: readonly string[] = T032A.rows.map((row) => row.id)
  * `rowOf` means a renumbering breaks this file rather than quietly leaving it
  * pressing nothing.
  *
- * ⛔ `IC-97` (`MM-4`, 取込をやめる) IS DELIBERATELY ABSENT. `MG-6` has that
+ * ⛔ `IC-97` (`MM-4`, 取り込みをやめる) IS DELIBERATELY ABSENT. `MG-6` has that
  * choice put the document back exactly as it was before the intake, so
  * answering with it would carry nothing through -- and the judgement below that
  * asks whether the unreadable column survived the write would then go red for a
@@ -888,7 +888,7 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and drop
     )
   }
 
-  // `GRS` が自動で確定してはならない（MUST NOT）。取込側に無かったタスクを消してはならない（MUST NOT）
+  // `GRS` が自動で確定してはならない（MUST NOT）。取り込み側に無かったタスクを消してはならない（MUST NOT）
   if (!m.heldBackSurvived) {
     unmet.push(
       `the task with UID ${m.uidHeldBack}, which the handed document left out, is gone: ` +
@@ -898,7 +898,7 @@ test('FR-073 / FR-022 / MG-1 -- a newer document is shown, asked about, and drop
 
   // 表 T-032 の `MG-1` -- the handed file carries no record tying it to this
   // document, so its provenance cannot be told apart:
-  // ルの出自 | 同じ外部 WBS マスタの再取込か、別のマスタかを判別する。**判別できないときは人に問うこと（MUST）
+  // ルの出自 | 同じ外部 WBS マスタの再取り込みか、別のマスタかを判別する。**判別できないときは人に問うこと（MUST）
   //  —— 選択肢と選ばせ方は `FR-022`。**問う先は 表 T-103 の `U-61` の面とすること（MUST）
   if (!m.reviewStood) {
     unmet.push(

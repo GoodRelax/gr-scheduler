@@ -46,7 +46,7 @@
 //           閾値は `_assets/tbl-settings.md` の 表 T-206 の `S-208` が持つ。
 //           ⭐ **上下は位置を変え、段を変えてはならない（MUST NOT）** ——
 //           **その段に置ける場所を描く順にたどること（MUST）。**⇒ **ある群の
-//           末子の次は次の群の長子の位置であり、親をまたぐ。**⛔ **畳まれた群の
+//           末子の次は次の群の長子の位置であり、親をまたぐ。**⛔ **折りたたまれた群の
 //           中の場所を選んではならない（MUST NOT）**……⭐ **左右は段を変える
 //           こと（MUST）。右へ 1 歩はすぐ上の兄弟の末子になること、左へ 1 歩は
 //           親の次の兄弟になること（MUST）**……⇒ **すぐ上に兄弟が無いタスクグループは右へ
@@ -287,7 +287,7 @@ const D1 = id(11)
  * ⭐ WHY A1 HAS ONE. 「右へ 1 歩はすぐ上の兄弟の末子になること」 -- 末子 and
  * 長子 answer alike under a task group with a single child, so A1 carries A1X and the
  * case can tell 末子 from 長子.
- * ⭐ WHY GAMMA IS FOLDED AND STANDS BETWEEN BETA AND DELTA. 「畳まれた群の中の
+ * ⭐ WHY GAMMA IS FOLDED AND STANDS BETWEEN BETA AND DELTA. 「折りたたまれた群の中の
  * 場所を選んではならない（MUST NOT）」 -- a folded group at the END of the panel
  * would be skipped by a walk that simply ran out of task groups, so it is put in the
  * MIDDLE, where a walk that counted its places would land inside it.
@@ -691,7 +691,7 @@ describe('the specification still says what these cases are driven by', () => {
       '上下は位置を変え、段を変えてはならない（MUST NOT）',
       'その段に置ける場所を描く順にたどること（MUST）',
       'ある群の末子の次は次の群の長子の位置であり、親をまたぐ',
-      '畳まれた群の中の場所を選んではならない（MUST NOT）',
+      '折りたたまれた群の中の場所を選んではならない（MUST NOT）',
       '左右は段を変えること（MUST）',
       '右へ 1 歩はすぐ上の兄弟の末子になること、左へ 1 歩は親の次の兄弟になること（MUST）',
       'すぐ上に兄弟が無いタスクグループは右へ動かせない',
@@ -959,7 +959,7 @@ describe('HF-15 -- 上下は位置を変え、段を変えてはならない（M
     expect(depthOf(built.loop, A2)).toBe(2)
   })
 
-  it('⛔ MUST NOT: 「畳まれた群の中の場所を選んではならない」 -- a drag that walks PAST the folded Gamma lands under Delta and never inside Gamma', () => {
+  it('⛔ MUST NOT: 「折りたたまれた群の中の場所を選んではならない」 -- a drag that walks PAST the folded Gamma lands under Delta and never inside Gamma', () => {
     // 「動かしたタスクグループが消えることになり、効かない操作子と見分けがつかない」.
     const built = stage()
     const downToD1 = bandOf(built.loop, D1).y - bandOf(built.loop, A2).y

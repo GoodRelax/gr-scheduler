@@ -73,8 +73,8 @@
 //   表 T-109      `IC-62` 「`Command Palette` | 表示 | 担当リストを表示する」,
 //                 `IC-66` 「`Resource List` | — | 選んだ担当を消す |
 //                 `FR-099`（表 T-108 の `CM-42`）」, `IC-68` 「選ばれていないことを
-//                 示し、同じ入口で選ぶ」, `IC-67` 「選ばれていることを示し、同じ入口
-//                 で解く」. ⭐ The 面 column is READ, never typed -- it is the join
+//                 示し、同じ入口で選択する」, `IC-67` 「選ばれていることを示し、同じ入口
+//                 で選択を解除する」. ⭐ The 面 column is READ, never typed -- it is the join
 //                 between an entrance and the surface a press on it is answered
 //                 as.
 //   表 T-234 QN-3 「担当を消すことで解かれる割当があるとき | 挙げる —— 解かれる
@@ -542,7 +542,7 @@ describe('FR-099 -- the manuscript this file is driven by', () => {
     expect(surfaceOf('IC-66')).toBe('Resource List')
     expect(surfaceOf('IC-68')).toBe('Resource List')
     expect(rowOf(T_109, 'IC-66').cells.join(' ')).toContain('選んだ担当を消す')
-    expect(rowOf(T_109, 'IC-68').cells.join(' ')).toContain('同じ入口で選ぶ')
+    expect(rowOf(T_109, 'IC-68').cells.join(' ')).toContain('同じ入口で選択する')
   })
 
   it('the fixture separates the counts FR-099 separates', () => {

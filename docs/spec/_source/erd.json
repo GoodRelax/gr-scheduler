@@ -848,7 +848,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "取込ごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13`"
+      "ja": "取り込みごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13`"
      }
     },
     {

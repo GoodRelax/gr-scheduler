@@ -97,7 +97,7 @@ CARRIED = ('rowId', 'extension', 'firstCharacter')
 # ⛔ None of them is ever printed: every message this script writes is ASCII, so
 # a console that cannot encode them still shows the reason.
 EM_DASH = u'—'
-INTAKE = u'取込'
+INTAKE = u'取り込み'
 OUTWARD = u'書出'
 
 BANNER = (

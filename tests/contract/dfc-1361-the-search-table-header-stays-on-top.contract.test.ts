@@ -29,7 +29,7 @@ function rowOf(table: string, id: string): SpecRow {
 
 const cellOf = (table: string, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
-const SV_6_HEADING = '見出しの行を縦に固定する。'
+const SV_6_HEADING = '見出し行を縦に固定する。'
 const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク の 4 列）、コメントボックスの表は `SQ-7` までを左に固定し'
 const SV_6_UNDER = '残りの列はその下を送る（表 T-257 の `RR-4` と同じ形）'
 const RR_4_UNDER = '⭐ ほかの欄はその下を通って送られる'

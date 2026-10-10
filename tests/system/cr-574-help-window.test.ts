@@ -9,12 +9,12 @@ import { ERP_SAMPLE, REQUIREMENTS, keyOf, openDocument, openStage, saveDocument,
 import { rowOf } from './sws-case'
 
 const FR_036_TITLE_ORDER =
-  '⭐ ヘルプの題の行は、左から、題 … 凡例（`IC-102`）・ヘルプの言語の切替（`FR-038` の `IC-128`）・最小化（`IC-129`）・最大化（`IC-130`、最大化しているあいだは同じ場所に `IC-131`）・閉じる入口（`IC-52`）の順に並べ、閉じる入口を右端に置くこと（MUST）。'
-const FR_036_NOTHING_ELSE = '⛔ 題の行に、ほかのものを置いてはならない（MUST NOT）'
-const FR_036_TWO_REGIONS = '⭐ ヘルプを、題の行と本文の 2 つの領域に分け、上下に並べること（MUST）。'
+  '⭐ ヘルプのタイトルバーは、左から、題 … 凡例（`IC-102`）・ヘルプの言語の切替（`FR-038` の `IC-128`）・最小化（`IC-129`）・最大化（`IC-130`、最大化しているあいだは同じ場所に `IC-131`）・閉じる入口（`IC-52`）の順に並べ、閉じる入口を右端に置くこと（MUST）。'
+const FR_036_NOTHING_ELSE = '⛔ タイトルバーに、ほかのものを置いてはならない（MUST NOT）'
+const FR_036_TWO_REGIONS = '⭐ ヘルプを、タイトルバーと本文の 2 つの領域に分け、上下に並べること（MUST）。'
 const FR_036_BODY_SCROLLS = '本文の領域だけをスクロールさせること（MUST）'
 const FR_036_TITLE_OUTSIDE_THE_SCROLL =
-  '⛔ 題の行を本文のスクロールの中に置いてはならない（MUST NOT） —— 中に置いて上端に留めると、送った本文が題の行の縁に透け、送る前は題の行が最初の見出しを覆う。'
+  '⛔ タイトルバーを本文のスクロールの中に置いてはならない（MUST NOT） —— 中に置いて上端に留めると、送った本文がタイトルバーの縁に透け、送る前はタイトルバーが最初の見出しを覆う。'
 const FR_036_GAP = '⭐ 説明と割当のあいだは、`_assets/tbl-settings.md` の 表 T-206 の `S-436` を下限としてあけること（MUST）。'
 const FR_036_RIGHT_END = '⭐ 割当は、その項目の行の右端（枠の内側の右の縁）へ寄せて置くこと（MUST）'
 // WHY: CR-669 moved the maximised help from the browser window to the Schedule Canvas.
@@ -36,7 +36,7 @@ const FR_036_UNDER_THE_HEADER =
 const FR_036_NOT_SIDEWAYS_WHEN_OPENED =
   '⭐ 開いたとき（表 T-335 の `WB-1` の既定の大きさ）は、段の並びを本文の領域の幅に収め、横にスクロールさせないこと（MUST）。'
 const FR_069_ONE_LINE =
-  '⭐ ヘルプは、本文の領域の段の下に、著作権表示・ライセンスの名・全文と帰属表示を開く入口の 3 つを 1 行に並べて常に見せ、全文と帰属表示はその下に畳んで置くこと（MUST）'
+  '⭐ ヘルプは、本文の領域の段の下に、著作権表示・ライセンスの名・全文と帰属表示を開く入口の 3 つを 1 行に並べて常に見せ、全文と帰属表示はその下に折りたたんで置くこと（MUST）'
 const FR_036_NARROWED_SCROLLS_SIDEWAYS =
   '⭐ 利用者がヘルプを狭めて（表 T-335 の `WB-9`）段の並びが本文の領域の幅に入り切らないときは、本文の領域を横にもスクロールさせること（MUST）'
 const FR_036_COLUMNS_STAY = '⛔ 本文の領域の幅に合わせて、段の数を変えたり塊を別の段へ送ったりしてはならない（MUST NOT）'
@@ -82,7 +82,7 @@ const T_337 = specTable('T-337')
 
 const cellOf = (table: typeof T_335, id: string, heading: string): string => unbroken(rowOf(table, id).by[heading] ?? '')
 
-const WB_2_PLACE = '題の行を中身の幅に縮め、最小化する前の箱の下の縁に、右の端をそろえて置く（元の箱の右下の角）'
+const WB_2_PLACE = 'タイトルバーを中身の幅に縮め、最小化する前の箱の下の縁に、右の端をそろえて置く（元の箱の右下の角）'
 const WB_2_DRAWS = '本文は描かない'
 const WB_4_SAME_PLACE = '最大化の入口は、`WB-3` のあいだだけ `IC-131` に替えて同じ場所に描く'
 const WB_5_BACK_TO_NORMAL = '`WB-2` から `IC-129` で戻す先は、最小化の前が `WB-3` でも `WB-1` とする'

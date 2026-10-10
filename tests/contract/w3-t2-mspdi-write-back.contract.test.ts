@@ -25,7 +25,7 @@ const EX_16_MARKER =
 
 // see FR-021
 const NO_STOP_UNTIL_EDITED =
-  '⛔ 取込元が `Stop` を持たなかった `Task` では、人がそのタスクの実績を編集していないあいだ、書き出しに `Stop` を書いてはならない（MUST NOT）'
+  '⛔ 取り込み元が `Stop` を持たなかった `Task` では、人がそのタスクの実績を編集していないあいだ、書き出しに `Stop` を書いてはならない（MUST NOT）'
 
 const PJ12_NAMESPACE = 'http://schemas.microsoft.com/project/2007'
 const SAVED_AT = '2026-10-07T09:00:00'
