@@ -1184,6 +1184,7 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-123 | `session-effects.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-188 | `agent-api-relay-link.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-195 | `delay-diagnostics-report-window.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-200 | `resource-list-window.ts` | 内部 | non-pure |  | 🔧 空のユニット（`CR-722` の波 1 が置いた。中身は波 2 が書く） |
 | UF-197 | `parent-task-hold.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-198 | `shown-tasks-hold.ts` | 内部 | non-pure |  | 🔧 実装済 |
 

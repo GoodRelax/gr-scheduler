@@ -31,7 +31,7 @@
   },
   {
    "name": "readShownTasks",
-   "description": "いま日程表に描いているタスクの `uid` の並び（`01-04-requirements.md` の 表 T-353 の `TV-1` の積。スケジュールフィルタを掛けた表が 1 つも無ければ `null`）と、スケジュールフィルタを掛けている表の名（`searchPanel`・`delayDiagnosticsReport`・`resourceList`）の並びを返す。\n返すだけで、画面も文書も書かない"
+   "description": "いま日程表に描いているタスクの `uid` の並び（`01-04-requirements.md` の 表 T-353 の `TV-1` の積 —— スケジュールフィルタを掛けた表が 1 つも無ければ `null`）と、スケジュールフィルタを掛けている表の名（`searchPanel`・`delayDiagnosticsReport`・`resourceList`）の並びを返す。\n返すだけで、画面も文書も書かない"
   },
   {
    "name": "readDelayDiagnostics",

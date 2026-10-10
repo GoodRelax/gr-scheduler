@@ -127,7 +127,7 @@
 | U-46 | `Pinned Task Group` | ピン止めしたタスクグループ。<br>縦にスクロールしても画面に残る |
 | U-47 | `Task Group Expander` | タスクグループの折りたたみの操作子。<br>⛔ **員数と置き方は 表 T-051 の `HF-1` が持ち、本行は持たない** —— **同じ数が 2 か所に載ると、必ず離れていく** |
 | U-48 | `Task Group Pin` | ピン止めの操作子。<br>置き方は `FR-098` |
-| U-49 | `Resource List` | 担当リスト。<br>文書が持つ担当を表に並べる浮くウィンドウ（`01-04-requirements.md` の `FR-036` の 表 T-335）。<br>出し方と消し方は `FR-099` の 表 T-370 ・ 表 T-371。<br>⚠️ `tbl-settings.md` の `S-99g` の面ではない |
+| U-49 | `Resource List` | 担当リスト。<br>文書が持つ担当を表に並べる浮くウィンドウ（`01-04-requirements.md` の `FR-036` の 表 T-335）。<br>出し方と消し方は `FR-099` の 表 T-370 ・ 表 T-371。<br>⚠️ 面（`S-99g`）とは別に、表 T-335 のウィンドウとして開く |
 | U-50 | `Task Group Area` | （画面に出ない構造名。<br>日本語を当てない）。<br>`Schedule Canvas` から `Time Ruler` の帯と余白を除いた、`Task Groups` が並ぶ領域。<br> 左右は `Task Group Panel` と `Properties Panel` の内側 |
 | U-52 | `Actual Operation Dummy` | 実績操作のダミー。<br>**まだ始まっていない実績。<br>** 未着手のタスクに薄く出し、実績と同じ規則で置き、掴ませる。<br>札の基準は表 T-272、掴み代は表 T-266 が持つ。<br>文書のデータとしては存在しない（`FR-043`） |
 | U-51 | `ScreenState` | （画面に出ない構造名。<br>日本語を当てない）。<br>文書に保存しない画面の値をまとめて持つ型の名。<br>⚠️ **「画面の状態」と呼んではならない（MUST NOT）** —— その日本語は `tbl-settings.md` の表 T-203 と、本書の表 T-104 の群（`K-67` 〜 `K-72` / `K-110` / `K-111`）が既に使っている |
@@ -379,7 +379,7 @@
 | AM-5 | 読む | `readSelection` | 動詞＋目的語・`semi-pure-b` | いま選ばれている対象。<br>選んだ順序を保つ | 表 T-023c の `SL-1` / `SL-7b` |
 | AM-6 | 読む | `readDialogueMessages` | 動詞＋目的語・`semi-pure-b` | 人が確定した発話。<br>文書には保存されない | 表 T-035 の `AG-11` ／ `FR-066` |
 | AM-25 | 読む | `readSearchRows` | 動詞＋目的語・`semi-pure-b` | 語を 1 つ受け、検索パネルの 2 つの表と同じ行を返す。<br>列のフィルタと並べ替えは当てない。<br>パネルを読みも変えもしない | `FR-151` の 表 T-330 の `SV-4` ／ 表 T-331 |
-| AM-26 | 読む | `readShownTasks` | 動詞＋目的語・`semi-pure-b` | いま日程表に描いているタスクの `uid` の並び（`01-04-requirements.md` の 表 T-353 の `TV-1` の積。スケジュールフィルタを掛けた表が 1 つも無ければ `null`）と、スケジュールフィルタを掛けている表の名（`searchPanel`・`delayDiagnosticsReport`・`resourceList`）の並びを返す。<br>返すだけで、画面も文書も書かない | `FR-151` の 表 T-353 |
+| AM-26 | 読む | `readShownTasks` | 動詞＋目的語・`semi-pure-b` | いま日程表に描いているタスクの `uid` の並び（`01-04-requirements.md` の 表 T-353 の `TV-1` の積 —— スケジュールフィルタを掛けた表が 1 つも無ければ `null`）と、スケジュールフィルタを掛けている表の名（`searchPanel`・`delayDiagnosticsReport`・`resourceList`）の並びを返す。<br>返すだけで、画面も文書も書かない | `FR-151` の 表 T-353 |
 | AM-19 | 読む | `readDelayDiagnostics` | 動詞＋目的語・`semi-pure-b` | 遅延診断のレポート（`FR-134` の 表 T-317）を凍結した値で返す。<br>画面の値も文書も書かない | `FR-134` ／ 表 T-035 の `AG-4` |
 | AM-7 | 書く | `applyCommands` | 動詞＋目的語・`non-pure` | 一括の書き込み。<br>原子的に適用し、受理したか否かを値で返す | `FR-028` ／ 表 T-035 の `AG-3` / `AG-9a` |
 | AM-8 | 書く | `importDocument` | 動詞＋目的語・`non-pure` | 取り込みと合流 | `FR-087` / `FR-022` ／ 表 T-032a |
@@ -558,8 +558,8 @@
 | IC-16 | `App Header` | 表示 | 明暗テーマを選ぶ（`S-72`）| `FR-039` | — | — |
 | IC-5 | `App Header` | 履歴 | 編集を取り消す | `FR-031` | — | — |
 | IC-6 | `App Header` | 履歴 | 取り消した編集をやり直す | `FR-031` | — | — |
-| IC-117 | `App Header` | 調べる | 検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す。<br>検索の表のスケジュールフィルタを掛けているあいだは赤（`01-04-requirements.md` の 表 T-353 の `TV-12`） | `FR-151` | — | — |
-| IC-107 | `App Header` | 調べる | 遅延診断を行う・診断の表示を終える（`S-445`）。<br>遅延診断レポートの表のスケジュールフィルタを掛けているあいだは赤（`01-04-requirements.md` の 表 T-353 の `TV-12`） | `FR-130` | — | — |
+| IC-117 | `App Header` | 調べる | 検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す | `FR-151` | — | — |
+| IC-107 | `App Header` | 調べる | 遅延診断を行う・診断の表示を終える（`S-445`） | `FR-130` | — | — |
 | IC-115 | `App Header` | AI | 日程の画像をデータ化するプロンプトをクリップボードへコピーする | `FR-068` | — | — |
 | IC-20 | `App Header` | AI | `Agent API` を有効にする・無効にする | `FR-065` | — | — |
 | IC-18 | `App Header` | AI | AI との対話欄を表示する・非表示にする | `FR-066` | — | — |
@@ -637,7 +637,7 @@
 | IC-127 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 表・入力欄・タイトルバーの面の名の字の大きさの段（`S-429`、3 値排他）を変え、3 つの表のウィンドウ（検索パネル・遅延診断レポート・担当リスト）はその 1 つの段を共に使うので、どのウィンドウで押しても 3 つの字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方） | `FR-151` の 表 T-330 の `SV-16` | — | — |
 | IC-140 | `Delay Diagnostics Report` | — | `.md` のファイルに書き出す（札は `.md`）。<br>中身は `IC-108` のコピーと同じ文字列、置き場と名は 表 T-346 の `RW-7` | `FR-134` | — | — |
 | IC-108 | `Delay Diagnostics Report` | — | まとめと表を Markdown の文字列にしてクリップボードへ置く（表 T-346 の `RW-6`） | `FR-134` | — | — |
-| IC-62 | `Command Palette` | 表示 | 担当リストを表示する。<br>担当リストの表のスケジュールフィルタを掛けているあいだは赤（`01-04-requirements.md` の 表 T-353 の `TV-12`） | `FR-099` | — | — |
+| IC-62 | `Command Palette` | 表示 | 担当リストを表示する | `FR-099` | — | — |
 | IC-132 | `Command Palette` | 表示 | 休日の設定を開く（稼働する曜日・例外日・週の始まり） | `FR-088` | — | — |
 | IC-63 | `Resource List` | — | 一覧のすべてを選択する | `FR-099` | — | — |
 | IC-64 | `Resource List` | — | 一覧の選択をすべて解除する | `FR-099` | — | — |

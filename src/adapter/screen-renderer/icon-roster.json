@@ -235,7 +235,7 @@
     "App Header"
    ],
    "group": "調べる",
-   "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す。<br>検索の表のスケジュールフィルタを掛けているあいだは赤（`01-04-requirements.md` の 表 T-353 の `TV-12`）",
+   "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す",
    "authority": "`FR-151`",
    "arms": null,
    "armsShape": null
@@ -246,7 +246,7 @@
     "App Header"
    ],
    "group": "調べる",
-   "entryTo": "遅延診断を行う・診断の表示を終える（`S-445`）。<br>遅延診断レポートの表のスケジュールフィルタを掛けているあいだは赤（`01-04-requirements.md` の 表 T-353 の `TV-12`）",
+   "entryTo": "遅延診断を行う・診断の表示を終える（`S-445`）",
    "authority": "`FR-130`",
    "arms": null,
    "armsShape": null
@@ -1142,7 +1142,7 @@
     "Command Palette"
    ],
    "group": "表示",
-   "entryTo": "担当リストを表示する。<br>担当リストの表のスケジュールフィルタを掛けているあいだは赤（`01-04-requirements.md` の 表 T-353 の `TV-12`）",
+   "entryTo": "担当リストを表示する",
    "authority": "`FR-099`",
    "arms": null,
    "armsShape": null
