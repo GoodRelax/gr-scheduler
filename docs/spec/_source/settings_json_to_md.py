@@ -100,6 +100,12 @@ def text(value, field=None):
     if 'sameAs' in value:
         # ⛔ The value is NOT restated here; the cell names the row it follows.
         return '`%s` に同じ' % value['sameAs']
+    if 'spans' in value:
+        # CR-710: S-580's default working times, one span per start-end pair.
+        # The separators are ASCII so that no language owns them.
+        body = ', '.join('%s-%s' % (start, end) for start, end in value['spans'])
+        out = '`%s`' % body if value.get('code') else body
+        return out + (' ' + value['mark'] if value.get('mark') else '')
     if 'num' in value or 'lit' in value or 'pair' in value or 'color' in value:
         if 'pair' in value:
             # `sep` is for the pairs the specification does NOT write as

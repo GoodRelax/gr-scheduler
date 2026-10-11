@@ -1,6 +1,6 @@
 {
  "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
- "schemaVersion": "2026-10-10T17:02:00Z",
+ "schemaVersion": "2026-10-11T04:10:00Z",
  "schedule": {
   "project": {
    "id": null,
@@ -29,7 +29,8 @@
    "outlineBase": 1,
    "carry": {},
    "carryElements": [],
-   "sourceFormat": "grs"
+   "sourceFormat": "grs",
+   "scheduleDataTimeZone": "UTC"
   },
   "calendars": [
    {
@@ -45,6 +46,7 @@
       "ordinal": 0,
       "dayType": 1,
       "dayWorking": false,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -52,6 +54,7 @@
       "ordinal": 1,
       "dayType": 2,
       "dayWorking": true,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -59,6 +62,7 @@
       "ordinal": 2,
       "dayType": 3,
       "dayWorking": true,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -66,6 +70,7 @@
       "ordinal": 3,
       "dayType": 4,
       "dayWorking": true,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -73,6 +78,7 @@
       "ordinal": 4,
       "dayType": 5,
       "dayWorking": true,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -80,6 +86,7 @@
       "ordinal": 5,
       "dayType": 6,
       "dayWorking": true,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -87,6 +94,7 @@
       "ordinal": 6,
       "dayType": 7,
       "dayWorking": false,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      }
@@ -99,6 +107,7 @@
       "toDate": "2027-01-01T23:59:00",
       "dayWorking": false,
       "recurrenceKind": 1,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -109,6 +118,7 @@
       "toDate": "2027-08-20T23:59:00",
       "dayWorking": false,
       "recurrenceKind": 1,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -119,6 +129,7 @@
       "toDate": "2027-12-31T23:59:00",
       "dayWorking": false,
       "recurrenceKind": 1,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -129,6 +140,7 @@
       "toDate": "2028-04-28T23:59:00",
       "dayWorking": false,
       "recurrenceKind": 1,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -139,6 +151,7 @@
       "toDate": "2028-08-18T23:59:00",
       "dayWorking": false,
       "recurrenceKind": 1,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -149,6 +162,7 @@
       "toDate": "2029-01-01T23:59:00",
       "dayWorking": false,
       "recurrenceKind": 1,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      },
@@ -159,6 +173,7 @@
       "toDate": "2029-02-23T23:59:00",
       "dayWorking": false,
       "recurrenceKind": 1,
+      "workingTimes": [],
       "carry": {},
       "carryElements": []
      }
@@ -47548,6 +47563,7 @@
   "dateGridLinesVisible": false,
   "dependencyVisible": true,
   "displayScale": 100,
+  "displayTimeZones": [],
   "fitSpanFinish": null,
   "fitSpanFixed": false,
   "fitSpanStart": null,
@@ -47566,6 +47582,7 @@
   "scrollDayOffset": 0,
   "scrollGroupId": null,
   "scrollGroupOffset": 0,
+  "showsTimeOfDay": false,
   "stackDirection": "up",
   "tableViews": {
    "delayDiagnosticsReport": {
@@ -47591,6 +47608,7 @@
   "taskGroupPanelWidth": 300,
   "taskGroupPanelWidthFixed": false,
   "themeMonochrome": false,
+  "viewTimeZone": null,
   "zoomX": 1,
   "zoomY": 1
  },

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 548" width="452" height="548" role="img" aria-label="GRS icon glyphs IC-1 to IC-160 (IC-19, IC-46, IC-49, IC-120 and IC-121 retired; IC-109 to IC-114, IC-116 and IC-144 to IC-152 unused)">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 452 548" width="452" height="548" role="img" aria-label="GRS icon glyphs IC-1 to IC-165 (IC-19, IC-46, IC-49, IC-120 and IC-121 retired; IC-109 to IC-114, IC-116 and IC-144 to IC-152 unused)">
   <title>図 F-019 — アイコンの図形</title>
   <style>
     svg { color: #1f2328; }
@@ -803,4 +803,30 @@
     <circle class="f" cx="6" cy="12" r="2"/>
   </g>
   <text class="lbl" x="208" y="530">IC-160</text>
+  <g transform="translate(232 496)">
+    <circle class="s" cx="12" cy="12" r="8"/>
+    <path class="s" d="M4 12 H20"/>
+    <ellipse class="s" cx="12" cy="12" rx="3.5" ry="8"/>
+  </g>
+  <text class="lbl" x="244" y="530">IC-161</text>
+  <g transform="translate(268 496)">
+    <circle class="s" cx="10" cy="12" r="6.5"/>
+    <path class="s" d="M10 8.5 V12 L12.5 13.5"/>
+    <path class="s" d="M18 8.5 L21.5 12 L18 15.5"/>
+  </g>
+  <text class="lbl" x="280" y="530">IC-162</text>
+  <g transform="translate(304 496)">
+    <path class="s" d="M12 5 V19"/>
+    <path class="s" d="M5 12 H19"/>
+  </g>
+  <text class="lbl" x="316" y="530">IC-163</text>
+  <g transform="translate(340 496)">
+    <path class="s" d="M5 12 H19"/>
+  </g>
+  <text class="lbl" x="352" y="530">IC-164</text>
+  <g transform="translate(376 496)">
+    <circle class="s" cx="12" cy="12" r="8"/>
+    <path class="s" d="M12 7.5 V12 L15 14"/>
+  </g>
+  <text class="lbl" x="388" y="530">IC-165</text>
 </svg>

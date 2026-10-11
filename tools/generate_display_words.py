@@ -151,6 +151,11 @@ HELP_LEGAL_PARTS = ('licensedUnder', 'fullText')
 # a row is shown is table T-255's closing rule, read by generate_help_roster.py.
 BROWSER_FUNCTION_ROW = re.compile(r'^\| (BF-\d+[a-z]?) \|')
 BROWSER_FUNCTION_TABLE = 'T-255'
+# CR-710: the names of the time zones FR-156 lets a person choose (table
+# T-376). Every row takes a word: the table holds the region name and the
+# offset, and the name a person reads is the dictionary's.
+TIME_ZONE_ROW = re.compile(r'^\| (ZN-\d+) \|')
+TIME_ZONE_TABLE = 'T-376'
 # ⭐ The words and the next step for a document refused on import. FR-076 has
 # the refusal carry the row of table T-220 it broke, and the words are looked
 # up by that row id exactly as a reason is by its row of table T-233.
@@ -788,6 +793,9 @@ def roster():
         'themeHues': [row[0] for row in
                       table_rows(REL_REQUIREMENTS, THEME_HUE_ROW,
                                  THEME_HUE_TABLE)],
+        'timeZones': [row[0] for row in
+                      table_rows(REL_REQUIREMENTS, TIME_ZONE_ROW,
+                                 TIME_ZONE_TABLE)],
     }
 
 
@@ -828,6 +836,7 @@ SHAPE = {
     'rowMinHeightField': ('part', ('text',)),
     'taskGroupPanelWidthField': ('part', ('text',)),
     'themeHues': ('rowId', ('text',)),
+    'timeZones': ('rowId', ('label',)),
     'scaleEcho': ('end', ('text',)),
     'dualCursorReadout': ('line', ('text',)),
     'searchColumns': ('rowId', ('text',)),
@@ -955,7 +964,7 @@ def build(doc, keys_by_row):
                     'weekdays', 'hintLines',
                     'colorNames', 'colorField', 'propertyField',
                     'rowMinHeightField', 'taskGroupPanelWidthField',
-                    'themeHues',
+                    'themeHues', 'timeZones',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
                     'planActualStates', 'searchPanel', 'resourceListColumns',
                     'resourceList', 'parentTaskChoice',

@@ -958,7 +958,10 @@ def number_of(cell):
 # that is the format's doing, not a mistake here.
 # S-482 / S-483 are the default start and finish times (CR-646): a literal
 # time of day, typed as a string.
-DEFAULT_CALENDAR_ROWS = ['S-106', 'S-107', 'S-108', 'S-128', 'S-482', 'S-483']
+# CR-710: S-580 is the default working times, a list of start-end spans that
+# a working day without spans of its own is read with (FR-054).
+DEFAULT_CALENDAR_ROWS = ['S-106', 'S-107', 'S-108', 'S-128', 'S-482', 'S-483',
+                         'S-580']
 
 
 def default_calendar_value(row_id):
@@ -1031,6 +1034,13 @@ def default_calendar_block():
             # A time of day in the xsd:time form (S-482 / S-483, CR-646).
             got.append((row_id, "'%s'" % cell['lit'], 'string',
                         'the time of day the row states (HH:MM:SS)'))
+        elif 'spans' in cell:
+            # Start-end spans of one day in the xsd:time form (S-580, CR-710).
+            literal = '[%s]' % ', '.join("['%s', '%s']" % (start, end)
+                                         for start, end in cell['spans'])
+            got.append((row_id, literal,
+                        'ReadonlyArray<readonly [string, string]>',
+                        'the working time spans the row states (HH:MM:SS)'))
         else:
             raise SystemExit(
                 'table T-209 row %s holds no machine value this generator '

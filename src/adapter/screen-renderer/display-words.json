@@ -1278,6 +1278,39 @@
    }
   },
   {
+   "rowId": "IC-163",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "時間帯を 1 本足す",
+    "en": "Add a working-time range"
+   }
+  },
+  {
+   "rowId": "IC-164",
+   "label": {
+    "ja": "削除",
+    "en": "Delete"
+   },
+   "hint": {
+    "ja": "この時間帯を消す（適用するまで文書は変わらない）",
+    "en": "Delete this range (the document changes only when applied)"
+   }
+  },
+  {
+   "rowId": "IC-165",
+   "label": {
+    "ja": "",
+    "en": ""
+   },
+   "hint": {
+    "ja": "時刻を 1 分の単位で打つ（例 8:00、終わりの 0:00 は 24:00）",
+    "en": "Type a time to the minute (e.g. 8:00; an end of 0:00 is 24:00)"
+   }
+  },
+  {
    "rowId": "IC-135",
    "label": {
     "ja": "追加",
@@ -1451,6 +1484,28 @@
    "hint": {
     "ja": "GRS がこのブラウザに覚えた値を消して、ページを読み直す。先に確かめる",
     "en": "Clear what GRS keeps in this browser and reload the page; asks first"
+   }
+  },
+  {
+   "rowId": "IC-161",
+   "label": {
+    "ja": "基準を変える",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "IC-162",
+   "label": {
+    "ja": "タイムシフト",
+    "en": ""
+   },
+   "hint": {
+    "ja": "",
+    "en": ""
    }
   }
  ],
@@ -2750,6 +2805,36 @@
    }
   },
   {
+   "rowId": "K-144",
+   "keys": [
+    "viewTimeZone"
+   ],
+   "label": {
+    "ja": "基準のタイムゾーン",
+    "en": "viewTimeZone"
+   }
+  },
+  {
+   "rowId": "K-145",
+   "keys": [
+    "displayTimeZones"
+   ],
+   "label": {
+    "ja": "表示するタイムゾーン",
+    "en": "displayTimeZones"
+   }
+  },
+  {
+   "rowId": "K-146",
+   "keys": [
+    "showsTimeOfDay"
+   ],
+   "label": {
+    "ja": "時刻を表示する",
+    "en": "showsTimeOfDay"
+   }
+  },
+  {
    "rowId": "K-91",
    "keys": [
     "planActualGuideWeight"
@@ -3885,6 +3970,28 @@
    }
   },
   {
+   "rowId": "RS-89",
+   "text": {
+    "ja": "",
+    "en": ""
+   },
+   "nextStep": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "RS-90",
+   "text": {
+    "ja": "",
+    "en": ""
+   },
+   "nextStep": {
+    "ja": "",
+    "en": ""
+   }
+  },
+  {
    "rowId": "RS-53",
    "text": {
     "ja": "タスクは期間を持つので、引かないと作れません",
@@ -4457,6 +4564,17 @@
     "ja": "元のファイルでそのタスクの形とマイルストーンの印を揃えてから開いてください",
     "en": "In the original file, make that task's shape and its milestone flag agree, then open it"
    }
+  },
+  {
+   "rowId": "IV-24",
+   "text": {
+    "ja": "",
+    "en": ""
+   },
+   "nextStep": {
+    "ja": "",
+    "en": ""
+   }
   }
  ],
  "questions": [
@@ -4521,6 +4639,13 @@
    "text": {
     "ja": "タスクと親タスクと子タスクの関係の矢印が一緒に選ばれました。どちらを選びますか",
     "en": "Tasks and parent arrows are selected together. Which do you want to select?"
+   }
+  },
+  {
+   "rowId": "QN-14",
+   "text": {
+    "ja": "",
+    "en": ""
    }
   },
   {
@@ -4833,6 +4958,17 @@
    "press": {
     "ja": "素の左クリック",
     "en": "Plain left click"
+   }
+  },
+  {
+   "rowId": "MK-17",
+   "text": {
+    "ja": "",
+    "en": ""
+   },
+   "press": {
+    "ja": "",
+    "en": ""
    }
   },
   {
@@ -5364,6 +5500,204 @@
    "text": {
     "ja": "藍",
     "en": "Indigo"
+   }
+  }
+ ],
+ "timeZones": [
+  {
+   "rowId": "ZN-1",
+   "label": {
+    "ja": "(UTC-12:00) 日付変更線の西",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-2",
+   "label": {
+    "ja": "(UTC-11:00) サモア（米領）",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-3",
+   "label": {
+    "ja": "(UTC-10:00) ハワイ",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-4",
+   "label": {
+    "ja": "(UTC-09:00) アラスカ",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-5",
+   "label": {
+    "ja": "(UTC-08:00) 太平洋時間（米国・カナダ）",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-6",
+   "label": {
+    "ja": "(UTC-07:00) 山岳部時間（米国・カナダ）",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-7",
+   "label": {
+    "ja": "(UTC-06:00) 中部時間（米国・カナダ）",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-8",
+   "label": {
+    "ja": "(UTC-05:00) 東部時間（米国・カナダ）",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-9",
+   "label": {
+    "ja": "(UTC-04:00) 大西洋時間（カナダ）",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-10",
+   "label": {
+    "ja": "(UTC-03:00) サンパウロ",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-11",
+   "label": {
+    "ja": "(UTC-02:00) 南ジョージア",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-12",
+   "label": {
+    "ja": "(UTC-01:00) アゾレス",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-13",
+   "label": {
+    "ja": "(UTC) 協定世界時",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-14",
+   "label": {
+    "ja": "(UTC+00:00) ロンドン",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-15",
+   "label": {
+    "ja": "(UTC+01:00) 中央ヨーロッパ（ベルリン・パリ）",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-16",
+   "label": {
+    "ja": "(UTC+02:00) 東ヨーロッパ（ヘルシンキ）",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-17",
+   "label": {
+    "ja": "(UTC+03:00) モスクワ",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-18",
+   "label": {
+    "ja": "(UTC+04:00) ドバイ",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-19",
+   "label": {
+    "ja": "(UTC+05:00) カラチ",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-20",
+   "label": {
+    "ja": "(UTC+05:30) インド",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-21",
+   "label": {
+    "ja": "(UTC+06:00) ダッカ",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-22",
+   "label": {
+    "ja": "(UTC+07:00) バンコク",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-23",
+   "label": {
+    "ja": "(UTC+08:00) シンガポール・北京",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-24",
+   "label": {
+    "ja": "(UTC+09:00) 東京",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-25",
+   "label": {
+    "ja": "(UTC+10:00) シドニー",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-26",
+   "label": {
+    "ja": "(UTC+11:00) ヌメア",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-27",
+   "label": {
+    "ja": "(UTC+12:00) オークランド",
+    "en": ""
+   }
+  },
+  {
+   "rowId": "ZN-28",
+   "label": {
+    "ja": "(UTC+13:00) トンガ",
+    "en": ""
    }
   }
  ],

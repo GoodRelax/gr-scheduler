@@ -131,6 +131,14 @@
    }
   },
   {
+   "prefix": "BS",
+   "words": "Bulk Shift",
+   "owner": "spec",
+   "means": {
+    "ja": "タイムシフトが書き換える列と、確認に出すもの（表 T-377）"
+   }
+  },
+  {
    "prefix": "BT",
    "words": "",
    "owner": "spec",
@@ -1309,6 +1317,14 @@
    }
   },
   {
+   "prefix": "SG",
+   "words": "Snap Grain",
+   "owner": "spec",
+   "means": {
+    "ja": "掴んで離した位置を寄せる単位（表 T-378）"
+   }
+  },
+  {
    "prefix": "SH",
    "words": "Shape",
    "owner": "spec",
@@ -1482,6 +1498,14 @@
    "owner": "spec",
    "means": {
     "ja": "章ごとのテストの方針と合格基準"
+   }
+  },
+  {
+   "prefix": "TX",
+   "words": "Time teXt",
+   "owner": "spec",
+   "means": {
+    "ja": "日時を見せる所と、その所での日時と長さの形（表 T-375）"
    }
   },
   {
@@ -1725,6 +1749,14 @@
    "owner": "spec",
    "means": {
     "ja": "縦軸のズームが端で何も変えないときの扱い"
+   }
+  },
+  {
+   "prefix": "ZN",
+   "words": "ZoNe",
+   "owner": "spec",
+   "means": {
+    "ja": "タイムゾーンの選択肢（表 T-376）"
    }
   },
   {

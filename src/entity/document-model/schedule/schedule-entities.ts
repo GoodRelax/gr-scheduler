@@ -64,6 +64,8 @@ export interface Project {
   readonly outlineBase: number
   /** AT-143 */
   readonly sourceFormat: 'grs' | 'pj12' | 'pj15'
+  /** AT-157 */
+  readonly scheduleDataTimeZone: string
 }
 
 /** ET-2 of table T-056. */
@@ -188,6 +190,8 @@ export interface WeekDay {
   readonly dayType: number | null
   /** AT-74 */
   readonly dayWorking: boolean | null
+  /** AT-158 */
+  readonly workingTimes: readonly WorkingTime[]
   /** AT-75 */
   readonly carry: Readonly<Record<string, string>>
   /** AT-76 */
@@ -208,10 +212,22 @@ export interface Exception {
   readonly dayWorking: boolean | null
   /** AT-82 */
   readonly recurrenceKind: number | null
+  /** AT-159 */
+  readonly workingTimes: readonly WorkingTime[]
   /** AT-83 */
   readonly carry: Readonly<Record<string, string>>
   /** AT-84 */
   readonly carryElements: readonly CarryElement[]
+}
+
+/** ET-19 of table T-056. */
+export interface WorkingTime {
+  /** AT-160 */
+  readonly ordinal: number
+  /** AT-161 */
+  readonly fromTime: string | null
+  /** AT-162 */
+  readonly toTime: string | null
 }
 
 /** ET-9 of table T-056. */
@@ -586,7 +602,10 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
     many: false,
     primaryKey: ['ordinal'],
     foreignKeys: [],
-    nested: [{ column: 'carryElements', entity: 'CarryElement' }],
+    nested: [
+      { column: 'workingTimes', entity: 'WorkingTime' },
+      { column: 'carryElements', entity: 'CarryElement' },
+    ],
   },
   {
     entity: 'Exception',
@@ -594,7 +613,18 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
     many: false,
     primaryKey: ['ordinal'],
     foreignKeys: [],
-    nested: [{ column: 'carryElements', entity: 'CarryElement' }],
+    nested: [
+      { column: 'workingTimes', entity: 'WorkingTime' },
+      { column: 'carryElements', entity: 'CarryElement' },
+    ],
+  },
+  {
+    entity: 'WorkingTime',
+    scheduleKey: null,
+    many: false,
+    primaryKey: ['ordinal'],
+    foreignKeys: [],
+    nested: [],
   },
   {
     entity: 'Resource',
@@ -699,6 +729,8 @@ export const DEFAULT_CALENDAR_VALUES: {
   readonly 'S-482': string
   /** S-483, the time of day the row states (HH:MM:SS) */
   readonly 'S-483': string
+  /** S-580, the working time spans the row states (HH:MM:SS) */
+  readonly 'S-580': ReadonlyArray<readonly [string, string]>
 } = {
   'S-106': [2, 3, 4, 5, 6],
   'S-107': [],
@@ -706,5 +738,6 @@ export const DEFAULT_CALENDAR_VALUES: {
   'S-128': 480,
   'S-482': '08:00:00',
   'S-483': '17:00:00',
+  'S-580': [['08:00:00', '12:00:00'], ['13:00:00', '17:00:00']],
 }
 // </generated>

@@ -163,6 +163,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TerminalPushOut` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#TerminalPushOut` | -- | interface TerminalPushOut |
 | `DelayFixSubject` | file only | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixSubject` | -- | interface DelayFixSubject |
 | `ENTITY_ROWS` | file only | const | `src/entity/document-model/schedule/schedule-entities.ts#ENTITY_ROWS` | -- | const ENTITY_ROWS: readonly EntityRows[] = [ |
+| `WorkingTime` | file only | interface | `src/entity/document-model/schedule/schedule-entities.ts#WorkingTime` | -- | interface WorkingTime |
 | `taskGroupRankById` | file only | function | `src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
 | `assigneeNamesByTaskUid` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#assigneeNamesByTaskUid` | -- | function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, readonly string[]> |
 | `compareDates` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#compareDates` | -- | function compareDates(left: string \| null, right: string \| null): number |
@@ -1802,7 +1803,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NoticeValuesKey` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesKey` | -- | type NoticeValuesKey = \| 'notices' \| 'noticeDisplayStateMachine.hidden' \| 'noticeDisplayStateMachine.shown' \| 'changeDeliveryStateMachine.idle' \| 'changeDeli... |
 | `NoticeValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesStateCarried` | -- | interface NoticeValuesStateCarried |
 | `QUESTION_DISPLAY_OF_ROW` | file only | const | `src/use-case/advance-screen-session/notice-values.ts#QUESTION_DISPLAY_OF_ROW` | -- | const QUESTION_DISPLAY_OF_ROW: Readonly<Record<QuestionRow, 'ask' \| 'askOnlyWithUnsavedEdits'>> = |
-| `QuestionRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#QuestionRow` | -- | type QuestionRow = \| 'QN-1' \| 'QN-2' \| 'QN-3' \| 'QN-4' \| 'QN-5' \| 'QN-9' \| 'QN-10' \| 'QN-11' \| 'QN-12' \| 'QN-8' |
+| `QuestionRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#QuestionRow` | -- | type QuestionRow = \| 'QN-1' \| 'QN-2' \| 'QN-3' \| 'QN-4' \| 'QN-5' \| 'QN-9' \| 'QN-10' \| 'QN-11' \| 'QN-12' \| 'QN-14' \| 'QN-8' |
 | `ReasonRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#ReasonRow` | -- | type ReasonRow = \| 'RS-1' \| 'RS-2' \| 'RS-3' \| 'RS-4' \| 'RS-5' \| 'RS-6' \| 'RS-7' \| 'RS-8' \| 'RS-9' \| 'RS-10' \| 'RS-11' |
 | `stepNoticeValues` | file only | function | `src/use-case/advance-screen-session/notice-values.ts#stepNoticeValues` | -- | function stepNoticeValues(values: NoticeValues, event: NoticeValuesEvent): NoticeStep |
 | `ArmModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ArmModeState` | -- | type ArmModeState = \| { readonly kind: 'notArmed' } \| { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] } \| { read... |
@@ -1873,4 +1874,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 920 name(s) leave through a public entry (399 of them published by table T-064), 743 more are exported by a file and not by its entry.
+Totals: 920 name(s) leave through a public entry (399 of them published by table T-064), 744 more are exported by a file and not by its entry.

@@ -132,6 +132,8 @@ export type ReasonRow =
   | 'RS-50'
   | 'RS-51'
   | 'RS-52'
+  | 'RS-89'
+  | 'RS-90'
   | 'RS-53'
   | 'RS-54'
   | 'RS-55'
@@ -188,6 +190,7 @@ export type InvariantRow =
   | 'IV-20'
   | 'IV-21'
   | 'IV-22'
+  | 'IV-24'
 
 // see FR-076
 export type NoticeReason = ReasonRow | InvariantRow
@@ -203,6 +206,7 @@ export type QuestionRow =
   | 'QN-10'
   | 'QN-11'
   | 'QN-12'
+  | 'QN-14'
   | 'QN-8'
 
 // see T-037
@@ -268,6 +272,8 @@ export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner
   'RS-50': 'NT-5',
   'RS-51': 'NT-5',
   'RS-52': 'NT-3',
+  'RS-89': 'NT-3',
+  'RS-90': 'NT-3',
   'RS-53': 'NT-1',
   'RS-54': 'NT-1',
   'RS-55': 'NT-1',
@@ -321,6 +327,7 @@ export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner
   'IV-20': 'NT-1',
   'IV-21': 'NT-1',
   'IV-22': 'NT-1',
+  'IV-24': 'NT-1',
 }
 
 // see T-233, FR-076
@@ -377,6 +384,8 @@ export const NOTICE_DISPLAY_OF_REASON: Readonly<Record<NoticeReason, 'show' | 'h
   'RS-50': 'report',
   'RS-51': 'report',
   'RS-52': 'report',
+  'RS-89': 'show',
+  'RS-90': 'show',
   'RS-53': 'hide',
   'RS-54': 'autoDismiss',
   'RS-55': 'hide',
@@ -430,6 +439,7 @@ export const NOTICE_DISPLAY_OF_REASON: Readonly<Record<NoticeReason, 'show' | 'h
   'IV-20': 'show',
   'IV-21': 'show',
   'IV-22': 'show',
+  'IV-24': 'show',
 }
 
 // see T-233, FR-076
@@ -486,6 +496,8 @@ export const NOTICE_WORDS_ROW_OF_REASON: Readonly<Record<NoticeReason, NoticeRea
   'RS-50': 'RS-50',
   'RS-51': 'RS-51',
   'RS-52': 'RS-52',
+  'RS-89': 'RS-89',
+  'RS-90': 'RS-90',
   'RS-53': 'RS-53',
   'RS-54': 'RS-54',
   'RS-55': 'RS-55',
@@ -539,6 +551,7 @@ export const NOTICE_WORDS_ROW_OF_REASON: Readonly<Record<NoticeReason, NoticeRea
   'IV-20': 'IV-20',
   'IV-21': 'IV-21',
   'IV-22': 'IV-22',
+  'IV-24': 'IV-24',
 }
 
 // see T-234, FR-076
@@ -552,6 +565,7 @@ export const QUESTION_DISPLAY_OF_ROW: Readonly<Record<QuestionRow, 'ask' | 'askO
   'QN-10': 'ask',
   'QN-11': 'ask',
   'QN-12': 'ask',
+  'QN-14': 'ask',
   'QN-8': 'ask',
 }
 // </generated>

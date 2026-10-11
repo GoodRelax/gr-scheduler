@@ -40,7 +40,7 @@
 | PR-4 | `actualStart` | 日付 | `Task` | `task` |  | `Task/ActualStart` |
 | PR-6 | `actualFinish` | 日付 | `Task` | `task` | 完了したときだけ入る | `Task/ActualFinish` |
 | PR-36 | `actualStart` / `actualFinish` | 日付（1 つの入力） | `Task` | `milestone` | マイルストーンの実績の日。<br>1 つの入力で `actualStart` と `actualFinish` へ同じ日を書き、表 T-019 の `PA-5`（完了）に置く。<br>空にしたときは両方を空にして `PA-1`（未着手）に置く（どちらも 表 T-108 の `CM-13`） | `Task/ActualStart` `Task/ActualFinish`（同じ日） |
-| PR-5 | `actualDuration` | 数値 | `Task` | `task` | 文書の列ではない —— `FR-011` が日付から数えた実績の長さ（両端の日は非稼働日でも数える）。<br>入れると、`actualStart` の後に来る稼働日を入れた数 − 1 個数えた日を実績の最後の日（完了していれば `actualFinish`、それ以外は `stop`）に置く。<br>欄の入力は日付の欄と同じ幅で、右に単位の語（`FR-006`） | `Task/ActualDuration` |
+| PR-5 | `actualDuration` | 数値 | `Task` | `task` | 文書の列ではない —— `FR-011` が日時から数えた実績の長さ（分。<br>端の日が非稼働日ならその日を稼働日の時間帯の 1 組で数える）。<br>入れた長さは、時刻を表示する文書（`FR-158`）では `d` ／ `h` ／ `m` で読み（同要求の 表 T-375 の `TX-3`・`TX-10`）、表示しない文書では整数の稼働日で読む。<br>入れると、`actualStart` から入れた長さだけ稼働時間を進めた瞬間を実績の終わり（完了していれば `actualFinish`、それ以外は `stop`）に置く。<br>欄の入力は日付の欄と同じ幅で、右に単位の語（`FR-006`） | `Task/ActualDuration` |
 | PR-9 | `percentComplete` | 数値（読み取り専用） | `Task` | `task` | **読み取り専用。<br>** 型と算出は `FR-012` | `Task/PercentComplete` |
 | PR-7 | `resume` | 日付 | `Task` | `task` | 中断したときだけ入る | `Task/Resume` |
 | PR-8 | `resumeValid` | 真偽 | `Task` | `task` | `false` = 再開日未定の中断 | `Task/ResumeValid` |
@@ -69,6 +69,6 @@
 | PR-25 | `fillColor` | 色 | `HighlightBox` | — | 塗りの色。<br>`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。<br>置くときは同書の `S-370`（透明 ＝ 塗らない）をコピーする。<br>規則は `FR-019` | 無い（`GRS JSON` のみ） |
 | PR-24 | `fillTransparencyPercent` | 数値 | `HighlightBox` | — | 塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371` | 無い（`GRS JSON` のみ） |
 | PR-41 | `linkType` | 文字（読み取り専用） | `Dependency` | — | **読み取り専用。<br>** 依存の種別（`_assets/fig-erd-detail.md` の `AT-46`）。<br>`FR-009` の 表 T-018 の `名` の欄の略号で示し、保存した数を出さない。<br>種別を変える命令は無い（表 T-108 の `CM-36` 〜 `CM-38`） | `PredecessorLink/Type` |
-| PR-42 | `lag` | 数値 | `Dependency` | — | ラグ（`_assets/fig-erd-detail.md` の `AT-47`）。<br>見せて打たせる単位は `_assets/tbl-settings.md` の 表 T-213 の `S-118`（稼働日）であり、保存した 0.1 分との換算と、稼働日でない形式の見せ方は `FR-009` が持つ。<br>依存線の行のうち編集できるのは本行だけである（`FR-009`、表 T-108 の `CM-38`） | `PredecessorLink/LinkLag` |
+| PR-42 | `lag` | 数値 | `Dependency` | — | ラグ（`_assets/fig-erd-detail.md` の `AT-47`）。<br>見せて打たせる単位は `_assets/tbl-settings.md` の 表 T-213 の `S-118` であり、保存した 0.1 分との換算と、稼働日でない形式の見せ方は `FR-009` が持つ。<br>依存線の行のうち編集できるのは本行だけである（`FR-009`、表 T-108 の `CM-38`） | `PredecessorLink/LinkLag` |
 | PR-43 | `predecessorUid` | 文字（読み取り専用） | `Dependency` | — | **読み取り専用。<br>** 先行タスク（`_assets/fig-erd-detail.md` の `AT-45`）。<br>`FR-038` の辞書の形（名と `uid`）で示す | `PredecessorLink/PredecessorUID` |
 | PR-44 | `successorUid` | 文字（読み取り専用） | `Dependency` | — | **読み取り専用。<br>** 文書の列ではない —— 依存を入れ子で持つ後続タスク（`_assets/fig-erd-detail.md` の `ET-3`）。<br>`FR-038` の辞書の形（名と `uid`）で示す | 無い（入れ子の位置が表す） |
