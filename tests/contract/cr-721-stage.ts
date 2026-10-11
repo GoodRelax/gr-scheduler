@@ -194,11 +194,14 @@ export const REPORT_SCHEDULE = {
     reportTask(2, 'Bravo', '2026-01-05', { percentComplete: 40, actualStart: '2026-01-05T08:00:00' }),
     reportTask(3, 'Charlie', '2026-02-02'),
   ],
+  // WHY: CR-710 shows the T-314 quantities through 1d = Project.minutesPerDay (empty, so S-128 = 480 minutes, TX-8).
+  project: { minutesPerDay: null },
   resources: [],
   assignments: [],
 } as unknown as Schedule
 
-const QUANTITIES = { inheritedDelayDays: 1, selfDelayDays: 2, pushOutDays: 5, terminalsReached: 2 }
+// WHY: CR-710 holds the quantities in working minutes (T-314); 480 is one working day of the fixture (S-128).
+const QUANTITIES = { inheritedDelayMinutes: 480, selfDelayMinutes: 960, pushOutMinutes: 2400, terminalsReached: 2 }
 
 export const REPORT: DelayDiagnosticsReport = {
   outcome: 'diagnosed',

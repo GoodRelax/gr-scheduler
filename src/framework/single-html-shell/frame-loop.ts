@@ -1964,7 +1964,8 @@ function reportHeldOf(
   if (window === null || diagnostics === null) return null
   const documentName = document.schedule.project.title ?? ''
   const view = tableViewOf(document.documentSettings, 'delayDiagnosticsReport')
-  return { window, view, report: diagnostics.report, schedule: document.schedule, documentName, language, ...(fixTables === undefined ? {} : { fixTables }) }
+  const showsTimeOfDay = document.documentSettings.showsTimeOfDay
+  return { window, view, report: diagnostics.report, schedule: document.schedule, documentName, language, showsTimeOfDay, ...(fixTables === undefined ? {} : { fixTables }) }
 }
 
 // see RW-16, RW-17, DX-12

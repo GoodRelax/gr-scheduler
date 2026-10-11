@@ -195,12 +195,12 @@ function pushedOf(report: Report, uid: number): readonly Pushed[] {
   return everything(report)
     .filter((one) => one.container !== null && isPlain(one.node))
     .map((one) => ({ record: one.node as Loose, values: flat(one.node as Loose), container: one.container }))
-    .filter((one) => Object.hasOwn(one.values, 'pushOutDays') && owns(one.record, uid))
+    .filter((one) => Object.hasOwn(one.values, 'pushOutMinutes') && owns(one.record, uid))
 }
 
 function onePushed(report: Report, uid: number): Pushed {
   const found = pushedOf(report, uid)
-  if (found.length === 0) throw new Error(`the report holds no pushOutDays entry for task ${uid}`)
+  if (found.length === 0) throw new Error(`the report holds no pushOutMinutes entry for task ${uid}`)
   return found[0] as Pushed
 }
 
@@ -247,8 +247,11 @@ function documentOf(statusDate: string | null, rows: readonly Row[], keepsWritte
 
 const STATUS = F(15)
 
-// WHY: B, B2 start on their predecessor's finish day (BD-2). A counts 1 actual day (FR-011), so BD-1 ends it the 17th,
-// 7 late, all reaching B's end; B2 also ends the 17th, keeps min(3, 5) and hands A2 min(2, 2) = 2 (CR-633).
+// WHY: CR-710 counts the T-314 quantities in working minutes; one working day here is S-128 = 480 minutes.
+const DAY = 480
+
+// WHY: B, B2 start the morning after their predecessor ends (VC-15 by instants, CR-710). A counts 1 actual day
+// (FR-011), so BD-1 ends it the 17th, 7 late, all reaching B's end; B2 keeps min(2, 4) and hands A2 min(2, 2) = 2.
 const P = 100
 const A = 101
 const B = 102
@@ -259,14 +262,14 @@ const CHAIN_TASK_GROUPS = (statusDate: string | null): Document =>
     {
       id: 'r0',
       parentId: null,
-      tasks: [taskOf(P, { name: 'Program', start: S(6), finish: F(10), actualStart: S(6) })],
+      tasks: [taskOf(P, { name: 'Program', start: S(6), finish: F(13), actualStart: S(6) })],
     },
     {
       id: 'r1',
       parentId: 'r0',
       tasks: [
         taskOf(A, { name: 'Design', parentTaskUid: P, start: S(6), finish: F(8), actualStart: S(6), percentComplete: 40 }),
-        taskOf(B, { name: 'Build', parentTaskUid: P, start: S(8), finish: F(10), dependencies: [after(A)] }),
+        taskOf(B, { name: 'Build', parentTaskUid: P, start: S(9), finish: F(13), dependencies: [after(A)] }),
       ],
     },
     {
@@ -285,8 +288,8 @@ const CHAIN_TASK_GROUPS = (statusDate: string | null): Document =>
         taskOf(B2, {
           name: 'Report',
           parentTaskUid: P,
-          start: S(8),
-          finish: F(10),
+          start: S(9),
+          finish: F(13),
           actualStart: S(13),
           percentComplete: 30,
           dependencies: [after(A2)],
@@ -343,7 +346,7 @@ const X = 151
 const Y = 152
 const Z = 153
 const DERIVED = documentOf(STATUS, [
-  { id: 'r0', parentId: null, tasks: [taskOf(W, { name: 'Workstream', start: S(6), finish: F(10), actualStart: S(6) })] },
+  { id: 'r0', parentId: null, tasks: [taskOf(W, { name: 'Workstream', start: S(6), finish: F(13), actualStart: S(6) })] },
   {
     id: 'r1',
     parentId: 'r0',
@@ -352,8 +355,8 @@ const DERIVED = documentOf(STATUS, [
   {
     id: 'r1b',
     parentId: 'r0',
-    // WHY: Z starts on the 8th, Y's finish day (BD-2, CR-618), so Y's 7 days (BD-1, CR-633) reach Z's end whole.
-    tasks: [taskOf(Z, { name: 'Zoning', parentTaskUid: W, start: S(8), finish: F(10), dependencies: [after(Y)] })],
+    // WHY: Z starts the morning after Y's finish (VC-15 by instants, CR-710), so Y's 7 days (BD-1, CR-633) reach Z's end whole.
+    tasks: [taskOf(Z, { name: 'Zoning', parentTaskUid: W, start: S(9), finish: F(13), dependencies: [after(Y)] })],
   },
   {
     id: 'r2',
@@ -481,9 +484,9 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
     expect(specTable('T-313').rows.map((row) => row.id)).toEqual(['BD-1', 'BD-2', 'BD-3', 'BD-4'])
     expect(specTable('T-314').rows.map((row) => bare(row.by['英（コード）'] ?? ''))).toEqual([
       'projectedFinish',
-      'inheritedDelayDays',
-      'selfDelayDays',
-      'pushOutDays',
+      'inheritedDelayMinutes',
+      'selfDelayMinutes',
+      'pushOutMinutes',
     ])
     expect(specTable('T-317').rows.map((row) => row.id)).toEqual([
       'DX-1',
@@ -499,7 +502,7 @@ describe('CR-561 -- the clauses these cases are driven by', () => {
       'DX-11',
       'DX-12',
     ])
-    expect(cellOf('T-313', 'BD-1', '何をするか')).toContain('着手済みで未完了は 基準日 ＋ 残りの日数 とし')
+    expect(cellOf('T-313', 'BD-1', '何をするか')).toContain('着手済みで未完了は 基準日 ＋ 残り とし')
     expect(cellOf('T-314', 'DQ-3', '定義')).toContain('max(0, `DQ-1` − (最早開始 ＋ 計画期間))')
     expect(cellOf('T-316', 'DW-1', '紫（表 T-315 の `DG-1`）を付けるタスク')).toBe('原因の `Task` と、その依存の下流すべて')
     expect(cellOf('T-316', 'DW-2', '紫（表 T-315 の `DG-1`）を付けるタスク')).toContain('候補が 0 なら原因だけ')
@@ -523,7 +526,7 @@ describe(`FR-130 -- ${FR_130_NO_STATUS}`, () => {
     expect(report).not.toBeNull()
     expect(leavesOf(report).filter((one) => typeof one === 'string' && ROW_ID_OF_A_FINDING.test(one))).toEqual([])
     expect([...marksOf(report, ALL_UIDS).values()].filter((one) => PAINTED.includes(one))).toEqual([])
-    expect(everything(report).some((one) => isPlain(one.node) && Object.hasOwn(one.node, 'pushOutDays'))).toBe(false)
+    expect(everything(report).some((one) => isPlain(one.node) && Object.hasOwn(one.node, 'pushOutMinutes'))).toBe(false)
   })
 
   it('the not-diagnosed report is not the diagnosed one (DX-1 tells the two apart)', () => {
@@ -583,16 +586,16 @@ describe(`FR-132 -- ${FR_132_BOTTLENECK}`, () => {
 
   it(`${FR_132_WORKING_DAYS} -- A: DQ-2 0, DQ-3 7, DQ-4 7 (T-313 BD-1, T-314, CR-633)`, () => {
     const entry = onePushed(report(), A)
-    expect(entry.values['inheritedDelayDays']).toBe(0)
-    expect(entry.values['selfDelayDays']).toBe(7)
-    expect(entry.values['pushOutDays']).toBe(7)
+    expect(entry.values['inheritedDelayMinutes']).toBe(0)
+    expect(entry.values['selfDelayMinutes']).toBe(7 * DAY)
+    expect(entry.values['pushOutMinutes']).toBe(7 * DAY)
   })
 
   it('DX-4: the entry names A by uid and name, and says one terminal was reached', () => {
     const entry = onePushed(report(), A)
     expect(Object.values(entry.values)).toContain('Design')
     const others = Object.entries(entry.values).filter(
-      ([key, value]) => typeof value === 'number' && value !== A && !['inheritedDelayDays', 'selfDelayDays', 'pushOutDays'].includes(key),
+      ([key, value]) => typeof value === 'number' && value !== A && !['inheritedDelayMinutes', 'selfDelayMinutes', 'pushOutMinutes'].includes(key),
     )
     expect(others.map(([, value]) => value)).toContain(1)
   })
@@ -601,8 +604,8 @@ describe(`FR-132 -- ${FR_132_BOTTLENECK}`, () => {
     const terminals = everything(report())
       .filter((one) => one.container !== null && isPlain(one.node))
       .map((one) => one.node as Loose)
-      .filter((one) => !Object.hasOwn(flat(one), 'pushOutDays') && owns(one, B) && holdsNumber(one, A))
-    expect(terminals.some((one) => Object.values(flat(one)).includes(7) && holdsNumber(one, 7))).toBe(true)
+      .filter((one) => !Object.hasOwn(flat(one), 'pushOutMinutes') && owns(one, B) && holdsNumber(one, A))
+    expect(terminals.some((one) => Object.values(flat(one)).includes(7 * DAY) && holdsNumber(one, 7 * DAY))).toBe(true)
   })
 })
 
@@ -615,9 +618,9 @@ describe(`FR-132 -- ${FR_132_NOT_DONE}`, () => {
 
   it(`${FR_132_DX_9} -- A2 pushed B2's end by 2 working days`, () => {
     const entry = onePushed(report(), A2)
-    expect(entry.values['selfDelayDays']).toBe(2)
-    expect(entry.values['pushOutDays']).toBe(2)
-    expect(entry.values['pushOutDays']).toBeGreaterThanOrEqual(S_397)
+    expect(entry.values['selfDelayMinutes']).toBe(2 * DAY)
+    expect(entry.values['pushOutMinutes']).toBe(2 * DAY)
+    expect(entry.values['pushOutMinutes']).toBeGreaterThanOrEqual(S_397 * DAY)
   })
 
   it('DX-9 is its own row: A2 (done) and A (not done) are not in the same list', () => {
@@ -679,7 +682,7 @@ describe(`FR-135 -- ${FR_135_DERIVE}`, () => {
 
   it('Y, started and late, is the bottleneck (it pushes Z\'s end)', () => {
     expect(markOf(report(), Y)).toBe('DG-2')
-    expect(onePushed(report(), Y).values['pushOutDays']).toBe(7)
+    expect(onePushed(report(), Y).values['pushOutMinutes']).toBe(7 * DAY)
   })
 
   it(`${FR_133_PATH_MARK} -- X, the derived parent, is DG-3`, () => {

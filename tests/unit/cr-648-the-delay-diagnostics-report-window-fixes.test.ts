@@ -59,11 +59,14 @@ const SCHEDULE = {
     task(3, 'Milestone', '2026-02-02', { milestone: true }),
     task(4, 'Delta', '2026-01-01'),
   ],
+  // WHY: CR-710 shows the T-314 quantities through 1d = Project.minutesPerDay (empty, so S-128 = 480 minutes, TX-8).
+  project: { minutesPerDay: null },
   resources: [],
   assignments: [],
 } as unknown as Schedule
 
-const QUANTITIES = { inheritedDelayDays: 1, selfDelayDays: 2, pushOutDays: 5, terminalsReached: 3 }
+// WHY: CR-710 holds the quantities in working minutes (T-314); 480 is one working day of the fixture (S-128).
+const QUANTITIES = { inheritedDelayMinutes: 480, selfDelayMinutes: 960, pushOutMinutes: 2400, terminalsReached: 3 }
 
 const REPORT: DelayDiagnosticsReport = {
   outcome: 'diagnosed',
@@ -152,7 +155,8 @@ describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en'
       leftmostUid: 1,
       rightmostPoint: '2027-05-12T08:00:00',
       rightmostUid: 2,
-      outsideWorkingDays: 5,
+      // WHY: CR-710 holds the VS-6 distance in working minutes; 5 working days of 480 minutes read back as 5 (TX-8).
+      outsideMinutes: 2400,
       parentProgressToleranceDays: 1,
     }
     const report: DelayDiagnosticsReport = {

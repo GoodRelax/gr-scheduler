@@ -195,7 +195,8 @@ interface Plan {
   readonly minutesPerDay?: number | null
 }
 
-const day = (date: number, hour: number): string => `2026-04-${String(date).padStart(2, '0')}T${hour}:00:00`
+// WHY: CR-710 reads the time of day (FR-054); an unpadded hour (T8:00:00) is no time and left the link unjudged.
+const day = (date: number, hour: number): string => `2026-04-${String(date).padStart(2, '0')}T${String(hour).padStart(2, '0')}:00:00`
 
 function planDocument(plan: Plan): Document {
   const raw = taskGroupDocument([{ id: 'r0', parentId: null }])
@@ -238,16 +239,19 @@ describe(`VC-15 -- ${VC_15_LAG}`, () => {
     expect(contradictionsOn(planned(day(8, 8), tenthsOfDays(2), WORKING_DAYS))).toEqual(['VC-15'])
   })
 
-  it('VC-15 the same link holds when B starts on the 9th, two working days on', () => {
-    expect(contradictionsOn(planned(day(9, 8), tenthsOfDays(2), WORKING_DAYS))).toEqual([])
+  // WHY: CR-710 advances the lag from A's instant (Tue 7th 17:00) by working minutes: two working days end Thu 9th 17:00,
+  // so B holds from the next working morning (VC-15).
+  it('VC-15 the same link holds when B starts on the 10th, two working days after A ends on the evening of the 7th', () => {
+    expect(contradictionsOn(planned(day(10, 8), tenthsOfDays(2), WORKING_DAYS))).toEqual([])
   })
 
   it('VC-15 the working day is Project.minutesPerDay when it is set', () => {
     expect(contradictionsOn(planned(day(8, 8), tenthsOfDays(2, 450), WORKING_DAYS, 450))).toEqual(['VC-15'])
   })
 
-  it(`VC-15 ${VC_15_ROUNDED_DOWN} -- one and a half working days count as one`, () => {
-    expect(contradictionsOn(planned(day(8, 8), tenthsOfDays(1.5), WORKING_DAYS))).toEqual([])
+  // WHY: CR-710 counts the lag in working minutes and no longer rounds it to whole days: 1.5 days end at noon on the 9th.
+  it('VC-15 one and a half working days after the evening of the 7th end at noon on the 9th: B at 13:00 holds', () => {
+    expect(contradictionsOn(planned(day(9, 13), tenthsOfDays(1.5), WORKING_DAYS))).toEqual([])
   })
 
   it(`VC-15 ${VC_15_NOT_JUDGED}`, () => {
@@ -265,12 +269,15 @@ const terminalDelayOfB = (lagFormat: number): number | undefined => {
     lagFormat,
   })
   return diagnoseDelay(document, workingCalendarOf(document.schedule)).terminalPushOuts
-    .find((one) => one.uid === B)?.terminalDelayDays
+    // WHY: CR-710 counts the push-out in working minutes (T-314); read back as working days of S-128 minutes.
+    .map((one) => ({ ...one, days: one.terminalDelayMinutes / S_128 })).find((one) => one.uid === B)?.days
 }
 
 describe(`BD-2 -- ${BD_2_LAG}`, () => {
-  it('BD-2 A finished on the 9th and B waits 2 working days after it, so B ends one working day late', () => {
-    expect(terminalDelayOfB(WORKING_DAYS)).toBe(1)
+  // WHY: CR-710 reads instants: A ends Thu 9th 17:00, two working days of lag run Fri and Mon, so B (one day, planned
+  // Fri 10th) runs Tue 14th and ends two working days late (BD-2).
+  it('BD-2 A finished on the evening of the 9th and B waits 2 working days after it, so B ends two working days late', () => {
+    expect(terminalDelayOfB(WORKING_DAYS)).toBe(2)
   })
 
   it(`BD-2 ${BD_2_ZERO} -- the same number in another format pushes B nowhere`, () => {

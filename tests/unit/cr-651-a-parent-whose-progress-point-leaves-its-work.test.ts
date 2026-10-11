@@ -175,13 +175,18 @@ const RIGHT_PARENT = (tolerance: number): Document =>
   )
 const RIGHT_WORKING_DAYS = 5
 
+// WHY: CR-710 holds the VS-6 distance in working minutes; one working day of the bundled calendar is S-128 = 480 minutes.
+const MINUTES_PER_WORKING_DAY = 480
+const outsideDaysOf = (values: Readonly<Record<string, unknown>>): number => Number(values['outsideMinutes']) / MINUTES_PER_WORKING_DAY
+
 describe('CR-651 -- the rows these cases are driven by', () => {
   it.each([
     ['T-311', 'VS-6', '観点', '子を持たない子孫の点の最も左より `S-487` 稼働日を超えて左'],
     ['T-311', 'VS-6', '観点', '頂点を打たない子孫は基準日を点とする'],
     ['T-311', 'VS-6', '観点', '親が頂点を打たないときは判じない'],
     ['T-311', 'VS-6', '観点', '子を持つ子孫の点は数えない'],
-    ['T-311', 'VS-6', '観点', '片方の日を含みもう片方を含まずに数える'],
+    // WHY: CR-710 counts the distance in working minutes and holds it against S-487 x minutesPerDay.
+    ['T-311', 'VS-6', '観点', '外れは文書の暦（`FR-054`）の稼働時間の分で、親の点から外れた側の端の点まで数え'],
     ['T-022', 'PL-3', '頂点', '`resume` < 基準日 なら `resume` に打つ'],
     ['T-022', 'PL-4', '頂点', '`start` < 基準日 なら `start` に打つ'],
     ['T-108', 'CM-87', '正', '`FR-131`'],
@@ -262,7 +267,7 @@ describe('CR-651 FR-131 T-311 VS-6 -- the parent point against the points of its
     expect(values['leftmostUid']).toBe(C1)
     expect(dayText(values['rightmostPoint'])).toBe(D(5, 19))
     expect(values['rightmostUid']).toBe(C2)
-    expect(values['outsideWorkingDays']).toBe(LEFT_WORKING_DAYS)
+    expect(outsideDaysOf(values)).toBe(LEFT_WORKING_DAYS)
     expect(values['parentProgressToleranceDays']).toBe(S_487_DEFAULT)
   })
 
@@ -285,7 +290,7 @@ describe('CR-651 FR-131 T-311 VS-6 -- the parent point against the points of its
     expect(dayText(values['parentPoint'])).toBe(D(5, 20))
     expect(dayText(values['rightmostPoint'])).toBe(D(5, 13))
     expect(values['rightmostUid']).toBe(C2)
-    expect(values['outsideWorkingDays']).toBe(RIGHT_WORKING_DAYS)
+    expect(outsideDaysOf(values)).toBe(RIGHT_WORKING_DAYS)
     expect(vs6On(diagnose(RIGHT_PARENT(RIGHT_WORKING_DAYS - 1)), G)).toHaveLength(1)
   })
 
@@ -338,7 +343,7 @@ describe('CR-651 T-311 VS-6 -- which descendants give a point', () => {
     const values = valuesOf(found[0])
     expect(dayText(values['leftmostPoint'])).toBe(STATUS_DAY)
     expect(dayText(values['rightmostPoint'])).toBe(STATUS_DAY)
-    expect(values['outsideWorkingDays']).toBe(5)
+    expect(outsideDaysOf(values)).toBe(5)
   })
 
   it('VS-6 a finished leaf at the status date keeps a parent at the status date inside the range', () => {
@@ -375,7 +380,7 @@ describe('CR-651 T-311 VS-6 -- which descendants give a point', () => {
     expect(ofA['leftmostUid']).toBe(B1)
     expect(dayText(ofA['rightmostPoint'])).toBe(D(5, 18))
     expect(ofA['rightmostUid']).toBe(A1)
-    expect(ofA['outsideWorkingDays']).toBe(5)
+    expect(outsideDaysOf(ofA)).toBe(5)
     const ofB = valuesOf(vs6On(report, B)[0])
     expect(dayText(ofB['rightmostPoint'])).toBe(D(5, 13))
     expect(ofB['rightmostUid']).toBe(B2)
@@ -460,7 +465,7 @@ const describeFound = (found: readonly Finding[]): string =>
   found
     .map((one) => {
       const values = valuesOf(one)
-      return `${one.uid}:${dayText(values['parentPoint'])}/${dayText(values['leftmostPoint'])}..${dayText(values['rightmostPoint'])}:${String(values['outsideWorkingDays'])}`
+      return `${one.uid}:${dayText(values['parentPoint'])}/${dayText(values['leftmostPoint'])}..${dayText(values['rightmostPoint'])}:${String(outsideDaysOf(values))}`
     })
     .join(' ')
 
@@ -471,7 +476,7 @@ describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
     const values = valuesOf(found[0])
     expect(dayText(values['parentPoint'])).toBe('2026-09-02')
     expect(dayText(values['leftmostPoint'])).toBe('2026-11-25')
-    expect(values['outsideWorkingDays']).toBe(55)
+    expect(outsideDaysOf(values)).toBe(55)
     expect(found[0]?.kind).toBe('suspicion')
   })
 
@@ -501,7 +506,7 @@ describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
   it('VS-6 sample-large-erp-program at 7 keeps exactly 208, 200, 182 and 181, at 55, 59, 37 and 55 working days', () => {
     const report = diagnose(withTolerance(sample('sample-large-erp-program.ja.xml'), WEEKLY_TOLERANCE))
     expect(vs6Of(report).map((one) => one.uid).sort((a, b) => a - b)).toEqual(LARGE_AT_WEEKLY)
-    const days = new Map(vs6Of(report).map((one) => [one.uid, valuesOf(one)['outsideWorkingDays']]))
+    const days = new Map(vs6Of(report).map((one) => [one.uid, outsideDaysOf(valuesOf(one))]))
     expect([days.get(208), days.get(200), days.get(182), days.get(181)]).toEqual([55, 59, 37, 55])
   })
 

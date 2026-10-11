@@ -51,11 +51,14 @@ const SCHEDULE = {
     task(6, 'Foxtrot|Pipe', '2026-04-01'),
     task(7, 'Golf', '2026-05-01'),
   ],
+  // WHY: CR-710 shows the T-314 quantities through 1d = Project.minutesPerDay (empty, so S-128 = 480 minutes, TX-8).
+  project: { minutesPerDay: null },
   resources: [{ uid: 10, name: 'Ann' }],
   assignments: [{ uid: 100, taskUid: 2, resourceUid: 10 }],
 } as unknown as Schedule
 
-const QUANTITIES = { inheritedDelayDays: 1, selfDelayDays: 2, pushOutDays: 5, terminalsReached: 2 }
+// WHY: CR-710 holds the quantities in working minutes (T-314); 480 is one working day of the fixture (S-128).
+const QUANTITIES = { inheritedDelayMinutes: 480, selfDelayMinutes: 960, pushOutMinutes: 2400, terminalsReached: 2 }
 
 const REPORT: DelayDiagnosticsReport = {
   outcome: 'diagnosed',

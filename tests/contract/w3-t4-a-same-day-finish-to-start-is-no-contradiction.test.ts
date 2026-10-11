@@ -8,9 +8,8 @@ import * as scheduleEntry from '../../src/entity/document-model/schedule/schedul
 import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 import { REQUIREMENTS } from './cr-610-file-flow-stage'
 
-const VC_15_NOT_ND_3 =
-  ' `lag` は、稼働日の数だけ日を進め、時刻を保つ（量は稼働日のまま）。⛔ `ND-3` の「終了日はその日を含む」を、FS の 1 日の差に数えてはならない（MUST NOT）'
-const VC_15_SAME_DAY = '⭐ 日は日として比べ、4 つとも **同じ日は反しない**'
+const VC_15_NOT_ND_3 = '⛔ `ND-3` の「終了日はその日を含む」を、FS の 1 日の差に数えてはならない（MUST NOT）'
+const VC_15_SAME_DAY = '同じ瞬間は反せず、1 分でも前なら反する'
 const VC_15_FS = 'FS: 後続の `start` ≥ 先行の `finish` ＋ `lag`'
 
 // see AT-46
@@ -66,10 +65,21 @@ describe('VC-15 -- the manuscript these cases are driven by', () => {
   })
 })
 
+// WHY: CR-710 compares instants in every document (FR-054, CR-710 section 11 question 9): the same instant holds, the same day earlier breaks.
 describe(`VC-15 -- ${VC_15_NOT_ND_3}`, () => {
-  it('a successor that starts on the day its predecessor finishes is not a contradiction', () => {
-    const rows = findingRowsOf(linkedDocument('2026-04-08T08:00:00', '2026-04-10T17:00:00'))
+  it('a successor that starts at the moment its predecessor finishes, on that day, is not a contradiction', () => {
+    const rows = findingRowsOf(linkedDocument('2026-04-08T17:00:00', '2026-04-10T17:00:00'))
     expect(rows, `${VC_15_NOT_ND_3} -- ${VC_15_SAME_DAY}`).not.toContain('VC-15')
+  })
+
+  it('a successor that starts the next working morning is not a contradiction (no one-day gap is asked)', () => {
+    const rows = findingRowsOf(linkedDocument('2026-04-09T08:00:00', '2026-04-10T17:00:00'))
+    expect(rows, VC_15_NOT_ND_3).not.toContain('VC-15')
+  })
+
+  it('a successor that starts at 08:00 on the day its predecessor finishes at 17:00 is VC-15', () => {
+    const rows = findingRowsOf(linkedDocument('2026-04-08T08:00:00', '2026-04-10T17:00:00'))
+    expect(rows, VC_15_SAME_DAY).toContain('VC-15')
   })
 
   it('the control: a successor that starts the day before its predecessor finishes is VC-15', () => {
