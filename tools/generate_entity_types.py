@@ -1875,6 +1875,10 @@ NOT_STORED_TARGETS = {
     # subjects, and a shared constant would make one of the three paragraphs a
     # lie.
     'NOT_STORED_VISIBLE_DAY_FLOOR': (['S-229'], DERIVED_WHERE_IT_STANDS),
+    # CR-710 X-26: S-579 is the width of one hour FR-016 turns into the ceiling of
+    # the day axis while time of day is shown (24 x S-579 / S-1). A constant of its
+    # own beside S-229: the same derivation seam, another subject.
+    'NOT_STORED_HOUR_WIDTH_CEILING': (['S-579'], DERIVED_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in the translator and
     # both end in an FR-016 ceiling: S-229 bounds the DAY axis, S-238 / S-239
     # are the step and the tolerance table T-253 searches the ROW axis's band
@@ -3326,6 +3330,7 @@ TARGETS = [
          lambda _erd: not_stored_block('NOT_STORED_ZOOM_STEP') + NEWLINE * 2
          + not_stored_block('NOT_STORED_TASK_GROUP_GRAB_SIZES') + NEWLINE * 2
          + not_stored_block('NOT_STORED_VISIBLE_DAY_FLOOR') + NEWLINE * 2
+         + not_stored_block('NOT_STORED_HOUR_WIDTH_CEILING') + NEWLINE * 2
          + not_stored_block('NOT_STORED_ROW_BAND_CEILING_SEARCH') + NEWLINE * 2
          + not_stored_block('NOT_STORED_PROPERTIES_PANEL_FLOOR'),
          ENTRY_SWITCH_NAMES),
@@ -3585,6 +3590,7 @@ TARGETS = [
 # Copies at least one OTHER file of src/ imports.
 PUBLISHED_READ_BY_SRC = {
     'src/adapter/input-command-translator/input-command-translator.ts': (
+        'NOT_STORED_HOUR_WIDTH_CEILING',
         'NOT_STORED_PROPERTIES_PANEL_FLOOR',
         'NOT_STORED_ROW_BAND_CEILING_SEARCH',
         'NOT_STORED_TASK_GROUP_GRAB_SIZES',

@@ -385,7 +385,7 @@ function dragBy(built: Stage, at: Point, days: number): void {
 
 describe('表 T-245 -- the rows this file is driven by', () => {
   it('GO-5 still says `actualStart` changes and the last day stands still (MUST)', () => {
-    expect(GO_5_PUTS).toContain('`actualStart` ＝ 離した日そのもの')
+    expect(GO_5_PUTS).toContain('`actualStart` ＝ 離した所そのもの')
     expect(GO_5_HELD).toContain(GO_5_LAST_DAY_STANDS)
   })
 
@@ -398,13 +398,13 @@ describe('表 T-245 -- the rows this file is driven by', () => {
   })
 
   it('GO-3 still changes the last day and holds `actualStart`', () => {
-    expect(GO_3_PUTS).toContain('実績の最後の日 ＝ 離した日そのもの')
+    expect(GO_3_PUTS).toContain('実績の最後の日 ＝ 離した所そのもの')
     expect(GO_3_PUTS).toContain('`actualFinish` を持つとき')
     expect(GO_3_HELD).toContain('actualStart')
   })
 
   it('GO-4 still moves `actualStart` and still says a milestone holds no length', () => {
-    expect(GO_4_PUTS).toContain('`actualStart` ＝ 離した日')
+    expect(GO_4_PUTS).toContain('`actualStart` ＝ 離した所')
     expect(GO_4_PUTS).toContain('マイルストーンは長さを持たない点')
     expect(GO_4_PUTS).toContain(GO_4_LAST_DAY)
   })

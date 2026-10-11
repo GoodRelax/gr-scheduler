@@ -256,6 +256,7 @@ const SETTINGS_KINDS = [
   'clearFitSpan',
   'setFitSpanFixed',
   'setTaskGroupPanelWidthFixed',
+  'setShowsTimeOfDay',
   'setTableView',
 ] as const satisfies readonly DocumentSettingsCommand['kind'][]
 

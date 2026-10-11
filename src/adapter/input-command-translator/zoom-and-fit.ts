@@ -15,9 +15,10 @@ import {
   type TaskGroupPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/screen-regions'
-import type {
-  DocumentSettings,
-  DrawnSettings,
+import {
+  SETTINGS_CONSTANTS,
+  type DocumentSettings,
+  type DrawnSettings,
 } from '../../entity/document-model/document-settings/document-settings'
 import {
   levelZeroWritesFor,
@@ -26,6 +27,7 @@ import {
 } from '../../use-case/edit-document/edit-document'
 import {
   CONSUMED_ELSEWHERE,
+  NOT_STORED_HOUR_WIDTH_CEILING,
   NOT_STORED_ROW_BAND_CEILING_SEARCH,
   NOT_STORED_VISIBLE_DAY_FLOOR,
   changed,
@@ -82,9 +84,13 @@ export function keyZoomFactor(context: InputContext, isIn: boolean): number {
   return isIn ? step : 1 / step
 }
 
-// see FR-016, S-229
+const HOURS_PER_DAY = 24
+
+// see FR-016, S-229, S-579, S-1, FR-158
+// TRAP: S-1 is divided as stored: the display ratio (FR-039) is on both sides, so the time-of-day ceiling ignores it.
 /** @purity pure */
-function zoomXCeiling(context: InputContext): number | null {
+export function zoomXCeiling(context: InputContext, showsTimeOfDay: boolean): number | null {
+  if (showsTimeOfDay) return (HOURS_PER_DAY * NOT_STORED_HOUR_WIDTH_CEILING['S-579']) / SETTINGS_CONSTANTS.pxPerDayAt1x
   const width = context.regions.taskGroupArea.width
   const pxPerDayAt1x = drawnSettingsOf(context.document.documentSettings).pxPerDayAt1x
   const ceiling = width / (NOT_STORED_VISIBLE_DAY_FLOOR['S-229'] * pxPerDayAt1x)
@@ -363,7 +369,7 @@ function zoomTimesFrom(
 ): number {
   if (axis === 'y') return zoomYWithinCeiling(context, on.x, on.y * factor)
   const stepped = on.x * factor
-  const ceiling = zoomXCeiling(context)
+  const ceiling = zoomXCeiling(context, context.document.documentSettings.showsTimeOfDay)
   return ceiling === null ? stepped : Math.min(stepped, ceiling)
 }
 

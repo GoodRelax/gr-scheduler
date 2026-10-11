@@ -141,10 +141,10 @@ describe('FR-076: the display column is the one place that decides', () => {
 })
 
 describe(`T-233 display column -- ${FR_076_THE_COLUMN_HOLDS_IT}`, () => {
-  it('the manuscript holds 83 reasons: show 34 (5 riding), autoDismiss 19, hide 21, report 9', () => {
+  it('the manuscript holds 85 reasons: show 36 (5 riding), autoDismiss 19, hide 21, report 9', () => {
     const count = (display: ReasonDisplay): number => ROSTER.reasons.filter((one) => one.display === display).length
-    expect(ROSTER.reasons).toHaveLength(83)
-    expect(count('show')).toBe(34)
+    expect(ROSTER.reasons).toHaveLength(85)
+    expect(count('show')).toBe(36)
     expect(count('autoDismiss')).toBe(19)
     expect(count('hide')).toBe(21)
     expect(count('report')).toBe(9)
@@ -230,12 +230,12 @@ describe('the generated rosters src reads are the manuscript (PI-39)', () => {
     expect({ ...NOTICE_DISPLAY_OF_REASON }).toEqual(wanted)
   })
 
-  it('QUESTION_DISPLAY_OF_ROW gives every T-234 row its column: ask 9, askOnlyWithUnsavedEdits 1 (QN-5)', () => {
+  it('QUESTION_DISPLAY_OF_ROW gives every T-234 row its column: ask 10, askOnlyWithUnsavedEdits 1 (QN-5)', () => {
     const wanted: Record<string, QuestionDisplay> = {}
     for (const one of ROSTER.questions) wanted[one.id] = one.display
     expect({ ...QUESTION_DISPLAY_OF_ROW }).toEqual(wanted)
-    expect(ROSTER.questions).toHaveLength(10)
-    expect(ROSTER.questions.filter((one) => one.display === 'ask')).toHaveLength(9)
+    expect(ROSTER.questions).toHaveLength(11)
+    expect(ROSTER.questions.filter((one) => one.display === 'ask')).toHaveLength(10)
     expect(QUESTION_DISPLAY_OF_ROW['QN-5']).toBe('askOnlyWithUnsavedEdits')
   })
 
@@ -247,12 +247,12 @@ describe('the generated rosters src reads are the manuscript (PI-39)', () => {
 })
 
 describe(`the dictionary follows the riding -- ${FR_076_A_RIDING_ROW_HAS_NONE}`, () => {
-  it('a riding row has no entry in reasons, and every other row of T-233 has one (78)', () => {
+  it('a riding row has no entry in reasons, and every other row of T-233 has one (80)', () => {
     const entries = WORDS.reasons.map((one) => one.rowId)
     for (const rider of Object.keys(RIDING)) expect(entries, `${rider} rides and has no words of its own`).not.toContain(rider)
     const owners = ROSTER.reasons.filter((one) => one.wordsOf === undefined).map((one) => one.id)
     expect([...entries].sort()).toEqual([...owners].sort())
-    expect(entries).toHaveLength(78)
+    expect(entries).toHaveLength(80)
   })
 
   it('a hidden row keeps its words (JDG-1759)', () => {
@@ -260,10 +260,10 @@ describe(`the dictionary follows the riding -- ${FR_076_A_RIDING_ROW_HAS_NONE}`,
     for (const id of HIDDEN) expect(entries, `${id} keeps its words`).toContain(id)
   })
 
-  it('invariants holds 21 rows with words in both languages, and IV-17 rides on RS-21', () => {
+  it('invariants holds 22 rows with words in both languages, and IV-17 rides on RS-21', () => {
     const entries = WORDS.invariants.map((one) => one.rowId)
     expect(entries).not.toContain('IV-17')
-    expect(entries).toHaveLength(21)
+    expect(entries).toHaveLength(22)
     for (const one of WORDS.invariants) {
       expect(one.text.ja, `${one.rowId} text ja`).not.toBe('')
       expect(one.text.en, `${one.rowId} text en`).not.toBe('')

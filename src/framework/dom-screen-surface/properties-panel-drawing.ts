@@ -159,6 +159,9 @@ const CONTROL_INPUT_TYPE: Readonly<Record<PropertyControlKind, string | null>> =
   taskReference: null,
 }
 
+// see TX-3, FR-158
+const DATE_TIME_INPUT_TYPE = 'datetime-local'
+
 // TRAP: must match how textOfValue (properties-panel.ts) writes a boolean; change both.
 const TRUE_TEXT = String(true)
 
@@ -272,7 +275,7 @@ function controlElement(
   drawn.setAttribute('data-field-row', row)
   drawn.setAttribute('data-field-kind', control.kind)
 
-  const inputType = CONTROL_INPUT_TYPE[control.kind]
+  const inputType = control.isDateTime === true ? DATE_TIME_INPUT_TYPE : CONTROL_INPUT_TYPE[control.kind]
   if (inputType !== null) drawn.setAttribute('type', inputType)
 
   if (tag === 'select') {

@@ -45,7 +45,7 @@ const FR_043_ZERO_IS_A_POSITION =
   '⚠️ **ここでいう 0 は位置の話である** —— **開始日と終了日が同じ日の実績は 1 日であり、0 日ではない**（`FR-011`）。'
 
 const GO_7_PINS_THE_START =
-  '実績の最後の日 ＝ 離した日そのもの、`actualStart` ＝ 予定の開始日、`resumeValid` ＝ `true`'
+  '実績の最後の日 ＝ 離した所そのもの、`actualStart` ＝ 予定の開始日、`resumeValid` ＝ `true`'
 
 const DM_1_THE_PLAN_START_DAY = '**ダミーを描く位置は、予定の開始日とすること（MUST）'
 

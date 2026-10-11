@@ -60,7 +60,7 @@ const FR_011_FLOOR =
 
 const FR_011_NOT_ZERO = '掴んで 0 稼働日まで縮められるようにしてはならない（MUST NOT）'
 
-const GO_3_REST_DAY = '離した日が非稼働日であっても、その日を最後の日とすること（MUST）'
+const GO_3_REST_DAY = '離した所が非稼働日であっても、その日を最後の日とすること（MUST）'
 
 const GO_4_LAST_DAY = '持っているほうの最後の日（`actualFinish` または `stop`）も、置き直した `actualStart` と同じ日とする'
 
@@ -424,14 +424,14 @@ describe('FR-103 -- the manuscript this file is driven by', () => {
   })
 
   it('table T-245 still holds GO-1 to GO-4 with the values these cases assert', () => {
-    expect(cellOf('GO-1', PUTS)).toContain('`start` ＝ 離した日')
+    expect(cellOf('GO-1', PUTS)).toContain('`start` ＝ 離した所')
     expect(cellOf('GO-1', KEEPS)).toContain('`finish`')
-    expect(cellOf('GO-2', PUTS)).toContain('`finish` ＝ 離した日そのもの')
+    expect(cellOf('GO-2', PUTS)).toContain('`finish` ＝ 離した所そのもの')
     expect(cellOf('GO-2', KEEPS)).toContain('`start`')
-    expect(cellOf('GO-3', PUTS)).toContain('実績の最後の日 ＝ 離した日そのもの')
+    expect(cellOf('GO-3', PUTS)).toContain('実績の最後の日 ＝ 離した所そのもの')
     expect(cellOf('GO-3', PUTS)).toContain(GO_3_REST_DAY)
     expect(cellOf('GO-3', KEEPS)).toContain('`actualStart`')
-    expect(cellOf('GO-4', PUTS)).toContain('`actualStart` ＝ 離した日')
+    expect(cellOf('GO-4', PUTS)).toContain('`actualStart` ＝ 離した所')
     expect(cellOf('GO-4', PUTS)).toContain(GO_4_LAST_DAY)
     expect(cellOf('GO-4', KEEPS)).toBe('—')
   })

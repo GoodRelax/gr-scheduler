@@ -391,6 +391,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   taskGroupPanelWidthField: 'part',
   // WHY: CR-557 keys a theme hue by its row of table T-305 (FR-041).
   themeHues: 'rowId',
+  // WHY: CR-710 keys a time zone's shown name by its row of table T-376 (FR-156).
+  timeZones: 'rowId',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
   scaleEcho: 'end',
   // WHY: CR-550 keys the lines of DC-3's readout by the line they fill.
@@ -2454,6 +2456,13 @@ for (const entry of GENERATED['themeHues'] ?? []) {
     frame: PANEL_STATES['documentSettings'] as Frame,
     read: (view) => themeHueControlOf(view)?.choices?.[T305_ROWS.indexOf(rowId)],
   })
+}
+
+// see FR-156, T-376, T-369
+// WHY: FO-14 and FO-15, the choosers that list table T-376, are assembled by CR-710 wave 3b; until
+// then no frame prints a time zone's name, so each row is a stated omission rather than a place.
+for (const entry of GENERATED['timeZones'] ?? []) {
+  drop('timeZones', keyOf('timeZones', entry), 'FO-14 / FO-15 of table T-369 are not assembled yet, so no chooser lists table T-376')
 }
 
 // see CV-9, T-294, FR-019, DFC-1640

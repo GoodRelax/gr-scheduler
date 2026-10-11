@@ -11,6 +11,7 @@ import {
   calendarSpanOf,
   compareDays,
   dayOf,
+  instantOf,
   delayWorkingDays,
   isDelayed,
   serial,
@@ -25,6 +26,7 @@ import {
   dateAtX,
   labeledAssigneeUidOf,
   planDatesSpanYears,
+  clockTextOf,
   planDateText,
   timeAxisOf,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
@@ -128,18 +130,32 @@ export function cursorDateText(day: CalendarDay, language: DisplayLanguage): str
   return withWeekday(`${year}/${month}/${date}`, day, language)
 }
 
-// see TL-10, ND-4, ND-5
-/** @purity pure */
-function hintDayText(day: CalendarDay, isYearWritten: boolean, language: DisplayLanguage): string {
-  return withWeekday(planDateText(day, isYearWritten), day, language)
-}
-
 interface HintContext {
   readonly assigneeNames: readonly string[]
   readonly isYearWritten: boolean
+  readonly showsTimeOfDay: boolean
 }
 
-const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], isYearWritten: false }
+interface HintDay {
+  readonly day: CalendarDay
+  readonly text: string | null
+}
+
+// see TL-10, ND-4, ND-5, TX-2
+/** @purity pure */
+function hintDayText(at: HintDay, context: HintContext, language: DisplayLanguage): string {
+  const dated = withWeekday(planDateText(at.day, context.isYearWritten), at.day, language)
+  const instant = context.showsTimeOfDay ? instantOf(at.text) : null
+  return instant === null ? dated : `${dated} ${clockTextOf(instant)}`
+}
+
+/** @purity pure */
+function hintDayOf(text: string | null): HintDay | null {
+  const day = dayOf(text)
+  return day === null ? null : { day, text }
+}
+
+const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], isYearWritten: false, showsTimeOfDay: false }
 
 // see TL-10, ND-5
 /** @purity pure */
@@ -163,9 +179,9 @@ function assigneeNamesOf(schedule: Schedule, taskUid: number): readonly string[]
 
 // see TL-7, TL-10
 /** @purity pure */
-function hintContextOf(schedule: Schedule | null, taskUid: number): HintContext {
-  if (schedule === null) return NO_HINT_CONTEXT
-  return { assigneeNames: assigneeNamesOf(schedule, taskUid), isYearWritten: isYearWrittenIn(schedule) }
+function hintContextOf(schedule: Schedule | null, taskUid: number, showsTimeOfDay = false): HintContext {
+  if (schedule === null) return { ...NO_HINT_CONTEXT, showsTimeOfDay }
+  return { assigneeNames: assigneeNamesOf(schedule, taskUid), isYearWritten: isYearWrittenIn(schedule), showsTimeOfDay }
 }
 
 const HINT_LINE_WORDS = new Map(displayWords.hintLines.map((entry) => [entry.rowId, entry.text]))
@@ -244,16 +260,16 @@ function deadlineWord(language: DisplayLanguage): string {
 /** @purity pure */
 function daysLine(
   row: string,
-  first: CalendarDay,
-  last: CalendarDay | null,
+  first: HintDay,
+  last: HintDay | null,
   isMilestone: boolean,
   context: HintContext,
   language: DisplayLanguage,
 ): string {
   const word = `${hintLineWord(row, language)}${HINT_WORD_SEPARATOR}`
-  const firstText = hintDayText(first, context.isYearWritten, language)
+  const firstText = hintDayText(first, context, language)
   if (isMilestone) return `${word}${firstText}`
-  const lastText = last === null ? '' : ` ${hintDayText(last, context.isYearWritten, language)}`
+  const lastText = last === null ? '' : ` ${hintDayText(last, context, language)}`
   return `${word}${firstText}${DAY_RANGE_SEPARATOR}${lastText}`
 }
 
@@ -264,8 +280,8 @@ function planLine(
   context: HintContext,
   language: DisplayLanguage,
 ): string | null {
-  const start = dayOf(planned.start)
-  const finish = dayOf(planned.finish)
+  const start = hintDayOf(planned.start)
+  const finish = hintDayOf(planned.finish)
   const isMilestone = planned.milestone === true
   if (start === null || (finish === null && !isMilestone)) return null
   return daysLine(PLAN_LINE_ROW, start, finish, isMilestone, context, language)
@@ -275,9 +291,9 @@ function planLine(
 // TRAP: an unfinished actual stops at the dash; never write stop (FR-011) as its last day (TL-6 MUST NOT).
 /** @purity pure */
 function actualLine(task: Task, context: HintContext, language: DisplayLanguage): string | null {
-  const start = dayOf(task.actualStart)
+  const start = hintDayOf(task.actualStart)
   if (start === null) return null
-  return daysLine(ACTUAL_LINE_ROW, start, dayOf(task.actualFinish), task.milestone === true, context, language)
+  return daysLine(ACTUAL_LINE_ROW, start, hintDayOf(task.actualFinish), task.milestone === true, context, language)
 }
 
 // see TL-8, FR-090
@@ -290,9 +306,9 @@ function percentLine(task: Task, language: DisplayLanguage): string | null {
 // see TL-9, TL-2
 /** @purity pure */
 function deadlineDayText(task: Task, context: HintContext, language: DisplayLanguage): string | null {
-  const day = dayOf(task.deadline)
-  if (day === null) return null
-  return `${deadlineWord(language)} ${hintDayText(day, context.isYearWritten, language)}`
+  const at = hintDayOf(task.deadline)
+  if (at === null) return null
+  return `${deadlineWord(language)} ${hintDayText(at, context, language)}`
 }
 
 const LATE_REASON_PART = 'late'
@@ -328,8 +344,8 @@ function taskHint(task: Task, context: HintContext, language: DisplayLanguage, l
 
 // see TL-2
 /** @purity pure */
-export function deadlineHint(task: Task, schedule: Schedule | null, language: DisplayLanguage): string | null {
-  const context = hintContextOf(schedule, task.uid)
+export function deadlineHint(task: Task, schedule: Schedule | null, language: DisplayLanguage, showsTimeOfDay = false): string | null {
+  const context = hintContextOf(schedule, task.uid, showsTimeOfDay)
   const marked = deadlineDayText(task, context, language)
   if (marked === null) return null
   const name = task.name ?? ''
@@ -338,8 +354,8 @@ export function deadlineHint(task: Task, schedule: Schedule | null, language: Di
 
 // see TL-3
 /** @purity pure */
-export function baselineHint(baseline: BaselineTask, schedule: Schedule | null, language: DisplayLanguage): string {
-  const context = hintContextOf(schedule, baseline.uid)
+export function baselineHint(baseline: BaselineTask, schedule: Schedule | null, language: DisplayLanguage, showsTimeOfDay = false): string {
+  const context = hintContextOf(schedule, baseline.uid, showsTimeOfDay)
   const name = baseline.name ?? ''
   const lines = [name === '' ? null : name, planLine(baseline, context, language)]
   return lines.filter((one): one is string => one !== null).join(LINE_BREAK)
@@ -407,15 +423,15 @@ type HintHolder = NonNullable<ScreenViewReadings['hintHolderUnderPointer']>
 
 // see TL-1, TL-2, TL-3, TL-12
 /** @purity pure */
-function hintTextOf(holder: HintHolder, schedule: Schedule, language: DisplayLanguage): string | null {
+function hintTextOf(holder: HintHolder, schedule: Schedule, language: DisplayLanguage, showsTimeOfDay: boolean): string | null {
   if (holder.kind === 'baseline') {
     const baseline = schedule.baselineTasks.find((one) => one.uid === holder.taskUid)
-    return baseline === undefined ? null : baselineHint(baseline, schedule, language)
+    return baseline === undefined ? null : baselineHint(baseline, schedule, language, showsTimeOfDay)
   }
   const task = taskByUid(schedule, holder.taskUid)
   if (task === null) return null
-  if (holder.kind === 'deadline') return deadlineHint(task, schedule, language)
-  return taskHint(task, hintContextOf(schedule, task.uid), language, lateLine(task, schedule, language))
+  if (holder.kind === 'deadline') return deadlineHint(task, schedule, language, showsTimeOfDay)
+  return taskHint(task, hintContextOf(schedule, task.uid, showsTimeOfDay), language, lateLine(task, schedule, language))
 }
 
 // see EZ-6, DC-3, S-439, T-023d
@@ -424,12 +440,13 @@ function taskTooltipOf(
   session: ScreenSession,
   readings: ScreenViewReadings,
   schedule: Schedule,
+  showsTimeOfDay: boolean,
 ): Tooltip | null {
   const pointer = readings.pointer
   const holder = readings.hintHolderUnderPointer ?? null
   const isDue = readings.pointerRestedMs >= SETTINGS_CONSTANTS.taskHintDelayMs
   if (pointer === null || holder === null || isDualCursorOn(session) || !isDue) return null
-  const text = hintTextOf(holder, schedule, displayLanguageOf(session))
+  const text = hintTextOf(holder, schedule, displayLanguageOf(session), showsTimeOfDay)
   if (text === null || text === '') return null
   return { anchor: holder, text, assignment: null, at: pointer }
 }
@@ -438,7 +455,7 @@ function taskTooltipOf(
 /** @purity pure */
 export function tooltipsFromScreenView(
   shown: Omit<ScreenView, 'tooltips'>,
-  _settings: DocumentSettings,
+  settings: DocumentSettings,
   session: ScreenSession,
   readings: ScreenViewReadings,
   schedule: Schedule,
@@ -447,7 +464,7 @@ export function tooltipsFromScreenView(
 
   const pointer = readings.pointer
   const language = displayLanguageOf(session)
-  const tooltips: Tooltip[] = [iconTooltipOf(shown, session, readings), taskTooltipOf(session, readings, schedule)]
+  const tooltips: Tooltip[] = [iconTooltipOf(shown, session, readings), taskTooltipOf(session, readings, schedule, settings.showsTimeOfDay)]
     .filter((one): one is Tooltip => one !== null)
 
   if (pointer === null) return tooltips

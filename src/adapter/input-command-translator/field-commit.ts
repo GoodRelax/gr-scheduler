@@ -6,12 +6,14 @@
 import {
   customColorChosen,
   dayOf,
+  instantOf,
   lastDayForLength,
   planActualState,
   taskByUid,
   textOfDayEnd,
   textOfDayStart,
   textOfFinishSide,
+  textOfInstant,
   textOfStartSide,
   workingCalendarOf,
   type CalendarDay,
@@ -35,7 +37,7 @@ import {
   type InputContext,
   type PlacedPlanActual,
 } from './input-command-translator'
-import { statusLineCentered } from './zoom-and-fit'
+import { statusLineCentered, zoomXCeiling } from './zoom-and-fit'
 
 /** @purity pure */
 function settledText(text: string): string | null {
@@ -64,10 +66,14 @@ function sideTextOf(project: Project, task: Task, column: string): SideText {
     : (day) => textOfFinishSide(day, project)
 }
 
+const DATE_AND_TIME = /^\d{4}-\d{2}-\d{2}[T ]\d{1,2}:\d{2}/
+
 /** @purity pure */
 function settledDay(text: string, sideText: SideText): string | null | undefined {
   const held = settledText(text)
   if (held === null) return null
+  const instant = DATE_AND_TIME.test(held) ? instantOf(held) : null
+  if (instant !== null) return textOfInstant(instant)
   const day = dayOf(held)
   return day === null ? undefined : sideText(day)
 }
@@ -480,6 +486,17 @@ function commandsFromTaskGroupTitleWidth(text: string): readonly DocumentCommand
   return [{ kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: width }]
 }
 
+// see FO-13, CM-97, FR-016, FR-158
+/** @purity pure */
+function commandsFromShowsTimeOfDay(text: string, context: InputContext): readonly DocumentCommand[] {
+  const showsTimeOfDay = settledTruth(text)
+  const set: DocumentCommand = { kind: 'setShowsTimeOfDay', showsTimeOfDay }
+  const settings = context.document.documentSettings
+  const ceiling = showsTimeOfDay ? null : zoomXCeiling(context, false)
+  if (ceiling === null || settings.zoomX <= ceiling) return [set]
+  return [set, { kind: 'setZoom', zoomX: ceiling, zoomY: settings.zoomY }]
+}
+
 // see FR-039, CM-74, CM-62, S-234, S-70, T-369
 /** @purity pure */
 function commandFromDocumentSettingsColumn(
@@ -493,6 +510,7 @@ function commandFromDocumentSettingsColumn(
   if (column === 'fitSpanStart' || column === 'fitSpanFinish') return commandsFromFitSpan(commit, settings)
   if (column === 'fitSpanFixed') return commandsFromFitSpanFixed(text, context)
   if (column === 'taskGroupPanelWidthFixed') return [{ kind: 'setTaskGroupPanelWidthFixed', taskGroupPanelWidthFixed: settledTruth(text) }]
+  if (column === 'showsTimeOfDay') return commandsFromShowsTimeOfDay(text, context)
   if (column === 'taskGroupPanelWidth') return commandsFromTaskGroupTitleWidth(text)
   if (column === 'displayScale') {
     const scale = DISPLAY_SCALE_STEPS.find((step) => String(step) === text)

@@ -45,7 +45,7 @@ const OD_2_DAY = '「年 ＋ 月 ＋ 日 ＋ 曜日」の段では非稼働日�
 const OD_2_WEEK_MONTH = '「年 ＋ 月 ＋ 週」と「年 ＋ 月」の段では、例外日で非稼働になった日だけを塗る。'
 const OD_2_YEAR = '「年」の段では塗らない。'
 // see OD-3
-const OD_3_EXTENT = '`Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の上端から下端まで、その日の列の幅で塗ること（MUST）。'
+const OD_3_EXTENT = '`Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の上端から下端まで、その日の列の幅（時間帯の外は、その時間の幅）で塗ること（MUST）。'
 const OD_3_PINNED = 'ピン止めしたタスクグループ（`U-46`）の上も塗る。'
 const OD_3_NOT_RULER = '⛔ `Time Ruler`（`U-19`）の帯は塗らない（MUST NOT）'
 // see OD-4

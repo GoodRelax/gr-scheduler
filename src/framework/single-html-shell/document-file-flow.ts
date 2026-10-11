@@ -8,7 +8,16 @@ import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
-import { dayOf, delayFixCommands, delayFixLogRowsOf, type DelayFixLogRow, type DelayFixRow, type Project, type Task } from '../../entity/document-model/schedule/schedule'
+import {
+  dayOf,
+  delayFixCommands,
+  delayFixLogRowsOf,
+  holdsWorkingDayUnlikeMinutesPerDay,
+  type DelayFixLogRow,
+  type DelayFixRow,
+  type Project,
+  type Task,
+} from '../../entity/document-model/schedule/schedule'
 import { editDocument, wbsSubtreesOf } from '../../use-case/edit-document/edit-document'
 import type {
   FileFlowImportAnswer,
@@ -901,6 +910,7 @@ export async function openDocumentIntoHold(
   if (choice === 'replace') {
     const replaced = hands.replaceHeldDocument({ row: 'RD-4', importing: { ...importing, incoming: documentAsOpened(incoming), choice } })
     if (replaced) landReplacedDocument(reading, flow, store, droppedNames, newer, readIn, incoming)
+    if (replaced && holdsWorkingDayUnlikeMinutesPerDay(incoming.schedule)) hands.raiseNotice(WORKING_TIMES_UNLIKE_DAY_REASON, null)
     return replaced
   }
   // STOP: spec does not decide the surface MG-4 and MG-12 ask through. Looked in FR-022, T-103, T-109 (PND-423)
@@ -949,6 +959,9 @@ async function reopenDocumentIntoHold(
   if (openedFile.kind === 'none') return
   await openDocumentIntoHold(hands, flow, store, OPEN_ROUTE_REOPEN)
 }
+
+// see RS-89, FR-054, FR-088
+const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89'
 
 // see RS-51, RS-52, RS-60
 /** @purity non-pure */

@@ -89,6 +89,7 @@ export {
   workingCalendarOf,
   workingDaysBetween,
   workingMinutesBetween,
+  workingSpansReader,
   workingTimeSetOf,
   workingTimesBreach,
   isSameWorkingTimeSet,

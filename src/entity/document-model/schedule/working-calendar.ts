@@ -304,7 +304,7 @@ export function lastDayForLength(within: WorkingCalendar, start: CalendarDay,
   return dayFromSerial(at)
 }
 
-interface MinuteSpan {
+export interface MinuteSpan {
   readonly from: number
   readonly to: number
 }
@@ -429,6 +429,14 @@ function minutesOver(spansOfDay: SpansOfDay, from: number, to: number): number {
     sum += minutesInside(spansOfDay(at), from - base, to - base)
   }
   return sum
+}
+
+// see OD-1, OD-2, FR-054
+// WHY: one index for every day a frame paints; built per day it would parse the calendar again each day.
+/** @purity pure */
+export function workingSpansReader(within: WorkingCalendar): (atSerial: number) => readonly MinuteSpan[] {
+  const index = timeIndexOf(within)
+  return (atSerial) => spansAt(index, atSerial)
 }
 
 // see FR-054, DV-8
