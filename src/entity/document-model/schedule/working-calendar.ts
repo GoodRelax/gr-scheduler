@@ -17,6 +17,7 @@ import {
 } from './calendar-day'
 import { SETTINGS_CONSTANTS } from '../document-settings/document-settings'
 import { planActualState } from './plan-actual-state'
+import { viewRegionOf, viewWallOfDataWall, zoneClockOf, type ZoneClock } from './time-zone'
 import {
   DEFAULT_CALENDAR_VALUES,
   type Calendar,
@@ -263,21 +264,64 @@ export function startSideOf(task: MilestoneMark): DateTimeSide {
   return task.milestone === true ? 'finish' : 'start'
 }
 
+// see T-350, WT-1, WT-2, WT-3, WT-4, WT-5
+const START_SIDE_COLUMNS: ReadonlySet<string> = new Set(['start', 'actualStart', 'resume'])
+
+// see T-350, FR-054
+/** @purity pure */
+export function sideOfTaskColumn(task: MilestoneMark, column: string): DateTimeSide {
+  return START_SIDE_COLUMNS.has(column) ? startSideOf(task) : 'finish'
+}
+
+export type InstantOnSide = (text: string | null, side: DateTimeSide) => number | null
+
 // see FR-054, WC-8
-// WHY: only a date without a time needs the calendar, so the index is built for it alone.
+// WHY: one calendar index per reader (hold it for one pass), built only when a date without a time needs it.
+/** @purity pure */
+export function instantOnSideReader(within: WorkingCalendar | Schedule): InstantOnSide {
+  let index: TimeIndex | null = null
+  return (text, side) => {
+    const day = text !== null && isDateWithoutTime(text) ? dayOf(text) : null
+    if (day === null) return instantOf(text)
+    index ??= timeIndexOf('calendar' in within ? within : workingCalendarOf(within))
+    const own = spansAt(index, serial(day))
+    const spans = own.length > 0 ? own : index.workingSet()
+    const edge = side === 'start' ? spans[0]?.from ?? 0 : spans[spans.length - 1]?.to ?? MINUTES_PER_CALENDAR_DAY
+    return serial(day) * MINUTES_PER_CALENDAR_DAY + edge
+  }
+}
+
+// see FR-054, WC-8
 /** @purity pure */
 export function instantOnSide(within: WorkingCalendar, text: string | null, side: DateTimeSide): number | null {
-  const day = text !== null && isDateWithoutTime(text) ? dayOf(text) : null
-  if (day === null) return instantOf(text)
-  const index = timeIndexOf(within)
-  const own = spansAt(index, serial(day))
-  const spans = own.length > 0 ? own : index.workingSet
-  const edge = side === 'start' ? spans[0]?.from ?? 0 : spans[spans.length - 1]?.to ?? MINUTES_PER_CALENDAR_DAY
-  return serial(day) * MINUTES_PER_CALENDAR_DAY + edge
+  return instantOnSideReader(within)(text, side)
+}
+
+// see FR-156, S-574, T-375
+/** @purity pure */
+export function viewWallReader(dataRegion: string, viewTimeZone: unknown): (dataWall: number) => number {
+  const viewRegion = viewRegionOf(dataRegion, viewTimeZone)
+  if (viewRegion === dataRegion) return (dataWall) => dataWall
+  let clocks: readonly [ZoneClock, ZoneClock] | null = null
+  return (dataWall) => {
+    clocks ??= [zoneClockOf(dataRegion), zoneClockOf(viewRegion)]
+    return viewWallOfDataWall(clocks[0], clocks[1], dataWall)
+  }
+}
+
+// see FR-054, FR-156, FR-158, T-375
+/** @purity pure */
+export function shownInstantReader(schedule: Schedule, viewTimeZone: unknown): InstantOnSide {
+  const read = instantOnSideReader(schedule)
+  const toView = viewWallReader(schedule.project.scheduleDataTimeZone, viewTimeZone)
+  return (text, side) => {
+    const at = read(text, side)
+    return at === null ? null : toView(at)
+  }
 }
 
 /** @purity pure */
-function planInstantsOf(within: WorkingCalendar, task: PlannedEnds): readonly [number, number] | null {
+export function plannedInstantsOf(within: WorkingCalendar, task: PlannedEnds): readonly [number, number] | null {
   const start = instantOnSide(within, task.start, startSideOf(task))
   const finish = instantOnSide(within, task.finish, 'finish')
   return start === null || finish === null ? null : [start, finish]
@@ -294,7 +338,7 @@ export function actualInstantsOf(within: WorkingCalendar, task: Task): readonly 
 // see IV-10, FR-054
 /** @purity pure */
 export function isPlanReversed(within: WorkingCalendar, task: PlannedEnds): boolean {
-  const plan = planInstantsOf(within, task)
+  const plan = plannedInstantsOf(within, task)
   return plan !== null && plan[1] < plan[0]
 }
 
@@ -302,7 +346,7 @@ type CountOfMinutes = (within: WorkingCalendar, start: number, end: number) => n
 
 /** @purity pure */
 function plannedMinutesBy(count: CountOfMinutes, within: WorkingCalendar, task: Task): number | null {
-  const plan = planInstantsOf(within, task)
+  const plan = plannedInstantsOf(within, task)
   if (plan === null) return null
   return task.milestone === true ? 0 : count(within, plan[0], plan[1])
 }
@@ -346,7 +390,7 @@ interface TimeIndex {
   readonly days: CalendarIndex
   readonly weekdaySpans: readonly (readonly MinuteSpan[])[]
   readonly exceptionSpans: ReadonlyMap<number, readonly MinuteSpan[]>
-  readonly workingSet: readonly MinuteSpan[]
+  readonly workingSet: () => readonly MinuteSpan[]
 }
 
 const NO_SPANS: readonly MinuteSpan[] = []
@@ -424,11 +468,12 @@ function timeIndexOf(within: WorkingCalendar): TimeIndex {
     const own = spansOfTimes(exception.workingTimes)
     exceptionSpans.set(exception.ordinal, exception.dayWorking !== true ? NO_SPANS : own.length > 0 ? own : DEFAULT_SPANS)
   }
+  let workingSet: readonly MinuteSpan[] | undefined
   return {
     days: indexOfCalendar(within),
     weekdaySpans,
     exceptionSpans,
-    workingSet: spansOfTimes(workingTimeSetOf(within).workingTimes),
+    workingSet: () => (workingSet ??= spansOfTimes(workingTimeSetOf(within).workingTimes)),
   }
 }
 
@@ -486,7 +531,7 @@ function edgeSpansOf(index: TimeIndex, startSerial: number, endSerial: number): 
   return (at) => {
     const held = spansAt(index, at)
     const isEdge = at === startSerial || at === endSerial
-    return isEdge && !isWorkingDayAt(index.days, at) ? index.workingSet : held
+    return isEdge && !isWorkingDayAt(index.days, at) ? index.workingSet() : held
   }
 }
 

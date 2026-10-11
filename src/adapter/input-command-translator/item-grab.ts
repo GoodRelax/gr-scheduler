@@ -6,7 +6,7 @@
 import {
   actualLastDay,
   dayOf,
-  instantOf,
+  plannedInstantsOf,
   MINUTES_PER_CALENDAR_DAY,
   planActualState,
   taskByUid,
@@ -16,6 +16,7 @@ import {
   textOfFinishSide,
   textOfInstant,
   textOfStartSide,
+  workingCalendarOf,
   type CalendarDay,
   type CommentBox,
   type HighlightBox,
@@ -467,9 +468,9 @@ function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): Docum
     const movedStart = textOfStartSide(dayShifted(start, drag.dayCount), project, task.milestone === true)
     return { kind: 'setTaskPlanDates', uid: task.uid, start: movedStart, finish: textOfFinishSide(dayShifted(finish, drag.dayCount), project) }
   }
-  const start = instantOf(task.start)
-  const finish = instantOf(task.finish)
-  if (start === null || finish === null) return null
+  const plan = plannedInstantsOf(workingCalendarOf(context.document.schedule), task)
+  if (plan === null) return null
+  const [start, finish] = plan
   const pulled = ((drag.release.x - drag.press.at.x) / context.layout.pxPerDay) * MINUTES_PER_CALENDAR_DAY
   const shift = Math.round((start + pulled) / snap) * snap - start
   if (shift === 0) return null

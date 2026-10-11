@@ -16,10 +16,15 @@ import {
   delayWorkingDays,
   isDelayed,
   serial,
+  shownInstantReader,
+  startSideOf,
   taskByUid,
+  viewWallReader,
   workingCalendarOf,
   type BaselineTask,
   type CalendarDay,
+  type DateTimeSide,
+  type InstantOnSide,
   type Schedule,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
@@ -136,29 +141,36 @@ export function cursorDateText(day: CalendarDay, language: DisplayLanguage): str
 interface HintContext {
   readonly assigneeNames: readonly string[]
   readonly isYearWritten: boolean
-  readonly showsTimeOfDay: boolean
+  readonly shown: InstantOnSide | null
 }
 
 interface HintDay {
   readonly day: CalendarDay
   readonly text: string | null
+  readonly side: DateTimeSide
 }
 
 // see TL-10, ND-4, ND-5, TX-2
 /** @purity pure */
 function hintDayText(at: HintDay, context: HintContext, language: DisplayLanguage): string {
-  const dated = withWeekday(planDateText(at.day, context.isYearWritten), at.day, language)
-  const instant = context.showsTimeOfDay ? instantOf(at.text) : null
+  const instant = context.shown === null ? null : context.shown(at.text, at.side)
+  const day = instant === null ? at.day : dayOfInstant(instant)
+  const dated = withWeekday(planDateText(day, context.isYearWritten), day, language)
   return instant === null ? dated : `${dated} ${clockTextOf(instant)}`
 }
 
 /** @purity pure */
-function hintDayOf(text: string | null): HintDay | null {
+function hintDayOf(text: string | null, side: DateTimeSide): HintDay | null {
   const day = dayOf(text)
-  return day === null ? null : { day, text }
+  return day === null ? null : { day, text, side }
 }
 
-const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], isYearWritten: false, showsTimeOfDay: false }
+// see TX-2, FR-156, S-574, S-576
+type HintTimes = Pick<DocumentSettings, 'showsTimeOfDay' | 'viewTimeZone'>
+
+const NO_HINT_TIMES: HintTimes = { showsTimeOfDay: false, viewTimeZone: null }
+
+const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], isYearWritten: false, shown: null }
 
 // see TL-10, ND-5
 /** @purity pure */
@@ -182,9 +194,10 @@ function assigneeNamesOf(schedule: Schedule, taskUid: number): readonly string[]
 
 // see TL-7, TL-10
 /** @purity pure */
-function hintContextOf(schedule: Schedule | null, taskUid: number, showsTimeOfDay = false): HintContext {
-  if (schedule === null) return { ...NO_HINT_CONTEXT, showsTimeOfDay }
-  return { assigneeNames: assigneeNamesOf(schedule, taskUid), isYearWritten: isYearWrittenIn(schedule), showsTimeOfDay }
+function hintContextOf(schedule: Schedule | null, taskUid: number, times: HintTimes = NO_HINT_TIMES): HintContext {
+  if (schedule === null) return NO_HINT_CONTEXT
+  const shown = times.showsTimeOfDay ? shownInstantReader(schedule, times.viewTimeZone) : null
+  return { assigneeNames: assigneeNamesOf(schedule, taskUid), isYearWritten: isYearWrittenIn(schedule), shown }
 }
 
 const HINT_LINE_WORDS = new Map(displayWords.hintLines.map((entry) => [entry.rowId, entry.text]))
@@ -283,8 +296,8 @@ function planLine(
   context: HintContext,
   language: DisplayLanguage,
 ): string | null {
-  const start = hintDayOf(planned.start)
-  const finish = hintDayOf(planned.finish)
+  const start = hintDayOf(planned.start, startSideOf(planned))
+  const finish = hintDayOf(planned.finish, 'finish')
   const isMilestone = planned.milestone === true
   if (start === null || (finish === null && !isMilestone)) return null
   return daysLine(PLAN_LINE_ROW, start, finish, isMilestone, context, language)
@@ -294,9 +307,9 @@ function planLine(
 // TRAP: an unfinished actual stops at the dash; never write stop (FR-011) as its last day (TL-6 MUST NOT).
 /** @purity pure */
 function actualLine(task: Task, context: HintContext, language: DisplayLanguage): string | null {
-  const start = hintDayOf(task.actualStart)
+  const start = hintDayOf(task.actualStart, startSideOf(task))
   if (start === null) return null
-  return daysLine(ACTUAL_LINE_ROW, start, hintDayOf(task.actualFinish), task.milestone === true, context, language)
+  return daysLine(ACTUAL_LINE_ROW, start, hintDayOf(task.actualFinish, 'finish'), task.milestone === true, context, language)
 }
 
 // see TL-8, FR-090
@@ -309,7 +322,7 @@ function percentLine(task: Task, language: DisplayLanguage): string | null {
 // see TL-9, TL-2
 /** @purity pure */
 function deadlineDayText(task: Task, context: HintContext, language: DisplayLanguage): string | null {
-  const at = hintDayOf(task.deadline)
+  const at = hintDayOf(task.deadline, 'finish')
   if (at === null) return null
   return `${deadlineWord(language)} ${hintDayText(at, context, language)}`
 }
@@ -347,8 +360,8 @@ function taskHint(task: Task, context: HintContext, language: DisplayLanguage, l
 
 // see TL-2
 /** @purity pure */
-export function deadlineHint(task: Task, schedule: Schedule | null, language: DisplayLanguage, showsTimeOfDay = false): string | null {
-  const context = hintContextOf(schedule, task.uid, showsTimeOfDay)
+export function deadlineHint(task: Task, schedule: Schedule | null, language: DisplayLanguage, times = NO_HINT_TIMES): string | null {
+  const context = hintContextOf(schedule, task.uid, times)
   const marked = deadlineDayText(task, context, language)
   if (marked === null) return null
   const name = task.name ?? ''
@@ -357,8 +370,8 @@ export function deadlineHint(task: Task, schedule: Schedule | null, language: Di
 
 // see TL-3
 /** @purity pure */
-export function baselineHint(baseline: BaselineTask, schedule: Schedule | null, language: DisplayLanguage, showsTimeOfDay = false): string {
-  const context = hintContextOf(schedule, baseline.uid, showsTimeOfDay)
+export function baselineHint(baseline: BaselineTask, schedule: Schedule | null, language: DisplayLanguage, times = NO_HINT_TIMES): string {
+  const context = hintContextOf(schedule, baseline.uid, times)
   const name = baseline.name ?? ''
   const lines = [name === '' ? null : name, planLine(baseline, context, language)]
   return lines.filter((one): one is string => one !== null).join(LINE_BREAK)
@@ -426,15 +439,15 @@ type HintHolder = NonNullable<ScreenViewReadings['hintHolderUnderPointer']>
 
 // see TL-1, TL-2, TL-3, TL-12
 /** @purity pure */
-function hintTextOf(holder: HintHolder, schedule: Schedule, language: DisplayLanguage, showsTimeOfDay: boolean): string | null {
+function hintTextOf(holder: HintHolder, schedule: Schedule, language: DisplayLanguage, times: HintTimes): string | null {
   if (holder.kind === 'baseline') {
     const baseline = schedule.baselineTasks.find((one) => one.uid === holder.taskUid)
-    return baseline === undefined ? null : baselineHint(baseline, schedule, language, showsTimeOfDay)
+    return baseline === undefined ? null : baselineHint(baseline, schedule, language, times)
   }
   const task = taskByUid(schedule, holder.taskUid)
   if (task === null) return null
-  if (holder.kind === 'deadline') return deadlineHint(task, schedule, language, showsTimeOfDay)
-  return taskHint(task, hintContextOf(schedule, task.uid, showsTimeOfDay), language, lateLine(task, schedule, language))
+  if (holder.kind === 'deadline') return deadlineHint(task, schedule, language, times)
+  return taskHint(task, hintContextOf(schedule, task.uid, times), language, lateLine(task, schedule, language))
 }
 
 // see EZ-6, DC-3, S-439, T-023d
@@ -443,13 +456,13 @@ function taskTooltipOf(
   session: ScreenSession,
   readings: ScreenViewReadings,
   schedule: Schedule,
-  showsTimeOfDay: boolean,
+  times: HintTimes,
 ): Tooltip | null {
   const pointer = readings.pointer
   const holder = readings.hintHolderUnderPointer ?? null
   const isDue = readings.pointerRestedMs >= SETTINGS_CONSTANTS.taskHintDelayMs
   if (pointer === null || holder === null || isDualCursorOn(session) || !isDue) return null
-  const text = hintTextOf(holder, schedule, displayLanguageOf(session), showsTimeOfDay)
+  const text = hintTextOf(holder, schedule, displayLanguageOf(session), times)
   if (text === null || text === '') return null
   return { anchor: holder, text, assignment: null, at: pointer }
 }
@@ -467,7 +480,7 @@ export function tooltipsFromScreenView(
 
   const pointer = readings.pointer
   const language = displayLanguageOf(session)
-  const tooltips: Tooltip[] = [iconTooltipOf(shown, session, readings), taskTooltipOf(session, readings, schedule, settings.showsTimeOfDay)]
+  const tooltips: Tooltip[] = [iconTooltipOf(shown, session, readings), taskTooltipOf(session, readings, schedule, settings)]
     .filter((one): one is Tooltip => one !== null)
 
   if (pointer === null) return tooltips
@@ -557,6 +570,14 @@ function inDateOrder(
   return a <= b ? { left: a, right: b } : { left: b, right: a }
 }
 
+// see TX-6, FR-156, S-574
+/** @purity pure */
+function cursorViewOf(settings: DocumentSettings, dataRegion: string | undefined): (instant: number | null) => number | null {
+  if (!settings.showsTimeOfDay || dataRegion === undefined) return (instant) => instant
+  const toView = viewWallReader(dataRegion, settings.viewTimeZone)
+  return (instant) => (instant === null ? null : toView(instant))
+}
+
 // see DC-3, IN-3, EZ-6
 /** @purity pure */
 export function dualCursorReadoutOf(
@@ -564,6 +585,7 @@ export function dualCursorReadoutOf(
   settings: DocumentSettings,
   session: ScreenSession,
   readings: ScreenViewReadings,
+  dataRegion?: string,
 ): DualCursorReadout | null {
   const pointer = readings.pointer
   if (pointer === null || !isDualCursorOn(session)) return null
@@ -571,7 +593,8 @@ export function dualCursorReadoutOf(
   if (region !== 'taskGroupArea' && region !== 'timeRuler') return null
   const language = displayLanguageOf(session)
   const { date1, date2 } = readoutInstants(regions, settings, session, pointer.x)
-  const { left, right } = inDateOrder(date1, date2)
+  const toView = cursorViewOf(settings, dataRegion)
+  const { left, right } = inDateOrder(toView(date1), toView(date2))
   const inTime = settings.showsTimeOfDay
   return {
     lines: [
@@ -596,6 +619,7 @@ export function guideCursorLabelOf(
   session: ScreenSession,
   readings: ScreenViewReadings,
   tooltips: readonly Tooltip[],
+  dataRegion?: string,
 ): GuideCursorLabel | null {
   const pointer = readings.pointer
   if (pointer === null || session.screen.guideCursorMode === GUIDE_CURSOR_NONE) return null
@@ -605,6 +629,7 @@ export function guideCursorLabelOf(
   const instant = settings.showsTimeOfDay
     ? snappedInstantAtX(axis, pointer.x, GUIDE_LABEL_MINUTES)
     : cursorInstantAtX(axis, pointer.x, settings)
-  if (instant === null) return null
-  return { text: cursorInstantText(instant, settings.showsTimeOfDay, displayLanguageOf(session)), at: pointer }
+  const shown = cursorViewOf(settings, dataRegion)(instant)
+  if (shown === null) return null
+  return { text: cursorInstantText(shown, settings.showsTimeOfDay, displayLanguageOf(session)), at: pointer }
 }

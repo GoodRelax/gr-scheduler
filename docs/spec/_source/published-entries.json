@@ -787,6 +787,61 @@
      }
     },
     {
+     "name": "instantOnSideReader",
+     "note": {
+      "ja": [
+       "`instantOnSide` を 1 回の読みの間くり返す読み手（暦の索引は時刻を書いていない日付の字に初めて会ったときに 1 度だけ作る）。",
+       "文書を渡すと、暦もそのときに解く —— 配置・表・遅延診断が字ごとに暦を解き直さないために公開した（`FR-054`）"
+      ]
+     }
+    },
+    {
+     "name": "InstantOnSide",
+     "note": {
+      "ja": [
+       "型。",
+       "`instantOnSideReader` ・ `shownInstantReader` が返す読み手（日時の字と側から瞬間（分））"
+      ]
+     }
+    },
+    {
+     "name": "sideOfTaskColumn",
+     "note": {
+      "ja": [
+       "`Task` の日時の列を読む側。",
+       "`start` ・ `actualStart` ・ `resume` は開始の側（マイルストーンは終了の側）、ほかは終了の側（`FR-054` の 表 T-350 の `WT-1` 〜 `WT-5`）"
+      ]
+     }
+    },
+    {
+     "name": "plannedInstantsOf",
+     "note": {
+      "ja": [
+       "予定の始まりと終わりの瞬間の対。",
+       "`start` と `finish` を `instantOnSide` で読む。",
+       "どちらかが読めなければ無い（`FR-054`）"
+      ]
+     }
+    },
+    {
+     "name": "viewWallReader",
+     "note": {
+      "ja": [
+       "日程データの壁時計の分を、見せる基準（`S-574`）の壁時計の分へ換える読み手。",
+       "同じ地域なら換えず、時計は最初に換えるときに作る（`FR-156`）"
+      ]
+     }
+    },
+    {
+     "name": "shownInstantReader",
+     "note": {
+      "ja": [
+       "画面が見せる日時の読み手 —— 字を側で読み（`FR-054`）、見せる基準の時計で見せる（`FR-156`）。",
+       "`FR-158` の 表 T-375 の所（名称ラベル・ツールチップ・プロパティパネル・表・遅延診断レポート）が同じ 1 本を読む"
+      ]
+     }
+    },
+    {
      "name": "actualInstantsOf",
      "note": {
       "ja": [

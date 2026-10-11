@@ -21,7 +21,7 @@ import {
   type DelayFixValue,
 } from './delay-fixes'
 import type { Schedule, Task } from './schedule-entities'
-import { assigneeNamesByTaskUid, compareDates, plannedFinishOf } from './schedule-search'
+import { assigneeNamesByTaskUid, compareInstants, plannedFinishOf, plannedStartInstantsOf } from './schedule-search'
 
 // see DT-1
 export type DelayReportStatus = DelayMarkerRow | 'doubtful' | 'settled'
@@ -173,9 +173,10 @@ export function delayDiagnosticsReportRows(report: DelayDiagnosticsReport, sched
     const status = statuses.get(task.uid)
     return status === undefined ? [] : [rowOf(task, status, report, { assignees: assignees.get(task.uid) ?? [], tasks })]
   })
+  const startAt = plannedStartInstantsOf(schedule)
+  const startOf = (row: DelayReportRow): number | null => startAt.get(row.taskUid) ?? null
   return rows.sort(
-    (a, b) =>
-      statusRank(a.status) - statusRank(b.status) || compareDates(a.plannedStart, b.plannedStart) || a.taskUid - b.taskUid,
+    (a, b) => statusRank(a.status) - statusRank(b.status) || compareInstants(startOf(a), startOf(b)) || a.taskUid - b.taskUid,
   )
 }
 
@@ -321,13 +322,13 @@ function fixTypeRank(fixType: DelayFixType): number {
 // see T-374, T-373
 /** @purity pure */
 export function compareDelayFixRows(schedule: Schedule): (a: DelayFixRow, b: DelayFixRow) => number {
-  const startOf = new Map(schedule.tasks.map((task) => [task.uid, task.start]))
+  const startOf = plannedStartInstantsOf(schedule)
   const layerOf = (row: DelayFixRow): number => row.layer ?? Number.POSITIVE_INFINITY
   return (a, b) =>
     fixTypeRank(a.fixType) - fixTypeRank(b.fixType) ||
     layerOf(a) - layerOf(b) ||
     b.depth - a.depth ||
-    compareDates(startOf.get(a.taskUid) ?? null, startOf.get(b.taskUid) ?? null) ||
+    compareInstants(startOf.get(a.taskUid) ?? null, startOf.get(b.taskUid) ?? null) ||
     a.taskUid - b.taskUid ||
     a.applyOrder - b.applyOrder
 }

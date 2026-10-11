@@ -538,9 +538,10 @@ function shadeBoxOf(input: GridInput, from: CalendarDay): ShadeBox {
     right,
     firstSerial,
     lastSerial: firstSerial + Math.ceil((right - left) / layout.pxPerDay) + 1,
+    // TRAP: compare the numbers, never rounded()'s strings: '1147.5' > '697.5' is false (DFC-2467, DFC-2468).
     run(x0, x1) {
       const [from0, to1] = [rounded(Math.max(left, x0)), rounded(Math.min(right, x1))]
-      return to1 > from0 ? `M${from0} ${top} H${to1} V${bottom} H${from0} Z` : null
+      return Number(to1) > Number(from0) ? `M${from0} ${top} H${to1} V${bottom} H${from0} Z` : null
     },
   }
 }

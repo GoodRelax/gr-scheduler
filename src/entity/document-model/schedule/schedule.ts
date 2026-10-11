@@ -70,6 +70,7 @@ export {
   holdsWorkingDayUnlikeMinutesPerDay,
   instantAfterWorkingMinutes,
   instantOnSide,
+  instantOnSideReader,
   defaultFinishTimeOf,
   defaultStartTimeOf,
   isNonRecurringException,
@@ -81,13 +82,17 @@ export {
   nextWorkingDay,
   NoWorkingDayReached,
   plannedDurationMinutesOf,
+  plannedInstantsOf,
   plannedLengthMinutesOf,
   isPlanReversed,
   reversedActualMinutesOf,
+  shownInstantReader,
+  sideOfTaskColumn,
   startSideOf,
   TENTHS_OF_A_MINUTE,
   textOfFinishSide,
   textOfStartSide,
+  viewWallReader,
   WORKING_DAY_LAG_FORMAT,
   weekDayOf,
   workingCalendarOf,
@@ -99,7 +104,7 @@ export {
   isSameWorkingTimeSet,
   isWorkingTimeSetUnlikeDay,
 } from './working-calendar'
-export type { DateTimeSide, WorkingCalendar, WorkingTimeSet } from './working-calendar'
+export type { DateTimeSide, InstantOnSide, WorkingCalendar, WorkingTimeSet } from './working-calendar'
 export {
   dataWallOfViewWall,
   isTimeZoneRegion,

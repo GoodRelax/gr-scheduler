@@ -4,10 +4,17 @@
 // @purity    pure
 
 import {
+  DATE_COLUMNS,
   customColorChosen,
+  dataWallOfViewWall,
   dayOf,
   instantAfterWorkingMinutes,
   instantOf,
+  instantOnSide,
+  sideOfTaskColumn,
+  startSideOf,
+  viewRegionOf,
+  zoneClockOf,
   lastDayForLength,
   minutesPerWorkingDayOf,
   planActualState,
@@ -84,14 +91,11 @@ function typedLengthOf(text: string, minutesPerDay: number): TypedLength | null 
 
 type SideText = (day: CalendarDay) => string
 
-// see WT-1, WT-3
-const START_SIDE_COLUMNS: readonly string[] = ['start', 'actualStart', 'resume']
-
 // see T-350
 /** @purity pure */
 function sideTextOf(project: Project, task: Task, column: string): SideText {
-  return START_SIDE_COLUMNS.includes(column)
-    ? (day) => textOfStartSide(day, project, task.milestone === true)
+  return sideOfTaskColumn(task, column) === 'start'
+    ? (day) => textOfStartSide(day, project, false)
     : (day) => textOfFinishSide(day, project)
 }
 
@@ -170,9 +174,10 @@ function planActualWithColumn(
 function actualEndForLength(schedule: Schedule, task: Task, text: string, showsTimeOfDay: boolean): string | null {
   if (showsTimeOfDay) {
     const typed = typedLengthOf(text, minutesPerWorkingDayOf(schedule.project))
-    const from = instantOf(task.actualStart)
+    const within = workingCalendarOf(schedule)
+    const from = instantOnSide(within, task.actualStart, startSideOf(task))
     if (typed === undefined || typed === null || from === null) return null
-    return textOfInstant(instantAfterWorkingMinutes(workingCalendarOf(schedule), from, typed.minutes))
+    return textOfInstant(instantAfterWorkingMinutes(within, from, typed.minutes))
   }
   const days = settledNumber(text)
   const from = dayOf(task.actualStart)
@@ -673,7 +678,8 @@ export function commandFromFieldCommit(
 
   switch (key.holder) {
     case 'task':
-      return commandFromTaskField(schedule, key.uid, key.column, commit.text, context.document.documentSettings.showsTimeOfDay)
+      return commandFromTaskField(schedule, key.uid, key.column, dataWallTextOf(commit.text, key.column, context),
+        context.document.documentSettings.showsTimeOfDay)
     case 'taskVisual':
       return taskByUid(schedule, key.uid) === null
         ? []
@@ -704,6 +710,19 @@ export function commandFromFieldCommit(
     default:
       return commandFromSettingsFaceField(key, commit, context)
   }
+}
+
+// see TX-3, FR-156, S-574
+// WHY: the panel shows a Task's date-time in the view base (properties-panel.ts), so a typed one goes back to the data's clock.
+/** @purity pure */
+function dataWallTextOf(text: string, column: keyof Task, context: InputContext): string {
+  const settings = context.document.documentSettings
+  const held = text.trim()
+  const instant = settings.showsTimeOfDay && DATE_COLUMNS.Task.includes(column) && DATE_AND_TIME.test(held) ? instantOf(held) : null
+  const data = context.document.schedule.project.scheduleDataTimeZone
+  const view = viewRegionOf(data, settings.viewTimeZone)
+  if (instant === null || view === data) return text
+  return textOfInstant(dataWallOfViewWall(zoneClockOf(data), zoneClockOf(view), instant))
 }
 
 type SettingsFaceKey = Extract<FieldCommit['key'], { readonly holder: 'project' | 'documentSettings' | 'timeShift' }>

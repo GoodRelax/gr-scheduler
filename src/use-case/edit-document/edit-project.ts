@@ -9,13 +9,17 @@ import {
   DATE_COLUMNS,
   dayOf,
   instantOf,
+  instantOnSideReader,
   isTimeZoneRegion,
   MINUTES_PER_CALENDAR_DAY,
+  sideOfTaskColumn,
+  startSideOf,
   textOfInstant,
   workingCalendarOf,
   workingSpansReader,
   type BaselineTask,
   type CalendarDay,
+  type InstantOnSide,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
@@ -146,8 +150,7 @@ function isAcceptedDay(day: CalendarDay): boolean {
 // see BS-1, BS-4
 // WHY: undefined when the shifted value leaves the accepted days; a text no reader can read is kept as it is.
 /** @purity pure */
-function shiftedText(text: string | null, minutes: number): string | null | undefined {
-  const instant = instantOf(text)
+function shiftedText(instant: number | null, text: string | null, minutes: number): string | null | undefined {
   if (instant === null) return text
   const moved = textOfInstant(instant + minutes)
   const day = dayOf(moved)
@@ -161,12 +164,13 @@ function shiftedRow<TRow extends Task | BaselineTask>(
   row: TRow,
   columns: readonly (keyof TRow & string)[],
   minutes: number,
+  onSide: InstantOnSide,
 ): ShiftedRow<TRow> {
   let held = row
   const outside: string[] = []
   for (const column of columns) {
     const text = row[column] as unknown as string | null
-    const moved = shiftedText(text, minutes)
+    const moved = shiftedText(onSide(text, sideOfTaskColumn(row, column)), text, minutes)
     if (moved === undefined) outside.push(`${column}=${String(text)}`)
     else if (moved !== text) held = { ...held, [column]: moved }
   }
@@ -182,10 +186,13 @@ function withScheduleTimesShifted(document: Document, minutes: number): EditResu
   }
   if (minutes === 0) return edited(document)
   const schedule = document.schedule
-  const tasks = schedule.tasks.map((task) => shiftedRow(task, SHIFTED_TASK_COLUMNS, minutes))
-  const baselines = schedule.baselineTasks.map((one) => shiftedRow(one, SHIFTED_BASELINE_COLUMNS, minutes))
-  const startDate = shiftedText(schedule.project.startDate, minutes)
-  const statusDate = shiftedText(schedule.project.statusDate, minutes)
+  // see FR-054, WT-1, WT-4
+  const onSide = instantOnSideReader(workingCalendarOf(schedule))
+  const tasks = schedule.tasks.map((task) => shiftedRow(task, SHIFTED_TASK_COLUMNS, minutes, onSide))
+  const baselines = schedule.baselineTasks.map((one) => shiftedRow(one, SHIFTED_BASELINE_COLUMNS, minutes, onSide))
+  const { startDate: start, statusDate: status } = schedule.project
+  const startDate = shiftedText(onSide(start, 'start'), start, minutes)
+  const statusDate = shiftedText(onSide(status, 'finish'), status, minutes)
   const outside = [
     ...tasks.flatMap((one) => one.outside.map((what) => `task ${one.row.uid} ${what}`)),
     ...baselines.flatMap((one) => one.outside.map((what) => `baseline ${one.row.uid} ${what}`)),
@@ -250,9 +257,9 @@ function isInsideWorkingTime(spansOf: SpansOfSerial, instant: number, side: 'sta
 }
 
 /** @purity pure */
-function shiftExampleOf(tasks: readonly Task[], minutes: number) {
-  const task = tasks.find((one) => instantOf(one.start) !== null)
-  const start = task === undefined ? null : instantOf(task.start)
+function shiftExampleOf(tasks: readonly Task[], minutes: number, onSide: InstantOnSide) {
+  const task = tasks.find((one) => onSide(one.start, startSideOf(one)) !== null)
+  const start = task === undefined ? null : onSide(task.start, startSideOf(task))
   if (task === undefined || start === null) return null
   return { name: task.name, before: textOfInstant(start), after: textOfInstant(start + minutes) }
 }
@@ -261,15 +268,17 @@ function shiftExampleOf(tasks: readonly Task[], minutes: number) {
 // WHY: what the question shows before the shift is written; the rewrite itself is withScheduleTimesShifted.
 /** @purity pure */
 export function timeShiftPreviewOf(document: Document, minutes: number) {
-  const spansOf = workingSpansReader(workingCalendarOf(document.schedule))
+  const within = workingCalendarOf(document.schedule)
+  const spansOf = workingSpansReader(within)
+  const onSide = instantOnSideReader(within)
   const shifted = document.schedule.tasks.filter((task) => SHIFTED_TASK_COLUMNS.some((column) => instantOf(task[column] as string | null) !== null))
   const outside = shifted.filter((task) => {
-    const start = instantOf(task.start)
-    const finish = instantOf(task.finish)
+    const start = onSide(task.start, startSideOf(task))
+    const finish = onSide(task.finish, 'finish')
     return (
       (start !== null && !isInsideWorkingTime(spansOf, start + minutes, 'start')) ||
       (finish !== null && !isInsideWorkingTime(spansOf, finish + minutes, 'finish'))
     )
   })
-  return { minutes, taskCount: shifted.length, outsideCount: outside.length, example: shiftExampleOf(shifted, minutes) }
+  return { minutes, taskCount: shifted.length, outsideCount: outside.length, example: shiftExampleOf(shifted, minutes, onSide) }
 }

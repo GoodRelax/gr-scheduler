@@ -58,6 +58,9 @@ const READER: DayReader = {
   walk: () => {
     throw new Error('a name label never walks working days')
   },
+  shown: () => {
+    throw new Error('these labels are drawn without time of day')
+  },
 }
 const SETTINGS = { truncateUnits: 200 } as unknown as DrawnSettings
 

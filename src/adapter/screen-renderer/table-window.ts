@@ -3,7 +3,17 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import { dayOf, instantOf, isSearchWordFound, type Schedule } from '../../entity/document-model/schedule/schedule'
+import {
+  dayOf,
+  dayOfInstant,
+  isSearchWordFound,
+  shownInstantReader,
+  startSideOf,
+  type CalendarDay,
+  type DateTimeSide,
+  type InstantOnSide,
+  type Schedule,
+} from '../../entity/document-model/schedule/schedule'
 import { clockTextOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { markerGlyphSvg } from '../svg-renderer/svg-renderer'
 import {
@@ -208,17 +218,43 @@ function isTableDrawn(shown: WindowShown | null): shown is WindowShown {
 }
 
 /** @purity pure */
-export function dateText(stored: string | null): string {
-  const day = dayOf(stored)
-  if (day === null) return ''
+function dayText(day: CalendarDay): string {
   return [day.year, day.month, day.day].map((part, at) => String(part).padStart(DATE_PART_DIGITS[at] ?? 0, '0')).join(DATE_SEPARATOR)
 }
 
 /** @purity pure */
-export function dateTimeText(stored: string | null, showsTimeOfDay: boolean): string {
+export function dateText(stored: string | null): string {
+  const day = dayOf(stored)
+  return day === null ? '' : dayText(day)
+}
+
+// see TX-4, TX-7, FR-054, FR-156, S-574, S-576
+// WHY: a table cell reads a Task's date-time on its side (WT-5 for a milestone's start) and shows it in the view base.
+export interface ShownDateTimes {
+  readonly showsTimeOfDay: boolean
+  readonly instantOf: InstantOnSide
+  readonly startSideOf: (taskUid: number) => DateTimeSide
+}
+
+export const DATES_ONLY: ShownDateTimes = { showsTimeOfDay: false, instantOf: () => null, startSideOf: () => 'start' }
+
+// see TX-4, TX-7, FR-156
+/** @purity pure */
+export function shownDateTimesOf(schedule: Schedule, settings: Pick<DocumentSettings, 'showsTimeOfDay' | 'viewTimeZone'>): ShownDateTimes {
+  if (!settings.showsTimeOfDay) return DATES_ONLY
+  const milestones = new Set(schedule.tasks.filter((task) => task.milestone === true).map((task) => task.uid))
+  return {
+    showsTimeOfDay: true,
+    instantOf: shownInstantReader(schedule, settings.viewTimeZone),
+    startSideOf: (taskUid) => startSideOf({ milestone: milestones.has(taskUid) }),
+  }
+}
+
+/** @purity pure */
+export function dateTimeText(stored: string | null, times: ShownDateTimes, side: DateTimeSide): string {
   const date = dateText(stored)
-  const instant = showsTimeOfDay && date !== '' ? instantOf(stored) : null
-  return instant === null ? date : `${date} ${clockTextOf(instant)}`
+  const instant = times.showsTimeOfDay && date !== '' ? times.instantOf(stored, side) : null
+  return instant === null ? date : `${dayText(dayOfInstant(instant))} ${clockTextOf(instant)}`
 }
 
 /** @purity pure */

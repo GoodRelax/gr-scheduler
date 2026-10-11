@@ -5,9 +5,11 @@
 
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import {
-  instantOf,
+  dayOfInstant,
   MINUTES_PER_CALENDAR_DAY,
+  startSideOf,
   type CalendarDay,
+  type DateTimeSide,
   type Schedule,
   type Task,
 } from '../../document-model/schedule/schedule'
@@ -99,26 +101,24 @@ export function lengthTextOf(minutes: number, minutesPerDay: number): string {
   return `${minutes < 0 ? '-' : ''}${parts.join(' ')}`
 }
 
-// see T-375, TX-1, TX-4, TX-5, TX-6
-// WHY: the one reading of a shown date-time: the date of ND-4, and the clock only while time of day is shown.
+// see T-375, TX-1, FR-054, FR-156
+// WHY: the date of ND-4 alone without time of day; with it, the instant read on its side in the view base, day and clock.
 /** @purity pure */
-function shownDateTimeText(text: string | null, day: CalendarDay, withYear: boolean, showsTimeOfDay: boolean): string {
-  const date = planDateText(day, withYear)
-  if (!showsTimeOfDay) return date
-  const instant = instantOf(text)
-  return instant === null ? date : `${date} ${clockTextOf(instant)}`
+function shownDateTimeText(text: string | null, side: DateTimeSide, reader: DayReader, withYear: boolean, showsTimeOfDay: boolean): string {
+  const instant = showsTimeOfDay ? reader.shown(text, side) : null
+  const day = instant === null ? reader.day(text) : dayOfInstant(instant)
+  if (day === null) return ''
+  return instant === null ? planDateText(day, withYear) : `${planDateText(day, withYear)} ${clockTextOf(instant)}`
 }
 
 // see ND-1, ND-2, ND-3, TX-1
 /** @purity pure */
 function planDatesOf(task: Task, reader: DayReader, withYear: boolean, showsTimeOfDay: boolean): string {
-  const start = reader.day(task.start)
-  if (start === null) return ''
-  const startText = shownDateTimeText(task.start, start, withYear, showsTimeOfDay)
+  if (reader.day(task.start) === null) return ''
+  const startText = shownDateTimeText(task.start, startSideOf(task), reader, withYear, showsTimeOfDay)
   if (task.milestone === true) return startText
-  const finish = reader.day(task.finish)
-  if (finish === null) return ''
-  return `${startText} - ${shownDateTimeText(task.finish, finish, withYear, showsTimeOfDay)}`
+  if (reader.day(task.finish) === null) return ''
+  return `${startText} - ${shownDateTimeText(task.finish, 'finish', reader, withYear, showsTimeOfDay)}`
 }
 
 interface NameLabel {

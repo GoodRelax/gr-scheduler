@@ -106,7 +106,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `holdsWorkingDayUnlikeMinutesPerDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#holdsWorkingDayUnlikeMinutesPerDay` | PI-1 | 時間帯の合計が `Project.minutesPerDay` と違う稼働日を文書が持つか。 |
 | `instantAfterWorkingMinutes` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#instantAfterWorkingMinutes` | PI-1 | 瞬間から稼働時間を分だけ進めた（負なら戻した）瞬間。 |
 | `instantOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#instantOf` | PI-1 | 日時の字面を瞬間（分）にする。 |
+| `InstantOnSide` | entry | type | `src/entity/document-model/schedule/working-calendar.ts#InstantOnSide` | PI-1 | 型。 |
 | `instantOnSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#instantOnSide` | PI-1 | 日時の字を、開始の側か終了の側として瞬間（分）にする。 |
+| `instantOnSideReader` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#instantOnSideReader` | PI-1 | `instantOnSide` を 1 回の読みの間くり返す読み手（暦の索引は時刻を書いていない日付の字に初めて会ったときに 1 度だけ作る）。 |
 | `InvariantKind` | entry | type | `src/entity/document-model/schedule/schedule-invariants.ts#InvariantKind` | -- | type InvariantKind = \| 'unique' \| 'reference' \| 'structure' \| 'combination' \| 'range' export interface ScheduleViolation |
 | `isDelayed` | entry | function | `src/entity/document-model/schedule/task-delay.ts#isDelayed` | PI-1 | 表 T-021b の 3 条件 |
 | `isNonRecurringException` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isNonRecurringException` | PI-1 | 例外日が繰り返しの無いものか。 |
@@ -134,6 +136,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // see T-019a /** @purity pure */ exp... |
 | `planActualState` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#planActualState` | PI-1 | 表 T-019a の判別 |
 | `plannedDurationMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedDurationMinutesOf` | PI-1 | 予定の長さの分数。 |
+| `plannedInstantsOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedInstantsOf` | PI-1 | 予定の始まりと終わりの瞬間の対。 |
 | `plannedLengthMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedLengthMinutesOf` | PI-1 | 予定の期間（分）。 |
 | `PRINTED_TIME_ZONE` | entry | const | `src/entity/document-model/schedule/time-zone.ts#PRINTED_TIME_ZONE` | -- | const PRINTED_TIME_ZONE = 'UTC' |
 | `progressPointDayOf` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#progressPointDayOf` | PI-1 | 表 T-022 の頂点を打つ日。 |
@@ -148,6 +151,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchRows` | entry | type | `src/entity/document-model/schedule/schedule-search.ts#SearchRows` | PI-1 | 型。 |
 | `searchRowsOf` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#searchRowsOf` | PI-1 | 語に当たるタスクとコメントボックスの行（`FR-151` の 表 T-330 の `SV-4`、表 T-331）。 |
 | `serial` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#serial` | PI-1 | 日付の通し番号（暦日）。 |
+| `shownInstantReader` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#shownInstantReader` | PI-1 | 画面が見せる日時の読み手 —— 字を側で読み（`FR-054`）、見せる基準の時計で見せる（`FR-156`）。 |
+| `sideOfTaskColumn` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#sideOfTaskColumn` | PI-1 | `Task` の日時の列を読む側。 |
 | `startSideOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#startSideOf` | PI-1 | `Task` の開始の側の列をどちらの側で読むか。 |
 | `Task` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Task` | -- | interface Task |
 | `taskByUid` | entry | function | `src/entity/document-model/schedule/schedule.ts#taskByUid` | PI-1 | `uid` で引く。 |
@@ -169,6 +174,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TRANSPARENT` | entry | const | `src/entity/document-model/schedule/stored-color.ts#TRANSPARENT` | PI-1 | 透明の色の綴り（`_assets/tbl-settings.md` の `S-324`）。 |
 | `viewRegionOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewRegionOf` | PI-1 | 見せる基準の地域（`S-574`、空なら日程データのタイムゾーン `AT-157`） |
 | `viewWallOfDataWall` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewWallOfDataWall` | PI-1 | 日程データの壁時計の分を、見せる基準の壁時計の分へ（同じ地域なら換算しない） |
+| `viewWallReader` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#viewWallReader` | PI-1 | 日程データの壁時計の分を、見せる基準（`S-574`）の壁時計の分へ換える読み手。 |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
 | `weekDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#weekDayOf` | PI-1 | 時間帯も持ち回りも持たない曜日の行。 |
 | `withoutDependencyAt` | entry | function | `src/entity/document-model/schedule/schedule.ts#withoutDependencyAt` | PI-1 | `Task` の依存の並びから、1 つの先行から来る線のうち順で名指した 1 本を除く（表 T-108 の `CM-93`）。 |
@@ -208,7 +214,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `taskGroupRankById` | file only | function | `src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
 | `assigneeNamesByTaskUid` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#assigneeNamesByTaskUid` | -- | function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, readonly string[]> |
 | `compareDates` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#compareDates` | -- | function compareDates(left: string \| null, right: string \| null): number |
+| `compareInstants` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#compareInstants` | -- | function compareInstants(a: number \| null, b: number \| null): number |
 | `plannedFinishOf` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#plannedFinishOf` | -- | function plannedFinishOf(task: Task): string \| null |
+| `plannedStartInstantsOf` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#plannedStartInstantsOf` | -- | function plannedStartInstantsOf(schedule: Schedule): ReadonlyMap<number, number \| null> |
 | `taskGroupPathOf` | file only | function | `src/entity/document-model/schedule/task-group-names.ts#taskGroupPathOf` | -- | function taskGroupPathOf(schedule: Schedule, groupId: string): readonly string[] |
 | `MinuteSpan` | file only | interface | `src/entity/document-model/schedule/working-calendar.ts#MinuteSpan` | -- | interface MinuteSpan |
 
@@ -1549,8 +1557,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TASK_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_SEARCH_COLUMNS` | -- | const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchColumns |
 | `withVisibilityColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#withVisibilityColumn` | -- | function withVisibilityColumn<Row>(table: TableColumns<Row>, column: SearchColumn, isShown: (row: Row) => boolean): TableColumns<Row> |
 | `clearEntryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#clearEntryOf` | -- | function clearEntryOf(view: TableView, language: DisplayLanguage): CommandItem |
+| `DATES_ONLY` | file only | const | `src/adapter/screen-renderer/table-window.ts#DATES_ONLY` | -- | const DATES_ONLY: ShownDateTimes = { showsTimeOfDay: false, instantOf: () => null, startSideOf: () => 'start' } |
 | `dateText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateText` | -- | function dateText(stored: string \| null): string |
-| `dateTimeText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateTimeText` | -- | function dateTimeText(stored: string \| null, showsTimeOfDay: boolean): string |
+| `dateTimeText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateTimeText` | -- | function dateTimeText(stored: string \| null, times: ShownDateTimes, side: DateTimeSide): string |
 | `entryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#entryOf` | -- | function entryOf(icon: IconId, language: DisplayLanguage, isChosen = false, label?: string): CommandItem |
 | `isClearEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#isClearEntry` | -- | function isClearEntry(entry: IconId): boolean |
 | `isRowShown` | file only | function | `src/adapter/screen-renderer/table-window.ts#isRowShown` | -- | function isRowShown(visibility: TableVisibility, key: VisibilityKey): boolean |
@@ -1559,6 +1568,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `panelWithFilterShut` | file only | function | `src/adapter/screen-renderer/table-window.ts#panelWithFilterShut` | -- | function panelWithFilterShut<P extends TableWindowSession>(panel: P): P |
 | `scheduleFilterEntryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterEntryOf` | -- | function scheduleFilterEntryOf(visibility: TableVisibility, wouldChange: boolean, language: DisplayLanguage): CommandItem |
 | `scheduleFilterRefusalsOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterRefusalsOf` | -- | function scheduleFilterRefusalsOf(entry: CommandItem, language: DisplayLanguage): readonly EntryRefusal[] |
+| `ShownDateTimes` | file only | interface | `src/adapter/screen-renderer/table-window.ts#ShownDateTimes` | -- | interface ShownDateTimes |
+| `shownDateTimesOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#shownDateTimesOf` | -- | function shownDateTimesOf(schedule: Schedule, settings: Pick<DocumentSettings, 'showsTimeOfDay' \| 'viewTimeZone'>): ShownDateTimes |
 | `tableAfterFilterChange` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterChange` | -- | function tableAfterFilterChange( panel: TableWindowSession, view: TableView, shown: WindowShown \| null, change: SearchFilterChange, table: WindowTable, ): Ta... |
 | `tableAfterFilterEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableAfterFilterEntry` | -- | function tableAfterFilterEntry( panel: TableWindowSession, view: TableView, shown: WindowShown \| null, entry: IconId, table: WindowTable, listed?: readonly s... |
 | `tableColumnsOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#tableColumnsOf` | -- | function tableColumnsOf( panel: TableWindowSession, view: TableView, table: WindowTable, language: DisplayLanguage, ): readonly SearchColumnView[] |
@@ -1580,10 +1591,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `wordOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#wordOf` | -- | function wordOf(held: { readonly [L in DisplayLanguage]: string } \| undefined, language: DisplayLanguage): string |
 | `wouldScheduleFilterChange` | file only | function | `src/adapter/screen-renderer/table-window.ts#wouldScheduleFilterChange` | -- | function wouldScheduleFilterChange( visibility: TableVisibility, rowKeysOf: () => ReadonlySet<number>, isEveryTaskRowed: boolean, ): boolean |
 | `taskGroupPanelFromSchedule` | file only | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupPanelFromSchedule` | -- | function taskGroupPanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVi... |
-| `baselineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#baselineHint` | -- | function baselineHint(baseline: BaselineTask, schedule: Schedule \| null, language: DisplayLanguage, showsTimeOfDay = false): string |
+| `baselineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#baselineHint` | -- | function baselineHint(baseline: BaselineTask, schedule: Schedule \| null, language: DisplayLanguage, times = NO_HINT_TIMES): string |
 | `cursorDateText` | file only | function | `src/adapter/screen-renderer/tooltips.ts#cursorDateText` | -- | function cursorDateText(day: CalendarDay, language: DisplayLanguage): string |
-| `deadlineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#deadlineHint` | -- | function deadlineHint(task: Task, schedule: Schedule \| null, language: DisplayLanguage, showsTimeOfDay = false): string \| null |
-| `dualCursorReadoutOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#dualCursorReadoutOf` | -- | function dualCursorReadoutOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): DualCursorReadout ... |
+| `deadlineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#deadlineHint` | -- | function deadlineHint(task: Task, schedule: Schedule \| null, language: DisplayLanguage, times = NO_HINT_TIMES): string \| null |
+| `dualCursorReadoutOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#dualCursorReadoutOf` | -- | function dualCursorReadoutOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, dataRegion?: string, ... |
 | `guideCursorLabelOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#guideCursorLabelOf` | -- | function guideCursorLabelOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, tooltips: readonly Too... |
 | `iconHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#iconHint` | -- | function iconHint(icon: IconId, language: DisplayLanguage): string |
 | `iconLabel` | file only | function | `src/adapter/screen-renderer/tooltips.ts#iconLabel` | -- | function iconLabel(icon: IconId, language: DisplayLanguage): string |
@@ -1942,4 +1953,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 974 name(s) leave through a public entry (444 of them published by table T-064), 758 more are exported by a file and not by its entry.
+Totals: 980 name(s) leave through a public entry (450 of them published by table T-064), 763 more are exported by a file and not by its entry.

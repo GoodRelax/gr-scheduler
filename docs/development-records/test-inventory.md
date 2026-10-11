@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 323 | 3850 | 7 | 4 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 323 | 3850 | 5 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 86 | 565 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 181 | 3881 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 610 | 8406 | 10 | 8 | 12 | 2 |
+| **all** | | | 610 | 8406 | 8 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -49,17 +49,15 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
-## 5. Expected-to-fail cases (10)
+## 5. Expected-to-fail cases (8)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 4 of 10.
+named either way: 2 of 8.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
-| `tests/contract/cr-710-w2-the-hour-grid-the-hour-shade-and-the-hour-ruler.test.ts` | FINDING: shades the evening of a working day from the half-hour width on | none |
-| `tests/contract/cr-710-w2-the-hour-grid-the-hour-shade-and-the-hour-ruler.test.ts` | FINDING: shades a whole rest day: Saturday from 00:00 to 24:00, on the hour tier | none |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the bundle of the first document is refused on a document that cannot take its second c... | DFC-730 |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the refusal leaves nothing applied: no document and no step come out of it | none |
 | `tests/contract/e24-paste-refused-while-several-task-groups-are-chosen.test.ts` | ${EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editGroup task group, ONE... | DFC-730 |
@@ -361,13 +359,13 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-699-the-grs-json-carries-its-schema-address-and-version-instant.contract.test.ts` | 15 | FR-027, FR-073 | - | T-052, T-206 | DR-4, RS-25, S-540, S-541 | - | - | - | - |
 | `tests/contract/cr-707-the-startup-margin-the-palette-corner-and-the-task-group-name-top.contract.test.ts` | 9 | FR-053, FR-085 | - | T-024a, T-206 | BT-4, OP-10, S-534, S-535 | - | - | - | - |
 | `tests/contract/cr-709-the-line-shapes-and-the-record-stop-line.contract.test.ts` | 9 | FR-007, FR-102 | - | T-012, T-017a, T-294 | CT-4, CV-6, SH-1, SH-3, SH-4 | - | - | - | - |
-| `tests/contract/cr-710-w1-ex-working-times-and-durations-round-trip.test.ts` | 41 | FR-011, FR-012, FR-023, FR-024, FR-054, FR-073 | - | - | AT-158, AT-159, CM-39, DV-8, DV-11, EX-1, EX-2, EX-12, IV-10, IV-14, IV-24, OP-5 | - | - | - | - |
+| `tests/contract/cr-710-w1-ex-working-times-and-durations-round-trip.test.ts` | 41 | FR-011, FR-012, FR-023, FR-024, FR-054, FR-073 | - | - | AT-158, AT-159, CM-39, DV-8, DV-11, EX-1, EX-2, EX-12, IV-10, IV-14, IV-24, OP-5 | - | - | - | yes |
 | `tests/contract/cr-710-w1-fr-011-working-minutes.test.ts` | 20 | FR-011, FR-012 | - | - | DV-8 | - | - | - | - |
 | `tests/contract/cr-710-w1-fr-054-the-instant-reading.test.ts` | 14 | FR-054 | - | T-220 | EX-7, IV-10 | - | - | - | - |
 | `tests/contract/cr-710-w1-fr-088-working-times-of-the-calendar.test.ts` | 33 | FR-012, FR-054, FR-088 | - | T-220 | CM-39, IV-24, RS-89, S-128, S-580, S-582, WC-8, WC-9 | - | - | - | - |
 | `tests/contract/cr-710-w1-the-must-clauses-the-cases-exercise.test.ts` | 1 | FR-011, FR-012, FR-054, FR-088 | - | - | - | - | - | - | - |
 | `tests/contract/cr-710-w2-rs-89-is-told-once-when-an-opened-file-replaces-the-document.test.ts` | 8 | FR-054 | - | T-036, T-103, T-233 | RS-89, S-128 | - | - | - | - |
-| `tests/contract/cr-710-w2-the-hour-grid-the-hour-shade-and-the-hour-ruler.test.ts` | 34 | FR-017, FR-089 | - | T-205 | DS-1, OD-1, OD-2, OD-6, RV-1, RV-6, S-8, S-578, S-581, TM-5, U-17 | - | - | 2: none, none | - |
+| `tests/contract/cr-710-w2-the-hour-grid-the-hour-shade-and-the-hour-ruler.test.ts` | 34 | FR-017, FR-089 | - | T-205 | DS-1, OD-1, OD-2, OD-6, RV-1, RV-6, S-8, S-578, S-581, TM-5, U-17 | - | - | - | - |
 | `tests/contract/cr-710-w2-the-hour-tier-the-snap-and-the-axis.test.ts` | 30 | FR-016, FR-017, FR-103, FR-158 | - | T-205, T-375, T-378 | DS-1, ND-4, ND-5, RV-1, RV-6, S-1, S-8, S-55, S-577, S-578, S-579, TM-4, TM-5, TX-1, TX-2 | - | - | - | - |
 | `tests/contract/cr-710-w2-the-panel-date-field-takes-a-time.test.ts` | 9 | FR-054, FR-158 | - | T-016, T-375 | PR-3, PR-35, PR-47, TX-3 | - | - | - | - |
 | `tests/contract/cr-710-w2-the-show-time-of-day-switch.test.ts` | 13 | FR-016, FR-039, FR-072, FR-158 | - | T-108, T-369 | CM-97, FO-12, FO-13, K-140, K-146, S-1, S-229, UN-7 | - | - | - | - |

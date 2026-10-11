@@ -54,7 +54,13 @@ import {
   type DelayFixTables,
 } from './delay-diagnostics-report'
 import { resourceListFromWindow, type ResourceListView } from './resource-list'
-import { isScheduleFilterAppliedIn, scheduleFilterBarOf, type ScheduleFilterBarView, type TableWindowState } from './table-window'
+import {
+  isScheduleFilterAppliedIn,
+  scheduleFilterBarOf,
+  shownDateTimesOf,
+  type ScheduleFilterBarView,
+  type TableWindowState,
+} from './table-window'
 import { DEFAULT_WINDOW_PLACE, type WindowPlace, type WindowShown } from './window-box'
 export {
   nextSearchPanelTextSizeStep,
@@ -757,7 +763,8 @@ function delayDiagnosticsReportOf(session: ScreenSession, readings: ScreenViewRe
   const view = tableViewOf(source.settings, 'delayDiagnosticsReport')
   const layout = { canvas: source.canvas, textSizeStep }
   return delayDiagnosticsReportFromWindow(
-    session, held?.window ?? null, view, held?.report ?? null, source.schedule, layout, held?.fixTables, source.settings.showsTimeOfDay,
+    session, held?.window ?? null, view, held?.report ?? null, source.schedule, layout, held?.fixTables,
+    source.settings.showsTimeOfDay, source.settings.viewTimeZone,
   )
 }
 
@@ -789,7 +796,7 @@ function tableWindowsOf(
   const view = tableViewOf(source.settings, 'searchPanel')
   return {
     searchPanel: searchPanelFromSession(
-      session, panel, view, source.schedule, source.canvas, readings.bottleneckUids, source.settings.showsTimeOfDay,
+      session, panel, view, source.schedule, source.canvas, readings.bottleneckUids, shownDateTimesOf(source.schedule, source.settings),
     ),
     delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, source),
     resourceList: resourceListOf(session, readings, source),
@@ -814,9 +821,11 @@ function pointerWordsOf(
   session: ScreenSession,
   readings: ScreenViewReadings,
 ): Pick<ScreenView, 'tooltips' | 'dualCursorReadout' | 'guideCursorLabel'> {
-  const readout = dualCursorReadoutOf(regions, settings, session, readings)
+  // TRAP: read through ?.: views built from a partial schedule carry no project.
+  const dataRegion = schedule.project?.scheduleDataTimeZone
+  const readout = dualCursorReadoutOf(regions, settings, session, readings, dataRegion)
   const tooltips = tooltipsFromScreenView(shown, settings, session, readings, schedule)
-  const label = guideCursorLabelOf(regions, settings, session, readings, tooltips)
+  const label = guideCursorLabelOf(regions, settings, session, readings, tooltips, dataRegion)
   return {
     tooltips,
     ...(readout === null ? {} : { dualCursorReadout: readout }),
