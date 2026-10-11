@@ -556,29 +556,22 @@ function selfLinkDrafts(context: FixContext, finding: DelayFinding): readonly Fi
   return [draftOf({ fixType: 'automatic', before: linksValue(links), outcome })]
 }
 
-// see VC-3
+// see VC-3, FA-3
+// WHY: only the lines of one direction form a VC-3 group; the reverse line is a loop for VC-1 and stays (JDG-1972).
 /** @purity pure */
-function linksBetween(context: FixContext, a: number, b: number): readonly DelayFixLink[] {
-  return context.schedule.tasks.flatMap((task) => {
-    const other = task.uid === a ? b : task.uid === b ? a : null
-    return task.dependencies.filter((one) => one.predecessorUid === other).map((one) => linkOf(task.uid, one))
-  })
+function sameWayLines(context: FixContext, predecessorUid: number, successorUid: number): readonly DelayFixLink[] {
+  const successor = context.byUid.get(successorUid)
+  return (successor?.dependencies ?? []).filter((one) => one.predecessorUid === predecessorUid).map((one) => linkOf(successorUid, one))
 }
 
 // see FA-3, CM-93
-// WHY: links holds every line between the two tasks in the document order, so a line's order among the lines of
-// its own direction is the count of those before it.
-/** @purity pure */
-function deleteLineAt(links: readonly DelayFixLink[], link: DelayFixLink, at: number): DelayFixCommand {
-  const order = links.slice(0, at).filter((one) => lineKeyOf(one) === lineKeyOf(link)).length
-  return { kind: 'deleteDependencyAt', predecessorUid: link.predecessorUid, successorUid: link.successorUid, order }
-}
-
-// see FA-3, CM-93
-// WHY: the lines are deleted last first, so no deletion moves the order of a line still to be deleted.
+// WHY: links holds the lines of one direction in the document order, so a line's place in it is its order;
+// the lines are deleted last first, so no deletion moves the order of a line still to be deleted.
 /** @purity pure */
 function keepOutcome(links: readonly DelayFixLink[], kept: DelayFixLink): FixOutcome {
-  const commands = links.flatMap((one, at) => (one === kept ? [] : [deleteLineAt(links, one, at)])).reverse()
+  const commands: DelayFixCommand[] = links.flatMap((one, order) => (one === kept ? [] : [{
+    kind: 'deleteDependencyAt' as const, predecessorUid: one.predecessorUid, successorUid: one.successorUid, order,
+  }])).reverse()
   return { after: linksValue([kept]), commands }
 }
 
@@ -587,7 +580,7 @@ function keepOutcome(links: readonly DelayFixLink[], kept: DelayFixLink): FixOut
 function duplicateDrafts(context: FixContext, finding: DelayFinding): readonly FixDraft[] {
   const other = numberIn(finding, 'predecessorUid')
   if (other === null) return []
-  const links = linksBetween(context, other, finding.uid)
+  const links = sameWayLines(context, other, finding.uid)
   if (links.length < 2) return []
   const first = links[0]
   const base = { other, before: linksValue(links), related: [other] }

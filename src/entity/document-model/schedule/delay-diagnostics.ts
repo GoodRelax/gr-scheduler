@@ -558,23 +558,17 @@ function dependencyShapeContradictions(facts: Facts): readonly DelayFinding[] {
   const successorsOf = successorMapOf(facts.tasks
     .flatMap((task) => task.dependencies.map((dependency) => ({ from: dependency.predecessorUid, to: task.uid }))))
   const rings = ringMembersOf(facts.tasks, successorsOf)
-  const pairCount = new Map<string, number>()
-  const pairOf = (a: number, b: number): string => `${Math.min(a, b)}:${Math.max(a, b)}`
-  for (const task of facts.tasks) {
-    for (const dependency of task.dependencies) {
-      const key = pairOf(dependency.predecessorUid, task.uid)
-      pairCount.set(key, (pairCount.get(key) ?? 0) + 1)
-    }
-  }
   const found: DelayFinding[] = []
   for (const task of facts.tasks) {
     const inRing = task.dependencies.map((one) => one.predecessorUid).filter((uid) => uid !== task.uid && rings.has(uid))
     if (rings.has(task.uid)) found.push(findingOf('VC-1', task, { predecessorUids: inRing }))
+    // WHY: VC-3 counts the lines of one direction only, and they all stand in the successor's own list (JDG-1972).
+    const linesFrom = (other: number): number => task.dependencies.filter((one) => one.predecessorUid === other).length
     const reported = new Set<number>()
     for (const dependency of task.dependencies) {
       const other = dependency.predecessorUid
       if (other === task.uid) found.push(findingOf('VC-2', task, { predecessorUid: other }))
-      else if ((pairCount.get(pairOf(other, task.uid)) ?? 0) > 1 && !reported.has(other)) {
+      else if (!reported.has(other) && linesFrom(other) > 1) {
         reported.add(other)
         found.push(findingOf('VC-3', task, { predecessorUid: other }))
       }

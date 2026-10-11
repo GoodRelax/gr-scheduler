@@ -356,7 +356,9 @@ describe('T-373 FA-3 -- lines that differ in kind or lag: a choice with one choi
   })
 })
 
-describe('T-373 FA-3 -- lines in both directions between the same two tasks (two the same way, one back)', () => {
+// WHY: CR-738 (JDG-1972, DFC-2425) -- T-310 VC-3 counts the lines of one direction only, T-373 FA-3 never touches the
+// reverse line, and a pair with one line each way raises no VC-3 (VC-1 reports the loop).
+describe('T-310 VC-3 / T-373 FA-3 -- lines in both directions between the same two tasks: only the same way is a group', () => {
   const MIXED = (): Document =>
     withLinesOf(
       documentOf([span(1, '05-10', '05-11', { after: [[2, FS, 0]] }), span(2, '05-12', '05-13', { after: [[1, FS, 0], [1, FS, 0]] })], {
@@ -366,29 +368,40 @@ describe('T-373 FA-3 -- lines in both directions between the same two tasks (two
       marked,
     )
 
-  // WHY: T-310 VC-3 counts lines between "the same 2 Tasks" and FA-3 keeps one and deletes the rest, so one line is left between the two (see the ledger row for which one).
-  it('every command of the machine rows names a line that exists, so the bundle is not refused, and one line is left between the two tasks', () => {
+  const ONE_EACH_WAY = (): Document =>
+    documentOf([span(1, '05-10', '05-11', { after: [[2, FS, 0]] }), span(2, '05-12', '05-13', { after: [[1, FS, 0]] })], {
+      statusDate: BEFORE_ALL,
+    })
+
+  it('two the same way and one back: VC-3 stands once, on the successor of the two, and VC-1 still reports the loop', () => {
     const before = MIXED()
-    const commands = commandsOf(machineRows(proposed(before)))
-    const plan = planned(heldOf(before), commands)
-    expect(plan.ok, JSON.stringify(refusalsOf(plan))).toBe(true)
-    if (!plan.ok) return
-    expect(linesOf(plan.document, 2).length + linesOf(plan.document, 1).length).toBe(1)
-    expect(findingRowsOf(plan.document)).not.toContain('VC-3')
+    const findings = findingRowsOf(before)
+    expect(findings.filter((one) => one === 'VC-3')).toHaveLength(1)
+    expect(findings).toContain('VC-1')
+    const rows = proposed(before)
+    expect(rowOfFa3(rows, 2).fixType).toBe('automatic')
+    expect(rows.filter((one) => one.findingRow === 'VC-3' && one.taskUid === 1)).toEqual([])
   })
 
-  it('at most one line of the same way is left, and the order of a named line counts within its own direction', () => {
+  it('the machine deletes only the second same-way line (order 1) and the reverse line stays', () => {
     const before = MIXED()
     const commands = commandsOf(machineRows(proposed(before))) as unknown as readonly Loose[]
-    for (const one of commands) {
-      if (one['kind'] !== 'deleteDependencyAt') continue
-      const sameWay = one['predecessorUid'] === 1 && one['successorUid'] === 2
-      const reverse = one['predecessorUid'] === 2 && one['successorUid'] === 1
-      expect(sameWay || reverse, JSON.stringify(one)).toBe(true)
-      expect(one['order'], JSON.stringify(one)).toBeLessThan(sameWay ? 2 : 1)
-    }
-    const after = written(heldOf(before), commands as unknown as readonly DocumentCommand[]).document
-    expect(linesOf(after, 2).filter((one) => one.predecessorUid === 1).length).toBeLessThanOrEqual(1)
+    expect(commands).toHaveLength(1)
+    expect(commands[0]).toMatchObject({ kind: 'deleteDependencyAt', predecessorUid: 1, successorUid: 2, order: 1 })
+    const plan = planned(heldOf(before), commands as unknown as readonly DocumentCommand[])
+    expect(plan.ok, JSON.stringify(refusalsOf(plan))).toBe(true)
+    if (!plan.ok) return
+    expect(markersOf(plan.document, 2)).toEqual([0])
+    expect(linesOf(plan.document, 1)).toEqual([line(2, FS, 0)])
+    expect(findingRowsOf(plan.document)).not.toContain('VC-3')
+    expect(findingRowsOf(plan.document)).toContain('VC-1')
+  })
+
+  it('one line each way: no VC-3 and no FA-3 row, and VC-1 reports the loop', () => {
+    const before = ONE_EACH_WAY()
+    expect(findingRowsOf(before)).not.toContain('VC-3')
+    expect(findingRowsOf(before)).toContain('VC-1')
+    expect(proposed(before).filter((one) => one.fixRow === 'FA-3')).toEqual([])
   })
 })
 

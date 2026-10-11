@@ -5964,8 +5964,8 @@
   {
    "rowId": "VC-3",
    "text": {
-    "ja": "同じ 2 つのタスクの間に依存が 2 本以上ある",
-    "en": "Two or more dependencies join the same two tasks"
+    "ja": "同じ先行から同じ後続へ依存が 2 本以上ある",
+    "en": "Two or more dependencies run from the same predecessor to the same successor"
    }
   },
   {
