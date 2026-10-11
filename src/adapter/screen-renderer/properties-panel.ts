@@ -17,6 +17,7 @@ import {
   customColorOf,
   customSideOf,
   dayOf,
+  instantOf,
   isSearchWordFound,
   lagWorkingDaysOf,
   minutesPerWorkingDayOf,
@@ -24,6 +25,7 @@ import {
   TRANSPARENT,
   taskByUid,
   textOfDay,
+  textOfInstant,
   parentTaskResolutionsOf,
   workingCalendarOf,
   type Dependency,
@@ -328,11 +330,21 @@ function textOfDateColumn(stored: unknown): string {
   return textOfDay(day).split(DAY_TIME_SEPARATOR)[0] ?? ''
 }
 
+// see TX-3, FR-158
+// WHY: the host's date-and-time entry reads and writes `yyyy-mm-ddThh:mm`, the minute being the stored unit (FR-054).
+/** @purity pure */
+function textOfDateTimeColumn(stored: unknown): string {
+  const instant = typeof stored === 'string' ? instantOf(stored) : null
+  return instant === null ? '' : textOfInstant(instant).slice(0, DATE_TIME_ENTRY_LENGTH)
+}
+
+const DATE_TIME_ENTRY_LENGTH = 16
+
 // TRAP: assumes TaskVisual has no date column; textOfItem would write a new one raw.
 /** @purity pure */
-function textOfTaskColumn(schedule: Schedule, task: Task, column: keyof Task): string {
+function textOfTaskColumn(schedule: Schedule, task: Task, column: keyof Task, showsTimeOfDay: boolean): string {
   if ((column as string) === ACTUAL_LENGTH_ITEM) return textOfActualLength(schedule, task)
-  if (DATE_COLUMNS.Task.includes(column)) return textOfDateColumn(task[column])
+  if (DATE_COLUMNS.Task.includes(column)) return showsTimeOfDay ? textOfDateTimeColumn(task[column]) : textOfDateColumn(task[column])
   return textOfValue(task[column])
 }
 
@@ -626,6 +638,7 @@ function controlsOfItem(
   item: TaskPropertyItem,
   labelCoef: number,
   language: DisplayLanguage,
+  showsTimeOfDay: boolean,
 ): readonly PropertyControl[] {
   if (READ_ONLY_ROWS.includes(item.row) || item.heldBy === 'derived') return []
   if (item.heldBy === 'assignment') return assigneeControls(schedule, task.uid, language)
@@ -640,11 +653,12 @@ function controlsOfItem(
         : { holder: 'taskVisual', uid: task.uid, column: column as keyof TaskVisual & string }
     const text =
       item.heldBy === 'task'
-        ? textOfTaskColumn(schedule, task, column as keyof Task)
+        ? textOfTaskColumn(schedule, task, column as keyof Task, showsTimeOfDay)
         : visual === null
           ? ''
           : textOfValue(visual[column as keyof TaskVisual])
-    return controlOf(key, entity, column, text, labelCoef)
+    const control = controlOf(key, entity, column, text, labelCoef)
+    return showsTimeOfDay && control.kind === 'date' ? { ...control, isDateTime: true } : control
   })
 }
 
@@ -655,10 +669,11 @@ function textOfItem(
   visual: TaskVisual | null,
   item: TaskPropertyItem,
   language: DisplayLanguage,
+  showsTimeOfDay: boolean,
 ): string {
   switch (item.heldBy) {
     case 'task':
-      return drawnColumnsOf(item).map((column) => textOfTaskColumn(schedule, task, column)).join(PART_SEPARATOR)
+      return drawnColumnsOf(item).map((column) => textOfTaskColumn(schedule, task, column, showsTimeOfDay)).join(PART_SEPARATOR)
     case 'taskVisual':
       if (visual === null) return ''
       return item.columns.map((column) => textOfValue(visual[column])).join(PART_SEPARATOR)
@@ -676,6 +691,7 @@ function taskFields(
   task: Task,
   labelCoef: number,
   language: DisplayLanguage,
+  showsTimeOfDay: boolean,
 ): readonly PropertyField[] {
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null
 
@@ -683,11 +699,11 @@ function taskFields(
   return TASK_ITEMS.filter((item) => isShownFor(item, task)).map((item) => item.columns[0] === PARENT_COLUMN ? parentField(schedule, task, item, language) : ({
     row: item.row,
     name: itemName(item.row, language, isMilestone),
-    text: textOfItem(schedule, task, visual, item, language),
+    text: textOfItem(schedule, task, visual, item, language, showsTimeOfDay),
     isEditable: !READ_ONLY_ROWS.includes(item.row) && item.heldBy !== 'derived',
     controls: item.heldBy === 'derived'
       ? linkedEndControls(schedule, task, item.columns[0] ?? '', language)
-      : controlsOfItem(schedule, task, item, labelCoef, language),
+      : controlsOfItem(schedule, task, item, labelCoef, language, showsTimeOfDay),
   }))
 }
 
@@ -885,11 +901,12 @@ function fieldsOfItem(
   subject: ItemRef,
   labelCoef: number,
   language: DisplayLanguage,
+  showsTimeOfDay: boolean,
 ): readonly PropertyField[] | null {
   switch (subject.kind) {
     case 'task': {
       const task = taskByUid(schedule, subject.uid)
-      return task === null ? null : taskFields(schedule, task, labelCoef, language)
+      return task === null ? null : taskFields(schedule, task, labelCoef, language, showsTimeOfDay)
     }
     case 'dependency': {
       const successor = taskByUid(schedule, subject.successorUid)
@@ -1065,9 +1082,10 @@ function fieldsOfSubject(
   labelCoef: number,
   language: DisplayLanguage,
   placedTaskGroups: readonly TaskGroupPlacement[],
+  showsTimeOfDay: boolean,
 ): readonly PropertyField[] | null {
   const item = subjectOf(subject.selection)
-  if (item !== null) return fieldsOfItem(schedule, item, labelCoef, language)
+  if (item !== null) return fieldsOfItem(schedule, item, labelCoef, language, showsTimeOfDay)
 
   const groupId = onlyGroupId(subject.groupIds)
   if (groupId === null) return []
@@ -1179,11 +1197,11 @@ function fitSpanField(settings: DocumentSettings, language: DisplayLanguage): Pr
   }
 }
 
-type FixColumn = 'fitSpanFixed' | 'taskGroupPanelWidthFixed'
+type CheckColumn = 'fitSpanFixed' | 'taskGroupPanelWidthFixed' | 'showsTimeOfDay'
 
-// see FX-4, WF-1, K-142, K-143, CM-90, CM-91
+// see FX-4, WF-1, K-142, K-143, CM-90, CM-91, FO-13, K-146
 /** @purity pure */
-function fixCheckField(settings: DocumentSettings, column: FixColumn, language: DisplayLanguage): PropertyField {
+function checkField(settings: DocumentSettings, column: CheckColumn, language: DisplayLanguage): PropertyField {
   const text = String(settings[column])
   return {
     row: settingsWordOf(column)?.rowId ?? column,
@@ -1337,6 +1355,7 @@ const FIELDED_SETTINGS: readonly string[] = [
   'fitSpanFixed',
   'taskGroupPanelWidth',
   'taskGroupPanelWidthFixed',
+  'showsTimeOfDay',
 ]
 
 // see IC-17, T-104, FR-072, T-369, FO-1, FO-12
@@ -1359,14 +1378,15 @@ function settingsFields(
     themeHueField(schedule.project.themeHue, dark, settings.themeMonochrome, language),
     steppedSettingField(settings, 'displayScale', language),
     steppedSettingField(settings, 'fontScale', language),
-    fixCheckField(settings, 'taskGroupPanelWidthFixed', language),
+    checkField(settings, 'taskGroupPanelWidthFixed', language),
     taskGroupPanelWidthField(settings, language),
     drawnWidthField(readings, language),
     statusDateField(schedule.project.statusDate, language),
-    fixCheckField(settings, 'fitSpanFixed', language),
+    checkField(settings, 'fitSpanFixed', language),
     fitSpanField(settings, language),
     shownSpanField(settings, readings, language),
     parentProgressToleranceField(schedule.project.parentProgressToleranceDays, language),
+    checkField(settings, 'showsTimeOfDay', language),
     ...readOnly,
   ]
 }
@@ -1592,7 +1612,7 @@ export function propertiesPanelFromSelection(
     : { selection: isTaskGroupPick ? content.subject.selection : selection, groupIds: readings.selectedGroupIds }
   // WHY: readings with no layout place no task group, so the task group reads as not drawn (MH-6), never as 0 px.
   const placedTaskGroups = readings.placedTaskGroups ?? []
-  const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language, placedTaskGroups)
+  const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language, placedTaskGroups, settings.showsTimeOfDay)
   const look = {
     hue: schedule.project.themeHue,
     dark,

@@ -6,17 +6,19 @@
 import {
   actualLastDay,
   dayOf,
+  instantOf,
+  MINUTES_PER_CALENDAR_DAY,
   planActualState,
   taskByUid,
   textOfDay,
   textOfDayEnd,
   textOfDayStart,
   textOfFinishSide,
+  textOfInstant,
   textOfStartSide,
   type CalendarDay,
   type CommentBox,
   type HighlightBox,
-  type Project,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
 import {
@@ -32,6 +34,8 @@ import {
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   groupDepthThresholdOf,
+  snapMinutesOf,
+  snappedInstantAtX,
   type TaskGroupPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -146,18 +150,18 @@ export function commandFromGrab(
     case 'GA-2':
     case 'GA-11': {
       const task = taskByUid(context.document.schedule, uid)
-      const day = dayAtX(context.layout, release.x)
-      if (task === null || task.start === null || task.finish === null || day === null) return CONSUMED_ELSEWHERE
+      if (task === null || task.start === null || task.finish === null) return CONSUMED_ELSEWHERE
       if (dayOf(task.start) === null || dayOf(task.finish) === null) return CONSUMED_ELSEWHERE
       const isStartHeld = grab === 'GA-1' || grab === 'GA-10'
-      const project = context.document.schedule.project
+      const released = releasedText(context, release, isStartHeld ? 'start' : 'finish', task.milestone === true)
+      if (released === null) return CONSUMED_ELSEWHERE
       // WHY: an end dragged past the other is not clamped; IV-10 is `editTask`'s, so every caller gets one answer.
       return changed([
         {
           kind: 'setTaskPlanDates',
           uid,
-          start: isStartHeld ? textOfStartSide(day, project, task.milestone === true) : task.start,
-          finish: isStartHeld ? task.finish : textOfFinishSide(day, project),
+          start: isStartHeld ? released : task.start,
+          finish: isStartHeld ? task.finish : released,
         },
       ])
     }
@@ -360,9 +364,11 @@ function actualEndWrite(
   grab: ActualEndHold,
 ): TranslatedInput {
   const task = taskByUid(context.document.schedule, uid)
-  const dropped = dayAtX(context.layout, release.x)
-  if (task === null || dropped === null) return CONSUMED_ELSEWHERE
-  const place = actualEndPlacement(task, grab, dropped, context.document.schedule.project)
+  if (task === null) return CONSUMED_ELSEWHERE
+  const startText = releasedText(context, release, 'start', task.milestone === true)
+  const finishText = releasedText(context, release, 'finish', task.milestone === true)
+  if (startText === null || finishText === null) return CONSUMED_ELSEWHERE
+  const place = actualEndPlacement(task, grab, { start: startText, finish: finishText })
   if (place === null) return CONSUMED_ELSEWHERE
   return changed([{ kind: 'setTaskPlanActualState', uid, place }])
 }
@@ -403,21 +409,12 @@ function bodyMoveWrites(
   const boxes = isSelectionMoved(context, uid, press) ? selectedBoxesOf(context) : NO_BOXES
   const shift = draggedDayCount(context, press, release)
   const crossed = clampedTaskGroupShift(context, taskGroups, moving, boxes, drawnTaskGroupsCrossed(taskGroups, press.at.y, release.y))
-  const project = context.document.schedule.project
   const commands: DocumentCommand[] = []
   for (const each of moving) {
     const task = taskByUid(context.document.schedule, each)
     if (task === null) continue
-    const start = dayOf(task.start)
-    const finish = dayOf(task.finish)
-    if (start !== null && finish !== null && shift !== 0) {
-      commands.push({
-        kind: 'setTaskPlanDates',
-        uid: each,
-        start: textOfStartSide(dayShifted(start, shift), project, task.milestone === true),
-        finish: textOfFinishSide(dayShifted(finish, shift), project),
-      })
-    }
+    const write = planMoveWrite(context, task, { press, release, dayCount: shift })
+    if (write !== null) commands.push(write)
     const at = taskGroupIndexOfTask(context, taskGroups, each)
     const landed = at === null ? undefined : taskGroups[at + crossed]
     if (landed !== undefined && landed.groupId !== taskGroupOfTask(context, each)) {
@@ -433,6 +430,50 @@ function bodyMoveWrites(
     if (write !== null) commands.push(write)
   }
   return commands
+}
+
+// see FR-103, T-378, MK-17, T-350
+// WHY: the released place as the text written; a whole-day unit keeps the day's default time of T-350.
+/** @purity pure */
+function releasedText(context: InputContext, release: PointerInput, side: 'start' | 'finish', isMilestone: boolean): string | null {
+  const layout = context.layout
+  const snap = snapMinutesOf(layout.pxPerDay, context.document.documentSettings, release.modifiers.alt)
+  if (snap === MINUTES_PER_CALENDAR_DAY) {
+    const day = dayAtX(layout, release.x)
+    const project = context.document.schedule.project
+    if (day === null) return null
+    return side === 'start' ? textOfStartSide(day, project, isMilestone) : textOfFinishSide(day, project)
+  }
+  const instant = snappedInstantAtX(layout, release.x, snap)
+  return instant === null ? null : textOfInstant(instant)
+}
+
+interface DragSpan {
+  readonly press: PointerPress
+  readonly release: PointerInput
+  readonly dayCount: number
+}
+
+// see PE-1, T-378, FR-103
+// WHY: both ends move by the same elapsed time; the snap lands on the start, so the length in minutes is kept.
+/** @purity pure */
+function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): DocumentCommand | null {
+  const project = context.document.schedule.project
+  const snap = snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, drag.release.modifiers.alt)
+  if (snap === MINUTES_PER_CALENDAR_DAY) {
+    const start = dayOf(task.start)
+    const finish = dayOf(task.finish)
+    if (start === null || finish === null || drag.dayCount === 0) return null
+    const movedStart = textOfStartSide(dayShifted(start, drag.dayCount), project, task.milestone === true)
+    return { kind: 'setTaskPlanDates', uid: task.uid, start: movedStart, finish: textOfFinishSide(dayShifted(finish, drag.dayCount), project) }
+  }
+  const start = instantOf(task.start)
+  const finish = instantOf(task.finish)
+  if (start === null || finish === null) return null
+  const pulled = ((drag.release.x - drag.press.at.x) / context.layout.pxPerDay) * MINUTES_PER_CALENDAR_DAY
+  const shift = Math.round((start + pulled) / snap) * snap - start
+  if (shift === 0) return null
+  return { kind: 'setTaskPlanDates', uid: task.uid, start: textOfInstant(start + shift), finish: textOfInstant(finish + shift) }
 }
 
 interface SelectedBoxes {
@@ -851,16 +892,15 @@ const ACTUAL_START_HOLDS: readonly ActualEndHold[] = ['GA-3', 'GA-12']
 function actualEndPlacement(
   task: Task,
   grab: ActualEndHold,
-  dropped: CalendarDay,
-  project: Project,
+  released: { readonly start: string; readonly finish: string },
 ): PlacedPlanActual | null {
   const heldText = task.actualStart
   if (dayOf(heldText) === null || heldText === null) return null
   const isStartHeld = ACTUAL_START_HOLDS.includes(grab)
   // WHY: an actual start not moved keeps its text as it stands (T-350 WT-10).
-  const actualStart = isStartHeld || grab === 'GA-16' ? textOfStartSide(dropped, project, task.milestone === true) : heldText
-  // WHY: GO-5 keeps the last day; the end holds put the released day itself, not a working day (GO-3).
-  const lastDay = isStartHeld ? null : textOfFinishSide(dropped, project)
+  const actualStart = isStartHeld || grab === 'GA-16' ? released.start : heldText
+  // WHY: GO-5 keeps the last day; the end holds put the released place itself, not a working day (GO-3).
+  const lastDay = isStartHeld ? null : released.finish
   const lastDayColumn = planActualState(task) === 'finished' ? 'actualFinish' : 'stop'
   const moved: Task = lastDay === null
     ? { ...task, actualStart }

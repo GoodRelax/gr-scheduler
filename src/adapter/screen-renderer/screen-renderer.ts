@@ -302,6 +302,7 @@ export interface PropertyControl {
   readonly isFocusTarget?: true
   readonly isDisabled?: true
   readonly isSizedAsDate?: true
+  readonly isDateTime?: true
   readonly hint?: string
   // see FX-7
   // WHY: a word entrance committing `text` when pressed; it holds no value of its own.

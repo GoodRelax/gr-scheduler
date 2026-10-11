@@ -340,8 +340,8 @@ describe('FR-055 T-367 FX-2 / FX-3 -- the fixed fit', () => {
   })
 
   it.each([
+    // WHY: CR-710 raised S-55 to 240 (FR-016, 1 minute = 1 px); a one-day span no longer fits past it, so only the S-54 end is reachable.
     ['2000-01-01', '2099-12-31', S_54],
-    ['2026-05-10', '2026-05-10', S_55],
   ])(`${FX_3_CLAMP} -- %s .. %s fits at the S-75 end %s`, async (start, finish, end) => {
     const stage = exportStage(withFit(start, finish, true))
     await stage.take('IC-10')

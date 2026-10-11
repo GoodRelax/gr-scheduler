@@ -4,7 +4,13 @@
 // @purity    pure
 
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
-import type { CalendarDay, Schedule, Task } from '../../document-model/schedule/schedule'
+import {
+  instantOf,
+  MINUTES_PER_CALENDAR_DAY,
+  type CalendarDay,
+  type Schedule,
+  type Task,
+} from '../../document-model/schedule/schedule'
 import { labelWidth } from './label-width'
 import { NOT_STORED_LABEL_SIZES, type DayReader } from './schedule-layout'
 
@@ -59,15 +65,38 @@ export function planDateText(day: CalendarDay, withYear: boolean): string {
   return `${year}/${day.month}/${day.day}`
 }
 
-// see ND-1, ND-2, ND-3
+const MINUTES_PER_HOUR = 60
+
+const MINUTE_DIGITS = 2
+
+// see T-375, TX-1
+// WHY: 24-hour time, the hour not padded and the minute in two digits, as ND-4 leaves the month unpadded.
 /** @purity pure */
-function planDatesOf(task: Task, reader: DayReader, withYear: boolean): string {
+export function clockTextOf(instant: number): string {
+  const minute = ((instant % MINUTES_PER_CALENDAR_DAY) + MINUTES_PER_CALENDAR_DAY) % MINUTES_PER_CALENDAR_DAY
+  return `${Math.floor(minute / MINUTES_PER_HOUR)}:${String(minute % MINUTES_PER_HOUR).padStart(MINUTE_DIGITS, '0')}`
+}
+
+// see T-375, TX-1, TX-4, TX-5, TX-6
+// WHY: the one reading of a shown date-time: the date of ND-4, and the clock only while time of day is shown.
+/** @purity pure */
+function shownDateTimeText(text: string | null, day: CalendarDay, withYear: boolean, showsTimeOfDay: boolean): string {
+  const date = planDateText(day, withYear)
+  if (!showsTimeOfDay) return date
+  const instant = instantOf(text)
+  return instant === null ? date : `${date} ${clockTextOf(instant)}`
+}
+
+// see ND-1, ND-2, ND-3, TX-1
+/** @purity pure */
+function planDatesOf(task: Task, reader: DayReader, withYear: boolean, showsTimeOfDay: boolean): string {
   const start = reader.day(task.start)
   if (start === null) return ''
-  if (task.milestone === true) return planDateText(start, withYear)
+  const startText = shownDateTimeText(task.start, start, withYear, showsTimeOfDay)
+  if (task.milestone === true) return startText
   const finish = reader.day(task.finish)
   if (finish === null) return ''
-  return `${planDateText(start, withYear)} - ${planDateText(finish, withYear)}`
+  return `${startText} - ${shownDateTimeText(task.finish, finish, withYear, showsTimeOfDay)}`
 }
 
 interface NameLabel {
@@ -82,7 +111,7 @@ interface NameLabel {
 export function nameLabelOf(task: Task, reader: DayReader, datesWithYear: boolean | null,
                      settings: DrawnSettings): NameLabel {
   const name = truncate(task.name ?? '', settings.truncateUnits)
-  const dates = datesWithYear === null ? '' : planDatesOf(task, reader, datesWithYear)
+  const dates = datesWithYear === null ? '' : planDatesOf(task, reader, datesWithYear, settings.showsTimeOfDay)
   if (dates === '') return { name, labelDates: '' }
   return { name, labelDates: name === '' ? dates : ` ${dates}` }
 }

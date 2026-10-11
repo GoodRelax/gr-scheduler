@@ -76,6 +76,8 @@ export type DocumentSettingsCommand =
     }
   // see CM-91, WF-1
   | { readonly kind: 'setTaskGroupPanelWidthFixed'; readonly taskGroupPanelWidthFixed: boolean }
+  // see CM-97, FR-158, UN-7
+  | { readonly kind: 'setShowsTimeOfDay'; readonly showsTimeOfDay: boolean }
   // see CM-92, FR-151, UN-20
   | { readonly kind: 'setTableView'; readonly table: VisibilityTable; readonly view: TableView }
 
@@ -387,6 +389,27 @@ function isComposedCommand(command: DocumentSettingsCommand): command is Compose
   return Object.prototype.hasOwnProperty.call(COMPOSED_KINDS, command.kind)
 }
 
+type FlagCommand = Extract<DocumentSettingsCommand, { readonly kind: 'setThemeMonochrome' | 'setTaskGroupPanelWidthFixed' | 'setShowsTimeOfDay' }>
+
+const FLAG_KINDS: Readonly<Record<FlagCommand['kind'], true>> = {
+  setThemeMonochrome: true,
+  setTaskGroupPanelWidthFixed: true,
+  setShowsTimeOfDay: true,
+}
+
+/** @purity pure */
+function isFlagCommand(command: DocumentSettingsCommand): command is FlagCommand {
+  return Object.prototype.hasOwnProperty.call(FLAG_KINDS, command.kind)
+}
+
+// see CM-64, CM-91, CM-97
+/** @purity pure */
+function flagCommandEdited(command: FlagCommand, put: SettingsPut): EditResult {
+  if (command.kind === 'setThemeMonochrome') return put({ themeMonochrome: command.monochrome })
+  if (command.kind === 'setTaskGroupPanelWidthFixed') return put({ taskGroupPanelWidthFixed: command.taskGroupPanelWidthFixed })
+  return put({ showsTimeOfDay: command.showsTimeOfDay })
+}
+
 /** @purity pure */
 function composedCommandEdited(settings: DocumentSettings, command: ComposedCommand, put: SettingsPut): EditResult {
   if (command.kind === 'setTableView') return tableViewEdited(settings, command, put)
@@ -418,6 +441,7 @@ export function editDocumentSettings(
   const clamp = (value: number): number =>
     Math.max(limits.zoomMin, Math.min(limits.zoomMax, value))
   if (isComposedCommand(command)) return composedCommandEdited(settings, command, put)
+  if (isFlagCommand(command)) return flagCommandEdited(command, put)
 
   switch (command.kind) {
     case 'setStackDirection':
@@ -432,9 +456,6 @@ export function editDocumentSettings(
     // see CM-74, FR-039
     case 'setDisplayScale':
       return put({ displayScale: command.scale })
-
-    case 'setThemeMonochrome':
-      return put({ themeMonochrome: command.monochrome })
 
     case 'setZoom': {
       // TRAP: refuse NaN here; it fails both comparisons, so the clamp alone would store it.
@@ -485,9 +506,6 @@ export function editDocumentSettings(
 
     case 'setLevelZeroTreeState':
       return levelZeroTreeStateEdited(command, put)
-
-    case 'setTaskGroupPanelWidthFixed':
-      return put({ taskGroupPanelWidthFixed: command.taskGroupPanelWidthFixed })
 
   }
 }

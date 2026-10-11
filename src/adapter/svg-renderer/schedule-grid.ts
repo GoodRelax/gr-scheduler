@@ -3,14 +3,19 @@
 // @component SvgRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import type { DrawnSettings } from '../../entity/document-model/document-settings/document-settings'
+import {
+  SETTINGS_CONSTANTS,
+  type DrawnSettings,
+} from '../../entity/document-model/document-settings/document-settings'
 import {
   DEFAULT_CALENDAR_VALUES,
   dayOf,
   isNonRecurringException,
   isWorkingDay,
+  MINUTES_PER_CALENDAR_DAY,
   weekDayOf,
   workingCalendarOf,
+  workingSpansReader,
   type CalendarDay,
   type Exception,
   type Schedule,
@@ -20,8 +25,10 @@ import {
 import {
   dateAtX,
   labelWidth,
+  thresholdPxPerDayOf,
   tickStrideOf,
   xFromDay,
+  xOfInstant,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -63,13 +70,40 @@ function bandTaskGroupOf(depth: number, position: number): string {
 }
 
 // see T-238
-type RulerRow = 'year' | 'yearMonth' | 'month' | 'week' | 'day' | 'weekday'
+type RulerRow = 'year' | 'yearMonth' | 'month' | 'week' | 'day' | 'weekday' | 'dateWeekday' | 'hour'
 
 const ROWS_OF_TIER: { readonly [tier in ScheduleLayout['tier']]: readonly RulerRow[] } = {
   year: ['year'],
   yearMonth: ['year', 'month'],
   yearMonthWeek: ['yearMonth', 'week'],
   yearMonthDayWeekday: ['yearMonth', 'day', 'weekday'],
+  dayHour: ['dateWeekday', 'hour'],
+}
+
+const MINUTES_PER_HOUR = 60
+
+const HOURS_PER_DAY = 24
+
+const HALF_HOUR_MINUTES = 30
+
+// see TM-5
+const HOUR_LABEL_STRIDES = [1, 2, 3] as const
+
+const WIDEST_HOUR_LABEL_STRIDE = 3
+
+// see TM-5, S-83
+// WHY: a two-digit hour label and its gap, the width S-83's note derives its threshold from.
+/** @purity pure */
+function hourStrideOf(pxPerDay: number, settings: DrawnSettings): number {
+  const room = labelWidth('00', settings.rulerFont, settings) + settings.rulerLabelGap
+  const pxPerHour = pxPerDay / HOURS_PER_DAY
+  return HOUR_LABEL_STRIDES.find((stride) => stride * pxPerHour >= room) ?? WIDEST_HOUR_LABEL_STRIDE
+}
+
+// see FR-017, TM-5, S-578
+/** @purity pure */
+function isHalfHourGridShown(pxPerDay: number, settings: DrawnSettings): boolean {
+  return settings.showsTimeOfDay && thresholdPxPerDayOf(pxPerDay, settings) >= SETTINGS_CONSTANTS.halfHourGridPxPerDay
 }
 
 const MS_PER_DAY = 86400000
@@ -141,7 +175,46 @@ function rulerLabelOf(row: RulerRow, day: CalendarDay, weekdayWords: readonly st
         ? String(day.month)
         : row === 'weekday'
           ? (weekdayWords[weekdayOf(day)] ?? '')
-          : String(day.day)
+          : row === 'dateWeekday'
+            ? `${day.year}/${day.month}/${day.day} (${weekdayWords[weekdayOf(day)] ?? ''})`
+            : String(day.day)
+}
+
+interface RulerRowBox {
+  readonly top: number
+  readonly height: number
+  readonly baseline: number
+  readonly left: number
+  readonly right: number
+}
+
+// see TM-5, FR-017
+// WHY: an hour's label stands on the day's own grid of strides, so a pan never re-labels the hours.
+/** @purity pure */
+function hourRowSvg(
+  layout: ScheduleLayout,
+  settings: DrawnSettings,
+  from: CalendarDay,
+  row: RulerRowBox,
+  ink: string,
+  rule: string,
+): readonly string[] {
+  const stride = hourStrideOf(layout.pxPerDay, settings)
+  const out: string[] = []
+  for (let hour = serialOf(from) * HOURS_PER_DAY; ; hour += stride) {
+    const instant = hour * MINUTES_PER_HOUR
+    const x = xOfInstant(layout, instant)
+    if (x >= row.right) break
+    if (x < row.left) continue
+    out.push(
+      `<line x1="${rounded(x)}" y1="${rounded(row.top)}" x2="${rounded(x)}" y2="${rounded(row.top + row.height)}"` +
+        ` stroke="${rule}" stroke-width="1"${figureKey(`ruler-hour-tick-${instant}`)}/>`,
+      `<text x="${rounded(x)}" y="${rounded(row.baseline)}" font-size="${rounded(settings.rulerFont)}"` +
+        `${typefaceAttribute()} fill="${ink}" xml:space="preserve"${figureKey(`ruler-hour-label-${instant}`)}>` +
+        `${escaped(String(hour % HOURS_PER_DAY))}</text>`,
+    )
+  }
+  return out
 }
 
 // see LF-19
@@ -228,6 +301,10 @@ export function rulerSvg(
           ` stroke="${rule}" stroke-width="1"${figureKey(`ruler-${row}-rule`)}/>`,
       )
     }
+    if (row === 'hour') {
+      out.push(...hourRowSvg(layout, settings, from, { top, height: taskGroupHeight, baseline, left: band.x, right }, ink, rule))
+      continue
+    }
     const ticks = ticksOfRow(row, layout, stride, weekStart, from, right, cap)
     for (const [at, day] of ticks.entries()) {
       const x = xFromDay(layout, day)
@@ -272,7 +349,7 @@ function shadedCalendarOf(schedule: Schedule, tier: ScheduleLayout['tier']): Wor
   if (tier === 'year') return null
   const within = workingCalendarOf(schedule)
   const exceptions = within.exceptions.filter(isNonRecurringException)
-  if (tier === 'yearMonthDayWeekday') return { ...within, exceptions }
+  if (tier === 'yearMonthDayWeekday' || tier === 'dayHour') return { ...within, exceptions }
   const madeOff = exceptions.filter((one) => one.dayWorking !== true)
   if (madeOff.length === 0) return null
   return { ...within, weekDays: EVERY_WEEKDAY_WORKS, exceptions: madeOff }
@@ -308,41 +385,130 @@ function dayCalendarsOf(shaded: WorkingCalendar, first: number, last: number): (
   }
 }
 
+// see OD-1, OD-2, FR-054
+// WHY: on the hour tier the hours outside a day's working-time ranges are shaded too; a non-working day has none.
+/** @purity pure */
+function offHourRunsOf(shaded: WorkingCalendar, firstSerial: number, lastSerial: number): readonly (readonly [number, number])[] {
+  const spansOn = workingSpansReader(shaded)
+  const runs: [number, number][] = []
+  const add = (from: number, to: number): void => {
+    if (to <= from) return
+    const last = runs[runs.length - 1]
+    if (last !== undefined && last[1] === from) last[1] = to
+    else runs.push([from, to])
+  }
+  for (let at = firstSerial; at <= lastSerial; at++) {
+    const base = at * MINUTES_PER_CALENDAR_DAY
+    let open = base
+    for (const span of spansOn(at)) {
+      add(open, base + span.from)
+      open = Math.max(open, base + span.to)
+    }
+    add(open, base + MINUTES_PER_CALENDAR_DAY)
+  }
+  return runs
+}
+
+interface ShadeBox {
+  readonly left: number
+  readonly right: number
+  readonly firstSerial: number
+  readonly lastSerial: number
+  run(x0: number, x1: number): string | null
+}
+
+// see T-343, OD-6
+// WHY: the box both shades read: the band's left and right, the days it shows, and one run as a path piece.
+/** @purity pure */
+function shadeBoxOf(input: GridInput, from: CalendarDay): ShadeBox {
+  const { layout, area } = input
+  const left = area.x
+  const right = area.x + bandWidthOf(input)
+  const top = rounded(area.y)
+  const bottom = rounded(area.y + area.height)
+  const firstSerial = serialOf(from)
+  return {
+    left,
+    right,
+    firstSerial,
+    lastSerial: firstSerial + Math.ceil((right - left) / layout.pxPerDay) + 1,
+    run(x0, x1) {
+      const [from0, to1] = [rounded(Math.max(left, x0)), rounded(Math.min(right, x1))]
+      return to1 > from0 ? `M${from0} ${top} H${to1} V${bottom} H${from0} Z` : null
+    },
+  }
+}
+
+/** @purity pure */
+function shadePathSvg(runs: readonly string[], themed: GridInput['themed']): string | null {
+  if (runs.length === 0) return null
+  return `<path d="${runs.join(' ')}" fill="${themed('S-450')}"${figureKey('non-working-days')}/>`
+}
+
+// see OD-1, OD-2, OD-6
+/** @purity pure */
+function offHoursSvg(input: GridInput, shaded: WorkingCalendar, box: ShadeBox): string | null {
+  const paths: string[] = []
+  for (const [runFrom, runTo] of offHourRunsOf(shaded, box.firstSerial, box.lastSerial)) {
+    const piece = box.run(xOfInstant(input.layout, runFrom), xOfInstant(input.layout, runTo))
+    if (piece !== null) paths.push(piece)
+  }
+  return shadePathSvg(paths, input.themed)
+}
+
 // see T-343, FR-054
 // TRAP: one path for every run in view (OD-6); a rect per day multiplies the elements by the days drawn.
 /** @purity pure */
 function nonWorkingDaysSvg(input: GridInput): string | null {
-  const { schedule, layout, area, themed } = input
+  const { schedule, layout, area } = input
   const shaded = shadedCalendarOf(schedule, layout.tier)
   if (shaded === null || layout.pxPerDay <= 0) return null
-  const left = area.x
-  const right = area.x + bandWidthOf(input)
-  const from = dateAtX(layout, left)
+  const from = dateAtX(layout, area.x)
   if (from === null) return null
-  const top = rounded(area.y)
-  const bottom = rounded(area.y + area.height)
+  const box = shadeBoxOf(input, from)
+  if (layout.tier === 'dayHour') return offHoursSvg(input, shaded, box)
   const runs: string[] = []
   let runFrom: number | null = null
   const closeRun = (endX: number): void => {
     if (runFrom === null) return
-    const x0 = rounded(Math.max(left, runFrom))
-    const x1 = rounded(Math.min(right, endX))
-    if (x1 > x0) runs.push(`M${x0} ${top} H${x1} V${bottom} H${x0} Z`)
+    const piece = box.run(runFrom, endX)
+    if (piece !== null) runs.push(piece)
     runFrom = null
   }
-  const firstSerial = serialOf(from)
-  const calendarOn = dayCalendarsOf(shaded, firstSerial, firstSerial + Math.ceil((right - left) / layout.pxPerDay) + 1)
-  for (let at = firstSerial; ; at++) {
+  const calendarOn = dayCalendarsOf(shaded, box.firstSerial, box.lastSerial)
+  for (let at = box.firstSerial; ; at++) {
     const day = dayOfSerial(at)
     const x = xFromDay(layout, day)
-    if (x >= right) break
+    if (x >= box.right) break
     const isOff = !isWorkingDay(calendarOn(at), day)
     if (isOff && runFrom === null) runFrom = x
     if (!isOff) closeRun(x)
   }
-  closeRun(right)
-  if (runs.length === 0) return null
-  return `<path d="${runs.join(' ')}" fill="${themed('S-450')}"${figureKey('non-working-days')}/>`
+  closeRun(box.right)
+  return shadePathSvg(runs, input.themed)
+}
+
+// see FR-089, TM-5, FR-017, S-578, S-581
+// WHY: every hour a solid rule and, past S-578, every half hour a dotted one, in the date rule's color and width.
+/** @purity pure */
+function hourGridParts(input: GridInput, from: CalendarDay): readonly string[] {
+  const { settings, layout, area, themed } = input
+  const step = isHalfHourGridShown(layout.pxPerDay, settings) ? HALF_HOUR_MINUTES : MINUTES_PER_HOUR
+  const dash = SETTINGS_CONSTANTS.halfHourGridDash
+  const out: string[] = []
+  for (let instant = serialOf(from) * MINUTES_PER_CALENDAR_DAY; ; instant += step) {
+    const x = xOfInstant(layout, instant)
+    if (x >= area.x + area.width) break
+    if (x < area.x) continue
+    const isHalf = instant % MINUTES_PER_HOUR !== 0
+    const key = instant % MINUTES_PER_CALENDAR_DAY === 0 ? `date-grid-${instant / MINUTES_PER_CALENDAR_DAY}` : `hour-grid-${instant}`
+    out.push(
+      `<line x1="${rounded(x)}" y1="${rounded(area.y)}" x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
+        ` stroke="${themed('S-149')}" stroke-width="1"${isHalf ? ` stroke-dasharray="${dash.on} ${dash.off}"` : ''}` +
+        `${figureKey(key)}/>`,
+    )
+  }
+  return out
 }
 
 // see FR-089
@@ -352,6 +518,7 @@ function dateGridParts(input: GridInput): readonly string[] {
   if (!settings.dateGridLinesVisible) return []
   const gridFrom = dateAtX(layout, area.x)
   if (gridFrom === null) return []
+  if (layout.tier === 'dayHour') return hourGridParts(input, gridFrom)
   const finest = ROWS_OF_TIER[layout.tier][ROWS_OF_TIER[layout.tier].length - 1]
   const gridCap = Math.ceil(area.width / Math.max(0.001, layout.pxPerDay)) + 1
   const stride = tickStrideOf(layout, settings)

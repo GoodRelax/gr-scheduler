@@ -29,6 +29,8 @@ const HOST_DELETE_KEYS: ReadonlySet<unknown> = new Set([HOST_DELETE_KEY, HOST_BA
 
 const HOST_DATE_INPUT_TYPE = 'date'
 
+const HOST_DATE_TIME_INPUT_TYPE = 'datetime-local'
+
 const UNASSIGN_TEXT = '-'
 
 export interface TextEntryControl {
@@ -295,7 +297,8 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   propertiesPanel.addEventListener('keydown', (event: Event) => {
     fieldCommit = assigneeLineDeleted(event) ?? fieldCommit
     const held = heldTextControl
-    if (held === null || (held as Partial<HTMLInputElement>).type !== HOST_DATE_INPUT_TYPE) return
+    const type = (held as Partial<HTMLInputElement> | null)?.type
+    if (held === null || (type !== HOST_DATE_INPUT_TYPE && type !== HOST_DATE_TIME_INPUT_TYPE)) return
     const key = event as Partial<KeyboardEvent>
     if (!isUnchordedDeleteKey(key)) return
     if (typeof event.preventDefault === 'function') event.preventDefault()

@@ -39,7 +39,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 const FR_103_STATEMENT =
   '`FR-104` の 表 T-266 の掴み代を掴んで離したとき、`GRS` は、**表 T-245 に従って**値を置き、同表が据え置くとする値を変えないこと。'
 const T_245_NO_WORKING_DAY_SNAP =
-  '⛔ **掴んだ端点を置いた日を、稼働日へ寄せてはならない（MUST NOT）** —— **休日に働くことがあり、寄せると人が置いた日と違う日が入る。**'
+  '⛔ **掴んだ端点を置いた所を、稼働日・稼働時間へ寄せてはならない（MUST NOT）** —— **休日に働くことがあり、寄せると人が置いた日と違う日が入る。**'
 const T_245_NO_NEW_REFUSALS = '⛔ 本要求は新しい拒み方を立てない。'
 const FR_043_IS_ABOUT_DRAWING =
   '⚠️ `FR-043` がダミーを予定の開始日に「立てる」と定めているのは描く位置の話であり、落とす先の話ではない。'

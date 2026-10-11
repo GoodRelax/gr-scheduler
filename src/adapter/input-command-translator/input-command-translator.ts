@@ -1447,6 +1447,13 @@ export const NOT_STORED_VISIBLE_DAY_FLOOR: {
 }
 
 // see T-206
+export const NOT_STORED_HOUR_WIDTH_CEILING: {
+  readonly 'S-579': number
+} = {
+  'S-579': 60,
+}
+
+// see T-206
 export const NOT_STORED_ROW_BAND_CEILING_SEARCH: {
   readonly 'S-238': number
   readonly 'S-239': number

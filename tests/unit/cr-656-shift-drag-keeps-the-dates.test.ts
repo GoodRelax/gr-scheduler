@@ -69,7 +69,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
 
   it('MK-12: only Alt + drag is unassigned; Ctrl + Shift + drag is assigned (MK-7, MK-15)', () => {
     const row = rowOf('T-023', 'MK-12')
-    expect(flat(row.cells[0] ?? '')).toBe('割当の無い修飾キー付きドラッグ（`Alt` ＋ ドラッグ）')
+    expect(flat(row.cells[0] ?? '')).toBe('割当の無い修飾キー付きドラッグ（`Alt` ＋ ドラッグ。`MK-17` を除く）')
     expect(rowText('T-023', 'MK-12')).toContain('`Ctrl` ＋ `Shift` ＋ ドラッグは割当を持つ（`MK-7` ・ `MK-15`）')
     expect(rowText('T-023', 'MK-12')).toContain('当たっていれば `PTD-3` によりそのものへの操作になる')
   })
@@ -110,7 +110,7 @@ describe('CR-656 -- the rows these cases are driven by', () => {
   })
 
   it('FR-036: the help lists MK-16 among the T-023 rows', () => {
-    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` / `MK-15` / `MK-16` と')
+    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` / `MK-15` / `MK-16` / `MK-17` と')
   })
 
   it('S-208: the row of table T-206 is a positive number', () => {

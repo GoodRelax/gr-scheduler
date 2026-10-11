@@ -7,9 +7,11 @@
 import type { DocumentSettings, DrawnSettings } from '../../document-model/document-settings/document-settings'
 import {
   COLUMN_DEFAULTS,
-  actualLastDay,
+  actualEndOf,
   dateFromWorkingDays,
   dayOf,
+  instantOf,
+  MINUTES_PER_CALENDAR_DAY,
   textOfDay,
   workingCalendarOf,
   type CalendarDay,
@@ -54,9 +56,21 @@ import {
   planHeightOf,
   shapeHeightOf,
 } from './shape-cross-sections'
-import { rulerTierOf, serialOf, timeAxisOf, xOnTimeAxis } from './time-axis'
+import { rulerTierOf, serialOf, timeAxisOf } from './time-axis'
 
-export { dateAtX, fixedFitSpanOf, rulerTierOf, shownSpanOf, tickStrideOf, timeAxisOf, xFromDay } from './time-axis'
+export {
+  dateAtX,
+  fixedFitSpanOf,
+  rulerTierOf,
+  shownSpanOf,
+  snapMinutesOf,
+  snappedInstantAtX,
+  thresholdPxPerDayOf,
+  tickStrideOf,
+  timeAxisOf,
+  xFromDay,
+  xOfInstant,
+} from './time-axis'
 export type { TimeAxis } from './time-axis'
 export { labelUnits, labelWidth } from './label-width'
 export { labeledAssigneeUidOf } from './assignee-label'
@@ -80,11 +94,11 @@ export type { LabelLayout, LabelReference } from './label-placement'
 export { fitZoom } from './fit-zoom'
 export { hasRoomBelowPinsIn } from './pinned-band'
 export { taskGroupAnchorIn, taskGroupIndexAtTopEdge } from './task-group-scroll'
-export { planDatesSpanYears, planDateText } from './name-label'
+export { clockTextOf, planDatesSpanYears, planDateText } from './name-label'
 export type { FitToScreen, NotStoredZoom } from './fit-zoom'
 
 // see L-1
-export type RulerTier = 'year' | 'yearMonth' | 'yearMonthWeek' | 'yearMonthDayWeekday'
+export type RulerTier = 'year' | 'yearMonth' | 'yearMonthWeek' | 'yearMonthDayWeekday' | 'dayHour'
 
 // see LP-1, LP-2
 export type LabelPlacement = 'inside' | 'right'
@@ -181,11 +195,40 @@ export interface DayReader {
   walk(from: CalendarDay, workingDays: number): CalendarDay
 }
 
+// see RV-1, RV-6, FR-158
+// WHY: the left and right edges as a fractional day serial: a whole column without time of day, the instant with it.
+interface EdgeReader {
+  edge(text: string | null, side: 'start' | 'finish'): number | null
+  readonly showsTimeOfDay: boolean
+}
+
+// see RV-1, RV-6, FR-054, FR-158
 /** @purity pure */
-function dayReaderFor(within: WorkingCalendar): DayReader {
+// DEVIATION: without time of day the finish column is the written day, not the finish side of FR-054 (DFC-2450)
+function edgeOf(text: string | null, side: 'start' | 'finish', showsTimeOfDay: boolean): number | null {
+  if (showsTimeOfDay) {
+    const instant = instantOf(text)
+    return instant === null ? null : instant / MINUTES_PER_CALENDAR_DAY
+  }
+  const day = dayOf(text)
+  return day === null ? null : serialOf(day) + (side === 'start' ? 0 : 1)
+}
+
+/** @purity pure */
+function dayReaderFor(within: WorkingCalendar, showsTimeOfDay: boolean): DayReader & EdgeReader {
   const days = new Map<string, CalendarDay | null>()
   const walks = new Map<string, CalendarDay>()
+  const edges = new Map<string, number | null>()
   return {
+    edge(text: string | null, side: 'start' | 'finish'): number | null {
+      const key = `${side}/${text ?? ''}`
+      const held = edges.get(key)
+      if (held !== undefined) return held
+      const made = edgeOf(text ?? null, side, showsTimeOfDay)
+      edges.set(key, made)
+      return made
+    },
+    showsTimeOfDay,
     day(text: string | null): CalendarDay | null {
       const key = text ?? ''
       const held = days.get(key)
@@ -270,11 +313,17 @@ function milestoneGlyphOf(
 // see RV-6
 // WHY: the finish day's column is covered too, as the actual bar covers its last day (RV-1).
 /** @purity pure */
-function spanWidthOf(task: Task, pxPerDay: number, reader: DayReader): number {
-  const from = reader.day(task.start)
-  const toDay = reader.day(task.finish)
-  if (from === null || toDay === null) return 0
-  return Math.max(0, serialOf(toDay) + 1 - serialOf(from)) * pxPerDay
+function spanWidthOf(task: Task, pxPerDay: number, reader: EdgeReader): number {
+  const from = reader.edge(task.start, 'start')
+  const to = reader.edge(task.finish, 'finish')
+  if (from === null || to === null) return 0
+  return Math.max(0, to - from) * pxPerDay
+}
+
+// see RV-1, RV-6
+/** @purity pure */
+function xAtEdge(edge: number, originSerial: number, pxPerDay: number, originX: number): number {
+  return originX + (edge - originSerial) * pxPerDay
 }
 
 // see T-023d
@@ -300,18 +349,17 @@ function shapeWidthOf(
 /** @purity pure */
 function actualSpanOf(
   task: Task,
-  reader: DayReader,
+  reader: EdgeReader,
   originSerial: number,
   pxPerDay: number,
   originX: number,
 ): { readonly x: number; readonly width: number } | null {
-  const from = reader.day(task.actualStart)
+  const from = reader.edge(task.actualStart, 'start')
   if (from === null) return null
-  const lastDay = actualLastDay(task)
-  const columnsCovered = lastDay === null ? 0 : serialOf(lastDay) + 1 - serialOf(from)
+  const to = reader.edge(actualEndOf(task), 'finish')
   return {
-    x: xOnTimeAxis(originSerial, pxPerDay, originX, from),
-    width: Math.max(0, columnsCovered) * pxPerDay,
+    x: xAtEdge(from, originSerial, pxPerDay, originX),
+    width: Math.max(0, to === null ? 0 : to - from) * pxPerDay,
   }
 }
 
@@ -321,15 +369,15 @@ function actualSpanOf(
 function deadlineXOf(
   task: Task,
   kind: ShapeKind,
-  reader: DayReader,
+  reader: EdgeReader,
   originSerial: number,
   pxPerDay: number,
   originX: number,
 ): number | null {
-  const day = reader.day(task.deadline)
-  if (day === null) return null
-  const dayLeft = xOnTimeAxis(originSerial, pxPerDay, originX, day)
-  return kind === 'milestone' ? dayLeft : dayLeft + pxPerDay
+  const left = reader.edge(task.deadline, 'start')
+  if (left === null) return null
+  const at = xAtEdge(left, originSerial, pxPerDay, originX)
+  return kind === 'milestone' || reader.showsTimeOfDay ? at : at + pxPerDay
 }
 
 // see DA-2, OC-9
@@ -370,16 +418,16 @@ function finiteOrNull(reach: number): number | null {
 function dummyReachOf(
   task: Task,
   shapeKind: ShapeKind,
-  reader: DayReader,
+  reader: EdgeReader,
   originSerial: number,
   pxPerDay: number,
   originX: number,
   settings: DrawnSettings,
   markerDiameter: number,
 ): number {
-  const start = reader.day(task.start)
+  const start = reader.edge(task.start, 'start')
   if (start === null) return Number.NEGATIVE_INFINITY
-  const inkX = xOnTimeAxis(originSerial, pxPerDay, originX, start)
+  const inkX = xAtEdge(start, originSerial, pxPerDay, originX)
   if (actualPlacementOf(shapeKind) === 'sideways') {
     return inkX + (planHeightOf(shapeKind, settings) * settings.actualOfPlan) / 2
   }
@@ -463,7 +511,7 @@ export function layoutFromSchedule(
   const assigneeLabels = assigneeLabelsOf(schedule)
 
   const within = workingCalendarOf(schedule)
-  const reader = dayReaderFor(within)
+  const reader = dayReaderFor(within, settings.showsTimeOfDay)
   // TRAP: S-232 alone decides; never tie it to planVisible (S-227), or hiding the plan moves the name (FR-049).
   const datesWithYear = settings.planDatesVisible ? planDatesSpanYears(schedule, reader) : null
   const placements: TaskPlacement[] = []
@@ -501,8 +549,8 @@ export function layoutFromSchedule(
     const laneMinX0: number[] = []
     const laneOf: number[] = []
     const measured = drawnTasks.map(({ task, kind, glyph, span, oneDay, outline, width }) => {
-      const from = reader.day(task.start)
-      const foundAt = from === null ? originX : xOnTimeAxis(originSerial, pxPerDay, originX, from)
+      const from = reader.edge(task.start, 'start')
+      const foundAt = from === null ? originX : xAtEdge(from, originSerial, pxPerDay, originX)
       const x = kind === 'milestone' ? foundAt - width / 2 : foundAt
       const named = nameLabelOf(task, reader, datesWithYear, settings)
       const font = labelFontSize(kind, settings)

@@ -104,6 +104,8 @@ const TIER_OF_ROW: Readonly<Record<string, RulerTier>> = {
   'TM-2': 'yearMonth',
   'TM-3': 'yearMonthWeek',
   'TM-4': 'yearMonthDayWeekday',
+  // WHY: CR-710 added the hour tier TM-5, printed only while time of day is shown (FR-158).
+  'TM-5': 'dayHour',
 }
 
 const SETTINGS = ((): DocumentSettings => {

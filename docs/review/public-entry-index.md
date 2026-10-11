@@ -162,6 +162,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `workingCalendarOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingCalendarOf` | PI-1 | 文書の暦を解く。 |
 | `workingDaysBetween` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingDaysBetween` | PI-1 | 2 つの日付のあいだの稼働日数。 |
 | `workingMinutesBetween` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingMinutesBetween` | PI-1 | 2 つの瞬間の間の稼働時間（分）。 |
+| `workingSpansReader` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingSpansReader` | PI-1 | 日ごとの稼働時間の区間を返す読み手（索引は 1 度だけ作る）。 |
 | `WorkingTime` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WorkingTime` | PI-1 | 型。 |
 | `workingTimesBreach` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingTimesBreach` | PI-1 | 時間帯の組が `05-07-design.md` の 表 T-220 の `IV-24` に反する理由。 |
 | `WorkingTimeSet` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingTimeSet` | -- | interface WorkingTimeSet |
@@ -187,6 +188,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `compareDates` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#compareDates` | -- | function compareDates(left: string \| null, right: string \| null): number |
 | `plannedFinishOf` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#plannedFinishOf` | -- | function plannedFinishOf(task: Task): string \| null |
 | `taskGroupPathOf` | file only | function | `src/entity/document-model/schedule/task-group-names.ts#taskGroupPathOf` | -- | function taskGroupPathOf(schedule: Schedule, groupId: string): readonly string[] |
+| `MinuteSpan` | file only | interface | `src/entity/document-model/schedule/working-calendar.ts#MinuteSpan` | -- | interface MinuteSpan |
 
 ## DocumentSettings (PI-2, `src/entity/document-model/document-settings/document-settings.ts`)
 
@@ -236,6 +238,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `assigneeAnchorOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#assigneeAnchorOf` | PI-5 | 担当と進捗の札の右端を合わせる位置。 |
+| `clockTextOf` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#clockTextOf` | PI-5 | 瞬間の時刻を 24 時間制、時を 0 で埋めず分を 2 桁で書く（`FR-158` の 表 T-375） |
 | `dateAtX` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#dateAtX` | PI-5 | 時間軸の対応。 |
 | `DayReader` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#DayReader` | -- | interface DayReader |
 | `deadlineHeadHalfWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#deadlineHeadHalfWidthOf` | PI-5 | 期限の印の矢じりの半幅（表 T-206 の `S-365` に進捗マーカーの径を掛けた幅の半分）。 |
@@ -269,11 +272,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `outwardStartOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#outwardStartOf` | PI-5 | 基準の外へ札を並べ始める位置。 |
 | `planDatesSpanYears` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#planDatesSpanYears` | PI-5 | 文書のすべてのタスクとマイルストーンの予定の日が 2 つ以上の暦年にまたがるか。 |
 | `planDateText` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#planDateText` | PI-5 | 予定の 1 つの日を `ND-4`・`ND-5` の形で書く |
-| `RulerTier` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#RulerTier` | -- | type RulerTier = 'year' \| 'yearMonth' \| 'yearMonthWeek' \| 'yearMonthDayWeekday' |
+| `RulerTier` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#RulerTier` | -- | type RulerTier = 'year' \| 'yearMonth' \| 'yearMonthWeek' \| 'yearMonthDayWeekday' \| 'dayHour' |
 | `rulerTierOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#rulerTierOf` | -- | function rulerTierOf(pxPerDay: number, storedSettings: DocumentSettings): RulerTier |
 | `ScheduleLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ScheduleLayout` | PI-5 | 型 |
 | `ShapeKind` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ShapeKind` | -- | type ShapeKind = 'rectangle' \| 'chevron' \| 'arrow' \| 'endpointSpan' \| 'milestone' |
 | `shownSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#shownSpanOf` | PI-5 | `Task Group Area` の左端の位置と、右端の 1 px 手前の位置が指す 2 つの日を求める。 |
+| `snapMinutesOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snapMinutesOf` | PI-5 | 寄せの単位（分） —— `FR-103` の 表 T-378 の `SG-1`〜`SG-4` |
+| `snappedInstantAtX` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snappedInstantAtX` | PI-5 | 横の位置を、寄せの単位で寄せた瞬間（分）として読む（`FR-103`） |
 | `StackSafetyCapStop` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#StackSafetyCapStop` | -- | interface StackSafetyCapStop |
 | `standsUndecidedResume` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#standsUndecidedResume` | -- | function standsUndecidedResume(task: Task, shapeKind: ShapeKind): boolean |
 | `taskGroupAnchorIn` | entry | function | `src/entity/layout-engine/schedule-layout/task-group-scroll.ts#taskGroupAnchorIn` | PI-5 | 表示の上端の y を、`S-78` と `S-176` の組に直す —— 本コンポーネントの縦のスクロールの読み方の逆である。 |
@@ -283,10 +288,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TaskPlacement` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#TaskPlacement` | -- | interface TaskPlacement |
 | `taskPlacement` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#taskPlacement` | PI-5 | どこに載るか |
 | `thinEndHalfHeightOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#thinEndHalfHeightOf` | PI-5 | 線だけの形（`--->` と端点スパン `SH-4`）の端の印の縦幅の半分 —— 矢じりの縦幅、端点スパンでは両端の点の径（`S-307`）。 |
+| `thresholdPxPerDayOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#thresholdPxPerDayOf` | PI-5 | 1 日の幅を 表 T-205 のしきい値と比べる値へ直す（`FR-017` の式 —— 実効の文字の大きさ ÷ `S-8`） |
 | `tickStrideOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#tickStrideOf` | PI-5 | 目盛の間引き。 |
 | `TimeAxis` | entry | type | `src/entity/layout-engine/schedule-layout/time-axis.ts#TimeAxis` | -- | type TimeAxis = Pick<ScheduleLayout, 'pxPerDay' \| 'originDay' \| 'originX'> |
 | `timeAxisOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#timeAxisOf` | PI-5 | タスクグループを割り付けずに、時間軸の対応だけを求める。 |
 | `xFromDay` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#xFromDay` | PI-5 | その逆向き。 |
+| `xOfInstant` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#xOfInstant` | PI-5 | 瞬間（分）を横の位置へ置く（`05-07-design.md` の 表 T-069 の `RV-1`・`RV-6`、時刻を表示するとき） |
 | `zoomYAtRectangleLabelFont` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#zoomYAtRectangleLabelFont` | PI-5 | 与えた字の大きさに、矩形（表 T-201 の `S-13`）の名称ラベルの字が等しくなる `zoomY`。 |
 | `assigneeLabelsOf` | file only | function | `src/entity/layout-engine/schedule-layout/assignee-label.ts#assigneeLabelsOf` | -- | function assigneeLabelsOf(schedule: Schedule): ReadonlyMap<number, string> |
 | `drawnGroups` | file only | function | `src/entity/layout-engine/schedule-layout/drawn-task-groups.ts#drawnGroups` | -- | function drawnGroups( schedule: Schedule, settings: DocumentSettings, shownTaskUids: ReadonlySet<number> \| null = null, |
@@ -734,6 +741,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `KeyInput` | entry | interface | `src/adapter/input-command-translator/input-source.ts#KeyInput` | -- | interface KeyInput |
 | `milestoneGlyphOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#milestoneGlyphOf` | -- | function milestoneGlyphOf(name: string): TaskMilestoneGlyph \| null |
 | `nextIssuedUid` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#nextIssuedUid` | -- | function nextIssuedUid(schedule: Schedule): number |
+| `NOT_STORED_HOUR_WIDTH_CEILING` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_HOUR_WIDTH_CEILING` | -- | const NOT_STORED_HOUR_WIDTH_CEILING: |
 | `NOT_STORED_PROPERTIES_PANEL_FLOOR` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_PROPERTIES_PANEL_FLOOR` | -- | const NOT_STORED_PROPERTIES_PANEL_FLOOR: |
 | `NOT_STORED_ROW_BAND_CEILING_SEARCH` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_ROW_BAND_CEILING_SEARCH` | -- | const NOT_STORED_ROW_BAND_CEILING_SEARCH: |
 | `NOT_STORED_TASK_GROUP_GRAB_SIZES` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_TASK_GROUP_GRAB_SIZES` | -- | const NOT_STORED_TASK_GROUP_GRAB_SIZES: |
@@ -817,6 +825,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `zoomStepAnswer` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomStepAnswer` | -- | function zoomStepAnswer( context: InputContext, factor: number, zoom: readonly DocumentCommand[], ): TranslatedInput |
 | `zoomTimes` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomTimes` | -- | function zoomTimes(context: InputContext, factor: number, axis: 'x' \| 'y'): number |
 | `zoomWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomWrites` | -- | function zoomWrites( context: InputContext, zoomX: number \| null, zoomY: number \| null, pointerX: number \| null, pointerY: number \| null, ): readonly Documen... |
+| `zoomXCeiling` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#zoomXCeiling` | -- | function zoomXCeiling(context: InputContext, showsTimeOfDay: boolean): number \| null |
 
 ## SvgRenderer (PI-19, `src/adapter/svg-renderer/svg-renderer.ts`)
 
@@ -1531,14 +1540,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `wordOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#wordOf` | -- | function wordOf(held: { readonly [L in DisplayLanguage]: string } \| undefined, language: DisplayLanguage): string |
 | `wouldScheduleFilterChange` | file only | function | `src/adapter/screen-renderer/table-window.ts#wouldScheduleFilterChange` | -- | function wouldScheduleFilterChange( visibility: TableVisibility, rowKeysOf: () => ReadonlySet<number>, isEveryTaskRowed: boolean, ): boolean |
 | `taskGroupPanelFromSchedule` | file only | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupPanelFromSchedule` | -- | function taskGroupPanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVi... |
-| `baselineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#baselineHint` | -- | function baselineHint(baseline: BaselineTask, schedule: Schedule \| null, language: DisplayLanguage): string |
+| `baselineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#baselineHint` | -- | function baselineHint(baseline: BaselineTask, schedule: Schedule \| null, language: DisplayLanguage, showsTimeOfDay = false): string |
 | `cursorDateText` | file only | function | `src/adapter/screen-renderer/tooltips.ts#cursorDateText` | -- | function cursorDateText(day: CalendarDay, language: DisplayLanguage): string |
-| `deadlineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#deadlineHint` | -- | function deadlineHint(task: Task, schedule: Schedule \| null, language: DisplayLanguage): string \| null |
+| `deadlineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#deadlineHint` | -- | function deadlineHint(task: Task, schedule: Schedule \| null, language: DisplayLanguage, showsTimeOfDay = false): string \| null |
 | `dualCursorReadoutOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#dualCursorReadoutOf` | -- | function dualCursorReadoutOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): DualCursorReadout ... |
 | `guideCursorLabelOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#guideCursorLabelOf` | -- | function guideCursorLabelOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, tooltips: readonly Too... |
 | `iconHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#iconHint` | -- | function iconHint(icon: IconId, language: DisplayLanguage): string |
 | `iconLabel` | file only | function | `src/adapter/screen-renderer/tooltips.ts#iconLabel` | -- | function iconLabel(icon: IconId, language: DisplayLanguage): string |
-| `tooltipsFromScreenView` | file only | function | `src/adapter/screen-renderer/tooltips.ts#tooltipsFromScreenView` | -- | function tooltipsFromScreenView( shown: Omit<ScreenView, 'tooltips'>, _settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, sche... |
+| `tooltipsFromScreenView` | file only | function | `src/adapter/screen-renderer/tooltips.ts#tooltipsFromScreenView` | -- | function tooltipsFromScreenView( shown: Omit<ScreenView, 'tooltips'>, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, sched... |
 | `WindowEdge` | file only | type | `src/adapter/screen-renderer/window-box.ts#WindowEdge` | -- | type WindowEdge = 'top' \| 'bottom' \| 'left' \| 'right' \| 'topLeft' \| 'topRight' \| 'bottomLeft' \| 'bottomRight' |
 | `WindowFloor` | file only | interface | `src/adapter/screen-renderer/window-box.ts#WindowFloor` | -- | interface WindowFloor |
 | `WindowGrabRegion` | file only | type | `src/adapter/screen-renderer/window-box.ts#WindowGrabRegion` | -- | type WindowGrabRegion = 'titleBand' \| WindowEdge |
@@ -1893,4 +1902,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 940 name(s) leave through a public entry (417 of them published by table T-064), 743 more are exported by a file and not by its entry.
+Totals: 947 name(s) leave through a public entry (423 of them published by table T-064), 745 more are exported by a file and not by its entry.

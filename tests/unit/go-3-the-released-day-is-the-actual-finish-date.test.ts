@@ -44,14 +44,14 @@ const REQUIREMENTS = unbroken(
 )
 
 const GO_3_LAST_DAY_NOT_RIGHT_EDGE =
-  '離した日は実績の最後の日として置き、実績バーの右端の位置として数えないこと（MUST）'
+  '離した所は実績の終わりとして置き、時刻を表示しないときは、実績バーの右端の位置として数えないこと（MUST）'
 
 const GO_3_SAME_GESTURE_AS_GO_2 = '`GO-2` と同じ所作である。'
 
 const GO_3_WHICH_COLUMN =
   '`actualFinish` を持つとき（表 T-019 の `PA-5`）は `actualFinish`、持たないときは `stop` に置く'
 
-const GO_3_REST_DAY = '離した日が非稼働日であっても、その日を最後の日とすること（MUST）'
+const GO_3_REST_DAY = '離した所が非稼働日であっても、その日を最後の日とすること（MUST）'
 
 // WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_011_SAME_DAY_IS_ONE =

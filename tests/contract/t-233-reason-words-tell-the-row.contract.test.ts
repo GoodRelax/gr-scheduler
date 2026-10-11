@@ -558,6 +558,10 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-86': 'c64ce1bbc9c9cf28',
   'RS-87': 'f14d9e550cb2c93e',
   'RS-88': '09beef6619c3a678',
+  // WHY: read 2026-10-11 (CR-710 wave 2); RS-89 tells the ranges miss 1d, which still counts the day
+  // length; RS-90 tells the schedule data time zone became this PC's region.
+  'RS-89': '2253606a8c6ba6ef',
+  'RS-90': 'f6d70c3fad0dec53',
 }
 
 const fingerprintOf = (rowId: string): string => {

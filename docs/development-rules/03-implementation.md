@@ -119,6 +119,7 @@ NOT_STORED_SIZES                     掴み代・当たり判定（表 T-266 の
 NOT_STORED_TASK_HINT_ASSIGNEE_CAP    タスクの説明の担当の行に書く名前の並びの字数の上限（`S-513`、表 T-348 の `TL-7`、`CR-663`）
 NOT_STORED_STATE_GROUND_PERCENTS     状態を地で示すときの濃さ（`S-214` / `S-215`）
 NOT_STORED_VISIBLE_DAY_FLOOR         見えている範囲に残す日数の下限（`S-229`）
+NOT_STORED_HOUR_WIDTH_CEILING        時刻を表示するときの 1 時間の幅の上限（`S-579`、`CR-710`）
 NOT_STORED_ZOOM_BOUNDS               倍率の下限・上限（`S-97` / `S-98`）
 NOT_STORED_ZOOM_STEP                 1 ノッチの倍率（`S-96`）
 NOTICE_MANNER_OF_REASON              通知の理由ごとの作法（表 T-233 の作法の欄と、取り込みの拒否が運ぶ 表 T-220 の行。`_source/notice-reasons.json` から `tools/generate_notice_reasons.py` が刷る。`CR-712`）

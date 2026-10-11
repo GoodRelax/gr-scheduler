@@ -124,7 +124,7 @@ describe('CR-560 premises: the clauses read this way', () => {
   })
 
   it('FR-036: the help lists MK-15', () => {
-    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` / `MK-15` / `MK-16` と')
+    expect(REQUIREMENTS).toContain('表 T-023 の `MK-2` / `MK-5` / `MK-7` / `MK-15` / `MK-16` / `MK-17` と')
   })
 
   it('S-208 is the distance that tells a copy drag from a press', () => {
