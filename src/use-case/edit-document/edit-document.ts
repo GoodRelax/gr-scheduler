@@ -194,6 +194,7 @@ const TASK_GROUP_KINDS = [
 const DEPENDENCY_KINDS = [
   'createDependency',
   'deleteDependency',
+  'deleteDependencyAt',
   'setDependencyLag',
 ] as const satisfies readonly DependencyCommand['kind'][]
 

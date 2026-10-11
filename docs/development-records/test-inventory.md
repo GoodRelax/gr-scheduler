@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 310 | 3548 | 7 | 4 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 310 | 3548 | 5 | 4 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 82 | 520 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 181 | 3880 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 593 | 8058 | 10 | 8 | 12 | 2 |
+| **all** | | | 593 | 8058 | 8 | 8 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -49,17 +49,15 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
-## 5. Expected-to-fail cases (10)
+## 5. Expected-to-fail cases (8)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 3 of 10.
+named either way: 2 of 8.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
-| `tests/contract/cr-731-t-373-the-rows-a-person-chooses-or-dates.contract.test.ts` | lines of the same kind and lag: the machine keeps the first in the document order and d... | DFC-2418 |
-| `tests/contract/cr-731-t-373-the-rows-a-person-chooses-or-dates.contract.test.ts` | lines that differ in kind: a choice of the two lines, and the machine takes none | none |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the bundle of the first document is refused on a document that cannot take its second c... | DFC-730 |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the refusal leaves nothing applied: no document and no step come out of it | none |
 | `tests/contract/e24-paste-refused-while-several-task-groups-are-chosen.test.ts` | ${EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editGroup task group, ONE... | DFC-730 |
@@ -400,8 +398,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-731-rw-11-rw-14-the-window-switches-counts-and-walks.contract.test.ts` | 27 | FR-092, FR-155 | - | T-331, T-347, T-371, T-372, T-374 | FA-24, FM-1, FM-3, FM-4, FM-5, FM-6, FM-7, FM-8, IC-108, IC-143, IC-154, IC-155, IC-156, IC-157, IC-158, IC-159, IC-160, RW-2, RW-6, RW-11, RW-12, RW-13, RW-14, UN-20 | - | - | - | - |
 | `tests/contract/cr-731-rw-13-s-573-a-jump-from-a-row-opens-its-field-and-marks-the-related.contract.test.ts` | 12 | - | - | - | EL-17, FA-11, FA-22, PR-4, RW-13, S-151, S-573, SJ-4, VO-3 | - | - | - | - |
 | `tests/contract/cr-731-sx-3-fr-155-the-file-is-written-before-the-fix.contract.test.ts` | 20 | FR-100, FR-130, FR-155 | VT-2 | T-290, T-340 | IC-156, IC-157, IC-158, RW-16, SX-1, SX-2, SX-3, UN-21 | - | - | - | - |
-| `tests/contract/cr-731-t-373-the-rows-a-person-chooses-or-dates.contract.test.ts` | 11 | - | - | T-373 | CM-37, FA-1, FA-3, FA-22, FA-24, VC-1, VO-3 | - | - | 2: DFC-2418, none | - |
-| `tests/contract/cr-731-t-373-the-rows-that-mend-themselves.contract.test.ts` | 25 | FR-155 | - | T-310, T-311, T-312, T-373 | FA-1, FA-2, FA-3, FA-8, FA-9, FA-10, FA-11, FA-12, FA-26, RW-16, VC-11 | - | - | - | - |
+| `tests/contract/cr-731-t-373-the-rows-a-person-chooses-or-dates.contract.test.ts` | 11 | - | - | T-373 | CM-93, FA-1, FA-3, FA-22, FA-24, VC-1, VO-3 | - | - | - | - |
+| `tests/contract/cr-731-t-373-the-rows-that-mend-themselves.contract.test.ts` | 25 | FR-155 | - | T-310, T-311, T-312, T-373 | FA-1, FA-2, FA-3, FA-8, FA-9, FA-10, FA-11, FA-12, FA-26, RW-16, VC-9, VC-11, VC-12 | - | - | - | - |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | 9 | FR-130, FR-155 | - | - | GP-1, UN-20, UN-21 | - | - | 2: DFC-730, none | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |

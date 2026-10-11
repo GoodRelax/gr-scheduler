@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from 'vitest'
 
-import { FR_155_MACHINE_ROWS_APPLIED, T_373_DERIVED_PARENT_BY_HAND } from './cr-731-clauses'
+import { FR_155_MACHINE_ROWS_APPLIED, T_310_STATED_PARENT_ONLY } from './cr-731-clauses'
 import {
   CHAIN,
   DERIVED_PARENT,
@@ -50,8 +50,8 @@ describe('FR-155 / T-373 -- the manuscript these cases read', () => {
     expect(REQUIREMENTS).toContain(FR_155_MACHINE_ROWS_APPLIED)
   })
 
-  it('T-373 still sends a derived parent to the hand for FA-9 to FA-12', () => {
-    expect(REQUIREMENTS).toContain(T_373_DERIVED_PARENT_BY_HAND)
+  it('T-310 still judges VC-9 to VC-12 on the stated parent only, so a derived pair has no FA-9 to FA-12 row', () => {
+    expect(REQUIREMENTS).toContain(T_310_STATED_PARENT_ONLY)
   })
 
   it('T-373 holds FA-1 to FA-26 in order, one row for each viewpoint of T-310, T-311 and T-312', () => {
