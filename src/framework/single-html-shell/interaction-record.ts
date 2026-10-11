@@ -161,6 +161,8 @@ export function recordHappening(
   recordLine(hands, recorder, 'in.key', `key=${recordedKey(input.key)} ${mods}`)
 }
 
+// see FR-102, IF-1
+// WHY: svg is the picture beneath and the marquee overlay joined, so a held marquee still counts (CR-736).
 /** @purity non-pure */
 export function recordFrame(
   hands: InteractionRecordHands,

@@ -247,7 +247,7 @@ function stage(settings: Readonly<Record<string, unknown>>): Stage {
     readFieldCommit: () => null,
     readScreenPartAt: () => part,
   }
-  const loop = frameLoop({ showSvg: (svg: string) => void pictures.push(svg) }, documentWith(settings), SCREEN, {
+  const loop = frameLoop({ showMarqueeOverlaySvg: () => undefined, showSvg: (svg: string) => void pictures.push(svg) }, documentWith(settings), SCREEN, {
     surface,
     language: 'ja',
     themePreference: 'light',

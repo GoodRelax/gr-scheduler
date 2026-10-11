@@ -358,6 +358,7 @@ function stage(fixture: Fixture = {}): Stage {
     showSvg: (drawn: string) => {
       svg = drawn
     },
+    showMarqueeOverlaySvg: () => undefined,
   }
   const loop = frameLoop(svgSurface as never, fixtureDocument(fixture), SCREEN, wiring)
   drain()

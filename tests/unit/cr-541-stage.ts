@@ -189,7 +189,7 @@ export function shell(
     readFieldEditNotices: () => pendingEdits.splice(0, pendingEdits.length),
     readScreenPartAt: () => part,
   } as ScreenSurface
-  const loop = frameLoop({ showSvg: () => undefined } as never, document as never, SCREEN, {
+  const loop = frameLoop({ showSvg: () => undefined, showMarqueeOverlaySvg: () => undefined } as never, document as never, SCREEN, {
     surface,
     language: 'ja',
   })

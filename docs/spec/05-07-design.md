@@ -475,7 +475,7 @@ src/
 | UF-101 | `InputCommandTranslator` | `selection-input.ts` | `pure` | 入力から次の選択を、表 T-023c に従って決める | — |
 | UF-102 | `InputCommandTranslator` | `screen-state-input.ts` | `pure` | 入力から画面の値の出来事（全数は 表 T-280）を、表 T-023b に従って作る。<br>`Esc` の段は作らない —— 段はシェルが 表 T-028 の `IN-4` に従って決める（表 T-283） | — |
 | UF-31 | `InputCommandTranslator` | `input-source.ts` | `—` | `InputSource` の宣言（`IF-2`） | — |
-| UF-32 | `SvgRenderer` | `svg-renderer.ts` | `pure` | `CP-19` の残り —— 1 枚の SVG を、表 T-020 の順に層を重ねて組み立てる。<br>層の並びを決めるのは本ユニットだけであり、兄弟は層ごとの文字列の列を返す | `FR-080`（`OW-2`）・`FR-110`（`OW-1`）・`NFR-007`（`OW-4`） |
+| UF-32 | `SvgRenderer` | `svg-renderer.ts` | `pure` | `CP-19` の残り —— 下の絵の SVG を、表 T-020 の順に層を重ねて組み立てる。<br>`ZO-6` だけは下の絵に入れず、重ねの絵の SVG（表 T-065 の `IF-1`）に組み立てる。<br>層の並びと、どの層を重ねの絵に出すかを決めるのは本ユニットだけであり、兄弟は層ごとの文字列の列を返す | `FR-080`（`OW-2`）・`FR-110`（`OW-1`）・`NFR-007`（`OW-4`） |
 | UF-81 | `SvgRenderer` | `schedule-task-figures.ts` | `pure` | タスクごとの図 —— 予定・実績・ガイド・ダミー・選択枠・フェードの掴み点・進捗マーカー・再開アイコン・札 —— と、タスクを結ぶ依存線 | `FR-013`（`OW-2`）・`FR-075`（`OW-2`） |
 | UF-82 | `SvgRenderer` | `schedule-grid.ts` | `pure` | チャートの格子 —— タスクグループの帯と横罫、日付の縦罫、目盛の帯 —— を 1 つの刻みから描く | `FR-089`（`OW-2`） |
 | UF-83 | `SvgRenderer` | `schedule-overlays.ts` | `pure` | タスクに属さない重ね描き —— 進捗線・状態線・二重カーソル・ガイドカーソル・注記・透かし | — |
@@ -624,7 +624,7 @@ src/
 
 | 行 ID | インターフェース | 宣言するコンポーネント | 実装するコンポーネント | 何を供給するか |
 | --- | --- | --- | --- | --- |
-| IF-1 | `SvgSurface` | `SvgRenderer`（`CP-19`） | `DomSvgSurface`（`CP-26`） | 作った SVG 文字列を画面に載せる |
+| IF-1 | `SvgSurface` | `SvgRenderer`（`CP-19`） | `DomSvgSurface`（`CP-26`） | 作った SVG 文字列を画面に載せる。<br>⭐ 口は 2 つ —— 下の絵（表 T-020 の `ZO-6` を除く全行と目盛）と、重ねの絵（`ZO-6` の範囲選択の矩形だけで、握っていなければ空）。<br>重ねの絵は、下の絵と同じ幅・高さ・`viewBox` を持ち、`ZO-6` が下の絵の中で受けていたのと同じ切り抜き（`Task Group Area` の帯）で切り、`Schedule Canvas` の中で下の絵の手前に載せること（MUST） —— `ZO-6` は 表 T-020 の最前面なので、手前に重ねても前後は変わらない。<br>⭐ 分けるのは、範囲選択（表 T-023c の `SL-3`）のあいだ動くのが矩形だけだからである —— 矩形を下の絵に混ぜると、枠が動くたびに下の絵の全体を差し替える（`NFR-002`・`NFR-003`）。<br>⛔ 重ねの絵に `ZO-6` のほかの行を載せてはならない（MUST NOT） —— 基準日線（`ZO-8`）のように層の途中にある行を出すと、その手前の行（`ZO-3`・`ZO-5` ほか）との前後が変わる。<br>⭐ 実装は、渡された文字列が前に載せたものと同じなら画面を書き換えないこと（MUST） —— 範囲選択のあいだ下の絵の文字列は変わらないので、下の絵は載せ直されない。<br>⚠️ 重ねの絵は点を受けない —— 画面上の点がどの UI パーツの上かの答え（`IF-9`）は、重ねの有る無しで変わらない |
 | IF-2 | `InputSource` | `InputCommandTranslator`（`CP-18`） | `DomInputSource`（`CP-27`） | ポインタとキーの出来事 |
 | IF-3 | `FileStore` | `FileGateway`（`CP-22`） | `FileSystemAccessFileStore`（`CP-28`） | ファイルの読み書き。<br>ハンドルは実装が保持する（`FR-060`） —— 上書きする先と、選ばせる面に渡す最後に読み書きしたファイルの 2 つであり、どちらも同じ起動のあいだだけ持つ。<br>⭐ 読み書きの道が思いがけず失敗したとき（`Promise` の拒否）は、呼ぶ側がその道の終わりで、読む道は `01-04-requirements.md` の 表 T-233 の `RS-75`、書く道は同表の `RS-76` として告げること（MUST） —— どの操作が失敗したかを告げ、黙って捨てない |
 | IF-5 | `Clipboard` | `ClipboardGateway`（`CP-24`） | `BrowserClipboard`（`CP-30`） | クリップボードへの書き出し（`IO-6`） |

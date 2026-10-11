@@ -156,7 +156,7 @@ async function stage(): Promise<Stage> {
       openedFile: { kind: 'writable', fileName: write.suggestedFileName },
     }),
   }
-  const loop = frameLoop({ showSvg: () => undefined }, here(), SCREEN, { surface, language: 'ja' }, store)
+  const loop = frameLoop({ showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined }, here(), SCREEN, { surface, language: 'ja' }, store)
   runFrames()
   await settle()
   runFrames()

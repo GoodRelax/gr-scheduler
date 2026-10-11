@@ -41,7 +41,7 @@
 //                        `ScreenWiring`, and the one signature
 //                        `frameLoop(surface, first, env, screen?, files?,
 //                        showPointerShape?)`
-//   svg-surface.ts       `SvgSurface` and its one member `showSvg(svg)`
+//   svg-surface.ts       `SvgSurface`: `showSvg(svg)`, `showMarqueeOverlaySvg(svg)`
 //   input-source.ts      `HumanInput`, `InputModifiers`, `PointerButton`,
 //                        `PointerInput`, `PointerPhase`
 //   screen-renderer.ts   `DisplayLanguage`, `ScreenPart`, `ScreenSurface`,
@@ -330,9 +330,10 @@ const SCREEN: FrameEnvironment = {
 }
 
 interface Host {
-  readonly surface: { showSvg(svg: string): void }
+  readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }
   /** Every picture handed over `IF-1` so far, in the order it was handed over. */
   readonly pictures: readonly string[]
+  overlay(): string
   /** Run whatever the loop asked an animation frame for, until it asks no more. */
   runAnimationFrames(): void
 }
@@ -353,6 +354,7 @@ const realRaf = (globalThis as any).requestAnimationFrame
 function host(): Host {
   const waiting: ((time: number) => void)[] = []
   const pictures: string[] = []
+  let overlay = ''
   let handle = 0
   ;(globalThis as any).requestAnimationFrame = (callback: (time: number) => void): number => {
     waiting.push(callback)
@@ -363,8 +365,12 @@ function host(): Host {
       showSvg: (svg: string) => {
         pictures.push(svg)
       },
+      showMarqueeOverlaySvg: (svg: string) => {
+        overlay = svg
+      },
     },
     pictures,
+    overlay: () => overlay,
     runAnimationFrames: () => {
       // Bounded, so a loop that asks for a frame from inside a frame -- which
       // NFR-010 forbids -- ends the test instead of hanging it.
@@ -452,7 +458,7 @@ function stage(): Stage {
   const picture = (): string => {
     const last = pen.pictures[pen.pictures.length - 1]
     if (last === undefined) throw new Error('the loop has drawn nothing at all')
-    return last
+    return last + pen.overlay()
   }
   return { loop, send, picture, drawn: () => pen.pictures.length }
 }

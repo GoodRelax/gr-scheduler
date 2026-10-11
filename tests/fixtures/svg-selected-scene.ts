@@ -29,7 +29,6 @@ export const svgSelecting = (wish: SceneWish, selection: Selection): string => {
     null,
     null as never,
     null as never,
-    null as never,
   )
 }
 

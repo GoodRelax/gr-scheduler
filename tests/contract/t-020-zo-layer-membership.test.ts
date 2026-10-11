@@ -228,7 +228,8 @@ describe(`${says('ZO-8')} (PND-312, table T-029 CU-2)`, () => {
 })
 
 describe(`${says('ZO-6')} (PND-363, table T-023c SL-3)`, () => {
-  it('T-020 ZO-6: the held range-selection rectangle is inside ZO-6, after ZO-12', () => {
+  // WHY: table T-065 IF-1 moved ZO-6 to the marquee overlay, laid in front of the picture beneath (CR-736).
+  it('T-020 ZO-6: the held range-selection rectangle is inside ZO-6, in the overlay after the picture beneath', () => {
     const scene = sceneOf({
       tasks: [taskOf({ uid: 1, name: 'Anchor', start: day(2), finish: day(24) })],
     })
@@ -245,5 +246,11 @@ describe(`${says('ZO-6')} (PND-363, table T-023c SL-3)`, () => {
       rect.at,
       'table T-020: ZO-6 (range-selection rectangle, rank 13) comes after ZO-12 (watermark, rank 12)',
     ).toBeGreaterThanOrEqual(zo12.end)
+    expect(rect.at, 'table T-065 IF-1: `Schedule Canvas` の中で下の絵の手前に載せること（MUST）').toBeGreaterThan(held.indexOf('</svg>'))
+    const overlay = held.slice(held.indexOf('</svg>') + '</svg>'.length)
+    expect(
+      [...overlay.matchAll(/data-zo="([^"]+)"/g)].map((one) => one[1]),
+      'table T-065 IF-1: 重ねの絵に `ZO-6` のほかの行を載せてはならない（MUST NOT）',
+    ).toEqual(['ZO-6'])
   })
 })

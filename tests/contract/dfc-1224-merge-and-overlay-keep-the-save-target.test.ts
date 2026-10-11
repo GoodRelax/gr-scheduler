@@ -237,7 +237,7 @@ async function stage(saveTo: RecordingHandle, openFrom: RecordingHandle): Promis
   }
   const host = browser(saveTo, openFrom)
   const store = fileSystemAccessFileStore(host.environment)
-  const loop = frameLoop({ showSvg: () => undefined }, here(), SCREEN, { surface, language: 'en' }, store)
+  const loop = frameLoop({ showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined }, here(), SCREEN, { surface, language: 'en' }, store)
   frames()
   await settle()
   frames()

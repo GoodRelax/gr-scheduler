@@ -1,6 +1,6 @@
 // Shared bench for CR-430 tables T-271, T-272, T-273 and T-020.
 
-import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
+import { marqueeOverlaySvg, svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import {
   SETTINGS_DEFAULTS,
   type DocumentSettings,
@@ -454,9 +454,10 @@ export const sceneOf = (wish: SceneWish): Scene => {
         [],
         (draw.pointer ?? null) as never,
         null,
-        (draw.marquee ?? null) as never,
         (draw.watermark ?? null) as never,
         (draw.tentativeLink ?? null) as never,
-      ),
+      ) +
+      // WHY: table T-065 IF-1 lays the marquee overlay in front of the picture beneath, so the screen reads them in this order.
+      marqueeOverlaySvg(schedule, settings, regions, { themePreference: 'light', guideCursorMode: 'none' }, (draw.marquee ?? null) as never),
   }
 }

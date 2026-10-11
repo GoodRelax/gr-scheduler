@@ -323,7 +323,7 @@ async function openedByReplacing(text: string, fileName: string): Promise<Opened
     overwriteOpenedFile: async () => ({ ok: false, fault: { reason: 'noOpenedFile', what: 'never in a file' } }),
     writeChosenFile: async (write: ChosenFileWrite) => ({ ok: true, openedFile: { kind: 'writable', fileName: write.suggestedFileName } }),
   }
-  const loop = frameLoop({ showSvg: () => undefined }, currentDocument(), SCREEN, wiring, store)
+  const loop = frameLoop({ showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined }, currentDocument(), SCREEN, wiring, store)
   const press = (next: Record<string, unknown>): void => {
     part = {
       entry: null,

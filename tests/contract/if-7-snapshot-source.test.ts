@@ -140,7 +140,7 @@ interface Shell {
 
 function shell(env: FrameEnvironment = WINDOW, document: Document = documentOf()): Shell {
   const painted: string[] = []
-  const loop = frameLoop({ showSvg: (svg) => painted.push(svg) }, document, env)
+  const loop = frameLoop({ showMarqueeOverlaySvg: () => undefined, showSvg: (svg) => painted.push(svg) }, document, env)
   return { loop, painted }
 }
 

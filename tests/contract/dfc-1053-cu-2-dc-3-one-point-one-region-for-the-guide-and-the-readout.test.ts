@@ -65,7 +65,6 @@ const guideIsDrawnAt = (pointer: { x: number; y: number }): boolean =>
     null,
     null as never,
     null as never,
-    null as never,
   ).includes('data-figure="guide-cursor-vertical"')
 
 const readoutIsShownAt = (pointer: { x: number; y: number }): boolean =>

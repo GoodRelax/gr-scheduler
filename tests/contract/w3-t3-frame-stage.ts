@@ -161,7 +161,7 @@ export function exportStage(
     rasterizePng: () => Promise.resolve({ ok: true as const, pngBytes: new Uint8Array([137, 80, 78, 71]) }),
   }
   const loop = frameLoop(
-    { showSvg: () => undefined },
+    { showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined },
     document,
     screen,
     { surface, language } as unknown as ScreenWiring,

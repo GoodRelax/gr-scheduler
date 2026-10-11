@@ -227,7 +227,7 @@ const REGIONS: ScreenRegions = regionsFromScreen(SCREEN, SETTINGS)
 const bootFrame = (() => {
   const painted: string[] = []
   const loop = frameLoop(
-    { showSvg: (one: string) => painted.push(one) },
+    { showMarqueeOverlaySvg: () => undefined, showSvg: (one: string) => painted.push(one) },
     template(),
     SCREEN,
     undefined,
