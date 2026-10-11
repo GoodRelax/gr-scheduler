@@ -3,7 +3,7 @@
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
 
-import { compareDays, dayOf } from './calendar-day'
+import { instantOf } from './calendar-day'
 import { planActualState } from './plan-actual-state'
 import type { PlanActualState } from './plan-actual-state'
 import { taskGroupNameOf, taskGroupPathOf } from './task-group-names'
@@ -69,8 +69,8 @@ export function isSearchWordFound(text: string, word: string): boolean {
 // see SV-8
 /** @purity pure */
 export function compareDates(left: string | null, right: string | null): number {
-  const [a, b] = [dayOf(left), dayOf(right)]
-  if (a !== null && b !== null) return compareDays(a, b)
+  const [a, b] = [instantOf(left), instantOf(right)]
+  if (a !== null && b !== null) return a - b
   return a === b ? 0 : a === null ? 1 : -1
 }
 

@@ -19,8 +19,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
+| `actualEndOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#actualEndOf` | PI-1 | 実績の終わりの日時。 |
 | `actualLastDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#actualLastDay` | PI-1 | 実績の最後の日。 |
 | `actualLengthOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#actualLengthOf` | PI-1 | 実績の長さ。 |
+| `actualMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#actualMinutesOf` | PI-1 | 実績の長さ（分）。 |
 | `Assignment` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Assignment` | -- | interface Assignment |
 | `BaselineTask` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#BaselineTask` | -- | interface BaselineTask |
 | `blankTaskVisual` | entry | function | `src/entity/document-model/schedule/schedule.ts#blankTaskVisual` | PI-1 | `taskUid` のほかがすべて `null` の `TaskVisual`（表 T-220 の `IV-23`） |
@@ -48,6 +50,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DAY_START_TIME` | entry | const | `src/entity/document-model/schedule/calendar-day.ts#DAY_START_TIME` | PI-1 | 丸 1 日の範囲の始まりの時刻（表 T-350 の `WT-6`） |
 | `dayFromSerial` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayFromSerial` | PI-1 | 通し番号から日付へ —— `serial` の逆。 |
 | `dayOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayOf` | PI-1 | 日付の字面を日にする。 |
+| `dayOfInstant` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayOfInstant` | -- | function dayOfInstant(instant: number): CalendarDay |
 | `DaySpanTooWide` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#DaySpanTooWide` | -- | class DaySpanTooWide extends Error |
 | `DEFAULT_CALENDAR_VALUES` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DEFAULT_CALENDAR_VALUES` | -- | const DEFAULT_CALENDAR_VALUES: |
 | `defaultFinishTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultFinishTimeOf` | PI-1 | 文書の既定の終了時刻。 |
@@ -94,18 +97,26 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `diagnoseDelay` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnoseDelay` | PI-1 | 遅延診断のレポート（表 T-317）を作る。 |
 | `EntityRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#EntityRows` | -- | interface EntityRows |
 | `Exception` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Exception` | -- | interface Exception |
+| `finishSideDayOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#finishSideDayOf` | PI-1 | 終了の側の日時が落ちる日。 |
 | `ForeignKeyColumn` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#ForeignKeyColumn` | -- | interface ForeignKeyColumn |
 | `HighlightBox` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#HighlightBox` | -- | interface HighlightBox |
+| `holdsWorkingDayUnlikeMinutesPerDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#holdsWorkingDayUnlikeMinutesPerDay` | PI-1 | 時間帯の合計が `Project.minutesPerDay` と違う稼働日を文書が持つか。 |
+| `instantAfterWorkingMinutes` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#instantAfterWorkingMinutes` | PI-1 | 瞬間から稼働時間を分だけ進めた（負なら戻した）瞬間。 |
+| `instantOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#instantOf` | PI-1 | 日時の字面を瞬間（分）にする。 |
 | `InvariantKind` | entry | type | `src/entity/document-model/schedule/schedule-invariants.ts#InvariantKind` | -- | type InvariantKind = \| 'unique' \| 'reference' \| 'structure' \| 'combination' \| 'range' export interface ScheduleViolation |
 | `isDelayed` | entry | function | `src/entity/document-model/schedule/task-delay.ts#isDelayed` | PI-1 | 表 T-021b の 3 条件 |
 | `isNonRecurringException` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isNonRecurringException` | PI-1 | 例外日が繰り返しの無いものか。 |
+| `isPlanReversed` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isPlanReversed` | PI-1 | 予定の `finish` が `start` より前の瞬間か。 |
 | `isSameDay` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#isSameDay` | PI-1 | 2 つの日時の字が同じ日か。 |
+| `isSameWorkingTimeSet` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isSameWorkingTimeSet` | PI-1 | 2 つの時間帯の組が同じか。 |
 | `isSearchWordFound` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#isSearchWordFound` | PI-1 | 名や本文が語に当たるか（表 T-330 の `SV-4` の比べ方） |
 | `isStoredColor` | entry | function | `src/entity/document-model/schedule/stored-color.ts#isStoredColor` | PI-1 | 色の列が取る綴りか。 |
 | `isWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isWorkingDay` | PI-1 | その日が文書の暦の稼働日か（`FR-054`） |
+| `isWorkingTimeSetUnlikeDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isWorkingTimeSetUnlikeDay` | PI-1 | 当てる時間帯の 1 組の合計が `Project.minutesPerDay` と違うか。 |
 | `lagOfWorkingDays` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#lagOfWorkingDays` | PI-1 | 稼働日のラグを、保存する 0.1 分にする（`FR-009`・`AT-47`） |
 | `lagWorkingDaysOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#lagWorkingDaysOf` | PI-1 | ラグを稼働日で読む。 |
 | `lastDayForLength` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#lastDayForLength` | PI-1 | `actualStart` と長さから実績の最後の日を置く。 |
+| `MINUTES_PER_CALENDAR_DAY` | entry | const | `src/entity/document-model/schedule/calendar-day.ts#MINUTES_PER_CALENDAR_DAY` | PI-1 | 暦の 1 日の分の数。 |
 | `minutesPerWorkingDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#minutesPerWorkingDayOf` | PI-1 | 1 稼働日の分数。 |
 | `NestedRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#NestedRows` | -- | interface NestedRows |
 | `nextWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#nextWorkingDay` | PI-1 | 起点の**翌稼働日**。 |
@@ -116,6 +127,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // see T-019a /** @purity pure */ exp... |
 | `planActualState` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#planActualState` | PI-1 | 表 T-019a の判別 |
 | `plannedDurationMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedDurationMinutesOf` | PI-1 | 予定の長さの分数。 |
+| `plannedLengthMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedLengthMinutesOf` | PI-1 | 予定の期間（分）。 |
 | `progressPointDayOf` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#progressPointDayOf` | PI-1 | 表 T-022 の頂点を打つ日。 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
 | `proposeDelayFixes` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#proposeDelayFixes` | PI-1 | 遅延診断の指摘（表 T-317 の `DX-3`）ごとに、表 T-373 の直し方で直す案の行を作る（`FR-155`）。 |
@@ -139,14 +151,21 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `textOfDayEnd` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayEnd` | PI-1 | 丸 1 日の範囲の終わりの字（表 T-350 の `WT-7`） |
 | `textOfDayStart` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayStart` | PI-1 | 丸 1 日の範囲の始まりと 1 つの日の字（表 T-350 の `WT-6`・`WT-8`） |
 | `textOfFinishSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfFinishSide` | PI-1 | 終了の側の列へ書く日時の字（表 T-350 の `WT-2`・`WT-4`） |
+| `textOfInstant` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfInstant` | PI-1 | 瞬間を日時の字にする。 |
 | `textOfStartSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfStartSide` | PI-1 | 開始の側の列へ書く日時の字。 |
 | `TRANSPARENT` | entry | const | `src/entity/document-model/schedule/stored-color.ts#TRANSPARENT` | PI-1 | 透明の色の綴り（`_assets/tbl-settings.md` の `S-324`）。 |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
+| `weekDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#weekDayOf` | PI-1 | 時間帯も持ち回りも持たない曜日の行。 |
 | `withoutDependencyAt` | entry | function | `src/entity/document-model/schedule/schedule.ts#withoutDependencyAt` | PI-1 | `Task` の依存の並びから、1 つの先行から来る線のうち順で名指した 1 本を除く（表 T-108 の `CM-93`）。 |
 | `WORKING_DAY_LAG_FORMAT` | entry | const | `src/entity/document-model/schedule/working-calendar.ts#WORKING_DAY_LAG_FORMAT` | PI-1 | `GRS` が解するラグの形式 `7`（`FR-009`・`AT-48`） |
 | `WorkingCalendar` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingCalendar` | -- | interface WorkingCalendar |
 | `workingCalendarOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingCalendarOf` | PI-1 | 文書の暦を解く。 |
 | `workingDaysBetween` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingDaysBetween` | PI-1 | 2 つの日付のあいだの稼働日数。 |
+| `workingMinutesBetween` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingMinutesBetween` | PI-1 | 2 つの瞬間の間の稼働時間（分）。 |
+| `WorkingTime` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WorkingTime` | PI-1 | 型。 |
+| `workingTimesBreach` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingTimesBreach` | PI-1 | 時間帯の組が `05-07-design.md` の 表 T-220 の `IV-24` に反する理由。 |
+| `WorkingTimeSet` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingTimeSet` | -- | interface WorkingTimeSet |
+| `workingTimeSetOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingTimeSetOf` | PI-1 | 文書の稼働日の時間帯の 1 組と、違う組を持つ曜日。 |
 | `textOfDayAt` | file only | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayAt` | -- | function textOfDayAt(day: CalendarDay, time: string): string |
 | `DelayReportWall` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportWall` | -- | interface DelayReportWall |
 | `AnalysisWall` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#AnalysisWall` | -- | interface AnalysisWall |
@@ -163,7 +182,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TerminalPushOut` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#TerminalPushOut` | -- | interface TerminalPushOut |
 | `DelayFixSubject` | file only | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixSubject` | -- | interface DelayFixSubject |
 | `ENTITY_ROWS` | file only | const | `src/entity/document-model/schedule/schedule-entities.ts#ENTITY_ROWS` | -- | const ENTITY_ROWS: readonly EntityRows[] = [ |
-| `WorkingTime` | file only | interface | `src/entity/document-model/schedule/schedule-entities.ts#WorkingTime` | -- | interface WorkingTime |
 | `taskGroupRankById` | file only | function | `src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
 | `assigneeNamesByTaskUid` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#assigneeNamesByTaskUid` | -- | function assigneeNamesByTaskUid(schedule: Schedule): ReadonlyMap<number, readonly string[]> |
 | `compareDates` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#compareDates` | -- | function compareDates(left: string \| null, right: string \| null): number |
@@ -1874,4 +1892,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 920 name(s) leave through a public entry (399 of them published by table T-064), 744 more are exported by a file and not by its entry.
+Totals: 939 name(s) leave through a public entry (416 of them published by table T-064), 743 more are exported by a file and not by its entry.

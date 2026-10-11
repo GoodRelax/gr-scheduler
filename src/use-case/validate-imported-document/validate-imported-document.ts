@@ -8,10 +8,12 @@ import type { Document } from '../../entity/document-model/document/document'
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import {
   DATE_COLUMNS,
-  actualLastDay,
-  actualLengthOf,
+  actualEndOf,
+  actualMinutesOf,
   compareDays,
   dayOf,
+  instantOf,
+  isPlanReversed,
   scheduleViolations,
   workingCalendarOf,
   type CalendarDay,
@@ -86,10 +88,10 @@ function sweepDateColumns<TRow extends object>(
     const value: unknown = row[column]
     if (typeof value !== 'string') continue
     const day = dayOf(value)
-    if (day === null) {
+    if (day === null || instantOf(value) === null) {
       found ??= []
       found.push(refusal(UNUSABLE_DATE_ROW, `${at}/${column}`,
-                         `${JSON.stringify(value)} names no day`, 'NT-1'))
+                         `${JSON.stringify(value)} names no instant`, 'NT-1'))
       continue
     }
     if (compareDays(day, accepted.min) < 0) {
@@ -269,26 +271,24 @@ export function validateImportedDocument(
       )
     }
 
-    const start = dayOf(task.start)
-    const finish = dayOf(task.finish)
-    if (start !== null && finish !== null && compareDays(finish, start) < 0) {
+    if (isPlanReversed(task)) {
       found.push(
         refusal(FINISH_BEFORE_START_ROW, foundAt, `Task uid ${task.uid} finishes before it starts`, 'NT-1'),
       )
     }
 
     // see IV-21
-    const actualStart = dayOf(task.actualStart)
-    const lastDay = actualLastDay(task)
-    const length = actualStart === null || lastDay === null || compareDays(lastDay, actualStart) >= 0
+    const actualStart = instantOf(task.actualStart)
+    const actualEnd = instantOf(actualEndOf(task))
+    const length = actualStart === null || actualEnd === null || actualEnd >= actualStart
       ? 0
-      : actualLengthOf(workingCalendarOf(schedule), actualStart, lastDay)
+      : actualMinutesOf(workingCalendarOf(schedule), actualStart, actualEnd)
     if (length < 0) {
       found.push(
         refusal(
           'IV-21',
           foundAt,
-          `Task uid ${task.uid} has an actual of ${length} worked days, `
+          `Task uid ${task.uid} has an actual of ${length} worked minutes, `
           + 'ending before it starts',
           'NT-1',
         ),
@@ -326,7 +326,7 @@ export function validateImportedDocument(
     }
   }
 
-  return verdictOf([...found, ...oneVisualRefusals(candidate.document)])
+  return verdictOf([...found, ...judgedRowRefusals(candidate.document)])
 }
 
 /** @purity pure */
@@ -336,10 +336,12 @@ function verdictOf(refusals: readonly ValidationRefusal[]): ImportVerdict {
 
 const ONE_VISUAL_PER_TASK = 'IV-23'
 
-// see IV-23, NT-1
+const WORKING_TIMES_ROW = 'IV-24'
+
+// see IV-23, IV-24, NT-1
 // WHY: the row is judged where table T-220 holds it, so the read refuses exactly what the invariant names.
 /** @purity pure */
-function oneVisualRefusals(document: Document): readonly ValidationRefusal[] {
-  return scheduleViolations(document.schedule, document.documentSettings, [ONE_VISUAL_PER_TASK])
+function judgedRowRefusals(document: Document): readonly ValidationRefusal[] {
+  return scheduleViolations(document.schedule, document.documentSettings, [ONE_VISUAL_PER_TASK, WORKING_TIMES_ROW])
     .map((one) => refusal(one.row, one.at, one.what, 'NT-1'))
 }

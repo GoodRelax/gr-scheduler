@@ -16,18 +16,18 @@ import type {
   Schedule,
   Task,
   WeekDay,
+  WorkingTime,
 } from '../../entity/document-model/schedule/schedule'
 import {
-  DEFAULT_CALENDAR_VALUES,
-  actualLastDay,
-  actualLengthOf,
+  actualEndOf,
+  actualMinutesOf,
   blankTaskVisual,
   DAILY_RECURRENCE_KIND,
-  dayOf,
+  instantAfterWorkingMinutes,
+  instantOf,
   isNonRecurringException,
-  lastDayForLength,
   plannedDurationMinutesOf,
-  textOfFinishSide,
+  textOfInstant,
   workingCalendarOf,
 } from '../../entity/document-model/schedule/schedule'
 import { isTimeText } from './grs-json-schema'
@@ -90,7 +90,9 @@ export const PATHS = {
   project: 'Project',
   calendar: 'Project/Calendars/Calendar',
   weekDay: 'Project/Calendars/Calendar/WeekDays/WeekDay',
+  weekDayWorkingTime: 'Project/Calendars/Calendar/WeekDays/WeekDay/WorkingTimes/WorkingTime',
   exception: 'Project/Calendars/Calendar/Exceptions/Exception',
+  exceptionWorkingTime: 'Project/Calendars/Calendar/Exceptions/Exception/WorkingTimes/WorkingTime',
   exceptionPeriod: 'Project/Calendars/Calendar/Exceptions/Exception/TimePeriod',
   definition: 'Project/ExtendedAttributes/ExtendedAttribute',
   task: 'Project/Tasks/Task',
@@ -178,14 +180,6 @@ function minutesOfDuration(raw: string): number | null {
 function durationOfMinutes(minutes: number): string {
   const whole = Math.max(0, Math.round(minutes))
   return `PT${Math.floor(whole / 60)}H${whole % 60}M0S`
-}
-
-// see FR-054, S-128
-/** @purity pure */
-function minutesPerWorkingDay(minutesPerDay: number | null): number {
-  return minutesPerDay !== null && minutesPerDay > 0
-    ? minutesPerDay
-    : DEFAULT_CALENDAR_VALUES['S-128']
 }
 
 interface CarrySplit {
@@ -324,7 +318,6 @@ function absentLeaf(carry: Readonly<Record<string, string>>, name: string, text:
 
 interface ImportRun {
   readonly notices: MspdiNotice[]
-  roundedActualDurationCount: number
 }
 
 // see FR-021, FR-023
@@ -340,7 +333,7 @@ export function documentFromMspdi(text: string, current: Document): MspdiDecodin
     }
   }
 
-  const run: ImportRun = { notices: [], roundedActualDurationCount: 0 }
+  const run: ImportRun = { notices: [] }
   const schedule = withSourceNamespace(scheduleFromRoot(root, current, run), reading.rootNamespace)
   return {
     ok: true,
@@ -417,7 +410,7 @@ function scheduleFromRoot(root: XmlElement, current: Document, run: ImportRun): 
     highlightBoxes: [],
     taskOrigins: [],
     baselineTasks: [],
-  }, root, run)
+  }, run)
 }
 
 /** @purity pure */
@@ -462,6 +455,8 @@ function projectFromRoot(
     parentProgressToleranceDays: current.schedule.project.parentProgressToleranceDays,
     uidHighWaterMark: current.schedule.project.uidHighWaterMark,
     importSeq: current.schedule.project.importSeq,
+    // WHY: MSPDI holds no zone (FR-156); the open keeps the current value until the import names the PC's region.
+    scheduleDataTimeZone: current.schedule.project.scheduleDataTimeZone,
     carry: split.carry,
     carryElements: [...split.carryElements, ...carriedRows],
     outlineBase,
@@ -596,18 +591,6 @@ function tasksFromRoot(root: XmlElement, run: ImportRun): TasksReading {
 }
 
 /** @purity pure */
-function tellRoundedActualDurations(run: ImportRun): void {
-  const rounded = run.roundedActualDurationCount
-  if (rounded === 0) return
-  run.notices.push(notice(
-    '/Project/Tasks',
-    `${rounded} Task${rounded === 1 ? '' : 's'} carried an actual duration that is not`
-      + ' a whole number of working days, and each was rounded to whole working days'
-      + ' -- what the file states is no longer exactly what this document holds',
-  ))
-}
-
-/** @purity pure */
 function lastIndexShallowerThan(levels: readonly number[], depth: number): number | null {
   for (let index = levels.length - 1; index >= 0; index -= 1) {
     const level = levels[index]
@@ -677,19 +660,16 @@ function taskFromElement(
 
 // see FR-011, AT-141
 /** @purity pure */
-function withStopsFromActualDurations(schedule: Schedule, root: XmlElement, run: ImportRun): Schedule {
-  // TRAP: the file's own MinutesPerDay, not the document's: dividing by one and multiplying by another loses the value.
-  const minutesPerDay = minutesPerWorkingDay(integerColumn(root, 'MinutesPerDay'))
+function withStopsFromActualDurations(schedule: Schedule, run: ImportRun): Schedule {
   const within = workingCalendarOf(schedule)
   const tasks = schedule.tasks.map((task) => {
-    const start = dayOf(task.actualStart)
+    const start = instantOf(task.actualStart)
     if (task.stop !== null || task.actualFinish !== null || start === null) return task
     const at = `/Project/Tasks/Task[uid=${task.uid}]`
-    const days = workingDaysOfActualDuration(task.carry['ActualDuration'] ?? null, minutesPerDay, at, run)
-    if (days === null) return task
+    const minutes = minutesOfActualDuration(task.carry['ActualDuration'] ?? null, at, run)
+    if (minutes === null) return task
     try {
-      const lastDay = lastDayForLength(within, start, days)
-      const stop = textOfFinishSide(lastDay, schedule.project)
+      const stop = textOfInstant(instantAfterWorkingMinutes(within, start, minutes))
       return { ...task, stop, carry: { ...task.carry, [STOP_COUNTED_FROM]: task.carry['ActualDuration'] ?? '' } }
     } catch (why) {
       run.notices.push(notice(`${at}/Stop`,
@@ -697,29 +677,19 @@ function withStopsFromActualDurations(schedule: Schedule, root: XmlElement, run:
       return task
     }
   })
-  tellRoundedActualDurations(run)
   return { ...schedule, tasks }
 }
 
 // see FR-011, FR-054
 /** @purity pure */
-function workingDaysOfActualDuration(
-  raw: string | null,
-  minutesPerDay: number,
-  at: string,
-  run: ImportRun,
-): number | null {
+function minutesOfActualDuration(raw: string | null, at: string, run: ImportRun): number | null {
   if (raw === null || raw.trim() === '') return null
   const minutes = minutesOfDuration(raw)
   if (minutes === null) {
     run.notices.push(notice(`${at}/ActualDuration`, `is not a length this reader measures: ${raw}`))
     return null
   }
-  const days = minutes / minutesPerDay
-  if (Number.isInteger(days)) return days
-  run.roundedActualDurationCount += 1
-  // TRAP: Math.round sends a negative half toward zero, so the magnitude is rounded.
-  return Math.sign(days) * Math.round(Math.abs(days))
+  return Math.round(minutes)
 }
 
 interface LinksReading {
@@ -881,17 +851,37 @@ function weekDaysOfCalendar(calendar: XmlElement): readonly WeekDay[] {
   const weekDays: WeekDay[] = []
   collection.children.forEach((element, ordinal) => {
     if (element.name !== 'WeekDay') return
-    const split = carrySplit(element, WEEKDAY_CONSUMED)
+    const workingTimes = workingTimesOf(element)
+    const split = carrySplit(element, consumedWithWorkingTimes(WEEKDAY_CONSUMED, workingTimes))
     weekDays.push({
       ordinal,
       // TRAP: kept as it arrives (1 = Sunday), one apart from WeekStartDay (0 = Sunday); never convert either.
       dayType: integerColumn(element, 'DayType'),
       dayWorking: booleanColumn(element, 'DayWorking'),
+      workingTimes,
       carry: split.carry,
       carryElements: split.carryElements,
     })
   })
   return weekDays
+}
+
+const WORKING_TIMES = 'WorkingTimes'
+
+// see AT-158, AT-159, AT-160
+/** @purity pure */
+function workingTimesOf(day: XmlElement): readonly WorkingTime[] {
+  const held = childOf(day, WORKING_TIMES)
+  if (held === null) return []
+  return held.children
+    .filter((one) => one.name === 'WorkingTime')
+    .map((one, ordinal) => ({ ordinal, fromTime: textColumn(one, 'FromTime'), toTime: textColumn(one, 'ToTime') }))
+}
+
+// WHY: an empty WorkingTimes is carried as it came; consuming it would drop the element from the round trip.
+/** @purity pure */
+function consumedWithWorkingTimes(consumed: readonly string[], workingTimes: readonly WorkingTime[]): readonly string[] {
+  return workingTimes.length === 0 ? consumed : [...consumed, WORKING_TIMES]
 }
 
 /** @purity pure */
@@ -905,7 +895,8 @@ function exceptionsOfCalendar(
   const exceptions: Exception[] = []
   collection.children.forEach((element, ordinal) => {
     if (element.name !== 'Exception') return
-    const split = carrySplit(element, EXCEPTION_CONSUMED)
+    const workingTimes = workingTimesOf(element)
+    const split = carrySplit(element, consumedWithWorkingTimes(EXCEPTION_CONSUMED, workingTimes))
     const period = childOf(element, 'TimePeriod')
     const exception: Exception = {
       ordinal,
@@ -914,6 +905,7 @@ function exceptionsOfCalendar(
       toDate: period === null ? null : textColumn(period, 'ToDate'),
       dayWorking: booleanColumn(element, 'DayWorking'),
       recurrenceKind: integerColumn(element, 'Type'),
+      workingTimes,
       carry: split.carry,
       carryElements: split.carryElements,
     }
@@ -1030,17 +1022,16 @@ function collection(name: string, rows: readonly XmlElement[]): PlacedChild {
   return { element: { name, text: '', children: rows } }
 }
 
-// see DV-1
+// see DV-1, FR-054
 /** @purity pure */
 function latestTaskFinish(schedule: Schedule): string | null {
   let latest: string | null = null
-  let latestDay: number | null = null
+  let latestInstant: number | null = null
   for (const task of schedule.tasks) {
-    const day = dayOf(task.finish)
-    if (day === null || task.finish === null) continue
-    const serial = day.year * 10000 + day.month * 100 + day.day
-    if (latestDay === null || serial > latestDay) {
-      latestDay = serial
+    const instant = instantOf(task.finish)
+    if (instant === null || task.finish === null) continue
+    if (latestInstant === null || instant > latestInstant) {
+      latestInstant = instant
       latest = task.finish
     }
   }
@@ -1062,10 +1053,8 @@ function writtenTasks(
   const hasChildren = new Set(
     ordered.map((task) => task.parentTaskUid).filter((uid): uid is number => uid !== null),
   )
-  const minutesPerDay = minutesPerWorkingDay(schedule.project.minutesPerDay)
   const written = ordered.map((task, index) => writtenTask(
-    task, schedule, index, base, outlineLevels, numbers, hasChildren, minutesPerDay,
-    frames, run,
+    task, schedule, index, base, outlineLevels, numbers, hasChildren, frames, run,
   ))
   return splicedCarriedRows(written, schedule.project.carryElements, 'Task')
 }
@@ -1175,7 +1164,6 @@ function writtenTask(
   outlineLevels: ReadonlyMap<number, number>,
   numbers: ReadonlyMap<number, string>,
   hasChildren: ReadonlySet<number>,
-  minutesPerDay: number,
   frames: readonly ClaimedFrame[],
   run: ExportRun,
 ): XmlElement {
@@ -1199,7 +1187,7 @@ function writtenTask(
     ...optionalLeaf('CalendarUID', task.calendarUid),
     ...optionalLeaf('Deadline', task.deadline),
     ...optionalLeaf('Notes', task.notes),
-    ...writtenActualDuration(task, schedule, minutesPerDay, run),
+    ...writtenActualDuration(task, schedule, run),
     ...writtenStop(task),
     ...task.dependencies.map(writtenDependency),
     ...fade.appended,
@@ -1226,8 +1214,8 @@ const MUST_START_ON = '2'
 /** @purity pure */
 function writtenConstraintOfGrs(task: Task, schedule: Schedule, run: ExportRun): PlacedChild[] {
   const startText = task.start
-  const start = dayOf(startText)
-  const finish = dayOf(task.finish)
+  const start = instantOf(startText)
+  const finish = instantOf(task.finish)
   if (schedule.project.sourceFormat !== 'grs' || start === null || finish === null || startText === null) return []
   const constraint = [
     leaf('ConstraintType', MUST_START_ON),
@@ -1236,7 +1224,7 @@ function writtenConstraintOfGrs(task: Task, schedule: Schedule, run: ExportRun):
   // see DV-8
   if (task.carry['Duration'] !== undefined) return constraint
   try {
-    const minutes = plannedDurationMinutesOf(workingCalendarOf(schedule), task, schedule.project)
+    const minutes = plannedDurationMinutesOf(workingCalendarOf(schedule), task)
     return minutes === null ? constraint : [...constraint, leaf('Duration', durationOfMinutes(minutes))]
   } catch (why) {
     run.notices.push(notice(
@@ -1270,16 +1258,14 @@ function writtenStop(task: Task): PlacedChild[] {
 function writtenActualDuration(
   task: Task,
   schedule: Schedule,
-  minutesPerDay: number,
   run: ExportRun,
 ): PlacedChild[] {
   if (task.carry['ActualDuration'] !== undefined) return []
-  const from = dayOf(task.actualStart)
-  const lastDay = actualLastDay(task)
-  if (from === null || lastDay === null) return []
+  const from = instantOf(task.actualStart)
+  const end = instantOf(actualEndOf(task))
+  if (from === null || end === null) return []
   try {
-    const length = actualLengthOf(workingCalendarOf(schedule), from, lastDay)
-    return [leaf('ActualDuration', durationOfMinutes(length * minutesPerDay))]
+    return [leaf('ActualDuration', durationOfMinutes(actualMinutesOf(workingCalendarOf(schedule), from, end)))]
   } catch (why) {
     run.notices.push(notice(
       `/Project/Tasks/Task[uid=${task.uid}]/ActualDuration`,
@@ -1370,6 +1356,7 @@ function writtenWeekDay(weekDay: WeekDay): XmlElement {
   const named: PlacedChild[] = [
     ...optionalLeaf('DayType', weekDay.dayType),
     ...optionalLeaf('DayWorking', weekDay.dayWorking),
+    ...writtenWorkingTimes(PATHS.weekDayWorkingTime, weekDay.workingTimes),
   ]
   return {
     name: 'WeekDay',
@@ -1385,6 +1372,7 @@ function writtenException(exception: Exception): XmlElement {
     ...optionalLeaf('Name', exception.name),
     ...optionalLeaf('Type', exception.recurrenceKind),
     ...optionalLeaf('DayWorking', exception.dayWorking),
+    ...writtenWorkingTimes(PATHS.exceptionWorkingTime, exception.workingTimes),
   ]
   if (exception.recurrenceKind === DAILY_RECURRENCE_KIND && isNonRecurringException(exception)) {
     named.push(
@@ -1410,4 +1398,19 @@ function writtenException(exception: Exception): XmlElement {
     text: '',
     children: writtenChildren(PATHS.exception, named, exception.carry, exception.carryElements),
   }
+}
+
+// see AT-158, AT-159, AT-161, AT-162
+/** @purity pure */
+function writtenWorkingTimes(path: ParentPath, workingTimes: readonly WorkingTime[]): PlacedChild[] {
+  if (workingTimes.length === 0) return []
+  const rows = [...workingTimes].sort((a, b) => a.ordinal - b.ordinal).map((one): XmlElement => ({
+    name: 'WorkingTime',
+    text: '',
+    children: writtenChildren(path, [
+      ...optionalLeaf('FromTime', one.fromTime),
+      ...optionalLeaf('ToTime', one.toTime),
+    ], {}, []),
+  }))
+  return [collection(WORKING_TIMES, rows)]
 }

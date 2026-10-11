@@ -1153,8 +1153,11 @@ describe('table T-053 -- the shape of the document', () => {
       (holder['carryElements'] as readonly { readonly name: string }[]).map((each) => each.name)
     expect(owner(instanceOf(document, 'Task'))).toContain('ExtendedAttribute')
     expect(owner(instanceOf(document, 'Calendar'))).toContain('WorkWeeks')
-    expect(owner(instanceOf(document, 'WeekDay'))).toContain('WorkingTimes')
-    expect(owner(instanceOf(document, 'Exception'))).toContain('WorkingTimes')
+    // WHY: CR-710 reads WorkingTimes into AT-158 / AT-159, so it is no longer an uninterpreted element.
+    const monday = document.schedule.calendars[0]?.weekDays.find((each) => each.dayType === SAMPLE.mondayDayType)
+    expect(monday?.workingTimes).toEqual([{ ordinal: 0, fromTime: '08:00:00', toTime: '17:00:00' }])
+    expect(owner(instanceOf(document, 'WeekDay'))).not.toContain('WorkingTimes')
+    expect(owner(instanceOf(document, 'Exception'))).not.toContain('WorkingTimes')
     expect(owner(instanceOf(document, 'Resource'))).toContain('Rates')
     expect(owner(instanceOf(document, 'Assignment'))).toContain('Baseline')
     // MUST NOT: gathered at the root. The Project keeps only its own.
@@ -1237,12 +1240,9 @@ describe('FR-054 -- a date column takes the literal text', () => {
     expect(lastDayOfTheTask(document)).toBe('2026-04-08')
   })
 
-  it('follows the FILE`s own minutesPerDay before S-128 -- DELIBERATELY LEFT FAILING', () => {
-    // FR-054 (docs/spec/01-04-requirements.md:2510) makes it a MUST that a
-    // working day is converted to the exchange partner's amount of time through
-    // `Project.minutesPerDay`, and through S-128 of table T-209 only when that
-    // is empty. DV-11 of fig-erd-detail converts the same way. The file
-    // below states a minutesPerDay of its own, so S-128 is not the divisor.
+  it('places the stop by working time, whatever minutesPerDay the file states (FR-011, FR-054)', () => {
+    // WHY: CR-710 retired the division by minutesPerDay: ActualDuration is read in minutes and walked along
+    // the calendar's spans from actualStart (Thu 09:00; Monday 08:00-17:00, other days S-580).
     const perDay = DEFAULT_CALENDAR_VALUES['S-128'] + 120
     const days = 4
     const text = BASE_TEXT.replace(
@@ -1251,7 +1251,7 @@ describe('FR-054 -- a date column takes the literal text', () => {
     ).replace(ACTUAL_DURATION_TEXT, durationText(perDay * days))
     const document = accepted(unfinished(text))
     expect(document.schedule.project.minutesPerDay).toBe(perDay)
-    expect(lastDayOfTheTask(document)).toBe('2026-04-07')
+    expect(lastDayOfTheTask(document)).toBe('2026-04-08')
   })
 
   it('writes an actual duration back through the file`s own minutesPerDay -- DELIBERATELY LEFT FAILING', () => {
@@ -1268,7 +1268,7 @@ describe('FR-054 -- a date column takes the literal text', () => {
     expect(textAt(writtenInstance(written(accepted(text)), 'Task'), 'ActualDuration')).toBe(arrived)
   })
 
-  it('falls back to S-128 of table T-209 when the file states no minutesPerDay', () => {
+  it('reads an actual duration as working time when the file states no minutesPerDay (FR-054)', () => {
     const perDay = DEFAULT_CALENDAR_VALUES['S-128']
     const days = 2
     const text = BASE_TEXT.replace(
@@ -1277,7 +1277,8 @@ describe('FR-054 -- a date column takes the literal text', () => {
     ).replace(ACTUAL_DURATION_TEXT, durationText(perDay * days))
     const document = accepted(unfinished(text))
     expect(document.schedule.project.minutesPerDay).toBeNull()
-    expect(lastDayOfTheTask(document)).toBe('2026-04-03')
+    // WHY: 960 minutes from Thursday 09:00 is Thursday 420, Friday 480, then Monday 60 -- Monday 09:00.
+    expect(lastDayOfTheTask(document)).toBe('2026-04-06')
   })
 
   it('rebuilds the actual duration on the way out with the same conversion', () => {
@@ -1303,7 +1304,7 @@ describe('FR-054 -- a date column takes the literal text', () => {
   })
 
   it('accepts an actual duration that is not a whole number of working days', () => {
-    // FR-054 rounds the amount to whole working days (FR-011 counts them),
+    // FR-054 reads the amount in minutes and does not round it (CR-710),
     // so the only thing FR-023 settles is that the file is not refused:
     // the ceilings and the value checks are ValidateImportedDocument's.
     const text = BASE_TEXT.replace(
@@ -1315,7 +1316,7 @@ describe('FR-054 -- a date column takes the literal text', () => {
     if (!read.ok) return
     const stored = read.document.schedule.tasks.find((each) => each.uid === SAMPLE.taskUid)
       ?.stop
-    expect(String(stored).slice(0, 10)).toBe('2026-04-03')
+    expect(String(stored).slice(0, 10)).toBe('2026-04-06')
   })
 })
 
@@ -1609,9 +1610,9 @@ describe('table T-033 -- writing', () => {
     expect(textAt(attributes[0] ?? ({} as XmlNode), 'Value')).toBe('7')
   })
 
-  it('EX-7, WT-4: the one date GRS decides itself is written at the document default finish time', () => {
-    // WHY: the fixture brings no Stop, so GRS makes it (FR-011, AT-141) and EX-7 gives it
-    // the finish-side time of WT-4, the DefaultFinishTime the file brought (AT-155).
+  it('EX-7, FR-011: the one date GRS decides itself is the instant the actual duration reaches', () => {
+    // WHY: the fixture brings no Stop, so GRS makes it (FR-011, AT-141): 1440 working minutes from
+    // Monday 08:45 (Monday 08:00-17:00, other days S-580) end on Wednesday at 16:45 (CR-710).
     const suspended = mspdi(
       [
         projectHeadXml(),
@@ -1632,7 +1633,7 @@ describe('table T-033 -- writing', () => {
     const written9 = writtenInstance(written(actualsEdited(accepted(suspended))), 'Task')
     const stop = textAt(written9, 'Stop')
     expect(stop, 'AT-141 writes a Stop for a suspended task').not.toBeNull()
-    expect(stop).toBe(`2026-04-08T${SAMPLE.projectDefaultFinishTime}`)
+    expect(stop).toBe('2026-04-08T16:45:00')
     // MUST NOT apply to a value that only arrived: the plan dates keep theirs.
     expect(textAt(written9, 'Start')).toBe('2026-04-01T09:30:00')
     expect(textAt(written9, 'ActualStart')).toBe('2026-04-06T08:45:00')
@@ -1688,15 +1689,14 @@ describe('table T-019 -- the last column, which state writes a Stop', () => {
     }
   })
 
-  it('writes that Stop at the document default finish time (EX-7, WT-4)', () => {
+  it('writes that Stop at the instant the actual duration reaches (FR-011, CR-710)', () => {
     const root = written(actualsEdited(accepted(planActualTasksText())))
     const tasks = childrenNamed(nodeAt(root, 'Tasks') ?? root, 'Task')
     for (const row of T_019_STOP) {
       if (!row.writesStop) continue
       const task = tasks.find((each) => textAt(each, 'UID') === String(row.uid))
-      expect(textAt(task ?? ({} as XmlNode), 'Stop'), row.row).toMatch(
-        new RegExp(`^\\d{4}-\\d{2}-\\d{2}T${SAMPLE.projectDefaultFinishTime}$`),
-      )
+      // WHY: 1440 working minutes from Monday 09:00 end on Wednesday at 17:00, the end of its S-580 span.
+      expect(textAt(task ?? ({} as XmlNode), 'Stop'), row.row).toBe('2026-04-08T17:00:00')
     }
   })
 })
@@ -3032,9 +3032,10 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
     expect(noticesBeyond(text, text)).toHaveLength(0)
   })
 
-  it('GIVEN five and a quarter working days WHEN read THEN it is rounded down to five (FR-054 MUST)', () => {
+  it('GIVEN five and a quarter working days WHEN read THEN the quarter is kept, into the sixth day (FR-054 MUST)', () => {
+    // WHY: CR-710 retired the rounding to whole working days; the amount is read in minutes.
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
-    expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[5])
+    expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[6])
   })
 
   it('GIVEN five and three quarters working days WHEN read THEN it is rounded up to six (FR-054 MUST)', () => {
@@ -3055,9 +3056,9 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
     expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[-6])
   })
 
-  it('GIVEN minus five and a quarter working days WHEN read THEN it is minus five, not minus six (FR-054 MUST)', () => {
+  it('GIVEN minus five and a quarter working days WHEN read THEN the quarter is kept, back into the sixth day (FR-054 MUST)', () => {
     const text = durationFileText([amountOfMinutes(-(PER_DAY * 5 + PER_DAY / 4))])
-    expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[-5])
+    expect(lastDayOf(accepted(text), 1)).toBe(LAST_DAY_FOR[-6])
   })
 
   it('GIVEN an amount that does not divide WHEN read THEN the value is NOT discarded (FR-054 MUST NOT)', () => {
@@ -3079,26 +3080,24 @@ describe('FR-054 -- reading an amount of time that does not divide into working 
     expect(spelled ?? '').toMatch(/^-?PT\d+H\d+M\d+S$/)
   })
 
-  it('GIVEN a rounded amount WHEN the written file is read again THEN it is rounded from the same original, once (FR-054, FR-011)', () => {
-    // WHY: FR-011 writes no Stop the source lacked, so a re-read rounds the same original again.
+  it('GIVEN an amount that does not divide WHEN the written file is read again THEN it reads the same day again (FR-054, FR-011)', () => {
+    // WHY: FR-011 writes no Stop the source lacked, so a re-read counts the same original again.
     const text = durationFileText([amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)])
     const again = mspdiFromDocument(accepted(text), LAST_SAVED_AT).text
-    expect(lastDayOf(accepted(again), 1)).toBe(LAST_DAY_FOR[5])
+    expect(lastDayOf(accepted(again), 1)).toBe(LAST_DAY_FOR[6])
     const baseline = durationFileText([WHOLE_FIVE_DAYS])
     expect(noticesBeyond(baseline, again)).toEqual(noticesBeyond(baseline, text))
   })
 })
 
-describe('FR-054 -- which minutes-per-day the rounding divides by', () => {
-  it('GIVEN a file that states its own minutes per day WHEN a half day is read THEN that number is the divisor, not S-128 (FR-054 MUST)', () => {
-    // A working day of PER_DAY + 120 minutes makes the same text read as a
-    // different number of days under S-128 (seven, not six), so this case
-    // tells the two sources apart.
+describe('FR-054 -- minutesPerDay divides no amount of time', () => {
+  it('GIVEN a file that states its own minutes per day WHEN an amount is read THEN the stop follows the working time (FR-054 MUST)', () => {
+    // WHY: CR-710 retired the division: 3300 minutes from Wednesday 08:00 end on Thursday the 9th at 15:00.
     const ownPerDay = PER_DAY + 120
     const text = durationFileText([amountOfMinutes(ownPerDay * 5 + ownPerDay / 2)], ownPerDay)
     const document = accepted(text)
     expect(minutesPerDayOf(document)).toBe(ownPerDay)
-    expect(lastDayOf(document, 1)).toBe(LAST_DAY_FOR[6])
+    expect(lastDayOf(document, 1)).toBe('2026-04-09')
   })
 
   it('GIVEN a file that states no minutes per day WHEN a half day is read THEN S-128 of table T-209 is the divisor (FR-054 MUST)', () => {
@@ -3142,42 +3141,23 @@ describe('FR-054 -- an amount of time carrying years or months', () => {
   })
 })
 
-describe('FR-054 -- the count of rounded Tasks is told', () => {
+// WHY: CR-710 retired the rounding and its count (FR-054 reads minutes), so nothing is rounded and nothing told.
+describe('FR-054 -- no Task is rounded, so no count of rounded Tasks is told', () => {
   const NOT_WHOLE = amountOfMinutes(PER_DAY * 5 + PER_DAY / 4)
   const THREE_WHOLE = durationFileText([WHOLE_FIVE_DAYS, WHOLE_FIVE_DAYS, WHOLE_FIVE_DAYS])
 
-  it('GIVEN two of three Tasks rounded WHEN read THEN the count two is told in words (FR-054 MUST, NT-1)', () => {
+  it('GIVEN two of three Tasks off a whole day WHEN read THEN nothing is told (FR-054 MUST)', () => {
     const told = noticesBeyond(
       THREE_WHOLE,
       durationFileText([NOT_WHOLE, NOT_WHOLE, WHOLE_FIVE_DAYS]),
     )
-    expect(told.length).toBeGreaterThan(0)
-    expect(told.every(namesAnItem)).toBe(true)
-    // LEFT RED ON PURPOSE (rule 04, section 1): FR-054 states
-    // "the count of rounded Tasks MUST be told" (docs/spec/01-04-requirements
-    // .md:2518, the sentence after the one about years and months). Two Tasks
-    // were rounded here and the number two is told nowhere -- what comes back
-    // is one notice per Task, none of which carries a count.
-    expect(told.some((each) => each.what.includes('2'))).toBe(true)
+    expect(told).toHaveLength(0)
   })
 
-  it('GIVEN one of three Tasks rounded WHEN read THEN the number told is one -- it is the count, not a constant (FR-054 MUST)', () => {
-    const told = noticesBeyond(
-      THREE_WHOLE,
-      durationFileText([NOT_WHOLE, WHOLE_FIVE_DAYS, WHOLE_FIVE_DAYS]),
-    )
-    expect(told.length).toBeGreaterThan(0)
-    // LEFT RED ON PURPOSE, the same MUST as above: a count that is told has to
-    // be the count, so one rounded Task says one and two rounded Tasks say
-    // two. Neither number is told at all today.
-    expect(told.some((each) => each.what.includes('1'))).toBe(true)
-    expect(told.some((each) => each.what.includes('2'))).toBe(false)
-  })
-
-  it('GIVEN two Tasks rounded WHEN read THEN both values are kept, not only the counting (FR-054 MUST NOT)', () => {
+  it('GIVEN two Tasks off a whole day WHEN read THEN each keeps its own minutes (FR-054 MUST)', () => {
     const document = accepted(durationFileText([NOT_WHOLE, NOT_WHOLE, WHOLE_FIVE_DAYS]))
-    expect(lastDayOf(document, 1)).toBe(LAST_DAY_FOR[5])
-    expect(lastDayOf(document, 2)).toBe(LAST_DAY_FOR[5])
+    expect(lastDayOf(document, 1)).toBe(LAST_DAY_FOR[6])
+    expect(lastDayOf(document, 2)).toBe(LAST_DAY_FOR[6])
     expect(lastDayOf(document, 3)).toBe(LAST_DAY_FOR[5])
   })
 

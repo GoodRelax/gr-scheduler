@@ -39,9 +39,10 @@ const FR_057_KEEPS =
   '元の行（同じ `ordinal`、`_assets/fig-erd-detail.md` の `AT-77`）と日で比べて同じ列は、元の行の字面を保つこと（MUST、`WT-10`）。'
 const CM_39_POINTS = '例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える'
 // see DV-8, T-059
+// WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const DV_8_COUNTS =
-  '`start` の日から `finish` の日までを、両端の日を含めて数えた文書の暦の稼働日の数 × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。'
-const DV_8_EXAMPLE = '水曜の `08:00:00` に始まり木曜の `17:00:00` に終わるタスクを `PT16H0M0S`（2 稼働日）と書く'
+  '`start` から `finish` までの、文書の暦の稼働時間の合計（分、`01-04-requirements.md` の `FR-054`）を `PTnHnMnS` で書く。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。'
+const DV_8_EXAMPLE = '水曜の `08:00:00` に始まり木曜の `17:00:00` に終わるタスクを `PT16H0M0S` と書く'
 // see EX-12, T-033
 const EX_12_REBUILDS = '日付を編集したタスクでは、`Duration` を `DV-8` のとおり作り直すこと（MUST）。'
 const EX_12_GRS_MADE = '`GRS` が作ったタスクにも `Duration` を `DV-8` のとおり書くこと（MUST）。'
@@ -69,6 +70,7 @@ function exceptionRow(part: Partial<Exception> & { ordinal: number }): Exception
     toDate: april(20),
     dayWorking: false,
     recurrenceKind: 9,
+    workingTimes: [],
     carry: {},
     carryElements: [],
     ...part,
@@ -203,9 +205,10 @@ describe('DV-8 / EX-12: Task/Duration counts the finish day', () => {
     expect(writtenDuration(task)).toEqual(['PT0H0M0S'])
   })
 
-  it('DV-8 + S-128: Project.minutesPerDay scales the count (420 minutes x 2 days = PT14H0M0S)', () => {
+  // WHY: CR-710 made DV-8 the working time of the calendar's spans, so minutesPerDay no longer scales it.
+  it('DV-8: Project.minutesPerDay does not scale the count -- 420 minutes a day still writes PT16H0M0S', () => {
     const task = taskRow(1, { start: april(WEDNESDAY, S_482), finish: april(THURSDAY, S_483) })
-    expect(writtenDuration(task, { minutesPerDay: 420 })).toEqual(['PT14H0M0S'])
+    expect(writtenDuration(task, { minutesPerDay: 420 })).toEqual(['PT16H0M0S'])
   })
 
   it('EX-12 + DV-8: a date-edited imported task carries Duration and ManualDuration counted with the finish day', () => {

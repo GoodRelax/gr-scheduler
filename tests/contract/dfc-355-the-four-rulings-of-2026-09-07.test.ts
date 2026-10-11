@@ -154,8 +154,9 @@ const NOTICE_ROSTER = unbroken(readFileSync(
 const FR_012_RECOUNT_ON_CALENDAR_EDIT =
   '`FR-011` が日付から数えた実績の長さである —— 文書の列ではない。 日付を編集したときは再計算すること。⭐ **稼働日の暦を編集したときも、格納済みの完了率を数え直すこと（MUST）'
 
+// WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_012_TELL_WITH_A_COUNT =
-  'T）**—— 分子も分母も稼働日で数えるので、暦が変われば日付が 1 日も動かなくても正しい値が変わる。⛔ 数え直したことを、値が変わった `Task` の件数を添えて告げること（MUST）'
+  'T）**—— 分子も分母も文書の暦の稼働時間で数えるので、暦が変われば日付が 1 日も動かなくても正しい値が変わる。⛔ 数え直したことを、値が変わった `Task` の件数を添えて告げること（MUST）'
 
 const FR_012_SAME_WRITE =
   '直したことを、値が変わった `Task` の件数を添えて告げること（MUST） —— 作法は 表 T-037 の `NT-3`、理由は 表 T-233 の `RS-52` が持つ。⛔ 暦の変更と同じ書き込みの中で行うこと（MUST）'

@@ -497,11 +497,12 @@ describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
     expect(vs6Of(report).map((one) => one.uid).sort((a, b) => a - b)).toEqual(LARGE_AT_DEFAULT)
   })
 
-  it('VS-6 sample-large-erp-program at 7 keeps exactly 208, 200, 182 and 181, at 55, 60, 38 and 56 working days', () => {
+  // WHY: CR-710 places a Stop the file lacks by ActualDuration's working minutes, not rounded days (FR-011).
+  it('VS-6 sample-large-erp-program at 7 keeps exactly 208, 200, 182 and 181, at 55, 59, 37 and 55 working days', () => {
     const report = diagnose(withTolerance(sample('sample-large-erp-program.ja.xml'), WEEKLY_TOLERANCE))
     expect(vs6Of(report).map((one) => one.uid).sort((a, b) => a - b)).toEqual(LARGE_AT_WEEKLY)
     const days = new Map(vs6Of(report).map((one) => [one.uid, valuesOf(one)['outsideWorkingDays']]))
-    expect([days.get(208), days.get(200), days.get(182), days.get(181)]).toEqual([55, 60, 38, 56])
+    expect([days.get(208), days.get(200), days.get(182), days.get(181)]).toEqual([55, 59, 37, 55])
   })
 
   // WHY: CR-716 retired "the marker states do not move with the tolerance" -- T-315 DG-1 names the VS-6 parent.

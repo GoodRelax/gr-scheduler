@@ -34,6 +34,7 @@ export type {
   TaskOrigin,
   TaskVisual,
   WeekDay,
+  WorkingTime,
 } from './schedule-entities'
 export { planActualState, progressPointDayOf } from './plan-actual-state'
 export type { PlanActualState } from './plan-actual-state'
@@ -43,21 +44,30 @@ export {
   compareDays,
   dayFromSerial,
   dayOf,
+  dayOfInstant,
+  finishSideDayOf,
+  instantOf,
   isSameDay,
+  MINUTES_PER_CALENDAR_DAY,
   DAY_END_TIME,
   DAY_START_TIME,
   serial,
   textOfDay,
   textOfDayEnd,
   textOfDayStart,
+  textOfInstant,
 } from './calendar-day'
 export type { CalendarDay, CalendarSpan } from './calendar-day'
 export {
+  actualEndOf,
   actualLastDay,
   actualLengthOf,
+  actualMinutesOf,
   DAILY_RECURRENCE_KIND,
   dateFromWorkingDays,
   DaySpanTooWide,
+  holdsWorkingDayUnlikeMinutesPerDay,
+  instantAfterWorkingMinutes,
   defaultFinishTimeOf,
   defaultStartTimeOf,
   isNonRecurringException,
@@ -69,14 +79,22 @@ export {
   nextWorkingDay,
   NoWorkingDayReached,
   plannedDurationMinutesOf,
+  plannedLengthMinutesOf,
+  isPlanReversed,
   TENTHS_OF_A_MINUTE,
   textOfFinishSide,
   textOfStartSide,
   WORKING_DAY_LAG_FORMAT,
+  weekDayOf,
   workingCalendarOf,
   workingDaysBetween,
+  workingMinutesBetween,
+  workingTimeSetOf,
+  workingTimesBreach,
+  isSameWorkingTimeSet,
+  isWorkingTimeSetUnlikeDay,
 } from './working-calendar'
-export type { WorkingCalendar } from './working-calendar'
+export type { WorkingCalendar, WorkingTimeSet } from './working-calendar'
 export { delayStart, delayWorkingDays, isDelayed } from './task-delay'
 export { diagnoseDelay, parentCandidatesOf, parentTaskResolutionsOf } from './delay-diagnostics'
 export type { DelayDiagnosticsReport, ParentTaskResolution } from './delay-diagnostics'

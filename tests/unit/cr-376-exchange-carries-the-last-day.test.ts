@@ -32,7 +32,11 @@ const TEMPLATE = JSON.parse(
 ) as Record<string, any>
 
 const ymd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}`
-const stored = (iso: string): string => `${iso}T00:00:00`
+// WHY: the times GRS writes (T-350), so each end is a whole working day under FR-054's instant reading.
+const stored = (iso: string): string => `${iso}T08:00:00`
+const storedEnd = (iso: string): string => `${iso}T17:00:00`
+// see FR-054, S-580
+const DAY_SPAN_MINUTES = 480
 const dayPart = (value: string | null | undefined): string | null =>
   value === null || value === undefined ? null : value.slice(0, 10)
 
@@ -63,7 +67,7 @@ const taskRow = (uid: number, part: Record<string, unknown>): Record<string, unk
   wbsOrder: uid,
   name: `T${uid}`,
   start: stored(ymd(5)),
-  finish: stored(ymd(30)),
+  finish: storedEnd(ymd(30)),
   milestone: false,
   deadline: null,
   notes: null,
@@ -123,8 +127,8 @@ const RUNNING = [
 const FINISHED = { uid: 8, start: ymd(9), last: ymd(10), days: 2 } as const
 
 const exchangeTasks = (): Record<string, unknown>[] => [
-  ...RUNNING.map((one) => taskRow(one.uid, { actualStart: stored(one.start), stop: stored(one.last), resumeValid: true })),
-  taskRow(FINISHED.uid, { actualStart: stored(FINISHED.start), stop: null, actualFinish: stored(FINISHED.last), resumeValid: false }),
+  ...RUNNING.map((one) => taskRow(one.uid, { actualStart: stored(one.start), stop: storedEnd(one.last), resumeValid: true })),
+  taskRow(FINISHED.uid, { actualStart: stored(FINISHED.start), stop: null, actualFinish: storedEnd(FINISHED.last), resumeValid: false }),
 ]
 
 const taskBlock = (xml: string, uid: number): string => {
@@ -164,25 +168,27 @@ describe('CR-376 exchange premises read from the manuscript', () => {
 })
 
 describe('Chapter 6.2 export: Stop is the last day itself, ActualDuration is DV-11', () => {
+  // WHY: DV-11 counts working time (FR-011, FR-054), so a minutesPerDay unlike the spans does not scale it.
   const MINUTES = 420
 
   for (const one of RUNNING) {
-    it(`${one.what}: Stop is ${one.last} at 00:00:00 and ActualDuration is ${one.days} days`, () => {
+    it(`${one.what}: Stop is ${one.last} at 17:00:00 and ActualDuration is ${one.days} days of working time`, () => {
       const block = taskBlock(written(MINUTES), one.uid)
-      expect(childText(block, 'Stop')).toBe(stored(one.last))
-      expect(minutesOf(childText(block, 'ActualDuration'))).toBe(one.days * MINUTES)
+      expect(childText(block, 'Stop')).toBe(storedEnd(one.last))
+      expect(minutesOf(childText(block, 'ActualDuration'))).toBe(one.days * DAY_SPAN_MINUTES)
     })
   }
 
   it('a finished task writes ActualFinish as its last day and ActualDuration from it', () => {
     const block = taskBlock(written(MINUTES), FINISHED.uid)
-    expect(childText(block, 'ActualFinish')).toBe(stored(FINISHED.last))
-    expect(minutesOf(childText(block, 'ActualDuration'))).toBe(FINISHED.days * MINUTES)
+    expect(childText(block, 'ActualFinish')).toBe(storedEnd(FINISHED.last))
+    expect(minutesOf(childText(block, 'ActualDuration'))).toBe(FINISHED.days * DAY_SPAN_MINUTES)
   })
 
-  it('an empty minutesPerDay falls back to S-128', () => {
+  // WHY: retired "an empty minutesPerDay falls back to S-128" -- CR-710 made DV-11 the working time (FR-011).
+  it('minutesPerDay does not scale ActualDuration: an empty one writes the same working time', () => {
     const block = taskBlock(written(null), 1)
-    expect(minutesOf(childText(block, 'ActualDuration'))).toBe(2 * numberIn(cellOf('T-209', 'S-128', '値')))
+    expect(minutesOf(childText(block, 'ActualDuration'))).toBe(2 * DAY_SPAN_MINUTES)
   })
 })
 

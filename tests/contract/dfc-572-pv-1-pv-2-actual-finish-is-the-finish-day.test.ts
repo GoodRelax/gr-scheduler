@@ -29,14 +29,15 @@ const REQUIREMENTS = unbroken(
   readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'),
 )
 
+// WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_011_SAME_DAY_IS_ONE_DAY =
-  '⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。'
+  '⭐ 実績の開始と終わりが同じ日の 08:00 〜 17:00 であるとき、その実績は 480 分（1d）である（下の段の数え方、既定の時間帯の暦）。'
 
 const FR_011_RIGHT_END_IS_A_POSITION =
   '0 日としてはならない（MUST NOT） —— ⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— 実績の最後の日の翌暦日の列の左端であり、実績の終了日は最後の日そのものである。'
 
 const FR_011_DO_NOT_READ_RIGHT_END_AS_FINISH =
-  '⚠️ **「右端」を終了日と読んではならない（MUST NOT）** —— そう読むと「開始日 ＝ 終了日 ⟺ 長さ 0 日」になり、開始日と終了日が同じ実績を 1 日とする上の規則に反する。'
+  '⚠️ **「右端」を終了日と読んではならない（MUST NOT）** —— そう読むと「開始日 ＝ 終了日 ⟺ 長さ 0」になり、同じ日の実績に長さを与える下の数え方に反する。'
 
 const FR_011_MILESTONE =
   '⚠️ マイルストーンにはこの読みを当てない —— 長さを持たない点なので（`S-130`、表 T-012 の `SH-5`）、実績の終了日は `actualStart` と同じ日である。'
@@ -252,7 +253,7 @@ describe('DFC-572 premises: the clauses and the calendar still read this way', (
 describe('DFC-572 table T-021a PV-1: not started -> in progress writes the floor day', () => {
   // WHY: CR-430 lengthened the cycle, so `PV-1` writes its floor day to `stop`
   // and not `actualFinish`; the day is the actual's last, not the bar's end.
-  it('⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。 -- PV-1 on a Monday writes stop = actualStart', () => {
+  it('⭐ 実績の開始と終わりが同じ日の 08:00 〜 17:00 であるとき、その実績は 480 分（1d）である -- PV-1 on a Monday writes stop = actualStart', () => {
     const task = pressed(documentWith(taskOf({ start: stored(ymd(5)), finish: stored(ymd(9)) }), 'rectangle'))
     expect(task.actualStart).toBe(startSide(ymd(5)))
     expect(task.actualFinish, 'PV-1: actualFinish stays empty until PV-2').toBeNull()

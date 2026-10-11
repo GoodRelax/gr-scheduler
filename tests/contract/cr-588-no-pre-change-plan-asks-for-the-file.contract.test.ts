@@ -71,7 +71,8 @@ const OP_15_WITH_A_PLAN_ONLY_TOGGLES = '⚠️ 重ねる予定が在るときの
 const FR_015_TURNS_S_69_ON =
   '⭐ 重ねを読み込んだときは、`_assets/tbl-settings.md` の 表 T-202 の `S-69` を真にすること（MUST）'
 const UN_18_ONE_STEP = '| UN-18 | 対象 | 重ねの取り込み（表 T-024a の `OP-9`、`FR-015`）。取り込み 1 回を 1 段とする'
-const UN_7_TOGGLES_OUTSIDE = '| UN-7 | 対象外 | 表示の切り替え（各トグル） |'
+// WHY: CR-710 names the time-of-day toggle of FR-158 in UN-7 (JDG-1975).
+const UN_7_TOGGLES_OUTSIDE = '| UN-7 | 対象外 | 表示の切り替え（各トグル。`FR-158` の「時刻を表示する」を含む） |'
 const S_69_ROW = '| S-69 | `baselineVisible` | 真偽 | `false` |'
 
 type RawGuard = { readonly name?: string; readonly not?: boolean; readonly in?: string }

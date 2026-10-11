@@ -497,6 +497,42 @@
      }
     },
     {
+     "name": "instantOf",
+     "note": {
+      "ja": [
+       "日時の字面を瞬間（分）にする。",
+       "規則は `FR-054`（時差を換算しない、秒は読み流す）"
+      ]
+     }
+    },
+    {
+     "name": "finishSideDayOf",
+     "note": {
+      "ja": [
+       "終了の側の日時が落ちる日。",
+       "1 分前の瞬間の日であり、`00:00:00` は前の日の終わりである（`FR-054`）"
+      ]
+     }
+    },
+    {
+     "name": "textOfInstant",
+     "note": {
+      "ja": [
+       "瞬間を日時の字にする。",
+       "秒は `00`（`FR-054`）"
+      ]
+     }
+    },
+    {
+     "name": "MINUTES_PER_CALENDAR_DAY",
+     "note": {
+      "ja": [
+       "暦の 1 日の分の数。",
+       "稼働時間ではない"
+      ]
+     }
+    },
+    {
      "name": "textOfDay",
      "note": {
       "ja": [
@@ -589,6 +625,124 @@
        "実績の長さ。",
        "数え方は `FR-011` が持ち、`_assets/fig-erd-detail.md` の `DV-11` がこの長さを読む。",
        "`FR-012` は予定の期間もこの数え方で数える"
+      ]
+     }
+    },
+    {
+     "name": "actualEndOf",
+     "note": {
+      "ja": [
+       "実績の終わりの日時。",
+       "完了なら `actualFinish`、それ以外は `stop`、未着手なら無い（`FR-011`）"
+      ]
+     }
+    },
+    {
+     "name": "actualMinutesOf",
+     "note": {
+      "ja": [
+       "実績の長さ（分）。",
+       "端の日が非稼働日ならその日を `FR-088` の 表 T-344 の `WC-8` の 1 組で数える（`FR-011`）。",
+       "`FR-012` は予定の期間もこの数え方で数え、`_assets/fig-erd-detail.md` の `DV-11` がこの長さを読む"
+      ]
+     }
+    },
+    {
+     "name": "instantAfterWorkingMinutes",
+     "note": {
+      "ja": [
+       "瞬間から稼働時間を分だけ進めた（負なら戻した）瞬間。",
+       "`ActualDuration` から `stop` を置く（`FR-011`）"
+      ]
+     }
+    },
+    {
+     "name": "workingMinutesBetween",
+     "note": {
+      "ja": [
+       "2 つの瞬間の間の稼働時間（分）。",
+       "`_assets/fig-erd-detail.md` の `DV-8` が読む"
+      ]
+     }
+    },
+    {
+     "name": "WorkingTime",
+     "note": {
+      "ja": [
+       "型。",
+       "時間帯の 1 本（`_assets/fig-erd-detail.md` の `AT-160` 〜 `AT-162`）"
+      ]
+     }
+    },
+    {
+     "name": "workingTimeSetOf",
+     "note": {
+      "ja": [
+       "文書の稼働日の時間帯の 1 組と、違う組を持つ曜日。",
+       "`FR-088` の 表 T-344 の `WC-8` ・ `WC-9`"
+      ]
+     }
+    },
+    {
+     "name": "isSameWorkingTimeSet",
+     "note": {
+      "ja": [
+       "2 つの時間帯の組が同じか。",
+       "`FR-088`"
+      ]
+     }
+    },
+    {
+     "name": "workingTimesBreach",
+     "note": {
+      "ja": [
+       "時間帯の組が `05-07-design.md` の 表 T-220 の `IV-24` に反する理由。",
+       "反しなければ無い"
+      ]
+     }
+    },
+    {
+     "name": "holdsWorkingDayUnlikeMinutesPerDay",
+     "note": {
+      "ja": [
+       "時間帯の合計が `Project.minutesPerDay` と違う稼働日を文書が持つか。",
+       "表 T-233 の `RS-89` を開いたときに告げるか（`FR-054`）"
+      ]
+     }
+    },
+    {
+     "name": "isWorkingTimeSetUnlikeDay",
+     "note": {
+      "ja": [
+       "当てる時間帯の 1 組の合計が `Project.minutesPerDay` と違うか。",
+       "表 T-233 の `RS-89` を当てたときに告げるか（`FR-088`）"
+      ]
+     }
+    },
+    {
+     "name": "plannedLengthMinutesOf",
+     "note": {
+      "ja": [
+       "予定の期間（分）。",
+       "`FR-011` の実績の長さの数え方で `start` から `finish` まで数え、マイルストーンは 0（`FR-012`）"
+      ]
+     }
+    },
+    {
+     "name": "isPlanReversed",
+     "note": {
+      "ja": [
+       "予定の `finish` が `start` より前の瞬間か。",
+       "`05-07-design.md` の 表 T-220 の `IV-10`（瞬間で比べる、`FR-054`）"
+      ]
+     }
+    },
+    {
+     "name": "weekDayOf",
+     "note": {
+      "ja": [
+       "時間帯も持ち回りも持たない曜日の行。",
+       "`_assets/fig-erd-detail.md` の `AT-72` 〜 `AT-74`・`AT-158`"
       ]
      }
     },

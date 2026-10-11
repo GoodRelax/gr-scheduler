@@ -302,7 +302,10 @@ describe('表 T-027 -- the 対象外 half, and this file covering all of it', ()
     // WHY: CR-677 added the export span S-518 / S-519 (dates); UN-13 names it (FR-055, FX-1).
     expect(T_202_BOOLEAN_ROWS.length).toBeGreaterThan(0)
     expect(UN_7_CASES).toHaveLength(T_202_BOOLEAN_ROWS.length)
-    expect([...T_202_OTHER_ROWS].sort()).toEqual(['S-2', 'S-234', 'S-3', 'S-518', 'S-519', 'S-58', 'S-70'])
+    // WHY: CR-710 added the two time zone rows S-574 / S-575 to UN-13 (FR-156); S-576 is a boolean row (UN-7).
+    expect([...T_202_OTHER_ROWS].sort()).toEqual(
+      ['S-2', 'S-234', 'S-3', 'S-518', 'S-519', 'S-574', 'S-575', 'S-58', 'S-70'],
+    )
   })
 })
 

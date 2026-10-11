@@ -4,9 +4,11 @@
 // @purity    pure
 
 import {
+  MINUTES_PER_CALENDAR_DAY,
   compareDays,
   dayFromSerial,
   dayOf,
+  instantOf,
   serial,
   textOfDay,
   textOfDayAt,
@@ -23,15 +25,18 @@ import {
   type Schedule,
   type Task,
   type WeekDay,
+  type WorkingTime,
 } from './schedule-entities'
 
 export interface WorkingCalendar {
   readonly calendar: Calendar
   readonly weekDays: readonly WeekDay[]
   readonly exceptions: readonly Exception[]
+  readonly weekStartDay?: number | null
 }
 
 interface ExceptionSpan {
+  readonly ordinal: number
   readonly from: number
   readonly toInclusive: number
   readonly isWorking: boolean
@@ -66,6 +71,7 @@ function indexOfCalendar(within: WorkingCalendar): CalendarIndex {
     if (from === null) continue
     const toInclusive = dayOf(exception.toDate) ?? from
     exceptionSpans.push({
+      ordinal: exception.ordinal,
       from: serial(from),
       toInclusive: serial(toInclusive),
       isWorking: exception.dayWorking === true,
@@ -87,8 +93,12 @@ function isWorkingDayAt(index: CalendarIndex, atSerial: number): boolean {
   for (const span of index.exceptionSpans) {
     if (atSerial >= span.from && atSerial <= span.toInclusive) return span.isWorking
   }
-  const weekday = new Date(atSerial * 86400000).getUTCDay() + 1
-  return index.worksWeekday[weekday] === true
+  return index.worksWeekday[dayTypeAt(atSerial)] === true
+}
+
+/** @purity pure */
+function dayTypeAt(atSerial: number): number {
+  return new Date(atSerial * 86400000).getUTCDay() + 1
 }
 
 /** @purity pure */
@@ -96,14 +106,15 @@ export function isWorkingDay(within: WorkingCalendar, day: CalendarDay): boolean
   return isWorkingDayAt(indexOfCalendar(within), serial(day))
 }
 
-const DEFAULT_WEEK_DAYS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) => ({
-  ordinal,
-  dayType,
-  // TRAP: S-106 is in dayType numbering (1 = Sunday), not weekStartDay's (0 = Sunday).
-  dayWorking: DEFAULT_CALENDAR_VALUES['S-106'].includes(dayType),
-  carry: {},
-  carryElements: [],
-}))
+// see AT-72, AT-73, AT-74, AT-158
+/** @purity pure */
+export function weekDayOf(ordinal: number, dayType: number, dayWorking: boolean): WeekDay {
+  return { ordinal, dayType, dayWorking, workingTimes: [], carry: {}, carryElements: [] }
+}
+
+// TRAP: S-106 is in dayType numbering (1 = Sunday), not weekStartDay's (0 = Sunday).
+const DEFAULT_WEEK_DAYS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) =>
+  weekDayOf(ordinal, dayType, DEFAULT_CALENDAR_VALUES['S-106'].includes(dayType)))
 
 const DEFAULT_CALENDAR: Calendar = {
   uid: 0,
@@ -130,7 +141,12 @@ export function workingCalendarOf(schedule: Schedule): WorkingCalendar {
       undefined,
     )
   const calendar = held ?? base ?? DEFAULT_CALENDAR
-  return { calendar, weekDays: calendar.weekDays, exceptions: calendar.exceptions }
+  return {
+    calendar,
+    weekDays: calendar.weekDays,
+    exceptions: calendar.exceptions,
+    weekStartDay: schedule.project.weekStartDay,
+  }
 }
 
 const ACCEPTED_DAY_SPAN = daySpanOf(
@@ -234,17 +250,40 @@ export function actualLengthOf(within: WorkingCalendar, start: CalendarDay,
   return between + 2
 }
 
-// see DV-8, EX-12, S-128
-// WHY: both end days count (the partner's own example writes a Wednesday-to-Thursday task as PT16H0M0S);
-// FR-012 counts the plan by FR-011's rule instead, which also counts an end day off the calendar (CR-667).
+// see FR-054
 /** @purity pure */
-export function plannedDurationMinutesOf(within: WorkingCalendar, task: Task, project: Project): number | null {
-  const start = dayOf(task.start)
-  const finishInclusive = dayOf(task.finish)
-  if (start === null || finishInclusive === null) return null
-  if (task.milestone === true) return 0
-  const finishExclusive = dayFromSerial(serial(finishInclusive) + 1)
-  return workingDaysBetween(within, start, finishExclusive) * minutesPerWorkingDayOf(project)
+function planInstantsOf(task: Pick<Task, 'start' | 'finish'>): readonly [number, number] | null {
+  const start = instantOf(task.start)
+  const finish = instantOf(task.finish)
+  return start === null || finish === null ? null : [start, finish]
+}
+
+// see IV-10, FR-054
+/** @purity pure */
+export function isPlanReversed(task: Pick<Task, 'start' | 'finish'>): boolean {
+  const plan = planInstantsOf(task)
+  return plan !== null && plan[1] < plan[0]
+}
+
+type CountOfMinutes = (within: WorkingCalendar, start: number, end: number) => number
+
+/** @purity pure */
+function plannedMinutesBy(count: CountOfMinutes, within: WorkingCalendar, task: Task): number | null {
+  const plan = planInstantsOf(task)
+  if (plan === null) return null
+  return task.milestone === true ? 0 : count(within, plan[0], plan[1])
+}
+
+// see DV-8, EX-12
+/** @purity pure */
+export function plannedDurationMinutesOf(within: WorkingCalendar, task: Task): number | null {
+  return plannedMinutesBy(workingMinutesBetween, within, task)
+}
+
+// see FR-012, FR-011
+/** @purity pure */
+export function plannedLengthMinutesOf(within: WorkingCalendar, task: Task): number | null {
+  return plannedMinutesBy(actualMinutesOf, within, task)
 }
 
 // see FR-011
@@ -263,6 +302,232 @@ export function lastDayForLength(within: WorkingCalendar, start: CalendarDay,
     if (isWorkingDayAt(index, at)) remaining -= 1
   }
   return dayFromSerial(at)
+}
+
+interface MinuteSpan {
+  readonly from: number
+  readonly to: number
+}
+
+interface TimeIndex {
+  readonly days: CalendarIndex
+  readonly weekdaySpans: readonly (readonly MinuteSpan[])[]
+  readonly exceptionSpans: ReadonlyMap<number, readonly MinuteSpan[]>
+  readonly workingSet: readonly MinuteSpan[]
+}
+
+const NO_SPANS: readonly MinuteSpan[] = []
+
+/** @purity pure */
+function minuteOfClock(text: string | null, isEnd: boolean): number | null {
+  const at = text === null ? null : instantOf(`1970-01-01T${text.trim()}`)
+  if (at === null) return null
+  return isEnd && at === 0 ? MINUTES_PER_CALENDAR_DAY : at
+}
+
+// see AT-158, AT-159, AT-161, AT-162, IV-24
+/** @purity pure */
+function spansOfTimes(times: readonly WorkingTime[]): readonly MinuteSpan[] {
+  const spans: MinuteSpan[] = []
+  for (const time of times) {
+    const from = minuteOfClock(time.fromTime, false)
+    const to = minuteOfClock(time.toTime, true)
+    if (from !== null && to !== null && from < to) spans.push({ from, to })
+  }
+  return spans.sort((a, b) => a.from - b.from)
+}
+
+const DEFAULT_SPANS: readonly MinuteSpan[] = spansOfTimes(defaultWorkingTimes())
+
+/** @purity pure */
+function defaultWorkingTimes(): readonly WorkingTime[] {
+  return DEFAULT_CALENDAR_VALUES['S-580'].map(([fromTime, toTime], ordinal) => ({ ordinal, fromTime, toTime }))
+}
+
+/** @purity pure */
+function keyOfSpans(spans: readonly MinuteSpan[]): string {
+  return spans.map((span) => `${span.from}-${span.to}`).join(',')
+}
+
+export interface WorkingTimeSet {
+  readonly workingTimes: readonly WorkingTime[]
+  readonly unlikeDayTypes: readonly number[]
+}
+
+// see WC-8, WC-9, FR-088
+/** @purity pure */
+export function workingTimeSetOf(within: WorkingCalendar): WorkingTimeSet {
+  const startType = (within.weekStartDay ?? DEFAULT_CALENDAR_VALUES['S-108']) + 1
+  const ordered = [...within.weekDays]
+    .filter((one) => one.dayWorking === true && one.dayType !== null && spansOfTimes(one.workingTimes).length > 0)
+    .sort((a, b) => ((a.dayType ?? 0) - startType + 7) % 7 - ((b.dayType ?? 0) - startType + 7) % 7)
+  const counts = new Map<string, number>()
+  for (const one of ordered) {
+    const key = keyOfSpans(spansOfTimes(one.workingTimes))
+    counts.set(key, (counts.get(key) ?? 0) + 1)
+  }
+  const best = ordered.reduce<WeekDay | undefined>((held, one) => {
+    if (held === undefined) return one
+    const count = (day: WeekDay): number => counts.get(keyOfSpans(spansOfTimes(day.workingTimes))) ?? 0
+    return count(one) > count(held) ? one : held
+  }, undefined)
+  if (best === undefined) return { workingTimes: defaultWorkingTimes(), unlikeDayTypes: [] }
+  const bestKey = keyOfSpans(spansOfTimes(best.workingTimes))
+  const unlike = ordered.filter((one) => keyOfSpans(spansOfTimes(one.workingTimes)) !== bestKey)
+  return { workingTimes: best.workingTimes, unlikeDayTypes: unlike.map((one) => one.dayType ?? 0) }
+}
+
+/** @purity pure */
+function timeIndexOf(within: WorkingCalendar): TimeIndex {
+  const weekdaySpans: (readonly MinuteSpan[])[] = new Array<readonly MinuteSpan[]>(8).fill(NO_SPANS)
+  for (const weekDay of [...within.weekDays].reverse()) {
+    const dayType = weekDay.dayType
+    if (dayType === null || dayType < 1 || dayType > 7) continue
+    const own = spansOfTimes(weekDay.workingTimes)
+    weekdaySpans[dayType] = weekDay.dayWorking !== true ? NO_SPANS : own.length > 0 ? own : DEFAULT_SPANS
+  }
+  const exceptionSpans = new Map<number, readonly MinuteSpan[]>()
+  for (const exception of within.exceptions.filter(isNonRecurringException)) {
+    const own = spansOfTimes(exception.workingTimes)
+    exceptionSpans.set(exception.ordinal, exception.dayWorking !== true ? NO_SPANS : own.length > 0 ? own : DEFAULT_SPANS)
+  }
+  return {
+    days: indexOfCalendar(within),
+    weekdaySpans,
+    exceptionSpans,
+    workingSet: spansOfTimes(workingTimeSetOf(within).workingTimes),
+  }
+}
+
+// see FR-054, AT-82
+/** @purity pure */
+function spansAt(index: TimeIndex, atSerial: number): readonly MinuteSpan[] {
+  for (const span of index.days.exceptionSpans) {
+    if (atSerial >= span.from && atSerial <= span.toInclusive) return index.exceptionSpans.get(span.ordinal) ?? NO_SPANS
+  }
+  return index.weekdaySpans[dayTypeAt(atSerial)] ?? NO_SPANS
+}
+
+/** @purity pure */
+function minutesInside(spans: readonly MinuteSpan[], from: number, to: number): number {
+  let sum = 0
+  for (const span of spans) sum += Math.max(0, Math.min(span.to, to) - Math.max(span.from, from))
+  return sum
+}
+
+type SpansOfDay = (atSerial: number) => readonly MinuteSpan[]
+
+// see FR-054, DV-8
+/** @purity pure */
+function minutesOver(spansOfDay: SpansOfDay, from: number, to: number): number {
+  const first = Math.floor(from / MINUTES_PER_CALENDAR_DAY)
+  const last = Math.floor((to - 1) / MINUTES_PER_CALENDAR_DAY)
+  if (last - first > ACCEPTED_DAY_SPAN) throw new DaySpanTooWide(dayFromSerial(first), dayFromSerial(last))
+  let sum = 0
+  for (let at = first; at <= last; at += 1) {
+    const base = at * MINUTES_PER_CALENDAR_DAY
+    sum += minutesInside(spansOfDay(at), from - base, to - base)
+  }
+  return sum
+}
+
+// see FR-054, DV-8
+/** @purity pure */
+export function workingMinutesBetween(within: WorkingCalendar, from: number, to: number): number {
+  if (to <= from) return to === from ? 0 : -workingMinutesBetween(within, to, from)
+  const index = timeIndexOf(within)
+  return minutesOver((at) => spansAt(index, at), from, to)
+}
+
+// see FR-011
+/** @purity pure */
+function edgeSpansOf(index: TimeIndex, startSerial: number, endSerial: number): SpansOfDay {
+  return (at) => {
+    const held = spansAt(index, at)
+    const isEdge = at === startSerial || at === endSerial
+    return isEdge && !isWorkingDayAt(index.days, at) ? index.workingSet : held
+  }
+}
+
+// see FR-011, FR-012, IV-21
+/** @purity pure */
+export function actualMinutesOf(within: WorkingCalendar, start: number, end: number): number {
+  if (end === start) return 0
+  const startSerial = Math.floor(start / MINUTES_PER_CALENDAR_DAY)
+  const endSerial = Math.floor((end - 1) / MINUTES_PER_CALENDAR_DAY)
+  const spansOfDay = edgeSpansOf(timeIndexOf(within), startSerial, endSerial)
+  return end > start ? minutesOver(spansOfDay, start, end) : -minutesOver(spansOfDay, end, start)
+}
+
+// see FR-011, T-019
+/** @purity pure */
+export function actualEndOf(task: Task): string | null {
+  if (planActualState(task) === 'notStarted') return null
+  return task.actualFinish !== null ? task.actualFinish : task.stop
+}
+
+// see FR-011, AT-141
+// WHY: the start's own day is an edge, so it counts by actualMinutesOf's own rule and the two agree.
+/** @purity pure */
+export function instantAfterWorkingMinutes(within: WorkingCalendar, from: number, minutes: number): number {
+  if (minutes === 0) return from
+  const index = timeIndexOf(within)
+  const forward = minutes > 0
+  const firstSerial = Math.floor((forward ? from : from - 1) / MINUTES_PER_CALENDAR_DAY)
+  const startSerial = Math.floor(from / MINUTES_PER_CALENDAR_DAY)
+  const spansOfDay = edgeSpansOf(index, startSerial, startSerial)
+  let remaining = Math.abs(minutes)
+  for (let walked = 0, at = firstSerial; walked <= ACCEPTED_DAY_SPAN; walked += 1, at += forward ? 1 : -1) {
+    const base = at * MINUTES_PER_CALENDAR_DAY
+    const spans = forward ? spansOfDay(at) : [...spansOfDay(at)].reverse()
+    for (const span of spans) {
+      const lo = Math.max(span.from, forward ? from - base : -Infinity)
+      const hi = Math.min(span.to, forward ? Infinity : from - base)
+      if (hi <= lo) continue
+      if (hi - lo >= remaining) return base + (forward ? lo + remaining : hi - remaining)
+      remaining -= hi - lo
+    }
+  }
+  throw new NoWorkingDayReached(within.calendar.uid)
+}
+
+// see FR-054, RS-89
+/** @purity pure */
+export function holdsWorkingDayUnlikeMinutesPerDay(schedule: Schedule): boolean {
+  const within = workingCalendarOf(schedule)
+  const index = timeIndexOf(within)
+  const day = minutesPerWorkingDayOf(schedule.project)
+  const spanSums = [...index.weekdaySpans, ...index.exceptionSpans.values()]
+    .filter((spans) => spans.length > 0)
+    .map((spans) => minutesInside(spans, 0, MINUTES_PER_CALENDAR_DAY))
+  return spanSums.some((sum) => sum !== day)
+}
+
+/** @purity pure */
+function workingTimesSumOf(workingTimes: readonly WorkingTime[]): number {
+  return minutesInside(spansOfTimes(workingTimes), 0, MINUTES_PER_CALENDAR_DAY)
+}
+
+// see FR-088, RS-89
+/** @purity pure */
+export function isWorkingTimeSetUnlikeDay(project: Project, workingTimes: readonly WorkingTime[]): boolean {
+  return workingTimesSumOf(workingTimes) !== minutesPerWorkingDayOf(project)
+}
+
+// see WC-8, WC-9
+/** @purity pure */
+export function isSameWorkingTimeSet(left: readonly WorkingTime[], right: readonly WorkingTime[]): boolean {
+  return keyOfSpans(spansOfTimes(left)) === keyOfSpans(spansOfTimes(right))
+}
+
+// see IV-24
+/** @purity pure */
+export function workingTimesBreach(workingTimes: readonly WorkingTime[], most: number): string | null {
+  if (workingTimes.length > most) return `${workingTimes.length} working time spans, over ${most}`
+  const spans = spansOfTimes(workingTimes)
+  if (spans.length < workingTimes.length) return 'a working time span does not start before it ends'
+  const overlapped = spans.some((span, index) => index > 0 && span.from < (spans[index - 1]?.to ?? 0))
+  return overlapped ? 'two working time spans overlap' : null
 }
 
 // see AT-47

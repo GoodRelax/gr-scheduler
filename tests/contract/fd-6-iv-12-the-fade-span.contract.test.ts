@@ -161,6 +161,7 @@ const WEEK_DAYS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType) => ({
   ordinal: dayType,
   dayType,
   dayWorking: dayType !== 1 && dayType !== 7,
+  workingTimes: [],
   carry: {},
   carryElements: [],
 }))

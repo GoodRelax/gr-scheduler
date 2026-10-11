@@ -38,7 +38,8 @@ const FR_088_UNDO = '**変更は取り消しの対象とすること（MUST）**
 const FR_054_RESOLVE =
   '指していないとき、および指す先が無いときは、`isBaseCalendar` が真の `Calendar` のうち `ordinal` が最小のものとし、それも無いときは表 T-209 の既定とすること（MUST）。'
 // see CM-39
-const CM_39_DOES = '暦（稼働する曜日・例外日）と週の始まりを直す。既定の暦のままなら、暦を 1 つ作ってから直す'
+// WHY: CR-710 added the one working time set of WC-8 to what CM-39 carries.
+const CM_39_DOES = '暦（稼働する曜日・稼働日の時間帯の 1 組・例外日）と週の始まりを直す。'
 // see AT-67
 const AT_67_NEXT = '`GRS` が足す暦（合流の `MG-5` ほか）は、既にある暦の最大の次を取る'
 // see AT-20

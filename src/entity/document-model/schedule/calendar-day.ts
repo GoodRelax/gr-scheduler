@@ -1,4 +1,4 @@
-// Schedule -- the calendar day: its text form, its order and its day numbers.
+// Schedule -- the calendar day and the instant: their text form, their order and their numbers.
 // @unit      UF-170  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -25,6 +25,55 @@ export function dayOf(text: string | null): CalendarDay | null {
   return { year, month, day }
 }
 
+export const MINUTES_PER_CALENDAR_DAY = 1440
+
+const MINUTES_PER_HOUR = 60
+const HOURS_PER_DAY = 24
+const SECONDS_PER_MINUTE = 60
+
+const TIME_TAIL = /^(\d{2}):(\d{2})(?::(\d{2})(?:\.\d+)?)?(?:Z|[+-]\d{2}:?\d{2})?$/
+
+const DATE_TIME_SPLIT = /^\d{4}-\d{2}-\d{2}(?:[T ](.*))?$/
+
+/** @purity pure */
+function minuteOfTimeText(text: string): number | null {
+  const hit = TIME_TAIL.exec(text)
+  if (hit === null) return null
+  const [hour, minute, second] = [Number(hit[1]), Number(hit[2]), Number(hit[3] ?? 0)]
+  if (hour >= HOURS_PER_DAY || minute >= MINUTES_PER_HOUR || second >= SECONDS_PER_MINUTE) return null
+  return hour * MINUTES_PER_HOUR + minute
+}
+
+// see FR-054, IV-14
+/** @purity pure */
+export function instantOf(text: string | null): number | null {
+  const day = dayOf(text)
+  if (day === null || text === null) return null
+  const tail = DATE_TIME_SPLIT.exec(text.trim())?.[1]
+  const minute = tail === undefined ? 0 : minuteOfTimeText(tail)
+  if (minute === null) return null
+  return serial(day) * MINUTES_PER_CALENDAR_DAY + minute
+}
+
+/** @purity pure */
+export function dayOfInstant(instant: number): CalendarDay {
+  return dayFromSerial(Math.floor(instant / MINUTES_PER_CALENDAR_DAY))
+}
+
+/** @purity pure */
+export function finishSideDayOf(text: string | null): CalendarDay | null {
+  const instant = instantOf(text)
+  return instant === null ? null : dayOfInstant(instant - 1)
+}
+
+/** @purity pure */
+export function textOfInstant(instant: number): string {
+  const day = dayOfInstant(instant)
+  const minute = instant - serial(day) * MINUTES_PER_CALENDAR_DAY
+  const pad = (n: number): string => String(n).padStart(2, '0')
+  return textOfDayAt(day, `${pad(Math.floor(minute / MINUTES_PER_HOUR))}:${pad(minute % MINUTES_PER_HOUR)}:00`)
+}
+
 // see WT-6
 export const DAY_START_TIME = '00:00:00'
 // see WT-7
@@ -42,7 +91,6 @@ export function textOfDayAt(day: CalendarDay, time: string): string {
   return `${dateTextOf(day)}T${time}`
 }
 
-// see UF-170
 // TRAP: this is the day's KEY, read back by dayOf and used as a Map key on per-frame paths;
 // a writer that stores a column picks a side (textOfDayStart, textOfStartSide, ...) instead.
 /** @purity pure */
@@ -50,13 +98,11 @@ export function textOfDay(day: CalendarDay): string {
   return textOfDayAt(day, DAY_START_TIME)
 }
 
-// see WT-6, WT-8
 /** @purity pure */
 export function textOfDayStart(day: CalendarDay): string {
   return textOfDayAt(day, DAY_START_TIME)
 }
 
-// see WT-7
 /** @purity pure */
 export function textOfDayEnd(day: CalendarDay): string {
   return textOfDayAt(day, DAY_END_TIME)
@@ -69,9 +115,6 @@ export function compareDays(a: CalendarDay, b: CalendarDay): number {
   return a.day - b.day
 }
 
-// see FR-054
-// WHY: GRS writes a different time on each side (T-350), so the texts of one day differ; a text that names
-// no day is compared as it stands.
 /** @purity pure */
 export function isSameDay(left: string | null, right: string | null): boolean {
   const leftDay = dayOf(left)
@@ -87,7 +130,6 @@ export function serial(day: CalendarDay): number {
   return Date.UTC(day.year, day.month - 1, day.day) / 86400000
 }
 
-// see FD-6, IV-12
 /** @purity pure */
 export function calendarDaysBetween(from: CalendarDay, to: CalendarDay): number {
   return serial(to) - serial(from)
@@ -114,7 +156,6 @@ function lastDayOfMonth(year: number, month: number): number {
   return month === FEBRUARY && isLeapYear(year) ? 29 : (DAYS_IN_MONTH[month - 1] ?? 31)
 }
 
-// see DC-3
 /** @purity pure */
 function monthsAfter(day: CalendarDay, months: number): CalendarDay {
   const index = day.year * MONTHS_PER_YEAR + (day.month - 1) + months
@@ -123,8 +164,6 @@ function monthsAfter(day: CalendarDay, months: number): CalendarDay {
   return { year, month, day: Math.min(day.day, lastDayOfMonth(year, month)) }
 }
 
-// see DC-3
-// WHY: k is the gap in months or one less; k + 1 months always lands past the later day.
 /** @purity pure */
 export function calendarSpanOf(a: CalendarDay, b: CalendarDay): CalendarSpan {
   const [early, late] = compareDays(a, b) <= 0 ? [a, b] : [b, a]
