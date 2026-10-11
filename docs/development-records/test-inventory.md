@@ -380,7 +380,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-719-the-import-refusals-name-their-t-233-row.contract.test.ts` | 13 | FR-012, FR-023, FR-076 | - | T-211, T-220, T-233 | AG-9a, NT-6, RS-78, RS-79, RS-80, RS-81 | - | - | - | - |
 | `tests/contract/cr-720-lf-19-a-label-pulled-to-the-left-edge-yields-to-the-next.contract.test.ts` | 3 | FR-017 | - | T-221 | LF-19, S-135 | - | - | - | - |
 | `tests/contract/cr-721-ic-153-the-clear-entry-takes-the-views-and-keeps-the-rest.contract.test.ts` | 14 | FR-092, FR-134, FR-151 | - | T-109, T-330, T-346 | IC-143, IC-153, RW-2, SV-1, TV-2 | - | - | - | - |
-| `tests/contract/cr-721-sv-18-rw-9-the-measured-widths-and-their-floor.contract.test.ts` | 14 | FR-151 | - | T-019a, T-206, T-330, T-346 | DG-2, DT-1, DT-3, DT-5, DT-6, RW-9, S-425, S-496, SQ-5, SQ-10, SV-18 | - | - | - | - |
+| `tests/contract/cr-721-sv-18-rw-9-the-measured-widths-and-their-floor.contract.test.ts` | 14 | FR-151 | - | T-019a, T-206, T-330, T-346 | DG-2, DT-1, DT-3, DT-5, DT-6, IC-122, RW-9, S-425, S-465, S-496, SQ-5, SQ-10, SV-7, SV-18 | - | - | - | - |
 | `tests/contract/cr-721-sv-7-sq-10-the-filtered-mark-and-the-visibility-column.contract.test.ts` | 20 | FR-134, FR-151 | - | T-330, T-331, T-346 | RW-2, SQ-10, SV-6, SV-7, SV-8, TV-2 | - | - | - | - |
 | `tests/contract/cr-722-ro-rq-the-resource-list-is-a-table-window.contract.test.ts` | 9 | FR-099 | - | T-370, T-371 | IC-52, IC-129, RO-4, RO-5, RO-7, RQ-1, RQ-2, RQ-5, SV-12, SV-14, U-49 | - | - | - | - |
 | `tests/contract/cr-722-tv-1-tv-2-tv-13-the-drawn-set-is-the-product-of-the-tables.contract.test.ts` | 20 | FR-151 | - | T-353 | IC-143, TV-1, TV-2, TV-5, TV-7, TV-13 | - | - | - | - |
@@ -621,7 +621,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-718-an-import-refusal-is-told-in-its-t-220-words.test.ts` | 2 | FR-076 | - | T-214, T-220 | IV-10, IV-14, OP-2, RS-15, S-119 | - | - | - | - |
 | `tests/system/cr-719-opening-a-file-over-the-task-limit-tells-rs-79.test.ts` | 2 | FR-023, FR-076 | - | - | IC-1, RS-79, S-114 | - | - | - | - |
 | `tests/system/cr-721-ix-11-ep-24-the-export-leaves-the-band-out-and-closes-up.test.ts` | 2 | - | - | T-076, T-241 | EP-24, IX-11, TV-11 | - | - | - | - |
-| `tests/system/cr-721-sv-18-the-default-widths-are-measured-once-and-a-drag-stops-at-the-floor.test.ts` | 11 | - | - | T-206, T-330, T-346 | RW-9, S-425, S-496, SV-18 | - | - | - | - |
+| `tests/system/cr-721-sv-18-the-default-widths-are-measured-once-and-a-drag-stops-at-the-floor.test.ts` | 11 | - | - | T-206, T-330, T-346 | IC-122, RW-9, S-425, S-465, S-496, SV-7, SV-18 | - | - | - | - |
 | `tests/system/cr-721-sv-7-an-outside-press-closes-the-filter-and-is-answered.test.ts` | 7 | - | - | T-330 | IC-122, SV-7 | - | - | - | - |
 | `tests/system/cr-721-sv-7-ic-153-the-green-heading-and-the-clear-entry.test.ts` | 8 | - | - | T-109, T-236, T-330, T-346 | IC-153, RW-2, S-146, S-183, SQ-1, SQ-3, SQ-4, SQ-11, SV-1, SV-7 | - | - | - | - |
 | `tests/system/cr-722-the-eyes-the-red-and-the-resource-list-on-the-shipped-build.test.ts` | 11 | FR-099, FR-151 | - | T-109, T-236, T-237, T-353, T-370, T-371 | AM-26, AM-27, EN-5, EN-8, IC-62, IC-117, IC-143, RO-6, S-543, S-544, SJ-0, SQ-10, SV-4, SV-9, TV-8, TV-11, TV-12 | - | - | - | - |

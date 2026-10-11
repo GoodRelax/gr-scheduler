@@ -1580,6 +1580,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SCROLLBAR_AXIS_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SCROLLBAR_AXIS_ATTRIBUTE` | -- | const SCROLLBAR_AXIS_ATTRIBUTE = 'data-axis' |
 | `SEARCH_COLUMN_WIDTH_ROWS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SEARCH_COLUMN_WIDTH_ROWS` | -- | const SEARCH_COLUMN_WIDTH_ROWS: |
 | `SEPARATE_NOTE_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#SEPARATE_NOTE_ATTRIBUTE` | -- | const SEPARATE_NOTE_ATTRIBUTE = 'data-separate-note' |
+| `showPointerShapeOver` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#showPointerShapeOver` | PI-38 | UI パーツの根にポインタの形を書き、形があるあいだは中の要素にその形を継がせる。 |
 | `stateGround` | entry | function | `src/framework/dom-screen-surface/dom-screen-surface.ts#stateGround` | -- | function stateGround(paint: string, depthTaskGroup: 'S-214' \| 'S-215'): string |
 | `STYLE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#STYLE` | -- | const STYLE = |
 | `TASK_GROUP_GRAB_STRIP_MARK` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#TASK_GROUP_GRAB_STRIP_MARK` | -- | const TASK_GROUP_GRAB_STRIP_MARK = 'data-task-group-grab' |
@@ -1872,4 +1873,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 919 name(s) leave through a public entry (398 of them published by table T-064), 743 more are exported by a file and not by its entry.
+Totals: 920 name(s) leave through a public entry (399 of them published by table T-064), 743 more are exported by a file and not by its entry.

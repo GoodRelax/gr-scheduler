@@ -30,7 +30,9 @@ const SV_18_RIGHT_EDGE =
   '境目を、表を出している領域の右の縁より右へ引いてはならない（MUST NOT）'
 const SV_18_NOT_BY_STEP = '幅は画面の px であり、字の段（`S-429`）と表示の倍率（`S-234`）で変えない。'
 const SV_18_VISIBILITY = '⭐ [表示] の列（`SQ-10`）は例外で、幅は `S-496` の固定の値とし、右の境目（`GR-28`）を持たない'
-const S_425_ABOUT = '利用者が「フィルタマークの幅」と定めた（9px の段で約 23px）'
+const S_425_ABOUT = '利用者が「フィルタマークの幅」と定めた（9px の段で約 29px）'
+// WHY: CR-737 stands IC-122 clear of the border's grab band by S-465 (T-206) on top of the 0.25em padding (T-330 SV-7).
+const S_465_CLEARANCE_PX = 6
 
 let browser: Browser | null = null
 
@@ -164,11 +166,11 @@ test.describe('T-330 SV-18 / T-206 S-425 -- the floor and the right edge', () =>
       const heading = await boxOf(page, `${PANEL} thead th[data-column="SQ-4"] [data-icon="IC-122"]`)
       const font = await fontPxOf(page, PANEL)
       if (heading === null) throw new Error('premise: SQ-4 draws IC-122')
-      const expected = heading.width + 2 * 0.25 * font + 1
+      const expected = heading.width + 2 * 0.25 * font + S_465_CLEARANCE_PX + 1
       expect(drag.after, 'it stopped above nothing').toBeGreaterThan(0)
       expect(Math.abs(drag.after - expected), S_425_ABOUT).toBeLessThanOrEqual(2)
       expect(Math.abs(drag.held - expected), 'it already held the floor while the pointer was far left').toBeLessThanOrEqual(2)
-      expect(Math.abs(drag.after - 23), S_425_ABOUT).toBeLessThanOrEqual(3)
+      expect(Math.abs(drag.after - 29), S_425_ABOUT).toBeLessThanOrEqual(3)
     } finally {
       await stage.close()
     }
