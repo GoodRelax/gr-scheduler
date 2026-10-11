@@ -48,6 +48,7 @@ erDiagram
         CarryElement[] carryElements "Carry"
         整数 outlineBase "Consume"
         列挙 sourceFormat "GRS・3 値"
+        文字列 scheduleDataTimeZone "GRS・地域名"
     }
     Task {
         整数 **uid** PK "Own"
@@ -110,6 +111,7 @@ erDiagram
         整数 **ordinal** PK "GRS"
         整数 dayType "Own・1〜7"
         真偽 dayWorking "Own"
+        WorkingTime[] workingTimes "Consume"
         連想 carry "Carry・文字列→文字列"
         CarryElement[] carryElements "Carry"
     }
@@ -120,8 +122,14 @@ erDiagram
         日時 toDate "Own"
         真偽 dayWorking "Own"
         整数 recurrenceKind "Consume・1〜9"
+        WorkingTime[] workingTimes "Consume"
         連想 carry "Carry・文字列→文字列"
         CarryElement[] carryElements "Carry"
+    }
+    WorkingTime {
+        整数 **ordinal** PK "GRS"
+        時刻 fromTime "Own"
+        時刻 toTime "Own"
     }
     Resource {
         整数 **uid** PK "Own"
@@ -226,6 +234,8 @@ erDiagram
     HighlightBox }o--o| TaskGroup : "囲む範囲の下端のタスクグループ（bottomGroupId）"
     CarryElement ||--o{ CarryElement : "入れ子の子（children）"
     Task |o--o| BaselineTask : "変更前の予定との対応（uid の一致。参照ではない）。対応が無いものは描かない（FR-015）"
+    WeekDay ||--o{ WorkingTime : "曜日の稼働の時間帯（弱エンティティ）"
+    Exception ||--o{ WorkingTime : "例外日の稼働の時間帯（弱エンティティ）"
     Project ||--o{ CarryElement : "carryElements の中身"
     Task ||--o{ CarryElement : "carryElements の中身"
     Dependency ||--o{ CarryElement : "carryElements の中身"
@@ -252,6 +262,7 @@ erDiagram
 | ET-6 | `Calendar` | 暦 1 つ。稼働日と非稼働日を決める | `uid` | 書き出す | あり |
 | ET-7 | `WeekDay` | 曜日ごとの稼働の定め（弱エンティティ） | 親の暦 ＋ `ordinal` | 書き出す | あり |
 | ET-8 | `Exception` | 暦の例外日（弱エンティティ） | 親の暦 ＋ `ordinal` | 書き出す | あり |
+| ET-19 | `WorkingTime` | 1 つの曜日か例外日の稼働の時間帯 1 本（弱エンティティ） | 親の曜日か例外日 ＋ `ordinal` | 書き出す | — |
 | ET-9 | `Resource` | 担当 1 人（または 1 つの資源） | `uid` | 書き出す | あり |
 | ET-10 | `Assignment` | どの担当がどのタスクに就くか | `uid` | 書き出す | あり |
 | ET-11 | `TaskVisual` | タスクの見せ方。形と色。どのタスクもちょうど 1 つ持つ | `taskUid` | **書き出さない** | — |
@@ -293,6 +304,8 @@ erDiagram
 | RL-20 | `HighlightBox` | `TaskGroup` | 0..n ─ 0..1 | 囲む範囲の下端のタスクグループ（`bottomGroupId`） |
 | RL-21 | `CarryElement` | `CarryElement` | 1 ─ 0..n | 入れ子の子（`children`） |
 | RL-22 | `Task` | `BaselineTask` | 0..1 ─ 0..1 | 変更前の予定との対応（`uid` の一致。参照ではない）。対応が無いものは描かない（`FR-015`） |
+| RL-31 | `WeekDay` | `WorkingTime` | 1 ─ 0..n | 曜日の稼働の時間帯（弱エンティティ） |
+| RL-32 | `Exception` | `WorkingTime` | 1 ─ 0..n | 例外日の稼働の時間帯（弱エンティティ） |
 | RL-23 | `Project` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
 | RL-24 | `Task` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
 | RL-25 | `Dependency` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
@@ -337,6 +350,7 @@ erDiagram
 | AT-23 | `Project` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素（表 T-053 の `DF-3`） |
 | AT-139 | `Project` | `outlineBase` | 整数 | 否 | — | Consume | — | 取り込んだファイルのタスクが`OutlineLevel` を数え始める数（`FR-021`。プロジェクトの要約タスクは数えない —— 表 T-265 の `MR-4`）。書き出しはこの数から書く。**既定は `1`** |
 | AT-143 | `Project` | `sourceFormat` | 列挙（3 値） | 否 | — | GRS | — | 文書の元の形式。`grs` ／ `pj12` ／ `pj15`。MSPDI を開いたときに決め（pj15 だけの要素が 1 つでもあれば `pj15`、無ければ `pj12`）、合流では今の文書の値を保つ。MSPDI へは書き出さない。この列を持たない `GRS JSON` は、`carry` に `SaveVersion` があれば同じ見分け方で `pj12` ／ `pj15`、無ければ `grs` として読む |
+| AT-157 | `Project` | `scheduleDataTimeZone` | 文字列（地域名） | 否 | — | GRS | — | 日程データのタイムゾーン —— 保存する日時の数字を、どの地域の現地の時刻として読むか（`01-04-requirements.md` の `FR-156`）。値は同要求の 表 T-376 の地域名。MSPDI を取り込んだ文書と新しく作った文書では、その PC の地域とする（同要求）。⛔ MSPDI へは書き出さない —— 交換相手に置き場が無い |
 | AT-24 | `Task` | `uid` | 整数 | 否 | PK | Own | `Task/UID` | 文書内で一意・不変。**値から意味を読まない** |
 | AT-25 | `Task` | `parentTaskUid` | 整数 | 可（`null` = 根） | FK | Consume | — | 親タスク。交換相手には対応要素が無く、深さと出現順から起こす |
 | AT-26 | `Task` | `wbsOrder` | 整数 | 可 | — | Consume | — | 同じ親の下での並び |
@@ -361,7 +375,7 @@ erDiagram
 | AT-45 | `Dependency` | `predecessorUid` | 整数 | 否 | FK | Consume | `PredecessorLink/PredecessorUID` | 先行タスク。**後続は入れ子の位置が表す** |
 | AT-46 | `Dependency` | `linkType` | 整数（0〜3） | 否 | — | Consume | `PredecessorLink/Type` | 依存の種別。`0` = FF / `1` = FS / `2` = SF / `3` = SS |
 | AT-47 | `Dependency` | `lag` | 整数 | 可 | — | Consume | `PredecessorLink/LinkLag` | ラグ。**単位は `lagFormat` が何であっても 0.1 分である**（`mspdi_pj12.xsd:2196`〜`2198` の `LinkLag`） —— `lagFormat` は表示の単位だけを言い（同 `:2201`〜`2203`）、稼働日で表す形（`7`）では 1 日が `Project.minutesPerDay` 分（空なら `_assets/tbl-settings.md` の `S-128`）である |
-| AT-48 | `Dependency` | `lagFormat` | 整数 | 可 | — | Consume | `PredecessorLink/LagFormat` | ラグを見せる単位。値と記号は交換相手の XSD の列挙（`mspdi_pj12.xsd:2203`）が持つ。⭐ `GRS` が解するのは `7`（稼働日）だけである —— ほかの値は読んで保ち、見せるだけにする（`FR-009`） |
+| AT-48 | `Dependency` | `lagFormat` | 整数 | 可 | — | Consume | `PredecessorLink/LagFormat` | ラグを見せる単位。値と記号は交換相手の XSD の列挙（`mspdi_pj12.xsd:2203`）が持つ。⭐ `GRS` が解するのは `7`（稼働日）・`5`（時）・`3`（分）である —— ほかの値は読んで保ち、見せるだけにする（`FR-009`） |
 | AT-49 | `Dependency` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | `CrossProject` ほか、解釈しないスカラー |
 | AT-50 | `Dependency` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
 | AT-51 | `TaskGroup` | `id` | 文字列（UUID） | 否 | PK | GRS | — | タスクグループの識別子 |
@@ -387,16 +401,21 @@ erDiagram
 | AT-72 | `WeekDay` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順。`GRS` が足す曜日の行（表 T-108 の `CM-39` ほか）は、同じ親の中の最大の次を取る |
 | AT-73 | `WeekDay` | `dayType` | 整数（1〜7） | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayType` | 曜日。**`1` が日曜で、土曜の `7` まで 1 ずつ増える**（正は Chapter 6.2 が指す公式 XSD）。⚠️ **`0` は例外日を表すので本列は採らない** —— 例外日は `Exception` が持つ。⛔ **`Project.weekStartDay` とは番号が 1 ずれる** —— 交換相手が列ごとに別の体系を使っている。 |
 | AT-74 | `WeekDay` | `dayWorking` | 真偽 | 可 | — | Own | `Calendars/Calendar/WeekDays/WeekDay/DayWorking` | 稼働日か |
+| AT-158 | `WeekDay` | `workingTimes` | `WorkingTime[]` | 否（空可） | — | Consume | `Calendars/Calendar/WeekDays/WeekDay/WorkingTimes/WorkingTime` | 時間帯（`WorkingTime` の並び、始まりの順）。空は「時間帯を持たない」であり、稼働日なら `tbl-settings.md` の `S-580` の時間帯で読む（`01-04-requirements.md` の `FR-054`）。⚠️ 公式 XSD は 1 つに 5 つまでとする（`maxOccurs`）—— 上限と並びの不変条件は `05-07-design.md` の 表 T-220 の `IV-24` |
 | AT-75 | `WeekDay` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
-| AT-76 | `WeekDay` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
+| AT-76 | `WeekDay` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
 | AT-77 | `Exception` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順 |
 | AT-78 | `Exception` | `name` | 文字列 | 可 | — | Own | `Calendars/Calendar/Exceptions/Exception/Name` | 例外の名前 |
 | AT-79 | `Exception` | `fromDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/FromDate` | ⚠️ **繰り返しの起点であって実日付の範囲ではない** |
 | AT-80 | `Exception` | `toDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/ToDate` | 同上 |
 | AT-81 | `Exception` | `dayWorking` | 真偽 | 可 | — | Own | `…/Exception/DayWorking` | 稼働日か |
 | AT-82 | `Exception` | `recurrenceKind` | 整数（1〜9） | 可 | — | Consume | `…/Exception/Type` | 繰り返しの種別。`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし（正は Chapter 6.2 が指す公式 XSD）。⭐ 繰り返しの無い例外日とは、本列が `9` か空の行と、`1` で `carry` の `Period`（繰り返しの間隔）が無いか `1` の行である —— 交換相手の公式の例は、1 回きりの休日を `Type` 1・`Occurrences` 1・`EnteredByOccurrences` 0 と書く（Microsoft Learn の Project XML の `Occurrences` の要素の例）。間隔 1 の日次は範囲の毎日であり、範囲そのものである。それ以外の行は繰り返しの例外日であり、稼働日の数えにも塗りにも使わない（`01-04-requirements.md` の `FR-054`） —— 範囲の全日の休みとして数えると、毎年 1 日の祝日が何年ぶんも非稼働になる。`GRS` が足す例外日は `1` とする（`FR-088` の 表 T-344 の `WC-6`）。書き出す形は 表 T-033 の `EX-13` |
+| AT-159 | `Exception` | `workingTimes` | `WorkingTime[]` | 否（空可） | — | Consume | `…/Exception/WorkingTimes/WorkingTime` | 時間帯（`WorkingTime` の並び、始まりの順）。空は「時間帯を持たない」であり、稼働日なら `tbl-settings.md` の `S-580` の時間帯で読む（`01-04-requirements.md` の `FR-054`）。⚠️ 公式 XSD は 1 つに 5 つまでとする（`maxOccurs`）—— 上限と並びの不変条件は `05-07-design.md` の 表 T-220 の `IV-24` |
 | AT-83 | `Exception` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しないスカラー |
-| AT-84 | `Exception` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | `WorkingTimes` ほか |
+| AT-84 | `Exception` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
+| AT-160 | `WorkingTime` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順。`GRS` が書く時間帯は始まりの順に並べる |
+| AT-161 | `WorkingTime` | `fromTime` | 時刻 | 可 | — | Own | `…/WorkingTimes/WorkingTime/FromTime` | 時間帯の始まり（`xsd:time` の字面、1 分の単位） |
+| AT-162 | `WorkingTime` | `toTime` | 時刻 | 可 | — | Own | `…/WorkingTimes/WorkingTime/ToTime` | 時間帯の終わり（`xsd:time` の字面、1 分の単位）。⭐ `00:00:00` は 24:00（その日の終わり）と読む（`05-07-design.md` の 表 T-220 の `IV-24`） |
 | AT-85 | `Resource` | `uid` | 整数 | 否 | PK | Own | `Resource/UID` | 担当の識別子 |
 | AT-86 | `Resource` | `name` | 文字列 | 可 | — | Own | `Resource/Name` | 担当名 |
 | AT-87 | `Resource` | `resourceKind` | 整数 | 可 | — | Own | `Resource/Type` | `0` = 材料 / `1` = 作業 / `2` = 費用 |
@@ -475,8 +494,8 @@ erDiagram
 | DV-5 | `Task` | `outlineLevel` | `Task/OutlineLevel` | `parentTaskUid` の木の深さ。**浅く丸めない**（`FR-004`） |
 | DV-6 | `Task` | `outlineNumber` | `Task/OutlineNumber` | 木の道すじ。**照合の鍵にしない** |
 | DV-7 | `Task` | `summary` | `Task/Summary` | 子を持つかどうか |
-| DV-8 | `Task` | `duration` | `Task/Duration` | `start` の日から `finish` の日までを、両端の日を含めて数えた文書の暦の稼働日の数 × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。⭐ 終わりの日を含めるのは、交換相手の公式の例が、水曜の `08:00:00` に始まり木曜の `17:00:00` に終わるタスクを `PT16H0M0S`（2 稼働日）と書くからである（Microsoft Learn の Project XML の `Task` の要素の例）。⚠️ `FR-054`（時刻を解釈しない）とは矛盾しない —— 数えるのは稼働日であって時刻ではない。**人が編集していないタスクは受け取った値をそのまま返す** |
-| DV-11 | `Task` | `actualDuration` | `Task/ActualDuration` | `FR-011` が日付から数えた実績の長さ × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。**人がそのタスクの実績を編集していないあいだは、取り込んだ原値をそのまま返す**（表 T-019 の注記） |
+| DV-8 | `Task` | `duration` | `Task/Duration` | `start` から `finish` までの、文書の暦の稼働時間の合計（分、`01-04-requirements.md` の `FR-054`）を `PTnHnMnS` で書く。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。⭐ 交換相手の `Duration` の定義（稼働する時間の合計）と同じであり、公式の例は、水曜の `08:00:00` に始まり木曜の `17:00:00` に終わるタスクを `PT16H0M0S` と書く（Microsoft Learn の Project XML の `Task` の要素の例）。**人が編集していないタスクは受け取った値をそのまま返す** |
+| DV-11 | `Task` | `actualDuration` | `Task/ActualDuration` | `FR-011` が日時から数えた実績の長さ（分）。**人がそのタスクの実績を編集していないあいだは、取り込んだ原値をそのまま返す**（表 T-019 の注記） |
 | DV-10 | `Resource` | `id` | `Resource/ID` | 書き出す順に振り直す。**`uid` とは別物** |
 | DV-13 | `Exception` | `occurrences` | `…/Exception/Occurrences` | `carry` に控えた原値。無く、行が `01-04-requirements.md` の 表 T-033 の `EX-13` に当たるときは `1` |
 | DV-14 | `Exception` | `enteredByOccurrences` | `…/Exception/EnteredByOccurrences` | `carry` に控えた原値。無く、行が `EX-13` に当たるときは `0`（範囲を終わりの日で決める） |

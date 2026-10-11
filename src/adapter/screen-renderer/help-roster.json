@@ -164,6 +164,18 @@
    "block": "basics",
    "segment": null,
    "table": "T-023",
+   "row": "MK-17",
+   "keys": null,
+   "press": "MK-17",
+   "glyphs": [],
+   "note": null
+  },
+  {
+   "kind": "item",
+   "column": "HC-1",
+   "block": "basics",
+   "segment": null,
+   "table": "T-023",
    "row": "MK-15",
    "keys": null,
    "press": "MK-15",

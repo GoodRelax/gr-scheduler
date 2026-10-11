@@ -20,6 +20,7 @@ export interface DocumentSettings {
   readonly dateGridLinesVisible: boolean
   readonly dependencyVisible: boolean
   readonly displayScale: 50 | 67 | 75 | 90 | 100 | 110 | 125 | 150 | 175 | 200
+  readonly displayTimeZones: readonly string[]
   readonly fitSpanFinish: string | null
   readonly fitSpanFixed: boolean
   readonly fitSpanStart: string | null
@@ -38,6 +39,7 @@ export interface DocumentSettings {
   readonly scrollDayOffset: number
   readonly scrollGroupId: string | null
   readonly scrollGroupOffset: number
+  readonly showsTimeOfDay: boolean
   readonly stackDirection: 'up' | 'down'
   readonly tableViews: {
     readonly delayDiagnosticsReport: {
@@ -63,6 +65,8 @@ export interface DocumentSettings {
   readonly taskGroupPanelWidth: number
   readonly taskGroupPanelWidthFixed: boolean
   readonly themeMonochrome: boolean
+  /** the source does not say what this holds */
+  readonly viewTimeZone: unknown
   readonly zoomX: number
   readonly zoomY: number
 }
@@ -88,6 +92,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'dateGridLinesVisible': false,
   'dependencyVisible': true,
   'displayScale': 100,
+  'displayTimeZones': [],
   'fitSpanFinish': null,
   'fitSpanFixed': false,
   'fitSpanStart': null,
@@ -106,6 +111,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'scrollDayOffset': 0,
   'scrollGroupId': null,
   'scrollGroupOffset': 0,
+  'showsTimeOfDay': false,
   'stackDirection': 'up',
   'tableViews.delayDiagnosticsReport.columnFilters': [],
   'tableViews.delayDiagnosticsReport.hiddenTaskUids': [],
@@ -123,6 +129,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'taskGroupPanelWidth': 300,
   'taskGroupPanelWidthFixed': false,
   'themeMonochrome': false,
+  'viewTimeZone': null,
   'zoomX': 1,
   'zoomY': 1,
 }
@@ -154,8 +161,8 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
     minExpression: [{ key: 'rulerFont' }, { num: 3 }, { op: '*' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '+' }],
   },
   'taskGroupPanelWidth': { minExpression: [{ num: 16 }, { num: 5 }, { op: '*' }] },
-  'zoomX': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 64 }] },
-  'zoomY': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 64 }] },
+  'zoomX': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 240 }] },
+  'zoomY': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 240 }] },
 }
 
 // see FR-039
@@ -209,6 +216,11 @@ export const SETTINGS_CONSTANTS: {
   }
   readonly groupLevelOfDetailBase: number
   readonly groupLevelOfDetailRatio: number
+  readonly halfHourGridDash: {
+    readonly on: number
+    readonly off: number
+  }
+  readonly halfHourGridPxPerDay: number
   readonly iconHintDelayMs: number
   readonly importMaxBytes: number
   readonly importMaxDate: string
@@ -248,6 +260,7 @@ export const SETTINGS_CONSTANTS: {
   readonly rulerLabelGap: number
   readonly rulerLabelPad: number
   readonly rulerTierPxPerDayDay: number
+  readonly rulerTierPxPerDayHour: number
   readonly rulerTierPxPerDayMonth: number
   readonly rulerTierPxPerDayWeek: number
   readonly shapeHeightOf: {
@@ -272,6 +285,7 @@ export const SETTINGS_CONSTANTS: {
   readonly thinStrokeWidth: number
   readonly truncateUnits: number
   readonly watermarkOpacity: number
+  readonly workingTimesPerDayMax: number
   readonly zoomMax: number
   readonly zoomMin: number
   readonly zoomStep: number
@@ -313,6 +327,11 @@ export const SETTINGS_CONSTANTS: {
   },
   groupLevelOfDetailBase: 0.32,
   groupLevelOfDetailRatio: 1.5,
+  halfHourGridDash: {
+    on: 2,
+    off: 3,
+  },
+  halfHourGridPxPerDay: 576,
   iconHintDelayMs: 300,
   importMaxBytes: 32,
   importMaxDate: '2200-12-31',
@@ -352,6 +371,7 @@ export const SETTINGS_CONSTANTS: {
   rulerLabelGap: 2,
   rulerLabelPad: 2,
   rulerTierPxPerDayDay: 17.5,
+  rulerTierPxPerDayHour: 288,
   rulerTierPxPerDayMonth: 0.5,
   rulerTierPxPerDayWeek: 2,
   shapeHeightOf: {
@@ -376,7 +396,8 @@ export const SETTINGS_CONSTANTS: {
   thinStrokeWidth: 2.8,
   truncateUnits: 48,
   watermarkOpacity: 0.06,
-  zoomMax: 64,
+  workingTimesPerDayMax: 5,
+  zoomMax: 240,
   zoomMin: 0.02,
   zoomStep: 1.1,
   // TRAP: these keys state no machine value, so none is generated:

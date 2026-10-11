@@ -147,7 +147,9 @@ STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 # carries "$schema" first -- and the version became an instant; check 76
 # holds the format.
 # CR-723: documentSettings gained tableViews (the three tables' saved views).
-SCHEMA_VERSION = '2026-10-10T17:02:00Z'
+# CR-710: Project.scheduleDataTimeZone, WeekDay / Exception workingTimes and
+# three settings keys (viewTimeZone, displayTimeZones, showsTimeOfDay).
+SCHEMA_VERSION = '2026-10-11T04:10:00Z'
 # CR-699 (DR-4): the first key of every document this file writes. S-540 of
 # table T-206 holds it; read through the one reader of not-stored strings.
 SCHEMA_ADDRESS = settings_reader.not_stored_string('S-540')
@@ -971,6 +973,11 @@ PROJECT_REVISION = 37
 # constraint and a duration for every task of it. One of the column's three
 # values, not prose, but it is a string, so the neutrality check has to know it.
 PROJECT_SOURCE_FORMAT = 'grs'
+# CR-710 (FR-156, table T-342's BK-4): the time zone the schedule data is
+# read in. A document started afresh takes the region of the PC it is
+# started on, which only the running page knows; the printed documents
+# carry UTC (row ZN-13 of table T-376), and a fresh start rewrites it.
+PRINTED_SCHEDULE_DATA_TIME_ZONE = 'UTC'
 
 # A fixed namespace, so every run writes the same TaskGroup ids. A template
 # that changed its ids each rebuild would show up as a diff in every commit.
@@ -2706,6 +2713,7 @@ class Builder(object):
             'carry': {},
             'carryElements': [],
             'sourceFormat': PROJECT_SOURCE_FORMAT,
+            'scheduleDataTimeZone': PRINTED_SCHEDULE_DATA_TIME_ZONE,
         }
 
     def task_groups(self):
@@ -2753,6 +2761,9 @@ class Builder(object):
             # dayType is the 1 = Sunday encoding; S-106 lists the working ones.
             'weekDays': [{'ordinal': day - 1, 'dayType': day,
                           'dayWorking': day in WORKING_DAY_TYPES,
+                          # CR-710 (FR-054): no spans of its own, so a
+                          # working day is read with S-580.
+                          'workingTimes': [],
                           'carry': {}, 'carryElements': []}
                          for day in range(1, 8)],
             # S-107 keeps the DEFAULT calendar free of exceptions because
@@ -2770,6 +2781,7 @@ class Builder(object):
                  # count one, so a repeating exception here would be days
                  # nothing counts.
                  'recurrenceKind': DAILY_RECURRENCE_KIND,
+                 'workingTimes': [],
                  'carry': {}, 'carryElements': []}
                 for turn, (name, first, last) in enumerate(CALENDAR_EXCEPTIONS)
             ],
@@ -4223,7 +4235,7 @@ def declared_strings(settings):
     said.update((PROJECT_TITLE, PROJECT_NAME, PROJECT_SUBJECT,
                  PROJECT_CATEGORY, PROJECT_COMPANY, PROJECT_MANAGER,
                  PROJECT_AUTHOR, STAMP_AUTHOR, SCHEMA_VERSION, SCHEMA_ADDRESS,
-                 PROJECT_SOURCE_FORMAT))
+                 PROJECT_SOURCE_FORMAT, PRINTED_SCHEDULE_DATA_TIME_ZONE))
     said.update(GLYPHS)
     said.update(SHAPE_KINDS)
     for fill, stroke, weight in AUTHOR_PAINT:

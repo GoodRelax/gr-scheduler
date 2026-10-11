@@ -317,6 +317,6 @@ export const NOT_STORED_ZOOM_BOUNDS: {
   readonly 'S-98': number
 } = {
   'S-97': 0.02,
-  'S-98': 64,
+  'S-98': 240,
 }
 // </generated>

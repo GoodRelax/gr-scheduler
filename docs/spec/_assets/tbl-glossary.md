@@ -286,6 +286,9 @@
 | K-87 | 出力 | `exportCanvas` | SVG / PNG の出力サイズ |
 | K-141 | 表示の切り替え | `fitSpanStart` / `fitSpanFinish` | 全体表示時の期間（開始日 / 終了日） |
 | K-142 | 画面の状態 | `fitSpanFixed` | 全体表示時の期間を固定する |
+| K-144 | 表示の切り替え | `viewTimeZone` | 基準のタイムゾーン |
+| K-145 | 表示の切り替え | `displayTimeZones` | 表示するタイムゾーン |
+| K-146 | 表示の切り替え | `showsTimeOfDay` | 時刻を表示する |
 | K-91 | 予実の補助線 | `planActualGuideWeight` | 補助線の太さ |
 | K-92 | 予実の補助線 | `planActualGuidePattern` | 補助線の破線の刻み |
 | K-93 | 予実の補助線 | `planActualGuideColor` | 補助線の色 |
@@ -426,6 +429,8 @@
 | CM-4 | `Project` | `clearStatusDate` | — | 基準日を消す | `FR-046` |
 | CM-5 | `Project` | `setThemeHue` | — | テーマ色を変える | `FR-041` |
 | CM-87 | `Project` | `setParentProgressTolerance` | — | 親タスクの進捗の疑義が許す日数を変える | `FR-131` |
+| CM-94 | `Project` | `setScheduleDataTimeZone` | — | 日程データのタイムゾーンを付け替える（ローカルタイムを保つ —— 保存の数字は変えない） | `FR-156` |
+| CM-98 | `Project` | `shiftScheduleTimes` | ⭐ | 日程の日時を一斉にずらす（量は分。<br>書き換える列と書き換えない列は `01-04-requirements.md` の 表 T-377 —— 1 回の書き込みとする）。<br>`Agent API` から受けたときは確認の面を経ない（`FR-076` の作法） | `FR-157` |
 | CM-6 | `Task` | `createTask` | ⭐ | タスクを作る | `FR-001` |
 | CM-7 | `Task` | `deleteTask` | — | タスクを消す | `FR-032` |
 | CM-8 | `Task` | `pasteTasks` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない子孫タスクはコピーしない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。<br>`Ctrl` ドラッグのコピーは、ずらす日数と、コピーを載せるタスクグループも運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |
@@ -457,7 +462,7 @@
 | CM-37 | `Dependency` | `deleteDependency` | — | 依存線を消す（先行と後続の組で名指し、その向きの線をすべて —— 1 本だけは `CM-93`） | `FR-032` |
 | CM-93 | `Dependency` | `deleteDependencyAt` | — | 同じ向きの線のうち 1 本を、後続（`successorUid`）・先行（`predecessorUid`）と、後続の依存の並び（`_assets/fig-erd-detail.md` の `AT-42`）でその先行から来る線の中の順（`order`、0 が最初）とで名指して除く。<br>その線が無ければ断る —— 同じ向きの線は線ごとの名を持たず、並びの中の順でしか名指せない | `FR-155` |
 | CM-38 | `Dependency` | `setDependencyLag` | ⭐ | ラグを変える | `FR-009` |
-| CM-39 | `Calendar` | `setCalendar` | ⭐ | 暦（稼働する曜日・例外日）と週の始まりを直す。<br>既定の暦のままなら、暦を 1 つ作ってから直す。<br>例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える —— 規則は `01-04-requirements.md` の `FR-057` の 表 T-350 の前文が持つ | `FR-088` |
+| CM-39 | `Calendar` | `setCalendar` | ⭐ | 暦（稼働する曜日・稼働日の時間帯の 1 組・例外日）と週の始まりを直す。<br>時間帯の 1 組をどの曜日と例外日に書くかは `01-04-requirements.md` の `FR-088` が持つ。<br>既定の暦のままなら、暦を 1 つ作ってから直す。<br>例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える —— 規則は `01-04-requirements.md` の `FR-057` の 表 T-350 の前文が持つ | `FR-088` |
 | CM-40 | `Resource` | `createResource` | — | 担当を足す | `FR-008` |
 | CM-41 | `Resource` | `setResourceName` | — | 担当の名前を変える | `FR-008` |
 | CM-42 | `Resource` | `deleteResource` | — | 選んだ担当を消す | `FR-099` |
@@ -500,6 +505,9 @@
 | CM-90 | 見せ方の群 | `setFitSpanFixed` | ⭐ | 全体表示時の期間を固定する・外す（期間が空なら現在表示中の期間をコピーする —— 表 T-367 の `FX-4`） | `FR-055` |
 | CM-91 | 見せ方の群 | `setTaskGroupPanelWidthFixed` | — | タスクグループパネルの幅を固定する・外す | `FR-052` |
 | CM-92 | 見せ方の群 | `setTableView` | — | 表 1 つの見え方（表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え —— `_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`）を置き換える | `FR-151` |
+| CM-95 | 見せ方の群 | `setViewTimeZone` | — | 見せる基準を変える（グローバルタイム（UTC）を保つ） | `FR-156` |
+| CM-96 | 見せ方の群 | `setDisplayTimeZones` | — | 表示するタイムゾーンを置く（0 〜 4 つ） | `FR-156` |
+| CM-97 | 見せ方の群 | `setShowsTimeOfDay` | — | 時刻を表示するかを置く | `FR-158` |
 | CM-85 | `TaskGroup` | `setTaskGroupTreeState` | — | タスクグループの木の状態を置く | `FR-004`（`_assets/tbl-state-machines.md` の 表 T-328）|
 | CM-76 | `TaskGroup` | `setTaskGroupEditGroup` | — | タスクグループの編集グループを入れる・消す。<br>人だけが使う（表 T-275 の `GP-1`） | `FR-111` |
 | CM-86 | 見せ方の群 | `setLevelZeroTreeState` | — | 段 0 の木の状態を置く | `FR-004`（`_assets/tbl-state-machines.md` の 表 T-328 の根の升）|
@@ -511,7 +519,7 @@
 **Type**: SECTION
 
 **本表はアイコンの全数である**（`FR-029`）。  
-**132 行ある。**  
+**137 行ある。**  
 ⭐ 入口を並べる順は、面ごとに、本表の `群` の欄と行の順が決める —— 同じ面で同じ `群` の行を 1 つの塊に寄せ、塊どうしは塊の最初の行が本表に現れる順に、塊の中は本表の行の順に並べること（MUST）。  
 ⛔ 本表の `群` の欄は、この塊を決めるためだけに在る。  
 画面に刷ってはならない（MUST NOT） —— 規則と理由は `FR-053` が持つ。  
@@ -519,11 +527,11 @@
 **繋ぎ目は行 ID `IC-nn` だけである** —— 図では各図形の下に刷り、本表では第 1 列に立つ。  
 **`面` の欄は 表 T-103 の確定名である。**  
  新しい面の名を作らない。
-⚠️ **本表は英名の欄を持たない** —— 持つと 132 個の確定名を新たに作ることになる。  
+⚠️ **本表は英名の欄を持たない** —— 持つと 137 個の確定名を新たに作ることになる。  
 **表 T-012 の `SH-5` が既に書いている表記だけを使う。**  
 ⭐ `milestoneGlyph` の綴りは `_source/erd.json` が持つ—— 本表にコピーしない。  
 ⚠️ **`図形` の欄を持たないのも同じ理由である。**  
-⭐ **図形を持たない行は無い** —— 全 132 行が 図 F-019 に図形を持つ。  
+⭐ **図形を持たない行は無い** —— 全 137 行が 図 F-019 に図形を持つ。  
 新しく起こした図形を実物と見比べて選び直す義務は 表 T-026 の `RC-13` が持つ。
 
 ⭐ `構え` の欄は、その入口が押されたときポインタが入る 表 T-023b の行である。  
@@ -657,6 +665,9 @@
 | IC-68 | `Resource List` | — | 選ばれていないことを示し、同じ入口で選択する | `FR-099` | — | — |
 | IC-133 | `Holiday Settings` | — | その曜日を稼働日にするか休みにするかを、押すたびに切り替える | 表 T-344 の `WC-2` | — | — |
 | IC-134 | `Holiday Settings` | — | 週の始まりの曜日を選ぶ | 表 T-344 の `WC-3` | — | — |
+| IC-163 | `Holiday Settings` | — | 稼働日の時間帯を 1 本足す（初めの値は 表 T-344 の `WC-8`） | 表 T-344 の `WC-8` | — | — |
+| IC-164 | `Holiday Settings` | — | その行の時間帯を消す | 表 T-344 の `WC-8` | — | — |
+| IC-165 | `Holiday Settings` | — | 時間帯の始まりか終わりの時刻を 1 分の単位で打つ欄 | 表 T-344 の `WC-8` | — | — |
 | IC-135 | `Holiday Settings` | — | 例外日を 1 行加える | 表 T-344 の `WC-6` | — | — |
 | IC-136 | `Holiday Settings` | — | その行の例外日を除く | 表 T-344 の `WC-4` ・ `WC-5` | — | — |
 | IC-137 | `Holiday Settings` | — | 例外日が休みか稼働かを示し、同じ入口で反対にする | 表 T-344 の `WC-4` | — | — |
@@ -673,6 +684,8 @@
 | IC-96 | `Difference Review` | — | 重複しているタスクを、別のものとして両方とも残す（表 T-032a の `MM-2`）| `FR-022` | — | — |
 | IC-97 | `Difference Review` | — | 取り込みをやめ、取り込み前の状態へ戻す（表 T-032a の `MM-4`）| `FR-022` | — | — |
 | IC-139 | `Properties Panel` | — | `GRS` がこのブラウザに持つ値を消し、ページを読み直す（GRS リセット）。<br>⭐ 置き場は文書の設定の面（`IC-17`）の頭、テーマ色の欄の上 —— 規則は `FR-153` が持つ。<br>消すものと残すものは同要求の 表 T-345 が持ち、問い方は 表 T-037 の `NT-7` が持つ（示す文は 表 T-234 の `QN-11`） | `FR-153` | — | — |
+| IC-161 | `Properties Panel` | — | 選んだ選び方（グローバルタイム（UTC）を保つ ／ ローカルタイムを保つ）で、選んだタイムゾーンを基準に当てる | `FR-156` | — | — |
+| IC-162 | `Properties Panel` | — | 入れた量でタイムシフトを実行する（実行の前に問う） | `FR-157` | — | — |
 
 **図 F-019 — アイコンの図形**
 

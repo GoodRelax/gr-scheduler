@@ -276,6 +276,11 @@
      "required": [
       "sameAs"
      ]
+    },
+    {
+     "required": [
+      "spans"
+     ]
     }
    ],
    "properties": {
@@ -387,6 +392,20 @@
      "description": "This cell IS another row's cell. ⛔ The value is not restated: rule 03 forbids copying a value the specification already holds once, and a copy would let the two drift. The printed cell names the row it follows.",
      "type": "string",
      "pattern": "^S-[0-9]+[a-z]?$"
+    },
+    "spans": {
+     "description": "Time spans of one day, each a start and an end in the xsd:time form (HH:MM:SS), in the order a day runs. Table T-209 states the default working times this way (S-580, CR-710): a list of spans is a value the generators read, and a sentence holding the four times is not.",
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": {
+       "type": "string",
+       "pattern": "^[0-9]{2}:[0-9]{2}:[0-9]{2}$"
+      }
+     }
     }
    }
   },

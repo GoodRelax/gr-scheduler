@@ -44,7 +44,7 @@ interface SchemaNode {
 const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   Project: {
     type: ['object'],
-    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'created', 'revision', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'defaultStartTime', 'defaultFinishTime', 'themeHue', 'parentProgressToleranceDays', 'uidHighWaterMark', 'importSeq', 'carry', 'carryElements', 'outlineBase', 'sourceFormat'],
+    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'created', 'revision', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'defaultStartTime', 'defaultFinishTime', 'themeHue', 'parentProgressToleranceDays', 'uidHighWaterMark', 'importSeq', 'carry', 'carryElements', 'outlineBase', 'sourceFormat', 'scheduleDataTimeZone'],
     closed: true,
     properties: {
       id: {
@@ -136,6 +136,9 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       sourceFormat: {
         enum: ['grs', 'pj12', 'pj15'],
+      },
+      scheduleDataTimeZone: {
+        type: ['string'],
       },
     },
   },
@@ -341,7 +344,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   WeekDay: {
     type: ['object'],
-    required: ['ordinal', 'dayType', 'dayWorking', 'carry', 'carryElements'],
+    required: ['ordinal', 'dayType', 'dayWorking', 'workingTimes', 'carry', 'carryElements'],
     closed: true,
     properties: {
       ordinal: {
@@ -354,6 +357,12 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       },
       dayWorking: {
         type: ['boolean', 'null'],
+      },
+      workingTimes: {
+        type: ['array'],
+        items: {
+          ref: 'WorkingTime',
+        },
       },
       carry: {
         ref: 'Carry',
@@ -368,7 +377,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   Exception: {
     type: ['object'],
-    required: ['ordinal', 'name', 'fromDate', 'toDate', 'dayWorking', 'recurrenceKind', 'carry', 'carryElements'],
+    required: ['ordinal', 'name', 'fromDate', 'toDate', 'dayWorking', 'recurrenceKind', 'workingTimes', 'carry', 'carryElements'],
     closed: true,
     properties: {
       ordinal: {
@@ -391,6 +400,12 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         minimum: 1,
         maximum: 9,
       },
+      workingTimes: {
+        type: ['array'],
+        items: {
+          ref: 'WorkingTime',
+        },
+      },
       carry: {
         ref: 'Carry',
       },
@@ -399,6 +414,22 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         items: {
           ref: 'CarryElement',
         },
+      },
+    },
+  },
+  WorkingTime: {
+    type: ['object'],
+    required: ['ordinal', 'fromTime', 'toTime'],
+    closed: true,
+    properties: {
+      ordinal: {
+        type: ['integer'],
+      },
+      fromTime: {
+        ref: 'Time',
+      },
+      toTime: {
+        ref: 'Time',
       },
     },
   },
@@ -826,7 +857,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
     },
     documentSettings: {
       type: ['object'],
-      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'fitSpanFinish', 'fitSpanFixed', 'fitSpanStart', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'stackDirection', 'tableViews', 'taskGroupPanelWidth', 'taskGroupPanelWidthFixed', 'themeMonochrome', 'zoomX', 'zoomY'],
+      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'displayTimeZones', 'fitSpanFinish', 'fitSpanFixed', 'fitSpanStart', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'showsTimeOfDay', 'stackDirection', 'tableViews', 'taskGroupPanelWidth', 'taskGroupPanelWidthFixed', 'themeMonochrome', 'viewTimeZone', 'zoomX', 'zoomY'],
       closed: true,
       properties: {
         actualVisible: {
@@ -846,6 +877,12 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         displayScale: {
           enum: [50, 67, 75, 90, 100, 110, 125, 150, 175, 200],
+        },
+        displayTimeZones: {
+          type: ['array'],
+          items: {
+            type: ['string'],
+          },
         },
         fitSpanFinish: {
           type: ['string', 'null'],
@@ -903,6 +940,9 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         scrollGroupOffset: {
           type: ['number'],
+        },
+        showsTimeOfDay: {
+          type: ['boolean'],
         },
         stackDirection: {
           enum: ['up', 'down'],
@@ -1000,6 +1040,8 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         },
         themeMonochrome: {
           type: ['boolean'],
+        },
+        viewTimeZone: {
         },
         zoomX: {
           type: ['number'],

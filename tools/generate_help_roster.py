@@ -147,7 +147,8 @@ LEFT_OUT_ROWS = ('IC-52', 'IC-53', 'IC-75')
 # a new row, and this script must not decide it.
 # CR-560: FR-036 names MK-15 (the Ctrl drag that copies the Selection).
 # CR-656: FR-036 names MK-16 (the Shift drag that moves to another task group only).
-SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7', 'MK-15', 'MK-16')
+# CR-710: FR-036 names MK-17 (the Alt drag of a grab area that snaps to a minute).
+SHOWN_ASSIGNMENTS = ('MK-2', 'MK-5', 'MK-7', 'MK-15', 'MK-16', 'MK-17')
 UNLISTED_ASSIGNMENTS = ('MK-1', 'MK-6', 'MK-8', 'MK-11', 'MK-13',
                         'MK-9', 'MK-9a', 'MK-10', 'MK-12')
 

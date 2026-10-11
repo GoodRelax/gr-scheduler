@@ -344,6 +344,10 @@
     "entity": "Exception"
    },
    {
+    "id": "WorkingTime",
+    "entity": "WorkingTime"
+   },
+   {
     "id": "CarryElement",
     "entity": "CarryElement"
    }
@@ -403,6 +407,14 @@
     "multiplicity": "1 ─ 0..n",
     "label": {
      "ja": "calendars の各要素の下に入れ子"
+    }
+   },
+   {
+    "from": "schedule",
+    "to": "WorkingTime",
+    "multiplicity": "1 ─ 0..n",
+    "label": {
+     "ja": "曜日と例外日の各要素の下に入れ子"
     }
    },
    {
@@ -927,6 +939,25 @@
      "meaning": {
       "ja": "文書の元の形式。`grs` ／ `pj12` ／ `pj15`。MSPDI を開いたときに決め（pj15 だけの要素が 1 つでもあれば `pj15`、無ければ `pj12`）、合流では今の文書の値を保つ。MSPDI へは書き出さない。この列を持たない `GRS JSON` は、`carry` に `SaveVersion` があれば同じ見分け方で `pj12` ／ `pj15`、無ければ `grs` として読む"
      }
+    },
+    {
+     "seat": 157,
+     "name": "scheduleDataTimeZone",
+     "type": "文字列（地域名）",
+     "nullable": "否",
+     "json": {
+      "kind": "string",
+      "null": false
+     },
+     "key": "",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "日程データのタイムゾーン —— 保存する日時の数字を、どの地域の現地の時刻として読むか（`01-04-requirements.md` の `FR-156`）。値は同要求の 表 T-376 の地域名。MSPDI を取り込んだ文書と新しく作った文書では、その PC の地域とする（同要求）。⛔ MSPDI へは書き出さない —— 交換相手に置き場が無い"
+     },
+     "schemaNote": {
+      "en": "The time zone the schedule data is read in: the stored date-times carry no offset, and this region name (one of the 28 choices of FR-156) says whose local time they are. Not written to MS Project, which has no place for it."
+     }
     }
    ]
   },
@@ -1407,10 +1438,10 @@
      "origin": "Consume",
      "exchange": "PredecessorLink/LagFormat",
      "meaning": {
-      "ja": "ラグを見せる単位。値と記号は交換相手の XSD の列挙（`mspdi_pj12.xsd:2203`）が持つ。⭐ `GRS` が解するのは `7`（稼働日）だけである —— ほかの値は読んで保ち、見せるだけにする（`FR-009`）"
+      "ja": "ラグを見せる単位。値と記号は交換相手の XSD の列挙（`mspdi_pj12.xsd:2203`）が持つ。⭐ `GRS` が解するのは `7`（稼働日）・`5`（時）・`3`（分）である —— ほかの値は読んで保ち、見せるだけにする（`FR-009`）"
      },
      "schemaNote": {
-      "en": "MS Project's LagFormat: the unit the lag is shown in. 7 (working days) is the one GRS reads and the one to write; any other is kept but not counted."
+      "en": "MS Project's LagFormat: the unit the lag is shown in. 7 (working days), 5 (hours) and 3 (minutes) are the ones GRS reads, and GRS writes the unit the lag was typed in; any other is kept but not counted."
      }
     },
     {
@@ -1912,6 +1943,26 @@
      }
     },
     {
+     "seat": 158,
+     "name": "workingTimes",
+     "type": "`WorkingTime[]`",
+     "nullable": "否（空可）",
+     "json": {
+      "kind": "array",
+      "of": {
+       "kind": "ref",
+       "entity": "WorkingTime"
+      },
+      "null": false
+     },
+     "key": "",
+     "origin": "Consume",
+     "exchange": "Calendars/Calendar/WeekDays/WeekDay/WorkingTimes/WorkingTime",
+     "meaning": {
+      "ja": "時間帯（`WorkingTime` の並び、始まりの順）。空は「時間帯を持たない」であり、稼働日なら `tbl-settings.md` の `S-580` の時間帯で読む（`01-04-requirements.md` の `FR-054`）。⚠️ 公式 XSD は 1 つに 5 つまでとする（`maxOccurs`）—— 上限と並びの不変条件は `05-07-design.md` の 表 T-220 の `IV-24`"
+     }
+    },
+    {
      "seat": 75,
      "name": "carry",
      "type": "連想（文字列→文字列）",
@@ -1947,7 +1998,7 @@
      "origin": "Carry",
      "exchange": "",
      "meaning": {
-      "ja": "`WorkingTimes` ほか"
+      "ja": "行にならなかった子要素"
      }
     }
    ]
@@ -2073,6 +2124,26 @@
      }
     },
     {
+     "seat": 159,
+     "name": "workingTimes",
+     "type": "`WorkingTime[]`",
+     "nullable": "否（空可）",
+     "json": {
+      "kind": "array",
+      "of": {
+       "kind": "ref",
+       "entity": "WorkingTime"
+      },
+      "null": false
+     },
+     "key": "",
+     "origin": "Consume",
+     "exchange": "…/Exception/WorkingTimes/WorkingTime",
+     "meaning": {
+      "ja": "時間帯（`WorkingTime` の並び、始まりの順）。空は「時間帯を持たない」であり、稼働日なら `tbl-settings.md` の `S-580` の時間帯で読む（`01-04-requirements.md` の `FR-054`）。⚠️ 公式 XSD は 1 つに 5 つまでとする（`maxOccurs`）—— 上限と並びの不変条件は `05-07-design.md` の 表 T-220 の `IV-24`"
+     }
+    },
+    {
      "seat": 83,
      "name": "carry",
      "type": "連想（文字列→文字列）",
@@ -2108,7 +2179,72 @@
      "origin": "Carry",
      "exchange": "",
      "meaning": {
-      "ja": "`WorkingTimes` ほか"
+      "ja": "行にならなかった子要素"
+     }
+    }
+   ]
+  },
+  {
+   "seat": 19,
+   "name": "WorkingTime",
+   "description": {
+    "ja": "1 つの曜日か例外日の稼働の時間帯 1 本（弱エンティティ）",
+    "en": "One working time span of a weekday or an exception day."
+   },
+   "export": true,
+   "carry": false,
+   "key_note": {
+    "ja": "親の曜日か例外日 ＋ `ordinal`"
+   },
+   "columns": [
+    {
+     "seat": 160,
+     "name": "ordinal",
+     "type": "整数",
+     "nullable": "否",
+     "json": {
+      "kind": "integer",
+      "null": false
+     },
+     "key": "PK",
+     "origin": "GRS",
+     "exchange": "",
+     "meaning": {
+      "ja": "親の中での出現順。`GRS` が書く時間帯は始まりの順に並べる"
+     }
+    },
+    {
+     "seat": 161,
+     "name": "fromTime",
+     "type": "時刻",
+     "nullable": "可",
+     "json": {
+      "kind": "string",
+      "isTime": true,
+      "null": true
+     },
+     "key": "",
+     "origin": "Own",
+     "exchange": "…/WorkingTimes/WorkingTime/FromTime",
+     "meaning": {
+      "ja": "時間帯の始まり（`xsd:time` の字面、1 分の単位）"
+     }
+    },
+    {
+     "seat": 162,
+     "name": "toTime",
+     "type": "時刻",
+     "nullable": "可",
+     "json": {
+      "kind": "string",
+      "isTime": true,
+      "null": true
+     },
+     "key": "",
+     "origin": "Own",
+     "exchange": "…/WorkingTimes/WorkingTime/ToTime",
+     "meaning": {
+      "ja": "時間帯の終わり（`xsd:time` の字面、1 分の単位）。⭐ `00:00:00` は 24:00（その日の終わり）と読む（`05-07-design.md` の 表 T-220 の `IV-24`）"
      }
     }
    ]
@@ -3560,6 +3696,34 @@
    "noReference": {
     "ja": "`uid` の一致であって参照ではない（`FR-015`）"
    }
+  },
+  {
+   "seat": 31,
+   "parent": "WeekDay",
+   "child": "WorkingTime",
+   "multiplicity": "1 ─ 0..n",
+   "label": {
+    "ja": "曜日の稼働の時間帯（弱エンティティ）"
+   },
+   "fromColumn": null,
+   "toColumn": null,
+   "noReference": {
+    "ja": "弱エンティティ。入れ子の位置が表す"
+   }
+  },
+  {
+   "seat": 32,
+   "parent": "Exception",
+   "child": "WorkingTime",
+   "multiplicity": "1 ─ 0..n",
+   "label": {
+    "ja": "例外日の稼働の時間帯（弱エンティティ）"
+   },
+   "fromColumn": null,
+   "toColumn": null,
+   "noReference": {
+    "ja": "弱エンティティ。入れ子の位置が表す"
+   }
   }
  ],
  "derived": [
@@ -3641,7 +3805,7 @@
    "name": "duration",
    "exchange": "Task/Duration",
    "source": {
-    "ja": "`start` の日から `finish` の日までを、両端の日を含めて数えた文書の暦の稼働日の数 × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。⭐ 終わりの日を含めるのは、交換相手の公式の例が、水曜の `08:00:00` に始まり木曜の `17:00:00` に終わるタスクを `PT16H0M0S`（2 稼働日）と書くからである（Microsoft Learn の Project XML の `Task` の要素の例）。⚠️ `FR-054`（時刻を解釈しない）とは矛盾しない —— 数えるのは稼働日であって時刻ではない。**人が編集していないタスクは受け取った値をそのまま返す**"
+    "ja": "`start` から `finish` までの、文書の暦の稼働時間の合計（分、`01-04-requirements.md` の `FR-054`）を `PTnHnMnS` で書く。マイルストーン（`Task.milestone` が真）は `PT0H0M0S`。⭐ 交換相手の `Duration` の定義（稼働する時間の合計）と同じであり、公式の例は、水曜の `08:00:00` に始まり木曜の `17:00:00` に終わるタスクを `PT16H0M0S` と書く（Microsoft Learn の Project XML の `Task` の要素の例）。**人が編集していないタスクは受け取った値をそのまま返す**"
    }
   },
   {
@@ -3650,7 +3814,7 @@
    "name": "actualDuration",
    "exchange": "Task/ActualDuration",
    "source": {
-    "ja": "`FR-011` が日付から数えた実績の長さ × `Project.minutesPerDay`（空のときは 表 T-209 の `S-128`）。**人がそのタスクの実績を編集していないあいだは、取り込んだ原値をそのまま返す**（表 T-019 の注記）"
+    "ja": "`FR-011` が日時から数えた実績の長さ（分）。**人がそのタスクの実績を編集していないあいだは、取り込んだ原値をそのまま返す**（表 T-019 の注記）"
    }
   },
   {
