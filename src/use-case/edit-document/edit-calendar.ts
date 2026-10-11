@@ -3,12 +3,17 @@
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import {
   dayOf,
   isSameDay,
+  isSameWorkingTimeSet,
   textOfDayEnd,
   textOfDayStart,
+  weekDayOf,
   workingCalendarOf,
+  workingTimeSetOf,
+  workingTimesBreach,
 } from '../../entity/document-model/schedule/schedule'
 import type {
   Calendar,
@@ -17,6 +22,8 @@ import type {
   Project,
   Schedule,
   WeekDay,
+  WorkingCalendar,
+  WorkingTime,
 } from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
 import type { EditReport, EditResult, Refusal } from './edit-document'
@@ -32,6 +39,8 @@ export type CalendarCommand =
       readonly weekStartDay?: number | null
       // WHY: the whole list after the edit (T-344 WC-4..WC-6); omitted leaves the list as it is.
       readonly exceptions?: readonly Exception[]
+      // WHY: the one set of WC-8; omitted leaves every day's spans as they are.
+      readonly workingTimes?: readonly WorkingTime[]
     }
 
 const DAY_TYPES = [1, 2, 3, 4, 5, 6, 7] as const
@@ -41,31 +50,9 @@ const DAY_TYPES = [1, 2, 3, 4, 5, 6, 7] as const
 export function editCalendar(document: Document, command: CalendarCommand): EditResult {
   switch (command.kind) {
     case 'setCalendar': {
-      const { workingDayTypes, weekStartDay, exceptions } = command
+      const { workingDayTypes, exceptions, workingTimes } = command
       const schedule = document.schedule
-      const refusals: Refusal[] = []
-
-      if (workingDayTypes !== undefined) {
-        for (const dayType of workingDayTypes) {
-          if (!isDayType(dayType)) {
-            refusals.push(reject('CM-39', 'AT-73', `dayType outside 1..7: ${dayType}`))
-          }
-        }
-
-        if (!workingDayTypes.some(isDayType)) {
-          refusals.push(
-            reject('CM-39', 'FR-088', 'the document calendar would work no weekday at all'),
-          )
-        }
-      }
-
-      if (
-        weekStartDay !== undefined &&
-        weekStartDay !== null &&
-        (!Number.isInteger(weekStartDay) || weekStartDay < 0 || weekStartDay > 6)
-      ) {
-        refusals.push(reject('CM-39', 'AT-17', `weekStartDay outside 0..6: ${weekStartDay}`))
-      }
+      const refusals = refusalsOf(command)
 
       // TRAP: compare by identity, not uid: the T-209 default is built, and its uid can match a real row.
       const within = workingCalendarOf(schedule)
@@ -74,10 +61,10 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
       if (refusals.length > 0) return refused(refusals)
 
       // TRAP: keep the old reference when nothing moved; document-change-plan.ts reads a new one as a change.
-      const reworked = withExceptions(
+      const reworked = withWorkingTimes(withExceptions(
         workingDayTypes === undefined ? within.calendar : withWorkingDayTypes(within.calendar, workingDayTypes),
         exceptions,
-      )
+      ), within, workingTimes)
       const held =
         reworked === within.calendar
           ? { calendars: schedule.calendars, project: schedule.project }
@@ -88,6 +75,7 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
               }
             : withMadeCalendar(schedule, reworked)
       const calendars = held.calendars
+      const weekStartDay = command.weekStartDay
       const project =
         weekStartDay === undefined || weekStartDay === held.project.weekStartDay
           ? held.project
@@ -108,6 +96,53 @@ export function editCalendar(document: Document, command: CalendarCommand): Edit
   }
 }
 
+// see CM-39, AT-73, AT-17, IV-24
+/** @purity pure */
+function refusalsOf(command: CalendarCommand): Refusal[] {
+  const { workingDayTypes, weekStartDay, workingTimes } = command
+  const refusals: Refusal[] = []
+  for (const dayType of workingDayTypes ?? []) {
+    if (!isDayType(dayType)) refusals.push(reject('CM-39', 'AT-73', `dayType outside 1..7: ${dayType}`))
+  }
+  if (workingDayTypes !== undefined && !workingDayTypes.some(isDayType)) {
+    refusals.push(reject('CM-39', 'FR-088', 'the document calendar would work no weekday at all'))
+  }
+  if (weekStartDay !== undefined && weekStartDay !== null
+    && (!Number.isInteger(weekStartDay) || weekStartDay < 0 || weekStartDay > 6)) {
+    refusals.push(reject('CM-39', 'AT-17', `weekStartDay outside 0..6: ${weekStartDay}`))
+  }
+  const breach = workingTimes === undefined ? null : workingTimesBreach(workingTimes, SETTINGS_CONSTANTS.workingTimesPerDayMax)
+  if (breach !== null) refusals.push(reject('CM-39', 'IV-24', breach))
+  if (workingTimes !== undefined && workingTimes.length === 0) {
+    refusals.push(reject('CM-39', 'IV-24', 'the working time set holds no span'))
+  }
+  return refusals
+}
+
+// see FR-088, WC-8
+// WHY: a weekday holding another set keeps it (FR-088), and so does an exception holding its own spans.
+/** @purity pure */
+function withWorkingTimes(
+  calendar: Calendar,
+  before: WorkingCalendar,
+  workingTimes: readonly WorkingTime[] | undefined,
+): Calendar {
+  if (workingTimes === undefined) return calendar
+  const heldSet = workingTimeSetOf(before).workingTimes
+  const wasWorking = new Set(before.weekDays.filter((one) => one.dayWorking === true).map((one) => one.dayType))
+  const takes = (one: WeekDay): boolean => one.dayType !== null && one.dayWorking === true
+    && (!wasWorking.has(one.dayType) || one.workingTimes.length === 0 || isSameWorkingTimeSet(one.workingTimes, heldSet))
+  const heldOrdinals = new Set(before.exceptions.map((one) => one.ordinal))
+  const added = (one: Exception): boolean =>
+    !heldOrdinals.has(one.ordinal) && one.dayWorking === true && one.workingTimes.length === 0
+  const weekDays = calendar.weekDays.map((one) => takes(one) && !isSameWorkingTimeSet(one.workingTimes, workingTimes)
+    ? { ...one, workingTimes } : one)
+  const exceptions = calendar.exceptions.map((one) => added(one) ? { ...one, workingTimes } : one)
+  const moved = weekDays.some((one, index) => one !== calendar.weekDays[index])
+    || exceptions.some((one, index) => one !== calendar.exceptions[index])
+  return moved ? { ...calendar, weekDays, exceptions } : calendar
+}
+
 /** @purity pure */
 function withWorkingDayTypes(calendar: Calendar, workingDayTypes: readonly number[]): Calendar {
   const worked = new Set<number>(workingDayTypes)
@@ -125,7 +160,7 @@ function withWorkingDayTypes(calendar: Calendar, workingDayTypes: readonly numbe
   for (const dayType of DAY_TYPES) {
     if (!worked.has(dayType)) continue
     if (held.some((one) => one.dayType === dayType)) continue
-    held.push({ ordinal: nextOrdinal, dayType, dayWorking: true, carry: {}, carryElements: [] })
+    held.push(weekDayOf(nextOrdinal, dayType, true))
     nextOrdinal += 1
     changed = true
   }
@@ -146,7 +181,8 @@ function isSameException(left: Exception, right: Exception): boolean {
       isSameDay(left.toDate, right.toDate) &&
       left.dayWorking === right.dayWorking &&
       left.recurrenceKind === right.recurrenceKind &&
-      JSON.stringify([left.carry, left.carryElements]) === JSON.stringify([right.carry, right.carryElements]))
+      JSON.stringify([left.workingTimes, left.carry, left.carryElements])
+        === JSON.stringify([right.workingTimes, right.carry, right.carryElements]))
   )
 }
 

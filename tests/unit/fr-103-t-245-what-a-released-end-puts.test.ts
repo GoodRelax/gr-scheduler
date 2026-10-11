@@ -439,7 +439,8 @@ describe('FR-103 -- the manuscript this file is driven by', () => {
   it('table T-220 still holds IV-10, IV-12 and IV-14 as the refusals FR-103 points at', () => {
     expect(DESIGN).toContain('| IV-10 | `start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと |')
     expect(DESIGN).toContain('| IV-12 | `fadeInDays` と `fadeOutDays` の和が、その `Task` の期間を超えないこと。')
-    expect(DESIGN).toContain('| IV-14 | 日付の列が、日として読め、受け入れる日付の範囲に収まること。')
+    // WHY: CR-710 reads date-time columns as instants (IV-14, FR-054).
+    expect(DESIGN).toContain('| IV-14 | 日付と日時の列が、日時として読め（時刻は 1 分の単位）、受け入れる日付の範囲に収まること。')
   })
 })
 
@@ -556,7 +557,7 @@ describe('table T-245 GO-2 -- the plan end', () => {
     expect(dayPart(taskOf(built.loop, EDGE_UID).finish)).toBe(released)
   })
 
-  it('IV-14: 日付の列が、日として読め、受け入れる日付の範囲に収まること -- a finish released past S-120 lands nothing', () => {
+  it('IV-14: 日付と日時の列が、日時として読め、受け入れる日付の範囲に収まること -- a finish released past S-120 lands nothing', () => {
     const built = stage(edgeDocument())
     const before = structuredClone(taskOf(built.loop, EDGE_UID))
     const releaseX = columnFrom(built.loop, planBox(built.loop, EDGE_UID).x1, 12)

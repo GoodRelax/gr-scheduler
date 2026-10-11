@@ -9,6 +9,7 @@ import {
   dayOf,
   isNonRecurringException,
   isWorkingDay,
+  weekDayOf,
   workingCalendarOf,
   type CalendarDay,
   type Exception,
@@ -261,13 +262,8 @@ export function bandWidthOf(input: Pick<GridInput, 'area' | 'settings'>): number
   return input.area.width + input.settings.canvasPadding
 }
 
-const EVERY_WEEKDAY_WORKS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) => ({
-  ordinal,
-  dayType,
-  dayWorking: true,
-  carry: {},
-  carryElements: [],
-}))
+const EVERY_WEEKDAY_WORKS: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType, ordinal) =>
+  weekDayOf(ordinal, dayType, true))
 
 // see OD-1, OD-2
 // WHY: weekdays that all work leave only the days an Exception made non-working.

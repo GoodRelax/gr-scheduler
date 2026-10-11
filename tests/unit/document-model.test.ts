@@ -331,6 +331,7 @@ const weekDays: readonly WeekDay[] = [1, 2, 3, 4, 5, 6, 7].map((dayType) => ({
   ordinal: dayType,
   dayType,
   dayWorking: dayType !== 1 && dayType !== 7, // S-106: Monday to Friday
+  workingTimes: [],
   carry: {},
   carryElements: [],
 }))
@@ -354,6 +355,7 @@ const holiday: Exception = {
   toDate: '2026-08-19T00:00:00',
   dayWorking: false,
   recurrenceKind: 1,
+  workingTimes: [],
   carry: {},
   carryElements: [],
 }

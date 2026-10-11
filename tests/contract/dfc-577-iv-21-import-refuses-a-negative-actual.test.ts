@@ -34,8 +34,9 @@ const IV_21_NOT_BELOW_ZERO =
 
 const IV_21_FLOOR_IS_NOT_ITS_CONCERN = '⚠️ **0 以上で床を下回る値は本行の対象ではない**'
 
+// WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_011_NEGATIVE_LENGTH =
-  '最後の日が `actualStart` より前のときの長さは、最後の日から `actualStart` の前日までの稼働日の数に負の符号を付けたものとする。'
+  '終わりが `actualStart` より前のときの長さは、終わりから `actualStart` までの稼働時間の合計に負の符号を付けたものとする。'
 
 const OP_5_REGARDLESS_OF_PATH = '経路によらず `FR-023` の検証を通すこと（MUST）。'
 
@@ -102,6 +103,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   importSeq: 0,
   outlineBase: 1,
   sourceFormat: 'grs',
+  scheduleDataTimeZone: 'UTC',
   carry: {},
   carryElements: [],
   ...part,

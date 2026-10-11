@@ -24,12 +24,14 @@ import { bare, specTable, unbroken } from './spec-table'
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
+// WHY: CR-710 retired the day count; the plan is now FR-011's working time in minutes (FR-054).
 const FR_012_PLAN_BY_FR_011 =
-  'ずれも稼働日）で算出して格納し、**人に直接入力させないこと（MUST NOT）。**⭐ **予定の期間は、`start` の日から `finish` の日までを、`FR-011` が実績の長さを数える規則で数えた日数とすること（MUST）'
+  '⭐ **予定の期間は、`start` から `finish` までを、`FR-011` が実績の長さを数える規則で数えた稼働時間（分）とすること（MUST）'
 const FR_012_MILESTONE_ZERO = 'マイルストーンの予定の期間は 0 とする —— 長さを持たない点である（`FR-011` と同じ扱い）。'
 const FR_012_ON_PLAN_IS_100 =
-  '⇒ 予定どおりの日に始めて予定どおりの日に終えたタスクは 100 であり、開始日と終了日が同じタスクの予定の期間は 1 日である。'
-const FR_011_ENDS_COUNT = '⭐ ただし両端の日（`actualStart` と最後の日）は、非稼働日であっても 1 日として数えること（MUST）'
+  '⇒ 予定どおりに始めて予定どおりに終えたタスクは 100 であり、同じ日の 08:00 〜 17:00 のタスクの予定の期間は、既定の時間帯の暦で 480 分（1d）である。'
+const FR_011_ENDS_COUNT =
+  '⭐ ただし、端（`actualStart` か終わり）を持つ日が非稼働日であるときは、その日を稼働日の時間帯（`FR-088` の 表 T-344 の `WC-8` の 1 組）で稼働したものとして数えること（MUST）'
 const EP_9_S_149 =
   ' | 操作子としては描かない。境界の線を描く | 境界が消えるとタスクグループ見出しと日程の境目が読めない。`Group Grid Lines`（`U-18`）と同じ太さの線を 1 本、表 T-236 の `S-149`（罫の色）で引くこと（MUST）'
 const EP_9_NOT_S_165 = '⚠️ 色はグループ罫線の `S-165` ではない'
@@ -62,7 +64,9 @@ const MON_TO_FRI_CALENDARS = (TEMPLATE['schedule']['calendars'] as Record<string
 }))
 
 // WHY: January 2026 runs Mon 5, Tue 6, Wed 7, Thu 8, Fri 9, Sat 10, Sun 11, Mon 12.
-const day = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T00:00:00`
+// WHY: the times GRS writes (T-350): a start side at 08:00 and a finish side at 17:00, so a day is a whole day (FR-054).
+const day = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T08:00:00`
+const dayEnd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T17:00:00`
 
 const taskRow = (uid: number, part: Record<string, unknown>): Record<string, unknown> => ({
   uid,
@@ -70,7 +74,7 @@ const taskRow = (uid: number, part: Record<string, unknown>): Record<string, unk
   wbsOrder: uid,
   name: `T${uid}`,
   start: day(5),
-  finish: day(6),
+  finish: dayEnd(6),
   milestone: false,
   deadline: null,
   notes: null,
@@ -91,7 +95,7 @@ const taskRow = (uid: number, part: Record<string, unknown>): Record<string, unk
 
 const finished = (from: number, to: number): Record<string, unknown> => ({
   actualStart: day(from),
-  actualFinish: day(to),
+  actualFinish: dayEnd(to),
   resumeValid: false,
 })
 
@@ -105,37 +109,37 @@ const CASES: readonly Case[] = [
   { name: 'a Mon-Tue plan finished Mon-Tue reads 100', row: taskRow(1, { ...finished(5, 6) }), expected: 100 },
   {
     name: 'a start = finish plan finished in its one day reads 100',
-    row: taskRow(2, { start: day(7), finish: day(7), ...finished(7, 7) }),
+    row: taskRow(2, { start: day(7), finish: dayEnd(7), ...finished(7, 7) }),
     expected: 100,
   },
   {
     name: 'a start = finish plan finished in two days reads 200',
-    row: taskRow(3, { start: day(7), finish: day(7), ...finished(7, 8) }),
+    row: taskRow(3, { start: day(7), finish: dayEnd(7), ...finished(7, 8) }),
     expected: 200,
   },
   {
     name: 'a milestone with actualFinish reads 100',
-    row: taskRow(4, { start: day(7), finish: day(7), milestone: true, ...finished(7, 7) }),
+    row: taskRow(4, { start: day(7), finish: dayEnd(7), milestone: true, ...finished(7, 7) }),
     expected: 100,
   },
   {
     name: 'a milestone without actualFinish reads 0',
-    row: taskRow(5, { start: day(7), finish: day(7), milestone: true }),
+    row: taskRow(5, { start: day(7), finish: dayEnd(7), milestone: true }),
     expected: 0,
   },
   {
     name: 'a plan ending on a Saturday, finished on plan, reads 100 (both end days count, FR-011)',
-    row: taskRow(6, { start: day(5), finish: day(10), ...finished(5, 10) }),
+    row: taskRow(6, { start: day(5), finish: dayEnd(10), ...finished(5, 10) }),
     expected: 100,
   },
   {
     name: 'a Mon-Tue plan running one day (Mon) reads 50',
-    row: taskRow(7, { actualStart: day(5), stop: day(5), resumeValid: true }),
+    row: taskRow(7, { actualStart: day(5), stop: dayEnd(5), resumeValid: true }),
     expected: 50,
   },
   {
     name: 'a Mon-Fri plan finished the next Monday reads 120 (six worked days over five)',
-    row: taskRow(8, { start: day(5), finish: day(9), ...finished(5, 12) }),
+    row: taskRow(8, { start: day(5), finish: dayEnd(9), ...finished(5, 12) }),
     expected: 120,
   },
 ]
@@ -305,23 +309,23 @@ describe(`EP-9 (MUST): ${EP_9_S_149}`, () => {
 
 // see FR-012, DFC-682
 // WHY: the Nth weekday counting from Monday 2026-01-05, so a "40 working day" plan needs no calendar arithmetic in the cases.
-const weekday = (nth: number): string => {
+const weekday = (nth: number, time = '08:00:00'): string => {
   const date = new Date(Date.UTC(2026, 0, 5))
   let counted = 1
   while (counted < nth) {
     date.setUTCDate(date.getUTCDate() + 1)
     if (date.getUTCDay() !== 0 && date.getUTCDay() !== 6) counted += 1
   }
-  return date.toISOString().slice(0, 19)
+  return `${date.toISOString().slice(0, 10)}T${time}`
 }
 
 const roundingCase = (uid: number, name: string, planDays: number, actualDays: number, expected: number): Case => ({
   name,
   row: taskRow(uid, {
     start: weekday(1),
-    finish: weekday(planDays),
+    finish: weekday(planDays, '17:00:00'),
     actualStart: weekday(1),
-    actualFinish: weekday(actualDays),
+    actualFinish: weekday(actualDays, '17:00:00'),
     resumeValid: false,
   }),
   expected,

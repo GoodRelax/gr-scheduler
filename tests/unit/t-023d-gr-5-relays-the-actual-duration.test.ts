@@ -79,6 +79,8 @@ const PLAIN_UID = 1
 const MILESTONE_UID = 2
 
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
+// WHY: a finish side at 17:00 (T-350), so the instant reading of FR-054 keeps the day whole (CR-710).
+const dayEnd = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T17:00:00`
 
 const dayPart = (value: string | null): string => {
   if (value === null) throw new Error('the column this case reads holds nothing')
@@ -86,9 +88,9 @@ const dayPart = (value: string | null): string => {
 }
 
 const PLAIN_START = day(6)
-const PLAIN_FINISH = day(24)
+const PLAIN_FINISH = dayEnd(24)
 const PLAIN_ACTUAL_START = day(9)
-const PLAIN_LAST_DAY = day(14)
+const PLAIN_LAST_DAY = dayEnd(14)
 
 const MILESTONE_DAY = day(13)
 const MILESTONE_ACTUAL_START = day(17)

@@ -49,6 +49,7 @@ function exceptionRow(part: Partial<Exception>): Exception {
     toDate: '2026-04-20T23:59:00',
     dayWorking: false,
     recurrenceKind: DAILY_RECURRENCE_KIND,
+    workingTimes: [],
     carry: {},
     carryElements: [],
     ...part,

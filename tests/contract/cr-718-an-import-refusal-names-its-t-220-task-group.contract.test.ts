@@ -23,7 +23,8 @@ const NO_FALL_TO_A_T_233_ROW =
 const A_REFUSAL_VALUE_CARRIES_THE_ROW_ID =
   '⭐ 取り込みの検証（`FR-023`）が拒んだときの理由の区分は、拒んだ `05-07-design.md` の 表 T-220 の行の行 ID とすること（MUST）'
 const IV_10 = '`start` と `finish` がともに非 `null` の `Task` で、`finish` が `start` より前でないこと'
-const IV_14 = '日付の列が、日として読め、受け入れる日付の範囲に収まること。'
+// WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
+const IV_14 = '日付と日時の列が、日時として読め（時刻は 1 分の単位）、受け入れる日付の範囲に収まること。'
 
 const t220Row = (rowId: string) => {
   const found = specTable('T-220').rows.find((one) => one.id === rowId)
@@ -102,6 +103,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   importSeq: 0,
   outlineBase: 1,
   sourceFormat: 'grs',
+  scheduleDataTimeZone: 'UTC',
   carry: {},
   carryElements: [],
   ...part,

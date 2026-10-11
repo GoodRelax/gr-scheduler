@@ -190,6 +190,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   importSeq: 0,
   outlineBase: 1,
   sourceFormat: 'grs',
+  scheduleDataTimeZone: 'UTC',
   carry: {},
   carryElements: [],
   ...part,

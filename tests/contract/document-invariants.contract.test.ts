@@ -254,6 +254,7 @@ const workedWeekDays = (): readonly WeekDay[] =>
     ordinal: i + 1,
     dayType,
     dayWorking: true,
+    workingTimes: [],
     carry: {},
     carryElements: [],
   }))
@@ -303,6 +304,7 @@ const PROJECT: Project = {
   importSeq: 3,
   outlineBase: 1,
   sourceFormat: 'grs',
+  scheduleDataTimeZone: 'UTC',
   carry: {},
   carryElements: [],
 }
@@ -499,6 +501,7 @@ const EXCEPTION_ONE: Exception = {
   toDate: null,
   dayWorking: null,
   recurrenceKind: null,
+  workingTimes: [],
   carry: {},
   carryElements: [],
 }

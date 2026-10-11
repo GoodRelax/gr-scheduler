@@ -53,8 +53,9 @@ const GO_3_WHICH_COLUMN =
 
 const GO_3_REST_DAY = '離した日が非稼働日であっても、その日を最後の日とすること（MUST）'
 
+// WHY: CR-710 rewrote this clause (FR-054 reads instants and counts working time in minutes).
 const FR_011_SAME_DAY_IS_ONE =
-  '⭐ 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）。'
+  '⭐ 実績の開始と終わりが同じ日の 08:00 〜 17:00 であるとき、その実績は 480 分（1d）である（下の段の数え方、既定の時間帯の暦）。'
 
 const FR_011_RIGHT_END_IS_A_POSITION =
   '⭐ **本要求の「実績バーの右端」は位置であって終了日ではない** —— 実績の最後の日の翌暦日の列の左端であり、実績の終了日は最後の日そのものである。'
@@ -432,7 +433,7 @@ describe('GO-3: 離した日は実績の最後の日として置き、実績バ�
   })
 
   for (const uid of [RUNNING_UID, FINISHED_UID]) {
-    it(`released on the actual start day (Task ${uid}): 実績の開始日と終了日が同じ日であるとき、その実績は 1 日とすること（MUST）`, () => {
+    it(`released on the actual start day (Task ${uid}): 実績の開始と終わりが同じ日の 08:00 〜 17:00 は 480 分（1d）`, () => {
       const { released, before, after } = actualEndReleasedOn(uid, '2026-04-09')
       expect(released, 'premise: the actual start day').toBe(dayPart(before.actualStart))
       expect(lengthFromTo(dayPart(after.actualStart), lastDayOf(after)), FR_011_SAME_DAY_IS_ONE).toBe(S_129)

@@ -60,6 +60,7 @@ const weekDaysOf = (working: readonly number[]): readonly WeekDay[] =>
     ordinal,
     dayType,
     dayWorking: working.includes(dayType),
+    workingTimes: [],
     carry: {},
     carryElements: [],
   }))
@@ -401,6 +402,7 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
         toDate: '2026-08-15T00:00:00',
         dayWorking: false,
         recurrenceKind: 1,
+        workingTimes: [],
         carry: { EnteredByOccurrences: '0' },
         carryElements: [],
       },
@@ -461,10 +463,10 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
 // moves although no date moved.
 // ---------------------------------------------------------------------------
 
-const PLAN_START = '2026-09-07T00:00:00' // Monday
-const PLAN_FINISH = '2026-09-14T00:00:00' // the Monday after; a worked day of the plan (CR-667)
+const PLAN_START = '2026-09-07T08:00:00' // Monday
+const PLAN_FINISH = '2026-09-14T17:00:00' // the Monday after; a worked day of the plan (CR-667)
 const WORKED_DAYS = 3
-const WORKED_LAST_DAY = '2026-09-09T00:00:00'
+const WORKED_LAST_DAY = '2026-09-09T17:00:00'
 
 /** What FR-012 stores while the calendar is 表 T-209's S-106 (月〜金). */
 const PERCENT_UNDER_MON_TO_FRI = 50
@@ -555,9 +557,9 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353
       tasks: [
         taskOf({
           uid: 10,
-          start: '2026-09-07T00:00:00',
-          finish: '2026-09-11T00:00:00',
-          actualStart: '2026-09-07T00:00:00',
+          start: '2026-09-07T08:00:00',
+          finish: '2026-09-11T17:00:00',
+          actualStart: '2026-09-07T08:00:00',
           stop: WORKED_LAST_DAY,
           percentComplete: 60,
         }),
@@ -779,9 +781,9 @@ describe('FR-012 -- the controls on the recount (DFC-353)', () => {
         // with or without Saturday (CR-667), so this one's figure stands.
         taskOf({
           uid: 11,
-          start: '2026-09-07T00:00:00',
-          finish: '2026-09-11T00:00:00',
-          actualStart: '2026-09-07T00:00:00',
+          start: '2026-09-07T08:00:00',
+          finish: '2026-09-11T17:00:00',
+          actualStart: '2026-09-07T08:00:00',
           stop: WORKED_LAST_DAY,
           percentComplete: 60,
         }),

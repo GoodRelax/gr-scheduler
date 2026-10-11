@@ -59,7 +59,7 @@ describe('the GRS JSON schema, as a shared fixture', () => {
   })
 
   it('rejects a key the schedule group does not define', () => {
-    const weekDay = { ordinal: 0, dayType: 1, dayWorking: false, carry: {}, carryElements: [] }
+    const weekDay = { ordinal: 0, dayType: 1, dayWorking: false, workingTimes: [], carry: {}, carryElements: [] }
     expect(validateEntity('WeekDay', weekDay).valid).toBe(true)
     expect(validateEntity('WeekDay', { ...weekDay, calendarUid: 1 }).valid).toBe(false)
   })

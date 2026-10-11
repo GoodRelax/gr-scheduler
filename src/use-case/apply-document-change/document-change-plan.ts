@@ -109,6 +109,7 @@ function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSetti
     groupGridLinesVisible: current.groupGridLinesVisible,
     baselineVisible: current.baselineVisible,
     planDatesVisible: current.planDatesVisible,
+    showsTimeOfDay: current.showsTimeOfDay,
 
     taskGroupPanelWidth: current.taskGroupPanelWidth,
     taskGroupPanelWidthFixed: current.taskGroupPanelWidthFixed,

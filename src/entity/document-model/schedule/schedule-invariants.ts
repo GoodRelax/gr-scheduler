@@ -9,7 +9,7 @@ import {
   type DocumentSettings,
   type SettingsBoundToken,
 } from '../document-settings/document-settings'
-import { compareDays, dayOf, serial, type CalendarDay } from './calendar-day'
+import { compareDays, dayOf, instantOf, serial, type CalendarDay } from './calendar-day'
 import {
   DATE_COLUMNS,
   ENTITY_ROWS,
@@ -18,7 +18,7 @@ import {
   type TaskGroup,
 } from './schedule-entities'
 import { TRANSPARENT } from './stored-color'
-import { actualLastDay, actualLengthOf, workingCalendarOf } from './working-calendar'
+import { actualEndOf, actualMinutesOf, isPlanReversed, workingCalendarOf, workingTimesBreach } from './working-calendar'
 
 export type InvariantKind =
   | 'unique'
@@ -186,9 +186,9 @@ function dateBreaches<TRow extends object>(
     const value: unknown = row[column]
     if (typeof value !== 'string') continue
     const day = dayOf(value)
-    if (day === null) {
+    if (day === null || instantOf(value) === null) {
       found ??= []
-      found.push({ at: `${at}/${column}`, what: `${JSON.stringify(value)} names no day` })
+      found.push({ at: `${at}/${column}`, what: `${JSON.stringify(value)} names no instant` })
       continue
     }
     if (accepted === null) continue
@@ -532,10 +532,7 @@ const INVARIANTS: readonly Invariant[] = [
     find: ({ schedule }) => {
       const found: Breach[] = []
       for (const [index, task] of schedule.tasks.entries()) {
-        const start = dayOf(task.start)
-        const finish = dayOf(task.finish)
-        if (start === null || finish === null) continue
-        if (compareDays(finish, start) < 0) {
+        if (isPlanReversed(task)) {
           found.push({
             at: `/schedule/tasks/${index}`,
             what: `Task uid ${task.uid} finishes before it starts`,
@@ -721,14 +718,14 @@ const INVARIANTS: readonly Invariant[] = [
       const found: Breach[] = []
       const within = workingCalendarOf(schedule)
       for (const [index, task] of schedule.tasks.entries()) {
-        const start = dayOf(task.actualStart)
-        const last = actualLastDay(task)
-        if (start === null || last === null || compareDays(last, start) >= 0) continue
-        const length = actualLengthOf(within, start, last)
+        const start = instantOf(task.actualStart)
+        const end = instantOf(actualEndOf(task))
+        if (start === null || end === null || end >= start) continue
+        const length = actualMinutesOf(within, start, end)
         if (length < 0) {
           found.push({
             at: `/schedule/tasks/${index}`,
-            what: `Task uid ${task.uid} has an actual of ${length} worked days, ending before it starts`,
+            what: `Task uid ${task.uid} has an actual of ${length} worked minutes, ending before it starts`,
           })
         }
       }
@@ -750,6 +747,26 @@ const INVARIANTS: readonly Invariant[] = [
           at: `/schedule/taskVisuals/${index}`,
           what: `Task uid ${visual.taskUid} is drawn as ${visual.shapeKind} while its milestone is ${milestone}`,
         })
+      }
+      return found
+    },
+  },
+  {
+    row: 'IV-24',
+    kind: 'combination',
+    /** @purity pure */
+    find: ({ schedule }) => {
+      const found: Breach[] = []
+      for (const [calendarIndex, calendar] of schedule.calendars.entries()) {
+        const at = `/schedule/calendars/${calendarIndex}`
+        const days = [
+          ...calendar.weekDays.map((one, index) => ({ at: `${at}/weekDays/${index}`, times: one.workingTimes })),
+          ...calendar.exceptions.map((one, index) => ({ at: `${at}/exceptions/${index}`, times: one.workingTimes })),
+        ]
+        for (const day of days) {
+          const what = workingTimesBreach(day.times, SETTINGS_CONSTANTS.workingTimesPerDayMax)
+          if (what !== null) found.push({ at: `${day.at}/workingTimes`, what })
+        }
       }
       return found
     },

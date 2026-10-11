@@ -45,7 +45,9 @@ function statementOfFr012(): string {
   return REQUIREMENTS.slice(begin, end)
 }
 
-const stored = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T00:00:00`
+// WHY: the times GRS writes (T-350), so each day is whole under FR-054's instant reading (CR-710).
+const stored = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T08:00:00`
+const storedEnd = (dayOfMonth: number): string => `2026-01-${String(dayOfMonth).padStart(2, '0')}T17:00:00`
 
 const taskRow = (uid: number, part: Record<string, unknown>): Record<string, unknown> => ({
   uid,
@@ -53,7 +55,7 @@ const taskRow = (uid: number, part: Record<string, unknown>): Record<string, unk
   wbsOrder: uid,
   name: `T${uid}`,
   start: stored(5),
-  finish: stored(12),
+  finish: storedEnd(12),
   milestone: false,
   deadline: null,
   notes: null,
@@ -104,13 +106,13 @@ const documentObject = (tasks: readonly Record<string, unknown>[]): Record<strin
 // WHY: Mon 5 Jan to Mon 12 Jan 2026 is a plan of 6 working days (FR-012 since CR-667: both end days count).
 const UNSTARTED_WRITTEN_70 = taskRow(1, { percentComplete: 70 })
 // WHY: begun Mon 5, stopped Tue 6 = 2 working days held (FR-011 counts both end days), so round(2 / 6 x 100) = 33.
-const RUNNING_WRITTEN_0 = taskRow(2, { actualStart: stored(5), stop: stored(6), resumeValid: true })
+const RUNNING_WRITTEN_0 = taskRow(2, { actualStart: stored(5), stop: storedEnd(6), resumeValid: true })
 // WHY: a one-day plan finished in its one day is 100 whatever was written (FR-012, CR-667).
 const POINT_FINISHED_WRITTEN_30 = taskRow(3, {
   start: stored(7),
-  finish: stored(7),
+  finish: storedEnd(7),
   actualStart: stored(7),
-  actualFinish: stored(7),
+  actualFinish: storedEnd(7),
   resumeValid: false,
   percentComplete: 30,
 })

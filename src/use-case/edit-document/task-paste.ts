@@ -4,8 +4,13 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { Assignment, CalendarDay, Project, Schedule, Task, WorkingCalendar } from '../../entity/document-model/schedule/schedule'
-import { dayFromSerial, dayOf, serial, taskByUid, textOfFinishSide, textOfStartSide } from '../../entity/document-model/schedule/schedule'
+import type { Assignment, Schedule, Task, WorkingCalendar } from '../../entity/document-model/schedule/schedule'
+import {
+  instantOf,
+  MINUTES_PER_CALENDAR_DAY,
+  taskByUid,
+  textOfInstant,
+} from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { edited, refused, reject } from './edit-document'
 import { withSchedule, type PasteLanding, type TaskCommand } from './edit-task'
@@ -24,24 +29,15 @@ export function pastedUidsOf(schedule: Schedule, sourceUids: readonly number[]):
   return remap
 }
 
-// see CY-5
+// see CY-5, FR-054
 // WHY: calendar days, the same count the body move shifts by (PE-1, PE-6); a dateless copy stays dateless.
 /** @purity pure */
-function shiftedPlan(task: Task, landing: PasteLanding | undefined, project: Project): Task {
-  const start = dayOf(task.start)
-  const finish = dayOf(task.finish)
+function shiftedPlan(task: Task, landing: PasteLanding | undefined): Task {
+  const start = instantOf(task.start)
+  const finish = instantOf(task.finish)
   if (landing === undefined || landing.dayShift === 0 || start === null || finish === null) return task
-  const days = landing.dayShift
-  return {
-    ...task,
-    start: textOfStartSide(dayShiftedBy(start, days), project, task.milestone === true),
-    finish: textOfFinishSide(dayShiftedBy(finish, days), project),
-  }
-}
-
-/** @purity pure */
-function dayShiftedBy(day: CalendarDay, days: number): CalendarDay {
-  return dayFromSerial(serial(day) + days)
+  const minutes = landing.dayShift * MINUTES_PER_CALENDAR_DAY
+  return { ...task, start: textOfInstant(start + minutes), finish: textOfInstant(finish + minutes) }
 }
 
 // see CM-8, CM-28, DU-1
@@ -105,7 +101,7 @@ export function pasteTasks(
 
   const sources = schedule.tasks.filter((one) => chosen.has(one.uid))
   const paired = sources.map((one) =>
-    pastedCopyOf(shiftedPlan(copiedTask(one, chosen, remap), landing, schedule.project), schedule, within))
+    pastedCopyOf(shiftedPlan(copiedTask(one, chosen, remap), landing), schedule, within))
 
   const visualCopies = schedule.taskVisuals
     .filter((one) => chosen.has(one.taskUid))

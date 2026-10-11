@@ -233,10 +233,10 @@ interface DatedPlan {
 
 // see DV-8, EX-9
 /** @purity pure */
-function datedPlanOf(task: Task, schedule: Schedule, within: WorkingCalendar): DatedPlan | null {
+function datedPlanOf(task: Task, within: WorkingCalendar): DatedPlan | null {
   const startText = task.start
   const finishText = task.finish
-  const minutes = plannedDurationMinutesOf(within, task, schedule.project)
+  const minutes = plannedDurationMinutesOf(within, task)
   if (minutes === null || startText === null || finishText === null) return null
   return { startText, finishText, duration: durationText(minutes) }
 }
@@ -259,7 +259,7 @@ function pinnedToStart(task: Task, schedule: Schedule, span: DatedPlan): Task {
 // comes through here as well: the links leaving the subtree do not come along, so the source's slack is no fact.
 /** @purity pure */
 export function planDatesEdited(task: Task, schedule: Schedule, within: WorkingCalendar): Task {
-  const span = datedPlanOf(task, schedule, within)
+  const span = datedPlanOf(task, within)
   if (span === null) {
     // WHY: EX-12 keeps no carried slack even undated; Manual*/constraint rebuilding needs both dates (DV-8).
     // TRAP: nothing shipped makes a dateless task; only a test guards this -- press live once one can enter (JDG-366).
