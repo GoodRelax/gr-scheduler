@@ -345,6 +345,18 @@ TIME_ZONE_FIELD_PARTS = ('keepGlobalTime', 'keepLocalTime', 'example', 'none',
                          'shiftUnit', 'shiftAmountLine', 'shiftTaskCountLine',
                          'shiftOutsideCountLine', 'shiftExampleLine')
 
+# CR-743: the words of Holiday Settings (U-65) no table holds as rows -- the
+# section headings, the column headings, the WC-9 line and the refusals of
+# table T-344's WC-10 (exceptionsOverlap is JDG-1984). KEYS, not words.
+HOLIDAY_SETTINGS_PARTS = ('workingWeekdays', 'weekStart', 'workingHours',
+                          'rangeFrom', 'rangeTo', 'exceptionDays',
+                          'exceptionName', 'exceptionFrom', 'exceptionTo',
+                          'exceptionKind', 'dayWorking', 'repeating',
+                          'otherHoursWeekdays', 'weekdaySeparator',
+                          'timeNotReadable', 'startNotBeforeEnd',
+                          'rangesOverlap', 'noWorkingWeekday',
+                          'exceptionFromAfterTo', 'exceptionsOverlap')
+
 # CR-571: the search panel (FR-151). The column headings are READ from table
 # T-331 and the state words from table T-019a, the move `reasons` makes with
 # table T-233. The two words no table holds as rows -- the value list's
@@ -431,10 +443,16 @@ DELAY_REPORT_STATUSES = ('DG-1', 'DX-3', 'DG-2', 'DG-3', 'DG-4', 'DX-9')
 DELAY_REPORT_SUMMARY_PARTS = ('statusDate', 'afterStatusDate', 'count', 'between',
                               'unreliable')
 DELAY_REPORT_MARKDOWN_PARTS = ('documentName', 'madeAt', 'filter', 'none')
-DELAY_REPORT_REASON_PARTS = ('bottleneck', 'bottleneckPath', 'late', 'settled',
+DELAY_REPORT_REASON_PARTS = ('bottleneck', 'bottleneckWhenTimeShown',
+                             'bottleneckPath', 'late', 'settled',
+                             'settledWhenTimeShown',
                              'finding', 'wall', 'missingActual',
                              'milestoneAchieved', 'parentProgressOutside',
+                             'parentProgressOutsideWhenTimeShown',
                              'proposal')
+# CR-742 (JDG-1982): the three *WhenTimeShown words are the ones a document
+# that shows the time of day uses (TX-8): the amount carries its own unit
+# (TX-10), so these words put no unit word after it.
 # CR-670: the aspect word DT-7 prints for a finding (one per row of tables
 # T-310 and T-311) and the wall word it prints for a wall (one per row of table
 # T-316). READ from the tables, the move `delayReportColumns` makes. VS-6 is
@@ -774,6 +792,7 @@ def roster():
         'delayFixes': list(DELAY_FIX_PARTS),
         'fitSpanField': list(FIT_SPAN_FIELD_PARTS),
         'timeZoneField': list(TIME_ZONE_FIELD_PARTS),
+        'holidaySettings': list(HOLIDAY_SETTINGS_PARTS),
         'exportChooser': list(EXPORT_CHOOSER_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
         'dropCue': list(DROP_CUE_PARTS),
@@ -864,6 +883,7 @@ SHAPE = {
     'delayFixes': ('part', ('text',)),
     'fitSpanField': ('part', ('text',)),
     'timeZoneField': ('part', ('text',)),
+    'holidaySettings': ('part', ('text',)),
     'exportChooser': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
     'dropCue': ('part', ('text',)),
@@ -975,6 +995,7 @@ def build(doc, keys_by_row):
                     'colorNames', 'colorField', 'propertyField',
                     'rowMinHeightField', 'taskGroupPanelWidthField',
                     'themeHues', 'timeZones', 'timeZoneField',
+                    'holidaySettings',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
                     'planActualStates', 'searchPanel', 'resourceListColumns',
                     'resourceList', 'parentTaskChoice',

@@ -1538,7 +1538,7 @@
     "Properties Panel"
    ],
    "group": null,
-   "entryTo": "選んだ選び方（グローバルタイム（UTC）を保つ ／ ローカルタイムを保つ）で、選んだタイムゾーンを基準に当てる",
+   "entryTo": "選んだ選び方（グローバルタイム（UTC）を保つ ／ ローカルタイムを保つ）で、選んだタイムゾーンを基準に当てる。<br>⭐ 選んだだけでは当たらず、本入口を押して当てる（`FR-156`）。<br>当てても何も変わらないあいだは薄くする（`FR-029`）",
    "authority": "`FR-156`",
    "arms": null,
    "armsShape": null
@@ -1549,7 +1549,7 @@
     "Properties Panel"
    ],
    "group": null,
-   "entryTo": "入れた量でタイムシフトを実行する（実行の前に問う）",
+   "entryTo": "入れた量でタイムシフトを実行する（実行の前に問う）。<br>量が 0 か空のあいだは薄くする（`FR-029`）",
    "authority": "`FR-157`",
    "arms": null,
    "armsShape": null

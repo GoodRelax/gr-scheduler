@@ -61,21 +61,21 @@
 | `screen/milestoneListToggled` | 入力: `IC-50` | — | `milestoneListDisplayStateMachine` |
 | `screen/fullScreenEntryPressed` | 入力: `IC-11` ・ `SK-15` | — | `fullScreenModeStateMachine` |
 | `screen/fullScreenChanged` | 副作用の結果（ブラウザの `fullscreenchange`）: `FR-071` | `isFullScreen` | `fullScreenModeStateMachine` |
-| `screen/surfaceEntryPressed` | 入力: `IC-2` ・ `SK-12` | `surfaceName` | `openSurfaceStateMachine` |
-| `screen/surfaceRaisedByFlow` | 副作用の結果（ファイルの領域が面を立てる）: `OP-3` ・ `U-56` ・ `U-61` ・ `U-62` | `surfaceName` | `openSurfaceStateMachine` |
+| `screen/surfaceEntryPressed` | 入力（`IC-132` は `surfaceName` に `U-65` を運ぶ）: `IC-2` ・ `SK-12` ・ `IC-132` | `surfaceName` | `openSurfaceStateMachine` ・ `calendarDraftStateMachine` |
+| `screen/surfaceRaisedByFlow` | 副作用の結果（ファイルの領域が面を立てる）: `OP-3` ・ `U-56` ・ `U-61` ・ `U-62` | `surfaceName` | `openSurfaceStateMachine` ・ `calendarDraftStateMachine` |
 | `screen/flowSurfaceAnswered` | 入力（`U-56` ・ `U-61` の答えの入口。呼び手は同じ入力から領域 `fileFlow` の答えの出来事も作る）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `IC-95` ・ `IC-96` ・ `IC-97` ・ `OP-3` ・ `FR-022` | `surfaceName` | `openSurfaceStateMachine` |
-| `screen/surfaceCloseAsked` | 入力: `IC-52` | `target`（閉じる対象。語は `surface`（開いている面、`S-99g`）・`panel`（プロパティパネル、`S-99h`）・`helpModal`（ヘルプ、`U-30`）の 3 つ） | `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `helpDisplayStateMachine` |
-| `screen/escapePressed` | 入力（`Esc`）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `armModeStateMachine` ・ `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `dialogueFieldDisplayStateMachine` ・ `dualCursorModeStateMachine` ・ `tooltipDisplayStateMachine` ・ `searchPanelDisplayStateMachine` ・ `helpDisplayStateMachine` |
+| `screen/surfaceCloseAsked` | 入力: `IC-52` | `target`（閉じる対象。語は `surface`（開いている面、`S-99g`）・`panel`（プロパティパネル、`S-99h`）・`helpModal`（ヘルプ、`U-30`）の 3 つ） | `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `helpDisplayStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `calendarDraftStateMachine` |
+| `screen/escapePressed` | 入力（`Esc`）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `armModeStateMachine` ・ `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `dialogueFieldDisplayStateMachine` ・ `dualCursorModeStateMachine` ・ `tooltipDisplayStateMachine` ・ `searchPanelDisplayStateMachine` ・ `helpDisplayStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `calendarDraftStateMachine` |
 | `screen/armEntryPressed` | 入力: `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26` ・ `IC-27` ・ `IC-61` ・ `IC-35` ・ `IC-36` ・ `IC-142` ・ `FR-016` | `armKind` ／ `shapeKind` ／ `glyph` | `armModeStateMachine` |
-| `screen/watermarkEntryPressed` | 入力: `IC-41` ・ `WM-10` | — | `openSurfaceStateMachine` ・ `watermarkDisplayStateMachine` |
+| `screen/watermarkEntryPressed` | 入力: `IC-41` ・ `WM-10` | — | `openSurfaceStateMachine` ・ `watermarkDisplayStateMachine` ・ `calendarDraftStateMachine` |
 | `screen/watermarkUnlockAnswered` | 入力（`U-60` の答え）: `U-60` ・ `WM-6` ・ `WM-7` | `isProceeding` | `openSurfaceStateMachine` |
 | `screen/watermarkUnlockMatched` | 副作用の結果（照合）: `WM-6` ・ `WM-8` | — | `openSurfaceStateMachine` ・ `watermarkDisplayStateMachine` |
 | `screen/watermarkUnlockMismatched` | 副作用の結果（照合）: `WM-8` | — | `openSurfaceStateMachine` |
-| `screen/settingsEntryPressed` | 入力: `IC-17` ・ `FR-072` | — | `propertiesPanelContentStateMachine` |
-| `screen/propertiesOfChoiceAsked` | 入力（パネルを出すことを要求が名指した押下。員数は各要求が持つ）: `FR-072` | `subject` | `propertiesPanelContentStateMachine` |
-| `screen/selectionMoved` | ほかの領域の結果（選択）: `FR-072` | `subject`（空もありうる） | `propertiesPanelContentStateMachine` |
-| `screen/createdNameSettled` | 入力（作った直後の名前の欄の編集が終わった後の `Enter` —— 表 T-292 の `createdTaskNamingStateMachine` が `createdNameEnded` に居るとき（表 T-283 の `RG-10`）。名前付けのあいだでも、ほかの欄の編集を終えた `Enter` では送らない）: `FR-091` ・ `SK-19` | — | `propertiesPanelContentStateMachine` |
-| `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasNoSurfaceOrConfirmation` ／ `hasNoUnsettledEntry` | `propertiesPanelContentStateMachine` |
+| `screen/settingsEntryPressed` | 入力: `IC-17` ・ `FR-072` | — | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` |
+| `screen/propertiesOfChoiceAsked` | 入力（パネルを出すことを要求が名指した押下。員数は各要求が持つ）: `FR-072` | `subject` | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` |
+| `screen/selectionMoved` | ほかの領域の結果（選択）: `FR-072` | `subject`（空もありうる） | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` |
+| `screen/createdNameSettled` | 入力（作った直後の名前の欄の編集が終わった後の `Enter` —— 表 T-292 の `createdTaskNamingStateMachine` が `createdNameEnded` に居るとき（表 T-283 の `RG-10`）。名前付けのあいだでも、ほかの欄の編集を終えた `Enter` では送らない）: `FR-091` ・ `SK-19` | — | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` |
+| `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasNoSurfaceOrConfirmation` ／ `hasNoUnsettledEntry` | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` |
 | `screen/dialogueFieldEntryPressed` | 入力: `IC-18` ・ `FR-066` | `isAgentApiEnabled` | `dialogueFieldDisplayStateMachine` |
 | `screen/dialogueFieldMinimizeToggled` | 入力（対話欄のタイトルバーの最小化の入口）: `IC-129` | — | `dialogueFieldDisplayStateMachine` |
 | `screen/dialogueFieldMaximizeToggled` | 入力（対話欄のタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `dialogueFieldDisplayStateMachine` |
@@ -105,6 +105,15 @@
 | `screen/searchJumpLanded` | 入力（押して飛ぶ入口（SJ-1 のセル・FR-134 の行・RW-13 の直す案の行・PTL-16 の親の名・PR-37 / PR-38 の名）を押して離し、飛んで画面に出した。AM-16 が寄せたときも送る。SJ-8 で出せなかったときは送らない）: `SJ-10` ・ `AM-16` ・ `RW-13` | `landedTarget` ／ `landedRelatedTasks` | `landingMarkDisplayStateMachine` |
 | `screen/fileDragEntered` | 入力（ファイルを持つドラッグ（`dataTransfer.types` に `Files`）がウィンドウに入った。ウィンドウの中の UI パーツから UI パーツへ移るだけのものは送らない）: `OP-17` | `isOpenAccepted` | `dropCueDisplayStateMachine` |
 | `screen/fileDragLeft` | 入力（ファイルを持つドラッグがウィンドウの外へ出た、またはドロップした）: `OP-17` | — | `dropCueDisplayStateMachine` |
+| `screen/baseTimeZoneChosen` | 入力（基準のタイムゾーンの地域の選ぶ欄で地域を選んだ。選んだだけでは当てない）: `FO-14` ・ `FR-156` | `chosenRegion`（`FR-156`。表 T-376 の行の地域名） | `baseTimeZoneDraftStateMachine` |
+| `screen/baseChangeWayChosen` | 入力（基準を変える 2 つの選び方の 1 つを選んだ）: `FO-14` ・ `FR-156` | `chosenWay`（`keepGlobalTime`（グローバルタイム（UTC）を保つ）／ `keepLocalTime`（ローカルタイムを保つ）） | `baseTimeZoneDraftStateMachine` |
+| `screen/baseChangeEntryPressed` | 入力: `IC-161` ・ `FR-156` | — | `baseTimeZoneDraftStateMachine` |
+| `screen/timeShiftAmountSettled` | 入力（タイムシフトの量の欄を確定した（`Enter` か欄を離れる）。確定しただけでは問わない）: `FO-16` ・ `IN-6` ・ `SK-19` | `shiftMinutes`（`FR-157`。正負の分） | `timeShiftDraftStateMachine` |
+| `screen/timeShiftEntryPressed` | 入力: `IC-162` ・ `FR-157` | — | `timeShiftDraftStateMachine` |
+| `screen/timeShiftLanded` | 副作用の結果（タイムシフトの書き込み（`CM-98`）が受け入れられた）: `FR-157` ・ `CM-98` | — | `timeShiftDraftStateMachine` |
+| `screen/calendarDraftEdited` | 入力（休日の設定の入口を押した、または欄を確定した（`IN-6`）。呼び手が、直した後の下書きの全部を詰める —— `untouched` からは文書の暦から組んだ下書きに直しを当てたもの）: `IC-133` ・ `IC-134` ・ `IC-135` ・ `IC-136` ・ `IC-137` ・ `IC-163` ・ `IC-164` ・ `IC-165` ・ `WC-4` | `calendarDraft`（`WC-2` ・ `WC-3` ・ `WC-4` ・ `WC-8`。直した後の下書きの全部） | `calendarDraftStateMachine` |
+| `screen/calendarApplyEntryPressed` | 入力: `IC-138` ・ `WC-7` | — | `calendarDraftStateMachine` |
+| `screen/documentReplacedByOpenOrNew` | 副作用の結果（文書を置き換えて開いた（`RD-4`）か、新しく始めた（`RD-7`）差し替えが受け入れられた。取り消し・やり直し・合流と重ね・画面と `Agent API` の書き込みでは送らない —— 領域 `notices` の同じ鍵（書き込みの毎巡）とは別の出来事である）: `RD-4` ・ `RD-7` | — | `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `calendarDraftStateMachine` |
 
 ### 根 `screen` の値
 
@@ -581,6 +590,99 @@ stateDiagram-v2
 - `dropCueDisplayStateMachine.shown` —— 根拠 `OP-17` ・ `U-68`
 
 表に無い出来事は `dropCueDisplayStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `baseTimeZoneDraftStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> baseTimeZoneDraftStateMachine_untouched
+    baseTimeZoneDraftStateMachine_untouched : untouched
+    baseTimeZoneDraftStateMachine_drafted : drafted
+    baseTimeZoneDraftStateMachine_untouched --> baseTimeZoneDraftStateMachine_drafted : baseTimeZoneChosen, baseChangeWayChosen
+    baseTimeZoneDraftStateMachine_drafted --> baseTimeZoneDraftStateMachine_drafted : baseTimeZoneChosen, baseChangeWayChosen
+    baseTimeZoneDraftStateMachine_drafted --> baseTimeZoneDraftStateMachine_untouched : baseChangeEntryPressed, surfaceCloseAsked, escapePressed, settingsEntryPressed, propertiesOfChoiceAsked, selectionMoved, createdNameSettled, settleKeyPressed, documentReplacedByOpenOrNew
+```
+
+| 出来事 | `untouched` | `drafted` |
+| --- | --- | --- |
+| `screen/baseTimeZoneChosen` | → `drafted`（選び方は初めの `keepGlobalTime`） | → 自己（`chosenRegion` を書き換える） |
+| `screen/baseChangeWayChosen` | → `drafted`（地域は初めのいまの見せる基準（`S-574`、空なら `AT-157`）） | → 自己（`chosenWay` を書き換える） |
+| `screen/baseChangeEntryPressed` | — | → `untouched` / `issueBaseChangeCommand`（下書きの選び方で `CM-94` か `CM-95` を 1 回出す。確認を取らない。当てても何も変わらない下書きでは `IC-161` が薄い（`FR-029`）） |
+| `screen/surfaceCloseAsked` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/escapePressed` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/settingsEntryPressed` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/propertiesOfChoiceAsked` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/selectionMoved` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/createdNameSettled` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/settleKeyPressed` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/documentReplacedByOpenOrNew` | — | → `untouched` |
+
+- `baseTimeZoneDraftStateMachine.untouched` —— 初期。根拠 `FO-14` ・ `FR-156`
+- `baseTimeZoneDraftStateMachine.drafted` —— 運ぶ値 `chosenRegion`（`FR-156`） ／ `chosenWay`（`keepGlobalTime` ／ `keepLocalTime`）。根拠 `FR-156` ・ `IC-161`
+
+表に無い出来事は `baseTimeZoneDraftStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `timeShiftDraftStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> timeShiftDraftStateMachine_empty
+    timeShiftDraftStateMachine_empty : empty
+    timeShiftDraftStateMachine_amountHeld : amountHeld
+    timeShiftDraftStateMachine_empty --> timeShiftDraftStateMachine_amountHeld : timeShiftAmountSettled
+    timeShiftDraftStateMachine_amountHeld --> timeShiftDraftStateMachine_amountHeld : timeShiftAmountSettled, timeShiftEntryPressed
+    timeShiftDraftStateMachine_amountHeld --> timeShiftDraftStateMachine_empty : timeShiftAmountSettled, timeShiftLanded, surfaceCloseAsked, escapePressed, settingsEntryPressed, propertiesOfChoiceAsked, selectionMoved, createdNameSettled, settleKeyPressed, documentReplacedByOpenOrNew
+```
+
+| 出来事 | `empty` | `amountHeld` |
+| --- | --- | --- |
+| `screen/timeShiftAmountSettled` | → `amountHeld` [not `isShiftZero`]<br>それ以外 → — | → 自己 [not `isShiftZero`]（`shiftMinutes` を書き換える）<br>→ `empty` [`isShiftZero`] |
+| `screen/timeShiftEntryPressed` | — | → 自己 / `raiseTimeShiftQuestion`（下書きの量で `QN-14` を問う。続けると答えたら `CM-98` を 1 回出す。量が 0 か空のあいだは `IC-162` が薄い（`FR-029`）） |
+| `screen/timeShiftLanded` | — | → `empty` |
+| `screen/surfaceCloseAsked` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/escapePressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/settingsEntryPressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/propertiesOfChoiceAsked` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/selectionMoved` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/createdNameSettled` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/settleKeyPressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる）<br>それ以外 → — |
+| `screen/documentReplacedByOpenOrNew` | — | → `empty` |
+
+- `timeShiftDraftStateMachine.empty` —— 初期。根拠 `FO-16`
+- `timeShiftDraftStateMachine.amountHeld` —— 運ぶ値 `shiftMinutes`（`FR-157`。正負の分）。根拠 `FR-157` ・ `IC-162`
+
+表に無い出来事は `timeShiftDraftStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `calendarDraftStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> calendarDraftStateMachine_untouched
+    calendarDraftStateMachine_untouched : untouched
+    calendarDraftStateMachine_drafted : drafted
+    calendarDraftStateMachine_untouched --> calendarDraftStateMachine_drafted : calendarDraftEdited
+    calendarDraftStateMachine_drafted --> calendarDraftStateMachine_drafted : calendarDraftEdited
+    calendarDraftStateMachine_drafted --> calendarDraftStateMachine_untouched : calendarApplyEntryPressed, surfaceCloseAsked, escapePressed, surfaceEntryPressed, surfaceRaisedByFlow, watermarkEntryPressed, documentReplacedByOpenOrNew
+```
+
+| 出来事 | `untouched` | `drafted` |
+| --- | --- | --- |
+| `screen/calendarDraftEdited` | → `drafted`（翻訳が文書の暦から組んだ下書きに直しを当てたものを運ぶ） | → 自己（`calendarDraft` を書き換える） |
+| `screen/calendarApplyEntryPressed` | — | → `untouched` [`hasNoCalendarDraftRefusal`] / `issueCalendarCommand`（下書きで `CM-39` を 1 回出す。`CM-39` が文書を変え、当てた 1 組の合計が `Project.minutesPerDay`（空なら `S-128`）と違えば `RS-89` を 1 度告げる。面は開いたまま、当てた後の文書を見せる）<br>それ以外 → — |
+| `screen/surfaceCloseAsked` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/escapePressed` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/surfaceEntryPressed` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/surfaceRaisedByFlow` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/watermarkEntryPressed` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
+| `screen/documentReplacedByOpenOrNew` | — | → `untouched` |
+
+- `calendarDraftStateMachine.untouched` —— 初期。根拠 `FR-088` ・ `WC-7`
+- `calendarDraftStateMachine.drafted` —— 運ぶ値 `calendarDraft`（`WC-2` ・ `WC-3` ・ `WC-4` ・ `WC-8`。稼働する曜日の集合（`AT-73` の符号）・週の始まり（`AT-17` の符号）・時間帯の行の並び（各行は始まりと終わりの字）・例外日の行の並び（`Exception` の形。足した行の `ordinal` は文書の最大 ＋ 1 から））。根拠 `FR-088` ・ `WC-2` ・ `WC-4` ・ `WC-8`
+
+表に無い出来事は `calendarDraftStateMachine` を変えない（同じ参照）。
 
 ## 通知（`notices`）
 

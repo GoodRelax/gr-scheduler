@@ -5719,8 +5719,8 @@
   {
    "part": "example",
    "text": {
-    "ja": "例: {name} {dateTime}",
-    "en": "Example: {name} {dateTime}"
+    "ja": "例: {name} {before} -> {after}",
+    "en": "Example: {name} {before} -> {after}"
    }
   },
   {
@@ -5763,6 +5763,148 @@
    "text": {
     "ja": "例: {name} {before} → {after}",
     "en": "Example: {name} {before} → {after}"
+   }
+  }
+ ],
+ "holidaySettings": [
+  {
+   "part": "workingWeekdays",
+   "text": {
+    "ja": "稼働する曜日",
+    "en": "Working Weekdays"
+   }
+  },
+  {
+   "part": "weekStart",
+   "text": {
+    "ja": "週の始まり",
+    "en": "Week Starts On"
+   }
+  },
+  {
+   "part": "workingHours",
+   "text": {
+    "ja": "稼働日の時間帯",
+    "en": "Working Hours"
+   }
+  },
+  {
+   "part": "rangeFrom",
+   "text": {
+    "ja": "始まり",
+    "en": "From"
+   }
+  },
+  {
+   "part": "rangeTo",
+   "text": {
+    "ja": "終わり",
+    "en": "To"
+   }
+  },
+  {
+   "part": "exceptionDays",
+   "text": {
+    "ja": "例外日の一覧",
+    "en": "Exception Days"
+   }
+  },
+  {
+   "part": "exceptionName",
+   "text": {
+    "ja": "名前",
+    "en": "Name"
+   }
+  },
+  {
+   "part": "exceptionFrom",
+   "text": {
+    "ja": "始まりの日",
+    "en": "Start"
+   }
+  },
+  {
+   "part": "exceptionTo",
+   "text": {
+    "ja": "終わりの日",
+    "en": "Finish"
+   }
+  },
+  {
+   "part": "exceptionKind",
+   "text": {
+    "ja": "休みか稼働か",
+    "en": "Day Off or Working"
+   }
+  },
+  {
+   "part": "dayWorking",
+   "text": {
+    "ja": "稼働",
+    "en": "Working"
+   }
+  },
+  {
+   "part": "repeating",
+   "text": {
+    "ja": "繰り返し —— ここでは直せない",
+    "en": "Repeats; cannot be edited here"
+   }
+  },
+  {
+   "part": "otherHoursWeekdays",
+   "text": {
+    "ja": "{weekdays}は別の時間帯を持つ —— 取り込んだまま保ち、ここでは直さない",
+    "en": "{weekdays} hold other working hours; kept as imported, not edited here"
+   }
+  },
+  {
+   "part": "weekdaySeparator",
+   "text": {
+    "ja": "・",
+    "en": ", "
+   }
+  },
+  {
+   "part": "timeNotReadable",
+   "text": {
+    "ja": "時刻の形ではない（{text}）—— 0:00〜24:00 の形で打つ",
+    "en": "Not a time ({text}); type it as 0:00 to 24:00"
+   }
+  },
+  {
+   "part": "startNotBeforeEnd",
+   "text": {
+    "ja": "始まりが終わりより前ではない（{range}）",
+    "en": "The start is not before the end ({range})"
+   }
+  },
+  {
+   "part": "rangesOverlap",
+   "text": {
+    "ja": "時間帯が重なっている（{first} と {second}）",
+    "en": "The ranges overlap ({first} and {second})"
+   }
+  },
+  {
+   "part": "noWorkingWeekday",
+   "text": {
+    "ja": "稼働する曜日を 1 つ以上選んでください",
+    "en": "Choose at least one working weekday"
+   }
+  },
+  {
+   "part": "exceptionFromAfterTo",
+   "text": {
+    "ja": "始まりの日が終わりの日より後になっている（{name}）",
+    "en": "The start day is after the finish day ({name})"
+   }
+  },
+  {
+   "part": "exceptionsOverlap",
+   "text": {
+    "ja": "例外日の日が重なっている（{first} と {second}）",
+    "en": "The exception days overlap ({first} and {second})"
    }
   }
  ],
@@ -6282,6 +6424,13 @@
    }
   },
   {
+   "part": "bottleneckWhenTimeShown",
+   "text": {
+    "ja": "全体の日程を {amount} 遅らせている（持ち込まれた遅れ {inherited}・自分で生んだ遅れ {own}、届いた終端 {ends}）",
+    "en": "Delays the whole schedule by {amount} (inherited {inherited}, own {own}; reaches {ends} end tasks)"
+   }
+  },
+  {
    "part": "bottleneckPath",
    "text": {
     "ja": "配下のボトルネック: {names}",
@@ -6300,6 +6449,13 @@
    "text": {
     "ja": "全体の日程を {days} 日押し出した（完了済み）",
     "en": "Pushed the whole schedule out by {days} working days (finished)"
+   }
+  },
+  {
+   "part": "settledWhenTimeShown",
+   "text": {
+    "ja": "全体の日程を {amount} 押し出した（完了済み）",
+    "en": "Pushed the whole schedule out by {amount} (finished)"
    }
   },
   {
@@ -6335,6 +6491,13 @@
    "text": {
     "ja": "親の進み具合（{parent}）が、配下の作業の進み具合（{leftmost} - {rightmost}）から {days} 稼働日外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは {tolerance} 稼働日）はプロパティパネルの文書の設定で変えられる",
     "en": "This parent's progress ({parent}) lies {days} working days outside its work's progress ({leftmost} - {rightmost}). An update may be missing, work may not be split into child tasks, or the parent's span may have empty gaps. The allowed days (now {tolerance}) can be changed in the document settings of the property panel."
+   }
+  },
+  {
+   "part": "parentProgressOutsideWhenTimeShown",
+   "text": {
+    "ja": "親の進み具合（{parent}）が、配下の作業の進み具合（{leftmost} - {rightmost}）から {amount} 外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは {tolerance} 稼働日）はプロパティパネルの文書の設定で変えられる",
+    "en": "This parent's progress ({parent}) lies {amount} outside its work's progress ({leftmost} - {rightmost}). An update may be missing, work may not be split into child tasks, or the parent's span may have empty gaps. The allowed days (now {tolerance}) can be changed in the document settings of the property panel."
    }
   },
   {

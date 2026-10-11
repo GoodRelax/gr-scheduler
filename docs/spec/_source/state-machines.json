@@ -569,8 +569,12 @@
       "kind": "input",
       "rows": [
        "IC-2",
-       "SK-12"
-      ]
+       "SK-12",
+       "IC-132"
+      ],
+      "note": {
+       "ja": "`IC-132` は `surfaceName` に `U-65` を運ぶ"
+      }
      },
      "carries": [
       {
@@ -1292,6 +1296,171 @@
       ],
       "note": {
        "ja": "ファイルを持つドラッグがウィンドウの外へ出た、またはドロップした"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "baseTimeZoneChosen",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "FO-14",
+       "FR-156"
+      ],
+      "note": {
+       "ja": "基準のタイムゾーンの地域の選ぶ欄で地域を選んだ。選んだだけでは当てない"
+      }
+     },
+     "carries": [
+      {
+       "name": "chosenRegion",
+       "rows": [
+        "FR-156"
+       ],
+       "note": {
+        "ja": "表 T-376 の行の地域名"
+       }
+      }
+     ]
+    },
+    {
+     "key": "baseChangeWayChosen",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "FO-14",
+       "FR-156"
+      ],
+      "note": {
+       "ja": "基準を変える 2 つの選び方の 1 つを選んだ"
+      }
+     },
+     "carries": [
+      {
+       "name": "chosenWay",
+       "note": {
+        "ja": "`keepGlobalTime`（グローバルタイム（UTC）を保つ）／ `keepLocalTime`（ローカルタイムを保つ）"
+       }
+      }
+     ]
+    },
+    {
+     "key": "baseChangeEntryPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-161",
+       "FR-156"
+      ]
+     },
+     "carries": []
+    },
+    {
+     "key": "timeShiftAmountSettled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "FO-16",
+       "IN-6",
+       "SK-19"
+      ],
+      "note": {
+       "ja": "タイムシフトの量の欄を確定した（`Enter` か欄を離れる）。確定しただけでは問わない"
+      }
+     },
+     "carries": [
+      {
+       "name": "shiftMinutes",
+       "rows": [
+        "FR-157"
+       ],
+       "note": {
+        "ja": "正負の分"
+       }
+      }
+     ]
+    },
+    {
+     "key": "timeShiftEntryPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-162",
+       "FR-157"
+      ]
+     },
+     "carries": []
+    },
+    {
+     "key": "timeShiftLanded",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-157",
+       "CM-98"
+      ],
+      "note": {
+       "ja": "タイムシフトの書き込み（`CM-98`）が受け入れられた"
+      }
+     },
+     "carries": []
+    },
+    {
+     "key": "calendarDraftEdited",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-133",
+       "IC-134",
+       "IC-135",
+       "IC-136",
+       "IC-137",
+       "IC-163",
+       "IC-164",
+       "IC-165",
+       "WC-4"
+      ],
+      "note": {
+       "ja": "休日の設定の入口を押した、または欄を確定した（`IN-6`）。呼び手が、直した後の下書きの全部を詰める —— `untouched` からは文書の暦から組んだ下書きに直しを当てたもの"
+      }
+     },
+     "carries": [
+      {
+       "name": "calendarDraft",
+       "rows": [
+        "WC-2",
+        "WC-3",
+        "WC-4",
+        "WC-8"
+       ],
+       "note": {
+        "ja": "直した後の下書きの全部"
+       }
+      }
+     ]
+    },
+    {
+     "key": "calendarApplyEntryPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "IC-138",
+       "WC-7"
+      ]
+     },
+     "carries": []
+    },
+    {
+     "key": "documentReplacedByOpenOrNew",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "RD-4",
+       "RD-7"
+      ],
+      "note": {
+       "ja": "文書を置き換えて開いた（`RD-4`）か、新しく始めた（`RD-7`）差し替えが受け入れられた。取り消し・やり直し・合流と重ね・画面と `Agent API` の書き込みでは送らない —— 領域 `notices` の同じ鍵（書き込みの毎巡）とは別の出来事である"
       }
      },
      "carries": []
@@ -3394,6 +3563,651 @@
         "to": "hidden",
         "evidence": [
          "OP-17"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "baseTimeZoneDraftStateMachine",
+     "states": [
+      {
+       "key": "untouched",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "FO-14",
+        "FR-156"
+       ]
+      },
+      {
+       "key": "drafted",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "chosenRegion",
+         "rows": [
+          "FR-156"
+         ]
+        },
+        {
+         "name": "chosenWay",
+         "note": {
+          "ja": "`keepGlobalTime` ／ `keepLocalTime`"
+         }
+        }
+       ],
+       "evidence": [
+        "FR-156",
+        "IC-161"
+       ]
+      }
+     ],
+     "transitions": {
+      "baseTimeZoneChosen": {
+       "untouched": {
+        "to": "drafted",
+        "evidence": [
+         "FO-14",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "選び方は初めの `keepGlobalTime`"
+        }
+       },
+       "drafted": {
+        "to": "drafted",
+        "evidence": [
+         "FO-14",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "`chosenRegion` を書き換える"
+        }
+       }
+      },
+      "baseChangeWayChosen": {
+       "untouched": {
+        "to": "drafted",
+        "evidence": [
+         "FO-14",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "地域は初めのいまの見せる基準（`S-574`、空なら `AT-157`）"
+        }
+       },
+       "drafted": {
+        "to": "drafted",
+        "evidence": [
+         "FO-14",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "`chosenWay` を書き換える"
+        }
+       }
+      },
+      "baseChangeEntryPressed": {
+       "drafted": {
+        "to": "untouched",
+        "effect": "issueBaseChangeCommand",
+        "evidence": [
+         "IC-161",
+         "CM-94",
+         "CM-95",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "下書きの選び方で `CM-94` か `CM-95` を 1 回出す。確認を取らない。当てても何も変わらない下書きでは `IC-161` が薄い（`FR-029`）"
+        }
+       }
+      },
+      "surfaceCloseAsked": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "escapePressed": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "settingsEntryPressed": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "propertiesOfChoiceAsked": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "selectionMoved": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "createdNameSettled": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "settleKeyPressed": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "documentReplacedByOpenOrNew": {
+       "drafted": {
+        "to": "untouched",
+        "evidence": [
+         "RD-4",
+         "RD-7",
+         "FR-156"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "timeShiftDraftStateMachine",
+     "states": [
+      {
+       "key": "empty",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "FO-16"
+       ]
+      },
+      {
+       "key": "amountHeld",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "shiftMinutes",
+         "rows": [
+          "FR-157"
+         ],
+         "note": {
+          "ja": "正負の分"
+         }
+        }
+       ],
+       "evidence": [
+        "FR-157",
+        "IC-162"
+       ]
+      }
+     ],
+     "transitions": {
+      "timeShiftAmountSettled": {
+       "empty": {
+        "to": "amountHeld",
+        "guard": [
+         {
+          "name": "isShiftZero",
+          "not": true
+         }
+        ],
+        "evidence": [
+         "FO-16",
+         "FR-157"
+        ]
+       },
+       "amountHeld": [
+        {
+         "to": "amountHeld",
+         "guard": [
+          {
+           "name": "isShiftZero",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "FO-16",
+          "FR-157"
+         ],
+         "note": {
+          "ja": "`shiftMinutes` を書き換える"
+         }
+        },
+        {
+         "to": "empty",
+         "guard": [
+          {
+           "name": "isShiftZero"
+          }
+         ],
+         "evidence": [
+          "FO-16",
+          "IC-162"
+         ]
+        }
+       ]
+      },
+      "timeShiftEntryPressed": {
+       "amountHeld": {
+        "to": "amountHeld",
+        "effect": "raiseTimeShiftQuestion",
+        "evidence": [
+         "IC-162",
+         "QN-14",
+         "FR-157"
+        ],
+        "note": {
+         "ja": "下書きの量で `QN-14` を問う。続けると答えたら `CM-98` を 1 回出す。量が 0 か空のあいだは `IC-162` が薄い（`FR-029`）"
+        }
+       }
+      },
+      "timeShiftLanded": {
+       "amountHeld": {
+        "to": "empty",
+        "evidence": [
+         "FR-157",
+         "CM-98"
+        ]
+       }
+      },
+      "surfaceCloseAsked": {
+       "amountHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-157"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる"
+        }
+       }
+      },
+      "escapePressed": {
+       "amountHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-157"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる"
+        }
+       }
+      },
+      "settingsEntryPressed": {
+       "amountHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-157"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる"
+        }
+       }
+      },
+      "propertiesOfChoiceAsked": {
+       "amountHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-157"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる"
+        }
+       }
+      },
+      "selectionMoved": {
+       "amountHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-157"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる"
+        }
+       }
+      },
+      "createdNameSettled": {
+       "amountHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-157"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる"
+        }
+       }
+      },
+      "settleKeyPressed": {
+       "amountHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-157"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、量を捨てる"
+        }
+       }
+      },
+      "documentReplacedByOpenOrNew": {
+       "amountHeld": {
+        "to": "empty",
+        "evidence": [
+         "RD-4",
+         "RD-7",
+         "FR-157"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "calendarDraftStateMachine",
+     "states": [
+      {
+       "key": "untouched",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "FR-088",
+        "WC-7"
+       ]
+      },
+      {
+       "key": "drafted",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "calendarDraft",
+         "rows": [
+          "WC-2",
+          "WC-3",
+          "WC-4",
+          "WC-8"
+         ],
+         "note": {
+          "ja": "稼働する曜日の集合（`AT-73` の符号）・週の始まり（`AT-17` の符号）・時間帯の行の並び（各行は始まりと終わりの字）・例外日の行の並び（`Exception` の形。足した行の `ordinal` は文書の最大 ＋ 1 から）"
+         }
+        }
+       ],
+       "evidence": [
+        "FR-088",
+        "WC-2",
+        "WC-4",
+        "WC-8"
+       ]
+      }
+     ],
+     "transitions": {
+      "calendarDraftEdited": {
+       "untouched": {
+        "to": "drafted",
+        "evidence": [
+         "FR-088",
+         "WC-2",
+         "WC-4",
+         "WC-8"
+        ],
+        "note": {
+         "ja": "翻訳が文書の暦から組んだ下書きに直しを当てたものを運ぶ"
+        }
+       },
+       "drafted": {
+        "to": "drafted",
+        "evidence": [
+         "FR-088",
+         "WC-2",
+         "WC-4",
+         "WC-8"
+        ],
+        "note": {
+         "ja": "`calendarDraft` を書き換える"
+        }
+       }
+      },
+      "calendarApplyEntryPressed": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "hasNoCalendarDraftRefusal"
+         }
+        ],
+        "effect": "issueCalendarCommand",
+        "evidence": [
+         "IC-138",
+         "CM-39",
+         "WC-7",
+         "WC-10",
+         "RS-89"
+        ],
+        "note": {
+         "ja": "下書きで `CM-39` を 1 回出す。`CM-39` が文書を変え、当てた 1 組の合計が `Project.minutesPerDay`（空なら `S-128`）と違えば `RS-89` を 1 度告げる。面は開いたまま、当てた後の文書を見せる"
+        }
+       }
+      },
+      "surfaceCloseAsked": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingHolidaySettings"
+         }
+        ],
+        "evidence": [
+         "FR-088",
+         "S-99g"
+        ],
+        "note": {
+         "ja": "開いている面が `U-65` でなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "escapePressed": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingHolidaySettings"
+         }
+        ],
+        "evidence": [
+         "FR-088",
+         "S-99g"
+        ],
+        "note": {
+         "ja": "開いている面が `U-65` でなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "surfaceEntryPressed": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingHolidaySettings"
+         }
+        ],
+        "evidence": [
+         "FR-088",
+         "S-99g"
+        ],
+        "note": {
+         "ja": "開いている面が `U-65` でなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "surfaceRaisedByFlow": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingHolidaySettings"
+         }
+        ],
+        "evidence": [
+         "FR-088",
+         "S-99g"
+        ],
+        "note": {
+         "ja": "開いている面が `U-65` でなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "watermarkEntryPressed": {
+       "drafted": {
+        "to": "untouched",
+        "guard": [
+         {
+          "name": "isLeavingHolidaySettings"
+         }
+        ],
+        "evidence": [
+         "FR-088",
+         "S-99g"
+        ],
+        "note": {
+         "ja": "開いている面が `U-65` でなくなるときだけ、下書きを捨てる"
+        }
+       }
+      },
+      "documentReplacedByOpenOrNew": {
+       "drafted": {
+        "to": "untouched",
+        "evidence": [
+         "RD-4",
+         "RD-7",
+         "FR-088"
         ]
        }
       }
