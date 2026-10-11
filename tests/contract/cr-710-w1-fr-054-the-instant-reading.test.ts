@@ -12,7 +12,11 @@ import {
   isPlanReversed,
   textOfInstant,
 } from '../../src/entity/document-model/schedule/schedule'
+import { MONDAY_TO_FRIDAY_WITH_SPANS, workingCalendarOver } from './cr-710-w1-stage'
 import { unbroken } from './spec-table'
+
+// see IV-10, CR-741
+const WITHIN = workingCalendarOver({ working: MONDAY_TO_FRIDAY_WITH_SPANS })
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const DESIGN = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '05-07-design.md'), 'utf8'))
@@ -142,12 +146,12 @@ describe('IV-10: a plan is reversed when the finish is earlier than the start as
     ['2026-01-07T08:00:00', '2026-01-07T17:00:00', false],
     ['2026-01-09T17:00:00', '2026-01-12T08:00:00', false],
   ])('start %s, finish %s: reversed is %s', (start, finish, reversed) => {
-    expect(isPlanReversed({ start, finish })).toBe(reversed)
+    expect(isPlanReversed(WITHIN, { start, finish })).toBe(reversed)
   })
 
   it('is not reversed while either end is missing', () => {
-    expect(isPlanReversed({ start: null, finish: '2026-01-07T08:00:00' })).toBe(false)
-    expect(isPlanReversed({ start: '2026-01-07T08:00:00', finish: null })).toBe(false)
-    expect(isPlanReversed({ start: null, finish: null })).toBe(false)
+    expect(isPlanReversed(WITHIN, { start: null, finish: '2026-01-07T08:00:00' })).toBe(false)
+    expect(isPlanReversed(WITHIN, { start: '2026-01-07T08:00:00', finish: null })).toBe(false)
+    expect(isPlanReversed(WITHIN, { start: null, finish: null })).toBe(false)
   })
 })

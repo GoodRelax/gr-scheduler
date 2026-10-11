@@ -6,8 +6,9 @@
 import type { Document } from '../../entity/document-model/document/document'
 import type { Assignment, Schedule, Task, WorkingCalendar } from '../../entity/document-model/schedule/schedule'
 import {
-  instantOf,
+  instantOnSide,
   MINUTES_PER_CALENDAR_DAY,
+  startSideOf,
   taskByUid,
   textOfInstant,
 } from '../../entity/document-model/schedule/schedule'
@@ -32,9 +33,9 @@ export function pastedUidsOf(schedule: Schedule, sourceUids: readonly number[]):
 // see CY-5, FR-054
 // WHY: calendar days, the same count the body move shifts by (PE-1, PE-6); a dateless copy stays dateless.
 /** @purity pure */
-function shiftedPlan(task: Task, landing: PasteLanding | undefined): Task {
-  const start = instantOf(task.start)
-  const finish = instantOf(task.finish)
+function shiftedPlan(task: Task, landing: PasteLanding | undefined, within: WorkingCalendar): Task {
+  const start = instantOnSide(within, task.start, startSideOf(task))
+  const finish = instantOnSide(within, task.finish, 'finish')
   if (landing === undefined || landing.dayShift === 0 || start === null || finish === null) return task
   const minutes = landing.dayShift * MINUTES_PER_CALENDAR_DAY
   return { ...task, start: textOfInstant(start + minutes), finish: textOfInstant(finish + minutes) }
@@ -101,7 +102,7 @@ export function pasteTasks(
 
   const sources = schedule.tasks.filter((one) => chosen.has(one.uid))
   const paired = sources.map((one) =>
-    pastedCopyOf(shiftedPlan(copiedTask(one, chosen, remap), landing), schedule, within))
+    pastedCopyOf(shiftedPlan(copiedTask(one, chosen, remap), landing, within), schedule, within))
 
   const visualCopies = schedule.taskVisuals
     .filter((one) => chosen.has(one.taskUid))

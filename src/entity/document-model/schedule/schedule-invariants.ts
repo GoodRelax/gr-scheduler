@@ -18,7 +18,7 @@ import {
   type TaskGroup,
 } from './schedule-entities'
 import { TRANSPARENT } from './stored-color'
-import { actualEndOf, actualMinutesOf, isPlanReversed, workingCalendarOf, workingTimesBreach } from './working-calendar'
+import { isPlanReversed, reversedActualMinutesOf, workingCalendarOf, workingTimesBreach } from './working-calendar'
 
 export type InvariantKind =
   | 'unique'
@@ -531,8 +531,9 @@ const INVARIANTS: readonly Invariant[] = [
     /** @purity pure */
     find: ({ schedule }) => {
       const found: Breach[] = []
+      const within = workingCalendarOf(schedule)
       for (const [index, task] of schedule.tasks.entries()) {
-        if (isPlanReversed(task)) {
+        if (isPlanReversed(within, task)) {
           found.push({
             at: `/schedule/tasks/${index}`,
             what: `Task uid ${task.uid} finishes before it starts`,
@@ -718,11 +719,8 @@ const INVARIANTS: readonly Invariant[] = [
       const found: Breach[] = []
       const within = workingCalendarOf(schedule)
       for (const [index, task] of schedule.tasks.entries()) {
-        const start = instantOf(task.actualStart)
-        const end = instantOf(actualEndOf(task))
-        if (start === null || end === null || end >= start) continue
-        const length = actualMinutesOf(within, start, end)
-        if (length < 0) {
+        const length = reversedActualMinutesOf(within, task)
+        if (length !== null && length < 0) {
           found.push({
             at: `/schedule/tasks/${index}`,
             what: `Task uid ${task.uid} has an actual of ${length} worked minutes, ending before it starts`,

@@ -4,9 +4,8 @@
 // @purity    pure
 
 import {
-  actualEndOf,
+  actualInstantsOf,
   actualMinutesOf,
-  instantOf,
   plannedLengthMinutesOf,
   workingCalendarOf,
   type Schedule,
@@ -27,10 +26,8 @@ function percentCompleteOf(within: WorkingCalendar, task: Task): number | null {
 // see FR-011, FR-012
 /** @purity pure */
 function heldActualLength(within: WorkingCalendar, task: Task): number {
-  const start = instantOf(task.actualStart)
-  const end = instantOf(actualEndOf(task))
-  if (start === null || end === null) return 0
-  return actualMinutesOf(within, start, end)
+  const actual = actualInstantsOf(within, task)
+  return actual === null ? 0 : actualMinutesOf(within, actual[0], actual[1])
 }
 
 // see FR-012

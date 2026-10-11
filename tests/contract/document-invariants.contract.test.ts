@@ -734,7 +734,7 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
 
   'IV-21': () =>
     withSchedule({
-      tasks: [{ ...TASK_A, actualStart: TASK_A.start, stop: '2026-01-02' }, TASK_B],
+      tasks: [{ ...TASK_A, actualStart: TASK_A.start, stop: '2026-01-01' }, TASK_B],
     }),
 
   'IV-24': () => withSchedule({ calendars: [calendarWithMonday(SIX_SPANS)] }),
@@ -1134,10 +1134,10 @@ describe('table T-220 -- the document invariants, through scheduleViolations (PI
     expect(found.filter((one) => one.row === row), listed(found)).toEqual([])
   })
 
-  it.fails('IV-14 is reported for a time with seconds (DFC-2453)', () => {
-    const broken = withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T08:00:30' }, TASK_B] })
-    const found = scheduleViolations(broken.schedule, broken.settings)
+  it('IV-14 is not reported for a time with seconds: it reads truncated to the minute (DFC-2453, CR-741)', () => {
+    const held = withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T08:00:30' }, TASK_B] })
+    const found = scheduleViolations(held.schedule, held.settings)
 
-    expect(found.filter((one) => one.row === 'IV-14'), listed(found)).not.toEqual([])
+    expect(found.filter((one) => one.row === 'IV-14'), listed(found)).toEqual([])
   })
 })

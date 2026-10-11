@@ -9,6 +9,7 @@ import {
   dayFromSerial,
   dayOf,
   instantOf,
+  isDateWithoutTime,
   serial,
   textOfDay,
   textOfDayAt,
@@ -250,18 +251,50 @@ export function actualLengthOf(within: WorkingCalendar, start: CalendarDay,
   return between + 2
 }
 
-// see FR-054
+export type DateTimeSide = 'start' | 'finish'
+
+type MilestoneMark = Partial<Pick<Task, 'milestone'>>
+
+type PlannedEnds = Pick<Task, 'start' | 'finish'> & MilestoneMark
+
+// see T-350, WT-5
 /** @purity pure */
-function planInstantsOf(task: Pick<Task, 'start' | 'finish'>): readonly [number, number] | null {
-  const start = instantOf(task.start)
-  const finish = instantOf(task.finish)
+export function startSideOf(task: MilestoneMark): DateTimeSide {
+  return task.milestone === true ? 'finish' : 'start'
+}
+
+// see FR-054, WC-8
+// WHY: only a date without a time needs the calendar, so the index is built for it alone.
+/** @purity pure */
+export function instantOnSide(within: WorkingCalendar, text: string | null, side: DateTimeSide): number | null {
+  const day = text !== null && isDateWithoutTime(text) ? dayOf(text) : null
+  if (day === null) return instantOf(text)
+  const index = timeIndexOf(within)
+  const own = spansAt(index, serial(day))
+  const spans = own.length > 0 ? own : index.workingSet
+  const edge = side === 'start' ? spans[0]?.from ?? 0 : spans[spans.length - 1]?.to ?? MINUTES_PER_CALENDAR_DAY
+  return serial(day) * MINUTES_PER_CALENDAR_DAY + edge
+}
+
+/** @purity pure */
+function planInstantsOf(within: WorkingCalendar, task: PlannedEnds): readonly [number, number] | null {
+  const start = instantOnSide(within, task.start, startSideOf(task))
+  const finish = instantOnSide(within, task.finish, 'finish')
   return start === null || finish === null ? null : [start, finish]
+}
+
+// see FR-011, T-019
+/** @purity pure */
+export function actualInstantsOf(within: WorkingCalendar, task: Task): readonly [number, number] | null {
+  const start = instantOnSide(within, task.actualStart, startSideOf(task))
+  const end = instantOnSide(within, actualEndOf(task), 'finish')
+  return start === null || end === null ? null : [start, end]
 }
 
 // see IV-10, FR-054
 /** @purity pure */
-export function isPlanReversed(task: Pick<Task, 'start' | 'finish'>): boolean {
-  const plan = planInstantsOf(task)
+export function isPlanReversed(within: WorkingCalendar, task: PlannedEnds): boolean {
+  const plan = planInstantsOf(within, task)
   return plan !== null && plan[1] < plan[0]
 }
 
@@ -269,7 +302,7 @@ type CountOfMinutes = (within: WorkingCalendar, start: number, end: number) => n
 
 /** @purity pure */
 function plannedMinutesBy(count: CountOfMinutes, within: WorkingCalendar, task: Task): number | null {
-  const plan = planInstantsOf(task)
+  const plan = planInstantsOf(within, task)
   if (plan === null) return null
   return task.milestone === true ? 0 : count(within, plan[0], plan[1])
 }
@@ -467,6 +500,13 @@ export function actualMinutesOf(within: WorkingCalendar, start: number, end: num
   return end > start ? minutesOver(spansOfDay, start, end) : -minutesOver(spansOfDay, end, start)
 }
 
+// see IV-21, FR-011
+/** @purity pure */
+export function reversedActualMinutesOf(within: WorkingCalendar, task: Task): number | null {
+  const actual = actualInstantsOf(within, task)
+  return actual === null || actual[1] >= actual[0] ? null : actualMinutesOf(within, actual[0], actual[1])
+}
+
 // see FR-011, T-019
 /** @purity pure */
 export function actualEndOf(task: Task): string | null {
@@ -476,6 +516,7 @@ export function actualEndOf(task: Task): string | null {
 
 // see FR-011, AT-141
 // WHY: the start's own day is an edge, so it counts by actualMinutesOf's own rule and the two agree.
+// On a range boundary both ways stop at the earlier instant, the end of a range (FR-011).
 /** @purity pure */
 export function instantAfterWorkingMinutes(within: WorkingCalendar, from: number, minutes: number): number {
   if (minutes === 0) return from
@@ -492,7 +533,7 @@ export function instantAfterWorkingMinutes(within: WorkingCalendar, from: number
       const lo = Math.max(span.from, forward ? from - base : -Infinity)
       const hi = Math.min(span.to, forward ? Infinity : from - base)
       if (hi <= lo) continue
-      if (hi - lo >= remaining) return base + (forward ? lo + remaining : hi - remaining)
+      if (forward ? hi - lo >= remaining : hi - lo > remaining) return base + (forward ? lo + remaining : hi - remaining)
       remaining -= hi - lo
     }
   }

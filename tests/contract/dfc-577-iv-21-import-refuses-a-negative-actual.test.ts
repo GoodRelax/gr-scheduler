@@ -157,8 +157,8 @@ const finishedOn = (actualFinish: string): Task =>
   taskOf({ uid: 1, name: 't1', ...IN_RANGE, actualStart: '2026-01-05', actualFinish, resumeValid: false })
 
 describe('ValidateImportedDocument (UF-22) -- DFC-577, IV-21 on the import path', () => {
-  it('IV-21 refuses a running Task whose stop falls on the worked Friday before its Monday actualStart', () => {
-    const verdict = verdictOf(documentOf([runningUntil('2026-01-02')]))
+  it('IV-21 refuses a running Task whose stop falls on the worked Thursday before its Monday actualStart, a worked Friday between (CR-741: a date-only Friday stop reads as 17:00 and counts zero)', () => {
+    const verdict = verdictOf(documentOf([runningUntil('2026-01-01')]))
     expect(verdict.ok).toBe(false)
     const breach = refusalsOf(verdict).find((one) => one.rule === 'IV-21')
     expect(breach, JSON.stringify(refusalsOf(verdict))).toBeDefined()
@@ -168,7 +168,7 @@ describe('ValidateImportedDocument (UF-22) -- DFC-577, IV-21 on the import path'
   })
 
   it('IV-21 refuses a finished Task whose actualFinish falls before its actualStart with a worked day between', () => {
-    const verdict = verdictOf(documentOf([finishedOn('2026-01-02')]))
+    const verdict = verdictOf(documentOf([finishedOn('2026-01-01')]))
     expect(verdict.ok).toBe(false)
     expect(refusalsOf(verdict).some((one) => one.rule === 'IV-21'), JSON.stringify(refusalsOf(verdict))).toBe(true)
   })

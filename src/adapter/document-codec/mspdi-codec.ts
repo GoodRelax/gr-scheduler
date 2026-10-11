@@ -19,14 +19,16 @@ import type {
   WorkingTime,
 } from '../../entity/document-model/schedule/schedule'
 import {
-  actualEndOf,
+  actualInstantsOf,
   actualMinutesOf,
   blankTaskVisual,
   DAILY_RECURRENCE_KIND,
   instantAfterWorkingMinutes,
   instantOf,
+  instantOnSide,
   isNonRecurringException,
   plannedDurationMinutesOf,
+  startSideOf,
   textOfInstant,
   workingCalendarOf,
 } from '../../entity/document-model/schedule/schedule'
@@ -663,7 +665,7 @@ function taskFromElement(
 function withStopsFromActualDurations(schedule: Schedule, run: ImportRun): Schedule {
   const within = workingCalendarOf(schedule)
   const tasks = schedule.tasks.map((task) => {
-    const start = instantOf(task.actualStart)
+    const start = instantOnSide(within, task.actualStart, startSideOf(task))
     if (task.stop !== null || task.actualFinish !== null || start === null) return task
     const at = `/Project/Tasks/Task[uid=${task.uid}]`
     const minutes = minutesOfActualDuration(task.carry['ActualDuration'] ?? null, at, run)
@@ -1027,8 +1029,9 @@ function collection(name: string, rows: readonly XmlElement[]): PlacedChild {
 function latestTaskFinish(schedule: Schedule): string | null {
   let latest: string | null = null
   let latestInstant: number | null = null
+  const within = workingCalendarOf(schedule)
   for (const task of schedule.tasks) {
-    const instant = instantOf(task.finish)
+    const instant = instantOnSide(within, task.finish, 'finish')
     if (instant === null || task.finish === null) continue
     if (latestInstant === null || instant > latestInstant) {
       latestInstant = instant
@@ -1261,11 +1264,11 @@ function writtenActualDuration(
   run: ExportRun,
 ): PlacedChild[] {
   if (task.carry['ActualDuration'] !== undefined) return []
-  const from = instantOf(task.actualStart)
-  const end = instantOf(actualEndOf(task))
-  if (from === null || end === null) return []
+  const within = workingCalendarOf(schedule)
+  const actual = actualInstantsOf(within, task)
+  if (actual === null) return []
   try {
-    return [leaf('ActualDuration', durationOfMinutes(actualMinutesOf(workingCalendarOf(schedule), from, end)))]
+    return [leaf('ActualDuration', durationOfMinutes(actualMinutesOf(within, actual[0], actual[1])))]
   } catch (why) {
     run.notices.push(notice(
       `/Project/Tasks/Task[uid=${task.uid}]/ActualDuration`,

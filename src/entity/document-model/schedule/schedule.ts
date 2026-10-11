@@ -60,6 +60,7 @@ export {
 export type { CalendarDay, CalendarSpan } from './calendar-day'
 export {
   actualEndOf,
+  actualInstantsOf,
   actualLastDay,
   actualLengthOf,
   actualMinutesOf,
@@ -68,6 +69,7 @@ export {
   DaySpanTooWide,
   holdsWorkingDayUnlikeMinutesPerDay,
   instantAfterWorkingMinutes,
+  instantOnSide,
   defaultFinishTimeOf,
   defaultStartTimeOf,
   isNonRecurringException,
@@ -81,6 +83,8 @@ export {
   plannedDurationMinutesOf,
   plannedLengthMinutesOf,
   isPlanReversed,
+  reversedActualMinutesOf,
+  startSideOf,
   TENTHS_OF_A_MINUTE,
   textOfFinishSide,
   textOfStartSide,
@@ -95,7 +99,7 @@ export {
   isSameWorkingTimeSet,
   isWorkingTimeSetUnlikeDay,
 } from './working-calendar'
-export type { WorkingCalendar, WorkingTimeSet } from './working-calendar'
+export type { DateTimeSide, WorkingCalendar, WorkingTimeSet } from './working-calendar'
 export { delayStart, delayWorkingDays, isDelayed } from './task-delay'
 export { diagnoseDelay, parentCandidatesOf, parentTaskResolutionsOf } from './delay-diagnostics'
 export type { DelayDiagnosticsReport, ParentTaskResolution } from './delay-diagnostics'

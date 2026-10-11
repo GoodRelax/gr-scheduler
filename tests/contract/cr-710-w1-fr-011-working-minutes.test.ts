@@ -195,8 +195,8 @@ describe('FR-011: instantAfterWorkingMinutes puts a stop that many working minut
     ['960 from Wed 08:00 is Thu 17:00 (2d)', jan(JAN_WEDNESDAY, '08:00'), 960, jan(JAN_THURSDAY, '17:00')],
     ['600 from Fri 08:00 is Mon 10:00: the weekend rests', jan(JAN_FRIDAY, '08:00'), 600, jan(JAN_MONDAY, '10:00')],
     ['120 from Sat 09:00 is Sat 11:00: a start on a rest day is worked from there', jan(JAN_SATURDAY, '09:00'), 120, jan(JAN_SATURDAY, '11:00')],
-    ['-120 from 10:00 is 08:00', jan(JAN_WEDNESDAY, '10:00'), -120, jan(JAN_WEDNESDAY, '08:00')],
-    ['-480 from 17:00 is 08:00 of the same day', jan(JAN_WEDNESDAY, '17:00'), -480, jan(JAN_WEDNESDAY, '08:00')],
+    ['-120 from 10:00 is 17:00 of the day before: on a boundary the earlier instant (CR-741)', jan(JAN_WEDNESDAY, '10:00'), -120, jan(JAN_TUESDAY, '17:00')],
+    ['-480 from 17:00 is 17:00 of the day before (CR-741)', jan(JAN_WEDNESDAY, '17:00'), -480, jan(JAN_TUESDAY, '17:00')],
     ['-240 from Wed 10:00 is Tue 15:00', jan(JAN_WEDNESDAY, '10:00'), -240, jan(JAN_TUESDAY, '15:00')],
   ])('%s', (_name, start, minutes, expected) => {
     expect(after(start, minutes)).toBe(expected)
