@@ -56,12 +56,18 @@ export function instantOf(text: string | null): number | null {
 }
 
 /** @purity pure */
+export function isDateWithoutTime(text: string): boolean {
+  return dayOf(text) !== null && DATE_TIME_SPLIT.exec(text.trim())?.[1] === undefined
+}
+
+/** @purity pure */
 export function dayOfInstant(instant: number): CalendarDay {
   return dayFromSerial(Math.floor(instant / MINUTES_PER_CALENDAR_DAY))
 }
 
 /** @purity pure */
 export function finishSideDayOf(text: string | null): CalendarDay | null {
+  if (text !== null && isDateWithoutTime(text)) return dayOf(text)
   const instant = instantOf(text)
   return instant === null ? null : dayOfInstant(instant - 1)
 }

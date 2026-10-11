@@ -8,12 +8,11 @@ import type { Document } from '../../entity/document-model/document/document'
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import {
   DATE_COLUMNS,
-  actualEndOf,
-  actualMinutesOf,
   compareDays,
   dayOf,
   instantOf,
   isPlanReversed,
+  reversedActualMinutesOf,
   scheduleViolations,
   workingCalendarOf,
   type CalendarDay,
@@ -252,6 +251,7 @@ export function validateImportedDocument(
   const accepted: AcceptedDays | null = min !== null && max !== null ? { min, max } : null
 
   const emptyRowUids = new Set(candidate.emptyRowTaskUids)
+  const within = workingCalendarOf(schedule)
 
   if (accepted !== null) {
     found.push(
@@ -271,24 +271,20 @@ export function validateImportedDocument(
       )
     }
 
-    if (isPlanReversed(task)) {
+    if (isPlanReversed(within, task)) {
       found.push(
         refusal(FINISH_BEFORE_START_ROW, foundAt, `Task uid ${task.uid} finishes before it starts`, 'NT-1'),
       )
     }
 
     // see IV-21
-    const actualStart = instantOf(task.actualStart)
-    const actualEnd = instantOf(actualEndOf(task))
-    const length = actualStart === null || actualEnd === null || actualEnd >= actualStart
-      ? 0
-      : actualMinutesOf(workingCalendarOf(schedule), actualStart, actualEnd)
-    if (length < 0) {
+    const reversed = reversedActualMinutesOf(within, task)
+    if (reversed !== null && reversed < 0) {
       found.push(
         refusal(
           'IV-21',
           foundAt,
-          `Task uid ${task.uid} has an actual of ${length} worked minutes, `
+          `Task uid ${task.uid} has an actual of ${reversed} worked minutes, `
           + 'ending before it starts',
           'NT-1',
         ),
