@@ -1137,7 +1137,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ResourceListWindow` | file only | type | `src/framework/single-html-shell/resource-list-window.ts#ResourceListWindow` | -- | type ResourceListWindow = TableWindowState |
 | `scheduleFilterLetGoOf` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#scheduleFilterLetGoOf` | -- | function scheduleFilterLetGoOf(table: VisibilityTable, view: TableView): Extract<DocumentCommand, { readonly kind: 'setTableView' }> \| null |
 | `tableWindowReopened` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#tableWindowReopened` | -- | function tableWindowReopened<W extends TableWindowState>(held: W \| null, closed: W \| null, opened: W): W |
-| `withTableWindowInFront` | file only | function | `src/framework/single-html-shell/resource-list-window.ts#withTableWindowInFront` | -- | function withTableWindowInFront<R extends TableWindowState, L extends TableWindowState>( before: { readonly report: R \| null; readonly resourceList: L \| null... |
 | `EffectRunner` | file only | type | `src/framework/single-html-shell/session-effects.ts#EffectRunner` | -- | type EffectRunner<E> = (effect: E, frame: FrameValues \| null) => void |
 | `EffectRunners` | file only | type | `src/framework/single-html-shell/session-effects.ts#EffectRunners` | -- | type EffectRunners<E extends { readonly type: string }> = |
 | `runSessionEffects` | file only | function | `src/framework/single-html-shell/session-effects.ts#runSessionEffects` | -- | function runSessionEffects( effects: readonly SessionEffect[], runners: EffectRunners<SessionEffect>, frame: FrameValues \| null, ): void |
@@ -1873,4 +1872,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 919 name(s) leave through a public entry (398 of them published by table T-064), 744 more are exported by a file and not by its entry.
+Totals: 919 name(s) leave through a public entry (398 of them published by table T-064), 743 more are exported by a file and not by its entry.

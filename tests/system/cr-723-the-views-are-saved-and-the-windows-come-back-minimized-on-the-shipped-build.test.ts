@@ -30,7 +30,7 @@ const colorOf = (id: string): string => {
 const RED = colorOf('S-543')
 
 // see RO-6, UZ-6
-const RO_6_LATER_IN_FRONT = 'ほかの表のウィンドウと同時に出ているときは、後に開いたものを前に置く'
+const RO_6_LATER_IN_FRONT = 'ほかの表のウィンドウと同時に出ているときは、後に開いたか、後に押したものを前に置く'
 
 const VIEW_SETTINGS = (part: Loose): Loose => ({ ...SCROLLED_CLEAR_OF_THE_PALETTE, ...part })
 const NO_VIEWS = (): string => documentText(VIEW_SETTINGS({}))

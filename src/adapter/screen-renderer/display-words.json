@@ -228,8 +228,8 @@
     "en": "Search"
    },
    "hint": {
-    "ja": "検索パネルを出す。出ていれば入力欄へ戻る",
-    "en": "Open the search panel; if it is open, return to its search box"
+    "ja": "検索パネルを出す。出ていれば前に出して入力欄へ戻る",
+    "en": "Open the search panel; if it is open, bring it to the front and return to its search box"
    }
   },
   {

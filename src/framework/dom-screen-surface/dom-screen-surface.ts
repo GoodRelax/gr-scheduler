@@ -967,10 +967,10 @@ const NO_JUMP_COLUMN = -1
 
 type TableWindowPainter = ReturnType<typeof searchPanelPainter>
 
-// see RW-5, RO-6, UZ-6, T-337
-// WHY: the three windows share UZ-6, where the later in the tree is drawn in front; the window opened last moves last.
+// see WB-11, UZ-6, T-337
+// TRAP: never move the front window itself; a moved node drops the focus its search box took from the press.
 /** @purity non-pure */
-function tableWindowsInOrder(nextLayer: HTMLElement, ...windows: readonly (readonly [HTMLElement, TableWindowPainter])[]) {
+function tableWindowsInOrder(...windows: readonly (readonly [HTMLElement, TableWindowPainter])[]) {
   let order = windows
   return {
     /** @purity non-pure */
@@ -980,8 +980,8 @@ function tableWindowsInOrder(nextLayer: HTMLElement, ...windows: readonly (reado
       const front = view.resourceList?.isInFront === true ? 1 : view.delayDiagnosticsReport?.isInFront === true ? 2 : isSearchPanelFront ? 0 : null
       const wanted = front === null ? undefined : windows[front]
       if (wanted === undefined || order[order.length - 1] === wanted) return
+      order.slice(order.indexOf(wanted) + 1).forEach(([layer]) => layer.parentNode?.insertBefore(layer, wanted[0]))
       order = [...order.filter((one) => one !== wanted), wanted]
-      wanted[0].parentNode?.insertBefore(wanted[0], nextLayer)
     },
     /** @purity semi-pure-b */
     answerAt: (asked: PointAsked): ScreenPart | null =>
@@ -1073,7 +1073,6 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   const resourceList = searchPanelPainter(host, resourceListLayer, () => wiring.onSearchWordTyped?.(), RESOURCE_LIST_IDENTITY)
 
   const tableWindows = tableWindowsInOrder(
-    layers.scheduleFilterBarLayer,
     [searchPanelLayer, searchPanel],
     [resourceListLayer, resourceList],
     [reportLayer, report],

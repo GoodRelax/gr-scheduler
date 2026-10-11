@@ -78,7 +78,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1624 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1625 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -240,7 +240,7 @@
 | `VS` | Validation Suspicion | 進捗妥当性検査の疑義の観点 | 仕様書 | `T-311` | 6 |
 | `VT` | Verification Target | 確かめるもの 1 つ —— 全数を持つ所と、それを受ける試験の系統 | 仕様書 | `T-334` | 3 |
 | `W` | — | 面ごとの記法 | 仕様書 | `T-006a` | 11 |
-| `WB` | Window Behavior | ウィンドウの状態と振舞い（通常・最小化・最大化・タイトルバー・動かす・大きさを変える） | 仕様書 | `T-335` | 10 |
+| `WB` | Window Behavior | ウィンドウの状態と振舞い（通常・最小化・最大化・タイトルバー・動かす・大きさを変える・前に出す） | 仕様書 | `T-335` | 11 |
 | `WC` | Working Calendar | 休日の設定の欄と入口（表 T-344） | 仕様書 | `T-344` | 7 |
 | `WF` | Width Field | タスクグループパネルの幅の欄と、固定のあいだの境界の規則（表 T-368） | 仕様書 | `T-368` | 4 |
 | `PTL` | Parent Task Link | 親タスクを結ぶ・外す・辿る手の 1 行（表 T-351） | 仕様書 | `T-351` | 17 |
