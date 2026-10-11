@@ -46,7 +46,7 @@
     "start"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",
@@ -59,7 +59,7 @@
     "finish"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",
@@ -73,7 +73,7 @@
     "finish"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",
@@ -86,7 +86,7 @@
     "actualStart"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",
@@ -99,7 +99,7 @@
     "actualFinish"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",
@@ -113,7 +113,7 @@
     "actualFinish"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",
@@ -152,7 +152,7 @@
     "resume"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",
@@ -178,7 +178,7 @@
     "deadline"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "isReadOnly": false,
    "appliesTo": "Task",

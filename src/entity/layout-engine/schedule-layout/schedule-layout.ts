@@ -10,8 +10,10 @@ import {
   actualEndOf,
   dateFromWorkingDays,
   dayOf,
+  finishSideDayOf,
   instantOf,
   MINUTES_PER_CALENDAR_DAY,
+  serial,
   textOfDay,
   workingCalendarOf,
   type CalendarDay,
@@ -56,7 +58,7 @@ import {
   planHeightOf,
   shapeHeightOf,
 } from './shape-cross-sections'
-import { rulerTierOf, serialOf, timeAxisOf } from './time-axis'
+import { dateAtX, rulerTierOf, serialOf, snapMinutesOf, snappedInstantAtX, timeAxisOf } from './time-axis'
 
 export {
   dateAtX,
@@ -94,7 +96,7 @@ export type { LabelLayout, LabelReference } from './label-placement'
 export { fitZoom } from './fit-zoom'
 export { hasRoomBelowPinsIn } from './pinned-band'
 export { taskGroupAnchorIn, taskGroupIndexAtTopEdge } from './task-group-scroll'
-export { clockTextOf, planDatesSpanYears, planDateText } from './name-label'
+export { clockTextOf, lengthTextOf, planDatesSpanYears, planDateText } from './name-label'
 export type { FitToScreen, NotStoredZoom } from './fit-zoom'
 
 // see L-1
@@ -203,15 +205,33 @@ interface EdgeReader {
 }
 
 // see RV-1, RV-6, FR-054, FR-158
+// WHY: without time of day the finish column is FR-054's finish-side day, so an end at 00:00 closes the day before.
 /** @purity pure */
-// DEVIATION: without time of day the finish column is the written day, not the finish side of FR-054 (DFC-2450)
 function edgeOf(text: string | null, side: 'start' | 'finish', showsTimeOfDay: boolean): number | null {
   if (showsTimeOfDay) {
     const instant = instantOf(text)
     return instant === null ? null : instant / MINUTES_PER_CALENDAR_DAY
   }
-  const day = dayOf(text)
-  return day === null ? null : serialOf(day) + (side === 'start' ? 0 : 1)
+  if (side === 'start') {
+    const day = dayOf(text)
+    return day === null ? null : serialOf(day)
+  }
+  const last = finishSideDayOf(text)
+  return last === null ? null : serialOf(last) + 1
+}
+
+// see DC-2, DC-3, CU-3, T-378, TX-6, FR-158
+// WHY: on the day unit (SG-1) the line stands on the day the point is in, as without time of day; finer, on the snapped instant.
+/** @purity pure */
+export function cursorInstantAtX(
+  axis: Pick<ScheduleLayout, 'pxPerDay' | 'originDay' | 'originX'>,
+  x: number,
+  settings: DocumentSettings,
+): number | null {
+  const snap = snapMinutesOf(axis.pxPerDay, settings, false)
+  if (snap < MINUTES_PER_CALENDAR_DAY) return snappedInstantAtX(axis, x, snap)
+  const day = dateAtX(axis, x)
+  return day === null ? null : serial(day) * MINUTES_PER_CALENDAR_DAY
 }
 
 /** @purity pure */

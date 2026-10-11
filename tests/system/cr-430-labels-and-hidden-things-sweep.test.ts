@@ -26,7 +26,7 @@ import {
 const TASK_UID = 1
 const ROW_ID = 'sweep-task-group'
 const PLAN_START = '2026-04-06T00:00:00'
-const PLAN_FINISH = '2026-04-24T00:00:00'
+const PLAN_FINISH = '2026-04-24T17:00:00'
 const LONG_NAME = 'a name far too long to sit inside the figure it belongs to'
 const SHORT_NAME = 'A'
 const ENV: ScreenEnvironment = { width: 1600, height: 900, appHeaderHeight: 0, scrollbarThickness: 0, propertyPanelWidth: 0 }
@@ -128,8 +128,8 @@ const taskOf = (turn: Turn): Task => {
     turn.shape === 'dummy'
       ? { actualStart: null, stop: null, resumeValid: null }
       : turn.actualIsEarly
-        ? { actualStart: '2026-04-02T00:00:00', stop: milestone ? '2026-04-02T00:00:00' : '2026-04-12T00:00:00', resumeValid: true }
-        : { actualStart: '2026-04-10T00:00:00', stop: milestone ? '2026-04-10T00:00:00' : '2026-04-28T00:00:00', resumeValid: true }
+        ? { actualStart: '2026-04-02T00:00:00', stop: milestone ? '2026-04-02T17:00:00' : '2026-04-12T17:00:00', resumeValid: true }
+        : { actualStart: '2026-04-10T00:00:00', stop: milestone ? '2026-04-10T17:00:00' : '2026-04-28T17:00:00', resumeValid: true }
   return {
     uid: TASK_UID,
     parentTaskUid: null,

@@ -119,13 +119,14 @@ const FAR = 400
 
 type Link = number | readonly [number, number]
 
+// WHY: an end is written at the day's close (WT-2, WT-4); a date alone or 00:00 is read by FR-054 as the day before (RV-1, RV-6).
 const taskOf = (uid: number, start: number, days: number, links: readonly Link[] = [], part: Loose = {}): Loose => ({
   uid,
   parentTaskUid: null,
   wbsOrder: null,
   name: `t${uid}`,
   start: iso(start),
-  finish: iso(start + days),
+  finish: `${iso(start + days)}T17:00:00`,
   milestone: null,
   deadline: null,
   notes: null,

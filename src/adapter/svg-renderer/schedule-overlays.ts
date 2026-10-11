@@ -13,9 +13,9 @@ import {
   type ScheduleGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
-  dateAtX,
+  cursorInstantAtX,
   landedShapeBoxOf,
-  xFromDay,
+  xOfInstant,
   type LandedTarget,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
@@ -322,9 +322,10 @@ function dualCursorLines(input: OverlaysInput): readonly string[] {
   const cursors = geometry.dualCursor
   if (cursors === null) return []
   const color = themed('S-195')
-  const followedDay =
-    following === null || following.x === null ? null : dateAtX(layout, following.x)
-  const followedX = followedDay === null ? null : xFromDay(layout, followedDay)
+  // see DC-3, T-378
+  const followedAt =
+    following === null || following.x === null ? null : cursorInstantAtX(layout, following.x, input.settings)
+  const followedX = followedAt === null ? null : xOfInstant(layout, followedAt)
   const lines: string[] = []
   for (const side of ['date1', 'date2'] as const) {
     const isFollowing = following !== null && following.side === side

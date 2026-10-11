@@ -278,7 +278,7 @@ describe('HF-20 / CD-6 / QN-10 -- the head deletes every task group', () => {
 })
 
 
-const FR_006_DELETE = '日付の欄（表 T-016 の入力の型が `日付` の行）を編集しているあいだに `Delete` か `Backspace` を押したときは、欄の字をすべて消して空にすること（MUST）'
+const FR_006_DELETE = '日付の欄（表 T-016 の入力の型が `日付` か `日時` の行）を編集しているあいだに `Delete` か `Backspace` を押したときは、欄の字をすべて消して空にすること（MUST）'
 const FR_006_EMPTY_COMMIT =
   '空のまま確定したときは、`start` ／ `finish` の欄なら何も書かずに欄を元の値へ戻し、それ以外の日付の欄なら `null` を書くこと（MUST）'
 const FR_006_COLOR_LAST =

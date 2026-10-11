@@ -274,7 +274,8 @@ function fixtureDocument(): Document {
     wbsOrder: uid,
     name,
     start,
-    finish,
+    // WHY: an end is written at the day's close (WT-2); a date alone is read by FR-054 as the day before (RV-6).
+    finish: `${finish}T17:00:00`,
     milestone: false,
     deadline: null,
     notes: null,

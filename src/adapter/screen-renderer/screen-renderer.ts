@@ -779,7 +779,9 @@ function tableWindowsOf(
   const panel = readings.searchPanel ?? emptySearchPanelSession
   const view = tableViewOf(source.settings, 'searchPanel')
   return {
-    searchPanel: searchPanelFromSession(session, panel, view, source.schedule, source.canvas, readings.bottleneckUids),
+    searchPanel: searchPanelFromSession(
+      session, panel, view, source.schedule, source.canvas, readings.bottleneckUids, source.settings.showsTimeOfDay,
+    ),
     delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, source),
     resourceList: resourceListOf(session, readings, source),
     scheduleFilterBar: scheduleFilterBarIn(source, readings, displayLanguageOf(session)),

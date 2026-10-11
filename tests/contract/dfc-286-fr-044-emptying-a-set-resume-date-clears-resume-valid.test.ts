@@ -55,7 +55,7 @@
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
 //   `FR-044`      the clause above -- the whole of this file.
-//   表 T-016 PR-7 「`resume` | 日付 | `Task` | `task` | 中断したときだけ入る |
+//   表 T-016 PR-7 「`resume` | 日時 | `Task` | `task` | 中断したときだけ入る |
 //                 `Task/Resume`」 -- the item a person erases, and the column
 //                 the commit is keyed by (read at run time, never typed).
 //   表 T-016 PR-8 「`resumeValid` | 真偽 | `Task` | `task` | `false` = 再開日未定の中断」.

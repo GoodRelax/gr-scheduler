@@ -3,7 +3,8 @@
 // @component ScreenRenderer, layer Adapter (table T-062)
 // @purity    pure
 
-import { dayOf, isSearchWordFound, type Schedule } from '../../entity/document-model/schedule/schedule'
+import { dayOf, instantOf, isSearchWordFound, type Schedule } from '../../entity/document-model/schedule/schedule'
+import { clockTextOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { markerGlyphSvg } from '../svg-renderer/svg-renderer'
 import {
   VISIBILITY_TABLES,
@@ -211,6 +212,13 @@ export function dateText(stored: string | null): string {
   const day = dayOf(stored)
   if (day === null) return ''
   return [day.year, day.month, day.day].map((part, at) => String(part).padStart(DATE_PART_DIGITS[at] ?? 0, '0')).join(DATE_SEPARATOR)
+}
+
+/** @purity pure */
+export function dateTimeText(stored: string | null, showsTimeOfDay: boolean): string {
+  const date = dateText(stored)
+  const instant = showsTimeOfDay && date !== '' ? instantOf(stored) : null
+  return instant === null ? date : `${date} ${clockTextOf(instant)}`
 }
 
 /** @purity pure */

@@ -144,6 +144,9 @@ const NEXT_YEAR: Planned = { uid: 6, name: 'Later', start: '2027-01-05', finish:
 
 const SAME_YEAR: readonly Planned[] = [ALPHA, BETA, GAMMA, NAMELESS, NARROW]
 
+// WHY: an end is written at the day's close (WT-2, WT-4); a date alone or 00:00 is read by FR-054 as the day before (RV-1, RV-6).
+const endOf = (date: string): string => `${date}T17:00:00`
+
 const task = (one: Planned): Task =>
   ({
     uid: one.uid,
@@ -151,13 +154,13 @@ const task = (one: Planned): Task =>
     wbsOrder: one.uid,
     name: one.name === '' ? null : one.name,
     start: one.start,
-    finish: one.finish,
+    finish: endOf(one.finish),
     milestone: one.milestone,
     deadline: null,
     notes: null,
     calendarUid: null,
     actualStart: one.actual === true ? one.start : null,
-    stop: one.actual === true ? one.finish : null,
+    stop: one.actual === true ? endOf(one.finish) : null,
     actualFinish: null,
     resume: null,
     resumeValid: null,

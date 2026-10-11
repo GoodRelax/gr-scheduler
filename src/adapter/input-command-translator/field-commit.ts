@@ -6,8 +6,10 @@
 import {
   customColorChosen,
   dayOf,
+  instantAfterWorkingMinutes,
   instantOf,
   lastDayForLength,
+  minutesPerWorkingDayOf,
   planActualState,
   taskByUid,
   textOfDayEnd,
@@ -51,6 +53,33 @@ function settledNumber(text: string): number | null | undefined {
   if (held === null) return null
   const value = Number(held)
   return Number.isFinite(value) ? value : undefined
+}
+
+// see FR-009, TX-3, TX-10
+const TYPED_LENGTH = /^([-+])?\s*(?:(\d+)\s*d)?\s*(?:(\d+)\s*h)?\s*(?:(\d+)\s*m)?$/i
+const BARE_WORKING_DAYS = /^[-+]?\d+$/
+const MINUTES_PER_HOUR = 60
+
+type TypedLagUnit = Extract<DocumentCommand, { readonly lagUnit: unknown }>['lagUnit']
+
+interface TypedLength {
+  readonly minutes: number
+  readonly unit: TypedLagUnit
+}
+
+// see FR-009, TX-3, TX-10, PR-5, PR-42
+// WHY: the unit is the finest one typed, so the length is a whole count of it (FR-009 writes the typed unit's format).
+/** @purity pure */
+function typedLengthOf(text: string, minutesPerDay: number): TypedLength | null | undefined {
+  const held = settledText(text)
+  if (held === null) return null
+  if (BARE_WORKING_DAYS.test(held)) return { minutes: Math.round(Number(held) * minutesPerDay), unit: 'd' }
+  const hit = TYPED_LENGTH.exec(held)
+  const [sign, days, hours, minutes] = [hit?.[1], hit?.[2], hit?.[3], hit?.[4]]
+  if (hit === null || (days ?? hours ?? minutes) === undefined) return undefined
+  const total = Number(days ?? 0) * minutesPerDay + Number(hours ?? 0) * MINUTES_PER_HOUR + Number(minutes ?? 0)
+  const unit: TypedLagUnit = minutes !== undefined ? 'm' : hours !== undefined ? 'h' : 'd'
+  return { minutes: Math.round(sign === '-' ? -total : total), unit }
 }
 
 type SideText = (day: CalendarDay) => string
@@ -103,6 +132,7 @@ function planActualWithColumn(
   task: Task,
   column: string,
   text: string,
+  showsTimeOfDay: boolean,
 ): PlacedPlanActual | null {
   const next: Task = { ...task }
   // WHY: written by name; five typed arms would repeat the classification below five times.
@@ -110,11 +140,9 @@ function planActualWithColumn(
   if (column === 'resumeValid') {
     written[column] = settledTruth(text)
   } else if (column === ACTUAL_LENGTH_ITEM) {
-    const days = settledNumber(text)
-    const from = dayOf(task.actualStart)
-    if (days === undefined || days === null || from === null) return null
-    const lastDay = sideTextOf(schedule.project, task, 'stop')(lastDayForLength(workingCalendarOf(schedule), from, days))
-    written[planActualState(task) === 'finished' ? 'actualFinish' : 'stop'] = lastDay
+    const end = actualEndForLength(schedule, task, text, showsTimeOfDay)
+    if (end === null) return null
+    written[planActualState(task) === 'finished' ? 'actualFinish' : 'stop'] = end
   } else {
     const day = settledDay(text, sideTextOf(schedule.project, task, column))
     if (day === undefined) return null
@@ -135,6 +163,21 @@ function planActualWithColumn(
 
   if (planActualState(next) === 'notStarted') return { row: 'PA-1' }
   return placementAt(next)
+}
+
+// see PR-5, FR-011, TX-3
+/** @purity pure */
+function actualEndForLength(schedule: Schedule, task: Task, text: string, showsTimeOfDay: boolean): string | null {
+  if (showsTimeOfDay) {
+    const typed = typedLengthOf(text, minutesPerWorkingDayOf(schedule.project))
+    const from = instantOf(task.actualStart)
+    if (typed === undefined || typed === null || from === null) return null
+    return textOfInstant(instantAfterWorkingMinutes(workingCalendarOf(schedule), from, typed.minutes))
+  }
+  const days = settledNumber(text)
+  const from = dayOf(task.actualStart)
+  if (days === undefined || days === null || from === null) return null
+  return sideTextOf(schedule.project, task, 'stop')(lastDayForLength(workingCalendarOf(schedule), from, days))
 }
 
 const PLAN_ACTUAL_COLUMNS: readonly string[] = [
@@ -159,6 +202,17 @@ function commandFromMilestoneDay(task: Task, column: keyof Task, text: string, p
   return [{ kind: 'setTaskPlanActualState', uid, place }]
 }
 
+// see PR-3, PR-47, CM-11, FR-006
+/** @purity pure */
+function commandFromPlanDate(project: Project, task: Task, column: 'start' | 'finish', text: string): readonly DocumentCommand[] {
+  const settled = settledDay(text, sideTextOf(project, task, column))
+  if (settled === undefined || settled === null) return []
+  const start = column === 'start' ? settled : task.start
+  const finish = column === 'finish' ? settled : task.finish
+  if (start === null || finish === null) return []
+  return [{ kind: 'setTaskPlanDates', uid: task.uid, start, finish }]
+}
+
 // see T-016, PR-3, CM-11, FR-006
 /** @purity pure */
 function commandFromTaskColumn(
@@ -166,11 +220,12 @@ function commandFromTaskColumn(
   task: Task,
   column: keyof Task,
   text: string,
+  showsTimeOfDay: boolean,
 ): readonly DocumentCommand[] {
   const uid = task.uid
 
   if (PLAN_ACTUAL_COLUMNS.includes(column)) {
-    const place = planActualWithColumn(schedule, task, column, text)
+    const place = planActualWithColumn(schedule, task, column, text, showsTimeOfDay)
     return place === null ? [] : [{ kind: 'setTaskPlanActualState', uid, place }]
   }
 
@@ -180,14 +235,8 @@ function commandFromTaskColumn(
     case 'notes':
       return [{ kind: 'setTaskNotes', uid, notes: settledText(text) }]
     case 'start':
-    case 'finish': {
-      const settled = settledDay(text, sideTextOf(schedule.project, task, column))
-      if (settled === undefined || settled === null) return []
-      const start = column === 'start' ? settled : task.start
-      const finish = column === 'finish' ? settled : task.finish
-      if (start === null || finish === null) return []
-      return [{ kind: 'setTaskPlanDates', uid, start, finish }]
-    }
+    case 'finish':
+      return commandFromPlanDate(schedule.project, task, column, text)
     case 'deadline': {
       const deadline = settledDay(text, sideTextOf(schedule.project, task, column))
       return deadline === undefined ? [] : [{ kind: 'setTaskDeadline', uid, deadline }]
@@ -375,16 +424,22 @@ function commandFromBoxColumn(schedule: Schedule, key: BoxKey, text: string, dar
   return box === undefined ? [] : commandFromHighlightBoxColumn(box, key.column, text, dark)
 }
 
-// see FR-009, CM-38, S-118
-// WHY: the panel takes working days; EditDocument turns them into the stored tenths of a minute (FR-009).
+// see FR-009, CM-38, S-118, TX-3
+// WHY: working days, or d / h / m with time of day; EditDocument turns them into the stored tenths of a minute (FR-009).
 /** @purity pure */
 function commandFromDependencyColumn(
-  predecessorUid: number,
-  successorUid: number,
+  link: { readonly predecessorUid: number; readonly successorUid: number },
   column: string,
   text: string,
+  context: InputContext,
 ): readonly DocumentCommand[] {
   if (column !== 'lag') return []
+  const { predecessorUid, successorUid } = link
+  if (context.document.documentSettings.showsTimeOfDay) {
+    const typed = typedLengthOf(text, minutesPerWorkingDayOf(context.document.schedule.project))
+    if (typed === undefined || typed === null) return []
+    return [{ kind: 'setDependencyLag', predecessorUid, successorUid, lagMinutes: typed.minutes, lagUnit: typed.unit }]
+  }
   const lagWorkingDays = settledNumber(text)
   if (lagWorkingDays === undefined || lagWorkingDays === null) return []
   return [{ kind: 'setDependencyLag', predecessorUid, successorUid, lagWorkingDays }]
@@ -592,11 +647,12 @@ function commandsFromAssigneeField(
 
 // see T-016, PR-3
 /** @purity pure */
-function commandFromTaskField(schedule: Schedule, uid: number, column: keyof Task, text: string): readonly DocumentCommand[] {
+function commandFromTaskField(schedule: Schedule, uid: number, column: keyof Task, text: string,
+                             showsTimeOfDay: boolean): readonly DocumentCommand[] {
   const task = taskByUid(schedule, uid)
   if (task === null) return []
   const milestoneDay = task.milestone === true ? commandFromMilestoneDay(task, column, text, schedule.project) : null
-  return milestoneDay ?? commandFromTaskColumn(schedule, task, column, text)
+  return milestoneDay ?? commandFromTaskColumn(schedule, task, column, text, showsTimeOfDay)
 }
 
 // see PI-18, T-016
@@ -614,7 +670,7 @@ export function commandFromFieldCommit(
 
   switch (key.holder) {
     case 'task':
-      return commandFromTaskField(schedule, key.uid, key.column, commit.text)
+      return commandFromTaskField(schedule, key.uid, key.column, commit.text, context.document.documentSettings.showsTimeOfDay)
     case 'taskVisual':
       return taskByUid(schedule, key.uid) === null
         ? []
@@ -632,10 +688,10 @@ export function commandFromFieldCommit(
       const dependency = successor?.dependencies[key.ordinal]
       if (dependency === undefined) return []
       return commandFromDependencyColumn(
-        dependency.predecessorUid,
-        key.successorUid,
+        { predecessorUid: dependency.predecessorUid, successorUid: key.successorUid },
         key.column,
         commit.text,
+        context,
       )
     }
     case 'project':

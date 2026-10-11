@@ -517,6 +517,15 @@
      }
     },
     {
+     "name": "dayOfInstant",
+     "note": {
+      "ja": [
+       "瞬間が落ちる日（開始の側の読み）。",
+       "`Dual Cursor` とガイドカーソルの札が、線の立つ瞬間の日付を書くために読む（`FR-158` の 表 T-375 の `TX-6`）"
+      ]
+     }
+    },
+    {
      "name": "textOfInstant",
      "note": {
       "ja": [
@@ -1459,6 +1468,25 @@
      "note": {
       "ja": [
        "瞬間の時刻を 24 時間制、時を 0 で埋めず分を 2 桁で書く（`FR-158` の 表 T-375）"
+      ]
+     }
+    },
+    {
+     "name": "lengthTextOf",
+     "note": {
+      "ja": [
+       "長さ（分）を `1d 2h`・`2h 30m`・`30m` の形で書く（`FR-158` の 表 T-375 の `TX-10`）。",
+       "`d` は呼び手が渡す 1 日の分の数 —— 稼働時間の長さは `Project.minutesPerDay`、`Dual Cursor` の暦の時間は 1440"
+      ]
+     }
+    },
+    {
+     "name": "cursorInstantAtX",
+     "note": {
+      "ja": [
+       "`Dual Cursor` の線が立つ瞬間 —— `FR-103` の 表 T-378 の単位で寄せる。",
+       "日の単位では点が入る日の 0 時である（`DC-3`）。",
+       "置く入力（`InputCommandTranslator`）、追う線（`SvgRenderer`）、読み（`ScreenRenderer`）が同じ瞬間を読むために公開した"
       ]
      }
     },

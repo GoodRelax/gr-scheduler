@@ -52,7 +52,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DAY_START_TIME` | entry | const | `src/entity/document-model/schedule/calendar-day.ts#DAY_START_TIME` | PI-1 | 丸 1 日の範囲の始まりの時刻（表 T-350 の `WT-6`） |
 | `dayFromSerial` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayFromSerial` | PI-1 | 通し番号から日付へ —— `serial` の逆。 |
 | `dayOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayOf` | PI-1 | 日付の字面を日にする。 |
-| `dayOfInstant` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayOfInstant` | -- | function dayOfInstant(instant: number): CalendarDay |
+| `dayOfInstant` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayOfInstant` | PI-1 | 瞬間が落ちる日（開始の側の読み）。 |
 | `DaySpanTooWide` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#DaySpanTooWide` | -- | class DaySpanTooWide extends Error |
 | `DEFAULT_CALENDAR_VALUES` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DEFAULT_CALENDAR_VALUES` | -- | const DEFAULT_CALENDAR_VALUES: |
 | `defaultFinishTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultFinishTimeOf` | PI-1 | 文書の既定の終了時刻。 |
@@ -249,6 +249,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | --- | --- | --- | --- | --- | --- |
 | `assigneeAnchorOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#assigneeAnchorOf` | PI-5 | 担当と進捗の札の右端を合わせる位置。 |
 | `clockTextOf` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#clockTextOf` | PI-5 | 瞬間の時刻を 24 時間制、時を 0 で埋めず分を 2 桁で書く（`FR-158` の 表 T-375） |
+| `cursorInstantAtX` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#cursorInstantAtX` | PI-5 | `Dual Cursor` の線が立つ瞬間 —— `FR-103` の 表 T-378 の単位で寄せる。 |
 | `dateAtX` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#dateAtX` | PI-5 | 時間軸の対応。 |
 | `DayReader` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#DayReader` | -- | interface DayReader |
 | `deadlineHeadHalfWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#deadlineHeadHalfWidthOf` | PI-5 | 期限の印の矢じりの半幅（表 T-206 の `S-365` に進捗マーカーの径を掛けた幅の半分）。 |
@@ -274,6 +275,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `landedShapeBoxOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#landedShapeBoxOf` | PI-5 | 飛ぶ先の予定の形の外接矩形 —— タスクは配置の予定の図形（実績を含めない）、コメントボックスは箱（表 T-332 の `SJ-5` ・ `SJ-6` ・ `SJ-10`）。 |
 | `LandedTarget` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#LandedTarget` | PI-5 | 型。 |
 | `layoutFromSchedule` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#layoutFromSchedule` | PI-5 | function layoutFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, regions: ScreenRegions, groupDepthCap?: number, taskGroupControlsHeightPx?... |
+| `lengthTextOf` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#lengthTextOf` | PI-5 | 長さ（分）を `1d 2h`・`2h 30m`・`30m` の形で書く（`FR-158` の 表 T-375 の `TX-10`）。 |
 | `markerDiameterOf` | entry | function | `src/entity/layout-engine/schedule-layout/shape-cross-sections.ts#markerDiameterOf` | PI-5 | 進捗マーカーの径。 |
 | `MilestoneGlyph` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#MilestoneGlyph` | -- | type MilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']> |
 | `NOT_STORED_LABEL_SIZES` | entry | const | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#NOT_STORED_LABEL_SIZES` | PI-5 | 表 T-206 の `S-196` と `S-233` を刷った定数。 |
@@ -527,6 +529,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `VisibleElement` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#VisibleElement` | -- | type VisibleElement = \| 'baselineVisible' \| 'planVisible' \| 'actualVisible' \| 'progressLineVisible' \| 'progressMarkerVisible' \| 'dateGridLinesVisible' \| 'gro... |
 | `wbsSubtreesOf` | entry | function | `src/use-case/edit-document/edit-task-group.ts#wbsSubtreesOf` | PI-9 | `Task` の集合に、`WBS` の子孫をすべて足した集合 —— `CD-1`。 |
 | `CommentBoxLeaderShapeKind` | file only | type | `src/use-case/edit-document/edit-annotation.ts#CommentBoxLeaderShapeKind` | -- | type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']> |
+| `TypedLag` | file only | interface | `src/use-case/edit-document/edit-dependency.ts#TypedLag` | -- | interface TypedLag |
+| `TypedLagUnit` | file only | type | `src/use-case/edit-document/edit-dependency.ts#TypedLagUnit` | -- | type TypedLagUnit = 'd' \| 'h' \| 'm' |
+| `WorkingDayLag` | file only | interface | `src/use-case/edit-document/edit-dependency.ts#WorkingDayLag` | -- | interface WorkingDayLag |
 | `documentWithTableViewsKept` | file only | function | `src/use-case/edit-document/edit-document-settings.ts#documentWithTableViewsKept` | -- | function documentWithTableViewsKept(document: Document): Document |
 | `depthOf` | file only | function | `src/use-case/edit-document/edit-task-group.ts#depthOf` | -- | function depthOf(byId: ReadonlyMap<string, TaskGroup>, taskGroup: TaskGroup): number |
 | `settledTaskGroup` | file only | function | `src/use-case/edit-document/edit-task-group.ts#settledTaskGroup` | -- | function settledTaskGroup(schedule: Schedule, taskGroup: TaskGroup, defaultTaskGroupName: string): TaskGroup |
@@ -1521,6 +1526,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `withVisibilityColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#withVisibilityColumn` | -- | function withVisibilityColumn<Row>(table: TableColumns<Row>, column: SearchColumn, isShown: (row: Row) => boolean): TableColumns<Row> |
 | `clearEntryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#clearEntryOf` | -- | function clearEntryOf(view: TableView, language: DisplayLanguage): CommandItem |
 | `dateText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateText` | -- | function dateText(stored: string \| null): string |
+| `dateTimeText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateTimeText` | -- | function dateTimeText(stored: string \| null, showsTimeOfDay: boolean): string |
 | `entryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#entryOf` | -- | function entryOf(icon: IconId, language: DisplayLanguage, isChosen = false, label?: string): CommandItem |
 | `isClearEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#isClearEntry` | -- | function isClearEntry(entry: IconId): boolean |
 | `isRowShown` | file only | function | `src/adapter/screen-renderer/table-window.ts#isRowShown` | -- | function isRowShown(visibility: TableVisibility, key: VisibilityKey): boolean |
@@ -1912,4 +1918,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 952 name(s) leave through a public entry (428 of them published by table T-064), 750 more are exported by a file and not by its entry.
+Totals: 954 name(s) leave through a public entry (431 of them published by table T-064), 754 more are exported by a file and not by its entry.

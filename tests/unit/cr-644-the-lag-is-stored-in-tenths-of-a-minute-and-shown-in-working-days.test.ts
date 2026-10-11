@@ -19,20 +19,19 @@ import { DESIGN, REQUIREMENTS, numberIn, taskGroupDocument, rowOf, taskOf } from
 
 // see FR-009
 const FR_009_SHOWN_AND_TYPED =
-  '⭐ プロパティパネルはラグを稼働日で見せ、整数の稼働日で打たせること（MUST） —— 保存は 0.1 分であり（`_assets/fig-erd-detail.md` の `AT-47`）、1 稼働日を `Project.minutesPerDay` 分（空なら `S-128`）として換算する。'
+  '⭐ プロパティパネルは、時刻を表示しない文書（`FR-158`）ではラグを稼働日で見せ、整数の稼働日で打たせ、時刻を表示する文書では `d` ／ `h` ／ `m` で見せて打たせること（MUST） —— 保存は 0.1 分であり（`_assets/fig-erd-detail.md` の `AT-47`）、1 稼働日（`1d`）を `Project.minutesPerDay` 分（空なら `S-128`）として換算する。'
 const FR_009_WRITTEN =
-  '打たれた稼働日を書くときは、`lag` に 稼働日 × 1 日の分数 × 10 を、`lagFormat` に `7` を書くこと（MUST）。'
+  '打たれたラグを書くときは、`lag` に打たれた長さの分 × 10 を、`lagFormat` に打った単位の形式を書くこと（MUST） —— `d`（稼働日）は `7`、`h` は `5`、`m` は `3` である（利用者の判断）。'
 const FR_009_CREATED = '依存を作るときも同じく書く'
-const FR_009_ONLY_SEVEN = '⭐ `GRS` が解するラグの形式は `lagFormat` が `7`（稼働日）のものだけとする（`AT-48`）。'
+const FR_009_UNDERSTOOD = '⭐ `GRS` が解するラグの形式は `lagFormat` が `7`（稼働日）・`5`（時）・`3`（分）のものとする（`AT-48`）。'
 const FR_009_LITERAL =
   'ほかの形式のラグは、MS Project の字面 —— その形式の単位で表した数に、交換相手の XSD の記号を添えたもの（`2ed`・`3h`） —— で見せるだけにし、値と形式は往復でそのまま保つこと（MUST）'
 const FR_009_MINUTES = '長さを決められない形式（百分率・経過の月・空の形式、長さを決める列が空のとき）は、分の字面（`2880m`）で見せる'
 const FR_009_DECIMALS = '見せる数は小数 2 桁までとする'
 // see VC-15, BD-2
-const VC_15_LAG = '⭐ `lag` は稼働日で数え、先行の日から文書の暦で進めた日と比べる'
-const VC_15_ROUNDED_DOWN = '端数は小さいほうへ丸める。'
+const VC_15_LAG = '⭐ `lag` は稼働時間の分として数え（`FR-009` の換算 —— 形式 `7`・`5`・`3`）、先行の瞬間から文書の暦の稼働時間で進めた瞬間と比べる。'
 const VC_15_NOT_JUDGED = '⛔ `FR-009` が解さない形式で `lag` が 0 でない依存を、本行で判じてはならない（MUST NOT）'
-const BD_2_LAG = '⭐ `lag` は `VC-15` と同じく稼働日で数え、文書の暦で進める。'
+const BD_2_LAG = '⭐ `lag` は `VC-15` と同じく稼働時間の分で数え、文書の暦で進める。'
 const BD_2_ZERO = '`FR-009` が解さない形式のラグは 0 として流す'
 // see UF-128
 const UF_128 = '文書の暦で稼働日を判じ、数え、進め、ラグを稼働日へ換算する'
@@ -52,12 +51,11 @@ describe('CR-644 premise -- the clauses these cases quote still stand', () => {
     ['FR-009 shown and typed', FR_009_SHOWN_AND_TYPED],
     ['FR-009 written', FR_009_WRITTEN],
     ['FR-009 created', FR_009_CREATED],
-    ['FR-009 only 7', FR_009_ONLY_SEVEN],
+    ['FR-009 understood 7, 5 and 3', FR_009_UNDERSTOOD],
     ['FR-009 literal', FR_009_LITERAL],
     ['FR-009 minutes', FR_009_MINUTES],
     ['FR-009 decimals', FR_009_DECIMALS],
     ['VC-15 lag', VC_15_LAG],
-    ['VC-15 rounded down', VC_15_ROUNDED_DOWN],
     ['VC-15 not judged', VC_15_NOT_JUDGED],
     ['BD-2 lag', BD_2_LAG],
     ['BD-2 zero', BD_2_ZERO],

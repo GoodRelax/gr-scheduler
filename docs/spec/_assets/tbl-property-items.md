@@ -34,17 +34,17 @@
 | PR-1 | `name` | 文字 | `Task` | `both` | バーに描くラベル | `Task/Name` |
 | PR-34 | `uid` | 数値（読み取り専用） | `Task` | `both` | **読み取り専用。<br>** 文書の中で一意・不変の番号（`_assets/fig-erd-detail.md` の `AT-24`）。<br>表示するだけであり、書き出しの順で変わる `Task/ID`（`DV-4`）ではない | `Task/UID` |
 | PR-16 | `assignee` | 選択 | `Task` | `both` | 編集できる。<br>入口と選び方は `FR-008` の表 T-225 が持つ。<br> ⚠️ **`Task` の列ではない** —— 実体は `Assignment` であり、表示する名は割当から導出する | `Assignment/ResourceUID`（`mspdi_pj12.xsd:3207`・`xsd:integer`）。<br>名は `Resource/Name` |
-| PR-3 | `start` | 日付 | `Task` | `task` | **予定**の開始日 | `Task/Start` |
-| PR-47 | `finish` | 日付 | `Task` | `task` | **予定**の終了日。<br>⭐ 開始日と別の行にする —— 1 行に 2 つの日付を並べると、名が 2 つの値を兼ね、狭いパネルで折り返す | `Task/Finish` |
-| PR-35 | `start` / `finish` | 日付（1 つの入力） | `Task` | `milestone` | マイルストーンの**予定**の日。<br>1 つの入力で `start` と `finish` へ同じ日を書く（表 T-108 の `CM-11`） —— MSPDI のマイルストーンは開始と終了が同じ日である。<br>空のまま確定したときの扱いは `FR-006` の `start` ／ `finish` の欄と同じ | `Task/Start` `Task/Finish`（同じ日） |
-| PR-4 | `actualStart` | 日付 | `Task` | `task` |  | `Task/ActualStart` |
-| PR-6 | `actualFinish` | 日付 | `Task` | `task` | 完了したときだけ入る | `Task/ActualFinish` |
-| PR-36 | `actualStart` / `actualFinish` | 日付（1 つの入力） | `Task` | `milestone` | マイルストーンの実績の日。<br>1 つの入力で `actualStart` と `actualFinish` へ同じ日を書き、表 T-019 の `PA-5`（完了）に置く。<br>空にしたときは両方を空にして `PA-1`（未着手）に置く（どちらも 表 T-108 の `CM-13`） | `Task/ActualStart` `Task/ActualFinish`（同じ日） |
+| PR-3 | `start` | 日時 | `Task` | `task` | **予定**の開始日 | `Task/Start` |
+| PR-47 | `finish` | 日時 | `Task` | `task` | **予定**の終了日。<br>⭐ 開始日と別の行にする —— 1 行に 2 つの日付を並べると、名が 2 つの値を兼ね、狭いパネルで折り返す | `Task/Finish` |
+| PR-35 | `start` / `finish` | 日時（1 つの入力） | `Task` | `milestone` | マイルストーンの**予定**の日。<br>1 つの入力で `start` と `finish` へ同じ日を書く（表 T-108 の `CM-11`） —— MSPDI のマイルストーンは開始と終了が同じ日である。<br>空のまま確定したときの扱いは `FR-006` の `start` ／ `finish` の欄と同じ | `Task/Start` `Task/Finish`（同じ日） |
+| PR-4 | `actualStart` | 日時 | `Task` | `task` |  | `Task/ActualStart` |
+| PR-6 | `actualFinish` | 日時 | `Task` | `task` | 完了したときだけ入る | `Task/ActualFinish` |
+| PR-36 | `actualStart` / `actualFinish` | 日時（1 つの入力） | `Task` | `milestone` | マイルストーンの実績の日。<br>1 つの入力で `actualStart` と `actualFinish` へ同じ日を書き、表 T-019 の `PA-5`（完了）に置く。<br>空にしたときは両方を空にして `PA-1`（未着手）に置く（どちらも 表 T-108 の `CM-13`） | `Task/ActualStart` `Task/ActualFinish`（同じ日） |
 | PR-5 | `actualDuration` | 数値 | `Task` | `task` | 文書の列ではない —— `FR-011` が日時から数えた実績の長さ（分。<br>端の日が非稼働日ならその日を稼働日の時間帯の 1 組で数える）。<br>入れた長さは、時刻を表示する文書（`FR-158`）では `d` ／ `h` ／ `m` で読み（同要求の 表 T-375 の `TX-3`・`TX-10`）、表示しない文書では整数の稼働日で読む。<br>入れると、`actualStart` から入れた長さだけ稼働時間を進めた瞬間を実績の終わり（完了していれば `actualFinish`、それ以外は `stop`）に置く。<br>欄の入力は日付の欄と同じ幅で、右に単位の語（`FR-006`） | `Task/ActualDuration` |
 | PR-9 | `percentComplete` | 数値（読み取り専用） | `Task` | `task` | **読み取り専用。<br>** 型と算出は `FR-012` | `Task/PercentComplete` |
-| PR-7 | `resume` | 日付 | `Task` | `task` | 中断したときだけ入る | `Task/Resume` |
+| PR-7 | `resume` | 日時 | `Task` | `task` | 中断したときだけ入る | `Task/Resume` |
 | PR-8 | `resumeValid` | 真偽 | `Task` | `task` | `false` = 再開日未定の中断 | `Task/ResumeValid` |
-| PR-10 | `deadline` | 日付 | `Task` | `both` | 終了日とは別の独立マーカー | `Task/Deadline` |
+| PR-10 | `deadline` | 日時 | `Task` | `both` | 終了日とは別の独立マーカー | `Task/Deadline` |
 | PR-17 | `milestoneGlyph` | 選択 | `Task` | `milestone` | マイルストーンの図形（`_assets/fig-erd-detail.md` の `AT-101`）。<br>置いた後も変えられること（`FR-078`） | 無い（`GRS JSON` のみ） |
 | PR-14 | `fadeInDays` / `fadeOutDays` | 数値 / 数値 | `Task` | `task` | 日付の曖昧さを端のぼかしで表す。<br>**適用する形状は表 T-012a の `FD-5` が限る** | `Task/ExtendedAttribute`（通常の列は無い。<br>拡張領域を使うのはこの 2 つだけである。<br>枠の選び方は 表 T-033 の `EX-6`） |
 | PR-15 | `parentTaskUid` | タスクの参照 | `Task` | `both` | 階層の深さはここから導出する。<br>出し方と押した先は 表 T-351 の `PTL-15` 〜 `PTL-17` に従う | `Task/OutlineLevel` へ導出 |

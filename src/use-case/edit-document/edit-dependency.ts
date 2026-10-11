@@ -10,6 +10,7 @@ import {
   lagOfWorkingDays,
   minutesPerWorkingDayOf,
   taskByUid,
+  TENTHS_OF_A_MINUTE,
   withoutDependencyAt,
   WORKING_DAY_LAG_FORMAT,
 } from '../../entity/document-model/schedule/schedule'
@@ -37,12 +38,28 @@ export type DependencyCommand =
       readonly successorUid: number
       readonly order: number
     }
-  | {
+  | ({
       readonly kind: 'setDependencyLag'
       readonly predecessorUid: number
       readonly successorUid: number
-      readonly lagWorkingDays: number
-    }
+    } & (WorkingDayLag | TypedLag))
+
+// see FR-009, S-118
+export interface WorkingDayLag {
+  readonly lagWorkingDays: number
+}
+
+// see FR-009, TX-3, TX-10
+export interface TypedLag {
+  readonly lagMinutes: number
+  readonly lagUnit: TypedLagUnit
+}
+
+export type TypedLagUnit = 'd' | 'h' | 'm'
+
+// see FR-009, AT-48
+// WHY: the codes are mspdi_pj12.xsd's LagFormat: 7 working days, 5 hours, 3 minutes.
+const LAG_FORMAT_OF_UNIT: Readonly<Record<TypedLagUnit, number>> = { d: WORKING_DAY_LAG_FORMAT, h: 5, m: 3 }
 
 /** @purity pure */
 function linkTypeOf(from: DependencyEdge, into: DependencyEdge): number {
@@ -172,16 +189,28 @@ function withLagSet(document: Document, command: Extract<DependencyCommand, { ki
              `no dependency runs from ${command.predecessorUid} to ${command.successorUid}`),
     ])
   }
-  if (!Number.isInteger(command.lagWorkingDays)) {
-    return refused([reject('CM-38', 'FR-009', `lag must be whole working days: ${command.lagWorkingDays}`)])
-  }
-  const lag = lagOfWorkingDays(command.lagWorkingDays, minutesPerWorkingDayOf(schedule.project))
-  if (held.lag === lag && held.lagFormat === WORKING_DAY_LAG_FORMAT) {
+  const written = writtenLagOf(command, minutesPerWorkingDayOf(schedule.project))
+  if (typeof written === 'string') return refused([reject('CM-38', 'FR-009', written)])
+  if (held.lag === written.lag && held.lagFormat === written.lagFormat) {
     return edited(document)
   }
 
   const dependencies = successor.dependencies.map((one) =>
-    one.predecessorUid === command.predecessorUid ? { ...one, lag, lagFormat: WORKING_DAY_LAG_FORMAT } : one,
+    one.predecessorUid === command.predecessorUid ? { ...one, ...written } : one,
   )
   return edited(withTask(document, { ...successor, dependencies }))
+}
+
+// see FR-009, AT-47, AT-48
+// WHY: a string is the refusal's reason; the lag is held in tenths of a minute whatever unit was typed.
+/** @purity pure */
+function writtenLagOf(lag: WorkingDayLag | TypedLag, minutesPerDay: number): Pick<Dependency, 'lag' | 'lagFormat'> | string {
+  if ('lagMinutes' in lag) {
+    const lagFormat = LAG_FORMAT_OF_UNIT[lag.lagUnit] as number | undefined
+    if (lagFormat === undefined) return `lag unit must be d, h or m: ${String(lag.lagUnit)}`
+    if (!Number.isInteger(lag.lagMinutes)) return `lag must be whole minutes: ${lag.lagMinutes}`
+    return { lag: lag.lagMinutes * TENTHS_OF_A_MINUTE, lagFormat }
+  }
+  if (!Number.isInteger(lag.lagWorkingDays)) return `lag must be whole working days: ${lag.lagWorkingDays}`
+  return { lag: lagOfWorkingDays(lag.lagWorkingDays, minutesPerDay), lagFormat: WORKING_DAY_LAG_FORMAT }
 }

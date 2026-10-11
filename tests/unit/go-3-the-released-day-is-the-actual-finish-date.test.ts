@@ -89,6 +89,8 @@ const RUNNING_UID = 1
 const FINISHED_UID = 2
 
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
+// WHY: an end is written at the day's close (WT-2, WT-4); at 00:00 FR-054 reads it as the day before (RV-1, RV-6).
+const endOfDay = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T17:00:00`
 
 const dayPart = (value: string | null | undefined): string => {
   if (value === null || value === undefined) throw new Error('the column this case reads holds nothing')
@@ -148,9 +150,9 @@ function fixtureDocument(): Document {
           uid: RUNNING_UID,
           name: 'Running',
           start: day(6),
-          finish: day(24),
+          finish: endOfDay(24),
           actualStart: day(9),
-          stop: day(14),
+          stop: endOfDay(14),
           resumeValid: true,
           percentComplete: 29,
         }),
@@ -158,9 +160,9 @@ function fixtureDocument(): Document {
           uid: FINISHED_UID,
           name: 'Finished',
           start: day(6),
-          finish: day(24),
+          finish: endOfDay(24),
           actualStart: day(9),
-          actualFinish: day(14),
+          actualFinish: endOfDay(14),
           resumeValid: false,
           percentComplete: 29,
         }),

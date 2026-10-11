@@ -1,4 +1,5 @@
 excess-lines=5744 excess-branches=509
+# PRUNED field-commit.ts::planActualWithColumn (held 38/17) and commandFromTaskColumn (held 47/20), both now below the band, on 2026-10-11 (CR-710 wave 2b, PR-5): the actual length moved to actualEndForLength, which reads d / h / m with time of day (TX-3); commandFromTaskColumn's plan dates moved to commandFromPlanDate. Totals left for the coordinator.
 # LOWERED totals 6216/621 -> 5744/509 on 2026-10-09 (JDG-520): measured at ead296a6 after the 2026-10-08 waves (shrunk handlers and folded copies).
 # PRUNED edit-calendar.ts::editCalendar (held 69/22, now below the band) on 2026-10-11 (CR-710 wave 1, CM-39): the refusals moved to refusalsOf and the working time set of WC-8 to withWorkingTimes. Totals left for the coordinator to lower.
 # PRUNED properties-panel-drawing.ts::controlElement (held 57/18, now below the band) on 2026-10-08 (CR-689, FR-006): the style choice moved to controlStyleOf and the hint / disabled marks to markControl. Totals left for the coordinator to lower.
@@ -68,8 +69,6 @@ HELD src/adapter/document-codec/grs-json-schema.ts::collectFaults lines=55 branc
 HELD src/adapter/document-codec/mspdi-codec.ts::tasksInWbsOrder lines=31 branches=16
 HELD src/adapter/document-codec/mspdi-xml.ts::readXml lines=105 branches=27
 HELD src/adapter/input-command-translator/armed-placement.ts::commandFromArmed lines=84 branches=25
-HELD src/adapter/input-command-translator/field-commit.ts::commandFromTaskColumn lines=47 branches=20
-HELD src/adapter/input-command-translator/field-commit.ts::planActualWithColumn lines=38 branches=17
 HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=154 branches=67
 HELD src/adapter/input-command-translator/input-command-translator.ts::pointerAssignment lines=45 branches=22
 HELD src/adapter/input-command-translator/item-grab.ts::commandFromGrab lines=167 branches=69

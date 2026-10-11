@@ -3,8 +3,8 @@
 // @component ScheduleGeometry, layer layoutEngine (table T-062)
 // @purity    pure
 
-import { dayOf } from '../../document-model/schedule/schedule'
-import { xFromDay, type ScheduleLayout } from '../schedule-layout/schedule-layout'
+import { instantOf } from '../../document-model/schedule/schedule'
+import { xOfInstant, type ScheduleLayout } from '../schedule-layout/schedule-layout'
 import type { ScreenRegions } from '../screen-regions/screen-regions'
 import type { DualCursorGeometry } from './schedule-geometry'
 
@@ -14,7 +14,8 @@ export interface DualCursorDates {
   readonly date2: string
 }
 
-// see CU-2, S-65
+// see CU-2, S-65, DC-3
+// WHY: a placed date is read as its instant; one placed without time of day is the day's 00:00, its column's left edge.
 /** @purity pure */
 export function dualCursorGeometry(
   placed: DualCursorDates | null,
@@ -22,12 +23,12 @@ export function dualCursorGeometry(
   regions: ScreenRegions,
 ): DualCursorGeometry | null {
   if (placed === null) return null
-  const first = dayOf(placed.date1)
-  const second = dayOf(placed.date2)
+  const first = instantOf(placed.date1)
+  const second = instantOf(placed.date2)
   if (first === null || second === null) return null
   return {
-    date1X: xFromDay(layout, first),
-    date2X: xFromDay(layout, second),
+    date1X: xOfInstant(layout, first),
+    date2X: xOfInstant(layout, second),
     top: regions.taskGroupArea.y,
     bottom: regions.taskGroupArea.y + regions.taskGroupArea.height,
   }
