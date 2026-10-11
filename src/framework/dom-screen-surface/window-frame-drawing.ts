@@ -71,17 +71,28 @@ export function windowTitleRowElement(
 }
 
 /** @purity semi-pure-b */
-function zOrderAt(node: Element): number {
+function zCarrierOf(node: Element): Element | null {
   let carrier: Element | null = node
   while (carrier !== null && carrier.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) === null) carrier = carrier.parentElement
-  return SCREEN_Z_ORDER.indexOf(carrier?.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) ?? '')
+  return carrier
 }
 
-// see T-337
+/** @purity semi-pure-b */
+function zOrderAt(node: Element): number {
+  return SCREEN_Z_ORDER.indexOf(zCarrierOf(node)?.getAttribute(SCREEN_Z_ORDER_ATTRIBUTE) ?? '')
+}
+
+// see T-337, UZ-6, WB-11
+// WHY: windows sharing one row of T-337 stand in tree order, so the later layer is the one in front.
 /** @purity semi-pure-b */
 function isInFrontOf(node: Element, window: Element): boolean {
   const front = zOrderAt(node)
-  return front >= 0 && front < zOrderAt(window)
+  const own = zOrderAt(window)
+  if (front < 0 || front > own) return false
+  const carrier = zCarrierOf(node)
+  const ownCarrier = zCarrierOf(window)
+  if (front < own || carrier === null || ownCarrier === null || carrier === ownCarrier) return front < own
+  return (ownCarrier.compareDocumentPosition(carrier) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0
 }
 
 /** @purity semi-pure-b */

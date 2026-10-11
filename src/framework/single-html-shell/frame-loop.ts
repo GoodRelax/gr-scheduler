@@ -172,6 +172,7 @@ import {
   resourceListWithFilterClosed,
   OPENED_RESOURCE_LIST,
   type DelayDiagnosticsReportWindow,
+  type TableWindowState,
   drawnTaskGroupBoxesOf,
   windowBoxAfterGrab,
   windowPlaceOf,
@@ -266,7 +267,6 @@ import {
   RESOURCE_LIST_SURFACE,
   answerTableWindowEntry,
   tableWindowReopened,
-  withTableWindowInFront,
   type ResourceListWindow,
 } from './resource-list-window'
 import {
@@ -1441,6 +1441,7 @@ interface ScreenEffectHands {
   readonly handInteractionRecordToClipboard: () => void
   readonly storeAgentApiEnabling: () => void
   readonly focusSearchWord: () => void
+  readonly raiseSearchPanel: () => void
 }
 
 // see SF-6, UF-123, T-280
@@ -1460,7 +1461,10 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     storeFixedDate2: () => undefined,
     storeClearedDualCursor: () => undefined,
     seedHelpLanguage: () => undefined,
-    focusSearchWord: () => hands.focusSearchWord(),
+    focusSearchWord: () => {
+      hands.raiseSearchPanel()
+      hands.focusSearchWord()
+    },
     writeProgressStep: (effect, frame) => hands.writeProgressStep(effect.writes, frame),
     askBrowserForFullScreen: () => hands.askBrowserForFullScreen(),
     tellFlowSurfaceClosed: (effect, frame) => hands.tellFlowSurfaceClosed(effect.surfaceName, frame),
@@ -1608,6 +1612,12 @@ function grabbedWindowBox(grab: WindowGrab, shown: WindowShown | null, travel: {
   return windowBoxAfterGrab(grab.region, grab.windowBox, travel, grab.range, grab.floor)
 }
 
+const TABLE_WINDOW_OF_SURFACE: { readonly [surface: string]: VisibilityTable | undefined } = {
+  [SEARCH_PANEL_SURFACE]: 'searchPanel',
+  [DELAY_DIAGNOSTICS_REPORT_SURFACE]: 'delayDiagnosticsReport',
+  [RESOURCE_LIST_SURFACE]: 'resourceList',
+}
+
 interface WindowPlaces {
   readonly searchPanel: SearchPanelSession
   readonly helpModal: WindowPlace
@@ -1617,6 +1627,7 @@ interface WindowPlaces {
   readonly closedReport: DelayDiagnosticsReportWindow | null
   readonly closedResourceList: ResourceListWindow | null
   readonly closeOnlyTitledSurface: { readonly x: number; readonly y: number } | null
+  readonly tableWindowsBackToFront: readonly VisibilityTable[]
 }
 
 const STARTING_WINDOW_PLACES: WindowPlaces = {
@@ -1628,11 +1639,12 @@ const STARTING_WINDOW_PLACES: WindowPlaces = {
   closedReport: null,
   closedResourceList: null,
   closeOnlyTitledSurface: null,
+  tableWindowsBackToFront: ['searchPanel', 'resourceList', 'delayDiagnosticsReport'],
 }
 
 type ResourceListInput = ReturnType<NonNullable<ScreenWiring['readResourceListInput']>>
 
-// see RO-1, RW-1, RW-5, RO-6, WB-6
+// see RO-1, RW-1, WB-6, WB-11
 // WHY: a closed window is remembered for its reopening; the window opened or raised goes in front.
 /** @purity pure */
 function withTableWindows(
@@ -1642,14 +1654,68 @@ function withTableWindows(
 ): WindowPlaces {
   const before = held.delayDiagnosticsReport
   const list = held.resourceList
-  const fronted = withTableWindowInFront({ report: before, resourceList: list }, { report, resourceList })
-  return {
+  const placed = {
     ...held,
-    delayDiagnosticsReport: fronted.report,
-    resourceList: fronted.resourceList,
+    delayDiagnosticsReport: report,
+    resourceList,
     closedReport: report === null && before !== null ? before : held.closedReport,
     closedResourceList: resourceList === null && list !== null ? list : held.closedResourceList,
   }
+  if (resourceList?.isInFront === true && list?.isInFront !== true) return withTableWindowRaised(placed, 'resourceList')
+  if (report?.isInFront === true && before?.isInFront !== true) return withTableWindowRaised(placed, 'delayDiagnosticsReport')
+  return placed
+}
+
+/** @purity pure */
+function withFrontFlag<W extends TableWindowState>(window: W | null, isInFront: boolean): W | null {
+  return window === null || window.isInFront === isInFront ? window : { ...window, isInFront }
+}
+
+/** @purity pure */
+function withFrontTableWindow(held: WindowPlaces, front: VisibilityTable | null): WindowPlaces {
+  const delayDiagnosticsReport = withFrontFlag(held.delayDiagnosticsReport, front === 'delayDiagnosticsReport')
+  const resourceList = withFrontFlag(held.resourceList, front === 'resourceList')
+  if (delayDiagnosticsReport === held.delayDiagnosticsReport && resourceList === held.resourceList) return held
+  return { ...held, delayDiagnosticsReport, resourceList }
+}
+
+// see WB-11, UZ-6
+// WHY: the search panel carries no flag; it is in front when neither the report nor the list is.
+/** @purity pure */
+function withTableWindowRaised(held: WindowPlaces, raised: VisibilityTable): WindowPlaces {
+  const order = held.tableWindowsBackToFront
+  const raisedOrder = order[order.length - 1] === raised ? order : [...order.filter((one) => one !== raised), raised]
+  const flagged = withFrontTableWindow(held, raised)
+  return raisedOrder === order ? flagged : { ...flagged, tableWindowsBackToFront: raisedOrder }
+}
+
+// see WB-11, UZ-6, RW-5, RO-6
+// WHY: a front window closed leaves its flag to the one raised before it, which Esc then closes first (RG-16).
+/** @purity pure */
+function withFrontTableWindowSettled(held: WindowPlaces, wasSearchPanelShown: boolean, isSearchPanelShown: boolean): WindowPlaces {
+  const opened = isSearchPanelShown && !wasSearchPanelShown ? withTableWindowRaised(held, 'searchPanel') : held
+  const isOut: { readonly [W in VisibilityTable]: boolean } = {
+    searchPanel: isSearchPanelShown,
+    delayDiagnosticsReport: opened.delayDiagnosticsReport !== null,
+    resourceList: opened.resourceList !== null,
+  }
+  const front = [...opened.tableWindowsBackToFront].reverse().find((one) => isOut[one]) ?? null
+  return withFrontTableWindow(opened, front)
+}
+
+// see WB-11, SV-7, IN-1
+// WHY: raised before the places are kept, so an interrupted grab still leaves the pressed window in front.
+/** @purity pure */
+function windowPlacesAtPress(
+  session: ScreenSession,
+  held: WindowPlaces,
+  on: ScreenPart | null,
+  views: TableViewsHeld,
+): { readonly held: WindowPlaces; readonly atPress: WindowPlaces | null } {
+  const pressed = on === null ? undefined : TABLE_WINDOW_OF_SURFACE[on.part]
+  const raised = pressed === undefined ? held : withTableWindowRaised(held, pressed)
+  const closed = windowPlacesAfterOutsidePress(session, raised, on, views)
+  return { held: closed, atPress: on?.windowGrab === undefined ? null : closed }
 }
 
 type ReportInput = ReturnType<NonNullable<ScreenWiring['readDelayDiagnosticsReportInput']>>
@@ -1728,20 +1794,6 @@ function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnos
     windowPlaces: { helpModal: held.helpModal, dialogueField: held.dialogueField, closeOnlyTitledSurface: held.closeOnlyTitledSurface },
     delayDiagnosticsReport: window === null || report === null ? null : { window, report, fixTables: fixTablesOf() },
     bottleneckUids: diagnostics?.bottleneckUids,
-  }
-}
-
-// see RW-5, RO-6, T-337
-// WHY: the window opened later is in front; the others open in front, so only a search panel opening after them changes that.
-/** @purity pure */
-function windowsBehindNewSearchPanel(held: WindowPlaces, wasShown: boolean, isShown: boolean): WindowPlaces {
-  const report = held.delayDiagnosticsReport
-  const list = held.resourceList
-  if (wasShown || !isShown || (report?.isInFront !== true && list?.isInFront !== true)) return held
-  return {
-    ...held,
-    delayDiagnosticsReport: report === null ? null : { ...report, isInFront: false },
-    resourceList: list === null ? null : { ...list, isInFront: false },
   }
 }
 
@@ -1844,6 +1896,7 @@ function tableWindowsHeldIn(read: () => WindowPlaces, write: (next: WindowPlaces
     resourceList: (): ResourceListWindow | null => read().resourceList,
     reopenedResourceList: (): ResourceListWindow => tableWindowReopened(read().resourceList, read().closedResourceList, OPENED_RESOURCE_LIST),
     holdResourceList: (list: ResourceListWindow | null): void => write(withTableWindows(read(), read().delayDiagnosticsReport, list)),
+    raiseSearchPanel: (): void => write(withTableWindowRaised(read(), 'searchPanel')),
   }
 }
 
@@ -1866,13 +1919,12 @@ function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letSche
     /** @purity non-pure */
     readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'bottleneckUids'> | null, drawn: ReadonlySet<number> | null, fixLog: FixLogSource = {}) {
       const isSearchPanelShown = session.screen.searchPanelDisplayState.kind !== 'hidden'
-      held = windowsBehindNewSearchPanel(held, wasSearchPanelShown, isSearchPanelShown)
+      held = withFrontTableWindowSettled(held, wasSearchPanelShown, isSearchPanelShown)
       wasSearchPanelShown = isSearchPanelShown
       return windowReadingsOf(held, diagnostics, drawn, () => windowsHeld.fixTablesNow(diagnostics, fixLog))
     },
-    notePress: (on: ScreenPart | null): void => void (atPress = on?.windowGrab === undefined ? null : held),
-    closeFiltersPressedOutside: (session: ScreenSession, on: ScreenPart | null): void =>
-      void (held = windowPlacesAfterOutsidePress(session, held, on, shownTasks().views())),
+    notePress: (session: ScreenSession, on: ScreenPart | null): void =>
+      void ({ held, atPress } = windowPlacesAtPress(session, held, on, shownTasks().views())),
     /** @purity non-pure */
     endPress(isInterrupted: boolean): void {
       if (isInterrupted && atPress !== null) held = atPress
@@ -2727,6 +2779,7 @@ export function frameLoop(
     handInteractionRecordToClipboard,
     storeAgentApiEnabling,
     focusSearchWord: () => (isSearchWordFocusOwed = true),
+    raiseSearchPanel: windows.raiseSearchPanel,
   })
   sendToSession({ type: 'rememberedEnablingLoaded', isRememberedEnabled: startupAgentApiEnabled() }, null)
 
@@ -2974,8 +3027,7 @@ export function frameLoop(
   function beginPointerPress(press: PointerPress, on: ScreenPart | null, frame: FrameValues): void {
     if (session.gesture.pointerPressState.kind !== 'notPressed') sendToSession(POINTER_RELEASED, frame)
     sendToSession({ type: 'pointerPressed', pressRow: press.pressRow, pressedOn: pressedOnOf(on, press.hit) }, frame)
-    windows.closeFiltersPressedOutside(session, on)
-    windows.notePress(on)
+    windows.notePress(session, on)
   }
 
   // see IN-1, IN-1a, FR-053, T-289, JDG-660

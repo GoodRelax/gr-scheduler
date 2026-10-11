@@ -69,19 +69,6 @@ export function tableWindowReopened<W extends TableWindowState>(held: W | null, 
   return { ...held, shown: held.shown === 'minimized' ? 'normal' : held.shown, isInFront: true }
 }
 
-// see RW-5, RO-6, UZ-6
-/** @purity pure */
-export function withTableWindowInFront<R extends TableWindowState, L extends TableWindowState>(
-  before: { readonly report: R | null; readonly resourceList: L | null },
-  after: { readonly report: R | null; readonly resourceList: L | null },
-): { readonly report: R | null; readonly resourceList: L | null } {
-  const isListFronted = after.resourceList?.isInFront === true && before.resourceList?.isInFront !== true
-  const isReportFronted = after.report?.isInFront === true && before.report?.isInFront !== true
-  if (isListFronted && after.report !== null) return { ...after, report: { ...after.report, isInFront: false } }
-  if (isReportFronted && after.resourceList !== null) return { ...after, resourceList: { ...after.resourceList, isInFront: false } }
-  return after
-}
-
 // see T-370, RO-1, RO-2, RO-3, SV-7, SV-8, WB-2, WB-3, TV-8, UN-20
 /** @purity non-pure */
 function answerResourceListEntry(

@@ -235,7 +235,7 @@
     "App Header"
    ],
    "group": "調べる",
-   "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば入力欄へ焦点を戻す",
+   "entryTo": "検索パネルを出す（`S-442`）。<br>出ていれば前に出し（`FR-036` の 表 T-335 の `WB-11`）、入力欄へ焦点を戻す",
    "authority": "`FR-151`",
    "arms": null,
    "armsShape": null
