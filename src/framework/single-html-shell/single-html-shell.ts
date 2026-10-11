@@ -28,6 +28,7 @@ import { domInputSource, escapeKeyLockOf, type EscapeKeyLock } from '../dom-inpu
 import {
   domScreenSurface,
   pageGroundStyle,
+  showPointerShapeOver,
   type ScreenTheme,
 } from '../dom-screen-surface/dom-screen-surface'
 import { domSvgSurface } from '../dom-svg-surface/dom-svg-surface'
@@ -625,7 +626,7 @@ function boot(): void {
     const spelling = shape ?? ''
     if (spelling === pointerShapeShown) return
     pointerShapeShown = spelling
-    scheduleCanvas.style.cursor = spelling
+    scheduleCanvas.style.cursor = showPointerShapeOver(screenParts, spelling)
   }
 
   const running = frameLoop(

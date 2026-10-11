@@ -247,10 +247,11 @@ function fixedColumnStyle(): string {
 }
 
 /** @purity pure */
-function headerCellStyle(isFixed: boolean): string {
+function headerCellStyle(isFixed: boolean, isBordered: boolean): string {
   const fixed = isFixed ? fixedColumnStyle() : ''
   const stack = stackStyle(isFixed ? 'fixedHeaderCell' : 'headerCell')
-  return `${cellStyle()}${fixed}font-weight:normal;position:sticky;top:0;background:${PAINT.panel};${stack}`
+  const clear = isBordered ? `padding-right:calc(${CELL_PADDING_EM}em + ${NOT_STORED_SEARCH_PANEL_SIZES['S-465']}px);` : ''
+  return `${cellStyle()}${fixed}${clear}font-weight:normal;position:sticky;top:0;background:${PAINT.panel};${stack}`
 }
 
 const FIXED_COLUMN_ATTRIBUTE = 'data-fixed-column'
@@ -271,10 +272,10 @@ export interface ColumnSizing {
   readonly measured: ReadonlyMap<string, number>
 }
 
-// see S-425, SV-18, IC-122
+// see S-425, SV-18, IC-122, SV-7, S-465
 /** @purity pure */
 export function measuredWidthFloor(fontPx: number): number {
-  return Math.ceil(entranceOuterWidthPx() + CELL_PADDING_EM * 2 * fontPx + CELL_RULE_PX)
+  return Math.ceil(entranceOuterWidthPx() + CELL_PADDING_EM * 2 * fontPx + NOT_STORED_SEARCH_PANEL_SIZES['S-465'] + CELL_RULE_PX)
 }
 
 /** @purity pure */
@@ -426,7 +427,8 @@ function headerCellElement(
   showHeading: SearchPanelView['showHeading'] | null,
   sizing: ColumnSizing,
 ): HTMLElement {
-  const cell = made(host, 'th', headerCellStyle(column.isFixed) + (column.isFiltered ? filteredHeadingStyle() : ''))
+  const isBordered = showHeading === null && column.column !== FIX_CHECK_COLUMN
+  const cell = made(host, 'th', headerCellStyle(column.isFixed, isBordered) + (column.isFiltered ? filteredHeadingStyle() : ''))
   cell.setAttribute(COLUMN_ATTRIBUTE, column.column)
   cell.setAttribute('data-width', String(columnWidthPx(column, sizing)))
   if (column.isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')

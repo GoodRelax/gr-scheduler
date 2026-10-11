@@ -620,7 +620,18 @@ function entranceHoverGroundCss(): string {
 
 /** @purity pure */
 function hoverCss(): string {
-  return TASK_GROUP_CONTROL_SHOWN_CSS + PALETTE_FAINT_CSS + entranceHoverGroundCss()
+  return TASK_GROUP_CONTROL_SHOWN_CSS + PALETTE_FAINT_CSS + entranceHoverGroundCss() + POINTER_SHAPE_CSS
+}
+
+const POINTER_SHAPE_ATTRIBUTE = 'data-pointer-shape-shown'
+
+const POINTER_SHAPE_CSS = `[${POINTER_SHAPE_ATTRIBUTE}] [data-unit="${UNIT_ROW}"] *{cursor:inherit !important;}`
+
+/** @purity non-pure */
+export function showPointerShapeOver(mount: HTMLElement, spelling: string): string {
+  mount.style.cursor = spelling
+  mount.toggleAttribute(POINTER_SHAPE_ATTRIBUTE, spelling !== '')
+  return spelling
 }
 
 // see FR-051, HF-19
