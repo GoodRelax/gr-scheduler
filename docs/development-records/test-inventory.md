@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 311 | 3581 | 5 | 4 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 84 | 545 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 85 | 558 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 181 | 3880 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 596 | 8116 | 8 | 8 | 12 | 2 |
+| **all** | | | 597 | 8129 | 8 | 8 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -631,6 +631,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-731-the-fix-window-on-the-shipped-build.test.ts` | 4 | - | - | - | FA-1, FA-23, FA-24, FM-8, IC-157, RW-16, UN-21 | - | - | - | - |
 | `tests/system/cr-733-a-press-anywhere-brings-a-table-window-to-the-front.test.ts` | 14 | - | - | T-103, T-109, T-330, T-335 | IC-52, IC-117, IN-4, SK-24, SV-2, SV-9, UZ-6, WB-2, WB-8, WB-11 | - | - | - | - |
 | `tests/system/cr-737-the-column-border-grab-band-and-the-pointer-shape-over-windows.test.ts` | 11 | FR-106 | - | T-023d, T-103, T-109, T-206, T-330 | DT-8, GR-25, GR-28, IC-122, PK-10, PK-12, PK-15, RO-9, RQ-1, RW-9, S-425, S-426, S-465, SQ-10, SV-7, SV-18 | - | - | - | - |
+| `tests/system/cr-739-the-window-edge-answers-before-the-title-bar-and-the-header-cell-shows-the-finger.test.ts` | 13 | FR-106 | - | T-023d, T-103, T-109, T-330, T-335 | DT-8, GR-24, GR-25, IC-52, IC-122, IF-9, PK-7, PK-12, PK-13, PK-15, RO-9, RQ-1, RW-9, S-426, S-465, SQ-10, SV-1, SV-7, SV-18, WB-8, WB-9 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-color-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
