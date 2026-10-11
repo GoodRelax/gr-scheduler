@@ -27,6 +27,8 @@ import { appHeaderItemsFromDocument, displayScaleMessageText } from './app-heade
 import { commandPaletteFromSession } from './command-palette'
 import { dialogueFieldFromLog } from './dialogue-field'
 import { confirmationFromSession, dismissKeyOf, noticesFromSession } from './notices'
+export { shiftAmountText, timeShiftQuestionItems } from './notices'
+export type { TimeShiftPreview } from './notices'
 
 // TRAP: the shell must use this key, not rebuild it, or the two spellings drift apart.
 export { dismissKeyOf }
@@ -39,6 +41,8 @@ export const DEFAULT_TASK_GROUP_NAME: string =
 
 // WHY: FX-7's copy entrance commits this; no date reads this way, so the span row's commits never meet it.
 export const FIT_SPAN_COPY_TEXT = 'copyCurrent'
+
+export const DISPLAY_TIME_ZONE_SLOT_SEPARATOR = '|'
 import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
 import { drawnTaskGroupBoxesOf, taskGroupPanelFromSchedule, taskGroupTitleFontPxOf } from './task-group-panel'
@@ -363,6 +367,11 @@ export type PropertyFieldKey =
   | {
       readonly holder: 'documentSettings'
       readonly column: keyof DocumentSettings & string
+    }
+  // see FO-16, FR-157
+  | {
+      readonly holder: 'timeShift'
+      readonly column: 'minutes'
     }
 
 export interface CommandPalette {
@@ -861,7 +870,7 @@ export function screenViewFromRegions(
     ),
     ...openModalPlaced(session, schedule, readings, settings),
     helpModal: help === null ? null : { ...help, place: readings.windowPlaces?.helpModal ?? DEFAULT_WINDOW_PLACE },
-    notices: noticesFromSession(session, readings),
+    notices: noticesFromSession(session, readings, schedule.project.scheduleDataTimeZone),
     confirmation: confirmationFromSession(session, readings),
     dialogueField: dialogueFieldFromLog(dialogueLog, session, readings, regions.scheduleCanvas),
     ...tableWindowsOf(session, readings, { schedule, settings, canvas: regions.scheduleCanvas }),

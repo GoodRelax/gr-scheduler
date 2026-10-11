@@ -393,6 +393,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   themeHues: 'rowId',
   // WHY: CR-710 keys a time zone's shown name by its row of table T-376 (FR-156).
   timeZones: 'rowId',
+  // WHY: CR-710 wave 3b keys the words of the zone fields and of the Time Shift question by their part.
+  timeZoneField: 'part',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
   scaleEcho: 'end',
   // WHY: CR-550 keys the lines of DC-3's readout by the line they fill.
@@ -2458,11 +2460,55 @@ for (const entry of GENERATED['themeHues'] ?? []) {
   })
 }
 
-// see FR-156, T-376, T-369
-// WHY: FO-14 and FO-15, the choosers that list table T-376, are assembled by CR-710 wave 3b; until
-// then no frame prints a time zone's name, so each row is a stated omission rather than a place.
+// see FR-156, T-376, T-369, FO-14
+// WHY: the base time zone field (FO-14) lists table T-376's rows in that table's order under each way's head.
+const T376_ROWS: readonly string[] = specTable('T-376').rows.map((row) => row.id)
+const baseWayControlOf = (view: ScreenView, at: number) => settingsRowOf(view, 'K-144')?.controls[at]
 for (const entry of GENERATED['timeZones'] ?? []) {
-  drop('timeZones', keyOf('timeZones', entry), 'FO-14 / FO-15 of table T-369 are not assembled yet, so no chooser lists table T-376')
+  const rowId = keyOf('timeZones', entry)
+  place({
+    section: 'timeZones',
+    key: rowId,
+    field: 'label',
+    unit: 'UF-64',
+    what: `the choice ${rowId} of table T-376 on the settings face's base time zone field`,
+    frame: SETTINGS_WITH_READOUTS,
+    read: (view) => baseWayControlOf(view, 0)?.choices?.[T376_ROWS.indexOf(rowId) + 1],
+  })
+}
+
+// see FO-14, FO-15, FO-16, FR-156, FR-157
+const TIME_ZONE_FIELD_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
+  keepGlobalTime: (view) => baseWayControlOf(view, 0)?.choices?.[0],
+  keepLocalTime: (view) => baseWayControlOf(view, 1)?.choices?.[0],
+  none: (view) => settingsRowOf(view, 'K-145')?.controls[0]?.choices?.[0],
+  shiftUnit: (view) => settingsRowOf(view, 'IC-162')?.unit,
+}
+// WHY: the example line needs a dated task on the face's document, and the four Time Shift lines are
+// composed when the shell raises QN-14, which no frame of this file raises.
+const TIME_ZONE_FIELD_NOT_ON_A_FRAME: Readonly<Record<string, string>> = {
+  example: 'FO-14 prints it only for a document holding a dated task; the settings frame here holds none',
+  shiftAmountLine: 'a QN-14 line: the shell composes it when it raises the question (FR-157), outside these frames',
+  shiftTaskCountLine: 'a QN-14 line: the shell composes it when it raises the question (FR-157), outside these frames',
+  shiftOutsideCountLine: 'a QN-14 line: the shell composes it when it raises the question (FR-157), outside these frames',
+  shiftExampleLine: 'a QN-14 line: the shell composes it when it raises the question (FR-157), outside these frames',
+}
+for (const entry of GENERATED['timeZoneField'] ?? []) {
+  const part = keyOf('timeZoneField', entry)
+  const why = TIME_ZONE_FIELD_NOT_ON_A_FRAME[part]
+  if (why !== undefined) {
+    drop('timeZoneField', part, why)
+    continue
+  }
+  place({
+    section: 'timeZoneField',
+    key: part,
+    field: 'text',
+    unit: 'UF-64',
+    what: `the ${part} word of the zone fields of the settings face (T-369)`,
+    frame: SETTINGS_WITH_READOUTS,
+    read: (view) => TIME_ZONE_FIELD_READS[part]?.(view),
+  })
 }
 
 // see CV-9, T-294, FR-019, DFC-1640

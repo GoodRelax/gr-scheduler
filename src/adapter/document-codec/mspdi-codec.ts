@@ -455,7 +455,7 @@ function projectFromRoot(
     parentProgressToleranceDays: current.schedule.project.parentProgressToleranceDays,
     uidHighWaterMark: current.schedule.project.uidHighWaterMark,
     importSeq: current.schedule.project.importSeq,
-    // WHY: MSPDI holds no zone (FR-156); the open keeps the current value until the import names the PC's region.
+    // WHY: MSPDI holds no zone (FR-156); the codec keeps the current value and the shell's open names the PC's region.
     scheduleDataTimeZone: current.schedule.project.scheduleDataTimeZone,
     carry: split.carry,
     carryElements: [...split.carryElements, ...carriedRows],

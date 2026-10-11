@@ -33,6 +33,7 @@ export type { AnnotationCommand, AnnotationAnchor, HighlightRange } from './edit
 export type { ResourceCommand } from './edit-resource'
 export type { CalendarCommand } from './edit-calendar'
 export type { ProjectCommand, ProjectProfileFields } from './edit-project'
+export { timeShiftPreviewOf } from './edit-project'
 export type {
   DocumentSettingsCommand,
   SettingsLimits,
@@ -237,6 +238,8 @@ const PROJECT_KINDS = [
   'clearStatusDate',
   'setThemeHue',
   'setParentProgressTolerance',
+  'setScheduleDataTimeZone',
+  'shiftScheduleTimes',
 ] as const satisfies readonly ProjectCommand['kind'][]
 
 const SETTINGS_KINDS = [
@@ -257,6 +260,8 @@ const SETTINGS_KINDS = [
   'setFitSpanFixed',
   'setTaskGroupPanelWidthFixed',
   'setShowsTimeOfDay',
+  'setViewTimeZone',
+  'setDisplayTimeZones',
   'setTableView',
 ] as const satisfies readonly DocumentSettingsCommand['kind'][]
 

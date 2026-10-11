@@ -145,6 +145,24 @@ export function drawnSettingsOf(settings: DocumentSettings): DrawnSettings {
   return merged as unknown as DrawnSettings
 }
 
+// see FR-017, FR-156, S-2, S-575
+const RULER_BAND_ROWS = 3
+
+/** @purity pure */
+export function rulerZoneRowsOf(settings: Pick<DocumentSettings, 'showsTimeOfDay' | 'displayTimeZones'>): readonly string[] {
+  return settings.showsTimeOfDay ? settings.displayTimeZones.filter((zone) => zone !== '') : []
+}
+
+/** @purity pure */
+export function rulerZoneRowHeightOf(drawn: DrawnSettings): number {
+  return drawn.rulerHeight / RULER_BAND_ROWS
+}
+
+/** @purity pure */
+export function rulerBandHeightOf(drawn: DrawnSettings): number {
+  return drawn.rulerHeight + rulerZoneRowsOf(drawn).length * rulerZoneRowHeightOf(drawn)
+}
+
 /** @purity pure */
 export function regionsFromScreen(
   env: ScreenEnvironment,
@@ -159,7 +177,7 @@ export function regionsFromScreen(
 
   const titleWidth = drawn.taskGroupPanelWidth
   const propsWidth = env.propertyPanelWidth
-  const bandHeight = drawn.rulerHeight
+  const bandHeight = rulerBandHeightOf(drawn)
   const bar = env.scrollbarThickness
 
   const taskGroupPanel = rect(canvas.x, canvas.y, titleWidth, canvas.height)
@@ -199,7 +217,7 @@ export function regionsAtDisplayScale(
     height: canvas.y + canvas.height,
     appHeaderHeight: regions.appHeader.height,
     scrollbarThickness:
-      canvas.height - drawn.rulerHeight - drawn.canvasPadding - regions.taskGroupArea.height,
+      canvas.height - rulerBandHeightOf(drawn) - drawn.canvasPadding - regions.taskGroupArea.height,
     propertyPanelWidth: regions.propertiesPanel.width,
     topBandHeight: canvas.y - regions.appHeader.height,
   }

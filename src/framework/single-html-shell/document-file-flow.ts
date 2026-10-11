@@ -87,6 +87,7 @@ import {
   noticeReasonOfRefusals,
   readInstantOfWrite,
   readLocalMoment,
+  readPcRegion,
   type ConfirmationQuestion,
   type FrameLoopHands,
   type FrameValues,
@@ -842,7 +843,7 @@ export async function openDocumentIntoHold(
     const decoded = acceptedIntake(hands, decodedDocument(reading.format, file.text, current))
     if (decoded === null) return false
     handedIn = { format: importedFormatOf(reading.format), byteLength: file.byteLength, fileName: file.fileName }
-    incoming = decoded.document
+    incoming = reading.format === 'mspdi' ? withPcTimeZone(decoded.document) : decoded.document
     tellDecodedIntake(hands, decoded)
     newer = { ...NOT_NEWER, isNewerFormat: decoded.isNewerFormat, couldNotBeRead: decoded.unreadColumns }
   }
@@ -910,7 +911,7 @@ export async function openDocumentIntoHold(
   if (choice === 'replace') {
     const replaced = hands.replaceHeldDocument({ row: 'RD-4', importing: { ...importing, incoming: documentAsOpened(incoming), choice } })
     if (replaced) landReplacedDocument(reading, flow, store, droppedNames, newer, readIn, incoming)
-    if (replaced && holdsWorkingDayUnlikeMinutesPerDay(incoming.schedule)) hands.raiseNotice(WORKING_TIMES_UNLIKE_DAY_REASON, null)
+    if (replaced) tellOpenedCalendarAndZone(hands, incoming, readIn.format)
     return replaced
   }
   // STOP: spec does not decide the surface MG-4 and MG-12 ask through. Looked in FR-022, T-103, T-109 (PND-423)
@@ -962,6 +963,23 @@ async function reopenDocumentIntoHold(
 
 // see RS-89, FR-054, FR-088
 const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89'
+
+const TIME_ZONE_SET_REASON: NoticeReason = 'RS-90'
+
+// see FR-156, RS-90
+// WHY: MSPDI holds no zone (FR-156), so a read MSPDI is the PC's region; the codec keeps the current one.
+/** @purity semi-pure-b */
+function withPcTimeZone(document: Document): Document {
+  const project = document.schedule.project
+  return { ...document, schedule: { ...document.schedule, project: { ...project, scheduleDataTimeZone: readPcRegion().region } } }
+}
+
+// see RS-89, RS-90, FR-054, FR-088, FR-156
+/** @purity non-pure */
+function tellOpenedCalendarAndZone(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, opened: Document, format: ImportedFormat): void {
+  if (holdsWorkingDayUnlikeMinutesPerDay(opened.schedule)) hands.raiseNotice(WORKING_TIMES_UNLIKE_DAY_REASON, null)
+  if (format === 'mspdi') hands.raiseNotice(TIME_ZONE_SET_REASON, null)
+}
 
 // see RS-51, RS-52, RS-60
 /** @purity non-pure */

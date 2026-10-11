@@ -13,6 +13,7 @@ import {
 import {
   compareDays,
   dayOf,
+  isTimeZoneRegion,
   textOfDayEnd,
   textOfDayStart,
   type Schedule,
@@ -78,6 +79,10 @@ export type DocumentSettingsCommand =
   | { readonly kind: 'setTaskGroupPanelWidthFixed'; readonly taskGroupPanelWidthFixed: boolean }
   // see CM-97, FR-158, UN-7
   | { readonly kind: 'setShowsTimeOfDay'; readonly showsTimeOfDay: boolean }
+  // see CM-95, FR-156, S-574, UN-13
+  | { readonly kind: 'setViewTimeZone'; readonly timeZone: string | null }
+  // see CM-96, FR-156, S-575, UN-13
+  | { readonly kind: 'setDisplayTimeZones'; readonly timeZones: readonly string[] }
   // see CM-92, FR-151, UN-20
   | { readonly kind: 'setTableView'; readonly table: VisibilityTable; readonly view: TableView }
 
@@ -402,6 +407,38 @@ function isFlagCommand(command: DocumentSettingsCommand): command is FlagCommand
   return Object.prototype.hasOwnProperty.call(FLAG_KINDS, command.kind)
 }
 
+type ZoneCommand = Extract<DocumentSettingsCommand, { readonly kind: 'setViewTimeZone' | 'setDisplayTimeZones' }>
+
+const ZONE_KINDS: Readonly<Record<ZoneCommand['kind'], true>> = {
+  setViewTimeZone: true,
+  setDisplayTimeZones: true,
+}
+
+/** @purity pure */
+function isZoneCommand(command: DocumentSettingsCommand): command is ZoneCommand {
+  return Object.prototype.hasOwnProperty.call(ZONE_KINDS, command.kind)
+}
+
+const MOST_DISPLAY_TIME_ZONES = 4
+
+// see CM-95, CM-96, FR-156, T-376, S-574, S-575
+/** @purity pure */
+function zoneCommandEdited(settings: DocumentSettings, command: ZoneCommand, put: SettingsPut): EditResult {
+  if (command.kind === 'setViewTimeZone') {
+    if (command.timeZone !== null && !isTimeZoneRegion(command.timeZone)) {
+      return refused([reject('CM-95', 'FR-156', `not a region of table T-376: ${String(command.timeZone)}`)])
+    }
+    return put({ viewTimeZone: command.timeZone })
+  }
+  const zones = command.timeZones
+  if (!Array.isArray(zones) || zones.length > MOST_DISPLAY_TIME_ZONES || !zones.every(isTimeZoneRegion)) {
+    return refused([reject('CM-96', 'FR-156', `not 0 to ${MOST_DISPLAY_TIME_ZONES} regions of table T-376`)])
+  }
+  const held = settings.displayTimeZones
+  if (held.length === zones.length && held.every((one, at) => one === zones[at])) return put({})
+  return put({ displayTimeZones: [...zones] })
+}
+
 // see CM-64, CM-91, CM-97
 /** @purity pure */
 function flagCommandEdited(command: FlagCommand, put: SettingsPut): EditResult {
@@ -442,6 +479,7 @@ export function editDocumentSettings(
     Math.max(limits.zoomMin, Math.min(limits.zoomMax, value))
   if (isComposedCommand(command)) return composedCommandEdited(settings, command, put)
   if (isFlagCommand(command)) return flagCommandEdited(command, put)
+  if (isZoneCommand(command)) return zoneCommandEdited(settings, command, put)
 
   switch (command.kind) {
     case 'setStackDirection':

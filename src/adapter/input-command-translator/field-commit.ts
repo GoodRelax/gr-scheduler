@@ -28,7 +28,7 @@ import {
 } from '../../entity/document-model/document-settings/document-settings'
 import { displayScaleFractionOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { shownSpanOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
-import { FIT_SPAN_COPY_TEXT, type FieldCommit } from '../screen-renderer/screen-renderer'
+import { DISPLAY_TIME_ZONE_SLOT_SEPARATOR, FIT_SPAN_COPY_TEXT, type FieldCommit } from '../screen-renderer/screen-renderer'
 import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
 import {
   milestoneGlyphOf,
@@ -428,6 +428,7 @@ function commandFromProjectColumn(column: string, text: string, context: InputCo
   if (column === 'themeHue') return commandFromThemeHue(text)
   if (column === 'parentProgressToleranceDays') return commandFromParentProgressTolerance(text)
   if (column === 'statusDate') return commandsFromStatusDate(text, context)
+  if (column === 'scheduleDataTimeZone') return text === '' ? [] : [{ kind: 'setScheduleDataTimeZone', timeZone: text }]
   if (column !== 'title') return []
   return [{ kind: 'setProjectTitle', title: text }]
 }
@@ -511,6 +512,8 @@ function commandFromDocumentSettingsColumn(
   if (column === 'fitSpanFixed') return commandsFromFitSpanFixed(text, context)
   if (column === 'taskGroupPanelWidthFixed') return [{ kind: 'setTaskGroupPanelWidthFixed', taskGroupPanelWidthFixed: settledTruth(text) }]
   if (column === 'showsTimeOfDay') return commandsFromShowsTimeOfDay(text, context)
+  if (column === 'viewTimeZone') return commandsFromViewTimeZone(text, context)
+  if (column === 'displayTimeZones') return commandsFromDisplayTimeZone(text, settings)
   if (column === 'taskGroupPanelWidth') return commandsFromTaskGroupTitleWidth(text)
   if (column === 'displayScale') {
     const scale = DISPLAY_SCALE_STEPS.find((step) => String(step) === text)
@@ -638,13 +641,53 @@ export function commandFromFieldCommit(
         commit.text,
       )
     }
-    case 'project':
-      return commandFromProjectColumn(key.column, commit.text, context)
-    case 'documentSettings':
-      return commandFromDocumentSettingsColumn(key.column, commit, context)
     case 'assignment':
       return taskByUid(schedule, key.taskUid) === null
         ? []
         : commandsFromAssigneeField(schedule, key.taskUid, key.resourceUid, commit.text, commit.pick)
+    default:
+      return commandFromSettingsFaceField(key, commit, context)
   }
+}
+
+type SettingsFaceKey = Extract<FieldCommit['key'], { readonly holder: 'project' | 'documentSettings' | 'timeShift' }>
+
+/** @purity pure */
+function commandFromSettingsFaceField(key: SettingsFaceKey, commit: FieldCommit, context: InputContext): readonly DocumentCommand[] {
+  if (key.holder === 'project') return commandFromProjectColumn(key.column, commit.text, context)
+  if (key.holder === 'documentSettings') return commandFromDocumentSettingsColumn(key.column, commit, context)
+  return commandsFromTimeShift(commit.text)
+}
+
+// WHY: hours and minutes with a sign (FR-157, CM-98): `-16`, `+1:30`, `-0:45`; anything else writes nothing.
+const TIME_SHIFT_AMOUNT = /^([+-]?)(\d{1,5})(?::([0-5]\d))?$/
+
+const MINUTES_PER_HOUR = 60
+
+/** @purity pure */
+function commandsFromTimeShift(text: string): readonly DocumentCommand[] {
+  const hit = TIME_SHIFT_AMOUNT.exec(text.trim())
+  if (hit === null) return []
+  const size = Number(hit[2]) * MINUTES_PER_HOUR + Number(hit[3] ?? 0)
+  const minutes = hit[1] === '-' ? -size : size
+  return minutes === 0 ? [] : [{ kind: 'shiftScheduleTimes', minutes }]
+}
+
+// see FO-14, CM-95, FR-156, S-574
+/** @purity pure */
+function commandsFromViewTimeZone(text: string, context: InputContext): readonly DocumentCommand[] {
+  if (text === '') return []
+  const isDataZone = text === context.document.schedule.project.scheduleDataTimeZone
+  return [{ kind: 'setViewTimeZone', timeZone: isDataZone ? null : text }]
+}
+
+// see FO-15, CM-96, S-575
+/** @purity pure */
+function commandsFromDisplayTimeZone(text: string, settings: DocumentSettings): readonly DocumentCommand[] {
+  const at = text.indexOf(DISPLAY_TIME_ZONE_SLOT_SEPARATOR)
+  const slot = Number(text.slice(0, at))
+  if (at < 0 || !Number.isInteger(slot)) return []
+  const slots = [0, 1, 2, 3].map((one) => settings.displayTimeZones[one] ?? '')
+  slots[slot] = text.slice(at + 1)
+  return [{ kind: 'setDisplayTimeZones', timeZones: slots.filter((one) => one !== '') }]
 }

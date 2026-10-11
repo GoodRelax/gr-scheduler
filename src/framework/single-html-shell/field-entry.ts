@@ -9,9 +9,11 @@ import {
   type HumanInput,
   type InputAction,
 } from '../../adapter/input-command-translator/input-command-translator'
-import type { FieldEditNotice } from '../../adapter/screen-renderer/screen-renderer'
+import { timeShiftQuestionItems, type FieldEditNotice } from '../../adapter/screen-renderer/screen-renderer'
+import { timeShiftPreviewOf, type DocumentCommand } from '../../use-case/edit-document/edit-document'
 import {
   CHOICE_MOVED,
+  CONFIRMATION_MANNER,
   FIELD_FOCUS_WITHDRAWING_KEYS,
   FIELD_FOCUS_WITHDRAWN,
   isSizeSettled,
@@ -178,8 +180,33 @@ export function spendFieldCommit(hands: FieldEntryHands, frame: FrameValues): bo
   if (hands.screen === undefined) return false
   const commit = hands.screen.surface.readFieldCommit()
   if (commit === null) return false
-  const commands = commandFromFieldCommit(commit, hands.collectInputContext(frame))
-  if (commands.length > 0) hands.writeDocument(commands, frame, true)
+  const context = hands.collectInputContext(frame)
+  const commands = commandFromFieldCommit(commit, context)
+  const shift = commands.find((one) => one.kind === 'shiftScheduleTimes')
+  if (shift !== undefined) askTimeShift(hands, frame, shift, context.document)
+  else if (commands.length > 0) hands.writeDocument(commands, frame, true)
   // TRAP: true on the commit, not the commands; a value naming no task group is still a settled edit (SK-19).
   return true
+}
+
+const TIME_SHIFT_QUESTION = 'QN-14'
+
+// see FR-157, QN-14, BS-3, NT-7
+// WHY: the Time Shift alone asks first (FR-157); the answer carries the one write out as a deletion's does.
+/** @purity non-pure */
+function askTimeShift(
+  hands: FieldEntryHands,
+  frame: FrameValues,
+  shift: Extract<DocumentCommand, { readonly kind: 'shiftScheduleTimes' }>,
+  document: Parameters<typeof timeShiftPreviewOf>[0],
+): void {
+  const items = timeShiftQuestionItems(timeShiftPreviewOf(document, shift.minutes), hands.readSession())
+  hands.sendToSession(
+    {
+      type: 'changeQuestionRaised',
+      question: { manner: CONFIRMATION_MANNER, question: TIME_SHIFT_QUESTION, items },
+      owedAction: { kind: 'changeDocument', writes: [[shift]], created: null },
+    },
+    frame,
+  )
 }

@@ -44,6 +44,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `customColorOf` | entry | function | `src/entity/document-model/schedule/stored-color.ts#customColorOf` | PI-1 | カスタムカラーを明暗の 2 つの側に分ける。 |
 | `customSideOf` | entry | function | `src/entity/document-model/schedule/stored-color.ts#customSideOf` | PI-1 | 未定義の側を他方で埋めて、描く側の値を返す。 |
 | `DAILY_RECURRENCE_KIND` | entry | const | `src/entity/document-model/schedule/working-calendar.ts#DAILY_RECURRENCE_KIND` | PI-1 | 日次の繰り返しの種別 `1`（`AT-82`）。 |
+| `dataWallOfViewWall` | entry | function | `src/entity/document-model/schedule/time-zone.ts#dataWallOfViewWall` | PI-1 | 見せる基準の壁時計の分を、日程データの壁時計の分へ |
 | `DATE_COLUMNS` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DATE_COLUMNS` | PI-1 | 表 T-058 の型の欄が日付とする列の全数。 |
 | `dateFromWorkingDays` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#dateFromWorkingDays` | PI-1 | 起点の日付に稼働日を加えた日 |
 | `DAY_END_TIME` | entry | const | `src/entity/document-model/schedule/calendar-day.ts#DAY_END_TIME` | PI-1 | 丸 1 日の範囲の終わりの時刻（表 T-350 の `WT-7`） |
@@ -111,6 +112,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isSameWorkingTimeSet` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isSameWorkingTimeSet` | PI-1 | 2 つの時間帯の組が同じか。 |
 | `isSearchWordFound` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#isSearchWordFound` | PI-1 | 名や本文が語に当たるか（表 T-330 の `SV-4` の比べ方） |
 | `isStoredColor` | entry | function | `src/entity/document-model/schedule/stored-color.ts#isStoredColor` | PI-1 | 色の列が取る綴りか。 |
+| `isTimeZoneRegion` | entry | function | `src/entity/document-model/schedule/time-zone.ts#isTimeZoneRegion` | PI-1 | 値が 表 T-376 の地域名か（`FR-156`） |
 | `isWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isWorkingDay` | PI-1 | その日が文書の暦の稼働日か（`FR-054`） |
 | `isWorkingTimeSetUnlikeDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isWorkingTimeSetUnlikeDay` | PI-1 | 当てる時間帯の 1 組の合計が `Project.minutesPerDay` と違うか。 |
 | `lagOfWorkingDays` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#lagOfWorkingDays` | PI-1 | 稼働日のラグを、保存する 0.1 分にする（`FR-009`・`AT-47`） |
@@ -124,13 +126,17 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `parentCandidatesOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentCandidatesOf` | PI-1 | 親の決まらない子の候補の並び（表 T-318 の `IP-4`、`FR-135` の番号の枠） |
 | `ParentTaskResolution` | entry | type | `src/entity/document-model/schedule/delay-diagnostics.ts#ParentTaskResolution` | PI-1 | 型。 |
 | `parentTaskResolutionsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentTaskResolutionsOf` | PI-1 | どの `Task` の親タスクも、明記・導いた親タスク（表 T-318 の `IP-2`）・決まらない（`VO-4`、候補は `IP-4` の並び）・根（`IP-5`）のどれかで答える。 |
+| `PcRegionChoice` | entry | interface | `src/entity/document-model/schedule/time-zone.ts#PcRegionChoice` | PI-1 | 型。 |
+| `PcTimeZone` | entry | interface | `src/entity/document-model/schedule/time-zone.ts#PcTimeZone` | -- | interface PcTimeZone |
 | `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // see T-019a /** @purity pure */ exp... |
 | `planActualState` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#planActualState` | PI-1 | 表 T-019a の判別 |
 | `plannedDurationMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedDurationMinutesOf` | PI-1 | 予定の長さの分数。 |
 | `plannedLengthMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedLengthMinutesOf` | PI-1 | 予定の期間（分）。 |
+| `PRINTED_TIME_ZONE` | entry | const | `src/entity/document-model/schedule/time-zone.ts#PRINTED_TIME_ZONE` | -- | const PRINTED_TIME_ZONE = 'UTC' |
 | `progressPointDayOf` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#progressPointDayOf` | PI-1 | 表 T-022 の頂点を打つ日。 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
 | `proposeDelayFixes` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#proposeDelayFixes` | PI-1 | 遅延診断の指摘（表 T-317 の `DX-3`）ごとに、表 T-373 の直し方で直す案の行を作る（`FR-155`）。 |
+| `regionForPc` | entry | function | `src/entity/document-model/schedule/time-zone.ts#regionForPc` | PI-1 | この PC の地域を 表 T-376 の行へ寄せる（`FR-156`・`RS-90`） |
 | `Resource` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Resource` | -- | interface Resource |
 | `Schedule` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Schedule` | PI-1 | 型。 |
 | `ScheduleViolation` | entry | interface | `src/entity/document-model/schedule/schedule-invariants.ts#ScheduleViolation` | -- | interface ScheduleViolation |
@@ -153,7 +159,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `textOfFinishSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfFinishSide` | PI-1 | 終了の側の列へ書く日時の字（表 T-350 の `WT-2`・`WT-4`） |
 | `textOfInstant` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfInstant` | PI-1 | 瞬間を日時の字にする。 |
 | `textOfStartSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfStartSide` | PI-1 | 開始の側の列へ書く日時の字。 |
+| `TIME_ZONE_ROWS` | entry | const | `src/entity/document-model/schedule/time-zone.ts#TIME_ZONE_ROWS` | PI-1 | 表 T-376 のタイムゾーンの行（地域名・標準時の UTC の差・夏時間の有無）を表の順に。 |
+| `TimeZoneRow` | entry | interface | `src/entity/document-model/schedule/time-zone.ts#TimeZoneRow` | -- | interface TimeZoneRow |
 | `TRANSPARENT` | entry | const | `src/entity/document-model/schedule/stored-color.ts#TRANSPARENT` | PI-1 | 透明の色の綴り（`_assets/tbl-settings.md` の `S-324`）。 |
+| `viewRegionOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewRegionOf` | PI-1 | 見せる基準の地域（`S-574`、空なら日程データのタイムゾーン `AT-157`） |
+| `viewWallOfDataWall` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewWallOfDataWall` | PI-1 | 日程データの壁時計の分を、見せる基準の壁時計の分へ（同じ地域なら換算しない） |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
 | `weekDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#weekDayOf` | PI-1 | 時間帯も持ち回りも持たない曜日の行。 |
 | `withoutDependencyAt` | entry | function | `src/entity/document-model/schedule/schedule.ts#withoutDependencyAt` | PI-1 | `Task` の依存の並びから、1 つの先行から来る線のうち順で名指した 1 本を除く（表 T-108 の `CM-93`）。 |
@@ -167,6 +177,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `workingTimesBreach` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingTimesBreach` | PI-1 | 時間帯の組が `05-07-design.md` の 表 T-220 の `IV-24` に反する理由。 |
 | `WorkingTimeSet` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingTimeSet` | -- | interface WorkingTimeSet |
 | `workingTimeSetOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingTimeSetOf` | PI-1 | 文書の稼働日の時間帯の 1 組と、違う組を持つ曜日。 |
+| `ZoneClock` | entry | interface | `src/entity/document-model/schedule/time-zone.ts#ZoneClock` | -- | interface ZoneClock |
+| `zoneClockOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#zoneClockOf` | PI-1 | 地域の規則で UTC の差を読む時計（壁時計の分と UTC の分の換算）。 |
 | `textOfDayAt` | file only | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayAt` | -- | function textOfDayAt(day: CalendarDay, time: string): string |
 | `DelayReportWall` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportWall` | -- | interface DelayReportWall |
 | `AnalysisWall` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#AnalysisWall` | -- | interface AnalysisWall |
@@ -512,6 +524,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TaskGroupCommand` | entry | type | `src/use-case/edit-document/edit-task-group.ts#TaskGroupCommand` | -- | type TaskGroupCommand = \| |
 | `TaskMilestoneGlyph` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskMilestoneGlyph` | -- | type TaskMilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']> |
 | `TaskShapeKind` | entry | type | `src/use-case/edit-document/edit-task.ts#TaskShapeKind` | -- | type TaskShapeKind = NonNullable<TaskVisual['shapeKind']> |
+| `timeShiftPreviewOf` | entry | function | `src/use-case/edit-document/edit-project.ts#timeShiftPreviewOf` | PI-9 | タイムシフトの確認（`QN-14`）に出すもの（表 T-377 の `BS-3`）を、書き込む前に数える |
 | `TreeStateEvent` | entry | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateEvent` | PI-9 | 型。 |
 | `treeStateWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#treeStateWritesFor` | PI-9 | 表 T-328 の出来事 1 つが書き換えるタスクグループの `treeState` を求める。 |
 | `VisibleElement` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#VisibleElement` | -- | type VisibleElement = \| 'baselineVisible' \| 'planVisible' \| 'actualVisible' \| 'progressLineVisible' \| 'progressMarkerVisible' \| 'dateGridLinesVisible' \| 'gro... |
@@ -1125,6 +1138,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `readInstantOfWrite` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readInstantOfWrite` | -- | function readInstantOfWrite(): string |
 | `readLocalMoment` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readLocalMoment` | -- | function readLocalMoment(): string |
 | `readMonotonicMs` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readMonotonicMs` | -- | function readMonotonicMs(): number |
+| `readPcRegion` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readPcRegion` | -- | function readPcRegion(): PcRegionChoice |
 | `readToday` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readToday` | -- | function readToday(): string |
 | `ScreenWiring` | file only | interface | `src/framework/single-html-shell/frame-loop.ts#ScreenWiring` | -- | interface ScreenWiring |
 | `SEAM_ABSENT_REASON` | file only | const | `src/framework/single-html-shell/frame-loop.ts#SEAM_ABSENT_REASON` | -- | const SEAM_ABSENT_REASON: NoticeReason = 'RS-3' |
@@ -1132,7 +1146,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ShowPointerShape` | file only | type | `src/framework/single-html-shell/pointer-shape.ts#ShowPointerShape` | -- | type ShowPointerShape = (shape: PointerShape \| null) => void |
 | `STACK_SAFETY_CAP_REASON` | file only | const | `src/framework/single-html-shell/frame-loop.ts#STACK_SAFETY_CAP_REASON` | -- | const STACK_SAFETY_CAP_REASON: NoticeReason = 'RS-24' |
 | `standingNoticesIn` | file only | function | `src/framework/single-html-shell/frame-loop.ts#standingNoticesIn` | -- | function standingNoticesIn(session: ScreenSession): readonly StandingNotice[] |
-| `startedDocumentOf` | file only | function | `src/framework/single-html-shell/frame-loop.ts#startedDocumentOf` | -- | function startedDocumentOf(emptyDocument: Document, created: string): Document |
+| `startedDocumentOf` | file only | function | `src/framework/single-html-shell/frame-loop.ts#startedDocumentOf` | -- | function startedDocumentOf(emptyDocument: Document, created: string, scheduleDataTimeZone: string): Document |
 | `StartupNoticeReason` | file only | type | `src/framework/single-html-shell/frame-loop.ts#StartupNoticeReason` | -- | type StartupNoticeReason = Extract< |
 | `WATERMARK_UNLOCK_DIGEST` | file only | const | `src/framework/single-html-shell/watermark-unlock.ts#WATERMARK_UNLOCK_DIGEST` | -- | const WATERMARK_UNLOCK_DIGEST: |
 | `WATERMARK_UNLOCK_ROW` | file only | const | `src/framework/single-html-shell/frame-loop.ts#WATERMARK_UNLOCK_ROW` | -- | const WATERMARK_UNLOCK_ROW = 'U-60' |
@@ -1281,6 +1295,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `RegionName` | entry | type | `src/entity/layout-engine/screen-regions/screen-regions.ts#RegionName` | -- | type RegionName = keyof ScreenRegions \| null |
 | `regionsAtDisplayScale` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionsAtDisplayScale` | PI-35 | 与えた表示の倍率で描いたときの各部の矩形。 |
 | `regionsFromScreen` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#regionsFromScreen` | PI-35 | 画面の寸法と `DocumentSettings` から各部の矩形を出す |
+| `rulerBandHeightOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#rulerBandHeightOf` | -- | function rulerBandHeightOf(drawn: DrawnSettings): number |
+| `rulerZoneRowHeightOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#rulerZoneRowHeightOf` | PI-35 | タイムゾーンの段 1 つの高さ（3 段の帯の 1 段ぶん） |
+| `rulerZoneRowsOf` | entry | function | `src/entity/layout-engine/screen-regions/screen-regions.ts#rulerZoneRowsOf` | PI-35 | 目盛の帯の下に段を足す表示するタイムゾーン（時刻を表示しているあいだだけ、`FR-017`・`FR-156`） |
 | `ScreenEnvironment` | entry | interface | `src/entity/layout-engine/screen-regions/screen-regions.ts#ScreenEnvironment` | -- | interface ScreenEnvironment |
 | `ScreenRect` | entry | interface | `src/entity/layout-engine/screen-regions/screen-regions.ts#ScreenRect` | PI-35 | 型。 |
 | `ScreenRegions` | entry | interface | `src/entity/layout-engine/screen-regions/screen-regions.ts#ScreenRegions` | PI-35 | 型。 |
@@ -1334,6 +1351,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DialogueInput` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#DialogueInput` | -- | interface DialogueInput |
 | `dialogueMessageFromInput` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#dialogueMessageFromInput` | PI-37 | 対話欄で確定した発話。 |
 | `dismissKeyOf` | entry | function | `src/adapter/screen-renderer/notices.ts#dismissKeyOf` | PI-37 | 表 T-037 の `NT-8` で人が消した告げを名指す鍵 |
+| `DISPLAY_TIME_ZONE_SLOT_SEPARATOR` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#DISPLAY_TIME_ZONE_SLOT_SEPARATOR` | PI-37 | 表示するタイムゾーンの 4 つの選ぶ欄（表 T-369 の `FO-15`）の値が、どの欄かを運ぶ区切り |
 | `DisplayLanguage` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#DisplayLanguage` | -- | type DisplayLanguage = 'ja' \| 'en' |
 | `displayLanguageOf` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#displayLanguageOf` | -- | function displayLanguageOf(session: ScreenSession): DisplayLanguage |
 | `drawnTaskGroupBoxesOf` | entry | function | `src/adapter/screen-renderer/task-group-panel.ts#drawnTaskGroupBoxesOf` | PI-37 | 描いたタスクグループごとの `Task Group Panel` のタスクグループ見出しの矩形を、配置と各部の矩形から測る（`SC-1`・`FR-098`）。 |
@@ -1413,6 +1431,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchPanelWithFilterClosed` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた検索パネルの値を答える。 |
 | `searchPanelWithFilterOpened` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithFilterOpened` | PI-37 | 列の見出しの `IC-122` の押下を、その列のフィルタを開いた検索パネルの値へ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
 | `searchPanelWithTableViewsCleared` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithTableViewsCleared` | PI-37 | `IC-153` の押下で、タスクの表とコメントボックスの表の列のフィルタと並べ替えを戻し、開いているフィルタを閉じた検索パネルの値を答える（`FR-151` の 表 T-330 の `SV-1`）。 |
+| `shiftAmountText` | entry | function | `src/adapter/screen-renderer/notices.ts#shiftAmountText` | -- | function shiftAmountText(minutes: number): string |
 | `statusGlyphSvg` | entry | function | `src/adapter/screen-renderer/table-window.ts#statusGlyphSvg` | PI-37 | 表のステータスの値の頭に描く絵（`SQ-5`・`DT-1`・`RW-4`）。 |
 | `tableAfterVisibilityChange` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableAfterVisibilityChange` | PI-37 | 表示の列の印の入れ外しを、表の値の「非表示」の行へ当てる（`FR-151` の 表 T-353 の `TV-2`）。 |
 | `tableViewsOnTheirColumns` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableViewsOnTheirColumns` | PI-37 | 表の見え方から、その表に無い列の行 ID（表 T-372 の `column`）を持つ列のフィルタと並べ替えを外す（表 T-024a の `OP-18`）。 |
@@ -1423,6 +1442,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TaskGroupPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupPanel` | -- | interface TaskGroupPanel |
 | `TaskGroupTitle` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupTitle` | -- | interface TaskGroupTitle |
 | `taskGroupTitleFontPxOf` | entry | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupTitleFontPxOf` | PI-37 | タスクグループ名の字の大きさ。 |
+| `TimeShiftPreview` | entry | interface | `src/adapter/screen-renderer/notices.ts#TimeShiftPreview` | -- | interface TimeShiftPreview |
+| `timeShiftQuestionItems` | entry | function | `src/adapter/screen-renderer/notices.ts#timeShiftQuestionItems` | PI-37 | タイムシフトの確認（`QN-14`）の文の下に並べる行（表 T-377 の `BS-3`） |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
 | `TooltipAnchor` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipAnchor` | -- | type TooltipAnchor = \| { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly groupId?: string } \| { readonly kind: 'task'; read... |
 | `UNASSIGNED_ROW_KEY` | entry | const | `src/adapter/screen-renderer/table-window.ts#UNASSIGNED_ROW_KEY` | PI-37 | 担当リストの表の（担当なし）の行の鍵（表 T-370 の `RO-5`）。 |
@@ -1468,9 +1489,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `confirmationAnswers` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationAnswers` | -- | function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] |
 | `confirmationFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationFromSession` | -- | function confirmationFromSession( session: ScreenSession, readings: ScreenViewReadings, ): Confirmation \| null |
 | `linkedWordsOf` | file only | function | `src/adapter/screen-renderer/notices.ts#linkedWordsOf` | -- | function linkedWordsOf(word: string): LinkedWords \| null |
-| `noticesFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#noticesFromSession` | -- | function noticesFromSession( session: ScreenSession, readings: ScreenViewReadings, ): readonly Notice[] |
+| `noticesFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#noticesFromSession` | -- | function noticesFromSession( session: ScreenSession, readings: ScreenViewReadings, scheduleDataTimeZone: string \| null = null, |
 | `reasonNextStepLink` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonNextStepLink` | -- | function reasonNextStepLink(reason: string, language: DisplayLanguage): LinkedWords \| null |
 | `reasonSurfaceWords` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonSurfaceWords` | -- | function reasonSurfaceWords( reason: string, language: DisplayLanguage, ): { readonly text: string; readonly nextStep: string; readonly dismissText: string } |
+| `shownDateTimeOf` | file only | function | `src/adapter/screen-renderer/notices.ts#shownDateTimeOf` | -- | function shownDateTimeOf(stored: string): string |
+| `timeZoneFieldWord` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneFieldWord` | -- | function timeZoneFieldWord(part: string, language: DisplayLanguage): string |
+| `timeZoneLabelOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneLabelOf` | -- | function timeZoneLabelOf(region: string, language: DisplayLanguage): string |
 | `exportNameBodyOf` | file only | function | `src/adapter/screen-renderer/open-modals.ts#exportNameBodyOf` | -- | function exportNameBodyOf(documentName: string): string |
 | `helpModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#helpModalFromSession` | -- | function helpModalFromSession(session: ScreenSession, area: HelpWindowArea): HelpModal \| null |
 | `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, _schedule: Schedule, readings: ScreenViewReadings, settings: DocumentSettings, ): OpenModal \| null |
@@ -1902,4 +1926,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 947 name(s) leave through a public entry (423 of them published by table T-064), 745 more are exported by a file and not by its entry.
+Totals: 967 name(s) leave through a public entry (436 of them published by table T-064), 749 more are exported by a file and not by its entry.

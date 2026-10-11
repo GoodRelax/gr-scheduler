@@ -16,6 +16,10 @@ import {
   weekDayOf,
   workingCalendarOf,
   workingSpansReader,
+  dataWallOfViewWall,
+  viewRegionOf,
+  viewWallOfDataWall,
+  zoneClockOf,
   type CalendarDay,
   type Exception,
   type Schedule,
@@ -25,13 +29,18 @@ import {
 import {
   dateAtX,
   labelWidth,
+  snappedInstantAtX,
   thresholdPxPerDayOf,
   tickStrideOf,
   xFromDay,
   xOfInstant,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
-import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
+import {
+  rulerZoneRowHeightOf,
+  rulerZoneRowsOf,
+  type ScreenRect,
+} from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   GROUP_GRID_LINE_WIDTH_PX,
   NOT_STORED_RULER_WEEKDAY_SIZES,
@@ -129,11 +138,49 @@ function twoDigits(value: number): string {
   return String(value).padStart(2, '0')
 }
 
+// see FR-156, S-574, FR-158
+// WHY: the ruler's x of a wall-clock minute of one region; the x axis itself is the schedule data's wall clock.
+interface RulerAxis {
+  xOfWall(wallMinute: number): number
+  xOfDay(day: CalendarDay): number
+  wallAtX(x: number): number
+}
+
+// see FR-156, S-574, FR-158
+// WHY: the same region, or time of day not shown (bars stand on the data's days, JDG-1715), needs no clock at all.
+/** @purity pure */
+function rulerAxisOf(layout: ScheduleLayout, region: string, dataRegion: string, isTimeShown: boolean): RulerAxis {
+  const dataXOf = (wall: number): number => xOfInstant(layout, wall)
+  const dataWallAt = (x: number): number => snappedInstantAtX(layout, x, 1) ?? 0
+  if (!isTimeShown || region === dataRegion) {
+    return { xOfWall: dataXOf, xOfDay: (day) => xFromDay(layout, day), wallAtX: dataWallAt }
+  }
+  const data = zoneClockOf(dataRegion)
+  const zone = zoneClockOf(region)
+  const xOfWall = (wall: number): number => dataXOf(dataWallOfViewWall(data, zone, wall))
+  return {
+    xOfWall,
+    xOfDay: (day) => xOfWall(serialOf(day) * MINUTES_PER_CALENDAR_DAY),
+    wallAtX: (x) => viewWallOfDataWall(data, zone, dataWallAt(x)),
+  }
+}
+
+// see FR-156, S-574
+/** @purity pure */
+function viewAxisOf(layout: ScheduleLayout, settings: DrawnSettings, dataRegion: string): RulerAxis {
+  return rulerAxisOf(layout, viewRegionOf(dataRegion, settings.viewTimeZone), dataRegion, settings.showsTimeOfDay)
+}
+
+/** @purity pure */
+function dayAtX(axis: RulerAxis, x: number): CalendarDay {
+  return dayOfSerial(Math.floor(axis.wallAtX(x) / MINUTES_PER_CALENDAR_DAY))
+}
+
 // see LF-1
 /** @purity pure */
 function ticksOfRow(
   row: RulerRow,
-  layout: ScheduleLayout,
+  axis: RulerAxis,
   stride: number,
   weekStart: number,
   from: CalendarDay,
@@ -152,7 +199,7 @@ function ticksOfRow(
           ? dayOfSerial(firstSerial - ((weekdayOf(from) - weekStart + 7) % 7))
           : dayOfSerial(Math.floor(firstSerial / stride) * stride)
   for (let step = 0; step <= cap; step++) {
-    if (xFromDay(layout, at) >= right) break
+    if (axis.xOfDay(at) >= right) break
     out.push(at)
     at =
       row === 'year'
@@ -192,26 +239,83 @@ interface RulerRowBox {
 // WHY: an hour's label stands on the day's own grid of strides, so a pan never re-labels the hours.
 /** @purity pure */
 function hourRowSvg(
+  axis: RulerAxis,
   layout: ScheduleLayout,
   settings: DrawnSettings,
-  from: CalendarDay,
   row: RulerRowBox,
-  ink: string,
-  rule: string,
+  look: RulerInk,
+  keyHead = 'ruler-hour',
 ): readonly string[] {
   const stride = hourStrideOf(layout.pxPerDay, settings)
   const out: string[] = []
-  for (let hour = serialOf(from) * HOURS_PER_DAY; ; hour += stride) {
+  for (let hour = serialOf(dayAtX(axis, row.left)) * HOURS_PER_DAY; ; hour += stride) {
     const instant = hour * MINUTES_PER_HOUR
-    const x = xOfInstant(layout, instant)
+    const x = axis.xOfWall(instant)
     if (x >= row.right) break
     if (x < row.left) continue
     out.push(
       `<line x1="${rounded(x)}" y1="${rounded(row.top)}" x2="${rounded(x)}" y2="${rounded(row.top + row.height)}"` +
-        ` stroke="${rule}" stroke-width="1"${figureKey(`ruler-hour-tick-${instant}`)}/>`,
-      `<text x="${rounded(x)}" y="${rounded(row.baseline)}" font-size="${rounded(settings.rulerFont)}"` +
-        `${typefaceAttribute()} fill="${ink}" xml:space="preserve"${figureKey(`ruler-hour-label-${instant}`)}>` +
-        `${escaped(String(hour % HOURS_PER_DAY))}</text>`,
+        ` stroke="${look.rule}" stroke-width="1"${figureKey(`${keyHead}-tick-${instant}`)}/>`,
+      rowLabelSvg(x, row, settings, look.ink, `${keyHead}-label-${instant}`, String(hour % HOURS_PER_DAY)),
+    )
+  }
+  return out
+}
+
+/** @purity pure */
+function rowLabelSvg(x: number, row: RulerRowBox, settings: DrawnSettings, ink: string, key: string, label: string): string {
+  return (
+    `<text x="${rounded(x)}" y="${rounded(row.baseline)}" font-size="${rounded(settings.rulerFont)}"` +
+    `${typefaceAttribute()} fill="${ink}" xml:space="preserve"${figureKey(key)}>${escaped(label)}</text>`
+  )
+}
+
+// see FR-017, FR-156
+// WHY: the widest m/d a zone row prints, the width its stride must leave room for (S-83's derivation).
+const WIDEST_ZONE_DATE = '12/31'
+
+// see FR-017, FR-156
+// WHY: off the hour tier a zone's row prints the zone's own midnight as m/d, as often as the label fits.
+/** @purity pure */
+function zoneDateRowSvg(axis: RulerAxis, layout: ScheduleLayout, settings: DrawnSettings, row: RulerRowBox, look: RulerInk, keyHead: string): readonly string[] {
+  const room = labelWidth(WIDEST_ZONE_DATE, settings.rulerFont, settings) + settings.rulerLabelGap
+  const stride = Math.max(1, Math.ceil(room / Math.max(0.001, layout.pxPerDay)))
+  const out: string[] = []
+  for (let serial = Math.floor(serialOf(dayAtX(axis, row.left)) / stride) * stride; ; serial += stride) {
+    const x = axis.xOfWall(serial * MINUTES_PER_CALENDAR_DAY)
+    if (x >= row.right) break
+    if (x < row.left) continue
+    const day = dayOfSerial(serial)
+    out.push(rowLabelSvg(x, row, settings, look.ink, `${keyHead}-label-${serial}`, `${day.month}/${day.day}`))
+  }
+  return out
+}
+
+interface RulerInk {
+  readonly ink: string
+  readonly rule: string
+}
+
+// see FR-017, FR-156, S-575
+// WHY: one row per shown zone under the tiers, each the height of one of the band's three rows.
+/** @purity pure */
+function zoneRowsSvg(layout: ScheduleLayout, settings: DrawnSettings, band: ScreenRect, dataRegion: string, look: RulerInk): readonly string[] {
+  const zones = rulerZoneRowsOf(settings)
+  const height = rulerZoneRowHeightOf(settings)
+  const right = band.x + band.width
+  const out: string[] = []
+  for (const [index, zone] of zones.entries()) {
+    const top = band.y + band.height - (zones.length - index) * height
+    const baseline = top + settings.rulerLabelPad + settings.rulerFont - settings.rulerLabelBottomPad
+    const row: RulerRowBox = { top, height, baseline, left: band.x, right }
+    const axis = rulerAxisOf(layout, zone, dataRegion, true)
+    const keyHead = `ruler-zone-${index}`
+    out.push(
+      `<line x1="${rounded(band.x)}" y1="${rounded(top)}" x2="${rounded(right)}" y2="${rounded(top)}"` +
+        ` stroke="${look.rule}" stroke-width="1"${figureKey(`${keyHead}-rule`)}/>`,
+      ...(layout.tier === 'dayHour'
+        ? hourRowSvg(axis, layout, settings, row, look, keyHead)
+        : zoneDateRowSvg(axis, layout, settings, row, look, keyHead)),
     )
   }
   return out
@@ -273,13 +377,14 @@ export function rulerSvg(
   ink: string,
   rule: string,
   weekdayWords: readonly string[],
+  dataRegion: string,
 ): readonly string[] {
-  if (band.width <= 0 || band.height <= 0) return []
-  const from = dateAtX(layout, band.x)
-  if (from === null) return []
+  if (band.width <= 0 || band.height <= 0 || layout.originDay === null) return []
+  const axis = viewAxisOf(layout, settings, dataRegion)
+  const from = dayAtX(axis, band.x)
 
   const rows = ROWS_OF_TIER[layout.tier]
-  const taskGroupHeight = band.height / rows.length
+  const taskGroupHeight = (band.height - rulerZoneRowsOf(settings).length * rulerZoneRowHeightOf(settings)) / rows.length
   const right = band.x + band.width
   const stride = tickStrideOf(layout, settings)
   const cap = Math.ceil(band.width / Math.max(0.001, layout.pxPerDay)) + 1
@@ -302,12 +407,12 @@ export function rulerSvg(
       )
     }
     if (row === 'hour') {
-      out.push(...hourRowSvg(layout, settings, from, { top, height: taskGroupHeight, baseline, left: band.x, right }, ink, rule))
+      out.push(...hourRowSvg(axis, layout, settings, { top, height: taskGroupHeight, baseline, left: band.x, right }, { ink, rule }))
       continue
     }
-    const ticks = ticksOfRow(row, layout, stride, weekStart, from, right, cap)
+    const ticks = ticksOfRow(row, axis, stride, weekStart, from, right, cap)
     for (const [at, day] of ticks.entries()) {
-      const x = xFromDay(layout, day)
+      const x = axis.xOfDay(day)
       // TRAP: skip only the rule left of the band; LF-19 pulls its label to the edge instead.
       if (x >= band.x) {
         out.push(
@@ -318,12 +423,13 @@ export function rulerSvg(
         )
       }
       const next = ticks[at + 1]
-      const nextX = next === undefined ? null : xFromDay(layout, next)
+      const nextX = next === undefined ? null : axis.xOfDay(next)
       const label = rulerLabelSvg(row, day, x, nextX, baseline, band.x, settings, ink, weekdayWords)
       if (label !== null) out.push(label)
     }
   }
   out.push(
+    ...zoneRowsSvg(layout, settings, band, dataRegion, { ink, rule }),
     `<line x1="${rounded(band.x)}" y1="${rounded(band.y + band.height)}"` +
       ` x2="${rounded(right)}" y2="${rounded(band.y + band.height)}"` +
       ` stroke="${rule}" stroke-width="1"${figureKey('ruler-foot-rule')}/>`,
@@ -491,13 +597,13 @@ function nonWorkingDaysSvg(input: GridInput): string | null {
 // see FR-089, TM-5, FR-017, S-578, S-581
 // WHY: every hour a solid rule and, past S-578, every half hour a dotted one, in the date rule's color and width.
 /** @purity pure */
-function hourGridParts(input: GridInput, from: CalendarDay): readonly string[] {
+function hourGridParts(input: GridInput, axis: RulerAxis): readonly string[] {
   const { settings, layout, area, themed } = input
   const step = isHalfHourGridShown(layout.pxPerDay, settings) ? HALF_HOUR_MINUTES : MINUTES_PER_HOUR
   const dash = SETTINGS_CONSTANTS.halfHourGridDash
   const out: string[] = []
-  for (let instant = serialOf(from) * MINUTES_PER_CALENDAR_DAY; ; instant += step) {
-    const x = xOfInstant(layout, instant)
+  for (let instant = serialOf(dayAtX(axis, area.x)) * MINUTES_PER_CALENDAR_DAY; ; instant += step) {
+    const x = axis.xOfWall(instant)
     if (x >= area.x + area.width) break
     if (x < area.x) continue
     const isHalf = instant % MINUTES_PER_HOUR !== 0
@@ -515,10 +621,10 @@ function hourGridParts(input: GridInput, from: CalendarDay): readonly string[] {
 /** @purity pure */
 function dateGridParts(input: GridInput): readonly string[] {
   const { schedule, settings, layout, area, themed } = input
-  if (!settings.dateGridLinesVisible) return []
-  const gridFrom = dateAtX(layout, area.x)
-  if (gridFrom === null) return []
-  if (layout.tier === 'dayHour') return hourGridParts(input, gridFrom)
+  if (!settings.dateGridLinesVisible || layout.originDay === null) return []
+  const axis = viewAxisOf(layout, settings, schedule.project.scheduleDataTimeZone)
+  const gridFrom = dayAtX(axis, area.x)
+  if (layout.tier === 'dayHour') return hourGridParts(input, axis)
   const finest = ROWS_OF_TIER[layout.tier][ROWS_OF_TIER[layout.tier].length - 1]
   const gridCap = Math.ceil(area.width / Math.max(0.001, layout.pxPerDay)) + 1
   const stride = tickStrideOf(layout, settings)
@@ -526,14 +632,14 @@ function dateGridParts(input: GridInput): readonly string[] {
   const out: string[] = []
   for (const day of ticksOfRow(
     finest ?? 'year',
-    layout,
+    axis,
     stride,
     weekStart,
     gridFrom,
     area.x + area.width,
     gridCap,
   )) {
-    const x = xFromDay(layout, day)
+    const x = axis.xOfDay(day)
     if (x < area.x) continue
     out.push(
       `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +

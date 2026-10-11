@@ -240,7 +240,9 @@ export interface AgentApiWiring {
   readonly schemaVersion: string
 }
 
-const AGENT_API_VERSION = 3
+// see AM-1, AG-1, CM-94, CM-95, CM-96, CM-98
+// WHY: CR-710 wave 3b added the time zone and Time Shift commands applyCommands takes, so a caller must see 4.
+const AGENT_API_VERSION = 4
 
 // see AG-4
 // WHY: a walk, not structuredClone or a JSON round trip: both throw on some values (FR-028).

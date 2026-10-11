@@ -3,7 +3,21 @@
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 
-import { dayOf } from '../../entity/document-model/schedule/schedule'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
+import {
+  compareDays,
+  DATE_COLUMNS,
+  dayOf,
+  instantOf,
+  isTimeZoneRegion,
+  MINUTES_PER_CALENDAR_DAY,
+  textOfInstant,
+  workingCalendarOf,
+  workingSpansReader,
+  type BaselineTask,
+  type CalendarDay,
+  type Task,
+} from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
@@ -26,6 +40,10 @@ export type ProjectCommand =
   | { readonly kind: 'clearStatusDate' }
   | { readonly kind: 'setThemeHue'; readonly hue: number }
   | { readonly kind: 'setParentProgressTolerance'; readonly workingDays: number }
+  // see CM-94, FR-156
+  | { readonly kind: 'setScheduleDataTimeZone'; readonly timeZone: string }
+  // see CM-98, FR-157, T-377
+  | { readonly kind: 'shiftScheduleTimes'; readonly minutes: number }
 
 const PROFILE_KEYS = [
   'name',
@@ -43,7 +61,7 @@ function withProject(document: Document, project: Document['schedule']['project'
   return { ...document, schedule: { ...document.schedule, project } }
 }
 
-// see CM-1, CM-2, CM-3, CM-4, CM-5, CM-87
+// see CM-1, CM-2, CM-3, CM-4, CM-5, CM-87, CM-94, CM-98
 /** @purity pure */
 export function editProject(document: Document, command: ProjectCommand): EditResult {
   const project = document.schedule.project
@@ -80,9 +98,112 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
       return edited(withProject(document, { ...project, themeHue: command.hue }))
     }
 
-    case 'setParentProgressTolerance':
-      return withParentProgressTolerance(document, command.workingDays)
+    default:
+      return projectValueEdited(document, command)
   }
+}
+
+type ProjectValueCommand = Extract<ProjectCommand, { readonly kind: 'setParentProgressTolerance' | 'setScheduleDataTimeZone' | 'shiftScheduleTimes' }>
+
+// see CM-87, CM-94, CM-98
+/** @purity pure */
+function projectValueEdited(document: Document, command: ProjectValueCommand): EditResult {
+  if (command.kind === 'setParentProgressTolerance') return withParentProgressTolerance(document, command.workingDays)
+  if (command.kind === 'setScheduleDataTimeZone') return withScheduleDataTimeZone(document, command.timeZone)
+  return withScheduleTimesShifted(document, command.minutes)
+}
+
+// see CM-94, FR-156, T-376
+// WHY: the stored numbers stay; only the region they are read in moves (FR-156, Keep Local Time).
+/** @purity pure */
+function withScheduleDataTimeZone(document: Document, timeZone: string): EditResult {
+  const project = document.schedule.project
+  if (!isTimeZoneRegion(timeZone)) {
+    return refused([reject('CM-94', 'FR-156', `not a region of table T-376: ${String(timeZone)}`)])
+  }
+  if (project.scheduleDataTimeZone === timeZone) return edited(document)
+  return edited(withProject(document, { ...project, scheduleDataTimeZone: timeZone }))
+}
+
+// see BS-1, WT-1, WT-2, WT-3, WT-4, WT-5
+// WHY: every date column of Task is one of the columns WT-1 to WT-5 name, and the reverse (BS-1).
+const SHIFTED_TASK_COLUMNS = DATE_COLUMNS.Task as readonly (keyof Task & string)[]
+
+const SHIFTED_BASELINE_COLUMNS = DATE_COLUMNS.BaselineTask as readonly (keyof BaselineTask & string)[]
+
+// see BS-4, T-214
+const ACCEPTED_DAYS = {
+  first: dayOf(SETTINGS_CONSTANTS.importMinDate),
+  last: dayOf(SETTINGS_CONSTANTS.importMaxDate),
+}
+
+/** @purity pure */
+function isAcceptedDay(day: CalendarDay): boolean {
+  const { first, last } = ACCEPTED_DAYS
+  return (first === null || compareDays(day, first) >= 0) && (last === null || compareDays(day, last) <= 0)
+}
+
+// see BS-1, BS-4
+// WHY: undefined when the shifted value leaves the accepted days; a text no reader can read is kept as it is.
+/** @purity pure */
+function shiftedText(text: string | null, minutes: number): string | null | undefined {
+  const instant = instantOf(text)
+  if (instant === null) return text
+  const moved = textOfInstant(instant + minutes)
+  const day = dayOf(moved)
+  return day !== null && isAcceptedDay(day) ? moved : undefined
+}
+
+type ShiftedRow<TRow> = { readonly row: TRow; readonly outside: readonly string[] }
+
+/** @purity pure */
+function shiftedRow<TRow extends Task | BaselineTask>(
+  row: TRow,
+  columns: readonly (keyof TRow & string)[],
+  minutes: number,
+): ShiftedRow<TRow> {
+  let held = row
+  const outside: string[] = []
+  for (const column of columns) {
+    const text = row[column] as unknown as string | null
+    const moved = shiftedText(text, minutes)
+    if (moved === undefined) outside.push(`${column}=${String(text)}`)
+    else if (moved !== text) held = { ...held, [column]: moved }
+  }
+  return { row: held, outside }
+}
+
+// see CM-98, FR-157, T-377, BS-1, BS-2, BS-4
+// WHY: one write for every column BS-1 names; the calendar and the whole-day ranges (BS-2) stay, as FR-157 says.
+/** @purity pure */
+function withScheduleTimesShifted(document: Document, minutes: number): EditResult {
+  if (!Number.isInteger(minutes)) {
+    return refused([reject('CM-98', 'FR-157', `the shift is not a whole number of minutes: ${minutes}`)])
+  }
+  if (minutes === 0) return edited(document)
+  const schedule = document.schedule
+  const tasks = schedule.tasks.map((task) => shiftedRow(task, SHIFTED_TASK_COLUMNS, minutes))
+  const baselines = schedule.baselineTasks.map((one) => shiftedRow(one, SHIFTED_BASELINE_COLUMNS, minutes))
+  const startDate = shiftedText(schedule.project.startDate, minutes)
+  const statusDate = shiftedText(schedule.project.statusDate, minutes)
+  const outside = [
+    ...tasks.flatMap((one) => one.outside.map((what) => `task ${one.row.uid} ${what}`)),
+    ...baselines.flatMap((one) => one.outside.map((what) => `baseline ${one.row.uid} ${what}`)),
+    ...(startDate === undefined ? ['project startDate'] : []),
+    ...(statusDate === undefined ? ['project statusDate'] : []),
+  ]
+  if (outside.length > 0) {
+    return refused([reject('CM-98', 'IV-14', `the shift leaves the accepted days (table T-214): ${outside.join(', ')}`)])
+  }
+  return edited({
+    ...document,
+    schedule: {
+      ...schedule,
+      project: { ...schedule.project, startDate: startDate ?? null, statusDate: statusDate ?? null },
+      tasks: tasks.map((one) => one.row),
+      baselineTasks: baselines.map((one) => one.row),
+    },
+  })
 }
 
 // see CM-2, PF-8
@@ -114,4 +235,41 @@ function withParentProgressTolerance(document: Document, workingDays: number): E
   }
   if (project.parentProgressToleranceDays === workingDays) return edited(document)
   return edited(withProject(document, { ...project, parentProgressToleranceDays: workingDays }))
+}
+
+type SpansOfSerial = ReturnType<typeof workingSpansReader>
+
+// see BS-3, FR-054
+// WHY: a start stands inside a range that holds its minute; a finish inside one that ends at or after it.
+/** @purity pure */
+function isInsideWorkingTime(spansOf: SpansOfSerial, instant: number, side: 'start' | 'finish'): boolean {
+  const at = side === 'finish' ? instant - 1 : instant
+  const serialOf = Math.floor(at / MINUTES_PER_CALENDAR_DAY)
+  const minute = instant - serialOf * MINUTES_PER_CALENDAR_DAY
+  return spansOf(serialOf).some((span) => (side === 'start' ? span.from <= minute && minute < span.to : span.from < minute && minute <= span.to))
+}
+
+/** @purity pure */
+function shiftExampleOf(tasks: readonly Task[], minutes: number) {
+  const task = tasks.find((one) => instantOf(one.start) !== null)
+  const start = task === undefined ? null : instantOf(task.start)
+  if (task === undefined || start === null) return null
+  return { name: task.name, before: textOfInstant(start), after: textOfInstant(start + minutes) }
+}
+
+// see BS-3, FR-157, QN-14
+// WHY: what the question shows before the shift is written; the rewrite itself is withScheduleTimesShifted.
+/** @purity pure */
+export function timeShiftPreviewOf(document: Document, minutes: number) {
+  const spansOf = workingSpansReader(workingCalendarOf(document.schedule))
+  const shifted = document.schedule.tasks.filter((task) => SHIFTED_TASK_COLUMNS.some((column) => instantOf(task[column] as string | null) !== null))
+  const outside = shifted.filter((task) => {
+    const start = instantOf(task.start)
+    const finish = instantOf(task.finish)
+    return (
+      (start !== null && !isInsideWorkingTime(spansOf, start + minutes, 'start')) ||
+      (finish !== null && !isInsideWorkingTime(spansOf, finish + minutes, 'finish'))
+    )
+  })
+  return { minutes, taskCount: shifted.length, outsideCount: outside.length, example: shiftExampleOf(shifted, minutes) }
 }

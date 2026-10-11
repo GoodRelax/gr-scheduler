@@ -5701,6 +5701,71 @@
    }
   }
  ],
+ "timeZoneField": [
+  {
+   "part": "keepGlobalTime",
+   "text": {
+    "ja": "グローバルタイム（UTC）を保つ",
+    "en": "Keep Global Time (UTC)"
+   }
+  },
+  {
+   "part": "keepLocalTime",
+   "text": {
+    "ja": "ローカルタイムを保つ",
+    "en": "Keep Local Time"
+   }
+  },
+  {
+   "part": "example",
+   "text": {
+    "ja": "例: {name} {dateTime}",
+    "en": "Example: {name} {dateTime}"
+   }
+  },
+  {
+   "part": "none",
+   "text": {
+    "ja": "（なし）",
+    "en": "(None)"
+   }
+  },
+  {
+   "part": "shiftUnit",
+   "text": {
+    "ja": "時間:分（例 -16:00）",
+    "en": "h:mm (e.g. -16:00)"
+   }
+  },
+  {
+   "part": "shiftAmountLine",
+   "text": {
+    "ja": "ずらす量: {amount}",
+    "en": "Shift: {amount}"
+   }
+  },
+  {
+   "part": "shiftTaskCountLine",
+   "text": {
+    "ja": "書き換えるタスク: {count} 件",
+    "en": "Tasks rewritten: {count}"
+   }
+  },
+  {
+   "part": "shiftOutsideCountLine",
+   "text": {
+    "ja": "稼働時間の外に出るタスク: {count} 件",
+    "en": "Tasks moved outside working time: {count}"
+   }
+  },
+  {
+   "part": "shiftExampleLine",
+   "text": {
+    "ja": "例: {name} {before} → {after}",
+    "en": "Example: {name} {before} → {after}"
+   }
+  }
+ ],
  "scaleEcho": [
   {
    "end": "max",
