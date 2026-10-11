@@ -170,6 +170,25 @@ export async function openDocument(page: Page, name: string, text: string): Prom
   if (proceed !== null) await proceed.click({ timeout: 3_000 })
   await page.waitForTimeout(1_500)
   await settle(page)
+  if (name.endsWith('.xml')) await dismissTimeZoneNotice(page)
+}
+
+const TIME_ZONE_SET_REASON = 'RS-90'
+
+// see FR-156, RS-90, NT-8
+// WHY: every MSPDI intake tells RS-90 (CR-710); the notice covers the canvas top and takes the next
+// Enter or Esc (NT-8), so a case about something else presses its OK as the author would.
+/** @purity non-pure */
+export async function dismissTimeZoneNotice(page: Page): Promise<void> {
+  const at = await page.evaluate((reason: string) => {
+    const box = document.querySelector(`[data-notice-box~="${reason}"] button[data-notice]`)?.getBoundingClientRect()
+    return box === undefined || box.width === 0 ? null : { x: box.x + box.width / 2, y: box.y + box.height / 2 }
+  }, TIME_ZONE_SET_REASON)
+  expect(at, `FR-156: an MSPDI intake tells ${TIME_ZONE_SET_REASON} with an OK to dismiss it (NT-8)`).not.toBeNull()
+  if (at === null) return
+  await pressAt(page, at)
+  await settle(page)
+  expect(await toldReason(page, TIME_ZONE_SET_REASON), `NT-8: OK dismisses ${TIME_ZONE_SET_REASON}`).toBe(false)
 }
 
 export interface TreeTaskGroup {

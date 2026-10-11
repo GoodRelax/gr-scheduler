@@ -136,6 +136,16 @@ export const openByDrop = async (page: Page, name: string, text: string, choice:
   await page.waitForTimeout(200)
   if (await page.locator('[data-role="Confirmation"] [data-confirmation-answer="proceed"]').count()) await answerConfirmation(page, 'proceed')
   await settle(page)
+  if (name.endsWith('.xml')) await dismissNotice(page, 'RS-90')
+}
+
+// see FR-156, RS-90, NT-8
+// WHY: an MSPDI intake tells RS-90 (CR-710); the author reads it and presses OK before the next step.
+export const dismissNotice = async (page: Page, reason: string): Promise<void> => {
+  const dismiss = page.locator('[data-notice-box~="' + reason + '"] button[data-notice]')
+  if ((await dismiss.count()) === 0) return
+  await dismiss.first().click()
+  await settle(page)
 }
 
 export const figureBox = (page: Page, figure: string): Promise<Box | null> =>

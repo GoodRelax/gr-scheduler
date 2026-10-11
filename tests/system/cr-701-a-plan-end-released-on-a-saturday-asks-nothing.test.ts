@@ -14,7 +14,8 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_031_ONLY_THESE = '確認ダイアログを増やす代わりにこれが要る。例外は、取り消しで取り戻せないものを失う場面に限る（MUST）'
 const FR_031_NO_OTHER = 'それ以外の場面で確認を求めてはならない（MUST NOT）'
-const FR_103_NO_SNAP = '⛔ **掴んだ端点を置いた日を、稼働日へ寄せてはならない（MUST NOT）'
+// WHY: CR-710 widened the clause from the released day to the released place (day or time).
+const FR_103_NO_SNAP = '⛔ **掴んだ端点を置いた所を、稼働日・稼働時間へ寄せてはならない（MUST NOT）'
 
 test.describe('CR-701 the manuscript these cases are driven by', () => {
   for (const clause of [FR_031_ONLY_THESE, FR_031_NO_OTHER, FR_103_NO_SNAP]) {

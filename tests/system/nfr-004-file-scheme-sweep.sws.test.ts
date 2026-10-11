@@ -1959,6 +1959,46 @@ const PROBES: readonly Probe[] = [
       return held
     },
   },
+  {
+    // WHY: MK-17 is pressed only while the time of day is shown (FR-158), which the Agent API turns on;
+    // WHY: last in the list, as S-576 then stays on for whatever probe would come after it.
+    // see MK-17, SG-4, S-576
+    rows: ['MK-17'],
+    expect: 'answers',
+    setUp: async (p) => {
+      await openAgentApi(p)
+      const accepted = await p.evaluate(async () => {
+        const api = (window as unknown as {
+          grSchedulerAgentApi: { readStamp(): unknown; applyCommands(request: unknown): Promise<{ accepted: boolean }> }
+        }).grSchedulerAgentApi
+        const answer = await api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setShowsTimeOfDay', showsTimeOfDay: true }] })
+        return answer.accepted
+      })
+      if (!accepted) throw new Error('MK-17: the Agent API refused to show the time of day (CM-97)')
+      await settled(p)
+      await selectBar(p, await geometryOf(p))
+    },
+    act: async (p, g) => {
+      const uid = await taskUidAt(p, g.barBody)
+      const finishOf = (): Promise<string | null> =>
+        p.evaluate((wanted: number) => {
+          const api = (window as unknown as {
+            grSchedulerAgentApi: { readDocument(): { schedule: { tasks: { uid: number; finish: string | null }[] } } }
+          }).grSchedulerAgentApi
+          return api.readDocument().schedule.tasks.find((one) => one.uid === wanted)?.finish ?? null
+        }, uid)
+      const before = await finishOf()
+      await p.keyboard.down('Alt')
+      const held = await dragFrom(p, g.barFinish, 37, 0)
+      await p.keyboard.up('Alt')
+      await settled(p)
+      const after = await finishOf()
+      if (after === before) {
+        throw new Error(`MK-17: the finish handle of task ${String(uid)} dragged with Alt left its finish at ${String(before)} (SG-4)`)
+      }
+      return held
+    },
+  },
 ]
 
 interface SweepResult {

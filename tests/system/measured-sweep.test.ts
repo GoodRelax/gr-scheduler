@@ -1581,8 +1581,8 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
     expect(read.tables, `the help lists ${table}, which FR-036 (MUST NOT) bars`).not.toContain(table)
   }
   // see FR-036
-  // WHY: MK-15 joined the list with CR-558.
-  const helpMouseRows = ['MK-2', 'MK-5', 'MK-7', 'MK-15', 'MK-16']
+  // WHY: MK-15 joined the list with CR-558, MK-17 with CR-710.
+  const helpMouseRows = ['MK-2', 'MK-5', 'MK-7', 'MK-15', 'MK-16', 'MK-17']
   // WHY: CR-635 keeps the rows helpBarred names off the list, and CR-637 moves
   // WHY: a key whose entrance item is not listed into the block of keys with no entrance.
   const listedEntrances = helpListedEntrances()

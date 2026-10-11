@@ -42,8 +42,12 @@ const OPEN_CHOOSER = '[data-role="Open Chooser"]'
 const CONFIRMATION = '[data-role="Confirmation"]'
 const EMBEDDED = /(<script[^>]*id="embedded-document"[^>]*>)([\s\S]*?)(<\/script>)/
 
-// WHY: above the schema maximum of documentSettings.zoomX, so the reader brings it back in range (RS-51).
-const OUT_OF_RANGE_ZOOM = 100
+const SCHEMA = JSON.parse(readFileSync(join(SPEC, '_source', 'grs-document.schema.json'), 'utf8')) as {
+  readonly properties: { readonly documentSettings: { readonly properties: { readonly zoomX: { readonly maximum: number } } } }
+}
+
+// WHY: above the schema maximum of documentSettings.zoomX (S-55, raised by CR-710), so the reader brings it back in range (RS-51).
+const OUT_OF_RANGE_ZOOM = SCHEMA.properties.documentSettings.properties.zoomX.maximum * 2
 
 /** @purity pure */
 function reasonWords(rowId: string): readonly string[] {
