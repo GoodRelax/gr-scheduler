@@ -10,7 +10,6 @@ import {
   calendarDaysBetween,
   compareDays,
   dayOf,
-  instantOf,
   serial,
   textOfDay,
   type CalendarDay,
@@ -23,10 +22,13 @@ import {
   TENTHS_OF_A_MINUTE,
   actualMinutesOf,
   instantAfterWorkingMinutes,
+  instantOnSideReader,
   minutesPerWorkingDayOf,
   plannedLengthMinutesOf,
+  startSideOf,
   workingMinutesBetween,
   workingSpansReader,
+  type InstantOnSide,
   type WorkingCalendar,
 } from './working-calendar'
 
@@ -157,6 +159,8 @@ export type WorkingTimeWalk = (from: number, minutes: number) => number
 
 interface Facts extends Structure {
   readonly calendar: WorkingCalendar
+  // see FR-054, T-350
+  readonly onSide: InstantOnSide
   readonly walk: WorkingTimeWalk
   readonly minutesPerDay: number
   readonly statusDate: CalendarDay
@@ -237,14 +241,14 @@ function actualEnds(task: Task): Ends {
 
 // see VC-15, FR-054
 /** @purity pure */
-function plannedInstants(task: Task): Instants {
-  return { start: instantOf(task.start), finish: instantOf(task.finish) }
+function plannedInstants(facts: Facts, task: Task): Instants {
+  return { start: facts.onSide(task.start, startSideOf(task)), finish: facts.onSide(task.finish, 'finish') }
 }
 
 // see VS-4, FR-054
 /** @purity pure */
-function actualInstants(task: Task): Instants {
-  return { start: instantOf(task.actualStart), finish: instantOf(task.actualFinish) }
+function actualInstants(facts: Facts, task: Task): Instants {
+  return { start: facts.onSide(task.actualStart, startSideOf(task)), finish: facts.onSide(task.actualFinish, 'finish') }
 }
 
 // see VC-15, T-018
@@ -507,8 +511,9 @@ function structureOf(schedule: Schedule): Structure {
 function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: CalendarDay): Facts {
   const structure = structureOf(schedule)
   const minutesPerDay = minutesPerWorkingDayOf(schedule.project)
-  // WHY: a status date whose time cannot be read is read at the start of its day, as FR-054 reads a bare date.
-  const statusInstant = instantOf(schedule.project.statusDate) ?? serial(statusDate) * MINUTES_PER_CALENDAR_DAY
+  const onSide = instantOnSideReader(calendar)
+  // WHY: the status date is a finish-side column (WT-4); one whose time cannot be read is read at the start of its day.
+  const statusInstant = onSide(schedule.project.statusDate, 'finish') ?? serial(statusDate) * MINUTES_PER_CALENDAR_DAY
   const { tasks, byUid, taskGroupDepthOf, tasksAtDepth, parentOf } = structure
   const explicitChildrenOf = groupBy(tasks, (task) => task.parentTaskUid ?? undefined)
   const childrenOf = groupBy(tasks, (task) => parentOf.get(task.uid))
@@ -526,7 +531,7 @@ function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: Cale
     .map((link) => ({ from: link.predecessorUid, to: task.uid }))))
   const walk = workingTimeWalkOf(calendar)
   return {
-    ...structure, calendar, walk, minutesPerDay, statusDate, statusInstant, explicitChildrenOf, childrenOf, linksOf, successorsOf, achievedOnOf,
+    ...structure, calendar, onSide, walk, minutesPerDay, statusDate, statusInstant, explicitChildrenOf, childrenOf, linksOf, successorsOf, achievedOnOf,
   }
 }
 
@@ -683,7 +688,7 @@ function orderContradictions(facts: Facts, task: Task): readonly DelayFinding[] 
         predecessorActualFinish: predecessor.actualFinish, ...columnsOf(task, ['actualFinish']),
       }))
     }
-    if (linkHolds(facts, dependency, plannedInstants(predecessor), plannedInstants(task)) === false) {
+    if (linkHolds(facts, dependency, plannedInstants(facts, predecessor), plannedInstants(facts, task)) === false) {
       found.push(findingOf('VC-15', task, {
         predecessorUid, linkType: dependency.linkType, lag: dependency.lag, ...columnsOf(task, ['start', 'finish']),
         predecessorStart: predecessor.start, predecessorFinish: predecessor.finish,
@@ -725,7 +730,7 @@ function linkSuspicions(facts: Facts, task: Task): readonly DelayFinding[] {
     if (bindsSuccessorStart(dependency.linkType) && !isStarted(predecessor) && isStarted(task)) {
       found.push(findingOf('VS-3', task, { predecessorUid, ...columnsOf(task, ['actualStart']) }))
     }
-    if (linkHolds(facts, dependency, actualInstants(predecessor), actualInstants(task)) === false) {
+    if (linkHolds(facts, dependency, actualInstants(facts, predecessor), actualInstants(facts, task)) === false) {
       found.push(findingOf('VS-4', task, {
         predecessorUid, linkType: dependency.linkType, ...columnsOf(task, ['actualStart', 'actualFinish']),
         predecessorActualStart: predecessor.actualStart, predecessorActualFinish: predecessor.actualFinish,
@@ -956,7 +961,8 @@ function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, len
   const predecessor = facts.byUid.get(link.predecessorUid)
   const flow = flows.get(link.predecessorUid)
   if (predecessor === undefined || flow === undefined) return null
-  const began = isStarted(predecessor) ? (instantOf(predecessor.actualStart) ?? flow.earliestStart) : flow.earliestStart
+  const began = isStarted(predecessor)
+    ? (facts.onSide(predecessor.actualStart, startSideOf(predecessor)) ?? flow.earliestStart) : flow.earliestStart
   // WHY: BD-2 flows a lag whose format FR-009 does not read as zero; the diagnostics never count that unit.
   const lagged = (at: number): number => laggedInstant(facts.walk, at, link.lagMinutes ?? 0)
   const startFor = (last: number): number => afterMinutes(facts, last, -length)
@@ -975,7 +981,7 @@ function boundOf(facts: Facts, link: Link, flows: ReadonlyMap<number, Flow>, len
 function remainingMinutesOf(facts: Facts, task: Task, actualStart: number, length: number): number {
   const floorEnd = task.milestone === true ? actualStart
     : instantAfterWorkingMinutes(facts.calendar, actualStart, SETTINGS_CONSTANTS.actualInitialDuration * facts.minutesPerDay)
-  const actualLength = actualMinutesOf(facts.calendar, actualStart, instantOf(task.stop) ?? floorEnd)
+  const actualLength = actualMinutesOf(facts.calendar, actualStart, facts.onSide(task.stop, 'finish') ?? floorEnd)
   // WHY: a task that used up its planned minutes is still not finished, so at least one day (1d, FR-054) is left.
   return Math.max(facts.minutesPerDay, length - actualLength)
 }
@@ -986,7 +992,7 @@ function remainingMinutesOf(facts: Facts, task: Task, actualStart: number, lengt
 function startedFinishOf(facts: Facts, task: Task, actualStart: number, finish: number, length: number): number {
   const remaining = remainingMinutesOf(facts, task, actualStart, length)
   const projected = afterMinutes(facts, facts.statusInstant, remaining)
-  const resume = planActualState(task) === 'suspendedResumePlanned' ? instantOf(task.resume) : null
+  const resume = planActualState(task) === 'suspendedResumePlanned' ? facts.onSide(task.resume, 'start') : null
   const resumed = resume !== null && resume > facts.statusInstant
     ? laterInstant(projected, afterMinutes(facts, resume, remaining)) : projected
   return laterInstant(finish, resumed)
@@ -998,11 +1004,11 @@ function projectedFinishOf(facts: Facts, task: Task, children: readonly Flow[],
                            earliestStart: number, finish: number, length: number): number {
   const childFinishes = children.map((flow) => flow.projectedFinish)
   if (childFinishes.length > 0) return childFinishes.reduce(laterInstant)
-  const actualFinish = isFinished(task) ? instantOf(task.actualFinish) : null
+  const actualFinish = isFinished(task) ? facts.onSide(task.actualFinish, 'finish') : null
   if (actualFinish !== null) return actualFinish
-  const achieved = instantOf(facts.achievedOnOf.get(task.uid) ?? null)
+  const achieved = facts.onSide(facts.achievedOnOf.get(task.uid) ?? null, 'finish')
   if (achieved !== null) return achieved
-  const actualStart = instantOf(task.actualStart)
+  const actualStart = facts.onSide(task.actualStart, startSideOf(task))
   if (actualStart !== null) return startedFinishOf(facts, task, actualStart, finish, length)
   // WHY: a task not started may start on the status date's own day (00:00), whose work is not in any actual yet.
   const statusDayStart = serial(facts.statusDate) * MINUTES_PER_CALENDAR_DAY
@@ -1019,7 +1025,7 @@ interface Bound {
 // WHY: a task that started was not held by an FS or SS bound later than its start; that wait is its own.
 /** @purity pure */
 function holdingBoundsOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Flow>, length: number): readonly Bound[] {
-  const actualStart = instantOf(task.actualStart)
+  const actualStart = facts.onSide(task.actualStart, startSideOf(task))
   const isHeldBy = (bound: Bound): boolean =>
     actualStart === null || !bindsSuccessorStart(bound.link.linkType) || bound.at === null || actualStart >= bound.at
   return (facts.linksOf.get(task.uid) ?? [])
@@ -1030,7 +1036,7 @@ function holdingBoundsOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Fl
 // see BD-2, BD-3, T-314
 /** @purity pure */
 function flowOf(facts: Facts, task: Task, flows: ReadonlyMap<number, Flow>): Flow | null {
-  const { start, finish } = plannedInstants(task)
+  const { start, finish } = plannedInstants(facts, task)
   const length = plannedLengthMinutesOf(facts.calendar, task)
   if (start === null || finish === null || length === null) return null
   const bounds = holdingBoundsOf(facts, task, flows, length)
@@ -1085,7 +1091,7 @@ function pushOutsOf(facts: Facts, flows: ReadonlyMap<number, Flow>, undiagnosabl
   const totals = new Map<number, { minutes: number; reached: number }>()
   for (const task of facts.tasks) {
     const flow = flows.get(task.uid)
-    const finish = instantOf(task.finish)
+    const finish = facts.onSide(task.finish, 'finish')
     const isTerminal = task.milestone === true || (facts.successorsOf.get(task.uid) ?? []).length === 0
     if (flow === undefined || finish === null || undiagnosable.has(task.uid) || !isTerminal) continue
     const delay = Math.max(0, workingMinutesBetween(facts.calendar, finish, flow.projectedFinish))

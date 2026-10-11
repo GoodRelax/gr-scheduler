@@ -6,9 +6,8 @@
 import type { Document } from '../../entity/document-model/document/document'
 import type { Assignment, Schedule, Task, WorkingCalendar } from '../../entity/document-model/schedule/schedule'
 import {
-  instantOnSide,
+  plannedInstantsOf,
   MINUTES_PER_CALENDAR_DAY,
-  startSideOf,
   taskByUid,
   textOfInstant,
 } from '../../entity/document-model/schedule/schedule'
@@ -34,11 +33,10 @@ export function pastedUidsOf(schedule: Schedule, sourceUids: readonly number[]):
 // WHY: calendar days, the same count the body move shifts by (PE-1, PE-6); a dateless copy stays dateless.
 /** @purity pure */
 function shiftedPlan(task: Task, landing: PasteLanding | undefined, within: WorkingCalendar): Task {
-  const start = instantOnSide(within, task.start, startSideOf(task))
-  const finish = instantOnSide(within, task.finish, 'finish')
-  if (landing === undefined || landing.dayShift === 0 || start === null || finish === null) return task
+  const plan = plannedInstantsOf(within, task)
+  if (landing === undefined || landing.dayShift === 0 || plan === null) return task
   const minutes = landing.dayShift * MINUTES_PER_CALENDAR_DAY
-  return { ...task, start: textOfInstant(start + minutes), finish: textOfInstant(finish + minutes) }
+  return { ...task, start: textOfInstant(plan[0] + minutes), finish: textOfInstant(plan[1] + minutes) }
 }
 
 // see CM-8, CM-28, DU-1

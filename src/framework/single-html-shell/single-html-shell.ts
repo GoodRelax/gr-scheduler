@@ -165,10 +165,10 @@ function isFileDrop(event: DragEvent): boolean {
   return event.dataTransfer?.types.includes('Files') === true
 }
 
-const HOST_PICKER_INPUT_TYPES: ReadonlySet<string> = new Set(['color', 'date'])
+const HOST_PICKER_INPUT_TYPES: ReadonlySet<string> = new Set(['color', 'date', 'datetime-local', 'select-one'])
 
-// see FT-1
-// WHY: a value chosen in the host's own picker window arrives with no pointer or key event of the page.
+// see FT-1, TX-3
+// WHY: a value chosen in the host's own picker window (a select's list too) arrives with no pointer or key event of the page.
 /** @purity pure */
 function isHostPickerValue(target: EventTarget | null): boolean {
   const type = (target as { readonly type?: unknown } | null)?.type

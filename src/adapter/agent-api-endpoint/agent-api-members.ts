@@ -240,8 +240,8 @@ export interface AgentApiWiring {
   readonly schemaVersion: string
 }
 
-// see AM-1, AG-1, CM-94, CM-95, CM-96, CM-98
-// WHY: CR-710 wave 3b added the time zone and Time Shift commands applyCommands takes, so a caller must see 4.
+// see AM-1, AG-1, AM-19, DQ-2, DQ-3, DQ-4, CM-94, CM-95, CM-96, CM-98
+// WHY: one raise for CR-710: readDelayDiagnostics counts DQ-2..DQ-4 in minutes, applyCommands takes the zone commands.
 const AGENT_API_VERSION = 4
 
 // see AG-4

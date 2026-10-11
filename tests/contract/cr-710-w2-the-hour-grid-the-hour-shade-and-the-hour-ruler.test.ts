@@ -353,9 +353,8 @@ describe('OD-1, OD-2, OD-6: the hours outside the working time are shaded on the
     expect(coveredAt(runs, midOf(frame, '12:15', '12:45')), 'the lunch hour').toBe(true)
   })
 
-  // WHY: measured at base 268fdd7e -- at 720 px per day (and at 600, 700, 800, 1000) the run from Monday 17:00 to Tuesday 08:00 is absent
-  // WHY: from the one non-working-days element, while the same run on Tuesday evening and the one at 400 or 1200 px per day are drawn.
-  it.fails('FINDING: shades the evening of a working day from the half-hour width on', () => {
+  // WHY: DFC-2467 -- red until the shade compared its rounded x strings ('1147.5' > '697.5' is false), at 600 to 1000 px per day.
+  it('shades the evening of a working day from the half-hour width on', () => {
     const frame = frameOf(HALF_HOUR, true)
     const runs = shadeRunsOf(frame.svg)
     expect(coveredAt(runs, midOf(frame, '18:00', '23:00')), 'the evening').toBe(true)
@@ -380,8 +379,8 @@ describe('OD-1, OD-2, OD-6: the hours outside the working time are shaded on the
     expect(coveredAt(runs, midOf(frame, '00:30', '23:30', saturday))).toBe(true)
   })
 
-  // WHY: measured at base 268fdd7e -- scrolled to Friday at 432 px per day, no rectangle covers Friday 17:00 to Monday 08:00 (the weekend).
-  it.fails('FINDING: shades a whole rest day: Saturday from 00:00 to 24:00, on the hour tier', () => {
+  // WHY: DFC-2467 -- red until the same string comparison dropped Friday 17:00 to Monday 08:00 at 432 px per day.
+  it('shades a whole rest day: Saturday from 00:00 to 24:00, on the hour tier', () => {
     const frame = frameOf(HOUR_TIER, true, true, FRIDAY)
     const runs = shadeRunsOf(frame.svg)
     const saturday = '2026-01-10'

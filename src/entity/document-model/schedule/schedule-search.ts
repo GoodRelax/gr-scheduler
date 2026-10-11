@@ -4,6 +4,7 @@
 // @purity    pure
 
 import { instantOf } from './calendar-day'
+import { instantOnSideReader, startSideOf } from './working-calendar'
 import { planActualState } from './plan-actual-state'
 import type { PlanActualState } from './plan-actual-state'
 import { taskGroupNameOf, taskGroupPathOf } from './task-group-names'
@@ -51,7 +52,7 @@ export type SearchRows = {
 interface Ranked<T> {
   readonly row: T
   readonly rank: number
-  readonly date: string | null
+  readonly at: number | null
   readonly key: number | string
 }
 
@@ -66,12 +67,23 @@ export function isSearchWordFound(text: string, word: string): boolean {
   return comparable(text).includes(comparable(word))
 }
 
-// see SV-8
 /** @purity pure */
-export function compareDates(left: string | null, right: string | null): number {
-  const [a, b] = [instantOf(left), instantOf(right)]
+export function compareInstants(a: number | null, b: number | null): number {
   if (a !== null && b !== null) return a - b
   return a === b ? 0 : a === null ? 1 : -1
+}
+
+// TRAP: a date without a time reads as 00:00 here; a Task column is read on its side (plannedStartInstantsOf).
+/** @purity pure */
+export function compareDates(left: string | null, right: string | null): number {
+  return compareInstants(instantOf(left), instantOf(right))
+}
+
+// see SV-8, SQ-3, FR-054, WT-5
+/** @purity pure */
+export function plannedStartInstantsOf(schedule: Schedule): ReadonlyMap<number, number | null> {
+  const read = instantOnSideReader(schedule)
+  return new Map(schedule.tasks.map((task) => [task.uid, read(task.start, startSideOf(task))]))
 }
 
 // see SV-8
@@ -81,7 +93,7 @@ function inDefaultOrder<T>(ranked: readonly Ranked<T>[]): readonly T[] {
     .sort(
       (a, b) =>
         a.rank - b.rank ||
-        compareDates(a.date, b.date) ||
+        compareInstants(a.at, b.at) ||
         (a.key < b.key ? -1 : a.key > b.key ? 1 : 0),
     )
     .map((one) => one.row)
@@ -111,6 +123,22 @@ export function plannedFinishOf(task: Task): string | null {
 
 const NO_BOTTLENECK_UIDS: ReadonlySet<number> = new Set()
 
+/** @purity pure */
+function taskSearchRowOf(task: Task, assigneeNames: readonly string[],
+                         place: Pick<TaskSearchRow, 'rowPath' | 'groupId'>, isBottleneck: boolean): TaskSearchRow {
+  return {
+    taskUid: task.uid,
+    name: task.name ?? '',
+    assigneeNames,
+    plannedStart: task.start,
+    plannedFinish: plannedFinishOf(task),
+    ...progressOf(task),
+    planActualState: planActualState(task),
+    isBottleneck,
+    ...place,
+  }
+}
+
 // see SV-4, T-331, SQ-5
 /** @purity pure */
 export function searchRowsOf(
@@ -133,25 +161,15 @@ export function searchRowsOf(
 
   const groupIdByTaskUid = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
   const assigneeNames = assigneeNamesByTaskUid(schedule)
+  const startAt = plannedStartInstantsOf(schedule)
   const taskRows: Ranked<TaskSearchRow>[] = []
   for (const task of schedule.tasks) {
     const name = task.name ?? ''
     const names = assigneeNames.get(task.uid) ?? []
     if (!isSearchWordFound(name, word) && !names.some((one) => isSearchWordFound(one, word))) continue
     const groupId = heldTaskGroup(groupIdByTaskUid.get(task.uid))
-    const row: TaskSearchRow = {
-      taskUid: task.uid,
-      name,
-      assigneeNames: names,
-      plannedStart: task.start,
-      plannedFinish: plannedFinishOf(task),
-      ...progressOf(task),
-      planActualState: planActualState(task),
-      isBottleneck: bottleneckUids.has(task.uid),
-      rowPath: pathOf(groupId),
-      groupId,
-    }
-    taskRows.push({ row, rank: rankOf(groupId), date: task.start, key: task.uid })
+    const row = taskSearchRowOf(task, names, { rowPath: pathOf(groupId), groupId }, bottleneckUids.has(task.uid))
+    taskRows.push({ row, rank: rankOf(groupId), at: startAt.get(task.uid) ?? null, key: task.uid })
   }
 
   const commentBoxRows: Ranked<CommentBoxSearchRow>[] = []
@@ -180,5 +198,5 @@ function rankedCommentBox(
     anchorDate: box.anchorDate,
     groupId,
   }
-  return { row, rank: rankOf(groupId), date: box.anchorDate, key: box.id }
+  return { row, rank: rankOf(groupId), at: instantOf(box.anchorDate), key: box.id }
 }

@@ -39,7 +39,9 @@ import {
 import {
   clearEntryOf,
   dateText,
+  DATES_ONLY,
   dateTimeText,
+  type ShownDateTimes,
   entryOf,
   openFilterIn,
   panelWithFilterShut,
@@ -181,19 +183,19 @@ function stateWordOf(state: SearchTaskState, language: DisplayLanguage): string 
 
 // see T-331, TX-4
 /** @purity pure */
-function taskCells(row: TaskSearchRow, language: DisplayLanguage, showsTimeOfDay: boolean): readonly string[] {
+function taskCells(row: TaskSearchRow, language: DisplayLanguage, times: ShownDateTimes): readonly string[] {
   const name = row.name === '' ? wordOf(PANEL_WORDS.get('noName')?.text, language) : row.name
-  const dated = (stored: string | null): string => dateTimeText(stored, showsTimeOfDay)
+  const startSide = times.startSideOf(row.taskUid)
   return [
     '',
     stateWordOf(searchTaskStateOf(row), language),
     percentText(row.percentComplete),
     name,
     row.assigneeNames.join(ASSIGNEE_SEPARATOR),
-    dated(row.plannedStart),
-    dated(row.plannedFinish),
-    dated(row.actualStart),
-    dated(row.actualFinish),
+    dateTimeText(row.plannedStart, times, startSide),
+    dateTimeText(row.plannedFinish, times, 'finish'),
+    dateTimeText(row.actualStart, times, startSide),
+    dateTimeText(row.actualFinish, times, 'finish'),
     row.rowPath.join(TASK_GROUP_PATH_SEPARATOR),
   ]
 }
@@ -207,11 +209,11 @@ function commentBoxCells(row: CommentBoxSearchRow): readonly string[] {
 // see SV-4, SV-7, SV-8, SJ-1
 /** @purity pure */
 function rowsOf(found: SearchRows, panel: SearchPanelSession, view: TableView, language: DisplayLanguage,
-                showsTimeOfDay: boolean): readonly SearchRowView[] {
+                times: ShownDateTimes): readonly SearchRowView[] {
   if (panel.table === 'tasks') {
     const hidden = hiddenTasksOf(view)
     return found.taskRows.map((row) => ({
-      cells: taskCells(row, language, showsTimeOfDay),
+      cells: taskCells(row, language, times),
       glyph: STATE_GLYPHS[searchTaskStateOf(row)],
       shown: !hidden.has(row.taskUid),
       target: { kind: 'task', taskUid: row.taskUid },
@@ -242,9 +244,9 @@ function valueLabelOf(column: SearchColumn, value: string, language: DisplayLang
 // see SV-18, SQ-5
 /** @purity pure */
 function widthSamplesIn(all: SearchRows, panel: SearchPanelSession, language: DisplayLanguage,
-                        showsTimeOfDay: boolean): (column: SearchColumn) => readonly string[] | null {
+                        times: ShownDateTimes): (column: SearchColumn) => readonly string[] | null {
   const cells = panel.table === 'tasks'
-    ? all.taskRows.map((row) => taskCells(row, language, showsTimeOfDay))
+    ? all.taskRows.map((row) => taskCells(row, language, times))
     : all.commentBoxRows.map(commentBoxCells)
   const columns = TABLE_COLUMNS[panel.table]
   return (column) => {
@@ -263,7 +265,7 @@ function searchTableOf(
   view: TableView,
   found: () => SearchRows,
   all?: SearchRows,
-  showsTimeOfDay = false,
+  times = DATES_ONLY,
 ): WindowTable {
   const language = displayLanguageOf(session)
   const columns = TABLE_COLUMNS[panel.table]
@@ -274,7 +276,7 @@ function searchTableOf(
     isDateColumn: isDateSearchColumn,
     valuesOf: (column) => columnValuesOf(found(), column, hiddenTasksOf(view)),
     labelOf: (column, value) => valueLabelOf(column, value, language),
-    ...(all === undefined ? {} : { widthSamplesOf: widthSamplesIn(all, panel, language, showsTimeOfDay) }),
+    ...(all === undefined ? {} : { widthSamplesOf: widthSamplesIn(all, panel, language, times) }),
   }
 }
 
@@ -301,17 +303,17 @@ export function searchPanelFromSession(
   schedule: Schedule,
   canvas: ScreenRect,
   bottleneckUids?: ReadonlySet<number>,
-  showsTimeOfDay = false,
+  times = DATES_ONLY,
 ): SearchPanelView | null {
   const shown = shownIn(session)
   if (shown === null) return null
   const language = displayLanguageOf(session)
   const found = shown === 'minimized' ? null : searchRowsOf(schedule, panel.word, bottleneckUids)
   const all = found === null || panel.word === '' ? found : searchRowsOf(schedule, '', bottleneckUids)
-  const table = searchTableOf(session, panel, view, () => found ?? NOTHING_FOUND, all ?? undefined, showsTimeOfDay)
+  const table = searchTableOf(session, panel, view, () => found ?? NOTHING_FOUND, all ?? undefined, times)
   const open = openFilterIn(panel, shown, table)
   const kept = found === null ? null : filteredSearchRows(found, view.columnFilters, view.sort, hiddenTasksOf(view))
-  const rows = kept === null ? [] : rowsOf(kept, panel, view, language, showsTimeOfDay)
+  const rows = kept === null ? [] : rowsOf(kept, panel, view, language, times)
   const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldSearchFilterChange(view, schedule), language)
   return {
     heading: wordOf(PANEL_HEADING, language),

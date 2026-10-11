@@ -11,12 +11,16 @@ import {
   dateFromWorkingDays,
   dayOf,
   finishSideDayOf,
-  instantOf,
+  instantOnSideReader,
   MINUTES_PER_CALENDAR_DAY,
   serial,
+  shownInstantReader,
+  startSideOf,
   textOfDay,
   workingCalendarOf,
   type CalendarDay,
+  type DateTimeSide,
+  type InstantOnSide,
   type Schedule,
   type Task,
   type TaskGroupMember,
@@ -195,21 +199,25 @@ export interface StackSafetyCapStop {
 export interface DayReader {
   day(text: string | null): CalendarDay | null
   walk(from: CalendarDay, workingDays: number): CalendarDay
+  // see TX-1, FR-054, FR-156
+  shown(text: string | null, side: DateTimeSide): number | null
 }
 
 // see RV-1, RV-6, FR-158
 // WHY: the left and right edges as a fractional day serial: a whole column without time of day, the instant with it.
+// WHY: reading is the side a date without a time is read on (FR-054, T-350): a milestone's start and the deadline finish.
 interface EdgeReader {
-  edge(text: string | null, side: 'start' | 'finish'): number | null
+  edge(text: string | null, side: 'start' | 'finish', reading: DateTimeSide): number | null
   readonly showsTimeOfDay: boolean
 }
 
 // see RV-1, RV-6, FR-054, FR-158
 // WHY: without time of day the finish column is FR-054's finish-side day, so an end at 00:00 closes the day before.
 /** @purity pure */
-function edgeOf(text: string | null, side: 'start' | 'finish', showsTimeOfDay: boolean): number | null {
+function edgeOf(text: string | null, side: 'start' | 'finish', instantAt: () => number | null,
+                showsTimeOfDay: boolean): number | null {
   if (showsTimeOfDay) {
-    const instant = instantOf(text)
+    const instant = instantAt()
     return instant === null ? null : instant / MINUTES_PER_CALENDAR_DAY
   }
   if (side === 'start') {
@@ -235,19 +243,21 @@ export function cursorInstantAtX(
 }
 
 /** @purity pure */
-function dayReaderFor(within: WorkingCalendar, showsTimeOfDay: boolean): DayReader & EdgeReader {
+function dayReaderFor(within: WorkingCalendar, showsTimeOfDay: boolean, shown: InstantOnSide): DayReader & EdgeReader {
   const days = new Map<string, CalendarDay | null>()
   const walks = new Map<string, CalendarDay>()
   const edges = new Map<string, number | null>()
+  const onSide = instantOnSideReader(within)
   return {
-    edge(text: string | null, side: 'start' | 'finish'): number | null {
-      const key = `${side}/${text ?? ''}`
+    edge(text: string | null, side: 'start' | 'finish', reading: DateTimeSide): number | null {
+      const key = `${side}/${reading}/${text ?? ''}`
       const held = edges.get(key)
       if (held !== undefined) return held
-      const made = edgeOf(text ?? null, side, showsTimeOfDay)
+      const made = edgeOf(text ?? null, side, () => onSide(text, reading), showsTimeOfDay)
       edges.set(key, made)
       return made
     },
+    shown,
     showsTimeOfDay,
     day(text: string | null): CalendarDay | null {
       const key = text ?? ''
@@ -334,8 +344,8 @@ function milestoneGlyphOf(
 // WHY: the finish day's column is covered too, as the actual bar covers its last day (RV-1).
 /** @purity pure */
 function spanWidthOf(task: Task, pxPerDay: number, reader: EdgeReader): number {
-  const from = reader.edge(task.start, 'start')
-  const to = reader.edge(task.finish, 'finish')
+  const from = reader.edge(task.start, 'start', startSideOf(task))
+  const to = reader.edge(task.finish, 'finish', 'finish')
   if (from === null || to === null) return 0
   return Math.max(0, to - from) * pxPerDay
 }
@@ -374,9 +384,9 @@ function actualSpanOf(
   pxPerDay: number,
   originX: number,
 ): { readonly x: number; readonly width: number } | null {
-  const from = reader.edge(task.actualStart, 'start')
+  const from = reader.edge(task.actualStart, 'start', startSideOf(task))
   if (from === null) return null
-  const to = reader.edge(actualEndOf(task), 'finish')
+  const to = reader.edge(actualEndOf(task), 'finish', 'finish')
   return {
     x: xAtEdge(from, originSerial, pxPerDay, originX),
     width: Math.max(0, to === null ? 0 : to - from) * pxPerDay,
@@ -394,7 +404,7 @@ function deadlineXOf(
   pxPerDay: number,
   originX: number,
 ): number | null {
-  const left = reader.edge(task.deadline, 'start')
+  const left = reader.edge(task.deadline, 'start', 'finish')
   if (left === null) return null
   const at = xAtEdge(left, originSerial, pxPerDay, originX)
   return kind === 'milestone' || reader.showsTimeOfDay ? at : at + pxPerDay
@@ -445,7 +455,7 @@ function dummyReachOf(
   settings: DrawnSettings,
   markerDiameter: number,
 ): number {
-  const start = reader.edge(task.start, 'start')
+  const start = reader.edge(task.start, 'start', startSideOf(task))
   if (start === null) return Number.NEGATIVE_INFINITY
   const inkX = xAtEdge(start, originSerial, pxPerDay, originX)
   if (actualPlacementOf(shapeKind) === 'sideways') {
@@ -531,7 +541,7 @@ export function layoutFromSchedule(
   const assigneeLabels = assigneeLabelsOf(schedule)
 
   const within = workingCalendarOf(schedule)
-  const reader = dayReaderFor(within, settings.showsTimeOfDay)
+  const reader = dayReaderFor(within, settings.showsTimeOfDay, shownInstantReader(schedule, storedSettings.viewTimeZone))
   // TRAP: S-232 alone decides; never tie it to planVisible (S-227), or hiding the plan moves the name (FR-049).
   const datesWithYear = settings.planDatesVisible ? planDatesSpanYears(schedule, reader) : null
   const placements: TaskPlacement[] = []
@@ -569,7 +579,7 @@ export function layoutFromSchedule(
     const laneMinX0: number[] = []
     const laneOf: number[] = []
     const measured = drawnTasks.map(({ task, kind, glyph, span, oneDay, outline, width }) => {
-      const from = reader.edge(task.start, 'start')
+      const from = reader.edge(task.start, 'start', startSideOf(task))
       const foundAt = from === null ? originX : xAtEdge(from, originSerial, pxPerDay, originX)
       const x = kind === 'milestone' ? foundAt - width / 2 : foundAt
       const named = nameLabelOf(task, reader, datesWithYear, settings)

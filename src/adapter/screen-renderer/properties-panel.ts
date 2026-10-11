@@ -12,17 +12,19 @@ import {
 import {
   COLUMN_SHAPES,
   DATE_COLUMNS,
-  actualEndOf,
+  actualInstantsOf,
   actualLastDay,
   actualLengthOf,
   actualMinutesOf,
   customColorOf,
   customSideOf,
   dayOf,
-  instantOf,
   isSearchWordFound,
   lagWorkingDaysOf,
   minutesPerWorkingDayOf,
+  shownInstantReader,
+  sideOfTaskColumn,
+  startSideOf,
   TENTHS_OF_A_MINUTE,
   TRANSPARENT,
   taskByUid,
@@ -31,10 +33,10 @@ import {
   parentTaskResolutionsOf,
   TIME_ZONE_ROWS,
   viewRegionOf,
-  viewWallOfDataWall,
   workingCalendarOf,
-  zoneClockOf,
+  type DateTimeSide,
   type Dependency,
+  type InstantOnSide,
   type Project,
   type Schedule,
   type Task,
@@ -338,11 +340,11 @@ function textOfDateColumn(stored: unknown): string {
   return textOfDay(day).split(DAY_TIME_SEPARATOR)[0] ?? ''
 }
 
-// see TX-3, FR-158
-// WHY: the host's date-and-time entry reads and writes `yyyy-mm-ddThh:mm`, the minute being the stored unit (FR-054).
+// see TX-3, FR-158, FR-054, FR-156
+// WHY: the host's `yyyy-mm-ddThh:mm` entry (the minute is the stored unit), read on its side in the view base (field-commit reads it back).
 /** @purity pure */
-function textOfDateTimeColumn(stored: unknown): string {
-  const instant = typeof stored === 'string' ? instantOf(stored) : null
+function textOfDateTimeColumn(stored: unknown, side: DateTimeSide, inTime: InstantOnSide): string {
+  const instant = typeof stored === 'string' ? inTime(stored, side) : null
   return instant === null ? '' : textOfInstant(instant).slice(0, DATE_TIME_ENTRY_LENGTH)
 }
 
@@ -350,10 +352,10 @@ const DATE_TIME_ENTRY_LENGTH = 16
 
 // TRAP: assumes TaskVisual has no date column; textOfItem would write a new one raw.
 /** @purity pure */
-function textOfTaskColumn(schedule: Schedule, task: Task, column: keyof Task, showsTimeOfDay: boolean): string {
-  if ((column as string) === ACTUAL_LENGTH_ITEM) return textOfActualLength(schedule, task, showsTimeOfDay)
-  if (DATE_COLUMNS.Task.includes(column)) return showsTimeOfDay ? textOfDateTimeColumn(task[column]) : textOfDateColumn(task[column])
-  return textOfValue(task[column])
+function textOfTaskColumn(schedule: Schedule, task: Task, column: keyof Task, inTime: InstantOnSide | null): string {
+  if ((column as string) === ACTUAL_LENGTH_ITEM) return textOfActualLength(schedule, task, inTime)
+  if (!DATE_COLUMNS.Task.includes(column)) return textOfValue(task[column])
+  return inTime !== null ? textOfDateTimeColumn(task[column], sideOfTaskColumn(task, column), inTime) : textOfDateColumn(task[column])
 }
 
 // see PR-5, P-5
@@ -362,8 +364,8 @@ const ACTUAL_LENGTH_ITEM = 'actualDuration'
 
 // see PR-5, FR-011
 /** @purity pure */
-function textOfActualLength(schedule: Schedule, task: Task, showsTimeOfDay: boolean): string {
-  if (showsTimeOfDay) return actualLengthTextInTime(schedule, task)
+function textOfActualLength(schedule: Schedule, task: Task, inTime: InstantOnSide | null): string {
+  if (inTime !== null) return actualLengthTextInTime(schedule, task)
   const start = dayOf(task.actualStart)
   const lastDay = actualLastDay(task)
   if (start === null || lastDay === null) return textOfValue(null)
@@ -374,10 +376,10 @@ function textOfActualLength(schedule: Schedule, task: Task, showsTimeOfDay: bool
 // WHY: with time of day the length is the working minutes from actualStart to the actual's end, spelled by TX-10.
 /** @purity pure */
 function actualLengthTextInTime(schedule: Schedule, task: Task): string {
-  const start = instantOf(task.actualStart)
-  const end = instantOf(actualEndOf(task))
-  if (start === null || end === null) return textOfValue(null)
-  return lengthTextOf(actualMinutesOf(workingCalendarOf(schedule), start, end), minutesPerWorkingDayOf(schedule.project))
+  const within = workingCalendarOf(schedule)
+  const ends = actualInstantsOf(within, task)
+  if (ends === null) return textOfValue(null)
+  return lengthTextOf(actualMinutesOf(within, ends[0], ends[1]), minutesPerWorkingDayOf(schedule.project))
 }
 
 interface Assignee {
@@ -657,7 +659,7 @@ function controlsOfItem(
   item: TaskPropertyItem,
   labelCoef: number,
   language: DisplayLanguage,
-  showsTimeOfDay: boolean,
+  inTime: InstantOnSide | null,
 ): readonly PropertyControl[] {
   if (READ_ONLY_ROWS.includes(item.row) || item.heldBy === 'derived') return []
   if (item.heldBy === 'assignment') return assigneeControls(schedule, task.uid, language)
@@ -672,12 +674,12 @@ function controlsOfItem(
         : { holder: 'taskVisual', uid: task.uid, column: column as keyof TaskVisual & string }
     const text =
       item.heldBy === 'task'
-        ? textOfTaskColumn(schedule, task, column as keyof Task, showsTimeOfDay)
+        ? textOfTaskColumn(schedule, task, column as keyof Task, inTime)
         : visual === null
           ? ''
           : textOfValue(visual[column as keyof TaskVisual])
     const control = controlOf(key, entity, column, text, labelCoef)
-    return showsTimeOfDay ? controlInTime(control, column) : control
+    return inTime !== null ? controlInTime(control, column) : control
   })
 }
 
@@ -700,11 +702,11 @@ function textOfItem(
   visual: TaskVisual | null,
   item: TaskPropertyItem,
   language: DisplayLanguage,
-  showsTimeOfDay: boolean,
+  inTime: InstantOnSide | null,
 ): string {
   switch (item.heldBy) {
     case 'task':
-      return drawnColumnsOf(item).map((column) => textOfTaskColumn(schedule, task, column, showsTimeOfDay)).join(PART_SEPARATOR)
+      return drawnColumnsOf(item).map((column) => textOfTaskColumn(schedule, task, column, inTime)).join(PART_SEPARATOR)
     case 'taskVisual':
       if (visual === null) return ''
       return item.columns.map((column) => textOfValue(visual[column])).join(PART_SEPARATOR)
@@ -722,7 +724,7 @@ function taskFields(
   task: Task,
   labelCoef: number,
   language: DisplayLanguage,
-  showsTimeOfDay: boolean,
+  inTime: InstantOnSide | null,
 ): readonly PropertyField[] {
   const visual = schedule.taskVisuals.find((held) => held.taskUid === task.uid) ?? null
 
@@ -730,11 +732,11 @@ function taskFields(
   return TASK_ITEMS.filter((item) => isShownFor(item, task)).map((item) => item.columns[0] === PARENT_COLUMN ? parentField(schedule, task, item, language) : ({
     row: item.row,
     name: itemName(item.row, language, isMilestone),
-    text: textOfItem(schedule, task, visual, item, language, showsTimeOfDay),
+    text: textOfItem(schedule, task, visual, item, language, inTime),
     isEditable: !READ_ONLY_ROWS.includes(item.row) && item.heldBy !== 'derived',
     controls: item.heldBy === 'derived'
-      ? linkedEndControls(schedule, task, item.columns[0] ?? '', language, showsTimeOfDay)
-      : controlsOfItem(schedule, task, item, labelCoef, language, showsTimeOfDay),
+      ? linkedEndControls(schedule, task, item.columns[0] ?? '', language, inTime)
+      : controlsOfItem(schedule, task, item, labelCoef, language, inTime),
   }))
 }
 
@@ -782,9 +784,9 @@ const PLUS_SIGN = '+'
 // see PR-37, PR-38, AT-47, FR-009, S-118
 // WHY: read in working days whatever unit it was taken in; a lag no day count settles is read through the day's minutes.
 /** @purity pure */
-function lagWordOf(project: Project, dependency: Dependency, language: DisplayLanguage, showsTimeOfDay: boolean): string {
+function lagWordOf(project: Project, dependency: Dependency, language: DisplayLanguage, inTime: InstantOnSide | null): string {
   if (dependency.lag === null || dependency.lag === 0) return ''
-  const typed = typedLagTextOf(project, dependency, showsTimeOfDay)
+  const typed = typedLagTextOf(project, dependency, inTime)
   if (typed !== null) return `${dependency.lag > 0 ? PLUS_SIGN : ''}${typed}`
   const minutesPerDay = minutesPerWorkingDayOf(project)
   const days = lagWorkingDaysOf(dependency, minutesPerDay) ?? dependency.lag / TENTHS_OF_A_MINUTE / minutesPerDay
@@ -799,12 +801,12 @@ function linkedEndControls(
   task: Task,
   column: string,
   language: DisplayLanguage,
-  showsTimeOfDay: boolean,
+  inTime: InstantOnSide | null,
 ): readonly PropertyControl[] {
   return linkedEndsOf(schedule, task, column).map((end) => {
     const linked = taskByUid(schedule, end.uid)
     const badge = badgeOf(end.dependency, language)
-    const lag = lagWordOf(schedule.project, end.dependency, language, showsTimeOfDay)
+    const lag = lagWordOf(schedule.project, end.dependency, language, inTime)
     return {
       key: { holder: 'task', uid: task.uid, column: DEPENDENCIES_KEY_COLUMN },
       kind: 'taskReference',
@@ -874,10 +876,10 @@ function minutesOfUnit(project: Project, length: LagUnitLength): number | null {
 
 // see FR-009, S-118, AT-47, AT-48
 /** @purity pure */
-function lagText(project: Project, dependency: Dependency, showsTimeOfDay: boolean): string {
+function lagText(project: Project, dependency: Dependency, inTime: InstantOnSide | null): string {
   if (dependency.lag === null) return ''
-  const inTime = typedLagTextOf(project, dependency, showsTimeOfDay)
-  if (inTime !== null) return inTime
+  const spelled = typedLagTextOf(project, dependency, inTime)
+  if (spelled !== null) return spelled
   const workingDays = lagWorkingDaysOf(dependency, minutesPerWorkingDayOf(project))
   if (workingDays !== null) return shownLagNumber(workingDays)
   const minutes = dependency.lag / TENTHS_OF_A_MINUTE
@@ -892,9 +894,9 @@ function lagText(project: Project, dependency: Dependency, showsTimeOfDay: boole
 // see FR-009, TX-3, TX-10, AT-48
 // WHY: null is no time of day, or a format not typed in d / h / m; that lag keeps the spelling of FR-009.
 /** @purity pure */
-function typedLagTextOf(project: Project, dependency: Dependency, showsTimeOfDay: boolean): string | null {
+function typedLagTextOf(project: Project, dependency: Dependency, inTime: InstantOnSide | null): string | null {
   const lag = dependency.lag ?? 0
-  if (!showsTimeOfDay) return null
+  if (inTime === null) return null
   if (lag !== 0 && !TYPED_LAG_FORMATS.includes(dependency.lagFormat ?? 0)) return null
   return lengthTextOf(lag / TENTHS_OF_A_MINUTE, minutesPerWorkingDayOf(project))
 }
@@ -913,11 +915,11 @@ function dependencyText(
   successorUid: number,
   column: string,
   language: DisplayLanguage,
-  showsTimeOfDay: boolean,
+  inTime: InstantOnSide | null,
 ): string {
   if (column === 'predecessorUid') return dependencyEndText(schedule, dependency.predecessorUid, language)
   if (column === 'successorUid') return dependencyEndText(schedule, successorUid, language)
-  if (column === 'lag') return lagText(schedule.project, dependency, showsTimeOfDay)
+  if (column === 'lag') return lagText(schedule.project, dependency, inTime)
   if (column !== 'linkType') return textOfValue((dependency as unknown as Record<string, unknown>)[column])
   const kind = DEPENDENCY_KINDS.find((one) => one.linkType === dependency.linkType)
   return kind === undefined ? textOfValue(dependency.linkType) : kind.abbreviation
@@ -933,20 +935,20 @@ function dependencyFields(
   ordinal: number,
   labelCoef: number,
   language: DisplayLanguage,
-  showsTimeOfDay: boolean,
+  inTime: InstantOnSide | null,
 ): readonly PropertyField[] {
   return DEPENDENCY_ITEMS.map((item) => {
     const column = (item.columns[0] ?? '') as keyof Dependency & string
     const isEditable = !READ_ONLY_ROWS.includes(item.row)
     const key: PropertyFieldKey = { holder: 'dependency', successorUid, ordinal, column }
-    const text = dependencyText(schedule, dependency, successorUid, column, language, showsTimeOfDay)
+    const text = dependencyText(schedule, dependency, successorUid, column, language, inTime)
     const control = controlOf(key, 'Dependency', column, text, labelCoef)
     return {
       row: item.row,
       name: itemName(item.row, language),
       text,
       isEditable,
-      controls: isEditable ? [showsTimeOfDay ? controlInTime(control, column) : control] : [],
+      controls: isEditable ? [inTime !== null ? controlInTime(control, column) : control] : [],
     }
   })
 }
@@ -964,18 +966,18 @@ function fieldsOfItem(
   subject: ItemRef,
   labelCoef: number,
   language: DisplayLanguage,
-  showsTimeOfDay: boolean,
+  inTime: InstantOnSide | null,
 ): readonly PropertyField[] | null {
   switch (subject.kind) {
     case 'task': {
       const task = taskByUid(schedule, subject.uid)
-      return task === null ? null : taskFields(schedule, task, labelCoef, language, showsTimeOfDay)
+      return task === null ? null : taskFields(schedule, task, labelCoef, language, inTime)
     }
     case 'dependency': {
       const successor = taskByUid(schedule, subject.successorUid)
       const dependency = successor?.dependencies[subject.ordinal]
       if (successor === null || dependency === undefined) return null
-      return dependencyFields(schedule, dependency, successor.uid, subject.ordinal, labelCoef, language, showsTimeOfDay)
+      return dependencyFields(schedule, dependency, successor.uid, subject.ordinal, labelCoef, language, inTime)
     }
     case 'commentBox':
       return fieldsOfFound(schedule.commentBoxes.find(withId(subject.id)), commentBoxRows, labelCoef, language)
@@ -1145,10 +1147,10 @@ function fieldsOfSubject(
   labelCoef: number,
   language: DisplayLanguage,
   placedTaskGroups: readonly TaskGroupPlacement[],
-  showsTimeOfDay: boolean,
+  inTime: InstantOnSide | null,
 ): readonly PropertyField[] | null {
   const item = subjectOf(subject.selection)
-  if (item !== null) return fieldsOfItem(schedule, item, labelCoef, language, showsTimeOfDay)
+  if (item !== null) return fieldsOfItem(schedule, item, labelCoef, language, inTime)
 
   const groupId = onlyGroupId(subject.groupIds)
   if (groupId === null) return []
@@ -1461,13 +1463,12 @@ function baseWayControl(key: PropertyFieldKey, part: string, language: DisplayLa
 // WHY: the first dated task read in the view base, so either way's effect shows on a name the author knows.
 /** @purity pure */
 function baseExampleLine(schedule: Schedule, viewRegion: string, language: DisplayLanguage): string {
-  const starts = schedule.tasks.map((one) => ({ name: one.name, instant: instantOf(one.start) }))
+  const read = shownInstantReader(schedule, viewRegion)
+  const starts = schedule.tasks.map((one) => ({ name: one.name, instant: read(one.start, startSideOf(one)) }))
   const first = starts.find((one) => one.instant !== null)
-  const instant = first?.instant ?? null
-  if (first === undefined || instant === null) return ''
+  const shown = first?.instant ?? null
+  if (first === undefined || shown === null) return ''
   const task = first
-  const dataRegion = schedule.project.scheduleDataTimeZone
-  const shown = dataRegion === viewRegion ? instant : viewWallOfDataWall(zoneClockOf(dataRegion), zoneClockOf(viewRegion), instant)
   return timeZoneFieldWord('example', language).replace('{name}', task.name ?? '').replace('{dateTime}', shownDateTimeOf(textOfInstant(shown)))
 }
 
@@ -1785,7 +1786,8 @@ export function propertiesPanelFromSelection(
     : { selection: isTaskGroupPick ? content.subject.selection : selection, groupIds: readings.selectedGroupIds }
   // WHY: readings with no layout place no task group, so the task group reads as not drawn (MH-6), never as 0 px.
   const placedTaskGroups = readings.placedTaskGroups ?? []
-  const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language, placedTaskGroups, settings.showsTimeOfDay)
+  const inTime = settings.showsTimeOfDay ? shownInstantReader(schedule, settings.viewTimeZone) : null
+  const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language, placedTaskGroups, inTime)
   const look = {
     hue: schedule.project.themeHue,
     dark,

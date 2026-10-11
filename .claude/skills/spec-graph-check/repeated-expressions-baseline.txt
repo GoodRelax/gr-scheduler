@@ -1,4 +1,4 @@
-77
+76
 # LOWERED 78 -> 77 on 2026-10-11 (JDG-520): CR-710 wave 2 folds the non-working shade box (shadeBoxOf) both the day and the hour tiers draw with.
 # LOWERED 79 -> 78 on 2026-10-10 (JDG-520): the DFC-2410/2411/2412 fix folds the unstored-zoom writes into unstoredZoomWrites.
 # LOWERED 81 -> 80 on 2026-10-04 (CR-631): taskUidsIn (PI-32) folds the task-uid extraction that schedule-geometry.ts and copy-and-paste.ts wrote out, and the two CR-631 readers use it.
@@ -22,6 +22,10 @@
 # copies were there before the split; the export made them read as one new group. The very
 # next commit folds all 8 copies of reject() in src/use-case/edit-document/ into one and
 # lowers this line again.
+#
+# LOWERED 77 -> 76 on 2026-10-11 under JDG-520 (the coordinator may lower): the CR-710 reconcile folded the
+# TX-10 speller of the delay report into lengthTextOf and the plan-instant reads of task-paste.ts and
+# item-grab.ts into plannedInstantsOf; recounted on abdafc0c plus its edits (76). Hold the ground.
 #
 # RAISED 88 -> 89 on 2026-09-20, with the user's approval (asked in chat: "進めてよい"): CR-430 left one
 # copy that cannot be folded without publishing a name across the component boundary

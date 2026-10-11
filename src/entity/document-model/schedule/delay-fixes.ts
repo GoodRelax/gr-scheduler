@@ -3,7 +3,7 @@
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
 
-import { compareDays, dayOf, instantOf, isSameDay, textOfDay, textOfInstant, type CalendarDay } from './calendar-day'
+import { compareDays, dayOf, isSameDay, textOfDay, textOfInstant, type CalendarDay } from './calendar-day'
 import {
   diagnoseDelay,
   extremeText,
@@ -18,7 +18,9 @@ import { withoutDependencyAt } from './schedule'
 import type { Dependency, Schedule, Task } from './schedule-entities'
 import { compareDates } from './schedule-search'
 import {
+  instantOnSide,
   plannedLengthMinutesOf,
+  startSideOf,
   textOfFinishSide,
   textOfStartSide,
   workingCalendarOf,
@@ -850,8 +852,9 @@ function milestoneActualDrafts(context: FixContext, finding: DelayFinding): read
 // see VC-15, BD-2, FR-054
 // WHY: the instant VC-15 holds the successor against: the end of the predecessor, advanced by the lag in working minutes.
 /** @purity pure */
-function boundInstantOf(walk: WorkingTimeWalk, predecessor: Task, dependency: Dependency): number | null {
-  const at = instantOf(bindsByPredecessorStart(dependency.linkType) ? predecessor.start : predecessor.finish)
+function boundInstantOf(within: WorkingCalendar, walk: WorkingTimeWalk, predecessor: Task, dependency: Dependency): number | null {
+  const byStart = bindsByPredecessorStart(dependency.linkType)
+  const at = instantOnSide(within, byStart ? predecessor.start : predecessor.finish, byStart ? startSideOf(predecessor) : 'finish')
   const lagMinutes = lagMinutesOf(dependency)
   if (at === null || lagMinutes === null) return null
   return laggedInstant(walk, at, lagMinutes)
@@ -871,7 +874,7 @@ function startOnBound(walk: WorkingTimeWalk, successor: Task, bound: number): nu
 function movedSuccessorOutcome(context: FixContext, predecessor: Task, successor: Task, dependency: Dependency): FixOutcome | null {
   const walk = workingTimeWalkOf(context.calendar)
   const length = plannedLengthMinutesOf(context.calendar, successor)
-  const bound = boundInstantOf(walk, predecessor, dependency)
+  const bound = boundInstantOf(context.calendar, walk, predecessor, dependency)
   if (length === null || bound === null) return null
   const start = bindsSuccessorStart(dependency.linkType) ? startOnBound(walk, successor, bound) : walk(bound, -length)
   const finish = bindsSuccessorStart(dependency.linkType) ? walk(start, length) : bound

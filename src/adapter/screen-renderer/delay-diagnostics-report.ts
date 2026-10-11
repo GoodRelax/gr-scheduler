@@ -13,7 +13,6 @@ import {
   delayFixLogRowsInOrder,
   delayFixProposalCells,
   delayFixRowsInOrder,
-  instantOf,
   isSameDay,
   isSearchWordFound,
   minutesPerWorkingDayOf,
@@ -29,9 +28,10 @@ import {
   type DelayReportRow,
   type DelayReportStatus,
   type DelayReportWords,
+  type DateTimeSide,
   type Schedule,
 } from '../../entity/document-model/schedule/schedule'
-import { clockTextOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import { lengthTextOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   emptySearchPanelSession,
@@ -58,6 +58,8 @@ import {
 import {
   clearEntryOf,
   dateText,
+  dateTimeText,
+  shownDateTimesOf,
   entryOf,
   panelWithFilterShut,
   scheduleFilterEntryOf,
@@ -76,6 +78,7 @@ import {
   wouldScheduleFilterChange,
   type MarkGlyph,
   type SearchFilterChange,
+  type ShownDateTimes,
   type TableLook,
   type TableWindowState,
   type WindowStep,
@@ -257,52 +260,32 @@ function statusTextIn(status: DelayReportStatus, language: DisplayLanguage, isWi
 interface ShownTimes {
   readonly showsTimeOfDay: boolean
   readonly minutesPerDayOf: () => number
+  readonly dates: ShownDateTimes
 }
 
-const MINUTES_PER_HOUR = 60
-
-// see TX-10
-const LENGTH_PART_JOIN = ' '
-const ZERO_LENGTH = '0h'
-
-// see TX-10, FR-054
-// WHY: 1d is minutesPerDay minutes and never the working times of a day; d, h and m read the same in every language.
-/** @purity pure */
-function workingLengthText(minutes: number, minutesPerDay: number): string {
-  const whole = Math.round(Math.abs(minutes))
-  if (whole === 0) return ZERO_LENGTH
-  const days = Math.floor(whole / minutesPerDay)
-  const rest = whole - days * minutesPerDay
-  const parts = [[days, 'd'], [Math.floor(rest / MINUTES_PER_HOUR), 'h'], [rest % MINUTES_PER_HOUR, 'm']] as const
-  const spelled = parts.filter(([count]) => count > 0).map(([count, unit]) => `${count}${unit}`).join(LENGTH_PART_JOIN)
-  return minutes < 0 ? `-${spelled}` : spelled
-}
-
-// see TX-8, DQ-2, DQ-3, DQ-4, VS-6
+// see TX-8, TX-10, DQ-2, DQ-3, DQ-4, VS-6
+// WHY: TX-10 has one speller, lengthTextOf (PI-5); a copy here would drift from the panel and the tooltips.
 /** @purity pure */
 function quantityText(minutes: number, times: ShownTimes): string {
   const minutesPerDay = times.minutesPerDayOf()
-  if (times.showsTimeOfDay) return workingLengthText(minutes, minutesPerDay)
+  if (times.showsTimeOfDay) return lengthTextOf(minutes, minutesPerDay)
   return String(Math.ceil(minutes / minutesPerDay))
+}
+
+// see FR-158, S-576, FR-054, FR-156, S-574
+/** @purity pure */
+function shownTimesOf(schedule: Schedule, showsTimeOfDay: boolean, viewTimeZone: unknown): ShownTimes {
+  return {
+    showsTimeOfDay,
+    minutesPerDayOf: () => minutesPerWorkingDayOf(schedule.project),
+    dates: shownDateTimesOf(schedule, { showsTimeOfDay, viewTimeZone }),
+  }
 }
 
 // see TX-7, DT-5, DT-6
 /** @purity pure */
-function reportDateText(stored: string | null, times: ShownTimes): string {
-  const date = dateText(stored)
-  const instant = times.showsTimeOfDay && date !== '' ? instantOf(stored) : null
-  return instant === null ? date : `${date} ${clockTextOf(instant)}`
-}
-
-// see FR-158, S-576, FR-054
-/** @purity pure */
-function shownTimesOf(schedule: Schedule, showsTimeOfDay: boolean): ShownTimes {
-  return { showsTimeOfDay, minutesPerDayOf: () => minutesPerWorkingDayOf(schedule.project) }
-}
-
-/** @purity pure */
-function datesText(start: string | null, finish: string | null, isOneDay: boolean, times: ShownTimes): string {
-  const [from, to] = [reportDateText(start, times), reportDateText(finish, times)]
+function datesText(start: string | null, finish: string | null, isOneDay: boolean, times: ShownTimes, startSide: DateTimeSide): string {
+  const [from, to] = [dateTimeText(start, times.dates, startSide), dateTimeText(finish, times.dates, 'finish')]
   if (from === '') return ''
   return isOneDay || from === to ? from : `${from}${DATE_RANGE}${to}`
 }
@@ -375,14 +358,16 @@ function reasonText(row: DelayReportRow, language: DisplayLanguage, times: Shown
 /** @purity pure */
 function cellsOf(row: DelayReportRow, language: DisplayLanguage, times: ShownTimes): readonly string[] {
   const isFinished = row.actualFinish !== null
+  const startSide = times.dates.startSideOf(row.taskUid)
   const cells: Readonly<Record<string, string>> = {
     'DT-1': statusWordOf(row.status, language),
     'DT-2': row.assigneeNames.join(ASSIGNEE_SEPARATOR),
     'DT-3': percentText(row.percentComplete),
     'DT-4': row.name,
-    'DT-5': datesText(row.plannedStart, row.plannedFinish, isSameDay(row.plannedStart, row.plannedFinish), times),
+    'DT-5': datesText(row.plannedStart, row.plannedFinish, isSameDay(row.plannedStart, row.plannedFinish), times, startSide),
     'DT-6': isFinished || row.actualStart === null
-      ? datesText(row.actualStart, row.actualFinish, false, times) : `${reportDateText(row.actualStart, times)}${OPEN_DATE_RANGE}`,
+      ? datesText(row.actualStart, row.actualFinish, false, times, startSide)
+      : `${dateTimeText(row.actualStart, times.dates, startSide)}${OPEN_DATE_RANGE}`,
     'DT-7': reasonText(row, language, times),
   }
   return DELAY_REPORT_COLUMNS.map((column) => cells[column] ?? BLANK_SEARCH_VALUE)
@@ -531,10 +516,12 @@ export function delayDiagnosticsReportFromWindow(
   layout: { readonly canvas: ScreenRect; readonly textSizeStep: number },
   fixTables: DelayFixTables = NO_DELAY_FIX_TABLES,
   showsTimeOfDay = false,
+  viewTimeZone: unknown = null,
 ): DelayDiagnosticsReportView | null {
   if (window === null || report === null) return null
-  const diagnosis = diagnosisReportViewOf(session, window, view, report, schedule, layout, showsTimeOfDay)
-  const words = fixWordsOf(schedule, displayLanguageOf(session), report, showsTimeOfDay)
+  const times = shownTimesOf(schedule, showsTimeOfDay, viewTimeZone)
+  const diagnosis = diagnosisReportViewOf(session, window, view, report, schedule, layout, times)
+  const words = fixWordsOf(schedule, displayLanguageOf(session), report, times)
   const values = delayFixValuesOf(window)
   const fixView = delayFixViewOf(values, fixTables, words)
   if (values.table === 'diagnosis') return { ...diagnosis, ...fixView }
@@ -551,13 +538,13 @@ function diagnosisReportViewOf(
   report: DelayDiagnosticsReport,
   schedule: Schedule,
   layout: { readonly canvas: ScreenRect; readonly textSizeStep: number },
-  showsTimeOfDay: boolean,
+  times: ShownTimes,
 ): DelayDiagnosticsReportView {
   const language = displayLanguageOf(session)
   const isOpen = window.shown !== 'minimized'
   const reported = delayDiagnosticsReportRows(report, schedule)
   const all = isOpen ? reported : []
-  const withCells = taskGroupsWithCells(all, language, shownTimesOf(schedule, showsTimeOfDay))
+  const withCells = taskGroupsWithCells(all, language, times)
   const found = shownTaskGroupsFrom({ word: window.panel.word, view }, withCells)
   const table = reportTableOf(view, () => found, language, withCells)
   const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldReportFilterChange(view, reported, schedule), language)
@@ -610,16 +597,17 @@ export function delayDiagnosticsReportAfterEntry(
     readonly language: DisplayLanguage
     readonly fixTables?: DelayFixTables
     readonly showsTimeOfDay?: boolean
+    readonly viewTimeZone?: unknown
   },
   listed?: readonly string[] | null,
 ): DelayReportStep | null {
   const tables = rows.fixTables ?? NO_DELAY_FIX_TABLES
-  const words = fixWordsOf(rows.schedule, rows.language, rows.report, rows.showsTimeOfDay ?? false)
+  const times = shownTimesOf(rows.schedule, rows.showsTimeOfDay ?? false, rows.viewTimeZone ?? null)
+  const words = fixWordsOf(rows.schedule, rows.language, rows.report, times)
   const fixed = delayFixStepAfterEntry(window, view, entry, tables, words) ?? fixTableStepAfterEntry(window, view, entry, filterColumn, { tables, words, listed: listed ?? null })
   if (fixed !== null || delayFixValuesOf(window).table !== 'diagnosis') return fixed
   const all = delayDiagnosticsReportRows(rows.report, rows.schedule)
   const word = window.panel.word
-  const times = shownTimesOf(rows.schedule, rows.showsTimeOfDay ?? false)
   return windowAfterEntry(window, view, entry, filterColumn, {
     wouldChange: () => wouldReportFilterChange(view, all, rows.schedule),
     tableOf: (unfiltered) => reportTableOf(view, () => shownTaskGroupsOf({ word, view: unfiltered }, all, rows.language, times), rows.language),
@@ -708,11 +696,13 @@ export function delayDiagnosticsReportMarkdownOf(
   stamp: { readonly documentName: string; readonly madeAt: string },
   fixTables: DelayFixTables = NO_DELAY_FIX_TABLES,
   showsTimeOfDay = false,
+  viewTimeZone: unknown = null,
 ): string {
   const all = delayDiagnosticsReportRows(report, schedule)
   const printed = markdownViewOf(view)
   const look = { word: window.panel.word, view: printed }
-  const rows = shownTaskGroupsOf(look, all, language, shownTimesOf(schedule, showsTimeOfDay)).map((shown) => ({ status: shown.row.status, cells: markdownCellsOf(shown.cells) }))
+  const times = shownTimesOf(schedule, showsTimeOfDay, viewTimeZone)
+  const rows = shownTaskGroupsOf(look, all, language, times).map((shown) => ({ status: shown.row.status, cells: markdownCellsOf(shown.cells) }))
   const columns = printed.columnFilters.map((one) => ({
     heading: partWordOf(COLUMN_WORDS, one.column, language),
     condition: filterConditionText(one, (value) => (one.column === STATUS_COLUMN ? statusText(value as DelayReportStatus, language) : value)),
@@ -724,7 +714,7 @@ export function delayDiagnosticsReportMarkdownOf(
     madeAt: stamp.madeAt,
     summaryLine: summaryLineOf(summary, language),
   }
-  const fixes = fixMarkdownOf(window, fixTables, fixWordsOf(schedule, language, report, showsTimeOfDay))
+  const fixes = fixMarkdownOf(window, fixTables, fixWordsOf(schedule, language, report, times))
   return delayDiagnosticsReportMarkdown(rows, { word: window.panel.word, columns }, markdownWordsOf(language), dates, fixes)
 }
 
@@ -916,8 +906,7 @@ interface FixWords {
 
 // see T-374, FM-3, FM-8
 /** @purity pure */
-function fixWordsOf(schedule: Schedule, language: DisplayLanguage, report: DelayDiagnosticsReport | null, showsTimeOfDay: boolean): FixWords {
-  const times = shownTimesOf(schedule, showsTimeOfDay)
+function fixWordsOf(schedule: Schedule, language: DisplayLanguage, report: DelayDiagnosticsReport | null, times: ShownTimes): FixWords {
   const names = new Map(schedule.tasks.map((task) => [task.uid, task.name]))
   const nameOf = (taskUid: number): string => names.get(taskUid) ?? String(taskUid)
   const word = (part: string): string => fixWordOf(part, language)
