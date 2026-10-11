@@ -100,6 +100,17 @@ export {
   isWorkingTimeSetUnlikeDay,
 } from './working-calendar'
 export type { DateTimeSide, WorkingCalendar, WorkingTimeSet } from './working-calendar'
+export {
+  dataWallOfViewWall,
+  isTimeZoneRegion,
+  PRINTED_TIME_ZONE,
+  regionForPc,
+  TIME_ZONE_ROWS,
+  viewRegionOf,
+  viewWallOfDataWall,
+  zoneClockOf,
+} from './time-zone'
+export type { PcRegionChoice, PcTimeZone, TimeZoneRow, ZoneClock } from './time-zone'
 export { delayStart, delayWorkingDays, isDelayed } from './task-delay'
 export { diagnoseDelay, parentCandidatesOf, parentTaskResolutionsOf } from './delay-diagnostics'
 export type { DelayDiagnosticsReport, ParentTaskResolution } from './delay-diagnostics'

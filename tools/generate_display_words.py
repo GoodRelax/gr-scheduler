@@ -336,6 +336,14 @@ ROW_MIN_HEIGHT_FIELD_PARTS = ('enable', 'unit', 'basisHint', 'currentName',
 # ROW_MIN_HEIGHT_FIELD_PARTS. KEYS, not words.
 TASK_GROUP_PANEL_WIDTH_FIELD_PARTS = ('unit', 'currentName', 'currentValue')
 FIT_SPAN_FIELD_PARTS = ('currentName', 'currentValue', 'copyCurrent')
+# CR-710 wave 3b: the words of the time zone fields of the document settings
+# face (FO-14, FO-16 of table T-369) and the lines the Time Shift question
+# (QN-14) shows under its sentence (BS-3 of table T-377). The two ways to
+# change the base are the words FR-156 names; no table holds them as rows, so
+# they are HELD HERE, the same move as FIT_SPAN_FIELD_PARTS. KEYS, not words.
+TIME_ZONE_FIELD_PARTS = ('keepGlobalTime', 'keepLocalTime', 'example', 'none',
+                         'shiftUnit', 'shiftAmountLine', 'shiftTaskCountLine',
+                         'shiftOutsideCountLine', 'shiftExampleLine')
 
 # CR-571: the search panel (FR-151). The column headings are READ from table
 # T-331 and the state words from table T-019a, the move `reasons` makes with
@@ -765,6 +773,7 @@ def roster():
                                        DELAY_FIX_COLUMN_TABLE)],
         'delayFixes': list(DELAY_FIX_PARTS),
         'fitSpanField': list(FIT_SPAN_FIELD_PARTS),
+        'timeZoneField': list(TIME_ZONE_FIELD_PARTS),
         'exportChooser': list(EXPORT_CHOOSER_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
         'dropCue': list(DROP_CUE_PARTS),
@@ -854,6 +863,7 @@ SHAPE = {
     'delayFixColumns': ('rowId', ('text',)),
     'delayFixes': ('part', ('text',)),
     'fitSpanField': ('part', ('text',)),
+    'timeZoneField': ('part', ('text',)),
     'exportChooser': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
     'dropCue': ('part', ('text',)),
@@ -964,7 +974,7 @@ def build(doc, keys_by_row):
                     'weekdays', 'hintLines',
                     'colorNames', 'colorField', 'propertyField',
                     'rowMinHeightField', 'taskGroupPanelWidthField',
-                    'themeHues', 'timeZones',
+                    'themeHues', 'timeZones', 'timeZoneField',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
                     'planActualStates', 'searchPanel', 'resourceListColumns',
                     'resourceList', 'parentTaskChoice',

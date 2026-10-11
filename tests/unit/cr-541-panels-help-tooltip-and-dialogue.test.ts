@@ -43,9 +43,8 @@ const Q08A = '⭐ ただし、別の要求がその入口を本面の欄とし�
 // WHY: CR-690 -- the order of the face's fields moved to table T-369, and no placing requirement names another field.
 const Q08B = '⭐ 本面の欄の並びと欄の名は 表 T-369 に従うこと（MUST）'
 const THEME_HUE_FIELD = 'K-60'
-// WHY: table T-369 (CR-690) places under K-60: display scale, font size, the width's fix and width (T-368),
-// the status date, the fit span's fix and span (T-367), then the parent progress tolerance (FR-131).
-const LATER_PLACED_FIELDS = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'K-140', 'K-146']
+// WHY: table T-369 places under K-60 the fields FO-3 to FO-16 name; FR-156, FR-157 and FR-158 placed the last four.
+const LATER_PLACED_FIELDS = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'K-140', 'K-146', 'K-144', 'K-145', 'IC-162']
 // WHY: FO-11's read-out holds the copy entrance (FX-7), a control on a field that is itself read only.
 const SHOWN_SPAN_FIELD = 'FX-6'
 const Q17 = '⭐ 画面に依存の種別を出すときは、本表の `名` の欄の略号（括弧の前の `FS` / `SF` / `FF` / `SS`）で出すこと（MUST）'
@@ -150,7 +149,9 @@ describe('FR-072 -- the document settings are read only in the panel, but for th
   it(Q08, () => {
     const described = panel()
     const withControls = described!.fields.filter((one) => one.controls.length > 0).map((one) => one.row)
-    const placedWithControls = [THEME_HUE_FIELD, ...LATER_PLACED_FIELDS.slice(0, -2), SHOWN_SPAN_FIELD, ...LATER_PLACED_FIELDS.slice(-2)]
+    // WHY: FX-6 (the shown span and its copy entrance) stands after K-141 (FO-11), before K-140 (FO-12).
+    const afterShownSpan = LATER_PLACED_FIELDS.indexOf('K-140')
+    const placedWithControls = [THEME_HUE_FIELD, ...LATER_PLACED_FIELDS.slice(0, afterShownSpan), SHOWN_SPAN_FIELD, ...LATER_PLACED_FIELDS.slice(afterShownSpan)]
     expect(withControls, 'no field offers a control to change it but the fields table T-369 places')
       .toEqual(placedWithControls)
   })

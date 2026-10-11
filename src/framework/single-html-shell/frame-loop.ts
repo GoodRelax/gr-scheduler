@@ -25,6 +25,7 @@ import {
 import {
   delayDiagnosticsReportRows,
   diagnoseDelay,
+  regionForPc,
   scheduleViolations,
   textOfDay,
   textOfDayEnd,
@@ -32,6 +33,7 @@ import {
   workingCalendarOf,
   type CalendarDay,
   type DelayDiagnosticsReport,
+  type PcRegionChoice,
 } from '../../entity/document-model/schedule/schedule'
 import {
   answersAtPointer,
@@ -2545,15 +2547,27 @@ export function readToday(): string {
 // see FR-095, RD-7
 /** @purity semi-pure-b */
 function startingAfreshCall(emptyDocument: Document): ReplacementCall {
-  const document = startedDocumentOf(emptyDocument, readLocalMoment())
+  const document = startedDocumentOf(emptyDocument, readLocalMoment(), readPcRegion().region)
   return { row: 'RD-7', document, editedBy: EDITED_BY_SCREEN, updatedUtc: readInstantOfWrite() }
 }
 
-// see BK-4, WT-9
+// see BK-4, WT-9, FR-156
 /** @purity pure */
-export function startedDocumentOf(emptyDocument: Document, created: string): Document {
+export function startedDocumentOf(emptyDocument: Document, created: string, scheduleDataTimeZone: string): Document {
   const schedule = emptyDocument.schedule
-  return { ...emptyDocument, schedule: { ...schedule, project: { ...schedule.project, created } } }
+  return { ...emptyDocument, schedule: { ...schedule, project: { ...schedule.project, created, scheduleDataTimeZone } } }
+}
+
+const MS_PER_MINUTE = 60000
+
+const TIME_ZONE_SET_REASON: NoticeReason = 'RS-90'
+
+// see FR-156, RS-90, T-376
+/** @purity semi-pure-b */
+export function readPcRegion(): PcRegionChoice {
+  const now = new Date()
+  const region = Intl.DateTimeFormat().resolvedOptions().timeZone
+  return regionForPc({ region, offsetMinutes: -now.getTimezoneOffset() }, Math.floor(now.getTime() / MS_PER_MINUTE))
 }
 
 // see FR-063
@@ -3458,7 +3472,7 @@ export function frameLoop(
   function carryOutOwedAction(owedAction: FileFlowOwedAction, frame: FrameValues | null): void {
     if (owedAction.kind === 'startNewDocument') {
       // TRAP: not RD-6, whose history cell differs.
-      if (emptyDocument !== undefined) replaceHeldDocument(startingAfreshCall(emptyDocument))
+      if (emptyDocument !== undefined && replaceHeldDocument(startingAfreshCall(emptyDocument))) raiseNotice(TIME_ZONE_SET_REASON, null)
       return
     }
     if (owedAction.kind === 'resetGrs') return resetGrs(pageReload)

@@ -878,6 +878,7 @@ export function svgFromSchedule(
       themed('S-147'),
       themed('S-149'),
       weekdayWords,
+      schedule.project.scheduleDataTimeZone,
     ),
   ]
 

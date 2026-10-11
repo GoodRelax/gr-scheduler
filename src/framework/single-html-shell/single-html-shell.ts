@@ -44,6 +44,7 @@ import {
   frameLoop,
   noWorkingWeekdayReason,
   readLocalMoment,
+  readPcRegion,
   startedDocumentOf,
   startupDisplayLanguage,
   startupThemePreference,
@@ -267,7 +268,7 @@ function emptyDocument(): Document {
     documentFromJson(JSON.stringify(emptyDocumentRoot), GREATEST_KNOWN_SCHEMA_VERSION),
     'the bundled empty document',
   )
-  return startedDocumentOf(read, readLocalMoment())
+  return startedDocumentOf(read, readLocalMoment(), readPcRegion().region)
 }
 
 interface ShippedDocuments {
