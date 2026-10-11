@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 311 | 3580 | 5 | 4 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 83 | 534 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 84 | 545 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 181 | 3880 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 595 | 8104 | 8 | 8 | 12 | 2 |
+| **all** | | | 596 | 8115 | 8 | 8 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -630,6 +630,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-728-a-search-jump-lands-in-the-middle-and-marks-its-target.test.ts` | 12 | FR-134 | - | T-103, T-109, T-206, T-303, T-332 | AM-16, EL-17, PR-37, PR-38, PTL-16, S-554, S-557, S-558, SJ-1, SJ-2, SJ-5, SJ-6, SJ-9, SJ-10 | - | - | - | - |
 | `tests/system/cr-731-the-fix-window-on-the-shipped-build.test.ts` | 4 | - | - | - | FA-1, FA-23, FA-24, FM-8, IC-157, RW-16, UN-21 | - | - | - | - |
 | `tests/system/cr-733-a-press-anywhere-brings-a-table-window-to-the-front.test.ts` | 14 | - | - | T-103, T-109, T-330, T-335 | IC-52, IC-117, IN-4, SK-24, SV-2, SV-9, UZ-6, WB-2, WB-8, WB-11 | - | - | - | - |
+| `tests/system/cr-737-the-column-border-grab-band-and-the-pointer-shape-over-windows.test.ts` | 11 | FR-106 | - | T-023d, T-103, T-109, T-206, T-330 | DT-8, GR-25, GR-28, IC-122, PK-10, PK-12, PK-15, RO-9, RQ-1, RW-9, S-425, S-426, S-465, SQ-10, SV-7, SV-18 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-color-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
