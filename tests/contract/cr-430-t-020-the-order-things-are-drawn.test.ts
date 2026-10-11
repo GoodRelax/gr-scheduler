@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { specTable, unbroken } from './spec-table'
-import { svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
+import { marqueeOverlaySvg, svgFromSchedule } from '../../src/adapter/svg-renderer/svg-renderer'
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import { geometryFromLayout } from '../../src/entity/layout-engine/schedule-geometry/schedule-geometry'
 import { layoutFromSchedule } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
@@ -153,10 +153,11 @@ const richScene = (): { readonly svg: (draw?: DrawWish) => string } => {
         [],
         (draw.pointer ?? null) as never,
         null,
-        (draw.marquee ?? null) as never,
         (draw.watermark ?? null) as never,
         (draw.tentativeLink ?? null) as never,
-      ),
+      ) +
+      // WHY: table T-065 IF-1 lays the marquee overlay in front of the picture beneath, so the screen reads them in this order.
+      marqueeOverlaySvg(schedule, scene.settings, regions, { themePreference: 'light', guideCursorMode: 'none' }, (draw.marquee ?? null) as never),
   }
 }
 

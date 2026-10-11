@@ -31,7 +31,6 @@ const labelOf = (spec: FamiliesSpec | null, uid: number): Readonly<Record<string
     null,
     null as never,
     null as never,
-    null as never,
   )
   const labels = figuresKeyed(svg, `task-${uid}-label`)
   expect(labels.length, `task ${uid} has a name label`).toBeGreaterThan(0)

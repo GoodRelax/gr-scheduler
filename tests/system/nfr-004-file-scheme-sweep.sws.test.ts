@@ -184,8 +184,9 @@ const READ_SCRIPT = `(() => {
     for (let i = 0; i < text.length; i += 1) h = (h * 31 + text.charCodeAt(i)) | 0
     return h
   }
-  const canvas = document.querySelector('[data-role="Schedule Canvas"] svg')
-  const drawing = canvas ? canvas.outerHTML : ''
+  // WHY: the whole canvas, not its first svg: IF-1 draws the held marquee (SL-3) on an overlay beside the picture (CR-736).
+  const canvas = document.querySelector('[data-role="Schedule Canvas"]')
+  const drawing = canvas ? canvas.innerHTML : ''
   const keys = window.__grsKeys || []
   return {
     roles: [...new Set([...document.querySelectorAll('[data-role]')]

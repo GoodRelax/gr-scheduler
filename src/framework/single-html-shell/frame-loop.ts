@@ -199,7 +199,7 @@ import {
   type VerticalWhole,
   imageToJsonPromptText,
 } from '../../adapter/screen-renderer/screen-renderer'
-import { jumpLandingRingOf, svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
+import { jumpLandingRingOf, marqueeOverlaySvg, svgFromSchedule, type SvgSurface } from '../../adapter/svg-renderer/svg-renderer'
 import {
   writeClipboard,
   type Clipboard,
@@ -2575,6 +2575,20 @@ export function readMonotonicMs(): number {
   return performance.now()
 }
 
+// see IF-1
+/** @purity non-pure */
+function beneathAndMarqueeOverlayShowerOf(surface: SvgSurface): (beneathSvg: string, overlaySvg: string) => string {
+  let overlayShown = ''
+  return (beneathSvg, overlaySvg) => {
+    surface.showSvg(beneathSvg)
+    if (overlaySvg !== overlayShown) {
+      overlayShown = overlaySvg
+      surface.showMarqueeOverlaySvg(overlaySvg)
+    }
+    return beneathSvg + overlaySvg
+  }
+}
+
 /** @purity non-pure */
 export function frameLoop(
   surface: SvgSurface,
@@ -2592,6 +2606,7 @@ export function frameLoop(
   pageReload?: () => void,
 ): FrameLoop {
   let held: HeldDocument = { document: first, history: emptyHistory() }
+  const showBeneathAndMarqueeOverlay = beneathAndMarqueeOverlayShowerOf(surface)
   let savedDocument = first
   let environment = env
   let session: ScreenSession = startingSession(
@@ -2835,7 +2850,7 @@ export function frameLoop(
       ask()
       return
     }
-    const drawnSvg =
+    const beneathSvg =
       svgFromSchedule(
         document.schedule,
         drawnSettings,
@@ -2849,11 +2864,11 @@ export function frameLoop(
         rulerWeekdayWords(screenLanguageIn(session)),
         pointerAt,
         grabUnderPointer,
-        marqueeRect(pressed, pointerAt),
         watermarkNow(),
         tentativeDependencyOf(hands, pressed, pointerAt, document, drawnSettings, layout, geometry, regions),
       )
-    surface.showSvg(drawnSvg)
+    const overlaySvg = marqueeOverlaySvg(document.schedule, drawnSettings, regions, session.screen, marqueeRect(pressed, pointerAt))
+    const drawnSvg = showBeneathAndMarqueeOverlay(beneathSvg, overlaySvg)
     if (screen === undefined) {
       recordFrame(hands, interactionRecorder, drawnSvg, layout)
       return
@@ -3137,7 +3152,6 @@ export function frameLoop(
         session.screen,
         null,
         rulerWeekdayWords(screenLanguageIn(session)),
-        null,
         null,
         null,
         // TRAP: not the picture's root, whose default S-144 would restore a watermark the person hid.

@@ -156,7 +156,7 @@ const realRaf = (globalThis as any).requestAnimationFrame
  * in this layer. ⛔ Nothing in this fake decides anything about the watermark.
  */
 function host(): {
-  readonly surface: { showSvg(svg: string): void }
+  readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }
   runAnimationFrames(): void
   frameAsked(): Promise<void>
 } {
@@ -171,7 +171,7 @@ function host(): {
   return {
     frameAsked: () =>
       waiting.length > 0 ? Promise.resolve() : new Promise<void>((done) => void askedListeners.push(done)),
-    surface: { showSvg: () => undefined },
+    surface: { showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined },
     runAnimationFrames: () => {
       for (let turn = 0; turn < 8 && waiting.length > 0; turn += 1) {
         for (const callback of waiting.splice(0, waiting.length)) callback(turn)

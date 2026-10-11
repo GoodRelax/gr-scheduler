@@ -302,7 +302,7 @@ const realRaf = (globalThis as any).requestAnimationFrame
  * node with no `requestAnimationFrame`, and LY-5 of 表 T-060 puts the browser in
  * this layer. ⛔ Nothing in this fake decides anything about a telling.
  */
-function host(): { readonly surface: { showSvg(svg: string): void }; runAnimationFrames(): void } {
+function host(): { readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }; runAnimationFrames(): void } {
   const waiting: ((time: number) => void)[] = []
   let handle = 0
   ;(globalThis as any).requestAnimationFrame = (callback: (time: number) => void): number => {
@@ -310,7 +310,7 @@ function host(): { readonly surface: { showSvg(svg: string): void }; runAnimatio
     return ++handle
   }
   return {
-    surface: { showSvg: () => undefined },
+    surface: { showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined },
     runAnimationFrames: () => {
       for (let turn = 0; turn < 8 && waiting.length > 0; turn += 1) {
         for (const callback of waiting.splice(0, waiting.length)) callback(turn)

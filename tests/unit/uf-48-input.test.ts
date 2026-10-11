@@ -354,7 +354,7 @@ const UNSETTLED_SCREEN: FrameEnvironment = {
 interface Host {
   /** Every SVG the loop has put on the surface, oldest first. */
   readonly drawn: string[]
-  readonly surface: { showSvg(svg: string): void }
+  readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }
   /** Run whatever the loop asked an animation frame for, until it asks for no more. */
   runAnimationFrames(): void
   frames(): number
@@ -374,6 +374,7 @@ function host(): Host {
   return {
     drawn,
     surface: {
+      showMarqueeOverlaySvg: () => undefined,
       showSvg: (svg: string) => {
         drawn.push(svg)
       },

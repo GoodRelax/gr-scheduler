@@ -180,32 +180,19 @@ describe(`${IF_1.id} ${IF_1.seam} -- only a value crosses it (LR-6)`, () => {
     expect(content()).toBe(A_PICTURE)
   })
 
-  it('gives back nothing but the member the seam declares', () => {
+  // WHY: table T-065 IF-1 has two seams since CR-736 -- the picture beneath and the marquee overlay.
+  it('gives back nothing but the members the seam declares', () => {
     const { host } = bareHost()
     const surface = domSvgSurface(host)
-    expect(Object.keys(surface)).toEqual(['showSvg'])
+    expect(Object.keys(surface)).toEqual(['showSvg', 'showMarqueeOverlaySvg'])
     expect(typeof surface.showSvg).toBe('function')
     expect(surface.showSvg(A_PICTURE)).toBeUndefined()
   })
 })
 
 describe(`${IF_1.id} ${IF_1.seam} -- showing the same picture twice`, () => {
-  // ⛔ NOT DERIVED FROM THE SPECIFICATION.
-  //
-  // Nothing in the specification requires this. NFR-010 and table T-078 govern
-  // whether a FRAME RUNS -- "本表に無い契機でフレームを起こしてはならない
-  // （MUST NOT）" -- not what the surface does once a frame has already handed
-  // it a string. FR-048 puts the same judgment on "描く内容" at the shell, not
-  // at the seam. Table T-065 IF-1 says only "作った SVG 文字列を画面に載せる",
-  // and svg-surface.ts's own declaration records that no requirement states a
-  // diffing rule.
-  //
-  // So skipping an identical write is DomSvgSurface's discretion, which LY-5
-  // permits (`Framework` is the layer allowed to hold a current value). This
-  // case pins the behavior that is there so that dropping it is a decision
-  // rather than an accident. ⚠️ A failure here is not a defect against the
-  // specification.
-  it('does not write the host again (implementation discretion)', () => {
+  // see IF-1
+  it('does not write the host again: 実装は、渡された文字列が前に載せたものと同じなら画面を書き換えないこと（MUST）', () => {
     const { host, writes, content } = bareHost()
     const surface = domSvgSurface(host)
     surface.showSvg(A_PICTURE)

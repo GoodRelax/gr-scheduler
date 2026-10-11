@@ -445,7 +445,7 @@ function host() {
     return ++handle
   }
   return {
-    surface: { showSvg: () => undefined },
+    surface: { showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined },
     runAnimationFrames: (): void => {
       // Bounded, so a loop that asks for a frame from inside a frame -- which
       // NFR-010 forbids -- ends the test instead of hanging it.

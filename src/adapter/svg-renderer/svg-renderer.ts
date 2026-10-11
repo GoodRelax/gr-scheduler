@@ -645,18 +645,31 @@ function zoLayer(row: string, drawn: readonly string[]): readonly string[] {
 // WHY: drawn only on the ground the task group bands paint (no scrollbar band, no canvasPadding under task groups).
 // TRAP: one clip per layer; one group around them all, halo mask inside, paints 3-4x slower (DFC-1132).
 /** @purity pure */
-function groundClipped(input: GridInput, layers: readonly string[]): readonly string[] {
+function groundClipped(
+  input: Pick<GridInput, 'area' | 'settings'>,
+  layers: readonly string[],
+  idPrefix = 'grs-ground-clip-',
+): readonly string[] {
   const inner = layers.join('')
   if (inner === '') return []
   const { area } = input
   const box =
     `x="${rounded(area.x)}" y="${rounded(area.y)}"` +
     ` width="${rounded(bandWidthOf(input))}" height="${rounded(area.height)}"`
-  const id = `grs-ground-clip-${pictureId(box)}`
+  const id = `${idPrefix}${pictureId(box)}`
   return [
     `<clipPath id="${id}"><rect ${box}/></clipPath>`,
     ...layers.map((layer) => `<g clip-path="url(#${id})">${layer}</g>`),
   ]
+}
+
+// see IF-1
+/** @purity pure */
+function pictureSizeOf(regions: ScreenRegions): { readonly width: number; readonly height: number } {
+  return {
+    width: Math.max(1, regions.scheduleCanvas.x + regions.scheduleCanvas.width),
+    height: Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height),
+  }
 }
 
 // see FR-080, T-020, T-076
@@ -676,7 +689,6 @@ export function svgFromSchedule(
   weekdayWords: readonly string[] = [],
   pointer: Point | null = null,
   hovered: Hit | null = null,
-  marquee: ScreenRect | null = null,
   watermark: Watermark | null = null,
   tentativeLink: ScheduleGeometry['dependencies'][number] | null = null,
 ): string {
@@ -690,7 +702,7 @@ export function svgFromSchedule(
   const visualOf = new Map(schedule.taskVisuals.map((one) => [one.taskUid, one]))
   const strokeOfBox = new Map(schedule.highlightBoxes.map((one) => [one.id, one.strokeColor]))
   const colorOfGroup = new Map(schedule.taskGroups.map((one) => [one.id, one.color]))
-  // TRAP: gate every operation mark on drawsOperationState, or it leaks into an export (EP-12, DC-8); marquee is ungated and relies on the export call passing null.
+  // TRAP: gate every operation mark on drawsOperationState, or it leaks into an export (EP-12, DC-8).
   const drawsOperationState = picture === 'screen'
   const marks: readonly ItemRef[] = drawsOperationState ? selection.items : []
   const following = drawsOperationState ? follow : null
@@ -754,8 +766,7 @@ export function svgFromSchedule(
   const figures = taskFigureParts(drawing)
   const baselines = baselineOutlineParts(drawing, NOT_STORED_BASELINE_OUTLINE_SIZES['S-444'])
 
-  const width = Math.max(1, regions.scheduleCanvas.x + regions.scheduleCanvas.width)
-  const height = Math.max(1, regions.scheduleCanvas.y + regions.scheduleCanvas.height)
+  const { width, height } = pictureSizeOf(regions)
   const arrowId = `grs-dependency-arrow-${pictureId(
     `${rounded(width)}x${rounded(height)}|${geometry.tasks.length}` +
       `|${geometry.dependencies.length}|${selected.size}|${schedule.project.title ?? ''}`,
@@ -856,10 +867,6 @@ export function svgFromSchedule(
           ? []
           : [watermarkSvg(area, width, watermark, themed('S-223'), watermarkClipId)],
       ),
-      ...zoLayer(
-        'ZO-6',
-        marquee === null ? [] : [selectionFrameSvg(marquee, themed('S-151'), 'marquee')],
-      ),
     ]),
     // WHY: the ruler draws in its own band, so table T-020 holds no row for it (the table's closing note).
     ...rulerSvg(
@@ -880,6 +887,31 @@ export function svgFromSchedule(
     (drawsOperationState ? ` style="${NO_TEXT_SELECTION_STYLE}"` : '') +
     ` role="img" aria-label="${escaped(schedule.project.title ?? '')}">` +
     parts.join('') +
+    '</svg>'
+  )
+}
+
+// see IF-1, ZO-6, SL-3
+// WHY: the size, viewBox and clip box of the picture beneath, under its own clip id (one document); never exported (FR-080).
+/** @purity pure */
+export function marqueeOverlaySvg(
+  schedule: Schedule,
+  storedSettings: DocumentSettings,
+  regions: ScreenRegions,
+  viewer: ViewerValues,
+  marquee: ScreenRect | null,
+): string {
+  if (marquee === null) return ''
+  const settings = drawnSettingsOf(storedSettings)
+  const dark = viewer.themePreference === 'dark'
+  const themed = themedColors(schedule.project.themeHue, dark, settings.themeMonochrome)
+  const { width, height } = pictureSizeOf(regions)
+  const frame = zoLayer('ZO-6', [selectionFrameSvg(marquee, themed('S-151'), 'marquee')])
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${rounded(width)}"` +
+    ` height="${rounded(height)}" viewBox="0 0 ${rounded(width)} ${rounded(height)}"` +
+    ` style="${NO_TEXT_SELECTION_STYLE}" aria-hidden="true">` +
+    groundClipped({ area: regions.taskGroupArea, settings }, frame, 'grs-marquee-clip-').join('') +
     '</svg>'
   )
 }

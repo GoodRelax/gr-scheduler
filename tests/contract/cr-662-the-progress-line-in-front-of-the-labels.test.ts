@@ -103,7 +103,6 @@ const pictureOf = (wish: SceneWish, picture: Picture): string => {
     null,
     null as never,
     null as never,
-    null as never,
   )
 }
 

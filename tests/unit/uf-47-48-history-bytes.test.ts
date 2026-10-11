@@ -474,7 +474,7 @@ function host(): SvgSurface {
   ;(globalThis as { requestAnimationFrame?: unknown }).requestAnimationFrame = (
     callback: Waiting,
   ): number => waiting.push(callback)
-  return { showSvg: () => {} }
+  return { showMarqueeOverlaySvg: () => undefined, showSvg: () => {} }
 }
 
 afterEach(() => {

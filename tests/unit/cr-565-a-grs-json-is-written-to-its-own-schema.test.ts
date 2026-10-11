@@ -334,7 +334,7 @@ function bench(): Bench {
       return { ok: true, openedFile: { kind: 'writable', fileName: write.suggestedFileName } } as never
     },
   }
-  const loop = frameLoop({ showSvg: () => undefined }, templateCopy() as unknown as Document, { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }, { surface, language: 'ja' }, store)
+  const loop = frameLoop({ showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined }, templateCopy() as unknown as Document, { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8 }, { surface, language: 'ja' }, store)
   frames()
   const pressOn = async (at: Partial<ScreenPart> & { part: string }): Promise<void> => {
     part = { entry: null, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null, ...at } as ScreenPart

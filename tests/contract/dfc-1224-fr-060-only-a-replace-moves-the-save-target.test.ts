@@ -277,7 +277,7 @@ async function stage(): Promise<Stage> {
   const written: WriteLog = []
   const browser = standInBrowser()
   const store = fileSystemAccessFileStore(browser.environment)
-  const loop = frameLoop({ showSvg: () => undefined }, here(), SCREEN, { surface, language: 'ja' }, store)
+  const loop = frameLoop({ showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined }, here(), SCREEN, { surface, language: 'ja' }, store)
   const turn = async (): Promise<void> => {
     frames()
     await settle()

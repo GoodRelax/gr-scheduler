@@ -6,4 +6,5 @@
 
 export interface SvgSurface {
   showSvg(svg: string): void
+  showMarqueeOverlaySvg(svg: string): void
 }

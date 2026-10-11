@@ -257,7 +257,7 @@ export function rulerSvg(
 // WHY: the band runs on through canvasPadding up to the vertical bar's left edge; the export
 // draws it alike, so the two pictures differ only where table T-076 says.
 /** @purity pure */
-export function bandWidthOf(input: GridInput): number {
+export function bandWidthOf(input: Pick<GridInput, 'area' | 'settings'>): number {
   return input.area.width + input.settings.canvasPadding
 }
 

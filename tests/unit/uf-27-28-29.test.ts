@@ -349,7 +349,7 @@ function frameOf(document: Document): FrameSnapshot {
  * with a picture of a document no read of this API can return.
  */
 function exportSceneOf(document: Document): ExportScene | null {
-  return frameLoop({ showSvg: () => undefined }, document, SCREEN).exportScene()
+  return frameLoop({ showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined }, document, SCREEN).exportScene()
 }
 
 // ---------------------------------------------------------------------------

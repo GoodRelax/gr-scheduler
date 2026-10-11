@@ -103,7 +103,7 @@ function stage(): Stage {
     readScreenPartAt: () => null,
   }
   const loop = frameLoop(
-    { showSvg: (svg: string) => void drawn.push(svg) },
+    { showMarqueeOverlaySvg: () => undefined, showSvg: (svg: string) => void drawn.push(svg) },
     structuredClone(TEMPLATE),
     SCREEN,
     { surface, language: 'ja' },

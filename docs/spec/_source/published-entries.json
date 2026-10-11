@@ -2159,6 +2159,15 @@
      }
     },
     {
+     "name": "marqueeOverlaySvg",
+     "note": {
+      "ja": [
+       "重ねの絵 —— 範囲選択の矩形（表 T-020 の `ZO-6`）だけを持つ SVG を返し、握っていなければ空の文字列を返す。",
+       "表 T-065 の `IF-1` が矩形を下の絵と別の口で載せると定めるので、`SingleHtmlShell` が下の絵（`svgFromSchedule`）と別に問う"
+      ]
+     }
+    },
+    {
      "name": "colorOf",
      "note": {
       "ja": [

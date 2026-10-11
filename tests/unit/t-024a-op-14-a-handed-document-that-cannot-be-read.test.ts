@@ -146,7 +146,7 @@ const SCREEN: FrameEnvironment = {
 const realRaf = (globalThis as unknown as { requestAnimationFrame?: unknown })
   .requestAnimationFrame
 
-function host(): { surface: { showSvg(svg: string): void }; runAnimationFrames(): void } {
+function host(): { surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }; runAnimationFrames(): void } {
   const waiting: ((time: number) => void)[] = []
   ;(globalThis as unknown as { requestAnimationFrame: unknown }).requestAnimationFrame = (
     callback: (time: number) => void,
@@ -155,7 +155,7 @@ function host(): { surface: { showSvg(svg: string): void }; runAnimationFrames()
     return waiting.length
   }
   return {
-    surface: { showSvg: () => undefined },
+    surface: { showMarqueeOverlaySvg: () => undefined, showSvg: () => undefined },
     runAnimationFrames: () => {
       for (let turn = 0; turn < 8 && waiting.length > 0; turn += 1) {
         for (const callback of waiting.splice(0, waiting.length)) callback(turn)

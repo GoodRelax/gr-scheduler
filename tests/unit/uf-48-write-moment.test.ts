@@ -283,7 +283,7 @@ const SCREEN: FrameEnvironment = {
 }
 
 interface Host {
-  readonly surface: { showSvg(svg: string): void }
+  readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }
   /** Run whatever the loop asked an animation frame for, until it asks no more. */
   runAnimationFrames(): void
 }
@@ -306,6 +306,7 @@ function host(): Host {
   }
   return {
     surface: {
+      showMarqueeOverlaySvg: () => undefined,
       showSvg: (svg: string) => {
         drawn.push(svg)
       },

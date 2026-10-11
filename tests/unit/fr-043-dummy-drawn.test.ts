@@ -1319,7 +1319,7 @@ const shellPictures = (schedule: Schedule): TwoPictures => {
     documentSettings: settings,
   } as unknown as Document
   const painted: string[] = []
-  const loop = frameLoop({ showSvg: (one: string) => painted.push(one) }, document, SCREEN)
+  const loop = frameLoop({ showMarqueeOverlaySvg: () => undefined, showSvg: (one: string) => painted.push(one) }, document, SCREEN)
   const screen = painted[painted.length - 1]
   const scene = loop.exportScene()
   const frame = loop.current()

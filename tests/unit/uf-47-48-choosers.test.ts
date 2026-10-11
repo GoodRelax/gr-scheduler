@@ -594,7 +594,7 @@ const SCREEN: FrameEnvironment = {
 }
 
 interface Host {
-  readonly surface: { showSvg(svg: string): void }
+  readonly surface: { showSvg(svg: string): void; showMarqueeOverlaySvg(svg: string): void }
   /** Run whatever the loop asked an animation frame for, until it asks for no more. */
   runAnimationFrames(): void
 }
@@ -611,7 +611,7 @@ function host(): Host {
     return waiting.length
   }
   return {
-    surface: { showSvg: () => {} },
+    surface: { showMarqueeOverlaySvg: () => undefined, showSvg: () => {} },
     runAnimationFrames: () => {
       // Bounded, so a loop that asks for a frame from inside a frame -- which
       // NFR-010 forbids -- ends the case instead of hanging it.
