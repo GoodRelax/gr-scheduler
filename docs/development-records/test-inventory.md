@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 312 | 3604 | 5 | 4 | 10 | 2 |
+| `contract` | TS-5 | VT-2 | 317 | 3715 | 6 | 4 | 10 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 86 | 565 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 181 | 3879 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 599 | 8158 | 8 | 8 | 12 | 2 |
+| **all** | | | 604 | 8269 | 9 | 8 | 12 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -49,17 +49,18 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
-## 5. Expected-to-fail cases (8)
+## 5. Expected-to-fail cases (9)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 2 of 8.
+named either way: 2 of 9.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the bundle of the first document is refused on a document that cannot take its second c... | DFC-730 |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the refusal leaves nothing applied: no document and no step come out of it | none |
+| `tests/contract/document-invariants.contract.test.ts` | IV-14 is reported for a time with seconds (DFC-2453) | DFC-2453 |
 | `tests/contract/e24-paste-refused-while-several-task-groups-are-chosen.test.ts` | ${EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editGroup task group, ONE... | DFC-730 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | %s (DFC-687) | DFC-687 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | pointerPressed on entry %s (DFC-687) | DFC-687 |
@@ -359,6 +360,11 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-699-the-grs-json-carries-its-schema-address-and-version-instant.contract.test.ts` | 15 | FR-027, FR-073 | - | T-052, T-206 | DR-4, RS-25, S-540, S-541 | - | - | - | - |
 | `tests/contract/cr-707-the-startup-margin-the-palette-corner-and-the-task-group-name-top.contract.test.ts` | 9 | FR-053, FR-085 | - | T-024a, T-206 | BT-4, OP-10, S-534, S-535 | - | - | - | - |
 | `tests/contract/cr-709-the-line-shapes-and-the-record-stop-line.contract.test.ts` | 9 | FR-007, FR-102 | - | T-012, T-017a, T-294 | CT-4, CV-6, SH-1, SH-3, SH-4 | - | - | - | - |
+| `tests/contract/cr-710-w1-ex-working-times-and-durations-round-trip.test.ts` | 41 | FR-011, FR-012, FR-023, FR-024, FR-054, FR-073 | - | - | AT-158, AT-159, CM-39, DV-8, DV-11, EX-1, EX-2, EX-12, IV-10, IV-14, IV-24, OP-5 | - | - | - | - |
+| `tests/contract/cr-710-w1-fr-011-working-minutes.test.ts` | 20 | FR-011, FR-012 | - | - | DV-8 | - | - | - | - |
+| `tests/contract/cr-710-w1-fr-054-the-instant-reading.test.ts` | 14 | FR-054 | - | T-220 | EX-7, IV-10 | - | - | - | - |
+| `tests/contract/cr-710-w1-fr-088-working-times-of-the-calendar.test.ts` | 33 | FR-012, FR-054, FR-088 | - | T-220 | CM-39, IV-24, RS-89, S-128, S-580, S-582, WC-8, WC-9 | - | - | - | - |
+| `tests/contract/cr-710-w1-the-must-clauses-the-cases-exercise.test.ts` | 1 | FR-011, FR-012, FR-054, FR-088 | - | - | - | - | - | - | - |
 | `tests/contract/cr-712-nt-2-a-timed-notice-leaves-by-itself.contract.test.ts` | 15 | FR-076 | VT-2 | T-037, T-078, T-206, T-233, T-286 | MG-10, NT-2, NT-3, NT-5, RS-27, RS-65, RS-77, S-542 | - | - | - | - |
 | `tests/contract/cr-712-qn-5-asks-only-with-unsaved-edits.contract.test.ts` | 8 | FR-095 | VT-2 | T-234, T-290 | OP-3, OP-4, OP-13, QN-5 | - | - | - | - |
 | `tests/contract/cr-712-report-rows-reach-the-import-report.contract.test.ts` | 11 | FR-076 | VT-2 | T-290 | EP-22, MG-14, RS-51, RS-71, RS-72, U-62 | - | - | - | - |
@@ -511,7 +517,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-976-977-field-entry-reads-the-host-it-has.contract.test.ts` | 6 | - | VT-2 | T-292 | AG-9, IF-9, IN-5a, IN-5b, MK-13, PR-1, SK-14 | - | - | - | - |
 | `tests/contract/dfc-978-a-held-drag-applies-its-travel-once.contract.test.ts` | 2 | - | - | T-023d, T-109 | AR-2, IN-1, PTD-4 | - | - | - | - |
 | `tests/contract/display-words.contract.test.ts` | 18 | FR-006, FR-017, FR-019, FR-029, FR-032, FR-036, FR-037, FR-038, FR-039, FR-041, FR-042, FR-052, FR-053, FR-066, FR-069, FR-072, FR-073, FR-076, FR-085, FR-088, FR-096, FR-099, FR-101, FR-134, FR-151, FR-153, FR-155 | VT-2 | T-006a, T-012, T-015a, T-016, T-019a, T-023, T-023a, T-023b, T-023c, T-023d, T-024, T-026, T-028, T-031, T-036, T-037, T-040, T-050, T-052, T-058, T-064, T-075, T-103, T-104, T-109, T-206, T-218, T-220, T-233, T-234, T-255, T-256, T-263, T-280, T-294, T-305, T-310, T-311, T-316, T-330, T-331, T-335, T-338, T-347, T-348, T-349, T-367, T-368, T-370, T-371, T-374 | AR-1, AR-2, AR-3, AR-5, AR-6, AS-5, AT-17, AT-53, AT-144, BR-1, CV-9, DC-3, DR-3, DR-5, DT-1, DT-7, ET-3, EZ-2, FX-1, FX-6, FX-7, FX-8, GR-21, HM-10, IC-1, IC-17, IC-50, IC-52, IC-53, IC-54, IC-58, IC-59, IC-60, IC-67, IC-68, IC-75, IC-123, IC-126, IC-130, IC-131, IC-139, IC-143, IC-156, IC-157, IC-158, IN-4, IO-1, IO-7, IR-1, IX-12, K-87, K-103, K-105, MH-2, MH-3, MH-4, MH-6, MK-1, MK-5, MK-13, ND-4, NT-3, NT-7, NT-8, OP-3, OP-16, OP-17, PI-36, PI-37, PR-14, PR-16, PR-18, PR-20, PR-21, PR-33, PR-37, PR-38, PR-43, PR-44, PS-1, PTL-13, QN-12, RC-13, RQ-3, RW-1, RW-2, RW-11, RW-12, S-72, S-73, S-99e, S-99g, S-99i, S-124, S-142, S-155, S-171, S-216, S-312, S-350, S-451, S-532, S-545, SC-4, SE-2, SH-1, SL-1, SQ-1, SQ-5, SQ-10, SV-7, SV-13, TL-1, TL-5, TL-6, TS-5, TV-1, TV-2, TV-5, TV-11, U-55, U-68, UF-32, UF-59, UF-60, UF-63, UF-64, UF-65, UF-66, UF-67, UF-69, UF-71, WB-3, WB-4, WF-2, WF-3, X-2 | - | - | - | - |
-| `tests/contract/document-invariants.contract.test.ts` | 8 | FR-019, FR-054, FR-088 | - | T-050, T-052, T-053, T-058, T-064, T-209, T-214, T-218, T-220 | AT-19, AT-46, AT-51, AT-72, AT-123, DF-4, DR-1, DR-4, IV-1, IV-2, IV-3, IV-4, IV-5, IV-6, IV-7, IV-8, IV-9, IV-12, IV-14, IV-15, IV-16, IV-17, IV-18, IV-19, IV-20, IV-21, P-19, PI-1, RL-12, RL-13, RL-15, S-3, S-73, S-119, S-125, S-126, TS-2, TS-3, TS-5, TS-6, W-7, W-9 | - | - | - | - |
+| `tests/contract/document-invariants.contract.test.ts` | 10 | FR-019, FR-054, FR-088 | - | T-050, T-052, T-053, T-058, T-064, T-209, T-214, T-218, T-220 | AT-19, AT-46, AT-51, AT-72, AT-123, DF-4, DR-1, DR-4, IV-1, IV-2, IV-3, IV-4, IV-5, IV-6, IV-7, IV-8, IV-9, IV-10, IV-12, IV-14, IV-15, IV-16, IV-17, IV-18, IV-19, IV-20, IV-21, IV-24, P-19, PI-1, RL-12, RL-13, RL-15, S-3, S-73, S-119, S-125, S-126, TS-2, TS-3, TS-5, TS-6, W-7, W-9 | - | - | 1: DFC-2453 | - |
 | `tests/contract/e24-paste-refused-while-several-task-groups-are-chosen.test.ts` | 8 | FR-033 | - | T-233 | SL-2, SL-4 | - | - | 1: DFC-730 | - |
 | `tests/contract/erd-seats-are-never-reissued.contract.test.ts` | 9 | - | - | T-218 | AT-139, TS-5 | - | - | - | - |
 | `tests/contract/fd-6-iv-12-the-fade-span.contract.test.ts` | 8 | FR-016, FR-054 | - | T-012a, T-064, T-218, T-220 | AT-73, FD-5, FD-6, IV-6, IV-12, PI-1, S-2, S-3, S-58, S-77, S-106, SH-1, SH-2, TS-5 | - | - | - | - |

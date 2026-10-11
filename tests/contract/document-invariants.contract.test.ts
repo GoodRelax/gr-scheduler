@@ -66,6 +66,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { bare, specTable, type SpecRow } from './spec-table'
+import { spansOf } from './cr-710-w1-stage'
 import {
   DEFAULT_CALENDAR_VALUES,
   scheduleViolations,
@@ -272,6 +273,25 @@ const CALENDAR: Calendar = {
   weekDays: workedWeekDays(),
   exceptions: [],
 }
+
+const SIX_SPANS = spansOf(
+  ['01:00', '02:00'],
+  ['03:00', '04:00'],
+  ['05:00', '06:00'],
+  ['07:00', '08:00'],
+  ['09:00', '10:00'],
+  ['11:00', '12:00'],
+)
+
+const calendarWithMonday = (workingTimes: ReturnType<typeof spansOf>): Calendar => ({
+  ...CALENDAR,
+  weekDays: workedWeekDays().map((day, i) => (i === 0 ? { ...day, workingTimes } : day)),
+})
+
+const calendarWithException = (workingTimes: ReturnType<typeof spansOf>): Calendar => ({
+  ...CALENDAR,
+  exceptions: [{ ...EXCEPTION_ONE, dayWorking: true, workingTimes }],
+})
 
 const PROJECT: Project = {
   id: null,
@@ -717,6 +737,8 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       tasks: [{ ...TASK_A, actualStart: TASK_A.start, stop: '2026-01-02' }, TASK_B],
     }),
 
+  'IV-24': () => withSchedule({ calendars: [calendarWithMonday(SIX_SPANS)] }),
+
   // A milestone shape drawn for a Task whose `milestone` is not true.
   'IV-22': () =>
     withSchedule({
@@ -803,6 +825,16 @@ const REPEATED: Readonly<Record<string, () => DocumentUnderTest>> = {
   'Exception.ordinal': () =>
     withSchedule({
       calendars: [{ ...CALENDAR, exceptions: [EXCEPTION_ONE, { ...EXCEPTION_ONE }] }],
+    }),
+
+  'WorkingTime.ordinal': () =>
+    withSchedule({
+      calendars: [
+        calendarWithMonday([
+          { ordinal: 1, fromTime: '08:00:00', toTime: '12:00:00' },
+          { ordinal: 1, fromTime: '13:00:00', toTime: '17:00:00' },
+        ]),
+      ],
     }),
 
   'Resource.uid': () => withSchedule({ resources: [RESOURCE, { ...RESOURCE, name: 'another' }] }),
@@ -927,6 +959,88 @@ const REVERSED: Readonly<Record<string, () => DocumentUnderTest>> = {
     }),
 }
 
+// see IV-24
+const BAD_WORKING_TIMES: Readonly<Record<string, () => DocumentUnderTest>> = {
+  'a weekday span that ends before it starts': () =>
+    withSchedule({ calendars: [calendarWithMonday(spansOf(['17:00', '08:00']))] }),
+
+  'a weekday span that starts where it ends': () =>
+    withSchedule({ calendars: [calendarWithMonday(spansOf(['08:00', '08:00']))] }),
+
+  'two weekday spans that overlap': () =>
+    withSchedule({ calendars: [calendarWithMonday(spansOf(['08:00', '13:00'], ['12:00', '17:00']))] }),
+
+  'an exception day with six spans': () => withSchedule({ calendars: [calendarWithException(SIX_SPANS)] }),
+
+  'an exception day span that ends before it starts': () =>
+    withSchedule({ calendars: [calendarWithException(spansOf(['17:00', '08:00']))] }),
+
+  'two exception day spans that overlap': () =>
+    withSchedule({ calendars: [calendarWithException(spansOf(['08:00', '13:00'], ['12:00', '17:00']))] }),
+}
+
+// see IV-10
+const REVERSED_BY_THE_CLOCK: Readonly<Record<string, () => DocumentUnderTest>> = {
+  'the same day, finish at 08:00 and start at 17:00': () =>
+    withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T17:00:00', finish: '2026-01-05T08:00:00' }, TASK_B] }),
+
+  'the same day, finish one minute before the start': () =>
+    withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T08:01:00', finish: '2026-01-05T08:00:00' }, TASK_B] }),
+}
+
+// see IV-14
+const UNREADABLE_TIMES: Readonly<Record<string, () => DocumentUnderTest>> = {
+  'an hour that does not exist': () =>
+    withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T25:00:00' }, TASK_B] }),
+}
+
+// see IV-24, IV-10, IV-14
+const NOT_REPORTED: Readonly<Record<string, { readonly row: string; readonly document: () => DocumentUnderTest }>> = {
+  'IV-24 for a weekday with no span': { row: 'IV-24', document: () => withSchedule({ calendars: [calendarWithMonday([])] }) },
+
+  'IV-24 for five spans of one weekday': {
+    row: 'IV-24',
+    document: () =>
+      withSchedule({
+        calendars: [
+          calendarWithMonday(spansOf(['01:00', '02:00'], ['03:00', '04:00'], ['05:00', '06:00'], ['07:00', '08:00'], ['09:00', '10:00'])),
+        ],
+      }),
+  },
+
+  'IV-24 for two spans that touch': {
+    row: 'IV-24',
+    document: () => withSchedule({ calendars: [calendarWithMonday(spansOf(['08:00', '12:00'], ['12:00', '17:00']))] }),
+  },
+
+  'IV-24 for a span that ends at 00:00:00, which is 24:00': {
+    row: 'IV-24',
+    document: () => withSchedule({ calendars: [calendarWithMonday(spansOf(['22:00', '00:00']))] }),
+  },
+
+  'IV-24 for a working exception day with a sound span': {
+    row: 'IV-24',
+    document: () => withSchedule({ calendars: [calendarWithException(spansOf(['09:00', '12:00']))] }),
+  },
+
+  'IV-10 for a finish that is the start': {
+    row: 'IV-10',
+    document: () =>
+      withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T17:00:00', finish: '2026-01-05T17:00:00' }, TASK_B] }),
+  },
+
+  'IV-10 for a finish later on the same day': {
+    row: 'IV-10',
+    document: () =>
+      withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T08:00:00', finish: '2026-01-05T17:00:00' }, TASK_B] }),
+  },
+
+  'IV-14 for a time on the minute': {
+    row: 'IV-14',
+    document: () => withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T08:01:00' }, TASK_B] }),
+  },
+}
+
 /** Every probe, with the row of table T-220 each one must draw. @purity pure */
 const probesOf = (
   row: string,
@@ -938,6 +1052,9 @@ const PROBES: readonly Probe[] = [
   ...probesOf('IV-1', REPEATED),
   ...probesOf('IV-2', DANGLING),
   ...probesOf('IV-19', REVERSED),
+  ...probesOf('IV-24', BAD_WORKING_TIMES),
+  ...probesOf('IV-10', REVERSED_BY_THE_CLOCK),
+  ...probesOf('IV-14', UNREADABLE_TIMES),
 ]
 
 // ---------------------------------------------------------------------------
@@ -1008,5 +1125,19 @@ describe('table T-220 -- the document invariants, through scheduleViolations (PI
     const found = scheduleViolations(broken.schedule, broken.settings)
 
     expect(found.filter((one) => one.row === 'IV-21'), listed(found)).toEqual([])
+  })
+
+  it.each(Object.entries(NOT_REPORTED))('%s', (_label, { row, document }) => {
+    const broken = document()
+    const found = scheduleViolations(broken.schedule, broken.settings)
+
+    expect(found.filter((one) => one.row === row), listed(found)).toEqual([])
+  })
+
+  it.fails('IV-14 is reported for a time with seconds (DFC-2453)', () => {
+    const broken = withSchedule({ tasks: [{ ...TASK_A, start: '2026-01-05T08:00:30' }, TASK_B] })
+    const found = scheduleViolations(broken.schedule, broken.settings)
+
+    expect(found.filter((one) => one.row === 'IV-14'), listed(found)).not.toEqual([])
   })
 })
