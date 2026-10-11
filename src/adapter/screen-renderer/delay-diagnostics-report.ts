@@ -13,8 +13,10 @@ import {
   delayFixLogRowsInOrder,
   delayFixProposalCells,
   delayFixRowsInOrder,
+  instantOf,
   isSameDay,
   isSearchWordFound,
+  minutesPerWorkingDayOf,
   type DelayDiagnosticsReport,
   type DelayFixCheck,
   type DelayFixChoice,
@@ -29,6 +31,7 @@ import {
   type DelayReportWords,
   type Schedule,
 } from '../../entity/document-model/schedule/schedule'
+import { clockTextOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   emptySearchPanelSession,
@@ -249,33 +252,89 @@ function statusTextIn(status: DelayReportStatus, language: DisplayLanguage, isWi
   return isWindow ? statusWordOf(status, language) : statusText(status, language)
 }
 
+// see TX-7, TX-8, FR-158, S-576
+// WHY: the S-576 switch and the length of 1d (FR-054), read only when a quantity is shown.
+interface ShownTimes {
+  readonly showsTimeOfDay: boolean
+  readonly minutesPerDayOf: () => number
+}
+
+const MINUTES_PER_HOUR = 60
+
+// see TX-10
+const LENGTH_PART_JOIN = ' '
+const ZERO_LENGTH = '0h'
+
+// see TX-10, FR-054
+// WHY: 1d is minutesPerDay minutes and never the working times of a day; d, h and m read the same in every language.
 /** @purity pure */
-function datesText(start: string | null, finish: string | null, isOneDay: boolean): string {
-  const [from, to] = [dateText(start), dateText(finish)]
+function workingLengthText(minutes: number, minutesPerDay: number): string {
+  const whole = Math.round(Math.abs(minutes))
+  if (whole === 0) return ZERO_LENGTH
+  const days = Math.floor(whole / minutesPerDay)
+  const rest = whole - days * minutesPerDay
+  const parts = [[days, 'd'], [Math.floor(rest / MINUTES_PER_HOUR), 'h'], [rest % MINUTES_PER_HOUR, 'm']] as const
+  const spelled = parts.filter(([count]) => count > 0).map(([count, unit]) => `${count}${unit}`).join(LENGTH_PART_JOIN)
+  return minutes < 0 ? `-${spelled}` : spelled
+}
+
+// see TX-8, DQ-2, DQ-3, DQ-4, VS-6
+/** @purity pure */
+function quantityText(minutes: number, times: ShownTimes): string {
+  const minutesPerDay = times.minutesPerDayOf()
+  if (times.showsTimeOfDay) return workingLengthText(minutes, minutesPerDay)
+  return String(Math.ceil(minutes / minutesPerDay))
+}
+
+// see TX-7, DT-5, DT-6
+/** @purity pure */
+function reportDateText(stored: string | null, times: ShownTimes): string {
+  const date = dateText(stored)
+  const instant = times.showsTimeOfDay && date !== '' ? instantOf(stored) : null
+  return instant === null ? date : `${date} ${clockTextOf(instant)}`
+}
+
+// see FR-158, S-576, FR-054
+/** @purity pure */
+function shownTimesOf(schedule: Schedule, showsTimeOfDay: boolean): ShownTimes {
+  return { showsTimeOfDay, minutesPerDayOf: () => minutesPerWorkingDayOf(schedule.project) }
+}
+
+/** @purity pure */
+function datesText(start: string | null, finish: string | null, isOneDay: boolean, times: ShownTimes): string {
+  const [from, to] = [reportDateText(start, times), reportDateText(finish, times)]
   if (from === '') return ''
   return isOneDay || from === to ? from : `${from}${DATE_RANGE}${to}`
 }
 
 // see DT-7, VS-6
 /** @purity pure */
-function parentProgressSlotsOf(values: Extract<DelayReportReason, { kind: 'unreliable' }>['findings'][number]['values']): Readonly<Record<string, string | number>> {
+function parentProgressSlotsOf(
+  values: Extract<DelayReportReason, { kind: 'unreliable' }>['findings'][number]['values'],
+  times: ShownTimes,
+): Readonly<Record<string, string | number>> {
   const day = (key: string) => dateText(typeof values[key] === 'string' ? values[key] : null)
+  const outside = values['outsideMinutes']
   return {
     parent: day('parentPoint'),
     leftmost: day('leftmostPoint'),
     rightmost: day('rightmostPoint'),
-    days: String(values['outsideWorkingDays']),
+    days: typeof outside === 'number' ? quantityText(outside, times) : String(outside),
     tolerance: String(values['parentProgressToleranceDays']),
   }
 }
 
 // see DT-7, DX-3, T-312, VO-5, VS-6
 /** @purity pure */
-function findingText(one: Extract<DelayReportReason, { kind: 'unreliable' }>['findings'][number], language: DisplayLanguage): string {
+function findingText(
+  one: Extract<DelayReportReason, { kind: 'unreliable' }>['findings'][number],
+  language: DisplayLanguage,
+  times: ShownTimes,
+): string {
   const word = partWordsIn(REASON_WORDS, language)
   const proposal = one.proposedActualFinish === null ? '' : filled(word('proposal'), { date: dateText(one.proposedActualFinish) })
   if (one.row === MILESTONE_ACHIEVED_ROW) return `${word('milestoneAchieved')}${proposal}`
-  if (one.row === PARENT_PROGRESS_OUTSIDE_ROW) return `${filled(word('parentProgressOutside'), parentProgressSlotsOf(one.values))}${proposal}`
+  if (one.row === PARENT_PROGRESS_OUTSIDE_ROW) return `${filled(word('parentProgressOutside'), parentProgressSlotsOf(one.values, times))}${proposal}`
   const aspect = one.kind === 'omission' ? word('missingActual') : rowWordOf(ASPECT_WORDS, one.row, language)
   const values = Object.entries(one.values).map(([key, value]) => `${key}=${String(value)}`).join(' ')
   return `${values === '' ? aspect : filled(word('finding'), { aspect, values })}${proposal}`
@@ -283,23 +342,28 @@ function findingText(one: Extract<DelayReportReason, { kind: 'unreliable' }>['fi
 
 // see DT-7, DX-3, DX-4, DX-9
 /** @purity pure */
-function reasonText(row: DelayReportRow, language: DisplayLanguage): string {
+function reasonText(row: DelayReportRow, language: DisplayLanguage, times: ShownTimes): string {
   const word = partWordsIn(REASON_WORDS, language)
   const reason = row.reason
   switch (reason.kind) {
     case 'unreliable': {
-      const findings = reason.findings.map((one) => findingText(one, language))
+      const findings = reason.findings.map((one) => findingText(one, language, times))
       const walls = reason.walls.map((one) => filled(word('wall'), { wall: rowWordOf(WALL_WORDS, one.row, language), cause: one.causeName }))
       return [...findings, ...walls].join(WORD_JOIN)
     }
     case 'bottleneck': {
       const held = reason.quantities
       if (held === null) return ''
-      const slots = { days: held.pushOutDays, inherited: held.inheritedDelayDays, own: held.selfDelayDays, ends: held.terminalsReached }
+      const slots = {
+        days: quantityText(held.pushOutMinutes, times),
+        inherited: quantityText(held.inheritedDelayMinutes, times),
+        own: quantityText(held.selfDelayMinutes, times),
+        ends: held.terminalsReached,
+      }
       return filled(word('bottleneck'), slots)
     }
     case 'settled':
-      return reason.quantities === null ? '' : filled(word('settled'), { days: reason.quantities.pushOutDays })
+      return reason.quantities === null ? '' : filled(word('settled'), { days: quantityText(reason.quantities.pushOutMinutes, times) })
     case 'bottleneckPath':
       return filled(word('bottleneckPath'), { names: reason.bottleneckNames.join(WORD_JOIN) })
     case 'late':
@@ -309,16 +373,17 @@ function reasonText(row: DelayReportRow, language: DisplayLanguage): string {
 
 // see T-347
 /** @purity pure */
-function cellsOf(row: DelayReportRow, language: DisplayLanguage): readonly string[] {
+function cellsOf(row: DelayReportRow, language: DisplayLanguage, times: ShownTimes): readonly string[] {
   const isFinished = row.actualFinish !== null
   const cells: Readonly<Record<string, string>> = {
     'DT-1': statusWordOf(row.status, language),
     'DT-2': row.assigneeNames.join(ASSIGNEE_SEPARATOR),
     'DT-3': percentText(row.percentComplete),
     'DT-4': row.name,
-    'DT-5': datesText(row.plannedStart, row.plannedFinish, isSameDay(row.plannedStart, row.plannedFinish)),
-    'DT-6': isFinished || row.actualStart === null ? datesText(row.actualStart, row.actualFinish, false) : `${dateText(row.actualStart)}${OPEN_DATE_RANGE}`,
-    'DT-7': reasonText(row, language),
+    'DT-5': datesText(row.plannedStart, row.plannedFinish, isSameDay(row.plannedStart, row.plannedFinish), times),
+    'DT-6': isFinished || row.actualStart === null
+      ? datesText(row.actualStart, row.actualFinish, false, times) : `${reportDateText(row.actualStart, times)}${OPEN_DATE_RANGE}`,
+    'DT-7': reasonText(row, language, times),
   }
   return DELAY_REPORT_COLUMNS.map((column) => cells[column] ?? BLANK_SEARCH_VALUE)
 }
@@ -361,14 +426,19 @@ function isWordFound(shown: ShownTaskGroup, word: string): boolean {
 }
 
 /** @purity pure */
-function taskGroupsWithCells(rows: readonly DelayReportRow[], language: DisplayLanguage): readonly ShownTaskGroup[] {
-  return rows.map((row) => ({ row, cells: cellsOf(row, language) }))
+function taskGroupsWithCells(rows: readonly DelayReportRow[], language: DisplayLanguage, times: ShownTimes): readonly ShownTaskGroup[] {
+  return rows.map((row) => ({ row, cells: cellsOf(row, language, times) }))
 }
 
 // see RW-3, RW-8, SV-7, SV-8
 /** @purity pure */
-function shownTaskGroupsOf(look: TableLook, rows: readonly DelayReportRow[], language: DisplayLanguage): readonly ShownTaskGroup[] {
-  return shownTaskGroupsFrom(look, taskGroupsWithCells(rows, language))
+function shownTaskGroupsOf(
+  look: TableLook,
+  rows: readonly DelayReportRow[],
+  language: DisplayLanguage,
+  times: ShownTimes,
+): readonly ShownTaskGroup[] {
+  return shownTaskGroupsFrom(look, taskGroupsWithCells(rows, language, times))
 }
 
 /** @purity pure */
@@ -460,10 +530,11 @@ export function delayDiagnosticsReportFromWindow(
   schedule: Schedule,
   layout: { readonly canvas: ScreenRect; readonly textSizeStep: number },
   fixTables: DelayFixTables = NO_DELAY_FIX_TABLES,
+  showsTimeOfDay = false,
 ): DelayDiagnosticsReportView | null {
   if (window === null || report === null) return null
-  const diagnosis = diagnosisReportViewOf(session, window, view, report, schedule, layout)
-  const words = fixWordsOf(schedule, displayLanguageOf(session), report)
+  const diagnosis = diagnosisReportViewOf(session, window, view, report, schedule, layout, showsTimeOfDay)
+  const words = fixWordsOf(schedule, displayLanguageOf(session), report, showsTimeOfDay)
   const values = delayFixValuesOf(window)
   const fixView = delayFixViewOf(values, fixTables, words)
   if (values.table === 'diagnosis') return { ...diagnosis, ...fixView }
@@ -480,12 +551,13 @@ function diagnosisReportViewOf(
   report: DelayDiagnosticsReport,
   schedule: Schedule,
   layout: { readonly canvas: ScreenRect; readonly textSizeStep: number },
+  showsTimeOfDay: boolean,
 ): DelayDiagnosticsReportView {
   const language = displayLanguageOf(session)
   const isOpen = window.shown !== 'minimized'
   const reported = delayDiagnosticsReportRows(report, schedule)
   const all = isOpen ? reported : []
-  const withCells = taskGroupsWithCells(all, language)
+  const withCells = taskGroupsWithCells(all, language, shownTimesOf(schedule, showsTimeOfDay))
   const found = shownTaskGroupsFrom({ word: window.panel.word, view }, withCells)
   const table = reportTableOf(view, () => found, language, withCells)
   const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldReportFilterChange(view, reported, schedule), language)
@@ -532,18 +604,25 @@ export function delayDiagnosticsReportAfterEntry(
   view: TableView,
   entry: IconId,
   filterColumn: string | null,
-  rows: { readonly report: DelayDiagnosticsReport; readonly schedule: Schedule; readonly language: DisplayLanguage; readonly fixTables?: DelayFixTables },
+  rows: {
+    readonly report: DelayDiagnosticsReport
+    readonly schedule: Schedule
+    readonly language: DisplayLanguage
+    readonly fixTables?: DelayFixTables
+    readonly showsTimeOfDay?: boolean
+  },
   listed?: readonly string[] | null,
 ): DelayReportStep | null {
   const tables = rows.fixTables ?? NO_DELAY_FIX_TABLES
-  const words = fixWordsOf(rows.schedule, rows.language, rows.report)
+  const words = fixWordsOf(rows.schedule, rows.language, rows.report, rows.showsTimeOfDay ?? false)
   const fixed = delayFixStepAfterEntry(window, view, entry, tables, words) ?? fixTableStepAfterEntry(window, view, entry, filterColumn, { tables, words, listed: listed ?? null })
   if (fixed !== null || delayFixValuesOf(window).table !== 'diagnosis') return fixed
   const all = delayDiagnosticsReportRows(rows.report, rows.schedule)
   const word = window.panel.word
+  const times = shownTimesOf(rows.schedule, rows.showsTimeOfDay ?? false)
   return windowAfterEntry(window, view, entry, filterColumn, {
     wouldChange: () => wouldReportFilterChange(view, all, rows.schedule),
-    tableOf: (unfiltered) => reportTableOf(view, () => shownTaskGroupsOf({ word, view: unfiltered }, all, rows.language), rows.language),
+    tableOf: (unfiltered) => reportTableOf(view, () => shownTaskGroupsOf({ word, view: unfiltered }, all, rows.language, times), rows.language),
   }, listed)
 }
 
@@ -628,11 +707,12 @@ export function delayDiagnosticsReportMarkdownOf(
   language: DisplayLanguage,
   stamp: { readonly documentName: string; readonly madeAt: string },
   fixTables: DelayFixTables = NO_DELAY_FIX_TABLES,
+  showsTimeOfDay = false,
 ): string {
   const all = delayDiagnosticsReportRows(report, schedule)
   const printed = markdownViewOf(view)
   const look = { word: window.panel.word, view: printed }
-  const rows = shownTaskGroupsOf(look, all, language).map((shown) => ({ status: shown.row.status, cells: markdownCellsOf(shown.cells) }))
+  const rows = shownTaskGroupsOf(look, all, language, shownTimesOf(schedule, showsTimeOfDay)).map((shown) => ({ status: shown.row.status, cells: markdownCellsOf(shown.cells) }))
   const columns = printed.columnFilters.map((one) => ({
     heading: partWordOf(COLUMN_WORDS, one.column, language),
     condition: filterConditionText(one, (value) => (one.column === STATUS_COLUMN ? statusText(value as DelayReportStatus, language) : value)),
@@ -644,7 +724,7 @@ export function delayDiagnosticsReportMarkdownOf(
     madeAt: stamp.madeAt,
     summaryLine: summaryLineOf(summary, language),
   }
-  const fixes = fixMarkdownOf(window, fixTables, fixWordsOf(schedule, language, report))
+  const fixes = fixMarkdownOf(window, fixTables, fixWordsOf(schedule, language, report, showsTimeOfDay))
   return delayDiagnosticsReportMarkdown(rows, { word: window.panel.word, columns }, markdownWordsOf(language), dates, fixes)
 }
 
@@ -804,9 +884,9 @@ function fixWordOf(part: string, language: DisplayLanguage): string {
 // see FM-4, DT-7, VO-5
 // WHY: a finding of the report reads as its DT-7 text; a chain row's finding is no finding of the report, so it reads as its aspect.
 /** @purity pure */
-function fixFindingWordOf(report: DelayDiagnosticsReport | null, findingRow: string, taskUid: number, language: DisplayLanguage): string {
+function fixFindingWordOf(report: DelayDiagnosticsReport | null, findingRow: string, taskUid: number, language: DisplayLanguage, times: ShownTimes): string {
   const finding = report?.findings.find((one) => one.row === findingRow && one.uid === taskUid)
-  if (finding !== undefined) return findingText(finding, language)
+  if (finding !== undefined) return findingText(finding, language, times)
   if (findingRow === MILESTONE_ACHIEVED_ROW) return partWordOf(REASON_WORDS, 'milestoneAchieved', language)
   if (!ASPECT_WORDS.has(findingRow) && findingRow.startsWith(OMISSION_ROW_HEAD)) return partWordOf(REASON_WORDS, 'missingActual', language)
   return rowWordOf(ASPECT_WORDS, findingRow, language)
@@ -836,7 +916,8 @@ interface FixWords {
 
 // see T-374, FM-3, FM-8
 /** @purity pure */
-function fixWordsOf(schedule: Schedule, language: DisplayLanguage, report: DelayDiagnosticsReport | null): FixWords {
+function fixWordsOf(schedule: Schedule, language: DisplayLanguage, report: DelayDiagnosticsReport | null, showsTimeOfDay: boolean): FixWords {
+  const times = shownTimesOf(schedule, showsTimeOfDay)
   const names = new Map(schedule.tasks.map((task) => [task.uid, task.name]))
   const nameOf = (taskUid: number): string => names.get(taskUid) ?? String(taskUid)
   const word = (part: string): string => fixWordOf(part, language)
@@ -850,7 +931,7 @@ function fixWordsOf(schedule: Schedule, language: DisplayLanguage, report: Delay
       cascadePrefix: word('cascadePrefix'),
       readOnlyReason: word('readOnlyReason'),
       fixTypeOf: word,
-      findingOf: (findingRow, taskUid) => fixFindingWordOf(report, findingRow, taskUid, language),
+      findingOf: (findingRow, taskUid) => fixFindingWordOf(report, findingRow, taskUid, language, times),
       columnOf: (column) => fixColumnWordOf(column, language),
       choiceOf: (choice) => fixChoiceWordOf(choice, nameOf, language),
       taskNameOf: nameOf,

@@ -1,4 +1,4 @@
-// Spec-only cases for CR-618 T1 .. T7: a link holds on the same day (VC-15, VS-4, BD-2).
+// Spec-only cases for CR-618 T1 .. T7: a link holds at the same instant (VC-15, VS-4, BD-2).
 
 import { describe, expect, it } from 'vitest'
 
@@ -10,14 +10,13 @@ import { REQUIREMENTS, taskGroupDocument, taskOf } from './cr-541-stage'
 
 const VC_15_FORMULA =
   '予定の日付が依存の向きに反する（FS: 後続の `start` ≥ 先行の `finish` ＋ `lag`、SS: 後続の `start` ≥ 先行の `start` ＋ `lag`、FF: 後続の `finish` ≥ 先行の `finish` ＋ `lag`、SF: 後続の `finish` ≥ 先行の `start` ＋ `lag`）。'
-const VC_15_SAME_DAY = '⭐ 日は日として比べ、4 つとも **同じ日は反しない**'
+const VC_15_SAME_DAY = '⭐ 4 つの式を、すべての文書で瞬間（日と時刻の対、`FR-054`）で比べる —— 同じ瞬間は反せず、1 分でも前なら反する'
 const VC_15_NOT_ND_3 = '⛔ `ND-3` の「終了日はその日を含む」を、FS の 1 日の差に数えてはならない（MUST NOT）'
 const VS_4_ACTUALS = '実績の日付が依存の向きに反する（式は `VC-15` を実績の列に当てたもの）'
-const BD_2_SAME_DAY =
-  'FS の後続の最早開始は、先行の見込み終了と **同じ日** ＋ `lag` であり、翌稼働日ではない。'
+const BD_2_SAME_DAY = 'すべての文書で瞬間で読み、FS の後続の最早開始は、先行の見込み終了の瞬間 ＋ `lag` である'
 const BD_2_NOT_BELOW_START = '⭐ 最早開始は `start` を下回らない'
 const BD_2_NOT_PUSHED_TO_STATUS = '⭐ 未着手の `Task` の最早開始は、基準日で押し上げない'
-const BD_1_STARTED = '着手済みで未完了は 基準日 ＋ 残りの日数 とし、`finish` より前にはしない'
+const BD_1_STARTED = '着手済みで未完了は 基準日 ＋ 残り とし、`finish` より前にはしない'
 const DQ_2 = 'max(0, 最早開始 − `start`) —— 巻き添え'
 const DQ_3 = 'max(0, `DQ-1` − (最早開始 ＋ 計画期間)) —— 発生源'
 const DW_1_PURPLE = '原因の `Task` と、その依存の下流すべて'
@@ -131,10 +130,13 @@ function marksOf(report: Report): ReadonlyMap<number, string> {
 }
 
 // see T-314
-const QUANTITIES = ['inheritedDelayDays', 'selfDelayDays', 'pushOutDays'] as const
+const QUANTITIES = ['inheritedDelayMinutes', 'selfDelayMinutes', 'pushOutMinutes'] as const
+
+// WHY: the T-314 quantities are working minutes; one working day of this calendar is S-128 = 480 minutes.
+const DAY = 480
 
 function quantitiesOf(report: Report, uid: number): readonly Loose[] {
-  return plainsOf(report).filter((record) => Object.hasOwn(record, 'pushOutDays') && ownNumbers(record).includes(uid))
+  return plainsOf(report).filter((record) => Object.hasOwn(record, 'pushOutMinutes') && ownNumbers(record).includes(uid))
 }
 
 function anyPositiveQuantity(report: Report): readonly Loose[] {
@@ -146,12 +148,12 @@ function anyPositiveQuantity(report: Report): readonly Loose[] {
 // see T-317, DX-5
 function terminalDelaysOf(report: Report, uid: number): readonly number[] {
   return plainsOf(report)
-    .filter((record) => !Object.hasOwn(record, 'pushOutDays'))
+    .filter((record) => !Object.hasOwn(record, 'pushOutMinutes'))
     .filter((record) => !Object.values(record).some((value) => typeof value === 'string' && ANY_ROW.test(value)))
     .filter((record) => ownNumbers(record).includes(uid))
     .map((record) => ownNumbers(record).filter((value) => value !== uid))
     .filter((numbers) => numbers.length === 1)
-    .map((numbers) => numbers[0] as number)
+    .map((numbers) => (numbers[0] as number) / DAY)
 }
 
 const at = (day: number, hour: number): string =>
@@ -279,14 +281,6 @@ describe(`CR-618 T1 -- T-310 VC-15: ${VC_15_SAME_DAY}`, () => {
         ]),
     ],
     [
-      'FS: A ends at 17:00 on the 8th, B starts at 08:00 the same day (days compared as days)',
-      () =>
-        plannedOnly([
-          { uid: A, start: at(6, 8), finish: at(8, 17) },
-          { uid: B, start: at(8, 8), finish: at(10, 17), after: [[A, FS]] },
-        ]),
-    ],
-    [
       'FS: milestone B sits at the moment A ends',
       () =>
         plannedOnly([
@@ -302,6 +296,25 @@ describe(`CR-618 T1 -- T-310 VC-15: ${VC_15_SAME_DAY}`, () => {
 
   it.each(shapes)('%s: no Task is DG-1 (T-315)', (_name, make) => {
     expect([...marksOf(diagnose(make())).values()].filter((one) => one === 'DG-1')).toEqual([])
+  })
+})
+
+// WHY: CR-710 section 11 question 9 -- the day reading let B start at 08:00 on the day A ends at 17:00; read as instants it starts first.
+describe(`CR-618 T1b -- T-310 VC-15: ${VC_15_SAME_DAY} -- FS, B starts at 08:00 on the day A ends at 17:00`, () => {
+  const make = (): Document =>
+    plannedOnly([
+      { uid: A, start: at(6, 8), finish: at(8, 17) },
+      { uid: B, start: at(8, 8), finish: at(10, 17), after: [[A, FS]] },
+    ])
+
+  it('exactly one VC-15, and no other T-310 row', () => {
+    const rows = findingRows(diagnose(make()))
+    expect(countOf(rows, 'VC-15')).toBe(1)
+    expect(rows.filter((one) => one.startsWith('VC-') && one !== 'VC-15')).toEqual([])
+  })
+
+  it('the successor B is DG-1 (T-315 DG-1, T-316 DW-1)', () => {
+    expect(marksOf(diagnose(make())).get(B)).toBe('DG-1')
   })
 })
 
@@ -326,7 +339,45 @@ describe(`CR-618 T2 -- T-310 VC-15: FS, B starts the day BEFORE A ends`, () => {
   })
 })
 
-describe(`CR-618 T3 -- T-310 VC-15: SS, FF and SF on the same day hold`, () => {
+describe(`CR-618 T3 -- T-310 VC-15: SS, FF and SF at the same instant hold`, () => {
+  const shapes: readonly [string, () => Document][] = [
+    [
+      'SS: B starts at 13:00 on the day A starts at 13:00',
+      () =>
+        plannedOnly([
+          { uid: A, start: at(6, 13), finish: at(8, 17) },
+          { uid: B, start: at(6, 13), finish: at(8, 17), after: [[A, SS]] },
+        ]),
+    ],
+    [
+      'FF: B ends at 17:00 on the day A ends at 17:00',
+      () =>
+        plannedOnly([
+          { uid: A, start: at(6, 8), finish: at(8, 17) },
+          { uid: B, start: at(7, 8), finish: at(8, 17), after: [[A, FF]] },
+        ]),
+    ],
+    [
+      'SF: B ends at 13:00 on the day A starts at 13:00',
+      () =>
+        plannedOnly([
+          { uid: A, start: at(8, 13), finish: at(10, 17) },
+          { uid: B, start: at(6, 8), finish: at(8, 13), after: [[A, SF]] },
+        ]),
+    ],
+  ]
+
+  it.each(shapes)('%s: no finding at all', (_name, make) => {
+    expect(findingRows(diagnose(make()))).toEqual([])
+  })
+
+  it.each(shapes)('%s: no Task is DG-1', (_name, make) => {
+    expect([...marksOf(diagnose(make())).values()].filter((one) => one === 'DG-1')).toEqual([])
+  })
+})
+
+// WHY: the T3 shapes CR-618 held as days; CR-710 reads them as instants, and each bound end comes first (CR-710 section 11 question 9).
+describe(`CR-618 T3b -- T-310 VC-15: SS, FF and SF earlier on the same day break`, () => {
   const shapes: readonly [string, () => Document][] = [
     [
       'SS: B starts at 08:00 on the day A starts at 13:00',
@@ -354,12 +405,12 @@ describe(`CR-618 T3 -- T-310 VC-15: SS, FF and SF on the same day hold`, () => {
     ],
   ]
 
-  it.each(shapes)('%s: no finding at all', (_name, make) => {
-    expect(findingRows(diagnose(make()))).toEqual([])
+  it.each(shapes)('%s: exactly one VC-15', (_name, make) => {
+    expect(countOf(findingRows(diagnose(make())), 'VC-15')).toBe(1)
   })
 
-  it.each(shapes)('%s: no Task is DG-1', (_name, make) => {
-    expect([...marksOf(diagnose(make())).values()].filter((one) => one === 'DG-1')).toEqual([])
+  it.each(shapes)('%s: the successor B is DG-1', (_name, make) => {
+    expect(marksOf(diagnose(make())).get(B)).toBe('DG-1')
   })
 })
 
@@ -475,9 +526,9 @@ describe(`CR-618 T7 -- T-313 BD-1 / BD-2 / BD-4: the first step of the T6 chain 
     const found = quantitiesOf(diagnose(make()), A)
     expect(found.length).toBeGreaterThan(0)
     const entry = found[0] as Loose
-    expect(entry['inheritedDelayDays']).toBe(0)
-    expect(entry['selfDelayDays']).toBe(5)
-    expect(entry['pushOutDays']).toBe(5)
+    expect(entry['inheritedDelayMinutes']).toBe(0)
+    expect(entry['selfDelayMinutes']).toBe(5 * DAY)
+    expect(entry['pushOutMinutes']).toBe(5 * DAY)
   })
 
   it('B and C generate nothing: neither is DG-2, and neither has a DQ-3 above 0', () => {
@@ -486,7 +537,7 @@ describe(`CR-618 T7 -- T-313 BD-1 / BD-2 / BD-4: the first step of the T6 chain 
     expect(marks.get(B)).not.toBe('DG-2')
     expect(marks.get(C)).not.toBe('DG-2')
     for (const uid of [B, C]) {
-      for (const entry of quantitiesOf(report, uid)) expect(entry['selfDelayDays']).toBe(0)
+      for (const entry of quantitiesOf(report, uid)) expect(entry['selfDelayMinutes']).toBe(0)
     }
   })
 
@@ -497,7 +548,7 @@ describe(`CR-618 T7 -- T-313 BD-1 / BD-2 / BD-4: the first step of the T6 chain 
   it('where the report lists B or C with T-314 quantities, their DQ-2 is 5', () => {
     const report = diagnose(make())
     for (const uid of [B, C]) {
-      for (const entry of quantitiesOf(report, uid)) expect(entry['inheritedDelayDays']).toBe(5)
+      for (const entry of quantitiesOf(report, uid)) expect(entry['inheritedDelayMinutes']).toBe(5 * DAY)
     }
   })
 })

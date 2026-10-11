@@ -3,17 +3,22 @@
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
 
-import { compareDays, dayOf, isSameDay, textOfDay, type CalendarDay } from './calendar-day'
-import { diagnoseDelay, extremeText, type DelayDiagnosticsReport, type DelayFinding } from './delay-diagnostics'
+import { compareDays, dayOf, instantOf, isSameDay, textOfDay, textOfInstant, type CalendarDay } from './calendar-day'
+import {
+  diagnoseDelay,
+  extremeText,
+  lagMinutesOf,
+  laggedInstant,
+  workingTimeWalkOf,
+  type DelayDiagnosticsReport,
+  type DelayFinding,
+  type WorkingTimeWalk,
+} from './delay-diagnostics'
 import { withoutDependencyAt } from './schedule'
 import type { Dependency, Schedule, Task } from './schedule-entities'
 import { compareDates } from './schedule-search'
 import {
-  actualLengthOf,
-  dateFromWorkingDays,
-  lagWorkingDaysOf,
-  lastDayForLength,
-  minutesPerWorkingDayOf,
+  plannedLengthMinutesOf,
   textOfFinishSide,
   textOfStartSide,
   workingCalendarOf,
@@ -842,31 +847,35 @@ function milestoneActualDrafts(context: FixContext, finding: DelayFinding): read
   return [draftOf({ fixType: 'choose', column: 'PR-36', before, choices, openField, related: uidsOf(open) })]
 }
 
-// see VC-15, BD-2
-// WHY: the lag is counted in whole working days, rounded down as the diagnosis counts it (VC-15).
+// see VC-15, BD-2, FR-054
+// WHY: the instant VC-15 holds the successor against: the end of the predecessor, advanced by the lag in working minutes.
 /** @purity pure */
-function boundDayOf(context: FixContext, predecessor: Task, dependency: Dependency): CalendarDay | null {
-  const day = dayOf(bindsByPredecessorStart(dependency.linkType) ? predecessor.start : predecessor.finish)
-  const lag = lagWorkingDaysOf(dependency, minutesPerWorkingDayOf(context.schedule.project))
-  if (day === null || lag === null) return null
-  const whole = Math.floor(lag)
-  return whole === 0 ? day : dateFromWorkingDays(context.calendar, day, whole)
+function boundInstantOf(walk: WorkingTimeWalk, predecessor: Task, dependency: Dependency): number | null {
+  const at = instantOf(bindsByPredecessorStart(dependency.linkType) ? predecessor.start : predecessor.finish)
+  const lagMinutes = lagMinutesOf(dependency)
+  if (at === null || lagMinutes === null) return null
+  return laggedInstant(walk, at, lagMinutes)
 }
 
-// see FA-15, VC-15
-// WHY: the successor keeps its length in working days (FR-011's count), moved so its bound end meets the bound.
+// see FA-15, FR-054
+// WHY: a start bound at the end of a working time (17:00) starts at the next working minute (08:00 the next working day),
+// which is the same working time; a milestone stays on the bound, as WT-5 places it at the end of the day.
+/** @purity pure */
+function startOnBound(walk: WorkingTimeWalk, successor: Task, bound: number): number {
+  return successor.milestone === true ? bound : walk(bound, 1) - 1
+}
+
+// see FA-15, VC-15, FR-011, FR-012
+// WHY: the successor keeps its length in working minutes (FR-012's count), moved so its bound end meets the bound.
 /** @purity pure */
 function movedSuccessorOutcome(context: FixContext, predecessor: Task, successor: Task, dependency: Dependency): FixOutcome | null {
-  const start = dayOf(successor.start)
-  const finish = dayOf(successor.finish)
-  const bound = boundDayOf(context, predecessor, dependency)
-  if (start === null || finish === null || bound === null) return null
-  const length = actualLengthOf(context.calendar, start, finish)
-  const moved = bindsSuccessorStart(dependency.linkType)
-    ? [bound, lastDayForLength(context.calendar, bound, length)] as const
-    : [length > 1 ? dateFromWorkingDays(context.calendar, bound, 1 - length) : bound, bound] as const
-  const startText = startSideOn(context, successor, successor.start, moved[0])
-  const finishText = finishSideOn(context, successor.finish, moved[1])
+  const walk = workingTimeWalkOf(context.calendar)
+  const length = plannedLengthMinutesOf(context.calendar, successor)
+  const bound = boundInstantOf(walk, predecessor, dependency)
+  if (length === null || bound === null) return null
+  const start = bindsSuccessorStart(dependency.linkType) ? startOnBound(walk, successor, bound) : walk(bound, -length)
+  const finish = bindsSuccessorStart(dependency.linkType) ? walk(start, length) : bound
+  const [startText, finishText] = [textOfInstant(start), textOfInstant(finish)]
   return planOutcome(successor.uid, startText, finishText, datesValue([startText, finishText]))
 }
 

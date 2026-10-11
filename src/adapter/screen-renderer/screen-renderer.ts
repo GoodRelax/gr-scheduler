@@ -747,7 +747,9 @@ function delayDiagnosticsReportOf(session: ScreenSession, readings: ScreenViewRe
   const textSizeStep = (readings.searchPanel ?? emptySearchPanelSession).textSizeStep
   const view = tableViewOf(source.settings, 'delayDiagnosticsReport')
   const layout = { canvas: source.canvas, textSizeStep }
-  return delayDiagnosticsReportFromWindow(session, held?.window ?? null, view, held?.report ?? null, source.schedule, layout, held?.fixTables)
+  return delayDiagnosticsReportFromWindow(
+    session, held?.window ?? null, view, held?.report ?? null, source.schedule, layout, held?.fixTables, source.settings.showsTimeOfDay,
+  )
 }
 
 /** @purity pure */

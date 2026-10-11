@@ -179,8 +179,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `extremeText` | file only | function | `src/entity/document-model/schedule/delay-diagnostics.ts#extremeText` | -- | function extremeText(texts: readonly (string \| null)[], latest: boolean): string \| null |
 | `FindingKind` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#FindingKind` | -- | type FindingKind = 'contradiction' \| 'suspicion' \| 'omission' |
 | `FindingValue` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#FindingValue` | -- | type FindingValue = string \| number \| boolean \| null \| readonly number[] |
+| `laggedInstant` | file only | function | `src/entity/document-model/schedule/delay-diagnostics.ts#laggedInstant` | -- | function laggedInstant(walk: WorkingTimeWalk, at: number, lagMinutes: number): number |
+| `lagMinutesOf` | file only | function | `src/entity/document-model/schedule/delay-diagnostics.ts#lagMinutesOf` | -- | function lagMinutesOf(dependency: Dependency): number \| null |
 | `LateDays` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#LateDays` | -- | interface LateDays |
 | `TerminalPushOut` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#TerminalPushOut` | -- | interface TerminalPushOut |
+| `WorkingTimeWalk` | file only | type | `src/entity/document-model/schedule/delay-diagnostics.ts#WorkingTimeWalk` | -- | type WorkingTimeWalk = (from: number, minutes: number) => number |
+| `workingTimeWalkOf` | file only | function | `src/entity/document-model/schedule/delay-diagnostics.ts#workingTimeWalkOf` | -- | function workingTimeWalkOf(calendar: WorkingCalendar): WorkingTimeWalk |
 | `DelayFixSubject` | file only | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixSubject` | -- | interface DelayFixSubject |
 | `ENTITY_ROWS` | file only | const | `src/entity/document-model/schedule/schedule-entities.ts#ENTITY_ROWS` | -- | const ENTITY_ROWS: readonly EntityRows[] = [ |
 | `taskGroupRankById` | file only | function | `src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
@@ -1902,4 +1906,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 947 name(s) leave through a public entry (423 of them published by table T-064), 745 more are exported by a file and not by its entry.
+Totals: 947 name(s) leave through a public entry (423 of them published by table T-064), 749 more are exported by a file and not by its entry.

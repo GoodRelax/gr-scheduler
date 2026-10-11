@@ -253,6 +253,8 @@ const EVERY_DAY_WORKED = {
     ordinal,
     dayType: ordinal,
     dayWorking: true,
+    // WHY: CR-710 reads the working times of a day (AT-158); none held reads S-580.
+    workingTimes: [],
     carry: {},
     carryElements: [],
   })),
