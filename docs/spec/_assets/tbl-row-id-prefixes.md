@@ -64,7 +64,7 @@
 | `CH` | Challenge | 本製品が解く課題 | 仕様書 | `T-054` | 7 |
 | `CHN` | Channel | 機器と機器のあいだのデータの経路と、その信頼境界（⛔ `R-` は利用者の裁定の行と紛れるので使わない。<br>`RT` が既に「依存線の経路が満たす規則」、`RP` が「その分岐」であり、「経路」は仕様書のなかで既に別のものに使われているので、`RTE-` は選ばなかった） | 仕様書 | `T-008` | 14 |
 | `CL` | — | パレットが持つ色と線の太さの区分 | 仕様書 | `T-017` | 2 |
-| `CM` | Command | 文書を変える命令（`DocumentCommand`）1 つ | 仕様書 | `T-108` | 82 |
+| `CM` | Command | 文書を変える命令（`DocumentCommand`）1 つ | 仕様書 | `T-108` | 83 |
 | `CN` | Constraint | 製品が従う制約事項 | 仕様書 | `T-003` | 9 |
 | `CP` | Component | 設計上のコンポーネント 1 つ | 仕様書 | `T-062` | 39 |
 | `CR` | Change Request | 変更要求 1 通。<br>本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである | 台帳 | `docs/development-records/W4-adapter.md` ／ `docs/development-records/W5-framework.md` | 10 |

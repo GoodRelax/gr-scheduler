@@ -454,7 +454,8 @@
 | CM-32 | `TaskGroup` | `setTaskGroupMinHeight` | — | タスクグループの最小の高さを置く | `FR-042` |
 | CM-35 | `TaskGroup` | `reorderTaskGroupSiblings` | ⭐ | 兄弟の並びを変える | `FR-005` |
 | CM-36 | `Dependency` | `createDependency` | ⭐ | 依存線を引く | `FR-009` |
-| CM-37 | `Dependency` | `deleteDependency` | — | 依存線を消す | `FR-032` |
+| CM-37 | `Dependency` | `deleteDependency` | — | 依存線を消す（先行と後続の組で名指し、その向きの線をすべて —— 1 本だけは `CM-93`） | `FR-032` |
+| CM-93 | `Dependency` | `deleteDependencyAt` | — | 同じ向きの線のうち 1 本を、後続（`successorUid`）・先行（`predecessorUid`）と、後続の依存の並び（`_assets/fig-erd-detail.md` の `AT-42`）でその先行から来る線の中の順（`order`、0 が最初）とで名指して除く。<br>その線が無ければ断る —— 同じ向きの線は線ごとの名を持たず、並びの中の順でしか名指せない | `FR-155` |
 | CM-38 | `Dependency` | `setDependencyLag` | ⭐ | ラグを変える | `FR-009` |
 | CM-39 | `Calendar` | `setCalendar` | ⭐ | 暦（稼働する曜日・例外日）と週の始まりを直す。<br>既定の暦のままなら、暦を 1 つ作ってから直す。<br>例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える —— 規則は `01-04-requirements.md` の `FR-057` の 表 T-350 の前文が持つ | `FR-088` |
 | CM-40 | `Resource` | `createResource` | — | 担当を足す | `FR-008` |

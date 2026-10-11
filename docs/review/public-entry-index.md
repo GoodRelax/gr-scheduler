@@ -142,6 +142,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `textOfStartSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfStartSide` | PI-1 | 開始の側の列へ書く日時の字。 |
 | `TRANSPARENT` | entry | const | `src/entity/document-model/schedule/stored-color.ts#TRANSPARENT` | PI-1 | 透明の色の綴り（`_assets/tbl-settings.md` の `S-324`）。 |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
+| `withoutDependencyAt` | entry | function | `src/entity/document-model/schedule/schedule.ts#withoutDependencyAt` | PI-1 | `Task` の依存の並びから、1 つの先行から来る線のうち順で名指した 1 本を除く（表 T-108 の `CM-93`）。 |
 | `WORKING_DAY_LAG_FORMAT` | entry | const | `src/entity/document-model/schedule/working-calendar.ts#WORKING_DAY_LAG_FORMAT` | PI-1 | `GRS` が解するラグの形式 `7`（`FR-009`・`AT-48`） |
 | `WorkingCalendar` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingCalendar` | -- | interface WorkingCalendar |
 | `workingCalendarOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingCalendarOf` | PI-1 | 文書の暦を解く。 |
@@ -1872,4 +1873,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 918 name(s) leave through a public entry (397 of them published by table T-064), 744 more are exported by a file and not by its entry.
+Totals: 919 name(s) leave through a public entry (398 of them published by table T-064), 744 more are exported by a file and not by its entry.

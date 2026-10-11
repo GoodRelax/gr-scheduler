@@ -10,6 +10,7 @@ import {
   lagOfWorkingDays,
   minutesPerWorkingDayOf,
   taskByUid,
+  withoutDependencyAt,
   WORKING_DAY_LAG_FORMAT,
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
@@ -29,6 +30,12 @@ export type DependencyCommand =
       readonly kind: 'deleteDependency'
       readonly predecessorUid: number
       readonly successorUid: number
+    }
+  | {
+      readonly kind: 'deleteDependencyAt'
+      readonly predecessorUid: number
+      readonly successorUid: number
+      readonly order: number
     }
   | {
       readonly kind: 'setDependencyLag'
@@ -58,7 +65,7 @@ function withTask(document: Document, task: Task): Document {
   return { ...document, schedule: { ...document.schedule, tasks } }
 }
 
-// see CM-36, CM-37, CM-38, FR-009, AT-47
+// see CM-36, CM-37, CM-93, CM-38, FR-009, AT-47
 /** @purity pure */
 export function editDependency(document: Document, command: DependencyCommand): EditResult {
   const schedule = document.schedule
@@ -128,9 +135,28 @@ export function editDependency(document: Document, command: DependencyCommand): 
       return edited(withTask(document, { ...successor, dependencies: kept }))
     }
 
+    case 'deleteDependencyAt':
+      return withOneLineDeleted(document, command)
+
     case 'setDependencyLag':
       return withLagSet(document, command)
   }
+}
+
+// see CM-93, FR-155, FA-3
+// WHY: a line named by its order that is not there is refused rather than passed over, so a bundle built on another
+// document cannot delete a line nobody named.
+/** @purity pure */
+function withOneLineDeleted(document: Document, command: Extract<DependencyCommand, { kind: 'deleteDependencyAt' }>): EditResult {
+  const successor = taskByUid(document.schedule, command.successorUid)
+  const kept = successor === null ? null : withoutDependencyAt(successor, command.predecessorUid, command.order)
+  if (kept === null) {
+    return refused([
+      reject('CM-93', 'FR-155',
+             `no dependency number ${command.order} runs from ${command.predecessorUid} to ${command.successorUid}`),
+    ])
+  }
+  return edited(withTask(document, kept))
 }
 
 // see CM-38, FR-009, AT-47

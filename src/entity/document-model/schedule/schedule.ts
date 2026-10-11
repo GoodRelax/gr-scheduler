@@ -1,4 +1,4 @@
-// Schedule: public entry; looks a task up by uid and re-exports what the siblings hold.
+// Schedule: public entry; looks a task up by uid, drops one named dependency line and re-exports what the siblings hold.
 // @unit      UF-1   (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -137,6 +137,17 @@ export type { CommentBoxSearchRow, SearchRows, TaskSearchRow } from './schedule-
 /** @purity pure */
 export function taskByUid(schedule: Schedule, uid: number): Task | null {
   return schedule.tasks.find((task) => task.uid === uid) ?? null
+}
+
+// see CM-93, AT-42
+// WHY: lines from one predecessor have no name of their own, so the order counts those lines alone and a deletion
+// of another predecessor's line does not move it.
+/** @purity pure */
+export function withoutDependencyAt(task: Task, predecessorUid: number, order: number): Task | null {
+  const places = task.dependencies.flatMap((one, at) => (one.predecessorUid === predecessorUid ? [at] : []))
+  const place = places[order]
+  if (place === undefined) return null
+  return { ...task, dependencies: task.dependencies.filter((_, at) => at !== place) }
 }
 
 // see IV-23, AT-97

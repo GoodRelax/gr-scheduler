@@ -5,6 +5,7 @@
 
 import { compareDays, dayOf, isSameDay, textOfDay, type CalendarDay } from './calendar-day'
 import { diagnoseDelay, extremeText, type DelayDiagnosticsReport, type DelayFinding } from './delay-diagnostics'
+import { withoutDependencyAt } from './schedule'
 import type { Dependency, Schedule, Task } from './schedule-entities'
 import { compareDates } from './schedule-search'
 import {
@@ -56,10 +57,11 @@ interface StartedPlacement {
   readonly actualStart: string
 }
 
-// see T-373, CM-3, CM-11, CM-13, CM-37
+// see T-373, CM-3, CM-11, CM-13, CM-37, CM-93
 // WHY: each member has the shape of the command of table T-108 it names, so a bundle is a list of document commands.
 export type DelayFixCommand =
   | { readonly kind: 'deleteDependency'; readonly predecessorUid: number; readonly successorUid: number }
+  | { readonly kind: 'deleteDependencyAt'; readonly predecessorUid: number; readonly successorUid: number; readonly order: number }
   | { readonly kind: 'setTaskPlanDates'; readonly uid: number; readonly start: string; readonly finish: string }
   | { readonly kind: 'setTaskPlanActualState'; readonly uid: number; readonly place: DelayFixPlacement }
   | { readonly kind: 'setStatusDate'; readonly date: string }
@@ -357,6 +359,9 @@ function scheduleAfter(schedule: Schedule, command: DelayFixCommand): Schedule {
         ...task,
         dependencies: task.dependencies.filter((one) => one.predecessorUid !== command.predecessorUid),
       }))
+    case 'deleteDependencyAt':
+      return withTaskEdited(schedule, command.successorUid, (task) =>
+        withoutDependencyAt(task, command.predecessorUid, command.order) ?? task)
     case 'setTaskPlanDates':
       return withTaskEdited(schedule, command.uid, (task) => ({ ...task, start: command.start, finish: command.finish }))
     case 'setTaskPlanActualState':
@@ -370,6 +375,7 @@ function writtenUidsOf(command: DelayFixCommand): readonly number[] {
     case 'setStatusDate':
       return NO_UIDS
     case 'deleteDependency':
+    case 'deleteDependencyAt':
       return [command.successorUid]
     case 'setTaskPlanDates':
     case 'setTaskPlanActualState':
@@ -559,14 +565,21 @@ function linksBetween(context: FixContext, a: number, b: number): readonly Delay
   })
 }
 
-// see FA-3, CM-37
-// TRAP: CM-37 deletes every line that runs one way between two tasks, so it cannot keep one of two lines
-// running the same way; that outcome is not formed and the row is left to the person.
+// see FA-3, CM-93
+// WHY: links holds every line between the two tasks in the document order, so a line's order among the lines of
+// its own direction is the count of those before it.
 /** @purity pure */
-function keepOutcome(links: readonly DelayFixLink[], kept: DelayFixLink): FixOutcome | null {
-  const removed = links.filter((one) => one !== kept)
-  if (removed.some((one) => lineKeyOf(one) === lineKeyOf(kept))) return null
-  return { after: linksValue([kept]), commands: uniqueLines(removed).map(deleteLink) }
+function deleteLineAt(links: readonly DelayFixLink[], link: DelayFixLink, at: number): DelayFixCommand {
+  const order = links.slice(0, at).filter((one) => lineKeyOf(one) === lineKeyOf(link)).length
+  return { kind: 'deleteDependencyAt', predecessorUid: link.predecessorUid, successorUid: link.successorUid, order }
+}
+
+// see FA-3, CM-93
+// WHY: the lines are deleted last first, so no deletion moves the order of a line still to be deleted.
+/** @purity pure */
+function keepOutcome(links: readonly DelayFixLink[], kept: DelayFixLink): FixOutcome {
+  const commands = links.flatMap((one, at) => (one === kept ? [] : [deleteLineAt(links, one, at)])).reverse()
+  return { after: linksValue([kept]), commands }
 }
 
 // see FA-3, VC-3
@@ -581,10 +594,7 @@ function duplicateDrafts(context: FixContext, finding: DelayFinding): readonly F
   if (first !== undefined && links.every((one) => one.linkType === first.linkType && one.lag === first.lag)) {
     return [draftOf({ ...base, fixType: 'automatic', outcome: keepOutcome(links, first) })]
   }
-  const choices = links.flatMap((kept, at) => {
-    const outcome = keepOutcome(links, kept)
-    return outcome === null ? [] : [choiceOf(`keep:${at}`, 'keepThisLink', kept, outcome)]
-  })
+  const choices = links.map((kept, at) => choiceOf(`keep:${at}`, 'keepThisLink', kept, keepOutcome(links, kept)))
   return [draftOf({ ...base, fixType: 'choose', choices })]
 }
 
@@ -685,7 +695,7 @@ function finishOnCommands(context: FixContext, tasks: readonly Task[], finish: s
     actualsOutcome(task, { actualStart: actualStartBy(context, task, finishDay), actualFinish: finish }, EMPTY)?.commands ?? [])
 }
 
-// see T-373, FR-135
+// see VC-9, FR-135
 // WHY: the stated children only; a parent known only from the derivation is a relation the document does not hold.
 /** @purity pure */
 function statedFamilyOf(context: FixContext, uid: number): { readonly parent: Task; readonly children: readonly Task[] } | null {
@@ -1215,8 +1225,8 @@ function inApplyOrder(seeds: readonly Seed[], context: FixContext): readonly See
 
 /** @purity pure */
 function touchedUidsOf(row: DelayFixRow): ReadonlySet<number> {
-  return new Set(row.commands.flatMap((command) =>
-    command.kind === 'deleteDependency' ? [command.predecessorUid, command.successorUid] : writtenUidsOf(command)))
+  return new Set(row.commands.flatMap((command) => command.kind === 'deleteDependency' || command.kind === 'deleteDependencyAt'
+    ? [command.predecessorUid, command.successorUid] : writtenUidsOf(command)))
 }
 
 // see FR-155
