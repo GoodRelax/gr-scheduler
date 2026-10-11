@@ -77,6 +77,28 @@ export function clockTextOf(instant: number): string {
   return `${Math.floor(minute / MINUTES_PER_HOUR)}:${String(minute % MINUTES_PER_HOUR).padStart(MINUTE_DIGITS, '0')}`
 }
 
+const LENGTH_UNITS = { day: 'd', hour: 'h', minute: 'm' } as const
+
+// see T-375, TX-10
+const ZERO_LENGTH_TEXT = `0${LENGTH_UNITS.hour}`
+
+// see T-375, TX-10, TX-2, TX-3, TX-6, TX-8
+// WHY: one spelling of a length; d is minutesPerDay minutes (FR-054), the letters are the same in every language.
+/** @purity pure */
+export function lengthTextOf(minutes: number, minutesPerDay: number): string {
+  const whole = Math.round(Math.abs(minutes))
+  const days = minutesPerDay > 0 ? Math.floor(whole / minutesPerDay) : 0
+  const rest = whole - days * minutesPerDay
+  const counts: readonly (readonly [number, string])[] = [
+    [days, LENGTH_UNITS.day],
+    [Math.floor(rest / MINUTES_PER_HOUR), LENGTH_UNITS.hour],
+    [rest % MINUTES_PER_HOUR, LENGTH_UNITS.minute],
+  ]
+  const parts = counts.filter(([count]) => count > 0).map(([count, unit]) => `${count}${unit}`)
+  if (parts.length === 0) return ZERO_LENGTH_TEXT
+  return `${minutes < 0 ? '-' : ''}${parts.join(' ')}`
+}
+
 // see T-375, TX-1, TX-4, TX-5, TX-6
 // WHY: the one reading of a shown date-time: the date of ND-4, and the clock only while time of day is shown.
 /** @purity pure */

@@ -127,7 +127,7 @@ for (const column of [SHAPE_COLUMN, NAME_COLUMN]) {
 }
 
 /** 表 T-016's word for the form this file is about. */
-const DATE_SHAPE = '日付'
+const DATE_SHAPE = '日時'
 
 /**
  * The first row of table T-016 whose 入力の型 is 日付.

@@ -35,7 +35,7 @@ const SHAPE_ROOM = DATE_SHAPE_UNITS * LABEL_COEF + BEYOND_THE_VALUE
 const DATE_ROWS = T_016.filter(
   (one) =>
     (one.appliesTo ?? 'Task') === 'Task' &&
-    one.inputKinds.includes('日付') &&
+    one.inputKinds.includes('日時') &&
     one.columns.length === 1 &&
     one.shownFor !== 'milestone',
 ).map((one) => one.id)

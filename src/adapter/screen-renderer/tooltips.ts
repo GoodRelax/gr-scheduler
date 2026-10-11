@@ -9,9 +9,10 @@ import {
 } from '../../entity/document-model/document-settings/document-settings'
 import {
   calendarSpanOf,
-  compareDays,
   dayOf,
+  dayOfInstant,
   instantOf,
+  MINUTES_PER_CALENDAR_DAY,
   delayWorkingDays,
   isDelayed,
   serial,
@@ -23,11 +24,13 @@ import {
   type Task,
 } from '../../entity/document-model/schedule/schedule'
 import {
-  dateAtX,
+  cursorInstantAtX,
   labeledAssigneeUidOf,
+  lengthTextOf,
   planDatesSpanYears,
   clockTextOf,
   planDateText,
+  snappedInstantAtX,
   timeAxisOf,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
@@ -494,52 +497,64 @@ function readoutWord(line: string, language: DisplayLanguage): string {
   return READOUT_WORDS.get(line)?.[language] ?? line
 }
 
-// see DC-3
+// see CU-3, DC-3, TX-6, FR-158
+// WHY: the clock follows the date only while time of day is shown; without it the instant is the day's 00:00.
 /** @purity pure */
-function readoutDate(day: CalendarDay | null, language: DisplayLanguage): string {
-  return day === null ? UNKNOWN : cursorDateText(day, language)
+function cursorInstantText(instant: number, showsTimeOfDay: boolean, language: DisplayLanguage): string {
+  const dated = cursorDateText(dayOfInstant(instant), language)
+  return showsTimeOfDay ? `${dated} ${clockTextOf(instant)}` : dated
 }
 
 // see DC-3
 /** @purity pure */
-function readoutSpan(a: CalendarDay | null, b: CalendarDay | null, language: DisplayLanguage): string {
+function readoutDate(instant: number | null, showsTimeOfDay: boolean, language: DisplayLanguage): string {
+  return instant === null ? UNKNOWN : cursorInstantText(instant, showsTimeOfDay, language)
+}
+
+// see DC-3, TX-6, TX-10
+// WHY: whole calendar days go to the y / m / d words; the rest under a day is calendar time in h and m (TX-6).
+/** @purity pure */
+function readoutSpan(a: number | null, b: number | null, showsTimeOfDay: boolean, language: DisplayLanguage): string {
   if (a === null || b === null) return UNKNOWN
-  const span = calendarSpanOf(a, b)
-  return readoutWord(span.dayCount === 1 ? 'oneDay' : 'days', language)
+  const wholeDays = Math.floor((b - a) / MINUTES_PER_CALENDAR_DAY)
+  const span = calendarSpanOf(dayOfInstant(a), dayOfInstant(a + wholeDays * MINUTES_PER_CALENDAR_DAY))
+  const days = readoutWord(span.dayCount === 1 ? 'oneDay' : 'days', language)
     .replace('{y}', String(span.years))
     .replace('{m}', String(span.months))
     .replace('{d}', String(span.days))
     .replace('{n}', String(span.dayCount))
+  if (!showsTimeOfDay) return days
+  return `${days} ${lengthTextOf(b - a - wholeDays * MINUTES_PER_CALENDAR_DAY, MINUTES_PER_CALENDAR_DAY)}`
 }
 
-// see DC-1, DC-2, DC-3
-// WHY: the following side reads the day under the pointer, as its line stands there (dateAtX).
+// see DC-1, DC-2, DC-3, T-378
+// WHY: the following side reads the instant under the pointer, as its line stands there (cursorInstantAtX).
 /** @purity pure */
-function readoutDays(
+function readoutInstants(
   regions: ScreenRegions,
   settings: DocumentSettings,
   session: ScreenSession,
   pointerX: number,
-): { readonly date1: CalendarDay | null; readonly date2: CalendarDay | null } {
+): { readonly date1: number | null; readonly date2: number | null } {
   const mode = session.screen.dualCursorModeState
   const following = mode.kind !== 'off' && mode.child.kind === 'placingDate2' ? 'date2' : 'date1'
-  const followed = dateAtX(timeAxisOf(settings, regions), pointerX)
+  const followed = cursorInstantAtX(timeAxisOf(settings, regions), pointerX, settings)
   const standing = session.screen.dualCursor
   return {
-    date1: following === 'date1' ? followed : dayOf(standing?.date1 ?? null),
-    date2: following === 'date2' ? followed : dayOf(standing?.date2 ?? null),
+    date1: following === 'date1' ? followed : instantOf(standing?.date1 ?? null),
+    date2: following === 'date2' ? followed : instantOf(standing?.date2 ?? null),
   }
 }
 
 // see DC-3
 /** @purity pure */
 function inDateOrder(
-  a: CalendarDay | null,
-  b: CalendarDay | null,
-): { readonly left: CalendarDay | null; readonly right: CalendarDay | null } {
+  a: number | null,
+  b: number | null,
+): { readonly left: number | null; readonly right: number | null } {
   if (a === null) return { left: b, right: null }
   if (b === null) return { left: a, right: null }
-  return compareDays(a, b) <= 0 ? { left: a, right: b } : { left: b, right: a }
+  return a <= b ? { left: a, right: b } : { left: b, right: a }
 }
 
 // see DC-3, IN-3, EZ-6
@@ -555,19 +570,22 @@ export function dualCursorReadoutOf(
   const region = regionAtPointer(regions, pointer.x, pointer.y)
   if (region !== 'taskGroupArea' && region !== 'timeRuler') return null
   const language = displayLanguageOf(session)
-  const { date1, date2 } = readoutDays(regions, settings, session, pointer.x)
+  const { date1, date2 } = readoutInstants(regions, settings, session, pointer.x)
   const { left, right } = inDateOrder(date1, date2)
+  const inTime = settings.showsTimeOfDay
   return {
     lines: [
-      readoutWord('left', language).replace('{date}', readoutDate(left, language)),
-      readoutWord('right', language).replace('{date}', readoutDate(right, language)),
-      readoutWord('span', language).replace('{span}', readoutSpan(left, right, language)),
+      readoutWord('left', language).replace('{date}', () => readoutDate(left, inTime, language)),
+      readoutWord('right', language).replace('{date}', () => readoutDate(right, inTime, language)),
+      readoutWord('span', language).replace('{span}', () => readoutSpan(left, right, inTime, language)),
     ],
     at: pointer,
   }
 }
 
 const GUIDE_CURSOR_NONE = 'none'
+
+const GUIDE_LABEL_MINUTES = 1
 
 // see CU-3, DC-9
 // WHY: tooltips is this frame's set: CU-3 stands down in the frame an EZ-6 tip (one placed at the point) is shown.
@@ -583,7 +601,10 @@ export function guideCursorLabelOf(
   if (pointer === null || session.screen.guideCursorMode === GUIDE_CURSOR_NONE) return null
   if (isDualCursorOn(session) || regionAtPointer(regions, pointer.x, pointer.y) !== 'taskGroupArea') return null
   if (tooltips.some((one) => one.at !== undefined)) return null
-  const day = dateAtX(timeAxisOf(settings, regions), pointer.x)
-  if (day === null) return null
-  return { text: cursorDateText(day, displayLanguageOf(session)), at: pointer }
+  const axis = timeAxisOf(settings, regions)
+  const instant = settings.showsTimeOfDay
+    ? snappedInstantAtX(axis, pointer.x, GUIDE_LABEL_MINUTES)
+    : cursorInstantAtX(axis, pointer.x, settings)
+  if (instant === null) return null
+  return { text: cursorInstantText(instant, settings.showsTimeOfDay, displayLanguageOf(session)), at: pointer }
 }

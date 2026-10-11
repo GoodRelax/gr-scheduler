@@ -30,7 +30,7 @@ const PLANNED_EMPTIED = '空のまま確定したときの扱いは `FR-006` の
 const FR_006_EMPTIED =
   '空のまま確定したときは、`start` ／ `finish` の欄なら何も書かずに欄を元の値へ戻し、それ以外の日付の欄なら `null` を書くこと（MUST）'
 
-const DAY_KIND = '日付'
+const DAY_KIND = '日時'
 
 describe('CR-606 premise -- the clauses these cases quote still stand', () => {
   it.each([PLANNED_ONE_INPUT, ACTUAL_ONE_INPUT, ACTUAL_EMPTIED, PLANNED_EMPTIED])('table T-016 holds %s', (clause) => {

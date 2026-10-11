@@ -12,8 +12,10 @@ import {
 import {
   COLUMN_SHAPES,
   DATE_COLUMNS,
+  actualEndOf,
   actualLastDay,
   actualLengthOf,
+  actualMinutesOf,
   customColorOf,
   customSideOf,
   dayOf,
@@ -42,6 +44,7 @@ import {
 import {
   labelUnits,
   labeledAssigneeUidOf,
+  lengthTextOf,
   type TaskGroupPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type {
@@ -343,7 +346,7 @@ const DATE_TIME_ENTRY_LENGTH = 16
 // TRAP: assumes TaskVisual has no date column; textOfItem would write a new one raw.
 /** @purity pure */
 function textOfTaskColumn(schedule: Schedule, task: Task, column: keyof Task, showsTimeOfDay: boolean): string {
-  if ((column as string) === ACTUAL_LENGTH_ITEM) return textOfActualLength(schedule, task)
+  if ((column as string) === ACTUAL_LENGTH_ITEM) return textOfActualLength(schedule, task, showsTimeOfDay)
   if (DATE_COLUMNS.Task.includes(column)) return showsTimeOfDay ? textOfDateTimeColumn(task[column]) : textOfDateColumn(task[column])
   return textOfValue(task[column])
 }
@@ -354,11 +357,22 @@ const ACTUAL_LENGTH_ITEM = 'actualDuration'
 
 // see PR-5, FR-011
 /** @purity pure */
-function textOfActualLength(schedule: Schedule, task: Task): string {
+function textOfActualLength(schedule: Schedule, task: Task, showsTimeOfDay: boolean): string {
+  if (showsTimeOfDay) return actualLengthTextInTime(schedule, task)
   const start = dayOf(task.actualStart)
   const lastDay = actualLastDay(task)
   if (start === null || lastDay === null) return textOfValue(null)
   return textOfValue(actualLengthOf(workingCalendarOf(schedule), start, lastDay))
+}
+
+// see PR-5, TX-3, TX-10, FR-011
+// WHY: with time of day the length is the working minutes from actualStart to the actual's end, spelled by TX-10.
+/** @purity pure */
+function actualLengthTextInTime(schedule: Schedule, task: Task): string {
+  const start = instantOf(task.actualStart)
+  const end = instantOf(actualEndOf(task))
+  if (start === null || end === null) return textOfValue(null)
+  return lengthTextOf(actualMinutesOf(workingCalendarOf(schedule), start, end), minutesPerWorkingDayOf(schedule.project))
 }
 
 interface Assignee {
@@ -658,9 +672,21 @@ function controlsOfItem(
           ? ''
           : textOfValue(visual[column as keyof TaskVisual])
     const control = controlOf(key, entity, column, text, labelCoef)
-    return showsTimeOfDay && control.kind === 'date' ? { ...control, isDateTime: true } : control
+    return showsTimeOfDay ? controlInTime(control, column) : control
   })
 }
+
+// see TX-3, FR-158, FR-009, PR-5, PR-42
+// WHY: a host number entry refuses the d / h / m of TX-10, so a typed length is a text entry while time of day is shown.
+/** @purity pure */
+function controlInTime(control: PropertyControl, column: string): PropertyControl {
+  if (control.kind === 'date') return { ...control, isDateTime: true }
+  if (!TYPED_LENGTH_COLUMNS.includes(column)) return control
+  return { ...control, kind: 'text', min: null, max: null }
+}
+
+// see PR-5, PR-42, TX-3
+const TYPED_LENGTH_COLUMNS: readonly string[] = ['actualDuration', 'lag']
 
 /** @purity pure */
 function textOfItem(
@@ -702,7 +728,7 @@ function taskFields(
     text: textOfItem(schedule, task, visual, item, language, showsTimeOfDay),
     isEditable: !READ_ONLY_ROWS.includes(item.row) && item.heldBy !== 'derived',
     controls: item.heldBy === 'derived'
-      ? linkedEndControls(schedule, task, item.columns[0] ?? '', language)
+      ? linkedEndControls(schedule, task, item.columns[0] ?? '', language, showsTimeOfDay)
       : controlsOfItem(schedule, task, item, labelCoef, language, showsTimeOfDay),
   }))
 }
@@ -751,8 +777,10 @@ const PLUS_SIGN = '+'
 // see PR-37, PR-38, AT-47, FR-009, S-118
 // WHY: read in working days whatever unit it was taken in; a lag no day count settles is read through the day's minutes.
 /** @purity pure */
-function lagWordOf(project: Project, dependency: Dependency, language: DisplayLanguage): string {
+function lagWordOf(project: Project, dependency: Dependency, language: DisplayLanguage, showsTimeOfDay: boolean): string {
   if (dependency.lag === null || dependency.lag === 0) return ''
+  const typed = typedLagTextOf(project, dependency, showsTimeOfDay)
+  if (typed !== null) return `${dependency.lag > 0 ? PLUS_SIGN : ''}${typed}`
   const minutesPerDay = minutesPerWorkingDayOf(project)
   const days = lagWorkingDaysOf(dependency, minutesPerDay) ?? dependency.lag / TENTHS_OF_A_MINUTE / minutesPerDay
   const signed = `${days > 0 ? PLUS_SIGN : ''}${shownLagNumber(days)}`
@@ -761,11 +789,17 @@ function lagWordOf(project: Project, dependency: Dependency, language: DisplayLa
 
 // see PR-37, PR-38, PTL-16
 /** @purity pure */
-function linkedEndControls(schedule: Schedule, task: Task, column: string, language: DisplayLanguage): readonly PropertyControl[] {
+function linkedEndControls(
+  schedule: Schedule,
+  task: Task,
+  column: string,
+  language: DisplayLanguage,
+  showsTimeOfDay: boolean,
+): readonly PropertyControl[] {
   return linkedEndsOf(schedule, task, column).map((end) => {
     const linked = taskByUid(schedule, end.uid)
     const badge = badgeOf(end.dependency, language)
-    const lag = lagWordOf(schedule.project, end.dependency, language)
+    const lag = lagWordOf(schedule.project, end.dependency, language, showsTimeOfDay)
     return {
       key: { holder: 'task', uid: task.uid, column: DEPENDENCIES_KEY_COLUMN },
       kind: 'taskReference',
@@ -805,6 +839,9 @@ const LAG_FORMAT_UNITS: ReadonlyMap<number, { readonly symbol: string; readonly 
   [20, { symbol: 'e%', length: null }],
 ])
 
+// see TX-10, FR-009
+const TYPED_LENGTH_LETTERS: readonly string[] = ['d', 'h', 'm']
+
 // see FR-009
 // WHY: mspdi_pj12.xsd:2203 numbers the estimated forms ("?") 32 above their plain ones.
 const ESTIMATED_LAG_FORMAT_OFFSET = 32
@@ -832,8 +869,10 @@ function minutesOfUnit(project: Project, length: LagUnitLength): number | null {
 
 // see FR-009, S-118, AT-47, AT-48
 /** @purity pure */
-function lagText(project: Project, dependency: Dependency): string {
+function lagText(project: Project, dependency: Dependency, showsTimeOfDay: boolean): string {
   if (dependency.lag === null) return ''
+  const inTime = typedLagTextOf(project, dependency, showsTimeOfDay)
+  if (inTime !== null) return inTime
   const workingDays = lagWorkingDaysOf(dependency, minutesPerWorkingDayOf(project))
   if (workingDays !== null) return shownLagNumber(workingDays)
   const minutes = dependency.lag / TENTHS_OF_A_MINUTE
@@ -845,6 +884,22 @@ function lagText(project: Project, dependency: Dependency): string {
   return `${shownLagNumber(minutes / unitMinutes)}${unit.symbol}${isEstimated ? ESTIMATED_MARK : ''}`
 }
 
+// see FR-009, TX-3, TX-10, AT-48
+// WHY: null is no time of day, or a format not typed in d / h / m; that lag keeps the spelling of FR-009.
+/** @purity pure */
+function typedLagTextOf(project: Project, dependency: Dependency, showsTimeOfDay: boolean): string | null {
+  const lag = dependency.lag ?? 0
+  if (!showsTimeOfDay) return null
+  if (lag !== 0 && !TYPED_LAG_FORMATS.includes(dependency.lagFormat ?? 0)) return null
+  return lengthTextOf(lag / TENTHS_OF_A_MINUTE, minutesPerWorkingDayOf(project))
+}
+
+// see FR-009, AT-48, TX-10
+// WHY: the formats whose symbol is a letter TX-10 spells a length with (7 d, 5 h, 3 m), read off the one table of codes.
+const TYPED_LAG_FORMATS: readonly number[] = [...LAG_FORMAT_UNITS]
+  .filter(([, unit]) => TYPED_LENGTH_LETTERS.includes(unit.symbol))
+  .map(([format]) => format)
+
 // see T-018, FR-009, PR-41, PR-42, PR-43, PR-44
 /** @purity pure */
 function dependencyText(
@@ -853,10 +908,11 @@ function dependencyText(
   successorUid: number,
   column: string,
   language: DisplayLanguage,
+  showsTimeOfDay: boolean,
 ): string {
   if (column === 'predecessorUid') return dependencyEndText(schedule, dependency.predecessorUid, language)
   if (column === 'successorUid') return dependencyEndText(schedule, successorUid, language)
-  if (column === 'lag') return lagText(schedule.project, dependency)
+  if (column === 'lag') return lagText(schedule.project, dependency, showsTimeOfDay)
   if (column !== 'linkType') return textOfValue((dependency as unknown as Record<string, unknown>)[column])
   const kind = DEPENDENCY_KINDS.find((one) => one.linkType === dependency.linkType)
   return kind === undefined ? textOfValue(dependency.linkType) : kind.abbreviation
@@ -872,18 +928,20 @@ function dependencyFields(
   ordinal: number,
   labelCoef: number,
   language: DisplayLanguage,
+  showsTimeOfDay: boolean,
 ): readonly PropertyField[] {
   return DEPENDENCY_ITEMS.map((item) => {
     const column = (item.columns[0] ?? '') as keyof Dependency & string
     const isEditable = !READ_ONLY_ROWS.includes(item.row)
     const key: PropertyFieldKey = { holder: 'dependency', successorUid, ordinal, column }
-    const text = dependencyText(schedule, dependency, successorUid, column, language)
+    const text = dependencyText(schedule, dependency, successorUid, column, language, showsTimeOfDay)
+    const control = controlOf(key, 'Dependency', column, text, labelCoef)
     return {
       row: item.row,
       name: itemName(item.row, language),
       text,
       isEditable,
-      controls: isEditable ? [controlOf(key, 'Dependency', column, text, labelCoef)] : [],
+      controls: isEditable ? [showsTimeOfDay ? controlInTime(control, column) : control] : [],
     }
   })
 }
@@ -912,7 +970,7 @@ function fieldsOfItem(
       const successor = taskByUid(schedule, subject.successorUid)
       const dependency = successor?.dependencies[subject.ordinal]
       if (successor === null || dependency === undefined) return null
-      return dependencyFields(schedule, dependency, successor.uid, subject.ordinal, labelCoef, language)
+      return dependencyFields(schedule, dependency, successor.uid, subject.ordinal, labelCoef, language, showsTimeOfDay)
     }
     case 'commentBox':
       return fieldsOfFound(schedule.commentBoxes.find(withId(subject.id)), commentBoxRows, labelCoef, language)
@@ -1559,10 +1617,10 @@ const UNIT_PART_OF_COLUMN: Readonly<Record<string, string>> = { strokeWidthPx: '
 const HINT_PART_OF_COLUMN: Readonly<Record<string, string>> = { resumeValid: 'resumeValidHint' }
 
 /** @purity pure */
-function withFieldWords(fields: readonly PropertyField[], language: DisplayLanguage): readonly PropertyField[] {
+function withFieldWords(fields: readonly PropertyField[], language: DisplayLanguage, showsTimeOfDay: boolean): readonly PropertyField[] {
   return fields.map((field) => {
     const column: string = field.controls[0]?.key.column ?? ''
-    const unitPart = UNIT_PART_OF_COLUMN[column]
+    const unitPart = showsTimeOfDay && TYPED_LENGTH_COLUMNS.includes(column) ? undefined : UNIT_PART_OF_COLUMN[column]
     const hintPart = HINT_PART_OF_COLUMN[column]
     if (unitPart === undefined && hintPart === undefined) return field
     const hint = hintPart === undefined ? {} : { hint: PROPERTY_FIELD_WORDS.get(hintPart)?.[language] ?? '' }
@@ -1619,7 +1677,7 @@ export function propertiesPanelFromSelection(
     monochrome: settings.themeMonochrome,
     language,
   }
-  const fields = described === null ? null : withFieldWords(withColorFields(described, look), language)
+  const fields = described === null ? null : withFieldWords(withColorFields(described, look), language, settings.showsTimeOfDay)
 
   const isSubjectGone = isNothingPicked || fields === null
 

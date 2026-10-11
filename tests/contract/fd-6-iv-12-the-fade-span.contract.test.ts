@@ -150,9 +150,9 @@ const ENV: ScreenEnvironment = {
 const REGIONS = regionsFromScreen(ENV, SETTINGS)
 
 /** Monday. */
-const START = '2026-01-05'
-/** Monday, three weekends later. */
-const FINISH = '2026-01-26'
+const START = '2026-01-05T08:00:00'
+/** Monday, three weekends later; it ends at the day's close, as GRS writes an end (WT-2), so FR-054 reads it as that day. */
+const FINISH = '2026-01-26T17:00:00'
 
 // AT-73: dayType is 1..7 with 1 = Sunday, the coding of the exchange partner.
 // S-106 works Monday to Friday, so this calendar has non-working days for the

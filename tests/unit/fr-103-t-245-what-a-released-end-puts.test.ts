@@ -93,6 +93,8 @@ const MILESTONE_UID = 2
 const FADED_UID = 3
 
 const day = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T00:00:00`
+// WHY: an end is written at the day's close (WT-2, WT-4); at 00:00 FR-054 reads it as the day before (RV-1, RV-6).
+const endOfDay = (d: number): string => `2026-04-${String(d).padStart(2, '0')}T17:00:00`
 
 const dayPart = (value: string | null | undefined): string => {
   if (value === null || value === undefined) throw new Error('the column this case reads holds nothing')
@@ -194,9 +196,9 @@ const aprilDocument = (): Document =>
         uid: PLAIN_UID,
         name: 'Alpha',
         start: day(6),
-        finish: day(24),
+        finish: endOfDay(24),
         actualStart: day(9),
-        stop: day(14),
+        stop: endOfDay(14),
         resumeValid: true,
         percentComplete: 29,
       }),
@@ -204,17 +206,17 @@ const aprilDocument = (): Document =>
         uid: MILESTONE_UID,
         name: 'Beta',
         start: day(13),
-        finish: day(13),
+        finish: endOfDay(13),
         milestone: true,
         actualStart: day(17),
-        stop: day(17),
+        stop: endOfDay(17),
         resumeValid: true,
       }),
       task({
         uid: FADED_UID,
         name: 'Gamma',
         start: day(6),
-        finish: day(24),
+        finish: endOfDay(24),
         fadeInDays: 5,
         fadeOutDays: 5,
       }),

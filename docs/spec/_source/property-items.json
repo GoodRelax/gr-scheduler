@@ -65,7 +65,7 @@
     "start"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "shownFor": "task",
    "note": {
@@ -81,7 +81,7 @@
     "finish"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "shownFor": "task",
    "note": {
@@ -98,7 +98,7 @@
     "finish"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "oneInput": true,
    "shownFor": "milestone",
@@ -115,7 +115,7 @@
     "actualStart"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "shownFor": "task",
    "note": {
@@ -131,7 +131,7 @@
     "actualFinish"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "shownFor": "task",
    "note": {
@@ -148,7 +148,7 @@
     "actualFinish"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "oneInput": true,
    "shownFor": "milestone",
@@ -198,7 +198,7 @@
     "resume"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "shownFor": "task",
    "note": {
@@ -230,7 +230,7 @@
     "deadline"
    ],
    "inputKinds": [
-    "日付"
+    "日時"
    ],
    "shownFor": "both",
    "note": {

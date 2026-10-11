@@ -259,6 +259,19 @@ const EVERY_DAY_WORKED = {
   exceptions: [],
 } as unknown as Calendar
 
+// see WT-2, WT-4, FR-054, RV-1, RV-6
+// WHY: day(n) is the day's 00:00, which FR-054 reads as the END of the day before when it stands on a finish side;
+// GRS writes an end at the day's close, so the scene does too and an end named day(n) is drawn on day n.
+const FINISH_SIDE_COLUMNS: readonly string[] = ['finish', 'actualFinish', 'stop']
+const DAY_OPEN = 'T00:00:00'
+const DAY_CLOSE = 'T17:00:00'
+
+const closedEnds = (over: Readonly<Record<string, unknown>>): Readonly<Record<string, unknown>> =>
+  Object.fromEntries(Object.entries(over).map(([column, value]) =>
+    FINISH_SIDE_COLUMNS.includes(column) && typeof value === 'string' && value.endsWith(DAY_OPEN)
+      ? [column, `${value.slice(0, -DAY_OPEN.length)}${DAY_CLOSE}`]
+      : [column, value]))
+
 export const taskOf = (over: Readonly<Record<string, unknown>>): Task =>
   ({
     uid: 1,
@@ -282,7 +295,7 @@ export const taskOf = (over: Readonly<Record<string, unknown>>): Task =>
     dependencies: [],
     carry: {},
     carryElements: [],
-    ...over,
+    ...closedEnds(over),
   }) as unknown as Task
 
 const visualOf = (taskUid: number, shapeKind: string): unknown => ({

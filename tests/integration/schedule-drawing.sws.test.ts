@@ -372,6 +372,8 @@ const LIGHT_VIEWER = { themePreference: 'light', guideCursorMode: 'none' } as co
 
 /** A day of March 2026, as a stored date column writes it. */
 const day = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T00:00:00`
+// WHY: an end is written at the day's close (WT-2, WT-4); a date alone or 00:00 is read by FR-054 as the day before (RV-1, RV-6).
+const endOfDay = (d: number): string => `2026-03-${String(d).padStart(2, '0')}T17:00:00`
 
 /** The x the left edge of a bar starting on `d` gets, from the axis FR-017 fixes. */
 const xOfDay = (d: number, regions: { taskGroupArea: { x: number } }, pxPerDay: number): number =>
@@ -639,7 +641,7 @@ const TIER_DAY_PX = pxPerDayReaching(
 )
 
 const ONE_TASK_SCHEDULE = scheduleOf(
-  [task({ uid: 1, name: 'A', start: day(2), finish: day(6) })],
+  [task({ uid: 1, name: 'A', start: day(2), finish: endOfDay(6) })],
   [taskGroup('g1', 0)],
   [{ taskUid: 1, groupId: 'g1' }],
   [taskVisual(1)],
@@ -844,7 +846,7 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
 /** Three documents that stress LF-2 and LF-3 in different ways. */
 const bandDocuments = (): ReadonlyArray<readonly [string, Drawn]> => {
   const long = (uid: number, from: number, to: number) =>
-    task({ uid, name: `t${uid}`, start: day(from), finish: day(to) })
+    task({ uid, name: `t${uid}`, start: day(from), finish: endOfDay(to) })
   return [
     [
       'three lanes of rectangles',
@@ -857,7 +859,7 @@ const bandDocuments = (): ReadonlyArray<readonly [string, Drawn]> => {
     [
       'one lane holding a rectangle and a taller milestone, then an empty task group',
       draw(
-        [long(1, 2, 4), task({ uid: 2, name: 'm', start: day(10), finish: day(10), milestone: true })],
+        [long(1, 2, 4), task({ uid: 2, name: 'm', start: day(10), finish: endOfDay(10), milestone: true })],
         ['g1', 'g1'],
         [taskVisual(1), taskVisual(2, { shapeKind: 'milestone', milestoneGlyph: 'diamond' })],
         {},
@@ -931,7 +933,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
     () => {
       // see SWS-2, DFC-840, HF-19
       const drawn = draw(
-        [task({ uid: 1, name: 'a', start: day(2), finish: day(20) })],
+        [task({ uid: 1, name: 'a', start: day(2), finish: endOfDay(20) })],
         ['g1'],
         [taskVisual(1)],
         {},
@@ -1001,7 +1003,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
     () => {
       // see LF-3, SH-3, HF-19
       const drawn = draw(
-        [task({ uid: 1, name: 'arrow', start: day(2), finish: day(4) })],
+        [task({ uid: 1, name: 'arrow', start: day(2), finish: endOfDay(4) })],
         ['g1'],
         [taskVisual(1, { shapeKind: 'arrow' })],
       )
@@ -1033,7 +1035,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
     () => {
       mentions(T221, 'LF-16', 'S-138', 'S-243', 'S-235', '0 とする')
       const long = (uid: number, from: number, to: number) =>
-        task({ uid, name: `t${uid}`, start: day(from), finish: day(to) })
+        task({ uid, name: `t${uid}`, start: day(from), finish: endOfDay(to) })
       const bandsOf = (drawn: Drawn): number => drawn.layout.taskGroups.reduce((sum, taskGroup) => sum + taskGroup.height, 0)
       const lowLast = draw(
         [long(1, 2, 20), long(2, 3, 21), long(3, 2, 20)],
@@ -1089,7 +1091,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
       const rows = ['g1', 'g2', 'g3', 'g4']
       const drawn = draw(
         rows.map((_id, index) =>
-          task({ uid: index + 1, name: `t${index}`, start: day(2), finish: day(20) }),
+          task({ uid: index + 1, name: `t${index}`, start: day(2), finish: endOfDay(20) }),
         ),
         rows,
         rows.map((_id, index) => taskVisual(index + 1)),
@@ -1141,7 +1143,7 @@ const routeScenarios = (): Readonly<Record<string, Drawn>> => {
       uid,
       name: `t${uid}`,
       start: day(from),
-      finish: day(to),
+      finish: endOfDay(to),
       dependencies: deps.map(([p, k]) => dependency(p, k)),
     })
   const pair = (a: Task, b: Task, rows: readonly [string, string], over: Readonly<Record<string, unknown>> = {}) =>
@@ -1224,8 +1226,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
 
       const down = draw(
         [
-          task({ uid: 1, name: 'p', start: day(2), finish: day(6) }),
-          task({ uid: 2, name: 's', start: day(3), finish: day(5), dependencies: [dependency(1, 1)] }),
+          task({ uid: 1, name: 'p', start: day(2), finish: endOfDay(6) }),
+          task({ uid: 2, name: 's', start: day(3), finish: endOfDay(5), dependencies: [dependency(1, 1)] }),
         ],
         ['g1', 'g2'],
         [taskVisual(1), taskVisual(2)],
@@ -1239,8 +1241,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
 
       const up = draw(
         [
-          task({ uid: 1, name: 'p', start: day(12), finish: day(16) }),
-          task({ uid: 2, name: 's', start: day(2), finish: day(6), dependencies: [dependency(1, 1)] }),
+          task({ uid: 1, name: 'p', start: day(12), finish: endOfDay(16) }),
+          task({ uid: 2, name: 's', start: day(2), finish: endOfDay(6), dependencies: [dependency(1, 1)] }),
         ],
         ['g2', 'g1'],
         [taskVisual(1), taskVisual(2)],
@@ -1256,8 +1258,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       // route drops into the corridor of LF-5's third clause.
       const same = draw(
         [
-          task({ uid: 1, name: 'p', start: day(2), finish: day(5) }),
-          task({ uid: 2, name: 's', start: day(6), finish: day(9), dependencies: [dependency(1, 1)] }),
+          task({ uid: 1, name: 'p', start: day(2), finish: endOfDay(5) }),
+          task({ uid: 2, name: 's', start: day(6), finish: endOfDay(9), dependencies: [dependency(1, 1)] }),
         ],
         ['g1', 'g1'],
         [taskVisual(1), taskVisual(2)],
@@ -1295,8 +1297,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
           [
             // WHY: p runs 8 days, not 4: T-273 counts S-31 in its 「入る」 rows, so a 4-day p pushes its name out
             // and onto s's lane; the one day of clear air between the bars is unchanged.
-            task({ uid: 1, name: 'p', start: day(2), finish: day(9) }),
-            task({ uid: 2, name: 's', start: day(11), finish: day(13), dependencies: [dependency(1, 1)] }),
+            task({ uid: 1, name: 'p', start: day(2), finish: endOfDay(9) }),
+            task({ uid: 2, name: 's', start: day(11), finish: endOfDay(13), dependencies: [dependency(1, 1)] }),
           ],
           ['g1', 'g1'],
           [taskVisual(1), taskVisual(2)],
@@ -1339,8 +1341,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       // becomes RP-4, which would test a different row.
       const drawn = draw(
         [
-          task({ uid: 1, name: 'p', start: day(2), finish: day(5) }),
-          task({ uid: 2, name: 's', start: day(7), finish: day(12), dependencies: [dependency(1, 1)] }),
+          task({ uid: 1, name: 'p', start: day(2), finish: endOfDay(5) }),
+          task({ uid: 2, name: 's', start: day(7), finish: endOfDay(12), dependencies: [dependency(1, 1)] }),
         ],
         ['g1', 'g2'],
         [taskVisual(1), taskVisual(2)],
@@ -1387,8 +1389,8 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       const leadOut = SETTINGS_CONSTANTS.dependencyLeadOut
       const drawn = draw(
         [
-          task({ uid: 1, name: 'p', start: day(9), finish: day(9) }),
-          task({ uid: 2, name: 's', start: day(2), finish: day(8), dependencies: [dependency(1, 0)] }),
+          task({ uid: 1, name: 'p', start: day(9), finish: endOfDay(9) }),
+          task({ uid: 2, name: 's', start: day(2), finish: endOfDay(8), dependencies: [dependency(1, 0)] }),
         ],
         ['g1', 'g1'],
         [taskVisual(1), taskVisual(2)],
@@ -1455,9 +1457,9 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
               uid: 1,
               name: 'c',
               start: day(from),
-              finish: day(to),
+              finish: endOfDay(to),
               actualStart: day(2),
-              stop: day(4),
+              stop: endOfDay(4),
             }),
           ],
           ['g1'],
@@ -1499,7 +1501,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
 
       {
         const drawn = draw(
-          [task({ uid: 1, name: 'a', start: day(2), finish: day(10) })],
+          [task({ uid: 1, name: 'a', start: day(2), finish: endOfDay(10) })],
           ['g1'],
           [taskVisual(1, { shapeKind: 'arrow' })],
         )
@@ -1525,7 +1527,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       }
 
       const span = draw(
-        [task({ uid: 1, name: 's', start: day(2), finish: day(10) })],
+        [task({ uid: 1, name: 's', start: day(2), finish: endOfDay(10) })],
         ['g1'],
         [taskVisual(1, { shapeKind: 'endpointSpan' })],
       )
@@ -1553,10 +1555,10 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // that pushes the actual below drops it by the plan height plus
       // actualGap."
       mentions(T221, 'LF-9', 'actualGap')
-      const started = { actualStart: day(2), stop: day(4) } as const
+      const started = { actualStart: day(2), stop: endOfDay(4) } as const
 
       const inside = draw(
-        [task({ uid: 1, name: 'r', start: day(2), finish: day(10), ...started })],
+        [task({ uid: 1, name: 'r', start: day(2), finish: endOfDay(10), ...started })],
         ['g1'],
         [taskVisual(1)],
       )
@@ -1573,7 +1575,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       )
 
       const below = draw(
-        [task({ uid: 1, name: 'a', start: day(2), finish: day(10), ...started })],
+        [task({ uid: 1, name: 'a', start: day(2), finish: endOfDay(10), ...started })],
         ['g1'],
         [taskVisual(1, { shapeKind: 'arrow' })],
       )
@@ -1613,10 +1615,10 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
             uid: 1,
             name: 'm',
             start: day(5),
-            finish: day(5),
+            finish: endOfDay(5),
             milestone: true,
             actualStart: day(8),
-            stop: day(8),
+            stop: endOfDay(8),
           }),
         ],
         ['g1'],
@@ -1673,9 +1675,9 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
             uid: 1,
             name: 'x',
             start: day(2),
-            finish: day(10),
+            finish: endOfDay(10),
             actualStart: day(2),
-            stop: day(4),
+            stop: endOfDay(4),
           }),
         ],
         ['g1'],
@@ -1734,7 +1736,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // still shows a marker (FR-013 gives PM-1a a target to press), and the
       // bar it clears is the dummy FR-043 draws.
       const drawn = draw(
-        [task({ uid: 1, name: 'x', start: day(2), finish: day(10) })],
+        [task({ uid: 1, name: 'x', start: day(2), finish: endOfDay(10) })],
         ['g1'],
         [taskVisual(1)],
         { progressMarkerVisible: true }, // see S-63
@@ -1781,9 +1783,9 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
               uid: 1,
               name: 'r',
               start: day(2),
-              finish: day(10),
+              finish: endOfDay(10),
               actualStart: day(2),
-              stop: day(4),
+              stop: endOfDay(4),
               resume: day(8),
               resumeValid,
             }),
@@ -1863,7 +1865,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // that rounds or recomputes the notch would be caught here and by no
       // case above.
       const drawn = draw(
-        [task({ uid: 1, name: 'c', start: day(2), finish: day(10) })],
+        [task({ uid: 1, name: 'c', start: day(2), finish: endOfDay(10) })],
         ['g1'],
         [taskVisual(1, { shapeKind: 'chevron' })],
       )
@@ -1907,7 +1909,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       // of the same chain.
       mentions(T221, 'LF-18', '外形は塗り', '塗りに穴を開けずに', '顔の目は点で塗る')
       const drawn = draw(
-        [task({ uid: 1, name: 'm', start: day(5), finish: day(5), milestone: true })],
+        [task({ uid: 1, name: 'm', start: day(5), finish: endOfDay(5), milestone: true })],
         ['g1'],
         [taskVisual(1, { shapeKind: 'milestone', milestoneGlyph: 'smile' })],
       )
@@ -1946,15 +1948,15 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
 const progressDocument = (over: Readonly<Record<string, unknown>> = {}): Drawn =>
   draw(
     [
-      task({ uid: 1, name: 'behind', start: day(2), finish: day(20) }),
-      task({ uid: 2, name: 'also behind', start: day(3), finish: day(21) }),
+      task({ uid: 1, name: 'behind', start: day(2), finish: endOfDay(20) }),
+      task({ uid: 2, name: 'also behind', start: day(3), finish: endOfDay(21) }),
       task({
         uid: 3,
         name: 'done',
         start: day(2),
-        finish: day(20),
+        finish: endOfDay(20),
         actualStart: day(2),
-        actualFinish: day(6),
+        actualFinish: endOfDay(6),
       }),
     ],
     ['g1', 'g1', 'g2'],
@@ -1990,7 +1992,7 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       // A milestone stands 1.5 rectangles tall (S-17), so a lane carrying one
       // is where measuring the shape instead of the rectangle would show.
       const withMilestone = draw(
-        [task({ uid: 1, name: 'm', start: day(2), finish: day(2), milestone: true })],
+        [task({ uid: 1, name: 'm', start: day(2), finish: endOfDay(2), milestone: true })],
         ['g1'],
         [taskVisual(1, { shapeKind: 'milestone', milestoneGlyph: 'diamond' })],
         { progressLineVisible: true },
@@ -2048,7 +2050,7 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
       const none = progressDocument()
       expect(none.geometry.progressLine.length).toBeGreaterThan(0)
       const unset = draw(
-        [task({ uid: 1, name: 'a', start: day(2), finish: day(20) })],
+        [task({ uid: 1, name: 'a', start: day(2), finish: endOfDay(20) })],
         ['g1'],
         [taskVisual(1)],
         { progressLineVisible: true },
@@ -2113,7 +2115,7 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
       mentions(T221, 'LF-15', '`anchorDate` の日の列の中央', '`anchorGroupId` のタスクグループが描かれた帯', '`LF-14`')
       for (const pinned of [[], ['g2']]) {
         const bare = draw(
-          [task({ uid: 1, name: 'a', start: day(2), finish: day(8) })],
+          [task({ uid: 1, name: 'a', start: day(2), finish: endOfDay(8) })],
           ['g1'],
           [taskVisual(1)],
           { pinnedGroupIds: pinned },
@@ -2160,7 +2162,7 @@ describe('SWS-4 -- choose the corner the comment box leader leaves from (LF-17)'
     () => {
       mentions(T221, 'LF-17', '`LF-15`', '横の中点より右', '縦の中点より上', '左と下', '縁を含む')
       const bare = draw(
-        [task({ uid: 1, name: 'a', start: day(2), finish: day(8) })],
+        [task({ uid: 1, name: 'a', start: day(2), finish: endOfDay(8) })],
         ['g1'],
         [taskVisual(1)],
         {},
