@@ -196,7 +196,7 @@ const TABLE_BOX_STYLE = 'flex:1;overflow:auto;'
 
 const TABLE_STYLE = 'border-collapse:collapse;table-layout:fixed;'
 
-const HEADING_WORD_STYLE = 'flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;'
+const HEADING_WORD_STYLE = 'flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;'
 
 const HEADING_LINE_STYLE = 'display:flex;align-items:center;'
 
@@ -251,7 +251,7 @@ function headerCellStyle(isFixed: boolean, isBordered: boolean): string {
   const fixed = isFixed ? fixedColumnStyle() : ''
   const stack = stackStyle(isFixed ? 'fixedHeaderCell' : 'headerCell')
   const clear = isBordered ? `padding-right:calc(${CELL_PADDING_EM}em + ${NOT_STORED_SEARCH_PANEL_SIZES['S-465']}px);` : ''
-  return `${cellStyle()}${fixed}${clear}font-weight:normal;position:sticky;top:0;background:${PAINT.panel};${stack}`
+  return `${cellStyle()}${fixed}${clear}font-weight:normal;position:sticky;top:0;background:${PAINT.panel};${stack}cursor:pointer;`
 }
 
 const FIXED_COLUMN_ATTRIBUTE = 'data-fixed-column'
@@ -419,7 +419,7 @@ function filteredEntryStyle(): string {
   return `background:transparent;color:${PAINT.ground};border-color:${PAINT.ground};`
 }
 
-// see SV-7, SV-18
+// see SV-7, SV-18, FR-106
 /** @purity non-pure */
 function headerCellElement(
   host: Document,

@@ -104,17 +104,17 @@ function isOnTitleBand(start: Element, window: Element): boolean {
 }
 
 // see IF-9, GR-24, GR-25, WB-8, WB-9
-// WHY: a maximized window neither moves nor resizes, and only a normal one has an edge (GR-25).
+// WHY: only a normal window has an edge (GR-25), and it answers before the title band (GR-24).
 /** @purity semi-pure-b */
 function windowGrabAt(window: Element, placed: PlacedWindow, asked: PointAsked): WindowGrab | null {
   const { x, y, first } = asked
   if (placed.shown === 'maximized') return null
   const floor = { width: NOT_STORED_HELP_SIZES['S-423'], height: NOT_STORED_HELP_SIZES['S-424'] }
   const grabbed = { window: placed.window, windowBox: placed.place, range: placed.range, floor }
+  const edge = placed.shown === 'normal' ? windowEdgeAt(x, y, placed.box, NOT_STORED_HELP_SIZES['S-426']) : null
+  if (edge !== null) return { ...grabbed, region: edge }
   if (first !== null && window.contains(first) && isOnTitleBand(first, window)) return { ...grabbed, region: 'titleBand' }
-  if (placed.shown !== 'normal') return null
-  const edge = windowEdgeAt(x, y, placed.box, NOT_STORED_HELP_SIZES['S-426'])
-  return edge === null ? null : { ...grabbed, region: edge }
+  return null
 }
 
 // see IF-9, GR-24, GR-25, T-023d
