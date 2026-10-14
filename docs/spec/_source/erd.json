@@ -657,7 +657,7 @@
       "ja": "基準日線が立つ日"
      },
      "schemaNote": {
-      "en": "MS Project's StatusDate; the progress line is drawn on this day."
+      "en": "MS Project's StatusDate: progress is reported as of this day, and the status line and the progress line are drawn on its day, so its time of day does not move them."
      }
     },
     {
@@ -674,6 +674,9 @@
      "exchange": "Project/MinutesPerDay",
      "meaning": {
       "ja": "1 日あたりの分数。期間の換算に使う。空のときの既定は 表 T-209 の `S-128`"
+     },
+     "schemaNote": {
+      "en": "The length of 1d in durations and lags, in minutes ({{S-128}} when null). Keep it equal to the working minutes of every working day, exception days with their own spans included: when one differs, GRS tells so each time the document opens, because 1d would no longer be a working day."
      }
     },
     {
@@ -946,17 +949,18 @@
      "type": "文字列（地域名）",
      "nullable": "否",
      "json": {
-      "kind": "string",
+      "kind": "enum",
+      "valuesFrom": "T-376",
       "null": false
      },
      "key": "",
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "日程データのタイムゾーン —— 保存する日時の数字を、どの地域の現地の時刻として読むか（`01-04-requirements.md` の `FR-156`）。値は同要求の 表 T-376 の地域名。MSPDI を取り込んだ文書と新しく作った文書では、その PC の地域とする（同要求）。⛔ MSPDI へは書き出さない —— 交換相手に置き場が無い"
+      "ja": "日程データのタイムゾーン —— 保存する日時の数字を、どの地域の現地の時刻として読むか（`01-04-requirements.md` の `FR-156`）。値は同要求の 表 T-376 の地域名であり、表に無い値を持つ文書は開かない（同要求）。MSPDI を取り込んだ文書と新しく作った文書では、その PC の地域とする（同要求）。⛔ MSPDI へは書き出さない —— 交換相手に置き場が無い"
      },
      "schemaNote": {
-      "en": "The time zone the schedule data is read in: the stored date-times carry no offset, and this region name (one of the 28 choices of FR-156) says whose local time they are. Not written to MS Project, which has no place for it."
+      "en": "The region whose wall clock the schedule date-times are. Not written to MS Project, which has no place for it."
      }
     }
    ]
@@ -1175,7 +1179,7 @@
       "ja": "進行中と中断のあいだの実績の最後の日（`FR-011`）。**完了したときは空** —— 完了したタスクの最後の日は `actualFinish` が持つ。⚠️ 実績の長さは列に持たない —— `FR-011` が日付から数え、書き出すときは 表 T-059 が作る"
      },
      "schemaNote": {
-      "en": "MS Project's Stop, kept under its name for the round trip: the last day the actual has reached while the task is unfinished; null once actualFinish is set."
+      "en": "MS Project's Stop, kept under its name for the round trip: the instant the actual has reached while the task is unfinished; null once actualFinish is set."
      }
     },
     {
@@ -1251,7 +1255,7 @@
       "ja": "完了率。**上限を型に持たせない**（`FR-012`）。`GRS JSON` を読むときは日付から数え直し、`MSPDI` から取り込んだ値は保つ（`FR-012`・`FR-021`）"
      },
      "schemaNote": {
-      "en": "Follows from the dates: round(actual length / planned length x 100), both in working days; GRS recounts it whenever the dates change and whenever it reads this file, so the dates decide; write what they give. Not capped at 100, because an overrun reports more."
+      "en": "Follows from the dates: round(actual length / planned length x 100), both in working minutes of the document calendar; the actual runs from actualStart to actualFinish, or to stop while unfinished, so statusDate does not move it. With no planned length (a milestone) it is 100 once actualFinish is set and 0 before. GRS recounts it whenever it reads this file and tells when the stored value differed, so write what the dates give. Not capped at 100, because an overrun reports more."
      }
     },
     {
@@ -1953,13 +1957,17 @@
        "kind": "ref",
        "entity": "WorkingTime"
       },
-      "null": false
+      "null": false,
+      "maxItemsFrom": "S-582"
      },
      "key": "",
      "origin": "Consume",
      "exchange": "Calendars/Calendar/WeekDays/WeekDay/WorkingTimes/WorkingTime",
      "meaning": {
       "ja": "時間帯（`WorkingTime` の並び、始まりの順）。空は「時間帯を持たない」であり、稼働日なら `tbl-settings.md` の `S-580` の時間帯で読む（`01-04-requirements.md` の `FR-054`）。⚠️ 公式 XSD は 1 つに 5 つまでとする（`maxOccurs`）—— 上限と並びの不変条件は `05-07-design.md` の 表 T-220 の `IV-24`"
+     },
+     "schemaNote": {
+      "en": "Empty on a working day means the default spans {{S-580}}."
      }
     },
     {
@@ -2063,10 +2071,10 @@
      "origin": "Own",
      "exchange": "…/Exception/TimePeriod/FromDate",
      "meaning": {
-      "ja": "⚠️ **繰り返しの起点であって実日付の範囲ではない**"
+      "ja": "繰り返しの無い例外日（`AT-82`）では、`toDate` までが実日付の範囲（`00:00:00` 〜 `23:59:00`）であり、その日の時間帯を `workingTimes` で置き換える（`01-04-requirements.md` の `FR-088` の 表 T-344 の `WC-4`）。⚠️ 繰り返しの例外日では繰り返しの起点であって実日付の範囲ではない"
      },
      "schemaNote": {
-      "en": "MS Project's start of the recurrence, not a range of real days."
+      "en": "For a one-off exception (see recurrenceKind) fromDate..toDate is the real range of days, written 00:00:00 and 23:59:00, and its workingTimes replace that day's spans; for a recurring one it is MS Project's start of the recurrence, not a range of real days."
      }
     },
     {
@@ -2083,7 +2091,7 @@
      "origin": "Own",
      "exchange": "…/Exception/TimePeriod/ToDate",
      "meaning": {
-      "ja": "同上"
+      "ja": "同上（範囲の終わり）"
      }
     },
     {
@@ -2134,7 +2142,8 @@
        "kind": "ref",
        "entity": "WorkingTime"
       },
-      "null": false
+      "null": false,
+      "maxItemsFrom": "S-582"
      },
      "key": "",
      "origin": "Consume",
@@ -2189,7 +2198,7 @@
    "name": "WorkingTime",
    "description": {
     "ja": "1 つの曜日か例外日の稼働の時間帯 1 本（弱エンティティ）",
-    "en": "One working time span of a weekday or an exception day."
+    "en": "One working span of a weekday or an exception day. The spans of one day start before they end and do not overlap; a span that ends at 12:00 and one that starts at 12:00 only touch, which is fine."
    },
    "export": true,
    "carry": false,
@@ -2245,6 +2254,9 @@
      "exchange": "…/WorkingTimes/WorkingTime/ToTime",
      "meaning": {
       "ja": "時間帯の終わり（`xsd:time` の字面、1 分の単位）。⭐ `00:00:00` は 24:00（その日の終わり）と読む（`05-07-design.md` の 表 T-220 の `IV-24`）"
+     },
+     "schemaNote": {
+      "en": "00:00:00 here is the end of the day (24:00), as MS Project writes it."
      }
     }
    ]

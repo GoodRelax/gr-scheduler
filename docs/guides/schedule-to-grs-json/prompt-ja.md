@@ -43,7 +43,7 @@
 2. スキーマの決まり
    - どのオブジェクトも、スキーマの required の鍵をすべて持ち、スキーマに無い鍵を持たない（additionalProperties は false）。値が無いときは null にする（型が null を許す鍵だけ）。
    - carry は {}、carryElements は [] にする（tasks・dependencies・resources・assignments・calendars・project すべて）。
-   - 日付と日時は "YYYY-MM-DDTHH:MM:SS" の形の文字列にする（帯は書かない）。時刻は列の側で決まる: 開始の側（start・actualStart・resume・project.startDate）は project.defaultStartTime（null なら 08:00:00）、終了の側（finish・actualFinish・stop・deadline・project.statusDate）は project.defaultFinishTime（null なら 17:00:00）。マイルストーンは start も finish も開始の側の時刻。暦の例外の fromDate は 00:00:00、toDate は 23:59:00。documentStamp だけは "YYYY-MM-DDTHH:MM:SSZ"。
+   - 日付と日時は "YYYY-MM-DDTHH:MM:SS" の形の文字列にし、必ず時刻まで書く（帯は書かない）。原本が日だけを示すとき、時刻は列の側で決まる: 開始の側（start・actualStart・resume・project.startDate）は project.defaultStartTime（null なら 08:00:00）、終了の側（finish・actualFinish・stop・deadline・project.statusDate）は project.defaultFinishTime（null なら 17:00:00）。マイルストーンは start も finish も終了の側の時刻（2 つは同じ瞬間）。暦の例外の fromDate は 00:00:00、toDate は 23:59:00。documentStamp だけは "YYYY-MM-DDTHH:MM:SSZ"。
    - 日付は 1970-01-01 から 2200-12-31 の間にする。
 3. タスクグループ（taskGroups）
    - 原本の見出しの 1 行を 1 つの TaskGroup にする。id は小文字の UUID（例 "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"）で、文書の中で重ならないようにする。
@@ -146,7 +146,7 @@
     },
     {
       "uid": 2, "parentTaskUid": null, "wbsOrder": 1, "name": "Plan approved",
-      "start": "2026-04-30T08:00:00", "finish": "2026-04-30T08:00:00", "milestone": true,
+      "start": "2026-04-30T17:00:00", "finish": "2026-04-30T17:00:00", "milestone": true,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": null, "stop": null, "actualFinish": null,
       "resume": null, "resumeValid": null, "percentComplete": null,
@@ -166,7 +166,7 @@
     },
     {
       "uid": 4, "parentTaskUid": null, "wbsOrder": 3, "name": "Budget approved",
-      "start": "2026-05-15T08:00:00", "finish": "2026-05-15T08:00:00", "milestone": true,
+      "start": "2026-05-15T17:00:00", "finish": "2026-05-15T17:00:00", "milestone": true,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": null, "stop": null, "actualFinish": null,
       "resume": null, "resumeValid": null, "percentComplete": null,

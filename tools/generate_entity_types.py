@@ -970,7 +970,8 @@ def default_calendar_value(row_id):
     Prose that a generator prints (a schemaNote, the image prompt) names the row
     as `{{S-128}}` and gets the value from here, so no prose holds a copy of it
     (CR-644). A number comes back as a number; a literal (the times of day
-    S-482 / S-483, CR-646) comes back as its own text.
+    S-482 / S-483, CR-646) comes back as its own text; the spans of S-580 come
+    back as "08:00-12:00, 13:00-17:00" (CR-751).
     """
     doc = json.load(io.open(SETTINGS, encoding='utf-8'))
     block = [b for b in doc['blocks'] if b.get('id') == 'T-209']
@@ -978,6 +979,9 @@ def default_calendar_value(row_id):
     cell = rows[0].get('value') if len(rows) == 1 else None
     if isinstance(cell, dict) and 'lit' in cell:
         return cell['lit']
+    if isinstance(cell, dict) and 'spans' in cell:
+        # CR-751: the working time spans of one day (S-580), printed as prose.
+        return ', '.join('%s-%s' % (start[:5], end[:5]) for start, end in cell['spans'])
     if not isinstance(cell, dict) or 'num' not in cell:
         raise SystemExit('table T-209 states no single plain value for %s' % row_id)
     number = float(cell['num'])

@@ -1,9 +1,9 @@
 {
  "$schema": "https://json-schema.org/draft/2020-12/schema",
  "$id": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
- "$comment": "Generated from docs/spec/_source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md with docs/spec/_source/settings.json (the presentation group); x-grsChanges from docs/spec/_source/grs-json-changes.json. Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is docs/spec/_source/erd_json_to_schema.py. Settings keys whose own row does not say what type they hold, left unconstrained here: viewTimeZone. x-grsChanges is the change ledger of this format: one element per changed column, oldest first, each with version, kind (added, removed, renamed, converted, refused), entity and column, plus default (added), to (renamed) or rule (converted). It tells how the latest GRS reads a document of an older version. It stays empty until GRS goes into official use.",
+ "$comment": "Generated from docs/spec/_source/erd.json (the schedule group) and docs/spec/_assets/tbl-settings.md with docs/spec/_source/settings.json (the presentation group); x-grsChanges from docs/spec/_source/grs-json-changes.json. Never edit by hand. Rebuild: npm run gen -- npm run gen:check fails on drift. The generator is docs/spec/_source/erd_json_to_schema.py. x-grsChanges is the change ledger of this format: one element per changed column, oldest first, each with version, kind (added, removed, renamed, converted, refused), entity and column, plus default (added), to (renamed) or rule (converted). It tells how the latest GRS reads a document of an older version. It stays empty until GRS goes into official use.",
  "title": "GRS JSON document",
- "description": "A GRS schedule document. `$schema` is where the latest version of this schema lives (the same as this schema's $id), written first so that whoever holds only the document can reach it; a reader never refuses a document over its value. `schedule` is the data; `documentSettings` is how it is drawn when opened; `documentStamp` and `changeLog` record when, by whom and why it changed. Every key is written, null included, so that \"the source had no value\" and \"the value is 0\" are never confused. What comes from MS Project XML (MSPDI) keeps its names and codes, so that a round trip loses nothing. Times come in two kinds, for two reasons. Schedule dates (start, finish, deadline, statusDate, calendar exceptions, comment and highlight boxes) are local date-times without a zone, exactly as MS Project writes them, so that they round-trip unchanged. GRS uses only their day for now; when it writes one it uses the project's default start time on a start-side column and its default finish time on a finish-side column (a milestone takes the finish time at both ends), and 00:00:00..23:59:00 for a whole-day range (00:00:00 for a single day such as a comment's anchor), because that is what MS Project does with a date entered without a time, so the value already means the right instant when times are used. A last day (finish, actualFinish, stop, endDate) is included. Record instants (documentStamp, changeLog) are UTC, so that every reader sees them in their own local time. A null color or width follows the theme. A custom color gives the light-theme and the dark-theme value (\"#light/#dark\"; an empty side is drawn with the other), because a readable dark color cannot be derived from a light one.",
+ "description": "A GRS schedule document. `$schema` is where the latest version of this schema lives (the same as this schema's $id), written first so that whoever holds only the document can reach it; a reader never refuses a document over its value. `schedule` is the data; `documentSettings` is how it is drawn when opened; `documentStamp` and `changeLog` record when, by whom and why it changed. Every key is written, null included, so that \"the source had no value\" and \"the value is 0\" are never confused. What comes from MS Project XML (MSPDI) keeps its names and codes, so that a round trip loses nothing. Times come in two kinds, for two reasons. Schedule date-times (start, finish, deadline, statusDate, calendar exceptions, comment and highlight boxes) are wall-clock times without a zone, exactly as MS Project writes them, so that they round-trip unchanged; project.scheduleDataTimeZone says whose wall clock they are. They are read as instants to the minute (seconds are cut) and never shifted by an offset. Write each one with its time: a date without a time is read as the start of that day's first working span on a start-side column and the end of its last span on a finish-side column, which is seldom what was meant. A finish-side value is the instant the work ends; a milestone's start and finish are the same instant. A whole-day range (calendar exceptions, boxes) runs from 00:00:00 to 23:59:00. Record instants (documentStamp, changeLog) are UTC, so that every reader sees them in their own local time. A null color or width follows the theme. A custom color gives the light-theme and the dark-theme value (\"#light/#dark\"; an empty side is drawn with the other), because a readable dark color cannot be derived from a light one.",
  "x-grsChanges": [],
  "type": "object",
  "required": [
@@ -193,8 +193,38 @@
     "displayTimeZones": {
      "type": "array",
      "items": {
-      "type": "string"
+      "enum": [
+       "Etc/GMT+12",
+       "Pacific/Pago_Pago",
+       "Pacific/Honolulu",
+       "America/Anchorage",
+       "America/Los_Angeles",
+       "America/Denver",
+       "America/Chicago",
+       "America/New_York",
+       "America/Halifax",
+       "America/Sao_Paulo",
+       "Atlantic/South_Georgia",
+       "Atlantic/Azores",
+       "UTC",
+       "Europe/London",
+       "Europe/Berlin",
+       "Europe/Helsinki",
+       "Europe/Moscow",
+       "Asia/Dubai",
+       "Asia/Karachi",
+       "Asia/Kolkata",
+       "Asia/Dhaka",
+       "Asia/Bangkok",
+       "Asia/Singapore",
+       "Asia/Tokyo",
+       "Australia/Sydney",
+       "Pacific/Noumea",
+       "Pacific/Auckland",
+       "Pacific/Tongatapu"
+      ]
      },
+     "maxItems": 4,
      "default": []
     },
     "fitSpanFinish": {
@@ -206,6 +236,7 @@
      "default": null
     },
     "fitSpanFixed": {
+     "description": "When true, Fit and picture export show fitSpanStart..fitSpanFinish (the finish day's column included) instead of the whole schedule; opening the document does not move the view.",
      "type": "boolean",
      "default": false
     },
@@ -299,6 +330,7 @@
      "default": 0
     },
     "showsTimeOfDay": {
+     "description": "Only how the chart is shown; the stored date-times always keep their time.",
      "type": "boolean",
      "default": false
     },
@@ -442,7 +474,37 @@
      "default": false
     },
     "viewTimeZone": {
-     "$comment": "The source does not say what type this holds; its default is written as '表 T-376 の地域名（`FR-156`）/ `null`'.",
+     "enum": [
+      "Etc/GMT+12",
+      "Pacific/Pago_Pago",
+      "Pacific/Honolulu",
+      "America/Anchorage",
+      "America/Los_Angeles",
+      "America/Denver",
+      "America/Chicago",
+      "America/New_York",
+      "America/Halifax",
+      "America/Sao_Paulo",
+      "Atlantic/South_Georgia",
+      "Atlantic/Azores",
+      "UTC",
+      "Europe/London",
+      "Europe/Berlin",
+      "Europe/Helsinki",
+      "Europe/Moscow",
+      "Asia/Dubai",
+      "Asia/Karachi",
+      "Asia/Kolkata",
+      "Asia/Dhaka",
+      "Asia/Bangkok",
+      "Asia/Singapore",
+      "Asia/Tokyo",
+      "Australia/Sydney",
+      "Pacific/Noumea",
+      "Pacific/Auckland",
+      "Pacific/Tongatapu",
+      null
+     ],
      "default": null
     },
     "zoomX": {
@@ -568,10 +630,11 @@
      "$ref": "#/$defs/DateTime"
     },
     "statusDate": {
-     "description": "MS Project's StatusDate; the progress line is drawn on this day.",
+     "description": "MS Project's StatusDate: progress is reported as of this day, and the status line and the progress line are drawn on its day, so its time of day does not move them.",
      "$ref": "#/$defs/DateTime"
     },
     "minutesPerDay": {
+     "description": "The length of 1d in durations and lags, in minutes (480 when null). Keep it equal to the working minutes of every working day, exception days with their own spans included: when one differs, GRS tells so each time the document opens, because 1d would no longer be a working day.",
      "type": [
       "integer",
       "null"
@@ -653,8 +716,37 @@
      ]
     },
     "scheduleDataTimeZone": {
-     "description": "The time zone the schedule data is read in: the stored date-times carry no offset, and this region name (one of the 28 choices of FR-156) says whose local time they are. Not written to MS Project, which has no place for it.",
-     "type": "string"
+     "description": "The region whose wall clock the schedule date-times are. Not written to MS Project, which has no place for it.",
+     "enum": [
+      "Etc/GMT+12",
+      "Pacific/Pago_Pago",
+      "Pacific/Honolulu",
+      "America/Anchorage",
+      "America/Los_Angeles",
+      "America/Denver",
+      "America/Chicago",
+      "America/New_York",
+      "America/Halifax",
+      "America/Sao_Paulo",
+      "Atlantic/South_Georgia",
+      "Atlantic/Azores",
+      "UTC",
+      "Europe/London",
+      "Europe/Berlin",
+      "Europe/Helsinki",
+      "Europe/Moscow",
+      "Asia/Dubai",
+      "Asia/Karachi",
+      "Asia/Kolkata",
+      "Asia/Dhaka",
+      "Asia/Bangkok",
+      "Asia/Singapore",
+      "Asia/Tokyo",
+      "Australia/Sydney",
+      "Pacific/Noumea",
+      "Pacific/Auckland",
+      "Pacific/Tongatapu"
+     ]
     }
    }
   },
@@ -740,7 +832,7 @@
      "$ref": "#/$defs/DateTime"
     },
     "stop": {
-     "description": "MS Project's Stop, kept under its name for the round trip: the last day the actual has reached while the task is unfinished; null once actualFinish is set.",
+     "description": "MS Project's Stop, kept under its name for the round trip: the instant the actual has reached while the task is unfinished; null once actualFinish is set.",
      "$ref": "#/$defs/DateTime"
     },
     "actualFinish": {
@@ -758,7 +850,7 @@
      ]
     },
     "percentComplete": {
-     "description": "Follows from the dates: round(actual length / planned length x 100), both in working days; GRS recounts it whenever the dates change and whenever it reads this file, so the dates decide; write what they give. Not capped at 100, because an overrun reports more.",
+     "description": "Follows from the dates: round(actual length / planned length x 100), both in working minutes of the document calendar; the actual runs from actualStart to actualFinish, or to stop while unfinished, so statusDate does not move it. With no planned length (a milestone) it is 100 once actualFinish is set and 0 before. GRS recounts it whenever it reads this file and tells when the stored value differed, so write what the dates give. Not capped at 100, because an overrun reports more.",
      "type": [
       "integer",
       "null"
@@ -1032,10 +1124,12 @@
      ]
     },
     "workingTimes": {
+     "description": "Empty on a working day means the default spans 08:00-12:00, 13:00-17:00.",
      "type": "array",
      "items": {
       "$ref": "#/$defs/WorkingTime"
-     }
+     },
+     "maxItems": 5
     },
     "carry": {
      "$ref": "#/$defs/Carry"
@@ -1074,7 +1168,7 @@
      ]
     },
     "fromDate": {
-     "description": "MS Project's start of the recurrence, not a range of real days.",
+     "description": "For a one-off exception (see recurrenceKind) fromDate..toDate is the real range of days, written 00:00:00 and 23:59:00, and its workingTimes replace that day's spans; for a recurring one it is MS Project's start of the recurrence, not a range of real days.",
      "$ref": "#/$defs/DateTime"
     },
     "toDate": {
@@ -1099,7 +1193,8 @@
      "type": "array",
      "items": {
       "$ref": "#/$defs/WorkingTime"
-     }
+     },
+     "maxItems": 5
     },
     "carry": {
      "$ref": "#/$defs/Carry"
@@ -1114,7 +1209,7 @@
   },
   "WorkingTime": {
    "type": "object",
-   "description": "One working time span of a weekday or an exception day.",
+   "description": "One working span of a weekday or an exception day. The spans of one day start before they end and do not overlap; a span that ends at 12:00 and one that starts at 12:00 only touch, which is fine.",
    "required": [
     "ordinal",
     "fromTime",
@@ -1129,6 +1224,7 @@
      "$ref": "#/$defs/Time"
     },
     "toTime": {
+     "description": "00:00:00 here is the end of the day (24:00), as MS Project writes it.",
      "$ref": "#/$defs/Time"
     }
    }
@@ -1641,6 +1737,7 @@
    }
   },
   "DateTime": {
+   "description": "A wall-clock date-time in project.scheduleDataTimeZone, to the minute. Write no offset: GRS never converts one, and keeps an imported spelling only for the MS Project round trip.",
    "type": [
     "string",
     "null"
