@@ -102,7 +102,7 @@
 | `screen/helpMaximizeToggled` | 入力（ヘルプのタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `helpDisplayStateMachine` |
 | `screen/continuationMarkClicked` | 入力（続きの印を押して離した（動かさない））: `PE-12` ・ `EL-16` | `landedLink` ／ `landedTarget` | `landingMarkDisplayStateMachine` |
 | `screen/landingMarkClearAsked` | 入力（印が出ているあいだの押下・キーの押下。見る位置と倍率だけを動かす操作と修飾キーだけの押下（EL-17 の ⭐）、印を付けた押下の 2 回目（EL-18）を除く）: `EL-17` | — | `landingMarkDisplayStateMachine` |
-| `screen/searchJumpLanded` | 入力（押して飛ぶ入口（SJ-1 のセル・FR-134 の行・RW-13 の直す案の行・PTL-16 の親の名・PR-37 / PR-38 の名）を押して離し、飛んで画面に出した。AM-16 が寄せたときも送る。SJ-8 で出せなかったときは送らない）: `SJ-10` ・ `AM-16` ・ `RW-13` | `landedTarget` ／ `landedRelatedTasks` | `landingMarkDisplayStateMachine` |
+| `screen/searchJumpLanded` | 入力（押して飛ぶ入口（SJ-1 のセル・FR-134 の行・RW-13 の修正案の行・PTL-16 の親の名・PR-37 / PR-38 の名）を押して離し、飛んで画面に出した。AM-16 が寄せたときも送る。SJ-8 で出せなかったときは送らない）: `SJ-10` ・ `AM-16` ・ `RW-13` | `landedTarget` ／ `landedRelatedTasks` | `landingMarkDisplayStateMachine` |
 | `screen/fileDragEntered` | 入力（ファイルを持つドラッグ（`dataTransfer.types` に `Files`）がウィンドウに入った。ウィンドウの中の UI パーツから UI パーツへ移るだけのものは送らない）: `OP-17` | `isOpenAccepted` | `dropCueDisplayStateMachine` |
 | `screen/fileDragLeft` | 入力（ファイルを持つドラッグがウィンドウの外へ出た、またはドロップした）: `OP-17` | — | `dropCueDisplayStateMachine` |
 | `screen/baseTimeZoneChosen` | 入力（基準のタイムゾーンの地域の選ぶ欄で地域を選んだ。選んだだけでは当てない）: `FO-14` ・ `FR-156` | `chosenRegion`（`FR-156`。表 T-376 の行の地域名） | `baseTimeZoneDraftStateMachine` |
@@ -568,7 +568,7 @@ stateDiagram-v2
 | `screen/searchJumpLanded` | → `shown` | → 自己（中身を書き換える） |
 
 - `landingMarkDisplayStateMachine.hidden` —— 初期。根拠 `EL-17`
-- `landingMarkDisplayStateMachine.shown` —— 運ぶ値 `landedBy`（印を付けたもの —— `continuationMark`（続きの印、`EL-16`） ／ `jump`（飛び方、`SJ-10`）） ／ `landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ持ち、`jump` では `null`） ／ `landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id） ／ `landedRelatedTasks`（遅延診断の直す案の行から飛んだとき（表 T-346 の `RW-13`）の、行の関係するタスクの `UID` の列 —— `S-573` の色の囲みを描く。ほかの飛び方と続きの印では空）。根拠 `EL-16` ・ `EL-19` ・ `SJ-10` ・ `RW-13`
+- `landingMarkDisplayStateMachine.shown` —— 運ぶ値 `landedBy`（印を付けたもの —— `continuationMark`（続きの印、`EL-16`） ／ `jump`（飛び方、`SJ-10`）） ／ `landedLink`（印を付けた依存線の先行と後続の `UID`。`landedBy` が `continuationMark` のときだけ持ち、`jump` では `null`） ／ `landedTarget`（印の先の `Task` の `UID`、またはコメントボックスの id） ／ `landedRelatedTasks`（遅延診断の修正案の行から飛んだとき（表 T-346 の `RW-13`）の、行の関係するタスクの `UID` の列 —— `S-573` の色の囲みを描く。ほかの飛び方と続きの印では空）。根拠 `EL-16` ・ `EL-19` ・ `SJ-10` ・ `RW-13`
 
 表に無い出来事は `landingMarkDisplayStateMachine` を変えない（同じ参照）。
 
@@ -913,7 +913,7 @@ stateDiagram-v2
 | --- | --- | --- | --- |
 | `fileFlow/documentOpenAsked` | 入力（開く入口・`Ctrl` ＋ `O`、ファイルを落とした、`Ctrl` ＋ `R`、重ねる予定が無いときの変更前の予定の入口）: `IC-1` ・ `SK-10` ・ `OP-2` ・ `CHN-1` ・ `SK-21` ・ `OP-13` ・ `IC-4` ・ `OP-15` | `openRoute`（`OP-2` ・ `OP-13` ・ `OP-15`。`chooser`（開く入口・`Ctrl` ＋ `O`）／ `drop`（ファイルを落とした）／ `reopen`（`Ctrl` ＋ `R`）／ `baseline`（重ねる予定が無いときの変更前の予定の入口。`OP-3` を問わずに重ねる）） | `fileOperationStateMachine` |
 | `fileFlow/agentDocumentHanded` | 入力（`Agent API` が文書を渡した（`openRoute` は `handed`））: `AM-8` ・ `FR-022` | — | `fileOperationStateMachine` |
-| `fileFlow/documentFileWriteAsked` | 入力（`Ctrl` ＋ `S`、書き出しの形式を選んだ、遅延診断の直す案の `IC-157` ・ `IC-158` を押した）: `SK-11` ・ `FR-060` ・ `SK-12` ・ `FR-096` ・ `U-54` ・ `IC-157` ・ `IC-158` ・ `FR-155` | `writeForm`（`FR-060` ・ `FR-096` ・ `FR-155` ・ `SX-3`。保存（`Ctrl` ＋ `S`）か、`U-54` で選んだ書き出しの形式か、直す前の保存 —— `beforeFixOverwrite`（`IC-157`。`SK-11` と同じ道で `GRS JSON` を書く）／ `beforeFixBackup`（`IC-158`。`RW-15` の選択面で控えを書く —— `SX-3`）） ／ `fixBundle`（`FR-155` ・ `UN-21`。`writeForm` が `beforeFixOverwrite` ／ `beforeFixBackup` のときだけ持つ —— チェックの入った行の直し（表 T-373 の命令の列）。ほかでは `null`） | `fileOperationStateMachine` |
+| `fileFlow/documentFileWriteAsked` | 入力（`Ctrl` ＋ `S`、書き出しの形式を選んだ、遅延診断の修正案の `IC-157` ・ `IC-158` を押した）: `SK-11` ・ `FR-060` ・ `SK-12` ・ `FR-096` ・ `U-54` ・ `IC-157` ・ `IC-158` ・ `FR-155` | `writeForm`（`FR-060` ・ `FR-096` ・ `FR-155` ・ `SX-3`。保存（`Ctrl` ＋ `S`）か、`U-54` で選んだ書き出しの形式か、直す前の保存 —— `beforeFixOverwrite`（`IC-157`。`SK-11` と同じ道で `GRS JSON` を書く）／ `beforeFixBackup`（`IC-158`。`RW-15` の選択面でバックアップを書く —— `SX-3`）） ／ `fixBundle`（`FR-155` ・ `UN-21`。`writeForm` が `beforeFixOverwrite` ／ `beforeFixBackup` のときだけ持つ —— チェックの入った行の直し（表 T-373 の命令の列）。ほかでは `null`） | `fileOperationStateMachine` |
 | `fileFlow/openChoiceAnswered` | 入力（`U-56` の 3 つの入口）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `OP-3` | `openChoice`（`OP-3`。置き換え ／ 合流 ／ 重ね） ／ `question`（`QN-5`。置き換えを選んだときに立てる問い。挙げる名前は操作を始めた時点の文書（`CS-4`）。呼び手が詰める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
 | `fileFlow/mergeMappingAnswered` | 入力（`U-61` の 3 つの入口）: `IC-95` ・ `IC-96` ・ `IC-97` ・ `FR-022` | `mergeMapping`（`MM-1` ・ `MM-2` ・ `MM-4`） | `fileOperationStateMachine` |
 | `fileFlow/confirmationAnswered` | 入力（`Yes` / `No`、`y` / `n`、`Esc`）: `NT-7` ・ `IN-4` | `isProceeding`（`NT-7`。`Esc`（`IN-4` の段 `confirmation`）は偽。段は呼び手が決める） | `fileOperationStateMachine` ・ `confirmationStateMachine` |
@@ -927,7 +927,7 @@ stateDiagram-v2
 | `fileFlow/documentOpenLanded` | 副作用の結果（取り込みが着地した。起動時に渡された文書を読み終えたとき（`OP-14`）も、`reportedCounts` を運ぶために送る）: `RD-3` ・ `RD-4` ・ `FR-023` ・ `FR-101` ・ `OP-14` | `droppedTaskNames`（`RS-50`） ／ `missingTaskNames`（`RS-73` ・ `MG-11`。合流で、前回の取り込みでは届いていて今回届かなかった `Task` の名前。合流でなければ空） ／ `reportedCounts`（`FR-076` ・ `U-62`。読込の中で上がった、表 T-233 の表示の仕方が「`U-62` に並べる」の理由と件数 —— `reason`（表 T-233 の行）と `count`（件数）の組の列。相乗りする理由は同じ理由に数える。着地しなかった読込の件数は運ばない） ／ `openedFileName`（`FR-101`。無いこともある） ／ `openChoice`（`OP-3` ・ `RD-3` ・ `RD-4`。置き換え（`RD-4`）か、合流・重ね（`RD-3`）か） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
 | `fileFlow/overwriteQuestionRaised` | 副作用の結果（`writeDocumentFile` の途中で、同じとみなせない相手を見つけた）: `DI-4` ・ `QN-4` | `question`（`QN-4`） | `confirmationStateMachine` |
 | `fileFlow/documentFileSaved` | 副作用の結果（`GRS JSON` が書けた（表 T-340 の `SX-1`。`SK-11` でも `IC-2` でも保存である））: `FR-060` ・ `FR-101` ・ `SX-1` | `openedFileName`（`FR-101`。無いこともある） | 根 ・ `fileOperationStateMachine` ・ `unsavedEditsStateMachine` |
-| `fileFlow/diagnosticFixBackupSaved` | 副作用の結果（直す前の控えの `GRS JSON` が書けた（表 T-340 の `SX-3`）。保存ではない —— 上書きする先・未保存の編集・ヘッダーのファイルの状態を変えない）: `SX-3` ・ `FR-155` ・ `RW-15` | — | `fileOperationStateMachine` |
+| `fileFlow/diagnosticFixBackupSaved` | 副作用の結果（直す前のバックアップの `GRS JSON` が書けた（表 T-340 の `SX-3`）。保存ではない —— 上書きする先・未保存の編集・ヘッダーのファイルの状態を変えない）: `SX-3` ・ `FR-155` ・ `RW-15` | — | `fileOperationStateMachine` |
 | `fileFlow/documentFileWriteEnded` | 副作用の結果（`GRS JSON` 以外の形式の書き出しが終わった（表 T-340 の `SX-2`）、または保存・書き出しが書けなかった（告げるのは副作用の中身））: `FR-096` ・ `CS-4` ・ `SX-2` | — | `fileOperationStateMachine` |
 | `fileFlow/documentEditLanded` | 副作用の結果（画面か `Agent API` からの書き込み（表 T-067 の 1 巡）か、取り消し・やり直しの差し替えが受け入れられた。合流・重ね（`RD-3`）では送らない。受け入れられたかだけで送り、値が動いたかを問わない）: `WS-6` ・ `RD-1` ・ `RD-2` ・ `FR-100` | `isBackToSavedDocument`（`FR-100` ・ `RD-1` ・ `RD-2`。差し替えた後の文書が、未保存の印を下ろした時点（保存・置き換え・新しく始める・起動）に持っていた文書そのもの（同じ参照）なら真。中身を比べ直さない。機械も根も文書を持たないので、印を下ろした時点の文書を持つ `SingleHtmlShell` が判じて詰め、ガードはこの値を読むだけである（`isProceeding` と同じ形）） | `unsavedEditsStateMachine` |
 | `fileFlow/newDocumentLanded` | 副作用の結果（`carryOutOwedAction`（新しく始めること）の差し替えが受け入れられた）: `FR-095` ・ `RD-7` | — | 根 ・ `unsavedEditsStateMachine` |

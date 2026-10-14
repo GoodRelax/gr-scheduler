@@ -39,7 +39,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `CommentBox` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#CommentBox` | -- | interface CommentBox |
 | `CommentBoxSearchRow` | entry | type | `src/entity/document-model/schedule/schedule-search.ts#CommentBoxSearchRow` | PI-1 | 型。 |
 | `compareDays` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#compareDays` | PI-1 | 2 つの日の前後 |
-| `compareDelayFixRows` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#compareDelayFixRows` | PI-1 | 直す案の行の既定の並びの比べ方（表 T-374） |
+| `compareDelayFixRows` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#compareDelayFixRows` | PI-1 | 修正案の行の既定の並びの比べ方（表 T-374） |
 | `CustomColor` | entry | interface | `src/entity/document-model/schedule/stored-color.ts#CustomColor` | -- | interface CustomColor |
 | `customColorChosen` | entry | function | `src/entity/document-model/schedule/stored-color.ts#customColorChosen` | PI-1 | カスタムカラーを選んだときの新しい綴り。 |
 | `customColorOf` | entry | function | `src/entity/document-model/schedule/stored-color.ts#customColorOf` | PI-1 | カスタムカラーを明暗の 2 つの側に分ける。 |
@@ -58,7 +58,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DEFAULT_CALENDAR_VALUES` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DEFAULT_CALENDAR_VALUES` | -- | const DEFAULT_CALENDAR_VALUES: |
 | `defaultFinishTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultFinishTimeOf` | PI-1 | 文書の既定の終了時刻。 |
 | `defaultStartTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultStartTimeOf` | PI-1 | 文書の既定の開始時刻。 |
-| `DELAY_FIX_TYPES` | entry | const | `src/entity/document-model/schedule/delay-fixes.ts#DELAY_FIX_TYPES` | PI-1 | 表 T-373 の直し方を、表 T-374 の既定の並びの順に並べたもの |
+| `DELAY_FIX_TYPES` | entry | const | `src/entity/document-model/schedule/delay-fixes.ts#DELAY_FIX_TYPES` | PI-1 | 表 T-373 の修正のしかたを、表 T-374 の既定の並びの順に並べたもの |
 | `DELAY_REPORT_STATUSES` | entry | const | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DELAY_REPORT_STATUSES` | PI-1 | 表 T-347 の `DT-1` のステータスを、表の順に並べたもの。 |
 | `DelayDiagnosticsReport` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics.ts#DelayDiagnosticsReport` | PI-1 | 型。 |
 | `delayDiagnosticsReportMarkdown` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayDiagnosticsReportMarkdown` | PI-1 | 遅延診断レポートを Markdown の文字列 1 つにする（表 T-346 の `RW-6`）。 |
@@ -66,23 +66,23 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DelayFixCheck` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixCheck` | PI-1 | 型。 |
 | `DelayFixChoice` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixChoice` | PI-1 | 型。 |
 | `DelayFixChoiceWord` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixChoiceWord` | -- | type DelayFixChoiceWord = \| 'deleteLinkBetween' \| 'deleteLink' \| 'keepThisLink' \| 'setPlannedDate' \| 'clearPauseValues' \| 'markAsStarted' \| 'clearParentActua... |
-| `delayFixColumnsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixColumnsOf` | PI-1 | 直す案の表と直した記録の表それぞれの欄（表 T-374 の行 ID）を、左からの順で返す |
+| `delayFixColumnsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixColumnsOf` | PI-1 | 修正案の表と修正の記録の表それぞれの欄（表 T-374 の行 ID）を、左からの順で返す |
 | `DelayFixCommand` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixCommand` | PI-1 | 型。 |
-| `delayFixCommands` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#delayFixCommands` | PI-1 | チェックの入った直す案の行から、1 つの束として発行する命令の列を作る（`FR-155`、表 T-027 の `UN-21`） |
+| `delayFixCommands` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#delayFixCommands` | PI-1 | チェックの入った修正案の行から、1 つの束として発行する命令の列を作る（`FR-155`、表 T-027 の `UN-21`） |
 | `DelayFixLink` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixLink` | -- | interface DelayFixLink |
-| `delayFixLogCells` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixLogCells` | PI-1 | 直した記録の 1 行を、表 T-374 の書き方の文字列の列にする |
+| `delayFixLogCells` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixLogCells` | PI-1 | 修正の記録の 1 行を、表 T-374 の書き方の文字列の列にする |
 | `DelayFixLogRow` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixLogRow` | PI-1 | 型。 |
-| `delayFixLogRowsInOrder` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixLogRowsInOrder` | PI-1 | 直した記録の行を 表 T-374 の既定の並び（直した日時の新しい順 → 束の中の順）にする |
-| `delayFixLogRowsOf` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#delayFixLogRowsOf` | PI-1 | 発行した束の行から、直した記録の行（表 T-317 の `DX-12`）を作る |
+| `delayFixLogRowsInOrder` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixLogRowsInOrder` | PI-1 | 修正の記録の行を 表 T-374 の既定の並び（直した日時の新しい順 → 束の中の順）にする |
+| `delayFixLogRowsOf` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#delayFixLogRowsOf` | PI-1 | 発行した束の行から、修正の記録の行（表 T-317 の `DX-12`）を作る |
 | `DelayFixMarkdown` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayFixMarkdown` | PI-1 | 型。 |
 | `DelayFixMarkdownSection` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayFixMarkdownSection` | PI-1 | 型。 |
 | `DelayFixOpenField` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixOpenField` | -- | interface DelayFixOpenField |
 | `DelayFixPlacement` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixPlacement` | -- | type DelayFixPlacement = \| { readonly row: 'PA-1' } \| ({ readonly row: 'PA-2' \| 'PA-4'; readonly stop: string } & StartedPlacement) \| ({ readonly row: 'PA-3'... |
-| `delayFixProposalCells` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixProposalCells` | PI-1 | 直す案の 1 行を、表 T-374 の書き方の文字列の列にする（表 T-346 の `RW-6` の Markdown にも使う） |
-| `delayFixProposalRows` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixProposalRows` | PI-1 | 直す案の行を 表 T-374 の既定の並びにし、連鎖の行を元の行のすぐ下に置く |
+| `delayFixProposalCells` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixProposalCells` | PI-1 | 修正案の 1 行を、表 T-374 の書き方の文字列の列にする（表 T-346 の `RW-6` の Markdown にも使う） |
+| `delayFixProposalRows` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixProposalRows` | PI-1 | 修正案の行を 表 T-374 の既定の並びにし、連鎖の行を元の行のすぐ下に置く |
 | `DelayFixRefusal` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixRefusal` | -- | type DelayFixRefusal = 'readOnly' |
 | `DelayFixRow` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixRow` | PI-1 | 型。 |
-| `delayFixRowsInOrder` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixRowsInOrder` | PI-1 | 直す案の行を渡された比べ方で並べ、連鎖の行を元の行から離さない（表 T-374） |
+| `delayFixRowsInOrder` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixRowsInOrder` | PI-1 | 修正案の行を渡された比べ方で並べ、連鎖の行を元の行から離さない（表 T-374） |
 | `DelayFixType` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixType` | PI-1 | 型。 |
 | `DelayFixValue` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixValue` | PI-1 | 型。 |
 | `delayFixValueText` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixValueText` | PI-1 | 表 T-374 の `FM-7` の書き方で値を文字列にする |
@@ -144,7 +144,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PRINTED_TIME_ZONE` | entry | const | `src/entity/document-model/schedule/time-zone.ts#PRINTED_TIME_ZONE` | -- | const PRINTED_TIME_ZONE: TimeZoneRegion = 'UTC' |
 | `progressPointDayOf` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#progressPointDayOf` | PI-1 | 表 T-022 の頂点を打つ日。 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
-| `proposeDelayFixes` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#proposeDelayFixes` | PI-1 | 遅延診断の指摘（表 T-317 の `DX-3`）ごとに、表 T-373 の直し方で直す案の行を作る（`FR-155`）。 |
+| `proposeDelayFixes` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#proposeDelayFixes` | PI-1 | 遅延診断の指摘（表 T-317 の `DX-3`）ごとに、表 T-373 の修正のしかたで修正案の行を作る（`FR-155`）。 |
 | `regionForPc` | entry | function | `src/entity/document-model/schedule/time-zone.ts#regionForPc` | PI-1 | この PC の地域を 表 T-376 の行へ寄せる（`FR-156`・`RS-90`） |
 | `Resource` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Resource` | -- | interface Resource |
 | `reversedActualMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#reversedActualMinutesOf` | PI-1 | 終わりが始まりより前の実績の長さ（分、`FR-011` の数え方）。 |
@@ -1402,8 +1402,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DelayDiagnosticsReportWindow` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・フィルタ・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
 | `delayDiagnosticsReportWithColumnWidth` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、窓の値へ当てる（表 T-346 の `RW-9`）。 |
 | `delayDiagnosticsReportWithFilterClosed` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じた窓の値を答える（表 T-330 の `SV-14`）。 |
-| `delayDiagnosticsReportWithInput` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithInput` | PI-37 | 窓の入力欄の語・出している表の列のフィルタの変化・直す案のチェックと択と日付（表 T-346 の `RW-3`・`RW-11`・`RW-16`）を、窓の値と診断結果の表の見え方へ当てる。 |
-| `delayFixBackupFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#delayFixBackupFileNameOf` | PI-37 | 直す前の控えの提案の名を作る（表 T-346 の `RW-15`）。 |
+| `delayDiagnosticsReportWithInput` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithInput` | PI-37 | 窓の入力欄の語・出している表の列のフィルタの変化・修正案のチェックと択と日付（表 T-346 の `RW-3`・`RW-11`・`RW-16`）を、窓の値と診断結果の表の見え方へ当てる。 |
+| `delayFixBackupFileNameOf` | entry | function | `src/adapter/screen-renderer/open-modals.ts#delayFixBackupFileNameOf` | PI-37 | 直す前のバックアップの提案の名を作る（表 T-346 の `RW-15`）。 |
 | `DelayFixTelling` | entry | type | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixTelling` | PI-37 | 型。 |
 | `DialogueField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#DialogueField` | -- | interface DialogueField |
 | `DialogueInput` | entry | interface | `src/adapter/screen-renderer/screen-surface.ts#DialogueInput` | -- | interface DialogueInput |

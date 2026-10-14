@@ -1104,45 +1104,56 @@
   {
    "rowId": "IC-155",
    "label": {
-    "ja": "直す案",
+    "ja": "修正案",
     "en": "Fix Proposals"
    },
    "hint": {
-    "ja": "直す案の表を出す（修正前と修正後）",
+    "ja": "修正案の表を出す（修正前と修正後）",
     "en": "Show the fix proposals (before and after)"
    }
   },
   {
    "rowId": "IC-156",
    "label": {
-    "ja": "直した記録",
+    "ja": "修正の記録",
     "en": "Fix Log"
    },
    "hint": {
-    "ja": "直した記録の表を出す",
+    "ja": "修正の記録の表を出す",
     "en": "Show the log of fixes"
    }
   },
   {
    "rowId": "IC-157",
    "label": {
-    "ja": "上書きして直す",
+    "ja": "上書きして修正",
     "en": "Overwrite and Fix"
    },
    "hint": {
-    "ja": "今のファイルに上書きして保存してから、チェックした行を直す",
+    "ja": "今のファイルに上書きして保存してから、チェックした行を修正する",
     "en": "Save over the current file, then fix the checked rows"
    }
   },
   {
    "rowId": "IC-158",
    "label": {
-    "ja": "控えを別名で残して直す",
-    "en": "Save a Backup and Fix"
+    "ja": "スケジュールを別名でバックアップして修正",
+    "en": "Back Up the Schedule Under Another Name and Fix"
    },
    "hint": {
-    "ja": "直す前の文書を別名で保存してから、チェックした行を直す",
+    "ja": "修正する前のスケジュールを別名で保存してから、チェックした行を修正する",
     "en": "Save a backup under another name, then fix the checked rows"
+   }
+  },
+  {
+   "rowId": "IC-166",
+   "label": {
+    "ja": "推奨案をすべて採用する",
+    "en": "Adopt All Recommended"
+   },
+   "hint": {
+    "ja": "修正のしかたが機械の行と、択が 1 つの選ぶの行に、まとめてチェックを入れる",
+    "en": "Check every automatic row and every row with one choice"
    }
   },
   {
@@ -1152,7 +1163,7 @@
     "en": "Previous"
    },
    "hint": {
-    "ja": "人が直す 1 つ前の指摘へ移る",
+    "ja": "人が修正する 1 つ前の指摘へ移る",
     "en": "Go to the previous finding to fix by hand"
    }
   },
@@ -1163,7 +1174,7 @@
     "en": "Next"
    },
    "hint": {
-    "ja": "人が直す次の指摘へ移る",
+    "ja": "人が修正する次の指摘へ移る",
     "en": "Go to the next finding to fix by hand"
    }
   },
@@ -6761,7 +6772,7 @@
   {
    "rowId": "FM-1",
    "text": {
-    "ja": "直す",
+    "ja": "修正",
     "en": "Fix"
    }
   },
@@ -6775,7 +6786,7 @@
   {
    "rowId": "FM-3",
    "text": {
-    "ja": "直し方",
+    "ja": "修正のしかた",
     "en": "Fix Type"
    }
   },
@@ -6819,14 +6830,14 @@
   {
    "part": "fixCount",
    "text": {
-    "ja": "直す: {n} 件",
+    "ja": "修正件数 : {n} 件",
     "en": "To fix: {n}"
    }
   },
   {
    "part": "humanCounter",
    "text": {
-    "ja": "人が直す {k} / {m}",
+    "ja": "人が修正 {k} / {m}",
     "en": "By hand {k} / {m}"
    }
   },
@@ -6854,7 +6865,7 @@
   {
    "part": "byHand",
    "text": {
-    "ja": "手で直す",
+    "ja": "手で修正",
     "en": "By Hand"
    }
   },
@@ -6875,7 +6886,7 @@
   {
    "part": "openFieldHint",
    "text": {
-    "ja": "名前を押すと直す欄を開く",
+    "ja": "名前を押すと修正する欄を開く",
     "en": "Click the name to open the field"
    }
   },
@@ -6889,21 +6900,21 @@
   {
    "part": "readOnlyReason",
    "text": {
-    "ja": "直せない: 読み取り専用のタスクグループ",
+    "ja": "修正できない: 読み取り専用のタスクグループ",
     "en": "Cannot fix: read-only task group"
    }
   },
   {
    "part": "fixedNotice",
    "text": {
-    "ja": "{n} 件を直しました。取り消しで 1 回で戻せます",
+    "ja": "{n} 件を修正しました。取り消しで 1 回で戻せます",
     "en": "Fixed {n}. Undo reverts them in one step"
    }
   },
   {
    "part": "refusedNotice",
    "text": {
-    "ja": "直しませんでした: {row} —— {reason}",
+    "ja": "修正しませんでした: {row} —— {reason}",
     "en": "Nothing was fixed: {row} — {reason}"
    }
   },

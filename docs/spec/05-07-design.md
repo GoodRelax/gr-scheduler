@@ -396,8 +396,8 @@ src/
 | UF-177 | `Schedule` | `task-group-names.ts` | `pure` | タスクグループ名を `AT-53` と `AT-54` から導き、最上位までの名前の並びを返す | — |
 | UF-178 | `Schedule` | `schedule-search.ts` | `pure` | 語に当たるタスクとコメントボックスの行を、表 T-331 の列の値とともに返す（表 T-330 の `SV-4`） | — |
 | UF-184 | `Schedule` | `delay-diagnostics.ts` | `pure` | 遅延診断のレポート（表 T-317）を、進捗妥当性検査（表 T-310 〜 T-312）・ボトルネック検出（表 T-313 ・ 表 T-314 ・ 表 T-316）・明記されていない親（表 T-318）・マイルストーンの先行と達成（表 T-319）から作る | `FR-131`（`OW-1`）・`FR-132`（`OW-1`）・`FR-134`（`OW-2`）・`FR-135`（`OW-1`）・`FR-136`（`OW-1`） |
-| UF-192 | `Schedule` | `delay-diagnostics-report-table.ts` | `pure` | 遅延診断レポートの表（`01-04-requirements.md` の 表 T-347）の行を、`AM-19` と同じレポートから既定の並びで作り、直す案と直した記録の表（表 T-374）の行を既定の並びと欄の書き方で作り、コピーと書き出しの Markdown の文字列（表 T-346 の `RW-6`）を 1 つの関数で作る（`delayDiagnosticsReportMarkdown`） | — |
-| UF-201 | `Schedule` | `delay-fixes.ts` | `pure` | 遅延診断の指摘ごとに、表 T-373 の直し方で直す案の行を作り、チェックの入った行を結びの順で写しへ当てて連鎖の行を探し、チェックの入った行から 1 つの束の命令と直した記録の行（表 T-317 の `DX-11` ・ `DX-12`）を作る（`proposeDelayFixes` ・ `delayFixCommands` ・ `delayFixLogRowsOf`） | `FR-155`（`OW-2`） |
+| UF-192 | `Schedule` | `delay-diagnostics-report-table.ts` | `pure` | 遅延診断レポートの表（`01-04-requirements.md` の 表 T-347）の行を、`AM-19` と同じレポートから既定の並びで作り、修正案と修正の記録の表（表 T-374）の行を既定の並びと欄の書き方で作り、コピーと書き出しの Markdown の文字列（表 T-346 の `RW-6`）を 1 つの関数で作る（`delayDiagnosticsReportMarkdown`） | — |
+| UF-201 | `Schedule` | `delay-fixes.ts` | `pure` | 遅延診断の指摘ごとに、表 T-373 の修正のしかたで修正案の行を作り、チェックの入った行を結びの順で写しへ当てて連鎖の行を探し、チェックの入った行から 1 つの束の命令と修正の記録の行（表 T-317 の `DX-11` ・ `DX-12`）を作る（`proposeDelayFixes` ・ `delayFixCommands` ・ `delayFixLogRowsOf`） | `FR-155`（`OW-2`） |
 | UF-2 | `DocumentSettings` | `document-settings.ts` | `pure` | `CP-2` | `FR-039`（`OW-2`）・`FR-041`（`OW-2`）・`FR-049`（`OW-2`） |
 | UF-3 | `DocumentStamp` | `document-stamp.ts` | `pure` | `CP-3` | `FR-063`（`OW-2`） |
 | UF-4 | `EditHistory` | `edit-history.ts` | `pure` | `CP-4` | `FR-031`（`OW-2`） |
