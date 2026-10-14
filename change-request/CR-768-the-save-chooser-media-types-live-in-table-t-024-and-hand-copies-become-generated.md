@@ -234,7 +234,7 @@ STATEMENT の 1 文:
   - `RW-7` は `FR-134`・`FR-060`・`FR-096`、`05-07-design.md` の 543 行、`tbl-glossary.md` の `IC-140`、`tbl-published-entries.md` の 53 行 —— どれも `.md` の字を写していない（`IC-140` の札の `.md` は画面の語であり、本書は変えない —— 10 節）。
   - 表 T-229 は `FR-063`・`FR-064`（B 部は仕様を変えないので届かない）。
 - 足す辺: `FR-096` → 表 T-024 の 2 つの欄（既に表を指す）、`RW-7` → `IO-8`、`IO-8` → `IC-140`・`RW-6`・`RW-7`、`SX-2` → `IC-2`。消す辺は無い。
-- 並んで起草・適用している変更要求との重なり: 同じ行を書くものは無い（`CR-752`〜`CR-758` の本文を「`T-024`」「`FR-096`」「`RW-7`」「`SX-2`」で引いて 0 件。`CR-754`〜`CR-757` は枝 `claude/compassionate-goldberg-0bf1a8` の `6f7c3ac3` で読んだ）。`CR-759`〜`CR-764` の草案は、`4a907919` にもどの枝にも見えなかった —— 調整役が当てる前に測り直す。
+- 並んで起草・適用している変更要求との重なり: 同じ行を書くものは無い（`CR-752`〜`CR-758` の本文を「`T-024`」「`FR-096`」「`RW-7`」「`SX-2`」で引いて 0 件。`CR-754`〜`CR-757` は枝 `claude/compassionate-goldberg-0bf1a8` の `6f7c3ac3` で読んだ）。⭐ 統合の枝 `b492dfd7` で `CR-759`〜`CR-762` の 3 節〜5 節を測り直した（2026-10-15）: 4 つとも 表 T-024・`FR-096` の 4 文・`RW-7`・`SX-2` を書かない。同じ表の別の行を書くものが 2 つ —— `CR-759`（表 T-346 の `RW-12`・`RW-17` と新しい行、表 T-340 の `SX-3` の語「控え」→「バックアップ」）、`CR-760`（表 T-346 の `RW-9`・`RW-10`）。同じ `src` のファイル: `delay-diagnostics-report.ts`（`CR-759`・`CR-760`・`CR-761`）、`frame-loop.ts`（`CR-760`・`CR-762`）。`CR-763`・`CR-764` は `b492dfd7` にまだ無い —— 当てる前に測り直す。
 
 ---
 
@@ -252,16 +252,16 @@ STATEMENT の 1 文:
 
 | 部 | 触る `src` のファイル | 進行中の変更要求と共有するファイル |
 |---|---|---|
-| A | `file-system-access-file-store.ts`・`delay-diagnostics-report.ts`・`delay-diagnostics-report-window.ts`・`document-file-flow.ts`・`document-codec.ts`（と生成器 2 つ） | 草案の本文で名指すものは 0（`CR-740`・`CR-752`〜`CR-758` を数えた）。⚠️ `CR-763`・`CR-764`（遅延診断へ飛ぶ印と (?)）は本文が見えず、`delay-diagnostics-report.ts` に触れる見込み |
-| B | `properties-panel.ts`・`svg-renderer.ts`・`schedule-layout.ts`・`document.ts`・`document-file-flow.ts`・`frame-loop.ts`（と `generate_entity_types.py`・新しい生成器） | `properties-panel.ts`（`CR-754`・`CR-755`・`CR-757`）、`svg-renderer.ts`（`CR-740`）、`schedule-layout.ts`（`CR-756`）、`frame-loop.ts`（`CR-740`・`CR-754`・`CR-757`） |
+| A | `file-system-access-file-store.ts`・`delay-diagnostics-report.ts`・`delay-diagnostics-report-window.ts`・`document-file-flow.ts`・`document-codec.ts`（と生成器 2 つ） | `delay-diagnostics-report.ts`（`CR-759`・`CR-760`・`CR-761`、`b492dfd7` で測った）。⚠️ `CR-763`・`CR-764`（遅延診断へ飛ぶ印と (?)）は本文がまだ無く、同じファイルに触れる見込み |
+| B | `properties-panel.ts`・`svg-renderer.ts`・`schedule-layout.ts`・`document.ts`・`document-file-flow.ts`・`frame-loop.ts`（と `generate_entity_types.py`・新しい生成器） | `properties-panel.ts`（`CR-754`・`CR-755`・`CR-757`）、`svg-renderer.ts`（`CR-740`）、`schedule-layout.ts`（`CR-756`）、`frame-loop.ts`（`CR-740`・`CR-754`・`CR-757`・`CR-760`・`CR-762`） |
 | C | `task-group-folding.ts` | `CR-767` の C 部の後 |
 
 ⇒ A 部は 1 体（＋試験の体 1）。B 部は写しごとにファイルが分かれるので 3 体まで並べられる（`properties-panel.ts` の 3 つ ／ `svg-renderer.ts` の 2 つと `schedule-layout.ts` ／ `document.ts`・`document-file-flow.ts`・`frame-loop.ts` の 3 つ）が、共有するファイルの持ち主の変更要求が合流した後に出す。
 
 ### 8.2 順
 
-1. 波 A（A 部）—— `CR-763`・`CR-764` が `delay-diagnostics-report.ts` に触れるなら、その合流の後。仕様（表 T-024・`FR-096`・`RW-7`・`SX-2` を 1 度ずつ）→ 生成器 → `npm run gen` → コード → 試験。
-2. 波 B（B 部）—— `CR-740`・`CR-754`〜`CR-757` の合流の後（共有する 4 ファイル）。仕様は変えないので、仕様の波とは独立に回せる。
+1. 波 A（A 部）—— `CR-759`・`CR-760`・`CR-761` の合流の後（`delay-diagnostics-report.ts`、表 T-346・表 T-340 の隣の行）。`CR-763`・`CR-764` が同じファイルに触れるなら、その合流の後も。仕様（表 T-024・`FR-096`・`RW-7`・`SX-2` を 1 度ずつ）→ 生成器 → `npm run gen` → コード → 試験。
+2. 波 B（B 部）—— `CR-740`・`CR-754`〜`CR-757`・`CR-760`・`CR-762` の合流の後（共有する 4 ファイル）。仕様は変えないので、仕様の波とは独立に回せる。
 3. 波 C（C 部）—— `CR-767` が原稿とガードの生成を当てた後。
 
 ⚠️ `CR-765` は `WRITTEN_PROPERTIES` を、`CR-579` は `ARMED_BY_ENTRY`・`FONT_SCALE_STEPS` を消す。本書の波と基準線の記録を取り合わない（記録は消した変更要求が抜く）。
@@ -287,7 +287,9 @@ STATEMENT の 1 文:
 
 ## 11. 利用者に問うこと
 
-無い —— 向きは `JDG-2163` が決めた。欄の名と値の置き方は ③ に書いた（`JDG-1696` に従い推奨を取った。覆してよい）。
+選ぶ問いは無い —— 向きは `JDG-2163` が決めた。欄の名と値の置き方は ③ に書いた（`JDG-1696` に従い推奨を取った。覆してよい）。
+
+⭐ 確かめの 1 行（調整役の指示、2026-10-15 —— 利用者が戻ったら問う束に入れる）: 「保存の選択面に渡す媒体の型（`.html` の `text/x-grs-html` など）を表 T-024 に書くと決めたので、`FR-096` の『媒体型をどの表にも持たせてはならない（MUST NOT）』の文を消します。よいですか？」—— 推奨は「はい」。理由は 0.1 の 2 行目（6 つのうち 3 つは本製品が決めた型であり、文の理由はもう偽）。答えが「いいえ」なら A 部の X-1 の媒体の型の欄と X-3 を外し、`MEDIA_TYPE_OF_EXTENSION` は Framework 層の生成の元を別に立てる。
 
 ---
 
