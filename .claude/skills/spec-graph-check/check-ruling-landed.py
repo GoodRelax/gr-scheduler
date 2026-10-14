@@ -144,7 +144,9 @@ QUOTE_ENDS = u'「」『』'          # 「」『』
 # ⭐ DFC-632: `txt` is here because a baseline file (`*-baseline.txt`) is a
 # real landing place -- without it a cell naming only a baseline read as
 # naming no file. The file must still exist (named_files), so nothing loosens.
-PATH_IN_CELL = re.compile(u'[A-Za-z0-9_./-]+\\.(?:md|json|ts|py|sh|xml|txt)')
+# ⭐ `html` is here because a published page (docs/about/index.html,
+# docs/download/index.html) is a real landing place too; existence is still checked.
+PATH_IN_CELL = re.compile(u'[A-Za-z0-9_./-]+\\.(?:md|json|ts|py|sh|xml|txt|html)')
 
 HELD_LINE = re.compile(u'^HELD\\s+(JDG-\\d+)\\s*(.*)$')
 

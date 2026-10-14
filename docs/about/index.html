@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-BioOOJA1U+F6a+7isDtQ8lSAgbN7dwrV2TJ904iT5oI='; script-src 'sha256-3tRvD9K67mfXn/x4yGZOFiDQMIv+jgCqW4A3NODRpjE='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta name="referrer" content="no-referrer">
+<meta name="description" content="GoodRelax Scheduler (GRS) の紹介。1 行に複数のタスクを置き、全体日程を 1 枚で見渡す、単一 HTML の日程表エディタ。">
+<title>GoodRelax Scheduler (GRS) とは</title>
+<style>
+:root {
+  --bg: #ffffff;
+  --ink: #0f172a;
+  --sub: #475569;
+  --faint: #64748b;
+  --line: #e2e8f0;
+  --soft: #f8fafc;
+  --accent: #1d4ed8;
+  --accent-soft: #eff4ff;
+  --accent-line: #c7d6fb;
+  --own: #0f766e;
+  --own-soft: #ecfdf8;
+  --own-line: #b6e6da;
+  --radius: 12px;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  display: flex; flex-direction: column;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", "Meiryo", sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+}
+a { color: var(--accent); }
+code, .mono { font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace; font-size: 0.875em; }
+h2, h3, h4, p, ul, ol { margin: 0; }
+
+/* ---- top bar: brand and tabs ---- */
+.topbar { flex: none; border-bottom: 1px solid var(--line); background: var(--bg); }
+.topbar-in { max-width: 1240px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 16px; }
+.mini-brand { flex: none; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
+.tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex: none; appearance: none; border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: 15px; font-weight: 700; color: var(--faint);
+  padding: 14px 12px 11px; border-bottom: 3px solid transparent; white-space: nowrap;
+}
+.tab .no { font-size: 13px; margin-right: 6px; font-weight: 600; }
+.tab:hover { color: var(--ink); }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.tab[aria-selected="true"] .no { color: var(--accent); }
+.tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 6px; }
+
+/* ---- stage: one tab fills it ---- */
+main { flex: 1; min-height: 0; overflow: auto; }
+.panel { max-width: 1240px; margin: 0 auto; padding: 24px 24px 20px; }
+.js .panel[hidden] { display: none; }
+.head { margin-bottom: 18px; }
+.head h2 { font-size: 28px; line-height: 1.3; font-weight: 800; }
+.head p { color: var(--sub); font-size: 17px; }
+.label { font-size: 13px; font-weight: 800; color: var(--faint); letter-spacing: 0.06em; margin-bottom: 8px; }
+.note { font-size: 13px; color: var(--faint); line-height: 1.6; }
+.note code, .note .mono { font-size: 1em; }
+
+/* ---- 00 cover ---- */
+.cover { display: grid; grid-template-columns: 1.25fr 1fr; gap: 48px; align-items: center; min-height: calc(100vh - 110px); }
+.brand { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+.brand-name { font-weight: 800; font-size: 18px; }
+.brand-tag {
+  font-size: 13px; font-weight: 800; color: var(--accent);
+  border: 1px solid var(--accent-line); background: var(--accent-soft); border-radius: 999px; padding: 1px 10px;
+}
+.cover h1 { margin: 0 0 14px; font-size: clamp(32px, 4.6vw, 54px); line-height: 1.2; font-weight: 800; letter-spacing: -0.01em; }
+.cover h1 .hl { color: var(--accent); }
+.cover .lead { font-size: 19px; color: var(--sub); margin-bottom: 18px; }
+.oss {
+  display: inline-flex; align-items: center; gap: 10px; margin-bottom: 26px;
+  padding: 8px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); font-size: 15px;
+}
+.oss b { color: var(--own); }
+.cta { display: flex; flex-wrap: wrap; gap: 10px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+  padding: 10px 18px; border-radius: 999px; font: inherit; font-weight: 700; font-size: 15px; text-decoration: none;
+  border: 1px solid var(--line); color: var(--ink); background: var(--bg);
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #ffffff; }
+.btn.primary:hover { background: #1e40af; color: #ffffff; }
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.toc { list-style: none; padding: 0; border-top: 1px solid var(--line); }
+.toc li { border-bottom: 1px solid var(--line); }
+.toc button {
+  width: 100%; display: grid; grid-template-columns: 44px 1fr; gap: 0 12px; text-align: left;
+  appearance: none; border: 0; background: none; cursor: pointer; font: inherit; color: var(--ink); padding: 12px 4px;
+}
+.toc button:hover b { color: var(--accent); }
+.toc .tn { grid-row: span 2; font-size: 22px; font-weight: 800; color: var(--accent); line-height: 1.3; }
+.toc b { font-size: 17px; line-height: 1.4; }
+.toc span { font-size: 14px; color: var(--sub); line-height: 1.5; }
+.keys { margin-top: 12px; }
+
+/* ---- 01 what ---- */
+.what-top { display: grid; grid-template-columns: 1.15fr 1fr; gap: 22px; margin-bottom: 16px; }
+.compare { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fig { margin: 0; border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px 8px; }
+.fig.good { border-color: var(--accent-line); background: var(--accent-soft); }
+.fig svg { display: block; width: 100%; height: auto; }
+.fig figcaption { font-size: 14px; font-weight: 700; line-height: 1.5; margin-bottom: 4px; }
+.fig figcaption span { font-weight: 400; color: var(--sub); }
+.problems { list-style: none; padding: 0; display: grid; gap: 8px; }
+.problems li { padding: 8px 12px; border-left: 3px solid var(--ink); background: var(--soft); border-radius: 0 8px 8px 0; font-size: 15px; line-height: 1.55; }
+.answer { margin-top: 10px; padding: 9px 12px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; font-weight: 700; font-size: 15px; line-height: 1.55; }
+.sells { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.sell { border: 1px solid var(--line); border-radius: 10px; padding: 8px 14px; }
+.sell .word { font-size: 13px; font-weight: 800; color: var(--accent); line-height: 1.5; }
+.sell p { font-size: 15px; line-height: 1.55; }
+.out { margin-top: 12px; font-size: 14px; color: var(--sub); }
+.out b { color: var(--ink); margin-right: 8px; }
+
+/* ---- 02 features ---- */
+.groups { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.group { border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; }
+.group header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+.gno {
+  flex: none; width: 26px; height: 26px; border-radius: 7px; display: inline-grid; place-items: center;
+  background: var(--ink); color: #ffffff; font-size: 14px; font-weight: 800;
+}
+.group h3 { font-size: 17px; line-height: 1.4; }
+.group ul { padding-left: 1.1em; font-size: 15px; line-height: 1.65; }
+.counts { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; margin-top: 14px; font-size: 15px; color: var(--sub); }
+.counts b { font-size: 20px; color: var(--ink); margin-right: 4px; }
+
+/* ---- 03 model ---- */
+.model { display: grid; grid-template-columns: 1.2fr 1fr; gap: 26px; align-items: start; }
+.doc-root { border: 2px solid var(--ink); border-radius: 14px; padding: 14px; }
+.doc-root > .title { font-weight: 800; margin-bottom: 10px; font-size: 15px; }
+.dgroup { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; background: var(--soft); }
+.gt { font-weight: 800; font-size: 15px; line-height: 1.5; }
+.gt .mono { font-weight: 600; color: var(--faint); }
+.dgroup p { font-size: 14px; color: var(--sub); line-height: 1.55; }
+.lanes { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+.lane { border-radius: 10px; padding: 9px; border: 1px solid var(--accent-line); background: var(--accent-soft); }
+.lane.own { border-color: var(--own-line); background: var(--own-soft); }
+.lane .lt { font-size: 13px; font-weight: 800; color: var(--accent); margin-bottom: 6px; line-height: 1.4; }
+.lane.own .lt { color: var(--own); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.chip {
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace; font-size: 13px; line-height: 1.5;
+  background: var(--bg); border: 1px solid var(--accent-line); border-radius: 6px; padding: 1px 6px;
+}
+.lane.own .chip { border-color: var(--own-line); }
+.chip.key { border-width: 2px; font-weight: 700; }
+.side2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+.points { list-style: none; padding: 0; counter-reset: pt; }
+.points li { position: relative; padding: 0 0 12px 42px; margin-bottom: 12px; border-bottom: 1px solid var(--line); }
+.points li::before {
+  counter-increment: pt; content: counter(pt);
+  position: absolute; left: 0; top: 0; width: 28px; height: 28px; border-radius: 50%;
+  display: grid; place-items: center; border: 2px solid var(--accent); color: var(--accent); font-weight: 800; font-size: 14px;
+}
+.points b { display: block; line-height: 1.6; }
+.points p { color: var(--sub); font-size: 15px; line-height: 1.6; }
+
+/* ---- 04 architecture ---- */
+.arch { display: grid; grid-template-columns: 1.05fr 1fr 1.05fr; gap: 22px; align-items: start; }
+.ring { border-radius: 14px; padding: 9px 10px 10px; }
+.ring > .rl { font-size: 13px; font-weight: 800; line-height: 1.4; margin-bottom: 7px; }
+.ring > .rl span { display: block; font-weight: 400; color: var(--sub); }
+.ring.fw { background: #eaf4fb; border: 1px solid #c4e0f2; }
+.ring.ad { background: #eaf7ee; border: 1px solid #c3e6cd; }
+.ring.uc { background: #fdf6e3; border: 1px solid #f0dfa8; }
+.ring.en { background: #fdeee2; border: 1px solid #f3cfae; }
+.en-core { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.en-core div { background: var(--bg); border: 1px solid #f3cfae; border-radius: 8px; padding: 5px 8px; font-size: 13px; line-height: 1.45; }
+.en-core b { display: block; font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace; }
+.bul { padding-left: 1.1em; font-size: 15px; line-height: 1.6; }
+.bul li + li { margin-top: 4px; }
+.ring + .bul { margin-top: 10px; }
+.block + .block { margin-top: 16px; }
+.tree {
+  margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--soft); border: 1px solid var(--line);
+  font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace; font-size: 13px; line-height: 1.6; white-space: pre; overflow-x: auto;
+}
+.tree .c { color: var(--faint); }
+table.t { width: 100%; border-collapse: collapse; font-size: 15px; line-height: 1.5; }
+table.t td { padding: 5px 4px; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.method { margin-top: 10px; }
+
+/* ---- small screens: the stage scrolls instead of fitting ---- */
+@media (max-width: 900px) {
+  .cover, .what-top, .model, .arch { grid-template-columns: 1fr; gap: 20px; }
+  .cover { min-height: 0; }
+  .groups, .sells { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
+  .topbar-in { padding: 0 8px; gap: 8px; }
+  .mini-brand span { display: none; }
+  .tab { padding: 12px 8px 9px; font-size: 14px; }
+  .panel { padding: 20px 16px; }
+  .compare, .groups, .sells, .lanes, .side2, .en-core { grid-template-columns: 1fr; }
+}
+
+/* ---- print: every tab on its own page ---- */
+@media print {
+  html, body { height: auto; display: block; }
+  .topbar, .cta, .keys { display: none; }
+  main { overflow: visible; }
+  .js .panel[hidden] { display: block; }
+  .panel { break-after: page; }
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar" aria-label="紹介の章">
+  <div class="topbar-in">
+    <div class="mini-brand">
+      <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true">
+        <rect x="0.5" y="0.5" width="39" height="39" rx="10" fill="#0f172a"/>
+        <rect x="7" y="10" width="10" height="5" rx="2" fill="#93b4f8"/>
+        <rect x="20" y="10" width="13" height="5" rx="2" fill="#ffffff"/>
+        <rect x="7" y="18" width="16" height="5" rx="2" fill="#ffffff"/>
+        <path d="M29 17.5 L32 20.5 L29 23.5 L26 20.5 Z" fill="#93b4f8"/>
+        <rect x="11" y="26" width="8" height="5" rx="2" fill="#93b4f8"/>
+        <rect x="22" y="26" width="11" height="5" rx="2" fill="#ffffff"/>
+      </svg>
+      <span>GRS</span>
+    </div>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" id="tab-cover" aria-controls="cover" aria-selected="true"><span class="no">00</span>表紙</button>
+      <button class="tab" role="tab" id="tab-what" aria-controls="what" aria-selected="false" tabindex="-1"><span class="no">01</span>GRS とは</button>
+      <button class="tab" role="tab" id="tab-features" aria-controls="features" aria-selected="false" tabindex="-1"><span class="no">02</span>機能一覧</button>
+      <button class="tab" role="tab" id="tab-model" aria-controls="model" aria-selected="false" tabindex="-1"><span class="no">03</span>データモデル</button>
+      <button class="tab" role="tab" id="tab-arch" aria-controls="arch" aria-selected="false" tabindex="-1"><span class="no">04</span>アーキテクチャと保守</button>
+    </div>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============================================================ 00 cover -->
+<section class="panel" id="cover" role="tabpanel" aria-labelledby="tab-cover">
+  <div class="cover">
+    <div>
+      <div class="brand">
+        <svg width="44" height="44" viewBox="0 0 40 40" aria-hidden="true">
+          <rect x="0.5" y="0.5" width="39" height="39" rx="10" fill="#0f172a"/>
+          <rect x="7" y="10" width="10" height="5" rx="2" fill="#93b4f8"/>
+          <rect x="20" y="10" width="13" height="5" rx="2" fill="#ffffff"/>
+          <rect x="7" y="18" width="16" height="5" rx="2" fill="#ffffff"/>
+          <path d="M29 17.5 L32 20.5 L29 23.5 L26 20.5 Z" fill="#93b4f8"/>
+          <rect x="11" y="26" width="8" height="5" rx="2" fill="#93b4f8"/>
+          <rect x="22" y="26" width="11" height="5" rx="2" fill="#ffffff"/>
+        </svg>
+        <span class="brand-name">GoodRelax Scheduler</span>
+        <span class="brand-tag">GRS</span>
+      </div>
+      <h1>1 行に、複数のタスクを。<br><span class="hl">全体日程を 1 枚で。</span></h1>
+      <p class="lead">ブラウザで動く、単一 HTML の日程表エディタ。</p>
+      <p class="oss"><b>OSS</b>Apache License 2.0 で、GitHub に公開している。</p>
+      <div class="cta">
+        <button class="btn primary" id="fullscreen" type="button">全画面表示</button>
+        <a class="btn" href="https://goodrelax.github.io/gr-scheduler/" target="_blank" rel="noopener noreferrer">アプリを使う</a>
+        <a class="btn" href="https://goodrelax.github.io/gr-scheduler/spec-html/" target="_blank" rel="noopener noreferrer">仕様書</a>
+        <a class="btn" href="https://github.com/GoodRelax/gr-scheduler" target="_blank" rel="noopener noreferrer">コード</a>
+      </div>
+    </div>
+    <div>
+      <div class="label">目次</div>
+      <ol class="toc">
+        <li><button type="button" data-go="what"><span class="tn">01</span><b>GRS とは</b><span>一言で何か。何が売りか</span></button></li>
+        <li><button type="button" data-go="features"><span class="tn">02</span><b>機能一覧</b><span>できることを 6 つの群で</span></button></li>
+        <li><button type="button" data-go="model"><span class="tn">03</span><b>データモデル</b><span>文書の形と、設計の要点</span></button></li>
+        <li><button type="button" data-go="arch"><span class="tn">04</span><b>アーキテクチャと保守</b><span>層・技術・AI での開発・規模</span></button></li>
+      </ol>
+      <p class="note keys">← → キーでも、タブを切り替えられる。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ 01 what -->
+<section class="panel" id="what" role="tabpanel" aria-labelledby="tab-what" hidden>
+  <div class="head">
+    <h2>GRS とは</h2>
+    <p>作図の描きやすさと、日程データの構造を、1 つにした道具。</p>
+  </div>
+  <div class="what-top">
+    <div class="compare">
+      <figure class="fig">
+        <figcaption>よくある日程管理ソフト <span>9 行</span></figcaption>
+        <svg viewBox="0 0 320 150" role="img" aria-label="1 行に 1 タスクずつ並べた模式図">
+          <g font-size="15" fill="#64748b">
+            <text x="0" y="14">A-1</text><text x="0" y="30">A-2</text><text x="0" y="46">A-3</text>
+            <text x="0" y="62">B-1</text><text x="0" y="78">B-2</text><text x="0" y="94">B-3</text>
+            <text x="0" y="110">C-1</text><text x="0" y="126">C-2</text><text x="0" y="142">C-3</text>
+          </g>
+          <g fill="#94a3b8">
+            <rect x="40" y="5" width="70" height="10" rx="3"/>
+            <rect x="114" y="21" width="90" height="10" rx="3"/>
+            <rect x="208" y="37" width="60" height="10" rx="3"/>
+            <rect x="60" y="53" width="80" height="10" rx="3"/>
+            <rect x="146" y="69" width="70" height="10" rx="3"/>
+            <rect x="222" y="85" width="80" height="10" rx="3"/>
+            <rect x="40" y="101" width="100" height="10" rx="3"/>
+            <rect x="146" y="117" width="60" height="10" rx="3"/>
+            <rect x="212" y="133" width="90" height="10" rx="3"/>
+          </g>
+        </svg>
+      </figure>
+      <figure class="fig good">
+        <figcaption>GRS <span>同じ 9 個を 3 行で</span></figcaption>
+        <svg viewBox="0 0 320 150" role="img" aria-label="1 つの行に複数のタスクを並べた模式図">
+          <defs>
+            <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
+              <path d="M0 0 L8 4 L0 8 Z" fill="#475569"/>
+            </marker>
+          </defs>
+          <g font-size="15" fill="#0f172a" font-weight="700">
+            <text x="0" y="29">A</text><text x="0" y="79">B</text><text x="0" y="129">C</text>
+          </g>
+          <g fill="#1d4ed8">
+            <rect x="20" y="12" width="74" height="22" rx="4"/>
+            <rect x="98" y="12" width="90" height="22" rx="4"/>
+            <rect x="192" y="12" width="62" height="22" rx="4"/>
+            <rect x="44" y="62" width="80" height="22" rx="4"/>
+            <rect x="146" y="62" width="70" height="22" rx="4"/>
+            <rect x="222" y="62" width="62" height="22" rx="4"/>
+            <rect x="20" y="112" width="104" height="22" rx="4"/>
+            <rect x="130" y="112" width="60" height="22" rx="4"/>
+            <rect x="196" y="112" width="90" height="22" rx="4"/>
+          </g>
+          <path d="M278 12 L289 23 L278 34 L267 23 Z" fill="#0f172a"/>
+          <path d="M302 112 L313 123 L302 134 L291 123 Z" fill="#0f172a"/>
+          <path d="M188 36 C 196 52, 138 48, 148 60" fill="none" stroke="#475569" stroke-width="1.6" marker-end="url(#arr)"/>
+          <g font-size="15" fill="#ffffff" font-weight="700">
+            <text x="27" y="28">A-1</text><text x="105" y="28">A-2</text><text x="199" y="28">A-3</text>
+            <text x="51" y="78">B-1</text><text x="153" y="78">B-2</text><text x="229" y="78">B-3</text>
+            <text x="27" y="128">C-1</text><text x="137" y="128">C-2</text><text x="203" y="128">C-3</text>
+          </g>
+        </svg>
+      </figure>
+    </div>
+    <div>
+      <ul class="problems">
+        <li>作図ソフトの日程表は絵であり、データにならない。</li>
+        <li>日程管理ソフトは 1 行に 1 タスク。全体が 1 画面に収まらない。</li>
+        <li>遅れたタスクは見えても、遅れの出どころは見えない。</li>
+      </ul>
+      <p class="answer">GRS は、描く手軽さのまま、構造化した日程データを出す。</p>
+    </div>
+  </div>
+  <div class="sells">
+    <div class="sell"><div class="word">ペライチ</div><p>1 行に複数のタスク。全体日程を 1 画面に収める。</p></div>
+    <div class="sell"><div class="word">ぬるサク</div><p>操作が引っかからない。性能は節目ごとに実測する。</p></div>
+    <div class="sell"><div class="word">すぐわか</div><p>マニュアル無しで使える。画面は日本語と英語。</p></div>
+    <div class="sell"><div class="word">直接操作</div><p>描いたバーを掴んで、日付を変える。</p></div>
+    <div class="sell"><div class="word">構造化データ</div><p>GRS JSON で保存。MS Project の XML（MSPDI）と往復できる。</p></div>
+    <div class="sell"><div class="word">単一 HTML</div><p>サーバー不要。インストール不要。外部と通信しない。</p></div>
+    <div class="sell"><div class="word">遅延診断</div><p>遅れの発生源と、信用できない数字を示す。</p></div>
+    <div class="sell"><div class="word">AI と同格</div><p>人と同じ操作を、Agent API と MCP で AI にも開く。</p></div>
+    <div class="sell"><div class="word">透かし</div><p>開いた人の名前と日時を、画面に薄く重ねる。</p></div>
+  </div>
+  <p class="out"><b>持たないもの</b>クリティカルパス計算と自動日程・資源とコストの管理・サーバーと共同編集・タッチ操作</p>
+</section>
+
+<!-- ============================================================ 02 features -->
+<section class="panel" id="features" role="tabpanel" aria-labelledby="tab-features" hidden>
+  <div class="head">
+    <h2>機能一覧</h2>
+    <p>仕様書のユースケースを、6 つの群にまとめた。</p>
+  </div>
+  <div class="groups">
+    <section class="group">
+      <header><span class="gno">1</span><h3>描く</h3></header>
+      <ul>
+        <li>形状を選んでタスクを置く</li>
+        <li>マイルストーンの図形を選ぶ</li>
+        <li>名称ラベルを自動で置く</li>
+        <li>重なるタスクを縦に積む</li>
+        <li>取り消しとやり直し</li>
+      </ul>
+    </section>
+    <section class="group">
+      <header><span class="gno">2</span><h3>組む</h3></header>
+      <ul>
+        <li>タスクグループを階層で組む</li>
+        <li>折りたたみとピン止め</li>
+        <li>WBS と画面の並びを別に持つ</li>
+        <li>属性と担当をパネルで編集する</li>
+      </ul>
+    </section>
+    <section class="group">
+      <header><span class="gno">3</span><h3>つなぐ・追う</h3></header>
+      <ul>
+        <li>依存線を自動で引く</li>
+        <li>予定と実績を 1 つのタスクに持つ</li>
+        <li>基準日・遅れの日数・イナズマ線</li>
+        <li>変更前の予定を重ねて比べる</li>
+        <li>暦で稼働日と非稼働日を分ける</li>
+      </ul>
+    </section>
+    <section class="group">
+      <header><span class="gno">4</span><h3>診る（遅延診断）</h3></header>
+      <ul>
+        <li>矛盾・疑義・記載漏れを指摘する</li>
+        <li>ボトルネックを見つける</li>
+        <li>指摘を一覧とレポートに出す</li>
+        <li>直す案を示し、選べば当てる</li>
+      </ul>
+    </section>
+    <section class="group">
+      <header><span class="gno">5</span><h3>見る・見せる</h3></header>
+      <ul>
+        <li>縦と横を別々にズームする</li>
+        <li>全体を 1 画面に収める</li>
+        <li>カーソルで日数を測る</li>
+        <li>注記・検索・コマンドパレット</li>
+        <li>名前と日時の透かし</li>
+      </ul>
+    </section>
+    <section class="group">
+      <header><span class="gno">6</span><h3>やりとりする</h3></header>
+      <ul>
+        <li>GRS JSON で保存する</li>
+        <li>MSPDI XML と往復する</li>
+        <li>複数のファイルを合流させる</li>
+        <li>SVG と PNG を書き出す</li>
+        <li>AI に Agent API と MCP で編集させる</li>
+      </ul>
+    </section>
+  </div>
+  <p class="counts"><span><b>15</b>ユースケース</span><span><b>120</b>機能要求</span><span><b>13</b>非機能要求</span>
+    <span class="note">仕様書 3.2 の表 T-011 と、4.1・4.2 の見出しを数えた（origin/main <span class="mono">c581c5df</span>）</span></p>
+</section>
+
+<!-- ============================================================ 03 model -->
+<section class="panel" id="model" role="tabpanel" aria-labelledby="tab-model" hidden>
+  <div class="head">
+    <h2>データモデル</h2>
+    <p>1 つの文書を 1 つの JSON で表す。MSPDI の形をそのまま持ち、見せ方を別に足す。</p>
+  </div>
+  <div class="model">
+    <div>
+      <div class="doc-root">
+        <div class="title">文書（GRS JSON の 1 ファイル）</div>
+        <div class="dgroup">
+          <div class="gt">日程データ <span class="mono">schedule</span></div>
+          <div class="lanes">
+            <div class="lane">
+              <div class="lt">MSPDI と往復する</div>
+              <div class="chips">
+                <span class="chip">Project</span><span class="chip key">Task</span><span class="chip">Dependency</span>
+                <span class="chip">Calendar</span><span class="chip">WeekDay</span><span class="chip">Exception</span>
+                <span class="chip">Resource</span><span class="chip">Assignment</span><span class="chip">CarryElement</span>
+              </div>
+            </div>
+            <div class="lane own">
+              <div class="lt">GRS だけが持つ</div>
+              <div class="chips">
+                <span class="chip key">TaskGroup</span><span class="chip">TaskGroupMember</span><span class="chip">TaskVisual</span>
+                <span class="chip">TaskOrigin</span><span class="chip">CommentBox</span><span class="chip">HighlightBox</span>
+                <span class="chip">BaselineTask</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="side2">
+          <div class="dgroup"><div class="gt">見せ方 <span class="mono">documentSettings</span></div><p>表示位置、ピン止めなど</p></div>
+          <div class="dgroup"><div class="gt">刻印 <span class="mono">documentStamp</span></div><p>更新と保存の時刻、最後に書いた者</p></div>
+        </div>
+      </div>
+      <p class="note method">全エンティティと列は、仕様書の ER 図にある。</p>
+    </div>
+    <ol class="points">
+      <li><b>縦の軸は 2 本</b><p>WBS はタスクの親子で持ち、MSPDI へ書き出す。画面の並びはタスクグループで持ち、書き出さない。</p></li>
+      <li><b>識別子は MSPDI の UID</b><p>代理キーを作らない。合流も UID で照合する。</p></li>
+      <li><b>予定と実績は 1 つのタスク</b><p>MSPDI と同じ列名で持つ（<code>start</code> / <code>actualStart</code> など）。</p></li>
+      <li><b>知らない要素も捨てない</b><p>原形のまま <code>CarryElement</code> に持つ。未編集で往復すれば、元と同じ XML に戻る。</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ============================================================ 04 architecture -->
+<section class="panel" id="arch" role="tabpanel" aria-labelledby="tab-arch" hidden>
+  <div class="head">
+    <h2>アーキテクチャと保守</h2>
+    <p>4 層で作り、仕様書を唯一の正とし、機械で検査する。</p>
+  </div>
+  <div class="arch">
+    <div>
+      <div class="label">層（Clean Architecture）</div>
+      <div class="ring fw"><div class="rl">Framework<span>DOM・ファイル・単一 HTML のシェル</span></div>
+        <div class="ring ad"><div class="rl">Adapter<span>SVG 生成・入力・形式変換・Agent API</span></div>
+          <div class="ring uc"><div class="rl">UseCase<span>文書を変える操作・検証・通知</span></div>
+            <div class="ring en"><div class="rl">Entity<span>純粋な計算</span></div>
+              <div class="en-core">
+                <div><b>documentModel</b>文書と不変条件</div>
+                <div><b>layoutEngine</b>座標と当たり判定</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ul class="bul">
+        <li>依存は内向きだけ。</li>
+        <li>文書への書き込みは 1 つの経路だけ。</li>
+      </ul>
+    </div>
+    <div>
+      <div class="block">
+        <div class="label">技術</div>
+        <ul class="bul">
+          <li>ブラウザだけで動く。サーバーは持たない。</li>
+          <li>TypeScript で書き、1 つの <code>.html</code> にビルドする。</li>
+          <li>実行時のライブラリは 0。ブラウザの標準機能だけを使う。</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="label">ファイル構成</div>
+<pre class="tree">dist/index.html  <span class="c"># 配布物</span>
+src/             <span class="c"># 4 層のフォルダ</span>
+tests/           <span class="c"># 6 種の試験</span>
+docs/spec/       <span class="c"># 仕様書</span>
+  _source/       <span class="c"># 原稿と生成物</span>
+change-request/  <span class="c"># 変更要求</span>
+tools/           <span class="c"># 生成器と検査</span></pre>
+      </div>
+    </div>
+    <div>
+      <div class="block">
+        <div class="label">AI で開発しやすい理由</div>
+        <ul class="bul">
+          <li>仕様書が唯一の正。表や ER 図から型とスキーマを生成する。</li>
+          <li>仕様と実装のずれを、機械の検査が毎回測る。</li>
+          <li>変更は CR 1 件ずつ。影響範囲を測ってから当てる。</li>
+          <li>試験は、書いた者とは別のエージェントが仕様書から書く。</li>
+        </ul>
+      </div>
+      <div class="block">
+        <div class="label">規模と経過</div>
+        <table class="t">
+          <tr><td>開発期間</td><td class="n">2026-07-19 〜（約 3 か月）</td></tr>
+          <tr><td>変更要求（CR）</td><td class="n">532 件</td></tr>
+          <tr><td>コミット</td><td class="n">2,856</td></tr>
+          <tr><td>ソース</td><td class="n">183 ファイル・65,828 行</td></tr>
+          <tr><td>試験</td><td class="n">596 ファイル</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  <p class="note method">数え方: origin/main <span class="mono">c581c5df</span> を 2026-10-14 に数えた。開発期間は最初のコミットから。CR は <code>change-request/</code> の <code>CR-*.md</code>（CR-000 を除く）。コミットは <code>git log</code> の数。ソースは <code>src/</code> の <code>.ts</code>（コメントを含む行数）。試験は <code>tests/</code> の <code>*.test.ts</code> と <code>*.spec.ts</code>。ライブラリは <code>package.json</code> の実行時の依存の数。</p>
+</section>
+
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+  var ids = tabs.map(function (t) { return t.getAttribute("aria-controls"); });
+  var stage = document.querySelector("main");
+
+  function current() {
+    for (var i = 0; i < tabs.length; i++) {
+      if (tabs[i].getAttribute("aria-selected") === "true") { return i; }
+    }
+    return 0;
+  }
+
+  function select(id, focus) {
+    if (ids.indexOf(id) < 0) { id = ids[0]; }
+    tabs.forEach(function (t) {
+      var on = t.getAttribute("aria-controls") === id;
+      t.setAttribute("aria-selected", on ? "true" : "false");
+      t.tabIndex = on ? 0 : -1;
+      document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+      if (on && focus) { t.focus(); }
+    });
+    stage.scrollTop = 0;
+    try { history.replaceState(null, "", "#" + id); } catch (e) { /* file:// may refuse */ }
+  }
+
+  document.documentElement.className += " js";
+  tabs.forEach(function (t) {
+    t.addEventListener("click", function () { select(t.getAttribute("aria-controls"), false); });
+  });
+  Array.prototype.forEach.call(document.querySelectorAll("[data-go]"), function (b) {
+    b.addEventListener("click", function () { select(b.getAttribute("data-go"), false); });
+  });
+
+  // Left / right (and page up / down) step through the tabs, like slides.
+  document.addEventListener("keydown", function (ev) {
+    if (ev.altKey || ev.ctrlKey || ev.metaKey) { return; }
+    var onTab = ev.target.getAttribute && ev.target.getAttribute("role") === "tab";
+    var step = 0;
+    if (ev.key === "ArrowRight" || ev.key === "PageDown") { step = 1; }
+    if (ev.key === "ArrowLeft" || ev.key === "PageUp") { step = -1; }
+    if (ev.key === "Home" || ev.key === "End") {
+      ev.preventDefault();
+      select(ids[ev.key === "Home" ? 0 : ids.length - 1], onTab);
+      return;
+    }
+    if (step === 0) { return; }
+    ev.preventDefault();
+    var next = Math.min(ids.length - 1, Math.max(0, current() + step));
+    select(ids[next], onTab);
+  });
+
+  // The cover's full-screen button toggles the whole page.
+  var fs = document.getElementById("fullscreen");
+  var root = document.documentElement;
+  if (!root.requestFullscreen) {
+    fs.hidden = true;
+  } else {
+    fs.addEventListener("click", function () {
+      if (document.fullscreenElement) { document.exitFullscreen(); } else { root.requestFullscreen(); }
+    });
+    document.addEventListener("fullscreenchange", function () {
+      fs.textContent = document.fullscreenElement ? "全画面を終える" : "全画面表示";
+    });
+  }
+
+  select(location.hash.slice(1), false);
+  window.addEventListener("hashchange", function () { select(location.hash.slice(1), false); });
+})();
+</script>
+</body>
+</html>
