@@ -4,15 +4,18 @@
 // @purity    pure
 
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
+import { isNonRecurringException, type Exception, type Schedule } from '../../entity/document-model/schedule/schedule'
 import {
-  DEFAULT_CALENDAR_VALUES,
-  isNonRecurringException,
-  workingCalendarOf,
-  workingTimeSetOf,
-  type Exception,
-  type Schedule,
-} from '../../entity/document-model/schedule/schedule'
-import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
+  calendarDraftRefusalsOf,
+  canAddRange,
+  canDeleteRange,
+  exceptionsInStartOrder,
+  otherHoursDayTypesOf,
+  shownCalendarDraft,
+  type CalendarDraft,
+  type CalendarDraftRefusal,
+  type ScreenSession,
+} from '../../use-case/advance-screen-session/advance-screen-session'
 import type { CommandItem, DisplayLanguage, IconId, PropertyControl, PropertyFieldKey } from './screen-renderer'
 import { widthOf } from './properties-panel'
 import { dateText } from './table-window'
@@ -35,96 +38,75 @@ const ADD_RANGE_ENTRY: IconId = 'IC-163'
 const REMOVE_RANGE_ENTRY: IconId = 'IC-164'
 const TIME_FIELD_ENTRY: IconId = 'IC-165'
 
+// see T-344, T-292
+const WEEK_START_ROW = 'WC-3'
+const EXCEPTION_ROW = 'WC-4'
+const WORKING_HOURS_ROW = 'WC-8'
+
 const DAYS_PER_WEEK = 7
-
-const MINUTES_PER_HOUR = 60
-
-const MINUTE_DIGITS = 2
-
-const DAY_END_CLOCK = '24:00'
 
 // WHY: the sample's range spelling (sample 52), an en dash between the two clocks.
 const RANGE_JOIN = '–'
 
 export type HolidaySettingsFieldColumn = 'weekStartDay' | 'fromTime' | 'toTime' | 'name' | 'fromDate' | 'toDate'
 
-// see T-280, WC-2, WC-3, WC-4, WC-8
-// WHY: the calendarDraft of T-280 read by its parts; untouched, the same parts are read off the document's calendar (X-b).
-export interface HolidaySettingsDraft {
-  readonly workingDayTypes: readonly number[]
-  readonly weekStartDay: number
-  readonly workingTimes: readonly { readonly fromTime: string | null; readonly toTime: string | null }[]
-  readonly exceptions: readonly Exception[]
-}
-
-// see WC-10
-// WHY: judged by the draft's rules in the UseCase (CR-743 X-a); indexes point into the draft's lists.
-export type HolidaySettingsRefusal =
-  | { readonly part: 'timeNotReadable'; readonly index: number; readonly side: 'fromTime' | 'toTime'; readonly text: string }
-  | { readonly part: 'startNotBeforeEnd'; readonly index: number }
-  | { readonly part: 'rangesOverlap'; readonly first: number; readonly second: number }
-  | { readonly part: 'noWorkingWeekday' }
-  | { readonly part: 'exceptionFromAfterTo'; readonly index: number }
-  | { readonly part: 'exceptionsOverlap'; readonly first: number; readonly second: number }
-
 // see WC-3, WC-4, WC-8, WC-10, S-154
-export interface HolidaySettingsField {
+export interface HolidaySettingsCell {
+  readonly row: string
   readonly control: PropertyControl
   readonly isRefused: boolean
 }
 
-// see WC-2, IC-133, AT-73
-// WHY: the entry keeps IC-133's own label; the weekday's name is drawn on it.
-export interface HolidayWeekdayEntry {
-  readonly entry: CommandItem
-  readonly dayType: number
-  readonly word: string
+// see IF-9, WC-2, WC-4, IC-133, IC-137
+// WHY: the target says which weekday or row a repeated entrance means; a set word is drawn in place of the label.
+export interface HolidaySettingsEntry {
+  readonly item: CommandItem
+  readonly target: string | null
+  readonly word: string | null
 }
 
-// see WC-8, IC-164, IC-165
-export interface HolidayWorkingHoursRow {
-  readonly index: number
-  readonly from: HolidaySettingsField
-  readonly to: HolidaySettingsField
-  readonly remove: CommandItem
+export interface HolidayWorkingTimeLine {
+  readonly from: HolidaySettingsCell
+  readonly to: HolidaySettingsCell
+  readonly remove: HolidaySettingsEntry
 }
 
-// see WC-4, WC-5, IC-136, IC-137
-// WHY: a repeating row (WC-5) has no fields and no kind entrance; it shows its name and the repeating word only.
-export interface HolidayExceptionRow {
-  readonly index: number
-  readonly ordinal: number
-  readonly repeatingWord: string | null
-  readonly name: HolidaySettingsField | null
-  readonly shownName: string
-  readonly from: HolidaySettingsField | null
-  readonly to: HolidaySettingsField | null
-  readonly kind: CommandItem | null
-  readonly remove: CommandItem
+// see WC-4, WC-5
+export interface HolidayExceptionLine {
+  readonly name: HolidaySettingsCell
+  readonly from: HolidaySettingsCell | null
+  readonly to: HolidaySettingsCell | null
+  readonly kind: HolidaySettingsEntry | null
+  readonly repeatingText: string | null
+  readonly remove: HolidaySettingsEntry
 }
 
 // see U-65, FR-088, T-344, T-257
+export interface HolidaySettingsBody {
+  readonly isDrafted: boolean
+  readonly weekdaysHeading: string
+  readonly weekdays: readonly HolidaySettingsEntry[]
+  readonly weekStartName: string
+  readonly weekStart: HolidaySettingsCell
+  readonly workingHoursHeading: string
+  readonly workingHoursColumns: readonly string[]
+  readonly workingTimes: readonly HolidayWorkingTimeLine[]
+  readonly addWorkingTime: HolidaySettingsEntry
+  readonly otherHoursLine: string | null
+  readonly upperRefusals: readonly string[]
+  readonly exceptionsHeading: string
+  readonly exceptionColumns: readonly string[]
+  readonly exceptions: readonly HolidayExceptionLine[]
+  readonly lowerRefusals: readonly string[]
+  readonly addException: HolidaySettingsEntry
+  readonly apply: HolidaySettingsEntry
+}
+
 export interface HolidaySettings {
   readonly surface: 'Holiday Settings'
   readonly heading: string
   readonly commands: readonly CommandItem[]
-  readonly isDrafted: boolean
-  readonly workingWeekdaysHeading: string
-  readonly weekdays: readonly HolidayWeekdayEntry[]
-  readonly weekStartHeading: string
-  readonly weekStart: HolidaySettingsField
-  readonly workingHoursHeading: string
-  readonly rangeWords: { readonly from: string; readonly to: string }
-  readonly workingHours: readonly HolidayWorkingHoursRow[]
-  readonly addRange: CommandItem
-  readonly otherHoursLine: string | null
-  readonly upperRefusals: readonly string[]
-  readonly exceptionDaysHeading: string
-  readonly exceptionColumnWords: { readonly name: string; readonly from: string; readonly to: string; readonly kind: string }
-  readonly exceptions: readonly HolidayExceptionRow[]
-  readonly exceptionRefusals: readonly string[]
-  readonly addException: CommandItem
-  readonly apply: CommandItem
+  readonly holidaySettings: HolidaySettingsBody
 }
 
 const HOLIDAY_WORDS = new Map(displayWords.holidaySettings.map((entry) => [entry.part, entry.text]))
@@ -148,78 +130,51 @@ function weekdayWordOf(dayType: number, language: DisplayLanguage): string {
 }
 
 /** @purity pure */
-function entryOf(icon: IconId, label: string, flags: Partial<Pick<CommandItem, 'isEnabled' | 'isPressed'>> = {}): CommandItem {
-  return { icon, isEnabled: flags.isEnabled ?? true, isPressed: flags.isPressed ?? false, isArmed: false, isChosen: false, label }
-}
-
-// see WC-8, T-375
-// WHY: a readable clock is shown as H:MM (08:00 -> 8:00) and an end at midnight as 24:00 (IV-24); anything else stays as typed.
-const CLOCK_TEXT = /^(\d{1,2}):(\d{2})(?::\d{2})?$/
-
-/** @purity pure */
-export function shownClockText(text: string | null, side: 'fromTime' | 'toTime'): string {
-  const held = (text ?? '').trim()
-  const hit = CLOCK_TEXT.exec(held)
-  if (hit === null) return held
-  const minute = Number(hit[1]) * MINUTES_PER_HOUR + Number(hit[2])
-  if (side === 'toTime' && minute === 0) return DAY_END_CLOCK
-  return `${Math.floor(minute / MINUTES_PER_HOUR)}:${String(minute % MINUTES_PER_HOUR).padStart(MINUTE_DIGITS, '0')}`
-}
-
-// see T-280, WC-8, WC-9
-/** @purity pure */
-function draftOfDocument(schedule: Schedule): HolidaySettingsDraft {
-  const within = workingCalendarOf(schedule)
-  return {
-    workingDayTypes: within.weekDays.flatMap((one) => (one.dayWorking === true && one.dayType !== null ? [one.dayType] : [])),
-    weekStartDay: within.weekStartDay ?? DEFAULT_CALENDAR_VALUES['S-108'],
-    workingTimes: workingTimeSetOf(within).workingTimes,
-    exceptions: within.exceptions,
-  }
-}
-
-// see T-280, FR-088
-/** @purity pure */
-function shownDraftOf(session: ScreenSession, schedule: Schedule): { readonly draft: HolidaySettingsDraft; readonly isDrafted: boolean } {
-  const state = session.screen.calendarDraftState
-  if (state.kind === 'drafted') return { draft: state.calendarDraft, isDrafted: true }
-  return { draft: draftOfDocument(schedule), isDrafted: false }
+function entryOf(
+  icon: IconId,
+  language: DisplayLanguage,
+  place: { readonly target?: string; readonly word?: string; readonly isEnabled?: boolean; readonly isPressed?: boolean } = {},
+): HolidaySettingsEntry {
+  const item = { icon, isEnabled: place.isEnabled ?? true, isPressed: place.isPressed ?? false, isArmed: false, isChosen: false, label: iconLabel(icon, language) }
+  return { item, target: place.target ?? null, word: place.word ?? null }
 }
 
 /** @purity pure */
-function fieldOf(
+function cellOf(
+  row: string,
   key: PropertyFieldKey,
   kind: PropertyControl['kind'],
   text: string,
-  isRefused: boolean,
-  hint: string,
-): HolidaySettingsField {
-  return {
-    control: { key, kind, text, choices: null, min: null, max: null, widthInFontSizes: widthOf(text, null, SETTINGS_CONSTANTS.labelCoef), hint },
-    isRefused,
+  flags: { readonly isRefused: boolean; readonly hint: string; readonly isDisabled?: boolean },
+): HolidaySettingsCell {
+  const width = widthOf(text, null, SETTINGS_CONSTANTS.labelCoef)
+  const control: PropertyControl = {
+    key, kind, text, choices: null, min: null, max: null, widthInFontSizes: width, hint: flags.hint,
+    ...(flags.isDisabled === true ? { isDisabled: true } : {}),
   }
+  return { row, control, isRefused: flags.isRefused }
 }
 
-// see WC-2, WC-3, IC-133
+// see WC-2, WC-3, IC-133, AT-73
 /** @purity pure */
-function weekdayEntriesOf(draft: HolidaySettingsDraft, language: DisplayLanguage): readonly HolidayWeekdayEntry[] {
+function weekdayEntriesOf(draft: CalendarDraft, language: DisplayLanguage): readonly HolidaySettingsEntry[] {
   const working = new Set(draft.workingDayTypes)
   return Array.from({ length: DAYS_PER_WEEK }, (_, step) => {
     const dayType = ((draft.weekStartDay + step) % DAYS_PER_WEEK) + 1
-    const entry = entryOf(WEEKDAY_ENTRY, iconLabel(WEEKDAY_ENTRY, language), { isPressed: working.has(dayType) })
-    return { dayType, word: weekdayWordOf(dayType, language), entry }
+    return entryOf(WEEKDAY_ENTRY, language, { target: String(dayType), word: weekdayWordOf(dayType, language), isPressed: working.has(dayType) })
   })
 }
 
 // see WC-3, IC-134, AT-17
 /** @purity pure */
-function weekStartFieldOf(draft: HolidaySettingsDraft, language: DisplayLanguage): HolidaySettingsField {
+function weekStartCellOf(draft: CalendarDraft, language: DisplayLanguage): HolidaySettingsCell {
   const words = WEEKDAY_WORDS.map((one) => one[language])
-  const field = fieldOf({ holder: 'calendarDraft', column: 'weekStartDay', index: 0 }, 'choice', String(draft.weekStartDay), false, iconHint(WEEK_START_ENTRY, language))
+  const key: PropertyFieldKey = { holder: 'calendarDraft', column: 'weekStartDay', index: 0 }
+  const cell = cellOf(WEEK_START_ROW, key, 'choice', String(draft.weekStartDay), { isRefused: false, hint: iconHint(WEEK_START_ENTRY, language) })
   return {
-    ...field,
+    ...cell,
     control: {
-      ...field.control,
+      ...cell.control,
       choices: words,
       choiceValues: words.map((_, weekStartDay) => String(weekStartDay)),
       widthInFontSizes: widthOf('', words, SETTINGS_CONSTANTS.labelCoef),
@@ -227,42 +182,44 @@ function weekStartFieldOf(draft: HolidaySettingsDraft, language: DisplayLanguage
   }
 }
 
+// see WC-10, S-154
 /** @purity pure */
-function refusedTimeFields(refusals: readonly HolidaySettingsRefusal[]): ReadonlySet<string> {
+function refusedTimeFields(refusals: readonly CalendarDraftRefusal[]): ReadonlySet<string> {
   return new Set(refusals.flatMap((one) => {
-    if (one.part === 'timeNotReadable') return [`${one.index}.${one.side}`]
-    if (one.part === 'startNotBeforeEnd') return [`${one.index}.fromTime`, `${one.index}.toTime`]
-    if (one.part === 'rangesOverlap') return [one.first, one.second].flatMap((index) => [`${index}.fromTime`, `${index}.toTime`])
+    if (one.kind === 'timeNotReadable') return [`${one.rangeIndex}.${one.side}`]
+    if (one.kind === 'startNotBeforeEnd') return [`${one.rangeIndex}.start`, `${one.rangeIndex}.end`]
+    if (one.kind === 'rangesOverlap') return [one.firstIndex, one.secondIndex].flatMap((index) => [`${index}.start`, `${index}.end`])
     return []
   }))
 }
 
-// see WC-8, IC-163, IC-164, IC-165, S-582
+// see WC-8, WC-10, IC-163, IC-164, IC-165, S-582
 /** @purity pure */
-function workingHoursRowsOf(
-  draft: HolidaySettingsDraft,
-  refusals: readonly HolidaySettingsRefusal[],
+function workingTimeLinesOf(
+  draft: CalendarDraft,
+  refusals: readonly CalendarDraftRefusal[],
   language: DisplayLanguage,
-): readonly HolidayWorkingHoursRow[] {
+): readonly HolidayWorkingTimeLine[] {
   const refused = refusedTimeFields(refusals)
   const hint = iconHint(TIME_FIELD_ENTRY, language)
-  const isOnlyRow = draft.workingTimes.length <= 1
-  return draft.workingTimes.map((one, index) => {
-    const side = (column: 'fromTime' | 'toTime'): HolidaySettingsField =>
-      fieldOf({ holder: 'calendarDraft', column, index }, 'text', shownClockText(one[column], column), refused.has(`${index}.${column}`), hint)
+  const canDelete = canDeleteRange(draft)
+  return draft.ranges.map((range, index) => {
+    const side = (column: 'fromTime' | 'toTime'): HolidaySettingsCell => {
+      const held = column === 'fromTime' ? 'start' : 'end'
+      return cellOf(WORKING_HOURS_ROW, { holder: 'calendarDraft', column, index }, 'text', range[held], { isRefused: refused.has(`${index}.${held}`), hint })
+    }
     return {
-      index,
       from: side('fromTime'),
       to: side('toTime'),
-      remove: entryOf(REMOVE_RANGE_ENTRY, iconLabel(REMOVE_RANGE_ENTRY, language), { isEnabled: !isOnlyRow }),
+      remove: entryOf(REMOVE_RANGE_ENTRY, language, { target: String(index), isEnabled: canDelete }),
     }
   })
 }
 
 // see WC-9, FR-088
 /** @purity pure */
-function otherHoursLineOf(schedule: Schedule, language: DisplayLanguage): string | null {
-  const unlike = workingTimeSetOf(workingCalendarOf(schedule)).unlikeDayTypes
+function otherHoursLineOf(draft: CalendarDraft, schedule: Schedule, language: DisplayLanguage): string | null {
+  const unlike = otherHoursDayTypesOf(draft, schedule)
   if (unlike.length === 0) return null
   const weekdays = unlike.map((dayType) => weekdayWordOf(dayType, language)).join(holidayWord('weekdaySeparator', language))
   return filled(holidayWord('otherHoursWeekdays', language), { weekdays })
@@ -278,130 +235,137 @@ function exceptionShownName(exception: Exception | undefined): string {
 }
 
 /** @purity pure */
-function rangeTextOf(draft: HolidaySettingsDraft, index: number): string {
-  const one = draft.workingTimes[index]
-  if (one === undefined) return ''
-  return `${shownClockText(one.fromTime, 'fromTime')}${RANGE_JOIN}${shownClockText(one.toTime, 'toTime')}`
+function rangeTextOf(draft: CalendarDraft, index: number): string {
+  const one = draft.ranges[index]
+  return one === undefined ? '' : `${one.start}${RANGE_JOIN}${one.end}`
+}
+
+/** @purity pure */
+function exceptionByOrdinal(draft: CalendarDraft, ordinal: number): Exception | undefined {
+  return draft.exceptions.find((one) => one.ordinal === ordinal)
 }
 
 // see WC-10, T-344
 /** @purity pure */
-function refusalText(refusal: HolidaySettingsRefusal, draft: HolidaySettingsDraft, language: DisplayLanguage): string {
-  const word = holidayWord(refusal.part, language)
-  switch (refusal.part) {
+function refusalText(refusal: CalendarDraftRefusal, draft: CalendarDraft, language: DisplayLanguage): string {
+  const word = holidayWord(refusal.kind, language)
+  switch (refusal.kind) {
     case 'timeNotReadable':
       return filled(word, { text: refusal.text })
     case 'startNotBeforeEnd':
-      return filled(word, { range: rangeTextOf(draft, refusal.index) })
+      return filled(word, { range: rangeTextOf(draft, refusal.rangeIndex) })
     case 'rangesOverlap':
-      return filled(word, { first: rangeTextOf(draft, refusal.first), second: rangeTextOf(draft, refusal.second) })
+      return filled(word, { first: rangeTextOf(draft, refusal.firstIndex), second: rangeTextOf(draft, refusal.secondIndex) })
     case 'noWorkingWeekday':
       return word
     case 'exceptionFromAfterTo':
-      return filled(word, { name: exceptionShownName(draft.exceptions[refusal.index]) })
+      return filled(word, { name: exceptionShownName(exceptionByOrdinal(draft, refusal.ordinal)) })
     case 'exceptionsOverlap':
       return filled(word, {
-        first: exceptionShownName(draft.exceptions[refusal.first]),
-        second: exceptionShownName(draft.exceptions[refusal.second]),
+        first: exceptionShownName(exceptionByOrdinal(draft, refusal.firstOrdinal)),
+        second: exceptionShownName(exceptionByOrdinal(draft, refusal.secondOrdinal)),
       })
   }
 }
 
 /** @purity pure */
-function isExceptionRefusal(refusal: HolidaySettingsRefusal): boolean {
-  return refusal.part === 'exceptionFromAfterTo' || refusal.part === 'exceptionsOverlap'
+function isExceptionRefusal(refusal: CalendarDraftRefusal): boolean {
+  return refusal.kind === 'exceptionFromAfterTo' || refusal.kind === 'exceptionsOverlap'
 }
 
 /** @purity pure */
-function refusedExceptionRows(refusals: readonly HolidaySettingsRefusal[]): ReadonlySet<number> {
+function refusedExceptionOrdinals(refusals: readonly CalendarDraftRefusal[]): ReadonlySet<number> {
   return new Set(refusals.flatMap((one) => {
-    if (one.part === 'exceptionFromAfterTo') return [one.index]
-    if (one.part === 'exceptionsOverlap') return [one.first, one.second]
+    if (one.kind === 'exceptionFromAfterTo') return [one.ordinal]
+    if (one.kind === 'exceptionsOverlap') return [one.firstOrdinal, one.secondOrdinal]
     return []
   }))
 }
 
 // see WC-4, WC-5, IC-136, IC-137, AT-82
+// WHY: the target is the row's place in the draft's list; a repeating row's name is shown, not edited (WC-5).
 /** @purity pure */
-function exceptionRowOf(exception: Exception, index: number, isRefused: boolean, language: DisplayLanguage): HolidayExceptionRow {
-  const remove = entryOf(REMOVE_EXCEPTION_ENTRY, iconLabel(REMOVE_EXCEPTION_ENTRY, language))
-  const shownName = exception.name ?? ''
+function exceptionLineOf(exception: Exception, index: number, isRefused: boolean, language: DisplayLanguage): HolidayExceptionLine {
+  const target = String(index)
+  const remove = entryOf(REMOVE_EXCEPTION_ENTRY, language, { target })
+  const cell = (column: 'name' | 'fromDate' | 'toDate', text: string, refused: boolean, isDisabled = false): HolidaySettingsCell =>
+    cellOf(EXCEPTION_ROW, { holder: 'calendarDraft', column, index }, column === 'name' ? 'text' : 'date', text, { isRefused: refused, hint: '', isDisabled })
+  const name = exception.name ?? ''
   if (!isNonRecurringException(exception)) {
-    return { index, ordinal: exception.ordinal, repeatingWord: holidayWord('repeating', language), name: null, shownName, from: null, to: null, kind: null, remove }
+    return { name: cell('name', name, false, true), from: null, to: null, kind: null, repeatingText: holidayWord('repeating', language), remove }
   }
-  const field = (column: 'name' | 'fromDate' | 'toDate', text: string, refused: boolean): HolidaySettingsField =>
-    fieldOf({ holder: 'calendarDraft', column, index }, column === 'name' ? 'text' : 'date', text, refused, '')
   const isWorking = exception.dayWorking === true
   const kindWord = isWorking ? holidayWord('dayWorking', language) : iconLabel(EXCEPTION_KIND_ENTRY, language)
   return {
-    index,
-    ordinal: exception.ordinal,
-    repeatingWord: null,
-    name: field('name', shownName, false),
-    shownName,
-    from: field('fromDate', dateText(exception.fromDate), isRefused),
-    to: field('toDate', dateText(exception.toDate), isRefused),
-    kind: entryOf(EXCEPTION_KIND_ENTRY, kindWord, { isPressed: isWorking }),
+    name: cell('name', name, false),
+    from: cell('fromDate', dateText(exception.fromDate), isRefused),
+    to: cell('toDate', dateText(exception.toDate), isRefused),
+    kind: entryOf(EXCEPTION_KIND_ENTRY, language, { target, word: kindWord, isPressed: isWorking }),
+    repeatingText: null,
     remove,
   }
 }
 
 // see WC-4
-// WHY: the rows stand in start-day order while each keeps its place in the draft's list as its index.
 /** @purity pure */
-function exceptionRowsOf(
-  draft: HolidaySettingsDraft,
-  refusals: readonly HolidaySettingsRefusal[],
+function exceptionLinesOf(
+  draft: CalendarDraft,
+  refusals: readonly CalendarDraftRefusal[],
   language: DisplayLanguage,
-): readonly HolidayExceptionRow[] {
-  const refused = refusedExceptionRows(refusals)
-  const startOf = (one: Exception): string => one.fromDate ?? ''
-  return draft.exceptions
-    .map((one, index) => ({ one, index }))
-    .sort((a, b) => (startOf(a.one) < startOf(b.one) ? -1 : startOf(a.one) > startOf(b.one) ? 1 : a.index - b.index))
-    .map(({ one, index }) => exceptionRowOf(one, index, refused.has(index), language))
+): readonly HolidayExceptionLine[] {
+  const refused = refusedExceptionOrdinals(refusals)
+  return exceptionsInStartOrder(draft.exceptions).map((one) =>
+    exceptionLineOf(one, draft.exceptions.indexOf(one), refused.has(one.ordinal), language))
 }
 
-// see U-65, FR-088, T-344, WC-1, WC-10, FR-029
+// WHY: the last, empty heading stands over the remove entrance; the list draws one cell per heading.
+/** @purity pure */
+function exceptionColumnsOf(language: DisplayLanguage): readonly string[] {
+  return ['exceptionName', 'exceptionFrom', 'exceptionTo', 'exceptionKind'].map((part) => holidayWord(part, language)).concat([''])
+}
+
+/** @purity pure */
+function upperBodyOf(draft: CalendarDraft, schedule: Schedule, refusals: readonly CalendarDraftRefusal[], language: DisplayLanguage) {
+  return {
+    weekdaysHeading: holidayWord('workingWeekdays', language),
+    weekdays: weekdayEntriesOf(draft, language),
+    weekStartName: holidayWord('weekStart', language),
+    weekStart: weekStartCellOf(draft, language),
+    workingHoursHeading: holidayWord('workingHours', language),
+    workingHoursColumns: [holidayWord('rangeFrom', language), holidayWord('rangeTo', language)],
+    workingTimes: workingTimeLinesOf(draft, refusals, language),
+    addWorkingTime: entryOf(ADD_RANGE_ENTRY, language, { isEnabled: canAddRange(draft) }),
+    otherHoursLine: otherHoursLineOf(draft, schedule, language),
+    upperRefusals: refusals.filter((one) => !isExceptionRefusal(one)).map((one) => refusalText(one, draft, language)),
+  }
+}
+
+// see U-65, FR-088, T-344, WC-1, WC-10, FR-029, T-280
+// WHY: drafted, the surface reads the draft; untouched, the document's calendar (CR-743 X-b). IC-138 dims while a refusal stands.
 /** @purity pure */
 export function holidaySettingsOf(
   session: ScreenSession,
   schedule: Schedule,
   heading: string,
   commands: readonly CommandItem[],
-  refusalsOf: (draft: HolidaySettingsDraft) => readonly HolidaySettingsRefusal[],
   language: DisplayLanguage,
 ): HolidaySettings {
-  const { draft, isDrafted } = shownDraftOf(session, schedule)
-  const refusals = refusalsOf(draft)
-  const said = (one: HolidaySettingsRefusal): string => refusalText(one, draft, language)
+  const state = session.screen.calendarDraftState
+  const draft = shownCalendarDraft(state.kind === 'drafted' ? state.calendarDraft : null, schedule)
+  const refusals = calendarDraftRefusalsOf(draft)
   return {
     surface: HOLIDAY_SETTINGS_SURFACE,
     heading,
     commands: commands.filter((one) => one.icon === CLOSE_SURFACE_ENTRY),
-    isDrafted,
-    workingWeekdaysHeading: holidayWord('workingWeekdays', language),
-    weekdays: weekdayEntriesOf(draft, language),
-    weekStartHeading: holidayWord('weekStart', language),
-    weekStart: weekStartFieldOf(draft, language),
-    workingHoursHeading: holidayWord('workingHours', language),
-    rangeWords: { from: holidayWord('rangeFrom', language), to: holidayWord('rangeTo', language) },
-    workingHours: workingHoursRowsOf(draft, refusals, language),
-    addRange: entryOf(ADD_RANGE_ENTRY, iconLabel(ADD_RANGE_ENTRY, language), {
-      isEnabled: draft.workingTimes.length < SETTINGS_CONSTANTS.workingTimesPerDayMax,
-    }),
-    otherHoursLine: otherHoursLineOf(schedule, language),
-    upperRefusals: refusals.filter((one) => !isExceptionRefusal(one)).map(said),
-    exceptionDaysHeading: holidayWord('exceptionDays', language),
-    exceptionColumnWords: {
-      name: holidayWord('exceptionName', language),
-      from: holidayWord('exceptionFrom', language),
-      to: holidayWord('exceptionTo', language),
-      kind: holidayWord('exceptionKind', language),
+    holidaySettings: {
+      isDrafted: state.kind === 'drafted',
+      ...upperBodyOf(draft, schedule, refusals, language),
+      exceptionsHeading: holidayWord('exceptionDays', language),
+      exceptionColumns: exceptionColumnsOf(language),
+      exceptions: exceptionLinesOf(draft, refusals, language),
+      lowerRefusals: refusals.filter(isExceptionRefusal).map((one) => refusalText(one, draft, language)),
+      addException: entryOf(ADD_EXCEPTION_ENTRY, language),
+      apply: entryOf(APPLY_ENTRY, language, { isEnabled: refusals.length === 0 }),
     },
-    exceptions: exceptionRowsOf(draft, refusals, language),
-    exceptionRefusals: refusals.filter(isExceptionRefusal).map(said),
-    addException: entryOf(ADD_EXCEPTION_ENTRY, iconLabel(ADD_EXCEPTION_ENTRY, language)),
-    apply: entryOf(APPLY_ENTRY, iconLabel(APPLY_ENTRY, language), { isEnabled: refusals.length === 0 }),
   }
 }

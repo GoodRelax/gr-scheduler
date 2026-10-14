@@ -2247,6 +2247,14 @@
        "タイムシフトの確認（`QN-14`）に出すもの（表 T-377 の `BS-3`）を、書き込む前に数える"
       ]
      }
+    },
+    {
+     "name": "baseChangeCommandOf",
+     "note": {
+      "ja": [
+       "選んだ地域と選び方で基準を変える 1 つの命令（表 T-108 の `CM-94` か `CM-95`） —— 当てても何も変わらないときは無い（`FR-156`、表 T-109 の `IC-161`）"
+      ]
+     }
     }
    ]
   },
@@ -2486,6 +2494,15 @@
        "作るものが無ければ `null`。",
        "出来事の全数は 表 T-280 —— 作るのは、出どころが入力の出来事だけである。",
        "`Esc` には作らない —— 段はシェルが決める（表 T-283）"
+      ]
+     }
+    },
+    {
+     "name": "screenEventFromFieldCommit",
+     "note": {
+      "ja": [
+       "確定した欄のうち、画面の値の下書き（表 T-280 の `baseTimeZoneDraftStateMachine`・`timeShiftDraftStateMachine`・`calendarDraftStateMachine`）へ行くものの出来事 —— `FO-14`・`FO-16`・表 T-344 の `WC-3`・`WC-4`・`WC-8`。",
+       "読めない例外日の日付は 表 T-233 の `RS-87` を告げる出来事"
       ]
      }
     },
@@ -3917,6 +3934,51 @@
      }
     },
     {
+     "name": "HolidaySettings",
+     "note": {
+      "ja": [
+       "型。",
+       "休日の設定（`U-65`）の開いた面 —— 題と閉じる入口と中身（`HolidaySettingsBody`）"
+      ]
+     }
+    },
+    {
+     "name": "HolidaySettingsBody",
+     "note": {
+      "ja": [
+       "型。",
+       "休日の設定の中身 —— 表 T-344 の段ごとの入口・欄・断りの 1 行と、送る例外日の一覧（表 T-257 の `RR-2`）"
+      ]
+     }
+    },
+    {
+     "name": "HolidaySettingsCell",
+     "note": {
+      "ja": [
+       "型。",
+       "休日の設定の 1 つの欄 —— 欄の行と、`S-154` の線で囲むか（`WC-10`）"
+      ]
+     }
+    },
+    {
+     "name": "HolidaySettingsEntry",
+     "note": {
+      "ja": [
+       "型。",
+       "休日の設定の 1 つの入口 —— どの曜日・どの行を指すか（`IF-9`）と、ラベルの代わりに描く語"
+      ]
+     }
+    },
+    {
+     "name": "HolidayExceptionLine",
+     "note": {
+      "ja": [
+       "型。",
+       "例外日の一覧の 1 行 —— `WC-4`・`WC-5`"
+      ]
+     }
+    },
+    {
      "name": "imageToJsonPromptText",
      "note": {
       "ja": [
@@ -4092,6 +4154,169 @@
       "ja": [
        "型。",
        "文書へ至った道 —— 表 T-290 の状態が運ぶ値"
+      ]
+     }
+    },
+    {
+     "name": "CalendarDraft",
+     "note": {
+      "ja": [
+       "型。",
+       "休日の設定（`_assets/tbl-glossary.md` の `U-65`）の下書き —— 表 T-280 の `calendarDraftStateMachine` が `drafted` で運ぶ値（稼働する曜日・週の始まり・時間帯の行・例外日の行）"
+      ]
+     }
+    },
+    {
+     "name": "CalendarDraftRefusal",
+     "note": {
+      "ja": [
+       "型。",
+       "下書きの断りの 1 件 —— `01-04-requirements.md` の 表 T-344 の `WC-10` の語の 6 つ"
+      ]
+     }
+    },
+    {
+     "name": "calendarDraftOf",
+     "note": {
+      "ja": [
+       "文書の暦から下書きを組む —— 面が示す 1 組（`FR-088`）と 表 T-344 の `WC-2`・`WC-3`・`WC-4`・`WC-8`"
+      ]
+     }
+    },
+    {
+     "name": "shownCalendarDraft",
+     "note": {
+      "ja": [
+       "面が見せる下書き —— `drafted` ならその下書き、`untouched` なら文書の暦から組んだもの（表 T-280）"
+      ]
+     }
+    },
+    {
+     "name": "otherHoursDayTypesOf",
+     "note": {
+      "ja": [
+       "別の時間帯を持つ稼働する曜日 —— 表 T-344 の `WC-9`"
+      ]
+     }
+    },
+    {
+     "name": "withWeekdayToggled",
+     "note": {
+      "ja": [
+       "曜日を 1 つ押した後の下書き —— 表 T-109 の `IC-133`、表 T-344 の `WC-2`"
+      ]
+     }
+    },
+    {
+     "name": "withWeekStart",
+     "note": {
+      "ja": [
+       "週の始まりを選んだ後の下書き —— `IC-134`、`WC-3`"
+      ]
+     }
+    },
+    {
+     "name": "canAddRange",
+     "note": {
+      "ja": [
+       "時間帯の行を足せるか —— `IC-163`、`WC-8`"
+      ]
+     }
+    },
+    {
+     "name": "canDeleteRange",
+     "note": {
+      "ja": [
+       "時間帯の行を消せるか —— `IC-164`、`WC-8`"
+      ]
+     }
+    },
+    {
+     "name": "withRangeAdded",
+     "note": {
+      "ja": [
+       "時間帯の行を 1 つ足した後の下書き —— `IC-163`、`WC-8`"
+      ]
+     }
+    },
+    {
+     "name": "withRangeDeleted",
+     "note": {
+      "ja": [
+       "時間帯の行を 1 つ消した後の下書き —— `IC-164`、`WC-8`"
+      ]
+     }
+    },
+    {
+     "name": "withRangeTimeTyped",
+     "note": {
+      "ja": [
+       "時刻の欄を確定した後の下書き —— `IC-165`、`WC-8`、`WC-10`"
+      ]
+     }
+    },
+    {
+     "name": "withExceptionAdded",
+     "note": {
+      "ja": [
+       "例外日の行を 1 つ足した後の下書き —— `IC-135`、`WC-6`"
+      ]
+     }
+    },
+    {
+     "name": "withExceptionDeleted",
+     "note": {
+      "ja": [
+       "例外日の行を 1 つ消した後の下書き —— `IC-136`、`WC-4`"
+      ]
+     }
+    },
+    {
+     "name": "withExceptionKindToggled",
+     "note": {
+      "ja": [
+       "例外日の休みと稼働を入れ替えた後の下書き —— `IC-137`、`WC-4`"
+      ]
+     }
+    },
+    {
+     "name": "withExceptionNameTyped",
+     "note": {
+      "ja": [
+       "例外日の名前の欄を確定した後の下書き —— `WC-4`"
+      ]
+     }
+    },
+    {
+     "name": "withExceptionDayTyped",
+     "note": {
+      "ja": [
+       "例外日の始まりか終わりの日の欄を確定した後の下書き —— `WC-4`"
+      ]
+     }
+    },
+    {
+     "name": "exceptionsInStartOrder",
+     "note": {
+      "ja": [
+       "例外日の行を始まりの日の順に並べたもの —— `WC-4`"
+      ]
+     }
+    },
+    {
+     "name": "calendarDraftRefusalsOf",
+     "note": {
+      "ja": [
+       "下書きの断りの全部 —— 表 T-344 の `WC-10`。",
+       "`CM-39` が断るのと同じ Entity の述語で判じる"
+      ]
+     }
+    },
+    {
+     "name": "calendarCommandOf",
+     "note": {
+      "ja": [
+       "下書きから 表 T-108 の `CM-39` を組む —— 文書と同じ部分は入れず、文書と同じ下書きは何も書かない（`WC-7`）"
       ]
      }
     },

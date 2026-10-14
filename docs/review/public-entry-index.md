@@ -491,7 +491,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ActualGrabHold` | entry | type | `src/use-case/edit-document/edit-task.ts#ActualGrabHold` | -- | type ActualGrabHold = 'GA-5' \| 'GA-6' \| 'GA-17' \| 'GA-21' \| 'GA-22' |
 | `AnnotationAnchor` | entry | interface | `src/use-case/edit-document/edit-annotation.ts#AnnotationAnchor` | -- | interface AnnotationAnchor |
 | `AnnotationCommand` | entry | type | `src/use-case/edit-document/edit-annotation.ts#AnnotationCommand` | -- | type AnnotationCommand = \| { readonly kind: 'createCommentBox'; readonly id: string; readonly anchor: AnnotationAnchor } \| { readonly kind: 'deleteCommentBox... |
-| `baseChangeCommandOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#baseChangeCommandOf` | -- | function baseChangeCommandOf( held: BaseTimeZones, chosenRegion: string \| null, chosenWay: BaseChangeWay, ): ProjectCommand \| DocumentSettingsCommand \| null |
+| `baseChangeCommandOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#baseChangeCommandOf` | PI-9 | 選んだ地域と選び方で基準を変える 1 つの命令（表 T-108 の `CM-94` か `CM-95`） —— 当てても何も変わらないときは無い（`FR-156`、表 T-109 の `IC-161`） |
 | `BaseChangeWay` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#BaseChangeWay` | -- | type BaseChangeWay = 'keepGlobalTime' \| 'keepLocalTime' |
 | `BaseTimeZones` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#BaseTimeZones` | -- | interface BaseTimeZones |
 | `baseTimeZonesAfterChange` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#baseTimeZonesAfterChange` | -- | function baseTimeZonesAfterChange(held: BaseTimeZones, chosenRegion: string \| null, chosenWay: BaseChangeWay): BaseTimeZones |
@@ -799,7 +799,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PressRow` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#PressRow` | PI-18 | 型。 |
 | `pressRowOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#pressRowOf` | PI-18 | 押下がどの行で始まったかを答える。 |
 | `rememberedActualIn` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rememberedActualIn` | -- | function rememberedActualIn(context: InputContext, taskUid: number): RememberedActual \| null |
-| `screenEventFromFieldCommit` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromFieldCommit` | -- | function screenEventFromFieldCommit(commit: FieldCommit, context: InputContext): SessionEvent \| null |
+| `screenEventFromFieldCommit` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromFieldCommit` | PI-18 | 確定した欄のうち、画面の値の下書き（表 T-280 の `baseTimeZoneDraftStateMachine`・`timeShiftDraftStateMachine`・`calendarDraftStateMachine`）へ行くものの出来事 —— `FO-14`・`FO-16`・表 T-344 の `...` |
 | `screenEventFromInput` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromInput` | PI-18 | 入力から画面の値の出来事を 1 つ作る。 |
 | `ScrollAnchor` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#ScrollAnchor` | -- | interface ScrollAnchor |
 | `scrollAreaTopOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#scrollAreaTopOf` | -- | function scrollAreaTopOf(context: InputContext): number |
@@ -1103,7 +1103,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: HandedFirstReading, ): Promise<boolean> |
 | `WORKING_TIMES_UNLIKE_DAY_REASON` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#WORKING_TIMES_UNLIKE_DAY_REASON` | -- | const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89' |
 | `askTimeShift` | file only | function | `src/framework/single-html-shell/field-entry.ts#askTimeShift` | -- | function askTimeShift(hands: Pick<FieldEntryHands, 'readHeld' \| 'readSession' \| 'sendToSession'>, frame: FrameValues, minutes: number): void |
-| `baseChangeCommandsOf` | file only | function | `src/framework/single-html-shell/field-entry.ts#baseChangeCommandsOf` | -- | function baseChangeCommandsOf( draft: { readonly chosenRegion: string; readonly chosenWay: 'keepGlobalTime' \| 'keepLocalTime' }, document: Document, ): reado... |
+| `baseChangeCommandsOf` | file only | function | `src/framework/single-html-shell/field-entry.ts#baseChangeCommandsOf` | -- | function baseChangeCommandsOf( draft: { readonly chosenRegion: string \| null; readonly chosenWay: Parameters<typeof baseChangeCommandOf>[2] }, document: Docu... |
 | `drainFieldEditNotices` | file only | function | `src/framework/single-html-shell/field-entry.ts#drainFieldEditNotices` | -- | function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues \| null): void |
 | `FIELD_ROW_OF_IN_PLACE_TARGET` | file only | const | `src/framework/single-html-shell/field-entry.ts#FIELD_ROW_OF_IN_PLACE_TARGET` | -- | const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>> = |
 | `FieldEntryHands` | file only | type | `src/framework/single-html-shell/field-entry.ts#FieldEntryHands` | -- | type FieldEntryHands = Pick< |
@@ -1402,12 +1402,13 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HelpFootnote` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#HelpFootnote` | -- | type HelpFootnote = LinkedWords |
 | `HelpModal` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpModal` | PI-37 | 型。 |
 | `HelpWindowArea` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpWindowArea` | -- | interface HelpWindowArea |
-| `HolidayExceptionRow` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidayExceptionRow` | -- | interface HolidayExceptionRow |
-| `HolidaySettings` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettings` | -- | interface HolidaySettings |
-| `HolidaySettingsField` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettingsField` | -- | interface HolidaySettingsField |
+| `HolidayExceptionLine` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidayExceptionLine` | PI-37 | 型。 |
+| `HolidaySettings` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettings` | PI-37 | 型。 |
+| `HolidaySettingsBody` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettingsBody` | PI-37 | 型。 |
+| `HolidaySettingsCell` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettingsCell` | PI-37 | 型。 |
+| `HolidaySettingsEntry` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettingsEntry` | PI-37 | 型。 |
 | `HolidaySettingsFieldColumn` | entry | type | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettingsFieldColumn` | -- | type HolidaySettingsFieldColumn = 'weekStartDay' \| 'fromTime' \| 'toTime' \| 'name' \| 'fromDate' \| 'toDate' |
-| `HolidayWeekdayEntry` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidayWeekdayEntry` | -- | interface HolidayWeekdayEntry |
-| `HolidayWorkingHoursRow` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidayWorkingHoursRow` | -- | interface HolidayWorkingHoursRow |
+| `HolidayWorkingTimeLine` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidayWorkingTimeLine` | -- | interface HolidayWorkingTimeLine |
 | `HorizontalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#HorizontalWhole` | PI-37 | interface HorizontalWhole |
 | `horizontalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#horizontalWholeOf` | PI-37 | function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole |
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
@@ -1526,10 +1527,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NO_DELAY_FIX_VALUES` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#NO_DELAY_FIX_VALUES` | -- | const NO_DELAY_FIX_VALUES: DelayFixWindowValues = |
 | `dialogueFieldFromLog` | file only | function | `src/adapter/screen-renderer/dialogue-field.ts#dialogueFieldFromLog` | -- | function dialogueFieldFromLog( log: DialogueLog, session: ScreenSession, readings: ScreenViewReadings, canvas: ScreenRect, ): DialogueField \| null |
 | `HOLIDAY_SETTINGS_SURFACE` | file only | const | `src/adapter/screen-renderer/holiday-settings.ts#HOLIDAY_SETTINGS_SURFACE` | -- | const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings' |
-| `HolidaySettingsDraft` | file only | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettingsDraft` | -- | interface HolidaySettingsDraft |
-| `holidaySettingsOf` | file only | function | `src/adapter/screen-renderer/holiday-settings.ts#holidaySettingsOf` | -- | function holidaySettingsOf( session: ScreenSession, schedule: Schedule, heading: string, commands: readonly CommandItem[], refusalsOf: (draft: HolidaySetting... |
-| `HolidaySettingsRefusal` | file only | type | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettingsRefusal` | -- | type HolidaySettingsRefusal = \| { readonly part: 'timeNotReadable'; readonly index: number; readonly side: 'fromTime' \| 'toTime'; readonly text: string } \| {... |
-| `shownClockText` | file only | function | `src/adapter/screen-renderer/holiday-settings.ts#shownClockText` | -- | function shownClockText(text: string \| null, side: 'fromTime' \| 'toTime'): string |
+| `holidaySettingsOf` | file only | function | `src/adapter/screen-renderer/holiday-settings.ts#holidaySettingsOf` | -- | function holidaySettingsOf( session: ScreenSession, schedule: Schedule, heading: string, commands: readonly CommandItem[], language: DisplayLanguage, ): Holi... |
 | `confirmationAnswers` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationAnswers` | -- | function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] |
 | `confirmationFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationFromSession` | -- | function confirmationFromSession( session: ScreenSession, readings: ScreenViewReadings, ): Confirmation \| null |
 | `linkedWordsOf` | file only | function | `src/adapter/screen-renderer/notices.ts#linkedWordsOf` | -- | function linkedWordsOf(word: string): LinkedWords \| null |
@@ -1708,14 +1706,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TextEntryControl` | file only | interface | `src/framework/dom-screen-surface/field-editing.ts#TextEntryControl` | -- | interface TextEntryControl |
 | `TYPED_CONTROLS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#TYPED_CONTROLS` | -- | const TYPED_CONTROLS = new WeakSet<object>() |
 | `HOLIDAY_SETTINGS_TARGET_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HOLIDAY_SETTINGS_TARGET_ATTRIBUTE` | -- | const HOLIDAY_SETTINGS_TARGET_ATTRIBUTE = 'data-holiday-target' |
-| `HolidayExceptionLine` | file only | interface | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidayExceptionLine` | -- | interface HolidayExceptionLine |
-| `HolidaySettingsBody` | file only | interface | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidaySettingsBody` | -- | interface HolidaySettingsBody |
 | `holidaySettingsBodyElements` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#holidaySettingsBodyElements` | -- | function holidaySettingsBodyElements( host: Document, modal: HolidaySettingsModal, anchors: Map<string, HTMLElement>, ): readonly HTMLElement[] |
-| `HolidaySettingsCell` | file only | interface | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidaySettingsCell` | -- | interface HolidaySettingsCell |
-| `HolidaySettingsEntry` | file only | interface | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidaySettingsEntry` | -- | interface HolidaySettingsEntry |
 | `holidaySettingsFrameStyle` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#holidaySettingsFrameStyle` | -- | function holidaySettingsFrameStyle(): string |
-| `HolidaySettingsModal` | file only | type | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidaySettingsModal` | -- | type HolidaySettingsModal = OpenModal & { readonly holidaySettings: HolidaySettingsBody } |
-| `HolidayWorkingTimeLine` | file only | interface | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidayWorkingTimeLine` | -- | interface HolidayWorkingTimeLine |
+| `HolidaySettingsModal` | file only | type | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidaySettingsModal` | -- | type HolidaySettingsModal = HolidaySettings |
 | `isHolidaySettingsModal` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#isHolidaySettingsModal` | -- | function isHolidaySettingsModal(modal: OpenModal): modal is HolidaySettingsModal |
 | `replaceKeepingListScroll` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#replaceKeepingListScroll` | -- | function replaceKeepingListScroll(layer: Element, drawn: readonly HTMLElement[]): void |
 | `confirmationAnswerElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#confirmationAnswerElement` | -- | function confirmationAnswerElement( host: Document, answer: Confirmation['answers'][number], ): HTMLElement |
@@ -1801,20 +1794,20 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `advanceScreenSession` | entry | function | `src/use-case/advance-screen-session/advance-screen-session.ts#advanceScreenSession` | PI-39 | 1 段進める。 |
 | `ArmKind` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#ArmKind` | PI-39 | 型。 |
 | `BaseChangeWay` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#BaseChangeWay` | -- | type BaseChangeWay = 'keepGlobalTime' \| 'keepLocalTime' |
-| `calendarCommandOf` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#calendarCommandOf` | -- | function calendarCommandOf(draft: CalendarDraft, schedule: Schedule): Extract<DocumentCommand, { readonly kind: 'setCalendar' }> |
-| `CalendarDraft` | entry | interface | `src/use-case/advance-screen-session/calendar-draft.ts#CalendarDraft` | -- | interface CalendarDraft |
-| `calendarDraftOf` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#calendarDraftOf` | -- | function calendarDraftOf(schedule: Schedule): CalendarDraft |
+| `calendarCommandOf` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#calendarCommandOf` | PI-39 | 下書きから 表 T-108 の `CM-39` を組む —— 文書と同じ部分は入れず、文書と同じ下書きは何も書かない（`WC-7`） |
+| `CalendarDraft` | entry | interface | `src/use-case/advance-screen-session/calendar-draft.ts#CalendarDraft` | PI-39 | 型。 |
+| `calendarDraftOf` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#calendarDraftOf` | PI-39 | 文書の暦から下書きを組む —— 面が示す 1 組（`FR-088`）と 表 T-344 の `WC-2`・`WC-3`・`WC-4`・`WC-8` |
 | `CalendarDraftRange` | entry | interface | `src/use-case/advance-screen-session/calendar-draft.ts#CalendarDraftRange` | -- | interface CalendarDraftRange |
 | `CalendarDraftRangeSide` | entry | type | `src/use-case/advance-screen-session/calendar-draft.ts#CalendarDraftRangeSide` | -- | type CalendarDraftRangeSide = 'start' \| 'end' |
-| `CalendarDraftRefusal` | entry | type | `src/use-case/advance-screen-session/calendar-draft.ts#CalendarDraftRefusal` | -- | type CalendarDraftRefusal = \| { readonly kind: 'timeNotReadable'; readonly rangeIndex: number; readonly side: CalendarDraftRangeSide; readonly text: string }... |
-| `calendarDraftRefusalsOf` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#calendarDraftRefusalsOf` | -- | function calendarDraftRefusalsOf(draft: CalendarDraft): readonly CalendarDraftRefusal[] |
-| `canAddRange` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#canAddRange` | -- | function canAddRange(draft: CalendarDraft): boolean |
-| `canDeleteRange` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#canDeleteRange` | -- | function canDeleteRange(draft: CalendarDraft): boolean |
+| `CalendarDraftRefusal` | entry | type | `src/use-case/advance-screen-session/calendar-draft.ts#CalendarDraftRefusal` | PI-39 | 型。 |
+| `calendarDraftRefusalsOf` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#calendarDraftRefusalsOf` | PI-39 | 下書きの断りの全部 —— 表 T-344 の `WC-10`。 |
+| `canAddRange` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#canAddRange` | PI-39 | 時間帯の行を足せるか —— `IC-163`、`WC-8` |
+| `canDeleteRange` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#canDeleteRange` | PI-39 | 時間帯の行を消せるか —— `IC-164`、`WC-8` |
 | `draftClockMinuteOf` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#draftClockMinuteOf` | -- | function draftClockMinuteOf(text: string, side: CalendarDraftRangeSide): number \| null |
 | `emptyScreenSession` | entry | const | `src/use-case/advance-screen-session/advance-screen-session.ts#emptyScreenSession` | PI-39 | 初期の状態。 |
 | `emptySearchPanelSession` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#emptySearchPanelSession` | PI-39 | `SearchPanelSession` の初期の値 —— `_assets/tbl-settings.md` の 表 T-206 の `S-419` ・ `S-420` ・ `S-429` の既定 |
 | `EVERY_ROW_SHOWN` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#EVERY_ROW_SHOWN` | PI-39 | `TableVisibility` の初めの値 —— どの行も「表示」で、スケジュールフィルタを掛けていない（表 T-353 の `TV-2`） |
-| `exceptionsInStartOrder` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#exceptionsInStartOrder` | -- | function exceptionsInStartOrder(exceptions: readonly Exception[]): readonly Exception[] |
+| `exceptionsInStartOrder` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#exceptionsInStartOrder` | PI-39 | 例外日の行を始まりの日の順に並べたもの —— `WC-4` |
 | `FileFlowImportAnswer` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowImportAnswer` | PI-39 | 型。 |
 | `FileFlowOpenRoute` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOpenRoute` | PI-39 | 型。 |
 | `FileFlowOwedAction` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowOwedAction` | PI-39 | 型。 |
@@ -1830,7 +1823,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOTICE_MANNER_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_MANNER_OF_REASON` | PI-39 | 理由ごとの作法 —— 表 T-233 の作法の欄（表 T-037 の行）。 |
 | `NOTICE_WORDS_ROW_OF_REASON` | entry | const | `src/use-case/advance-screen-session/notice-values.ts#NOTICE_WORDS_ROW_OF_REASON` | PI-39 | 理由ごとに語を刷る行 —— 表 T-233 のまとめ方の欄（相乗りしない行は自身、`_source/notice-reasons.json` から生成）。 |
 | `NoticeReason` | entry | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeReason` | PI-39 | 型。 |
-| `otherHoursDayTypesOf` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#otherHoursDayTypesOf` | -- | function otherHoursDayTypesOf(draft: CalendarDraft, schedule: Schedule): readonly number[] |
+| `otherHoursDayTypesOf` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#otherHoursDayTypesOf` | PI-39 | 別の時間帯を持つ稼働する曜日 —— 表 T-344 の `WC-9` |
 | `PressedOn` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#PressedOn` | PI-39 | 型。 |
 | `PropertiesSubject` | entry | interface | `src/use-case/advance-screen-session/screen-values.ts#PropertiesSubject` | PI-39 | 型。 |
 | `ScreenSession` | entry | interface | `src/use-case/advance-screen-session/advance-screen-session.ts#ScreenSession` | PI-39 | 型。 |
@@ -1843,7 +1836,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchTable` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#SearchTable` | -- | type SearchTable = 'tasks' \| 'commentBoxes' |
 | `SessionEffect` | entry | type | `src/use-case/advance-screen-session/advance-screen-session.ts#SessionEffect` | PI-39 | 型。 |
 | `SessionEvent` | entry | type | `src/use-case/advance-screen-session/advance-screen-session.ts#SessionEvent` | PI-39 | 型。 |
-| `shownCalendarDraft` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#shownCalendarDraft` | -- | function shownCalendarDraft(draft: CalendarDraft \| null, schedule: Schedule): CalendarDraft |
+| `shownCalendarDraft` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#shownCalendarDraft` | PI-39 | 面が見せる下書き —— `drafted` ならその下書き、`untouched` なら文書の暦から組んだもの（表 T-280） |
 | `StandingNotice` | entry | interface | `src/use-case/advance-screen-session/notice-values.ts#StandingNotice` | PI-39 | 型。 |
 | `TableView` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#TableView` | PI-39 | 型。 |
 | `tableViewOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#tableViewOf` | PI-39 | `PI-9` の `tableViewOf` を、同じ理由で公開する —— 読み手は 1 本である |
@@ -1851,16 +1844,16 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `VISIBILITY_TABLES` | entry | const | `src/use-case/advance-screen-session/screen-values.ts#VISIBILITY_TABLES` | PI-39 | `VisibilityTable` の 3 つの名を、表 T-109 が `IC-143` の面を並べる順（検索・遅延診断レポート・担当リスト）に並べたもの —— スケジュールフィルタの帯が表の名を並べる順（表 T-353 の `TV-11`）。 |
 | `VisibilityTable` | entry | type | `src/use-case/advance-screen-session/screen-values.ts#VisibilityTable` | PI-39 | 型。 |
 | `WindowName` | entry | type | `src/entity/document-model/screen-state/screen-state.ts#WindowName` | PI-39 | 型。 |
-| `withExceptionAdded` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withExceptionAdded` | -- | function withExceptionAdded(draft: CalendarDraft, schedule: Schedule, today: CalendarDay): CalendarDraft |
-| `withExceptionDayTyped` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withExceptionDayTyped` | -- | function withExceptionDayTyped( draft: CalendarDraft, ordinal: number, side: CalendarDraftRangeSide, day: CalendarDay, ): CalendarDraft |
-| `withExceptionDeleted` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withExceptionDeleted` | -- | function withExceptionDeleted(draft: CalendarDraft, ordinal: number): CalendarDraft |
-| `withExceptionKindToggled` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withExceptionKindToggled` | -- | function withExceptionKindToggled(draft: CalendarDraft, ordinal: number): CalendarDraft |
-| `withExceptionNameTyped` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withExceptionNameTyped` | -- | function withExceptionNameTyped(draft: CalendarDraft, ordinal: number, text: string): CalendarDraft |
-| `withRangeAdded` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withRangeAdded` | -- | function withRangeAdded(draft: CalendarDraft): CalendarDraft |
-| `withRangeDeleted` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withRangeDeleted` | -- | function withRangeDeleted(draft: CalendarDraft, rangeIndex: number): CalendarDraft |
-| `withRangeTimeTyped` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withRangeTimeTyped` | -- | function withRangeTimeTyped( draft: CalendarDraft, rangeIndex: number, side: CalendarDraftRangeSide, text: string, ): CalendarDraft |
-| `withWeekdayToggled` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withWeekdayToggled` | -- | function withWeekdayToggled(draft: CalendarDraft, dayType: number): CalendarDraft |
-| `withWeekStart` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withWeekStart` | -- | function withWeekStart(draft: CalendarDraft, weekStartDay: number): CalendarDraft |
+| `withExceptionAdded` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withExceptionAdded` | PI-39 | 例外日の行を 1 つ足した後の下書き —— `IC-135`、`WC-6` |
+| `withExceptionDayTyped` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withExceptionDayTyped` | PI-39 | 例外日の始まりか終わりの日の欄を確定した後の下書き —— `WC-4` |
+| `withExceptionDeleted` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withExceptionDeleted` | PI-39 | 例外日の行を 1 つ消した後の下書き —— `IC-136`、`WC-4` |
+| `withExceptionKindToggled` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withExceptionKindToggled` | PI-39 | 例外日の休みと稼働を入れ替えた後の下書き —— `IC-137`、`WC-4` |
+| `withExceptionNameTyped` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withExceptionNameTyped` | PI-39 | 例外日の名前の欄を確定した後の下書き —— `WC-4` |
+| `withRangeAdded` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withRangeAdded` | PI-39 | 時間帯の行を 1 つ足した後の下書き —— `IC-163`、`WC-8` |
+| `withRangeDeleted` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withRangeDeleted` | PI-39 | 時間帯の行を 1 つ消した後の下書き —— `IC-164`、`WC-8` |
+| `withRangeTimeTyped` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withRangeTimeTyped` | PI-39 | 時刻の欄を確定した後の下書き —— `IC-165`、`WC-8`、`WC-10` |
+| `withWeekdayToggled` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withWeekdayToggled` | PI-39 | 曜日を 1 つ押した後の下書き —— 表 T-109 の `IC-133`、表 T-344 の `WC-2` |
+| `withWeekStart` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#withWeekStart` | PI-39 | 週の始まりを選んだ後の下書き —— `IC-134`、`WC-3` |
 | `AgentApiEnablingState` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiEnablingState` | -- | type AgentApiEnablingState = \| { readonly kind: 'disabled' } \| { readonly kind: 'enabled' } export interface AgentApiValues |
 | `AgentApiValues` | file only | interface | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValues` | -- | interface AgentApiValues |
 | `AgentApiValuesAxes` | file only | type | `src/use-case/advance-screen-session/agent-api-values.ts#AgentApiValuesAxes` | -- | type AgentApiValuesAxes = Omit<AgentApiValues, never> |
@@ -2015,4 +2008,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1016 name(s) leave through a public entry (450 of them published by table T-064), 789 more are exported by a file and not by its entry.
+Totals: 1017 name(s) leave through a public entry (477 of them published by table T-064), 781 more are exported by a file and not by its entry.

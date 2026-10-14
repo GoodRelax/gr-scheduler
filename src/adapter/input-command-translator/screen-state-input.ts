@@ -99,9 +99,6 @@ type CalendarDraft = Extract<ScreenValuesEvent, { readonly type: 'calendarDraftE
 
 type BaseChangeWay = Extract<ScreenValuesEvent, { readonly type: 'baseChangeWayChosen' }>['chosenWay']
 
-// TRAP: a backtick, not a quote: check 19 counts the word followed by a quote as an import specifier.
-const FROM_SIDE = `from` as const
-
 const CALENDAR_APPLY_ENTRY_PRESSED: ScreenValuesEvent = { type: 'calendarApplyEntryPressed' }
 
 const BASE_CHANGE_ENTRY_PRESSED: ScreenValuesEvent = { type: 'baseChangeEntryPressed' }
@@ -377,7 +374,7 @@ function acceptedDayOf(text: string): CalendarDay | null {
 function exceptionDayEventOf(index: number, isFrom: boolean, text: string, context: InputContext): SessionEvent | null {
   const day = acceptedDayOf(text)
   if (day === null) return UNREADABLE_DAY_TOLD
-  const side = isFrom ? FROM_SIDE : 'to'
+  const side = isFrom ? 'start' : 'end'
   return exceptionEdited(context, index, (draft, ordinal) => withExceptionDayTyped(draft, ordinal, side, day))
 }
 
@@ -391,7 +388,7 @@ function calendarDraftFieldEventOf(key: DraftKey<'calendarDraft'>, text: string,
     }
     case 'fromTime':
     case 'toTime': {
-      const side = key.column === 'fromTime' ? FROM_SIDE : 'to'
+      const side = key.column === 'fromTime' ? 'start' : 'end'
       return calendarDraftEdited(context, (draft) => withRangeTimeTyped(draft, key.index, side, text))
     }
     case 'name':

@@ -561,7 +561,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // WHY: read 2026-10-11 (CR-710 wave 2); RS-89 tells the ranges miss 1d, which still counts the day
   // length; RS-90 tells the schedule data time zone became this PC's region.
   'RS-89': '2253606a8c6ba6ef',
-  'RS-90': 'f6d70c3fad0dec53',
+  // WHY: CR-742 section 4.4 moved how the region is matched into FR-156; read together on 2026-10-14, the words still
+  // tell the region was set and the same-offset match, so only the fingerprint is re-keyed.
+  'RS-90': '2b8144f76e3acc05',
 }
 
 const fingerprintOf = (rowId: string): string => {

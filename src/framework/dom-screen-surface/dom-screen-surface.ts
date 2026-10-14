@@ -114,6 +114,20 @@ export const NOTICE_BOX_ATTRIBUTE = 'data-notice-box'
 
 export const NOTICE_BOX_REASON_SEPARATOR = ' '
 
+const SURFACE_FIELD_SELECTOR = '[data-field-row]'
+
+/** @purity semi-pure-b */
+function surfaceFieldPlaceOf(layer: Element, focused: Element | null): number {
+  return focused === null ? -1 : [...layer.querySelectorAll(SURFACE_FIELD_SELECTOR)].indexOf(focused)
+}
+
+/** @purity non-pure */
+function focusSurfaceFieldAt(layer: Element, place: number): void {
+  if (place < 0) return
+  const field = layer.querySelectorAll(SURFACE_FIELD_SELECTOR)[place] as Partial<HTMLElement> | undefined
+  if (typeof field?.focus === 'function') field.focus()
+}
+
 // see IF-9, WC-2, WC-4, WC-8
 /** @purity semi-pure-b */
 function holidaySettingsTargetOf(first: Element | null): Pick<ScreenPart, 'holidaySettingsTarget'> {
@@ -1135,12 +1149,17 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
   }
 
   // TRAP: a held field of the surface is not redrawn, or the typed letters and the caret are lost (as the panel's).
+  // WHY: an untouched Holiday Settings field is redrawn and refocused, so WC-10 shows after a Tab (IN-6).
   /** @purity non-pure */
   function redrawOpenModal(surfaceModal: ScreenView['openModal']): boolean {
-    const isHeldHere = fieldEditing.isFieldHeld() && modalLayer.contains((host as Partial<Document>).activeElement ?? null)
-    if (surfaceModal !== null && isHeldHere) return false
+    const focused = fieldEditing.isFieldHeld() ? ((host as Partial<Document>).activeElement ?? null) : null
+    const isHeldHere = focused !== null && modalLayer.contains(focused)
+    const isRefocused = isHeldHere && surfaceModal !== null && isHolidaySettingsModal(surfaceModal) && fieldEditing.isHeldTextUntouched()
+    if (surfaceModal !== null && isHeldHere && !isRefocused) return false
+    const place = isRefocused ? surfaceFieldPlaceOf(modalLayer, focused) : -1
     const drawnModal = surfaceModal === null ? null : modalElement(host, surfaceModal, anchorsOf('openModal'))
     replaceKeepingListScroll(modalLayer, drawnModal === null ? [] : [drawnModal.element])
+    focusSurfaceFieldAt(modalLayer, place)
     fieldEditing.holdWatermarkUnlock(drawnModal)
     if (drawnModal !== null && surfaceModal !== null && isHolidaySettingsModal(surfaceModal)) fieldEditing.watchSurfaceFields(drawnModal.element)
     return true

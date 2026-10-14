@@ -1457,7 +1457,7 @@ type BaseChangeWay = 'keepGlobalTime' | 'keepLocalTime'
 
 const BASE_CHANGE_WAYS: readonly BaseChangeWay[] = ['keepGlobalTime', 'keepLocalTime']
 
-// WHY: untouched, the draft reads as the view base with Keep Global Time chosen (CR-742 X-b).
+// WHY: untouched, the draft reads as the view base with Keep Global Time chosen (CR-742 X-b); a null chosen region is the view base too.
 interface BaseChangeDraft {
   readonly region: string
   readonly way: BaseChangeWay
@@ -1477,7 +1477,7 @@ function timeZoneChoiceLabels(language: DisplayLanguage): readonly string[] {
 function baseChangeDraftOf(screen: ScreenSession['screen'], viewRegion: string): BaseChangeDraft {
   const state = screen.baseTimeZoneDraftState
   if (state.kind !== 'drafted') return { region: viewRegion, way: 'keepGlobalTime' }
-  return { region: state.chosenRegion, way: state.chosenWay }
+  return { region: state.chosenRegion ?? viewRegion, way: state.chosenWay }
 }
 
 // see FR-156, FR-029, IC-161

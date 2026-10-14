@@ -31,12 +31,13 @@ export { shiftAmountText, timeShiftQuestionItems } from './notices'
 export type { TimeShiftPreview } from './notices'
 import type { HolidaySettings, HolidaySettingsFieldColumn } from './holiday-settings'
 export type {
-  HolidayExceptionRow,
+  HolidayExceptionLine,
   HolidaySettings,
-  HolidaySettingsField,
+  HolidaySettingsBody,
+  HolidaySettingsCell,
+  HolidaySettingsEntry,
   HolidaySettingsFieldColumn,
-  HolidayWeekdayEntry,
-  HolidayWorkingHoursRow,
+  HolidayWorkingTimeLine,
 } from './holiday-settings'
 
 // TRAP: the shell must use this key, not rebuild it, or the two spellings drift apart.

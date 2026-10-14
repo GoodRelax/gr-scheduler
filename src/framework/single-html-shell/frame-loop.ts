@@ -87,11 +87,11 @@ import {
   NOT_STORED_ZOOM_BOUNDS,
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
-import { calendarCommandOfDraft } from '../../use-case/advance-screen-session/calendar-draft'
 import {
   NOTICE_DISPLAY_OF_REASON,
   NOTICE_MANNER_OF_REASON,
   advanceScreenSession,
+  calendarCommandOf,
   emptyScreenSession,
   emptySearchPanelSession,
   tableViewOf,
@@ -956,6 +956,9 @@ export const OPEN_CHOOSER_ROW: FileFlowSurfaceName = 'U-56'
 // silently leaves the Dialogue Field's press stopped like any other taskGroupArea press.
 const DIALOGUE_FIELD_SURFACE = 'Dialogue Field'
 
+// see U-65
+const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
+
 const OPEN_CHOICE_OF_ENTRY: Readonly<Record<IconId, OpenChoice>> = {
   'IC-71': 'replace',
   'IC-72': 'merge',
@@ -1294,10 +1297,12 @@ function isRefusedPanelWidth(event: ScreenValuesEvent, frame: FrameValues): bool
   return event.type === 'propertyPanelWidthSettled' && !leavesTaskGroupArea(event.propertyPanelWidth, frame.regions)
 }
 
-// WHY: the progress step (T-280) waits for the press to drop; its effect writes, and WS-2 refuses a write mid-gesture.
+// WHY: the progress step and IC-138 (T-280) wait for the press to drop; their effects write, and WS-2 refuses a write mid-gesture.
+const SENT_AFTER_PRESS_DROPS: ReadonlySet<ScreenValuesEvent['type']> = new Set(['progressMarkerPressed', 'calendarApplyEntryPressed'])
+
 /** @purity pure */
 function isSentBeforePressDrops(event: ScreenValuesEvent, frame: FrameValues): boolean {
-  return event.type !== 'progressMarkerPressed' && !isRefusedPanelWidth(event, frame)
+  return !SENT_AFTER_PRESS_DROPS.has(event.type) && !isRefusedPanelWidth(event, frame)
 }
 
 // WHY: an Agent API write lands through the holder only; the screen's own writes send the event in writeDocument (FR-100).
@@ -2188,6 +2193,15 @@ function isLeftToTheHost(input: HumanInput, surface: ScreenSurface | undefined):
   return surface.readScreenPartAt(input.x, input.y)?.part === PROPERTIES_PANEL_SURFACE
 }
 
+// see FR-066, U-65, WC-3, WC-4, WC-8, IN-6
+// TRAP: taskGroupArea also covers these floating fields; stopped, their press takes no native focus (DFC-578).
+/** @purity semi-pure-b */
+function isFloatingFieldPress(input: HumanInput, surface: ScreenSurface | undefined): boolean {
+  if (input.kind !== 'pointer' || input.phase !== 'down' || surface === undefined) return false
+  const on = surface.readScreenPartAt(input.x, input.y)
+  return on?.part === DIALOGUE_FIELD_SURFACE || (on?.part === HOLIDAY_SETTINGS_SURFACE && on.entry === null)
+}
+
 // see IN-5a, SV-5, IN-4
 /** @purity pure */
 function pickedObjectsOf(input: HumanInput, context: InputContext, escapeLevel: EscapeTarget | null): Selection {
@@ -2839,9 +2853,12 @@ export function frameLoop(
     storeAgentApiEnabling,
     focusSearchWord: () => (isSearchWordFocusOwed = true),
     raiseSearchPanel: windows.raiseSearchPanel,
-    issueBaseChangeCommand: (effect, frame) => frame !== null && writeDocument(baseChangeCommandsOf(effect, held.document), frame),
+    issueBaseChangeCommand: (effect, frame) => {
+      const commands = baseChangeCommandsOf(effect, held.document)
+      if (frame !== null && commands.length > 0) writeDocument(commands, frame)
+    },
     raiseTimeShiftQuestion: (shiftMinutes, frame) => frame !== null && askTimeShift(hands, frame, shiftMinutes),
-    issueCalendarCommand: (effect, frame) => frame !== null && issueCalendarCommand(hands, calendarCommandOfDraft(effect.calendarDraft), frame),
+    issueCalendarCommand: (effect, frame) => frame !== null && issueCalendarCommand(hands, calendarCommandOf(effect.calendarDraft, held.document.schedule), frame),
   })
   sendToSession({ type: 'rememberedEnablingLoaded', isRememberedEnabled: startupAgentApiEnabled() }, null)
 
@@ -3985,7 +4002,7 @@ export function frameLoop(
       escapeLevel === 'gesture' || (input.kind === 'pointer' && input.phase === 'lost')
     windows.followGrab(session, input, context.pressed)
     if (hasEndedGesture(input) || escapeLevel === 'gesture') endPointerPress(isDragInterrupted, frame)
-    if (screenEvent?.type === 'progressMarkerPressed') sendToSession(screenEvent, frame)
+    if (screenEvent !== null && SENT_AFTER_PRESS_DROPS.has(screenEvent.type)) sendToSession(screenEvent, frame)
     if (escapeLevel === 'gesture') endEntryRepeat()
     jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry, jumpViewWrites: shownTasks.jumpViewWrites, oweLanding: owedJump.owe, openField: (row) => void (showPropertiesOfChoice('objects'), wantFieldFocused(row)) })
 
@@ -4075,15 +4092,7 @@ export function frameLoop(
       if (level === 'confirmation' || level === 'propertiesPanel' || level === 'tooltip') return true
       if (parentTasks.isChoiceStanding() && input.kind === 'key') return true
       if (isQuestionAskedIn(session) && input.kind === 'key' && isConfirmationAnswerKey(input.key)) return true
-      // TRAP: taskGroupArea's rectangle also covers the floating Dialogue Field; without this escape,
-      // its own press reads as taskGroupArea and preventDefault blocks native focus (DFC-578, FR-066).
-      if (
-        input.kind === 'pointer' &&
-        input.phase === 'down' &&
-        screen?.surface.readScreenPartAt(input.x, input.y)?.part === DIALOGUE_FIELD_SURFACE
-      ) {
-        return false
-      }
+      if (isFloatingFieldPress(input, screen?.surface)) return false
       if (isWindowGrabPress(input, screen?.surface)) return true
       if (isLeftToTheHost(input, screen?.surface)) return false
       if (startsNoTextSelection(input, frame)) return true
