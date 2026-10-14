@@ -3,7 +3,8 @@
 > 起草の状態: **下書き（当てていない）**。2026-10-15、作業木 `66d989c6` の上で棚卸しを測り、当てる計画を書いた。`docs/spec`・`src`・`tests`・`tools` には何も当てていない。台帳は動かしていない —— 利用者の指示は調整役の席が `JDG-2241` として既に記録した（本席は一度 `JDG-2245` として二重に記録し、調整役の指摘で取り下げた。帯の `JDG-2245`〜`JDG-2254` は使っていない）。 2026-10-15 に統合の枝 `integ/coord-1011`（`f6796d70`）を取り込み、`JDG-2241` と `CR-754` の着地を読んで書き直した。
 > ID の帯: 番号 `CR-769`〜`CR-771`、裁定 `JDG-2245`〜`JDG-2254`、台帳 `DFC-2745`〜`DFC-2759`、`PND-982`〜`PND-985` を調整役から受けた。本書が使うのは `CR-769` だけ。`66d989c6` の木で `CR-769` を名乗る所は 0 件だった（`git grep -c "CR-769" 66d989c6` が空）。変更履歴と `perf-pending` の番号は当てる体が調整役から受ける。
 > 当てる裁定: `JDG-2241`（「英語の慣習に従う。 他の用語もそうしてきたはず。 もし慣習と違うなら、しかるべきタイミングで直すぞ。  まだ公開前なので今がラストチャンスぐらいに思え。」）—— 状態は「指示 —— `CR-754` が当てる（行の名）・見直しは調整役が別の席に起こす」。本書と `CR-770`・`CR-771` がその「見直し」である。
-> 覆しうる裁定（11 節で問う。答えが出るまで覆さない）: `JDG-1488`（`groupId` にそろえる —— 問い 2）、`JDG-1784` のうち `showsTimeOfDay` の綴り（問い 1）。
+> ⭐ 答えを受けた書き直し（2026-10-15）: 11 節の問い 1〜3 に利用者が答えた（`JDG-2245`〜`JDG-2247`）。問い 1 は推奨を「is を付けない」から「`is`／`has` にそろえる」に替えて問い直した答えである（2.1）。
+> 覆す裁定: `JDG-1784` のうち `showsTimeOfDay` の綴り（`JDG-2245`）、`JDG-1488`（`JDG-2246`）、`JDG-1732` のうち見本の鍵（`JDG-2247`）。rulings.md の 3 行に覆された印を付けた。
 > 棚卸しの全体: `docs/review/english-naming-survey-2026-10-15.md`（本書の数と出どころはそこから取った）。画面の英語の語は `CR-770`、コードの公開名と配る物の名は `CR-771` が持つ。
 > 測った木: `66d989c6`。
 
@@ -83,7 +84,21 @@
 
 ## 2. 名前の対応表（推奨の案。問いの答えで変わる所は印を付けた）
 
-### 2.1 真偽値の鍵 —— ⚠️ 問い 1
+### 2.1 真偽値の鍵 —— ⭐ 答え `JDG-2245`
+
+⭐ **答え（`JDG-2245`）: 本ソフトウェア固有の真偽の鍵は `is`／`has` で始める（`W-10` のまま）。値は `true`／`false` のまま。** 下の「推奨の案」と表は問うた時の案の記録である —— 当てるのは次の表である。
+
+| 旧 | 新 |
+|---|---|
+| `actualVisible`・`assigneeVisible`・`baselineVisible`・`dateGridLinesVisible`・`dependencyVisible`・`groupGridLinesVisible`・`percentCompleteVisible`・`planDatesVisible`・`planVisible`・`progressLineVisible`・`progressMarkerVisible` | `isActualVisible`・`isAssigneeVisible`・`isBaselineVisible`・`isDateGridLinesVisible`・`isDependencyVisible`・`isGroupGridLinesVisible`・`isPercentCompleteVisible`・`isPlanDatesVisible`・`isPlanVisible`・`isProgressLineVisible`・`isProgressMarkerVisible` |
+| `fitSpanFixed`・`taskGroupPanelWidthFixed`・`themeMonochrome` | `isFitSpanFixed`・`isTaskGroupPanelWidthFixed`・`isThemeMonochrome` |
+| `showsTimeOfDay`、命令 `setShowsTimeOfDay`（`CM-97`） | `isTimeOfDayVisible`、`setTimeOfDayVisible` |
+| `isScheduleFilterApplied`・`isUnassignedHidden`・`hasMovedSchedule`・`isScrolled`・`hasReplacedEarlierWatch` | 変えない |
+| 命令の名 `setElementVisible`（運ぶ値 `VisibleElement` の 11 の鍵の名）・`setFitSpanFixed`・`setTaskGroupPanelWidthFixed`・`setThemeMonochrome` | 命令の名は変えない（動詞 ＋ 列の語幹）。`VisibleElement` の値は鍵の新しい綴りに連れて変わる |
+| 表 T-006a の `W-10` | 変えない（例 `isCollapsed` は木に無い名なので `isPlanVisible` に替える） |
+
+⚠️ `CR-754` の X-12 の表は鍵を `planVisible` ほかで名指す —— 本書が当てる回に、その仕様の升も新しい綴りに連れて替わる（行の名 Plan ほかは変わらない）。
+
 
 表 T-006a の `W-10` は「本ソフトウェア固有の真偽値は `is`／`has`／`can` で始める」と言うが、保存される固有の真偽値 19 のうち守るのは 2 つ。
 
@@ -186,7 +201,7 @@
 
 | 群 | 名 | 触れる所（仕様 ／ 手引き ／ `src` ／ 試験 ／ 道具 ／ 見本、生成物は除く） | ファイル |
 |---|---|---|---|
-| 2.1（A） | `isScheduleFilterApplied`・`isUnassignedHidden`・`showsTimeOfDay`・`setShowsTimeOfDay`・`hasMovedSchedule`・`isScrolled`・`hasReplacedEarlierWatch` | 6 ／ 5 ／ 218 ／ 175 ／ 1 ／ 0 | 116（重なりを含む和） |
+| 2.1（問うた時の A） | `isScheduleFilterApplied`・`isUnassignedHidden`・`showsTimeOfDay`・`setShowsTimeOfDay`・`hasMovedSchedule`・`isScrolled`・`hasReplacedEarlierWatch` | 6 ／ 5 ／ 218 ／ 175 ／ 1 ／ 0 | 116（重なりを含む和） |
 | 2.1（B） | A から答えの 3 つ（`hasMovedSchedule` `src` 32・試験 55 ほか）を除く | — | — |
 | 2.2 | `groupId`・`anchorGroupId`・`topGroupId`・`bottomGroupId`・`scrollGroupId`・`pinnedGroupIds` | 53 ／ 14 ／ 1,602 ／ 2,202 ／ 6 ／ 1,002 | 552（重なりを含む和）。⚠️ `groupId` の見本 1,000 は `sample-schedule/Three-Year Product Plan.json`（`JDG-1732` で書き直さない） |
 | X-2 | `label`（`TaskGroup` の列）・`setTaskGroupLabel` | ⚠️ `label` は一般の語なので語の一致では数えられない（`src` 626・試験 1,018 は上限）。型の言語サービスで数える（7 節） | — |
@@ -344,7 +359,14 @@
 
 推奨: **A**。理由 —— 見本は開けることに意味がある。中身を書き直すのではなく、改名の台本が鍵の綴りだけを替える（`CR-708` の起動テンプレートと同じ扱い）。
 
-⭐ 答え: まだ無い（2026-10-15 07:30 から利用者は不在）。調整役が問う時期を決める。答えが無いあいだは当てない —— 問い 1〜3 は名の表の範囲を変える。
+⭐ 答え（2026-10-15、本席が利用者に問うた）:
+
+| 問い | 答え | 裁定 |
+|---|---|---|
+| 問い 1 | 推奨の「is を付けない（Google AIP-140）」に「Googleの理由を教えろ」と問い返し —— AIP-140 は理由を書いていないこと、推測できる理由と、`is`／`has` の側の先例を示して問い直した。答え「is / has ありで。…これで統一してくれ。」。値は true／false のまま（確かめの問いに「推奨通りでいいよ。」） | `JDG-2245` |
+| 問い 2 | A `taskGroupId` にそろえる | `JDG-2246` |
+| 問い 3 | A 鍵だけ追従させる | `JDG-2247` |
+
 
 ---
 
@@ -352,7 +374,7 @@
 
 | 台帳 | 動かしたもの |
 |---|---|
-| `rulings.md` | 動かさない。`JDG-2241` の状態（「…見直しは調整役が別の席に起こす」）に本書を書き足すかは調整役が決める。`JDG-1488`・`JDG-1784`・`JDG-1732` の状態は変えない（問いの答えが出てから） |
+| `rulings.md` | `JDG-2245`〜`JDG-2247` を足した（状態「指示 —— CR-769 が当てる」）。`JDG-1784`・`JDG-1488`・`JDG-1732` の状態を「覆された（一部）」「覆された」にした（旧の状態は残した）。`JDG-2241` の状態に本書を書き足すかは調整役が決める |
 | `defects.md` | 動かさない —— 本書は改名の計画で、仕様とコードの食い違いを新たに見つけていない（表 T-006a の 2 行は仕様の中の食い違いで、本書が直す） |
 | `changelog.md`・`perf-pending` | 当てる体が番号を受ける |
 
