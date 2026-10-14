@@ -113,9 +113,15 @@ describe('CR-609 -- the premises read from table T-280', () => {
     expect(carriesOf(SELECTION_DISPLAYED)).toEqual(['subject'])
   })
 
-  it('the event carries nothing and no other machine and no root cell of the region takes it', () => {
+  // see FR-156, FR-157
+  it('the event carries nothing; besides this machine only the two settings drafts take it; no root cell takes it', () => {
     expect(REGION.events.find((one) => one.key === EVENT)?.carries).toEqual([])
-    expect(REGION.machines.filter((one) => EVENT in one.transitions).map((one) => one.name)).toEqual([MACHINE_NAME])
+    const takers = REGION.machines.filter((one) => EVENT in one.transitions).map((one) => one.name)
+    expect(takers).toEqual([MACHINE_NAME, 'baseTimeZoneDraftStateMachine', 'timeShiftDraftStateMachine'])
+    for (const draft of REGION.machines.filter((one) => one.name !== MACHINE_NAME && EVENT in one.transitions)) {
+      const cells = Object.values(draft.transitions[EVENT] ?? {}) as readonly { readonly guard?: readonly { readonly name: string }[] }[]
+      expect(cells.map((cell) => cell.guard?.map((one) => one.name)), draft.name).toEqual([['isLeavingDocumentSettings']])
+    }
     expect(Object.keys(REGION.root.transitions)).not.toContain(EVENT)
   })
 })

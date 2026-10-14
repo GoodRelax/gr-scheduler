@@ -35,12 +35,14 @@ export type { CalendarCommand } from './edit-calendar'
 export type { ProjectCommand, ProjectProfileFields } from './edit-project'
 export { timeShiftPreviewOf } from './edit-project'
 export type {
+  BaseChangeWay,
+  BaseTimeZones,
   DocumentSettingsCommand,
   SettingsLimits,
   TableView,
   VisibleElement,
 } from './edit-document-settings'
-export { tableViewOf, tableViewsKeptIn } from './edit-document-settings'
+export { baseChangeCommandOf, baseTimeZonesAfterChange, tableViewOf, tableViewsKeptIn } from './edit-document-settings'
 
 import { editTask, type TaskCommand } from './edit-task'
 import { editTaskGroup, type TaskGroupCommand } from './edit-task-group'

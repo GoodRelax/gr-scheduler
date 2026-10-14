@@ -257,7 +257,6 @@ describe('FR-158, TX-1, TX-2: the clock reads in 24 hours, the hour is not padde
     expect(cellOf('T-375', 'TX-1', '時刻を表示する')).toBe('6/3 10:00')
     expect(cellOf('T-375', 'TX-2', '時刻を表示する')).toBe('6/3 (月) 10:00')
     expect(cellOf('T-375', 'TX-4', '時刻を表示する')).toBe('yyyy/mm/dd H:MM')
-    expect(cellOf('T-375', 'TX-5', '時刻を表示する')).toBe('6/3 10:00')
     expect(cellOf('T-375', 'TX-6', '時刻を表示する')).toBe('yyyy/mm/dd (曜) H:MM')
     expect(cellOf('T-375', 'TX-7', '時刻を表示する')).toBe('yyyy/mm/dd H:MM')
   })

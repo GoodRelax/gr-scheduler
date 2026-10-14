@@ -25,7 +25,8 @@ const DG_1_WHEN =
 const DG_2_WHEN = '`DQ-4` が `S-397` 以上で、完了（`PS-2`）しておらず、表 T-312 の `VO-3` の指摘を持たない'
 const FR_131_ONE_EACH =
   '`GRS` は、開いている文書モデルを、矛盾（表 T-310）・疑義（表 T-311）・記載漏れ（表 T-312）の観点ですべて調べ、当たった 1 件ごとに指摘を 1 つ作ること。'
-const FR_132_WORKING_DAYS = '日数はすべて稼働日で数えること（MUST、暦は `FR-054`）。'
+const FR_132_WORKING_DAYS =
+  '量はすべて文書の暦の稼働時間の分で数え（表 T-314）、`S-397` と比べるときだけ、`Project.minutesPerDay` 分（空なら `S-128`）を 1 日として稼働日へ切り上げること（MUST、暦は `FR-054`）'
 
 function cellOf(table: string, id: string, heading: string): string {
   const row = specTable(table).rows.find((one) => one.id === id)

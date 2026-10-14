@@ -16,11 +16,13 @@ import {
   isTimeZoneRegion,
   textOfDayEnd,
   textOfDayStart,
+  viewRegionOf,
   type Schedule,
 } from '../../entity/document-model/schedule/schedule'
 import { displayRatioOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
+import type { ProjectCommand } from './edit-project'
 
 // see FR-016, FR-052, T-206
 export interface SettingsLimits {
@@ -546,6 +548,37 @@ export function editDocumentSettings(
       return levelZeroTreeStateEdited(command, put)
 
   }
+}
+
+export type BaseChangeWay = 'keepGlobalTime' | 'keepLocalTime'
+
+export interface BaseTimeZones {
+  readonly scheduleDataTimeZone: string
+  readonly viewTimeZone: string | null
+}
+
+/** @purity pure */
+export function baseTimeZonesAfterChange(held: BaseTimeZones, chosenRegion: string | null, chosenWay: BaseChangeWay): BaseTimeZones {
+  const region = chosenRegion ?? viewRegionOf(held.scheduleDataTimeZone, held.viewTimeZone)
+  if (chosenWay === 'keepLocalTime') return { ...held, scheduleDataTimeZone: region }
+  return { ...held, viewTimeZone: region === held.scheduleDataTimeZone ? null : region }
+}
+
+// see FR-156, IC-161, CM-94, CM-95, FR-029
+// WHY: null when applying changes nothing (IC-161 dimmed); a null region is the shown base a draft holds.
+/** @purity pure */
+export function baseChangeCommandOf(
+  held: BaseTimeZones,
+  chosenRegion: string | null,
+  chosenWay: BaseChangeWay,
+): ProjectCommand | DocumentSettingsCommand | null {
+  const after = baseTimeZonesAfterChange(held, chosenRegion, chosenWay)
+  if (chosenWay === 'keepLocalTime') {
+    const timeZone = after.scheduleDataTimeZone
+    return timeZone === held.scheduleDataTimeZone ? null : { kind: 'setScheduleDataTimeZone', timeZone }
+  }
+  const isSameShown = viewRegionOf(held.scheduleDataTimeZone, after.viewTimeZone) === viewRegionOf(held.scheduleDataTimeZone, held.viewTimeZone)
+  return isSameShown ? null : { kind: 'setViewTimeZone', timeZone: after.viewTimeZone }
 }
 
 // <generated -- do not edit by hand>

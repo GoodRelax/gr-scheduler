@@ -19,13 +19,13 @@ import { DESIGN, REQUIREMENTS, numberIn, taskGroupDocument, rowOf, taskOf } from
 
 // see FR-009
 const FR_009_SHOWN_AND_TYPED =
-  '⭐ プロパティパネルは、時刻を表示しない文書（`FR-158`）ではラグを稼働日で見せ、整数の稼働日で打たせ、時刻を表示する文書では `d` ／ `h` ／ `m` で見せて打たせること（MUST） —— 保存は 0.1 分であり（`_assets/fig-erd-detail.md` の `AT-47`）、1 稼働日（`1d`）を `Project.minutesPerDay` 分（空なら `S-128`）として換算する。'
+  '⭐ プロパティパネルは、時刻を表示しない文書（`FR-158`）では形式 `7` のラグを稼働日で、形式 `5`・`3` のラグを下の段の字面（`3h`・`30m`）で見せ、整数の稼働日で打たせ、時刻を表示する文書では `d` ／ `h` ／ `m` で見せて打たせること（MUST） —— 保存は 0.1 分であり（`_assets/fig-erd-detail.md` の `AT-47`）、1 稼働日（`1d`）を `Project.minutesPerDay` 分（空なら `S-128`）として換算する。'
 const FR_009_WRITTEN =
   '打たれたラグを書くときは、`lag` に打たれた長さの分 × 10 を、`lagFormat` に打った単位の形式を書くこと（MUST） —— `d`（稼働日）は `7`、`h` は `5`、`m` は `3` である（利用者の判断）。'
 const FR_009_CREATED = '依存を作るときも同じく書く'
 const FR_009_UNDERSTOOD = '⭐ `GRS` が解するラグの形式は `lagFormat` が `7`（稼働日）・`5`（時）・`3`（分）のものとする（`AT-48`）。'
 const FR_009_LITERAL =
-  'ほかの形式のラグは、MS Project の字面 —— その形式の単位で表した数に、交換相手の XSD の記号を添えたもの（`2ed`・`3h`） —— で見せるだけにし、値と形式は往復でそのまま保つこと（MUST）'
+  'ほかの形式のラグは、MS Project の字面 —— その形式の単位で表した数に、交換相手の XSD の記号を添えたもの（`2ed`・`1w`） —— で見せるだけにし、値と形式は往復でそのまま保つこと（MUST）'
 const FR_009_MINUTES = '長さを決められない形式（百分率・経過の月・空の形式、長さを決める列が空のとき）は、分の字面（`2880m`）で見せる'
 const FR_009_DECIMALS = '見せる数は小数 2 桁までとする'
 // see VC-15, BD-2
