@@ -87,6 +87,7 @@ import {
   NOT_STORED_ZOOM_BOUNDS,
   type SettingsLimits,
 } from '../../use-case/edit-document/edit-document'
+import { calendarCommandOfDraft } from '../../use-case/advance-screen-session/calendar-draft'
 import {
   NOTICE_DISPLAY_OF_REASON,
   NOTICE_MANNER_OF_REASON,
@@ -245,7 +246,11 @@ import {
   type CarriedFixBundle,
 } from './document-file-flow'
 import {
+  askTimeShift,
+  baseChangeCommandsOf,
   drainFieldEditNotices,
+  isTimeShiftWrite,
+  issueCalendarCommand,
   fieldFocusRetriesOf,
   isEditingField,
   isCreatedNameEnded,
@@ -703,6 +708,10 @@ const HINT_TARGET_CHANGED: ScreenValuesEvent = { type: 'hintTargetChanged' }
 const LANDING_MARK_CLEAR_ASKED: ScreenValuesEvent = { type: 'landingMarkClearAsked' }
 const NEWEST_NOTICE_DISMISS_ASKED: SessionEvent = { type: 'newestNoticeDismissAsked' }
 const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
+// WHY: only an open that replaces and a fresh start drop the screen drafts; undo, merge and writes keep them (T-280).
+const DOCUMENT_REPLACED_BY_OPEN_OR_NEW: SessionEvent = { type: 'documentReplacedByOpenOrNew' }
+const OPEN_OR_NEW_ROWS: ReadonlySet<ReplacementCall['row']> = new Set(['RD-4', 'RD-7'])
+const TIME_SHIFT_LANDED: SessionEvent = { type: 'timeShiftLanded' }
 const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
 const PRESS_INTERRUPTED: SessionEvent = { type: 'pressInterrupted' }
 export const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' }
@@ -1448,6 +1457,9 @@ interface ScreenEffectHands {
   readonly storeAgentApiEnabling: () => void
   readonly focusSearchWord: () => void
   readonly raiseSearchPanel: () => void
+  readonly issueBaseChangeCommand: (effect: Extract<SessionEffect, { readonly type: 'issueBaseChangeCommand' }>, frame: FrameValues | null) => void
+  readonly raiseTimeShiftQuestion: (shiftMinutes: number, frame: FrameValues | null) => void
+  readonly issueCalendarCommand: (effect: Extract<SessionEffect, { readonly type: 'issueCalendarCommand' }>, frame: FrameValues | null) => void
 }
 
 // see SF-6, UF-123, T-280
@@ -1498,6 +1510,19 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     handInteractionRecordToClipboard: () => hands.handInteractionRecordToClipboard(),
 
     storeAgentApiEnabling: () => hands.storeAgentApiEnabling(),
+    ...screenDraftRunnersOf(hands),
+  }
+}
+
+type ScreenDraftEffectName = 'issueBaseChangeCommand' | 'raiseTimeShiftQuestion' | 'issueCalendarCommand'
+
+// see T-280, FR-088, FR-156, FR-157
+/** @purity pure */
+function screenDraftRunnersOf(hands: ScreenEffectHands): Pick<EffectRunners<SessionEffect>, ScreenDraftEffectName> {
+  return {
+    issueBaseChangeCommand: (effect, frame) => hands.issueBaseChangeCommand(effect, frame),
+    raiseTimeShiftQuestion: (effect, frame) => hands.raiseTimeShiftQuestion(effect.shiftMinutes, frame),
+    issueCalendarCommand: (effect, frame) => hands.issueCalendarCommand(effect, frame),
   }
 }
 
@@ -2814,6 +2839,9 @@ export function frameLoop(
     storeAgentApiEnabling,
     focusSearchWord: () => (isSearchWordFocusOwed = true),
     raiseSearchPanel: windows.raiseSearchPanel,
+    issueBaseChangeCommand: (effect, frame) => frame !== null && writeDocument(baseChangeCommandsOf(effect, held.document), frame),
+    raiseTimeShiftQuestion: (shiftMinutes, frame) => frame !== null && askTimeShift(hands, frame, shiftMinutes),
+    issueCalendarCommand: (effect, frame) => frame !== null && issueCalendarCommand(hands, calendarCommandOfDraft(effect.calendarDraft), frame),
   })
   sendToSession({ type: 'rememberedEnablingLoaded', isRememberedEnabled: startupAgentApiEnabled() }, null)
 
@@ -3457,7 +3485,8 @@ export function frameLoop(
       heldPropertyPanelWidth = null
       const landing = landingOfReplacement(call.row, held.document === savedDocument)
       if (landing !== null) sendToSession(landing, values)
-      if (call.row === 'RD-4' || call.row === 'RD-7') leaveStartupTemplate()
+      if (OPEN_OR_NEW_ROWS.has(call.row)) leaveStartupTemplate()
+      if (OPEN_OR_NEW_ROWS.has(call.row)) sendToSession(DOCUMENT_REPLACED_BY_OPEN_OR_NEW, values)
       if (call.row === 'RD-7') documentFileFlow.forgetOpenedFile()
       // TRAP: the rows that make it another document, or an arriving document is drawn at the
       // fit the one before it was given.
@@ -3481,7 +3510,9 @@ export function frameLoop(
     }
     if (owedAction.kind === 'resetGrs') return resetGrs(pageReload)
     if (frame === null) return
+    const before = held.document
     for (const bundle of owedAction.writes) writeDocument(bundle, frame)
+    if (held.document !== before && isTimeShiftWrite(owedAction.writes)) sendToSession(TIME_SHIFT_LANDED, frame)
     if (owedAction.created !== null) standOnWhatWasCreated(owedAction.created)
   }
 

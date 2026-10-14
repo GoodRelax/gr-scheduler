@@ -962,7 +962,7 @@ async function reopenDocumentIntoHold(
 }
 
 // see RS-89, FR-054, FR-088
-const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89'
+export const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89'
 
 const TIME_ZONE_SET_REASON: NoticeReason = 'RS-90'
 

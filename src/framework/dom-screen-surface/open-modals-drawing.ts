@@ -17,7 +17,6 @@ import {
   IMPORT_REPORT_DISMISS_ATTRIBUTE,
   NOT_STORED_EXPORT_CHOOSER_SIZES,
   NOT_STORED_HELP_SIZES,
-  NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES,
   NOT_STORED_ICON_SIZES,
   PAINT,
   REPORT_REASON_ATTRIBUTE,
@@ -39,6 +38,7 @@ import { confirmationAnswerElement, linkElement, nextStepElement } from './notic
 import { windowPartAt, windowPartOf, windowTitleRowElement, type PlacedWindow, type PointAsked } from './window-frame-drawing'
 import { paletteGroupRuleStyle } from './command-palette-drawing'
 import type { TextEntryControl } from './field-editing'
+import { holidaySettingsBodyElements, holidaySettingsFrameStyle, isHolidaySettingsModal } from './holiday-settings-drawing'
 
 const CLOSE_SURFACE_ENTRY = 'IC-52'
 const HELP_LANGUAGE_ENTRY = 'IC-128'
@@ -340,7 +340,7 @@ function modalTitleRow(
   const heading = made(host, 'h2', STYLE.heading)
   heading.textContent = modal.heading
   header.append(heading)
-  const isCloseAtTheRightEnd = 'resources' in modal
+  const isCloseAtTheRightEnd = 'resources' in modal || modal.surface === HOLIDAY_SETTINGS_SURFACE
   for (const item of headingRowCommands(modal)) {
     const entry = anchoredEntry(host, item, anchors)
     if (isCloseAtTheRightEnd && item.icon === CLOSE_SURFACE_ENTRY) pushToTheRightEnd(entry)
@@ -377,9 +377,7 @@ export function modalElement(
     host,
     'div',
     modal.surface,
-    modalFrameStyle(modal) +
-      (modal.surface === HOLIDAY_SETTINGS_SURFACE ? holidaySettingsBoxStyle() : '') +
-      ('droppedTaskNames' in modal ? STYLE.importReportBox : ''),
+    modalFrameStyle(modal) + ('droppedTaskNames' in modal ? STYLE.importReportBox : ''),
   )
   drawn.setAttribute('role', 'dialog')
   drawn.setAttribute('aria-modal', 'true')
@@ -397,6 +395,8 @@ export function modalElement(
   }
 
   if ('formats' in modal) body.push(...exportChooserBodyElements(host, modal))
+
+  if (isHolidaySettingsModal(modal)) body.push(...holidaySettingsBodyElements(host, modal, anchors))
 
   if ('candidates' in modal) {
     for (const candidate of modal.candidates) {
@@ -468,16 +468,11 @@ export function modalElement(
   return { element: drawn, watermarkUnlockEntry, helpColumns }
 }
 
-// see FR-088, RR-1
-// WHY: the letters of the surface scale by S-240 of the host's base letters; the entrance boxes keep FR-029.
-/** @purity pure */
-function holidaySettingsBoxStyle(): string {
-  return `font-size:${NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES['S-240']}em;`
-}
-
+// see FR-088, RR-1, RR-2
 /** @purity pure */
 function modalFrameStyle(modal: OpenModal): string {
   if ('entries' in modal) return helpWindowStyle(helpPlacedOf(modal))
+  if (modal.surface === HOLIDAY_SETTINGS_SURFACE) return holidaySettingsFrameStyle()
   return isCloseOnlyTitled(modal) ? closeOnlyTitledFrameStyle(modal) : STYLE.modal
 }
 
