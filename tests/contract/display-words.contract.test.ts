@@ -1164,7 +1164,63 @@ const openSurfaceScene = (surface: string): SurfaceScene => ({
   entries: (view) => view.openModal?.commands,
 })
 
-const sceneOf = (surface: string): SurfaceScene => SCENE_OF_WINDOW.get(surface) ?? openSurfaceScene(surface)
+// see U-65, T-344, WC-1, WC-2, WC-4, WC-6, WC-7, WC-8
+// WHY: CR-743 -- the title bar holds IC-52 alone (WC-1); every other entry stands in its own section,
+// WHY: so the scene reads them there. One day-off exception row raises IC-136 and IC-137 (WC-4).
+const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings'
+const ONE_DAY_OFF = {
+  ordinal: 0,
+  name: 'a day off',
+  fromDate: '2026-01-05T00:00:00',
+  toDate: '2026-01-05T23:59:00',
+  dayWorking: false,
+  recurrenceKind: null,
+  workingTimes: [],
+  carry: {},
+  carryElements: [],
+}
+const SCHEDULE_WITH_A_DAY_OFF = {
+  ...SCHEDULE,
+  calendars: [
+    {
+      uid: 1,
+      name: 'a calendar',
+      isBaseCalendar: true,
+      baseCalendarUid: null,
+      ordinal: 0,
+      carry: {},
+      carryElements: [],
+      weekDays: [],
+      exceptions: [ONE_DAY_OFF],
+    },
+  ],
+} as unknown as Schedule
+const holidaySettingsOf = (view: ScreenView) =>
+  view.openModal !== null && 'weekdays' in view.openModal ? view.openModal : undefined
+const HOLIDAY_SETTINGS_SCENE: SurfaceScene = {
+  frame: () => frameWith({ root: rootWithSurface(HOLIDAY_SETTINGS_SURFACE), schedule: SCHEDULE_WITH_A_DAY_OFF }),
+  heading: (view) => view.openModal?.heading,
+  entries: (view) => {
+    const face = holidaySettingsOf(view)
+    if (face === undefined) return undefined
+    return [
+      ...face.commands,
+      ...face.weekdays.map((one) => one.entry),
+      ...face.workingHours.map((one) => one.remove),
+      face.addRange,
+      ...face.exceptions.flatMap((one) => (one.kind === null ? [one.remove] : [one.kind, one.remove])),
+      face.addException,
+      face.apply,
+    ]
+  },
+}
+
+// see WC-3, WC-8, IC-134, IC-165
+// WHY: CR-743 -- these two are fields (a chooser and the time fields), named by the holidaySettings words.
+const HOLIDAY_SETTINGS_FIELD_ENTRIES: readonly string[] = ['IC-134', 'IC-165']
+
+const sceneOf = (surface: string): SurfaceScene =>
+  SCENE_OF_WINDOW.get(surface) ?? (surface === HOLIDAY_SETTINGS_SURFACE ? HOLIDAY_SETTINGS_SCENE : openSurfaceScene(surface))
 
 const surfaceFrame = (surface: string, rowId: string | null = null): Frame => sceneOf(surface).frame(rowId)
 
@@ -1342,6 +1398,10 @@ for (const entry of GENERATED['icons'] ?? []) {
     )
   }
   for (const surface of surfaces.filter((name) => SURFACE_NAMES.includes(name))) {
+    if (surface === HOLIDAY_SETTINGS_SURFACE && HOLIDAY_SETTINGS_FIELD_ENTRIES.includes(rowId)) {
+      drop('icons', rowId, 'a field of table T-344 (WC-3, WC-8): it prints its value under a holidaySettings word, not a label')
+      continue
+    }
     on(`the ${surface} entry ${rowId}`, 'UF-66', surfaceFrame(surface, rowId), centerOf(REGIONS.scheduleCanvas), (view) =>
       labelIn(sceneOf(surface).entries(view), rowId),
     )
@@ -2461,7 +2521,8 @@ for (const entry of GENERATED['themeHues'] ?? []) {
 }
 
 // see FR-156, T-376, T-369, FO-14
-// WHY: the base time zone field (FO-14) lists table T-376's rows in that table's order under each way's head.
+// WHY: CR-742 -- the base time zone field (FO-14) is a region chooser listing table T-376's rows in that
+// WHY: table's order, then a chooser of the two ways (FR-156); neither applies until IC-161 is pressed.
 const T376_ROWS: readonly string[] = specTable('T-376').rows.map((row) => row.id)
 const baseWayControlOf = (view: ScreenView, at: number) => settingsRowOf(view, 'K-144')?.controls[at]
 for (const entry of GENERATED['timeZones'] ?? []) {
@@ -2473,14 +2534,14 @@ for (const entry of GENERATED['timeZones'] ?? []) {
     unit: 'UF-64',
     what: `the choice ${rowId} of table T-376 on the settings face's base time zone field`,
     frame: SETTINGS_WITH_READOUTS,
-    read: (view) => baseWayControlOf(view, 0)?.choices?.[T376_ROWS.indexOf(rowId) + 1],
+    read: (view) => baseWayControlOf(view, 0)?.choices?.[T376_ROWS.indexOf(rowId)],
   })
 }
 
 // see FO-14, FO-15, FO-16, FR-156, FR-157
 const TIME_ZONE_FIELD_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
-  keepGlobalTime: (view) => baseWayControlOf(view, 0)?.choices?.[0],
-  keepLocalTime: (view) => baseWayControlOf(view, 1)?.choices?.[0],
+  keepGlobalTime: (view) => baseWayControlOf(view, 1)?.choices?.[0],
+  keepLocalTime: (view) => baseWayControlOf(view, 1)?.choices?.[1],
   none: (view) => settingsRowOf(view, 'K-145')?.controls[0]?.choices?.[0],
   shiftUnit: (view) => settingsRowOf(view, 'IC-162')?.unit,
 }

@@ -133,6 +133,8 @@ const WORD_COLUMNS_AT: readonly number[] = DELAY_REPORT_COLUMNS.flatMap((column,
 const MILESTONE_ACHIEVED_ROW = 'VO-5'
 const PARENT_PROGRESS_OUTSIDE_ROW = 'VS-6'
 
+const PARENT_PROGRESS_OUTSIDE_PART = 'parentProgressOutside'
+
 // see T-312
 const OMISSION_ROW_HEAD = 'VO-'
 
@@ -272,6 +274,20 @@ function quantityText(minutes: number, times: ShownTimes): string {
   return String(Math.ceil(minutes / minutesPerDay))
 }
 
+const WHEN_TIME_SHOWN = 'WhenTimeShown'
+
+// see TX-8, DT-7, VS-6, FR-158
+// WHY: TX-10 spells its own units, so a word that adds a unit after the amount would read "1d 2h days" (JDG-1982).
+interface QuantityWord {
+  readonly part: string
+  readonly slot: string
+}
+
+/** @purity pure */
+function quantityWordOf(part: string, times: ShownTimes): QuantityWord {
+  return times.showsTimeOfDay ? { part: `${part}${WHEN_TIME_SHOWN}`, slot: 'amount' } : { part, slot: 'days' }
+}
+
 // see FR-158, S-576, FR-054, FR-156, S-574
 /** @purity pure */
 function shownTimesOf(schedule: Schedule, showsTimeOfDay: boolean, viewTimeZone: unknown): ShownTimes {
@@ -302,7 +318,7 @@ function parentProgressSlotsOf(
     parent: day('parentPoint'),
     leftmost: day('leftmostPoint'),
     rightmost: day('rightmostPoint'),
-    days: typeof outside === 'number' ? quantityText(outside, times) : String(outside),
+    [quantityWordOf(PARENT_PROGRESS_OUTSIDE_PART, times).slot]: typeof outside === 'number' ? quantityText(outside, times) : String(outside),
     tolerance: String(values['parentProgressToleranceDays']),
   }
 }
@@ -317,7 +333,9 @@ function findingText(
   const word = partWordsIn(REASON_WORDS, language)
   const proposal = one.proposedActualFinish === null ? '' : filled(word('proposal'), { date: dateText(one.proposedActualFinish) })
   if (one.row === MILESTONE_ACHIEVED_ROW) return `${word('milestoneAchieved')}${proposal}`
-  if (one.row === PARENT_PROGRESS_OUTSIDE_ROW) return `${filled(word('parentProgressOutside'), parentProgressSlotsOf(one.values, times))}${proposal}`
+  if (one.row === PARENT_PROGRESS_OUTSIDE_ROW) {
+    return `${filled(word(quantityWordOf(PARENT_PROGRESS_OUTSIDE_PART, times).part), parentProgressSlotsOf(one.values, times))}${proposal}`
+  }
   const aspect = one.kind === 'omission' ? word('missingActual') : rowWordOf(ASPECT_WORDS, one.row, language)
   const values = Object.entries(one.values).map(([key, value]) => `${key}=${String(value)}`).join(' ')
   return `${values === '' ? aspect : filled(word('finding'), { aspect, values })}${proposal}`
@@ -337,16 +355,20 @@ function reasonText(row: DelayReportRow, language: DisplayLanguage, times: Shown
     case 'bottleneck': {
       const held = reason.quantities
       if (held === null) return ''
+      const said = quantityWordOf('bottleneck', times)
       const slots = {
-        days: quantityText(held.pushOutMinutes, times),
+        [said.slot]: quantityText(held.pushOutMinutes, times),
         inherited: quantityText(held.inheritedDelayMinutes, times),
         own: quantityText(held.selfDelayMinutes, times),
         ends: held.terminalsReached,
       }
-      return filled(word('bottleneck'), slots)
+      return filled(word(said.part), slots)
     }
-    case 'settled':
-      return reason.quantities === null ? '' : filled(word('settled'), { days: quantityText(reason.quantities.pushOutMinutes, times) })
+    case 'settled': {
+      if (reason.quantities === null) return ''
+      const said = quantityWordOf('settled', times)
+      return filled(word(said.part), { [said.slot]: quantityText(reason.quantities.pushOutMinutes, times) })
+    }
     case 'bottleneckPath':
       return filled(word('bottleneckPath'), { names: reason.bottleneckNames.join(WORD_JOIN) })
     case 'late':

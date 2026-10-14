@@ -29,6 +29,7 @@ import { confirmationAnswers, linkedWordsOf, reasonNextStepLink, reasonSurfaceWo
 import { iconHint, iconLabel } from './tooltips'
 import { dateText } from './table-window'
 import { fixedFitSpanOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import { HOLIDAY_SETTINGS_SURFACE, holidaySettingsOf, type HolidaySettingsRefusal } from './holiday-settings'
 import iconRoster from './icon-roster.json'
 import exportFormats from './export-formats.json'
 import displayWords from './display-words.json'
@@ -66,7 +67,7 @@ const DIFFERENCE_REVIEW = 'Difference Review'
 
 const IMPORT_REPORT = 'Import Report'
 
-const HOLIDAY_SETTINGS = 'Holiday Settings'
+const HOLIDAY_SETTINGS = HOLIDAY_SETTINGS_SURFACE
 
 // see T-103, T-280
 const SURFACE_OF_ROW: ReadonlyMap<string, string> = new Map([
@@ -427,12 +428,32 @@ export function helpModalFromSession(session: ScreenSession, area: HelpWindowAre
   }
 }
 
+interface SurfaceFrame {
+  readonly session: ScreenSession
+  readonly schedule: Schedule
+  readonly surface: string
+  readonly heading: string
+  readonly commands: readonly CommandItem[]
+  readonly language: DisplayLanguage
+}
+
+// see WC-10, T-280
+// WHY: the WC-10 refusals are judged in the UseCase beside the draft (CR-743 X-a); until that judge is wired here none is told.
+const NO_DRAFT_REFUSALS = (): readonly HolidaySettingsRefusal[] => []
+
+// see U-65, FR-088, T-280
+/** @purity pure */
+function holidaySettingsOrBare(frame: SurfaceFrame): OpenModal {
+  const { session, schedule, surface, heading, commands, language } = frame
+  if (surface !== HOLIDAY_SETTINGS) return { surface, heading, commands }
+  return holidaySettingsOf(session, schedule, heading, commands, NO_DRAFT_REFUSALS, language)
+}
+
 // see FR-029, FR-038
-// WHY: the schedule is no longer read since the Resource List left the surfaces (FR-099); the place is kept for the callers.
 /** @purity pure */
 export function openModalFromSession(
   session: ScreenSession,
-  _schedule: Schedule,
+  schedule: Schedule,
   readings: ScreenViewReadings,
   settings: DocumentSettings,
 ): OpenModal | null {
@@ -485,7 +506,5 @@ export function openModalFromSession(
     }
   }
 
-  // STOP: spec does not decide where Holiday Settings holds its T-344 draft (DFC-1671). Looked in S-99g, FR-088, T-344
-  // @provisional PND-140
-  return { surface, heading, commands }
+  return holidaySettingsOrBare({ session, schedule, surface, heading, commands, language })
 }

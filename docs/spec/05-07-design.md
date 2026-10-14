@@ -248,7 +248,7 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 | --- | --- | --- | --- |
 | SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **39。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **184。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **185。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
@@ -542,6 +542,7 @@ src/
 | UF-193 | `ScreenRenderer` | `table-window.ts` | `pure` | 表を持つ 3 つのウィンドウ（`Search Panel`・`Delay Diagnostics Report`・`Resource List`）に共通の部分 —— 列の見出しと幅、1 つだけ開く列のフィルタとその中身、並べ替え、タイトルバーの入口（表 T-330 の `SV-7`・`SV-8`・`SV-18`、表 T-335 の `WB-7`） | — |
 | UF-194 | `ScreenRenderer` | `delay-diagnostics-report.ts` | `pure` | `Delay Diagnostics Report`（`U-66`）の中身 —— タイトルバー・`IC-140`・`IC-108`・入力欄・まとめ・表 T-347 の表（表 T-346）と、コピーと書き出しの文字列とファイルの名（`RW-6`・`RW-7`） | — |
 | UF-199 | `ScreenRenderer` | `resource-list.ts` | `pure` | `Resource List`（`U-49`）の中身 —— タイトルバー・タイトルバーの下の 1 行（`IC-63` 〜 `IC-66` と入力欄）・表 T-371 の表とその固定（`01-04-requirements.md` の `FR-099` の 表 T-370） | `FR-099`（`OW-2`） |
+| UF-204 | `ScreenRenderer` | `holiday-settings.ts` | `pure` | 休日の設定（`U-65`）の中身 —— 下書き（`_assets/tbl-state-machines.md` の 表 T-280 の `calendarDraftStateMachine`）か文書の暦から、`01-04-requirements.md` の `FR-088` の 表 T-344 の段ごとの入口・欄・断りの 1 行を組む | — |
 | UF-70 | `ScreenRenderer` | `screen-surface.ts` | `—` | `ScreenSurface` の宣言（`IF-9`） | — |
 | UF-71 | `DomScreenSurface` | `dom-screen-surface.ts` | `non-pure` | `CP-38` の残り —— UI パーツを 表 T-337 の重ね順に重ね、記述の変わった UI パーツだけを兄弟に描かせ、画面の点がどの UI パーツのどの入口の上かを答える（`IF-9`）。<br>ヘッダーの高さを測って知らせ、パネルと通知の置き場を決める（`FR-051`）。<br>表示の倍率の告げ（`SE-4`・`SE-5`）を描く。<br>兄弟が共有する語彙 —— 色（表 T-236・`FR-041`）・入口の寸法と見た目（`FR-029`・表 T-237）・見た目の表・UI パーツの名 —— を持つ。<br>⭐ **`FR-101` の「名前を時刻の上に置く」を満たすのは兄弟の `UF-104` である** —— `Opened File Name` を `File Saved At` の上に置く。<br>⛔ **記述の側に順序の欄を作って満たしてはならない** —— 作ると同じ配置が 2 か所で決まり、`UF-62` と `UF-104` のどちらが正かが読めなくなる | `FR-152`（`OW-1`） |
 | UF-103 | `DomScreenSurface` | `screen-frame-drawing.ts` | `non-pure` | `Panel Divider` の掴み帯と線、`Scrollbars` の溝とつまみを、記述の矩形のとおりに描く（`U-21`・`U-24`・`SC-4`・`GR-22`）。<br>パネルの境の線を記述から引く | — |

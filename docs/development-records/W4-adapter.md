@@ -793,6 +793,7 @@ CR-196  AM-13 の結線             ✅  **2026-08-23 に閉じた。赤 2 件�
 | UF-193 | `table-window.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-194 | `delay-diagnostics-report.ts` | 内部 | pure |  | 🔧 実装済 |
 | UF-199 | `resource-list.ts` | 内部 | pure |  | 🔧 実装済（`CR-722` の波 2 の A —— 表 T-370・表 T-371 のウィンドウの中身。`IC-62` で開く入口は `SingleHtmlShell` の `UF-200` が答える） |
+| UF-204 | `holiday-settings.ts` | 内部 | pure |  | 🔧 実装済（`CR-743` の波の体 C —— 休日の設定 `U-65` の中身を下書きか文書の暦から組む。断りの判じ（`WC-10`）は UseCase の下書きの規則が持ち、波を合わせるときに `open-modals.ts` へつなぐ） |
 
 ### `svg-renderer` —— SvgRenderer（PI-19）
 
