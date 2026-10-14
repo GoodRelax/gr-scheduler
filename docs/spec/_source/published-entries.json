@@ -2626,6 +2626,23 @@
      }
     },
     {
+     "name": "beneathPointerReadingOf",
+     "note": {
+      "ja": [
+       "下の絵（表 T-065 の `IF-1`）が指から読むもの —— ガイドカーソルを描く点・指が中にある実績のダミーのタスク・指が掴み代に載った進捗マーカーのタスクを返す。",
+       "`svgFromSchedule` は同じ判じで描き、`SingleHtmlShell` はこの答えを覚え置きの鍵にする（表 T-071 の `CA-1` の ③） —— 判じを 2 か所に書かないために公開した"
+      ]
+     }
+    },
+    {
+     "name": "BeneathPointerReading",
+     "note": {
+      "ja": [
+       "型。 `beneathPointerReadingOf` の答え"
+      ]
+     }
+    },
+    {
      "name": "colorOf",
      "note": {
       "ja": [
