@@ -65,6 +65,9 @@ export interface ScreenPart {
   readonly searchFilterListed?: readonly string[] | null
   // see SV-7
   readonly isInFilterMenu?: boolean
+  // see IF-9, WC-2, WC-4, WC-8, IC-133, IC-136, IC-137, IC-164
+  // WHY: the weekday's AT-73 code or the row's place in the draft a repeated Holiday Settings entrance means.
+  readonly holidaySettingsTarget?: string
 }
 
 export interface DialogueInput {

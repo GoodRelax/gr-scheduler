@@ -395,6 +395,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   timeZones: 'rowId',
   // WHY: CR-710 wave 3b keys the words of the zone fields and of the Time Shift question by their part.
   timeZoneField: 'part',
+  // WHY: CR-743 section 4.4 keys the Holiday Settings words (U-65, T-344) by the part they fill.
+  holidaySettings: 'part',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
   scaleEcho: 'end',
   // WHY: CR-550 keys the lines of DC-3's readout by the line they fill.
@@ -1196,7 +1198,7 @@ const SCHEDULE_WITH_A_DAY_OFF = {
   ],
 } as unknown as Schedule
 const holidaySettingsOf = (view: ScreenView) =>
-  view.openModal !== null && 'weekdays' in view.openModal ? view.openModal : undefined
+  view.openModal !== null && 'holidaySettings' in view.openModal ? view.openModal.holidaySettings : undefined
 const HOLIDAY_SETTINGS_SCENE: SurfaceScene = {
   frame: () => frameWith({ root: rootWithSurface(HOLIDAY_SETTINGS_SURFACE), schedule: SCHEDULE_WITH_A_DAY_OFF }),
   heading: (view) => view.openModal?.heading,
@@ -1204,13 +1206,13 @@ const HOLIDAY_SETTINGS_SCENE: SurfaceScene = {
     const face = holidaySettingsOf(view)
     if (face === undefined) return undefined
     return [
-      ...face.commands,
-      ...face.weekdays.map((one) => one.entry),
-      ...face.workingHours.map((one) => one.remove),
-      face.addRange,
-      ...face.exceptions.flatMap((one) => (one.kind === null ? [one.remove] : [one.kind, one.remove])),
-      face.addException,
-      face.apply,
+      ...(view.openModal?.commands ?? []),
+      ...face.weekdays.map((one) => one.item),
+      ...face.workingTimes.map((one) => one.remove.item),
+      face.addWorkingTime.item,
+      ...face.exceptions.flatMap((one) => (one.kind === null ? [one.remove.item] : [one.kind.item, one.remove.item])),
+      face.addException.item,
+      face.apply.item,
     ]
   },
 }
@@ -2569,6 +2571,39 @@ for (const entry of GENERATED['timeZoneField'] ?? []) {
     what: `the ${part} word of the zone fields of the settings face (T-369)`,
     frame: SETTINGS_WITH_READOUTS,
     read: (view) => TIME_ZONE_FIELD_READS[part]?.(view),
+  })
+}
+
+// see U-65, T-344, WC-2, WC-3, WC-4, WC-8, WC-10
+// WHY: CR-743 section 4.4 -- the headings and column words of Holiday Settings, read off the surface its scene opens.
+const HOLIDAY_SETTINGS_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
+  workingWeekdays: (view) => holidaySettingsOf(view)?.weekdaysHeading,
+  weekStart: (view) => holidaySettingsOf(view)?.weekStartName,
+  workingHours: (view) => holidaySettingsOf(view)?.workingHoursHeading,
+  rangeFrom: (view) => holidaySettingsOf(view)?.workingHoursColumns[0],
+  rangeTo: (view) => holidaySettingsOf(view)?.workingHoursColumns[1],
+  exceptionDays: (view) => holidaySettingsOf(view)?.exceptionsHeading,
+  exceptionName: (view) => holidaySettingsOf(view)?.exceptionColumns[0],
+  exceptionFrom: (view) => holidaySettingsOf(view)?.exceptionColumns[1],
+  exceptionTo: (view) => holidaySettingsOf(view)?.exceptionColumns[2],
+  exceptionKind: (view) => holidaySettingsOf(view)?.exceptionColumns[3],
+}
+// WHY: the scene's calendar holds one day off and one set of hours, and no draft, so no refusal stands.
+const HOLIDAY_SETTINGS_NOT_ON_THE_SCENE = 'the Holiday Settings scene holds one day off, one set of hours and no refused draft'
+for (const entry of GENERATED['holidaySettings'] ?? []) {
+  const part = keyOf('holidaySettings', entry)
+  if (HOLIDAY_SETTINGS_READS[part] === undefined) {
+    drop('holidaySettings', part, HOLIDAY_SETTINGS_NOT_ON_THE_SCENE)
+    continue
+  }
+  place({
+    section: 'holidaySettings',
+    key: part,
+    field: 'text',
+    unit: 'UF-204',
+    what: `the ${part} word of Holiday Settings (U-65, T-344)`,
+    frame: HOLIDAY_SETTINGS_SCENE.frame(null),
+    read: (view) => HOLIDAY_SETTINGS_READS[part]?.(view),
   })
 }
 

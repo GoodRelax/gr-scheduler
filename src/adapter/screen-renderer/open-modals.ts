@@ -29,7 +29,7 @@ import { confirmationAnswers, linkedWordsOf, reasonNextStepLink, reasonSurfaceWo
 import { iconHint, iconLabel } from './tooltips'
 import { dateText } from './table-window'
 import { fixedFitSpanOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
-import { HOLIDAY_SETTINGS_SURFACE, holidaySettingsOf, type HolidaySettingsRefusal } from './holiday-settings'
+import { HOLIDAY_SETTINGS_SURFACE, holidaySettingsOf } from './holiday-settings'
 import iconRoster from './icon-roster.json'
 import exportFormats from './export-formats.json'
 import displayWords from './display-words.json'
@@ -437,16 +437,12 @@ interface SurfaceFrame {
   readonly language: DisplayLanguage
 }
 
-// see WC-10, T-280
-// WHY: the WC-10 refusals are judged in the UseCase beside the draft (CR-743 X-a); until that judge is wired here none is told.
-const NO_DRAFT_REFUSALS = (): readonly HolidaySettingsRefusal[] => []
-
 // see U-65, FR-088, T-280
 /** @purity pure */
 function holidaySettingsOrBare(frame: SurfaceFrame): OpenModal {
   const { session, schedule, surface, heading, commands, language } = frame
   if (surface !== HOLIDAY_SETTINGS) return { surface, heading, commands }
-  return holidaySettingsOf(session, schedule, heading, commands, NO_DRAFT_REFUSALS, language)
+  return holidaySettingsOf(session, schedule, heading, commands, language)
 }
 
 // see FR-029, FR-038

@@ -603,6 +603,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   return {
     typedControlsByTaskGroup,
     isFieldHeld: (): boolean => isFieldHeld,
+    isHeldTextUntouched: (): boolean => heldTextControl === null || heldTextControl.value === heldTextValueAtFocus,
     panelKeyAfterCommits: (described: string): string =>
       `${described}${PANEL_KEY_SEPARATOR}${commitsHandedOut}`,
     isDocumentTitleOpen: (): boolean => documentTitleEntry !== null,

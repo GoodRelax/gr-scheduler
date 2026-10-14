@@ -51,7 +51,6 @@ export type CalendarDraftRefusal =
 
 const MINUTES_PER_HOUR = 60
 const MINUTES_PER_DAY = 1440
-const DAY_TYPES = [1, 2, 3, 4, 5, 6, 7] as const
 
 // see WC-8, T-375
 const CLOCK_TEXT = /^(\d{1,2}):([0-5]\d)$/
@@ -132,7 +131,12 @@ function workingDayTypesOf(within: WorkingCalendar): readonly number[] {
   for (const one of within.weekDays) {
     if (one.dayType !== null && !seen.has(one.dayType)) seen.set(one.dayType, one.dayWorking === true)
   }
-  return DAY_TYPES.filter((dayType) => seen.get(dayType) === true)
+  return [...seen].flatMap(([dayType, isWorking]) => (isWorking ? [dayType] : [])).sort(byDayType)
+}
+
+/** @purity pure */
+function byDayType(left: number, right: number): number {
+  return left - right
 }
 
 /** @purity pure */
@@ -153,7 +157,7 @@ export function withWeekdayToggled(draft: CalendarDraft, dayType: number): Calen
   const held = draft.workingDayTypes.includes(dayType)
   const workingDayTypes = held
     ? draft.workingDayTypes.filter((one) => one !== dayType)
-    : DAY_TYPES.filter((one) => one === dayType || draft.workingDayTypes.includes(one))
+    : [...draft.workingDayTypes, dayType].sort(byDayType)
   return { ...draft, workingDayTypes }
 }
 
@@ -360,20 +364,22 @@ function isSameDayTypes(left: readonly number[], right: readonly number[]): bool
   return left.length === right.length && left.every((one) => right.includes(one))
 }
 
+/** @purity pure */
+function readWorkingTimesOf(draft: CalendarDraft): readonly WorkingTime[] {
+  return draft.ranges.flatMap((range, ordinal) => {
+    const time = workingTimeOf(range, ordinal)
+    return time === null ? [] : [time]
+  })
+}
+
 // see CM-39, WC-7, FR-031, FR-088
 // WHY: a part the draft left as the document holds it is omitted, so a draft equal to the document writes nothing.
 // The set is written when it moved or a weekday starts working, so the new day takes the shown set.
 /** @purity pure */
 export function calendarCommandOf(draft: CalendarDraft, schedule: Schedule): Extract<DocumentCommand, { readonly kind: 'setCalendar' }> {
   const held = calendarDraftOf(schedule)
-  const workingTimes = draft.ranges.flatMap((range, ordinal) => {
-    const time = workingTimeOf(range, ordinal)
-    return time === null ? [] : [time]
-  })
-  const heldTimes = held.ranges.flatMap((range, ordinal) => {
-    const time = workingTimeOf(range, ordinal)
-    return time === null ? [] : [time]
-  })
+  const workingTimes = readWorkingTimesOf(draft)
+  const heldTimes = readWorkingTimesOf(held)
   const startsWorking = draft.workingDayTypes.some((one) => !held.workingDayTypes.includes(one))
   const isSameSet = isSameWorkingTimeSet(workingTimes, heldTimes)
   return {

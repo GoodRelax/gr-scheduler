@@ -36,7 +36,9 @@ const IN_5B_RETRY =
 const IN_5B_UNTIL = '置き直しは、焦点が入るか、求めが取り下げられる（`IN-5a` の後の段）まで続けること（MUST）'
 const IN_5B_NOT_STOLEN = '⛔ 置き直すために、人が別の欄や入口へ動かした焦点を奪ってはならない（MUST NOT）'
 const FR_102_ONLY_THESE =
-  '**記録するのは、操作と、描かれた絵の形と、表 T-263 の画面の状態だけとする（MUST）。**⭐ 画面の状態は、描いたフレームごとに書くこと（MUST）'
+  '**記録するのは、操作と、表 T-263 の画面の状態（描かれた絵の形は同表の `IR-4`）だけとする（MUST）。**'
+// WHY: CR-742 section 4.5 moved the drawn picture's shape into T-263 as IR-4; the per-frame clause now stands on its own line.
+const FR_102_EVERY_FRAME = '⭐ 画面の状態は、描いたフレームごとに書くこと（MUST）'
 const IR_1_FOCUS = '| IR-1 | 焦点の位置 | 焦点を持つ要素の種類を書くこと（MUST）'
 const IR_1_NO_CONTENT = 'どれでもなければ文書の本体。⛔ 欄の中身を書いてはならない（MUST NOT）'
 const IR_2_PANEL =
@@ -51,6 +53,7 @@ describe('CR-426 -- the manuscript these cases are driven by', () => {
     IN_5B_UNTIL,
     IN_5B_NOT_STOLEN,
     FR_102_ONLY_THESE,
+    FR_102_EVERY_FRAME,
     IR_1_FOCUS,
     IR_1_NO_CONTENT,
     IR_2_PANEL,
@@ -59,11 +62,11 @@ describe('CR-426 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('names MK-13 and HF-14 as the asks, and T-263 as IR-1 to IR-3', () => {
+  it('names MK-13 and HF-14 as the asks, and T-263 as IR-1 to IR-4', () => {
     const in5a = specTable('T-028').rows.find((one) => one.id === 'IN-5a')?.cells.join(' ') ?? ''
     expect(in5a).toContain('`MK-13`')
     expect(in5a).toContain('`HF-14`')
-    expect(specTable('T-263').rows.map((one) => one.id)).toEqual(['IR-1', 'IR-2', 'IR-3'])
+    expect(specTable('T-263').rows.map((one) => one.id)).toEqual(['IR-1', 'IR-2', 'IR-3', 'IR-4'])
   })
 })
 

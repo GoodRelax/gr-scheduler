@@ -11,8 +11,8 @@ import {
   type InputAction,
 } from '../../adapter/input-command-translator/input-command-translator'
 import { timeShiftQuestionItems, type FieldEditNotice } from '../../adapter/screen-renderer/screen-renderer'
-import { timeShiftPreviewOf, type DocumentCommand } from '../../use-case/edit-document/edit-document'
-import { isWorkingTimeSetUnlikeDay } from '../../entity/document-model/schedule/schedule'
+import { baseChangeCommandOf, timeShiftPreviewOf, type DocumentCommand } from '../../use-case/edit-document/edit-document'
+import { isWorkingTimeSetUnlikeDay, viewRegionOf } from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
 import {
   CHOICE_MOVED,
@@ -223,12 +223,13 @@ export function isTimeShiftWrite(writes: readonly (readonly DocumentCommand[])[]
 // see FR-156, IC-161, CM-94, CM-95
 /** @purity pure */
 export function baseChangeCommandsOf(
-  draft: { readonly chosenRegion: string; readonly chosenWay: 'keepGlobalTime' | 'keepLocalTime' },
+  draft: { readonly chosenRegion: string | null; readonly chosenWay: Parameters<typeof baseChangeCommandOf>[2] },
   document: Document,
 ): readonly DocumentCommand[] {
-  if (draft.chosenWay === 'keepLocalTime') return [{ kind: 'setScheduleDataTimeZone', timeZone: draft.chosenRegion }]
-  const isDataZone = draft.chosenRegion === document.schedule.project.scheduleDataTimeZone
-  return [{ kind: 'setViewTimeZone', timeZone: isDataZone ? null : draft.chosenRegion }]
+  const scheduleDataTimeZone = document.schedule.project.scheduleDataTimeZone
+  const held = { scheduleDataTimeZone, viewTimeZone: viewRegionOf(scheduleDataTimeZone, document.documentSettings.viewTimeZone) }
+  const command = baseChangeCommandOf(held, draft.chosenRegion, draft.chosenWay)
+  return command === null ? [] : [command]
 }
 
 type CalendarCommand = Extract<DocumentCommand, { readonly kind: 'setCalendar' }>

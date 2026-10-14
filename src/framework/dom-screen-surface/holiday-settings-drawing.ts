@@ -1,9 +1,16 @@
 // DomScreenSurface -- the Holiday Settings surface (U-65): its fixed parts and the one list that scrolls.
-// @unit      UF-204  (docs/spec/05-07-design.md, table T-075)
+// @unit      UF-205  (docs/spec/05-07-design.md, table T-075)
 // @component DomScreenSurface, layer Framework (table T-062)
 // @purity    non-pure
 
-import type { CommandItem, OpenModal, PropertyControl } from '../../adapter/screen-renderer/screen-renderer'
+import type {
+  HolidayExceptionLine,
+  HolidaySettings,
+  HolidaySettingsBody,
+  HolidaySettingsCell,
+  HolidaySettingsEntry,
+  OpenModal,
+} from '../../adapter/screen-renderer/screen-renderer'
 import {
   NOT_STORED_HOLIDAY_SETTINGS_LIST_SIZES,
   NOT_STORED_WHEEL_UNITS,
@@ -15,54 +22,7 @@ import {
 } from './dom-screen-surface'
 import { surfaceFieldElement } from './properties-panel-drawing'
 
-// see U-65, FR-088, T-344
-export interface HolidaySettingsCell {
-  readonly row: string
-  readonly control: PropertyControl
-  readonly isRefused: boolean
-}
-
-// WHY: the target names which weekday or which row a press of a repeated entrance means (IF-9).
-export interface HolidaySettingsEntry {
-  readonly item: CommandItem
-  readonly target: string | null
-}
-
-export interface HolidayWorkingTimeLine {
-  readonly from: HolidaySettingsCell
-  readonly to: HolidaySettingsCell
-  readonly remove: HolidaySettingsEntry
-}
-
-export interface HolidayExceptionLine {
-  readonly name: HolidaySettingsCell
-  readonly from: HolidaySettingsCell | null
-  readonly to: HolidaySettingsCell | null
-  readonly kind: HolidaySettingsEntry | null
-  readonly repeatingText: string | null
-  readonly remove: HolidaySettingsEntry
-}
-
-export interface HolidaySettingsBody {
-  readonly weekdaysHeading: string
-  readonly weekdays: readonly HolidaySettingsEntry[]
-  readonly weekStartName: string
-  readonly weekStart: HolidaySettingsCell
-  readonly workingHoursHeading: string
-  readonly workingHoursColumns: readonly string[]
-  readonly workingTimes: readonly HolidayWorkingTimeLine[]
-  readonly addWorkingTime: HolidaySettingsEntry
-  readonly otherHoursLine: string | null
-  readonly upperRefusals: readonly string[]
-  readonly exceptionsHeading: string
-  readonly exceptionColumns: readonly string[]
-  readonly exceptions: readonly HolidayExceptionLine[]
-  readonly lowerRefusals: readonly string[]
-  readonly addException: HolidaySettingsEntry
-  readonly apply: HolidaySettingsEntry
-}
-
-export type HolidaySettingsModal = OpenModal & { readonly holidaySettings: HolidaySettingsBody }
+export type HolidaySettingsModal = HolidaySettings
 
 interface HolidayDrawing {
   readonly host: Document
@@ -140,9 +100,9 @@ function cellControlElement(host: Document, cell: HolidaySettingsCell): HTMLElem
 
 // see WC-2, WC-4, IC-133, IC-137
 /** @purity non-pure */
-function entryElement(host: Document, entry: HolidaySettingsEntry, anchors: Map<string, HTMLElement>, isWorded = false): HTMLElement {
+function entryElement(host: Document, entry: HolidaySettingsEntry, anchors: Map<string, HTMLElement>): HTMLElement {
   const drawn = anchoredEntry(host, entry.item, anchors)
-  if (isWorded) drawn.replaceChildren(entry.item.label)
+  if (entry.word !== null) drawn.replaceChildren(entry.word)
   if (entry.target !== null) drawn.setAttribute(HOLIDAY_SETTINGS_TARGET_ATTRIBUTE, entry.target)
   return drawn
 }
@@ -188,7 +148,7 @@ function workingHoursElement(drawing: HolidayDrawing): HTMLElement {
 function upperPartElement(drawing: HolidayDrawing): HTMLElement {
   const { host, body, anchors } = drawing
   const upper = made(host, 'div', 'flex:none;')
-  const weekdays = body.weekdays.map((one) => entryElement(host, one, anchors, true))
+  const weekdays = body.weekdays.map((one) => entryElement(host, one, anchors))
   const otherHours = body.otherHoursLine === null ? [] : [lineOf(host, [body.otherHoursLine])]
   upper.append(
     headingOf(host, body.weekdaysHeading),
@@ -216,7 +176,7 @@ function exceptionCells(host: Document, line: HolidayExceptionLine, anchors: Map
     name,
     cellControlElement(host, line.from),
     cellControlElement(host, line.to),
-    entryElement(host, line.kind, anchors, true),
+    entryElement(host, line.kind, anchors),
     entryElement(host, line.remove, anchors),
   ]
 }
