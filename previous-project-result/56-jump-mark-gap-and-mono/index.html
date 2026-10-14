@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jump mark gap and mono</title>
+<style>
+  :root {
+    --ground:#ffffff; --page:#f4f6f8; --ink:#16181d; --muted:#4f5862; --rule:#d9dee5; --panel:#f6f8fa;
+    --fixed:#fff7e0; --pick:#b31959;
+  }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:16px; font:16px/1.7 system-ui, sans-serif; color:var(--ink); background:var(--page); }
+  h1 { font-size:22px; margin:0 0 8px; }
+  h2 { font-size:19px; margin:28px 0 6px; }
+  p { margin:4px 0 10px; max-width:72em; }
+  code { font-size:14px; }
+  .note { font-size:14px; color:var(--muted); }
+  .box { border:1px solid var(--rule); border-radius:8px; background:var(--panel); padding:8px 14px; margin:10px 0; max-width:72em; }
+  .fixed { background:var(--fixed); }
+  .fixed ul { margin:4px 0; padding-left:1.3em; }
+  .bar { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; margin:10px 0; }
+  .bar button { font:inherit; font-size:15px; padding:4px 12px; border-radius:6px; border:1px solid var(--rule); background:var(--ground); color:var(--ink); cursor:pointer; }
+  .bar button[aria-pressed="true"] { border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink); font-weight:600; }
+  .bar label { font-size:15px; cursor:pointer; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(min(330px, 100%), 1fr)); gap:14px; }
+  .card { border:1px solid var(--rule); border-radius:10px; background:var(--ground); padding:10px 12px 12px; min-width:0; }
+  .card h3 { font-size:17px; margin:0 0 2px; }
+  .card .tag { display:inline-block; font-size:12px; padding:0 6px; border-radius:4px; border:1px solid currentColor; margin-left:6px; vertical-align:2px; }
+  .card .why { font-size:14px; color:var(--muted); margin:0 0 6px; }
+  .card svg { display:block; max-width:100%; height:auto; }
+  .zooms { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+  .zooms figure { margin:0; }
+  .zooms figcaption { font-size:12px; color:var(--muted); }
+  .zooms svg { border:1px dashed var(--rule); }
+  table.hit { border-collapse:collapse; font-size:14px; margin-top:6px; width:100%; }
+  table.hit td { border-top:1px solid var(--rule); padding:2px 4px; vertical-align:top; }
+  table.hit td.n { text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .ok { color:var(--muted); }
+  .warn { font-weight:600; }
+  .measured { font-size:12px; color:var(--muted); margin-top:4px; }
+</style>
+</head>
+<body>
+<h1>問の見本: 飛んだ先の印（Jump Landing Ring + Ripple）の「隙間」と「モノクロの色」</h1>
+<p>場面: 検索パネル（Search Panel）や遅延診断レポート（Delay Diagnostics Report）の名前を押してタスクへ飛ぶと、飛んだ先のタスクバーやマイルストーンのグリフに囲みが付き、波紋が 2 回広がる（表 T-332 の <code>SJ-10</code>）。
+ここでは決まっていない 2 つを並べて比べる —— <b>問 1 囲みと形のあいだの隙間</b>と、<b>問 2 モノクロ表示（<code>K-61</code>）のときの囲みの色</b>。</p>
+
+<div class="box fixed">
+  <b>決まっていること（ここでは動かさない）</b>
+  <ul>
+    <li>囲みと波紋の色はローズ（色相 335）: 明るいテーマ <code>#b31959</code> ／ 暗いテーマ <code>#f17eae</code>（<code>JDG-2152</code>）</li>
+    <li>角は丸い。囲むのはタスクバー（タスクの線）とマイルストーンのグリフだけ。進捗マーカー（完了の ✓ など）は囲みの外（<code>JDG-2153</code>）</li>
+    <li>選択の破線の枠（1px、刻み 2 × 1 —— <code>S-174</code>・<code>S-175</code>）は今の色（強調の色 <code>S-151</code>）のまま</li>
+    <li>囲みの太さ 3px（<code>S-556</code>）、波紋は囲みから各辺 16px 外へ（<code>S-559</code>）、600ms（<code>S-558</code>）を 2 回（<code>S-557</code>）</li>
+  </ul>
+</div>
+
+<div class="bar" role="group" aria-label="theme">
+  <span>表示:</span>
+  <button type="button" data-theme="light">明るい</button>
+  <button type="button" data-theme="dark">暗い</button>
+  <button type="button" data-theme="monoLight">モノクロ（明るい）</button>
+  <button type="button" data-theme="monoDark">モノクロ（暗い）</button>
+  <button type="button" id="replay">波紋をもう一度（600ms × 2）</button>
+  <label><input type="checkbox" id="markerOnTop"> ✓ を囲みの上に描く（出荷版は囲みが上 —— 層 <code>ZO-10</code> は進捗マーカーより手前）</label>
+</div>
+
+<h2>問 1 囲みと形のあいだの隙間（<code>S-555</code>）</h2>
+<p>どの候補も、選んでいるタスクの破線の枠（形の縁の上、外へ 0.5px まで）と、フェードの掴み点（5 × 5px の四角を形の角に中央合わせ、縁 1px —— 外へ 3px まで、<code>S-109</code>・<code>S-110</code>）と、完了の ✓（径 14px、形の右に隙間 0 で接する —— 表 T-273 の <code>LP-2</code>、マイルストーンは <code>labelLayoutOf</code> で同じ）を描いた。
+上段は等倍、下段は右端を 4 倍に拡げた。表は、囲みの線（太さ 3px）が何 px 重なるかを候補の値から求めたもの。</p>
+<div class="grid" id="q1"></div>
+
+<h2>問 2 モノクロ表示のときの囲みと波紋の色</h2>
+<p>モノクロ（<code>K-61</code> の <code>themeMonochrome</code>、<code>S-74</code>）は、表 T-236 のすべての行を、HSL の明度を保ったまま彩度 0 の灰にして描く —— 強調の色 <code>S-151</code> も含め、例外を置かない（<code>FR-041</code>。人が指定した色は表 T-017b の <code>CV-7</code>）。
+<code>FR-041</code> は「カーソル <code>S-195</code> と強調 <code>S-151</code> はモノクロでは明度と形でしか分からない」と認めている。
+下の候補はどれもモノクロで描いた（表示を「暗い」系にすると暗いモノクロになる）。下の段に、遅延診断の修正案から飛んだときの「関係するタスク」の囲み（<code>S-573</code>、波紋なし —— 表 T-346 の <code>RW-13</code>）を並べた。</p>
+<div class="bar"><label>問 2 で使う隙間: <select id="q2gap"></select></label></div>
+<div class="grid" id="q2"></div>
+<p class="measured" id="greys"></p>
+
+<h2>問 3 進捗マーカー（✓ と右の名前）をどこに置くか</h2>
+<p>今の割付け（表 T-273 の <code>LP-2</code>、マイルストーンも同じ）では ✓ が形の右に隙間 0 で接するので、問 1 のどの隙間でも囲みの線が ✓ に重なる。<code>JDG-2153</code> の「進捗マーカーは囲みの外」を守る置き方を 4 つ並べた。
+どれも問 1 の C（隙間 1.5px —— 囲みの外縁は形の外 4.5px）で描いた。下の段は印の付いていない、ふつうのタスクである。
+⚠️ 名前が形の中に収まるタスク（<code>LP-1</code>）は ✓ も形の中の左端に在り、どの候補でも囲みの内側になる。</p>
+<div class="bar"><button type="button" id="q3play">波紋 → 印が消える → また付ける（約 4 秒）</button>
+<button type="button" id="q3toggle">印を消す ／ 付ける（押下・キーで消える —— <code>EL-17</code>）</button></div>
+<div class="grid" id="q3"></div>
+
+<h2>測り方</h2>
+<p class="note">隙間は、等倍の SVG で <code>getBBox()</code> を読み、形の外接矩形の各辺と囲みの線の内縁（矩形の辺 ± 線の太さの半分）との差として測った（ページの下の「測った値」の行と、セッションの一時フォルダの Playwright の probe）。
+灰は CF-6 と同じく 8 ビットの sRGB に丸めた値の (最大 + 最小) ÷ 2 を灰の値とした。描く色の値は表 T-236（色相 214）の値、形と寸法は出荷版の決まり（<code>SL-8</code>・<code>FR-075</code>・<code>LP-2</code>）に寄せた模型で、実物の割付けではない。</p>
+<p class="measured" id="measured"></p>
+
+<script>
+// --- palette: table T-236 rows at theme hue 214 [light, dark] ---
+var BASE = {
+  ground:   ['#ffffff', 'hsl(214 12% 9%)'],        // S-146
+  ink:      ['#16181d', '#e8eaee'],                // S-147
+  rule:     ['hsl(214 14% 87%)', 'hsl(214 12% 23%)'], // S-149
+  panel:    ['hsl(214 20% 97%)', 'hsl(214 14% 13%)'], // S-150
+  emph:     ['hsl(214 59% 32%)', 'hsl(214 62% 68%)'], // S-151 (selection frame)
+  planFill: ['hsl(214 46% 80%)', 'hsl(214 32% 26%)'], // S-155
+  planLine: ['hsl(214 44% 46%)', 'hsl(214 46% 66%)'], // S-156 (also grip edge S-528)
+  actual:   ['hsl(214 62% 34%)', 'hsl(214 62% 64%)'], // S-157
+  good:     ['#1f7a3d', '#6fc98d'],                // S-152 (complete marker)
+  related:  ['#07695a', '#4fd1b5'],                // S-573
+  rose:     ['#b31959', '#f17eae'],                // JDG-2152
+  page:     ['#f4f6f8', '#0f1216'],                // page chrome only
+  muted:    ['#4f5862', '#a9b1bb'],                // page chrome only
+  fixed:    ['#fff7e0', '#2a2416']                 // page chrome only
+};
+
+function hslToRgb(h, s, l) {
+  s /= 100; l /= 100;
+  var k = function (n) { return (n + h / 30) % 12; };
+  var a = s * Math.min(l, 1 - l);
+  var f = function (n) { return l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1))); };
+  return [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
+}
+function rgbOf(css) {
+  var m = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(css);
+  if (m) return [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)];
+  m = /^hsl\(([\d.]+) ([\d.]+)% ([\d.]+)%\)$/.exec(css);
+  return hslToRgb(+m[1], +m[2], +m[3]);
+}
+function hex2(n) { return ('0' + n.toString(16)).slice(-2); }
+// FR-041: keep HSL lightness, saturation 0. Lightness of 8-bit sRGB = (max + min) / 2.
+function greyOf(css) {
+  var c = rgbOf(css);
+  var g = Math.round((Math.max(c[0], c[1], c[2]) + Math.min(c[0], c[1], c[2])) / 2);
+  return '#' + hex2(g) + hex2(g) + hex2(g);
+}
+// WCAG 2.1 contrast ratio of two CSS colours (CF-6).
+function lumOf(css) {
+  var c = rgbOf(css).map(function (v) { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); });
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+function ratioOf(a, b) {
+  var x = lumOf(a), y = lumOf(b);
+  return ((Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05)).toFixed(2);
+}
+function paletteOf(theme) {
+  var dark = theme === 'dark' || theme === 'monoDark';
+  var mono = theme === 'monoLight' || theme === 'monoDark';
+  var out = {};
+  Object.keys(BASE).forEach(function (k) {
+    var v = BASE[k][dark ? 1 : 0];
+    out[k] = mono ? greyOf(v) : v;
+  });
+  out.dark = dark;
+  return out;
+}
+
+// --- scene model (1x px) ---
+var STROKE = 3, RX = 2, SPREAD = 16, RIPPLE_MS = 600;
+var MARKER_D = 14, LABEL_GAP = 9.6;                       // S-22 at zoom 100, S-32
+var GRIP_HALF = 2.5, GRIP_STROKE = 1;                     // S-109, S-110
+var SCENE_W = 300, SCENE_H = 132;
+var BAR = { x: 40, y: 30, w: 150, h: 14, name: '画面の作成' };
+var MS = { x: 52, y: 94, w: 14, h: 14, name: '設計の承認' };
+var REL = { x: 40, y: 150, w: 110, h: 14, name: '帳票の作成' };
+
+var NS = 'http://www.w3.org/2000/svg';
+function el(name, attrs, parent) {
+  var e = document.createElementNS(NS, name);
+  for (var k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function ringRect(box, pad) {
+  return { x: box.x - pad, y: box.y - pad, width: box.w + 2 * pad, height: box.h + 2 * pad, rx: RX };
+}
+// offset: room left between the shape's right edge and the marker (LP-2 today: 0).
+function drawMarker(g, box, offset, target) {
+  var r = MARKER_D / 2, cx = box.x + box.w + (offset || 0) + r, cy = box.y + box.h / 2;
+  el('circle', { cx: cx, cy: cy, r: r, fill: 'var(--good)', 'data-role': 'marker', 'data-target': target || '' }, g);
+  el('path', { d: 'M' + (cx - 3.5) + ' ' + cy + 'L' + (cx - 1) + ' ' + (cy + 2.5) + 'L' + (cx + 3.5) + ' ' + (cy - 2.5), fill: 'none', stroke: 'var(--ground)', 'stroke-width': 1.6 }, g);
+  var t = el('text', { x: cx + r + LABEL_GAP, y: cy + 4.5, 'font-size': 13, fill: 'var(--ink)' }, g);
+  t.textContent = box.name;
+}
+function drawBar(g, box, target) {
+  el('rect', { x: box.x, y: box.y, width: box.w, height: box.h, fill: 'var(--planFill)', stroke: 'var(--planLine)', 'stroke-width': 1, 'data-role': 'shape', 'data-target': target }, g);
+  el('rect', { x: box.x, y: box.y + 4, width: box.w, height: box.h - 8, fill: 'var(--actual)' }, g);
+}
+function drawMilestone(g, box) {
+  var cx = box.x + box.w / 2, cy = box.y + box.h / 2, r = box.w / 2;
+  el('path', { d: 'M' + cx + ' ' + (cy - r) + 'L' + (cx + r) + ' ' + cy + 'L' + cx + ' ' + (cy + r) + 'L' + (cx - r) + ' ' + cy + 'Z', fill: 'var(--actual)', stroke: 'var(--planLine)', 'stroke-width': 1, 'data-role': 'shape', 'data-target': 'ms' }, g);
+}
+function drawFrame(g, box) {          // SL-8: dashed 1px centred on the box edge
+  el('rect', { x: box.x, y: box.y, width: box.w, height: box.h, fill: 'none', stroke: 'var(--emph)', 'stroke-width': 1, 'stroke-dasharray': '2 1', 'data-role': 'frame' }, g);
+}
+function drawGrips(g, box) {          // FR-075 GA-7 top edge at the start, GA-8 bottom edge at the end (no fade days)
+  [[box.x, box.y], [box.x + box.w, box.y + box.h]].forEach(function (p) {
+    el('rect', { x: p[0] - GRIP_HALF, y: p[1] - GRIP_HALF, width: 2 * GRIP_HALF, height: 2 * GRIP_HALF, fill: 'var(--ground)', stroke: 'var(--planLine)', 'stroke-width': GRIP_STROKE, 'data-role': 'grip' }, g);
+  });
+}
+// The ring: stroke STROKE whose inner edge is `gap` px off the shape's bounding box.
+function drawRing(g, box, gap, style, target, colour) {
+  if (style === 'double') {           // two 1px lines with 1px between: same 3px band
+    el('rect', Object.assign(ringRect(box, gap + 0.5), { fill: 'none', stroke: colour, 'stroke-width': 1, 'data-role': 'ring', 'data-target': target, 'data-sw': 1 }), g);
+    el('rect', Object.assign(ringRect(box, gap + 2.5), { fill: 'none', stroke: colour, 'stroke-width': 1, 'data-role': 'ringOuter' }), g);
+  } else if (style === 'open') {      // a bracket: the right side is left out where the marker stands
+    var q = ringRect(box, gap + STROKE / 2), L = q.x, T = q.y, R = q.x + q.width, B = q.y + q.height;
+    var cy = box.y + box.h / 2, open = MARKER_D / 2 + 1;
+    var top = Math.min(cy - open, B - RX), bottom = Math.max(cy + open, T + RX);
+    var d = 'M' + R + ' ' + Math.max(top, T + RX) + 'V' + (T + RX) + 'A' + RX + ' ' + RX + ' 0 0 0 ' + (R - RX) + ' ' + T +
+      'H' + (L + RX) + 'A' + RX + ' ' + RX + ' 0 0 0 ' + L + ' ' + (T + RX) + 'V' + (B - RX) + 'A' + RX + ' ' + RX + ' 0 0 0 ' + (L + RX) + ' ' + B +
+      'H' + (R - RX) + 'A' + RX + ' ' + RX + ' 0 0 0 ' + R + ' ' + (B - RX) + 'V' + Math.min(bottom, B - RX);
+    el('path', { d: d, fill: 'none', stroke: colour, 'stroke-width': STROKE, 'data-role': 'ring', 'data-target': target, 'data-sw': STROKE }, g);
+  } else {
+    el('rect', Object.assign(ringRect(box, gap + STROKE / 2), { fill: 'none', stroke: colour, 'stroke-width': STROKE, 'data-role': 'ring', 'data-target': target, 'data-sw': STROKE }), g);
+  }
+  g.ripples = g.ripples || [];
+  g.ripples.push({ box: box, pad: gap + STROKE / 2, colour: colour });
+}
+function ripple(g) {
+  (g.ripples || []).forEach(function (rp) {
+    [0, RIPPLE_MS].forEach(function (delay) {
+      setTimeout(function () {
+        var from = ringRect(rp.box, rp.pad), to = ringRect(rp.box, rp.pad + SPREAD);
+        var r = el('rect', Object.assign({}, from, { fill: 'none', stroke: rp.colour, 'stroke-width': STROKE, opacity: 0.95, 'pointer-events': 'none' }), g);
+        ['x', 'y', 'width', 'height'].forEach(function (k) {
+          el('animate', { attributeName: k, from: from[k], to: to[k], dur: RIPPLE_MS + 'ms', begin: 'indefinite', fill: 'freeze' }, r);
+        });
+        el('animate', { attributeName: 'opacity', from: 0.95, to: 0, dur: RIPPLE_MS + 'ms', begin: 'indefinite', fill: 'freeze' }, r);
+        Array.prototype.forEach.call(r.children, function (a) { a.beginElement(); });
+        setTimeout(function () { if (r.parentNode) r.parentNode.removeChild(r); }, RIPPLE_MS + 50);
+      }, delay);
+    });
+  });
+}
+// One scene: the jumped bar (selected: frame + grips) and, as a second example, a jumped milestone.
+// opts: { gap, ring: colour, style, related: bool, markerOffset, plainRows: bool, plainOffset, markersOnTop: bool }
+var PLAIN = [{ x: 40, y: 150, w: 90, h: 14, name: '要件の整理' }, { x: 70, y: 176, w: 120, h: 14, name: '連携の設計' }, { x: 20, y: 202, w: 60, h: 14, name: '移行の準備' }];
+function buildScene(opts) {
+  var h = opts.related ? SCENE_H + 44 : opts.plainRows ? SCENE_H + 96 : SCENE_H;
+  var svg = el('svg', { viewBox: '0 0 ' + SCENE_W + ' ' + h, width: SCENE_W, height: h });
+  el('rect', { x: 0, y: 0, width: SCENE_W, height: h, fill: 'var(--ground)' }, svg);
+  [64, 124].concat(opts.related ? [172] : []).forEach(function (y) { el('line', { x1: 0, x2: SCENE_W, y1: y + 0.5, y2: y + 0.5, stroke: 'var(--rule)' }, svg); });
+  var cap = el('text', { x: 6, y: 16, 'font-size': 12, fill: 'var(--muted)' }, svg); cap.textContent = '例 1 タスクバー（選んでいる）';
+  var cap2 = el('text', { x: 6, y: 80, 'font-size': 12, fill: 'var(--muted)' }, svg); cap2.textContent = '例 2 マイルストーン（選んでいる）';
+  var shapes = el('g', {}, svg), markers = el('g', { 'data-layer': 'markers' }, svg), zo10 = el('g', { 'data-layer': 'zo10' }, svg);
+  drawBar(shapes, BAR, 'bar'); drawMilestone(shapes, MS);
+  drawMarker(markers, BAR, opts.markerOffset, 'bar'); drawMarker(markers, MS, opts.markerOffset, 'ms');
+  if (opts.plainRows) {
+    var cap4 = el('text', { x: 6, y: 141, 'font-size': 12, fill: 'var(--muted)' }, svg); cap4.textContent = 'ふつうのタスク（印なし）';
+    PLAIN.forEach(function (b, i) { drawBar(shapes, b, 'plain' + i); drawMarker(markers, b, opts.plainOffset, 'plain' + i); });
+  }
+  if (opts.related) {
+    var cap3 = el('text', { x: 6, y: 141, 'font-size': 12, fill: 'var(--muted)' }, svg); cap3.textContent = '関係するタスク（S-573、波紋なし）';
+    drawBar(shapes, REL, 'rel'); drawMarker(markers, REL);
+    el('rect', Object.assign(ringRect(REL, opts.gap + STROKE / 2), { fill: 'none', stroke: 'var(--related)', 'stroke-width': STROKE, 'data-role': 'relatedRing' }), zo10);
+  }
+  // ZO-10 order: selection frame, fade grips, then the jump landing ring.
+  drawFrame(zo10, BAR); drawGrips(zo10, BAR); drawFrame(zo10, MS);
+  var ringG = el('g', { 'data-layer': 'ring' }, zo10);
+  drawRing(ringG, BAR, opts.gap, opts.style, 'bar', opts.ring);
+  drawRing(ringG, MS, opts.gap, opts.style, 'ms', opts.ring);
+  if (opts.markersOnTop) svg.appendChild(markers);
+  svg.zo10 = ringG; svg.markers = markers;
+  return svg;
+}
+function zoomOf(scene, x, y, w, h, scale) {
+  var z = scene.cloneNode(true);
+  z.setAttribute('viewBox', x + ' ' + y + ' ' + w + ' ' + h);
+  z.setAttribute('width', w * scale); z.setAttribute('height', h * scale);
+  z.setAttribute('data-zoom', '1'); z.removeAttribute('data-scale');
+  return z;
+}
+
+// --- question 1 candidates ---
+var Q1 = [
+  { key: 'A', gap: 0,   title: 'A 隙間 0px（形に接する）', why: '最も締まる。破線の枠に 0.5px 重なり、掴み点はほぼ囲みの下に隠れる。' },
+  { key: 'B', gap: 1,   title: 'B 隙間 1px', why: '破線の枠（外へ 0.5px）の外に囲みが出る最小の整数（SJ-10「選択の枠の外側」）。掴み点とは 2px 重なる。' },
+  { key: 'C', gap: 1.5, title: 'C 隙間 1.5px', tag: '見本 49', why: '見本 49 の値（線の中心を形の外 3px、太さ 3px ⇒ 形の外 1.5〜4.5px、角丸 2）。' },
+  { key: 'D', gap: 3,   title: 'D 隙間 3px', tag: '出荷版', why: '出荷版の値（S-555 = 3、形の外 3〜6px。出荷版は直角だが、ここでは決まった角丸で描く）。掴み点と重ならないが「箱の中に箱」に見える。' }
+];
+// Overlaps the ring's 3px band [gap, gap + 3] makes, from the model's numbers.
+function overlapRows(gap) {
+  var frameOut = 0.5, gripOut = GRIP_HALF + GRIP_STROKE / 2;
+  return [
+    ['破線の枠（外へ 0.5px）と重なる幅', Math.max(0, frameOut - gap)],
+    ['掴み点（外へ 3px）と重なる幅', Math.max(0, Math.min(gripOut, gap + STROKE) - gap)],
+    ['✓ の丸（右に接する、径 14px）を線が覆う幅', STROKE],
+    ['✓ の丸の左端から線の外縁まで', gap + STROKE]
+  ];
+}
+var theme = 'light', q1Scenes = [], q2Scenes = [];
+function cssVarsOf(p) {
+  return ['ground', 'ink', 'rule', 'emph', 'planFill', 'planLine', 'actual', 'good', 'related', 'muted'].map(function (k) { return '--' + k + ':' + p[k]; }).join(';');
+}
+function buildQ1() {
+  var host = document.getElementById('q1'); host.innerHTML = ''; q1Scenes = [];
+  var p = paletteOf(theme);
+  Q1.forEach(function (c) {
+    var card = document.createElement('div'); card.className = 'card'; card.setAttribute('style', cssVarsOf(p));
+    card.setAttribute('data-candidate', 'q1-' + c.key); card.setAttribute('data-gap', c.gap);
+    card.innerHTML = '<h3>' + c.title + (c.tag ? '<span class="tag">' + c.tag + '</span>' : '') + '</h3><p class="why">' + c.why + '</p>';
+    var scene = buildScene({ gap: c.gap, ring: p.rose, style: 'solid' });
+    scene.setAttribute('data-scale', '1');
+    card.appendChild(scene); q1Scenes.push(scene);
+    var zooms = document.createElement('div'); zooms.className = 'zooms';
+    [['タスクバーの右端と ✓（4 倍）', BAR.x + BAR.w - 12, BAR.y - 9, 36, 32],
+     ['マイルストーンと ✓（4 倍）', MS.x - 9, MS.y - 9, 36, 32]].forEach(function (z) {
+      var f = document.createElement('figure');
+      var cap = document.createElement('figcaption'); cap.textContent = z[0];
+      f.appendChild(zoomOf(scene, z[1], z[2], z[3], z[4], 4)); f.appendChild(cap); zooms.appendChild(f);
+    });
+    card.appendChild(zooms);
+    var t = document.createElement('table'); t.className = 'hit';
+    overlapRows(c.gap).forEach(function (r) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = '<td>' + r[0] + '</td><td class="n ' + (r[1] > 0 ? 'warn' : 'ok') + '">' + r[1] + 'px</td>';
+      t.appendChild(tr);
+    });
+    card.appendChild(t);
+    host.appendChild(card);
+  });
+}
+
+// --- question 2 candidates (always drawn in monochrome) ---
+var Q2 = [
+  { key: 'A', title: 'A 規則どおりの灰（FR-041）', style: 'solid', colour: function (p) { return greyOf(p.dark ? BASE.rose[1] : BASE.rose[0]); },
+    why: 'ローズを明度を保って灰にする。仕様を足さない。ただし実績バーの灰との比が約 1.26 で、DFC-2605 の「紺の塊」（比 1.08）に近い見え方に戻る。' },
+  { key: 'B', title: 'B 文字の色の灰（最も濃い）', style: 'solid', colour: function (p) { return greyOf(p.dark ? BASE.ink[1] : BASE.ink[0]); },
+    why: '地との差が最大。モノクロのときだけ別の行を読む例外を FR-041 に足す。実績バーや破線の枠の灰とも近い。' },
+  { key: 'C', title: 'C 規則どおりの灰の二重線', tag: '推し', style: 'double', colour: function (p) { return greyOf(p.dark ? BASE.rose[1] : BASE.rose[0]); },
+    why: '色は A と同じ灰（色の決まり FR-041 は守る）、線を 1px ＋ 1px の二重にして形で分ける（帯の幅は同じ 3px）。FR-041 の言う「モノクロでは明度と形で分ける」に沿う。モノクロだけ形が変わる決まりを SJ-10 に足す。' },
+  { key: 'D', title: 'D ローズのまま', style: 'solid', colour: function (p) { return p.dark ? BASE.rose[1] : BASE.rose[0]; },
+    why: '最も目立つ。ただし FR-041 の「例外を置かない（MUST）」を覆す —— 画面の一部だけ色が残り、モノクロの見え方を確かめられなくなる。' }
+];
+function buildQ2() {
+  var host = document.getElementById('q2'); host.innerHTML = ''; q2Scenes = [];
+  var dark = theme === 'dark' || theme === 'monoDark';
+  var p = paletteOf(dark ? 'monoDark' : 'monoLight');
+  var gap = +document.getElementById('q2gap').value;
+  Q2.forEach(function (c) {
+    var card = document.createElement('div'); card.className = 'card'; card.setAttribute('style', cssVarsOf(p) + ';color:var(--ink)');
+    card.setAttribute('data-candidate', 'q2-' + c.key); card.setAttribute('data-gap', gap);
+    var colour = c.colour(p);
+    card.innerHTML = '<h3>' + c.title + (c.tag ? '<span class="tag">' + c.tag + '</span>' : '') + '</h3><p class="why">' + c.why + '</p>';
+    var scene = buildScene({ gap: gap, ring: colour, style: c.style, related: true });
+    scene.setAttribute('data-scale', '1');
+    card.appendChild(scene); q2Scenes.push(scene);
+    var zooms = document.createElement('div'); zooms.className = 'zooms';
+    var f = document.createElement('figure'); var cap = document.createElement('figcaption'); cap.textContent = 'タスクバーの右端（4 倍）';
+    f.appendChild(zoomOf(scene, BAR.x + BAR.w - 12, BAR.y - 9, 36, 32, 4)); f.appendChild(cap); zooms.appendChild(f);
+    card.appendChild(zooms);
+    var m = document.createElement('p'); m.className = 'measured';
+    m.setAttribute('data-ratios', JSON.stringify({ ground: ratioOf(colour, p.ground), actual: ratioOf(colour, p.actual), related: ratioOf(colour, p.related), frame: ratioOf(colour, p.emph) }));
+    m.textContent = '囲みの色 ' + colour + (c.style === 'double' ? '（二重線）' : '') + '。比（WCAG 2.1）: 地 ' + p.ground + ' と ' + ratioOf(colour, p.ground) +
+      ' ／ 実績バー ' + p.actual + ' と ' + ratioOf(colour, p.actual) + ' ／ 関係するタスクの囲み ' + p.related + ' と ' + ratioOf(colour, p.related) +
+      ' ／ 破線の枠 ' + p.emph + ' と ' + ratioOf(colour, p.emph);
+    card.appendChild(m);
+    host.appendChild(card);
+  });
+  document.getElementById('greys').textContent = 'モノクロの灰（FR-041）: ローズ 明 #b31959 → ' + greyOf(BASE.rose[0]) + '、暗 #f17eae → ' + greyOf(BASE.rose[1]) +
+    ' ／ 強調 S-151 明 → ' + greyOf(BASE.emph[0]) + '、暗 → ' + greyOf(BASE.emph[1]) +
+    ' ／ 関係するタスク S-573 明 → ' + greyOf(BASE.related[0]) + '、暗 → ' + greyOf(BASE.related[1]) +
+    ' ／ 実績 S-157 明 → ' + greyOf(BASE.actual[0]) + '、暗 → ' + greyOf(BASE.actual[1]);
+}
+
+// --- question 3 candidates (gap C 1.5px; the ring's outer reach is 1.5 + 3 = 4.5px) ---
+var Q3_GAP = 1.5, REACH = Q3_GAP + STROKE;
+var Q3 = [
+  { key: 'A', title: 'A 印のあいだだけ ✓ と名前を右へずらす', offset: function (shown) { return shown ? REACH : 0; }, plain: 0,
+    why: 'ふつうのタスクの割付けは今のまま。ただし印が消えると ✓ と名前が 4.5px 左へ戻る —— 目で追っている所で字が動き、名前の占める幅（OC）も印で変わる。' },
+  { key: 'B', title: 'B ✓ をいつも形から 4.5px 離す（LP-2 を変える）', tag: '推し', offset: function () { return REACH; }, plain: REACH,
+    why: '何も動かず、囲みは確かに外。値は S-555 ＋ S-556 から導けて新しい数が要らない。代わりにすべてのタスクの ✓ と名前が 4.5px 右へ寄り、書き出す絵も変わる。' },
+  { key: 'C', title: 'C 何も動かさず、囲みを ✓ の下に描く', offset: function () { return 0; }, plain: 0, onTop: true,
+    why: '割付けも層の決まり以外も変えない。✓ が囲みの線の上に乗るので、厳密には「外」ではない（✓ の左 3px が囲みの帯の上）。' },
+  { key: 'D', title: 'D 囲みの右辺を ✓ の所で開ける（括弧の形）', offset: function () { return 0; }, plain: 0, style: 'open',
+    why: '割付けを変えない。バーとマイルストーンは ✓ と同じ高さなので右辺がまるごと消え、閉じた囲みに見えない。波紋は閉じた矩形のまま ✓ の上を通る。' }
+];
+var q3Shown = true;
+function q3Scene(c) {
+  return buildScene({ gap: Q3_GAP, ring: paletteOf(theme).rose, style: c.style || 'solid', markerOffset: c.offset(q3Shown), plainRows: true, plainOffset: c.plain, markersOnTop: !!c.onTop });
+}
+function buildQ3() {
+  var host = document.getElementById('q3'); host.innerHTML = '';
+  var p = paletteOf(theme);
+  Q3.forEach(function (c) {
+    var card = document.createElement('div'); card.className = 'card'; card.setAttribute('style', cssVarsOf(p));
+    card.setAttribute('data-candidate', 'q3-' + c.key); card.setAttribute('data-gap', Q3_GAP);
+    card.innerHTML = '<h3>' + c.title + (c.tag ? '<span class="tag">' + c.tag + '</span>' : '') + '</h3><p class="why">' + c.why + '</p>';
+    var scene = q3Scene(c); scene.setAttribute('data-scale', '1');
+    if (!q3Shown) scene.zo10.style.display = 'none';
+    card.appendChild(scene);
+    var zooms = document.createElement('div'); zooms.className = 'zooms';
+    [['タスクバーの右端と ✓（4 倍）', BAR.x + BAR.w - 8, BAR.y - 9, 36, 32],
+     ['マイルストーンと ✓（4 倍）', MS.x - 4, MS.y - 9, 36, 32]].forEach(function (z) {
+      var f = document.createElement('figure');
+      var cap = document.createElement('figcaption'); cap.textContent = z[0];
+      f.appendChild(zoomOf(scene, z[1], z[2], z[3], z[4], 4)); f.appendChild(cap); zooms.appendChild(f);
+    });
+    card.appendChild(zooms);
+    host.appendChild(card);
+  });
+}
+function q3Ripple() {
+  document.querySelectorAll('#q3 svg[data-scale="1"]').forEach(function (s) { if (s.zo10) ripple(s.zo10); });   // zoom clones carry no ring group
+}
+var q3Timers = [];
+function q3SetShown(shown) { q3Shown = shown; buildQ3(); }
+document.getElementById('q3toggle').addEventListener('click', function () {
+  q3Timers.forEach(clearTimeout); q3Timers = []; q3SetShown(!q3Shown);
+  if (q3Shown) q3Ripple();
+});
+document.getElementById('q3play').addEventListener('click', function () {
+  q3Timers.forEach(clearTimeout); q3Timers = [];
+  q3SetShown(true); q3Ripple();
+  q3Timers.push(setTimeout(function () { q3SetShown(false); }, 2400));
+  q3Timers.push(setTimeout(function () { q3SetShown(true); }, 3800));
+});
+// Marker-to-ring clearance on question 3 (read by the probe): > 0 means the marker stands outside the ring's band.
+window.measureQ3 = function () {
+  return Array.prototype.map.call(document.querySelectorAll('#q3 .card'), function (card) {
+    var svg = card.querySelector('svg[data-scale="1"]'), row = { card: card.getAttribute('data-candidate') };
+    ['bar', 'ms', 'plain0'].forEach(function (t) {
+      var shape = svg.querySelector('[data-role="shape"][data-target="' + t + '"]').getBBox();
+      var m = svg.querySelector('[data-role="marker"][data-target="' + t + '"]').getBBox();
+      row[t] = +(m.x - (shape.x + shape.width)).toFixed(3);
+    });
+    var g = Array.prototype.filter.call(svg.children, function (c) { return c.tagName === 'g'; }).map(function (c) { return c.getAttribute('data-layer'); });
+    row.markersAboveRing = g.indexOf('markers') > g.indexOf('zo10');
+    row.ringShape = svg.querySelector('[data-role="ring"]').tagName;
+    return row;
+  });
+};
+
+// --- measuring (also read by the probe) ---
+function measure() {
+  var out = [];
+  document.querySelectorAll('.card').forEach(function (card) {
+    var svg = card.querySelector('svg[data-scale="1"]');
+    ['bar', 'ms'].forEach(function (target) {
+      var shape = svg.querySelector('[data-role="shape"][data-target="' + target + '"]').getBBox();
+      var ringEl = svg.querySelector('[data-role="ring"][data-target="' + target + '"]');
+      var ring = ringEl.getBBox(), half = +ringEl.getAttribute('data-sw') / 2;
+      out.push({
+        card: card.getAttribute('data-candidate'), target: target, label: +card.getAttribute('data-gap'),
+        left: +(shape.x - (ring.x + half)).toFixed(3), top: +(shape.y - (ring.y + half)).toFixed(3),
+        right: +((ring.x + ring.width - half) - (shape.x + shape.width)).toFixed(3),
+        bottom: +((ring.y + ring.height - half) - (shape.y + shape.height)).toFixed(3)
+      });
+    });
+  });
+  var bad = out.filter(function (r) { return [r.left, r.top, r.right, r.bottom].some(function (v) { return Math.abs(v - r.label) > 0.001; }); });
+  document.getElementById('measured').textContent = '測った値: ' + out.length + ' 個の囲み（候補 × タスクバー・マイルストーン）の 4 辺の隙間が、候補の値と ' +
+    (bad.length === 0 ? 'すべて一致した。' : bad.length + ' 個で食い違った。');
+  return out;
+}
+window.measureGaps = measure;
+
+// --- theme ---
+function applyTheme(t) {
+  theme = t;
+  var p = paletteOf(t), root = document.documentElement.style;
+  ['ground', 'ink', 'rule', 'panel', 'page', 'muted', 'fixed'].forEach(function (k) { root.setProperty('--' + k, p[k]); });
+  root.setProperty('color-scheme', p.dark ? 'dark' : 'light');
+  document.querySelectorAll('[data-theme]').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-theme') === t)); });
+  buildQ1(); buildQ2(); buildQ3(); placeAll(); measure();
+}
+function placeAll() {                // shipped order: the ring (ZO-10) above the markers
+  var on = document.getElementById('markerOnTop').checked;
+  document.querySelectorAll('#q1 .card svg, #q2 .card svg').forEach(function (s) {
+    var markers = s.querySelector(':scope > g[data-layer="markers"]'), zo10 = s.querySelector(':scope > g[data-layer="zo10"]');
+    if (on) s.appendChild(markers); else s.insertBefore(markers, zo10);
+  });
+}
+var q2sel = document.getElementById('q2gap');
+Q1.forEach(function (c) {
+  var o = document.createElement('option'); o.value = c.gap; o.textContent = c.title + (c.tag ? '（' + c.tag + '）' : '');
+  if (c.key === 'C') o.selected = true;
+  q2sel.appendChild(o);
+});
+q2sel.addEventListener('change', function () { buildQ2(); placeAll(); measure(); });
+document.querySelectorAll('[data-theme]').forEach(function (b) { b.addEventListener('click', function () { applyTheme(b.getAttribute('data-theme')); }); });
+document.getElementById('markerOnTop').addEventListener('change', placeAll);
+document.getElementById('replay').addEventListener('click', function () {
+  q1Scenes.concat(q2Scenes).forEach(function (s) { ripple(s.zo10); }); q3Ripple();   // 1x scenes only; the zooms are clones
+});
+applyTheme('light');
+</script>
+</body>
+</html>
