@@ -280,10 +280,15 @@ export type InstantOnSide = (text: string | null, side: DateTimeSide) => number 
 /** @purity pure */
 export function instantOnSideReader(within: WorkingCalendar | Schedule): InstantOnSide {
   let index: TimeIndex | null = null
+  return instantOnSideOver(() => (index ??= timeIndexOf('calendar' in within ? within : workingCalendarOf(within))))
+}
+
+/** @purity pure */
+function instantOnSideOver(indexOnce: () => TimeIndex): InstantOnSide {
   return (text, side) => {
     const day = text !== null && isDateWithoutTime(text) ? dayOf(text) : null
     if (day === null) return instantOf(text)
-    index ??= timeIndexOf('calendar' in within ? within : workingCalendarOf(within))
+    const index = indexOnce()
     const own = spansAt(index, serial(day))
     const spans = own.length > 0 ? own : index.workingSet()
     const edge = side === 'start' ? spans[0]?.from ?? 0 : spans[spans.length - 1]?.to ?? MINUTES_PER_CALENDAR_DAY
@@ -322,16 +327,26 @@ export function shownInstantReader(schedule: Schedule, viewTimeZone: unknown): I
 
 /** @purity pure */
 export function plannedInstantsOf(within: WorkingCalendar, task: PlannedEnds): readonly [number, number] | null {
-  const start = instantOnSide(within, task.start, startSideOf(task))
-  const finish = instantOnSide(within, task.finish, 'finish')
+  return plannedInstantsBy(instantOnSideReader(within), task)
+}
+
+/** @purity pure */
+function plannedInstantsBy(onSide: InstantOnSide, task: PlannedEnds): readonly [number, number] | null {
+  const start = onSide(task.start, startSideOf(task))
+  const finish = onSide(task.finish, 'finish')
   return start === null || finish === null ? null : [start, finish]
 }
 
 // see FR-011, T-019
 /** @purity pure */
 export function actualInstantsOf(within: WorkingCalendar, task: Task): readonly [number, number] | null {
-  const start = instantOnSide(within, task.actualStart, startSideOf(task))
-  const end = instantOnSide(within, actualEndOf(task), 'finish')
+  return actualInstantsBy(instantOnSideReader(within), task)
+}
+
+/** @purity pure */
+function actualInstantsBy(onSide: InstantOnSide, task: Task): readonly [number, number] | null {
+  const start = onSide(task.actualStart, startSideOf(task))
+  const end = onSide(actualEndOf(task), 'finish')
   return start === null || end === null ? null : [start, end]
 }
 
@@ -360,7 +375,7 @@ export function plannedDurationMinutesOf(within: WorkingCalendar, task: Task): n
 // see FR-012, FR-011
 /** @purity pure */
 export function plannedLengthMinutesOf(within: WorkingCalendar, task: Task): number | null {
-  return plannedMinutesBy(actualMinutesOf, within, task)
+  return workingTimeCounterOf(within).plannedLengthMinutes(task)
 }
 
 // see FR-011
@@ -538,11 +553,39 @@ function edgeSpansOf(index: TimeIndex, startSerial: number, endSerial: number): 
 // see FR-011, FR-012, IV-21
 /** @purity pure */
 export function actualMinutesOf(within: WorkingCalendar, start: number, end: number): number {
-  if (end === start) return 0
+  return end === start ? 0 : actualMinutesAt(timeIndexOf(within), start, end)
+}
+
+/** @purity pure */
+function actualMinutesAt(index: TimeIndex, start: number, end: number): number {
   const startSerial = Math.floor(start / MINUTES_PER_CALENDAR_DAY)
   const endSerial = Math.floor((end - 1) / MINUTES_PER_CALENDAR_DAY)
-  const spansOfDay = edgeSpansOf(timeIndexOf(within), startSerial, endSerial)
+  const spansOfDay = edgeSpansOf(index, startSerial, endSerial)
   return end > start ? minutesOver(spansOfDay, start, end) : -minutesOver(spansOfDay, end, start)
+}
+
+// see FR-011, FR-012
+export interface WorkingTimeCounter {
+  plannedLengthMinutes(task: Task): number | null
+  actualLengthMinutes(task: Task): number | null
+}
+
+// see FR-011, FR-012
+// WHY: one calendar index for a whole recount; built per Task it parsed the calendar again for each Task (DFC-2472).
+/** @purity pure */
+export function workingTimeCounterOf(within: WorkingCalendar): WorkingTimeCounter {
+  let index: TimeIndex | null = null
+  const indexOnce = (): TimeIndex => (index ??= timeIndexOf(within))
+  const onSide = instantOnSideOver(indexOnce)
+  const lengthOf = (ends: readonly [number, number] | null): number | null =>
+    ends === null ? null : ends[1] === ends[0] ? 0 : actualMinutesAt(indexOnce(), ends[0], ends[1])
+  return {
+    plannedLengthMinutes: (task) => {
+      const plan = plannedInstantsBy(onSide, task)
+      return plan !== null && task.milestone === true ? 0 : lengthOf(plan)
+    },
+    actualLengthMinutes: (task) => lengthOf(actualInstantsBy(onSide, task)),
+  }
 }
 
 // see IV-21, FR-011

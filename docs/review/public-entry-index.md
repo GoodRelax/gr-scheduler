@@ -100,6 +100,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `diagnoseDelay` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnoseDelay` | PI-1 | 遅延診断のレポート（表 T-317）を作る。 |
 | `EntityRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#EntityRows` | -- | interface EntityRows |
 | `Exception` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Exception` | -- | interface Exception |
+| `finishSideDayFrom` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#finishSideDayFrom` | PI-1 | `finishSideDayOf` と同じ日を、読み手が既に読んだその字の日（`dayOf` の答え）から数える。 |
 | `finishSideDayOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#finishSideDayOf` | PI-1 | 終了の側の日時が落ちる日。 |
 | `ForeignKeyColumn` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#ForeignKeyColumn` | -- | interface ForeignKeyColumn |
 | `HighlightBox` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#HighlightBox` | -- | interface HighlightBox |
@@ -185,6 +186,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `workingMinutesBetween` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingMinutesBetween` | PI-1 | 2 つの瞬間の間の稼働時間（分）。 |
 | `workingSpansReader` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingSpansReader` | PI-1 | 日ごとの稼働時間の区間を返す読み手（索引は 1 度だけ作る）。 |
 | `WorkingTime` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WorkingTime` | PI-1 | 型。 |
+| `WorkingTimeCounter` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingTimeCounter` | PI-1 | 型。 |
+| `workingTimeCounterOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingTimeCounterOf` | PI-1 | 予定の期間と実績の長さ（分）を、1 回の数え直しの間くり返して数える数え手（暦の索引は初めて要るときに 1 度だけ作る）。 |
 | `workingTimesBreach` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingTimesBreach` | PI-1 | 時間帯の組が `05-07-design.md` の 表 T-220 の `IV-24` に反する理由。 |
 | `WorkingTimeSet` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingTimeSet` | -- | interface WorkingTimeSet |
 | `workingTimeSetOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingTimeSetOf` | PI-1 | 文書の稼働日の時間帯の 1 組と、違う組を持つ曜日。 |
@@ -2008,4 +2011,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1017 name(s) leave through a public entry (477 of them published by table T-064), 781 more are exported by a file and not by its entry.
+Totals: 1020 name(s) leave through a public entry (480 of them published by table T-064), 781 more are exported by a file and not by its entry.

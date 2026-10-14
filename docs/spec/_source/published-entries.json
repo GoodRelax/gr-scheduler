@@ -517,6 +517,15 @@
      }
     },
     {
+     "name": "finishSideDayFrom",
+     "note": {
+      "ja": [
+       "`finishSideDayOf` と同じ日を、読み手が既に読んだその字の日（`dayOf` の答え）から数える。",
+       "配置が 1 タスクごとに日付の字を読み直さないために公開した（`FR-054`）"
+      ]
+     }
+    },
+    {
      "name": "dayOfInstant",
      "note": {
       "ja": [
@@ -745,6 +754,26 @@
       "ja": [
        "予定の期間（分）。",
        "`FR-011` の実績の長さの数え方で `start` から `finish` まで数え、マイルストーンは 0（`FR-012`）"
+      ]
+     }
+    },
+    {
+     "name": "workingTimeCounterOf",
+     "note": {
+      "ja": [
+       "予定の期間と実績の長さ（分）を、1 回の数え直しの間くり返して数える数え手（暦の索引は初めて要るときに 1 度だけ作る）。",
+       "数え方は `plannedLengthMinutesOf` ・ `actualInstantsOf` と `actualMinutesOf` と同じ（`FR-011`・`FR-012`）。",
+       "完了率の数え直しがタスクごとに暦の索引を作り直さないために公開した"
+      ]
+     }
+    },
+    {
+     "name": "WorkingTimeCounter",
+     "note": {
+      "ja": [
+       "型。",
+       "`workingTimeCounterOf` が返す数え手 —— `Task` から予定の期間と実績の長さ（分）。",
+       "実績の端が読めなければ実績の長さは無い"
       ]
      }
     },

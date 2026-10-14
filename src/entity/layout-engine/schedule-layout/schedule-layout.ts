@@ -10,7 +10,7 @@ import {
   actualEndOf,
   dateFromWorkingDays,
   dayOf,
-  finishSideDayOf,
+  finishSideDayFrom,
   instantOnSideReader,
   MINUTES_PER_CALENDAR_DAY,
   serial,
@@ -224,7 +224,7 @@ function edgeOf(text: string | null, side: 'start' | 'finish', instantAt: () => 
     const day = dayAt(text)
     return day === null ? null : serialOf(day)
   }
-  const last = dayAt(text) === null ? null : finishSideDayOf(text)
+  const last = finishSideDayFrom(dayAt(text), text)
   return last === null ? null : serialOf(last) + 1
 }
 
