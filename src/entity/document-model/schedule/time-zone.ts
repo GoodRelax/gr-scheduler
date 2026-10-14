@@ -3,6 +3,7 @@
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
 
+import type { DocumentSettings } from '../document-settings/document-settings'
 import timeZoneRoster from './time-zone-roster.json' with { type: 'json' }
 
 // see FR-156, T-376
@@ -17,15 +18,19 @@ export interface TimeZoneRow {
 // WHY: generated from the table (tools/generate_time_zone_roster.py), in the order the choosers offer it.
 export const TIME_ZONE_ROWS: readonly TimeZoneRow[] = timeZoneRoster
 
-// see BK-4, ZN-13
-// WHY: the zone a printed document carries (BK-4) and the fallback of a value no reader can use.
-export const PRINTED_TIME_ZONE = 'UTC'
+// see FR-156, T-376, S-574
+// WHY: the 28 names come generated from table T-376 on the view-base row; one spelling, never a second list here.
+export type TimeZoneRegion = NonNullable<DocumentSettings['viewTimeZone']>
+
+// see BK-4, ZN-13, RS-90
+// WHY: the zone a printed document carries (BK-4), and what regionForPc answers if the roster were empty.
+export const PRINTED_TIME_ZONE: TimeZoneRegion = 'UTC'
 
 const REGIONS: ReadonlySet<string> = new Set(TIME_ZONE_ROWS.map((row) => row.region))
 
 // see FR-156, T-376
 /** @purity pure */
-export function isTimeZoneRegion(region: unknown): region is string {
+export function isTimeZoneRegion(region: unknown): region is TimeZoneRegion {
   return typeof region === 'string' && REGIONS.has(region)
 }
 
@@ -51,9 +56,10 @@ function partNumber(parts: readonly Intl.DateTimeFormatPart[], type: Intl.DateTi
   return Number(parts.find((part) => part.type === type)?.value ?? 0)
 }
 
-// see FR-156
+// see FR-156, RS-25, CM-94, CM-95, CM-96
 // TRAP: the formatter is built once per clock, never per reading: building one is the slow part (S-30).
-// WHY: a value outside T-376 (a hand-edited file) reads as UTC, never as a thrown RangeError mid-frame.
+// WHY: a read (FR-156, RS-25) and an edit (CM-94..CM-96) refuse a value outside T-376, and an MSPDI open or a
+// new document takes regionForPc; the guard only keeps an unchecked screen draft from a mid-frame RangeError.
 /** @purity pure */
 export function zoneClockOf(region: string): ZoneClock {
   const format = new Intl.DateTimeFormat('en-US', {

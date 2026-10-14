@@ -1,0 +1,60 @@
+{
+  "file": "minute-level.json",
+  "app": "dist/index.html",
+  "measuredAt": "2026-10-14T17:17:09.901Z",
+  "schemaViolations": {
+    "count": 0,
+    "messages": [],
+    "formatsUnchecked": [
+      "date-time"
+    ]
+  },
+  "refused": false,
+  "title": {
+    "file": null,
+    "headerBefore": "Sample Project - Press N to start a new one",
+    "headerAfter": "",
+    "readBack": null
+  },
+  "notices": {
+    "count": 1,
+    "items": [
+      {
+        "reasons": [
+          "RS-89"
+        ],
+        "text": "稼働日の時間帯の合計が、1 日（1d）の長さと違います「1d」と打った長さは、時間帯の合計ではなく文書が決めた 1 日の長さで数えます。そろえたいときは、休日の設定で時間帯を直してくださいOK"
+      }
+    ],
+    "standingBeforeOpen": []
+  },
+  "consoleErrors": {
+    "count": 0,
+    "items": []
+  },
+  "pageExceptions": {
+    "count": 0,
+    "items": []
+  },
+  "recounts": {
+    "count": 0,
+    "fields": [
+      "percentComplete",
+      "start",
+      "finish",
+      "actualStart",
+      "actualFinish",
+      "stop"
+    ],
+    "tasksInFile": 7,
+    "tasksReadBack": 7,
+    "rows": []
+  },
+  "steps": [
+    "IC-1 pressed: true",
+    "[data-role=\"Open Chooser\"] shown: true",
+    "IC-71 pressed: true",
+    "IC-20 pressed: true"
+  ],
+  "pass": false
+}

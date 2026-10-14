@@ -15,6 +15,7 @@ import {
   recordOf,
   taskOf as panelTaskOf,
 } from '../contract/cr-606-stage'
+import { unbroken } from '../contract/spec-table'
 import { DESIGN, REQUIREMENTS, numberIn, taskGroupDocument, rowOf, taskOf } from './cr-541-stage'
 
 // see FR-009
@@ -280,5 +281,79 @@ describe(`BD-2 -- ${BD_2_LAG}`, () => {
 
   it(`BD-2 ${BD_2_ZERO} -- the same number in another format pushes B nowhere`, () => {
     expect(terminalDelayOfB(ELAPSED_DAYS)).toBe(0)
+  })
+})
+
+// see FR-009, TX-3, DFC-2465
+const FR_009_DAY_DOCUMENT_LITERAL =
+  '時を単位に打たれたラグを日の文書で稼働日の小数（`0.38`）に換えないのは、日の文書の見せ方を今のまま保つからである（利用者の判断）'
+const TX_3_LAG = '時刻を表示しないときは整数の稼働日 —— 形式 `5`・`3` のラグは字面で見せる、`FR-009`'
+const MINUTES = 3
+
+describe('DFC-2465 FR-009 PR-42: a document that does not show the time of day shows a lagFormat 5 or 3 lag as its literal', () => {
+  it('FR-009 and table T-375 TX-3 still read as quoted', () => {
+    expect(REQUIREMENTS).toContain(FR_009_DAY_DOCUMENT_LITERAL)
+    expect(Object.values(rowOf('T-375', 'TX-3').by).some((cell) => unbroken(cell).includes(TX_3_LAG))).toBe(true)
+  })
+
+  it('premise: the document does not show the time of day', () => {
+    expect(lineDocument(0, WORKING_DAYS).documentSettings.showsTimeOfDay).toBe(false)
+  })
+
+  it.each([
+    ['30 minutes in lagFormat 3', 30 * TENTHS, MINUTES, '30m'],
+    ['90 minutes in lagFormat 3', 90 * TENTHS, MINUTES, '90m'],
+    ['3 hours in lagFormat 5', 3 * 60 * TENTHS, HOURS, '3h'],
+    ['90 minutes in lagFormat 5', 90 * TENTHS, HOURS, '1.5h'],
+  ])('%s is shown as %s, not as a fraction of a working day', (_name, lag, lagFormat, shown) => {
+    expect(lagFieldOf(lineDocument(lag, lagFormat)).text).toBe(shown)
+  })
+
+  it('a lagFormat 7 lag of 3 working days is shown as working days, 3', () => {
+    expect(lagFieldOf(lineDocument(tenthsOfDays(3), WORKING_DAYS)).text).toBe('3')
+  })
+})
+
+// see FR-009, TX-10, DFC-2466
+const FR_009_FINEST_UNIT =
+  '⭐ 2 つ以上の単位で打たれたとき（`1d 2h`）は、打たれた単位のうち最も細かいものの形式を書くこと（MUST） —— `1d 2h` は `5`、`2h 30m` は `3` である。'
+const FR_009_BARE_NUMBER = '単位の無い整数は稼働日（`7`）と読む。'
+
+describe('DFC-2466 FR-009 CM-38: a lag typed in two or more units writes the format of the finest unit typed', () => {
+  it('FR-009 still reads as quoted', () => {
+    expect(REQUIREMENTS).toContain(FR_009_FINEST_UNIT)
+    expect(REQUIREMENTS).toContain(FR_009_BARE_NUMBER)
+  })
+
+  const timed = (document: Document): Document => ({
+    ...document,
+    documentSettings: { ...document.documentSettings, showsTimeOfDay: true },
+  })
+
+  function typed(text: string): Readonly<Record<string, unknown>> {
+    const document = timed(lineDocument(0, WORKING_DAYS))
+    const control = lagFieldOf(document).controls[0]
+    if (control === undefined) throw new Error('premise: PR-42 takes a typed lag')
+    const commands = commandsOf(document, { row: 'PR-42', key: control.key, text })
+    if (commands.length !== 1) throw new Error(`premise: "${text}" is taken as one command, got ${commands.length}`)
+    return lagOf(editDependency(document, commands[0] as Parameters<typeof editDependency>[1]))
+  }
+
+  it.each([
+    ['1d 2h', (S_128 + 2 * 60) * TENTHS, HOURS],
+    ['2h 30m', (2 * 60 + 30) * TENTHS, MINUTES],
+    ['1d 30m', (S_128 + 30) * TENTHS, MINUTES],
+    ['1d 2h 30m', (S_128 + 2 * 60 + 30) * TENTHS, MINUTES],
+  ])('"%s" writes lag %i and the format of its finest unit, %i', (text, lag, lagFormat) => {
+    expect(typed(text)).toEqual({ lag, lagFormat })
+  })
+
+  it.each([
+    ['2d', tenthsOfDays(2), WORKING_DAYS],
+    ['3h', 3 * 60 * TENTHS, HOURS],
+    ['45m', 45 * TENTHS, MINUTES],
+    ['3', tenthsOfDays(3), WORKING_DAYS],
+  ])('"%s" in one unit, or none, writes lag %i and format %i', (text, lag, lagFormat) => {
+    expect(typed(text)).toEqual({ lag, lagFormat })
   })
 })

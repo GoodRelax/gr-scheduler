@@ -560,7 +560,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-88': '09beef6619c3a678',
   // WHY: read 2026-10-11 (CR-710 wave 2); RS-89 tells the ranges miss 1d, which still counts the day
   // length; RS-90 tells the schedule data time zone became this PC's region.
-  'RS-89': '2253606a8c6ba6ef',
+  // WHY: read 2026-10-15 (CR-751); the scene now also counts a one-off working exception day, and the
+  // words still tell that the ranges miss 1d, so only the fingerprint is re-keyed.
+  'RS-89': '20d48979ab2ce0f6',
   // WHY: CR-742 section 4.4 moved how the region is matched into FR-156; read together on 2026-10-14, the words still
   // tell the region was set and the same-offset match, so only the fingerprint is re-keyed.
   // WHY: CR-750 (JDG-2038) adds the last step to the next step -- since CR-742 the base change lands only on

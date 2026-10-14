@@ -403,3 +403,60 @@ describe('OD-1, OD-2, OD-6: the hours outside the working time are shaded on the
     expect(coveredAt(runs, midOf(frame, '09:00', '16:00', '2026-01-10'))).toBe(true)
   })
 })
+
+// see TM-5, FR-017, DFC-2457
+const TM_5_THINNED_HOURS = '⭐ 間引いた数字は、0 時から数えて刻みの倍数の時に置く（0・2・4… ／ 0・3・6…）'
+
+describe('DFC-2457 TM-5: a thinned hour digit stands on a multiple of the stride counted from 0 o\'clock', () => {
+  const labelsAt = (threshold: number): readonly { readonly minute: number; readonly hour: number }[] =>
+    [...frameOf(threshold, true).svg.matchAll(/<text [^>]*data-figure="ruler-hour-label-(\d+)"[^>]*>([^<]*)<\/text>/g)].map((one) => ({
+      minute: Number(one[1]),
+      hour: Number((one[2] as string).trim()),
+    }))
+  // WHY: the stride is the gap between two digits of one day; the row restarts at each midnight.
+  const strideOf = (labels: readonly { readonly minute: number }[]): number | null => {
+    for (let i = 1; i < labels.length; i += 1) {
+      const [a, b] = [labels[i - 1]?.minute as number, labels[i]?.minute as number]
+      if (Math.floor(a / 1440) === Math.floor(b / 1440)) return (b - a) / 60
+    }
+    return null
+  }
+  // WHY: a sweep of the hour tier, so the widths at which the stride is 2 and 3 are found rather than guessed.
+  const SWEEP = Array.from({ length: 40 }, (_unused, i) => S_577 + 1 + ((S_578 - S_577 - 2) * i) / 39)
+  const byStride = new Map<number, number>()
+  for (const threshold of SWEEP) {
+    const stride = strideOf(labelsAt(threshold))
+    if (stride !== null && !byStride.has(stride)) byStride.set(stride, threshold)
+  }
+
+  it('table T-238 TM-5 still reads as quoted', () => {
+    expect(REQUIREMENTS).toContain(TM_5_THINNED_HOURS)
+  })
+
+  // WHY: the narrowest width of the hour tier may already fit two-digit labels every 2 hours, so 3 is checked only where it is reached.
+  const thinned = (): readonly (readonly [number, number])[] => [...byStride].filter(([stride]) => stride > 1)
+
+  it('premise: some width of the hour tier thins the digits to every 2 hours', () => {
+    expect(byStride.has(2), `strides found: ${[...byStride.keys()].join(', ')}`).toBe(true)
+  })
+
+  it('every digit at a thinned stride is a multiple of it, on every day of the row', () => {
+    for (const [stride, threshold] of thinned()) {
+      const labels = labelsAt(threshold)
+      expect(labels.length, `stride ${stride}`).toBeGreaterThan(0)
+      for (const label of labels) expect(label.hour % stride, `stride ${stride}: ${label.minute} reads ${label.hour}`).toBe(0)
+    }
+  })
+
+  it('a thinned stride puts a digit on midnight (hour 0) of each whole day in view', () => {
+    for (const [stride, threshold] of thinned()) {
+      const labels = labelsAt(threshold)
+      const days = [...new Set(labels.map((one) => Math.floor(one.minute / 1440)))]
+      expect(days.length, `stride ${stride}: premise, the view holds a whole day`).toBeGreaterThan(2)
+      // WHY: the first and the last day may be cut by the edges of the view; a day between them is shown whole.
+      for (const day of days.slice(1, -1)) {
+        expect(labels.some((one) => one.minute === day * 1440 && one.hour === 0), `stride ${stride}: day ${day}`).toBe(true)
+      }
+    }
+  })
+})

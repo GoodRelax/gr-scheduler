@@ -138,7 +138,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         enum: ['grs', 'pj12', 'pj15'],
       },
       scheduleDataTimeZone: {
-        type: ['string'],
+        enum: ['Etc/GMT+12', 'Pacific/Pago_Pago', 'Pacific/Honolulu', 'America/Anchorage', 'America/Los_Angeles', 'America/Denver', 'America/Chicago', 'America/New_York', 'America/Halifax', 'America/Sao_Paulo', 'Atlantic/South_Georgia', 'Atlantic/Azores', 'UTC', 'Europe/London', 'Europe/Berlin', 'Europe/Helsinki', 'Europe/Moscow', 'Asia/Dubai', 'Asia/Karachi', 'Asia/Kolkata', 'Asia/Dhaka', 'Asia/Bangkok', 'Asia/Singapore', 'Asia/Tokyo', 'Australia/Sydney', 'Pacific/Noumea', 'Pacific/Auckland', 'Pacific/Tongatapu'],
       },
     },
   },
@@ -881,7 +881,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         displayTimeZones: {
           type: ['array'],
           items: {
-            type: ['string'],
+            enum: ['Etc/GMT+12', 'Pacific/Pago_Pago', 'Pacific/Honolulu', 'America/Anchorage', 'America/Los_Angeles', 'America/Denver', 'America/Chicago', 'America/New_York', 'America/Halifax', 'America/Sao_Paulo', 'Atlantic/South_Georgia', 'Atlantic/Azores', 'UTC', 'Europe/London', 'Europe/Berlin', 'Europe/Helsinki', 'Europe/Moscow', 'Asia/Dubai', 'Asia/Karachi', 'Asia/Kolkata', 'Asia/Dhaka', 'Asia/Bangkok', 'Asia/Singapore', 'Asia/Tokyo', 'Australia/Sydney', 'Pacific/Noumea', 'Pacific/Auckland', 'Pacific/Tongatapu'],
           },
         },
         fitSpanFinish: {
@@ -1042,6 +1042,7 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
           type: ['boolean'],
         },
         viewTimeZone: {
+          enum: ['Etc/GMT+12', 'Pacific/Pago_Pago', 'Pacific/Honolulu', 'America/Anchorage', 'America/Los_Angeles', 'America/Denver', 'America/Chicago', 'America/New_York', 'America/Halifax', 'America/Sao_Paulo', 'Atlantic/South_Georgia', 'Atlantic/Azores', 'UTC', 'Europe/London', 'Europe/Berlin', 'Europe/Helsinki', 'Europe/Moscow', 'Asia/Dubai', 'Asia/Karachi', 'Asia/Kolkata', 'Asia/Dhaka', 'Asia/Bangkok', 'Asia/Singapore', 'Asia/Tokyo', 'Australia/Sydney', 'Pacific/Noumea', 'Pacific/Auckland', 'Pacific/Tongatapu', null],
         },
         zoomX: {
           type: ['number'],

@@ -43,7 +43,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
 2. Schema rules
    - Every object has all of the schema's required keys and no key the schema does not list (additionalProperties is false). When there is no value, use null (only for keys whose type allows null).
    - carry is {} and carryElements is [] (in tasks, dependencies, resources, assignments, calendars and project).
-   - Dates and date-times are strings shaped "YYYY-MM-DDTHH:MM:SS" (no zone). The time follows the column's side: a start-side date (start, actualStart, resume, project.startDate) takes project.defaultStartTime (08:00:00 when that is null), a finish-side date (finish, actualFinish, stop, deadline, project.statusDate) takes project.defaultFinishTime (17:00:00 when that is null). A milestone takes the start-side time for both start and finish. A calendar exception's fromDate is 00:00:00 and its toDate 23:59:00. Only documentStamp uses "YYYY-MM-DDTHH:MM:SSZ".
+   - Dates and date-times are strings shaped "YYYY-MM-DDTHH:MM:SS" (no zone), always written with their time. When the original shows only the day, the time follows the column's side: a start-side date (start, actualStart, resume, project.startDate) takes project.defaultStartTime (08:00:00 when that is null), a finish-side date (finish, actualFinish, stop, deadline, project.statusDate) takes project.defaultFinishTime (17:00:00 when that is null). A milestone takes the finish-side time for both start and finish, so that the two are the same instant. A calendar exception's fromDate is 00:00:00 and its toDate 23:59:00. Only documentStamp uses "YYYY-MM-DDTHH:MM:SSZ".
    - Dates lie between 1970-01-01 and 2200-12-31.
 3. Rows (taskGroups)
    - Make one TaskGroup for each heading row of the original. id is a lowercase UUID (e.g. "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"), unique within the document.
@@ -146,7 +146,7 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
     },
     {
       "uid": 2, "parentTaskUid": null, "wbsOrder": 1, "name": "Plan approved",
-      "start": "2026-04-30T08:00:00", "finish": "2026-04-30T08:00:00", "milestone": true,
+      "start": "2026-04-30T17:00:00", "finish": "2026-04-30T17:00:00", "milestone": true,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": null, "stop": null, "actualFinish": null,
       "resume": null, "resumeValid": null, "percentComplete": null,
@@ -166,7 +166,7 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
     },
     {
       "uid": 4, "parentTaskUid": null, "wbsOrder": 3, "name": "Budget approved",
-      "start": "2026-05-15T08:00:00", "finish": "2026-05-15T08:00:00", "milestone": true,
+      "start": "2026-05-15T17:00:00", "finish": "2026-05-15T17:00:00", "milestone": true,
       "deadline": null, "notes": null, "calendarUid": null,
       "actualStart": null, "stop": null, "actualFinish": null,
       "resume": null, "resumeValid": null, "percentComplete": null,

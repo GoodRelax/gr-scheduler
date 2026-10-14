@@ -1,0 +1,268 @@
+{
+  "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
+  "schemaVersion": "2026-10-11T04:10:00Z",
+  "schedule": {
+    "project": {
+      "id": null,
+      "name": "Minute-level sample",
+      "title": null,
+      "subject": null,
+      "category": null,
+      "company": null,
+      "manager": null,
+      "author": null,
+      "created": "2026-10-15T09:00:00",
+      "revision": null,
+      "startDate": "2026-10-19T09:00:00",
+      "statusDate": "2026-10-20T15:30:00",
+      "minutesPerDay": 480,
+      "minutesPerWeek": 2400,
+      "daysPerMonth": 20,
+      "weekStartDay": 0,
+      "calendarUid": 1,
+      "defaultStartTime": "09:00:00",
+      "defaultFinishTime": "18:00:00",
+      "themeHue": 214,
+      "parentProgressToleranceDays": 1,
+      "uidHighWaterMark": 8,
+      "importSeq": 0,
+      "carry": {},
+      "carryElements": [],
+      "outlineBase": 1,
+      "sourceFormat": "grs",
+      "scheduleDataTimeZone": "Asia/Tokyo"
+    },
+    "calendars": [
+      {
+        "uid": 1,
+        "name": "Office hours",
+        "isBaseCalendar": true,
+        "baseCalendarUid": null,
+        "ordinal": 0,
+        "carry": {},
+        "carryElements": [],
+        "weekDays": [
+          { "ordinal": 0, "dayType": 1, "dayWorking": false, "workingTimes": [], "carry": {}, "carryElements": [] },
+          { "ordinal": 1, "dayType": 2, "dayWorking": true, "workingTimes": [
+            { "ordinal": 0, "fromTime": "09:00:00", "toTime": "12:00:00" },
+            { "ordinal": 1, "fromTime": "13:00:00", "toTime": "18:00:00" }
+          ], "carry": {}, "carryElements": [] },
+          { "ordinal": 2, "dayType": 3, "dayWorking": true, "workingTimes": [
+            { "ordinal": 0, "fromTime": "09:00:00", "toTime": "12:00:00" },
+            { "ordinal": 1, "fromTime": "13:00:00", "toTime": "18:00:00" }
+          ], "carry": {}, "carryElements": [] },
+          { "ordinal": 3, "dayType": 4, "dayWorking": true, "workingTimes": [
+            { "ordinal": 0, "fromTime": "09:00:00", "toTime": "12:00:00" },
+            { "ordinal": 1, "fromTime": "13:00:00", "toTime": "18:00:00" }
+          ], "carry": {}, "carryElements": [] },
+          { "ordinal": 4, "dayType": 5, "dayWorking": true, "workingTimes": [
+            { "ordinal": 0, "fromTime": "09:00:00", "toTime": "12:00:00" },
+            { "ordinal": 1, "fromTime": "13:00:00", "toTime": "18:00:00" }
+          ], "carry": {}, "carryElements": [] },
+          { "ordinal": 5, "dayType": 6, "dayWorking": true, "workingTimes": [
+            { "ordinal": 0, "fromTime": "09:00:00", "toTime": "12:00:00" },
+            { "ordinal": 1, "fromTime": "13:00:00", "toTime": "18:00:00" }
+          ], "carry": {}, "carryElements": [] },
+          { "ordinal": 6, "dayType": 7, "dayWorking": false, "workingTimes": [], "carry": {}, "carryElements": [] }
+        ],
+        "exceptions": [
+          {
+            "ordinal": 0,
+            "name": "Early shift, ends 16:00",
+            "fromDate": "2026-10-23T00:00:00",
+            "toDate": "2026-10-23T23:59:00",
+            "dayWorking": true,
+            "recurrenceKind": 1,
+            "workingTimes": [
+              { "ordinal": 0, "fromTime": "07:00:00", "toTime": "12:00:00" },
+              { "ordinal": 1, "fromTime": "13:00:00", "toTime": "16:00:00" }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 1,
+            "name": "Night shift until midnight",
+            "fromDate": "2026-10-24T00:00:00",
+            "toDate": "2026-10-24T23:59:00",
+            "dayWorking": true,
+            "recurrenceKind": 1,
+            "workingTimes": [
+              { "ordinal": 0, "fromTime": "16:00:00", "toTime": "00:00:00" }
+            ],
+            "carry": {},
+            "carryElements": []
+          }
+        ]
+      }
+    ],
+    "tasks": [
+      {
+        "uid": 2, "parentTaskUid": null, "wbsOrder": 1, "name": "Kickoff meeting",
+        "start": "2026-10-19T09:00:00", "finish": "2026-10-19T10:30:00", "milestone": false,
+        "deadline": null, "notes": null, "calendarUid": null,
+        "actualStart": "2026-10-19T09:00:00", "stop": null, "actualFinish": "2026-10-19T10:30:00",
+        "resume": null, "resumeValid": null, "percentComplete": 100,
+        "fadeInDays": 0, "fadeOutDays": 0,
+        "dependencies": [],
+        "carry": {}, "carryElements": []
+      },
+      {
+        "uid": 3, "parentTaskUid": null, "wbsOrder": 2, "name": "Draft outline",
+        "start": "2026-10-19T10:30:00", "finish": "2026-10-19T15:30:00", "milestone": false,
+        "deadline": null, "notes": null, "calendarUid": null,
+        "actualStart": "2026-10-19T10:30:00", "stop": null, "actualFinish": "2026-10-19T15:30:00",
+        "resume": null, "resumeValid": null, "percentComplete": 100,
+        "fadeInDays": 0, "fadeOutDays": 0,
+        "dependencies": [
+          { "predecessorUid": 2, "linkType": 1, "lag": 0, "lagFormat": 5, "carry": {}, "carryElements": [] }
+        ],
+        "carry": {}, "carryElements": []
+      },
+      {
+        "uid": 4, "parentTaskUid": null, "wbsOrder": 3, "name": "Write section A",
+        "start": "2026-10-19T15:30:00", "finish": "2026-10-20T13:30:00", "milestone": false,
+        "deadline": null, "notes": null, "calendarUid": null,
+        "actualStart": "2026-10-19T15:30:00", "stop": "2026-10-20T11:00:00", "actualFinish": null,
+        "resume": null, "resumeValid": null, "percentComplete": 75,
+        "fadeInDays": 0, "fadeOutDays": 0,
+        "dependencies": [
+          { "predecessorUid": 3, "linkType": 1, "lag": 0, "lagFormat": 5, "carry": {}, "carryElements": [] }
+        ],
+        "carry": {}, "carryElements": []
+      },
+      {
+        "uid": 5, "parentTaskUid": null, "wbsOrder": 4, "name": "Write section B",
+        "start": "2026-10-19T17:30:00", "finish": "2026-10-20T13:30:00", "milestone": false,
+        "deadline": null, "notes": null, "calendarUid": null,
+        "actualStart": null, "stop": null, "actualFinish": null,
+        "resume": null, "resumeValid": null, "percentComplete": 0,
+        "fadeInDays": 0, "fadeOutDays": 0,
+        "dependencies": [
+          { "predecessorUid": 4, "linkType": 3, "lag": 1200, "lagFormat": 5, "carry": {}, "carryElements": [] }
+        ],
+        "carry": {}, "carryElements": []
+      },
+      {
+        "uid": 6, "parentTaskUid": null, "wbsOrder": 5, "name": "Review",
+        "start": "2026-10-20T13:30:00", "finish": "2026-10-20T16:45:00", "milestone": false,
+        "deadline": null, "notes": null, "calendarUid": null,
+        "actualStart": null, "stop": null, "actualFinish": null,
+        "resume": null, "resumeValid": null, "percentComplete": 0,
+        "fadeInDays": 0, "fadeOutDays": 0,
+        "dependencies": [
+          { "predecessorUid": 4, "linkType": 1, "lag": 0, "lagFormat": 5, "carry": {}, "carryElements": [] },
+          { "predecessorUid": 5, "linkType": 1, "lag": 0, "lagFormat": 5, "carry": {}, "carryElements": [] }
+        ],
+        "carry": {}, "carryElements": []
+      },
+      {
+        "uid": 7, "parentTaskUid": null, "wbsOrder": 6, "name": "Revise",
+        "start": "2026-10-20T17:15:00", "finish": "2026-10-21T14:15:00", "milestone": false,
+        "deadline": null, "notes": null, "calendarUid": null,
+        "actualStart": null, "stop": null, "actualFinish": null,
+        "resume": null, "resumeValid": null, "percentComplete": 0,
+        "fadeInDays": 0, "fadeOutDays": 0,
+        "dependencies": [
+          { "predecessorUid": 6, "linkType": 1, "lag": 300, "lagFormat": 3, "carry": {}, "carryElements": [] }
+        ],
+        "carry": {}, "carryElements": []
+      },
+      {
+        "uid": 8, "parentTaskUid": null, "wbsOrder": 7, "name": "Sign-off",
+        "start": "2026-10-21T14:15:00", "finish": "2026-10-21T14:15:00", "milestone": true,
+        "deadline": null, "notes": null, "calendarUid": null,
+        "actualStart": null, "stop": null, "actualFinish": null,
+        "resume": null, "resumeValid": null, "percentComplete": 0,
+        "fadeInDays": 0, "fadeOutDays": 0,
+        "dependencies": [
+          { "predecessorUid": 7, "linkType": 1, "lag": 0, "lagFormat": 5, "carry": {}, "carryElements": [] }
+        ],
+        "carry": {}, "carryElements": []
+      }
+    ],
+    "resources": [],
+    "assignments": [],
+    "taskGroups": [
+      {
+        "id": "0c9e4b17-2a6f-4d38-b5e1-93f7a2c4d533", "parentId": null, "label": "Writing",
+        "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null,
+        "color": null, "minHeight": null
+      },
+      {
+        "id": "e7a35d02-9f4c-4b81-a6d2-15c8e0b7f944", "parentId": null, "label": "Review",
+        "derivedFromTaskUid": null, "order": 1, "treeState": "auto", "editGroup": null,
+        "color": null, "minHeight": null
+      }
+    ],
+    "taskGroupMembers": [
+      { "taskUid": 2, "groupId": "0c9e4b17-2a6f-4d38-b5e1-93f7a2c4d533" },
+      { "taskUid": 3, "groupId": "0c9e4b17-2a6f-4d38-b5e1-93f7a2c4d533" },
+      { "taskUid": 4, "groupId": "0c9e4b17-2a6f-4d38-b5e1-93f7a2c4d533" },
+      { "taskUid": 5, "groupId": "0c9e4b17-2a6f-4d38-b5e1-93f7a2c4d533" },
+      { "taskUid": 6, "groupId": "e7a35d02-9f4c-4b81-a6d2-15c8e0b7f944" },
+      { "taskUid": 7, "groupId": "e7a35d02-9f4c-4b81-a6d2-15c8e0b7f944" },
+      { "taskUid": 8, "groupId": "e7a35d02-9f4c-4b81-a6d2-15c8e0b7f944" }
+    ],
+    "taskVisuals": [
+      { "taskUid": 2, "shapeKind": "rectangle", "milestoneGlyph": "diamond", "fillColor": null, "strokeColor": null, "strokeWidthPx": null },
+      { "taskUid": 3, "shapeKind": "rectangle", "milestoneGlyph": "diamond", "fillColor": null, "strokeColor": null, "strokeWidthPx": null },
+      { "taskUid": 4, "shapeKind": "rectangle", "milestoneGlyph": "diamond", "fillColor": null, "strokeColor": null, "strokeWidthPx": null },
+      { "taskUid": 5, "shapeKind": "rectangle", "milestoneGlyph": "diamond", "fillColor": null, "strokeColor": null, "strokeWidthPx": null },
+      { "taskUid": 6, "shapeKind": "rectangle", "milestoneGlyph": "diamond", "fillColor": null, "strokeColor": null, "strokeWidthPx": null },
+      { "taskUid": 7, "shapeKind": "rectangle", "milestoneGlyph": "diamond", "fillColor": null, "strokeColor": null, "strokeWidthPx": null },
+      { "taskUid": 8, "shapeKind": "milestone", "milestoneGlyph": "diamond", "fillColor": null, "strokeColor": null, "strokeWidthPx": null }
+    ],
+    "commentBoxes": [],
+    "highlightBoxes": [],
+    "taskOrigins": [],
+    "baselineTasks": []
+  },
+  "documentSettings": {
+    "actualVisible": true,
+    "assigneeVisible": false,
+    "baselineVisible": false,
+    "dateGridLinesVisible": false,
+    "dependencyVisible": true,
+    "displayScale": 100,
+    "displayTimeZones": [],
+    "fitSpanFinish": null,
+    "fitSpanFixed": false,
+    "fitSpanStart": null,
+    "fontScale": "M",
+    "groupGridLinesVisible": true,
+    "levelZeroTreeState": "auto",
+    "percentCompleteVisible": false,
+    "pinnedGroupIds": [],
+    "planDatesVisible": false,
+    "planVisible": true,
+    "progressLineVisible": false,
+    "progressMarkerVisible": true,
+    "rulerFont": 21,
+    "rulerHeight": 69,
+    "scrollDate": null,
+    "scrollDayOffset": 0,
+    "scrollGroupId": null,
+    "scrollGroupOffset": 0,
+    "showsTimeOfDay": true,
+    "stackDirection": "up",
+    "tableViews": {
+      "delayDiagnosticsReport": { "columnFilters": [], "hiddenTaskUids": [], "isScheduleFilterApplied": false, "sort": null },
+      "resourceList": { "columnFilters": [], "hiddenResourceUids": [], "isScheduleFilterApplied": false, "isUnassignedHidden": false, "sort": null },
+      "searchPanel": { "columnFilters": [], "hiddenTaskUids": [], "isScheduleFilterApplied": false, "sort": null }
+    },
+    "taskGroupPanelWidth": 300,
+    "taskGroupPanelWidthFixed": false,
+    "themeMonochrome": false,
+    "viewTimeZone": "Asia/Tokyo",
+    "zoomX": 1,
+    "zoomY": 1
+  },
+  "documentStamp": {
+    "scheduleUpdatedUtc": "2026-10-15T00:00:00Z",
+    "lastEditedBy": "x14-writer",
+    "settingsUpdatedUtc": "2026-10-15T00:00:00Z",
+    "fileSavedUtc": "2026-10-15T00:00:00Z"
+  },
+  "changeLog": []
+}

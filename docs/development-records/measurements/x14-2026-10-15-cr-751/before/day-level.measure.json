@@ -1,0 +1,53 @@
+{
+  "file": "day-level.json",
+  "app": "dist/index.html",
+  "measuredAt": "2026-10-14T17:17:06.424Z",
+  "schemaViolations": {
+    "count": 0,
+    "messages": [],
+    "formatsUnchecked": [
+      "date-time"
+    ]
+  },
+  "refused": false,
+  "title": {
+    "file": null,
+    "headerBefore": "Sample Project - Press N to start a new one",
+    "headerAfter": "",
+    "readBack": null
+  },
+  "notices": {
+    "count": 0,
+    "items": [],
+    "standingBeforeOpen": []
+  },
+  "consoleErrors": {
+    "count": 0,
+    "items": []
+  },
+  "pageExceptions": {
+    "count": 0,
+    "items": []
+  },
+  "recounts": {
+    "count": 0,
+    "fields": [
+      "percentComplete",
+      "start",
+      "finish",
+      "actualStart",
+      "actualFinish",
+      "stop"
+    ],
+    "tasksInFile": 9,
+    "tasksReadBack": 9,
+    "rows": []
+  },
+  "steps": [
+    "IC-1 pressed: true",
+    "[data-role=\"Open Chooser\"] shown: true",
+    "IC-71 pressed: true",
+    "IC-20 pressed: true"
+  ],
+  "pass": true
+}

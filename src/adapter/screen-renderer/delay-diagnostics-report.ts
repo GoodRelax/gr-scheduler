@@ -15,6 +15,7 @@ import {
   delayFixRowsInOrder,
   isSameDay,
   isSearchWordFound,
+  isTimeZoneRegion,
   minutesPerWorkingDayOf,
   type DelayDiagnosticsReport,
   type DelayFixCheck,
@@ -294,7 +295,7 @@ function shownTimesOf(schedule: Schedule, showsTimeOfDay: boolean, viewTimeZone:
   return {
     showsTimeOfDay,
     minutesPerDayOf: () => minutesPerWorkingDayOf(schedule.project),
-    dates: shownDateTimesOf(schedule, { showsTimeOfDay, viewTimeZone }),
+    dates: shownDateTimesOf(schedule, { showsTimeOfDay, viewTimeZone: isTimeZoneRegion(viewTimeZone) ? viewTimeZone : null }),
   }
 }
 

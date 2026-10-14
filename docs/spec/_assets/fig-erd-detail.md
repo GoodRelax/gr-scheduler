@@ -350,7 +350,7 @@ erDiagram
 | AT-23 | `Project` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素（表 T-053 の `DF-3`） |
 | AT-139 | `Project` | `outlineBase` | 整数 | 否 | — | Consume | — | 取り込んだファイルのタスクが`OutlineLevel` を数え始める数（`FR-021`。プロジェクトの要約タスクは数えない —— 表 T-265 の `MR-4`）。書き出しはこの数から書く。**既定は `1`** |
 | AT-143 | `Project` | `sourceFormat` | 列挙（3 値） | 否 | — | GRS | — | 文書の元の形式。`grs` ／ `pj12` ／ `pj15`。MSPDI を開いたときに決め（pj15 だけの要素が 1 つでもあれば `pj15`、無ければ `pj12`）、合流では今の文書の値を保つ。MSPDI へは書き出さない。この列を持たない `GRS JSON` は、`carry` に `SaveVersion` があれば同じ見分け方で `pj12` ／ `pj15`、無ければ `grs` として読む |
-| AT-157 | `Project` | `scheduleDataTimeZone` | 文字列（地域名） | 否 | — | GRS | — | 日程データのタイムゾーン —— 保存する日時の数字を、どの地域の現地の時刻として読むか（`01-04-requirements.md` の `FR-156`）。値は同要求の 表 T-376 の地域名。MSPDI を取り込んだ文書と新しく作った文書では、その PC の地域とする（同要求）。⛔ MSPDI へは書き出さない —— 交換相手に置き場が無い |
+| AT-157 | `Project` | `scheduleDataTimeZone` | 文字列（地域名） | 否 | — | GRS | — | 日程データのタイムゾーン —— 保存する日時の数字を、どの地域の現地の時刻として読むか（`01-04-requirements.md` の `FR-156`）。値は同要求の 表 T-376 の地域名であり、表に無い値を持つ文書は開かない（同要求）。MSPDI を取り込んだ文書と新しく作った文書では、その PC の地域とする（同要求）。⛔ MSPDI へは書き出さない —— 交換相手に置き場が無い |
 | AT-24 | `Task` | `uid` | 整数 | 否 | PK | Own | `Task/UID` | 文書内で一意・不変。**値から意味を読まない** |
 | AT-25 | `Task` | `parentTaskUid` | 整数 | 可（`null` = 根） | FK | Consume | — | 親タスク。交換相手には対応要素が無く、深さと出現順から起こす |
 | AT-26 | `Task` | `wbsOrder` | 整数 | 可 | — | Consume | — | 同じ親の下での並び |
@@ -406,8 +406,8 @@ erDiagram
 | AT-76 | `WeekDay` | `carryElements` | `CarryElement[]` | 否（空可） | — | Carry | — | 行にならなかった子要素 |
 | AT-77 | `Exception` | `ordinal` | 整数 | 否 | PK | GRS | — | 親の中での出現順 |
 | AT-78 | `Exception` | `name` | 文字列 | 可 | — | Own | `Calendars/Calendar/Exceptions/Exception/Name` | 例外の名前 |
-| AT-79 | `Exception` | `fromDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/FromDate` | ⚠️ **繰り返しの起点であって実日付の範囲ではない** |
-| AT-80 | `Exception` | `toDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/ToDate` | 同上 |
+| AT-79 | `Exception` | `fromDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/FromDate` | 繰り返しの無い例外日（`AT-82`）では、`toDate` までが実日付の範囲（`00:00:00` 〜 `23:59:00`）であり、その日の時間帯を `workingTimes` で置き換える（`01-04-requirements.md` の `FR-088` の 表 T-344 の `WC-4`）。⚠️ 繰り返しの例外日では繰り返しの起点であって実日付の範囲ではない |
+| AT-80 | `Exception` | `toDate` | 日時 | 可 | — | Own | `…/Exception/TimePeriod/ToDate` | 同上（範囲の終わり） |
 | AT-81 | `Exception` | `dayWorking` | 真偽 | 可 | — | Own | `…/Exception/DayWorking` | 稼働日か |
 | AT-82 | `Exception` | `recurrenceKind` | 整数（1〜9） | 可 | — | Consume | `…/Exception/Type` | 繰り返しの種別。`1` 日次 / `2` 年次（日付指定）/ `3` 年次（位置指定）/ `4` 月次（日付指定）/ `5` 月次（位置指定）/ `6` 週次 / `7` 日数指定 / `8` 稼働日数指定 / `9` 繰り返しなし（正は Chapter 6.2 が指す公式 XSD）。⭐ 繰り返しの無い例外日とは、本列が `9` か空の行と、`1` で `carry` の `Period`（繰り返しの間隔）が無いか `1` の行である —— 交換相手の公式の例は、1 回きりの休日を `Type` 1・`Occurrences` 1・`EnteredByOccurrences` 0 と書く（Microsoft Learn の Project XML の `Occurrences` の要素の例）。間隔 1 の日次は範囲の毎日であり、範囲そのものである。それ以外の行は繰り返しの例外日であり、稼働日の数えにも塗りにも使わない（`01-04-requirements.md` の `FR-054`） —— 範囲の全日の休みとして数えると、毎年 1 日の祝日が何年ぶんも非稼働になる。`GRS` が足す例外日は `1` とする（`FR-088` の 表 T-344 の `WC-6`）。書き出す形は 表 T-033 の `EX-13` |
 | AT-159 | `Exception` | `workingTimes` | `WorkingTime[]` | 否（空可） | — | Consume | `…/Exception/WorkingTimes/WorkingTime` | 時間帯（`WorkingTime` の並び、始まりの順）。空は「時間帯を持たない」であり、稼働日なら `tbl-settings.md` の `S-580` の時間帯で読む（`01-04-requirements.md` の `FR-054`）。⚠️ 公式 XSD は 1 つに 5 つまでとする（`maxOccurs`）—— 上限と並びの不変条件は `05-07-design.md` の 表 T-220 の `IV-24` |

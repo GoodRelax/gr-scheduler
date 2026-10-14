@@ -65,8 +65,7 @@ export interface DocumentSettings {
   readonly taskGroupPanelWidth: number
   readonly taskGroupPanelWidthFixed: boolean
   readonly themeMonochrome: boolean
-  /** the source does not say what this holds */
-  readonly viewTimeZone: unknown
+  readonly viewTimeZone: 'Etc/GMT+12' | 'Pacific/Pago_Pago' | 'Pacific/Honolulu' | 'America/Anchorage' | 'America/Los_Angeles' | 'America/Denver' | 'America/Chicago' | 'America/New_York' | 'America/Halifax' | 'America/Sao_Paulo' | 'Atlantic/South_Georgia' | 'Atlantic/Azores' | 'UTC' | 'Europe/London' | 'Europe/Berlin' | 'Europe/Helsinki' | 'Europe/Moscow' | 'Asia/Dubai' | 'Asia/Karachi' | 'Asia/Kolkata' | 'Asia/Dhaka' | 'Asia/Bangkok' | 'Asia/Singapore' | 'Asia/Tokyo' | 'Australia/Sydney' | 'Pacific/Noumea' | 'Pacific/Auckland' | 'Pacific/Tongatapu' | null
   readonly zoomX: number
   readonly zoomY: number
 }

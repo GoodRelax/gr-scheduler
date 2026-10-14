@@ -104,6 +104,10 @@ DROPPED = {
     # CR-699: the change ledger is an annotation for a reader of the schema
     # (Chapter 6.2); JSON Schema passes an unknown keyword, and so does this.
     'x-grsChanges': 'the change ledger, an annotation that judges no value',
+    # CR-751: a promise to the writer, like the date-time pattern. The spans
+    # of a calendar day are judged by IV-24 of table T-220 and the view's time
+    # zones by clampedSettings, never by refusing the whole file here.
+    'maxItems': 'a promise to the writer; IV-24 and clampedSettings judge the count',
 }
 
 # ⛔ The one date-time definition the date columns point at. Its `pattern` is

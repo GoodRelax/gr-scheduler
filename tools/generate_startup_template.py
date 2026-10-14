@@ -4316,7 +4316,7 @@ def check_neutrality(document, settings):
 SCHEMA_READ = frozenset((
     'type', 'properties', 'required', 'additionalProperties', 'items',
     'enum', 'minimum', 'maximum', 'minLength', 'maxLength', 'format', '$ref',
-    'pattern', 'const',
+    'pattern', 'const', 'maxItems',
 ))
 # Words a subschema may carry that say nothing about whether a value is valid.
 # ⚠️ `$defs` is among them because it holds subschemas nothing is measured
@@ -4419,6 +4419,9 @@ def schema_faults(value, shape, defs, path):
             if key in value:
                 out.extend(schema_faults(value[key], nested, defs,
                                          '%s.%s' % (path, key)))
+    if isinstance(value, list) and 'maxItems' in shape and len(value) > shape['maxItems']:
+        out.append('%s holds %d items, over the schema maxItems %d'
+                   % (path, len(value), shape['maxItems']))
     if isinstance(value, list) and 'items' in shape:
         for turn, one in enumerate(value):
             out.extend(schema_faults(one, shape['items'], defs,

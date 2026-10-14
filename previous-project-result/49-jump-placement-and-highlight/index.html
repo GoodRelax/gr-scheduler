@@ -8,36 +8,44 @@
   :root {
     --ground:#ffffff; --page:#f6f7f9; --ink:#1d2733; --muted:#5b6673; --rowline:#e3e7ec; --head:#eef1f5;
     --planFill:#b9d2ee; --planLine:#2f5f96; --actual:#1f4f8a; --dep:#6f472a; --accent:hsl(214 59% 32%);
-    --link:#214b82; --today:#008a7c; --wknd:#f3f4f6;
+    --link:#214b82; --today:#008a7c; --wknd:#f3f4f6; --box:#ffffff; --frame:#c9d1da; --done:#2e7d4f;
+    --ring:var(--accent); --sel:var(--accent);
+  }
+  body.dark {
+    --ground:#1b2129; --page:#12161b; --ink:#e6eaef; --muted:#9aa5b1; --rowline:#2a323c; --head:#222a33;
+    --planFill:#2c4a6e; --planLine:#8fb4e0; --actual:hsl(214 62% 62%); --dep:#c99a72; --accent:hsl(214 62% 68%);
+    --link:#8fb4e0; --today:#4fd1b5; --wknd:#1f262e; --box:#1b2129; --frame:#3a4450; --done:#5cc48a;
   }
   body { margin:0; padding:16px; font:16px/1.7 system-ui, sans-serif; color:var(--ink); background:var(--page); }
+  .swatch { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:4px; border:1px solid var(--frame); }
+  #hueOut { display:inline-block; min-width:3em; }
   h1 { font-size:20px; margin:0 0 6px; }
   p { margin:4px 0 10px; max-width:70em; }
   .controls { display:flex; flex-wrap:wrap; gap:8px 20px; align-items:flex-start; margin:8px 0 12px; }
-  fieldset { border:1px solid #d5dbe2; border-radius:8px; padding:6px 12px 8px; background:#fff; margin:0; }
+  fieldset { border:1px solid var(--frame); border-radius:8px; padding:6px 12px 8px; background:var(--box); margin:0; }
   legend { font-size:14px; color:var(--muted); padding:0 4px; }
   fieldset label { display:block; font-size:15px; cursor:pointer; }
   .layout { display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap; }
-  .panel { width:290px; background:#fff; border:1px solid #c9d1da; border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,.08); font-size:14px; }
-  .panel .title { background:var(--head); padding:4px 10px; font-weight:600; border-bottom:1px solid #d5dbe2; border-radius:6px 6px 0 0; }
-  .panel .query { padding:6px 10px; border-bottom:1px solid #e3e7ec; }
+  .panel { width:290px; background:var(--box); border:1px solid var(--frame); border-radius:6px; box-shadow:0 2px 8px rgba(0,0,0,.08); font-size:14px; }
+  .panel .title { background:var(--head); padding:4px 10px; font-weight:600; border-bottom:1px solid var(--frame); border-radius:6px 6px 0 0; }
+  .panel .query { padding:6px 10px; border-bottom:1px solid var(--rowline); }
   .panel .query input { width:100%; box-sizing:border-box; font:inherit; padding:2px 6px; }
   .panel table { border-collapse:collapse; width:100%; }
-  .panel th, .panel td { text-align:left; padding:2px 10px; border-bottom:1px solid #eef1f5; white-space:nowrap; }
+  .panel th, .panel td { text-align:left; padding:2px 10px; border-bottom:1px solid var(--rowline); white-space:nowrap; }
   .panel th { font-weight:600; color:var(--muted); font-size:13px; }
   .panel td a { color:var(--link); text-decoration:underline; cursor:pointer; }
-  .panel tr.cur td { background:#e8f0fa; }
-  .screen { position:relative; display:flex; border:1px solid #c9d1da; background:#fff; overflow:hidden; max-width:100%; }
-  .rowHeads { width:150px; flex:none; position:relative; overflow:hidden; border-right:1px solid #c9d1da; background:#fff; }
-  .rowHeads .axisPad { position:relative; z-index:2; height:44px; border-bottom:1px solid #c9d1da; background:var(--head); box-sizing:border-box; }
+  .panel tr.cur td { background:hsl(214 70% 50% / .16); }
+  .screen { position:relative; display:flex; border:1px solid var(--frame); background:var(--ground); overflow:hidden; max-width:100%; }
+  .rowHeads { width:150px; flex:none; position:relative; overflow:hidden; border-right:1px solid var(--frame); background:var(--ground); }
+  .rowHeads .axisPad { position:relative; z-index:2; height:44px; border-bottom:1px solid var(--frame); background:var(--head); box-sizing:border-box; }
   .rowHeads .inner { position:absolute; left:0; right:0; top:44px; }
   .rowHead { position:absolute; left:0; right:0; padding-left:8px; font-size:13px; border-bottom:1px solid var(--rowline); box-sizing:border-box; overflow:hidden; white-space:nowrap; }
   .chart { position:relative; overflow:hidden; flex:none; }
   .chart svg { display:block; position:absolute; left:0; top:0; }
   .status { font-size:14px; color:var(--muted); margin-top:6px; min-height:1.7em; }
   .note { font-size:14px; color:var(--muted); }
-  .guide line { stroke:#e0007a; stroke-dasharray:4 3; stroke-width:1; }
-  .guide text { fill:#e0007a; font-size:11px; }
+  .guide line { stroke:#7a8794; stroke-dasharray:4 3; stroke-width:1; }
+  .guide text { fill:#7a8794; font-size:11px; }
 </style>
 </head>
 <body>
@@ -60,8 +68,23 @@
     <label><input type="radio" name="mark" value="spot"> 案 4 まわりを暗くする（1.5 秒で戻す） ＋ 囲み</label>
   </fieldset>
   <fieldset><legend>見せ方</legend>
-    <label><input type="checkbox" id="guide" checked> 中央と 1/3 の補助線を桃色の破線で見せる（実物には出さない）</label>
+    <label><input type="checkbox" id="guide" checked> 中央と 1/3 の補助線を灰色の破線で見せる（実物には出さない）</label>
     <label><input type="checkbox" id="slow"> 波紋と暗転をゆっくり（4 倍）見せる</label>
+    <label><input type="checkbox" id="dark"> 暗いテーマ</label>
+  </fieldset>
+  <fieldset><legend>囲みと波紋の色（2026-10-15 に足した）</legend>
+    <label><input type="radio" name="hue" value="now"> <span class="swatch" data-hue="now"></span>今: 強調の色 214（<code>S-151</code>。実績バーと同じ紺）</label>
+    <label><input type="radio" name="hue" value="rose" checked> <span class="swatch" data-hue="rose"></span>A ローズ 335（利用者 2026-10-15 が選んだ）</label>
+    <label><input type="radio" name="hue" value="lime"> <span class="swatch" data-hue="lime"></span>B ライム 90</label>
+    <label><input type="radio" name="hue" value="crimson"> <span class="swatch" data-hue="crimson"></span>C クリムゾン 345</label>
+    <label><input type="radio" name="hue" value="free"> <span class="swatch" data-hue="free"></span>自由に選ぶ: 色相 <input type="range" id="hue" min="0" max="359" value="335" style="vertical-align:middle;width:120px"> <span id="hueOut">335</span></label>
+    <label><input type="checkbox" id="selToo"> 選択の破線の枠も同じ色にする</label>
+  </fieldset>
+  <fieldset><legend>囲みの寄せ方（2026-10-15 に足した）</legend>
+    <label><input type="radio" name="fit" value="sample" checked> 見本: 形の外 1.5〜4.5px、角丸 2</label>
+    <label><input type="radio" name="fit" value="shipped"> 出荷版: 形の外 3〜6px、角は直角</label>
+    <label><input type="checkbox" id="marker" checked> 完了の ✓ マーカーを描く（出荷版の進捗マーカーの模型）</label>
+    <label><input type="checkbox" id="ringMarker"> 囲みに ✓ マーカーも含める（利用者 2026-10-15: 含めない）</label>
   </fieldset>
 </div>
 
@@ -159,9 +182,11 @@ function shapeBox(t) {           // planned shape in content coordinates
   if (t.ms) return { x: t.start * DAY - 7, y: y - 1, w: 14, h: 14 };
   return { x: t.start * DAY, y: y, w: Math.max(t.len * DAY, 2), h: BAR_H };
 }
+var MARK_GAP = 16;               // room for the progress marker right of the shape
+function isDone(t) { return t.start + t.len < 230; }
 function labelBox(t) {           // name label right of the shape (OC-1 style occupancy)
   var b = shapeBox(t);
-  return { x: b.x + b.w + 5, w: t.name.length * 12 + 4 };
+  return { x: b.x + b.w + 5 + (isDone(t) ? MARK_GAP : 0), w: t.name.length * 12 + 4 };
 }
 
 var svg = document.getElementById('svg');
@@ -190,7 +215,7 @@ tasks.forEach(function (t) {
   var b = shapeBox(t);
   if (t.ms) {
     var cx = b.x + 7, cy = b.y + 7;
-    el('path', { d: 'M' + cx + ' ' + (cy - 7) + 'L' + (cx + 7) + ' ' + cy + 'L' + cx + ' ' + (cy + 7) + 'L' + (cx - 7) + ' ' + cy + 'Z', fill: '#fff', stroke: 'var(--planLine)', 'stroke-width': 1.2 }, gShapes);
+    el('path', { d: 'M' + cx + ' ' + (cy - 7) + 'L' + (cx + 7) + ' ' + cy + 'L' + cx + ' ' + (cy + 7) + 'L' + (cx - 7) + ' ' + cy + 'Z', fill: 'var(--ground)', stroke: 'var(--planLine)', 'stroke-width': 1.2 }, gShapes);
   } else {
     el('rect', { x: b.x, y: b.y, width: b.w, height: b.h, fill: 'var(--planFill)', stroke: 'var(--planLine)', 'stroke-width': 1 }, gShapes);
     if (t.start < 230) el('rect', { x: b.x, y: b.y + 3, width: Math.min(b.w, Math.max(0, (230 - t.start) * DAY)), height: b.h - 6, fill: 'var(--actual)' }, gShapes);
@@ -199,16 +224,24 @@ tasks.forEach(function (t) {
   var tx = el('text', { x: lb.x, y: b.y + b.h / 2 + 4, 'font-size': 12, fill: 'var(--ink)' }, gShapes);
   tx.textContent = t.name;
 });
+// Progress marker model: a done task carries a check circle right of its shape (as the shipped app draws).
+var gMarkers = el('g', {}, svg);
+tasks.forEach(function (t) {
+  if (!isDone(t)) return;
+  var b = shapeBox(t), cx = b.x + b.w + 9, cy = b.y + b.h / 2;
+  el('circle', { cx: cx, cy: cy, r: 7, fill: 'var(--done)' }, gMarkers);
+  el('path', { d: 'M' + (cx - 3.5) + ' ' + cy + 'L' + (cx - 1) + ' ' + (cy + 2.5) + 'L' + (cx + 3.5) + ' ' + (cy - 2.5), fill: 'none', stroke: '#fff', 'stroke-width': 1.6 }, gMarkers);
+});
 el('line', { x1: 230 * DAY, x2: 230 * DAY, y1: AXIS, y2: CONTENT_H, stroke: 'var(--today)', 'stroke-width': 1.5 }, svg);
 var gMarks = el('g', {}, svg);                // ring, selection, pulse
 // time axis (drawn in content coords; it is moved only horizontally)
 var gAxis = el('g', {}, svg);
 el('rect', { x: 0, y: 0, width: CONTENT_W, height: AXIS, fill: 'var(--head)' }, gAxis);
-el('line', { x1: 0, x2: CONTENT_W, y1: AXIS - 0.5, y2: AXIS - 0.5, stroke: '#c9d1da' }, gAxis);
+el('line', { x1: 0, x2: CONTENT_W, y1: AXIS - 0.5, y2: AXIS - 0.5, stroke: 'var(--frame)' }, gAxis);
 for (var m = 0; m < 14; m++) {
   var md = Math.round((Date.UTC(2026, 3 + m, 1) - START) / 86400000);
   if (md >= DAYS) break;
-  el('line', { x1: md * DAY, x2: md * DAY, y1: 0, y2: AXIS, stroke: '#c9d1da' }, gAxis);
+  el('line', { x1: md * DAY, x2: md * DAY, y1: 0, y2: AXIS, stroke: 'var(--frame)' }, gAxis);
   var mt = el('text', { x: md * DAY + 4, y: 16, 'font-size': 12, fill: 'var(--muted)' }, gAxis);
   var dt = new Date(START + md * 86400000);
   mt.textContent = dt.getUTCFullYear() + '-' + ('0' + (dt.getUTCMonth() + 1)).slice(-2);
@@ -276,8 +309,13 @@ function clearMarks() {
   markTimers.forEach(clearTimeout); markTimers = [];
   gMarks.innerHTML = ''; gBand.innerHTML = ''; gSpot.innerHTML = ''; headBand.style.display = 'none';
 }
-function ringPath(b, pad) {
-  return { x: b.x - pad, y: b.y - pad, width: b.w + 2 * pad, height: b.h + 2 * pad, rx: 2 };
+// Ring fit: the sample centres a 3px stroke 3px out (1.5 to 4.5px off the shape, rx 2);
+// the shipped app leaves a 3px gap first (3 to 6px off the shape, square corners).
+function ringFit() {
+  return document.querySelector('input[name=fit]:checked').value === 'shipped' ? { pad: 4.5, rx: 0 } : { pad: 3, rx: 2 };
+}
+function ringPath(b, pad, rx) {
+  return { x: b.x - pad, y: b.y - pad, width: b.w + 2 * pad, height: b.h + 2 * pad, rx: rx === undefined ? 2 : rx };
 }
 function jumpTo(t) {
   clearMarks();
@@ -288,7 +326,8 @@ function jumpTo(t) {
   scrollX = p.x; scrollY = p.y; applyScroll();
   var b = shapeBox(t);
   var reach = { x: b.x, y: b.y, w: Math.max(b.w, 2), h: b.h };
-  var ringColour = 'var(--accent)';
+  if (isDone(t) && document.getElementById('marker').checked && document.getElementById('ringMarker').checked) reach.w += MARK_GAP;
+  var ringColour = 'var(--ring)', fit = ringFit();
   if (mark === 'band') {
     var ry = rows[t.row].y;
     el('rect', { x: 0, y: ry, width: CONTENT_W, height: ROW - 1, fill: 'hsl(214 70% 50% / .14)' }, gBand);
@@ -296,16 +335,16 @@ function jumpTo(t) {
     headBand.style.background = 'hsl(214 70% 50% / .14)'; headBand.style.display = 'block';
   }
   if (mark !== 'none') {
-    el('rect', Object.assign(ringPath(reach, 3), { fill: 'none', stroke: ringColour, 'stroke-width': 3 }), gMarks);
+    el('rect', Object.assign(ringPath(reach, fit.pad, fit.rx), { fill: 'none', stroke: ringColour, 'stroke-width': 3 }), gMarks);
   }
   // selection: dashed box around the bounding box (SL-8, S-174 1px, S-175 2x1)
-  el('rect', Object.assign(ringPath(reach, 1.5), { fill: 'none', stroke: 'var(--accent)', 'stroke-width': 1, 'stroke-dasharray': '2 1' }), gMarks);
+  el('rect', Object.assign(ringPath(reach, 1.5), { fill: 'none', stroke: 'var(--sel)', 'stroke-width': 1, 'stroke-dasharray': '2 1' }), gMarks);
   if (mark === 'pulse') {
     [0, 600 * slow].forEach(function (delay) {
       markTimers.push(setTimeout(function () {
         // The ripple grows outward by PULSE_SPREAD px on every side (not by a scale, which would
         // stretch a long bar far sideways) while it fades out.
-        var from = ringPath(reach, 3), to = ringPath(reach, 3 + PULSE_SPREAD);
+        var from = ringPath(reach, fit.pad, fit.rx), to = ringPath(reach, fit.pad + PULSE_SPREAD, fit.rx);
         var r = el('rect', Object.assign({}, from, { fill: 'none', stroke: ringColour, 'stroke-width': 3, opacity: 0.95 }), gMarks);
         var dur = (600 * slow) + 'ms';
         ['x', 'y', 'width', 'height'].forEach(function (k) {
@@ -353,6 +392,40 @@ function renderHits() {
 }
 document.getElementById('q').addEventListener('input', renderHits);
 document.getElementById('guide').addEventListener('change', drawGuide);
+
+// --- ring colour candidates [light, dark]; contrast notes are in README.md ---
+var RING = {
+  now: ['hsl(214 59% 32%)', 'hsl(214 62% 68%)'],
+  rose: ['#b31959', '#f17eae'],
+  lime: ['#457811', '#98d454'],
+  crimson: ['#af1d41', '#f17e9b']
+};
+function ringColours(key) {
+  if (key !== 'free') return RING[key];
+  var h = document.getElementById('hue').value;
+  return ['hsl(' + h + ' 75% 38%)', 'hsl(' + h + ' 75% 72%)'];
+}
+function applyColours() {
+  var dark = document.getElementById('dark').checked;
+  document.body.classList.toggle('dark', dark);
+  var c = ringColours(document.querySelector('input[name=hue]:checked').value)[dark ? 1 : 0];
+  // Set on body so that var(--accent) resolves against the dark theme too.
+  document.body.style.setProperty('--ring', c);
+  document.body.style.setProperty('--sel', document.getElementById('selToo').checked ? c : 'var(--accent)');
+  document.getElementById('hueOut').textContent = document.getElementById('hue').value;
+  Array.prototype.forEach.call(document.querySelectorAll('.swatch'), function (s) {
+    s.style.background = ringColours(s.getAttribute('data-hue'))[dark ? 1 : 0];
+  });
+}
+document.getElementById('hue').addEventListener('input', function () {
+  document.querySelector('input[name=hue][value=free]').checked = true; applyColours();
+});
+['dark', 'selToo'].forEach(function (id) { document.getElementById(id).addEventListener('change', applyColours); });
+Array.prototype.forEach.call(document.querySelectorAll('input[name=hue]'), function (r) { r.addEventListener('change', applyColours); });
+document.getElementById('marker').addEventListener('change', function () {
+  gMarkers.style.display = this.checked ? '' : 'none';
+});
+applyColours();
 renderHits();
 applyScroll();
 </script>

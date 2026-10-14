@@ -1,0 +1,14 @@
+- Exception workingTimes vs minutesPerDay: the brief asks for a part-day exception and a until-midnight exception with no notice, but Project.minutesPerDay says every working day (one-off working exceptions included) must equal it or GRS tells on open -> gave both exceptions 480 minutes (07:00-12:00 + 13:00-16:00 ends early; 16:00-24:00 runs to midnight) instead of a shorter day.
+- WeekDay.workingTimes on working days: empty means the default 08:00-17:00 spans, but unclear whether GRS stores them empty or explicit -> wrote the spans explicitly in both files.
+- ordinal (WeekDay, WorkingTime, Exception, Calendar) and TaskGroup.order: 0-based or 1-based not stated -> 0-based.
+- uidHighWaterMark / uid spaces: one counter for tasks, resources, assignments and calendars, but not whether a task uid may equal a calendar uid, nor whether uid 0 (MS Project's project summary) is reserved -> calendar uid 1, tasks from 2, mark = highest uid used.
+- Task.fadeInDays / fadeOutDays: null versus 0 for a task with no fade -> 0.
+- Task.calendarUid, Calendar.baseCalendarUid, Project.revision, resumeValid: null versus a value GRS would write for a new document -> null.
+- TaskVisual.milestoneGlyph on a non-milestone task: null or the default "diamond" -> "diamond".
+- Milestone instant: whether a milestone after a finish-to-start link sits at the predecessor's finish (17:00) or at the next working start (08:00 next day) -> predecessor's finish instant.
+- Dependency.lagFormat for a zero lag: which unit GRS writes when no lag was typed -> 7 in the day-level file, 5 in the minute-level file.
+- Scheduling: whether GRS reschedules dates from dependencies on open -> wrote dates already consistent with the links, lags and calendar.
+- percentComplete for an unfinished task with no actualStart: assumed 0; whether stop must not exceed statusDate is not stated -> kept stop before statusDate.
+- documentSettings.viewTimeZone: whether null means the viewer's local zone or the schedule's zone -> "Asia/Tokyo" in the minute-level file, null in the day-level file.
+- weekStartDay and daysPerMonth / minutesPerWeek: no rule ties them to the calendar -> 0 (Sunday), 20, 2400.
+- documentStamp.lastEditedBy: free string with no stated form -> "x14-writer"; changeLog left empty.
