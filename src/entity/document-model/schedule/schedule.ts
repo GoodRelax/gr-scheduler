@@ -68,6 +68,7 @@ export {
   DAILY_RECURRENCE_KIND,
   dateFromWorkingDays,
   DaySpanTooWide,
+  earliestPlanStartDayOf,
   holdsWorkingDayUnlikeMinutesPerDay,
   instantAfterWorkingMinutes,
   instantOnSide,
@@ -97,6 +98,7 @@ export {
   WORKING_DAY_LAG_FORMAT,
   weekDayOf,
   workingCalendarOf,
+  workingDayShiftOf,
   workingDaysBetween,
   workingMinutesBetween,
   workingSpansReader,
@@ -106,7 +108,15 @@ export {
   isSameWorkingTimeSet,
   isWorkingTimeSetUnlikeDay,
 } from './working-calendar'
-export type { DateTimeSide, InstantOnSide, WorkingCalendar, WorkingTimeCounter, WorkingTimeSet } from './working-calendar'
+export type {
+  DateTimeSide,
+  InstantOnSide,
+  MovedDay,
+  WorkingCalendar,
+  WorkingDayShift,
+  WorkingTimeCounter,
+  WorkingTimeSet,
+} from './working-calendar'
 export {
   dataWallOfViewWall,
   isTimeZoneRegion,

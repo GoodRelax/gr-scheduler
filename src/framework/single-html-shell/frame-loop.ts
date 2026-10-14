@@ -247,9 +247,11 @@ import {
 } from './document-file-flow'
 import {
   askTimeShift,
+  askWholeScheduleShift,
   baseChangeCommandsOf,
   drainFieldEditNotices,
   isTimeShiftWrite,
+  isWholeScheduleShiftWrite,
   issueCalendarCommand,
   fieldFocusRetriesOf,
   isEditingField,
@@ -712,6 +714,7 @@ const DOCUMENT_REPLACED: SessionEvent = { type: 'documentReplaced' }
 const DOCUMENT_REPLACED_BY_OPEN_OR_NEW: SessionEvent = { type: 'documentReplacedByOpenOrNew' }
 const OPEN_OR_NEW_ROWS: ReadonlySet<ReplacementCall['row']> = new Set(['RD-4', 'RD-7'])
 const TIME_SHIFT_LANDED: SessionEvent = { type: 'timeShiftLanded' }
+const WHOLE_SCHEDULE_SHIFT_LANDED: SessionEvent = { type: 'wholeScheduleShiftLanded' }
 const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
 const PRESS_INTERRUPTED: SessionEvent = { type: 'pressInterrupted' }
 export const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' }
@@ -1464,6 +1467,7 @@ interface ScreenEffectHands {
   readonly raiseSearchPanel: () => void
   readonly issueBaseChangeCommand: (effect: Extract<SessionEffect, { readonly type: 'issueBaseChangeCommand' }>, frame: FrameValues | null) => void
   readonly raiseTimeShiftQuestion: (shiftMinutes: number, frame: FrameValues | null) => void
+  readonly raiseWholeScheduleShiftQuestion: (newStartDate: string, frame: FrameValues | null) => void
   readonly issueCalendarCommand: (effect: Extract<SessionEffect, { readonly type: 'issueCalendarCommand' }>, frame: FrameValues | null) => void
 }
 
@@ -1519,7 +1523,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
   }
 }
 
-type ScreenDraftEffectName = 'issueBaseChangeCommand' | 'raiseTimeShiftQuestion' | 'issueCalendarCommand'
+type ScreenDraftEffectName = 'issueBaseChangeCommand' | 'raiseTimeShiftQuestion' | 'raiseWholeScheduleShiftQuestion' | 'issueCalendarCommand'
 
 // see T-280, FR-088, FR-156, FR-157
 /** @purity pure */
@@ -1527,6 +1531,7 @@ function screenDraftRunnersOf(hands: ScreenEffectHands): Pick<EffectRunners<Sess
   return {
     issueBaseChangeCommand: (effect, frame) => hands.issueBaseChangeCommand(effect, frame),
     raiseTimeShiftQuestion: (effect, frame) => hands.raiseTimeShiftQuestion(effect.shiftMinutes, frame),
+    raiseWholeScheduleShiftQuestion: (effect, frame) => hands.raiseWholeScheduleShiftQuestion(effect.newStartDate, frame),
     issueCalendarCommand: (effect, frame) => hands.issueCalendarCommand(effect, frame),
   }
 }
@@ -2858,6 +2863,7 @@ export function frameLoop(
       if (frame !== null && commands.length > 0) writeDocument(commands, frame)
     },
     raiseTimeShiftQuestion: (shiftMinutes, frame) => frame !== null && askTimeShift(hands, frame, shiftMinutes),
+    raiseWholeScheduleShiftQuestion: (newStartDate, frame) => frame !== null && askWholeScheduleShift(hands, frame, newStartDate),
     issueCalendarCommand: (effect, frame) => frame !== null && issueCalendarCommand(hands, calendarCommandOf(effect.calendarDraft, held.document.schedule), frame),
   })
   sendToSession({ type: 'rememberedEnablingLoaded', isRememberedEnabled: startupAgentApiEnabled() }, null)
@@ -3530,6 +3536,7 @@ export function frameLoop(
     const before = held.document
     for (const bundle of owedAction.writes) writeDocument(bundle, frame)
     if (held.document !== before && isTimeShiftWrite(owedAction.writes)) sendToSession(TIME_SHIFT_LANDED, frame)
+    if (held.document !== before && isWholeScheduleShiftWrite(owedAction.writes)) sendToSession(WHOLE_SCHEDULE_SHIFT_LANDED, frame)
     if (owedAction.created !== null) standOnWhatWasCreated(owedAction.created)
   }
 

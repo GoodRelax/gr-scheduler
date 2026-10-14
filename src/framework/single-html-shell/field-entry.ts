@@ -10,8 +10,8 @@ import {
   type HumanInput,
   type InputAction,
 } from '../../adapter/input-command-translator/input-command-translator'
-import { timeShiftQuestionItems, type FieldEditNotice } from '../../adapter/screen-renderer/screen-renderer'
-import { baseChangeCommandOf, timeShiftPreviewOf, type DocumentCommand } from '../../use-case/edit-document/edit-document'
+import { timeShiftQuestionItems, wholeScheduleShiftQuestionItems, type FieldEditNotice } from '../../adapter/screen-renderer/screen-renderer'
+import { baseChangeCommandOf, timeShiftPreviewOf, wholeScheduleShiftPreviewOf, type DocumentCommand } from '../../use-case/edit-document/edit-document'
 import { isWorkingTimeSetUnlikeDay, viewRegionOf } from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
 import {
@@ -218,6 +218,39 @@ export function askTimeShift(hands: Pick<FieldEntryHands, 'readHeld' | 'readSess
 /** @purity pure */
 export function isTimeShiftWrite(writes: readonly (readonly DocumentCommand[])[]): boolean {
   return writes.some((bundle) => bundle.some((command) => command.kind === 'shiftScheduleTimes'))
+}
+
+const WHOLE_SCHEDULE_SHIFT_QUESTION = 'QN-15'
+
+// see FR-159, QN-15, WH-11, WH-12, NT-7
+// WHY: nothing to move (no start, or no working day between) asks nothing, as the dim Apply button does (WH-12).
+/** @purity pure */
+function wholeScheduleShiftQuestionsOf(document: Document, session: ScreenSession, newStartDate: string): readonly SessionEvent[] {
+  const preview = wholeScheduleShiftPreviewOf(document, newStartDate)
+  if (preview === null) return []
+  const shift: DocumentCommand = { kind: 'shiftScheduleToStartDate', newStartDate }
+  return [
+    {
+      type: 'changeQuestionRaised',
+      question: { manner: CONFIRMATION_MANNER, question: WHOLE_SCHEDULE_SHIFT_QUESTION, items: wholeScheduleShiftQuestionItems(preview, session) },
+      owedAction: { kind: 'changeDocument', writes: [[shift]], created: null },
+    },
+  ]
+}
+
+// see FR-159, QN-15
+/** @purity non-pure */
+export function askWholeScheduleShift(
+  hands: Pick<FieldEntryHands, 'readHeld' | 'readSession' | 'sendToSession'>,
+  frame: FrameValues,
+  newStartDate: string,
+): void {
+  wholeScheduleShiftQuestionsOf(hands.readHeld().document, hands.readSession(), newStartDate).forEach((event) => hands.sendToSession(event, frame))
+}
+
+/** @purity pure */
+export function isWholeScheduleShiftWrite(writes: readonly (readonly DocumentCommand[])[]): boolean {
+  return writes.some((bundle) => bundle.some((command) => command.kind === 'shiftScheduleToStartDate'))
 }
 
 // see FR-156, IC-161, CM-94, CM-95

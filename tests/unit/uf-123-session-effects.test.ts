@@ -139,6 +139,7 @@ describe(`UF-123 -- ${UF_123_EVERY_KIND}`, () => {
       raiseFlowSurface: true,
       raiseNotice: true,
       raiseTimeShiftQuestion: true,
+      raiseWholeScheduleShiftQuestion: true,
       readDocumentFile: true,
       repeatHeldEntry: true,
       restartScaleMessageTimer: true,

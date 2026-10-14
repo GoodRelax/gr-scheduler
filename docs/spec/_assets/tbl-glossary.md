@@ -431,6 +431,7 @@
 | CM-87 | `Project` | `setParentProgressTolerance` | — | 親タスクの進捗の疑義が許す日数を変える | `FR-131` |
 | CM-94 | `Project` | `setScheduleDataTimeZone` | — | 日程データのタイムゾーンを付け替える（ローカルタイムを保つ —— 保存の数字は変えない） | `FR-156` |
 | CM-98 | `Project` | `shiftScheduleTimes` | ⭐ | 日程の日時を一斉にずらす（量は分。<br>書き換える列と書き換えない列は `01-04-requirements.md` の 表 T-377 —— 1 回の書き込みとする）。<br>`Agent API` から受けたときは確認の面を経ない（`FR-076` の作法） | `FR-157` |
+| CM-99 | `Project` | `shiftScheduleToStartDate` | ⭐ | 日程全体を新しい開始日へ稼働日で移す（運ぶのは新しい開始日 `newStartDate`。<br>動かす列・動かさないもの・移し方は `01-04-requirements.md` の 表 T-379 —— 1 回の書き込みとする）。<br>`Agent API` からの命令は、問わずにそのまま当てる（`CM-98` と同じ扱い） | `FR-159` |
 | CM-6 | `Task` | `createTask` | ⭐ | タスクを作る | `FR-001` |
 | CM-7 | `Task` | `deleteTask` | — | タスクを消す | `FR-032` |
 | CM-8 | `Task` | `pasteTasks` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない子孫タスクはコピーしない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。<br>`Ctrl` ドラッグのコピーは、ずらす量（分）と、コピーを載せるタスクグループも運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |

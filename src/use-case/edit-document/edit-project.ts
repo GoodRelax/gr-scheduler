@@ -142,7 +142,7 @@ const ACCEPTED_DAYS = {
 }
 
 /** @purity pure */
-function isAcceptedDay(day: CalendarDay): boolean {
+export function isAcceptedDay(day: CalendarDay): boolean {
   const { first, last } = ACCEPTED_DAYS
   return (first === null || compareDays(day, first) >= 0) && (last === null || compareDays(day, last) <= 0)
 }
@@ -249,7 +249,7 @@ type SpansOfSerial = ReturnType<typeof workingSpansReader>
 // see BS-3, FR-054
 // WHY: a start stands inside a range that holds its minute; a finish inside one that ends at or after it.
 /** @purity pure */
-function isInsideWorkingTime(spansOf: SpansOfSerial, instant: number, side: 'start' | 'finish'): boolean {
+export function isInsideWorkingTime(spansOf: SpansOfSerial, instant: number, side: 'start' | 'finish'): boolean {
   const at = side === 'finish' ? instant - 1 : instant
   const serialOf = Math.floor(at / MINUTES_PER_CALENDAR_DAY)
   const minute = instant - serialOf * MINUTES_PER_CALENDAR_DAY

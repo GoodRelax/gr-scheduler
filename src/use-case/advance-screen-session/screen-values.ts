@@ -139,6 +139,7 @@ export interface ScreenValuesStateCarried {
   readonly chosenRegion: string | null
   readonly chosenWay: BaseChangeWay
   readonly shiftMinutes: number
+  readonly newStartDate: string
   readonly calendarDraft: CalendarDraft
 }
 
@@ -174,6 +175,7 @@ export interface ScreenValuesEventCarried {
   readonly chosenRegion: string
   readonly chosenWay: BaseChangeWay
   readonly shiftMinutes: number
+  readonly newStartDate: string
   readonly calendarDraft: CalendarDraft
 }
 
@@ -203,6 +205,7 @@ interface ScreenValuesEffectPayloads {
   readonly writeProgressStep: { readonly taskUid: number } & Carried
   readonly issueBaseChangeCommand: Pick<ScreenValuesStateCarried, 'chosenRegion' | 'chosenWay'>
   readonly raiseTimeShiftQuestion: Pick<ScreenValuesStateCarried, 'shiftMinutes'>
+  readonly raiseWholeScheduleShiftQuestion: Pick<ScreenValuesStateCarried, 'newStartDate'>
   readonly issueCalendarCommand: Pick<ScreenValuesStateCarried, 'calendarDraft'>
 }
 
@@ -269,6 +272,8 @@ export type ScreenValuesKey =
   | 'baseTimeZoneDraftStateMachine.drafted'
   | 'timeShiftDraftStateMachine.empty'
   | 'timeShiftDraftStateMachine.amountHeld'
+  | 'wholeScheduleShiftDraftStateMachine.empty'
+  | 'wholeScheduleShiftDraftStateMachine.dateHeld'
   | 'calendarDraftStateMachine.untouched'
   | 'calendarDraftStateMachine.drafted'
 
@@ -369,6 +374,10 @@ export type TimeShiftDraftState =
   | { readonly kind: 'empty' }
   | { readonly kind: 'amountHeld'; readonly shiftMinutes: ScreenValuesStateCarried['shiftMinutes'] }
 
+export type WholeScheduleShiftDraftState =
+  | { readonly kind: 'empty' }
+  | { readonly kind: 'dateHeld'; readonly newStartDate: ScreenValuesStateCarried['newStartDate'] }
+
 export type CalendarDraftState =
   | { readonly kind: 'untouched' }
   | { readonly kind: 'drafted'; readonly calendarDraft: ScreenValuesStateCarried['calendarDraft'] }
@@ -398,6 +407,7 @@ export interface ScreenValues {
   readonly dropCueDisplayState: DropCueDisplayState
   readonly baseTimeZoneDraftState: BaseTimeZoneDraftState
   readonly timeShiftDraftState: TimeShiftDraftState
+  readonly wholeScheduleShiftDraftState: WholeScheduleShiftDraftState
   readonly calendarDraftState: CalendarDraftState
 }
 
@@ -459,6 +469,9 @@ export type ScreenValuesEvent =
   | { readonly type: 'timeShiftAmountSettled'; readonly shiftMinutes: ScreenValuesEventCarried['shiftMinutes'] }
   | { readonly type: 'timeShiftEntryPressed' }
   | { readonly type: 'timeShiftLanded' }
+  | { readonly type: 'wholeScheduleShiftDateSettled'; readonly newStartDate: ScreenValuesEventCarried['newStartDate'] }
+  | { readonly type: 'wholeScheduleShiftEntryPressed' }
+  | { readonly type: 'wholeScheduleShiftLanded' }
   | { readonly type: 'calendarDraftEdited'; readonly calendarDraft: ScreenValuesEventCarried['calendarDraft'] }
   | { readonly type: 'calendarApplyEntryPressed' }
   | { readonly type: 'documentReplacedByOpenOrNew' }
@@ -485,6 +498,7 @@ export type ScreenValuesEffectName =
   | 'seedHelpLanguage'
   | 'issueBaseChangeCommand'
   | 'raiseTimeShiftQuestion'
+  | 'raiseWholeScheduleShiftQuestion'
   | 'issueCalendarCommand'
 
 const SCREEN_VALUES_INITIAL_CHILDREN: {
@@ -519,6 +533,7 @@ const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
   dropCueDisplayState: { kind: 'hidden' },
   baseTimeZoneDraftState: { kind: 'untouched' },
   timeShiftDraftState: { kind: 'empty' },
+  wholeScheduleShiftDraftState: { kind: 'empty' },
   calendarDraftState: { kind: 'untouched' },
 }
 // </generated>
@@ -1175,6 +1190,30 @@ function onTimeShiftLanded(values: ScreenValues): ScreenStep {
   return moved(values, { timeShiftDraftState: { kind: 'empty' } })
 }
 
+// see T-280, FR-159, FO-17
+/** @purity pure */
+function onWholeScheduleShiftDateSettled(values: ScreenValues, event: EventOf<'wholeScheduleShiftDateSettled'>): ScreenStep {
+  const held = values.wholeScheduleShiftDraftState
+  const isNewStartDateEmpty = event.newStartDate === ''
+  if (isNewStartDateEmpty) return held.kind === 'empty' ? unchanged(values) : moved(values, { wholeScheduleShiftDraftState: { kind: 'empty' } })
+  if (held.kind === 'dateHeld' && held.newStartDate === event.newStartDate) return unchanged(values)
+  return moved(values, { wholeScheduleShiftDraftState: { kind: 'dateHeld', newStartDate: event.newStartDate } })
+}
+
+// see T-280, FR-159, WH-12, QN-15
+/** @purity pure */
+function onWholeScheduleShiftEntryPressed(values: ScreenValues): ScreenStep {
+  const held = values.wholeScheduleShiftDraftState
+  if (held.kind === 'empty') return unchanged(values)
+  return stayed(values, [{ type: 'raiseWholeScheduleShiftQuestion', newStartDate: held.newStartDate }])
+}
+
+/** @purity pure */
+function onWholeScheduleShiftLanded(values: ScreenValues): ScreenStep {
+  if (values.wholeScheduleShiftDraftState.kind === 'empty') return unchanged(values)
+  return moved(values, { wholeScheduleShiftDraftState: { kind: 'empty' } })
+}
+
 // see T-280, FR-088
 /** @purity pure */
 function onCalendarDraftEdited(values: ScreenValues, event: EventOf<'calendarDraftEdited'>): ScreenStep {
@@ -1193,13 +1232,14 @@ function onCalendarApplyEntryPressed(values: ScreenValues): ScreenStep {
   ])
 }
 
-type DraftAxes = Pick<ScreenValues, 'baseTimeZoneDraftState' | 'timeShiftDraftState' | 'calendarDraftState'>
+type DraftAxes = Pick<ScreenValues, 'baseTimeZoneDraftState' | 'timeShiftDraftState' | 'wholeScheduleShiftDraftState' | 'calendarDraftState'>
 
 /** @purity pure */
 function settingsDraftsDropped(values: ScreenValues): Partial<DraftAxes> {
   return {
     ...(values.baseTimeZoneDraftState.kind === 'untouched' ? {} : { baseTimeZoneDraftState: { kind: 'untouched' } }),
     ...(values.timeShiftDraftState.kind === 'empty' ? {} : { timeShiftDraftState: { kind: 'empty' } }),
+    ...(values.wholeScheduleShiftDraftState.kind === 'empty' ? {} : { wholeScheduleShiftDraftState: { kind: 'empty' } }),
   }
 }
 
@@ -1219,7 +1259,7 @@ function isShowingHolidaySettings(values: ScreenValues): boolean {
   return surface.kind === 'open' && surface.surfaceName === HOLIDAY_SETTINGS_SURFACE
 }
 
-// see T-280, FR-156, FR-157, FR-088
+// see T-280, FR-156, FR-157, FR-159, FR-088
 // WHY: isLeavingDocumentSettings and isLeavingHolidaySettings are read off the step the event already took.
 /** @purity pure */
 function draftsLeftBehind(before: ScreenValues, step: ScreenStep): ScreenStep {
@@ -1306,6 +1346,9 @@ const HANDLERS: {
   timeShiftAmountSettled: onTimeShiftAmountSettled,
   timeShiftEntryPressed: onTimeShiftEntryPressed,
   timeShiftLanded: onTimeShiftLanded,
+  wholeScheduleShiftDateSettled: onWholeScheduleShiftDateSettled,
+  wholeScheduleShiftEntryPressed: onWholeScheduleShiftEntryPressed,
+  wholeScheduleShiftLanded: onWholeScheduleShiftLanded,
   calendarDraftEdited: onCalendarDraftEdited,
   calendarApplyEntryPressed: onCalendarApplyEntryPressed,
   documentReplacedByOpenOrNew: onDocumentReplacedByOpenOrNew,

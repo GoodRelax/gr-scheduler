@@ -19,9 +19,12 @@ import {
   customColorOf,
   customSideOf,
   dayOf,
+  DaySpanTooWide,
+  earliestPlanStartDayOf,
   isSearchWordFound,
   lagWorkingDaysOf,
   minutesPerWorkingDayOf,
+  NoWorkingDayReached,
   shownInstantReader,
   sideOfTaskColumn,
   startSideOf,
@@ -34,6 +37,8 @@ import {
   TIME_ZONE_ROWS,
   viewRegionOf,
   workingCalendarOf,
+  workingDayShiftOf,
+  type CalendarDay,
   type DateTimeSide,
   type Dependency,
   type InstantOnSide,
@@ -80,7 +85,7 @@ import { DISPLAY_TIME_ZONE_SLOT_SEPARATOR, FIT_SPAN_COPY_TEXT, displayLanguageOf
 import { dateText } from './table-window'
 import dependencyKinds from './dependency-kinds.json'
 import { iconHint, iconLabel } from './tooltips'
-import { shiftAmountText, timeZoneFieldWord, timeZoneLabelOf } from './notices'
+import { shiftAmountText, timeZoneFieldWord, timeZoneLabelOf, wholeScheduleShiftFieldWord } from './notices'
 import displayWords from './display-words.json'
 import iconRoster from './icon-roster.json'
 import propertyItems from './property-items.json'
@@ -1442,6 +1447,11 @@ const TIME_SHIFT_ENTRY: IconId = 'IC-162'
 // WHY: the read-out is drawn pre-line (MH-3), so a line break starts the example on its own line.
 const READOUT_LINE_BREAK = '\n'
 
+/** @purity pure */
+function readoutLines(lines: readonly string[]): string {
+  return lines.filter((line) => line !== '').join(READOUT_LINE_BREAK)
+}
+
 const BASE_CHANGE_ENTRY: IconId = 'IC-161'
 
 // see FR-029
@@ -1560,7 +1570,7 @@ function baseTimeZoneField(
     name: settingsName(column, language),
     text: '',
     isEditable: true,
-    readout: [timeZoneLabelOf(viewRegion, language), example].filter((line) => line !== '').join(READOUT_LINE_BREAK),
+    readout: readoutLines([timeZoneLabelOf(viewRegion, language), example]),
     controls: baseChangeControls(draft, isBaseChangeIdle(schedule, viewRegion, draft), language),
   }
 }
@@ -1614,6 +1624,67 @@ function timeShiftField(screen: ScreenSession['screen'], language: DisplayLangua
   }
 }
 
+const WHOLE_SCHEDULE_SHIFT_ROW = 'FO-17'
+
+const WHOLE_SCHEDULE_SHIFT_DATE_KEY = { holder: 'wholeScheduleShift', column: 'newStartDate' } as const
+
+const WHOLE_SCHEDULE_SHIFT_ENTRY_KEY = { holder: 'wholeScheduleShift', column: 'entry' } as const
+
+// see WH-1
+const NO_CURRENT_START = '\u2014'
+
+interface WholeScheduleShiftReadout {
+  readonly holidayLine: string
+  readonly isIdle: boolean
+}
+
+// see WH-2, WH-9, WH-12, TX-12
+// TRAP: only the walks' own refusals read as idle; anything else is a fault and is thrown on.
+/** @purity pure */
+function wholeScheduleShiftReadoutOf(schedule: Schedule, current: CalendarDay | null, typed: string, language: DisplayLanguage): WholeScheduleShiftReadout {
+  const day = dayOf(typed)
+  if (current === null || day === null) return { holidayLine: '', isIdle: true }
+  try {
+    const shift = workingDayShiftOf(workingCalendarOf(schedule), current, day)
+    const holidayLine = shift.isNewStartNonWorking
+      ? wholeScheduleShiftFieldWord('holidayStartLine', language).replace('{typed}', dateText(typed)).replace('{start}', dateText(textOfDay(shift.toZero)))
+      : ''
+    return { holidayLine, isIdle: shift.workingDays === 0 }
+  } catch (error) {
+    if (error instanceof NoWorkingDayReached || error instanceof DaySpanTooWide) return { holidayLine: '', isIdle: true }
+    throw error
+  }
+}
+
+// see FO-17, FR-159, WH-1, WH-2, WH-12, T-280
+// WHY: settling the date only holds it (wholeScheduleShiftDraftStateMachine); the text-only Apply button carries no hint (WH-12).
+/** @purity pure */
+function wholeScheduleShiftField(schedule: Schedule, screen: ScreenSession['screen'], language: DisplayLanguage): PropertyField {
+  const held = screen.wholeScheduleShiftDraftState
+  const typed = held.kind === 'dateHeld' ? held.newStartDate : ''
+  const current = earliestPlanStartDayOf(schedule.tasks)
+  const readout = wholeScheduleShiftReadoutOf(schedule, current, typed, language)
+  const currentLine = wholeScheduleShiftFieldWord('currentStart', language).replace('{date}', current === null ? NO_CURRENT_START : dateText(textOfDay(current)))
+  const unit = wholeScheduleShiftFieldWord('newStartUnit', language)
+  const apply = wholeScheduleShiftFieldWord('apply', language)
+  return {
+    row: WHOLE_SCHEDULE_SHIFT_ROW,
+    name: wholeScheduleShiftFieldWord('name', language),
+    text: '',
+    isEditable: true,
+    unit,
+    readout: readoutLines([currentLine, readout.holidayLine]),
+    controls: [
+      settingsControl(WHOLE_SCHEDULE_SHIFT_DATE_KEY, 'date', typed, widthOf(measuredTextOf('date', typed), null, SETTINGS_CONSTANTS.labelCoef)),
+      {
+        ...settingsControl(WHOLE_SCHEDULE_SHIFT_ENTRY_KEY, 'text', '', widthOf(apply, null, SETTINGS_CONSTANTS.labelCoef)),
+        press: apply,
+        ...(readout.isIdle ? DISABLED_ENTRY : {}),
+      },
+    ],
+  }
+}
+
 // see IC-17, T-104, FR-072, T-369, FO-1, FO-12
 /** @purity pure */
 function settingsFields(
@@ -1646,6 +1717,7 @@ function settingsFields(
     checkField(settings, 'showsTimeOfDay', language),
     baseTimeZoneField(schedule, settings, screen, language),
     displayTimeZonesField(settings, language),
+    wholeScheduleShiftField(schedule, screen, language),
     timeShiftField(screen, language),
     ...readOnly,
   ]

@@ -349,6 +349,16 @@ TIME_ZONE_FIELD_PARTS = ('keepGlobalTime', 'keepLocalTime', 'example', 'none',
                          'shiftUnit', 'shiftAmountLine', 'shiftTaskCountLine',
                          'shiftOutsideCountLine', 'shiftExampleLine')
 
+# CR-757: the words of the Shift Whole Schedule row (FO-17 of table T-369):
+# its name, the text-only Apply button (WH-12 of table T-379, no T-109 row),
+# the read-out above the field (WH-1, WH-2) and the lines the QN-15 question
+# shows under its sentence (WH-11). No table holds them as rows, so they are
+# HELD HERE, the same move as TIME_ZONE_FIELD_PARTS. KEYS, not words.
+WHOLE_SCHEDULE_SHIFT_FIELD_PARTS = ('name', 'apply', 'currentStart',
+                                    'newStartUnit', 'startLine',
+                                    'workingDaysLine', 'pulledCountLine',
+                                    'holidayStartLine')
+
 # CR-743: the words of Holiday Settings (U-65) no table holds as rows -- the
 # section headings, the column headings, the WC-9 line and the refusals of
 # table T-344's WC-10 (exceptionsOverlap is JDG-1984). KEYS, not words.
@@ -797,6 +807,7 @@ def roster():
         'delayFixes': list(DELAY_FIX_PARTS),
         'fitSpanField': list(FIT_SPAN_FIELD_PARTS),
         'timeZoneField': list(TIME_ZONE_FIELD_PARTS),
+        'wholeScheduleShiftField': list(WHOLE_SCHEDULE_SHIFT_FIELD_PARTS),
         'holidaySettings': list(HOLIDAY_SETTINGS_PARTS),
         'exportChooser': list(EXPORT_CHOOSER_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
@@ -889,6 +900,7 @@ SHAPE = {
     'delayFixes': ('part', ('text',)),
     'fitSpanField': ('part', ('text',)),
     'timeZoneField': ('part', ('text',)),
+    'wholeScheduleShiftField': ('part', ('text',)),
     'holidaySettings': ('part', ('text',)),
     'exportChooser': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
@@ -1001,6 +1013,7 @@ def build(doc, keys_by_row):
                     'colorNames', 'colorField', 'propertyField',
                     'rowMinHeightField', 'taskGroupPanelWidthField',
                     'themeHues', 'timeZones', 'timeZoneField',
+                    'wholeScheduleShiftField',
                     'holidaySettings',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
                     'planActualStates', 'searchPanel', 'resourceListColumns',

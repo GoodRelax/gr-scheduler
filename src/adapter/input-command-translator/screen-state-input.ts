@@ -4,7 +4,7 @@
 // @purity    pure
 
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
-import { compareDays, dayOf, taskByUid, type CalendarDay } from '../../entity/document-model/schedule/schedule'
+import { compareDays, dayOf, taskByUid, textOfDay, type CalendarDay } from '../../entity/document-model/schedule/schedule'
 import {
   calendarDraftOf,
   withExceptionAdded,
@@ -105,6 +105,8 @@ const BASE_CHANGE_ENTRY_PRESSED: ScreenValuesEvent = { type: 'baseChangeEntryPre
 
 const TIME_SHIFT_ENTRY_PRESSED: ScreenValuesEvent = { type: 'timeShiftEntryPressed' }
 
+const WHOLE_SCHEDULE_SHIFT_ENTRY_PRESSED: ScreenValuesEvent = { type: 'wholeScheduleShiftEntryPressed' }
+
 const BASE_CHANGE_WAYS: readonly BaseChangeWay[] = ['keepGlobalTime', 'keepLocalTime']
 
 const UNREADABLE_DAY_TOLD: SessionEvent = { type: 'noticeRaised', reason: 'RS-87', affectedCount: null }
@@ -116,6 +118,9 @@ const LATEST_ACCEPTED_DAY = dayOf(SETTINGS_CONSTANTS.importMaxDate)
 const TIME_SHIFT_AMOUNT = /^([+-]?)(\d{1,5})(?::([0-5]\d))?$/
 
 const MINUTES_PER_HOUR = 60
+
+// see WH-2
+const DAY_KEY_LENGTH = 10
 
 /** @purity pure */
 function surfaceEntered(surfaceName: string): ScreenValuesEvent {
@@ -369,6 +374,17 @@ function acceptedDayOf(text: string): CalendarDay | null {
   return compareDays(day, EARLIEST_ACCEPTED_DAY) < 0 || compareDays(day, LATEST_ACCEPTED_DAY) > 0 ? null : day
 }
 
+// see FO-17, FR-159, WH-2, WH-12, RS-87, T-280
+// WHY: an emptied field settles an empty date; a day outside table T-214 or an unreadable text tells RS-87 and holds nothing.
+/** @purity pure */
+function wholeScheduleShiftDraftEventOf(column: DraftKey<'wholeScheduleShift'>['column'], text: string): SessionEvent | null {
+  if (column === 'entry') return WHOLE_SCHEDULE_SHIFT_ENTRY_PRESSED
+  if (text.trim() === '') return { type: 'wholeScheduleShiftDateSettled', newStartDate: '' }
+  const day = acceptedDayOf(text)
+  if (day === null) return UNREADABLE_DAY_TOLD
+  return { type: 'wholeScheduleShiftDateSettled', newStartDate: textOfDay(day).slice(0, DAY_KEY_LENGTH) }
+}
+
 // see WC-4, RS-87
 /** @purity pure */
 function exceptionDayEventOf(index: number, isFrom: boolean, text: string, context: InputContext): SessionEvent | null {
@@ -398,13 +414,14 @@ function calendarDraftFieldEventOf(key: DraftKey<'calendarDraft'>, text: string,
   }
 }
 
-// see FO-14, FO-16, WC-3, WC-4, WC-8, T-280, IN-6
+// see FO-14, FO-16, FO-17, WC-3, WC-4, WC-8, T-280, IN-6
 // WHY: a screen draft's field settles into the screen values, or tells RS-87; null leaves it to commandFromFieldCommit.
 /** @purity pure */
 export function screenEventFromFieldCommit(commit: FieldCommit, context: InputContext): SessionEvent | null {
   const key = commit.key
   if (key.holder === 'baseTimeZoneDraft') return baseTimeZoneDraftEventOf(key.column, commit.text)
   if (key.holder === 'timeShift') return timeShiftDraftEventOf(key.column, commit.text)
+  if (key.holder === 'wholeScheduleShift') return wholeScheduleShiftDraftEventOf(key.column, commit.text)
   if (key.holder === 'calendarDraft') return calendarDraftFieldEventOf(key, commit.text, context)
   return null
 }

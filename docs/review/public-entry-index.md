@@ -54,7 +54,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dayFromSerial` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayFromSerial` | PI-1 | 通し番号から日付へ —— `serial` の逆。 |
 | `dayOf` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayOf` | PI-1 | 日付の字面を日にする。 |
 | `dayOfInstant` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#dayOfInstant` | PI-1 | 瞬間が落ちる日（開始の側の読み）。 |
-| `DaySpanTooWide` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#DaySpanTooWide` | -- | class DaySpanTooWide extends Error |
+| `DaySpanTooWide` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#DaySpanTooWide` | PI-1 | 例外の型 —— 数える 2 つの日が、受け入れる範囲（表 T-214）より離れている |
 | `DEFAULT_CALENDAR_VALUES` | entry | const | `src/entity/document-model/schedule/schedule-entities.ts#DEFAULT_CALENDAR_VALUES` | -- | const DEFAULT_CALENDAR_VALUES: |
 | `defaultFinishTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultFinishTimeOf` | PI-1 | 文書の既定の終了時刻。 |
 | `defaultStartTimeOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#defaultStartTimeOf` | PI-1 | 文書の既定の開始時刻。 |
@@ -98,6 +98,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayWorkingDays` | entry | function | `src/entity/document-model/schedule/task-delay.ts#delayWorkingDays` | PI-1 | 表 T-021b の起点と終点 |
 | `Dependency` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Dependency` | -- | interface Dependency |
 | `diagnoseDelay` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnoseDelay` | PI-1 | 遅延診断のレポート（表 T-317）を作る。 |
+| `earliestPlanStartDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#earliestPlanStartDayOf` | PI-1 | 全体日程シフトのいまの開始日（表 T-379 の `WH-1`）—— `Task` の予定の開始を開始の側で読んだ、いちばん早い日。 |
 | `EntityRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#EntityRows` | -- | interface EntityRows |
 | `Exception` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Exception` | -- | interface Exception |
 | `finishSideDayFrom` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#finishSideDayFrom` | PI-1 | `finishSideDayOf` と同じ日を、読み手が既に読んだその字の日（`dayOf` の答え）から数える。 |
@@ -126,9 +127,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `lastDayForLength` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#lastDayForLength` | PI-1 | `actualStart` と長さから実績の最後の日を置く。 |
 | `MINUTES_PER_CALENDAR_DAY` | entry | const | `src/entity/document-model/schedule/calendar-day.ts#MINUTES_PER_CALENDAR_DAY` | PI-1 | 暦の 1 日の分の数。 |
 | `minutesPerWorkingDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#minutesPerWorkingDayOf` | PI-1 | 1 稼働日の分数。 |
+| `MovedDay` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#MovedDay` | -- | interface MovedDay |
 | `NestedRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#NestedRows` | -- | interface NestedRows |
 | `nextWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#nextWorkingDay` | PI-1 | 起点の**翌稼働日**。 |
-| `NoWorkingDayReached` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#NoWorkingDayReached` | -- | class NoWorkingDayReached extends Error |
+| `NoWorkingDayReached` | entry | class | `src/entity/document-model/schedule/working-calendar.ts#NoWorkingDayReached` | PI-1 | 例外の型 —— 稼働日を数える歩みが、受け入れる範囲（表 T-214）の中で稼働日に着かなかった |
 | `parentCandidatesOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentCandidatesOf` | PI-1 | 親の決まらない子の候補の並び（表 T-318 の `IP-4`、`FR-135` の番号の枠） |
 | `ParentTaskResolution` | entry | type | `src/entity/document-model/schedule/delay-diagnostics.ts#ParentTaskResolution` | PI-1 | 型。 |
 | `parentTaskResolutionsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentTaskResolutionsOf` | PI-1 | どの `Task` の親タスクも、明記・導いた親タスク（表 T-318 の `IP-2`）・決まらない（`VO-4`、候補は `IP-4` の並び）・根（`IP-5`）のどれかで答える。 |
@@ -183,6 +185,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `WorkingCalendar` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingCalendar` | -- | interface WorkingCalendar |
 | `workingCalendarOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingCalendarOf` | PI-1 | 文書の暦を解く。 |
 | `workingDaysBetween` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingDaysBetween` | PI-1 | 2 つの日付のあいだの稼働日数。 |
+| `WorkingDayShift` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingDayShift` | PI-1 | 型 —— `workingDayShiftOf` の答え |
+| `workingDayShiftOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingDayShiftOf` | PI-1 | 全体日程シフトの写像（`FR-159` の 表 T-379 の `WH-2`〜`WH-5`）。 |
 | `workingMinutesBetween` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingMinutesBetween` | PI-1 | 2 つの瞬間の間の稼働時間（分）。 |
 | `workingSpansReader` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingSpansReader` | PI-1 | 日ごとの稼働時間の区間を返す読み手（索引は 1 度だけ作る）。 |
 | `WorkingTime` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WorkingTime` | PI-1 | 型。 |
@@ -223,6 +227,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `taskGroupPathOf` | file only | function | `src/entity/document-model/schedule/task-group-names.ts#taskGroupPathOf` | -- | function taskGroupPathOf(schedule: Schedule, groupId: string): readonly string[] |
 | `TimeZoneRegion` | file only | type | `src/entity/document-model/schedule/time-zone.ts#TimeZoneRegion` | -- | type TimeZoneRegion = NonNullable<DocumentSettings['viewTimeZone']> |
 | `MinuteSpan` | file only | interface | `src/entity/document-model/schedule/working-calendar.ts#MinuteSpan` | -- | interface MinuteSpan |
+| `previousWorkingDay` | file only | function | `src/entity/document-model/schedule/working-calendar.ts#previousWorkingDay` | -- | function previousWorkingDay(within: WorkingCalendar, from: CalendarDay): CalendarDay |
 
 ## DocumentSettings (PI-2, `src/entity/document-model/document-settings/document-settings.ts`)
 
@@ -509,7 +514,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DeletionQuestion` | entry | interface | `src/use-case/edit-document/deletion-confirmations.ts#DeletionQuestion` | PI-9 | 型。 |
 | `DependencyCommand` | entry | type | `src/use-case/edit-document/edit-dependency.ts#DependencyCommand` | -- | type DependencyCommand = \| |
 | `DependencyEdge` | entry | type | `src/use-case/edit-document/edit-dependency.ts#DependencyEdge` | -- | type DependencyEdge = 'start' \| 'finish' |
-| `DocumentCommand` | entry | type | `src/use-case/edit-document/edit-document.ts#DocumentCommand` | -- | type DocumentCommand = \| TaskCommand \| TaskGroupCommand \| DependencyCommand \| AnnotationCommand \| ResourceCommand \| CalendarCommand \| ProjectCommand \| Docume... |
+| `DocumentCommand` | entry | type | `src/use-case/edit-document/edit-document.ts#DocumentCommand` | -- | type DocumentCommand = \| TaskCommand \| TaskGroupCommand \| DependencyCommand \| AnnotationCommand \| ResourceCommand \| CalendarCommand \| ProjectCommand \| WholeS... |
 | `DocumentSettingsCommand` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#DocumentSettingsCommand` | -- | type DocumentSettingsCommand = \| { readonly kind: 'setStackDirection'; readonly direction: 'up' \| 'down' } \| { readonly kind: 'setElementVisible'; readonly e... |
 | `editAnnotation` | entry | function | `src/use-case/edit-document/edit-annotation.ts#editAnnotation` | -- | function editAnnotation(document: Document, command: AnnotationCommand): EditResult |
 | `editCalendar` | entry | function | `src/use-case/edit-document/edit-calendar.ts#editCalendar` | -- | function editCalendar(document: Document, command: CalendarCommand): EditResult |
@@ -557,11 +562,15 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `treeStateWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#treeStateWritesFor` | PI-9 | 表 T-328 の出来事 1 つが書き換えるタスクグループの `treeState` を求める。 |
 | `VisibleElement` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#VisibleElement` | -- | type VisibleElement = \| 'baselineVisible' \| 'planVisible' \| 'actualVisible' \| 'progressLineVisible' \| 'progressMarkerVisible' \| 'dateGridLinesVisible' \| 'gro... |
 | `wbsSubtreesOf` | entry | function | `src/use-case/edit-document/edit-task-group.ts#wbsSubtreesOf` | PI-9 | `Task` の集合に、`WBS` の子孫をすべて足した集合 —— `CD-1`。 |
+| `WholeScheduleShiftCommand` | entry | interface | `src/use-case/edit-document/whole-schedule-shift.ts#WholeScheduleShiftCommand` | -- | interface WholeScheduleShiftCommand |
+| `wholeScheduleShiftPreviewOf` | entry | function | `src/use-case/edit-document/whole-schedule-shift.ts#wholeScheduleShiftPreviewOf` | PI-9 | 全体日程シフトの確認（`QN-15`）に出すもの（表 T-379 の `WH-11`）を、書き込む前に数える。 |
 | `CommentBoxLeaderShapeKind` | file only | type | `src/use-case/edit-document/edit-annotation.ts#CommentBoxLeaderShapeKind` | -- | type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']> |
 | `TypedLag` | file only | interface | `src/use-case/edit-document/edit-dependency.ts#TypedLag` | -- | interface TypedLag |
 | `TypedLagUnit` | file only | type | `src/use-case/edit-document/edit-dependency.ts#TypedLagUnit` | -- | type TypedLagUnit = 'd' \| 'h' \| 'm' |
 | `WorkingDayLag` | file only | interface | `src/use-case/edit-document/edit-dependency.ts#WorkingDayLag` | -- | interface WorkingDayLag |
 | `documentWithTableViewsKept` | file only | function | `src/use-case/edit-document/edit-document-settings.ts#documentWithTableViewsKept` | -- | function documentWithTableViewsKept(document: Document): Document |
+| `isAcceptedDay` | file only | function | `src/use-case/edit-document/edit-project.ts#isAcceptedDay` | -- | function isAcceptedDay(day: CalendarDay): boolean |
+| `isInsideWorkingTime` | file only | function | `src/use-case/edit-document/edit-project.ts#isInsideWorkingTime` | -- | function isInsideWorkingTime(spansOf: SpansOfSerial, instant: number, side: 'start' \| 'finish'): boolean |
 | `depthOf` | file only | function | `src/use-case/edit-document/edit-task-group.ts#depthOf` | -- | function depthOf(byId: ReadonlyMap<string, TaskGroup>, taskGroup: TaskGroup): number |
 | `settledTaskGroup` | file only | function | `src/use-case/edit-document/edit-task-group.ts#settledTaskGroup` | -- | function settledTaskGroup(schedule: Schedule, taskGroup: TaskGroup, defaultTaskGroupName: string): TaskGroup |
 | `Subtree` | file only | interface | `src/use-case/edit-document/edit-task-group.ts#Subtree` | -- | interface Subtree |
@@ -611,6 +620,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `planDatesEdited` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#planDatesEdited` | -- | function planDatesEdited(task: Task, schedule: Schedule, within: WorkingCalendar): Task |
 | `setTaskPlanActualState` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#setTaskPlanActualState` | -- | function setTaskPlanActualState( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskPlanActualState' }>, task: Task, within: WorkingC... |
 | `setTaskPlanDates` | file only | function | `src/use-case/edit-document/task-plan-actual.ts#setTaskPlanDates` | -- | function setTaskPlanDates( document: Document, command: Extract<TaskCommand, { readonly kind: 'setTaskPlanDates' }>, task: Task, within: WorkingCalendar, ): ... |
+| `wholeScheduleShifted` | file only | function | `src/use-case/edit-document/whole-schedule-shift.ts#wholeScheduleShifted` | -- | function wholeScheduleShifted(document: Document, command: WholeScheduleShiftCommand): EditResult |
 
 ## ImportDocument (PI-10, `src/use-case/import-document/import-document.ts`)
 
@@ -1107,6 +1117,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: HandedFirstReading, ): Promise<boolean> |
 | `WORKING_TIMES_UNLIKE_DAY_REASON` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#WORKING_TIMES_UNLIKE_DAY_REASON` | -- | const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89' |
 | `askTimeShift` | file only | function | `src/framework/single-html-shell/field-entry.ts#askTimeShift` | -- | function askTimeShift(hands: Pick<FieldEntryHands, 'readHeld' \| 'readSession' \| 'sendToSession'>, frame: FrameValues, minutes: number): void |
+| `askWholeScheduleShift` | file only | function | `src/framework/single-html-shell/field-entry.ts#askWholeScheduleShift` | -- | function askWholeScheduleShift( hands: Pick<FieldEntryHands, 'readHeld' \| 'readSession' \| 'sendToSession'>, frame: FrameValues, newStartDate: string, ): void |
 | `baseChangeCommandsOf` | file only | function | `src/framework/single-html-shell/field-entry.ts#baseChangeCommandsOf` | -- | function baseChangeCommandsOf( draft: { readonly chosenRegion: string \| null; readonly chosenWay: Parameters<typeof baseChangeCommandOf>[2] }, document: Docu... |
 | `drainFieldEditNotices` | file only | function | `src/framework/single-html-shell/field-entry.ts#drainFieldEditNotices` | -- | function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues \| null): void |
 | `FIELD_ROW_OF_IN_PLACE_TARGET` | file only | const | `src/framework/single-html-shell/field-entry.ts#FIELD_ROW_OF_IN_PLACE_TARGET` | -- | const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>> = |
@@ -1118,6 +1129,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isFieldFocusWanted` | file only | function | `src/framework/single-html-shell/field-entry.ts#isFieldFocusWanted` | -- | function isFieldFocusWanted(hands: FieldEntryHands): boolean |
 | `issueCalendarCommand` | file only | function | `src/framework/single-html-shell/field-entry.ts#issueCalendarCommand` | -- | function issueCalendarCommand(hands: CalendarCommandHands, command: CalendarCommand, frame: FrameValues): void |
 | `isTimeShiftWrite` | file only | function | `src/framework/single-html-shell/field-entry.ts#isTimeShiftWrite` | -- | function isTimeShiftWrite(writes: readonly (readonly DocumentCommand[])[]): boolean |
+| `isWholeScheduleShiftWrite` | file only | function | `src/framework/single-html-shell/field-entry.ts#isWholeScheduleShiftWrite` | -- | function isWholeScheduleShiftWrite(writes: readonly (readonly DocumentCommand[])[]): boolean |
 | `noteChoiceMoved` | file only | function | `src/framework/single-html-shell/field-entry.ts#noteChoiceMoved` | -- | function noteChoiceMoved(hands: FieldEntryHands, frame: FrameValues \| null): void |
 | `spendFieldCommit` | file only | function | `src/framework/single-html-shell/field-entry.ts#spendFieldCommit` | -- | function spendFieldCommit(hands: FieldEntryHands, frame: FrameValues): boolean |
 | `tryWantedFieldBeforeInput` | file only | function | `src/framework/single-html-shell/field-entry.ts#tryWantedFieldBeforeInput` | -- | function tryWantedFieldBeforeInput( hands: FieldEntryHands, fieldFocusRetries: Pick<FieldFocusRetries, 'focusWantedField'>, input: HumanInput, ): void |
@@ -1496,6 +1508,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
 | `verticalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#verticalWholeOf` | PI-37 | つまみが表す全体を配置と各部の矩形から測る —— `GR-21` の「内容の範囲といま見えている範囲の和」。 |
 | `VisibilityKey` | entry | type | `src/adapter/screen-renderer/table-window.ts#VisibilityKey` | PI-37 | 型。 |
+| `WholeScheduleShiftPreview` | entry | interface | `src/adapter/screen-renderer/notices.ts#WholeScheduleShiftPreview` | -- | interface WholeScheduleShiftPreview |
+| `wholeScheduleShiftQuestionItems` | entry | function | `src/adapter/screen-renderer/notices.ts#wholeScheduleShiftQuestionItems` | PI-37 | 全体日程シフトの確認（`QN-15`）の文の下に並べる行（表 T-379 の `WH-11`） |
 | `windowBoxAfterGrab` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxAfterGrab` | PI-37 | ウィンドウ（`FR-036` の 表 T-335）のタイトルバーの帯（表 T-023d の `GR-24`）か縁（`GR-25`）を掴んで引いた後の箱を、範囲の中と下限（`S-423`・`S-424`）の上に収めて答える（`WB-8`・`WB-9`）。 |
 | `windowBoxOf` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowBoxOf` | PI-37 | ウィンドウを描く箱を、表示の状態（通常・最小化・最大化）から答える（表 T-335 の `WB-1` 〜 `WB-3`）。 |
 | `windowEdgeAt` | entry | function | `src/adapter/screen-renderer/window-box.ts#windowEdgeAt` | PI-37 | 点が、箱の縁の内と外の掴み代（表 T-023d の `GR-25`、幅は `S-426`）のどの辺か角の上かを答える。 |
@@ -1542,6 +1556,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `shownDateTimeOf` | file only | function | `src/adapter/screen-renderer/notices.ts#shownDateTimeOf` | -- | function shownDateTimeOf(stored: string): string |
 | `timeZoneFieldWord` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneFieldWord` | -- | function timeZoneFieldWord(part: string, language: DisplayLanguage): string |
 | `timeZoneLabelOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneLabelOf` | -- | function timeZoneLabelOf(region: string, language: DisplayLanguage): string |
+| `wholeScheduleShiftFieldWord` | file only | function | `src/adapter/screen-renderer/notices.ts#wholeScheduleShiftFieldWord` | -- | function wholeScheduleShiftFieldWord(part: string, language: DisplayLanguage): string |
 | `exportNameBodyOf` | file only | function | `src/adapter/screen-renderer/open-modals.ts#exportNameBodyOf` | -- | function exportNameBodyOf(documentName: string): string |
 | `helpModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#helpModalFromSession` | -- | function helpModalFromSession(session: ScreenSession, area: HelpWindowArea): HelpModal \| null |
 | `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, schedule: Schedule, readings: ScreenViewReadings, settings: DocumentSettings, ): OpenModal \| null |
@@ -1939,7 +1954,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NoticeValuesKey` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesKey` | -- | type NoticeValuesKey = \| 'notices' \| 'noticeDisplayStateMachine.hidden' \| 'noticeDisplayStateMachine.shown' \| 'changeDeliveryStateMachine.idle' \| 'changeDeli... |
 | `NoticeValuesStateCarried` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesStateCarried` | -- | interface NoticeValuesStateCarried |
 | `QUESTION_DISPLAY_OF_ROW` | file only | const | `src/use-case/advance-screen-session/notice-values.ts#QUESTION_DISPLAY_OF_ROW` | -- | const QUESTION_DISPLAY_OF_ROW: Readonly<Record<QuestionRow, 'ask' \| 'askOnlyWithUnsavedEdits'>> = |
-| `QuestionRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#QuestionRow` | -- | type QuestionRow = \| 'QN-1' \| 'QN-2' \| 'QN-3' \| 'QN-4' \| 'QN-5' \| 'QN-9' \| 'QN-10' \| 'QN-11' \| 'QN-12' \| 'QN-14' \| 'QN-8' |
+| `QuestionRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#QuestionRow` | -- | type QuestionRow = \| 'QN-1' \| 'QN-2' \| 'QN-3' \| 'QN-4' \| 'QN-5' \| 'QN-9' \| 'QN-10' \| 'QN-11' \| 'QN-12' \| 'QN-14' \| 'QN-15' |
 | `ReasonRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#ReasonRow` | -- | type ReasonRow = \| 'RS-1' \| 'RS-2' \| 'RS-3' \| 'RS-4' \| 'RS-5' \| 'RS-6' \| 'RS-7' \| 'RS-8' \| 'RS-9' \| 'RS-10' \| 'RS-11' |
 | `stepNoticeValues` | file only | function | `src/use-case/advance-screen-session/notice-values.ts#stepNoticeValues` | -- | function stepNoticeValues(values: NoticeValues, event: NoticeValuesEvent): NoticeStep |
 | `ArmModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ArmModeState` | -- | type ArmModeState = \| { readonly kind: 'notArmed' } \| { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] } \| { read... |
@@ -1975,6 +1990,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ToggleableWindowKey` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ToggleableWindowKey` | -- | type ToggleableWindowKey = 'searchPanelDisplayState' \| 'helpDisplayState' \| 'dialogueFieldDisplayState' |
 | `TooltipDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#TooltipDisplayState` | -- | type TooltipDisplayState = \| { readonly kind: 'allowed' } \| { readonly kind: 'dismissed' } export type SearchPanelDisplayState = \| { readonly kind: 'hidden' ... |
 | `WatermarkDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#WatermarkDisplayState` | -- | type WatermarkDisplayState = \| { readonly kind: 'shown' } \| { readonly kind: 'hidden' } export type PropertiesPanelContentState = \| { readonly kind: 'hidden'... |
+| `WholeScheduleShiftDraftState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#WholeScheduleShiftDraftState` | -- | type WholeScheduleShiftDraftState = \| { readonly kind: 'empty' } \| { readonly kind: 'dateHeld'; readonly newStartDate: ScreenValuesStateCarried['newStartDate... |
 | `emptySelectionValues` | file only | const | `src/use-case/advance-screen-session/selection-values.ts#emptySelectionValues` | -- | const emptySelectionValues: SelectionValues = |
 | `SelectionCopied` | file only | type | `src/use-case/advance-screen-session/selection-values.ts#SelectionCopied` | -- | type SelectionCopied = SelectionCopiedTask \| SelectionCopiedTaskGroup |
 | `SelectionCopiedTask` | file only | interface | `src/use-case/advance-screen-session/selection-values.ts#SelectionCopiedTask` | -- | interface SelectionCopiedTask |
@@ -2013,4 +2029,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1021 name(s) leave through a public entry (480 of them published by table T-064), 782 more are exported by a file and not by its entry.
+Totals: 1029 name(s) leave through a public entry (487 of them published by table T-064), 790 more are exported by a file and not by its entry.

@@ -64,18 +64,18 @@
 | `screen/surfaceEntryPressed` | 入力（`IC-132` は `surfaceName` に `U-65` を運ぶ）: `IC-2` ・ `SK-12` ・ `IC-132` | `surfaceName` | `openSurfaceStateMachine` ・ `calendarDraftStateMachine` |
 | `screen/surfaceRaisedByFlow` | 副作用の結果（ファイルの領域が面を立てる）: `OP-3` ・ `U-56` ・ `U-61` ・ `U-62` | `surfaceName` | `openSurfaceStateMachine` ・ `calendarDraftStateMachine` |
 | `screen/flowSurfaceAnswered` | 入力（`U-56` ・ `U-61` の答えの入口。呼び手は同じ入力から領域 `fileFlow` の答えの出来事も作る）: `IC-71` ・ `IC-72` ・ `IC-73` ・ `IC-95` ・ `IC-96` ・ `IC-97` ・ `OP-3` ・ `FR-022` | `surfaceName` | `openSurfaceStateMachine` |
-| `screen/surfaceCloseAsked` | 入力: `IC-52` | `target`（閉じる対象。語は `surface`（開いている面、`S-99g`）・`panel`（プロパティパネル、`S-99h`）・`helpModal`（ヘルプ、`U-30`）の 3 つ） | `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `helpDisplayStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `calendarDraftStateMachine` |
-| `screen/escapePressed` | 入力（`Esc`）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `armModeStateMachine` ・ `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `dialogueFieldDisplayStateMachine` ・ `dualCursorModeStateMachine` ・ `tooltipDisplayStateMachine` ・ `searchPanelDisplayStateMachine` ・ `helpDisplayStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `calendarDraftStateMachine` |
+| `screen/surfaceCloseAsked` | 入力: `IC-52` | `target`（閉じる対象。語は `surface`（開いている面、`S-99g`）・`panel`（プロパティパネル、`S-99h`）・`helpModal`（ヘルプ、`U-30`）の 3 つ） | `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `helpDisplayStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` ・ `calendarDraftStateMachine` |
+| `screen/escapePressed` | 入力（`Esc`）: `IN-4` | `rung`（消費する `IN-4` の段の語。呼び手が詰める） | `armModeStateMachine` ・ `openSurfaceStateMachine` ・ `propertiesPanelContentStateMachine` ・ `dialogueFieldDisplayStateMachine` ・ `dualCursorModeStateMachine` ・ `tooltipDisplayStateMachine` ・ `searchPanelDisplayStateMachine` ・ `helpDisplayStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` ・ `calendarDraftStateMachine` |
 | `screen/armEntryPressed` | 入力: `IC-23` ・ `IC-24` ・ `IC-25` ・ `IC-26` ・ `IC-27` ・ `IC-61` ・ `IC-35` ・ `IC-36` ・ `IC-142` ・ `FR-016` | `armKind` ／ `shapeKind` ／ `glyph` | `armModeStateMachine` |
 | `screen/watermarkEntryPressed` | 入力: `IC-41` ・ `WM-10` | — | `openSurfaceStateMachine` ・ `watermarkDisplayStateMachine` ・ `calendarDraftStateMachine` |
 | `screen/watermarkUnlockAnswered` | 入力（`U-60` の答え）: `U-60` ・ `WM-6` ・ `WM-7` | `isProceeding` | `openSurfaceStateMachine` |
 | `screen/watermarkUnlockMatched` | 副作用の結果（照合）: `WM-6` ・ `WM-8` | — | `openSurfaceStateMachine` ・ `watermarkDisplayStateMachine` |
 | `screen/watermarkUnlockMismatched` | 副作用の結果（照合）: `WM-8` | — | `openSurfaceStateMachine` |
-| `screen/settingsEntryPressed` | 入力: `IC-17` ・ `FR-072` | — | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` |
-| `screen/propertiesOfChoiceAsked` | 入力（パネルを出すことを要求が名指した押下。員数は各要求が持つ）: `FR-072` | `subject` | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` |
-| `screen/selectionMoved` | ほかの領域の結果（選択）: `FR-072` | `subject`（空もありうる） | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` |
-| `screen/createdNameSettled` | 入力（作った直後の名前の欄の編集が終わった後の `Enter` —— 表 T-292 の `createdTaskNamingStateMachine` が `createdNameEnded` に居るとき（表 T-283 の `RG-10`）。名前付けのあいだでも、ほかの欄の編集を終えた `Enter` では送らない）: `FR-091` ・ `SK-19` | — | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` |
-| `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasNoSurfaceOrConfirmation` ／ `hasNoUnsettledEntry` | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` |
+| `screen/settingsEntryPressed` | 入力: `IC-17` ・ `FR-072` | — | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` |
+| `screen/propertiesOfChoiceAsked` | 入力（パネルを出すことを要求が名指した押下。員数は各要求が持つ）: `FR-072` | `subject` | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` |
+| `screen/selectionMoved` | ほかの領域の結果（選択）: `FR-072` | `subject`（空もありうる） | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` |
+| `screen/createdNameSettled` | 入力（作った直後の名前の欄の編集が終わった後の `Enter` —— 表 T-292 の `createdTaskNamingStateMachine` が `createdNameEnded` に居るとき（表 T-283 の `RG-10`）。名前付けのあいだでも、ほかの欄の編集を終えた `Enter` では送らない）: `FR-091` ・ `SK-19` | — | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` |
+| `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasNoSurfaceOrConfirmation` ／ `hasNoUnsettledEntry` | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` |
 | `screen/dialogueFieldEntryPressed` | 入力: `IC-18` ・ `FR-066` | `isAgentApiEnabled` | `dialogueFieldDisplayStateMachine` |
 | `screen/dialogueFieldMinimizeToggled` | 入力（対話欄のタイトルバーの最小化の入口）: `IC-129` | — | `dialogueFieldDisplayStateMachine` |
 | `screen/dialogueFieldMaximizeToggled` | 入力（対話欄のタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `dialogueFieldDisplayStateMachine` |
@@ -111,9 +111,12 @@
 | `screen/timeShiftAmountSettled` | 入力（タイムシフトの量の欄を確定した（`Enter` か欄を離れる）。確定しただけでは問わない）: `FO-16` ・ `IN-6` ・ `SK-19` | `shiftMinutes`（`FR-157`。正負の分） | `timeShiftDraftStateMachine` |
 | `screen/timeShiftEntryPressed` | 入力: `IC-162` ・ `FR-157` | — | `timeShiftDraftStateMachine` |
 | `screen/timeShiftLanded` | 副作用の結果（タイムシフトの書き込み（`CM-98`）が受け入れられた）: `FR-157` ・ `CM-98` | — | `timeShiftDraftStateMachine` |
+| `screen/wholeScheduleShiftDateSettled` | 入力（全体日程シフトの新しい開始日の欄を確定した（`Enter` か欄を離れる）。確定しただけでは問わない）: `FO-17` ・ `IN-6` ・ `SK-19` | `newStartDate`（`FR-159` ・ `WH-2`。入れた新しい開始日（日だけ、`yyyy-mm-dd`）。空は空の字） | `wholeScheduleShiftDraftStateMachine` |
+| `screen/wholeScheduleShiftEntryPressed` | 入力: `WH-12` ・ `FR-159` | — | `wholeScheduleShiftDraftStateMachine` |
+| `screen/wholeScheduleShiftLanded` | 副作用の結果（全体日程シフトの書き込み（`CM-99`）が受け入れられた）: `FR-159` ・ `CM-99` | — | `wholeScheduleShiftDraftStateMachine` |
 | `screen/calendarDraftEdited` | 入力（休日の設定の入口を押した、または欄を確定した（`IN-6`）。呼び手が、直した後の下書きの全部を詰める —— `untouched` からは文書の暦から組んだ下書きに直しを当てたもの）: `IC-133` ・ `IC-134` ・ `IC-135` ・ `IC-136` ・ `IC-137` ・ `IC-163` ・ `IC-164` ・ `IC-165` ・ `WC-4` | `calendarDraft`（`WC-2` ・ `WC-3` ・ `WC-4` ・ `WC-8`。直した後の下書きの全部） | `calendarDraftStateMachine` |
 | `screen/calendarApplyEntryPressed` | 入力: `IC-138` ・ `WC-7` | — | `calendarDraftStateMachine` |
-| `screen/documentReplacedByOpenOrNew` | 副作用の結果（文書を置き換えて開いた（`RD-4`）か、新しく始めた（`RD-7`）差し替えが受け入れられた。取り消し・やり直し・合流と重ね・画面と `Agent API` の書き込みでは送らない —— 領域 `notices` の同じ鍵（書き込みの毎巡）とは別の出来事である）: `RD-4` ・ `RD-7` | — | `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `calendarDraftStateMachine` |
+| `screen/documentReplacedByOpenOrNew` | 副作用の結果（文書を置き換えて開いた（`RD-4`）か、新しく始めた（`RD-7`）差し替えが受け入れられた。取り消し・やり直し・合流と重ね・画面と `Agent API` の書き込みでは送らない —— 領域 `notices` の同じ鍵（書き込みの毎巡）とは別の出来事である）: `RD-4` ・ `RD-7` | — | `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` ・ `calendarDraftStateMachine` |
 
 ### 根 `screen` の値
 
@@ -654,6 +657,38 @@ stateDiagram-v2
 - `timeShiftDraftStateMachine.amountHeld` —— 運ぶ値 `shiftMinutes`（`FR-157`。正負の分）。根拠 `FR-157` ・ `IC-162`
 
 表に無い出来事は `timeShiftDraftStateMachine` を変えない（同じ参照）。
+
+### 状態機械 `wholeScheduleShiftDraftStateMachine`
+
+```mermaid
+stateDiagram-v2
+    direction LR
+    [*] --> wholeScheduleShiftDraftStateMachine_empty
+    wholeScheduleShiftDraftStateMachine_empty : empty
+    wholeScheduleShiftDraftStateMachine_dateHeld : dateHeld
+    wholeScheduleShiftDraftStateMachine_empty --> wholeScheduleShiftDraftStateMachine_dateHeld : wholeScheduleShiftDateSettled
+    wholeScheduleShiftDraftStateMachine_dateHeld --> wholeScheduleShiftDraftStateMachine_dateHeld : wholeScheduleShiftDateSettled, wholeScheduleShiftEntryPressed
+    wholeScheduleShiftDraftStateMachine_dateHeld --> wholeScheduleShiftDraftStateMachine_empty : wholeScheduleShiftDateSettled, wholeScheduleShiftLanded, surfaceCloseAsked, escapePressed, settingsEntryPressed, propertiesOfChoiceAsked, selectionMoved, createdNameSettled, settleKeyPressed, documentReplacedByOpenOrNew
+```
+
+| 出来事 | `empty` | `dateHeld` |
+| --- | --- | --- |
+| `screen/wholeScheduleShiftDateSettled` | → `dateHeld` [not `isNewStartDateEmpty`]<br>それ以外 → — | → 自己 [not `isNewStartDateEmpty`]（`newStartDate` を書き換える）<br>→ `empty` [`isNewStartDateEmpty`] |
+| `screen/wholeScheduleShiftEntryPressed` | — | → 自己 / `raiseWholeScheduleShiftQuestion`（下書きの日で `QN-15` を問う。続けると答えたら `CM-99` を 1 回出す。適用のボタンが押せないあいだ（`WH-12`）は何もしない） |
+| `screen/wholeScheduleShiftLanded` | — | → `empty` |
+| `screen/surfaceCloseAsked` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/escapePressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/settingsEntryPressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/propertiesOfChoiceAsked` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/selectionMoved` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/createdNameSettled` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/settleKeyPressed` | — | → `empty` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる）<br>それ以外 → — |
+| `screen/documentReplacedByOpenOrNew` | — | → `empty` |
+
+- `wholeScheduleShiftDraftStateMachine.empty` —— 初期。根拠 `FO-17`
+- `wholeScheduleShiftDraftStateMachine.dateHeld` —— 運ぶ値 `newStartDate`（`FR-159` ・ `WH-2`。入れた新しい開始日（日だけ、`yyyy-mm-dd`）。空は空の字）。根拠 `FR-159` ・ `WH-12`
+
+表に無い出来事は `wholeScheduleShiftDraftStateMachine` を変えない（同じ参照）。
 
 ### 状態機械 `calendarDraftStateMachine`
 

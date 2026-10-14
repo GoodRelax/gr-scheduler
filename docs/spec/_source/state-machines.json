@@ -1407,6 +1407,57 @@
      "carries": []
     },
     {
+     "key": "wholeScheduleShiftDateSettled",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "FO-17",
+       "IN-6",
+       "SK-19"
+      ],
+      "note": {
+       "ja": "全体日程シフトの新しい開始日の欄を確定した（`Enter` か欄を離れる）。確定しただけでは問わない"
+      }
+     },
+     "carries": [
+      {
+       "name": "newStartDate",
+       "rows": [
+        "FR-159",
+        "WH-2"
+       ],
+       "note": {
+        "ja": "入れた新しい開始日（日だけ、`yyyy-mm-dd`）。空は空の字"
+       }
+      }
+     ]
+    },
+    {
+     "key": "wholeScheduleShiftEntryPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "WH-12",
+       "FR-159"
+      ]
+     },
+     "carries": []
+    },
+    {
+     "key": "wholeScheduleShiftLanded",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-159",
+       "CM-99"
+      ],
+      "note": {
+       "ja": "全体日程シフトの書き込み（`CM-99`）が受け入れられた"
+      }
+     },
+     "carries": []
+    },
+    {
      "key": "calendarDraftEdited",
      "source": {
       "kind": "input",
@@ -4024,6 +4075,240 @@
          "RD-4",
          "RD-7",
          "FR-157"
+        ]
+       }
+      }
+     }
+    },
+    {
+     "name": "wholeScheduleShiftDraftStateMachine",
+     "states": [
+      {
+       "key": "empty",
+       "parent": null,
+       "initial": true,
+       "carries": [],
+       "evidence": [
+        "FO-17"
+       ]
+      },
+      {
+       "key": "dateHeld",
+       "parent": null,
+       "initial": false,
+       "carries": [
+        {
+         "name": "newStartDate",
+         "rows": [
+          "FR-159",
+          "WH-2"
+         ],
+         "note": {
+          "ja": "入れた新しい開始日（日だけ、`yyyy-mm-dd`）。空は空の字"
+         }
+        }
+       ],
+       "evidence": [
+        "FR-159",
+        "WH-12"
+       ]
+      }
+     ],
+     "transitions": {
+      "wholeScheduleShiftDateSettled": {
+       "empty": {
+        "to": "dateHeld",
+        "guard": [
+         {
+          "name": "isNewStartDateEmpty",
+          "not": true
+         }
+        ],
+        "evidence": [
+         "FO-17",
+         "FR-159"
+        ]
+       },
+       "dateHeld": [
+        {
+         "to": "dateHeld",
+         "guard": [
+          {
+           "name": "isNewStartDateEmpty",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "FO-17",
+          "FR-159"
+         ],
+         "note": {
+          "ja": "`newStartDate` を書き換える"
+         }
+        },
+        {
+         "to": "empty",
+         "guard": [
+          {
+           "name": "isNewStartDateEmpty"
+          }
+         ],
+         "evidence": [
+          "FO-17",
+          "WH-12"
+         ]
+        }
+       ]
+      },
+      "wholeScheduleShiftEntryPressed": {
+       "dateHeld": {
+        "to": "dateHeld",
+        "effect": "raiseWholeScheduleShiftQuestion",
+        "evidence": [
+         "WH-12",
+         "QN-15",
+         "FR-159"
+        ],
+        "note": {
+         "ja": "下書きの日で `QN-15` を問う。続けると答えたら `CM-99` を 1 回出す。適用のボタンが押せないあいだ（`WH-12`）は何もしない"
+        }
+       }
+      },
+      "wholeScheduleShiftLanded": {
+       "dateHeld": {
+        "to": "empty",
+        "evidence": [
+         "FR-159",
+         "CM-99"
+        ]
+       }
+      },
+      "surfaceCloseAsked": {
+       "dateHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-159"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる"
+        }
+       }
+      },
+      "escapePressed": {
+       "dateHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-159"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる"
+        }
+       }
+      },
+      "settingsEntryPressed": {
+       "dateHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-159"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる"
+        }
+       }
+      },
+      "propertiesOfChoiceAsked": {
+       "dateHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-159"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる"
+        }
+       }
+      },
+      "selectionMoved": {
+       "dateHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-159"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる"
+        }
+       }
+      },
+      "createdNameSettled": {
+       "dateHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-159"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる"
+        }
+       }
+      },
+      "settleKeyPressed": {
+       "dateHeld": {
+        "to": "empty",
+        "guard": [
+         {
+          "name": "isLeavingDocumentSettings"
+         }
+        ],
+        "evidence": [
+         "FR-072",
+         "FR-159"
+        ],
+        "note": {
+         "ja": "プロパティパネルが文書の設定を出さなくなるときだけ、新しい開始日を捨てる"
+        }
+       }
+      },
+      "documentReplacedByOpenOrNew": {
+       "dateHeld": {
+        "to": "empty",
+        "evidence": [
+         "RD-4",
+         "RD-7",
+         "FR-159"
         ]
        }
       }

@@ -27,8 +27,8 @@ import { appHeaderItemsFromDocument, displayScaleMessageText } from './app-heade
 import { commandPaletteFromSession } from './command-palette'
 import { dialogueFieldFromLog } from './dialogue-field'
 import { confirmationFromSession, dismissKeyOf, noticesFromSession } from './notices'
-export { shiftAmountText, timeShiftQuestionItems } from './notices'
-export type { TimeShiftPreview } from './notices'
+export { shiftAmountText, timeShiftQuestionItems, wholeScheduleShiftQuestionItems } from './notices'
+export type { TimeShiftPreview, WholeScheduleShiftPreview } from './notices'
 import type { HolidaySettings, HolidaySettingsFieldColumn } from './holiday-settings'
 export type {
   HolidayExceptionLine,
@@ -388,6 +388,10 @@ export type PropertyFieldKey =
   | {
       readonly holder: 'timeShift'
       readonly column: 'minutes' | 'entry'
+    }
+  | {
+      readonly holder: 'wholeScheduleShift'
+      readonly column: 'newStartDate' | 'entry'
     }
   // see FO-14, FR-156, IC-161
   | {

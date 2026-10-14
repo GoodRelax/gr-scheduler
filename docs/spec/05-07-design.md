@@ -248,7 +248,7 @@ SVG を作るコンポーネントは `Adapter` にあるが、`UseCase` を通�
 | --- | --- | --- | --- |
 | SU-1 | **コンポーネント** | **フォルダの外へ見せる公開エントリを 1 つ持つもの**（規則は本節が MUST で定める）。<br>⚠️ **公開メンバを持たないものもある** —— `CP-25` は Vite の入口であり、他から呼ばれるメンバを持たない（`PI-25`） | **39。<br>** 全数は 表 T-062、公開する名前は 表 T-064 |
 | SU-2 | **モジュール** | **複数のユニットを束ねた、コンポーネントの一部。<br>** 外へは公開しない | ⭐ **0** |
-| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **187。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
+| SU-3 | **ユニット** | **1 ファイル。<br>** 公開エントリもユニットである | **188。<br>** 全数は 表 T-075、割った理由は 表 T-063 |
 
 **入れ子は コンポーネント ＞ モジュール ＞ ユニット である。**  
 **モジュールは任意の中間段であり、無いときはコンポーネントが直にユニットを持つ。**
@@ -332,7 +332,7 @@ src/
 | 行 ID | コンポーネント | ユニット | 割った理由 |
 | --- | --- | --- | --- |
 | UT-1 | `ApplyDocumentChange` | `apply-document-change.ts` ／ `document-change-plan.ts` | **純粋性**（表 T-060 の `LY-3`） |
-| UT-2 | `EditDocument` | `edit-document.ts` と、集約ごとの 8 ファイル ／ `deletion-confirmations.ts` ／ `search-jump.ts` | **純粋性ではない** —— 表 T-075 のとおり 11 とも同じである。<br>そのうち 2 つは `UT-9` でさらに割った。<br>**集約ごとに変更の理由が別なので割った** —— タスクの規則が変わっても暦の規則は変わらない<br>`deletion-confirmations.ts` は、削除が負う問い（表 T-050 と 表 T-234 の削除の行）が変わったときに書き直す —— 集約をまたいで数えるので、どの集約のファイルにも置かない。<br>`search-jump.ts` は、検索パネルからの飛び方（`FR-151` の 表 T-332）が変わったときに書き直す —— タスクグループの木と表示の位置をまたいで書くので、どの集約のファイルにも置かない |
+| UT-2 | `EditDocument` | `edit-document.ts` と、集約ごとの 8 ファイル ／ `deletion-confirmations.ts` ／ `search-jump.ts` ／ `whole-schedule-shift.ts` | **純粋性ではない** —— 表 T-075 のとおり 12 とも同じである。<br>そのうち 2 つは `UT-9` でさらに割った。<br>**集約ごとに変更の理由が別なので割った** —— タスクの規則が変わっても暦の規則は変わらない<br>`deletion-confirmations.ts` は、削除が負う問い（表 T-050 と 表 T-234 の削除の行）が変わったときに書き直す —— 集約をまたいで数えるので、どの集約のファイルにも置かない。<br>`search-jump.ts` は、検索パネルからの飛び方（`FR-151` の 表 T-332）が変わったときに書き直す —— タスクグループの木と表示の位置をまたいで書くので、どの集約のファイルにも置かない。<br>`whole-schedule-shift.ts` は、全体日程シフトの移し方（`FR-159` の 表 T-379）が変わったときに書き直す —— `Task`・基準計画・`Project`・注記と設定の値（`S-77`・`S-518`・`S-519`）をまたいで 1 回で書くので、どの集約のファイルにも置かない |
 | UT-3 | `NotifyChangeWatchers` | `notify-change-watchers.ts` ／ `change-notice.ts` | **純粋性**（`LY-3`）。<br>⚠️ 選び方の規則は 表 T-035 の `AG-6` にあり、日程データと発話で違う。<br>値だけで決まる |
 | UT-4 | `AgentApiEndpoint` | `agent-api-endpoint.ts` ／ `agent-api-members.ts` ／ `relayed-call.ts` | **純粋性ではない** —— 表 T-075 のとおり 3 つとも同じである。<br>設置は `FR-065`（既定で公開しない）が、22 メンバは 表 T-107 が、取次が運んだ呼び出しの受け方は 表 T-035 の `AG-12` が縛るので、変更の理由が別である |
 | UT-5 | `DocumentCodec` | `document-codec.ts` ／ `json-codec.ts` ／ `mspdi-codec.ts` ／ `embedded-html-codec.ts` | **一部は純粋性** —— 単一 `.html` だけが `AppShellSource` を呼ぶ。<br>**残りは形式ごとに正が別だからである** —— `GRS JSON` は `FR-024`、`MSPDI` は交換相手のスキーマ、単一 `.html` は `FR-067` |
@@ -449,6 +449,7 @@ src/
 | UF-18 | `EditDocument` | `edit-document-settings.ts` | `pure` | `DocumentSettings` の編集 | — |
 | UF-162 | `EditDocument` | `deletion-confirmations.ts` | `pure` | 削除が消すもの・解くものを数え、表 T-234 の問い（`QN-1`・`QN-2`・`QN-3`・`QN-10`）を立てるかを決める（`FR-032`・`FR-099`） —— タスクグループと共に消えるタスクグループとタスクを数え（表 T-050 の `CD-1`・`CD-2`・`CD-6`）、担当の外しで解かれるタスクを並べる（`CD-5`）<br>告げ方（表 T-037 の `NT-7`）は持たない | — |
 | UF-179 | `EditDocument` | `search-jump.ts` | `pure` | 飛ぶ先のタスクグループと祖先を展開し、表示を寄せる書き込みを、表 T-332 に従って作る | — |
+| UF-206 | `EditDocument` | `whole-schedule-shift.ts` | `pure` | 全体日程シフト（`FR-159`）の書き込みと、問い（`QN-15`）に出すものの数えを、表 T-379 の同じ写像で作る | `FR-159`（`OW-2`） |
 | UF-19 | `ImportDocument` | `import-document.ts` | `pure` | `CP-10` | `FR-015`（`OW-2`）・`FR-022`（`OW-2`）・`FR-056`（`OW-1`）・`FR-087`（`OW-1`） |
 | UF-20 | `UndoEdit` | `undo-edit.ts` | `pure` | `CP-11` | — |
 | UF-21 | `RedoEdit` | `redo-edit.ts` | `pure` | `CP-12` | — |
@@ -578,8 +579,8 @@ src/
 
 **「負う要求」の欄の結び。**
 
-`01-04-requirements.md` が持つ要求は 136 件である（`FR` が 123 件、`NFR` が 13 件）。  
-そのうち 122 件は、上の欄が起点のユニットを名指している。
+`01-04-requirements.md` が持つ要求は 137 件である（`FR` が 124 件、`NFR` が 13 件）。  
+そのうち 123 件は、上の欄が起点のユニットを名指している。
 
 ⛔ **起点のユニットを持たない要求が 5 件ある** —— どれも 表 T-277 の `OW-5` である。  
 `OW-5` は表 T-075 の欄に立たないので、確かめる手立てを本段が名指す。
