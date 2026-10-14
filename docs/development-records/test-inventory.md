@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 327 | 3906 | 5 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 330 | 3940 | 5 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 86 | 565 | 0 | 0 | 0 | 0 |
-| `unit` | TS-6 | - | 182 | 3894 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 615 | 8475 | 8 | 8 | 13 | 2 |
+| **all** | | | 618 | 8516 | 8 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -141,7 +141,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-631-parent-task-resolutions-and-arrows.test.ts` | diagnoseDelay (pure), emptySelection (pure), parentTaskResolutionsOf (pure), selectionWith (pure), workingCalendarOf (pure) | yes | FR-135, T-318 |
 | `tests/unit/cr-631-wbs-parent-hits-and-hands.test.ts` | advanceScreenSession (pure), armedByEntry (pure), commandFromInput (pure), emptySelection (pure), grabSizesOf (pure), isParentPickingCtrlClick (pure), itemAtPointer (untagged), itemsInMarquee (pure), parentTaskResolutionsOf (pure), pressRowOf (pure), selectionFromInput (pure), selectionOfAll (pure) | - | FR-135, T-023a, T-023b, T-023c, T-023d, T-351 |
 | `tests/unit/cr-631-wbs-parent-palette-chooser-and-picture.test.ts` | choiceStepOf (pure), commandPaletteFromSession (pure), confirmationFromSession (pure), drawnSettingsOf (pure), emptySelection (pure), grabSizesOf (pure), isMixedParentPick (pure), itemAtPointer (untagged), parentTaskHoldOf (non-pure), parentTaskParts (pure), pointerImageOf (pure), pointerRowOf (pure), selectionOfAll (pure), selectionOfParentChoice (pure) | - | FR-135, T-076, T-109, T-234, T-269, T-351 |
-| `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | diagnoseDelay (pure), documentFromJson (pure), editDependency (pure), workingCalendarOf (pure) | yes | FR-009, FR-054, T-075, T-209, T-213, T-314 |
+| `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | diagnoseDelay (pure), documentFromJson (pure), editDependency (pure), workingCalendarOf (pure) | yes | FR-009, FR-054, T-075, T-209, T-213, T-314, T-375 |
 | `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` | blankTaskVisual (pure), documentFromEmbeddedHtml (pure), documentFromJson (pure), documentFromMspdi (pure), frameLoop (non-pure), jsonFromDocument (pure), mspdiFromDocument (pure) | - | FR-011, FR-012, FR-021, FR-054, FR-100, T-024a, T-036, T-103, T-233, T-350 |
 | `tests/unit/cr-646-edits-write-side-times.test.ts` | dayOf (pure), editDocument (pure), textOfDay (pure) | yes | FR-054, FR-083, T-245, T-350 |
 | `tests/unit/cr-646-grs-json-shape.test.ts` | documentFromJson (pure), importDocument (pure), jsonFromDocument (pure), scheduleViolations (pure), validateImportedDocument (pure) | yes | FR-022, FR-073, T-220, T-224, T-297 |
@@ -366,7 +366,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-710-w1-fr-088-working-times-of-the-calendar.test.ts` | 33 | FR-012, FR-054, FR-088 | - | T-220 | CM-39, IV-24, RS-89, S-128, S-580, S-582, WC-8, WC-9 | - | - | - | - |
 | `tests/contract/cr-710-w1-the-must-clauses-the-cases-exercise.test.ts` | 1 | FR-011, FR-012, FR-054, FR-088 | - | - | - | - | - | - | - |
 | `tests/contract/cr-710-w2-rs-89-is-told-once-when-an-opened-file-replaces-the-document.test.ts` | 8 | FR-054 | - | T-036, T-103, T-233 | RS-89, S-128 | - | - | - | - |
-| `tests/contract/cr-710-w2-the-hour-grid-the-hour-shade-and-the-hour-ruler.test.ts` | 34 | FR-017, FR-089 | - | T-205 | DS-1, OD-1, OD-2, OD-6, RV-1, RV-6, S-8, S-578, S-581, TM-5, U-17 | - | - | - | - |
+| `tests/contract/cr-710-w2-the-hour-grid-the-hour-shade-and-the-hour-ruler.test.ts` | 38 | FR-017, FR-089 | - | T-205, T-238 | DS-1, OD-1, OD-2, OD-6, RV-1, RV-6, S-8, S-578, S-581, TM-5, U-17 | - | - | - | - |
 | `tests/contract/cr-710-w2-the-hour-tier-the-snap-and-the-axis.test.ts` | 30 | FR-016, FR-017, FR-103, FR-158 | - | T-205, T-375, T-378 | DS-1, ND-4, ND-5, RV-1, RV-6, S-1, S-8, S-55, S-577, S-578, S-579, TM-4, TM-5, TX-1, TX-2 | - | - | - | - |
 | `tests/contract/cr-710-w2-the-panel-date-field-takes-a-time.test.ts` | 9 | FR-054, FR-158 | - | T-016, T-375 | PR-3, PR-35, PR-47, TX-3 | - | - | - | - |
 | `tests/contract/cr-710-w2-the-show-time-of-day-switch.test.ts` | 13 | FR-016, FR-039, FR-072, FR-158 | - | T-108, T-369 | CM-97, FO-12, FO-13, K-140, K-146, S-1, S-229, UN-7 | - | - | - | - |
@@ -463,6 +463,9 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-2260-fr-029-the-palette-entrances-fade-while-an-open-road-surface-awaits.test.ts` | 9 | FR-029 | VT-2 | T-280 | IC-41, IC-62, IC-95, RO-1, RS-27, U-54, U-56, U-61 | - | - | - | - |
 | `tests/contract/dfc-2301-a-pan-keeps-the-zoom-ends-without-laying-the-task-groups-out.test.ts` | 3 | FR-029 | - | - | IC-12, IC-15, OP-10, PTD-1, S-96, S-97 | - | - | - | - |
 | `tests/contract/dfc-2410-a-scroll-is-not-a-zoom.contract.test.ts` | 23 | FR-051, FR-055 | - | T-023, T-329 | MK-1, MK-5, OP-10, TD-4 | - | - | - | - |
+| `tests/contract/dfc-2449-wt-4-a-stop-from-actual-duration-keeps-its-instant.test.ts` | 3 | FR-011 | - | T-350 | WT-4 | - | - | - | - |
+| `tests/contract/dfc-2458-a-push-out-counts-against-s-397-in-whole-working-days.contract.test.ts` | 12 | FR-132 | - | T-206, T-314 | BD-1, DX-9, S-128, S-397 | - | - | - | - |
+| `tests/contract/dfc-2463-fr-156-the-pc-region-and-where-rs-90-is-told.contract.test.ts` | 15 | FR-156 | - | T-233, T-376 | IC-71, IC-72, IC-73, IC-98, MG-4, PF-1, PF-8, RS-90, ZN-15, ZN-16, ZN-20, ZN-24, ZN-25 | - | - | - | - |
 | `tests/contract/dfc-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts` | 19 | FR-025, FR-038, FR-080, FR-096 | - | T-014, T-024, T-036, T-037, T-041, T-060, T-062, T-066, T-075, T-103, T-109, T-218, T-233 | CP-25, CS-2, IC-3, IF-3, IF-5, IO-1, IO-2, IO-3, IO-6, IO-7, LY-5, NT-3, NT-3a, RS-24, S-89, SK-12, SK-16, SK-19, SK-21, ST-3, ST-7, ST-10, TS-6, U-54, UF-48, WY-2 | - | - | - | - |
 | `tests/contract/dfc-286-fr-044-emptying-a-set-resume-date-clears-resume-valid.test.ts` | 12 | FR-006, FR-044 | - | T-016, T-019, T-019a, T-108, T-216, T-218 | PA-2, PA-3, PA-4, PR-7, PR-8, PR-15, PS-3, PS-4, PS-5, TS-2, TS-6 | - | - | - | - |
 | `tests/contract/dfc-288-d-289-fr-099-deleting-the-chosen-assignees.test.ts` | 19 | FR-029, FR-038, FR-099 | - | T-037, T-050, T-060, T-062, T-066, T-075, T-108, T-109, T-218, T-233, T-234 | CD-5, CM-42, CP-25, CS-2, IC-62, IC-65, IC-66, IC-67, IC-68, LY-5, NT-7, QN-3, RS-27, TS-2, TS-6, UF-48 | - | - | - | - |
@@ -747,7 +750,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-631-parent-task-resolutions-and-arrows.test.ts` | 22 | FR-135 | - | T-318 | IP-1, IP-2, IP-3, IP-4, IP-5, S-19, S-300, S-485, S-486, SL-8, VO-4 | - | - | - | - |
 | `tests/unit/cr-631-wbs-parent-hits-and-hands.test.ts` | 26 | FR-135 | - | T-023a, T-023b, T-023c, T-023d, T-351 | AR-7, IC-142, IP-2, PTD-3, PTD-5, PTL-1, PTL-2, PTL-3, PTL-4, PTL-5, PTL-6, PTL-7, PTL-8, PTL-10, PTL-11, PTL-12, RS-69, RS-70, SK-3, SL-1, SL-4 | - | - | - | - |
 | `tests/unit/cr-631-wbs-parent-palette-chooser-and-picture.test.ts` | 28 | FR-135 | - | T-076, T-109, T-234, T-269, T-351 | AR-7, IC-81, IC-141, IC-142, PK-17, PK-18, PTL-13, PTL-14, QN-12, S-249, S-389, S-398, S-447, S-484, S-486, SL-8, VO-4 | - | - | - | - |
-| `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | 23 | FR-009, FR-054 | - | T-075, T-209, T-213, T-314 | AT-48, BD-2, CM-36, CM-38, PR-42, S-117, S-118, S-128, UF-128, VC-15 | - | - | - | - |
+| `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | 30 | FR-009, FR-054 | - | T-075, T-209, T-213, T-314, T-375 | AT-48, BD-2, CM-36, CM-38, PR-42, S-117, S-118, S-128, TX-3, TX-10, UF-128, VC-15 | - | - | - | - |
 | `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` | 15 | FR-011, FR-012, FR-021, FR-054, FR-100 | - | T-024a, T-036, T-103, T-233, T-350 | AT-39, IO-7, NT-3, OP-3, OP-4, OP-6, RS-52, VC-5 | - | - | - | - |
 | `tests/unit/cr-646-edits-write-side-times.test.ts` | 25 | FR-054, FR-083 | - | T-245, T-350 | AT-154, AT-155, CM-14, CM-15, CM-50, CM-54, EX-4, GA-9, GO-1, GO-2, GO-3, GO-5, GO-7, GO-8, GO-10, GO-11, IC-23, IC-35, IC-36, S-77, S-482, S-483, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2, X-3, X-4 | - | - | - | - |
 | `tests/unit/cr-646-grs-json-shape.test.ts` | 33 | FR-022, FR-073 | - | T-220, T-224, T-297 | AT-154, AT-155, BK-4, CP-13, IV-1, IV-23, MG-4, NT-1, OP-5, PF-1, PF-9, PI-13, RS-25, S-58, S-482, S-483, ST-5, ST-6, WT-9, WT-10 | - | - | - | - |
