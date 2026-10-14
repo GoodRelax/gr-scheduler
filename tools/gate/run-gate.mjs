@@ -7,6 +7,9 @@
 //   GRS_PERF=1 node tools/gate/run-gate.mjs PERF   performance: vite build, the two clock-reading
 //                                                files of tests/nfr with GRS_PERF=1 (JDG-605)
 //
+// GT-2 and PERF refuse to start while OneDrive.exe runs (JDG-2086; gate-queue.mjs says why);
+// --onedrive-running-ok after the gate name runs them anyway.
+//
 // Every gate holds the machine-wide lock of tools/gate/gate-queue.mjs while it runs, so two
 // sessions never run two gates at once; a second gate waits in line (rule 04 section 6.8). PERF
 // runs only when it is named AND GRS_PERF=1 is set by the caller -- GT-1 and GT-2 never measure.
@@ -22,7 +25,7 @@ import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { acquire } from './gate-queue.mjs'
+import { acquire, oneDriveRefusal } from './gate-queue.mjs'
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const KNOWN_RED = 'tests/known-red.txt'
@@ -201,11 +204,13 @@ function readReport(path, label) {
   return JSON.parse(readFileSync(path, 'utf8'))
 }
 
-function main(gate) {
+function main(gate, argv = []) {
   if (gate !== 'GT-1' && gate !== 'GT-2' && gate !== 'PERF') {
-    console.log('usage: node tools/gate/run-gate.mjs GT-1|GT-2|PERF')
+    console.log('usage: node tools/gate/run-gate.mjs GT-1|GT-2|PERF [--onedrive-running-ok]')
     process.exit(2)
   }
+  const oneDrive = oneDriveRefusal(gate, argv)
+  if (oneDrive !== undefined) stop(oneDrive)
   if (gate === 'PERF' && process.env.GRS_PERF !== '1') {
     stop('PERF measures only on explicit request: set GRS_PERF=1 for this command (JDG-605)')
   }
@@ -270,7 +275,7 @@ function main(gate) {
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
   try {
-    main(process.argv[2])
+    main(process.argv[2], process.argv.slice(3))
   } catch (error) {
     if (!(error instanceof GateStopped)) throw error
     console.log(`\n⛔ gate stopped: ${error.message}`)
