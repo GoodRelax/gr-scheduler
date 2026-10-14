@@ -1,4 +1,4 @@
-// The place of the latest version (S-350), of the repository (S-459) and of the latest schema (S-540) read from the settings manuscript, and the seat a word names S-350 by.
+// The place of the latest version (S-350), of the repository (S-459), of the latest schema (S-540) and of the about page (S-583) read from the settings manuscript, and the seat a word names S-350 by.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -30,6 +30,9 @@ export const REPOSITORY_ADDRESS: string = defaultAddressOf('S-459')
 
 // see S-540, DR-4
 export const SCHEMA_ADDRESS: string = defaultAddressOf('S-540')
+
+// see S-583, FR-036
+export const ABOUT_ADDRESS: string = defaultAddressOf('S-583')
 
 // see FR-073
 export const DOWNLOAD_URL_SEAT = '{downloadUrl}'

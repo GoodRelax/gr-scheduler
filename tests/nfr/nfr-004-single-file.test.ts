@@ -4,7 +4,7 @@ import { execSync } from 'node:child_process'
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { DOWNLOAD_ADDRESS, REPOSITORY_ADDRESS, SCHEMA_ADDRESS } from '../fixtures/download-address'
+import { ABOUT_ADDRESS, DOWNLOAD_ADDRESS, REPOSITORY_ADDRESS, SCHEMA_ADDRESS } from '../fixtures/download-address'
 
 const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url))
 const DIST_DIR = join(REPO_ROOT, 'dist')
@@ -35,9 +35,9 @@ const NON_DEREFERENCED_URI_IDENTIFIERS = [
 ]
 
 // see CN-6, FR-073, FR-069, BR-4
-// WHY: CN-6 exempts a link a person presses; S-350 and S-459 are the two targets,
-// read from the manuscript because both rows forbid copying the address into code.
-const LINKS_PRESSED_BY_A_PERSON: readonly string[] = [DOWNLOAD_ADDRESS, REPOSITORY_ADDRESS]
+// WHY: CN-6 exempts a link a person presses; S-350, S-459 and S-583 are the targets,
+// read from the manuscript because the rows forbid copying the address into code.
+const LINKS_PRESSED_BY_A_PERSON: readonly string[] = [DOWNLOAD_ADDRESS, REPOSITORY_ADDRESS, ABOUT_ADDRESS]
 
 // WHY: a minified call sits next to its string argument, so this window
 // catches fetch(...), xhr.open(...), import(...), importScripts(...).
@@ -189,7 +189,7 @@ test('NFR-004 / CN-6: given the built deliverable, when every URL-bearing attrib
   ).toEqual([])
 })
 
-test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned for absolute URLs, then only non-dereferenced namespace identifiers and the S-350 and S-459 link targets remain', () => {
+test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned for absolute URLs, then only non-dereferenced namespace identifiers and the S-350, S-459 and S-583 link targets remain', () => {
   const seen = new Set<string>()
   for (const match of deliverable.matchAll(ABSOLUTE_URL)) {
     const url = match[0].replace(/[.,;:'")\]]+$/, '')
@@ -203,7 +203,7 @@ test('NFR-004 / CN-6: given the built deliverable, when its raw text is scanned 
     .sort()
   expect(
     external,
-    'CN-6: an absolute URL that is not a declared identifier or an S-350 / S-459 link target means the deliverable points outside itself',
+    'CN-6: an absolute URL that is not a declared identifier or an S-350 / S-459 / S-583 link target means the deliverable points outside itself',
   ).toEqual([])
   // TRAP: if this assertion needs deleting, the namespace exemption above has
   // gone stale and its entries should be reconsidered.
