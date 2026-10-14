@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-BioOOJA1U+F6a+7isDtQ8lSAgbN7dwrV2TJ904iT5oI='; script-src 'sha256-3tRvD9K67mfXn/x4yGZOFiDQMIv+jgCqW4A3NODRpjE='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-PnlE3JoHoyE6Xv6y2Tv27sx7qRPJB4/1Y6c77GVxuRo='; script-src 'sha256-3tRvD9K67mfXn/x4yGZOFiDQMIv+jgCqW4A3NODRpjE='; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="description" content="GoodRelax Scheduler (GRS) の紹介。1 行に複数のタスクを置き、全体日程を 1 枚で見渡す、単一 HTML の日程表エディタ。">
 <title>GoodRelax Scheduler (GRS) とは</title>
@@ -79,10 +79,12 @@ main { flex: 1; min-height: 0; overflow: auto; }
 .cover h1 .hl { color: var(--accent); }
 .cover .lead { font-size: 19px; color: var(--sub); margin-bottom: 18px; }
 .oss {
-  display: inline-flex; align-items: center; gap: 10px; margin-bottom: 26px;
-  padding: 8px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); font-size: 15px;
+  display: inline-flex; align-items: center; flex-wrap: wrap; gap: 6px 12px; margin-bottom: 26px;
+  padding: 10px 16px; border: 2px solid var(--own); border-radius: 12px; background: var(--own-soft);
+  font-size: 17px; font-weight: 700;
 }
-.oss b { color: var(--own); }
+.oss .badge { background: var(--own); color: #ffffff; border-radius: 6px; padding: 0 8px; font-size: 14px; }
+.oss a { color: var(--own); }
 .cta { display: flex; flex-wrap: wrap; gap: 10px; }
 .btn {
   display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
@@ -140,7 +142,7 @@ main { flex: 1; min-height: 0; overflow: auto; }
 .model { display: grid; grid-template-columns: 1.2fr 1fr; gap: 26px; align-items: start; }
 .doc-root { border: 2px solid var(--ink); border-radius: 14px; padding: 14px; }
 .doc-root > .title { font-weight: 800; margin-bottom: 10px; font-size: 15px; }
-.dgroup { border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; background: var(--soft); }
+.dgroup { border: 1px solid #94a3b8; border-radius: var(--radius); padding: 12px; background: #eef2f7; }
 .gt { font-weight: 800; font-size: 15px; line-height: 1.5; }
 .gt .mono { font-weight: 600; color: var(--faint); }
 .dgroup p { font-size: 14px; color: var(--sub); line-height: 1.55; }
@@ -171,17 +173,17 @@ main { flex: 1; min-height: 0; overflow: auto; }
 .arch { display: grid; grid-template-columns: 1.05fr 1fr 1.05fr; gap: 22px; align-items: start; }
 .ring { border-radius: 14px; padding: 9px 10px 10px; }
 .ring > .rl { font-size: 13px; font-weight: 800; line-height: 1.4; margin-bottom: 7px; }
-.ring > .rl span { display: block; font-weight: 400; color: var(--sub); }
-.ring.fw { background: #eaf4fb; border: 1px solid #c4e0f2; }
-.ring.ad { background: #eaf7ee; border: 1px solid #c3e6cd; }
-.ring.uc { background: #fdf6e3; border: 1px solid #f0dfa8; }
-.ring.en { background: #fdeee2; border: 1px solid #f3cfae; }
+.ring > .rl span { font-weight: 400; color: #334155; margin-left: 8px; }
+.ring.fw { background: #cfe5f6; border: 1px solid #7fb5dc; }
+.ring.ad { background: #cdebd6; border: 1px solid #79c08f; }
+.ring.uc { background: #f9e7a8; border: 1px solid #d9b443; }
+.ring.en { background: #f7cfae; border: 1px solid #e0915a; }
 .en-core { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.en-core div { background: var(--bg); border: 1px solid #f3cfae; border-radius: 8px; padding: 5px 8px; font-size: 13px; line-height: 1.45; }
+.en-core div { background: var(--bg); border: 1px solid #e0915a; border-radius: 8px; padding: 5px 8px; font-size: 13px; line-height: 1.45; }
 .en-core b { display: block; font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace; }
 .bul { padding-left: 1.1em; font-size: 15px; line-height: 1.6; }
 .bul li + li { margin-top: 4px; }
-.ring + .bul { margin-top: 10px; }
+.label.ext { margin-top: 14px; }
 .block + .block { margin-top: 16px; }
 .tree {
   margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--soft); border: 1px solid var(--line);
@@ -238,7 +240,7 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
       <button class="tab" role="tab" id="tab-what" aria-controls="what" aria-selected="false" tabindex="-1"><span class="no">01</span>GRS とは</button>
       <button class="tab" role="tab" id="tab-features" aria-controls="features" aria-selected="false" tabindex="-1"><span class="no">02</span>機能一覧</button>
       <button class="tab" role="tab" id="tab-model" aria-controls="model" aria-selected="false" tabindex="-1"><span class="no">03</span>データモデル</button>
-      <button class="tab" role="tab" id="tab-arch" aria-controls="arch" aria-selected="false" tabindex="-1"><span class="no">04</span>アーキテクチャと保守</button>
+      <button class="tab" role="tab" id="tab-arch" aria-controls="arch" aria-selected="false" tabindex="-1"><span class="no">04</span>アーキ・保守・拡張性</button>
     </div>
   </div>
 </nav>
@@ -264,7 +266,7 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
       </div>
       <h1>1 行に、複数のタスクを。<br><span class="hl">全体日程を 1 枚で。</span></h1>
       <p class="lead">ブラウザで動く、単一 HTML の日程表エディタ。</p>
-      <p class="oss"><b>OSS</b>Apache License 2.0 で、GitHub に公開している。</p>
+      <p class="oss"><span class="badge">OSS</span>Apache License 2.0<a href="https://github.com/GoodRelax/gr-scheduler" target="_blank" rel="noopener noreferrer">GitHub に公開中 ↗</a></p>
       <div class="cta">
         <button class="btn primary" id="fullscreen" type="button">全画面表示</button>
         <a class="btn" href="https://goodrelax.github.io/gr-scheduler/" target="_blank" rel="noopener noreferrer">アプリを使う</a>
@@ -278,7 +280,7 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
         <li><button type="button" data-go="what"><span class="tn">01</span><b>GRS とは</b><span>一言で何か。何が売りか</span></button></li>
         <li><button type="button" data-go="features"><span class="tn">02</span><b>機能一覧</b><span>できることを 6 つの群で</span></button></li>
         <li><button type="button" data-go="model"><span class="tn">03</span><b>データモデル</b><span>文書の形と、設計の要点</span></button></li>
-        <li><button type="button" data-go="arch"><span class="tn">04</span><b>アーキテクチャと保守</b><span>層・技術・AI での開発・規模</span></button></li>
+        <li><button type="button" data-go="arch"><span class="tn">04</span><b>アーキ・保守・拡張性</b><span>層・技術・拡張性・AI での開発・規模</span></button></li>
       </ol>
       <p class="note keys">← → キーでも、タブを切り替えられる。</p>
     </div>
@@ -361,13 +363,13 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
     <div class="sell"><div class="word">ぬるサク</div><p>操作が引っかからない。性能は節目ごとに実測する。</p></div>
     <div class="sell"><div class="word">すぐわか</div><p>マニュアル無しで使える。画面は日本語と英語。</p></div>
     <div class="sell"><div class="word">直接操作</div><p>描いたバーを掴んで、日付を変える。</p></div>
-    <div class="sell"><div class="word">構造化データ</div><p>GRS JSON で保存。MS Project の XML（MSPDI）と往復できる。</p></div>
-    <div class="sell"><div class="word">単一 HTML</div><p>サーバー不要。インストール不要。外部と通信しない。</p></div>
+    <div class="sell"><div class="word">構造化データ</div><p>日程と設定は GRS 独自の JSON に保存。<br>MS Project の XML（MSPDI）の読み書きも可能。</p></div>
+    <div class="sell"><div class="word">単一 HTML</div><p>サーバー不要。インストール不要。現時点では外部と連携しない。</p></div>
     <div class="sell"><div class="word">遅延診断</div><p>遅れの発生源と、信用できない数字を示す。</p></div>
-    <div class="sell"><div class="word">AI と同格</div><p>人と同じ操作を、Agent API と MCP で AI にも開く。</p></div>
+    <div class="sell"><div class="word">AI 連携</div><p>Agent API と MCP 連携で、AI が人と同じ操作をできる。</p></div>
     <div class="sell"><div class="word">透かし</div><p>開いた人の名前と日時を、画面に薄く重ねる。</p></div>
   </div>
-  <p class="out"><b>持たないもの</b>クリティカルパス計算と自動日程・資源とコストの管理・サーバーと共同編集・タッチ操作</p>
+  <p class="out"><b>持たないもの</b>自動日程・資源とコストの管理・サーバーと共同編集・タッチ操作</p>
 </section>
 
 <!-- ============================================================ 02 features -->
@@ -394,12 +396,13 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
         <li>折りたたみとピン止め</li>
         <li>WBS と画面の並びを別に持つ</li>
         <li>属性と担当をパネルで編集する</li>
+        <li>ハイライトとコメントを付加できる</li>
       </ul>
     </section>
     <section class="group">
       <header><span class="gno">3</span><h3>つなぐ・追う</h3></header>
       <ul>
-        <li>依存線を自動で引く</li>
+        <li>依存線を手動で引く</li>
         <li>予定と実績を 1 つのタスクに持つ</li>
         <li>基準日・遅れの日数・イナズマ線</li>
         <li>変更前の予定を重ねて比べる</li>
@@ -421,7 +424,7 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
         <li>縦と横を別々にズームする</li>
         <li>全体を 1 画面に収める</li>
         <li>カーソルで日数を測る</li>
-        <li>注記・検索・コマンドパレット</li>
+        <li>担当者とタスクを検索できる</li>
         <li>名前と日時の透かし</li>
       </ul>
     </section>
@@ -429,7 +432,7 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
       <header><span class="gno">6</span><h3>やりとりする</h3></header>
       <ul>
         <li>GRS JSON で保存する</li>
-        <li>MSPDI XML と往復する</li>
+        <li>MSPDI XML を読み書きする</li>
         <li>複数のファイルを合流させる</li>
         <li>SVG と PNG を書き出す</li>
         <li>AI に Agent API と MCP で編集させる</li>
@@ -479,10 +482,10 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
       <p class="note method">全エンティティと列は、仕様書の ER 図にある。</p>
     </div>
     <ol class="points">
-      <li><b>縦の軸は 2 本</b><p>WBS はタスクの親子で持ち、MSPDI へ書き出す。画面の並びはタスクグループで持ち、書き出さない。</p></li>
+      <li><b>タスク・WBS は MSPDI 準拠の構造</b><p>タスクグループと画面構成は GRS 専用のデータ。</p></li>
       <li><b>識別子は MSPDI の UID</b><p>代理キーを作らない。合流も UID で照合する。</p></li>
       <li><b>予定と実績は 1 つのタスク</b><p>MSPDI と同じ列名で持つ（<code>start</code> / <code>actualStart</code> など）。</p></li>
-      <li><b>知らない要素も捨てない</b><p>原形のまま <code>CarryElement</code> に持つ。未編集で往復すれば、元と同じ XML に戻る。</p></li>
+      <li><b>未使用の MSPDI 要素</b><p>GRS で使わない MSPDI の要素も破棄しない。</p></li>
     </ol>
   </div>
 </section>
@@ -490,12 +493,12 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
 <!-- ============================================================ 04 architecture -->
 <section class="panel" id="arch" role="tabpanel" aria-labelledby="tab-arch" hidden>
   <div class="head">
-    <h2>アーキテクチャと保守</h2>
+    <h2>アーキ・保守・拡張性</h2>
     <p>4 層で作り、仕様書を唯一の正とし、機械で検査する。</p>
   </div>
   <div class="arch">
     <div>
-      <div class="label">層（Clean Architecture）</div>
+      <div class="label">層（Clean Architecture。依存は内向きだけ）</div>
       <div class="ring fw"><div class="rl">Framework<span>DOM・ファイル・単一 HTML のシェル</span></div>
         <div class="ring ad"><div class="rl">Adapter<span>SVG 生成・入力・形式変換・Agent API</span></div>
           <div class="ring uc"><div class="rl">UseCase<span>文書を変える操作・検証・通知</span></div>
@@ -508,9 +511,10 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
           </div>
         </div>
       </div>
+      <div class="label ext">拡張性</div>
       <ul class="bul">
-        <li>依存は内向きだけ。</li>
-        <li>文書への書き込みは 1 つの経路だけ。</li>
+        <li>書き込みは Agent API と同じ 1 経路。サーバー連携は、その薄い包みで足せる。</li>
+        <li>共同編集・権限・複数プロジェクトの統合を、作り直さずに足せる形にしてある。</li>
       </ul>
     </div>
     <div>
@@ -520,6 +524,7 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
           <li>ブラウザだけで動く。サーバーは持たない。</li>
           <li>TypeScript で書き、1 つの <code>.html</code> にビルドする。</li>
           <li>実行時のライブラリは 0。ブラウザの標準機能だけを使う。</li>
+          <li>Chromium 系ブラウザ（Chrome / Edge）を基準とする。</li>
         </ul>
       </div>
       <div class="block">
@@ -547,11 +552,13 @@ tools/           <span class="c"># 生成器と検査</span></pre>
         <div class="label">規模と経過</div>
         <table class="t">
           <tr><td>開発期間</td><td class="n">2026-07-19 〜（約 3 か月）</td></tr>
+          <tr><td>開発者</td><td class="n">1 名 ※ ＋ Claude Code</td></tr>
           <tr><td>変更要求（CR）</td><td class="n">532 件</td></tr>
           <tr><td>コミット</td><td class="n">2,856</td></tr>
           <tr><td>ソース</td><td class="n">183 ファイル・65,828 行</td></tr>
           <tr><td>試験</td><td class="n">596 ファイル</td></tr>
         </table>
+        <p class="note">※ 休日＋平日 1 時間程度</p>
       </div>
     </div>
   </div>
