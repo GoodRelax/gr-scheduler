@@ -34,7 +34,8 @@
     border: 1px solid var(--rule); border-radius: 6px; padding: 8px 12px; margin-top: 12px;
     display: flex; flex-wrap: wrap; gap: 6px 22px; align-items: center; font-size: 0.9rem; }
   .controls label { white-space: nowrap; }
-  .controls select { font: inherit; }
+  .controls select { font: inherit; max-width: 100%; }
+  @media (max-width: 600px) { .controls label { white-space: normal; } }
   .cards { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; margin-top: 12px; }
   .card { flex: 0 1 auto; min-width: 0; max-width: 100%; }
   .card .cap { font-size: 0.9rem; color: var(--quiet); margin: 0 0 4px; max-width: 26em; }
@@ -44,7 +45,7 @@
     background: var(--panel); color: var(--ink); border: 1px solid var(--rule);
     padding: calc(4px * var(--k)) calc(6px * var(--k)) calc(8px * var(--k));
     font-size: calc(9px * var(--k)); line-height: 1.5; }
-  .closeRow { display: flex; justify-content: flex-start; padding-bottom: calc(2px * var(--k)); }
+  .closeRow { display: flex; justify-content: flex-end; padding-bottom: calc(2px * var(--k)); }
   .close { width: calc(15px * var(--k)); height: calc(15px * var(--k)); padding: 0; line-height: 1;
     font-size: 1.1em; }
   .field { display: flex; align-items: center; gap: calc(5px * var(--k));
@@ -68,7 +69,13 @@
     padding: 0; border: 1px solid var(--rule); border-radius: 2px; }
   .chip.sel { outline: 2px solid var(--ink); outline-offset: 1px; }
   .headEntry { padding-bottom: calc(3px * var(--k)); }
-  .example { color: var(--quiet); }
+  .fbody select.zone { width: 100%; }
+  .answer { display: block; width: 100%; text-align: left; }
+  .baseAsk { margin-top: 2px; }
+  .ba { padding-left: 1.2em; color: var(--quiet); }
+  .confirm { color: var(--ink); }
+  .fname .nl { white-space: nowrap; }
+  .ask { border: 1px solid var(--rule); background: var(--ground); padding: 2px 4px; border-radius: 2px; }
 
   /* Read-only block. */
   .roHead { margin-top: calc(8px * var(--k)); padding: calc(3px * var(--k)) calc(4px * var(--k));
@@ -98,15 +105,38 @@
 </style>
 </head>
 <body>
-<h1>文書の設定の読むだけの行 —— まとめて並べ替えた見本（2026-10-15）</h1>
+<h1>文書の設定の読むだけの行 —— まとめて並べ替えた見本（4 版、2026-10-15）</h1>
 <div class="notes">
+  <p><b>4 版で直した所</b>（2026-10-15 の答え <code>JDG-2104</code>〜<code>JDG-2106</code> を受けた、最後の形）:</p>
+  <ul>
+    <li>基準を別のタイムゾーンにすると、すぐ下に「スケジュールデータの時刻:」と［換算して適用する］［換算しない］［キャンセル］が出る。2 つの答えの下には、変更前と変更後の時刻を別の行に、略称を付けて書いた（例 変更前: 4/1 8:00 PST ／ 変更後: 4/2 1:00 JST）。</li>
+    <li>タイムゾーンは略称ごとの固定の時差の行にした（夏時間は自動で効かない）。<b>基準の選びは標準時の行だけ</b>（PST・EST・JST など 27 行）、<b>表示するタイムゾーンは標準時と夏時間の行</b>（PDT・EDT なども別の行、39 行）。名と略称は <code>CR-755</code> の表 T-376 の案から写した。</li>
+    <li>見本の基準は PST、最初のタスクの開始は 4/1 8:00 PST（<code>CR-755</code> の例と同じ）。</li>
+  </ul>
+  <p><b>3 版で直した所</b>（2026-10-15 の答え「推奨通りでよい」を受けて）:</p>
+  <ul>
+    <li>タイムシフトの行の<b>上</b>に、全体日程シフトの行（<code>CR-757</code>、<code>JDG-2053</code>）を足した:
+    「現在の開始日: 2028/4/4」の下に「新しい開始日」の日付の欄と［適用］。［適用］を押すと、確かめの問い（<code>CR-757</code> の問いの文と 1 行）を出す。</li>
+    <li>1 行に入らない名は、語の切れ目で 2 行に分けた。分け目は、長いほうの行がいちばん短くなる所（例「表示の上端が指す」／「タスクグループのどこにあるか」）。直せる行にも読むだけの行にも当てた。</li>
+    <li>基準の変更の形は A に決まったので、切り替えを外した。</li>
+  </ul>
+  <p><b>2 版で直した所</b>（2026-10-15 の答え「基本は推奨通り」を受けて）:</p>
+  <ul>
+    <li>［×］は先頭の［×］だけの行の<b>右端</b>に移した（1 版は左端だった）。</li>
+    <li>タイムゾーンの欄を記録の裁定（<code>JDG-2057</code>・<code>JDG-2058</code>、<code>CR-755</code> の X-5・X-7・X-10）の形にした:
+    「本プロジェクトの基準タイムゾーン」と 28 個の選び、その下に「表示するタイムゾーン 1」〜「4」。名は <code>JDG-2056</code> の形（「UTC +9:00 JST 東京」）。
+    「…を保つ」の語と［基準を変える］は無くした。基準の選びで別の地域を選ぶと、すぐ下に 3 つの答え（換算する ／ 数字をそのまま ／ キャンセル）が結果の時刻つきで出る。</li>
+    <li>基準の変更は、2 版で見比べた 2 つの形のうち、利用者が <b>A（記録どおり、3 つの答え）</b>を選んだ（3 版で B と切り替えを外した）。</li>
+    <li>遅延診断の日数の欄は、名を「遅延診断時に親タスクの」／「進捗の疑義を許す日数」の 2 行にし、単位「稼働日」を欄の右に付けた。</li>
+    <li>「列のフィルタ」を「列ごとのフィルタ」にした。組・並び・※案の名はそのまま。</li>
+  </ul>
   <p>文書の設定（ヘッダーの［文書の設定］で開くパネル）のいちばん下、タイムシフトの後に並ぶ
   <b>直せない 36 行</b>を、わかりやすい組に分け、上からよく見る順に並べ直した見本です。
   答える問いは <code>CR-754</code> の 11 節の<b>問い 4</b>（<code>DFC-2527</code>）——
   読むだけの行を「名と整えた値を持たせて残す（択 A の形）」とどう見えるかを示し、
   出さない（択 D）か残すかを、これを見て決めていただくためのものです。右に今のアプリの形（生の字）も並べました。</p>
   <ul>
-    <li><b>今日の裁定を当てた所</b>: パネルの先頭に［×］だけの行を置き、［×］は左端。
+    <li><b>今日の裁定を当てた所</b>: パネルの先頭に［×］だけの行を置き、［×］は右端。
     パネルの字は今の 80%（約 9 px）、幅は約 410 px。表 T-369 の直せる行（GRS リセット 〜 タイムシフト）は今のまま詰めて描きました（文脈として）。</li>
     <li><b>並べ方の規則</b>: 組も行も「人が自分で切り替える回数が多く、いまどうなっているかを確かめたくなるもの」を上にしました。
     ① 予定・実績・印の表示の切り替え（絵がいちばん大きく変わる） → ② ラベル → ③ 見えている範囲（ズームは最もよく使うが、
@@ -146,6 +176,7 @@
     <h3>提案（組に分けて、よく見る順）</h3>
     <p class="cap" id="mNew"></p>
     <div class="panel" id="proposal"></div>
+    <p class="cap" id="mStart"></p>
   </div>
   <div class="card" id="nowCard">
     <h3>今のアプリ（<code>601aeec7</code>、読むだけの行だけ）</h3>
@@ -239,26 +270,36 @@ const GROUPS = [
     { title: '検索パネル', rows: [
       ['tableViews.searchPanel.isScheduleFilterApplied', 'bool', 'スケジュールフィルタ', null, ['掛ける', '掛けない']],
       ['tableViews.searchPanel.hiddenTaskUids', 'count', '非表示にしたタスク', null],
-      ['tableViews.searchPanel.columnFilters', 'cols', '列のフィルタ', null],
+      ['tableViews.searchPanel.columnFilters', 'cols', '列ごとのフィルタ', null],
       ['tableViews.searchPanel.sort', 'sort', '並べ替え', null],
     ] },
     { title: '担当リスト', rows: [
       ['tableViews.resourceList.isScheduleFilterApplied', 'bool', 'スケジュールフィルタ', null, ['掛ける', '掛けない']],
       ['tableViews.resourceList.hiddenResourceUids', 'count', '非表示にした担当', null],
       ['tableViews.resourceList.isUnassignedHidden', 'bool', '（担当なし）の行', null, ['表示しない', '表示する']],
-      ['tableViews.resourceList.columnFilters', 'cols', '列のフィルタ', null],
+      ['tableViews.resourceList.columnFilters', 'cols', '列ごとのフィルタ', null],
       ['tableViews.resourceList.sort', 'sort', '並べ替え', null],
     ] },
     { title: '遅延診断レポート', rows: [
       ['tableViews.delayDiagnosticsReport.isScheduleFilterApplied', 'bool', 'スケジュールフィルタ', null, ['掛ける', '掛けない']],
       ['tableViews.delayDiagnosticsReport.hiddenTaskUids', 'count', '非表示にしたタスク', null],
-      ['tableViews.delayDiagnosticsReport.columnFilters', 'cols', '列のフィルタ', null],
+      ['tableViews.delayDiagnosticsReport.columnFilters', 'cols', '列ごとのフィルタ', null],
       ['tableViews.delayDiagnosticsReport.sort', 'sort', '並べ替え', null],
     ] },
   ] },
 ];
 
 const state = { dark: false, boolWords: 'words', nameMode: 'dict', showNow: true, open: {} };
+// Base time zone of the sample: PST; the first task with a start begins 2026-04-01 08:00 PST (CR-755 example).
+// Whole-schedule shift (CR-757 section 11 question 2 words). The sample never rewrites anything.
+const WHOLE_SHIFT = {
+  currentStart: '2028/4/4',
+  question: '全体日程シフトを実行して、日程全体を新しい開始日へ移しますか？ 書き換える内容は下に示します。取り消し 1 回で戻せます',
+};
+const shift = { newStart: '2029-03-05', asking: false };
+// "2029-03-05" -> "2029/3/5" (the CR-757 example shape).
+const slashDate = (iso) => iso.split('-').map(Number).join('/');
+const tz = { base: 'UTC-08:00', draft: null, startMs: Date.UTC(2026, 3, 1, 16, 0), display: ['', '', '', ''] };
 
 function el(tag, attrs, ...kids) {
   const node = document.createElement(tag);
@@ -305,11 +346,11 @@ function formatValue(kind, value, extra) {
 function rowName(spec) {
   const [key, , proposed, rename] = spec;
   const tag = el('span', { class: 'tag' }, '※案');
-  if (proposed) return { node: [proposed, tag], plain: proposed, isProposal: true };
+  if (proposed) return { node: [nameNode(proposed), tag], plain: proposed, isProposal: true };
   if (state.nameMode === 'renamed' && rename) {
-    return { node: [rename, tag, el('span', { class: 'old' }, DICT[key])], plain: rename, isProposal: true };
+    return { node: [nameNode(rename), tag, el('span', { class: 'old' }, nameNode(DICT[key]))], plain: rename, isProposal: true };
   }
-  return { node: [DICT[key]], plain: DICT[key], isProposal: false };
+  return { node: [nameNode(DICT[key])], plain: DICT[key], isProposal: false };
 }
 
 function roRow(spec) {
@@ -340,16 +381,133 @@ function group(g, index) {
 const THEME_HUES = [214, 190, 140, 95, 50, 28, 6, 330, 285, 250];
 const HUE_WORDS = ['青', '青緑', '緑', '黄緑', '黄', 'オレンジ', '赤', '赤紫', '紫', '藍'];
 
+// Names too long for one line of the name column (9px text, 410px panel), broken at a word
+// boundary where the longer line is as short as possible. Measured with Playwright; see README.
+const BREAKS = {
+  '遅延診断時に親タスクの進捗の疑義を許す日数': ['遅延診断時に親タスクの', '進捗の疑義を許す日数'],
+  'タスクグループパネルの幅を固定する': ['タスクグループ', 'パネルの幅を固定する'],
+  '表示の左端が指す日のどこにあるか': ['表示の左端が指す', '日のどこにあるか'],
+  '表示の上端が指すタスクグループのどこにあるか': ['表示の上端が指す', 'タスクグループのどこにあるか'],
+  'グループ罫線（TaskGroup 境界の横線）': ['グループ罫線', '（TaskGroup 境界の横線）'],
+  '上端のタスクグループの中の位置': ['上端のタスクグループの', '中の位置'],
+};
+// WHY: a name with a break is drawn as two nowrap lines so the break falls where it was chosen.
+function nameNode(name) {
+  const two = BREAKS[name];
+  if (!two) return name;
+  return [el('span', { class: 'nl' }, two[0]), el('br'), el('span', { class: 'nl' }, two[1])];
+}
+
 function field(name, ...body) {
-  return el('div', { class: 'field' }, el('div', { class: 'fname' }, name), el('div', { class: 'fbody' }, body));
+  return el('div', { class: 'field' }, el('div', { class: 'fname' }, nameNode(name)), el('div', { class: 'fbody' }, body));
 }
 function fieldTop(name, ...body) {
-  return el('div', { class: 'field top' }, el('div', { class: 'fname' }, name), el('div', { class: 'fbody' }, body));
+  return el('div', { class: 'field top' }, el('div', { class: 'fname' }, nameNode(name)), el('div', { class: 'fbody' }, body));
 }
 const line = (...kids) => el('div', { class: 'line' }, kids);
 const num = (value) => el('input', { type: 'number', class: 'num', value });
 const date = (value, disabled) => el('input', { type: 'date', class: 'date', value, disabled });
-const zoneSelect = (value) => el('select', {}, el('option', {}, value));
+// ---- Time zones (CR-755 table T-376 draft, 39 rows: fixed offsets, one abbreviation each) ----
+// [stored key, offset in minutes, daylight row?, shown name]. No daylight rule is applied:
+// a daylight row reads its own offset all year (JDG-2105). The base takes standard rows only.
+const ZONES = [
+  ['UTC-12:00', -720, false, 'UTC -12:00 日付変更線の西'],
+  ['UTC-11:00', -660, false, 'UTC -11:00 SST サモア（米領）'],
+  ['UTC-10:00', -600, false, 'UTC -10:00 HST ハワイ'],
+  ['UTC-09:00', -540, false, 'UTC -9:00 AKST アラスカ標準時'],
+  ['UTC-08:00', -480, false, 'UTC -8:00 PST 太平洋標準時（米国・カナダ）'],
+  ['UTC-08:00 DST', -480, true, 'UTC -8:00 AKDT アラスカ夏時間'],
+  ['UTC-07:00', -420, false, 'UTC -7:00 MST 山岳部標準時（米国・カナダ）'],
+  ['UTC-07:00 DST', -420, true, 'UTC -7:00 PDT 太平洋夏時間（米国・カナダ）'],
+  ['UTC-06:00', -360, false, 'UTC -6:00 CST 中部標準時（米国・カナダ）'],
+  ['UTC-06:00 DST', -360, true, 'UTC -6:00 MDT 山岳部夏時間（米国・カナダ）'],
+  ['UTC-05:00', -300, false, 'UTC -5:00 EST 東部標準時（米国・カナダ）'],
+  ['UTC-05:00 DST', -300, true, 'UTC -5:00 CDT 中部夏時間（米国・カナダ）'],
+  ['UTC-04:00', -240, false, 'UTC -4:00 VET カラカス・大西洋標準時（カナダ）'],
+  ['UTC-04:00 DST', -240, true, 'UTC -4:00 EDT 東部夏時間（米国・カナダ）'],
+  ['UTC-03:00', -180, false, 'UTC -3:00 BRT サンパウロ'],
+  ['UTC-03:00 DST', -180, true, 'UTC -3:00 CLST サンティアゴ・大西洋夏時間（カナダ）'],
+  ['UTC-02:00', -120, false, 'UTC -2:00 WGT ヌーク・南ジョージア'],
+  ['UTC-01:00', -60, false, 'UTC -1:00 CVT カーボベルデ・アゾレス'],
+  ['UTC+00:00', 0, false, 'UTC ±0:00 GMT 協定世界時・ロンドン'],
+  ['UTC+00:00 DST', 0, true, 'UTC ±0:00 AZOST アゾレス夏時間'],
+  ['UTC+01:00', 60, false, 'UTC +1:00 WAT ラゴス・中央ヨーロッパ（ベルリン・パリ）'],
+  ['UTC+01:00 DST', 60, true, 'UTC +1:00 BST ロンドン夏時間'],
+  ['UTC+02:00', 120, false, 'UTC +2:00 EET カイロ・東ヨーロッパ（ヘルシンキ）'],
+  ['UTC+02:00 DST', 120, true, 'UTC +2:00 CEST 中央ヨーロッパ夏時間（ベルリン・パリ）'],
+  ['UTC+03:00', 180, false, 'UTC +3:00 EAT アディスアベバ・モスクワ'],
+  ['UTC+03:00 DST', 180, true, 'UTC +3:00 EEST 東ヨーロッパ夏時間（カイロ・ヘルシンキ）'],
+  ['UTC+04:00', 240, false, 'UTC +4:00 GST ドバイ'],
+  ['UTC+05:00', 300, false, 'UTC +5:00 PKT カラチ'],
+  ['UTC+05:30', 330, false, 'UTC +5:30 IST インド'],
+  ['UTC+06:00', 360, false, 'UTC +6:00 BST ダッカ'],
+  ['UTC+07:00', 420, false, 'UTC +7:00 WIB ジャカルタ・バンコク'],
+  ['UTC+08:00', 480, false, 'UTC +8:00 CST 北京・シンガポール'],
+  ['UTC+09:00', 540, false, 'UTC +9:00 JST 東京'],
+  ['UTC+10:00', 600, false, 'UTC +10:00 AEST シドニー'],
+  ['UTC+11:00', 660, false, 'UTC +11:00 SBT ホニアラ・ヌメア'],
+  ['UTC+11:00 DST', 660, true, 'UTC +11:00 AEDT シドニー夏時間'],
+  ['UTC+12:00', 720, false, 'UTC +12:00 NZST オークランド'],
+  ['UTC+13:00', 780, false, 'UTC +13:00 WST サモア・トンガ'],
+  ['UTC+13:00 DST', 780, true, 'UTC +13:00 NZDT オークランド夏時間'],
+];
+const zoneOf = (key) => ZONES.find((z) => z[0] === key);
+const zoneName = (z) => z[3];
+
+// The abbreviation is the third word of the name; a row without one shows its offset ("UTC-12:00").
+function abbrOf(z) {
+  const word = z[3].split(' ')[2];
+  return /^[A-Z]{2,5}$/.test(word) ? word : z[0].replace(' DST', '');
+}
+// "4/1 8:00 PST" -- the TX-11 shape with the row's abbreviation (CR-755 example).
+function wallText(key, ms) {
+  const z = zoneOf(key);
+  const d = new Date(ms + z[1] * 60000);
+  return `${d.getUTCMonth() + 1}/${d.getUTCDate()} ${d.getUTCHours()}:${pad2(d.getUTCMinutes())} ${abbrOf(z)}`;
+}
+// The instant whose wall clock in toKey shows the same numbers as ms does in fromKey.
+const sameNumbersIn = (fromKey, toKey, ms) => ms + (zoneOf(fromKey)[1] - zoneOf(toKey)[1]) * 60000;
+
+// Hints of the two answers (CR-755 dictionary keepGlobalTimeHint / keepLocalTimeHint).
+const HINT_CONVERT = '選んだタイムゾーンを表示の基準にする。スケジュールの日時の値は書き換えない';
+const HINT_KEEP = '選んだタイムゾーンを、スケジュールの日時の数字が指すタイムゾーンにする。数字は書き換えず、瞬間が動く';
+
+// WHY: the base list holds standard rows only (JDG-2105); display lists hold all 39 rows.
+function zoneSelect(value, kind, onchange) {
+  const rows = kind === 'base' ? ZONES.filter((z) => !z[2]) : ZONES;
+  const options = rows.map((z) => el('option', { value: z[0], selected: z[0] === value }, zoneName(z)));
+  if (kind === 'display') options.unshift(el('option', { value: '', selected: value === '' }, '（なし）'));
+  return el('select', { class: 'zone', 'data-kind': kind, onchange: (e) => onchange(e.target.value) }, options);
+}
+
+function chooseBase(value) {
+  tz.draft = value === tz.base ? null : value;
+  render();
+}
+
+// The answer, then its before and after on separate lines (JDG-2104, CR-755 X-h).
+function answer(word, hint, before, after, onclick) {
+  return [el('button', { class: 'answer', title: hint, onclick }, word),
+    el('div', { class: 'ba' }, `変更前: ${before}`), el('div', { class: 'ba' }, `変更後: ${after}`)];
+}
+
+function baseRows() {
+  const shown = tz.draft ?? tz.base;
+  const asks = tz.draft === null ? [] : [el('div', { class: 'baseAsk' },
+    el('div', {}, 'スケジュールデータの時刻:'),
+    answer('換算して適用する', HINT_CONVERT, wallText(tz.base, tz.startMs), wallText(tz.draft, tz.startMs),
+      () => { tz.base = tz.draft; tz.draft = null; render(); }),
+    answer('換算しない', HINT_KEEP, wallText(tz.base, tz.startMs),
+      wallText(tz.draft, sameNumbersIn(tz.base, tz.draft, tz.startMs)),
+      () => { tz.startMs = sameNumbersIn(tz.base, tz.draft, tz.startMs); tz.base = tz.draft; tz.draft = null; render(); }),
+    el('button', { class: 'answer', onclick: () => { tz.draft = null; render(); } }, 'キャンセル'))];
+  return fieldTop('本プロジェクトの基準タイムゾーン', zoneSelect(shown, 'base', chooseBase), asks);
+}
+
+function displayZoneRows() {
+  return tz.display.map((value, i) => field(`表示するタイムゾーン ${i + 1}`,
+    zoneSelect(value, 'display', (v) => { tz.display[i] = v; render(); })));
+}
 
 function editableRows() {
   const chip = (h, i) => el('button', { class: 'chip' + (i === 0 ? ' sel' : ''), title: HUE_WORDS[i],
@@ -368,16 +526,21 @@ function editableRows() {
     field('全体表示時の期間を固定する', el('input', { type: 'checkbox' })),
     fieldTop('全体表示時の期間', line(date('', true), '-'), date('', true)),
     fieldTop('現在表示中の期間', el('span', { class: 'ro' }, '2026/03/29 - 2026/05/10'), el('button', {}, '全体表示時の期間に設定')),
-    field('遅延診断時に親タスクの進捗の疑義を許す日数（稼働日）', num(3)),
+    field('遅延診断時に親タスクの進捗の疑義を許す日数', line(num(3), '稼働日')),
     field('時刻を表示する', el('input', { type: 'checkbox' })),
-    fieldTop('基準のタイムゾーン',
-      el('span', { class: 'ro' }, '(UTC+09:00) 東京'),
-      zoneSelect('(UTC+01:00) 中央ヨーロッパ（ベルリン・パリ）'),
-      el('label', {}, el('input', { type: 'radio', name: 'tzKeep', checked: true }), ' グローバルタイム（UTC）を保つ'),
-      el('label', {}, el('input', { type: 'radio', name: 'tzKeep' }), ' ローカルタイムを保つ'),
-      el('span', { class: 'example' }, '打合せ 04/06 10:00 -> 04/06 3:00'),
-      el('button', {}, '基準を変える')),
-    fieldTop('表示するタイムゾーン', [1, 2, 3, 4].map(() => zoneSelect('なし'))),
+    baseRows(),
+    ...displayZoneRows(),
+    fieldTop('全体日程シフト',
+      el('span', { class: 'ro' }, `現在の開始日: ${WHOLE_SHIFT.currentStart}`),
+      line(el('input', { type: 'date', class: 'date', value: shift.newStart,
+        oninput: (e) => { shift.newStart = e.target.value; shift.asking = false; render(); } }), '新しい開始日',
+        el('button', { title: '新しい開始日へ、日程全体を稼働日で移す。実行の前に確かめる', disabled: shift.newStart === '',
+          onclick: () => { shift.asking = true; render(); } }, '適用')),
+      shift.asking ? el('div', { class: 'ask' },
+        el('div', {}, WHOLE_SHIFT.question),
+        el('div', { class: 'ro' }, `開始日: ${WHOLE_SHIFT.currentStart} \u2192 ${slashDate(shift.newStart)}`),
+        line(el('button', { onclick: () => { shift.asking = false; render(); } }, '続ける'),
+          el('button', { onclick: () => { shift.asking = false; render(); } }, 'やめる'))) : null),
     field('タイムシフト', line(num(0), '時間', num(0), '分', el('button', { disabled: true }, 'タイムシフト'))),
   ];
 }
@@ -436,6 +599,8 @@ function renderList() {
 function render() {
   document.documentElement.dataset.theme = state.dark ? 'dark' : 'light';
   renderProposal(); renderNow(); renderList();
+  document.getElementById('mStart').textContent =
+    `見本の最初のタスクの開始（いまの基準で見せた字）: ${wallText(tz.base, tz.startMs)} ／ 基準: ${zoneName(zoneOf(tz.base))}`;
 }
 
 document.querySelectorAll('input[name=theme]').forEach((r) => r.addEventListener('change', (e) => {
