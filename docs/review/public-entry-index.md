@@ -1400,6 +1400,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `GuideCursorLabel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#GuideCursorLabel` | -- | interface GuideCursorLabel |
 | `HelpEntry` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpEntry` | -- | interface HelpEntry |
 | `HelpFootnote` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#HelpFootnote` | -- | type HelpFootnote = LinkedWords |
+| `HelpLink` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpLink` | -- | interface HelpLink |
 | `HelpModal` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpModal` | PI-37 | 型。 |
 | `HelpWindowArea` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpWindowArea` | -- | interface HelpWindowArea |
 | `HolidayExceptionLine` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidayExceptionLine` | PI-37 | 型。 |
@@ -2008,4 +2009,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1017 name(s) leave through a public entry (477 of them published by table T-064), 781 more are exported by a file and not by its entry.
+Totals: 1018 name(s) leave through a public entry (477 of them published by table T-064), 781 more are exported by a file and not by its entry.

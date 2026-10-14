@@ -14,6 +14,7 @@ import type {
   DisplayLanguage,
   HelpEntry,
   HelpFootnote,
+  HelpLink,
   HelpModal,
   HelpWindowArea,
   ExportFormatChoice,
@@ -242,6 +243,12 @@ const HELP_HEADINGS_BY_BLOCK = new Map(
 
 const HELP_NOTES_BY_ROW = new Map(displayWords.helpNotes.map((entry) => [entry.rowId, entry]))
 
+const HELP_LINKS_BY_KEY = new Map(displayWords.helpLinks.map((entry) => [entry.link, entry]))
+
+const ABOUT_LINK = 'about'
+
+const LANGUAGE_QUERY = '?lang='
+
 const BROWSER_FUNCTION_WORDS_BY_ROW = new Map(
   displayWords.browserFunctions.map((entry) => [entry.rowId, entry]),
 )
@@ -259,6 +266,15 @@ function helpFootnotes(language: DisplayLanguage): readonly HelpFootnote[] {
     const word = footnote.text[language]
     return linkedWordsOf(word) ?? { before: word, address: NO_WORDS, after: NO_WORDS }
   })
+}
+
+// see FR-036, S-583
+/** @purity pure */
+function helpAboutLink(language: DisplayLanguage): HelpLink {
+  return {
+    words: HELP_LINKS_BY_KEY.get(ABOUT_LINK)?.text[language] ?? NO_WORDS,
+    address: `${NOT_STORED_ABOUT_ADDRESS['S-583']}${LANGUAGE_QUERY}${language}`,
+  }
 }
 
 // see FR-036
@@ -423,6 +439,7 @@ export function helpModalFromSession(session: ScreenSession, area: HelpWindowAre
     copyrightNotice: license.copyrightNotice,
     attributions: license.attributions,
     footnotes: helpFootnotes(helpLanguage),
+    aboutLink: helpAboutLink(helpLanguage),
     helpLegal: helpLegalWords(helpLanguage),
     area,
   }
@@ -504,3 +521,15 @@ export function openModalFromSession(
 
   return holidaySettingsOrBare({ session, schedule, surface, heading, commands, language })
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-206
+const NOT_STORED_ABOUT_ADDRESS: {
+  readonly 'S-583': string
+} = {
+  'S-583': 'https://goodrelax.github.io/gr-scheduler/about/',
+}
+// </generated>

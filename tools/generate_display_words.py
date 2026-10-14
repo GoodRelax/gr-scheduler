@@ -146,6 +146,10 @@ HELP_FOOTNOTES = (1,)
 # as SEARCH_PANEL_PARTS. The copyright line is not a word: it is NOTICE's own
 # spelling, carried by generate_license.py. These are KEYS, not words.
 HELP_LEGAL_PARTS = ('licensedUnder', 'fullText')
+# CR-748: the links the help body carries (FR-036). One today, the link to
+# the about page (setting S-583) above the basics block. No table holds it
+# as a row, so it is HELD HERE as HELP_LEGAL_PARTS is. These are KEYS.
+HELP_LINKS = ('about',)
 # The browser's own functions FR-036 lists on the help (table T-255, CR-405).
 # Every row takes a word, including one the help does not show today: whether
 # a row is shown is table T-255's closing rule, read by generate_help_roster.py.
@@ -725,6 +729,7 @@ def roster():
         'helpLegal': list(HELP_LEGAL_PARTS),
         'helpNotes': list(HELP_NOTES),
         'helpFootnotes': list(HELP_FOOTNOTES),
+        'helpLinks': list(HELP_LINKS),
         'browserFunctions': [row[0] for row in
                              table_rows(REL_REQUIREMENTS, BROWSER_FUNCTION_ROW,
                                         BROWSER_FUNCTION_TABLE)],
@@ -837,6 +842,7 @@ SHAPE = {
     'helpLegal': ('part', ('text',)),
     'helpNotes': ('rowId', ('text',)),
     'helpFootnotes': ('footnote', ('text',)),
+    'helpLinks': ('link', ('text',)),
     'browserFunctions': ('rowId', ('text',)),
     'invariants': ('rowId', ('text', 'nextStep')),
     'exportFormats': ('rowId', ('name',)),
@@ -981,7 +987,7 @@ def build(doc, keys_by_row):
     for section in ('icons', 'properties', 'settings', 'paletteGroups',
                     'surfaces', 'notices',
                     'shortcuts', 'helpHeadings', 'helpLegal', 'helpNotes',
-                    'helpFootnotes',
+                    'helpFootnotes', 'helpLinks',
                     'browserFunctions',
                     'reasons', 'invariants', 'questions', 'confirmation',
                     'noticeDismiss',

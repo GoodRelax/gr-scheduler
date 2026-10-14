@@ -16,9 +16,9 @@ what this reading does not see.
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 86 | 565 | 0 | 0 | 0 | 0 |
-| `unit` | TS-6 | - | 181 | 3881 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 182 | 3894 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 610 | 8406 | 8 | 8 | 13 | 2 |
+| **all** | | | 611 | 8419 | 8 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -67,12 +67,12 @@ named either way: 2 of 8.
 | `tests/usecase/uc-010-exchange-with-an-external-wbs-master.test.ts` | UC-010 extension 2a / FR-023, OP-5: a truncated MSPDI file dropped on the schedule is d... | DFC-1016 (via known-red) |
 | `tests/usecase/uc-013-fix-the-schedule-with-an-ai.test.ts` | UC-013 step 2 / FR-066 AG-11: a line typed in the Dialogue Field and sent with Enter is... | DFC-1019, DFC-1020 (via known-red) |
 
-## 6. The unit files kept for now (181) -- listing only
+## 6. The unit files kept for now (182) -- listing only
 
 Re-sorting them waits for the change-request organization (handoff 2026-09-26). "Imports"
 are the callables the file imports by name from `src/`, each with the `@purity` tag above
 its declaration. "UO-1 would omit" marks a file whose every such import is tagged `pure` /
-`semi-pure-a` (rule 04 table UO, row UO-1): 24 of 181.
+`semi-pure-a` (rule 04 table UO, row UO-1): 25 of 182.
 
 | file | imports from src/ (tag) | UO-1 would omit | ties |
 | --- | --- | --- | --- |
@@ -156,6 +156,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-656-shift-drag-keeps-the-dates.test.ts` | commandFromInput (pure), frameLoop (non-pure), grabSizesOf (pure), itemAtPointer (untagged), pressRowOf (pure), selectionFromInput (pure) | - | FR-036, T-023, T-206, T-223, T-266, T-270 |
 | `tests/unit/cr-660-the-search-table-is-drawn-from-its-view.test.ts` | searchTableElement (non-pure) | - | FR-151, T-330 |
 | `tests/unit/cr-666-full-screen-is-the-last-esc-rung.test.ts` | domInputSource (non-pure), escapeKeyLockOf (pure), escapeTarget (pure) | - | FR-071, T-283 |
+| `tests/unit/cr-748-help-about-link.test.ts` | helpModalFromSession (pure) | yes | FR-036, T-206 |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | documentFromJson (pure) | yes | T-313, T-314 |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | commandFromInput (pure), grabSizesOf (pure), itemAtPointer (untagged), pressRowOf (pure), selectionFromInput (pure), selectionOfAll (pure) | - | T-206, T-270 |
 | `tests/unit/dfc-540-541-695-696-1651-the-chosen-task-groups-the-chosen-assignees-and-the-question.test.ts` | installAgentApi (non-pure) | - | FR-085, FR-099, T-371 |
@@ -757,6 +758,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-656-shift-drag-keeps-the-dates.test.ts` | 36 | FR-036 | - | T-023, T-206, T-223, T-266, T-270 | CY-1, CY-2, CY-5, CY-7, CY-11, DU-1, GA-9, GA-14, GA-15, MK-7, MK-12, MK-15, MK-16, PE-1, PE-6, PTD-1, PTD-3, PTD-7, S-208, SL-4, SL-7a | - | - | - | - |
 | `tests/unit/cr-660-the-search-table-is-drawn-from-its-view.test.ts` | 5 | FR-151 | - | T-330 | SV-6, SV-17, SV-18 | - | - | - | - |
 | `tests/unit/cr-666-full-screen-is-the-last-esc-rung.test.ts` | 14 | FR-071 | - | T-283 | IN-4, IN-4a, RG-8, RG-17 | - | - | - | - |
+| `tests/unit/cr-748-help-about-link.test.ts` | 13 | FR-036 | - | T-206 | S-583 | - | - | - | - |
 | `tests/unit/dfc-1620-an-fs-chain-that-starts-the-next-morning-carries-the-whole-delay.test.ts` | 4 | - | - | T-313, T-314 | BD-2, BD-4, S-128 | - | - | - | - |
 | `tests/unit/dfc-1991-sl-4-a-shift-drag-keeps-the-selection.test.ts` | 8 | - | - | T-206, T-270 | PE-1, S-208, SL-4, SL-7a, TC-5 | - | - | - | - |
 | `tests/unit/dfc-540-541-695-696-1651-the-chosen-task-groups-the-chosen-assignees-and-the-question.test.ts` | 7 | FR-085, FR-099 | - | T-371 | CD-5, IC-66, IN-4, QN-10, RO-1, RS-27, SK-19 | - | - | - | - |

@@ -3435,6 +3435,15 @@
    }
   }
  ],
+ "helpLinks": [
+  {
+   "link": "about",
+   "text": {
+    "ja": "GRS の概要紹介",
+    "en": "About GRS"
+   }
+  }
+ ],
  "browserFunctions": [
   {
    "rowId": "BF-1",

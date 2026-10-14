@@ -1,7 +1,8 @@
 # CR-748 —— ヘルプの基本操作の塊の上に、GRS の概要紹介の頁へのリンクを置く
 
-> 起草の状態: **下書き**（2026-10-14、`ac5d5bd0` の上）。⛔ 仕様にも src にもまだ当てていない —— 調整役の指示による。`main` に無い `CR-710`〜`CR-744` がヘルプ（表 T-023 の `MK-17`）と `src/adapter/screen-renderer/`・`src/framework/` を変えており、それが着地した後に、調整役が示す基点（`integ/coord-1011` の sha）から枝を切って当てる。
-> ID の帯: 番号 `CR-748`、変更履歴 `4.57`、裁定 `JDG-2028`〜`JDG-2033`、台帳 `DFC-2510`〜`DFC-2512`、`perf-pending` `197`（語と設定の名簿を画面が読むので、検査 66 が行を求める）を調整役から受けた。下書きの時点で使ったのは `CR-748` と裁定の行だけ。`ac5d5bd0` の木で `CR-748` を名乗る変更要求は 0 件、`JDG-2028` は 0 件、変更履歴の `4.57` の行は 0 件だった。
+> 起草の状態: **当てた**（2026-10-14、調整役が示した基点 `e4d07fdb` の上、枝 `cr-748-help-about-link`）。仕様・生成器・src と、既存の試験の組み立ての見本 2 本（新しい項目 `aboutLink` を足しただけ）を当て、仕様だけを読む体が試験 `tests/unit/cr-748-help-about-link.test.ts` を書いた。`dist` の作り直しと `GT-2` は調整役が行う。
+> 下書きは `ac5d5bd0` の上で起こした。基点で 0.1 の 5 行を引き直し、どれも成り立った（`helpLegalElement`・`linkedWordsOf`・`helpHeadings` の `basics`・頁の `?lang=`・`CN-6`）。
+> ID の帯: 番号 `CR-748`、変更履歴 `4.57`、裁定 `JDG-2028`〜`JDG-2033`、台帳 `DFC-2510`〜`DFC-2512`、`perf-pending` `197`、設定の行 `S-583`（調整役が確かめた）を受けた。使ったのは `CR-748`・`4.57`・`JDG-2028`〜`JDG-2033`・`197`・`S-583`。台帳の行は使っていない（新しい欠陥は無い）。`ac5d5bd0` の木で `CR-748` を名乗る変更要求は 0 件、`JDG-2028` は 0 件、変更履歴の `4.57` の行は 0 件だった。
 > 当てるもの: `JDG-2028`（リンクの場所）・`JDG-2030`（リンクはヘルプの言語で頁を開く）・`JDG-2032`（en の語「About GRS」）。
 
 ---
@@ -44,7 +45,7 @@
 
 | # | 決めたこと | 導き | 代償 |
 |---|---|---|---|
-| X-1 | 頁の所は `_assets/tbl-settings.md` の 表 T-206 に新しい行を 1 つ足して持つ。値は `https://goodrelax.github.io/gr-scheduler/about/` | `S-350`・`S-459` と同じ置き場。`JDG-1990` が公開の所を決めた | 行 ID は当てるときに表 T-206 の最大 + 1 で取る（下書きでは `S-xxx`） |
+| X-1 | 頁の所は `_assets/tbl-settings.md` の 表 T-206 の新しい行 `S-583` が持つ。値は `https://goodrelax.github.io/gr-scheduler/about/` | `S-350`・`S-459` と同じ置き場。`JDG-1990` が公開の所を決めた | 無い —— `S-583` は `e4d07fdb` の表 T-206 の最大 `S-582` の次で、調整役が確かめた |
 | X-2 | リンクの語は辞書に足す: ja「GRS の概要紹介」（`JDG-2028` の語）、en「About GRS」 | 画面の語は辞書だけが持つ（`FR-038`） | 無い —— en の語は利用者が `JDG-2032` で選んだ |
 | X-3 | リンクの宛先は、X-1 の所に `?lang=` とヘルプの言語（`ja` / `en`）を付けたもの | `JDG-2030` | 無い |
 | X-4 | リンクはヘルプの本文の、`basics` の塊の見出しのすぐ上に 1 行で置く。凡例とタイトルバーには置かない | `JDG-2028` の「基本操作ブロックの上」 | 無い |
@@ -67,8 +68,8 @@
 
 | 種類 | 識別子 | 中身 |
 |---|---|---|
-| 設定の行 | `S-xxx`（当てるときに表 T-206 の最大 + 1） | 概要紹介の頁の所。`https://goodrelax.github.io/gr-scheduler/about/` |
-| 辞書の項目 | `helpAboutLink`（案） | ja「GRS の概要紹介」／en「About GRS」 |
+| 設定の行 | `S-583` | 概要紹介の頁の所。`https://goodrelax.github.io/gr-scheduler/about/` |
+| 辞書の組 | `helpLinks`（鍵は `link`）の `about` | ja「GRS の概要紹介」／en「About GRS」。組は `tools/generate_display_words.py` の `HELP_LINKS` が持つ（表の行ではないので、`HELP_LEGAL_PARTS` と同じく生成器が持つ） |
 
 ---
 
@@ -84,11 +85,16 @@
 |---|---|
 | `docs/spec/01-04-requirements.md` の `FR-036` | 「ヘルプは、`basics` の塊の見出しのすぐ上に、概要紹介の頁（表 T-206 の `S-xxx`）へのリンクを 1 行置くこと（MUST）。宛先はその所にヘルプの言語を `?lang=` で付けたものとし、押したら閲覧環境の新しいタブで開くこと（MUST）」を足す。理由: 利用者が `JDG-2028`・`JDG-2030` で定めた |
 | `docs/spec/_source/settings.json` | X-1 の行を `S-350`・`S-459` の隣に足す（生成物 `_assets/tbl-settings.md` を作り直す） |
-| `docs/spec/_source/display-words.json` | X-2 の項目を足す |
-| `tools/generate_entity_types.py` | 新しい設定の行を src の定数へ運ぶ組に入れる（入れないと src に届かない） |
-| `src/adapter/screen-renderer/open-modals.ts` | ヘルプの面の値に、リンクの語と宛先（X-3）を足す |
-| `src/framework/dom-screen-surface/open-modals-drawing.ts` | `basics` の塊の見出しの上に、`linkElement` でリンクを描く |
-| `docs/spec/A-appendix.md` の変更履歴 | `4.57` の行 |
+| `docs/spec/_source/display-words.json` | X-2 の組 `helpLinks` を `helpFootnotes` の次に足す |
+| `tools/generate_display_words.py` | `HELP_LINKS` と、名簿・形・並びの 3 か所に `helpLinks` を足す |
+| `tools/generate_entity_types.py` | `NOT_STORED_ABOUT_ADDRESS`（`S-583`）を足し、`open-modals.ts` に生成の区画を置く |
+| `src/adapter/screen-renderer/screen-renderer.ts` | `HelpLink` の型と、`HelpModal` の `aboutLink` を足す |
+| `src/adapter/screen-renderer/open-modals.ts` | `helpAboutLink` が語と宛先（X-3）を作り、`helpModalFromSession` が `aboutLink` に置く |
+| `src/framework/dom-screen-surface/open-modals-drawing.ts` | `helpAboutLinkElement` が `linkElement` でリンクの 1 行（`data-help-link="about"`）を描き、`helpColumnsElement` が `basics` の塊の枠の直前に置く |
+| `tests/unit/uf-71.test.ts`・`tests/unit/uf-72-screen-part.test.ts` | ヘルプの面の見本に `aboutLink` を足す（型が求める。見ることは変えない） |
+| `docs/development-records/changelog.md` | `4.57` の行 |
+| `docs/development-rules/03-implementation.md` | 生成する定数の一覧に `NOT_STORED_ABOUT_ADDRESS` を足す（検査 30） |
+| 生成物 | `_assets/tbl-settings.md`・`_assets/tbl-row-id-prefixes.md`・`docs/review/public-entry-index.md`・`docs/development-records/test-inventory.md` を作り直す |
 | `perf-pending` | `197` の行（語と設定の名簿を画面が読む） |
 
 ---
@@ -103,7 +109,8 @@
 
 ## 6. 影響
 
-- 当てる前に `python .claude/skills/spec-graph-check/impact.py FR-036` と `impact.py T-206` で届く先を測り、本節に写す（下書きでは未測定）。
+- `impact.py FR-036`（`e4d07fdb`）: 要求 17 件・参照 66 箇所が `FR-036` を指す。本書は `FR-036` に 1 文を足すだけで、ほかの文を変えないので、指す側の読みは変わらない。
+- `impact.py S-583`: 指すのは `FR-036` の 1 箇所だけ。
 - 画面の語が 1 つ増えるので、ヘルプが 1 画面に収まるか（`FR-036` の ⭐ 「ヘルプを 1 画面に収める」）を基点のビルドで確かめる。
 
 ---

@@ -50,6 +50,13 @@ const MODAL_BORDER_PX = 1
 // WHY: right-aligned above the license line (JDG-1396); anywhere, as the address has no space to break at.
 const HELP_FOOTNOTE_STYLE = 'text-align:right;overflow-wrap:anywhere;'
 
+// see FR-036
+const BASICS_BLOCK = 'basics'
+
+const HELP_LINK_ATTRIBUTE = 'data-help-link'
+
+const ABOUT_LINK_KEY = 'about'
+
 // STOP: spec does not decide how parts with no T-103 or T-109 row are marked for read-back. Looked in W-4, IF-9
 // @provisional PND-474
 const WATERMARK_UNLOCK_ENTRY_ATTRIBUTE = 'data-watermark-unlock'
@@ -233,6 +240,16 @@ type OpenChooser = Extract<OpenModal, { readonly choices: unknown }>
 
 type ExportChooser = Extract<OpenModal, { readonly formats: unknown }>
 
+// see FR-036, S-583
+// WHY: the link stands in the basics block's column just above its frame, so it reads as the help's first line.
+/** @purity non-pure */
+function helpAboutLinkElement(host: Document, aboutLink: HelpModal['aboutLink']): HTMLElement {
+  const line = made(host, 'div', '')
+  line.setAttribute(HELP_LINK_ATTRIBUTE, ABOUT_LINK_KEY)
+  line.append(linkElement(host, aboutLink.address, aboutLink.words))
+  return line
+}
+
 // see FR-036, FR-053, T-256
 // WHY: each entry names its column (table T-256), so a block is placed, never flowed.
 /** @purity non-pure */
@@ -240,6 +257,7 @@ function helpColumnsElement(
   host: Document,
   entries: readonly OpenHelpEntry[],
   openedBodyWidthPx: number,
+  aboutLink: HelpModal['aboutLink'],
 ): HTMLElement {
   const columns = made(host, 'div', helpColumnsStyle(openedBodyWidthPx))
   const columnByRow = new Map<string, HTMLElement>()
@@ -259,6 +277,7 @@ function helpColumnsElement(
       }
       const opened = made(host, 'div', helpBlockFrameStyle())
       opened.setAttribute('data-help-block', name)
+      if (name === BASICS_BLOCK) column.append(helpAboutLinkElement(host, aboutLink))
       column.append(opened)
       block = opened
       blockName = name
@@ -524,7 +543,7 @@ function helpLegalElement(host: Document, modal: HelpModal): HTMLElement {
 /** @purity non-pure */
 function helpBodyElement(host: Document, modal: HelpModal): HelpColumnsDrawn {
   const body = made(host, 'div', helpBodyStyle())
-  const columns = helpColumnsElement(host, modal.entries, openedHelpBodyWidthPx(modal, 0))
+  const columns = helpColumnsElement(host, modal.entries, openedHelpBodyWidthPx(modal, 0), modal.aboutLink)
   body.append(columns, helpLegalElement(host, modal))
   return { body, columns }
 }
