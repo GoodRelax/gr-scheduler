@@ -43,7 +43,10 @@ const DEFAULT_OF_T206 = String.fromCharCode(0x65e2, 0x5b9a)
 const BENDS_OF_T222 = String.fromCharCode(0x6298, 0x308c, 0x70b9)
 
 // see T-201
-const T201 = (id: string): number => numberIn(bare(rowOf('T-201', id).by[DEFAULT_OF_T201] ?? ''))
+const T201 = (id: string): number => {
+  const cell = bare(rowOf('T-201', id).by[DEFAULT_OF_T201] ?? '')
+  return /^S-\d+[a-z]?$/.test(cell) ? T201(cell) : numberIn(cell)
+}
 // see T-206
 const T206 = (id: string): number => numberIn(bare(rowOf('T-206', id).by[DEFAULT_OF_T206] ?? ''))
 
@@ -997,4 +1000,16 @@ describe('CR-758 case 9 -- FR-013 / T-266 GA-18: the S-584 gap between the bar e
       expect(hit?.item, `task ${uid}`).toEqual({ kind: 'task', taskUid: uid })
     })
   }
+})
+
+describe('CR-758 clauses held verbatim (EL-19, FR-013, GA-18)', () => {
+  const CLAUSES = [
+    ['EL-19', '描いた経路の全体と後続の入口の矢じりとすること（MUST）'],
+    ['FR-013', '基準の端と進捗マーカーのあいだの隙間（表 T-201 の `S-584`）を押したポインタに、予定の本体か予定の終了を掴ませてはならない（MUST NOT）'],
+    ['GA-18', '再開アイコンの右に並ぶときはアイコンの掴む箱の右端）まで延ばすこと（MUST）'],
+  ] as const
+
+  it.each(CLAUSES)('%s: the clause stands in the requirements as the cases above read it', (_id, clause) => {
+    expect(REQUIREMENTS).toContain(clause)
+  })
 })

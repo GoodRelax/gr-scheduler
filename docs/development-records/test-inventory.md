@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 336 | 4047 | 5 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 336 | 4048 | 5 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 86 | 566 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 624 | 8624 | 8 | 8 | 13 | 2 |
+| **all** | | | 624 | 8625 | 8 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -424,7 +424,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-751-the-schema-names-the-regions-and-no-spec-id.contract.test.ts` | 12 | FR-024, FR-054, FR-156 | - | T-376 | IV-24, S-574, S-575, S-582 | - | - | - | - |
 | `tests/contract/cr-752-call-shapes-and-two-fix-rows.contract.test.ts` | 20 | FR-011, FR-012, FR-054 | - | T-064, T-108, T-310, T-346 | CM-11, CM-37, FA-3, FA-15, FA-24, PI-1, RW-16, VC-15 | - | - | - | - |
 | `tests/contract/cr-753-a-ctrl-drag-copy-lands-where-the-body-move-lands.test.ts` | 34 | FR-016, FR-017, FR-103 | - | T-209, T-266, T-270, T-350, T-378 | CY-5, CY-7, CY-9, GA-9, GA-14, GA-15, GA-18, PE-1, PE-6, PTD-7, RV-1, S-1, S-8, S-55, S-85, S-229, S-482, S-483, S-577, S-578, SG-1, SG-2, SG-3, WT-1, WT-2 | - | - | - | - |
-| `tests/contract/cr-758-dependency-lines-clear-of-labels-and-the-landed-line-hit.contract.test.ts` | 25 | FR-013 | - | T-018, T-201, T-206, T-221, T-222, T-266, T-267, T-268, T-273, T-303 | DP-1, DP-2, EL-3, EL-5, EL-16, EL-19, GA-2, GA-9, GA-15, GA-18, GA-19, GA-24, HT-3, LF-2, LF-5, LP-1, LP-2, LP-5, LP-7, PI-6, RF-1, RP-1, RP-2, RP-3, RP-4, RT-5, S-18, S-19, S-31, S-32, S-260, S-285, S-298, S-299, S-300, S-302, S-303, S-447, S-584, VG-2, VG-4 | - | - | - | - |
+| `tests/contract/cr-758-dependency-lines-clear-of-labels-and-the-landed-line-hit.contract.test.ts` | 26 | FR-013 | - | T-018, T-201, T-206, T-221, T-222, T-266, T-267, T-268, T-273, T-303 | DP-1, DP-2, EL-3, EL-5, EL-16, EL-19, GA-2, GA-9, GA-15, GA-18, GA-19, GA-24, HT-3, LF-2, LF-5, LP-1, LP-2, LP-5, LP-7, PI-6, RF-1, RP-1, RP-2, RP-3, RP-4, RT-5, S-18, S-19, S-31, S-32, S-260, S-285, S-298, S-299, S-300, S-302, S-303, S-447, S-584, VG-2, VG-4 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |

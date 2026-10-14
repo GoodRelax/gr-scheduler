@@ -31,7 +31,10 @@ const numberOf = (table: string, id: string, column: string): number => {
 }
 
 // see T-201, T-206, T-236
-const T201 = (id: string): number => numberOf('T-201', id, '既定値')
+const T201 = (id: string): number => {
+  const named = /^`?(S-\d+[a-z]?)`?$/.exec(cellOf('T-201', id, '既定値').trim())
+  return named === null ? numberOf('T-201', id, '既定値') : T201(named[1] as string)
+}
 const T206 = (id: string): number => numberOf('T-206', id, '既定')
 const LIGHT = (id: string): string => cellOf('T-236', id, '明るいテーマ')
 const DARK = (id: string): string => cellOf('T-236', id, '暗いテーマ')

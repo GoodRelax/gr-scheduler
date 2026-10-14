@@ -656,15 +656,13 @@
      },
      "key": "`dependencyArrowWidth`",
      "unit": "px",
-     "default": {
-      "num": "6.4"
-     },
+     "default": "`S-19`",
      "min": "`dependencyWidth` × 2",
      "max": {
       "num": "40"
      },
      "note": {
-      "ja": "依存線の矢じりの底辺の長さである。⛔ かつては `dependencyArrowLength` が長さと底辺を兼ねていたので、二等辺の三角しか描けなかった。下限は `dependencyWidth` の上限の裏返しである"
+      "ja": "依存線の矢じりの底辺の長さである。⭐ 既定は `S-19`（矢じりの長さ）と同じ値とし、表示の倍率 100 で 4 × 4px の矢じりになる（利用者が見本で選んだ）。値を 2 つ書かないので、既定を動かすときは `S-19` だけを直す。⛔ かつては `dependencyArrowLength` が長さと底辺を兼ねていたので、二等辺の三角しか描けなかった。下限は `dependencyWidth` の上限の裏返しである"
      }
     },
     {
