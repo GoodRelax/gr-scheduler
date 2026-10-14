@@ -1774,6 +1774,11 @@ NOT_STORED_TARGETS = {
     # {downloadUrl} and notices.ts, which fills every reason word, puts this
     # row there. not_stored_cell reads the whole-cell code span as the value.
     'NOT_STORED_DOWNLOAD_ADDRESS': (['S-350'], READ_WHERE_IT_STANDS),
+    # CR-748: the address of the about page, which the help's link above the
+    # basics block opens with the help's language (FR-036). It stands in the
+    # unit that builds the help's values, open-modals.ts, as S-350 stands in
+    # notices.ts.
+    'NOT_STORED_ABOUT_ADDRESS': (['S-583'], READ_WHERE_IT_STANDS),
     # CR-699 (JDG-1693): the address of the latest published GRS JSON schema.
     # DR-4 makes the writer put it as the first key of every written document,
     # so it stands in the one unit that writes GRS JSON text (json-codec.ts).
@@ -3237,6 +3242,11 @@ TARGETS = [
     # reason words' {downloadUrl} (CR-565, FR-073).
     (os.path.join(ADAPTER, 'screen-renderer', 'notices.ts'),
      lambda _erd: not_stored_block('NOT_STORED_DOWNLOAD_ADDRESS'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # CR-748: the about page's address stands in the unit that builds the
+    # help's values and adds the help's language to it (FR-036).
+    (os.path.join(ADAPTER, 'screen-renderer', 'open-modals.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_ABOUT_ADDRESS'),
      ['docs/spec/_source/settings.json (table T-206)']),
     # CR-699: the schema's address stands in the unit that writes GRS JSON (DR-4).
     (os.path.join(ADAPTER, 'document-codec', 'json-codec.ts'),

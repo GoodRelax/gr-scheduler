@@ -1216,6 +1216,7 @@ const HELP_MODAL: HelpModal = {
   helpLegal: { licensedUnder: 'LicensedUnderHere', fullText: 'FullTextHere' },
   area: { belowAppHeader: { x: 0, y: 37, width: 1280, height: 763 } },
   footnotes: [],
+  aboutLink: { words: '', address: '' },
 }
 
 /**
