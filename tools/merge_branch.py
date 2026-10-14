@@ -26,7 +26,8 @@ WHAT IT DOES, in order, stopping at the first thing it cannot settle:
      drifted -- it stamps the minute, so it is not rerun for nothing), compacts any
      provisional id and every --band (tools/renumber_ids.py), and regenerates
      again when an id moved;
-  5. runs check.sh (after removing ./output) and `npm run gen:check`, and
+  5. runs check.sh (after removing ./output), `npm run gen:check` and
+     tools/ledger_id_count.py (no ledger row of either side lost), and
      counts the privacy items of everything the merge stages
      (tools/privacy_count.py --staged);
   6. commits the merge only when all of that is green (never with
@@ -64,7 +65,9 @@ REGENERATE = ['npm', 'run', '-s', 'gen']
 LEDGER_CHECK = ['python', 'tools/ledger_metrics.py', '--check']
 LEDGER_WRITE = ['python', 'tools/ledger_metrics.py']
 CHECKS = [('check.sh', ['bash', '.claude/skills/spec-graph-check/check.sh']),
-          ('gen:check', ['npm', 'run', '-s', 'gen:check'])]
+          ('gen:check', ['npm', 'run', '-s', 'gen:check']),
+          # JDG-2122: every ledger row id of both sides is still in the merged ledgers.
+          ('ledger ids', ['python', 'tools/ledger_id_count.py'])]
 # ledger_metrics stamps the minute it ran; two regenerations a minute apart
 # must still compare equal.
 STAMP = re.compile(r'[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}')
