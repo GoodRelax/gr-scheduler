@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>依存線の通路と印の線の当たり</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #16181d; --muted: #5b6270; --panel: #f4f6f9; --line: #d5dae2;
+    --plan-fill: hsl(214 46% 80%); --plan-stroke: hsl(214 44% 46%);
+    --dep: #6f472a; --label: #000000; --halo: #ffffff; --marker-fill: #ffffff; --marker-stroke: #16181d;
+    --bad: #c62828; --good: #1b7f3b; --accent: #1d5fbf; --flag: rgba(230, 0, 120, 0.85);
+    --hit-line: rgba(29, 95, 191, 0.28); --hit-mark: rgba(230, 120, 0, 0.35); --off: rgba(120, 130, 145, 0.16);
+  }
+  :root[data-theme="dark"] {
+    --bg: #14171a; --fg: #e8eaee; --muted: #a3aab6; --panel: #1d2126; --line: #333a43;
+    --plan-fill: #2d3f58; --plan-stroke: hsl(214 40% 60%);
+    --dep: #b38461; --label: #ffffff; --halo: #14171a; --marker-fill: #14171a; --marker-stroke: #e8eaee;
+    --bad: #ff6b6b; --good: #5fd38a; --accent: #7fb0ff; --flag: rgba(255, 64, 200, 0.9);
+    --hit-line: rgba(127, 176, 255, 0.30); --hit-mark: rgba(255, 170, 60, 0.38); --off: rgba(200, 210, 225, 0.10);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.7 "Yu Gothic UI", "Yu Gothic", YuGothic, "BIZ UDPGothic", sans-serif; }
+  header { padding: 10px 16px; border-bottom: 1px solid var(--line); display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
+  header h1 { font-size: 18px; margin: 0 12px 0 0; }
+  button, select { font: inherit; font-size: 14px; padding: 2px 10px; border: 1px solid var(--line); background: var(--panel); color: var(--fg); border-radius: 4px; cursor: pointer; }
+  button.on { outline: 2px solid var(--accent); }
+  section { padding: 12px 16px 20px; border-bottom: 1px solid var(--line); }
+  section h2 { font-size: 17px; margin: 0 0 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; margin: 6px 0; }
+  .host { overflow: auto; border: 1px solid var(--line); background: var(--bg); max-width: 100%; }
+  table { border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+  th, td { border: 1px solid var(--line); padding: 2px 8px; text-align: left; vertical-align: top; }
+  .bad { color: var(--bad); font-weight: 700; }
+  .good { color: var(--good); font-weight: 700; }
+  .note { font-size: 14px; color: var(--muted); max-width: 900px; }
+  #status { font-size: 16px; font-weight: 700; min-height: 1.7em; }
+  svg text { user-select: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>依存線の通路と印の線の当たり</h1>
+  <label>拡大して見る <select id="mag"><option value="1">×1</option><option value="2" selected>×2</option><option value="3">×3</option></select></label>
+  <button id="theme">明るい ／ 暗い</button>
+</header>
+
+<section>
+  <h2>問い 1 —— 行をまたぐ線の横の走りを、どの行間に置くか（CR-758 の 11 節の Q1）</h2>
+  <p class="note">寸法は見本 50 の案 C（JDG-1901）のまま、表示の倍率 100 で描いた px である。どの案でも、段を斜めにまたぐ線（RP-2 / RP-3）は通路を通す。違うのは、先行と後続の間に別の行があるときに、横に走る通路をどの高さに置くかだけである。縦に横切る所は RT-5 が許すので灰色の枠、横に走って札・マーカー・名前・棒の下に潜る所はマゼンタの枠で示す。</p>
+  <div class="row"><span>案:</span><span id="corridorButtons"></span></div>
+  <div class="host" id="corridorHost"></div>
+  <div id="corridorTable"></div>
+</section>
+
+<section>
+  <h2>問い 2 —— 送った先の印を付けた線は、どこを押せば応えるか（CR-758 の 11 節の Q2）</h2>
+  <p class="note">先行は画面の上の外にあり、後続だけが見えている。続きの印を押して送ると、印を付けた線は経路の全体を太く描く（EL-19）。点線の枠の外は画面の外である。ポインタを線の上で動かすと、何が応えるかを下に出す。色の帯が当たりの範囲（青: 線が応えて選ぶ ／ 橙: 続きの印が応えて送る）。当たりの太さはどちらの案も印の無いときの線の太さのまま（CR-596 の決定 6）で、違うのは当たりの長さだけである。⚠️ 通路を通す形（問い 1）では、続きの印の点は経路の最後の縦の走りの上に乗りやすい —— 案 A で印の所を押すと、線が応える。</p>
+  <div class="row"><span>案:</span><span id="hitButtons"></span>
+    <label><input type="checkbox" id="showElided"> 印の無いときの省いた形（短い線と続きの印）を薄く重ねる</label></div>
+  <div class="host" id="hitHost"></div>
+  <div id="status">ポインタを線の上へ</div>
+</section>
+
+<script>
+'use strict'
+// Drawn px at display scale 100, taken from sample 50 case C (JDG-1901..1903): lead-out 3, lead-in 6,
+// arrow 4 x 4, line 1.5, assignee label gap 9, marker gap 5, marker r 7, label font 9, plan 17.5, row pitch 21.6.
+const SIZE = { leadOut: 3, leadIn: 6, arrowLen: 4, arrowWidth: 4, line: 1.5, assigneeGap: 9, markerGap: 5, markerR: 7,
+  labelGap: 6, font: 9, halo: 2.7, planH: 17.5, pitch: 21.6, landedExtra: 1.25, grabMargin: 2,
+  shortRun: 6, dotD: 2, markMargin: 4 }
+const SVGNS = 'http://www.w3.org/2000/svg'
+const $ = (id) => document.getElementById(id)
+const state = { mag: 2, corridor: 'A', hit: 'A', showElided: false }
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(SVGNS, tag)
+  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, String(v))
+  if (parent) parent.appendChild(e)
+  return e
+}
+function cssVar(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim() }
+const measure = (() => {
+  const ctx = document.createElement('canvas').getContext('2d')
+  return (text) => { ctx.font = SIZE.font + 'px "Yu Gothic UI", sans-serif'; return ctx.measureText(text).width }
+})()
+
+// ---- question 1: the corridor height --------------------------------------------------------------
+const ROWS = [
+  { name: '要件を固める', who: 'user', pct: 100, x: 100, w: 110 },
+  { name: '画面の下書き', who: 'body', pct: 60, x: 170, w: 150 },
+  { name: 'CR を起草する', who: 'body', pct: 0, x: 275, w: 90 },
+  { name: '見本を直す', who: 'body', pct: 0, x: 380, w: 70 },
+  { name: 'ほかの仕事', who: 'coordinator', pct: 40, x: 210, w: 160 },
+  { name: '試験を書く', who: 'body', pct: 100, x: 190, w: 160 },
+]
+// FS links: 0->2 skips a row (RP-2), 5->3 goes up past a row (RP-3), 1->4 skips two rows with x2 < x1 (RP-4).
+const LINKS = [[0, 2], [5, 3], [1, 4]]
+const CORRIDORS = {
+  A: { name: 'A 後続の隣の行間（推奨。見本 50 の案 C の形）' },
+  B: { name: 'B 2 つの行の中点（今の LF-5 のまま）' },
+  C: { name: 'C 先行の隣の行間' },
+}
+
+function rowGeom(i) {
+  const r = ROWS[i]
+  const mid = 30 + i * SIZE.pitch + SIZE.pitch / 2
+  const top = mid - SIZE.planH / 2, bottom = mid + SIZE.planH / 2
+  const end = r.x + r.w
+  const markerCx = end + SIZE.markerGap + SIZE.markerR
+  const nameX = markerCx + SIZE.markerR + SIZE.labelGap
+  const tag = r.who + ' : ' + r.pct + '%'
+  const tagW = measure(tag), nameW = measure(r.name)
+  const pad = SIZE.halo / 2, fh = SIZE.font * 1.33
+  return {
+    i, r, mid, top, bottom, start: r.x, end, markerCx, nameX, tag, name: r.name,
+    ink: [
+      { kind: '棒', x0: r.x, x1: end, y0: top, y1: bottom },
+      { kind: 'マーカー', x0: markerCx - SIZE.markerR, x1: markerCx + SIZE.markerR, y0: mid - SIZE.markerR, y1: mid + SIZE.markerR },
+      { kind: '名前', x0: nameX - pad, x1: nameX + nameW + pad, y0: mid - fh / 2, y1: mid + fh / 2 },
+      { kind: '札', x0: r.x - SIZE.assigneeGap - tagW - pad, x1: r.x - SIZE.assigneeGap + pad, y0: mid - fh / 2, y1: mid + fh / 2 },
+    ],
+  }
+}
+
+function corridorRoute(a, b, how) {
+  const x1 = a.end + SIZE.leadOut
+  const x2 = b.start - SIZE.leadIn
+  const down = b.mid > a.mid
+  const gapBelow = (g) => g.bottom + (SIZE.pitch - SIZE.planH) / 2
+  const gapAbove = (g) => g.top - (SIZE.pitch - SIZE.planH) / 2
+  let cy
+  if (how === 'B') cy = down ? (a.bottom + b.top) / 2 : (b.bottom + a.top) / 2
+  else if (how === 'A') cy = down ? gapAbove(b) : gapBelow(b)
+  else cy = down ? gapBelow(a) : gapAbove(a)
+  return [[a.end, a.mid], [x1, a.mid], [x1, cy], [x2, cy], [x2, b.mid], [b.start, b.mid]]
+}
+
+// Overlap of one axis-aligned segment (with half the line width) and one ink box, in px along the segment.
+function overlapLen(p, q, box) {
+  const h = SIZE.line / 2
+  const sx0 = Math.min(p[0], q[0]) - h, sx1 = Math.max(p[0], q[0]) + h
+  const sy0 = Math.min(p[1], q[1]) - h, sy1 = Math.max(p[1], q[1]) + h
+  const w = Math.min(sx1, box.x1) - Math.max(sx0, box.x0)
+  const t = Math.min(sy1, box.y1) - Math.max(sy0, box.y0)
+  if (w <= 0 || t <= 0) return 0
+  return p[1] === q[1] ? w : t
+}
+
+function drawRow(svg, g) {
+  el('rect', { x: g.start, y: g.top, width: g.r.w, height: SIZE.planH, fill: cssVar('--plan-fill'), stroke: cssVar('--plan-stroke'), 'stroke-width': 0.8 }, svg)
+  el('circle', { cx: g.markerCx, cy: g.mid, r: SIZE.markerR - 0.4, fill: cssVar('--marker-fill'), stroke: cssVar('--marker-stroke'), 'stroke-width': 0.8 }, svg)
+  const t = { 'font-size': SIZE.font, fill: cssVar('--label'), stroke: cssVar('--halo'), 'stroke-width': SIZE.halo, 'paint-order': 'stroke', 'dominant-baseline': 'central' }
+  el('text', { ...t, x: g.nameX, y: g.mid }, svg).textContent = g.name
+  el('text', { ...t, x: g.start - SIZE.assigneeGap, y: g.mid, 'text-anchor': 'end' }, svg).textContent = g.tag
+}
+
+function drawLine(svg, pts, width, color) {
+  const last = pts[pts.length - 1], prev = pts[pts.length - 2]
+  const dir = Math.sign(last[0] - prev[0]) || 1
+  const body = pts.slice(0, -1).concat([[last[0] - dir * SIZE.arrowLen, last[1]]])
+  el('polyline', { points: body.map((p) => p.join(',')).join(' '), fill: 'none', stroke: cssVar('--halo'), 'stroke-width': width * 3 }, svg)
+  el('polyline', { points: body.map((p) => p.join(',')).join(' '), fill: 'none', stroke: color, 'stroke-width': width }, svg)
+  const bx = last[0] - dir * SIZE.arrowLen
+  el('polygon', { points: [[last[0], last[1]], [bx, last[1] - SIZE.arrowWidth / 2], [bx, last[1] + SIZE.arrowWidth / 2]].map((p) => p.join(',')).join(' '), fill: color }, svg)
+}
+
+function drawCorridor() {
+  const host = $('corridorHost')
+  host.innerHTML = ''
+  const W = 580, H = 30 + ROWS.length * SIZE.pitch + 20
+  const svg = el('svg', { width: W * state.mag, height: H * state.mag, viewBox: `0 0 ${W} ${H}` }, host)
+  const rows = ROWS.map((_, i) => rowGeom(i))
+  const findings = []
+  const lineLayer = el('g', {}, svg)
+  const inkLayer = el('g', {}, svg)
+  const flagLayer = el('g', {}, svg)
+  for (const [ai, bi] of LINKS) {
+    const a = rows[ai], b = rows[bi]
+    const pts = corridorRoute(a, b, state.corridor)
+    drawLine(lineLayer, pts, SIZE.line, cssVar('--dep'))
+    for (let k = 0; k + 1 < pts.length; k++) {
+      const p = pts[k], q = pts[k + 1]
+      for (const g of rows) {
+        if (g.i === ai || g.i === bi) continue
+        for (const box of g.ink) {
+          const len = overlapLen(p, q, box)
+          if (len <= 0) continue
+          const horizontal = p[1] === q[1]
+          findings.push({ link: ROWS[ai].name + ' → ' + ROWS[bi].name, row: g.r.name, kind: box.kind, horizontal, len })
+          el('rect', { x: box.x0 - 1, y: box.y0 - 1, width: box.x1 - box.x0 + 2, height: box.y1 - box.y0 + 2, fill: 'none',
+            stroke: horizontal ? cssVar('--flag') : cssVar('--muted'), 'stroke-width': 0.8, 'stroke-dasharray': '2 1.5' }, flagLayer)
+        }
+      }
+    }
+  }
+  rows.forEach((g) => drawRow(inkLayer, g))
+  const under = findings.filter((f) => f.horizontal)
+  const across = findings.filter((f) => !f.horizontal)
+  const rowsHtml = findings.map((f) => `<tr><td>${f.link}</td><td>${f.row} の${f.kind}</td><td class="${f.horizontal ? 'bad' : ''}">${f.horizontal ? '横に潜る' : '縦に横切る（RT-5）'}</td><td>${f.len.toFixed(1)}px</td></tr>`).join('')
+  $('corridorTable').innerHTML =
+    `<p><b>案 ${state.corridor}</b>: 横に潜る所 <span class="${under.length ? 'bad' : 'good'}">${under.length}</span> ／ 縦に横切る所 ${across.length}</p>` +
+    (findings.length ? `<table><tr><th>線</th><th>間の行のもの</th><th>どう重なるか</th><th>長さ</th></tr>${rowsHtml}</table>` : '')
+}
+
+// ---- question 2: the hit region of the landed line --------------------------------------------------
+const HITS = {
+  A: { name: 'A 描いた線（経路の全体）と矢じりで応える（推奨）' },
+  B: { name: 'B 今のまま —— 省いた短い線と、描いていない続きの印で応える' },
+}
+const VIEW = { x0: 10, y0: 40, x1: 430, y1: 200 }
+const PRED = { x: -60, w: 120, mid: 10 }
+const SUCC = { x: 250, w: 120, mid: 150, name: 'CR を起草する' }
+
+function landedRoute() {
+  const exitX = PRED.x + PRED.w
+  const x1 = exitX + SIZE.leadOut, x2 = SUCC.x - SIZE.leadIn
+  const cy = SUCC.mid - SIZE.pitch / 2
+  return [[exitX, PRED.mid], [x1, PRED.mid], [x1, cy], [x2, cy], [x2, SUCC.mid], [SUCC.x, SUCC.mid]]
+}
+// EL-5 / EL-7 / EL-9: the short line from the successor's entry, turning the way the route first runs, then three dots.
+function elided() {
+  const x2 = SUCC.x - SIZE.leadIn
+  const turnY = SUCC.mid - SIZE.shortRun
+  const line = [[x2, turnY], [x2, SUCC.mid], [SUCC.x, SUCC.mid]]
+  const dots = [1, 2, 3].map((n) => [x2, turnY - n * 2 * SIZE.dotD + SIZE.dotD / 2])
+  return { line, dots }
+}
+
+function distToSeg(px, py, p, q) {
+  const dx = q[0] - p[0], dy = q[1] - p[1]
+  const t = Math.max(0, Math.min(1, ((px - p[0]) * dx + (py - p[1]) * dy) / (dx * dx + dy * dy || 1)))
+  return Math.hypot(px - (p[0] + t * dx), py - (p[1] + t * dy))
+}
+function nearPath(px, py, pts, reach) {
+  for (let k = 0; k + 1 < pts.length; k++) if (distToSeg(px, py, pts[k], pts[k + 1]) <= reach) return true
+  return false
+}
+function dotsBox() {
+  const { dots } = elided()
+  const ys = dots.map((d) => d[1]), x = dots[0][0], r = SIZE.dotD / 2 + SIZE.markMargin
+  return { x0: x - r, x1: x + r, y0: Math.min(...ys) - r, y1: Math.max(...ys) + r }
+}
+function inView(px, py) { return px >= VIEW.x0 && px <= VIEW.x1 && py >= VIEW.y0 && py <= VIEW.y1 }
+
+function answerAt(px, py) {
+  if (!inView(px, py)) return 'off'
+  const landed = landedRoute()
+  const { line } = elided()
+  const box = dotsBox()
+  const onMark = px >= box.x0 && px <= box.x1 && py >= box.y0 && py <= box.y1
+  // CR-596 decision 6 keeps the reach of the base thickness; only the extent differs between A and B.
+  const reach = SIZE.line / 2 + SIZE.grabMargin
+  const head = Math.abs(py - SUCC.mid) <= SIZE.arrowWidth / 2 + SIZE.grabMargin && px >= SUCC.x - SIZE.arrowLen - 1 && px <= SUCC.x + 1
+  if (state.hit === 'B') {
+    if (onMark) return 'mark'
+    return nearPath(px, py, line, reach) || head ? 'line' : 'none'
+  }
+  return nearPath(px, py, landed, reach) || head ? 'line' : 'none'
+}
+
+function drawHit() {
+  const host = $('hitHost')
+  host.innerHTML = ''
+  const W = 450, H = 220
+  const svg = el('svg', { width: W * state.mag, height: H * state.mag, viewBox: `0 0 ${W} ${H}` }, host)
+  el('rect', { x: 0, y: 0, width: W, height: H, fill: cssVar('--off') }, svg)
+  el('rect', { x: VIEW.x0, y: VIEW.y0, width: VIEW.x1 - VIEW.x0, height: VIEW.y1 - VIEW.y0, fill: cssVar('--bg'), stroke: cssVar('--muted'), 'stroke-dasharray': '4 3', 'stroke-width': 0.8 }, svg)
+  el('text', { x: VIEW.x0 + 4, y: VIEW.y0 - 6, 'font-size': 9, fill: cssVar('--muted') }, svg).textContent = '↑ 画面の外に先行がある ／ 点線の枠の中が見えている所'
+  const clip = el('clipPath', { id: 'view' }, el('defs', {}, svg))
+  el('rect', { x: VIEW.x0, y: VIEW.y0, width: VIEW.x1 - VIEW.x0, height: VIEW.y1 - VIEW.y0 }, clip)
+  const g = el('g', { 'clip-path': 'url(#view)' }, svg)
+  // hit regions, sampled on a 1 px grid so the shading is exactly what answerAt says; drawn after the line
+  const shade = el('g', {})
+  for (let y = VIEW.y0; y <= VIEW.y1; y += 1) {
+    let run = null
+    for (let x = VIEW.x0; x <= VIEW.x1 + 1; x += 1) {
+      const a = x <= VIEW.x1 ? answerAt(x + 0.5, y + 0.5) : 'none'
+      const kind = a === 'line' || a === 'mark' ? a : null
+      if (run && run.kind !== kind) {
+        el('rect', { x: run.x, y, width: x - run.x, height: 1, fill: cssVar(run.kind === 'line' ? '--hit-line' : '--hit-mark') }, shade)
+        run = null
+      }
+      if (!run && kind) run = { x, kind }
+    }
+  }
+  if (state.showElided) {
+    const { line, dots } = elided()
+    const ghost = el('g', { opacity: 0.45 }, g)
+    el('polyline', { points: line.map((p) => p.join(',')).join(' '), fill: 'none', stroke: cssVar('--dep'), 'stroke-width': SIZE.line, 'stroke-dasharray': '1.5 1' }, ghost)
+    dots.forEach((d) => el('circle', { cx: d[0], cy: d[1], r: SIZE.dotD / 2, fill: cssVar('--dep') }, ghost))
+  }
+  el('rect', { x: SUCC.x, y: SUCC.mid - SIZE.planH / 2, width: SUCC.w, height: SIZE.planH, fill: cssVar('--plan-fill'), stroke: cssVar('--plan-stroke'), 'stroke-width': 0.8 }, g)
+  drawLine(g, landedRoute(), SIZE.line + SIZE.landedExtra, cssVar('--dep'))
+  el('text', { x: SUCC.x + 6, y: SUCC.mid, 'font-size': SIZE.font, 'dominant-baseline': 'central', fill: cssVar('--label') }, g).textContent = SUCC.name
+  svg.appendChild(shade)
+  svg.addEventListener('mousemove', (ev) => {
+    const r = svg.getBoundingClientRect()
+    const x = (ev.clientX - r.left) / state.mag, y = (ev.clientY - r.top) / state.mag
+    const a = answerAt(x, y)
+    $('status').textContent = {
+      off: '画面の外 —— 何も応えない',
+      none: '何も応えない',
+      line: '線が応える —— 押して離せば、この依存線を選ぶ（PE-12）',
+      mark: '続きの印が応える —— 押して離せば、もう一度 印の先へ送る（PE-12）。印は描かれていない',
+    }[a]
+    $('status').className = a === 'mark' ? 'bad' : a === 'line' ? 'good' : ''
+  })
+}
+
+// ---- controls ------------------------------------------------------------------------------------
+function buttons(hostId, table, key, redraw) {
+  const host = $(hostId)
+  host.innerHTML = ''
+  for (const [k, v] of Object.entries(table)) {
+    const b = document.createElement('button')
+    b.textContent = v.name
+    if (state[key] === k) b.className = 'on'
+    b.onclick = () => { state[key] = k; buttons(hostId, table, key, redraw); redraw() }
+    host.appendChild(b)
+  }
+}
+function drawAll() { drawCorridor(); drawHit() }
+$('mag').onchange = (e) => { state.mag = Number(e.target.value); drawAll() }
+$('showElided').onchange = (e) => { state.showElided = e.target.checked; drawHit() }
+$('theme').onclick = () => {
+  const root = document.documentElement
+  root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark'
+  drawAll()
+}
+if (location.hash === '#dark') document.documentElement.dataset.theme = 'dark'
+buttons('corridorButtons', CORRIDORS, 'corridor', drawCorridor)
+buttons('hitButtons', HITS, 'hit', drawHit)
+drawAll()
+</script>
+</body>
+</html>
