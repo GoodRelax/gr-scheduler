@@ -29,6 +29,15 @@ import { dialogueFieldFromLog } from './dialogue-field'
 import { confirmationFromSession, dismissKeyOf, noticesFromSession } from './notices'
 export { shiftAmountText, timeShiftQuestionItems } from './notices'
 export type { TimeShiftPreview } from './notices'
+import type { HolidaySettings, HolidaySettingsFieldColumn } from './holiday-settings'
+export type {
+  HolidayExceptionRow,
+  HolidaySettings,
+  HolidaySettingsField,
+  HolidaySettingsFieldColumn,
+  HolidayWeekdayEntry,
+  HolidayWorkingHoursRow,
+} from './holiday-settings'
 
 // TRAP: the shell must use this key, not rebuild it, or the two spellings drift apart.
 export { dismissKeyOf }
@@ -374,10 +383,21 @@ export type PropertyFieldKey =
       readonly holder: 'documentSettings'
       readonly column: keyof DocumentSettings & string
     }
-  // see FO-16, FR-157
+  // see FO-16, FR-157, IC-162
   | {
       readonly holder: 'timeShift'
-      readonly column: 'minutes'
+      readonly column: 'minutes' | 'entry'
+    }
+  // see FO-14, FR-156, IC-161
+  | {
+      readonly holder: 'baseTimeZoneDraft'
+      readonly column: 'chosenRegion' | 'chosenWay' | 'entry'
+    }
+  // see WC-3, WC-4, WC-8, IC-134, IC-165
+  | {
+      readonly holder: 'calendarDraft'
+      readonly column: HolidaySettingsFieldColumn
+      readonly index: number
     }
 
 export interface CommandPalette {
@@ -474,6 +494,7 @@ export type OpenModal =
   | HelpModal
   | ExportChooser
   | OpenChooser
+  | HolidaySettings
   | (OpenSurface & {
       readonly surface: 'Watermark Unlock'
       readonly question: string

@@ -1397,6 +1397,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HelpFootnote` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#HelpFootnote` | -- | type HelpFootnote = LinkedWords |
 | `HelpModal` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpModal` | PI-37 | 型。 |
 | `HelpWindowArea` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#HelpWindowArea` | -- | interface HelpWindowArea |
+| `HolidayExceptionRow` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidayExceptionRow` | -- | interface HolidayExceptionRow |
+| `HolidaySettings` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettings` | -- | interface HolidaySettings |
+| `HolidaySettingsField` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettingsField` | -- | interface HolidaySettingsField |
+| `HolidaySettingsFieldColumn` | entry | type | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettingsFieldColumn` | -- | type HolidaySettingsFieldColumn = 'weekStartDay' \| 'fromTime' \| 'toTime' \| 'name' \| 'fromDate' \| 'toDate' |
+| `HolidayWeekdayEntry` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidayWeekdayEntry` | -- | interface HolidayWeekdayEntry |
+| `HolidayWorkingHoursRow` | entry | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidayWorkingHoursRow` | -- | interface HolidayWorkingHoursRow |
 | `HorizontalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#HorizontalWhole` | PI-37 | interface HorizontalWhole |
 | `horizontalWholeOf` | entry | function | `src/adapter/screen-renderer/screen-frame.ts#horizontalWholeOf` | PI-37 | function horizontalWholeOf(layout: ScheduleLayout, regions: ScreenRegions): HorizontalWhole |
 | `IconId` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#IconId` | -- | type IconId = string |
@@ -1416,7 +1422,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OpenChooser` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#OpenChooser` | -- | interface OpenChooser extends OpenSurface |
 | `OPENED_DELAY_DIAGNOSTICS_REPORT` | entry | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#OPENED_DELAY_DIAGNOSTICS_REPORT` | PI-37 | 開いたばかりの遅延診断レポートの窓の値（表 T-346 の `RW-1`、`S-451`）。 |
 | `OPENED_RESOURCE_LIST` | entry | const | `src/adapter/screen-renderer/resource-list.ts#OPENED_RESOURCE_LIST` | PI-37 | 開いたばかりの担当リストのウィンドウの値（表 T-370 の `RO-1`、`S-545`）。 |
-| `OpenModal` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#OpenModal` | -- | type OpenModal = \| HelpModal \| ExportChooser \| OpenChooser \| (OpenSurface & |
+| `OpenModal` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#OpenModal` | -- | type OpenModal = \| HelpModal \| ExportChooser \| OpenChooser \| HolidaySettings \| (OpenSurface & |
 | `PaletteGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PaletteGroup` | -- | interface PaletteGroup |
 | `PanelDivider` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PanelDivider` | -- | interface PanelDivider |
 | `ParentTaskChoice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ParentTaskChoice` | -- | interface ParentTaskChoice |
@@ -1514,6 +1520,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NO_DELAY_FIX_TABLES` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#NO_DELAY_FIX_TABLES` | -- | const NO_DELAY_FIX_TABLES: DelayFixTables = { proposals: [], log: [] } |
 | `NO_DELAY_FIX_VALUES` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#NO_DELAY_FIX_VALUES` | -- | const NO_DELAY_FIX_VALUES: DelayFixWindowValues = |
 | `dialogueFieldFromLog` | file only | function | `src/adapter/screen-renderer/dialogue-field.ts#dialogueFieldFromLog` | -- | function dialogueFieldFromLog( log: DialogueLog, session: ScreenSession, readings: ScreenViewReadings, canvas: ScreenRect, ): DialogueField \| null |
+| `HOLIDAY_SETTINGS_SURFACE` | file only | const | `src/adapter/screen-renderer/holiday-settings.ts#HOLIDAY_SETTINGS_SURFACE` | -- | const HOLIDAY_SETTINGS_SURFACE = 'Holiday Settings' |
+| `HolidaySettingsDraft` | file only | interface | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettingsDraft` | -- | interface HolidaySettingsDraft |
+| `holidaySettingsOf` | file only | function | `src/adapter/screen-renderer/holiday-settings.ts#holidaySettingsOf` | -- | function holidaySettingsOf( session: ScreenSession, schedule: Schedule, heading: string, commands: readonly CommandItem[], refusalsOf: (draft: HolidaySetting... |
+| `HolidaySettingsRefusal` | file only | type | `src/adapter/screen-renderer/holiday-settings.ts#HolidaySettingsRefusal` | -- | type HolidaySettingsRefusal = \| { readonly part: 'timeNotReadable'; readonly index: number; readonly side: 'fromTime' \| 'toTime'; readonly text: string } \| {... |
+| `shownClockText` | file only | function | `src/adapter/screen-renderer/holiday-settings.ts#shownClockText` | -- | function shownClockText(text: string \| null, side: 'fromTime' \| 'toTime'): string |
 | `confirmationAnswers` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationAnswers` | -- | function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] |
 | `confirmationFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationFromSession` | -- | function confirmationFromSession( session: ScreenSession, readings: ScreenViewReadings, ): Confirmation \| null |
 | `linkedWordsOf` | file only | function | `src/adapter/screen-renderer/notices.ts#linkedWordsOf` | -- | function linkedWordsOf(word: string): LinkedWords \| null |
@@ -1525,9 +1536,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `timeZoneLabelOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneLabelOf` | -- | function timeZoneLabelOf(region: string, language: DisplayLanguage): string |
 | `exportNameBodyOf` | file only | function | `src/adapter/screen-renderer/open-modals.ts#exportNameBodyOf` | -- | function exportNameBodyOf(documentName: string): string |
 | `helpModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#helpModalFromSession` | -- | function helpModalFromSession(session: ScreenSession, area: HelpWindowArea): HelpModal \| null |
-| `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, _schedule: Schedule, readings: ScreenViewReadings, settings: DocumentSettings, ): OpenModal \| null |
+| `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, schedule: Schedule, readings: ScreenViewReadings, settings: DocumentSettings, ): OpenModal \| null |
 | `assigneeCandidatesOf` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#assigneeCandidatesOf` | -- | function assigneeCandidatesOf( combo: Omit<AssigneeCombo, 'candidatesOf'>, typed: string, isDescending: boolean, ): readonly AssigneeCandidate[] |
 | `propertiesPanelFromSelection` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#propertiesPanelFromSelection` | -- | function propertiesPanelFromSelection( schedule: Schedule, settings: DocumentSettings, selection: Selection, session: ScreenSession, readings: ScreenViewRead... |
+| `widthOf` | file only | function | `src/adapter/screen-renderer/properties-panel.ts#widthOf` | -- | function widthOf(text: string, choices: readonly string[] \| null, labelCoef: number): number |
 | `RESOURCE_LIST_COLUMNS` | file only | const | `src/adapter/screen-renderer/resource-list.ts#RESOURCE_LIST_COLUMNS` | -- | const RESOURCE_LIST_COLUMNS: readonly string[] = displayWords.resourceListColumns.map((entry) => entry.rowId) |
 | `screenFrameFromRegions` | file only | function | `src/adapter/screen-renderer/screen-frame.ts#screenFrameFromRegions` | -- | function screenFrameFromRegions( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, ): ScreenFrame |
 | `GrabbedWindowName` | file only | type | `src/adapter/screen-renderer/screen-surface.ts#GrabbedWindowName` | -- | type GrabbedWindowName = WindowName \| 'closeOnlyTitledSurface' |
@@ -1986,4 +1998,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1010 name(s) leave through a public entry (450 of them published by table T-064), 766 more are exported by a file and not by its entry.
+Totals: 1016 name(s) leave through a public entry (450 of them published by table T-064), 772 more are exported by a file and not by its entry.
