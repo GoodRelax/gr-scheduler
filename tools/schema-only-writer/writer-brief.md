@@ -20,8 +20,8 @@ Write these two files:
 
 2. `{OUT}/minute-level.json` -- a minute-level schedule where the time of day matters: the chart
    shows times of day, the schedule's time zone is Asia/Tokyo, a working day of 09:00-12:00 and
-   13:00-18:00, one exception day that works only part of the day, one exception day (or weekday)
-   that works until midnight (24:00), at least 6 tasks with start/finish at specific minutes,
+   13:00-18:00, one exception day that works other hours than a normal day, one exception day (or
+   weekday) that works until midnight (24:00), at least 6 tasks with start/finish at specific minutes,
    1 milestone at a specific minute, dependencies, and 1 task in progress with a status date at a
    specific minute.
 

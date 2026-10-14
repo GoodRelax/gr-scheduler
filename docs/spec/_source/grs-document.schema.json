@@ -634,7 +634,7 @@
      "$ref": "#/$defs/DateTime"
     },
     "minutesPerDay": {
-     "description": "The length of 1d in durations and lags, in minutes (480 when null). Keep it equal to the working minutes of every working day, exception days with their own spans included: when one differs, GRS tells so each time the document opens, because 1d would no longer be a working day.",
+     "description": "The length of 1d in durations and lags, in minutes (480 when null). Keep it equal to the working minutes of every working day, one-off working exception days included (a day with no spans of its own counts the default spans): when one differs, GRS tells so each time the document opens, because 1d would no longer be a working day.",
      "type": [
       "integer",
       "null"

@@ -676,7 +676,7 @@
       "ja": "1 日あたりの分数。期間の換算に使う。空のときの既定は 表 T-209 の `S-128`"
      },
      "schemaNote": {
-      "en": "The length of 1d in durations and lags, in minutes ({{S-128}} when null). Keep it equal to the working minutes of every working day, exception days with their own spans included: when one differs, GRS tells so each time the document opens, because 1d would no longer be a working day."
+      "en": "The length of 1d in durations and lags, in minutes ({{S-128}} when null). Keep it equal to the working minutes of every working day, one-off working exception days included (a day with no spans of its own counts the default spans): when one differs, GRS tells so each time the document opens, because 1d would no longer be a working day."
      }
     },
     {

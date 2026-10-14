@@ -33,7 +33,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 
 const FR_054_OPEN =
-  '⭐ 時間帯の合計が `minutesPerDay` と違う稼働日を持つ文書を開いたときは、表 T-233 の `RS-89` を 1 度だけ告げること（MUST）'
+  '⭐ 時間帯の合計が `minutesPerDay` と違う稼働日（曜日の稼働日と、稼働にする繰り返しの無い例外日の両方を数え、時間帯を持たない日は `S-580` の時間帯で数える）を持つ文書を開いたときは、表 T-233 の `RS-89` を 1 度だけ告げること（MUST）'
 
 const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
   readonly reasons: readonly { readonly rowId: string; readonly text: { readonly ja: string; readonly en: string } }[]

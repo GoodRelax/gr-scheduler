@@ -43,7 +43,7 @@ node tools/schema-only-writer/measure.mjs docs/spec/_source/grs-document.schema.
 
 ## いつ回すか
 
-`erd.json` の `schemaNote`・`settings.json` の行の型と `schemaNote`・生成器の説明、形式の版（`SCHEMA_VERSION`）、日時と暦と完了率の読み（`FR-011`・`FR-012`・`FR-054`・`FR-088`・`FR-156`）を変える CR を当てたとき。⭐ 当てる前と後に 1 度ずつ回し、2 つを比べる（初めの回は `CR-751`。当てる前は日単位 PASS・分単位 FAIL（`RS-89` の知らせ 1）・迷い 17 点）。
+`erd.json` の `schemaNote`・`settings.json` の行の型と `schemaNote`・生成器の説明、形式の版（`SCHEMA_VERSION`）、日時と暦と完了率の読み（`FR-011`・`FR-012`・`FR-054`・`FR-088`・`FR-156`）を変える CR を当てたとき。⭐ 当てる前と後に 1 度ずつ回し、2 つを比べる（初めの回は `CR-751`。当てる前は日単位 PASS・分単位 FAIL（`RS-89` の知らせ 1）・迷い 17 点、後は両方 PASS・迷い 14 点。記録は `docs/development-records/measurements/x14-2026-10-15-cr-751/`）。⚠️ 2 回目からは指示書の分単位の例外日を「ふつうの日と違う時間を稼働する日」に改めた —— 1 回目の「一部だけ稼働」は、`minutesPerDay` の約束（合計を揃える）と知らせ 0 の求めがぶつかっていた。
 
 ## 結果の置き場所
 

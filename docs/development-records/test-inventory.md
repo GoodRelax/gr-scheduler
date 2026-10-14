@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 325 | 3870 | 5 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 327 | 3906 | 5 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 86 | 565 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3894 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 613 | 8439 | 8 | 8 | 13 | 2 |
+| **all** | | | 615 | 8475 | 8 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -417,6 +417,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-741-a-date-without-a-time-reads-as-the-working-day.test.ts` | 39 | FR-011, FR-054 | - | - | IV-10, IV-14, PI-1, S-580, WC-8 | - | - | - | - |
 | `tests/contract/cr-749-the-working-time-counter-counts-as-the-single-functions-do.test.ts` | 14 | FR-011, FR-012, FR-054 | - | - | PI-1, S-580 | - | - | - | - |
 | `tests/contract/cr-750-rs-90-ends-on-the-change-base-time-zone-entry.contract.test.ts` | 6 | FR-038, FR-156 | - | T-233 | IC-161, RS-90 | - | - | - | - |
+| `tests/contract/cr-751-a-region-outside-t-376-and-the-working-day-count.contract.test.ts` | 24 | FR-023, FR-054, FR-156 | - | T-220, T-233, T-376 | AT-79, AT-80, AT-82, IV-24, OP-3, OP-6, RS-25, RS-89, S-128, S-574, S-575, S-580, S-582, ZN-1, ZN-28 | - | - | - | - |
+| `tests/contract/cr-751-the-schema-names-the-regions-and-no-spec-id.contract.test.ts` | 12 | FR-024, FR-054, FR-156 | - | T-376 | IV-24, S-574, S-575, S-582 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
