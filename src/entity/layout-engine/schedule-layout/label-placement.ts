@@ -80,7 +80,7 @@ export function outwardStartOf(
   return referenceEnd + markerDiameter + NOT_STORED_SIZES['S-286']
 }
 
-// see LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8
+// see LP-1, LP-2, LP-3, LP-4, LP-5, LP-6, LP-7, LP-8, S-584
 /** @purity pure */
 export function labelLayoutOf(
   shapeKind: ShapeKind,
@@ -91,18 +91,19 @@ export function labelLayoutOf(
   outwardStart: number,
   settings: DrawnSettings,
 ): LabelLayout {
+  const edgeGap = settings.progressMarkerEdgeGap
   if (shapeKind === 'milestone') {
-    const markerLeft = marksShown ? reference.x + reference.width : null
+    const markerLeft = marksShown ? reference.x + reference.width + edgeGap : null
     const nameX = markerLeft === null
       ? reference.x + reference.width * settings.milestoneNameStartOfWidth
       : markerLeft + markerDiameter + settings.milestoneNameMarkerGap
     return { fits: true, markerLeft, nameX }
   }
-  const lead = marksShown ? markerDiameter + settings.labelGap : settings.labelPad
+  const lead = marksShown ? edgeGap + markerDiameter + settings.labelGap : settings.labelPad
   if (laidBelow(shapeKind)) {
     return {
       fits: true,
-      markerLeft: marksShown ? reference.x : null,
+      markerLeft: marksShown ? reference.x + edgeGap : null,
       nameX: Math.max(reference.x + lead, reference.nameFloor),
     }
   }
@@ -111,7 +112,7 @@ export function labelLayoutOf(
   const from = fits ? reference.x : outward
   return {
     fits,
-    markerLeft: marksShown ? from : null,
+    markerLeft: marksShown ? from + edgeGap : null,
     nameX: Math.max(from + lead, fits ? reference.nameFloor : from + lead),
   }
 }

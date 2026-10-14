@@ -247,6 +247,7 @@ export const SETTINGS_CONSTANTS: {
   readonly planStroke: number
   readonly progressLineOverhang: number
   readonly progressLineWidth: number
+  readonly progressMarkerEdgeGap: number
   readonly pxPerDayAt1x: number
   readonly resumeArmOfMarker: number
   readonly resumeDashOff: number
@@ -295,7 +296,7 @@ export const SETTINGS_CONSTANTS: {
   actualOfPlan: 0.5715,
   appHeaderMaxHeight: 56,
   arrowHeadOfSpan: 0.4,
-  assigneeLabelGap: 6.4,
+  assigneeLabelGap: 14.4,
   basePlanHeight: 28,
   canvasPadding: 10,
   carryMaxDepth: 16,
@@ -303,11 +304,11 @@ export const SETTINGS_CONSTANTS: {
   chevronNotchOfWidth: 0.35,
   commentBoxPad: 3,
   commentBoxWrapUnits: 128,
-  dependencyArrowLength: 9.6,
-  dependencyArrowWidth: 8,
+  dependencyArrowLength: 6.4,
+  dependencyArrowWidth: 6.4,
   dependencyLagDefault: 0,
-  dependencyLeadIn: 16,
-  dependencyLeadOut: 9.6,
+  dependencyLeadIn: 9.6,
+  dependencyLeadOut: 4.8,
   dependencyWidth: 2.4,
   dummyOpacity: 0.20,
   exportCanvas: {
@@ -358,6 +359,7 @@ export const SETTINGS_CONSTANTS: {
   planStroke: 1,
   progressLineOverhang: 6,
   progressLineWidth: 2,
+  progressMarkerEdgeGap: 8,
   pxPerDayAt1x: 6,
   resumeArmOfMarker: 0.62,
   resumeDashOff: 2,

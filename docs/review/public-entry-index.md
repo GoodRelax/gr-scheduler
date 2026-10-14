@@ -395,10 +395,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DrawnSettings, layout: ScheduleLayout, ): readonly CommentGeometry[] |
 | `hasPlanDates` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#hasPlanDates` | -- | function hasPlanDates(task: Task): boolean |
 | `isAtLeastDrawnPx` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#isAtLeastDrawnPx` | -- | function isAtLeastDrawnPx(value: number, bound: number): boolean |
+| `laneSpansOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#laneSpansOf` | -- | function laneSpansOf(layout: ScheduleLayout, settings: DrawnSettings): readonly LaneSpan[] |
 | `LinkEnd` | file only | interface | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#LinkEnd` | -- | interface LinkEnd |
 | `placedEndOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#placedEndOf` | -- | function placedEndOf(placed: TaskPlacement, settings: DrawnSettings): LinkEnd |
 | `plannedPlacementsOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#plannedPlacementsOf` | -- | function plannedPlacementsOf(inputs: GeometryInputs): readonly TaskPlacement[] |
-| `routedDependency` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#routedDependency` | -- | function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd, successor: SightedEnd, linkType: number, elision: Elision): DependencyGeometry |
+| `routedDependency` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#routedDependency` | -- | function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd, successor: SightedEnd, linkType: number, elision: Elision, lanes: readonly LaneSpa... |
 | `SightedEnd` | file only | interface | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#SightedEnd` | -- | interface SightedEnd |
 | `standingEndOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#standingEndOf` | -- | function standingEndOf(taskUid: number, x: number, width: number, y: number): LinkEnd |
 | `unseenEndStubOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#unseenEndStubOf` | -- | function unseenEndStubOf(from: Point, toward: number, settings: DrawnSettings): |
@@ -2013,4 +2014,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1021 name(s) leave through a public entry (480 of them published by table T-064), 782 more are exported by a file and not by its entry.
+Totals: 1021 name(s) leave through a public entry (480 of them published by table T-064), 783 more are exported by a file and not by its entry.

@@ -225,6 +225,7 @@
 | K-32 | ラベル | `labelGap` | タスク名をマーカーから離す隙間 |
 | K-131 | ラベル | `milestoneNameMarkerGap` | マイルストーン名をマーカーから離す隙間 |
 | K-132 | ラベル | `assigneeLabelGap` | 担当と進捗の札を開始から離す隙間 |
+| K-147 | ラベル | `progressMarkerEdgeGap` | 進捗マーカーを棒の端から離す隙間 |
 | K-133 | ラベル | `milestoneNameStartOfWidth` | マイルストーン名の書き出し ÷ 菱形の幅 |
 | K-33 | ラベル | `labelBaseline` | ベースライン補正 |
 | K-34 | ラベル | `labelHaloOfFont` | 縁取りの太さ ÷ フォント |

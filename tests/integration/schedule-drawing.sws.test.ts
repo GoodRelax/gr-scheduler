@@ -1324,21 +1324,13 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       sws: 'SWS-3',
       level: 'Integration',
       covers: ['RP-2'],
-      given: 'a two-bend route whose plain midpoint falls outside x1 and x2',
+      given: 'an opposing route to the next lane down with x2 right of x1',
       when: 'geometryFromLayout routes it',
-      then: 'the bend is pulled back inside x1 and x2',
+      then: 'it bends four times: down at x1 to the LF-5 corridor, across, and down at x2, the shape of RP-4',
     }),
     () => {
-      // RP-2: "exit edge -> midpoint -> down -> entry edge. The midpoint is
-      // held inside x1 and x2." One day of clearance at 26 px a day leaves the
-      // plain midpoint past x2, so the clamp has to bite.
-      // ⚠️ THE SCALE IS PART OF THE SCENARIO AND CR-276 MOVED IT. The clamp
-      // bites while half the gap is shorter than the entry run, and that run is
-      // the two runs; S-19 went 10 -> 7, so 35 px a day stopped biting and the
-      // case would have passed while testing nothing. The guard below is what
-      // said so -- it is asserted first for exactly this reason. ⚠️ 26 and not
-      // less: below about 22 px a day the route stops being RP-2 at all and
-      // becomes RP-4, which would test a different row.
+      // WHY: RP-2 now runs exit edge, x1, the LF-5 corridor, x2, entry edge (the RP-4 shape);
+      // the midpoint clamp it once had is gone, so the case checks the four bends instead.
       const drawn = draw(
         [
           task({ uid: 1, name: 'p', start: day(2), finish: endOfDay(5) }),
@@ -1358,13 +1350,20 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
       const exitRun = (SETTINGS_CONSTANTS.dependencyLeadOut as number) * DISPLAY_RATIO
       const x1 = exitEdge + exitRun
       const x2 = entryEdge - entryRun
-      const plain = (exitEdge + entryEdge) / 2
-      expect(plain, 'the scenario is only worth running if the clamp bites').toBeGreaterThan(x2)
-      const bend = line.points[1]
-      const drop = line.points[2]
-      if (bend === undefined || drop === undefined) throw new Error('not a two-bend route')
-      expect(bend.x).toBeCloseTo(drop.x, 6)
-      expect(bend.x, 'held inside x1 and x2').toBeCloseTo(Math.min(Math.max(plain, x1), x2), 6)
+      expect(x2, 'premise: RP-2 is the row where x2 is at or right of x1').toBeGreaterThanOrEqual(x1)
+      expect(line.points.length - 2, 'RP-2 bends 4 times').toBe(4)
+      const [exit, down, across, back, entryBend, entry] = line.points
+      if (!exit || !down || !across || !back || !entryBend || !entry) throw new Error('not a four-bend route')
+      expect(down.x, 'the first bend is at x1').toBeCloseTo(x1, 6)
+      expect(down.y, 'leaving level from the exit edge').toBeCloseTo(exit.y, 6)
+      expect(across.x, 'down at x1').toBeCloseTo(x1, 6)
+      expect(back.y, 'the corridor is one horizontal run').toBeCloseTo(across.y, 6)
+      // WHY: LF-5 puts the corridor of two adjacent lanes at the middle of the two.
+      expect(across.y, 'the LF-5 corridor').toBeCloseTo((predecessor.y + predecessor.planHeight + successor.y) / 2, 6)
+      expect(back.x, 'across to x2').toBeCloseTo(x2, 6)
+      expect(entryBend.x, 'down at x2').toBeCloseTo(x2, 6)
+      expect(entryBend.y, 'entering level into the entry edge').toBeCloseTo(entry.y, 6)
+      expect(entry.x, 'the entry edge').toBeCloseTo(entryEdge, 6)
     },
   )
 
@@ -1663,7 +1662,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       covers: ['LF-11'],
       given: 'a Task that is under way, so an actual bar is on screen beside its plan',
       when: 'geometryFromLayout places the progress marker',
-      then: 'LP-1 stands the marker on the actual start with the name S-32 past it, and S-260 still free at the actual right end',
+      then: 'LP-1 stands the marker S-584 right of the actual start with the name S-32 past it, and S-260 still free at the actual right end',
     }),
     () => {
       // WHY: the name and the marker fit the actual, so LP-1 places both there, marker first.
@@ -1703,17 +1702,17 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         placed.y + placed.planHeight / 2,
         6,
       )
-      expect(placed.labelPlacement, '| LP-1 | `===` | 出す | 入る | 基準の開始 | マーカーの右端 ＋ `S-32` |').toBe('inside')
+      expect(placed.labelPlacement, '| LP-1 | `===` | 出す | 入る | 基準の開始から `S-584` だけ右 | マーカーの右端 ＋ `S-32` |').toBe('inside')
       expect(
         marker.center.x - marker.radius,
-        '| LP-1 | `===` | 出す | 入る | 基準の開始 | マーカーの右端 ＋ `S-32` |',
-      ).toBeCloseTo(placed.actualX ?? 0, 6)
+        '| LP-1 | `===` | 出す | 入る | 基準の開始から `S-584` だけ右 | マーカーの右端 ＋ `S-32` |',
+      ).toBeCloseTo((placed.actualX ?? 0) + settingNumber('S-584') * DISPLAY_RATIO, 6)
       const label = geometryOf(drawn, 1).label
       expect(label, 'the name is drawn').not.toBeNull()
       if (label === null) return
       expect(
         label.x + label.width + NOT_STORED_SIZES['S-260'],
-        '⭐ 「入る」とは、（マーカーを出すなら マーカーの径 ＋ `S-32`、出さないなら `S-31`）＋ 名前の幅 ＋ 実績の終了の内側の幅（表 T-206 の `S-260`）が、基準の幅以下であることとすること（MUST）。',
+        '⭐ 「入る」とは、（マーカーを出すなら `S-584` ＋ マーカーの径 ＋ `S-32`、出さないなら `S-31`）＋ 名前の幅 ＋ 実績の終了の内側の幅（表 T-206 の `S-260`）が、基準の幅以下であることとすること（MUST）。',
       ).toBeLessThanOrEqual(actualRight + 1e-9)
       expect(
         marker.center.x + marker.radius,
@@ -1729,12 +1728,13 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       covers: ['LF-11'],
       given: 'a Task not started, whose only actual bar is FR-043 dummy',
       when: 'geometryFromLayout places the marker',
-      then: 'it touches that mark with no markerGap and sits on the plan middle',
+      then: 'LP-2 stands it S-584 right of that mark and on the plan middle',
     }),
     () => {
       // The other half of LF-11's first sentence. A Task with nothing entered
       // still shows a marker (FR-013 gives PM-1a a target to press), and the
       // bar it clears is the dummy FR-043 draws.
+      // WHY: the dummy is the basis (T-272 RF-1) and the name does not fit it, so LP-2 applies.
       const drawn = draw(
         [task({ uid: 1, name: 'x', start: day(2), finish: endOfDay(10) })],
         ['g1'],
@@ -1751,10 +1751,11 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
       const holdRight =
         xOfDay(2, drawn.regions, drawn.layout.pxPerDay) +
         Math.min(SETTINGS_CONSTANTS.markerSize * DISPLAY_RATIO * S_247, settingNumber('S-180'))
+      expect(placed.labelPlacement, 'premise: the name does not fit the dummy (LP-2)').toBe('right')
       expect(
         marker.center.x - marker.radius - holdRight,
-        '⛔ 実績バーの右端と進捗マーカーのあいだに隙間を空けてはならない（MUST NOT）',
-      ).toBeCloseTo(0, 6)
+        '| LP-2 | `===` | 出す | 入らない | 基準の終了から `S-584` だけ右 | マーカーの右端 ＋ `S-32` |',
+      ).toBeCloseTo(settingNumber('S-584') * DISPLAY_RATIO, 6)
     },
   )
 

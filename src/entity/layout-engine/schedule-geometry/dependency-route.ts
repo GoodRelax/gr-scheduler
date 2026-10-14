@@ -6,7 +6,7 @@
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import type { Schedule, Task } from '../../document-model/schedule/schedule'
 import type { Selection } from '../../document-model/selection/selection'
-import type { TaskPlacement } from '../schedule-layout/schedule-layout'
+import type { ScheduleLayout, TaskPlacement } from '../schedule-layout/schedule-layout'
 import { displayRatioOf } from '../screen-regions/screen-regions'
 import {
   point,
@@ -90,12 +90,48 @@ interface Anchored {
   readonly drawnBottom: number
 }
 
-// see LF-5, VG-2, VG-5
+interface LaneSpan {
+  readonly top: number
+  readonly bottom: number
+}
+
+// see LF-5, LF-2
+// WHY: its Tasks' own edges, as LF-5 reads an adjacent successor's; an empty lane is a rectangle laid on its top.
 /** @purity pure */
-function corridorY(from: Anchored, to: Anchored, settings: DrawnSettings): number {
+export function laneSpansOf(layout: ScheduleLayout, settings: DrawnSettings): readonly LaneSpan[] {
+  const byLane = new Map<string, LaneSpan>()
+  for (const placed of layout.placements) {
+    const key = `${placed.groupId}#${placed.stack}`
+    const end = placedEndOf(placed, settings)
+    const held = byLane.get(key) ?? end
+    byLane.set(key, { top: Math.min(held.top, end.top), bottom: Math.max(held.bottom, end.bottom) })
+  }
+  const spans: LaneSpan[] = []
+  for (const taskGroup of layout.taskGroups) {
+    taskGroup.stackTops.forEach((laneTop, lane) => {
+      const top = laneTop + settings.planStroke / 2
+      spans.push(byLane.get(`${taskGroup.groupId}#${lane}`) ?? { top, bottom: top + layout.rectangleHeight })
+    })
+  }
+  return spans.sort((one, other) => one.top - other.top)
+}
+
+const SAME_HEIGHT_PX = 0.5
+
+// see LF-5, VG-2, VG-5, JDG-2110
+/** @purity pure */
+function corridorY(from: Anchored, to: Anchored, course: 'sameLane' | 'down' | 'up', settings: DrawnSettings,
+                   lanes: readonly LaneSpan[]): number {
   const gap = settings.stackGap + settings.dependencyWidth + settings.stackGap
-  if (Math.abs(from.top - to.top) < 0.5) return from.drawnBottom + gap / 2
-  return to.top > from.top ? (from.bottom + to.top) / 2 : (to.bottom + from.top) / 2
+  if (course === 'sameLane') return from.drawnBottom + gap / 2
+  if (course === 'down') {
+    const below = lanes.filter((lane) =>
+      lane.top >= from.bottom - SAME_HEIGHT_PX && lane.top <= to.top + SAME_HEIGHT_PX)
+    return (from.bottom + (below.length <= 1 ? to.top : below[0]!.top)) / 2
+  }
+  const above = lanes.filter((lane) =>
+    lane.bottom <= from.top + SAME_HEIGHT_PX && lane.bottom >= to.bottom - SAME_HEIGHT_PX)
+  return (from.top + (above.length <= 1 ? to.bottom : above[above.length - 1]!.bottom)) / 2
 }
 
 // see T-222
@@ -111,23 +147,32 @@ export function isAtLeastDrawnPx(value: number, bound: number): boolean {
   return value >= bound - DRAWN_PX_ROUNDING
 }
 
+type Route = { readonly pattern: DependencyGeometry['pattern']; readonly points: Path }
+
+// see RP-2, RP-3, RP-4, RP-5
+/** @purity pure */
+function opposedPatternOf(sameLane: boolean, below: boolean, x2ReachesX1: boolean): DependencyGeometry['pattern'] {
+  if (sameLane) return 'RP-4'
+  if (x2ReachesX1) return below ? 'RP-2' : 'RP-3'
+  return below ? 'RP-4' : 'RP-5'
+}
+
 // see T-222
 /** @purity pure */
-function routeOf(from: Anchored, to: Anchored, linkType: number, settings: DrawnSettings): {
-  readonly pattern: DependencyGeometry['pattern']
-  readonly points: Path
-} {
+function routeOf(from: Anchored, to: Anchored, linkType: number, settings: DrawnSettings,
+                 lanes: readonly LaneSpan[]): Route {
   const entryRun = settings.dependencyLeadIn
   const exitRun = settings.dependencyLeadOut
   const x1 = from.edge + exitRun
-  const sameLane = Math.abs(from.middle - to.middle) < 0.5
+  const sameLane = Math.abs(from.middle - to.middle) < SAME_HEIGHT_PX
   const below = to.middle > from.middle
+  const course = sameLane ? 'sameLane' : below ? 'down' : 'up'
 
   if (sameSide(linkType)) {
     const x2 = to.edge + entryRun
     if (sameLane) {
       const outward = isAtLeastDrawnPx(Math.abs(x1 - x2), exitRun) ? x1 : x2 + exitRun
-      const corridor = corridorY(from, to, settings)
+      const corridor = corridorY(from, to, course, settings, lanes)
       return {
         pattern: 'RP-8',
         points: [
@@ -156,21 +201,9 @@ function routeOf(from: Anchored, to: Anchored, linkType: number, settings: Drawn
   if (sameLane && isAtLeastDrawnPx(to.edge - from.edge, entryRun)) {
     return { pattern: 'RP-1', points: [point(from.edge, from.middle), point(to.edge, to.middle)] }
   }
-  if (!sameLane && isAtLeastDrawnPx(x2, x1)) {
-    const mid = Math.max(x1, Math.min((from.edge + to.edge) / 2, x2))
-    return {
-      pattern: below ? 'RP-2' : 'RP-3',
-      points: [
-        point(from.edge, from.middle),
-        point(mid, from.middle),
-        point(mid, to.middle),
-        point(to.edge, to.middle),
-      ],
-    }
-  }
-  const corridor = corridorY(from, to, settings)
+  const corridor = corridorY(from, to, course, settings, lanes)
   return {
-    pattern: below || sameLane ? 'RP-4' : 'RP-5',
+    pattern: opposedPatternOf(sameLane, below, isAtLeastDrawnPx(x2, x1)),
     points: [
       point(from.edge, from.middle),
       point(x1, from.middle),
@@ -315,7 +348,7 @@ function elidedPartsOf(inputs: GeometryInputs, points: Path, isLevel: boolean, e
 
 /** @purity pure */
 export function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd, successor: SightedEnd,
-                          linkType: number, elision: Elision): DependencyGeometry {
+                          linkType: number, elision: Elision, lanes: readonly LaneSpan[]): DependencyGeometry {
   const from = predecessor.end
   const to = successor.end
   const right = exitsRight(linkType)
@@ -329,10 +362,11 @@ export function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd
     bottom: end.bottom,
     drawnBottom: end.drawnBottom,
   })
-  const route = routeOf(anchor(from, right), anchor(to, entryRight), linkType, inputs.settings)
+  const settings = inputs.settings
+  const route = routeOf(anchor(from, right), anchor(to, entryRight), linkType, settings, lanes)
   const points = route.points.map((vertex) => point(sign * vertex.x, vertex.y))
   const isSelected = inputs.selectedLinks.has(`${from.taskUid}>${to.taskUid}`)
-  const ownWidth = inputs.settings.dependencyWidth
+  const ownWidth = settings.dependencyWidth
   return {
     predecessorUid: from.taskUid,
     successorUid: to.taskUid,
@@ -341,6 +375,7 @@ export function routedDependency(inputs: GeometryInputs, predecessor: SightedEnd
     points,
     elision,
     strokeWidth: isSelected ? ownWidth + NOT_STORED_DEPENDENCY_EMPHASIS_SIZES['S-447'] : ownWidth,
+    wholeRouteHead: arrowHeadOf(points, settings.dependencyArrowLength, settings.dependencyArrowWidth),
     ...elidedPartsOf(inputs, points, route.pattern === 'RP-1', {
       elision,
       exitOutward: sign,

@@ -29,6 +29,7 @@ import { drawnSettingsOf, type ScreenRect, type ScreenRegions } from '../screen-
 import { commentGeometry } from './comment-box'
 import {
   hasPlanDates,
+  laneSpansOf,
   placedEndOf,
   plannedPlacementsOf,
   routedDependency,
@@ -110,6 +111,7 @@ export interface MarkerGeometry {
   readonly symbol: ProgressSymbol
   readonly center: Point
   readonly radius: number
+  readonly standsOffX?: number
 }
 
 // see LF-13, XS-10, XS-12, S-25, GA-20
@@ -195,6 +197,8 @@ export interface DependencyGeometry {
   // WHY: optional, not required: a hand-built geometry that only asks what a press hits may give no ink.
   readonly strokeWidth?: number
   readonly head?: Path
+  // see EL-19, GA-19
+  readonly wholeRouteHead?: Path
 }
 
 // see FR-019, S-369, S-370, S-371, HB-10, HB-11
@@ -476,6 +480,7 @@ function elisionOf(predecessorSeen: boolean, successorSeen: boolean): Elision {
 function dependenciesOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRegions): DependencyGeometry[] {
   if (!inputs.settings.dependencyVisible || !inputs.settings.planVisible) return []
   const reading = readingOf(schedule, inputs, regions)
+  const lanes = laneSpansOf(inputs.layout, inputs.settings)
   const out: DependencyGeometry[] = []
   for (const successor of schedule.tasks) {
     if (successor.dependencies.length === 0) continue
@@ -484,7 +489,8 @@ function dependenciesOf(schedule: Schedule, inputs: GeometryInputs, regions: Scr
     for (const link of successor.dependencies) {
       const from = sightedEndOf(link.predecessorUid, reading)
       if (from === null) continue
-      out.push(routedDependency(inputs, from, to, link.linkType, elisionOf(isSeen(from.far), isSeen(to.far))))
+      const elision = elisionOf(isSeen(from.far), isSeen(to.far))
+      out.push(routedDependency(inputs, from, to, link.linkType, elision, lanes))
     }
   }
   return out

@@ -74,9 +74,9 @@ describe('DFC-2131 / DFC-640: the drawn arrow head is the hit-test head (S-19, S
     expect(drawnTriangleOf(SCENE.svg()).height).toBeCloseTo(S_19 * RATIO, 1)
   })
 
-  it('S-19 / S-300 the height and the base are two values, so the drawn triangle is not square (DFC-2131)', () => {
+  // WHY: T-201 now holds S-19 = S-300 = 6.4 (a 4 x 4 head, CR-758), so the two rows give a square; the ratio still reads both.
+  it('S-19 / S-300 the height and the base are two values, and the drawn ratio is S-300 / S-19 (DFC-2131)', () => {
     const drawn = drawnTriangleOf(SCENE.svg())
-    expect(S_19).not.toBe(S_300)
     expect(drawn.base / drawn.height).toBeCloseTo(S_300 / S_19, 2)
   })
 })

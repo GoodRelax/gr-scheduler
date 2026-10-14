@@ -112,8 +112,10 @@
   <div class="hint">ポインタは再開アイコンと同じ折れ矢印（黒の中・白の縁。実績の側のポインタの色）。押さえる点は折れ目 ＝ アイコンが表す再開日の左の境目。既定は小さめの 12px（端の矢印の 16px の 75%）。</div>
   <div class="cursorRow" id="cursor-common"></div>
   <h3>担当・進捗の札（共通）</h3>
-  <label><span class="name">担当・進捗 → 開始</span><input id="outsideGap" type="range" min="0" max="38.4" step="0.8" value="6.4"><output id="outsideGapOut"></output></label>
-  <div class="hint">担当と進捗の札の右端から、描いた予定と実績の早い方の開始まで。マイルストーンは菱形の 25% の位置まで。---> は名前の段の基準の開始（マーカーの左端）まで。</div>
+  <label><span class="name">担当・進捗 → 開始</span><input id="outsideGap" type="range" min="0" max="38.4" step="0.8" value="14.4"><output id="outsideGapOut"></output></label>
+  <div class="hint">担当と進捗の札の右端から、描いた予定と実績の早い方の開始まで。マイルストーンは菱形の 25% の位置まで。---> は名前の段の基準の開始まで。</div>
+  <label><span class="name">棒の端 → マーカー（S-584）</span><input id="markerEdgeGap" type="range" min="0" max="30" step="0.8" value="8"><output id="markerEdgeGapOut"></output></label>
+  <div class="hint">進捗マーカーの左端を、立つ棒の端（開始の内側・終了の右・菱形の右・再開アイコンの右）から離す量（CR-758、表 T-273）。</div>
   <label><span class="name">札の字の大きさ（× 実績の高さ）</span><input id="labelFont" type="range" min="50" max="130" step="5" value="90"><output id="labelFontOut"></output></label>
   <div class="hint">字は 12px × 描く比 0.625 ＝ 7.5px を割らない（S-8）。---> の札は、矢の帯（バーの高さの半分）の実績の高さから求め、さらに 0.85 倍（S-9）なので、既定ではこの床で決まる。担当と進捗は「 : 」で繋ぐ（FR-090）。</div>
   <h3>描く順（上ほど奥、下ほど手前）</h3>
@@ -253,11 +255,11 @@ const $ = id => document.getElementById(id);
 // drawing ratio of display scale 100 (DS-1): spx(). Their defaults keep the look the user accepted on screen:
 // the px seen divided by 0.625 (question 9-2). Grab areas and pointers are not scaled (DS-7, T-264), and the
 // day's width is only a way to look at the sample
-const S = { scale:100, dayPx:12, barH:28, markerSize:22.4, namePad:9.6, nameAfterMarker:9.6, msNameAfterMarker:9.6, outsideGap:6.4,
+const S = { scale:100, dayPx:12, barH:28, markerSize:22.4, namePad:9.6, nameAfterMarker:9.6, msNameAfterMarker:9.6, outsideGap:14.4, markerEdgeGap:8,
             labelFont:90, cur:16, msCur:12, msActCur:8, resumeCur:12, depRunOut:9.6, depRunIn:16, arrowLen:9.6, arrowWidth:8,
             arrowNameGap:2, arrowActualGap:2, arrowLine:2.8, arrowHeadLen:5.6, arrowHeadH:5.6, spanDot:6.4, stackBH:100 };
 const SLIDERS = Object.keys(S);
-const SCALED = ['barH', 'markerSize', 'namePad', 'nameAfterMarker', 'msNameAfterMarker', 'outsideGap',
+const SCALED = ['barH', 'markerSize', 'namePad', 'nameAfterMarker', 'msNameAfterMarker', 'outsideGap', 'markerEdgeGap',
                 'depRunOut', 'depRunIn', 'arrowLen', 'arrowWidth', 'arrowNameGap', 'arrowActualGap',
                 'arrowLine', 'arrowHeadLen', 'arrowHeadH', 'spanDot'];
 
@@ -611,18 +613,21 @@ function placeAlong(g, item, barX, barW, marked, mk, endX) {
   // "end" keeps it off the finish's grab only, since the marker now sits on the start grab by design
   const mode = $('q6').value;
   const lead = nameLead(marked, mk);
-  const needed = mode === 'fr002' ? nameW + 6 + 8 + (marked ? mk + 4 : 0) + GRAB.actualStart.in + GRAB.actualEnd.in
+  // the marker stands S-584 clear of the edge it follows (CR-758, table T-273), and "fits" counts that gap
+  const edgeGap = marked ? spx(S.markerEdgeGap) : 0;
+  const needed = edgeGap + (mode === 'fr002' ? nameW + 6 + 8 + (marked ? mk + 4 : 0) + GRAB.actualStart.in + GRAB.actualEnd.in
                : mode === 'end' ? lead + nameW + GRAB.actualEnd.in
-               : lead + nameW;
+               : lead + nameW);
   const fits = needed <= barW;
   // a suspended task: the reference ends at the resume icon's right edge, so a marker and a name that do not fit
   // stand right of the icon (actual, icon, marker, name), never on the dashed line or the icon
-  const markerX = fits ? barX : endX;
+  const markerX = (fits ? barX : endX) + edgeGap;
   return { fits, markerX, nameX: markerX + lead, nameW };
 }
 // `--->` arrows: name, plan and actual are stacked, so the marker follows the actual's start
 function placeAlongArrow(barX, marked, mk) {
-  return { fits: true, markerX: barX, nameX: barX + nameLead(marked, mk) };
+  const markerX = barX + (marked ? spx(S.markerEdgeGap) : 0);
+  return { fits: true, markerX, nameX: (marked ? markerX : barX) + nameLead(marked, mk) };
 }
 // a task name starts this far from where its marker starts; with the marker hidden, from the reference's edge
 function nameLead(marked, mk) { return marked ? mk + spx(S.nameAfterMarker) : spx(S.namePad); }
@@ -962,7 +967,7 @@ function draw() {
   }
   const msFollowX = showActual && hasMsActual ? msActX : msX;   // labels follow the actual, never the plan
   const msHalf = showActual ? msR * AOP : msR;
-  const msAnchor = msFollowX + msHalf;                          // the marker stands outside the glyph
+  const msAnchor = msFollowX + msHalf + spx(S.markerEdgeGap);   // the marker stands outside the glyph, S-584 clear (CR-758)
   if (showPlan) ANCHOR.ms = { x0: msX - msR, x1: msX + msR, y: msY + msR, top: msY, bottom: msY + bh };
   if (marked) {
     markerZone(g, 'ms-marker', 'marker', msAnchor, msY + (bh - mk) / 2, mk);

@@ -3338,7 +3338,7 @@ export function frameLoop(
     // TRAP: without the Task Group Area test a bar clipped under the Task Group Panel still takes the press.
     const hit =
       on === null && regionAtPointer(frame.regions, at.x, at.y) === 'taskGroupArea'
-        ? itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), resolving)
+        ? itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), resolving, landedLinkIn(session))
         : null
     const pressRow = pressRowOf({ at, hit }, { screen: session.screen, dualCursorFollowing: dualCursorFollowingIn(session), selection: selectedObjectsIn(session) })
     return {
