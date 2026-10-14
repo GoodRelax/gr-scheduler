@@ -1,4 +1,4 @@
-// CR-749 (spec-only): PI-1 workingTimeCounterOf and finishSideDayFrom give the answers the single-Task functions give (FR-011, FR-012, FR-054).
+// CR-749 (spec-only): PI-1 workingTimeCounterOf and finishSideDayFrom give the answers the single-Task functions give (FR-011, FR-012, FR-054), called as T-064 PI-1 states (CR-752).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'

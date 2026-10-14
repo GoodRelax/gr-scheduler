@@ -1,0 +1,3780 @@
+{
+ "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
+ "schemaVersion": "2026-10-11T04:10:00Z",
+ "schedule": {
+  "project": {
+   "id": "GRS-PLAN",
+   "name": "gr-scheduler のプロジェクト計画",
+   "title": "gr-scheduler のプロジェクト計画(2026-10-15 07:19 JST 時点)",
+   "subject": "いまから計画の終わりまで",
+   "category": null,
+   "company": null,
+   "manager": null,
+   "author": null,
+   "created": "2026-10-15T07:19:00",
+   "revision": 1,
+   "startDate": "2026-10-15T02:00:00",
+   "statusDate": "2026-10-15T07:19:00",
+   "minutesPerDay": 1440,
+   "minutesPerWeek": 10080,
+   "daysPerMonth": 30,
+   "weekStartDay": 1,
+   "calendarUid": 1,
+   "defaultStartTime": "00:00:00",
+   "defaultFinishTime": "23:59:00",
+   "themeHue": 214,
+   "parentProgressToleranceDays": 1,
+   "uidHighWaterMark": 85,
+   "importSeq": 0,
+   "carry": {},
+   "carryElements": [],
+   "outlineBase": 1,
+   "sourceFormat": "grs",
+   "scheduleDataTimeZone": "Asia/Tokyo"
+  },
+  "calendars": [
+   {
+    "uid": 1,
+    "name": "計画の暦(毎日 24 時間)",
+    "isBaseCalendar": true,
+    "baseCalendarUid": null,
+    "ordinal": 0,
+    "carry": {},
+    "carryElements": [],
+    "weekDays": [
+     {
+      "ordinal": 0,
+      "dayType": 1,
+      "dayWorking": true,
+      "workingTimes": [
+       {
+        "ordinal": 0,
+        "fromTime": "00:00:00",
+        "toTime": "00:00:00"
+       }
+      ],
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 1,
+      "dayType": 2,
+      "dayWorking": true,
+      "workingTimes": [
+       {
+        "ordinal": 0,
+        "fromTime": "00:00:00",
+        "toTime": "00:00:00"
+       }
+      ],
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 2,
+      "dayType": 3,
+      "dayWorking": true,
+      "workingTimes": [
+       {
+        "ordinal": 0,
+        "fromTime": "00:00:00",
+        "toTime": "00:00:00"
+       }
+      ],
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 3,
+      "dayType": 4,
+      "dayWorking": true,
+      "workingTimes": [
+       {
+        "ordinal": 0,
+        "fromTime": "00:00:00",
+        "toTime": "00:00:00"
+       }
+      ],
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 4,
+      "dayType": 5,
+      "dayWorking": true,
+      "workingTimes": [
+       {
+        "ordinal": 0,
+        "fromTime": "00:00:00",
+        "toTime": "00:00:00"
+       }
+      ],
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 5,
+      "dayType": 6,
+      "dayWorking": true,
+      "workingTimes": [
+       {
+        "ordinal": 0,
+        "fromTime": "00:00:00",
+        "toTime": "00:00:00"
+       }
+      ],
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "ordinal": 6,
+      "dayType": 7,
+      "dayWorking": true,
+      "workingTimes": [
+       {
+        "ordinal": 0,
+        "fromTime": "00:00:00",
+        "toTime": "00:00:00"
+       }
+      ],
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "exceptions": []
+   }
+  ],
+  "tasks": [
+   {
+    "uid": 1,
+    "parentTaskUid": null,
+    "wbsOrder": 1,
+    "name": "CR-751(GRS JSON スキーマの自己説明)の適用",
+    "start": "2026-10-15T02:00:00",
+    "finish": "2026-10-15T03:04:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "02:00 は土台 43b7315a、03:04 は dist の作り直し 102a8474。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T02:00:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T03:04:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2,
+    "parentTaskUid": null,
+    "wbsOrder": 2,
+    "name": "試験待ち 6 行(DFC-2449〜2466)の仕様だけを読む試験の作成",
+    "start": "2026-10-15T02:15:00",
+    "finish": "2026-10-15T02:32:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "9792e32f、合流 fb383e8f。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T02:15:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T02:32:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 3,
+    "parentTaskUid": null,
+    "wbsOrder": 3,
+    "name": "1 枚のチェックリスト(user-checklist-2026-10-15)の起草",
+    "start": "2026-10-15T02:15:00",
+    "finish": "2026-10-15T02:41:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "c5aef0cc・0262b17a、合流 a0dcc673。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T02:15:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T02:41:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 4,
+    "parentTaskUid": null,
+    "wbsOrder": 4,
+    "name": "CR-740・752・753(覚え置き・呼び方・Ctrl の写し)の起草",
+    "start": "2026-10-15T02:15:00",
+    "finish": "2026-10-15T03:40:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "06f8e4a9・f55e1f58、合流 e9d2a243。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T02:15:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T03:40:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 5,
+    "parentTaskUid": null,
+    "wbsOrder": 5,
+    "name": "CR-758(依存線とマーカーの干渉解消)の起草",
+    "start": "2026-10-15T02:15:00",
+    "finish": "2026-10-15T03:40:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "6201a739・d4c9a219、合流 bc632547。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T02:15:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T03:40:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 6,
+    "parentTaskUid": null,
+    "wbsOrder": 6,
+    "name": "表の窓の聞き取り(DFC-2600〜2615)の記録",
+    "start": "2026-10-15T02:20:00",
+    "finish": "2026-10-15T03:53:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "4134b69f、合流 0d9fdb3f。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T02:20:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T03:53:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 7,
+    "parentTaskUid": null,
+    "wbsOrder": 7,
+    "name": "工程の強制の道具(push の見張り・検査 78〜80)の実装",
+    "start": "2026-10-15T02:20:00",
+    "finish": "2026-10-15T04:13:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "076bd74c、合流 7c364713。push 済み 92015a29。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T02:20:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T04:13:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 8,
+    "parentTaskUid": null,
+    "wbsOrder": 8,
+    "name": "CR-754〜757(設定パネル・タイムゾーン・ダミー実績・全体シフト)の起草",
+    "start": "2026-10-15T02:20:00",
+    "finish": "2026-10-15T05:57:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "d5eb0800 ほか、合流 a773ede9・6d81c750。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T02:20:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T05:57:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 9,
+    "parentTaskUid": null,
+    "wbsOrder": 9,
+    "name": "JDG-2071(仕様書が正)の権威の調査",
+    "start": "2026-10-15T02:40:00",
+    "finish": "2026-10-15T04:09:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "bc3ee32d、合流 d60bdf78。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T02:40:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T04:09:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 10,
+    "parentTaskUid": null,
+    "wbsOrder": 10,
+    "name": "紹介頁(docs/about)のダーク切替の実装",
+    "start": "2026-10-15T02:40:00",
+    "finish": "2026-10-15T04:05:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "8b7f8e54、合流 e092ae24。push 済み。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T02:40:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T04:05:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 11,
+    "parentTaskUid": null,
+    "wbsOrder": 11,
+    "name": "プロジェクト計画(project-plan)の初版と直し",
+    "start": "2026-10-15T03:44:00",
+    "finish": "2026-10-15T05:09:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "初版 5b305da1 から吹き出しの直し 4a907919 まで。始まりはこの席の最初の測り。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T03:44:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T05:09:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 12,
+    "parentTaskUid": null,
+    "wbsOrder": 12,
+    "name": "CR-753(Ctrl ドラッグの写しを移動と同じ所へ)の実装",
+    "start": "2026-10-15T04:13:00",
+    "finish": "2026-10-15T05:53:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "c76c7ee3、合流 bce31827。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T04:13:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T05:53:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 13,
+    "parentTaskUid": null,
+    "wbsOrder": 13,
+    "name": "CR-752(公開名の呼び方と直す案の行の鍵)の仕様反映",
+    "start": "2026-10-15T04:55:00",
+    "finish": "2026-10-15T06:15:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "9fec527e、合流 fc80c39b、台帳 66d989c6。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T04:55:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T06:15:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 14,
+    "parentTaskUid": null,
+    "wbsOrder": 14,
+    "name": "STOP の印の仕分け(DFC-2647)の調べ",
+    "start": "2026-10-15T05:09:00",
+    "finish": "2026-10-15T05:36:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "75c38edf、合流 c77b5211。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T05:09:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T05:36:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 15,
+    "parentTaskUid": null,
+    "wbsOrder": 15,
+    "name": "CR-759〜762(表の窓)の起草",
+    "start": "2026-10-15T05:02:00",
+    "finish": "2026-10-15T07:08:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "03b7d3a8・5daf3df8、合流 65aac09f・d41292d1。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T05:02:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T07:08:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 16,
+    "parentTaskUid": null,
+    "wbsOrder": 16,
+    "name": "CR-765〜768(仕様が正の原稿)の起草",
+    "start": "2026-10-15T05:09:00",
+    "finish": "2026-10-15T06:07:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "04d5c89c・71a52294、合流 8e7f1419・8f6647f4。",
+    "calendarUid": null,
+    "actualStart": "2026-10-15T05:09:00",
+    "stop": null,
+    "actualFinish": "2026-10-15T06:07:00",
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 17,
+    "parentTaskUid": null,
+    "wbsOrder": 17,
+    "name": "CR-763/764・766・767(飛び先・命令の値・状態機械)の問いへの答え",
+    "start": "2026-10-15T21:00:00",
+    "finish": "2026-10-15T22:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "CR-763/764 は利用者の問い待ち、CR-766 は問い 1、CR-767 は問い 3。利用者の時間帯で 1 時間。外で答えが出れば、それを待つ仕事は早まる。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 18,
+    "parentTaskUid": null,
+    "wbsOrder": 18,
+    "name": "CR-740(範囲選択中の下の絵の覚え置き)の性能の要求の試験",
+    "start": "2026-10-15T07:30:00",
+    "finish": "2026-10-15T08:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "性能の測りは済み。残りの試験を大きさ S の半分で置いた。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 19,
+    "parentTaskUid": null,
+    "wbsOrder": 19,
+    "name": "CR-758(依存線とマーカーの干渉解消)の実装の仕上げ",
+    "start": "2026-10-15T07:30:00",
+    "finish": "2026-10-15T09:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "試験 60 は緑。frame-loop.ts を 1 行触る。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 20,
+    "parentTaskUid": null,
+    "wbsOrder": 20,
+    "name": "CR-757(全体日程のシフト)の仕様だけを読む試験",
+    "start": "2026-10-15T07:30:00",
+    "finish": "2026-10-15T09:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "体が当て終えた(ac41487f)。試験の体が動いている。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 21,
+    "parentTaskUid": null,
+    "wbsOrder": 21,
+    "name": "プロジェクト計画(project-plan)の更新",
+    "start": "2026-10-15T07:30:00",
+    "finish": "2026-10-15T08:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "この更新。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 22,
+    "parentTaskUid": null,
+    "wbsOrder": 22,
+    "name": "英語の慣習の見直し(CR-769〜771)の調べ",
+    "start": "2026-10-15T07:30:00",
+    "finish": "2026-10-15T09:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "調べの席が動いている。残りを S で置いた。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 23,
+    "parentTaskUid": null,
+    "wbsOrder": 23,
+    "name": "CR-740(範囲選択中の下の絵の覚え置き)の合流と確かめ",
+    "start": "2026-10-15T08:30:00",
+    "finish": "2026-10-15T09:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "合流の順は CR-740 → CR-758 → CR-757(frame-loop.ts のため)。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 18,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 24,
+    "parentTaskUid": null,
+    "wbsOrder": 24,
+    "name": "CR-758(依存線とマーカーの干渉解消)の合流と確かめ",
+    "start": "2026-10-15T09:30:00",
+    "finish": "2026-10-15T10:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 19,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 25,
+    "parentTaskUid": null,
+    "wbsOrder": 25,
+    "name": "CR-757(全体日程のシフト)の合流と確かめ",
+    "start": "2026-10-15T10:00:00",
+    "finish": "2026-10-15T10:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 20,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 26,
+    "parentTaskUid": null,
+    "wbsOrder": 26,
+    "name": "CR-762(列の境目を引く幅の追従)の実装",
+    "start": "2026-10-15T08:30:00",
+    "finish": "2026-10-15T12:15:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "見積: 7.25 時間 x 0.5。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 27,
+    "parentTaskUid": null,
+    "wbsOrder": 27,
+    "name": "CR-762(列の境目を引く幅の追従)の合流と確かめ",
+    "start": "2026-10-15T12:15:00",
+    "finish": "2026-10-15T12:45:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 26,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 28,
+    "parentTaskUid": null,
+    "wbsOrder": 28,
+    "name": "CR-759(修正案の表の語・推奨の一括採用・下の帯)の実装",
+    "start": "2026-10-15T12:45:00",
+    "finish": "2026-10-15T21:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "見積: 16.5 時間 x 0.5。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 27,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 29,
+    "parentTaskUid": null,
+    "wbsOrder": 29,
+    "name": "CR-759(修正案の表の語と推奨の一括採用)の合流と確かめ",
+    "start": "2026-10-15T21:00:00",
+    "finish": "2026-10-15T21:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 28,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 30,
+    "parentTaskUid": null,
+    "wbsOrder": 30,
+    "name": "CR-760(表のステータスと種別の列)の実装",
+    "start": "2026-10-15T21:30:00",
+    "finish": "2026-10-16T04:15:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "見積: 13.5 時間 x 0.5。CR-759 と同じ表の前文なので同じ席。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 29,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 31,
+    "parentTaskUid": null,
+    "wbsOrder": 31,
+    "name": "CR-760(表のステータスと種別の列)の合流と確かめ",
+    "start": "2026-10-16T04:15:00",
+    "finish": "2026-10-16T04:45:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 30,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 32,
+    "parentTaskUid": null,
+    "wbsOrder": 32,
+    "name": "CR-756(分単位のダミー実績)の実装",
+    "start": "2026-10-15T10:00:00",
+    "finish": "2026-10-15T13:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "見積: 6.75 時間 x 0.5。CR-758 の合流の後(schedule-layout.ts)。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 24,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 33,
+    "parentTaskUid": null,
+    "wbsOrder": 33,
+    "name": "CR-756(分単位のダミー実績)の合流と確かめ",
+    "start": "2026-10-15T13:30:00",
+    "finish": "2026-10-15T14:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 32,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 34,
+    "parentTaskUid": null,
+    "wbsOrder": 34,
+    "name": "CR-761(列のフィルタの一覧の並びと残す値)の実装",
+    "start": "2026-10-15T21:30:00",
+    "finish": "2026-10-16T01:45:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "見積: 8.5 時間 x 0.5。CR-759 の後。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 29,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 35,
+    "parentTaskUid": null,
+    "wbsOrder": 35,
+    "name": "CR-761(列のフィルタの一覧)の合流と確かめ",
+    "start": "2026-10-16T01:45:00",
+    "finish": "2026-10-16T02:15:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 34,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 36,
+    "parentTaskUid": null,
+    "wbsOrder": 36,
+    "name": "CR-755(タイムゾーンの固定の時差と略称)の実装",
+    "start": "2026-10-15T09:30:00",
+    "finish": "2026-10-15T19:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "見積: 19 時間 x 0.5。CR-751 の後(済み)。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 37,
+    "parentTaskUid": null,
+    "wbsOrder": 37,
+    "name": "CR-755(タイムゾーンの固定の時差と略称)の合流と確かめ",
+    "start": "2026-10-15T19:00:00",
+    "finish": "2026-10-15T19:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 36,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 38,
+    "parentTaskUid": null,
+    "wbsOrder": 38,
+    "name": "CR-754(日付の欄と設定パネルの幅・閉じる・折り返し)の実装",
+    "start": "2026-10-15T19:30:00",
+    "finish": "2026-10-16T03:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "見積: 15 時間 x 0.5。パネルの幅は CR-755〜757 が足す行の後に測るので最後。DFC-2517 も。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 37,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "predecessorUid": 33,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 39,
+    "parentTaskUid": null,
+    "wbsOrder": 39,
+    "name": "CR-754(日付の欄と設定パネル)の合流と確かめ",
+    "start": "2026-10-16T03:00:00",
+    "finish": "2026-10-16T03:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 38,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 40,
+    "parentTaskUid": null,
+    "wbsOrder": 40,
+    "name": "T-064(公開の名 約 479 の呼び方)の書き起こしと再検討",
+    "start": "2026-10-15T08:00:00",
+    "finish": "2026-10-15T20:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "CR-752 の後(済み)。479 名を 1 時間 60 名ほどで 8 時間、コードと違う名の再検討 4 時間。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 41,
+    "parentTaskUid": null,
+    "wbsOrder": 41,
+    "name": "DFC-2645(手写し 13 か所)の生成への置き換え",
+    "start": "2026-10-15T20:00:00",
+    "finish": "2026-10-16T00:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ M。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 42,
+    "parentTaskUid": null,
+    "wbsOrder": 42,
+    "name": "古い STOP の印 16 件の除去",
+    "start": "2026-10-16T00:00:00",
+    "finish": "2026-10-16T04:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ M。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 43,
+    "parentTaskUid": null,
+    "wbsOrder": 43,
+    "name": "CR-765(Agent API の 22 のメンバと呼び方の原稿)の実装",
+    "start": "2026-10-15T09:30:00",
+    "finish": "2026-10-15T15:15:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "見積: 11.5 時間 x 0.5。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 44,
+    "parentTaskUid": null,
+    "wbsOrder": 44,
+    "name": "CR-765(Agent API の呼び方の原稿)の合流と確かめ",
+    "start": "2026-10-15T15:15:00",
+    "finish": "2026-10-15T15:45:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 43,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 45,
+    "parentTaskUid": null,
+    "wbsOrder": 45,
+    "name": "CR-763/764(飛び先のマーカーほか)の起草の仕上げ",
+    "start": "2026-10-15T22:00:00",
+    "finish": "2026-10-16T00:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "仮置き: 見積は起草の席がまだ出していない。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 17,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 46,
+    "parentTaskUid": null,
+    "wbsOrder": 46,
+    "name": "CR-763/764(飛び先のマーカーほか)の実装",
+    "start": "2026-10-16T00:00:00",
+    "finish": "2026-10-16T08:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "仮置き: 大きさ L。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 47,
+    "parentTaskUid": null,
+    "wbsOrder": 47,
+    "name": "CR-763/764(飛び先のマーカーほか)の合流と確かめ",
+    "start": "2026-10-16T08:00:00",
+    "finish": "2026-10-16T08:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 46,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 48,
+    "parentTaskUid": null,
+    "wbsOrder": 48,
+    "name": "CR-766(文書の命令 88 が運ぶ値の原稿)の実装",
+    "start": "2026-10-16T03:00:00",
+    "finish": "2026-10-16T11:45:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "見積: 17.5 時間 x 0.5。問い 1 の答えの後。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 17,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 49,
+    "parentTaskUid": null,
+    "wbsOrder": 49,
+    "name": "CR-766(文書の命令が運ぶ値の原稿)の合流と確かめ",
+    "start": "2026-10-16T11:45:00",
+    "finish": "2026-10-16T12:15:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 48,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 50,
+    "parentTaskUid": null,
+    "wbsOrder": 50,
+    "name": "CR-767(状態機械の原稿)の波 1 の実装",
+    "start": "2026-10-16T08:00:00",
+    "finish": "2026-10-16T13:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "見積: 22 時間を波 1 と 2 に半分ずつ、x 0.5。波 1 は CR-759 の後。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 17,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "predecessorUid": 29,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 51,
+    "parentTaskUid": null,
+    "wbsOrder": 51,
+    "name": "CR-767(状態機械の原稿)の波 2 の実装",
+    "start": "2026-10-16T13:30:00",
+    "finish": "2026-10-16T19:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "波 2 は CR-760・762 の後。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 31,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 52,
+    "parentTaskUid": null,
+    "wbsOrder": 52,
+    "name": "CR-767(状態機械の原稿)の合流と確かめ",
+    "start": "2026-10-16T19:00:00",
+    "finish": "2026-10-16T19:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 51,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 53,
+    "parentTaskUid": null,
+    "wbsOrder": 53,
+    "name": "CR-768(保存の媒体の型を表 T-024 へ)の実装",
+    "start": "2026-10-16T04:45:00",
+    "finish": "2026-10-16T10:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "見積: 11.5 時間 x 0.5。FR-096 の確かめ。CR-759〜762 の後。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 31,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "predecessorUid": 35,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 54,
+    "parentTaskUid": null,
+    "wbsOrder": 54,
+    "name": "CR-768(保存の媒体の型)の合流と確かめ",
+    "start": "2026-10-16T10:30:00",
+    "finish": "2026-10-16T11:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 53,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 55,
+    "parentTaskUid": null,
+    "wbsOrder": 55,
+    "name": "未検討 約 40 行(DFC-611・2560〜2569・2690〜2696 ほか)のトリアージ",
+    "start": "2026-10-16T10:30:00",
+    "finish": "2026-10-16T14:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "未検討 64 行から CR が名指す 20 行と AI 連携の行を除いた残り。台帳の提案だけ。大きさ M。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 31,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 56,
+    "parentTaskUid": null,
+    "wbsOrder": 56,
+    "name": "トリアージで出た直しの実装",
+    "start": "2026-10-16T14:30:00",
+    "finish": "2026-10-16T22:30:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "仮置き: 大きさ L。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 57,
+    "parentTaskUid": null,
+    "wbsOrder": 57,
+    "name": "仕様待ち 約 18 行(DFC-560・631・1063〜1073 ほか)の CR の起草",
+    "start": "2026-10-16T04:00:00",
+    "finish": "2026-10-16T08:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "仕様待ち 50 行から CR が名指す 30 行と W5 の DFC-586・用語集の DFC-2175 を除いた残り。大きさ M。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 58,
+    "parentTaskUid": null,
+    "wbsOrder": 58,
+    "name": "仕様待ちの残りの CR の実装",
+    "start": "2026-10-16T08:00:00",
+    "finish": "2026-10-16T16:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ L。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 59,
+    "parentTaskUid": null,
+    "wbsOrder": 59,
+    "name": "罠の束(DFC-544・547・548・549)の実装",
+    "start": "2026-10-16T02:15:00",
+    "finish": "2026-10-16T06:15:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ M。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 35,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 60,
+    "parentTaskUid": null,
+    "wbsOrder": 60,
+    "name": "実装待ちの残り(DFC-464・532〜562 ほか約 30 行)の実装",
+    "start": "2026-10-16T06:15:00",
+    "finish": "2026-10-16T14:15:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実装待ち 41 行から CR が名指す 4 行と罠・DFC-730 を除いた残り。大きさ L。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 61,
+    "parentTaskUid": null,
+    "wbsOrder": 61,
+    "name": "DFC-730(GP-1)の実装",
+    "start": "2026-10-16T14:15:00",
+    "finish": "2026-10-16T16:15:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ S。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 62,
+    "parentTaskUid": null,
+    "wbsOrder": 62,
+    "name": "試験待ち 7 行(DFC-550・567・641 ほか)の仕様だけを読む試験",
+    "start": "2026-10-16T11:45:00",
+    "finish": "2026-10-16T15:45:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ M。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 39,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 63,
+    "parentTaskUid": null,
+    "wbsOrder": 63,
+    "name": "用語集の JSON 化(DFC-2175)の仕様と実装",
+    "start": "2026-10-16T15:45:00",
+    "finish": "2026-10-16T19:45:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ M。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 64,
+    "parentTaskUid": null,
+    "wbsOrder": 64,
+    "name": "英語の慣習の見直し(CR-769〜771)の起草",
+    "start": "2026-10-16T19:00:00",
+    "finish": "2026-10-16T23:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ M。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 54,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 65,
+    "parentTaskUid": null,
+    "wbsOrder": 65,
+    "name": "CR-769〜771(英語の慣習)の改名の実装",
+    "start": "2026-10-16T23:00:00",
+    "finish": "2026-10-17T07:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "仮置き: 改名は全部の波の後。大きさ L。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 39,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "predecessorUid": 47,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "predecessorUid": 44,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "predecessorUid": 49,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "predecessorUid": 52,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 66,
+    "parentTaskUid": null,
+    "wbsOrder": 66,
+    "name": "CR-769〜771(英語の慣習)の合流と確かめ",
+    "start": "2026-10-17T07:00:00",
+    "finish": "2026-10-17T08:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 65,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 67,
+    "parentTaskUid": null,
+    "wbsOrder": 67,
+    "name": "全部の合流と台帳の締め",
+    "start": "2026-10-17T08:00:00",
+    "finish": "2026-10-17T09:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "非 AI の直しが全部入ったことを台帳で数える。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 68,
+    "parentTaskUid": null,
+    "wbsOrder": 68,
+    "name": "OneDrive を止める(利用者に頼む)",
+    "start": "2026-10-17T09:00:00",
+    "finish": "2026-10-17T09:00:00",
+    "milestone": true,
+    "deadline": null,
+    "notes": "JDG-2086。GT-2 の前。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 67,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 69,
+    "parentTaskUid": null,
+    "wbsOrder": 69,
+    "name": "1 枚のチェックリスト(user-checklist)の刷り直し",
+    "start": "2026-10-17T09:00:00",
+    "finish": "2026-10-17T11:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "入った直しに合わせて刷り直す。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 70,
+    "parentTaskUid": null,
+    "wbsOrder": 70,
+    "name": "一括の GT-2(非 AI の直しが全部入った sha)",
+    "start": "2026-10-17T11:00:00",
+    "finish": "2026-10-17T13:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "前の巡の試験だけで 468 秒、時間切れの再走を見込んで 2 時間。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 68,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 71,
+    "parentTaskUid": null,
+    "wbsOrder": 71,
+    "name": "refactor と main へ push・Pages の配備",
+    "start": "2026-10-17T13:00:00",
+    "finish": "2026-10-17T13:00:00",
+    "milestone": true,
+    "deadline": null,
+    "notes": "GT-2 <sha> passed の行を確かめてから。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 72,
+    "parentTaskUid": null,
+    "wbsOrder": 72,
+    "name": "1 枚のチェックリストを実物で触る",
+    "start": "2026-10-17T13:00:00",
+    "finish": "2026-10-17T15:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "1 度だけ。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 71,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 73,
+    "parentTaskUid": null,
+    "wbsOrder": 73,
+    "name": "チェックリストで出た直しの実装",
+    "start": "2026-10-17T15:00:00",
+    "finish": "2026-10-17T19:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "仮置き。大きさ M。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 72,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 74,
+    "parentTaskUid": null,
+    "wbsOrder": 74,
+    "name": "チェックリストの直しの GT-2 と push",
+    "start": "2026-10-17T19:00:00",
+    "finish": "2026-10-17T20:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 73,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 75,
+    "parentTaskUid": null,
+    "wbsOrder": 75,
+    "name": "W4(アダプタ層の分割)の前半 CR-578→579→580 の実装",
+    "start": "2026-10-17T13:00:00",
+    "finish": "2026-10-17T21:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "一括の GT-2 の後(調整役の指示)。大きさ L。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 71,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 76,
+    "parentTaskUid": null,
+    "wbsOrder": 76,
+    "name": "W4 の後半(CR-581 の後半と properties-panel)の実装",
+    "start": "2026-10-17T21:00:00",
+    "finish": "2026-10-18T05:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ L。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 77,
+    "parentTaskUid": null,
+    "wbsOrder": 77,
+    "name": "W5(異常系 DFC-586 ほか)の仕様",
+    "start": "2026-10-18T05:00:00",
+    "finish": "2026-10-18T13:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "JDG-1479 により W4 の後。大きさ L。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 78,
+    "parentTaskUid": null,
+    "wbsOrder": 78,
+    "name": "W5(異常系 DFC-922 ほか)の実装と試験",
+    "start": "2026-10-18T13:00:00",
+    "finish": "2026-10-18T21:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ L。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 79,
+    "parentTaskUid": null,
+    "wbsOrder": 79,
+    "name": "W4・W5 の合流と GT-2・push",
+    "start": "2026-10-18T21:00:00",
+    "finish": "2026-10-18T23:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 78,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 80,
+    "parentTaskUid": null,
+    "wbsOrder": 80,
+    "name": "CR-695(対話欄の廃止)の実装",
+    "start": "2026-10-17T13:00:00",
+    "finish": "2026-10-17T21:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "一括の GT-2 の後。大きさ L。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 71,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 81,
+    "parentTaskUid": null,
+    "wbsOrder": 81,
+    "name": "CR-697(取次が口と鍵を覚える)の実装",
+    "start": "2026-10-17T13:00:00",
+    "finish": "2026-10-17T21:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ L。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 71,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 82,
+    "parentTaskUid": null,
+    "wbsOrder": 82,
+    "name": "DFC-2214・2215(AM-19 の説明)の仕様と実装",
+    "start": "2026-10-17T13:00:00",
+    "finish": "2026-10-17T17:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "大きさ M。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 71,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 83,
+    "parentTaskUid": null,
+    "wbsOrder": 83,
+    "name": "正式公開の判断(JDG-1740)",
+    "start": "2026-10-19T06:45:00",
+    "finish": "2026-10-19T06:45:00",
+    "milestone": true,
+    "deadline": null,
+    "notes": "解明・リファクタ(W4・W5)・分刻みの日程が終わったことを確かめる。AI 連携は待たない。",
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 79,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 84,
+    "parentTaskUid": null,
+    "wbsOrder": 84,
+    "name": "AI 連携の合流と GT-2・push",
+    "start": "2026-10-18T23:00:00",
+    "finish": "2026-10-19T01:00:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 80,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "predecessorUid": 81,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     },
+     {
+      "predecessorUid": 82,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 85,
+    "parentTaskUid": null,
+    "wbsOrder": 85,
+    "name": "計画の終わり",
+    "start": "2026-10-19T06:45:00",
+    "finish": "2026-10-19T06:45:00",
+    "milestone": true,
+    "deadline": null,
+    "notes": null,
+    "calendarUid": null,
+    "actualStart": null,
+    "stop": null,
+    "actualFinish": null,
+    "resume": null,
+    "resumeValid": null,
+    "percentComplete": 0,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [
+     {
+      "predecessorUid": 83,
+      "linkType": 1,
+      "lag": 0,
+      "lagFormat": 7,
+      "carry": {},
+      "carryElements": []
+     }
+    ],
+    "carry": {},
+    "carryElements": []
+   }
+  ],
+  "resources": [],
+  "assignments": [],
+  "taskGroups": [
+   {
+    "id": "f98389d9-415a-596c-af3c-8d91f3c02c97",
+    "parentId": null,
+    "label": "済み(10-15 02:00〜07:15)",
+    "derivedFromTaskUid": null,
+    "order": 0,
+    "treeState": "auto",
+    "editGroup": null,
+    "color": null,
+    "minHeight": null
+   },
+   {
+    "id": "360eebfe-b421-54f7-ae66-8f611ac2263d",
+    "parentId": null,
+    "label": "調整役(合流・関門・push)",
+    "derivedFromTaskUid": null,
+    "order": 1,
+    "treeState": "auto",
+    "editGroup": null,
+    "color": null,
+    "minHeight": null
+   },
+   {
+    "id": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc",
+    "parentId": null,
+    "label": "利用者(問いへの答え・実物の確認)",
+    "derivedFromTaskUid": null,
+    "order": 2,
+    "treeState": "auto",
+    "editGroup": null,
+    "color": null,
+    "minHeight": null
+   },
+   {
+    "id": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f",
+    "parentId": null,
+    "label": "席1(CR-740 → CR-762 → CR-759 → CR-760 → CR-768 → 台帳)",
+    "derivedFromTaskUid": null,
+    "order": 3,
+    "treeState": "auto",
+    "editGroup": null,
+    "color": null,
+    "minHeight": null
+   },
+   {
+    "id": "45e69727-3ec2-537e-a8f6-f1153006e8c3",
+    "parentId": null,
+    "label": "席2(CR-758 → CR-756 → CR-761 → 台帳 → W4・W5)",
+    "derivedFromTaskUid": null,
+    "order": 4,
+    "treeState": "auto",
+    "editGroup": null,
+    "color": null,
+    "minHeight": null
+   },
+   {
+    "id": "da39bfdb-f716-589c-8150-97dd28796ef9",
+    "parentId": null,
+    "label": "席3(CR-757 → CR-755 → CR-754 → CR-766 → 台帳 → AI 連携)",
+    "derivedFromTaskUid": null,
+    "order": 5,
+    "treeState": "auto",
+    "editGroup": null,
+    "color": null,
+    "minHeight": null
+   },
+   {
+    "id": "92288265-9367-5757-9974-b1a8154ae4b6",
+    "parentId": null,
+    "label": "席4(計画 → T-064 → 手写し・STOP → 台帳)",
+    "derivedFromTaskUid": null,
+    "order": 6,
+    "treeState": "auto",
+    "editGroup": null,
+    "color": null,
+    "minHeight": null
+   },
+   {
+    "id": "06bb553e-298b-5794-98aa-8762a050243f",
+    "parentId": null,
+    "label": "席5(英語の慣習 → CR-765 → CR-763/764 → CR-767 → 英語の改名)",
+    "derivedFromTaskUid": null,
+    "order": 7,
+    "treeState": "auto",
+    "editGroup": null,
+    "color": null,
+    "minHeight": null
+   }
+  ],
+  "taskGroupMembers": [
+   {
+    "taskUid": 1,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 2,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 3,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 4,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 5,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 6,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 7,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 8,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 9,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 10,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 11,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 12,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 13,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 14,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 15,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 16,
+    "groupId": "f98389d9-415a-596c-af3c-8d91f3c02c97"
+   },
+   {
+    "taskUid": 17,
+    "groupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+   },
+   {
+    "taskUid": 18,
+    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+   },
+   {
+    "taskUid": 19,
+    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+   },
+   {
+    "taskUid": 20,
+    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+   },
+   {
+    "taskUid": 21,
+    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+   },
+   {
+    "taskUid": 22,
+    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+   },
+   {
+    "taskUid": 23,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 24,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 25,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 26,
+    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+   },
+   {
+    "taskUid": 27,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 28,
+    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+   },
+   {
+    "taskUid": 29,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 30,
+    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+   },
+   {
+    "taskUid": 31,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 32,
+    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+   },
+   {
+    "taskUid": 33,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 34,
+    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+   },
+   {
+    "taskUid": 35,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 36,
+    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+   },
+   {
+    "taskUid": 37,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 38,
+    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+   },
+   {
+    "taskUid": 39,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 40,
+    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+   },
+   {
+    "taskUid": 41,
+    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+   },
+   {
+    "taskUid": 42,
+    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+   },
+   {
+    "taskUid": 43,
+    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+   },
+   {
+    "taskUid": 44,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 45,
+    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+   },
+   {
+    "taskUid": 46,
+    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+   },
+   {
+    "taskUid": 47,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 48,
+    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+   },
+   {
+    "taskUid": 49,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 50,
+    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+   },
+   {
+    "taskUid": 51,
+    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+   },
+   {
+    "taskUid": 52,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 53,
+    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+   },
+   {
+    "taskUid": 54,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 55,
+    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+   },
+   {
+    "taskUid": 56,
+    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+   },
+   {
+    "taskUid": 57,
+    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+   },
+   {
+    "taskUid": 58,
+    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+   },
+   {
+    "taskUid": 59,
+    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+   },
+   {
+    "taskUid": 60,
+    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+   },
+   {
+    "taskUid": 61,
+    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+   },
+   {
+    "taskUid": 62,
+    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+   },
+   {
+    "taskUid": 63,
+    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+   },
+   {
+    "taskUid": 64,
+    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+   },
+   {
+    "taskUid": 65,
+    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+   },
+   {
+    "taskUid": 66,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 67,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 68,
+    "groupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+   },
+   {
+    "taskUid": 69,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 70,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 71,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 72,
+    "groupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+   },
+   {
+    "taskUid": 73,
+    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+   },
+   {
+    "taskUid": 74,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 75,
+    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+   },
+   {
+    "taskUid": 76,
+    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+   },
+   {
+    "taskUid": 77,
+    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+   },
+   {
+    "taskUid": 78,
+    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+   },
+   {
+    "taskUid": 79,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 80,
+    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+   },
+   {
+    "taskUid": 81,
+    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+   },
+   {
+    "taskUid": 82,
+    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+   },
+   {
+    "taskUid": 83,
+    "groupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+   },
+   {
+    "taskUid": 84,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   },
+   {
+    "taskUid": 85,
+    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+   }
+  ],
+  "taskVisuals": [
+   {
+    "taskUid": 1,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 2,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 3,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 4,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 5,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 6,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 7,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 8,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 9,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 10,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 11,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 12,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 13,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 14,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 15,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 16,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "dimgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 17,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "orange",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 18,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 19,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 20,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 21,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 22,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 23,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 24,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 25,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 26,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 27,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 28,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 29,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 30,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 31,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 32,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 33,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 34,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 35,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 36,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 37,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 38,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 39,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 40,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 41,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 42,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 43,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 44,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 45,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "lightgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 46,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "lightgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 47,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 48,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 49,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 50,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 51,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 52,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 53,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "blue",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 54,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 55,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 56,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "lightgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 57,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 58,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 59,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 60,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 61,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 62,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 63,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 64,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 65,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "lightgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 66,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 67,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 68,
+    "shapeKind": "milestone",
+    "milestoneGlyph": "diamond",
+    "fillColor": "orange",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 69,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 70,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 71,
+    "shapeKind": "milestone",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 72,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "orange",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 73,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "lightgray",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 74,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 75,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 76,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 77,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 78,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "green",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 79,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 80,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "#2a9d8f/#5fd3c4",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 81,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "#2a9d8f/#5fd3c4",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 82,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "#2a9d8f/#5fd3c4",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 83,
+    "shapeKind": "milestone",
+    "milestoneGlyph": "star",
+    "fillColor": "red",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 84,
+    "shapeKind": "rectangle",
+    "milestoneGlyph": "diamond",
+    "fillColor": "purple",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 85,
+    "shapeKind": "milestone",
+    "milestoneGlyph": "star",
+    "fillColor": "red",
+    "strokeColor": null,
+    "strokeWidthPx": null
+   }
+  ],
+  "commentBoxes": [
+   {
+    "id": "33e274bb-7f0c-504d-91a7-b153181b07fc",
+    "leaderShapeKind": "calloutBox",
+    "text": "調整役の行 10-17 08:00「全部の合流と台帳の締め」は、席 1〜5 の非 AI の仕事が全部合流してから:\nCR-754〜768 の合流・英語の改名・T-064・手写しと STOP・トリアージ・仕様待ちと実装待ちの残り・用語集\nそこへ集まる依存線は描いていない(多すぎて読めないため)",
+    "anchorDate": "2026-10-17T00:00:00",
+    "anchorGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d",
+    "bodyOffsetPx": {
+     "dx": -200,
+     "dy": 520
+    },
+    "strokeColor": "purple",
+    "strokeWidthPx": 1,
+    "fillColor": null,
+    "fillTransparencyPercent": null,
+    "textColor": null
+   }
+  ],
+  "highlightBoxes": [],
+  "taskOrigins": [],
+  "baselineTasks": []
+ },
+ "documentSettings": {
+  "actualVisible": true,
+  "assigneeVisible": false,
+  "baselineVisible": false,
+  "dateGridLinesVisible": false,
+  "dependencyVisible": true,
+  "displayScale": 100,
+  "displayTimeZones": [],
+  "fitSpanFinish": null,
+  "fitSpanFixed": false,
+  "fitSpanStart": null,
+  "fontScale": "M",
+  "groupGridLinesVisible": true,
+  "levelZeroTreeState": "auto",
+  "percentCompleteVisible": false,
+  "pinnedGroupIds": [],
+  "planDatesVisible": false,
+  "planVisible": true,
+  "progressLineVisible": false,
+  "progressMarkerVisible": true,
+  "rulerFont": 21,
+  "rulerHeight": 69,
+  "scrollDate": null,
+  "scrollDayOffset": 0,
+  "scrollGroupId": null,
+  "scrollGroupOffset": 0,
+  "showsTimeOfDay": true,
+  "stackDirection": "down",
+  "tableViews": {
+   "delayDiagnosticsReport": {
+    "columnFilters": [],
+    "hiddenTaskUids": [],
+    "isScheduleFilterApplied": false,
+    "sort": null
+   },
+   "resourceList": {
+    "columnFilters": [],
+    "hiddenResourceUids": [],
+    "isScheduleFilterApplied": false,
+    "isUnassignedHidden": false,
+    "sort": null
+   },
+   "searchPanel": {
+    "columnFilters": [],
+    "hiddenTaskUids": [],
+    "isScheduleFilterApplied": false,
+    "sort": null
+   }
+  },
+  "taskGroupPanelWidth": 300,
+  "taskGroupPanelWidthFixed": false,
+  "themeMonochrome": false,
+  "viewTimeZone": "Asia/Tokyo",
+  "zoomX": 1,
+  "zoomY": 1
+ },
+ "documentStamp": {
+  "scheduleUpdatedUtc": "2026-10-14T22:19:00Z",
+  "lastEditedBy": "project-plan session",
+  "settingsUpdatedUtc": "2026-10-14T22:19:00Z",
+  "fileSavedUtc": "2026-10-14T22:19:00Z"
+ },
+ "changeLog": [
+  {
+   "ordinal": 1,
+   "editedBy": "project-plan session",
+   "explanation": "Plan rewritten from the coordinator's state of 2026-10-15 07:15; finished work carries actuals.",
+   "changedUtc": "2026-10-14T22:19:00Z"
+  }
+ ]
+}

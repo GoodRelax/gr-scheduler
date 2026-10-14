@@ -879,6 +879,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `achromatic` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#achromatic` | PI-19 | 色を、明度を保ったまま無彩色にした色。 |
 | `actualOfCustom` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#actualOfCustom` | -- | function actualOfCustom(hex: string, dark: boolean, monochrome: boolean): string |
 | `bandBaselineYOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#bandBaselineYOf` | PI-19 | 帯の箱と字の大きさから、字のベースラインの縦の位置を返す —— 帯の縦の中点から、字の大きさに 表 T-201 の `S-33` を掛けた長さだけ下である。 |
+| `BeneathPointerReading` | entry | interface | `src/adapter/svg-renderer/svg-renderer.ts#BeneathPointerReading` | PI-19 | 型。 |
+| `beneathPointerReadingOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#beneathPointerReadingOf` | PI-19 | 下の絵（表 T-065 の `IF-1`）が指から読むもの —— ガイドカーソルを描く点・指が中にある実績のダミーのタスク・指が掴み代に載った進捗マーカーのタスクを返す。 |
 | `boxOfPoints` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#boxOfPoints` | -- | function boxOfPoints(path: Path): ScreenRect \| null |
 | `ChosenColor` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ChosenColor` | -- | type ChosenColor = (stored: string \| null, form: ColorForm) => string \| null |
 | `ColorForm` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ColorForm` | -- | type ColorForm = 'fill' \| 'outline' \| 'actual' \| 'band' |
@@ -917,6 +919,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `GridParts` | file only | interface | `src/adapter/svg-renderer/schedule-grid.ts#GridParts` | -- | interface GridParts |
 | `gridParts` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#gridParts` | -- | function gridParts(input: GridInput): GridParts |
 | `rulerSvg` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#rulerSvg` | -- | function rulerSvg( layout: ScheduleLayout, settings: DrawnSettings, band: ScreenRect, weekStart: number, ground: string, ink: string, rule: string, weekdayWo... |
+| `guideCursorPointOf` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#guideCursorPointOf` | -- | function guideCursorPointOf( regions: ScreenRegions, guideCursorMode: ViewerValues['guideCursorMode'], pointer: Point \| null, ): Point \| null |
 | `JumpLandingRing` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#JumpLandingRing` | -- | interface JumpLandingRing |
 | `jumpLandingRingParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#jumpLandingRingParts` | -- | function jumpLandingRingParts( viewer: ViewerValues, input: Pick<OverlaysInput, 'geometry' \| 'layout' \| 'themed' \| 'drawsOperationState'>, ): { readonly pinn... |
 | `OverlayParts` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#OverlayParts` | -- | interface OverlayParts |
@@ -933,6 +936,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HaloCut` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#HaloCut` | -- | interface HaloCut |
 | `landingLinkOf` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#landingLinkOf` | -- | function landingLinkOf(viewer: ViewerValues): string \| null |
 | `linkKeyOf` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#linkKeyOf` | -- | function linkKeyOf(link: { readonly predecessorUid: number; readonly successorUid: number }): string |
+| `pointerInsideDummyTaskUidsOf` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#pointerInsideDummyTaskUidsOf` | -- | function pointerInsideDummyTaskUidsOf(geometry: ScheduleGeometry, pointer: Point \| null): readonly number[] |
+| `pointerOnMarkerTaskUidOf` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#pointerOnMarkerTaskUidOf` | -- | function pointerOnMarkerTaskUidOf(hovered: Hit \| null): number \| null |
 | `TaskFigureParts` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#TaskFigureParts` | -- | interface TaskFigureParts |
 | `taskFigureParts` | file only | function | `src/adapter/svg-renderer/schedule-task-figures.ts#taskFigureParts` | -- | function taskFigureParts(input: TaskFiguresInput): TaskFigureParts |
 | `TaskFiguresInput` | file only | interface | `src/adapter/svg-renderer/schedule-task-figures.ts#TaskFiguresInput` | -- | interface TaskFiguresInput |
@@ -1066,6 +1071,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentApiRelayLink` | file only | interface | `src/framework/single-html-shell/agent-api-relay-link.ts#AgentApiRelayLink` | -- | interface AgentApiRelayLink |
 | `openAgentApiRelayLink` | file only | function | `src/framework/single-html-shell/agent-api-relay-link.ts#openAgentApiRelayLink` | -- | function openAgentApiRelayLink( api: AgentApi, place: RelayPlace, openSocket: (address: string) => WebSocket, ): AgentApiRelayLink \| null |
 | `RelayPlace` | file only | type | `src/framework/single-html-shell/agent-api-relay-link.ts#RelayPlace` | -- | type RelayPlace = Pick<Location, 'hash' \| 'host'> |
+| `beneathPictureHoldOf` | file only | function | `src/framework/single-html-shell/beneath-picture-hold.ts#beneathPictureHoldOf` | -- | function beneathPictureHoldOf(): (...inputs: BeneathPictureInputs) => string |
 | `clearBrowserStoredForReset` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#clearBrowserStoredForReset` | -- | function clearBrowserStoredForReset(): void |
 | `readBrowserStored` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#readBrowserStored` | -- | function readBrowserStored(row: BrowserStoredRow): string \| null |
 | `startupAgentApiEnabled` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#startupAgentApiEnabled` | -- | function startupAgentApiEnabled(): boolean |
@@ -1154,6 +1160,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `HISTORY_LIMITS` | file only | const | `src/framework/single-html-shell/frame-loop.ts#HISTORY_LIMITS` | -- | const HISTORY_LIMITS: HistoryLimits = |
 | `isQuestionAskedIn` | file only | function | `src/framework/single-html-shell/frame-loop.ts#isQuestionAskedIn` | -- | function isQuestionAskedIn(session: ScreenSession): boolean |
 | `isSameEnvironment` | file only | function | `src/framework/single-html-shell/frame-loop.ts#isSameEnvironment` | -- | function isSameEnvironment(one: FrameEnvironment, other: FrameEnvironment): boolean |
+| `isSameRecord` | file only | function | `src/framework/single-html-shell/frame-loop.ts#isSameRecord` | -- | function isSameRecord( a: object, b: object, isSame: (x: unknown, y: unknown, key: string) => boolean = Object.is, |
+| `isSameScreenRegions` | file only | function | `src/framework/single-html-shell/frame-loop.ts#isSameScreenRegions` | -- | function isSameScreenRegions(a: ScreenRegions, b: ScreenRegions): boolean |
 | `isSizeSettled` | file only | function | `src/framework/single-html-shell/frame-loop.ts#isSizeSettled` | -- | function isSizeSettled(env: FrameEnvironment): boolean |
 | `MergeCandidateLine` | file only | type | `src/framework/single-html-shell/frame-loop.ts#MergeCandidateLine` | -- | type MergeCandidateLine = NonNullable<ScreenViewReadings['mergeCandidates']>[number] |
 | `MergeChoices` | file only | type | `src/framework/single-html-shell/frame-loop.ts#MergeChoices` | -- | type MergeChoices = NonNullable<Parameters<typeof importDocument>[0]['merge']> |
@@ -2013,4 +2021,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1021 name(s) leave through a public entry (480 of them published by table T-064), 782 more are exported by a file and not by its entry.
+Totals: 1023 name(s) leave through a public entry (482 of them published by table T-064), 788 more are exported by a file and not by its entry.

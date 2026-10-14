@@ -3,7 +3,9 @@
 //   node tools/gate/gate-queue.mjs list                    who holds the lock, what is queued, last results
 //   node tools/gate/gate-queue.mjs enqueue GT-1|GT-2|PERF [--note text]
 //                                                          queue a gate for the commit HEAD points at
-//   node tools/gate/gate-queue.mjs drain [--once]          run the queue, one entry at a time (root only)
+//   node tools/gate/gate-queue.mjs drain [--once] [--onedrive-running-ok]
+//                                                          run the queue, one entry at a time (root only);
+//                                                          refused while OneDrive.exe runs and GT-2/PERF waits
 //   node tools/gate/gate-queue.mjs run -- <command ...>    run any command under the lock (vitest, e2e, parity)
 //
 // WHY. Two heavy runs at once lie: an e2e run beside another checkout's full vitest run gave four
@@ -32,6 +34,38 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const GATES = ['GT-1', 'GT-2', 'PERF']
 const POLL_MS = 5000
+
+// ------------------------------------------------------------- OneDrive ----
+//
+// WHY. The repository lives under OneDrive (JDG-2086: it stays there until the project settles), and
+// OneDrive syncing every file a full run writes turns GT-2 into timeout reds that pass alone. The
+// user stops OneDrive when asked; a gate that starts anyway wastes the run and reads like a
+// regression. So GT-2 and PERF refuse to start while OneDrive.exe runs. GT-1 is light and runs.
+//
+// The override is explicit, for a run the user chose to make with OneDrive up:
+//   --onedrive-running-ok on drain / run-gate, or GRS_ONEDRIVE_RUNNING_OK=1 in the environment.
+//
+// WHAT IT CANNOT SEE: other platforms (no tasklist; it answers "not running"), and a sync client
+// under another process name.
+
+export const ONEDRIVE_OVERRIDE_FLAG = '--onedrive-running-ok'
+export const ONEDRIVE_OVERRIDE_ENV = 'GRS_ONEDRIVE_RUNNING_OK'
+export const GATES_THAT_NEED_ONEDRIVE_STOPPED = ['GT-2', 'PERF']
+
+export function oneDriveRunning() {
+  if (process.platform !== 'win32') return false
+  const done = spawnSync('tasklist', ['/FI', 'IMAGENAME eq OneDrive.exe', '/NH', '/FO', 'CSV'], { encoding: 'utf8' })
+  return done.status === 0 && /"OneDrive\.exe"/i.test(done.stdout ?? '')
+}
+
+// The refusal text for `gate`, or undefined when the gate may start.
+export function oneDriveRefusal(gate, argv = [], env = process.env) {
+  if (!GATES_THAT_NEED_ONEDRIVE_STOPPED.includes(gate)) return undefined
+  if (argv.includes(ONEDRIVE_OVERRIDE_FLAG) || env[ONEDRIVE_OVERRIDE_ENV] === '1') return undefined
+  if (!oneDriveRunning()) return undefined
+  return `${gate} does not start while OneDrive.exe runs (JDG-2086). Ask the user to quit OneDrive and ` +
+    `wait for their yes, then run again. To run with OneDrive up on purpose: ${ONEDRIVE_OVERRIDE_FLAG}`
+}
 
 const git = (...args) => {
   const done = spawnSync('git', args, { cwd: ROOT, encoding: 'utf8' })
@@ -182,12 +216,20 @@ function take(where) {
   }
 }
 
-function drain(once) {
+function drain(once, argv = []) {
   const where = places()
   if (!where.isRoot) {
     console.log('gate-queue: drain runs in the root checkout only -- the MSPDI schemas are local to it (JDG-644)')
     return 1
   }
+  // WHY before take(): a refused drain leaves the queue as it was, so the rerun finds every entry.
+  const heavy = readQueue(where).find((one) => GATES_THAT_NEED_ONEDRIVE_STOPPED.includes(one.gate))
+  const refusal = heavy === undefined ? undefined : oneDriveRefusal(heavy.gate, argv)
+  if (refusal !== undefined) {
+    console.log(`gate-queue: ${refusal}`)
+    return 1
+  }
+  const passOn = argv.includes(ONEDRIVE_OVERRIDE_FLAG) ? { [ONEDRIVE_OVERRIDE_ENV]: '1' } : {}
   let worst = 0
   for (let entry = take(where); entry !== undefined; entry = once ? undefined : take(where)) {
     const head = git('rev-parse', 'HEAD')
@@ -203,7 +245,7 @@ function drain(once) {
     }
     console.log(`gate-queue: running ${entry.gate} for ${entry.sha.slice(0, 8)} (${entry.branch})`)
     const done = spawnSync(process.execPath, [join(ROOT, 'tools', 'gate', 'run-gate.mjs'), entry.gate],
-      { cwd: ROOT, stdio: 'inherit', env: process.env })
+      { cwd: ROOT, stdio: 'inherit', env: { ...process.env, ...passOn } })
     const outcome = done.status === 0 ? 'passed' : `failed (exit ${done.status})`
     record(where, entry, outcome)
     console.log(`gate-queue: ${entry.gate} ${entry.sha.slice(0, 8)} ${outcome}`)
@@ -255,7 +297,7 @@ function runUnderLock(command) {
 function main(argv) {
   const [verb, ...rest] = argv
   if (verb === 'list') return list()
-  if (verb === 'drain') return drain(rest.includes('--once'))
+  if (verb === 'drain') return drain(rest.includes('--once'), rest)
   if (verb === 'run') return runUnderLock(rest[0] === '--' ? rest.slice(1) : rest)
   if (verb === 'enqueue') {
     const note = rest.includes('--note') ? rest[rest.indexOf('--note') + 1] ?? '' : ''
@@ -263,7 +305,8 @@ function main(argv) {
     console.log(`gate-queue: queued ${entry.gate} for ${entry.sha.slice(0, 8)} (${entry.branch}) at position ${position}`)
     return 0
   }
-  console.log('usage: gate-queue.mjs list | enqueue GT-1|GT-2|PERF [--note text] | drain [--once] | run -- <command ...>')
+  console.log('usage: gate-queue.mjs list | enqueue GT-1|GT-2|PERF [--note text] | drain [--once] [--onedrive-running-ok] | ' +
+    'run -- <command ...>')
   return verb === undefined || verb === '--help' || verb === '-h' ? 0 : 2
 }
 

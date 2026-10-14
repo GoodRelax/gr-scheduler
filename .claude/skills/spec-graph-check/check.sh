@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 74 mechanical checks for the gr-scheduler specification.
+# All 78 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,9 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 57. (Recounted 2026-10-11 at check 77
+# The ranges today are 1 + 4 + 8 + 4 + 61. (Recounted 2026-10-15 at checks 78-81
+# (ledger row form, project plan, drafted rulings cited, the spec resting on
+# src; JDG-2122..2124, JDG-2127): 57 + 4. Recounted 2026-10-11 at check 77
 # (words spelled in code points, CR-726): 56 + 1. Recounted 2026-10-08 at check 76
 # (the GRS JSON version, change ledger and address, CR-699): 55 + 1. Recounted 2026-10-03 at check 75
 # (the schedule-to-grs-json guide, DFC-1790): 54 + 1. Recounted 2026-10-01 at the
@@ -365,6 +367,24 @@
 #          CR-726 rename left old spellings that nothing flagged until GT-2
 #          ran 0 cases. Exemptions with a reason per line in
 #          code-point-words-exempt.txt. Baseline 0
+#   78     check-ledger-row-form.py : a ledger row whose head cell is an
+#          id in another form than `| ID |` (ten rows hid as `|  DFC-n |` on
+#          2026-10-08 and check.sh stayed green), one id heading two rows
+#          across the four ledgers, and -- while a merge is in progress or
+#          HEAD is a merge -- a ledger id of either side the merge lost
+#          (tools/ledger_id_count.py). JDG-2122. Baseline 0
+#   79     check-project-plan.py : docs/development-records/project-plan.json
+#          and project-plan.md exist together and change in the same
+#          commit, and no task name is a bare id. JDG-2123. Baseline 0
+#   80     check-drafted-ruling-cited.py : a rulings row reading
+#          `指示 —— CR-n が当てる` is cited by change-request/CR-n-*.md once
+#          that file exists (JDG-1492 waited eleven days on a CR that had
+#          landed without it). JDG-2124. Baseline 0
+#   81     check-spec-rests-on-src.py : a manuscript sentence that rests
+#          its authority on a name only src/ holds (DFC-470's 「…の注が自ら
+#          禁じている」), found by list-inverted-authority.py minus names
+#          after 「表 T-nnn の」 and the exempted defining lines. The
+#          specification is the truth (JDG-2071, JDG-2127). Baseline 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -1026,6 +1046,51 @@ section "77  a word spelled in code points is a word docs/spec holds"
 # unless it reports exactly the three and none.
 PYTHONIOENCODING=utf-8 python "$HERE/check-code-point-words.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-code-point-words.py" || failed
+
+echo ""
+section "78  every ledger row reads by its id, and a merge lost no row"
+# JDG-2122 (2026-10-15). 2026-10-08: ten defects.md rows written as
+# `|  DFC-n |` dropped out of every reader while this suite stayed green;
+# only a hand count of both sides' ids found them. MEASURED 2026-10-15 on
+# 81d363bd: 2975 rows in the four ledgers, 0 malformed, 0 duplicated; the
+# last 150 merges of origin/refactor lose 0 ids; planting the ten-row
+# incident reports lost 10. Baseline 0. --self-test feeds three malformed
+# head cells and a duplicate and expects exactly those.
+PYTHONIOENCODING=utf-8 python "$HERE/check-ledger-row-form.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-ledger-row-form.py" || failed
+
+echo ""
+section "79  the project plan is two files that change together, and no task is a bare id"
+# JDG-2123 (2026-10-15): the user's form for the plan -- GRS JSON plus a
+# short .md, both overwritten each round, task names like
+# `CR-758(依存線とマーカーの干渉解消)の実装`. Green while neither file exists
+# (the plan is written after CR-751). Break-tested on a scratch repository:
+# one file alone, one file dirty, one file committed alone and a bare id
+# each go red. Baseline 0.
+PYTHONIOENCODING=utf-8 python "$HERE/check-project-plan.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-project-plan.py" || failed
+
+echo ""
+section "80  a ruling a change request is ordered to apply is cited by it"
+# JDG-2124 (2026-10-15). Check 43 reads the FORM of the state cell only.
+# MEASURED 2026-10-15 on 81d363bd: 9 rows read `指示 —— CR-n が当てる`, 1 waits
+# for its CR file, and JDG-1492 was uncited by CR-676, which had landed on
+# 2026-10-04. Baseline 0. --self-test feeds a cited, an uncited and a
+# file-less row and expects the uncited one only.
+PYTHONIOENCODING=utf-8 python "$HERE/check-drafted-ruling-cited.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-drafted-ruling-cited.py" || failed
+
+echo ""
+section "81  the specification never rests its authority on a name only src/ has"
+# JDG-2071 / JDG-2127 (2026-10-15): the specification is the truth and the
+# code follows it. MEASURED 2026-10-15 on 81d363bd: the lister found 8, five
+# of them names inside a specification table (表 T-328 の `…` の行) -- now
+# skipped -- and three lines that DEFINE the name, exempted with a reason in
+# spec-rests-on-src-exempt.txt. Planting 「`copyDragWrite` の注が自ら定めて
+# いる」 in 05-07-design.md gives 1. Baseline 0. --self-test feeds one
+# deferral, one table cell and one exempted line, plus a stale exemption.
+PYTHONIOENCODING=utf-8 python "$HERE/check-spec-rests-on-src.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-spec-rests-on-src.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

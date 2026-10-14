@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 """List a place where the SPECIFICATION takes its authority from `src/`.
 
-⛔⛔ NOT A GATE. Measure its precision before anyone adds it to check.sh.
+⭐ CHECK 81 (check-spec-rests-on-src.py, JDG-2127) gates what `find` returns,
+less an exemption list. This file stays the lister: it prints every place.
 
 ⭐ WHY. `DFC-470`: a MUST NOT in `05-07-design.md` reads
 
@@ -106,9 +107,31 @@ def source_files():
 
 
 def main():
-    books = manuscripts()
+    hits = find(manuscripts(), source_files)
+    out = io.open(sys.stdout.fileno(), 'w', encoding='utf-8', errors='replace')
+    out.write(u'%d place(s) where docs/spec rests on something only src/ has\n\n'
+              % len(hits))
+    for path, n, name, window in hits:
+        rel = os.path.relpath(path, ROOT).replace('\\', '/')
+        out.write(u'%s:%d\n  defers to: %s\n  context  : %s\n\n'
+                  % (rel, n, name, window.strip()))
+    out.flush()
+    return 0
+
+
+# ⭐ A name right after 「表 T-nnn の」 (or 「表 T-nnn の `x` の」) is a row or cell
+# OF A SPECIFICATION TABLE, so a sentence resting on it rests on docs/spec.
+# MEASURED 2026-10-15 on 81d363bd: five of the eight hits were this shape
+# (表 T-328 の `everyTaskGroupOpenPressed` の行に従う, 表 T-293 の `…` の升が持つ).
+TABLE_PREFIX = re.compile(u'表 ?T-[0-9]+[a-z]?(?: の `[^`]+`)? ?の ?$')
+
+
+def find(books, source_paths, src_text=None):
+    """[(path, line number, identifier, window)] -- the deferrals to a name only src/ has.
+
+    Used by this lister and by check 81 (check-spec-rests-on-src.py, JDG-2127).
+    """
     whole = u'\n'.join(books.values())
-    src_text = None
     hits = []
 
     # ⛔ ANCHOR ON THE DEFERRAL, NOT THE IDENTIFIER. Measured on the first
@@ -128,6 +151,9 @@ def main():
                 name = m.group(1)
                 if SPEC_ID.match(name) or len(name) < 6:
                     continue
+                # WHY the whole line before it: a long name pushes 「表 T-nnn」 out of the window.
+                if TABLE_PREFIX.search(line[:max(0, d.start() - NEAR) + m.start()]):
+                    continue
                 # Defined anywhere else in the manuscripts? Then the sentence
                 # is deferring to docs/spec, which is fine.
                 # ⛔ OUTSIDE THIS LINE, not in total -- see the docstring. A
@@ -138,7 +164,7 @@ def main():
                     continue
                 if src_text is None:
                     parts = []
-                    for p in source_files():
+                    for p in source_paths():
                         with io.open(p, encoding='utf-8', errors='replace') as fh:
                             parts.append(fh.read())
                     src_text = u'\n'.join(parts)
@@ -146,16 +172,7 @@ def main():
                     continue
                 hits.append((path, n, name,
                              line[max(0, d.start() - 90):d.end() + 30]))
-
-    out = io.open(sys.stdout.fileno(), 'w', encoding='utf-8', errors='replace')
-    out.write(u'%d place(s) where docs/spec rests on something only src/ has\n\n'
-              % len(hits))
-    for path, n, name, window in hits:
-        rel = os.path.relpath(path, ROOT).replace('\\', '/')
-        out.write(u'%s:%d\n  defers to: %s\n  context  : %s\n\n'
-                  % (rel, n, name, window.strip()))
-    out.flush()
-    return 0
+    return hits
 
 
 if __name__ == '__main__':

@@ -80,12 +80,34 @@ def files_to_read(argv, precheck):
     return precheck.changed_files()
 
 
-def count(files, precheck):
+def range_end(argv):
+    """The revision whose CONTENT a --range publishes (B of A..B or A...B), or None without --range."""
+    if '--range' not in argv:
+        return None
+    spec = argv[argv.index('--range') + 1]
+    end = spec.split('...')[-1] if '...' in spec else spec.split('..')[-1]
+    return end or 'HEAD'
+
+
+def lines_at(revision, relative):
+    """The file as `revision` holds it, split like precheck.read_lines; None when absent or binary."""
+    done = subprocess.run(['git', 'show', '%s:%s' % (revision, relative)], cwd=ROOT, capture_output=True)
+    if done.returncode != 0:
+        return None
+    try:
+        return done.stdout.decode('utf-8').split('\n')
+    except UnicodeDecodeError:
+        return None
+
+
+def count(files, precheck, revision=None):
     tally = {'names': 0, 'absolute paths': 0, 'e-mail': 0, 'secrets': 0}
     read = 0
     for name in files:
         relative = name.replace(os.sep, '/')
-        lines = precheck.read_lines(relative)
+        # WHY the revision: what a push publishes is the commit's content, which the work tree
+        # need not hold (tools/push_guard.py judges a sha that is not checked out).
+        lines = lines_at(revision, relative) if revision else precheck.read_lines(relative)
         if lines is None:
             continue
         read += 1
@@ -119,7 +141,7 @@ def main(argv):
         return 0
     precheck = load_precheck()
     files = files_to_read(argv, precheck)
-    tally, read = count(files, precheck)
+    tally, read = count(files, precheck, range_end(argv))
     covered, tracked = ignore_state()
     print('privacy: names %d, absolute paths %d, e-mail %d, secrets %d, '
           'ignored %d/%d, forbidden tracked %d (%d files read)'

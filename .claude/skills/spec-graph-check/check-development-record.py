@@ -116,6 +116,9 @@ def main():
         # change request rather than by a folder of units.
         # backlog-plan-2026-10-04.md is the sixteenth: the plan that orders the
         # open defect rows into waves and lanes, keyed by row id.
+        # project-plan.md is the seventeenth: how to read project-plan.json,
+        # the plan as a GRS JSON schedule, both overwritten every round
+        # (JDG-2123); check 79 holds the pair, not this check.
         if not name.endswith('.md') or name in (
             'README.md', 'pending-decisions.md', 'defects.md', 'handoff.md',
             'fixed-defects.md', 'rulings.md', 'changelog.md', 'magic-numbers.md',
@@ -126,7 +129,8 @@ def main():
             'perf-pending.md',
             'test-inventory.md',
             'cr-plan-2026-09-26.md',
-            'backlog-plan-2026-10-04.md'
+            'backlog-plan-2026-10-04.md',
+            'project-plan.md'
         ):
             continue
         path = os.path.join(RECORDS, name)

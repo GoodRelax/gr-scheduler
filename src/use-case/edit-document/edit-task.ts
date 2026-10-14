@@ -69,7 +69,8 @@ export type ActualGrabHold = 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'
 // see CY-5, CY-6
 // WHY: a plain record, not a Map, so the command survives the Agent API's JSON unchanged.
 export interface PasteLanding {
-  readonly dayShift: number
+  // WHY: signed minutes, not days: a copy snapped to the hour shifts as the body move does (CY-5).
+  readonly shiftMinutes: number
   readonly groupIdOf: Readonly<Record<number, string>>
 }
 
