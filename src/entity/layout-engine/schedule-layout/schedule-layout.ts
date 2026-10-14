@@ -215,16 +215,16 @@ interface EdgeReader {
 // WHY: without time of day the finish column is FR-054's finish-side day, so an end at 00:00 closes the day before.
 /** @purity pure */
 function edgeOf(text: string | null, side: 'start' | 'finish', instantAt: () => number | null,
-                showsTimeOfDay: boolean): number | null {
+                showsTimeOfDay: boolean, dayAt: (text: string | null) => CalendarDay | null): number | null {
   if (showsTimeOfDay) {
     const instant = instantAt()
     return instant === null ? null : instant / MINUTES_PER_CALENDAR_DAY
   }
   if (side === 'start') {
-    const day = dayOf(text)
+    const day = dayAt(text)
     return day === null ? null : serialOf(day)
   }
-  const last = finishSideDayOf(text)
+  const last = dayAt(text) === null ? null : finishSideDayOf(text)
   return last === null ? null : serialOf(last) + 1
 }
 
@@ -243,30 +243,37 @@ export function cursorInstantAtX(
 }
 
 /** @purity pure */
+function edgeSlotOf(side: 'start' | 'finish', reading: DateTimeSide): number {
+  return (side === 'start' ? 0 : 2) + (reading === 'start' ? 0 : 1)
+}
+
+/** @purity pure */
 function dayReaderFor(within: WorkingCalendar, showsTimeOfDay: boolean, shown: InstantOnSide): DayReader & EdgeReader {
   const days = new Map<string, CalendarDay | null>()
   const walks = new Map<string, CalendarDay>()
-  const edges = new Map<string, number | null>()
+  const edges = [0, 1, 2, 3].map(() => new Map<string, number | null>())
   const onSide = instantOnSideReader(within)
+  const day = (text: string | null): CalendarDay | null => {
+    const key = text ?? ''
+    const held = days.get(key)
+    if (held !== undefined) return held
+    const made = dayOf(text)
+    days.set(key, made)
+    return made
+  }
   return {
     edge(text: string | null, side: 'start' | 'finish', reading: DateTimeSide): number | null {
-      const key = `${side}/${reading}/${text ?? ''}`
-      const held = edges.get(key)
+      const slot = edges[edgeSlotOf(side, reading)]!
+      const key = text ?? ''
+      const held = slot.get(key)
       if (held !== undefined) return held
-      const made = edgeOf(text ?? null, side, () => onSide(text, reading), showsTimeOfDay)
-      edges.set(key, made)
+      const made = edgeOf(text ?? null, side, () => onSide(text, reading), showsTimeOfDay, day)
+      slot.set(key, made)
       return made
     },
     shown,
     showsTimeOfDay,
-    day(text: string | null): CalendarDay | null {
-      const key = text ?? ''
-      const held = days.get(key)
-      if (held !== undefined) return held
-      const made = dayOf(text)
-      days.set(key, made)
-      return made
-    },
+    day,
     walk(from: CalendarDay, workingDays: number): CalendarDay {
       const key = `${textOfDay(from)}/${String(workingDays)}`
       const held = walks.get(key)
