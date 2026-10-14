@@ -202,27 +202,36 @@
 利用者はこの節のブロックをそのまま新しいセッションに貼る。巡ごとに本節も書き換える。
 
 ```text
-ブランチ: 調整役は自分の作業木の統合の枝（前の巡は integ/coord-1011）で積み、根（refactor のチェックアウト）は早送りだけ。push は <sha>:refactor と <sha>:main、Pages は main の後に gh workflow run pages.yml --ref main（2026-10-15 に bf75ab22 まで push 済み。⛔ 数は信じず git log -1 origin/refactor で測れ。push は単独の 1 コマンド）。⛔ main では直接作業しない。タグは利用者が打つ。
-あなたは調整役である。調整だけをする（利用者の裁定）—— 仕事は提案チップ（セッション）と作業木の体（Agent）で配り、帯・持ち場・順・合流・push の口を 1 人で持て。並行は 〜5 セッションでよい。ほかのセッションは提案チップを出す前にあなたの許しを得る（JDG-950）。
-唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-11〜15 の巡（調整役 nostalgic-wilson））から読め。次にメモリー coordinator-handover-2026-10-01 を読め。
+あなたは新しい調整役である（2026-10-15 に前の調整役 nostalgic-wilson がコンテキスト満杯で引き継いだ）。調整だけをする（利用者の裁定）—— 仕事は提案チップ（セッション）と作業木の体（Agent）で配り、帯・持ち場・順・合流・push の口を 1 人で持て。並行は 〜5 セッションでよい。ほかのセッションは提案チップを出す前にあなたの許しを得る（JDG-950）。説明は日本語、コードとコミット文は英語 ASCII。
+唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-11〜15 の巡（調整役 nostalgic-wilson））から読め。次にメモリーを読め: coordinator-handover-2026-10-01（その 2026-10-15 の段）・coordinator-only-role・gt2-read-the-verdict-before-push・data-only-push-no-ask・ask-one-by-one-with-options・rulings-concrete-names-and-options・merge-count-ids-both-sides・session-guard-own-worktree-only・pages-deploy・mechanical-work-goes-to-a-body・tester-bodies-leave-stray-background・worktree-sweep-windows-locks・never-report-unrun-actions。
 
-0. 最初にやること
-   - ListAgents で動いているセッションと体を見る。そのあと巡の頭の手順（規則 05 の 5: rulings.md → ledger_metrics --start → guard:start・gen:check）で今の姿を測る。
-   - 利用者に問う前に rulings.md を grep する（規則 06 の 1）。「条項が無い」は自分で反証してから（規則 05 の 10）。
-   - 並行の作法（番号・push の口・載せ直し・枝の見せ方・個人情報の数・チップの許し）は規則 05 の 13 が持つ。
-1. 動いている席（紹介頁の席・分刻みの進捗の席・不具合の聞き取りの席）の報告を受け、合流する。聞き取りの席に帯を配る前に、席が実際に使った番号を確かめる。
-2. 利用者への問いは DFC-2482（裁定待ち）と、リポジトリを OneDrive の外へ移すか。そのあと 1 枚の利用者のチェックリストを作る。
-3. 冒頭の節の「次にやること」を順に配る。
-4. e2e と check.sh は GRS_DEV_PORT=5991 で回す（ポート 5587 に古い開発サーバーが残っている）。GT-2 のあいだは OneDrive を止めるよう利用者に頼む（規則 04 の関門の節）。
+0. 今の姿（⛔ 信じず測れ: git log -1 origin/refactor・git log -1 origin/main）
+   - 2026-10-15 に origin/main ＝ origin/refactor ＝ 根（refactor のチェックアウト）＝ bdec0735。すべて push 済み、Pages も配置済み。58c98588 より後はデータだけ（進捗の表 2026-10-15）。
+   - 自分の作業木に統合の枝を切って積む（前の巡は integ/coord-1011）。根は早送りだけ。⛔ main では直接作業しない。タグは利用者が打つ。
+   - GT-2 は根で回す: node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_PERF=1 GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。⛔ GT-2 の前に毎回、利用者に OneDrive を終了してもらう（同期が 5 秒・30 秒の時間切れを起こした。止めると vitest は約 470 秒に戻った）。
+   - push は grep -q "GT-2 <sha> passed" <ログ> を確かめてから、git push origin <sha>:refactor <sha>:main を単独の 1 コマンドで。アプリか公開の頁が変わったら gh workflow run pages.yml --ref main。データだけ（src/ と dist/ の変更が 0）の push は GT-2 不要: python tools/privacy_count.py --range の数が 0 なら問わずに push（JDG-1965）。
+1. 前の調整役の作業メモ（リポジトリの外。読むだけ。パスをリポジトリに書くな）: %LOCALAPPDATA%\Temp\claude\ の下の、名前に nostalgic-wilson-2f0799 を含むフォルダの scratchpad。coord-notes-2026-10-11.md（巡の記録）・common-brief.md（体が読む共通の指示）・cr-body-brief.md（BASE_SHA の行を直して使う）・cr742-743-src.md（並行の波の型: 継ぎ目の名を逐語でそろえた 1 枚の指示 → 体 4 つ → 合わせの体 1 つ）・rowwise3.py／keepboth.py／cellunion.py（台帳の合流の道具）・sweep\（作業木の掃除の .ps1。利用者が流す）。要るものを自分の scratchpad へ写せ。
+2. 席（ListAgents で見て、動いている席に自分の名を送る）
+   - 「Hear the new defects and improvement points」—— 動いている。2026-10-15 に利用者から 11 件を受け付けた（時間軸の見出しの左上にタイムゾーンの略称、設定パネルに [×] が無い、テーマ色のアイコンに説明が無い、全体表示の期間の日付欄の見切れ、設定パネルの横スクロールバー、「グローバルタイム（UTC）を保つ／ローカルタイムを保つ」の意味が分からない、ゾーンの一覧に JST などの略称が無い、米国の夏時間（PDT など）が無い、分単位でダミーの実績が 0:00 始まり、再開予定日と期限に時分が無い、設定に全体を日単位でずらす機能）。記録と対応策の検討だけ（仕様とコードには入らない —— 利用者の指示）。帯は DFC-2515〜2539・JDG-2043〜2062・PND-885〜894、枝 claude/youthful-shirley-73f233。表が届いたら、直す段取りを組み、利用者の裁定を 1 問ずつ問う。
+   - 「Make a one-file HTML page introducing GRS」（docs/about/）—— データだけの回を送ることがある。JDG-2037 を持つ。さらに使う前に帯を問わせる。
+   - 閉じた席: 「Redraw the project progress at minute level」（進捗の表を push 済み、UID の hwm 2401）・「Hear and fix the bugs the user reports」（DFC-2491 を直し、DFC-2492 は取下げ）。
+   - サイドバーの「gr-scheduler 調整役引き継ぎ」は、おおもとのセッション（グループの見出し）で、止まっている。連絡しない。
+3. 次の番号（⛔ 配る前に grep で測り直せ）: JDG 2063・DFC 2540・PND 895・CR 751（CR-740 は DFC-2446 の予約）・変更履歴 4.60・perf-pending 200・見本のフォルダ 53・検査 78。配り直してよい使い残し: DFC 2474〜2481・2483〜2490・2493〜2512・2514、perf 178・185・189・193〜195。
+4. 次にやること（順に）
+   1) 聞き取りの席の表を受け、11 件の直しを組む（いくつかは CR-710 の後追い）。
+   2) 1 枚の利用者のチェックリスト（実測待ちの行の「利用者の手順」を画面ごとに）。利用者が確かめるのは、AI 以外の不具合が全部直った後に 1 回。
+   3) DFC-2482（時刻を表示しているときの Ctrl の写しと日の寄せ —— 裁定待ち）・DFC-2513（CR-749 のメンバの名）・DFC-2446 と DFC-2447／2448 → CR-740・DFC-2380（依存線の張り出し。CR が要る。手順は行に在る）。
+   4) 残り: DFC-2303、罠 DFC-544／547／548／549、用語集の JSON DFC-2175、W4 の分割、W5 の異常系（DFC-586・DFC-922）、AI 連携（CR-695・CR-697・DFC-2214／2215）、DFC-730（GP-1）。
+   5) OneDrive: 一部のフォルダだけを同期から外すことはできず、「フォルダーの選択」で外すと手元のコピーが消える。安全なのはリポジトリを OneDrive の外へ移すこと（全セッションを閉じた区切りで）。利用者が望めば手順を 1 枚で出す。取り込み済みの体の作業木は定期的に掃く（.ps1 は利用者が流す）。
+   JDG-1740 は生きている: 解明・リファクタ・分刻みが終わるまで正式公開しない。
 5. 毎回の約束
-   - 説明は日本語。コードとコミット文は英語 ASCII。絶対パスをどこにも書かない。
-   - 体に作業木や node_modules の junction を作らせない。git stash をさせない。体の報告は仮説 —— 行を数えて確かめよ。根で体が編集しているあいだは合流しない。
-   - 検査は終了コードで判じる（rm -rf output を先に）。関門は 1 本ずつ回す。
-   - 基準線: 下げ・改名・掃除・登録は調整役が書いてよい（JDG-520）。持ち場の一時的な上げは JDG-778。
-   - e2e を GRS_PERF つきで回さない —— 性能の測りは JDG-605 の時期だけ。
-   - 利用者の裁定が要るときは、説明して複数の案を比べ、推奨を根拠と共に示せ。記号ではなく具体名と使う場面で。
-6. コミット／push は許可済み（gr-scheduler に限る）。コミットの前に毎回 python tools/privacy_count.py --staged の数を報告してから行え。push は GT-2 の後（毎フレームに触れたなら性能も）、python tools/privacy_count.py --range の数を報告してから。
-   ⛔ MSPDI の XSD と SDK から取り出したファイルは、絶対にコミットも push もしない。
+   - 並行の体は継ぎ目の名を逐語でそろえた 1 枚の指示から出し、合流の後に合わせの体を 1 つ。仕様だけを読む試験の体は、辞書に節を足す CR やリンクの宛先を足す CR では display-words の契約試験と NFR-004 も回す（CR-748 の後に GT-2 が 2 つとも拾った）。
+   - 生成物の合流は片側を採って作り直す。台帳の合流のたびに両側の ID を数える。着地した CR に追記しない（新しい番号）。仕様とコードの食い違いは側を選ばずに defects.md へ、そのあと利用者に 1 問。
+   - 体に作業木や node_modules の junction を作らせない。git stash をさせない。git add -A／-u は使わない（フックが止める）—— パスを名指す。日本語を含む台本は Bash の heredoc ではなく Write で書く。大きな測りの出力は作業木の外へ。
+   - e2e と check.sh は GRS_DEV_PORT=5991（5992 は GT-2 の口）。検査は終了コードで判じる（rm -rf output を先に）。基準線は下げ・掃除は調整役が書いてよい（JDG-520）、上げは利用者に問う。
+   - 利用者の裁定が要るときは、場面・画面の名（日英）・2〜4 の案の比較・推奨と根拠を、1 問ずつ。
+   - コミット／push は許可済み（gr-scheduler に限る）。コミットの前に毎回 python tools/privacy_count.py --staged の数を報告。⛔ MSPDI の XSD と SDK から取り出したファイルは、絶対にコミットも push もしない。
+   - コンテキストが ~85% に近づいたら、区切りで本節を書き換えて引き継ぐ。
 ```
 
 ---
