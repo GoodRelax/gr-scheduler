@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 331 | 3974 | 5 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 336 | 4075 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 86 | 565 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 619 | 8550 | 8 | 8 | 13 | 2 |
+| **all** | | | 624 | 8651 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -49,17 +49,20 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
-## 5. Expected-to-fail cases (8)
+## 5. Expected-to-fail cases (11)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 2 of 8.
+named either way: 4 of 11.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the bundle of the first document is refused on a document that cannot take its second c... | DFC-730 |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the refusal leaves nothing applied: no document and no step come out of it | none |
+| `tests/contract/cr-757-fo-17-the-settings-row-asks-then-moves.test.ts` | UN-13 / FR-159: ${FR_159_ONE_UNDO} -- S-77 scrollDate is back too | DFC-2761 |
+| `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | a dateless milestone (read as 17:00, the end of the last span) is not counted outside a... | none |
+| `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | a milestone written at 17:00 (its WT-5 default time) is not counted outside after the move | none |
 | `tests/contract/e24-paste-refused-while-several-task-groups-are-chosen.test.ts` | ${EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editGroup task group, ONE... | DFC-730 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | %s (DFC-687) | DFC-687 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | pointerPressed on entry %s (DFC-687) | DFC-687 |
@@ -420,6 +423,11 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-751-a-region-outside-t-376-and-the-working-day-count.contract.test.ts` | 24 | FR-023, FR-054, FR-156 | - | T-220, T-233, T-376 | AT-79, AT-80, AT-82, IV-24, OP-3, OP-6, RS-25, RS-89, S-128, S-574, S-575, S-580, S-582, ZN-1, ZN-28 | - | - | - | - |
 | `tests/contract/cr-751-the-schema-names-the-regions-and-no-spec-id.contract.test.ts` | 12 | FR-024, FR-054, FR-156 | - | T-376 | IV-24, S-574, S-575, S-582 | - | - | - | - |
 | `tests/contract/cr-753-a-ctrl-drag-copy-lands-where-the-body-move-lands.test.ts` | 34 | FR-016, FR-017, FR-103 | - | T-209, T-266, T-270, T-350, T-378 | CY-5, CY-7, CY-9, GA-9, GA-14, GA-15, GA-18, PE-1, PE-6, PTD-7, RV-1, S-1, S-8, S-55, S-85, S-229, S-482, S-483, S-577, S-578, SG-1, SG-2, SG-3, WT-1, WT-2 | - | - | - | - |
+| `tests/contract/cr-757-cm-99-one-write-moves-every-date-but-the-calendar.test.ts` | 21 | FR-159 | - | T-108, T-214, T-379 | CM-99, IV-14, S-77, S-518, S-519, UN-13, WH-4, WH-5, WH-6, WH-7, WH-8, WH-9, WH-10 | - | - | - | - |
+| `tests/contract/cr-757-fo-17-the-settings-row-asks-then-moves.test.ts` | 23 | FR-156, FR-159 | - | T-369, T-379 | CM-99, FO-15, FO-16, FO-17, NT-7, QN-15, RS-87, S-77, S-518, S-519, SK-6, TX-12, UN-8, UN-13, WH-1, WH-2, WH-7, WH-9, WH-11, WH-12 | - | - | 1: DFC-2761 | - |
+| `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | 27 | FR-054, FR-159 | - | T-075, T-234, T-375 | CM-99, QN-15, TX-12, UF-206, WH-2, WH-5, WH-11, WT-5 | - | - | 2: none, none | - |
+| `tests/contract/cr-757-t-280-the-whole-schedule-shift-draft.test.ts` | 13 | FR-159 | VT-2 | T-280 | WH-12 | - | - | - | - |
+| `tests/contract/cr-757-wh-1-to-wh-5-the-working-day-mapping.test.ts` | 17 | FR-054, FR-159 | - | T-379 | WH-1, WH-2, WH-3, WH-4, WH-5, WH-9 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
