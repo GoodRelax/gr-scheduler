@@ -24,7 +24,7 @@
    "defaultFinishTime": null,
    "themeHue": 214,
    "parentProgressToleranceDays": 1,
-   "uidHighWaterMark": 2400,
+   "uidHighWaterMark": 2401,
    "importSeq": 0,
    "carry": {},
    "carryElements": [],
@@ -6887,32 +6887,9 @@
     "carryElements": []
    },
    {
-    "uid": 2352,
-    "parentTaskUid": null,
-    "wbsOrder": 253,
-    "name": "作業木の掃除",
-    "start": "2026-10-14T19:58:00",
-    "finish": "2026-10-14T20:23:00",
-    "milestone": false,
-    "deadline": null,
-    "notes": "実時間 10-14 19:58〜10-14 20:23。⚠️ 時刻は git にも調整役の記録の検索にも無い —— 再開から最初の合流までの間に置いた置き場所で、測った時刻ではない。",
-    "calendarUid": null,
-    "actualStart": "2026-10-14T19:58:00",
-    "stop": null,
-    "actualFinish": "2026-10-14T20:23:00",
-    "resume": null,
-    "resumeValid": false,
-    "percentComplete": 100,
-    "fadeInDays": null,
-    "fadeOutDays": null,
-    "dependencies": [],
-    "carry": {},
-    "carryElements": []
-   },
-   {
     "uid": 2354,
     "parentTaskUid": null,
-    "wbsOrder": 254,
+    "wbsOrder": 253,
     "name": "DFC-2471 CR-710 の後に毎フレームの配置が遅くなった件を直す",
     "start": "2026-10-14T19:58:00",
     "finish": "2026-10-14T22:13:00",
@@ -6935,7 +6912,7 @@
    {
     "uid": 2356,
     "parentTaskUid": null,
-    "wbsOrder": 255,
+    "wbsOrder": 254,
     "name": "GRS の概要紹介の頁 docs/about/（日本語と英語。裁定 JDG-1987〜1994・2010〜2027）",
     "start": "2026-10-14T19:58:00",
     "finish": "2026-10-14T23:20:00",
@@ -6958,7 +6935,7 @@
    {
     "uid": 2359,
     "parentTaskUid": null,
-    "wbsOrder": 256,
+    "wbsOrder": 255,
     "name": "CR-742・743 の src 体 A: 描き手（下書き・休日の設定・単位の無い量）",
     "start": "2026-10-14T20:26:00",
     "finish": "2026-10-14T21:34:00",
@@ -6981,7 +6958,7 @@
    {
     "uid": 2361,
     "parentTaskUid": null,
-    "wbsOrder": 257,
+    "wbsOrder": 256,
     "name": "CR-742・743 の src 体 B: 訳し手が下書きを確定し、日の寄せを読む",
     "start": "2026-10-14T20:26:00",
     "finish": "2026-10-14T21:32:00",
@@ -7004,7 +6981,7 @@
    {
     "uid": 2363,
     "parentTaskUid": null,
-    "wbsOrder": 258,
+    "wbsOrder": 257,
     "name": "CR-742・743・744 の src 体 C: 下書き・日での比べ・時間で消える RS-90",
     "start": "2026-10-14T20:26:00",
     "finish": "2026-10-14T21:31:00",
@@ -7027,7 +7004,7 @@
    {
     "uid": 2365,
     "parentTaskUid": null,
-    "wbsOrder": 259,
+    "wbsOrder": 258,
     "name": "CR-742・743 の src 体 D: 下書きの効果、RD-4・RD-7 で下書きを捨てる、休日の設定の一覧を描く",
     "start": "2026-10-14T20:26:00",
     "finish": "2026-10-14T21:34:00",
@@ -7050,7 +7027,7 @@
    {
     "uid": 2367,
     "parentTaskUid": null,
-    "wbsOrder": 260,
+    "wbsOrder": 259,
     "name": "DFC-2491 閉じたパネルの後に作ったタスクをパネルに出す（DFC-2492 は取り下げ）",
     "start": "2026-10-14T20:36:00",
     "finish": "2026-10-14T22:11:00",
@@ -7073,7 +7050,7 @@
    {
     "uid": 2370,
     "parentTaskUid": null,
-    "wbsOrder": 261,
+    "wbsOrder": 260,
     "name": "CR-742・743 の突き合わせ（下書きの形を 1 つに、休日の設定が動く）",
     "start": "2026-10-14T21:35:00",
     "finish": "2026-10-14T22:50:00",
@@ -7096,7 +7073,7 @@
    {
     "uid": 198,
     "parentTaskUid": null,
-    "wbsOrder": 262,
+    "wbsOrder": 261,
     "name": "残り: DFC-1671 休日の面と DFC-2318（RR-2〜5）",
     "start": "2026-10-11T16:35:00",
     "finish": "2026-10-14T22:50:00",
@@ -7107,6 +7084,29 @@
     "actualStart": "2026-10-11T16:35:00",
     "stop": null,
     "actualFinish": "2026-10-14T22:50:00",
+    "resume": null,
+    "resumeValid": false,
+    "percentComplete": 100,
+    "fadeInDays": null,
+    "fadeOutDays": null,
+    "dependencies": [],
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2352,
+    "parentTaskUid": null,
+    "wbsOrder": 262,
+    "name": "作業木の掃除",
+    "start": "2026-10-14T22:42:00",
+    "finish": "2026-10-14T22:53:00",
+    "milestone": false,
+    "deadline": null,
+    "notes": "実時間 10-14 22:42〜10-14 22:53。利用者が掃除の台本を回した。時刻はファイルの時刻で挟んだ —— 台本のファイルを書いた 22:41 の後から、利用者が済んだと告げたときに調整役の check.sh が終わった 22:53 まで（調整役の知らせ、10-15）。",
+    "calendarUid": null,
+    "actualStart": "2026-10-14T22:42:00",
+    "stop": null,
+    "actualFinish": "2026-10-14T22:53:00",
     "resume": null,
     "resumeValid": false,
     "percentComplete": 100,
@@ -9784,13 +9784,6 @@
     "carryElements": []
    },
    {
-    "uid": 2353,
-    "taskUid": 2352,
-    "resourceUid": 1001,
-    "carry": {},
-    "carryElements": []
-   },
-   {
     "uid": 2355,
     "taskUid": 2354,
     "resourceUid": 1003,
@@ -9871,6 +9864,20 @@
     "uid": 2220,
     "taskUid": 198,
     "resourceUid": 1003,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2401,
+    "taskUid": 2352,
+    "resourceUid": 1002,
+    "carry": {},
+    "carryElements": []
+   },
+   {
+    "uid": 2353,
+    "taskUid": 2352,
+    "resourceUid": 1001,
     "carry": {},
     "carryElements": []
    },
@@ -13003,22 +13010,11 @@
     "editGroup": null
    },
    {
-    "id": "cc4f4ab6-a98d-55b0-b3cf-1ba1aec0ce6a",
-    "parentId": "daa24b3f-44a8-5fcd-ae7b-e8942d114276",
-    "label": "作業木の掃除",
-    "derivedFromTaskUid": null,
-    "order": 34,
-    "treeState": "auto",
-    "color": null,
-    "minHeight": null,
-    "editGroup": null
-   },
-   {
     "id": "1679df54-c699-57d3-8335-ca9fccfa02db",
     "parentId": "daa24b3f-44a8-5fcd-ae7b-e8942d114276",
     "label": "DFC-2471 CR-710 の後に毎フレームの配置が遅くなった件を直す",
     "derivedFromTaskUid": null,
-    "order": 35,
+    "order": 34,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -13029,7 +13025,7 @@
     "parentId": "daa24b3f-44a8-5fcd-ae7b-e8942d114276",
     "label": "GRS の概要紹介の頁 docs/about/（日本語と英語。裁定 JDG-1987〜1994・2010〜2027）",
     "derivedFromTaskUid": null,
-    "order": 36,
+    "order": 35,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -13040,7 +13036,7 @@
     "parentId": "daa24b3f-44a8-5fcd-ae7b-e8942d114276",
     "label": "CR-742・743 の src 体 A: 描き手（下書き・休日の設定・単位の無い量）",
     "derivedFromTaskUid": null,
-    "order": 37,
+    "order": 36,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -13051,7 +13047,7 @@
     "parentId": "daa24b3f-44a8-5fcd-ae7b-e8942d114276",
     "label": "CR-742・743 の src 体 B: 訳し手が下書きを確定し、日の寄せを読む",
     "derivedFromTaskUid": null,
-    "order": 38,
+    "order": 37,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -13062,7 +13058,7 @@
     "parentId": "daa24b3f-44a8-5fcd-ae7b-e8942d114276",
     "label": "CR-742・743・744 の src 体 C: 下書き・日での比べ・時間で消える RS-90",
     "derivedFromTaskUid": null,
-    "order": 39,
+    "order": 38,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -13073,7 +13069,7 @@
     "parentId": "daa24b3f-44a8-5fcd-ae7b-e8942d114276",
     "label": "CR-742・743 の src 体 D: 下書きの効果、RD-4・RD-7 で下書きを捨てる、休日の設定の一覧を描く",
     "derivedFromTaskUid": null,
-    "order": 40,
+    "order": 39,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -13084,7 +13080,7 @@
     "parentId": "daa24b3f-44a8-5fcd-ae7b-e8942d114276",
     "label": "DFC-2491 閉じたパネルの後に作ったタスクをパネルに出す（DFC-2492 は取り下げ）",
     "derivedFromTaskUid": null,
-    "order": 41,
+    "order": 40,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -13095,7 +13091,7 @@
     "parentId": "daa24b3f-44a8-5fcd-ae7b-e8942d114276",
     "label": "CR-742・743 の突き合わせ（下書きの形を 1 つに、休日の設定が動く）",
     "derivedFromTaskUid": null,
-    "order": 42,
+    "order": 41,
     "treeState": "auto",
     "color": null,
     "minHeight": null,
@@ -13105,6 +13101,17 @@
     "id": "eb45ff3d-1087-5941-9dc2-bf3b827e0284",
     "parentId": "daa24b3f-44a8-5fcd-ae7b-e8942d114276",
     "label": "残り: DFC-1671 休日の面と DFC-2318（RR-2〜5）",
+    "derivedFromTaskUid": null,
+    "order": 42,
+    "treeState": "auto",
+    "color": null,
+    "minHeight": null,
+    "editGroup": null
+   },
+   {
+    "id": "cc4f4ab6-a98d-55b0-b3cf-1ba1aec0ce6a",
+    "parentId": "daa24b3f-44a8-5fcd-ae7b-e8942d114276",
+    "label": "作業木の掃除",
     "derivedFromTaskUid": null,
     "order": 43,
     "treeState": "auto",
@@ -14402,10 +14409,6 @@
     "groupId": "320f56b1-bf10-5965-9e3d-271635ab56ce"
    },
    {
-    "taskUid": 2352,
-    "groupId": "cc4f4ab6-a98d-55b0-b3cf-1ba1aec0ce6a"
-   },
-   {
     "taskUid": 2354,
     "groupId": "1679df54-c699-57d3-8335-ca9fccfa02db"
    },
@@ -14440,6 +14443,10 @@
    {
     "taskUid": 198,
     "groupId": "eb45ff3d-1087-5941-9dc2-bf3b827e0284"
+   },
+   {
+    "taskUid": 2352,
+    "groupId": "cc4f4ab6-a98d-55b0-b3cf-1ba1aec0ce6a"
    },
    {
     "taskUid": 2373,
@@ -16564,14 +16571,6 @@
     "strokeWidthPx": null
    },
    {
-    "taskUid": 2352,
-    "shapeKind": null,
-    "milestoneGlyph": null,
-    "fillColor": null,
-    "strokeColor": null,
-    "strokeWidthPx": null
-   },
-   {
     "taskUid": 2354,
     "shapeKind": null,
     "milestoneGlyph": null,
@@ -16637,6 +16636,14 @@
    },
    {
     "taskUid": 198,
+    "shapeKind": null,
+    "milestoneGlyph": null,
+    "fillColor": null,
+    "strokeColor": null,
+    "strokeWidthPx": null
+   },
+   {
+    "taskUid": 2352,
     "shapeKind": null,
     "milestoneGlyph": null,
     "fillColor": null,
@@ -16898,9 +16905,9 @@
   "zoomY": 1
  },
  "documentStamp": {
-  "scheduleUpdatedUtc": "2026-10-14T16:14:38Z",
+  "scheduleUpdatedUtc": "2026-10-14T16:19:31Z",
   "lastEditedBy": "progress body",
-  "settingsUpdatedUtc": "2026-10-14T16:14:38Z",
+  "settingsUpdatedUtc": "2026-10-14T16:19:31Z",
   "fileSavedUtc": null
  },
  "changeLog": []
