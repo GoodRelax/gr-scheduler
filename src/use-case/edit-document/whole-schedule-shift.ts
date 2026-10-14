@@ -1,5 +1,5 @@
 // EditDocument -- the Shift Whole Schedule: every date but the calendar moved by working days to a new start date.
-// @unit      UF-206  (docs/spec/05-07-design.md, table T-075)
+// @unit      UF-207  (docs/spec/05-07-design.md, table T-075)
 // @component EditDocument, layer UseCase (table T-062)
 // @purity    pure
 

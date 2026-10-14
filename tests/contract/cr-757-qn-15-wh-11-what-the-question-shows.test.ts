@@ -195,12 +195,12 @@ describe('WH-11 / TX-12 -- the lines of the question, in the dictionary words an
   })
 })
 
-const UF_206_ONE_MAPPING = '全体日程シフト（`FR-159`）の書き込みと、問い（`QN-15`）に出すものの数えを、表 T-379 の同じ写像で作る'
+const UF_207_ONE_MAPPING = '全体日程シフト（`FR-159`）の書き込みと、問い（`QN-15`）に出すものの数えを、表 T-379 の同じ写像で作る'
 
-describe(`UF-206 -- ${UF_206_ONE_MAPPING}`, () => {
-  it('table T-075 names UF-206 in whole-schedule-shift.ts', () => {
-    const row = specTable('T-075').rows.find((one) => one.id === 'UF-206')
-    expect(unbroken(row?.cells.join(' | ') ?? '')).toContain(UF_206_ONE_MAPPING)
+describe(`UF-207 -- ${UF_207_ONE_MAPPING}`, () => {
+  it('table T-075 names UF-207 in whole-schedule-shift.ts', () => {
+    const row = specTable('T-075').rows.find((one) => one.id === 'UF-207')
+    expect(unbroken(row?.cells.join(' | ') ?? '')).toContain(UF_207_ONE_MAPPING)
     expect(unbroken(row?.cells.join(' | ') ?? '')).toContain('`whole-schedule-shift.ts`')
   })
 
