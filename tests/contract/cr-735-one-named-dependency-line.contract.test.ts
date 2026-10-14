@@ -336,8 +336,8 @@ describe('T-373 FA-3 -- lines that differ in kind or lag: a choice with one choi
     expect(row.choices ?? []).toHaveLength(3)
   })
 
-  // WHY: the specification names no field of DelayFixCheck (RW-16 says only that the check, the chosen choice and the date are kept);
-  // the shape below is the one the published type declares. See the ledger row for the gap.
+  // WHY: the check below is written from the fields T-064 PI-1 gives DelayFixCheck (key, checked, choice, date; CR-752);
+  // the row's key and the choice's key are the ones the proposed row carries (RW-16).
   it('choosing a line keeps that line and deletes each of the others: the three choices keep three different lines, between them all three', () => {
     const before = THREE_LINES()
     const row = rowOfFa3(proposed(before), 2) as unknown as { key: string; choices: readonly { key: string }[] }
