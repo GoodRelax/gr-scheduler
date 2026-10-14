@@ -16,8 +16,12 @@ WHAT IT LOOKS FOR:
       other describing the plan before it;
   (c) a task (every object in a `tasks` array of the JSON, at any depth, so a
       move of the array by CR-751 does not blind it) whose `name` starts with
-      an id but does not continue with a bracketed subject and then more text:
-      `CR-758`, `CR-758 の実装` and `CR-758()の実装` are red;
+      an id but holds no non-empty bracketed subject after its ids, or no
+      words outside the ids and the brackets: `CR-758`, `CR-758 の実装` and
+      `CR-758()の実装` are red; `CR-754〜757(…)の残りの裁定`,
+      `DFC-2214・2215(…)の仕様と実装` and `JDG-2071 の食い違いの再検討(…)` are
+      not (MEASURED on the first plan, 5b305da1: a stricter form held four
+      good names red);
   (d) a JSON file that does not parse.
 Neither file existing is green: the plan is written after CR-751 lands.
 
@@ -27,9 +31,8 @@ describes this JSON, and a name with no id at all (allowed).
 Usage:
     python check-project-plan.py [repo-root] [--self-test]
 
-`--self-test` feeds four names (bare id, id + kind without subject, id + empty
-brackets, and the good form) and a nested `tasks` array, and expects exactly
-the three bad names reported; it is red otherwise.
+`--self-test` feeds the three bad forms, the good forms above and a name with
+no id, and expects exactly the three bad names reported; red otherwise.
 """
 import io
 import json
@@ -41,10 +44,9 @@ import sys
 PLAN_JSON = 'docs/development-records/project-plan.json'
 PLAN_MD = 'docs/development-records/project-plan.md'
 STARTS_WITH_ID = re.compile(r'^\s*[A-Z][A-Z0-9]*-\d+')
-VALID_NAME = re.compile(
-    r'^\s*[A-Z][A-Z0-9]*-\d+(?:\s*[・、,/]\s*[A-Z][A-Z0-9]*-\d+)*'  # one or more ids
-    r'\s*[（(][^（()）]*\S[^（()）]*[)）]'                            # a non-empty bracketed subject
-    r'\s*\S')                                                         # then the kind of work
+# The ids at the head: one id, then more ids or bare numbers joined by ・ 、 , / 〜 ~ (CR-754〜757).
+LEADING_IDS = re.compile(r'^\s*[A-Z][A-Z0-9]*-\d+(?:\s*[・、,/〜~]\s*(?:[A-Z][A-Z0-9]*-)?\d+)*')
+SUBJECT = re.compile(r'[（(]([^（()）]*)[)）]')
 
 
 def say(message):
@@ -72,8 +74,16 @@ def task_names(node):
     return found
 
 
+def is_valid(name):
+    """An id-led name carries a non-empty bracketed subject and words of its own (the kind of work)."""
+    rest = LEADING_IDS.sub('', name, count=1)
+    subjects = SUBJECT.findall(rest)
+    words = SUBJECT.sub('', rest).strip()
+    return any(one.strip() for one in subjects) and bool(words)
+
+
 def bad_names(names):
-    return [one for one in names if STARTS_WITH_ID.match(one) and not VALID_NAME.match(one)]
+    return [one for one in names if STARTS_WITH_ID.match(one) and not is_valid(one)]
 
 
 def self_test():
@@ -81,10 +91,12 @@ def self_test():
         {'name': 'CR-758'}, {'name': 'CR-758 の実装'}, {'name': 'CR-758()の実装'},
         {'name': 'CR-758(依存線とマーカーの干渉解消)の実装'}, {'name': '計画の見直し'},
         {'name': 'DFC-2482・DFC-2483（写しの日数）の試験'},
+        {'name': 'CR-754〜757(設定パネル)の残りの裁定'}, {'name': 'DFC-2214・2215(AM-19 の説明)の仕様と実装'},
+        {'name': 'JDG-2071 の食い違いの再検討(仕様とコードのどちらを正とするか)'},
     ]}}
     found = bad_names(task_names(document))
     ok = found == ['CR-758', 'CR-758 の実装', 'CR-758()の実装']
-    say('%s  self-test: %d bad name(s) of 6 (want the 3 bad forms): %s'
+    say('%s  self-test: %d bad name(s) of 9 (want the 3 bad forms): %s'
         % ('OK' if ok else 'FAIL', len(found), ' / '.join(found)))
     return 0 if ok else 1
 
