@@ -1,8 +1,8 @@
 # CR-769 —— 保存される名と連携する者が見る名を、英語の確立した慣習にそろえる（`GRS JSON` の鍵・エージェント API・文書の命令。棚卸しと当てる計画）
 
-> 起草の状態: **下書き（当てていない）**。2026-10-15、作業木 `66d989c6` の上で棚卸しを測り、当てる計画を書いた。`docs/spec`・`src`・`tests`・`tools` には何も当てていない。台帳は `rulings.md` に `JDG-2245` の行を足しただけ（12 節）。
-> ID の帯: 番号 `CR-769`〜`CR-771`、裁定 `JDG-2245`〜`JDG-2254`、台帳 `DFC-2745`〜`DFC-2759`、`PND-982`〜`PND-985` を調整役から受けた。本書が使うのは `CR-769` と `JDG-2245` だけ。`66d989c6` の木で `CR-769`・`JDG-2245` を名乗る所は 0 件だった（`git grep -c "CR-769\|JDG-2245" 66d989c6` が空）。変更履歴と `perf-pending` の番号は当てる体が調整役から受ける。
-> 当てる裁定: `JDG-2245`（「英語の慣習に従う。…まだ公開前なので今がラストチャンスぐらいに思え。」）。
+> 起草の状態: **下書き（当てていない）**。2026-10-15、作業木 `66d989c6` の上で棚卸しを測り、当てる計画を書いた。`docs/spec`・`src`・`tests`・`tools` には何も当てていない。台帳は動かしていない —— 利用者の指示は調整役の席が `JDG-2241` として既に記録した（本席は一度 `JDG-2245` として二重に記録し、調整役の指摘で取り下げた。帯の `JDG-2245`〜`JDG-2254` は使っていない）。 2026-10-15 に統合の枝 `integ/coord-1011`（`f6796d70`）を取り込み、`JDG-2241` と `CR-754` の着地を読んで書き直した。
+> ID の帯: 番号 `CR-769`〜`CR-771`、裁定 `JDG-2245`〜`JDG-2254`、台帳 `DFC-2745`〜`DFC-2759`、`PND-982`〜`PND-985` を調整役から受けた。本書が使うのは `CR-769` だけ。`66d989c6` の木で `CR-769` を名乗る所は 0 件だった（`git grep -c "CR-769" 66d989c6` が空）。変更履歴と `perf-pending` の番号は当てる体が調整役から受ける。
+> 当てる裁定: `JDG-2241`（「英語の慣習に従う。 他の用語もそうしてきたはず。 もし慣習と違うなら、しかるべきタイミングで直すぞ。  まだ公開前なので今がラストチャンスぐらいに思え。」）—— 状態は「指示 —— `CR-754` が当てる（行の名）・見直しは調整役が別の席に起こす」。本書と `CR-770`・`CR-771` がその「見直し」である。
 > 覆しうる裁定（11 節で問う。答えが出るまで覆さない）: `JDG-1488`（`groupId` にそろえる —— 問い 2）、`JDG-1784` のうち `showsTimeOfDay` の綴り（問い 1）。
 > 棚卸しの全体: `docs/review/english-naming-survey-2026-10-15.md`（本書の数と出どころはそこから取った）。画面の英語の語は `CR-770`、コードの公開名と配る物の名は `CR-771` が持つ。
 > 測った木: `66d989c6`。
@@ -15,7 +15,7 @@
 
 | 何 | 逐語・中身 | 本書での扱い |
 |---|---|---|
-| `JDG-2245` | 「英語の慣習に従う。 他の用語もそうしてきたはず。 もし慣習と違うなら、しかるべきタイミングで直すぞ。 まだ公開前なので今がラストチャンスぐらいに思え。」 | 保存される名（`GRS JSON` の鍵と値）と、AI・MCP の客が見る名（エージェント API・文書の命令）を、名指しできる慣習と比べ、違うものを 1 つの波で直す |
+| `JDG-2241` | 「英語の慣習に従う。 他の用語もそうしてきたはず。 もし慣習と違うなら、しかるべきタイミングで直すぞ。  まだ公開前なので今がラストチャンスぐらいに思え。」（`JDG-2234` の問い「xxxVisible と xxxVisibility のどちらがよいか」を受けた答え。読み: 真偽の設定の鍵は `xxxVisible` のまま（択 A）、画面の行の名は物の名） | 保存される名（`GRS JSON` の鍵と値）と、AI・MCP の客が見る名（エージェント API・文書の命令）を、名指しできる慣習と比べ、違うものを 1 つの波で直す |
 | 仕様の命名の表 | `01-04-requirements.md` の 表 T-006a（`W-1`〜`W-11`）と、その下の注（禁止語 `type`・`data`・`info`・`value`、大文字の略語を識別子に入れない） | ⭐ 本書は表 T-006a を正として測った。⚠️ 表そのものが慣習とも木とも食い違う行が 2 つある（`W-4`・`W-10`、2.1・2.6）—— その 2 行は表を直す |
 | `JDG-1192` | 「MSPDI由来の部分はプロパティー名や定義値をMSPDIに合わせるのが鉄則。…」 | MSPDI 由来の列は語幹を変えない（`W-8`）。⚠️ 語幹が MSPDI から外れた列が 2 つある（`created`・`lag`、2.5） |
 | `JDG-1784` | 「…長くても誤解が無い方が良い。 …でも平成のプログラム(Java)みたいに何でもかんでも機械的に長くするのもダメ。 あくまで基準は「名は体を表す」だ。」 | 名を長くするのは、短い名が別のものと取り違えられるときだけ（2.2 の `groupId`） |
@@ -28,6 +28,8 @@
 | `JDG-1488` | 行の畳みの命令の鍵を `taskGroupId` から `groupId` にそろえる（2026-10-04。そのころ画面の語は「行」だった） | ⚠️ 問い 2 —— `TaskGroup` を指す鍵を `taskGroupId` にそろえるなら覆す |
 | `JDG-1570`・`JDG-1665` | 「タスクグループに統一しよう。」・ファイル名・DOM・エージェント API の名もすべて | 同じ向き —— `TaskGroup` を指す名に `group` だけを残さない（問い 2 の推奨の理由） |
 | `JDG-1784` | 保存する値の名 `scheduleDataTimeZone`（推奨を退けた）・`viewTimeZone`・`displayTimeZones`・`showsTimeOfDay` | `showsTimeOfDay` の綴りだけが問い 1 に掛かる。ほかは変えない |
+| `JDG-2241` | 利用者の同じ指示の逐語。読み: 真偽の設定の鍵は `xxxVisible` のまま（`JDG-2234` の問いの択 A）、画面の行の名は物の名。状態は「`CR-754` が当てる（行の名）・見直しは調整役が別の席に起こす」 | ⭐ 本書の土台。`xxxVisible` の 14 は変えない（2.1）。画面の行の名は `CR-754`（11 行）と `CR-770`（残り）が持つ |
+| `JDG-2240` | 真偽の値の en は `Shown`／`Hidden`（状態の語） | 同じ向き —— 真偽は状態を形容詞・過去分詞で言う（2.1 の推奨の形） |
 | `JDG-1210` | 刻印 `documentStamp` に `fileSavedUtc` を残す（作成日は書き、最終保存日は書き出しで作る） | 覆さない —— 値を持つことは変えない。綴りの `Utc` だけを 2.4 が替える（裁定の逐語は値の要否を問い、綴りを決めていない） |
 | `JDG-714`・`JDG-715` | 欄の名「最小高さ」（ズーム倍率 100% 時） | 覆さない —— 画面の語は変えない。鍵 `minHeight` に単位を足すだけ（2.3） |
 | `JDG-1192` | MSPDI 由来の列は名も値も MSPDI のまま | 従う（2.5） |
@@ -50,7 +52,7 @@
 
 | # | 決めたこと | 導き | 代償 |
 |---|---|---|---|
-| X-1 | 慣習の出どころは本書とレビューの記録にだけ書き、仕様には書かない | 製品名を仕様に書かない規則（`JDG-2245` の読み） | 仕様の表 T-006a は規則だけを持つ |
+| X-1 | 慣習の出どころは本書とレビューの記録にだけ書き、仕様には書かない | 製品名を仕様に書かない規則（`JDG-2241` の読み） | 仕様の表 T-006a は規則だけを持つ |
 | X-2 | `TaskGroup.label` → `name`、命令 `setTaskGroupLabel` → `setTaskGroupName` | 実体の人に読ませる名は、ほかの 6 つの実体（`Project`・`Task`・`Calendar`・`Exception`・`Resource`・`CarryElement`）と MSPDI と同じ `name`。画面の語も「Task Group Name」（`PR-18`）。1 つの概念に 1 つの語（1.9）。⚠️ 列は `null` を取り、`null` なら名は `derivedFromTaskUid` のタスクの名から来る（`taskGroupNameOf`、`AT-53`・`AT-54`）—— `name` が `null` を取る形は変わらず、意味（明示した名、無ければ導く）は説明が持つ | 鍵が 1 つ変わる（形式の版を上げる） |
 | X-3 | 刻の鍵は `…At`（`scheduleUpdatedAt`・`settingsUpdatedAt`・`fileSavedAt`・`changedAt`）。値が RFC 3339 の `Z` で帯を言うので、名に `Utc` を書かない | 木に既に `settledAt`（対話の発話）がある。JSON の API の多数（GitHub REST の `created_at`・`updated_at`、Prisma・Mongoose の `createdAt`・`updatedAt`）。Google AIP-142 は `create_time` と言うが、JavaScript の世界では `…At` が多い | 2 つの慣習のうち片方を選んだ。⚠️ 問いにしなかった —— どちらを選んでも `Utc` の名は無くなる |
 | X-4 | MSPDI 由来の語幹から外れた 2 つを戻す: `Project.created` → `creationDate`（`Project/CreationDate`）、`Dependency.lag` → `linkLag`（`PredecessorLink/LinkLag`） | `JDG-1192`・`W-8` | `lag` の単位（0.1 分）は名でなく説明が持つ（MSPDI の名を保つため）。⚠️ 単位を名に入れる案（`lagTenthMinutes`）は `JDG-1192` に反するので採らない |
@@ -94,18 +96,21 @@
 
 **利用者の例「`xxxVisible` か `xxxVisibility` か」**: `visibility` は名詞で、慣習では**列挙の状態**に使う（CSS の `visibility: visible | hidden | collapse`、Office JavaScript API の `Worksheet.visibility`（`Visible`／`Hidden`／`VeryHidden`）、Android の `View.visibility`）。真か偽かの鍵は形容詞の `visible`（Office JavaScript API の `Shape.visible`、WinForms の `Control.Visible`）。⇒ 真偽の鍵は `…Visible` が慣習どおりで、`…Visibility` にしない。
 
-推奨の案（問い 1 の B）: `W-10` を「保存される真偽値と外へ出す答えの真偽値は、状態を `主語 ＋ 形容詞`（または過去分詞）で言い、`is`／`has`／`can` を付けない。コードの中だけの真偽値は付けてよい」に直す（出どころ: Google AIP-140「Boolean fields should omit the prefix "is".」、Office JavaScript API・Google Sheets API の `hidden`）。⚠️ 反対の例もある: MCP の仕様（2025-11-25）の道具の答えは `isError`、能力の宣言は `listChanged` で、1 つの規格の中でも混ざる。JSON の真偽の鍵に業界で 1 つの決まりは無く、Google の指針が最も明文で、木の多数（14）と同じ向きなので B を推す。
+⭐ **利用者が既に答えた所**（`JDG-2241`、`JDG-2234` の問い「xxxVisible と xxxVisibility のどちらがよいか」への答え）: 真偽の設定の鍵は `xxxVisible` のまま（択 A）—— 上の 14 は変えない。⇒ `W-10` のとおり 14 に `is` を付ける案は、`JDG-2241` を覆すので案に入れない。残るのは、この形からはみ出す 6 つ（保存の 3 ・答えの 3）と `W-10` の文である。
 
-| 旧 | 新（B） | 新（A、`W-10` のまま） |
-|---|---|---|
-| `isScheduleFilterApplied` | `scheduleFilterApplied` | 変えない |
-| `isUnassignedHidden` | `unassignedHidden` | 変えない |
-| `showsTimeOfDay` | `timeOfDayVisible` | `isTimeOfDayVisible` |
-| 命令 `setShowsTimeOfDay`（`CM-97`） | `setTimeOfDayVisible` | `setTimeOfDayVisible` |
-| `hasMovedSchedule` | `scheduleMoved` | 変えない |
-| `isScrolled` | `scrolled` | 変えない |
-| `hasReplacedEarlierWatch` | `earlierWatchReplaced` | 変えない |
-| `…Visible` の 11・`fitSpanFixed`・`taskGroupPanelWidthFixed`・`themeMonochrome` | 変えない | `is` を頭に付ける（`isPlanVisible` ほか 14） |
+推奨の案（問い 1 の A）: `W-10` を「保存される真偽値と外へ出す答えの真偽値は、状態を `主語 ＋ 形容詞`（または過去分詞）で言い、`is`／`has`／`can` を付けない。コードの中だけの真偽値は付けてよい」に直す（出どころ: Google AIP-140「Boolean fields should omit the prefix "is".」、Office JavaScript API・Google Sheets API の `hidden`）。⚠️ 反対の例もある: MCP の仕様（2025-11-25）の道具の答えは `isError`、能力の宣言は `listChanged` で、1 つの規格の中でも混ざる。JSON の真偽の鍵に業界で 1 つの決まりは無く、Google の指針が最も明文で、木の多数（14）と `JDG-2241` の択 A と同じ向きなので A を推す。
+
+| 旧 | 新（A、推奨） | 新（B） | C |
+|---|---|---|---|
+| `isScheduleFilterApplied` | `scheduleFilterApplied` | `scheduleFilterApplied` | 変えない |
+| `isUnassignedHidden` | `unassignedHidden` | `unassignedHidden` | 変えない |
+| `showsTimeOfDay` | `timeOfDayVisible` | `timeOfDayVisible` | 変えない |
+| 命令 `setShowsTimeOfDay`（`CM-97`） | `setTimeOfDayVisible` | `setTimeOfDayVisible` | 変えない |
+| `hasMovedSchedule` | `scheduleMoved` | 変えない | 変えない |
+| `isScrolled` | `scrolled` | 変えない | 変えない |
+| `hasReplacedEarlierWatch` | `earlierWatchReplaced` | 変えない | 変えない |
+| `…Visible` の 11・`fitSpanFixed`・`taskGroupPanelWidthFixed`・`themeMonochrome` | 変えない（`JDG-2241`） | 変えない | 変えない |
+| 表 T-006a の `W-10` | 「保存と外へ出す真偽は `主語 ＋ 形容詞`、`is` を付けない」 | 「保存する真偽は …」（答えの 3 はコードの形のまま） | 2 つの形を許す文に直す |
 
 ### 2.2 `TaskGroup` を指す鍵 —— ⚠️ 問い 2
 
@@ -181,8 +186,8 @@
 
 | 群 | 名 | 触れる所（仕様 ／ 手引き ／ `src` ／ 試験 ／ 道具 ／ 見本、生成物は除く） | ファイル |
 |---|---|---|---|
-| 2.1（B） | `isScheduleFilterApplied`・`isUnassignedHidden`・`showsTimeOfDay`・`setShowsTimeOfDay`・`hasMovedSchedule`・`isScrolled`・`hasReplacedEarlierWatch` | 6 ／ 5 ／ 218 ／ 175 ／ 1 ／ 0 | 116（重なりを含む和） |
-| 2.1（A） | B の 2 つを除き、`…Visible` の 11・`…Fixed` の 2・`themeMonochrome` を足す | B より約 ＋570 | — |
+| 2.1（A） | `isScheduleFilterApplied`・`isUnassignedHidden`・`showsTimeOfDay`・`setShowsTimeOfDay`・`hasMovedSchedule`・`isScrolled`・`hasReplacedEarlierWatch` | 6 ／ 5 ／ 218 ／ 175 ／ 1 ／ 0 | 116（重なりを含む和） |
+| 2.1（B） | A から答えの 3 つ（`hasMovedSchedule` `src` 32・試験 55 ほか）を除く | — | — |
 | 2.2 | `groupId`・`anchorGroupId`・`topGroupId`・`bottomGroupId`・`scrollGroupId`・`pinnedGroupIds` | 53 ／ 14 ／ 1,602 ／ 2,202 ／ 6 ／ 1,002 | 552（重なりを含む和）。⚠️ `groupId` の見本 1,000 は `sample-schedule/Three-Year Product Plan.json`（`JDG-1732` で書き直さない） |
 | X-2 | `label`（`TaskGroup` の列）・`setTaskGroupLabel` | ⚠️ `label` は一般の語なので語の一致では数えられない（`src` 626・試験 1,018 は上限）。型の言語サービスで数える（7 節） | — |
 | 2.3 | `minHeight`・`rulerHeight`・`rulerFont`・`taskGroupPanelWidth` | 31 ／ 10 ／ 217 ／ 453 ／ 10 ／ 102 | 270 |
@@ -259,7 +264,7 @@
 | 2.7 命令 | `CR-766`（表 T-108 を原稿へ移す）と、その問い 1 | `CR-766` の原稿に当てる |
 | 2.6 `fixType` | どの変更要求も名指さない（0）。⚠️ `CR-758`・`CR-759` は直す案の表を変える —— 着地の後に数え直す | 直す案の行の形 |
 | 触れない | `CR-740`・`CR-758`・`CR-759`・`CR-761`・`CR-762`・`CR-768` | 旧い名を名指さない（`CR-758`・`CR-759` に現れる `label` は部品の字で、`TaskGroup.label` ではない —— 本文を読んで確かめた） |
-| 測れない | `CR-763`・`CR-764`（`66d989c6` の木に無い） | 当てる日に同じ数え方で測る |
+| 触れない（`integ/coord-1011` の `f6796d70` で測った） | `CR-763`・`CR-764` | 本書の旧い名を名指さない |
 
 ### 8.2 段
 
@@ -271,9 +276,9 @@
 | 1 仕様と生成器 | `docs/spec`・`docs/guides`・`tools/generate_*.py` | 原稿の鍵・表 T-006a の 2 行・表 T-104・表 T-107（原稿）・表 T-108（原稿）・`SCHEMA_VERSION`、`npm run gen` | `npm run gen:check` 0、`strictdoc export docs/spec` の後 `rm -rf output` | 0.5〜1 h |
 | 2 `src` | `src/entity`・`src/use-case` ／ `src/adapter`・`src/framework` | 表 (a) と (b)、`agentApiVersion` 5、`.mcpb` | `npm run typecheck` 0、`npm run build` 0 | 0.5〜1 h |
 | 3 試験と道具 | `tests` ／ `.claude/skills`・`tools` | 同じ表の残り、`npm run gen:tests`、基準値の名（調整役、`JDG-520`） | `vitest` の全体と `playwright`（錠の下、既知の赤だけ）、check.sh 0、`privacy_count.py` | 1〜1.5 h |
-| 締め | 調整役 | `dist/index.html`、台帳（`JDG-2245` の状態、変更履歴）、利用者に確かめてもらう一覧（14 節） | 14 節 | 0.25〜0.5 h |
+| 締め | 調整役 | `dist/index.html`、台帳（`JDG-2241` の状態に本書の着地を書き足すか、変更履歴）、利用者に確かめてもらう一覧（14 節） | 14 節 | 0.25〜0.5 h |
 
-- **計**: 凍結 約 2.25〜4 h（問い 1 が A なら ＋0.5 h、問い 2 で `groupId` を変えないなら −1 h）。段 0 を入れた実時間 約 5.5〜8 h。⚠️ 見込みは測ったものではなく、`CR-708` の実測（凍結の当てと確かめ 約 1.6 h、1,667 パターン）と 3 節の数から置いた。`CR-708` より重いのは、一般の語（(b) の種）に読み票が要るからである。
+- **計**: 凍結 約 2.25〜4 h（問い 2 で `groupId` を変えないなら −1 h）。段 0 を入れた実時間 約 5.5〜8 h。⚠️ 見込みは測ったものではなく、`CR-708` の実測（凍結の当てと確かめ 約 1.6 h、1,667 パターン）と 3 節の数から置いた。`CR-708` より重いのは、一般の語（(b) の種）に読み票が要るからである。
 
 ---
 
@@ -299,19 +304,19 @@
 
 **用語の説明**: 「鍵」＝ 保存したファイル（`.json`）の中で値に付く英語の名。「AI の窓口」＝ AI（Claude など）が GRS を読み書きする口（エージェント API と、それを運ぶ MCP）。どちらも画面には出ないが、ファイルを読む道具や AI はこの名で読む。
 
-**問い 1 —— 保存する「はい／いいえ」の値の名に、`is` を付けますか？（`JDG-1784` の `showsTimeOfDay` を覆すかを含む）**
-**Q1 —— Should stored yes/no keys start with "is"?**
+**問い 1 —— 「表示する」と同じ形からはみ出す 3 つの保存の鍵（と AI の窓口の答えの 3 つ）を、同じ形にそろえますか？（`JDG-1784` の `showsTimeOfDay` を覆すかを含む）**
+**Q1 —— Should the three stored yes/no keys that break the "planVisible" pattern (and three AI-reply flags) be brought into it?**
 
-使う場面: 保存したファイルの中で、「予定を表示する」は `"planVisible": true`、「スケジュールフィルタを当てる」は `"isScheduleFilterApplied": true`、「時刻を表示する」は `"showsTimeOfDay": true` と書かれている。名の作り方が 3 通り混ざっている。仕様の命名の表（`W-10`）は「`is` で始める」と言うが、守っているのは 19 のうち 2 つ。
+使う場面: 保存したファイルの中で、「予定を表示する」は `"planVisible": true`、「スケジュールフィルタを当てる」は `"isScheduleFilterApplied": true`、「時刻を表示する」は `"showsTimeOfDay": true` と書かれている。`JDG-2241` で「真偽の鍵は `xxxVisible` のまま」と答えをもらった —— 14 個はその形である。はみ出すのが保存の 3 つ（`isScheduleFilterApplied`・`isUnassignedHidden`・`showsTimeOfDay`）と、AI の窓口の答えの 3 つ（`hasMovedSchedule`・`isScrolled`・`hasReplacedEarlierWatch`）。仕様の命名の表（`W-10`）は逆に「`is` で始める」と言っていて、木とも `JDG-2241` とも合わない。
 
-| | **B（推奨）`is` を付けない。表を直す** | A 表のとおり `is` を付ける | C 今のまま |
+| | **A（推奨）6 つともそろえ、表を直す** | B 保存の 3 つだけそろえる | C 今のまま、表だけ直す |
 |---|---|---|---|
-| ファイルの中の名 | `planVisible`・`scheduleFilterApplied`・`unassignedHidden`・`timeOfDayVisible` | `isPlanVisible`・`isScheduleFilterApplied`・`isUnassignedHidden`・`isTimeOfDayVisible` | 3 通りのまま |
-| 変える名の数 | 7（AI の窓口の答えの 3 を含む） | 15 | 0 |
-| 表 `W-10` | 「保存と外へ出す値は `is` を付けない」に直す | そのまま | 木と食い違ったまま |
-| 慣習 | Google の API 設計の指針（AIP-140）「真偽の欄は is を付けない」。Office の JavaScript API の `visible`、Google Sheets API の `hidden` | Swift・.NET の「プロパティは is で始めてよい」。AI の窓口の規格（MCP）自身の答えの `isError` | — |
+| ファイルの中の名 | `scheduleFilterApplied`・`unassignedHidden`・`timeOfDayVisible` | 同左 | 今のまま（3 通り） |
+| AI の窓口の答え | `scheduleMoved`・`scrolled`・`earlierWatchReplaced` | 今のまま（`has…`・`is…`） | 今のまま |
+| 表 `W-10` | 「保存と外へ出す真偽は `is` を付けない」 | 「保存する真偽は `is` を付けない」 | 「どちらの形も許す」 |
+| 慣習 | Google の API 設計の指針（AIP-140）「真偽の欄は is を付けない」、Office の JavaScript API の `visible` | 同左（答えはコードの慣習の `is`／`has` のまま） | — |
 
-推奨: **B**。理由 —— JSON の鍵の慣習は `is` を付けない形で、木の多数（14）もその形である。変える数も少ない。「`xxxVisible` か `xxxVisibility` か」は、`Visible` が正しい（`visibility` は「表示・非表示・畳む」のような 3 つ以上の状態の名に使う語）。⚠️ `showsTimeOfDay` は `JDG-1784` で一度決めた名だが、ほかの「表示する」の 11 個と同じ形 `timeOfDayVisible` にそろえる —— どちらの案でもこの 1 つは変わる。
+推奨: **A**。理由 —— `JDG-2241` の形（主語 ＋ 形容詞）に保存も答えも 1 つの決まりでそろう。AI はファイルの鍵と答えの鍵を同じ読み方で読める。⚠️ 反対の例もある: AI の窓口の規格（MCP）自身の答えは `isError` と `is` を付ける —— 業界で 1 つの決まりは無いので、木の多数にそろえる。`showsTimeOfDay` は `JDG-1784` で一度決めた名だが、ほかの「表示する」の 11 個と同じ形 `timeOfDayVisible` にそろえる（A でも B でも変わる）。
 
 **問い 2 —— タスクグループを指す鍵の名を `groupId` から `taskGroupId` に変えますか？（`JDG-1488` を覆すか）**
 **Q2 —— Should keys that point at a task group say taskGroupId instead of groupId?**
@@ -347,7 +352,7 @@
 
 | 台帳 | 動かしたもの |
 |---|---|
-| `rulings.md` | `JDG-2245` を足した（状態「指示 —— CR-769 が当てる」）。`JDG-1488`・`JDG-1784`・`JDG-1732` の状態は変えない（問いの答えが出てから） |
+| `rulings.md` | 動かさない。`JDG-2241` の状態（「…見直しは調整役が別の席に起こす」）に本書を書き足すかは調整役が決める。`JDG-1488`・`JDG-1784`・`JDG-1732` の状態は変えない（問いの答えが出てから） |
 | `defects.md` | 動かさない —— 本書は改名の計画で、仕様とコードの食い違いを新たに見つけていない（表 T-006a の 2 行は仕様の中の食い違いで、本書が直す） |
 | `changelog.md`・`perf-pending` | 当てる体が番号を受ける |
 

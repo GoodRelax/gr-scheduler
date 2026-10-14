@@ -1,9 +1,9 @@
 # CR-770 —— 英語の画面の語を、UI の書き方の確立した慣習にそろえる（キーの書き方・設定の項目名・問いの答えのボタン・省略記号・文の終わり。棚卸しと当てる計画）
 
-> 起草の状態: **下書き（当てていない）**。2026-10-15、作業木 `66d989c6` の上で棚卸しを測り、当てる計画を書いた。`docs/spec`・`src`・`tests` には何も当てていない。台帳は動かしていない（裁定 `JDG-2245` は `CR-769` と同じコミットで足した）。
+> 起草の状態: **下書き（当てていない）**。2026-10-15、作業木 `66d989c6` の上で棚卸しを測り、当てる計画を書いた。`docs/spec`・`src`・`tests` には何も当てていない。台帳は動かしていない —— 利用者の指示は調整役の席が `JDG-2241` として既に記録した（本席は一度 `JDG-2245` として二重に記録し、調整役の指摘で取り下げた。帯の `JDG-2245`〜`JDG-2254` は使っていない）。
 > ID の帯: 番号 `CR-770` を調整役から受けた（`CR-769`〜`CR-771` の帯）。`66d989c6` の木で `CR-770` を名乗る所は 0 件だった。新しい行 ID・`DFC`・`PND` は使わない。
-> 当てる裁定: `JDG-2245`（英語の慣習に従う）。覆しうる裁定（11 節で問う。答えが出るまで覆さない）: `JDG-174`（キーの綴り `Ctrl ＋ Shift ＋ 0` と割当のあいだの「 ／ 」）、`JDG-1862` の注（設定の項目名の en は識別子そのもの）、`JDG-1223`（「Save to File」の見出し）。
-> 棚卸しの全体: `docs/review/english-naming-survey-2026-10-15.md` の 2.4 節（1,027 の en の値を 1 つずつ数えた。番号 D-1.1〜D-8.14 は棚卸しの番号）。保存される名は `CR-769`、コードと配る物の名は `CR-771`。
+> 当てる裁定: `JDG-2241`（英語の慣習に従う）。覆しうる裁定（11 節で問う。答えが出るまで覆さない）: `JDG-174`（キーの綴り `Ctrl ＋ Shift ＋ 0` と割当のあいだの「 ／ 」）、`JDG-1223`（「Save to File」の見出し）。
+> 棚卸しの全体: `docs/review/english-naming-survey-2026-10-15.md` の 2.4 節（1,027 の en の値を 1 つずつ数えた。番号 D1.1〜D8.14 は棚卸しの番号）。保存される名は `CR-769`、コードと配る物の名は `CR-771`。
 > 測った木: `66d989c6`。
 
 ---
@@ -14,20 +14,21 @@
 
 | 何 | 中身 | 本書での扱い |
 |---|---|---|
-| `JDG-2245` | 「英語の慣習に従う。 …まだ公開前なので今がラストチャンスぐらいに思え。」 | 英語の画面の語を、名指しできる UI の書き方の慣習と比べ、違うものを直す |
+| `JDG-2241` | 「英語の慣習に従う。 他の用語もそうしてきたはず。 もし慣習と違うなら、しかるべきタイミングで直すぞ。  まだ公開前なので今がラストチャンスぐらいに思え。」（真偽の鍵は `xxxVisible` のまま、画面の行の名は物の名） | 英語の画面の語を、名指しできる UI の書き方の慣習と比べ、違うものを直す |
 | 規則 02 の 5 節の表記の表 | 綴りはアメリカ式（`JDG-1921`・`JDG-1925`）、画面で何かを指す名前は Title Case、文と値は Sentence case（`JDG-1862`） | 前提として守る。⚠️ 表の注「設定の項目名の en（識別子そのもの）…は変えない」は問い 2 が掛かる |
-| 慣習の出どころ | Microsoft Writing Style Guide（以下 MSWSG）、Windows のアプリの設計の指針（以下 WinUX）、Apple Human Interface Guidelines（以下 HIG）、Google Material Design の書き方、Chicago Manual of Style、業務の語は Microsoft Project・Primavera P6・PMI の用語集 | 出どころは本書と棚卸しにだけ書く（`JDG-2245` の読み）。仕様の辞書には製品名を書かない |
+| 慣習の出どころ | Microsoft Writing Style Guide（以下 MSWSG）、Windows のアプリの設計の指針（以下 WinUX）、Apple Human Interface Guidelines（以下 HIG）、Google Material Design の書き方、Chicago Manual of Style、業務の語は Microsoft Project・Primavera P6・PMI の用語集 | 出どころは本書と棚卸しにだけ書く（`JDG-2241` の読み）。仕様の辞書には製品名を書かない |
 
 ### 0.2 裁定の鎖（rulings.md を「＋」「／」「Ctrl」「Yes」「項目名の en」「Save to File」「Open File」「構え」「Arm」「Dialogue Field」「コメントボックス」「ボトルネック」「中断」「無題」「No name」で引いた）
 
 | 裁定 | 何を決めたか | 本書との関係 |
 |---|---|---|
 | `JDG-174` | ヘルプの割当と割当のあいだに「 ／ 」、キーの綴りを `Ctrl` ＋ `Shift` ＋ `0` の形にそろえる（「提案通りやってみろ」） | ⚠️ 問い 1 —— en だけ `Ctrl+Shift+0`・「or」にするなら一部覆す。ja は変えない |
-| `JDG-1862` | 名前の en は Title Case。範囲の注に「設定の項目名の en（識別子そのもの）は変えない」 | ⚠️ 問い 2 —— 項目名を語にするなら注を覆す |
-| `JDG-2106` | 新しい設定の項目名の en は「語にする」（`Project Base Time Zone`・`Display Time Zone 1`〜`4`） | 問い 2 の推奨と同じ向きの先例（2026-10-15） |
+| `JDG-1862` | 名前の en は Title Case。範囲の注に「設定の項目名の en（識別子そのもの）は変えない」 | ⚠️ 注は `JDG-2241`（画面の行の名は物の名）が既に覆した —— `CR-754` が 11 行に当てる。本書は残りの 19 行に当てる（2.2） |
+| `JDG-2241` の読み | 画面の行の名は物の名（例 行の名 `Plan`、値 `Shown`）。状態「`CR-754` が当てる（行の名）・見直しは調整役が別の席に起こす」 | ⭐ 2.2 の土台。問い 2 は `JDG-2241` が答えた（問わない） |
+| `JDG-2106` | 新しい設定の項目名の en は「語にする」（`Project Base Time Zone`・`Display Time Zone 1`〜`4`） | 同じ向きの先例。`CR-755` が `K-144`・`K-145` に当てる（本書は触れない） |
 | `JDG-1223` | 開き方の面の英語の見出しは「Open File」、保存の面は「Save to File」 | ⚠️ 問い 5 の束に含める（`IC-2` の名を「Export…」にするなら覆す） |
-| `JDG-1166`・`JDG-1167` | ヘッダーの 15 個の ja と en の説明（「Show or hide the Command Palette」ほか） | 覆さない —— 説明の型「Show or hide …」を本書が他の 23 個の切り替えにも広げる（D-3.2） |
-| `JDG-510` | 頼みの文のアイコンの名（「Prompt for Schedule Image to JSON ってどう？」） | 覆さない。`IC-115` の名を動詞で始める案（D-2.19）は問い 5 の束に含める |
+| `JDG-1166`・`JDG-1167` | ヘッダーの 15 個の ja と en の説明（「Show or hide the Command Palette」ほか） | 覆さない —— 説明の型「Show or hide …」を本書が他の 23 個の切り替えにも広げる（D3.2） |
+| `JDG-510` | 頼みの文のアイコンの名（「Prompt for Schedule Image to JSON ってどう？」） | 覆さない。`IC-115` の名を動詞で始める案（D2.19）は問い 5 の束に含める |
 | 「構え」「Arm」で当たる 30 行 | 構えるという操作の仕組みと ja の語 | 仕組みも ja も変えない。en の語 Arm だけが問い 4 に掛かる |
 
 ### ① この変更は `CH-` / `GL-` のどれを前へ進めるか
@@ -36,9 +37,9 @@
 
 ### ② レビュー観点のどの条項を当て、何が出たか
 
-- `R1.1`（曖昧さの無さ）—— 「Expand One Level」が意味の違う 2 つの命令（`IC-90`・`IC-92`）の名である（D-8.10）。日の単位が 3 通り（D-6.6）、`{m}m` は分と読める（D-6.7）。
-- `R1.3`（唯一の正）—— 同じ面が 3 通りに綴られる（Properties Panel・properties panel・property panel、D-8.9）。中断の語が Pause と Stop の 2 つ（D-5.6）。
-- 規則 02 の 5 節（新しく書く英語はアメリカ式）—— 「the wrong way round」4・「start-up」1 が残る（D-8.1。検査 32 の家族の行が拾わない形）。
+- `R1.1`（曖昧さの無さ）—— 「Expand One Level」が意味の違う 2 つの命令（`IC-90`・`IC-92`）の名である（D8.10）。日の単位が 3 通り（D6.6）、`{m}m` は分と読める（D6.7）。
+- `R1.3`（唯一の正）—— 同じ面が 3 通りに綴られる（Properties Panel・properties panel・property panel、D8.9）。中断の語が Pause と Stop の 2 つ（D5.6）。
+- 規則 02 の 5 節（新しく書く英語はアメリカ式）—— 「the wrong way round」4・「start-up」1 が残る（D8.1。検査 32 の家族の行が拾わない形）。
 
 ### ③ 利用者に問わずに決めたこと
 
@@ -59,16 +60,16 @@
 | 辞書の en の値 | `docs/spec/_source/display-words.json`（生成で `src/adapter/screen-renderer/display-words.json`） |
 | キーの書き方（問い 1） | `docs/spec/01-04-requirements.md` の `FR-036` と 表 T-036、生成器 `tools/generate_help_roster.py`、`src/adapter/screen-renderer/tooltips.ts` の区切り |
 | 問いの答え（問い 3） | `docs/spec/01-04-requirements.md` の `U-55`・表 T-037 の `NT-7`（「2 つの答え」）、辞書の `questions` の形（問いごとに答えの語を持つ）、`src` の確認の描画 |
-| 設定の項目名（問い 2） | 辞書の `settings` の en（131）、規則 02 の 5 節の表の注 |
+| 設定の項目名（2.2、`JDG-2241`） | 表 T-104（`tbl-glossary.md`）と辞書の `settings` の en のうち 19 行、規則 02 の 5 節の表の注 |
 | 書き方の束（問い 5） | 辞書の en の値だけ |
 
 数（見込み —— 当てる体が測り直す）: 要求 ±0（`FR-036`・`U-55`・`NT-7` の文の書き換え）。表 ±0。辞書の項 ±0（問い 3 が A なら `questions` の項に答えの語の欄が 2 つ足される）。
 
 ---
 
-## 2. 名前の対応表（推奨の案。棚卸しの番号 D-…）
+## 2. 名前の対応表（推奨の案。棚卸しの番号 D…）
 
-### 2.1 キーとマウスの書き方 —— 問い 1（D-7.1〜D-7.5）
+### 2.1 キーとマウスの書き方 —— 問い 1（D7.1〜D7.5）
 
 | 今（en） | 慣習の形 | 出どころ | 数（`help-roster.json` の `keys` を Python で数えた） |
 |---|---|---|---|
@@ -80,24 +81,54 @@
 
 ⚠️ ja の書き方（全角の ＋ と ／）は変えない —— 結び方を言語ごとに持つ。
 
-### 2.2 設定の項目名 —— 問い 2（D-6.1）
+### 2.2 設定の項目名 —— `JDG-2241` が答えた（D6.1。2026-10-15 に調整役の指摘で範囲を測り直した）
 
-| 今（en） | 案（語） | 数 |
+⭐ 画面に出る行だけを数える: 文書の設定パネルが出すのは、表 T-369 の欄（`FO-1`〜`FO-16`）と、保存される見せ方の鍵（`SETTINGS_DEFAULTS`、`src/entity/document-model/document-settings/document-settings.ts`）の読むだけの行である。表 T-104 の `K` 行 131 のうち、道具の定数（`pxPerDayAt1x` ほか約 95）は画面に出ない —— 辞書の en が識別子のままでも利用者は見ない（棚卸しの D6.1 の「127」は辞書の上の数で、画面の数ではない）。
+
+測った数（`66d989c6` ＋ `integ/coord-1011`）: 画面に出る `K` 行は 34 —— 表 T-369 の欄の名 11（`K-60`・`K-125`・`K-85`・`K-143`・`K-71`・`K-142`・`K-141`・`K-140`・`K-146`・`K-144`・`K-145`）と、読むだけの行 23（`SETTINGS_DEFAULTS` の鍵のうち表 T-369 の欄でも `tableViews.*` でもないもの）。そのうち en がプログラムの名のままのものは 30、語だが小文字のもの 2（theme color・Fit span）、語のもの 2（`K-142`・`K-143` の選ぶ箱）。
+
+| 持ち主 | 行 | 数 |
 |---|---|---|
-| `pxPerDayAt1x` | Pixels per Day at 100% | 131 のうち 127 が識別子（`[a-z][A-Za-z0-9.]*` で、大文字を 1 つ以上持つ 125 と、識別子を「/」で並べた 2）。ja は既に語（「1 日の幅（zoomX = 1）」） |
-| `parentProgressToleranceDays` | Parent Progress Tolerance (days) | |
-| `taskGroupPanelWidth` | Task Group Panel Width | |
-| `theme color`・`Fit span`（語だが小文字） | Theme Color・Fit Span | Title Case の範囲の欄に `settings.label` を足す |
+| `CR-754`（X-12、`JDG-2241`） | 真偽の読むだけの行 `K-122`・`K-123`・`K-124`・`K-75`〜`K-79`・`K-82`〜`K-84`（Plan・Actual ほか） | 11 |
+| `CR-754`（X-12、`JDG-2234`・`JDG-2240`） | `tableViews.*` の名の無い 13 行（Schedule Filter・Hidden Tasks ほか） | 13（新しい語） |
+| `CR-755`（X-10、`JDG-2106`） | `K-144`（Project Base Time Zone）・`K-145`（Display Time Zone） | 2 |
+| ⭐ **本書** | 下の 19 行 | 19 |
 
-出どころ: MSWSG（コードの識別子を画面に出さない）。Visual Studio Code の設定の画面は `editor.fontSize` を「Editor: Font Size」と見せる。GRS 自身も `JDG-2106` で新しい 5 つを語にした。
+本書が替える 19 行（en だけ。ja は替えない。名は Title Case（`JDG-1862`）、選ぶ箱の名は `K-142`・`K-143` と同じ Sentence case の動詞句（HIG・WinUX のチェックボックス、D8.11））:
 
-### 2.3 問いの答えのボタン —— 問い 3（D-2.1）
+| 行 | 鍵 | ja | 今の en | 新しい en | 出る所 |
+|---|---|---|---|---|---|
+| `K-60` | `themeHue` | テーマ色 | theme color | Theme Color | `FO-2` |
+| `K-125` | `displayScale` | 表示の倍率 | displayScale | Display Scale | `FO-3` |
+| `K-85` | `fontScale` | 文字サイズ | fontScale | Font Size | `FO-4`（ヘッダーの入口の名「Font Size」と同じ語） |
+| `K-71` | `taskGroupPanelWidth` | タスクグループパネルの幅 | taskGroupPanelWidth | Task Group Panel Width | `FO-6` |
+| `K-141` | `fitSpanStart` ／ `fitSpanFinish` | 全体表示時の期間 | Fit span | Fit Span | `FO-10` |
+| `K-140` | `parentProgressToleranceDays` | 遅延診断時に親タスクの進捗の疑義を許す日数 | parentProgressToleranceDays | Parent Task Progress Tolerance（単位 working days は `CR-754` の X-14 が欄の右に置く） | `FO-12` |
+| `K-146` | `showsTimeOfDay` | 時刻を表示する | showsTimeOfDay | Show time of day | `FO-13` |
+| `K-67` | `zoomX` | 横のズーム倍率 | zoomX | Horizontal Zoom | 読むだけ（View の組） |
+| `K-68` | `zoomY` | 縦のズーム倍率 | zoomY | Vertical Zoom | 同 |
+| `K-69` | `scrollDate` | 表示の左端が指す日付 | scrollDate | Left Edge Date | 同 |
+| `K-121` | `scrollDayOffset` | 表示の左端が指す日のどこにあるか | scrollDayOffset | Left Edge Time | 同（値は「About {time} ({percent} of the day)」—— `CR-754`） |
+| `K-70` | `scrollGroupId` | 表示の上端が指すタスクグループ | scrollGroupId | Top Task Group | 同 |
+| `K-120` | `scrollGroupOffset` | 表示の上端が指すタスクグループのどこにあるか | scrollGroupOffset | Top Task Group Position | 同 |
+| `K-110` | `pinnedGroupIds` | ピン止めの対象 | pinnedGroupIds | Pinned Task Groups | 同 |
+| `K-138` | `levelZeroTreeState` | 段 0 の木の状態 | levelZeroTreeState | Top-Level Tree State | 同 |
+| `K-61` | `themeMonochrome` | モノクロにするか | themeMonochrome | Monochrome | 読むだけ（Grid Lines and Color の組。値は Monochrome ／ Color —— `CR-754`） |
+| `K-3` | `rulerFont` | 目盛の文字 | rulerFont | Ruler Font Size | 読むだけ（Ruler and Stack Direction の組） |
+| `K-2` | `rulerHeight` | 目盛の帯の高さ | rulerHeight | Ruler Height | 同 |
+| `K-73` | `stackDirection` | 積む向き | stackDirection | Stack Direction | 同 |
+
+出どころ: MSWSG（コードの識別子を画面に出さない）。Visual Studio Code の設定の画面は `editor.fontSize` を「Editor: Font Size」と見せる。⚠️ 語は ja の項目名と、同じ物を指す入口・目盛の語から起こした案で、利用者は 1 つずつ覆してよい。
+
+画面に出ない約 95 行（道具の定数）の en は変えない —— 規則 02 の 5 節の表の注「設定の項目名の en（識別子そのもの）」は、画面に出ない行についてだけ残る（9 節で注の文を直す）。
+
+### 2.3 問いの答えのボタン —— 問い 3（D2.1）
 
 | 今 | 案 | 出どころ |
 |---|---|---|
 | 11 の問いのすべてで `Yes`／`No`（`confirmation`、ja も `Yes`／`No`） | 問いごとの動詞 ＋ `Cancel`: 「Delete」／「Cancel」（消す問い）、「Overwrite」／「Cancel」、「Reset」／「Cancel」、「Shift Dates」／「Cancel」ほか | HIG の Alerts（「Yes と No を避け、何が起きるかを言う動詞にする」）、WinUX のダイアログのボタン |
 
-### 2.4 「Arm」—— 問い 4（D-3.1）
+### 2.4 「Arm」—— 問い 4（D3.1）
 
 | 今 | 案 | 数（`\b[Aa]rm(ed|ing)?\b`） |
 |---|---|---|
@@ -107,7 +138,7 @@
 
 出どころ: Figma・PowerPoint の道具の説明は道具の名と操作を言う（「Rectangle (R)」）。arm は MSWSG・HIG の語彙に無い。⚠️ 仕様の中の操作の名（構える、`AR-*`、表 T-023 ほか）は変えない —— 画面に出る en の語だけ。
 
-### 2.5 業務の語 —— 問い 4 に並べる（D-5.6・D-5.9・D-5.12・D-5.18）
+### 2.5 業務の語 —— 問い 4 に並べる（D5.6・D5.9・D5.12・D5.18）
 
 | 今 | 標準の語 | 出どころ | 推奨 |
 |---|---|---|---|
@@ -120,30 +151,30 @@
 
 | # | 今 | 案 | 出どころ | 数 |
 |---|---|---|---|---|
-| D-1 | 省略記号 0（辞書の en に `...`・`…` が 0） | 入力を求めてから動く命令に付ける: Open…（`IC-1`）・Export…（`IC-2`、今「Save to File」）・Working Time…（`IC-132`、今「Holiday Settings」）・Save as Markdown…（`IC-140`、今「.md」）・More Colors…（色の欄） | WinUX・HIG・MSWSG「ellipses」 | 7 |
-| D-2.3 | No name（新しい文書の名） | Untitled | Word・Google ドキュメント・Figma・VS Code | 1 |
-| D-2.4 | Fit（`IC-10`） | Zoom to Fit | Figma「Zoom to fit」 | 1 |
-| D-2.6 | Enter or leave full screen | Enter or exit full screen | HIG「Enter Full Screen／Exit Full Screen」 | 1 |
-| D-2.11 | 名の中の冠詞（Draw a Dependency Line・Hide the Watermark ほか） | 冠詞を落とす（Link Tasks・Save Backup and Fix・Cancel Import） | WinUX（名に冠詞を置かない） | 5 |
-| D-3.2 | 切り替えの説明が 5 通り（Show or hide X ／ Show X; press again to hide it ／ Turn X on or off ／ Enable X; press again… ／ Enter or leave） | 「Show or hide X」1 通り（`JDG-1167` の型） | MSWSG（説明は短く一貫させる） | 29 |
-| D-3.3 | press again（ボタンを押す意味） | click again、または落とす | MSWSG（ボタンは select／click、press はキー） | 27 |
-| D-3.4 | 内の語 surface・glyph が画面に出る | window／panel、shape／icon | MSWSG（内部の語を出さない） | 4 |
-| D-4.1・D-4.2 | 知らせの文の句点: 203 のうち 4 だけが「.」で終わり、2 文以上の値 15 が最後の句点を持たない | 文は句点で終わる | MSWSG「error messages」・HIG | 203 ＋ 15 |
-| D-4.4 | Try once more | Try again | MSWSG・WinUX | 9 |
-| D-4.5 | write it out（保存・書き出しの意味） | save／export | MSWSG | 6 |
-| D-4.6 | 「Go on? This makes a change that undo cannot bring back」（`QN-8`） | 「Continue? This can't be undone.」 | WinUX・HIG の定型 | 2 |
-| D-6.6・D-6.7 | 日の単位が `1d`・`{lag} d`・`{d}d` の 3 通り、`{y}y {m}m {d}d` | `{n}d` 1 通り（Microsoft Project の表示）、`{y} yr {m} mo {d} d` | MSWSG の単位の略記 | 5 ＋ 2 |
-| D-8.2・D-8.3 | 並びの最後のカンマ（serial comma）が無い 5、範囲の「 - 」4 | 「, and」、範囲は「–」（空白なし） | MSWSG・Chicago Manual of Style 6.19・6.78 | 9 |
-| D-8.8・D-8.9 | 文の中の「the Selection」「that Item」、Properties Panel の 3 通りの綴り | the selection、Properties Panel 1 通り | Sentence case の決まり（`JDG-1862`）、1 つの名に 1 つの綴り | 6 ＋ 5 |
-| D-8.10 | 「Expand One Level」が 2 つの命令の名（`IC-90`・`IC-92`） | `IC-92` を「Show Top Level Only」 | 1 つの名に 1 つの命令 | 1 |
+| D1 | 省略記号 0（辞書の en に `...`・`…` が 0） | 入力を求めてから動く命令に付ける: Open…（`IC-1`）・Export…（`IC-2`、今「Save to File」）・Working Time…（`IC-132`、今「Holiday Settings」）・Save as Markdown…（`IC-140`、今「.md」）・More Colors…（色の欄） | WinUX・HIG・MSWSG「ellipses」 | 7 |
+| D2.3 | No name（新しい文書の名） | Untitled | Word・Google ドキュメント・Figma・VS Code | 1 |
+| D2.4 | Fit（`IC-10`） | Zoom to Fit | Figma「Zoom to fit」 | 1 |
+| D2.6 | Enter or leave full screen | Enter or exit full screen | HIG「Enter Full Screen／Exit Full Screen」 | 1 |
+| D2.11 | 名の中の冠詞（Draw a Dependency Line・Hide the Watermark ほか） | 冠詞を落とす（Link Tasks・Save Backup and Fix・Cancel Import） | WinUX（名に冠詞を置かない） | 5 |
+| D3.2 | 切り替えの説明が 5 通り（Show or hide X ／ Show X; press again to hide it ／ Turn X on or off ／ Enable X; press again… ／ Enter or leave） | 「Show or hide X」1 通り（`JDG-1167` の型） | MSWSG（説明は短く一貫させる） | 29 |
+| D3.3 | press again（ボタンを押す意味） | click again、または落とす | MSWSG（ボタンは select／click、press はキー） | 27 |
+| D3.4 | 内の語 surface・glyph が画面に出る | window／panel、shape／icon | MSWSG（内部の語を出さない） | 4 |
+| D4.1・D4.2 | 知らせの文の句点: 203 のうち 4 だけが「.」で終わり、2 文以上の値 15 が最後の句点を持たない | 文は句点で終わる | MSWSG「error messages」・HIG | 203 ＋ 15 |
+| D4.4 | Try once more | Try again | MSWSG・WinUX | 9 |
+| D4.5 | write it out（保存・書き出しの意味） | save／export | MSWSG | 6 |
+| D4.6 | 「Go on? This makes a change that undo cannot bring back」（`QN-8`） | 「Continue? This can't be undone.」 | WinUX・HIG の定型 | 2 |
+| D6.6・D6.7 | 日の単位が `1d`・`{lag} d`・`{d}d` の 3 通り、`{y}y {m}m {d}d` | `{n}d` 1 通り（Microsoft Project の表示）、`{y} yr {m} mo {d} d` | MSWSG の単位の略記 | 5 ＋ 2 |
+| D8.2・D8.3 | 並びの最後のカンマ（serial comma）が無い 5、範囲の「 - 」4 | 「, and」、範囲は「–」（空白なし） | MSWSG・Chicago Manual of Style 6.19・6.78 | 9 |
+| D8.8・D8.9 | 文の中の「the Selection」「that Item」、Properties Panel の 3 通りの綴り | the selection、Properties Panel 1 通り | Sentence case の決まり（`JDG-1862`）、1 つの名に 1 つの綴り | 6 ＋ 5 |
+| D8.10 | 「Expand One Level」が 2 つの命令の名（`IC-90`・`IC-92`） | `IC-92` を「Show Top Level Only」 | 1 つの名に 1 つの命令 | 1 |
 
-棚卸しの 2.4 に、束に入れなかった低い所見（D-2.5「Screen Language」→「Display Language」、D-2.7・D-2.8・D-2.17・D-5.5・D-5.23 ほか）を残した。調整役か次の席が拾う。
+棚卸しの 2.4 に、束に入れなかった低い所見（D2.5「Screen Language」→「Display Language」、D2.7・D2.8・D2.17・D5.5・D5.23 ほか）を残した。調整役か次の席が拾う。
 
 ---
 
 ## 3. 数（`66d989c6`）
 
-- 辞書の en の値 1,027（空でない 1,025）。問い 5 の束が触れる値 約 330、問い 1〜4 が触れる値 約 190（2.1〜2.5 の数の和。重なりを含む）。
+- 辞書の en の値 1,027（空でない 1,025）。問い 5 の束が触れる値 約 330、問い 1・3・4 と 2.2 が触れる値 約 80（2.1〜2.5 の数の和。重なりを含む）。
 - 試験が en の語を引く所（`grep -rlF "<語>" tests`）: 「Yes」10 ファイル、「Dialogue Field」13、「Holiday Settings」4、「Save to File」1、「No name」2。⚠️ 当てる体が当てる日に語ごとに数え直す（試験が語を符号で綴る所は検査 77 が解く。英語の語は 0 の見込み）。
 
 ---
@@ -182,30 +213,30 @@
 
 | 群 | 触れ合う変更要求 | 何が重なるか |
 |---|---|---|
-| 問い 2（設定の項目名） | `CR-754`（設定パネル、`K-` を 32 か所名指す）、`CR-755`（`K-` 14、時刻の項目名 —— `JDG-2106` で語にした）、`CR-756`（`K-` 3） | 同じ `settings` の値 |
+| 2.2（設定の項目名 19 行） | `CR-754`（11 行と 13 行を持つ —— 本書の 19 行と重ならない。⚠️ `CR-754` の X-12 の組の名と値の語の後に当てる）、`CR-755`（`K-144`・`K-145` を持つ —— 重ならない）、`CR-756`（`K-` 3） | 同じ `settings` の区の別の行 |
 | 問い 1（キー） | `CR-754`・`CR-755`・`CR-757`・`CR-759`・`CR-762`（`FR-036`・表 T-036 を名指す） | ヘルプの名簿の行 |
 | 問い 3（答えのボタン） | `CR-757`（`QN-` 8 —— 全体を動かす問い `QN-14`）、`CR-767`（状態機械の確認の 6） | 問いの語と確認の状態機械 |
-| 問い 5 の D-1・D-2.2 | `CR-768`（`IC-2`・保存の面と `.md` を 23 か所名指す） | `IC-2`・`IC-140` の名 |
+| 問い 5 の D1・D2.2 | `CR-768`（`IC-2`・保存の面と `.md` を 23 か所名指す） | `IC-2`・`IC-140` の名 |
 | 辞書の値（全般） | `CR-754`〜`CR-760`（辞書を名指す 2〜8 か所ずつ） | 当てる体が値ごとに旧い値の一致を数える |
 | 触れない | `CR-740`・`CR-765`・`CR-766` | 画面の語を名指さない |
-| 測れない | `CR-763`・`CR-764`（`66d989c6` の木に無い） | 当てる日に測る |
+| 触れ合う（`integ/coord-1011` の `f6796d70` で測った） | `CR-764`（`FR-036` を 1 か所、辞書を 2 か所名指す）・`CR-763`（辞書を 1 か所） | 問い 1 のヘルプの名簿と、辞書の値 —— 着地の後に当てる |
 
 ### 8.2 段
 
 | 段 | 何をする | 見込み |
 |---|---|---|
 | 0 | 2 節の表を答えに合わせて確定し、値の表を作る（1 つの体） | 1.5〜2 h |
-| 1 | 辞書の値（問い 2・4・5 と X-2）、`npm run gen`、検査 37 の指紋 | 1〜1.5 h |
+| 1 | 辞書の値（2.2・問い 4・5 と X-2）、`npm run gen`、検査 37 の指紋 | 1〜1.5 h |
 | 2 | 問い 1（`FR-036`・生成器・`tooltips.ts`）、問い 3（`U-55`・`NT-7`・辞書の形・確認の描画） | 2〜3 h |
 | 3 | 試験の語、check.sh、`vitest`・`playwright`（錠の下） | 1〜1.5 h |
 
-- 計 約 5.5〜8 h。`CR-769` と同じ凍結に入れず、別の回に当ててよい —— 辞書の値はファイルの形を変えない。⚠️ ただし `CR-769` の問い 1 の答えで設定の識別子が替わると、問い 2 で語にしない項目名（識別子のまま出すもの）も替わる —— `CR-769` を先に当てる。
+- 計 約 5.5〜8 h。`CR-769` と同じ凍結に入れず、別の回に当ててよい —— 辞書の値はファイルの形を変えない。⚠️ ただし `CR-769` の問い 1 の答えで設定の識別子が替わると、画面に出ない項目名（識別子のまま）も替わる。2.2 の鍵の列は `CR-769` の後の綴りで読む —— `CR-769` を先に当てる。
 
 ---
 
 ## 9. 仕様の外で直すもの
 
-- 規則 02 の 5 節の表: Title Case の欄の一覧に `settings.label` を足す（問い 2 が A のとき）。注「設定の項目名の en（識別子そのもの）…は変えない」を消す。
+- 規則 02 の 5 節の表の Title Case の行の注「設定の項目名の en（識別子そのもの）…は変えない」を「画面に出ない設定の項目名の en（識別子そのもの）…は変えない」に直す（`JDG-2241`）。`settings.label` を Title Case の欄の一覧に足さない —— 選ぶ箱の名（`K-142`・`K-143`・`K-146`）は Sentence case である。
 - 英語の手引き（`docs/guides/schedule-to-grs-json/prompt-en.md`）が画面の語を引く所があれば同じ語にする。
 
 ---
@@ -233,17 +264,9 @@
 
 推奨: **A**。理由 —— Windows・Office・macOS の英語の画面と説明書きは `Ctrl+A` と書く（Microsoft の書き方の指針）。全角の ＋ は英語の字に無い。日本語の書き方は `JDG-174` で決めたまま保つ。
 
-**問い 2 —— 英語の設定パネルの項目名を、プログラムの名（`pxPerDayAt1x`）から英語の語（Pixels per Day at 100%）にしますか？**
-**Q2 —— Should the English Document Settings labels be words instead of code names?**
+**問い 2 —— （問わない）英語の設定パネルの項目名を語にするか**
 
-使う場面: 英語の画面で文書の設定パネルを開くと、131 行のうち 127 行の名が `pxPerDayAt1x`・`parentProgressToleranceDays` のようなプログラムの名で出る（日本語の画面は「1 日の幅（zoomX = 1）」のような語）。2026-10-15 の `JDG-2106` で、新しい時刻の 5 行だけは語（Project Base Time Zone ほか）にした。
-
-| | **A（推奨）すべて語にする** | B 利用者が書き換える行（約 15）だけ語にする | C 今のまま |
-|---|---|---|---|
-| 英語の画面 | Pixels per Day at 100%・Task Group Panel Width ほか 127 | 書き換える行は語、読むだけの行はプログラムの名 | プログラムの名 |
-| 手間 | 127 の語を起こす（約 1 h） | 約 15 | 0 |
-
-推奨: **A**。理由 —— 画面にプログラムの名を出さないのが慣習（Visual Studio Code の設定の画面も語で見せる）。`JDG-2106` と同じ向き。⚠️ プログラムの名を見たい人のためにツールチップへ名を添える案は、本書の外（必要なら別の変更要求）。
+⭐ `JDG-2241`（2026-10-15）が答えた —— 画面の行の名は物の名にする。本書は `CR-754`・`CR-755` が持たない 19 行に当てる（2.2）。2.2 の語の案は、利用者が 1 つずつ覆してよい。
 
 **問い 3 —— 問いの答えのボタンを「Yes／No」から「Delete／Cancel」のような動詞にしますか？**
 **Q3 —— Should question buttons say what they do ("Delete" / "Cancel") instead of "Yes" / "No"?**
@@ -289,7 +312,7 @@
 
 | 台帳 | 動かしたもの |
 |---|---|
-| `rulings.md` | 動かさない（`JDG-2245` は `CR-769` の起草のコミットで足した。状態は「指示 —— CR-769 が当てる」で、本書もこの裁定を引く） |
+| `rulings.md` | 動かさない（`JDG-2241` は調整役の席が記録した） |
 | `changelog.md` | 当てる体が番号を受ける |
 
 ---
@@ -309,5 +332,5 @@
 
 ## 14. 利用者の実物の手順と見積り
 
-- 実物の手順（調整役へ送る。`JDG-1340`）: 英語の画面で (1) ヘッダーの「Open…」の名と、キーを持つツールチップのキーが `Ctrl+Shift+E` の形（全角の ＋ も空白も無い）で出ること、(2) タスクグループを消すと「Delete」／「Cancel」が出ること、(3) 文書の設定パネルの項目名が語で出ること、(4) パレットの説明が道具の名で始まること。
+- 実物の手順（調整役へ送る。`JDG-1340`）: 英語の画面で (1) ヘッダーの「Open…」の名と、キーを持つツールチップのキーが `Ctrl+Shift+E` の形（全角の ＋ も空白も無い）で出ること、(2) タスクグループを消すと「Delete」／「Cancel」が出ること、(3) 文書の設定パネルの 2.2 の 19 行の名が語で出ること（Display Scale・Horizontal Zoom・Monochrome ほか）、(4) パレットの説明が道具の名で始まること。
 - 見積り: 段 0〜3 で約 5.5〜8 h（8.2）。

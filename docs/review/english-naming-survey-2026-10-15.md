@@ -1,6 +1,6 @@
 # 英語の名の棚卸し —— 確立した慣習と比べる（2026-10-15、`66d989c6`）
 
-> 何のため: 利用者の指示 `JDG-2245`（「英語の慣習に従う。 他の用語もそうしてきたはず。 もし慣習と違うなら、しかるべきタイミングで直すぞ。 まだ公開前なので今がラストチャンスぐらいに思え。」）。利用者と連携する者（AI・MCP の客・`GRS JSON` を読み書きする道具）が見る英語の名と、保存される英語の名を、名指しできる慣習と比べた。
+> 何のため: 利用者の指示 `JDG-2241`（「英語の慣習に従う。 他の用語もそうしてきたはず。 もし慣習と違うなら、しかるべきタイミングで直すぞ。  まだ公開前なので今がラストチャンスぐらいに思え。」）。利用者と連携する者（AI・MCP の客・`GRS JSON` を読み書きする道具）が見る英語の名と、保存される英語の名を、名指しできる慣習と比べた。
 > 何もしていない: `docs/spec`・`src`・`tests` は読んだだけ。名は 1 つも替えていない。当てる計画は 3 本の変更要求 —— `change-request/CR-769-stored-and-integrator-facing-names-follow-english-convention.md`（保存の鍵・エージェント API・命令の名）、`change-request/CR-770-on-screen-english-words-follow-ui-writing-convention.md`（画面の英語の語）、`change-request/CR-771-code-public-names-and-shipped-file-names-follow-convention.md`（コードの公開名と配る物の名）。
 > 測った木: `66d989c6`。2.4 節と 2.5 節は、本席が出した読むだけの体 2 つの調べを、番号を付けて取り込んだもの（英語のまま）。数はすべて横に測り方を書いた。⚠️ 仕様には製品名を書かない規則がある —— 本書は慣習の出どころとして製品名・規格名を名指す（記録であり、仕様ではない）。
 
@@ -10,10 +10,10 @@
 
 | 順 | 種 | 所見 | 公開の後に直すと | 変更要求 |
 |---|---|---|---|---|
-| 1 | `GRS JSON` の鍵 | 真偽の鍵が 3 通り（`planVisible` ／ `isScheduleFilterApplied` ／ `showsTimeOfDay`）。仕様の命名の表 `W-10`（「`is` で始める」）を 19 のうち 2 つしか守らない | 利用者のファイルが開けなくなる | `CR-769` 問い 1 |
+| 1 | `GRS JSON` の鍵 | 真偽の鍵が 3 通り（`planVisible` ／ `isScheduleFilterApplied` ／ `showsTimeOfDay`）。利用者は `xxxVisible` のまま（`JDG-2241`）と答えたが、仕様の命名の表 `W-10`（「`is` で始める」）は逆を言い、19 のうち 2 つしか守られていない | 利用者のファイルが開けなくなる | `CR-769` 問い 1 |
 | 2 | `GRS JSON` の鍵 | `TaskGroup` を指す鍵が `groupId`（`taskUid`・`resourceUid` と作り方が違い、同じ文書の `editGroup` と取り違えうる）。`TaskGroup.label` だけが `name` でない | 同上 | `CR-769` 問い 2・X-2 |
 | 3 | エージェント API | 成功の判定が `ok` と `accepted` の 2 通り、拒否の文が `what`、書き込みの前提の刻印の欄が `readStamp`（メソッドと同じ綴り） | AI の手順が断られる | `CR-769` 2.6 |
-| 4 | 画面の語 | 英語のキーの書き方が `Ctrl ＋ A`（全角の ＋）、設定の項目名 131 のうち 127 がプログラムの名、問いの答えが 11 の問いすべてで `Yes`／`No` | 利用者が戸惑う（壊れはしない） | `CR-770` 問い 1〜3 |
+| 4 | 画面の語 | 英語のキーの書き方が `Ctrl ＋ A`（全角の ＋）、設定パネルに出る 34 行のうち 30 行の名がプログラムの名（`CR-754` が 11 行・`CR-755` が 2 行を直し、残る 19 行を `CR-770` が持つ。辞書の上では 131 のうち 127 —— 画面に出ない道具の定数を含む）、問いの答えが 11 の問いすべてで `Yes`／`No` | 利用者が戸惑う（壊れはしない） | `CR-770` 問い 1〜3 |
 | 5 | `GRS JSON` の鍵 | 単位を名に持たない px の鍵 4（`minHeight`・`rulerHeight`・`rulerFont`・`taskGroupPanelWidth`）、刻の鍵の `Utc`、MSPDI の語幹から外れた `created`・`lag`、略語 `importSeq`、区間 `startDate`／`endDate` | ファイルが開けなくなる | `CR-769` X-3〜X-7 |
 | 6 | 画面の語 | 「Arm」30、省略記号 0、知らせの句点 203 のうち 4、Bottleneck・Paused・Comment Box・Dialogue Field | 戸惑う | `CR-770` 問い 4・5 |
 | 7 | 配る物 | ブラウザの保存の鍵の頭が `grsched.`（ほかはすべて `grs`）、MCP の取次の表示名 `GRS relay` | 利用者の画面の言語の選びが消える | `CR-771` 2.1・2.2 |
@@ -62,47 +62,47 @@
 
 | # | 所見 | 今 | 慣習の形 | 出どころ | 数（触れる所は 6 節の数え方） | 影響 |
 |---|---|---|---|---|---|---|
-| J-1 | 真偽の鍵が 3 通り。`W-10` を 19 のうち 2 しか守らない | `…Visible` 11・`…Fixed` 2・`themeMonochrome` ／ `isScheduleFilterApplied`・`isUnassignedHidden` ／ `showsTimeOfDay` | `主語 ＋ 形容詞`（`is` なし）にそろえ、`W-10` を直す | AIP-140、Office JS の `visible`。`…Visibility` は列挙の名（CSS の `visibility`、Office JS の `Worksheet.visibility`）で、真偽には使わない | 3 つの鍵: 仕様 6・`src` 175・試験 88。⚠️ `JDG-1784` が `showsTimeOfDay` を決めた | 高 |
-| J-2 | `TaskGroup` を指す鍵が `group` だけを言う | `groupId`・`anchorGroupId`・`topGroupId`・`bottomGroupId`・`scrollGroupId`・`pinnedGroupIds` | `taskGroupId` ほか | 外部キーは指す実体の名から（Rails、GRS 自身の `taskUid`・`resourceUid`）。同じ文書に `editGroup` がある | 仕様 53・`src` 1,602・試験 2,202。⚠️ `JDG-1488` が `groupId` を選んだ | 高 |
-| J-3 | `TaskGroup` の名だけが `label` | `TaskGroup.label`、命令 `setTaskGroupLabel` | `name` | ほかの 6 つの実体と MSPDI が `name`。画面は「Task Group Name」（`PR-18`） | 一般の語なので型で数える | 中 |
-| J-4 | px の鍵に単位が無い | `TaskGroup.minHeight`・`rulerHeight`・`rulerFont`・`taskGroupPanelWidth` | `minHeightPx`・`rulerHeightPx`・`rulerFontSizePx`・`taskGroupPanelWidthPx` | 木の多数（`strokeWidthPx`・`cornerRadiusPx`・`bodyOffsetPx`・`fadeInDays`・`minutesPerDay`）、AIP-142。`rulerFont` は書体でなく大きさ（CSS の `font-size`） | 仕様 31・`src` 217・試験 453 | 中 |
-| J-5 | 刻の鍵の `Utc` | `scheduleUpdatedUtc`・`settingsUpdatedUtc`・`fileSavedUtc`・`changedUtc`（対話の発話は既に `settledAt`） | `…At` | GitHub REST の `created_at`・`updated_at`、Prisma・Mongoose。帯は値（RFC 3339 の `Z`）が言う。AIP-142 は `…_time` | 仕様 9・`src` 48・試験 235 | 中 |
-| J-6 | MSPDI の語幹から外れた | `Project.created`（`CreationDate`）・`Dependency.lag`（`LinkLag`、単位 0.1 分） | `creationDate`・`linkLag` | `JDG-1192`・`W-8` | 一般の語なので型で数える | 中 |
-| J-7 | 略語 | `importSeq`・`lastSeenImportSeq` | `importSequence`・`lastSeenImportSequence` | .NET（略語を避ける）。AIP-140 の許す略語に `seq` は無い | 仕様 10・`src` 34・試験 31 | 低 |
-| J-8 | 日時の区間が `startDate`／`endDate` | `HighlightBox.startDate`・`endDate`（値は日時） | `start`・`finish` | GRS のほかの区間と MSPDI・PMBOK は start／finish | 一般の語なので型で数える | 低 |
-| J-9 | 列挙の値と `W-4` | 値 37 のうち kebab-case 0・camelCase 7、`src` の `kind: '…'` 277 のうち kebab 0・camel 186 | 値は変えず、`W-4` を camelCase に直す | TypeScript の判別の和は識別子の綴り。命令の種類は命令の名 | 表の 1 行 | 低 |
-| J-10 | 低い所見（変えない） | `fontScale`（値 `S`／`M`／`L` —— 倍率でなく段）、`scrollGroupOffset`・`scrollDayOffset`（0〜1 の比を Offset と呼ぶ）、`linkType` と `resourceKind` の `Type`／`Kind` の混ざり | — | — | — | 低 |
+| J1 | 真偽の鍵が 3 通り。`W-10` を 19 のうち 2 しか守らない | `…Visible` 11・`…Fixed` 2・`themeMonochrome` ／ `isScheduleFilterApplied`・`isUnassignedHidden` ／ `showsTimeOfDay` | `主語 ＋ 形容詞`（`is` なし）にそろえ、`W-10` を直す | AIP-140、Office JS の `visible`。`…Visibility` は列挙の名（CSS の `visibility`、Office JS の `Worksheet.visibility`）で、真偽には使わない | 3 つの鍵: 仕様 6・`src` 175・試験 88。⚠️ `JDG-1784` が `showsTimeOfDay` を決めた | 高 |
+| J2 | `TaskGroup` を指す鍵が `group` だけを言う | `groupId`・`anchorGroupId`・`topGroupId`・`bottomGroupId`・`scrollGroupId`・`pinnedGroupIds` | `taskGroupId` ほか | 外部キーは指す実体の名から（Rails、GRS 自身の `taskUid`・`resourceUid`）。同じ文書に `editGroup` がある | 仕様 53・`src` 1,602・試験 2,202。⚠️ `JDG-1488` が `groupId` を選んだ | 高 |
+| J3 | `TaskGroup` の名だけが `label` | `TaskGroup.label`、命令 `setTaskGroupLabel` | `name` | ほかの 6 つの実体と MSPDI が `name`。画面は「Task Group Name」（`PR-18`） | 一般の語なので型で数える | 中 |
+| J4 | px の鍵に単位が無い | `TaskGroup.minHeight`・`rulerHeight`・`rulerFont`・`taskGroupPanelWidth` | `minHeightPx`・`rulerHeightPx`・`rulerFontSizePx`・`taskGroupPanelWidthPx` | 木の多数（`strokeWidthPx`・`cornerRadiusPx`・`bodyOffsetPx`・`fadeInDays`・`minutesPerDay`）、AIP-142。`rulerFont` は書体でなく大きさ（CSS の `font-size`） | 仕様 31・`src` 217・試験 453 | 中 |
+| J5 | 刻の鍵の `Utc` | `scheduleUpdatedUtc`・`settingsUpdatedUtc`・`fileSavedUtc`・`changedUtc`（対話の発話は既に `settledAt`） | `…At` | GitHub REST の `created_at`・`updated_at`、Prisma・Mongoose。帯は値（RFC 3339 の `Z`）が言う。AIP-142 は `…_time` | 仕様 9・`src` 48・試験 235 | 中 |
+| J6 | MSPDI の語幹から外れた | `Project.created`（`CreationDate`）・`Dependency.lag`（`LinkLag`、単位 0.1 分） | `creationDate`・`linkLag` | `JDG-1192`・`W-8` | 一般の語なので型で数える | 中 |
+| J7 | 略語 | `importSeq`・`lastSeenImportSeq` | `importSequence`・`lastSeenImportSequence` | .NET（略語を避ける）。AIP-140 の許す略語に `seq` は無い | 仕様 10・`src` 34・試験 31 | 低 |
+| J8 | 日時の区間が `startDate`／`endDate` | `HighlightBox.startDate`・`endDate`（値は日時） | `start`・`finish` | GRS のほかの区間と MSPDI・PMBOK は start／finish | 一般の語なので型で数える | 低 |
+| J9 | 列挙の値と `W-4` | 値 37 のうち kebab-case 0・camelCase 7、`src` の `kind: '…'` 277 のうち kebab 0・camel 186 | 値は変えず、`W-4` を camelCase に直す | TypeScript の判別の和は識別子の綴り。命令の種類は命令の名 | 表の 1 行 | 低 |
+| J10 | 低い所見（変えない） | `fontScale`（値 `S`／`M`／`L` —— 倍率でなく段）、`scrollGroupOffset`・`scrollDayOffset`（0〜1 の比を Offset と呼ぶ）、`linkType` と `resourceKind` の `Type`／`Kind` の混ざり | — | — | — | 低 |
 
 ### 2.2 エージェント API と MCP（本席と 2.5 の体が測った。`CR-769` 2.6）
 
 | # | 今 | 慣習の形 | 出どころ |
 |---|---|---|---|
-| A-1 | 成功の判定が `ok`（`AgentExport`）と `accepted`（書き込み・発話・フォーカスの答え） | `ok` 1 つ | Slack Web API、Fetch の `Response.ok` |
-| A-2 | 拒否の文 `AgentRefusal.what` | `message` | `Error.message`、JSON-RPC 2.0 の `error.message` |
-| A-3 | `AgentWriteRequest.readStamp`（メンバ `readStamp` と同じ綴りの欄） | `expectedStamp` | 楽観的な排他の「期待する版」（HTTP の `If-Match`、Kubernetes の `resourceVersion`） |
-| A-4 | 真偽の答え `hasMovedSchedule`・`isScrolled`・`hasReplacedEarlierWatch` | J-1 の答えに従う | J-1 |
-| A-5 | 直す案の行の `fixType`（型 `DelayFixType`） | `fixKind` | GRS 自身の種類の名は `Kind` |
-| A-6 | MCP の道具の名 22 は camelCase（エージェント API のメンバ名そのもの） | 変えない | MCP の仕様は `getUser` を例に挙げる。見本の取次と仕様の別の例（`get_weather`）は snake_case —— メンバ名と 2 つの綴りを持つ害のほうが大きい |
-| A-7 | 22 のメンバの名 | 慣習どおり（`readX`・`exportX`・`applyCommands`・名詞の性質 `agentApiVersion`） | — |
+| A1 | 成功の判定が `ok`（`AgentExport`）と `accepted`（書き込み・発話・フォーカスの答え） | `ok` 1 つ | Slack Web API、Fetch の `Response.ok` |
+| A2 | 拒否の文 `AgentRefusal.what` | `message` | `Error.message`、JSON-RPC 2.0 の `error.message` |
+| A3 | `AgentWriteRequest.readStamp`（メンバ `readStamp` と同じ綴りの欄） | `expectedStamp` | 楽観的な排他の「期待する版」（HTTP の `If-Match`、Kubernetes の `resourceVersion`） |
+| A4 | 真偽の答え `hasMovedSchedule`・`isScrolled`・`hasReplacedEarlierWatch` | J1 の答えに従う | J1 |
+| A5 | 直す案の行の `fixType`（型 `DelayFixType`） | `fixKind` | GRS 自身の種類の名は `Kind` |
+| A6 | MCP の道具の名 22 は camelCase（エージェント API のメンバ名そのもの） | 変えない | MCP の仕様は `getUser` を例に挙げる。見本の取次と仕様の別の例（`get_weather`）は snake_case —— メンバ名と 2 つの綴りを持つ害のほうが大きい |
+| A7 | 22 のメンバの名 | 慣習どおり（`readX`・`exportX`・`applyCommands`・名詞の性質 `agentApiVersion`） | — |
 
 ### 2.3 文書の命令（表 T-108 の 88。`CR-769` 2.7）
 
 - 文法は一貫している: 88 のすべてが動詞で始まる（`set` 56・`delete` 8・`create` 7・`reset` 3・`clear` 2 ほか）—— 表 T-108 の名を `tbl-glossary.md` から読んで数えた。
 - 揺れ: 単位を持つ 1 列を書く命令 8 のうち 3 が単位を名に持ち（`setTaskFadeInDays`・`setTaskFadeOutDays`・`setCommentBoxBodyOffsetPx`）、5 が落とす（`setTaskVisualStrokeWidth`・`setCommentBoxStrokeWidth`・`setHighlightBoxStrokeWidth`・`setCommentBoxFillTransparency`・`setHighlightBoxFillTransparency`）。
 - 対の揺れ: `createAssignment`（`CM-44`）の対が `unassignResource`（`CM-45`）。ほかの 7 つの実体は create／delete。
-- 連れて変わる: `setShowsTimeOfDay`（J-1）、`setTaskGroupLabel`（J-3）。
+- 連れて変わる: `setShowsTimeOfDay`（J1）、`setTaskGroupLabel`（J3）。
 - 触れ合う未答の問い: `CR-766` の問い 1（命令が運ぶ値の名 15 を列の名にそろえるか）。
 
-### 2.4 画面の英語の語（読むだけの体の調べ、英語のまま。番号 D-…。`CR-770`）
+### 2.4 画面の英語の語（読むだけの体の調べ、英語のまま。番号 D…。`CR-770`）
 
-> 調べた範囲: `docs/spec/_source/display-words.json` の en の値 1,027 と、ヘルプとツールチップのキーの列。本席は設定の項目名（125 ＋ 2 ＝ 127）と知らせの句点（203 のうち 4）を測り直して一致を確かめた。
+> 調べた範囲: `docs/spec/_source/display-words.json` の en の値 1,027 と、ヘルプとツールチップのキーの列。本席は設定の項目名（125 ＋ 2 ＝ 127）と知らせの句点（203 のうち 4）を測り直して一致を確かめた。 ⚠️ D6.1 の「127 of 131」は辞書の上の数である —— 画面に出るのは保存される見せ方の鍵の 34 行だけで、道具の定数の約 95 行は出ない（`SETTINGS_DEFAULTS` を読んだ）。画面の 19 行の扱いは `CR-770` の 2.2（`JDG-2241` が答えた）。
 
 Read-only survey, worktree `claude/sleepy-hodgkin-ecd207` at 66d989c6, 2026-10-15.
 Subject: every `en` value in `docs/spec/_source/display-words.json`, plus the key notation the
 Help and the icon tooltips print (`src/adapter/screen-renderer/help-roster.json`, generated from
 table T-036 of `docs/spec/01-04-requirements.md`).
 
-#### D-Method and base counts
+#### D Method and base counts
 
 - Walk: python json walk of `docs/spec/_source/display-words.json`, every dict holding a string `en`
   (`$comment` skipped). **1027 en values, 1025 non-empty** (2 blank: RS-68.nextStep and delayReportSummary[1], a spacer of two spaces).
@@ -131,7 +131,7 @@ Risk: what else names the same word. ja values are separate cells, so no ja valu
 
 ---
 
-#### D-1 Ellipsis on commands that need more input
+#### D1 Ellipsis on commands that need more input
 
 Count: en values containing `...` or U+2026: **N=0** (regex `\.\.\.|…`). The project has no ellipsis anywhere.
 WinUX/MSWSG/HIG rule: a command whose label opens a dialog/picker that needs more input before the action
@@ -140,161 +140,161 @@ confirmation, does not.
 
 | # | Key | Current en | Conventional | Why | Impact | Risk |
 |---|---|---|---|---|---|---|
-| D-1.1 | icons IC-1 label | Open | Open... | opens the OS file picker (WinUX/HIG; MSP/Word "Open...") | High (header) | label is in Title Case field list; tests: none found for "Open" alone (not grepped, too common) |
-| D-1.2 | icons IC-2 label; surfaces[2] heading | Save to File | Export... (or Save As...) | opens the format chooser first (FR-096); see 2.1 | High | tests: 1 file has "Save to File" |
-| D-1.3 | icons IC-41 label | Hide the Watermark (Password Required) | Watermark... (toggle; see 2.9) | hiding asks a password first | Low | none known |
-| D-1.4 | icons IC-158 label | Save a Backup and Fix | Save Copy and Fix... | "Save a backup under another name" = save picker | Low | none |
-| D-1.5 | icons IC-140 label | .md | Save as Markdown... | writes a file (picker) | Medium (report window) | none |
-| D-1.6 | icons IC-132 label | Holiday Settings | Working Time... | opens an editing surface with Apply (a dialog) | Medium | "Holiday Settings" 23 occ. in docs/spec, 4 test files, 7 src .ts (surface role names) |
-| D-1.7 | colorField custom | Custom color | More Colors... (Office) | opens a color picker | Low | none |
+| D1.1 | icons IC-1 label | Open | Open... | opens the OS file picker (WinUX/HIG; MSP/Word "Open...") | High (header) | label is in Title Case field list; tests: none found for "Open" alone (not grepped, too common) |
+| D1.2 | icons IC-2 label; surfaces[2] heading | Save to File | Export... (or Save As...) | opens the format chooser first (FR-096); see 2.1 | High | tests: 1 file has "Save to File" |
+| D1.3 | icons IC-41 label | Hide the Watermark (Password Required) | Watermark... (toggle; see 2.9) | hiding asks a password first | Low | none known |
+| D1.4 | icons IC-158 label | Save a Backup and Fix | Save Copy and Fix... | "Save a backup under another name" = save picker | Low | none |
+| D1.5 | icons IC-140 label | .md | Save as Markdown... | writes a file (picker) | Medium (report window) | none |
+| D1.6 | icons IC-132 label | Holiday Settings | Working Time... | opens an editing surface with Apply (a dialog) | Medium | "Holiday Settings" 23 occ. in docs/spec, 4 test files, 7 src .ts (surface role names) |
+| D1.7 | colorField custom | Custom color | More Colors... (Office) | opens a color picker | Low | none |
 
 Correctly WITHOUT ellipsis (checked): IC-98 New (asks only a confirmation, WinUX), IC-139 GRS Reset ("asks first" = confirmation),
 IC-162 Time Shift (amount typed beside it, then QN-14 confirmation), IC-22 Help, IC-62 Resource List, IC-117 Search (panels),
 IC-17 Document Settings (opens a panel, not a modal), IC-71/72/73 (they act), IC-157 Overwrite and Fix.
 
-#### D-2 Standard command wording
+#### D2 Standard command wording
 
 | # | Key | Current en | Conventional | Source | Count (method) | Impact | Risk |
 |---|---|---|---|---|---|---|---|
-| D-2.1 | confirmation[0..1] | Yes / No | specific verbs per question: "Delete" / "Cancel", "Overwrite" / "Cancel", "Close" / "Cancel", "Reset" / "Cancel", "Shift Dates" / "Cancel"; at least "Continue" / "Cancel" | WinUX dialog buttons; HIG Alerts "avoid Yes and No"; M3 dialogs | 2 values, shown under all 11 questions (`questions` N=11) | **High** | spec U-55 / NT-7 define "two answers"; "Yes" in 10 test files; a per-question verb needs a new dictionary shape |
-| D-2.2 | IC-2 label / surfaces[2] | Save to File | Export... (Ctrl+Shift+E is already SK-12 "open export", Figma uses Ctrl+Shift+E for Export) or Save As... | MSP/Word File > Save As; Figma Export | 2 | High | as 1.2 |
-| D-2.3 | defaultNames[0] | No name | Untitled | Word "Document1", Google Docs "Untitled document", Figma "Untitled", VSC "Untitled-1" | 1 | **High** (every new document title) | tests: 2 files have "No name"; searchPanel[1] "(No name)" is a different thing (unnamed task) - keep or "(Untitled)" |
-| D-2.4 | IC-10 label | Fit | Zoom to Fit (or Fit to Window) | Figma "Zoom to fit"; MSP "Entire Project"; Office "Fit to Window" | 1 | High | glossary/FR-055 call it "Fit"; label only |
-| D-2.5 | IC-21 label | Screen Language | Display Language | Windows "Windows display language"; Office "Display Language"; VSC "Configure Display Language" | 1 (+ QN-11 "such as the screen language") | Medium | none |
-| D-2.6 | IC-11 hint | Enter or leave full screen | Enter or exit full screen | HIG "Enter Full Screen / Exit Full Screen"; Chrome "Exit full screen" | 1 | Medium | none |
-| D-2.7 | IC-95 / IC-96 / IC-97 labels | Take from the Opened File / Keep Both / Stop the Import | Use Opened File (or Replace) / Keep Both / Cancel Import | VSC merge "Accept Incoming / Accept Both"; macOS copy dialog "Replace / Keep Both / Stop"; WinUX "Cancel" | 3 | Medium (every merge with duplicates) | labels with articles, see 2.11 |
-| D-2.8 | IC-162 label; QN-14 | Time Shift | Shift Dates (or Move Project) | MSP Project tab "Move Project" does exactly this | 2 | Low | none |
-| D-2.9 | IC-41 label | Hide the Watermark (Password Required) | Watermark (toggle noun like IC-42..43) | WinUX toggle buttons are named by the thing; state is shown by the button | 1 | Low | none |
-| D-2.10 | IC-139 label | GRS Reset | Reset GRS... is wrong (confirmation, no ellipsis): "Reset GRS" | verb-first commands: WinUX, M3, Chrome "Reset settings" | 1 | Low | none |
-| D-2.11 | icon labels with articles | Draw a Dependency Line, Hide the Watermark (...), Save a Backup and Fix, Take from the Opened File, Stop the Import | drop articles: "Link Tasks" (MSP), "Save Backup and Fix", "Cancel Import" | WinUX "labels: omit articles"; MSWSG concise UI text | N=5 (regex `\b(a|an|the)\b` on icons.*.label) | Medium | label field is Title Case-checked; check 32 tolerates articles |
-| D-2.12 | IC-61 label | Draw a Dependency Line | Link Tasks (or Dependency Line, a noun like its palette siblings) | MSP "Link the Selected Tasks" / "Link Tasks"; siblings IC-23.. are nouns | 1 | Medium | AR-4 "Dependency Line" stays |
-| D-2.13 | IC-81, IC-141 labels | Show Dependency Lines / Show Parent Tasks | Dependency Lines / Parent Tasks (sibling toggles IC-39..43, IC-79..80 have no "Show") | consistency; WinUX toggle naming | 2 of the 13 palette display toggles (method: labels starting "Show", N=2) | Low | none |
-| D-2.14 | IC-22 hint | Open the list of shortcut keys and icons | Show keyboard shortcuts and icons | MSWSG "keyboard shortcut", not "shortcut key" | N=1 (regex `shortcut key`) | Medium | none |
-| D-2.15 | IC-163 label | + | Add (IC-135 in the same surface is "Add") | consistency; WinUX icon-only buttons still need an accessible name | 1 | Low | none |
-| D-2.16 | IC-16 label | Light / Dark | Theme (or Dark Mode) ; if kept, "Light/Dark" (closed slash) | CMOS 6.106 slash between single words is closed; Windows "Choose your mode" | 1 | Medium | none |
-| D-2.17 | IC-104 / IC-105 | Smaller / Larger | Decrease Size / Increase Size (or Zoom Out / Zoom In for display scale) | Office "Decrease/Increase Font Size"; browser "Zoom in/out" | 2 | Medium | none |
-| D-2.18 | delayFixes[2],[5],[1] | Automatic / By Hand / By hand {k} / {m} | Automatic / Manual / Manual {k} of {m} | MSP "Auto Scheduled / Manually Scheduled"; standard pair Automatic/Manual | N=5 (regex `[Bb]y [Hh]and|[Mm]anual`, incl. IC-159/160 hints, VC-14) | Low | none |
-| D-2.19 | IC-115 label | Schedule Image-to-JSON Prompt | Copy Image-to-JSON Prompt | it is a copy command (verb-first, WinUX/M3) | 1 | Low | none |
-| D-2.20 | shortcuts SK-19 | Commit the edit in place | Confirm the edit (or Finish editing) | "commit" is developer jargon; MSWSG plain words | 1 | Medium (Help) | none |
-| D-2.21 | MK-13 press | Double click | Double-click | MSWSG "double-click" (hyphenated) | N=1 | Medium (Help) | none |
-| D-2.22 | MK-6/7/8/11 press | Plain left drag / Plain left click / Left drag on an item | Drag / Click / Drag an item | MSWSG: "click", "drag" (left is implied); "right-click" only when right | 4 | Medium (Help) | none |
-| D-2.23 | IC-117 label | Search | (keep) or Find | MS Office/XL "Find" with Ctrl+F; VSC/GS "Search"/"Find" both seen | 1 | - | conventional enough; listed for coverage |
+| D2.1 | confirmation[0..1] | Yes / No | specific verbs per question: "Delete" / "Cancel", "Overwrite" / "Cancel", "Close" / "Cancel", "Reset" / "Cancel", "Shift Dates" / "Cancel"; at least "Continue" / "Cancel" | WinUX dialog buttons; HIG Alerts "avoid Yes and No"; M3 dialogs | 2 values, shown under all 11 questions (`questions` N=11) | **High** | spec U-55 / NT-7 define "two answers"; "Yes" in 10 test files; a per-question verb needs a new dictionary shape |
+| D2.2 | IC-2 label / surfaces[2] | Save to File | Export... (Ctrl+Shift+E is already SK-12 "open export", Figma uses Ctrl+Shift+E for Export) or Save As... | MSP/Word File > Save As; Figma Export | 2 | High | as 1.2 |
+| D2.3 | defaultNames[0] | No name | Untitled | Word "Document1", Google Docs "Untitled document", Figma "Untitled", VSC "Untitled-1" | 1 | **High** (every new document title) | tests: 2 files have "No name"; searchPanel[1] "(No name)" is a different thing (unnamed task) - keep or "(Untitled)" |
+| D2.4 | IC-10 label | Fit | Zoom to Fit (or Fit to Window) | Figma "Zoom to fit"; MSP "Entire Project"; Office "Fit to Window" | 1 | High | glossary/FR-055 call it "Fit"; label only |
+| D2.5 | IC-21 label | Screen Language | Display Language | Windows "Windows display language"; Office "Display Language"; VSC "Configure Display Language" | 1 (+ QN-11 "such as the screen language") | Medium | none |
+| D2.6 | IC-11 hint | Enter or leave full screen | Enter or exit full screen | HIG "Enter Full Screen / Exit Full Screen"; Chrome "Exit full screen" | 1 | Medium | none |
+| D2.7 | IC-95 / IC-96 / IC-97 labels | Take from the Opened File / Keep Both / Stop the Import | Use Opened File (or Replace) / Keep Both / Cancel Import | VSC merge "Accept Incoming / Accept Both"; macOS copy dialog "Replace / Keep Both / Stop"; WinUX "Cancel" | 3 | Medium (every merge with duplicates) | labels with articles, see 2.11 |
+| D2.8 | IC-162 label; QN-14 | Time Shift | Shift Dates (or Move Project) | MSP Project tab "Move Project" does exactly this | 2 | Low | none |
+| D2.9 | IC-41 label | Hide the Watermark (Password Required) | Watermark (toggle noun like IC-42..43) | WinUX toggle buttons are named by the thing; state is shown by the button | 1 | Low | none |
+| D2.10 | IC-139 label | GRS Reset | Reset GRS... is wrong (confirmation, no ellipsis): "Reset GRS" | verb-first commands: WinUX, M3, Chrome "Reset settings" | 1 | Low | none |
+| D2.11 | icon labels with articles | Draw a Dependency Line, Hide the Watermark (...), Save a Backup and Fix, Take from the Opened File, Stop the Import | drop articles: "Link Tasks" (MSP), "Save Backup and Fix", "Cancel Import" | WinUX "labels: omit articles"; MSWSG concise UI text | N=5 (regex `\b(a|an|the)\b` on icons.*.label) | Medium | label field is Title Case-checked; check 32 tolerates articles |
+| D2.12 | IC-61 label | Draw a Dependency Line | Link Tasks (or Dependency Line, a noun like its palette siblings) | MSP "Link the Selected Tasks" / "Link Tasks"; siblings IC-23.. are nouns | 1 | Medium | AR-4 "Dependency Line" stays |
+| D2.13 | IC-81, IC-141 labels | Show Dependency Lines / Show Parent Tasks | Dependency Lines / Parent Tasks (sibling toggles IC-39..43, IC-79..80 have no "Show") | consistency; WinUX toggle naming | 2 of the 13 palette display toggles (method: labels starting "Show", N=2) | Low | none |
+| D2.14 | IC-22 hint | Open the list of shortcut keys and icons | Show keyboard shortcuts and icons | MSWSG "keyboard shortcut", not "shortcut key" | N=1 (regex `shortcut key`) | Medium | none |
+| D2.15 | IC-163 label | + | Add (IC-135 in the same surface is "Add") | consistency; WinUX icon-only buttons still need an accessible name | 1 | Low | none |
+| D2.16 | IC-16 label | Light / Dark | Theme (or Dark Mode) ; if kept, "Light/Dark" (closed slash) | CMOS 6.106 slash between single words is closed; Windows "Choose your mode" | 1 | Medium | none |
+| D2.17 | IC-104 / IC-105 | Smaller / Larger | Decrease Size / Increase Size (or Zoom Out / Zoom In for display scale) | Office "Decrease/Increase Font Size"; browser "Zoom in/out" | 2 | Medium | none |
+| D2.18 | delayFixes[2],[5],[1] | Automatic / By Hand / By hand {k} / {m} | Automatic / Manual / Manual {k} of {m} | MSP "Auto Scheduled / Manually Scheduled"; standard pair Automatic/Manual | N=5 (regex `[Bb]y [Hh]and|[Mm]anual`, incl. IC-159/160 hints, VC-14) | Low | none |
+| D2.19 | IC-115 label | Schedule Image-to-JSON Prompt | Copy Image-to-JSON Prompt | it is a copy command (verb-first, WinUX/M3) | 1 | Low | none |
+| D2.20 | shortcuts SK-19 | Commit the edit in place | Confirm the edit (or Finish editing) | "commit" is developer jargon; MSWSG plain words | 1 | Medium (Help) | none |
+| D2.21 | MK-13 press | Double click | Double-click | MSWSG "double-click" (hyphenated) | N=1 | Medium (Help) | none |
+| D2.22 | MK-6/7/8/11 press | Plain left drag / Plain left click / Left drag on an item | Drag / Click / Drag an item | MSWSG: "click", "drag" (left is implied); "right-click" only when right | 4 | Medium (Help) | none |
+| D2.23 | IC-117 label | Search | (keep) or Find | MS Office/XL "Find" with Ctrl+F; VSC/GS "Search"/"Find" both seen | 1 | - | conventional enough; listed for coverage |
 
 Note on Title Case itself (settled, not a finding): current MSWSG and M3 prefer sentence case for all UI
 labels; HIG and classic WinUX/Office use Title Case for buttons/menus/titles. Rule 02 section 5 follows the HIG/Office line.
 
-#### D-3 Tooltip / hint style (icons.*.hint, 137 values)
+#### D3 Tooltip / hint style (icons.*.hint, 137 values)
 
 Measured: hints ending with "." N=0; hints with ";" N=59; first word is an imperative verb in 133 of 137
 (python Counter of first word; non-verbs: "This" x2 IC-67/68, "The" IC-54, "Marks" IC-102).
 
 | # | Pattern | Examples | Conventional | Source | Count | Impact | Risk |
 |---|---|---|---|---|---|---|---|
-| D-3.1 | "Arm" as a UI verb | IC-23 "Arm the rectangle; drag on empty space to create a rectangle task"; IC-54 "Armed Glyph"; palette group "Armed Shape"; RS-54 "The arming is still live" | "Rectangle: drag on empty space to draw a rectangle task" / "Draw a rectangle task (drag on empty space)"; "Armed Glyph" -> "Current Tool"; "Armed Shape" -> "Current Tool" | Figma/PowerPoint tool tooltips name the tool and the gesture ("Rectangle (R)"); "arm" is not in MSWSG/HIG vocabulary | N=30 (regex `\b[Aa]rm(ed|ing)?\b`), 23 of them first word of a hint | **High** (every palette hover) | glossary uses "arm" (構える) concept across spec; AR-* "arms" section name is internal only |
-| D-3.2 | Three toggle-hint styles | "Show or hide X" (N=6, regex `^Show or hide`); "Show X; press again to hide it" (N=20 hints, regex `press again` on icons); "Turn X on or off" (IC-143); "Enable X; press again to disable it" (IC-20); "Enter or leave" (IC-11) | one style: "Show or hide X" (MSP/Office ribbon toggles: "Show/hide ...") or state-neutral noun description | MSWSG tooltips: short, consistent; Office ribbon | 29 toggle hints in 5 styles | High | none |
-| D-3.3 | "press" for click | 27 "press again" (regex `press again`, all fields) | "click again" or drop it (toggle state is visible) | MSWSG: "select" (or "click") for buttons; "press" is for keys | N=27 | Medium | none |
-| D-3.4 | Internal jargon "surface", "glyph" | IC-52 "Close the open surface"; IC-132 "Open the surface that edits..."; IC-50 "milestone glyphs"; IC-54 "The glyph now armed" | "window"/"panel"/"dialog"; "shapes"/"icons" | MSWSG: avoid internal terms | surface N=2, glyph N=2 (+ label "Armed Glyph") | Medium | none |
-| D-3.5 | Two-sentence hints without final period | IC-4 "Show or hide the baseline. With no baseline yet, choose its file"; IC-161 "...for display. The schedule date-time values are not rewritten" | end with a period when the tooltip holds a sentence (or make it one fragment) | MSWSG "punctuation in UI": tooltips that are complete sentences end with a period | 2 hints; 15 values overall (regex `[.?] [A-Z]` and no final `.`/`?`) | Medium | none |
-| D-3.6 | Word order / redundancy | IC-12..15 "Zoom the time axis (horizontal) out", "Zoom the vertical axis (vertical) out" | "Zoom out on the time axis", "Zoom out vertically" | plain English, MSWSG | 4 | Medium | none |
-| D-3.7 | Non-imperative hints | IC-67 "This resource is selected; press to deselect it", IC-54 "The glyph now armed", IC-102 "Marks turning the mouse wheel" | fine for state indicators; IC-54 -> "Current tool. Press Esc to clear it." | MSWSG | 4 | Low | none |
-| D-3.8 | Grammar slip | IC-87 hint "Arm meeting people milestone" (article missing; siblings say "Arm a ...") | "...a meeting milestone" | - | 1 | Low | none |
-| D-3.9 | Capitalized named things in hints, inconsistently | "Show the Progress Line", "Arm a Comment Box" vs "Show or hide the baseline", "Show the parent tasks", "Place ... the status date; the Status Line" | either always cap the UI-named thing (MSWSG allows matching the UI label) or never | MSWSG "capitalization: UI elements" | not counted exactly (mixed in ~25 hints) | Low | glossary names are Title Case in spec |
+| D3.1 | "Arm" as a UI verb | IC-23 "Arm the rectangle; drag on empty space to create a rectangle task"; IC-54 "Armed Glyph"; palette group "Armed Shape"; RS-54 "The arming is still live" | "Rectangle: drag on empty space to draw a rectangle task" / "Draw a rectangle task (drag on empty space)"; "Armed Glyph" -> "Current Tool"; "Armed Shape" -> "Current Tool" | Figma/PowerPoint tool tooltips name the tool and the gesture ("Rectangle (R)"); "arm" is not in MSWSG/HIG vocabulary | N=30 (regex `\b[Aa]rm(ed|ing)?\b`), 23 of them first word of a hint | **High** (every palette hover) | glossary uses "arm" (構える) concept across spec; AR-* "arms" section name is internal only |
+| D3.2 | Three toggle-hint styles | "Show or hide X" (N=6, regex `^Show or hide`); "Show X; press again to hide it" (N=20 hints, regex `press again` on icons); "Turn X on or off" (IC-143); "Enable X; press again to disable it" (IC-20); "Enter or leave" (IC-11) | one style: "Show or hide X" (MSP/Office ribbon toggles: "Show/hide ...") or state-neutral noun description | MSWSG tooltips: short, consistent; Office ribbon | 29 toggle hints in 5 styles | High | none |
+| D3.3 | "press" for click | 27 "press again" (regex `press again`, all fields) | "click again" or drop it (toggle state is visible) | MSWSG: "select" (or "click") for buttons; "press" is for keys | N=27 | Medium | none |
+| D3.4 | Internal jargon "surface", "glyph" | IC-52 "Close the open surface"; IC-132 "Open the surface that edits..."; IC-50 "milestone glyphs"; IC-54 "The glyph now armed" | "window"/"panel"/"dialog"; "shapes"/"icons" | MSWSG: avoid internal terms | surface N=2, glyph N=2 (+ label "Armed Glyph") | Medium | none |
+| D3.5 | Two-sentence hints without final period | IC-4 "Show or hide the baseline. With no baseline yet, choose its file"; IC-161 "...for display. The schedule date-time values are not rewritten" | end with a period when the tooltip holds a sentence (or make it one fragment) | MSWSG "punctuation in UI": tooltips that are complete sentences end with a period | 2 hints; 15 values overall (regex `[.?] [A-Z]` and no final `.`/`?`) | Medium | none |
+| D3.6 | Word order / redundancy | IC-12..15 "Zoom the time axis (horizontal) out", "Zoom the vertical axis (vertical) out" | "Zoom out on the time axis", "Zoom out vertically" | plain English, MSWSG | 4 | Medium | none |
+| D3.7 | Non-imperative hints | IC-67 "This resource is selected; press to deselect it", IC-54 "The glyph now armed", IC-102 "Marks turning the mouse wheel" | fine for state indicators; IC-54 -> "Current tool. Press Esc to clear it." | MSWSG | 4 | Low | none |
+| D3.8 | Grammar slip | IC-87 hint "Arm meeting people milestone" (article missing; siblings say "Arm a ...") | "...a meeting milestone" | - | 1 | Low | none |
+| D3.9 | Capitalized named things in hints, inconsistently | "Show the Progress Line", "Arm a Comment Box" vs "Show or hide the baseline", "Show the parent tasks", "Place ... the status date; the Status Line" | either always cap the UI-named thing (MSWSG allows matching the UI label) or never | MSWSG "capitalization: UI elements" | not counted exactly (mixed in ~25 hints) | Low | glossary names are Title Case in spec |
 
-#### D-4 Errors, notices, questions (reasons 160, invariants 44, questions 11)
+#### D4 Errors, notices, questions (reasons 160, invariants 44, questions 11)
 
 Measured: "Please" N=0; "!" N=0; "Error" N=0 (good, MSWSG/M3). Passive "... could not be ..., so it was not made" family common.
 
 | # | Pattern | Examples / keys | Conventional | Source | Count | Impact | Risk |
 |---|---|---|---|---|---|---|---|
-| D-4.1 | Final period inconsistent | 199 reason/invariant values end without "." (regex `[^.]$`), 4 end with "." (RS-65 text+next, RS-66 text+next); propertyField[12], rowMinHeightField[2], delayReportReasons[10..11] also end with "." | full sentences in messages end with a period (all of them) | MSWSG "error messages" & "periods"; HIG alerts | 4 vs 199 in reasons/invariants; 9 en values end with "." project-wide | High (every notice) | ja side separate; spec T-233 holds texts (generated from notice-reasons.json?) - edit at source |
-| D-4.2 | Multi-sentence questions/messages with no closing period | QN-3, QN-4, QN-5, QN-8, QN-9, QN-11, QN-14; RS-48, RS-52, RS-89, RS-90, RS-53 next; delayFixes[11] "Fixed {n}. Undo reverts them in one step" | close every sentence | MSWSG; HIG | N=15 (regex `[.?] [A-Z]` with no final `.?`) | High | none |
-| D-4.3 | "cannot" never contracted | 44 values use "cannot", 0 use "can't" (regex `\bcannot\b` / `n't\b`) | "can't", "doesn't" in UI messages | MSWSG "use contractions"; M3 conversational tone | 44 vs 0 | Medium (style choice; consistent now) | optional |
-| D-4.4 | "Try once more" | RS-6, RS-10, RS-15, RS-23, RS-74, RS-75, RS-76, RS-82, RS-83 | "Try again" | MSWSG error messages; WinUX "Try again" button wording | N=9 (regex `once more`) vs "try again" N=2 | Medium | none |
-| D-4.5 | "write it out" for save/export | RS-2, RS-3, RS-5, RS-25, RS-67, RS-76 | "save it" / "export it"; "Open the file as it was exported" | MSWSG: Save/Export are the standard verbs | N=6 (regex `writ(e|ten) (it )?out`) | Medium | none |
-| D-4.6 | "Go on" | QN-8 "Go on? This makes a change that undo cannot bring back"; RS-48 "If you go on" | "Continue? This can't be undone." | WinUX/HIG standard "This action can't be undone" | 2 | High (QN-8 every irreversible action) | none |
-| D-4.7 | QN-9 is not a question | "Hiding the watermark needs the watermark unlock password. ..." under Yes/No | phrase as a question or use a password dialog with OK/Cancel | HIG alerts; WinUX | 1 | Low | none |
-| D-4.8 | Wordy passive refusals | RS-6/RS-8 "The change could not be accepted just now, so it was not made" | "Can't make this change right now." | MSWSG "be brief; active voice" | family "so it was not made"/"so the change was not made" ~8 (not exactly counted) | Medium | none |
-| D-4.9 | Jargon in messages | RS-25 "match the settled shape"; differenceReview "the original WBS ledger"; RS-23 "watchers"; IV-23 "appearance record" | "isn't in the expected format"; "the original WBS"; "connected apps" | MSWSG: user words, not internal model words | ~5 | Low | spec terms |
+| D4.1 | Final period inconsistent | 199 reason/invariant values end without "." (regex `[^.]$`), 4 end with "." (RS-65 text+next, RS-66 text+next); propertyField[12], rowMinHeightField[2], delayReportReasons[10..11] also end with "." | full sentences in messages end with a period (all of them) | MSWSG "error messages" & "periods"; HIG alerts | 4 vs 199 in reasons/invariants; 9 en values end with "." project-wide | High (every notice) | ja side separate; spec T-233 holds texts (generated from notice-reasons.json?) - edit at source |
+| D4.2 | Multi-sentence questions/messages with no closing period | QN-3, QN-4, QN-5, QN-8, QN-9, QN-11, QN-14; RS-48, RS-52, RS-89, RS-90, RS-53 next; delayFixes[11] "Fixed {n}. Undo reverts them in one step" | close every sentence | MSWSG; HIG | N=15 (regex `[.?] [A-Z]` with no final `.?`) | High | none |
+| D4.3 | "cannot" never contracted | 44 values use "cannot", 0 use "can't" (regex `\bcannot\b` / `n't\b`) | "can't", "doesn't" in UI messages | MSWSG "use contractions"; M3 conversational tone | 44 vs 0 | Medium (style choice; consistent now) | optional |
+| D4.4 | "Try once more" | RS-6, RS-10, RS-15, RS-23, RS-74, RS-75, RS-76, RS-82, RS-83 | "Try again" | MSWSG error messages; WinUX "Try again" button wording | N=9 (regex `once more`) vs "try again" N=2 | Medium | none |
+| D4.5 | "write it out" for save/export | RS-2, RS-3, RS-5, RS-25, RS-67, RS-76 | "save it" / "export it"; "Open the file as it was exported" | MSWSG: Save/Export are the standard verbs | N=6 (regex `writ(e|ten) (it )?out`) | Medium | none |
+| D4.6 | "Go on" | QN-8 "Go on? This makes a change that undo cannot bring back"; RS-48 "If you go on" | "Continue? This can't be undone." | WinUX/HIG standard "This action can't be undone" | 2 | High (QN-8 every irreversible action) | none |
+| D4.7 | QN-9 is not a question | "Hiding the watermark needs the watermark unlock password. ..." under Yes/No | phrase as a question or use a password dialog with OK/Cancel | HIG alerts; WinUX | 1 | Low | none |
+| D4.8 | Wordy passive refusals | RS-6/RS-8 "The change could not be accepted just now, so it was not made" | "Can't make this change right now." | MSWSG "be brief; active voice" | family "so it was not made"/"so the change was not made" ~8 (not exactly counted) | Medium | none |
+| D4.9 | Jargon in messages | RS-25 "match the settled shape"; differenceReview "the original WBS ledger"; RS-23 "watchers"; IV-23 "appearance record" | "isn't in the expected format"; "the original WBS"; "connected apps" | MSWSG: user words, not internal model words | ~5 | Low | spec terms |
 
-#### D-5 Domain terms vs scheduling convention
+#### D5 Domain terms vs scheduling convention
 
 | # | On-screen term (key) | Standard term (source) | Verdict |
 |---|---|---|---|
-| D-5.1 | Baseline (IC-4, IC-73) | Baseline (MSP, P6, PMBOK) | conventional |
-| D-5.2 | Planned Start/Finish, Actual Start/Finish, Actual Duration (PR-3/47/4/6/5, SQ-3/4/12/13) | same (P6 "Planned Start", MSP "Actual Start") | conventional |
-| D-5.3 | % Complete (PR-9) vs "Percent Complete Label" (IC-80) and "percent complete" (RS-52) | MSP field "% Complete"; prose "percent complete" | conventional; label IC-80 could be "% Complete Label" for one spelling. Low |
-| D-5.4 | Milestone, Deadline, Lag, Predecessor/Successor, Status Date, Progress Line (PR-10, PR-42..44, IC-44, IC-39) | identical in MSP; PMBOK | conventional |
-| D-5.5 | Predecessor Tasks / Successor Tasks (PR-37/38) | MSP columns "Predecessors" / "Successors" | change to the MSP column words. Low |
-| D-5.6 | Resume (PR-7) + "Paused, no resume date" (PS-3/4), "Clear the Pause Values" (delayFixes[16]), "stop or resume date" (VC-7) | MSP task fields **Stop** and **Resume** | "Resume" is standard; **mixing Pause and Stop** is not: N=3 "Paus*" vs 1 "stop" (regexes `\b[Pp]aus`, `\bstop\b` excl. non-field hits). Pick one; MSP pair is Stop/Resume. Medium |
-| D-5.7 | Parent Task (PR-15, IC-141/142, AR-7) vs "No summary task holds this task" (VS-2) | MSP "summary task" (outline parent); GanttProject "supertask" | "parent task" is widely understood (Smartsheet, Asana "parent task"), keep; **VS-2 uses a second term** - "No parent task holds this task". N=10 "parent task" vs 1 "summary task". Low |
-| D-5.8 | Assignee (PR-16, DT-2), Assignees (SQ-2), Resource (RQ-2), Resource List | MSP "Resource Names"/"Resources"; Asana/Jira "Assignee" | both exist in the industry; GRS uses Assignee on tasks and Resource in the list. Acceptable; SQ-2 plural vs DT-2 singular is inconsistent. Low |
-| D-5.9 | Bottleneck / Bottleneck path (DG-2/3, delayReportReasons[2]) | MSP Task Path "Driving Predecessors"; P6 "Driving path" / "Longest Path"; PMBOK "critical path" | coined; standard exists -> "Driving task" / "Driving path". N=3 (regex `[Bb]ottleneck`). Medium (report) |
-| D-5.10 | Holiday Settings (IC-132, surface) with Working Weekdays / Working Hours / Exception Days / Day Off | MSP "Change Working Time" dialog: "Exceptions", "Work Weeks", "Working times", "Nonworking" | "Exception Days" ok; surface name understates (it edits weekdays and hours too) -> "Working Time". Also "Working Hours" (holidaySettings[2]) vs "working-time range" (IC-163/164, RS-89) - one term. Medium |
-| D-5.11 | Task Group (PR-18, many) | no single standard; Office Timeline/Lucidchart "Swimlane", MSP has no row-of-many-bars concept | coined but justified (no exact standard); "Swimlane" is the closest common word. Risk: "Task Group" 182 occ. in docs/spec + ERD entity TaskGroup. Keep |
-| D-5.12 | Comment Box (IC-35, AR-5, IC-119) | MSP Timeline "Callout"; PowerPoint "Text Box"/"Callout" | standard exists -> "Text Box" or "Callout". Medium. Risk: glossary 7 occ. in docs/spec |
-| D-5.13 | Highlight Box (IC-36, AR-6) | no fixed standard (MSP "shading"/bar highlight; Office Timeline "Shape") | justified; keep |
-| D-5.14 | Endpoint Span (IC-26) | none | justified (shape name) |
-| D-5.15 | Fade In/Out Days (PR-14) | none in MSP/P6 | justified; keep |
-| D-5.16 | Delay Diagnostics (IC-107, surface) | none exact (MSP "Task Path", "Task Inspector" is the closest: it explains why a task is scheduled where it is) | justified as a product feature name; "Task Inspector" is the MSP analogue. Keep |
-| D-5.17 | Fix Proposals / Fix Log (IC-155/156) | VSC "Quick Fix", Office "Suggestions"; GRS itself writes "Suggested" (delayFixes[6]) | -> "Suggested Fixes" / "Fix History". Low |
-| D-5.18 | Dialogue Field (IC-18, surface) | VSC "Chat", Office "Copilot chat pane"; "field" means one input box in MSWSG | -> "Chat" / "Chat Panel". Medium. Risk: 14 occ. in docs/spec, 13 test files, 6 src .ts (role ids) |
-| D-5.19 | Guide Cursor / Crosshair / Single Vertical / Dual Cursor (IC-45..48) | Figma/CAD "crosshair"; "ruler"/"measure" for two lines | "Single Vertical" -> "Vertical Line"; "Dual Cursor" acceptable (oscilloscope convention). Low |
-| D-5.20 | Progress Marker, Resume Icon, Status Line (IC-40, IC-44) | MSP "status date" line; no standard for marker | Status Line acceptable (MSP calls it the status date gridline); others justified. Low |
-| D-5.21 | Fit span / Fit Span (K-141, K-142, fitSpanField[2], exportChooser[0]) | none | coined, acceptable; **capitalization differs** for one term: N=4 (regex `[Ff]it [Ss]pan`), 3 "Fit span" vs 1 "Fit Span". Low |
-| D-5.22 | Schedule Filter (IC-143, searchPanel) | XL/GS "Filter" (rows), Smartsheet "Filter" applies to the sheet | justified (it filters the chart, not the table). Keep |
-| D-5.23 | Path from Top (SQ-6) | MSP "Outline Number"/WBS; file explorers "Path" | -> "Outline Path" or "WBS Path". Low |
-| D-5.24 | Task (Milestone) (SQ-1, DT-4) | MSP "Task Name"; "Name" | -> "Task or Milestone" or "Name". Low |
-| D-5.25 | Project Name (openChooser[1]) vs Document Name (delayReportMarkdown[0]) vs "Edit the document name" (SK-9) | MSP "Project Title" / file name | two words for one value. Low |
-| D-5.26 | Dummy, Carry | appear only inside settings labels (`dummyOpacity`, `carryMaxDepth`, see 6.1) | no on-screen use of either as a term: regex `(?i)dummy|carry` outside settings hits 3 values (IC-82, IC-106, RS-72), all the plain verb "carry" |
+| D5.1 | Baseline (IC-4, IC-73) | Baseline (MSP, P6, PMBOK) | conventional |
+| D5.2 | Planned Start/Finish, Actual Start/Finish, Actual Duration (PR-3/47/4/6/5, SQ-3/4/12/13) | same (P6 "Planned Start", MSP "Actual Start") | conventional |
+| D5.3 | % Complete (PR-9) vs "Percent Complete Label" (IC-80) and "percent complete" (RS-52) | MSP field "% Complete"; prose "percent complete" | conventional; label IC-80 could be "% Complete Label" for one spelling. Low |
+| D5.4 | Milestone, Deadline, Lag, Predecessor/Successor, Status Date, Progress Line (PR-10, PR-42..44, IC-44, IC-39) | identical in MSP; PMBOK | conventional |
+| D5.5 | Predecessor Tasks / Successor Tasks (PR-37/38) | MSP columns "Predecessors" / "Successors" | change to the MSP column words. Low |
+| D5.6 | Resume (PR-7) + "Paused, no resume date" (PS-3/4), "Clear the Pause Values" (delayFixes[16]), "stop or resume date" (VC-7) | MSP task fields **Stop** and **Resume** | "Resume" is standard; **mixing Pause and Stop** is not: N=3 "Paus*" vs 1 "stop" (regexes `\b[Pp]aus`, `\bstop\b` excl. non-field hits). Pick one; MSP pair is Stop/Resume. Medium |
+| D5.7 | Parent Task (PR-15, IC-141/142, AR-7) vs "No summary task holds this task" (VS-2) | MSP "summary task" (outline parent); GanttProject "supertask" | "parent task" is widely understood (Smartsheet, Asana "parent task"), keep; **VS-2 uses a second term** - "No parent task holds this task". N=10 "parent task" vs 1 "summary task". Low |
+| D5.8 | Assignee (PR-16, DT-2), Assignees (SQ-2), Resource (RQ-2), Resource List | MSP "Resource Names"/"Resources"; Asana/Jira "Assignee" | both exist in the industry; GRS uses Assignee on tasks and Resource in the list. Acceptable; SQ-2 plural vs DT-2 singular is inconsistent. Low |
+| D5.9 | Bottleneck / Bottleneck path (DG-2/3, delayReportReasons[2]) | MSP Task Path "Driving Predecessors"; P6 "Driving path" / "Longest Path"; PMBOK "critical path" | coined; standard exists -> "Driving task" / "Driving path". N=3 (regex `[Bb]ottleneck`). Medium (report) |
+| D5.10 | Holiday Settings (IC-132, surface) with Working Weekdays / Working Hours / Exception Days / Day Off | MSP "Change Working Time" dialog: "Exceptions", "Work Weeks", "Working times", "Nonworking" | "Exception Days" ok; surface name understates (it edits weekdays and hours too) -> "Working Time". Also "Working Hours" (holidaySettings[2]) vs "working-time range" (IC-163/164, RS-89) - one term. Medium |
+| D5.11 | Task Group (PR-18, many) | no single standard; Office Timeline/Lucidchart "Swimlane", MSP has no row-of-many-bars concept | coined but justified (no exact standard); "Swimlane" is the closest common word. Risk: "Task Group" 182 occ. in docs/spec + ERD entity TaskGroup. Keep |
+| D5.12 | Comment Box (IC-35, AR-5, IC-119) | MSP Timeline "Callout"; PowerPoint "Text Box"/"Callout" | standard exists -> "Text Box" or "Callout". Medium. Risk: glossary 7 occ. in docs/spec |
+| D5.13 | Highlight Box (IC-36, AR-6) | no fixed standard (MSP "shading"/bar highlight; Office Timeline "Shape") | justified; keep |
+| D5.14 | Endpoint Span (IC-26) | none | justified (shape name) |
+| D5.15 | Fade In/Out Days (PR-14) | none in MSP/P6 | justified; keep |
+| D5.16 | Delay Diagnostics (IC-107, surface) | none exact (MSP "Task Path", "Task Inspector" is the closest: it explains why a task is scheduled where it is) | justified as a product feature name; "Task Inspector" is the MSP analogue. Keep |
+| D5.17 | Fix Proposals / Fix Log (IC-155/156) | VSC "Quick Fix", Office "Suggestions"; GRS itself writes "Suggested" (delayFixes[6]) | -> "Suggested Fixes" / "Fix History". Low |
+| D5.18 | Dialogue Field (IC-18, surface) | VSC "Chat", Office "Copilot chat pane"; "field" means one input box in MSWSG | -> "Chat" / "Chat Panel". Medium. Risk: 14 occ. in docs/spec, 13 test files, 6 src .ts (role ids) |
+| D5.19 | Guide Cursor / Crosshair / Single Vertical / Dual Cursor (IC-45..48) | Figma/CAD "crosshair"; "ruler"/"measure" for two lines | "Single Vertical" -> "Vertical Line"; "Dual Cursor" acceptable (oscilloscope convention). Low |
+| D5.20 | Progress Marker, Resume Icon, Status Line (IC-40, IC-44) | MSP "status date" line; no standard for marker | Status Line acceptable (MSP calls it the status date gridline); others justified. Low |
+| D5.21 | Fit span / Fit Span (K-141, K-142, fitSpanField[2], exportChooser[0]) | none | coined, acceptable; **capitalization differs** for one term: N=4 (regex `[Ff]it [Ss]pan`), 3 "Fit span" vs 1 "Fit Span". Low |
+| D5.22 | Schedule Filter (IC-143, searchPanel) | XL/GS "Filter" (rows), Smartsheet "Filter" applies to the sheet | justified (it filters the chart, not the table). Keep |
+| D5.23 | Path from Top (SQ-6) | MSP "Outline Number"/WBS; file explorers "Path" | -> "Outline Path" or "WBS Path". Low |
+| D5.24 | Task (Milestone) (SQ-1, DT-4) | MSP "Task Name"; "Name" | -> "Task or Milestone" or "Name". Low |
+| D5.25 | Project Name (openChooser[1]) vs Document Name (delayReportMarkdown[0]) vs "Edit the document name" (SK-9) | MSP "Project Title" / file name | two words for one value. Low |
+| D5.26 | Dummy, Carry | appear only inside settings labels (`dummyOpacity`, `carryMaxDepth`, see 6.1) | no on-screen use of either as a term: regex `(?i)dummy|carry` outside settings hits 3 values (IC-82, IC-106, RS-72), all the plain verb "carry" |
 
-#### D-6 Abbreviations, acronyms, units
+#### D6 Abbreviations, acronyms, units
 
 | # | Key | Current en | Conventional | Source | Count | Impact | Risk |
 |---|---|---|---|---|---|---|---|
-| D-6.1 | settings K-* labels (Document Settings panel, `settingsFields` in properties-panel.ts lists every SETTINGS_DEFAULTS key read-only plus about 15 edited fields) | camelCase identifiers: `pxPerDayAt1x`, `taskGroupPanelWidth`, `parentProgressToleranceDays`, `showsTimeOfDay`, `viewTimeZone`, `dummyOpacity` ... | words: "Pixels per Day at 100%", "Task Group Panel Width", "Parent Progress Tolerance (days)", "Show Time of Day" | MSWSG: never show code identifiers; VSC Settings UI turns `editor.fontSize` into "Editor: Font Size" | **127 of 131** settings labels are camelCase (regex `^[a-z][A-Za-z0-9.]*([A-Z]...)+`); the other 4 are mixed: "theme color", "Fit span", "Fix the fit span", "Fix the task group panel width" | **High** for the edited fields, Medium for the read-only list | rule 02 s.5 note says the settings item name en (the identifier) is not changed - so this needs an owner ruling; `pxPerDayAt1x` etc. appear in 36 test files (as keys); T-104 English name column is the origin |
-| D-6.2 | settings K-60 | theme color | Theme Color (if the K-* labels become words) | Title Case for names (rule 02 s.5) | 1 | Low | settings.label not in the check-32 field list |
-| D-6.3 | exportFormats IO-1 | MSPDI XML | Microsoft Project XML (or "MS Project XML (.xml)") | MSP Save As type "XML Format (*.xml)"; users do not know "MSPDI" | 1 (+ RS-11) | Medium | memory note: MS Project/MSPDI naming is the allowed exception; MSPDI element names untouched |
-| D-6.4 | RS-57 | "same id", "a different id" vs IV-1 "share one ID" | ID | MSWSG "ID" (all caps) | lowercase N=2 vs ID N=2 | Low | none |
-| D-6.5 | PR-20, rowMinHeightField[0], scaleEcho | Min Height, Set a Min Height, (max), (min) | Minimum Height; (maximum)/(minimum) or keep (max)/(min) in tight space | MSWSG: spell out unless space-limited | N=4 (regex `\b(Min|Max|min|max)\b`) | Low | none |
-| D-6.6 | day unit spelled 3 ways | RS-89 "1d" (no space), propertyField[7] "{lag} d" (space), dualCursorReadout "{d}d" | MSP shows "2d"/"2 days"; pick one: "{n}d" with no space (MSP) or "{n} days" | MSP duration display; MSWSG units: space between number and unit word | N=5 (regex `\dd\b|\} ?d\b|\{d\}d`) | Low | none |
-| D-6.7 | dualCursorReadout[3..4] | {y}y {m}m {d}d | {y} yr {m} mo {d} d (m reads as minutes) | MSWSG abbreviations "mo", "yr"; ISO 8601 uses M for months only inside P..T | 2 | Medium (Dual Cursor readout) | none |
-| D-6.8 | GRS vs GoodRelax Scheduler | "GRS" in 10 values (regex `\bGRS\b`); IC-115 hint spells "GoodRelax Scheduler" | spell the product name in user text, acronym only where defined | MSWSG "acronyms: spell out on first use" | 10 vs 1 | Low | brand decision |
-| D-6.9 | Conventional: UID (PR-34; MSP field "Unique ID" - acceptable short form), JSON, XML, PNG, SVG, HTML, UTC, PC, AI, WBS, MB, px, % | - | - | - | - | - | - |
+| D6.1 | settings K-* labels (Document Settings panel, `settingsFields` in properties-panel.ts lists every SETTINGS_DEFAULTS key read-only plus about 15 edited fields) | camelCase identifiers: `pxPerDayAt1x`, `taskGroupPanelWidth`, `parentProgressToleranceDays`, `showsTimeOfDay`, `viewTimeZone`, `dummyOpacity` ... | words: "Pixels per Day at 100%", "Task Group Panel Width", "Parent Progress Tolerance (days)", "Show Time of Day" | MSWSG: never show code identifiers; VSC Settings UI turns `editor.fontSize` into "Editor: Font Size" | **127 of 131** settings labels are camelCase (regex `^[a-z][A-Za-z0-9.]*([A-Z]...)+`); the other 4 are mixed: "theme color", "Fit span", "Fix the fit span", "Fix the task group panel width" | **High** for the edited fields, Medium for the read-only list | rule 02 s.5 note says the settings item name en (the identifier) is not changed - so this needs an owner ruling; `pxPerDayAt1x` etc. appear in 36 test files (as keys); T-104 English name column is the origin |
+| D6.2 | settings K-60 | theme color | Theme Color (if the K-* labels become words) | Title Case for names (rule 02 s.5) | 1 | Low | settings.label not in the check-32 field list |
+| D6.3 | exportFormats IO-1 | MSPDI XML | Microsoft Project XML (or "MS Project XML (.xml)") | MSP Save As type "XML Format (*.xml)"; users do not know "MSPDI" | 1 (+ RS-11) | Medium | memory note: MS Project/MSPDI naming is the allowed exception; MSPDI element names untouched |
+| D6.4 | RS-57 | "same id", "a different id" vs IV-1 "share one ID" | ID | MSWSG "ID" (all caps) | lowercase N=2 vs ID N=2 | Low | none |
+| D6.5 | PR-20, rowMinHeightField[0], scaleEcho | Min Height, Set a Min Height, (max), (min) | Minimum Height; (maximum)/(minimum) or keep (max)/(min) in tight space | MSWSG: spell out unless space-limited | N=4 (regex `\b(Min|Max|min|max)\b`) | Low | none |
+| D6.6 | day unit spelled 3 ways | RS-89 "1d" (no space), propertyField[7] "{lag} d" (space), dualCursorReadout "{d}d" | MSP shows "2d"/"2 days"; pick one: "{n}d" with no space (MSP) or "{n} days" | MSP duration display; MSWSG units: space between number and unit word | N=5 (regex `\dd\b|\} ?d\b|\{d\}d`) | Low | none |
+| D6.7 | dualCursorReadout[3..4] | {y}y {m}m {d}d | {y} yr {m} mo {d} d (m reads as minutes) | MSWSG abbreviations "mo", "yr"; ISO 8601 uses M for months only inside P..T | 2 | Medium (Dual Cursor readout) | none |
+| D6.8 | GRS vs GoodRelax Scheduler | "GRS" in 10 values (regex `\bGRS\b`); IC-115 hint spells "GoodRelax Scheduler" | spell the product name in user text, acronym only where defined | MSWSG "acronyms: spell out on first use" | 10 vs 1 | Low | brand decision |
+| D6.9 | Conventional: UID (PR-34; MSP field "Unique ID" - acceptable short form), JSON, XML, PNG, SVG, HTML, UTC, PC, AI, WBS, MB, px, % | - | - | - | - | - | - |
 
-#### D-7 Keyboard and mouse notation
+#### D7 Keyboard and mouse notation
 
 | # | Where | Current en | Conventional | Source | Count | Impact | Risk |
 |---|---|---|---|---|---|---|---|
-| D-7.1 | Help key column and icon tooltips (help-roster.json `keys`, joined in tooltips.ts) | `Ctrl ＋ A`, `Ctrl ＋ Shift ＋ E` (FULL-WIDTH plus U+FF0B with spaces) | `Ctrl+A`, `Ctrl+Shift+E` | MSWSG "keys and keyboard shortcuts" (plus, no spaces); Google/M3 same | 19 of 28 key strings (python: count of U+FF0B in help-roster keys) | **High** (every tooltip that has a key + Help) | **FR-036 (MUST, CR-425) requires the full-width plus and slash**, and tools/generate_help_roster.py stops on `Ctrl+A`; a language-dependent join needs a spec change |
-| D-7.2 | same; tooltips.ts ASSIGNMENT_SEPARATOR; assignments MK-7 press | `Delete ／ Backspace`, `Ctrl ＋ Y ／ Ctrl ＋ Shift ＋ Z`, "Ctrl + drag ／ middle-button drag" (FULL-WIDTH slash U+FF0F) | "Delete or Backspace", "Ctrl+Y or Ctrl+Shift+Z" | MSWSG: use "or" between alternatives | 3 key strings + 1 dictionary value (regex `[＀-￯]` N=1) + every tooltip that joins key and press | High | same FR-036 rule |
-| D-7.3 | assignments MK-2..5, MK-7, MK-15..17 press | "Ctrl + {IC-102}", "Ctrl + Shift + {IC-102}" (ASCII plus WITH spaces) | "Ctrl+wheel", "Ctrl+drag" | MSWSG; and consistency with 7.1 | 8 values (substring ` + ` in assignments.*.press) | Medium | same table family |
-| D-7.4 | QN-11 text | "Ctrl + F5 : reload", "F12 (developer tools) → Application ..." | "Ctrl+F5: Reload" (no space before colon) | MSWSG; English punctuation (no space before colon) | 1 | Low | none |
-| D-7.5 | SK-16/16a/22 keys | `Shift ＋ +`, `Alt ＋ +`, `Ctrl ＋ Shift ＋ +` | "Shift+Plus sign (+)" or "Shift+=" | MSWSG: spell "Plus sign" when the key is + | 4 key strings end in "+" (python) | Low | FR-036 |
-| D-7.6 | Mac | Help says Ctrl only; input-command-translator maps a `meta` key | "Ctrl (Cmd on Mac)" or show ⌘ on macOS | HIG keyboard shortcuts | - | Low (if Mac users exist) | behaviour, not wording |
-| D-7.7 | Conventional: Esc (MSWSG writes "Esc"), Enter, Delete, Backspace, F1/F2/F11, Shift, Alt | - | - | - | - | - | - |
+| D7.1 | Help key column and icon tooltips (help-roster.json `keys`, joined in tooltips.ts) | `Ctrl ＋ A`, `Ctrl ＋ Shift ＋ E` (FULL-WIDTH plus U+FF0B with spaces) | `Ctrl+A`, `Ctrl+Shift+E` | MSWSG "keys and keyboard shortcuts" (plus, no spaces); Google/M3 same | 19 of 28 key strings (python: count of U+FF0B in help-roster keys) | **High** (every tooltip that has a key + Help) | **FR-036 (MUST, CR-425) requires the full-width plus and slash**, and tools/generate_help_roster.py stops on `Ctrl+A`; a language-dependent join needs a spec change |
+| D7.2 | same; tooltips.ts ASSIGNMENT_SEPARATOR; assignments MK-7 press | `Delete ／ Backspace`, `Ctrl ＋ Y ／ Ctrl ＋ Shift ＋ Z`, "Ctrl + drag ／ middle-button drag" (FULL-WIDTH slash U+FF0F) | "Delete or Backspace", "Ctrl+Y or Ctrl+Shift+Z" | MSWSG: use "or" between alternatives | 3 key strings + 1 dictionary value (regex `[＀-￯]` N=1) + every tooltip that joins key and press | High | same FR-036 rule |
+| D7.3 | assignments MK-2..5, MK-7, MK-15..17 press | "Ctrl + {IC-102}", "Ctrl + Shift + {IC-102}" (ASCII plus WITH spaces) | "Ctrl+wheel", "Ctrl+drag" | MSWSG; and consistency with 7.1 | 8 values (substring ` + ` in assignments.*.press) | Medium | same table family |
+| D7.4 | QN-11 text | "Ctrl + F5 : reload", "F12 (developer tools) → Application ..." | "Ctrl+F5: Reload" (no space before colon) | MSWSG; English punctuation (no space before colon) | 1 | Low | none |
+| D7.5 | SK-16/16a/22 keys | `Shift ＋ +`, `Alt ＋ +`, `Ctrl ＋ Shift ＋ +` | "Shift+Plus sign (+)" or "Shift+=" | MSWSG: spell "Plus sign" when the key is + | 4 key strings end in "+" (python) | Low | FR-036 |
+| D7.6 | Mac | Help says Ctrl only; input-command-translator maps a `meta` key | "Ctrl (Cmd on Mac)" or show ⌘ on macOS | HIG keyboard shortcuts | - | Low (if Mac users exist) | behaviour, not wording |
+| D7.7 | Conventional: Esc (MSWSG writes "Esc"), Enter, Delete, Backspace, F1/F2/F11, Shift, Alt | - | - | - | - | - | - |
 
-#### D-8 Other unconventional items
+#### D8 Other unconventional items
 
 | # | Key | Current en | Conventional | Source | Count | Impact | Risk |
 |---|---|---|---|---|---|---|---|
-| D-8.1 | British idiom/spelling (violates rule 02 s.5 row "new English is American"; not machine-stopped) | IV-16, IV-19 (text+next), IV-22 "the wrong way round"; RS-26 "start-up" (NT-4 already says "startup") | "reversed" / "the wrong way around"; "startup" | Merriam-Webster; MSWSG "startup (n.)" | N=5 (regex `way round|start-up|...`) | Low | none |
-| D-8.2 | Missing serial comma | IC-44 "Place, move or clear"; IC-127 "title bar, table and search box (cycles through 9, 10 and 12 px)"; IC-132 "...the exception days and the week start"; RS-11 "(GRS JSON, MSPDI XML or a GRS .html)"; RS-82 "(a task, task group or assignee)" | "Place, move, or clear" etc. | MSWSG "serial comma: use it"; CMOS 6.19 | 5 (regex for "x, y and/or z" without ", and"; 1 false hit removed by hand) | Low | none |
-| D-8.3 | Ranges with spaced hyphen | fitSpanField[1] "{start} - {finish}", exportChooser[0], delayReportReasons[10..11] "({leftmost} - {rightmost})" | en dash, closed: "{start}–{finish}" | CMOS 6.78; MSWSG "en dash for ranges" | N=4 (regex ` - `) | Low | none |
-| D-8.4 | Arrows: ASCII and Unicode for the same pattern | timeZoneField[2] "{before} -> {after}" vs timeZoneField[8] "{before} → {after}" | one form, "→" | consistency | 1 vs 3 | Low | check which one is live |
-| D-8.5 | Dashes | MK-13 " -- " (double hyphen as dash); delayFixes[12] "{row} — {reason}" (spaced em dash) | closed em dash "—" (CMOS 6.85) or colon; MSWSG allows no spaces | CMOS/MSWSG | N=2 | Low | none |
-| D-8.6 | "e.g." | IC-165 "(e.g. 8:00; ...)", timeZoneField[4] "h:mm (e.g. -16:00)" | "for example" | MSWSG "e.g.: don't use" | N=2 | Low | none |
-| D-8.7 | Japanese footnote mark | helpNotes IC-20 "(see note *1)", helpFootnotes "*1 Get the bundle..."; QN-11 "* If resetting..." | superscript 1 / "Note 1" / "[1]"; plain "If resetting..." | CMOS 14 notes; English UI rarely uses "*1" (it mirrors ※1) | 3 | Low | none |
-| D-8.8 | Mid-sentence capitals for common nouns | MK-6/8/11/15/16 "the Selection", "that Item" | "the selection", "that item" | sentence case (rule 02 s.5 values are Sentence case; MSWSG) | N=6 (regex `(the|a|that|its) (Selection|Item)`) | Medium (Help) | glossary names "Selection"/"Item" in spec |
-| D-8.9 | Same panel named three ways | "Properties Panel" (IC-17, MK-13), "properties panel" (RS-62), "property panel" (delayReportReasons[10..11]) | "Properties Panel" everywhere | consistency | N=5 (regex `[Pp]ropert(y|ies) [Pp]anel`), 3 spellings | Low | none |
-| D-8.10 | Same label, different command | "Expand One Level" = IC-90 (expand children of one group) and IC-92 (show only the top level, collapse below = MSP "Outline > Level 1") | IC-92 -> "Show Top Level Only" | consistency | 4 labels duplicated (Counter over icons labels: Font Size, Minimize, Expand One Level, Delete); only Expand One Level differs in meaning | Low | none |
-| D-8.11 | Inconsistent capitalization of checkbox labels | rowMinHeightField[0] "Set a Min Height" (Title Case) vs K-143 "Fix the task group panel width" / K-142 "Fix the fit span" (sentence case), all three are checkboxes | one style; HIG and Windows Fluent use sentence case for checkbox labels | HIG "checkboxes"; WinUX | 3 | Low | rowMinHeightField/enable is in the Title Case check list |
-| D-8.12 | Verb form drift in twin strings | delayReportReasons[0] "Delaying the whole schedule by {days}..." vs [1] "Delays the whole schedule by {amount}..." | same verb form in both | consistency | 2 | Low | none |
-| D-8.13 | Dates shown as yyyy/mm/dd (Wed) and month tier as a number | CU-3 "2026/04/01 (Wed)" (spec 01-04 line 6475), TM-2 month tier prints `m` | ISO "2026-04-01 (Wed)" or locale "Apr 1, 2026"; month tier "Apr" | MSWSG "dates"; MSP/XL timescale "Apr" | spec-defined, not in dictionary | Medium | spec MUST (CU-3, TM-*) |
-| D-8.14 | notices.*.manner (10 values, "When input is not accepted" ...) | not drawn: `grep -rn mannerText src/framework` -> 0 hits; they read as spec descriptions | no action unless they become visible | - | 10 | none | - |
+| D8.1 | British idiom/spelling (violates rule 02 s.5 row "new English is American"; not machine-stopped) | IV-16, IV-19 (text+next), IV-22 "the wrong way round"; RS-26 "start-up" (NT-4 already says "startup") | "reversed" / "the wrong way around"; "startup" | Merriam-Webster; MSWSG "startup (n.)" | N=5 (regex `way round|start-up|...`) | Low | none |
+| D8.2 | Missing serial comma | IC-44 "Place, move or clear"; IC-127 "title bar, table and search box (cycles through 9, 10 and 12 px)"; IC-132 "...the exception days and the week start"; RS-11 "(GRS JSON, MSPDI XML or a GRS .html)"; RS-82 "(a task, task group or assignee)" | "Place, move, or clear" etc. | MSWSG "serial comma: use it"; CMOS 6.19 | 5 (regex for "x, y and/or z" without ", and"; 1 false hit removed by hand) | Low | none |
+| D8.3 | Ranges with spaced hyphen | fitSpanField[1] "{start} - {finish}", exportChooser[0], delayReportReasons[10..11] "({leftmost} - {rightmost})" | en dash, closed: "{start}–{finish}" | CMOS 6.78; MSWSG "en dash for ranges" | N=4 (regex ` - `) | Low | none |
+| D8.4 | Arrows: ASCII and Unicode for the same pattern | timeZoneField[2] "{before} -> {after}" vs timeZoneField[8] "{before} → {after}" | one form, "→" | consistency | 1 vs 3 | Low | check which one is live |
+| D8.5 | Dashes | MK-13 " -- " (double hyphen as dash); delayFixes[12] "{row} — {reason}" (spaced em dash) | closed em dash "—" (CMOS 6.85) or colon; MSWSG allows no spaces | CMOS/MSWSG | N=2 | Low | none |
+| D8.6 | "e.g." | IC-165 "(e.g. 8:00; ...)", timeZoneField[4] "h:mm (e.g. -16:00)" | "for example" | MSWSG "e.g.: don't use" | N=2 | Low | none |
+| D8.7 | Japanese footnote mark | helpNotes IC-20 "(see note *1)", helpFootnotes "*1 Get the bundle..."; QN-11 "* If resetting..." | superscript 1 / "Note 1" / "[1]"; plain "If resetting..." | CMOS 14 notes; English UI rarely uses "*1" (it mirrors ※1) | 3 | Low | none |
+| D8.8 | Mid-sentence capitals for common nouns | MK-6/8/11/15/16 "the Selection", "that Item" | "the selection", "that item" | sentence case (rule 02 s.5 values are Sentence case; MSWSG) | N=6 (regex `(the|a|that|its) (Selection|Item)`) | Medium (Help) | glossary names "Selection"/"Item" in spec |
+| D8.9 | Same panel named three ways | "Properties Panel" (IC-17, MK-13), "properties panel" (RS-62), "property panel" (delayReportReasons[10..11]) | "Properties Panel" everywhere | consistency | N=5 (regex `[Pp]ropert(y|ies) [Pp]anel`), 3 spellings | Low | none |
+| D8.10 | Same label, different command | "Expand One Level" = IC-90 (expand children of one group) and IC-92 (show only the top level, collapse below = MSP "Outline > Level 1") | IC-92 -> "Show Top Level Only" | consistency | 4 labels duplicated (Counter over icons labels: Font Size, Minimize, Expand One Level, Delete); only Expand One Level differs in meaning | Low | none |
+| D8.11 | Inconsistent capitalization of checkbox labels | rowMinHeightField[0] "Set a Min Height" (Title Case) vs K-143 "Fix the task group panel width" / K-142 "Fix the fit span" (sentence case), all three are checkboxes | one style; HIG and Windows Fluent use sentence case for checkbox labels | HIG "checkboxes"; WinUX | 3 | Low | rowMinHeightField/enable is in the Title Case check list |
+| D8.12 | Verb form drift in twin strings | delayReportReasons[0] "Delaying the whole schedule by {days}..." vs [1] "Delays the whole schedule by {amount}..." | same verb form in both | consistency | 2 | Low | none |
+| D8.13 | Dates shown as yyyy/mm/dd (Wed) and month tier as a number | CU-3 "2026/04/01 (Wed)" (spec 01-04 line 6475), TM-2 month tier prints `m` | ISO "2026-04-01 (Wed)" or locale "Apr 1, 2026"; month tier "Apr" | MSWSG "dates"; MSP/XL timescale "Apr" | spec-defined, not in dictionary | Medium | spec MUST (CU-3, TM-*) |
+| D8.14 | notices.*.manner (10 values, "When input is not accepted" ...) | not drawn: `grep -rn mannerText src/framework` -> 0 hits; they read as spec descriptions | no action unless they become visible | - | 10 | none | - |
 
 ---
 
-#### D-Checked and found CONVENTIONAL (coverage)
+#### D Checked and found CONVENTIONAL (coverage)
 
 - American spelling: color/gray/center/behavior families: 0 British forms remain except 8.1 (check 32 covers the families).
 - No "Please", no "!", no "Error:" prefix (N=0 each).
@@ -312,7 +312,7 @@ Measured: "Please" N=0; "!" N=0; "Error" N=0 (good, MSWSG/M3). Passive "... coul
   Successor, Milestone, Status Date, Progress Line, Resume, Late, Notes, Type (FS/SF/FF/SS abbreviations as MSP).
 - Ellipsis correctly absent on confirmation-only commands (see section 1).
 
-#### D-Ranked shortlist (highest user impact first)
+#### D Ranked shortlist (highest user impact first)
 
 1. 7.1/7.2 full-width "＋" and "／" in every key shortcut of the English Help and tooltips (19 + 3 strings) - needs an FR-036 change.
 2. 6.1 camelCase settings identifiers as labels in Document Settings (127 of 131) - needs an owner ruling against rule 02 s.5's note.
@@ -325,14 +325,14 @@ Measured: "Please" N=0; "!" N=0; "Error" N=0 (good, MSWSG/M3). Passive "... coul
 9. 4.4-4.6 "Try once more" (9), "write it out" (6), "Go on?" (2).
 10. Domain: Pause vs Stop/Resume (5.6), Bottleneck -> Driving (5.9), Dialogue Field -> Chat (5.18), Comment Box -> Text Box/Callout (5.12).
 
-### 2.5 コードの公開名（読むだけの体の調べ、英語のまま。番号 S-…。`CR-771`、一部は `CR-769`）
+### 2.5 コードの公開名（読むだけの体の調べ、英語のまま。番号 S…。`CR-771`、一部は `CR-769`）
 
-> 調べた範囲: `src` の公開の宣言 1,790、公開の型の欄 2,106、表 T-064 の 473 の名。⚠️ 体は S-5 で「`CR-708` が `scrollGroupId` を変えなかったので `groupId` を報告しない」と書いた —— 本席は `JDG-2245` の下で改めて問う（`CR-769` 問い 2）。S-F4 の案 `finishDate` は、本席の案 `start`／`finish`（値が日時のため）に替えた。
+> 調べた範囲: `src` の公開の宣言 1,790、公開の型の欄 2,106、表 T-064 の 473 の名。⚠️ 体は S5 で「`CR-708` が `scrollGroupId` を変えなかったので `groupId` を報告しない」と書いた —— 本席は `JDG-2241` の下で改めて問う（`CR-769` 問い 2）。SF4 の案 `finishDate` は、本席の案 `start`／`finish`（値が日時のため）に替えた。
 
 Read-only survey, worktree at 66d989c6 (branch claude/sleepy-hodgkin-ecd207). No repository file was changed.
 The scratch scripts that counted lived outside the repository and are not kept; the method of every count is written beside it.
 
-#### S-0 Inventory and method
+#### S0 Inventory and method
 
 - **Extraction** -- TypeScript 7.0.2 in the parent `node_modules` is the native compiler with no JS API, so
   extraction is regex-based: comments, string and template text, and regex literals are stripped
@@ -357,36 +357,36 @@ The scratch scripts that counted lived outside the repository and are not kept; 
   - **Medium** -- a spec name (T-064 / glossary).
   - **High** -- crosses the Agent API / MCP (T-107 / T-108 command kinds / MCP payloads) or GRS JSON.
 
-#### S-1 Findings ranked by impact on integrators
+#### S1 Findings ranked by impact on integrators
 
 | # | Finding | Risk | Spec name? | Recommendation (short) |
 |---|---|---|---|---|
-| S-F1 | Agent API reply shapes: `ok` vs `accepted`; `readStamp` as a data field; `what`; `Utterance` vs `DialogueMessage` | **High** (MCP payload) | **No** -- not in T-064/T-107/spec | Name them in the spec now, then fix the spelling |
-| S-F2 | Command kinds drop the unit their field carries (`setXStrokeWidth` -> `strokeWidthPx`) | **High** (T-108, Agent API) | Yes (CM) | One rule: setter = `set` + Entity + exact field name |
-| S-F3 | `Kind` vs `Type` suffix in GRS JSON (`linkType`, `dayType` vs `resourceKind`, `recurrenceKind`, `shapeKind`) | **High** (GRS JSON) | Yes | Write the rule down; rename the GRS-own `DelayFixType` family |
-| S-F4 | GRS-own date pair `HighlightBox.startDate/endDate` vs the house `start/finish` | **High** (GRS JSON) | Yes | `startDate/finishDate` |
-| S-F5 | Abbreviation `Seq` in GRS JSON (`importSeq`, `lastSeenImportSeq`) | **High** (GRS JSON) | Yes | `importSequence`, `lastSeenImportSequence` |
-| S-F6 | Units: Px in entity columns but not in documentSettings or code; font size spelled 3 ways | **High** (GRS JSON) | Yes | Decide "unit in name" for stored numbers |
-| S-F7 | documentSettings booleans: 14 adjective-predicates + 1 verb form (`showsTimeOfDay`); in-code synonyms `showPlan`/`showActual` | **High** (GRS JSON) | Yes | `timeOfDayVisible`; drop the synonyms |
-| S-F8 | `createAssignment` paired with `unassignResource` | **High** (T-108) | Yes | `deleteAssignment` |
-| S-F9 | Boolean functions/members without is/has/can; 3 negative `hasNo*` | Medium (2 in T-064) / Low | Partly | `is`/`has` for the ambiguous ones; affirmative form |
-| S-F10 | "Empty value" spelled 3 ways: `emptyXValues` camelCase consts, `NO_X`/`OPENED_X` UPPER consts, `blankX()`/`emptyX()` functions | Medium (2 in T-064) | Partly | CONSTANT_CASE for the 10 consts, or one documented rule |
-| S-F11 | Abbreviation `Pc` (`PcTimeZone`, `PcRegionChoice`, `regionForPc`, `readPcRegion`) | Medium | Yes (2 in T-064) | `SystemTimeZone` / `regionForSystem` |
-| S-F12 | Number-series names `date1`/`date2`/`date1X`/`date2X` (dual cursor) | Medium | Yes (spec uses `date1`) | Name the two ends by role |
-| S-F13 | Discriminant field `kind` (commands) vs `type` (session events) | Low | No | Keep `kind`; `type` only where MCP/DOM mandates it |
-| S-F14 | `dep` abbreviation (`depLinkParts`) beside `dependencyLinkParts` | Low | No | `dependencyLinkParts...` |
-| S-F15 | Callback props named on+value (`onAppHeaderHeightPx`) | Low | No | `onAppHeaderHeightPxMeasured` (or keep) |
-| S-F16 | The same exported name declared in two files (17 names) | Low | Partly | Rename the duplicates that mean different things |
-| S-F17 | tests/: folder `usecase` vs src `use-case`; `.contract.test.ts` infix on 135 of 332 files in tests/contract | Low | No | `tests/use-case`; drop the redundant infix |
+| SF1 | Agent API reply shapes: `ok` vs `accepted`; `readStamp` as a data field; `what`; `Utterance` vs `DialogueMessage` | **High** (MCP payload) | **No** -- not in T-064/T-107/spec | Name them in the spec now, then fix the spelling |
+| SF2 | Command kinds drop the unit their field carries (`setXStrokeWidth` -> `strokeWidthPx`) | **High** (T-108, Agent API) | Yes (CM) | One rule: setter = `set` + Entity + exact field name |
+| SF3 | `Kind` vs `Type` suffix in GRS JSON (`linkType`, `dayType` vs `resourceKind`, `recurrenceKind`, `shapeKind`) | **High** (GRS JSON) | Yes | Write the rule down; rename the GRS-own `DelayFixType` family |
+| SF4 | GRS-own date pair `HighlightBox.startDate/endDate` vs the house `start/finish` | **High** (GRS JSON) | Yes | `startDate/finishDate` |
+| SF5 | Abbreviation `Seq` in GRS JSON (`importSeq`, `lastSeenImportSeq`) | **High** (GRS JSON) | Yes | `importSequence`, `lastSeenImportSequence` |
+| SF6 | Units: Px in entity columns but not in documentSettings or code; font size spelled 3 ways | **High** (GRS JSON) | Yes | Decide "unit in name" for stored numbers |
+| SF7 | documentSettings booleans: 14 adjective-predicates + 1 verb form (`showsTimeOfDay`); in-code synonyms `showPlan`/`showActual` | **High** (GRS JSON) | Yes | `timeOfDayVisible`; drop the synonyms |
+| SF8 | `createAssignment` paired with `unassignResource` | **High** (T-108) | Yes | `deleteAssignment` |
+| SF9 | Boolean functions/members without is/has/can; 3 negative `hasNo*` | Medium (2 in T-064) / Low | Partly | `is`/`has` for the ambiguous ones; affirmative form |
+| SF10 | "Empty value" spelled 3 ways: `emptyXValues` camelCase consts, `NO_X`/`OPENED_X` UPPER consts, `blankX()`/`emptyX()` functions | Medium (2 in T-064) | Partly | CONSTANT_CASE for the 10 consts, or one documented rule |
+| SF11 | Abbreviation `Pc` (`PcTimeZone`, `PcRegionChoice`, `regionForPc`, `readPcRegion`) | Medium | Yes (2 in T-064) | `SystemTimeZone` / `regionForSystem` |
+| SF12 | Number-series names `date1`/`date2`/`date1X`/`date2X` (dual cursor) | Medium | Yes (spec uses `date1`) | Name the two ends by role |
+| SF13 | Discriminant field `kind` (commands) vs `type` (session events) | Low | No | Keep `kind`; `type` only where MCP/DOM mandates it |
+| SF14 | `dep` abbreviation (`depLinkParts`) beside `dependencyLinkParts` | Low | No | `dependencyLinkParts...` |
+| SF15 | Callback props named on+value (`onAppHeaderHeightPx`) | Low | No | `onAppHeaderHeightPxMeasured` (or keep) |
+| SF16 | The same exported name declared in two files (17 names) | Low | Partly | Rename the duplicates that mean different things |
+| SF17 | tests/: folder `usecase` vs src `use-case`; `.contract.test.ts` infix on 135 of 332 files in tests/contract | Low | No | `tests/use-case`; drop the redundant infix |
 
 **Spec note** -- rule 03 section 1 makes the spec the source of every name. A Medium or High row marked
 "Yes" is therefore **a finding on the spec first**: the spec row changes, then code copies it. F1 is the reverse
 case. The spec never names these reply shapes, so code chose them freely, yet they cross MCP. They become
 integrator contract on the day of release.
 
-#### S-2 Detail
+#### S2 Detail
 
-##### S-F1 -- Agent API reply and request shapes (High; not in the spec)
+##### SF1 -- Agent API reply and request shapes (High; not in the spec)
 
 Source: `src/adapter/agent-api-endpoint/agent-api-members.ts:53-106`. The MCP relay passes these values as JSON
 (design-mcp-relay.md 3.2). Any member of `applyCommands` `{ request }` and of every result is integrator contract.
@@ -418,7 +418,7 @@ Source: `src/adapter/agent-api-endpoint/agent-api-members.ts:53-106`. The MCP re
 Recommendation: before release, add the reply and request member names to the spec (T-107 or a new row family),
 choose them there, then rename. This is the only cluster where the cost of waiting is permanent.
 
-##### S-F2 -- Command kinds and the field they write disagree on units (High; T-108)
+##### SF2 -- Command kinds and the field they write disagree on units (High; T-108)
 
 The CM names otherwise follow one regular grammar: of 88 names, 56 start with `set`, 8 `delete`, 7 `create`,
 3 `reset`, 2 `clear` and so on. All are verb-first.
@@ -442,7 +442,7 @@ The CM names otherwise follow one regular grammar: of 88 names, 56 start with `s
   `setCommentBoxFillTransparencyPercent`.
 - This is a spec change (T-108 and the CM rows). It is cheap: 5 names, about 40 lines in all.
 
-##### S-F3 -- Kind vs Type (High; GRS JSON + T-064)
+##### SF3 -- Kind vs Type (High; GRS JSON + T-064)
 
 GRS JSON columns that hold a classification:
 
@@ -474,7 +474,7 @@ GRS JSON columns that hold a classification:
     Pick one direction; today there is none.
   - (c) Keep `dayType` (1:1 mirror).
 
-##### S-F4 -- HighlightBox date pair (High; GRS JSON)
+##### SF4 -- HighlightBox date pair (High; GRS JSON)
 
 - **The pairs in use**
   - Task, Project and the fit span use Start/Finish: `start`/`finish`, `actualStart`/`actualFinish`,
@@ -490,7 +490,7 @@ GRS JSON columns that hold a classification:
 - **Convention** -- .NET says one pair per concept. The house pair, inherited from MSPDI, is Start/Finish.
 - **Recommendation** -- `HighlightBox.finishDate`. Spec rows: erd.json, T-058.
 
-##### S-F5 -- `importSeq`, `lastSeenImportSeq` (High; GRS JSON)
+##### SF5 -- `importSeq`, `lastSeenImportSeq` (High; GRS JSON)
 
 - These are the only abbreviated GRS JSON columns. Method: every word of the 1097 distinct words in exported
   names was split on case, and the words of 3 letters or fewer were reviewed.
@@ -501,7 +501,7 @@ GRS JSON columns that hold a classification:
 - Conventional: `importSequence`, `lastSeenImportSequence`.
 - Places: importSeq src=23 tests=28 tools=3 spec=14; lastSeenImportSeq src=8 tests=2 tools=1 spec=6.
 
-##### S-F6 -- Units in stored numbers; font size (High; GRS JSON)
+##### SF6 -- Units in stored numbers; font size (High; GRS JSON)
 
 **Entity columns carry the unit in the name:**
 
@@ -545,7 +545,7 @@ GRS JSON columns that hold a classification:
 - Places: rulerFont src=27 tests=27 tools=1 spec=22; taskGroupPanelWidth src=34 tests=93 spec=7;
   minHeight src=126 tests=268 spec=14 (src includes DOM `style.minHeight`, so this one is over-counted).
 
-##### S-F7 -- documentSettings booleans (High; GRS JSON)
+##### SF7 -- documentSettings booleans (High; GRS JSON)
 
 **What the stored keys use:**
 
@@ -569,7 +569,7 @@ GRS JSON columns that hold a classification:
 - Rename `showPlan`/`showActual` to `planVisible`/`actualVisible`.
 - Keep the adjective form for the family. Moving 14 keys to `isX` buys nothing conventional and costs much.
 
-##### S-F8 -- `createAssignment` / `unassignResource` (High; T-108)
+##### SF8 -- `createAssignment` / `unassignResource` (High; T-108)
 
 - Every other entity pairs create with delete: `createTask`/`deleteTask`, `createResource`/`deleteResource`,
   `createCommentBox`/`deleteCommentBox`, and so on (7 creates, 8 deletes).
@@ -577,7 +577,7 @@ GRS JSON columns that hold a classification:
 - Conventional: `deleteAssignment`, or `assignResource`/`unassignResource` if the verb pair is preferred.
 - Places: createAssignment src=5 tests=4 spec=1; unassignResource src=4 tests=3 spec=1.
 
-##### S-F9 -- Boolean names in code (Medium where published, else Low)
+##### SF9 -- Boolean names in code (Medium where published, else Low)
 
 **Exported functions returning `boolean` or a type predicate: 83.**
 
@@ -606,7 +606,7 @@ GRS JSON columns that hold a classification:
 - Negative names, against .NET "affirmative phrase (CanSeek, not CantSeek)": `hasNoCalendarDraftRefusal` (spec=2),
   `hasNoSurfaceOrConfirmation` (spec=5), `hasNoUnsettledEntry` (spec=5). Medium, because the spec names them.
 
-##### S-F10 -- the "empty value" spelled 3 ways (Medium)
+##### SF10 -- the "empty value" spelled 3 ways (Medium)
 
 - **camelCase consts (10)** -- `emptyScreenSession` and `emptySearchPanelSession` (both T-064),
   `emptyScreenValues`, `emptyAgentApiValues`, and 6 more `empty*Values` in
@@ -625,7 +625,7 @@ GRS JSON columns that hold a classification:
 - **Places** -- emptyScreenSession src=6 tests=388 spec=4. The test count makes this costly; it is a candidate to
   keep with a rule.
 
-##### S-F11 -- `Pc` (Medium; T-064)
+##### SF11 -- `Pc` (Medium; T-064)
 
 - Names: `PcTimeZone`, `PcRegionChoice` (T-064), `regionForPc` (T-064), `readPcRegion`, local `withPcTimeZone`.
 - Convention: .NET "avoid abbreviations; use acronyms only when widely known". PC is widely known but names the
@@ -634,7 +634,7 @@ GRS JSON columns that hold a classification:
 - Conventional: `SystemTimeZone`, `SystemRegionChoice`, `regionForSystem`, `readSystemRegion`.
 - Places: regionForPc src=6 tests=9 spec=2; PcRegionChoice src=5 spec=2; PcTimeZone src=3; readPcRegion src=6 tests=2.
 
-##### S-F12 -- `date1`/`date2` (Medium; spec)
+##### SF12 -- `date1`/`date2` (Medium; spec)
 
 - Names: `DualCursor.date1` (`entity/layout-engine/schedule-geometry/dual-cursor.ts:13`), `date1X`/`date2X`,
   the side literal `'date1'`, and the tooltip `{date1, date2}`.
@@ -643,20 +643,20 @@ GRS JSON columns that hold a classification:
   the meaning.
 - Places: date1 src=17 tests=19 tools=2 spec=8. Low-to-medium value; it can wait.
 
-##### S-F13 -- discriminant field `kind` vs `type` (Low)
+##### SF13 -- discriminant field `kind` vs `type` (Low)
 
 - `readonly kind: '...'` appears on 372 lines in 49 src files. `DocumentCommand` uses it and crosses the Agent API.
 - `readonly type: '...'` appears on 134 lines in about 10 files: the session events in
   `use-case/advance-screen-session/*`, plus the MCP content items, which MCP mandates.
 - These are internal unless the events cross out. Recommendation: `kind` everywhere except MCP and DOM shapes.
 
-##### S-F14 -- `depLinkParts`, `depLinkPartsPinned` (Low)
+##### SF14 -- `depLinkParts`, `depLinkPartsPinned` (Low)
 
 - `adapter/svg-renderer/schedule-task-figures.ts:113-114`.
 - `dep` is the only `dep` abbreviation; `dependencyLinkParts` already exists as a function.
 - Conventional: `dependencyLinkParts`, `pinnedDependencyLinkParts`. Places: src=6 tests=1.
 
-##### S-F15 -- callback props named on + value (Low)
+##### SF15 -- callback props named on + value (Low)
 
 - Names: `onAppHeaderHeightPx`, `onCommandPaletteBandPx`, `onTaskGroupControlsHeightPx` (`onSearchWordTyped` is
   fine).
@@ -664,7 +664,7 @@ GRS JSON columns that hold a classification:
   conventional form.
 - No `handleX` exports exist (1 `handleParts` is a noun). No `addEventListener`-style custom APIs.
 
-##### S-F16 -- the same exported name declared in more than one file (Low)
+##### SF16 -- the same exported name declared in more than one file (Low)
 
 - 17 names. Same-meaning type aliases: `ColumnFilter`, `ColumnSort`, `SearchColumn`, `MergeChoices`,
   `MergeMapping`, `DelayFixTables`, `DelayFixTelling`, `InvariantRow`, `BaseChangeWay`, `VisibilityTable`,
@@ -675,7 +675,7 @@ GRS JSON columns that hold a classification:
 - `itemAtPointer` x3 is overloads, which is fine.
 - Recommendation: re-export instead of re-declaring the aliases, and give the different functions different names.
 
-##### S-F17 -- files and folders (Low)
+##### SF17 -- files and folders (Low)
 
 - Every file and folder segment under src/ (251 distinct) and tests/ (669 distinct) is kebab-case except
   `tests/README.md` (conventional). Regex: `^[a-z0-9]+(-[a-z0-9]+)*(\.[a-z0-9-]+)*$`.
@@ -685,7 +685,7 @@ GRS JSON columns that hold a classification:
   meaning. `.sws.test.ts` (5 files) is a separate infix.
 - No `.spec.ts`; all 620 test files are `*.test.ts`.
 
-#### S-3 The xOf / noun-phrase function style (check 4) -- a recommendation, not a finding
+#### S3 The xOf / noun-phrase function style (check 4) -- a recommendation, not a finding
 
 The 864 exported functions (836 distinct names) were classified by their first camelCase word
 (the verb list is hand-made):
@@ -719,7 +719,7 @@ The 864 exported functions (836 distinct names) were classified by their first c
   `createTaskGroup`), and both are commands (CM-6, CM-26), not factories. There is no `makeX`/`buildX`/`newX`
   factory; `newGroupId` and the like are id issuers.
 
-#### S-4 Checked and found conventional (short)
+#### S4 Checked and found conventional (short)
 
 - **Case form (check 1)**
   - Types: 396 interface + 349 type + 2 class are all PascalCase.
@@ -761,7 +761,7 @@ The 864 exported functions (836 distinct names) were classified by their first c
   `bandBaselineYOf`, `GROUP_GRID_LINE_WIDTH_PX`), but they exist in `adapter/svg-renderer/svg-renderer.ts`. They
   were a fault of the scan, fixed in the stripping pass.
 
-#### S-5 Settled or out of scope (not reported)
+#### S5 Settled or out of scope (not reported)
 
 - British vs American spelling (CR-730) -- not examined.
 - Row -> TaskGroup (CR-708) -- 43 exported names still contain `Row`, most of them table rows. CR-708 owns any
@@ -770,7 +770,7 @@ The 864 exported functions (836 distinct names) were classified by their first c
 - `TaskGroup.label` vs `taskGroupNameOf` -- intentional: the name is derived from `label` or from
   `derivedFromTaskUid` (`schedule/task-group-names.ts:18`).
 
-#### S-6 Limits of this survey
+#### S6 Limits of this survey
 
 - **Regex, not a type checker.** A member type that spans lines is read from its first line, so the boolean-member
   count (178) can miss multi-line unions.
@@ -783,26 +783,26 @@ The 864 exported functions (836 distinct names) were classified by their first c
 
 | # | 今 | 慣習の形 | 出どころ・理由 | 扱い |
 |---|---|---|---|---|
-| P-1 | ブラウザの保存の鍵の頭 `grsched.`（`grsched.screenLanguage`・`grsched.openedBy`・`grsched.agentApiEnabled`・`grsched.unlockPasswordSha256`） | `grs.` | 製品の頭は木のほかの所がすべて `grs`（`grs-relay`・`grs-export-fit`・`grs-files`・`x-grs-`）。公開の後に替えると利用者の選びが消える | `CR-771` 2.1 —— 公開の前に |
-| P-2 | MCP の取次の表示名 `GRS relay` | `GRS Relay` | 名前は Title Case（`JDG-1862`） | `CR-771` 2.2 |
-| P-3 | `grs-relay.mcpb`・`dist/index.html`・`docs/download/index.html`・`docs/about/index.html` | 変えない | kebab-case と `index.html` は慣習どおり | — |
-| P-4 | 見本 `sample-schedule/Three-Year Product Plan.json`（空白と大文字）と `sample-*.en.xml`（kebab-case） | 変えない | `JDG-1732` が名指す。⚠️ `CR-769` の鍵の変更の後は開けなくなる —— `CR-769` 問い 3 | `CR-771` X-3 |
-| P-5 | ja／en の接尾辞が 3 通り（`prompt-en.md` ／ `image-to-grs-json-prompt.en.md` ／ `sample-*.en.xml`） | 1 通り | 利用者の合図を待つ保留がある | 触れない（`CR-771` X-4） |
-| P-6 | 保存の面の媒体型 `image/x-grs-svg`・`text/x-grs-html`・`text/x-grs-markdown` | 変えない | RFC 6838 の 3.4 は `x-` を勧めないが、保存の面の中だけで使い利用者のファイルにも連携にも残らない。`CR-768` が表 T-024 に載せる | `CR-771` X-5 |
+| P1 | ブラウザの保存の鍵の頭 `grsched.`（`grsched.screenLanguage`・`grsched.openedBy`・`grsched.agentApiEnabled`・`grsched.unlockPasswordSha256`） | `grs.` | 製品の頭は木のほかの所がすべて `grs`（`grs-relay`・`grs-export-fit`・`grs-files`・`x-grs-`）。公開の後に替えると利用者の選びが消える | `CR-771` 2.1 —— 公開の前に |
+| P2 | MCP の取次の表示名 `GRS relay` | `GRS Relay` | 名前は Title Case（`JDG-1862`） | `CR-771` 2.2 |
+| P3 | `grs-relay.mcpb`・`dist/index.html`・`docs/download/index.html`・`docs/about/index.html` | 変えない | kebab-case と `index.html` は慣習どおり | — |
+| P4 | 見本 `sample-schedule/Three-Year Product Plan.json`（空白と大文字）と `sample-*.en.xml`（kebab-case） | 変えない | `JDG-1732` が名指す。⚠️ `CR-769` の鍵の変更の後は開けなくなる —— `CR-769` 問い 3 | `CR-771` X-3 |
+| P5 | ja／en の接尾辞が 3 通り（`prompt-en.md` ／ `image-to-grs-json-prompt.en.md` ／ `sample-*.en.xml`） | 1 通り | 利用者の合図を待つ保留がある | 触れない（`CR-771` X-4） |
+| P6 | 保存の面の媒体型 `image/x-grs-svg`・`text/x-grs-html`・`text/x-grs-markdown` | 変えない | RFC 6838 の 3.4 は `x-` を勧めないが、保存の面の中だけで使い利用者のファイルにも連携にも残らない。`CR-768` が表 T-024 に載せる | `CR-771` X-5 |
 
 ---
 
 ## 3. 慣習どおりと確かめたもの
 
-- **コードの記法**（S-4）: 型・クラス 747 と関数 864 と型の欄 2,106 がすべて記法どおり。定数 179 のうち CONSTANT_CASE 169（残り 10 は S-F10 の `empty…`）。列挙の宣言 0（文字列の和 —— Google TS の勧め）。
-- **頭字語**（S-4）: `Uid` 26・`Id` 29・`Html` 7・`Json` 6・`Utc` 6・`Svg` 12・`Api` 24 ほか、すべて語として書く。大文字の頭字語を camelCase の中に書く所 0。
-- **略語**（S-4）: `Cnt`・`Btn`・`Ctx`・`Cfg`・`Idx`・`Num`・`Tmp` ほか 0（例外は S-F5 `Seq`・S-F11 `Pc`・S-F14 `dep`）。ハンガリアン・`_` の頭・`I` の頭・Manager／Helper／Util の尾 0。
-- **時間の単位**（S-4）: `Minutes` 20・`Ms` 4・`Days` 17。`Millis`・`Sec`・`Mins` 0。
-- **名付けの流儀**（S-3）: `getX` 0、`…Of` 215、作用を持つ関数 34 のすべてが動詞で始まる —— 名詞句と動詞を分ける一貫した流儀（Swift API Design Guidelines）。直さず規則に書く（`CR-771` E-01）。
+- **コードの記法**（S4）: 型・クラス 747 と関数 864 と型の欄 2,106 がすべて記法どおり。定数 179 のうち CONSTANT_CASE 169（残り 10 は SF10 の `empty…`）。列挙の宣言 0（文字列の和 —— Google TS の勧め）。
+- **頭字語**（S4）: `Uid` 26・`Id` 29・`Html` 7・`Json` 6・`Utc` 6・`Svg` 12・`Api` 24 ほか、すべて語として書く。大文字の頭字語を camelCase の中に書く所 0。
+- **略語**（S4）: `Cnt`・`Btn`・`Ctx`・`Cfg`・`Idx`・`Num`・`Tmp` ほか 0（例外は SF5 `Seq`・SF11 `Pc`・SF14 `dep`）。ハンガリアン・`_` の頭・`I` の頭・Manager／Helper／Util の尾 0。
+- **時間の単位**（S4）: `Minutes` 20・`Ms` 4・`Days` 17。`Millis`・`Sec`・`Mins` 0。
+- **名付けの流儀**（S3）: `getX` 0、`…Of` 215、作用を持つ関数 34 のすべてが動詞で始まる —— 名詞句と動詞を分ける一貫した流儀（Swift API Design Guidelines）。直さず規則に書く（`CR-771` E-01）。
 - **エージェント API・命令の名**（2.2・2.3）: 22 のメンバと 88 の命令のすべてが動詞で始まるか名詞の性質。
 - **MSPDI 由来の名**: `milestone`・`dayWorking`・`resumeValid`・`isBaseCalendar`・`isCostResource`・`dayType`・`percentComplete`・`minutesPerDay`・`fromDate`／`toDate` ほか。
 - **画面の語**（D-…の「Checked and found CONVENTIONAL」）: 業務の標準の語、Title Case の見出し、「(Blanks)」、時刻帯の一覧の形、「Please」「!」「Error:」0。
-- **綴り**: アメリカ式（`CR-730` の後）。取り残しは D-8.1 の 5 だけ。
+- **綴り**: アメリカ式（`CR-730` の後）。取り残しは D8.1 の 5 だけ。
 
 ---
 
@@ -810,20 +810,20 @@ The 864 exported functions (836 distinct names) were classified by their first c
 
 | 群 | 触れ合う変更要求 |
 |---|---|
-| J-1 真偽の鍵 | `CR-754`・`CR-756` |
-| J-2 `groupId` | `CR-754`（`scrollGroupId`・`pinnedGroupIds`）・`CR-766` |
-| J-4 単位 | `CR-754`・`CR-755`・`CR-766`（`fontScale`・`displayScale`） |
-| J-6・J-8 | `CR-757`（`lag`・`created`・`startDate`）・`CR-760`（`linkType`、変えない） |
-| A-1〜A-5 エージェント API | `CR-765`（表 T-107 を原稿へ）—— 原稿の着地の後に当てる |
+| J1 真偽の鍵 | `CR-754`・`CR-756` |
+| J2 `groupId` | `CR-754`（`scrollGroupId`・`pinnedGroupIds`）・`CR-766` |
+| J4 単位 | `CR-754`・`CR-755`・`CR-766`（`fontScale`・`displayScale`） |
+| J6・J8 | `CR-757`（`lag`・`created`・`startDate`）・`CR-760`（`linkType`、変えない） |
+| A1〜A5 エージェント API | `CR-765`（表 T-107 を原稿へ）—— 原稿の着地の後に当てる |
 | 2.3 命令 | `CR-766`（表 T-108 を原稿へ、問い 1） |
-| D-6.1 設定の項目名 | `CR-754`・`CR-755`・`CR-756` |
-| D-7 キーの書き方 | `CR-754`・`CR-755`・`CR-757`・`CR-759`・`CR-762`（`FR-036`・表 T-036） |
-| D-2.1 答えのボタン | `CR-757`（`QN-14`）・`CR-767`（確認の状態機械） |
-| D-1・D-2.2 保存の面の名 | `CR-768`（`IC-2`・`.md`） |
-| S-F11 `Pc` | `CR-755` |
-| S-F1 `AgentUtteranceOutcome` | `CR-765` |
+| D6.1 設定の項目名 | `CR-754`・`CR-755`・`CR-756` |
+| D7 キーの書き方 | `CR-754`・`CR-755`・`CR-757`・`CR-759`・`CR-762`（`FR-036`・表 T-036） |
+| D2.1 答えのボタン | `CR-757`（`QN-14`）・`CR-767`（確認の状態機械） |
+| D1・D2.2 保存の面の名 | `CR-768`（`IC-2`・`.md`） |
+| SF11 `Pc` | `CR-755` |
+| SF1 `AgentUtteranceOutcome` | `CR-765` |
 | 触れない | `CR-740`・`CR-758`・`CR-761` |
-| 測れない | `CR-763`・`CR-764`（`66d989c6` の木に無い） |
+| `CR-763`・`CR-764`（`integ/coord-1011` の `f6796d70` で測った） | 保存の鍵とコードの名には触れない。`CR-764` は `FR-036`（D7）と辞書、`CR-763` は辞書に触れる |
 
 ⚠️ 一般の語（`label`・`created`・`what`・`accepted`）の一致は、部品の字や別の意味の語を含む。`CR-756`〜`CR-759` に現れる `label` は部品の字で、`TaskGroup.label` ではない（本文を読んで確かめた）。
 
@@ -833,11 +833,11 @@ The 864 exported functions (836 distinct names) were classified by their first c
 
 | 問い | 何を | 推奨 | 覆す裁定 |
 |---|---|---|---|
-| `CR-769` 問い 1 | 保存する真偽の鍵に `is` を付けるか | B 付けない、`W-10` を直す | `JDG-1784` の `showsTimeOfDay` |
+| `CR-769` 問い 1 | `xxxVisible` の形（`JDG-2241`）からはみ出す保存の 3 つと答えの 3 つをそろえ、`W-10` を直すか | A 6 つともそろえる | `JDG-1784` の `showsTimeOfDay` |
 | `CR-769` 問い 2 | `groupId` を `taskGroupId` にするか | A する | `JDG-1488` |
 | `CR-769` 問い 3 | 開けなくなる見本をどうするか | A 鍵だけ追従 | `JDG-1732`（鍵の綴りだけ） |
 | `CR-770` 問い 1 | 英語のキーを `Ctrl+A` と書くか | A 英語だけ | `JDG-174`（英語だけ） |
-| `CR-770` 問い 2 | 英語の設定の項目名を語にするか | A すべて | `JDG-1862` の注 |
+| `CR-770` 問い 2 | （問わない —— `JDG-2241` が答えた）設定の項目名 19 行を語にする | — | `JDG-1862` の注（`JDG-2241` が覆した） |
 | `CR-770` 問い 3 | 答えのボタンを動詞にするか | A 英語だけ | 無い |
 | `CR-770` 問い 4 | Arm・Bottleneck・Paused・Comment Box・Dialogue Field を標準の語にするか | 5 つとも | 無い |
 | `CR-770` 問い 5 | 書き方の束 17 を推奨どおりに当てるか | A まとめて | `JDG-1223` |
