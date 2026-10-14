@@ -5,16 +5,16 @@
   "project": {
    "id": "GRS-PLAN",
    "name": "gr-scheduler のプロジェクト計画",
-   "title": "gr-scheduler のプロジェクト計画(2026-10-15 04:05 JST 時点)",
+   "title": "gr-scheduler のプロジェクト計画(2026-10-15 04:33 JST 時点)",
    "subject": "いまから計画の終わりまで",
    "category": null,
    "company": null,
    "manager": null,
    "author": null,
-   "created": "2026-10-15T04:05:00",
+   "created": "2026-10-15T04:33:00",
    "revision": 1,
    "startDate": "2026-10-15T02:00:00",
-   "statusDate": "2026-10-15T04:05:00",
+   "statusDate": "2026-10-15T04:33:00",
    "minutesPerDay": 1440,
    "minutesPerWeek": 10080,
    "daysPerMonth": 30,
@@ -210,16 +210,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 2,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -228,8 +219,8 @@
     "parentTaskUid": null,
     "wbsOrder": 4,
     "name": "CR-753(Ctrl ドラッグの写しを移動と同じ所へ)の実装",
-    "start": "2026-10-15T04:15:00",
-    "finish": "2026-10-15T07:30:00",
+    "start": "2026-10-15T04:45:00",
+    "finish": "2026-10-15T08:00:00",
     "milestone": false,
     "deadline": null,
     "notes": "見積: CR-753 の 9 節 2.5 時間 + JDG-2069(A)で 4.1 節を入れて 4 時間 = 6.5 時間 x 0.5。仕様・コードの体と、仕様だけを読む試験の体。",
@@ -251,8 +242,8 @@
     "parentTaskUid": null,
     "wbsOrder": 5,
     "name": "工程の強制の道具(push の見張り・OneDrive の断り・検査 78〜80)の実装",
-    "start": "2026-10-15T04:15:00",
-    "finish": "2026-10-15T08:15:00",
+    "start": "2026-10-15T04:45:00",
+    "finish": "2026-10-15T08:45:00",
     "milestone": false,
     "deadline": null,
     "notes": "大きさの段 M(4 時間)。見積の本文は無い。",
@@ -274,8 +265,8 @@
     "parentTaskUid": null,
     "wbsOrder": 6,
     "name": "JDG-2071(仕様書が正)の食い違いの調べ",
-    "start": "2026-10-15T04:15:00",
-    "finish": "2026-10-15T06:15:00",
+    "start": "2026-10-15T04:45:00",
+    "finish": "2026-10-15T06:45:00",
     "milestone": false,
     "deadline": null,
     "notes": "調べの席は動いている(始まりの時刻は測っていない)。残りを大きさの段 S で置いた。",
@@ -297,8 +288,8 @@
     "parentTaskUid": null,
     "wbsOrder": 7,
     "name": "CR-740(範囲選択中の下の絵の覚え置き)の実装",
-    "start": "2026-10-15T04:15:00",
-    "finish": "2026-10-15T08:45:00",
+    "start": "2026-10-15T04:45:00",
+    "finish": "2026-10-15T09:15:00",
     "milestone": false,
     "deadline": null,
     "notes": "見積: CR-740 の 12 節 9 時間 x 0.5。測り(10.1 節、2 つのブラウザ)を含む。",
@@ -320,8 +311,8 @@
     "parentTaskUid": null,
     "wbsOrder": 8,
     "name": "CR-752(公開名の呼び方と直す案の行の鍵)の仕様反映",
-    "start": "2026-10-15T08:15:00",
-    "finish": "2026-10-15T09:30:00",
+    "start": "2026-10-15T08:45:00",
+    "finish": "2026-10-15T10:00:00",
     "milestone": false,
     "deadline": null,
     "notes": "見積: CR-752 の 12 節 2.5 時間 x 0.5。席の数を 5 に保つため、席3 の道具の後に置いた。",
@@ -334,16 +325,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 5,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -352,8 +334,8 @@
     "parentTaskUid": null,
     "wbsOrder": 9,
     "name": "CR-758(依存線とマーカーの干渉解消)の実装",
-    "start": "2026-10-15T04:15:00",
-    "finish": "2026-10-15T08:30:00",
+    "start": "2026-10-15T04:45:00",
+    "finish": "2026-10-15T09:00:00",
     "milestone": false,
     "deadline": null,
     "notes": "見積: CR-758 の 14 節 7.5 時間 + 見本 50 の数え直し 1 時間 = 8.5 時間 x 0.5。",
@@ -375,8 +357,8 @@
     "parentTaskUid": null,
     "wbsOrder": 10,
     "name": "波 A(CR-753・740・752・758)の合流と確かめ",
-    "start": "2026-10-15T09:30:00",
-    "finish": "2026-10-15T10:30:00",
+    "start": "2026-10-15T10:00:00",
+    "finish": "2026-10-15T11:00:00",
     "milestone": false,
     "deadline": null,
     "notes": "合流 1 本 15 分 x 4。GT-2 はここでは回さない(一括の GT-2 は非 AI の直しが全部入った後)。",
@@ -431,8 +413,8 @@
     "parentTaskUid": null,
     "wbsOrder": 11,
     "name": "未検討 40 行(DFC-611・2560〜2569 ほか)のトリアージ",
-    "start": "2026-10-15T07:30:00",
-    "finish": "2026-10-15T11:30:00",
+    "start": "2026-10-15T08:00:00",
+    "finish": "2026-10-15T12:00:00",
     "milestone": false,
     "deadline": null,
     "notes": "台帳の提案だけを書く。大きさの段 M。AI 連携の DFC-2214・2215 は除く。",
@@ -454,8 +436,8 @@
     "parentTaskUid": null,
     "wbsOrder": 12,
     "name": "罠の束(DFC-544・547・548・549)の実装",
-    "start": "2026-10-15T08:45:00",
-    "finish": "2026-10-15T12:45:00",
+    "start": "2026-10-15T09:15:00",
+    "finish": "2026-10-15T13:15:00",
     "milestone": false,
     "deadline": null,
     "notes": "大きさの段 M。",
@@ -477,8 +459,8 @@
     "parentTaskUid": null,
     "wbsOrder": 13,
     "name": "用語集の JSON 化(DFC-2175)の仕様と実装",
-    "start": "2026-10-15T08:30:00",
-    "finish": "2026-10-15T12:30:00",
+    "start": "2026-10-15T09:00:00",
+    "finish": "2026-10-15T13:00:00",
     "milestone": false,
     "deadline": null,
     "notes": "大きさの段 M。",
@@ -500,8 +482,8 @@
     "parentTaskUid": null,
     "wbsOrder": 14,
     "name": "JDG-2071 の食い違いの再検討(仕様とコードのどちらを正とするか)",
-    "start": "2026-10-15T06:15:00",
-    "finish": "2026-10-15T10:15:00",
+    "start": "2026-10-15T06:45:00",
+    "finish": "2026-10-15T10:45:00",
     "milestone": false,
     "deadline": null,
     "notes": "大きさの段 M。",
@@ -514,16 +496,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 6,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -532,8 +505,8 @@
     "parentTaskUid": null,
     "wbsOrder": 15,
     "name": "T-064(公開の名 479 の呼び方)の書き起こしと再検討",
-    "start": "2026-10-15T10:15:00",
-    "finish": "2026-10-15T22:15:00",
+    "start": "2026-10-15T10:45:00",
+    "finish": "2026-10-15T22:45:00",
     "milestone": false,
     "deadline": null,
     "notes": "JDG-2071 の 1 の残り。479 名を 1 時間に 60 名ほど書き起こして 8 時間、コードと違う名の再検討 4 時間。",
@@ -547,14 +520,6 @@
     "fadeInDays": null,
     "fadeOutDays": null,
     "dependencies": [
-     {
-      "predecessorUid": 8,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     },
      {
       "predecessorUid": 14,
       "linkType": 1,
@@ -572,8 +537,8 @@
     "parentTaskUid": null,
     "wbsOrder": 16,
     "name": "JDG-2071 の規則と検査(仕様に合わせてコードを作る)の実装",
-    "start": "2026-10-15T10:15:00",
-    "finish": "2026-10-15T14:15:00",
+    "start": "2026-10-15T10:45:00",
+    "finish": "2026-10-15T14:45:00",
     "milestone": false,
     "deadline": null,
     "notes": "大きさの段 M。",
@@ -586,16 +551,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 14,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -604,8 +560,8 @@
     "parentTaskUid": null,
     "wbsOrder": 17,
     "name": "試験待ち 7 行(DFC-550・567・641 ほか)の仕様だけを読む試験",
-    "start": "2026-10-15T14:15:00",
-    "finish": "2026-10-15T18:15:00",
+    "start": "2026-10-15T14:45:00",
+    "finish": "2026-10-15T18:45:00",
     "milestone": false,
     "deadline": null,
     "notes": "大きさの段 M。",
@@ -618,16 +574,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 16,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -636,8 +583,8 @@
     "parentTaskUid": null,
     "wbsOrder": 18,
     "name": "仕様待ちの残り(DFC-560・631・1063〜1073 ほか約 19 行)の CR の起草",
-    "start": "2026-10-15T12:30:00",
-    "finish": "2026-10-15T16:30:00",
+    "start": "2026-10-15T13:00:00",
+    "finish": "2026-10-15T17:00:00",
     "milestone": false,
     "deadline": null,
     "notes": "仕様待ち 36 行から CR-740〜758 と聞き取りの行(DFC-2515〜2526)を除いた残り。大きさの段 M。",
@@ -659,8 +606,8 @@
     "parentTaskUid": null,
     "wbsOrder": 19,
     "name": "DFC-730(GP-1)の実装",
-    "start": "2026-10-15T12:45:00",
-    "finish": "2026-10-15T14:45:00",
+    "start": "2026-10-15T13:15:00",
+    "finish": "2026-10-15T15:15:00",
     "milestone": false,
     "deadline": null,
     "notes": "大きさの段 S。",
@@ -682,8 +629,8 @@
     "parentTaskUid": null,
     "wbsOrder": 20,
     "name": "実装待ちの残り(DFC-464・532〜562 ほか約 20 行)の実装",
-    "start": "2026-10-15T11:30:00",
-    "finish": "2026-10-15T19:30:00",
+    "start": "2026-10-15T12:00:00",
+    "finish": "2026-10-15T20:00:00",
     "milestone": false,
     "deadline": null,
     "notes": "実装待ち 37 行から罠・DFC-730・DFC-2517 と CR に入った行を除いた残り。大きさの段 L。",
@@ -991,16 +938,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 27,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -1023,16 +961,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 28,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -1055,16 +984,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 29,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -1105,8 +1025,8 @@
     "parentTaskUid": null,
     "wbsOrder": 32,
     "name": "トリアージで出た直しの実装",
-    "start": "2026-10-15T18:15:00",
-    "finish": "2026-10-16T02:15:00",
+    "start": "2026-10-15T18:45:00",
+    "finish": "2026-10-16T02:45:00",
     "milestone": false,
     "deadline": null,
     "notes": "仮置き: 件数がまだ分からない。大きさの段 L。",
@@ -1159,14 +1079,6 @@
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
-     },
-     {
-      "predecessorUid": 15,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
      }
     ],
     "carry": {},
@@ -1191,16 +1103,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 33,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -1223,16 +1126,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 18,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -1367,24 +1261,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 36,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     },
-     {
-      "predecessorUid": 31,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -1449,14 +1326,6 @@
     "fadeOutDays": null,
     "dependencies": [
      {
-      "predecessorUid": 37,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     },
-     {
       "predecessorUid": 38,
       "linkType": 1,
       "lag": 0,
@@ -1487,16 +1356,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 39,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    },
@@ -1767,14 +1627,6 @@
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
-     },
-     {
-      "predecessorUid": 43,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
      }
     ],
     "carry": {},
@@ -1799,16 +1651,7 @@
     "percentComplete": 0,
     "fadeInDays": null,
     "fadeOutDays": null,
-    "dependencies": [
-     {
-      "predecessorUid": 48,
-      "linkType": 1,
-      "lag": 0,
-      "lagFormat": 7,
-      "carry": {},
-      "carryElements": []
-     }
-    ],
+    "dependencies": [],
     "carry": {},
     "carryElements": []
    }
@@ -2486,17 +2329,66 @@
     "strokeWidthPx": null
    }
   ],
-  "commentBoxes": [],
+  "commentBoxes": [
+   {
+    "id": "c51976c8-25ad-5108-8904-29a46b09ff3b",
+    "leaderShapeKind": "calloutBox",
+    "text": "紫の枠 = 波(同時に当てる CR の組)\n波 A: CR-753・740・752・758\n1 つのファイルの組に書き手は 1 人なので、波 B は波 A の合流の後",
+    "anchorDate": "2026-10-15T04:45:00",
+    "anchorGroupId": "06bb553e-298b-5794-98aa-8762a050243f",
+    "bodyOffsetPx": {
+     "dx": 0,
+     "dy": 90
+    },
+    "strokeColor": "purple",
+    "strokeWidthPx": 1,
+    "fillColor": null,
+    "fillTransparencyPercent": null,
+    "textColor": null
+   },
+   {
+    "id": "e585f384-ed6e-5d7c-b7b7-fce923a50465",
+    "leaderShapeKind": "calloutBox",
+    "text": "波 B: CR-755・756・757\n波 A の合流と、利用者の残りの裁定を待つ",
+    "anchorDate": "2026-10-15T21:15:00",
+    "anchorGroupId": "06bb553e-298b-5794-98aa-8762a050243f",
+    "bodyOffsetPx": {
+     "dx": 0,
+     "dy": 170
+    },
+    "strokeColor": "purple",
+    "strokeWidthPx": 1,
+    "fillColor": null,
+    "fillTransparencyPercent": null,
+    "textColor": null
+   },
+   {
+    "id": "122e0daa-c2bd-5b3d-a9ea-113eb2ee6302",
+    "leaderShapeKind": "calloutBox",
+    "text": "波 C: CR-754(＋DFC-2517)\n設定パネルの幅は波 B が足した行の後に測るので最後",
+    "anchorDate": "2026-10-16T05:15:00",
+    "anchorGroupId": "06bb553e-298b-5794-98aa-8762a050243f",
+    "bodyOffsetPx": {
+     "dx": 0,
+     "dy": 240
+    },
+    "strokeColor": "purple",
+    "strokeWidthPx": 1,
+    "fillColor": null,
+    "fillTransparencyPercent": null,
+    "textColor": null
+   }
+  ],
   "highlightBoxes": [
    {
     "id": "67ca8ea4-c156-5990-9759-92f5fec3ddef",
-    "startDate": "2026-10-15T04:15:00",
-    "endDate": "2026-10-15T09:30:00",
+    "startDate": "2026-10-15T04:45:00",
+    "endDate": "2026-10-15T10:00:00",
     "topGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f",
     "bottomGroupId": "92288265-9367-5757-9974-b1a8154ae4b6",
-    "strokeColor": null,
+    "strokeColor": "purple",
     "cornerRadiusPx": null,
-    "strokeWidthPx": null,
+    "strokeWidthPx": 2,
     "fillColor": null,
     "fillTransparencyPercent": 85
    },
@@ -2506,9 +2398,9 @@
     "endDate": "2026-10-16T04:15:00",
     "topGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f",
     "bottomGroupId": "92288265-9367-5757-9974-b1a8154ae4b6",
-    "strokeColor": null,
+    "strokeColor": "purple",
     "cornerRadiusPx": null,
-    "strokeWidthPx": null,
+    "strokeWidthPx": 2,
     "fillColor": null,
     "fillTransparencyPercent": 85
    },
@@ -2518,9 +2410,9 @@
     "endDate": "2026-10-16T10:45:00",
     "topGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f",
     "bottomGroupId": "92288265-9367-5757-9974-b1a8154ae4b6",
-    "strokeColor": null,
+    "strokeColor": "purple",
     "cornerRadiusPx": null,
-    "strokeWidthPx": null,
+    "strokeWidthPx": 2,
     "fillColor": null,
     "fillTransparencyPercent": 85
    }
@@ -2585,17 +2477,17 @@
   "zoomY": 1
  },
  "documentStamp": {
-  "scheduleUpdatedUtc": "2026-10-14T19:05:00Z",
+  "scheduleUpdatedUtc": "2026-10-14T19:33:00Z",
   "lastEditedBy": "project-plan session",
-  "settingsUpdatedUtc": "2026-10-14T19:05:00Z",
-  "fileSavedUtc": "2026-10-14T19:05:00Z"
+  "settingsUpdatedUtc": "2026-10-14T19:33:00Z",
+  "fileSavedUtc": "2026-10-14T19:33:00Z"
  },
  "changeLog": [
   {
    "ordinal": 1,
    "editedBy": "project-plan session",
    "explanation": "Plan written fresh from the handoff, the drafted CRs and the ledger counts.",
-   "changedUtc": "2026-10-14T19:05:00Z"
+   "changedUtc": "2026-10-14T19:33:00Z"
   }
  ]
 }
