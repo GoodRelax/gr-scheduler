@@ -16,6 +16,7 @@ import {
   type SearchJumpTarget,
   type TableView,
 } from '../edit-document/edit-document'
+import { hasNoCalendarDraftRefusal, type CalendarDraft } from './calendar-draft'
 import { assertNever, NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // see FR-072
@@ -29,6 +30,9 @@ export type ArmKind = Exclude<ArmModeState['kind'], 'notArmed'>
 type DisplayLanguage = 'ja' | 'en'
 
 type ScaleEnd = 'max' | 'min' | null
+
+// see FR-156, FO-14
+export type BaseChangeWay = 'keepGlobalTime' | 'keepLocalTime'
 
 // see S-72, FR-039
 type ThemePreference = 'light' | 'dark'
@@ -131,6 +135,11 @@ export interface ScreenValuesStateCarried {
   readonly landedBy: LandedBy
   readonly landedTarget: SearchJumpTarget
   readonly landedRelatedTasks: readonly number[]
+  // WHY: null is the shown base (S-574, else AT-157) while only the way was chosen.
+  readonly chosenRegion: string | null
+  readonly chosenWay: BaseChangeWay
+  readonly shiftMinutes: number
+  readonly calendarDraft: CalendarDraft
 }
 
 export interface ScreenValuesEventCarried {
@@ -162,6 +171,10 @@ export interface ScreenValuesEventCarried {
   readonly landedTarget: SearchJumpTarget
   readonly landedRelatedTasks: readonly number[]
   readonly isOpenAccepted: boolean
+  readonly chosenRegion: string
+  readonly chosenWay: BaseChangeWay
+  readonly shiftMinutes: number
+  readonly calendarDraft: CalendarDraft
 }
 
 type NoPayload = Readonly<Record<never, never>>
@@ -188,6 +201,9 @@ interface ScreenValuesEffectPayloads {
   readonly seedHelpLanguage: NoPayload
   readonly focusSearchWord: NoPayload
   readonly writeProgressStep: { readonly taskUid: number } & Carried
+  readonly issueBaseChangeCommand: Pick<ScreenValuesStateCarried, 'chosenRegion' | 'chosenWay'>
+  readonly raiseTimeShiftQuestion: Pick<ScreenValuesStateCarried, 'shiftMinutes'>
+  readonly issueCalendarCommand: Pick<ScreenValuesStateCarried, 'calendarDraft'>
 }
 
 export type ScreenValuesEffect = {
@@ -1100,6 +1116,137 @@ function helpHidden(values: ScreenValues): ScreenStep {
   return moved(values, { helpDisplayState: { kind: 'hidden' } })
 }
 
+const HOLIDAY_SETTINGS_SURFACE = 'U-65'
+
+const BASE_CHANGE_WAY_AT_FIRST: BaseChangeWay = 'keepGlobalTime'
+
+// see T-280, FR-156, FO-14
+/** @purity pure */
+function baseDraftMoved(values: ScreenValues, chosenRegion: string | null, chosenWay: BaseChangeWay): ScreenStep {
+  const held = values.baseTimeZoneDraftState
+  if (held.kind === 'drafted' && held.chosenRegion === chosenRegion && held.chosenWay === chosenWay) return unchanged(values)
+  return moved(values, { baseTimeZoneDraftState: { kind: 'drafted', chosenRegion, chosenWay } })
+}
+
+/** @purity pure */
+function onBaseTimeZoneChosen(values: ScreenValues, event: EventOf<'baseTimeZoneChosen'>): ScreenStep {
+  const held = values.baseTimeZoneDraftState
+  return baseDraftMoved(values, event.chosenRegion, held.kind === 'drafted' ? held.chosenWay : BASE_CHANGE_WAY_AT_FIRST)
+}
+
+/** @purity pure */
+function onBaseChangeWayChosen(values: ScreenValues, event: EventOf<'baseChangeWayChosen'>): ScreenStep {
+  const held = values.baseTimeZoneDraftState
+  return baseDraftMoved(values, held.kind === 'drafted' ? held.chosenRegion : null, event.chosenWay)
+}
+
+// see T-280, FR-156, IC-161, CM-94, CM-95
+/** @purity pure */
+function onBaseChangeEntryPressed(values: ScreenValues): ScreenStep {
+  const held = values.baseTimeZoneDraftState
+  if (held.kind === 'untouched') return unchanged(values)
+  const { chosenRegion, chosenWay } = held
+  return moved(values, { baseTimeZoneDraftState: { kind: 'untouched' } }, [
+    { type: 'issueBaseChangeCommand', chosenRegion, chosenWay },
+  ])
+}
+
+// see T-280, FR-157, FO-16
+/** @purity pure */
+function onTimeShiftAmountSettled(values: ScreenValues, event: EventOf<'timeShiftAmountSettled'>): ScreenStep {
+  const held = values.timeShiftDraftState
+  const isShiftZero = event.shiftMinutes === 0
+  if (isShiftZero) return held.kind === 'empty' ? unchanged(values) : moved(values, { timeShiftDraftState: { kind: 'empty' } })
+  if (held.kind === 'amountHeld' && held.shiftMinutes === event.shiftMinutes) return unchanged(values)
+  return moved(values, { timeShiftDraftState: { kind: 'amountHeld', shiftMinutes: event.shiftMinutes } })
+}
+
+// see T-280, FR-157, IC-162, QN-14
+/** @purity pure */
+function onTimeShiftEntryPressed(values: ScreenValues): ScreenStep {
+  const held = values.timeShiftDraftState
+  if (held.kind === 'empty') return unchanged(values)
+  return stayed(values, [{ type: 'raiseTimeShiftQuestion', shiftMinutes: held.shiftMinutes }])
+}
+
+/** @purity pure */
+function onTimeShiftLanded(values: ScreenValues): ScreenStep {
+  if (values.timeShiftDraftState.kind === 'empty') return unchanged(values)
+  return moved(values, { timeShiftDraftState: { kind: 'empty' } })
+}
+
+// see T-280, FR-088
+/** @purity pure */
+function onCalendarDraftEdited(values: ScreenValues, event: EventOf<'calendarDraftEdited'>): ScreenStep {
+  const held = values.calendarDraftState
+  if (held.kind === 'drafted' && held.calendarDraft === event.calendarDraft) return unchanged(values)
+  return moved(values, { calendarDraftState: { kind: 'drafted', calendarDraft: event.calendarDraft } })
+}
+
+// see T-280, FR-088, IC-138, WC-7, WC-10, CM-39
+/** @purity pure */
+function onCalendarApplyEntryPressed(values: ScreenValues): ScreenStep {
+  const held = values.calendarDraftState
+  if (held.kind === 'untouched' || !hasNoCalendarDraftRefusal(held.calendarDraft)) return unchanged(values)
+  return moved(values, { calendarDraftState: { kind: 'untouched' } }, [
+    { type: 'issueCalendarCommand', calendarDraft: held.calendarDraft },
+  ])
+}
+
+type DraftAxes = Pick<ScreenValues, 'baseTimeZoneDraftState' | 'timeShiftDraftState' | 'calendarDraftState'>
+
+/** @purity pure */
+function settingsDraftsDropped(values: ScreenValues): Partial<DraftAxes> {
+  return {
+    ...(values.baseTimeZoneDraftState.kind === 'untouched' ? {} : { baseTimeZoneDraftState: { kind: 'untouched' } }),
+    ...(values.timeShiftDraftState.kind === 'empty' ? {} : { timeShiftDraftState: { kind: 'empty' } }),
+  }
+}
+
+/** @purity pure */
+function calendarDraftDropped(values: ScreenValues): Partial<DraftAxes> {
+  return values.calendarDraftState.kind === 'untouched' ? {} : { calendarDraftState: { kind: 'untouched' } }
+}
+
+/** @purity pure */
+function isShowingDocumentSettings(values: ScreenValues): boolean {
+  return values.propertiesPanelContentState.kind === 'documentSettingsDisplayed'
+}
+
+/** @purity pure */
+function isShowingHolidaySettings(values: ScreenValues): boolean {
+  const surface = values.openSurfaceState
+  return surface.kind === 'open' && surface.surfaceName === HOLIDAY_SETTINGS_SURFACE
+}
+
+// see T-280, FR-156, FR-157, FR-088
+// WHY: isLeavingDocumentSettings and isLeavingHolidaySettings are read off the step the event already took.
+/** @purity pure */
+function draftsLeftBehind(before: ScreenValues, step: ScreenStep): ScreenStep {
+  const after = step.state
+  const isLeavingDocumentSettings = isShowingDocumentSettings(before) && !isShowingDocumentSettings(after)
+  const isLeavingHolidaySettings = isShowingHolidaySettings(before) && !isShowingHolidaySettings(after)
+  const patch: Partial<DraftAxes> = {
+    ...(isLeavingDocumentSettings ? settingsDraftsDropped(after) : {}),
+    ...(isLeavingHolidaySettings ? calendarDraftDropped(after) : {}),
+  }
+  return Object.keys(patch).length === 0 ? step : { state: { ...after, ...patch }, effects: step.effects }
+}
+
+/** @purity pure */
+function leavingDrafts<E>(
+  handler: (values: ScreenValues, event: E) => ScreenStep,
+): (values: ScreenValues, event: E) => ScreenStep {
+  return (values, event) => draftsLeftBehind(values, handler(values, event))
+}
+
+// see T-280, RD-4, RD-7
+/** @purity pure */
+function onDocumentReplacedByOpenOrNew(values: ScreenValues): ScreenStep {
+  const patch = { ...settingsDraftsDropped(values), ...calendarDraftDropped(values) }
+  return Object.keys(patch).length === 0 ? unchanged(values) : moved(values, patch)
+}
+
 // WHY: a table, not a switch that would cross the size band; the mapped type still refuses a missing event.
 const HANDLERS: {
   readonly [T in ScreenValuesEvent['type']]: (values: ScreenValues, event: EventOf<T>) => ScreenStep
@@ -1109,21 +1256,21 @@ const HANDLERS: {
   milestoneListToggled: onMilestoneListToggled,
   fullScreenEntryPressed: onFullScreenEntryPressed,
   fullScreenChanged: onFullScreenChanged,
-  surfaceEntryPressed: onSurfaceOpened,
-  surfaceRaisedByFlow: onSurfaceOpened,
+  surfaceEntryPressed: leavingDrafts(onSurfaceOpened),
+  surfaceRaisedByFlow: leavingDrafts(onSurfaceOpened),
   flowSurfaceAnswered: onFlowSurfaceAnswered,
-  surfaceCloseAsked: onSurfaceCloseAsked,
-  escapePressed: onEscapePressed,
+  surfaceCloseAsked: leavingDrafts(onSurfaceCloseAsked),
+  escapePressed: leavingDrafts(onEscapePressed),
   armEntryPressed: onArmEntryPressed,
-  watermarkEntryPressed: onWatermarkEntryPressed,
+  watermarkEntryPressed: leavingDrafts(onWatermarkEntryPressed),
   watermarkUnlockAnswered: onWatermarkUnlockAnswered,
   watermarkUnlockMatched: onWatermarkUnlockMatched,
   watermarkUnlockMismatched: onWatermarkUnlockMismatched,
-  settingsEntryPressed: onSettingsEntryPressed,
-  propertiesOfChoiceAsked: onPropertiesOfChoiceAsked,
-  selectionMoved: onSelectionMoved,
-  createdNameSettled: onCreatedNameSettled,
-  settleKeyPressed: onSettleKeyPressed,
+  settingsEntryPressed: leavingDrafts(onSettingsEntryPressed),
+  propertiesOfChoiceAsked: leavingDrafts(onPropertiesOfChoiceAsked),
+  selectionMoved: leavingDrafts(onSelectionMoved),
+  createdNameSettled: leavingDrafts(onCreatedNameSettled),
+  settleKeyPressed: leavingDrafts(onSettleKeyPressed),
   dialogueFieldEntryPressed: onDialogueFieldEntryPressed,
   dialogueFieldMinimizeToggled: (values) => windowDisplayToggled(values, 'dialogueFieldDisplayState', MINIMIZE_TOGGLED_TO),
   dialogueFieldMaximizeToggled: (values) => windowDisplayToggled(values, 'dialogueFieldDisplayState', MAXIMIZE_TOGGLED_TO),
@@ -1153,6 +1300,15 @@ const HANDLERS: {
   searchJumpLanded: onSearchJumpLanded,
   fileDragEntered: onFileDragEntered,
   fileDragLeft: onFileDragLeft,
+  baseTimeZoneChosen: onBaseTimeZoneChosen,
+  baseChangeWayChosen: onBaseChangeWayChosen,
+  baseChangeEntryPressed: onBaseChangeEntryPressed,
+  timeShiftAmountSettled: onTimeShiftAmountSettled,
+  timeShiftEntryPressed: onTimeShiftEntryPressed,
+  timeShiftLanded: onTimeShiftLanded,
+  calendarDraftEdited: onCalendarDraftEdited,
+  calendarApplyEntryPressed: onCalendarApplyEntryPressed,
+  documentReplacedByOpenOrNew: onDocumentReplacedByOpenOrNew,
 }
 
 // see SF-2, SF-8, T-280

@@ -111,6 +111,8 @@
 | dependency | AdvanceScreenSession | ScreenState | carried types | reads the remembered-actual and Esc-rung types the screen values carry |  |
 | dependency | AdvanceScreenSession | Selection | panel subject | reads the selection type, and the empty selection, a properties-panel subject is built from |  |
 | dependency | AdvanceScreenSession | EditDocument | carried writes | reads the command type a writing effect carries |  |
+| dependency | AdvanceScreenSession | Schedule | calendar draft | builds the Holiday Settings draft from the document calendar and judges it as CM-39 does |  |
+| dependency | AdvanceScreenSession | DocumentSettings | span limit | reads how many working time spans a day may hold |  |
 | dependency | InputCommandTranslator | ScheduleLayout | pointer to date | turns a pointer position into a date on the time axis |  |
 | dependency | SingleHtmlShell | SvgRenderer | frame | redraws the screen once per frame |  |
 | dependency | SingleHtmlShell | InputCommandTranslator | input | turns each input into an operation and a new selection |  |

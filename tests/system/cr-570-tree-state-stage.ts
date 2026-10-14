@@ -175,16 +175,15 @@ export async function openDocument(page: Page, name: string, text: string): Prom
 
 const TIME_ZONE_SET_REASON = 'RS-90'
 
-// see FR-156, RS-90, NT-8
-// WHY: every MSPDI intake tells RS-90 (CR-710); the notice covers the canvas top and takes the next
-// Enter or Esc (NT-8), so a case about something else presses its OK as the author would.
+// see FR-156, RS-90, NT-8, NT-2
+// WHY: an MSPDI intake tells RS-90, which leaves by itself (CR-744); while it stands it takes the next
+// Enter or Esc (NT-8), so a case about something else presses its OK as the author would, if it is still there.
 /** @purity non-pure */
 export async function dismissTimeZoneNotice(page: Page): Promise<void> {
   const at = await page.evaluate((reason: string) => {
     const box = document.querySelector(`[data-notice-box~="${reason}"] button[data-notice]`)?.getBoundingClientRect()
     return box === undefined || box.width === 0 ? null : { x: box.x + box.width / 2, y: box.y + box.height / 2 }
   }, TIME_ZONE_SET_REASON)
-  expect(at, `FR-156: an MSPDI intake tells ${TIME_ZONE_SET_REASON} with an OK to dismiss it (NT-8)`).not.toBeNull()
   if (at === null) return
   await pressAt(page, at)
   await settle(page)

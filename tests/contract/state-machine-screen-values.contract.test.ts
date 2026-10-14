@@ -152,6 +152,10 @@ const NO_CHOICE = { selection: { items: [], ordered: false }, groupIds: [] }
 // see T-280, EL-16
 const STORED_LANDING = { predecessorUid: 1, successorUid: 2 }
 const NEW_LANDING = { predecessorUid: 3, successorUid: 4 }
+// see T-280, FR-088, WC-10
+const HOLIDAY_SURFACE = 'U-65'
+const CLEAN_CALENDAR_DRAFT = { workingDayTypes: [2, 3, 4, 5, 6], weekStartDay: 1, ranges: [{ start: '8:00', end: '17:00' }], exceptions: [] }
+const REFUSED_CALENDAR_DRAFT = { ...CLEAN_CALENDAR_DRAFT, workingDayTypes: [] }
 
 // see T-280
 const STATE_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
@@ -165,6 +169,10 @@ const STATE_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   landedLink: [STORED_LANDING],
   landedTarget: [{ kind: 'task', taskUid: STORED_LANDING.successorUid }],
   landedRelatedTasks: [[]],
+  chosenRegion: [null, 'Asia/Tokyo'],
+  chosenWay: ['keepGlobalTime'],
+  shiftMinutes: [90],
+  calendarDraft: [CLEAN_CALENDAR_DRAFT, REFUSED_CALENDAR_DRAFT],
 }
 
 function memberFor(row: SmRow | undefined, kind: string): Loose[] {
@@ -256,6 +264,10 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   landedLink: [NEW_LANDING],
   landedTarget: [{ kind: 'task', taskUid: NEW_LANDING.successorUid }],
   landedRelatedTasks: [[], [NEW_LANDING.predecessorUid]],
+  chosenRegion: ['Europe/London'],
+  chosenWay: ['keepGlobalTime', 'keepLocalTime'],
+  shiftMinutes: [0, 90, -30],
+  calendarDraft: [CLEAN_CALENDAR_DRAFT],
 }
 
 const ARM_KINDS = STATES.filter((s) => s.parent === ROOT && s.key.startsWith('armModeStateMachine.') && !s.initial).map(
@@ -371,9 +383,33 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
       return holds(session, 'openSurfaceStateMachine.closed')
     case 'hasChoice':
       return hasChoice(event['subject'])
+    // see FR-157, FO-16
+    case 'isShiftZero':
+      return event['shiftMinutes'] === 0
+    // see WC-10
+    case 'hasNoCalendarDraftRefusal':
+      return (screen['calendarDraftState'] as Loose)['calendarDraft'] !== REFUSED_CALENDAR_DRAFT
+    // see FR-156, FR-157
+    case 'isLeavingDocumentSettings':
+      return holds(session, 'propertiesPanelContentStateMachine.documentSettingsDisplayed')
+        && landingsOn(session, event, 'propertiesPanelContentStateMachine').some((to) => to !== 'self')
+    // see FR-088, S-99g
+    case 'isLeavingHolidaySettings': {
+      const surface = screen['openSurfaceState'] as Loose
+      return surface['kind'] === 'open' && surface['surfaceName'] === HOLIDAY_SURFACE
+        && landingsOn(session, event, 'openSurfaceStateMachine').some((to) => to !== 'self')
+    }
     default:
       throw new Error(`guard ${name} is named by the manuscript but not by this file's oracle`)
   }
+}
+
+// WHY: the rows of one machine only, so a guard reading another machine's step cannot call itself.
+function landingsOn(session: ScreenSession, event: Loose, machine: string): TnRow['to'][] {
+  return TRANSITIONS.filter((row) => row.event === event['type']
+    && row.from.some((conj) => conj.some((key) => key.startsWith(`${machine}.`)) && conj.every((key) => holds(session, key)))
+    && (row.guard ?? []).every((g) => guardHolds(g.name, session, event) !== (g.not === true)))
+    .map((row) => row.to)
 }
 
 type Firing = { row: TnRow; axes: string[] }

@@ -212,6 +212,7 @@ export type QuestionRow =
 // see T-037
 export type NoticeManner =
   | 'NT-1'
+  | 'NT-2'
   | 'NT-3'
   | 'NT-3a'
   | 'NT-4'
@@ -273,7 +274,7 @@ export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner
   'RS-51': 'NT-5',
   'RS-52': 'NT-3',
   'RS-89': 'NT-3',
-  'RS-90': 'NT-3',
+  'RS-90': 'NT-2',
   'RS-53': 'NT-1',
   'RS-54': 'NT-1',
   'RS-55': 'NT-1',
@@ -385,7 +386,7 @@ export const NOTICE_DISPLAY_OF_REASON: Readonly<Record<NoticeReason, 'show' | 'h
   'RS-51': 'report',
   'RS-52': 'report',
   'RS-89': 'show',
-  'RS-90': 'show',
+  'RS-90': 'autoDismiss',
   'RS-53': 'hide',
   'RS-54': 'autoDismiss',
   'RS-55': 'hide',

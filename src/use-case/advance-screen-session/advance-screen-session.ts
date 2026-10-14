@@ -62,7 +62,7 @@ import {
 } from './selection-values'
 import { unchanged, type Step } from './session-step'
 
-export type { ArmKind, PropertiesSubject, ScreenValues, ScreenValuesEvent } from './screen-values'
+export type { ArmKind, BaseChangeWay, PropertiesSubject, ScreenValues, ScreenValuesEvent } from './screen-values'
 export type {
   SearchColumn,
   SearchPanelSession,
@@ -73,6 +73,29 @@ export type {
   VisibilityTable,
 } from './screen-values'
 export type { WindowName } from '../../entity/document-model/screen-state/screen-state'
+export type { CalendarDraft, CalendarDraftRange, CalendarDraftRangeSide, CalendarDraftRefusal } from './calendar-draft'
+export {
+  calendarCommandOf,
+  calendarDraftOf,
+  calendarDraftRefusalsOf,
+  canAddRange,
+  canDeleteRange,
+  draftClockMinuteOf,
+  exceptionsInStartOrder,
+  hasNoCalendarDraftRefusal,
+  otherHoursDayTypesOf,
+  shownCalendarDraft,
+  withExceptionAdded,
+  withExceptionDayTyped,
+  withExceptionDeleted,
+  withExceptionKindToggled,
+  withExceptionNameTyped,
+  withRangeAdded,
+  withRangeDeleted,
+  withRangeTimeTyped,
+  withWeekStart,
+  withWeekdayToggled,
+} from './calendar-draft'
 export {
   EVERY_ROW_SHOWN,
   SEARCH_PANEL_TEXT_SIZE_ROWS,

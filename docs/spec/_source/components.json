@@ -680,6 +680,20 @@
    "description": "reads the command type a writing effect carries"
   },
   {
+   "source": "AdvanceScreenSession",
+   "target": "Schedule",
+   "arrow": "dependency",
+   "label": "calendar draft",
+   "description": "builds the Holiday Settings draft from the document calendar and judges it as CM-39 does"
+  },
+  {
+   "source": "AdvanceScreenSession",
+   "target": "DocumentSettings",
+   "arrow": "dependency",
+   "label": "span limit",
+   "description": "reads how many working time spans a day may hold"
+  },
+  {
    "source": "InputCommandTranslator",
    "target": "ScheduleLayout",
    "arrow": "dependency",

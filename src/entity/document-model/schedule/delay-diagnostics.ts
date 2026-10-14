@@ -10,6 +10,7 @@ import {
   calendarDaysBetween,
   compareDays,
   dayOf,
+  finishSideDayOf,
   serial,
   textOfDay,
   type CalendarDay,
@@ -28,6 +29,7 @@ import {
   startSideOf,
   workingMinutesBetween,
   workingSpansReader,
+  type DateTimeSide,
   type InstantOnSide,
   type WorkingCalendar,
 } from './working-calendar'
@@ -134,6 +136,11 @@ interface Ends {
   readonly finish: CalendarDay | null
 }
 
+interface EndOfChildren {
+  readonly text: string | null
+  readonly day: CalendarDay | null
+}
+
 // see FR-054
 interface Instants {
   readonly start: number | null
@@ -164,6 +171,8 @@ interface Facts extends Structure {
   readonly walk: WorkingTimeWalk
   readonly minutesPerDay: number
   readonly statusDate: CalendarDay
+  // WHY: the day VS-5, VO-1 and VO-2 compare by (FR-054, WT-4); the delay days still count from statusDate.
+  readonly statusDayOnSide: CalendarDay
   readonly statusInstant: number
   readonly explicitChildrenOf: ReadonlyMap<number, readonly Task[]>
   readonly childrenOf: ReadonlyMap<number, readonly Task[]>
@@ -229,14 +238,37 @@ function sameDay(a: CalendarDay | null, b: CalendarDay | null): boolean {
   return compareDays(a, b) === 0
 }
 
+// see FR-054, T-350, WT-5
+// WHY: the day an instant falls on; a finish side reads the minute before, so 00:00 is the day before.
+/** @purity pure */
+function dayOnSide(text: string | null, side: DateTimeSide): CalendarDay | null {
+  return side === 'start' ? dayOf(text) : finishSideDayOf(text)
+}
+
+// see FR-054, T-310, IP-1
 /** @purity pure */
 function plannedEnds(task: Task): Ends {
-  return { start: dayOf(task.start), finish: dayOf(task.finish) }
+  return { start: dayOnSide(task.start, startSideOf(task)), finish: dayOnSide(task.finish, 'finish') }
 }
 
 /** @purity pure */
 function actualEnds(task: Task): Ends {
-  return { start: dayOf(task.actualStart), finish: dayOf(task.actualFinish) }
+  return { start: dayOnSide(task.actualStart, startSideOf(task)), finish: dayOnSide(task.actualFinish, 'finish') }
+}
+
+// see VC-11, VC-12, FR-054
+/** @purity pure */
+function extremeEnd(children: readonly Task[], endsOf: (task: Task) => Ends, side: keyof Ends,
+                    column: 'start' | 'finish' | 'actualStart' | 'actualFinish', latest: boolean): EndOfChildren {
+  let best: EndOfChildren = { text: null, day: null }
+  for (const child of children) {
+    const day = endsOf(child)[side]
+    if (day === null) continue
+    if (best.day === null || (latest ? compareDays(day, best.day) > 0 : compareDays(day, best.day) < 0)) {
+      best = { text: child[column], day }
+    }
+  }
+  return best
 }
 
 // see VC-15, FR-054
@@ -382,11 +414,12 @@ function ancestorsOf(uid: number, parentOf: ReadonlyMap<number, number>): readon
   return chain
 }
 
+// see MP-1, FR-054
 /** @purity pure */
 function latestMilestones(tasks: readonly Task[]): readonly Task[] {
   const milestones = tasks.filter((task) => task.milestone === true)
-  const latest = extremeText(milestones.map((task) => task.finish), true)
-  return milestones.filter((task) => sameDay(dayOf(task.finish), dayOf(latest)))
+  const latest = extremeEnd(milestones, plannedEnds, 'finish', 'finish', true)
+  return milestones.filter((task) => sameDay(plannedEnds(task).finish, latest.day))
 }
 
 // see MP-1, MP-2, MP-3
@@ -395,13 +428,13 @@ function milestoneLinksOf(milestone: Task, taskGroupDepthOf: ReadonlyMap<number,
                           tasksAtDepth: ReadonlyMap<number, readonly Task[]>,
                           parentOf: ReadonlyMap<number, number>): readonly Link[] {
   const depth = taskGroupDepthOf.get(milestone.uid)
-  const due = dayOf(milestone.finish)
+  const due = plannedEnds(milestone).finish
   if (depth === undefined || due === null) return []
-  const before = (task: Task): boolean => isBefore(dayOf(task.finish), due)
+  const before = (task: Task): boolean => isBefore(plannedEnds(task).finish, due)
   const peers = (tasksAtDepth.get(depth) ?? []).filter((task) => task.uid !== milestone.uid && before(task))
   const previous = latestMilestones(peers)
-  const bound = previous[0] === undefined ? null : dayOf(previous[0].finish)
-  const afterPrevious = (task: Task): boolean => bound === null || isBefore(bound, dayOf(task.finish))
+  const bound = previous[0] === undefined ? null : plannedEnds(previous[0]).finish
+  const afterPrevious = (task: Task): boolean => bound === null || isBefore(bound, plannedEnds(task).finish)
   const unowned = (task: Task): boolean => {
     const parent = parentOf.get(task.uid)
     return parent === undefined || taskGroupDepthOf.get(parent) !== depth
@@ -514,6 +547,7 @@ function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: Cale
   const onSide = instantOnSideReader(calendar)
   // WHY: the status date is a finish-side column (WT-4); one whose time cannot be read is read at the start of its day.
   const statusInstant = onSide(schedule.project.statusDate, 'finish') ?? serial(statusDate) * MINUTES_PER_CALENDAR_DAY
+  const statusDayOnSide = dayOnSide(schedule.project.statusDate, 'finish') ?? statusDate
   const { tasks, byUid, taskGroupDepthOf, tasksAtDepth, parentOf } = structure
   const explicitChildrenOf = groupBy(tasks, (task) => task.parentTaskUid ?? undefined)
   const childrenOf = groupBy(tasks, (task) => parentOf.get(task.uid))
@@ -531,7 +565,8 @@ function factsOf(schedule: Schedule, calendar: WorkingCalendar, statusDate: Cale
     .map((link) => ({ from: link.predecessorUid, to: task.uid }))))
   const walk = workingTimeWalkOf(calendar)
   return {
-    ...structure, calendar, onSide, walk, minutesPerDay, statusDate, statusInstant, explicitChildrenOf, childrenOf, linksOf, successorsOf, achievedOnOf,
+    ...structure, calendar, onSide, walk, minutesPerDay, statusDate, statusDayOnSide, statusInstant,
+    explicitChildrenOf, childrenOf, linksOf, successorsOf, achievedOnOf,
   }
 }
 
@@ -643,7 +678,7 @@ function columnContradictions(task: Task): readonly DelayFinding[] {
   return found
 }
 
-// see VC-9, VC-10, VC-11, VC-12
+// see VC-9, VC-10, VC-11, VC-12, FR-054
 /** @purity pure */
 function parentContradictions(parent: Task, children: readonly Task[]): readonly DelayFinding[] {
   if (children.length === 0) return []
@@ -656,22 +691,35 @@ function parentContradictions(parent: Task, children: readonly Task[]): readonly
   if (open.length === 0 && !isFinished(parent)) {
     found.push(findingOf('VC-10', parent, { ...columnsOf(parent, ['actualFinish']), childUids }))
   }
-  const childStart = extremeText(children.map((child) => child.start), false)
-  const childFinish = extremeText(children.map((child) => child.finish), true)
-  const planned = plannedEnds(parent)
-  if ((childStart !== null || childFinish !== null)
-    && (!sameDay(planned.start, dayOf(childStart)) || !sameDay(planned.finish, dayOf(childFinish)))) {
-    found.push(findingOf('VC-11', parent, { ...columnsOf(parent, ['start', 'finish']), childStart, childFinish }))
-  }
-  const childActualStart = extremeText(children.map((child) => child.actualStart), false)
-  const childActualFinish = open.length === 0 ? extremeText(children.map((child) => child.actualFinish), true) : null
-  const actual = actualEnds(parent)
-  if (!sameDay(actual.start, dayOf(childActualStart)) || !sameDay(actual.finish, dayOf(childActualFinish))) {
-    found.push(findingOf('VC-12', parent, {
-      ...columnsOf(parent, ['actualStart', 'actualFinish']), childActualStart, childActualFinish,
-    }))
-  }
+  found.push(...plannedSpanContradictions(parent, children), ...actualSpanContradictions(parent, children, open.length === 0))
   return found
+}
+
+// see VC-11, FR-054
+/** @purity pure */
+function plannedSpanContradictions(parent: Task, children: readonly Task[]): readonly DelayFinding[] {
+  const childStart = extremeEnd(children, plannedEnds, 'start', 'start', false)
+  const childFinish = extremeEnd(children, plannedEnds, 'finish', 'finish', true)
+  const planned = plannedEnds(parent)
+  if (childStart.text === null && childFinish.text === null) return []
+  if (sameDay(planned.start, childStart.day) && sameDay(planned.finish, childFinish.day)) return []
+  return [findingOf('VC-11', parent, {
+    ...columnsOf(parent, ['start', 'finish']), childStart: childStart.text, childFinish: childFinish.text,
+  })]
+}
+
+// see VC-12, FR-054
+/** @purity pure */
+function actualSpanContradictions(parent: Task, children: readonly Task[], isEveryChildFinished: boolean): readonly DelayFinding[] {
+  const childActualStart = extremeEnd(children, actualEnds, 'start', 'actualStart', false)
+  const childActualFinish = isEveryChildFinished
+    ? extremeEnd(children, actualEnds, 'finish', 'actualFinish', true) : { text: null, day: null }
+  const actual = actualEnds(parent)
+  if (sameDay(actual.start, childActualStart.day) && sameDay(actual.finish, childActualFinish.day)) return []
+  return [findingOf('VC-12', parent, {
+    ...columnsOf(parent, ['actualStart', 'actualFinish']),
+    childActualStart: childActualStart.text, childActualFinish: childActualFinish.text,
+  })]
 }
 
 // see VC-13, VC-14, VC-15
@@ -813,8 +861,8 @@ function suspicionsOf(facts: Facts, toleranceDays: number): readonly DelayFindin
     if (task.milestone === true && children.length > 0) {
       found.push(findingOf('VS-2', task, { ...columnsOf(task, ['milestone']), childUids: children.map((one) => one.uid) }))
     }
-    const actualDays = [task.actualStart, task.stop, task.actualFinish].map((text) => dayOf(text))
-    if (actualDays.some((day) => isBefore(facts.statusDate, day))) {
+    const actualDays = [actualEnds(task).start, dayOnSide(task.stop, 'finish'), actualEnds(task).finish]
+    if (actualDays.some((day) => isBefore(facts.statusDayOnSide, day))) {
       found.push(findingOf('VS-5', task, columnsOf(task, ['actualStart', 'stop', 'actualFinish'])))
     }
     found.push(...progressSpreadSuspicion(facts, task, toleranceDays))
@@ -822,7 +870,7 @@ function suspicionsOf(facts: Facts, toleranceDays: number): readonly DelayFindin
   return found
 }
 
-// see VO-1, VO-2
+// see VO-1, VO-2, FR-054
 /** @purity pure */
 function rowOmissions(facts: Facts, task: Task): readonly DelayFinding[] {
   const found: DelayFinding[] = []
@@ -832,10 +880,10 @@ function rowOmissions(facts: Facts, task: Task): readonly DelayFinding[] {
       return predecessor !== undefined && hasBindingEndHappened(predecessor, link.linkType)
     })
   const ends = plannedEnds(task)
-  if (isBefore(ends.start, facts.statusDate) && task.actualStart === null && isStartFree) {
+  if (isBefore(ends.start, facts.statusDayOnSide) && task.actualStart === null && isStartFree) {
     found.push(findingOf('VO-1', task, columnsOf(task, ['start', 'actualStart'])))
   }
-  if (isBefore(ends.finish, facts.statusDate) && task.actualStart !== null
+  if (isBefore(ends.finish, facts.statusDayOnSide) && task.actualStart !== null
     && task.actualFinish === null && task.stop === null) {
     found.push(findingOf('VO-2', task, columnsOf(task, ['finish', 'actualStart', 'actualFinish', 'stop'])))
   }
