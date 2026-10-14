@@ -563,7 +563,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-89': '2253606a8c6ba6ef',
   // WHY: CR-742 section 4.4 moved how the region is matched into FR-156; read together on 2026-10-14, the words still
   // tell the region was set and the same-offset match, so only the fingerprint is re-keyed.
-  'RS-90': '2b8144f76e3acc05',
+  // WHY: CR-750 (JDG-2038) adds the last step to the next step -- since CR-742 the base change lands only on
+  // IC-161, so the words now end on pressing it; read together on 2026-10-14, the scene did not move.
+  'RS-90': '10d2573abc3930db',
 }
 
 const fingerprintOf = (rowId: string): string => {

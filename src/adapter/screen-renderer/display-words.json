@@ -3987,8 +3987,8 @@
     "en": "The schedule data time zone was set to this PC's region"
    },
    "nextStep": {
-    "ja": "この PC の地域が一覧に無いときは、UTC の差が同じ一覧の地域に寄せています。別の地域で読みたいときは、文書の設定で基準のタイムゾーンを選び、「ローカルタイムを保つ」で付け替えてください",
-    "en": "If this PC's region is not in the list, the listed region with the same UTC offset was used. To read the dates in another region, pick it as the base time zone in Document Settings and choose Keep Local Time"
+    "ja": "この PC の地域が一覧に無いときは、UTC の差が同じ一覧の地域に寄せています。別の地域で読みたいときは、文書の設定で基準のタイムゾーンを選び、「ローカルタイムを保つ」を選んで [基準を変える] を押してください",
+    "en": "If this PC's region is not in the list, the listed region with the same UTC offset was used. To read the dates in another region, pick it as the base time zone in Document Settings, choose Keep Local Time, then press Change Base Time Zone"
    }
   },
   {
