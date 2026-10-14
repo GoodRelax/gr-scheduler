@@ -158,7 +158,10 @@ describe('FR-135 / JDG-1118 -- "マイルストーンを親にしてはならな
   })
 })
 
-const T201 = (id: string): number => numberIn(cellOf('T-201', id, '既定値'))
+const T201 = (id: string): number => {
+  const named = /^`?(S-\d+[a-z]?)`?$/.exec(cellOf('T-201', id, '既定値').trim())
+  return named === null ? numberIn(cellOf('T-201', id, '既定値')) : T201(named[1] as string)
+}
 const T206 = (id: string): number => numberIn(cellOf('T-206', id, '既定'))
 const DRAW_RATIO_AT_100 = T206('S-236')
 

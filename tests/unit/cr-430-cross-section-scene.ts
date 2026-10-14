@@ -40,7 +40,11 @@ const numberIn = (text: string): number => {
 }
 
 // see T-201
-export const stored = (id: string): number => numberIn(bare(rowOf('T-201', id).by[DEFAULT_OF_T201] ?? ''))
+// WHY: a default written as another row's id reads that row (T-201 S-300 states S-19, CR-758).
+export const stored = (id: string): number => {
+  const cell = bare(rowOf('T-201', id).by[DEFAULT_OF_T201] ?? '')
+  return /^S-\d+[a-z]?$/.test(cell) ? stored(cell) : numberIn(cell)
+}
 
 // see T-206
 export const notStored = (id: string): number => numberIn(bare(rowOf('T-206', id).by[DEFAULT_OF_T206] ?? ''))

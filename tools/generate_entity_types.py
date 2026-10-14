@@ -2744,10 +2744,36 @@ def constant_type(cell, row_id, key):
     return None
 
 
+REFERENCED_ROW = re.compile(r'`(S-\d+[a-z]?)`')
+
+
+def referenced_cell(cell, cells, row_id, key):
+    """A cell written as another constant row's id stands for that row's cell.
+
+    Table T-201 states S-300 as `S-19` (CR-758): the arrow head's base is its
+    length, held once. A reference to a row with no machine cell stops here.
+
+    @purity pure
+    """
+    if not isinstance(cell, str):
+        return cell
+    named = REFERENCED_ROW.fullmatch(cell.strip())
+    if named is None:
+        return cell
+    target = cells.get(named.group(1))
+    if not isinstance(target, dict):
+        raise SystemExit('generate_entity_types: %s (%s) refers to %s, which states '
+                         'no machine value of its own' % (key, row_id, named.group(1)))
+    return target
+
+
 def constants_block(stored, literals):
     """SETTINGS_CONSTANTS and DrawnSettings, for the not-stored tables."""
     shape, values, unstated, seen = collections.OrderedDict(), {}, [], {}
-    for row_id, key, cell in constant_rows():
+    listed = constant_rows()
+    cells = {row_id: cell for row_id, _key, cell in listed}
+    for row_id, key, cell in listed:
+        cell = referenced_cell(cell, cells, row_id, key)
         if key in seen:
             raise SystemExit(
                 'generate_entity_types: %s is named by both %s and %s'
