@@ -1315,14 +1315,18 @@ function taskGroupsWithinSchedule(session: ScreenSession, schedule: Document['sc
   return kept.length === chosenTaskGroups.length ? chosenTaskGroups : kept
 }
 
+// see FR-072, DFC-2491
+type PanelSubjectPick = 'objects' | 'taskGroups' | 'inferredFromShownPanel'
+
 // see FR-072, FR-006, FR-085
 // WHY: both selections stand at once (SK-19); a choice that moved the task groups alone was a task group pick, so the panel shows the task group.
 /** @purity pure */
-function subjectOfChoice(selection: Selection, groupIds: readonly string[], session: ScreenSession): PropertiesSubject | null {
+function subjectOfChoice(selection: Selection, groupIds: readonly string[], session: ScreenSession, pick: PanelSubjectPick): PropertiesSubject | null {
   if (selection.items.length === 0 && groupIds.length === 0) return null
   const content = session.screen.propertiesPanelContentState
   const heldTaskGroups = content.kind === 'selectionDisplayed' ? content.subject.groupIds : []
-  const isTaskGroupPick = groupIds.length > 0 && (heldTaskGroups.length !== groupIds.length || heldTaskGroups.some((one, at) => one !== groupIds[at]))
+  const hasTaskGroupsMoved = heldTaskGroups.length !== groupIds.length || heldTaskGroups.some((one, at) => one !== groupIds[at])
+  const isTaskGroupPick = groupIds.length > 0 && (pick === 'taskGroups' || (pick === 'inferredFromShownPanel' && hasTaskGroupsMoved))
   return { selection: isTaskGroupPick ? NO_OBJECTS_SELECTED : selection, groupIds }
 }
 
@@ -2982,7 +2986,7 @@ export function frameLoop(
       confirmOverwrite: documentFileFlow.askToWriteOverDestination,
       raiseCopyRefused: () => raiseNotice(PROMPT_NOT_COPIED_REASON, null),
       askFixWrite: (writeForm, fixBundle) => sendToSession({ type: 'documentFileWriteAsked', writeForm: { kind: writeForm }, fixBundle }, values),
-      jumpToFix: (cell) => void (values !== null && jumpToSearchHit(hands, cell, values, { windows, answerReportEntry, jumpViewWrites: shownTasks.jumpViewWrites, oweLanding: owedJump.owe, openField: (row) => void (showPropertiesOfChoice(), wantFieldFocused(row)) })),
+      jumpToFix: (cell) => void (values !== null && jumpToSearchHit(hands, cell, values, { windows, answerReportEntry, jumpViewWrites: shownTasks.jumpViewWrites, oweLanding: owedJump.owe, openField: (row) => void (showPropertiesOfChoice('objects'), wantFieldFocused(row)) })),
       writeView: (view) => shownTasks.writeViews({ delayDiagnosticsReport: view }),
     }, listed)
   }
@@ -3658,7 +3662,7 @@ export function frameLoop(
         )
         return
       case 'editInPlace':
-        if (action.target.kind !== 'documentTitle') showPropertiesOfChoice()
+        if (action.target.kind !== 'documentTitle') showPropertiesOfChoice(action.target.kind === 'taskGroupName' ? 'taskGroups' : 'objects')
         wantFieldFocused(FIELD_ROW_OF_IN_PLACE_TARGET[action.target.kind])
         return
       case 'moveCommandPalette': {
@@ -3694,7 +3698,7 @@ export function frameLoop(
         // TRAP: read the held set, not the drawn task group; FR-048 may skip a paint, so a picture can be older.
         const chosenTaskGroups = taskGroupsChosenWith(session.selection.chosenTaskGroups, action.groupId, action.isExtending)
         sendToSession({ type: 'taskGroupsPicked', chosenTaskGroups }, frame)
-        showPropertiesOfChoice()
+        showPropertiesOfChoice('taskGroups')
         sendToSession(FIELD_FOCUS_WITHDRAWN, frame)
         return
       }
@@ -3743,7 +3747,7 @@ export function frameLoop(
 
   /** @purity non-pure */
   function followChoiceOnPanel(frame: FrameValues): void {
-    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenTaskGroups, session)
+    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenTaskGroups, session, 'inferredFromShownPanel')
     if (subject !== null) sendToSession({ type: 'selectionMoved', subject }, frame)
   }
 
@@ -3788,8 +3792,8 @@ export function frameLoop(
 
   // see FR-072
   /** @purity non-pure */
-  function showPropertiesOfChoice(): void {
-    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenTaskGroups, session)
+  function showPropertiesOfChoice(pick: PanelSubjectPick): void {
+    const subject = subjectOfChoice(selectedObjectsIn(session), session.selection.chosenTaskGroups, session, pick)
     if (subject === null) return
     // STOP: spec does not decide what the panel keeps when the selection empties. Looked in FR-072, SL-1
     // @provisional PND-144
@@ -3809,7 +3813,7 @@ export function frameLoop(
       if (madeTaskGroup === undefined) return
       sendToSession({ type: 'createdTaskGroupSelected', createdGroupId: created.groupId }, values)
     }
-    showPropertiesOfChoice()
+    showPropertiesOfChoice(created.kind === 'task' ? 'objects' : 'taskGroups')
     resetFieldFocusRetries()
     sendToSession({ type: 'creationLanded', created }, values)
   }
@@ -3952,7 +3956,7 @@ export function frameLoop(
     if (hasEndedGesture(input) || escapeLevel === 'gesture') endPointerPress(isDragInterrupted, frame)
     if (screenEvent?.type === 'progressMarkerPressed') sendToSession(screenEvent, frame)
     if (escapeLevel === 'gesture') endEntryRepeat()
-    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry, jumpViewWrites: shownTasks.jumpViewWrites, oweLanding: owedJump.owe, openField: (row) => void (showPropertiesOfChoice(), wantFieldFocused(row)) })
+    jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry, jumpViewWrites: shownTasks.jumpViewWrites, oweLanding: owedJump.owe, openField: (row) => void (showPropertiesOfChoice('objects'), wantFieldFocused(row)) })
 
     const settledEntry = entrySettledOnRelease(input, context)
     const settledFormat = formatSettledOnRelease(input, context)
