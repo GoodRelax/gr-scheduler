@@ -78,7 +78,13 @@ export function dayOfInstant(instant: number): CalendarDay {
 // WHY: an end at 00:00 closes the day before; parsed once, as the layout reads it for every Task (DFC-2471).
 /** @purity pure */
 export function finishSideDayOf(text: string | null): CalendarDay | null {
-  const read = dayWithTimeOf(dayOf(text), text)
+  return finishSideDayFrom(dayOf(text), text)
+}
+
+// WHY: a reader that already holds dayOf(text) passes it, so the date part is not parsed twice (DFC-2471).
+/** @purity pure */
+export function finishSideDayFrom(day: CalendarDay | null, text: string | null): CalendarDay | null {
+  const read = dayWithTimeOf(day, text)
   if (read === null || read.minute === undefined) return read?.day ?? null
   return dayFromSerial(serial(read.day) - (read.minute > 0 ? 0 : 1))
 }

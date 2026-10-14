@@ -45,6 +45,7 @@ export {
   dayFromSerial,
   dayOf,
   dayOfInstant,
+  finishSideDayFrom,
   finishSideDayOf,
   instantOf,
   isSameDay,
@@ -99,12 +100,13 @@ export {
   workingDaysBetween,
   workingMinutesBetween,
   workingSpansReader,
+  workingTimeCounterOf,
   workingTimeSetOf,
   workingTimesBreach,
   isSameWorkingTimeSet,
   isWorkingTimeSetUnlikeDay,
 } from './working-calendar'
-export type { DateTimeSide, InstantOnSide, WorkingCalendar, WorkingTimeSet } from './working-calendar'
+export type { DateTimeSide, InstantOnSide, WorkingCalendar, WorkingTimeCounter, WorkingTimeSet } from './working-calendar'
 export {
   dataWallOfViewWall,
   isTimeZoneRegion,
