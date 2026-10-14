@@ -433,7 +433,7 @@
 | CM-98 | `Project` | `shiftScheduleTimes` | ⭐ | 日程の日時を一斉にずらす（量は分。<br>書き換える列と書き換えない列は `01-04-requirements.md` の 表 T-377 —— 1 回の書き込みとする）。<br>`Agent API` から受けたときは確認の面を経ない（`FR-076` の作法） | `FR-157` |
 | CM-6 | `Task` | `createTask` | ⭐ | タスクを作る | `FR-001` |
 | CM-7 | `Task` | `deleteTask` | — | タスクを消す | `FR-032` |
-| CM-8 | `Task` | `pasteTasks` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない子孫タスクはコピーしない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。<br>`Ctrl` ドラッグのコピーは、ずらす日数と、コピーを載せるタスクグループも運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |
+| CM-8 | `Task` | `pasteTasks` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない子孫タスクはコピーしない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。<br>`Ctrl` ドラッグのコピーは、ずらす量（分）と、コピーを載せるタスクグループも運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |
 | CM-9 | `Task` | `setTaskName` | — | 名称を変える | `FR-091` |
 | CM-10 | `Task` | `setTaskNotes` | — | 備考を置く | `FR-006` |
 | CM-11 | `Task` | `setTaskPlanDates` | ⭐ | 予定の開始・終了を置く | `FR-012` |

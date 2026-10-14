@@ -117,10 +117,10 @@ describe('CR-560 premises: the clauses read this way', () => {
     expect(in2).toContain('構えているときは作図の合図（閲覧環境の `crosshair`）')
   })
 
-  it('T-108 CM-8 carries the day shift and the task groups of a Ctrl drag copy', () => {
+  it('T-108 CM-8 carries the shift in minutes and the task groups of a Ctrl drag copy', () => {
     const line = GLOSSARY.split(/\r?\n/).find((one) => one.startsWith('| CM-8 |')) ?? ''
     expect(line).toContain('`pasteTasks`')
-    expect(line).toContain('ずらす日数と、コピーを載せるタスクグループも運ぶ')
+    expect(line).toContain('ずらす量（分）と、コピーを載せるタスクグループも運ぶ')
   })
 
   it('FR-036: the help lists MK-15', () => {
@@ -600,10 +600,10 @@ describe('T-308 CY-3, CY-5, CY-6, CY-8: the release of a PTD-7 press (commandFro
     expect(action?.kind).toBe('changeDocument')
     const writes = action.writes.flat()
     expect(writes).toHaveLength(1)
-    const paste = writes[0] as unknown as { kind: string; sourceUids: number[]; landing: { dayShift: number; groupIdOf: Record<number, string> } }
+    const paste = writes[0] as unknown as { kind: string; sourceUids: number[]; landing: { shiftMinutes: number; groupIdOf: Record<number, string> } }
     expect(paste.kind).toBe('pasteTasks')
     expect(paste.sourceUids).toEqual([ROOT])
-    expect(paste.landing.dayShift).toBe(3)
+    expect(paste.landing.shiftMinutes).toBe(3 * 1440)
     expect(paste.landing.groupIdOf[ROOT]).toBe(TASK_GROUP_B)
     const copyUid = pastedUidsOf(built.loop.document().schedule, [ROOT]).get(ROOT)
     expect(copyUid).toBeDefined()
@@ -899,7 +899,7 @@ describe('T-223 DU-1: every road makes an unstarted copy and leaves the source',
       {
         kind: 'pasteTasks',
         sourceUids: [ROOT, CHILD, STONE, PAUSED, HALTED],
-        landing: { dayShift: 3, groupIdOf: { [ROOT]: TASK_GROUP_B, [CHILD]: TASK_GROUP_D, [STONE]: TASK_GROUP_E, [PAUSED]: TASK_GROUP_C, [HALTED]: TASK_GROUP_F } },
+        landing: { shiftMinutes: 3 * 1440, groupIdOf: { [ROOT]: TASK_GROUP_B, [CHILD]: TASK_GROUP_D, [STONE]: TASK_GROUP_E, [PAUSED]: TASK_GROUP_C, [HALTED]: TASK_GROUP_F } },
       } as DocumentCommand,
       LIMITS,
       'Task group',
