@@ -3,10 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-FX0Ypporq0V8XORmcvqYvDu/oHN2JWKiUSZ8r2J/h2w='; script-src 'sha256-8AEB+2g6jGvOPJ3bh2e5hGVIKRKoKAWstelImcskOrM='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-zVpcSRhFOQgFFLif4WqMP/0jqWtUxR4grpSRQFTJ7Qs='; script-src 'sha256-tPlX+k7FzdcGs7YkxGtHDdn9vN3DtJrUGYBG2by9fu4=' 'sha256-zCYtQapxSvfKDP75Vys2xE1z+s7X1V1bs8ACY8uwuuA='; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="description" content="GoodRelax Scheduler (GRS) の紹介。1 行に複数のタスクを置き、全体日程を 1 枚で見渡す、単一 HTML の日程表エディタ。">
 <title>GoodRelax Scheduler (GRS) とは</title>
+<script>
+// Theme before first paint: the remembered choice, else the OS setting.
+(function () {
+  var t = null;
+  try { t = localStorage.getItem("grs-about-theme"); } catch (e) { /* storage may be blocked */ }
+  if (t !== "dark" && t !== "light") {
+    t = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  }
+  document.documentElement.setAttribute("data-theme", t);
+})();
+</script>
 <style>
 :root {
   --k: 1;
@@ -22,11 +33,49 @@
   --own: #0f766e;
   --own-soft: #ecfdf8;
   --own-line: #b6e6da;
+  --on-ink: #ffffff;
+  --fill: #1d4ed8;
+  --fill-hover: #1e40af;
+  --own-fill: #0f766e;
+  --logo-tile: #0f172a;
+  --sv-bar: #94a3b8;
+  --sv-arrow: #475569;
+  --box-bg: #eef2f7;
+  --box-line: #94a3b8;
+  --ring-sub: #334155;
+  --fw-bg: #cfe5f6; --fw-line: #7fb5dc;
+  --ad-bg: #cdebd6; --ad-line: #79c08f;
+  --uc-bg: #f9e7a8; --uc-line: #d9b443;
+  --en-bg: #f7cfae; --en-line: #e0915a;
   --radius: 12px;
+  color-scheme: light;
+}
+/* Dark theme: the switch's choice wins (data-theme); without one, the OS setting. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f141b; --ink: #e6edf5; --sub: #b4c0cf; --faint: #93a1b3; --line: #2a3442; --soft: #161d27;
+    --accent: #8cb4ff; --accent-soft: #15223a; --accent-line: #34507f;
+    --own: #5fd4bf; --own-soft: #0f2a26; --own-line: #23594f;
+    --on-ink: #0f141b; --fill: #2f5fd8; --fill-hover: #3f6fe6; --own-fill: #0f766e; --logo-tile: #1e293b;
+    --sv-bar: #64748b; --sv-arrow: #93a1b3; --box-bg: #1a2230; --box-line: #3d4a5c; --ring-sub: #c3cede;
+    --fw-bg: #142c40; --fw-line: #3d79a6; --ad-bg: #143222; --ad-line: #3f8f5a;
+    --uc-bg: #352d12; --uc-line: #a3872e; --en-bg: #3d2416; --en-line: #b86b3a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f141b; --ink: #e6edf5; --sub: #b4c0cf; --faint: #93a1b3; --line: #2a3442; --soft: #161d27;
+  --accent: #8cb4ff; --accent-soft: #15223a; --accent-line: #34507f;
+  --own: #5fd4bf; --own-soft: #0f2a26; --own-line: #23594f;
+  --on-ink: #0f141b; --fill: #2f5fd8; --fill-hover: #3f6fe6; --own-fill: #0f766e; --logo-tile: #1e293b;
+  --sv-bar: #64748b; --sv-arrow: #93a1b3; --box-bg: #1a2230; --box-line: #3d4a5c; --ring-sub: #c3cede;
+  --fw-bg: #142c40; --fw-line: #3d79a6; --ad-bg: #143222; --ad-line: #3f8f5a;
+  --uc-bg: #352d12; --uc-line: #a3872e; --en-bg: #3d2416; --en-line: #b86b3a;
+  color-scheme: dark;
 }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
-html { -webkit-text-size-adjust: 100%; }
+html { -webkit-text-size-adjust: 100%; background: var(--bg); }
 body {
   margin: 0;
   display: flex; flex-direction: column;
@@ -45,12 +94,13 @@ h2, h3, h4, p, ul, ol { margin: 0; }
 .topbar-in { max-width: 1240px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 16px; }
 .mini-brand { flex: none; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
 .tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
-.lang { flex: none; margin-left: auto; display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.ctrls { flex: none; margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.lang { flex: none; display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
 .lang button {
   appearance: none; border: 0; background: var(--bg); color: var(--sub); cursor: pointer;
   font: inherit; font-size: 13px; font-weight: 700; padding: 4px 12px;
 }
-.lang button[aria-pressed="true"] { background: var(--ink); color: #ffffff; }
+.lang button[aria-pressed="true"] { background: var(--ink); color: var(--on-ink); }
 .lang button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
 .fs-top {
   flex: none; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700;
@@ -58,6 +108,31 @@ h2, h3, h4, p, ul, ol { margin: 0; }
 }
 .fs-top:hover { color: var(--accent); border-color: var(--accent); }
 .fs-top:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* theme switch: a knob in a pill; sun on the left is light, moon on the right is dark */
+.theme {
+  flex: none; position: relative; width: 52px; height: 28px; padding: 0; cursor: pointer;
+  border: 1px solid var(--box-line); border-radius: 999px; background: var(--box-bg);
+}
+.theme .knob {
+  position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; border-radius: 50%;
+  display: grid; place-items: center; background: var(--bg); color: var(--ink);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.35); transition: transform 0.18s ease;
+}
+.theme .knob svg { width: 14px; height: 14px; display: block; }
+.theme .knob .moon { display: none; }
+:root[data-theme="dark"] .theme .knob { transform: translateX(24px); }
+:root[data-theme="dark"] .theme .knob .sun { display: none; }
+:root[data-theme="dark"] .theme .knob .moon { display: block; }
+.theme:hover { border-color: var(--accent); }
+.theme:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .theme .knob { transition: none; } }
+.tile { fill: var(--logo-tile); }
+.sv-faint { fill: var(--faint); }
+.sv-bar { fill: var(--sv-bar); }
+.sv-ink { fill: var(--ink); }
+.sv-fill { fill: var(--fill); }
+.sv-head { fill: var(--sv-arrow); }
+.sv-line { stroke: var(--sv-arrow); }
 .tabs::-webkit-scrollbar { display: none; }
 .tab {
   flex: none; appearance: none; border: 0; background: none; cursor: pointer;
@@ -101,7 +176,7 @@ main { flex: 1; min-height: 0; overflow: auto; }
   padding: calc(var(--k) * 10px) calc(var(--k) * 16px); border: 2px solid var(--own); border-radius: 12px; background: var(--own-soft);
   font-size: max(12px, calc(var(--k) * 17px)); font-weight: 700;
 }
-.oss .badge { background: var(--own); color: #ffffff; border-radius: 6px; padding: 0 calc(var(--k) * 8px); font-size: max(12px, calc(var(--k) * 14px)); }
+.oss .badge { background: var(--own-fill); color: #ffffff; border-radius: 6px; padding: 0 calc(var(--k) * 8px); font-size: max(12px, calc(var(--k) * 14px)); }
 .oss a { color: var(--own); }
 .cta { display: flex; flex-wrap: wrap; gap: calc(var(--k) * 10px); }
 .btn {
@@ -110,8 +185,8 @@ main { flex: 1; min-height: 0; overflow: auto; }
   border: 1px solid var(--line); color: var(--ink); background: var(--bg);
 }
 .btn:hover { border-color: var(--accent); color: var(--accent); }
-.btn.primary { background: var(--accent); border-color: var(--accent); color: #ffffff; }
-.btn.primary:hover { background: #1e40af; color: #ffffff; }
+.btn.primary { background: var(--fill); border-color: var(--fill); color: #ffffff; }
+.btn.primary:hover { background: var(--fill-hover); border-color: var(--fill-hover); color: #ffffff; }
 .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .toc { list-style: none; padding: 0; border-top: 1px solid var(--line); }
 .toc li { border-bottom: 1px solid var(--line); }
@@ -149,7 +224,7 @@ main { flex: 1; min-height: 0; overflow: auto; }
 .group header { display: flex; align-items: center; gap: calc(var(--k) * 10px); margin-bottom: calc(var(--k) * 6px); }
 .gno {
   flex: none; width: 26px; height: 26px; border-radius: 7px; display: inline-grid; place-items: center;
-  background: var(--ink); color: #ffffff; font-size: max(12px, calc(var(--k) * 14px)); font-weight: 800;
+  background: var(--ink); color: var(--on-ink); font-size: max(12px, calc(var(--k) * 14px)); font-weight: 800;
 }
 .group h3 { font-size: max(12px, calc(var(--k) * 17px)); line-height: 1.4; }
 .group ul { padding-left: 1.1em; font-size: max(12px, calc(var(--k) * 15px)); line-height: 1.65; }
@@ -161,7 +236,7 @@ main { flex: 1; min-height: 0; overflow: auto; }
 .model { display: grid; grid-template-columns: 1.2fr 1fr; gap: calc(var(--k) * 26px); align-items: start; }
 .doc-root { border: 2px solid var(--ink); border-radius: 14px; padding: calc(var(--k) * 14px); }
 .doc-root > .title { font-weight: 800; margin-bottom: calc(var(--k) * 10px); font-size: max(12px, calc(var(--k) * 15px)); }
-.dgroup { border: 1px solid #94a3b8; border-radius: var(--radius); padding: calc(var(--k) * 12px); background: #eef2f7; }
+.dgroup { border: 1px solid var(--box-line); border-radius: var(--radius); padding: calc(var(--k) * 12px); background: var(--box-bg); }
 .gt { font-weight: 800; font-size: max(12px, calc(var(--k) * 15px)); line-height: 1.5; }
 .gt .mono { font-weight: 600; color: var(--faint); }
 .dgroup p { font-size: max(12px, calc(var(--k) * 14px)); color: var(--sub); line-height: 1.55; }
@@ -192,13 +267,13 @@ main { flex: 1; min-height: 0; overflow: auto; }
 .arch { display: grid; grid-template-columns: 1.05fr 1fr 1.05fr; gap: calc(var(--k) * 22px); align-items: start; }
 .ring { border-radius: 14px; padding: calc(var(--k) * 6px) calc(var(--k) * 10px) calc(var(--k) * 8px); }
 .ring > .rl { font-size: max(12px, calc(var(--k) * 13px)); font-weight: 800; line-height: 1.4; margin-bottom: calc(var(--k) * 5px); }
-.ring > .rl span { font-weight: 400; color: #334155; margin-left: 8px; }
-.ring.fw { background: #cfe5f6; border: 1px solid #7fb5dc; }
-.ring.ad { background: #cdebd6; border: 1px solid #79c08f; }
-.ring.uc { background: #f9e7a8; border: 1px solid #d9b443; }
-.ring.en { background: #f7cfae; border: 1px solid #e0915a; }
+.ring > .rl span { font-weight: 400; color: var(--ring-sub); margin-left: 8px; }
+.ring.fw { background: var(--fw-bg); border: 1px solid var(--fw-line); }
+.ring.ad { background: var(--ad-bg); border: 1px solid var(--ad-line); }
+.ring.uc { background: var(--uc-bg); border: 1px solid var(--uc-line); }
+.ring.en { background: var(--en-bg); border: 1px solid var(--en-line); }
 .en-core { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--k) * 6px); }
-.en-core div { background: var(--bg); border: 1px solid #e0915a; border-radius: 8px; padding: calc(var(--k) * 5px) calc(var(--k) * 8px); font-size: max(12px, calc(var(--k) * 13px)); line-height: 1.45; }
+.en-core div { background: var(--bg); border: 1px solid var(--en-line); border-radius: 8px; padding: calc(var(--k) * 5px) calc(var(--k) * 8px); font-size: max(12px, calc(var(--k) * 13px)); line-height: 1.45; }
 .en-core b { display: block; font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace; }
 .bul { padding-left: 1.1em; font-size: max(12px, calc(var(--k) * 15px)); line-height: 1.6; }
 .bul li + li { margin-top: calc(var(--k) * 4px); }
@@ -220,6 +295,11 @@ table.t td { padding: calc(var(--k) * 5px) calc(var(--k) * 4px); border-bottom: 
 table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
 .method { margin-top: calc(var(--k) * 10px); }
 
+/* ---- narrower desktops: the logo alone, so every tab stays in view ---- */
+@media (max-width: 1199px) {
+  .mini-brand span { display: none; }
+}
+
 /* ---- small screens: the stage scrolls instead of fitting ---- */
 @media (max-width: 900px) {
   .cover, .what-top, .model, .arch { grid-template-columns: 1fr; gap: 20px; }
@@ -227,7 +307,9 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
   .groups .fn { grid-column: 1 / -1; }
 }
 @media (max-width: 600px) {
-  .topbar-in { padding: 0 8px; gap: 8px; }
+  /* two rows: brand and switches above, the tabs full width below */
+  .topbar-in { padding: 8px 16px 0; gap: 8px; flex-wrap: wrap; }
+  .tabs { order: 2; flex: 1 0 100%; }
   .mini-brand span { display: none; }
   .tab { padding: 12px 8px 9px; font-size: 14px; }
   .panel { padding: 20px 16px; }
@@ -250,7 +332,7 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
   <div class="topbar-in">
     <div class="mini-brand">
       <svg width="26" height="26" viewBox="0 0 40 40" aria-hidden="true">
-        <rect x="0.5" y="0.5" width="39" height="39" rx="10" fill="#0f172a"/>
+        <rect class="tile" x="0.5" y="0.5" width="39" height="39" rx="10" fill="#0f172a"/>
         <rect x="7" y="10" width="10" height="5" rx="2" fill="#93b4f8"/>
         <rect x="20" y="10" width="13" height="5" rx="2" fill="#ffffff"/>
         <rect x="7" y="18" width="16" height="5" rx="2" fill="#ffffff"/>
@@ -267,10 +349,18 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
       <button class="tab" role="tab" id="tab-model" aria-controls="model" aria-selected="false" tabindex="-1"><span class="no">03</span>データモデル</button>
       <button class="tab" role="tab" id="tab-arch" aria-controls="arch" aria-selected="false" tabindex="-1"><span class="no">04</span>アーキ・保守・拡張性</button>
     </div>
+    <div class="ctrls">
     <div class="lang" role="group" aria-label="Language">
       <button type="button" data-lang="en" aria-pressed="false">English</button><button type="button" data-lang="ja" aria-pressed="true">日本語</button>
     </div>
     <button class="fs-top" id="fullscreen-top" type="button">全画面</button>
+    <button class="theme" id="theme" type="button" aria-pressed="false" aria-label="ダークモード" title="ダークモード">
+      <span class="knob">
+        <svg class="sun" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="3.2" fill="currentColor"/><g stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M8 1v1.6M8 13.4V15M1 8h1.6M13.4 8H15M3.05 3.05l1.13 1.13M11.82 11.82l1.13 1.13M3.05 12.95l1.13-1.13M11.82 4.18l1.13-1.13"/></g></svg>
+        <svg class="moon" viewBox="0 0 16 16" aria-hidden="true"><path d="M13.6 10.2A6 6 0 0 1 5.8 2.4a6 6 0 1 0 7.8 7.8z" fill="currentColor"/></svg>
+      </span>
+    </button>
+    </div>
   </div>
 </nav>
 
@@ -282,7 +372,7 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
     <div>
       <div class="brand">
         <svg width="44" height="44" viewBox="0 0 40 40" aria-hidden="true">
-          <rect x="0.5" y="0.5" width="39" height="39" rx="10" fill="#0f172a"/>
+          <rect class="tile" x="0.5" y="0.5" width="39" height="39" rx="10" fill="#0f172a"/>
           <rect x="7" y="10" width="10" height="5" rx="2" fill="#93b4f8"/>
           <rect x="20" y="10" width="13" height="5" rx="2" fill="#ffffff"/>
           <rect x="7" y="18" width="16" height="5" rx="2" fill="#ffffff"/>
@@ -333,12 +423,12 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
       <figure class="fig">
         <figcaption>よくある日程管理ソフト <span>9 行</span></figcaption>
         <svg viewBox="0 0 320 150" role="img" aria-label="1 行に 1 タスクずつ並べた模式図">
-          <g font-size="15" fill="#64748b">
+          <g class="sv-faint" font-size="15" fill="#64748b">
             <text x="0" y="14">A-1</text><text x="0" y="30">A-2</text><text x="0" y="46">A-3</text>
             <text x="0" y="62">B-1</text><text x="0" y="78">B-2</text><text x="0" y="94">B-3</text>
             <text x="0" y="110">C-1</text><text x="0" y="126">C-2</text><text x="0" y="142">C-3</text>
           </g>
-          <g fill="#94a3b8">
+          <g class="sv-bar" fill="#94a3b8">
             <rect x="40" y="5" width="70" height="10" rx="3"/>
             <rect x="114" y="21" width="90" height="10" rx="3"/>
             <rect x="208" y="37" width="60" height="10" rx="3"/>
@@ -356,13 +446,13 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
         <svg viewBox="0 0 320 150" role="img" aria-label="1 つの行に複数のタスクを並べた模式図">
           <defs>
             <marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto">
-              <path d="M0 0 L8 4 L0 8 Z" fill="#475569"/>
+              <path class="sv-head" d="M0 0 L8 4 L0 8 Z" fill="#475569"/>
             </marker>
           </defs>
-          <g font-size="15" fill="#0f172a" font-weight="700">
+          <g class="sv-ink" font-size="15" fill="#0f172a" font-weight="700">
             <text x="0" y="29">A</text><text x="0" y="79">B</text><text x="0" y="129">C</text>
           </g>
-          <g fill="#1d4ed8">
+          <g class="sv-fill" fill="#1d4ed8">
             <rect x="20" y="12" width="74" height="22" rx="4"/>
             <rect x="98" y="12" width="90" height="22" rx="4"/>
             <rect x="192" y="12" width="62" height="22" rx="4"/>
@@ -373,9 +463,9 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
             <rect x="130" y="112" width="60" height="22" rx="4"/>
             <rect x="196" y="112" width="90" height="22" rx="4"/>
           </g>
-          <path d="M278 12 L289 23 L278 34 L267 23 Z" fill="#0f172a"/>
-          <path d="M302 112 L313 123 L302 134 L291 123 Z" fill="#0f172a"/>
-          <path d="M188 36 C 196 52, 138 48, 148 60" fill="none" stroke="#475569" stroke-width="1.6" marker-end="url(#arr)"/>
+          <path class="sv-ink" d="M278 12 L289 23 L278 34 L267 23 Z" fill="#0f172a"/>
+          <path class="sv-ink" d="M302 112 L313 123 L302 134 L291 123 Z" fill="#0f172a"/>
+          <path class="sv-line" d="M188 36 C 196 52, 138 48, 148 60" fill="none" stroke="#475569" stroke-width="1.6" marker-end="url(#arr)"/>
           <g font-size="15" fill="#ffffff" font-weight="700">
             <text x="27" y="28">A-1</text><text x="105" y="28">A-2</text><text x="199" y="28">A-3</text>
             <text x="51" y="78">B-1</text><text x="153" y="78">B-2</text><text x="229" y="78">B-3</text>
@@ -730,6 +820,7 @@ tools/           <span class="c"># 生成器と検査</span></pre>
       b.setAttribute("aria-pressed", b.getAttribute("data-lang") === lang ? "true" : "false");
     });
     showFullscreenState();
+    showThemeState();
     fit();
   }
 
@@ -773,6 +864,45 @@ tools/           <span class="c"># 生成器と検査</span></pre>
   document.addEventListener("fullscreenchange", showFullscreenState);
   // Every visit starts outside full screen.
   if (document.fullscreenElement) { document.exitFullscreen().then(showFullscreenState, showFullscreenState); }
+
+  // ---- theme: the switch's remembered choice > the OS setting ----
+  // The head script has already set data-theme before first paint; this part
+  // keeps the switch in step, remembers a click, follows the OS while no
+  // choice is remembered, and prints in the light theme.
+  var THEME_KEY = "grs-about-theme";
+  var themeBtn = document.getElementById("theme");
+  var osDark = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+
+  function themeNow() { return root.getAttribute("data-theme") === "dark" ? "dark" : "light"; }
+  function keptTheme() {
+    try {
+      var kept = localStorage.getItem(THEME_KEY);
+      if (kept === "dark" || kept === "light") { return kept; }
+    } catch (e) { /* storage may be blocked */ }
+    return null;
+  }
+  function showThemeState() {
+    var label = langNow === "en" ? "Dark mode" : "ダークモード";
+    themeBtn.setAttribute("aria-pressed", themeNow() === "dark" ? "true" : "false");
+    themeBtn.setAttribute("aria-label", label);
+    themeBtn.title = label;
+  }
+  function applyTheme(theme) {
+    root.setAttribute("data-theme", theme);
+    showThemeState();
+  }
+  themeBtn.addEventListener("click", function () {
+    var next = themeNow() === "dark" ? "light" : "dark";
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* storage may be blocked */ }
+    applyTheme(next);
+  });
+  if (osDark) {
+    var followOs = function () { if (!keptTheme()) { applyTheme(osDark.matches ? "dark" : "light"); } };
+    if (osDark.addEventListener) { osDark.addEventListener("change", followOs); } else if (osDark.addListener) { osDark.addListener(followOs); }
+  }
+  var themeBeforePrint = null;
+  window.addEventListener("beforeprint", function () { themeBeforePrint = themeNow(); root.setAttribute("data-theme", "light"); });
+  window.addEventListener("afterprint", function () { if (themeBeforePrint) { root.setAttribute("data-theme", themeBeforePrint); themeBeforePrint = null; } });
 
   applyLang(initialLang());
   select(location.hash.slice(1), false);
