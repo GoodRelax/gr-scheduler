@@ -118,7 +118,7 @@ export type {
   WheelInput,
 } from './input-source'
 export { commandFromFieldCommit } from './field-commit'
-export { screenEventFromInput } from './screen-state-input'
+export { screenEventFromFieldCommit, screenEventFromInput } from './screen-state-input'
 export { selectionFromInput } from './selection-input'
 export { taskGroupBandCeilingOf, zoomEntranceEndsOf } from './zoom-and-fit'
 
@@ -758,6 +758,15 @@ export const ENTRY = {
   windowMinimize: 'IC-129',
   windowMaximize: 'IC-130',
   windowRestore: 'IC-131',
+  // WHY: IC-134 and IC-165 of T-344 are fields, settled through screenEventFromFieldCommit, so they are not listed here.
+  holidaySettings: 'IC-132',
+  holidayWeekday: 'IC-133',
+  holidayExceptionAdd: 'IC-135',
+  holidayExceptionDelete: 'IC-136',
+  holidayExceptionWorking: 'IC-137',
+  holidayApply: 'IC-138',
+  holidayRangeAdd: 'IC-163',
+  holidayRangeDelete: 'IC-164',
 } as const
 
 type VisibleElement = Extract<DocumentCommand, { kind: 'setElementVisible' }>['element']

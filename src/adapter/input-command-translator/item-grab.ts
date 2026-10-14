@@ -6,6 +6,7 @@
 import {
   actualLastDay,
   dayOf,
+  dayOfInstant,
   plannedInstantsOf,
   MINUTES_PER_CALENDAR_DAY,
   planActualState,
@@ -408,7 +409,7 @@ function bodyMoveWrites(
   const taskGroups = drawnTaskGroupsOf(context.layout)
   const moving = movedTaskUids(context, uid, press)
   const boxes = isSelectionMoved(context, uid, press) ? selectedBoxesOf(context) : NO_BOXES
-  const shift = draggedDayCount(context, press, release)
+  const shift = bodyDayCount(context, press, release, uid)
   const crossed = clampedTaskGroupShift(context, taskGroups, moving, boxes, drawnTaskGroupsCrossed(taskGroups, press.at.y, release.y))
   const commands: DocumentCommand[] = []
   for (const each of moving) {
@@ -433,14 +434,31 @@ function bodyMoveWrites(
   return commands
 }
 
+type ReleasedSide = 'start' | 'finish'
+
+// WHY: a 00:00 boundary begins the start side's day, ends the finish side's (FR-103); a milestone's start is a finish (WT-5).
+/** @purity pure */
+function dayOfBoundary(boundary: number, side: ReleasedSide, isMilestone: boolean): CalendarDay {
+  return dayOfInstant(side === 'start' && !isMilestone ? boundary : boundary - 1)
+}
+
+// WHY: with time of day shown the nearest day boundary is read on the side (FR-103); hidden, the day column (SG-1).
+/** @purity pure */
+function releasedDay(context: InputContext, release: PointerInput, side: ReleasedSide, isMilestone: boolean): CalendarDay | null {
+  const layout = context.layout
+  if (!context.document.documentSettings.showsTimeOfDay) return dayAtX(layout, release.x)
+  const boundary = snappedInstantAtX(layout, release.x, MINUTES_PER_CALENDAR_DAY)
+  return boundary === null ? null : dayOfBoundary(boundary, side, isMilestone)
+}
+
 // see FR-103, T-378, MK-17, T-350
 // WHY: the released place as the text written; a whole-day unit keeps the day's default time of T-350.
 /** @purity pure */
-function releasedText(context: InputContext, release: PointerInput, side: 'start' | 'finish', isMilestone: boolean): string | null {
+function releasedText(context: InputContext, release: PointerInput, side: ReleasedSide, isMilestone: boolean): string | null {
   const layout = context.layout
   const snap = snapMinutesOf(layout.pxPerDay, context.document.documentSettings, release.modifiers.alt)
   if (snap === MINUTES_PER_CALENDAR_DAY) {
-    const day = dayAtX(layout, release.x)
+    const day = releasedDay(context, release, side, isMilestone)
     const project = context.document.schedule.project
     if (day === null) return null
     return side === 'start' ? textOfStartSide(day, project, isMilestone) : textOfFinishSide(day, project)
@@ -471,10 +489,30 @@ function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): Docum
   const plan = plannedInstantsOf(workingCalendarOf(context.document.schedule), task)
   if (plan === null) return null
   const [start, finish] = plan
-  const pulled = ((drag.release.x - drag.press.at.x) / context.layout.pxPerDay) * MINUTES_PER_CALENDAR_DAY
-  const shift = Math.round((start + pulled) / snap) * snap - start
+  const shift = Math.round((start + pulledMinutesOf(context, drag.press, drag.release)) / snap) * snap - start
   if (shift === 0) return null
   return { kind: 'setTaskPlanDates', uid: task.uid, start: textOfInstant(start + shift), finish: textOfInstant(finish + shift) }
+}
+
+/** @purity pure */
+function pulledMinutesOf(context: InputContext, press: PointerPress, release: PointerInput): number {
+  return ((release.x - press.at.x) / context.layout.pxPerDay) * MINUTES_PER_CALENDAR_DAY
+}
+
+// WHY: the grabbed Task's start lands on the nearest day boundary (FR-103); every moved item takes that one count.
+/** @purity pure */
+function bodyDayCount(context: InputContext, press: PointerPress, release: PointerInput, uid: number): number {
+  const dragged = draggedDayCount(context, press, release)
+  const snap = snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, release.modifiers.alt)
+  const task = taskByUid(context.document.schedule, uid)
+  if (isDateKeepingDrag(press)) return 0
+  if (snap !== MINUTES_PER_CALENDAR_DAY || !context.document.documentSettings.showsTimeOfDay || task === null) return dragged
+  const plan = plannedInstantsOf(workingCalendarOf(context.document.schedule), task)
+  const startDay = dayOf(task.start)
+  if (plan === null || startDay === null) return dragged
+  const pulled = plan[0] + pulledMinutesOf(context, press, release)
+  const boundary = Math.round(pulled / MINUTES_PER_CALENDAR_DAY) * MINUTES_PER_CALENDAR_DAY
+  return serialOfDay(dayOfBoundary(boundary, 'start', task.milestone === true)) - serialOfDay(startDay)
 }
 
 interface SelectedBoxes {

@@ -99,13 +99,23 @@ function sideTextOf(project: Project, task: Task, column: string): SideText {
     : (day) => textOfFinishSide(day, project)
 }
 
-const DATE_AND_TIME = /^\d{4}-\d{2}-\d{2}[T ]\d{1,2}:\d{2}/
+const DATE_AND_TIME = /^(\d{4}-\d{2}-\d{2}[T ])(\d{1,2})(:\d{2}.*)$/
+
+const HOUR_DIGITS = 2
+
+// WHY: the panel shows and takes H:MM (TX-3); a stored text has two hour digits (FR-054), so one is padded here.
+/** @purity pure */
+function typedInstantOf(held: string): number | null {
+  const hit = DATE_AND_TIME.exec(held)
+  if (hit === null) return null
+  return instantOf(`${hit[1]}${(hit[2] ?? '').padStart(HOUR_DIGITS, '0')}${hit[3]}`)
+}
 
 /** @purity pure */
 function settledDay(text: string, sideText: SideText): string | null | undefined {
   const held = settledText(text)
   if (held === null) return null
-  const instant = DATE_AND_TIME.test(held) ? instantOf(held) : null
+  const instant = typedInstantOf(held)
   if (instant !== null) return textOfInstant(instant)
   const day = dayOf(held)
   return day === null ? undefined : sideText(day)
@@ -450,6 +460,16 @@ function commandFromDependencyColumn(
   return [{ kind: 'setDependencyLag', predecessorUid, successorUid, lagWorkingDays }]
 }
 
+type DependencyKey = Extract<FieldCommit['key'], { readonly holder: 'dependency' }>
+
+/** @purity pure */
+function commandFromDependencyField(key: DependencyKey, text: string, context: InputContext): readonly DocumentCommand[] {
+  const dependency = taskByUid(context.document.schedule, key.successorUid)?.dependencies[key.ordinal]
+  if (dependency === undefined) return []
+  const link = { predecessorUid: dependency.predecessorUid, successorUid: key.successorUid }
+  return commandFromDependencyColumn(link, key.column, text, context)
+}
+
 // TRAP: change with setThemeHue's range check in edit-project.ts; no generated bound of S-73 reaches here.
 const LOWEST_HUE = 0
 const HIGHEST_HUE = 359
@@ -488,7 +508,6 @@ function commandFromProjectColumn(column: string, text: string, context: InputCo
   if (column === 'themeHue') return commandFromThemeHue(text)
   if (column === 'parentProgressToleranceDays') return commandFromParentProgressTolerance(text)
   if (column === 'statusDate') return commandsFromStatusDate(text, context)
-  if (column === 'scheduleDataTimeZone') return text === '' ? [] : [{ kind: 'setScheduleDataTimeZone', timeZone: text }]
   if (column !== 'title') return []
   return [{ kind: 'setProjectTitle', title: text }]
 }
@@ -572,7 +591,6 @@ function commandFromDocumentSettingsColumn(
   if (column === 'fitSpanFixed') return commandsFromFitSpanFixed(text, context)
   if (column === 'taskGroupPanelWidthFixed') return [{ kind: 'setTaskGroupPanelWidthFixed', taskGroupPanelWidthFixed: settledTruth(text) }]
   if (column === 'showsTimeOfDay') return commandsFromShowsTimeOfDay(text, context)
-  if (column === 'viewTimeZone') return commandsFromViewTimeZone(text, context)
   if (column === 'displayTimeZones') return commandsFromDisplayTimeZone(text, settings)
   if (column === 'taskGroupPanelWidth') return commandsFromTaskGroupTitleWidth(text)
   if (column === 'displayScale') {
@@ -692,23 +710,18 @@ export function commandFromFieldCommit(
     case 'commentBox':
     case 'highlightBox':
       return commandFromBoxColumn(schedule, key, commit.text, dark)
-    case 'dependency': {
-      const successor = taskByUid(schedule, key.successorUid)
-      const dependency = successor?.dependencies[key.ordinal]
-      if (dependency === undefined) return []
-      return commandFromDependencyColumn(
-        { predecessorUid: dependency.predecessorUid, successorUid: key.successorUid },
-        key.column,
-        commit.text,
-        context,
-      )
-    }
+    case 'dependency':
+      return commandFromDependencyField(key, commit.text, context)
     case 'assignment':
       return taskByUid(schedule, key.taskUid) === null
         ? []
         : commandsFromAssigneeField(schedule, key.taskUid, key.resourceUid, commit.text, commit.pick)
+    case 'project':
+      return commandFromProjectColumn(key.column, commit.text, context)
+    case 'documentSettings':
+      return commandFromDocumentSettingsColumn(key.column, commit, context)
     default:
-      return commandFromSettingsFaceField(key, commit, context)
+      return []
   }
 }
 
@@ -718,40 +731,11 @@ export function commandFromFieldCommit(
 function dataWallTextOf(text: string, column: keyof Task, context: InputContext): string {
   const settings = context.document.documentSettings
   const held = text.trim()
-  const instant = settings.showsTimeOfDay && DATE_COLUMNS.Task.includes(column) && DATE_AND_TIME.test(held) ? instantOf(held) : null
+  const instant = settings.showsTimeOfDay && DATE_COLUMNS.Task.includes(column) ? typedInstantOf(held) : null
   const data = context.document.schedule.project.scheduleDataTimeZone
   const view = viewRegionOf(data, settings.viewTimeZone)
   if (instant === null || view === data) return text
   return textOfInstant(dataWallOfViewWall(zoneClockOf(data), zoneClockOf(view), instant))
-}
-
-type SettingsFaceKey = Extract<FieldCommit['key'], { readonly holder: 'project' | 'documentSettings' | 'timeShift' }>
-
-/** @purity pure */
-function commandFromSettingsFaceField(key: SettingsFaceKey, commit: FieldCommit, context: InputContext): readonly DocumentCommand[] {
-  if (key.holder === 'project') return commandFromProjectColumn(key.column, commit.text, context)
-  if (key.holder === 'documentSettings') return commandFromDocumentSettingsColumn(key.column, commit, context)
-  return commandsFromTimeShift(commit.text)
-}
-
-// WHY: hours and minutes with a sign (FR-157, CM-98): `-16`, `+1:30`, `-0:45`; anything else writes nothing.
-const TIME_SHIFT_AMOUNT = /^([+-]?)(\d{1,5})(?::([0-5]\d))?$/
-
-/** @purity pure */
-function commandsFromTimeShift(text: string): readonly DocumentCommand[] {
-  const hit = TIME_SHIFT_AMOUNT.exec(text.trim())
-  if (hit === null) return []
-  const size = Number(hit[2]) * MINUTES_PER_HOUR + Number(hit[3] ?? 0)
-  const minutes = hit[1] === '-' ? -size : size
-  return minutes === 0 ? [] : [{ kind: 'shiftScheduleTimes', minutes }]
-}
-
-// see FO-14, CM-95, FR-156, S-574
-/** @purity pure */
-function commandsFromViewTimeZone(text: string, context: InputContext): readonly DocumentCommand[] {
-  if (text === '') return []
-  const isDataZone = text === context.document.schedule.project.scheduleDataTimeZone
-  return [{ kind: 'setViewTimeZone', timeZone: isDataZone ? null : text }]
 }
 
 // see FO-15, CM-96, S-575
