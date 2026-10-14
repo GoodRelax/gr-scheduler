@@ -6,11 +6,14 @@
 import type { ScreenSession, SessionEvent } from '../../use-case/advance-screen-session/advance-screen-session'
 import {
   commandFromFieldCommit,
+  screenEventFromFieldCommit,
   type HumanInput,
   type InputAction,
 } from '../../adapter/input-command-translator/input-command-translator'
 import { timeShiftQuestionItems, type FieldEditNotice } from '../../adapter/screen-renderer/screen-renderer'
 import { timeShiftPreviewOf, type DocumentCommand } from '../../use-case/edit-document/edit-document'
+import { isWorkingTimeSetUnlikeDay } from '../../entity/document-model/schedule/schedule'
+import type { Document } from '../../entity/document-model/document/document'
 import {
   CHOICE_MOVED,
   CONFIRMATION_MANNER,
@@ -21,6 +24,7 @@ import {
   type FrameValues,
   type ScreenWiring,
 } from './frame-loop'
+import { WORKING_TIMES_UNLIKE_DAY_REASON } from './document-file-flow'
 
 const TASK_NAME_FIELD_ROW = 'PR-1'
 
@@ -80,6 +84,8 @@ export type FieldEntryHands = Pick<
   | 'isPropertiesPanelOnScreen'
   | 'collectInputContext'
   | 'writeDocument'
+  | 'readHeld'
+  | 'raiseNotice'
 >
 
 /** @purity non-pure */
@@ -174,33 +180,31 @@ export function noteChoiceMoved(hands: FieldEntryHands, frame: FrameValues | nul
   hands.sendToSession(FIELD_FOCUS_WITHDRAWN, frame)
 }
 
-// see IF-9
+// see IF-9, FO-14, FO-16, WC-4, WC-8
 /** @purity non-pure */
 export function spendFieldCommit(hands: FieldEntryHands, frame: FrameValues): boolean {
   if (hands.screen === undefined) return false
   const commit = hands.screen.surface.readFieldCommit()
   if (commit === null) return false
   const context = hands.collectInputContext(frame)
-  const commands = commandFromFieldCommit(commit, context)
-  const shift = commands.find((one) => one.kind === 'shiftScheduleTimes')
-  if (shift !== undefined) askTimeShift(hands, frame, shift, context.document)
-  else if (commands.length > 0) hands.writeDocument(commands, frame, true)
+  const drafted = screenEventFromFieldCommit(commit, context)
+  if (drafted !== null) hands.sendToSession(drafted, frame)
+  else {
+    const commands = commandFromFieldCommit(commit, context)
+    if (commands.length > 0) hands.writeDocument(commands, frame, true)
+  }
   // TRAP: true on the commit, not the commands; a value naming no task group is still a settled edit (SK-19).
   return true
 }
 
 const TIME_SHIFT_QUESTION = 'QN-14'
 
-// see FR-157, QN-14, BS-3, NT-7
+// see FR-157, QN-14, BS-3, NT-7, IC-162
 // WHY: the Time Shift alone asks first (FR-157); the answer carries the one write out as a deletion's does.
 /** @purity non-pure */
-function askTimeShift(
-  hands: FieldEntryHands,
-  frame: FrameValues,
-  shift: Extract<DocumentCommand, { readonly kind: 'shiftScheduleTimes' }>,
-  document: Parameters<typeof timeShiftPreviewOf>[0],
-): void {
-  const items = timeShiftQuestionItems(timeShiftPreviewOf(document, shift.minutes), hands.readSession())
+export function askTimeShift(hands: Pick<FieldEntryHands, 'readHeld' | 'readSession' | 'sendToSession'>, frame: FrameValues, minutes: number): void {
+  const shift: DocumentCommand = { kind: 'shiftScheduleTimes', minutes }
+  const items = timeShiftQuestionItems(timeShiftPreviewOf(hands.readHeld().document, minutes), hands.readSession())
   hands.sendToSession(
     {
       type: 'changeQuestionRaised',
@@ -209,4 +213,40 @@ function askTimeShift(
     },
     frame,
   )
+}
+
+/** @purity pure */
+export function isTimeShiftWrite(writes: readonly (readonly DocumentCommand[])[]): boolean {
+  return writes.some((bundle) => bundle.some((command) => command.kind === 'shiftScheduleTimes'))
+}
+
+// see FR-156, IC-161, CM-94, CM-95
+/** @purity pure */
+export function baseChangeCommandsOf(
+  draft: { readonly chosenRegion: string; readonly chosenWay: 'keepGlobalTime' | 'keepLocalTime' },
+  document: Document,
+): readonly DocumentCommand[] {
+  if (draft.chosenWay === 'keepLocalTime') return [{ kind: 'setScheduleDataTimeZone', timeZone: draft.chosenRegion }]
+  const isDataZone = draft.chosenRegion === document.schedule.project.scheduleDataTimeZone
+  return [{ kind: 'setViewTimeZone', timeZone: isDataZone ? null : draft.chosenRegion }]
+}
+
+type CalendarCommand = Extract<DocumentCommand, { readonly kind: 'setCalendar' }>
+
+type CalendarCommandHands = Pick<FieldEntryHands, 'readHeld' | 'writeDocument' | 'raiseNotice'>
+
+// see FR-088, IC-138, CM-39, RS-89, WC-7
+// WHY: RS-89 only when CM-39 changed the document; a draft equal to the document writes nothing and tells nothing.
+/** @purity non-pure */
+export function issueCalendarCommand(hands: CalendarCommandHands, command: CalendarCommand, frame: FrameValues): void {
+  const before = hands.readHeld().document
+  hands.writeDocument([command], frame)
+  tellAppliedSetUnlikeDay(hands, before, command)
+}
+
+/** @purity non-pure */
+function tellAppliedSetUnlikeDay(hands: CalendarCommandHands, before: Document, command: CalendarCommand): void {
+  const after = hands.readHeld().document
+  if (after === before || command.workingTimes === undefined) return
+  if (isWorkingTimeSetUnlikeDay(after.schedule.project, command.workingTimes)) hands.raiseNotice(WORKING_TIMES_UNLIKE_DAY_REASON, null)
 }

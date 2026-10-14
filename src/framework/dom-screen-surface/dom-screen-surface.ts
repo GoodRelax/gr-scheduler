@@ -52,6 +52,7 @@ import {
 } from './task-group-panel-drawing'
 import { dialogueFieldPainter } from './dialogue-field-drawing'
 import { helpWindowPainter, modalElement } from './open-modals-drawing'
+import { HOLIDAY_SETTINGS_TARGET_ATTRIBUTE, isHolidaySettingsModal, replaceKeepingListScroll } from './holiday-settings-drawing'
 import { SEARCH_WORD_ROW, searchPanelPainter, type TableWindowIdentity, type TableWindowView } from './search-panel-drawing'
 import { WINDOW_GRAB_ATTRIBUTE, type PointAsked } from './window-frame-drawing'
 
@@ -113,6 +114,13 @@ export const NOTICE_BOX_ATTRIBUTE = 'data-notice-box'
 
 export const NOTICE_BOX_REASON_SEPARATOR = ' '
 
+// see IF-9, WC-2, WC-4, WC-8
+/** @purity semi-pure-b */
+function holidaySettingsTargetOf(first: Element | null): Pick<ScreenPart, 'holidaySettingsTarget'> {
+  const target = first?.closest(`[${HOLIDAY_SETTINGS_TARGET_ATTRIBUTE}]`)?.getAttribute(HOLIDAY_SETTINGS_TARGET_ATTRIBUTE)
+  return target === undefined || target === null ? {} : { holidaySettingsTarget: target }
+}
+
 // see NT-2, IF-9
 /** @purity semi-pure-b */
 function noticeBoxOf(first: Element | null): Pick<ScreenPart, 'noticeBoxReasons'> {
@@ -147,6 +155,7 @@ const PAINT_ROW = {
   scheduleFilterGlyph: 'S-544',
   dropCue: 'S-151',
   jumpLanding: 'S-151',
+  refusal: 'S-154',
 } as const
 
 /** @purity pure */
@@ -180,6 +189,7 @@ export const PAINT = {
   scheduleFilterGlyph: painted('scheduleFilterGlyph'),
   dropCue: painted('dropCue'),
   jumpLanding: painted('jumpLanding'),
+  refusal: painted('refusal'),
 } as const
 
 /** @purity pure */
@@ -1124,6 +1134,18 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     growWrappingFields(propertiesPanel)
   }
 
+  // TRAP: a held field of the surface is not redrawn, or the typed letters and the caret are lost (as the panel's).
+  /** @purity non-pure */
+  function redrawOpenModal(surfaceModal: ScreenView['openModal']): boolean {
+    const isHeldHere = fieldEditing.isFieldHeld() && modalLayer.contains((host as Partial<Document>).activeElement ?? null)
+    if (surfaceModal !== null && isHeldHere) return false
+    const drawnModal = surfaceModal === null ? null : modalElement(host, surfaceModal, anchorsOf('openModal'))
+    replaceKeepingListScroll(modalLayer, drawnModal === null ? [] : [drawnModal.element])
+    fieldEditing.holdWatermarkUnlock(drawnModal)
+    if (drawnModal !== null && surfaceModal !== null && isHolidaySettingsModal(surfaceModal)) fieldEditing.watchSurfaceFields(drawnModal.element)
+    return true
+  }
+
   /** @purity non-pure */
   function drawHelp(helpModal: ScreenView['openModal'], isContentChanged: boolean): void {
     drawnKeyedBySurface(() => anchorsOf('helpModal'), HELP_MODAL_SURFACE, (anchors) => help.draw(helpModal, isContentChanged, anchors))
@@ -1223,12 +1245,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
         palette === null ? null : (anchors.get(anchorKey({ kind: 'icon', icon: PALETTE_GRAB_BAND_ENTRY })) ?? null)
       paletteLayer.replaceChildren(...(paletteElementDrawn === null ? [] : [paletteElementDrawn]))
     }
-    if (changed('openModal')) {
-      const anchors = anchorsOf('openModal')
-      const drawnModal = surfaceModal === null ? null : modalElement(host, surfaceModal, anchors)
-      modalLayer.replaceChildren(...(drawnModal === null ? [] : [drawnModal.element]))
-      fieldEditing.holdWatermarkUnlock(drawnModal)
-    }
+    if (changed('openModal') && !redrawOpenModal(surfaceModal)) drawnKeys.openModal = lastKeys.openModal ?? ''
     placeOpenModal(modalLayer, view, changed)
     if (changed('helpModal') || changed('helpPlace')) drawHelp(helpModal, changed('helpModal'))
     drawTableWindows(view, changed)
@@ -1325,7 +1342,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       noticeDismissKey: dismissKey,
       ...(answer === null ? {} : { confirmationAnswer: answer }),
       ...(onImportReportDismiss ? { isImportReportDismiss: true } : {}),
-      ...noticeBoxOf(first),
+      ...noticeBoxOf(first), ...holidaySettingsTargetOf(first),
     }) })
   }
 

@@ -157,8 +157,23 @@ function activeElementOf(host: Document): unknown {
 
 const PANEL_KEY_SEPARATOR = '#'
 
+// see IN-6, SK-19, FR-088, WC-4, WC-8
+// WHY: a surface's fields settle as the panel's do (T-344): every listener set on the panel is set on it too.
+/** @purity non-pure */
+function fieldListenersOf(propertiesPanel: HTMLElement) {
+  const listened: (readonly [string, (event: Event) => void])[] = []
+  return {
+    listen: (type: string, listener: (event: Event) => void): void => {
+      propertiesPanel.addEventListener(type, listener)
+      listened.push([type, listener])
+    },
+    watchAlso: (fields: HTMLElement): void => listened.forEach(([type, listener]) => fields.addEventListener(type, listener)),
+  }
+}
+
 /** @purity non-pure */
 export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
+  const { listen, watchAlso } = fieldListenersOf(propertiesPanel)
   let watermarkUnlockEntry: TextEntryControl | null = null
   let fieldCommit: FieldCommit | null = null
   let commitsHandedOut = 0
@@ -180,7 +195,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     fieldCommit = commit
   }
 
-  propertiesPanel.addEventListener('change', onFieldChange)
+  listen('change', onFieldChange)
   const jointRow = jointRowOf()
 
   const typedControlsByTaskGroup = new Map<string, TextEntryControl>()
@@ -253,7 +268,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     isHeldTextTakenBack = false
   }
   // TRAP: not a new edit: the date entry raises focusin again when a script sets its value.
-  propertiesPanel.addEventListener('focusin', (event: Event) => {
+  listen('focusin', (event: Event) => {
     isFieldHeld = true
     jointRow.enter(event.target)
     const control = textEntryControlOf(event.target)
@@ -263,19 +278,19 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     heldTextValueAtFocus = heldTextControl === null ? '' : heldTextControl.value
     isHeldTextTakenBack = false
   })
-  propertiesPanel.addEventListener('focusout', (event: Event) => {
+  listen('focusout', (event: Event) => {
     if (!jointRow.holds((event as FocusEvent).relatedTarget)) fieldCommit = jointRow.settle() ?? fieldCommit
     isFieldHeld = false
     holdText(null)
     heldTextValueAtFocus = ''
     isHeldTextTakenBack = false
   })
-  propertiesPanel.addEventListener('input', () => {
+  listen('input', () => {
     isHeldTextTakenBack = false
   })
 
   /** @purity non-pure */
-  propertiesPanel.addEventListener('keydown', (event: Event) => {
+  listen('keydown', (event: Event) => {
     const held = heldTextControl
     if (held === null) return
     if (!isFreshEscape(event)) return
@@ -294,7 +309,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   // WHY: the host's date entry clears one segment per press, which leaves an invalid date that
   // commits nothing; one press empties the whole field, which commits as an emptied field does.
   /** @purity non-pure */
-  propertiesPanel.addEventListener('keydown', (event: Event) => {
+  listen('keydown', (event: Event) => {
     fieldCommit = assigneeLineDeleted(event) ?? fieldCommit
     const held = heldTextControl
     const type = (held as Partial<HTMLInputElement> | null)?.type
@@ -308,7 +323,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   })
 
   /** @purity non-pure */
-  propertiesPanel.addEventListener(HOST_KEY_RELEASE, (event: Event) => {
+  listen(HOST_KEY_RELEASE, (event: Event) => {
     const held = heldTextControl
     if (held === null || !isHeldTextTakenBack) return
     if ((event as { key?: unknown }).key !== HOST_ESCAPE_KEY) return
@@ -316,7 +331,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   })
 
   /** @purity non-pure */
-  propertiesPanel.addEventListener('keydown', (event: Event) => {
+  listen('keydown', (event: Event) => {
     const held = heldTextControl
     if (held === null) return
     const key = event as Partial<KeyboardEvent>
@@ -610,6 +625,7 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
       isNoticeShowing = isShowing
     },
     focusPropertyField,
+    watchSurfaceFields: watchAlso,
     readWatermarkUnlockAnswer,
     readFieldCommit,
     readFieldEditNotices,

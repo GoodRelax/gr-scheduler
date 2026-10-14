@@ -1096,6 +1096,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( outer: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore \| null, route: OpenRoute, handed: HandedImport \| null ... |
 | `STARTUP_TEMPLATE_ELEMENT_ID` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#STARTUP_TEMPLATE_ELEMENT_ID` | -- | const STARTUP_TEMPLATE_ELEMENT_ID: string = startupTemplateManifest.containerElementId |
 | `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: HandedFirstReading, ): Promise<boolean> |
+| `WORKING_TIMES_UNLIKE_DAY_REASON` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#WORKING_TIMES_UNLIKE_DAY_REASON` | -- | const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89' |
+| `askTimeShift` | file only | function | `src/framework/single-html-shell/field-entry.ts#askTimeShift` | -- | function askTimeShift(hands: Pick<FieldEntryHands, 'readHeld' \| 'readSession' \| 'sendToSession'>, frame: FrameValues, minutes: number): void |
+| `baseChangeCommandsOf` | file only | function | `src/framework/single-html-shell/field-entry.ts#baseChangeCommandsOf` | -- | function baseChangeCommandsOf( draft: { readonly chosenRegion: string; readonly chosenWay: 'keepGlobalTime' \| 'keepLocalTime' }, document: Document, ): reado... |
 | `drainFieldEditNotices` | file only | function | `src/framework/single-html-shell/field-entry.ts#drainFieldEditNotices` | -- | function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues \| null): void |
 | `FIELD_ROW_OF_IN_PLACE_TARGET` | file only | const | `src/framework/single-html-shell/field-entry.ts#FIELD_ROW_OF_IN_PLACE_TARGET` | -- | const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>> = |
 | `FieldEntryHands` | file only | type | `src/framework/single-html-shell/field-entry.ts#FieldEntryHands` | -- | type FieldEntryHands = Pick< |
@@ -1104,6 +1107,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isCreatedNameEnded` | file only | function | `src/framework/single-html-shell/field-entry.ts#isCreatedNameEnded` | -- | function isCreatedNameEnded(hands: FieldEntryHands): boolean |
 | `isEditingField` | file only | function | `src/framework/single-html-shell/field-entry.ts#isEditingField` | -- | function isEditingField(hands: FieldEntryHands): boolean |
 | `isFieldFocusWanted` | file only | function | `src/framework/single-html-shell/field-entry.ts#isFieldFocusWanted` | -- | function isFieldFocusWanted(hands: FieldEntryHands): boolean |
+| `issueCalendarCommand` | file only | function | `src/framework/single-html-shell/field-entry.ts#issueCalendarCommand` | -- | function issueCalendarCommand(hands: CalendarCommandHands, command: CalendarCommand, frame: FrameValues): void |
+| `isTimeShiftWrite` | file only | function | `src/framework/single-html-shell/field-entry.ts#isTimeShiftWrite` | -- | function isTimeShiftWrite(writes: readonly (readonly DocumentCommand[])[]): boolean |
 | `noteChoiceMoved` | file only | function | `src/framework/single-html-shell/field-entry.ts#noteChoiceMoved` | -- | function noteChoiceMoved(hands: FieldEntryHands, frame: FrameValues \| null): void |
 | `spendFieldCommit` | file only | function | `src/framework/single-html-shell/field-entry.ts#spendFieldCommit` | -- | function spendFieldCommit(hands: FieldEntryHands, frame: FrameValues): boolean |
 | `tryWantedFieldBeforeInput` | file only | function | `src/framework/single-html-shell/field-entry.ts#tryWantedFieldBeforeInput` | -- | function tryWantedFieldBeforeInput( hands: FieldEntryHands, fieldFocusRetries: Pick<FieldFocusRetries, 'focusWantedField'>, input: HumanInput, ): void |
@@ -1685,6 +1690,17 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SETTLED_AS_ONE_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#SETTLED_AS_ONE_ATTRIBUTE` | -- | const SETTLED_AS_ONE_ATTRIBUTE = 'data-settled-as-one' |
 | `TextEntryControl` | file only | interface | `src/framework/dom-screen-surface/field-editing.ts#TextEntryControl` | -- | interface TextEntryControl |
 | `TYPED_CONTROLS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#TYPED_CONTROLS` | -- | const TYPED_CONTROLS = new WeakSet<object>() |
+| `HOLIDAY_SETTINGS_TARGET_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HOLIDAY_SETTINGS_TARGET_ATTRIBUTE` | -- | const HOLIDAY_SETTINGS_TARGET_ATTRIBUTE = 'data-holiday-target' |
+| `HolidayExceptionLine` | file only | interface | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidayExceptionLine` | -- | interface HolidayExceptionLine |
+| `HolidaySettingsBody` | file only | interface | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidaySettingsBody` | -- | interface HolidaySettingsBody |
+| `holidaySettingsBodyElements` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#holidaySettingsBodyElements` | -- | function holidaySettingsBodyElements( host: Document, modal: HolidaySettingsModal, anchors: Map<string, HTMLElement>, ): readonly HTMLElement[] |
+| `HolidaySettingsCell` | file only | interface | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidaySettingsCell` | -- | interface HolidaySettingsCell |
+| `HolidaySettingsEntry` | file only | interface | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidaySettingsEntry` | -- | interface HolidaySettingsEntry |
+| `holidaySettingsFrameStyle` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#holidaySettingsFrameStyle` | -- | function holidaySettingsFrameStyle(): string |
+| `HolidaySettingsModal` | file only | type | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidaySettingsModal` | -- | type HolidaySettingsModal = OpenModal & { readonly holidaySettings: HolidaySettingsBody } |
+| `HolidayWorkingTimeLine` | file only | interface | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HolidayWorkingTimeLine` | -- | interface HolidayWorkingTimeLine |
+| `isHolidaySettingsModal` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#isHolidaySettingsModal` | -- | function isHolidaySettingsModal(modal: OpenModal): modal is HolidaySettingsModal |
+| `replaceKeepingListScroll` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#replaceKeepingListScroll` | -- | function replaceKeepingListScroll(layer: Element, drawn: readonly HTMLElement[]): void |
 | `confirmationAnswerElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#confirmationAnswerElement` | -- | function confirmationAnswerElement( host: Document, answer: Confirmation['answers'][number], ): HTMLElement |
 | `confirmationElement` | file only | function | `src/framework/dom-screen-surface/notices-drawing.ts#confirmationElement` | -- | function confirmationElement(host: Document, confirmation: Confirmation): HTMLElement |
 | `LINK_RELATION` | file only | const | `src/framework/dom-screen-surface/notices-drawing.ts#LINK_RELATION` | -- | const LINK_RELATION = 'noopener noreferrer' |
@@ -1701,6 +1717,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `propertiesPanelKeyOf` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#propertiesPanelKeyOf` | -- | function propertiesPanelKeyOf(description: PropertiesPanel \| null): string |
 | `propertiesPanelStyle` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#propertiesPanelStyle` | -- | function propertiesPanelStyle(): string |
 | `rewritePanelReadouts` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#rewritePanelReadouts` | -- | function rewritePanelReadouts(panel: HTMLElement, description: PropertiesPanel): void |
+| `surfaceFieldElement` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#surfaceFieldElement` | -- | function surfaceFieldElement(host: Document, row: string, control: PropertyControl): HTMLElement |
 | `withPropertyLinkJump` | file only | function | `src/framework/dom-screen-surface/properties-panel-drawing.ts#withPropertyLinkJump` | -- | function withPropertyLinkJump(answer: ScreenPart \| null, first: Element \| null): ScreenPart \| null |
 | `fillScreenFrame` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#fillScreenFrame` | -- | function fillScreenFrame( host: Document, layer: HTMLElement, bandLayer: HTMLElement, frame: ScreenFrame, anchors: Map<string, HTMLElement>, ): void |
 | `horizontalScrollbar` | file only | function | `src/framework/dom-screen-surface/screen-frame-drawing.ts#horizontalScrollbar` | -- | function horizontalScrollbar(frame: ScreenFrame): ScreenFrame['scrollbars'][number] \| undefined |
@@ -1956,4 +1973,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 980 name(s) leave through a public entry (450 of them published by table T-064), 766 more are exported by a file and not by its entry.
+Totals: 980 name(s) leave through a public entry (450 of them published by table T-064), 783 more are exported by a file and not by its entry.

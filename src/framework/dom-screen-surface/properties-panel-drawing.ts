@@ -301,6 +301,12 @@ function controlElement(
   return drawn as HTMLElement
 }
 
+// see T-016, IN-6
+/** @purity non-pure */
+export function surfaceFieldElement(host: Document, row: string, control: PropertyControl): HTMLElement {
+  return controlElement(host, row, control, null)
+}
+
 // see T-016, FR-006
 /** @purity non-pure */
 function fillTypedValue(drawn: HTMLElement, control: PropertyControl): void {
