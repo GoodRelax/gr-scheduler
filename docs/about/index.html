@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-FX0Ypporq0V8XORmcvqYvDu/oHN2JWKiUSZ8r2J/h2w='; script-src 'sha256-mb6WgieXkzEMUpx4Y1vagFhAZ2DIvkP4Xjk9uuK/Sz8='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-MlV5dzJRrDtn661ePZWIHaJyZKAQf/t23HD7WV1znxU='; script-src 'sha256-HCj5W7gNjfS59rNJsji7qQmJi0AXUo2TcUfgQ+UV1L4='; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="description" content="GoodRelax Scheduler (GRS) の紹介。1 行に複数のタスクを置き、全体日程を 1 枚で見渡す、単一 HTML の日程表エディタ。">
 <title>GoodRelax Scheduler (GRS) とは</title>
@@ -69,6 +69,13 @@ h2, h3, h4, p, ul, ol { margin: 0; }
 .tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
 .tab[aria-selected="true"] .no { color: var(--accent); }
 .tab:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; border-radius: 6px; }
+
+.fs-hint {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 10;
+  max-width: calc(100% - 32px); padding: 10px 16px; border-radius: 10px;
+  background: var(--ink); color: #ffffff; font-size: 14px; line-height: 1.5;
+}
+.fs-hint[hidden] { display: none; }
 
 /* ---- stage: one tab fills it ---- */
 main { flex: 1; min-height: 0; overflow: auto; }
@@ -606,6 +613,8 @@ tools/           <span class="c"># 生成器と検査</span></pre>
 
 </main>
 
+<div class="fs-hint" id="fs-hint" role="status" hidden></div>
+
 <script>
 (function () {
   "use strict";
@@ -660,7 +669,7 @@ tools/           <span class="c"># 生成器と検査</span></pre>
   // Left / right (and page up / down) step through the tabs, like slides.
   document.addEventListener("keydown", function (ev) {
     if (ev.altKey || ev.ctrlKey || ev.metaKey) { return; }
-    if (ev.key === "Escape" && document.fullscreenElement) { document.exitFullscreen(); return; }
+    if (ev.key === "Escape" && isFull()) { leaveFullscreen(); return; }
     var onTab = ev.target.getAttribute && ev.target.getAttribute("role") === "tab";
     var step = 0;
     if (ev.key === "ArrowRight" || ev.key === "PageDown") { step = 1; }
@@ -743,29 +752,56 @@ tools/           <span class="c"># 生成器と検査</span></pre>
     });
   });
 
-  // Both buttons (the cover's and the top bar's) toggle full screen, so it can
-  // be left from any tab; Esc also leaves it, as the browser provides.
+  // ---- full screen ----
+  // Both buttons (the cover's and the top bar's) toggle it, so it can be left
+  // from any tab, and Esc leaves it too. A window that fills the screen without
+  // the page having asked (the browser's own full screen, or one carried over a
+  // reload) cannot be left from the page, so the buttons then say how to leave.
   var fsCover = document.getElementById("fullscreen");
   var fsTop = document.getElementById("fullscreen-top");
+  var fsHint = document.getElementById("fs-hint");
   var root = document.documentElement;
+  var hintTimer = 0;
+  var FS_HINT_MS = 5000;
+  var SCREEN_SLACK_PX = 2;
+
+  function windowFillsScreen() {
+    return window.innerWidth >= screen.width - SCREEN_SLACK_PX && window.innerHeight >= screen.height - SCREEN_SLACK_PX;
+  }
+  function isFull() {
+    return !!document.fullscreenElement || windowFillsScreen();
+  }
   function showFullscreenState() {
-    var on = !!document.fullscreenElement;
+    var on = isFull();
     var en = langNow === "en";
     fsCover.textContent = on ? (en ? "Exit full screen" : "全画面を終える") : (en ? "Full screen" : "全画面表示");
     fsTop.textContent = on ? (en ? "Exit full screen" : "全画面を終える") : (en ? "Full screen" : "全画面");
   }
+  function showLeaveHint() {
+    fsHint.textContent = langNow === "en"
+      ? "This full screen belongs to the browser. Press F11 (Mac: Ctrl+Cmd+F) to leave it."
+      : "これはブラウザの全画面である。F11 キー（Mac は Ctrl+Cmd+F）で戻る。";
+    fsHint.hidden = false;
+    clearTimeout(hintTimer);
+    hintTimer = setTimeout(function () { fsHint.hidden = true; }, FS_HINT_MS);
+  }
+  function leaveFullscreen() {
+    if (document.fullscreenElement) {
+      document.exitFullscreen().then(showFullscreenState, showFullscreenState);
+    } else {
+      showLeaveHint();
+    }
+  }
   function toggleFullscreen() {
-    var done = document.fullscreenElement ? document.exitFullscreen() : root.requestFullscreen();
-    if (done && done.then) { done.then(showFullscreenState, showFullscreenState); }
+    if (isFull()) { leaveFullscreen(); return; }
+    if (!root.requestFullscreen || document.fullscreenEnabled === false) { return; }
+    root.requestFullscreen().then(showFullscreenState, showFullscreenState);
   }
-  if (!root.requestFullscreen || document.fullscreenEnabled === false) {
-    fsCover.hidden = true;
-    fsTop.hidden = true;
-  } else {
-    fsCover.addEventListener("click", toggleFullscreen);
-    fsTop.addEventListener("click", toggleFullscreen);
-    document.addEventListener("fullscreenchange", showFullscreenState);
-  }
+  fsCover.addEventListener("click", toggleFullscreen);
+  fsTop.addEventListener("click", toggleFullscreen);
+  document.addEventListener("fullscreenchange", showFullscreenState);
+  // Every visit starts outside full screen.
+  if (document.fullscreenElement) { document.exitFullscreen().then(showFullscreenState, showFullscreenState); }
 
   applyLang(initialLang());
   select(location.hash.slice(1), false);
@@ -773,7 +809,7 @@ tools/           <span class="c"># 生成器と検査</span></pre>
   var fitTimer = 0;
   window.addEventListener("resize", function () {
     clearTimeout(fitTimer);
-    fitTimer = setTimeout(fit, 60);
+    fitTimer = setTimeout(function () { fit(); showFullscreenState(); }, 60);
   });
 })();
 </script>
