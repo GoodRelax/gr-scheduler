@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 331 | 3974 | 5 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 332 | 3994 | 5 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 86 | 565 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 619 | 8550 | 8 | 8 | 13 | 2 |
+| **all** | | | 620 | 8570 | 8 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -412,13 +412,14 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-731-t-373-the-rows-a-person-chooses-or-dates.contract.test.ts` | 11 | - | - | T-373 | CM-93, FA-1, FA-3, FA-22, FA-24, VC-1, VO-3 | - | - | - | - |
 | `tests/contract/cr-731-t-373-the-rows-that-mend-themselves.contract.test.ts` | 25 | FR-155 | - | T-310, T-311, T-312, T-373 | FA-1, FA-2, FA-3, FA-8, FA-9, FA-10, FA-11, FA-12, FA-26, RW-16, VC-9, VC-11, VC-12 | - | - | - | - |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | 9 | FR-130, FR-155 | - | - | GP-1, UN-20, UN-21 | - | - | 2: DFC-730, none | - |
-| `tests/contract/cr-735-one-named-dependency-line.contract.test.ts` | 33 | FR-032, FR-135, FR-155 | - | T-108, T-310, T-373 | CM-37, CM-93, FA-3, FA-9, FA-12, PI-1, RW-16, VC-1, VC-3, VC-9, VC-12, X-3 | - | - | - | - |
+| `tests/contract/cr-735-one-named-dependency-line.contract.test.ts` | 33 | FR-032, FR-135, FR-155 | - | T-064, T-108, T-310, T-373 | CM-37, CM-93, FA-3, FA-9, FA-12, PI-1, RW-16, VC-1, VC-3, VC-9, VC-12, X-3 | - | - | - | - |
 | `tests/contract/cr-736-if-1-the-marquee-overlay-svg.contract.test.ts` | 23 | - | - | T-020, T-064, T-065, T-075 | IF-1, PI-19, SL-3, UF-32, X-5, ZO-6 | - | - | - | - |
 | `tests/contract/cr-741-a-date-without-a-time-reads-as-the-working-day.test.ts` | 39 | FR-011, FR-054 | - | - | IV-10, IV-14, PI-1, S-580, WC-8 | - | - | - | - |
-| `tests/contract/cr-749-the-working-time-counter-counts-as-the-single-functions-do.test.ts` | 14 | FR-011, FR-012, FR-054 | - | - | PI-1, S-580 | - | - | - | - |
+| `tests/contract/cr-749-the-working-time-counter-counts-as-the-single-functions-do.test.ts` | 14 | FR-011, FR-012, FR-054 | - | T-064 | PI-1, S-580 | - | - | - | - |
 | `tests/contract/cr-750-rs-90-ends-on-the-change-base-time-zone-entry.contract.test.ts` | 6 | FR-038, FR-156 | - | T-233 | IC-161, RS-90 | - | - | - | - |
 | `tests/contract/cr-751-a-region-outside-t-376-and-the-working-day-count.contract.test.ts` | 24 | FR-023, FR-054, FR-156 | - | T-220, T-233, T-376 | AT-79, AT-80, AT-82, IV-24, OP-3, OP-6, RS-25, RS-89, S-128, S-574, S-575, S-580, S-582, ZN-1, ZN-28 | - | - | - | - |
 | `tests/contract/cr-751-the-schema-names-the-regions-and-no-spec-id.contract.test.ts` | 12 | FR-024, FR-054, FR-156 | - | T-376 | IV-24, S-574, S-575, S-582 | - | - | - | - |
+| `tests/contract/cr-752-call-shapes-and-two-fix-rows.contract.test.ts` | 20 | FR-011, FR-012, FR-054 | - | T-064, T-108, T-310, T-346 | CM-11, CM-37, FA-3, FA-15, FA-24, PI-1, RW-16, VC-15 | - | - | - | - |
 | `tests/contract/cr-753-a-ctrl-drag-copy-lands-where-the-body-move-lands.test.ts` | 34 | FR-016, FR-017, FR-103 | - | T-209, T-266, T-270, T-350, T-378 | CY-5, CY-7, CY-9, GA-9, GA-14, GA-15, GA-18, PE-1, PE-6, PTD-7, RV-1, S-1, S-8, S-55, S-85, S-229, S-482, S-483, S-577, S-578, SG-1, SG-2, SG-3, WT-1, WT-2 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
