@@ -268,6 +268,7 @@ import {
   previewOfHeldPress,
   tentativeDependencyOf,
 } from './held-press-preview'
+import { beneathPictureHoldOf } from './beneath-picture-hold'
 import { parentTaskHoldOf } from './parent-task-hold'
 import { shownTasksHoldOf, type ShownTasksHold, type TableViewChanges, type TableViewsHeld } from './shown-tasks-hold'
 import {
@@ -548,7 +549,7 @@ interface DrawnPicture {
 }
 
 /** @purity pure */
-function isSameRecord(
+export function isSameRecord(
   a: object,
   b: object,
   isSame: (x: unknown, y: unknown, key: string) => boolean = Object.is,
@@ -558,6 +559,11 @@ function isSameRecord(
   const fields = Object.entries(a)
   if (fields.length !== Object.keys(right).length) return false
   return fields.every(([key, value]) => Object.hasOwn(right, key) && isSame(value, right[key], key))
+}
+
+/** @purity pure */
+export function isSameScreenRegions(a: ScreenRegions, b: ScreenRegions): boolean {
+  return isSameRecord(a, b, (x, y) => isSameRecord(x as object, y as object))
 }
 
 // see FR-046, GR-16, DFC-2314
@@ -578,7 +584,7 @@ function isSameLayoutInputs(a: PictureInputs, b: PictureInputs): boolean {
     a.taskGroupControlsHeightPx === b.taskGroupControlsHeightPx &&
     isSameScheduleApartFromStatusDate(a.schedule, b.schedule) &&
     isSameRecord(a.settings, b.settings) &&
-    isSameRecord(a.regions, b.regions, (x, y) => isSameRecord(x as object, y as object))
+    isSameScreenRegions(a.regions, b.regions)
   )
 }
 
@@ -641,7 +647,7 @@ function isSameZoomEndsInputs(held: HeldZoomEnds, now: Omit<HeldZoomEnds, 'ends'
     held.document.schedule === now.document.schedule &&
     held.taskGroupControlsHeightPx === now.taskGroupControlsHeightPx &&
     isSameApartFromViewPlace(held.document.documentSettings, now.document.documentSettings) &&
-    isSameRecord(held.regions, now.regions, (x, y) => isSameRecord(x as object, y as object))
+    isSameScreenRegions(held.regions, now.regions)
   )
 }
 
@@ -2795,6 +2801,7 @@ export function frameLoop(
   const owedJump = owedJumpHolder(ask)
   const { bandCeilingFor } = taskGroupBandCeilingCacheOf()
   const zoomEntranceEndsAt = zoomEntranceEndsHoldOf()
+  const beneathPicture = beneathPictureHoldOf()
   const heldViewPlace = heldViewPlaceOf(hands, startedFromTemplate)
   const { viewSettingsOnce, forgetFitForNoPlace, leaveStartupTemplate } = heldViewPlace
   const {
@@ -2915,7 +2922,7 @@ export function frameLoop(
       return
     }
     const beneathSvg =
-      svgFromSchedule(
+      beneathPicture(
         document.schedule,
         drawnSettings,
         layout,
@@ -3338,7 +3345,7 @@ export function frameLoop(
     // TRAP: without the Task Group Area test a bar clipped under the Task Group Panel still takes the press.
     const hit =
       on === null && regionAtPointer(frame.regions, at.x, at.y) === 'taskGroupArea'
-        ? itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), resolving)
+        ? itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), resolving, landedLinkIn(session))
         : null
     const pressRow = pressRowOf({ at, hit }, { screen: session.screen, dualCursorFollowing: dualCursorFollowingIn(session), selection: selectedObjectsIn(session) })
     return {

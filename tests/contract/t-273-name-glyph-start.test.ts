@@ -11,16 +11,21 @@ import {
   LABEL_PAD,
   MARKER_D,
   MILESTONE_NAME_GAP,
+  RATIO,
   S_303,
   bandOf,
   bandOfRect,
   cellOf,
   day,
   sceneOf,
+  stored,
   taskOf,
   type Band,
   type Scene,
 } from '../unit/cr-430-cross-section-scene'
+
+// see S-584
+const EDGE_GAP = stored('S-584') * RATIO
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
@@ -112,11 +117,11 @@ describe('T-273 -- the drawn glyphs start where the table puts the name, and S-3
     expectGlyphAt(scene, markerRightOf(scene) + LABEL_GAP, 'LP-1')
   })
 
-  it('LP-2: outside, the glyphs start at the marker right + S-32, the marker just right of the basis end (MUST)', () => {
+  it('LP-2: outside, the glyphs start at the marker right + S-32, the marker S-584 right of the basis end (MUST)', () => {
     const scene = rectangle(NARROW_ACTUAL, {}, LONG)
     const basis = basisOf(scene)
     expect(placementOf(scene), 'premise: the name does not fit').toBe('right')
-    expect(markerRightOf(scene) - MARKER_D, 'premise: LP-2 marker position').toBeCloseTo(basis.right, 6)
+    expect(markerRightOf(scene) - MARKER_D, 'premise: LP-2 marker position').toBeCloseTo(basis.right + EDGE_GAP, 6)
     expectGlyphAt(scene, markerRightOf(scene) + LABEL_GAP, 'LP-2')
   })
 

@@ -2194,6 +2194,16 @@
    }
   },
   {
+   "rowId": "K-147",
+   "keys": [
+    "progressMarkerEdgeGap"
+   ],
+   "label": {
+    "ja": "進捗マーカーを棒の端から離す隙間",
+    "en": "progressMarkerEdgeGap"
+   }
+  },
+  {
    "rowId": "K-133",
    "keys": [
     "milestoneNameStartOfWidth"

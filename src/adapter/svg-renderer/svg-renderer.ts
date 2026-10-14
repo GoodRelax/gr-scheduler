@@ -26,12 +26,21 @@ import {
   type ScreenRegions,
 } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { bandWidthOf, gridParts, rulerSvg, type GridInput } from './schedule-grid'
-import { jumpLandingRingParts, overlayParts, watermarkSvg, parentTaskParts, type ViewerValues } from './schedule-overlays'
+import {
+  guideCursorPointOf,
+  jumpLandingRingParts,
+  overlayParts,
+  watermarkSvg,
+  parentTaskParts,
+  type ViewerValues,
+} from './schedule-overlays'
 import {
   baselineOutlineParts,
   dependencyArrowSvg,
   dependencyLinkParts,
   landingLinkOf,
+  pointerInsideDummyTaskUidsOf,
+  pointerOnMarkerTaskUidOf,
   taskFigureParts,
 } from './schedule-task-figures'
 
@@ -56,6 +65,30 @@ export interface DualCursorFollow {
 export interface Watermark {
   readonly openedBy: string
   readonly stampedAt: string
+}
+
+// see PI-19, CA-1, IF-1
+export interface BeneathPointerReading {
+  readonly guideCursorPoint: Point | null
+  readonly pointerInsideDummyTaskUids: readonly number[]
+  readonly pointerOnMarkerTaskUid: number | null
+}
+
+// see PI-19, CA-1, ZO-2, ZO-3, ZO-8
+// WHY: svgFromSchedule draws with this answer and the shell keys its held picture on it, so the two cannot part.
+/** @purity pure */
+export function beneathPointerReadingOf(
+  geometry: ScheduleGeometry,
+  regions: ScreenRegions,
+  viewer: Pick<ViewerValues, 'guideCursorMode'>,
+  pointer: Point | null,
+  hovered: Hit | null,
+): BeneathPointerReading {
+  return {
+    guideCursorPoint: guideCursorPointOf(regions, viewer.guideCursorMode, pointer),
+    pointerInsideDummyTaskUids: pointerInsideDummyTaskUidsOf(geometry, pointer),
+    pointerOnMarkerTaskUid: pointerOnMarkerTaskUidOf(hovered),
+  }
 }
 
 const OFF_SCREEN_SIDE_MARGIN = 0.25
@@ -706,8 +739,9 @@ export function svgFromSchedule(
   const drawsOperationState = picture === 'screen'
   const marks: readonly ItemRef[] = drawsOperationState ? selection.items : []
   const following = drawsOperationState ? follow : null
-  const hover = drawsOperationState ? hovered : null
-  const hand = drawsOperationState ? pointer : null
+  const reading = beneathPointerReadingOf(
+    geometry, regions, viewer, drawsOperationState ? pointer : null, drawsOperationState ? hovered : null,
+  )
   const selected = new Set(marks.filter((one) => one.kind === 'task').map((one) => one.uid))
   const selectedBoxes = new Set(
     marks.filter((one) => one.kind === 'highlightBox').map((one) => one.id),
@@ -756,9 +790,7 @@ export function svgFromSchedule(
     selectedLinks,
     landingLink,
     following,
-    hover,
-    hand,
-    pointer,
+    ...reading,
     skipsOffScreen,
     drawnFrom, drawnTo, drawnLeftOf, drawnRightOf,
   }

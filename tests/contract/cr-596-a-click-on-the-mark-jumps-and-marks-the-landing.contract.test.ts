@@ -750,9 +750,12 @@ describe(`(a) PE-12 -- one still click on the mark: ${PE_12_SEND}`, () => {
 
   it(`control: a still release on the line itself (not the mark) selects the line (${PE_12_SELECTS})`, () => {
     const scene = bothSeen()
+    // WHY: T-222 RP-2 now bends 4 times; its first drop is shared with line 1 -> 3 (LF-5) and stands on
+    // WHY: Task 1's marker box (HT-3), so the press takes the last drop at x2, which only this line has.
     const route = lineOf(scene, 1, 2).points
-    const a = route[1]!
-    const b = route[2]!
+    expect(route.length - 2, 'premise: T-222 RP-2 bends 4 times').toBe(4)
+    const a = route[3]!
+    const b = route[4]!
     const on = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }
     const { press, selection, out } = release(scene, on)
     expect(press.hit?.grab, 'premise: the press is on the line, not on a mark').not.toBe('GA-24')

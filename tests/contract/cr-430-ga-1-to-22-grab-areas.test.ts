@@ -32,6 +32,7 @@ import {
   type Scene,
   type ShapeKind,
 } from '../unit/cr-430-scene'
+import { RATIO, stored } from '../unit/cr-430-cross-section-scene'
 
 const NO_BAND = '—'
 
@@ -318,7 +319,11 @@ describe('GA-1 / GA-2 -- the plan ends of a rectangle', () => {
 
   it('a dependency line takes the same point on the Task it leaves, as table T-268 orders', () => {
     const linked = boxOf(planOf(RECTANGLE.started))
-    expect(grabAt(RECTANGLE, linked.right + outerFinish / 2, linked.middleY)).toBe('GA-19')
+    // WHY: T-222 RP-2 bends the line at x1, S-298 past the exit edge, and drops it there (CR-758),
+    // WHY: so the press stands on that bend, which is still inside the plan end's outer S-253.
+    const x1 = linked.right + stored('S-298') * RATIO
+    expect(x1 - linked.right, 'premise: the bend is inside the plan end grab').toBeLessThan(outerFinish)
+    expect(grabAt(RECTANGLE, x1, linked.middleY)).toBe('GA-19')
   })
 })
 

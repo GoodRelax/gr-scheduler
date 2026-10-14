@@ -38,6 +38,10 @@ const wholeRow = (table: string, id: string): string => {
   return unbroken(found.cells.join(' ')).replace(/`/g, '')
 }
 
+const IF_1_ONLY_WHILE_NOT_EMPTY = '重ねの要素は、重ねの絵が空でないあいだだけ置き、空になったら外すこと（MUST）'
+const IF_1_LAST_CHILD = '置くときは Schedule Canvas の宿主の最後の子とし、position:absolute で下の絵と同じ左上に載せること（MUST）'
+const IF_1_ONLY_ON_A_CHANGE = 'SingleHtmlShell（CP-25）は重ねの絵の文字列を覚え（初めは空）、前と違うときだけ重ねの口を呼ぶこと（MUST）'
+
 describe('CR-736 the manuscript these cases are driven by', () => {
   it('T-065 IF-1: two mouths, ZO-6 only in the overlay, same size and clip, in front, a same string is not written again, no pointer', () => {
     const supplies = wholeRow('T-065', 'IF-1')
@@ -49,6 +53,14 @@ describe('CR-736 the manuscript these cases are driven by', () => {
     expect(supplies).toContain('渡された文字列が前に載せたものと同じなら画面を書き換えないこと（MUST）')
     expect(supplies).toContain('重ねの絵は点を受けない')
     expect(supplies).toContain('IF-9')
+  })
+
+  it('T-065 IF-1 (a)-(c): the overlay element only while not empty, the last child and absolute, the shell calls the overlay mouth only on a change', () => {
+    const supplies = wholeRow('T-065', 'IF-1')
+    expect(supplies).toContain(IF_1_ONLY_WHILE_NOT_EMPTY)
+    expect(supplies).toContain(IF_1_LAST_CHILD)
+    expect(supplies).toContain(IF_1_ONLY_ON_A_CHANGE)
+    expect(supplies).toContain('範囲選択をしないフレームは重ねの口に触れない')
   })
 
   it('T-075 UF-32 builds the picture beneath apart from ZO-6, and decides which layer goes to the overlay', () => {
@@ -451,7 +463,7 @@ function emptyGround(loop: FrameLoop): readonly { x: number; y: number }[] {
 }
 
 describe('IF-1 on the shell: the marquee reaches the overlay mouth and the picture beneath is left alone', () => {
-  it('before any press the overlay shows nothing (the empty string) and holds no ZO-6', () => {
+  it('T-065 IF-1 (a): before any press the overlay shows nothing (the empty string) and holds no ZO-6', () => {
     const built = stage()
     expect(built.overlayNow()).toBe('')
     expect(zoRows(built.beneathNow())).not.toContain('ZO-6')
@@ -494,18 +506,18 @@ describe('IF-1 on the shell: the marquee reaches the overlay mouth and the pictu
     expect(Math.abs(at('height') - Math.abs(path[0]!.y - from!.y))).toBeLessThanOrEqual(1)
   })
 
-  it('on release the overlay is the empty string again and the picture beneath still has no ZO-6', () => {
+  it('T-065 IF-1 (a): on release the overlay is the empty string again and the picture beneath still has no ZO-6', () => {
     const built = stage()
     const [from, ...path] = emptyGround(built.loop)
     built.send(pointer('down', from!.x, from!.y))
     built.send(pointer('move', path[0]!.x, path[0]!.y))
     expect(built.overlayNow().length).toBeGreaterThan(0)
     built.send(pointer('up', path[0]!.x, path[0]!.y))
-    expect(built.overlayNow(), 'table T-023c SL-3: the rectangle goes the moment the button is let go').toBe('')
+    expect(built.overlayNow(), `table T-023c SL-3, table T-065 IF-1: ${IF_1_ONLY_WHILE_NOT_EMPTY}`).toBe('')
     expect(zoRows(built.beneathNow())).not.toContain('ZO-6')
   })
 
-  it('frames that carry no marquee never hand the overlay mouth anything but the empty string', () => {
+  it('T-065 IF-1 (c): frames that carry no marquee never hand the overlay mouth anything but the empty string', () => {
     const built = stage()
     const [from, ...path] = emptyGround(built.loop)
     for (const at of path) built.send(pointer('move', at.x, at.y))
@@ -516,7 +528,7 @@ describe('IF-1 on the shell: the marquee reaches the overlay mouth and the pictu
     expect(overlayCalls.filter((one) => one.svg !== '').length, 'a press that never moved takes no rectangle').toBe(0)
   })
 
-  it('the overlay mouth is called only when the overlay string changed (CR-736 X-5)', () => {
+  it('T-065 IF-1 (c): the overlay mouth is called only when the overlay string changed', () => {
     const built = stage()
     const [from, ...path] = emptyGround(built.loop)
     built.send(pointer('down', from!.x, from!.y))
@@ -527,7 +539,7 @@ describe('IF-1 on the shell: the marquee reaches the overlay mouth and the pictu
     built.send(pointer('up', path[path.length - 1]!.x, path[path.length - 1]!.y))
     const strings = built.calls.filter((one) => one.mouth === 'showMarqueeOverlaySvg').map((one) => one.svg)
     for (let i = 1; i < strings.length; i += 1) {
-      expect(strings[i], `call ${i} repeats call ${i - 1}`).not.toBe(strings[i - 1])
+      expect(strings[i], `table T-065 IF-1: ${IF_1_ONLY_ON_A_CHANGE} -- call ${i} repeats call ${i - 1}`).not.toBe(strings[i - 1])
     }
   })
 

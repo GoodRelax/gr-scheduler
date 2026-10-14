@@ -966,7 +966,14 @@ describe('GA-24 / T-268 -- the mark is grabbed as part of its line', () => {
     const scene = predecessorOnly()
     const line = lineOf(scene, 1, 2)
     const tip = bentLine(line, 'predecessor').outward[2]!
-    const onLine = { x: tip.x, y: tip.y - 1 }
+    // WHY: T-273 LP-2 now stands Task 1's marker S-584 off its dummy, and its drawn box covers the drawn
+    // WHY: short line, where HT-3 lets the marker answer; so the press is in the line's S-285 band beside it.
+    const onLine = { x: tip.x + (T201('S-18') * R) / 2 + T206('S-285') / 2, y: tip.y - 1 }
+    const marker = scene.geometry.tasks.find((one) => one.taskUid === 1)?.marker ?? null
+    if (marker === null) throw new Error('premise: Task 1 draws a marker')
+    expect(onLine.x, 'premise: off the marker drawn box and its S-284').toBeGreaterThan(
+      marker.center.x + marker.radius + T206('S-284'),
+    )
     const answer = answerAt(scene, onLine)
     expect(answer.grab).toBe('GA-24')
     expect(isLine(answer, 1, 2)).toBe(true)

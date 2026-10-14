@@ -2086,6 +2086,13 @@
    }
   },
   {
+   "rowId": "K-147",
+   "label": {
+    "ja": "進捗マーカーを棒の端から離す隙間",
+    "en": "progressMarkerEdgeGap"
+   }
+  },
+  {
    "rowId": "K-133",
    "label": {
     "ja": "マイルストーン名の書き出し ÷ 菱形の幅",
