@@ -47,12 +47,22 @@ function minuteOfTimeText(text: string): number | null {
 // see FR-054, IV-14
 /** @purity pure */
 export function instantOf(text: string | null): number | null {
-  const day = dayOf(text)
+  const read = dayWithTimeOf(dayOf(text), text)
+  return read === null ? null : serial(read.day) * MINUTES_PER_CALENDAR_DAY + (read.minute ?? 0)
+}
+
+interface DayWithTime {
+  readonly day: CalendarDay
+  readonly minute: number | undefined
+}
+
+/** @purity pure */
+function dayWithTimeOf(day: CalendarDay | null, text: string | null): DayWithTime | null {
   if (day === null || text === null) return null
   const tail = DATE_TIME_SPLIT.exec(text.trim())?.[1]
-  const minute = tail === undefined ? 0 : minuteOfTimeText(tail)
-  if (minute === null) return null
-  return serial(day) * MINUTES_PER_CALENDAR_DAY + minute
+  if (tail === undefined) return { day, minute: undefined }
+  const minute = minuteOfTimeText(tail)
+  return minute === null ? null : { day, minute }
 }
 
 /** @purity pure */
@@ -65,11 +75,12 @@ export function dayOfInstant(instant: number): CalendarDay {
   return dayFromSerial(Math.floor(instant / MINUTES_PER_CALENDAR_DAY))
 }
 
+// WHY: an end at 00:00 closes the day before; parsed once, as the layout reads it for every Task (DFC-2471).
 /** @purity pure */
 export function finishSideDayOf(text: string | null): CalendarDay | null {
-  if (text !== null && isDateWithoutTime(text)) return dayOf(text)
-  const instant = instantOf(text)
-  return instant === null ? null : dayOfInstant(instant - 1)
+  const read = dayWithTimeOf(dayOf(text), text)
+  if (read === null || read.minute === undefined) return read?.day ?? null
+  return dayFromSerial(serial(read.day) - (read.minute > 0 ? 0 : 1))
 }
 
 /** @purity pure */
