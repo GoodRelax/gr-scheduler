@@ -1876,6 +1876,11 @@
      "max": "—",
      "note": {
       "ja": "見せる基準 —— 画面の目盛と日時を見せるタイムゾーン（`FR-156`）。`null` は「日程データのタイムゾーン（`Project.scheduleDataTimeZone`）と同じ」を表す —— 日程データのタイムゾーンを付け替えると、見せる基準もついて行く。既定は今の文書の見た目を変えない"
+     },
+     "json": {
+      "kind": "enum",
+      "valuesFrom": "T-376",
+      "null": true
      }
     },
     {
@@ -1892,6 +1897,14 @@
      "max": "—",
      "note": {
       "ja": "表示するタイムゾーン（`FR-156`）。時刻を表示しているあいだ、目盛の下に 1 つにつき 1 段を足す（`FR-017`）。4 つまでとし、見せる基準と合わせて 5 つである（利用者の判断）"
+     },
+     "json": {
+      "kind": "array",
+      "of": {
+       "kind": "enum",
+       "valuesFrom": "T-376"
+      },
+      "maxItems": 4
      }
     },
     {
@@ -1908,6 +1921,9 @@
      "max": "—",
      "note": {
       "ja": "時刻を表示する（`FR-158`）。既定は表示しない —— 今の文書の見た目を変えない（利用者の判断）。⚠️ 表示の切り替えの入口（表 T-109 の `切り替える設定値` の欄）は持たず、文書の設定の面（表 T-369 の `FO-13`）で切り替える"
+     },
+     "schemaNote": {
+      "en": "Only how the chart is shown; the stored date-times always keep their time."
      }
     }
    ]
@@ -2114,6 +2130,9 @@
      "max": "—",
      "note": {
       "ja": "全体表示時の期間（表 T-202 の `S-518` / `S-519`）を、全体表示と画像の書き出しに当てるか。規則は `FR-055` の 表 T-367 が持つ。⭐ 文書に保存する（`S-518` と同じ理由）。⚠️ 真のときは期間が日付を持つ（`FX-1`）。⚠️ 表 T-202 に置かない —— 同表の真偽の行は `FR-049` の表示の切り替えである"
+     },
+     "schemaNote": {
+      "en": "When true, Fit and picture export show fitSpanStart..fitSpanFinish (the finish day's column included) instead of the whole schedule; opening the document does not move the view."
      }
     },
     {

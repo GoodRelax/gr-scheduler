@@ -159,7 +159,7 @@ describe('CR-645 the clauses as the manuscript holds them', () => {
   })
 
   it('AT-39: the schema note says GRS recounts it whenever it reads the file', () => {
-    expect(SCHEMA_TEXT).toContain('GRS recounts it whenever the dates change and whenever it reads this file, so the dates decide')
+    expect(SCHEMA_TEXT).toContain('GRS recounts it whenever it reads this file and tells when the stored value differed, so write what the dates give')
   })
 })
 

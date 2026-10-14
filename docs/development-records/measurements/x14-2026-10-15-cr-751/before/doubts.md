@@ -1,0 +1,17 @@
+- documentSettings.viewTimeZone: the schema gives no type (only "a T-376 region name / null") -> wrote null (day-level) and the string "Asia/Tokyo" (minute-level).
+- Project.scheduleDataTimeZone: must be "one of the 28 choices of FR-156" but the list is not in the schema -> wrote "Asia/Tokyo" (IANA name) in both files, assuming the choices are IANA names.
+- Project.statusDate: the schema does not say whether it is a start-side or finish-side column, so which default time GRS writes is unknown -> day-level used defaultFinishTime (17:00:00); minute-level used a specific minute (09:30).
+- WorkingTime.toTime for midnight: unclear whether GRS stores the end of day as "24:00:00" (the pattern allows it) or as MS Project's "00:00:00" -> wrote "00:00:00" as MSPDI does.
+- Task finish at midnight: unclear whether a finish of next-day 00:00:00 counts the next day as included ("a last day is included") -> avoided it; the evening task ends at 22:00 inside the until-midnight window.
+- Task.percentComplete at minute level: "working days" may mean whole days or minutes/minutesPerDay -> chose the in-progress task so both give 50 (stop at day end).
+- Task.percentComplete for an unstarted task or a milestone: 0 or null, and a milestone has zero planned length -> wrote 0.
+- Task.stop / statusDate relation: unclear whether stop must equal or not exceed the status date -> stop is on or before the status date.
+- Project.uidHighWaterMark: "taken above it" read as the highest uid used; unclear whether calendar uids and task uids must be disjoint -> calendar uid 1, tasks 2.., mark = highest task uid.
+- Ordinal / TaskGroup.order / wbsOrder: base (0 or 1) not stated -> ordinals and order 0-based, wbsOrder 1-based (outlineBase 1).
+- Task.fadeInDays / fadeOutDays: 0 or null for a task with no fade -> wrote 0.
+- Task.calendarUid, resumeValid: what GRS writes for a task it made itself -> null.
+- TaskVisual.milestoneGlyph on a non-milestone: default is "diamond" but unclear whether GRS writes it for rectangles -> null for rectangles, "diamond" for milestones.
+- Project.revision, created, id: what GRS writes in a new document -> revision 1, created a local date-time, id null.
+- Dependency.lagFormat for a zero lag: which unit GRS writes when no lag was typed -> 7 in day-level, 3 in minute-level; the hour lag uses 5 with lag 1500 (150 min x 10).
+- Exception.fromDate/toDate for a one-day exception: whole-day range rule applied -> 00:00:00..23:59:00 on the same day, recurrenceKind 1.
+- Dependency slack: unclear whether GRS refuses or notes a successor that starts later than its link allows -> some successors start later than the earliest allowed moment (e.g. minute-level uid 3, uid 6).

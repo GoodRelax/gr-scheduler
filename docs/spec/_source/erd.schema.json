@@ -495,6 +495,15 @@
      "const": true,
      "description": "The specification names the number of members but not their spellings."
     },
+    "valuesFrom": {
+     "const": "T-376",
+     "description": "CR-751: the enum's members are the rows of this table of 01-04 (the region names of T-376), read by the generator that already reads the table, so they are not copied here. Never together with \"values\"."
+    },
+    "maxItemsFrom": {
+     "type": "string",
+     "pattern": "^S-[0-9]+[a-z]?$",
+     "description": "CR-751: an array column's longest length is this settings row's machine value (settings.json). The schema prints it as maxItems, a promise to the writer; the reading path judges the length by an invariant instead."
+    },
     "default": {
      "type": [
       "string",

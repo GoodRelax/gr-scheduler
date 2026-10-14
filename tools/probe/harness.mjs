@@ -40,9 +40,11 @@ let tab = null
  * ⚠️ `settle` is the wait for the FIRST frame. BO-1 of table T-077 holds the
  * page invisible until the size is settled, so a measurement taken before it
  * reads an empty document.
+ *
+ * `app` is the page URL to open (default: this checkout's dist/index.html).
  */
 export async function open({ width = 1920, height = 1080, settle = 1700,
-                             clipboard = false } = {}) {
+                             clipboard = false, app = APP, beforeGoto = null } = {}) {
   if (browser === null) browser = await chromium.launch()
   const context = await browser.newContext({
     viewport: { width, height },
@@ -50,7 +52,10 @@ export async function open({ width = 1920, height = 1080, settle = 1700,
   })
   if (tab !== null) await tab.close().catch(() => {})
   tab = await context.newPage()
-  await tab.goto(APP)
+  // `beforeGoto(tab)` runs before the first byte loads: init scripts and
+  // console / pageerror listeners that must see the boot go here.
+  if (beforeGoto !== null) await beforeGoto(tab)
+  await tab.goto(app)
   await tab.waitForTimeout(settle)
   return tab
 }

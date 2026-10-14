@@ -71,6 +71,9 @@ import generate_entity_types as settings_reader  # noqa: E402
 # ⭐ The format version has ONE source, the build's own startup document
 # (DR-4 of table T-052); the schema's `const` is read from it (CR-643).
 from generate_startup_template import SCHEMA_VERSION  # noqa: E402
+# CR-751: the region names an enum may take come from table T-376 through the
+# one reading of that table, never retyped.
+import generate_time_zone_roster  # noqa: E402
 # HERE is docs/spec/_source/ (the manuscripts, which belong to no language);
 # what it writes goes to docs/spec/_assets/ (CR-175).
 ASSETS = os.path.join(os.path.dirname(HERE), '_assets')
@@ -217,6 +220,11 @@ CUSTOM_COLOR = '#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6}'
 DATE_TIME_DEF = 'DateTime'
 DATE_TIME_PATTERN = (r'^-?\d{4,}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?'
                      r'(Z|[+-]\d{2}:\d{2})?$')
+# CR-751: why the pattern admits an offset that a writer must not write.
+DATE_TIME_DESCRIPTION = (
+    'A wall-clock date-time in project.scheduleDataTimeZone, to the minute. '
+    'Write no offset: GRS never converts one, and keeps an imported spelling '
+    'only for the MS Project round trip.')
 # ⭐ The lexical form of xsd:time, for the two time-of-day columns of Project
 # (defaultStartTime / defaultFinishTime, MSPDI's DefaultStartTime /
 # DefaultFinishTime, CR-646). Unlike DATE_TIME_PATTERN this one is a reading
@@ -239,18 +247,19 @@ ROOT_DESCRIPTION = (
     'and why it changed. Every key is written, null included, so that "the source '
     'had no value" and "the value is 0" are never confused. What comes from MS '
     'Project XML (MSPDI) keeps its names and codes, so that a round trip loses '
-    'nothing. Times come in two kinds, for two reasons. Schedule dates (start, '
-    'finish, deadline, statusDate, calendar exceptions, comment and highlight '
-    'boxes) are local date-times without a zone, exactly as MS Project writes '
-    'them, so that they round-trip unchanged. GRS uses only their day for now; '
-    'when it writes one it uses the project\'s default start time on a start-side '
-    'column and its default finish time on a finish-side column (a milestone '
-    'takes the finish time at both ends), and 00:00:00..23:59:00 for a whole-day '
-    'range (00:00:00 for a single day such as a comment\'s anchor), because that '
-    'is what MS Project does with a date entered without a time, so the value '
-    'already means the right instant when times are used. A last day (finish, '
-    'actualFinish, stop, endDate) is included. Record instants (documentStamp, '
-    'changeLog) are UTC, so that every reader sees them in their own local time. '
+    'nothing. Times come in two kinds, for two reasons. Schedule date-times '
+    '(start, finish, deadline, statusDate, calendar exceptions, comment and '
+    'highlight boxes) are wall-clock times without a zone, exactly as MS Project '
+    'writes them, so that they round-trip unchanged; '
+    'project.scheduleDataTimeZone says whose wall clock they are. They are read '
+    'as instants to the minute (seconds are cut) and never shifted by an offset. '
+    'Write each one with its time: a date without a time is read as the start of '
+    'that day\'s first working span on a start-side column and the end of its '
+    'last span on a finish-side column, which is seldom what was meant. A '
+    'finish-side value is the instant the work ends; a milestone\'s start and '
+    'finish are the same instant. A whole-day range (calendar exceptions, boxes) '
+    'runs from 00:00:00 to 23:59:00. Record instants (documentStamp, changeLog) '
+    'are UTC, so that every reader sees them in their own local time. '
     'A null color or width follows the '
     'theme. A custom color gives the light-theme and the dark-theme value '
     '("#light/#dark"; an empty side is drawn with the other), because a readable '
@@ -400,11 +409,8 @@ def frag_body(spec, open_enums, where):
                                  % ('|'.join(names), CUSTOM_COLOR))])
 
     if kind == 'enum':
-        if 'values' in spec:
-            members = list(spec['values'])
-            if nullable:
-                members.append(None)
-            return collections.OrderedDict([('enum', members)])
+        if 'values' in spec or 'valuesFrom' in spec:
+            return enum_node(spec, where)
         open_enums.append(where)
         return typed('string', [('$comment', 'The specification names how many '
                                              'members this enumeration has but '
@@ -412,10 +418,15 @@ def frag_body(spec, open_enums, where):
 
     if kind == 'map':
         return typed('object', [('additionalProperties',
-                                 element(spec['of']))])
+                                 element(spec['of'], where))])
 
     if kind == 'array':
-        return typed('array', [('items', element(spec['of']))])
+        extra = [('items', element(spec['of'], where))]
+        if 'maxItems' in spec:
+            extra.append(('maxItems', spec['maxItems']))
+        elif 'maxItemsFrom' in spec:
+            extra.append(('maxItems', settings_row_default(spec['maxItemsFrom'], where)))
+        return typed('array', extra)
 
     if kind == 'ref':
         # CR-723: a settings value that takes a shape of table T-372. A
@@ -424,12 +435,12 @@ def frag_body(spec, open_enums, where):
         if nullable:
             raise SystemExit('%s: a reference cannot add null beside it; name '
                              'the shape in its table\'s "nullable"' % where)
-        return element(spec)
+        return element(spec, where)
 
     if kind == 'object':
         props = collections.OrderedDict()
         for name in sorted(spec['fields']):
-            props[name] = element(spec['fields'][name])
+            props[name] = element(spec['fields'][name], where)
         return typed('object', [('required', sorted(spec['fields'])),
                                 ('additionalProperties', False),
                                 ('properties', props)])
@@ -437,12 +448,37 @@ def frag_body(spec, open_enums, where):
     raise SystemExit('unknown kind %r at %s' % (kind, where))
 
 
-def element(spec):
+def element(spec, where):
     """The element type of a map, an array or an object field."""
     kind = spec['kind']
     if kind == 'ref':
         return collections.OrderedDict([('$ref', '#/$defs/%s' % spec['entity'])])
+    if kind == 'enum':
+        return enum_node(spec, where)
     return collections.OrderedDict([('type', kind)])
+
+
+# CR-751: the tables an enum may take its members from ("valuesFrom"), each
+# read by the one generator that already reads it. The schedule data's time
+# zone and the view's time zones take the region names of table T-376.
+VALUES_FROM = {
+    'T-376': lambda: [row['region'] for row in generate_time_zone_roster.build()],
+}
+
+
+def enum_node(spec, where):
+    """An enumeration, spelled out in the column or read from its table."""
+    if 'valuesFrom' in spec:
+        reader = VALUES_FROM.get(spec['valuesFrom'])
+        if reader is None:
+            raise SystemExit('%s takes its values from %s, which this generator '
+                             'does not read' % (where, spec['valuesFrom']))
+        members = reader()
+    else:
+        members = list(spec['values'])
+    if spec.get('null'):
+        members.append(None)
+    return collections.OrderedDict([('enum', members)])
 
 
 CARRY_DEF = 'Carry'
@@ -462,14 +498,14 @@ def carry_def(erd):
     """The one definition every carry store points at, typed by erd.json."""
     stores = [c for e in erd['entities'] for c in e['columns']
               if is_carry_store(e, c)]
-    shapes = set(json.dumps(element(c['json']['of'])) for c in stores)
+    shapes = set(json.dumps(element(c['json']['of'], 'Carry')) for c in stores)
     if len(shapes) != 1:
         raise SystemExit('the carry stores of erd.json disagree on their '
                          'element type: %s' % sorted(shapes))
     return collections.OrderedDict([
         ('type', 'object'),
         ('description', CARRY_DESCRIPTION),
-        ('additionalProperties', element(stores[0]['json']['of'])),
+        ('additionalProperties', element(stores[0]['json']['of'], 'Carry')),
     ])
 
 
@@ -490,6 +526,7 @@ def date_time_ref(spec, where, marker='isDate', target=None):
 
 def date_time_def():
     return collections.OrderedDict([
+        ('description', DATE_TIME_DESCRIPTION),
         ('type', ['string', 'null']),
         ('pattern', DATE_TIME_PATTERN),
     ])
