@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-PnlE3JoHoyE6Xv6y2Tv27sx7qRPJB4/1Y6c77GVxuRo='; script-src 'sha256-3tRvD9K67mfXn/x4yGZOFiDQMIv+jgCqW4A3NODRpjE='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-Xm4DFIUiu5DSdqZ64a3ZBhyRt9iVvnE5gSvvumba8V8='; script-src 'sha256-oOgOLDkOrpSASMt38NC7ujUsWVl+sTja23T6f12KECw='; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="description" content="GoodRelax Scheduler (GRS) の紹介。1 行に複数のタスクを置き、全体日程を 1 枚で見渡す、単一 HTML の日程表エディタ。">
 <title>GoodRelax Scheduler (GRS) とは</title>
@@ -44,6 +44,12 @@ h2, h3, h4, p, ul, ol { margin: 0; }
 .topbar-in { max-width: 1240px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; gap: 16px; }
 .mini-brand { flex: none; display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 15px; }
 .tabs { display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none; }
+.fs-top {
+  flex: none; margin-left: auto; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700;
+  color: var(--sub); background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px;
+}
+.fs-top:hover { color: var(--accent); border-color: var(--accent); }
+.fs-top:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .tabs::-webkit-scrollbar { display: none; }
 .tab {
   flex: none; appearance: none; border: 0; background: none; cursor: pointer;
@@ -60,7 +66,7 @@ h2, h3, h4, p, ul, ol { margin: 0; }
 main { flex: 1; min-height: 0; overflow: auto; }
 .panel { max-width: 1240px; margin: 0 auto; padding: 24px 24px 20px; }
 .js .panel[hidden] { display: none; }
-.head { margin-bottom: 18px; }
+.head { margin-bottom: 14px; }
 .head h2 { font-size: 28px; line-height: 1.3; font-weight: 800; }
 .head p { color: var(--sub); font-size: 17px; }
 .label { font-size: 13px; font-weight: 800; color: var(--faint); letter-spacing: 0.06em; margin-bottom: 8px; }
@@ -68,7 +74,11 @@ main { flex: 1; min-height: 0; overflow: auto; }
 .note code, .note .mono { font-size: 1em; }
 
 /* ---- 00 cover ---- */
-.cover { display: grid; grid-template-columns: 1.25fr 1fr; gap: 48px; align-items: center; min-height: calc(100vh - 110px); }
+#cover:not([hidden]) { display: flex; flex-direction: column; min-height: 100%; }
+.cover { flex: 1; display: grid; grid-template-columns: 1.25fr 1fr; gap: 48px; align-items: center; }
+.cover-foot { list-style: none; padding: 12px 0 0; margin-top: 16px; border-top: 1px solid var(--line); }
+.cover-foot li { font-size: 13px; color: var(--faint); line-height: 1.6; }
+.cover-foot li::before { content: "\00B7"; margin-right: 6px; }
 .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
 .brand-name { font-weight: 800; font-size: 18px; }
 .brand-tag {
@@ -171,8 +181,8 @@ main { flex: 1; min-height: 0; overflow: auto; }
 
 /* ---- 04 architecture ---- */
 .arch { display: grid; grid-template-columns: 1.05fr 1fr 1.05fr; gap: 22px; align-items: start; }
-.ring { border-radius: 14px; padding: 9px 10px 10px; }
-.ring > .rl { font-size: 13px; font-weight: 800; line-height: 1.4; margin-bottom: 7px; }
+.ring { border-radius: 14px; padding: 6px 10px 8px; }
+.ring > .rl { font-size: 13px; font-weight: 800; line-height: 1.4; margin-bottom: 5px; }
 .ring > .rl span { font-weight: 400; color: #334155; margin-left: 8px; }
 .ring.fw { background: #cfe5f6; border: 1px solid #7fb5dc; }
 .ring.ad { background: #cdebd6; border: 1px solid #79c08f; }
@@ -183,7 +193,13 @@ main { flex: 1; min-height: 0; overflow: auto; }
 .en-core b { display: block; font-family: ui-monospace, "Cascadia Mono", "Consolas", monospace; }
 .bul { padding-left: 1.1em; font-size: 15px; line-height: 1.6; }
 .bul li + li { margin-top: 4px; }
-.label.ext { margin-top: 14px; }
+.label.ext { margin-top: 10px; }
+.hi {
+  border: 2px solid var(--accent); background: var(--accent-soft); border-radius: 10px;
+  padding: 8px 12px; margin-bottom: 8px;
+}
+.hi b { display: block; font-size: 15px; line-height: 1.55; color: var(--accent); }
+.hi p { font-size: 14px; line-height: 1.55; }
 .block + .block { margin-top: 16px; }
 .tree {
   margin: 0; padding: 10px 12px; border-radius: 10px; background: var(--soft); border: 1px solid var(--line);
@@ -198,7 +214,6 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
 /* ---- small screens: the stage scrolls instead of fitting ---- */
 @media (max-width: 900px) {
   .cover, .what-top, .model, .arch { grid-template-columns: 1fr; gap: 20px; }
-  .cover { min-height: 0; }
   .groups, .sells { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 600px) {
@@ -242,6 +257,7 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
       <button class="tab" role="tab" id="tab-model" aria-controls="model" aria-selected="false" tabindex="-1"><span class="no">03</span>データモデル</button>
       <button class="tab" role="tab" id="tab-arch" aria-controls="arch" aria-selected="false" tabindex="-1"><span class="no">04</span>アーキ・保守・拡張性</button>
     </div>
+    <button class="fs-top" id="fullscreen-top" type="button">全画面</button>
   </div>
 </nav>
 
@@ -285,6 +301,11 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
       <p class="note keys">← → キーでも、タブを切り替えられる。</p>
     </div>
   </div>
+  <ul class="cover-foot">
+    <li>本内容は <a href="https://github.com/GoodRelax/gr-scheduler/tree/c581c5df4f7044b3267553ae8cbee7828837d070" target="_blank" rel="noopener noreferrer">GoodRelax/gr-scheduler の c581c5df</a>（2026-10-11 のコミット）に基づく。</li>
+    <li>GRS は現在開発中につき、予告なく仕様を変更する。</li>
+    <li>過去のバージョンが必要な場合は、<a href="https://github.com/GoodRelax/gr-scheduler/commits/main" target="_blank" rel="noopener noreferrer">GitHub の履歴</a>を探すこと。</li>
+  </ul>
 </section>
 
 <!-- ============================================================ 01 what -->
@@ -479,13 +500,14 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
           <div class="dgroup"><div class="gt">刻印 <span class="mono">documentStamp</span></div><p>更新と保存の時刻、最後に書いた者</p></div>
         </div>
       </div>
-      <p class="note method">全エンティティと列は、仕様書の ER 図にある。</p>
+      <p class="note method">全エンティティと列は、<a href="https://goodrelax.github.io/gr-scheduler/spec-html/spec/_assets/fig-erd-detail.html" target="_blank" rel="noopener noreferrer">仕様書の ER 図 ↗</a>にある。</p>
     </div>
     <ol class="points">
       <li><b>タスク・WBS は MSPDI 準拠の構造</b><p>タスクグループと画面構成は GRS 専用のデータ。</p></li>
       <li><b>識別子は MSPDI の UID</b><p>代理キーを作らない。合流も UID で照合する。</p></li>
       <li><b>予定と実績は 1 つのタスク</b><p>MSPDI と同じ列名で持つ（<code>start</code> / <code>actualStart</code> など）。</p></li>
       <li><b>未使用の MSPDI 要素</b><p>GRS で使わない MSPDI の要素も破棄しない。</p></li>
+      <li><b>JSON スキーマを提供</b><p>AI が容易に解釈可能なスキーマ。<a href="https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json" target="_blank" rel="noopener noreferrer">grs-document.schema.json ↗</a></p></li>
     </ol>
   </div>
 </section>
@@ -512,8 +534,11 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
         </div>
       </div>
       <div class="label ext">拡張性</div>
+      <div class="hi">
+        <b>サーバー連携は、AI 向けと同じ API で容易に連携可能。</b>
+        <p>サーバー向けの開発はラッパー層のみ。※ ただし、データモデルが一致する場合。</p>
+      </div>
       <ul class="bul">
-        <li>書き込みは Agent API と同じ 1 経路。サーバー連携は、その薄い包みで足せる。</li>
         <li>共同編集・権限・複数プロジェクトの統合を、作り直さずに足せる形にしてある。</li>
       </ul>
     </div>
@@ -605,6 +630,7 @@ tools/           <span class="c"># 生成器と検査</span></pre>
   // Left / right (and page up / down) step through the tabs, like slides.
   document.addEventListener("keydown", function (ev) {
     if (ev.altKey || ev.ctrlKey || ev.metaKey) { return; }
+    if (ev.key === "Escape" && document.fullscreenElement) { document.exitFullscreen(); return; }
     var onTab = ev.target.getAttribute && ev.target.getAttribute("role") === "tab";
     var step = 0;
     if (ev.key === "ArrowRight" || ev.key === "PageDown") { step = 1; }
@@ -621,17 +647,27 @@ tools/           <span class="c"># 生成器と検査</span></pre>
   });
 
   // The cover's full-screen button toggles the whole page.
-  var fs = document.getElementById("fullscreen");
+  // Both buttons (the cover's and the top bar's) toggle full screen, so it can
+  // be left from any tab; Esc also leaves it, as the browser provides.
+  var fsCover = document.getElementById("fullscreen");
+  var fsTop = document.getElementById("fullscreen-top");
   var root = document.documentElement;
-  if (!root.requestFullscreen) {
-    fs.hidden = true;
+  function showFullscreenState() {
+    var on = !!document.fullscreenElement;
+    fsCover.textContent = on ? "全画面を終える" : "全画面表示";
+    fsTop.textContent = on ? "全画面を終える" : "全画面";
+  }
+  function toggleFullscreen() {
+    var done = document.fullscreenElement ? document.exitFullscreen() : root.requestFullscreen();
+    if (done && done.then) { done.then(showFullscreenState, showFullscreenState); }
+  }
+  if (!root.requestFullscreen || document.fullscreenEnabled === false) {
+    fsCover.hidden = true;
+    fsTop.hidden = true;
   } else {
-    fs.addEventListener("click", function () {
-      if (document.fullscreenElement) { document.exitFullscreen(); } else { root.requestFullscreen(); }
-    });
-    document.addEventListener("fullscreenchange", function () {
-      fs.textContent = document.fullscreenElement ? "全画面を終える" : "全画面表示";
-    });
+    fsCover.addEventListener("click", toggleFullscreen);
+    fsTop.addEventListener("click", toggleFullscreen);
+    document.addEventListener("fullscreenchange", showFullscreenState);
   }
 
   select(location.hash.slice(1), false);
