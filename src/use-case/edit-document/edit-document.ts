@@ -34,6 +34,8 @@ export type { ResourceCommand } from './edit-resource'
 export type { CalendarCommand } from './edit-calendar'
 export type { ProjectCommand, ProjectProfileFields } from './edit-project'
 export { timeShiftPreviewOf } from './edit-project'
+export type { WholeScheduleShiftCommand } from './whole-schedule-shift'
+export { wholeScheduleShiftPreviewOf } from './whole-schedule-shift'
 export type {
   BaseChangeWay,
   BaseTimeZones,
@@ -51,6 +53,7 @@ import { editAnnotation, type AnnotationCommand } from './edit-annotation'
 import { editResource, type ResourceCommand } from './edit-resource'
 import { editCalendar, type CalendarCommand } from './edit-calendar'
 import { editProject, type ProjectCommand } from './edit-project'
+import { wholeScheduleShifted, type WholeScheduleShiftCommand } from './whole-schedule-shift'
 import {
   editDocumentSettings,
   type DocumentSettingsCommand,
@@ -137,6 +140,7 @@ export type DocumentCommand =
   | ResourceCommand
   | CalendarCommand
   | ProjectCommand
+  | WholeScheduleShiftCommand
   | DocumentSettingsCommand
 
 type AggregateEdit = (
@@ -244,6 +248,9 @@ const PROJECT_KINDS = [
   'shiftScheduleTimes',
 ] as const satisfies readonly ProjectCommand['kind'][]
 
+// see CM-99, UT-2
+const WHOLE_SCHEDULE_KINDS = ['shiftScheduleToStartDate'] as const satisfies readonly WholeScheduleShiftCommand['kind'][]
+
 const SETTINGS_KINDS = [
   'setStackDirection',
   'setElementVisible',
@@ -287,6 +294,7 @@ const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {
     editCalendar(document, command as CalendarCommand),
   ),
   ...routes(PROJECT_KINDS, (document, command) => editProject(document, command as ProjectCommand)),
+  ...routes(WHOLE_SCHEDULE_KINDS, (document, command) => wholeScheduleShifted(document, command as WholeScheduleShiftCommand)),
   ...routes(SETTINGS_KINDS, (document, command, limits) =>
     editDocumentSettings(document, command as DocumentSettingsCommand, limits),
   ),

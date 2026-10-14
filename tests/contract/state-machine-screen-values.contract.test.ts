@@ -172,6 +172,7 @@ const STATE_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   chosenRegion: [null, 'Asia/Tokyo'],
   chosenWay: ['keepGlobalTime'],
   shiftMinutes: [90],
+  newStartDate: ['2029-03-05'],
   calendarDraft: [CLEAN_CALENDAR_DRAFT, REFUSED_CALENDAR_DRAFT],
 }
 
@@ -267,6 +268,7 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   chosenRegion: ['Europe/London'],
   chosenWay: ['keepGlobalTime', 'keepLocalTime'],
   shiftMinutes: [0, 90, -30],
+  newStartDate: ['', '2029-03-05', '2029-04-02'],
   calendarDraft: [CLEAN_CALENDAR_DRAFT],
 }
 
@@ -386,6 +388,9 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
     // see FR-157, FO-16
     case 'isShiftZero':
       return event['shiftMinutes'] === 0
+    // see FR-159, FO-17
+    case 'isNewStartDateEmpty':
+      return event['newStartDate'] === ''
     // see WC-10
     case 'hasNoCalendarDraftRefusal':
       return (screen['calendarDraftState'] as Loose)['calendarDraft'] !== REFUSED_CALENDAR_DRAFT

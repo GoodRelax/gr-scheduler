@@ -455,6 +455,49 @@
      }
     },
     {
+     "name": "workingDayShiftOf",
+     "note": {
+      "ja": [
+       "全体日程シフトの写像（`FR-159` の 表 T-379 の `WH-2`〜`WH-5`）。",
+       "いまの開始日と新しい開始日から、2 つの順位 0 の日・ずらす稼働日・日を移す関数を返す。",
+       "⭐ 書き込み（`EditDocument`）と、欄の押せない時と休日の 1 行（`ScreenRenderer`）が同じ 1 本を読む"
+      ]
+     }
+    },
+    {
+     "name": "WorkingDayShift",
+     "note": {
+      "ja": [
+       "型 —— `workingDayShiftOf` の答え"
+      ]
+     }
+    },
+    {
+     "name": "earliestPlanStartDayOf",
+     "note": {
+      "ja": [
+       "全体日程シフトのいまの開始日（表 T-379 の `WH-1`）—— `Task` の予定の開始を開始の側で読んだ、いちばん早い日。",
+       "書き込みと欄の上の段が同じ 1 本を読む"
+      ]
+     }
+    },
+    {
+     "name": "NoWorkingDayReached",
+     "note": {
+      "ja": [
+       "例外の型 —— 稼働日を数える歩みが、受け入れる範囲（表 T-214）の中で稼働日に着かなかった"
+      ]
+     }
+    },
+    {
+     "name": "DaySpanTooWide",
+     "note": {
+      "ja": [
+       "例外の型 —— 数える 2 つの日が、受け入れる範囲（表 T-214）より離れている"
+      ]
+     }
+    },
+    {
      "name": "isNonRecurringException",
      "note": {
       "ja": [
@@ -2283,6 +2326,15 @@
      }
     },
     {
+     "name": "wholeScheduleShiftPreviewOf",
+     "note": {
+      "ja": [
+       "全体日程シフトの確認（`QN-15`）に出すもの（表 T-379 の `WH-11`）を、書き込む前に数える。",
+       "移すものが無いときは `null`"
+      ]
+     }
+    },
+    {
      "name": "baseChangeCommandOf",
      "note": {
       "ja": [
@@ -4052,6 +4104,14 @@
      "note": {
       "ja": [
        "タイムシフトの確認（`QN-14`）の文の下に並べる行（表 T-377 の `BS-3`）"
+      ]
+     }
+    },
+    {
+     "name": "wholeScheduleShiftQuestionItems",
+     "note": {
+      "ja": [
+       "全体日程シフトの確認（`QN-15`）の文の下に並べる行（表 T-379 の `WH-11`）"
       ]
      }
     }

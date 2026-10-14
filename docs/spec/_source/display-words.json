@@ -3858,6 +3858,13 @@
    }
   },
   {
+   "rowId": "QN-15",
+   "text": {
+    "ja": "全体日程シフトを実行して、日程全体を新しい開始日へ移しますか？ 書き換える内容は下に示します。取り消し 1 回で戻せます",
+    "en": "Shift the whole schedule to the new start date? What will be rewritten is shown below. One Undo brings it back"
+   }
+  },
+  {
    "rowId": "QN-8",
    "text": {
     "ja": "この操作を続けますか？ 取り消しで戻せない変更が起きます",
@@ -5391,6 +5398,64 @@
    "text": {
     "ja": "例: {name} {before} → {after}",
     "en": "Example: {name} {before} → {after}"
+   }
+  }
+ ],
+ "wholeScheduleShiftField": [
+  {
+   "part": "name",
+   "text": {
+    "ja": "全体日程シフト",
+    "en": "Shift Whole Schedule"
+   }
+  },
+  {
+   "part": "apply",
+   "text": {
+    "ja": "適用",
+    "en": "Apply"
+   }
+  },
+  {
+   "part": "currentStart",
+   "text": {
+    "ja": "現在の開始日: {date}",
+    "en": "Current start: {date}"
+   }
+  },
+  {
+   "part": "newStartUnit",
+   "text": {
+    "ja": "新しい開始日",
+    "en": "New start date"
+   }
+  },
+  {
+   "part": "startLine",
+   "text": {
+    "ja": "開始日: {before} → {after}",
+    "en": "Start: {before} → {after}"
+   }
+  },
+  {
+   "part": "workingDaysLine",
+   "text": {
+    "ja": "ずらす稼働日: {count} 日",
+    "en": "Working days moved: {count}"
+   }
+  },
+  {
+   "part": "pulledCountLine",
+   "text": {
+    "ja": "前の稼働日へ寄せる日付: {count} 件",
+    "en": "Dates pulled back to the previous working day: {count}"
+   }
+  },
+  {
+   "part": "holidayStartLine",
+   "text": {
+    "ja": "{typed} は休日 —— {start} から始める",
+    "en": "{typed} is not a working day; the schedule starts on {start}"
    }
   }
  ],

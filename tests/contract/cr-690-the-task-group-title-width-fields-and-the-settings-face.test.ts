@@ -30,6 +30,7 @@ const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'
   readonly icons: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly taskGroupPanelWidthField: Words
   readonly fitSpanField: Words
+  readonly wholeScheduleShiftField: Words
 }
 
 const WF_1 =
@@ -267,12 +268,19 @@ const nameCellIdOf = (cell: string): string | null => /(?:K|IC)-\d+/.exec(cell)?
 const ruleRowOf = (cell: string): string => /(?:WF|FX)-\d+/.exec(cell)?.[0] ?? ''
 const FACE_ROWS = specTable('T-369').rows.filter((row) => row.id !== 'FO-1')
 
-const faceRowOf = (row: (typeof FACE_ROWS)[number]): string => nameCellIdOf(row.by['名の語'] ?? '') ?? ruleRowOf(row.by['規則'] ?? '')
+// see FO-17, FR-159
+// WHY: the Shift Whole Schedule row is named by its dictionary section and keyed by its own T-369 row (CR-757).
+const WHOLE_SCHEDULE_SHIFT_SECTION = 'wholeScheduleShiftField'
+const isWholeScheduleShiftRow = (row: (typeof FACE_ROWS)[number]): boolean => (row.by['名の語'] ?? '').includes(WHOLE_SCHEDULE_SHIFT_SECTION)
+
+const faceRowOf = (row: (typeof FACE_ROWS)[number]): string =>
+  nameCellIdOf(row.by['名の語'] ?? '') ?? (isWholeScheduleShiftRow(row) ? row.id : ruleRowOf(row.by['規則'] ?? ''))
 
 const faceNameOf = (row: (typeof FACE_ROWS)[number], language: DisplayLanguage): string => {
   const id = nameCellIdOf(row.by['名の語'] ?? '')
   if (id?.startsWith('K-')) return settingsWordOf(id, language)
   if (id?.startsWith('IC-')) return iconWordOf(id, language)
+  if (isWholeScheduleShiftRow(row)) return partWordOf(WORDS.wholeScheduleShiftField, 'name', language)
   const words = ruleRowOf(row.by['規則'] ?? '') === WF_3 ? WORDS.taskGroupPanelWidthField : WORDS.fitSpanField
   return partWordOf(words, 'currentName', language)
 }

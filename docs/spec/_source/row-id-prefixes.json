@@ -1672,6 +1672,14 @@
    }
   },
   {
+   "prefix": "WH",
+   "words": "WHole schedule shift",
+   "owner": "spec",
+   "means": {
+    "ja": "全体日程シフトの移し方（表 T-379）"
+   }
+  },
+  {
    "prefix": "WM",
    "words": "Watermark",
    "owner": "spec",

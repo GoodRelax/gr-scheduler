@@ -65,7 +65,7 @@
 | `CH` | Challenge | 本製品が解く課題 | 仕様書 | `T-054` | 7 |
 | `CHN` | Channel | 機器と機器のあいだのデータの経路と、その信頼境界（⛔ `R-` は利用者の裁定の行と紛れるので使わない。<br>`RT` が既に「依存線の経路が満たす規則」、`RP` が「その分岐」であり、「経路」は仕様書のなかで既に別のものに使われているので、`RTE-` は選ばなかった） | 仕様書 | `T-008` | 14 |
 | `CL` | — | パレットが持つ色と線の太さの区分 | 仕様書 | `T-017` | 2 |
-| `CM` | Command | 文書を変える命令（`DocumentCommand`）1 つ | 仕様書 | `T-108` | 88 |
+| `CM` | Command | 文書を変える命令（`DocumentCommand`）1 つ | 仕様書 | `T-108` | 89 |
 | `CN` | Constraint | 製品が従う制約事項 | 仕様書 | `T-003` | 9 |
 | `CP` | Component | 設計上のコンポーネント 1 つ | 仕様書 | `T-062` | 39 |
 | `CR` | Change Request | 変更要求 1 通。<br>本体は `change-request/` の 1 ファイルであり、台帳の行はそれを引いて巡ごとの結果を記録したものである | 台帳 | `docs/development-records/W4-adapter.md` ／ `docs/development-records/W5-framework.md` | 10 |
@@ -79,7 +79,7 @@
 | `DC` | Dual Cursor | `Dual Cursor` の操作の条 | 仕様書 | `T-029a` | 9 |
 | `DEV` | Device | 配置図に載る機器（⛔ `D-` は台帳の欠陥の行と紛れるので使わない。<br>`words` は発明した語ではない） | 仕様書 | `T-007` | 6 |
 | `DF` | — | 文書の形の条 —— 交換相手の木をどう写し、解釈しない要素をどこへ置くか | 仕様書 | `T-053` | 5 |
-| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1748 |
+| `DFC` | Defect | 台帳に載る欠陥（⛔ `D-` は配置図の機器と紛れるので使わない） | 台帳 | `docs/development-records/backlog-plan-2026-10-04.md` ／ `docs/development-records/defects.md` ／ `docs/development-records/evidence/measured-2026-09-06.md` ／ `docs/development-records/evidence/measured-2026-09-07.md` ／ `docs/development-records/evidence/order-2026-09-06.md` ／ `docs/development-records/fixed-defects.md` | 1750 |
 | `DG` | — | 遅延診断が進捗マーカーに与える状態 | 仕様書 | `T-315` | 4 |
 | `DI` | Document Identity | 同じ文書かどうかの見分け方と、上書きの確認の条 | 仕様書 | `T-227` | 6 |
 | `DL` | Delay | 遅れの量の数え方の場合分け | 仕様書 | `T-021b` | 3 |
@@ -106,7 +106,7 @@
 | `FD` | Fade | フェードの形の場合分け | 仕様書 | `T-012a` | 9 |
 | `FM` | — | 遅延診断の直す案と直した記録の表の欄（表 T-374） | 仕様書 | `T-374` | 8 |
 | `FN` | File Name | 書き出しの提案する名の整え方の段 | 仕様書 | `T-352` | 5 |
-| `FO` | Field Order | 文書の設定の面の欄の並び（表 T-369） | 仕様書 | `T-369` | 16 |
+| `FO` | Field Order | 文書の設定の面の欄の並び（表 T-369） | 仕様書 | `T-369` | 17 |
 | `FT` | Frame Trigger | フレームが走る契機 | 仕様書 | `T-078` | 6 |
 | `FU` | Future | いま作らないが、後から足せるようにしておくもの | 仕様書 | `T-039` | 5 |
 | `FX` | Fit span fiXed | 全体表示時の期間の値・当てる時・欄の規則（表 T-367） | 仕様書 | `T-367` | 8 |
@@ -182,7 +182,7 @@
 | `PTD` | Pointer Down | ポインタを押したときの判定順序の段（⛔ `PD-` はまだ裁定されていない決めごとと紛れるので使わない） | 仕様書 | `T-023a` | 7 |
 | `PV` | — | 印を押して状態を確定したときに置く値 | 仕様書 | `T-021a` | 5 |
 | `PW` | Performance Watch | 性能の試験を測る時期・測り方・利用者を呼ぶ場面の決まり 1 つ | 規則 | `docs/development-rules/04-verification.md` | 4 |
-| `QN` | Question | 問いが示す文 | 仕様書 | `T-234` | 11 |
+| `QN` | Question | 問いが示す文 | 仕様書 | `T-234` | 12 |
 | `RA` | Region Addition | 状態機械に領域を 1 つ足す手順の段 | 仕様書 | `T-285` | 8 |
 | `RC` | Reduction Candidate | 削減・見直しの候補 | 仕様書 | `T-026` | 7 |
 | `RD` | — | 文書をまるごと差し替えるときの、呼び手ごとの扱い | 仕様書 | `T-230` | 6 |
@@ -226,11 +226,11 @@
 | `TS` | — | テストの系統 | 仕様書 | `T-218` | 6 |
 | `TV` | Task Visibility | 3 つの表（検索・遅延診断レポート・担当リスト）の表示の列とスケジュールフィルタで日程表に描くタスクを絞る、スケジュールフィルタの規則 | 仕様書 | `T-353` | 13 |
 | `TW` | — | 章ごとのテストの方針と合格基準 | 仕様書 | `T-219` | 3 |
-| `TX` | Time teXt | 日時を見せる所と、その所での日時と長さの形（表 T-375） | 仕様書 | `T-375` | 11 |
+| `TX` | Time teXt | 日時を見せる所と、その所での日時と長さの形（表 T-375） | 仕様書 | `T-375` | 12 |
 | `TY` | Type | 同じ手順の中で、種別の掴み代が応える順 | 仕様書 | `T-268` | 9 |
 | `U` | UI part | 画面の UI パーツ 1 つ | 仕様書 | `T-103` | 67 |
 | `UD` | Unit Division | ユニットを割る基準 | 仕様書 | `T-276` | 5 |
-| `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 99 行。コピーとして申告済み） | `T-075` | 188 |
+| `UF` | — | ユニット 1 つ —— 1 ファイルと、その純粋性と持ち主 | 仕様書（台帳にも 99 行。コピーとして申告済み） | `T-075` | 189 |
 | `UN` | Undo | 取り消しの対象と対象外 | 仕様書 | `T-027` | 21 |
 | `UO` | Unit-test Omission | 単体試験を省略してよい場合 1 つ。<br>どの行にも当たらない関数には単体試験を書く | 規則 | `docs/development-rules/04-verification.md` | 11 |
 | `UT` | — | ユニットを割った理由 | 仕様書 | `T-063` | 17 |
@@ -247,6 +247,7 @@
 | `WC` | Working Calendar | 休日の設定の欄と入口（表 T-344） | 仕様書 | `T-344` | 10 |
 | `WF` | Width Field | タスクグループパネルの幅の欄と、固定のあいだの境界の規則（表 T-368） | 仕様書 | `T-368` | 4 |
 | `PTL` | Parent Task Link | 親タスクを結ぶ・外す・辿る手の 1 行（表 T-351） | 仕様書 | `T-351` | 17 |
+| `WH` | WHole schedule shift | 全体日程シフトの移し方（表 T-379） | 仕様書 | `T-379` | 12 |
 | `WM` | Watermark | 透かしの規則の条 | 仕様書 | `T-242` | 14 |
 | `WP` | Wipe | GRS リセットが消すか残すかを決める 1 つのもの（表 T-345） | 仕様書 | `T-345` | 9 |
 | `WR` | — | 要求が表や図を指すときの書き方 —— 1 つが正、もう 1 つが禁じられた形である | 規則 | `docs/development-rules/08-spec-template/spec-writing-rules.md` | 2 |

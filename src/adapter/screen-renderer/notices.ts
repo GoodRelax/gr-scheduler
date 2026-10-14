@@ -22,6 +22,7 @@ import {
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import { dayOf, instantOf, textOfInstant, TIME_ZONE_ROWS } from '../../entity/document-model/schedule/schedule'
 import { clockTextOf, planDateText } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import { dateText } from './table-window'
 import displayWords from './display-words.json'
 
 const STARTUP_PENDING_MANNER = 'NT-4'
@@ -31,6 +32,10 @@ const ZONE_WORDS_BY_ROW = new Map(displayWords.timeZones.map((entry) => [entry.r
 const ROW_OF_REGION = new Map(TIME_ZONE_ROWS.map((row) => [row.region, row.rowId]))
 
 const TIME_ZONE_FIELD_WORDS = new Map(displayWords.timeZoneField.map((entry) => [entry.part, entry.text]))
+
+type Slots = Readonly<Record<string, string>>
+
+const WHOLE_SCHEDULE_SHIFT_WORDS = new Map(displayWords.wholeScheduleShiftField.map((entry) => [entry.part, entry.text]))
 
 // see FR-156, T-376, FR-038
 // WHY: the dictionary's words of the table's row; a region outside the table shows its own name (it is a value).
@@ -83,8 +88,7 @@ export function timeShiftQuestionItems(
   session: ScreenSession,
 ): readonly { readonly name: string | null; readonly isShownOnAnotherTaskGroup: boolean }[] {
   const language = displayLanguageOf(session)
-  const line = (part: string, slots: Readonly<Record<string, string>>): string =>
-    Object.entries(slots).reduce((text, [slot, value]) => text.replace(`{${slot}}`, value), timeZoneFieldWord(part, language))
+  const line = (part: string, slots: Slots): string => timeZoneLine(language, part, slots)
   const lines = [
     line('shiftAmountLine', { amount: shiftAmountText(preview.minutes) }),
     line('shiftTaskCountLine', { count: String(preview.taskCount) }),
@@ -96,6 +100,58 @@ export function timeShiftQuestionItems(
           before: shownDateTimeOf(preview.example.before),
           after: shownDateTimeOf(preview.example.after),
         })]),
+  ]
+  return lines.map((name) => ({ name, isShownOnAnotherTaskGroup: false }))
+}
+
+// see FO-17, WH-1, WH-2, WH-11, WH-12
+/** @purity pure */
+export function wholeScheduleShiftFieldWord(part: string, language: DisplayLanguage): string {
+  return WHOLE_SCHEDULE_SHIFT_WORDS.get(part)?.[language] ?? ''
+}
+
+// see WH-11, QN-15
+// WHY: EditDocument's preview, restated by shape: ScreenRenderer declares no edge to that component (check 59).
+export interface WholeScheduleShiftPreview {
+  readonly currentStart: string
+  readonly typedStart: string
+  readonly newStart: string
+  readonly isNewStartNonWorking: boolean
+  readonly workingDays: number
+  readonly taskCount: number
+  readonly pulledCount: number
+  readonly outsideCount: number
+  readonly example: { readonly name: string | null; readonly before: string; readonly after: string } | null
+}
+
+/** @purity pure */
+function slotted(word: string, slots: Slots): string {
+  return Object.entries(slots).reduce((text, [slot, value]) => text.replace(`{${slot}}`, value), word)
+}
+
+// see BS-3, WH-11
+/** @purity pure */
+function timeZoneLine(language: DisplayLanguage, part: string, slots: Slots): string {
+  return slotted(timeZoneFieldWord(part, language), slots)
+}
+
+// see QN-15, WH-2, WH-11, TX-12
+/** @purity pure */
+export function wholeScheduleShiftQuestionItems(
+  preview: WholeScheduleShiftPreview,
+  session: ScreenSession,
+): readonly { readonly name: string | null; readonly isShownOnAnotherTaskGroup: boolean }[] {
+  const language = displayLanguageOf(session)
+  const own = (part: string, slots: Slots): string => slotted(wholeScheduleShiftFieldWord(part, language), slots)
+  const example = preview.example
+  const lines = [
+    own('startLine', { before: dateText(preview.currentStart), after: dateText(preview.typedStart) }),
+    ...(preview.isNewStartNonWorking ? [own('holidayStartLine', { typed: dateText(preview.typedStart), start: dateText(preview.newStart) })] : []),
+    own('workingDaysLine', { count: String(preview.workingDays) }),
+    timeZoneLine(language, 'shiftTaskCountLine', { count: String(preview.taskCount) }),
+    own('pulledCountLine', { count: String(preview.pulledCount) }),
+    timeZoneLine(language, 'shiftOutsideCountLine', { count: String(preview.outsideCount) }),
+    ...(example === null ? [] : [timeZoneLine(language, 'shiftExampleLine', { name: example.name ?? '', before: dateText(example.before), after: dateText(example.after) })]),
   ]
   return lines.map((name) => ({ name, isShownOnAnotherTaskGroup: false }))
 }

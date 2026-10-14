@@ -397,6 +397,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   timeZones: 'rowId',
   // WHY: CR-710 wave 3b keys the words of the zone fields and of the Time Shift question by their part.
   timeZoneField: 'part',
+  // WHY: CR-757 keys the words of the Shift Whole Schedule row (FO-17) and of its question by their part.
+  wholeScheduleShiftField: 'part',
   // WHY: CR-743 section 4.4 keys the Holiday Settings words (U-65, T-344) by the part they fill.
   holidaySettings: 'part',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
@@ -2590,6 +2592,34 @@ for (const entry of GENERATED['timeZoneField'] ?? []) {
   })
 }
 
+// see FO-17, FR-159, WH-1, WH-12
+// WHY: the frame's document holds no task, so the current start reads as the dash WH-1 names; it is put back as the slot.
+const NO_CURRENT_START = '—'
+const READOUT_LINE_BREAK = '\n'
+const WHOLE_SCHEDULE_SHIFT_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
+  name: (view) => settingsRowOf(view, 'FO-17')?.name,
+  apply: (view) => settingsRowOf(view, 'FO-17')?.controls[1]?.press,
+  newStartUnit: (view) => settingsRowOf(view, 'FO-17')?.unit,
+  currentStart: (view) => settingsRowOf(view, 'FO-17')?.readout?.split(READOUT_LINE_BREAK)[0]?.replace(NO_CURRENT_START, '{date}'),
+}
+const WHOLE_SCHEDULE_SHIFT_NOT_ON_A_FRAME = 'a QN-15 line or the WH-2 holiday line: it needs a dated task and a typed date, which no frame of this file holds'
+for (const entry of GENERATED['wholeScheduleShiftField'] ?? []) {
+  const part = keyOf('wholeScheduleShiftField', entry)
+  if (WHOLE_SCHEDULE_SHIFT_READS[part] === undefined) {
+    drop('wholeScheduleShiftField', part, WHOLE_SCHEDULE_SHIFT_NOT_ON_A_FRAME)
+    continue
+  }
+  place({
+    section: 'wholeScheduleShiftField',
+    key: part,
+    field: 'text',
+    unit: 'UF-64',
+    what: `the ${part} word of the Shift Whole Schedule row of the settings face (FO-17 of table T-369)`,
+    frame: SETTINGS_WITH_READOUTS,
+    read: (view) => WHOLE_SCHEDULE_SHIFT_READS[part]?.(view),
+  })
+}
+
 // see U-65, T-344, WC-2, WC-3, WC-4, WC-8, WC-10
 // WHY: CR-743 section 4.4 -- the headings and column words of Holiday Settings, read off the surface its scene opens.
 const HOLIDAY_SETTINGS_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
@@ -3092,6 +3122,18 @@ const shownSpanFramesShowing = (
   const pattern = new RegExp(`^${word.split(/\{start\}|\{finish\}/).map(escapeForRegExp).join('\\d{4}/\\d{2}/\\d{2}')}$`)
   return FRAMES.filter((one) =>
     stringsOfView(viewOf(screenViewFromRegions, one.frame, language)).some((text) => pattern.test(text)),
+  )
+}
+
+// see FO-17, WH-1, TX-12
+// WHY: `currentStart` fills `{date}` with a shown day or WH-1's dash, on the first line of the read-out.
+const wholeScheduleShiftFramesShowing = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] => {
+  const pattern = new RegExp(`^${word.split('{date}').map(escapeForRegExp).join('(?:\\d{4}/\\d{2}/\\d{2}|\\u2014)')}$`)
+  return FRAMES.filter((one) =>
+    stringsOfView(viewOf(screenViewFromRegions, one.frame, language)).some((text) => text.split(READOUT_LINE_BREAK).some((line) => pattern.test(line))),
   )
 }
 
@@ -3661,6 +3703,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
                 ? rowMinHeightFieldFramesShowing(cell.word, cell.language)
                 : cell.section === 'fitSpanField'
                 ? shownSpanFramesShowing(cell.word, cell.language)
+                : cell.section === 'wholeScheduleShiftField'
+                ? wholeScheduleShiftFramesShowing(cell.word, cell.language)
                 : cell.section === 'propertyField'
                 ? propertyFieldFramesShowing(cell.word, cell.language)
                 : cell.section === 'colorField' && cell.key === 'customValue'

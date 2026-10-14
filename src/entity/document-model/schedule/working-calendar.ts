@@ -8,6 +8,7 @@ import {
   compareDays,
   dayFromSerial,
   dayOf,
+  finishSideDayOf,
   instantOf,
   isDateWithoutTime,
   serial,
@@ -232,6 +233,121 @@ export function nextWorkingDay(within: WorkingCalendar, from: CalendarDay): Cale
     at += 1
   }
   return dayFromSerial(at)
+}
+
+// see FR-159, WH-3
+/** @purity pure */
+export function previousWorkingDay(within: WorkingCalendar, from: CalendarDay): CalendarDay {
+  return dayFromSerial(previousWorkingSerial(indexOfCalendar(within), serial(from), within.calendar.uid))
+}
+
+/** @purity pure */
+function previousWorkingSerial(index: CalendarIndex, fromSerial: number, calendarUid: number): number {
+  let at = fromSerial - 1
+  let walked = 0
+  while (!isWorkingDayAt(index, at)) {
+    if (walked++ > ACCEPTED_DAY_SPAN) throw new NoWorkingDayReached(calendarUid)
+    at -= 1
+  }
+  return at
+}
+
+/** @purity pure */
+function rankZeroSerial(index: CalendarIndex, day: CalendarDay, calendarUid: number): number {
+  const at = serial(day)
+  return isWorkingDayAt(index, at) ? at : previousWorkingSerial(index, at, calendarUid)
+}
+
+export interface MovedDay {
+  readonly day: CalendarDay
+  readonly isPulled: boolean
+}
+
+// see FR-159, T-379, WH-2, WH-3, WH-9
+export interface WorkingDayShift {
+  readonly fromZero: CalendarDay
+  readonly toZero: CalendarDay
+  readonly isNewStartNonWorking: boolean
+  readonly workingDays: number
+  readonly moveDay: (day: CalendarDay) => MovedDay
+}
+
+// see FR-159, T-379, WH-2, WH-3, WH-4, WH-5
+// WHY: the one mapping the write, the question's counts and the Agent API share (R2.21); ranks are walked once per pass.
+/** @purity pure */
+export function workingDayShiftOf(within: WorkingCalendar, currentStart: CalendarDay, newStart: CalendarDay): WorkingDayShift {
+  const index = indexOfCalendar(within)
+  const uid = within.calendar.uid
+  const fromZero = rankZeroSerial(index, currentStart, uid)
+  const toZero = rankZeroSerial(index, newStart, uid)
+  const rankOf = rankCounter(index, fromZero)
+  const serialOfRank = rankWalker(index, toZero, uid)
+  const moveDay = (day: CalendarDay): MovedDay => {
+    const at = serial(day)
+    const isPulled = !isWorkingDayAt(index, at)
+    const source = isPulled ? previousWorkingSerial(index, at, uid) : at
+    return { day: dayFromSerial(serialOfRank(rankOf(source))), isPulled }
+  }
+  return {
+    fromZero: dayFromSerial(fromZero),
+    toZero: dayFromSerial(toZero),
+    isNewStartNonWorking: toZero !== serial(newStart),
+    workingDays: rankOf(toZero),
+    moveDay,
+  }
+}
+
+// see WH-3
+// WHY: half-open counts from the rank-0 day, grown on demand and kept for the pass (workingDaysBetween's count).
+/** @purity pure */
+function rankCounter(index: CalendarIndex, zero: number): (atSerial: number) => number {
+  const ahead = [0]
+  const behind = [0]
+  return (atSerial) => {
+    const offset = atSerial - zero
+    const counts = offset >= 0 ? ahead : behind
+    const size = Math.abs(offset)
+    if (size > ACCEPTED_DAY_SPAN) throw new DaySpanTooWide(dayFromSerial(zero), dayFromSerial(atSerial))
+    while (counts.length <= size) {
+      const step = counts.length
+      const covered = offset >= 0 ? zero + step - 1 : zero - step
+      counts.push((counts[step - 1] ?? 0) + (isWorkingDayAt(index, covered) ? 1 : 0))
+    }
+    return offset >= 0 ? (counts[size] ?? 0) : -(counts[size] ?? 0)
+  }
+}
+
+// see WH-4
+/** @purity pure */
+function rankWalker(index: CalendarIndex, zero: number, calendarUid: number): (rank: number) => number {
+  const ahead = [zero]
+  const behind = [zero]
+  return (rank) => {
+    const days = rank >= 0 ? ahead : behind
+    const step = rank >= 0 ? 1 : -1
+    while (days.length <= Math.abs(rank)) {
+      let at = (days[days.length - 1] ?? zero) + step
+      let walked = 0
+      while (!isWorkingDayAt(index, at)) {
+        if (walked++ > ACCEPTED_DAY_SPAN) throw new NoWorkingDayReached(calendarUid)
+        at += step
+      }
+      days.push(at)
+    }
+    return days[Math.abs(rank)] ?? zero
+  }
+}
+
+// see FR-159, WH-1, WT-1, WT-5, FR-054
+/** @purity pure */
+export function earliestPlanStartDayOf(tasks: readonly Pick<Task, 'start' | 'milestone'>[]): CalendarDay | null {
+  let earliest: CalendarDay | null = null
+  for (const task of tasks) {
+    if (instantOf(task.start) === null) continue
+    const day = startSideOf(task) === 'finish' ? finishSideDayOf(task.start) : dayOf(task.start)
+    if (day !== null && (earliest === null || compareDays(day, earliest) < 0)) earliest = day
+  }
+  return earliest
 }
 
 // see FR-011, T-019
