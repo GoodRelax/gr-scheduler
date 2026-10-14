@@ -1,11 +1,27 @@
-// InputCommandTranslator -- the screen-value event of an input (T-280, IN-4 of table T-028, T-023b).
+// InputCommandTranslator -- the screen-value event of an input or a settled field (T-280, IN-4 of table T-028, T-023b).
 // @unit      UF-102  (docs/spec/05-07-design.md, table T-075)
 // @component InputCommandTranslator, layer Adapter (table T-062)
 // @purity    pure
 
-import { taskByUid } from '../../entity/document-model/schedule/schedule'
-import type { ScreenValuesEvent } from '../../use-case/advance-screen-session/advance-screen-session'
+import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
+import { compareDays, dayOf, taskByUid, type CalendarDay } from '../../entity/document-model/schedule/schedule'
+import {
+  calendarDraftOf,
+  withExceptionAdded,
+  withExceptionDayTyped,
+  withExceptionDeleted,
+  withExceptionKindToggled,
+  withExceptionNameTyped,
+  withRangeAdded,
+  withRangeDeleted,
+  withRangeTimeTyped,
+  withWeekdayToggled,
+  withWeekStart,
+  type ScreenValuesEvent,
+  type SessionEvent,
+} from '../../use-case/advance-screen-session/advance-screen-session'
 import { cycleTaskPlanActualState } from '../../use-case/edit-document/edit-document'
+import type { FieldCommit, ScreenPart } from '../screen-renderer/screen-renderer'
 import type {
   HumanInput,
   KeyInput,
@@ -76,9 +92,109 @@ const FULL_SCREEN_ENTRY_PRESSED: ScreenValuesEvent = { type: 'fullScreenEntryPre
 
 const ARM_DROPPED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
 
+// see U-65, IC-138, IC-161, IC-162, FO-14, RS-87, T-214
+const HOLIDAY_SETTINGS_ROW = 'U-65'
+
+type CalendarDraft = Extract<ScreenValuesEvent, { readonly type: 'calendarDraftEdited' }>['calendarDraft']
+
+type BaseChangeWay = Extract<ScreenValuesEvent, { readonly type: 'baseChangeWayChosen' }>['chosenWay']
+
+// TRAP: a backtick, not a quote: check 19 counts the word followed by a quote as an import specifier.
+const FROM_SIDE = `from` as const
+
+const CALENDAR_APPLY_ENTRY_PRESSED: ScreenValuesEvent = { type: 'calendarApplyEntryPressed' }
+
+const BASE_CHANGE_ENTRY_PRESSED: ScreenValuesEvent = { type: 'baseChangeEntryPressed' }
+
+const TIME_SHIFT_ENTRY_PRESSED: ScreenValuesEvent = { type: 'timeShiftEntryPressed' }
+
+const BASE_CHANGE_WAYS: readonly BaseChangeWay[] = ['keepGlobalTime', 'keepLocalTime']
+
+const UNREADABLE_DAY_TOLD: SessionEvent = { type: 'noticeRaised', reason: 'RS-87', affectedCount: null }
+
+const EARLIEST_ACCEPTED_DAY = dayOf(SETTINGS_CONSTANTS.importMinDate)
+const LATEST_ACCEPTED_DAY = dayOf(SETTINGS_CONSTANTS.importMaxDate)
+
+// WHY: hours and minutes with a sign (FR-157, CM-98): `-16`, `+1:30`, `-0:45`; anything else settles nothing.
+const TIME_SHIFT_AMOUNT = /^([+-]?)(\d{1,5})(?::([0-5]\d))?$/
+
+const MINUTES_PER_HOUR = 60
+
 /** @purity pure */
 function surfaceEntered(surfaceName: string): ScreenValuesEvent {
   return { type: 'surfaceEntryPressed', surfaceName }
+}
+
+// WHY: untouched, the first edit starts from the document's calendar; calendarDraftEdited carries the whole draft (T-280).
+/** @purity pure */
+function heldCalendarDraftOf(context: InputContext): CalendarDraft {
+  const held = context.screen.calendarDraftState
+  return held.kind === 'drafted' ? held.calendarDraft : calendarDraftOf(context.document.schedule)
+}
+
+// WHY: an edit that leaves the draft as it is moves nothing (calendar-draft.ts hands the same draft back).
+/** @purity pure */
+function calendarDraftEdited(context: InputContext, edit: (draft: CalendarDraft) => CalendarDraft): ScreenValuesEvent | null {
+  const before = heldCalendarDraftOf(context)
+  const after = edit(before)
+  return after === before ? null : { type: 'calendarDraftEdited', calendarDraft: after }
+}
+
+// WHY: the drawn row names its place in the draft's list; the draft's edits find an exception by its ordinal (AT-77).
+/** @purity pure */
+function exceptionEdited(
+  context: InputContext,
+  index: number,
+  edit: (draft: CalendarDraft, ordinal: number) => CalendarDraft,
+): ScreenValuesEvent | null {
+  return calendarDraftEdited(context, (draft) => {
+    const ordinal = draft.exceptions[index]?.ordinal
+    return ordinal === undefined ? draft : edit(draft, ordinal)
+  })
+}
+
+/** @purity pure */
+function exceptionAdded(context: InputContext): ScreenValuesEvent | null {
+  const today = dayOf(context.today)
+  if (today === null) return null
+  return calendarDraftEdited(context, (draft) => withExceptionAdded(draft, context.document.schedule, today))
+}
+
+// WHY: the entrances of one row: IC-133's place is the weekday's AT-73 code, the others' the row's place in the draft.
+/** @purity pure */
+function holidayRowEntryEventOf(entry: string, at: number, context: InputContext): ScreenValuesEvent | null {
+  switch (entry) {
+    case ENTRY.holidayWeekday:
+      return calendarDraftEdited(context, (draft) => withWeekdayToggled(draft, at))
+    case ENTRY.holidayRangeDelete:
+      return calendarDraftEdited(context, (draft) => withRangeDeleted(draft, at))
+    case ENTRY.holidayExceptionDelete:
+      return exceptionEdited(context, at, withExceptionDeleted)
+    case ENTRY.holidayExceptionWorking:
+      return exceptionEdited(context, at, withExceptionKindToggled)
+    default:
+      return null
+  }
+}
+
+// see IC-132, IC-135, IC-138, IC-163, T-344, T-280
+/** @purity pure */
+function holidaySettingsEventOf(on: ScreenPart, context: InputContext): ScreenValuesEvent | null {
+  switch (on.entry) {
+    case ENTRY.holidaySettings:
+      return surfaceEntered(HOLIDAY_SETTINGS_ROW)
+    case ENTRY.holidayApply:
+      return CALENDAR_APPLY_ENTRY_PRESSED
+    case ENTRY.holidayRangeAdd:
+      return calendarDraftEdited(context, withRangeAdded)
+    case ENTRY.holidayExceptionAdd:
+      return exceptionAdded(context)
+    default:
+      break
+  }
+  const target = on.holidaySettingsTarget ?? ''
+  const at = target === '' ? Number.NaN : Number(target)
+  return on.entry === null || !Number.isInteger(at) ? null : holidayRowEntryEventOf(on.entry, at, context)
 }
 
 // see FR-083, T-023b, T-280
@@ -221,5 +337,77 @@ export function screenEventFromInput(
     return screenEventFromPanelDivider(input, press, context)
   }
   if (on.entry === null) return null
-  return windowEventOf(on.entry, on.part) ?? screenEventFromEntry(on.entry, context)
+  return windowEventOf(on.entry, on.part) ?? holidaySettingsEventOf(on, context) ?? screenEventFromEntry(on.entry, context)
+}
+
+type DraftKey<Holder extends string> = Extract<FieldCommit['key'], { readonly holder: Holder }>
+
+// see FO-14, FR-156, IC-161, T-280
+/** @purity pure */
+function baseTimeZoneDraftEventOf(column: DraftKey<'baseTimeZoneDraft'>['column'], text: string): ScreenValuesEvent | null {
+  if (column === 'entry') return BASE_CHANGE_ENTRY_PRESSED
+  if (column === 'chosenWay') {
+    const chosenWay = BASE_CHANGE_WAYS.find((one) => one === text)
+    return chosenWay === undefined ? null : { type: 'baseChangeWayChosen', chosenWay }
+  }
+  return text === '' ? null : { type: 'baseTimeZoneChosen', chosenRegion: text }
+}
+
+// see FO-16, FR-157, IC-162, CM-98, T-280
+/** @purity pure */
+function timeShiftDraftEventOf(column: DraftKey<'timeShift'>['column'], text: string): ScreenValuesEvent | null {
+  if (column === 'entry') return TIME_SHIFT_ENTRY_PRESSED
+  const held = text.trim()
+  const hit = held === '' ? null : TIME_SHIFT_AMOUNT.exec(held)
+  if (held !== '' && hit === null) return null
+  const size = hit === null ? 0 : Number(hit[2]) * MINUTES_PER_HOUR + Number(hit[3] ?? 0)
+  return { type: 'timeShiftAmountSettled', shiftMinutes: hit?.[1] === '-' ? -size : size }
+}
+
+// see WC-4, IV-14, T-214, RS-87
+/** @purity pure */
+function acceptedDayOf(text: string): CalendarDay | null {
+  const day = dayOf(text.trim())
+  if (day === null || EARLIEST_ACCEPTED_DAY === null || LATEST_ACCEPTED_DAY === null) return null
+  return compareDays(day, EARLIEST_ACCEPTED_DAY) < 0 || compareDays(day, LATEST_ACCEPTED_DAY) > 0 ? null : day
+}
+
+// see WC-4, RS-87
+/** @purity pure */
+function exceptionDayEventOf(index: number, isFrom: boolean, text: string, context: InputContext): SessionEvent | null {
+  const day = acceptedDayOf(text)
+  if (day === null) return UNREADABLE_DAY_TOLD
+  const side = isFrom ? FROM_SIDE : 'to'
+  return exceptionEdited(context, index, (draft, ordinal) => withExceptionDayTyped(draft, ordinal, side, day))
+}
+
+// see WC-3, WC-4, WC-8, IC-134, IC-165, IN-6, T-280
+/** @purity pure */
+function calendarDraftFieldEventOf(key: DraftKey<'calendarDraft'>, text: string, context: InputContext): SessionEvent | null {
+  switch (key.column) {
+    case 'weekStartDay': {
+      const weekStartDay = Number(text)
+      return Number.isInteger(weekStartDay) ? calendarDraftEdited(context, (draft) => withWeekStart(draft, weekStartDay)) : null
+    }
+    case 'fromTime':
+    case 'toTime': {
+      const side = key.column === 'fromTime' ? FROM_SIDE : 'to'
+      return calendarDraftEdited(context, (draft) => withRangeTimeTyped(draft, key.index, side, text))
+    }
+    case 'name':
+      return exceptionEdited(context, key.index, (draft, ordinal) => withExceptionNameTyped(draft, ordinal, text.trim()))
+    default:
+      return exceptionDayEventOf(key.index, key.column === 'fromDate', text, context)
+  }
+}
+
+// see FO-14, FO-16, WC-3, WC-4, WC-8, T-280, IN-6
+// WHY: a screen draft's field settles into the screen values, or tells RS-87; null leaves it to commandFromFieldCommit.
+/** @purity pure */
+export function screenEventFromFieldCommit(commit: FieldCommit, context: InputContext): SessionEvent | null {
+  const key = commit.key
+  if (key.holder === 'baseTimeZoneDraft') return baseTimeZoneDraftEventOf(key.column, commit.text)
+  if (key.holder === 'timeShift') return timeShiftDraftEventOf(key.column, commit.text)
+  if (key.holder === 'calendarDraft') return calendarDraftFieldEventOf(key, commit.text, context)
+  return null
 }

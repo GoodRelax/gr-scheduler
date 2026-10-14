@@ -799,6 +799,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PressRow` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#PressRow` | PI-18 | 型。 |
 | `pressRowOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#pressRowOf` | PI-18 | 押下がどの行で始まったかを答える。 |
 | `rememberedActualIn` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rememberedActualIn` | -- | function rememberedActualIn(context: InputContext, taskUid: number): RememberedActual \| null |
+| `screenEventFromFieldCommit` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromFieldCommit` | -- | function screenEventFromFieldCommit(commit: FieldCommit, context: InputContext): SessionEvent \| null |
 | `screenEventFromInput` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromInput` | PI-18 | 入力から画面の値の出来事を 1 つ作る。 |
 | `ScrollAnchor` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#ScrollAnchor` | -- | interface ScrollAnchor |
 | `scrollAreaTopOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#scrollAreaTopOf` | -- | function scrollAreaTopOf(context: InputContext): number |
@@ -1985,4 +1986,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1009 name(s) leave through a public entry (450 of them published by table T-064), 766 more are exported by a file and not by its entry.
+Totals: 1010 name(s) leave through a public entry (450 of them published by table T-064), 766 more are exported by a file and not by its entry.
