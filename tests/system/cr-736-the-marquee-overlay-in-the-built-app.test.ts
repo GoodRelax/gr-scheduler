@@ -140,6 +140,9 @@ const here = (): Page => {
   return stage.page
 }
 
+const IF_1_ONLY_WHILE_NOT_EMPTY = '重ねの要素は、重ねの絵が空でないあいだだけ置き、空になったら外すこと（MUST）'
+const IF_1_LAST_CHILD = '置くときは Schedule Canvas の宿主の最後の子とし、position:absolute で下の絵と同じ左上に載せること（MUST）'
+
 test.describe('CR-736 the manuscript these cases are driven by', () => {
   test('T-065 IF-1 puts the overlay in front inside Schedule Canvas, takes no point, and writes nothing twice', () => {
     const row = specTable('T-065').rows.find((one) => one.id === 'IF-1')
@@ -148,33 +151,41 @@ test.describe('CR-736 the manuscript these cases are driven by', () => {
     expect(text).toContain('重ねの絵は点を受けない')
     expect(text).toContain('渡された文字列が前に載せたものと同じなら画面を書き換えないこと（MUST）')
   })
+
+  test('T-065 IF-1 (a)-(c) keeps the overlay element only while it is not empty, as the last child, absolute, and called only on a change', () => {
+    const row = specTable('T-065').rows.find((one) => one.id === 'IF-1')
+    const text = unbroken((row?.cells ?? []).join(' ')).replace(/`/g, '')
+    expect(text).toContain(IF_1_ONLY_WHILE_NOT_EMPTY)
+    expect(text).toContain(IF_1_LAST_CHILD)
+    expect(text).toContain('SingleHtmlShell（CP-25）は重ねの絵の文字列を覚え（初めは空）、前と違うときだけ重ねの口を呼ぶこと（MUST）')
+  })
 })
 
 test.describe('CR-736 IF-1 in the shipped build', () => {
-  test('while a marquee is held the last child of Schedule Canvas is the overlay: ZO-6 only, in front, no pointer', async () => {
+  test('T-065 IF-1 (b): while a marquee is held the last child of Schedule Canvas is the overlay: ZO-6 only, in front, no pointer', async () => {
     const page = here()
     const from = await emptyGround(page)
     await hold(page, from, { x: from.x + SPAN.width, y: from.y + SPAN.height })
     const held = await readCanvas(page)
-    expect(held.lastIsSvg, 'the last child is an SVG').toBe(true)
+    expect(held.lastIsSvg, `table T-065 IF-1: ${IF_1_LAST_CHILD}`).toBe(true)
     expect(held.lastIsFirstSvg, 'the overlay is not the picture beneath').toBe(false)
     expect(held.lastZoRows, 'table T-065 IF-1: the overlay holds ZO-6 only').toEqual(['ZO-6'])
     expect(held.firstZoRows, 'the picture beneath holds no ZO-6').not.toContain('ZO-6')
     expect(held.lastDashedRects, 'table T-023c SL-3: one rectangle is being taken').toBe(1)
     expect(held.lastPointerEvents, 'table T-065 IF-1: 重ねの絵は点を受けない').toBe('none')
-    expect(held.lastPosition, 'laid in front of the picture beneath, not after it in the flow').toBe('absolute')
+    expect(held.lastPosition, `table T-065 IF-1: ${IF_1_LAST_CHILD}`).toBe('absolute')
     await page.mouse.up()
     await settle(page)
   })
 
-  test('on release the rectangle is gone from Schedule Canvas, and what is left in front takes no point', async () => {
+  test('T-065 IF-1 (a): on release the rectangle is gone from Schedule Canvas, and what is left in front takes no point', async () => {
     const page = here()
     const from = await emptyGround(page)
     await hold(page, from, { x: from.x + SPAN.width, y: from.y + SPAN.height })
     await page.mouse.up()
     await settle(page)
     const released = await readCanvas(page)
-    expect(released.canvasZoRows, 'table T-023c SL-3: the rectangle goes the moment the button is let go').not.toContain('ZO-6')
+    expect(released.canvasZoRows, `table T-023c SL-3, table T-065 IF-1: ${IF_1_ONLY_WHILE_NOT_EMPTY}`).not.toContain('ZO-6')
     expect(released.lastIsFirstSvg ? 'beneath' : released.lastPointerEvents).toMatch(/^(beneath|none)$/)
   })
 
@@ -215,7 +226,7 @@ test.describe('CR-736 IF-1 in the shipped build', () => {
     await settle(page)
   })
 
-  test('while the marquee is dragged only the overlay is rewritten; a held still pointer rewrites nothing', async () => {
+  test('T-065 IF-1 (c): while the marquee is dragged only the overlay is rewritten; a held still pointer rewrites nothing', async () => {
     const page = here()
     const from = await emptyGround(page)
     await page.mouse.move(from.x, from.y)

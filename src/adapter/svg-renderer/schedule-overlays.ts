@@ -70,7 +70,7 @@ export interface OverlaysInput {
   readonly themed: (rowId: string) => string
   readonly chosen: ChosenColor
   readonly drawsOperationState: boolean
-  readonly pointer: Point | null
+  readonly guideCursorPoint: Point | null
   readonly following: DualCursorFollow | null
   readonly selectedStatusLine: boolean
   readonly strokeOfBox: ReadonlyMap<
@@ -315,6 +315,19 @@ function commentHandleSvg(box: CommentGeometry, ground: string, edge: string): s
   )
 }
 
+// see ZO-8, CU-2, DC-3, CA-1, PI-19
+// WHY: the reading that owns the point, so the drawn guide and the dual cursor readout agree on the edge (DFC-1053).
+/** @purity pure */
+export function guideCursorPointOf(
+  regions: ScreenRegions,
+  guideCursorMode: ViewerValues['guideCursorMode'],
+  pointer: Point | null,
+): Point | null {
+  if (guideCursorMode === 'none' || pointer === null) return null
+  if (regionAtPointer(regions, pointer.x, pointer.y) !== 'taskGroupArea') return null
+  return { x: pointer.x, y: pointer.y }
+}
+
 // see CU-2, DC-2, DC-8
 /** @purity pure */
 function dualCursorLines(input: OverlaysInput): readonly string[] {
@@ -351,7 +364,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
     regions,
     themed,
     drawsOperationState,
-    pointer,
+    guideCursorPoint,
     selectedStatusLine,
     selectedBoxes,
     selectedComments,
@@ -387,29 +400,25 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
 
   linkParts.push(...dualCursorLines(input))
 
-  if (drawsOperationState && guideCursorMode !== 'none' && pointer !== null) {
+  if (drawsOperationState && guideCursorPoint !== null) {
     const area = regions.taskGroupArea
-    // see CU-2, DC-3
-    // WHY: the reading that owns the point, so the drawn guide and the dual cursor readout agree on the edge (DFC-1053).
-    if (regionAtPointer(regions, pointer.x, pointer.y) === 'taskGroupArea') {
-      const guideColor = themed('S-195')
-      const guideWidth = NOT_STORED_DUAL_CURSOR_SIZES['S-194']
-      const vertical = (x: number): string =>
-        `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
-        ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
-        ` stroke="${guideColor}" stroke-width="${rounded(guideWidth)}"` +
-        `${figureKey('guide-cursor-vertical')}/>`
-      if (guideCursorMode === 'crosshair') {
-        linkParts.push(vertical(pointer.x))
-        linkParts.push(
-          `<line x1="${rounded(area.x)}" y1="${rounded(pointer.y)}"` +
-            ` x2="${rounded(area.x + area.width)}" y2="${rounded(pointer.y)}"` +
-            ` stroke="${guideColor}" stroke-width="${rounded(guideWidth)}"` +
-            `${figureKey('guide-cursor-horizontal')}/>`,
-        )
-      } else if (guideCursorMode === 'single-vertical') {
-        linkParts.push(vertical(pointer.x))
-      }
+    const guideColor = themed('S-195')
+    const guideWidth = NOT_STORED_DUAL_CURSOR_SIZES['S-194']
+    const vertical = (x: number): string =>
+      `<line x1="${rounded(x)}" y1="${rounded(area.y)}"` +
+      ` x2="${rounded(x)}" y2="${rounded(area.y + area.height)}"` +
+      ` stroke="${guideColor}" stroke-width="${rounded(guideWidth)}"` +
+      `${figureKey('guide-cursor-vertical')}/>`
+    if (guideCursorMode === 'crosshair') {
+      linkParts.push(vertical(guideCursorPoint.x))
+      linkParts.push(
+        `<line x1="${rounded(area.x)}" y1="${rounded(guideCursorPoint.y)}"` +
+          ` x2="${rounded(area.x + area.width)}" y2="${rounded(guideCursorPoint.y)}"` +
+          ` stroke="${guideColor}" stroke-width="${rounded(guideWidth)}"` +
+          `${figureKey('guide-cursor-horizontal')}/>`,
+      )
+    } else if (guideCursorMode === 'single-vertical') {
+      linkParts.push(vertical(guideCursorPoint.x))
     }
   }
 

@@ -2638,7 +2638,8 @@
      "name": "BeneathPointerReading",
      "note": {
       "ja": [
-       "型。 `beneathPointerReadingOf` の答え"
+       "型。",
+       "`beneathPointerReadingOf` の答え"
       ]
      }
     },

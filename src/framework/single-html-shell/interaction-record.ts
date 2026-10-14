@@ -163,6 +163,7 @@ export function recordHappening(
 
 // see FR-102, IF-1
 // WHY: svg is the picture beneath and the marquee overlay joined, so a held marquee still counts (CR-736).
+// TRAP: SVG names are camelCase (clipPath); a lower-case-only pattern drops them from IR-4's census (DFC-2710).
 /** @purity non-pure */
 export function recordFrame(
   hands: InteractionRecordHands,
@@ -173,7 +174,7 @@ export function recordFrame(
   const session = hands.readSession()
   if (!isRecordingInteractionsIn(session)) return
   const drawn = new Map<string, number>()
-  for (const found of svg.matchAll(/<([a-z]+)[\s/>]/g)) {
+  for (const found of svg.matchAll(/<([a-zA-Z]+)[\s/>]/g)) {
     const tag = found[1] ?? ''
     drawn.set(tag, (drawn.get(tag) ?? 0) + 1)
   }
