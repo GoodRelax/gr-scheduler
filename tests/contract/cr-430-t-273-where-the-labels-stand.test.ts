@@ -9,6 +9,7 @@ import {
   LABEL_PAD,
   MARKER_D,
   MILESTONE_NAME_GAP,
+  RATIO,
   S_260,
   S_303,
   bandOf,
@@ -16,10 +17,14 @@ import {
   cellOf,
   day,
   sceneOf,
+  stored,
   taskOf,
   type Band,
   type Scene,
 } from '../unit/cr-430-cross-section-scene'
+
+// see S-584
+const EDGE_GAP = stored('S-584') * RATIO
 
 const SHAPE = '形'
 const MARKER = 'マーカー'
@@ -33,7 +38,7 @@ const says = (row: string): string =>
   `${NAME_FROM}: ${cellOf('T-273', row, NAME_FROM)}`
 
 const LP_WHAT_FITS_MEANS =
-  '「入る」とは、（マーカーを出すなら マーカーの径 ＋ `S-32`、出さないなら `S-31`）＋ 名前の幅 ＋ 実績の終了の内側の幅（表 T-206 の `S-260`）が、基準の幅以下であることとすること（MUST）。'
+  '「入る」とは、（マーカーを出すなら `S-584` ＋ マーカーの径 ＋ `S-32`、出さないなら `S-31`）＋ 名前の幅 ＋ 実績の終了の内側の幅（表 T-206 の `S-260`）が、基準の幅以下であることとすること（MUST）。'
 const LP_ONLY_THE_FINISH_SIDE_IS_RESERVED =
   '終了側だけを取り置くのは、マーカーが実績の開始の掴み代の上に立つ設計だからである —— 開始側は取り置かない。'
 const LP_NEVER_THE_NAME_LEFT_OF_THE_MARKER =
@@ -44,7 +49,8 @@ const LP_THE_SEPARATOR = '担当と進捗の区切りは「 : 」（半角コロ
 const LP_THE_RESUME_ICON_IS_OUT_OF_THE_ROW =
   '再開アイコンは本表の並びには入らない（MUST） —— 未定のアイコンも入らない。'
 const LP_WHEN_IT_DOES_NOT_FIT_AND_THE_ICON_IS_REACHED =
-  '矩形で「入らない」とき、札（マーカーと名前）は実績のすぐ右に置き、その並びが再開アイコンに届くときだけ、アイコンの掴む箱（表 T-266 の `GA-20`）の右端から並べること（MUST）。'
+  '矩形で「入らない」とき、札（マーカーと名前）は `LP-2` の位置に置き、その並びが再開アイコンに届くときだけ、アイコンの掴む箱（表 T-266 の `GA-20`）の右端から `S-584` だけ右に並べること（MUST）。'
+const LP_THE_MARKER_POSITION_IS_ITS_LEFT = '「マーカーの位置」はマーカーの左端である。'
 
 const SHORT = 'ab'
 const LONG = 'a name that is far too long to stand inside a narrow bar'
@@ -104,11 +110,14 @@ const NARROW_ACTUAL = { actualStart: day(4), actualFinish: day(5), percentComple
 const NO_MARKER = { progressMarkerVisible: false }
 
 describe(`T-273 LP-1 -- ${says('LP-1')}`, () => {
-  it('stands the marker on the start of the basis and the name S-32 right of it', () => {
+  it('stands the marker left S-584 right of the start of the basis and the name S-32 right of it', () => {
     const scene = rectangle(WIDE_ACTUAL)
     const basis = basisOf(scene)
     const marker = markerOf(scene)
-    expect(marker.center.x - marker.radius, says('LP-1')).toBeCloseTo(basis.left, 6)
+    expect(marker.center.x - marker.radius, `${says('LP-1')} ${LP_THE_MARKER_POSITION_IS_ITS_LEFT}`).toBeCloseTo(
+      basis.left + EDGE_GAP,
+      6,
+    )
     expect(nameStartOf(scene), says('LP-1')).toBeCloseTo(marker.center.x + marker.radius + LABEL_GAP, 6)
   })
 
@@ -116,17 +125,20 @@ describe(`T-273 LP-1 -- ${says('LP-1')}`, () => {
     const scene = rectangle(WIDE_ACTUAL)
     const basis = basisOf(scene)
     expect(basis.right - basis.left, LP_WHAT_FITS_MEANS).toBeGreaterThanOrEqual(
-      MARKER_D + LABEL_GAP + S_260 - EPS,
+      EDGE_GAP + MARKER_D + LABEL_GAP + S_260 - EPS,
     )
   })
 })
 
 describe(`T-273 LP-2 -- ${says('LP-2')}`, () => {
-  it('stands the marker just right of the end of the basis and the name S-32 right of it', () => {
+  it('stands the marker left S-584 right of the end of the basis and the name S-32 right of it', () => {
     const scene = rectangle(NARROW_ACTUAL, {}, LONG)
     const basis = basisOf(scene)
     const marker = markerOf(scene)
-    expect(marker.center.x - marker.radius, says('LP-2')).toBeCloseTo(basis.right, 6)
+    expect(marker.center.x - marker.radius, `${says('LP-2')} ${LP_THE_MARKER_POSITION_IS_ITS_LEFT}`).toBeCloseTo(
+      basis.right + EDGE_GAP,
+      6,
+    )
     expect(nameStartOf(scene), says('LP-2')).toBeCloseTo(marker.center.x + marker.radius + LABEL_GAP, 6)
   })
 
@@ -135,7 +147,7 @@ describe(`T-273 LP-2 -- ${says('LP-2')}`, () => {
       const scene = rectangle({ actualStart: day(2), actualFinish: day(lastDay), percentComplete: 50 }, {}, LONG)
       const basis = basisOf(scene)
       const marker = markerOf(scene)
-      return { lastDay, inside: Math.abs(marker.center.x - marker.radius - basis.left) <= EPS }
+      return { lastDay, inside: Math.abs(marker.center.x - marker.radius - (basis.left + EDGE_GAP)) <= EPS }
     })
     expect(frames.some((one) => one.inside), `premise: ${says('LP-1')}`).toBe(true)
     expect(frames.some((one) => !one.inside), `premise: ${says('LP-2')}`).toBe(true)
@@ -169,13 +181,16 @@ const LINE_SHAPES = ['arrow', 'endpointSpan'] as const
 
 describe(`T-273 LP-5 -- ${says('LP-5')}`, () => {
   for (const shapeKind of LINE_SHAPES) {
-    it(`${shapeKind}: marker on the basis start and the name S-32 right of it, whatever the width`, () => {
+    it(`${shapeKind}: marker left S-584 right of the basis start and the name S-32 right of it, whatever the width`, () => {
       const wide = lineShape(shapeKind, WIDE_ACTUAL)
       const narrow = lineShape(shapeKind, NARROW_ACTUAL, {}, LONG)
       for (const scene of [wide, narrow]) {
         const basis = basisOf(scene)
         const marker = markerOf(scene)
-        expect(marker.center.x - marker.radius, says('LP-5')).toBeCloseTo(basis.left, 6)
+        expect(marker.center.x - marker.radius, `${says('LP-5')} ${LP_THE_MARKER_POSITION_IS_ITS_LEFT}`).toBeCloseTo(
+          basis.left + EDGE_GAP,
+          6,
+        )
         expect(nameStartOf(scene), says('LP-5')).toBeCloseTo(marker.center.x + marker.radius + LABEL_GAP, 6)
       }
     })
@@ -196,11 +211,14 @@ describe(`T-273 LP-6 -- ${says('LP-6')}`, () => {
 })
 
 describe(`T-273 LP-7 -- ${says('LP-7')}`, () => {
-  it('stands the marker at the right edge of the basis diamond and the name S-301 right of it', () => {
+  it('stands the marker left S-584 right of the right edge of the basis diamond and the name S-301 right of it', () => {
     const scene = milestone({ actualStart: day(6), actualFinish: day(6), percentComplete: 100 })
     const basis = basisOf(scene)
     const marker = markerOf(scene)
-    expect(marker.center.x - marker.radius, says('LP-7')).toBeCloseTo(basis.right, 6)
+    expect(marker.center.x - marker.radius, `${says('LP-7')} ${LP_THE_MARKER_POSITION_IS_ITS_LEFT}`).toBeCloseTo(
+      basis.right + EDGE_GAP,
+      6,
+    )
     expect(nameStartOf(scene), says('LP-7')).toBeCloseTo(
       marker.center.x + marker.radius + MILESTONE_NAME_GAP,
       6,
@@ -268,7 +286,7 @@ describe('T-273 the closing rules of the table', () => {
     const marker = markerOf(undecided)
     expect(box.left, LP_WHEN_IT_DOES_NOT_FIT_AND_THE_ICON_IS_REACHED).toBeCloseTo(basis.right, 6)
     expect(marker.center.x - marker.radius, LP_WHEN_IT_DOES_NOT_FIT_AND_THE_ICON_IS_REACHED).toBeCloseTo(
-      box.right,
+      box.right + EDGE_GAP,
       6,
     )
   })
@@ -283,7 +301,7 @@ interface Placement {
 }
 
 const obeysLp1 = (one: Placement): boolean =>
-  Math.abs(one.markerLeft - one.basisLeft) <= EPS &&
+  Math.abs(one.markerLeft - (one.basisLeft + EDGE_GAP)) <= EPS &&
   Math.abs(one.nameLeft - (one.markerRight + LABEL_GAP)) <= EPS &&
   one.markerRight <= one.nameLeft + EPS
 
@@ -291,16 +309,16 @@ describe('T-273 control -- the placement check refuses a label that drifted', ()
   const sound: Placement = {
     basisLeft: 100,
     basisRight: 900,
-    markerLeft: 100,
-    markerRight: 100 + MARKER_D,
-    nameLeft: 100 + MARKER_D + LABEL_GAP,
+    markerLeft: 100 + EDGE_GAP,
+    markerRight: 100 + EDGE_GAP + MARKER_D,
+    nameLeft: 100 + EDGE_GAP + MARKER_D + LABEL_GAP,
   }
 
   it('accepts a placement built to LP-1', () => {
     expect(obeysLp1(sound)).toBe(true)
   })
 
-  it('refuses a marker that left the start of the basis', () => {
+  it('refuses a marker that left S-584 right of the start of the basis', () => {
     expect(obeysLp1({ ...sound, markerLeft: sound.markerLeft + 1 })).toBe(false)
   })
 

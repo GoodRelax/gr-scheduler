@@ -166,9 +166,9 @@ describe('TY-4 / TY-6 -- the actual end answers before the plan end where the tw
     const plan = boxOf((SCENE.started as unknown as { plan: unknown }).plan)
     const actual = boxOf(actualOf(SCENE.started))
     const wide = sizesWith(SCENE.sizes, 'S-259', plan.right - actual.right + defaultOf('S-253'))
-    // WHY: off the mid-line, where the dependency leaves this Task's plan end -- off a drawn shape
-    // WHY: table T-268 puts the line (TY-2) ahead of an actual end (TY-5), and the line would answer.
-    expect(grabAt(SCENE, plan.right + 1, actual.bottom - 1, wide), T_268_TOP_FIRST).toBe('GA-4')
+    // WHY: above the mid-line: the line leaves the plan end there and drops at x1 to the lower successor
+    // WHY: (T-222 RP-2, CR-758); off a shape T-268 puts the line (TY-2) ahead of an actual end, so it would answer.
+    expect(grabAt(SCENE, plan.right + 1, actual.top + 1, wide), T_268_TOP_FIRST).toBe('GA-4')
   })
 })
 

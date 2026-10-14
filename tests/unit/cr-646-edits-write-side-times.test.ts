@@ -144,10 +144,10 @@ describe('X-1 WT-1 / WT-2 / WT-5: a task moved by its grab areas (T-245) takes t
 
   it('GA-9 / WT-1 / WT-2: the body moved writes start at S-482 and finish at S-483', () => {
     const built = stage(grsDocument())
-    const box = planBox(built.loop, BAR)
-    const y = (box.y0 + box.y1) / 2
-    const from = (box.x0 + box.x1) / 2
-    built.drag(from, y, from + (xOfDay(built.loop, april(9)) - xOfDay(built.loop, april(7))), y)
+    // WHY: the scan finds a GA-9 point; the S-584 gap and the marker beside the dummy answer GA-18 (FR-013).
+    const frame = frameOf(built.loop)
+    const from = pointAnswering(scanGrabAreas(frame.geometry, BAR, frame.taskGroupArea), 'GA-9')
+    built.drag(from.x, from.y, from.x + (xOfDay(built.loop, april(9)) - xOfDay(built.loop, april(7))), from.y)
     const task = taskOf(built.loop.document(), BAR)
     expect(task.start?.slice(0, 10), 'premise: the body moved two days').toBe('2026-04-08')
     expect([timeOf(task.start), timeOf(task.finish)]).toEqual([S_482, S_483])
@@ -155,10 +155,10 @@ describe('X-1 WT-1 / WT-2 / WT-5: a task moved by its grab areas (T-245) takes t
 
   it('GA-9 / AT-154 / AT-155: the body moved writes the project default times', () => {
     const built = stage(grsDocument(ownTimes))
-    const box = planBox(built.loop, BAR)
-    const y = (box.y0 + box.y1) / 2
-    const from = (box.x0 + box.x1) / 2
-    built.drag(from, y, from + (xOfDay(built.loop, april(9)) - xOfDay(built.loop, april(7))), y)
+    // WHY: the scan finds a GA-9 point; the S-584 gap and the marker beside the dummy answer GA-18 (FR-013).
+    const frame = frameOf(built.loop)
+    const from = pointAnswering(scanGrabAreas(frame.geometry, BAR, frame.taskGroupArea), 'GA-9')
+    built.drag(from.x, from.y, from.x + (xOfDay(built.loop, april(9)) - xOfDay(built.loop, april(7))), from.y)
     const task = taskOf(built.loop.document(), BAR)
     expect(task.start?.slice(0, 10), 'premise: the body moved two days').toBe('2026-04-08')
     expect([timeOf(task.start), timeOf(task.finish)]).toEqual(['09:00:00', '18:00:00'])

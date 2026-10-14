@@ -636,7 +636,7 @@ function fadeRegionsOf(shape: TaskShape, sizes: GrabSizes): readonly (Region | n
   })
 }
 
-// see GA-18, TY-7
+// see GA-18, TY-7, FR-013
 // WHY: read off the actual's own run, since the two places take different seats in the order.
 /** @purity pure */
 function markerRegionOf(shape: TaskShape, sizes: GrabSizes): Region | null {
@@ -646,6 +646,7 @@ function markerRegionOf(shape: TaskShape, sizes: GrabSizes): Region | null {
   const actual = shape.actualBand
   const inside = actual !== null && marker.center.x >= actual.x && marker.center.x <= rightOf(actual)
   const grab = grown(box, sizes['S-284'], sizes['S-284'])
+  const across = acrossOf(grab)
   return taskRegion(
     {
       grab: 'GA-18',
@@ -653,7 +654,7 @@ function markerRegionOf(shape: TaskShape, sizes: GrabSizes): Region | null {
       taskUid: shape.task.taskUid,
       anchorX: marker.center.x,
     },
-    acrossOf(grab),
+    { from: Math.min(across.from, marker.standsOffX ?? across.from), to: across.to },
     downOf(grab),
   )
 }
@@ -706,21 +707,23 @@ function regionsOfTask(shape: TaskShape, sizes: GrabSizes): readonly (Region | n
   ]
 }
 
-// see GA-19, HT-1
+// see GA-19, HT-1, EL-16, EL-19
 // WHY: the painted ink over a shape, the edge and its margin elsewhere; a thick line spreads nothing.
 /** @purity pure */
 function dependencyRegionOf(
   line: DependencyGeometry,
   sizes: GrabSizes,
   onShape: boolean,
+  isWholeRoute: boolean,
 ): Region | null {
-  const box = boxOfPath(line.drawnPoints)
+  const drawn = isWholeRoute ? line.points : line.drawnPoints
+  const box = boxOfPath(drawn)
   if (box === null) return null
   const half = (line.strokeWidth ?? 0) / 2
   const reach = onShape ? half : half + sizes['S-285']
-  const head = line.head ?? []
+  const head = (isWholeRoute ? line.wholeRouteHead : line.head) ?? []
   return lineRegionOf(line, box, 'GA-19', 'dependency',
-    (x, y) => isInsideOutline(x, y, head) || isOnTheStroke(x, y, line.drawnPoints, reach))
+    (x, y) => isInsideOutline(x, y, head) || isOnTheStroke(x, y, drawn, reach))
 }
 
 // WHY: the line and its continuation mark are one item (T-303), so both regions name it the same way.
@@ -859,9 +862,10 @@ export interface PointerWalk {
 function linesOf(geometry: ScheduleGeometry, sizes: GrabSizes, onShape: boolean, landed: LandedLink): readonly LineRegions[] {
   const cut = geometry.pinnedBand ?? null
   return geometry.dependencies.map((line, index) => {
-    const region = dependencyRegionOf(line, sizes, onShape)
-    const mark = continuationRegionOf(line, sizes, onShape)
-    const isCut = isLineScrolling(cut, line, isLanded(landed, line))
+    const isWholeRoute = isLanded(landed, line)
+    const region = dependencyRegionOf(line, sizes, onShape, isWholeRoute)
+    const mark = isWholeRoute ? null : continuationRegionOf(line, sizes, onShape)
+    const isCut = isLineScrolling(cut, line, isWholeRoute)
     return {
       line,
       index,
@@ -1206,12 +1210,13 @@ export function answersAtPointer(walk: PointerWalk, x: number, y: number): Point
   }
 }
 
-// see T-023d
+// see T-023d, EL-17, EL-19
 export function itemAtPointer(
-  geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving: 'hint',
+  geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving: 'hint', landed?: LandedLink,
 ): HintHolder | null
 export function itemAtPointer(
   geometry: ScheduleGeometry, x: number, y: number, sizes: GrabSizes, resolving?: 'press' | 'doubleClick',
+  landed?: LandedLink,
 ): Hit | null
 /** @purity pure */
 export function itemAtPointer(
@@ -1220,12 +1225,13 @@ export function itemAtPointer(
   y: number,
   sizes: GrabSizes,
   resolving: PointerResolution = 'press',
+  landed: LandedLink = null,
 ): Hit | HintHolder | null {
   if (resolving === 'doubleClick') {
     const label = labelHitOf(geometry, x, y)
     if (label !== null) return label
   }
-  const answers = answersAtPointer(pointerWalkOf(geometry, sizes), x, y)
+  const answers = answersAtPointer(pointerWalkOf(geometry, sizes, landed), x, y)
   return resolving === 'hint' ? answers.hint : answers.hit
 }
 

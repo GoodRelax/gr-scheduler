@@ -83,7 +83,7 @@ const SCALED_BY_THE_DISPLAY: readonly (keyof DrawnSettings)[] = [
   'taskGroupGap', 'dependencyWidth', 'dependencyArrowLength', 'dependencyLeadOut',
   'dependencyLeadIn', 'dependencyArrowWidth', 'markerSize',
   'markerStroke', 'resumeDashOn', 'resumeDashOff', 'resumeDashWidth', 'labelPad', 'labelGap',
-  'milestoneNameMarkerGap', 'assigneeLabelGap',
+  'milestoneNameMarkerGap', 'assigneeLabelGap', 'progressMarkerEdgeGap',
   'taskGroupTitleFont', 'taskGroupTitleIndent', 'planStroke', 'thinStrokeWidth',
   'thinArrowHeadLength', 'thinArrowHeadHeight', 'spanDotSize',
   'minShapeWidth', 'progressLineWidth', 'progressLineOverhang', 'commentBoxPad',

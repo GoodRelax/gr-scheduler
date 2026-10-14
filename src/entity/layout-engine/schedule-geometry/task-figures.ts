@@ -604,6 +604,9 @@ function markerOf(inputs: GeometryInputs, task: Task,
     symbol: diagnosedSymbolOf(inputs, task.uid) ?? progressSymbolOf(task, inputs.statusDate),
     center: point(markerLeft + radius, labelTierMiddleOf(placed, settings)),
     radius,
+    // see GA-18, FR-013, S-584
+    // WHY: the x of the edge the marker stands off (T-273); optional, so a hand-built geometry may omit it.
+    standsOffX: markerLeft - settings.progressMarkerEdgeGap,
   }
 }
 
