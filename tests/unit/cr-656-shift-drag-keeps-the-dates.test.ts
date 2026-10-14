@@ -101,10 +101,10 @@ describe('CR-656 -- the rows these cases are driven by', () => {
     expect(REQUIREMENTS).toContain('`Shift` は押した時点で読み、押しているあいだに押しても離しても変えないこと（MUST）')
   })
 
-  it('CY-1 / CY-2 / CY-5 / CY-7 / CY-11: Ctrl + Shift copies with 0 days, unstarted, judged at the press', () => {
+  it('CY-1 / CY-2 / CY-5 / CY-7 / CY-11: Ctrl + Shift copies with a 0 shift, unstarted, judged at the press', () => {
     expect(rowText('T-308', 'CY-1')).toContain('`Ctrl` だけか `Ctrl` ＋ `Shift` を伴って押した、選択に含まれるタスク（マイルストーンを含む）の本体')
     expect(rowText('T-308', 'CY-2')).toContain('表 T-023a の `PTD-1` のパンである')
-    expect(rowText('T-308', 'CY-5')).toContain('`Shift` も伴って押したときは日数を 0 とし、コピーの予定をコピー元と同じ日付とすること（MUST）')
+    expect(rowText('T-308', 'CY-5')).toContain('`Shift` も伴って押したときは量を 0 とし、コピーの予定をコピー元と同じ日時とすること（MUST）')
     expect(rowText('T-308', 'CY-7')).toContain('コピーは実績を持たない')
     expect(rowText('T-308', 'CY-11')).toContain('押した時点の修飾キーで決め、押しているあいだに `Ctrl` や `Shift` を押しても離しても変えないこと（MUST）')
   })
@@ -623,21 +623,21 @@ describe('PTD-7 / CY-1 / CY-5 / MK-15: Ctrl + Shift on the selection copies with
     expect(pressAt(built, context, bodyOf(built.loop, ROOT), CTRL_SHIFT).pressRow).toBe('PTD-7')
   })
 
-  it('CY-5: a Ctrl + Shift drag 3 days right and 1 task group down writes pasteTasks with dayShift 0', () => {
+  it('CY-5: a Ctrl + Shift drag 3 days right and 1 task group down writes pasteTasks with shiftMinutes 0', () => {
     const built = stage()
     const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), CTRL_SHIFT)
     expect(kindsOf(done.writes)).toEqual(['pasteTasks'])
-    const landing = loose(done.writes[0] as DocumentCommand)['landing'] as { dayShift: number; groupIdOf: Record<number, string> }
-    expect(landing.dayShift).toBe(0)
+    const landing = loose(done.writes[0] as DocumentCommand)['landing'] as { shiftMinutes: number; groupIdOf: Record<number, string> }
+    expect(landing.shiftMinutes).toBe(0)
     expect(landing.groupIdOf[ROOT], 'CY-6: the copy still lands one task group down').toBe(TASK_GROUP_B)
   })
 
-  it('CY-5 contrast: a Ctrl-only drag of the same travel carries a day shift of 3', () => {
+  it('CY-5 contrast: a Ctrl-only drag of the same travel carries a shift of 3 days in minutes', () => {
     const built = stage()
     const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), CTRL)
     expect(kindsOf(done.writes)).toEqual(['pasteTasks'])
-    const landing = loose(done.writes[0] as DocumentCommand)['landing'] as { dayShift: number }
-    expect(landing.dayShift).toBe(3)
+    const landing = loose(done.writes[0] as DocumentCommand)['landing'] as { shiftMinutes: number }
+    expect(landing.shiftMinutes).toBe(3 * 1440)
   })
 
   it('CY-5 / CY-7: through the shell the copy keeps the source plan dates and is unstarted; the source stays', () => {
@@ -732,10 +732,10 @@ describe('CY-11 / T-270: Shift is read at the press', () => {
     expect(day(taskOf(built, ROOT).start)).not.toBe(day(before.start))
   })
 
-  it('CY-11 / CY-5: a Ctrl + Shift copy press released with Ctrl only still copies with dayShift 0', () => {
+  it('CY-11 / CY-5: a Ctrl + Shift copy press released with Ctrl only still copies with shiftMinutes 0', () => {
     const built = stage()
     const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), CTRL_SHIFT, CTRL)
     expect(kindsOf(done.writes)).toEqual(['pasteTasks'])
-    expect((loose(done.writes[0] as DocumentCommand)['landing'] as { dayShift: number }).dayShift).toBe(0)
+    expect((loose(done.writes[0] as DocumentCommand)['landing'] as { shiftMinutes: number }).shiftMinutes).toBe(0)
   })
 })

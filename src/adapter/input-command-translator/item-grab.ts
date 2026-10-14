@@ -456,7 +456,7 @@ function releasedDay(context: InputContext, release: PointerInput, side: Release
 /** @purity pure */
 function releasedText(context: InputContext, release: PointerInput, side: ReleasedSide, isMilestone: boolean): string | null {
   const layout = context.layout
-  const snap = snapMinutesOf(layout.pxPerDay, context.document.documentSettings, release.modifiers.alt)
+  const snap = releasedSnapOf(context, release)
   if (snap === MINUTES_PER_CALENDAR_DAY) {
     const day = releasedDay(context, release, side, isMilestone)
     const project = context.document.schedule.project
@@ -478,7 +478,7 @@ interface DragSpan {
 /** @purity pure */
 function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): DocumentCommand | null {
   const project = context.document.schedule.project
-  const snap = snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, drag.release.modifiers.alt)
+  const snap = releasedSnapOf(context, drag.release)
   if (snap === MINUTES_PER_CALENDAR_DAY) {
     const start = dayOf(task.start)
     const finish = dayOf(task.finish)
@@ -489,9 +489,19 @@ function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): Docum
   const plan = plannedInstantsOf(workingCalendarOf(context.document.schedule), task)
   if (plan === null) return null
   const [start, finish] = plan
-  const shift = Math.round((start + pulledMinutesOf(context, drag.press, drag.release)) / snap) * snap - start
+  const shift = snappedStartShift(start, pulledMinutesOf(context, drag.press, drag.release), snap)
   if (shift === 0) return null
   return { kind: 'setTaskPlanDates', uid: task.uid, start: textOfInstant(start + shift), finish: textOfInstant(finish + shift) }
+}
+
+/** @purity pure */
+function snappedStartShift(start: number, pulled: number, snap: number): number {
+  return Math.round((start + pulled) / snap) * snap - start
+}
+
+/** @purity pure */
+function releasedSnapOf(context: InputContext, release: PointerInput): number {
+  return snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, release.modifiers.alt)
 }
 
 /** @purity pure */
@@ -503,7 +513,7 @@ function pulledMinutesOf(context: InputContext, press: PointerPress, release: Po
 /** @purity pure */
 function bodyDayCount(context: InputContext, press: PointerPress, release: PointerInput, uid: number): number {
   const dragged = draggedDayCount(context, press, release)
-  const snap = snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, release.modifiers.alt)
+  const snap = releasedSnapOf(context, release)
   const task = taskByUid(context.document.schedule, uid)
   if (isDateKeepingDrag(press)) return 0
   if (snap !== MINUTES_PER_CALENDAR_DAY || !context.document.documentSettings.showsTimeOfDay || task === null) return dragged
@@ -648,7 +658,21 @@ function shiftWithinTaskGroups(taskGroups: readonly TaskGroupPlacement[], held: 
   return Math.min(Math.max(asked, room.up), room.down)
 }
 
-// see PTD-7, CY-3, CY-5, CY-6, CY-8, CY-9, CM-8, DU-1
+// see CY-5, PE-1, FR-103, T-378
+// WHY: the pressed task shifts as PE-1 shifts it, one amount for every copy; a null hit (isCopyDragPress bars it) reads columns.
+/** @purity pure */
+function copyShiftMinutes(context: InputContext, press: PointerPress, release: PointerInput): number {
+  const item = press.hit?.item
+  const task = item?.kind === 'task' ? taskByUid(context.document.schedule, item.taskUid) : null
+  if (task === null) return draggedDayCount(context, press, release) * MINUTES_PER_CALENDAR_DAY
+  const snap = releasedSnapOf(context, release)
+  if (snap === MINUTES_PER_CALENDAR_DAY) return bodyDayCount(context, press, release, task.uid) * MINUTES_PER_CALENDAR_DAY
+  const plan = plannedInstantsOf(workingCalendarOf(context.document.schedule), task)
+  if (isDateKeepingDrag(press) || plan === null) return 0
+  return snappedStartShift(plan[0], pulledMinutesOf(context, press, release), snap)
+}
+
+// see PTD-7, CY-3, CY-5, CY-6, CY-8, CY-9, CM-8, DU-1, FR-103, T-378
 // WHY: one CM-8 with the landing is one undo step (FR-031); task groups count the chosen Tasks' copies, not CY-4's boxes.
 /** @purity pure */
 export function copyDragWrite(context: InputContext, press: PointerPress, release: PointerInput): TranslatedInput {
@@ -658,10 +682,10 @@ export function copyDragWrite(context: InputContext, press: PointerPress, releas
     one.kind === 'task' && taskByUid(schedule, one.uid) !== null ? [one.uid] : [])
   const copied = [...new Set(sources)]
   const taskGroups = drawnTaskGroupsOf(layoutAtPressOf(context, press))
-  const dayCount = draggedDayCount(context, press, release)
+  const shiftMinutes = copyShiftMinutes(context, press, release)
   const heldTaskGroups = copied.flatMap((uid) => taskGroupIndexOfTask(context, taskGroups, uid) ?? [])
   const crossed = shiftWithinTaskGroups(taskGroups, heldTaskGroups, drawnTaskGroupsCrossed(taskGroups, press.at.y, release.y))
-  if (sources.length === 0 || (dayCount === 0 && crossed === 0)) return CONSUMED_ELSEWHERE
+  if (sources.length === 0 || (shiftMinutes === 0 && crossed === 0)) return CONSUMED_ELSEWHERE
   const groupIdOf: Record<number, string> = {}
   for (const uid of copied) {
     const at = taskGroupIndexOfTask(context, taskGroups, uid)
@@ -673,7 +697,7 @@ export function copyDragWrite(context: InputContext, press: PointerPress, releas
     const copy = copyUidOf.get(uid)
     return copy === undefined ? [] : [{ kind: 'task' as const, uid: copy }]
   }))
-  const write: DocumentCommand = { kind: 'pasteTasks', sourceUids: sources, landing: { dayShift: dayCount, groupIdOf } }
+  const write: DocumentCommand = { kind: 'pasteTasks', sourceUids: sources, landing: { shiftMinutes, groupIdOf } }
   return acted({ kind: 'changeDocument', writes: [[write]], picked })
 }
 
