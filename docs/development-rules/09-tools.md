@@ -347,3 +347,20 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 - 入れる: `python tools/merge_driver.py install`（`merge_branch.py` は毎回これを打つ）。
 - ⛔ 外すときは節ごと消す（`git config --remove-section merge.grs-generated`）。`driver` の行だけを消すと `name` が残り、git は「lacks command line」で合流そのものを止める（2026-09-26 実測）。
 - 素の `git merge` で合流したら、生成物は古いままである。`npm run gen` と `python tools/ledger_metrics.py` を打つ —— 打たなければ検査 24 と 27 が赤で知らせる。
+
+---
+
+## 15. 漏れ防止の仕組み（2026-10-15、JDG-2120〜2127）
+
+⭐ メモリーと規則の文にしか無かった規則を、道具・検査・フックへ下ろしたもの（05 の 1 節の表）。本節は呼び口と見えないものを持つ。
+
+| 道具 | 何を拒む・赤にするか | ⛔ 何が見えないか | 呼ぶ人 |
+|---|---|---|---|
+| `tools/push_guard.py` | push する sha について、`<基>...<sha>` の個人情報の数が 0 でない／その sha の最後の `GT-2` が失敗／`src/`・`tests/`・`dist/`・`docs/spec/` を含むのに `GT-2` の合格も調整役の理由（`GRS_PUSH_NO_GT2="…"`）も無い、のどれかで拒む。通れば打つコマンドを刷る。`--self-test` は 15 例 | 人が自分の端末で打つ push（フックは Claude のもの）。理由の良し悪し。解けない参照は推測せずに拒む | Claude の PreToolUse フック（`git push` を含む命令ごと）／調整役が手で（`<sha> [--no-gt2 "理由"]`） |
+| `tools/gate/gate-queue.mjs`・`run-gate.mjs` の OneDrive の確かめ | `OneDrive.exe` が動いている間の `GT-2`・`PERF`。`drain` は列を取らずに止まるので、再実行で全部が残っている。`--onedrive-running-ok` か `GRS_ONEDRIVE_RUNNING_OK=1` で明示して通す | Windows 以外（`tasklist` が無く、動いていない扱い）。別の名の同期の道具 | `npm run gate:drain`／`npm run guard:publish` |
+| `tools/ledger_id_count.py` | 合流の両側（と共通の祖先）と結果の 4 つの台帳の行 ID を接頭辞ごとに数え、消えた ID が 1 つでもあれば exit 1。付け替えた ID は 1 つ出て 1 つ入るので 0 に相殺する | ID を残したまま短くなった行。ID を入れ替えた 2 行 | `merge_branch.py` の手順 5／検査 78／人が手で（`--commit <sha>` ・ `<ours> <theirs>`） |
+| 検査 78 `check-ledger-row-form.py` | 頭のセルが ID なのに `\| ID \|` の形でない行／2 行の頭に立つ ID／合流の途中か HEAD が合流のとき、消えた ID | ID の無い行。4 つの台帳の外 | `check.sh` |
+| 検査 79 `check-project-plan.py` | 計画の 2 つのファイル（docs/development-records/ の project-plan.json と project-plan.md。`CR-751` の後に書かれる）の片方だけ／片方だけが作業木で変わる／最後に変えたコミットが違う／ID で始まるのに括弧の主題と仕事の種類が続かないタスク名／解けない JSON | 主題が正しいか。.md が本当にこの JSON を説明しているか | `check.sh` |
+| 検査 80 `check-drafted-ruling-cited.py` | 状態の欄が `指示 —— CR-n が当てる` の裁定行で、`change-request/CR-n-*.md` が在るのにその JDG を引いていないもの | 別の書き方の状態（`のあいだ` など）。CR が名を挙げるだけで当てていないこと | `check.sh` |
+| 検査 81 `check-spec-rests-on-src.py` | 仕様の文が、仕様のどこにも無く src にだけ在る名に権威を預ける形（`list-inverted-authority.py` の `find`。「表 T-nnn の」の後の名は仕様の内側として除く）／理由つきの除外 `spec-rests-on-src-exempt.txt` のうち、もう何にも当たらない行 | コードの側の食い違い（仕様だけを読む試験役と `GT-2` が拾う）。`DEFERS` に無い動詞で預ける文 | `check.sh` |
+| `tools/session_brief.py` | 課題・帯・持ち物の欠け／形の崩れた帯・逆向きの帯・重なる帯／持ち物の重なり（`body_brief.py` の判定を import）／関門のポート 5992。雛形 `tools/session-brief.md` の差し込みが 1 つでも残れば刷らない | 課題の 1 行が明確か、持ち物が正しいか。調整役がこの道具を使ったか（05 の 13 節が使えと言う） | 調整役が手で（チップを出す前） |

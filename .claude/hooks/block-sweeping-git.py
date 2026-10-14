@@ -9,6 +9,10 @@ work with it, so these are refused:
               cluster such as -Av), or a pathspec of . ./ :/ * :/*
   git commit  -a / --all (also inside a cluster such as -am)
   git stash   anything except `git stash list` and `git stash show`
+  git push    a push tools/push_guard.py refuses (JDG-2120, JDG-2126): a privacy
+              count above 0, a sha whose last GT-2 failed, or src/ tests/ dist/
+              docs/spec/ changed with neither a passed GT-2 nor the
+              coordinator's GRS_PUSH_NO_GT2="<reason>" on the command
 
 It reads the PreToolUse JSON on stdin and looks at tool_input.command (Bash and
 PowerShell). Exit 2 blocks the call and shows the reason; exit 0 lets it run.
@@ -16,12 +20,17 @@ Heredoc bodies and quoted strings (commit messages) are not read as commands.
 
   python .claude/hooks/block-sweeping-git.py --self-test   # the check of the check
 """
+import importlib.util
 import json
+import os
 import re
 import shlex
 import sys
+import types
 
 GUIDE = 'docs/development-rules/parallel-agents-en.md'
+PUSH_GUARD = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                          'tools', 'push_guard.py')
 HEREDOC = re.compile(r"<<-?\s*(['\"]?)([A-Za-z_][A-Za-z0-9_]*)\1")
 ASSIGNMENT = re.compile(r'[A-Za-z_][A-Za-z0-9_]*=.*')
 SHORT_CLUSTER = re.compile(r'-[A-Za-z]+')
@@ -201,6 +210,17 @@ def self_test():
     return 0 if not wrong else 1
 
 
+def push_refusal_of(command):
+    """tools/push_guard.py's refusal of the pushes in `command`, read with this file's tokenizer."""
+    if 'push' not in command or not os.path.isfile(PUSH_GUARD):
+        return None
+    spec = importlib.util.spec_from_file_location('push_guard', PUSH_GUARD)
+    guard = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(guard)
+    reader = types.SimpleNamespace(tokens_of=tokens_of, segments_of=segments_of, git_call=git_call)
+    return guard.refusal_of(command, reader=reader)
+
+
 def main():
     if sys.argv[1:] == ['--self-test']:
         return self_test()
@@ -210,10 +230,14 @@ def main():
     except (ValueError, AttributeError):
         return 0
     reason = refusal_of(command)
-    if reason is None:
-        return 0
-    sys.stderr.write('Blocked by .claude/hooks/block-sweeping-git.py: %s (%s)\n' % (reason, GUIDE))
-    return 2
+    if reason is not None:
+        sys.stderr.write('Blocked by .claude/hooks/block-sweeping-git.py: %s (%s)\n' % (reason, GUIDE))
+        return 2
+    reason = push_refusal_of(command)
+    if reason is not None:
+        sys.stderr.write('Blocked by .claude/hooks/block-sweeping-git.py: %s\n' % reason)
+        return 2
+    return 0
 
 
 if __name__ == '__main__':
