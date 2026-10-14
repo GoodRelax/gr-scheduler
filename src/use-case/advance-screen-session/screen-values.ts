@@ -249,6 +249,12 @@ export type ScreenValuesKey =
   | 'landingMarkDisplayStateMachine.shown'
   | 'dropCueDisplayStateMachine.hidden'
   | 'dropCueDisplayStateMachine.shown'
+  | 'baseTimeZoneDraftStateMachine.untouched'
+  | 'baseTimeZoneDraftStateMachine.drafted'
+  | 'timeShiftDraftStateMachine.empty'
+  | 'timeShiftDraftStateMachine.amountHeld'
+  | 'calendarDraftStateMachine.untouched'
+  | 'calendarDraftStateMachine.drafted'
 
 export type PaletteDisplayShownState =
   | { readonly kind: 'expanded' }
@@ -339,6 +345,18 @@ export type DropCueDisplayState =
   | { readonly kind: 'hidden' }
   | { readonly kind: 'shown' }
 
+export type BaseTimeZoneDraftState =
+  | { readonly kind: 'untouched' }
+  | { readonly kind: 'drafted'; readonly chosenRegion: ScreenValuesStateCarried['chosenRegion']; readonly chosenWay: ScreenValuesStateCarried['chosenWay'] }
+
+export type TimeShiftDraftState =
+  | { readonly kind: 'empty' }
+  | { readonly kind: 'amountHeld'; readonly shiftMinutes: ScreenValuesStateCarried['shiftMinutes'] }
+
+export type CalendarDraftState =
+  | { readonly kind: 'untouched' }
+  | { readonly kind: 'drafted'; readonly calendarDraft: ScreenValuesStateCarried['calendarDraft'] }
+
 export interface ScreenValues {
   readonly screenLanguage: ScreenValuesStateCarried['screenLanguage']
   readonly helpLanguage: ScreenValuesStateCarried['helpLanguage']
@@ -362,6 +380,9 @@ export interface ScreenValues {
   readonly helpDisplayState: HelpDisplayState
   readonly landingMarkDisplayState: LandingMarkDisplayState
   readonly dropCueDisplayState: DropCueDisplayState
+  readonly baseTimeZoneDraftState: BaseTimeZoneDraftState
+  readonly timeShiftDraftState: TimeShiftDraftState
+  readonly calendarDraftState: CalendarDraftState
 }
 
 export type ScreenValuesAxes = Omit<ScreenValues, 'screenLanguage' | 'helpLanguage' | 'rememberedActuals' | 'themePreference' | 'guideCursorMode' | 'dualCursor' | 'propertyPanelWidth'>
@@ -416,6 +437,15 @@ export type ScreenValuesEvent =
   | { readonly type: 'searchJumpLanded'; readonly landedTarget: ScreenValuesEventCarried['landedTarget']; readonly landedRelatedTasks: ScreenValuesEventCarried['landedRelatedTasks'] }
   | { readonly type: 'fileDragEntered'; readonly isOpenAccepted: ScreenValuesEventCarried['isOpenAccepted'] }
   | { readonly type: 'fileDragLeft' }
+  | { readonly type: 'baseTimeZoneChosen'; readonly chosenRegion: ScreenValuesEventCarried['chosenRegion'] }
+  | { readonly type: 'baseChangeWayChosen'; readonly chosenWay: ScreenValuesEventCarried['chosenWay'] }
+  | { readonly type: 'baseChangeEntryPressed' }
+  | { readonly type: 'timeShiftAmountSettled'; readonly shiftMinutes: ScreenValuesEventCarried['shiftMinutes'] }
+  | { readonly type: 'timeShiftEntryPressed' }
+  | { readonly type: 'timeShiftLanded' }
+  | { readonly type: 'calendarDraftEdited'; readonly calendarDraft: ScreenValuesEventCarried['calendarDraft'] }
+  | { readonly type: 'calendarApplyEntryPressed' }
+  | { readonly type: 'documentReplacedByOpenOrNew' }
 
 export type ScreenValuesEffectName =
   | 'storeScreenLanguage'
@@ -437,6 +467,9 @@ export type ScreenValuesEffectName =
   | 'restartScaleMessageTimer'
   | 'focusSearchWord'
   | 'seedHelpLanguage'
+  | 'issueBaseChangeCommand'
+  | 'raiseTimeShiftQuestion'
+  | 'issueCalendarCommand'
 
 const SCREEN_VALUES_INITIAL_CHILDREN: {
   readonly 'paletteDisplayStateMachine.shown': PaletteDisplayShownState
@@ -468,6 +501,9 @@ const SCREEN_VALUES_INITIAL_AXES: ScreenValuesAxes = {
   helpDisplayState: { kind: 'hidden' },
   landingMarkDisplayState: { kind: 'hidden' },
   dropCueDisplayState: { kind: 'hidden' },
+  baseTimeZoneDraftState: { kind: 'untouched' },
+  timeShiftDraftState: { kind: 'empty' },
+  calendarDraftState: { kind: 'untouched' },
 }
 // </generated>
 
