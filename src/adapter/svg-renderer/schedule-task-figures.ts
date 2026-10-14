@@ -57,8 +57,9 @@ export interface TaskFiguresInput {
   readonly selected: ReadonlySet<number>
   readonly selectedLinks: ReadonlySet<string>
   readonly landingLink: string | null
-  readonly hover: Hit | null
-  readonly hand: Point | null
+  // see CA-1, PI-19
+  readonly pointerInsideDummyTaskUids: readonly number[]
+  readonly pointerOnMarkerTaskUid: number | null
   readonly skipsOffScreen: boolean
   readonly drawnFrom: number
   readonly drawnTo: number
@@ -538,20 +539,9 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
     placedOf,
     visualOf,
     selected,
-    hover,
-    hand,
+    pointerInsideDummyTaskUids,
+    pointerOnMarkerTaskUid,
   } = input
-  /** @purity pure */
-  const handOn = (taskUid: number, rows: readonly Hit['grab'][]): boolean =>
-    hover !== null &&
-    hover.item.kind === 'task' &&
-    hover.item.taskUid === taskUid &&
-    rows.includes(hover.grab)
-  /** @purity pure */
-  const handInside = (center: Point, width: number, height: number): boolean =>
-    hand !== null &&
-    Math.abs(hand.x - center.x) <= width / 2 &&
-    Math.abs(hand.y - center.y) <= height / 2
 
   const planParts: string[] = []
   const guideParts: string[] = []
@@ -625,15 +615,8 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
       ...haloCutOf(task.actual, outlineWidth, `${taskKey}-actual-mask`),
     )
     if (dummy !== null) {
-      const ink = dummy.ink
       const marks = barSvg(dummy.figure, actual, plan.fill, `${taskKey}-dummies`)
-      const faintness = handInside(
-        { x: ink.x + ink.width / 2, y: ink.y + ink.height / 2 },
-        ink.width,
-        ink.height,
-      )
-        ? 1
-        : settings.dummyOpacity
+      const faintness = pointerInsideDummyTaskUids.includes(task.taskUid) ? 1 : settings.dummyOpacity
       ;(isPinnedTask ? actualPartsPinned : actualParts).push(
         `<g opacity="${rounded(faintness)}"${figureKey(`${taskKey}-dummies`)}>${marks}</g>`,
       )
@@ -662,7 +645,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
         markerSvg(
           task.marker,
           themed,
-          handOn(task.taskUid, MARKER_GRAB_ROWS) ? 1 : settings.dummyOpacity,
+          pointerOnMarkerTaskUid === task.taskUid ? 1 : settings.dummyOpacity,
           settings,
           `${taskKey}-marker`,
         ),
@@ -960,6 +943,32 @@ function drawnDummyOf(
   const dummy = task.dummies[0]
   if (picture !== 'screen' || dummy === undefined || dummy.figure === undefined) return null
   return { ink: dummy.ink, figure: dummy.figure }
+}
+
+// see ZO-2, CA-1, PI-19
+// WHY: the one test of whether the pointer is inside a drawn dummy's ink box, read by the drawing and by the held picture's key.
+// TRAP: every task with a drawn dummy, culled or not: a culled one is not drawn, so naming it only makes the key stricter.
+/** @purity pure */
+export function pointerInsideDummyTaskUidsOf(geometry: ScheduleGeometry, pointer: Point | null): readonly number[] {
+  if (pointer === null) return []
+  const inside: number[] = []
+  for (const task of geometry.tasks) {
+    const ink = drawnDummyOf(task, 'screen')?.ink
+    if (ink === undefined) continue
+    const center: Point = { x: ink.x + ink.width / 2, y: ink.y + ink.height / 2 }
+    if (Math.abs(pointer.x - center.x) <= ink.width / 2 && Math.abs(pointer.y - center.y) <= ink.height / 2) {
+      inside.push(task.taskUid)
+    }
+  }
+  return inside
+}
+
+// see ZO-3, T-266, CA-1, PI-19
+// WHY: the one test of whether the pointer is on a progress marker's grab area, read by the drawing and by the held picture's key.
+/** @purity pure */
+export function pointerOnMarkerTaskUidOf(hovered: Hit | null): number | null {
+  if (hovered === null || hovered.item.kind !== 'task' || !MARKER_GRAB_ROWS.includes(hovered.grab)) return null
+  return hovered.item.taskUid
 }
 
 // see SL-8, EL-16, ZO-10

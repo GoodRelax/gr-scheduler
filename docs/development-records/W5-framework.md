@@ -1188,6 +1188,7 @@ CR-212  05 の 1 文   FR-031 の「保存形」を「詰めた GRS JSON」と�
 | UF-200 | `resource-list-window.ts` | 内部 | non-pure |  | 🔧 実装済（`CR-722` の波 2） |
 | UF-197 | `parent-task-hold.ts` | 内部 | non-pure |  | 🔧 実装済 |
 | UF-198 | `shown-tasks-hold.ts` | 内部 | non-pure |  | 🔧 実装済 |
+| UF-206 | `beneath-picture-hold.ts` | 内部 | non-pure |  | 🔧 実装済（`CR-740`） |
 
 ---
 

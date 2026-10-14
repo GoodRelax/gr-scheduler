@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 332 | 3994 | 5 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 335 | 4022 | 5 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 86 | 565 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 86 | 566 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 620 | 8570 | 8 | 8 | 13 | 2 |
+| **all** | | | 623 | 8599 | 8 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -413,7 +413,10 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-731-t-373-the-rows-that-mend-themselves.contract.test.ts` | 25 | FR-155 | - | T-310, T-311, T-312, T-373 | FA-1, FA-2, FA-3, FA-8, FA-9, FA-10, FA-11, FA-12, FA-26, RW-16, VC-9, VC-11, VC-12 | - | - | - | - |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | 9 | FR-130, FR-155 | - | - | GP-1, UN-20, UN-21 | - | - | 2: DFC-730, none | - |
 | `tests/contract/cr-735-one-named-dependency-line.contract.test.ts` | 33 | FR-032, FR-135, FR-155 | - | T-064, T-108, T-310, T-373 | CM-37, CM-93, FA-3, FA-9, FA-12, PI-1, RW-16, VC-1, VC-3, VC-9, VC-12, X-3 | - | - | - | - |
-| `tests/contract/cr-736-if-1-the-marquee-overlay-svg.contract.test.ts` | 23 | - | - | T-020, T-064, T-065, T-075 | IF-1, PI-19, SL-3, UF-32, X-5, ZO-6 | - | - | - | - |
+| `tests/contract/cr-736-if-1-the-marquee-overlay-svg.contract.test.ts` | 24 | - | - | T-020, T-064, T-065, T-075 | IF-1, PI-19, SL-3, UF-32, ZO-6 | - | - | - | - |
+| `tests/contract/cr-740-ca-1-the-picture-beneath-is-built-again-only-when-what-it-reads-changes.contract.test.ts` | 12 | FR-013, FR-020, FR-039, FR-043, FR-048, FR-080, FR-082 | - | T-023d, T-029a, T-071 | CA-1, CA-2, CA-4, DC-1, GA-18, IC-16, IC-41, IC-45, IC-47, S-144, SL-3, U-60 | - | - | - | - |
+| `tests/contract/cr-740-if-1-the-overlay-element-lives-only-while-held-and-the-mouth-is-called-on-a-change.contract.test.ts` | 8 | - | - | T-065 | IF-1, SL-3 | - | - | - | - |
+| `tests/contract/cr-740-ir-4-a-frame-record-counts-the-picture-beneath-and-the-overlay.contract.test.ts` | 7 | FR-102 | - | T-263 | IR-4, ZO-6 | - | - | - | - |
 | `tests/contract/cr-741-a-date-without-a-time-reads-as-the-working-day.test.ts` | 39 | FR-011, FR-054 | - | - | IV-10, IV-14, PI-1, S-580, WC-8 | - | - | - | - |
 | `tests/contract/cr-749-the-working-time-counter-counts-as-the-single-functions-do.test.ts` | 14 | FR-011, FR-012, FR-054 | - | T-064 | PI-1, S-580 | - | - | - | - |
 | `tests/contract/cr-750-rs-90-ends-on-the-change-base-time-zone-entry.contract.test.ts` | 6 | FR-038, FR-156 | - | T-233 | IC-161, RS-90 | - | - | - | - |
@@ -652,7 +655,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-728-a-search-jump-lands-in-the-middle-and-marks-its-target.test.ts` | 12 | FR-134 | - | T-103, T-109, T-206, T-303, T-332 | AM-16, EL-17, PR-37, PR-38, PTL-16, S-554, S-557, S-558, SJ-1, SJ-2, SJ-5, SJ-6, SJ-9, SJ-10 | - | - | - | - |
 | `tests/system/cr-731-the-fix-window-on-the-shipped-build.test.ts` | 4 | - | - | - | FA-1, FA-23, FA-24, FM-8, IC-157, RW-16, UN-21 | - | - | - | - |
 | `tests/system/cr-733-a-press-anywhere-brings-a-table-window-to-the-front.test.ts` | 14 | - | - | T-103, T-109, T-330, T-335 | IC-52, IC-117, IN-4, SK-24, SV-2, SV-9, UZ-6, WB-2, WB-8, WB-11 | - | - | - | - |
-| `tests/system/cr-736-the-marquee-overlay-in-the-built-app.test.ts` | 7 | - | - | T-065 | IF-1, IF-9, ZO-6 | - | - | - | - |
+| `tests/system/cr-736-the-marquee-overlay-in-the-built-app.test.ts` | 8 | - | - | T-065 | IF-1, IF-9, ZO-6 | - | - | - | - |
 | `tests/system/cr-737-the-column-border-grab-band-and-the-pointer-shape-over-windows.test.ts` | 11 | FR-106 | - | T-023d, T-103, T-109, T-206, T-330 | DT-8, GR-25, GR-28, IC-122, PK-10, PK-12, PK-15, RO-9, RQ-1, RW-9, S-425, S-426, S-465, SQ-10, SV-7, SV-18 | - | - | - | - |
 | `tests/system/cr-739-the-window-edge-answers-before-the-title-bar-and-the-header-cell-shows-the-finger.test.ts` | 13 | FR-106 | - | T-023d, T-103, T-109, T-330, T-335 | DT-8, GR-24, GR-25, IC-52, IC-122, IF-9, PK-7, PK-12, PK-13, PK-15, RO-9, RQ-1, RW-9, S-426, S-465, SQ-10, SV-1, SV-7, SV-18, WB-8, WB-9 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1 | - | - | - | - |
