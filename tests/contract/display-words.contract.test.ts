@@ -306,6 +306,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   helpNotes: 'rowId',
   // see FR-036, CR-620
   helpFootnotes: 'footnote',
+  // see FR-036, CR-748
+  helpLinks: 'link',
   browserFunctions: 'rowId',
   reasons: 'rowId',
   invariants: 'rowId',
@@ -1941,6 +1943,20 @@ for (const entry of GENERATED['helpFootnotes'] ?? []) {
     keyOf('helpFootnotes', entry),
     'FR-036 / FR-073 draw note *1 as words around the S-350 link, so the whole-view reading joins before, address and after',
   )
+}
+
+// see FR-036, CR-748
+for (const entry of GENERATED['helpLinks'] ?? []) {
+  const link = keyOf('helpLinks', entry)
+  place({
+    section: 'helpLinks',
+    key: link,
+    field: 'text',
+    unit: 'UF-66',
+    what: `the help link ${link}`,
+    frame: HELP_SHOWN,
+    read: (view) => (link === 'about' ? view.helpModal?.aboutLink.words : undefined),
+  })
 }
 
 // see FR-036, T-255
