@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-Xm4DFIUiu5DSdqZ64a3ZBhyRt9iVvnE5gSvvumba8V8='; script-src 'sha256-oOgOLDkOrpSASMt38NC7ujUsWVl+sTja23T6f12KECw='; img-src data:; base-uri 'none'; form-action 'none'">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'sha256-TtRYkeCQBvfq8MgIvJEjIuw4OtZevglYQS1Ci2Ot+mY='; script-src 'sha256-oOgOLDkOrpSASMt38NC7ujUsWVl+sTja23T6f12KECw='; img-src data:; base-uri 'none'; form-action 'none'">
 <meta name="referrer" content="no-referrer">
 <meta name="description" content="GoodRelax Scheduler (GRS) の紹介。1 行に複数のタスクを置き、全体日程を 1 枚で見渡す、単一 HTML の日程表エディタ。">
 <title>GoodRelax Scheduler (GRS) とは</title>
@@ -145,6 +145,7 @@ main { flex: 1; min-height: 0; overflow: auto; }
 }
 .group h3 { font-size: 17px; line-height: 1.4; }
 .group ul { padding-left: 1.1em; font-size: 15px; line-height: 1.65; }
+.groups .fn { grid-column: 3; margin-top: -8px; }
 .counts { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; margin-top: 14px; font-size: 15px; color: var(--sub); }
 .counts b { font-size: 20px; color: var(--ink); margin-right: 4px; }
 
@@ -215,6 +216,7 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
 @media (max-width: 900px) {
   .cover, .what-top, .model, .arch { grid-template-columns: 1fr; gap: 20px; }
   .groups, .sells { grid-template-columns: 1fr 1fr; }
+  .groups .fn { grid-column: 1 / -1; }
 }
 @media (max-width: 600px) {
   .topbar-in { padding: 0 8px; gap: 8px; }
@@ -406,15 +408,15 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
         <li>形状を選んでタスクを置く</li>
         <li>マイルストーンの図形を選ぶ</li>
         <li>名称ラベルを自動で置く</li>
-        <li>重なるタスクを縦に積む</li>
-        <li>取り消しとやり直し</li>
+        <li>重なるタスクを全自動で縦にレイアウト</li>
+        <li>コマンドパレットで直感的に配置</li>
       </ul>
     </section>
     <section class="group">
       <header><span class="gno">2</span><h3>組む</h3></header>
       <ul>
         <li>タスクグループを階層で組む</li>
-        <li>折りたたみとピン止め</li>
+        <li>最大 5 階層の折り畳みとピン止め</li>
         <li>WBS と画面の並びを別に持つ</li>
         <li>属性と担当をパネルで編集する</li>
         <li>ハイライトとコメントを付加できる</li>
@@ -456,9 +458,10 @@ table.t td.n { text-align: right; font-weight: 700; font-variant-numeric: tabula
         <li>MSPDI XML を読み書きする</li>
         <li>複数のファイルを合流させる</li>
         <li>SVG と PNG を書き出す</li>
-        <li>AI に Agent API と MCP で編集させる</li>
+        <li><b>AI に Agent API と MCP で編集させる ※</b></li>
       </ul>
     </section>
+    <p class="note fn">※ 動的 AI 連携時は、ローカル PC に配置する簡易サーバーを使用</p>
   </div>
   <p class="counts"><span><b>15</b>ユースケース</span><span><b>120</b>機能要求</span><span><b>13</b>非機能要求</span>
     <span class="note">仕様書 3.2 の表 T-011 と、4.1・4.2 の見出しを数えた（origin/main <span class="mono">c581c5df</span>）</span></p>
