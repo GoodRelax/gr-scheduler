@@ -21,7 +21,11 @@
    "segment": null,
    "table": "T-036",
    "row": "SK-19",
-   "keys": "Enter",
+   "keys": [
+    [
+     "Enter"
+    ]
+   ],
    "press": null,
    "glyphs": [],
    "note": null
@@ -33,7 +37,12 @@
    "segment": null,
    "table": "T-036",
    "row": "SK-2",
-   "keys": "Ctrl ＋ A",
+   "keys": [
+    [
+     "Ctrl",
+     "A"
+    ]
+   ],
    "press": null,
    "glyphs": [],
    "note": null
@@ -45,7 +54,14 @@
    "segment": null,
    "table": "T-036",
    "row": "SK-3",
-   "keys": "Delete ／ Backspace",
+   "keys": [
+    [
+     "Delete"
+    ],
+    [
+     "Backspace"
+    ]
+   ],
    "press": null,
    "glyphs": [],
    "note": null
@@ -57,7 +73,12 @@
    "segment": null,
    "table": "T-036",
    "row": "SK-4",
-   "keys": "Ctrl ＋ C",
+   "keys": [
+    [
+     "Ctrl",
+     "C"
+    ]
+   ],
    "press": null,
    "glyphs": [],
    "note": null
@@ -69,7 +90,12 @@
    "segment": null,
    "table": "T-036",
    "row": "SK-5",
-   "keys": "Ctrl ＋ V",
+   "keys": [
+    [
+     "Ctrl",
+     "V"
+    ]
+   ],
    "press": null,
    "glyphs": [],
    "note": null
@@ -81,7 +107,11 @@
    "segment": null,
    "table": "T-036",
    "row": "SK-8",
-   "keys": "Esc",
+   "keys": [
+    [
+     "Esc"
+    ]
+   ],
    "press": null,
    "glyphs": [],
    "note": null
@@ -93,7 +123,11 @@
    "segment": null,
    "table": "T-036",
    "row": "SK-9",
-   "keys": "F2",
+   "keys": [
+    [
+     "F2"
+    ]
+   ],
    "press": null,
    "glyphs": [],
    "note": null
@@ -105,7 +139,12 @@
    "segment": null,
    "table": "T-036",
    "row": "SK-11",
-   "keys": "Ctrl ＋ S",
+   "keys": [
+    [
+     "Ctrl",
+     "S"
+    ]
+   ],
    "press": null,
    "glyphs": [],
    "note": null
@@ -117,7 +156,12 @@
    "segment": null,
    "table": "T-036",
    "row": "SK-21",
-   "keys": "Ctrl ＋ R",
+   "keys": [
+    [
+     "Ctrl",
+     "R"
+    ]
+   ],
    "press": null,
    "glyphs": [],
    "note": null
@@ -213,7 +257,16 @@
    "segment": null,
    "table": "T-255",
    "row": "BF-1",
-   "keys": "Ctrl ＋ + ／ Ctrl ＋ -",
+   "keys": [
+    [
+     "Ctrl",
+     "+"
+    ],
+    [
+     "Ctrl",
+     "-"
+    ]
+   ],
    "press": null,
    "glyphs": [],
    "note": null
@@ -225,7 +278,12 @@
    "segment": null,
    "table": "T-255",
    "row": "BF-2",
-   "keys": "Ctrl ＋ 0",
+   "keys": [
+    [
+     "Ctrl",
+     "0"
+    ]
+   ],
    "press": null,
    "glyphs": [],
    "note": null
@@ -249,7 +307,11 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-7",
-   "keys": "P",
+   "keys": [
+    [
+     "P"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-7"
@@ -263,7 +325,11 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-98",
-   "keys": "N",
+   "keys": [
+    [
+     "N"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-98"
@@ -277,7 +343,12 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-1",
-   "keys": "Ctrl ＋ O",
+   "keys": [
+    [
+     "Ctrl",
+     "O"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-1"
@@ -291,7 +362,13 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-2",
-   "keys": "Ctrl ＋ Shift ＋ E",
+   "keys": [
+    [
+     "Ctrl",
+     "Shift",
+     "E"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-2"
@@ -361,7 +438,11 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-10",
-   "keys": "F",
+   "keys": [
+    [
+     "F"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-10"
@@ -375,7 +456,13 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-104",
-   "keys": "Ctrl ＋ Shift ＋ -",
+   "keys": [
+    [
+     "Ctrl",
+     "Shift",
+     "-"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-104"
@@ -389,7 +476,13 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-105",
-   "keys": "Ctrl ＋ Shift ＋ +",
+   "keys": [
+    [
+     "Ctrl",
+     "Shift",
+     "+"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-105"
@@ -403,7 +496,11 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-11",
-   "keys": "F11",
+   "keys": [
+    [
+     "F11"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-11"
@@ -417,7 +514,12 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-12",
-   "keys": "Shift ＋ -",
+   "keys": [
+    [
+     "Shift",
+     "-"
+    ]
+   ],
    "press": "MK-3",
    "glyphs": [
     "IC-12"
@@ -431,7 +533,12 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-13",
-   "keys": "Shift ＋ +",
+   "keys": [
+    [
+     "Shift",
+     "+"
+    ]
+   ],
    "press": "MK-3",
    "glyphs": [
     "IC-13"
@@ -445,7 +552,12 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-14",
-   "keys": "Alt ＋ -",
+   "keys": [
+    [
+     "Alt",
+     "-"
+    ]
+   ],
    "press": "MK-4",
    "glyphs": [
     "IC-14"
@@ -459,7 +571,12 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-15",
-   "keys": "Alt ＋ +",
+   "keys": [
+    [
+     "Alt",
+     "+"
+    ]
+   ],
    "press": "MK-4",
    "glyphs": [
     "IC-15"
@@ -501,7 +618,12 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-5",
-   "keys": "Ctrl ＋ Z",
+   "keys": [
+    [
+     "Ctrl",
+     "Z"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-5"
@@ -515,7 +637,17 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-6",
-   "keys": "Ctrl ＋ Y ／ Ctrl ＋ Shift ＋ Z",
+   "keys": [
+    [
+     "Ctrl",
+     "Y"
+    ],
+    [
+     "Ctrl",
+     "Shift",
+     "Z"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-6"
@@ -529,7 +661,12 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-117",
-   "keys": "Ctrl ＋ F",
+   "keys": [
+    [
+     "Ctrl",
+     "F"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-117"
@@ -627,7 +764,11 @@
    "segment": null,
    "table": "T-109",
    "row": "IC-22",
-   "keys": "F1",
+   "keys": [
+    [
+     "F1"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-22"
@@ -1211,7 +1352,13 @@
    "segment": "IC-103",
    "table": "T-109",
    "row": "IC-44",
-   "keys": "Ctrl ＋ Shift ＋ D",
+   "keys": [
+    [
+     "Ctrl",
+     "Shift",
+     "D"
+    ]
+   ],
    "press": null,
    "glyphs": [
     "IC-44"

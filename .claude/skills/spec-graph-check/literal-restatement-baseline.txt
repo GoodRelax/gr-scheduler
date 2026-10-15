@@ -47,14 +47,11 @@ why: restates the fontScale values of docs/spec/_source/settings.json (DocumentS
 TASK_GROUP_GUARDS | keys | generated TREE_STATE_TRANSITIONS field guard~words
 why: restates the guard names of table T-328 (docs/spec/_source/state-machines.json, region taskGroupTree); Record<string, ...>, so an unknown guard throws only at run time.
 
-# --- coincidental (3) ------------------------------------------------------
+# --- coincidental (2; CR-770 paid 1 on 2026-10-15) -----------------------
 
 CALENDAR_CONSUMED | array | mspdi-child-order.json $.parents.Project/Calendars/Calendar.children
 why: coincidental: the 6 Calendar children the MSPDI codec reads, a chosen subset of the XSD child order (8), not a copy of it.
 
 COLOR_FORM_OF_COLUMN | values | generated COLOR_NAME_VALUES.*.* keys
 why: coincidental: maps the color columns to the form each is drawn in; the forms are its values, typed against ColorForm, not a list of the forms.
-
-KEY | values | help-roster.json $.entries[].keys~words
-why: coincidental: the spellings of the keys the translator compares; the help roster names the same keys because shortcuts are keys, not because KEY copies it.
 

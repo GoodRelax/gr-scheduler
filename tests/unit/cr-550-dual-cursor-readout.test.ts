@@ -317,7 +317,7 @@ describe('DC-3 -- the readout', () => {
     const stage = stageOf(STORED)
     const at15 = stage.pointOn(2026, 4, 15)
     expect(stage.readout('placingDate2', at15)?.lines[2]).toBe(`${SPAN_WORD}0年 0か月 14日 (14 days)`)
-    expect(stage.readout('placingDate2', at15, 'en')?.lines[2]).toBe('Interval: 0y 0m 14d (14 days)')
+    expect(stage.readout('placingDate2', at15, 'en')?.lines[2]).toBe('Interval: 0 yr 0 mo 14 d (14 days)')
     const reversed = stageOf({ date1: '2026-04-15T00:00:00', date2: STORED.date2 })
     expect(reversed.readout('placingDate2', reversed.pointOn(2026, 4, 1))?.lines[2], 'A after B').toBe(
       `${SPAN_WORD}0年 0か月 14日 (14 days)`,
@@ -333,7 +333,7 @@ describe('DC-3 -- the readout', () => {
     const stage = stageOf(STORED)
     const at2 = stage.pointOn(2026, 4, 2)
     expect(stage.readout('placingDate2', at2)?.lines[2]).toBe(`${SPAN_WORD}0年 0か月 1日 (1 day)`)
-    expect(stage.readout('placingDate2', at2, 'en')?.lines[2]).toBe('Interval: 0y 0m 1d (1 day)')
+    expect(stage.readout('placingDate2', at2, 'en')?.lines[2]).toBe('Interval: 0 yr 0 mo 1 d (1 day)')
   })
 
   it(DC_3_UNDECIDED, () => {

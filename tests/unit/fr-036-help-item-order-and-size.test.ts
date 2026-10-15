@@ -229,7 +229,9 @@ const EMPTY_VIEW: ScreenView = {
 
 /** The words this file drives with, all distinct so no case can confuse two. */
 const EXPLANATION = 'HelpExplanationHere'
-const KEYS = 'Ctrl \uff0b Shift \uff0b K'
+const KEYS = 'Ctrl+Shift+K'
+// WHY: the adapter joins the keys and the press with the ja word of keyNotation (CR-770); the help here is ja.
+const JA_JOIN = ' \uff0f '
 const PRESS = 'HelpMousePressHere'
 
 /** The row of table T-109 the item's glyph stands for. ⚠️ Not IC-52, which closes the help. */
@@ -258,6 +260,7 @@ interface HelpItem {
   readonly text: string
   readonly press: string | null
   readonly keys: string | null
+  readonly assignment: string | null
   readonly icon: string | null
   readonly kind: string
   readonly block: string
@@ -265,19 +268,23 @@ interface HelpItem {
   readonly glyphs: readonly string[]
 }
 
-const entry = (patch: Partial<HelpItem> = {}): HelpItem => ({
-  table: 'T-036',
-  row: 'SK-1',
-  text: EXPLANATION,
-  press: null,
-  keys: null,
-  icon: ITEM_ICON,
-  kind: 'item',
-  block: '',
-  segment: null,
-  glyphs: [ITEM_ICON],
-  ...patch,
-})
+const entry = (patch: Partial<HelpItem> = {}): HelpItem => {
+  const joined = [patch.keys ?? null, patch.press ?? null].filter((one): one is string => one !== null).join(JA_JOIN)
+  return {
+    table: 'T-036',
+    row: 'SK-1',
+    text: EXPLANATION,
+    press: null,
+    keys: null,
+    assignment: joined === '' ? null : joined,
+    icon: ITEM_ICON,
+    kind: 'item',
+    block: '',
+    segment: null,
+    glyphs: [ITEM_ICON],
+    ...patch,
+  }
+}
 
 const helpWith = (entries: readonly HelpItem[]): OpenModal =>
   ({
@@ -628,10 +635,10 @@ describe('FR-036 (MUST) -- glyph, then explanation, then assignment', () => {
     )
   })
 
-  it('FR-036: 1 つの項目に割当が 2 つ以上あるときは、割当と割当のあいだに `／`（全角の斜線）を、前後に半角の空白を 1 つずつ置いて並べること（MUST）', () => {
+  it('FR-036: 1 つの項目に割当が 2 つ以上あるときは、割当と割当のあいだに、辞書（`FR-038`）の `keyNotation` の `alternative` の語を置いて並べること（MUST）', () => {
     const { help } = drawn([entry({ keys: KEYS, press: PRESS })])
     const item = commonAncestor(theCellShowing(help, EXPLANATION), theCellShowing(help, KEYS))
-    expect(item.textContent, `the item reads ${JSON.stringify(item.textContent)}`).toContain(`${KEYS} \uff0f ${PRESS}`)
+    expect(item.textContent, `the item reads ${JSON.stringify(item.textContent)}`).toContain(`${KEYS}${JA_JOIN}${PRESS}`)
     expect(item.textContent, 'a bare space alone reads the two assignments as one').not.toContain(`${KEYS} ${PRESS}`)
   })
 

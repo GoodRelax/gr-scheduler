@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 379 | 4717 | 9 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 379 | 4721 | 9 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 91 | 589 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 672 | 9317 | 12 | 8 | 13 | 2 |
+| **all** | | | 672 | 9321 | 12 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -87,7 +87,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-386-ic-103-planned-dates-beside-the-name.test.ts` | commandPaletteFromSession (pure), emptySelection (pure), frameLoop (non-pure) | - | FR-002, FR-039, FR-049, FR-054, FR-055, T-109, T-202, T-251 |
 | `tests/unit/cr-389-fr-071-full-screen-is-asked-of-the-browser.test.ts` | frameLoop (non-pure) | - | FR-038, FR-071, T-036, T-078, T-109, T-233 |
 | `tests/unit/cr-404-a-task-group-opened-by-hand-stays-open.test.ts` | commandFromInput (pure), documentFromJson (pure), editTaskGroup (pure), emptySelection (pure), frameLoop (non-pure), geometryFromLayout (pure), jsonFromDocument (pure), layoutFromSchedule (pure), mspdiFromDocument (pure), regionsFromScreen (pure), taskGroupBandCeilingOf (pure) | - | FR-016, FR-018, FR-029, FR-031, FR-055, T-109, T-328, T-329 |
-| `tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts` | frameLoop (non-pure), helpModalFromSession (pure) | - | FR-036, FR-038, T-023, T-036, T-109, T-206, T-216, T-236, T-255, T-256 |
+| `tests/unit/cr-405-the-help-scrolls-down-in-three-columns.test.ts` | frameLoop (non-pure), helpModalFromSession (pure), keysWords (pure) | - | FR-036, FR-038, T-023, T-036, T-109, T-206, T-216, T-236, T-255, T-256 |
 | `tests/unit/cr-408-the-property-panel-wraps-and-its-edge-can-be-held.test.ts` | domScreenSurface (non-pure), frameLoop (non-pure) | - | FR-006, FR-052, FR-072, T-016, T-023d, T-206 |
 | `tests/unit/cr-409-the-display-scale-counts-the-new-look-as-100.test.ts` | displayRatioOf (pure), documentFromJson (pure), frameLoop (non-pure), layoutFromSchedule (pure), regionsFromScreen (pure) | - | FR-029, FR-039, T-201, T-202 |
 | `tests/unit/cr-410-ctrl-shift-keys-move-and-reset-the-display-scale.test.ts` | domInputSource (non-pure), frameLoop (non-pure) | - | FR-036, T-036, T-202, T-255 |
@@ -189,7 +189,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/fr-029-palette-grab-marker.test.ts` | domScreenSurface (non-pure) | - | FR-023, FR-029, FR-038, FR-053, T-023b, T-023d, T-062, T-075, T-103, T-109, T-206, T-216, T-218 |
 | `tests/unit/fr-029-the-reason-a-press-carries.test.ts` | frameLoop (non-pure) | - | FR-029, FR-034, FR-038, FR-049, FR-066, FR-076, FR-092, T-015, T-037, T-051, T-060, T-062, T-075, T-103, T-109, T-218, T-233 |
 | `tests/unit/fr-031-a-write-that-moved-nothing-leaves-no-step.test.ts` | applyDocumentChange (non-pure), documentFromJson (pure), emptyHistory (pure), stepCount (pure), undoEdit (pure) | - | FR-031, FR-052, FR-063, T-027, T-060, T-108, T-206 |
-| `tests/unit/fr-036-help-item-order-and-size.test.ts` | domScreenSurface (non-pure) | - | FR-029, FR-036, NFR-007, T-023, T-036, T-062, T-075, T-103, T-109, T-206, T-215, T-218 |
+| `tests/unit/fr-036-help-item-order-and-size.test.ts` | domScreenSurface (non-pure) | - | FR-029, FR-036, FR-038, NFR-007, T-023, T-036, T-062, T-075, T-103, T-109, T-206, T-215, T-218 |
 | `tests/unit/fr-038-panel-date-language.test.ts` | domScreenSurface (non-pure) | - | FR-006, FR-023, FR-038, FR-072, T-006a, T-016, T-062, T-064, T-075, T-103, T-206, T-216, T-218 |
 | `tests/unit/fr-039-the-theme-starts-from-the-browser.test.ts` | startupThemePreference (semi-pure-b) | - | FR-039 |
 | `tests/unit/fr-043-dummy-drawn.test.ts` | emptySelection (pure), exportSvg (pure), frameLoop (non-pure), geometryFromLayout (pure), layoutFromSchedule (pure), regionsFromScreen (pure), svgFromSchedule (pure) | - | FR-011, FR-013, FR-017, FR-025, FR-039, FR-041, FR-043, FR-054, FR-055, FR-080, FR-093, T-020, T-023d, T-041, T-068, T-076, T-077, T-201, T-206, T-218, T-221, T-231, T-240, T-266 |
@@ -267,7 +267,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 
 | file | cases | requirement nodes | T-334 | tables | table rows | UO rows named | known red | expected-to-fail | XSD |
 | --- | --: | --- | --- | --- | --- | --- | --- | --- | --- |
-| `tests/contract/cr-425-help-separates-assignments-and-the-wheel-is-not-a-zero.test.ts` | 10 | FR-036 | - | T-026, T-036, T-255 | IC-6, IC-102, RC-13, SK-7 | - | - | - | - |
+| `tests/contract/cr-425-help-separates-assignments-and-the-wheel-is-not-a-zero.test.ts` | 14 | FR-036 | - | T-026, T-036, T-255 | EZ-2, IC-6, IC-102, RC-13, SK-7 | - | - | - | - |
 | `tests/contract/cr-429-ex-1-dv-2-a-document-grs-made.test.ts` | 5 | - | - | - | DV-2, EX-1 | - | - | - | yes |
 | `tests/contract/cr-429-ex-11-ex-12-a-dated-task-is-pinned.test.ts` | 24 | FR-033, FR-054 | - | - | DV-8, EX-1, EX-2, EX-4, EX-9, EX-11, EX-12, SO-10 | - | - | - | yes |
 | `tests/contract/cr-429-fr-021-both-versions-come-back.test.ts` | 12 | FR-021 | - | T-228 | DV-2, EX-1, EX-10, NR-6 | - | - | - | yes |
@@ -852,7 +852,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/fr-029-palette-grab-marker.test.ts` | 8 | FR-023, FR-029, FR-038, FR-053 | - | T-023b, T-023d, T-062, T-075, T-103, T-109, T-206, T-216, T-218 | BO-1, CP-38, GR-19, IC-53, IF-9, S-135a, S-138, TS-6, U-26, UF-65, UF-71 | - | - | - | - |
 | `tests/unit/fr-029-the-reason-a-press-carries.test.ts` | 20 | FR-029, FR-034, FR-038, FR-049, FR-066, FR-076, FR-092 | - | T-015, T-037, T-051, T-060, T-062, T-075, T-103, T-109, T-218, T-233 | AT-153, CP-25, CS-2, EZ-2, HF-2, HF-3, HF-10, HF-11, HF-12, HF-13, HF-16, HR-2, HR-3, HR-4, HR-6, HR-7, IC-8, IC-9, IC-18, IC-37, IC-38, IC-58, IC-59, IC-74, IC-77, IC-78, IC-90, LY-5, NT-1, RS-27, RS-28, RS-29, RS-30, RS-31, RS-32, RS-33, RS-34, S-227, S-228, S-418, TS-6, U-22, UF-48, X-4 | - | - | - | - |
 | `tests/unit/fr-031-a-write-that-moved-nothing-leaves-no-step.test.ts` | 10 | FR-031, FR-052, FR-063 | - | T-027, T-060, T-108, T-206 | CM-9, CM-67, LY-5, S-94, S-95, UN-3, UN-16 | - | - | - | - |
-| `tests/unit/fr-036-help-item-order-and-size.test.ts` | 13 | FR-029, FR-036, NFR-007 | - | T-023, T-036, T-062, T-075, T-103, T-109, T-206, T-215, T-218 | BO-1, CP-38, IC-52, IC-102, IF-9, S-121, S-122, S-123, S-138, S-197, S-201, S-202, S-203, S-205, TS-6, U-30, UF-66, UF-71 | - | - | - | - |
+| `tests/unit/fr-036-help-item-order-and-size.test.ts` | 13 | FR-029, FR-036, FR-038, NFR-007 | - | T-023, T-036, T-062, T-075, T-103, T-109, T-206, T-215, T-218 | BO-1, CP-38, IC-52, IC-102, IF-9, S-121, S-122, S-123, S-138, S-197, S-201, S-202, S-203, S-205, TS-6, U-30, UF-66, UF-71 | - | - | - | - |
 | `tests/unit/fr-038-panel-date-language.test.ts` | 5 | FR-006, FR-023, FR-038, FR-072 | - | T-006a, T-016, T-062, T-064, T-075, T-103, T-206, T-216, T-218 | CP-38, IF-9, PI-38, PR-3, S-72, S-73, S-99, S-186, S-189, S-434, TS-6, U-25, UF-64, UF-71, W-4 | - | - | - | - |
 | `tests/unit/fr-039-the-theme-starts-from-the-browser.test.ts` | 1 | FR-039 | - | - | S-72 | - | - | - | - |
 | `tests/unit/fr-043-dummy-drawn.test.ts` | 22 | FR-011, FR-013, FR-017, FR-025, FR-039, FR-041, FR-043, FR-054, FR-055, FR-080, FR-093 | - | T-020, T-023d, T-041, T-068, T-076, T-077, T-201, T-206, T-218, T-221, T-231, T-240, T-266 | BO-1, DM-1, DM-3, EP-5, EP-14, GA-1, GA-5, GA-6, GA-16, GA-17, GA-18, LF-9, LF-10, NS-1, NS-3, PI-19, PM-1, PM-1a, S-1, S-4, S-5, S-6, S-22, S-63, S-77, S-99h, S-129, S-130, S-131, S-180, S-217, S-247, S-257, S-260, TS-6, U-2, U-5, U-52, WY-3, ZO-1, ZO-1a, ZO-2, ZO-3, ZO-4, ZO-5 | - | - | - | - |

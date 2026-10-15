@@ -276,6 +276,13 @@ WEEKDAYS = ('sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday',
 # ⚠️ These are KEYS, not words.
 SCALE_ECHO_ENDS = ('max', 'min')
 
+# The two words FR-036 (MUST, CR-770) has the help and the tooltips print around
+# the keys: the join between two assignments of one item, and the plus key
+# itself, which a chord spelled `Ctrl+Shift+...` cannot print as a bare plus.
+# HELD HERE, the same move as SCALE_ECHO_ENDS: FR-036 states the two in prose.
+# ⚠️ These are KEYS, not words.
+KEY_NOTATION_PARTS = ('alternative', 'plusKey')
+
 # The lines DC-3 of table T-029a (MUST) shows beside the pointer while the
 # Dual Cursor mode is on: the earlier date (left), the later date (right), and
 # the interval between them, whose value is `days`, or `oneDay` when the count
@@ -805,6 +812,7 @@ def roster():
         'rowMinHeightField': list(ROW_MIN_HEIGHT_FIELD_PARTS),
         'taskGroupPanelWidthField': list(TASK_GROUP_PANEL_WIDTH_FIELD_PARTS),
         'scaleEcho': list(SCALE_ECHO_ENDS),
+        'keyNotation': list(KEY_NOTATION_PARTS),
         'dualCursorReadout': list(DUAL_CURSOR_READOUT_LINES),
         'searchColumns': [row[0] for row in
                           table_rows(REL_REQUIREMENTS, SEARCH_COLUMN_ROW,
@@ -915,6 +923,7 @@ SHAPE = {
     'themeHues': ('rowId', ('text',)),
     'timeZones': ('rowId', ('label',)),
     'scaleEcho': ('end', ('text',)),
+    'keyNotation': ('part', ('text',)),
     'dualCursorReadout': ('line', ('text',)),
     'searchColumns': ('rowId', ('text',)),
     'planActualStates': ('rowId', ('text',)),
@@ -1049,7 +1058,8 @@ def build(doc, keys_by_row):
                     'themeHues', 'timeZones', 'timeZoneField',
                     'wholeScheduleShiftField', 'readOnlySettings',
                     'holidaySettings',
-                    'scaleEcho', 'dualCursorReadout', 'searchColumns',
+                    'scaleEcho', 'keyNotation', 'dualCursorReadout',
+                    'searchColumns',
                     'planActualStates', 'searchPanel', 'taskTypes',
                     'resourceListColumns',
                     'resourceList', 'parentTaskChoice',

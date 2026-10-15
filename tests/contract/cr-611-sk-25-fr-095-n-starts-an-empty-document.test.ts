@@ -120,7 +120,7 @@ describe('SK-25 / FR-095 / T-342 / QN-5 -- the manuscript still says it', () => 
   })
 
   it('FR-036: the help lists N at the IC-98 item', () => {
-    expect(rosterEntry('IC-98')['keys']).toBe('N')
+    expect(rosterEntry('IC-98')['keys']).toEqual([['N']])
   })
 })
 

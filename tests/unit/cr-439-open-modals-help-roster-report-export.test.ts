@@ -120,6 +120,7 @@ const HELP = {
       text: 'Settle the edit',
       press: null,
       keys: 'Enter',
+      assignment: 'Enter',
       icon: 'IC-5',
       kind: 'key',
       column: 'c1',

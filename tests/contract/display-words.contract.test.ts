@@ -411,6 +411,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   holidaySettings: 'part',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
   scaleEcho: 'end',
+  // WHY: CR-770 keys the two words FR-036 prints around the keys (the join and the plus key) by their part.
+  keyNotation: 'part',
   // WHY: CR-550 keys the lines of DC-3's readout by the line they fill.
   dualCursorReadout: 'line',
   // WHY: CR-571 keys a search column's heading by its row of table T-331 (FR-151),
@@ -1943,6 +1945,34 @@ for (const entry of GENERATED['shortcuts'] ?? []) {
   })
 }
 
+// see FR-036, CR-770
+// WHY: the two words stand between keys, so each is read back by cutting the keys of one item off its entry.
+const KEY_NOTATION_READS: Readonly<Record<string, { readonly row: string; readonly before: string; readonly after: string }>> = {
+  alternative: { row: 'IC-6', before: 'Ctrl+Y', after: 'Ctrl+Shift+Z' },
+  plusKey: { row: 'IC-13', before: 'Shift+', after: '' },
+}
+for (const entry of GENERATED['keyNotation'] ?? []) {
+  const part = keyOf('keyNotation', entry)
+  const cut = KEY_NOTATION_READS[part]
+  if (cut === undefined) {
+    drop('keyNotation', part, 'FR-036 names no item this file can read this part from')
+    continue
+  }
+  place({
+    section: 'keyNotation',
+    key: part,
+    field: 'text',
+    unit: 'UF-66',
+    what: `the ${part} word of the keys on the help item ${cut.row}`,
+    frame: HELP_SHOWN,
+    read: (view) => {
+      const keys = view.helpModal?.entries.find((one) => one.kind === 'item' && one.row === cut.row)?.keys
+      if (keys === undefined || keys === null || !keys.startsWith(cut.before) || !keys.endsWith(cut.after)) return undefined
+      return keys.slice(cut.before.length, keys.length - cut.after.length)
+    },
+  })
+}
+
 // see FR-036, CR-635
 // WHY: every block carries its heading as a heading entry keyed by the block, whose name also travels
 // untranslated on each entry (T-256) -- so only a place, not the whole-view reading, can hold this word.
@@ -3197,6 +3227,18 @@ const helpNoteFramesShowing = (
     return text !== undefined && text.includes(word)
   })
 
+// see FR-036, CR-770
+// WHY: the join and the plus key stand inside an item's keys, so a frame shows them when some help item's keys hold them.
+const keyNotationFramesShowing = (
+  word: string,
+  language: string,
+): readonly { readonly what: string; readonly frame: Frame }[] =>
+  FRAMES.filter((one) =>
+    (viewOf(screenViewFromRegions, one.frame, language).helpModal?.entries ?? []).some(
+      (entry) => entry.keys !== null && entry.keys.includes(word),
+    ),
+  )
+
 // see FR-036, FR-073
 const helpFootnoteFramesShowing = (
   word: string,
@@ -3802,6 +3844,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
             ? helpFootnoteFramesShowing(cell.word, cell.language)
             : cell.section === 'scaleEcho'
             ? scaleEchoFramesShowing(cell.word, cell.language)
+            : cell.section === 'keyNotation'
+            ? keyNotationFramesShowing(cell.word, cell.language)
             : cell.section === 'dualCursorReadout'
               ? dualCursorReadoutFramesShowing(cell.word, cell.language)
               : cell.section === 'exportChooser'

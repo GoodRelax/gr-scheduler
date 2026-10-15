@@ -88,7 +88,7 @@ describe('the dictionary section wholeScheduleShiftField -- the words JDG-2109 s
       '全体日程シフトを実行して、日程全体を新しい開始日へ移しますか？ 書き換える内容は下に示します。取り消し 1 回で戻せます',
     )
     expect(questionWord('QN-15', 'en')).toBe(
-      'Shift the whole schedule to the new start date? What will be rewritten is shown below. One Undo brings it back',
+      'Shift the whole schedule to the new start date? What will be rewritten is shown below. One Undo brings it back.',
     )
   })
 })

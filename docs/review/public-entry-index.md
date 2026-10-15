@@ -1661,6 +1661,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `wouldScheduleFilterChange` | file only | function | `src/adapter/screen-renderer/table-window.ts#wouldScheduleFilterChange` | -- | function wouldScheduleFilterChange( visibility: TableVisibility, rowKeysOf: () => ReadonlySet<number>, isEveryTaskRowed: boolean, ): boolean |
 | `rulerAbbreviationsOf` | file only | function | `src/adapter/screen-renderer/task-group-panel.ts#rulerAbbreviationsOf` | -- | function rulerAbbreviationsOf( regions: ScreenRegions, schedule: Schedule, storedSettings: DocumentSettings, language: DisplayLanguage, ): readonly RulerAbbr... |
 | `taskGroupPanelFromSchedule` | file only | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupPanelFromSchedule` | -- | function taskGroupPanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVi... |
+| `assignmentWords` | file only | function | `src/adapter/screen-renderer/tooltips.ts#assignmentWords` | -- | function assignmentWords(keys: string \| null, press: string \| null, language: DisplayLanguage): string \| null |
 | `baselineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#baselineHint` | -- | function baselineHint(baseline: BaselineTask, schedule: Schedule \| null, language: DisplayLanguage, times = NO_HINT_TIMES): string |
 | `cursorDateText` | file only | function | `src/adapter/screen-renderer/tooltips.ts#cursorDateText` | -- | function cursorDateText(day: CalendarDay, language: DisplayLanguage): string |
 | `deadlineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#deadlineHint` | -- | function deadlineHint(task: Task, schedule: Schedule \| null, language: DisplayLanguage, times = NO_HINT_TIMES): string \| null |
@@ -1668,6 +1669,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `guideCursorLabelOf` | file only | function | `src/adapter/screen-renderer/tooltips.ts#guideCursorLabelOf` | -- | function guideCursorLabelOf( regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, tooltips: readonly Too... |
 | `iconHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#iconHint` | -- | function iconHint(icon: IconId, language: DisplayLanguage): string |
 | `iconLabel` | file only | function | `src/adapter/screen-renderer/tooltips.ts#iconLabel` | -- | function iconLabel(icon: IconId, language: DisplayLanguage): string |
+| `keysWords` | file only | function | `src/adapter/screen-renderer/tooltips.ts#keysWords` | -- | function keysWords(keys: readonly (readonly string[])[] \| null, language: DisplayLanguage): string \| null |
 | `tooltipsFromScreenView` | file only | function | `src/adapter/screen-renderer/tooltips.ts#tooltipsFromScreenView` | -- | function tooltipsFromScreenView( shown: Omit<ScreenView, 'tooltips'>, settings: DocumentSettings, session: ScreenSession, readings: ScreenViewReadings, sched... |
 | `WindowEdge` | file only | type | `src/adapter/screen-renderer/window-box.ts#WindowEdge` | -- | type WindowEdge = 'top' \| 'bottom' \| 'left' \| 'right' \| 'topLeft' \| 'topRight' \| 'bottomLeft' \| 'bottomRight' |
 | `WindowFloor` | file only | interface | `src/adapter/screen-renderer/window-box.ts#WindowFloor` | -- | interface WindowFloor |
@@ -2059,4 +2061,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1043 name(s) leave through a public entry (502 of them published by table T-064), 806 more are exported by a file and not by its entry.
+Totals: 1043 name(s) leave through a public entry (502 of them published by table T-064), 808 more are exported by a file and not by its entry.
