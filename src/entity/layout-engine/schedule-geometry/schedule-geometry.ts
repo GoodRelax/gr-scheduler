@@ -279,7 +279,6 @@ export interface GeometryInputs {
   readonly selectedTaskUids: ReadonlySet<number>
   readonly selectedLinks: ReadonlySet<string>
   // TRAP: made and dropped inside one call; holding it longer is a cache Chapter 5.6 must first record (R2.20).
-  readonly dummyFromByStart: Map<string, CalendarDay | null>
   readonly dummyEndByFrom: Map<string, CalendarDay>
   readonly delayDiagnostics?: {
     readonly shown: boolean
@@ -575,7 +574,6 @@ export function geometryFromLayout(
     showActual: settings.actualVisible,
     selectedTaskUids: new Set(taskUidsIn(selection)),
     selectedLinks: selectedLinksOf(schedule, selection),
-    dummyFromByStart: new Map<string, CalendarDay | null>(),
     dummyEndByFrom: new Map<string, CalendarDay>(),
     ...(delayDiagnostics === undefined ? {} : { delayDiagnostics }),
   }

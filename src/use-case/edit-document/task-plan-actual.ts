@@ -11,12 +11,19 @@ import {
   calendarDaysBetween,
   compareDays,
   dayOf,
+  instantAfterWorkingMinutes,
+  instantOf,
+  instantOnSide,
   lastDayForLength,
+  MINUTES_PER_CALENDAR_DAY,
   planActualState,
   plannedDurationMinutesOf,
+  startSideOf,
   textOfFinishSide,
+  textOfInstant,
   textOfStartSide,
   type CalendarDay,
+  type DateTimeSide,
   type Project,
   type Schedule,
   type Task,
@@ -404,7 +411,103 @@ export function setTaskPlanActualState(
   return edited(withTask(document, repriced(within, actualsEdited(placed))))
 }
 
-// see CM-14, FR-043
+// see GO-6, GO-7, GO-8, GO-9, PV-1, T-378, FR-158
+interface DummyActualFrame {
+  readonly within: WorkingCalendar
+  readonly project: Project
+  readonly milestone: boolean
+  readonly side: DateTimeSide
+  readonly showsTimeOfDay: boolean
+  readonly snapMinutes: number
+}
+
+/** @purity pure */
+function dummyActualFrameOf(document: Document, task: Task, within: WorkingCalendar,
+                            snapMinutes: number): DummyActualFrame {
+  return {
+    within,
+    project: document.schedule.project,
+    milestone: isMilestone(task),
+    side: startSideOf(task),
+    showsTimeOfDay: document.documentSettings.showsTimeOfDay,
+    snapMinutes,
+  }
+}
+
+// see GO-6, PV-1, FR-158, T-378
+/** @purity pure */
+function isTimedDummy(frame: DummyActualFrame): boolean {
+  return frame.showsTimeOfDay && frame.snapMinutes < MINUTES_PER_CALENDAR_DAY
+}
+
+// WHY: S-585 working minutes from the start, never shorter than the snap unit in force (JDG-2108, FR-011's floor).
+/** @purity pure */
+function dummyActualEndOf(within: WorkingCalendar, start: number, snapMinutes: number): number {
+  return Math.max(
+    instantAfterWorkingMinutes(within, start, NOT_STORED_DUMMY_ACTUAL_MINUTES['S-585']),
+    start + snapMinutes,
+  )
+}
+
+// WHY: with time of day shown the instant itself, a date-only text read on its side; never the day's default time.
+/** @purity pure */
+function dummyStartText(text: string | null, day: CalendarDay, frame: DummyActualFrame): string {
+  if (!frame.showsTimeOfDay) return textOfStartSide(day, frame.project, frame.milestone)
+  const instant = instantOnSide(frame.within, text, frame.side)
+  return instant === null ? textOfStartSide(day, frame.project, frame.milestone) : textOfInstant(instant)
+}
+
+// WHY: a shown milestone is a point on its instant; a timed actual runs S-585; otherwise it ends on the floor day.
+/** @purity pure */
+function dummyLastText(actualStart: string, startDay: CalendarDay, frame: DummyActualFrame): string {
+  if (frame.milestone && frame.showsTimeOfDay) return actualStart
+  const instant = instantOf(actualStart)
+  if (!frame.milestone && isTimedDummy(frame) && instant !== null) {
+    return textOfInstant(dummyActualEndOf(frame.within, instant, frame.snapMinutes))
+  }
+  return textOfFinishSide(floorDayOf(frame.within, startDay, frame.milestone), frame.project)
+}
+
+// WHY: a timed release before start + snap is lifted to it, the floor FR-011 puts at the snap unit.
+/** @purity pure */
+function dummyFinishText(actualStart: string, released: string, lastDay: CalendarDay,
+                         frame: DummyActualFrame): string {
+  const from = instantOf(actualStart)
+  const to = instantOf(released)
+  if (!isTimedDummy(frame) || from === null || to === null) return textOfFinishSide(lastDay, frame.project)
+  return textOfInstant(Math.max(to, from + frame.snapMinutes))
+}
+
+// WHY: the start stays on the plan start, where the dummy stands (DM-1); the released place is the last day itself.
+/** @purity pure */
+function dummyFinishWrite(document: Document, task: Task, released: string,
+                          frame: DummyActualFrame): EditResult {
+  const planStart = dayOf(task.start)
+  if (planStart === null) {
+    return refused([
+      reject('CM-14', 'FR-043', 'the task names no plan start for the finish handle to fix its start by'),
+    ])
+  }
+  // WHY: the released day is the last day itself and is not moved to a working day (GO-3, FR-043).
+  const settled = settledLastDay(
+    frame.within, planStart, dayOf(released) as CalendarDay, floorDayOf(frame.within, planStart, frame.milestone),
+  )
+  if (!settled.ok) {
+    return refused([
+      reject('CM-14', 'IV-21', `an actual of ${settled.length} worked days ends before it starts`),
+    ])
+  }
+  const actualStart = dummyStartText(task.start, planStart, frame)
+  const pulled: Task = {
+    ...task,
+    actualStart,
+    stop: dummyFinishText(actualStart, released, settled.lastDay, frame),
+    resumeValid: true,
+  }
+  return edited(withTask(document, repriced(frame.within, actualsEdited(pulled))))
+}
+
+// see CM-14, FR-043, GO-6, GO-7, GO-8, GO-9
 /** @purity pure */
 export function beginTaskActual(
   document: Document,
@@ -415,42 +518,24 @@ export function beginTaskActual(
   if (planActualState(task) !== 'notStarted') {
     return refused([reject('CM-14', 'FR-043', 'the task has already been started')])
   }
-  const milestone = isMilestone(task)
-  const project: Project = document.schedule.project
-  const dropped = checkDay(command.droppedDay)
-  if (!dropped.ok) {
-    return refused([reject('CM-14', 'IV-14', `droppedDay ${dropped.what}`)])
+  const checks: readonly (readonly [string, string])[] = [
+    ['released.start', command.released.start],
+    ['released.finish', command.released.finish],
+  ]
+  for (const [label, text] of checks) {
+    const checked = checkDay(text)
+    if (!checked.ok) return refused([reject('CM-14', 'IV-14', `${label} ${checked.what}`)])
   }
+  const frame = dummyActualFrameOf(document, task, within, command.snapMinutes)
   if (DUMMY_FINISH_HOLDS.includes(command.grabbed)) {
-    // TRAP: the plan start day itself, where schedule-layout.ts and task-figures.ts stand the dummy (DM-1); change all three together.
-    const planStart = dayOf(task.start)
-    if (planStart === null) {
-      return refused([
-        reject('CM-14', 'FR-043', 'the task names no plan start for the finish handle to fix its start by'),
-      ])
-    }
-    const pinned = planStart
-    // WHY: the released day is the last day itself and is not moved to a working day (GO-3, FR-043).
-    const settled = settledLastDay(
-      within, pinned, dropped.day, floorDayOf(within, pinned, milestone),
-    )
-    if (!settled.ok) {
-      return refused([
-        reject('CM-14', 'IV-21', `an actual of ${settled.length} worked days ends before it starts`),
-      ])
-    }
-    const pulled: Task = {
-      ...task,
-      actualStart: textOfStartSide(pinned, project, milestone),
-      stop: textOfFinishSide(settled.lastDay, project),
-      resumeValid: true,
-    }
-    return edited(withTask(document, repriced(within, actualsEdited(pulled))))
+    return dummyFinishWrite(document, task, command.released.finish, frame)
   }
+  const startDay = dayOf(command.released.start) as CalendarDay
+  const actualStart = dummyStartText(command.released.start, startDay, frame)
   const begun: Task = {
     ...task,
-    actualStart: textOfStartSide(dropped.day, project, milestone),
-    stop: textOfFinishSide(floorDayOf(within, dropped.day, milestone), project),
+    actualStart,
+    stop: dummyLastText(actualStart, startDay, frame),
     resumeValid: true,
   }
   return edited(withTask(document, repriced(within, actualsEdited(begun))))
@@ -465,7 +550,6 @@ export function cycleTaskPlanActualStateInDocument(
   within: WorkingCalendar,
 ): EditResult {
   const state = planActualState(task)
-  const milestone = isMilestone(task)
   const from = dayOf(task.start)
   if (state === 'notStarted' && command.remembered === null && from === null) {
     return refused([reject('CM-15', 'FR-012', 'the task does not name both plan dates')])
@@ -473,9 +557,21 @@ export function cycleTaskPlanActualStateInDocument(
   if (state === 'inProgress' && task.stop === null) {
     return refused([reject('CM-15', 'FR-011', 'the actual has no last day to finish on')])
   }
-  const project = document.schedule.project
-  const startSide = from === null ? null : textOfStartSide(from, project, milestone)
-  const floorDay = from === null ? null : textOfFinishSide(floorDayOf(within, from, milestone), project)
-  const turned = cycleTaskPlanActualState(task, command.remembered, { startSide, floorDay, milestone })
+  const frame = dummyActualFrameOf(document, task, within, command.snapMinutes ?? MINUTES_PER_CALENDAR_DAY)
+  const startSide = from === null ? null : dummyStartText(task.start, from, frame)
+  const floorDay = from === null || startSide === null ? null : dummyLastText(startSide, from, frame)
+  const turned = cycleTaskPlanActualState(task, command.remembered, { startSide, floorDay, milestone: frame.milestone })
   return edited(withTask(document, repriced(within, turned.task)))
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/settings.json (table T-206)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-206
+const NOT_STORED_DUMMY_ACTUAL_MINUTES: {
+  readonly 'S-585': number
+} = {
+  'S-585': 60,
+}
+// </generated>

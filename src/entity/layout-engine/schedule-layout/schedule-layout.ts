@@ -439,36 +439,27 @@ function occupiedSpanOf(
   return { x0: Math.min(x0, deadlineX - half), x1: Math.max(x1, deadlineX + half) }
 }
 
-// see DM-3
+// see DM-3, FR-158
 /** @purity pure */
-export function dummyInkWidthOf(markerDiameter: number): number {
-  return Math.min(markerDiameter * NOT_STORED_DUMMY_SIZES['S-247'], NOT_STORED_DUMMY_SIZES['S-180'])
+export function dummyInkWidthOf(
+  markerDiameter: number,
+  axis: { readonly pxPerDay: number; readonly showsTimeOfDay: boolean },
+): number {
+  const mark = Math.min(markerDiameter * NOT_STORED_DUMMY_SIZES['S-247'], NOT_STORED_DUMMY_SIZES['S-180'])
+  if (!axis.showsTimeOfDay) return mark
+  return Math.max(mark, (axis.pxPerDay * NOT_STORED_DUMMY_SIZES['S-585']) / MINUTES_PER_CALENDAR_DAY)
 }
 
-/** @purity pure */
-function finiteOrNull(reach: number): number | null {
-  return Number.isFinite(reach) ? reach : null
-}
-
-// see DM-1, DM-3, DM-9
 /** @purity pure */
 function dummyReachOf(
-  task: Task,
   shapeKind: ShapeKind,
-  reader: EdgeReader,
-  originSerial: number,
-  pxPerDay: number,
-  originX: number,
+  band: { readonly x: number; readonly width: number },
   settings: DrawnSettings,
-  markerDiameter: number,
 ): number {
-  const start = reader.edge(task.start, 'start', startSideOf(task))
-  if (start === null) return Number.NEGATIVE_INFINITY
-  const inkX = xAtEdge(start, originSerial, pxPerDay, originX)
   if (actualPlacementOf(shapeKind) === 'sideways') {
-    return inkX + (planHeightOf(shapeKind, settings) * settings.actualOfPlan) / 2
+    return band.x + (planHeightOf(shapeKind, settings) * settings.actualOfPlan) / 2
   }
-  return inkX + dummyInkWidthOf(markerDiameter)
+  return band.x + band.width
 }
 
 // see LF-3, HF-19, FR-085
@@ -596,19 +587,15 @@ export function layoutFromSchedule(
       const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
       const actualReach = actual === null ? null : actualReachOf(kind, actual, settings)
       const markerDiameter = markerDiameterOf(kind, font, settings)
-      const dummyReach =
-        actualReach !== null
-          ? null
-          : finiteOrNull(
-              dummyReachOf(task, kind, reader, originSerial, pxPerDay, originX, settings, markerDiameter),
-            )
+      const dummyBand = dummyBandOf(kind, { x, width }, markerDiameter, { pxPerDay, showsTimeOfDay: reader.showsTimeOfDay })
+      const dummyReach = actualReach !== null || from === null ? null : dummyReachOf(kind, dummyBand, settings)
       const planRight = x + width
       // TRAP: read no toggle here but S-63, which the drawing side reads: a toggle must not move a lane (T-038).
       const reference = labelReferenceOf(
         kind,
         { x, width },
         fade,
-        actual ?? dummyBandOf(kind, { x, width }, markerDiameter),
+        actual ?? dummyBand,
         settings,
       )
       const marksShown = settings.progressMarkerVisible
@@ -834,9 +821,11 @@ export function taskGroupPlacesAtZoomY(
 const NOT_STORED_DUMMY_SIZES: {
   readonly 'S-180': number
   readonly 'S-247': number
+  readonly 'S-585': number
 } = {
   'S-180': 30,
   'S-247': 0.5,
+  'S-585': 60,
 }
 
 // see T-206

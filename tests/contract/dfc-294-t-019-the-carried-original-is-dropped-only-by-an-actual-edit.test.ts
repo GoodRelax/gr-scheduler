@@ -67,6 +67,7 @@ import {
   MSPDI_NAMESPACE,
 } from '../../src/adapter/document-codec/mspdi-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
+import { MINUTES_PER_CALENDAR_DAY } from '../../src/entity/document-model/schedule/schedule'
 import { editTask, type TaskCommand } from '../../src/use-case/edit-document/edit-task'
 import { bare, specTable, type SpecTable, unbroken } from './spec-table'
 
@@ -281,7 +282,12 @@ function commandFor(rowId: string): TaskCommand {
       } as unknown as TaskCommand
     // CM-14 -- 「実績を置き始める」, FR-043's 掴みシロを離した日.
     case 'CM-14':
-      return { kind, uid: TASK_UID, droppedDay: '2026-04-07' } as unknown as TaskCommand
+      return {
+        kind,
+        uid: TASK_UID,
+        released: { start: '2026-04-07', finish: '2026-04-07' },
+        snapMinutes: MINUTES_PER_CALENDAR_DAY,
+      } as unknown as TaskCommand
     // CM-15 -- CR-149 「予実の状態を巡らせる」.
     case 'CM-15':
       return { kind, uid: TASK_UID } as unknown as TaskCommand

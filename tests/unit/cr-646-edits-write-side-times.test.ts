@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import type { Document } from '../../src/entity/document-model/document/document'
 import type { Task } from '../../src/entity/document-model/schedule/schedule'
-import { textOfDay, dayOf } from '../../src/entity/document-model/schedule/schedule'
+import { MINUTES_PER_CALENDAR_DAY, textOfDay, dayOf } from '../../src/entity/document-model/schedule/schedule'
 import {
   editDocument,
   type DocumentCommand,
@@ -243,7 +243,9 @@ function dayText(text: string): string {
 
 describe('X-1 WT-3 / WT-4 through the use case: the actual columns a command makes take the side times', () => {
   it('CM-14 beginTaskActual (GO-7) / WT-3 / WT-4: actualStart at S-482, the last day at S-483', () => {
-    const after = taskOf(edited(grsDocument(), { kind: 'beginTaskActual', uid: BAR, grabbed: 'GA-6', droppedDay: dayText(april(8)) }), BAR)
+    const released = { start: dayText(april(8)), finish: dayText(april(8)) }
+    const begin = { kind: 'beginTaskActual', uid: BAR, grabbed: 'GA-6', released, snapMinutes: MINUTES_PER_CALENDAR_DAY } as const
+    const after = taskOf(edited(grsDocument(), begin), BAR)
     expect(after.actualStart, 'premise: the actual was begun').not.toBeNull()
     expect([timeOf(after.actualStart), timeOf(after.actualFinish ?? after.stop)]).toEqual([S_482, S_483])
   })

@@ -227,7 +227,7 @@ const WIDE_DAY_ZOOM = 8 / DEFAULT_DISPLAY_RATIO
 const DM_3_THE_WIDTH =
   '⭐ ダミーを描く幅は、そのタスクの進捗マーカーの径に `_assets/tbl-settings.md` の 表 T-206 の `S-247` を掛けた幅と、同表の `S-180` の小さい方とすること（MUST）'
 const DM_3_NOT_CUT_BY_A_DAY =
-  '表 T-012 の `SH-3` / `SH-4` では `FR-094` が名称ラベルの字から導く値である。日の列の左端に揃えること（MUST）。⛔ 1 日ぶんの幅で印の幅を切ってはならない（MUST NOT）'
+  '左端は `DM-1` の位置に揃えること（MUST）。⛔ 1 日ぶんの幅で印の幅を切ってはならない（MUST NOT）'
 
 // ---------------------------------------------------------------------------
 // The document under test. Plain data; every builder returns a fresh object.

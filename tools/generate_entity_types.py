@@ -1795,7 +1795,14 @@ NOT_STORED_TARGETS = {
     # S-247 (CR-421) rides the same constant: DM-3 of table T-240 draws the
     # dummy at the marker's diameter times S-247, capped by S-180, and the
     # row's own note gives S-180's reason for not being kept.
-    'NOT_STORED_DUMMY_SIZES': (['S-180', 'S-247'], DRAWN_FOR_THE_SCREEN_ALONE),
+    # CR-756 adds S-585: while time of day is shown, DM-3 draws the dummy at
+    # the larger of the mark's width and the width S-585 minutes take on the
+    # time axis, so the unit that solves the band reads the minutes too.
+    'NOT_STORED_DUMMY_SIZES': (['S-180', 'S-247', 'S-585'], DRAWN_FOR_THE_SCREEN_ALONE),
+    # CR-756 (JDG-2108): the actual a dummy starts while time of day is shown
+    # is S-585 working minutes long (GO-6, GO-9, PV-1). One manuscript row,
+    # printed into the use-case unit that writes that actual.
+    'NOT_STORED_DUMMY_ACTUAL_MINUTES': (['S-585'], READ_WHERE_IT_STANDS),
     # CR-556: the deadline mark's three ratios to the marker's diameter
     # (DA-2 of table T-304, FR-045) -- the arrowhead's width and height and
     # the shaft's width. A NEW CONSTANT: one constant per consuming SUBJECT,
@@ -3391,6 +3398,11 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_SEARCH_JUMP_INSET') + NEWLINE * 2
      # CR-728: SJ-5's share of the room below the pins.
      + not_stored_block('NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # CR-756: GO-6, GO-9 and PV-1 write an actual of S-585 working minutes
+    # from the dummy while time of day is shown.
+    (os.path.join(USECASE, 'edit-document', 'task-plan-actual.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_DUMMY_ACTUAL_MINUTES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),

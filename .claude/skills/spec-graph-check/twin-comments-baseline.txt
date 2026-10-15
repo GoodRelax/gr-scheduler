@@ -133,10 +133,6 @@ copy | dummiesOf.side :: the same box and barof call as a same day
 twin: src/entity/layout-engine/schedule-geometry/task-figures.ts#taskGeometryOf
 why: one file: the same-day actual milestone box of taskGeometryOf; a local helper folds both.
 
-copy | dummiesOf.width :: schedule layout ts counts the same width into dummyreach dummyinkwidthof
-twin: src/entity/layout-engine/schedule-layout/schedule-layout.ts#dummyInkWidthOf
-why: published by ScheduleLayout's entry and ScheduleGeometry->ScheduleLayout is declared; nothing stops the fold -- one call.
-
 copy | scrollOffsetOf.below :: taskgroupanchorat in input command translator ts inverts this with the
 twin: stale -- names taskGroupAnchorAt, now a delegate; the twin is src/adapter/input-command-translator/input-command-translator.ts#taskGroupAnchorIn
 why: the inverse; the edge runs InputCommandTranslator->ScheduleLayout, so a slab helper published by ScheduleLayout folds both.
@@ -210,7 +206,3 @@ why: one file: a command answering false must write only the columns listed ther
 copy | taskGroupTreeRankById :: schedule invariants ts and the input translator walk the task
 twin: src/entity/document-model/schedule/schedule-invariants.ts#taskGroupRankById
 why: private in Schedule; EditDocument->Schedule is declared, so one T-064 row and an import fold it; third site input-command-translator.ts#taskGroupRankById.
-
-copy | beginTaskActual.planStart :: the plan start day itself where schedule layout ts and
-twin: src/entity/layout-engine/schedule-geometry/task-figures.ts#dummyFromOf (and schedule-layout.ts#dummyReachOf)
-why: the plan start day as the dummy day at three sites; both twins private; EditDocument->ScheduleLayout is declared, no EditDocument->ScheduleGeometry edge.

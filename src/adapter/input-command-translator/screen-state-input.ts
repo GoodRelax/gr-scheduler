@@ -5,6 +5,7 @@
 
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import { compareDays, dayOf, taskByUid, textOfDay, type CalendarDay } from '../../entity/document-model/schedule/schedule'
+import { snapMinutesOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   calendarDraftOf,
   withExceptionAdded,
@@ -292,6 +293,7 @@ function screenEventAfterMarkerPress(
   const task = taskByUid(context.document.schedule, uid)
   if (task === null) return null
   const remembered = rememberedActualIn(context, uid)
+  const snapAt = snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, false)
   const turned = cycleTaskPlanActualState(task, remembered, {
     startSide: task.start,
     floorDay: task.start,
@@ -301,7 +303,7 @@ function screenEventAfterMarkerPress(
     type: 'progressMarkerPressed',
     taskUid: uid,
     rememberedActual: turned.remembered,
-    writes: [{ kind: 'cycleTaskPlanActualState', uid, remembered }],
+    writes: [{ kind: 'cycleTaskPlanActualState', uid, remembered, snapMinutes: snapAt }],
   }
 }
 

@@ -107,12 +107,17 @@ export type TaskCommand =
       readonly kind: 'beginTaskActual'
       readonly uid: number
       readonly grabbed: ActualGrabHold
-      readonly droppedDay: string
+      // WHY: the released place read on each side (FR-103, T-378), as the release writes it.
+      readonly released: { readonly start: string; readonly finish: string }
+      // WHY: the snap unit in force at the release, in minutes: it sizes the dummy actual (FR-011, T-378).
+      readonly snapMinutes: number
     }
   | {
       readonly kind: 'cycleTaskPlanActualState'
       readonly uid: number
       readonly remembered: RememberedActual | null
+      // WHY: the snap unit in force at the press (PV-1, T-378); absent reads as the day unit.
+      readonly snapMinutes?: number
     }
   | { readonly kind: 'setTaskFadeInDays'; readonly uid: number; readonly days: number | null }
   | { readonly kind: 'setTaskFadeOutDays'; readonly uid: number; readonly days: number | null }
