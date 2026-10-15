@@ -274,7 +274,7 @@ function searchTableOf(
     fixedCount: columns.indexOf(JUMP_COLUMN[panel.table]) + 1,
     headingOf: (column) => wordOf(COLUMN_WORDS.get(column)?.text, language),
     isDateColumn: isDateSearchColumn,
-    valuesOf: (column) => columnValuesOf(found(), column, hiddenTasksOf(view)),
+    valuesOf: (column) => columnValuesOf(found(), column, hiddenTasksOf(view), view.sort),
     labelOf: (column, value) => valueLabelOf(column, value, language),
     ...(all === undefined ? {} : { widthSamplesOf: widthSamplesIn(all, panel, language, times) }),
   }

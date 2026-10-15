@@ -644,6 +644,87 @@ async function bareCanvasPoint(
   )
 }
 
+const SEARCH_PANEL = `[data-role="${bare(rowOf(T103, 'U-64').cells[0] ?? '')}"]`
+const OPEN_SEARCH = chordOf(rowOf(specTable('T-036'), 'SK-24'))
+const BORDER_STRETCH = 'GR-28 column border'
+const BORDER_FRAMES = 241
+const BORDER_ROUNDS_CAP = 600
+const BORDER_CHECK_EVERY = 10
+const BORDER_SWING_PX = 40
+
+// see SK-24
+/** @purity pure */
+function chordOf(row: SpecRow): string {
+  return (row.cells[1] ?? '')
+    .replace(/`|\*/g, '')
+    .trim()
+    .split(/\s*＋\s*/)
+    .map((part) => (part === 'Ctrl' ? 'Control' : part.length === 1 ? part.toLowerCase() : part))
+    .join('+')
+}
+
+/** @purity semi-pure-b */
+async function framesSince(page: Page, name: string): Promise<number> {
+  return page.evaluate((which: string) => {
+    const probe = (window as unknown as { __grsFrameProbe?: { samples: [number, number, number][]; marks: [string, string, number][] } })
+      .__grsFrameProbe
+    const start = probe?.marks.find(([n, edge]) => n === which && edge === 'start')?.[2]
+    if (probe === undefined || start === undefined) return 0
+    return new Set(probe.samples.filter(([, enter]) => enter >= start).map(([stamp]) => stamp)).size
+  }, name)
+}
+
+/** @purity semi-pure-b */
+async function headingWidth(page: Page, column: string): Promise<number> {
+  return page.evaluate(
+    (asked: { panel: string; column: string }) =>
+      document.querySelector(`${asked.panel} thead th[data-column="${asked.column}"]`)?.getBoundingClientRect().width ?? -1,
+    { panel: SEARCH_PANEL, column },
+  )
+}
+
+// see MC-8, MC-10, GR-28, SV-18
+/** @purity non-pure */
+async function driveColumnBorder(page: Page, cdp: Cdp, perBurst: number): Promise<void> {
+  await page.keyboard.press(OPEN_SEARCH)
+  await page.waitForTimeout(800)
+  const grip = await page.evaluate((panel: string) => {
+    const cells = Array.from(document.querySelectorAll(`${panel} thead th[data-column]`)).filter((one) => !one.hasAttribute('data-no-border'))
+    const boxes = cells.map((cell) => ({ column: cell.getAttribute('data-column') ?? '', box: cell.getBoundingClientRect() }))
+    const leftmost = boxes.sort((a, b) => a.box.left - b.box.left)[0]
+    if (leftmost === undefined) return null
+    return { column: leftmost.column, x: leftmost.box.right - 1, y: (leftmost.box.top + leftmost.box.bottom) / 2, width: leftmost.box.width }
+  }, SEARCH_PANEL)
+  if (grip === null) throw new Error(`${BORDER_STRETCH}: ${OPEN_SEARCH} opened no ${SEARCH_PANEL} with a bordered heading`)
+  await burst(cdp, [
+    { type: 'mouseMoved', x: grip.x, y: grip.y },
+    { type: 'mousePressed', x: grip.x, y: grip.y, button: 'left', buttons: 1, clickCount: 1 },
+  ])
+  // WHY: the swing only widens from the press, so no move lands on the S-425 floor where nothing redraws.
+  const swing = (round: number): PointerEventArgs[] =>
+    Array.from({ length: perBurst }, (_unused, step) => ({
+      type: 'mouseMoved' as const,
+      x: grip.x + BORDER_SWING_PX * (1 - Math.cos((round * perBurst + step) / 7)),
+      y: grip.y,
+      button: 'left' as const,
+      buttons: 1,
+    }))
+  await markSegment(page, BORDER_STRETCH, 'start')
+  for (let round = 0; round < BORDER_ROUNDS_CAP; round += 1) {
+    await burst(cdp, swing(round))
+    if (round % BORDER_CHECK_EVERY === BORDER_CHECK_EVERY - 1 && (await framesSince(page, BORDER_STRETCH)) >= BORDER_FRAMES) break
+  }
+  await markSegment(page, BORDER_STRETCH, 'end')
+  await burst(cdp, [{ type: 'mouseMoved', x: grip.x + BORDER_SWING_PX, y: grip.y, button: 'left', buttons: 1 }])
+  await page.waitForTimeout(300)
+  const held = await headingWidth(page, grip.column)
+  await burst(cdp, [{ type: 'mouseReleased', x: grip.x + BORDER_SWING_PX, y: grip.y, button: 'left', buttons: 0, clickCount: 1 }])
+  await page.waitForTimeout(500)
+  if (Math.abs(held - grip.width - BORDER_SWING_PX) > 1) {
+    throw new Error(`${BORDER_STRETCH}: ${grip.column} held ${held}px, not ${grip.width}px + ${BORDER_SWING_PX}px, so the pull never took`)
+  }
+}
+
 // ---------------------------------------------------------------------------
 // The sweep
 // ---------------------------------------------------------------------------
@@ -785,6 +866,8 @@ async function sweep(
   ])
   if (!isMarqueeDrawn) throw new Error(`MK-6 pressed at ${from.x},${from.y} but drew no range-select frame`)
   await page.waitForTimeout(300)
+
+  await driveColumnBorder(page, cdp, PER_BURST)
 
   const raw = await page.evaluate(() => {
     const probe = (

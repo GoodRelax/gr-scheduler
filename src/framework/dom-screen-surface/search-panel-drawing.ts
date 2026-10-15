@@ -825,12 +825,16 @@ function placeFilterMenu(window: HTMLElement): void {
 // see SV-6
 /** @purity non-pure */
 export function pinFixedColumns(tableBox: Element): void {
-  const headings = [...tableBox.querySelectorAll<HTMLElement>('thead th')]
-  const lefts = headings.map((cell) => (cell.hasAttribute(FIXED_COLUMN_ATTRIBUTE) ? (cell.offsetLeft ?? null) : null))
+  let reached = 0
+  const lefts = [...tableBox.querySelectorAll('thead th')].map((cell) => {
+    const left = reached
+    reached += Number(cell.getAttribute('data-width'))
+    return cell.hasAttribute(FIXED_COLUMN_ATTRIBUTE) ? `${left}px` : null
+  })
   for (const line of tableBox.querySelectorAll('tr')) {
     lefts.forEach((left, at) => {
       const cell = line.children[at] as HTMLElement | undefined
-      if (left !== null && cell !== undefined) cell.style.left = `${left}px`
+      if (left !== null && cell !== undefined && cell.style.left !== left) cell.style.left = left
     })
   }
 }
@@ -859,6 +863,15 @@ function panelPlacedOf(panel: TableWindowView, window: WindowName): PlacedWindow
   return { window, shown: panel.shown, place, box: searchPanelBoxOf(panel, ratio), range: panel.canvas }
 }
 
+// see SV-18
+/** @purity semi-pure-b */
+function shownRightOf(tableBox: Element): number {
+  const shown = tableBox.getBoundingClientRect()
+  const inner = tableBox as Partial<HTMLElement>
+  if (typeof inner.clientWidth !== 'number' || inner.clientWidth <= 0) return shown.right
+  return Math.min(shown.right, shown.left + (inner.clientLeft ?? 0) + inner.clientWidth)
+}
+
 // see GR-28, SV-18, RW-9
 // WHY: on the heading row only, within S-465 of a column's right border; an entrance and GR-24 / GR-25 answer first.
 /** @purity semi-pure-b */
@@ -869,14 +882,14 @@ function columnBorderAt(window: Element, placed: PlacedWindow, asked: PointAsked
   const row = head.getBoundingClientRect()
   if (asked.y < row.top || asked.y > row.bottom) return null
   const reach = NOT_STORED_SEARCH_PANEL_SIZES['S-465']
-  const shown = tableBox.getBoundingClientRect()
+  const shownRight = shownRightOf(tableBox)
   for (const cell of window.querySelectorAll('thead th')) {
     if (cell.getAttribute(NO_BORDER_ATTRIBUTE) !== null) continue
     const drawn = cell.getBoundingClientRect()
-    if (Math.abs(asked.x - drawn.right) > reach || drawn.right > shown.right + reach) continue
+    if (Math.abs(asked.x - drawn.right) > reach || drawn.right > shownRight + reach || asked.x > shownRight) continue
     const column = cell.getAttribute(COLUMN_ATTRIBUTE) ?? ''
     const widthAtPress = Number(cell.getAttribute('data-width'))
-    const widthCeiling = Math.max(shown.right - drawn.left, widthFloor)
+    const widthCeiling = Math.max(shownRight - drawn.left, widthFloor)
     return { window: placed.window, region: 'columnBorder', column, widthAtPress, widthFloor, widthCeiling }
   }
   return null
@@ -913,21 +926,43 @@ function tableWindowPartAt(
   return { ...answer, searchJumpTarget: searchJumpFrom(first, window) }
 }
 
-// see SV-5, SV-10, SV-11
+// see SV-5, SV-10, SV-11, SV-18
 /** @purity non-pure */
 function redrawInPlace(
   host: Document,
   drawnPanel: HTMLElement,
   panel: DrawnTable,
   box: ScreenRect,
-  table: { readonly fontPx: number; readonly sizing: ColumnSizing } | null,
+  table: { readonly fontPx: number; readonly sizing: ColumnSizing; readonly isKept: boolean },
 ): void {
   drawnPanel.setAttribute('style', boxStyle(box) + windowStyle())
   const drawnTable = tableBoxIn(drawnPanel)
-  if (table === null || drawnTable === null) return
+  if (drawnTable === null) return
+  if (table.isKept) {
+    columnWidthsRewrittenInPlace(drawnTable, panel.columns.map((column) => columnWidthPx(column, table.sizing)), table.fontPx)
+    return
+  }
   const redrawn = searchTableElement(host, panel, table.fontPx, table.sizing)
   drawnTable.replaceWith(redrawn)
   pinFixedColumns(redrawn)
+}
+
+// see SV-18, SV-6, MC-8
+// WHY: a width moves no row; the fixed lefts move only when a fixed column stands right of a changed one.
+/** @purity non-pure */
+function columnWidthsRewrittenInPlace(tableBox: Element, widths: readonly number[], fontPx: number): void {
+  const headings = [...tableBox.querySelectorAll('thead th')]
+  const changed = widths.flatMap((width, at) => (Number(headings[at]?.getAttribute('data-width')) === width ? [] : [at]))
+  const table = tableBox.querySelector('table')
+  if (changed.length === 0 || table === null || headings.length !== widths.length) return
+  const columns = tableBox.querySelectorAll('col')
+  for (const at of changed) {
+    columns[at]?.setAttribute('style', `width:${widths[at]}px;`)
+    headings[at]?.setAttribute('data-width', String(widths[at]))
+  }
+  table.setAttribute('style', TABLE_STYLE + `width:${widths.reduce((sum, one) => sum + one, 0)}px;font-size:${fontPx}px;`)
+  const firstChanged = changed[0] ?? widths.length
+  if (headings.some((cell, at) => at > firstChanged && cell.hasAttribute(FIXED_COLUMN_ATTRIBUTE))) pinFixedColumns(tableBox)
 }
 
 // WHY: the heading's IC-122 and the drawn filter both name their column; wantsEntry tells them apart (SV-7).
@@ -1096,7 +1131,7 @@ export function typedWordWatch(layer: HTMLElement, onWordTyped: () => void): { r
 // see SV-7, SV-18
 /** @purity pure */
 export function tableKeyOf(table: DrawnTable, fontPx: number, filterMenu: unknown): string {
-  return JSON.stringify([table.rows, table.columns, fontPx, filterMenu])
+  return JSON.stringify([table.rows, table.columns.map((column) => ({ ...column, width: null })), fontPx, filterMenu])
 }
 
 // see SV-6, SV-7, SV-9
@@ -1177,7 +1212,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     const isTableKept = tableKey === tableDrawn
     tableDrawn = tableKey
     if (frameKey === frameDrawn && panel.shown !== 'minimized' && drawnPanel !== null) {
-      redrawInPlace(host, drawnPanel, panel, placed.box, isTableKept ? null : { fontPx, sizing })
+      redrawInPlace(host, drawnPanel, panel, placed.box, { fontPx, sizing, isKept: isTableKept })
       return
     }
     frameDrawn = frameKey
