@@ -1,0 +1,3030 @@
+{
+ "$schema": "./document-commands.schema.json",
+ "$comment": [
+  "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
+  "The document commands and the values each one carries (CR-766, JDG-2162): table T-108 (the commands applyDocumentChange takes: group, confirmed name, bundle mark, the values carried, what it does, source).",
+  "Generated FROM this file: _assets/tbl-document-commands.md (document_commands_json_to_md.py); the generated regions of the command unions in src/use-case/edit-document/ (tools/generate_document_commands.py); and the input shape of the applyCommands MCP tool in src/adapter/mcp-tool-translator/mcp-tool-descriptions.json (tools/generate_mcp_tool_descriptions.py, through tools/generate_document_commands.py).",
+  "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
+  "Validated by _source/document-commands.schema.json. document_commands_json_to_md.py also refuses a row id, a retired number or a command name written twice, a value name written twice in one command, a value pointing at an AT- row erd.json does not hold or an S- row settings.json does not hold, a type naming neither a built-in word, a shape nor an externalTypes entry, a shape or an externalTypes entry no value uses, and a line that is empty, holds a line-break tag or leaves a parenthesis or bold run open.",
+  "A VALUE THAT WRITES A DOCUMENT COLUMN POINTS AT IT and writes no type: `column` names the AT- row of table T-058 (erd.json) or the S- row of tables T-202 / T-203 (settings.json) it writes, and the type, the null and the bounds are that row's (CR-766 X-d). `key` names the row a value identifies the target by. Only a value that is no column carries `type`: a built-in word (string, integer, number, boolean, enum, map), a name of `shapes`, or a name of `externalTypes`. `null`, `list` and `optional` narrow or widen what the column gives.",
+  "Rows are in the order the table prints them, which is not the numeric order. ONE STRING IS ONE PRINTED LINE.",
+  "The rules the commands follow are NOT here -- the requirements the `source` cells name hold them."
+ ],
+ "table": {
+  "id": "T-108",
+  "caption": {
+   "ja": "`DocumentCommand` の全数"
+  },
+  "columns": {
+   "ja": [
+    "行 ID",
+    "群",
+    "確定名",
+    "組",
+    "運ぶ値",
+    "何を担うか",
+    "正"
+   ]
+  }
+ },
+ "before": {
+  "ja": [
+   [
+    "**本表は `applyDocumentChange` が受け取る命令の全数である**（表 T-064 の `PI-8`）。",
+    "⭐ **命令が運ぶ値（名・型・意味）は本表が持つ** —— 文書の列を書く値は、その列（表 T-058 の `AT-` の行、見せ方の群は 表 T-202 ・表 T-203 の `S-` の行）を指し、型と上下限はその行に従う。",
+    "境界値は Chapter 6.1 が持つ。",
+    "コードの命令の型と、`Agent API` の `applyCommands`（表 T-107 の `AM-7`）が受ける形は本表の原稿から生成し、手で書かない。",
+    "従う規則は「正」の列が指す要求が持つ。"
+   ],
+   [
+    "⚠️ `組` の欄が ⭐ の行は、複数の列にまたがる MUST を 1 つの命令へ畳んだものである。",
+    "畳むのは**その MUST の持ち主を作るため**であり、`AG-9a` が拒むときに何を指しているかがこれで決まる。",
+    "⚠️ **原子性のためではない** —— 束の単位で原子的に適用することは 表 T-035 の `AG-3` が既に定めている。"
+   ],
+   [
+    "「運ぶ値」の欄は 1 行に 1 つの値を書く —— 「鍵」は命令が働く行を名指す値、「を書く」はその列へ書く値である。",
+    "列を指さない値だけが型を書く。",
+    "形（`AnnotationAnchor` など）を運ぶ値は、その形の欄を下に字下げして並べる。"
+   ]
+  ]
+ },
+ "after": {
+  "ja": [
+   [
+    "⚠️ `群` は対象の確定名（表 T-058 のエンティティ）と、どのエンティティにも属さない見せ方の群である。"
+   ]
+  ]
+ },
+ "words": {
+  "key": {
+   "ja": "鍵"
+  },
+  "writes": {
+   "ja": "を書く"
+  },
+  "list": {
+   "ja": "の並び"
+  },
+  "orNull": {
+   "ja": "か `null`"
+  },
+  "notNull": {
+   "ja": "`null` は受けない"
+  },
+  "optional": {
+   "ja": "省いてよい"
+  },
+  "oneOf": {
+   "ja": "次の形のどちらか"
+  },
+  "map": {
+   "ja": "対応"
+  },
+  "unimplemented": {
+   "ja": "⚠️ まだ実装していない —— 受けても断る"
+  }
+ },
+ "shapes": [
+  {
+   "name": "AnnotationAnchor",
+   "fields": [
+    {
+     "name": "date",
+     "column": "AT-113",
+     "null": false
+    },
+    {
+     "name": "groupId",
+     "column": "AT-114",
+     "null": false
+    }
+   ]
+  },
+  {
+   "name": "HighlightRange",
+   "fields": [
+    {
+     "name": "startDate",
+     "column": "AT-117",
+     "null": false
+    },
+    {
+     "name": "endDate",
+     "column": "AT-118",
+     "null": false
+    },
+    {
+     "name": "topGroupId",
+     "column": "AT-119",
+     "null": false
+    },
+    {
+     "name": "bottomGroupId",
+     "column": "AT-120",
+     "null": false
+    }
+   ]
+  },
+  {
+   "name": "PasteLanding",
+   "fields": [
+    {
+     "name": "shiftMinutes",
+     "type": "integer",
+     "meaning": {
+      "ja": "コピーをずらす量（分、符号付き、本体の動きと同じ刻み —— `CY-5`）"
+     }
+    },
+    {
+     "name": "groupIdOf",
+     "type": "map",
+     "keyType": "integer",
+     "valueType": "string",
+     "meaning": {
+      "ja": "複製元の `Task.uid` から、そのコピーを載せるタスクグループの `id` へ（`CY-6`）"
+     }
+    }
+   ]
+  },
+  {
+   "name": "PlanActualPlacement",
+   "discriminant": "row",
+   "variants": [
+    {
+     "tag": "PA-1",
+     "fields": []
+    },
+    {
+     "tag": "PA-2",
+     "fields": [
+      {
+       "name": "actualStart",
+       "column": "AT-34",
+       "null": false
+      },
+      {
+       "name": "stop",
+       "column": "AT-141",
+       "null": false
+      }
+     ]
+    },
+    {
+     "tag": "PA-3",
+     "fields": [
+      {
+       "name": "actualStart",
+       "column": "AT-34",
+       "null": false
+      },
+      {
+       "name": "stop",
+       "column": "AT-141",
+       "null": false
+      },
+      {
+       "name": "resume",
+       "column": "AT-37",
+       "null": false
+      }
+     ]
+    },
+    {
+     "tag": "PA-4",
+     "fields": [
+      {
+       "name": "actualStart",
+       "column": "AT-34",
+       "null": false
+      },
+      {
+       "name": "stop",
+       "column": "AT-141",
+       "null": false
+      }
+     ]
+    },
+    {
+     "tag": "PA-5",
+     "fields": [
+      {
+       "name": "actualStart",
+       "column": "AT-34",
+       "null": false
+      },
+      {
+       "name": "actualFinish",
+       "column": "AT-36",
+       "null": false
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "ReleasedPlace",
+   "inline": true,
+   "fields": [
+    {
+     "name": "start",
+     "type": "string",
+     "meaning": {
+      "ja": "離した所の開始の側で読んだ日時"
+     }
+    },
+    {
+     "name": "finish",
+     "type": "string",
+     "meaning": {
+      "ja": "離した所の終了の側で読んだ日時"
+     }
+    }
+   ]
+  },
+  {
+   "name": "RememberedActual",
+   "elsewhere": true,
+   "fields": [
+    {
+     "name": "actualStart",
+     "column": "AT-34"
+    },
+    {
+     "name": "actualFinish",
+     "column": "AT-36"
+    },
+    {
+     "name": "stop",
+     "column": "AT-141"
+    },
+    {
+     "name": "carriedActualDuration",
+     "type": "string",
+     "null": true,
+     "meaning": {
+      "ja": "持ち回りの `ActualDuration`（`G-13`）"
+     }
+    }
+   ]
+  },
+  {
+   "name": "ProjectProfileFields",
+   "fields": [
+    {
+     "name": "name",
+     "column": "AT-2",
+     "optional": true
+    },
+    {
+     "name": "subject",
+     "column": "AT-4",
+     "optional": true
+    },
+    {
+     "name": "category",
+     "column": "AT-5",
+     "optional": true
+    },
+    {
+     "name": "company",
+     "column": "AT-6",
+     "optional": true
+    },
+    {
+     "name": "manager",
+     "column": "AT-7",
+     "optional": true
+    },
+    {
+     "name": "author",
+     "column": "AT-8",
+     "optional": true
+    },
+    {
+     "name": "revision",
+     "column": "AT-10",
+     "optional": true
+    },
+    {
+     "name": "startDate",
+     "column": "AT-12",
+     "optional": true
+    }
+   ]
+  },
+  {
+   "name": "WorkingDayLag",
+   "fields": [
+    {
+     "name": "lagWorkingDays",
+     "type": "integer",
+     "meaning": {
+      "ja": "ラグ（稼働日）で、`lag`（`AT-47`）と `lagFormat`（`AT-48`）へ換えて書く"
+     }
+    }
+   ]
+  },
+  {
+   "name": "TypedLag",
+   "fields": [
+    {
+     "name": "lagMinutes",
+     "type": "integer",
+     "meaning": {
+      "ja": "ラグ（分）で、`lag`（`AT-47`）へ換えて書く"
+     }
+    },
+    {
+     "name": "lagUnit",
+     "type": "enum",
+     "values": [
+      "d",
+      "h",
+      "m"
+     ],
+     "meaning": {
+      "ja": "見せる単位で、`lagFormat`（`AT-48`）を決める"
+     }
+    }
+   ]
+  },
+  {
+   "name": "TableView",
+   "fields": [
+    {
+     "name": "visibility",
+     "type": "TableVisibility",
+     "meaning": {
+      "ja": "表示の列の値"
+     }
+    },
+    {
+     "name": "columnFilters",
+     "type": "ColumnFilter",
+     "list": true,
+     "column": [
+      "S-562",
+      "S-566",
+      "S-571"
+     ],
+     "meaning": {
+      "ja": "列のフィルタ"
+     }
+    },
+    {
+     "name": "sort",
+     "type": "ColumnSort",
+     "null": true,
+     "column": [
+      "S-563",
+      "S-567",
+      "S-572"
+     ],
+     "meaning": {
+      "ja": "並べ替え"
+     }
+    }
+   ]
+  },
+  {
+   "name": "TableVisibility",
+   "inline": true,
+   "fields": [
+    {
+     "name": "hiddenKeys",
+     "type": "integer",
+     "list": true,
+     "column": [
+      "S-561",
+      "S-565",
+      "S-569"
+     ],
+     "meaning": {
+      "ja": "隠した行の鍵（担当リストは `Resource.uid`、ほかは `Task.uid`）"
+     }
+    },
+    {
+     "name": "isUnassignedHidden",
+     "type": "boolean",
+     "column": "S-570",
+     "meaning": {
+      "ja": "担当の無い行を隠すか（担当リストだけが書く）"
+     }
+    },
+    {
+     "name": "isApplied",
+     "type": "boolean",
+     "column": [
+      "S-560",
+      "S-564",
+      "S-568"
+     ],
+     "meaning": {
+      "ja": "スケジュールフィルタを掛けているか"
+     }
+    }
+   ]
+  }
+ ],
+ "externalTypes": {
+  "ColumnFilter": {
+   "ja": "表 T-372"
+  },
+  "ColumnSort": {
+   "ja": "表 T-372"
+  }
+ },
+ "retired": [
+  "CM-25",
+  "CM-33",
+  "CM-34",
+  "CM-57",
+  "CM-59",
+  "CM-60",
+  "CM-61",
+  "CM-63",
+  "CM-70",
+  "CM-75"
+ ],
+ "rows": [
+  {
+   "id": "CM-1",
+   "group": {
+    "ja": "`Project`"
+   },
+   "name": "setProjectTitle",
+   "union": "ProjectCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "title",
+     "column": "AT-3"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "文書名を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-035`"
+   }
+  },
+  {
+   "id": "CM-2",
+   "group": {
+    "ja": "`Project`"
+   },
+   "name": "setProjectProfile",
+   "union": "ProjectCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "fields",
+     "type": "ProjectProfileFields",
+     "meaning": {
+      "ja": "直す基本情報（持つ欄だけを書き、持たない欄は今のまま）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "基本情報を直す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-074`"
+   }
+  },
+  {
+   "id": "CM-3",
+   "group": {
+    "ja": "`Project`"
+   },
+   "name": "setStatusDate",
+   "union": "ProjectCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "date",
+     "column": "AT-13",
+     "null": false
+    }
+   ],
+   "carries": {
+    "ja": [
+     "基準日を置く・動かす"
+    ]
+   },
+   "source": {
+    "ja": "`FR-046`"
+   }
+  },
+  {
+   "id": "CM-4",
+   "group": {
+    "ja": "`Project`"
+   },
+   "name": "clearStatusDate",
+   "union": "ProjectCommand",
+   "bundle": false,
+   "values": [],
+   "carries": {
+    "ja": [
+     "基準日を消す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-046`"
+   }
+  },
+  {
+   "id": "CM-5",
+   "group": {
+    "ja": "`Project`"
+   },
+   "name": "setThemeHue",
+   "union": "ProjectCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "hue",
+     "column": "AT-19"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "テーマ色を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-041`"
+   }
+  },
+  {
+   "id": "CM-87",
+   "group": {
+    "ja": "`Project`"
+   },
+   "name": "setParentProgressTolerance",
+   "union": "ProjectCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "workingDays",
+     "column": "AT-156"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "親タスクの進捗の疑義が許す日数を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-131`"
+   }
+  },
+  {
+   "id": "CM-94",
+   "group": {
+    "ja": "`Project`"
+   },
+   "name": "setScheduleDataTimeZone",
+   "union": "ProjectCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "timeZone",
+     "column": "AT-157"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "日程データのタイムゾーンを付け替える（換算しない —— 保存の数字は変えず、見せる基準を戻す `CM-95` と 1 回の書き込みにする）"
+    ]
+   },
+   "source": {
+    "ja": "`FR-156`"
+   }
+  },
+  {
+   "id": "CM-98",
+   "group": {
+    "ja": "`Project`"
+   },
+   "name": "shiftScheduleTimes",
+   "union": "ProjectCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "minutes",
+     "type": "integer",
+     "meaning": {
+      "ja": "ずらす量（分、正は後へ、負は前へ）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "日程の日時を一斉にずらす（書き換える列と書き換えない列は `01-04-requirements.md` の 表 T-377 —— 1 回の書き込みとする）。",
+     "`Agent API` から受けたときは確認の面を経ない（`FR-076` の作法）"
+    ]
+   },
+   "source": {
+    "ja": "`FR-157`"
+   }
+  },
+  {
+   "id": "CM-99",
+   "group": {
+    "ja": "`Project`"
+   },
+   "name": "shiftScheduleToStartDate",
+   "union": "WholeScheduleShiftCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "newStartDate",
+     "type": "string",
+     "meaning": {
+      "ja": "新しい開始日（日付の文字列）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "日程全体を新しい開始日へ稼働日で移す（動かす列・動かさないもの・移し方は `01-04-requirements.md` の 表 T-379 —— 1 回の書き込みとする）。",
+     "`Agent API` からの命令は、問わずにそのまま当てる（`CM-98` と同じ扱い）"
+    ]
+   },
+   "source": {
+    "ja": "`FR-159`"
+   }
+  },
+  {
+   "id": "CM-6",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "createTask",
+   "union": "TaskCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "shapeKind",
+     "column": "AT-100",
+     "null": false
+    },
+    {
+     "name": "start",
+     "column": "AT-28",
+     "null": false
+    },
+    {
+     "name": "finish",
+     "column": "AT-29",
+     "null": false
+    },
+    {
+     "name": "groupId",
+     "column": "AT-61",
+     "meaning": {
+      "ja": "タスクを載せるタスクグループ"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクを作る"
+    ]
+   },
+   "source": {
+    "ja": "`FR-001`"
+   }
+  },
+  {
+   "id": "CM-7",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "deleteTask",
+   "union": "TaskCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクを消す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-032`"
+   }
+  },
+  {
+   "id": "CM-8",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "pasteTasks",
+   "union": "TaskCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "sourceUids",
+     "key": "AT-24",
+     "list": true,
+     "meaning": {
+      "ja": "複製元の `Task`（1 つ以上）"
+     }
+    },
+    {
+     "name": "landing",
+     "type": "PasteLanding",
+     "optional": true,
+     "meaning": {
+      "ja": "`Ctrl` ドラッグのコピーだけが運ぶ載せ方（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "選んだ `Task` を複製する —— 運ばない子孫タスクはコピーしない（`01-04-requirements.md` の 表 T-223 の `DU-1`）。",
+     "`Ctrl` ドラッグのコピーは載せ方も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`）"
+    ]
+   },
+   "source": {
+    "ja": "`FR-033`"
+   }
+  },
+  {
+   "id": "CM-9",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "setTaskName",
+   "union": "TaskCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "name",
+     "column": "AT-27"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "名称を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-091`"
+   }
+  },
+  {
+   "id": "CM-10",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "setTaskNotes",
+   "union": "TaskCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "notes",
+     "column": "AT-32"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "備考を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-006`"
+   }
+  },
+  {
+   "id": "CM-11",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "setTaskPlanDates",
+   "union": "TaskCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "start",
+     "column": "AT-28",
+     "null": false
+    },
+    {
+     "name": "finish",
+     "column": "AT-29",
+     "null": false
+    }
+   ],
+   "carries": {
+    "ja": [
+     "予定の開始・終了を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-012`"
+   }
+  },
+  {
+   "id": "CM-12",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "setTaskDeadline",
+   "union": "TaskCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "deadline",
+     "column": "AT-31"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "期限を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-006`"
+   }
+  },
+  {
+   "id": "CM-13",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "setTaskPlanActualState",
+   "union": "TaskCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "place",
+     "type": "PlanActualPlacement",
+     "meaning": {
+      "ja": "置く予実（表 T-019 の行と、その行が値を持つ列）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "予実の 5 列を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-010`"
+   }
+  },
+  {
+   "id": "CM-14",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "beginTaskActual",
+   "union": "TaskCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "grabbed",
+     "type": "enum",
+     "values": [
+      "GA-5",
+      "GA-6",
+      "GA-17",
+      "GA-21",
+      "GA-22"
+     ],
+     "meaning": {
+      "ja": "掴んだ掴み代（表 T-266 の行）"
+     }
+    },
+    {
+     "name": "released",
+     "type": "ReleasedPlace",
+     "meaning": {
+      "ja": "離した所の、両側で読んだ位置（`FR-103`、表 T-378）"
+     }
+    },
+    {
+     "name": "snapMinutes",
+     "type": "integer",
+     "meaning": {
+      "ja": "離したときの刻み（分）で、ダミーの実績の長さを決める（`FR-011`、表 T-378）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "実績を置き始める"
+    ]
+   },
+   "source": {
+    "ja": "`FR-043`"
+   }
+  },
+  {
+   "id": "CM-15",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "cycleTaskPlanActualState",
+   "union": "TaskCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "remembered",
+     "type": "RememberedActual",
+     "null": true,
+     "meaning": {
+      "ja": "外して覚えた実績（`ScreenState` が渡す）"
+     }
+    },
+    {
+     "name": "snapMinutes",
+     "type": "integer",
+     "optional": true,
+     "meaning": {
+      "ja": "押したときの刻み（分、表 T-378）で、省けば日の刻み"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "予実の状態を、表 T-021a の輪に沿って 1 つ進める。",
+     "中断から未着手へ戻すときに外した実績は `ScreenState` が覚え、本命令はそこから受け取る"
+    ]
+   },
+   "source": {
+    "ja": "`FR-013`"
+   }
+  },
+  {
+   "id": "CM-16",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "setTaskFadeInDays",
+   "union": "TaskCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "days",
+     "column": "AT-40"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "フェードイン日数を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-075`"
+   }
+  },
+  {
+   "id": "CM-17",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "setTaskFadeOutDays",
+   "union": "TaskCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "days",
+     "column": "AT-41"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "フェードアウト日数を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-075`"
+   }
+  },
+  {
+   "id": "CM-18",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "setTaskParentTask",
+   "union": "TaskCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "parentUid",
+     "column": "AT-25"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "親タスクを移す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-005`"
+   }
+  },
+  {
+   "id": "CM-19",
+   "group": {
+    "ja": "`Task`"
+   },
+   "name": "moveTaskToTaskGroup",
+   "union": "TaskCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "groupId",
+     "column": "AT-61"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "別のタスクグループへ載せ替える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-005`"
+   }
+  },
+  {
+   "id": "CM-20",
+   "group": {
+    "ja": "`TaskVisual`"
+   },
+   "name": "setTaskVisualShapeKind",
+   "union": "TaskCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "shapeKind",
+     "column": "AT-100",
+     "null": false
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスク形状を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-083`"
+   }
+  },
+  {
+   "id": "CM-21",
+   "group": {
+    "ja": "`TaskVisual`"
+   },
+   "name": "setTaskVisualMilestoneGlyph",
+   "union": "TaskCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "glyph",
+     "column": "AT-101"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "マイルストーン形状を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-078`"
+   }
+  },
+  {
+   "id": "CM-22",
+   "group": {
+    "ja": "`TaskVisual`"
+   },
+   "name": "setTaskVisualColors",
+   "union": "TaskCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "fillColor",
+     "column": "AT-102"
+    },
+    {
+     "name": "strokeColor",
+     "column": "AT-103"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "線色と塗り色を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-007`"
+   }
+  },
+  {
+   "id": "CM-23",
+   "group": {
+    "ja": "`TaskVisual`"
+   },
+   "name": "resetTaskVisualColors",
+   "union": "TaskCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "色をテーマ追随へ戻す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-007`"
+   }
+  },
+  {
+   "id": "CM-24",
+   "group": {
+    "ja": "`TaskVisual`"
+   },
+   "name": "setTaskVisualStrokeWidth",
+   "union": "TaskCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-24"
+    },
+    {
+     "name": "strokeWidthPx",
+     "column": "AT-104"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "線の太さを置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-007`"
+   }
+  },
+  {
+   "id": "CM-26",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "createTaskGroup",
+   "union": "TaskGroupCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "id",
+     "column": "AT-51"
+    },
+    {
+     "name": "parentId",
+     "column": "AT-52"
+    },
+    {
+     "name": "label",
+     "column": "AT-53"
+    },
+    {
+     "name": "derivedFromTaskUid",
+     "column": "AT-54"
+    },
+    {
+     "name": "order",
+     "column": "AT-55"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループを作る"
+    ]
+   },
+   "source": {
+    "ja": "`FR-085`"
+   }
+  },
+  {
+   "id": "CM-27",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "deleteTaskGroup",
+   "union": "TaskGroupCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "groupId",
+     "key": "AT-51"
+    },
+    {
+     "name": "newGroupId",
+     "type": "string",
+     "meaning": {
+      "ja": "新しいタスクグループの `id`（⚠️ いまの編集はこの値を読まない）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループを消す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-032`"
+   }
+  },
+  {
+   "id": "CM-28",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "pasteTaskGroupSubtree",
+   "union": "TaskGroupCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "sourceGroupId",
+     "key": "AT-51",
+     "meaning": {
+      "ja": "複製する部分木の根"
+     }
+    },
+    {
+     "name": "targetGroupId",
+     "column": "AT-52",
+     "meaning": {
+      "ja": "写しの根を載せる親"
+     }
+    },
+    {
+     "name": "newGroupIds",
+     "type": "map",
+     "keyType": "string",
+     "valueType": "string",
+     "meaning": {
+      "ja": "複製元の `TaskGroup.id` から、その写しの `id` へ"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループの部分木を複製する"
+    ]
+   },
+   "source": {
+    "ja": "`FR-033`"
+   }
+  },
+  {
+   "id": "CM-29",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "setTaskGroupLabel",
+   "union": "TaskGroupCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "groupId",
+     "key": "AT-51"
+    },
+    {
+     "name": "label",
+     "column": "AT-53"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループ名を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-085`"
+   }
+  },
+  {
+   "id": "CM-30",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "setTaskGroupColor",
+   "union": "TaskGroupCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "groupId",
+     "key": "AT-51"
+    },
+    {
+     "name": "color",
+     "column": "AT-58",
+     "null": false
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループの色を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-042`"
+   }
+  },
+  {
+   "id": "CM-31",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "resetTaskGroupColor",
+   "union": "TaskGroupCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "groupId",
+     "key": "AT-51"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループの色をテーマ追随へ戻す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-007`"
+   }
+  },
+  {
+   "id": "CM-32",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "setTaskGroupMinHeight",
+   "union": "TaskGroupCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "groupId",
+     "key": "AT-51"
+    },
+    {
+     "name": "minHeight",
+     "column": "AT-59"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループの最小の高さを置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-042`"
+   }
+  },
+  {
+   "id": "CM-35",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "reorderTaskGroupSiblings",
+   "union": "TaskGroupCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "parentId",
+     "key": "AT-52",
+     "meaning": {
+      "ja": "並べ直す兄弟の親（`null` は根の段）"
+     }
+    },
+    {
+     "name": "orderedIds",
+     "key": "AT-51",
+     "list": true,
+     "meaning": {
+      "ja": "兄弟の新しい並び（この順が `order`（`AT-55`）になる）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "兄弟の並びを変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-005`"
+   }
+  },
+  {
+   "id": "CM-36",
+   "group": {
+    "ja": "`Dependency`"
+   },
+   "name": "createDependency",
+   "union": "DependencyCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "predecessorUid",
+     "column": "AT-45"
+    },
+    {
+     "name": "successorUid",
+     "key": "AT-24",
+     "meaning": {
+      "ja": "線を持つ後続の `Task`"
+     }
+    },
+    {
+     "name": "predecessorEdge",
+     "type": "enum",
+     "values": [
+      "start",
+      "finish"
+     ],
+     "meaning": {
+      "ja": "先行の端（2 つの端の組が `linkType`（`AT-46`）を決める）"
+     }
+    },
+    {
+     "name": "successorEdge",
+     "type": "enum",
+     "values": [
+      "start",
+      "finish"
+     ],
+     "meaning": {
+      "ja": "後続の端"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "依存線を引く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-009`"
+   }
+  },
+  {
+   "id": "CM-37",
+   "group": {
+    "ja": "`Dependency`"
+   },
+   "name": "deleteDependency",
+   "union": "DependencyCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "predecessorUid",
+     "key": "AT-45"
+    },
+    {
+     "name": "successorUid",
+     "key": "AT-24",
+     "meaning": {
+      "ja": "線を持つ後続の `Task`"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "依存線を消す（先行と後続の組で名指し、その向きの線をすべて —— 1 本だけは `CM-93`）"
+    ]
+   },
+   "source": {
+    "ja": "`FR-032`"
+   }
+  },
+  {
+   "id": "CM-93",
+   "group": {
+    "ja": "`Dependency`"
+   },
+   "name": "deleteDependencyAt",
+   "union": "DependencyCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "predecessorUid",
+     "key": "AT-45"
+    },
+    {
+     "name": "successorUid",
+     "key": "AT-24",
+     "meaning": {
+      "ja": "線を持つ後続の `Task`"
+     }
+    },
+    {
+     "name": "order",
+     "type": "integer",
+     "meaning": {
+      "ja": "同じ向きの線のうち何本目か（後続の依存の並び `AT-42` の中の順、0 が最初）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "同じ向きの線のうち 1 本を、後続と先行と、後続の依存の並び（`_assets/fig-erd-detail.md` の `AT-42`）の中の順とで名指して除く。",
+     "その線が無ければ断る —— 同じ向きの線は線ごとの名を持たず、並びの中の順でしか名指せない"
+    ]
+   },
+   "source": {
+    "ja": "`FR-155`"
+   }
+  },
+  {
+   "id": "CM-38",
+   "group": {
+    "ja": "`Dependency`"
+   },
+   "name": "setDependencyLag",
+   "union": "DependencyCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "predecessorUid",
+     "key": "AT-45"
+    },
+    {
+     "name": "successorUid",
+     "key": "AT-24",
+     "meaning": {
+      "ja": "線を持つ後続の `Task`"
+     }
+    },
+    {
+     "oneOf": [
+      "WorkingDayLag",
+      "TypedLag"
+     ],
+     "meaning": {
+      "ja": "ラグ"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "ラグを変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-009`"
+   }
+  },
+  {
+   "id": "CM-39",
+   "group": {
+    "ja": "`Calendar`"
+   },
+   "name": "setCalendar",
+   "union": "CalendarCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "workingDayTypes",
+     "column": "AT-73",
+     "list": true,
+     "null": false,
+     "optional": true,
+     "meaning": {
+      "ja": "稼働する曜日の `dayType`（1 が日曜）で、載らない曜日は休み"
+     }
+    },
+    {
+     "name": "weekStartDay",
+     "column": "AT-17",
+     "optional": true
+    },
+    {
+     "name": "exceptions",
+     "column": "AT-71",
+     "optional": true,
+     "meaning": {
+      "ja": "編集の後の例外日の全部（表 T-344 の `WC-4` 〜 `WC-6`）"
+     }
+    },
+    {
+     "name": "workingTimes",
+     "column": [
+      "AT-158",
+      "AT-159"
+     ],
+     "optional": true,
+     "meaning": {
+      "ja": "稼働日の時間帯の 1 組（どの曜日と例外日に書くかは `FR-088` の `WC-8`）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "暦（稼働する曜日・稼働日の時間帯の 1 組・例外日）と週の始まりを直す。",
+     "時間帯の 1 組をどの曜日と例外日に書くかは `01-04-requirements.md` の `FR-088` が持つ。",
+     "既定の暦のままなら、暦を 1 つ作ってから直す。",
+     "例外日の `fromDate` ／ `toDate` の時刻は、本命令を受けて文書へ書く側が揃える —— 規則は `01-04-requirements.md` の `FR-057` の 表 T-350 の前文が持つ"
+    ]
+   },
+   "source": {
+    "ja": "`FR-088`"
+   }
+  },
+  {
+   "id": "CM-40",
+   "group": {
+    "ja": "`Resource`"
+   },
+   "name": "createResource",
+   "union": "ResourceCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "name",
+     "column": "AT-86"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "担当を足す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-008`"
+   }
+  },
+  {
+   "id": "CM-41",
+   "group": {
+    "ja": "`Resource`"
+   },
+   "name": "setResourceName",
+   "union": "ResourceCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uid",
+     "key": "AT-85"
+    },
+    {
+     "name": "name",
+     "column": "AT-86"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "担当の名前を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-008`"
+   }
+  },
+  {
+   "id": "CM-42",
+   "group": {
+    "ja": "`Resource`"
+   },
+   "name": "deleteResource",
+   "union": "ResourceCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "uids",
+     "key": "AT-85",
+     "list": true,
+     "meaning": {
+      "ja": "消す担当"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "選んだ担当を消す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-099`"
+   }
+  },
+  {
+   "id": "CM-43",
+   "group": {
+    "ja": "`Resource`"
+   },
+   "name": "deleteUnreferencedResources",
+   "union": "ResourceCommand",
+   "bundle": false,
+   "values": [],
+   "carries": {
+    "ja": [
+     "未参照をまとめて消す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-099`"
+   }
+  },
+  {
+   "id": "CM-44",
+   "group": {
+    "ja": "`Assignment`"
+   },
+   "name": "createAssignment",
+   "union": "ResourceCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "taskUid",
+     "column": "AT-93",
+     "null": false
+    },
+    {
+     "name": "resourceUid",
+     "column": "AT-94",
+     "null": false
+    }
+   ],
+   "carries": {
+    "ja": [
+     "担当を就ける"
+    ]
+   },
+   "source": {
+    "ja": "`FR-008`"
+   }
+  },
+  {
+   "id": "CM-45",
+   "group": {
+    "ja": "`Assignment`"
+   },
+   "name": "unassignResource",
+   "union": "ResourceCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "taskUid",
+     "key": "AT-93",
+     "null": false
+    },
+    {
+     "name": "resourceUid",
+     "key": "AT-94",
+     "null": false
+    }
+   ],
+   "carries": {
+    "ja": [
+     "割当を解く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-008`"
+   }
+  },
+  {
+   "id": "CM-46",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "createCommentBox",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "column": "AT-110"
+    },
+    {
+     "name": "anchor",
+     "type": "AnnotationAnchor",
+     "meaning": {
+      "ja": "留め先"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "コメントボックスを置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-47",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "deleteCommentBox",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-110"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "コメントボックスを消す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-032`"
+   }
+  },
+  {
+   "id": "CM-48",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "setCommentBoxText",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-110"
+    },
+    {
+     "name": "text",
+     "column": "AT-112"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "本文を書く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-097`"
+   }
+  },
+  {
+   "id": "CM-49",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "setCommentBoxLeaderShapeKind",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-110"
+    },
+    {
+     "name": "leaderShapeKind",
+     "column": "AT-111",
+     "null": false
+    }
+   ],
+   "carries": {
+    "ja": [
+     "引出し線の形を選ぶ"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-50",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "setCommentBoxAnchor",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-110"
+    },
+    {
+     "name": "anchor",
+     "type": "AnnotationAnchor",
+     "meaning": {
+      "ja": "新しい留め先"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "留め先を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-016`"
+   }
+  },
+  {
+   "id": "CM-51",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "setCommentBoxBodyOffsetPx",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-110"
+    },
+    {
+     "name": "dx",
+     "type": "number",
+     "column": "AT-115",
+     "meaning": {
+      "ja": "本文のずれの横（px）"
+     }
+    },
+    {
+     "name": "dy",
+     "type": "number",
+     "column": "AT-115",
+     "meaning": {
+      "ja": "本文のずれの縦（px）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "本文のずれを変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-016`"
+   }
+  },
+  {
+   "id": "CM-80",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "setCommentBoxStrokeColor",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-110"
+    },
+    {
+     "name": "strokeColor",
+     "column": "AT-148"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "枠と引出し線の色を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-81",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "setCommentBoxStrokeWidth",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-110"
+    },
+    {
+     "name": "strokeWidthPx",
+     "column": "AT-149"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "枠と引出し線の太さを置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-82",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "setCommentBoxFillColor",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-110"
+    },
+    {
+     "name": "fillColor",
+     "column": "AT-150"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "本文の箱の塗りの色を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-83",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "setCommentBoxFillTransparency",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-110"
+    },
+    {
+     "name": "fillTransparencyPercent",
+     "column": "AT-151"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "本文の箱の塗りの透過率を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-84",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "setCommentBoxTextColor",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-110"
+    },
+    {
+     "name": "textColor",
+     "column": "AT-152"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "本文の字の色を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-52",
+   "group": {
+    "ja": "`HighlightBox`"
+   },
+   "name": "createHighlightBox",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "column": "AT-116"
+    },
+    {
+     "name": "range",
+     "type": "HighlightRange",
+     "meaning": {
+      "ja": "囲む範囲"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "ハイライトボックスを置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-53",
+   "group": {
+    "ja": "`HighlightBox`"
+   },
+   "name": "deleteHighlightBox",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-116"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "ハイライトボックスを消す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-032`"
+   }
+  },
+  {
+   "id": "CM-54",
+   "group": {
+    "ja": "`HighlightBox`"
+   },
+   "name": "setHighlightBoxRange",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-116"
+    },
+    {
+     "name": "range",
+     "type": "HighlightRange",
+     "meaning": {
+      "ja": "新しく囲む範囲"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "囲む範囲を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-016`"
+   }
+  },
+  {
+   "id": "CM-55",
+   "group": {
+    "ja": "`HighlightBox`"
+   },
+   "name": "setHighlightBoxStrokeColor",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-116"
+    },
+    {
+     "name": "strokeColor",
+     "column": "AT-121"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "枠の色を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-77",
+   "group": {
+    "ja": "`HighlightBox`"
+   },
+   "name": "setHighlightBoxStrokeWidth",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-116"
+    },
+    {
+     "name": "strokeWidthPx",
+     "column": "AT-145"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "枠の線の太さを置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-78",
+   "group": {
+    "ja": "`HighlightBox`"
+   },
+   "name": "setHighlightBoxFillColor",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-116"
+    },
+    {
+     "name": "fillColor",
+     "column": "AT-146"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "塗りの色を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-79",
+   "group": {
+    "ja": "`HighlightBox`"
+   },
+   "name": "setHighlightBoxFillTransparency",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-116"
+    },
+    {
+     "name": "fillTransparencyPercent",
+     "column": "AT-147"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "塗りの透過率を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-56",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setStackDirection",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "direction",
+     "column": "S-58"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "積む向きを選ぶ"
+    ]
+   },
+   "source": {
+    "ja": "`FR-003`"
+   }
+  },
+  {
+   "id": "CM-58",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setElementVisible",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "element",
+     "type": "enum",
+     "valuesOf": [
+      "S-69",
+      "S-227",
+      "S-228",
+      "S-64",
+      "S-63",
+      "S-67",
+      "S-68",
+      "S-60",
+      "S-61",
+      "S-62",
+      "S-232"
+     ],
+     "meaning": {
+      "ja": "表示を切り替える要素（値はその行の鍵）"
+     }
+    },
+    {
+     "name": "visible",
+     "type": "boolean",
+     "meaning": {
+      "ja": "`element` が名指す行に書く値"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "要素の表示を切り替える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-049`"
+   }
+  },
+  {
+   "id": "CM-62",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setFontScale",
+   "union": "DocumentSettingsCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "scale",
+     "column": "S-70"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "文字サイズの段を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-039`"
+   }
+  },
+  {
+   "id": "CM-64",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setThemeMonochrome",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "monochrome",
+     "column": "S-74"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "モノクロを選ぶ"
+    ]
+   },
+   "source": {
+    "ja": "`FR-041`"
+   }
+  },
+  {
+   "id": "CM-65",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setZoom",
+   "union": "DocumentSettingsCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "zoomX",
+     "column": "S-75"
+    },
+    {
+     "name": "zoomY",
+     "column": "S-76"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "表示倍率を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-016`"
+   }
+  },
+  {
+   "id": "CM-66",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setScrollPosition",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "scrollDate",
+     "column": "S-77"
+    },
+    {
+     "name": "scrollGroupId",
+     "column": "S-78"
+    },
+    {
+     "name": "scrollDayOffset",
+     "column": "S-177"
+    },
+    {
+     "name": "scrollGroupOffset",
+     "column": "S-176"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "表示位置を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-051`"
+   }
+  },
+  {
+   "id": "CM-67",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setTaskGroupPanelWidth",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "taskGroupPanelWidth",
+     "column": "S-79"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループパネルの幅を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-052`"
+   }
+  },
+  {
+   "id": "CM-68",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "pinTaskGroup",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "groupId",
+     "key": "AT-51",
+     "meaning": {
+      "ja": "`pinnedGroupIds`（`S-126`）に足すタスクグループ"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループをピン止めする"
+    ]
+   },
+   "source": {
+    "ja": "`FR-098`"
+   }
+  },
+  {
+   "id": "CM-69",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "unpinTaskGroup",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "groupId",
+     "key": "AT-51",
+     "meaning": {
+      "ja": "`pinnedGroupIds`（`S-126`）から除くタスクグループ"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "ピン止めを外す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-098`"
+   }
+  },
+  {
+   "id": "CM-71",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "fitScheduleToScreen",
+   "union": "DocumentSettingsCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "zoomX",
+     "column": "S-75"
+    },
+    {
+     "name": "zoomY",
+     "column": "S-76"
+    },
+    {
+     "name": "scrollDate",
+     "column": "S-77"
+    },
+    {
+     "name": "scrollGroupId",
+     "column": "S-78"
+    },
+    {
+     "name": "scrollDayOffset",
+     "column": "S-177"
+    },
+    {
+     "name": "scrollGroupOffset",
+     "column": "S-176"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "全体が収まる倍率と表示位置を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-055`"
+   }
+  },
+  {
+   "id": "CM-72",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "resetTaskGroupTreeStates",
+   "union": "TaskGroupCommand",
+   "bundle": true,
+   "values": [],
+   "carries": {
+    "ja": [
+     "隠したタスクグループを除くすべてのタスクグループの木の状態を `auto` へ戻す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-055`（表 T-051 の `HF-8`、`_assets/tbl-state-machines.md` の 表 T-328）"
+   }
+  },
+  {
+   "id": "CM-73",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "moveTaskGroup",
+   "union": "TaskGroupCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "groupId",
+     "key": "AT-51"
+    },
+    {
+     "name": "parentId",
+     "column": "AT-52"
+    },
+    {
+     "name": "order",
+     "column": "AT-55"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループの親と並びを変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-005`（表 T-051 の `HF-15`）"
+   }
+  },
+  {
+   "id": "CM-74",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setDisplayScale",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "scale",
+     "column": "S-234"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "表示の倍率の段を変える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-039`"
+   }
+  },
+  {
+   "id": "CM-88",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setFitSpan",
+   "union": "DocumentSettingsCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "fitSpanStart",
+     "column": "S-518"
+    },
+    {
+     "name": "fitSpanFinish",
+     "column": "S-519"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "全体表示時の期間を置く・動かす（開始日と終了日を 1 度に）"
+    ]
+   },
+   "source": {
+    "ja": "`FR-055`"
+   }
+  },
+  {
+   "id": "CM-89",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "clearFitSpan",
+   "union": "DocumentSettingsCommand",
+   "bundle": true,
+   "values": [],
+   "carries": {
+    "ja": [
+     "全体表示時の期間を消す（固定していれば固定も外す —— 表 T-367 の `FX-5`）"
+    ]
+   },
+   "source": {
+    "ja": "`FR-055`"
+   }
+  },
+  {
+   "id": "CM-90",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setFitSpanFixed",
+   "union": "DocumentSettingsCommand",
+   "bundle": true,
+   "values": [
+    {
+     "name": "fitSpanFixed",
+     "column": "S-532"
+    },
+    {
+     "name": "shownStart",
+     "type": "string",
+     "null": true,
+     "meaning": {
+      "ja": "今の表示の期間の開始（期間が空なら `S-518` へ写す —— 表 T-367 の `FX-4`）"
+     }
+    },
+    {
+     "name": "shownFinish",
+     "type": "string",
+     "null": true,
+     "meaning": {
+      "ja": "今の表示の期間の終了（期間が空なら `S-519` へ写す —— 同）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "全体表示時の期間を固定する・外す（期間が空なら現在表示中の期間をコピーする —— 表 T-367 の `FX-4`）"
+    ]
+   },
+   "source": {
+    "ja": "`FR-055`"
+   }
+  },
+  {
+   "id": "CM-91",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setTaskGroupPanelWidthFixed",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "taskGroupPanelWidthFixed",
+     "column": "S-533"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループパネルの幅を固定する・外す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-052`"
+   }
+  },
+  {
+   "id": "CM-92",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setTableView",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "table",
+     "type": "enum",
+     "values": [
+      "searchPanel",
+      "delayDiagnosticsReport",
+      "resourceList"
+     ],
+     "meaning": {
+      "ja": "見え方を置き換える表（`FR-151` の 表 T-353）"
+     }
+    },
+    {
+     "name": "view",
+     "type": "TableView",
+     "meaning": {
+      "ja": "その表の見え方の全部（`S-560` 〜 `S-572`）"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "表 1 つの見え方（表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え —— `_assets/tbl-settings.md` の 表 T-203 の `S-560` 〜 `S-572`）を置き換える"
+    ]
+   },
+   "source": {
+    "ja": "`FR-151`"
+   }
+  },
+  {
+   "id": "CM-95",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setViewTimeZone",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "timeZone",
+     "type": "string",
+     "column": "S-574",
+     "null": true,
+     "meaning": {
+      "ja": "表 T-376 の種が標準時の行の鍵"
+     }
+    }
+   ],
+   "carries": {
+    "ja": [
+     "見せる基準を変える（換算して適用する）"
+    ]
+   },
+   "source": {
+    "ja": "`FR-156`"
+   }
+  },
+  {
+   "id": "CM-96",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setDisplayTimeZones",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "timeZones",
+     "column": "S-575"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "表示するタイムゾーンを置く（0 〜 4 つ）"
+    ]
+   },
+   "source": {
+    "ja": "`FR-156`"
+   }
+  },
+  {
+   "id": "CM-97",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setShowsTimeOfDay",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "showsTimeOfDay",
+     "column": "S-576"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "時刻を表示するかを置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-158`"
+   }
+  },
+  {
+   "id": "CM-85",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "setTaskGroupTreeState",
+   "union": "TaskGroupCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "groupId",
+     "key": "AT-51"
+    },
+    {
+     "name": "treeState",
+     "column": "AT-153"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループの木の状態を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-004`（`_assets/tbl-state-machines.md` の 表 T-328）"
+   }
+  },
+  {
+   "id": "CM-76",
+   "group": {
+    "ja": "`TaskGroup`"
+   },
+   "name": "setTaskGroupEditGroup",
+   "union": "UnimplementedDocumentCommand",
+   "bundle": false,
+   "agent": false,
+   "values": [
+    {
+     "name": "groupId",
+     "key": "AT-51"
+    },
+    {
+     "name": "editGroup",
+     "column": "AT-144"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "タスクグループの編集グループを入れる・消す。",
+     "人だけが使う（表 T-275 の `GP-1`）"
+    ]
+   },
+   "source": {
+    "ja": "`FR-111`"
+   }
+  },
+  {
+   "id": "CM-86",
+   "group": {
+    "ja": "見せ方の群"
+   },
+   "name": "setLevelZeroTreeState",
+   "union": "DocumentSettingsCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "levelZeroTreeState",
+     "column": "S-418"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "段 0 の木の状態を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-004`（`_assets/tbl-state-machines.md` の 表 T-328 の根の升）"
+   }
+  }
+ ]
+}

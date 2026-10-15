@@ -4,7 +4,6 @@ import { describe, expect, it } from 'vitest'
 
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
-  GLOSSARY,
   MILESTONE_M,
   NEW_START,
   REQUIREMENTS,
@@ -59,7 +58,7 @@ describe('FR-159 / T-379 / UN-13 / CM-99 -- the manuscript still says what these
     const row = specTable('T-108').rows.find((one) => one.id === 'CM-99')
     expect(row, 'table T-108 holds CM-99').toBeDefined()
     expect(unbroken(row?.cells.join(' | ') ?? '')).toContain(CM_99_NAME)
-    expect(GLOSSARY).toContain('`newStartDate`')
+    expect(unbroken(row?.cells.join(' | ') ?? '')).toContain('`newStartDate`')
   })
 })
 

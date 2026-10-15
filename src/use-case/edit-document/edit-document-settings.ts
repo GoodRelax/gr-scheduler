@@ -18,6 +18,7 @@ import {
   textOfDayEnd,
   textOfDayStart,
   type Schedule,
+  type TaskGroup,
 } from '../../entity/document-model/schedule/schedule'
 import { displayRatioOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { EditResult } from './edit-document'
@@ -32,79 +33,88 @@ export interface SettingsLimits {
   readonly taskGroupAreaWidthWithoutPanels: number
 }
 
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, DocumentSettingsCommand).
+// see T-108
+export interface TableView {
+  readonly visibility: { readonly hiddenKeys: readonly number[]; readonly isUnassignedHidden: boolean; readonly isApplied: boolean }
+  readonly columnFilters: readonly ColumnFilter[]
+  readonly sort: ColumnSort | null
+}
+
 // see T-108
 export type DocumentSettingsCommand =
-  | { readonly kind: 'setStackDirection'; readonly direction: 'up' | 'down' }
-  | { readonly kind: 'setElementVisible'; readonly element: VisibleElement; readonly visible: boolean }
-  | { readonly kind: 'setFontScale'; readonly scale: 'S' | 'M' | 'L' }
-  | { readonly kind: 'setDisplayScale'; readonly scale: DocumentSettings['displayScale'] }
-  | { readonly kind: 'setThemeMonochrome'; readonly monochrome: boolean }
-  | { readonly kind: 'setZoom'; readonly zoomX: number; readonly zoomY: number }
+  | { readonly kind: 'setStackDirection'; readonly direction: DocumentSettings['stackDirection'] }
+  | {
+      readonly kind: 'setElementVisible'
+      readonly element: 'baselineVisible' | 'planVisible' | 'actualVisible' | 'progressLineVisible' | 'progressMarkerVisible' | 'dateGridLinesVisible' | 'groupGridLinesVisible' | 'assigneeVisible' | 'percentCompleteVisible' | 'dependencyVisible' | 'planDatesVisible'
+      readonly visible: boolean
+    }
+  | { readonly kind: 'setFontScale'; readonly scale: DocumentSettings['fontScale'] }
+  | { readonly kind: 'setThemeMonochrome'; readonly monochrome: DocumentSettings['themeMonochrome'] }
+  | {
+      readonly kind: 'setZoom'
+      readonly zoomX: DocumentSettings['zoomX']
+      readonly zoomY: DocumentSettings['zoomY']
+    }
   | {
       readonly kind: 'setScrollPosition'
-      readonly scrollDate: string | null
-      readonly scrollGroupId: string | null
-      readonly scrollDayOffset: number
-      readonly scrollGroupOffset: number
+      readonly scrollDate: DocumentSettings['scrollDate']
+      readonly scrollGroupId: DocumentSettings['scrollGroupId']
+      readonly scrollDayOffset: DocumentSettings['scrollDayOffset']
+      readonly scrollGroupOffset: DocumentSettings['scrollGroupOffset']
     }
-  | { readonly kind: 'setTaskGroupPanelWidth'; readonly taskGroupPanelWidth: number }
-  | { readonly kind: 'pinTaskGroup'; readonly groupId: string }
-  | { readonly kind: 'unpinTaskGroup'; readonly groupId: string }
+  | {
+      readonly kind: 'setTaskGroupPanelWidth'
+      readonly taskGroupPanelWidth: DocumentSettings['taskGroupPanelWidth']
+    }
+  | { readonly kind: 'pinTaskGroup'; readonly groupId: TaskGroup['id'] }
+  | { readonly kind: 'unpinTaskGroup'; readonly groupId: TaskGroup['id'] }
   | {
       readonly kind: 'fitScheduleToScreen'
-      readonly zoomX: number
-      readonly zoomY: number
-      readonly scrollDate: string | null
-      readonly scrollGroupId: string | null
-      readonly scrollDayOffset: number
-      readonly scrollGroupOffset: number
+      readonly zoomX: DocumentSettings['zoomX']
+      readonly zoomY: DocumentSettings['zoomY']
+      readonly scrollDate: DocumentSettings['scrollDate']
+      readonly scrollGroupId: DocumentSettings['scrollGroupId']
+      readonly scrollDayOffset: DocumentSettings['scrollDayOffset']
+      readonly scrollGroupOffset: DocumentSettings['scrollGroupOffset']
     }
+  | { readonly kind: 'setDisplayScale'; readonly scale: DocumentSettings['displayScale'] }
+  | {
+      readonly kind: 'setFitSpan'
+      readonly fitSpanStart: DocumentSettings['fitSpanStart']
+      readonly fitSpanFinish: DocumentSettings['fitSpanFinish']
+    }
+  | { readonly kind: 'clearFitSpan' }
+  | {
+      readonly kind: 'setFitSpanFixed'
+      readonly fitSpanFixed: DocumentSettings['fitSpanFixed']
+      readonly shownStart: string | null
+      readonly shownFinish: string | null
+    }
+  | {
+      readonly kind: 'setTaskGroupPanelWidthFixed'
+      readonly taskGroupPanelWidthFixed: DocumentSettings['taskGroupPanelWidthFixed']
+    }
+  | {
+      readonly kind: 'setTableView'
+      readonly table: 'searchPanel' | 'delayDiagnosticsReport' | 'resourceList'
+      readonly view: TableView
+    }
+  | { readonly kind: 'setViewTimeZone'; readonly timeZone: string | null }
+  | { readonly kind: 'setDisplayTimeZones'; readonly timeZones: DocumentSettings['displayTimeZones'] }
+  | { readonly kind: 'setShowsTimeOfDay'; readonly showsTimeOfDay: DocumentSettings['showsTimeOfDay'] }
   | {
       readonly kind: 'setLevelZeroTreeState'
       readonly levelZeroTreeState: DocumentSettings['levelZeroTreeState']
     }
-  // see CM-88, CM-89, CM-90, FX-1, FX-4, FX-5
-  | {
-      readonly kind: 'setFitSpan'
-      readonly fitSpanStart: string | null
-      readonly fitSpanFinish: string | null
-    }
-  | { readonly kind: 'clearFitSpan' }
-  // WHY: carries the shown span, so a fix entered over an empty span copies it in the same one step (FX-4).
-  | {
-      readonly kind: 'setFitSpanFixed'
-      readonly fitSpanFixed: boolean
-      readonly shownStart: string | null
-      readonly shownFinish: string | null
-    }
-  // see CM-91, WF-1
-  | { readonly kind: 'setTaskGroupPanelWidthFixed'; readonly taskGroupPanelWidthFixed: boolean }
-  // see CM-97, FR-158, UN-7
-  | { readonly kind: 'setShowsTimeOfDay'; readonly showsTimeOfDay: boolean }
-  // see CM-95, FR-156, S-574, UN-13
-  | { readonly kind: 'setViewTimeZone'; readonly timeZone: string | null }
-  // see CM-96, FR-156, S-575, UN-13
-  | { readonly kind: 'setDisplayTimeZones'; readonly timeZones: readonly string[] }
-  // see CM-92, FR-151, UN-20
-  | { readonly kind: 'setTableView'; readonly table: VisibilityTable; readonly view: TableView }
+// </generated>
 
 type VisibilityTable = keyof TableViews
 
 type ColumnFilter = TableViews[VisibilityTable]['columnFilters'][number]
 
 type ColumnSort = NonNullable<TableViews[VisibilityTable]['sort']>
-
-// see CM-92, FR-151, T-372, TV-2, RO-5, S-560
-// WHY: hiddenKeys are Task.uid, or Resource.uid in the resource list, whose (Unassigned) row isUnassignedHidden is (TV-2).
-export interface TableView {
-  readonly visibility: {
-    readonly hiddenKeys: readonly number[]
-    readonly isUnassignedHidden: boolean
-    readonly isApplied: boolean
-  }
-  readonly columnFilters: readonly ColumnFilter[]
-  readonly sort: ColumnSort | null
-}
 
 type TableVisibility = TableView['visibility']
 

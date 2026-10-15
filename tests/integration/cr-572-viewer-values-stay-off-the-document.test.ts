@@ -345,7 +345,7 @@ describe('CR-572 -- the manuscript these cases are driven by', () => {
     ]) {
       expect(REQUIREMENTS, sentence).toContain(sentence)
     }
-    expect(unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8'))).toContain(T_108_IS_EVERY_COMMAND)
+    expect(unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-document-commands.md'), 'utf8'))).toContain(T_108_IS_EVERY_COMMAND)
   })
 
   it('the rows the cases press and read are where the tables put them', () => {

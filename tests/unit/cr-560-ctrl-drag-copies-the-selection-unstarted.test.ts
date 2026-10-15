@@ -40,7 +40,7 @@ import { specTable, unbroken } from '../contract/spec-table'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const GLOSSARY = readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8')
+const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8')
 
 const rowOf = (table: string, id: string) => {
   const found = specTable(table).rows.find((one) => one.id === id)
@@ -118,9 +118,11 @@ describe('CR-560 premises: the clauses read this way', () => {
   })
 
   it('T-108 CM-8 carries the shift in minutes and the task groups of a Ctrl drag copy', () => {
-    const line = GLOSSARY.split(/\r?\n/).find((one) => one.startsWith('| CM-8 |')) ?? ''
+    const line = DOCUMENT_COMMANDS.split(/\r?\n/).find((one) => one.startsWith('| CM-8 |')) ?? ''
     expect(line).toContain('`pasteTasks`')
-    expect(line).toContain('ずらす量（分）と、コピーを載せるタスクグループも運ぶ')
+    expect(line).toContain('`Ctrl` ドラッグのコピーは載せ方も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`）')
+    expect(line).toContain('`shiftMinutes`: `integer` —— コピーをずらす量（分、符号付き')
+    expect(line).toContain('`groupIdOf`: `integer` から `string` への対応')
   })
 
   it('FR-036: the help lists MK-15', () => {

@@ -29,15 +29,16 @@ const PARENT_FROM_THE_TASK_GROUP =
   'コピー元の親をコピーしないとき（コピー元が親を持たないときを含む）は、コピーの親タスクを、コピーを載せたタスクグループから推定すること（MUST）'
 const SAME_TASK_GROUP = '**複製した `Task` は、複製元と同じタスクグループに載せること（MUST）'
 const NO_SAME_UID = '複製した `Task` に、複製元と同じ `UID` を使ってはならない（MUST NOT）'
-const CM_8_ROW =
-  '| CM-8 | `Task` | `pasteTasks` | ⭐ | 選んだ `Task` を複製する（複製元の `Task` を 1 つ以上運び、運ばない子孫タスクはコピーしない —— `01-04-requirements.md` の 表 T-223 の `DU-1`）。`Ctrl` ドラッグのコピーは、ずらす量（分）と、コピーを載せるタスクグループも運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`） | `FR-033` |'
+// see CM-8
+const CM_8_DOES = '選んだ `Task` を複製する —— 運ばない子孫タスクはコピーしない（`01-04-requirements.md` の 表 T-223 の `DU-1`）。'
+const CM_8_SOURCES = '`sourceUids`: 鍵の並び（`Task.uid`、`AT-24`） —— 複製元の `Task`（1 つ以上）'
 const COPY_TAKEN_ROW =
   '| `selection/copyTaken` | 入力（コピーできる選び方のときだけ呼び手が送る。コピーできないときは `RS-27` で断り、出来事を作らない）: `SK-4` ・ `FR-033` | `copiedForPaste` | 根 |'
 const CR_541_ROW_8 = '| 8 | Q16 で行と `Task` が両方選ばれたとき | いまの振る舞い（行を写す）のまま。何も書かない | そのまま |'
 
 const readText = (...parts: string[]): string =>
   readFileSync(join(process.cwd(), ...parts), 'utf8').replace(/\r\n/g, '\n')
-const GLOSSARY = unbroken(readText('docs', 'spec', '_assets', 'tbl-glossary.md'))
+const DOCUMENT_COMMANDS = unbroken(readText('docs', 'spec', '_assets', 'tbl-document-commands.md'))
 const STATE_MACHINES = unbroken(readText('docs', 'spec', '_assets', 'tbl-state-machines.md'))
 const CR_541 = readText('change-request', 'CR-541-land-the-2026-09-22-rulings-in-the-specification.md')
 
@@ -49,7 +50,10 @@ describe('FR-033 / CM-8 / T-293 -- the clauses this file is driven by still stan
     },
   )
   it('CM-8 carries one or more source Tasks', () => {
-    expect(GLOSSARY).toContain(CM_8_ROW)
+    const row = DOCUMENT_COMMANDS.split('\n').find((one) => one.startsWith('| CM-8 |')) ?? ''
+    expect(row).toContain('`pasteTasks`')
+    expect(row).toContain(CM_8_DOES)
+    expect(row).toContain(CM_8_SOURCES)
   })
   it('selection/copyTaken: an uncopyable choice is refused with RS-27 and makes no event', () => {
     expect(STATE_MACHINES).toContain(COPY_TAKEN_ROW)

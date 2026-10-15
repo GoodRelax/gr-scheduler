@@ -176,6 +176,8 @@ FILES = (
     os.path.join('_assets', 'tbl-notice-reasons.md'),
     # CR-765: table T-107 left tbl-glossary.md for here, with table T-400.
     os.path.join('_assets', 'tbl-agent-api-members.md'),
+    # CR-766: table T-108 left tbl-glossary.md for here, with the values each command carries.
+    os.path.join('_assets', 'tbl-document-commands.md'),
     os.path.join('_assets', 'fig-erd-detail.md'),
     os.path.join('_assets', 'fig-erd-overview.md'),
 )

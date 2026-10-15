@@ -7,6 +7,7 @@
 // do not edit by hand inside it: rebuild with npm run gen.
 
 import type { Document } from '../../entity/document-model/document/document'
+import type { TaskGroup } from '../../entity/document-model/schedule/schedule'
 
 export type {
   TaskCommand,
@@ -131,6 +132,17 @@ export function reject(
 // WHY: deprecated aliases, kept until every caller uses acceptedEdit / refusedEdit.
 export { acceptedEdit as edited, refusedEdit as refused }
 
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, DocumentCommand).
+// see T-108, CM-76
+// WHY: rows of table T-108 nothing implements yet; editDocument refuses them as no aggregate owns them.
+export type UnimplementedDocumentCommand =
+  | {
+      readonly kind: 'setTaskGroupEditGroup'
+      readonly groupId: TaskGroup['id']
+      readonly editGroup: TaskGroup['editGroup']
+    }
+
 // see T-108
 export type DocumentCommand =
   | TaskCommand
@@ -142,6 +154,8 @@ export type DocumentCommand =
   | ProjectCommand
   | WholeScheduleShiftCommand
   | DocumentSettingsCommand
+  | UnimplementedDocumentCommand
+// </generated>
 
 type AggregateEdit = (
   document: Document,
@@ -274,7 +288,8 @@ const SETTINGS_KINDS = [
   'setTableView',
 ] as const satisfies readonly DocumentSettingsCommand['kind'][]
 
-const ROUTE_TABLE: Record<DocumentCommand['kind'], AggregateEdit> = {
+// WHY: an unimplemented command has no aggregate; editDocument refuses it below.
+const ROUTE_TABLE: Record<Exclude<DocumentCommand['kind'], UnimplementedDocumentCommand['kind']>, AggregateEdit> = {
   ...routes(TASK_KINDS, (document, command, _limits, defaultTaskGroupName) =>
     editTask(document, command as TaskCommand, defaultTaskGroupName),
   ),

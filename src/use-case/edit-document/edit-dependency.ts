@@ -19,43 +19,48 @@ import { refused, edited, reject } from './edit-document'
 
 export type DependencyEdge = 'start' | 'finish'
 
-export type DependencyCommand =
-  | {
-      readonly kind: 'createDependency'
-      readonly predecessorUid: number
-      readonly successorUid: number
-      readonly predecessorEdge: DependencyEdge
-      readonly successorEdge: DependencyEdge
-    }
-  | {
-      readonly kind: 'deleteDependency'
-      readonly predecessorUid: number
-      readonly successorUid: number
-    }
-  | {
-      readonly kind: 'deleteDependencyAt'
-      readonly predecessorUid: number
-      readonly successorUid: number
-      readonly order: number
-    }
-  | ({
-      readonly kind: 'setDependencyLag'
-      readonly predecessorUid: number
-      readonly successorUid: number
-    } & (WorkingDayLag | TypedLag))
-
-// see FR-009, S-118
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, DependencyCommand).
+// see T-108
 export interface WorkingDayLag {
   readonly lagWorkingDays: number
 }
 
-// see FR-009, TX-3, TX-10
+// see T-108
 export interface TypedLag {
   readonly lagMinutes: number
-  readonly lagUnit: TypedLagUnit
+  readonly lagUnit: 'd' | 'h' | 'm'
 }
 
-export type TypedLagUnit = 'd' | 'h' | 'm'
+// see T-108
+export type DependencyCommand =
+  | {
+      readonly kind: 'createDependency'
+      readonly predecessorUid: Dependency['predecessorUid']
+      readonly successorUid: Task['uid']
+      readonly predecessorEdge: 'start' | 'finish'
+      readonly successorEdge: 'start' | 'finish'
+    }
+  | {
+      readonly kind: 'deleteDependency'
+      readonly predecessorUid: Dependency['predecessorUid']
+      readonly successorUid: Task['uid']
+    }
+  | {
+      readonly kind: 'deleteDependencyAt'
+      readonly predecessorUid: Dependency['predecessorUid']
+      readonly successorUid: Task['uid']
+      readonly order: number
+    }
+  | ({
+      readonly kind: 'setDependencyLag'
+      readonly predecessorUid: Dependency['predecessorUid']
+      readonly successorUid: Task['uid']
+    } & (WorkingDayLag | TypedLag))
+// </generated>
+
+// see FR-009, TX-3, TX-10
+export type TypedLagUnit = TypedLag['lagUnit']
 
 // see FR-009, AT-48
 // WHY: the codes are mspdi_pj12.xsd's LagFormat: 7 working days, 5 hours, 3 minutes.

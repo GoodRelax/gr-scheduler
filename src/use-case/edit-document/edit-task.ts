@@ -16,6 +16,7 @@ import {
   type Schedule,
   type Task,
   type TaskGroup,
+  type TaskGroupMember,
   type TaskVisual,
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
@@ -46,101 +47,130 @@ export type TaskShapeKind = NonNullable<TaskVisual['shapeKind']>
 
 export type TaskMilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']>
 
-// see T-019
-export type PlanActualPlacement =
-  | { readonly row: 'PA-1' }
-  | { readonly row: 'PA-2'; readonly actualStart: string; readonly stop: string }
-  | {
-      readonly row: 'PA-3'
-      readonly actualStart: string
-      readonly stop: string
-      readonly resume: string
-    }
-  | { readonly row: 'PA-4'; readonly actualStart: string; readonly stop: string }
-  | {
-      readonly row: 'PA-5'
-      readonly actualStart: string
-      readonly actualFinish: string
-    }
+// see T-266, FR-043, CM-14
+// WHY: the holds are table T-108's, printed into TaskCommand below; read off it, never retyped.
+export type ActualGrabHold = Extract<TaskCommand, { readonly kind: 'beginTaskActual' }>['grabbed']
 
-// see T-266, FR-043
-export type ActualGrabHold = 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'
-
-// see CY-5, CY-6
-// WHY: a plain record, not a Map, so the command survives the Agent API's JSON unchanged.
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, TaskCommand).
+// see T-108
 export interface PasteLanding {
-  // WHY: signed minutes, not days: a copy snapped to the hour shifts as the body move does (CY-5).
   readonly shiftMinutes: number
   readonly groupIdOf: Readonly<Record<number, string>>
 }
 
 // see T-108
+export type PlanActualPlacement =
+  | { readonly row: 'PA-1' }
+  | {
+      readonly row: 'PA-2'
+      readonly actualStart: NonNullable<Task['actualStart']>
+      readonly stop: NonNullable<Task['stop']>
+    }
+  | {
+      readonly row: 'PA-3'
+      readonly actualStart: NonNullable<Task['actualStart']>
+      readonly stop: NonNullable<Task['stop']>
+      readonly resume: NonNullable<Task['resume']>
+    }
+  | {
+      readonly row: 'PA-4'
+      readonly actualStart: NonNullable<Task['actualStart']>
+      readonly stop: NonNullable<Task['stop']>
+    }
+  | {
+      readonly row: 'PA-5'
+      readonly actualStart: NonNullable<Task['actualStart']>
+      readonly actualFinish: NonNullable<Task['actualFinish']>
+    }
+
+// see T-108
 export type TaskCommand =
   | {
       readonly kind: 'createTask'
-      readonly shapeKind: TaskShapeKind
-      readonly start: string
-      readonly finish: string
-      readonly groupId: string
+      readonly shapeKind: NonNullable<TaskVisual['shapeKind']>
+      readonly start: NonNullable<Task['start']>
+      readonly finish: NonNullable<Task['finish']>
+      readonly groupId: TaskGroupMember['groupId']
     }
-  | { readonly kind: 'deleteTask'; readonly uid: number }
+  | { readonly kind: 'deleteTask'; readonly uid: Task['uid'] }
   | {
       readonly kind: 'pasteTasks'
-      readonly sourceUids: readonly number[]
+      readonly sourceUids: readonly Task['uid'][]
       readonly landing?: PasteLanding
     }
-  | { readonly kind: 'setTaskName'; readonly uid: number; readonly name: string | null }
-  | { readonly kind: 'setTaskNotes'; readonly uid: number; readonly notes: string | null }
+  | { readonly kind: 'setTaskName'; readonly uid: Task['uid']; readonly name: Task['name'] }
+  | { readonly kind: 'setTaskNotes'; readonly uid: Task['uid']; readonly notes: Task['notes'] }
   | {
       readonly kind: 'setTaskPlanDates'
-      readonly uid: number
-      readonly start: string
-      readonly finish: string
+      readonly uid: Task['uid']
+      readonly start: NonNullable<Task['start']>
+      readonly finish: NonNullable<Task['finish']>
     }
-  | { readonly kind: 'setTaskDeadline'; readonly uid: number; readonly deadline: string | null }
+  | { readonly kind: 'setTaskDeadline'; readonly uid: Task['uid']; readonly deadline: Task['deadline'] }
   | {
       readonly kind: 'setTaskPlanActualState'
-      readonly uid: number
+      readonly uid: Task['uid']
       readonly place: PlanActualPlacement
     }
   | {
       readonly kind: 'beginTaskActual'
-      readonly uid: number
-      readonly grabbed: ActualGrabHold
-      // WHY: the released place read on each side (FR-103, T-378), as the release writes it.
+      readonly uid: Task['uid']
+      readonly grabbed: 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'
       readonly released: { readonly start: string; readonly finish: string }
-      // WHY: the snap unit in force at the release, in minutes: it sizes the dummy actual (FR-011, T-378).
       readonly snapMinutes: number
     }
   | {
       readonly kind: 'cycleTaskPlanActualState'
-      readonly uid: number
+      readonly uid: Task['uid']
       readonly remembered: RememberedActual | null
-      // WHY: the snap unit in force at the press (PV-1, T-378); absent reads as the day unit.
       readonly snapMinutes?: number
     }
-  | { readonly kind: 'setTaskFadeInDays'; readonly uid: number; readonly days: number | null }
-  | { readonly kind: 'setTaskFadeOutDays'; readonly uid: number; readonly days: number | null }
-  | { readonly kind: 'setTaskParentTask'; readonly uid: number; readonly parentUid: number | null }
-  | { readonly kind: 'moveTaskToTaskGroup'; readonly uid: number; readonly groupId: string }
-  | { readonly kind: 'setTaskVisualShapeKind'; readonly uid: number; readonly shapeKind: TaskShapeKind }
+  | { readonly kind: 'setTaskFadeInDays'; readonly uid: Task['uid']; readonly days: Task['fadeInDays'] }
+  | { readonly kind: 'setTaskFadeOutDays'; readonly uid: Task['uid']; readonly days: Task['fadeOutDays'] }
+  | {
+      readonly kind: 'setTaskParentTask'
+      readonly uid: Task['uid']
+      readonly parentUid: Task['parentTaskUid']
+    }
+  | {
+      readonly kind: 'moveTaskToTaskGroup'
+      readonly uid: Task['uid']
+      readonly groupId: TaskGroupMember['groupId']
+    }
+  | {
+      readonly kind: 'setTaskVisualShapeKind'
+      readonly uid: Task['uid']
+      readonly shapeKind: NonNullable<TaskVisual['shapeKind']>
+    }
   | {
       readonly kind: 'setTaskVisualMilestoneGlyph'
-      readonly uid: number
-      readonly glyph: TaskMilestoneGlyph | null
+      readonly uid: Task['uid']
+      readonly glyph: TaskVisual['milestoneGlyph']
     }
   | {
       readonly kind: 'setTaskVisualColors'
-      readonly uid: number
-      readonly fillColor: string | null
-      readonly strokeColor: string | null
+      readonly uid: Task['uid']
+      readonly fillColor: TaskVisual['fillColor']
+      readonly strokeColor: TaskVisual['strokeColor']
     }
-  | { readonly kind: 'resetTaskVisualColors'; readonly uid: number }
+  | { readonly kind: 'resetTaskVisualColors'; readonly uid: Task['uid'] }
   | {
       readonly kind: 'setTaskVisualStrokeWidth'
-      readonly uid: number
-      readonly strokeWidthPx: number | null
+      readonly uid: Task['uid']
+      readonly strokeWidthPx: TaskVisual['strokeWidthPx']
     }
+
+// see T-108
+// WHY: another component declares these shapes; their field names are held against table T-108 here.
+type SameFieldNames<TValue, TNames extends PropertyKey> = [keyof TValue] extends [TNames]
+  ? ([TNames] extends [keyof TValue] ? true : false)
+  : false
+const SHAPE_FIELDS_MATCH: [
+  SameFieldNames<RememberedActual, 'actualStart' | 'actualFinish' | 'stop' | 'carriedActualDuration'>,
+] = [true]
+void SHAPE_FIELDS_MATCH
+// </generated>
 
 /** @purity pure */
 export function withSchedule(document: Document, schedule: Schedule): Document {
@@ -330,7 +360,10 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
   }
 }
 
-const TABLE_T108_ROWS: Readonly<Record<TaskCommand['kind'], string>> = {
+// WHY: named so the Record reads as keyed over the generated union (check 69).
+type TaskCommandKind = TaskCommand['kind']
+
+const TABLE_T108_ROWS: Readonly<Record<TaskCommandKind, string>> = {
   createTask: 'CM-6',
   deleteTask: 'CM-7',
   pasteTasks: 'CM-8',

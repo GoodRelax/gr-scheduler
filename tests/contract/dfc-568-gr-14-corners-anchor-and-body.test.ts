@@ -54,7 +54,7 @@ const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS_RAW = readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8')
 const REQUIREMENTS = unbroken(REQUIREMENTS_RAW)
 const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8'))
-const GLOSSARY = readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8')
+const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8')
 const ERD_DETAIL = readFileSync(join(SPEC, '_assets', 'fig-erd-detail.md'), 'utf8')
 
 const GR_14_SPLIT = '⭐ `GR-14` の場所は、箱の種類で分けること（MUST）。'
@@ -62,7 +62,7 @@ const GR_14_SPLIT = '⭐ `GR-14` の場所は、箱の種類で分けること�
 const HIGHLIGHT_PARTS =
   'ハイライトボックスは、8 つの掴み点（四隅と 4 辺の中点）と枠を持つ —— 場所・掴み代・引いたときに変わるもの・ポインタの形は 表 T-246 の `HB-8` 〜 `HB-12` に、応える順は本結びの後の段に従うこと（MUST）。'
 const HIGHLIGHT_CM_54 =
-  'どれを掴んで離しても、`_assets/tbl-glossary.md` の 表 T-108 の `CM-54` で書くこと（MUST） —— 掴み点を掴めば囲む範囲の大きさを変え、枠を掴めば大きさを変えずに動かす。'
+  'どれを掴んで離しても、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-54` で書くこと（MUST） —— 掴み点を掴めば囲む範囲の大きさを変え、枠を掴めば大きさを変えずに動かす。'
 const HIGHLIGHT_COLUMNS =
   '⭐ ハイライトボックスの位置と大きさを持つ列は囲む範囲の 4 列（`_assets/fig-erd-detail.md` の `AT-117` 〜 `AT-120`）だけであり、それを書く命令は同表に `CM-54` 1 つしか無い。'
 const COMMENT_PARTS = 'コメントボックスは本体・引出し線・線先を持つ。'
@@ -70,7 +70,7 @@ const COMMENT_PARTS = 'コメントボックスは本体・引出し線・線先
 const COMMENT_BODY_MOVES_BOTH =
   '⭐ 本体（本文の箱の全体）か引出し線（線から左右へ同表の `S-291`）を掴んで引いたときは、本文の箱と線先を一緒に動かすこと（MUST） —— 本文の箱は引いた量だけ動かし、線先は、押したときに描いていた線先の点を引いた量だけずらした点で読む（読み方は下の「線先は離した位置で読む」と同じ）。'
 const COMMENT_ONE_BUNDLE =
-  'その 2 つは、`_assets/tbl-glossary.md` の 表 T-108 の `CM-50`（線先）と `CM-51`（ずれ）を 1 つの束にして書くこと（MUST） —— `CM-51` のずれは、置き直した線先を描く点（`05-07-design.md` の 表 T-221 の `LF-15`）から、動かした本文の箱の左下隅までとする。'
+  'その 2 つは、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-50`（線先）と `CM-51`（ずれ）を 1 つの束にして書くこと（MUST） —— `CM-51` のずれは、置き直した線先を描く点（`05-07-design.md` の 表 T-221 の `LF-15`）から、動かした本文の箱の左下隅までとする。'
 const COMMENT_ANCHOR_ALONE =
   '⭐ 線先（線先から同表の `S-292`）を掴んで引いたときは、線先だけを動かし、本文の箱を画面の上で動かさないこと（MUST） —— `CM-50` で線先を、`CM-51` で、置き直した線先を描く点から押したときの本文の箱の左下隅までのずれを、1 つの束にして書く。'
 const COMMENT_NO_CORNERS =
@@ -581,9 +581,9 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
     for (const clause of [GR_14_SPLIT, HIGHLIGHT_PARTS, HIGHLIGHT_CM_54, HIGHLIGHT_COLUMNS, COMMENT_PARTS, COMMENT_NO_CORNERS, INSIDE_PASSES_THROUGH]) {
       expect(REQUIREMENTS).toContain(clause)
     }
-    expect(GLOSSARY).toContain(CM_54_ROW)
-    expect(GLOSSARY).toContain(CM_50_ROW)
-    expect(GLOSSARY).toContain(CM_51_ROW)
+    expect(DOCUMENT_COMMANDS).toContain(CM_54_ROW)
+    expect(DOCUMENT_COMMANDS).toContain(CM_50_ROW)
+    expect(DOCUMENT_COMMANDS).toContain(CM_51_ROW)
     for (const [row, column] of [['AT-117', 'startDate'], ['AT-118', 'endDate'], ['AT-119', 'topGroupId'], ['AT-120', 'bottomGroupId'], ['AT-113', 'anchorDate'], ['AT-114', 'anchorGroupId'], ['AT-115', 'bodyOffsetPx']]) {
       expect(ERD_DETAIL).toMatch(new RegExp(`\\| ${row} \\| \`\\w+\` \\| \`${column}\` \\|`))
     }

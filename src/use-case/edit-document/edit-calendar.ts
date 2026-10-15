@@ -30,18 +30,18 @@ import type { EditReport, EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import { recountedPercentComplete } from './percent-complete'
 
-// see CM-39, FR-088
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, CalendarCommand).
+// see T-108
 export type CalendarCommand =
   | {
       readonly kind: 'setCalendar'
-      // TRAP: dayType codes weekdays 1..7 (AT-73); weekStartDay codes them 0..6 (AT-17). Nothing converts.
-      readonly workingDayTypes?: readonly number[]
-      readonly weekStartDay?: number | null
-      // WHY: the whole list after the edit (T-344 WC-4..WC-6); omitted leaves the list as it is.
-      readonly exceptions?: readonly Exception[]
-      // WHY: the one set of WC-8; omitted leaves every day's spans as they are.
-      readonly workingTimes?: readonly WorkingTime[]
+      readonly workingDayTypes?: readonly NonNullable<WeekDay['dayType']>[]
+      readonly weekStartDay?: Project['weekStartDay']
+      readonly exceptions?: Calendar['exceptions']
+      readonly workingTimes?: WeekDay['workingTimes']
     }
+// </generated>
 
 const DAY_TYPES = [1, 2, 3, 4, 5, 6, 7] as const
 

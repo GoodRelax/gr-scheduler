@@ -1,0 +1,598 @@
+# -*- coding: utf-8 -*-
+"""Print the document commands' types into src/ from their manuscript.
+
+    python tools/generate_document_commands.py
+    python tools/generate_document_commands.py --check
+
+READS   docs/spec/_source/document-commands.json (table T-108, the commands
+        applyDocumentChange takes and the values each one carries -- CR-766,
+        JDG-2162), through docs/spec/_source/document_commands_json_to_md.py,
+        which refuses an invalid manuscript first; the column a value points at
+        is read from erd.json / settings.json there, and its JSON shape from
+        docs/spec/_source/grs-document.schema.json here.
+WRITES  one region per unit, the one that opens
+        `// <generated -- do not edit by hand>` followed by the line naming
+        document-commands.json, up to its `// </generated>`:
+
+          src/use-case/edit-document/edit-task.ts            TaskCommand
+          src/use-case/edit-document/edit-task-group.ts      TaskGroupCommand
+          src/use-case/edit-document/edit-dependency.ts      DependencyCommand
+          src/use-case/edit-document/edit-annotation.ts      AnnotationCommand
+          src/use-case/edit-document/edit-resource.ts        ResourceCommand
+          src/use-case/edit-document/edit-calendar.ts        CalendarCommand
+          src/use-case/edit-document/edit-project.ts         ProjectCommand
+          src/use-case/edit-document/whole-schedule-shift.ts WholeScheduleShiftCommand
+          src/use-case/edit-document/edit-document-settings.ts DocumentSettingsCommand
+          src/use-case/edit-document/edit-document.ts        UnimplementedDocumentCommand
+                                                             and DocumentCommand
+
+        and, through tools/generate_mcp_tool_descriptions.py, which calls
+        with_command_shapes() below, the input shape of the AM-7 MCP tool.
+
+⭐ A VALUE THAT WRITES A COLUMN IS TYPED BY THAT COLUMN (CR-766 X-d). Its type
+is the entity's own field (`Task['fadeInDays']`, `DocumentSettings['zoomX']`),
+narrowed by `null` / `list` as the manuscript says; only a value that is no
+column carries a type of its own. So tsc, not a copy, keeps the two equal.
+
+⭐ A SHAPE IS DECLARED HERE TOO. The shapes a command carries (PasteLanding,
+TableView ...) are declared in the region of the first unit that uses one. A
+shape marked `inline` is declared nowhere and printed where it is used. A shape
+marked `elsewhere` is declared by hand by another component (RememberedActual,
+of ScreenState); the region holds its field names against the manuscript at
+compile time (SHAPE_FIELDS_MATCH).
+
+⚠️ A TYPE NAME IS NOT IMPORTED HERE. The regions use the names the manuscript
+and erd.json give; each unit imports them by hand outside its region, so tsc
+refuses a name nobody brings in.
+
+Run with PYTHONIOENCODING=utf-8.
+"""
+import copy
+import io
+import json
+import os
+import re
+import sys
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.dirname(HERE)
+SPEC_SOURCE = os.path.join(ROOT, 'docs', 'spec', '_source')
+sys.path.insert(0, SPEC_SOURCE)
+import document_commands_json_to_md as manuscript  # noqa: E402
+
+REL_SOURCE = 'docs/spec/_source/document-commands.json'
+REL_SELF = 'tools/generate_document_commands.py'
+REL_DOCUMENT_SCHEMA = 'docs/spec/_source/grs-document.schema.json'
+UNIT_DIR = 'src/use-case/edit-document/'
+
+OPEN = '// <generated -- do not edit by hand>'
+CLOSE = '// </generated>'
+HEADER_PREFIX = '// From %s (' % REL_SOURCE
+HEADER = HEADER_PREFIX + '%s).'
+
+# Each union and the unit that declares it, in the order DocumentCommand joins them.
+UNITS = [
+    ('TaskCommand', 'edit-task.ts'),
+    ('TaskGroupCommand', 'edit-task-group.ts'),
+    ('DependencyCommand', 'edit-dependency.ts'),
+    ('AnnotationCommand', 'edit-annotation.ts'),
+    ('ResourceCommand', 'edit-resource.ts'),
+    ('CalendarCommand', 'edit-calendar.ts'),
+    ('ProjectCommand', 'edit-project.ts'),
+    ('WholeScheduleShiftCommand', 'whole-schedule-shift.ts'),
+    ('DocumentSettingsCommand', 'edit-document-settings.ts'),
+]
+UNIMPLEMENTED = manuscript.UNIMPLEMENTED
+ROUTER_UNIT = 'edit-document.ts'
+SETTINGS_TYPE = 'DocumentSettings'
+TS_OF_WORD = {'string': 'string', 'integer': 'number', 'number': 'number', 'boolean': 'boolean'}
+JSON_OF_WORD = {'string': 'string', 'integer': 'integer', 'number': 'number', 'boolean': 'boolean'}
+# A union alternative longer than this is printed one field per line.
+LINE_WIDTH = 110
+# The AM-7 argument type whose MCP input shape this generator prints.
+WRITE_REQUEST_TYPE = 'AgentWriteRequest'
+COMMAND_LIST_TYPE = 'readonly DocumentCommand[]'
+STAMP_TYPE = 'DocumentStamp'
+DROPPED_SCHEMA_KEYS = ('description', 'default', '$comment')
+
+
+def path_of(rel):
+    return os.path.join(ROOT, *rel.split('/'))
+
+
+def say(message):
+    """The cp932 guard every generator in this tree carries.
+
+    @purity non-pure
+    """
+    enc = getattr(sys.stdout, 'encoding', None) or 'utf-8'
+    sys.stdout.write(message.encode(enc, 'replace').decode(enc) + '\n')
+
+
+def stop(message):
+    """@purity non-pure"""
+    say('%s: %s' % (REL_SELF, message))
+    sys.exit(1)
+
+
+def load():
+    """(doc, columns) of the manuscript, or stop when the printer refuses it.
+
+    @purity semi-pure-b
+    """
+    doc, columns = manuscript.load_valid()
+    if doc is None:
+        for one in columns:
+            say('  %s' % one)
+        stop('%s is not valid; run docs/spec/_source/document_commands_json_to_md.py' % REL_SOURCE)
+    return doc, columns
+
+
+# ---------------------------------------------------------------- TypeScript
+
+def column_type(row_id, columns):
+    """The code's own type of the column an AT- or S- row names.
+
+    @purity pure
+    """
+    if row_id in columns.at:
+        entity, name, _json = columns.at[row_id]
+        return "%s['%s']" % (entity, name)
+    key = columns.s[row_id]
+    if '.' in key:
+        stop('%s names the nested key %s; give the value a type' % (row_id, key))
+    return "%s['%s']" % (SETTINGS_TYPE, key)
+
+
+def literal(text):
+    """@purity pure"""
+    return "'%s'" % text
+
+
+def joined(parts):
+    """@purity pure"""
+    return ' | '.join(parts)
+
+
+def own_type(value, doc, columns):
+    """The type of a value that writes `type`, before list and null.
+
+    @purity pure
+    """
+    kind = value['type']
+    if kind in TS_OF_WORD:
+        return TS_OF_WORD[kind]
+    if kind == 'enum':
+        if 'valuesOf' in value:
+            return joined(literal(columns.s[one]) for one in value['valuesOf'])
+        return joined(literal(one) for one in value['values'])
+    if kind == 'map':
+        return 'Readonly<Record<%s, %s>>' % (TS_OF_WORD[value['keyType']],
+                                            TS_OF_WORD[value['valueType']])
+    shape = manuscript.shapes_by_name(doc).get(kind)
+    if shape is not None and shape.get('inline'):
+        return inline_object(shape['fields'], doc, columns)
+    return kind
+
+
+def value_type(value, doc, columns):
+    """The TypeScript type of one value, narrowed as the manuscript says.
+
+    @purity pure
+    """
+    if 'type' in value:
+        base = own_type(value, doc, columns)
+        nullable_column = False
+    else:
+        base = column_type(manuscript.pointers(value)[0], columns)
+        nullable_column = True
+    if value.get('null') is False and nullable_column:
+        base = 'NonNullable<%s>' % base
+    if value.get('list'):
+        base = 'readonly %s[]' % (('(%s)' % base) if ' | ' in base else base)
+    if value.get('null') is True:
+        base = '%s | null' % base
+    return base
+
+
+def field_text(value, doc, columns):
+    """@purity pure"""
+    return 'readonly %s%s: %s' % (value['name'], '?' if value.get('optional') else '',
+                                  value_type(value, doc, columns))
+
+
+def inline_object(fields, doc, columns):
+    """@purity pure"""
+    return '{ %s }' % '; '.join(field_text(one, doc, columns) for one in fields)
+
+
+def alternative_lines(row, doc, columns):
+    """One command as an alternative of its union.
+
+    @purity pure
+    """
+    plain = [value for value in row['values'] if 'oneOf' not in value]
+    choice = [value for value in row['values'] if 'oneOf' in value]
+    fields = ["readonly kind: '%s'" % row['name']] + [field_text(one, doc, columns) for one in plain]
+    tail = ' & (%s))' % joined(choice[0]['oneOf']) if choice else ''
+    head = '  | (' if choice else '  | '
+    shown = '%s{ %s }%s' % (head, '; '.join(fields), tail)
+    if len(shown) <= LINE_WIDTH:
+        return [shown]
+    return [head + '{'] + ['      %s' % one for one in fields] + ['    }%s' % tail]
+
+
+def union_lines(name, rows, doc, columns):
+    """@purity pure"""
+    out = ['// see %s' % doc['table']['id'], 'export type %s =' % name]
+    for row in rows:
+        out += alternative_lines(row, doc, columns)
+    return out
+
+
+def shapes_used_by(rows, doc):
+    """The declared shapes the rows use, directly or through another shape, in first use order.
+
+    @purity pure
+    """
+    shapes = manuscript.shapes_by_name(doc)
+    found = []
+
+    def visit(value):
+        for name in [value.get('type')] + list(value.get('oneOf', [])):
+            shape = shapes.get(name)
+            if shape is None or name in found:
+                continue
+            found.append(name)
+            for one in manuscript.fields_of(shape):
+                visit(one)
+
+    for row in rows:
+        for value in row['values']:
+            visit(value)
+    return [shapes[name] for name in found if not shapes[name].get('inline')]
+
+
+def names_of(fields):
+    """@purity pure"""
+    return joined(literal(one['name']) for one in fields) or 'never'
+
+
+def shape_checks(shape):
+    """The SameFieldNames lines that hold one declared shape.
+
+    @purity pure
+    """
+    code = shape['name']
+    if 'variants' not in shape:
+        return ['SameFieldNames<%s, %s>' % (code, names_of(shape['fields']))]
+    tag = shape['discriminant']
+    checks = ["SameFieldNames<Record<%s['%s'], true>, %s>" % (
+        code, tag, joined(literal(v['tag']) for v in shape['variants']))]
+    for variant in shape['variants']:
+        checks.append("SameFieldNames<Extract<%s, { readonly %s: '%s' }>, %s>" % (
+            code, tag, variant['tag'],
+            joined([literal(tag)] + [literal(one['name']) for one in variant['fields']])))
+    return checks
+
+
+def variant_lines(shape, variant, doc, columns):
+    """One alternative of a shape with variants.
+
+    @purity pure
+    """
+    tag = shape['discriminant']
+    fields = ["readonly %s: '%s'" % (tag, variant['tag'])] + [
+        field_text(one, doc, columns) for one in variant['fields']]
+    shown = '  | { %s }' % '; '.join(fields)
+    if len(shown) <= LINE_WIDTH:
+        return [shown]
+    return ['  | {'] + ['      %s' % one for one in fields] + ['    }']
+
+
+def shape_declaration(shape, doc, columns):
+    """The code's declaration of one shape the manuscript defines.
+
+    @purity pure
+    """
+    out = ['// see %s' % doc['table']['id']]
+    if 'variants' not in shape:
+        out.append('export interface %s {' % shape['name'])
+        out += ['  %s' % field_text(one, doc, columns) for one in shape['fields']]
+        return out + ['}']
+    out.append('export type %s =' % shape['name'])
+    for variant in shape['variants']:
+        out += variant_lines(shape, variant, doc, columns)
+    return out
+
+
+def checks_lines(shapes):
+    """@purity pure"""
+    if not shapes:
+        return []
+    checks = [one for shape in shapes for one in shape_checks(shape)]
+    return [
+        '',
+        '// see T-108',
+        '// WHY: another component declares these shapes; their field names are held against table T-108 here.',
+        'type SameFieldNames<TValue, TNames extends PropertyKey> = [keyof TValue] extends [TNames]',
+        '  ? ([TNames] extends [keyof TValue] ? true : false)',
+        '  : false',
+        'const SHAPE_FIELDS_MATCH: [',
+    ] + ['  %s,' % one for one in checks] + [
+        '] = [%s]' % ', '.join('true' for _ in checks),
+        'void SHAPE_FIELDS_MATCH',
+    ]
+
+
+def rows_of(doc, union):
+    """@purity pure"""
+    return [row for row in doc['rows'] if row['union'] == union]
+
+
+def regions(doc, columns):
+    """(unit, what, lines) for every unit, in UNITS order and then the router.
+
+    @purity pure
+    """
+    known = set(name for name, _unit in UNITS) | {UNIMPLEMENTED}
+    for row in doc['rows']:
+        if row['union'] not in known:
+            stop('%s names the union %s, which no unit of %s declares' % (row['id'], row['union'], REL_SELF))
+    placed = set()
+    out = []
+    for name, unit in UNITS:
+        rows = rows_of(doc, name)
+        if not rows:
+            stop('no command of %s names the union %s' % (REL_SOURCE, name))
+        shapes = [one for one in shapes_used_by(rows, doc) if one['name'] not in placed]
+        placed.update(one['name'] for one in shapes)
+        declared = []
+        for shape in shapes:
+            if not shape.get('elsewhere'):
+                declared += shape_declaration(shape, doc, columns) + ['']
+        held = [shape for shape in shapes if shape.get('elsewhere')]
+        out.append((UNIT_DIR + unit, 'table %s, %s' % (doc['table']['id'], name),
+                    declared + union_lines(name, rows, doc, columns) + checks_lines(held)))
+    pending = rows_of(doc, UNIMPLEMENTED)
+    router = []
+    if pending:
+        router += ['// see %s, %s' % (doc['table']['id'], ', '.join(row['id'] for row in pending)),
+                   '// WHY: rows of table T-108 nothing implements yet; editDocument refuses them as no aggregate owns them.']
+        router += union_lines(UNIMPLEMENTED, pending, doc, columns)[1:]
+        router.append('')
+    router += ['// see %s' % doc['table']['id'], 'export type DocumentCommand =']
+    router += ['  | %s' % name for name, _unit in UNITS]
+    if pending:
+        router.append('  | %s' % UNIMPLEMENTED)
+    out.append((UNIT_DIR + ROUTER_UNIT, 'table %s, DocumentCommand' % doc['table']['id'], router))
+    return out
+
+
+def rewritten(rel, text, what, lines):
+    """The unit with its region replaced, or stop when it has none or two.
+
+    @purity pure
+    """
+    pattern = re.compile(re.escape(OPEN) + r'\r?\n' + re.escape(HEADER_PREFIX)
+                         + r'[^\n]*\n.*?' + re.escape(CLOSE), re.S)
+    found = pattern.findall(text)
+    if len(found) != 1:
+        stop('%s holds %d region(s) naming %s; it must hold exactly one' % (rel, len(found), REL_SOURCE))
+    newline = '\r\n' if found[0].count('\r\n') * 2 > found[0].count('\n') else '\n'
+    body = newline.join([OPEN, HEADER % what] + lines + [CLOSE])
+    return pattern.sub(lambda _match: body, text, count=1)
+
+
+# ---------------------------------------------------------------- MCP input shape
+
+def document_schema():
+    """@purity semi-pure-b"""
+    return json.load(io.open(path_of(REL_DOCUMENT_SCHEMA), encoding='utf-8'))
+
+
+def cleaned(node, defs, seen=()):
+    """A column's JSON schema with its references resolved and its notes dropped.
+
+    A definition reached again inside itself is cut to a bare object.
+
+    @purity pure
+    """
+    if isinstance(node, list):
+        return [cleaned(one, defs, seen) for one in node]
+    if not isinstance(node, dict):
+        return node
+    if '$ref' in node:
+        name = node['$ref'].rsplit('/', 1)[-1]
+        if name in seen:
+            return {'type': 'object'}
+        return cleaned(defs[name], defs, seen + (name,))
+    return dict((key, cleaned(one, defs, seen)) for key, one in node.items()
+                if key not in DROPPED_SCHEMA_KEYS and not key.startswith('x-'))
+
+
+def column_schema(row_id, columns, schema):
+    """@purity pure"""
+    defs = schema['$defs']
+    if row_id in columns.at:
+        entity, name, _json = columns.at[row_id]
+        node = defs[entity]['properties'][name]
+    else:
+        node = schema['properties']['documentSettings']['properties'][columns.s[row_id]]
+    return cleaned(node, defs)
+
+
+def without_null(node):
+    """@purity pure"""
+    node = copy.deepcopy(node)
+    kind = node.get('type')
+    if isinstance(kind, list) and 'null' in kind:
+        kind = [one for one in kind if one != 'null']
+        node['type'] = kind[0] if len(kind) == 1 else kind
+    if 'enum' in node and None in node['enum']:
+        node['enum'] = [one for one in node['enum'] if one is not None]
+    return node
+
+
+def with_null(node):
+    """@purity pure"""
+    if 'enum' in node:
+        return dict(node, enum=list(node['enum']) + ([None] if None not in node['enum'] else []))
+    kind = node.get('type')
+    if isinstance(kind, str):
+        return dict(node, type=[kind, 'null'])
+    if isinstance(kind, list):
+        return dict(node, type=kind + ([] if 'null' in kind else ['null']))
+    return {'anyOf': [node, {'type': 'null'}]}
+
+
+def own_schema(value, doc, columns, schema):
+    """@purity pure"""
+    kind = value['type']
+    if kind in JSON_OF_WORD:
+        return {'type': JSON_OF_WORD[kind]}
+    if kind == 'enum':
+        if 'valuesOf' in value:
+            return {'enum': [columns.s[one] for one in value['valuesOf']]}
+        return {'enum': list(value['values'])}
+    if kind == 'map':
+        return {'type': 'object', 'additionalProperties': {'type': JSON_OF_WORD[value['valueType']]}}
+    shape = manuscript.shapes_by_name(doc).get(kind)
+    if shape is not None:
+        return shape_schema(shape, doc, columns, schema)
+    return cleaned(schema['$defs'][kind], schema['$defs'])
+
+
+def value_schema(value, doc, columns, schema):
+    """@purity pure"""
+    if 'type' in value:
+        node = own_schema(value, doc, columns, schema)
+    else:
+        node = column_schema(manuscript.pointers(value)[0], columns, schema)
+    if value.get('null') is False:
+        node = without_null(node)
+    if value.get('list'):
+        node = {'type': 'array', 'items': node}
+    if value.get('null') is True:
+        node = with_null(node)
+    return node
+
+
+def object_schema(values, doc, columns, schema, description, first=None):
+    """@purity pure"""
+    properties = dict(first or {})
+    required = list(properties)
+    printer = manuscript.Printer(doc, columns)
+    for value in values:
+        node = value_schema(value, doc, columns, schema)
+        node['description'] = printer.value_lines(value)[0].split(': ', 1)[1]
+        properties[value['name']] = node
+        if not value.get('optional'):
+            required.append(value['name'])
+    out = {'type': 'object'}
+    if description:
+        out['description'] = description
+    out.update({'properties': properties, 'required': required, 'additionalProperties': False})
+    return out
+
+
+def shape_schema(shape, doc, columns, schema):
+    """@purity pure"""
+    if 'variants' not in shape:
+        return object_schema(shape['fields'], doc, columns, schema, None)
+    tag = shape['discriminant']
+    return {'oneOf': [object_schema(variant['fields'], doc, columns, schema, None,
+                                    {tag: {'const': variant['tag']}})
+                      for variant in shape['variants']]}
+
+
+def command_schemas(doc, columns, schema):
+    """One alternative per command the Agent API takes, in the table's order.
+
+    A command with a choice of shapes gives one alternative per shape.
+
+    @purity pure
+    """
+    out = []
+    for row in doc['rows']:
+        if row.get('agent') is False:
+            continue
+        plain = [value for value in row['values'] if 'oneOf' not in value]
+        choice = [value for value in row['values'] if 'oneOf' in value]
+        shapes = manuscript.shapes_by_name(doc)
+        ways = [plain + shapes[name]['fields'] for name in choice[0]['oneOf']] if choice else [plain]
+        for values in ways:
+            out.append(object_schema(values, doc, columns, schema, '\n'.join(row['carries']['ja']),
+                                     {'kind': {'const': row['name']}}))
+    return out
+
+
+def request_fields(agent_doc):
+    """The fields of AgentWriteRequest as table T-400 of the Agent API manuscript holds them.
+
+    @purity pure
+    """
+    for row in agent_doc['values']['rows']:
+        if row['name'] == WRITE_REQUEST_TYPE:
+            return row['fields']
+    stop('the Agent API manuscript holds no value type %s' % WRITE_REQUEST_TYPE)
+
+
+def with_command_shapes(input_schema, member, agent_doc):
+    """The MCP input of one Agent API member, with an AgentWriteRequest argument
+    printed from table T-108: the stamp, and the commands as one alternative each.
+
+    The member's own description of the argument is kept; each field is
+    described by its meaning in table T-400.
+
+    @purity semi-pure-b
+    """
+    written = [one for one in member['arguments'] if one['type'] == WRITE_REQUEST_TYPE]
+    if not written:
+        return input_schema
+    doc, columns = load()
+    schema = document_schema()
+    properties = {}
+    for field in request_fields(agent_doc):
+        if field['type'] == STAMP_TYPE:
+            node = {'type': 'object'}
+        elif field['type'] == COMMAND_LIST_TYPE:
+            node = {'type': 'array', 'items': {'oneOf': command_schemas(doc, columns, schema)}}
+        else:
+            stop('%s holds the field %s of type %s, which no rule here prints'
+                 % (WRITE_REQUEST_TYPE, field['name'], field['type']))
+        node['description'] = field['meaning']['ja']
+        properties[field['name']] = node
+    out = copy.deepcopy(input_schema)
+    for one in written:
+        out['properties'][one['name']].update({'properties': properties, 'required': list(properties)})
+    return out
+
+
+def main():
+    """Write the regions, or say whether the units on disk still match.
+
+    @purity non-pure
+    """
+    doc, columns = load()
+    drifted = []
+    for rel, what, lines in regions(doc, columns):
+        text = io.open(path_of(rel), encoding='utf-8', newline='').read()
+        built = rewritten(rel, text, what, lines)
+        if built == text:
+            continue
+        if '--check' in sys.argv:
+            drifted.append(rel)
+        else:
+            io.open(path_of(rel), 'w', encoding='utf-8', newline='').write(built)
+            say('wrote the region of %s' % rel)
+    if drifted:
+        for rel in drifted:
+            say('PROBLEM  the region of %s has drifted from %s -- run `python %s`' % (rel, REL_SOURCE, REL_SELF))
+        return 1
+    say('OK       %d unit region(s) match %s (%d commands)' % (len(UNITS) + 1, REL_SOURCE, len(doc['rows'])))
+    return 0
+
+
+if __name__ == '__main__':
+    sys.exit(main())
