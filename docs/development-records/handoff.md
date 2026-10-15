@@ -13,7 +13,7 @@
 >   1. 作業木の GT-2 が緑なら、利用者に根で `git merge --ff-only <先端の sha>` を頼み、`node tools/gate/gate-queue.mjs enqueue GT-2` → 根で `GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain`。`GT-2 <sha> passed` を grep してから `git push origin <sha>:refactor <sha>:main`、`gh workflow run pages.yml --ref main`。
 >   2. 性能の試験（利用者の指示）: GT-2 は性能を測らない。`enqueue PERF` → `GRS_PERF=1 ... drain`（OneDrive を止めてから）。赤のときだけ利用者を呼ぶ（`JDG-605`）。
 >   3. `CR-774`（深さの上限 5 に当たって離したら Yes／No で問う。`JDG-2393` を一部覆す）: 席「Hear improvement point 2」が起草と仕様の段を当てた —— `36c8e3d2` と追いの `12ba27fa`（枝 `claude/keen-swartz-459eef`、`6fbb69fe` の上。残る赤は検査 39 の 2057→2061 だけ、tsc 0。perf-pending `222` は足し済み）。統合の枝へ合流し、実装の体（CR-774 の 5.1 節の表が継ぎ目）→ 仕様だけを読む試験の体（5.2 節の 8 項目。書き直すのは cr-772 の契約試験 3 本と t-051-hf-15）を出す。帯は `JDG-2398`／`2399`・`2410`〜`2414`、`DFC-2907`〜`2909`、変更履歴 `4.85`、perf-pending `222`。`CR-772` の Q2 は利用者が 3px（`S-213`）と答えた（`JDG-2411`）。`CR-772`／`CR-774` に利用者への問いは残っていない。
->   4. 完了確認の残り: 席に目的を果たしたかを問い、果たしていれば「問題なし」で完了を宣言させる（利用者の指示）。19 席は完了を宣言済み。「Apply CR-758」は目的を果たしたと答えた（`DFC-2705`〜`2707` を次へ回す）—— 「問題なし」をまだ返していない。まだ送っていない: 「Apply CR-759 and CR-760」・「Move memory-only rules into machine checks」・「Draft the one-page user checklist」・「Apply CR-740」・「Apply CR-763」・「Draft CR-763/764」。⛔ ほかの席への送信は、利用者の書き込み 1 回につき 10 通まで（アプリの歯止め）。
+>   4. 完了確認の残り（利用者の指示: 目的を果たした席に完了を宣言させる）: 20 席は「問題なし」で閉じた（`DFC-2705`〜`2707` は預かり）。残る 6 席（「Apply CR-759 and CR-760」・「Move memory-only rules into machine checks」・「Draft the one-page user checklist」・「Apply CR-740」・「Apply CR-763」・「Draft CR-763/764」）には確認を送り、問題が無ければ自分で宣言してよいと伝えた —— 宣言していない席は最後の報告を読んで片付ける。⛔ ほかの席への送信は、利用者の書き込み 1 回につき 10 通まで（アプリの歯止め）。
 >   5. α 版（10/19 に人に見せる）に何を入れるかは利用者と決める（`JDG` の行は無い。利用者 2026-10-15「どの実装に入るかは俺と協議の上で決めろ」）。週の使用量は 2026-10-16 04:40 に 51%（水 19:00 に戻る）。候補: `JDG-2361`（命令の値 19 の名を列の名へ。新しい CR、約 3 時間）・`CR-767` の実装（状態機械の JSON と UML。`JDG-2362`〜`2364`）→ `CR-768` の C・`CM-27` の注（`DFC-2855` は誤報と分かった）・`DFC-2911`（コメントボックスの先端の吸い付き。大）・`DFC-2912`・`DFC-2856`・`DFC-2903`・`DFC-557`・`DFC-2870`・`DFC-2890`／`2891`・`DFC-2700`〜`2702`・`DFC-2730`（古い STOP の印 16）・`DFC-2640`。最後に 1 枚の利用者のチェックリスト。
 > - **番号**（2026-10-16、`6fbb69fe` で grep した行の最大 ＋ 1。⛔ 配る前に測り直せ。`CR-774` の席の帯は除く）: `JDG` は `2415` から・`DFC` は `2913` から・`PND` は `895` から・`CR` は `775` から・変更履歴は `4.86` から・perf-pending は `223` から・見本のフォルダは `59` から・検査は `82` から。
 > - **罠（いまの姿。短く）**:
@@ -231,9 +231,7 @@
 1. 前の調整役の作業メモ（リポジトリの外。読むだけ。パスをリポジトリに書くな）: %LOCALAPPDATA%\Temp\claude\ の下の、名前に e336a5f1 を含むフォルダの scratchpad。coord-notes-2026-10-15.md（巡の記録）・brief-*.txt（体への指示の型。tools/session_brief.py が刷る）・carry_rulings.py と resolve766.py（台帳の合流）・handoff-new-section.md。作業木で直に流した GT-2 のログは %TEMP%\claude\gt2-local-6fbb69fe.log。
 2. 席
    - 「Hear improvement point 2」（local_25526e50）—— CR-774 の仕様の段を 36c8e3d2 と 12ba27fa にコミットした（Q2 は JDG-2411 で答え済み）。待機中。実装の体に渡すのはあなた。
-   - 「Apply CR-758」（local_a9da7bfd）—— 目的を果たしたと答えた。「問題なし。DFC-2705〜2707 は調整役が預かる。セッション完了を宣言して止まれ」と返せ。
-   - 完了確認をまだ送っていない席: Apply CR-759 and CR-760・Move memory-only rules into machine checks・Draft the one-page user checklist・Apply CR-740・Apply CR-763・Draft CR-763/764。問い方は coord-notes の「完了確認」の文。⛔ 他のセッションへの送信は、利用者の書き込み 1 回につき 10 通まで。
-   - ほかの 19 席は完了を宣言して止まった。連絡しない。
+   - 完了確認: 20 席に「問題なし」を返した（Apply CR-758 を含む。DFC-2705〜2707 は預かり）。残る 6 席（Apply CR-759 and CR-760・Move memory-only rules into machine checks・Draft the one-page user checklist・Apply CR-740・Apply CR-763・Draft CR-763/764）には確認を送り、「報告に問題が無ければ自分で完了を宣言してよい」と伝えた。宣言していない席があれば、その席の最後の報告を読んで片付けよ。⛔ 他のセッションへの送信は、利用者の書き込み 1 回につき 10 通まで。
 3. 次の番号（⛔ 配る前に grep で測り直せ）: JDG 2415・DFC 2913・PND 895・CR 775・変更履歴 4.86・perf-pending 223・見本のフォルダ 59・検査 82。CR-774 の席の帯（JDG 2398／2399・2410〜2414、DFC 2907〜2909、4.85、perf 222）は除く。
 4. 次にやること（順に）
    1) 作業木の GT-2 の結果を読む。緑なら引継書のコミットまで含めた先端で、根の早送り → GT-2 → push → Pages。赤なら直してから。
