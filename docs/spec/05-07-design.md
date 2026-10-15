@@ -470,7 +470,7 @@ src/
 | UF-94 | `InputCommandTranslator` | `frame-drags.ts` | `pure` | 画面の枠の UI パーツ —— パレットの掴み帯・スクロールバー・パネルの境 —— を引いた量を、位置と幅の書き込みに変える | — |
 | UF-95 | `InputCommandTranslator` | `dual-cursor-input.ts` | `pure` | `Dual Cursor` の入口の押下とチャートの押下を、表 T-029a に従って日の置き場と追う側に変える | — |
 | UF-96 | `InputCommandTranslator` | `task-group-tree-entrances.ts` | `pure` | タスクグループの折りたたみ・展開・隠し・足しの入口を、表 T-015・表 T-051・表 T-328 に従って書き込みに変える | — |
-| UF-97 | `InputCommandTranslator` | `task-group-grab.ts` | `pure` | 掴んだタスクグループを 表 T-051 の `HF-15` に従って運び、落ち先を並びか深さの書き込みに変える | — |
+| UF-97 | `InputCommandTranslator` | `task-group-grab.ts` | `pure` | 掴んだタスクグループを 表 T-051 の `HF-15` に従って運び、落ち先（隙間と段）を親と並びの書き込み（表 T-108 の `CM-73`）に変える | — |
 | UF-98 | `InputCommandTranslator` | `item-grab.ts` | `pure` | チャートの上で掴んだアイテムを離したとき、掴んだ所（表 T-266・表 T-023d）ごとに、置く値（表 T-245・表 T-246・表 T-270）を書き込みに変える | — |
 | UF-99 | `InputCommandTranslator` | `armed-placement.ts` | `pure` | 構え（表 T-023b）を、ドラッグした範囲か、選んでいるタスクに当てて書き込みに変える | — |
 | UF-100 | `InputCommandTranslator` | `field-commit.ts` | `pure` | プロパティパネルで確定した値を、表 T-016 の入力の型に従って 表 T-108 の命令にする | — |

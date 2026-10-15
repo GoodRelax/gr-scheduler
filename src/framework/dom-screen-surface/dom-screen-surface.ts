@@ -96,6 +96,8 @@ export const ROLE = {
   confirmation: 'Confirmation',
   tooltips: 'Tooltip',
   dropCue: 'Drop Cue',
+  taskGroupDropLine: 'Task Group Drop Line',
+  taskGroupGrabCopy: 'Task Group Grab Copy',
 } as const
 
 export const HOST_ENTER = 'Enter'
@@ -1576,6 +1578,13 @@ export const NOT_STORED_TASK_GROUP_BAND_SIZES: {
   readonly 'S-213': number
 } = {
   'S-213': 3,
+}
+
+// see T-206
+export const NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES: {
+  readonly 'S-599': number
+} = {
+  'S-599': 8,
 }
 
 // see T-206

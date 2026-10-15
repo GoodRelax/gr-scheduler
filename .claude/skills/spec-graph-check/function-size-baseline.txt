@@ -1,4 +1,5 @@
 excess-lines=5744 excess-branches=509
+# PRUNED task-group-grab.ts::taskGroupGrabLandingOf (held 56/7) and taskGroupGrabPlacesInDrawingOrder (held 74/16), both deleted on 2026-10-16 (CR-772: the axis walk became taskGroupGrabLandingAt, under the band). Totals left for the coordinator.
 # PRUNED field-commit.ts::planActualWithColumn (held 38/17) and commandFromTaskColumn (held 47/20), both now below the band, on 2026-10-11 (CR-710 wave 2b, PR-5): the actual length moved to actualEndForLength, which reads d / h / m with time of day (TX-3); commandFromTaskColumn's plan dates moved to commandFromPlanDate. Totals left for the coordinator.
 # LOWERED totals 6216/621 -> 5744/509 on 2026-10-09 (JDG-520): measured at ead296a6 after the 2026-10-08 waves (shrunk handlers and folded copies).
 # PRUNED edit-calendar.ts::editCalendar (held 69/22, now below the band) on 2026-10-11 (CR-710 wave 1, CM-39): the refusals moved to refusalsOf and the working time set of WC-8 to withWorkingTimes. Totals left for the coordinator to lower.
@@ -72,8 +73,6 @@ HELD src/adapter/input-command-translator/armed-placement.ts::commandFromArmed l
 HELD src/adapter/input-command-translator/input-command-translator.ts::commandFromEntry lines=154 branches=67
 HELD src/adapter/input-command-translator/input-command-translator.ts::pointerAssignment lines=45 branches=22
 HELD src/adapter/input-command-translator/item-grab.ts::commandFromGrab lines=167 branches=69
-HELD src/adapter/input-command-translator/task-group-grab.ts::taskGroupGrabLandingOf lines=56 branches=7
-HELD src/adapter/input-command-translator/task-group-grab.ts::taskGroupGrabPlacesInDrawingOrder lines=74 branches=16
 HELD src/adapter/input-command-translator/task-group-tree-entrances.ts::commandFromRowEntry lines=57 branches=14
 HELD src/adapter/input-command-translator/screen-state-input.ts::screenEventFromEntry lines=39 branches=17
 HELD src/adapter/input-command-translator/selection-input.ts::selectionFromInput lines=64 branches=36

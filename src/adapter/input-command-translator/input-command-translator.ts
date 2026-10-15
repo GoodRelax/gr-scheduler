@@ -85,6 +85,7 @@ import {
   commandFromRowGrab,
   grabbedTaskGroupId,
   taskGroupGrabFollow,
+  taskGroupGrabWheel,
 } from './task-group-grab'
 import {
   commandFromRowEntry,
@@ -127,7 +128,15 @@ export type PressRow = 'PTD-7' | 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a
 
 export type ScrollbarAxis = NonNullable<ScreenPart['scrollbarAxis']>
 
-export type TaskGroupGrabAxis = 'position' | 'depth'
+export interface TaskGroupGrabLanding {
+  readonly parentId: string | null
+  readonly order: number
+  readonly depth: number
+  readonly gapY: number
+  readonly lineIndentPx: number
+}
+
+export type TaskGroupGrabScroll = Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'>
 
 export interface PointerPress {
   readonly at: PointerInput
@@ -136,8 +145,8 @@ export interface PointerPress {
   readonly on: ScreenPart | null
   readonly pressRow: PressRow
   readonly followedTo?: { readonly x: number; readonly y: number }
-  // TRAP: never default an absent axis to 'position'; a still click would stop choosing the task group.
-  readonly taskGroupGrabAxis?: TaskGroupGrabAxis | null
+  // TRAP: never default an absent carry to true; a still click would stop choosing the task group.
+  readonly isTaskGroupGrabCarried?: boolean
   // see FR-052
   // TRAP: the width DRAWN when the press began, taken then: the context's regions follow the held
   // picture, so reading them at release counts the travel twice.
@@ -221,10 +230,6 @@ export type SpentEntranceSituation =
   | 'noUnfoldedTaskGroupAtAll'
   | 'onlyOneOfPlanAndActualShown'
   | 'noTaskChosenToAlignWith'
-  | 'noSiblingAboveToNestUnder'
-  | 'taskGroupIsAtTheShallowestLevel'
-  | 'groupDepthLimitReached'
-  | 'noPlaceLeftInThatDirection'
   | 'noTaskGroupToPutTheAnnotationOn'
   | 'taskGroupIsAtTheDeepestLevel'
   | 'barShapeReleasedWithoutADrag'
@@ -269,11 +274,11 @@ export type InputAction =
   | {
       readonly kind: 'followTaskGroupGrab'
       readonly taskGroupId: string
-      readonly axis: TaskGroupGrabAxis
-      readonly atDepth: number
-      readonly atY: number | null
-      readonly resistedPx: number
+      readonly landing: TaskGroupGrabLanding | null
+      // see S-597, S-598
+      readonly scrollSpeed: number
     }
+  | { readonly kind: 'scrollTaskGroupGrab'; readonly to: TaskGroupGrabScroll }
   // see FR-085, T-293
   | {
       readonly kind: 'chooseTaskGroup'
@@ -476,7 +481,6 @@ export function dayShifted(day: CalendarDay, days: number): CalendarDay {
   return dayFromSerial(serialOfDay(day) + days)
 }
 
-// TRAP: keep this per axis as taskGroupGrabAxisAt reads it; a diagonal gives one hand two answers.
 /** @purity pure */
 export function hasDraggedPastThreshold(press: PointerPress, at: { readonly x: number; readonly y: number }): boolean {
   const threshold = NOT_STORED_TASK_GROUP_GRAB_SIZES['S-208']
@@ -863,7 +867,7 @@ export function commandFromInput(input: HumanInput, context: InputContext): Tran
     case 'key':
       return commandFromKey(input, context)
     case 'wheel':
-      return commandFromWheel(input, context)
+      return taskGroupGrabWheel(input, context) ?? commandFromWheel(input, context)
     case 'pointer':
       return commandFromPointer(input, context)
   }
@@ -1443,10 +1447,12 @@ export const NOT_STORED_ZOOM_STEP: {
 // see T-206
 export const NOT_STORED_TASK_GROUP_GRAB_SIZES: {
   readonly 'S-208': number
-  readonly 'S-212': number
+  readonly 'S-597': number
+  readonly 'S-598': number
 } = {
   'S-208': 6,
-  'S-212': 0.4,
+  'S-597': 36,
+  'S-598': 840,
 }
 
 // see T-206

@@ -115,10 +115,6 @@ export type ReasonRow =
   | 'RS-32'
   | 'RS-33'
   | 'RS-34'
-  | 'RS-36'
-  | 'RS-37'
-  | 'RS-38'
-  | 'RS-39'
   | 'RS-40'
   | 'RS-41'
   | 'RS-42'
@@ -255,10 +251,6 @@ export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner
   'RS-32': 'NT-1',
   'RS-33': 'NT-1',
   'RS-34': 'NT-1',
-  'RS-36': 'NT-1',
-  'RS-37': 'NT-1',
-  'RS-38': 'NT-1',
-  'RS-39': 'NT-1',
   'RS-40': 'NT-3a',
   'RS-41': 'NT-3a',
   'RS-42': 'NT-3a',
@@ -366,10 +358,6 @@ export const NOTICE_DISPLAY_OF_REASON: Readonly<Record<NoticeReason, 'show' | 'h
   'RS-32': 'hide',
   'RS-33': 'autoDismiss',
   'RS-34': 'hide',
-  'RS-36': 'hide',
-  'RS-37': 'hide',
-  'RS-38': 'hide',
-  'RS-39': 'hide',
   'RS-40': 'hide',
   'RS-41': 'show',
   'RS-42': 'show',
@@ -477,10 +465,6 @@ export const NOTICE_WORDS_ROW_OF_REASON: Readonly<Record<NoticeReason, NoticeRea
   'RS-32': 'RS-32',
   'RS-33': 'RS-33',
   'RS-34': 'RS-34',
-  'RS-36': 'RS-36',
-  'RS-37': 'RS-37',
-  'RS-38': 'RS-38',
-  'RS-39': 'RS-39',
   'RS-40': 'RS-40',
   'RS-41': 'RS-41',
   'RS-42': 'RS-15',

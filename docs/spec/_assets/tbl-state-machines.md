@@ -819,7 +819,7 @@ stateDiagram-v2
 | `gesture/pointerPressed` | 入力（ポインタを押した。入力の源は、身振りを持つあいだ次の押下を報告しない）: `CS-2` ・ `IN-1` | `pressRow`（`PTD-7` ・ `PTD-1` ・ `PTD-2` ・ `PTD-3` ・ `PTD-4` ・ `PTD-4a` ・ `PTD-5`。押下の行。呼び手が構え・`Dual Cursor`・選択から詰める。`PTD-7`（選択をコピーする）は文書を変える押下である） ／ `pressedOn`（押したもの —— 当たった掴みか、画面の場所（入口・掴み帯・パネルの境界・タスクグループの掴み代・つまみ）。座標は運ばない） | `pointerPressStateMachine` ・ `taskGroupGrabStateMachine` |
 | `gesture/pointerReleased` | 入力（押していたボタンを離した）: `IN-1` ・ `CS-2` | — | `pointerPressStateMachine` ・ `taskGroupGrabStateMachine` |
 | `gesture/pressInterrupted` | 入力（`Esc`（`IN-4` の進行中のドラッグの段。段は呼び手が決める）／ 離す前にポインタが失われた（`IN-1a`））: `IN-1` ・ `IN-1a` ・ `IN-4` | — | `pointerPressStateMachine` ・ `taskGroupGrabStateMachine` |
-| `gesture/taskGroupGrabAxisSettled` | 入力（タスクグループを掴んだまま、押した点から初めて閾値を超えて動いた。どちらの向きが先かは呼び手が判じる）: `HF-15` ・ `S-208` | `axis`（`HF-15`。`position`（上下）か `depth`（左右）） | `taskGroupGrabStateMachine` |
+| `gesture/taskGroupGrabTravelPassed` | 入力（タスクグループを掴んだまま、押した点から初めて `S-208` を超えて動いた）: `HF-15` ・ `S-208` | — | `taskGroupGrabStateMachine` |
 | `gesture/entryRepeatTimeElapsed` | 時間（`startEntryRepeat` の待ち（`S-172`）か、`repeatHeldEntry` の待ち（`S-173`）が明けた）: `FR-018` ・ `S-172` ・ `S-173` | — | `pointerPressStateMachine` |
 
 ### 根 `gesture` の値
@@ -869,31 +869,27 @@ stateDiagram-v2
 
 ```mermaid
 stateDiagram-v2
-    direction TB
+    direction LR
     [*] --> taskGroupGrabStateMachine_notGrabbed
     taskGroupGrabStateMachine_notGrabbed : notGrabbed
-    state "notGrabbed 以外" as taskGroupGrabStateMachine_group {
-        taskGroupGrabStateMachine_axisUndecided : axisUndecided
-        taskGroupGrabStateMachine_changingPosition : changingPosition
-        taskGroupGrabStateMachine_changingDepth : changingDepth
-    }
-    taskGroupGrabStateMachine_group --> taskGroupGrabStateMachine_notGrabbed : pointerReleased, pressInterrupted
-    taskGroupGrabStateMachine_notGrabbed --> taskGroupGrabStateMachine_axisUndecided : pointerPressed
-    taskGroupGrabStateMachine_axisUndecided --> taskGroupGrabStateMachine_changingPosition : taskGroupGrabAxisSettled
-    taskGroupGrabStateMachine_axisUndecided --> taskGroupGrabStateMachine_changingDepth : taskGroupGrabAxisSettled
+    taskGroupGrabStateMachine_grabPressed : grabPressed
+    taskGroupGrabStateMachine_carrying : carrying
+    taskGroupGrabStateMachine_notGrabbed --> taskGroupGrabStateMachine_grabPressed : pointerPressed
+    taskGroupGrabStateMachine_grabPressed --> taskGroupGrabStateMachine_notGrabbed : pointerReleased, pressInterrupted
+    taskGroupGrabStateMachine_carrying --> taskGroupGrabStateMachine_notGrabbed : pointerReleased, pressInterrupted
+    taskGroupGrabStateMachine_grabPressed --> taskGroupGrabStateMachine_carrying : taskGroupGrabTravelPassed
 ```
 
-| 出来事 | `notGrabbed` | `axisUndecided` | `changingPosition` | `changingDepth` |
-| --- | --- | --- | --- | --- |
-| `gesture/pointerPressed` | → `axisUndecided` [`isTaskGroupGrabStrip`]<br>それ以外 → — | — | — | — |
-| `gesture/pointerReleased` | — | → `notGrabbed` | → `notGrabbed` | → `notGrabbed` |
-| `gesture/pressInterrupted` | — | → `notGrabbed` | → `notGrabbed` | → `notGrabbed` |
-| `gesture/taskGroupGrabAxisSettled` | — | → `changingPosition` [`isPositionAxis`]<br>→ `changingDepth` [not `isPositionAxis`] | — | — |
+| 出来事 | `notGrabbed` | `grabPressed` | `carrying` |
+| --- | --- | --- | --- |
+| `gesture/pointerPressed` | → `grabPressed` [`isTaskGroupGrabStrip`]<br>それ以外 → — | — | — |
+| `gesture/pointerReleased` | — | → `notGrabbed` | → `notGrabbed` |
+| `gesture/pressInterrupted` | — | → `notGrabbed` | → `notGrabbed` |
+| `gesture/taskGroupGrabTravelPassed` | — | → `carrying` | — |
 
 - `taskGroupGrabStateMachine.notGrabbed` —— 初期。根拠 `HF-15`
-- `taskGroupGrabStateMachine.axisUndecided` —— 根拠 `HF-15` ・ `GR-20` ・ `S-208`
-- `taskGroupGrabStateMachine.changingPosition` —— 根拠 `HF-15`
-- `taskGroupGrabStateMachine.changingDepth` —— 根拠 `HF-15`
+- `taskGroupGrabStateMachine.grabPressed` —— 根拠 `HF-15` ・ `GR-20` ・ `S-208`
+- `taskGroupGrabStateMachine.carrying` —— 根拠 `HF-15`
 
 表に無い出来事は `taskGroupGrabStateMachine` を変えない（同じ参照）。
 

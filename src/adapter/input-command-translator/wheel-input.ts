@@ -44,7 +44,7 @@ function taskGroupKeptOf(context: InputContext): TaskGroupAnchor {
 // STOP: spec does not decide where a turn past an end lands. Looked in MK-1, S-78, S-176, OP-10.
 // @provisional PND-177
 /** @purity pure */
-function taskGroupTurnedTo(context: InputContext, dy: number): TaskGroupAnchor {
+export function taskGroupTurnedTo(context: InputContext, dy: number): TaskGroupAnchor {
   const held = taskGroupHeldOf(context)
   const taskGroups = scrollingTaskGroupsOf(context.layout)
   const areaTop = scrollAreaTopOf(context)

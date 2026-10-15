@@ -104,7 +104,6 @@ import {
   type FileFlowSurfaceName,
   type FileFlowWriteForm,
   type FileOperationState,
-  type GrabbedVerticalAxis,
   type NoticeReason,
   type PressedOn,
   type PropertiesSubject,
@@ -446,6 +445,9 @@ export interface FrameLoopHands {
 
 const BYTES_PER_MEGABYTE = 1024 * 1024
 
+// see S-598
+const MS_PER_SECOND = 1000
+
 export const HISTORY_LIMITS: HistoryLimits = {
   maxSteps: NOT_STORED_LIMITS['S-94'],
   // TRAP: S-95 is in megabytes; read as bytes, every write collapses the history to one step.
@@ -723,6 +725,7 @@ const WHOLE_SCHEDULE_SHIFT_LANDED: SessionEvent = { type: 'wholeScheduleShiftLan
 const POINTER_RELEASED: SessionEvent = { type: 'pointerReleased' }
 const PRESS_INTERRUPTED: SessionEvent = { type: 'pressInterrupted' }
 export const ENTRY_REPEAT_TIME_ELAPSED: SessionEvent = { type: 'entryRepeatTimeElapsed' }
+const TASK_GROUP_GRAB_TRAVEL_PASSED: SessionEvent = { type: 'taskGroupGrabTravelPassed' }
 const DOCUMENT_EDIT_LANDED: SessionEvent = { type: 'documentEditLanded', isBackToSavedDocument: false }
 const DOCUMENT_BACK_TO_SAVED: SessionEvent = { type: 'documentEditLanded', isBackToSavedDocument: true }
 export const CHOICE_MOVED: SessionEvent = { type: 'choiceMoved' }
@@ -935,10 +938,6 @@ const NOTICE_REASON_OF_SPENT_ENTRANCE: Readonly<
   noUnfoldedTaskGroupAtAll: 'RS-32',
   onlyOneOfPlanAndActualShown: 'RS-33',
   noTaskChosenToAlignWith: 'RS-34',
-  noSiblingAboveToNestUnder: 'RS-36',
-  taskGroupIsAtTheShallowestLevel: 'RS-37',
-  groupDepthLimitReached: 'RS-38',
-  noPlaceLeftInThatDirection: 'RS-39',
   noTaskGroupToPutTheAnnotationOn: 'RS-44',
   taskGroupIsAtTheDeepestLevel: 'RS-46',
   barShapeReleasedWithoutADrag: 'RS-53',
@@ -1049,13 +1048,7 @@ interface ScreenViewReadingsTaken {
   readonly hintHolderUnderPointer: HintHolder | null
   readonly iconRowUnderPointer?: string | null
   readonly commandPaletteAt: ScreenViewReadings['commandPaletteAt']
-  readonly taskGroupGrabbedAt: {
-    readonly taskGroupId: string
-    readonly depth: number
-    readonly axis: 'position' | 'depth'
-    readonly resistedPx: number
-    readonly atY: number | null
-  } | null
+  readonly taskGroupGrabbedAt: Pick<Extract<InputAction, { readonly kind: 'followTaskGroupGrab' }>, 'taskGroupId' | 'landing'> | null
   readonly isRecordingInteractions: boolean
   readonly selectedTaskGroupIds: readonly string[]
   readonly selectedResourceUids: readonly number[]
@@ -1440,9 +1433,6 @@ function spanExportViewOf(
   const belowTaskGroupArea = reach.scheduleCanvas.y + reach.scheduleCanvas.height - (reach.taskGroupArea.y + reach.taskGroupArea.height)
   return { regions: regionsClosedUnderTaskGroupArea(regionsAt(lastTaskGroupBottom + belowTaskGroupArea)), settings, layout, dualCursor: null }
 }
-
-// see HF-15, SF-5
-type GrabbedTaskGroupPlace = Omit<NonNullable<ScreenViewReadingsTaken['taskGroupGrabbedAt']>, 'axis'>
 
 interface ScreenEffectHands {
   readonly raiseNotice: (reason: NoticeReason) => void
@@ -1955,6 +1945,85 @@ function tableWindowsHeldIn(read: () => WindowPlaces, write: (next: WindowPlaces
   }
 }
 
+type HeldGrabScroll = Extract<InputAction, { readonly kind: 'scrollTaskGroupGrab' }>['to']
+
+const PLAIN_MODIFIERS = { ctrl: false, shift: false, alt: false, meta: false } as const
+
+// see HF-15, MK-1, WS-2
+// WHY: the scroll a carry turns is a frame value until release; WS-2 refuses a write mid-gesture.
+/** @purity non-pure */
+function heldGrabScrollOf() {
+  let scroll: HeldGrabScroll | null = null
+  let scrolledFrom: Document | null = null
+  let scrolledTo: Document | null = null
+  return {
+    read: (): HeldGrabScroll | null => scroll,
+    hold: (to: HeldGrabScroll | null): void => {
+      scroll = to
+      scrolledTo = null
+    },
+    scrolled: (document: Document): Document => {
+      if (scroll === null) return document
+      if (scrolledFrom !== document || scrolledTo === null) {
+        scrolledFrom = document
+        scrolledTo = { ...document, documentSettings: { ...document.documentSettings, ...scroll } }
+      }
+      return scrolledTo
+    },
+  }
+}
+
+// see HF-15, S-597, S-598
+/** @purity non-pure */
+function taskGroupGrabCarryOf(hands: FrameLoopHands) {
+  const held = heldGrabScrollOf()
+  let tickedAtMs: number | null = null
+
+  /** @purity non-pure */
+  function scrollTo(to: HeldGrabScroll): void {
+    held.hold(to)
+    hands.ask()
+  }
+
+  // WHY: turned as a plain wheel would turn it, one painted frame at a time; a host painting no frame would recurse.
+  /** @purity non-pure */
+  function edgeScroll(context: InputContext, pointer: { readonly x: number; readonly y: number }, speed: number): void {
+    const now = readMonotonicMs()
+    const since = tickedAtMs
+    tickedAtMs = speed === 0 ? null : now
+    if (speed === 0 || typeof globalThis.requestAnimationFrame !== 'function') return
+    const dy = since === null ? 0 : (speed * (now - since)) / MS_PER_SECOND
+    const turn: HumanInput = { kind: 'wheel', ...pointer, modifiers: PLAIN_MODIFIERS, notches: 0, scrollPx: { x: 0, y: dy } }
+    const turned = commandFromInput(turn, context).action
+    if (turned?.kind === 'scrollTaskGroupGrab') held.hold(turned.to)
+    hands.ask()
+  }
+
+  /** @purity non-pure */
+  function readingAt(frame: FrameValues | null, pointer: { readonly x: number; readonly y: number } | null): ScreenViewReadingsTaken['taskGroupGrabbedAt'] {
+    const press = hands.readPressed()
+    const isCarrying = hands.readSession().gesture.taskGroupGrabState.kind === 'carrying'
+    if (!isCarrying || frame === null || press === null || pointer === null) return (tickedAtMs = null)
+    const context = hands.collectInputContext(frame)
+    const follow = commandFromInput({ ...press.at, phase: 'move', x: pointer.x, y: pointer.y }, context).action
+    if (follow?.kind !== 'followTaskGroupGrab') return null
+    edgeScroll(context, pointer, follow.scrollSpeed)
+    return { taskGroupId: follow.taskGroupId, landing: follow.landing }
+  }
+
+  /** @purity non-pure */
+  function end(isInterrupted: boolean, frame: FrameValues): void {
+    const owed = held.read()
+    held.hold(null)
+    tickedAtMs = null
+    if (isInterrupted || owed === null) return
+    const { scrollDate, scrollDayOffset } = hands.readHeld().document.documentSettings
+    writeScrollPlace(hands, { scrollDate, scrollDayOffset, ...owed }, frame)
+  }
+
+  return { scrolled: held.scrolled, scrollTo, readingAt, end }
+}
+
 // see T-335, WB-6, WB-8, WB-9, SV-14, SV-18, S-419, S-451, S-455, S-456
 /** @purity non-pure */
 function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letScheduleFilterGo'>) {
@@ -2102,9 +2171,20 @@ function unstoredZoomOf(view: { readonly settings: DocumentSettings; readonly is
 function writeOwedSight(hands: FrameLoopHands, taskGroupId: string | null, settings: DocumentSettings, frame: FrameValues): boolean {
   if (taskGroupId === null || drawnTaskGroupBoxesOf(frame.layout, frame.regions).some((one) => one.taskGroupId === taskGroupId)) return false
   const { scrollDate, scrollDayOffset } = settings
-  const kept = frame.unstoredZoom === null ? [] : [{ kind: 'setZoom', ...frame.unstoredZoom } as const]
-  hands.writeDocument([...kept, { kind: 'setScrollPosition', scrollDate, scrollTaskGroupId: taskGroupId, scrollDayOffset, scrollGroupOffset: 0 }], frame)
+  writeScrollPlace(hands, { scrollDate, scrollTaskGroupId: taskGroupId, scrollDayOffset, scrollGroupOffset: 0 }, frame)
   return true
+}
+
+// see HF-15, HF-17, OP-10
+// WHY: a zoom the picture holds unstored goes with the place, or the write snaps the picture back.
+/** @purity non-pure */
+function writeScrollPlace(
+  hands: FrameLoopHands,
+  place: Pick<DocumentSettings, 'scrollDate' | 'scrollDayOffset' | 'scrollTaskGroupId' | 'scrollGroupOffset'>,
+  frame: FrameValues,
+): void {
+  const kept = frame.unstoredZoom === null ? [] : [{ kind: 'setZoom', ...frame.unstoredZoom } as const]
+  hands.writeDocument([...kept, { kind: 'setScrollPosition', ...place }], frame)
 }
 
 interface OwedJump {
@@ -2362,14 +2442,6 @@ function taskGroupsChosenWith(chosen: readonly string[], taskGroupId: string, is
   return chosen.includes(taskGroupId) ? chosen.filter((one) => one !== taskGroupId) : [...chosen, taskGroupId]
 }
 
-// see HF-15, T-289
-/** @purity pure */
-function taskGroupGrabAxisIn(session: ScreenSession): GrabbedVerticalAxis | null {
-  const grab = session.gesture.taskGroupGrabState.kind
-  if (grab === 'changingPosition') return 'position'
-  return grab === 'changingDepth' ? 'depth' : null
-}
-
 /** @purity pure */
 function itemKeyOf(item: Hit['item']): string {
   switch (item.kind) {
@@ -2398,18 +2470,6 @@ function pressedOnOf(on: ScreenPart | null, hit: Hit | null): PressedOn | null {
   if (on.entry !== null) return { kind: 'entry', entry: on.entry }
   if (on.dividerPanel !== null) return { kind: 'panelBorder', panel: on.dividerPanel }
   return { kind: 'otherPart', part: on.part }
-}
-
-// see HF-15, T-289
-// WHY: the axis is the machine's; the place and the resistance are frame values beside it.
-/** @purity pure */
-function grabbedTaskGroupReadingOf(
-  session: ScreenSession,
-  at: GrabbedTaskGroupPlace | null,
-): ScreenViewReadingsTaken['taskGroupGrabbedAt'] {
-  const axis = taskGroupGrabAxisIn(session)
-  if (at === null || axis === null) return null
-  return { ...at, axis }
 }
 
 /** @purity pure */
@@ -2720,7 +2780,6 @@ export function frameLoop(
   let delayDiagnosticsShown = false
   let delayDiagnosticsHeld: HeldDelayDiagnostics | null = null
   const parentTasks = parentTaskHoldOf()
-  let taskGroupGrabbedAt: GrabbedTaskGroupPlace | null = null
   // STOP: spec does not decide where chosen resources are held. Looked in FR-099, AS-6, SL-1
   // @provisional PND-143
   let agentApiEnablingWatch: ((isEnabled: boolean) => void) | null = null
@@ -2825,6 +2884,7 @@ export function frameLoop(
     readPointerRestedMs, readHintTargetDwellMs,
   } = frameClockWakesOf(hands)
   const { followTimedNotices } = noticeTimersOf(hands)
+  const grabCarry = taskGroupGrabCarryOf(hands)
   const interactionRecorder = interactionRecorderOf(hands)
   const { beginInteractionRecord, handInteractionRecordToClipboard } = interactionRecorder
   const fieldFocusRetries = fieldFocusRetriesOf(hands)
@@ -2894,7 +2954,7 @@ export function frameLoop(
   /** @purity non-pure */
   function runFrame(): void {
     owed = false
-    const document = previewDocument ?? held.document
+    const document = grabCarry.scrolled(previewDocument ?? held.document)
     const pointerRestedMs = readPointerRestedMs()
     const hintTargetDwellMs = readHintTargetDwellMs()
     const stored = document.documentSettings
@@ -2983,7 +3043,7 @@ export function frameLoop(
           hintHolderUnderPointer: hintWalk?.holder ?? null,
           iconRowUnderPointer: iconRowOf(partUnderPointer),
           commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions, environment),
-          taskGroupGrabbedAt: grabbedTaskGroupReadingOf(session, taskGroupGrabbedAt),
+          taskGroupGrabbedAt: grabCarry.readingAt(values, pointerAt),
           isRecordingInteractions: isRecordingInteractionsIn(session),
           selectedTaskGroupIds: session.selection.chosenTaskGroups,
           selectedResourceUids: session.selection.chosenResources,
@@ -3151,7 +3211,7 @@ export function frameLoop(
     pressed = null
     sendToSession(isInterrupted ? PRESS_INTERRUPTED : POINTER_RELEASED, frame)
     commandPaletteCornerAtPress = null
-    taskGroupGrabbedAt = null
+    grabCarry.end(isInterrupted, frame)
     windows.endPress(isInterrupted)
     // WHY: the corner the band settles on, at the moment it is let go, is the same one FR-053
     // holds afterwards; a palette not being dragged is already inside the window, so this is a no-op then.
@@ -3382,7 +3442,7 @@ export function frameLoop(
       on,
       pressRow,
       followedTo: { x: at.x, y: at.y },
-      taskGroupGrabAxis: null,
+      isTaskGroupGrabCarried: false,
       ...measuredAtPress(frame),
     }
   }
@@ -3432,7 +3492,7 @@ export function frameLoop(
   ): InputContext {
     const drawnTaskGroupBoxes = drawnTaskGroupBoxesOf(frame.layout, frame.regions)
     const withoutCeiling: InputContext = {
-      document: held.document,
+      document: grabCarry.scrolled(held.document),
       layout: frame.layout,
       geometry: frame.geometry,
       regions: frame.regions,
@@ -3767,18 +3827,14 @@ export function frameLoop(
         }
         return
       }
-      case 'followTaskGroupGrab': {
-        // WHY: the axis goes back onto the press because UF-30 is pure and cannot remember it.
-        if (pressed !== null) pressed = { ...pressed, taskGroupGrabAxis: action.axis }
-        sendToSession({ type: 'taskGroupGrabAxisSettled', axis: action.axis }, frame)
-        taskGroupGrabbedAt = {
-          taskGroupId: action.taskGroupId,
-          depth: action.atDepth,
-          resistedPx: action.resistedPx,
-          atY: action.atY,
-        }
+      case 'followTaskGroupGrab':
+        // WHY: the carry goes back onto the press because UF-30 is pure and cannot remember it.
+        if (pressed !== null) pressed = { ...pressed, isTaskGroupGrabCarried: true }
+        sendToSession(TASK_GROUP_GRAB_TRAVEL_PASSED, frame)
         return
-      }
+      case 'scrollTaskGroupGrab':
+        grabCarry.scrollTo(action.to)
+        return
       case 'chooseTaskGroup': {
         // TRAP: read the held set, not the drawn task group; FR-048 may skip a paint, so a picture can be older.
         const chosenTaskGroups = taskGroupsChosenWith(session.selection.chosenTaskGroups, action.taskGroupId, action.isExtending)

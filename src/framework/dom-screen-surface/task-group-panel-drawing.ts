@@ -14,6 +14,7 @@ import {
   NOT_STORED_ICON_SIZES,
   NOT_STORED_TASK_GROUP_BAND_SIZES,
   NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES,
+  NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES,
   NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES,
   PAINT,
   ROLE,
@@ -188,17 +189,58 @@ function taskGroupBandPx(): number {
   return NOT_STORED_TASK_GROUP_BAND_SIZES['S-213']
 }
 
-// see HF-15
+// see HF-15, S-215
 /** @purity pure */
-function taskGroupGrabbedStyle(axis: 'position' | 'depth'): string {
-  const paint = axis === 'position' ? PAINT.grabAxisPosition : PAINT.grabAxisDepth
-  const band = `${taskGroupBandPx()}px solid ${paint}`
-  return (
-    `background:${stateGround(PAINT.heldTaskGroup, 'S-215')};` +
-    (axis === 'position'
-      ? `border-left:${band};border-right:${band};`
-      : `border-top:${band};border-bottom:${band};`)
-  )
+function heldTaskGroupGroundStyle(): string {
+  return `background:${stateGround(PAINT.heldTaskGroup, 'S-215')};`
+}
+
+const DROP_PARENT_MARK = 'data-drop-parent'
+
+const GRAB_STRIP_MARK_TEXT = '\u22ee\u22ee'
+
+// see HF-15, S-151, S-213
+/** @purity non-pure */
+function markDropParent(row: HTMLElement, taskGroupId: string, cue: TaskGroupPanel['dropCue']): void {
+  if (cue == null || cue.parentTaskGroupId !== taskGroupId) return
+  const band = taskGroupBandPx()
+  row.setAttribute(DROP_PARENT_MARK, 'true')
+  row.setAttribute('style', `${row.getAttribute('style') ?? ''}outline:${band}px solid ${PAINT.heldTaskGroup};outline-offset:-${band}px;`)
+}
+
+// see HF-15, S-151, S-213
+/** @purity non-pure */
+function dropLineElement(host: Document, cue: NonNullable<TaskGroupPanel['dropCue']>, panelBox: TaskGroupTitle['box']): HTMLElement {
+  const band = taskGroupBandPx()
+  const x = panelBox.x + cue.lineIndentPx
+  const width = Math.max(0, panelBox.x + panelBox.width - x)
+  const style = boxStyle({ x, y: cue.lineY - band / 2, width, height: band }) + `background:${PAINT.heldTaskGroup};pointer-events:none;`
+  const line = part(host, 'div', ROLE.taskGroupDropLine, style)
+  line.setAttribute('aria-hidden', 'true')
+  return line
+}
+
+// see HF-15, S-599
+/** @purity non-pure */
+function grabCopyElement(host: Document, copy: NonNullable<TaskGroupPanel['grabCopy']>): HTMLElement {
+  const offset = NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES['S-599']
+  const style =
+    `position:absolute;left:${copy.x + offset}px;top:${copy.y + offset}px;pointer-events:none;white-space:nowrap;` +
+    `background:${stateGround(PAINT.heldTaskGroup, 'S-215')};color:${PAINT.ink};`
+  const shown = part(host, 'div', ROLE.taskGroupGrabCopy, style)
+  shown.setAttribute('aria-hidden', 'true')
+  shown.textContent = `${GRAB_STRIP_MARK_TEXT} ${copy.name}`
+  return shown
+}
+
+// see HF-15
+/** @purity non-pure */
+function grabCueElements(host: Document, panel: TaskGroupPanel): readonly HTMLElement[] {
+  const shown: HTMLElement[] = []
+  const panelBox = panel.titles[0]?.box
+  if (panel.dropCue != null && panelBox !== undefined) shown.push(dropLineElement(host, panel.dropCue, panelBox))
+  if (panel.grabCopy != null) shown.push(grabCopyElement(host, panel.grabCopy))
+  return shown
 }
 
 // see HF-18
@@ -285,9 +327,8 @@ function taskGroupTitleElement(host: Document, title: TaskGroupTitle, isPinned: 
       `padding:0 0 0 ${title.indentPx}px;` +
       // TRAP: title.isPinned, not the isPinned argument, which only says which list is built.
       (title.isPinned ? `background:${stateGround(PAINT.pinnedTaskGroup, 'S-214')};` : '') +
-      (title.heldOnAxis == null ? '' : taskGroupGrabbedStyle(title.heldOnAxis)),
+      (title.isHeld === true ? heldTaskGroupGroundStyle() : ''),
   )
-  if (title.heldOnAxis != null) row.setAttribute('data-held-axis', title.heldOnAxis)
   if (isPinned) row.setAttribute('data-role', ROLE.pinnedTaskGroup)
   row.setAttribute('data-group-id', title.taskGroupId)
   row.setAttribute('data-depth', String(title.depth))
@@ -297,9 +338,9 @@ function taskGroupTitleElement(host: Document, title: TaskGroupTitle, isPinned: 
   if (title.isSelected) row.setAttribute('aria-selected', 'true')
 
   if (!title.isPinned) {
-    const grab = made(host, 'div', taskGroupGrabStripStyle(title.heldOnAxis != null))
+    const grab = made(host, 'div', taskGroupGrabStripStyle(title.isHeld === true))
     grab.setAttribute(TASK_GROUP_GRAB_STRIP_MARK, 'true')
-    grab.textContent = '⋮⋮'
+    grab.textContent = GRAB_STRIP_MARK_TEXT
     grab.setAttribute('aria-hidden', 'true')
     row.append(grab)
   }
@@ -559,11 +600,13 @@ export function fillTaskGroupTitleTree(
   const drawn: HTMLElement[] = []
   for (const title of panel.pinnedTitles) {
     const row = taskGroupTitleElement(host, title, true, { anchors, taskGroupId: title.taskGroupId })
+    markDropParent(row, title.taskGroupId, panel.dropCue)
     anchors.set(anchorKey({ kind: 'taskGroupTitle', taskGroupId: title.taskGroupId }), row)
     drawn.push(row)
   }
   for (const title of panel.titles) {
     const row = taskGroupTitleElement(host, title, false, { anchors, taskGroupId: title.taskGroupId })
+    markDropParent(row, title.taskGroupId, panel.dropCue)
     anchors.set(anchorKey({ kind: 'taskGroupTitle', taskGroupId: title.taskGroupId }), row)
     drawn.push(row)
   }
@@ -576,6 +619,7 @@ export function fillTaskGroupTitleTree(
     drawn.push(rule)
   }
   for (const abbreviation of panel.rulerAbbreviations ?? []) drawn.push(rulerAbbreviationElement(host, abbreviation))
+  drawn.push(...grabCueElements(host, panel))
   tree.replaceChildren(...drawn)
 }
 
