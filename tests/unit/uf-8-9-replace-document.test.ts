@@ -468,7 +468,7 @@ interface Delivery {
 }
 
 interface RunPart {
-  readonly readStamp: DocumentStamp | null
+  readonly expectedStamp: DocumentStamp | null
   readonly moment: WriteMoment
 }
 
@@ -516,7 +516,7 @@ function bench(start: HeldDocument, onDeliver?: (self: Bench) => void): Bench {
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
           newTaskGroupId: 'fresh-task-group',
-          expectedStamp: 'readStamp' in part ? (part.readStamp ?? null) : held.document.documentStamp,
+          expectedStamp: 'expectedStamp' in part ? (part.expectedStamp ?? null) : held.document.documentStamp,
           moment: part.moment ?? CALM,
           call,
         },
@@ -768,7 +768,7 @@ describe('表 T-230 -- the whole set of callers, before any of them is driven', 
 describe('WS-1 -- 照合するのは申告された刻印と現在の文書である', () => {
   it('GIVEN a caller that declares the CURRENT 刻印 WHEN it replaces THEN the replacement is accepted', () => {
     const one = bench(heldWithOneStep())
-    const outcome = one.run(driveOf('RD-6').call, { readStamp: CURRENT.documentStamp })
+    const outcome = one.run(driveOf('RD-6').call, { expectedStamp: CURRENT.documentStamp })
     expect(outcome.ok, JSON.stringify(outcome)).toBe(true)
   })
 
@@ -784,7 +784,7 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
       const one = bench(heldWithOneStep())
       const before = one.held()
       const outcome = one.run(driveOf('RD-6').call, {
-        readStamp: { ...CURRENT.documentStamp, [field]: 'not what the document says' },
+        expectedStamp: { ...CURRENT.documentStamp, [field]: 'not what the document says' },
       })
       expect(outcome.ok).toBe(false)
       if (!outcome.ok) {
@@ -800,7 +800,7 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
   it('GIVEN a caller that declares NO 刻印 WHEN it replaces THEN it is accepted -- 申告が無いことだけを理由に拒否してはならない', () => {
     // 「`AG-2` の申告は能力であって義務ではない。」
     const one = bench(heldWithOneStep())
-    const outcome = one.run(driveOf('RD-6').call, { readStamp: null })
+    const outcome = one.run(driveOf('RD-6').call, { expectedStamp: null })
     expect(outcome.ok, JSON.stringify(outcome)).toBe(true)
     expect(one.swapped).toHaveLength(1)
     expect(accepted(outcome).document).toEqual(OUT_OF_A_FILE)
@@ -814,7 +814,7 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
     const one = bench(heldWithOneStep())
     const outcome = one.run(
       { row: 'RD-6', document: OUT_OF_A_FILE },
-      { readStamp: CURRENT.documentStamp },
+      { expectedStamp: CURRENT.documentStamp },
     )
     expect(outcome.ok, JSON.stringify(outcome)).toBe(true)
     expect(accepted(outcome).document).toEqual(OUT_OF_A_FILE)
@@ -826,7 +826,7 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
     const one = bench(heldWithOneStep())
     const outcome = one.run(
       { row: 'RD-6', document: OUT_OF_A_FILE },
-      { readStamp: OUT_OF_A_FILE.documentStamp },
+      { expectedStamp: OUT_OF_A_FILE.documentStamp },
     )
     expect(outcome.ok).toBe(false)
     if (!outcome.ok) expect(outcome.refusal.step).toBe('WS-1')
@@ -1320,13 +1320,13 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
   it('GIVEN a caller that declares no 刻印 WHEN it replaces THEN the answer still follows the two DOCUMENTS, not the declaration', () => {
     // 「出て行く文書と入ってくる文書の」 —— the two documents, and 「申告が無い
     // ことだけを理由に拒否してはならない（MUST NOT）」 leaves a write with no
-    // declaration at all, which a derivation reading `readStamp` could not
+    // declaration at all, which a derivation reading `expectedStamp` could not
     // answer for.
     for (const instants of INSTANT_FLAVORS) {
       const drive = driveOf('RD-6', instants)
       const moved = drive.outgoingScheduleUpdatedAt !== drive.incomingScheduleUpdatedAt
       const one = bench(drive.start)
-      const outcome = accepted(one.run(drive.call, { readStamp: null }))
+      const outcome = accepted(one.run(drive.call, { expectedStamp: null }))
       expect(outcome.hasMovedSchedule, instants).toBe(moved)
       expect(one.delivered[0]?.hasMovedSchedule, instants).toBe(moved)
     }

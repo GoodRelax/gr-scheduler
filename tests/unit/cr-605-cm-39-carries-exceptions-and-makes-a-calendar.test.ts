@@ -236,7 +236,7 @@ const benchOf = (document: Document): Bench => {
       applyDocumentChange(
         {
           defaultTaskGroupName: 'task group',
-          readStamp: held.document.documentStamp,
+          expectedStamp: held.document.documentStamp,
           commands: [command],
           moment: CALM,
           historyLimits: HISTORY_LIMITS,

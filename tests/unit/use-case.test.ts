@@ -258,7 +258,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     // WHY: AG-2 requires a mismatch to refuse the write and return the current document.
     const document = documentOf()
     const plan = planOf(document, [{ kind: 'clearStatusDate' }], {
-      readStamp: { ...document.documentStamp, scheduleUpdatedAt: '2026-08-17T00:00:02Z' },
+      expectedStamp: { ...document.documentStamp, scheduleUpdatedAt: '2026-08-17T00:00:02Z' },
     })
     expect(plan.ok).toBe(false)
     if (!plan.ok) expect(plan.refusal).toEqual({ step: 'WS-1', reason: 'staleStamp' })
@@ -275,7 +275,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
       { settingsUpdatedAt: '2030-01-01T00:00:00Z' },
     ] as const) {
       const plan = planOf(document, [{ kind: 'clearStatusDate' }], {
-        readStamp: { ...document.documentStamp, ...differing },
+        expectedStamp: { ...document.documentStamp, ...differing },
       })
       expect(plan.ok, JSON.stringify(differing)).toBe(false)
     }
