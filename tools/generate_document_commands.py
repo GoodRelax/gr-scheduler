@@ -23,8 +23,14 @@ WRITES  one region per unit, the one that opens
           src/use-case/edit-document/edit-project.ts         ProjectCommand
           src/use-case/edit-document/whole-schedule-shift.ts WholeScheduleShiftCommand
           src/use-case/edit-document/edit-document-settings.ts DocumentSettingsCommand
-          src/use-case/edit-document/edit-document.ts        UnimplementedDocumentCommand
-                                                             and DocumentCommand
+          src/use-case/edit-document/edit-document.ts        UnimplementedDocumentCommand,
+                                                             DocumentCommand and
+                                                             COMMAND_KINDS_BY_UNION
+          src/entity/layout-engine/schedule-layout/name-label.ts
+                                                             LengthLetter, the values of
+                                                             TypedLag.lagUnit: the letters
+                                                             a length is spelled in (TX-10)
+          src/adapter/screen-renderer/properties-panel.ts    LENGTH_LETTERS, the same values
 
         and, through tools/generate_mcp_tool_descriptions.py, which calls
         with_command_shapes() below, the input shape of the AM-7 MCP tool.
@@ -33,6 +39,13 @@ WRITES  one region per unit, the one that opens
 is the entity's own field (`Task['fadeInDays']`, `DocumentSettings['zoomX']`),
 narrowed by `null` / `list` as the manuscript says; only a value that is no
 column carries a type of its own. So tsc, not a copy, keeps the two equal.
+
+⭐ A SET THE CODE WALKS IS PRINTED, NEVER RETYPED (check 69). The router reads
+COMMAND_KINDS_BY_UNION; a shape whose every field is optional (a command
+writes only the fields it carries) gets `<SHAPE>_FIELD_NAMES`; and the letters
+of TypedLag.lagUnit are printed into each unit that uses them -- the length
+speller of ScheduleLayout and the Properties Panel of ScreenRenderer -- since
+neither may import EditDocument (no declared edge).
 
 ⭐ A SHAPE IS DECLARED HERE TOO. The shapes a command carries (PasteLanding,
 TableView ...) are declared in the region of the first unit that uses one. A
@@ -84,6 +97,15 @@ UNITS = [
 ]
 UNIMPLEMENTED = manuscript.UNIMPLEMENTED
 ROUTER_UNIT = 'edit-document.ts'
+# The router's const of the command names of each union.
+KINDS_NAME = 'COMMAND_KINDS_BY_UNION'
+# The enum whose values are the letters of a length (TX-10), and the units that
+# use them: the speller as a type, the Properties Panel as an array it walks.
+LENGTH_LETTER_FIELD = ('TypedLag', 'lagUnit')
+LENGTH_LETTER_UNITS = [
+    ('src/entity/layout-engine/schedule-layout/name-label.ts', 'type'),
+    ('src/adapter/screen-renderer/properties-panel.ts', 'const'),
+]
 SETTINGS_TYPE = 'DocumentSettings'
 TS_OF_WORD = {'string': 'string', 'integer': 'number', 'number': 'number', 'boolean': 'boolean'}
 JSON_OF_WORD = {'string': 'string', 'integer': 'integer', 'number': 'number', 'boolean': 'boolean'}
@@ -330,6 +352,110 @@ def rows_of(doc, union):
     return [row for row in doc['rows'] if row['union'] == union]
 
 
+def upper_snake(name):
+    """`TaskGroupCommand` -> `TASK_GROUP_COMMAND`.
+
+    @purity pure
+    """
+    return re.sub(r'(?<=[a-z0-9])(?=[A-Z])', '_', name).upper()
+
+
+def const_lines(name, items, suffix=' as const'):
+    """A const array of string literals, on one line when it fits.
+
+    @purity pure
+    """
+    shown = 'const %s = [%s]%s' % (name, ', '.join(literal(one) for one in items), suffix)
+    if len(shown) <= LINE_WIDTH:
+        return [shown]
+    return ['const %s = [' % name] + ['  %s,' % literal(one) for one in items] + [']%s' % suffix]
+
+
+def is_patch_shape(shape):
+    """A shape every field of which is optional: a command writes only the fields it carries.
+
+    @purity pure
+    """
+    return 'variants' not in shape and bool(shape['fields']) and all(
+        one.get('optional') for one in shape['fields'])
+
+
+def field_names_name(shape):
+    """`ProjectProfileFields` -> `PROJECT_PROFILE_FIELD_NAMES`.
+
+    @purity pure
+    """
+    stem = upper_snake(shape['name'])
+    if stem.endswith('_FIELDS'):
+        stem = stem[:-len('_FIELDS')]
+    return stem + '_FIELD_NAMES'
+
+
+def field_names_lines(shape, doc):
+    """The field names of a patch shape, which the unit walks to write only what a command carries.
+
+    @purity pure
+    """
+    return [''] + const_lines(
+                field_names_name(shape), [one['name'] for one in shape['fields']],
+                " as const satisfies readonly (keyof %s)[]" % shape['name'])
+
+
+def kinds_lines(doc):
+    """The command names of each union, which the router reads to send a command to its aggregate.
+
+    @purity pure
+    """
+    out = ['',
+           '// see %s' % doc['table']['id'],
+           '// WHY: the router reads the commands of each union here rather than a hand copy (check 69).',
+           'const %s = {' % KINDS_NAME]
+    for name, _unit in UNITS:
+        kinds = [row['name'] for row in rows_of(doc, name)]
+        shown = '  %s: [%s],' % (name, ', '.join(literal(one) for one in kinds))
+        if len(shown) <= LINE_WIDTH:
+            out.append(shown)
+        else:
+            out += ['  %s: [' % name] + ['    %s,' % literal(one) for one in kinds] + ['  ],']
+    return out + ['} as const']
+
+
+def length_letters(doc):
+    """The values of the enum that holds the letters of a length.
+
+    @purity pure
+    """
+    shape_name, field_name = LENGTH_LETTER_FIELD
+    shape = manuscript.shapes_by_name(doc).get(shape_name)
+    fields = [one for one in (shape or {}).get('fields', []) if one['name'] == field_name]
+    if not fields or fields[0].get('type') != 'enum' or 'values' not in fields[0]:
+        stop('%s holds no enum %s.%s' % (REL_SOURCE, shape_name, field_name))
+    return fields[0]['values']
+
+
+def length_letter_regions(doc):
+    """(unit, what, lines) of each unit that spells or reads the letters of a length.
+
+    The speller is typed over them; the Properties Panel walks them at run time.
+    Each unit gets its own copy, so no name crosses a component folder for them.
+
+    @purity pure
+    """
+    letters = length_letters(doc)
+    what = 'table %s, %s.%s' % (doc['table']['id'], LENGTH_LETTER_FIELD[0], LENGTH_LETTER_FIELD[1])
+    see = '// see %s, TX-10' % doc['table']['id']
+    out = []
+    for unit, form in LENGTH_LETTER_UNITS:
+        if form == 'type':
+            body = 'type LengthLetter = %s' % joined(literal(one) for one in letters)
+        else:
+            body = 'const LENGTH_LETTERS = [%s] as const' % ', '.join(literal(one) for one in letters)
+        if len(body) > LINE_WIDTH:
+            stop('the letters of %s no longer fit one line' % what)
+        out.append((unit, what, [see, body]))
+    return out
+
+
 def regions(doc, columns):
     """(unit, what, lines) for every unit, in UNITS order and then the router.
 
@@ -350,7 +476,10 @@ def regions(doc, columns):
         declared = []
         for shape in shapes:
             if not shape.get('elsewhere'):
-                declared += shape_declaration(shape, doc, columns) + ['']
+                declared += shape_declaration(shape, doc, columns)
+                if is_patch_shape(shape):
+                    declared += field_names_lines(shape, doc)
+                declared += ['']
         held = [shape for shape in shapes if shape.get('elsewhere')]
         out.append((UNIT_DIR + unit, 'table %s, %s' % (doc['table']['id'], name),
                     declared + union_lines(name, rows, doc, columns) + checks_lines(held)))
@@ -365,8 +494,9 @@ def regions(doc, columns):
     router += ['  | %s' % name for name, _unit in UNITS]
     if pending:
         router.append('  | %s' % UNIMPLEMENTED)
+    router += kinds_lines(doc)
     out.append((UNIT_DIR + ROUTER_UNIT, 'table %s, DocumentCommand' % doc['table']['id'], router))
-    return out
+    return out + length_letter_regions(doc)
 
 
 def rewritten(rel, text, what, lines):
@@ -576,7 +706,8 @@ def main():
     """
     doc, columns = load()
     drifted = []
-    for rel, what, lines in regions(doc, columns):
+    printed = regions(doc, columns)
+    for rel, what, lines in printed:
         text = io.open(path_of(rel), encoding='utf-8', newline='').read()
         built = rewritten(rel, text, what, lines)
         if built == text:
@@ -590,7 +721,7 @@ def main():
         for rel in drifted:
             say('PROBLEM  the region of %s has drifted from %s -- run `python %s`' % (rel, REL_SOURCE, REL_SELF))
         return 1
-    say('OK       %d unit region(s) match %s (%d commands)' % (len(UNITS) + 1, REL_SOURCE, len(doc['rows'])))
+    say('OK       %d unit region(s) match %s (%d commands)' % (len(printed), REL_SOURCE, len(doc['rows'])))
     return 0
 
 

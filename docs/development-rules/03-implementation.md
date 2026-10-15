@@ -136,6 +136,9 @@ ELSEWHERE_DECLARED_FIELDS_MATCH      ほかのコンポーネントが宣言す�
 MEMBER_PARAMETERS                    引数を持つメンバごとの引数の名の順（表 T-107 の引数の欄。同じ生成器が `relayed-call.ts` に刷る。`CR-765`）
 WATCH_CHANGES                        取次が待つメンバの確定名（表 T-107 の `AM-17`。同じ生成器が `mcp-relay-server.ts` に刷る。`CR-765`）
 WAIT_MS_KEY                          そのメンバの MCP だけの鍵（`AM-17` の `waitMs`、`AG-12` の ⑤。同じ生成器。`CR-765`）
+COMMAND_KINDS_BY_UNION               命令の型ごとの命令の名（表 T-108 の行を型ごとに。`_source/document-commands.json` から `tools/generate_document_commands.py` が `edit-document.ts` に刷り、振り分けが読む。`CR-766`）
+PROJECT_PROFILE_FIELD_NAMES          基本情報を直す命令が運べる欄の名（表 T-108 の `ProjectProfileFields`。同じ生成器が `edit-project.ts` に刷る。`CR-766`）
+LENGTH_LETTERS                       長さを綴る字（`TX-10`。表 T-108 の `TypedLag.lagUnit` の値。同じ生成器が `properties-panel.ts` に刷る —— `name-label.ts` には同じ値を型 `LengthLetter` として刷る。`CR-766`）
 ROOT_KEYS                            文書の根の鍵の並び（`grs-document.schema.json` の根の `properties`。`DR-1`・`DR-4`、`CR-768`）
 SCHEDULE_COLORS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
 SCHEDULE_COLORS_SOURCES             その行のうち、ほかの行を継ぐ行と継ぎ先（表 T-366 で寄せた行を継ぐ行が、寄せた値で描かれるため。`CR-683`）

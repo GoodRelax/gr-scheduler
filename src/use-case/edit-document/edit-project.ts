@@ -41,6 +41,17 @@ export interface ProjectProfileFields {
   readonly startDate?: Project['startDate']
 }
 
+const PROJECT_PROFILE_FIELD_NAMES = [
+  'name',
+  'subject',
+  'category',
+  'company',
+  'manager',
+  'author',
+  'revision',
+  'startDate',
+] as const satisfies readonly (keyof ProjectProfileFields)[]
+
 // see T-108
 export type ProjectCommand =
   | { readonly kind: 'setProjectTitle'; readonly title: Project['title'] }
@@ -55,17 +66,6 @@ export type ProjectCommand =
   | { readonly kind: 'setScheduleDataTimeZone'; readonly timeZone: Project['scheduleDataTimeZone'] }
   | { readonly kind: 'shiftScheduleTimes'; readonly minutes: number }
 // </generated>
-
-const PROFILE_KEYS = [
-  'name',
-  'subject',
-  'category',
-  'company',
-  'manager',
-  'author',
-  'revision',
-  'startDate',
-] as const
 
 /** @purity pure */
 function withProject(document: Document, project: Document['schedule']['project']): Document {
@@ -184,7 +184,7 @@ function shiftedRow<TRow extends Task | BaselineTask>(
   return { row: held, outside }
 }
 
-// see CM-98, FR-157, T-377, BS-1, BS-2, BS-4
+// see CM-98, FR-157, T-377, BS-1, BS-2, BS-4, FR-054, WT-1, WT-4
 // WHY: one write for every column BS-1 names; the calendar and the whole-day ranges (BS-2) stay, as FR-157 says.
 /** @purity pure */
 function withScheduleTimesShifted(document: Document, minutes: number): EditResult {
@@ -193,7 +193,6 @@ function withScheduleTimesShifted(document: Document, minutes: number): EditResu
   }
   if (minutes === 0) return edited(document)
   const schedule = document.schedule
-  // see FR-054, WT-1, WT-4
   const onSide = instantOnSideReader(workingCalendarOf(schedule))
   const tasks = schedule.tasks.map((task) => shiftedRow(task, SHIFTED_TASK_COLUMNS, minutes, onSide))
   const baselines = schedule.baselineTasks.map((one) => shiftedRow(one, SHIFTED_BASELINE_COLUMNS, minutes, onSide))
@@ -231,7 +230,7 @@ function withProjectProfile(document: Document, fields: ProjectProfileFields): E
   }
   if (refusals.length > 0) return refused(refusals)
   let held = project
-  for (const key of PROFILE_KEYS) {
+  for (const key of PROJECT_PROFILE_FIELD_NAMES) {
     const value = fields[key]
     if (value !== undefined && value !== held[key]) held = { ...held, [key]: value }
   }

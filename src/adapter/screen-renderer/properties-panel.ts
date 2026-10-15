@@ -865,9 +865,6 @@ const LAG_FORMAT_UNITS: ReadonlyMap<number, { readonly symbol: string; readonly 
   [20, { symbol: 'e%', length: null }],
 ])
 
-// see TX-10, FR-009
-const TYPED_LENGTH_LETTERS: readonly string[] = ['d', 'h', 'm']
-
 // see FR-009
 // WHY: mspdi_pj12.xsd:2203 numbers the estimated forms ("?") 32 above their plain ones.
 const ESTIMATED_LAG_FORMAT_OFFSET = 32
@@ -920,10 +917,16 @@ function typedLagTextOf(project: Project, dependency: Dependency, inTime: Instan
   return lengthTextOf(lag / TENTHS_OF_A_MINUTE, minutesPerWorkingDayOf(project))
 }
 
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, TypedLag.lagUnit).
+// see T-108, TX-10
+const LENGTH_LETTERS = ['d', 'h', 'm'] as const
+// </generated>
+
 // see FR-009, AT-48, TX-10
 // WHY: the formats whose symbol is a letter TX-10 spells a length with (7 d, 5 h, 3 m), read off the one table of codes.
 const TYPED_LAG_FORMATS: readonly number[] = [...LAG_FORMAT_UNITS]
-  .filter(([, unit]) => TYPED_LENGTH_LETTERS.includes(unit.symbol))
+  .filter(([, unit]) => (LENGTH_LETTERS as readonly string[]).includes(unit.symbol))
   .map(([format]) => format)
 
 // see T-018, FR-009, PR-41, PR-42, PR-43, PR-44
