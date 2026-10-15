@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 385 | 4817 | 9 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 385 | 4817 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 91 | 589 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3867 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 678 | 9383 | 12 | 8 | 13 | 2 |
+| **all** | | | 678 | 9383 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -49,18 +49,17 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
-## 5. Expected-to-fail cases (12)
+## 5. Expected-to-fail cases (11)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 4 of 12.
+named either way: 4 of 11.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the bundle of the first document is refused on a document that cannot take its second c... | DFC-730 |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the refusal leaves nothing applied: no document and no step come out of it | none |
-| `tests/contract/cr-754-fr-006-date-fields-take-s-589-and-s-590.test.ts` | the time shown: the actual length (PR-5) is as wide as the date and time fields beside... | DFC-2870 |
 | `tests/contract/cr-757-fo-17-the-settings-row-asks-then-moves.test.ts` | UN-13 / FR-159: ${FR_159_ONE_UNDO} -- S-77 scrollDate is back too | DFC-2761 |
 | `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | a dateless milestone (read as 17:00, the end of the last span) is not counted outside a... | none |
 | `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | a milestone written at 17:00 (its WT-5 default time) is not counted outside after the move | none |
@@ -427,7 +426,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-751-the-schema-names-the-regions-and-no-spec-id.contract.test.ts` | 12 | FR-024, FR-054, FR-156 | - | T-376 | IV-24, S-574, S-575, S-582 | - | - | - | - |
 | `tests/contract/cr-752-call-shapes-and-two-fix-rows.contract.test.ts` | 20 | FR-011, FR-012, FR-054 | - | T-064, T-108, T-310, T-346 | CM-11, CM-37, FA-3, FA-15, FA-24, PI-1, RW-16, VC-15 | - | - | - | - |
 | `tests/contract/cr-753-a-ctrl-drag-copy-lands-where-the-body-move-lands.test.ts` | 34 | FR-016, FR-017, FR-103 | - | T-209, T-266, T-270, T-350, T-378 | CY-5, CY-7, CY-9, GA-9, GA-14, GA-15, GA-18, PE-1, PE-6, PTD-7, RV-1, S-1, S-8, S-55, S-85, S-229, S-482, S-483, S-577, S-578, SG-1, SG-2, SG-3, WT-1, WT-2 | - | - | - | - |
-| `tests/contract/cr-754-fr-006-date-fields-take-s-589-and-s-590.test.ts` | 16 | FR-006, FR-088, FR-093 | - | T-016, T-201, T-206 | K-141, PI-37, PR-5, S-30, S-199, S-589, S-590, TX-3, WC-4 | - | - | 1: DFC-2870 | - |
+| `tests/contract/cr-754-fr-006-date-fields-take-s-589-and-s-590.test.ts` | 16 | FR-006, FR-088, FR-093 | - | T-016, T-201, T-206 | K-141, PI-37, PR-5, S-30, S-199, S-589, S-590, TX-3, WC-4 | - | - | - | - |
 | `tests/contract/cr-754-fr-006-fr-038-item-names-wrap-at-the-dictionary-break-marks.test.ts` | 10 | FR-006, FR-038 | - | - | K-138 | - | - | - | - |
 | `tests/contract/cr-754-fr-072-the-close-only-row-heads-every-panel.test.ts` | 10 | FR-072 | - | - | FO-16, IC-52 | - | - | - | - |
 | `tests/contract/cr-754-s-171-s-197-the-panel-font-and-the-kept-choices.test.ts` | 5 | FR-006 | - | - | S-171, S-197, S-198 | - | - | - | - |
