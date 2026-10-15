@@ -14,7 +14,6 @@ import type {
   WindowName,
 } from '../../entity/document-model/screen-state/screen-state'
 import {
-  dayFromSerial,
   dayOf,
   planActualState,
   taskByUid,
@@ -464,6 +463,12 @@ const MS_PER_DAY = 86400000
 /** @purity pure */
 export function serialOfDay(day: CalendarDay): number {
   return Math.floor(Date.UTC(day.year, day.month - 1, day.day) / MS_PER_DAY)
+}
+
+/** @purity pure */
+export function dayFromSerial(serial: number): CalendarDay {
+  const at = new Date(serial * MS_PER_DAY)
+  return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
 }
 
 /** @purity pure */
