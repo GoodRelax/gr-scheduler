@@ -30,7 +30,7 @@ const NAME_START = /[A-Za-z_:]/
 const NAME_REST = /[A-Za-z0-9._:\-]/
 
 /** @purity pure */
-export function fault(at: string, what: string): MspdiFault {
+export function mspdiFault(at: string, what: string): MspdiFault {
   return { at, what }
 }
 
@@ -85,7 +85,7 @@ export function readXml(text: string): XmlReading {
     const open = text.indexOf('<', foundAt)
     if (open < 0) {
       if (text.slice(foundAt).trim() !== '') {
-        return { ok: false, fault: fault(where(), 'character data outside the root element') }
+        return { ok: false, fault: mspdiFault(where(), 'character data outside the root element') }
       }
       break
     }
@@ -94,12 +94,12 @@ export function readXml(text: string): XmlReading {
       const frame = stack[stack.length - 1]
       if (frame === undefined) {
         if (raw.trim() !== '') {
-          return { ok: false, fault: fault('', 'character data outside the root element') }
+          return { ok: false, fault: mspdiFault('', 'character data outside the root element') }
         }
       } else {
         const decoded = decodedText(raw)
         if (decoded === null) {
-          return { ok: false, fault: fault(where(), 'an entity reference this reader does not define') }
+          return { ok: false, fault: mspdiFault(where(), 'an entity reference this reader does not define') }
         }
         frame.texts.push(decoded)
       }
@@ -108,16 +108,16 @@ export function readXml(text: string): XmlReading {
 
     if (text.startsWith('<!--', foundAt)) {
       const end = text.indexOf('-->', foundAt + 4)
-      if (end < 0) return { ok: false, fault: fault(where(), 'an unterminated comment') }
+      if (end < 0) return { ok: false, fault: mspdiFault(where(), 'an unterminated comment') }
       foundAt = end + 3
       continue
     }
     if (text.startsWith('<![CDATA[', foundAt)) {
       const end = text.indexOf(']]>', foundAt + 9)
-      if (end < 0) return { ok: false, fault: fault(where(), 'an unterminated CDATA section') }
+      if (end < 0) return { ok: false, fault: mspdiFault(where(), 'an unterminated CDATA section') }
       const frame = stack[stack.length - 1]
       if (frame === undefined) {
-        return { ok: false, fault: fault('', 'a CDATA section outside the root element') }
+        return { ok: false, fault: mspdiFault('', 'a CDATA section outside the root element') }
       }
       frame.texts.push(text.slice(foundAt + 9, end))
       foundAt = end + 3
@@ -126,12 +126,12 @@ export function readXml(text: string): XmlReading {
     if (text.startsWith('<!DOCTYPE', foundAt)) {
       return {
         ok: false,
-        fault: fault('', 'a DOCTYPE declaration (FR-023 disables external entities, MUST)'),
+        fault: mspdiFault('', 'a DOCTYPE declaration (FR-023 disables external entities, MUST)'),
       }
     }
     if (text.startsWith('<?', foundAt)) {
       const end = text.indexOf('?>', foundAt + 2)
-      if (end < 0) return { ok: false, fault: fault(where(), 'an unterminated processing instruction') }
+      if (end < 0) return { ok: false, fault: mspdiFault(where(), 'an unterminated processing instruction') }
       foundAt = end + 2
       continue
     }
@@ -145,7 +145,7 @@ export function readXml(text: string): XmlReading {
     } else {
       const started = readStartTag(text, foundAt, where())
       if (!started.ok) return { ok: false, fault: started.fault }
-      if (root !== null && stack.length === 0) return { ok: false, fault: fault('', 'a second root element') }
+      if (root !== null && stack.length === 0) return { ok: false, fault: mspdiFault('', 'a second root element') }
       if (stack.length === 0) rootNamespace = started.namespace
       if (started.isEmpty) built = { name: started.name, text: '', children: [] }
       else stack.push({ name: started.name, texts: [], children: [] })
@@ -157,8 +157,8 @@ export function readXml(text: string): XmlReading {
     else parent.children.push(built)
   }
 
-  if (stack.length > 0) return { ok: false, fault: fault(where(), 'an element that was never closed') }
-  if (root === null) return { ok: false, fault: fault('', 'no element at all') }
+  if (stack.length > 0) return { ok: false, fault: mspdiFault(where(), 'an element that was never closed') }
+  if (root === null) return { ok: false, fault: mspdiFault('', 'no element at all') }
   return { ok: true, root, rootNamespace }
 }
 
@@ -175,15 +175,15 @@ type EndTagReading =
 /** @purity pure */
 function readEndTag(text: string, from: number, stack: readonly OpenElement[]): EndTagReading {
   const end = text.indexOf('>', from + 2)
-  if (end < 0) return { ok: false, fault: fault(pathOf(stack, stack.length), 'an unterminated end tag') }
+  if (end < 0) return { ok: false, fault: mspdiFault(pathOf(stack, stack.length), 'an unterminated end tag') }
   const name = text.slice(from + 2, end).trim()
   const frame = stack[stack.length - 1]
   if (frame === undefined) {
-    return { ok: false, fault: fault('', `an end tag </${name}> with no start tag`) }
+    return { ok: false, fault: mspdiFault('', `an end tag </${name}> with no start tag`) }
   }
   if (localName(name) !== frame.name) {
     const above = pathOf(stack, stack.length - 1)
-    return { ok: false, fault: fault(above, `an end tag </${name}> closing <${frame.name}>`) }
+    return { ok: false, fault: mspdiFault(above, `an end tag </${name}> closing <${frame.name}>`) }
   }
   return { ok: true, built: { name: frame.name, text: frame.texts.join(''), children: frame.children }, after: end + 1 }
 }
@@ -208,7 +208,7 @@ function readStartTag(text: string, from: number, path: string): StartTagReading
   let foundAt = from + 1
   const first = text[foundAt]
   if (first === undefined || !NAME_START.test(first)) {
-    return { ok: false, fault: fault(path, 'a `<` that does not start an element name') }
+    return { ok: false, fault: mspdiFault(path, 'a `<` that does not start an element name') }
   }
   let end = foundAt + 1
   while (end < text.length) {
@@ -241,26 +241,26 @@ function readAttribute(text: string, from: number, path: string, element: string
   while (foundAt < text.length && NAME_REST.test(text[foundAt] ?? '')) foundAt += 1
   const attributeName = text.slice(from, foundAt)
   if (attributeName === '') {
-    return { ok: false, fault: fault(path, `an unterminated start tag <${element}>`) }
+    return { ok: false, fault: mspdiFault(path, `an unterminated start tag <${element}>`) }
   }
   foundAt = afterSpace(text, foundAt)
   if (text[foundAt] !== '=') {
-    return { ok: false, fault: fault(path, `an attribute ${attributeName} with no value`) }
+    return { ok: false, fault: mspdiFault(path, `an attribute ${attributeName} with no value`) }
   }
   foundAt += 1
   foundAt = afterSpace(text, foundAt)
   const quote = text[foundAt]
   if (quote !== '"' && quote !== "'") {
-    return { ok: false, fault: fault(path, `an unquoted attribute ${attributeName}`) }
+    return { ok: false, fault: mspdiFault(path, `an unquoted attribute ${attributeName}`) }
   }
   const close = text.indexOf(quote, foundAt + 1)
   if (close < 0) {
-    return { ok: false, fault: fault(path, `an unterminated attribute ${attributeName}`) }
+    return { ok: false, fault: mspdiFault(path, `an unterminated attribute ${attributeName}`) }
   }
   if (attributeName !== 'xmlns' && !attributeName.startsWith('xmlns:')) {
     return {
       ok: false,
-      fault: fault(path, `the attribute ${attributeName}, which the official schema does not declare`),
+      fault: mspdiFault(path, `the attribute ${attributeName}, which the official schema does not declare`),
     }
   }
   const raw = text.slice(foundAt + 1, close)

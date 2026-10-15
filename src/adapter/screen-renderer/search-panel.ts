@@ -62,7 +62,7 @@ import {
   visibilityLabelOf,
   windowTitleEntriesOf,
   wordOf,
-  wouldScheduleFilterChange,
+  isScheduleFilterChanging,
   type EntryRefusal,
   type MarkGlyph,
   type SearchColumnView,
@@ -151,7 +151,7 @@ export type SearchPanelShown = WindowShown
 export interface SearchRowView {
   readonly cells: readonly string[]
   readonly glyph: MarkGlyph | null
-  readonly shown?: boolean
+  readonly isShown?: boolean
   readonly target:
     | {
         readonly kind: 'task'
@@ -239,7 +239,7 @@ function rowsOf(found: SearchRows, panel: SearchPanelSession, view: TableView, l
     return found.taskRows.map((row) => ({
       cells: taskCells(row, language, times),
       glyph: STATE_GLYPHS[searchTaskStateOf(row)],
-      shown: !hidden.has(row.taskUid),
+      isShown: !hidden.has(row.taskUid),
       target: { kind: 'task', taskUid: row.taskUid },
     }))
   }
@@ -316,7 +316,7 @@ function shownIn(session: ScreenSession): SearchPanelShown | null {
 // WHY: the search table rows every task, so only a Hide row of a task still in the document changes the schedule.
 /** @purity pure */
 function wouldSearchFilterChange(view: TableView, schedule: Schedule): boolean {
-  return wouldScheduleFilterChange(view.visibility, () => new Set(schedule.tasks.map((task) => task.uid)), true)
+  return isScheduleFilterChanging(view.visibility, () => new Set(schedule.tasks.map((task) => task.uid)), true)
 }
 
 // see FR-151, T-330, S-442, SQ-5, S-560, TX-4

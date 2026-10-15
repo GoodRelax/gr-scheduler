@@ -66,12 +66,12 @@ twin: src/adapter/screen-renderer/task-group-panel.ts#openArmingOf
 why: private in ScreenRenderer; InputCommandTranslator->ScreenRenderer declared; predicates here, a precomputed index there, depth read from different sources (suspect divergence).
 
 copy | hasADrawnChild :: must stay the set task group panel ts builds as
-twin: src/adapter/screen-renderer/task-group-panel.ts#groupIdsWithDrawnChildren
+twin: src/adapter/screen-renderer/task-group-panel.ts#taskGroupIdsWithDrawnChildren
 why: private in ScreenRenderer; InputCommandTranslator->ScreenRenderer is declared, so a T-064 row and an import fold it.
 
-copy | namesAPlace :: viewsettings in view place ts writes the same base half
+copy | isPlaceNamed :: viewsettings in view place ts writes the same base half
 twin: stale -- names viewSettings; the twin is src/framework/single-html-shell/view-place.ts#storedNamesAPlace
-why: SingleHtmlShell->InputCommandTranslator declared and namesAPlace is not published by the translator's entry; publish it and let view-place import it.
+why: SingleHtmlShell->InputCommandTranslator declared and isPlaceNamed is not published by the translator's entry; publish it and let view-place import it.
 
 copy | taskGroupPointIn :: taskgroupanchorin and scrolloffsetof measure the same slab change all three
 twin: src/entity/layout-engine/schedule-layout/task-group-scroll.ts#scrollOffsetOf (and taskGroupAnchorIn in input-command-translator.ts)
@@ -164,8 +164,8 @@ twin: src/framework/single-html-shell/frame-loop.ts#receiveInput
 why: one file: receiveInput spends presses commandFromInput cannot see; fold inside the component.
 
 copy | storedNamesAPlace :: input command translator ts names the same half of op
-twin: stale -- names input-command-translator.ts; the twin moved to src/adapter/input-command-translator/zoom-and-fit.ts#namesAPlace
-why: SingleHtmlShell->InputCommandTranslator is declared and namesAPlace is not published by the translator's entry (no T-064 row).
+twin: stale -- names input-command-translator.ts; the twin moved to src/adapter/input-command-translator/zoom-and-fit.ts#isPlaceNamed
+why: SingleHtmlShell->InputCommandTranslator is declared and isPlaceNamed is not published by the translator's entry (no T-064 row).
 
 copy | FieldEntryCreated :: the translator s created again usecase may not read an
 twin: src/adapter/input-command-translator/input-command-translator.ts#CreatedSubject (the created union)

@@ -154,14 +154,14 @@ export function written(held: Held, commands: readonly DocumentCommand[]): Held 
   const plan = planDocumentChange({
     defaultTaskGroupName: 'Row',
     document: held.document,
-    readStamp: held.document.documentStamp,
+    expectedStamp: held.document.documentStamp,
     commands,
     moment: CALM,
     history: held.history,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: LIMITS,
     editedBy: 'tester',
-    updatedUtc: '2026-10-11T00:00:00Z',
+    updatedAt: '2026-10-11T00:00:00Z',
   })
   if (!plan.ok) throw new Error(`refused: ${JSON.stringify(plan.refusal)}`)
   return { document: plan.document, history: plan.history }

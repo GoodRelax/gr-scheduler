@@ -7,7 +7,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { bare, specTable, unbroken } from '../contract/spec-table'
-import { answerConfirmation, enableAgentApi, icon, readDocument, settle } from '../usecase/uc-harness'
+import { answerConfirmation, enableAgentApi, icon, readDocument, settle } from '../use-case/uc-harness'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))

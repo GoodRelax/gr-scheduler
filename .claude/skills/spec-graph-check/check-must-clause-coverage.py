@@ -62,7 +62,7 @@ the marker's own closing parenthesis are taken as its trailing window. Five
 suffix lengths of that window -- 120, 90, 60, 40, 28 characters -- are tried
 longest first against a single corpus built by concatenating every file under
 the three test trees COUNTED_TREES names below -- tests/contract, tests/system
-and tests/usecase, and no other (see "WHICH TESTS ARE READ" below) -- each
+and tests/use-case, and no other (see "WHICH TESTS ARE READ" below) -- each
 file's text joined with a NUL separator so a match can never straddle two
 files. The clause
 counts as HELD the moment the longest of those five lengths that is actually
@@ -126,7 +126,7 @@ were written while the number was read as a debt, and several of them tell a
 later round to pay something back. ⛔ Do not obey them.
 
 ⛔ WHICH TESTS ARE READ (CR-573 section 5, JDG-637, 2026-09-26). Only
-tests/contract, tests/system and tests/usecase. tests/unit is not read: a unit
+tests/contract, tests/system and tests/use-case. tests/unit is not read: a unit
 test is written only where no omission row (table UO of rule 04, section 3.5)
 applies, so what it quotes says nothing about whether the product was pressed
 against a clause. tests/integration and tests/nfr are not read either -- the
@@ -153,7 +153,7 @@ SPEC = os.path.join(ROOT, 'docs', 'spec')
 TESTS = os.path.join(ROOT, 'tests')
 # ⛔ The trees a clause may be held by (CR-573 section 5, JDG-637). The module
 # docstring says why tests/unit, tests/integration and tests/nfr are not here.
-COUNTED_TREES = ('contract', 'system', 'usecase')
+COUNTED_TREES = ('contract', 'system', 'use-case')
 BASELINE = os.path.join(HERE, 'must-clause-coverage-baseline.txt')
 REL_BASELINE = '.claude/skills/spec-graph-check/must-clause-coverage-baseline.txt'
 
@@ -380,14 +380,14 @@ def main():
 
     if held_baseline is None:
         print('NOTE     docs/spec/: %d MUST/MUST-NOT clause(s), %d held '
-              'verbatim by tests/{contract,system,usecase}, %d not; no baseline held '
+              'verbatim by tests/{contract,system,use-case}, %d not; no baseline held '
               'yet -- see %s' % (total, held, unheld, REL_BASELINE))
         return 0
 
     if unheld > held_baseline:
         sample = unheld_sample[:12]
         print('FAIL     docs/spec/: clauses with no verbatim tie under '
-              'tests/{contract,system,usecase} went %d -> %d. ⛔ A NEW MUST/MUST NOT clause may not be '
+              'tests/{contract,system,use-case} went %d -> %d. ⛔ A NEW MUST/MUST NOT clause may not be '
               'written bare. ⛔ Do not close an OLD one to make room -- raise '
               '%s deliberately and say why in the commit.' % (held_baseline, unheld, REL_BASELINE))
         for line in sample:
@@ -403,7 +403,7 @@ def main():
         return 0
 
     print('OK       docs/spec/: %d MUST/MUST-NOT clause(s), %d held verbatim '
-          'by tests/{contract,system,usecase}, %d not, which is the baseline' %
+          'by tests/{contract,system,use-case}, %d not, which is the baseline' %
           (total, held, unheld))
     return 0
 

@@ -524,7 +524,7 @@ export interface NestedRows {
 export interface EntityRows {
   readonly entity: string
   readonly scheduleKey: string | null
-  readonly many: boolean
+  readonly hasManyRows: boolean
   readonly primaryKey: readonly string[]
   readonly foreignKeys: readonly ForeignKeyColumn[]
   readonly nested: readonly NestedRows[]
@@ -535,7 +535,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'Project',
     scheduleKey: 'project',
-    many: false,
+    hasManyRows: false,
     primaryKey: [],
     foreignKeys: [{ fromColumn: 'calendarUid', child: 'Calendar', toColumn: 'uid' }],
     nested: [{ column: 'carryElements', entity: 'CarryElement' }],
@@ -543,7 +543,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'Task',
     scheduleKey: 'tasks',
-    many: true,
+    hasManyRows: true,
     primaryKey: ['uid'],
     foreignKeys: [
       { fromColumn: 'parentTaskUid', child: 'Task', toColumn: 'uid' },
@@ -557,7 +557,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'Dependency',
     scheduleKey: null,
-    many: false,
+    hasManyRows: false,
     primaryKey: [],
     foreignKeys: [{ fromColumn: 'predecessorUid', child: 'Task', toColumn: 'uid' }],
     nested: [{ column: 'carryElements', entity: 'CarryElement' }],
@@ -565,7 +565,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'TaskGroup',
     scheduleKey: 'taskGroups',
-    many: true,
+    hasManyRows: true,
     primaryKey: ['id'],
     foreignKeys: [
       { fromColumn: 'parentId', child: 'TaskGroup', toColumn: 'id' },
@@ -576,7 +576,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'TaskGroupMember',
     scheduleKey: 'taskGroupMembers',
-    many: true,
+    hasManyRows: true,
     primaryKey: ['taskUid'],
     foreignKeys: [
       { fromColumn: 'taskUid', child: 'Task', toColumn: 'uid' },
@@ -587,7 +587,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'Calendar',
     scheduleKey: 'calendars',
-    many: true,
+    hasManyRows: true,
     primaryKey: ['uid'],
     foreignKeys: [{ fromColumn: 'baseCalendarUid', child: 'Calendar', toColumn: 'uid' }],
     nested: [
@@ -599,7 +599,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'WeekDay',
     scheduleKey: null,
-    many: false,
+    hasManyRows: false,
     primaryKey: ['ordinal'],
     foreignKeys: [],
     nested: [
@@ -610,7 +610,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'Exception',
     scheduleKey: null,
-    many: false,
+    hasManyRows: false,
     primaryKey: ['ordinal'],
     foreignKeys: [],
     nested: [
@@ -621,7 +621,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'WorkingTime',
     scheduleKey: null,
-    many: false,
+    hasManyRows: false,
     primaryKey: ['ordinal'],
     foreignKeys: [],
     nested: [],
@@ -629,7 +629,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'Resource',
     scheduleKey: 'resources',
-    many: true,
+    hasManyRows: true,
     primaryKey: ['uid'],
     foreignKeys: [{ fromColumn: 'calendarUid', child: 'Calendar', toColumn: 'uid' }],
     nested: [{ column: 'carryElements', entity: 'CarryElement' }],
@@ -637,7 +637,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'Assignment',
     scheduleKey: 'assignments',
-    many: true,
+    hasManyRows: true,
     primaryKey: ['uid'],
     foreignKeys: [
       { fromColumn: 'taskUid', child: 'Task', toColumn: 'uid' },
@@ -648,7 +648,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'TaskVisual',
     scheduleKey: 'taskVisuals',
-    many: true,
+    hasManyRows: true,
     primaryKey: ['taskUid'],
     foreignKeys: [{ fromColumn: 'taskUid', child: 'Task', toColumn: 'uid' }],
     nested: [],
@@ -656,7 +656,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'TaskOrigin',
     scheduleKey: 'taskOrigins',
-    many: true,
+    hasManyRows: true,
     primaryKey: ['taskUid'],
     foreignKeys: [{ fromColumn: 'taskUid', child: 'Task', toColumn: 'uid' }],
     nested: [],
@@ -664,7 +664,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'CommentBox',
     scheduleKey: 'commentBoxes',
-    many: true,
+    hasManyRows: true,
     primaryKey: ['id'],
     foreignKeys: [{ fromColumn: 'anchorTaskGroupId', child: 'TaskGroup', toColumn: 'id' }],
     nested: [],
@@ -672,7 +672,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'HighlightBox',
     scheduleKey: 'highlightBoxes',
-    many: true,
+    hasManyRows: true,
     primaryKey: ['id'],
     foreignKeys: [
       { fromColumn: 'topTaskGroupId', child: 'TaskGroup', toColumn: 'id' },
@@ -683,7 +683,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'CarryElement',
     scheduleKey: null,
-    many: false,
+    hasManyRows: false,
     primaryKey: ['ordinal'],
     foreignKeys: [],
     nested: [{ column: 'children', entity: 'CarryElement' }],
@@ -691,7 +691,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
   {
     entity: 'BaselineTask',
     scheduleKey: 'baselineTasks',
-    many: true,
+    hasManyRows: true,
     primaryKey: ['uid'],
     foreignKeys: [],
     nested: [],

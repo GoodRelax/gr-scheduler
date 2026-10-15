@@ -637,7 +637,7 @@ function isCopyDragPress(
 
 // see T-023a
 /** @purity pure */
-export function pressRowOf(
+export function pressedRowOf(
   press: Pick<PointerPress, 'at' | 'hit'>,
   context: Pick<InputContext, 'screen' | 'dualCursorFollowing' | 'selection'>,
 ): PressRow {
@@ -983,7 +983,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   // click on an assignee label is lost.
   if (press.hit === null && !isOnTaskGroupArea(context, press.at.x, press.at.y)) return UNASSIGNED
 
-  switch (pressRowOf(press, context)) {
+  switch (pressedRowOf(press, context)) {
     case 'PTD-7': return copyDragWrite(context, press, input)
     case 'PTD-1': return panOnRelease(input, press, context)
     case 'PTD-2':
@@ -1173,7 +1173,7 @@ function commandFromEntry(
     case ENTRY.alignFinish:
       // TRAP: count chosen Tasks among drawn task groups (a fold hides one without changing Selection),
       // and read Selection, not the drawn palette, which can be a skipped paint old.
-      if (context.selection.ordered && chosenDrawnTaskCount(context) >= 2) {
+      if (context.selection.isOrdered && chosenDrawnTaskCount(context) >= 2) {
         return changed(alignWrites(context, entry === ENTRY.alignStart))
       }
       return nothingToDo('noTaskChosenToAlignWith')

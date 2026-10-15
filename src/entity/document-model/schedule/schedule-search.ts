@@ -161,15 +161,15 @@ export function searchRowsOf(
     (taskGroupId === null ? undefined : rankById.get(taskGroupId)) ?? rankById.size
   const heldTaskGroup = (taskGroupId: string | null | undefined): string | null =>
     taskGroupId !== null && taskGroupId !== undefined && rankById.has(taskGroupId) ? taskGroupId : null
-  const pathByGroupId = new Map<string, readonly string[]>()
+  const pathByTaskGroupId = new Map<string, readonly string[]>()
   const pathOf = (taskGroupId: string | null): readonly string[] => {
     if (taskGroupId === null) return []
-    const held = pathByGroupId.get(taskGroupId) ?? taskGroupPathOf(schedule, taskGroupId)
-    pathByGroupId.set(taskGroupId, held)
+    const held = pathByTaskGroupId.get(taskGroupId) ?? taskGroupPathOf(schedule, taskGroupId)
+    pathByTaskGroupId.set(taskGroupId, held)
     return held
   }
 
-  const groupIdByTaskUid = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.taskGroupId]))
+  const taskGroupIdByTaskUid = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.taskGroupId]))
   const assigneeNames = assigneeNamesByTaskUid(schedule)
   const startAt = plannedStartInstantsOf(schedule)
   const taskRows: Ranked<TaskSearchRow>[] = []
@@ -177,7 +177,7 @@ export function searchRowsOf(
     const name = task.name ?? ''
     const names = assigneeNames.get(task.uid) ?? []
     if (!isSearchWordFound(name, word) && !names.some((one) => isSearchWordFound(one, word))) continue
-    const taskGroupId = heldTaskGroup(groupIdByTaskUid.get(task.uid))
+    const taskGroupId = heldTaskGroup(taskGroupIdByTaskUid.get(task.uid))
     const marker = progressMarkerOf(task, statusDate, diagnosed.get(task.uid))
     const row = taskSearchRowOf(task, names, { rowPath: pathOf(taskGroupId), taskGroupId }, marker)
     taskRows.push({ row, rank: rankOf(taskGroupId), at: startAt.get(task.uid) ?? null, key: task.uid })

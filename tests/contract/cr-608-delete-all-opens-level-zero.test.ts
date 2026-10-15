@@ -293,7 +293,7 @@ function replaced(call: ReplacementCall, history: EditHistory<ChangeStep> = EMPT
     defaultTaskGroupName: TASK_GROUP_WORD,
     newTaskGroupId: 'fresh-task-group',
     held: { document: ONE_TASK_GROUP, history },
-    readStamp: null,
+    expectedStamp: null,
     moment: CALM,
     call,
   })
@@ -309,14 +309,14 @@ describe(`CR-608 test 11 -- ${FR_032_VALUE} -- ${FR_032_ANY_ROAD}`, () => {
     const plan = planDocumentChange({
       defaultTaskGroupName: TASK_GROUP_WORD,
       document: ONE_TASK_GROUP,
-      readStamp: ONE_TASK_GROUP.documentStamp,
+      expectedStamp: ONE_TASK_GROUP.documentStamp,
       commands: [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }],
       moment: CALM,
       history: EMPTY_HISTORY,
       historyLimits: { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 },
       settingsLimits: { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 },
       editedBy: 'user',
-      updatedUtc: '2026-10-01T01:00:00Z',
+      updatedAt: '2026-10-01T01:00:00Z',
     })
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
@@ -355,7 +355,7 @@ describe(`CR-608 test 11 -- ${FR_032_VALUE} -- ${FR_032_ANY_ROAD}`, () => {
     const document = replaced(
       row === 'RD-6'
         ? { row, document: EMPTY_OF_TASK_GROUPS }
-        : { row, document: EMPTY_OF_TASK_GROUPS, editedBy: 'user', updatedUtc: '2026-10-03T00:00:00Z' },
+        : { row, document: EMPTY_OF_TASK_GROUPS, editedBy: 'user', updatedAt: '2026-10-03T00:00:00Z' },
     )
     expect(theOneTaskGroup(document).treeState, FR_032_ANY_ROAD).toBe('temporarilyExpanded')
   })

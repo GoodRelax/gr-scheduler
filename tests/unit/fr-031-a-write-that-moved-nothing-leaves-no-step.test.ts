@@ -149,21 +149,21 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
       const outcome = applyDocumentChange(
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
-          readStamp: held.document.documentStamp,
+          expectedStamp: held.document.documentStamp,
           commands: [command],
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           historyLimits: limits,
           settingsLimits: SETTINGS_LIMITS,
           editedBy: 'the case at the keyboard',
           // see FR-063
-          updatedUtc: new Date(Date.UTC(2026, 8, 8, 0, 0, 0) + writes * 1000)
+          updatedAt: new Date(Date.UTC(2026, 8, 8, 0, 0, 0) + writes * 1000)
             .toISOString()
             .replace(/\.\d{3}Z$/, 'Z'),
         },
         holder,
         audience,
       )
-      if (!outcome.accepted) {
+      if (!outcome.ok) {
         throw new Error(`write ${writes} was refused: ${JSON.stringify(outcome.refusal)}`)
       }
       taken += 1

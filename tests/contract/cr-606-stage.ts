@@ -178,7 +178,7 @@ export function documentOf(seed: Seed): Document {
   return built as unknown as Document
 }
 
-const readingsOf = (schedule: Schedule, groupIds: readonly string[]): ScreenViewReadings =>
+const readingsOf = (schedule: Schedule, taskGroupIds: readonly string[]): ScreenViewReadings =>
   ({
     openedFileName: null,
     fileSavedAt: null,
@@ -191,7 +191,7 @@ const readingsOf = (schedule: Schedule, groupIds: readonly string[]): ScreenView
     iconUnderPointer: null,
     themePreference: 'light',
     themeHue: schedule.project.themeHue ?? 0,
-    selectedGroupIds: [...groupIds],
+    selectedTaskGroupIds: [...taskGroupIds],
     selectedResourceUids: [],
     notices: [],
     confirmation: null,
@@ -199,7 +199,7 @@ const readingsOf = (schedule: Schedule, groupIds: readonly string[]): ScreenView
     scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
   }) as ScreenViewReadings
 
-const sessionOf = (item: ItemRef | null, groupIds: readonly string[]): ScreenSession => {
+const sessionOf = (item: ItemRef | null, taskGroupIds: readonly string[]): ScreenSession => {
   const selection = item === null ? emptySelection() : selectionWith(emptySelection(), item)
   return {
     ...emptyScreenSession,
@@ -207,19 +207,19 @@ const sessionOf = (item: ItemRef | null, groupIds: readonly string[]): ScreenSes
       ...emptyScreenSession.screen,
       screenLanguage: LANGUAGE,
       helpLanguage: LANGUAGE,
-      propertiesPanelContentState: { kind: 'selectionDisplayed', subject: { selection, groupIds: [...groupIds] } },
+      propertiesPanelContentState: { kind: 'selectionDisplayed', subject: { selection, taskGroupIds: [...taskGroupIds] } },
     },
   } as ScreenSession
 }
 
-export function panelOf(document: Document, item: ItemRef | null, groupIds: readonly string[] = []): PropertiesPanel {
+export function panelOf(document: Document, item: ItemRef | null, taskGroupIds: readonly string[] = []): PropertiesPanel {
   const selection = item === null ? emptySelection() : selectionWith(emptySelection(), item)
   const panel = propertiesPanelFromSelection(
     document.schedule,
     document.documentSettings as DocumentSettings,
     selection,
-    sessionOf(item, groupIds),
-    readingsOf(document.schedule, groupIds),
+    sessionOf(item, taskGroupIds),
+    readingsOf(document.schedule, taskGroupIds),
   )
   if (panel === null) throw new Error('premise: the panel describes the selection')
   return panel

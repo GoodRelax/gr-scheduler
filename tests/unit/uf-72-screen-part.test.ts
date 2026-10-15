@@ -1178,7 +1178,7 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
     mount: built.mount as unknown as Element,
     readAuthor: (): string => 'Watcher',
     readClockMs: (): number => Date.UTC(2026, 7, 21, 3, 4, 5),
-    onAppHeaderHeightPx: (heightPx: number): void => {
+    onAppHeaderHeightMeasured: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)
     },
     readTheme: (): ScreenTheme => THEME,
@@ -4652,7 +4652,7 @@ const PANEL_WITH_A_PIN = (): ScreenView =>
     },
   })
 
-const taskGroupWithGroupId = (built: Stage, taskGroupId: string): FakeElement => {
+const taskGroupWithId = (built: Stage, taskGroupId: string): FakeElement => {
   const found = rowsOf(built).find((one) => one.getAttribute('data-group-id') === taskGroupId)
   if (found === undefined) throw new Error(`the panel drew no task group ${taskGroupId}`)
   return found
@@ -4701,12 +4701,12 @@ describe('GR-20 of 表 T-023d -- タスクグループの左端に敷く掴み�
     const built = drawn(PANEL_WITH_A_PIN())
 
     expect(
-      stripsOf(taskGroupWithGroupId(built, 'g-free')).length,
+      stripsOf(taskGroupWithId(built, 'g-free')).length,
       'the premise fails: the ordinary task group beside the pinned one has no strip either',
     ).toBe(1)
     expect(
-      stripsOf(taskGroupWithGroupId(built, 'g-pinned')).length,
-      `a pinned task group was given a grab strip: ${serialize(taskGroupWithGroupId(built, 'g-pinned'))}`,
+      stripsOf(taskGroupWithId(built, 'g-pinned')).length,
+      `a pinned task group was given a grab strip: ${serialize(taskGroupWithId(built, 'g-pinned'))}`,
     ).toBe(0)
   })
 

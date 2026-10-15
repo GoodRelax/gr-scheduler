@@ -147,8 +147,8 @@ const SCENES: Readonly<Record<string, readonly [ItemRef | null, readonly string[
 }
 
 const colorControlOf = (holder: string, column: string, item?: ItemRef): PropertyControl => {
-  const [sceneItem, groupIds] = SCENES[holder] ?? [null, []]
-  const controls = controlsOf(panelOf(DOCUMENT, item ?? sceneItem, groupIds)).filter((one) => {
+  const [sceneItem, taskGroupIds] = SCENES[holder] ?? [null, []]
+  const controls = controlsOf(panelOf(DOCUMENT, item ?? sceneItem, taskGroupIds)).filter((one) => {
     const key = one.key as { readonly holder: string; readonly column: string }
     return one.kind === 'color' && key.holder === holder && key.column === column
   })

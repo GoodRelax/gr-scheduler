@@ -89,7 +89,7 @@
     },
     "parent": "UC-xxx",
     "level": "System",
-    "folder": "tests/usecase/",
+    "folder": "tests/use-case/",
     "tool": "Playwright"
    },
    {

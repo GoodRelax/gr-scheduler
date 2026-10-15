@@ -4176,7 +4176,7 @@ def check_invariants(document, settings):
     # answer to a gap is to fix the manuscript so the SCHEMA enforces it, not
     # to hold the condition twice. `documentSettings.dualCursor` in
     # docs/spec/_source/grs-document.schema.json is typed `["object", "null"]`
-    # with both `date1` and `date2` required and both typed `"string"`, which
+    # with both `cursorADate` and `cursorBDate` required and both typed `"string"`, which
     # is the whole of IV-13. `check_schema` below runs that schema over this
     # document, so the condition is enforced -- once.
 

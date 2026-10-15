@@ -31,7 +31,7 @@ export function copiedForPasteOf(chosenTaskGroups: readonly string[], selected: 
 
 // WHY: two or more paste targets refuse any paste, a task group copy or a Task copy alike (RS-27). see FR-033
 /** @purity pure */
-export function pasteRefusedFor(chosenTaskGroups: readonly string[]): boolean {
+export function isPasteRefusedFor(chosenTaskGroups: readonly string[]): boolean {
   return chosenTaskGroups.length > 1
 }
 
@@ -57,7 +57,7 @@ export function copyForPaste(hands: CopyAndPasteHands): void {
 /** @purity non-pure */
 export function pasteWhatWasCopied(hands: CopyAndPasteHands, frame: FrameValues): void {
   const copied = hands.readSession().selection.copiedForPaste
-  if (copied === null || pasteRefusedFor(hands.readSession().selection.chosenTaskGroups)) {
+  if (copied === null || isPasteRefusedFor(hands.readSession().selection.chosenTaskGroups)) {
     hands.raiseNotice(NOTHING_TO_DO_REASON, null)
     return
   }

@@ -573,7 +573,7 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
     mount: built.mount as unknown as Element,
     readAuthor: (): string => built.author,
     readClockMs: (): number => built.clockMs,
-    onAppHeaderHeightPx: (heightPx: number): void => {
+    onAppHeaderHeightMeasured: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)
     },
     readTheme: (): ScreenTheme => THEME,

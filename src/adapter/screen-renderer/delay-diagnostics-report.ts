@@ -82,7 +82,7 @@ import {
   windowWithColumnWidth,
   isWorkingFilter,
   wordOf,
-  wouldScheduleFilterChange,
+  isScheduleFilterChanging,
   type MarkGlyph,
   type SearchFilterChange,
   type ShownDateTimes,
@@ -525,7 +525,7 @@ function reportTableOf(
 function wouldReportFilterChange(view: TableView, rows: readonly DelayReportRow[], schedule: Schedule): boolean {
   const rowed = new Set(rows.map((row) => row.taskUid))
   const isEveryTaskRowed = schedule.tasks.every((task) => rowed.has(task.uid))
-  return wouldScheduleFilterChange(view.visibility, () => rowed, isEveryTaskRowed)
+  return isScheduleFilterChanging(view.visibility, () => rowed, isEveryTaskRowed)
 }
 
 // see RW-4, DX-2, DX-7
@@ -633,7 +633,7 @@ function reportRowViewsOf(view: TableView, found: readonly ShownTaskGroup[], mar
     cells: shown.cells,
     glyph: STATUS_GLYPHS[shown.row.status],
     status: shown.row.status,
-    shown: !hidden.has(shown.row.taskUid),
+    isShown: !hidden.has(shown.row.taskUid),
     target: { kind: 'task', taskUid: shown.row.taskUid },
     isCurrent: shown.row.taskUid === markedUid,
   }))

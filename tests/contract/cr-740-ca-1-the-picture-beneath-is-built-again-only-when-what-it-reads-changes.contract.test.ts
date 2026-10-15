@@ -146,7 +146,7 @@ describe(`T-071 CA-1 (3) -- ${CA_1_KEY}; ${CA_1_KEY_IS_ALL}`, () => {
       const at = one.taskGroupAreaPoint(share)
       const was = one.beneathNow()
       expect(screenBuildsDuring(() => one.send(pointer('move', at.x, at.y))), 'the dual cursor follow changed').toBeGreaterThan(0)
-      expect(one.beneathNow(), 'DC-1: date1 follows the pointer').not.toBe(was)
+      expect(one.beneathNow(), 'DC-1: cursorADate follows the pointer').not.toBe(was)
     }
   })
 

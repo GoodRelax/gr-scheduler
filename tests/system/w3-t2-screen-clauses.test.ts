@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { specTable, unbroken } from '../contract/spec-table'
-import { VIEWPORT, dropFile, elementBox, enableAgentApi, launch, openByDrop, press, readDocument, readSample, settle, type Box } from '../usecase/uc-harness'
+import { VIEWPORT, dropFile, elementBox, enableAgentApi, launch, openByDrop, press, readDocument, readSample, settle, type Box } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })
 

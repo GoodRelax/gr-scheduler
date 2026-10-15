@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { settingNumber } from '../fixtures/setting-number'
-import { VIEWPORT, answerConfirmation, enableAgentApi, icon, launch, notificationText, press, readDocument, settle } from '../usecase/uc-harness'
+import { VIEWPORT, answerConfirmation, enableAgentApi, icon, launch, notificationText, press, readDocument, settle } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 

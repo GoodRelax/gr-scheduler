@@ -59,10 +59,10 @@ const USABLE_AND_OFF: CommandState = { isEnabled: true, isPressed: false }
 type ZoomEntranceEnds = NonNullable<ScreenViewReadings['zoomEntranceEnds']>
 
 const ZOOM_END_BY_ENTRY: Readonly<Record<string, keyof ZoomEntranceEnds>> = {
-  'IC-12': 'timeOut',
-  'IC-13': 'timeIn',
-  'IC-14': 'verticalOut',
-  'IC-15': 'verticalIn',
+  'IC-12': 'isTimeOutAtEnd',
+  'IC-13': 'isTimeInAtEnd',
+  'IC-14': 'isVerticalOutAtEnd',
+  'IC-15': 'isVerticalInAtEnd',
 }
 
 // see FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3

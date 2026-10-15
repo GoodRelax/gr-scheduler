@@ -236,13 +236,13 @@ const benchOf = (document: Document): Bench => {
       applyDocumentChange(
         {
           defaultTaskGroupName: 'task group',
-          readStamp: held.document.documentStamp,
+          expectedStamp: held.document.documentStamp,
           commands: [command],
           moment: CALM,
           historyLimits: HISTORY_LIMITS,
           settingsLimits: LIMITS,
           editedBy: 'user',
-          updatedUtc: '2026-10-01T01:00:00Z',
+          updatedAt: '2026-10-01T01:00:00Z',
         } as never,
         holder,
         audience,

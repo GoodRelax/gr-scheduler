@@ -4642,7 +4642,7 @@
     {
      "id": "S-65",
      "value": {
-      "ja": "`dualCursor`（`{ date1, date2 }` / `null`） —— 2 本カーソルの 2 つの日付（`FR-082`）"
+      "ja": "`dualCursor`（`{ cursorADate, cursorBDate }` / `null`） —— 2 本カーソルの 2 つの日付（`FR-082`）"
      },
      "default": {
       "lit": "null",
@@ -4654,10 +4654,10 @@
      "json": {
       "kind": "object",
       "fields": {
-       "date1": {
+       "cursorADate": {
         "kind": "string"
        },
-       "date2": {
+       "cursorBDate": {
         "kind": "string"
        }
       },

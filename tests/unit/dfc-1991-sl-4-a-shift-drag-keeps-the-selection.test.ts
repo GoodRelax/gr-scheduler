@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import {
   commandFromInput,
-  pressRowOf,
+  pressedRowOf,
   selectionFromInput,
   type HumanInput,
   type InputContext,
@@ -60,7 +60,7 @@ const gesture = (
   modifiers: Partial<typeof MODS> = {},
 ): { readonly out: TranslatedInput; readonly selection: Selection } => {
   const bare = pressOf(scene, from, modifiers)
-  const press = { ...bare, pressRow: pressRowOf(bare, scene.context) } as PointerPress
+  const press = { ...bare, pressRow: pressedRowOf(bare, scene.context) } as PointerPress
   const context = { ...scene.context, pressed: press } as InputContext
   const up = pointerAt('up', to, modifiers) as HumanInput
   return { out: commandFromInput(up, context), selection: selectionFromInput(up, context) }

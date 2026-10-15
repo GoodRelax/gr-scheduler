@@ -148,13 +148,13 @@ function bench(document: Document = START): Bench {
       return applyDocumentChange(
         {
           defaultTaskGroupName: 'fixture default task group name',
-          readStamp: held.document.documentStamp,
+          expectedStamp: held.document.documentStamp,
           commands,
           moment: CALM,
           historyLimits: ROOMY_LIMITS,
           settingsLimits: SETTINGS_LIMITS,
           editedBy: 'the case at the panel',
-          updatedUtc: new Date(Date.UTC(2026, 8, 27, 0, 0, writes)).toISOString().replace(/\.\d{3}Z$/, 'Z'),
+          updatedAt: new Date(Date.UTC(2026, 8, 27, 0, 0, writes)).toISOString().replace(/\.\d{3}Z$/, 'Z'),
         },
         holder,
         audience,
@@ -165,14 +165,14 @@ function bench(document: Document = START): Bench {
         {
           defaultTaskGroupName: 'fixture default task group name',
           newTaskGroupId: 'fresh-task-group',
-          readStamp: held.document.documentStamp,
+          expectedStamp: held.document.documentStamp,
           moment: CALM,
           call: { row: 'RD-1' },
         },
         holder,
         audience,
       )
-      if (!outcome.accepted) throw new Error(`the undo was refused: ${JSON.stringify(outcome.refusal)}`)
+      if (!outcome.ok) throw new Error(`the undo was refused: ${JSON.stringify(outcome.refusal)}`)
       return outcome.document
     },
     depth: () => stepCount(held.history),
@@ -222,7 +222,7 @@ function settingsPanel(document: Document): PropertiesPanel {
   const readings = {
     themePreference: 'light',
     themeHue: hueOf(document),
-    selectedGroupIds: [],
+    selectedTaskGroupIds: [],
     selectedResourceUids: [],
     propertiesSubject: null,
     propertiesShowing: 'documentSettings',
@@ -362,7 +362,7 @@ describe('CR-557 -- the press, the document and the history (CM-5, UN-13)', () =
     const one = bench()
     const commands = commandFromFieldCommit(commit, contextOf(one.held.document))
     expect(commands).toEqual([{ kind: CM_5, hue: target.hue }])
-    expect(one.write(commands).accepted).toBe(true)
+    expect(one.write(commands).ok).toBe(true)
     expect(hueOf(one.held.document)).toBe(target.hue)
     expect(one.depth()).toBe(1)
     expect(hueOf(one.undo())).toBe(S_73_DEFAULT)
@@ -378,7 +378,7 @@ describe('CR-557 -- the press, the document and the history (CM-5, UN-13)', () =
     if (commit === null) return
     const one = bench()
     const outcome = one.write(commandFromFieldCommit(commit, contextOf(one.held.document)))
-    expect(outcome.accepted).toBe(true)
+    expect(outcome.ok).toBe(true)
     expect(hueOf(one.held.document)).toBe(S_73_DEFAULT)
     expect(one.depth()).toBe(0)
   })
@@ -386,8 +386,8 @@ describe('CR-557 -- the press, the document and the history (CM-5, UN-13)', () =
   it(`FR-031 T-027 "${CLAUSE_NO_STEP}" -- a second press of the same swatch adds no second step`, () => {
     if (target === undefined) throw new Error('premise: table T-305 has a row off the S-73 default')
     const one = bench()
-    expect(one.write(translate(String(target.hue), one.held.document)).accepted).toBe(true)
-    expect(one.write(translate(String(target.hue), one.held.document)).accepted).toBe(true)
+    expect(one.write(translate(String(target.hue), one.held.document)).ok).toBe(true)
+    expect(one.write(translate(String(target.hue), one.held.document)).ok).toBe(true)
     expect(one.depth()).toBe(1)
     expect(hueOf(one.undo())).toBe(S_73_DEFAULT)
   })

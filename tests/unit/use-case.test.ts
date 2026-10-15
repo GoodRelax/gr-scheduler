@@ -99,14 +99,14 @@ const planOf = (
   planDocumentChange({
     defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
     document,
-    readStamp: document.documentStamp,
+    expectedStamp: document.documentStamp,
     commands,
     moment: CALM,
     history: EMPTY_HISTORY,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: LIMITS,
     editedBy: 'user',
-    updatedUtc: '2026-08-17T01:00:00Z',
+    updatedAt: '2026-08-17T01:00:00Z',
     ...part,
   })
 
@@ -258,7 +258,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     // WHY: AG-2 requires a mismatch to refuse the write and return the current document.
     const document = documentOf()
     const plan = planOf(document, [{ kind: 'clearStatusDate' }], {
-      readStamp: { ...document.documentStamp, scheduleUpdatedAt: '2026-08-17T00:00:02Z' },
+      expectedStamp: { ...document.documentStamp, scheduleUpdatedAt: '2026-08-17T00:00:02Z' },
     })
     expect(plan.ok).toBe(false)
     if (!plan.ok) expect(plan.refusal).toEqual({ step: 'WS-1', reason: 'staleStamp' })
@@ -275,7 +275,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
       { settingsUpdatedAt: '2030-01-01T00:00:00Z' },
     ] as const) {
       const plan = planOf(document, [{ kind: 'clearStatusDate' }], {
-        readStamp: { ...document.documentStamp, ...differing },
+        expectedStamp: { ...document.documentStamp, ...differing },
       })
       expect(plan.ok, JSON.stringify(differing)).toBe(false)
     }
@@ -443,7 +443,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     // STEP: CM-72 -- expand all, as a second write against what step 1 left
     const second = planOf(first.document, [{ kind: 'resetTaskGroupTreeStates' }], {
       history: first.history,
-      updatedUtc: '2026-08-17T02:00:00Z',
+      updatedAt: '2026-08-17T02:00:00Z',
     })
     expect(second.ok).toBe(true)
     if (!second.ok) return
@@ -490,18 +490,18 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     const outcome = applyDocumentChange(
       {
         defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
-        readStamp: document.documentStamp,
+        expectedStamp: document.documentStamp,
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
         moment: CALM,
         historyLimits: HISTORY_LIMITS,
         settingsLimits: LIMITS,
         editedBy: 'user',
-        updatedUtc: '2026-08-17T01:00:00Z',
+        updatedAt: '2026-08-17T01:00:00Z',
       },
       holder,
       audience,
     )
-    expect(outcome.accepted).toBe(true)
+    expect(outcome.ok).toBe(true)
     expect(seen).toEqual(['replace', 'deliver'])
   })
 
@@ -515,18 +515,18 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     const outcome = applyDocumentChange(
       {
         defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
-        readStamp: { ...document.documentStamp, scheduleUpdatedAt: '2020-01-01T00:00:00Z' },
+        expectedStamp: { ...document.documentStamp, scheduleUpdatedAt: '2020-01-01T00:00:00Z' },
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
         moment: CALM,
         historyLimits: HISTORY_LIMITS,
         settingsLimits: LIMITS,
         editedBy: 'user',
-        updatedUtc: '2026-08-17T01:00:00Z',
+        updatedAt: '2026-08-17T01:00:00Z',
       },
       holder,
       { deliver: () => seen.push('deliver') },
     )
-    expect(outcome.accepted).toBe(false)
+    expect(outcome.ok).toBe(false)
     expect(seen).toEqual([])
   })
 
@@ -595,13 +595,13 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
       applyDocumentChange(
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
-          readStamp: held.document.documentStamp,
+          expectedStamp: held.document.documentStamp,
           commands: [{ kind: 'setProjectTitle', title }],
           moment: CALM,
           historyLimits: HISTORY_LIMITS,
           settingsLimits: LIMITS,
           editedBy: 'user',
-          updatedUtc: '2026-08-17T01:00:00Z',
+          updatedAt: '2026-08-17T01:00:00Z',
         },
         holder,
         audience,
@@ -616,6 +616,6 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     ).toThrow('subscriber')
     // WHY: that delivery ended, badly but it ended -- Chapter 5.5 refuses
     // writes during a delivery, not for the rest of the run.
-    expect(writeOf('C', { deliver: () => undefined }).accepted).toBe(true)
+    expect(writeOf('C', { deliver: () => undefined }).ok).toBe(true)
   })
 })

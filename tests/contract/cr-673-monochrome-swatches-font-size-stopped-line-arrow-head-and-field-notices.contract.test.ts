@@ -144,7 +144,7 @@ const READINGS_BASE = {
   isMilestoneListOpen: false,
   isPaletteMinimized: false,
   dualCursorFollowing: null,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,
   propertiesShowing: 'documentSettings',
@@ -372,7 +372,7 @@ function suspendedDocument(): Document {
   const template = structuredClone(TEMPLATE_RAW)
   const schedule = template['schedule'] as Record<string, unknown>
   const tasks = SHAPES.flatMap((shape) => STATES.map((state) => taskFor(shape, state)))
-  const groupIdOf = (uid: number): string => `67300000-0000-4000-8000-${String(uid).padStart(12, '0')}`
+  const taskGroupIdOf = (uid: number): string => `67300000-0000-4000-8000-${String(uid).padStart(12, '0')}`
   return {
     '$schema': template['$schema'],
     schemaVersion: template['schemaVersion'],
@@ -383,7 +383,7 @@ function suspendedDocument(): Document {
       resources: [],
       assignments: [],
       taskGroups: tasks.map((one, order) => ({
-        id: groupIdOf(one.uid),
+        id: taskGroupIdOf(one.uid),
         parentId: null,
         name: `row ${order}`,
         derivedFromTaskUid: null,
@@ -392,7 +392,7 @@ function suspendedDocument(): Document {
         color: null,
         minHeightPx: null,
       })),
-      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, taskGroupId: groupIdOf(one.uid) })),
+      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, taskGroupId: taskGroupIdOf(one.uid) })),
       taskVisuals: SHAPES.flatMap((shape) =>
         STATES.map((state) => ({
           taskUid: uidOf(shape, state),

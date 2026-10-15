@@ -430,7 +430,7 @@
                "type": "integer",
                "description": "`integer` —— コピーをずらす量（分、符号付き、本体の動きと同じ刻み —— `CY-5`）"
               },
-              "groupIdOf": {
+              "taskGroupIdOf": {
                "type": "object",
                "additionalProperties": {
                 "type": "string"
@@ -440,7 +440,7 @@
              },
              "required": [
               "shiftMinutes",
-              "groupIdOf"
+              "taskGroupIdOf"
              ],
              "additionalProperties": false,
              "description": "`PasteLanding`（省いてよい） —— `Ctrl` ドラッグのコピーだけが運ぶ載せ方（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`）"

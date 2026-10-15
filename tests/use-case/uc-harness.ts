@@ -204,7 +204,7 @@ export const bandAt = (page: Page, y: number): Promise<string | null> =>
 
 export const taskGroupSelector = (taskGroupId: string): string => '[data-role="Task Group Title Tree"] [data-group-id="' + taskGroupId + '"]'
 
-export const groupIdOfTaskGroupNamed = (page: Page, name: string): Promise<string | null> =>
+export const idOfTaskGroupNamed = (page: Page, name: string): Promise<string | null> =>
   page.evaluate((name) => {
     for (const row of document.querySelectorAll('[data-role="Task Group Title Tree"] [data-group-id]')) {
       const span = row.querySelector(':scope > span')

@@ -350,8 +350,8 @@ export const markerOf = (
 ): { readonly center: { x: number; y: number }; readonly radius: number } | null =>
   (task as unknown as { readonly marker: { center: { x: number; y: number }; radius: number } | null }).marker ?? null
 
-export const resumeOf = (task: TaskGeometry): { readonly box?: unknown; readonly undecided?: boolean } | null =>
-  (task as unknown as { readonly resume: { box?: unknown; undecided?: boolean } | null }).resume ?? null
+export const resumeOf = (task: TaskGeometry): { readonly box?: unknown; readonly isUndecided?: boolean } | null =>
+  (task as unknown as { readonly resume: { box?: unknown; isUndecided?: boolean } | null }).resume ?? null
 
 export interface Answer {
   readonly grab: string | null

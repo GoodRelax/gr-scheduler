@@ -16,7 +16,7 @@ export function thinEndHalfHeightOf(shapeKind: ShapeKind, settings: DrawnSetting
 // see T-012, XS-5, XS-6
 /** @purity pure */
 export function shapeHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
-  if (!laidBelow(shapeKind)) return planHeightOf(shapeKind, settings)
+  if (!isLaidBelow(shapeKind)) return planHeightOf(shapeKind, settings)
   const stroke = settings.thinStrokeWidth
   return stroke + settings.actualGap + stroke / 2 + thinEndHalfHeightOf(shapeKind, settings)
 }
@@ -25,7 +25,7 @@ export function shapeHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): nu
 // TRAP: the tier is the font size, never S-233; that ratio moves every stacked task group.
 /** @purity pure */
 export function labelLiftOf(shapeKind: ShapeKind, settings: DrawnSettings): number {
-  if (!laidBelow(shapeKind)) return 0
+  if (!isLaidBelow(shapeKind)) return 0
   return (
     labelFontSize(shapeKind, settings) +
     NOT_STORED_LABEL_SIZES['S-196'] * displayRatioOf(settings)
@@ -48,7 +48,7 @@ export function outlineWidthOf(strokeWidthPx: number | null | undefined, setting
 // see VG-5
 /** @purity pure */
 export function drawnEdgeOverhangOf(shapeKind: ShapeKind, outlineWidth: number): number {
-  return laidBelow(shapeKind) ? 0 : outlineWidth / 2
+  return isLaidBelow(shapeKind) ? 0 : outlineWidth / 2
 }
 
 /** @purity pure */
@@ -61,14 +61,14 @@ export function drawnExtentOf(
 }
 
 /** @purity pure */
-export function laidBelow(shapeKind: ShapeKind): boolean {
+export function isLaidBelow(shapeKind: ShapeKind): boolean {
   return shapeKind === 'arrow' || shapeKind === 'endpointSpan'
 }
 
 /** @purity pure */
 export function actualPlacementOf(shapeKind: ShapeKind): 'inside' | 'below' | 'sideways' {
   if (shapeKind === 'milestone') return 'sideways'
-  return laidBelow(shapeKind) ? 'below' : 'inside'
+  return isLaidBelow(shapeKind) ? 'below' : 'inside'
 }
 
 /** @purity pure */
@@ -103,14 +103,14 @@ export function planHeightOf(shapeKind: ShapeKind, settings: DrawnSettings): num
 /** @purity pure */
 export function markerDiameterOf(shapeKind: ShapeKind, nameFontSize: number,
                                  settings: DrawnSettings): number {
-  return laidBelow(shapeKind) ? nameFontSize : settings.markerSize
+  return isLaidBelow(shapeKind) ? nameFontSize : settings.markerSize
 }
 
 // see FR-077, FR-094
 /** @purity pure */
 export function labelFontSize(shapeKind: ShapeKind, settings: DrawnSettings): number {
   const actual = planHeightOf(shapeKind, settings) * settings.actualOfPlan
-  const scale = laidBelow(shapeKind) ? settings.thinFontScale : 1
+  const scale = isLaidBelow(shapeKind) ? settings.thinFontScale : 1
   return Math.max(settings.fontMin, actual * settings.fontOfActual * scale)
 }
 

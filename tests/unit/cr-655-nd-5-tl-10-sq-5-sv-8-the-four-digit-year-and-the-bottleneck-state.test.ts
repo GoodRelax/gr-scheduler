@@ -18,7 +18,7 @@ import type { DrawnSettings } from '../../src/entity/document-model/document-set
 import type { Document } from '../../src/entity/document-model/document/document'
 import * as scheduleEntry from '../../src/entity/document-model/schedule/schedule'
 import { dayOf } from '../../src/entity/document-model/schedule/calendar-day'
-import { nameLabelOf, planDatesSpanYears } from '../../src/entity/layout-engine/schedule-layout/name-label'
+import { nameLabelOf, isPlanSpanningYears } from '../../src/entity/layout-engine/schedule-layout/name-label'
 import type { DayReader } from '../../src/entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRect } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import {
@@ -80,7 +80,7 @@ function scheduleOf(tasks: readonly Loose[]): scheduleEntry.Schedule {
 const labelOf = (schedule: scheduleEntry.Schedule, uid: number): string => {
   const task = schedule.tasks.find((one) => one.uid === uid)
   if (task === undefined) throw new Error(`no task ${uid}`)
-  const named = nameLabelOf(task, READER, planDatesSpanYears(schedule, READER), SETTINGS)
+  const named = nameLabelOf(task, READER, isPlanSpanningYears(schedule, READER), SETTINGS)
   return `${named.name}${named.labelDates}`
 }
 

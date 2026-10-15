@@ -12,11 +12,11 @@ import {
   TIME_ZONE_ROWS,
   isStandardTimeZoneKey,
   isTimeZoneKey,
-  standardTimeZoneKeyForPc,
+  standardTimeZoneKeyForSystem,
   timeZoneRowOf,
   zoneClockOf,
 } from '../../src/entity/document-model/schedule/time-zone'
-import { readPcStandardTimeZone } from '../../src/framework/single-html-shell/frame-loop'
+import { readSystemStandardTimeZone } from '../../src/framework/single-html-shell/frame-loop'
 import { validateDocument } from '../fixtures/grs-document'
 import {
   ALL_KEYS,
@@ -234,9 +234,9 @@ describe(`FR-156 -- ${FR_156_PC_STANDARD}`, () => {
   const offsetOn = (month: number): number => 0 - new Date(new Date().getFullYear(), month, 1, 12).getTimezoneOffset()
 
   it('the reading on this PC is the standard row of the smaller of its January 1 and July 1 offsets', () => {
-    const read = readPcStandardTimeZone()
+    const read = readSystemStandardTimeZone()
     expect(isStandardTimeZoneKey(read)).toBe(true)
-    expect(read).toBe(standardTimeZoneKeyForPc({ januaryOffsetMinutes: offsetOn(0), julyOffsetMinutes: offsetOn(6) }))
+    expect(read).toBe(standardTimeZoneKeyForSystem({ januaryOffsetMinutes: offsetOn(0), julyOffsetMinutes: offsetOn(6) }))
   })
 
   it.each([
@@ -248,7 +248,7 @@ describe(`FR-156 -- ${FR_156_PC_STANDARD}`, () => {
   ] as const)('a PC on %s reads %s the whole year and falls to %s, never a daylight row', (zone, standard, key) => {
     process.env['TZ'] = zone
     expect(Math.min(offsetOn(0), offsetOn(6)), 'premise: the process follows TZ').toBe(standard)
-    expect(readPcStandardTimeZone()).toBe(key)
+    expect(readSystemStandardTimeZone()).toBe(key)
   })
 })
 

@@ -6,7 +6,7 @@
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import { planActualState, type Task } from '../../document-model/schedule/schedule'
 import { dummyInkWidthOf, type ShapeKind } from './schedule-layout'
-import { actualPlacementOf, laidBelow, planHeightOf } from './shape-cross-sections'
+import { actualPlacementOf, isLaidBelow, planHeightOf } from './shape-cross-sections'
 
 // see RF-1, RF-3
 export interface LabelReference {
@@ -25,7 +25,7 @@ export interface LabelLayout {
 
 // see XS-10, GA-20
 /** @purity pure */
-export function standsUndecidedResume(task: Task, shapeKind: ShapeKind): boolean {
+export function hasUndecidedResume(task: Task, shapeKind: ShapeKind): boolean {
   return (
     shapeKind !== 'milestone' &&
     task.resume === null &&
@@ -77,7 +77,7 @@ export function outwardStartOf(
   shapeKind: ShapeKind,
   markerDiameter: number,
 ): number {
-  if (laidBelow(shapeKind) || !standsUndecidedResume(task, shapeKind)) return referenceEnd
+  if (isLaidBelow(shapeKind) || !hasUndecidedResume(task, shapeKind)) return referenceEnd
   return referenceEnd + markerDiameter + NOT_STORED_SIZES['S-286']
 }
 
@@ -101,7 +101,7 @@ export function labelLayoutOf(
     return { fits: true, markerLeft, nameX }
   }
   const lead = marksShown ? edgeGap + markerDiameter + settings.labelGap : settings.labelPad
-  if (laidBelow(shapeKind)) {
+  if (isLaidBelow(shapeKind)) {
     return {
       fits: true,
       markerLeft: marksShown ? reference.x + edgeGap : null,
@@ -129,7 +129,7 @@ export function assigneeAnchorOf(
   if (shapeKind === 'milestone') {
     return reference.x + reference.width * settings.milestoneNameStartOfWidth
   }
-  return laidBelow(shapeKind) ? reference.x : drawnStartX
+  return isLaidBelow(shapeKind) ? reference.x : drawnStartX
 }
 
 // <generated -- do not edit by hand>

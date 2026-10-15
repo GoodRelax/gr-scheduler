@@ -341,9 +341,9 @@ function dualCursorLines(input: OverlaysInput): readonly string[] {
     following === null || following.x === null ? null : cursorInstantAtX(layout, following.x, input.settings)
   const followedX = followedAt === null ? null : xOfInstant(layout, followedAt)
   const lines: string[] = []
-  for (const side of ['date1', 'date2'] as const) {
+  for (const side of ['cursorA', 'cursorB'] as const) {
     const isFollowing = following !== null && following.side === side
-    const standing = side === 'date1' ? cursors.date1X : cursors.date2X
+    const standing = side === 'cursorA' ? cursors.cursorAX : cursors.cursorBX
     const x = isFollowing && followedX !== null ? followedX : standing
     const width = selectedLineWidth(NOT_STORED_DUAL_CURSOR_SIZES['S-194'], isFollowing)
     lines.push(

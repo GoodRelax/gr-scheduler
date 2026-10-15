@@ -432,7 +432,7 @@ function watching(loop: ReturnType<typeof frameLoop>): ChangeNotice[] {
   watchChanges(watchers, {
     watcher: WATCHER,
     since: {
-      seenScheduleUpdatedUtc: stampOf(loop.document()).scheduleUpdatedAt,
+      seenScheduleUpdatedAt: stampOf(loop.document()).scheduleUpdatedAt,
       seenSequence: 0,
     },
     deliver: (notice) => void taken.push(notice),

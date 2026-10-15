@@ -745,7 +745,7 @@ export interface ScreenViewReadings {
     readonly atY: number | null
   } | null
   // see FR-085, T-293
-  readonly selectedGroupIds: readonly string[]
+  readonly selectedTaskGroupIds: readonly string[]
   // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1, T-203, T-206
   // @provisional PND-143
   readonly selectedResourceUids: readonly number[]
@@ -769,10 +769,10 @@ export interface ScreenViewReadings {
   readonly canRedo?: boolean
   // see FR-029, IC-12, IC-13, IC-14, IC-15
   readonly zoomEntranceEnds?: {
-    readonly timeOut: boolean
-    readonly timeIn: boolean
-    readonly verticalOut: boolean
-    readonly verticalIn: boolean
+    readonly isTimeOutAtEnd: boolean
+    readonly isTimeInAtEnd: boolean
+    readonly isVerticalOutAtEnd: boolean
+    readonly isVerticalInAtEnd: boolean
   }
   // WHY: held by the frame loop, never saved (S-419, S-420, S-429); absent reads as the initial values.
   readonly searchPanel?: SearchPanelSession

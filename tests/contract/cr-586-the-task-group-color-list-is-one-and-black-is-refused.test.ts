@@ -215,7 +215,7 @@ const PANEL_SCHEDULE: Schedule = taskGroupDocument([{ id: ROW_ID, parentId: null
   ],
 })['schedule'] as Schedule
 
-const READINGS = (groupIds: readonly string[]): ScreenViewReadings => ({
+const READINGS = (taskGroupIds: readonly string[]): ScreenViewReadings => ({
   openedFileName: null,
   fileSavedAt: null,
   fileSavedByteLength: null,
@@ -227,7 +227,7 @@ const READINGS = (groupIds: readonly string[]): ScreenViewReadings => ({
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: PANEL_SCHEDULE.project.themeHue ?? 0,
-  selectedGroupIds: [...groupIds],
+  selectedTaskGroupIds: [...taskGroupIds],
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
@@ -235,11 +235,11 @@ const READINGS = (groupIds: readonly string[]): ScreenViewReadings => ({
   scrollExtent: { contentWidth: 0, contentHeight: 0, visibleHeight: 0 },
 }) as ScreenViewReadings
 
-const sessionShowing = (selection: Selection, groupIds: readonly string[]): ScreenSession => ({
+const sessionShowing = (selection: Selection, taskGroupIds: readonly string[]): ScreenSession => ({
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    propertiesPanelContentState: { kind: 'selectionDisplayed', subject: { selection, groupIds: [...groupIds] } },
+    propertiesPanelContentState: { kind: 'selectionDisplayed', subject: { selection, taskGroupIds: [...taskGroupIds] } },
   },
 }) as ScreenSession
 
@@ -250,10 +250,10 @@ const ENTITY_OF_HOLDER: Readonly<Record<string, keyof typeof COLUMN_SHAPES>> = {
   commentBox: 'CommentBox',
 }
 
-function colorControls(item: ItemRef | null, groupIds: readonly string[]): readonly PropertyControl[] {
+function colorControls(item: ItemRef | null, taskGroupIds: readonly string[]): readonly PropertyControl[] {
   const selection = item === null ? emptySelection() : selectionWith(emptySelection(), item)
   const panel = propertiesPanelFromSelection(
-    PANEL_SCHEDULE, SETTINGS, selection, sessionShowing(selection, groupIds), READINGS(groupIds),
+    PANEL_SCHEDULE, SETTINGS, selection, sessionShowing(selection, taskGroupIds), READINGS(taskGroupIds),
   )
   if (panel === null) throw new Error('premise: the panel describes the selection')
   return panel.fields.flatMap((field) => field.controls).filter((control) => control.kind === 'color')
@@ -275,8 +275,8 @@ const SCENES: readonly (readonly [string, ItemRef | null, readonly string[], str
 ]
 
 describe(`the panel's color fields offer each column's generated choices (CV-9, CR-586 seam S-4)`, () => {
-  it.each(SCENES)(`${CV_9_SLOTS_KEPT} -- %s`, (_label, item, groupIds, holder) => {
-    const controls = colorControls(item, groupIds).filter(
+  it.each(SCENES)(`${CV_9_SLOTS_KEPT} -- %s`, (_label, item, taskGroupIds, holder) => {
+    const controls = colorControls(item, taskGroupIds).filter(
       (control) => (control.key as { readonly holder: string }).holder === holder,
     )
     expect(controls.length, `premise: the panel of ${_label} has a color field`).toBeGreaterThan(0)

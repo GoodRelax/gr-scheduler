@@ -12,7 +12,7 @@ import {
   dayOf,
   delayFixCommands,
   delayFixLogRowsOf,
-  holdsWorkingDayUnlikeMinutesPerDay,
+  isWorkingDayUnlikeMinutesPerDay,
   type DelayFixLogRow,
   type DelayFixRow,
   type Project,
@@ -87,7 +87,7 @@ import {
   noticeReasonOfRefusals,
   readInstantOfWrite,
   readLocalMoment,
-  readPcStandardTimeZone,
+  readSystemStandardTimeZone,
   type ConfirmationQuestion,
   type FrameLoopHands,
   type FrameValues,
@@ -827,7 +827,7 @@ export async function openDocumentIntoHold(
     const decoded = acceptedIntake(hands, decodedDocument(reading.format, file.text, current))
     if (decoded === null) return false
     handedIn = { format: importedFormatOf(reading.format), byteLength: file.byteLength, fileName: file.fileName }
-    incoming = reading.format === 'mspdi' ? withPcTimeZone(decoded.document) : decoded.document
+    incoming = reading.format === 'mspdi' ? withSystemTimeZone(decoded.document) : decoded.document
     tellDecodedIntake(hands, decoded)
     newer = { ...NOT_NEWER, isNewerFormat: decoded.isNewerFormat, couldNotBeRead: decoded.unreadColumns }
   }
@@ -924,7 +924,7 @@ export async function openDocumentIntoHold(
     importing: { ...importing, choice, merge: mergeAnswers },
     historyLimits: HISTORY_LIMITS,
     editedBy: EDITED_BY_SCREEN,
-    updatedUtc: readInstantOfWrite(),
+    updatedAt: readInstantOfWrite(),
   })
 
   if (!landed) return false
@@ -951,15 +951,15 @@ export const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89'
 // see FR-156, BK-4
 // WHY: MSPDI holds no zone, so a read MSPDI is the PC's standard time, told to nobody (FR-156).
 /** @purity semi-pure-b */
-function withPcTimeZone(document: Document): Document {
+function withSystemTimeZone(document: Document): Document {
   const project = document.schedule.project
-  return { ...document, schedule: { ...document.schedule, project: { ...project, scheduleDataTimeZone: readPcStandardTimeZone() } } }
+  return { ...document, schedule: { ...document.schedule, project: { ...project, scheduleDataTimeZone: readSystemStandardTimeZone() } } }
 }
 
 // see RS-89, FR-054, FR-088
 /** @purity non-pure */
 function tellOpenedCalendar(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, opened: Document): void {
-  if (holdsWorkingDayUnlikeMinutesPerDay(opened.schedule)) hands.raiseNotice(WORKING_TIMES_UNLIKE_DAY_REASON, null)
+  if (isWorkingDayUnlikeMinutesPerDay(opened.schedule)) hands.raiseNotice(WORKING_TIMES_UNLIKE_DAY_REASON, null)
 }
 
 // see RS-51, RS-52, RS-60
@@ -1118,7 +1118,7 @@ async function exportHeldDocumentToFile(
   const picture =
     text === null
       ? await exportPictureContent(hands, form, documentStampedAt(written, flow.readFileSaved().fileSavedAt))
-      : { content: { text }, capStopGroupId: null }
+      : { content: { text }, capStopTaskGroupId: null }
   if (picture === null) return
 
   const saving = await saveDocumentFile(
@@ -1128,7 +1128,7 @@ async function exportHeldDocumentToFile(
   if (saving.ok) {
     if (form === SAVE_FORM && text !== null) return landSavedDocument(hands, flow, saving, byteLengthOfText(text), savedAt)
     // TRAP: leave stackSafetyCapToldFor alone; it is the frame's, and touching it silences the screen.
-    if (picture.capStopGroupId !== null) hands.raiseNotice(STACK_SAFETY_CAP_REASON, null)
+    if (picture.capStopTaskGroupId !== null) hands.raiseNotice(STACK_SAFETY_CAP_REASON, null)
     if (form === 'IO-1' && holdsWorkValues(written)) hands.raiseNotice(WORK_NOT_REWRITTEN_REASON, null)
     return
   }
@@ -1143,7 +1143,7 @@ async function exportPictureContent(
   written: Document,
 ): Promise<{
   readonly content: ChosenFileSaveRequest['content']
-  readonly capStopGroupId: string | null
+  readonly capStopTaskGroupId: string | null
 } | null> {
   switch (form) {
     case 'IO-2':
@@ -1151,23 +1151,23 @@ async function exportPictureContent(
       return null
     case 'IO-7': {
       const content = await embeddedHtmlContent(hands, written)
-      return content === null ? null : { content, capStopGroupId: null }
+      return content === null ? null : { content, capStopTaskGroupId: null }
     }
     case 'IO-3':
     case 'IO-4': {
       const scene = hands.exportScene()
       if (scene === null) return null
-      const capStopGroupId = scene.capStopGroupId
+      const capStopTaskGroupId = scene.capStopTaskGroupId
       if (form === 'IO-3') {
         const picture = exportSvg(scene)
         if (!picture.ok) {
           hands.raiseNotice(HEIGHT_CEILING_REASON, null)
           return null
         }
-        return { content: { text: picture.svg }, capStopGroupId }
+        return { content: { text: picture.svg }, capStopTaskGroupId }
       }
       const rastered = await rasteredContent(hands, scene)
-      return rastered === null ? null : { content: rastered, capStopGroupId }
+      return rastered === null ? null : { content: rastered, capStopTaskGroupId }
     }
   }
 }

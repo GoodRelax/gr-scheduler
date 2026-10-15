@@ -554,13 +554,13 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       applyDocumentChange(
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
-          readStamp: state.document.documentStamp,
+          expectedStamp: state.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           historyLimits: state.historyLimits,
           settingsLimits: SETTINGS_LIMITS,
           editedBy,
-          updatedUtc: state.readAt,
+          updatedAt: state.readAt,
         },
         wiring.holder,
         wiring.audience,
@@ -1437,7 +1437,7 @@ describe('AM-17 watchChanges -- AG-6', () => {
     // ⭐ The watcher woke and not one of the stamp's three fields moved -- the
     // dialogue's own order is what carried it (AG-11, MUST).
     expect(one.api.readStamp()).toEqual(before)
-    expect(one.notices[0]?.mark.seenScheduleUpdatedUtc).toBe(before.scheduleUpdatedAt)
+    expect(one.notices[0]?.mark.seenScheduleUpdatedAt).toBe(before.scheduleUpdatedAt)
     expect(one.notices[0]?.mark.seenSequence).toBe(1)
   })
 

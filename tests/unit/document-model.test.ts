@@ -61,7 +61,7 @@ describe('Selection (PI-32)', () => {
 
   it('SL-7b gives a marquee or a select-all no order to line up against', () => {
     const swept = selectionOfAll([taskA, taskB])
-    expect(swept.ordered).toBe(false)
+    expect(swept.isOrdered).toBe(false)
     expect(lastPicked(swept)).toBeNull()
   })
 
@@ -629,7 +629,7 @@ const rungOf = (screen: ScreenValues, flags: Flags): ReturnType<typeof escapeTar
     screen,
     isTextEntryUnsettled: flags.isTextEntryUnsettled,
     pressed: flags.gestureInFlight ? {} : null,
-    dualCursorFollowing: flags.dualCursorMode ? 'date1' : null,
+    dualCursorFollowing: flags.dualCursorMode ? 'cursorA' : null,
     selection: { items: [] },
   } as unknown as InputContext
   const standing = flags.isConfirmationStanding === undefined ? {} : { isConfirmationStanding: flags.isConfirmationStanding }

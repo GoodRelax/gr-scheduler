@@ -248,6 +248,22 @@ import ではないので読み手として数えない。
 
 ⛔ **`data` / `info` / `tmp` / `obj` / `manager` / `helper` / `util` は名前ではない。**
 
+### ⭐ 名付けの家の流儀（JDG-2241、CR-771）
+
+| 何 | 形 | 例 |
+|---|---|---|
+| 値を計算するだけの関数（純粋） | 値の名詞句 —— `xOf`・`xFromY`・`withX`。⛔ `getX` と書かない。⚠️ 頭の語が動詞にも読める `…Of` は、名詞か過去分詞にする | `colorOf`・`geometryFromLayout`・`pressedRowOf` |
+| 作用を持つ関数 | 動詞で始める | `applyCommands`・`focusTask` |
+| 真偽を返す関数・コードの中だけの真偽の欄 | `is`／`has`／`can`／`should` で始め（`R2`）、肯定の句にする | `isDelayed`・`isPlanSpanningYears`。⛔ `hasNo…` |
+| 保存される真偽・外へ出す真偽 | 表 T-006a の `W-10` に従う | `isPlanVisible` |
+| 保存される名を写すコードの名 | 保存される名と同じ語で書く | `seenScheduleUpdatedAt`（`scheduleUpdatedAt` を写す）・`selectedTaskGroupIds`（`taskGroupId` を写す） |
+| 初期の空の値（モジュールの定数） | `empty…` の camelCase（試験が数百か所で引くので CONSTANT_CASE にしない） | `emptyScreenSession` |
+| 種類を言う名 | `Kind`。`Type` は MSPDI の要素名を写す所と、外の API が決めた所だけ | `shapeKind`・`linkType` |
+| 呼び返しの欄 | `on` ＋ 出来事 | `onAppHeaderHeightMeasured` |
+| 2 つで組の名 | 番号を付けない（`date1`・`date2` と書かない）。仕様の呼び名か役の名で書く | `cursorADate`・`cursorBDate` |
+
+出どころ: 名詞句と動詞の分け方は Swift API Design Guidelines とコマンドとクエリの分離（Meyer）。真偽の頭は typescript-eslint の naming-convention の例と .NET Framework Design Guidelines。
+
 ---
 
 ## 3. ⛔ コメントには「なぜ」を書く。「どう動くか」を書かない

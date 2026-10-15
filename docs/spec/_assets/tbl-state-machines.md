@@ -75,7 +75,7 @@
 | `screen/propertiesOfChoiceAsked` | 入力（パネルを出すことを要求が名指した押下。員数は各要求が持つ）: `FR-072` | `subject` | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` |
 | `screen/selectionMoved` | ほかの領域の結果（選択）: `FR-072` | `subject`（空もありうる） | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` |
 | `screen/createdNameSettled` | 入力（作った直後の名前の欄の編集が終わった後の `Enter` —— 表 T-292 の `createdTaskNamingStateMachine` が `createdNameEnded` に居るとき（表 T-283 の `RG-10`）。名前付けのあいだでも、ほかの欄の編集を終えた `Enter` では送らない）: `FR-091` ・ `SK-19` | — | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` |
-| `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasNoSurfaceOrConfirmation` ／ `hasNoUnsettledEntry` | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` |
+| `screen/settleKeyPressed` | 入力（`SK-19` の 2 段目）: `SK-19` ・ `FR-070` | `hasSurfaceOrConfirmation` ／ `hasUnsettledEntry` | `propertiesPanelContentStateMachine` ・ `baseTimeZoneDraftStateMachine` ・ `timeShiftDraftStateMachine` ・ `wholeScheduleShiftDraftStateMachine` |
 | `screen/dialogueFieldEntryPressed` | 入力: `IC-18` ・ `FR-066` | `isAgentApiEnabled` | `dialogueFieldDisplayStateMachine` |
 | `screen/dialogueFieldMinimizeToggled` | 入力（対話欄のタイトルバーの最小化の入口）: `IC-129` | — | `dialogueFieldDisplayStateMachine` |
 | `screen/dialogueFieldMaximizeToggled` | 入力（対話欄のタイトルバーの最大化と元に戻す入口）: `IC-130` ・ `IC-131` | — | `dialogueFieldDisplayStateMachine` |
@@ -331,7 +331,7 @@ stateDiagram-v2
 | `screen/propertiesOfChoiceAsked` | → `selectionDisplayed` | → 自己（`subject` を書き換える） | → `selectionDisplayed` |
 | `screen/selectionMoved` | — | → 自己 [`hasChoice`]（`subject` を書き換える）<br>それ以外 → — | → `selectionDisplayed` [`hasChoice`]（`subject` を書き換える。設定を出していても、選んだものへ移る）<br>それ以外 → — |
 | `screen/createdNameSettled` | → 自己 / `clearSelection` | → `hidden` / `clearSelection` | → `hidden` / `clearSelection` |
-| `screen/settleKeyPressed` | — | → `hidden` [`hasNoSurfaceOrConfirmation` & `hasNoUnsettledEntry`]<br>それ以外 → — | → `hidden` [`hasNoSurfaceOrConfirmation` & `hasNoUnsettledEntry`]<br>それ以外 → — |
+| `screen/settleKeyPressed` | — | → `hidden` [not `hasSurfaceOrConfirmation` & not `hasUnsettledEntry`]<br>それ以外 → — | → `hidden` [not `hasSurfaceOrConfirmation` & not `hasUnsettledEntry`]<br>それ以外 → — |
 
 - `propertiesPanelContentStateMachine.hidden` —— 初期。根拠 `S-99h`
 - `propertiesPanelContentStateMachine.selectionDisplayed` —— 運ぶ値 `subject`（選択とタスクグループの集合）。根拠 `S-99h` ・ `IR-2` ・ `FR-072`
@@ -391,27 +391,27 @@ stateDiagram-v2
     dualCursorModeStateMachine_off : off
     dualCursorModeStateMachine_on : on
     state dualCursorModeStateMachine_on {
-        [*] --> dualCursorModeStateMachine_on_placingDate1
-        dualCursorModeStateMachine_on_placingDate1 : placingDate1
-        dualCursorModeStateMachine_on_placingDate2 : placingDate2
-        dualCursorModeStateMachine_on_placingDate1 --> dualCursorModeStateMachine_on_placingDate2 : dualCursorPlaced
-        dualCursorModeStateMachine_on_placingDate2 --> dualCursorModeStateMachine_on_placingDate1 : dualCursorPlaced
+        [*] --> dualCursorModeStateMachine_on_placingCursorA
+        dualCursorModeStateMachine_on_placingCursorA : placingCursorA
+        dualCursorModeStateMachine_on_placingCursorB : placingCursorB
+        dualCursorModeStateMachine_on_placingCursorA --> dualCursorModeStateMachine_on_placingCursorB : dualCursorPlaced
+        dualCursorModeStateMachine_on_placingCursorB --> dualCursorModeStateMachine_on_placingCursorA : dualCursorPlaced
     }
     dualCursorModeStateMachine_on --> dualCursorModeStateMachine_off : escapePressed, dualCursorEntryPressed, guideCursorEntryPressed
     dualCursorModeStateMachine_off --> dualCursorModeStateMachine_on : dualCursorEntryPressed
 ```
 
-| 出来事 | `off` | `on.placingDate1` | `on.placingDate2` |
+| 出来事 | `off` | `on.placingCursorA` | `on.placingCursorB` |
 | --- | --- | --- | --- |
 | `screen/escapePressed` | — | → `off` [`isRungDualCursor`] / `storeClearedDualCursor`<br>それ以外 → —（親 `on` の升） | → `off` [`isRungDualCursor`] / `storeClearedDualCursor`<br>それ以外 → —（親 `on` の升） |
 | `screen/dualCursorEntryPressed` | → `on` [`hasDaysToPlace`] / `storePlacedDualCursorClearingGuide`<br>それ以外 → — | → `off` / `storeClearedDualCursor`（親 `on` の升） | → `off` / `storeClearedDualCursor`（親 `on` の升） |
 | `screen/guideCursorEntryPressed` | — | → `off` / `storeClearedDualCursor`（親 `on` の升） | → `off` / `storeClearedDualCursor`（親 `on` の升） |
-| `screen/dualCursorPlaced` | — | → `on.placingDate2` / `storeFixedDate1` | → `on.placingDate1` / `storeFixedDate2` |
+| `screen/dualCursorPlaced` | — | → `on.placingCursorB` / `storeFixedCursorADate` | → `on.placingCursorA` / `storeFixedCursorBDate` |
 
 - `dualCursorModeStateMachine.off` —— 初期。根拠 `DC-1`
 - `dualCursorModeStateMachine.on` —— 根拠 `DC-1` ・ `PTD-2`
-- `dualCursorModeStateMachine.on.placingDate1` —— 初期。親 `dualCursorModeStateMachine.on`。根拠 `DC-1`
-- `dualCursorModeStateMachine.on.placingDate2` —— 親 `dualCursorModeStateMachine.on`。根拠 `DC-2` ・ `DC-8`
+- `dualCursorModeStateMachine.on.placingCursorA` —— 初期。親 `dualCursorModeStateMachine.on`。根拠 `DC-1`
+- `dualCursorModeStateMachine.on.placingCursorB` —— 親 `dualCursorModeStateMachine.on`。根拠 `DC-2` ・ `DC-8`
 
 表に無い出来事は `dualCursorModeStateMachine` を変えない（同じ参照）。
 
@@ -706,7 +706,7 @@ stateDiagram-v2
 | 出来事 | `untouched` | `drafted` |
 | --- | --- | --- |
 | `screen/calendarDraftEdited` | → `drafted`（翻訳が文書の暦から組んだ下書きに直しを当てたものを運ぶ） | → 自己（`calendarDraft` を書き換える） |
-| `screen/calendarApplyEntryPressed` | — | → `untouched` [`hasNoCalendarDraftRefusal`] / `issueCalendarCommand`（下書きで `CM-39` を 1 回出す。`CM-39` が文書を変え、当てた 1 組の合計が `Project.minutesPerDay`（空なら `S-128`）と違えば `RS-89` を 1 度告げる。面は開いたまま、当てた後の文書を見せる）<br>それ以外 → — |
+| `screen/calendarApplyEntryPressed` | — | → `untouched` [not `hasCalendarDraftRefusal`] / `issueCalendarCommand`（下書きで `CM-39` を 1 回出す。`CM-39` が文書を変え、当てた 1 組の合計が `Project.minutesPerDay`（空なら `S-128`）と違えば `RS-89` を 1 度告げる。面は開いたまま、当てた後の文書を見せる）<br>それ以外 → — |
 | `screen/surfaceCloseAsked` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
 | `screen/escapePressed` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
 | `screen/surfaceEntryPressed` | — | → `untouched` [`isLeavingHolidaySettings`]（開いている面が `U-65` でなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
@@ -1193,7 +1193,7 @@ stateDiagram-v2
 | `selection/selectionPruned` | 副作用の結果（書き込みが着地し、文書に無くなった対象を刈った。または、表示の切り替え・タスクグループの折りたたみと隠し・縦軸の倍率で描かれなくなったタスクを刈った。⭐ 同じ着地で、文書に無くなったタスクグループもタスクグループの選択から刈る（`FR-085`））: `FR-081` ・ `UN-9` ・ `FR-049` ・ `FR-018` ・ `HR-1a` ・ `HR-6` ・ `FR-085` | `remainingObjects` ／ `chosenTaskGroups`（`FR-085`。刈ったあとに残るタスクグループ。文書から消えたタスクグループを除いたタスクグループの選択） | 根 ・ `selectionStateMachine` |
 | `selection/createdTaskSelected` | 副作用の結果（作る書き込みが着地し、作ったタスクが文書に在る）: `FR-001` ・ `FR-091` ・ `TC-9` | `createdTaskUid`（`TC-9`） | `selectionStateMachine` |
 | `selection/taskGroupsPicked` | 入力（タスクグループパネルでタスクグループを選ぶ・増減する）: `FR-085` ・ `FR-042` | `chosenTaskGroups` | 根 |
-| `selection/createdTaskGroupSelected` | 副作用の結果（タスクグループを足す書き込みが着地し、足したタスクグループが文書に在る）: `HF-14` | `createdGroupId` | 根 |
+| `selection/createdTaskGroupSelected` | 副作用の結果（タスクグループを足す書き込みが着地し、足したタスクグループが文書に在る）: `HF-14` | `createdTaskGroupId` | 根 |
 | `selection/resourcesPicked` | 入力（担当リストで選ぶ・すべて選択・選択をすべて解除・増減する）: `FR-099` ・ `AS-6` | `chosenResources` | 根 |
 | `selection/copyTaken` | 入力（コピーできる選び方のときだけ呼び手が送る。コピーできないときは `RS-27` で断り、出来事を作らない）: `SK-4` ・ `FR-033` | `copiedForPaste` | 根 |
 

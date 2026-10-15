@@ -89,9 +89,9 @@ function withSelection(fields: Loose, screen: Loose = {}): ScreenSession {
 }
 
 // see SL-7b, T-023c
-const PICKED = { items: [{ kind: 'task', uid: 3 }, { kind: 'commentBox', id: 'box1' }], ordered: true }
-const OTHER_PICK = { items: [{ kind: 'dependency', successorUid: 4, ordinal: 1 }], ordered: false }
-const NOTHING = { items: [], ordered: false }
+const PICKED = { items: [{ kind: 'task', uid: 3 }, { kind: 'commentBox', id: 'box1' }], isOrdered: true }
+const OTHER_PICK = { items: [{ kind: 'dependency', successorUid: 4, ordinal: 1 }], isOrdered: false }
+const NOTHING = { items: [], isOrdered: false }
 
 const SELECTION_VALUES: Readonly<Record<string, readonly Loose[]>> = {
   nothingSelected: [{}],
@@ -126,7 +126,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   ],
   createdTaskSelected: [{ createdTaskUid: 3 }, { createdTaskUid: 8 }],
   taskGroupsPicked: [{ chosenTaskGroups: TASK_GROUPS }, { chosenTaskGroups: ['group3'] }, { chosenTaskGroups: [] }],
-  createdTaskGroupSelected: [{ createdGroupId: 'group9' }, { createdGroupId: 'group4' }],
+  createdTaskGroupSelected: [{ createdTaskGroupId: 'group9' }, { createdTaskGroupId: 'group4' }],
   resourcesPicked: [{ chosenResources: RESOURCES }, { chosenResources: [5] }, { chosenResources: [] }],
   copyTaken: [{ copiedForPaste: COPIED }, { copiedForPaste: { kind: 'taskGroup', taskGroupId: 'group3' } }],
 }
@@ -201,7 +201,7 @@ function expectedRoot(event: Loose, before: Loose): Loose {
     case 'taskGroupsPicked':
       return { ...kept, chosenTaskGroups: event['chosenTaskGroups'] }
     case 'createdTaskGroupSelected':
-      return { ...kept, chosenTaskGroups: [event['createdGroupId']] }
+      return { ...kept, chosenTaskGroups: [event['createdTaskGroupId']] }
     case 'resourcesPicked':
       return { ...kept, chosenResources: event['chosenResources'] }
     case 'copyTaken':
@@ -287,7 +287,7 @@ const SAMPLE: Record<string, unknown> = {
   armKind: 'dependencyArmed',
   shapeKind: null,
   glyph: null,
-  subject: { selection: { items: [], ordered: false }, groupIds: [] },
+  subject: { selection: { items: [], isOrdered: false }, taskGroupIds: [] },
   date: '2026-01-05',
   percent: 100,
   end: 'max',

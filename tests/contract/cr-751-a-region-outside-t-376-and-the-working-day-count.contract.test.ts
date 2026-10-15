@@ -15,7 +15,7 @@ import {
   viewRegionOf,
   zoneClockOf,
 } from '../../src/entity/document-model/schedule/time-zone'
-import { holdsWorkingDayUnlikeMinutesPerDay } from '../../src/entity/document-model/schedule/working-calendar'
+import { isWorkingDayUnlikeMinutesPerDay } from '../../src/entity/document-model/schedule/working-calendar'
 import { importDocument, type ImportRequest } from '../../src/use-case/import-document/import-document'
 import { validateImportedDocument } from '../../src/use-case/validate-imported-document/validate-imported-document'
 import { settingNumber, settingRow } from '../fixtures/setting-number'
@@ -264,7 +264,7 @@ const ONE_OFF_KINDS: readonly (number | null)[] = [9, null, 1]
 const RECURRING_KINDS: readonly number[] = [2, 3, 4, 5, 6, 7, 8]
 
 // see FR-054, RS-89, AT-82, S-128, S-580
-describe('FR-054 / RS-89: holdsWorkingDayUnlikeMinutesPerDay counts one-off exception days with their own spans', () => {
+describe('FR-054 / RS-89: isWorkingDayUnlikeMinutesPerDay counts one-off exception days with their own spans', () => {
   it('premise: the default spans S-580 total S-128, SHORT_DAY does not, FULL_DAY_BY_S_128 does', () => {
     expect(S_580.reduce((sum, [from, to]) => sum + minutesOf(to) - minutesOf(from), 0)).toBe(S_128)
     expect(SHORT_MINUTES).not.toBe(S_128)
@@ -272,25 +272,25 @@ describe('FR-054 / RS-89: holdsWorkingDayUnlikeMinutesPerDay counts one-off exce
   })
 
   it('the fixture calendar (weekdays on the S-580 spans, minutesPerDay null) holds no such day', () => {
-    expect(holdsWorkingDayUnlikeMinutesPerDay(scheduleWith([]))).toBe(false)
+    expect(isWorkingDayUnlikeMinutesPerDay(scheduleWith([]))).toBe(false)
   })
 
   it.each(ONE_OFF_KINDS.map((kind) => [String(kind), kind]))(
     'a one-off exception (AT-82 recurrenceKind %s) whose own spans total other than minutesPerDay: true',
     (_name, kind) => {
-      expect(holdsWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(kind, true, SHORT_DAY)]))).toBe(true)
+      expect(isWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(kind, true, SHORT_DAY)]))).toBe(true)
     },
   )
 
   it.each(ONE_OFF_KINDS.map((kind) => [String(kind), kind]))(
     'a one-off exception (AT-82 recurrenceKind %s) whose own spans total minutesPerDay: false',
     (_name, kind) => {
-      expect(holdsWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(kind, true, FULL_DAY_BY_S_128)]))).toBe(false)
+      expect(isWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(kind, true, FULL_DAY_BY_S_128)]))).toBe(false)
     },
   )
 
   it('with Project.minutesPerDay set to the one-off day total, the S-580 weekdays are what differ', () => {
-    expect(holdsWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(9, true, SHORT_DAY)], SHORT_MINUTES))).toBe(
+    expect(isWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(9, true, SHORT_DAY)], SHORT_MINUTES))).toBe(
       S_128 !== SHORT_MINUTES,
     )
   })
@@ -298,16 +298,16 @@ describe('FR-054 / RS-89: holdsWorkingDayUnlikeMinutesPerDay counts one-off exce
   it.each(RECURRING_KINDS.map((kind) => [String(kind), kind]))(
     'a recurring exception (AT-82 recurrenceKind %s) with spans unlike minutesPerDay does not count (FR-054 MUST NOT): false',
     (_name, kind) => {
-      expect(holdsWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(kind, true, SHORT_DAY)]))).toBe(false)
+      expect(isWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(kind, true, SHORT_DAY)]))).toBe(false)
     },
   )
 
   it('a one-off non-working exception day (no spans) is not a working day: false', () => {
-    expect(holdsWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(9, false, [])]))).toBe(false)
+    expect(isWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(9, false, [])]))).toBe(false)
   })
 
   it('a one-off working exception day without its own spans reads S-580, which totals S-128: false', () => {
-    expect(holdsWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(9, true, [])]))).toBe(false)
+    expect(isWorkingDayUnlikeMinutesPerDay(scheduleWith([exceptionRow(9, true, [])]))).toBe(false)
   })
 })
 

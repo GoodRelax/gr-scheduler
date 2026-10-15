@@ -591,7 +591,7 @@ src/
 - `NFR-001`（初期描画の上限）—— `tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts`。
 - `NFR-004`（単一ファイル・オフライン）—— `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`。
   同要求が求めるとおり、`file://` で開いた状態と `http://` で開いた状態の両方で同じ母数を掃く。
-- `FR-030`（色だけで伝えない）—— `tests/usecase/uc-005-record-actuals.test.ts`（表 T-021 の進捗マーカーは、状態ごとに形が違う）と `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`（表 T-023c の `SL-8`、選択を破線の枠でも示す）。
+- `FR-030`（色だけで伝えない）—— `tests/use-case/uc-005-record-actuals.test.ts`（表 T-021 の進捗マーカーは、状態ごとに形が違う）と `tests/system/nfr-004-file-scheme-sweep.sws.test.ts`（表 T-023c の `SL-8`、選択を破線の枠でも示す）。
 - `FR-069`（ライセンス全文を成果物の中に持つ）—— 検査 27 が走らせる `tools/generate_license.py --check`。
 
 ⚠️ **起点をまだ書いていない要求が 9 件ある。**  
@@ -836,7 +836,7 @@ src/
 状態機械・状態・出来事・遷移は、番号ではなく名で指す。  
 状態機械（定義）の名は、追うものを表す名詞句に `StateMachine` を付けたもの（`armModeStateMachine`）で、全領域を通して 1 つしかない。  
 コードが今の状態を持つ値とその型は、同じ名詞句に `State` を付ける（`armModeState` ・ `ArmModeState`）。  
-状態は「この状態機械は今〈状態〉である」と読める過去分詞・形容詞（`taskShapeArmed` ・ `hidden`）か、現在分詞と目的語（`placingDate1`）とし、名は `状態機械.キー`（`paletteDisplayStateMachine.shown.expanded`）である。  
+状態は「この状態機械は今〈状態〉である」と読める過去分詞・形容詞（`taskShapeArmed` ・ `hidden`）か、現在分詞と目的語（`placingCursorA`）とし、名は `状態機械.キー`（`paletteDisplayStateMachine.shown.expanded`）である。  
 出来事の名は `領域/キー`（`screen/armEntryPressed`）、遷移の名はその升（状態機械・いまの状態・出来事の組）である。  
 同じ領域の状態機械どうしは直交する。  
 キーが 2 語以上の状態（`shown.expanded`）は、親（`shown`）の単一の共用体の種類である。
@@ -1909,7 +1909,7 @@ JSON を扱うエディタの多くは、データの文書の `"$schema"` を�
 
 | 行 ID | 章 | ケースの起こし方 | 合格基準 |
 | --- | --- | --- | --- |
-| TW-1 | Chapter 8 | ノードを起こさない。<br>ケースは 表 T-334 の `VT-1` が決める | Chapter 3.2 の `UC-xxx` のすべてが `tests/usecase/` に 1 本を持ち、関門の走行で緑であること |
+| TW-1 | Chapter 8 | ノードを起こさない。<br>ケースは 表 T-334 の `VT-1` が決める | Chapter 3.2 の `UC-xxx` のすべてが `tests/use-case/` に 1 本を持ち、関門の走行で緑であること |
 | TW-2 | Chapter 9 | ノードを起こさない | `tests/integration/` と `tests/system/` が関門の走行で緑であること |
 | TW-3 | Chapter 10 | ノードを起こさない。<br>ケースは 表 T-334 の `VT-3` が決める | 表 T-043 のゲート行が、節目を閉じる走行で通ること |
 

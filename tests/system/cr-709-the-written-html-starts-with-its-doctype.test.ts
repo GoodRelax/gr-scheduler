@@ -2,7 +2,7 @@
 import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { VIEWPORT, launch, press, savedFiles, settle } from '../usecase/uc-harness'
+import { VIEWPORT, launch, press, savedFiles, settle } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 

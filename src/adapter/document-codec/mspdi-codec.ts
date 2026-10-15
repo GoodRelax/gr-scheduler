@@ -50,7 +50,7 @@ import {
   type FadeColumn,
 } from './mspdi-fade-frames'
 import { taskGroupsFromTasks } from './mspdi-imported-task-groups'
-import { fault, readXml, writtenXml, type MspdiFault, type XmlElement } from './mspdi-xml'
+import { mspdiFault, readXml, writtenXml, type MspdiFault, type XmlElement } from './mspdi-xml'
 
 export type { MspdiFault } from './mspdi-xml'
 
@@ -331,7 +331,7 @@ export function documentFromMspdi(text: string, current: Document): MspdiDecodin
   if (root.name !== 'Project') {
     return {
       ok: false,
-      faults: [fault('', `the root element is <${root.name}>, not <Project> (mspdi_pj12.xsd)`)],
+      faults: [mspdiFault('', `the root element is <${root.name}>, not <Project> (mspdi_pj12.xsd)`)],
     }
   }
 

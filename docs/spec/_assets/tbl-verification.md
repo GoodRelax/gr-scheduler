@@ -27,7 +27,7 @@
 
 | 行 ID | 系統 | 確かめるもの | 親に取るもの | テストレベル | 置き場 | ツール |
 | --- | --- | --- | --- | --- | --- | --- |
-| TS-1 | ユースケーステスト | 表 T-334 の `VT-1` | `UC-xxx` | System | `tests/usecase/` | Playwright |
+| TS-1 | ユースケーステスト | 表 T-334 の `VT-1` | `UC-xxx` | System | `tests/use-case/` | Playwright |
 | TS-2 | ソフトウェア仕様テスト | —— | `SWS-xxx` | Integration | `tests/integration/` | Vitest |
 | TS-3 | ソフトウェア仕様テスト | —— | `SWS-xxx` | System | `tests/system/` | Playwright |
 | TS-4 | 非機能テスト | 表 T-334 の `VT-3` | `NFR-xxx` | —— | `tests/nfr/` | Playwright |

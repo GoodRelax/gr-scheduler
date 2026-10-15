@@ -117,7 +117,7 @@ afterEach(() => {
 describe('AG-6 -- the same name subscribed twice', () => {
   it(`${Q31} / ${Q32}`, () => {
     const document = taskGroupDocument([{ id: 'task-group-1', parentId: null }]) as unknown as Document
-    const since = { seenScheduleUpdatedUtc: '2000-01-01T00:00:00Z', seenSequence: 0 }
+    const since = { seenScheduleUpdatedAt: '2000-01-01T00:00:00Z', seenSequence: 0 }
     const first: ChangeNotice[] = []
     const second: ChangeNotice[] = []
     const firstAnswer = watchChanges(WATCHERS, { watcher: WATCHER, since, deliver: (notice) => first.push(notice) })

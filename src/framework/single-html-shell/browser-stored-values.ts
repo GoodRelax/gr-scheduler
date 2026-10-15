@@ -5,7 +5,7 @@
 
 import type { DisplayLanguage } from '../../adapter/screen-renderer/screen-renderer'
 
-const WEB_STORAGE_KEY_PREFIX = 'grsched.'
+const WEB_STORAGE_KEY_PREFIX = 'grs.'
 
 const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
   'S-99': `${WEB_STORAGE_KEY_PREFIX}screenLanguage`,
@@ -84,6 +84,6 @@ export function startupThemePreference(): 'light' | 'dark' {
 
 // see FR-065, S-99b
 /** @purity semi-pure-b */
-export function startupAgentApiEnabled(): boolean {
+export function isStartupAgentApiEnabled(): boolean {
   return readBrowserStored('S-99b') === String(true)
 }

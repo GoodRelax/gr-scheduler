@@ -538,7 +538,7 @@ function drawnReferenceOf(inputs: GeometryInputs, placed: TaskPlacement): LabelR
   const settings = inputs.settings
   const plan = { x: placed.x, width: placed.width }
   const fade = { fadeIn: placed.fadeInPx, fadeOut: placed.fadeOutPx }
-  if (!inputs.showActual) return labelReferenceOf(placed.shapeKind, plan, fade, null, settings)
+  if (!inputs.isActualVisible) return labelReferenceOf(placed.shapeKind, plan, fade, null, settings)
   const diameter = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings)
   const band = placed.actualX === null
     ? dummyBandOf(placed.shapeKind, plan, diameter, dummyAxisOf(inputs))
@@ -643,10 +643,10 @@ function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
       point(x + arm + head, middle),
       point(x + arm, middle + head),
     ],
-    valid,
+    isValid: valid,
     box: { x, y: middle - diameter / 2, width: diameter, height: diameter },
     dash: undecided ? [] : [point(stopX, middle), point(x, middle)],
-    undecided,
+    isUndecided: undecided,
   }
 }
 
@@ -673,7 +673,7 @@ function dummyEndOf(inputs: GeometryInputs, from: CalendarDay): CalendarDay {
 function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                    actualHeight: number): readonly DummyGeometry[] {
   // TRAP: empties only what is drawn and grabbed; the room stays in the layout's dummyReach (DM-14, FR-049).
-  if (!inputs.showActual || placed.actualX !== null) return []
+  if (!inputs.isActualVisible || placed.actualX !== null) return []
   // WHY: the plan start itself, not the working day after it: the mark stands where the actual would start (DM-1).
   const from = dayOf(task.start)
   if (from === null) return []
@@ -745,7 +745,7 @@ function outsideLabelBoxOf(inputs: GeometryInputs, placed: TaskPlacement): Scree
   const settings = inputs.settings
   const height = placed.labelFontSize
   const width = placed.outsideLabelWidth
-  const drawnStart = inputs.showActual && placed.actualX !== null
+  const drawnStart = inputs.isActualVisible && placed.actualX !== null
     ? Math.min(placed.x, placed.actualX)
     : placed.x
   const anchor = assigneeAnchorOf(
@@ -768,12 +768,12 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
   const actualHeight = placed.planHeight * settings.actualOfPlan
   const planTop = placed.y
 
-  const plan = inputs.showPlan
+  const plan = inputs.isPlanVisible
     ? barOf(inputs, placed, placed.x, placed.x + placed.width, planTop, placed.planHeight, false)
     : null
 
   let actual: BarGeometry | null = null
-  if (inputs.showActual && placed.actualX !== null) {
+  if (inputs.isActualVisible && placed.actualX !== null) {
     const x0 = placed.actualX
     if (placed.actualPlacement === 'sideways') {
       const side = placed.planHeight * settings.actualOfPlan
@@ -806,7 +806,7 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
     marker,
     // WHY: follows the state, not the symbol: a late suspended Task shows PM-4 and is still suspended.
     resume:
-      marker !== null && suspended && inputs.showActual && placed.shapeKind !== 'milestone'
+      marker !== null && suspended && inputs.isActualVisible && placed.shapeKind !== 'milestone'
         ? resumeOf(inputs, task, placed, settings)
         : null,
     dummies,

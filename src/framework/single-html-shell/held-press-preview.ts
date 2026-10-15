@@ -123,7 +123,7 @@ export function previewOfHeldPress(
 
 // see FR-052, U-50
 /** @purity pure */
-export function leavesTaskGroupArea(propertyPanelWidth: number, regions: ScreenRegions): boolean {
+export function isLeavingTaskGroupArea(propertyPanelWidth: number, regions: ScreenRegions): boolean {
   return regions.taskGroupArea.width + regions.propertiesPanel.width - propertyPanelWidth > 0
 }
 
@@ -138,7 +138,7 @@ export function heldPropertyPanelWidthOf(
   const release: PointerInput = { ...press.at, phase: 'up', x: at.x, y: at.y }
   const settled = screenEventFromInput(release, context)
   if (settled?.type !== 'propertyPanelWidthSettled') return null
-  return leavesTaskGroupArea(settled.propertyPanelWidth, context.regions) ? settled.propertyPanelWidth : null
+  return isLeavingTaskGroupArea(settled.propertyPanelWidth, context.regions) ? settled.propertyPanelWidth : null
 }
 
 // see FR-009, PTD-3, T-018, T-018a

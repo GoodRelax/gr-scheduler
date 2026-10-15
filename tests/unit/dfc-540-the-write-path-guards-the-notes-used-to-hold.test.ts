@@ -26,14 +26,14 @@ const planOf = (document: Document, commands: readonly unknown[]) =>
   planDocumentChange({
     defaultTaskGroupName: TASK_GROUP_NAME,
     document,
-    readStamp: document.documentStamp,
+    expectedStamp: document.documentStamp,
     commands: commands as readonly DocumentCommand[],
     moment: CALM,
     history: EMPTY_HISTORY,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: LIMITS,
     editedBy: 'agent',
-    updatedUtc: '2099-01-01T00:00:00Z',
+    updatedAt: '2099-01-01T00:00:00Z',
   })
 
 const FROM = 1

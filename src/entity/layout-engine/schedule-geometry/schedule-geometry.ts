@@ -125,10 +125,10 @@ export interface MarkerGeometry {
 export interface ResumeGeometry {
   readonly arm: Path
   readonly head: Path
-  readonly valid: boolean
+  readonly isValid: boolean
   readonly box: ScreenRect
   readonly dash: Path
-  readonly undecided: boolean
+  readonly isUndecided: boolean
 }
 
 // see FR-043, GA-5, GA-6, GA-17, GA-21, GA-22
@@ -237,8 +237,8 @@ export interface CommentGeometry {
 
 // see CU-2
 export interface DualCursorGeometry {
-  readonly date1X: number
-  readonly date2X: number
+  readonly cursorAX: number
+  readonly cursorBX: number
   readonly top: number
   readonly bottom: number
 }
@@ -281,8 +281,8 @@ export interface GeometryInputs {
   readonly within: WorkingCalendar
   readonly taskByUid: ReadonlyMap<number, Task>
   readonly statusDate: CalendarDay | null
-  readonly showPlan: boolean
-  readonly showActual: boolean
+  readonly isPlanVisible: boolean
+  readonly isActualVisible: boolean
   readonly selectedTaskUids: ReadonlySet<number>
   readonly selectedLinks: ReadonlySet<string>
   // TRAP: made and dropped inside one call; holding it longer is a cache Chapter 5.6 must first record (R2.20).
@@ -595,8 +595,8 @@ export function geometryFromLayout(
     within: workingCalendarOf(schedule),
     taskByUid: new Map(schedule.tasks.map((one) => [one.uid, one])),
     statusDate: dayOf(schedule.project.statusDate),
-    showPlan: settings.isPlanVisible,
-    showActual: settings.isActualVisible,
+    isPlanVisible: settings.isPlanVisible,
+    isActualVisible: settings.isActualVisible,
     selectedTaskUids: new Set(taskUidsIn(selection)),
     selectedLinks: selectedLinksOf(schedule, selection),
     dummyEndByFrom: new Map<string, CalendarDay>(),

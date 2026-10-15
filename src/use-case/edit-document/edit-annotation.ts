@@ -128,7 +128,7 @@ function lookNumberRefusal(command: string, row: AnnotationNumberRow, value: num
 }
 
 /** @purity pure */
-function withSchedule(document: Document, part: Partial<Schedule>): Document {
+function withScheduleParts(document: Document, part: Partial<Schedule>): Document {
   return { ...document, schedule: { ...document.schedule, ...part } }
 }
 
@@ -145,13 +145,13 @@ function highlightBoxOf(document: Document, id: string): HighlightBox | null {
 /** @purity pure */
 function putCommentBox(document: Document, box: CommentBox): Document {
   const boxes = document.schedule.commentBoxes.map((one) => (one.id === box.id ? box : one))
-  return withSchedule(document, { commentBoxes: boxes })
+  return withScheduleParts(document, { commentBoxes: boxes })
 }
 
 /** @purity pure */
 function putHighlightBox(document: Document, box: HighlightBox): Document {
   const boxes = document.schedule.highlightBoxes.map((one) => (one.id === box.id ? box : one))
-  return withSchedule(document, { highlightBoxes: boxes })
+  return withScheduleParts(document, { highlightBoxes: boxes })
 }
 
 /** @purity pure */
@@ -219,7 +219,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         fillTransparencyPercent: null,
         textColor: null,
       }
-      return edited(withSchedule(document, { commentBoxes: [...schedule.commentBoxes, box] }))
+      return edited(withScheduleParts(document, { commentBoxes: [...schedule.commentBoxes, box] }))
     }
 
     case 'deleteCommentBox': {
@@ -228,7 +228,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         return refused([reject('CM-47', 'AT-110', `no comment box with id ${command.id}`)])
       }
       return edited(
-        withSchedule(document, { commentBoxes: schedule.commentBoxes.filter((one) => one !== box) }),
+        withScheduleParts(document, { commentBoxes: schedule.commentBoxes.filter((one) => one !== box) }),
       )
     }
 
@@ -286,7 +286,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         fillColor: NOT_STORED_ANNOTATION_SIZES['S-370'],
         fillTransparencyPercent: null,
       }
-      return edited(withSchedule(document, { highlightBoxes: [...schedule.highlightBoxes, box] }))
+      return edited(withScheduleParts(document, { highlightBoxes: [...schedule.highlightBoxes, box] }))
     }
 
     case 'deleteHighlightBox': {
@@ -295,7 +295,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         return refused([reject('CM-53', 'AT-116', `no highlight box with id ${command.id}`)])
       }
       return edited(
-        withSchedule(document, {
+        withScheduleParts(document, {
           highlightBoxes: schedule.highlightBoxes.filter((one) => one !== box),
         }),
       )

@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import {
   commandFromInput,
-  pressRowOf,
+  pressedRowOf,
   type HumanInput,
   type InputContext,
   type InputModifiers,
@@ -122,7 +122,7 @@ describe('CR-560 premises: the clauses read this way', () => {
     expect(line).toContain('`pasteTasks`')
     expect(line).toContain('`Ctrl` ドラッグのコピーは載せ方も運ぶ（`FR-033` の 表 T-308 の `CY-5` ・ `CY-6`）')
     expect(line).toContain('`shiftMinutes`: `integer` —— コピーをずらす量（分、符号付き')
-    expect(line).toContain('`groupIdOf`: `integer` から `string` への対応')
+    expect(line).toContain('`taskGroupIdOf`: `integer` から `string` への対応')
   })
 
   it('FR-036: the help lists MK-15', () => {
@@ -504,10 +504,10 @@ const LIMITS: SettingsLimits = {
   taskGroupAreaWidthWithoutPanels: 982,
 }
 
-const PICKED_ROOT: Selection = { items: [{ kind: 'task', uid: ROOT }], ordered: true } as unknown as Selection
+const PICKED_ROOT: Selection = { items: [{ kind: 'task', uid: ROOT }], isOrdered: true } as unknown as Selection
 const PICKED_ROOT_AND_CHILD: Selection = {
   items: [{ kind: 'task', uid: ROOT }, { kind: 'task', uid: CHILD }],
-  ordered: true,
+  isOrdered: true,
 } as unknown as Selection
 
 function contextOf(built: Stage, selection: Selection, over: Partial<InputContext> = {}): InputContext {
@@ -537,10 +537,10 @@ function contextOf(built: Stage, selection: Selection, over: Partial<InputContex
 function pressAt(built: Stage, context: InputContext, at: Point, modifiers: Partial<InputModifiers>, button: PointerButton = 'left'): PointerPress {
   const down = pointer('down', at, modifiers, button)
   const hit = hitAt(built.loop, at)
-  return { at: down, hit, on: null, pressRow: pressRowOf({ at: down, hit }, context) }
+  return { at: down, hit, on: null, pressRow: pressedRowOf({ at: down, hit }, context) }
 }
 
-describe('T-023a PTD-7 / T-308 CY-1, CY-2: which press starts a copy (pressRowOf)', () => {
+describe('T-023a PTD-7 / T-308 CY-1, CY-2: which press starts a copy (pressedRowOf)', () => {
   it('a Ctrl-only left press on a selected Task body is PTD-7', () => {
     const built = stage()
     const context = contextOf(built, PICKED_ROOT)
@@ -567,7 +567,7 @@ describe('T-023a PTD-7 / T-308 CY-1, CY-2: which press starts a copy (pressRowOf
 
   it('PTD-7: in Dual Cursor mode the press does not copy', () => {
     const built = stage()
-    const context = contextOf(built, PICKED_ROOT, { dualCursorFollowing: 'date1' })
+    const context = contextOf(built, PICKED_ROOT, { dualCursorFollowing: 'cursorA' })
     expect(pressAt(built, context, bodyOf(built.loop, ROOT), CTRL).pressRow).not.toBe('PTD-7')
   })
 
@@ -602,11 +602,11 @@ describe('T-308 CY-3, CY-5, CY-6, CY-8: the release of a PTD-7 press (commandFro
     expect(action?.kind).toBe('changeDocument')
     const writes = action.writes.flat()
     expect(writes).toHaveLength(1)
-    const paste = writes[0] as unknown as { kind: string; sourceUids: number[]; landing: { shiftMinutes: number; groupIdOf: Record<number, string> } }
+    const paste = writes[0] as unknown as { kind: string; sourceUids: number[]; landing: { shiftMinutes: number; taskGroupIdOf: Record<number, string> } }
     expect(paste.kind).toBe('pasteTasks')
     expect(paste.sourceUids).toEqual([ROOT])
     expect(paste.landing.shiftMinutes).toBe(3 * 1440)
-    expect(paste.landing.groupIdOf[ROOT]).toBe(TASK_GROUP_B)
+    expect(paste.landing.taskGroupIdOf[ROOT]).toBe(TASK_GROUP_B)
     const copyUid = pastedUidsOf(built.loop.document().schedule, [ROOT]).get(ROOT)
     expect(copyUid).toBeDefined()
     expect((action.picked as unknown as { items: unknown[] }).items).toEqual([taskRef(copyUid as number)])
@@ -901,7 +901,7 @@ describe('T-223 DU-1: every road makes an unstarted copy and leaves the source',
       {
         kind: 'pasteTasks',
         sourceUids: [ROOT, CHILD, STONE, PAUSED, HALTED],
-        landing: { shiftMinutes: 3 * 1440, groupIdOf: { [ROOT]: TASK_GROUP_B, [CHILD]: TASK_GROUP_D, [STONE]: TASK_GROUP_E, [PAUSED]: TASK_GROUP_C, [HALTED]: TASK_GROUP_F } },
+        landing: { shiftMinutes: 3 * 1440, taskGroupIdOf: { [ROOT]: TASK_GROUP_B, [CHILD]: TASK_GROUP_D, [STONE]: TASK_GROUP_E, [PAUSED]: TASK_GROUP_C, [HALTED]: TASK_GROUP_F } },
       } as DocumentCommand,
       LIMITS,
       'Task group',

@@ -22,7 +22,7 @@ import type {
   AgentRefusal,
   AgentRefusalReason,
   AgentShownTasks,
-  AgentUtteranceOutcome,
+  AgentDialogueMessageOutcome,
   AgentWatch,
   AgentWriteOutcome,
   AgentWriteRequest,
@@ -152,7 +152,7 @@ describe('the AgentApi type, member by member (T-107)', () => {
     expectTypeOf<Parameters<AgentApi['watchChanges']>>().toEqualTypeOf<[receive: AgentChangeReceiver]>()
     expectTypeOf<ReturnType<AgentApi['watchChanges']>>().toEqualTypeOf<AgentWatch>()
     expectTypeOf<Parameters<AgentApi['postDialogueMessage']>>().toEqualTypeOf<[text: string]>()
-    expectTypeOf<ReturnType<AgentApi['postDialogueMessage']>>().toEqualTypeOf<AgentUtteranceOutcome>()
+    expectTypeOf<ReturnType<AgentApi['postDialogueMessage']>>().toEqualTypeOf<AgentDialogueMessageOutcome>()
   })
 
   it('a refusal carries the six fields of AV-3 and its reason is the type of AV-4', () => {

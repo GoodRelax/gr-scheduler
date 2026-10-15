@@ -68,18 +68,18 @@ const confirmedOf = (
 ): ConfirmedChange => ({ document, hasMovedSchedule, dialogue })
 
 const markAt = (confirmed: ConfirmedChange): WatcherMark => ({
-  seenScheduleUpdatedUtc: confirmed.document.documentStamp.scheduleUpdatedAt,
+  seenScheduleUpdatedAt: confirmed.document.documentStamp.scheduleUpdatedAt,
   seenSequence: latestSequence(confirmed.dialogue),
 })
 
 // WHY: table T-035's AG-6, copied here as fixed cases per Chapter 1.9 --
 // the watcher is SELF, already handed the document as it stood at T0.
-const SEEN: WatcherMark = { seenScheduleUpdatedUtc: T0, seenSequence: 0 }
+const SEEN: WatcherMark = { seenScheduleUpdatedAt: T0, seenSequence: 0 }
 
 const AG_6_CASES = [
   {
     case: 'someone else moved the schedule-data group',
-    scheduleUtc: T1,
+    scheduleUpdatedAt: T1,
     movedSchedule: true,
     writer: OTHER,
     spokenBy: null,
@@ -89,7 +89,7 @@ const AG_6_CASES = [
   },
   {
     case: 'my own write moved the schedule-data group (MUST NOT wake me)',
-    scheduleUtc: T1,
+    scheduleUpdatedAt: T1,
     movedSchedule: true,
     writer: SELF,
     spokenBy: null,
@@ -99,7 +99,7 @@ const AG_6_CASES = [
   },
   {
     case: 'someone else settled an utterance, which moves no instant (AG-11)',
-    scheduleUtc: T0,
+    scheduleUpdatedAt: T0,
     movedSchedule: false,
     writer: OTHER,
     spokenBy: OTHER,
@@ -109,7 +109,7 @@ const AG_6_CASES = [
   },
   {
     case: 'my own utterance (MUST NOT wake me)',
-    scheduleUtc: T0,
+    scheduleUpdatedAt: T0,
     movedSchedule: false,
     writer: OTHER,
     spokenBy: SELF,
@@ -119,7 +119,7 @@ const AG_6_CASES = [
   },
   {
     case: 'both halves at once: a change and an utterance by someone else',
-    scheduleUtc: T1,
+    scheduleUpdatedAt: T1,
     movedSchedule: true,
     writer: OTHER,
     spokenBy: OTHER,
@@ -129,7 +129,7 @@ const AG_6_CASES = [
   },
   {
     case: 'nothing new to me',
-    scheduleUtc: T0,
+    scheduleUpdatedAt: T0,
     movedSchedule: false,
     writer: OTHER,
     spokenBy: null,
@@ -139,7 +139,7 @@ const AG_6_CASES = [
   },
 ] as const satisfies readonly {
   case: string
-  scheduleUtc: string
+  scheduleUpdatedAt: string
   movedSchedule: boolean
   writer: string
   spokenBy: string | null
@@ -152,7 +152,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
   it('AG-6 wakes a watcher for the confirmed changes and utterances of OTHER writers only', () => {
     for (const row of AG_6_CASES) {
       const confirmed = confirmedOf(
-        documentOf(row.scheduleUtc, row.writer),
+        documentOf(row.scheduleUpdatedAt, row.writer),
         row.spokenBy === null ? emptyDialogueLog() : logOf([row.spokenBy, 'ま']),
         row.movedSchedule,
       )
@@ -216,7 +216,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
         const confirmed = confirmedOf(documentOf(T1, SELF), emptyDialogueLog(), movedSchedule)
         const notice = changeNoticeFor(
           SELF,
-          { seenScheduleUpdatedUtc: held, seenSequence: 0 },
+          { seenScheduleUpdatedAt: held, seenSequence: 0 },
           confirmed,
         )
         expect(notice, `movedSchedule=${movedSchedule} held=${held}`).toBeNull()
@@ -227,7 +227,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
   it('AG-6 wakes a watcher holding t2 when an UNDO returns the document to t1', () => {
     // WHY: this is the one case that goes red if an ordering read of the
     // stamp ever comes back (FR-063 MUST NOT); CR-205 was raised against it.
-    const held: WatcherMark = { seenScheduleUpdatedUtc: T2, seenSequence: 0 }
+    const held: WatcherMark = { seenScheduleUpdatedAt: T2, seenSequence: 0 }
 
     expect(T1 < T2).toBe(true)
 
@@ -241,12 +241,12 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     expect(notice.document).toBe(restored.document)
     // WHY: the mark is now t1 -- the watcher holds what it was handed, not
     // the high-water mark of everything it ever saw.
-    expect(notice.mark.seenScheduleUpdatedUtc).toBe(T1)
+    expect(notice.mark.seenScheduleUpdatedAt).toBe(T1)
 
     const asAMove = confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true)
     expect(changeNoticeFor(SELF, held, asAMove)).not.toBeNull()
 
-    const alreadyThere: WatcherMark = { seenScheduleUpdatedUtc: T1, seenSequence: 0 }
+    const alreadyThere: WatcherMark = { seenScheduleUpdatedAt: T1, seenSequence: 0 }
     expect(changeNoticeFor(SELF, alreadyThere, restored)).toBeNull()
   })
 
@@ -258,7 +258,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
 
     const notice = changeNoticeFor(
       SELF,
-      { seenScheduleUpdatedUtc: T0, seenSequence: 1 },
+      { seenScheduleUpdatedAt: T0, seenSequence: 1 },
       confirmed,
     )
     expect(notice).not.toBeNull()
@@ -266,7 +266,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     expect(notice.messages.map((message) => message.text)).toEqual(['b', 'c'])
     expect(notice.document).toBeNull()
     expect(notice.mark.seenSequence).toBe(3)
-    expect(notice.mark.seenScheduleUpdatedUtc).toBe(T0)
+    expect(notice.mark.seenScheduleUpdatedAt).toBe(T0)
     expect(confirmed.document.documentStamp.scheduleUpdatedAt).toBe(T0)
   })
 
@@ -368,7 +368,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     )
     expect(spoken.hasMovedSchedule).toBe(false)
     expect(heard[0]!.document).toBeNull()
-    expect(heard[0]!.mark.seenScheduleUpdatedUtc).toBe(T0)
+    expect(heard[0]!.mark.seenScheduleUpdatedAt).toBe(T0)
   })
 
   it('AG-6 delivers the UNDO to a watcher that already took t2, all the way through the registry', () => {
@@ -381,7 +381,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     const moved = confirmedOf(documentOf(T2, OTHER), emptyDialogueLog(), true)
     expect([...notifyChangeWatchers(WATCHERS, moved).notified]).toEqual([SELF])
     expect(heard).toHaveLength(1)
-    expect(heard[0]!.mark.seenScheduleUpdatedUtc).toBe(T2)
+    expect(heard[0]!.mark.seenScheduleUpdatedAt).toBe(T2)
 
     const undone = confirmedOf(start.document, emptyDialogueLog(), false)
     expect([...notifyChangeWatchers(WATCHERS, undone).notified]).toEqual([SELF])

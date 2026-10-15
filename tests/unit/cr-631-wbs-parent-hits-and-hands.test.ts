@@ -7,7 +7,7 @@ import {
   commandFromInput,
   isParentPickingCtrlClick,
   KEY,
-  pressRowOf,
+  pressedRowOf,
   selectionFromInput,
   type HumanInput,
   type InputContext,
@@ -97,7 +97,7 @@ interface Gesture {
 
 const gesture = (scene: Scene, from: Pt, to: Pt = from, modifiers: Partial<typeof MODS> = {}): Gesture => {
   const bare = pressOf(scene, from, modifiers)
-  const press = { ...bare, pressRow: pressRowOf(bare, scene.context) } as PointerPress
+  const press = { ...bare, pressRow: pressedRowOf(bare, scene.context) } as PointerPress
   const context = { ...scene.context, pressed: press } as InputContext
   const up = pointerAt('up', to, modifiers) as HumanInput
   return { press, out: commandFromInput(up, context), selection: selectionFromInput(up, context) }
@@ -176,7 +176,7 @@ describe('PTL-10 / PTL-12 / FR-135 -- the arrow as a thing to press', () => {
     const scene = sceneOf(DRAWN, emptySelection(), true)
     const from = emptyPoint(scene)
     const press = pressOf(scene, from)
-    expect(pressRowOf(press, scene.context), 'PTD-5').toBe('PTD-5')
+    expect(pressedRowOf(press, scene.context), 'PTD-5').toBe('PTD-5')
     const done = gesture(scene, from, { x: 1, y: barOf(scene, C).y + barOf(scene, C).height + 4 })
     const picked = kindsOf(done.selection)
     expect(picked).toContain(`task ${C}`)
@@ -253,7 +253,7 @@ describe('PTL-1 / PTL-2 / AR-7 -- arming the parent link', () => {
 describe('PTL-3 / PTL-5 .. PTL-8 -- armed, a release picks and a drag links', () => {
   it('PTD-3 / AR-7: armed, a press on a bar is PTD-3, not a T-023d grab row', () => {
     const scene = sceneOf(DRAWN, emptySelection(), true)
-    expect(pressRowOf(pressOf(scene, centerOf(barOf(scene, C))), scene.context)).toBe('PTD-3')
+    expect(pressedRowOf(pressOf(scene, centerOf(barOf(scene, C))), scene.context)).toBe('PTD-3')
   })
 
   it('PTL-3: armed, a still release on a bar selects it and writes nothing', () => {

@@ -1115,7 +1115,7 @@ describe('EL-14 -- elided lines are still drawn objects for selection', () => {
 
   it('EL-14: a selected EL-6 line stays selected -- panning does not change the selection', () => {
     const scene = neitherEnd()
-    const chosen = { items: [{ kind: 'dependency', successorUid: 2, ordinal: 0 }], ordered: true }
+    const chosen = { items: [{ kind: 'dependency', successorUid: 2, ordinal: 0 }], isOrdered: true }
     const kept = selectionWithinDrawn(chosen as never, scene.geometry) as unknown as { readonly items: readonly Loose[] }
     expect(kept.items.some((one) => one['kind'] === 'dependency' && one['successorUid'] === 2)).toBe(true)
   })

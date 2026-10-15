@@ -13,7 +13,7 @@ and it kept `DFC-318` open -- a row a person could add and never see.
 reliability ladder). This is the measurement.
 
 WHAT COUNTS AS A HIT. A 「…」 or 『…』 quotation, inside a comment of `src/` or
-`tests/contract`, `tests/system` or `tests/usecase` (TREES below), long enough
+`tests/contract`, `tests/system` or `tests/use-case` (TREES below), long enough
 to be a sentence rather than a name, whose text is not
 found in any manuscript under `docs/spec/`.
 
@@ -69,7 +69,7 @@ TREES = (
     'src',
     os.path.join('tests', 'contract'),
     os.path.join('tests', 'system'),
-    os.path.join('tests', 'usecase'),
+    os.path.join('tests', 'use-case'),
 )
 
 # ⭐ A quotation shorter than this is a NAME, not a sentence -- 「未定」,

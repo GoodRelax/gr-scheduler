@@ -4,8 +4,8 @@ import { describe, expect, it } from 'vitest'
 
 import { documentFromJson, jsonFromDocument } from '../../src/adapter/document-codec/document-codec'
 import type { Document } from '../../src/entity/document-model/document/document'
-import { TIME_ZONE_ROWS, standardTimeZoneKeyForPc } from '../../src/entity/document-model/schedule/time-zone'
-import { readPcStandardTimeZone } from '../../src/framework/single-html-shell/frame-loop'
+import { TIME_ZONE_ROWS, standardTimeZoneKeyForSystem } from '../../src/entity/document-model/schedule/time-zone'
+import { readSystemStandardTimeZone } from '../../src/framework/single-html-shell/frame-loop'
 import {
   OPEN_CHOOSER,
   REQUIREMENTS,
@@ -40,30 +40,30 @@ describe('the clauses and the rows these cases are built from still read as quot
   })
 })
 
-describe('DFC-2463 (b) FR-156: standardTimeZoneKeyForPc takes the smaller offset and folds to a standard-time row', () => {
+describe('DFC-2463 (b) FR-156: standardTimeZoneKeyForSystem takes the smaller offset and folds to a standard-time row', () => {
   it('a PC on Pacific time (-480 in January, -420 in July) is UTC-08:00 all year, never the daylight row', () => {
-    expect(standardTimeZoneKeyForPc({ januaryOffsetMinutes: -480, julyOffsetMinutes: -420 })).toBe(keyOfRow('ZN-33'))
+    expect(standardTimeZoneKeyForSystem({ januaryOffsetMinutes: -480, julyOffsetMinutes: -420 })).toBe(keyOfRow('ZN-33'))
   })
 
   it('a PC on Sydney time (+660 in January, +600 in July) is UTC+10:00: the smaller offset is the standard time', () => {
-    expect(standardTimeZoneKeyForPc({ januaryOffsetMinutes: 660, julyOffsetMinutes: 600 })).toBe(keyOfRow('ZN-62'))
+    expect(standardTimeZoneKeyForSystem({ januaryOffsetMinutes: 660, julyOffsetMinutes: 600 })).toBe(keyOfRow('ZN-62'))
   })
 
   it('UTC+05:45 folds to ZN-57 (UTC+05:30): +05:30 and +06:00 are as near, and the upper row wins', () => {
-    expect(standardTimeZoneKeyForPc({ januaryOffsetMinutes: 345, julyOffsetMinutes: 345 })).toBe(keyOfRow('ZN-57'))
+    expect(standardTimeZoneKeyForSystem({ januaryOffsetMinutes: 345, julyOffsetMinutes: 345 })).toBe(keyOfRow('ZN-57'))
   })
 
   it('UTC+10:30 folds to ZN-62 (UTC+10:00): the daylight row UTC+11:00 DST is never offered, and +11:00 is the lower row', () => {
-    expect(standardTimeZoneKeyForPc({ januaryOffsetMinutes: 630, julyOffsetMinutes: 630 })).toBe(keyOfRow('ZN-62'))
+    expect(standardTimeZoneKeyForSystem({ januaryOffsetMinutes: 630, julyOffsetMinutes: 630 })).toBe(keyOfRow('ZN-62'))
   })
 
   it('a PC on UTC+09:00 is ZN-61', () => {
-    expect(standardTimeZoneKeyForPc({ januaryOffsetMinutes: 540, julyOffsetMinutes: 540 })).toBe(keyOfRow('ZN-61'))
+    expect(standardTimeZoneKeyForSystem({ januaryOffsetMinutes: 540, julyOffsetMinutes: 540 })).toBe(keyOfRow('ZN-61'))
   })
 })
 
 // WHY: a zone of the table other than this PC's, so a change to the PC's region shows.
-const PC_REGION = readPcStandardTimeZone()
+const PC_REGION = readSystemStandardTimeZone()
 const OTHER_REGION = TIME_ZONE_ROWS.filter((one) => !one.isDaylight).map((one) => one.key).find((one) => one !== PC_REGION) as string
 
 function heldIn(region: string): Document {

@@ -36,7 +36,7 @@ export type ResourceCommand =
 const WORK_RESOURCE = 1
 
 /** @purity pure */
-function withSchedule(document: Document, part: Partial<Schedule>): Document {
+function withScheduleParts(document: Document, part: Partial<Schedule>): Document {
   return { ...document, schedule: { ...document.schedule, ...part } }
 }
 
@@ -59,7 +59,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
         carryElements: [],
       }
       return edited(
-        withSchedule(document, {
+        withScheduleParts(document, {
           project: { ...project, uidHighWaterMark: nextUid },
           resources: [...resources, made],
         }),
@@ -77,7 +77,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
       }
       if (held.name === command.name) return edited(document)
       return edited(
-        withSchedule(document, {
+        withScheduleParts(document, {
           resources: resources.map((one) =>
             one.uid === command.uid ? { ...one, name: command.name } : one,
           ),
@@ -97,7 +97,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
       }
       const going = new Set(command.uids)
       return edited(
-        documentWithTableViewsKept(withSchedule(document, {
+        documentWithTableViewsKept(withScheduleParts(document, {
           resources: resources.filter((one) => !going.has(one.uid)),
           assignments: assignments.filter(
             (one) => one.resourceUid === null || !going.has(one.resourceUid),
@@ -112,7 +112,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
       )
       const kept = resources.filter((one) => referenced.has(one.uid))
       if (kept.length === resources.length) return edited(document)
-      return edited(documentWithTableViewsKept(withSchedule(document, { resources: kept })))
+      return edited(documentWithTableViewsKept(withScheduleParts(document, { resources: kept })))
     }
 
     case 'createAssignment': {
@@ -149,7 +149,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
         carryElements: [],
       }
       return edited(
-        withSchedule(document, {
+        withScheduleParts(document, {
           project: { ...project, uidHighWaterMark: nextUid },
           assignments: [...assignments, made],
         }),
@@ -170,7 +170,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
           ),
         ])
       }
-      return edited(withSchedule(document, { assignments: kept }))
+      return edited(withScheduleParts(document, { assignments: kept }))
     }
   }
 }

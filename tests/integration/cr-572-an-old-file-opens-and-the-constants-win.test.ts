@@ -55,7 +55,7 @@ const CARRIED_OVER: Readonly<Record<string, unknown>> = {
   basePlanHeight: 40,
   themePreference: 'dark',
   guideCursorMode: 'crosshair',
-  dualCursor: { date1: '2026-01-05', date2: '2026-01-09' },
+  dualCursor: { cursorADate: '2026-01-05', cursorBDate: '2026-01-09' },
   propertyPanelWidth: 500,
 }
 
@@ -125,7 +125,7 @@ function restingOnTheIcon(restedMs: number): ScreenViewReadings {
     iconUnderPointer: ICON,
     themePreference: 'light',
     themeHue: 214,
-    selectedGroupIds: [],
+    selectedTaskGroupIds: [],
     selectedResourceUids: [],
     notices: [],
     confirmation: null,

@@ -12,7 +12,7 @@ import {
 } from '../../entity/document-model/dialogue-log/dialogue-log'
 
 export interface WatcherMark {
-  readonly seenScheduleUpdatedUtc: string
+  readonly seenScheduleUpdatedAt: string
   readonly seenSequence: number
 }
 
@@ -41,7 +41,7 @@ export function changeNoticeFor(
   const stamp = confirmed.document.documentStamp
 
   const isScheduleUnseen =
-    confirmed.hasMovedSchedule || stamp.scheduleUpdatedAt !== seen.seenScheduleUpdatedUtc
+    confirmed.hasMovedSchedule || stamp.scheduleUpdatedAt !== seen.seenScheduleUpdatedAt
   const changed = isScheduleUnseen && stamp.lastEditedBy !== watcher
 
   const messages =
@@ -56,7 +56,7 @@ export function changeNoticeFor(
     document: changed ? confirmed.document : null,
     messages,
     mark: {
-      seenScheduleUpdatedUtc: changed ? stamp.scheduleUpdatedAt : seen.seenScheduleUpdatedUtc,
+      seenScheduleUpdatedAt: changed ? stamp.scheduleUpdatedAt : seen.seenScheduleUpdatedAt,
       seenSequence: latestSequence(confirmed.dialogue),
     },
   }

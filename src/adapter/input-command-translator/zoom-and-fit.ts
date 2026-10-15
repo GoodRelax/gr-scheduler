@@ -217,10 +217,10 @@ function timeZoomStepOf(context: InputContext, on: { readonly x: number; readonl
 }
 
 export interface ZoomEntranceEnds {
-  readonly timeOut: boolean
-  readonly timeIn: boolean
-  readonly verticalOut: boolean
-  readonly verticalIn: boolean
+  readonly isTimeOutAtEnd: boolean
+  readonly isTimeInAtEnd: boolean
+  readonly isVerticalOutAtEnd: boolean
+  readonly isVerticalInAtEnd: boolean
 }
 
 // see FR-029, IC-12, IC-13, IC-14, IC-15, ZE-1, ZE-3, S-75, S-76, S-229
@@ -229,10 +229,10 @@ export interface ZoomEntranceEnds {
 export function zoomEntranceEndsOf(context: InputContext): ZoomEntranceEnds {
   const on = zoomOnScreen(context)
   return {
-    timeOut: timeZoomStepOf(context, on, keyZoomFactor(context, false)) === on.x,
-    timeIn: timeZoomStepOf(context, on, keyZoomFactor(context, true)) === on.x,
-    verticalOut: isVerticalZoomAtLowerEnd(context, on),
-    verticalIn: verticalZoomStepOf(context, on, keyZoomFactor(context, true)) === on.y,
+    isTimeOutAtEnd: timeZoomStepOf(context, on, keyZoomFactor(context, false)) === on.x,
+    isTimeInAtEnd: timeZoomStepOf(context, on, keyZoomFactor(context, true)) === on.x,
+    isVerticalOutAtEnd: isVerticalZoomAtLowerEnd(context, on),
+    isVerticalInAtEnd: verticalZoomStepOf(context, on, keyZoomFactor(context, true)) === on.y,
   }
 }
 
@@ -399,7 +399,7 @@ function zoomCommand(
 // change both together.
 // see OP-10
 /** @purity pure */
-export function namesAPlace(
+export function isPlaceNamed(
   schedule: Schedule,
   scrollDate: string | null,
   scrollTaskGroupId: string | null,
@@ -413,9 +413,9 @@ export function namesAPlace(
 function placeSeated(context: InputContext): readonly DocumentCommand[] {
   const schedule = context.document.schedule
   const settings = context.document.documentSettings
-  if (namesAPlace(schedule, settings.scrollDate, settings.scrollTaskGroupId)) return []
+  if (isPlaceNamed(schedule, settings.scrollDate, settings.scrollTaskGroupId)) return []
   const at = scrolledAnchor(context, 0, 0)
-  if (!namesAPlace(schedule, at.scrollDate, at.scrollTaskGroupId)) return []
+  if (!isPlaceNamed(schedule, at.scrollDate, at.scrollTaskGroupId)) return []
   return [
     {
       kind: 'setScrollPosition',
@@ -543,7 +543,7 @@ function placeHeldStill(
     scrollTaskGroupId: heldTaskGroup.scrollTaskGroupId,
     scrollGroupOffset: heldTaskGroup.scrollGroupOffset,
   } as const
-  if (!namesAPlace(context.document.schedule, to.scrollDate, to.scrollTaskGroupId)) {
+  if (!isPlaceNamed(context.document.schedule, to.scrollDate, to.scrollTaskGroupId)) {
     return placeSeated(context)
   }
   return isScrollPositionInForce(context, to) ? [] : [to]
@@ -618,7 +618,7 @@ export function zoomOnScreen(context: InputContext): { readonly x: number; reado
   // TRAP: keep ?? and not === true: an absent flag falls back to OP-10's base half.
   const atStoredZoom =
     context.isPictureAtStoredZoom ??
-    namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollTaskGroupId)
+    isPlaceNamed(context.document.schedule, settings.scrollDate, settings.scrollTaskGroupId)
   if (atStoredZoom) {
     return { x: settings.zoomX, y: settings.zoomY }
   }
@@ -648,7 +648,7 @@ export function unstoredZoomWrites(context: InputContext): readonly DocumentComm
 /** @purity pure */
 export function isPlaceSeatedIn(context: InputContext): boolean {
   const held = context.document.documentSettings
-  return namesAPlace(context.document.schedule, held.scrollDate, held.scrollTaskGroupId)
+  return isPlaceNamed(context.document.schedule, held.scrollDate, held.scrollTaskGroupId)
 }
 
 // see FR-046, OP-10
@@ -678,8 +678,8 @@ function fitCommand(context: InputContext): DocumentCommand {
   const fitted = fittedNow(context, context.layout.shownTaskUids ?? null)
   const at = scrolledAnchor(context, 0, 0)
   const place =
-    namesAPlace(schedule, fitted.scrollDate, fitted.scrollTaskGroupId) ||
-    !namesAPlace(schedule, at.scrollDate, at.scrollTaskGroupId)
+    isPlaceNamed(schedule, fitted.scrollDate, fitted.scrollTaskGroupId) ||
+    !isPlaceNamed(schedule, at.scrollDate, at.scrollTaskGroupId)
       ? fitted
       : at
   const fixed = fixedSpanAcrossOf(context)

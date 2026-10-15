@@ -32,7 +32,7 @@ import {
   windowTitleEntriesOf,
   windowWithColumnWidth,
   wordOf,
-  wouldScheduleFilterChange,
+  isScheduleFilterChanging,
   type SearchFilterChange,
   type TableLook,
   type TableWindowState,
@@ -89,7 +89,7 @@ export const OPENED_RESOURCE_LIST: TableWindowState = {
 export interface ResourceListRowView {
   readonly key: VisibilityKey
   readonly cells: readonly string[]
-  readonly shown: boolean
+  readonly isShown: boolean
   readonly chosenEntry: CommandItem | null
 }
 
@@ -262,7 +262,7 @@ function lineTableOf(view: TableView, listed: () => readonly ResourceLine[], lan
 // WHY: the table rows every task (a resource's or the (Unassigned) row's), so only a Hide row changes the schedule.
 /** @purity pure */
 function wouldResourceFilterChange(view: TableView, schedule: Schedule): boolean {
-  return wouldScheduleFilterChange(view.visibility, () => resourceUidsOf(schedule), true)
+  return isScheduleFilterChanging(view.visibility, () => resourceUidsOf(schedule), true)
 }
 
 // see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66, RO-3
@@ -290,7 +290,7 @@ function choiceEntriesOf(listed: readonly ResourceLine[], all: readonly Resource
 /** @purity pure */
 function rowViewOf(view: TableView, line: ResourceLine, language: DisplayLanguage): ResourceListRowView {
   const chosenEntry = line.isChosen === null ? null : entryOf(line.isChosen ? CHOSEN_ENTRY : UNCHOSEN_ENTRY, language)
-  return { key: line.key, cells: line.cells, shown: isRowShown(view.visibility, line.key), chosenEntry }
+  return { key: line.key, cells: line.cells, isShown: isRowShown(view.visibility, line.key), chosenEntry }
 }
 
 // see FR-099, T-370, T-371, RO-2, RO-3, RO-8, S-568

@@ -401,7 +401,7 @@ describe('SS-5: screen events leave the notices region at the same reference', (
     armKind: 'dependencyArmed',
     shapeKind: null,
     glyph: null,
-    subject: { selection: { items: [], ordered: false }, groupIds: [] },
+    subject: { selection: { items: [], isOrdered: false }, taskGroupIds: [] },
     date: '2026-01-05',
     percent: 100,
     end: 'max',

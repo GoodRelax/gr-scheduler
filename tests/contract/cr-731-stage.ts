@@ -120,10 +120,10 @@ function dependencyOf(predecessorUid: number, linkType: number, lag: number): Lo
   return { predecessorUid, linkType, linkLag: lag, lagFormat: 7, carry: {}, carryElements: [] }
 }
 
-const groupIdOf = (uid: number): string => `cccccccc-0000-4000-8000-${String(uid).padStart(12, '0')}`
+const taskGroupIdOf = (uid: number): string => `cccccccc-0000-4000-8000-${String(uid).padStart(12, '0')}`
 
 export function documentOf(tasks: readonly TaskSpec[], spec: DocumentSpec): Document {
-  const seeds = tasks.map((one) => ({ id: groupIdOf(one.uid), parentId: one.parent === undefined && one.derivedUnder === undefined ? null : groupIdOf((one.parent ?? one.derivedUnder) as number) }))
+  const seeds = tasks.map((one) => ({ id: taskGroupIdOf(one.uid), parentId: one.parent === undefined && one.derivedUnder === undefined ? null : taskGroupIdOf((one.parent ?? one.derivedUnder) as number) }))
   const taskText = (one: TaskSpec): Loose => ({
     uid: one.uid,
     parentTaskUid: one.parent ?? null,
@@ -172,7 +172,7 @@ export function documentOf(tasks: readonly TaskSpec[], spec: DocumentSpec): Docu
         color: null,
         minHeightPx: null,
       })),
-      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, taskGroupId: groupIdOf(one.uid) })),
+      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, taskGroupId: taskGroupIdOf(one.uid) })),
       taskVisuals: tasks.map((one) => ({
         taskUid: one.uid,
         shapeKind: null,
@@ -287,14 +287,14 @@ export function planned(held: Held, commands: readonly DocumentCommand[]): Retur
   return planDocumentChange({
     defaultTaskGroupName: 'Row',
     document: held.document,
-    readStamp: held.document.documentStamp,
+    expectedStamp: held.document.documentStamp,
     commands,
     moment: CALM,
     history: held.history,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: LIMITS,
     editedBy: 'tester',
-    updatedUtc: '2027-05-02T00:00:00Z',
+    updatedAt: '2027-05-02T00:00:00Z',
   })
 }
 

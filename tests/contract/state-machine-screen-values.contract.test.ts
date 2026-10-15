@@ -147,8 +147,8 @@ function completePath(key: string): string[] {
 }
 
 const UNLOCK_SURFACE = 'U-60'
-const CHOICE = { selection: { items: [{ kind: 'task', uid: 1 }], ordered: false }, groupIds: [] }
-const NO_CHOICE = { selection: { items: [], ordered: false }, groupIds: [] }
+const CHOICE = { selection: { items: [{ kind: 'task', uid: 1 }], isOrdered: false }, taskGroupIds: [] }
+const NO_CHOICE = { selection: { items: [], isOrdered: false }, taskGroupIds: [] }
 // see T-280, EL-16
 const STORED_LANDING = { predecessorUid: 1, successorUid: 2 }
 const NEW_LANDING = { predecessorUid: 3, successorUid: 4 }
@@ -254,8 +254,8 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   rememberedActual: [null],
   isFullScreen: [true, false],
   isProceeding: [true, false],
-  hasNoSurfaceOrConfirmation: [true, false],
-  hasNoUnsettledEntry: [true, false],
+  hasSurfaceOrConfirmation: [true, false],
+  hasUnsettledEntry: [true, false],
   isAgentApiEnabled: [true, false],
   hasDaysToPlace: [true, false],
   isOpenAccepted: [true, false],
@@ -318,8 +318,8 @@ function holds(session: ScreenSession, key: string): boolean {
 }
 
 function hasChoice(subject: unknown): boolean {
-  const s = subject as { selection: { items: readonly unknown[] }; groupIds: readonly unknown[] }
-  return s.selection.items.length > 0 || s.groupIds.length > 0
+  const s = subject as { selection: { items: readonly unknown[] }; taskGroupIds: readonly unknown[] }
+  return s.selection.items.length > 0 || s.taskGroupIds.length > 0
 }
 
 // see IN-4, FR-016, FR-070, WM-6, WM-8, FR-072
@@ -328,8 +328,8 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
   switch (name) {
     case 'isFullScreen':
     case 'isProceeding':
-    case 'hasNoSurfaceOrConfirmation':
-    case 'hasNoUnsettledEntry':
+    case 'hasSurfaceOrConfirmation':
+    case 'hasUnsettledEntry':
     case 'isAgentApiEnabled':
     case 'hasDaysToPlace':
     case 'isOpenAccepted':
@@ -393,8 +393,8 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
     case 'isNewStartDateEmpty':
       return event['newStartDate'] === ''
     // see WC-10
-    case 'hasNoCalendarDraftRefusal':
-      return (screen['calendarDraftState'] as Loose)['calendarDraft'] !== REFUSED_CALENDAR_DRAFT
+    case 'hasCalendarDraftRefusal':
+      return (screen['calendarDraftState'] as Loose)['calendarDraft'] === REFUSED_CALENDAR_DRAFT
     // see FR-156, FR-157
     case 'isLeavingDocumentSettings':
       return holds(session, 'propertiesPanelContentStateMachine.documentSettingsDisplayed')

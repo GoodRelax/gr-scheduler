@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { VIEWPORT, answerConfirmation, enableAgentApi, launch, press, readDocument, savedFiles, settle } from '../usecase/uc-harness'
+import { VIEWPORT, answerConfirmation, enableAgentApi, launch, press, readDocument, savedFiles, settle } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 

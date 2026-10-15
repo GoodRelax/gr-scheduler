@@ -75,7 +75,7 @@
 // The opening declaration of each file, and these exported declarations only:
 //   input-command-translator.ts -- `PressRow`, `PointerPress`, `InputContext`,
 //     `SpentEntranceSituation`, `CreatedSubject`, `InputAction`,
-//     `TranslatedInput`, `pressRowOf`, `commandFromInput`,
+//     `TranslatedInput`, `pressedRowOf`, `commandFromInput`,
 //     `screenStateFromInput`, `NOT_STORED_TASK_GROUP_GRAB_SIZES`
 //   input-source.ts -- `PointerButton`, `PointerPhase`, `PointerInput`,
 //     `InputModifiers`, `HumanInput`
@@ -104,7 +104,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import {
   commandFromInput,
-  pressRowOf,
+  pressedRowOf,
   NOT_STORED_TASK_GROUP_GRAB_SIZES,
   type HumanInput,
   type InputAction,
@@ -588,7 +588,7 @@ function gesture(options: {
     at: down,
     hit: null,
     on,
-    pressRow: pressRowOf(
+    pressRow: pressedRowOf(
       { at: down, hit: null },
       { screen: options.screen, dualCursorFollowing: null, selection },
     ),

@@ -444,14 +444,14 @@ function replacedBy(from: HeldDocument, call: ReplacementCall): HeldDocument {
     {
       defaultTaskGroupName: 'fixture default task group name',
       newTaskGroupId: 'fresh-task-group',
-      readStamp: from.document.documentStamp,
+      expectedStamp: from.document.documentStamp,
       moment: CALM,
       call,
     },
     holder,
     audience,
   )
-  if (!outcome.accepted) throw new Error(`${call.row} was refused: ${JSON.stringify(outcome.refusal)}`)
+  if (!outcome.ok) throw new Error(`${call.row} was refused: ${JSON.stringify(outcome.refusal)}`)
   return held
 }
 
@@ -462,7 +462,7 @@ function heldAfterOverlay(): { before: HeldDocument; after: HeldDocument } {
     importing: BASELINE_CALL,
     historyLimits: ROOMY_LIMITS,
     editedBy: 'the case at the keyboard',
-    updatedUtc: '2026-09-27T00:00:00Z',
+    updatedAt: '2026-09-27T00:00:00Z',
   })
   return { before, after }
 }

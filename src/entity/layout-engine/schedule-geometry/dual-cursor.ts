@@ -10,8 +10,8 @@ import type { DualCursorGeometry } from './schedule-geometry'
 
 // see S-65, DC-6
 export interface DualCursorDates {
-  readonly date1: string
-  readonly date2: string
+  readonly cursorADate: string
+  readonly cursorBDate: string
 }
 
 // see CU-2, S-65, DC-3
@@ -23,12 +23,12 @@ export function dualCursorGeometry(
   regions: ScreenRegions,
 ): DualCursorGeometry | null {
   if (placed === null) return null
-  const first = instantOf(placed.date1)
-  const second = instantOf(placed.date2)
+  const first = instantOf(placed.cursorADate)
+  const second = instantOf(placed.cursorBDate)
   if (first === null || second === null) return null
   return {
-    date1X: xOfInstant(layout, first),
-    date2X: xOfInstant(layout, second),
+    cursorAX: xOfInstant(layout, first),
+    cursorBX: xOfInstant(layout, second),
     top: regions.taskGroupArea.y,
     bottom: regions.taskGroupArea.y + regions.taskGroupArea.height,
   }

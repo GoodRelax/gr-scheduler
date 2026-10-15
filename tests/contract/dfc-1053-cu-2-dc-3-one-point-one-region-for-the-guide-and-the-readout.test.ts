@@ -23,7 +23,7 @@ const DUAL_CURSOR_ON: ScreenSession = {
   ...emptyScreenSession,
   screen: {
     ...emptyScreenSession.screen,
-    dualCursorModeState: { kind: 'on', child: { kind: 'placingDate1' } },
+    dualCursorModeState: { kind: 'on', child: { kind: 'placingCursorA' } },
     dualCursor: null,
   },
 }
@@ -41,7 +41,7 @@ const readingsAt = (pointer: { x: number; y: number }): ScreenViewReadings =>
     iconUnderPointer: null,
     themePreference: 'light',
     themeHue: 214,
-    selectedGroupIds: [],
+    selectedTaskGroupIds: [],
     selectedResourceUids: [],
     notices: [],
     confirmation: null,

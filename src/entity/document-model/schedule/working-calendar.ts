@@ -746,7 +746,7 @@ export function instantAfterWorkingMinutes(within: WorkingCalendar, from: number
 
 // see FR-054, RS-89
 /** @purity pure */
-export function holdsWorkingDayUnlikeMinutesPerDay(schedule: Schedule): boolean {
+export function isWorkingDayUnlikeMinutesPerDay(schedule: Schedule): boolean {
   const within = workingCalendarOf(schedule)
   const index = timeIndexOf(within)
   const day = minutesPerWorkingDayOf(schedule.project)

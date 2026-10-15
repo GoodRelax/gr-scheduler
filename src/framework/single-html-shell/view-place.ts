@@ -23,7 +23,7 @@ type ScrollPlace = CarriedBy<'setScrollPosition'>
 
 type ViewPlace = CarriedBy<'setZoom'> & ScrollPlace
 
-// TRAP: input-command-translator.ts names the same half of OP-10's condition in namesAPlace; change both together.
+// TRAP: input-command-translator.ts names the same half of OP-10's condition in isPlaceNamed; change both together.
 // see OP-10
 /** @purity pure */
 function storedNamesAPlace(held: Document, stored: ViewPlace): boolean {

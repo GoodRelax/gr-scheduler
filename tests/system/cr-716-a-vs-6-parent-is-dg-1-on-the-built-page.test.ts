@@ -1,7 +1,7 @@
 // CR-716 on the shipped build: the large sample's VS-6 parents are DG-1 in readDelayDiagnostics (T-315 DG-1, DX-7, DX-8).
 import { expect, test, type Page } from '@playwright/test'
 
-import { VIEWPORT, enableAgentApi, launch, openByDrop, readSample } from '../usecase/uc-harness'
+import { VIEWPORT, enableAgentApi, launch, openByDrop, readSample } from '../use-case/uc-harness'
 import { REQUIREMENTS } from './cr-570-tree-state-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })

@@ -153,7 +153,7 @@
 #          check 37 reads), and holds a clause verbatim-tied only if a trailing
 #          slice of its own text (>=28 characters, ending at the marker) is
 #          quoted somewhere under tests/contract, tests/system or
-#          tests/usecase (CR-573, JDG-637 -- not tests/unit, integration or
+#          tests/use-case (CR-573, JDG-637 -- not tests/unit, integration or
 #          nfr), WITH THAT FILE'S COMMENT LINES STRUCK
 #          OUT -- a comment cannot go red when the clause it quotes is
 #          rewritten. Held against must-clause-coverage-baseline.txt, the
@@ -185,7 +185,7 @@
 #          is a change request: a CR routinely cites the row that RAISED it,
 #          so gating there would be mostly noise
 #   42     check-quoted-source.py : a 「…」 quotation inside a comment of
-#          src/ or of tests/contract, tests/system, tests/usecase (CR-573,
+#          src/ or of tests/contract, tests/system, tests/use-case (CR-573,
 #          JDG-637) that NO manuscript under docs/spec contains -- a
 #          paraphrase hardened into a citation, which reads as a rule the
 #          specification does not have. Held against

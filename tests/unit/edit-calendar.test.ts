@@ -427,14 +427,14 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
     const plan = planDocumentChange({
       defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
       document,
-      readStamp: document.documentStamp,
+      expectedStamp: document.documentStamp,
       commands: [command],
       moment: CALM,
       history: EMPTY_HISTORY,
       historyLimits: HISTORY_LIMITS,
       settingsLimits: LIMITS,
       editedBy: 'user',
-      updatedUtc: '2026-08-17T01:00:00Z',
+      updatedAt: '2026-08-17T01:00:00Z',
     })
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
@@ -585,7 +585,7 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353
     const plan = planDocumentChange({
       defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
       document,
-      readStamp: document.documentStamp,
+      expectedStamp: document.documentStamp,
       commands: [
         { kind: 'setCalendar', workingDayTypes: [...S_106_WORKING, SATURDAY] } as DocumentCommand,
       ],
@@ -594,7 +594,7 @@ describe('FR-012 -- 暦を編集したときの完了率の数え直し (DFC-353
       historyLimits: HISTORY_LIMITS,
       settingsLimits: LIMITS,
       editedBy: 'user',
-      updatedUtc: '2026-08-17T01:00:00Z',
+      updatedAt: '2026-08-17T01:00:00Z',
     })
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
@@ -655,14 +655,14 @@ const planOf = (document: Document, commands: readonly DocumentCommand[]) =>
   planDocumentChange({
     defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
     document,
-    readStamp: document.documentStamp,
+    expectedStamp: document.documentStamp,
     commands,
     moment: CALM,
     history: EMPTY_HISTORY,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: LIMITS,
     editedBy: 'user',
-    updatedUtc: '2026-08-17T01:00:00Z',
+    updatedAt: '2026-08-17T01:00:00Z',
   })
 
 describe('FR-012 -- the controls on the recount (DFC-353)', () => {

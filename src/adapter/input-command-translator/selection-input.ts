@@ -37,7 +37,7 @@ import {
   isOnTaskGroupArea,
   isParentPickingCtrlClick,
   isSwallowedSecondPress,
-  pressRowOf,
+  pressedRowOf,
   type GrabTaskGroup,
   type InputContext,
   type PointerPress,
@@ -129,7 +129,7 @@ function chartPressOf(context: InputContext): PointerPress | null {
 // see T-023a, SL-4, PTL-3, PTL-10
 /** @purity pure */
 function pickRowOf(press: PointerPress, release: PointerInput, context: InputContext): string {
-  return isParentPickingCtrlClick(press, release, context) ? 'PTD-3' : pressRowOf(press, context)
+  return isParentPickingCtrlClick(press, release, context) ? 'PTD-3' : pressedRowOf(press, context)
 }
 
 // see SL-7, PTL-5

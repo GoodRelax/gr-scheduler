@@ -56,7 +56,7 @@ export type ActualGrabHold = Extract<TaskCommand, { readonly kind: 'beginTaskAct
 // see T-108
 export interface PasteLanding {
   readonly shiftMinutes: number
-  readonly groupIdOf: Readonly<Record<number, string>>
+  readonly taskGroupIdOf: Readonly<Record<number, string>>
 }
 
 // see T-108
@@ -179,7 +179,7 @@ export function withSchedule(document: Document, schedule: Schedule): Document {
 
 // TRAP: list and map columns compare by reference; exact only while every arm spreads the held row.
 /** @purity pure */
-export function sameRecord<T extends object>(a: T, b: T): boolean {
+export function isSameRecord<T extends object>(a: T, b: T): boolean {
   const left = a as Record<string, unknown>
   const right = b as Record<string, unknown>
   const keys = Object.keys(left)
@@ -190,7 +190,7 @@ export function sameRecord<T extends object>(a: T, b: T): boolean {
 export function withTask(document: Document, next: Task): Document {
   const held = document.schedule.tasks.find((one) => one.uid === next.uid)
   // TRAP: return the same document when nothing changed; document-change-plan.ts compares references.
-  if (held !== undefined && sameRecord(held, next)) return document
+  if (held !== undefined && isSameRecord(held, next)) return document
   const tasks = document.schedule.tasks.map((one) => (one.uid === next.uid ? next : one))
   return withSchedule(document, { ...document.schedule, tasks })
 }

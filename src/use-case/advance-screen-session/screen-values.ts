@@ -16,13 +16,13 @@ import {
   type SearchJumpTarget,
   type TableView,
 } from '../edit-document/edit-document'
-import { hasNoCalendarDraftRefusal, type CalendarDraft } from './calendar-draft'
+import { hasCalendarDraftRefusal, type CalendarDraft } from './calendar-draft'
 import { assertNever, NO_EFFECTS, unchanged, type Step } from './session-step'
 
 // see FR-072
 export interface PropertiesSubject {
   readonly selection: Selection
-  readonly groupIds: readonly string[]
+  readonly taskGroupIds: readonly string[]
 }
 
 export type ArmKind = Exclude<ArmModeState['kind'], 'notArmed'>
@@ -45,8 +45,8 @@ type GuideCursor = Exclude<GuideCursorMode, 'none'>
 
 // see S-65, DC-6
 interface DualCursorDates {
-  readonly date1: string
-  readonly date2: string
+  readonly cursorADate: string
+  readonly cursorBDate: string
 }
 
 interface LandedLink {
@@ -151,8 +151,8 @@ export interface ScreenValuesEventCarried {
   readonly glyph: string | null
   readonly isProceeding: boolean
   readonly subject: PropertiesSubject
-  readonly hasNoSurfaceOrConfirmation: boolean
-  readonly hasNoUnsettledEntry: boolean
+  readonly hasSurfaceOrConfirmation: boolean
+  readonly hasUnsettledEntry: boolean
   readonly isAgentApiEnabled: boolean
   readonly date: string
   readonly hasDaysToPlace: boolean
@@ -189,8 +189,8 @@ interface ScreenValuesEffectPayloads {
   readonly raiseNotice: { readonly reason: 'RS-41' | 'RS-27' }
   readonly clearSelection: NoPayload
   readonly storePlacedDualCursorClearingGuide: { readonly date: string }
-  readonly storeFixedDate1: { readonly date: string }
-  readonly storeFixedDate2: { readonly date: string }
+  readonly storeFixedCursorADate: { readonly date: string }
+  readonly storeFixedCursorBDate: { readonly date: string }
   readonly storeClearedDualCursor: NoPayload
   readonly storeGuideCursorMode: { readonly guideCursorMode: GuideCursorMode }
   readonly storeThemePreference: { readonly themePreference: ThemePreference }
@@ -247,8 +247,8 @@ export type ScreenValuesKey =
   | 'dialogueFieldDisplayStateMachine.shown.maximized'
   | 'dualCursorModeStateMachine.off'
   | 'dualCursorModeStateMachine.on'
-  | 'dualCursorModeStateMachine.on.placingDate1'
-  | 'dualCursorModeStateMachine.on.placingDate2'
+  | 'dualCursorModeStateMachine.on.placingCursorA'
+  | 'dualCursorModeStateMachine.on.placingCursorB'
   | 'scaleMessageDisplayStateMachine.hidden'
   | 'scaleMessageDisplayStateMachine.shown'
   | 'tooltipDisplayStateMachine.allowed'
@@ -286,8 +286,8 @@ export type DialogueFieldDisplayShownState =
   | { readonly kind: 'maximized' }
 
 export type DualCursorModeOnState =
-  | { readonly kind: 'placingDate1' }
-  | { readonly kind: 'placingDate2' }
+  | { readonly kind: 'placingCursorA' }
+  | { readonly kind: 'placingCursorB' }
 
 export type SearchPanelDisplayShownState =
   | { readonly kind: 'normal' }
@@ -432,7 +432,7 @@ export type ScreenValuesEvent =
   | { readonly type: 'propertiesOfChoiceAsked'; readonly subject: ScreenValuesEventCarried['subject'] }
   | { readonly type: 'selectionMoved'; readonly subject: ScreenValuesEventCarried['subject'] }
   | { readonly type: 'createdNameSettled' }
-  | { readonly type: 'settleKeyPressed'; readonly hasNoSurfaceOrConfirmation: ScreenValuesEventCarried['hasNoSurfaceOrConfirmation']; readonly hasNoUnsettledEntry: ScreenValuesEventCarried['hasNoUnsettledEntry'] }
+  | { readonly type: 'settleKeyPressed'; readonly hasSurfaceOrConfirmation: ScreenValuesEventCarried['hasSurfaceOrConfirmation']; readonly hasUnsettledEntry: ScreenValuesEventCarried['hasUnsettledEntry'] }
   | { readonly type: 'dialogueFieldEntryPressed'; readonly isAgentApiEnabled: ScreenValuesEventCarried['isAgentApiEnabled'] }
   | { readonly type: 'dialogueFieldMinimizeToggled' }
   | { readonly type: 'dialogueFieldMaximizeToggled' }
@@ -489,8 +489,8 @@ export type ScreenValuesEffectName =
   | 'clearSelection'
   | 'storeClearedDualCursor'
   | 'storePlacedDualCursorClearingGuide'
-  | 'storeFixedDate1'
-  | 'storeFixedDate2'
+  | 'storeFixedCursorADate'
+  | 'storeFixedCursorBDate'
   | 'startScaleMessageTimer'
   | 'restartScaleMessageTimer'
   | 'focusSearchWord'
@@ -509,7 +509,7 @@ const SCREEN_VALUES_INITIAL_CHILDREN: {
 } = {
   'paletteDisplayStateMachine.shown': { kind: 'expanded' },
   'dialogueFieldDisplayStateMachine.shown': { kind: 'normal' },
-  'dualCursorModeStateMachine.on': { kind: 'placingDate1' },
+  'dualCursorModeStateMachine.on': { kind: 'placingCursorA' },
   'searchPanelDisplayStateMachine.shown': { kind: 'normal' },
   'helpDisplayStateMachine.shown': { kind: 'normal' },
 }
@@ -846,7 +846,7 @@ function onPropertiesOfChoiceAsked(
 function onSelectionMoved(values: ScreenValues, event: EventOf<'selectionMoved'>): ScreenStep {
   if (values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
   const subject = event.subject
-  const hasChoice = subject.selection.items.length > 0 || subject.groupIds.length > 0
+  const hasChoice = subject.selection.items.length > 0 || subject.taskGroupIds.length > 0
   if (!hasChoice) return unchanged(values)
   return moved(values, { propertiesPanelContentState: { kind: 'selectionDisplayed', subject } })
 }
@@ -863,7 +863,7 @@ function onCreatedNameSettled(values: ScreenValues): ScreenStep {
 /** @purity pure */
 function onSettleKeyPressed(values: ScreenValues, event: EventOf<'settleKeyPressed'>): ScreenStep {
   if (values.propertiesPanelContentState.kind === 'hidden') return unchanged(values)
-  if (!event.hasNoSurfaceOrConfirmation || !event.hasNoUnsettledEntry) return unchanged(values)
+  if (event.hasSurfaceOrConfirmation || event.hasUnsettledEntry) return unchanged(values)
   return propertiesPutAway(values)
 }
 
@@ -898,8 +898,8 @@ function onDualCursorEntryPressed(
   if (!event.hasDaysToPlace) return unchanged(values)
   const child = SCREEN_VALUES_INITIAL_CHILDREN['dualCursorModeStateMachine.on']
   const armed = values.armModeState.kind === 'notArmed' ? values.armModeState : ({ kind: 'notArmed' } as const)
-  // WHY: the event carries the one date DC-1 places; date1 follows the pointer until DC-2 fixes it.
-  const dualCursor = { date1: event.date, date2: event.date }
+  // WHY: the event carries the one date DC-1 places; cursorADate follows the pointer until DC-2 fixes it.
+  const dualCursor = { cursorADate: event.date, cursorBDate: event.date }
   return moved(
     values,
     { dualCursorModeState: { kind: 'on', child }, armModeState: armed, dualCursor, guideCursorMode: 'none' },
@@ -927,16 +927,16 @@ function onGuideCursorEntryPressed(
 function onDualCursorPlaced(values: ScreenValues, event: EventOf<'dualCursorPlaced'>): ScreenStep {
   const mode = values.dualCursorModeState
   if (mode.kind === 'off') return unchanged(values)
-  const held = values.dualCursor ?? { date1: event.date, date2: event.date }
-  if (mode.child.kind === 'placingDate1') {
-    const child = { kind: 'placingDate2' } as const
-    return moved(values, { dualCursorModeState: { kind: 'on', child }, dualCursor: { ...held, date1: event.date } }, [
-      { type: 'storeFixedDate1', date: event.date },
+  const held = values.dualCursor ?? { cursorADate: event.date, cursorBDate: event.date }
+  if (mode.child.kind === 'placingCursorA') {
+    const child = { kind: 'placingCursorB' } as const
+    return moved(values, { dualCursorModeState: { kind: 'on', child }, dualCursor: { ...held, cursorADate: event.date } }, [
+      { type: 'storeFixedCursorADate', date: event.date },
     ])
   }
-  const child = { kind: 'placingDate1' } as const
-  return moved(values, { dualCursorModeState: { kind: 'on', child }, dualCursor: { ...held, date2: event.date } }, [
-    { type: 'storeFixedDate2', date: event.date },
+  const child = { kind: 'placingCursorA' } as const
+  return moved(values, { dualCursorModeState: { kind: 'on', child }, dualCursor: { ...held, cursorBDate: event.date } }, [
+    { type: 'storeFixedCursorBDate', date: event.date },
   ])
 }
 
@@ -1221,7 +1221,7 @@ function onCalendarDraftEdited(values: ScreenValues, event: EventOf<'calendarDra
 /** @purity pure */
 function onCalendarApplyEntryPressed(values: ScreenValues): ScreenStep {
   const held = values.calendarDraftState
-  if (held.kind === 'untouched' || !hasNoCalendarDraftRefusal(held.calendarDraft)) return unchanged(values)
+  if (held.kind === 'untouched' || hasCalendarDraftRefusal(held.calendarDraft)) return unchanged(values)
   return moved(values, { calendarDraftState: { kind: 'untouched' } }, [
     { type: 'issueCalendarCommand', calendarDraft: held.calendarDraft },
   ])

@@ -107,8 +107,8 @@ const drawnInBand = (isLanding: boolean): boolean => {
     drawnLeftOf: 0,
     drawnRightOf: 0,
   })
-  expect(parts.depLinkParts.length + parts.depLinkPartsPinned.length).toBe(1)
-  return parts.depLinkPartsPinned.length === 1
+  expect(parts.linkParts.length + parts.pinnedLinkParts.length).toBe(1)
+  return parts.pinnedLinkParts.length === 1
 }
 
 const answersAt = (at: Pt, isLanding: boolean): boolean => {

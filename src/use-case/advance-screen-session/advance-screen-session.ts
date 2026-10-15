@@ -82,7 +82,7 @@ export {
   canDeleteRange,
   draftClockMinuteOf,
   exceptionsInStartOrder,
-  hasNoCalendarDraftRefusal,
+  hasCalendarDraftRefusal,
   otherHoursDayTypesOf,
   shownCalendarDraft,
   withExceptionAdded,

@@ -249,7 +249,7 @@ function documentRowsOf(schedule: Schedule): DocumentRows {
   for (const entry of ENTITY_ROWS) {
     if (entry.scheduleKey === null) continue
     const at = `/schedule/${entry.scheduleKey}`
-    if (entry.many) {
+    if (entry.hasManyRows) {
       const rows = rowsIn(group[entry.scheduleKey], entry.entity, at)
       if (rows === null) continue
       arrays.push({ entity: entry.entity, at, rows })

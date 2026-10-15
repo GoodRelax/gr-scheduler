@@ -26,7 +26,7 @@ import {
   delayDiagnosticsReportRows,
   diagnoseDelay,
   scheduleViolations,
-  standardTimeZoneKeyForPc,
+  standardTimeZoneKeyForSystem,
   textOfDay,
   textOfDayEnd,
   textOfDayStart,
@@ -146,7 +146,7 @@ import {
   isCombo,
   isLandingMarkKeptBy,
   isTypedIntoSearchWord,
-  pressRowOf,
+  pressedRowOf,
   screenEventFromInput,
   selectionFromInput,
   zoomEntranceEndsOf,
@@ -212,7 +212,7 @@ import {
 import {
   clearBrowserStoredForReset,
   readBrowserStored,
-  startupAgentApiEnabled,
+  isStartupAgentApiEnabled,
   startupDisplayLanguage,
   startupThemePreference,
   writeBrowserStored,
@@ -267,7 +267,7 @@ import {
 import { frameClockWakesOf, noticeTimersOf, repeatTimesOfHeldEntry } from './frame-clock-wakes'
 import {
   heldPropertyPanelWidthOf,
-  leavesTaskGroupArea,
+  isLeavingTaskGroupArea,
   marqueeRect,
   previewOfHeldPress,
   tentativeDependencyOf,
@@ -294,11 +294,11 @@ import { runSessionEffects, type EffectRunners } from './session-effects'
 import { heldViewPlaceOf } from './view-place'
 import { answerWatermarkUnlock, matchWatermarkUnlock } from './watermark-unlock'
 
-export { startupAgentApiEnabled, startupDisplayLanguage, startupThemePreference } from './browser-stored-values'
+export { isStartupAgentApiEnabled, startupDisplayLanguage, startupThemePreference } from './browser-stored-values'
 export { pointerImageOf, pointerRowOf } from './pointer-shape'
 export type { PointerFacing, PointerRow, PointerShape, ShowPointerShape } from './pointer-shape'
 export { WATERMARK_UNLOCK_DIGEST } from './watermark-unlock'
-export { copiedForPasteOf, pasteRefusedFor } from './copy-and-paste'
+export { copiedForPasteOf, isPasteRefusedFor } from './copy-and-paste'
 export { FOCUS_ON_DOCUMENT_BODY } from './interaction-record'
 export { OPEN_ROUTE_FROM_DROP } from './document-file-flow'
 
@@ -1057,7 +1057,7 @@ interface ScreenViewReadingsTaken {
     readonly atY: number | null
   } | null
   readonly isRecordingInteractions: boolean
-  readonly selectedGroupIds: readonly string[]
+  readonly selectedTaskGroupIds: readonly string[]
   readonly selectedResourceUids: readonly number[]
   readonly confirmation: RaisedConfirmation | null
   readonly mergeCandidates: readonly MergeCandidateLine[]
@@ -1196,7 +1196,7 @@ export function openSurfaceNameIn(session: ScreenSession): string | null {
 export function dualCursorFollowingIn(session: ScreenSession): DualCursorSide | null {
   const mode = session.screen.dualCursorModeState
   if (mode.kind === 'off') return null
-  return mode.child.kind === 'placingDate1' ? 'date1' : 'date2'
+  return mode.child.kind === 'placingCursorA' ? 'cursorA' : 'cursorB'
 }
 
 // WHY: never null here; startingSession seats the language before the first frame.
@@ -1302,7 +1302,7 @@ function continuationMarkClickedOf(landed: NonNullable<ReturnType<typeof command
 // see FR-052, U-50
 /** @purity pure */
 function isRefusedPanelWidth(event: ScreenValuesEvent, frame: FrameValues): boolean {
-  return event.type === 'propertyPanelWidthSettled' && !leavesTaskGroupArea(event.propertyPanelWidth, frame.regions)
+  return event.type === 'propertyPanelWidthSettled' && !isLeavingTaskGroupArea(event.propertyPanelWidth, frame.regions)
 }
 
 // WHY: the progress step and IC-138 (T-280) wait for the press to drop; their effects write, and WS-2 refuses a write mid-gesture.
@@ -1343,16 +1343,16 @@ type PanelSubjectPick = 'objects' | 'taskGroups' | 'inferredFromShownPanel'
 // see FR-072, FR-006, FR-085
 // WHY: both selections stand at once (SK-19); a choice that moved the task groups alone was a task group pick, so the panel shows the task group.
 /** @purity pure */
-function subjectOfChoice(selection: Selection, groupIds: readonly string[], session: ScreenSession, pick: PanelSubjectPick): PropertiesSubject | null {
-  if (selection.items.length === 0 && groupIds.length === 0) return null
+function subjectOfChoice(selection: Selection, taskGroupIds: readonly string[], session: ScreenSession, pick: PanelSubjectPick): PropertiesSubject | null {
+  if (selection.items.length === 0 && taskGroupIds.length === 0) return null
   const content = session.screen.propertiesPanelContentState
-  const heldTaskGroups = content.kind === 'selectionDisplayed' ? content.subject.groupIds : []
-  const hasTaskGroupsMoved = heldTaskGroups.length !== groupIds.length || heldTaskGroups.some((one, at) => one !== groupIds[at])
-  const isTaskGroupPick = groupIds.length > 0 && (pick === 'taskGroups' || (pick === 'inferredFromShownPanel' && hasTaskGroupsMoved))
-  return { selection: isTaskGroupPick ? NO_OBJECTS_SELECTED : selection, groupIds }
+  const heldTaskGroups = content.kind === 'selectionDisplayed' ? content.subject.taskGroupIds : []
+  const hasTaskGroupsMoved = heldTaskGroups.length !== taskGroupIds.length || heldTaskGroups.some((one, at) => one !== taskGroupIds[at])
+  const isTaskGroupPick = taskGroupIds.length > 0 && (pick === 'taskGroups' || (pick === 'inferredFromShownPanel' && hasTaskGroupsMoved))
+  return { selection: isTaskGroupPick ? NO_OBJECTS_SELECTED : selection, taskGroupIds }
 }
 
-type ExportSceneWithCapStop = ExportScene & { readonly capStopGroupId: string | null }
+type ExportSceneWithCapStop = ExportScene & { readonly capStopTaskGroupId: string | null }
 
 // see FR-025, IX-12, T-068
 interface ExportView {
@@ -1489,8 +1489,8 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     storeGuideCursorMode: () => undefined,
     storePropertyPanelWidth: () => undefined,
     storePlacedDualCursorClearingGuide: () => undefined,
-    storeFixedDate1: () => undefined,
-    storeFixedDate2: () => undefined,
+    storeFixedCursorADate: () => undefined,
+    storeFixedCursorBDate: () => undefined,
     storeClearedDualCursor: () => undefined,
     seedHelpLanguage: () => undefined,
     focusSearchWord: () => {
@@ -2609,8 +2609,8 @@ export function readToday(): string {
 // see FR-095, RD-7
 /** @purity semi-pure-b */
 function startingAfreshCall(emptyDocument: Document): ReplacementCall {
-  const document = startedDocumentOf(emptyDocument, readLocalMoment(), readPcStandardTimeZone())
-  return { row: 'RD-7', document, editedBy: EDITED_BY_SCREEN, updatedUtc: readInstantOfWrite() }
+  const document = startedDocumentOf(emptyDocument, readLocalMoment(), readSystemStandardTimeZone())
+  return { row: 'RD-7', document, editedBy: EDITED_BY_SCREEN, updatedAt: readInstantOfWrite() }
 }
 
 // see BK-4, WT-9, FR-156
@@ -2629,10 +2629,10 @@ const JULY = 6
 
 // see FR-156, BK-4, T-376
 /** @purity semi-pure-b */
-export function readPcStandardTimeZone(): StandardTimeZoneKey {
+export function readSystemStandardTimeZone(): StandardTimeZoneKey {
   const year = new Date().getFullYear()
   const offsetOn = (month: number): number => -new Date(year, month, 1, PC_OFFSET_HOUR).getTimezoneOffset()
-  return standardTimeZoneKeyForPc({ januaryOffsetMinutes: offsetOn(JANUARY), julyOffsetMinutes: offsetOn(JULY) })
+  return standardTimeZoneKeyForSystem({ januaryOffsetMinutes: offsetOn(JANUARY), julyOffsetMinutes: offsetOn(JULY) })
 }
 
 // see FR-063
@@ -2884,7 +2884,7 @@ export function frameLoop(
     raiseWholeScheduleShiftQuestion: (newStartDate, frame) => frame !== null && askWholeScheduleShift(hands, frame, newStartDate),
     issueCalendarCommand: (effect, frame) => frame !== null && issueCalendarCommand(hands, calendarCommandOf(effect.calendarDraft, held.document.schedule), frame),
   })
-  sendToSession({ type: 'rememberedEnablingLoaded', isRememberedEnabled: startupAgentApiEnabled() }, null)
+  sendToSession({ type: 'rememberedEnablingLoaded', isRememberedEnabled: isStartupAgentApiEnabled() }, null)
 
   /** @purity semi-pure-b */
   function isPropertiesPanelOnScreen(): boolean {
@@ -2985,7 +2985,7 @@ export function frameLoop(
           commandPaletteAt: paletteCornerOf(commandPaletteDraggedTo, regions, environment),
           taskGroupGrabbedAt: grabbedTaskGroupReadingOf(session, taskGroupGrabbedAt),
           isRecordingInteractions: isRecordingInteractionsIn(session),
-          selectedGroupIds: session.selection.chosenTaskGroups,
+          selectedTaskGroupIds: session.selection.chosenTaskGroups,
           selectedResourceUids: session.selection.chosenResources,
           confirmation: questionIn(session),
           ...mergeReviewIn(session),
@@ -3277,7 +3277,7 @@ export function frameLoop(
           commandPaletteAt: paletteCornerOf(null, regions, environment),
           taskGroupGrabbedAt: null,
           isRecordingInteractions: false,
-          selectedGroupIds: [],
+          selectedTaskGroupIds: [],
           selectedResourceUids: [],
           confirmation: null,
           mergeCandidates: [],
@@ -3292,7 +3292,7 @@ export function frameLoop(
       settings,
       themePreference: session.screen.themePreference,
       themeHue: document.schedule.project.themeHue,
-      capStopGroupId: layout.stackSafetyCapReached?.taskGroupId ?? null,
+      capStopTaskGroupId: layout.stackSafetyCapReached?.taskGroupId ?? null,
     }
   }
 
@@ -3375,7 +3375,7 @@ export function frameLoop(
       on === null && regionAtPointer(frame.regions, at.x, at.y) === 'taskGroupArea'
         ? itemAtPointer(frame.geometry, at.x, at.y, grabSizesOf(), resolving, landedLinkIn(session))
         : null
-    const pressRow = pressRowOf({ at, hit }, { screen: session.screen, dualCursorFollowing: dualCursorFollowingIn(session), selection: selectedObjectsIn(session) })
+    const pressRow = pressedRowOf({ at, hit }, { screen: session.screen, dualCursorFollowing: dualCursorFollowingIn(session), selection: selectedObjectsIn(session) })
     return {
       at,
       hit,
@@ -3496,18 +3496,18 @@ export function frameLoop(
     const outcome = applyDocumentChange(
       {
         commands,
-        readStamp: held.document.documentStamp,
+        expectedStamp: held.document.documentStamp,
         moment: collectWriteMoment(isSettlingFieldCommit),
         historyLimits: HISTORY_LIMITS,
         settingsLimits,
         defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
         editedBy: EDITED_BY_SCREEN,
-        updatedUtc: readInstantOfWrite(),
+        updatedAt: readInstantOfWrite(),
       },
       holder,
       audience,
     )
-    if (outcome.accepted) {
+    if (outcome.ok) {
       sendToSession(DOCUMENT_EDIT_LANDED, frame)
       shownTasks.holdCreatedTasks(scheduleBefore, held.document.schedule)
       const recounted = outcome.report.recountedTaskUids.length
@@ -3523,7 +3523,7 @@ export function frameLoop(
     const outcome = replaceDocument(
       {
         // TRAP: the held stamp, not the incoming one, which would refuse every replacement.
-        readStamp: held.document.documentStamp,
+        expectedStamp: held.document.documentStamp,
         moment: collectWriteMoment(),
         call,
         defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
@@ -3532,7 +3532,7 @@ export function frameLoop(
       holder,
       audience,
     )
-    if (outcome.accepted) {
+    if (outcome.ok) {
       // TRAP: roads outside a happening reach here, and nothing else clears the preview for them.
       previewDocument = null
       heldPropertyPanelWidth = null
@@ -3698,7 +3698,7 @@ export function frameLoop(
         }
         const scene = exportScene()
         if (scene === null) return
-        const capStopInPicture = scene.capStopGroupId
+        const capStopInPicture = scene.capStopTaskGroupId
         // TRAP: the same PNG road as IO-4, not exportSvg; FR-025 puts one image/png on the
         // board and forbids the SVG text beside it.
         void exportPng(paint, scene).then(async (painted) => {
@@ -3825,8 +3825,8 @@ export function frameLoop(
     if (isAnySurfaceStanding(session)) return
     const isNameEnded = isCreatedNameEnded(hands)
     // TRAP: the naming answer first; the guard after it would leave the panel up (FR-091).
-    const hasNoUnsettledEntry = isNameEnded || !(didSettleFieldEntry || isEditingField(hands))
-    const settleKey = { type: 'settleKeyPressed', hasNoSurfaceOrConfirmation: true, hasNoUnsettledEntry } as const
+    const hasUnsettledEntry = !isNameEnded && (didSettleFieldEntry || isEditingField(hands))
+    const settleKey = { type: 'settleKeyPressed', hasSurfaceOrConfirmation: false, hasUnsettledEntry } as const
     sendToSession(isNameEnded ? { type: 'createdNameSettled' } : settleKey, frame)
   }
 
@@ -3896,7 +3896,7 @@ export function frameLoop(
     } else {
       const madeTaskGroup = held.document.schedule.taskGroups.find((one) => one.id === created.taskGroupId)
       if (madeTaskGroup === undefined) return
-      sendToSession({ type: 'createdTaskGroupSelected', createdGroupId: created.taskGroupId }, values)
+      sendToSession({ type: 'createdTaskGroupSelected', createdTaskGroupId: created.taskGroupId }, values)
     }
     showPropertiesOfChoice(created.kind === 'task' ? 'objects' : 'taskGroups')
     resetFieldFocusRetries()
@@ -4145,7 +4145,7 @@ export function frameLoop(
       environment = next
       // see FR-053, JDG-660
       // WHY: a shrunk window, or a wider measured band, can leave a held corner outside it;
-      // this same path carries both (onAppHeaderHeightPx's wiring does too).
+      // this same path carries both (onAppHeaderHeightMeasured's wiring does too).
       if (commandPaletteDraggedTo !== null) {
         commandPaletteDraggedTo = paletteCornerInWindow(
           commandPaletteDraggedTo,

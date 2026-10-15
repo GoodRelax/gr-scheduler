@@ -366,7 +366,7 @@ describe('SS-5: every event of the other regions leaves unsavedEditsState at the
     armKind: 'dependencyArmed',
     shapeKind: null,
     glyph: null,
-    subject: { selection: { items: [], ordered: false }, groupIds: [] },
+    subject: { selection: { items: [], isOrdered: false }, taskGroupIds: [] },
     date: '2026-01-05',
     percent: 100,
     end: 'max',
@@ -381,7 +381,7 @@ describe('SS-5: every event of the other regions leaves unsavedEditsState at the
     axis: 'position',
     fieldRow: 'PR-1',
     created: { kind: 'task', uid: 3 },
-    pickedObjects: { items: [{ kind: 'task', uid: 1 }], ordered: true },
+    pickedObjects: { items: [{ kind: 'task', uid: 1 }], isOrdered: true },
   }
   const cases = OTHER_REGIONS.flatMap((name) =>
     regionNamed(name).events.map((ev) => {

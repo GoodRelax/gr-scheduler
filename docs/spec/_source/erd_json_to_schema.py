@@ -866,7 +866,7 @@ def document_settings(tables, open_types, skipped):
             stated = MANUSCRIPT_TYPES.get(row[0])
             if stated is not None:
                 # ⭐ The manuscript states the machine type for a row whose
-                # printed 型 cell cannot carry one -- `{ date1: 日付, date2:
+                # printed 型 cell cannot carry one -- `{ cursorADate: 日付, cursorBDate:
                 # 日付 }` is written for a person, and no regex over it is the
                 # specification's answer (CR-175). The printed table stays the
                 # human type; settings.json holds the machine one, in the same

@@ -45,7 +45,7 @@ import {
   outwardStartOf,
 } from './label-placement'
 import { labelWidth } from './label-width'
-import { nameLabelOf, nameLabelWidthOf, planDatesSpanYears } from './name-label'
+import { nameLabelOf, nameLabelWidthOf, isPlanSpanningYears } from './name-label'
 import { outsideLabelOf, percentLabelOf } from './percent-label'
 import { liftedTaskGroups, pinnedBandOf, shiftedPlacements } from './pinned-band'
 import { scrollOffsetOf, scrolledPlacements, scrolledTaskGroups } from './task-group-scroll'
@@ -56,7 +56,7 @@ import {
   drawnExtentOf,
   labelFontSize,
   labelLiftOf,
-  laidBelow,
+  isLaidBelow,
   markerDiameterOf,
   outlineWidthOf,
   planHeightOf,
@@ -94,13 +94,13 @@ export {
   labelLayoutOf,
   labelReferenceOf,
   outwardStartOf,
-  standsUndecidedResume,
+  hasUndecidedResume,
 } from './label-placement'
 export type { LabelLayout, LabelReference } from './label-placement'
 export { fitZoom } from './fit-zoom'
 export { hasRoomBelowPinsIn } from './pinned-band'
 export { taskGroupAnchorIn, taskGroupIndexAtTopEdge } from './task-group-scroll'
-export { clockTextOf, lengthTextOf, planDatesSpanYears, planDateText } from './name-label'
+export { clockTextOf, lengthTextOf, isPlanSpanningYears, planDateText } from './name-label'
 export type { FitToScreen, NotStoredZoom } from './fit-zoom'
 
 // see L-1
@@ -541,7 +541,7 @@ export function layoutFromSchedule(
   const within = workingCalendarOf(schedule)
   const reader = dayReaderFor(within, settings.isTimeOfDayVisible, shownInstantReader(schedule, storedSettings.viewTimeZone))
   // TRAP: S-232 alone decides; never tie it to isPlanVisible (S-227), or hiding the plan moves the name (FR-049).
-  const datesWithYear = settings.isPlanDatesVisible ? planDatesSpanYears(schedule, reader) : null
+  const datesWithYear = settings.isPlanDatesVisible ? isPlanSpanningYears(schedule, reader) : null
   const placements: TaskPlacement[] = []
   const taskGroupPlacements: TaskGroupPlacement[] = []
 
@@ -599,7 +599,7 @@ export function layoutFromSchedule(
         settings,
       )
       const marksShown = settings.isProgressMarkerVisible
-      const namedFromPlanStart = laidBelow(kind)
+      const namedFromPlanStart = isLaidBelow(kind)
       const referenceEnd = reference.x + reference.width
       const laid = labelLayoutOf(
         kind,
@@ -746,7 +746,7 @@ export function layoutFromSchedule(
 
   const band = pinnedBandOf(taskGroupPlacements, settings, regions)
   const lifted = liftedTaskGroups(taskGroupPlacements, band)
-  const shifted = shiftedPlacements(placements, band.shiftByGroupId, band.droppedPinnedIds)
+  const shifted = shiftedPlacements(placements, band.shiftByTaskGroupId, band.droppedPinnedIds)
 
   const scrollingTaskGroups = lifted.filter((taskGroup) => taskGroup.isPinned !== true)
   const scrollOffsetY = scrollOffsetOf(scrollingTaskGroups, settings, band.scrollAreaY)

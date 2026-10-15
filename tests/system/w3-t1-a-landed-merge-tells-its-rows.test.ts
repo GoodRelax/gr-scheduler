@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { unbroken } from '../contract/spec-table'
 import { reasonWords } from './cr-570-tree-state-stage'
-import { VIEWPORT, dropFile, enableAgentApi, icon, launch, openByDrop, settle } from '../usecase/uc-harness'
+import { VIEWPORT, dropFile, enableAgentApi, icon, launch, openByDrop, settle } from '../use-case/uc-harness'
 import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })

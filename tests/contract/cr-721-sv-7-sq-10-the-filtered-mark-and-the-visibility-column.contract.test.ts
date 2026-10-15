@@ -137,10 +137,10 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
   })
 
   it('CR-722 TV-2: a task is Show until its row is unchecked, then Hide', () => {
-    const before = viewOf(TASK_PANEL).rows.map((one) => one.shown)
+    const before = viewOf(TASK_PANEL).rows.map((one) => one.isShown)
     expect(before.every((shown) => shown === true)).toBe(true)
     const after = changed(TASK_PANEL, { kind: 'shown', column: 'SQ-10', keys: [TASK_UIDS[1] ?? 0], isShown: false })
-    expect(viewOf(after).rows.map((one) => one.shown)).toEqual([true, false, true])
+    expect(viewOf(after).rows.map((one) => one.isShown)).toEqual([true, false, true])
   })
 
   it('SV-8: ascending puts Show before Hide, descending the reverse, ties in the default order', () => {

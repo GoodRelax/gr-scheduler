@@ -38,7 +38,7 @@ export interface WriteMoment {
 
 export interface PlanInput {
   readonly document: Document
-  readonly readStamp: DocumentStamp
+  readonly expectedStamp: DocumentStamp
   readonly commands: readonly DocumentCommand[]
   readonly moment: WriteMoment
   readonly history: EditHistory<ChangeStep>
@@ -46,7 +46,7 @@ export interface PlanInput {
   readonly settingsLimits: SettingsLimits
   readonly defaultTaskGroupName: string
   readonly editedBy: string
-  readonly updatedUtc: string
+  readonly updatedAt: string
 }
 
 export type StampRefusal = { readonly step: 'WS-1'; readonly reason: 'staleStamp' }
@@ -229,7 +229,7 @@ function refusalOfMoment(moment: WriteMoment, commands: readonly DocumentCommand
 // see T-067, AG-3, AG-10
 /** @purity pure */
 export function planDocumentChange(input: PlanInput): ChangePlan {
-  const stale = refusalOfStamp(input.readStamp, input.document.documentStamp)
+  const stale = refusalOfStamp(input.expectedStamp, input.document.documentStamp)
   if (stale !== null) return { ok: false, refusal: stale }
 
   const untimely = refusalOfMoment(input.moment, input.commands)
@@ -277,7 +277,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
   }
   const document: Document = {
     ...settled,
-    documentStamp: advancedStamp(settled.documentStamp, input.editedBy, input.updatedUtc, {
+    documentStamp: advancedStamp(settled.documentStamp, input.editedBy, input.updatedAt, {
       hasMovedSchedule,
     }),
   }
@@ -305,7 +305,7 @@ export type ReplacementCall =
       readonly importing: ImportCall<'merge' | 'baseline'>
       readonly historyLimits: HistoryLimits
       readonly editedBy: string
-      readonly updatedUtc: string
+      readonly updatedAt: string
     }
   | { readonly row: 'RD-4'; readonly importing: ImportCall<'replace'> }
   | { readonly row: 'RD-6'; readonly document: Document }
@@ -313,12 +313,12 @@ export type ReplacementCall =
       readonly row: 'RD-7'
       readonly document: Document
       readonly editedBy: string
-      readonly updatedUtc: string
+      readonly updatedAt: string
     }
 
 export interface ReplacementInput {
   readonly held: HeldDocument
-  readonly readStamp: DocumentStamp | null
+  readonly expectedStamp: DocumentStamp | null
   readonly moment: WriteMoment
   readonly call: ReplacementCall
   readonly defaultTaskGroupName: string
@@ -365,7 +365,7 @@ function replacementSettled(
 /** @purity pure */
 function startedAfresh(outgoing: Document, call: Extract<ReplacementCall, { readonly row: 'RD-7' }>): Document {
   const hasMovedSchedule = hasMovedScheduleGroup(outgoing, call.document)
-  const documentStamp = advancedStamp(call.document.documentStamp, call.editedBy, call.updatedUtc, { hasMovedSchedule })
+  const documentStamp = advancedStamp(call.document.documentStamp, call.editedBy, call.updatedAt, { hasMovedSchedule })
   return { ...call.document, documentStamp }
 }
 
@@ -379,7 +379,7 @@ function importRefused(refusal: ImportRefusal): ReplacementPlan {
 export function planDocumentReplacement(input: ReplacementInput): ReplacementPlan {
   const { held, call } = input
 
-  const stale = refusalOfStamp(input.readStamp, held.document.documentStamp)
+  const stale = refusalOfStamp(input.expectedStamp, held.document.documentStamp)
   if (stale !== null) return { ok: false, refusal: stale }
 
   const untimely = refusalOfMoment(input.moment)
@@ -424,7 +424,7 @@ export function planDocumentReplacement(input: ReplacementInput): ReplacementPla
         documentStamp: advancedStamp(
           outcome.document.documentStamp,
           call.editedBy,
-          call.updatedUtc,
+          call.updatedAt,
           { hasMovedSchedule: hasMovedScheduleGroup(held.document, outcome.document) },
         ),
       }

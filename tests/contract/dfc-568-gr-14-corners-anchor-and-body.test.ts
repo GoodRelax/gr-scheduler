@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import {
   commandFromInput,
-  pressRowOf,
+  pressedRowOf,
   type HumanInput,
   type InputContext,
   type InputModifiers,
@@ -1106,7 +1106,7 @@ function createdAnchorAt(built: Stage, at: Point): Record<string, unknown> {
     newHighlightBoxId: 'highlight-box-minted-outside',
   }
   const down = pointer('down', at)
-  const pressed = { at: down, hit: null, on: null, pressRow: pressRowOf({ at: down, hit: null }, base) }
+  const pressed = { at: down, hit: null, on: null, pressRow: pressedRowOf({ at: down, hit: null }, base) }
   const answer: TranslatedInput = commandFromInput(pointer('up', at), { ...base, pressed })
   const action = answer.action
   const writes = action !== null && action.kind === 'changeDocument' ? action.writes.flat() : []

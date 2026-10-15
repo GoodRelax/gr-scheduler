@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import {
   commandFromInput,
-  pressRowOf,
+  pressedRowOf,
   selectionFromInput,
   type HumanInput,
   type InputContext,
@@ -444,7 +444,7 @@ const selectRootAndOther = (built: Stage): void => {
   expect(uidsOf(built.selection()), 'SL-4: a Shift click adds one').toEqual([ROOT, OTHER])
 }
 
-const PICKED_ROOT: Selection = { items: [taskRef(ROOT)], ordered: true } as unknown as Selection
+const PICKED_ROOT: Selection = { items: [taskRef(ROOT)], isOrdered: true } as unknown as Selection
 
 function contextOf(built: Stage, selection: Selection): InputContext {
   const values = frameOf(built.loop)
@@ -472,7 +472,7 @@ function contextOf(built: Stage, selection: Selection): InputContext {
 function pressAt(built: Stage, context: InputContext, at: Point, modifiers: Partial<InputModifiers>): PointerPress {
   const down = pointer('down', at, modifiers)
   const hit = hitAt(built.loop, at)
-  return { at: down, hit, on: null, pressRow: pressRowOf({ at: down, hit }, context) }
+  return { at: down, hit, on: null, pressRow: pressedRowOf({ at: down, hit }, context) }
 }
 
 interface Released {
@@ -627,9 +627,9 @@ describe('PTD-7 / CY-1 / CY-5 / MK-15: Ctrl + Shift on the selection copies with
     const built = stage()
     const done = release(built, PICKED_ROOT, bodyOf(built.loop, ROOT), travel(built.loop, 3, TASK_GROUP_A, TASK_GROUP_B), CTRL_SHIFT)
     expect(kindsOf(done.writes)).toEqual(['pasteTasks'])
-    const landing = loose(done.writes[0] as DocumentCommand)['landing'] as { shiftMinutes: number; groupIdOf: Record<number, string> }
+    const landing = loose(done.writes[0] as DocumentCommand)['landing'] as { shiftMinutes: number; taskGroupIdOf: Record<number, string> }
     expect(landing.shiftMinutes).toBe(0)
-    expect(landing.groupIdOf[ROOT], 'CY-6: the copy still lands one task group down').toBe(TASK_GROUP_B)
+    expect(landing.taskGroupIdOf[ROOT], 'CY-6: the copy still lands one task group down').toBe(TASK_GROUP_B)
   })
 
   it('CY-5 contrast: a Ctrl-only drag of the same travel carries a shift of 3 days in minutes', () => {

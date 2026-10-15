@@ -39,7 +39,7 @@ export interface SelectionValuesEventCarried {
   readonly remainingObjects: Selection
   readonly createdTaskUid: number
   readonly chosenTaskGroups: readonly string[]
-  readonly createdGroupId: string
+  readonly createdTaskGroupId: string
   readonly chosenResources: readonly number[]
   readonly copiedForPaste: SelectionCopied
 }
@@ -77,7 +77,7 @@ export type SelectionValuesEvent =
   | { readonly type: 'selectionPruned'; readonly remainingObjects: SelectionValuesEventCarried['remainingObjects']; readonly chosenTaskGroups: SelectionValuesEventCarried['chosenTaskGroups'] }
   | { readonly type: 'createdTaskSelected'; readonly createdTaskUid: SelectionValuesEventCarried['createdTaskUid'] }
   | { readonly type: 'taskGroupsPicked'; readonly chosenTaskGroups: SelectionValuesEventCarried['chosenTaskGroups'] }
-  | { readonly type: 'createdTaskGroupSelected'; readonly createdGroupId: SelectionValuesEventCarried['createdGroupId'] }
+  | { readonly type: 'createdTaskGroupSelected'; readonly createdTaskGroupId: SelectionValuesEventCarried['createdTaskGroupId'] }
   | { readonly type: 'resourcesPicked'; readonly chosenResources: SelectionValuesEventCarried['chosenResources'] }
   | { readonly type: 'copyTaken'; readonly copiedForPaste: SelectionValuesEventCarried['copiedForPaste'] }
 
@@ -116,7 +116,7 @@ function isSameObject(a: Selection['items'][number], b: Selection['items'][numbe
 /** @purity pure */
 function isSameSelection(a: Selection, b: Selection): boolean {
   if (a === b) return true
-  if (a.ordered !== b.ordered || a.items.length !== b.items.length) return false
+  if (a.isOrdered !== b.isOrdered || a.items.length !== b.items.length) return false
   return a.items.every((item, index) => {
     const other = b.items[index]
     return other !== undefined && isSameObject(item, other)
@@ -224,7 +224,7 @@ function onTaskGroupsPicked(values: SelectionValues, event: EventOf<'taskGroupsP
 
 /** @purity pure */
 function onCreatedTaskGroupSelected(values: SelectionValues, event: EventOf<'createdTaskGroupSelected'>): SelectionStep {
-  return withTaskGroups(values, [event.createdGroupId])
+  return withTaskGroups(values, [event.createdTaskGroupId])
 }
 
 /** @purity pure */

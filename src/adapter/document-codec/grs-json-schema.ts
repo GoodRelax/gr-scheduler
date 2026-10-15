@@ -1071,7 +1071,7 @@ const NOT_A_KEY_THIS_SHAPE_CARRIES = 'is not a key this shape carries'
 const A_KEY_THIS_SHAPE_LACKS = 'is missing'
 
 /** @purity pure */
-export function fault(at: string, what: string): JsonFault {
+export function jsonFault(at: string, what: string): JsonFault {
   return { at, what }
 }
 
@@ -1130,10 +1130,10 @@ function jsonTypeOf(value: unknown): string {
 function stringFaults(value: string, node: SchemaNode, at: string, out: JsonFault[]): void {
   // TRAP: count code points, as JSON Schema maxLength does; value.length counts UTF-16 units.
   if (node.maxLength !== undefined && [...value].length > node.maxLength) {
-    out.push(fault(at, `is longer than the ${node.maxLength} characters allowed`))
+    out.push(jsonFault(at, `is longer than the ${node.maxLength} characters allowed`))
   }
   if (node.pattern !== undefined && !new RegExp(node.pattern).test(value)) {
-    out.push(fault(at, 'is not spelled as the schema allows'))
+    out.push(jsonFault(at, 'is not spelled as the schema allows'))
   }
 }
 
@@ -1152,38 +1152,38 @@ function collectFaults(
 
   const kinds = node.type
   if (kinds !== undefined && !kinds.some((kind) => jsonTypeHolds(value, kind))) {
-    out.push(fault(at, `expected ${kinds.join(' or ')}, was ${jsonTypeOf(value)}`))
+    out.push(jsonFault(at, `expected ${kinds.join(' or ')}, was ${jsonTypeOf(value)}`))
     return
   }
 
   const members = node.enum
   if (members !== undefined && !(members as readonly unknown[]).includes(value)) {
     out.push(
-      fault(at, `is not one of ${members.map((one) => JSON.stringify(one)).join(', ')}`),
+      jsonFault(at, `is not one of ${members.map((one) => JSON.stringify(one)).join(', ')}`),
     )
     return
   }
 
   if (typeof value === 'number') {
     if (node.minimum !== undefined && value < node.minimum) {
-      out.push(fault(at, `is below the least value allowed, ${node.minimum}`))
+      out.push(jsonFault(at, `is below the least value allowed, ${node.minimum}`))
     }
     if (node.maximum !== undefined && value > node.maximum) {
-      out.push(fault(at, `is above the greatest value allowed, ${node.maximum}`))
+      out.push(jsonFault(at, `is above the greatest value allowed, ${node.maximum}`))
     }
   }
   if (typeof value === 'string') stringFaults(value, node, at, out)
 
   if (isObject(value)) {
     for (const key of node.required ?? []) {
-      if (!(key in value)) out.push(fault(pointer(at, key), A_KEY_THIS_SHAPE_LACKS))
+      if (!(key in value)) out.push(jsonFault(pointer(at, key), A_KEY_THIS_SHAPE_LACKS))
     }
     for (const [key, inner] of Object.entries(value)) {
       const child = node.properties?.[key] ?? node.values
       if (child !== undefined) {
         collectFaults(inner, child, pointer(at, key), out)
       } else if (node.closed === true) {
-        out.push(fault(pointer(at, key), NOT_A_KEY_THIS_SHAPE_CARRIES))
+        out.push(jsonFault(pointer(at, key), NOT_A_KEY_THIS_SHAPE_CARRIES))
       }
     }
   }

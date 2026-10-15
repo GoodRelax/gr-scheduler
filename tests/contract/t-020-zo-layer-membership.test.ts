@@ -206,7 +206,7 @@ describe(`${says('ZO-8')} (PND-312, table T-029 CU-2)`, () => {
       })
     const withCursor = sceneOf({
       tasks: [inProgress()],
-      dualCursor: { date1: day(6), date2: day(14) },
+      dualCursor: { cursorADate: day(6), cursorBDate: day(14) },
       settings: { isProgressMarkerVisible: true },
     })
     const withoutCursor = sceneOf({ tasks: [inProgress()], settings: { isProgressMarkerVisible: true } })

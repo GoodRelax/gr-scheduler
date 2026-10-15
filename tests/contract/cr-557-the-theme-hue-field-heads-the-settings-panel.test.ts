@@ -217,7 +217,7 @@ function settingsPanel(look: Partial<Look> = {}): PropertiesPanel {
     isMilestoneListOpen: false,
     isPaletteMinimized: false,
     dualCursorFollowing: null,
-    selectedGroupIds: [],
+    selectedTaskGroupIds: [],
     selectedResourceUids: [],
     propertiesSubject: null,
     propertiesShowing: 'documentSettings',

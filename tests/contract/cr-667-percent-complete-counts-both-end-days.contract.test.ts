@@ -223,7 +223,7 @@ const READINGS: ScreenViewReadings = {
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: 0,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   notices: [],
   confirmation: null,

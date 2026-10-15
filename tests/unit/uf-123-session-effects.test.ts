@@ -150,8 +150,8 @@ describe(`UF-123 -- ${UF_123_EVERY_KIND}`, () => {
       seedHelpLanguage: true,
       storeAgentApiEnabling: true,
       storeClearedDualCursor: true,
-      storeFixedDate1: true,
-      storeFixedDate2: true,
+      storeFixedCursorADate: true,
+      storeFixedCursorBDate: true,
       storeGuideCursorMode: true,
       // see DC-9
       storePlacedDualCursorClearingGuide: true,
