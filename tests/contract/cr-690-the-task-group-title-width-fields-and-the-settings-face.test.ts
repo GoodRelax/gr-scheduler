@@ -25,7 +25,8 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 
 type Words = readonly { readonly part: string; readonly text: Record<DisplayLanguage, string> }[]
 
-const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
+const withoutBreakMarks = (_key: string, value: unknown): unknown => (typeof value === 'string' ? value.replace(/\|/g, '') : value)
+const WORDS = JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8'), withoutBreakMarks) as {
   readonly settings: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly icons: readonly { readonly rowId: string; readonly label: Record<DisplayLanguage, string> }[]
   readonly taskGroupPanelWidthField: Words

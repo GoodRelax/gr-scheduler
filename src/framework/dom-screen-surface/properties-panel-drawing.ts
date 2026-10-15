@@ -62,12 +62,14 @@ export function propertiesPanelStyle(): string {
   )
 }
 
-// see FR-072
+// see FR-072, IC-52
+// WHY: a line of its own at the head of the panel, its entrance at the right end (JDG-2097, JDG-2103).
 /** @purity pure */
 function propertyWayOutStyle(): string {
+  const size = fieldSizes()
   return (
-    'display:flex;align-items:flex-start;justify-content:flex-end;flex:none;' +
-    `gap:${fieldSizes().nameGap}px;margin-left:auto;`
+    'display:flex;align-items:flex-start;justify-content:flex-end;' +
+    `gap:${size.nameGap}px;margin-bottom:${size.taskGroupGap}px;`
   )
 }
 
@@ -80,24 +82,51 @@ function propertyFieldStyle(): string {
   )
 }
 
+// see FR-006, FR-038
+// WHY: balance picks the break that keeps the longer line shortest; keep-all leaves only the marks (wbr) to break at.
 /** @purity pure */
-function propertyFieldNameStyle(): string {
+function propertyFieldNameStyle(isSegmented = false): string {
   const size = fieldSizes()
   return (
     `color:${PAINT.quiet};flex:0 0 ${size.namePercent}%;` +
-    `text-align:right;font-size:${size.nameTextScale}em;`
+    `text-align:right;font-size:${size.nameTextScale}em;` +
+    `text-wrap:balance;overflow-wrap:anywhere;${isSegmented ? 'word-break:keep-all;' : ''}`
   )
+}
+
+const SPACE = / /g
+
+const UNBROKEN_SPACE = '\u00a0'
+
+/** @purity non-pure */
+function fieldNameElement(host: Document, name: string, segments: readonly string[] | undefined): HTMLElement {
+  const shown = made(host, 'span', propertyFieldNameStyle(segments !== undefined))
+  if (segments === undefined) {
+    shown.textContent = name
+    return shown
+  }
+  segments.forEach((segment, at) => {
+    if (at > 0) shown.append(host.createElement('wbr'))
+    shown.append(segment.replace(SPACE, UNBROKEN_SPACE))
+  })
+  return shown
 }
 
 function propertyControlsStyle(): string {
   return `flex:1;display:flex;flex-wrap:wrap;align-items:flex-start;gap:${fieldSizes().nameGap}px;min-width:0;`
 }
 
-// see FR-006, PR-5
-// WHY: a date and the actual length keep the width a date needs, so the three actual rows line up.
+// see FR-006, PR-5, S-589, S-590
+// WHY: a date or a choice from a fixed list never shrinks below the host's own drawing of it (JDG-2046, JDG-2098):
+// the em floor alone falls short where the host raises small text to its least size.
 /** @purity pure */
-function propertyControlStyle(widthInFontSizes: number, isSizedAsDate = false): string {
-  const flex = isSizedAsDate ? `flex:0 1 auto;width:${widthInFontSizes}em;` : 'flex:1;'
+function propertyControlStyle(widthInFontSizes: number, sizing: 'fill' | 'asDate' | 'date' | 'keptChoice' = 'fill'): string {
+  const flex = {
+    fill: 'flex:1;',
+    asDate: `flex:0 1 auto;width:${widthInFontSizes}em;`,
+    date: 'flex:0 0 auto;width:auto;',
+    keptChoice: 'flex:1 0 auto;width:auto;',
+  }[sizing]
   return (
     `font:inherit;box-sizing:border-box;${flex}min-width:${widthInFontSizes}em;text-overflow:ellipsis;` +
     `min-height:${fieldSizes().controlMinHeight}px;` +
@@ -126,7 +155,16 @@ function controlStyleOf(control: PropertyControl, isWrapping: boolean): string {
   if (control.kind === 'color') return propertyColorStyle()
   if (control.kind === 'boolean') return propertyCheckStyle()
   if (isWrapping) return propertyWrappingStyle()
-  return propertyControlStyle(control.widthInFontSizes, control.isSizedAsDate === true || control.kind === 'date')
+  return propertyControlStyle(control.widthInFontSizes, sizingOf(control))
+}
+
+// see FR-006
+// WHY: a choice with no floor gathers names from the document and must fit the panel (CR-671), so it alone may shrink.
+/** @purity pure */
+function sizingOf(control: PropertyControl): 'fill' | 'asDate' | 'date' | 'keptChoice' {
+  if (control.kind === 'date') return 'date'
+  if (control.isSizedAsDate === true) return 'asDate'
+  return control.kind === 'choice' && control.widthInFontSizes > 0 ? 'keptChoice' : 'fill'
 }
 
 // see MH-1, MH-2, PR-8, IN-3
@@ -1037,8 +1075,7 @@ export function fieldElement(
   line.setAttribute('data-field-row', field.row)
   line.setAttribute('data-editable', String(field.isEditable))
   if (field.isSettledAsOne === true) line.setAttribute(SETTLED_AS_ONE_ATTRIBUTE, 'true')
-  const name = made(host, 'span', propertyFieldNameStyle())
-  name.textContent = field.name
+  const name = fieldNameElement(host, field.name, field.nameBreakSegments)
 
   if (field.controls.length === 0) {
     line.append(name, valueElement(host, field))
@@ -1099,17 +1136,85 @@ export function fillPropertiesPanel(
   // TRAP: clear first, as anchorsOf does: a leftover row would name a control no longer drawn.
   typedByRow.clear()
   forgetClosedCustomColor(description)
+  const folded = foldedGroupsOf(panel)
   const drawn = description.fields.map((field) => fieldElement(host, field, typedByRow))
   const entries = description.commands.map((item) => anchoredEntry(host, item, anchors))
-  if (entries.length > 0) {
-    const wayOut = made(host, 'div', propertyWayOutStyle())
-    wayOut.append(...entries)
-    // TRAP: the way-out shares the first field's line; it overlaps no field only because the
-    // wrapping fields keep no min-width and the way-out does not shrink (FR-006, IC-52).
-    const first = drawn[0]
-    if (first === undefined) drawn.push(wayOut)
-    else first.append(wayOut)
-  }
+  const wayOut = made(host, 'div', propertyWayOutStyle())
+  wayOut.setAttribute(WAY_OUT_ATTRIBUTE, 'true')
+  wayOut.append(...entries)
   const head = description.headEntry === undefined ? [] : [headEntryElement(host, description.headEntry, anchors)]
-  panel.replaceChildren(...head, ...drawn)
+  panel.replaceChildren(wayOut, ...head, ...withReadOnlyGroups(host, description, drawn, folded))
+}
+
+const WAY_OUT_ATTRIBUTE = 'data-way-out'
+
+const READ_ONLY_GROUP_ATTRIBUTE = 'data-read-only-group'
+
+const READ_ONLY_HEADING_ATTRIBUTE = 'data-read-only-heading'
+
+const READ_ONLY_SECTION_ATTRIBUTE = 'data-read-only-section'
+
+// see T-380
+// TRAP: the panel is rebuilt whenever its description changes, so a group the author folded is read back first.
+/** @purity non-pure */
+function foldedGroupsOf(panel: HTMLElement): ReadonlySet<string> {
+  if (typeof panel.querySelectorAll !== 'function') return new Set()
+  const groups = [...panel.querySelectorAll(`[${READ_ONLY_GROUP_ATTRIBUTE}]`)]
+  return new Set(groups.filter((group) => !group.hasAttribute('open')).map((group) => group.getAttribute(READ_ONLY_GROUP_ATTRIBUTE) ?? ''))
+}
+
+/** @purity non-pure */
+function readOnlyLine(host: Document, attribute: string, words: string, style: string): HTMLElement {
+  const line = made(host, 'div', style)
+  line.setAttribute(attribute, words)
+  line.textContent = words
+  return line
+}
+
+/** @purity non-pure */
+function readOnlyGroupElement(host: Document, group: NonNullable<PropertyField['readOnlyGroup']>, isFolded: boolean): HTMLElement {
+  const box = made(host, 'details', `margin-bottom:${fieldSizes().taskGroupGap}px;`)
+  box.setAttribute(READ_ONLY_GROUP_ATTRIBUTE, group.key)
+  if (!isFolded) box.setAttribute('open', '')
+  const summary = made(host, 'summary', `cursor:pointer;margin-bottom:${fieldSizes().taskGroupGap}px;`)
+  summary.textContent = group.name
+  box.append(summary)
+  return box
+}
+
+// see FR-072, T-369, T-380, RN-6
+// WHY: the read-only rows come last; each group is one foldable box, open at first, a window's name heading its rows.
+/** @purity non-pure */
+function withReadOnlyGroups(
+  host: Document,
+  description: PropertiesPanel,
+  drawn: readonly HTMLElement[],
+  folded: ReadonlySet<string>,
+): readonly HTMLElement[] {
+  const laid: HTMLElement[] = []
+  let box: HTMLElement | null = null
+  let section: string | undefined
+  description.fields.forEach((field, at) => {
+    const element = drawn[at]
+    const group = field.readOnlyGroup
+    if (element === undefined) return
+    if (group === undefined) {
+      laid.push(element)
+      return
+    }
+    if (box === null && description.readOnlyHeading !== undefined) {
+      laid.push(readOnlyLine(host, READ_ONLY_HEADING_ATTRIBUTE, description.readOnlyHeading, `color:${PAINT.quiet};margin:${fieldSizes().taskGroupGap}px 0;`))
+    }
+    if (box === null || box.getAttribute(READ_ONLY_GROUP_ATTRIBUTE) !== group.key) {
+      box = readOnlyGroupElement(host, group, folded.has(group.key))
+      section = undefined
+      laid.push(box)
+    }
+    if (group.section !== undefined && group.section !== section) {
+      section = group.section
+      box.append(readOnlyLine(host, READ_ONLY_SECTION_ATTRIBUTE, section, `color:${PAINT.quiet};font-size:${fieldSizes().nameTextScale}em;`))
+    }
+    box.append(element)
+  })
+  return laid
 }

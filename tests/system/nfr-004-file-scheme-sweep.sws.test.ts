@@ -2037,6 +2037,11 @@ function didNotAnswer(result: SweepResult): readonly string[] {
   ).map((probe) => `${nameOf(probe)} (${probe.expect}: ${reading(result.outcomes[nameOf(probe)])})`)
 }
 
+// WHY: a step that never reads the geometry is not failed for a bar it does not press (SK-4 beside a S-171 panel, CR-754).
+async function geometryWanted(page: Page, step: (page: Page, at: Geometry) => Promise<unknown>): Promise<Geometry> {
+  return step.length > 1 ? geometryOf(page) : (undefined as unknown as Geometry)
+}
+
 async function sweep(browser: Browser, url: string): Promise<SweepResult> {
   const page = await browser.newPage({ viewport: { width: 1920, height: 1080 } })
   const pageErrors: string[] = []
@@ -2060,12 +2065,12 @@ async function sweep(browser: Browser, url: string): Promise<SweepResult> {
     let outcome: Outcome
     try {
       if (probe.setUp !== undefined) {
-        await probe.setUp(page, await geometryOf(page))
+        await probe.setUp(page, await geometryWanted(page, probe.setUp))
         await settled(page)
       }
       // WHY: re-taken after the setting-up, so what is judged is the act.
       const baseline = probe.setUp === undefined ? before : await read(page)
-      const held = await probe.act(page, await geometryOf(page))
+      const held = await probe.act(page, await geometryWanted(page, probe.act))
       const after = await settled(page)
       outcome = outcomeOf(baseline, after, held)
     } catch (thrown) {

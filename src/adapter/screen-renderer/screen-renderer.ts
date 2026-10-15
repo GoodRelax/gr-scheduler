@@ -55,6 +55,7 @@ export const FIT_SPAN_COPY_TEXT = 'copyCurrent'
 export const DISPLAY_TIME_ZONE_SLOT_SEPARATOR = '|'
 import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
+export { dateEntryWidthOf } from './properties-panel'
 import { drawnTaskGroupBoxesOf, rulerAbbreviationsOf, taskGroupPanelFromSchedule, taskGroupTitleFontPxOf } from './task-group-panel'
 import { searchPanelFromSession, type SearchPanelView } from './search-panel'
 import {
@@ -242,6 +243,7 @@ export interface PropertiesPanel {
   readonly fields: readonly PropertyField[]
   readonly commands: readonly CommandItem[]
   readonly headEntry?: CommandItem
+  readonly readOnlyHeading?: string
 }
 
 export interface PropertyField {
@@ -253,6 +255,14 @@ export interface PropertyField {
   readonly unit?: string
   readonly readout?: string
   readonly isSettledAsOne?: true
+  readonly nameBreakSegments?: readonly string[]
+  readonly readOnlyGroup?: PropertyFieldGroup
+}
+
+export interface PropertyFieldGroup {
+  readonly key: string
+  readonly name: string
+  readonly section?: string
 }
 
 export type PropertyControlKind =

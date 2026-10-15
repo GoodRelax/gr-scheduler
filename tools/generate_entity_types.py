@@ -1363,7 +1363,9 @@ NOT_STORED_TARGETS = {
     # beyond its value, and FR-006 (MUST) makes the side that ESTIMATES carry
     # it across -- which is `properties-panel.ts`. One shared constant would
     # hand each unit the other's value.
-    'NOT_STORED_PROPERTY_CONTROL_SIZES': (['S-199'], READ_WHERE_IT_STANDS),
+    # CR-754: S-589 / S-590 are the room a date and a date-and-time entry
+    # need (FR-006); the same estimating side reads them beside S-199.
+    'NOT_STORED_PROPERTY_CONTROL_SIZES': (['S-199', 'S-589', 'S-590'], READ_WHERE_IT_STANDS),
     'NOT_STORED_TASK_GROUP_CONTROL_SIZES': (['S-140', 'S-313'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in task-group-panel.ts
     # and both are terms of the same subtraction: one constant per consuming

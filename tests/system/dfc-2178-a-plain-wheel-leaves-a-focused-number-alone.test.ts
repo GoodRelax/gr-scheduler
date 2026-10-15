@@ -23,8 +23,8 @@ const MIN_HEIGHT_CHECK = `${PROPERTIES_PANEL} [data-field-row="MH-2"] input[type
 const FIRST_NUMBER = `${PROPERTIES_PANEL} input[type="number"]`
 
 const SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
-// WHY: half the MC-6 height, so a task's fields overflow the panel and a plain wheel has something to scroll.
-const SHORT_SCREEN = { width: SCREEN.width, height: Math.round(SCREEN.height / 2) }
+// WHY: a third of the MC-6 height, so a task's fields overflow the panel (S-197 0.56 since CR-754) and a plain wheel has something to scroll.
+const SHORT_SCREEN = { width: SCREEN.width, height: Math.round(SCREEN.height / 3) }
 
 // WHY: a number the field does not hold yet, so a step of the host's spin shows as a different number.
 const TYPED = '61'
