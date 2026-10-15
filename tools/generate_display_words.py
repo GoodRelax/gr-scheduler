@@ -396,6 +396,11 @@ PLAN_ACTUAL_STATE_TABLE = 'T-019a'
 SEARCH_PANEL_PARTS = ('blank', 'noName', 'filterSearch', 'dateFrom', 'dateTo', 'showValue',
                       'hideValue', 'nothingHidden', 'scheduleFilterBar', 'scheduleFilterOff',
                       'tableNameSeparator')
+# CR-760: the two values of the Task Type column (SQ-14 of table T-331, DT-9 of
+# table T-347, FM-9 of table T-374): a task or a milestone (AT-30). The three
+# tables share them and no table holds them as rows, so they are HELD HERE,
+# the same move as SEARCH_PANEL_PARTS. KEYS, not words.
+TASK_TYPE_PARTS = ('task', 'milestone')
 # CR-722: the Resource List window (FR-099). Its column headings are READ from
 # table T-371, the move `delayReportColumns` makes with table T-347. The
 # name of the row that holds the tasks with no resource (RO-5) and the
@@ -783,6 +788,7 @@ def roster():
                              table_rows(REL_REQUIREMENTS, PLAN_ACTUAL_STATE_ROW,
                                         PLAN_ACTUAL_STATE_TABLE)],
         'searchPanel': list(SEARCH_PANEL_PARTS),
+        'taskTypes': list(TASK_TYPE_PARTS),
         'resourceListColumns': [row[0] for row in
                                 table_rows(REL_REQUIREMENTS, RESOURCE_LIST_COLUMN_ROW,
                                            RESOURCE_LIST_COLUMN_TABLE)],
@@ -887,6 +893,7 @@ SHAPE = {
     'searchColumns': ('rowId', ('text',)),
     'planActualStates': ('rowId', ('text',)),
     'searchPanel': ('part', ('text',)),
+    'taskTypes': ('part', ('text',)),
     'resourceListColumns': ('rowId', ('text',)),
     'resourceList': ('part', ('text',)),
     'delayReportColumns': ('rowId', ('text',)),
@@ -1016,7 +1023,8 @@ def build(doc, keys_by_row):
                     'wholeScheduleShiftField',
                     'holidaySettings',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
-                    'planActualStates', 'searchPanel', 'resourceListColumns',
+                    'planActualStates', 'searchPanel', 'taskTypes',
+                    'resourceListColumns',
                     'resourceList', 'parentTaskChoice',
                     'delayReportColumns',
                     'delayReportStatuses', 'delayReportSummary',

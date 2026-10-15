@@ -6079,6 +6079,13 @@
    }
   },
   {
+   "rowId": "SQ-14",
+   "text": {
+    "ja": "タスク種別",
+    "en": "Task Type"
+   }
+  },
+  {
    "rowId": "SQ-1",
    "text": {
     "ja": "タスク（マイルストーン）",
@@ -6265,6 +6272,22 @@
    }
   }
  ],
+ "taskTypes": [
+  {
+   "part": "task",
+   "text": {
+    "ja": "タスク",
+    "en": "Task"
+   }
+  },
+  {
+   "part": "milestone",
+   "text": {
+    "ja": "マイルストーン",
+    "en": "Milestone"
+   }
+  }
+ ],
  "resourceListColumns": [
   {
    "rowId": "RQ-1",
@@ -6361,6 +6384,13 @@
    "text": {
     "ja": "進捗",
     "en": "Progress"
+   }
+  },
+  {
+   "rowId": "DT-9",
+   "text": {
+    "ja": "タスク種別",
+    "en": "Task Type"
    }
   },
   {
@@ -6795,6 +6825,13 @@
    "text": {
     "ja": "指摘",
     "en": "Finding"
+   }
+  },
+  {
+   "rowId": "FM-9",
+   "text": {
+    "ja": "タスク種別",
+    "en": "Task Type"
    }
   },
   {
