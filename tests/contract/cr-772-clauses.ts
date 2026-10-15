@@ -13,9 +13,7 @@ export const HF_15_DEPTH_ROUNDED =
 export const HF_15_RANGE =
   '隙間に置ける段は、下限を下のタスクグループの段（無ければ 1）、上限を上のタスクグループの段 ＋ 1（無ければ 1）とすること（MUST）'
 export const HF_15_NOT_SHALLOWER = '上のタスクグループの段 ＋ 1（無ければ 1）とすること（MUST）。⛔ 下限より浅く置いてはならない（MUST NOT）'
-export const HF_15_CAP = '上限は、配下を含めて `FR-004` の深さの上限を超えないところまで下げること（MUST）'
 export const HF_15_STOP_AT_END = '範囲の外へ引いたときは、端の段で黙って止めること（MUST）'
-export const HF_15_NO_PLACE = '置ける段が 1 つも無い隙間では差し込み線を引かず、離しても書き込まないこと（MUST）'
 export const HF_15_PARENT =
   '段 d の親は、上のタスクグループから木を上へたどって最初に出会う段 d − 1 のタスクグループとし、d ＝ 1 なら親を持たないこと（MUST）'
 export const HF_15_ORDER = '並びは、その親の子のうち、上のタスクグループを含む枝の次とする'
@@ -43,9 +41,6 @@ export const HF_15_SPEED = '速さは縁に近いほど速くし、縁とその�
 export const HF_15_WHEEL = '縁とその外では 表 T-206 の `S-598` とする。⭐ 握っているあいだもホイールで縦に送れること（MUST）'
 export const HF_15_RESELECT = 'どちらで送っても、落ち先は送ったあとの行で選び直す。'
 
-export const HM_3A_GRAB_NOTE =
-  '⚠️ タスクグループパネルで掴んで運ぶときは、上限を超える段をそもそも選ばせず、告げない（表 T-051 の `HF-15`）'
-export const UC_002_2A_GRAB =
-  '掴んで運ぶときは、`GRS` はその段を選ばせない —— 差し込み線は上限の段で黙って止まる（表 T-051 の `HF-15`）。'
+// WHY: the retired HM-3a note and UC-002 2a sentences are in cr-774-clauses.ts, which holds their replacements.
 export const UF_97_ROW =
   '掴んだタスクグループを 表 T-051 の `HF-15` に従って運び、落ち先（隙間と段）を親と並びの書き込み（表 T-108 の `CM-73`）に変える'

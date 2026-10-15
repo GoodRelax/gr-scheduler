@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 383 | 4783 | 9 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 385 | 4817 | 9 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 91 | 589 | 0 | 0 | 0 | 0 |
-| `unit` | TS-6 | - | 182 | 3866 | 1 | 1 | 2 | 0 |
+| `unit` | TS-6 | - | 182 | 3867 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 676 | 9348 | 12 | 8 | 13 | 2 |
+| **all** | | | 678 | 9383 | 12 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -471,10 +471,12 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-768-t-024-holds-the-media-type-and-the-offered-column.contract.test.ts` | 17 | FR-096 | - | T-024, T-340, T-346 | IC-2, IC-140, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, RW-7, SX-2 | - | - | - | - |
 | `tests/contract/cr-768-the-hand-copies-are-generated-and-drift-is-caught.contract.test.ts` | 18 | FR-096 | - | T-024, T-229 | ED-1, IO-8, PI-37, RW-7 | - | - | - | - |
 | `tests/contract/cr-768-the-save-chooser-is-handed-the-media-type-of-the-table.contract.test.ts` | 5 | FR-096 | - | T-024, T-346 | IC-2, IC-140, IO-4, IO-8, RW-7 | - | - | - | - |
-| `tests/contract/cr-772-hf-15-one-drag-sets-the-gap-and-the-depth.contract.test.ts` | 31 | FR-004, FR-042 | - | - | HF-15, HM-3a, S-208, UF-97 | - | - | - | - |
+| `tests/contract/cr-772-hf-15-one-drag-sets-the-gap-and-the-depth.contract.test.ts` | 32 | FR-042 | - | - | HF-15, S-208, UF-97 | - | - | - | - |
 | `tests/contract/cr-772-hf-15-the-drag-in-the-shell.contract.test.ts` | 8 | - | - | - | HF-15, S-208, S-597 | - | - | - | - |
 | `tests/contract/cr-772-hf-15-the-drop-is-drawn-while-carrying.contract.test.ts` | 14 | - | - | - | HF-15, S-213, S-215, S-599 | - | - | - | - |
 | `tests/contract/cr-772-hf-15-the-grab-has-three-states.contract.test.ts` | 9 | - | VT-2 | T-289 | HF-15, S-208 | - | - | - | - |
+| `tests/contract/cr-774-hf-15-a-gap-past-the-depth-cap-is-chosen-and-drawn-dashed.contract.test.ts` | 17 | FR-004 | - | T-234 | HF-15, HM-3a, QN-16 | - | - | - | - |
+| `tests/contract/cr-774-hf-15-the-release-asks-qn-16-and-lifts-the-too-deep-groups.contract.test.ts` | 16 | - | - | - | HF-15, HM-3, QN-16, S-125, UF-97 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
@@ -896,7 +898,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/t-050-a-document-always-holds-one-task-group.test.ts` | 12 | FR-004, FR-032, FR-038, FR-058 | - | T-050, T-058, T-067, T-218, T-234 | AT-54, CD-2, QN-1, RD-1, RD-2, RD-6, TS-6, WS-3, WS-4, WS-6 | - | - | - | - |
 | `tests/unit/t-051-hf-14-a-raised-task-group-is-visible.test.ts` | 11 | FR-018, FR-055, FR-085 | - | T-015, T-027, T-051, T-060, T-062, T-075, T-103, T-109, T-205, T-211, T-328 | AT-51, AT-153, CP-25, CS-2, HF-7, HF-14, HF-17, HF-18, HR-1a, HR-4, HR-6, IC-91, IN-1, LY-5, S-76, S-87, S-125, TD-6, TD-7, U-22, UF-48, UN-1, UN-8, UN-14, UN-17 | - | - | - | - |
 | `tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts` | 11 | FR-018, FR-029, FR-038, FR-085 | - | T-051, T-060, T-062, T-075, T-103, T-109, T-206, T-211, T-218, T-233 | AT-51, CP-25, CS-2, HF-1, HF-13, HF-14, HF-15, HF-19, IC-91, IN-1, LF-16, LY-5, NT-1, NT-3a, RS-15, RS-46, S-125, S-138, S-243, TS-6, U-22, UF-48, UF-64, UF-105 | - | - | - | - |
-| `tests/unit/t-051-hf-15-grabbing-a-task-group.test.ts` | 13 | FR-004, FR-027, FR-029, FR-031, FR-085, FR-098 | - | T-015a, T-023d, T-026, T-028, T-034, T-051, T-060, T-062, T-065, T-077, T-078, T-103, T-108, T-109, T-201, T-206, T-211, T-218 | AT-26, AT-51, AT-153, BO-1, BT-4, CM-35, CM-73, CP-25, CS-2, FT-1, GR-20, HF-15, HM-3, HM-3a, HM-5, HM-9, IF-9, IN-1, LY-5, RC-13, S-37, S-125, S-126, S-138, S-208, TS-6, U-22, UF-48, UN-4 | - | - | - | - |
+| `tests/unit/t-051-hf-15-grabbing-a-task-group.test.ts` | 14 | FR-004, FR-027, FR-029, FR-031, FR-085, FR-098 | - | T-015a, T-023d, T-026, T-028, T-034, T-051, T-060, T-062, T-065, T-077, T-078, T-103, T-108, T-109, T-201, T-206, T-211, T-218 | AT-26, AT-51, AT-153, BO-1, BT-4, CM-35, CM-73, CP-25, CS-2, FT-1, GR-20, HF-15, HM-3, HM-3a, HM-5, HM-9, IF-9, IN-1, LY-5, RC-13, S-37, S-125, S-126, S-138, S-208, TS-6, U-22, UF-48, UN-4 | - | - | - | - |
 | `tests/unit/t-051-hf-17-adding-a-task-group-walks-the-rename-road.test.ts` | 17 | FR-038, FR-072, FR-085, FR-091 | - | T-023, T-051, T-058, T-060, T-062, T-064, T-075, T-103, T-109, T-218 | AT-53, AT-55, CP-25, CS-2, HF-9, HF-14, HF-17, IC-93, IN-1, LY-5, MK-13, PI-37, RS-46, TS-6, U-22, U-47, UF-48, UF-71 | - | - | - | - |
 | `tests/unit/t-051-hf-17-unfolds-segment-zero-by-one-level.test.ts` | 8 | - | - | T-015, T-051, T-062, T-075, T-103, T-109, T-203, T-218 | CP-25, HF-10, HF-12, HF-14, HF-16, HF-17, HR-2, S-418, TS-6, U-22, UF-48 | - | - | - | - |
 | `tests/unit/t-051-hf-6-ground-under-the-task-group-controls.test.ts` | 19 | FR-023, FR-029, FR-041, FR-085 | - | T-006a, T-051, T-062, T-064, T-075, T-103, T-109, T-216, T-218, T-236 | BO-1, CP-38, HF-1, HF-2, HF-5, HF-6, HF-10, HF-12, HF-19, IC-74, IC-78, IF-9, LF-16, PI-35, S-73, S-147, S-148, S-149, S-150, TS-6, UF-71, W-4 | - | - | - | - |

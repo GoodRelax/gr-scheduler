@@ -559,9 +559,19 @@ describe('the specification still says what these cases are driven by', () => {
     for (const clause of [
       'タスクグループを掴んで動かせること（MUST）',
       'そのタスクグループの配下ごと動かすこと（MUST）',
+      '上限は、掴んでいるタスクグループ自身が `FR-004` の深さの上限を超えないところまで下げること（MUST）',
+      '配下が深さの上限を超える段も選べること（MUST）',
+      '書き込む前に 表 T-234 の `QN-16` で問うこと（MUST）',
+      '黙って止めてはならない（MUST NOT）',
     ]) {
       expect(hf15, `表 T-051 の HF-15 no longer says 「${clause}」`).toContain(clause)
     }
+  })
+
+  it('表 T-051 HF-15 no longer counts the subtree into the cap, and no longer hides a gap without a place (CR-774)', () => {
+    const hf15 = saysOf('T-051', 'HF-15')
+    expect(hf15).not.toContain('配下を含めて `FR-004` の深さの上限')
+    expect(hf15).not.toContain('置ける段が 1 つも無い隙間では差し込み線を引かず')
   })
 
   it('表 T-023d still holds GR-20, and it still refuses a pinned task group and points the width at S-138', () => {

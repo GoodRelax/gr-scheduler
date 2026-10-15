@@ -57,7 +57,7 @@ export interface Shell {
   send(input: HumanInput): void
 }
 
-export function shell(document: Document = longDocument()): Shell {
+export function shell(document: Document = longDocument(), language: 'ja' | 'en' = 'ja'): Shell {
   const waiting: ((time: number) => void)[] = []
   globalThis.requestAnimationFrame = (callback) => waiting.push(callback)
   const runFrames = (): void => {
@@ -77,7 +77,7 @@ export function shell(document: Document = longDocument()): Shell {
     { showSvg: () => undefined, showMarqueeOverlaySvg: () => undefined } as never,
     document,
     SCREEN,
-    { surface, language: 'ja' } as unknown as ScreenWiring,
+    { surface, language } as unknown as ScreenWiring,
   )
   runFrames()
   const frame = () => {

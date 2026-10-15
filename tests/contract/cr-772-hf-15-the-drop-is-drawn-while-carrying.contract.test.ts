@@ -96,7 +96,7 @@ describe('HF-15 -- the panel describes the drop while a task group is carried', 
     expect(panel.grabCopy ?? null).toBeNull()
   })
 
-  it('has no line, and still a copy, when no depth fits the gap', () => {
+  it('has no line, and still a copy, when there is no landing', () => {
     const panel = panelFor('A', null)
     expect(panel.dropCue ?? null).toBeNull()
     expect(panel.grabCopy).not.toBeNull()
