@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Task group free drag</title>
+<style>
+:root {
+  --H: 214;
+  --bg: #ffffff;
+  --fg: #1d2430;
+  --muted: #5b6573;
+  --rule: hsl(var(--H) 14% 87%);
+  --grip: hsl(var(--H) 14% 70%);
+  --strong: hsl(var(--H) 59% 32%);
+  --strong-bg: hsl(var(--H) 59% 32% / 0.12);
+  --panel-bg: hsl(var(--H) 20% 98%);
+  --warn: #a23b16;
+  --warn-bg: #fbeee8;
+  --ok: #1f7a3d;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15181d;
+    --fg: #e4e8ee;
+    --muted: #a3acb8;
+    --rule: hsl(var(--H) 12% 23%);
+    --grip: hsl(var(--H) 12% 40%);
+    --strong: hsl(var(--H) 62% 68%);
+    --strong-bg: hsl(var(--H) 62% 68% / 0.14);
+    --panel-bg: hsl(var(--H) 12% 13%);
+    --warn: #f0a07c;
+    --warn-bg: #3a2219;
+    --ok: #6fc98d;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.7 system-ui, "Segoe UI", "Hiragino Sans", "Yu Gothic UI", sans-serif;
+}
+header {
+  display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+  border-bottom: 1px solid var(--rule);
+}
+header h1 { font-size: 18px; margin: 0; flex: 1; }
+button {
+  font: inherit; font-size: 14px; color: var(--fg); background: var(--bg);
+  border: 1px solid var(--rule); border-radius: 4px; padding: 3px 10px; cursor: pointer;
+}
+button:hover:not(:disabled) { border-color: var(--strong); }
+button:disabled { opacity: 0.45; cursor: default; }
+main { display: flex; gap: 24px; padding: 16px; flex-wrap: wrap; align-items: flex-start; }
+.app { border: 1px solid var(--rule); border-radius: 6px; overflow: hidden; }
+.toolbar {
+  display: flex; gap: 6px; flex-wrap: wrap; padding: 6px 8px;
+  border-bottom: 1px solid var(--rule); max-width: 300px;
+}
+.panel-title {
+  font-size: 12px; color: var(--muted); padding: 2px 8px; border-bottom: 1px solid var(--rule);
+}
+#panel {
+  position: relative; width: 300px; height: 460px; overflow: auto;
+  background: var(--panel-bg); user-select: none;
+}
+#rows { position: relative; }
+.row {
+  position: relative; height: 28px; display: flex; align-items: center;
+  font-size: 14px; line-height: 28px; border-bottom: 1px solid var(--rule); white-space: nowrap;
+}
+.row.selected { background: var(--strong-bg); }
+.grip {
+  width: 16px; flex: none; text-align: center; color: var(--grip); cursor: grab;
+  font-size: 12px; letter-spacing: -3px;
+}
+.row:hover .grip { color: var(--fg); }
+body.dragging, body.dragging * { cursor: grabbing !important; }
+.tw { width: 16px; flex: none; text-align: center; color: var(--muted); cursor: pointer; font-size: 11px; }
+.tw.leaf { cursor: default; }
+.name { overflow: hidden; text-overflow: ellipsis; padding-left: 2px; }
+.count { color: var(--muted); font-size: 12px; margin-left: 6px; }
+.row.held { opacity: 0.35; }
+.row.parent-mark { background: var(--strong-bg); box-shadow: inset 0 0 0 1px var(--strong); }
+.row.parent-mark.into-collapsed { box-shadow: inset 0 0 0 2px var(--strong); }
+.tag {
+  margin-left: auto; margin-right: 6px; font-size: 11px; line-height: 16px; padding: 0 5px;
+  border-radius: 8px; background: var(--strong); color: var(--bg);
+}
+.row.flash { animation: flash 1.2s ease-out; }
+@keyframes flash { from { background: var(--strong-bg); box-shadow: inset 0 0 0 2px var(--strong); } to { background: transparent; } }
+#line {
+  position: absolute; height: 0; border-top: 3px solid var(--strong); right: 4px; display: none;
+  pointer-events: none; z-index: 3;
+}
+#line::before {
+  content: ""; position: absolute; left: -5px; top: -7px; width: 8px; height: 8px;
+  border: 2px solid var(--strong); border-radius: 50%; background: var(--panel-bg);
+}
+#ghost {
+  position: absolute; display: none; pointer-events: none; z-index: 4; height: 28px; line-height: 26px;
+  font-size: 14px; padding: 0 8px 0 4px; border: 1px solid var(--strong); border-radius: 4px;
+  background: var(--bg); box-shadow: 0 2px 8px rgb(0 0 0 / 0.2); white-space: nowrap;
+}
+.side { flex: 1; min-width: 320px; max-width: 640px; }
+.side h2 { font-size: 16px; margin: 0 0 4px; }
+.box { border: 1px solid var(--rule); border-radius: 6px; padding: 10px 12px; margin-bottom: 14px; }
+.opt { display: block; padding: 4px 0; cursor: pointer; }
+.opt small { display: block; color: var(--muted); font-size: 13px; margin-left: 24px; line-height: 1.5; }
+#readout { font-size: 14px; line-height: 1.6; margin: 0; }
+#readout dt { color: var(--muted); float: left; width: 7em; }
+#readout dd { margin: 0 0 0 7em; }
+#notice {
+  min-height: 28px; font-size: 14px; padding: 4px 8px; border-radius: 4px;
+}
+#notice.warn { background: var(--warn-bg); color: var(--warn); }
+#notice.ok { color: var(--ok); }
+ol { margin: 4px 0 0; padding-left: 22px; }
+li { margin-bottom: 4px; }
+kbd { font: 13px ui-monospace, monospace; border: 1px solid var(--rule); border-radius: 3px; padding: 0 4px; }
+</style>
+</head>
+<body>
+<header>
+  <h1 data-t="title"></h1>
+  <button id="lang">en</button>
+</header>
+<main>
+  <div class="app">
+    <div class="toolbar">
+      <button id="btnTop" data-t="btnTop"></button>
+      <button id="btnAll" data-t="btnAll"></button>
+      <button id="btnUndo" data-t="btnUndo"></button>
+      <button id="btnRedo" data-t="btnRedo"></button>
+      <button id="btnReset" data-t="btnReset"></button>
+    </div>
+    <div class="panel-title">Task Group Panel</div>
+    <div id="panel">
+      <div id="rows"></div>
+      <div id="line"></div>
+      <div id="ghost"></div>
+    </div>
+  </div>
+  <div class="side">
+    <div class="box">
+      <h2 data-t="q2"></h2>
+      <label class="opt"><input type="radio" autocomplete="off" name="q2" value="a"> <span data-t="optA"></span><small data-t="optAd"></small></label>
+      <label class="opt"><input type="radio" autocomplete="off" name="q2" value="b"> <span data-t="optB"></span><small data-t="optBd"></small></label>
+      <label class="opt"><input type="radio" autocomplete="off" name="q2" value="c" checked> <span data-t="optC"></span><small data-t="optCd"></small></label>
+    </div>
+    <div class="box">
+      <h2 data-t="now"></h2>
+      <dl id="readout"></dl>
+      <div id="notice"></div>
+    </div>
+    <div class="box">
+      <h2 data-t="try"></h2>
+      <ol id="steps"></ol>
+    </div>
+  </div>
+</main>
+<script>
+"use strict";
+
+// ---- words -------------------------------------------------------------
+const WORDS = {
+  ja: {
+    title: "58 タスクグループを自由に動かす見本（案 B）",
+    btnTop: "最も浅い段を 1 階層展開する",
+    btnAll: "すべて開く（見本用）",
+    btnUndo: "元に戻す",
+    btnRedo: "やり直す",
+    btnReset: "最初に戻す",
+    q2: "質問 2: 折りたたまれたタスクグループの中へ落とせるか",
+    optA: "a 中へは入れない",
+    optAd: "畳んだ Y の下の隙間では、Y の子の段を選べない。子にするには先に Y を開く。",
+    optB: "b 止めると開く",
+    optBd: "畳んだ Y の行の上で 0.7 秒止めると Y が開き、中の隙間を選べる。Esc で取り消すと閉じ直す。",
+    optC: "c 畳んだまま末子にする（推奨）",
+    optCd: "畳んだ Y の下の隙間で右へ引くと Y の末子になる。Y を太枠と「中へ」の札で示す。離したあと Y は畳んだまま。",
+    now: "いまの落ち先",
+    try: "試すこと",
+    steps: [
+      "掴み代 ⋮⋮ をつかんで上下に動かす —— 差し込み線が隙間に出る。左右に動かすと、線の始まり（段）が 16px 刻みで変わる。1 回で位置と段の両方が決まる。",
+      "[最も浅い段を 1 階層展開する] を押す（ログと同じ、最上段だけの畳んだ画面）。「予備」を「設計」の下へ運び、右へ引く —— a / b / c を切り替えて違いを見る。",
+      "「保守」を掴んでいちばん上の「企画」より上へ運ぶ —— 最上段の先頭に置ける。2 段目の「データ」を掴んで同じ所へ運び、左へ引くと、1 回で最上段の先頭になる。",
+      "[すべて開く] のあと、「画面」（自分を含めて 4 段の深さがある）を「移行」の下へ運んで右へ引く —— 段 2 で線が黙って止まる（段の上限 5）。「形式」と「移行」のあいだでは線が出ず、離しても何も起きない。",
+      "[すべて開く] のあと、いちばん下の「臨時」を掴んで、パネルの上の縁まで運ぶ —— パネルが自動で送られ、画面の外の場所まで運べる。",
+      "掴んだまま Esc で取り消し。離したあとは [元に戻す] で 1 手ずつ戻る。",
+    ],
+    gap: "隙間", between: "と", top: "（いちばん上）", bottom: "（いちばん下）",
+    range: "置ける段", chosen: "選んだ段", parent: "親", order: "順番",
+    rootName: "最上段", nth: (n) => `${n} 番目`, last: "末子",
+    collapsedNote: "（畳んだまま中へ）", into: "中へ", opened: "開いた",
+    none: "—", idle: "掴み代 ⋮⋮ をつかむと、ここに落ち先が出る。",
+    collapsedStop: "Yが畳まれているので、その中へは置けない（案 a）。",
+    hoverHint: "Yの行の上で止めると開く（案 b）。",
+    moved: (n, p, o) => `「${n}」を${p}の ${o} 番目へ移した。`,
+    movedInto: (n, p) => `「${n}」を「${p}」の末子へ移した（「${p}」は畳んだまま）。`,
+    notMoved: "元の場所なので、何も書いていない。",
+    cancelled: "取り消した。",
+    undone: "1 手戻した。", redone: "1 手やり直した。",
+    rootIn: "最上段",
+    quoted: (s) => `「${s}」`,
+  },
+  en: {
+    title: "58 Moving task groups freely (option B)",
+    btnTop: "Show Top Level Only",
+    btnAll: "Expand all (sample aid)",
+    btnUndo: "Undo",
+    btnRedo: "Redo",
+    btnReset: "Start over",
+    q2: "Question 2: can a task group be dropped into a collapsed one?",
+    optA: "a Not into it",
+    optAd: "In the gap under a collapsed Y, Y's child depth is not offered. Open Y first to nest under it.",
+    optB: "b Rest to open",
+    optBd: "Rest on a collapsed Y's row for 0.7 s and Y opens, so the gaps inside can be chosen. Esc closes it again.",
+    optC: "c Last child, still collapsed (recommended)",
+    optCd: "In the gap under a collapsed Y, pull right to make it Y's last child. Y gets a thick frame and an 'into' tag. Y stays collapsed after the drop.",
+    now: "Where it lands",
+    try: "Try this",
+    steps: [
+      "Grab a grip ⋮⋮ and move up or down: an insertion line shows the gap. Move left or right: the line's start (the depth) moves in 16px steps. One drag sets both position and depth.",
+      "Press [Show Top Level Only] (the collapsed top-level view from the log). Carry 'Reserve' to below 'Design' and pull right; switch a / b / c to compare.",
+      "Grab 'Maintenance' and carry it above 'Plan' at the very top: it lands first at the top level. Grab the second-level 'Data', carry it to the same place and pull left: one drag makes it first at the top level.",
+      "After [Expand all], carry 'Screens' (four levels deep counting itself) below 'Migration' and pull right: the line stops at depth 2 without a word (depth cap 5). Between 'Format' and 'Migration' no line shows and a drop does nothing.",
+      "After [Expand all], grab 'Ad hoc' at the bottom and carry it to the panel's top edge: the panel scrolls by itself, so places off screen can be reached.",
+      "Esc while holding cancels. After a drop, [Undo] goes back one move at a time.",
+    ],
+    gap: "Gap", between: " / ", top: "(very top)", bottom: "(very bottom)",
+    range: "Depths", chosen: "Chosen depth", parent: "Parent", order: "Position",
+    rootName: "top level", nth: (n) => `#${n}`, last: "last child",
+    collapsedNote: " (into it, still collapsed)", into: "into", opened: "opened",
+    none: "-", idle: "Grab a grip ⋮⋮ and the landing place shows here.",
+    collapsedStop: "Y is collapsed, so nothing can go into it (option a).",
+    hoverHint: "Rest on Y's row and it opens (option b).",
+    moved: (n, p, o) => `Moved '${n}' to ${p}, position ${o}.`,
+    movedInto: (n, p) => `Moved '${n}' to the end of '${p}' ('${p}' stays collapsed).`,
+    notMoved: "Same place as before, so nothing was written.",
+    cancelled: "Cancelled.",
+    undone: "Undid one move.", redone: "Redid one move.",
+    rootIn: "the top level",
+    quoted: (s) => `'${s}'`,
+  },
+};
+let lang = "ja";
+const w = () => WORDS[lang];
+
+// ---- sample tree (names are neutral placeholders) ----------------------
+const SEED = [
+  ["企画", "Plan", [
+    ["調査", "Survey", [["要件", "Needs"], ["比較", "Compare"]]],
+    ["方針", "Direction"],
+  ]],
+  ["設計", "Design", [
+    ["画面", "Screens", [
+      ["一覧", "List", [["並び", "Order", [["細目", "Details"]]]]],
+      ["入力", "Input"],
+    ]],
+    ["データ", "Data", [["形式", "Format"], ["移行", "Migration"]]],
+  ]],
+  ["製作", "Build", [
+    ["部品", "Parts", [["共通", "Common"], ["個別", "Individual"]]],
+    ["結合", "Assembly"],
+  ]],
+  ["検証", "Verify", [["単体", "Unit"], ["通し", "End to end"], ["受け入れ", "Acceptance"]]],
+  ["公開", "Release", [["告知", "Notice"], ["手順", "Procedure"]]],
+  ["予備", "Reserve"],
+  ["振り返り", "Review", [["記録", "Records"], ["改善", "Improvements"]]],
+  ["保守", "Maintenance", [
+    ["問い合わせ", "Inquiries"],
+    ["更新", "Updates", [["定期", "Regular"], ["臨時", "Ad hoc"]]],
+  ]],
+];
+const MAX_DEPTH = 5;      // S-125
+const INDENT = 16;        // S-37
+const ROW_H = 28;
+const THRESHOLD = 6;      // S-208
+const EDGE = 36;          // auto-scroll band, sample value
+const HOVER_OPEN_MS = 700; // option b, sample value
+
+let nextId = 1;
+function build(list) {
+  return list.map(([ja, en, kids]) => ({
+    id: "g" + nextId++, ja, en, collapsed: false, children: kids ? build(kids) : [],
+  }));
+}
+let root = { id: "root", children: build(SEED), collapsed: false };
+const initial = JSON.stringify(root);
+let undoStack = [], redoStack = [];
+let selectedId = null;
+
+const nameOf = (n) => (lang === "ja" ? n.ja : n.en);
+function height(n) { return 1 + Math.max(0, ...n.children.map(height)); }
+function countUnder(n) { return n.children.reduce((s, c) => s + 1 + countUnder(c), 0); }
+function findParent(id, at = root) {
+  for (const c of at.children) {
+    if (c.id === id) return at;
+    const p = findParent(id, c);
+    if (p) return p;
+  }
+  return null;
+}
+function findNode(id, at = root) {
+  if (at.id === id) return at;
+  for (const c of at.children) { const f = findNode(id, c); if (f) return f; }
+  return null;
+}
+function forEachNode(f, at = root, depth = 0) {
+  for (const c of at.children) { f(c, depth + 1); forEachNode(f, c, depth + 1); }
+}
+
+// Visible rows in drawing order: {node, depth, parent}
+function visibleRows() {
+  const out = [];
+  (function walk(p, d) {
+    for (const c of p.children) {
+      out.push({ node: c, depth: d, parent: p });
+      if (!c.collapsed) walk(c, d + 1);
+    }
+  })(root, 1);
+  return out;
+}
+
+// ---- drawing -------------------------------------------------------------
+const panel = document.getElementById("panel");
+const rowsEl = document.getElementById("rows");
+const lineEl = document.getElementById("line");
+const ghostEl = document.getElementById("ghost");
+const readoutEl = document.getElementById("readout");
+const noticeEl = document.getElementById("notice");
+let drawn = [];   // [{node, depth, parent, el, top}]
+
+function render() {
+  rowsEl.textContent = "";
+  drawn = [];
+  const heldSet = drag ? subtreeIds(drag.node) : new Set();
+  visibleRows().forEach((r, i) => {
+    const el = document.createElement("div");
+    el.className = "row";
+    if (r.node.id === selectedId) el.classList.add("selected");
+    if (heldSet.has(r.node.id)) el.classList.add("held");
+    el.style.paddingLeft = (4 + INDENT * (r.depth - 1)) + "px";
+    const grip = document.createElement("span");
+    grip.className = "grip"; grip.textContent = "⋮⋮";
+    grip.addEventListener("pointerdown", (e) => startPress(e, r.node));
+    const tw = document.createElement("span");
+    const hasKids = r.node.children.length > 0;
+    tw.className = "tw" + (hasKids ? "" : " leaf");
+    tw.textContent = hasKids ? (r.node.collapsed ? "▸" : "▾") : "";
+    if (hasKids) tw.addEventListener("click", () => { r.node.collapsed = !r.node.collapsed; render(); });
+    const nm = document.createElement("span");
+    nm.className = "name"; nm.textContent = nameOf(r.node);
+    nm.addEventListener("click", () => { selectedId = r.node.id; render(); });
+    el.append(grip, tw, nm);
+    if (hasKids && r.node.collapsed) {
+      const ct = document.createElement("span");
+      ct.className = "count"; ct.textContent = "+" + countUnder(r.node);
+      el.append(ct);
+    }
+    rowsEl.append(el);
+    drawn.push({ ...r, el, top: i * ROW_H });
+  });
+  document.getElementById("btnUndo").disabled = undoStack.length === 0;
+  document.getElementById("btnRedo").disabled = redoStack.length === 0;
+  if (drag && drag.active) showLanding();
+}
+
+function subtreeIds(n) {
+  const s = new Set([n.id]);
+  (function walk(x) { for (const c of x.children) { s.add(c.id); walk(c); } })(n);
+  return s;
+}
+
+// ---- landing (option B) --------------------------------------------------
+// The gap is chosen by y over the rows that are not held; the depth by x,
+// clamped to [depth(L), depth(U)+1] and to the cap counted with the held subtree.
+function landingAt(yContent, xClient) {
+  const held = subtreeIds(drag.node);
+  const cand = drawn.filter((r) => !held.has(r.node.id));
+  let g = 0;
+  for (let i = 0; i < cand.length; i++) {
+    if (yContent > cand[i].top + ROW_H / 2) g = i + 1;
+  }
+  const U = cand[g - 1] || null;
+  const L = cand[g] || null;
+  const mode = currentMode();
+  const uCollapsed = !!(U && U.node.collapsed && U.node.children.length > 0);
+  let maxD = U ? U.depth + 1 : 1;
+  let minD = L ? L.depth : 1;
+  let stoppedByCollapse = false;
+  if (uCollapsed && mode !== "c") { maxD = U.depth; stoppedByCollapse = true; }
+  const h = height(drag.node);
+  const capMax = MAX_DEPTH - h + 1;
+  if (maxD > capMax) maxD = capMax;
+  const want = drag.depth0 + Math.round((xClient - drag.x0) / INDENT);
+  const bad = maxD < minD;
+  let d = Math.max(minD, Math.min(maxD, want));
+  const pulledIntoCollapsed = stoppedByCollapse && want > maxD;
+
+  // parent and order
+  let parent, order, intoCollapsed = false;
+  if (!bad) {
+    if (!U) { parent = root; order = 0; }
+    else if (d === U.depth + 1) {
+      parent = U.node;
+      if (uCollapsed) { intoCollapsed = true; order = without(U.node.children).length; }
+      else order = 0;
+    } else {
+      let a = U.node, ad = U.depth;
+      while (ad > d) { a = findParent(a.id); ad--; }
+      parent = findParent(a.id);
+      order = without(parent.children).indexOf(a) + 1;
+    }
+  }
+  const gapY = U ? U.top + ROW_H : 0;
+  return { U, L, minD, maxD, d, bad, parent, order, intoCollapsed, gapY, pulledIntoCollapsed, uCollapsed };
+}
+function without(list) { return list.filter((c) => c.id !== drag.node.id); }
+
+function currentMode() { return document.querySelector("input[name=q2]:checked").value; }
+
+// ---- pointer handling ----------------------------------------------------
+let drag = null;   // {node, x0, y0, depth0, active, lastX, lastY, landing, opened:[], hoverId, hoverAt}
+let raf = 0;
+
+function startPress(e, node) {
+  if (e.button !== 0) return;
+  e.preventDefault();
+  const r = drawn.find((x) => x.node.id === node.id);
+  drag = { node, x0: e.clientX, y0: e.clientY, depth0: r.depth, active: false, lastX: e.clientX, lastY: e.clientY, opened: [], hoverId: null, hoverAt: 0 };
+  window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", onUp);
+}
+function onMove(e) {
+  if (!drag) return;
+  drag.lastX = e.clientX; drag.lastY = e.clientY;
+  if (!drag.active) {
+    if (Math.abs(e.clientX - drag.x0) <= THRESHOLD && Math.abs(e.clientY - drag.y0) <= THRESHOLD) return;
+    drag.active = true;
+    document.body.classList.add("dragging");
+    selectedId = drag.node.id;
+    render();
+    loop();
+  }
+  showLanding();
+}
+function loop() {
+  if (!drag || !drag.active) return;
+  const rect = panel.getBoundingClientRect();
+  const y = drag.lastY;
+  let v = 0;
+  if (y < rect.top + EDGE) v = -Math.min(1, (rect.top + EDGE - y) / EDGE) * 14;
+  else if (y > rect.bottom - EDGE) v = Math.min(1, (y - (rect.bottom - EDGE)) / EDGE) * 14;
+  if (v !== 0) {
+    const before = panel.scrollTop;
+    panel.scrollTop += v;
+    if (panel.scrollTop !== before) showLanding();
+  }
+  if (currentMode() === "b") hoverOpen();
+  raf = requestAnimationFrame(loop);
+}
+function contentY() {
+  const rect = panel.getBoundingClientRect();
+  return drag.lastY - rect.top + panel.scrollTop;
+}
+function hoverOpen() {
+  const y = contentY();
+  const i = Math.floor(y / ROW_H);
+  const r = drawn[i];
+  const held = subtreeIds(drag.node);
+  const inMiddle = r && y - r.top > 6 && y - r.top < ROW_H - 6;
+  if (!r || !inMiddle || held.has(r.node.id) || !r.node.collapsed || r.node.children.length === 0) {
+    drag.hoverId = null; return;
+  }
+  const now = performance.now();
+  if (drag.hoverId !== r.node.id) { drag.hoverId = r.node.id; drag.hoverAt = now; return; }
+  if (now - drag.hoverAt >= HOVER_OPEN_MS) {
+    r.node.collapsed = false; drag.opened.push(r.node.id); drag.hoverId = null;
+    render();
+  }
+}
+
+function showLanding() {
+  const L = landingAt(contentY(), drag.lastX);
+  drag.landing = L;
+  drawn.forEach((r) => { r.el.classList.remove("parent-mark", "into-collapsed"); r.el.querySelector(".tag")?.remove(); });
+  // WHY: a gap with no allowed depth draws no line, so a drop there visibly lands nowhere.
+  lineEl.style.display = L.bad ? "none" : "block";
+  lineEl.style.top = (L.gapY - 1) + "px";
+  lineEl.style.left = (4 + INDENT * (L.d - 1) + 4) + "px";
+  if (!L.bad && L.parent !== root) {
+    const pr = drawn.find((r) => r.node.id === L.parent.id);
+    if (pr) {
+      pr.el.classList.add("parent-mark");
+      if (L.intoCollapsed) {
+        pr.el.classList.add("into-collapsed");
+        const tag = document.createElement("span");
+        tag.className = "tag"; tag.textContent = w().into;
+        pr.el.append(tag);
+      }
+    }
+  }
+  ghostEl.style.display = "block";
+  // WHY: offset below-right of the pointer so the names it passes over stay readable.
+  ghostEl.style.top = (contentY() + 8) + "px";
+  ghostEl.style.left = (4 + INDENT * (L.d - 1) + 40) + "px";
+  const n = countUnder(drag.node);
+  ghostEl.textContent = "⋮⋮ " + nameOf(drag.node) + (n > 0 ? `  +${n}` : "");
+  writeReadout(L);
+}
+
+function writeReadout(L) {
+  const t = w();
+  const q = t.quoted;
+  const gapText = (L.U ? q(nameOf(L.U.node)) : t.top) + t.between + (L.L ? q(nameOf(L.L.node)) : t.bottom);
+  let parentText = t.none, orderText = t.none;
+  if (!L.bad) {
+    parentText = L.parent === root ? t.rootName : q(nameOf(L.parent)) + (L.intoCollapsed ? t.collapsedNote : "");
+    orderText = L.intoCollapsed ? t.last : t.nth(L.order + 1);
+  }
+  const opened = drag.opened.length ? `<dt>${t.opened}</dt><dd>${drag.opened.map((id) => q(nameOf(findNode(id)))).join(", ")}</dd>` : "";
+  readoutEl.innerHTML =
+    `<dt>${t.gap}</dt><dd>${esc(gapText)}</dd>` +
+    `<dt>${t.range}</dt><dd>${L.bad ? t.none : L.minD + " - " + L.maxD}</dd>` +
+    `<dt>${t.chosen}</dt><dd>${L.bad ? t.none : L.d}</dd>` +
+    `<dt>${t.parent}</dt><dd>${esc(parentText)}</dd>` +
+    `<dt>${t.order}</dt><dd>${orderText}</dd>` + opened;
+  let msg = "", cls = "";
+  // Ruled 2026-10-15 (Q4 = A): the depth cap stops the line silently; touching shows where the limit is.
+  if (L.pulledIntoCollapsed) { msg = (currentMode() === "a" ? t.collapsedStop : t.hoverHint).replace("Y", q(nameOf(L.U.node))); cls = "warn"; }
+  setNotice(msg, cls);
+}
+function esc(s) { return String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]); }
+function setNotice(msg, cls) { noticeEl.textContent = msg; noticeEl.className = cls || ""; }
+
+function endDrag() {
+  cancelAnimationFrame(raf);
+  window.removeEventListener("pointermove", onMove);
+  window.removeEventListener("pointerup", onUp);
+  document.body.classList.remove("dragging");
+  lineEl.style.display = "none";
+  ghostEl.style.display = "none";
+}
+function onUp() {
+  if (!drag) return;
+  const d = drag;
+  endDrag();
+  if (!d.active) { drag = null; selectedId = d.node.id; render(); return; }
+  const L = d.landing;
+  const t = w();
+  drag = d;  // keep for without()
+  if (!L || L.bad) {
+    drag = null; render(); setNotice("", ""); readoutEl.innerHTML = idleReadout(); return;
+  }
+  const oldParent = findParent(d.node.id);
+  const oldOrder = oldParent.children.indexOf(d.node);
+  const sameSpot = oldParent === L.parent && oldOrder === L.order;
+  if (sameSpot && d.opened.length === 0) {
+    drag = null; render(); setNotice(t.notMoved, ""); readoutEl.innerHTML = ""; return;
+  }
+  // one drag = one undo step (opening under option b is part of it)
+  const snapshot = snapshotWith(d.opened);
+  if (!sameSpot) {
+    oldParent.children.splice(oldOrder, 1);
+    L.parent.children.splice(L.order, 0, d.node);
+  }
+  undoStack.push(snapshot); redoStack = [];
+  drag = null;
+  render();
+  const row = drawn.find((r) => r.node.id === (L.intoCollapsed ? L.parent.id : d.node.id));
+  if (row) { row.el.classList.add("flash"); row.el.scrollIntoView({ block: "nearest" }); }
+  if (sameSpot) setNotice(t.notMoved, "");
+  else if (L.intoCollapsed) setNotice(t.movedInto(nameOf(d.node), nameOf(L.parent)), "ok");
+  else setNotice(t.moved(nameOf(d.node), L.parent === root ? t.rootIn : t.quoted(nameOf(L.parent)), L.order + 1), "ok");
+}
+// The tree as it was before the drag: re-collapse the groups option b opened.
+function snapshotWith(opened) {
+  const s = JSON.parse(JSON.stringify(root));
+  (function walk(x) { for (const c of x.children) { if (opened.includes(c.id)) c.collapsed = true; walk(c); } })(s);
+  return JSON.stringify(s);
+}
+window.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && drag && drag.active) {
+    for (const id of drag.opened) { const n = findNode(id); if (n) n.collapsed = true; }
+    endDrag(); drag = null; render(); setNotice(w().cancelled, ""); readoutEl.innerHTML = "";
+    return;
+  }
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && e.key.toLowerCase() === "z") { e.preventDefault(); undo(); }
+  if (mod && e.key.toLowerCase() === "y") { e.preventDefault(); redo(); }
+});
+
+// ---- buttons ---------------------------------------------------------------
+function undo() {
+  if (drag || !undoStack.length) return;
+  redoStack.push(JSON.stringify(root)); root = JSON.parse(undoStack.pop());
+  render(); setNotice(w().undone, "");
+}
+function redo() {
+  if (drag || !redoStack.length) return;
+  undoStack.push(JSON.stringify(root)); root = JSON.parse(redoStack.pop());
+  render(); setNotice(w().redone, "");
+}
+document.getElementById("btnUndo").onclick = undo;
+document.getElementById("btnRedo").onclick = redo;
+document.getElementById("btnReset").onclick = () => {
+  root = JSON.parse(initial); undoStack = []; redoStack = []; selectedId = null;
+  render(); setNotice("", ""); readoutEl.innerHTML = idleReadout();
+};
+document.getElementById("btnTop").onclick = () => { forEachNode((n) => { n.collapsed = n.children.length > 0; }); render(); };
+document.getElementById("btnAll").onclick = () => { forEachNode((n) => { n.collapsed = false; }); render(); };
+// WHY: a wheel turn while holding scrolls the panel; the landing must follow the new rows under the pointer.
+panel.addEventListener("scroll", () => { if (drag && drag.active) showLanding(); });
+document.querySelectorAll("input[name=q2]").forEach((r) => r.addEventListener("change", () => { if (drag && drag.active) showLanding(); }));
+document.getElementById("lang").onclick = () => {
+  lang = lang === "ja" ? "en" : "ja";
+  document.getElementById("lang").textContent = lang === "ja" ? "en" : "ja";
+  document.documentElement.lang = lang;
+  applyWords(); render();
+};
+
+function idleReadout() { return `<dd style="margin:0">${w().idle}</dd>`; }
+function applyWords() {
+  document.querySelectorAll("[data-t]").forEach((el) => { el.textContent = w()[el.dataset.t]; });
+  const ol = document.getElementById("steps");
+  ol.textContent = "";
+  for (const s of w().steps) { const li = document.createElement("li"); li.textContent = s; ol.append(li); }
+  readoutEl.innerHTML = idleReadout();
+  setNotice("", "");
+}
+applyWords();
+render();
+</script>
+</body>
+</html>
