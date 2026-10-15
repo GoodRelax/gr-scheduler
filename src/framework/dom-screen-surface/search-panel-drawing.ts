@@ -825,12 +825,16 @@ function placeFilterMenu(window: HTMLElement): void {
 // see SV-6
 /** @purity non-pure */
 export function pinFixedColumns(tableBox: Element): void {
-  const headings = [...tableBox.querySelectorAll<HTMLElement>('thead th')]
-  const lefts = headings.map((cell) => (cell.hasAttribute(FIXED_COLUMN_ATTRIBUTE) ? (cell.offsetLeft ?? null) : null))
+  let reached = 0
+  const lefts = [...tableBox.querySelectorAll('thead th')].map((cell) => {
+    const left = reached
+    reached += Number(cell.getAttribute('data-width'))
+    return cell.hasAttribute(FIXED_COLUMN_ATTRIBUTE) ? `${left}px` : null
+  })
   for (const line of tableBox.querySelectorAll('tr')) {
     lefts.forEach((left, at) => {
       const cell = line.children[at] as HTMLElement | undefined
-      if (left !== null && cell !== undefined) cell.style.left = `${left}px`
+      if (left !== null && cell !== undefined && cell.style.left !== left) cell.style.left = left
     })
   }
 }
