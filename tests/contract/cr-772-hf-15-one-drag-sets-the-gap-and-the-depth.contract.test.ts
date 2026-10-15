@@ -39,9 +39,7 @@ const REQUIREMENT_CLAUSES: readonly string[] = [
   clause.HF_15_DEPTH_ROUNDED,
   clause.HF_15_RANGE,
   clause.HF_15_NOT_SHALLOWER,
-  clause.HF_15_CAP,
   clause.HF_15_STOP_AT_END,
-  clause.HF_15_NO_PLACE,
   clause.HF_15_PARENT,
   clause.HF_15_ORDER,
   clause.HF_15_FIRST_CHILD,
@@ -58,8 +56,6 @@ const REQUIREMENT_CLAUSES: readonly string[] = [
   clause.HF_15_SPEED,
   clause.HF_15_WHEEL,
   clause.HF_15_RESELECT,
-  clause.HM_3A_GRAB_NOTE,
-  clause.UC_002_2A_GRAB,
 ]
 
 describe('CR-772 -- the manuscript these cases are driven by', () => {
@@ -166,25 +162,28 @@ describe('HF-15 -- the depth is the sideways travel over the drawn indent, round
   })
 })
 
-describe('HF-15 -- the deepest depth keeps the whole subtree inside FR-004 and is not announced (HM-3a)', () => {
-  it('B and B1 are put at the deepest gap: B1 ends at the limit, never past it', () => {
-    const placed = placedBy('B', releaseAt('B', 9, 10000))
-    expect(placed).toMatchObject({ parentId: 'E2', previous: 'E3', depth: 4 })
-    expect(placementIn(placed.after, 'B1').depth).toBe(S_125)
+describe('HF-15 -- the cap bounds the grabbed task group alone (CR-774), and a deeper subtree is not a reason to hold it shallower', () => {
+  it('B is put at the deepest gap: its own depth stops at the limit, under the last row of the chain', () => {
+    expect(landingAt('B', 9, 10000)).toMatchObject({ parentId: 'E3', depth: S_125 })
+    expect(landingAt('B', 40, 10000)?.depth).toBe(S_125)
   })
 
-  it('a task group with a deep subtree is held shallower than the row above allows', () => {
-    const placed = placedBy('E', releaseAt('E', 9, under('A2a')))
-    expect(placed).toMatchObject({ parentId: 'A', previous: 'A2', depth: S_125 - 4 + 1 })
-    expect(placementIn(placed.after, 'E3').depth).toBe(S_125)
+  it('a task group with a deep subtree is offered the depth the row above allows, not a shallower one', () => {
+    expect(landingAt('E', 9, under('A2a'))).toMatchObject({ parentId: 'A2a', depth: 4 })
+    expect(landingAt('E', 0, under('A2a'))).toMatchObject({ parentId: null, depth: 1 })
   })
 
-  it('a gap with no depth left writes nothing, and the follow has no line to draw', () => {
+  it('a gap whose row below is deeper than the subtree allows still has a place: nothing is hidden from the pointer', () => {
     const gap = under('E2')
-    expect(landingAt('A', 9, gap)).toBeNull()
-    expect(landingAt('A', 0, gap)).toBeNull()
-    expect(writesOf(releaseAt('A', 9, gap))).toEqual([])
-    expect(releaseAt('A', 9, gap).action).toBeNull()
+    expect(landingAt('A', 9, gap)).toMatchObject({ parentId: 'E2', depth: 4 })
+    expect(landingAt('A', 0, gap)).toMatchObject({ parentId: 'E2', depth: 4 })
+    expect(releaseAt('A', 9, gap).action).not.toBeNull()
+  })
+
+  it('a depth the subtree fits in is written at once, whole, with the descendants one level below', () => {
+    const placed = placedBy('A2', releaseAt('A2', 9, under('A2a')))
+    expect(placed.depth).toBe(4)
+    expect(placementIn(placed.after, 'A2a').depth).toBe(5)
   })
 })
 
