@@ -429,10 +429,9 @@ describe('BL-1 -- which BaselineTask is drawn', () => {
 describe('BL-2 -- where the outline stands and its shape', () => {
   it(`BL-2 「${BL_2_X}」: the box spans what a plan bar with the baseline's dates spans`, () => {
     const outline = onlyOutline(stageOf({ tasks: [PLAIN], baselines: [SHIFTED] }))
-    const reference = planBandOf(
-      stageOf({ tasks: [taskOf({ uid: 1, start: SHIFTED.start, finish: SHIFTED.finish })], baselines: [] }),
-      1,
-    )
+    // WHY: taskOf closes a T00:00:00 finish to T17:00:00; the baseline keeps its raw text, so the Task takes the same raw text (FR-054).
+    const same = { ...taskOf({ uid: 1, start: SHIFTED.start }), finish: SHIFTED.finish } as Task
+    const reference = planBandOf(stageOf({ tasks: [same], baselines: [] }), 1)
     expect(outline.kind, BL_2_SHAPE).toBe('rectangle')
     expect(outline.box.x, BL_2_X).toBeCloseTo(reference.left, 6)
     expect(outline.box.x + outline.box.width, BL_2_X).toBeCloseTo(reference.right, 6)

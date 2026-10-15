@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 341 | 4149 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 342 | 4154 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 86 | 566 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 629 | 8726 | 11 | 8 | 13 | 2 |
+| **all** | | | 630 | 8731 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -310,7 +310,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-586-the-task-group-color-list-is-one-and-black-is-refused.test.ts` | 12 | - | - | T-017b, T-233, T-294 | CM-30, CV-2, CV-9, RS-25, S-4, S-5, S-315 | - | - | - | - |
 | `tests/contract/cr-588-no-pre-change-plan-asks-for-the-file.contract.test.ts` | 23 | FR-015, FR-158 | - | T-024a, T-027, T-109, T-202 | IC-4, OP-2, OP-3, OP-4, OP-13, OP-15, QN-5, RD-3, S-5, S-6, S-69, U-56, UN-7, UN-18 | - | - | - | - |
 | `tests/contract/cr-588-the-baseline-route-keeps-the-save-target.contract.test.ts` | 14 | FR-060 | - | T-024a, T-109 | IC-4, OP-2, OP-9, OP-15 | - | - | - | - |
-| `tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts` | 30 | FR-015, FR-108 | - | T-020, T-206, T-236, T-259, T-339, T-355 | AT-104, BL-1, BL-2, BL-3, BL-4, NG-10, S-3, S-39, S-69, S-104, S-175, S-227, S-443, S-444, VG-5, ZO-15 | - | - | - | - |
+| `tests/contract/cr-588-the-pre-change-plan-outline.contract.test.ts` | 30 | FR-015, FR-054, FR-108 | - | T-020, T-206, T-236, T-259, T-339, T-355 | AT-104, BL-1, BL-2, BL-3, BL-4, NG-10, S-3, S-39, S-69, S-104, S-175, S-227, S-443, S-444, VG-5, ZO-15 | - | - | - | - |
 | `tests/contract/cr-589-each-entry-rewrites-the-setting-its-cell-names.contract.test.ts` | 12 | FR-029, FR-048, FR-049 | - | T-109, T-202, T-206 | CU-3, IC-4, OP-15, S-66 | - | - | - | - |
 | `tests/contract/cr-592-monochrome-grays-every-t-236-task-group.test.ts` | 11 | FR-041 | - | T-216, T-236, T-294, T-366 | CF-2, S-147, S-159, S-162, S-163, S-169, S-183, S-311 | - | - | - | - |
 | `tests/contract/cr-593-a-held-field-keeps-its-text-while-the-zoom-moves.test.ts` | 6 | - | - | T-035, T-036, T-067, T-103, T-108 | AG-9, AG-9a, AT-53, CM-1, CM-64, CM-65, MK-4, MK-5, MK-13, PR-18, PR-20, RS-8, U-25, UN-8, UN-13, WS-2 | - | - | - | - |
@@ -481,6 +481,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-2458-a-push-out-counts-against-s-397-in-whole-working-days.contract.test.ts` | 12 | FR-132 | - | T-206, T-314 | BD-1, DX-9, S-128, S-397 | - | - | - | - |
 | `tests/contract/dfc-2463-fr-156-the-pc-region-and-where-rs-90-is-told.contract.test.ts` | 15 | FR-156 | - | T-233, T-376 | IC-71, IC-72, IC-73, IC-98, MG-4, PF-1, PF-8, RS-90, ZN-15, ZN-16, ZN-20, ZN-24, ZN-25 | - | - | - | - |
 | `tests/contract/dfc-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts` | 19 | FR-025, FR-038, FR-080, FR-096 | - | T-014, T-024, T-036, T-037, T-041, T-060, T-062, T-066, T-075, T-103, T-109, T-218, T-233 | CP-25, CS-2, IC-3, IF-3, IF-5, IO-1, IO-2, IO-3, IO-6, IO-7, LY-5, NT-3, NT-3a, RS-24, S-89, SK-12, SK-16, SK-19, SK-21, ST-3, ST-7, ST-10, TS-6, U-54, UF-48, WY-2 | - | - | - | - |
+| `tests/contract/dfc-2765-bl-2-the-outline-uses-the-plan-bars-conversion.contract.test.ts` | 5 | FR-015, FR-054 | - | T-339 | BL-2 | - | - | - | - |
 | `tests/contract/dfc-286-fr-044-emptying-a-set-resume-date-clears-resume-valid.test.ts` | 12 | FR-006, FR-044 | - | T-016, T-019, T-019a, T-108, T-216, T-218 | PA-2, PA-3, PA-4, PR-7, PR-8, PR-15, PS-3, PS-4, PS-5, TS-2, TS-6 | - | - | - | - |
 | `tests/contract/dfc-288-d-289-fr-099-deleting-the-chosen-assignees.test.ts` | 19 | FR-029, FR-038, FR-099 | - | T-037, T-050, T-060, T-062, T-066, T-075, T-108, T-109, T-218, T-233, T-234 | CD-5, CM-42, CP-25, CS-2, IC-62, IC-65, IC-66, IC-67, IC-68, LY-5, NT-7, QN-3, RS-27, TS-2, TS-6, UF-48 | - | - | - | - |
 | `tests/contract/dfc-290-d-321-fr-033-copy-and-paste-reach-the-document.test.ts` | 16 | FR-031, FR-033, FR-038, FR-076, NFR-004 | - | T-014, T-023c, T-036, T-037, T-050, T-062, T-066, T-075, T-103, T-218, T-223, T-233 | CD-2, CM-8, CM-28, CP-25, CS-2, DU-1, DU-2, IN-1, RS-24, RS-27, S-89, SK-4, SK-5, SL-2, ST-7, TS-6, U-22, UF-48 | - | - | - | - |
