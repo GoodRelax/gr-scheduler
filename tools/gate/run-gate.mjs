@@ -30,7 +30,7 @@ import { acquire, oneDriveRefusal } from './gate-queue.mjs'
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..')
 const KNOWN_RED = 'tests/known-red.txt'
 const MSPDI_XSD_LIST = 'tests/fixtures/mspdi-xsd.json'
-const PLAYWRIGHT_PLACES = ['tests/usecase/', 'tests/system/', 'tests/nfr/']
+const PLAYWRIGHT_PLACES = ['tests/use-case/', 'tests/system/', 'tests/nfr/']
 const RED_STATES = new Set(['failed', 'timedOut', 'interrupted'])
 const NEVER_PASSED_ON = ['GRS_PERF', 'GRS_UC_SHOW_MISMATCH']
 const PERFORMANCE_FILES = [

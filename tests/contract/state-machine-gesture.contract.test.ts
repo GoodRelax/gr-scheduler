@@ -278,7 +278,7 @@ describe('SS-5: screen and notice events leave the gesture region at the same re
     armKind: 'dependencyArmed',
     shapeKind: null,
     glyph: null,
-    subject: { selection: { items: [], ordered: false }, groupIds: [] },
+    subject: { selection: { items: [], isOrdered: false }, taskGroupIds: [] },
     date: '2026-01-05',
     percent: 100,
     end: 'max',

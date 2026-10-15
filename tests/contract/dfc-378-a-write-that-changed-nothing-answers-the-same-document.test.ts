@@ -99,14 +99,14 @@ const planOf = (document: Document, commands: readonly DocumentCommand[]) =>
   planDocumentChange({
     defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
     document,
-    readStamp: document.documentStamp,
+    expectedStamp: document.documentStamp,
     commands,
     moment: CALM,
     history: EMPTY_HISTORY,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: LIMITS,
     editedBy: 'agent',
-    updatedUtc: '2026-08-17T01:00:00Z',
+    updatedAt: '2026-08-17T01:00:00Z',
   })
 
 const bothWays = (

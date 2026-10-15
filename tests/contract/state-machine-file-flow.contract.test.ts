@@ -455,7 +455,7 @@ describe('SS-5: screen, notices and gesture events leave the fileFlow region at 
     armKind: 'dependencyArmed',
     shapeKind: null,
     glyph: null,
-    subject: { selection: { items: [], ordered: false }, groupIds: [] },
+    subject: { selection: { items: [], isOrdered: false }, taskGroupIds: [] },
     date: '2026-01-05',
     percent: 100,
     end: 'max',

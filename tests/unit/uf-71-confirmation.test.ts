@@ -965,7 +965,7 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
     mount: built.mount as unknown as Element,
     readAuthor: (): string => 'Watcher',
     readClockMs: (): number => Date.UTC(2026, 7, 22, 3, 4, 5),
-    onAppHeaderHeightPx: (heightPx: number): void => {
+    onAppHeaderHeightMeasured: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)
     },
     // ⭐ `THEME` is the same pair the session below carries, and it is declared
@@ -1328,7 +1328,7 @@ const readingsAsking = (raised: RaisedConfirmation | null): ScreenViewReadings =
   // the manuscript's default; S-73 is read above.
   themePreference: THEME.preference,
   themeHue: THEME.hue,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   notices: [],
   confirmation: raised,

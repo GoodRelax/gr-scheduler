@@ -403,10 +403,10 @@ describe('FR-048 / DC-9 -- the dual cursor and the guide cursor are one exclusiv
       built.move(area.x + 400, area.y + 40)
       built.click(area.x + 400, area.y + 40)
       // WHY: S-65 and S-66 are screen values (CR-572); the drawn lines and the palette's chosen mark show them.
-      expect(built.svg(), 'premise: the two lines were placed').toContain('dual-cursor-date1')
+      expect(built.svg(), 'premise: the two lines were placed').toContain('dual-cursor-cursorA')
       built.press('Command Palette', icon)
       expect(paletteItem(built.view(), IC_DUAL)?.isChosen, 'DC-9: 本モードを出て').toBe(false)
-      expect(built.svg(), 'DC-7: the two lines are cleared').not.toContain('dual-cursor-date')
+      expect(built.svg(), 'DC-7: the two lines are cleared').not.toContain('dual-cursor-cursor')
       expect(paletteItem(built.view(), icon)?.isChosen, 'DC-9: 押した値を S-66 に書く').toBe(true)
       expect(built.settings(), 'CR-572: S-66 is never written to the document').not.toHaveProperty('guideCursorMode')
       expect(cursorLines(built.svg()).length <= 2, 'the two measuring lines are gone').toBe(true)

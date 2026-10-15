@@ -42,7 +42,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 const DC_3_THREE_LINES = '本モードにいるあいだ、ポインタのそばに 3 行を小さく示すこと（MUST）'
 const DC_3_BY_DATE =
-  '⭐ 左と右は、カーソル A（`date1`）とカーソル B（`date2`）の別ではなく、日付の順で名づけること（MUST）'
+  '⭐ 左と右は、カーソル A（`cursorADate`）とカーソル B（`cursorBDate`）の別ではなく、日付の順で名づけること（MUST）'
 const DC_3_FOLLOWING = '⭐ 追従している側の日付は、その線がいま立っている日とすること（MUST）'
 const DC_3_DATE = '日付は、表 T-029 の `CU-3` の日付の札と同じ書き方で書くこと（MUST）'
 const DC_3_SPAN =
@@ -188,9 +188,9 @@ const SCHEDULE = {
   baselineTasks: [],
 } as unknown as Schedule
 
-type Mode = 'off' | 'placingDate1' | 'placingDate2'
+type Mode = 'off' | 'placingCursorA' | 'placingCursorB'
 
-type Placed = { readonly date1: string; readonly date2: string } | null
+type Placed = { readonly cursorADate: string; readonly cursorBDate: string } | null
 
 // WHY: DC-1 holds the two dates in the screen values (CR-572), no longer in the document.
 const sessionIn = (mode: Mode, placed: Placed = null, language: 'ja' | 'en' = 'ja'): ScreenSession => ({
@@ -217,7 +217,7 @@ const readingsAt = (pointer: { x: number; y: number } | null, part: Record<strin
     iconUnderPointer: null,
     themePreference: 'light',
     themeHue: 214,
-    selectedGroupIds: [],
+    selectedTaskGroupIds: [],
     selectedResourceUids: [],
     notices: [],
     confirmation: null,
@@ -242,13 +242,13 @@ const stageOf = (stored: Placed) => {
   return { settings, regions, layout, axis, pointOn, readout, middleY }
 }
 
-const STORED = { date1: '2026-04-01T00:00:00', date2: '2026-04-15T00:00:00' }
+const STORED = { cursorADate: '2026-04-01T00:00:00', cursorBDate: '2026-04-15T00:00:00' }
 
 describe('DC-3 -- the readout', () => {
   it(DC_3_THREE_LINES, () => {
     const stage = stageOf(STORED)
     const point = stage.pointOn(2026, 4, 10)
-    const shown = stage.readout('placingDate1', point)
+    const shown = stage.readout('placingCursorA', point)
     expect(shown?.lines, 'three lines while the mode stands').toHaveLength(3)
     expect(shown?.at, 'beside the pointer').toEqual(point)
     expect(stage.readout('off', point), 'nothing outside the mode').toBe(null)
@@ -257,22 +257,22 @@ describe('DC-3 -- the readout', () => {
   it(DC_3_FOLLOWING, () => {
     const stage = stageOf(STORED)
     const point = stage.pointOn(2026, 4, 10)
-    const whileA = stage.readout('placingDate1', point)
+    const whileA = stage.readout('placingCursorA', point)
     expect(whileA?.lines[0], 'A follows: its line stands under the pointer').toBe(`${LEFT_WORD}${APRIL_2026[10]}`)
     expect(whileA?.lines[1], 'B stays where it was placed').toBe(`${RIGHT_WORD}${APRIL_2026[15]}`)
-    const whileB = stage.readout('placingDate2', point)
+    const whileB = stage.readout('placingCursorB', point)
     expect(whileB?.lines[0]).toBe(`${LEFT_WORD}${APRIL_2026[1]}`)
     expect(whileB?.lines[1]).toBe(`${RIGHT_WORD}${APRIL_2026[10]}`)
   })
 
   it(DC_3_BY_DATE, () => {
-    const reversed = stageOf({ date1: '2026-04-15T00:00:00', date2: STORED.date2 })
-    const shown = reversed.readout('placingDate2', reversed.pointOn(2026, 4, 1))
-    expect(shown?.lines[0], 'date2 is the earlier day, so it stands on the left line').toBe(`${LEFT_WORD}${APRIL_2026[1]}`)
+    const reversed = stageOf({ cursorADate: '2026-04-15T00:00:00', cursorBDate: STORED.cursorBDate })
+    const shown = reversed.readout('placingCursorB', reversed.pointOn(2026, 4, 1))
+    expect(shown?.lines[0], 'cursorBDate is the earlier day, so it stands on the left line').toBe(`${LEFT_WORD}${APRIL_2026[1]}`)
     expect(shown?.lines[1]).toBe(`${RIGHT_WORD}${APRIL_2026[15]}`)
     const stage = stageOf(STORED)
-    const before = stage.readout('placingDate1', stage.pointOn(2026, 4, 10))
-    const past = stage.readout('placingDate1', stage.pointOn(2026, 4, 20))
+    const before = stage.readout('placingCursorA', stage.pointOn(2026, 4, 10))
+    const past = stage.readout('placingCursorA', stage.pointOn(2026, 4, 20))
     expect(before?.lines[0], 'the following day is the earlier one').toBe(`${LEFT_WORD}${APRIL_2026[10]}`)
     expect(past?.lines[0], 'past the standing day, the standing day moves to the left line').toBe(
       `${LEFT_WORD}${APRIL_2026[15]}`,
@@ -283,7 +283,7 @@ describe('DC-3 -- the readout', () => {
   it(DC_3_DATE, () => {
     const stage = stageOf(STORED)
     const point = stage.pointOn(2026, 4, 3)
-    const shown = stage.readout('placingDate2', point)
+    const shown = stage.readout('placingCursorB', point)
     expect(shown?.lines[0], 'month and day padded to two digits').toBe(`${LEFT_WORD}${APRIL_2026[1]}`)
     const guided = sessionIn('off')
     const label = guideCursorLabelOf(
@@ -295,7 +295,7 @@ describe('DC-3 -- the readout', () => {
     )
     expect(label?.text, 'the CU-3 label of the same day').toBe(APRIL_2026[3])
     expect(shown?.lines[1], 'the readout writes the day as the CU-3 label does').toBe(`${RIGHT_WORD}${label?.text}`)
-    const english = stage.readout('placingDate2', point, 'en')
+    const english = stage.readout('placingCursorB', point, 'en')
     expect(english?.lines[1]).toBe('Right: 2026/04/03 (Fri)')
   })
 
@@ -316,31 +316,31 @@ describe('DC-3 -- the readout', () => {
     }
     const stage = stageOf(STORED)
     const at15 = stage.pointOn(2026, 4, 15)
-    expect(stage.readout('placingDate2', at15)?.lines[2]).toBe(`${SPAN_WORD}0年 0か月 14日 (14 days)`)
-    expect(stage.readout('placingDate2', at15, 'en')?.lines[2]).toBe('Interval: 0 yr 0 mo 14 d (14 days)')
-    const reversed = stageOf({ date1: '2026-04-15T00:00:00', date2: STORED.date2 })
-    expect(reversed.readout('placingDate2', reversed.pointOn(2026, 4, 1))?.lines[2], 'A after B').toBe(
+    expect(stage.readout('placingCursorB', at15)?.lines[2]).toBe(`${SPAN_WORD}0年 0か月 14日 (14 days)`)
+    expect(stage.readout('placingCursorB', at15, 'en')?.lines[2]).toBe('Interval: 0 yr 0 mo 14 d (14 days)')
+    const reversed = stageOf({ cursorADate: '2026-04-15T00:00:00', cursorBDate: STORED.cursorBDate })
+    expect(reversed.readout('placingCursorB', reversed.pointOn(2026, 4, 1))?.lines[2], 'A after B').toBe(
       `${SPAN_WORD}0年 0か月 14日 (14 days)`,
     )
   })
 
   it(DC_3_ZEROS, () => {
     const stage = stageOf(STORED)
-    expect(stage.readout('placingDate2', stage.pointOn(2026, 4, 1))?.lines[2]).toBe(`${SPAN_WORD}0年 0か月 0日 (0 days)`)
+    expect(stage.readout('placingCursorB', stage.pointOn(2026, 4, 1))?.lines[2]).toBe(`${SPAN_WORD}0年 0か月 0日 (0 days)`)
   })
 
   it(DC_3_ONE_DAY, () => {
     const stage = stageOf(STORED)
     const at2 = stage.pointOn(2026, 4, 2)
-    expect(stage.readout('placingDate2', at2)?.lines[2]).toBe(`${SPAN_WORD}0年 0か月 1日 (1 day)`)
-    expect(stage.readout('placingDate2', at2, 'en')?.lines[2]).toBe('Interval: 0 yr 0 mo 1 d (1 day)')
+    expect(stage.readout('placingCursorB', at2)?.lines[2]).toBe(`${SPAN_WORD}0年 0か月 1日 (1 day)`)
+    expect(stage.readout('placingCursorB', at2, 'en')?.lines[2]).toBe('Interval: 0 yr 0 mo 1 d (1 day)')
   })
 
   it(DC_3_UNDECIDED, () => {
     const stage = stageOf(null)
-    const shown = stage.readout('placingDate1', stage.pointOn(2026, 4, 10))
+    const shown = stage.readout('placingCursorA', stage.pointOn(2026, 4, 10))
     expect(shown?.lines).toEqual([`${LEFT_WORD}${APRIL_2026[10]}`, `${RIGHT_WORD}${UNDECIDED}`, `${SPAN_WORD}${UNDECIDED}`])
-    const second = stage.readout('placingDate2', stage.pointOn(2026, 4, 10))
+    const second = stage.readout('placingCursorB', stage.pointOn(2026, 4, 10))
     expect(second?.lines[0], 'the one known day is on the left line, whichever cursor holds it').toBe(
       `${LEFT_WORD}${APRIL_2026[10]}`,
     )
@@ -450,12 +450,12 @@ const taskTooltips = (mode: Mode): number => {
 describe('EZ-6 -- not while the Dual Cursor mode stands', () => {
   it(DC_3_NO_EZ_6, () => {
     expect(taskTooltips('off'), 'premise: out of the mode the task tooltip is due').toBe(1)
-    expect(taskTooltips('placingDate1')).toBe(0)
+    expect(taskTooltips('placingCursorA')).toBe(0)
   })
 
   it(EZ_6_NOT_IN_MODE, () => {
     expect(taskTooltips('off'), 'premise').toBe(1)
-    expect(taskTooltips('placingDate2')).toBe(0)
+    expect(taskTooltips('placingCursorB')).toBe(0)
   })
 })
 
@@ -471,7 +471,7 @@ describe('DC-3 -- the export', () => {
       stage.regions,
       emptySelection(),
       'export',
-      sessionIn('placingDate2', STORED).screen,
+      sessionIn('placingCursorB', STORED).screen,
     )
     for (const word of [LEFT_WORD, RIGHT_WORD, SPAN_WORD, APRIL_2026[1] as string, '(14 days)']) {
       expect(svg).not.toContain(word)

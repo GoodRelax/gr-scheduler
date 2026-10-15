@@ -448,7 +448,7 @@ def entity_rows_block(erd):
         'export interface EntityRows {',
         '  readonly entity: string',
         '  readonly scheduleKey: string | null',
-        '  readonly many: boolean',
+        '  readonly hasManyRows: boolean',
         '  readonly primaryKey: readonly string[]',
         '  readonly foreignKeys: readonly ForeignKeyColumn[]',
         '  readonly nested: readonly NestedRows[]',
@@ -464,7 +464,7 @@ def entity_rows_block(erd):
         out.append('  {')
         out.append("    entity: '%s'," % name)
         out.append('    scheduleKey: %s,' % (("'%s'" % key) if key else 'null'))
-        out.append('    many: %s,' % ('true' if many else 'false'))
+        out.append('    hasManyRows: %s,' % ('true' if many else 'false'))
         out.append('    primaryKey: [%s],'
                    % ', '.join("'%s'" % c for c in primary[name]))
         out.extend(ts_array_field(
@@ -637,8 +637,8 @@ def settings_property(name, node, indent):
     # list AND still carry `properties`, and then the list is not a union of
     # names -- it says "this shape, or null". Reading the names alone printed
     # the bare `object` below and threw the fields away.
-    # ⚠️ S-65 is the one key written that way (its `json` block gives date1 and
-    # date2 and sets `null`), and DC-7 is what the `| null` is for: clearing the
+    # ⚠️ S-65 is the one key written that way (its `json` block gives cursorADate and
+    # cursorBDate and sets `null`), and DC-7 is what the `| null` is for: clearing the
     # two cursors puts the key back to null. ⛔ Losing either half is a defect:
     # without the fields nothing can read the dates, without the null DC-7
     # cannot be expressed.

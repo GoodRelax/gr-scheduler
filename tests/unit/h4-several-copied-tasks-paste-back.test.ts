@@ -64,8 +64,8 @@ describe('FR-033 / CM-8 / T-293 -- the clauses this file is driven by still stan
 })
 
 const task = (uid: number): ItemRef => ({ kind: 'task', uid })
-const picked = (...items: ItemRef[]): Selection => ({ items, ordered: true })
-const NOTHING: Selection = { items: [], ordered: true }
+const picked = (...items: ItemRef[]): Selection => ({ items, isOrdered: true })
+const NOTHING: Selection = { items: [], isOrdered: true }
 
 const uidsOf = (copied: ReturnType<typeof copiedForPasteOf>): readonly number[] => {
   if (copied === null || copied.kind !== 'task') throw new Error(`not a task copy: ${JSON.stringify(copied)}`)

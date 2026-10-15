@@ -208,11 +208,11 @@ function isOpenOneLevelArmed(context: InputContext, taskGroupId: string): boolea
 
 // see HF-14
 /** @purity pure */
-function orderPastLastChild(schedule: Schedule, parentGroupId: string | null): number {
+function orderPastLastChild(schedule: Schedule, parentTaskGroupId: string | null): number {
   // TRAP: one past the largest order, not the child count: orders may have gaps (AT-55).
   let lastOrder: number | null = null
   for (const taskGroup of schedule.taskGroups) {
-    if (taskGroup.parentId !== parentGroupId) continue
+    if (taskGroup.parentId !== parentTaskGroupId) continue
     if (lastOrder === null || taskGroup.order > lastOrder) lastOrder = taskGroup.order
   }
   return lastOrder === null ? 0 : lastOrder + 1
@@ -221,20 +221,20 @@ function orderPastLastChild(schedule: Schedule, parentGroupId: string | null): n
 // see HF-14, HF-17, T-328, AT-153
 // WHY: the new task group is shown by its tree state (temporarilyExpanded, CM-26), never by a zoom write (HF-14).
 /** @purity pure */
-export function taskGroupStoodUp(context: InputContext, parentGroupId: string | null): TranslatedInput {
+export function taskGroupStoodUp(context: InputContext, parentTaskGroupId: string | null): TranslatedInput {
   const newTaskGroupId = context.newTaskGroupId
   // TRAP: keep the tree state writes in the task group's bundle; a bundle of their own is a second undo step.
   return changedAndCreated(
     [
       [
-        ...treeWritesOf(context, { type: 'childTaskGroupAddPressed', pressedRowId: parentGroupId }),
+        ...treeWritesOf(context, { type: 'childTaskGroupAddPressed', pressedRowId: parentTaskGroupId }),
         {
           kind: 'createTaskGroup',
           id: newTaskGroupId,
-          parentId: parentGroupId,
+          parentId: parentTaskGroupId,
           label: DEFAULT_TASK_GROUP_NAME,
           derivedFromTaskUid: null,
-          order: orderPastLastChild(context.document.schedule, parentGroupId),
+          order: orderPastLastChild(context.document.schedule, parentTaskGroupId),
         } as const,
       ],
     ],
@@ -248,7 +248,7 @@ function hasADrawnChild(context: InputContext, taskGroupId: string): boolean | n
   if (drawnIds === undefined) return null
   const drawn = new Set(drawnIds)
   if (!drawn.has(taskGroupId)) return false
-  // TRAP: must stay the set `task-group-panel.ts` builds as `groupIdsWithDrawnChildren`.
+  // TRAP: must stay the set `task-group-panel.ts` builds as `taskGroupIdsWithDrawnChildren`.
   return context.document.schedule.taskGroups.some(
     (taskGroup) => taskGroup.parentId === taskGroupId && drawn.has(taskGroup.id),
   )

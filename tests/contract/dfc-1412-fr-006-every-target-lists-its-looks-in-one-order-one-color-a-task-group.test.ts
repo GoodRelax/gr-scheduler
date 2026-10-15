@@ -65,8 +65,8 @@ describe('DFC-1412 premise -- the clause these cases press still stands', () => 
 
 describe(`FR-006 -- ${FR_006_VISUAL_ORDER}`, () => {
   // WHY: a task group has one color (TaskGroup.color), which is none of the five looks, so it has no order to keep.
-  it.each(SCENES.filter(([name]) => name !== 'a task group'))('%s: the look rows the panel shows keep the order of the clause', (_name, item, groupIds) => {
-    const shown = looksOf(panelOf(DOCUMENT, item, groupIds))
+  it.each(SCENES.filter(([name]) => name !== 'a task group'))('%s: the look rows the panel shows keep the order of the clause', (_name, item, taskGroupIds) => {
+    const shown = looksOf(panelOf(DOCUMENT, item, taskGroupIds))
     expect(shown.length, 'premise: the target shows at least one look row').toBeGreaterThan(0)
     expect(shown, 'the look rows, in the order the panel draws them').toEqual(
       [...shown].sort((a, b) => rank(a) - rank(b)),
@@ -86,8 +86,8 @@ describe(`FR-006 -- ${FR_006_VISUAL_ORDER}`, () => {
     expect(looksOf(panelOf(DOCUMENT, { kind: 'commentBox', id: NOTE }, []))).toEqual(LOOK_COLUMNS)
   })
 
-  it.each(SCENES)('%s: every color row holds exactly one color control', (_name, item, groupIds) => {
-    const panel = panelOf(DOCUMENT, item, groupIds)
+  it.each(SCENES)('%s: every color row holds exactly one color control', (_name, item, taskGroupIds) => {
+    const panel = panelOf(DOCUMENT, item, taskGroupIds)
     let colorRows = 0
     for (const field of panel.fields) {
       if (!itemOf(field.row).inputKinds.includes('色')) continue

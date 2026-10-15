@@ -48,7 +48,7 @@ const EXPECTED_TYPES = [
   ['AV-9', 'AgentDelayDiagnostics'],
   ['AV-10', 'AgentChangeReceiver'],
   ['AV-11', 'AgentWatch'],
-  ['AV-12', 'AgentUtteranceOutcome'],
+  ['AV-12', 'AgentDialogueMessageOutcome'],
   ['AV-13', 'DialogueMessage'],
   ['AV-14', 'ChangeNotice'],
 ] as const

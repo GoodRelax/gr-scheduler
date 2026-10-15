@@ -768,7 +768,7 @@ const SESSION: ScreenViewReadings = {
   // settings). S-142 is the palette's, and `PALETTE_SHOWN` states it.
   themePreference: 'light',
   themeHue: SCHEDULE.project.themeHue,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
@@ -788,7 +788,7 @@ const SCREEN_ROOT: ScreenSession = {
     helpLanguage: 'ja',
     propertiesPanelContentState: {
       kind: 'selectionDisplayed',
-      subject: { selection: emptySelection(), groupIds: [] },
+      subject: { selection: emptySelection(), taskGroupIds: [] },
     },
   },
 }
@@ -896,7 +896,7 @@ const PANEL_STATES: Readonly<Record<string, Frame>> = {
     root: rootWith({
       propertiesPanelContentState: {
         kind: 'selectionDisplayed',
-        subject: { selection: emptySelection(), groupIds: [] },
+        subject: { selection: emptySelection(), taskGroupIds: [] },
       },
     }),
   }),
@@ -908,7 +908,7 @@ const PANEL_STATES: Readonly<Record<string, Frame>> = {
     root: rootWith({
       propertiesPanelContentState: {
         kind: 'selectionDisplayed',
-        subject: { selection: emptySelection(), groupIds: [] },
+        subject: { selection: emptySelection(), taskGroupIds: [] },
       },
     }),
   }),
@@ -1613,7 +1613,7 @@ const SCHEDULE_WITH_A_TASK_GROUP = {
 const TASK_GROUP_PICKED: Frame = frameWith({
   schedule: SCHEDULE_WITH_A_TASK_GROUP,
   selection: emptySelection(),
-  readings: sessionWith({ selectedGroupIds: [THE_TASK_GROUP] }),
+  readings: sessionWith({ selectedTaskGroupIds: [THE_TASK_GROUP] }),
 })
 
 // see CR-582, MH-3
@@ -1623,7 +1623,7 @@ const TASK_GROUP_PLACED: Frame = frameWith({
   schedule: SCHEDULE_WITH_A_TASK_GROUP,
   selection: emptySelection(),
   readings: sessionWith({
-    selectedGroupIds: [THE_TASK_GROUP],
+    selectedTaskGroupIds: [THE_TASK_GROUP],
     placedTaskGroups: [{ taskGroupId: THE_TASK_GROUP, depth: 0, y: 0, height: 42, stackCount: 1, stackTops: [0] }],
   }),
 })
@@ -1634,7 +1634,7 @@ const TASK_GROUP_PLACED: Frame = frameWith({
  *
  * ⚠️ THE PICK IS IN THE SELECTION AND NOT IN THE SESSION, which is what parts it
  * from `TASK_GROUP_PICKED`: a task group of the `Task Group Panel` is held by
- * `ScreenSession.selectedGroupIds` (FR-085) while everything table T-023c admits
+ * `ScreenSession.selectedTaskGroupIds` (FR-085) while everything table T-023c admits
  * is held by `Selection` (SL-1).
  */
 const THE_BOX = 'c1'
@@ -2483,7 +2483,7 @@ for (const entry of GENERATED['dualCursorReadout'] ?? []) {
     unit: 'UF-69',
     what: `line ${line} of the readout DC-3 shows beside the pointer`,
     frame: frameWith({
-      root: rootWith({ dualCursorModeState: { kind: 'on', child: { kind: 'placingDate1' } } }),
+      root: rootWith({ dualCursorModeState: { kind: 'on', child: { kind: 'placingCursorA' } } }),
       readings: sessionWith({
         pointer: {
           x: REGIONS.taskGroupArea.x + REGIONS.taskGroupArea.width / 2,

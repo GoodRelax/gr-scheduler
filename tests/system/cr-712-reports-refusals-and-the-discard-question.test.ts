@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { unbroken } from '../contract/spec-table'
-import { VIEWPORT, enableAgentApi, icon, launch, openByDrop, press, readDocument, savedFiles, settle } from '../usecase/uc-harness'
+import { VIEWPORT, enableAgentApi, icon, launch, openByDrop, press, readDocument, savedFiles, settle } from '../use-case/uc-harness'
 import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })

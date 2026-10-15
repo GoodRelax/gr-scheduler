@@ -582,14 +582,14 @@ describe('CR-651 CM-87 FR-131 -- setParentProgressToleranceDays', () => {
     const plan = planDocumentChange({
       defaultTaskGroupName: 'fixture default task group name',
       document,
-      readStamp: document.documentStamp,
+      expectedStamp: document.documentStamp,
       commands: [cm87(5)],
       moment: CALM,
       history: EMPTY_HISTORY,
       historyLimits: HISTORY_LIMITS,
       settingsLimits: LIMITS,
       editedBy: 'user',
-      updatedUtc: '2026-10-04T01:00:00Z',
+      updatedAt: '2026-10-04T01:00:00Z',
     })
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
@@ -605,14 +605,14 @@ describe('CR-651 CM-87 FR-131 -- setParentProgressToleranceDays', () => {
     const plan = planDocumentChange({
       defaultTaskGroupName: 'fixture default task group name',
       document,
-      readStamp: document.documentStamp,
+      expectedStamp: document.documentStamp,
       commands: [cm87(-1)],
       moment: CALM,
       history: EMPTY_HISTORY,
       historyLimits: HISTORY_LIMITS,
       settingsLimits: LIMITS,
       editedBy: 'user',
-      updatedUtc: '2026-10-04T01:00:00Z',
+      updatedAt: '2026-10-04T01:00:00Z',
     })
     expect(plan.ok).toBe(false)
   })

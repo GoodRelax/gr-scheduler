@@ -32,7 +32,7 @@ import {
   windowTitleEntriesOf,
   windowWithColumnWidth,
   wordOf,
-  wouldScheduleFilterChange,
+  isScheduleFilterChanging,
   type SearchFilterChange,
   type TableLook,
   type TableWindowState,
@@ -262,7 +262,7 @@ function lineTableOf(view: TableView, listed: () => readonly ResourceLine[], lan
 // WHY: the table rows every task (a resource's or the (Unassigned) row's), so only a Hide row changes the schedule.
 /** @purity pure */
 function wouldResourceFilterChange(view: TableView, schedule: Schedule): boolean {
-  return wouldScheduleFilterChange(view.visibility, () => resourceUidsOf(schedule), true)
+  return isScheduleFilterChanging(view.visibility, () => resourceUidsOf(schedule), true)
 }
 
 // see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66, RO-3

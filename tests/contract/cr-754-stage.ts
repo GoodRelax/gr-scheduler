@@ -130,7 +130,7 @@ function documentLooking(look: Look): { readonly schedule: Document['schedule'];
 }
 
 /** @purity pure */
-function readingsOf(schedule: Document['schedule'], showing: 'documentSettings' | 'selection', groupIds: readonly string[]): ScreenViewReadings {
+function readingsOf(schedule: Document['schedule'], showing: 'documentSettings' | 'selection', taskGroupIds: readonly string[]): ScreenViewReadings {
   return {
     openedFileName: null,
     fileSavedAt: null,
@@ -147,7 +147,7 @@ function readingsOf(schedule: Document['schedule'], showing: 'documentSettings' 
     isMilestoneListOpen: false,
     isPaletteMinimized: false,
     dualCursorFollowing: null,
-    selectedGroupIds: [...groupIds],
+    selectedTaskGroupIds: [...taskGroupIds],
     selectedResourceUids: [],
     propertiesSubject: null,
     propertiesShowing: showing,
@@ -190,7 +190,7 @@ export function settingsPanel(look: Partial<Look> = {}): PropertiesPanel {
 
 // see FR-072, FR-006, FR-042
 /** @purity pure */
-export function selectionPanel(item: ItemRef | null, groupIds: readonly string[], look: Partial<Look> = {}): PropertiesPanel {
+export function selectionPanel(item: ItemRef | null, taskGroupIds: readonly string[], look: Partial<Look> = {}): PropertiesPanel {
   const whole = { ...PLAIN, ...look }
   const { schedule, settings } = documentLooking(whole)
   const selection = item === null ? emptySelection() : selectionWith(emptySelection(), item)
@@ -198,8 +198,8 @@ export function selectionPanel(item: ItemRef | null, groupIds: readonly string[]
     schedule,
     settings,
     selection,
-    sessionOf(whole.language, { kind: 'selectionDisplayed', subject: { selection, groupIds: [...groupIds] } }),
-    readingsOf(schedule, 'selection', groupIds),
+    sessionOf(whole.language, { kind: 'selectionDisplayed', subject: { selection, taskGroupIds: [...taskGroupIds] } }),
+    readingsOf(schedule, 'selection', taskGroupIds),
   )
   if (panel === null) throw new Error('premise: the panel describes the selection')
   return panel

@@ -73,13 +73,13 @@ function write(commands: readonly DocumentCommand[], moment: WriteMoment): Apply
   return applyDocumentChange(
     {
       defaultTaskGroupName: 'w3-t5 default task group name',
-      readStamp: START.documentStamp,
+      expectedStamp: START.documentStamp,
       commands,
       moment,
       historyLimits: HISTORY_LIMITS,
       settingsLimits: LIMITS,
       editedBy: 'w3-t5',
-      updatedUtc: '2026-10-07T00:00:00Z',
+      updatedAt: '2026-10-07T00:00:00Z',
     },
     {
       read: () => held,
@@ -93,7 +93,7 @@ function write(commands: readonly DocumentCommand[], moment: WriteMoment): Apply
 
 /** @purity pure */
 function refusalOf(outcome: ApplyOutcome): unknown {
-  return outcome.accepted ? null : outcome.refusal
+  return outcome.ok ? null : outcome.refusal
 }
 
 /** @purity pure */

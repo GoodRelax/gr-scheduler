@@ -84,7 +84,7 @@ function readPj12(): Document {
   return accepted(mspdiText(pj12Fixture())).document
 }
 
-function firstGroupId(document: Document): string {
+function firstTaskGroupId(document: Document): string {
   const group = document.schedule.taskGroups[0]
   if (group === undefined) throw new Error('the document has no task group to draw into')
   return group.id
@@ -97,7 +97,7 @@ function created(document: Document, from: number, to: number): { readonly docum
     shapeKind: 'rectangle',
     start: day(from),
     finish: day(to),
-    taskGroupId: firstGroupId(document),
+    taskGroupId: firstTaskGroupId(document),
   })
   const added = after.schedule.tasks.find((each) => !before.has(each.uid))
   if (added === undefined) throw new Error('createTask added no task')

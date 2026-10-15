@@ -393,7 +393,7 @@ interface Stage {
   /** Press one task group's title -- the タスクグループパネル half of the STATEMENT. */
   pressRow(taskGroupId: string): void
   taskUids(): readonly number[]
-  groupIds(): readonly string[]
+  taskGroupIds(): readonly string[]
   taskGroupOfTask(uid: number): string | undefined
   taskOriginCount(): number
   notices(): readonly Notice[]
@@ -454,7 +454,7 @@ function stage(document: Document, env: FrameEnvironment = SCREEN): Stage {
       screen.drawAt(null)
     },
     taskUids: () => schedule().tasks.map((one: any) => one.uid),
-    groupIds: () => schedule().taskGroups.map((one: any) => one.id),
+    taskGroupIds: () => schedule().taskGroups.map((one: any) => one.id),
     taskGroupOfTask: (uid) =>
       schedule().taskGroupMembers.find((one: any) => one.taskUid === uid)?.taskGroupId,
     taskOriginCount: () => schedule().taskOrigins.length,
@@ -493,7 +493,7 @@ describe('FR-033 -- the manuscript this file is driven by', () => {
     // whose subtree was one node deep.
     const built = stage(documentOfTwoTaskGroups())
     expect(built.taskUids()).toEqual([PARENT_TASK, CHILD_TASK])
-    expect(built.groupIds()).toEqual([PARENT_TASK_GROUP, CHILD_TASK_GROUP])
+    expect(built.taskGroupIds()).toEqual([PARENT_TASK_GROUP, CHILD_TASK_GROUP])
     expect(built.notices()).toEqual([])
   })
 })
@@ -570,7 +570,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen task group duplicates the task gr
     built.send(PASTE)
 
     expect(
-      built.groupIds().length,
+      built.taskGroupIds().length,
       'SK-4 then SK-5 on a chosen task group left the document exactly as it was -- FR-033’s STATEMENT ' +
         'asks for the task group and the task groups under it to be duplicated 部分木ごと',
     ).toBe(4)
@@ -585,7 +585,7 @@ describe('FR-033 -- SK-4 then SK-5 on a chosen task group duplicates the task gr
     built.send(COPY)
     built.send(PASTE)
 
-    const newTaskGroups = built.groupIds().filter((id) => id !== PARENT_TASK_GROUP && id !== CHILD_TASK_GROUP)
+    const newTaskGroups = built.taskGroupIds().filter((id) => id !== PARENT_TASK_GROUP && id !== CHILD_TASK_GROUP)
     expect(newTaskGroups.length).toBe(2)
     const carried = built
       .taskUids()

@@ -242,7 +242,7 @@ const benchOf = (document: Document): Bench => {
           historyLimits: HISTORY_LIMITS,
           settingsLimits: LIMITS,
           editedBy: 'user',
-          updatedUtc: '2026-10-01T01:00:00Z',
+          updatedAt: '2026-10-01T01:00:00Z',
         } as never,
         holder,
         audience,

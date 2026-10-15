@@ -81,7 +81,7 @@ const readingsOn = (taskUid: number): ScreenViewReadings =>
     iconUnderPointer: null,
     themePreference: 'light',
     themeHue: 214,
-    selectedGroupIds: [],
+    selectedTaskGroupIds: [],
     selectedResourceUids: [],
     notices: [],
     confirmation: null,

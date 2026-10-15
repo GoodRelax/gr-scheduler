@@ -536,7 +536,7 @@ describe('CR-572 item 7 -- the dual cursor dates are never in the file, and leav
     expect(JSON.stringify(built.loop.document())).toBe(document)
     built.press('IC-100')
     const text = await built.save()
-    expect(keysAnywhere(text, ['dualCursor', 'date1', 'date2'])).toEqual([])
+    expect(keysAnywhere(text, ['dualCursor', 'cursorADate', 'cursorBDate'])).toEqual([])
   })
 })
 
@@ -592,7 +592,7 @@ describe('CR-572 item 9 -- the Agent API sends CM-64 and none of the four retire
     const document = JSON.stringify(built.loop.document())
     const outcome = api.applyCommands({
       expectedStamp: api.readStamp(),
-      commands: [{ kind, themePreference: 'dark', guideCursorMode: 'crosshair', date1: '2026-03-02', date2: '2026-03-04' } as never],
+      commands: [{ kind, themePreference: 'dark', guideCursorMode: 'crosshair', cursorADate: '2026-03-02', cursorBDate: '2026-03-04' } as never],
     })
     expect(outcome.ok).toBe(false)
     expect(JSON.stringify(built.loop.document())).toBe(document)

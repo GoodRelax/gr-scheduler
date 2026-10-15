@@ -356,7 +356,7 @@ describe('T-109 IC-103 -- placed at the head of its group, left of IC-44', () =>
       iconUnderPointer: null,
       themePreference: 'light',
       themeHue: 214,
-      selectedGroupIds: [],
+      selectedTaskGroupIds: [],
       selectedResourceUids: [],
       notices: [],
       confirmation: null,

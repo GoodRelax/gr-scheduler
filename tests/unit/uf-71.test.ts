@@ -698,7 +698,7 @@ interface Stage {
   readonly world: World
   readonly host: Document
   readonly mount: FakeElement
-  /** Every number `onAppHeaderHeightPx` was told, in order. */
+  /** Every number `onAppHeaderHeightMeasured` was told, in order. */
   readonly reportedHeights: number[]
   /** ⭐ Whether the surface existed yet when each report arrived (contract line 1). */
   readonly reportedBeforeFactoryReturned: boolean[]
@@ -713,7 +713,7 @@ interface Stage {
    * ⭐ IT DOES NOT TRAVEL ON IF-9, AND THE MANUSCRIPT IS WHY. 表 T-065's cell for
    * IF-9 names five supplies and every one of them is a QUESTION the shell asks,
    * so a state of the page cannot be asked for across that seam; the Framework's
-   * own wiring is the arrangement `onAppHeaderHeightPx` already travels on.
+   * own wiring is the arrangement `onAppHeaderHeightMeasured` already travels on.
    * ⭐⭐ HF-14 OF 表 T-051 SHARES IT RATHER THAN GROWING ONE OF ITS OWN, which is
    * that row's (MUST NOT): 「**改名と別の道を作ってはならない（MUST NOT）。道は
    * `FR-085` が改名について定めるものと同じものとすること（MUST）**」.
@@ -811,7 +811,7 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
       return built.author
     },
     readClockMs: (): number => built.clockMs,
-    onAppHeaderHeightPx: (heightPx: number): void => {
+    onAppHeaderHeightMeasured: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)
       built.reportedBeforeFactoryReturned.push(built.surface === undefined)
     },
@@ -1409,7 +1409,7 @@ describe('BO-1 of 表 T-077 (MUST) -- nothing is drawn until the dimensions are 
     // exists to stop, and a preview pane in this project really does cold-start
     // at 0 x 0. So the measurement of 0 is the case that matters MOST, not the
     // one to skip: BO-1 has to be told what the environment answered, and
-    // `ScreenSurfaceWiring` says onAppHeaderHeightPx is called once BEFORE this
+    // `ScreenSurfaceWiring` says onAppHeaderHeightMeasured is called once BEFORE this
     // factory returns. ⛔ Measured behavior: nothing is reported at all, and
     // the number first arrives at the redraw that measures something else -- so
     // whatever the caller's own starting value is stands in for the

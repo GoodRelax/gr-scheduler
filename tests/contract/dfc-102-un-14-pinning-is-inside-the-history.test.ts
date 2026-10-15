@@ -149,13 +149,13 @@ function bench(): Bench {
       return applyDocumentChange(
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
-          readStamp: held.document.documentStamp,
+          expectedStamp: held.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           historyLimits: ROOMY_LIMITS,
           settingsLimits: SETTINGS_LIMITS,
           editedBy: WRITER,
-          updatedUtc: instantOf(writes),
+          updatedAt: instantOf(writes),
         },
         holder,
         audience,
@@ -166,7 +166,7 @@ function bench(): Bench {
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
           newTaskGroupId: 'fresh-task-group',
-          readStamp: held.document.documentStamp,
+          expectedStamp: held.document.documentStamp,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           // WHY: table T-230 forbids a replacement naming no row; RD-1 is the undo row.
           call: { row: 'RD-1' },
@@ -180,14 +180,14 @@ function bench(): Bench {
 
 function mustWrite(one: Bench, commands: readonly DocumentCommand[], why: string): void {
   const outcome = one.write(commands)
-  if (!outcome.accepted) {
+  if (!outcome.ok) {
     throw new Error(`${why} was refused: ${JSON.stringify(outcome.refusal)}`)
   }
 }
 
 function mustUndo(one: Bench, why: string): Document {
   const outcome = one.undo()
-  if (!outcome.accepted) {
+  if (!outcome.ok) {
     throw new Error(`${why}: the undo was refused: ${JSON.stringify(outcome.refusal)}`)
   }
   return outcome.document

@@ -32,7 +32,7 @@ import {
   cursorInstantAtX,
   labeledAssigneeUidOf,
   lengthTextOf,
-  planDatesSpanYears,
+  isPlanSpanningYears,
   clockTextOf,
   planDateText,
   snappedInstantAtX,
@@ -197,7 +197,7 @@ const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], isYearWritten: false, 
 // see TL-10, ND-5
 /** @purity pure */
 function isYearWrittenIn(schedule: Schedule): boolean {
-  return planDatesSpanYears(schedule, { day: dayOf })
+  return isPlanSpanningYears(schedule, { day: dayOf })
 }
 
 // see TL-7, FR-059
@@ -570,14 +570,14 @@ function readoutInstants(
   settings: DocumentSettings,
   session: ScreenSession,
   pointerX: number,
-): { readonly date1: number | null; readonly date2: number | null } {
+): { readonly cursorADate: number | null; readonly cursorBDate: number | null } {
   const mode = session.screen.dualCursorModeState
-  const following = mode.kind !== 'off' && mode.child.kind === 'placingDate2' ? 'date2' : 'date1'
+  const following = mode.kind !== 'off' && mode.child.kind === 'placingCursorB' ? 'cursorB' : 'cursorA'
   const followed = cursorInstantAtX(timeAxisOf(settings, regions), pointerX, settings)
   const standing = session.screen.dualCursor
   return {
-    date1: following === 'date1' ? followed : instantOf(standing?.date1 ?? null),
-    date2: following === 'date2' ? followed : instantOf(standing?.date2 ?? null),
+    cursorADate: following === 'cursorA' ? followed : instantOf(standing?.cursorADate ?? null),
+    cursorBDate: following === 'cursorB' ? followed : instantOf(standing?.cursorBDate ?? null),
   }
 }
 
@@ -614,9 +614,9 @@ export function dualCursorReadoutOf(
   const region = regionAtPointer(regions, pointer.x, pointer.y)
   if (region !== 'taskGroupArea' && region !== 'timeRuler') return null
   const language = displayLanguageOf(session)
-  const { date1, date2 } = readoutInstants(regions, settings, session, pointer.x)
+  const { cursorADate, cursorBDate } = readoutInstants(regions, settings, session, pointer.x)
   const toView = cursorViewOf(settings, dataRegion)
-  const { left, right } = inDateOrder(toView(date1), toView(date2))
+  const { left, right } = inDateOrder(toView(cursorADate), toView(cursorBDate))
   const inTime = settings.isTimeOfDayVisible
   return {
     lines: [

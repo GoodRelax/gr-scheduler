@@ -524,7 +524,7 @@ interface Stage {
   readonly world: World
   readonly host: Document
   readonly mount: FakeElement
-  /** Every number `onAppHeaderHeightPx` was told, in order. */
+  /** Every number `onAppHeaderHeightMeasured` was told, in order. */
   readonly reportedHeights: number[]
   clockMs: number
   author: string
@@ -602,7 +602,7 @@ function wiringOf(built: Stage): ScreenSurfaceWiring {
     mount: built.mount as unknown as Element,
     readAuthor: (): string => built.author,
     readClockMs: (): number => built.clockMs,
-    onAppHeaderHeightPx: (heightPx: number): void => {
+    onAppHeaderHeightMeasured: (heightPx: number): void => {
       built.reportedHeights.push(heightPx)
     },
     readTheme: (): ScreenTheme => THEME,

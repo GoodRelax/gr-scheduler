@@ -19,7 +19,7 @@ export function pinnedBandOf(
   readonly scrollingContentHeight: number
   readonly pinnedIdsPlaced: ReadonlySet<string>
   readonly droppedPinnedIds: ReadonlySet<string>
-  readonly shiftByGroupId: ReadonlyMap<string, number>
+  readonly shiftByTaskGroupId: ReadonlyMap<string, number>
 } {
   const placedById = new Map(taskGroupPlacements.map((taskGroup) => [taskGroup.taskGroupId, taskGroup] as const))
   const banded: TaskGroupPlacement[] = []
@@ -32,7 +32,7 @@ export function pinnedBandOf(
     banded.push(taskGroup)
   }
 
-  const shiftByGroupId = new Map<string, number>()
+  const shiftByTaskGroupId = new Map<string, number>()
   const inBand = new Set<string>()
   const dropped = new Set<string>()
   const taskGroupAreaBottom = regions.taskGroupArea.y + regions.taskGroupArea.height
@@ -42,7 +42,7 @@ export function pinnedBandOf(
       dropped.add(taskGroup.taskGroupId)
       continue
     }
-    shiftByGroupId.set(taskGroup.taskGroupId, bandY - taskGroup.y)
+    shiftByTaskGroupId.set(taskGroup.taskGroupId, bandY - taskGroup.y)
     inBand.add(taskGroup.taskGroupId)
     bandY += taskGroup.height + settings.taskGroupGap
   }
@@ -54,7 +54,7 @@ export function pinnedBandOf(
   for (const taskGroup of taskGroupPlacements) {
     // TRAP: seen, not inBand: a dropped pin must not come back as a scrolling task group.
     if (seen.has(taskGroup.taskGroupId)) continue
-    shiftByGroupId.set(taskGroup.taskGroupId, scrollY - taskGroup.y)
+    shiftByTaskGroupId.set(taskGroup.taskGroupId, scrollY - taskGroup.y)
     scrollY += taskGroup.height + settings.taskGroupGap
   }
   const scrollingContentHeight = Math.max(0, scrollY - scrollAreaY - settings.taskGroupGap)
@@ -65,7 +65,7 @@ export function pinnedBandOf(
     scrollingContentHeight,
     pinnedIdsPlaced: inBand,
     droppedPinnedIds: dropped,
-    shiftByGroupId,
+    shiftByTaskGroupId,
   }
 }
 
@@ -76,12 +76,12 @@ export function liftedTaskGroups(
   band: {
     readonly pinnedIdsPlaced: ReadonlySet<string>
     readonly droppedPinnedIds: ReadonlySet<string>
-    readonly shiftByGroupId: ReadonlyMap<string, number>
+    readonly shiftByTaskGroupId: ReadonlyMap<string, number>
   },
 ): readonly TaskGroupPlacement[] {
   const kept = taskGroupPlacements.filter((taskGroup) => !band.droppedPinnedIds.has(taskGroup.taskGroupId))
   return kept.map((taskGroup) => {
-    const shift = band.shiftByGroupId.get(taskGroup.taskGroupId) ?? 0
+    const shift = band.shiftByTaskGroupId.get(taskGroup.taskGroupId) ?? 0
     const isPinned = band.pinnedIdsPlaced.has(taskGroup.taskGroupId)
     if (shift === 0 && !isPinned) return taskGroup
     return {
@@ -96,12 +96,12 @@ export function liftedTaskGroups(
 /** @purity pure */
 export function shiftedPlacements(
   placements: readonly TaskPlacement[],
-  shiftByGroupId: ReadonlyMap<string, number>,
+  shiftByTaskGroupId: ReadonlyMap<string, number>,
   droppedPinnedIds: ReadonlySet<string>,
 ): readonly TaskPlacement[] {
   const kept = placements.filter((one) => !droppedPinnedIds.has(one.taskGroupId))
   return kept.map((one) => {
-    const shift = shiftByGroupId.get(one.taskGroupId) ?? 0
+    const shift = shiftByTaskGroupId.get(one.taskGroupId) ?? 0
     return shift === 0 ? one : { ...one, y: one.y + shift }
   })
 }

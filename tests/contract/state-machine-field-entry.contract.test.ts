@@ -256,7 +256,7 @@ describe('SS-5: every event of the other regions leaves the fieldEntry region at
     armKind: 'dependencyArmed',
     shapeKind: null,
     glyph: null,
-    subject: { selection: { items: [], ordered: false }, groupIds: [] },
+    subject: { selection: { items: [], isOrdered: false }, taskGroupIds: [] },
     date: '2026-01-05',
     percent: 100,
     end: 'max',
@@ -282,8 +282,8 @@ describe('SS-5: every event of the other regions leaves the fieldEntry region at
     droppedTaskNames: [],
     missingTaskNames: [],
     openedFileName: null,
-    pickedObjects: { items: [{ kind: 'task', uid: 1 }], ordered: true },
-    remainingObjects: { items: [], ordered: true },
+    pickedObjects: { items: [{ kind: 'task', uid: 1 }], isOrdered: true },
+    remainingObjects: { items: [], isOrdered: true },
   }
   const busy = withEntry({
     createdTaskNamingState: { kind: 'namingCreatedTask', createdTaskUid: NAMED_UID },

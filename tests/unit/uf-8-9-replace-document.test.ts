@@ -516,7 +516,7 @@ function bench(start: HeldDocument, onDeliver?: (self: Bench) => void): Bench {
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
           newTaskGroupId: 'fresh-task-group',
-          readStamp: 'readStamp' in part ? (part.readStamp ?? null) : held.document.documentStamp,
+          expectedStamp: 'readStamp' in part ? (part.readStamp ?? null) : held.document.documentStamp,
           moment: part.moment ?? CALM,
           call,
         },
@@ -528,7 +528,7 @@ function bench(start: HeldDocument, onDeliver?: (self: Bench) => void): Bench {
 }
 
 const accepted = (outcome: ReplaceOutcome): { document: Document; hasMovedSchedule: boolean } => {
-  if (!outcome.accepted) {
+  if (!outcome.ok) {
     throw new Error(`the replacement was refused: ${JSON.stringify(outcome.refusal)}`)
   }
   return { document: outcome.document, hasMovedSchedule: outcome.hasMovedSchedule }
@@ -565,8 +565,8 @@ interface RowDrive {
    * it is judging, and can then never disagree with the unit: a unit comparing
    * the wrong pair of instants keeps such a case green.
    */
-  readonly outgoingScheduleUpdatedUtc: string
-  readonly incomingScheduleUpdatedUtc: string
+  readonly outgoingScheduleUpdatedAt: string
+  readonly incomingScheduleUpdatedAt: string
 }
 
 /**
@@ -588,7 +588,7 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
   const stepBack = instants === 'differ' ? ONE_STEP_BACK : ONE_STEP_BACK_SAME_SCHEDULE
   // What a caller that brings its own document brings.
   const brought = instants === 'differ' ? OUT_OF_A_FILE : SAME_SCHEDULE_STAMP
-  const outgoingScheduleUpdatedUtc = start.document.documentStamp.scheduleUpdatedAt
+  const outgoingScheduleUpdatedAt = start.document.documentStamp.scheduleUpdatedAt
   switch (row) {
     case 'RD-1': {
       // 「`UndoEdit`（`PI-11`）」 -- asked here, exactly as the column names it.
@@ -598,8 +598,8 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
         call: { row: 'RD-1' },
         ws3Document: answer.next.document,
         ws3History: answer.next.history,
-        outgoingScheduleUpdatedUtc,
-        incomingScheduleUpdatedUtc: stepBack.documentStamp.scheduleUpdatedAt,
+        outgoingScheduleUpdatedAt,
+        incomingScheduleUpdatedAt: stepBack.documentStamp.scheduleUpdatedAt,
       }
     }
     case 'RD-2': {
@@ -613,8 +613,8 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
         ws3History: answer.next.history,
         // Undo left the 段's document current; redo sends back the one this
         // case started from.
-        outgoingScheduleUpdatedUtc: stepBack.documentStamp.scheduleUpdatedAt,
-        incomingScheduleUpdatedUtc: CURRENT.documentStamp.scheduleUpdatedAt,
+        outgoingScheduleUpdatedAt: stepBack.documentStamp.scheduleUpdatedAt,
+        incomingScheduleUpdatedAt: CURRENT.documentStamp.scheduleUpdatedAt,
       }
     }
     case 'RD-3': {
@@ -629,12 +629,12 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
           importing: MERGE_CALL,
           historyLimits: GENEROUS,
           editedBy: WRITER,
-          updatedUtc: writeInstant,
+          updatedAt: writeInstant,
         },
         ws3Document: answer,
         ws3History: null,
-        outgoingScheduleUpdatedUtc,
-        incomingScheduleUpdatedUtc: writeInstant,
+        outgoingScheduleUpdatedAt,
+        incomingScheduleUpdatedAt: writeInstant,
       }
     }
     case 'RD-4': {
@@ -645,8 +645,8 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
         call: { row: 'RD-4', importing },
         ws3Document: answer,
         ws3History: null,
-        outgoingScheduleUpdatedUtc,
-        incomingScheduleUpdatedUtc: brought.documentStamp.scheduleUpdatedAt,
+        outgoingScheduleUpdatedAt,
+        incomingScheduleUpdatedAt: brought.documentStamp.scheduleUpdatedAt,
       }
     }
     case 'RD-6':
@@ -656,8 +656,8 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
         call: { row: 'RD-6', document: brought },
         ws3Document: brought,
         ws3History: null,
-        outgoingScheduleUpdatedUtc,
-        incomingScheduleUpdatedUtc: brought.documentStamp.scheduleUpdatedAt,
+        outgoingScheduleUpdatedAt,
+        incomingScheduleUpdatedAt: brought.documentStamp.scheduleUpdatedAt,
       }
     case 'RD-7': {
       // 「呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形）」, so the
@@ -677,11 +677,11 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
       const writeInstant = instants === 'differ' ? WRITE_INSTANT : NOW
       return {
         start,
-        call: { row: 'RD-7', document: template, editedBy: WRITER, updatedUtc: writeInstant },
+        call: { row: 'RD-7', document: template, editedBy: WRITER, updatedAt: writeInstant },
         ws3Document: template,
         ws3History: null,
-        outgoingScheduleUpdatedUtc,
-        incomingScheduleUpdatedUtc: writeInstant,
+        outgoingScheduleUpdatedAt,
+        incomingScheduleUpdatedAt: writeInstant,
       }
     }
     default:
@@ -750,7 +750,7 @@ describe('表 T-230 -- the whole set of callers, before any of them is driven', 
       outcome = 'threw'
     }
     if (outcome !== 'threw') {
-      expect(outcome.accepted, 'a nameless replacement was accepted').toBe(false)
+      expect(outcome.ok, 'a nameless replacement was accepted').toBe(false)
     }
     expect(one.swapped).toEqual([])
     expect(one.delivered).toEqual([])
@@ -769,7 +769,7 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
   it('GIVEN a caller that declares the CURRENT 刻印 WHEN it replaces THEN the replacement is accepted', () => {
     const one = bench(heldWithOneStep())
     const outcome = one.run(driveOf('RD-6').call, { readStamp: CURRENT.documentStamp })
-    expect(outcome.accepted, JSON.stringify(outcome)).toBe(true)
+    expect(outcome.ok, JSON.stringify(outcome)).toBe(true)
   })
 
   // AG-2: 「照合は刻印の 3 つすべての等値で行うこと（MUST）。1 つでも違えば拒否
@@ -786,8 +786,8 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
       const outcome = one.run(driveOf('RD-6').call, {
         readStamp: { ...CURRENT.documentStamp, [field]: 'not what the document says' },
       })
-      expect(outcome.accepted).toBe(false)
-      if (!outcome.accepted) {
+      expect(outcome.ok).toBe(false)
+      if (!outcome.ok) {
         expect(outcome.refusal.step).toBe('WS-1')
         expect(outcome.refusal.reason).toBe('staleStamp')
       }
@@ -801,7 +801,7 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
     // 「`AG-2` の申告は能力であって義務ではない。」
     const one = bench(heldWithOneStep())
     const outcome = one.run(driveOf('RD-6').call, { readStamp: null })
-    expect(outcome.accepted, JSON.stringify(outcome)).toBe(true)
+    expect(outcome.ok, JSON.stringify(outcome)).toBe(true)
     expect(one.swapped).toHaveLength(1)
     expect(accepted(outcome).document).toEqual(OUT_OF_A_FILE)
   })
@@ -816,7 +816,7 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
       { row: 'RD-6', document: OUT_OF_A_FILE },
       { readStamp: CURRENT.documentStamp },
     )
-    expect(outcome.accepted, JSON.stringify(outcome)).toBe(true)
+    expect(outcome.ok, JSON.stringify(outcome)).toBe(true)
     expect(accepted(outcome).document).toEqual(OUT_OF_A_FILE)
   })
 
@@ -828,8 +828,8 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
       { row: 'RD-6', document: OUT_OF_A_FILE },
       { readStamp: OUT_OF_A_FILE.documentStamp },
     )
-    expect(outcome.accepted).toBe(false)
-    if (!outcome.accepted) expect(outcome.refusal.step).toBe('WS-1')
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.refusal.step).toBe('WS-1')
     expect(one.swapped).toEqual([])
   })
 })
@@ -851,8 +851,8 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
       const one = bench(heldWithOneStep())
       const before = one.held()
       const outcome = one.run(driveOf('RD-6').call, { moment: { ...CALM, [moment]: true } })
-      expect(outcome.accepted).toBe(false)
-      if (!outcome.accepted) {
+      expect(outcome.ok).toBe(false)
+      if (!outcome.ok) {
         expect(outcome.refusal.step).toBe('WS-2')
         expect(outcome.refusal.reason).toBe(moment)
       }
@@ -866,7 +866,7 @@ describe('WS-2 -- 書ける時機かを見る、三つの moment', () => {
   // WHY: these two cases go through the shell; the delivery window is
   // changeDeliveryStateMachine.delivering, so only the shell's WS-7 can refuse.
   const SHELL_WATCHER = 'uf-8-9 WS-2 subscriber'
-  const LONG_AGO = { seenScheduleUpdatedUtc: '2000-01-01T00:00:00Z', seenSequence: 0 }
+  const LONG_AGO = { seenScheduleUpdatedAt: '2000-01-01T00:00:00Z', seenSequence: 0 }
   const shellDocument = (rows: number): Document =>
     taskGroupDocument(
       Array.from({ length: rows }, (_one, index) => ({ id: `row-${index + 1}`, parentId: null })),
@@ -1112,8 +1112,8 @@ describe('表 T-230 の履歴の欄 -- 行ごとに', () => {
       row: 'RD-4',
       importing: { ...REPLACE_CALL, unsavedEditsDiscardConfirmed: false },
     })
-    expect(outcome.accepted).toBe(false)
-    if (!outcome.accepted) expect(outcome.refusal.step).toBe('WS-3')
+    expect(outcome.ok).toBe(false)
+    if (!outcome.ok) expect(outcome.refusal.step).toBe('WS-3')
     expect(one.swapped).toEqual([])
     expect(one.held()).toBe(start)
     expect(stepCount(one.held().history)).toBe(1)
@@ -1271,7 +1271,7 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     const expectations = INSTANT_FLAVORS.map((instants) =>
       ROWS.map((row) => {
         const drive = driveOf(row, instants)
-        return drive.outgoingScheduleUpdatedUtc !== drive.incomingScheduleUpdatedUtc
+        return drive.outgoingScheduleUpdatedAt !== drive.incomingScheduleUpdatedAt
       }),
     )
     expect(expectations[0], 'the `differ` flavor must expect 動いた on every row').toEqual(
@@ -1300,15 +1300,15 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
         // the document that goes out is the holder's own before the run, and
         // the document that goes in carries what the 刻印 column says it does.
         expect(drive.start.document.documentStamp.scheduleUpdatedAt, where).toBe(
-          drive.outgoingScheduleUpdatedUtc,
+          drive.outgoingScheduleUpdatedAt,
         )
         if (cellOf(row, COL_STAMP) === '入ってきたまま') {
           expect(drive.ws3Document.documentStamp.scheduleUpdatedAt, where).toBe(
-            drive.incomingScheduleUpdatedUtc,
+            drive.incomingScheduleUpdatedAt,
           )
         }
 
-        const moved = drive.outgoingScheduleUpdatedUtc !== drive.incomingScheduleUpdatedUtc
+        const moved = drive.outgoingScheduleUpdatedAt !== drive.incomingScheduleUpdatedAt
         const one = bench(drive.start)
         const outcome = accepted(one.run(drive.call))
         expect(outcome.hasMovedSchedule, where).toBe(moved)
@@ -1324,7 +1324,7 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     // answer for.
     for (const instants of INSTANT_FLAVORS) {
       const drive = driveOf('RD-6', instants)
-      const moved = drive.outgoingScheduleUpdatedUtc !== drive.incomingScheduleUpdatedUtc
+      const moved = drive.outgoingScheduleUpdatedAt !== drive.incomingScheduleUpdatedAt
       const one = bench(drive.start)
       const outcome = accepted(one.run(drive.call, { readStamp: null }))
       expect(outcome.hasMovedSchedule, instants).toBe(moved)

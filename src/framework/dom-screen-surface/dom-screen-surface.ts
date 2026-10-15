@@ -857,10 +857,10 @@ export interface ScreenSurfaceWiring {
   readonly mount: Element
   readonly readAuthor: () => string
   readonly readClockMs: () => number
-  readonly onAppHeaderHeightPx: (heightPx: number) => void
-  readonly onTaskGroupControlsHeightPx?: (heightPx: number) => void
+  readonly onAppHeaderHeightMeasured: (heightPx: number) => void
+  readonly onTaskGroupControlsHeightMeasured?: (heightPx: number) => void
   // see FR-053, JDG-660
-  readonly onCommandPaletteBandPx?: (bandPx: { readonly width: number; readonly height: number }) => void
+  readonly onCommandPaletteBandMeasured?: (bandPx: { readonly width: number; readonly height: number }) => void
   readonly holdFocusPropertyField?: (focus: (row: string) => boolean) => void
   readonly holdReadWatermarkUnlockAnswer?: (read: () => string) => void
   // see SV-5, SV-14, RG-15
@@ -1027,7 +1027,7 @@ function tableWindowsInOrder(...windows: readonly (readonly [HTMLElement, TableW
 // see IF-9, PI-38
 /** @purity non-pure */
 export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
-  const { host, readAuthor, readClockMs, onAppHeaderHeightPx, readTheme } = wiring
+  const { host, readAuthor, readClockMs, onAppHeaderHeightMeasured, readTheme } = wiring
 
   const root = made(host, 'div', STYLE.root + typefaceStyle() + themeStyle(readTheme()))
   root.setAttribute('data-unit', UNIT_ROW)
@@ -1072,7 +1072,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const measured = appHeader.getBoundingClientRect().height
     if (measured === headerHeightPx) return false
     headerHeightPx = measured
-    onAppHeaderHeightPx(measured)
+    onAppHeaderHeightMeasured(measured)
     return true
   }
 
@@ -1092,7 +1092,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     const height = corner === undefined || band === undefined ? 0 : band.bottom - corner.top
     if (width === paletteBandPx.width && height === paletteBandPx.height) return
     paletteBandPx = { width, height }
-    wiring.onCommandPaletteBandPx?.(paletteBandPx)
+    wiring.onCommandPaletteBandMeasured?.(paletteBandPx)
   }
 
   const reportRowControlsHeight = taskGroupControlsHeightReporter(taskGroupTitleTree, readClockMs, wiring)
@@ -1371,7 +1371,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     return withPropertyLinkJump(dialogue.answerAt({ ...asked, walked: help.answerAt({ ...asked, walked: answered }) }), asked.first)
   }
 
-  // TRAP: onAppHeaderHeightPx fires here, before this factory returns: the callback may not
+  // TRAP: onAppHeaderHeightMeasured fires here, before this factory returns: the callback may not
   // reach for the surface, and BO-1's regions must wait for it.
   reportHeaderHeight()
 

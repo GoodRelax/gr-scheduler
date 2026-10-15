@@ -10,7 +10,7 @@ import { taskByUid } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
-import { depthOf, subtreeOf, wbsSubtreesOf, withSchedule } from './edit-task-group'
+import { depthOf, subtreeOf, wbsSubtreesOf, withScheduleParts } from './edit-task-group'
 
 // see HM-9
 // TRAP: schedule-invariants.ts and the input translator walk the task group tree the same way; change all three.
@@ -84,8 +84,8 @@ export function tasksRankedByTheTaskGroupTree(schedule: Schedule): readonly Task
 
 /** @purity pure */
 function withWbsOrderFollowingTheTaskGroups(document: Document, taskGroups: readonly TaskGroup[]): Document {
-  const moved = withSchedule(document, { taskGroups: taskGroups })
-  return withSchedule(moved, { tasks: tasksRankedByTheTaskGroupTree(moved.schedule) })
+  const moved = withScheduleParts(document, { taskGroups: taskGroups })
+  return withScheduleParts(moved, { tasks: tasksRankedByTheTaskGroupTree(moved.schedule) })
 }
 
 // see CM-35, FR-005
@@ -202,7 +202,7 @@ function movedWithTheWbs(
     return refused([reject('CM-73', 'HM-4', `Task ${parentTaskUid} sits inside the WBS subtree of Task ${taskUid}`)])
   }
   const reparented = tasks.map((one) => (one.uid === taskUid ? { ...one, parentTaskUid } : one))
-  return edited(withWbsOrderFollowingTheTaskGroups(withSchedule(document, { tasks: reparented }), taskGroups))
+  return edited(withWbsOrderFollowingTheTaskGroups(withScheduleParts(document, { tasks: reparented }), taskGroups))
 }
 
 // see HM-1, HM-7, HM-12

@@ -48,18 +48,18 @@ export interface ChangeAudience {
 }
 
 export type ApplyOutcome =
-  | { readonly accepted: false; readonly refusal: PlanRefusal }
+  | { readonly ok: false; readonly refusal: PlanRefusal }
   | {
-      readonly accepted: true
+      readonly ok: true
       readonly document: Document
       readonly hasMovedSchedule: boolean
       readonly report: EditReport
     }
 
 export type ReplaceOutcome =
-  | { readonly accepted: false; readonly refusal: ReplacementRefusal }
+  | { readonly ok: false; readonly refusal: ReplacementRefusal }
   | {
-      readonly accepted: true
+      readonly ok: true
       readonly document: Document
       readonly hasMovedSchedule: boolean
     }
@@ -91,7 +91,7 @@ export function applyDocumentChange(
     document: held.document,
     history: held.history,
   })
-  if (!plan.ok) return { accepted: false, refusal: plan.refusal }
+  if (!plan.ok) return { ok: false, refusal: plan.refusal }
 
   replaceThenTell(
     { document: plan.document, history: plan.history },
@@ -100,7 +100,7 @@ export function applyDocumentChange(
     audience,
   )
   return {
-    accepted: true,
+    ok: true,
     document: plan.document,
     hasMovedSchedule: plan.hasMovedSchedule,
     report: plan.report,
@@ -119,8 +119,8 @@ export function replaceDocument(
     ...input,
     held,
   })
-  if (!plan.ok) return { accepted: false, refusal: plan.refusal }
+  if (!plan.ok) return { ok: false, refusal: plan.refusal }
 
   replaceThenTell(plan.next, plan.hasMovedSchedule, holder, audience)
-  return { accepted: true, document: plan.next.document, hasMovedSchedule: plan.hasMovedSchedule }
+  return { ok: true, document: plan.next.document, hasMovedSchedule: plan.hasMovedSchedule }
 }

@@ -35,9 +35,9 @@ import type {
 
 interface PanelIndex extends OpenArming {
   readonly groupsById: ReadonlyMap<string, TaskGroup>
-  readonly groupIdsWithDrawnChildren: ReadonlySet<string>
-  readonly boxByGroupId: ReadonlyMap<string, ScreenRect>
-  readonly foldedTaskGroupCountByGroupId: ReadonlyMap<string, number>
+  readonly taskGroupIdsWithDrawnChildren: ReadonlySet<string>
+  readonly boxByTaskGroupId: ReadonlyMap<string, ScreenRect>
+  readonly foldedTaskGroupCountByTaskGroupId: ReadonlyMap<string, number>
   readonly foldedTaskGroupCountAtLevelZero: number
   readonly rootGroups: readonly TaskGroup[]
   readonly schedule: Schedule
@@ -47,8 +47,8 @@ type IndexCore = Omit<PanelIndex, keyof OpenArming>
 
 // see T-329, RS-28, RS-30, RS-31
 interface OpenArming {
-  readonly groupIdsWithAnUnplacedTaskGroupBelow: ReadonlySet<string>
-  readonly groupIdsWithAChildToOpen: ReadonlySet<string>
+  readonly taskGroupIdsWithAnUnplacedTaskGroupBelow: ReadonlySet<string>
+  readonly taskGroupIdsWithAChildToOpen: ReadonlySet<string>
   readonly isAnyTaskGroupUnplaced: boolean
 }
 
@@ -138,7 +138,7 @@ function taskGroupDepth(
 // TRAP: task-group-tree-entrances.ts arms IC-58 by this same test (isOpenAllBelowArmed); change both together.
 /** @purity pure */
 function isOpenAllBelowOn(group: TaskGroup, index: PanelIndex): boolean {
-  return index.groupIdsWithAnUnplacedTaskGroupBelow.has(group.id)
+  return index.taskGroupIdsWithAnUnplacedTaskGroupBelow.has(group.id)
 }
 
 // see HF-1
@@ -146,8 +146,8 @@ function isOpenAllBelowOn(group: TaskGroup, index: PanelIndex): boolean {
 function expanderOf(group: TaskGroup, index: PanelIndex): TaskGroupExpander {
   return {
     canOpen: isOpenAllBelowOn(group, index),
-    canClose: index.boxByGroupId.has(group.id),
-    canCloseBelow: index.groupIdsWithDrawnChildren.has(group.id),
+    canClose: index.boxByTaskGroupId.has(group.id),
+    canCloseBelow: index.taskGroupIdsWithDrawnChildren.has(group.id),
   }
 }
 
@@ -165,7 +165,7 @@ function taskGroupTitleOf(
   isPinned: boolean,
   index: PanelIndex,
   settings: DrawnSettings,
-  chosenGroupIds: ReadonlySet<string>,
+  chosenTaskGroupIds: ReadonlySet<string>,
   held: HeldTaskGroup | null,
 ): TaskGroupTitle {
   const depth = held?.depth ?? taskGroupDepth(group, index.groupsById, settings)
@@ -187,12 +187,12 @@ function taskGroupTitleOf(
     wholeLabel,
     isLabelTruncated: shownLabel !== null && shownLabel !== wholeLabel,
     expander: expanderOf(group, index),
-    canOpenOneLevel: index.groupIdsWithAChildToOpen.has(group.id),
+    canOpenOneLevel: index.taskGroupIdsWithAChildToOpen.has(group.id),
     canAddChildTaskGroup: depth < settings.maxGroupDepth,
     isPinned,
     // see FR-085, T-293
-    isSelected: chosenGroupIds.has(group.id),
-    foldedTaskGroupCount: index.foldedTaskGroupCountByGroupId.get(group.id) ?? 0,
+    isSelected: chosenTaskGroupIds.has(group.id),
+    foldedTaskGroupCount: index.foldedTaskGroupCountByTaskGroupId.get(group.id) ?? 0,
     heldOnAxis: held === null ? null : held.axis,
   }
 }
@@ -227,14 +227,14 @@ function openArmingOf(
 ): OpenArming {
   const placed = placedRowIdsOf(readings)
   const groupsById = new Map(schedule.taskGroups.map((group) => [group.id, group]))
-  const groupIdsWithAnUnplacedTaskGroupBelow = new Set<string>()
+  const taskGroupIdsWithAnUnplacedTaskGroupBelow = new Set<string>()
   for (const group of schedule.taskGroups) {
     if (placed.has(group.id)) continue
     // TRAP: climbed guards a parentId ring; without it the climb never returns.
     const climbed = new Set<string>()
     for (let at = group.parentId; at !== null && !climbed.has(at);) {
       climbed.add(at)
-      groupIdsWithAnUnplacedTaskGroupBelow.add(at)
+      taskGroupIdsWithAnUnplacedTaskGroupBelow.add(at)
       at = groupsById.get(at)?.parentId ?? null
     }
   }
@@ -243,7 +243,7 @@ function openArmingOf(
   const pinned = new Set(settings.pinnedTaskGroupIds)
   const placedGroups = [...placed].flatMap((id) => groupsById.get(id) ?? [])
   const keptByExpanded = keptInViewByTreeState(placedGroups, 'expandedOnly')
-  const groupIdsWithAChildToOpen = new Set<string>()
+  const taskGroupIdsWithAChildToOpen = new Set<string>()
   for (const child of schedule.taskGroups) {
     if (child.parentId === null) continue
     const isDrawnWithoutTemporary =
@@ -251,12 +251,12 @@ function openArmingOf(
       (taskGroupDepth(child, groupsById, settings) <= depthLimit ||
         pinned.has(child.id) ||
         keptByExpanded.has(child.id))
-    if (!isDrawnWithoutTemporary) groupIdsWithAChildToOpen.add(child.parentId)
+    if (!isDrawnWithoutTemporary) taskGroupIdsWithAChildToOpen.add(child.parentId)
   }
 
   return {
-    groupIdsWithAnUnplacedTaskGroupBelow,
-    groupIdsWithAChildToOpen,
+    taskGroupIdsWithAnUnplacedTaskGroupBelow,
+    taskGroupIdsWithAChildToOpen,
     isAnyTaskGroupUnplaced: schedule.taskGroups.some((group) => !placed.has(group.id)),
   }
 }
@@ -287,21 +287,21 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
     else siblings.push(group)
   }
 
-  const boxByGroupId = new Map<string, ScreenRect>()
+  const boxByTaskGroupId = new Map<string, ScreenRect>()
   for (const placed of readings.taskGroupBoxes) {
-    if (boxByGroupId.has(placed.taskGroupId)) continue
-    boxByGroupId.set(placed.taskGroupId, placed.box)
+    if (boxByTaskGroupId.has(placed.taskGroupId)) continue
+    boxByTaskGroupId.set(placed.taskGroupId, placed.box)
   }
 
-  const groupIdsWithDrawnChildren = new Set<string>()
+  const taskGroupIdsWithDrawnChildren = new Set<string>()
   for (const group of schedule.taskGroups) {
     if (group.parentId === null) continue
-    if (!boxByGroupId.has(group.id)) continue
-    groupIdsWithDrawnChildren.add(group.parentId)
+    if (!boxByTaskGroupId.has(group.id)) continue
+    taskGroupIdsWithDrawnChildren.add(group.parentId)
   }
 
-  const foldedTaskGroupCountByGroupId = new Map<string, number>()
-  const subtreeSizeByGroupId = new Map<string, number>()
+  const foldedTaskGroupCountByTaskGroupId = new Map<string, number>()
+  const subtreeSizeByTaskGroupId = new Map<string, number>()
   const orderedDeepestFirst: TaskGroup[] = []
   // TRAP: visited guards a parentId ring; without it the walk never returns.
   const visited = new Set<string>()
@@ -318,32 +318,32 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
     let subtreeSize = 1
     let folded = 0
     for (const child of childrenByParentId.get(group.id) ?? []) {
-      const childSubtree = subtreeSizeByGroupId.get(child.id) ?? 1
+      const childSubtree = subtreeSizeByTaskGroupId.get(child.id) ?? 1
       subtreeSize += childSubtree
       folded +=
         group.treeState === 'collapsed' || child.treeState === 'hidden'
           ? childSubtree
-          : (foldedTaskGroupCountByGroupId.get(child.id) ?? 0)
+          : (foldedTaskGroupCountByTaskGroupId.get(child.id) ?? 0)
     }
-    subtreeSizeByGroupId.set(group.id, subtreeSize)
-    foldedTaskGroupCountByGroupId.set(group.id, folded)
+    subtreeSizeByTaskGroupId.set(group.id, subtreeSize)
+    foldedTaskGroupCountByTaskGroupId.set(group.id, folded)
   }
 
   const rootGroups = childrenByParentId.get(null) ?? []
   let foldedTaskGroupCountAtLevelZero = 0
   for (const root of rootGroups) {
-    const subtreeSize = subtreeSizeByGroupId.get(root.id) ?? 1
+    const subtreeSize = subtreeSizeByTaskGroupId.get(root.id) ?? 1
     foldedTaskGroupCountAtLevelZero +=
       isLevelZeroCollapsed || root.treeState === 'hidden'
         ? subtreeSize
-        : (foldedTaskGroupCountByGroupId.get(root.id) ?? 0)
+        : (foldedTaskGroupCountByTaskGroupId.get(root.id) ?? 0)
   }
 
   return {
     groupsById,
-    groupIdsWithDrawnChildren,
-    boxByGroupId,
-    foldedTaskGroupCountByGroupId,
+    taskGroupIdsWithDrawnChildren,
+    boxByTaskGroupId,
+    foldedTaskGroupCountByTaskGroupId,
     foldedTaskGroupCountAtLevelZero,
     rootGroups,
     schedule,
@@ -359,7 +359,7 @@ function groupGridLinesOf(
   settings: DrawnSettings,
 ): readonly ScreenRect[] {
   if (!settings.isGroupGridLinesVisible) return []
-  const placedBoxes = described.flatMap((title) => index.boxByGroupId.get(title.taskGroupId) ?? [])
+  const placedBoxes = described.flatMap((title) => index.boxByTaskGroupId.get(title.taskGroupId) ?? [])
   return placedBoxes.map((box) => ({
     x: box.x,
     y: box.y + box.height - GROUP_GRID_LINE_WIDTH_PX / 2,
@@ -382,7 +382,7 @@ export function taskGroupPanelFromSchedule(
   const isLevelZeroCollapsed = settings.levelZeroTreeState === 'collapsed'
   const index = panelIndexWithArmingOf(schedule, settings, readings, isLevelZeroCollapsed)
   const pinnedTaskGroupIds = new Set(settings.pinnedTaskGroupIds)
-  const chosenGroupIds: ReadonlySet<string> = new Set(readings.selectedGroupIds)
+  const chosenTaskGroupIds: ReadonlySet<string> = new Set(readings.selectedTaskGroupIds)
   const grabbed = readings.taskGroupGrabbedAt ?? null
   const heldOf = (taskGroupId: string): HeldTaskGroup | null =>
     grabbed === null || grabbed.taskGroupId !== taskGroupId
@@ -397,19 +397,19 @@ export function taskGroupPanelFromSchedule(
   const pinnedTitles: TaskGroupTitle[] = []
   for (const taskGroupId of pinnedTaskGroupIds) {
     const group = index.groupsById.get(taskGroupId)
-    const box = index.boxByGroupId.get(taskGroupId)
+    const box = index.boxByTaskGroupId.get(taskGroupId)
     if (group === undefined || box === undefined) continue
-    pinnedTitles.push(taskGroupTitleOf(group, box, true, index, settings, chosenGroupIds, null))
+    pinnedTitles.push(taskGroupTitleOf(group, box, true, index, settings, chosenTaskGroupIds, null))
   }
 
-  const describedGroupIds = new Set(pinnedTaskGroupIds)
+  const describedTaskGroupIds = new Set(pinnedTaskGroupIds)
   const titles: TaskGroupTitle[] = []
   for (const placed of readings.taskGroupBoxes) {
-    if (describedGroupIds.has(placed.taskGroupId)) continue
+    if (describedTaskGroupIds.has(placed.taskGroupId)) continue
     const group = index.groupsById.get(placed.taskGroupId)
     if (group === undefined) continue
-    describedGroupIds.add(placed.taskGroupId)
-    titles.push(taskGroupTitleOf(group, placed.box, false, index, settings, chosenGroupIds, heldOf(group.id)))
+    describedTaskGroupIds.add(placed.taskGroupId)
+    titles.push(taskGroupTitleOf(group, placed.box, false, index, settings, chosenTaskGroupIds, heldOf(group.id)))
   }
 
   if (pinnedTitles.length === 0 && titles.length === 0 && !isLevelZeroCollapsed) {
@@ -422,7 +422,7 @@ export function taskGroupPanelFromSchedule(
     groupGridLines: groupGridLinesOf([...pinnedTitles, ...titles], index, settings),
     canOpenEveryTaskGroup: index.isAnyTaskGroupUnplaced,
     canCloseEveryTaskGroup:
-      !isLevelZeroCollapsed && index.rootGroups.some((taskGroup) => index.boxByGroupId.has(taskGroup.id)),
+      !isLevelZeroCollapsed && index.rootGroups.some((taskGroup) => index.boxByTaskGroupId.has(taskGroup.id)),
     canOpenLevelZero: isLevelZeroCollapsed
       ? index.rootGroups.length > 0
       : index.rootGroups.some((taskGroup) => taskGroup.treeState === 'hidden'),

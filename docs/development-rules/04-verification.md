@@ -252,7 +252,7 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 ⚠️ `GT-2` の 5 秒・30 秒の時間切れは、まず機械の込み具合を疑う —— 実測（2026-10-14）: OneDrive の同期が試験のあいだ 1.4〜1.8 コアを使い、根の配下の作業木 約 400 を抱えた木で `GT-2` が 3 回続けて、毎回違うファイルの時間切れで落ちた（`DFC-2473`）。作業木を掃き、OneDrive を止めると通った。⇒ `GT-2` のあいだは OneDrive を止め（利用者に頼む）、合流済みの体の作業木は 6.11 の手順で溜めずに掃く。
 ⭐ **`OneDrive.exe` が動いている間、`gate-queue.mjs drain` と `run-gate.mjs` は `GT-2`・`PERF` を始めずに止まる**（JDG-2121）。止まった文言が、そのまま利用者への頼みである。⛔ 承知の上で走らせるときだけ `--onedrive-running-ok` を付ける。
 ⭐ **push は `python tools/push_guard.py <sha>` が刷るコマンドで打つ**（JDG-2120）—— 個人情報の数 0、その sha の最後の `GT-2` が失敗なら拒む、上の 4 つの場所を含むのに `GT-2` の合格が無ければ、調整役が規模とリスクで判断した理由を `GRS_PUSH_NO_GT2="…"` で添える（JDG-2126）。Claude の PreToolUse フックが同じ判定で `git push` を止める。
-⚠️ `guard:publish` が `GT-2` のすべてを打つ形になるのは、`tests/usecase/` が埋まり、`tools/gate/run-gate.mjs` が入った後である（`CR-573` の波 2 と 3c）。それまでは足りない分を手で打つ。
+⚠️ `guard:publish` が `GT-2` のすべてを打つ形になるのは、`tests/use-case/` が埋まり、`tools/gate/run-gate.mjs` が入った後である（`CR-573` の波 2 と 3c）。それまでは足りない分を手で打つ。
 
 ### ⭐ 何が何を強制するか
 
@@ -431,7 +431,7 @@ B  docs/spec だけを読んで試験を書く。A の本体ロジックは読�
 ### 6.4 ⛔⛔ 走らせ方を知らないと、偽の赤が出る
 
 ```
-⛔ tests/system/ ・ tests/usecase/ ・ tests/nfr/ は Playwright であって vitest ではない
+⛔ tests/system/ ・ tests/use-case/ ・ tests/nfr/ は Playwright であって vitest ではない
    （表 T-218 の TS-3、playwright.config.ts の testMatch）。
    vitest.config.ts が読むのは tests/{contract,integration,unit} だけである。
    ⇒ npx vitest run tests/system/… は「No test files found」で 終了コード 1 を返す。

@@ -319,13 +319,13 @@ const taskVisual = (taskUid: number, shapeKind: string): TaskVisual =>
     ...(shapeKind === 'milestone' ? { milestoneGlyph: 'diamond' } : {}),
   }) as unknown as TaskVisual
 
-/** `groupIds[i]` says which task group `tasks[i]` is drawn on. Task groups come out sorted. */
+/** `taskGroupIds[i]` says which task group `tasks[i]` is drawn on. Task groups come out sorted. */
 const scheduleOf = (
   tasks: readonly Task[],
-  groupIds: readonly string[],
+  taskGroupIds: readonly string[],
   visuals: readonly TaskVisual[],
 ): Schedule => {
-  const ids = [...new Set(groupIds)].sort()
+  const ids = [...new Set(taskGroupIds)].sort()
   return {
     project: {
       id: null,
@@ -360,7 +360,7 @@ const scheduleOf = (
     taskGroups: ids.map((id, i) => taskGroup(id, i)),
     taskGroupMembers: tasks.map((one, i) => ({
       taskUid: one.uid,
-      taskGroupId: groupIds[i] ?? ids[0] ?? 'g1',
+      taskGroupId: taskGroupIds[i] ?? ids[0] ?? 'g1',
     })) as unknown as readonly TaskGroupMember[],
     taskVisuals: visuals,
     commentBoxes: [],

@@ -1154,9 +1154,9 @@ function groupFields(
 }
 
 /** @purity pure */
-function onlyGroupId(groupIds: readonly string[]): string | null {
-  const [only] = groupIds
-  if (groupIds.length === 1 && only !== undefined) return only
+function onlyTaskGroupId(taskGroupIds: readonly string[]): string | null {
+  const [only] = taskGroupIds
+  if (taskGroupIds.length === 1 && only !== undefined) return only
   return null
 }
 
@@ -1174,7 +1174,7 @@ function fieldsOfSubject(
   const item = subjectOf(subject.selection)
   if (item !== null) return fieldsOfItem(schedule, item, labelCoef, language, inTime)
 
-  const taskGroupId = onlyGroupId(subject.groupIds)
+  const taskGroupId = onlyTaskGroupId(subject.taskGroupIds)
   if (taskGroupId === null) return []
 
   const group = schedule.taskGroups.find((held) => held.id === taskGroupId)
@@ -2145,12 +2145,12 @@ export function propertiesPanelFromSelection(
     }
   }
 
-  const isNothingPicked = selection.items.length === 0 && readings.selectedGroupIds.length === 0
+  const isNothingPicked = selection.items.length === 0 && readings.selectedTaskGroupIds.length === 0
   // WHY: a held subject naming task groups alone was a task group pick (FR-072), so the items still selected stay off the panel.
-  const isTaskGroupPick = content.subject.selection.items.length === 0 && content.subject.groupIds.length > 0
+  const isTaskGroupPick = content.subject.selection.items.length === 0 && content.subject.taskGroupIds.length > 0
   const subject = isNothingPicked
     ? content.subject
-    : { selection: isTaskGroupPick ? content.subject.selection : selection, groupIds: readings.selectedGroupIds }
+    : { selection: isTaskGroupPick ? content.subject.selection : selection, taskGroupIds: readings.selectedTaskGroupIds }
   // WHY: readings with no layout place no task group, so the task group reads as not drawn (MH-6), never as 0 px.
   const placedTaskGroups = readings.placedTaskGroups ?? []
   const inTime = settings.isTimeOfDayVisible ? shownInstantReader(schedule, settings.viewTimeZone) : null

@@ -390,24 +390,24 @@ interface Drawn {
 /**
  * One pass of the chain: PI-35 -> PI-5 -> PI-6.
  *
- * `groupIds[i]` says which task group `tasks[i]` is drawn on. The task groups are created in
+ * `taskGroupIds[i]` says which task group `tasks[i]` is drawn on. The task groups are created in
  * the sorted order of those IDs, so `g1` is the topmost task group. `allTaskGroups` names
  * every task group the document holds when that is more than the Tasks reach -- which
  * is how a task group carrying nothing is set up.
  */
 const draw = (
   tasks: readonly Task[],
-  groupIds: readonly string[],
+  taskGroupIds: readonly string[],
   visuals: readonly TaskVisual[],
   over: Readonly<Record<string, unknown>> = {},
   statusDate: string | null = null,
-  allTaskGroups: readonly string[] = groupIds,
+  allTaskGroups: readonly string[] = taskGroupIds,
 ): Drawn => {
-  const ids = [...new Set([...groupIds, ...allTaskGroups])].sort()
+  const ids = [...new Set([...taskGroupIds, ...allTaskGroups])].sort()
   const groups = ids.map((id, i) => taskGroup(id, i))
   const members: TaskGroupMember[] = tasks.map((t, i) => ({
     taskUid: t.uid,
-    taskGroupId: groupIds[i] ?? ids[0] ?? 'g1',
+    taskGroupId: taskGroupIds[i] ?? ids[0] ?? 'g1',
   }))
   const schedule = scheduleOf(tasks, groups, members, visuals, statusDate)
   // scrollDate (S-77) pins the left edge of the Task Group Area, so the axis is fixed
@@ -1802,7 +1802,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         expect(resume, `resumeValid ${resumeValid}`).not.toBeNull()
         if (marker === null || resume === null) continue
 
-        expect(resume.valid).toBe(resumeValid)
+        expect(resume.isValid).toBe(resumeValid)
         const side = resumeValid
           ? SETTINGS_CONSTANTS.markerSize * DISPLAY_RATIO
           : SETTINGS_CONSTANTS.markerSize * DISPLAY_RATIO * SETTINGS_CONSTANTS.resumeScaleInvalid

@@ -144,13 +144,13 @@ function bench(): Bench {
       return applyDocumentChange(
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
-          readStamp: held.document.documentStamp,
+          expectedStamp: held.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           historyLimits: ROOMY_LIMITS,
           settingsLimits: SETTINGS_LIMITS,
           editedBy: WRITER,
-          updatedUtc: instantOf(writes),
+          updatedAt: instantOf(writes),
         },
         holder,
         audience,
@@ -161,7 +161,7 @@ function bench(): Bench {
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
           newTaskGroupId: 'fresh-task-group',
-          readStamp: held.document.documentStamp,
+          expectedStamp: held.document.documentStamp,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           call: { row: 'RD-1' },
         },
@@ -174,14 +174,14 @@ function bench(): Bench {
 
 function mustWrite(one: Bench, commands: readonly DocumentCommand[], why: string): void {
   const outcome = one.write(commands)
-  if (!outcome.accepted) {
+  if (!outcome.ok) {
     throw new Error(`${why} was refused: ${JSON.stringify(outcome.refusal)}`)
   }
 }
 
 function mustUndo(one: Bench, why: string): Document {
   const outcome = one.undo()
-  if (!outcome.accepted) {
+  if (!outcome.ok) {
     throw new Error(`${why}: the undo was refused: ${JSON.stringify(outcome.refusal)}`)
   }
   return outcome.document
@@ -322,7 +322,7 @@ describe('表 T-067 WS-4 -- an 対象外 write pushes no 段 of its own', () => 
       const settingsBefore = settingsOf(run.held.document)
       const outcome = run.write([one.command])
 
-      expect(outcome.accepted, `${name}: ${JSON.stringify(outcome)}`).toBe(true)
+      expect(outcome.ok, `${name}: ${JSON.stringify(outcome)}`).toBe(true)
       expect(settingsOf(run.held.document), `${name}: the write moved nothing`).not.toBe(
         settingsBefore,
       )

@@ -86,7 +86,7 @@ const READINGS: ScreenViewReadings = {
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
@@ -113,7 +113,7 @@ const rootShowing = (showing: 'selection' | 'documentSettings'): ScreenSession =
     ...emptyScreenSession.screen,
     propertiesPanelContentState:
       showing === 'selection'
-        ? { kind: 'selectionDisplayed', subject: { selection: emptySelection(), groupIds: [] } }
+        ? { kind: 'selectionDisplayed', subject: { selection: emptySelection(), taskGroupIds: [] } }
         : { kind: 'documentSettingsDisplayed' },
   },
 })

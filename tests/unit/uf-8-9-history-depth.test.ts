@@ -160,13 +160,13 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
       return applyDocumentChange(
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
-          readStamp: held.document.documentStamp,
+          expectedStamp: held.document.documentStamp,
           commands,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           historyLimits: limits,
           settingsLimits: SETTINGS_LIMITS,
           editedBy: WRITER,
-          updatedUtc: instantOf(writes),
+          updatedAt: instantOf(writes),
         },
         holder,
         audience,
@@ -187,7 +187,7 @@ function writeNames(one: Bench, nth: number): void {
     const outcome = one.write([
       { kind: CM_9, uid: FIRST_TASK_UID, name: `edit ${namesWritten}` } as unknown as DocumentCommand,
     ])
-    if (!outcome.accepted) {
+    if (!outcome.ok) {
       throw new Error(`write ${i} was refused: ${JSON.stringify(outcome.refusal)}`)
     }
   }
@@ -326,7 +326,7 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
         // out of scope, so the history is still empty for this case's own write.
         if (command.kind === 'unpinTaskGroup') {
           const pinned = one.write([PAYLOAD['pinTaskGroup'] as DocumentCommand])
-          expect(pinned.accepted, 'the precondition write').toBe(true)
+          expect(pinned.ok, 'the precondition write').toBe(true)
         }
 
         const payload = PAYLOAD[command.kind]
@@ -335,7 +335,7 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
         const before = one.json()
         const outcome = one.write([payload as DocumentCommand])
 
-        expect(outcome.accepted, JSON.stringify(outcome)).toBe(true)
+        expect(outcome.ok, JSON.stringify(outcome)).toBe(true)
         expect(one.json(), 'the command really did change the document').not.toBe(before)
         expect(one.depth()).toBe(0)
       })

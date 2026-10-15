@@ -166,7 +166,7 @@ const EVERYTHING: DrawWish = {
   marquee: { x: 300, y: 95, width: 120, height: 40 },
   watermark: { openedBy: 'a reader', stampedAt: '2026-03-01T00:00:00' },
   tentativeLink: TENTATIVE_LINK,
-  follow: { side: 'date1', x: 420 },
+  follow: { side: 'cursorA', x: 420 },
 }
 
 const layersOf = (svg: string): readonly string[] =>

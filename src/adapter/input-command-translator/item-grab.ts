@@ -12,6 +12,7 @@ import {
   plannedInstantsOf,
   MINUTES_PER_CALENDAR_DAY,
   planActualState,
+  dayFromSerial,
   startSideOf,
   taskByUid,
   textOfDayEnd,
@@ -49,7 +50,7 @@ import {
 } from '../../use-case/edit-document/edit-document'
 import type { PointerInput } from './input-source'
 import { treeWritesOf } from './task-group-tree-entrances'
-import { namesAPlace, zoomOnScreen } from './zoom-and-fit'
+import { isPlaceNamed, zoomOnScreen } from './zoom-and-fit'
 import {
   CONSUMED_ELSEWHERE,
   acted,
@@ -60,7 +61,6 @@ import {
   compareDay,
   dayAnchorAt,
   dayAtX,
-  dayFromSerial,
   dayShift,
   dayShifted,
   drawnTaskGroupsCrossed,
@@ -287,7 +287,7 @@ function farEndSendWrites(
 ): readonly DocumentCommand[] {
   const settings = context.document.documentSettings
   const area = context.regions.taskGroupArea
-  const isSeated = namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollTaskGroupId)
+  const isSeated = isPlaceNamed(context.document.schedule, settings.scrollDate, settings.scrollTaskGroupId)
   const kept = isSeated ? settings : scrolledAnchor(context, 0, 0)
   const across = far.isAcrossInTaskGroupArea ? kept : dayAnchorAt(context, far.middleX - area.width / 2)
   const to = {
@@ -729,18 +729,18 @@ export function copyDragWrite(context: InputContext, press: PointerPress, releas
   const heldTaskGroups = copied.flatMap((uid) => taskGroupIndexOfTask(context, taskGroups, uid) ?? [])
   const crossed = shiftWithinTaskGroups(taskGroups, heldTaskGroups, drawnTaskGroupsCrossed(taskGroups, press.at.y, release.y))
   if (sources.length === 0 || (shiftMinutes === 0 && crossed === 0)) return CONSUMED_ELSEWHERE
-  const groupIdOf: Record<number, string> = {}
+  const taskGroupIdOf: Record<number, string> = {}
   for (const uid of copied) {
     const at = taskGroupIndexOfTask(context, taskGroups, uid)
     const landed = at === null ? undefined : taskGroups[at + crossed]
-    if (landed !== undefined && landed.taskGroupId !== taskGroupOfTask(context, uid)) groupIdOf[uid] = landed.taskGroupId
+    if (landed !== undefined && landed.taskGroupId !== taskGroupOfTask(context, uid)) taskGroupIdOf[uid] = landed.taskGroupId
   }
   const copyUidOf = pastedUidsOf(schedule, sources)
   const picked = selectionOfAll(sources.flatMap((uid) => {
     const copy = copyUidOf.get(uid)
     return copy === undefined ? [] : [{ kind: 'task' as const, uid: copy }]
   }))
-  const write: DocumentCommand = { kind: 'pasteTasks', sourceUids: sources, landing: { shiftMinutes, groupIdOf } }
+  const write: DocumentCommand = { kind: 'pasteTasks', sourceUids: sources, landing: { shiftMinutes, taskGroupIdOf } }
   return acted({ kind: 'changeDocument', writes: [[write]], picked })
 }
 

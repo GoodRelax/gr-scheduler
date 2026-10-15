@@ -1524,7 +1524,7 @@ describe('table T-023d GA-18 / table T-280 progressMarkerPressed (DFC-708): the 
 const LANE_THICKNESS = 14
 
 /** One more group id, past the five the nine `FOLLOWERS` share. */
-const overflowGroupId = (n: number): string => `2a000000-0000-4000-8000-${String(n).padStart(12, '0')}`
+const overflowTaskGroupId = (n: number): string => `2a000000-0000-4000-8000-${String(n).padStart(12, '0')}`
 
 /**
  * A document wide and tall enough that GR-21's grip is SHORTER than its lane.
@@ -1558,7 +1558,7 @@ function wideFixtureDocument(): Document {
       taskGroupMembers: { taskUid: number; taskGroupId: string }[]
     }
   }
-  const overflowGroup = overflowGroupId(900)
+  const overflowGroup = overflowTaskGroupId(900)
   draft.schedule.taskGroups.push(group(overflowGroup, 900, 'Overflow'))
   draft.schedule.taskGroupMembers.push({
     taskUid: OVERFLOW_UID,
@@ -1574,7 +1574,7 @@ function wideFixtureDocument(): Document {
     }),
   )
   for (let extra = 0; extra < 40; extra += 1) {
-    draft.schedule.taskGroups.push(group(overflowGroupId(901 + extra), 901 + extra, `Filler ${extra}`))
+    draft.schedule.taskGroups.push(group(overflowTaskGroupId(901 + extra), 901 + extra, `Filler ${extra}`))
   }
   return draft as unknown as Document
 }

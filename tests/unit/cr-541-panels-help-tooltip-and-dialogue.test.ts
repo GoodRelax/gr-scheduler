@@ -79,7 +79,7 @@ const READINGS = {
   isMilestoneListOpen: false,
   isPaletteMinimized: false,
   dualCursorFollowing: null,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   propertiesSubject: null,
   propertiesShowing: 'selection',
@@ -97,7 +97,7 @@ const sessionShowing = (showing: 'selection' | 'documentSettings'): ScreenSessio
     propertiesPanelContentState:
       showing === 'documentSettings'
         ? { kind: 'documentSettingsDisplayed' }
-        : { kind: 'selectionDisplayed', subject: { selection: emptySelection(), groupIds: [] } },
+        : { kind: 'selectionDisplayed', subject: { selection: emptySelection(), taskGroupIds: [] } },
   },
 })
 

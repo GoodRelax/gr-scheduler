@@ -89,13 +89,13 @@ export type TaskGroupCommandOf<K extends TaskGroupCommand['kind']> = Extract<
 >
 
 /** @purity pure */
-export function withSchedule(document: Document, part: Partial<Schedule>): Document {
+export function withScheduleParts(document: Document, part: Partial<Schedule>): Document {
   return { ...document, schedule: { ...document.schedule, ...part } }
 }
 
 /** @purity pure */
 export function withTaskGroup(document: Document, taskGroup: TaskGroup): Document {
-  return withSchedule(document, {
+  return withScheduleParts(document, {
     taskGroups: document.schedule.taskGroups.map((one) => (one.id === taskGroup.id ? taskGroup : one)),
   })
 }
@@ -273,7 +273,7 @@ function pasteTaskGroupSubtree(
     const fresh = one.taskUid === null ? undefined : uidOf.get(one.taskUid)
     if (fresh !== undefined) newAssignments.push({ ...one, uid: ++mark, taskUid: fresh })
   }
-  return edited(withSchedule(document, {
+  return edited(withScheduleParts(document, {
     project: { ...schedule.project, uidHighWaterMark: mark },
     taskGroups: after.taskGroups,
     tasks: [...schedule.tasks, ...withInferredCopyParents(after, sources, paired, uidOf)],

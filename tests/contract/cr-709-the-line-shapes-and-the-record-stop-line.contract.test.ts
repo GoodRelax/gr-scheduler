@@ -121,7 +121,7 @@ function sceneJson(): Json {
   const firstTask = (schedule['tasks'] as Json[])[0]
   const firstGroup = (schedule['taskGroups'] as Json[])[0]
   if (firstTask === undefined || firstGroup === undefined) throw new Error('premise: the template holds a task and a task group')
-  const groupIdOf = (uid: number): string => `70900000-0000-4000-8000-${String(uid).padStart(12, '0')}`
+  const taskGroupIdOf = (uid: number): string => `70900000-0000-4000-8000-${String(uid).padStart(12, '0')}`
   schedule['tasks'] = FIGURES.map((one) => ({
     ...structuredClone(firstTask),
     uid: one.uid,
@@ -140,14 +140,14 @@ function sceneJson(): Json {
   }))
   schedule['taskGroups'] = FIGURES.map((one, order) => ({
     ...structuredClone(firstGroup),
-    id: groupIdOf(one.uid),
+    id: taskGroupIdOf(one.uid),
     parentId: null,
     name: `row ${order}`,
     derivedFromTaskUid: null,
     order,
     color: null,
   }))
-  schedule['taskGroupMembers'] = FIGURES.map((one) => ({ taskUid: one.uid, taskGroupId: groupIdOf(one.uid) }))
+  schedule['taskGroupMembers'] = FIGURES.map((one) => ({ taskUid: one.uid, taskGroupId: taskGroupIdOf(one.uid) }))
   schedule['taskVisuals'] = FIGURES.map((one) => ({
     taskUid: one.uid,
     shapeKind: shapeKindOf(one.shape),

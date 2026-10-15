@@ -30,7 +30,7 @@ export type EscapeTarget =
   | 'tooltip'
   | 'fullScreen'
 
-export type DualCursorSide = 'date1' | 'date2'
+export type DualCursorSide = 'cursorA' | 'cursorB'
 
 // see RG-16, RW-5, RO-6
 export interface WindowStanding {

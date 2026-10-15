@@ -27,10 +27,10 @@ import {
 function taskGroupGrabSiblings(
   taskGroups: readonly TaskGroup[],
   parentId: string | null,
-  heldGroupId: string,
+  heldTaskGroupId: string,
 ): readonly TaskGroup[] {
   return taskGroups
-    .filter((one) => one.id !== heldGroupId && one.parentId === parentId)
+    .filter((one) => one.id !== heldTaskGroupId && one.parentId === parentId)
     .sort((a, b) => a.order - b.order)
 }
 
@@ -65,23 +65,23 @@ interface TaskGroupGrabStep {
 /** @purity pure */
 function taskGroupGrabLandingOf(
   context: InputContext,
-  heldGroupId: string,
+  heldTaskGroupId: string,
   steps: number,
 ): TaskGroupGrabStep | null {
   const taskGroups = context.document.schedule.taskGroups
   const byId = new Map(taskGroups.map((one) => [one.id, one]))
-  const held = byId.get(heldGroupId)
+  const held = byId.get(heldTaskGroupId)
   if (held === undefined) return null
 
   const cap = SETTINGS_CONSTANTS.maxGroupDepth
-  const height = taskGroupGrabSubtreeHeight(taskGroups, heldGroupId)
+  const height = taskGroupGrabSubtreeHeight(taskGroups, heldTaskGroupId)
   const startSiblings = taskGroups
     .filter((one) => one.parentId === held.parentId)
     .sort((a, b) => a.order - b.order)
   // TRAP: CM-73 reads a rank among siblings, not the `order` column; orders 0, 2, 7 must answer 0, 1, 2.
   const startOrder = Math.max(
     0,
-    startSiblings.findIndex((one) => one.id === heldGroupId),
+    startSiblings.findIndex((one) => one.id === heldTaskGroupId),
   )
   let landing: TaskGroupGrabLanding = {
     parentId: held.parentId,
@@ -93,7 +93,7 @@ function taskGroupGrabLandingOf(
   const deeper = steps > 0
   for (let step = 0; step < taken; step++) {
     if (deeper) {
-      const siblings = taskGroupGrabSiblings(taskGroups, landing.parentId, heldGroupId)
+      const siblings = taskGroupGrabSiblings(taskGroups, landing.parentId, heldTaskGroupId)
       const above = siblings[landing.order - 1]
       if (above === undefined) return { landing, situation: 'noSiblingAboveToNestUnder' }
       if (taskGroupGrabDepthOf(byId, above) + height > cap) {
@@ -102,7 +102,7 @@ function taskGroupGrabLandingOf(
       landing = {
         parentId: above.id,
         // TRAP: a count, not `orderPastLastChild` (largest plus one); CM-73 reads a rank.
-        order: taskGroupGrabSiblings(taskGroups, above.id, heldGroupId).length,
+        order: taskGroupGrabSiblings(taskGroups, above.id, heldTaskGroupId).length,
         depth: landing.depth + 1,
       }
       continue
@@ -110,7 +110,7 @@ function taskGroupGrabLandingOf(
     if (landing.parentId === null) return { landing, situation: 'taskGroupIsAtTheShallowestLevel' }
     const parent = byId.get(landing.parentId)
     if (parent === undefined) return { landing, situation: null }
-    const uncles = taskGroupGrabSiblings(taskGroups, parent.parentId, heldGroupId)
+    const uncles = taskGroupGrabSiblings(taskGroups, parent.parentId, heldTaskGroupId)
     landing = {
       parentId: parent.parentId,
       order: uncles.findIndex((one) => one.id === parent.id) + 1,
@@ -131,13 +131,13 @@ interface TaskGroupGrabPlace {
 /** @purity pure */
 function taskGroupGrabPlacesInDrawingOrder(
   context: InputContext,
-  heldGroupId: string,
+  heldTaskGroupId: string,
 ): readonly TaskGroupGrabPlace[] {
   const drawn = context.drawnTaskGroupBoxes
   if (drawn === undefined) return []
   const taskGroups = context.document.schedule.taskGroups
   const byId = new Map(taskGroups.map((one) => [one.id, one]))
-  const held = byId.get(heldGroupId)
+  const held = byId.get(heldTaskGroupId)
   if (held === undefined) return []
   const depth = taskGroupGrabDepthOf(byId, held)
   const parentsWithADrawnChild = new Set<string>()
@@ -152,7 +152,7 @@ function taskGroupGrabPlacesInDrawingOrder(
       .sort((a, b) => a.order - b.order)
     const at = among.findIndex((one) => one.id === taskGroup.id)
     if (at < 0) return 0
-    return among.slice(0, at).filter((one) => one.id !== heldGroupId).length
+    return among.slice(0, at).filter((one) => one.id !== heldTaskGroupId).length
   }
 
   const places: TaskGroupGrabPlace[] = []
@@ -180,7 +180,7 @@ function taskGroupGrabPlacesInDrawingOrder(
     if (taskGroupDepth === depth) {
       if (runParentId !== undefined && runParentId !== taskGroup.parentId) closeRun()
       const order = placeOrderOf(taskGroup)
-      const isOwn = taskGroup.id === heldGroupId
+      const isOwn = taskGroup.id === heldTaskGroupId
       put({ parentId: taskGroup.parentId, order, atY: entry.box.y, isOwn })
       runParentId = taskGroup.parentId
       // TRAP: not one past the held task group; with it taken out, before and after it are one place,
@@ -208,14 +208,14 @@ function taskGroupGrabPlacesInDrawingOrder(
 /** @purity pure */
 function taskGroupGrabPositionOf(
   context: InputContext,
-  heldGroupId: string,
+  heldTaskGroupId: string,
   travelY: number,
 ): { readonly place: TaskGroupGrabPlace; readonly situation: SpentEntranceSituation | null } | null {
   const drawn = context.drawnTaskGroupBoxes
   if (drawn === undefined) return null
-  const heldBox = drawn.find((one) => one.taskGroupId === heldGroupId)?.box
+  const heldBox = drawn.find((one) => one.taskGroupId === heldTaskGroupId)?.box
   if (heldBox === undefined) return null
-  const places = taskGroupGrabPlacesInDrawingOrder(context, heldGroupId)
+  const places = taskGroupGrabPlacesInDrawingOrder(context, heldTaskGroupId)
   const ownAt = places.findIndex((one) => one.isOwn)
   if (ownAt < 0) return null
   const own = places[ownAt]
@@ -318,8 +318,8 @@ function taskGroupGrabResistedPx(travelPx: number, stepPx: number): number {
 }
 
 /** @purity pure */
-function taskGroupGrabTaskGroupHeightOf(context: InputContext, heldGroupId: string): number {
-  const placed = (context.drawnTaskGroupBoxes ?? []).find((one) => one.taskGroupId === heldGroupId)
+function taskGroupGrabTaskGroupHeightOf(context: InputContext, heldTaskGroupId: string): number {
+  const placed = (context.drawnTaskGroupBoxes ?? []).find((one) => one.taskGroupId === heldTaskGroupId)
   return placed === undefined ? 0 : placed.box.height
 }
 
@@ -329,19 +329,19 @@ export function commandFromRowGrab(
   release: PointerInput,
   press: PointerPress,
   context: InputContext,
-  heldGroupId: string,
+  heldTaskGroupId: string,
 ): TranslatedInput {
   const axis = taskGroupGrabAxisAt(release, press)
   if (axis === null) {
     return acted({
       kind: 'chooseTaskGroup',
-      taskGroupId: heldGroupId,
+      taskGroupId: heldTaskGroupId,
       isExtending: press.at.modifiers.shift,
     })
   }
-  const held = context.document.schedule.taskGroups.find((one) => one.id === heldGroupId)
+  const held = context.document.schedule.taskGroups.find((one) => one.id === heldTaskGroupId)
   if (axis === 'position') {
-    const found = taskGroupGrabPositionOf(context, heldGroupId, release.y - press.at.y)
+    const found = taskGroupGrabPositionOf(context, heldTaskGroupId, release.y - press.at.y)
     if (found === null) return CONSUMED_ELSEWHERE
     if (found.situation !== null) return nothingToDo(found.situation)
     // WHY: not written: an accepted write marks unsaved edits even if nothing moved.
@@ -349,7 +349,7 @@ export function commandFromRowGrab(
     return changed([
       {
         kind: 'moveTaskGroup',
-        taskGroupId: heldGroupId,
+        taskGroupId: heldTaskGroupId,
         parentId: found.place.parentId,
         order: found.place.order,
       },
@@ -357,7 +357,7 @@ export function commandFromRowGrab(
   }
   const steps = taskGroupGrabDepthSteps(context, release, press)
   if (steps === 0) return CONSUMED_ELSEWHERE
-  const step = taskGroupGrabLandingOf(context, heldGroupId, steps)
+  const step = taskGroupGrabLandingOf(context, heldTaskGroupId, steps)
   if (step === null) return CONSUMED_ELSEWHERE
   const landing = step.landing
   // WHY: judged by the parent, not the step count; every depth step changes the parent.
@@ -367,7 +367,7 @@ export function commandFromRowGrab(
   return changed([
     {
       kind: 'moveTaskGroup',
-      taskGroupId: heldGroupId,
+      taskGroupId: heldTaskGroupId,
       parentId: landing.parentId,
       order: landing.order,
     },

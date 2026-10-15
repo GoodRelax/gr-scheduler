@@ -510,7 +510,7 @@ export function tableWithScheduleFilterOff(view: TableView): TableView {
 // WHY: rowKeysOf lists the table's rows, read only while a key is hidden;
 // a table that leaves a task out (the report) changes the schedule though no row is Hide.
 /** @purity pure */
-export function wouldScheduleFilterChange(
+export function isScheduleFilterChanging(
   visibility: TableVisibility,
   rowKeysOf: () => ReadonlySet<number>,
   isEveryTaskRowed: boolean,

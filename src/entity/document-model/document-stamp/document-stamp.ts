@@ -39,13 +39,13 @@ export interface ChangeLogEntry {
 export function advancedStamp(
   stamp: DocumentStamp,
   editedBy: string,
-  updatedUtc: string,
+  updatedAt: string,
   options: { readonly hasMovedSchedule: boolean },
 ): DocumentStamp {
   return {
-    scheduleUpdatedAt: options.hasMovedSchedule ? updatedUtc : stamp.scheduleUpdatedAt,
+    scheduleUpdatedAt: options.hasMovedSchedule ? updatedAt : stamp.scheduleUpdatedAt,
     lastEditedBy: editedBy,
-    settingsUpdatedAt: updatedUtc,
+    settingsUpdatedAt: updatedAt,
     fileSavedAt: stamp.fileSavedAt,
   }
 }

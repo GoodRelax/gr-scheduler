@@ -813,7 +813,7 @@ const restingOn = (task: Task): ScreenViewReadings => ({
   hintHolderUnderPointer: { kind: 'task', taskUid: task.uid },
   themePreference: 'light',
   themeHue: THEME_HUE,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   notices: [],
   confirmation: null,

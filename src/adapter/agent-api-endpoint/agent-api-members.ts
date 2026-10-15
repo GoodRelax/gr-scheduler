@@ -170,7 +170,7 @@ export interface AgentWatch {
 }
 
 // see AV-12
-export type AgentUtteranceOutcome =
+export type AgentDialogueMessageOutcome =
   | { readonly ok: true; readonly message: DialogueMessage }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
@@ -224,7 +224,7 @@ export interface AgentApi {
   watchChanges(receive: AgentChangeReceiver): AgentWatch
 
   /** @purity non-pure */
-  postDialogueMessage(text: string): AgentUtteranceOutcome
+  postDialogueMessage(text: string): AgentDialogueMessageOutcome
 }
 
 // see AV-13, AV-14
@@ -503,14 +503,14 @@ function writeThroughTheOnePath(
   wiring: AgentApiWiring,
   snapshot: AgentSnapshot,
   target: string,
-  readStamp: DocumentStamp,
+  expectedStamp: DocumentStamp,
   commands: readonly DocumentCommand[],
 ): AgentWriteOutcome {
   let outcome
   // WHY: caught despite ST-7: untyped caller input enters here, and planning a malformed
   // command throws, which FR-028 forbids passing on.
   try {
-    outcome = planAndApply(wiring, snapshot, readStamp, commands)
+    outcome = planAndApply(wiring, snapshot, expectedStamp, commands)
   } catch (thrown) {
     return {
       ok: false,
@@ -524,7 +524,7 @@ function writeThroughTheOnePath(
     }
   }
 
-  if (!outcome.accepted) {
+  if (!outcome.ok) {
     const { refusal } = outcome
     return {
       ok: false,
@@ -554,12 +554,12 @@ export function messageOf(thrown: unknown): string {
 function planAndApply(
   wiring: AgentApiWiring,
   snapshot: AgentSnapshot,
-  readStamp: DocumentStamp,
+  expectedStamp: DocumentStamp,
   commands: readonly DocumentCommand[],
 ): ReturnType<typeof applyDocumentChange> {
   return applyDocumentChange(
     {
-      readStamp,
+      expectedStamp,
       commands,
       moment: {
         gestureInFlight: snapshot.isGestureInFlight,
@@ -571,7 +571,7 @@ function planAndApply(
       settingsLimits: snapshot.settingsLimits,
       defaultTaskGroupName: snapshot.defaultTaskGroupName,
       editedBy: wiring.writerName,
-      updatedUtc: snapshot.readAt,
+      updatedAt: snapshot.readAt,
     },
     wiring.holder,
     wiring.audience,
@@ -592,7 +592,7 @@ function postAgentUtterance(
   wiring: AgentApiWiring,
   snapshot: AgentSnapshot,
   text: string,
-): AgentUtteranceOutcome {
+): AgentDialogueMessageOutcome {
   if (NotifyChangeWatchers.isDeliveringNotices(wiring.changeWatchers)) {
     return {
       ok: false,
@@ -935,7 +935,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       const hasReplacedEarlierWatch = NotifyChangeWatchers.watchChanges(wiring.changeWatchers, {
         watcher: wiring.writerName,
         since: {
-          seenScheduleUpdatedUtc: snapshot.document.documentStamp.scheduleUpdatedAt,
+          seenScheduleUpdatedAt: snapshot.document.documentStamp.scheduleUpdatedAt,
           seenSequence: latestSequence(snapshot.dialogue),
         },
         deliver: receive,
@@ -951,7 +951,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     },
 
     /** @purity non-pure */
-    postDialogueMessage(text: string): AgentUtteranceOutcome {
+    postDialogueMessage(text: string): AgentDialogueMessageOutcome {
       return postAgentUtterance(wiring, source.readSnapshot(), text)
     },
   }

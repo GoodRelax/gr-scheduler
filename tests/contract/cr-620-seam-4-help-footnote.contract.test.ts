@@ -103,7 +103,7 @@ const READINGS: ScreenViewReadings = {
   commandPaletteAt: { x: 500, y: 300 },
   themePreference: 'light',
   themeHue: 214,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
@@ -119,7 +119,7 @@ const helpShown = (screenLanguage: DisplayLanguage, helpLanguage: DisplayLanguag
     helpLanguage,
     propertiesPanelContentState: {
       kind: 'selectionDisplayed',
-      subject: { selection: emptySelection(), groupIds: [] },
+      subject: { selection: emptySelection(), taskGroupIds: [] },
     },
     helpDisplayState: { kind: 'shown', child: { kind: 'normal' } },
   },

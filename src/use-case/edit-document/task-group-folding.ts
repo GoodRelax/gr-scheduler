@@ -9,7 +9,7 @@ import type { Schedule, TaskGroup } from '../../entity/document-model/schedule/s
 import type { DocumentCommand, EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
-import { withTaskGroup, withSchedule } from './edit-task-group'
+import { withTaskGroup, withScheduleParts } from './edit-task-group'
 import type { DocumentSettingsCommand } from './edit-document-settings'
 
 export interface TreeStateEventCarried {
@@ -199,7 +199,7 @@ export function resetTaskGroupTreeStates(document: Document): EditResult {
     return treeState === taskGroup.treeState ? taskGroup : { ...taskGroup, treeState }
   })
   if (reset.every((taskGroup, at) => taskGroup === taskGroups[at])) return edited(document)
-  return edited(withSchedule(document, { taskGroups: reset }))
+  return edited(withScheduleParts(document, { taskGroups: reset }))
 }
 
 // <generated -- do not edit by hand>

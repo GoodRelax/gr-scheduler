@@ -25,10 +25,10 @@ export type ItemRef =
 
 export interface Selection {
   readonly items: readonly ItemRef[]
-  readonly ordered: boolean
+  readonly isOrdered: boolean
 }
 
-const EMPTY: Selection = { items: [], ordered: true }
+const EMPTY: Selection = { items: [], isOrdered: true }
 
 /** @purity pure */
 export function emptySelection(): Selection {
@@ -63,19 +63,19 @@ export function isSelected(selection: Selection, item: ItemRef): boolean {
 /** @purity pure */
 export function selectionWith(selection: Selection, item: ItemRef): Selection {
   if (isSelected(selection, item)) return selection
-  return { items: [...selection.items, item], ordered: selection.ordered }
+  return { items: [...selection.items, item], isOrdered: selection.isOrdered }
 }
 
 /** @purity pure */
 export function selectionOfAll(items: readonly ItemRef[]): Selection {
-  return { items: [...items], ordered: false }
+  return { items: [...items], isOrdered: false }
 }
 
 /** @purity pure */
 export function selectionWithout(selection: Selection, item: ItemRef): Selection {
   const items = selection.items.filter((held) => !isSameItem(held, item))
   if (items.length === selection.items.length) return selection
-  return { items, ordered: selection.ordered }
+  return { items, isOrdered: selection.isOrdered }
 }
 
 // see SL-1
@@ -87,7 +87,7 @@ export function taskUidsIn(selection: Selection): readonly number[] {
 // see FR-034, SL-7b
 /** @purity pure */
 export function lastPicked(selection: Selection): ItemRef | null {
-  if (!selection.ordered || selection.items.length === 0) return null
+  if (!selection.isOrdered || selection.items.length === 0) return null
   return selection.items[selection.items.length - 1] ?? null
 }
 
@@ -119,5 +119,5 @@ export function selectionWithinSchedule(selection: Selection, schedule: Schedule
   // TRAP: the shell compares selections by identity; a fresh object here reopens
   // the Properties Panel on every unrelated edit.
   if (items.length === selection.items.length) return selection
-  return selection.ordered ? { items, ordered: true } : selectionOfAll(items)
+  return selection.isOrdered ? { items, isOrdered: true } : selectionOfAll(items)
 }

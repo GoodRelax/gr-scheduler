@@ -7,7 +7,7 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import {
   commandFromInput,
-  pressRowOf,
+  pressedRowOf,
   type HumanInput,
   type InputContext,
   type InputModifiers,
@@ -431,7 +431,7 @@ function copyThroughShell(scene: Scene, days: number, modifiers: Partial<InputMo
   return { built, before, after: built.tasks() }
 }
 
-const PICKED_SOURCE: Selection = { items: [{ kind: 'task', uid: SOURCE }], ordered: true } as unknown as Selection
+const PICKED_SOURCE: Selection = { items: [{ kind: 'task', uid: SOURCE }], isOrdered: true } as unknown as Selection
 
 function contextOf(built: Stage): InputContext {
   const values = frameOf(built.loop)
@@ -463,7 +463,7 @@ function writesOfRelease(scene: Scene, days: number, modifiers: Partial<InputMod
   const by = travel(built.loop, days, to)
   const down = pointer('down', from, modifiers)
   const hit = hitAt(built.loop, from)
-  const press: PointerPress = { at: down, hit, on: null, pressRow: pressRowOf({ at: down, hit }, context) }
+  const press: PointerPress = { at: down, hit, on: null, pressRow: pressedRowOf({ at: down, hit }, context) }
   expect(press.pressRow, 'premise: the press is PTD-7').toBe('PTD-7')
   const up = pointer('up', { x: from.x + by.x, y: from.y + by.y }, modifiers) as HumanInput
   const action = commandFromInput(up, { ...context, pressed: press }).action as unknown as {
@@ -475,7 +475,7 @@ function writesOfRelease(scene: Scene, days: number, modifiers: Partial<InputMod
 
 interface Landing {
   readonly shiftMinutes: number
-  readonly groupIdOf: Readonly<Record<number, string>>
+  readonly taskGroupIdOf: Readonly<Record<number, string>>
 }
 
 const landingOf = (writes: readonly DocumentCommand[]): Landing => {
@@ -615,7 +615,7 @@ describe('case 5 -- CY-5: Ctrl + Shift copies with an amount of 0 whatever the p
   it('S1: shiftMinutes is 0 and the task group is B', () => {
     const landing = landingOf(writesOfRelease(DAY_SNAP_TIME_SHOWN, 2.6, CTRL_SHIFT, TASK_GROUP_B))
     expect(landing.shiftMinutes).toBe(0)
-    expect(landing.groupIdOf[SOURCE]).toBe(TASK_GROUP_B)
+    expect(landing.taskGroupIdOf[SOURCE]).toBe(TASK_GROUP_B)
   })
 
   // WHY: SPEC-READ -- with Shift the CY-5 amount is 0, so a pull across only (0 task groups) is CY-9 (2).

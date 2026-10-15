@@ -31,7 +31,7 @@ export function selectionWithinDrawn(selection: Selection, geometry: ScheduleGeo
   }
   if (drawnTaskUids.size === chosenTaskUids.size) return selection
   const items = selection.items.filter((item) => item.kind !== 'task' || drawnTaskUids.has(item.uid))
-  return { items, ordered: selection.ordered }
+  return { items, isOrdered: selection.isOrdered }
 }
 
 // see T-023c, FR-098, ST-7
@@ -64,5 +64,5 @@ export function selectionWithinDrawnTaskGroups(
   const items = selection.items.filter(
     (item) => item.kind !== 'task' || kept.has(item.uid) || undecided.has(item.uid),
   )
-  return items.length === selection.items.length ? selection : { items, ordered: selection.ordered }
+  return items.length === selection.items.length ? selection : { items, isOrdered: selection.isOrdered }
 }

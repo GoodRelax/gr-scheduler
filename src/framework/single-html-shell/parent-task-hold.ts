@@ -21,7 +21,7 @@ const PARENT_TASK_LINKS_ANSWER = 'links'
 
 const ESCAPE_KEY = 'Esc'
 
-const NOTHING_PICKED: Selection = { items: [], ordered: true }
+const NOTHING_PICKED: Selection = { items: [], isOrdered: true }
 
 type Point = { readonly x: number; readonly y: number }
 
@@ -84,7 +84,7 @@ export function isMixedParentPick(picked: Selection): boolean {
 /** @purity pure */
 export function selectionOfParentChoice(mixed: Selection, answer: string): Selection {
   const kept = answer === PARENT_TASK_LINKS_ANSWER ? 'parentTaskLink' : 'task'
-  return { items: mixed.items.filter((one) => one.kind === kept), ordered: mixed.ordered }
+  return { items: mixed.items.filter((one) => one.kind === kept), isOrdered: mixed.isOrdered }
 }
 
 // see PTL-13, PTL-14, IN-4

@@ -322,8 +322,8 @@ const inTheMode = (screen: ScreenValues, side: DualCursorSide | null): ScreenVal
     ? screen
     : {
         ...screen,
-        dualCursorModeState: { kind: 'on', child: { kind: side === 'date1' ? 'placingDate1' : 'placingDate2' } },
-        dualCursor: { date1: '2026-03-02', date2: '2026-03-05' },
+        dualCursorModeState: { kind: 'on', child: { kind: side === 'cursorA' ? 'placingCursorA' : 'placingCursorB' } },
+        dualCursor: { cursorADate: '2026-03-02', cursorBDate: '2026-03-05' },
       }
 
 /** The seven values of 表 T-023b, as an arm each. AR-1 is what `emptyScreenSession.screen` holds. AR-7 came with CR-631. */
@@ -424,14 +424,14 @@ describe('T-029a DC-4 -- going out leaves the arm alone', () => {
     // on `EscapeContext` states the user ruled that bit into the session on
     // 2026-08-26 and that `null` there means not in the mode.
     const before = armedWith(armed)
-    const after = pressing(IC_45, before, 'date1')
+    const after = pressing(IC_45, before, 'cursorA')
     expect(after.armModeState).toEqual(armed)
   })
 
   it('answers the same whichever side is following', () => {
     // ⚠️ DC-2 swaps the following side on every click, so both values are
     // reachable at the moment DC-4's press arrives.
-    for (const side of ['date1', 'date2'] as const satisfies readonly DualCursorSide[]) {
+    for (const side of ['cursorA', 'cursorB'] as const satisfies readonly DualCursorSide[]) {
       expect(pressing(IC_45, armedWith({ kind: 'commentBoxArmed' }), side).armModeState, side).toEqual({
         kind: 'commentBoxArmed',
       })

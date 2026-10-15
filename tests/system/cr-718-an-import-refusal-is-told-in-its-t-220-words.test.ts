@@ -4,7 +4,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { unbroken } from '../contract/spec-table'
-import { VIEWPORT, enableAgentApi, icon, launch, readDocument, settle } from '../usecase/uc-harness'
+import { VIEWPORT, enableAgentApi, icon, launch, readDocument, settle } from '../use-case/uc-harness'
 import { taskGroupsDocument } from './w3-t1-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })

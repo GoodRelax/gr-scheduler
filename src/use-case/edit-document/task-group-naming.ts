@@ -9,7 +9,7 @@ import { taskByUid, type TaskGroup } from '../../entity/document-model/schedule/
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import type { TaskGroupCommandOf } from './edit-task-group'
-import { depthOf, withTaskGroup, withSchedule } from './edit-task-group'
+import { depthOf, withTaskGroup, withScheduleParts } from './edit-task-group'
 
 // see CM-26, FR-085, FR-058, AT-153
 /** @purity pure */
@@ -67,7 +67,7 @@ export function createTaskGroup(
     color: null,
     minHeightPx: null,
   }
-  return edited(withSchedule(document, { taskGroups: [...groups, taskGroup] }))
+  return edited(withScheduleParts(document, { taskGroups: [...groups, taskGroup] }))
 }
 
 // see CM-29, FR-085, FR-058

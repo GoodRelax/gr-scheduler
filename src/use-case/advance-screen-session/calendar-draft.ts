@@ -355,8 +355,8 @@ export function calendarDraftRefusalsOf(draft: CalendarDraft): readonly Calendar
 }
 
 /** @purity pure */
-export function hasNoCalendarDraftRefusal(draft: CalendarDraft): boolean {
-  return calendarDraftRefusalsOf(draft).length === 0
+export function hasCalendarDraftRefusal(draft: CalendarDraft): boolean {
+  return calendarDraftRefusalsOf(draft).length > 0
 }
 
 /** @purity pure */

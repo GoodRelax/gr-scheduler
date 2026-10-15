@@ -96,7 +96,7 @@ function settingsPanel(language: DisplayLanguage = 'ja', document: Document = TE
     iconUnderPointer: null,
     themePreference: 'light',
     themeHue: document.schedule.project.themeHue,
-    selectedGroupIds: [],
+    selectedTaskGroupIds: [],
     selectedResourceUids: [],
     propertiesShowing: 'documentSettings',
     notices: [],

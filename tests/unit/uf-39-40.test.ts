@@ -1078,7 +1078,7 @@ const nothingBeyondTheAccounted = (assembled: Assembled): boolean => {
   const bandAndPanel = 2
   const expectedRects = bandAndPanel + view.frame.dividers.length
   const rows = [...view.taskGroupPanel.pinnedTitles, ...view.taskGroupPanel.titles]
-  // ⛔ NO `droppedGroupIds` TERM ANY MORE (CR-337): a picture that is written
+  // ⛔ NO `droppedTaskGroupIds` TERM ANY MORE (CR-337): a picture that is written
   // holds every task group, and one that is not written is not read at all.
   const withLabel = rows.filter((row) => row.label !== null)
   const expectedTexts =
@@ -1528,7 +1528,7 @@ describe('FR-028 / AG-8 -- the failure comes back as a value, and nothing is thr
     // ⭐ Assembling the picture is arithmetic over values and cannot fail once
     // it fits; only painting it needs a machine. That is also the next step
     // NT-3a owes a person when the reason is `unsupported`.
-    // ⛔ THE `droppedGroupIds` HALF OF THIS CASE WAS DELETED (CR-337).
+    // ⛔ THE `droppedTaskGroupIds` HALF OF THIS CASE WAS DELETED (CR-337).
     const { rasterizer } = watchedRasterizer({
       ok: false,
       fault: { reason: 'unsupported', what: 'no canvas in this host' },

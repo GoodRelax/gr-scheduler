@@ -687,7 +687,7 @@ const READINGS: ScreenViewReadings = {
   commandPaletteAt: { x: 0, y: 0 },
   themePreference: 'light',
   themeHue: 214,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   notices: [],
   confirmation: null,

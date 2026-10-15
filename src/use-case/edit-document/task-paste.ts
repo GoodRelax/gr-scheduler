@@ -109,7 +109,7 @@ export function pasteTasks(
     .map((one) => ({
       ...one,
       taskUid: remap.get(one.taskUid) as number,
-      taskGroupId: landing?.groupIdOf[one.taskUid] ?? one.taskGroupId,
+      taskGroupId: landing?.taskGroupIdOf[one.taskUid] ?? one.taskGroupId,
     }))
   const assignmentCopies: Assignment[] = schedule.assignments
     .filter((one) => one.taskUid !== null && chosen.has(one.taskUid))

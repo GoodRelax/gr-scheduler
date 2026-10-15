@@ -556,7 +556,7 @@ def build():
     # 2. table T-334
     w('## 2. Table T-334 -- what is verified, and what nothing verifies yet')
     w('')
-    uc_named = set(i for f in files if f.place == 'usecase' for i in f.requirements)
+    uc_named = set(i for f in files if f.place == 'use-case' for i in f.requirements)
     uc_missing = [u for u in spec.use_cases if u not in uc_named]
     region_named = set(t for f in files if f.place == 'contract' for t in f.tables)
     region_missing = ['%s (%s)' % (t, r) for t, r in spec.regions if t not in region_named]
@@ -565,7 +565,7 @@ def build():
     # The population leads: a row ID in the first column would register VT as a records prefix.
     w('| population | T-334 row | counted | with a test | without a test |')
     w('| --- | --- | --: | --: | --- |')
-    w('| the use cases (`UC-xxx`), named by a `tests/usecase` file | VT-1 | %d | %d | %s |' % (
+    w('| the use cases (`UC-xxx`), named by a `tests/use-case` file | VT-1 | %d | %d | %s |' % (
         len(spec.use_cases), len(spec.use_cases) - len(uc_missing), ids(uc_missing)))
     w('| the regions of `state-machines.json`, their table named by a `tests/contract` file'
       ' | VT-2 | %d | %d | %s |' % (len(spec.regions), len(spec.regions) - len(region_missing),

@@ -153,7 +153,7 @@ export interface DocumentSpec {
   readonly scrollDate?: string | null
 }
 
-const groupIdOf = (uid: number): string => `75700000-0000-4000-8000-${String(uid).padStart(12, '0')}`
+const taskGroupIdOf = (uid: number): string => `75700000-0000-4000-8000-${String(uid).padStart(12, '0')}`
 
 function taskText(one: TaskSpec, index: number): Loose {
   return {
@@ -189,7 +189,7 @@ function taskText(one: TaskSpec, index: number): Loose {
 }
 
 export function documentOf(spec: DocumentSpec): Document {
-  const firstGroup = groupIdOf(spec.tasks[0]?.uid ?? 1)
+  const firstGroup = taskGroupIdOf(spec.tasks[0]?.uid ?? 1)
   const raw: Loose = {
     $schema: TEMPLATE['$schema'],
     schemaVersion: TEMPLATE['schemaVersion'],
@@ -206,8 +206,8 @@ export function documentOf(spec: DocumentSpec): Document {
       resources: [],
       assignments: [],
       taskGroups: spec.tasks.map((one, index) => ({
-        id: groupIdOf(one.uid),
-        parentId: one.parent === undefined ? null : groupIdOf(one.parent),
+        id: taskGroupIdOf(one.uid),
+        parentId: one.parent === undefined ? null : taskGroupIdOf(one.parent),
         name: `row ${String(index + 1)}`,
         derivedFromTaskUid: null,
         order: index,
@@ -216,7 +216,7 @@ export function documentOf(spec: DocumentSpec): Document {
         color: null,
         minHeightPx: null,
       })),
-      taskGroupMembers: spec.tasks.map((one) => ({ taskUid: one.uid, taskGroupId: groupIdOf(one.uid) })),
+      taskGroupMembers: spec.tasks.map((one) => ({ taskUid: one.uid, taskGroupId: taskGroupIdOf(one.uid) })),
       taskVisuals: [],
       commentBoxes: (spec.comments ?? []).map((one) => ({
         id: one.id,
@@ -338,14 +338,14 @@ export function planned(held: Held, commands: readonly DocumentCommand[]): Retur
   return planDocumentChange({
     defaultTaskGroupName: 'Row',
     document: held.document,
-    readStamp: held.document.documentStamp,
+    expectedStamp: held.document.documentStamp,
     commands,
     moment: CALM,
     history: held.history,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: LIMITS,
     editedBy: 'tester',
-    updatedUtc: '2028-05-02T00:00:00Z',
+    updatedAt: '2028-05-02T00:00:00Z',
   })
 }
 

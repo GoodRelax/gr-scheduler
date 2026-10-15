@@ -69,7 +69,7 @@ export {
   dateFromWorkingDays,
   DaySpanTooWide,
   earliestPlanStartDayOf,
-  holdsWorkingDayUnlikeMinutesPerDay,
+  isWorkingDayUnlikeMinutesPerDay,
   instantAfterWorkingMinutes,
   instantOnSide,
   instantOnSideReader,
@@ -122,14 +122,14 @@ export {
   isStandardTimeZoneKey,
   isTimeZoneKey,
   PRINTED_TIME_ZONE,
-  standardTimeZoneKeyForPc,
+  standardTimeZoneKeyForSystem,
   TIME_ZONE_ROWS,
   timeZoneRowOf,
   viewRegionOf,
   viewWallOfDataWall,
   zoneClockOf,
 } from './time-zone'
-export type { PcTimeZone, StandardTimeZoneKey, TimeZoneRow, ZoneClock } from './time-zone'
+export type { SystemTimeZone, StandardTimeZoneKey, TimeZoneRow, ZoneClock } from './time-zone'
 export { delayStart, delayWorkingDays, isDelayed, progressMarkerOf } from './task-delay'
 export type { ProgressMarker } from './task-delay'
 export { diagnoseDelay, parentCandidatesOf, parentTaskResolutionsOf } from './delay-diagnostics'

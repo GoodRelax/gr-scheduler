@@ -51,7 +51,7 @@ import {
   isOnTaskGroupArea,
   isSingleCharacterKey,
   isTypedIntoSearchWord,
-  pressRowOf,
+  pressedRowOf,
   rememberedActualIn,
   type InputContext,
 } from './input-command-translator'
@@ -276,7 +276,7 @@ function screenEventAfterChartPress(input: PointerInput, context: InputContext):
   const press = context.pressed
   if (press === null) return null
   const isChartPress = press.hit !== null || isOnTaskGroupArea(context, press.at.x, press.at.y)
-  if (isChartPress && pressRowOf(press, context) === 'PTD-2') {
+  if (isChartPress && pressedRowOf(press, context) === 'PTD-2') {
     return screenEventFromDualCursorPress(press, context)
   }
   return screenEventAfterMarkerPress(input, context)
@@ -295,7 +295,7 @@ function markerReleasedOf(input: PointerInput, context: InputContext): number | 
 export function diagnosisRowAskedOf(input: HumanInput, context: InputContext): number | null {
   const press = context.pressed
   if (input.kind !== 'pointer' || input.phase !== 'up' || press === null || press.on !== null) return null
-  if (pressRowOf(press, context) === 'PTD-2') return null
+  if (pressedRowOf(press, context) === 'PTD-2') return null
   const uid = markerReleasedOf(input, context)
   return uid !== null && context.diagnosisMarkedTaskUids?.has(uid) === true ? uid : null
 }

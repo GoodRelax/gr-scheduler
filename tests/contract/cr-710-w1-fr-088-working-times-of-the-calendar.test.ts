@@ -7,7 +7,7 @@ import { describe, expect, it } from 'vitest'
 
 import type { Document } from '../../src/entity/document-model/document/document'
 import {
-  holdsWorkingDayUnlikeMinutesPerDay,
+  isWorkingDayUnlikeMinutesPerDay,
   isWorkingTimeSetUnlikeDay,
   workingTimeSetOf,
   workingTimesBreach,
@@ -353,7 +353,7 @@ describe('RS-89: isWorkingTimeSetUnlikeDay compares the sum of a set with the mi
 })
 
 // see RS-89, FR-054
-describe('RS-89: holdsWorkingDayUnlikeMinutesPerDay finds a working day whose spans do not sum to the day', () => {
+describe('RS-89: isWorkingDayUnlikeMinutesPerDay finds a working day whose spans do not sum to the day', () => {
   const scheduleOver = (working: WorkingByDayType, minutesPerDay: number | null, exceptions: CalendarParts['exceptions'] = []) =>
     documentOver({ working, exceptions }, { minutesPerDay }).schedule
 
@@ -364,7 +364,7 @@ describe('RS-89: holdsWorkingDayUnlikeMinutesPerDay finds a working day whose sp
     ['one weekday of 540 minutes among days of 480', { ...MONDAY_TO_FRIDAY_WITH_SPANS, [WEDNESDAY]: FULL_DAY }, null, true],
     ['every weekday of 540 against a project day of 540', Object.fromEntries([MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY].map((one) => [one, FULL_DAY])), 540, false],
   ])('%s', (_name, working, minutesPerDay, unlike) => {
-    expect(holdsWorkingDayUnlikeMinutesPerDay(scheduleOver(working, minutesPerDay))).toBe(unlike)
+    expect(isWorkingDayUnlikeMinutesPerDay(scheduleOver(working, minutesPerDay))).toBe(unlike)
   })
 
   it('does not count a weekday that does not work, whatever spans it holds', () => {
@@ -373,16 +373,16 @@ describe('RS-89: holdsWorkingDayUnlikeMinutesPerDay finds a working day whose sp
     const calendar = schedule.calendars[0]
     if (calendar === undefined) throw new Error('premise: no calendar')
     const resting = calendar.weekDays.map((one) => (one.dayType === SATURDAY ? { ...one, workingTimes: spansOf(['09:00', '12:00']) } : one))
-    expect(holdsWorkingDayUnlikeMinutesPerDay({ ...schedule, calendars: [{ ...calendar, weekDays: resting }] })).toBe(false)
+    expect(isWorkingDayUnlikeMinutesPerDay({ ...schedule, calendars: [{ ...calendar, weekDays: resting }] })).toBe(false)
   })
 
   it('counts a working exception day whose own spans sum to another day', () => {
     const odd = exceptionOf(1, JAN_FRIDAY, JAN_FRIDAY, true, spansOf(['09:00', '12:00']))
-    expect(holdsWorkingDayUnlikeMinutesPerDay(scheduleOver(MONDAY_TO_FRIDAY_WITH_SPANS, null, [odd]))).toBe(true)
+    expect(isWorkingDayUnlikeMinutesPerDay(scheduleOver(MONDAY_TO_FRIDAY_WITH_SPANS, null, [odd]))).toBe(true)
   })
 
   it('does not count a holiday', () => {
     const holiday = exceptionOf(1, JAN_FRIDAY, JAN_FRIDAY, false)
-    expect(holdsWorkingDayUnlikeMinutesPerDay(scheduleOver(MONDAY_TO_FRIDAY_WITH_SPANS, null, [holiday]))).toBe(false)
+    expect(isWorkingDayUnlikeMinutesPerDay(scheduleOver(MONDAY_TO_FRIDAY_WITH_SPANS, null, [holiday]))).toBe(false)
   })
 })

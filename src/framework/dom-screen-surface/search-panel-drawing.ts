@@ -48,7 +48,7 @@ type SearchRowView = SearchPanelView['rows'][number]
 export interface DrawnRow {
   readonly cells: readonly string[]
   readonly glyph?: SearchRowView['glyph']
-  readonly shown?: boolean
+  readonly isShown?: boolean
   readonly target?: SearchRowView['target']
   readonly key?: VisibilityKey
   readonly chosenEntry?: CommandItem | null
@@ -670,7 +670,7 @@ function bodyRowElement(host: Document, row: DrawnRow, columns: readonly SearchC
     const cell = made(host, 'td', cellStyle() + fixed + (isJump ? jumpCellStyle() : ''))
     const fixControl = fixControlOf(host, row.fix, columns[at]?.column)
     if (at === places.glyphAt) cell.replaceChildren(glyphElement(host, row.glyph ?? null), text)
-    else if (at === places.showAt && key !== null) cell.replaceChildren(shownRowBox(host, key, row.shown === true))
+    else if (at === places.showAt && key !== null) cell.replaceChildren(shownRowBox(host, key, row.isShown === true))
     else if (at === places.chosenAt) cell.replaceChildren(...chosenEntryOf(host, row.chosenEntry))
     else if (fixControl !== null) cell.replaceChildren(fixControl)
     else cell.textContent = text

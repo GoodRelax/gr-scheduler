@@ -74,7 +74,7 @@ function withRecording(kind: string, base: ScreenSession = emptyScreenSession): 
 }
 
 const RUNGS = ['notice', 'textEntry', 'confirmation', 'surface', 'gesture', 'propertiesPanel', 'armed', 'selection', 'dualCursorMode', 'tooltip']
-const PICKED = { items: [{ kind: 'task', uid: 3 }], ordered: false }
+const PICKED = { items: [{ kind: 'task', uid: 3 }], isOrdered: false }
 
 const SAMPLE: Record<string, unknown> = {
   surfaceName: 'U-56',
@@ -83,7 +83,7 @@ const SAMPLE: Record<string, unknown> = {
   armKind: 'dependencyArmed',
   shapeKind: null,
   glyph: null,
-  subject: { selection: { items: [], ordered: false }, groupIds: [] },
+  subject: { selection: { items: [], isOrdered: false }, taskGroupIds: [] },
   date: '2026-01-05',
   percent: 100,
   end: 'max',
@@ -115,7 +115,7 @@ const SAMPLE: Record<string, unknown> = {
   remainingObjects: PICKED,
   createdTaskUid: 3,
   chosenTaskGroups: ['group1'],
-  createdGroupId: 'group1',
+  createdTaskGroupId: 'group1',
   chosenResources: [1],
   copiedForPaste: { kind: 'task', uids: [3] },
 }

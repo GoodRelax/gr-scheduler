@@ -8,7 +8,7 @@ below (MUST), and no seventh place may be made (MUST NOT).
 
 | place | row | receiver in the specification | who writes it | what it protects |
 | --- | --- | --- | --- | --- |
-| `usecase/` | `TS-1` | Chapter 8, parent `UC-xxx` | by hand | the user's own steps, through the UI |
+| `use-case/` | `TS-1` | Chapter 8, parent `UC-xxx` | by hand | the user's own steps, through the UI |
 | `integration/` | `TS-2` | Chapter 9, parent `SWS-xxx` | by hand | units wired together |
 | `system/` | `TS-3` | Chapter 9, parent `SWS-xxx` | the same | the whole product, through the UI |
 | `nfr/` | `TS-4` | Chapter 10, parent `NFR-xxx` | by hand | the performance gates of table T-043 |
@@ -55,7 +55,7 @@ tests/
   contract/     Vitest.      *.contract.test.ts, driven by a specification table
   integration/  Vitest.      *.sws.test.ts, one case per SWS node of Chapter 6.1
   unit/         Vitest.      only where no omission rule applies
-  usecase/      Playwright.  one per UC-xxx, on the built dist/index.html over file://
+  use-case/     Playwright.  one per UC-xxx, on the built dist/index.html over file://
   system/       Playwright.  *.sws.test.ts and the rest, through the UI
   nfr/          Playwright.  the performance gates run only with GRS_PERF=1
   fixtures/     what every test shares -- not a kind of its own
@@ -81,9 +81,9 @@ nobody took.
 
 ```bash
 npm test          # vitest: contract/, integration/, unit/
-npm run e2e       # playwright: usecase/, system/, nfr/ (build dist first for usecase/)
+npm run e2e       # playwright: use-case/, system/, nfr/ (build dist first for use-case/)
 npm run guard:commit   # gate GT-1, held against known-red.txt (root checkout only)
-npm run guard:publish  # gate GT-2: GT-1 + build + usecase/e2e + parity
+npm run guard:publish  # gate GT-2: GT-1 + build + use-case/e2e + parity
 npm run typecheck # tsc, both projects: the root one and the DOM-free Entity one
 npm run layers    # table T-061: dependency direction and acyclicity
 npm run tree:check

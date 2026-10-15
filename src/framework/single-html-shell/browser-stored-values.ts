@@ -84,6 +84,6 @@ export function startupThemePreference(): 'light' | 'dark' {
 
 // see FR-065, S-99b
 /** @purity semi-pure-b */
-export function startupAgentApiEnabled(): boolean {
+export function isStartupAgentApiEnabled(): boolean {
   return readBrowserStored('S-99b') === String(true)
 }

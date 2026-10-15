@@ -325,7 +325,7 @@ export interface SceneWish {
   readonly highlightBoxes?: readonly unknown[]
   readonly statusDate?: string | null
   readonly selectTaskUid?: number | null
-  readonly dualCursor?: { readonly date1: string; readonly date2: string } | null
+  readonly dualCursor?: { readonly cursorADate: string; readonly cursorBDate: string } | null
 }
 
 export const scheduleOf = (wish: SceneWish): Schedule => {
@@ -413,7 +413,7 @@ export interface DrawWish {
   readonly marquee?: Rect | null
   readonly watermark?: { readonly openedBy: string; readonly stampedAt: string } | null
   readonly tentativeLink?: unknown
-  readonly follow?: { readonly side: 'date1' | 'date2'; readonly x: number | null } | null
+  readonly follow?: { readonly side: 'cursorA' | 'cursorB'; readonly x: number | null } | null
 }
 
 export interface Scene {

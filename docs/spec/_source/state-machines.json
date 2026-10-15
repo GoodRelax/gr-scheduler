@@ -3,7 +3,7 @@
  "$comment": [
   "SINGLE SOURCE OF TRUTH -- EDIT THIS FILE.",
   "The unsaved screen and session values as state machines (ADR-002 of Chapter 5.6), plus the task group tree (TaskGroup.treeState), the one saved value this file holds (SD-5 of table T-250): per region, the events it receives (defined once), the values its root carries, and one state machine per orthogonal concern -- its states and its state transition table. What the manuscript holds and does not hold is table T-250 of docs/spec/05-07-design.md; the form of the machine is table T-249.",
-  "NAMES, NOT NUMBERS (JDG-286, R4.4 of docs/development-rules/07-review-standards.md). A machine -- the definition -- is a noun phrase of what it tracks plus `StateMachine`, unique across every region (armModeStateMachine); the code holds its CURRENT state in a field and type named the same noun phrase plus `State` (armModeState, ArmModeState). A state reads 'the machine is now <state>': a past participle or adjective (taskShapeArmed, hidden, idle) or a present participle with its object (delivering, placingDate1), never a bare noun; its id is machine.state (paletteDisplayStateMachine.shown.expanded). An event is subject plus past tense, defined once per region, id region/key (screen/armEntryPressed). A transition is its cell -- machine, current state and event.",
+  "NAMES, NOT NUMBERS (JDG-286, R4.4 of docs/development-rules/07-review-standards.md). A machine -- the definition -- is a noun phrase of what it tracks plus `StateMachine`, unique across every region (armModeStateMachine); the code holds its CURRENT state in a field and type named the same noun phrase plus `State` (armModeState, ArmModeState). A state reads 'the machine is now <state>': a past participle or adjective (taskShapeArmed, hidden, idle) or a present participle with its object (delivering, placingCursorA), never a bare noun; its id is machine.state (paletteDisplayStateMachine.shown.expanded). An event is subject plus past tense, defined once per region, id region/key (screen/armEntryPressed). A transition is its cell -- machine, current state and event.",
   "A TABLE IS event -> current state -> cell. A cell is one branch {to, guard?, effect?, effectArgument?, evidence, note?} or a list of two or more told apart by their guards. An ABSENT cell means the machine does not change and keeps the same reference (SD-3). `to` equal to the current state is a transition to itself. A cell on a composite state answers for every state below it. A guard term is a name the code holds, or {in: <state id>} of ANOTHER machine of the region. `to` may be {name}: a value the event carries, standing for any top-level kind of the machine but its initial one.",
   "Generated FROM this file: _assets/tbl-state-machines.md (state_machines_json_to_md.py) -- per region the event definitions, the root's values and, per machine, its state diagram, its state transition table and its states; and, in the generated region of the unit each region names (`unit`; tools/generate_state_machine_types.py), the discriminated unions and the initial values. The transition-table constant is printed only where code reads it -- the unit itself or another file (JDG-139; the generator's TRANSITIONS_READ) -- today task-group-folding.ts alone (TREE_STATE_TRANSITIONS, table T-328); CR-573 removed the tests that were the only readers of the others. A region that holds documentData (SD-5) gets only its events and, where it is read, its transition-table constant, and its state keys must be the enum values of the erd.json column it names, in the same order.",
   "Rebuild: npm run gen   |   npm run gen:check fails if anything has drifted.",
@@ -825,10 +825,10 @@
      },
      "carries": [
       {
-       "name": "hasNoSurfaceOrConfirmation"
+       "name": "hasSurfaceOrConfirmation"
       },
       {
-       "name": "hasNoUnsettledEntry"
+       "name": "hasUnsettledEntry"
       }
      ]
     },
@@ -2679,10 +2679,12 @@
         "to": "hidden",
         "guard": [
          {
-          "name": "hasNoSurfaceOrConfirmation"
+          "name": "hasSurfaceOrConfirmation",
+          "not": true
          },
          {
-          "name": "hasNoUnsettledEntry"
+          "name": "hasUnsettledEntry",
+          "not": true
          }
         ],
         "evidence": [
@@ -2694,10 +2696,12 @@
         "to": "hidden",
         "guard": [
          {
-          "name": "hasNoSurfaceOrConfirmation"
+          "name": "hasSurfaceOrConfirmation",
+          "not": true
          },
          {
-          "name": "hasNoUnsettledEntry"
+          "name": "hasUnsettledEntry",
+          "not": true
          }
         ],
         "evidence": [
@@ -2920,7 +2924,7 @@
        ]
       },
       {
-       "key": "on.placingDate1",
+       "key": "on.placingCursorA",
        "parent": "on",
        "initial": true,
        "carries": [],
@@ -2929,7 +2933,7 @@
        ]
       },
       {
-       "key": "on.placingDate2",
+       "key": "on.placingCursorB",
        "parent": "on",
        "initial": false,
        "carries": [],
@@ -2989,17 +2993,17 @@
        }
       },
       "dualCursorPlaced": {
-       "on.placingDate1": {
-        "to": "on.placingDate2",
-        "effect": "storeFixedDate1",
+       "on.placingCursorA": {
+        "to": "on.placingCursorB",
+        "effect": "storeFixedCursorADate",
         "evidence": [
          "DC-2",
          "DC-6"
         ]
        },
-       "on.placingDate2": {
-        "to": "on.placingDate1",
-        "effect": "storeFixedDate2",
+       "on.placingCursorB": {
+        "to": "on.placingCursorA",
+        "effect": "storeFixedCursorBDate",
         "evidence": [
          "DC-2",
          "DC-6"
@@ -4413,7 +4417,8 @@
         "to": "untouched",
         "guard": [
          {
-          "name": "hasNoCalendarDraftRefusal"
+          "name": "hasCalendarDraftRefusal",
+          "not": true
          }
         ],
         "effect": "issueCalendarCommand",
@@ -7978,7 +7983,7 @@
      },
      "carries": [
       {
-       "name": "createdGroupId"
+       "name": "createdTaskGroupId"
       }
      ]
     },

@@ -8,7 +8,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { specTable, unbroken } from '../contract/spec-table'
-import { VIEWPORT, icon, launch, press, settle } from '../usecase/uc-harness'
+import { VIEWPORT, icon, launch, press, settle } from '../use-case/uc-harness'
 
 const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as unknown

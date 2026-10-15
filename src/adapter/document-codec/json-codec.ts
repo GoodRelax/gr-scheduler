@@ -22,9 +22,9 @@ import { recountedPercentComplete, tableViewsKeptIn } from '../../use-case/edit-
 import {
   collectSchemaFaults,
   collectionNamesOfEntity,
-  fault,
   isMissingKeyFault,
   isUnknownKeyFault,
+  jsonFault,
   type JsonFault,
 } from './grs-json-schema'
 import { isObject, mspdiVersionOfCarried, withoutLeadingByteOrderMark } from './mspdi-codec'
@@ -311,7 +311,7 @@ function olderLengthFaults(lengthByTaskIndex: ReadonlyMap<number, unknown>): Jso
   const out: JsonFault[] = []
   for (const [index, length] of lengthByTaskIndex) {
     if (length === null || (typeof length === 'number' && Number.isInteger(length))) continue
-    out.push(fault(`/schedule/tasks/${index}/actualDuration`, 'is not a whole number of working days'))
+    out.push(jsonFault(`/schedule/tasks/${index}/actualDuration`, 'is not a whole number of working days'))
   }
   return out
 }
@@ -364,7 +364,7 @@ export function documentFromJson(
     parsed = withoutRetiredColumns(JSON.parse(withoutLeadingByteOrderMark(text)))
   } catch (why) {
     return refusal([
-      fault('', `not JSON: ${why instanceof Error ? why.message : String(why)}`),
+      jsonFault('', `not JSON: ${why instanceof Error ? why.message : String(why)}`),
     ])
   }
 
@@ -388,7 +388,7 @@ export function documentFromJson(
     read = withStopsFromOlderLengths(documentWithoutAddress(shaped), older.lengthByTaskIndex)
   } catch (why) {
     return refusal([
-      fault('/schedule/tasks', `an actual length could not be placed as a day: ${
+      jsonFault('/schedule/tasks', `an actual length could not be placed as a day: ${
         why instanceof Error ? why.message : String(why)}`),
     ], refusedWith)
   }

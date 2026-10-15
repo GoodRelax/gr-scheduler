@@ -128,7 +128,7 @@ describe('CR-609 -- the premises read from table T-280', () => {
 
 // see T-280, T-293, FR-072
 const TASK_1 = { kind: 'task', uid: 1 } as const
-const CHOICE = { selection: { items: [TASK_1], ordered: false }, groupIds: [] as readonly string[] }
+const CHOICE = { selection: { items: [TASK_1], isOrdered: false }, taskGroupIds: [] as readonly string[] }
 
 type Loose = Record<string, unknown>
 
@@ -144,7 +144,7 @@ function sessionWith(panelState: string, isSomethingSelected: boolean): ScreenSe
   const selection = isSomethingSelected
     ? {
         ...emptyScreenSession.selection,
-        selectionState: { kind: 'objectsSelected', selectedObjects: { items: [TASK_1], ordered: false } },
+        selectionState: { kind: 'objectsSelected', selectedObjects: { items: [TASK_1], isOrdered: false } },
       }
     : emptyScreenSession.selection
   return {

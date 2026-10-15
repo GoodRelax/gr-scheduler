@@ -136,7 +136,7 @@
      }
     },
     {
-     "name": "groupIdOf",
+     "name": "taskGroupIdOf",
      "type": "map",
      "keyType": "integer",
      "valueType": "string",

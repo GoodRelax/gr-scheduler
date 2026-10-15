@@ -58,7 +58,7 @@ function escapeOn(session: ScreenSession): ScreenSession {
   return advanceScreenSession(session, { type: 'selectionEscapePressed', rung: 'selection' } as unknown as SessionEvent).state
 }
 
-const OBJECTS = { items: [FIRST_TASK], ordered: true }
+const OBJECTS = { items: [FIRST_TASK], isOrdered: true }
 
 describe('W3-T5 -- the manuscript these cases are driven by', () => {
   it('01-04 IN-4 still says it, word for word', () => {

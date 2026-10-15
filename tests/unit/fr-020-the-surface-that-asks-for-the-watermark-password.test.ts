@@ -143,7 +143,7 @@ const readingsOf = (): ScreenViewReadings =>
     commandPaletteAt: { x: 0, y: 0 },
     themePreference: 'light',
     themeHue: 214,
-    selectedGroupIds: [],
+    selectedTaskGroupIds: [],
     selectedResourceUids: [],
     notices: [],
     confirmation: null,
@@ -320,7 +320,7 @@ function drawnOn(language: DisplayLanguage): FakeElement {
     mount: built.mount as unknown as Element,
     readAuthor: (): string => '',
     readClockMs: (): number => 0,
-    onAppHeaderHeightPx: (): void => {},
+    onAppHeaderHeightMeasured: (): void => {},
     readTheme: (): ScreenTheme => THEME,
   })
   const view: ScreenView = {

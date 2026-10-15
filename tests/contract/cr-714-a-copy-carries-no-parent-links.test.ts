@@ -95,8 +95,8 @@ function baseDocument(): Document {
   }
 }
 
-function pasted(document: Document, sourceUids: number[], groupIdOf: Record<number, string> = {}): Document {
-  const landing = { shiftMinutes: 0, groupIdOf }
+function pasted(document: Document, sourceUids: number[], taskGroupIdOf: Record<number, string> = {}): Document {
+  const landing = { shiftMinutes: 0, taskGroupIdOf }
   const result = editTask(document, { kind: 'pasteTasks', sourceUids, landing }, DEFAULT_TASK_GROUP_NAME)
   if (!result.ok) throw new Error(`the paste was refused: ${JSON.stringify(result.refusals)}`)
   return result.document

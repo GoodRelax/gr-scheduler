@@ -175,7 +175,7 @@ const scheduleOf = (one: Task, shapeKind: string): Schedule =>
   }) as unknown as Schedule
 
 const SCREEN = { width: 1280, height: 800, appHeaderHeight: 48, scrollbarThickness: 8, propertyPanelWidth: 0 }
-const SELECTED: Selection = { items: [{ kind: 'task', uid: 1 }], ordered: true }
+const SELECTED: Selection = { items: [{ kind: 'task', uid: 1 }], isOrdered: true }
 
 interface Drawn {
   readonly placed: TaskPlacement

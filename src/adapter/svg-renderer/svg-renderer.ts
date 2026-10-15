@@ -60,7 +60,7 @@ export type { RulerClockRow } from './schedule-grid'
 
 // see DC-2, DC-8
 export interface DualCursorFollow {
-  readonly side: 'date1' | 'date2'
+  readonly side: 'cursorA' | 'cursorB'
   readonly x: number | null
 }
 
@@ -882,7 +882,7 @@ export function svgFromSchedule(
       ...zoLayer('ZO-2', [...figures.actualPartsPinned, scrolling(figures.actualParts)]),
       ...zoLayer('ZO-15', [...baselines.baselinePartsPinned, scrolling(baselines.baselineParts)]),
       ...zoLayer('ZO-4', [
-        ...links.depLinkPartsPinned, scrolling(links.depLinkParts),
+        ...links.pinnedLinkParts, scrolling(links.linkParts),
         ...parentTaskParts(geometry, settings, themed, drawsOperationState),
       ]),
       ...zoLayer('ZO-13', [...figures.deadlinePartsPinned, scrolling(figures.deadlineParts)]),

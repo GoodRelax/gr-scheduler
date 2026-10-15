@@ -77,7 +77,7 @@ import {
 } from '../../src/entity/layout-engine/screen-regions/screen-regions'
 import { NOT_STORED_ZOOM_BOUNDS } from '../../src/use-case/edit-document/edit-document'
 import {
-  pressRowOf,
+  pressedRowOf,
   screenEventFromInput,
   type InputContext,
   type InputModifiers,
@@ -241,7 +241,7 @@ const readingsOf = (): ScreenViewReadings =>
     commandPaletteAt: { x: 0, y: 0 },
     themePreference: 'light',
     themeHue: 214,
-    selectedGroupIds: [],
+    selectedTaskGroupIds: [],
     selectedResourceUids: [],
     notices: [],
     confirmation: null,
@@ -413,7 +413,7 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
       at: down,
       hit: null,
       on: onDismiss,
-      pressRow: pressRowOf({ at: down, hit: null }, baseContext),
+      pressRow: pressedRowOf({ at: down, hit: null }, baseContext),
     }
     const eventOnDismiss = screenEventFromInput(up, { ...baseContext, pressed: pressedOnDismiss })
     expect(eventOnDismiss, 'FR-023: the OK entrance asks to close the surface').toEqual({
@@ -434,7 +434,7 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
       at: down,
       hit: null,
       on: onElsewhere,
-      pressRow: pressRowOf({ at: down, hit: null }, baseContext),
+      pressRow: pressedRowOf({ at: down, hit: null }, baseContext),
     }
     const eventElsewhere = screenEventFromInput(up, {
       ...baseContext,

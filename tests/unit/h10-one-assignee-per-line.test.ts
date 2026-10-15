@@ -298,7 +298,7 @@ const SESSION: ScreenSession = {
     dualCursorModeState: { kind: 'off' },
     propertiesPanelContentState: {
       kind: 'selectionDisplayed',
-      subject: { selection: emptySelection(), groupIds: [] },
+      subject: { selection: emptySelection(), taskGroupIds: [] },
     },
   },
 }
@@ -315,7 +315,7 @@ const READINGS: ScreenViewReadings = {
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: THEME_HUE,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   notices: [],
   confirmation: null,

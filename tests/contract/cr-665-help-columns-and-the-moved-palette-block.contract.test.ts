@@ -111,7 +111,7 @@ const READINGS: ScreenViewReadings = {
   commandPaletteAt: { x: 500, y: 300 },
   themePreference: 'light',
   themeHue: 214,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
@@ -125,7 +125,7 @@ const helpShown = (language: DisplayLanguage): ScreenSession => ({
     ...emptyScreenSession.screen,
     screenLanguage: language,
     helpLanguage: language,
-    propertiesPanelContentState: { kind: 'selectionDisplayed', subject: { selection: emptySelection(), groupIds: [] } },
+    propertiesPanelContentState: { kind: 'selectionDisplayed', subject: { selection: emptySelection(), taskGroupIds: [] } },
     helpDisplayState: { kind: 'shown', child: { kind: 'normal' } },
   },
 })

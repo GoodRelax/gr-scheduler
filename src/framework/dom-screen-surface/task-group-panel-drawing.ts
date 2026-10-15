@@ -606,7 +606,7 @@ export function taskGroupControlsMeasureKey(
 export function taskGroupControlsHeightReporter(
   taskGroupTitleTree: HTMLElement,
   readClockMs: () => number,
-  wiring: Pick<ScreenSurfaceWiring, 'onTaskGroupControlsHeightPx'>,
+  wiring: Pick<ScreenSurfaceWiring, 'onTaskGroupControlsHeightMeasured'>,
 ): (measuredAgainst: string) => void {
   let taskGroupControlsHeightPx = 0
   let taskGroupControlsMeasuredAgainst: string | null = null
@@ -632,7 +632,7 @@ export function taskGroupControlsHeightReporter(
     }
     if (tallest === taskGroupControlsHeightPx) return
     taskGroupControlsHeightPx = tallest
-    wiring.onTaskGroupControlsHeightPx?.(tallest)
+    wiring.onTaskGroupControlsHeightMeasured?.(tallest)
   }
 
   return reportRowControlsHeight

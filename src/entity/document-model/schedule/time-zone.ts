@@ -98,19 +98,19 @@ export function viewRegionOf(scheduleDataTimeZone: string, viewTimeZone: unknown
 }
 
 // see FR-156, BK-4
-// WHY: two readings of the PC's offset, on January 1 and July 1: daylight saving only ever adds to the offset,
+// WHY: two readings of the system offset, on January 1 and July 1: daylight saving only ever adds to the offset,
 // so the smaller of the two is the standard time on either hemisphere.
-export interface PcTimeZone {
+export interface SystemTimeZone {
   readonly januaryOffsetMinutes: number
   readonly julyOffsetMinutes: number
 }
 
 // see FR-156, T-376, BK-4
-// WHY: the PC's standard offset falls to the standard-time row of the same offset; with none, the nearest offset
+// WHY: the system standard offset falls to the standard-time row of the same offset; with none, the nearest offset
 // (the earlier row on a tie) -- the table has no row for every offset the world uses (UTC+05:45 -> UTC+05:30).
 /** @purity pure */
-export function standardTimeZoneKeyForPc(pc: PcTimeZone): StandardTimeZoneKey {
-  const standardOffset = Math.min(pc.januaryOffsetMinutes, pc.julyOffsetMinutes)
+export function standardTimeZoneKeyForSystem(system: SystemTimeZone): StandardTimeZoneKey {
+  const standardOffset = Math.min(system.januaryOffsetMinutes, system.julyOffsetMinutes)
   let best: StandardTimeZoneKey = PRINTED_TIME_ZONE
   let bestGap = Number.POSITIVE_INFINITY
   for (const row of TIME_ZONE_ROWS) {

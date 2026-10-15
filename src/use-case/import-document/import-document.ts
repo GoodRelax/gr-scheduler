@@ -687,10 +687,10 @@ function builtMerge(input: MergeInput): ImportOutcome {
   }
 
   const taskGroups: TaskGroup[] = [...current.taskGroups]
-  const groupIds = new Set(current.taskGroups.map((group) => group.id))
+  const taskGroupIds = new Set(current.taskGroups.map((group) => group.id))
   for (const group of incoming.taskGroups) {
-    if (groupIds.has(group.id)) continue
-    groupIds.add(group.id)
+    if (taskGroupIds.has(group.id)) continue
+    taskGroupIds.add(group.id)
     taskGroups.push(group)
   }
 
@@ -836,7 +836,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
   const commentBoxes: CommentBox[] = [...current.commentBoxes]
   for (const box of incoming.commentBoxes) {
     if (index.commentBoxIds.has(box.id)) continue
-    if (box.anchorTaskGroupId !== null && !groupIds.has(box.anchorTaskGroupId)) {
+    if (box.anchorTaskGroupId !== null && !taskGroupIds.has(box.anchorTaskGroupId)) {
       dropped.push({
         what: 'commentBox',
         owner: box.id,
@@ -850,7 +850,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
   for (const box of incoming.highlightBoxes) {
     if (index.highlightBoxIds.has(box.id)) continue
     const missing = [box.topTaskGroupId, box.bottomTaskGroupId].find(
-      (id) => id !== null && !groupIds.has(id),
+      (id) => id !== null && !taskGroupIds.has(id),
     )
     if (missing !== undefined && missing !== null) {
       dropped.push({ what: 'highlightBox', owner: box.id, missing: `taskGroupId ${missing}` })

@@ -4,7 +4,7 @@ import { expect, test, type Page } from '@playwright/test'
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { specTable, unbroken } from '../contract/spec-table'
-import { VIEWPORT, launch } from '../usecase/uc-harness'
+import { VIEWPORT, launch } from '../use-case/uc-harness'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US' })
 

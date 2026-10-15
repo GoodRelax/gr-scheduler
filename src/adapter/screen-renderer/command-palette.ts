@@ -67,7 +67,7 @@ function isEntryUsable(
 ): boolean {
   if (!row.authority.includes(ALIGN_REQUIREMENT)) return true
   return (
-    selection.ordered &&
+    selection.isOrdered &&
     // TRAP: count only drawn Tasks; Selection is not pruned when a fold or hiding takes one out.
     selection.items.filter(
       (item) => item.kind === 'task' && (drawnTasks === null || drawnTasks.has(item.uid)),
@@ -81,10 +81,10 @@ function drawnTaskUids(
   readings: ScreenViewReadings,
 ): ReadonlySet<number> | null {
   if (schedule === undefined) return null
-  const drawnGroupIds = new Set(readings.taskGroupBoxes.map((placed) => placed.taskGroupId))
+  const drawnTaskGroupIds = new Set(readings.taskGroupBoxes.map((placed) => placed.taskGroupId))
   const uids = new Set<number>()
   for (const member of schedule.taskGroupMembers) {
-    if (drawnGroupIds.has(member.taskGroupId)) uids.add(member.taskUid)
+    if (drawnTaskGroupIds.has(member.taskGroupId)) uids.add(member.taskUid)
   }
   return uids
 }

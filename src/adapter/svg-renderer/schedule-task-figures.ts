@@ -111,8 +111,8 @@ export interface DependencyLinksInput {
 
 export interface DependencyLinkParts {
   readonly defsParts: readonly string[]
-  readonly depLinkParts: readonly string[]
-  readonly depLinkPartsPinned: readonly string[]
+  readonly linkParts: readonly string[]
+  readonly pinnedLinkParts: readonly string[]
 }
 
 interface Paint {
@@ -361,7 +361,7 @@ function resumeSvg(
     `${named}/>` +
     `<polygon points="${pointsOf(resume.head)}" fill="${ink}"${named}/>`
   // TRAP: one group opacity, not one per shape: the arrow head overlaps the arm and would darken where they meet.
-  if (resume.valid && !resume.undecided) return drawn
+  if (resume.isValid && !resume.isUndecided) return drawn
   return `<g opacity="${rounded(settings.resumeOpacityInvalid)}"${named}>${drawn}</g>`
 }
 
@@ -822,10 +822,10 @@ function inkOf(input: DependencyLinksInput, emphasis: Emphasis, halo: string): L
 /** @purity pure */
 export function dependencyLinkParts(input: DependencyLinksInput): DependencyLinkParts {
   const { geometry, settings, themed } = input
-  const depLinkParts: string[] = []
-  const depLinkPartsPinned: string[] = []
+  const linkParts: string[] = []
+  const pinnedLinkParts: string[] = []
   if (!settings.isDependencyVisible || geometry.dependencies.length === 0) {
-    return { defsParts: [], depLinkParts, depLinkPartsPinned }
+    return { defsParts: [], linkParts, pinnedLinkParts }
   }
   const haloWidth = settings.dependencyWidth * NOT_STORED_DEPENDENCY_SIZES['S-224']
   const halo = `stroke="${themed('S-146')}" stroke-width="${rounded(haloWidth)}"`
@@ -840,11 +840,11 @@ export function dependencyLinkParts(input: DependencyLinksInput): DependencyLink
     const mask = haloMaskOf(input, drawnBox, haloWidth, maskId)
     if (mask !== null) masks.push(mask)
     const ink = inkOf(input, emphasis, mask === null ? halo : `${halo} mask="url(#${maskId})"`)
-    ;(isLinkInBand(geometry.pinnedBand, link, ink.isWholeRoute) ? depLinkPartsPinned : depLinkParts).push(
+    ;(isLinkInBand(geometry.pinnedBand, link, ink.isWholeRoute) ? pinnedLinkParts : linkParts).push(
       dependencyLinkSvg(link, ink),
     )
   }
-  return { defsParts: [...dependencyDefsOf(input), ...masks], depLinkParts, depLinkPartsPinned }
+  return { defsParts: [...dependencyDefsOf(input), ...masks], linkParts, pinnedLinkParts }
 }
 
 type DependencyLink = ScheduleGeometry['dependencies'][number]

@@ -296,7 +296,7 @@ const EMPTY_READINGS: ScreenViewReadings = {
   iconUnderPointer: null,
   themePreference: 'light',
   themeHue: 214,
-  selectedGroupIds: [],
+  selectedTaskGroupIds: [],
   selectedResourceUids: [],
   notices: [],
   confirmation: null,
@@ -624,7 +624,7 @@ const hitOn = (grab: string): Hit =>
 
 /**
  * ⛔ NOTHING OF THE SCHEDULE IS READ ON MK-13's ROAD, which is why an empty
- * one serves. A press carrying a `Hit` is PTD-3 by `pressRowOf` alone (it reads
+ * one serves. A press carrying a `Hit` is PTD-3 by `pressedRowOf` alone (it reads
  * `screenState` and `dualCursorFollowing` and nothing else), and MK-13's answer
  * is given before the grab switch touches a day or a Task.
  * ⭐ THE EMPTY SCHEDULE AND THE ZERO-WIDTH DAY ARE WHAT MAKE THE SINGLE-CLICK

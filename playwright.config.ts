@@ -4,7 +4,7 @@ import { defineConfig } from '@playwright/test'
 // performance measurements, under Playwright. Table T-218 of Chapter 7 settles
 // which places those are:
 //
-//   TS-1  tests/usecase/  Chapter 8, System level, parent UC-xxx
+//   TS-1  tests/use-case/  Chapter 8, System level, parent UC-xxx
 //   TS-3  tests/system/   Chapter 9, System level, parent SWS-xxx
 //   TS-4  tests/nfr/      Chapter 10, parent NFR-xxx. The performance gates of
 //                         table T-043 are run from here
@@ -65,7 +65,7 @@ const origin = `http://localhost:${String(port)}`
 
 export default defineConfig({
   testDir: 'tests',
-  testMatch: ['usecase/**/*.test.ts', 'system/**/*.test.ts', 'nfr/**/*.test.ts'],
+  testMatch: ['use-case/**/*.test.ts', 'system/**/*.test.ts', 'nfr/**/*.test.ts'],
   testIgnore: measuresPerformance ? [] : PERFORMANCE_GATES,
   use: {
     baseURL: origin,

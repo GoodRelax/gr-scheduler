@@ -589,7 +589,7 @@
       }
      }
     ],
-    "returns": "AgentUtteranceOutcome",
+    "returns": "AgentDialogueMessageOutcome",
     "carries": {
      "ja": [
       "AI が確定した発話を対話欄へ置く"
@@ -1144,7 +1144,7 @@
    },
    {
     "id": "AV-12",
-    "name": "AgentUtteranceOutcome",
+    "name": "AgentDialogueMessageOutcome",
     "shape": "union",
     "variants": [
      {

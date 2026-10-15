@@ -14,6 +14,7 @@ import type {
   WindowName,
 } from '../../entity/document-model/screen-state/screen-state'
 import {
+  dayFromSerial,
   dayOf,
   planActualState,
   taskByUid,
@@ -466,12 +467,6 @@ export function serialOfDay(day: CalendarDay): number {
 }
 
 /** @purity pure */
-export function dayFromSerial(serial: number): CalendarDay {
-  const at = new Date(serial * MS_PER_DAY)
-  return { year: at.getUTCFullYear(), month: at.getUTCMonth() + 1, day: at.getUTCDate() }
-}
-
-/** @purity pure */
 export function dayShifted(day: CalendarDay, days: number): CalendarDay {
   return dayFromSerial(serialOfDay(day) + days)
 }
@@ -637,7 +632,7 @@ function isCopyDragPress(
 
 // see T-023a
 /** @purity pure */
-export function pressRowOf(
+export function pressedRowOf(
   press: Pick<PointerPress, 'at' | 'hit'>,
   context: Pick<InputContext, 'screen' | 'dualCursorFollowing' | 'selection'>,
 ): PressRow {
@@ -983,7 +978,7 @@ function pointerAssignment(input: PointerInput, context: InputContext): Translat
   // click on an assignee label is lost.
   if (press.hit === null && !isOnTaskGroupArea(context, press.at.x, press.at.y)) return UNASSIGNED
 
-  switch (pressRowOf(press, context)) {
+  switch (pressedRowOf(press, context)) {
     case 'PTD-7': return copyDragWrite(context, press, input)
     case 'PTD-1': return panOnRelease(input, press, context)
     case 'PTD-2':
@@ -1173,7 +1168,7 @@ function commandFromEntry(
     case ENTRY.alignFinish:
       // TRAP: count chosen Tasks among drawn task groups (a fold hides one without changing Selection),
       // and read Selection, not the drawn palette, which can be a skipped paint old.
-      if (context.selection.ordered && chosenDrawnTaskCount(context) >= 2) {
+      if (context.selection.isOrdered && chosenDrawnTaskCount(context) >= 2) {
         return changed(alignWrites(context, entry === ENTRY.alignStart))
       }
       return nothingToDo('noTaskChosenToAlignWith')

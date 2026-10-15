@@ -44,7 +44,7 @@ import {
   frameLoop,
   noWorkingWeekdayReason,
   readLocalMoment,
-  readPcStandardTimeZone,
+  readSystemStandardTimeZone,
   startedDocumentOf,
   startupDisplayLanguage,
   startupThemePreference,
@@ -268,7 +268,7 @@ function emptyDocument(): Document {
     documentFromJson(JSON.stringify(emptyDocumentRoot), GREATEST_KNOWN_SCHEMA_VERSION),
     'the bundled empty document',
   )
-  return startedDocumentOf(read, readLocalMoment(), readPcStandardTimeZone())
+  return startedDocumentOf(read, readLocalMoment(), readSystemStandardTimeZone())
 }
 
 interface ShippedDocuments {
@@ -581,17 +581,17 @@ function boot(): void {
     /** @purity non-pure */
     onSearchWordTyped: () => loop?.pressContinued(),
     /** @purity non-pure */
-    onTaskGroupControlsHeightPx: (heightPx) => {
+    onTaskGroupControlsHeightMeasured: (heightPx) => {
       taskGroupControlsHeightPx = heightPx
       loop?.resize(nowEnvironment())
     },
     /** @purity non-pure */
-    onAppHeaderHeightPx: (heightPx) => {
+    onAppHeaderHeightMeasured: (heightPx) => {
       appHeaderHeightPx = heightPx
       loop?.resize(nowEnvironment())
     },
     /** @purity non-pure */
-    onCommandPaletteBandPx: (bandPx) => {
+    onCommandPaletteBandMeasured: (bandPx) => {
       commandPaletteBandPx = bandPx
       loop?.resize(nowEnvironment())
     },

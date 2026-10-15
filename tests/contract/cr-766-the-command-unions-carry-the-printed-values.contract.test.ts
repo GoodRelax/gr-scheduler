@@ -65,7 +65,7 @@ const PRINTED_VALUES = {
     'sourceUids:key:Task.uid:many',
     'landing:own::optional',
     'landing.shiftMinutes:own::',
-    'landing.groupIdOf:own::',
+    'landing.taskGroupIdOf:own::',
   ],
   setTaskName: ['uid:key:Task.uid:', 'name:column:Task.name:'],
   setTaskNotes: ['uid:key:Task.uid:', 'notes:column:Task.notes:'],

@@ -144,7 +144,7 @@
        },
        "folder": {
         "type": "string",
-        "pattern": "^tests/[a-z]+/$"
+        "pattern": "^tests/[a-z]+(-[a-z]+)*/$"
        },
        "tool": {
         "enum": [

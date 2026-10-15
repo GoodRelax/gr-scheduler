@@ -789,7 +789,7 @@
      }
     },
     {
-     "name": "holdsWorkingDayUnlikeMinutesPerDay",
+     "name": "isWorkingDayUnlikeMinutesPerDay",
      "note": {
       "ja": [
        "時間帯の合計が `Project.minutesPerDay` と違う稼働日を文書が持つか。",
@@ -1245,7 +1245,7 @@
      }
     },
     {
-     "name": "standardTimeZoneKeyForPc",
+     "name": "standardTimeZoneKeyForSystem",
      "note": {
       "ja": [
        "この PC の標準時（1 月 1 日と 7 月 1 日の UTC の差の小さいほう）を、表 T-376 の標準時の行の鍵へ寄せる（`FR-156`）"
@@ -1253,7 +1253,7 @@
      }
     },
     {
-     "name": "PcTimeZone",
+     "name": "SystemTimeZone",
      "note": {
       "ja": [
        "型。",
@@ -1698,7 +1698,7 @@
      }
     },
     {
-     "name": "planDatesSpanYears",
+     "name": "isPlanSpanningYears",
      "note": {
       "ja": [
        "文書のすべてのタスクとマイルストーンの予定の日が 2 つ以上の暦年にまたがるか。",
@@ -2586,7 +2586,7 @@
      }
     },
     {
-     "name": "pressRowOf",
+     "name": "pressedRowOf",
      "note": {
       "ja": [
        "押下がどの行で始まったかを答える。",
@@ -3369,7 +3369,7 @@
      "note": {
       "ja": [
        "型。",
-       "`date1` と `date2` のどちらが追従しているか。",
+       "`cursorA` と `cursorB` のどちらが追従しているか。",
        "表 T-029a の `DC-2`。",
        "⚠️ **文書には持たない** —— 一過性の状態であり、`DC-8` の印は書き出しに出さない"
       ]

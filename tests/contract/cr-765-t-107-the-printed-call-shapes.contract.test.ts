@@ -62,7 +62,7 @@ const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], stri
   ['AM-16', 'focusTask', ['taskUid: number'], 'AgentFocusOutcome'],
   ['AM-27', 'showOnlyTasks', ['taskUids: readonly number[] | null'], 'AgentWriteOutcome'],
   ['AM-17', 'watchChanges', ['receive: AgentChangeReceiver'], 'AgentWatch'],
-  ['AM-18', 'postDialogueMessage', ['text: string'], 'AgentUtteranceOutcome'],
+  ['AM-18', 'postDialogueMessage', ['text: string'], 'AgentDialogueMessageOutcome'],
 ]
 
 describe('T-107 is printed in one place, with the two columns CR-765 adds', () => {

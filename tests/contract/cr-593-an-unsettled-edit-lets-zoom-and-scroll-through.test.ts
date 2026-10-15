@@ -113,14 +113,14 @@ const planOf = (commands: readonly DocumentCommand[], moment: WriteMoment) =>
   planDocumentChange({
     defaultTaskGroupName: 'cr-593 default task group name',
     document: DOCUMENT,
-    readStamp: DOCUMENT.documentStamp,
+    expectedStamp: DOCUMENT.documentStamp,
     commands,
     moment,
     history: EMPTY_HISTORY,
     historyLimits: HISTORY_LIMITS,
     settingsLimits: LIMITS,
     editedBy: 'cr-593-tester',
-    updatedUtc: '2026-09-27T01:00:00Z',
+    updatedAt: '2026-09-27T01:00:00Z',
   })
 
 function passesAsWhenCalm(commands: readonly DocumentCommand[]): void {
