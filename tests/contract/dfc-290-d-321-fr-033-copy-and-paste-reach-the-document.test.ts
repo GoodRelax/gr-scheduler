@@ -253,11 +253,11 @@ function group(id: string, parentId: string | null, order: number): Record<strin
   return {
     id,
     parentId,
-    label: id === PARENT_TASK_GROUP ? 'Parent row' : 'Child row',
+    name: id === PARENT_TASK_GROUP ? 'Parent row' : 'Child row',
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', color: null,
-    minHeight: null,
+    minHeightPx: null,
   }
 }
 
@@ -288,9 +288,9 @@ function documentOfTwoTaskGroups(fillers = 0): Document {
       assignments: [],
       taskGroups: [group(PARENT_TASK_GROUP, null, 0), group(CHILD_TASK_GROUP, PARENT_TASK_GROUP, 0)],
       taskGroupMembers: [
-        { taskUid: PARENT_TASK, groupId: PARENT_TASK_GROUP },
-        { taskUid: CHILD_TASK, groupId: CHILD_TASK_GROUP },
-        ...filled.map((uid) => ({ taskUid: uid, groupId: PARENT_TASK_GROUP })),
+        { taskUid: PARENT_TASK, taskGroupId: PARENT_TASK_GROUP },
+        { taskUid: CHILD_TASK, taskGroupId: CHILD_TASK_GROUP },
+        ...filled.map((uid) => ({ taskUid: uid, taskGroupId: PARENT_TASK_GROUP })),
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -391,7 +391,7 @@ interface Stage {
   /** Press one Task's plan bar on the canvas -- `SL-2` of 表 T-023c moving. */
   pressTask(uid: number): void
   /** Press one task group's title -- the タスクグループパネル half of the STATEMENT. */
-  pressRow(groupId: string): void
+  pressRow(taskGroupId: string): void
   taskUids(): readonly number[]
   groupIds(): readonly string[]
   taskGroupOfTask(uid: number): string | undefined
@@ -438,13 +438,13 @@ function stage(document: Document, env: FrameEnvironment = SCREEN): Stage {
       send(pointer('down', at.x, at.y))
       send(pointer('up', at.x, at.y))
     },
-    pressRow: (groupId) => {
+    pressRow: (taskGroupId) => {
       // CS-2 of 表 T-066 settles the gesture on what was drawn AT THE PRESS.
       screen.drawAt({
         part: TASK_GROUP_PANEL,
         entry: null,
         format: null,
-        taskGroupId: groupId,
+        taskGroupId: taskGroupId,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -456,7 +456,7 @@ function stage(document: Document, env: FrameEnvironment = SCREEN): Stage {
     taskUids: () => schedule().tasks.map((one: any) => one.uid),
     groupIds: () => schedule().taskGroups.map((one: any) => one.id),
     taskGroupOfTask: (uid) =>
-      schedule().taskGroupMembers.find((one: any) => one.taskUid === uid)?.groupId,
+      schedule().taskGroupMembers.find((one: any) => one.taskUid === uid)?.taskGroupId,
     taskOriginCount: () => schedule().taskOrigins.length,
     notices: () => screen.last().notices,
     documentText: () => JSON.stringify(loop.document()),

@@ -193,7 +193,7 @@ export async function readTree(page: Page): Promise<TreeReading> {
     if (api === undefined) throw new Error('the Agent API is not open')
     const held = api.readDocument() as {
       schedule: {
-        taskGroups: { id: string; parentId: string | null; label: string | null; derivedFromTaskUid: number | null; treeState: string }[]
+        taskGroups: { id: string; parentId: string | null; name: string | null; derivedFromTaskUid: number | null; treeState: string }[]
         tasks: { uid: number; name: string | null }[]
       }
       documentSettings: { zoomY: number; levelZeroTreeState: string }
@@ -205,7 +205,7 @@ export async function readTree(page: Page): Promise<TreeReading> {
       rows: held.schedule.taskGroups.map((row) => ({
         id: row.id,
         parentId: row.parentId,
-        label: row.label ?? nameOf(row.derivedFromTaskUid),
+        label: row.name ?? nameOf(row.derivedFromTaskUid),
         treeState: row.treeState as 'auto',
       })),
     }
@@ -416,10 +416,10 @@ export function documentOf(arranged: Arrangement): string {
     ...group,
     id: row.id,
     parentId: row.parentId,
-    label: `Row ${row.id}`,
+    name: `Row ${row.id}`,
     order,
     treeState: arranged.states?.[row.id] ?? 'auto',
-    minHeight: null,
+    minHeightPx: null,
   }))
   const built = {
     ...TEMPLATE,
@@ -439,8 +439,8 @@ export function documentOf(arranged: Arrangement): string {
       ...TEMPLATE.documentSettings,
       zoomY: arranged.zoomY,
       levelZeroTreeState: arranged.levelZero ?? 'auto',
-      pinnedGroupIds: arranged.pinned ?? [],
-      scrollGroupId: 'T1',
+      pinnedTaskGroupIds: arranged.pinned ?? [],
+      scrollTaskGroupId: 'T1',
       scrollGroupOffset: 0,
       scrollDate: '2026-01-01T00:00:00',
       scrollDayOffset: 0,

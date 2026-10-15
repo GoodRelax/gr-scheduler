@@ -9,11 +9,11 @@ import { bare, specTable, unbroken } from '../contract/spec-table'
 import { REQUIREMENTS, taskGroupDocument, taskOf } from './cr-541-stage'
 
 const VC_15_FORMULA =
-  '予定の日付が依存の向きに反する（FS: 後続の `start` ≥ 先行の `finish` ＋ `lag`、SS: 後続の `start` ≥ 先行の `start` ＋ `lag`、FF: 後続の `finish` ≥ 先行の `finish` ＋ `lag`、SF: 後続の `finish` ≥ 先行の `start` ＋ `lag`）。'
+  '予定の日付が依存の向きに反する（FS: 後続の `start` ≥ 先行の `finish` ＋ `linkLag`、SS: 後続の `start` ≥ 先行の `start` ＋ `linkLag`、FF: 後続の `finish` ≥ 先行の `finish` ＋ `linkLag`、SF: 後続の `finish` ≥ 先行の `start` ＋ `linkLag`）。'
 const VC_15_SAME_DAY = '⭐ 4 つの式を、すべての文書で瞬間（日と時刻の対、`FR-054`）で比べる —— 同じ瞬間は反せず、1 分でも前なら反する'
 const VC_15_NOT_ND_3 = '⛔ `ND-3` の「終了日はその日を含む」を、FS の 1 日の差に数えてはならない（MUST NOT）'
 const VS_4_ACTUALS = '実績の日付が依存の向きに反する（式は `VC-15` を実績の列に当てたもの）'
-const BD_2_SAME_DAY = 'すべての文書で瞬間で読み、FS の後続の最早開始は、先行の見込み終了の瞬間 ＋ `lag` である'
+const BD_2_SAME_DAY = 'すべての文書で瞬間で読み、FS の後続の最早開始は、先行の見込み終了の瞬間 ＋ `linkLag` である'
 const BD_2_NOT_BELOW_START = '⭐ 最早開始は `start` を下回らない'
 const BD_2_NOT_PUSHED_TO_STATUS = '⭐ 未着手の `Task` の最早開始は、基準日で押し上げない'
 const BD_1_STARTED = '着手済みで未完了は 基準日 ＋ 残り とし、`finish` より前にはしない'
@@ -163,7 +163,7 @@ const at = (day: number, hour: number): string =>
 const link = (uid: number, linkType: number): Loose => ({
   predecessorUid: uid,
   linkType,
-  lag: 0,
+  linkLag: 0,
   lagFormat: 7,
   carry: {},
   carryElements: [],
@@ -220,8 +220,8 @@ function documentOf(statusDate: string, children: readonly Child[]): Document {
   )
   raw.schedule.tasks = [root, ...tasks]
   raw.schedule.taskGroupMembers = [
-    { taskUid: P, groupId: 'r0' },
-    ...children.map((one) => ({ taskUid: one.uid, groupId: 'r1' })),
+    { taskUid: P, taskGroupId: 'r0' },
+    ...children.map((one) => ({ taskUid: one.uid, taskGroupId: 'r1' })),
   ]
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
@@ -422,7 +422,7 @@ describe(`CR-618 T4 -- T-310 VC-15: SF, B ends the day BEFORE A starts`, () => {
       { uid: B, start: at(6, 8), finish: at(7, 17), after: [[A, SF]] },
     ])
 
-  it('SF: 後続の `finish` ≥ 先行の `start` ＋ `lag` is broken by one day -- exactly one VC-15', () => {
+  it('SF: 後続の `finish` ≥ 先行の `start` ＋ `linkLag` is broken by one day -- exactly one VC-15', () => {
     expect(countOf(findingRows(diagnose(make())), 'VC-15')).toBe(1)
   })
 

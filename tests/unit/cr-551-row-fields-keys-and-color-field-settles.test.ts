@@ -178,7 +178,7 @@ function pointerPress(built: Bench, node: FakeElement): void {
 }
 
 function documentWith(visual: Record<string, unknown> | null = null) {
-  const document = taskGroupDocument([{ id: 'g1', parentId: null }], { progressMarkerVisible: false })
+  const document = taskGroupDocument([{ id: 'g1', parentId: null }], { isProgressMarkerVisible: false })
   document.schedule.tasks = [taskOf(1, { name: 'Alpha', start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' })]
   if (visual !== null) {
     document.schedule.taskVisuals = [
@@ -252,10 +252,10 @@ describe('IR-1 -- the task group fields carry their T-016 row IDs', () => {
         ),
       )?.row
     expect(rowOf('color')).toBe(t016RowOf('TaskGroup', 'color'))
-    expect(rowOf('minHeight', 'number')).toBe(t016RowOf('TaskGroup', 'minHeight'))
-    expect(rowOf('minHeight', 'boolean')).toBe('MH-2')
-    expect(rowOf('label')).toBe('AT-53')
-    for (const row of [t016RowOf('TaskGroup', 'color'), t016RowOf('TaskGroup', 'minHeight'), 'AT-53']) {
+    expect(rowOf('minHeightPx', 'number')).toBe(t016RowOf('TaskGroup', 'minHeightPx'))
+    expect(rowOf('minHeightPx', 'boolean')).toBe('MH-2')
+    expect(rowOf('name')).toBe('AT-53')
+    for (const row of [t016RowOf('TaskGroup', 'color'), t016RowOf('TaskGroup', 'minHeightPx'), 'AT-53']) {
       expect(fieldNodes(built, row).length, `the drawn field carries ${row}`).toBeGreaterThan(0)
     }
   })

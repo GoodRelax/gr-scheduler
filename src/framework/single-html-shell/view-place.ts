@@ -28,7 +28,7 @@ type ViewPlace = CarriedBy<'setZoom'> & ScrollPlace
 /** @purity pure */
 function storedNamesAPlace(held: Document, stored: ViewPlace): boolean {
   if (stored.scrollDate === null) return false
-  return held.schedule.taskGroups.some((one) => one.id === stored.scrollGroupId)
+  return held.schedule.taskGroups.some((one) => one.id === stored.scrollTaskGroupId)
 }
 
 // see OP-10
@@ -38,7 +38,7 @@ function viewPlaceOf(settings: DocumentSettings): ViewPlace {
     zoomX: settings.zoomX,
     zoomY: settings.zoomY,
     scrollDate: settings.scrollDate,
-    scrollGroupId: settings.scrollGroupId,
+    scrollTaskGroupId: settings.scrollTaskGroupId,
     scrollDayOffset: settings.scrollDayOffset,
     scrollGroupOffset: settings.scrollGroupOffset,
   }
@@ -95,7 +95,7 @@ function startupTemplatePlaceOf(
   const firstDay = firstCoveredDayOf(held)
   const firstRowId = firstRowIdOf(held)
   if (firstDay === null || firstRowId === null) return null
-  return { ...dayLeftOfFirstDay(firstDay, settings, regions), scrollGroupId: firstRowId, scrollGroupOffset: 0 }
+  return { ...dayLeftOfFirstDay(firstDay, settings, regions), scrollTaskGroupId: firstRowId, scrollGroupOffset: 0 }
 }
 
 // WHY: OP-10 puts the place on the written document alone; the open one keeps its null place.
@@ -126,7 +126,7 @@ function viewSettings(
     ...stored,
     // TRAP: never null; dateAtX answers null without an origin day and OP-10 would ask again forever.
     scrollDate: firstCoveredDayOf(held) ?? stored.scrollDate ?? runDay,
-    scrollGroupId: firstRowIdOf(held) ?? stored.scrollGroupId,
+    scrollTaskGroupId: firstRowIdOf(held) ?? stored.scrollTaskGroupId,
   }
 
   const fitted = fitZoom(
@@ -146,7 +146,7 @@ function viewSettings(
       zoomX: fitted.zoomX,
       zoomY: fitted.zoomY,
       scrollDate: fitted.scrollDate,
-      scrollGroupId: fitted.scrollGroupId,
+      scrollTaskGroupId: fitted.scrollTaskGroupId,
       scrollDayOffset: fitted.scrollDayOffset,
       scrollGroupOffset: 0,
     },

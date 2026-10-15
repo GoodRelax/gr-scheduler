@@ -123,15 +123,15 @@ async function openErpSampleWithCommentBox(page: Page): Promise<number> {
       const exported = await api.exportJson()
       if (!exported.ok) throw new Error('AM-11 refused')
       const held = JSON.parse(exported.value) as {
-        schedule: { commentBoxes: unknown[]; taskGroupMembers: { taskUid: number; groupId: string }[] }
+        schedule: { commentBoxes: unknown[]; taskGroupMembers: { taskUid: number; taskGroupId: string }[] }
       }
-      const row = held.schedule.taskGroupMembers.find((one) => one.taskUid === asked.uid)?.groupId ?? null
+      const row = held.schedule.taskGroupMembers.find((one) => one.taskUid === asked.uid)?.taskGroupId ?? null
       held.schedule.commentBoxes.push({
         id: asked.id,
         leaderShapeKind: null,
         text: asked.word,
         anchorDate: '2026-06-01',
-        anchorGroupId: row,
+        anchorTaskGroupId: row,
         bodyOffsetPx: null,
         strokeColor: null,
         strokeWidthPx: null,
@@ -171,8 +171,8 @@ async function searchRows(page: Page, word: string): Promise<{ readonly tasks: n
 async function groupOfTask(page: Page, uid: number): Promise<string> {
   const found = await page.evaluate((asked: number) => {
     const api = (window as unknown as { grSchedulerAgentApi: { readDocument(): unknown } }).grSchedulerAgentApi
-    const held = api.readDocument() as { schedule: { taskGroupMembers: { taskUid: number; groupId: string }[] } }
-    return held.schedule.taskGroupMembers.find((one) => one.taskUid === asked)?.groupId ?? null
+    const held = api.readDocument() as { schedule: { taskGroupMembers: { taskUid: number; taskGroupId: string }[] } }
+    return held.schedule.taskGroupMembers.find((one) => one.taskUid === asked)?.taskGroupId ?? null
   }, uid)
   if (found === null) throw new Error(`task ${String(uid)} stands on no task group`)
   return found
@@ -406,13 +406,13 @@ test.describe(`SV-5 -- ${SV_5_EACH}${SV_5_NO_ENTER}`, () => {
       const accepted = await one.page.evaluate((asked: number) => {
         const api = (
           window as unknown as {
-            grSchedulerAgentApi: { readStamp(): unknown; applyCommands(request: unknown): { accepted: boolean } }
+            grSchedulerAgentApi: { readStamp(): unknown; applyCommands(request: unknown): { ok: boolean } }
           }
         ).grSchedulerAgentApi
         return api.applyCommands({
-          readStamp: api.readStamp(),
+          expectedStamp: api.readStamp(),
           commands: [{ kind: 'setTaskName', uid: asked, name: 'Renamed while the search word is typed' }],
-        }).accepted
+        }).ok
       }, uid)
       expect(accepted).toBe(true)
     } finally {

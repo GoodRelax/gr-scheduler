@@ -10,7 +10,7 @@
   "Rows are in the order the tables print them and the code declares them, which is not the numeric order. ONE STRING IS ONE PRINTED LINE.",
   "The rules about the Agent API are NOT here -- table T-035 (AG-n) and the requirements the `source` cells name hold them."
  ],
- "version": 4,
+ "version": 5,
  "kinds": {
   "property": {
    "ja": "プロパティ"
@@ -643,7 +643,7 @@
     "shape": "interface",
     "fields": [
      {
-      "name": "readStamp",
+      "name": "expectedStamp",
       "type": "DocumentStamp",
       "meaning": {
        "ja": "呼ぶ側が最後に読んだ刻印 —— 今の刻印と 1 つでも違えば束ごと拒む（`AG-2`）"
@@ -672,7 +672,7 @@
       },
       "fields": [
        {
-        "name": "accepted",
+        "name": "ok",
         "type": "true",
         "meaning": {
          "ja": "受理した"
@@ -700,7 +700,7 @@
       },
       "fields": [
        {
-        "name": "accepted",
+        "name": "ok",
         "type": "false",
         "meaning": {
          "ja": "拒んだ"
@@ -761,7 +761,7 @@
       }
      },
      {
-      "name": "what",
+      "name": "message",
       "type": "string",
       "meaning": {
        "ja": "人が読む説明"
@@ -941,7 +941,7 @@
       },
       "fields": [
        {
-        "name": "accepted",
+        "name": "ok",
         "type": "true",
         "meaning": {
          "ja": "受理した"
@@ -976,7 +976,7 @@
       },
       "fields": [
        {
-        "name": "accepted",
+        "name": "ok",
         "type": "false",
         "meaning": {
          "ja": "拒んだ"
@@ -1153,7 +1153,7 @@
       },
       "fields": [
        {
-        "name": "accepted",
+        "name": "ok",
         "type": "true",
         "meaning": {
          "ja": "置いた"
@@ -1174,7 +1174,7 @@
       },
       "fields": [
        {
-        "name": "accepted",
+        "name": "ok",
         "type": "false",
         "meaning": {
          "ja": "拒んだ"

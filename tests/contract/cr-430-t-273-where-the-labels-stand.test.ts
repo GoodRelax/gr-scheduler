@@ -64,7 +64,7 @@ const rectangle = (
   sceneOf({
     tasks: [taskOf({ name, start: day(2), finish: day(28), ...over })],
     shapeKind: 'rectangle',
-    settings: { progressMarkerVisible: true, ...settings },
+    settings: { isProgressMarkerVisible: true, ...settings },
   })
 
 const lineShape = (
@@ -76,7 +76,7 @@ const lineShape = (
   sceneOf({
     tasks: [taskOf({ name, start: day(2), finish: day(28), ...over })],
     shapeKind,
-    settings: { progressMarkerVisible: true, ...settings },
+    settings: { isProgressMarkerVisible: true, ...settings },
   })
 
 const milestone = (
@@ -86,7 +86,7 @@ const milestone = (
   sceneOf({
     tasks: [taskOf({ name: SHORT, start: day(6), finish: day(6), milestone: true, ...over })],
     shapeKind: 'milestone',
-    settings: { progressMarkerVisible: true, ...settings },
+    settings: { isProgressMarkerVisible: true, ...settings },
   })
 
 const mustBe = <T>(value: T | null | undefined, what: string): T => {
@@ -107,7 +107,7 @@ const nameStartOf = (one: Scene): number => mustBe(one.taskOf(1).label, 'a name 
 
 const WIDE_ACTUAL = { actualStart: day(2), actualFinish: day(26), percentComplete: 60 }
 const NARROW_ACTUAL = { actualStart: day(4), actualFinish: day(5), percentComplete: 20 }
-const NO_MARKER = { progressMarkerVisible: false }
+const NO_MARKER = { isProgressMarkerVisible: false }
 
 describe(`T-273 LP-1 -- ${says('LP-1')}`, () => {
   it('stands the marker left S-584 right of the start of the basis and the name S-32 right of it', () => {
@@ -253,7 +253,7 @@ describe('T-273 the closing rules of the table', () => {
       tasks: [taskOf({ name: SHORT, start: day(6), finish: day(28), ...WIDE_ACTUAL })],
       shapeKind: 'rectangle',
       assignedTaskUids: [1],
-      settings: { assigneeVisible: true, percentCompleteVisible: true },
+      settings: { isAssigneeVisible: true, isPercentCompleteVisible: true },
     })
     const drawn = scene.taskOf(1)
     const label = bandOfRect(mustBe(drawn.assigneeLabel, 'an assignee and percent label'))
@@ -268,7 +268,7 @@ describe('T-273 the closing rules of the table', () => {
       tasks: [taskOf({ name: SHORT, start: day(2), finish: day(28), ...WIDE_ACTUAL })],
       shapeKind: 'rectangle',
       assignedTaskUids: [1],
-      settings: { assigneeVisible: true, percentCompleteVisible: true },
+      settings: { isAssigneeVisible: true, isPercentCompleteVisible: true },
     })
     expect(scene.placedOf(1).outsideLabel, LP_THE_SEPARATOR).toContain(' : ')
   })

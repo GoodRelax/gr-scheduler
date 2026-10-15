@@ -89,7 +89,7 @@ describe.each(LANGUAGES)('RW-11 / RW-12 / RW-14 / RW-17 / T-374 -- the words the
   it('the counter of the rows for a person reads humanCounter', async () => {
     const document = MIXED()
     const stage = await proposalsOpened(document, language)
-    const m = proposed(document).filter((one) => one.fixType !== 'automatic').length
+    const m = proposed(document).filter((one) => one.fixKind !== 'automatic').length
     expect(stage.window()!.textContent).toContain(filled(fixWord('humanCounter', language), { k: 0, m }))
   })
 

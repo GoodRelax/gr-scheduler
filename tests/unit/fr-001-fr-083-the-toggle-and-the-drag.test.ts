@@ -447,7 +447,7 @@ const SETTINGS: DocumentSettings = {
   ...NESTED,
   // S-77 and S-78, pinned so that the day drawn at an x is the same every run.
   scrollDate: '2026-01-01',
-  scrollGroupId: null,
+  scrollTaskGroupId: null,
   // S-58, pinned so every y reads from the top.
   stackDirection: 'down',
 } as unknown as DocumentSettings
@@ -491,9 +491,9 @@ const DOCUMENT = {
   schedule: SCHEDULE,
   documentSettings: SETTINGS,
   documentStamp: {
-    scheduleUpdatedUtc: '2026-01-01T00:00:00Z',
+    scheduleUpdatedAt: '2026-01-01T00:00:00Z',
     lastEditedBy: 'test',
-    settingsUpdatedUtc: '2026-01-01T00:00:00Z',
+    settingsUpdatedAt: '2026-01-01T00:00:00Z',
   },
   changeLog: [],
 } as unknown as Document
@@ -521,7 +521,7 @@ const BASE: InputContext = {
   isSurfaceStanding: false,
   dualCursorFollowing: null,
   today: '2026-03-01T00:00:00',
-  newGroupId: NEW_GROUP_ID,
+  newTaskGroupId: NEW_GROUP_ID,
   newCommentBoxId: 'comment-box-minted-outside',
   newHighlightBoxId: 'highlight-box-minted-outside',
 }

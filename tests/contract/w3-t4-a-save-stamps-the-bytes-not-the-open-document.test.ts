@@ -15,7 +15,7 @@ const OPENED_STAMP = '2026-01-02T03:04:05Z'
 function stampIn(file: StandInFile): string | null {
   const read = documentFromJson(new TextDecoder().decode(file.bytes()))
   if (!read.ok) throw new Error(`the saved bytes are not GRS JSON: ${JSON.stringify(read.faults)}`)
-  return read.document.documentStamp.fileSavedUtc ?? null
+  return read.document.documentStamp.fileSavedAt ?? null
 }
 
 describe('HS-11 -- the manuscript these cases are driven by', () => {
@@ -28,10 +28,10 @@ describe(`HS-11 -- ${HS_11_NO_REWRITE}`, () => {
   it('after a save, the saved bytes carry a newer AT-140 and the open document still carries the one it was opened with', async () => {
     const built = await shellStage()
     const stamped = there() as unknown as { documentStamp: Record<string, unknown> }
-    stamped.documentStamp['fileSavedUtc'] = OPENED_STAMP
+    stamped.documentStamp['fileSavedAt'] = OPENED_STAMP
     const opened = built.file('stamped.json', jsonBytes(stamped))
     await replaceWith(built, opened)
-    expect(built.loop.document().documentStamp.fileSavedUtc, 'premise: the opened AT-140 was read').toBe(OPENED_STAMP)
+    expect(built.loop.document().documentStamp.fileSavedAt, 'premise: the opened AT-140 was read').toBe(OPENED_STAMP)
 
     built.browser.toSave.push(opened)
     await built.save()
@@ -40,6 +40,6 @@ describe(`HS-11 -- ${HS_11_NO_REWRITE}`, () => {
     expect(written, 'HS-11 (MUST): the saved bytes carry the time of that save').not.toBeNull()
     expect(written, 'HS-11 (MUST): a later time than the one opened').not.toBe(OPENED_STAMP)
 
-    expect(built.loop.document().documentStamp.fileSavedUtc, `${HS_11_NO_REWRITE} -- ${HS_11_KEEP}`).toBe(OPENED_STAMP)
+    expect(built.loop.document().documentStamp.fileSavedAt, `${HS_11_NO_REWRITE} -- ${HS_11_KEEP}`).toBe(OPENED_STAMP)
   })
 })

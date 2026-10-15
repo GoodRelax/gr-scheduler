@@ -55,7 +55,7 @@ const FAR_ZOOM = 2400
 const hourWidth = (pxPerDay: number): number => (pxPerDay * S_585_MINUTES) / MINUTES_PER_DAY
 
 // see DM-3
-const markWidthAt = (pxPerDay: number): number => inkOf(stageOf({ showsTimeOfDay: false, pxPerDay }), TIMED_UID).width
+const markWidthAt = (pxPerDay: number): number => inkOf(stageOf({ isTimeOfDayVisible: false, pxPerDay }), TIMED_UID).width
 
 describe('CR-756 -- the manuscript still says what these cases press', () => {
   it.each([
@@ -76,7 +76,7 @@ describe('CR-756 -- the manuscript still says what these cases press', () => {
   it('table T-206 S-585 is 60 minutes, and the zooms below fall on SG-1, SG-2 and SG-3', () => {
     expect(S_585_MINUTES).toBe(60)
     const tierOf = (pxPerDay: number): number => {
-      const one = stageOf({ showsTimeOfDay: true, pxPerDay })
+      const one = stageOf({ isTimeOfDayVisible: true, pxPerDay })
       return snapMinutesOf(pxPerDayOf(one), one.loop.document().documentSettings, false)
     }
     expect(tierOf(DAY_TIER)).toBe(MINUTES_PER_DAY)
@@ -88,30 +88,30 @@ describe('CR-756 -- the manuscript still says what these cases press', () => {
 
 describe(`T-240 DM-1: ${DM_1_THE_INSTANT}`, () => {
   it.each([HOUR_TIER, HALF_HOUR_TIER, DAY_TIER])('at %s px/day the mark stands on the plan bar left edge, the 10:30 instant', (pxPerDay) => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay })
     const ink = inkOf(one, TIMED_UID)
     expect(ink.x, DM_1_THE_INSTANT).toBeCloseTo(planBox(one.loop, TIMED_UID).x0, 6)
     expect(ink.x, DM_1_THE_INSTANT).toBeCloseTo(xOfInstant(one, PLAN_START), 6)
   })
 
   it.each([HOUR_TIER, DAY_TIER])(`at %s px/day ${DM_1_NOT_ROUNDED_TO_MIDNIGHT}`, (pxPerDay) => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay })
     const midnight = xOfInstant(one, '2026-04-06T00:00:00')
     expect(inkOf(one, TIMED_UID).x - midnight, DM_1_NOT_ROUNDED_TO_MIDNIGHT).toBeCloseTo((pxPerDay * 630) / MINUTES_PER_DAY, 6)
   })
 
   it(`time of day hidden: the mark keeps the day column left edge (${DM_1_NOT_THE_NEXT_WORKING_DAY})`, () => {
-    const one = stageOf({ showsTimeOfDay: false, pxPerDay: HOUR_TIER })
+    const one = stageOf({ isTimeOfDayVisible: false, pxPerDay: HOUR_TIER })
     const ink = inkOf(one, TIMED_UID)
     expect(ink.x, DM_3_THE_LEFT_EDGE).toBeCloseTo(planBox(one.loop, TIMED_UID).x0, 6)
-    const shown = stageOf({ showsTimeOfDay: true, pxPerDay: HOUR_TIER })
+    const shown = stageOf({ isTimeOfDayVisible: true, pxPerDay: HOUR_TIER })
     expect(ink.x, DM_1_NOT_THE_NEXT_WORKING_DAY).toBeCloseTo(xOfInstant(shown, '2026-04-06T00:00:00'), 6)
   })
 })
 
 describe(`T-240 DM-3: ${DM_3_THE_LARGER_OF_TWO}`, () => {
   it.each([HOUR_TIER, HALF_HOUR_TIER])('at %s px/day the mark is S-585 of calendar time wide, from the plan start instant', (pxPerDay) => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay })
     const ink = inkOf(one, TIMED_UID)
     expect(hourWidth(pxPerDay), 'premise: the hour is wider than the mark').toBeGreaterThan(markWidthAt(pxPerDay))
     expect(ink.width, DM_3_THE_LARGER_OF_TWO).toBeCloseTo(hourWidth(pxPerDayOf(one)), 6)
@@ -119,7 +119,7 @@ describe(`T-240 DM-3: ${DM_3_THE_LARGER_OF_TWO}`, () => {
   })
 
   it(`at ${String(FAR_ZOOM)} px/day: ${DM_3_S_180_DOES_NOT_CUT}`, () => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay: FAR_ZOOM })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay: FAR_ZOOM })
     const width = inkOf(one, TIMED_UID).width
     expect(width, DM_3_S_180_DOES_NOT_CUT).toBeGreaterThan(S_180_PX)
     expect(width, DM_3_S_180_DOES_NOT_CUT).toBeCloseTo(hourWidth(pxPerDayOf(one)), 6)
@@ -127,7 +127,7 @@ describe(`T-240 DM-3: ${DM_3_THE_LARGER_OF_TWO}`, () => {
 
   it(`at ${String(DAY_TIER)} px/day the hour is narrower than the mark, so the mark keeps its width: ${DM_3_NOT_CUT_BY_A_DAY}`, () => {
     expect(hourWidth(DAY_TIER), 'premise').toBeLessThan(markWidthAt(DAY_TIER))
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay: DAY_TIER })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay: DAY_TIER })
     expect(inkOf(one, TIMED_UID).width, DM_3_THE_LARGER_OF_TWO).toBeCloseTo(markWidthAt(DAY_TIER), 6)
   })
 
@@ -142,12 +142,12 @@ describe('PI-5 dummyBandOf and dummyInkWidthOf: one reading of the band', () => 
   const markOnly = Math.min(MARKER_DIAMETER * settingsRowDefault('S-247'), S_180_PX)
 
   it.each([
-    { pxPerDay: DAY_TIER, showsTimeOfDay: true, width: Math.max(markOnly, hourWidth(DAY_TIER)) },
-    { pxPerDay: HOUR_TIER, showsTimeOfDay: true, width: hourWidth(HOUR_TIER) },
-    { pxPerDay: FAR_ZOOM, showsTimeOfDay: true, width: hourWidth(FAR_ZOOM) },
-    { pxPerDay: FAR_ZOOM, showsTimeOfDay: false, width: markOnly },
-  ])('$pxPerDay px/day, time shown $showsTimeOfDay: the band starts on the plan x and is $width wide', ({ pxPerDay, showsTimeOfDay, width }) => {
-    const axis = { pxPerDay, showsTimeOfDay }
+    { pxPerDay: DAY_TIER, isTimeOfDayVisible: true, width: Math.max(markOnly, hourWidth(DAY_TIER)) },
+    { pxPerDay: HOUR_TIER, isTimeOfDayVisible: true, width: hourWidth(HOUR_TIER) },
+    { pxPerDay: FAR_ZOOM, isTimeOfDayVisible: true, width: hourWidth(FAR_ZOOM) },
+    { pxPerDay: FAR_ZOOM, isTimeOfDayVisible: false, width: markOnly },
+  ])('$pxPerDay px/day, time shown $showsTimeOfDay: the band starts on the plan x and is $width wide', ({ pxPerDay, isTimeOfDayVisible, width }) => {
+    const axis = { pxPerDay, isTimeOfDayVisible }
     expect(dummyInkWidthOf(MARKER_DIAMETER, axis), DM_3_THE_LARGER_OF_TWO).toBeCloseTo(width, 6)
     const band = dummyBandOf('rectangle', { x: 321, width: 900 }, MARKER_DIAMETER, axis)
     expect(band.x, DM_3_THE_LEFT_EDGE).toBe(321)
@@ -155,7 +155,7 @@ describe('PI-5 dummyBandOf and dummyInkWidthOf: one reading of the band', () => 
   })
 
   it(`a milestone's band is the plan figure's centre and takes no hour: ${DM_12_NOT_THE_HOUR_WIDTH}`, () => {
-    const band = dummyBandOf('milestone', { x: 500, width: 0 }, MARKER_DIAMETER, { pxPerDay: FAR_ZOOM, showsTimeOfDay: true })
+    const band = dummyBandOf('milestone', { x: 500, width: 0 }, MARKER_DIAMETER, { pxPerDay: FAR_ZOOM, isTimeOfDayVisible: true })
     expect(band.x, DM_12_THE_MILESTONE_INSTANT).toBe(500)
     expect(band.width, DM_12_NOT_THE_HOUR_WIDTH).toBe(0)
   })
@@ -163,7 +163,7 @@ describe('PI-5 dummyBandOf and dummyInkWidthOf: one reading of the band', () => 
 
 describe(`T-240 DM-12: ${DM_12_THE_MILESTONE_INSTANT}`, () => {
   it.each([HOUR_TIER, DAY_TIER])('at %s px/day the milestone dummy is centred on the 15:00 plan figure', (pxPerDay) => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay })
     const drawn = drawnTask(one.loop, TIMED_MILESTONE_UID)
     const figure = boxOfBar(drawn.milestoneFigure ?? drawn.plan, 'the plan milestone figure')
     const ink = inkOf(one, TIMED_MILESTONE_UID)
@@ -173,7 +173,7 @@ describe(`T-240 DM-12: ${DM_12_THE_MILESTONE_INSTANT}`, () => {
   })
 
   it(`at ${String(FAR_ZOOM)} px/day: ${DM_12_NOT_THE_HOUR_WIDTH}`, () => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay: FAR_ZOOM })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay: FAR_ZOOM })
     const ink = inkOf(one, TIMED_MILESTONE_UID)
     expect(ink.width, 'DM-9: the same square as the actual milestone figure').toBeCloseTo(ink.height, 6)
     expect(ink.width, DM_12_NOT_THE_HOUR_WIDTH).toBeLessThan(hourWidth(pxPerDayOf(one)))
@@ -182,8 +182,8 @@ describe(`T-240 DM-12: ${DM_12_THE_MILESTONE_INSTANT}`, () => {
 
 describe('JDG-27 / RF-1: the progress marker stands right of the drawn mark, as it does with time hidden', () => {
   it.each([HOUR_TIER, DAY_TIER])('at %s px/day the gap from the mark to the marker is the same shown or hidden', (pxPerDay) => {
-    const gapOf = (showsTimeOfDay: boolean): number => {
-      const one = stageOf({ showsTimeOfDay, pxPerDay })
+    const gapOf = (isTimeOfDayVisible: boolean): number => {
+      const one = stageOf({ isTimeOfDayVisible, pxPerDay })
       const ink = inkOf(one, TIMED_UID)
       const marker = markerBoxOf(drawnTask(one.loop, TIMED_UID))
       if (marker === null) throw new Error('premise: the marker is drawn (S-63)')

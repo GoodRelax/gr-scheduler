@@ -166,7 +166,7 @@ interface Line {
 
 interface Placed {
   readonly taskUid: number
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly x: number
   readonly width: number
   readonly y: number
@@ -175,7 +175,7 @@ interface Placed {
 }
 
 interface GroupPlaced {
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly y: number
   readonly height: number
 }
@@ -266,7 +266,7 @@ const taskOf = (wish: TaskWish): Task =>
     dependencies: (wish.preds ?? []).map(([predecessorUid, linkType]) => ({
       predecessorUid,
       linkType,
-      lag: null,
+      linkLag: null,
       lagFormat: null,
       carry: {},
       carryElements: [],
@@ -287,7 +287,7 @@ const scheduleOf = (wish: SceneWish): Schedule => {
       company: null,
       manager: null,
       author: null,
-      created: null,
+      creationDate: null,
       revision: null,
       startDate: dateOf(0, false),
       statusDate: null,
@@ -300,7 +300,7 @@ const scheduleOf = (wish: SceneWish): Schedule => {
       defaultFinishTime: null,
       themeHue: 214,
       uidHighWaterMark: 1000,
-      importSeq: 0,
+      importSequence: 0,
       carry: {},
       carryElements: [],
     },
@@ -325,15 +325,15 @@ const scheduleOf = (wish: SceneWish): Schedule => {
     taskGroups: wish.groups.map((id, order) => ({
       id,
       parentId: null,
-      label: id,
+      name: id,
       derivedFromTaskUid: null,
       order,
       treeState: 'auto',
       editGroup: null,
       color: null,
-      minHeight: null,
+      minHeightPx: null,
     })),
-    taskGroupMembers: wish.tasks.map((one) => ({ taskUid: one.uid, groupId: one.group })),
+    taskGroupMembers: wish.tasks.map((one) => ({ taskUid: one.uid, taskGroupId: one.group })),
     taskVisuals: wish.tasks.map((one) => ({
       taskUid: one.uid,
       shapeKind: one.shapeKind ?? (one.milestone === true ? 'milestone' : 'rectangle'),
@@ -371,9 +371,9 @@ const sceneOf = (wish: SceneWish): Scene => {
     zoomX: 8,
     scrollDate: dateOf(wish.scrollDay ?? -3, false),
     stackDirection: 'down',
-    progressMarkerVisible: true,
-    assigneeVisible: true,
-    percentCompleteVisible: true,
+    isProgressMarkerVisible: true,
+    isAssigneeVisible: true,
+    isPercentCompleteVisible: true,
     displayScale,
     ...(wish.settings ?? {}),
   })
@@ -408,7 +408,7 @@ const sceneOf = (wish: SceneWish): Scene => {
       return found
     },
     group: (id) => {
-      const found = typedLayout.taskGroups.find((one) => one.groupId === id)
+      const found = typedLayout.taskGroups.find((one) => one.taskGroupId === id)
       if (found === undefined) throw new Error(`premise: task group ${id} was not laid out`)
       return found
     },

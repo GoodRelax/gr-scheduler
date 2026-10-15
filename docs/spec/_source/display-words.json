@@ -1824,14 +1824,14 @@
    "rowId": "K-2",
    "label": {
     "ja": "目盛の|帯の|高さ",
-    "en": "rulerHeight"
+    "en": "rulerHeightPx"
    }
   },
   {
    "rowId": "K-3",
    "label": {
     "ja": "目盛の文字",
-    "en": "rulerFont"
+    "en": "rulerFontSizePx"
    }
   },
   {
@@ -2286,7 +2286,7 @@
    "rowId": "K-61",
    "label": {
     "ja": "モノクロに|するか",
-    "en": "themeMonochrome"
+    "en": "isThemeMonochrome"
    }
   },
   {
@@ -2342,14 +2342,14 @@
    "rowId": "K-70",
    "label": {
     "ja": "表示の|上端が|指す|タスクグループ",
-    "en": "scrollGroupId"
+    "en": "scrollTaskGroupId"
    }
   },
   {
    "rowId": "K-71",
    "label": {
     "ja": "タスク|グループパネルの|幅",
-    "en": "taskGroupPanelWidth"
+    "en": "taskGroupPanelWidthPx"
    }
   },
   {
@@ -2370,7 +2370,7 @@
    "rowId": "K-110",
    "label": {
     "ja": "ピン止めの|対象",
-    "en": "pinnedGroupIds"
+    "en": "pinnedTaskGroupIds"
    }
   },
   {
@@ -2496,7 +2496,7 @@
    "rowId": "K-86",
    "label": {
     "ja": "取り込みの連番",
-    "en": "importSeq"
+    "en": "importSequence"
    }
   },
   {
@@ -2538,7 +2538,7 @@
    "rowId": "K-146",
    "label": {
     "ja": "時刻を|表示する",
-    "en": "showsTimeOfDay"
+    "en": "isTimeOfDayVisible"
    }
   },
   {

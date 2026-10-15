@@ -176,10 +176,10 @@ def self_test(schema, skeleton):
     visual = ('"taskUid": 1, "shapeKind": "rectangle", "milestoneGlyph": null, '
               '"fillColor": null, "strokeColor": null')
     group = ('"id": "00000000-0000-4000-8000-000000000002", "parentId": null, '
-             '"label": "R", "derivedFromTaskUid": null, "order": 0, '
-             '"treeState": "auto", "color": null, "minHeight": null')
+             '"name": "R", "derivedFromTaskUid": null, "order": 0, '
+             '"treeState": "auto", "color": null, "minHeightPx": null')
     prose = ('- schedule.project: name / themeHue\n'
-             'id parentId label derivedFromTaskUid order treeState color minHeight\n'
+             'id parentId name derivedFromTaskUid order treeState color minHeightPx\n'
              'taskUid shapeKind milestoneGlyph fillColor strokeColor\n')
 
     def prompt(extra_prose, extra_group):

@@ -99,7 +99,7 @@ interface Rect {
 }
 
 interface Row {
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly y: number
   readonly height: number
   readonly isPinned?: boolean
@@ -145,7 +145,7 @@ const taskOf = (uid: number, start: number, days: number, links: readonly Link[]
   dependencies: links.map((link) => ({
     predecessorUid: typeof link === 'number' ? link : link[0],
     linkType: typeof link === 'number' ? 1 : link[1],
-    lag: null,
+    linkLag: null,
     lagFormat: null,
     carry: {},
     carryElements: [],
@@ -189,13 +189,13 @@ const sceneOf = (spec: SceneSpec): Scene => {
       id,
       parentId,
       order,
-      minHeight: null,
-      label: id,
+      minHeightPx: null,
+      name: id,
       derivedFromTaskUid: null,
       treeState: treeState ?? 'auto',
       editGroup: null,
     })),
-    taskGroupMembers: spec.tasks.map(([task, groupId]) => ({ groupId, taskUid: task['uid'] })),
+    taskGroupMembers: spec.tasks.map(([task, taskGroupId]) => ({ taskGroupId, taskUid: task['uid'] })),
     taskVisuals: spec.tasks.map(([task]) => ({ taskUid: task['uid'], shapeKind: 'rectangle' })),
     taskOrigins: [],
     baselineTasks: [],
@@ -233,9 +233,9 @@ const placementOf = (scene: Scene, uid: number): Placement => {
   return found
 }
 
-const rowOf = (scene: Scene, groupId: string): Row => {
-  const found = scene.layout.taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the layout drew no task group ${groupId}`)
+const rowOf = (scene: Scene, taskGroupId: string): Row => {
+  const found = scene.layout.taskGroups.find((one) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`the layout drew no task group ${taskGroupId}`)
   return found
 }
 
@@ -513,7 +513,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its task 
         [taskOf(1, 0, 5), 'a'],
         [taskOf(2, 10, 5, [1]), 'b'],
       ],
-      settings: { scrollGroupId: 'b' },
+      settings: { scrollTaskGroupId: 'b' },
     })
     const shape = placementOf(scene, 1)
     expect(shape.y + shape.planHeight, 'premise: the plan band lies above the Task Group Area').toBeLessThanOrEqual(
@@ -529,7 +529,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its task 
         [taskOf(1, 0, 5), 'a'],
         [taskOf(2, 10, 5, [1]), 'b'],
       ],
-      settings: { scrollGroupId: 'a', scrollGroupOffset: 0.5 },
+      settings: { scrollTaskGroupId: 'a', scrollGroupOffset: 0.5 },
     })
     const shape = placementOf(scene, 1)
     const top = scene.regions.taskGroupArea.y
@@ -544,7 +544,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its task 
         [taskOf(1, 0, 5), 'P'],
         [taskOf(2, 10, 5, [1]), 'a'],
       ],
-      settings: { pinnedGroupIds: ['P'], scrollGroupId: 'b' },
+      settings: { pinnedTaskGroupIds: ['P'], scrollTaskGroupId: 'b' },
     })
     const taskGroupArea = scene.regions.taskGroupArea
     const under = placementOf(scene, 2)
@@ -567,7 +567,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its task 
         [taskOf(1, 0, 5), 'P'],
         [taskOf(2, 10, 5, [1]), 'a'],
       ],
-      settings: { pinnedGroupIds: ['P'] },
+      settings: { pinnedTaskGroupIds: ['P'] },
     })
     expect(lineOf(scene, 1, 2).elision).toBe('EL-3')
   })
@@ -632,10 +632,10 @@ describe('EL-2 -- the end of a task group the group LOD does not draw stands at 
         [taskOf(1, 0, 5), 's'],
         [taskOf(2, 20, 5, [1]), 'P1'],
       ],
-      settings: { pinnedGroupIds: ['P'], zoomY: 0.2 },
+      settings: { pinnedTaskGroupIds: ['P'], zoomY: 0.2 },
     })
     expect(rowOf(scene, 'P').isPinned, 'premise: P is pinned').toBe(true)
-    expect(scene.layout.taskGroups.some((one) => one.groupId === 'P1'), 'premise: the LOD hides P1').toBe(false)
+    expect(scene.layout.taskGroups.some((one) => one.taskGroupId === 'P1'), 'premise: the LOD hides P1').toBe(false)
     const before = rowOf(scene, 's')
     const line = lineOf(scene, 1, 2)
     expect(line.elision).toBe('EL-4')
@@ -649,9 +649,9 @@ describe('EL-2 -- the end of a task group the group LOD does not draw stands at 
         [taskOf(1, 0, 5), 's'],
         [taskOf(2, 20, 5, [1]), 'P1'],
       ],
-      settings: { pinnedGroupIds: ['P'], zoomY: 0.2 },
+      settings: { pinnedTaskGroupIds: ['P'], zoomY: 0.2 },
     })
-    expect(scene.layout.taskGroups.some((one) => one.groupId === 'P1'), 'premise: the LOD hides P1').toBe(false)
+    expect(scene.layout.taskGroups.some((one) => one.taskGroupId === 'P1'), 'premise: the LOD hides P1').toBe(false)
     expect(scene.layout.scrollAreaY, 'premise: the layout says where the band ends').toBeTypeOf('number')
     expect(lineOf(scene, 1, 2).points.at(-1)!.y).toBeCloseTo(scene.layout.scrollAreaY!, 9)
   })
@@ -906,7 +906,7 @@ describe('the drawn picture follows T-303', () => {
         [taskOf(1, 0, 5), 'P'],
         [taskOf(2, FAR, 5, [1]), 'a'],
       ],
-      settings: pinned ? { pinnedGroupIds: ['P'] } : { pinnedGroupIds: ['a'] },
+      settings: pinned ? { pinnedTaskGroupIds: ['P'] } : { pinnedTaskGroupIds: ['a'] },
     })
 
   it('FR-098 / EL-4: the visible end is pinned, so the short line and mark are drawn in the band, not cut at the area below', () => {
@@ -929,7 +929,7 @@ describe('the drawn picture follows T-303', () => {
         [taskOf(1, 0, 5), 'a'],
         [taskOf(2, FAR, 5, [1]), 'P'],
       ],
-      settings: { pinnedGroupIds: ['P'] },
+      settings: { pinnedTaskGroupIds: ['P'] },
     })
     const line = lineOf(scene, 1, 2)
     expect(line.elision, 'premise').toBe('EL-4')

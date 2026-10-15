@@ -294,14 +294,14 @@ function shellDocument(): Document {
       taskGroups: GROUPS.map((id, order) => ({
         id,
         parentId: null,
-        label: `R${order + 1}`,
+        name: `R${order + 1}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: [{ taskUid: ALPHA_UID, groupId: GROUPS[2] }],
+      taskGroupMembers: [{ taskUid: ALPHA_UID, taskGroupId: GROUPS[2] }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -314,7 +314,7 @@ function shellDocument(): Document {
       stackDirection: 'down',
       scrollDate: '2026-04-01',
       scrollDayOffset: 0,
-      scrollGroupId: GROUPS[0],
+      scrollTaskGroupId: GROUPS[0],
       scrollGroupOffset: 0,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -421,7 +421,7 @@ function stage(): Stage {
 }
 
 interface FrameValues {
-  readonly layout: { readonly taskGroups: readonly { readonly groupId: string; readonly y: number; readonly height: number }[] }
+  readonly layout: { readonly taskGroups: readonly { readonly taskGroupId: string; readonly y: number; readonly height: number }[] }
   readonly geometry: {
     readonly tasks: readonly {
       readonly taskUid: number
@@ -436,9 +436,9 @@ const frameOf = (loop: FrameLoop): FrameValues => {
   return values as unknown as FrameValues
 }
 
-const bandOf = (loop: FrameLoop, groupId: string): { y: number; height: number } => {
-  const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`no band for ${groupId}`)
+const bandOf = (loop: FrameLoop, taskGroupId: string): { y: number; height: number } => {
+  const found = frameOf(loop).layout.taskGroups.find((one) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`no band for ${taskGroupId}`)
   return { y: found.y as number, height: found.height as number }
 }
 

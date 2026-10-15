@@ -123,7 +123,7 @@ function drawnTable(container: FakeElement | null, what: string): DrawnTable {
   }
 }
 
-function expectFixTypeCells(table: DrawnTable, language: Language): void {
+function expectFixKindCells(table: DrawnTable, language: Language): void {
   const typeAt = table.headings.indexOf(fixHeading('FM-9', language))
   const nameAt = table.headings.indexOf(fixHeading('FM-5', language))
   expect(table.rows.length, 'premise: the table holds rows').toBeGreaterThan(0)
@@ -209,7 +209,7 @@ describe(`T-331 -- ${T_331_TYPE_LEFT_OF_TASK}`, () => {
     const table = drawnTable(stage.inside(PROPOSALS_ROLE), 'the proposals')
     expect(table.headings.indexOf(fixHeading('FM-9', language)) + 1).toBe(table.headings.indexOf(fixHeading('FM-5', language)))
     expect(table.fixed).toEqual(['FM-1', 'FM-3', 'FM-4', 'FM-9', 'FM-5'].map((row) => fixHeading(row, language)))
-    expectFixTypeCells(table, language)
+    expectFixKindCells(table, language)
     expect(table.rows.some((row) => row.includes(taskTypeWord('milestone', language))), 'premise: a milestone row is proposed').toBe(true)
   })
 
@@ -222,7 +222,7 @@ describe(`T-331 -- ${T_331_TYPE_LEFT_OF_TASK}`, () => {
     const table = drawnTable(stage.inside(LOG_ROLE), 'the fix log')
     expect(table.headings.indexOf(fixHeading('FM-9', 'ja')) + 1).toBe(table.headings.indexOf(fixHeading('FM-5', 'ja')))
     expect(table.fixed).toEqual(['FM-2', 'FM-4', 'FM-9', 'FM-5'].map((row) => fixHeading(row, 'ja')))
-    expectFixTypeCells(table, 'ja')
+    expectFixKindCells(table, 'ja')
   })
 })
 

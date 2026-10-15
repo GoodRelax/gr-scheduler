@@ -902,7 +902,7 @@ def with_defaults_and_bounds(flat):
     cannot hold two different answers (CR-642).
     ⚠️ A bound is folded into a number only when every key it names is a
     constant the document does not store: a bound naming a stored key
-    (`rulerHeight`) moves with the document, so a number here would be the
+    (`rulerHeightPx`) moves with the document, so a number here would be the
     answer for the defaults and for nothing else. That is the same line
     generate_entity_types.py draws when it folds a constant into IV-16's
     expression.

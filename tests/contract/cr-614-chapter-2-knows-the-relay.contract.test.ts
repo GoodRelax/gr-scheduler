@@ -239,8 +239,8 @@ const validatingApi = (): ValidatingApi => {
   const applied: unknown[][] = []
   const applyCommands = (...args: unknown[]): unknown =>
     isWellFormed(args[0])
-      ? { accepted: true, stamp: A_STAMP }
-      : { accepted: false, refusal: { target: 'applyCommands', reason: MALFORMED_REASON, stamp: A_STAMP, refusals: [] } }
+      ? { ok: true, stamp: A_STAMP }
+      : { ok: false, refusal: { target: 'applyCommands', reason: MALFORMED_REASON, stamp: A_STAMP, refusals: [] } }
   const api: Record<string, unknown> = { agentApiVersion: '1.0-fake', schemaVersion: 1 }
   for (const member of MEMBERS) {
     if (PROPERTIES.has(member)) continue
@@ -356,7 +356,7 @@ describe('SEAM-C: a call carried by the relay meets the page\'s validation, as a
     const request = { stamp: A_STAMP, commands: [] }
     const relayed = await client.callTool('applyCommands', { request })
     expect(relayed['structuredContent']).toEqual(fake.applyDirectly(request))
-    expect(relayed['structuredContent']).toEqual({ accepted: true, stamp: A_STAMP })
+    expect(relayed['structuredContent']).toEqual({ ok: true, stamp: A_STAMP })
   })
 })
 

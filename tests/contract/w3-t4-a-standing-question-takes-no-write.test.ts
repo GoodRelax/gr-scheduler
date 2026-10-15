@@ -44,7 +44,7 @@ const agentOf = (built: ShellStage): Api =>
   installAgentApi({ ...built.loop.agentApiSeams(), writerName: 'w3-t4-tester', schemaVersion: BUILT_VERSION } as never)
 
 const apply = (api: Api, commands: readonly Record<string, unknown>[]) =>
-  api.applyCommands({ readStamp: api.readStamp(), commands: commands as never })
+  api.applyCommands({ expectedStamp: api.readStamp(), commands: commands as never })
 
 const titleOf = (document: Document): string => String((document.schedule.project as { title?: unknown }).title ?? '')
 
@@ -53,7 +53,7 @@ async function questionStanding(): Promise<{ built: ShellStage; api: Api }> {
   const built = await shellStage()
   const api = agentOf(built)
   const first = apply(api, [titleCommand('W3 edited before the question')])
-  expect(first.accepted, 'premise: the Agent API takes a title with no question standing').toBe(true)
+  expect(first.ok, 'premise: the Agent API takes a title with no question standing').toBe(true)
   await built.repaint()
   expect(built.loop.hasUnsavedEdits(), 'premise: the title left an unsaved edit').toBe(true)
   await built.open(built.file('theirs.json', jsonBytes(there())))
@@ -75,7 +75,7 @@ describe(`NT-7 -- ${NT_7_NO_WRITE}`, () => {
     const before = JSON.stringify(built.loop.document())
     const outcome = apply(api, [titleCommand('W3 written under the question')])
     await built.repaint()
-    expect(outcome.accepted, `${AG_9_QUESTION} -- ${NT_7_HOW}`).toBe(false)
+    expect(outcome.ok, `${AG_9_QUESTION} -- ${NT_7_HOW}`).toBe(false)
     expect(JSON.stringify(built.loop.document()), NT_7_NO_WRITE).toBe(before)
     expect(built.last().confirmation, 'the question still stands after the refused write').not.toBeNull()
   })
@@ -97,7 +97,7 @@ describe(`NT-7 -- ${NT_7_NO_WRITE}`, () => {
     expect(built.last().confirmation, 'premise: cancel took the question down').toBeNull()
     const outcome = apply(api, [titleCommand('W3 written after the answer')])
     await built.repaint()
-    expect(outcome.accepted, 'with no question standing the write is taken').toBe(true)
+    expect(outcome.ok, 'with no question standing the write is taken').toBe(true)
     expect(titleOf(built.loop.document())).toBe('W3 written after the answer')
   })
 })

@@ -121,7 +121,7 @@ const dependencyDocument = (linkType: number) =>
       taskOf(2, {
         start: '2026-04-13T08:00:00',
         finish: '2026-04-17T17:00:00',
-        dependencies: [{ predecessorUid: 1, linkType, lag: null, lagFormat: null, carry: {}, carryElements: [] }],
+        dependencies: [{ predecessorUid: 1, linkType, linkLag: null, lagFormat: null, carry: {}, carryElements: [] }],
       }),
     ],
   })

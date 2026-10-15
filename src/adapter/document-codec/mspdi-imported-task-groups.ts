@@ -32,21 +32,21 @@ export function taskGroupsFromTasks(tasks: readonly Task[], maxGroupDepth: numbe
     taskGroups.push({
       id,
       parentId: parentTaskGroup,
-      label: null,
+      name: null,
       derivedFromTaskUid: task.uid,
       order: task.wbsOrder ?? 0,
       treeState: 'auto',
       editGroup: null,
       color: null,
-      minHeight: null,
+      minHeightPx: null,
     })
   }
 
   for (const task of tasks) {
     const own = taskGroupOfTask.get(task.uid)
-    const groupId = own ?? deepestAncestorTaskGroup(task, tasks, taskGroupOfTask)
-    if (groupId === null) continue
-    taskGroupMembers.push({ taskUid: task.uid, groupId })
+    const taskGroupId = own ?? deepestAncestorTaskGroup(task, tasks, taskGroupOfTask)
+    if (taskGroupId === null) continue
+    taskGroupMembers.push({ taskUid: task.uid, taskGroupId })
   }
   return { taskGroups, taskGroupMembers }
 }

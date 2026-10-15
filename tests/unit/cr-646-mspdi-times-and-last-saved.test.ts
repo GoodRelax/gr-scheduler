@@ -225,8 +225,8 @@ describe('X-9 IV-23 (MSPDI half) and WT-9 / WT-10 for an imported created', () =
     })
   })
 
-  it('WT-10 / WT-9: an imported CreationDate is kept as Project.created', () => {
-    expect(read(sourceText()).schedule.project.created).toBe(CREATED)
+  it('WT-10 / WT-9: an imported CreationDate is kept as Project.creationDate', () => {
+    expect(read(sourceText()).schedule.project.creationDate).toBe(CREATED)
   })
 
   it('WT-10: the kept CreationDate is written back as it came', () => {

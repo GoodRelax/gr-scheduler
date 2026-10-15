@@ -210,7 +210,7 @@ const TASK_GROUPS = [
 ]
 
 function documentOf(highlight: Record<string, unknown> | null = null) {
-  const document = taskGroupDocument(TASK_GROUPS, { progressMarkerVisible: false })
+  const document = taskGroupDocument(TASK_GROUPS, { isProgressMarkerVisible: false })
   document.schedule.tasks = TASK_GROUPS.map((_one, index) =>
     taskOf(index + 1, { name: `Task${index + 1}`, start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' }),
   )
@@ -218,12 +218,12 @@ function documentOf(highlight: Record<string, unknown> | null = null) {
   return document
 }
 
-const titleBox = (built: Bench, groupId: string) => {
-  const found = built.view().taskGroupPanel.titles.find((one) => one.groupId === groupId)?.box
-  if (found === undefined) throw new Error(`the task group ${groupId} is not drawn`)
+const titleBox = (built: Bench, taskGroupId: string) => {
+  const found = built.view().taskGroupPanel.titles.find((one) => one.taskGroupId === taskGroupId)?.box
+  if (found === undefined) throw new Error(`the task group ${taskGroupId} is not drawn`)
   return found
 }
-const taskGroupPart = (groupId: string): ScreenPart => partOn('Task Group Panel', null, groupId)
+const taskGroupPart = (taskGroupId: string): ScreenPart => partOn('Task Group Panel', null, taskGroupId)
 const paletteShown = (built: Bench): boolean => built.view().commandPalette !== null
 
 describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
@@ -301,10 +301,10 @@ describe('IN-5a -- a withdrawn focus request lets its keys go', () => {
 
 const HIGHLIGHT = {
   id: 'h1',
-  startDate: '2026-04-06T08:00:00',
-  endDate: '2026-04-30T17:00:00',
-  topGroupId: 'g1',
-  bottomGroupId: 'g2',
+  start: '2026-04-06T08:00:00',
+  finish: '2026-04-30T17:00:00',
+  topTaskGroupId: 'g1',
+  bottomTaskGroupId: 'g2',
   strokeColor: null,
   cornerRadiusPx: null,
 }

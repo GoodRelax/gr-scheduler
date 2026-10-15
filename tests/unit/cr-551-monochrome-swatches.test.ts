@@ -127,7 +127,7 @@ function bench(document: Record<string, unknown>, side: Side): Bench {
 // says what each name is painted as; task 1 carries the color the field shows.
 function documentOf(mono: boolean, first: Record<string, unknown> = {}) {
   const rows = NAMED.map((_name, index) => ({ id: `g${index + 1}`, parentId: null }))
-  const document = taskGroupDocument(rows, { progressMarkerVisible: false, [MONO_KEY]: mono })
+  const document = taskGroupDocument(rows, { isProgressMarkerVisible: false, [MONO_KEY]: mono })
   document.schedule.tasks = NAMED.map((_name, index) =>
     taskOf(index + 1, { name: `T${index + 1}`, start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' }),
   )
@@ -241,7 +241,7 @@ describe('CV-9 E-48 -- the color field in monochrome', () => {
     expect(REQUIREMENTS).toContain(CV_9_MONO)
     expect(REQUIREMENTS).toContain(CV_9_KEPT)
     expect(REQUIREMENTS).toContain(CV_7)
-    expect(MONO_KEY).toBe('themeMonochrome')
+    expect(MONO_KEY).toBe('isThemeMonochrome')
   })
 
   it('CV-9 / CV-7: with S-74 on, every name swatch is painted as the drawing paints that name in monochrome', () => {
@@ -280,7 +280,7 @@ describe('CV-9 E-48 -- the color field in monochrome', () => {
     // see CV-9, S-74, IC-100
     const built = panelOnTask(documentOf(true), 'light')
     built.press('App Header', 'IC-100')
-    expect(built.loop.document().documentSettings[MONO_KEY as 'themeMonochrome'], 'premise: IC-100 turned S-74 off').toBe(false)
+    expect(built.loop.document().documentSettings[MONO_KEY as 'isThemeMonochrome'], 'premise: IC-100 turned S-74 off').toBe(false)
     expect(isGray(drawnPaint(built, NAMED.indexOf(RED) + 1, 'fill')), 'premise: the drawing is in color').toBe(false)
     expect(namesPaintedAsDrawn(built)).toEqual([])
   })

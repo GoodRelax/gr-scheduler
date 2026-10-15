@@ -21,14 +21,14 @@ export function pinnedBandOf(
   readonly droppedPinnedIds: ReadonlySet<string>
   readonly shiftByGroupId: ReadonlyMap<string, number>
 } {
-  const placedById = new Map(taskGroupPlacements.map((taskGroup) => [taskGroup.groupId, taskGroup] as const))
+  const placedById = new Map(taskGroupPlacements.map((taskGroup) => [taskGroup.taskGroupId, taskGroup] as const))
   const banded: TaskGroupPlacement[] = []
   const seen = new Set<string>()
-  for (const groupId of settings.pinnedGroupIds) {
-    if (seen.has(groupId)) continue
-    const taskGroup = placedById.get(groupId)
+  for (const taskGroupId of settings.pinnedTaskGroupIds) {
+    if (seen.has(taskGroupId)) continue
+    const taskGroup = placedById.get(taskGroupId)
     if (taskGroup === undefined) continue
-    seen.add(groupId)
+    seen.add(taskGroupId)
     banded.push(taskGroup)
   }
 
@@ -39,11 +39,11 @@ export function pinnedBandOf(
   let bandY = regions.taskGroupArea.y
   for (const taskGroup of banded) {
     if (dropped.size > 0 || bandY + taskGroup.height > taskGroupAreaBottom) {
-      dropped.add(taskGroup.groupId)
+      dropped.add(taskGroup.taskGroupId)
       continue
     }
-    shiftByGroupId.set(taskGroup.groupId, bandY - taskGroup.y)
-    inBand.add(taskGroup.groupId)
+    shiftByGroupId.set(taskGroup.taskGroupId, bandY - taskGroup.y)
+    inBand.add(taskGroup.taskGroupId)
     bandY += taskGroup.height + settings.taskGroupGap
   }
   const height = Math.max(0, bandY - regions.taskGroupArea.y - settings.taskGroupGap)
@@ -53,8 +53,8 @@ export function pinnedBandOf(
   let scrollY = scrollAreaY
   for (const taskGroup of taskGroupPlacements) {
     // TRAP: seen, not inBand: a dropped pin must not come back as a scrolling task group.
-    if (seen.has(taskGroup.groupId)) continue
-    shiftByGroupId.set(taskGroup.groupId, scrollY - taskGroup.y)
+    if (seen.has(taskGroup.taskGroupId)) continue
+    shiftByGroupId.set(taskGroup.taskGroupId, scrollY - taskGroup.y)
     scrollY += taskGroup.height + settings.taskGroupGap
   }
   const scrollingContentHeight = Math.max(0, scrollY - scrollAreaY - settings.taskGroupGap)
@@ -79,10 +79,10 @@ export function liftedTaskGroups(
     readonly shiftByGroupId: ReadonlyMap<string, number>
   },
 ): readonly TaskGroupPlacement[] {
-  const kept = taskGroupPlacements.filter((taskGroup) => !band.droppedPinnedIds.has(taskGroup.groupId))
+  const kept = taskGroupPlacements.filter((taskGroup) => !band.droppedPinnedIds.has(taskGroup.taskGroupId))
   return kept.map((taskGroup) => {
-    const shift = band.shiftByGroupId.get(taskGroup.groupId) ?? 0
-    const isPinned = band.pinnedIdsPlaced.has(taskGroup.groupId)
+    const shift = band.shiftByGroupId.get(taskGroup.taskGroupId) ?? 0
+    const isPinned = band.pinnedIdsPlaced.has(taskGroup.taskGroupId)
     if (shift === 0 && !isPinned) return taskGroup
     return {
       ...taskGroup,
@@ -99,9 +99,9 @@ export function shiftedPlacements(
   shiftByGroupId: ReadonlyMap<string, number>,
   droppedPinnedIds: ReadonlySet<string>,
 ): readonly TaskPlacement[] {
-  const kept = placements.filter((one) => !droppedPinnedIds.has(one.groupId))
+  const kept = placements.filter((one) => !droppedPinnedIds.has(one.taskGroupId))
   return kept.map((one) => {
-    const shift = shiftByGroupId.get(one.groupId) ?? 0
+    const shift = shiftByGroupId.get(one.taskGroupId) ?? 0
     return shift === 0 ? one : { ...one, y: one.y + shift }
   })
 }
@@ -109,8 +109,8 @@ export function shiftedPlacements(
 // see SJ-8
 // WHY: a task group the last picture did not draw has no drawn height yet; any room below the pins is taken as enough.
 /** @purity pure */
-export function hasRoomBelowPinsIn(layout: ScheduleLayout, taskGroupArea: ScreenRect, groupId: string | null): boolean {
+export function hasRoomBelowPinsIn(layout: ScheduleLayout, taskGroupArea: ScreenRect, taskGroupId: string | null): boolean {
   const room = taskGroupArea.height - (layout.pinnedBandHeight ?? 0)
-  const drawn = groupId === null ? undefined : layout.taskGroups.find((taskGroup) => taskGroup.groupId === groupId)
+  const drawn = taskGroupId === null ? undefined : layout.taskGroups.find((taskGroup) => taskGroup.taskGroupId === taskGroupId)
   return drawn === undefined ? room > 0 : room >= drawn.height
 }

@@ -149,7 +149,7 @@ const scheduleOf = (): Schedule =>
       company: null,
       manager: null,
       author: null,
-      created: null,
+      creationDate: null,
       revision: null,
       startDate: null,
       statusDate: null,
@@ -162,7 +162,7 @@ const scheduleOf = (): Schedule =>
       defaultFinishTime: null,
       themeHue: 214,
       uidHighWaterMark: 0,
-      importSeq: 0,
+      importSequence: 0,
       carry: {},
       carryElements: [],
     },
@@ -208,9 +208,9 @@ const DOCUMENT: Document = {
   schedule: SCHEDULE,
   documentSettings: SETTINGS,
   documentStamp: {
-    scheduleUpdatedUtc: '2026-01-01T00:00:00Z',
+    scheduleUpdatedAt: '2026-01-01T00:00:00Z',
     lastEditedBy: 'test',
-    settingsUpdatedUtc: '2026-01-01T00:00:00Z',
+    settingsUpdatedAt: '2026-01-01T00:00:00Z',
   },
   changeLog: [],
 } as unknown as Document
@@ -394,7 +394,7 @@ describe('FR-023 -- a press on U-62 `Import Report`\'s one entrance', () => {
       isSurfaceStanding: true,
       dualCursorFollowing: null,
       today: '2026-02-15T00:00:00',
-      newGroupId: 'task-group-minted-outside',
+      newTaskGroupId: 'task-group-minted-outside',
       newCommentBoxId: 'comment-box-minted-outside',
       newHighlightBoxId: 'highlight-box-minted-outside',
     }

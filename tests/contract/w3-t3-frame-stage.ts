@@ -58,7 +58,7 @@ export function templateDocument(): Document {
 // WHY: CR-690 -- a span reaches the picture only while it is fixed (FX-1, S-532), so a span set here is fixed too.
 export const withSpan = (document: Document, start: string | null, finish: string | null): Document => ({
   ...document,
-  documentSettings: { ...document.documentSettings, fitSpanStart: start, fitSpanFinish: finish, fitSpanFixed: start !== null },
+  documentSettings: { ...document.documentSettings, fitSpanStart: start, fitSpanFinish: finish, isFitSpanFixed: start !== null },
 })
 
 const NO_MODIFIERS: InputModifiers = { ctrl: false, shift: false, alt: false, meta: false }
@@ -96,7 +96,7 @@ export interface ExportStage {
   press(input: HumanInput): Promise<void>
   take(entry: string): Promise<void>
   takeFormat(format: string): Promise<void>
-  pressRow(surface: string, entry: string | null, groupId: string): Promise<void>
+  pressRow(surface: string, entry: string | null, taskGroupId: string): Promise<void>
   click(x: number, y: number, clickCount?: number): Promise<void>
   pointAt(x: number, y: number): Promise<void>
   dragDivider(panel: string, fromX: number, toX: number, y: number): Promise<void>
@@ -194,7 +194,7 @@ export function exportStage(
     press,
     take: (entry) => pressAt(partOf(surfaceOfEntry(entry), entry, null)),
     takeFormat: (format) => pressAt(partOf(EXPORT_CHOOSER, null, format)),
-    pressRow: (surfaceName, entry, groupId) => pressAt(partOf(surfaceName, entry, null, groupId)),
+    pressRow: (surfaceName, entry, taskGroupId) => pressAt(partOf(surfaceName, entry, null, taskGroupId)),
     click: async (x, y, clickCount = 1) => {
       for (let count = 1; count <= clickCount; count += 1) {
         loop.receiveInput(pointer('down', x, y, count))

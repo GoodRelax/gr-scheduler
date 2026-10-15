@@ -25,7 +25,7 @@ const viewWith = (label: string, isLabelTruncated: boolean): ScreenView =>
       pinnedTitles: [],
       titles: [
         {
-          groupId: 'g1',
+          taskGroupId: 'g1',
           depth: 2,
           fontPx: 13,
           indentPx: 20,

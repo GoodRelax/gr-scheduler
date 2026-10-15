@@ -48,7 +48,7 @@ function familyDocument(descendantsAbove: boolean): Document {
   ]
   const above = new Set(descendantsAbove ? [ABOVE_ONE, ABOVE_TWO, GRANDCHILD, GREAT_GRANDCHILD] : [ABOVE_ONE, ABOVE_TWO])
   const rowOf = (uid: number): string => (above.has(uid) ? 'top' : 'below')
-  schedule.taskGroupMembers = schedule.tasks.map((one: { uid: number }) => ({ taskUid: one.uid, groupId: rowOf(one.uid) }))
+  schedule.taskGroupMembers = schedule.tasks.map((one: { uid: number }) => ({ taskUid: one.uid, taskGroupId: rowOf(one.uid) }))
   schedule.taskVisuals = schedule.tasks.map((one: { uid: number }) => ({ ...visual, taskUid: one.uid }))
   schedule.project.uidHighWaterMark = 100
   const read = documentFromJson(JSON.stringify(draft))

@@ -156,7 +156,7 @@ const TASK_GROUPS: readonly { readonly id: string; readonly parentId: string | n
   { id: ZETA, parentId: null, name: 'Zeta' },
 ]
 
-const nameOf = (groupId: string): string => TASK_GROUPS.find((one) => one.id === groupId)?.name ?? groupId
+const nameOf = (taskGroupId: string): string => TASK_GROUPS.find((one) => one.id === taskGroupId)?.name ?? taskGroupId
 
 function task(uid: number, name: string): Task {
   return {
@@ -198,16 +198,16 @@ function documentWith(): Document {
       taskGroups: TASK_GROUPS.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
-        label: one.name,
+        name: one.name,
         derivedFromTaskUid: null,
         order: index,
         treeState: 'auto',
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
       taskGroupMembers: TASK_GROUPS.map((one, index) => ({
         taskUid: index + 1,
-        groupId: one.id,
+        taskGroupId: one.id,
       })),
       taskVisuals: [],
       commentBoxes: [],
@@ -302,7 +302,7 @@ const ON_THE_SURFACE = { x: 80, y: 120 }
 interface Stage {
   readonly loop: FrameLoop
   readonly screen: ScreenPane
-  press(entry: string, groupId: string | null): void
+  press(entry: string, taskGroupId: string | null): void
 }
 
 function stage(): Stage {
@@ -317,12 +317,12 @@ function stage(): Stage {
   return {
     loop,
     screen,
-    press: (entry, groupId) => {
+    press: (entry, taskGroupId) => {
       screen.drawAt({
         part: TASK_GROUP_PANEL,
         entry: entry as any,
         format: null,
-        taskGroupId: groupId,
+        taskGroupId: taskGroupId,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -337,7 +337,7 @@ function stage(): Stage {
 /** The task groups the panel drew, by name, in the order it drew them. */
 function drawnTaskGroups(built: Stage): readonly string[] {
   const panel = built.screen.last().taskGroupPanel
-  return [...panel.pinnedTitles, ...panel.titles].map((one) => nameOf(one.groupId))
+  return [...panel.pinnedTitles, ...panel.titles].map((one) => nameOf(one.taskGroupId))
 }
 
 /** HF-16's own arming, as the panel drew it. */

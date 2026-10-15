@@ -217,7 +217,7 @@ describe('T-016 -- read-only rows show text only', () => {
 const linkOf = (predecessorUid: number, linkType = 1): Record<string, unknown> => ({
   predecessorUid,
   linkType,
-  lag: 0,
+  linkLag: 0,
   lagFormat: null,
   carry: {},
   carryElements: [],
@@ -295,7 +295,7 @@ describe(`FR-009 -- ${FR_009_ROWS}`, () => {
       expect(Number.isInteger(number), id).toBe(true)
       expect(abbreviation, id).toMatch(/^[A-Z]{2}$/)
     }
-    expect(DEPENDENCY_ROWS.map((one) => one.columns[0])).toEqual(['linkType', 'lag', 'predecessorUid', 'successorUid'])
+    expect(DEPENDENCY_ROWS.map((one) => one.columns[0])).toEqual(['linkType', 'linkLag', 'predecessorUid', 'successorUid'])
   })
 
   it('the panel of a selected line holds exactly T-016\'s Dependency rows, in order', () => {
@@ -321,7 +321,7 @@ describe(`FR-009 -- ${FR_009_ROWS}`, () => {
     const panel = panelOf(LINES, dependencyItem(successorOf(0)))
     for (const item of DEPENDENCY_ROWS) {
       const field = fieldOf(panel, item.id)
-      if (item.columns[0] === 'lag') {
+      if (item.columns[0] === 'linkLag') {
         expect(field.isEditable, item.id).toBe(true)
         expect(field.controls.length, item.id).toBeGreaterThan(0)
       } else {
@@ -334,7 +334,7 @@ describe(`FR-009 -- ${FR_009_ROWS}`, () => {
 
   it('the lag control commits CM-38 setDependencyLag on this line', () => {
     const panel = panelOf(LINES, dependencyItem(successorOf(0)))
-    const field = fieldOf(panel, rowOfColumn('lag'))
+    const field = fieldOf(panel, rowOfColumn('linkLag'))
     const control = field.controls[0]
     expect(control).toBeDefined()
     const commands = commandsOf(LINES, { row: field.row, key: control!.key, text: '2' })

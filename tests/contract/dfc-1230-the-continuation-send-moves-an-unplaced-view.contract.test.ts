@@ -153,7 +153,7 @@ const taskOf = (uid: number, start: number, days: number, links: readonly number
   dependencies: links.map((predecessorUid) => ({
     predecessorUid,
     linkType: 1,
-    lag: null,
+    linkLag: null,
     lagFormat: null,
     carry: {},
     carryElements: [],
@@ -185,14 +185,14 @@ const SCHEDULE = {
     id,
     parentId: null,
     order,
-    minHeight: null,
-    label: id,
+    minHeightPx: null,
+    name: id,
     derivedFromTaskUid: null,
     treeState: 'auto',
     editGroup: null,
     color: null,
   })),
-  taskGroupMembers: TASKS.map(([task, groupId]) => ({ groupId, taskUid: task['uid'] })),
+  taskGroupMembers: TASKS.map(([task, taskGroupId]) => ({ taskGroupId, taskUid: task['uid'] })),
   taskVisuals: TASKS.map(([task]) => ({ taskUid: task['uid'], shapeKind: 'rectangle' })),
   taskOrigins: [],
   baselineTasks: [],
@@ -241,7 +241,7 @@ const sceneOf = (stored: Loose, drawn: Loose): Scene => {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext
@@ -256,7 +256,7 @@ const sceneOf = (stored: Loose, drawn: Loose): Scene => {
 }
 
 // see OP-10
-const TEMPLATE_PLACE: Loose = { scrollDate: FIRST_DAY, scrollDayOffset: 0, scrollGroupId: HEAD_TASK_GROUP, scrollGroupOffset: 0 }
+const TEMPLATE_PLACE: Loose = { scrollDate: FIRST_DAY, scrollDayOffset: 0, scrollTaskGroupId: HEAD_TASK_GROUP, scrollGroupOffset: 0 }
 
 // WHY: the template stores nothing, yet its picture is drawn at OP-10's place.
 const unplaced = (): Scene => sceneOf(TEMPLATE_SETTINGS, { ...TEMPLATE_SETTINGS, ...TEMPLATE_PLACE })
@@ -341,13 +341,13 @@ describe('DFC-1230 -- the manuscript these cases are driven by', () => {
       expect(flat(cell), clause).toContain(flat(clause))
     }
     expect(S_77).toContain('`scrollDate`')
-    expect(S_78).toContain('`scrollGroupId`')
+    expect(S_78).toContain('`scrollTaskGroupId`')
     expect(S_176).toContain('`scrollGroupOffset`')
   })
 
   it(`the startup template stores no place: ${OP_10_TEMPLATE_HAS_NO_PLACE}`, () => {
     expect(TEMPLATE_SETTINGS['scrollDate'], OP_10_TEMPLATE_HAS_NO_PLACE).toBeNull()
-    expect(TEMPLATE_SETTINGS['scrollGroupId'], OP_10_TEMPLATE_HAS_NO_PLACE).toBeNull()
+    expect(TEMPLATE_SETTINGS['scrollTaskGroupId'], OP_10_TEMPLATE_HAS_NO_PLACE).toBeNull()
   })
 })
 
@@ -375,7 +375,7 @@ describe(`(a) translator -- EL-12: ${EL_12_SEND}`, () => {
       expect(onlyOf(writes, SET_ZOOM), 'the far end is drawn, so EL-10 does not apply').toBeUndefined()
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, EL_12_SEND).toBeDefined()
-      expect(scroll!['scrollGroupId'], `${EL_12_HOW} (S-78)`).toBe(FAR_TASK_GROUP)
+      expect(scroll!['scrollTaskGroupId'], `${EL_12_HOW} (S-78)`).toBe(FAR_TASK_GROUP)
       expect(scroll!['scrollGroupOffset'], `${EL_12_HOW} (S-176)`).toBe(0)
     })
 
@@ -408,7 +408,7 @@ describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
     const drawnFirst = dateAtX(timeAxisOf(view.settings, REGIONS), REGIONS.taskGroupArea.x + margin)
     const drawnText = drawnFirst === null ? null : new Date(Date.UTC(drawnFirst.year, drawnFirst.month - 1, drawnFirst.day)).toISOString()
     expect(dayOf(drawnText), OP_10_FIRST_DAY).toBe(FIRST_DAY)
-    expect(view.settings.scrollGroupId, OP_10_TEMPLATE_PLACE).toBe(HEAD_TASK_GROUP)
+    expect(view.settings.scrollTaskGroupId, OP_10_TEMPLATE_PLACE).toBe(HEAD_TASK_GROUP)
   })
 
   for (const [name, make] of [
@@ -421,7 +421,7 @@ describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
       shell.viewSettingsOnce(documentOf(scene.stored), scene.stored as unknown as DocumentSettings, REGIONS)
       const stored = storedAfter(scene.stored, writesOf(stillClickOn(scene).out))
       const view = shell.viewSettingsOnce(documentOf(stored), stored as unknown as DocumentSettings, REGIONS)
-      expect(view.settings.scrollGroupId, `${OP_10_CHOICE}; ${EL_12_HOW} (S-78)`).toBe(FAR_TASK_GROUP)
+      expect(view.settings.scrollTaskGroupId, `${OP_10_CHOICE}; ${EL_12_HOW} (S-78)`).toBe(FAR_TASK_GROUP)
       expect(view.settings.scrollGroupOffset, `${EL_12_HOW} (S-176)`).toBe(0)
       expect(dayOf(view.settings.scrollDate), `${EL_11_STAY}`).toBe(dayOf(scene.drawn['scrollDate']))
     })
@@ -433,7 +433,7 @@ describe(`(b) shell view place -- ${OP_10_CHOICE}`, () => {
       const stored = storedAfter(scene.stored, writesOf(stillClickOn(scene).out))
       shell.viewSettingsOnce(documentOf(stored), stored as unknown as DocumentSettings, REGIONS)
       const again = shell.viewSettingsOnce(documentOf(stored), stored as unknown as DocumentSettings, REGIONS)
-      expect(again.settings.scrollGroupId, OP_10_NOT_REDONE).toBe(FAR_TASK_GROUP)
+      expect(again.settings.scrollTaskGroupId, OP_10_NOT_REDONE).toBe(FAR_TASK_GROUP)
     })
   }
 })

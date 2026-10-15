@@ -217,7 +217,7 @@ const nested = (flat: Readonly<Record<string, unknown>>): Record<string, unknown
 const SETTINGS = nested({
   ...SETTINGS_DEFAULTS,
   scrollDate: '2026-01-01',
-  scrollGroupId: 'g1',
+  scrollTaskGroupId: 'g1',
 }) as unknown as DocumentSettings
 
 const THEME_HUE = Number(bare(rowOf(specTable('T-216'), 'S-73').by['既定'] ?? ''))
@@ -266,11 +266,11 @@ const groupOf = (): TaskGroup =>
   ({
     id: 'g1',
     parentId: null,
-    label: 'row',
+    name: 'row',
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', color: null,
-    minHeight: null,
+    minHeightPx: null,
   }) as unknown as TaskGroup
 
 const scheduleWith = (task: Task): Schedule =>
@@ -282,7 +282,7 @@ const scheduleWith = (task: Task): Schedule =>
       startDate: null,
       themeHue: THEME_HUE,
       uidHighWaterMark: 100,
-      importSeq: 0,
+      importSequence: 0,
       revision: 1,
       carry: {},
       carryElements: [],
@@ -292,7 +292,7 @@ const scheduleWith = (task: Task): Schedule =>
     resources: [],
     assignments: [],
     taskGroups: [groupOf()],
-    taskGroupMembers: [{ taskUid: THE_TASK, groupId: 'g1' }],
+    taskGroupMembers: [{ taskUid: THE_TASK, taskGroupId: 'g1' }],
     taskVisuals: [],
     commentBoxes: [],
     highlightBoxes: [],
@@ -306,9 +306,9 @@ const documentOf = (schedule: Schedule): Document =>
     schedule,
     documentSettings: SETTINGS,
     documentStamp: {
-      scheduleUpdatedUtc: '2026-01-01T00:00:00Z',
+      scheduleUpdatedAt: '2026-01-01T00:00:00Z',
       lastEditedBy: 'test',
-      settingsUpdatedUtc: '2026-01-01T00:00:00Z',
+      settingsUpdatedAt: '2026-01-01T00:00:00Z',
     },
     changeLog: [],
   }) as unknown as Document
@@ -403,7 +403,7 @@ const contextFor = (schedule: Schedule): InputContext => {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: TODAY,
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext

@@ -26,7 +26,7 @@
 //   screen-surface.ts    `ScreenPart` -- its seven members and the optional
 //                        `isTaskGroupGrabStrip`, which is the road GR-20's press
 //                        takes in
-//   schedule-layout.ts   `TaskGroupPlacement` (`groupId`, `depth`, `y`, `height`)
+//   schedule-layout.ts   `TaskGroupPlacement` (`taskGroupId`, `depth`, `y`, `height`)
 //   screen-regions.ts    `ScreenRect`
 //   input-command-translator.ts  `HumanInput`, `InputModifiers`,
 //                        `PointerButton`, `PointerInput`, `PointerPhase`
@@ -321,13 +321,13 @@ const NAME_OF = new Map<string, string>([
   [D1, 'D1'],
 ])
 
-const nameOf = (groupId: string): string => NAME_OF.get(groupId) ?? groupId
+const nameOf = (taskGroupId: string): string => NAME_OF.get(taskGroupId) ?? taskGroupId
 
 interface Fixture {
   readonly rows?: readonly { readonly id: string; readonly parent: string | null; readonly order: number }[]
   /** Task groups the person folded (AT-153 `collapsed`). */
   readonly folded?: readonly string[]
-  /** S-126 `pinnedGroupIds` -- the task groups FR-098 lifts to the head of the panel. */
+  /** S-126 `pinnedTaskGroupIds` -- the task groups FR-098 lifts to the head of the panel. */
   readonly pinned?: readonly string[]
 }
 
@@ -375,16 +375,16 @@ function documentWith(part: Fixture = {}): Document {
       taskGroups: rows.map((one) => ({
         id: one.id,
         parentId: one.parent,
-        label: nameOf(one.id),
+        name: nameOf(one.id),
         derivedFromTaskUid: null,
         order: one.order,
         treeState: folded.has(one.id) ? 'collapsed' : 'auto',
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
       taskGroupMembers: rows.map((one, at) => ({
         taskUid: at + 1,
-        groupId: one.id,
+        taskGroupId: one.id,
       })),
       taskVisuals: [],
       commentBoxes: [],
@@ -394,7 +394,7 @@ function documentWith(part: Fixture = {}): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      ...(part.pinned === undefined ? {} : { pinnedGroupIds: [...part.pinned] }),
+      ...(part.pinned === undefined ? {} : { pinnedTaskGroupIds: [...part.pinned] }),
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
@@ -512,9 +512,9 @@ interface Stage {
   readonly screen: ScreenPane
   send(input: HumanInput): void
   /** Aim the next press at GR-20's strip on one task group. CS-2 freezes it at the press. */
-  aimAtTheStrip(groupId: string): void
+  aimAtTheStrip(taskGroupId: string): void
   /** Aim the next press at the task group's NAME -- on a task group, on no strip. */
-  aimAtTheName(groupId: string): void
+  aimAtTheName(taskGroupId: string): void
 }
 
 /**
@@ -524,22 +524,22 @@ interface Stage {
  * choice of this file's: 表 T-109 holds no row for a grab strip, so there is no
  * `IconId` a point on it could carry.
  */
-const onTheStrip = (groupId: string): ScreenPart => ({
+const onTheStrip = (taskGroupId: string): ScreenPart => ({
   part: U_22_PART,
   entry: null,
   format: null,
-  taskGroupId: groupId,
+  taskGroupId: taskGroupId,
   resourceUid: null,
   dividerPanel: null,
   noticeDismissKey: null,
   isTaskGroupGrabStrip: true,
 })
 
-const onTheName = (groupId: string): ScreenPart => ({
+const onTheName = (taskGroupId: string): ScreenPart => ({
   part: U_22_PART,
   entry: null,
   format: null,
-  taskGroupId: groupId,
+  taskGroupId: taskGroupId,
   resourceUid: null,
   dividerPanel: null,
   noticeDismissKey: null,
@@ -557,8 +557,8 @@ function stage(part: Fixture = {}): Stage {
       loop.receiveInput(input)
       pen.runAnimationFrames()
     },
-    aimAtTheStrip: (groupId) => screen.drawAt(onTheStrip(groupId)),
-    aimAtTheName: (groupId) => screen.drawAt(onTheName(groupId)),
+    aimAtTheStrip: (taskGroupId) => screen.drawAt(onTheStrip(taskGroupId)),
+    aimAtTheName: (taskGroupId) => screen.drawAt(onTheName(taskGroupId)),
   }
 }
 
@@ -569,16 +569,16 @@ const frameOf = (loop: FrameLoop) => {
 }
 
 /** Where one task group's band stands, as the frame placed it. */
-function bandOf(loop: FrameLoop, groupId: string): { readonly y: number; readonly height: number } {
-  const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no band for task group ${nameOf(groupId)}`)
+function bandOf(loop: FrameLoop, taskGroupId: string): { readonly y: number; readonly height: number } {
+  const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`the frame drew no band for task group ${nameOf(taskGroupId)}`)
   return { y: found.y as number, height: found.height as number }
 }
 
 /** The point on GR-20's strip of one task group: the left edge of the panel, mid band. */
-function stripPoint(loop: FrameLoop, groupId: string): { readonly x: number; readonly y: number } {
+function stripPoint(loop: FrameLoop, taskGroupId: string): { readonly x: number; readonly y: number } {
   const panel = frameOf(loop).regions.taskGroupPanel
-  const band = bandOf(loop, groupId)
+  const band = bandOf(loop, taskGroupId)
   return { x: panel.x + 1, y: band.y + band.height / 2 }
 }
 
@@ -591,14 +591,14 @@ interface Row {
 const rowsOf = (loop: FrameLoop): readonly Row[] =>
   (loop.document().schedule as any).taskGroups as readonly Row[]
 
-function storedTaskGroup(loop: FrameLoop, groupId: string): Row {
-  const found = rowsOf(loop).find((one) => one.id === groupId)
-  if (found === undefined) throw new Error(`the document has no task group ${nameOf(groupId)}`)
+function storedTaskGroup(loop: FrameLoop, taskGroupId: string): Row {
+  const found = rowsOf(loop).find((one) => one.id === taskGroupId)
+  if (found === undefined) throw new Error(`the document has no task group ${nameOf(taskGroupId)}`)
   return found
 }
 
-const parentOf = (loop: FrameLoop, groupId: string): string | null =>
-  storedTaskGroup(loop, groupId).parentId
+const parentOf = (loop: FrameLoop, taskGroupId: string): string | null =>
+  storedTaskGroup(loop, taskGroupId).parentId
 
 /** The children of one parent, in the order the document stores them. */
 const childrenOf = (loop: FrameLoop, parentId: string | null): readonly string[] =>
@@ -609,8 +609,8 @@ const childrenOf = (loop: FrameLoop, parentId: string | null): readonly string[]
     .map((one) => nameOf(one.id))
 
 /** How deep one task group sits. 「根のタスクグループを深さ 1 と数える」 (S-125). */
-function depthOf(loop: FrameLoop, groupId: string): number {
-  let at: string | null = groupId
+function depthOf(loop: FrameLoop, taskGroupId: string): number {
+  let at: string | null = taskGroupId
   let depth = 0
   for (let guard = 0; guard < 64 && at !== null; guard += 1) {
     depth += 1
@@ -620,15 +620,15 @@ function depthOf(loop: FrameLoop, groupId: string): number {
 }
 
 /** The TaskGroupTitle the panel drew for one task group, or `null` when it drew none. */
-function drawnTitle(built: Stage, groupId: string): any {
+function drawnTitle(built: Stage, taskGroupId: string): any {
   const panel = built.screen.last().taskGroupPanel
   const all = [...panel.pinnedTitles, ...panel.titles] as any[]
-  return all.find((one) => one.groupId === groupId) ?? null
+  return all.find((one) => one.taskGroupId === taskGroupId) ?? null
 }
 
-function titleOf(built: Stage, groupId: string): any {
-  const found = drawnTitle(built, groupId)
-  if (found === null) throw new Error(`the panel drew no title for task group ${nameOf(groupId)}`)
+function titleOf(built: Stage, taskGroupId: string): any {
+  const found = drawnTitle(built, taskGroupId)
+  if (found === null) throw new Error(`the panel drew no title for task group ${nameOf(taskGroupId)}`)
   return found
 }
 
@@ -663,11 +663,11 @@ function toldOnly(built: Stage, rowId: (typeof HF_15_REASONS)[number]): void {
  */
 function drag(
   built: Stage,
-  groupId: string,
+  taskGroupId: string,
   steps: readonly { readonly dx: number; readonly dy: number }[],
 ): void {
-  const from = stripPoint(built.loop, groupId)
-  built.aimAtTheStrip(groupId)
+  const from = stripPoint(built.loop, taskGroupId)
+  built.aimAtTheStrip(taskGroupId)
   built.send(pointer('down', from.x, from.y))
   for (const step of steps) built.send(pointer('move', from.x + step.dx, from.y + step.dy))
   const last = steps[steps.length - 1] ?? { dx: 0, dy: 0 }
@@ -818,7 +818,7 @@ describe('the specification still says what these cases are driven by', () => {
 describe('the fixture these cases drive', () => {
   it('draws the tree in the order the cases walk, and hides the folded group', () => {
     const built = stage()
-    const drawn = (frameOf(built.loop).layout as any).taskGroups.map((one: any) => nameOf(one.groupId))
+    const drawn = (frameOf(built.loop).layout as any).taskGroups.map((one: any) => nameOf(one.taskGroupId))
     expect(drawn, 'the panel no longer draws the tree these cases were written against').toEqual([
       'Alpha',
       'A1',
@@ -1335,9 +1335,9 @@ describe('表 T-023d (MUST NOT) -- 掴んでいるあいだ値を文書へ書い
       [...doc.schedule.taskGroups]
         .map((one: any) => ({
           id: one.id,
-          label: one.label,
+          name: one.label,
           color: one.color,
-          minHeight: one.minHeight,
+          minHeightPx: one.minHeight,
           treeState: one.treeState,
           derivedFromTaskUid: one.derivedFromTaskUid,
         }))
@@ -1381,10 +1381,10 @@ describe('GR-20 of 表 T-023d (MUST NOT) -- ピン止めしているタスクグ
     const built = stage({ pinned: [A2] })
     const panel = built.screen.last().taskGroupPanel
     expect(
-      panel.pinnedTitles.map((one) => one.groupId),
+      panel.pinnedTitles.map((one) => one.taskGroupId),
       'FR-098 no longer lifts a pinned task group, so GR-20 has nothing to refuse',
     ).toEqual([A2])
-    expect(panel.titles.map((one) => one.groupId)).not.toContain(A2)
+    expect(panel.titles.map((one) => one.taskGroupId)).not.toContain(A2)
   })
 })
 
@@ -1442,7 +1442,7 @@ function heldAxes(built: Stage): Map<string, unknown> {
   const panel = built.screen.last().taskGroupPanel
   const found = new Map<string, unknown>()
   for (const title of [...panel.pinnedTitles, ...panel.titles] as any[]) {
-    if (title.heldOnAxis != null) found.set(title.groupId as string, title.heldOnAxis)
+    if (title.heldOnAxis != null) found.set(title.taskGroupId as string, title.heldOnAxis)
   }
   return found
 }

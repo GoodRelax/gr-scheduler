@@ -224,12 +224,12 @@ function taskGroup(id: string, label: string): Record<string, unknown> {
   return {
     id,
     parentId: null,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   }
 }
 
@@ -245,7 +245,7 @@ function documentWith(rowId: string, taskGroupLabel: string, tasks: readonly Tas
       resources: [],
       assignments: [],
       taskGroups: [taskGroup(rowId, taskGroupLabel)],
-      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, groupId: rowId })),
+      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, taskGroupId: rowId })),
       taskVisuals: tasks.map((one) => blankTaskVisual(one.uid)),
       commentBoxes: [],
       highlightBoxes: [],

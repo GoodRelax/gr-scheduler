@@ -52,10 +52,10 @@ type Stamp = Document['documentStamp']
 const noNotice = (): void => undefined
 
 describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table prints', () => {
-  it('agentApiVersion is 4 -- the number the prose of T-107 gives and the manuscript declares', () => {
-    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe(4)
-    expect(MANUSCRIPT.version).toBe(4)
-    expect(PRINTED).toContain('いまの版は 4 である（`AM-1` が返す値）')
+  it('agentApiVersion is 5 -- the number the prose of T-107 gives and the manuscript declares', () => {
+    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe(5)
+    expect(MANUSCRIPT.version).toBe(5)
+    expect(PRINTED).toContain('いまの版は 5 である（`AM-1` が返す値）')
   })
 
   it('schemaVersion is the format version the page was wired with (AM-2)', () => {
@@ -156,7 +156,7 @@ describe('the AgentApi type, member by member (T-107)', () => {
   })
 
   it('a refusal carries the six fields of AV-3 and its reason is the type of AV-4', () => {
-    expectTypeOf<keyof AgentRefusal>().toEqualTypeOf<'target' | 'reason' | 'stamp' | 'document' | 'refusals' | 'what'>()
+    expectTypeOf<keyof AgentRefusal>().toEqualTypeOf<'target' | 'reason' | 'stamp' | 'document' | 'refusals' | 'message'>()
     expectTypeOf<AgentRefusal['reason']>().toEqualTypeOf<AgentRefusalReason>()
   })
 })

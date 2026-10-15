@@ -270,7 +270,7 @@ const shapeOf = (command: DocumentCommand): Shape => {
   return { kind: record['kind'], taskUid: record['taskUid'], resourceUid: record['resourceUid'] }
 }
 const seats = (taskUid: number, resourceUid: number): Shape => ({ kind: 'createAssignment', taskUid, resourceUid })
-const releases = (taskUid: number, resourceUid: number): Shape => ({ kind: 'unassignResource', taskUid, resourceUid })
+const releases = (taskUid: number, resourceUid: number): Shape => ({ kind: 'deleteAssignment', taskUid, resourceUid })
 const makes = (name: string): Shape => ({ kind: 'createResource', name })
 
 const committed = (
@@ -315,7 +315,7 @@ describe(`AS-5 -- ${AS_5_WRITES_ONLY}`, () => {
 
   it('the add item chosen on Bravo\'s line makes, seats and releases Bravo', () => {
     const shapes = committed(BRAVO_SEATED, BRAVO.uid, NEW_NAME, 'add')
-    expect(kindsOf(shapes)).toEqual(['createResource', 'createAssignment', 'unassignResource'])
+    expect(kindsOf(shapes)).toEqual(['createResource', 'createAssignment', 'deleteAssignment'])
     expect(shapes[0]).toEqual(makes(NEW_NAME))
     expect(shapes[2]).toEqual(releases(BRAVO_SEATED, BRAVO.uid))
   })

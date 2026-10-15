@@ -105,11 +105,11 @@ describe('copiedForPasteOf -- the seam the copy key goes through', () => {
   })
 
   it('CR-541 section 11 row 8: one task group and two Tasks chosen -> the task group is copied', () => {
-    expect(copiedForPasteOf(['task-group-a'], picked(task(1), task(2)))).toEqual({ kind: 'taskGroup', groupId: 'task-group-a' })
+    expect(copiedForPasteOf(['task-group-a'], picked(task(1), task(2)))).toEqual({ kind: 'taskGroup', taskGroupId: 'task-group-a' })
   })
 
   it('FR-033 (task group half) control: one task group and no Task -> the task group is copied', () => {
-    expect(copiedForPasteOf(['task-group-b'], NOTHING)).toEqual({ kind: 'taskGroup', groupId: 'task-group-b' })
+    expect(copiedForPasteOf(['task-group-b'], NOTHING)).toEqual({ kind: 'taskGroup', taskGroupId: 'task-group-b' })
   })
 })
 
@@ -155,10 +155,10 @@ const wbsDocument = (): Record<string, unknown> =>
         taskOf(B, { name: 'B', start: '2026-04-27T08:00:00', finish: '2026-05-01T17:00:00' }),
       ],
       taskGroupMembers: [
-        { taskUid: P, groupId: 'task-group-1' },
-        { taskUid: A, groupId: 'task-group-2' },
-        { taskUid: A1, groupId: 'task-group-3' },
-        { taskUid: B, groupId: 'task-group-1' },
+        { taskUid: P, taskGroupId: 'task-group-1' },
+        { taskUid: A, taskGroupId: 'task-group-2' },
+        { taskUid: A1, taskGroupId: 'task-group-3' },
+        { taskUid: B, taskGroupId: 'task-group-1' },
       ],
     },
   )
@@ -196,7 +196,7 @@ function staged(): Staged {
       })
     },
     tasks: () => schedule().tasks,
-    taskGroupOfTask: (uid) => schedule().taskGroupMembers.find((one: any) => one.taskUid === uid)?.groupId,
+    taskGroupOfTask: (uid) => schedule().taskGroupMembers.find((one: any) => one.taskUid === uid)?.taskGroupId,
   }
 }
 
@@ -261,12 +261,12 @@ describe('FR-033 through the shell -- Ctrl+C then Ctrl+V on several picked Tasks
 describe('two task groups chosen at copy time -- the brief contract, NOT a spec clause', () => {
   it('brief + copyTaken RS-27: Ctrl+C with two task groups chosen is told RS-27 and holds nothing to paste', () => {
     let built: ShellBench | null = null
-    let pickTaskGroup: ((groupId: string, adding: boolean) => void) | null = null
+    let pickTaskGroup: ((taskGroupId: string, adding: boolean) => void) | null = null
     for (const modifier of ['ctrl', 'shift', 'meta'] as const) {
       const trial = shell(wbsDocument())
       benches.push(trial)
-      const pick = (groupId: string, adding: boolean): void => {
-        trial.aim({ part: TASK_GROUP_PANEL, entry: null, format: null, taskGroupId: groupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as never)
+      const pick = (taskGroupId: string, adding: boolean): void => {
+        trial.aim({ part: TASK_GROUP_PANEL, entry: null, format: null, taskGroupId: taskGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as never)
         trial.click(60, 120, adding ? { [modifier]: true } : {})
         trial.aim(null)
       }

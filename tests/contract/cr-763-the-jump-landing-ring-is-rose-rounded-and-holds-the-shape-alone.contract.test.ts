@@ -232,14 +232,14 @@ const scheduleOf = (spec: SceneSpec): Loose => ({
     id,
     parentId: null,
     order,
-    minHeight: null,
-    label: id,
+    minHeightPx: null,
+    name: id,
     derivedFromTaskUid: null,
     treeState: 'auto',
     editGroup: null,
     color: null,
   })),
-  taskGroupMembers: GROUP_IDS.map((groupId, at) => ({ groupId, taskUid: at + 1 })),
+  taskGroupMembers: GROUP_IDS.map((taskGroupId, at) => ({ taskGroupId, taskUid: at + 1 })),
   taskVisuals: GROUP_IDS.map((_, at) => ({ taskUid: at + 1, shapeKind: 'rectangle' })),
   taskOrigins: [],
   baselineTasks: [],
@@ -264,11 +264,11 @@ interface Scene {
 const BASE_SETTINGS: Loose = {
   scrollDate: HOME,
   zoomX: 1,
-  progressMarkerVisible: true,
-  assigneeVisible: true,
-  percentCompleteVisible: true,
-  actualVisible: true,
-  planVisible: true,
+  isProgressMarkerVisible: true,
+  isAssigneeVisible: true,
+  isPercentCompleteVisible: true,
+  isActualVisible: true,
+  isPlanVisible: true,
 }
 
 const sceneOf = (spec: SceneSpec = {}, selection: Selection = emptySelection()): Scene => {
@@ -386,12 +386,12 @@ const expectRect = (drawn: Drawn, wanted: Rect, what: string): void => {
 
 const isFrame = (drawn: Drawn): boolean => drawn.fill === 'none' || drawn.fill === 'transparent'
 
-const commentBoxOf = (id: string, anchorGroupId: string, anchorDate: string | null): Loose => ({
+const commentBoxOf = (id: string, anchorTaskGroupId: string, anchorDate: string | null): Loose => ({
   id,
   leaderShapeKind: null,
   text: id,
   anchorDate,
-  anchorGroupId,
+  anchorTaskGroupId,
   bodyOffsetPx: null,
   strokeColor: null,
   strokeWidthPx: null,
@@ -410,7 +410,7 @@ const boxBodyOf = (scene: Scene, id: string): Rect => {
 
 const THEMES = ['light', 'dark'] as const
 const HUES = [214, 0, 120, 335] as const
-const MONO: SceneSpec = { settings: { themeMonochrome: true } }
+const MONO: SceneSpec = { settings: { isThemeMonochrome: true } }
 
 // WHY: monochrome splits the S-556 band in thirds; a third's middle stands 1/6 and 5/6 of the band out from its inner edge.
 const OUTER_THIRD = (5 / 6) * S_556

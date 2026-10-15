@@ -138,16 +138,16 @@ const TEMPLATE = JSON.parse(
   readFileSync(join(process.cwd(), 'src', 'framework', 'single-html-shell', 'startup-template.json'), 'utf8'),
 ) as Record<string, Record<string, unknown>>
 
-const RULER_FONT = SETTINGS_DEFAULTS['rulerFont'] as number
+const RULER_FONT = SETTINGS_DEFAULTS['rulerFontSizePx'] as number
 
-// WHY: FR-017 judges pxPerDay / (rulerFont * ratio / S-8) and pxPerDay = S-1 * ratio * zoomX, so the ratio cancels:
-// a zoomX for a wanted judged width is judged * rulerFont / (S-1 * S-8).
+// WHY: FR-017 judges pxPerDay / (rulerFontSizePx * ratio / S-8) and pxPerDay = S-1 * ratio * zoomX, so the ratio cancels:
+// a zoomX for a wanted judged width is judged * rulerFontSizePx / (S-1 * S-8).
 const zoomXFor = (judged: number): number => (judged * RULER_FONT) / (S_1 * S_8)
 
 interface Scene {
   readonly start: string
   readonly finish: string
-  readonly showsTimeOfDay: boolean
+  readonly isTimeOfDayVisible: boolean
   readonly zoomX: number
   readonly scrollDate: string
   readonly scrollDayOffset: number
@@ -196,14 +196,14 @@ function fixtureDocument(scene: Scene): Document {
       taskGroups: [TASK_GROUP_A, TASK_GROUP_B].map((id, order) => ({
         id,
         parentId: null,
-        label: `task group ${order}`,
+        name: `task group ${order}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: [{ taskUid: SOURCE, groupId: TASK_GROUP_A }],
+      taskGroupMembers: [{ taskUid: SOURCE, taskGroupId: TASK_GROUP_A }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -212,13 +212,13 @@ function fixtureDocument(scene: Scene): Document {
     },
     documentSettings: {
       ...(template['documentSettings'] as Record<string, unknown>),
-      showsTimeOfDay: scene.showsTimeOfDay,
+      isTimeOfDayVisible: scene.isTimeOfDayVisible,
       // WHY: the progress marker (GA-18) of an unstarted task would cover the middle of a short body.
-      progressMarkerVisible: false,
+      isProgressMarkerVisible: false,
       zoomX: scene.zoomX,
       scrollDate: scene.scrollDate,
       scrollDayOffset: scene.scrollDayOffset,
-      scrollGroupId: TASK_GROUP_A,
+      scrollTaskGroupId: TASK_GROUP_A,
       scrollGroupOffset: 0,
     },
     documentStamp: template['documentStamp'],
@@ -230,7 +230,7 @@ function fixtureDocument(scene: Scene): Document {
 const DAY_SNAP_TIME_SHOWN: Scene = {
   start: '2026-10-14T06:00:00',
   finish: '2026-10-14T10:00:00',
-  showsTimeOfDay: true,
+  isTimeOfDayVisible: true,
   zoomX: zoomXFor((S_85 + S_577) * 0.6),
   scrollDate: '2026-10-14',
   scrollDayOffset: 0,
@@ -240,7 +240,7 @@ const DAY_SNAP_TIME_SHOWN: Scene = {
 const DAY_SNAP_TIME_HIDDEN: Scene = {
   start: '2026-10-12T06:00:00',
   finish: '2026-10-12T10:00:00',
-  showsTimeOfDay: false,
+  isTimeOfDayVisible: false,
   zoomX: 1100 / (S_229 * S_1) / 2,
   scrollDate: '2026-10-11',
   scrollDayOffset: 0,
@@ -250,7 +250,7 @@ const DAY_SNAP_TIME_HIDDEN: Scene = {
 const HOUR_SNAP: Scene = {
   start: '2026-10-14T09:00:00',
   finish: '2026-10-14T12:00:00',
-  showsTimeOfDay: true,
+  isTimeOfDayVisible: true,
   zoomX: zoomXFor((S_577 + S_578) / 2),
   scrollDate: '2026-10-14',
   scrollDayOffset: 0.25,
@@ -360,9 +360,9 @@ const bodyOf = (loop: FrameLoop, uid: number): Point => {
 
 const pxPerDay = (loop: FrameLoop): number => frameOf(loop).layout.pxPerDay
 
-const groupY = (loop: FrameLoop, groupId: string): number => {
-  const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no task group ${groupId}`)
+const groupY = (loop: FrameLoop, taskGroupId: string): number => {
+  const found = frameOf(loop).layout.taskGroups.find((one) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`the frame drew no task group ${taskGroupId}`)
   return found.y
 }
 
@@ -407,7 +407,7 @@ const theCopy = (before: readonly Task[], after: readonly Task[]): Task => {
 }
 
 const groupOf = (built: Stage, uid: number): string | undefined =>
-  built.loop.document().schedule.taskGroupMembers.find((one) => one.taskUid === uid)?.groupId
+  built.loop.document().schedule.taskGroupMembers.find((one) => one.taskUid === uid)?.taskGroupId
 
 const day = (value: string | null): string | null => (value === null ? null : value.slice(0, 10))
 const clock = (value: string | null): string | null => (value === null ? null : value.slice(11, 19))
@@ -450,7 +450,7 @@ function contextOf(built: Stage): InputContext {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-10-01',
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext
@@ -484,7 +484,7 @@ const landingOf = (writes: readonly DocumentCommand[]): Landing => {
 }
 
 const settingsOf = (scene: Scene): DocumentSettings =>
-  ({ ...SETTINGS_DEFAULTS, showsTimeOfDay: scene.showsTimeOfDay, zoomX: scene.zoomX }) as unknown as DocumentSettings
+  ({ ...SETTINGS_DEFAULTS, isTimeOfDayVisible: scene.isTimeOfDayVisible, zoomX: scene.zoomX }) as unknown as DocumentSettings
 
 describe('premise: each scene sits on the T-378 row it is named after', () => {
   it.each([

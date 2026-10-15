@@ -107,12 +107,12 @@ describe(`AT-104 -- ${CL_2_RANGE_AT_AT_104}`, () => {
     documentOf({ tasks: [taskOf(TASK)], visuals: [visualOf(TASK, { shapeKind: 'rectangle' })] })
 
   const setWidth = (strokeWidthPx: number | null): EditResult =>
-    editDocument(plain(), { kind: 'setTaskVisualStrokeWidth', uid: TASK, strokeWidthPx } as DocumentCommand, LIMITS, 'row')
+    editDocument(plain(), { kind: 'setTaskVisualStrokeWidthPx', uid: TASK, strokeWidthPx } as DocumentCommand, LIMITS, 'row')
 
   const storedWidth = (result: EditResult): unknown =>
     result.ok ? result.document.schedule.taskVisuals.find((one) => one.taskUid === TASK)?.strokeWidthPx : 'refused'
 
-  it.each([[LOW], [2], [HIGH - 1], [HIGH], [null]])('CM-24 setTaskVisualStrokeWidth places %s', (value) => {
+  it.each([[LOW], [2], [HIGH - 1], [HIGH], [null]])('CM-24 setTaskVisualStrokeWidthPx places %s', (value) => {
     const result = setWidth(value)
     expect(result.ok, JSON.stringify(result)).toBe(true)
     expect(storedWidth(result)).toBe(value)
@@ -389,7 +389,7 @@ describe(`FR-019 -- ${FR_019_PLACED_UNFILLED}`, () => {
     const result = run(documentOf({ tasks: [taskOf(TASK)] }), {
       kind: 'createHighlightBox',
       id: 'h-new',
-      range: { startDate: '2026-04-06', endDate: '2026-04-09', topGroupId: 'g1', bottomGroupId: 'g1' },
+      range: { startDate: '2026-04-06', endDate: '2026-04-09', topTaskGroupId: 'g1', bottomTaskGroupId: 'g1' },
     })
     expect(result.ok, JSON.stringify(result)).toBe(true)
     if (result.ok) expect(result.document.schedule.highlightBoxes.find((one) => one.id === 'h-new')?.fillColor).toBe(s370)

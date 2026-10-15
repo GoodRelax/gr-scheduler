@@ -281,16 +281,16 @@ function documentWith(tasks: readonly unknown[], taskVisuals: readonly unknown[]
         {
           id: ROW,
           parentId: null,
-          label: 'Alpha',
+          name: 'Alpha',
           derivedFromTaskUid: null,
           order: 0,
           treeState: 'auto', color: null,
-          minHeight: null,
+          minHeightPx: null,
         },
       ],
       taskGroupMembers: tasks.map((one) => ({
         taskUid: (one as any).uid as number,
-        groupId: ROW,
+        taskGroupId: ROW,
       })),
       taskVisuals,
       commentBoxes: [],
@@ -304,7 +304,7 @@ function documentWith(tasks: readonly unknown[], taskVisuals: readonly unknown[]
       // OP-10 of 表 T-024a sends a null place to FR-055's fit, which measures
       // what is drawn.
       scrollDate: '2026-04-01T00:00:00',
-      scrollGroupId: ROW,
+      scrollTaskGroupId: ROW,
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
     },

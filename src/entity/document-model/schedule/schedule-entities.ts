@@ -27,7 +27,7 @@ export interface Project {
   /** AT-8 */
   readonly author: string | null
   /** AT-9 */
-  readonly created: string | null
+  readonly creationDate: string | null
   /** AT-10 */
   readonly revision: number | null
   /** AT-12 */
@@ -55,7 +55,7 @@ export interface Project {
   /** AT-20 */
   readonly uidHighWaterMark: number
   /** AT-21 */
-  readonly importSeq: number
+  readonly importSequence: number
   /** AT-22 */
   readonly carry: Readonly<Record<string, string>>
   /** AT-23 */
@@ -121,7 +121,7 @@ export interface Dependency {
   /** AT-46 */
   readonly linkType: number
   /** AT-47 */
-  readonly lag: number | null
+  readonly linkLag: number | null
   /** AT-48 */
   readonly lagFormat: number | null
   /** AT-49 */
@@ -137,7 +137,7 @@ export interface TaskGroup {
   /** AT-52 */
   readonly parentId: string | null
   /** AT-53 */
-  readonly label: string | null
+  readonly name: string | null
   /** AT-54 */
   readonly derivedFromTaskUid: number | null
   /** AT-55 */
@@ -149,7 +149,7 @@ export interface TaskGroup {
   /** AT-58 */
   readonly color: string | null
   /** AT-59 */
-  readonly minHeight: number | null
+  readonly minHeightPx: number | null
 }
 
 /** ET-5 of table T-056. */
@@ -157,7 +157,7 @@ export interface TaskGroupMember {
   /** AT-60 */
   readonly taskUid: number
   /** AT-61 */
-  readonly groupId: string
+  readonly taskGroupId: string
 }
 
 /** ET-6 of table T-056. */
@@ -287,7 +287,7 @@ export interface TaskOrigin {
   /** AT-107 */
   readonly sourceUid: number
   /** AT-108 */
-  readonly lastSeenImportSeq: number
+  readonly lastSeenImportSequence: number
   /** AT-109 */
   readonly importSessionId: string | null
 }
@@ -303,7 +303,7 @@ export interface CommentBox {
   /** AT-113 */
   readonly anchorDate: string | null
   /** AT-114 */
-  readonly anchorGroupId: string | null
+  readonly anchorTaskGroupId: string | null
   /** AT-115 */
   readonly bodyOffsetPx: { readonly dx: number, readonly dy: number } | null
   /** AT-148 */
@@ -323,13 +323,13 @@ export interface HighlightBox {
   /** AT-116 */
   readonly id: string
   /** AT-117 */
-  readonly startDate: string | null
+  readonly start: string | null
   /** AT-118 */
-  readonly endDate: string | null
+  readonly finish: string | null
   /** AT-119 */
-  readonly topGroupId: string | null
+  readonly topTaskGroupId: string | null
   /** AT-120 */
-  readonly bottomGroupId: string | null
+  readonly bottomTaskGroupId: string | null
   /** AT-121 */
   readonly strokeColor: string | null
   /** AT-122 */
@@ -393,11 +393,11 @@ export const DATE_COLUMNS: {
   readonly HighlightBox: readonly (keyof HighlightBox & string)[]
   readonly BaselineTask: readonly (keyof BaselineTask & string)[]
 } = {
-  Project: ['created', 'startDate', 'statusDate'],
+  Project: ['creationDate', 'startDate', 'statusDate'],
   Task: ['start', 'finish', 'deadline', 'actualStart', 'stop', 'actualFinish', 'resume'],
   Exception: ['fromDate', 'toDate'],
   CommentBox: ['anchorDate'],
-  HighlightBox: ['startDate', 'endDate'],
+  HighlightBox: ['start', 'finish'],
   BaselineTask: ['start', 'finish'],
 }
 
@@ -465,18 +465,18 @@ export const COLUMN_SHAPES: {
   TaskGroup: {
     id: { kind: 'string', choices: null, min: null, max: null, isNullable: false },
     parentId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
-    label: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    name: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     derivedFromTaskUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     order: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
     treeState: { kind: 'enum', choices: ['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'], min: null, max: null, isNullable: false },
     editGroup: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     color: { kind: 'color', choices: ['white', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
-    minHeight: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    minHeightPx: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
   },
   Dependency: {
     predecessorUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: false },
     linkType: { kind: 'integer', choices: null, min: 0, max: 3, isNullable: false },
-    lag: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    linkLag: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     lagFormat: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     carry: { kind: 'map', choices: null, min: null, max: null, isNullable: false },
     carryElements: { kind: 'array', choices: null, min: null, max: null, isNullable: false },
@@ -486,7 +486,7 @@ export const COLUMN_SHAPES: {
     leaderShapeKind: { kind: 'enum', choices: ['calloutBox', 'polyline'], min: null, max: null, isNullable: true },
     text: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     anchorDate: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
-    anchorGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    anchorTaskGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     bodyOffsetPx: { kind: 'object', choices: null, min: null, max: null, isNullable: true },
     strokeColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple'], min: null, max: null, isNullable: true },
     strokeWidthPx: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
@@ -496,10 +496,10 @@ export const COLUMN_SHAPES: {
   },
   HighlightBox: {
     id: { kind: 'string', choices: null, min: null, max: null, isNullable: false },
-    startDate: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
-    endDate: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
-    topGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
-    bottomGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    start: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    finish: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    topTaskGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    bottomTaskGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     strokeColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
     cornerRadiusPx: { kind: 'number', choices: null, min: null, max: null, isNullable: true },
     strokeWidthPx: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
@@ -580,7 +580,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
     primaryKey: ['taskUid'],
     foreignKeys: [
       { fromColumn: 'taskUid', child: 'Task', toColumn: 'uid' },
-      { fromColumn: 'groupId', child: 'TaskGroup', toColumn: 'id' },
+      { fromColumn: 'taskGroupId', child: 'TaskGroup', toColumn: 'id' },
     ],
     nested: [],
   },
@@ -666,7 +666,7 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
     scheduleKey: 'commentBoxes',
     many: true,
     primaryKey: ['id'],
-    foreignKeys: [{ fromColumn: 'anchorGroupId', child: 'TaskGroup', toColumn: 'id' }],
+    foreignKeys: [{ fromColumn: 'anchorTaskGroupId', child: 'TaskGroup', toColumn: 'id' }],
     nested: [],
   },
   {
@@ -675,8 +675,8 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
     many: true,
     primaryKey: ['id'],
     foreignKeys: [
-      { fromColumn: 'topGroupId', child: 'TaskGroup', toColumn: 'id' },
-      { fromColumn: 'bottomGroupId', child: 'TaskGroup', toColumn: 'id' },
+      { fromColumn: 'topTaskGroupId', child: 'TaskGroup', toColumn: 'id' },
+      { fromColumn: 'bottomTaskGroupId', child: 'TaskGroup', toColumn: 'id' },
     ],
     nested: [],
   },

@@ -277,12 +277,12 @@ function twoTaskGroupDocument(edit: (draft: any) => void = () => {}): Document {
   const row = (id: string, parentId: string | null, label: string) => ({
     id,
     parentId,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   })
   const draft = {
     '$schema': template['$schema'],
@@ -302,8 +302,8 @@ function twoTaskGroupDocument(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [row(ALPHA, null, 'Alpha'), row(BETA, ALPHA, 'Beta')],
       taskGroupMembers: [
-        { taskUid: 1, groupId: ALPHA },
-        { taskUid: 2, groupId: BETA },
+        { taskUid: 1, taskGroupId: ALPHA },
+        { taskUid: 2, taskGroupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -1183,12 +1183,12 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
 
     const stamp = stampOf(loop.document())
     const toTheSecond = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/
-    expect(stamp.scheduleUpdatedUtc).toMatch(toTheSecond)
-    expect(stamp.settingsUpdatedUtc).toMatch(toTheSecond)
+    expect(stamp.scheduleUpdatedAt).toMatch(toTheSecond)
+    expect(stamp.settingsUpdatedAt).toMatch(toTheSecond)
     // ⭐ And it is the UTC instant, which FR-046 says is a different thing from
     // the calendar day the same keystroke wrote: 「刻印の 2 つの刻は UTC の瞬間
     // であって、これとは別物である」.
-    expect(stamp.settingsUpdatedUtc).toBe(INSTANT)
+    expect(stamp.settingsUpdatedAt).toBe(INSTANT)
   })
 
   it('WS-5 / FR-063: a schedule-data write moves the schedule instant', () => {
@@ -1196,12 +1196,12 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     // `Project.statusDate` is in the schedule-data group (DR-2 of table T-052).
     const pane = frozen()
     const loop = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN)
-    const before = stampOf(loop.document()).scheduleUpdatedUtc
+    const before = stampOf(loop.document()).scheduleUpdatedAt
 
     loop.receiveInput(key('D', { ctrl: true, shift: true }))
 
-    expect(stampOf(loop.document()).scheduleUpdatedUtc).not.toBe(before)
-    expect(stampOf(loop.document()).scheduleUpdatedUtc).toBe(INSTANT)
+    expect(stampOf(loop.document()).scheduleUpdatedAt).not.toBe(before)
+    expect(stampOf(loop.document()).scheduleUpdatedAt).toBe(INSTANT)
   })
 
   it('FR-063 (MUST NOT): a presentation-only write leaves the schedule instant where it was', () => {
@@ -1215,7 +1215,7 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     loop.receiveInput(key('+', { shift: true }))
 
     const after = stampOf(loop.document())
-    expect(after.scheduleUpdatedUtc).toBe(before.scheduleUpdatedUtc)
+    expect(after.scheduleUpdatedAt).toBe(before.scheduleUpdatedAt)
   })
 
   it('FR-063 (MUST): ... and still moves the other instant and the writer', () => {
@@ -1229,8 +1229,8 @@ describe('FR-063 and ED-1 of table T-229 -- who wrote it, and when', () => {
     loop.receiveInput(key('+', { shift: true }))
 
     const after = stampOf(loop.document())
-    expect(after.settingsUpdatedUtc).not.toBe(before.settingsUpdatedUtc)
-    expect(after.settingsUpdatedUtc).toBe(INSTANT)
+    expect(after.settingsUpdatedAt).not.toBe(before.settingsUpdatedAt)
+    expect(after.settingsUpdatedAt).toBe(INSTANT)
     expect(after.lastEditedBy).toBe(ED_1_WORD)
   })
 })

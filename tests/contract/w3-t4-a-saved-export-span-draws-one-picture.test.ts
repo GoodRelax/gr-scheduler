@@ -92,7 +92,7 @@ const agentOf = (built: ShellStage): Api =>
   installAgentApi({ ...built.loop.agentApiSeams(), writerName: 'w3-t4-tester', schemaVersion: BUILT_VERSION } as never)
 
 const apply = (api: Api, commands: readonly Record<string, unknown>[]) =>
-  api.applyCommands({ readStamp: api.readStamp(), commands: commands as never })
+  api.applyCommands({ expectedStamp: api.readStamp(), commands: commands as never })
 
 // see CM-88
 const spanCommand = (start: string | null, finish: string | null): Record<string, unknown> => ({
@@ -104,7 +104,7 @@ const spanCommand = (start: string | null, finish: string | null): Record<string
 // see CM-90, FX-4
 const fixCommand = (): Record<string, unknown> => ({
   kind: kindOf('CM-90'),
-  fitSpanFixed: true,
+  isFitSpanFixed: true,
   shownStart: null,
   shownFinish: null,
 })
@@ -121,7 +121,7 @@ async function spannedStage(document: Document = documentOf(twoTaskGroupDraft())
   const built = await shellStage({ document })
   const api = agentOf(built)
   const outcome = apply(api, [spanCommand(SPAN_START_DAY, SPAN_FINISH_DAY), fixCommand()])
-  expect(outcome.accepted, `premise: CM-88 sets a span and CM-90 fixes it -- ${JSON.stringify(outcome)}`).toBe(true)
+  expect(outcome.ok, `premise: CM-88 sets a span and CM-90 fixes it -- ${JSON.stringify(outcome)}`).toBe(true)
   await built.repaint()
   return { built, api }
 }
@@ -233,7 +233,7 @@ describe(`IX-12 -- ${IX_12}`, () => {
     expect(pictureOf(built).svg, `${IX_12}: a smaller window (S-77, S-78)`).toBe(first)
 
     // see CM-65
-    expect(apply(api, [{ kind: kindOf('CM-65'), zoomX: 3, zoomY: 2 }]).accepted, 'premise: CM-65 moves both zooms').toBe(true)
+    expect(apply(api, [{ kind: kindOf('CM-65'), zoomX: 3, zoomY: 2 }]).ok, 'premise: CM-65 moves both zooms').toBe(true)
     await built.repaint()
     expect(pictureOf(built).svg, `${IX_12}: zoomed (S-75, S-76)`).toBe(first)
 
@@ -304,7 +304,7 @@ describe(`FX-1 -- ${IX_17_BOTH}`, () => {
     const outcome = apply(api, [spanCommand('2026-04-15', null)])
     const [start, finish] = spanOf(built.loop.document())
     expect(start === null, `${IX_17_BOTH}: ${JSON.stringify(outcome)}`).toBe(finish === null)
-    if (outcome.accepted) expect([start, finish], IX_17_COPY).toEqual(['2026-04-15', '2026-04-15'])
+    if (outcome.ok) expect([start, finish], IX_17_COPY).toEqual(['2026-04-15', '2026-04-15'])
   })
 
   it('a document read with only the start dated is opened with both ends on that day', async () => {
@@ -321,7 +321,7 @@ describe(`FX-1 -- ${IX_17_REFUSE}`, () => {
   it('the command: a CM-88 whose finish is before its start is refused and the span stays', async () => {
     const { built, api } = await spannedStage()
     const outcome = apply(api, [spanCommand('2026-04-20', '2026-04-13')])
-    expect(outcome.accepted, IX_17_REFUSE).toBe(false)
+    expect(outcome.ok, IX_17_REFUSE).toBe(false)
     expect(spanOf(built.loop.document()), IX_17_REFUSE).toEqual([SPAN_START_DAY, SPAN_FINISH_DAY])
   })
 
@@ -330,7 +330,7 @@ describe(`FX-1 -- ${IX_17_REFUSE}`, () => {
     draft['documentSettings'].fitSpanStart = `${SPAN_START_DAY}T00:00:00`
     draft['documentSettings'].fitSpanFinish = `${SPAN_FINISH_DAY}T23:59:00`
     // WHY: FX-5 lets the two entrances be written only while the span is fixed.
-    draft['documentSettings'].fitSpanFixed = true
+    draft['documentSettings'].isFitSpanFixed = true
     const rig = fieldRig(documentOf(draft))
     rig.press(surfaceOfEntrance('IC-17'), 'IC-17')
     const fields = ((rig.last().propertiesPanel as { fields?: any[] } | null)?.fields ?? []).filter((one) => one.row === 'K-141')

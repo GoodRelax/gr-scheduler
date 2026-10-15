@@ -78,7 +78,7 @@ afterEach(() => {
 interface Stage {
   readonly bench: ShellBench
   copyTasks(uids: readonly number[]): void
-  pickTaskGroup(groupId: string, adding: boolean): void
+  pickTaskGroup(taskGroupId: string, adding: boolean): void
   pickedTaskGroups(): readonly string[]
   tasks(): any[]
   taskGroupOfTask(uid: number): string | undefined
@@ -105,14 +105,14 @@ function stageOf(document: Record<string, any>, modifier: 'ctrl' | 'shift' | 'me
       })
       bench.send(COPY)
     },
-    pickTaskGroup: (groupId, adding) => {
-      bench.aim({ part: TASK_GROUP_PANEL, entry: null, format: null, taskGroupId: groupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as never)
+    pickTaskGroup: (taskGroupId, adding) => {
+      bench.aim({ part: TASK_GROUP_PANEL, entry: null, format: null, taskGroupId: taskGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as never)
       bench.click(60, 120, adding ? { [modifier]: true } : {})
       bench.aim(null)
     },
-    pickedTaskGroups: () => bench.last().taskGroupPanel.titles.filter((one) => one.isSelected).map((one) => one.groupId),
+    pickedTaskGroups: () => bench.last().taskGroupPanel.titles.filter((one) => one.isSelected).map((one) => one.taskGroupId),
     tasks: () => schedule().tasks,
-    taskGroupOfTask: (uid) => schedule().taskGroupMembers.find((one: any) => one.taskUid === uid)?.groupId,
+    taskGroupOfTask: (uid) => schedule().taskGroupMembers.find((one: any) => one.taskUid === uid)?.taskGroupId,
   }
 }
 

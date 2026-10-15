@@ -86,9 +86,9 @@ const SILENTLY = '足したことを通知してはならない（MUST NOT）'
 
 const CM_ROWS = [
   ['CM-80', 'setCommentBoxStrokeColor'],
-  ['CM-81', 'setCommentBoxStrokeWidth'],
+  ['CM-81', 'setCommentBoxStrokeWidthPx'],
   ['CM-82', 'setCommentBoxFillColor'],
-  ['CM-83', 'setCommentBoxFillTransparency'],
+  ['CM-83', 'setCommentBoxFillTransparencyPercent'],
   ['CM-84', 'setCommentBoxTextColor'],
 ] as const
 
@@ -200,7 +200,7 @@ const noteRecord = (spec: NoteSpec): Record<string, unknown> => ({
   leaderShapeKind: 'polyline',
   text: spec.text ?? 'Note',
   anchorDate: day(spec.anchorDay ?? ANCHOR_DAY),
-  anchorGroupId: ROW[spec.anchorTaskGroup ?? ANCHOR_TASK_GROUP],
+  anchorTaskGroupId: ROW[spec.anchorTaskGroup ?? ANCHOR_TASK_GROUP],
   bodyOffsetPx: { dx: spec.dx ?? 60, dy: spec.dy ?? -60 },
   strokeColor: spec.strokeColor ?? null,
   strokeWidthPx: spec.strokeWidthPx ?? null,
@@ -250,14 +250,14 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       taskGroups: LETTERS.map((letter, order) => ({
         id: ROW[letter],
         parentId: null,
-        label: `task group ${letter}`,
+        name: `task group ${letter}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: withTasks ? LETTERS.map((letter, index) => ({ taskUid: index + 1, groupId: ROW[letter] })) : [],
+      taskGroupMembers: withTasks ? LETTERS.map((letter, index) => ({ taskUid: index + 1, taskGroupId: ROW[letter] })) : [],
       taskVisuals: [],
       commentBoxes: (fixture.notes ?? [{}]).map(noteRecord),
       highlightBoxes: [],
@@ -269,9 +269,9 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       zoomX: (PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x) * (fixture.zoomFactor ?? 1),
       scrollDate: '2026-04-01',
       scrollDayOffset: 0,
-      scrollGroupId: ROW.A,
+      scrollTaskGroupId: ROW.A,
       scrollGroupOffset: 0,
-      pinnedGroupIds: [],
+      pinnedTaskGroupIds: [],
     },
     documentStamp: template['documentStamp'],
     changeLog: [],
@@ -356,7 +356,7 @@ const drawnNote = (loop: FrameLoop, id: string = NOTE_ID): CommentGeometry => {
 }
 
 const taskGroupBand = (loop: FrameLoop, letter: Letter): { readonly y: number; readonly height: number } => {
-  const found = valuesOf(loop).layout.taskGroups.find((one) => one.groupId === ROW[letter])
+  const found = valuesOf(loop).layout.taskGroups.find((one) => one.taskGroupId === ROW[letter])
   if (found === undefined) throw new Error(`the frame drew no task group ${letter}`)
   return found
 }
@@ -376,7 +376,7 @@ const storedNote = (loop: FrameLoop, id: string = NOTE_ID): Record<string, unkno
 
 const anchorText = (loop: FrameLoop): string => {
   const stored = storedNote(loop)
-  return `${dayOf(stored['anchorDate'])} ${LETTER_OF[String(stored['anchorGroupId'])] ?? String(stored['anchorGroupId'])}`
+  return `${dayOf(stored['anchorDate'])} ${LETTER_OF[String(stored['anchorTaskGroupId'])] ?? String(stored['anchorTaskGroupId'])}`
 }
 
 function drag(built: Stage, from: Point, dx: number, dy: number): void {
@@ -666,7 +666,7 @@ describe(`T-023d: ${ANCHOR_MOVES_ALONE}`, () => {
     const to = releaseOn(built.loop, 16, 'C')
     drag(built, before.anchor, to.x - before.anchor.x, to.y - before.anchor.y)
     const moved = storedNote(built.loop)
-    expect(moved['anchorGroupId'], 'premise: the anchor moved').not.toEqual(stored['anchorGroupId'])
+    expect(moved['anchorTaskGroupId'], 'premise: the anchor moved').not.toEqual(stored['anchorTaskGroupId'])
     expect(moved['bodyOffsetPx'], 'premise: the offset was rewritten to keep the box still').not.toEqual(stored['bodyOffsetPx'])
     undo(built)
     expect(storedNote(built.loop), 'one undo left part of the move in place').toEqual(stored)
@@ -1093,10 +1093,10 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
 
   it('CM-81 places a width inside S-374, and null, and refuses one outside it or not whole', () => {
     for (const width of [S_374.low, S_374.high, null]) {
-      expect(acceptedNote({ kind: 'setCommentBoxStrokeWidth', id: NOTE_ID, strokeWidthPx: width })['strokeWidthPx']).toBe(width)
+      expect(acceptedNote({ kind: 'setCommentBoxStrokeWidthPx', id: NOTE_ID, strokeWidthPx: width })['strokeWidthPx']).toBe(width)
     }
     for (const width of [S_374.low - 1, S_374.high + 1, S_374.low + 0.5]) {
-      expect(refusalOf({ kind: 'setCommentBoxStrokeWidth', id: NOTE_ID, strokeWidthPx: width }), `width ${width}`).toEqual(
+      expect(refusalOf({ kind: 'setCommentBoxStrokeWidthPx', id: NOTE_ID, strokeWidthPx: width }), `width ${width}`).toEqual(
         expect.objectContaining({ command: 'CM-81', rule: 'S-374' }),
       )
     }
@@ -1104,10 +1104,10 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
 
   it('CM-83 places a transparency inside S-375, and null, and refuses one outside it or not whole', () => {
     for (const percent of [S_375.low, S_375.high, null]) {
-      expect(acceptedNote({ kind: 'setCommentBoxFillTransparency', id: NOTE_ID, fillTransparencyPercent: percent })['fillTransparencyPercent']).toBe(percent)
+      expect(acceptedNote({ kind: 'setCommentBoxFillTransparencyPercent', id: NOTE_ID, fillTransparencyPercent: percent })['fillTransparencyPercent']).toBe(percent)
     }
     for (const percent of [S_375.low - 1, S_375.high + 1, 12.5]) {
-      expect(refusalOf({ kind: 'setCommentBoxFillTransparency', id: NOTE_ID, fillTransparencyPercent: percent }), `percent ${percent}`).toEqual(
+      expect(refusalOf({ kind: 'setCommentBoxFillTransparencyPercent', id: NOTE_ID, fillTransparencyPercent: percent }), `percent ${percent}`).toEqual(
         expect.objectContaining({ command: 'CM-83', rule: 'S-375' }),
       )
     }
@@ -1147,9 +1147,9 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
     const missing = '3c000000-0000-4000-8000-0000000000ff'
     const commands: readonly (readonly [string, Command])[] = [
       ['CM-80', { kind: 'setCommentBoxStrokeColor', id: missing, strokeColor: 'red' }],
-      ['CM-81', { kind: 'setCommentBoxStrokeWidth', id: missing, strokeWidthPx: 2 }],
+      ['CM-81', { kind: 'setCommentBoxStrokeWidthPx', id: missing, strokeWidthPx: 2 }],
       ['CM-82', { kind: 'setCommentBoxFillColor', id: missing, fillColor: 'red' }],
-      ['CM-83', { kind: 'setCommentBoxFillTransparency', id: missing, fillTransparencyPercent: 2 }],
+      ['CM-83', { kind: 'setCommentBoxFillTransparencyPercent', id: missing, fillTransparencyPercent: 2 }],
       ['CM-84', { kind: 'setCommentBoxTextColor', id: missing, textColor: 'red' }],
     ]
     for (const [row, command] of commands) {
@@ -1158,7 +1158,7 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
   })
 
   it(`${PLACED_WITH_NULLS} -- createCommentBox leaves the five columns null`, () => {
-    const result = editAnnotation(fixtureDocument(), { kind: 'createCommentBox', id: OTHER_NOTE_ID, anchor: { date: day(20), groupId: ROW.E } })
+    const result = editAnnotation(fixtureDocument(), { kind: 'createCommentBox', id: OTHER_NOTE_ID, anchor: { date: day(20), taskGroupId: ROW.E } })
     if (!result.ok) throw new Error(`refused: ${JSON.stringify(result.refusals)}`)
     const made = (result.document.schedule.commentBoxes as unknown as readonly Record<string, unknown>[]).find((one) => one['id'] === OTHER_NOTE_ID)
     for (const column of ['strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor']) {

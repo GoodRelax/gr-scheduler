@@ -222,7 +222,7 @@
      }
     },
     {
-     "name": "DELAY_FIX_TYPES",
+     "name": "DELAY_FIX_KINDS",
      "note": {
       "ja": [
        "表 T-373 の修正のしかたを、表 T-374 の既定の並びの順に並べたもの"
@@ -287,7 +287,7 @@
      }
     },
     {
-     "name": "DelayFixType",
+     "name": "DelayFixKind",
      "note": {
       "ja": [
        "型。",
@@ -1026,7 +1026,7 @@
      "note": {
       "ja": [
        "ラグを稼働日で読む。",
-       "`lag` が 0 か空なら 0、`lagFormat` が 7 でなければ無い（`FR-009`）"
+       "`linkLag` が 0 か空なら 0、`lagFormat` が 7 でなければ無い（`FR-009`）"
       ]
      }
     },
@@ -1050,7 +1050,7 @@
      "name": "TENTHS_OF_A_MINUTE",
      "note": {
       "ja": [
-       "`lag` の 1 分あたりの数（`AT-47`）"
+       "`linkLag` の 1 分あたりの数（`AT-47`）"
       ]
      }
     },

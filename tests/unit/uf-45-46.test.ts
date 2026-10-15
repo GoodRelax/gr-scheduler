@@ -411,7 +411,7 @@ const EXPORT_SCREEN = { width: 1000, height: 800, appHeaderHeight: 56 } as const
 const EXPORT_REGIONS: ScreenRegions = (() => {
   const canvasHeight = EXPORT_SCREEN.height - EXPORT_SCREEN.appHeaderHeight
   const taskGroupAreaWidth =
-    EXPORT_SCREEN.width - SETTINGS_CONSTANTS.canvasPadding - EXPORT_SETTINGS.taskGroupPanelWidth
+    EXPORT_SCREEN.width - SETTINGS_CONSTANTS.canvasPadding - EXPORT_SETTINGS.taskGroupPanelWidthPx
   return {
     appHeader: { x: 0, y: 0, width: EXPORT_SCREEN.width, height: EXPORT_SCREEN.appHeaderHeight },
     scheduleCanvas: {
@@ -423,14 +423,14 @@ const EXPORT_REGIONS: ScreenRegions = (() => {
     taskGroupPanel: {
       x: 0,
       y: EXPORT_SCREEN.appHeaderHeight,
-      width: EXPORT_SETTINGS.taskGroupPanelWidth,
+      width: EXPORT_SETTINGS.taskGroupPanelWidthPx,
       height: canvasHeight,
     },
     timeRuler: {
-      x: EXPORT_SETTINGS.taskGroupPanelWidth,
+      x: EXPORT_SETTINGS.taskGroupPanelWidthPx,
       y: EXPORT_SCREEN.appHeaderHeight,
       width: taskGroupAreaWidth,
-      height: EXPORT_SETTINGS.rulerHeight,
+      height: EXPORT_SETTINGS.rulerHeightPx,
     },
     propertiesPanel: {
       x: EXPORT_SCREEN.width,
@@ -439,10 +439,10 @@ const EXPORT_REGIONS: ScreenRegions = (() => {
       height: canvasHeight,
     },
     taskGroupArea: {
-      x: EXPORT_SETTINGS.taskGroupPanelWidth,
-      y: EXPORT_SCREEN.appHeaderHeight + EXPORT_SETTINGS.rulerHeight,
+      x: EXPORT_SETTINGS.taskGroupPanelWidthPx,
+      y: EXPORT_SCREEN.appHeaderHeight + EXPORT_SETTINGS.rulerHeightPx,
       width: taskGroupAreaWidth,
-      height: canvasHeight - EXPORT_SETTINGS.rulerHeight - SETTINGS_CONSTANTS.canvasPadding,
+      height: canvasHeight - EXPORT_SETTINGS.rulerHeightPx - SETTINGS_CONSTANTS.canvasPadding,
     },
   }
 })()
@@ -463,11 +463,11 @@ const EXPORT_VIEW: ScreenView = {
     pinnedTitles: [],
     titles: [
       {
-        groupId: 'g1',
+        taskGroupId: 'g1',
         depth: 1,
         ...taskGroupNameFont(1),
         indentPx: SETTINGS_CONSTANTS.taskGroupTitleIndent,
-        box: { x: 0, y: 120, width: EXPORT_SETTINGS.taskGroupPanelWidth, height: 60 },
+        box: { x: 0, y: 120, width: EXPORT_SETTINGS.taskGroupPanelWidthPx, height: 60 },
         label: 'a task group that reaches the picture',
         wholeLabel: 'a task group that reaches the picture',
         isLabelTruncated: false,
@@ -510,7 +510,7 @@ const sceneOfScreenHeight = (screenHeight: number): ExportScene => {
       propertiesPanel: withHeight(EXPORT_REGIONS.propertiesPanel),
       taskGroupArea: {
         ...EXPORT_REGIONS.taskGroupArea,
-        height: canvasHeight - EXPORT_SETTINGS.rulerHeight - SETTINGS_CONSTANTS.canvasPadding,
+        height: canvasHeight - EXPORT_SETTINGS.rulerHeightPx - SETTINGS_CONSTANTS.canvasPadding,
       },
     },
   }

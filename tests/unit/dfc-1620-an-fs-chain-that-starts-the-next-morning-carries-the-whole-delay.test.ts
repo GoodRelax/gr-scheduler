@@ -15,7 +15,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // WHY: each clause is cut from the manuscript as check 39 reads it, so the cases cannot drift from the words they test.
 // CR-710 retired the "MSPDI documents only" reading and the "same day" FS bound: every document reads instants.
-const BD_2_INSTANT = 'すべての文書で瞬間で読み、FS の後続の最早開始は、先行の見込み終了の瞬間 ＋ `lag` である'
+const BD_2_INSTANT = 'すべての文書で瞬間で読み、FS の後続の最早開始は、先行の見込み終了の瞬間 ＋ `linkLag` である'
 const BD_2_K_DAYS = '17:00 に終わり翌朝 8:00 に始める FS の鎖では、計画どおりなら押し出しは 0、先行が k 日遅れれば後続へ k 日届く'
 const BD_4_TERMINAL = '終端ごとに、終端の遅れ（見込み終了 − `finish`、0 以上）を残りとし'
 
@@ -29,7 +29,7 @@ type Loose = Record<string, unknown>
 
 const S = (day: number): string => `2026-04-${String(day).padStart(2, '0')}T08:00:00`
 const F = (day: number): string => `2026-04-${String(day).padStart(2, '0')}T17:00:00`
-const after = (uid: number): Loose => ({ predecessorUid: uid, linkType: 1, lag: 0, lagFormat: 7, carry: {}, carryElements: [] })
+const after = (uid: number): Loose => ({ predecessorUid: uid, linkType: 1, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] })
 
 const A = 201
 const B = 202
@@ -53,9 +53,9 @@ function chain(sourceFormat: 'grs' | 'pj12' | 'pj15', finishOfA: number): Docume
     taskOf(C, { name: 'C', start: S(13), finish: F(14), dependencies: [after(B)] }),
   ]
   raw['schedule'].taskGroupMembers = [
-    { taskUid: A, groupId: 'r1' },
-    { taskUid: B, groupId: 'r2' },
-    { taskUid: C, groupId: 'r3' },
+    { taskUid: A, taskGroupId: 'r1' },
+    { taskUid: B, taskGroupId: 'r2' },
+    { taskUid: C, taskGroupId: 'r3' },
   ]
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the fixture does not decode: ${JSON.stringify(decoded.faults).slice(0, 400)}`)

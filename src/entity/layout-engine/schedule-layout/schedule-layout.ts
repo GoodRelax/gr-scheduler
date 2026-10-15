@@ -116,7 +116,7 @@ export type ShapeKind = NonNullable<TaskVisual['shapeKind']>
 
 export interface TaskPlacement {
   readonly taskUid: number
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly shapeKind: ShapeKind
   readonly milestoneGlyph: MilestoneGlyph
   readonly stack: number
@@ -160,7 +160,7 @@ export interface TaskPlacement {
 }
 
 export interface TaskGroupPlacement {
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly depth: number
   readonly y: number
   readonly height: number
@@ -191,7 +191,7 @@ export interface ScheduleLayout {
 
 // see ST-7
 export interface StackSafetyCapStop {
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly cap: number
 }
 
@@ -208,15 +208,15 @@ export interface DayReader {
 // WHY: reading is the side a date without a time is read on (FR-054, T-350): a milestone's start and the deadline finish.
 interface EdgeReader {
   edge(text: string | null, side: 'start' | 'finish', reading: DateTimeSide): number | null
-  readonly showsTimeOfDay: boolean
+  readonly isTimeOfDayVisible: boolean
 }
 
 // see RV-1, RV-6, FR-054, FR-158
 // WHY: without time of day the finish column is FR-054's finish-side day, so an end at 00:00 closes the day before.
 /** @purity pure */
 function edgeOf(text: string | null, side: 'start' | 'finish', instantAt: () => number | null,
-                showsTimeOfDay: boolean, dayAt: (text: string | null) => CalendarDay | null): number | null {
-  if (showsTimeOfDay) {
+                isTimeOfDayVisible: boolean, dayAt: (text: string | null) => CalendarDay | null): number | null {
+  if (isTimeOfDayVisible) {
     const instant = instantAt()
     return instant === null ? null : instant / MINUTES_PER_CALENDAR_DAY
   }
@@ -248,7 +248,7 @@ function edgeSlotOf(side: 'start' | 'finish', reading: DateTimeSide): number {
 }
 
 /** @purity pure */
-function dayReaderFor(within: WorkingCalendar, showsTimeOfDay: boolean, shown: InstantOnSide): DayReader & EdgeReader {
+function dayReaderFor(within: WorkingCalendar, isTimeOfDayVisible: boolean, shown: InstantOnSide): DayReader & EdgeReader {
   const days = new Map<string, CalendarDay | null>()
   const walks = new Map<string, CalendarDay>()
   const edges = [0, 1, 2, 3].map(() => new Map<string, number | null>())
@@ -267,12 +267,12 @@ function dayReaderFor(within: WorkingCalendar, showsTimeOfDay: boolean, shown: I
       const key = text ?? ''
       const held = slot.get(key)
       if (held !== undefined) return held
-      const made = edgeOf(text ?? null, side, () => onSide(text, reading), showsTimeOfDay, day)
+      const made = edgeOf(text ?? null, side, () => onSide(text, reading), isTimeOfDayVisible, day)
       slot.set(key, made)
       return made
     },
     shown,
-    showsTimeOfDay,
+    isTimeOfDayVisible,
     day,
     walk(from: CalendarDay, workingDays: number): CalendarDay {
       const key = `${textOfDay(from)}/${String(workingDays)}`
@@ -414,7 +414,7 @@ function deadlineXOf(
   const left = reader.edge(task.deadline, 'start', 'finish')
   if (left === null) return null
   const at = xAtEdge(left, originSerial, pxPerDay, originX)
-  return kind === 'milestone' || reader.showsTimeOfDay ? at : at + pxPerDay
+  return kind === 'milestone' || reader.isTimeOfDayVisible ? at : at + pxPerDay
 }
 
 // see DA-2, OC-9
@@ -443,10 +443,10 @@ function occupiedSpanOf(
 /** @purity pure */
 export function dummyInkWidthOf(
   markerDiameter: number,
-  axis: { readonly pxPerDay: number; readonly showsTimeOfDay: boolean },
+  axis: { readonly pxPerDay: number; readonly isTimeOfDayVisible: boolean },
 ): number {
   const mark = Math.min(markerDiameter * NOT_STORED_DUMMY_SIZES['S-247'], NOT_STORED_DUMMY_SIZES['S-180'])
-  if (!axis.showsTimeOfDay) return mark
+  if (!axis.isTimeOfDayVisible) return mark
   return Math.max(mark, (axis.pxPerDay * NOT_STORED_DUMMY_SIZES['S-585']) / MINUTES_PER_CALENDAR_DAY)
 }
 
@@ -504,8 +504,8 @@ function lastTaskGroupReserveOf(
 function membersByGroupOf(schedule: Schedule): ReadonlyMap<string, readonly TaskGroupMember[]> {
   const membersByGroup = new Map<string, TaskGroupMember[]>()
   for (const member of schedule.taskGroupMembers) {
-    const groupMembers = membersByGroup.get(member.groupId)
-    if (groupMembers === undefined) membersByGroup.set(member.groupId, [member])
+    const groupMembers = membersByGroup.get(member.taskGroupId)
+    if (groupMembers === undefined) membersByGroup.set(member.taskGroupId, [member])
     else groupMembers.push(member)
   }
   return membersByGroup
@@ -526,7 +526,7 @@ export function layoutFromSchedule(
   const originSerial = originDay === null ? 0 : serialOf(originDay)
 
   const depthLimit = Math.min(groupDepthCap ?? groupDepthLimit(settings), settings.maxGroupDepth)
-  const pinnedIds = new Set(settings.pinnedGroupIds)
+  const pinnedIds = new Set(settings.pinnedTaskGroupIds)
   const unfoldedTaskGroups = drawnGroups(schedule, settings, shownTaskUids)
   const keptOpenIds = keptInViewByTreeState(unfoldedTaskGroups, 'expandedAndTemporary')
   const rows = unfoldedTaskGroups.filter(
@@ -539,9 +539,9 @@ export function layoutFromSchedule(
   const assigneeLabels = assigneeLabelsOf(schedule)
 
   const within = workingCalendarOf(schedule)
-  const reader = dayReaderFor(within, settings.showsTimeOfDay, shownInstantReader(schedule, storedSettings.viewTimeZone))
-  // TRAP: S-232 alone decides; never tie it to planVisible (S-227), or hiding the plan moves the name (FR-049).
-  const datesWithYear = settings.planDatesVisible ? planDatesSpanYears(schedule, reader) : null
+  const reader = dayReaderFor(within, settings.isTimeOfDayVisible, shownInstantReader(schedule, storedSettings.viewTimeZone))
+  // TRAP: S-232 alone decides; never tie it to isPlanVisible (S-227), or hiding the plan moves the name (FR-049).
+  const datesWithYear = settings.isPlanDatesVisible ? planDatesSpanYears(schedule, reader) : null
   const placements: TaskPlacement[] = []
   const taskGroupPlacements: TaskGroupPlacement[] = []
 
@@ -587,7 +587,7 @@ export function layoutFromSchedule(
       const actual = actualSpanOf(task, reader, originSerial, pxPerDay, originX)
       const actualReach = actual === null ? null : actualReachOf(kind, actual, settings)
       const markerDiameter = markerDiameterOf(kind, font, settings)
-      const dummyBand = dummyBandOf(kind, { x, width }, markerDiameter, { pxPerDay, showsTimeOfDay: reader.showsTimeOfDay })
+      const dummyBand = dummyBandOf(kind, { x, width }, markerDiameter, { pxPerDay, isTimeOfDayVisible: reader.isTimeOfDayVisible })
       const dummyReach = actualReach !== null || from === null ? null : dummyReachOf(kind, dummyBand, settings)
       const planRight = x + width
       // TRAP: read no toggle here but S-63, which the drawing side reads: a toggle must not move a lane (T-038).
@@ -598,7 +598,7 @@ export function layoutFromSchedule(
         actual ?? dummyBand,
         settings,
       )
-      const marksShown = settings.progressMarkerVisible
+      const marksShown = settings.isProgressMarkerVisible
       const namedFromPlanStart = laidBelow(kind)
       const referenceEnd = reference.x + reference.width
       const laid = labelLayoutOf(
@@ -618,10 +618,10 @@ export function layoutFromSchedule(
         : Math.max(planRight, referenceEnd, laid.nameX + text)
       // TRAP: never condition this on planActualDisplay: a toggle must not move a Task (T-038).
       const spread = actual !== null && actualPlacementOf(kind) === 'inside' ? actual : null
-      const assigneeLabel = settings.assigneeVisible
+      const assigneeLabel = settings.isAssigneeVisible
         ? (assigneeLabels.get(task.uid) ?? NO_ASSIGNEE_MARK)
         : ''
-      const percentLabel = settings.percentCompleteVisible ? percentLabelOf(task) : ''
+      const percentLabel = settings.isPercentCompleteVisible ? percentLabelOf(task) : ''
       const outsideLabel = outsideLabelOf(assigneeLabel, percentLabel)
       const outsideLabelWidth = labelWidth(outsideLabel, font, settings)
       const outsideWidth =
@@ -658,7 +658,7 @@ export function layoutFromSchedule(
         // @provisional PND-430
         // TRAP: break before the task group is placed: a partial task group leaves laneOf shorter than measured.
         if (lanes.length >= settings.stackSafetyCap) {
-          capStop = { groupId: row.id, cap: settings.stackSafetyCap }
+          capStop = { taskGroupId: row.id, cap: settings.stackSafetyCap }
           break
         }
         lane = lanes.length
@@ -684,7 +684,7 @@ export function layoutFromSchedule(
       if (laneHeights[step] === 0) laneHeights[step] = emptyLane
     }
     const packed = packedLanesOf(laneHeights, emptyLane, laneGap)
-    const height = Math.max(packed, emptyLane, drawnMinHeightPxOf(row.minHeight, settings), bandFloorOf(row.depth, settings))
+    const height = Math.max(packed, emptyLane, drawnMinHeightPxOf(row.minHeightPx, settings), bandFloorOf(row.depth, settings))
 
     const upward = settings.stackDirection === 'up'
     const tops = new Array<number>(laneHeights.length)
@@ -699,7 +699,7 @@ export function layoutFromSchedule(
       const lane = laneOf[index]!
       placements.push({
         taskUid: item.task.uid,
-        groupId: row.id,
+        taskGroupId: row.id,
         shapeKind: item.kind,
         milestoneGlyph: item.glyph,
         stack: lane,
@@ -734,7 +734,7 @@ export function layoutFromSchedule(
     })
 
     taskGroupPlacements.push({
-      groupId: row.id,
+      taskGroupId: row.id,
       depth: row.depth,
       y,
       height,

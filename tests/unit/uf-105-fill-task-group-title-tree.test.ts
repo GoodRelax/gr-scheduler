@@ -6,15 +6,15 @@ import type { TaskGroupTitle, TaskGroupPanel } from '../../src/adapter/screen-re
 import { fillTaskGroupTitleTree } from '../../src/framework/dom-screen-surface/task-group-panel-drawing'
 import { stage, type FakeElement } from '../fixtures/fake-browser'
 
-const taskGroupTitle = (groupId: string, y: number, isPinned: boolean): TaskGroupTitle =>
+const taskGroupTitle = (taskGroupId: string, y: number, isPinned: boolean): TaskGroupTitle =>
   ({
-    groupId,
+    taskGroupId,
     depth: 0,
     box: { x: 0, y, width: 300, height: 24 },
     indentPx: 0,
     fontPx: 14,
-    label: groupId,
-    wholeLabel: groupId,
+    label: taskGroupId,
+    wholeLabel: taskGroupId,
     isLabelTruncated: false,
     expander: { canOpen: false, canClose: false, canCloseBelow: false },
     isPinned,

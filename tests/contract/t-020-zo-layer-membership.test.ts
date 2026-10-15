@@ -132,10 +132,10 @@ describe(`${says('ZO-2')} (PND-209)`, () => {
 
 const HIGHLIGHT_BOX = {
   id: 'h1',
-  startDate: '2026-03-05',
-  endDate: '2026-03-20',
-  topGroupId: 'g1',
-  bottomGroupId: 'g1',
+  start: '2026-03-05',
+  finish: '2026-03-20',
+  topTaskGroupId: 'g1',
+  bottomTaskGroupId: 'g1',
   strokeColor: null,
   cornerRadiusPx: null,
   // WHY: unfilled, as CM-52 places a box (S-370); a null fill paints the theme in ZO-14 (CR-606, FR-019).
@@ -147,7 +147,7 @@ const COMMENT_BOX = {
   leaderShapeKind: 'calloutBox',
   text: 'a note',
   anchorDate: '2026-03-10',
-  anchorGroupId: 'g1',
+  anchorTaskGroupId: 'g1',
   bodyOffsetPx: { dx: 40, dy: -30 },
 }
 
@@ -207,9 +207,9 @@ describe(`${says('ZO-8')} (PND-312, table T-029 CU-2)`, () => {
     const withCursor = sceneOf({
       tasks: [inProgress()],
       dualCursor: { date1: day(6), date2: day(14) },
-      settings: { progressMarkerVisible: true },
+      settings: { isProgressMarkerVisible: true },
     })
-    const withoutCursor = sceneOf({ tasks: [inProgress()], settings: { progressMarkerVisible: true } })
+    const withoutCursor = sceneOf({ tasks: [inProgress()], settings: { isProgressMarkerVisible: true } })
     const svg = withCursor.svg()
     const added = onlyIn(svg, withoutCursor.svg())
     expect(added.length, 'table T-029 CU-2: a set dualCursor drew nothing new').toBeGreaterThan(0)

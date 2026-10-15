@@ -302,7 +302,7 @@ const PROJECT: Project = {
   company: null,
   manager: null,
   author: null,
-  created: null,
+  creationDate: null,
   revision: null,
   startDate: null,
   statusDate: null,
@@ -321,7 +321,7 @@ const PROJECT: Project = {
   themeHue: 0,
   parentProgressToleranceDays: 1,
   uidHighWaterMark: 400,
-  importSeq: 3,
+  importSequence: 3,
   outlineBase: 1,
   sourceFormat: 'grs',
   scheduleDataTimeZone: 'UTC+00:00',
@@ -368,7 +368,7 @@ const TASK_B: Task = {
     // ⛔ Table T-220 judges nothing about the link kind and AT-46 refuses
     // `null`, so this is a code inside that column's range, not a choice of
     // which kind the case is about.
-    { predecessorUid: TASK_A_UID, linkType: 1, lag: null, lagFormat: null, carry: {}, carryElements: [] },
+    { predecessorUid: TASK_A_UID, linkType: 1, linkLag: null, lagFormat: null, carry: {}, carryElements: [] },
   ],
 }
 
@@ -378,25 +378,25 @@ const GROUP_TWO_ID = uuidOf(2)
 const GROUP_ONE: TaskGroup = {
   id: GROUP_ONE_ID,
   parentId: null,
-  label: 'task group one',
+  name: 'task group one',
   derivedFromTaskUid: null,
   order: 1,
   treeState: 'auto', editGroup: null,
   color: null,
-  minHeight: null,
+  minHeightPx: null,
 }
 
 const GROUP_TWO: TaskGroup = {
   ...GROUP_ONE,
   id: GROUP_TWO_ID,
   parentId: GROUP_ONE_ID,
-  label: 'task group two',
+  name: 'task group two',
   order: 2,
 }
 
 // IV-6 asks for exactly one of these per `Task`, so the sound document has two.
-const MEMBER_A: TaskGroupMember = { taskUid: TASK_A_UID, groupId: GROUP_ONE_ID }
-const MEMBER_B: TaskGroupMember = { taskUid: TASK_B_UID, groupId: GROUP_TWO_ID }
+const MEMBER_A: TaskGroupMember = { taskUid: TASK_A_UID, taskGroupId: GROUP_ONE_ID }
+const MEMBER_B: TaskGroupMember = { taskUid: TASK_B_UID, taskGroupId: GROUP_TWO_ID }
 
 const RESOURCE_UID = 201
 
@@ -431,13 +431,13 @@ const VISUAL: TaskVisual = {
 
 const VISUAL_B: TaskVisual = { ...VISUAL, taskUid: TASK_B_UID }
 
-// IV-15 weighs this against `Project.importSeq`, so the sound document sets the
+// IV-15 weighs this against `Project.importSequence`, so the sound document sets the
 // two equal -- the boundary the row admits.
 const ORIGIN: TaskOrigin = {
   taskUid: TASK_A_UID,
   sourceProjectUid: null,
   sourceUid: 7,
-  lastSeenImportSeq: PROJECT.importSeq,
+  lastSeenImportSequence: PROJECT.importSequence,
   importSessionId: null,
 }
 
@@ -499,7 +499,7 @@ const overDeepGroups = (): readonly TaskGroup[] => {
       ...GROUP_ONE,
       id: uuidOf(100 + depth),
       parentId: depth === 1 ? null : uuidOf(100 + depth - 1),
-      label: `link ${depth}`,
+      name: `link ${depth}`,
       order: 100 + depth,
     })
   }
@@ -531,7 +531,7 @@ const COMMENT_BOX_ONE: CommentBox = {
   leaderShapeKind: null,
   text: null,
   anchorDate: null,
-  anchorGroupId: null,
+  anchorTaskGroupId: null,
   bodyOffsetPx: null,
   strokeColor: null,
   strokeWidthPx: null,
@@ -542,10 +542,10 @@ const COMMENT_BOX_ONE: CommentBox = {
 
 const HIGHLIGHT_BOX_ONE: HighlightBox = {
   id: uuidOf(21),
-  startDate: null,
-  endDate: null,
-  topGroupId: null,
-  bottomGroupId: null,
+  start: null,
+  finish: null,
+  topTaskGroupId: null,
+  bottomTaskGroupId: null,
   strokeColor: null,
   cornerRadiusPx: null,
   strokeWidthPx: null,
@@ -592,7 +592,7 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   'IV-2': () => withSchedule({ assignments: [{ ...ASSIGNMENT, resourceUid: 999 }] }),
 
   // A pinned task group (S-126) naming a `TaskGroup` that is not there.
-  'IV-3': () => withSettings({ pinnedGroupIds: [uuidOf(999)] }),
+  'IV-3': () => withSettings({ pinnedTaskGroupIds: [uuidOf(999)] }),
 
   // The parent tasks close a ring: each of the two names the other.
   'IV-4': () =>
@@ -639,7 +639,7 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   // A task group with neither a name of its own nor a task to take one from.
   'IV-8': () =>
     withSchedule({
-      taskGroups: [{ ...GROUP_ONE, label: null, derivedFromTaskUid: null }, GROUP_TWO],
+      taskGroups: [{ ...GROUP_ONE, name: null, derivedFromTaskUid: null }, GROUP_TWO],
     }),
 
   // Both colors transparent. P-19 is the value that means transparent, and it
@@ -674,12 +674,12 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   // An import sequence recorded on a task that is ahead of the document's own.
   'IV-15': () =>
     withSchedule({
-      taskOrigins: [{ ...ORIGIN, lastSeenImportSeq: PROJECT.importSeq + 1 }],
+      taskOrigins: [{ ...ORIGIN, lastSeenImportSequence: PROJECT.importSequence + 1 }],
     }),
 
   // A highlight box drawn backwards in time. Table T-220's IV-19 (CR-341,
-  // ledger row DFC-211): 「ハイライトボックスの `startDate` が `endDate` より後で
-  // ないこと、および `topGroupId` が `bottomGroupId` より下でないこと」, 対象 「その
+  // ledger row DFC-211): 「ハイライトボックスの `start` が `finish` より後で
+  // ないこと、および `topTaskGroupId` が `bottomTaskGroupId` より下でないこと」, 対象 「その
   // 4 列」, 種別 「組合せ」 -- read off the table, never typed here.
   //
   // ⭐ THE ROW NAMES TWO CONDITIONS AND THIS CASE BREAKS ONE. The other half is
@@ -698,10 +698,10 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
       highlightBoxes: [
         {
           ...HIGHLIGHT_BOX_ONE,
-          startDate: TASK_A.finish,
-          endDate: TASK_A.start,
-          topGroupId: GROUP_ONE_ID,
-          bottomGroupId: GROUP_TWO_ID,
+          start: TASK_A.finish,
+          finish: TASK_A.start,
+          topTaskGroupId: GROUP_ONE_ID,
+          bottomTaskGroupId: GROUP_TWO_ID,
         },
       ],
     }),
@@ -709,7 +709,7 @@ const BREACH: Readonly<Record<string, () => DocumentUnderTest>> = {
   // A stored setting whose floor names another setting, put one whole unit
   // under it: S-3's floor names fontMin, so the value breaks the bound whichever
   // way it is read -- inclusive or not.
-  'IV-16': () => withSettings({ rulerFont: SETTINGS_CONSTANTS.fontMin - 1 }),
+  'IV-16': () => withSettings({ rulerFontSizePx: SETTINGS_CONSTANTS.fontMin - 1 }),
 
   // A document holding no task group at all -- the state IV-20 forbids, whose origin
   // the row names as the sentence under table T-050 of Chapter 1.4.
@@ -903,8 +903,8 @@ const DANGLING: Readonly<Record<string, () => DocumentUnderTest>> = {
   'TaskGroupMember.taskUid': () =>
     withSchedule({ taskGroupMembers: [MEMBER_A, { ...MEMBER_B, taskUid: MISSING_UID }] }),
 
-  'TaskGroupMember.groupId': () =>
-    withSchedule({ taskGroupMembers: [MEMBER_A, { ...MEMBER_B, groupId: MISSING_GROUP_ID }] }),
+  'TaskGroupMember.taskGroupId': () =>
+    withSchedule({ taskGroupMembers: [MEMBER_A, { ...MEMBER_B, taskGroupId: MISSING_GROUP_ID }] }),
 
   'Calendar.baseCalendarUid': () =>
     withSchedule({ calendars: [{ ...CALENDAR, baseCalendarUid: MISSING_UID }] }),
@@ -922,14 +922,14 @@ const DANGLING: Readonly<Record<string, () => DocumentUnderTest>> = {
 
   'TaskOrigin.taskUid': () => withSchedule({ taskOrigins: [{ ...ORIGIN, taskUid: MISSING_UID }] }),
 
-  'CommentBox.anchorGroupId': () =>
-    withSchedule({ commentBoxes: [{ ...COMMENT_BOX_ONE, anchorGroupId: MISSING_GROUP_ID }] }),
+  'CommentBox.anchorTaskGroupId': () =>
+    withSchedule({ commentBoxes: [{ ...COMMENT_BOX_ONE, anchorTaskGroupId: MISSING_GROUP_ID }] }),
 
-  'HighlightBox.topGroupId': () =>
-    withSchedule({ highlightBoxes: [{ ...HIGHLIGHT_BOX_ONE, topGroupId: MISSING_GROUP_ID }] }),
+  'HighlightBox.topTaskGroupId': () =>
+    withSchedule({ highlightBoxes: [{ ...HIGHLIGHT_BOX_ONE, topTaskGroupId: MISSING_GROUP_ID }] }),
 
-  'HighlightBox.bottomGroupId': () =>
-    withSchedule({ highlightBoxes: [{ ...HIGHLIGHT_BOX_ONE, bottomGroupId: MISSING_GROUP_ID }] }),
+  'HighlightBox.bottomTaskGroupId': () =>
+    withSchedule({ highlightBoxes: [{ ...HIGHLIGHT_BOX_ONE, bottomTaskGroupId: MISSING_GROUP_ID }] }),
 }
 
 /**
@@ -942,18 +942,18 @@ const DANGLING: Readonly<Record<string, () => DocumentUnderTest>> = {
  * ⚠️ WHICH OF TWO ROWS IS 「下」 IS THE TREE'S ORDER AND NOT A NUMBER OF THIS
  * FILE'S. GROUP_TWO is GROUP_ONE's child, so the panel draws GROUP_ONE first
  * and GROUP_TWO under it; naming GROUP_TWO as the top and GROUP_ONE as the
- * bottom is 「`topGroupId` が `bottomGroupId` より下」 exactly.
+ * bottom is 「`topTaskGroupId` が `bottomTaskGroupId` より下」 exactly.
  */
 const REVERSED: Readonly<Record<string, () => DocumentUnderTest>> = {
-  'HighlightBox.topGroupId': () =>
+  'HighlightBox.topTaskGroupId': () =>
     withSchedule({
       highlightBoxes: [
         {
           ...HIGHLIGHT_BOX_ONE,
-          startDate: TASK_A.start,
-          endDate: TASK_A.finish,
-          topGroupId: GROUP_TWO_ID,
-          bottomGroupId: GROUP_ONE_ID,
+          start: TASK_A.start,
+          finish: TASK_A.finish,
+          topTaskGroupId: GROUP_TWO_ID,
+          bottomTaskGroupId: GROUP_ONE_ID,
         },
       ],
     }),

@@ -66,28 +66,28 @@ export function createTask(
   // TRAP: write shapeKind down; Task.milestone cannot tell SH-1 from SH-2 (AT-100).
   const taskVisuals = [...schedule.taskVisuals, { ...visualOf(schedule, uid), shapeKind: command.shapeKind }]
 
-  const held = schedule.taskGroups.find((one) => one.id === command.groupId)
+  const held = schedule.taskGroups.find((one) => one.id === command.taskGroupId)
   let taskGroups = schedule.taskGroups
   if (held === undefined) {
     const order = schedule.taskGroups
       .filter((one) => one.parentId === null)
       .reduce((best, one) => Math.max(best, one.order), -1) + 1
     const made: TaskGroup = {
-      id: command.groupId,
+      id: command.taskGroupId,
       parentId: null,
-      label: null,
+      name: null,
       derivedFromTaskUid: uid,
       order,
       treeState: COLUMN_DEFAULTS.TaskGroup.treeState,
       editGroup: null,
       color: null,
-      minHeight: null,
+      minHeightPx: null,
     }
     taskGroups = [...schedule.taskGroups, made]
   }
   const taskGroupMembers = [
     ...schedule.taskGroupMembers,
-    { taskUid: uid, groupId: command.groupId },
+    { taskUid: uid, taskGroupId: command.taskGroupId },
   ]
   return edited(
     withSchedule(document, {

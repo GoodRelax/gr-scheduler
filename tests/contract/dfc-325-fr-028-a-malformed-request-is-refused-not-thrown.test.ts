@@ -53,9 +53,9 @@ const TEMPLATE = JSON.parse(
 ) as Document
 
 const STARTING_STAMP = {
-  scheduleUpdatedUtc: '2026-08-19T10:00:00Z',
+  scheduleUpdatedAt: '2026-08-19T10:00:00Z',
   lastEditedBy: 'a person at the keyboard',
-  settingsUpdatedUtc: '2026-08-19T10:00:00Z',
+  settingsUpdatedAt: '2026-08-19T10:00:00Z',
 } as const
 
 const NAME_BEFORE = 'the name it started with'
@@ -162,43 +162,43 @@ const MALFORMED: ReadonlyArray<{ readonly what: string; readonly request: unknow
   { what: 'nothing at all', request: undefined },
   { what: 'null', request: null },
   { what: 'a request with neither member', request: {} },
-  { what: 'commands without a readStamp', request: { commands: [] } },
+  { what: 'commands without an expectedStamp', request: { commands: [] } },
   {
-    what: 'a non-empty bundle without a readStamp',
+    what: 'a non-empty bundle without an expectedStamp',
     request: { commands: [{ kind: 'setProjectTitle', title: 'written by a malformed call' }] },
   },
-  { what: 'a readStamp without commands', request: { readStamp: { ...STARTING_STAMP } } },
-  { what: 'a readStamp that is not an object', request: { readStamp: 'not a stamp', commands: [] } },
-  { what: 'a readStamp missing one of AT-127..AT-129', request: {
-    readStamp: { scheduleUpdatedUtc: STARTING_STAMP.scheduleUpdatedUtc },
+  { what: 'an expectedStamp without commands', request: { expectedStamp: { ...STARTING_STAMP } } },
+  { what: 'an expectedStamp that is not an object', request: { expectedStamp: 'not a stamp', commands: [] } },
+  { what: 'an expectedStamp missing one of AT-127..AT-129', request: {
+    expectedStamp: { scheduleUpdatedAt: STARTING_STAMP.scheduleUpdatedAt },
     commands: [],
   } },
   {
     what: 'commands that are not a list',
-    request: { readStamp: { ...STARTING_STAMP }, commands: 'not a list' },
+    request: { expectedStamp: { ...STARTING_STAMP }, commands: 'not a list' },
   },
   {
     what: 'a command that is null',
-    request: { readStamp: { ...STARTING_STAMP }, commands: [null] },
+    request: { expectedStamp: { ...STARTING_STAMP }, commands: [null] },
   },
   {
     what: 'a command naming no row of table T-108',
-    request: { readStamp: { ...STARTING_STAMP }, commands: [{ kind: 'no such row' }] },
+    request: { expectedStamp: { ...STARTING_STAMP }, commands: [{ kind: 'no such row' }] },
   },
   {
     what: 'a command of a real row whose field is spelled wrong',
     request: {
-      readStamp: { ...STARTING_STAMP },
+      expectedStamp: { ...STARTING_STAMP },
       commands: [{ kind: 'setStatusDate', statusDate: '2026-08-21T00:00:00' }],
     },
   },
   {
     what: 'a command of a real row with every field missing',
-    request: { readStamp: { ...STARTING_STAMP }, commands: [{ kind: 'createTask' }] },
+    request: { expectedStamp: { ...STARTING_STAMP }, commands: [{ kind: 'createTask' }] },
   },
   {
     what: 'a command that is a string',
-    request: { readStamp: { ...STARTING_STAMP }, commands: ['setProjectTitle'] },
+    request: { expectedStamp: { ...STARTING_STAMP }, commands: ['setProjectTitle'] },
   },
   { what: 'a string where a request belongs', request: 'apply my commands please' },
   { what: 'a list where a request belongs', request: [] },
@@ -229,33 +229,33 @@ describe('DFC-325 -- the manuscript these cases are driven by', () => {
 
 
 describe('FR-028 / AM-7 -- the well-formed shape still works', () => {
-  it('accepts a bundle whose readStamp matches, and writes it', () => {
+  it('accepts a bundle whose expectedStamp matches, and writes it', () => {
     const it_ = bench()
     expect(it_.titleNow()).toBe(NAME_BEFORE)
     const answer = applying(it_.api, {
-      readStamp: it_.stampNow(),
+      expectedStamp: it_.stampNow(),
       commands: [{ kind: 'setProjectTitle', title: 'a name the agent chose' }],
     })
-    expect(answer.accepted, JSON.stringify(answer)).toBe(true)
+    expect(answer.ok, JSON.stringify(answer)).toBe(true)
     expect(it_.titleNow()).toBe('a name the agent chose')
   })
 
-  it('accepts an empty bundle whose readStamp matches', () => {
+  it('accepts an empty bundle whose expectedStamp matches', () => {
     const it_ = bench()
-    const answer = applying(it_.api, { readStamp: it_.stampNow(), commands: [] })
-    expect(answer.accepted, JSON.stringify(answer)).toBe(true)
+    const answer = applying(it_.api, { expectedStamp: it_.stampNow(), commands: [] })
+    expect(answer.ok, JSON.stringify(answer)).toBe(true)
   })
 
   it('answers accepted with the stamp a caller holds for its next AG-2 check', () => {
     const it_ = bench()
     const answer = applying(it_.api, {
-      readStamp: it_.stampNow(),
+      expectedStamp: it_.stampNow(),
       commands: [{ kind: 'setProjectTitle', title: 'another name' }],
     })
-    expect(answer.accepted).toBe(true)
-    if (answer.accepted) {
+    expect(answer.ok).toBe(true)
+    if (answer.ok) {
       expect(answer.stamp).toEqual(it_.stampNow())
-      expect(answer.stamp.scheduleUpdatedUtc).not.toBe(STARTING_STAMP.scheduleUpdatedUtc)
+      expect(answer.stamp.scheduleUpdatedAt).not.toBe(STARTING_STAMP.scheduleUpdatedAt)
     }
   })
 })
@@ -270,7 +270,7 @@ describe('FR-028 (MUST NOT) -- a malformed request is refused, never thrown', ()
   it.each(MALFORMED)('answers a REFUSAL for $what', ({ request }) => {
     const it_ = bench()
     const answer = applying(it_.api, request)
-    expect(answer.accepted, JSON.stringify(answer)).toBe(false)
+    expect(answer.ok, JSON.stringify(answer)).toBe(false)
   })
 
   it.each(MALFORMED)('leaves the document untouched for $what', ({ request }) => {
@@ -288,8 +288,8 @@ describe('T-035 AG-9a (MUST) -- what every refusal carries', () => {
   it.each(MALFORMED)('names the target that was refused, for $what', ({ request }) => {
     const it_ = bench()
     const answer = applying(it_.api, request)
-    expect(answer.accepted).toBe(false)
-    if (answer.accepted) return
+    expect(answer.ok).toBe(false)
+    if (answer.ok) return
     expect(typeof answer.refusal.target).toBe('string')
     expect(answer.refusal.target.length).toBeGreaterThan(0)
   })
@@ -297,8 +297,8 @@ describe('T-035 AG-9a (MUST) -- what every refusal carries', () => {
   it.each(MALFORMED)('carries a category for the reason, for $what', ({ request }) => {
     const it_ = bench()
     const answer = applying(it_.api, request)
-    expect(answer.accepted).toBe(false)
-    if (answer.accepted) return
+    expect(answer.ok).toBe(false)
+    if (answer.ok) return
     expect(typeof answer.refusal.reason).toBe('string')
     expect(answer.refusal.reason.length).toBeGreaterThan(0)
   })
@@ -306,26 +306,26 @@ describe('T-035 AG-9a (MUST) -- what every refusal carries', () => {
   it.each(MALFORMED)('carries the CURRENT stamp, all three values, for $what', ({ request }) => {
     const it_ = bench()
     const answer = applying(it_.api, request)
-    expect(answer.accepted).toBe(false)
-    if (answer.accepted) return
+    expect(answer.ok).toBe(false)
+    if (answer.ok) return
     expect(answer.refusal.stamp).toEqual(it_.stampNow())
     expect(Object.keys(answer.refusal.stamp).sort()).toEqual([
       'lastEditedBy',
-      'scheduleUpdatedUtc',
-      'settingsUpdatedUtc',
+      'scheduleUpdatedAt',
+      'settingsUpdatedAt',
     ])
   })
 
   it('the stamp a refusal carries is good enough to retry with', () => {
     const it_ = bench()
     const refused = applying(it_.api, { commands: [] })
-    expect(refused.accepted).toBe(false)
-    if (refused.accepted) return
+    expect(refused.ok).toBe(false)
+    if (refused.ok) return
     const retried = applying(it_.api, {
-      readStamp: refused.refusal.stamp,
+      expectedStamp: refused.refusal.stamp,
       commands: [{ kind: 'setProjectTitle', title: 'the retry landed' }],
     })
-    expect(retried.accepted, JSON.stringify(retried)).toBe(true)
+    expect(retried.ok, JSON.stringify(retried)).toBe(true)
     expect(it_.titleNow()).toBe('the retry landed')
   })
 })

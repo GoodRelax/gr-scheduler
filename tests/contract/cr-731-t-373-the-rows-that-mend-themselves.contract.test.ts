@@ -14,7 +14,7 @@ import {
   SELF_DEPENDENT,
 } from './cr-731-documents'
 import {
-  FIX_TYPES,
+  FIX_KINDS,
   REQUIREMENTS,
   commandsOf,
   dayOf,
@@ -84,8 +84,8 @@ describe('item 1 -- FA-11: a parent whose finish is short of its children gets t
   it('one row for VC-11, the row FA-11 of T-373, on the parent, made by the machine', () => {
     const row = oneRow(rowsOf(), 'VC-11', 1)
     expect(row.fixRow).toBe('FA-11')
-    expect(FIX_TYPES).toContain(row.fixType)
-    expect(row.fixType).toBe('automatic')
+    expect(FIX_KINDS).toContain(row.fixKind)
+    expect(row.fixKind).toBe('automatic')
   })
 
   it('before is 2027/05/21 and after is 2027/05/26', () => {
@@ -121,7 +121,7 @@ describe('item 2 -- the chain: a mend that makes the grandparent wrong brings a 
     const [source, chained] = mendsOf()
     expect(source?.causedBy ?? null).toBeNull()
     expect(chained?.causedBy ?? null).not.toBeNull()
-    expect(chained?.fixType).toBe('automatic')
+    expect(chained?.fixKind).toBe('automatic')
   })
 
   it('the chain row reads 2027/05/21 before and 2027/05/26 after, as if the first mend were done', () => {
@@ -171,7 +171,7 @@ describe('the other machine rows -- FA-2, FA-8, FA-10, FA-12, FA-26 mend the fin
     expect(findingRowsOf(make()), 'premise').toContain(findingRow)
     const row = oneRow(proposed(make()), findingRow)
     expect(row.fixRow).toBe(fixRow)
-    expect(row.fixType).toBe('automatic')
+    expect(row.fixKind).toBe('automatic')
     expect(findingRowsOf(mended(make()))).not.toContain(findingRow)
   })
 
@@ -213,6 +213,6 @@ describe('item 10 -- a parent only derived from the task groups is never mended 
   it('no FA-9 to FA-12 row of the machine, of a choice or of a suggested date stands on the derived pair', () => {
     const rows = proposed(DERIVED_PARENT())
     const mends = ['FA-9', 'FA-10', 'FA-11', 'FA-12'].flatMap((fixRow) => rowsOfFix(rows, fixRow))
-    expect(mends.filter((one) => one.fixType !== 'byHand')).toEqual([])
+    expect(mends.filter((one) => one.fixKind !== 'byHand')).toEqual([])
   })
 })

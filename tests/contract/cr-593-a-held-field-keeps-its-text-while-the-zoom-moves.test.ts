@@ -90,15 +90,15 @@ function sceneOf(): Document {
       taskGroups: rows.map((id, index) => ({
         id,
         parentId: null,
-        label: `Row${index + 1}`,
+        name: `Row${index + 1}`,
         derivedFromTaskUid: null,
         order: index,
         treeState: 'auto',
         editGroup: null,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: rows.map((id, index) => ({ taskUid: index + 1, groupId: id })),
+      taskGroupMembers: rows.map((id, index) => ({ taskUid: index + 1, taskGroupId: id })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -108,7 +108,7 @@ function sceneOf(): Document {
     documentSettings: {
       ...structuredClone(TEMPLATE.documentSettings),
       scrollDate: '2026-04-01',
-      scrollGroupId: A,
+      scrollTaskGroupId: A,
       scrollGroupOffset: 0,
       zoomY: 1,
       levelZeroTreeState: 'auto',
@@ -209,7 +209,7 @@ interface Bench {
   send(input: HumanInput): void
   drain(): void
   wheel(modifiers: Partial<InputModifiers>, notches: number): void
-  openTaskGroup(groupId: string): void
+  openTaskGroup(taskGroupId: string): void
   view(): ScreenView
 }
 
@@ -264,12 +264,12 @@ function bench(document: Document): Bench {
       send(input)
     },
     // see MK-13
-    openTaskGroup: (groupId) => {
-      const title = view().taskGroupPanel.titles.find((one) => one.groupId === groupId)
-      if (title === undefined) throw new Error(`the task group title of ${groupId} is not drawn`)
+    openTaskGroup: (taskGroupId) => {
+      const title = view().taskGroupPanel.titles.find((one) => one.taskGroupId === taskGroupId)
+      if (title === undefined) throw new Error(`the task group title of ${taskGroupId} is not drawn`)
       const x = title.box.x + title.box.width / 2
       const y = title.box.y + title.box.height / 2
-      aimed = partOn('Task Group Panel', null, groupId)
+      aimed = partOn('Task Group Panel', null, taskGroupId)
       send(pointerAt('down', x, y))
       send(pointerAt('up', x, y))
       send(pointerAt('down', x, y, 2))
@@ -310,13 +310,13 @@ const HALF_TYPED: readonly (readonly [string, string])[] = [
 const settingsOf = (loop: FrameLoop): Record<string, unknown> => loop.document().documentSettings as unknown as Record<string, unknown>
 const scrollOf = (loop: FrameLoop): string => {
   const held = settingsOf(loop)
-  return JSON.stringify([held['scrollDate'], held['scrollDayOffset'], held['scrollGroupId'], held['scrollGroupOffset']])
+  return JSON.stringify([held['scrollDate'], held['scrollDayOffset'], held['scrollTaskGroupId'], held['scrollGroupOffset']])
 }
 
 function heldOn(row: string, text: string): { readonly built: Bench; readonly input: FakeElement; readonly label: unknown } {
   const built = bench(sceneOf())
   built.openTaskGroup(A)
-  const label = built.loop.document().schedule.taskGroups.find((one) => one.id === A)?.label
+  const label = built.loop.document().schedule.taskGroups.find((one) => one.id === A)?.name
   const input = typeInto(built, row, text)
   return { built, input, label }
 }
@@ -327,7 +327,7 @@ function expectTheFieldKept(built: Bench, row: string, input: FakeElement, text:
   expect(input.value, MH_4_KEEP_INPUT).toBe(text)
   expect(built.built.world.activeElement, MH_4_KEEP_INPUT).toBe(input)
   const group = built.loop.document().schedule.taskGroups.find((one) => one.id === A) as unknown as Record<string, unknown>
-  expect([group['label'], group['minHeight']], WS_2_UNTOUCHED).toEqual([label, null])
+  expect([group['name'], group['minHeightPx']], WS_2_UNTOUCHED).toEqual([label, null])
 }
 
 // WHY: the notch sign of MK-4 is not in the manuscript; cr-577 proves -1 raises zoomY.
@@ -363,7 +363,7 @@ describe(`T-035 AG-9 "${AG_9_EDITING}" -- through the Agent API while a field is
 
   const apply = (built: Bench, commands: readonly Record<string, unknown>[]) => {
     const api = agentOf(built)
-    const outcome = api.applyCommands({ readStamp: api.readStamp(), commands: commands as never })
+    const outcome = api.applyCommands({ expectedStamp: api.readStamp(), commands: commands as never })
     built.drain()
     return outcome
   }
@@ -378,7 +378,7 @@ describe(`T-035 AG-9 "${AG_9_EDITING}" -- through the Agent API while a field is
   it.each(HALF_TYPED)(`%s: [setZoom] is accepted and moves zoomY; "${MH_4_KEEP_INPUT}"`, (row, text) => {
     const { built, input, label } = heldOn(row, text)
     const outcome = apply(built, [ZOOM])
-    expect(outcome.accepted ? null : outcome.refusal.reason, WS_2_EXEMPT).toBeNull()
+    expect(outcome.ok ? null : outcome.refusal.reason, WS_2_EXEMPT).toBeNull()
     expect(settingsOf(built.loop)['zoomY'], WS_2_EXEMPT).toBe(2)
     expectTheFieldKept(built, row, input, text, label)
   })
@@ -388,17 +388,17 @@ describe(`T-035 AG-9 "${AG_9_EDITING}" -- through the Agent API while a field is
     ['setProjectTitle', [TITLE]],
     ['setZoom with setThemeMonochrome', [ZOOM, MONOCHROME]],
   ] as const)('%s is refused with editingInPlace while PR-20 is half-typed, and accepted once it is settled', (_name, commands) => {
-    expect(apply(bench(sceneOf()), commands).accepted, 'premise: accepted with no field held').toBe(true)
+    expect(apply(bench(sceneOf()), commands).ok, 'premise: accepted with no field held').toBe(true)
 
     const { built, input, label } = heldOn('PR-20', '37')
     const document = JSON.stringify(built.loop.document())
     const outcome = apply(built, commands)
-    expect(outcome.accepted ? null : outcome.refusal.reason, AG_9_EDITING).toBe('editingInPlace')
+    expect(outcome.ok ? null : outcome.refusal.reason, AG_9_EDITING).toBe('editingInPlace')
     expect(JSON.stringify(built.loop.document()), 'the refused write left the document as it was').toBe(document)
     expectTheFieldKept(built, 'PR-20', input, '37', label)
 
     raise(built.built, input, 'keydown', { key: SK_19.key })
     built.send(SK_19)
-    expect(apply(built, commands).accepted, 'SK-19 settled the field, so the write passes').toBe(true)
+    expect(apply(built, commands).ok, 'SK-19 settled the field, so the write passes').toBe(true)
   })
 })

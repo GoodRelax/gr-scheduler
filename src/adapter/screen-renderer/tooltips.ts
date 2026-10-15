@@ -166,9 +166,9 @@ function hintDayOf(text: string | null, side: DateTimeSide): HintDay | null {
 }
 
 // see TX-2, FR-156, S-574, S-576
-type HintTimes = Pick<DocumentSettings, 'showsTimeOfDay' | 'viewTimeZone'>
+type HintTimes = Pick<DocumentSettings, 'isTimeOfDayVisible' | 'viewTimeZone'>
 
-const NO_HINT_TIMES: HintTimes = { showsTimeOfDay: false, viewTimeZone: null }
+const NO_HINT_TIMES: HintTimes = { isTimeOfDayVisible: false, viewTimeZone: null }
 
 const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], isYearWritten: false, shown: null }
 
@@ -196,7 +196,7 @@ function assigneeNamesOf(schedule: Schedule, taskUid: number): readonly string[]
 /** @purity pure */
 function hintContextOf(schedule: Schedule | null, taskUid: number, times: HintTimes = NO_HINT_TIMES): HintContext {
   if (schedule === null) return NO_HINT_CONTEXT
-  const shown = times.showsTimeOfDay ? shownInstantReader(schedule, times.viewTimeZone) : null
+  const shown = times.isTimeOfDayVisible ? shownInstantReader(schedule, times.viewTimeZone) : null
   return { assigneeNames: assigneeNamesOf(schedule, taskUid), isYearWritten: isYearWrittenIn(schedule), shown }
 }
 
@@ -429,7 +429,7 @@ function iconTooltipOf(
   const refusal = entryRefusalUnderPointer(shown, readings, icon)
   const hint = iconHint(icon, hintLanguage)
   return {
-    anchor: { kind: 'icon', icon, ...surfaceAnchorOf(readings), ...(row === null ? {} : { groupId: row }) },
+    anchor: { kind: 'icon', icon, ...surfaceAnchorOf(readings), ...(row === null ? {} : { taskGroupId: row }) },
     text: refusal === null ? hint : `${hint}${LINE_BREAK}${refusal}`,
     assignment: entryAssignment(icon, hintLanguage),
   }
@@ -513,21 +513,21 @@ function readoutWord(line: string, language: DisplayLanguage): string {
 // see CU-3, DC-3, TX-6, FR-158
 // WHY: the clock follows the date only while time of day is shown; without it the instant is the day's 00:00.
 /** @purity pure */
-function cursorInstantText(instant: number, showsTimeOfDay: boolean, language: DisplayLanguage): string {
+function cursorInstantText(instant: number, isTimeOfDayVisible: boolean, language: DisplayLanguage): string {
   const dated = cursorDateText(dayOfInstant(instant), language)
-  return showsTimeOfDay ? `${dated} ${clockTextOf(instant)}` : dated
+  return isTimeOfDayVisible ? `${dated} ${clockTextOf(instant)}` : dated
 }
 
 // see DC-3
 /** @purity pure */
-function readoutDate(instant: number | null, showsTimeOfDay: boolean, language: DisplayLanguage): string {
-  return instant === null ? UNKNOWN : cursorInstantText(instant, showsTimeOfDay, language)
+function readoutDate(instant: number | null, isTimeOfDayVisible: boolean, language: DisplayLanguage): string {
+  return instant === null ? UNKNOWN : cursorInstantText(instant, isTimeOfDayVisible, language)
 }
 
 // see DC-3, TX-6, TX-10
 // WHY: whole calendar days go to the y / m / d words; the rest under a day is calendar time in h and m (TX-6).
 /** @purity pure */
-function readoutSpan(a: number | null, b: number | null, showsTimeOfDay: boolean, language: DisplayLanguage): string {
+function readoutSpan(a: number | null, b: number | null, isTimeOfDayVisible: boolean, language: DisplayLanguage): string {
   if (a === null || b === null) return UNKNOWN
   const wholeDays = Math.floor((b - a) / MINUTES_PER_CALENDAR_DAY)
   const span = calendarSpanOf(dayOfInstant(a), dayOfInstant(a + wholeDays * MINUTES_PER_CALENDAR_DAY))
@@ -536,7 +536,7 @@ function readoutSpan(a: number | null, b: number | null, showsTimeOfDay: boolean
     .replace('{m}', String(span.months))
     .replace('{d}', String(span.days))
     .replace('{n}', String(span.dayCount))
-  if (!showsTimeOfDay) return days
+  if (!isTimeOfDayVisible) return days
   return `${days} ${lengthTextOf(b - a - wholeDays * MINUTES_PER_CALENDAR_DAY, MINUTES_PER_CALENDAR_DAY)}`
 }
 
@@ -573,7 +573,7 @@ function inDateOrder(
 // see TX-6, FR-156, S-574
 /** @purity pure */
 function cursorViewOf(settings: DocumentSettings, dataRegion: string | undefined): (instant: number | null) => number | null {
-  if (!settings.showsTimeOfDay || dataRegion === undefined) return (instant) => instant
+  if (!settings.isTimeOfDayVisible || dataRegion === undefined) return (instant) => instant
   const toView = viewWallReader(dataRegion, settings.viewTimeZone)
   return (instant) => (instant === null ? null : toView(instant))
 }
@@ -595,7 +595,7 @@ export function dualCursorReadoutOf(
   const { date1, date2 } = readoutInstants(regions, settings, session, pointer.x)
   const toView = cursorViewOf(settings, dataRegion)
   const { left, right } = inDateOrder(toView(date1), toView(date2))
-  const inTime = settings.showsTimeOfDay
+  const inTime = settings.isTimeOfDayVisible
   return {
     lines: [
       readoutWord('left', language).replace('{date}', () => readoutDate(left, inTime, language)),
@@ -626,10 +626,10 @@ export function guideCursorLabelOf(
   if (isDualCursorOn(session) || regionAtPointer(regions, pointer.x, pointer.y) !== 'taskGroupArea') return null
   if (tooltips.some((one) => one.at !== undefined)) return null
   const axis = timeAxisOf(settings, regions)
-  const instant = settings.showsTimeOfDay
+  const instant = settings.isTimeOfDayVisible
     ? snappedInstantAtX(axis, pointer.x, GUIDE_LABEL_MINUTES)
     : cursorInstantAtX(axis, pointer.x, settings)
   const shown = cursorViewOf(settings, dataRegion)(instant)
   if (shown === null) return null
-  return { text: cursorInstantText(shown, settings.showsTimeOfDay, displayLanguageOf(session)), at: pointer }
+  return { text: cursorInstantText(shown, settings.isTimeOfDayVisible, displayLanguageOf(session)), at: pointer }
 }

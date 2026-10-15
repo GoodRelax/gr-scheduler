@@ -64,12 +64,12 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     expect(Math.abs(moved.x - body.x - OFFSET.dx)).toBeLessThanOrEqual(1)
     expect(Math.abs(moved.y - body.y - OFFSET.dy)).toBeLessThanOrEqual(1)
     expect(Math.abs(dayNumber(box.anchorDate) - axis.dayOf(axis.xOf(dayNumber(before.anchorDate)) + OFFSET.dx))).toBeLessThanOrEqual(1)
-    expect(box.anchorGroupId).toBe(taskGroupUnderTheMovedAnchor)
+    expect(box.anchorTaskGroupId).toBe(taskGroupUnderTheMovedAnchor)
     expect(Number.isFinite(box.bodyOffsetPx.dx) && Number.isFinite(box.bodyOffsetPx.dy)).toBe(true)
     await press(page, 'IC-13')
     expect((await readDocument(page)).schedule.commentBoxes[0]!.bodyOffsetPx).toEqual(box.bodyOffsetPx)
     await press(page, 'IC-12')
-    anchorTaskGroup = box.anchorGroupId
+    anchorTaskGroup = box.anchorTaskGroupId
   })
 
   await test.step('UC-008 extension 1a: the body text is typed and drawn inside the box (FR-097, MK-13, PR-21)', async () => {
@@ -104,9 +104,9 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
   await test.step('UC-008 step 4: the range is kept as dates and task groups, and the corner radius does not follow the zoom (FR-019, T-217)', async () => {
     const axis = await dayAxis(page)
     const box = (await readDocument(page)).schedule.highlightBoxes[0]!
-    expect(Math.abs(dayNumber(box.startDate) - axis.dayOf(RANGE_FROM.x))).toBeLessThanOrEqual(1)
-    expect(Math.abs(dayNumber(box.endDate) - axis.dayOf(RANGE_TO.x))).toBeLessThanOrEqual(1)
-    expect([box.topGroupId, box.bottomGroupId]).toEqual(rows)
+    expect(Math.abs(dayNumber(box.start) - axis.dayOf(RANGE_FROM.x))).toBeLessThanOrEqual(1)
+    expect(Math.abs(dayNumber(box.finish) - axis.dayOf(RANGE_TO.x))).toBeLessThanOrEqual(1)
+    expect([box.topTaskGroupId, box.bottomTaskGroupId]).toEqual(rows)
     expect(await cornerRadius(page, highlightId)).toBe(box.cornerRadiusPx)
   })
 
@@ -125,7 +125,7 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
   await test.step('UC-008 extension 4a: when a task group inside the range is hidden, only the task groups still shown are surrounded (FR-019)', async () => {
     const box = (await readDocument(page)).schedule.highlightBoxes[0]!
     const before = (await figureBox(page, 'box-' + highlightId))!
-    await pressRowControl(page, box.bottomGroupId, 'IC-59')
+    await pressRowControl(page, box.bottomTaskGroupId, 'IC-59')
     const after = (await figureBox(page, 'box-' + highlightId))!
     expect.soft(after.h).toBeLessThan(before.h)
   })

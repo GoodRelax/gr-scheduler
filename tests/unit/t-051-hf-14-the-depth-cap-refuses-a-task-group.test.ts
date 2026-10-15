@@ -244,12 +244,12 @@ function chainDocument(): Document {
       taskGroups: CHAIN.map((one, index) => ({
         id: one.id,
         parentId: index === 0 ? null : (CHAIN[index - 1] as (typeof CHAIN)[number]).id,
-        label: `depth ${one.depth}`,
+        name: `depth ${one.depth}`,
         derivedFromTaskUid: null,
         order: index,
         treeState: 'auto',
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
       taskGroupMembers: [],
       taskVisuals: [],
@@ -379,8 +379,8 @@ interface Stage {
   readonly screen: ScreenPane
   send(input: HumanInput): void
   /** Aim one entrance of one task group and press it -- CS-2 freezes the aim at the press. */
-  press(entry: string, groupId: string): void
-  titleOf(groupId: string): TaskGroupTitle
+  press(entry: string, taskGroupId: string): void
+  titleOf(taskGroupId: string): TaskGroupTitle
   notices(): ScreenView['notices']
 }
 
@@ -397,12 +397,12 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
     loop,
     screen,
     send,
-    press: (entry, groupId) => {
+    press: (entry, taskGroupId) => {
       screen.drawAt({
         part: TASK_GROUP_PANEL,
         entry: entry as any,
         format: null,
-        taskGroupId: groupId,
+        taskGroupId: taskGroupId,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -412,10 +412,10 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
       send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       screen.drawAt(null)
     },
-    titleOf: (groupId) => {
+    titleOf: (taskGroupId) => {
       const panel = screen.last().taskGroupPanel
-      const found = [...panel.pinnedTitles, ...panel.titles].find((one) => one.groupId === groupId)
-      if (found === undefined) throw new Error(`the panel drew no title for ${groupId}`)
+      const found = [...panel.pinnedTitles, ...panel.titles].find((one) => one.taskGroupId === taskGroupId)
+      if (found === undefined) throw new Error(`the panel drew no title for ${taskGroupId}`)
       return found
     },
     notices: () => screen.last().notices,

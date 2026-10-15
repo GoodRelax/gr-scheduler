@@ -80,7 +80,7 @@ describe('W3-T5 -- the manuscript these cases are driven by', () => {
   })
 
   it('the keys are read from the settings tables', () => {
-    expect([PANEL_WIDTH_KEY, DISPLAY_SCALE_KEY]).toEqual(['taskGroupPanelWidth', 'displayScale'])
+    expect([PANEL_WIDTH_KEY, DISPLAY_SCALE_KEY]).toEqual(['taskGroupPanelWidthPx', 'displayScale'])
   })
 })
 

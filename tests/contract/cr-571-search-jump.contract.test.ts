@@ -38,7 +38,7 @@ const SJ_8_STILL = '`SJ-2` と `SJ-4` は行う'
 // No task group stands in the pinned band unless a case says so (SJ-7), and no picture is read (landing null).
 type SearchJumpReach = Parameters<typeof searchJumpWrites>[3]
 const NO_REACH: SearchJumpReach = {
-  pxPerDay: 10, leftReachPx: 0, drawnTaskGroups: [] as readonly { groupId: string; isPinned?: boolean }[], areaWidth: 800, landing: null,
+  pxPerDay: 10, leftReachPx: 0, drawnTaskGroups: [] as readonly { taskGroupId: string; isPinned?: boolean }[], areaWidth: 800, landing: null,
 }
 // see SJ-6
 // WHY: a shape wider than the area less two S-428 insets, so SJ-6 keeps its start in sight instead of centering it.
@@ -46,7 +46,7 @@ const WIDE: SearchJumpReach = {
   ...NO_REACH,
   landing: { shapeFromDatePx: 0, shapeWidthPx: 2000, shapeMiddleY: 300, roomTop: 0, roomHeight: 600, scrollingTaskGroups: [] },
 }
-const IN_BAND = (row: string): typeof NO_REACH => ({ ...NO_REACH, drawnTaskGroups: [{ groupId: row, isPinned: true }] })
+const IN_BAND = (row: string): typeof NO_REACH => ({ ...NO_REACH, drawnTaskGroups: [{ taskGroupId: row, isPinned: true }] })
 const RS_66_SCENE = '**ピン止めしたタスクグループが多く、検索パネルから飛ぶ先を画面に出せない**'
 
 const TEMPLATE = JSON.parse(
@@ -85,12 +85,12 @@ const task = (uid: number, start: string): Loose => ({
   dependencies: [],
 })
 
-const commentBox = (id: string, anchorGroupId: string, anchorDate: string | null): Loose => ({
+const commentBox = (id: string, anchorTaskGroupId: string, anchorDate: string | null): Loose => ({
   id,
   leaderShapeKind: null,
   text: id,
   anchorDate,
-  anchorGroupId,
+  anchorTaskGroupId,
   bodyOffsetPx: null,
   strokeColor: null,
   strokeWidthPx: null,
@@ -100,7 +100,7 @@ const commentBox = (id: string, anchorGroupId: string, anchorDate: string | null
 })
 
 // WHY: the view starts somewhere else (R2, both fractions off zero) so a write to it shows.
-const START_SCROLL = { scrollDate: '2026-03-02', scrollGroupId: R2, scrollDayOffset: 0.25, scrollGroupOffset: 0.5 }
+const START_SCROLL = { scrollDate: '2026-03-02', scrollTaskGroupId: R2, scrollDayOffset: 0.25, scrollGroupOffset: 0.5 }
 
 interface Arranged {
   readonly treeStates?: Readonly<Record<string, string>>
@@ -114,7 +114,7 @@ function documentOf(arranged: Arranged = {}): Document {
     id,
     parentId,
     order,
-    label: id,
+    name: id,
     derivedFromTaskUid: null,
     treeState: arranged.treeStates?.[id] ?? 'auto',
   }))
@@ -122,7 +122,7 @@ function documentOf(arranged: Arranged = {}): Document {
     ...TEMPLATE.schedule,
     tasks: [task(201, '2026-05-01T00:00:00')],
     taskGroups,
-    taskGroupMembers: [{ taskUid: 201, groupId: R11 }],
+    taskGroupMembers: [{ taskUid: 201, taskGroupId: R11 }],
     commentBoxes: [commentBox('c-dated', R12, '2026-04-20T00:00:00'), commentBox('c-undated', R12, null)],
     resources: [],
     assignments: [],
@@ -135,7 +135,7 @@ function documentOf(arranged: Arranged = {}): Document {
     ...TEMPLATE.documentSettings,
     ...START_SCROLL,
     levelZeroTreeState: arranged.levelZero ?? 'auto',
-    pinnedGroupIds: arranged.pinned ?? [],
+    pinnedTaskGroupIds: arranged.pinned ?? [],
   }
   return { ...TEMPLATE, schedule, documentSettings } as unknown as Document
 }
@@ -152,7 +152,7 @@ function treeWritesOf(plan: SearchJumpPlan): readonly Written[] {
     .map((command) => {
       const loose = command as unknown as Loose
       const kind = String(loose['kind'])
-      if (kind === 'setTaskGroupTreeState') return { kind, id: String(loose['groupId']), to: String(loose['treeState']) }
+      if (kind === 'setTaskGroupTreeState') return { kind, id: String(loose['taskGroupId']), to: String(loose['treeState']) }
       if (kind === 'setLevelZeroTreeState') return { kind, id: 'level 0', to: String(loose['levelZeroTreeState']) }
       return { kind, id: '?', to: '?' }
     })
@@ -252,7 +252,7 @@ describe(`T-332 SJ-7 -- ${SJ_7_PINNED}`, () => {
     expect(plan.isBlockedByPinnedTaskGroups).toBe(false)
     expect(scrollOf(plan)).toMatchObject({
       kind: 'setScrollPosition',
-      scrollGroupId: START_SCROLL.scrollGroupId,
+      scrollTaskGroupId: START_SCROLL.scrollTaskGroupId,
       scrollGroupOffset: START_SCROLL.scrollGroupOffset,
     })
   })

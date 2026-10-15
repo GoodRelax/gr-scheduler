@@ -78,8 +78,8 @@ RETIRED = {'FR-050', 'T-030',
            'F-002', 'F-003', 'F-004', 'F-005', 'F-006', 'F-007',
            'S-21', 'S-52', 'K-21', 'S-57', 'K-66', 'S-139',
            # S-59 (planActualDisplay) and K-74, its key, split into two
-           # independent booleans (PND-442): S-227 planVisible and S-228
-           # actualVisible, K-122 and K-123. The changelog names S-59, so the
+           # independent booleans (PND-442): S-227 isPlanVisible and S-228
+           # isActualVisible, K-122 and K-123. The changelog names S-59, so the
            # seat stays burned.
            'S-59', 'K-74',
            # CM-57 (setPlanActualDisplay) went with them: with the pair as two
@@ -317,7 +317,7 @@ RETIRED = {'FR-050', 'T-030',
            # CR-646 (2026-10-03, rulings JDG-1195 / JDG-1210): AT-62
            # (TaskGroupMember.stackOrder, a lane nobody read -- ST-2 stacks a
            # row by itself) and AT-11 (Project.lastSaved -- the save time is
-           # held once, in documentStamp.fileSavedUtc, and MSPDI's LastSaved
+           # held once, in documentStamp.fileSavedAt, and MSPDI's LastSaved
            # is made at export, DV-12) left table T-058. PF-10 (the document
            # information panel's row for lastSaved, table T-224) and N-4 (the
            # data word stackOrder, table T-101) left with them; G-4 of table

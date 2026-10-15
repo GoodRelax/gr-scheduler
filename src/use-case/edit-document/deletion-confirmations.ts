@@ -29,7 +29,7 @@ export function confirmationOwedBy(
   let owed = false
   for (const command of commands) {
     if (command.kind === 'deleteTaskGroup') {
-      const rows = subtreeOf(schedule.taskGroups, command.groupId)
+      const rows = subtreeOf(schedule.taskGroups, command.taskGroupId)
       if (rows === null) continue
       for (const one of rows.taskGroups) lostTaskGroups.add(one.id)
       owed = true
@@ -42,10 +42,10 @@ export function confirmationOwedBy(
   }
   if (!owed) return null
   for (const member of schedule.taskGroupMembers) {
-    if (lostTaskGroups.has(member.groupId)) seeds.add(member.taskUid)
+    if (lostTaskGroups.has(member.taskGroupId)) seeds.add(member.taskUid)
   }
   const lostTasks = wbsSubtreesOf(schedule.tasks, seeds)
-  const taskGroupOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
+  const taskGroupOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.taskGroupId]))
   const items: DeletionQuestion['items'][number][] = []
   for (const task of schedule.tasks) {
     if (!lostTasks.has(task.uid)) continue

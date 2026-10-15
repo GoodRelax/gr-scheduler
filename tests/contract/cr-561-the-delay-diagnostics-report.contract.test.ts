@@ -214,7 +214,7 @@ const SS = 3
 const after = (uid: number, linkType = FS): Loose => ({
   predecessorUid: uid,
   linkType,
-  lag: 0,
+  linkLag: 0,
   lagFormat: 7,
   carry: {},
   carryElements: [],
@@ -232,7 +232,7 @@ function documentOf(statusDate: string | null, rows: readonly Row[], keepsWritte
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = rows.flatMap((row) => row.tasks)
   raw.schedule.taskGroupMembers = rows.flatMap((row) =>
-    row.tasks.map((task) => ({ taskUid: task['uid'], groupId: row.id })),
+    row.tasks.map((task) => ({ taskUid: task['uid'], taskGroupId: row.id })),
   )
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)

@@ -17,10 +17,10 @@ const TASKS = GROUPS.map((_, index) => taskOf({ uid: index + 1, name: `task ${in
 
 const BOX = {
   id: 'h1',
-  startDate: '2026-03-02',
-  endDate: '2026-03-12',
-  topGroupId: 'gb',
-  bottomGroupId: 'gd',
+  start: '2026-03-02',
+  finish: '2026-03-12',
+  topTaskGroupId: 'gb',
+  bottomTaskGroupId: 'gd',
   strokeColor: null,
   cornerRadiusPx: null,
   strokeWidthPx: null,
@@ -34,7 +34,7 @@ interface Frame {
 }
 
 interface TaskGroupAt {
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly y: number
   readonly height: number
 }
@@ -46,14 +46,14 @@ const sceneWith = (hidden: readonly GroupId[], box: Readonly<Record<string, unkn
     taskGroups: GROUPS.map((id, order) => ({
       id,
       parentId: null,
-      label: id,
+      name: id,
       derivedFromTaskUid: null,
       order,
       treeState: hidden.includes(id) ? 'hidden' : 'auto',
       color: null,
-      minHeight: null,
+      minHeightPx: null,
     })),
-    taskGroupMembers: TASKS.map((one, index) => ({ taskUid: (one as unknown as { uid: number }).uid, groupId: GROUPS[index] })),
+    taskGroupMembers: TASKS.map((one, index) => ({ taskUid: (one as unknown as { uid: number }).uid, taskGroupId: GROUPS[index] })),
   } as unknown as Schedule
   const settings = { ...SETTINGS_DEFAULTS, zoomX: 8, scrollDate: day(1), stackDirection: 'down' } as unknown as Parameters<typeof layoutFromSchedule>[1]
   const regions = regionsFromScreen(SCREEN, settings)
@@ -62,7 +62,7 @@ const sceneWith = (hidden: readonly GroupId[], box: Readonly<Record<string, unkn
   const rows = (layout as unknown as { taskGroups: readonly TaskGroupAt[] }).taskGroups
   const frames = (geometry as unknown as { highlightBoxes: readonly { box: Frame }[] }).highlightBoxes
   const rowOf = (id: GroupId): TaskGroupAt => {
-    const found = rows.find((one) => one.groupId === id)
+    const found = rows.find((one) => one.taskGroupId === id)
     if (found === undefined) throw new Error(`task group ${id} is not drawn`)
     return found
   }

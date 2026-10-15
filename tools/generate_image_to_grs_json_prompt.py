@@ -69,13 +69,13 @@ BASE_AUTHOR = 'ai-conversion'
 # TaskGroup, and the base is what the AI copies whole.
 BASE_TASK_GROUP = {
     'id': '00000000-0000-4000-8000-000000000001',
-    'label': 'Task Group 1',
+    'name': 'Task Group 1',
 }
 # Project columns that describe the startup template's fictional plan. The
 # base document is a blank the AI fills, so each is null there.
 BLANKED_PROJECT_COLUMNS = (
     'name', 'title', 'subject', 'category', 'company', 'manager', 'author',
-    'created', 'revision', 'startDate', 'statusDate',
+    'creationDate', 'revision', 'startDate', 'statusDate',
 )
 
 BANNER = (
@@ -173,13 +173,13 @@ def empty_document():
             'taskGroups': [{
                 'id': BASE_TASK_GROUP['id'],
                 'parentId': None,
-                'label': BASE_TASK_GROUP['label'],
+                'name': BASE_TASK_GROUP['name'],
                 'derivedFromTaskUid': None,
                 'order': 0,
                 'treeState': 'auto',
                 'editGroup': None,
                 'color': None,
-                'minHeight': None,
+                'minHeightPx': None,
             }],
             'taskGroupMembers': [],
             'taskVisuals': [],
@@ -190,10 +190,10 @@ def empty_document():
         },
         'documentSettings': settings,
         'documentStamp': {
-            'scheduleUpdatedUtc': startup.STAMPED_AT,
+            'scheduleUpdatedAt': startup.STAMPED_AT,
             'lastEditedBy': BASE_AUTHOR,
-            'settingsUpdatedUtc': startup.STAMPED_AT,
-            'fileSavedUtc': None,
+            'settingsUpdatedAt': startup.STAMPED_AT,
+            'fileSavedAt': None,
         },
         'changeLog': [],
     }

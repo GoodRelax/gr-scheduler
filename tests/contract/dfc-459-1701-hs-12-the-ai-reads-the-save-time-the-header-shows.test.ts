@@ -35,13 +35,13 @@ const shownTime = (built: ShellStage): string | null => built.last().appHeaderIt
 const stampOfJson = (text: string): string | null => {
   const read = documentFromJson(text)
   if (!read.ok) throw new Error(`the text the Agent API handed out is not GRS JSON: ${JSON.stringify(read.faults)}`)
-  return read.document.documentStamp.fileSavedUtc ?? null
+  return read.document.documentStamp.fileSavedAt ?? null
 }
 
 async function openedThenSaved(): Promise<{ built: ShellStage; shown: string }> {
   const built = await shellStage({ dom: true })
   const stamped = JSON.parse(JSON.stringify(there())) as Record<string, any>
-  stamped['documentStamp']['fileSavedUtc'] = OPENED_STAMP
+  stamped['documentStamp']['fileSavedAt'] = OPENED_STAMP
   const opened = built.file('stamped.json', jsonBytes(stamped))
   await replaceWith(built, opened)
   built.browser.toSave.push(opened)
@@ -67,8 +67,8 @@ describe(`HS-12 -- ${HS_12_MUST}`, () => {
   it('AM-4 readStamp and AM-3 readDocument carry the time the lower line shows after a save', async () => {
     const { built, shown } = await openedThenSaved()
     const api = agentOf(built)
-    expect(api.readStamp().fileSavedUtc, 'AM-4').toBe(shown)
-    expect(api.readDocument().documentStamp.fileSavedUtc, 'AM-3').toBe(shown)
+    expect(api.readStamp().fileSavedAt, 'AM-4').toBe(shown)
+    expect(api.readDocument().documentStamp.fileSavedAt, 'AM-3').toBe(shown)
   })
 
   it('AM-11 exportJson carries the time the lower line shows after a save', async () => {
@@ -81,15 +81,15 @@ describe(`HS-12 -- ${HS_12_MUST}`, () => {
   it(`AG-9a: ${HS_12_EVERY_ROAD.slice(0, 40)}... a refusal hands out the stamp and the document with that time`, async () => {
     const { built, shown } = await openedThenSaved()
     const api = agentOf(built)
-    const stale = { ...api.readStamp(), scheduleUpdatedUtc: '2000-01-01T00:00:00Z' }
-    const outcome = api.applyCommands({ readStamp: stale, commands: [] } as never) as unknown as {
-      accepted: boolean
-      refusal?: { reason: string; stamp: { fileSavedUtc: string | null }; document: { documentStamp: { fileSavedUtc: string | null } } | null }
+    const stale = { ...api.readStamp(), scheduleUpdatedAt: '2000-01-01T00:00:00Z' }
+    const outcome = api.applyCommands({ expectedStamp: stale, commands: [] } as never) as unknown as {
+      ok: boolean
+      refusal?: { reason: string; stamp: { fileSavedAt: string | null }; document: { documentStamp: { fileSavedAt: string | null } } | null }
     }
-    expect(outcome.accepted, 'premise: a stale stamp is refused (AG-2)').toBe(false)
+    expect(outcome.ok, 'premise: a stale stamp is refused (AG-2)').toBe(false)
     expect(outcome.refusal?.reason, 'premise: the refusal names the stamp (AG-9a)').toBe('staleStamp')
-    expect(outcome.refusal?.stamp.fileSavedUtc, 'AG-9a stamp').toBe(shown)
-    expect(outcome.refusal?.document?.documentStamp.fileSavedUtc, 'AG-9a document').toBe(shown)
+    expect(outcome.refusal?.stamp.fileSavedAt, 'AG-9a stamp').toBe(shown)
+    expect(outcome.refusal?.document?.documentStamp.fileSavedAt, 'AG-9a document').toBe(shown)
   })
 })
 
@@ -99,19 +99,19 @@ describe(`HS-12 -- ${HS_12_NEVER_SAVED}`, () => {
     await built.repaint()
     expect(built.last().appHeaderItems.fileSavedAt, 'premise: HS-5, nothing written yet').toBeNull()
     const api = agentOf(built)
-    expect(api.readStamp().fileSavedUtc, 'AM-4').toBeNull()
-    expect(api.readDocument().documentStamp.fileSavedUtc, 'AM-3').toBeNull()
+    expect(api.readStamp().fileSavedAt, 'AM-4').toBeNull()
+    expect(api.readDocument().documentStamp.fileSavedAt, 'AM-3').toBeNull()
     expect(stampOfJson((api.exportJson() as { value: string }).value), 'AM-11').toBeNull()
   })
 
   it('an opened file whose AT-140 is empty (HS-6 -> HS-5) is handed out empty too', async () => {
     const built = await shellStage({ dom: true })
     const empty = JSON.parse(JSON.stringify(there())) as Record<string, any>
-    empty['documentStamp']['fileSavedUtc'] = null
+    empty['documentStamp']['fileSavedAt'] = null
     await replaceWith(built, built.file('theirs.json', jsonBytes(empty)))
     await built.repaint()
     expect(built.last().appHeaderItems.fileSavedAt, 'premise: HS-5 after the open').toBeNull()
-    expect(agentOf(built).readStamp().fileSavedUtc).toBeNull()
+    expect(agentOf(built).readStamp().fileSavedAt).toBeNull()
   })
 })
 
@@ -119,22 +119,22 @@ describe(`HS-12 -- ${HS_12_EVERY_SAVE}`, () => {
   it('a second save moves what the AI reads to the second time, the same value the lower line shows', async () => {
     const { built, shown } = await openedThenSaved()
     const api = agentOf(built)
-    expect(api.readStamp().fileSavedUtc, 'premise: the first save').toBe(shown)
+    expect(api.readStamp().fileSavedAt, 'premise: the first save').toBe(shown)
     // WHY: AT-140 is kept to the second, so the next save has to land in a later second.
     await new Promise((resolve) => setTimeout(resolve, 1_100))
     await built.save()
     await built.repaint()
     const second = shownTime(built)
     expect(second, 'premise: the second save moved the lower line').not.toBe(shown)
-    expect(api.readStamp().fileSavedUtc, 'HS-12: saving moves the AI read').toBe(second)
+    expect(api.readStamp().fileSavedAt, 'HS-12: saving moves the AI read').toBe(second)
   })
 })
 
 describe(`HS-12 -- ${HS_12_NO_REWRITE}`, () => {
   it(`after a save the Agent API reads the new time while the open document keeps the AT-140 it was opened with (${HS_11_KEPT.slice(0, 20)}...)`, async () => {
     const { built, shown } = await openedThenSaved()
-    expect(agentOf(built).readStamp().fileSavedUtc, 'premise: the AI reads the new time').toBe(shown)
-    expect(built.loop.document().documentStamp.fileSavedUtc, `${HS_12_NO_REWRITE} -- ${HS_11_KEPT}`).toBe(OPENED_STAMP)
+    expect(agentOf(built).readStamp().fileSavedAt, 'premise: the AI reads the new time').toBe(shown)
+    expect(built.loop.document().documentStamp.fileSavedAt, `${HS_12_NO_REWRITE} -- ${HS_11_KEPT}`).toBe(OPENED_STAMP)
   })
 
   it('reading through the Agent API does not rewrite the open document either', async () => {
@@ -143,6 +143,6 @@ describe(`HS-12 -- ${HS_12_NO_REWRITE}`, () => {
     api.readDocument()
     api.readStamp()
     api.exportJson()
-    expect(built.loop.document().documentStamp.fileSavedUtc).toBe(OPENED_STAMP)
+    expect(built.loop.document().documentStamp.fileSavedAt).toBe(OPENED_STAMP)
   })
 })

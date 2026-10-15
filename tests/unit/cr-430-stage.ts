@@ -83,12 +83,12 @@ function group(id: string, order: number): unknown {
   return {
     id,
     parentId: null,
-    label: `task group ${String(order)}`,
+    name: `task group ${String(order)}`,
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   }
 }
 
@@ -107,7 +107,7 @@ function benchTasks(): readonly Task[] {
   return [
     task({ uid: BAR_UID, name: LONG_NAME, start: april(6), finish: april(24), actualStart: april(8), stop: april(10), resumeValid: true, percentComplete: 29 }),
     task({ uid: MILESTONE_UID, name: 'B', start: april(13), finish: april(13), milestone: true, actualStart: april(17), stop: april(17), resumeValid: true }),
-    task({ uid: FRESH_UID, name: LONG_NAME, start: april(6), finish: april(24), dependencies: [{ predecessorUid: BAR_UID, linkType: 1, lag: 0, lagFormat: 7, carry: {}, carryElements: [] }] }),
+    task({ uid: FRESH_UID, name: LONG_NAME, start: april(6), finish: april(24), dependencies: [{ predecessorUid: BAR_UID, linkType: 1, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] }] }),
     task({ uid: FRESH_MILESTONE_UID, name: 'D', start: april(13), finish: april(13), milestone: true }),
     task({ uid: PAUSED_UID, name: LONG_NAME, start: april(6), finish: april(24), actualStart: april(8), stop: april(10), resume: april(20), resumeValid: true }),
     task({ uid: DONE_UID, name: 'F', start: april(6), finish: april(24), actualStart: april(8), actualFinish: april(14), resumeValid: false }),
@@ -133,7 +133,7 @@ export function benchDocument(settings: Record<string, unknown> = {}): Document 
       resources: [],
       assignments: [],
       taskGroups: rows.map((id, index) => group(id, index)),
-      taskGroupMembers: tasks.map((one, index) => ({ taskUid: one.uid, groupId: rows[index] })),
+      taskGroupMembers: tasks.map((one, index) => ({ taskUid: one.uid, taskGroupId: rows[index] })),
       taskVisuals: tasks.flatMap((one) =>
         SHAPES[one.uid] === undefined ? [] : [{ taskUid: one.uid, shapeKind: SHAPES[one.uid] }],
       ),
@@ -145,7 +145,7 @@ export function benchDocument(settings: Record<string, unknown> = {}): Document 
     documentSettings: {
       ...structuredClone(template['documentSettings']),
       scrollDate: april(1),
-      scrollGroupId: rows[0],
+      scrollTaskGroupId: rows[0],
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
       ...settings,

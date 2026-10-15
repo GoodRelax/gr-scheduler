@@ -657,11 +657,11 @@ describe('SEAM-3 relaying a call to the page and back (design 3.2, AG-5, AG-9a)'
     const refusal = { target: 'applyCommands', reason: 'RS-61', stamp: 'stamp-9', refusals: [{ target: 'task:2' }] }
     await connectPage((call) =>
       call['method'] === 'applyCommands'
-        ? { result: { accepted: false, refusal } }
+        ? { result: { ok: false, refusal } }
         : defaultAnswerer(call, undefined as unknown as FakePage),
     )
     const result = await client.callTool('applyCommands', { request: { stamp: 'stamp-8', commands: [] } })
-    expect(result['structuredContent']).toEqual({ accepted: false, refusal })
+    expect(result['structuredContent']).toEqual({ ok: false, refusal })
     expect(result['isError'] ?? false).toBe(false)
   })
 

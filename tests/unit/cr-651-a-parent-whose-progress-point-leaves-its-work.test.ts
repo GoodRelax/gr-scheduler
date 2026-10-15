@@ -97,7 +97,7 @@ function documentOf(rows: readonly Row[], tolerance: number = S_487_DEFAULT, sta
   raw.schedule.project[S_487_KEY] = tolerance
   raw.schedule.tasks = rows.flatMap((row) => row.tasks)
   raw.schedule.taskGroupMembers = rows.flatMap((row) =>
-    row.tasks.map((task) => ({ taskUid: task['uid'], groupId: row.id })),
+    row.tasks.map((task) => ({ taskUid: task['uid'], taskGroupId: row.id })),
   )
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
@@ -199,8 +199,8 @@ describe('CR-651 -- the rows these cases are driven by', () => {
     expect(S_487_DEFAULT).toBeGreaterThanOrEqual(0)
   })
 
-  it('CM-87 is named setParentProgressTolerance in T-108', () => {
-    expect(CM_87_NAME).toBe('setParentProgressTolerance')
+  it('CM-87 is named setParentProgressToleranceDays in T-108', () => {
+    expect(CM_87_NAME).toBe('setParentProgressToleranceDays')
   })
 })
 
@@ -563,7 +563,7 @@ const LIMITS = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 98
 const cm87 = (workingDays: number): DocumentCommand =>
   ({ kind: CM_87_NAME, workingDays }) as unknown as DocumentCommand
 
-describe('CR-651 CM-87 FR-131 -- setParentProgressTolerance', () => {
+describe('CR-651 CM-87 FR-131 -- setParentProgressToleranceDays', () => {
   it.each([0, 3, 1000])('CM-87 accepts the integer %i and writes it to Project.parentProgressToleranceDays', (value) => {
     const result = editProject(currentDocument(), cm87(value) as never)
     expect(result.ok).toBe(true)

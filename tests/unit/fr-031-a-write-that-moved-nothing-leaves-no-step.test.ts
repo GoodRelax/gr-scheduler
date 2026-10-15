@@ -104,7 +104,7 @@ const FIRST_TASK_UID = START.schedule.tasks[0]?.uid ?? 0
 const FIRST_TASK_NAME = START.schedule.tasks[0]?.name ?? ''
 
 // see T-108, CM-67
-const HELD_TASK_GROUP_TITLE_WIDTH = START.documentSettings.taskGroupPanelWidth
+const HELD_TASK_GROUP_TITLE_WIDTH = START.documentSettings.taskGroupPanelWidthPx
 
 // see T-060, LY-5
 const SETTINGS_LIMITS: SettingsLimits = {
@@ -181,10 +181,10 @@ const nameTask = (name: string): DocumentCommand =>
   ({ kind: CM_9, uid: FIRST_TASK_UID, name }) as unknown as DocumentCommand
 
 // see FR-052
-const setTaskGroupPanelWidth = (taskGroupTitle: number): DocumentCommand =>
+const setTaskGroupPanelWidthPx = (taskGroupTitle: number): DocumentCommand =>
   ({
     kind: CM_67,
-    taskGroupPanelWidth: taskGroupTitle,
+    taskGroupPanelWidthPx: taskGroupTitle,
   }) as unknown as DocumentCommand
 
 describe('FR-031 -- 書き込みが文書の値を 1 つも変えなかったとき', () => {
@@ -236,10 +236,10 @@ describe('FR-031 / 表 T-027 -- 種類と、値が動いたかの、四つの組
     const one = bench()
     const before = one.json()
 
-    one.write(setTaskGroupPanelWidth(HELD_TASK_GROUP_TITLE_WIDTH + 30))
+    one.write(setTaskGroupPanelWidthPx(HELD_TASK_GROUP_TITLE_WIDTH + 30))
 
     expect(one.json(), 'the 対象外 command really did move a value').not.toBe(before)
-    expect(one.held.document.documentSettings.taskGroupPanelWidth).toBe(
+    expect(one.held.document.documentSettings.taskGroupPanelWidthPx).toBe(
       HELD_TASK_GROUP_TITLE_WIDTH + 30,
     )
     expect(one.depth()).toBe(0)
@@ -249,7 +249,7 @@ describe('FR-031 / 表 T-027 -- 種類と、値が動いたかの、四つの組
     const one = bench()
     const before = one.json()
 
-    one.write(setTaskGroupPanelWidth(HELD_TASK_GROUP_TITLE_WIDTH))
+    one.write(setTaskGroupPanelWidthPx(HELD_TASK_GROUP_TITLE_WIDTH))
 
     expect(one.json(), 'the write moved nothing').toBe(before)
     expect(one.depth()).toBe(0)

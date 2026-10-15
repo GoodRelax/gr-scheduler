@@ -378,7 +378,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   const annotationColor = themed('S-312')
 
   // see FR-110, ZO-16
-  if (geometry.progressLine.length > 0 && settings.progressLineVisible) {
+  if (geometry.progressLine.length > 0 && settings.isProgressLineVisible) {
     progressLineParts.push(
       `<polyline points="${pointsOf(geometry.progressLine)}" fill="none"` +
         ` stroke="${themed('S-160')}" stroke-width="${rounded(settings.progressLineWidth)}"` +

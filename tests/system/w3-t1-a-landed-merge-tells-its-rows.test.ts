@@ -54,7 +54,7 @@ test.describe(`MG-14 (MUST): ${MG_14.slice(-40)}`, () => {
     await openByDrop(page, 'w3-t1-current.json', taskGroupsDocument({ rows: 3 }))
     const renamed = await page.evaluate(() => {
       const api = (window as any).grSchedulerAgentApi
-      return api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid: 2, name: 'Changed here' }] }).accepted
+      return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid: 2, name: 'Changed here' }] }).ok
     })
     expect(renamed, 'premise: task 2 differs from the incoming file').toBe(true)
     await mergeByDrop(page, 'w3-t1-incoming.json', taskGroupsDocument({ rows: 2 }))

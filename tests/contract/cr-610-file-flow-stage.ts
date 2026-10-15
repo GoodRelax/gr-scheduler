@@ -143,7 +143,7 @@ export function oneTaskGroupDocument(title: string, rowId: string, uid: number):
   draft.schedule.tasks[0].name = `Task ${uid}`
   draft.schedule.taskGroupMembers[0].taskUid = uid
   draft.schedule.taskVisuals[0].taskUid = uid
-  draft.documentSettings.scrollGroupId = null
+  draft.documentSettings.scrollTaskGroupId = null
   const read = documentFromJson(jsonFromDocument((draft) as never))
   if (!read.ok) throw new Error(`the bench document is not GRS JSON: ${JSON.stringify(read.faults)}`)
   return read.document

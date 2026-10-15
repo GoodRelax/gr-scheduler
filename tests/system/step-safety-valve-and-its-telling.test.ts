@@ -166,7 +166,7 @@ interface FixtureArgs {
   readonly shapeKind: string
   readonly start: string
   readonly finish: string
-  readonly groupId: string
+  readonly taskGroupId: string
 }
 
 /** @purity non-pure */
@@ -195,7 +195,7 @@ async function visit(stacks: number): Promise<Visit> {
       shapeKind: TASK_SHAPE_KIND,
       start: FIXTURE_START,
       finish: FIXTURE_FINISH,
-      groupId: FIXTURE_ROW_ID,
+      taskGroupId: FIXTURE_ROW_ID,
     }
     const written = await page.evaluate((given: FixtureArgs) => {
       type Bag = Record<string, unknown>
@@ -210,12 +210,12 @@ async function visit(stacks: number): Promise<Visit> {
           shapeKind: given.shapeKind,
           start: given.start,
           finish: given.finish,
-          groupId: given.groupId,
+          taskGroupId: given.taskGroupId,
         })
       }
-      const outcome = applyCommands({ readStamp: readStamp(), commands })
+      const outcome = applyCommands({ expectedStamp: readStamp(), commands })
       return {
-        accepted: outcome['accepted'] === true,
+        accepted: outcome['ok'] === true,
         refusal: JSON.stringify(outcome['refusal'] ?? null).slice(0, 400),
       }
     }, args)

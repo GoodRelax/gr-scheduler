@@ -103,14 +103,14 @@ describe('CR-608 -- the manuscript these cases are driven by', () => {
 const TEMPLATE_GROUP = (TEMPLATE.schedule.taskGroups as TaskGroup[])[0] as TaskGroup
 
 function scheduleOf(rows: readonly { id: string; parentId: string | null; treeState: TreeState }[]): Schedule {
-  const taskGroups: TaskGroup[] = rows.map((one, order) => ({ ...TEMPLATE_GROUP, ...one, label: one.id, order }))
+  const taskGroups: TaskGroup[] = rows.map((one, order) => ({ ...TEMPLATE_GROUP, ...one, name: one.id, order }))
   return { ...(TEMPLATE.schedule as Schedule), taskGroups, taskGroupMembers: [], tasks: [] }
 }
 
 const writesOf = (schedule: Schedule, event: TreeStateEvent) =>
   treeStateWritesFor(schedule, event).map((command) => {
-    const loose = command as unknown as { groupId: string; treeState: string }
-    return { id: loose.groupId, to: loose.treeState }
+    const loose = command as unknown as { taskGroupId: string; treeState: string }
+    return { id: loose.taskGroupId, to: loose.treeState }
   })
 
 describe('CR-608 seam -- the pressed parent (childTaskGroupAddPressed), and no ancestor is written', () => {
@@ -208,10 +208,10 @@ describe('CR-608 test 6 -- the Agent API createTaskGroup makes a deep task group
           { id: K, parentId: P },
           { id: S, parentId: R },
         ],
-        { zoomY, scrollGroupId: R },
+        { zoomY, scrollTaskGroupId: R },
       ),
     )
-    const drawn = (): string[] => (loop.current()?.layout.taskGroups ?? []).map((one) => one.groupId)
+    const drawn = (): string[] => (loop.current()?.layout.taskGroups ?? []).map((one) => one.taskGroupId)
     expect(drawn(), 'premise: depth 3 is dropped by the zoom').not.toContain(K)
     const before = groupsOf(loop.document())
 
@@ -221,14 +221,14 @@ describe('CR-608 test 6 -- the Agent API createTaskGroup makes a deep task group
       schemaVersion: TEMPLATE.schemaVersion as string,
     } as never)
     const outcome = api.applyCommands({
-      readStamp: api.readStamp(),
+      expectedStamp: api.readStamp(),
       commands: [
         { kind: 'createTaskGroup', id: FRESH, parentId: P, label: 'From the agent', derivedFromTaskUid: null, order: 99 },
       ] as never,
     })
     drain()
 
-    expect(outcome.accepted, 'the agent write was accepted').toBe(true)
+    expect(outcome.ok, 'the agent write was accepted').toBe(true)
     expect(stateIn(loop.document(), FRESH), AT_153_MADE).toBe('temporarilyExpanded')
     expect(loop.document().documentSettings.zoomY, 'the zoom does not change').toBe(zoomY)
     for (const one of before) expect(stateIn(loop.document(), one.id), FR_018_NO_OTHER_WRITER).toBe(one.treeState)
@@ -262,7 +262,7 @@ describe(`CR-608 test 7 -- ${AT_153_DU_2}: ${DU_2_VALUE}`, () => {
     }
     const result = editTaskGroup(
       document as never,
-      { kind: 'pasteTaskGroupSubtree', sourceGroupId: S, targetGroupId: T, newGroupIds: copies },
+      { kind: 'pasteTaskGroupSubtree', sourceTaskGroupId: S, targetTaskGroupId: T, newTaskGroupIds: copies },
       'Row',
     )
     expect(result.ok).toBe(true)

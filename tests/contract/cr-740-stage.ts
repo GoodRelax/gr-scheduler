@@ -96,14 +96,14 @@ export function stageDocument(): Document {
       taskGroups: GROUPS.map((id, order) => ({
         id,
         parentId: null,
-        label: `R${order + 1}`,
+        name: `R${order + 1}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: [{ taskUid: ALPHA_UID, groupId: GROUPS[2] }],
+      taskGroupMembers: [{ taskUid: ALPHA_UID, taskGroupId: GROUPS[2] }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -116,7 +116,7 @@ export function stageDocument(): Document {
       stackDirection: 'down',
       scrollDate: '2026-04-01',
       scrollDayOffset: 0,
-      scrollGroupId: GROUPS[0],
+      scrollTaskGroupId: GROUPS[0],
       scrollGroupOffset: 0,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -251,9 +251,9 @@ export function stage(options: StageOptions = {}): Stage {
     if (found === undefined) throw new Error('Alpha is not drawn')
     return found
   }
-  const band = (groupId: string): { y: number; height: number } => {
-    const found = values().layout.taskGroups.find((one: any) => one.groupId === groupId)
-    if (found === undefined) throw new Error(`no band for ${groupId}`)
+  const band = (taskGroupId: string): { y: number; height: number } => {
+    const found = values().layout.taskGroups.find((one: any) => one.taskGroupId === taskGroupId)
+    if (found === undefined) throw new Error(`no band for ${taskGroupId}`)
     return { y: found.y, height: found.height }
   }
   return {

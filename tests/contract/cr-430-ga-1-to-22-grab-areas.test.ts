@@ -83,12 +83,12 @@ const sceneKindOf = (shape: string): ShapeKind => {
 }
 
 // see S-63
-const RECTANGLE = sceneOf('rectangle', { progressMarkerVisible: true })
-const ARROW = sceneOf('arrow', { progressMarkerVisible: true })
-const MILESTONE = sceneOf('milestone', { progressMarkerVisible: true })
+const RECTANGLE = sceneOf('rectangle', { isProgressMarkerVisible: true })
+const ARROW = sceneOf('arrow', { isProgressMarkerVisible: true })
+const MILESTONE = sceneOf('milestone', { isProgressMarkerVisible: true })
 // WHY: the same three Tasks drawn wider, so the line's successor lies wholly right of the Task Group Area
 // WHY: while its predecessor is still in it -- EL-4, a short line ending in the mark (EL-9).
-const ELIDED = sceneOf('rectangle', { progressMarkerVisible: true, zoomX: 16 })
+const ELIDED = sceneOf('rectangle', { isProgressMarkerVisible: true, zoomX: 16 })
 
 const sceneFor = (kind: SceneKind): Scene =>
   kind === 'arrow' ? ARROW : kind === 'milestone' ? MILESTONE : kind === 'elided' ? ELIDED : RECTANGLE
@@ -531,7 +531,7 @@ describe('GA-20 -- the resume icon is grabbed on a box that does not shrink', ()
   })
 
   it('keeps the box when the resume date is undecided, although the icon is drawn smaller', () => {
-    const undecided = sceneOf('rectangle', { progressMarkerVisible: true })
+    const undecided = sceneOf('rectangle', { isProgressMarkerVisible: true })
     const shown = resumeOf(undecided.started)
     expect(shown, 'no resume icon was drawn').not.toBeNull()
     const box = boxOfRect(shown!.box)

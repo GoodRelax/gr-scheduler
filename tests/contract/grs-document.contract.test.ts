@@ -44,14 +44,14 @@ describe('the GRS JSON schema, as a shared fixture', () => {
       'ordinal',
       'editedBy',
       'explanation',
-      'changedUtc',
+      'changedAt',
     ])
 
     const keyed = columns.filter((row) => row.by['鍵'] === 'PK')
     expect(keyed.map((row) => bare(row.by['列'] ?? ''))).toEqual(['ordinal'])
     expect(bare(keyed[0]!.by['型'] ?? '')).toBe('整数')
 
-    const entry = { ordinal: 0, editedBy: 'user', explanation: 'why', changedUtc: '2026-08-17T00:00:00Z' }
+    const entry = { ordinal: 0, editedBy: 'user', explanation: 'why', changedAt: '2026-08-17T00:00:00Z' }
     expect(validateEntity('changeLog', entry).valid).toBe(true)
     expect(validateEntity('changeLog', { ...entry, revision: 1 }).valid).toBe(false)
     const { ordinal: _dropped, ...keyless } = entry

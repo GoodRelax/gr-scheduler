@@ -306,7 +306,7 @@ interface Placement {
 }
 
 interface Row {
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly y: number
   readonly height: number
 }
@@ -343,7 +343,7 @@ const taskOf = (uid: number, start: number, days: number, links: readonly number
   dependencies: links.map((predecessorUid) => ({
     predecessorUid,
     linkType: 1,
-    lag: null,
+    linkLag: null,
     lagFormat: null,
     carry: {},
     carryElements: [],
@@ -385,14 +385,14 @@ const scheduleOf = (spec: SceneSpec): Schedule =>
       id,
       parentId,
       order,
-      minHeight: null,
-      label: id,
+      minHeightPx: null,
+      name: id,
       derivedFromTaskUid: null,
       treeState: treeState ?? 'auto',
       editGroup: null,
       color: null,
     })),
-    taskGroupMembers: spec.tasks.map(([task, groupId]) => ({ groupId, taskUid: task['uid'] })),
+    taskGroupMembers: spec.tasks.map(([task, taskGroupId]) => ({ taskGroupId, taskUid: task['uid'] })),
     taskVisuals: spec.tasks.map(([task]) => ({ taskUid: task['uid'], shapeKind: 'rectangle' })),
     taskOrigins: [],
     baselineTasks: [],
@@ -449,7 +449,7 @@ const sceneOf = (spec: SceneSpec, override: Loose = {}, selection: Selection = e
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext
@@ -479,9 +479,9 @@ const maybeLineOf = (scene: Scene, predecessorUid: number, successorUid: number)
 
 const placementOf = (scene: Scene, uid: number): Placement | undefined => scene.placements.find((one) => one.taskUid === uid)
 
-const rowOf = (scene: Scene, groupId: string): Row => {
-  const found = scene.rows.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the layout drew no task group ${groupId}`)
+const rowOf = (scene: Scene, taskGroupId: string): Row => {
+  const found = scene.rows.find((one) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`the layout drew no task group ${taskGroupId}`)
   return found
 }
 
@@ -687,7 +687,7 @@ const DEEP: SceneSpec = {
 const treeWritesOf = (writes: readonly Loose[]): Readonly<Record<string, unknown>> => {
   const out: Record<string, unknown> = {}
   for (const write of writes) {
-    if (write['kind'] === SET_TREE_STATE) out[String(write['groupId'])] = write['treeState']
+    if (write['kind'] === SET_TREE_STATE) out[String(write['taskGroupId'])] = write['treeState']
     if (write['kind'] === SET_LEVEL_ZERO) out['(level zero)'] = write['levelZeroTreeState']
   }
   return out
@@ -855,7 +855,7 @@ describe(`(a) EL-20 / EL-21 -- ${EL_21_OPEN}`, () => {
       expect(onlyOf(writes, SET_ZOOM), EL_21_NO_ZOOM).toBeUndefined()
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, EL_12_OPENED).toBeDefined()
-      expect(scroll!['scrollGroupId'], `${EL_12_HOW} (S-78 = the far Task's own task group)`).toBe(ownTaskGroup)
+      expect(scroll!['scrollTaskGroupId'], `${EL_12_HOW} (S-78 = the far Task's own task group)`).toBe(ownTaskGroup)
       expect(scroll!['scrollGroupOffset'], `${EL_12_HOW} (S-176)`).toBe(0)
       expect(dayOf(scroll!['scrollDate']), 'EL-11: Task 2 lies inside across, so the day stays').toBe(dayOf(scene.settings['scrollDate']))
     })
@@ -874,7 +874,7 @@ describe(`(a) EL-20 / EL-21 -- ${EL_21_OPEN}`, () => {
     const writes = writesOf(release(scene, markOf(scene, 1, 2)).out)
     expect(onlyOf(writes, SET_ZOOM), EL_10_FOLDED).toBeUndefined()
     expect(treeWritesOf(writes)['a1'], EL_21_OPEN).toBe('expanded')
-    expect(onlyOf(writes, SET_SCROLL)?.['scrollGroupId'], EL_12_OPENED).toBe('a111')
+    expect(onlyOf(writes, SET_SCROLL)?.['scrollTaskGroupId'], EL_12_OPENED).toBe('a111')
   })
 
   it('control: an end the LOD alone hides is zoomed to (EL-10), not opened -- no tree write', () => {
@@ -1500,7 +1500,7 @@ const shellTask = (uid: number, start: string, finish: string, links: readonly n
   dependencies: links.map((predecessorUid) => ({
     predecessorUid,
     linkType: 1,
-    lag: null,
+    linkLag: null,
     lagFormat: null,
     carry: {},
     carryElements: [],
@@ -1522,15 +1522,15 @@ const shellDocument = (rows: readonly ShellTaskGroup[], tasks: readonly (readonl
       taskGroups: rows.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
-        label: `Row${index + 1}`,
+        name: `Row${index + 1}`,
         derivedFromTaskUid: null,
         order: index,
         treeState: one.treeState ?? 'auto',
         editGroup: null,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: tasks.map(([task, groupId]) => ({ taskUid: task['uid'], groupId })),
+      taskGroupMembers: tasks.map(([task, taskGroupId]) => ({ taskUid: task['uid'], taskGroupId })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -1539,10 +1539,10 @@ const shellDocument = (rows: readonly ShellTaskGroup[], tasks: readonly (readonl
     },
     documentSettings: {
       ...structuredClone(TEMPLATE.documentSettings),
-      pinnedGroupIds: [],
+      pinnedTaskGroupIds: [],
       scrollDate: '2026-03-30',
       scrollDayOffset: 0,
-      scrollGroupId: rows[0]!.id,
+      scrollTaskGroupId: rows[0]!.id,
       scrollGroupOffset: 0,
       zoomX: 1,
       zoomY: 1,
@@ -1748,7 +1748,7 @@ describe(`(e) the shell -- EL-21 / UN-14 / UN-8: ${EL_21_ONE_STEP}; ${EL_21_SEND
     expect([states[TASK_GROUP_A], states[TASK_GROUP_B], states[TASK_GROUP_C]], EL_21_OPEN).toEqual(['expanded', 'expanded', 'expanded'])
     expect(states[TASK_GROUP_Z], 'no other task group is touched').toBe('auto')
     expect(shell.loop.current()!.layout.placements.some((one) => one.taskUid === 2), EL_21_SEND).toBe(true)
-    expect(settingOf(shell, 'scrollGroupId'), EL_12_OPENED).toBe(TASK_GROUP_C)
+    expect(settingOf(shell, 'scrollTaskGroupId'), EL_12_OPENED).toBe(TASK_GROUP_C)
     expect(isLandingShown(shell), EL_16_MARK).toBe(true)
     expect(shell.loop.hasUnsavedEdits(), 'EL-21: the open is an unsaved edit (FR-100)').toBe(true)
   })
@@ -1762,7 +1762,7 @@ describe(`(e) the shell -- EL-21 / UN-14 / UN-8: ${EL_21_ONE_STEP}; ${EL_21_SEND
     clickAt(shell, shellMark(shell))
     expect(treeStatesOf(shell)[TASK_GROUP_B], EL_21_OPEN).toBe('expanded')
     expect(shell.loop.current()!.layout.placements.some((one) => one.taskUid === 2), EL_21_SEND).toBe(true)
-    expect(settingOf(shell, 'scrollGroupId'), EL_12_OPENED).toBe(TASK_GROUP_B)
+    expect(settingOf(shell, 'scrollTaskGroupId'), EL_12_OPENED).toBe(TASK_GROUP_B)
     expect(isLandingShown(shell), EL_16_MARK).toBe(true)
     shell.send(UNDO)
     expect(treeStatesOf(shell)[TASK_GROUP_B], UN_14_ONE_STEP).toBe('hidden')
@@ -1780,10 +1780,10 @@ describe(`(e) the shell -- EL-21 / UN-14 / UN-8: ${EL_21_ONE_STEP}; ${EL_21_SEND
   it(`control: an undo after a plain send leaves the view where it was sent (${UN_8_VIEW} is outside the history)`, () => {
     const shell = shellOf(SHELL_PLAIN())
     clickAt(shell, shellMark(shell))
-    const sent = [settingOf(shell, 'scrollDate'), settingOf(shell, 'scrollDayOffset'), settingOf(shell, 'scrollGroupId')]
+    const sent = [settingOf(shell, 'scrollDate'), settingOf(shell, 'scrollDayOffset'), settingOf(shell, 'scrollTaskGroupId')]
     shell.send(UNDO)
     expect(
-      [settingOf(shell, 'scrollDate'), settingOf(shell, 'scrollDayOffset'), settingOf(shell, 'scrollGroupId')],
+      [settingOf(shell, 'scrollDate'), settingOf(shell, 'scrollDayOffset'), settingOf(shell, 'scrollTaskGroupId')],
       EL_21_SEND_OUTSIDE,
     ).toEqual(sent)
   })

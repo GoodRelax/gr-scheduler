@@ -197,12 +197,12 @@ function twoTaskGroupDocument(edit: (draft: any) => void = () => {}): Document {
   const row = (id: string, parentId: string | null, label: string) => ({
     id,
     parentId,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   })
   const draft = {
     '$schema': template['$schema'],
@@ -215,8 +215,8 @@ function twoTaskGroupDocument(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [row(ALPHA, null, 'Alpha'), row(BETA, ALPHA, 'Beta')],
       taskGroupMembers: [
-        { taskUid: 1, groupId: ALPHA },
-        { taskUid: 2, groupId: BETA },
+        { taskUid: 1, taskGroupId: ALPHA },
+        { taskUid: 2, taskGroupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -479,7 +479,7 @@ describe('the document these cases drive', () => {
     // send those cases down the other branch without changing a line of them.
     const settings = settingsOf(twoTaskGroupDocument())
     expect(settings.scrollDate).toBeNull()
-    expect(settings.scrollGroupId).toBeNull()
+    expect(settings.scrollTaskGroupId).toBeNull()
   })
 })
 
@@ -637,19 +637,19 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     const loop = frameLoop(pane.surface, document, SCREEN)
 
     expect(settingsOf(loop.document()).scrollDate).toBeNull()
-    expect(settingsOf(loop.document()).scrollGroupId).toBeNull()
+    expect(settingsOf(loop.document()).scrollTaskGroupId).toBeNull()
     expect(settingsOf(loop.document()).zoomX).toBe(settingsOf(document).zoomX)
     expect(settingsOf(loop.document()).zoomY).toBe(settingsOf(document).zoomY)
   })
 
-  it('holds when scrollGroupId names a task group that is gone, even though scrollDate holds a day', () => {
+  it('holds when scrollTaskGroupId names a task group that is gone, even though scrollDate holds a day', () => {
     // OP-10 covers two cases in one row: "表示位置が `null`、または指すタスクグループが存在
     // しないとき". IV-3 says in as many words that the stored place is NOT kept
     // pointing at a live task group, so this state is reachable in a valid document
     // (CD-2 makes it on purpose when a task group is deleted).
     const stale = twoTaskGroupDocument((draft) => {
       draft.documentSettings.scrollDate = '2026-04-05T00:00:00'
-      draft.documentSettings.scrollGroupId = GONE
+      draft.documentSettings.scrollTaskGroupId = GONE
     })
     expect(validateDocument(stale).valid).toBe(true)
 
@@ -670,7 +670,7 @@ describe('OP-10 of table T-024a -- a place the person has not chosen yet', () =>
     // did choose is used as it stands.
     const placed = twoTaskGroupDocument((draft) => {
       draft.documentSettings.scrollDate = '2026-04-05T00:00:00'
-      draft.documentSettings.scrollGroupId = ALPHA
+      draft.documentSettings.scrollTaskGroupId = ALPHA
     })
     const pane = host()
     const values = frameLoop(pane.surface, placed, SCREEN).current()!
@@ -716,8 +716,8 @@ describe('HF-8 of table T-051 -- what boot must not do', () => {
     const withCollapse = frameLoop(pane.surface, collapsed(), SCREEN).current()!
     const withoutCollapse = frameLoop(pane.surface, twoTaskGroupDocument(), SCREEN).current()!
 
-    expect(withoutCollapse.layout.taskGroups.map((oneRect) => oneRect.groupId)).toEqual([ALPHA, BETA])
-    expect(withCollapse.layout.taskGroups.map((oneRect) => oneRect.groupId)).toEqual([ALPHA])
+    expect(withoutCollapse.layout.taskGroups.map((oneRect) => oneRect.taskGroupId)).toEqual([ALPHA, BETA])
+    expect(withCollapse.layout.taskGroups.map((oneRect) => oneRect.taskGroupId)).toEqual([ALPHA])
     expect(withCollapse.layout.placements.map((onePoint) => onePoint.taskUid)).toEqual([1])
   })
 })
@@ -1146,9 +1146,9 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
     // ⛔ Not a vacuous comparison: both task groups of the document are drawn.
     expect(taskGroups).toHaveLength(2)
     expect(titles).toHaveLength(2)
-    expect(titles.map((title) => title.groupId)).toEqual(taskGroups.map((taskGroup) => taskGroup.groupId))
+    expect(titles.map((title) => title.taskGroupId)).toEqual(taskGroups.map((taskGroup) => taskGroup.taskGroupId))
     for (const taskGroup of taskGroups) {
-      const title = titles.find((candidate) => candidate.groupId === taskGroup.groupId)!
+      const title = titles.find((candidate) => candidate.taskGroupId === taskGroup.taskGroupId)!
       expect(title.box.y).toBe(taskGroup.y)
       expect(title.box.height).toBe(taskGroup.height)
     }
@@ -1169,8 +1169,8 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
       screen.wiring,
     )
 
-    expect(loop.current()!.layout.taskGroups.map((taskGroup) => taskGroup.groupId)).toEqual([ALPHA])
-    expect(titlesOf(screen.last()).map((title) => title.groupId)).toEqual([ALPHA])
+    expect(loop.current()!.layout.taskGroups.map((taskGroup) => taskGroup.taskGroupId)).toEqual([ALPHA])
+    expect(titlesOf(screen.last()).map((title) => title.taskGroupId)).toEqual([ALPHA])
   })
 
   it('GIVEN the body standing at a different day THEN the titles have not moved sideways', () => {
@@ -1179,7 +1179,7 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
     // two frames look at different days -- and the panel stands where it stood.
     const scrolled = twoTaskGroupDocument((draft) => {
       draft.documentSettings.scrollDate = '2026-04-05T00:00:00'
-      draft.documentSettings.scrollGroupId = ALPHA
+      draft.documentSettings.scrollTaskGroupId = ALPHA
     })
     expect(validateDocument(scrolled).valid).toBe(true)
 
@@ -1196,8 +1196,8 @@ describe('SC-1 of table T-031 -- the panel follows the body, sideways it does no
 
     const fittedTitles = titlesOf(fittedScreen.last())
     const scrolledTitles = titlesOf(scrolledScreen.last())
-    expect(scrolledTitles.map((title) => title.groupId)).toEqual(
-      fittedTitles.map((title) => title.groupId),
+    expect(scrolledTitles.map((title) => title.taskGroupId)).toEqual(
+      fittedTitles.map((title) => title.taskGroupId),
     )
     for (const [index, title] of scrolledTitles.entries()) {
       expect(title.box.x).toBe(fittedTitles[index]!.box.x)
@@ -1224,19 +1224,19 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
         taskGroups.push({
           id,
           parentId: null,
-          label: `Row ${index}`,
+          name: `Row ${index}`,
           derivedFromTaskUid: null,
           order: index,
           treeState: 'auto', editGroup: null,
           color: null,
-          minHeight: null,
+          minHeightPx: null,
         })
-        members.push({ taskUid: 1, groupId: id })
+        members.push({ taskUid: 1, taskGroupId: id })
       }
       draft.schedule.tasks = tasks.slice(0, 1)
       draft.schedule.taskGroups = taskGroups
       draft.schedule.taskGroupMembers = members
-      draft.documentSettings.scrollGroupId = `row-${anchorAt}`
+      draft.documentSettings.scrollTaskGroupId = `row-${anchorAt}`
     })
 
   it('GIVEN the stack is anchored below its top THEN some task groups really do fall outside the Task Group Area', () => {
@@ -1272,7 +1272,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
     )
     const titles = titlesOf(screen.last())
 
-    expect(titles.map((title) => title.groupId)).toEqual(showing.map((taskGroup) => taskGroup.groupId))
+    expect(titles.map((title) => title.taskGroupId)).toEqual(showing.map((taskGroup) => taskGroup.taskGroupId))
     expect(titles.length).toBe(showing.length)
   })
 
@@ -1286,16 +1286,16 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
     const area = values.regions.taskGroupArea
 
     for (const title of titlesOf(screen.last())) {
-      const taskGroup = values.layout.taskGroups.find((one) => one.groupId === title.groupId)!
-      expect(title.box.y, `${title.groupId} starts above the Task Group Area`).toBeGreaterThanOrEqual(area.y)
+      const taskGroup = values.layout.taskGroups.find((one) => one.taskGroupId === title.taskGroupId)!
+      expect(title.box.y, `${title.taskGroupId} starts above the Task Group Area`).toBeGreaterThanOrEqual(area.y)
       expect(
         title.box.y + title.box.height,
-        `${title.groupId} runs past the foot of the Task Group Area`,
+        `${title.taskGroupId} runs past the foot of the Task Group Area`,
       ).toBeLessThanOrEqual(area.y + area.height)
-      expect(title.box.y, `${title.groupId} is not the body's own top`).toBe(
+      expect(title.box.y, `${title.taskGroupId} is not the body's own top`).toBe(
         Math.max(taskGroup.y, area.y),
       )
-      expect(title.box.height, `${title.groupId} is not the body's own height`).toBe(
+      expect(title.box.height, `${title.taskGroupId} is not the body's own height`).toBe(
         Math.min(taskGroup.y + taskGroup.height, area.y + area.height) - Math.max(taskGroup.y, area.y),
       )
     }
@@ -1766,10 +1766,10 @@ describe('表 T-230 -- the row the caller names settles the history, the stamp a
         expect(cellOf(row, COL_STAMP), `表 T-230 ${row} の刻印`).toBe('入ってきたまま')
 
         const stamp = {
-          scheduleUpdatedUtc: '2026-01-02T03:04:05Z',
-          settingsUpdatedUtc: '2026-01-02T03:04:05Z',
+          scheduleUpdatedAt: '2026-01-02T03:04:05Z',
+          settingsUpdatedAt: '2026-01-02T03:04:05Z',
           lastEditedBy: 'whoever wrote the file',
-          fileSavedUtc: null,
+          fileSavedAt: null,
         }
         const brought = twoTaskGroupDocument((draft) => {
           draft.schedule.project.title = 'Brought'

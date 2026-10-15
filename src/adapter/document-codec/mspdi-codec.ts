@@ -440,7 +440,7 @@ function projectFromRoot(
     company: textColumn(root, 'Company'),
     manager: textColumn(root, 'Manager'),
     author: textColumn(root, 'Author'),
-    created: textColumn(root, 'CreationDate'),
+    creationDate: textColumn(root, 'CreationDate'),
     revision: integerColumn(root, 'Revision'),
     startDate: textColumn(root, 'StartDate'),
     statusDate: textColumn(root, 'StatusDate'),
@@ -456,7 +456,7 @@ function projectFromRoot(
     // WHY: MSPDI has no place for this GRS column (AT-156), so an open keeps the current value, as themeHue.
     parentProgressToleranceDays: current.schedule.project.parentProgressToleranceDays,
     uidHighWaterMark: current.schedule.project.uidHighWaterMark,
-    importSeq: current.schedule.project.importSeq,
+    importSequence: current.schedule.project.importSequence,
     // WHY: MSPDI holds no zone (FR-156); the codec keeps the current value and the shell's open names the PC's region.
     scheduleDataTimeZone: current.schedule.project.scheduleDataTimeZone,
     carry: split.carry,
@@ -719,7 +719,7 @@ function linksOfTask(element: XmlElement, summaryTarget: SummaryTarget): LinksRe
     links.push({
       predecessorUid,
       linkType,
-      lag: integerColumn(child, 'LinkLag'),
+      linkLag: integerColumn(child, 'LinkLag'),
       lagFormat: integerColumn(child, 'LagFormat'),
       carry: split.carry,
       carryElements: split.carryElements,
@@ -952,7 +952,7 @@ function writtenProjectColumns(project: Project, lastSaved: string): PlacedChild
     ...optionalLeaf('Company', project.company),
     ...optionalLeaf('Manager', project.manager),
     ...optionalLeaf('Author', project.author),
-    ...optionalLeaf('CreationDate', project.created),
+    ...optionalLeaf('CreationDate', project.creationDate),
     ...optionalLeaf('Revision', project.revision),
     leaf('LastSaved', lastSaved),
     ...optionalLeaf('StartDate', project.startDate),
@@ -1283,7 +1283,7 @@ function writtenDependency(dependency: Dependency): PlacedChild {
   const named: PlacedChild[] = [
     leaf('PredecessorUID', String(dependency.predecessorUid)),
     leaf('Type', String(dependency.linkType)),
-    ...optionalLeaf('LinkLag', dependency.lag),
+    ...optionalLeaf('LinkLag', dependency.linkLag),
     ...optionalLeaf('LagFormat', dependency.lagFormat),
   ]
   return {

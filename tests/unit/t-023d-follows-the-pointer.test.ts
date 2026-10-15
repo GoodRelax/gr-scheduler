@@ -420,11 +420,11 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
 const group = (id: string, order: number, label: string): unknown => ({
   id,
   parentId: null,
-  label,
+  name: label,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', color: null,
-  minHeight: null,
+  minHeightPx: null,
 })
 
 function fixtureDocument(): Document {
@@ -500,9 +500,9 @@ function fixtureDocument(): Document {
         group(TASK_GROUP_E, 4, 'E'),
       ],
       taskGroupMembers: [
-        { taskUid: PLAIN_UID, groupId: TASK_GROUP_A },
-        { taskUid: MILESTONE_UID, groupId: TASK_GROUP_C },
-        { taskUid: SUSPENDED_UID, groupId: TASK_GROUP_D },
+        { taskUid: PLAIN_UID, taskGroupId: TASK_GROUP_A },
+        { taskUid: MILESTONE_UID, taskGroupId: TASK_GROUP_C },
+        { taskUid: SUSPENDED_UID, taskGroupId: TASK_GROUP_D },
       ],
       taskVisuals: [],
       commentBoxes: [
@@ -511,7 +511,7 @@ function fixtureDocument(): Document {
           leaderShapeKind: 'polyline',
           text: 'Note',
           anchorDate: BOX_ANCHOR,
-          anchorGroupId: TASK_GROUP_E,
+          anchorTaskGroupId: TASK_GROUP_E,
           bodyOffsetPx: null,
         },
       ],
@@ -523,7 +523,7 @@ function fixtureDocument(): Document {
       ...structuredClone(template.documentSettings),
       // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
-      progressMarkerVisible: true, // see S-63
+      isProgressMarkerVisible: true, // see S-63
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
@@ -542,7 +542,7 @@ const memberGroupOf = (loop: FrameLoop, uid: number): string => {
     (one: any) => one.taskUid === uid,
   )
   if (found === undefined) throw new Error(`Task ${uid} is on no task group`)
-  return found.groupId as string
+  return found.taskGroupId as string
 }
 
 const storedBoxOf = (loop: FrameLoop): any => {
@@ -687,9 +687,9 @@ const frameOf = (loop: FrameLoop) => {
 const pxPerDay = (loop: FrameLoop): number => (frameOf(loop).layout as any).pxPerDay as number
 
 /** Where one task group's band stands, as the frame placed it. */
-function bandOf(loop: FrameLoop, groupId: string): { readonly y: number; readonly height: number } {
-  const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no band for task group ${groupId}`)
+function bandOf(loop: FrameLoop, taskGroupId: string): { readonly y: number; readonly height: number } {
+  const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`the frame drew no band for task group ${taskGroupId}`)
   return { y: found.y as number, height: found.height as number }
 }
 
@@ -1555,14 +1555,14 @@ function wideFixtureDocument(): Document {
     schedule: {
       tasks: Task[]
       taskGroups: unknown[]
-      taskGroupMembers: { taskUid: number; groupId: string }[]
+      taskGroupMembers: { taskUid: number; taskGroupId: string }[]
     }
   }
   const overflowGroup = overflowGroupId(900)
   draft.schedule.taskGroups.push(group(overflowGroup, 900, 'Overflow'))
   draft.schedule.taskGroupMembers.push({
     taskUid: OVERFLOW_UID,
-    groupId: overflowGroup,
+    taskGroupId: overflowGroup,
   })
   draft.schedule.tasks.push(
     task({
@@ -1790,9 +1790,9 @@ describe('table T-023d GR-21: the schedule follows the pointer while its grip is
       built.send(pointer('up', to.x, to.y))
       const after = built.loop.document().documentSettings
       expect(
-        axis === 'vertical' ? after.scrollGroupId : after.scrollDate,
+        axis === 'vertical' ? after.scrollTaskGroupId : after.scrollDate,
         `table T-023d GR-21: 掴めば表示位置を変える（規則は FR-051） -- the ${axis} release settled nothing`,
-      ).not.toBe(axis === 'vertical' ? before.scrollGroupId : before.scrollDate)
+      ).not.toBe(axis === 'vertical' ? before.scrollTaskGroupId : before.scrollDate)
     })
   }
 })

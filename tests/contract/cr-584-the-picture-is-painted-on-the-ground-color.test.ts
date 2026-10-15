@@ -117,7 +117,7 @@ const SETTINGS = ((): DocumentSettings => {
 })()
 
 // see FR-017, DS-1
-const AT_A_12PX_RULER: DocumentSettings = { ...SETTINGS, rulerFont: S_8 / DEFAULT_DISPLAY_RATIO }
+const AT_A_12PX_RULER: DocumentSettings = { ...SETTINGS, rulerFontSizePx: S_8 / DEFAULT_DISPLAY_RATIO }
 
 const JUST_UNDER = 1 - 1e-9
 
@@ -136,8 +136,8 @@ describe('FR-017 with table T-205 -- S-83 and S-84 are the edges where the label
 
   it('at a 12px ruler, exactly S-83 px/day is the month tier TM-2 and just under it is the year tier TM-1', () => {
     expect(
-      AT_A_12PX_RULER.rulerFont * DEFAULT_DISPLAY_RATIO,
-      'FR-017: the effective font size is the drawn rulerFont (DS-1), here S-8',
+      AT_A_12PX_RULER.rulerFontSizePx * DEFAULT_DISPLAY_RATIO,
+      'FR-017: the effective font size is the drawn rulerFontSizePx (DS-1), here S-8',
     ).toBeCloseTo(S_8, 12)
     expect(
       rulerTierOf(S_83, AT_A_12PX_RULER),

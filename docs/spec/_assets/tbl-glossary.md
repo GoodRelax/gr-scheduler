@@ -187,8 +187,8 @@
 | 行 ID | 群 | 確定名（英） | 日本語 |
 | --- | --- | --- | --- |
 | K-1 | タイムルーラー | `pxPerDayAt1x` | 1 日の幅（`zoomX` = 1） |
-| K-2 | タイムルーラー | `rulerHeight` | 目盛の帯の高さ |
-| K-3 | タイムルーラー | `rulerFont` | 目盛の文字 |
+| K-2 | タイムルーラー | `rulerHeightPx` | 目盛の帯の高さ |
+| K-3 | タイムルーラー | `rulerFontSizePx` | 目盛の文字 |
 | K-112 | タイムルーラー | `rulerLabelGap` | 目盛ラベルどうしの隙間（横） |
 | K-113 | タイムルーラー | `rulerLabelPad` | 罫線と目盛ラベルの余白（縦） |
 | K-114 | タイムルーラー | `rulerLabelBottomPad` | 目盛ラベルの下側の余白（縦） |
@@ -253,7 +253,7 @@
 | K-58 | LOD | `stackSafetyCap` | 積み順の安全弁 |
 | K-59 | テーマ | `themePreference` ⛔ | 明暗テーマ（**ダークモード**はこの値の `'dark'` を指す通称） |
 | K-60 | テーマ | `themeHue` | テーマ色 |
-| K-61 | テーマ | `themeMonochrome` | モノクロにするか |
+| K-61 | テーマ | `isThemeMonochrome` | モノクロにするか |
 | K-62 | ズーム | `zoomStep` ⛔ | 1 ノッチの倍率 |
 | K-63 | ズーム | `zoomMin` ⛔ | 下限 |
 | K-64 | ズーム | `zoomMax` ⛔ | 上限 |
@@ -261,35 +261,35 @@
 | K-67 | 画面の状態 | `zoomX` | 横のズーム倍率 |
 | K-68 | 画面の状態 | `zoomY` | 縦のズーム倍率 |
 | K-69 | 画面の状態 | `scrollDate` | 表示の左端が指す日付 |
-| K-70 | 画面の状態 | `scrollGroupId` | 表示の上端が指すタスクグループ |
-| K-71 | 画面の状態 | `taskGroupPanelWidth` | タスクグループパネルの幅 |
-| K-143 | 画面の状態 | `taskGroupPanelWidthFixed` | タスクグループパネルの幅を固定する |
+| K-70 | 画面の状態 | `scrollTaskGroupId` | 表示の上端が指すタスクグループ |
+| K-71 | 画面の状態 | `taskGroupPanelWidthPx` | タスクグループパネルの幅 |
+| K-143 | 画面の状態 | `isTaskGroupPanelWidthFixed` | タスクグループパネルの幅を固定する |
 | K-72 | 画面の状態 | `propertyPanelWidth` ⛔ | `Properties Panel` の幅 |
-| K-110 | 画面の状態 | `pinnedGroupIds` | ピン止めの対象 |
+| K-110 | 画面の状態 | `pinnedTaskGroupIds` | ピン止めの対象 |
 | K-111 | 画面の状態 | `pinnedTaskGroupMax` | ピン止めの件数の上限 |
 | K-73 | 表示の切り替え | `stackDirection` | 積む向き |
-| K-122 | 表示の切り替え | `planVisible` | 予定の表示 |
-| K-123 | 表示の切り替え | `actualVisible` | 実績の表示 |
-| K-75 | 表示の切り替え | `assigneeVisible` | 担当ラベル |
-| K-76 | 表示の切り替え | `percentCompleteVisible` | 完了率ラベル |
-| K-124 | 表示の切り替え | `planDatesVisible` | 名称ラベルに添える予定日 |
-| K-77 | 表示の切り替え | `dependencyVisible` | 依存線 |
-| K-78 | 表示の切り替え | `progressMarkerVisible` | 進捗マーカー |
-| K-79 | 表示の切り替え | `progressLineVisible` | イナズマ線 |
+| K-122 | 表示の切り替え | `isPlanVisible` | 予定の表示 |
+| K-123 | 表示の切り替え | `isActualVisible` | 実績の表示 |
+| K-75 | 表示の切り替え | `isAssigneeVisible` | 担当ラベル |
+| K-76 | 表示の切り替え | `isPercentCompleteVisible` | 完了率ラベル |
+| K-124 | 表示の切り替え | `isPlanDatesVisible` | 名称ラベルに添える予定日 |
+| K-77 | 表示の切り替え | `isDependencyVisible` | 依存線 |
+| K-78 | 表示の切り替え | `isProgressMarkerVisible` | 進捗マーカー |
+| K-79 | 表示の切り替え | `isProgressLineVisible` | イナズマ線 |
 | K-80 | 表示の切り替え | `dualCursor` ⛔ | デュアルカーソル |
 | K-81 | 表示の切り替え | `guideCursorMode` ⛔ | ガイドカーソル |
-| K-82 | 表示の切り替え | `dateGridLinesVisible` | 日付罫線（日付ごとの縦線） |
-| K-83 | 表示の切り替え | `groupGridLinesVisible` | グループ罫線（`TaskGroup` 境界の横線） |
-| K-84 | 表示の切り替え | `baselineVisible` | 変更前の予定を重ねるか |
+| K-82 | 表示の切り替え | `isDateGridLinesVisible` | 日付罫線（日付ごとの縦線） |
+| K-83 | 表示の切り替え | `isGroupGridLinesVisible` | グループ罫線（`TaskGroup` 境界の横線） |
+| K-84 | 表示の切り替え | `isBaselineVisible` | 変更前の予定を重ねるか |
 | K-85 | 表示の切り替え | `fontScale` | 文字サイズ |
 | K-125 | 表示の切り替え | `displayScale` | 表示の倍率 |
-| K-86 | 表示の切り替え | `importSeq` | 取り込みの連番 |
+| K-86 | 表示の切り替え | `importSequence` | 取り込みの連番 |
 | K-87 | 出力 | `exportCanvas` | SVG / PNG の出力サイズ |
 | K-141 | 表示の切り替え | `fitSpanStart` / `fitSpanFinish` | 全体表示時の期間（開始日 / 終了日） |
-| K-142 | 画面の状態 | `fitSpanFixed` | 全体表示時の期間を固定する |
+| K-142 | 画面の状態 | `isFitSpanFixed` | 全体表示時の期間を固定する |
 | K-144 | 表示の切り替え | `viewTimeZone` | 本プロジェクトの基準タイムゾーン |
 | K-145 | 表示の切り替え | `displayTimeZones` | 表示するタイムゾーン |
-| K-146 | 表示の切り替え | `showsTimeOfDay` | 時刻を表示する |
+| K-146 | 表示の切り替え | `isTimeOfDayVisible` | 時刻を表示する |
 | K-91 | 予実の補助線 | `planActualGuideWeight` | 補助線の太さ |
 | K-92 | 予実の補助線 | `planActualGuidePattern` | 補助線の破線の刻み |
 | K-93 | 予実の補助線 | `planActualGuideColor` | 補助線の色 |
@@ -323,7 +323,7 @@
 
 - **`palette` を設定値の名前に使わないこと（MUST NOT）。**  
   `Command Palette` / `Palette Groups` / `Palette Commands` が既にあり、同じ語が別のものを指すことになる。
-- スクロール位置の名前は `scrollDate` と `scrollGroupId` とし、`scrollX` / `scrollY` にしない。  
+- スクロール位置の名前は `scrollDate` と `scrollTaskGroupId` とし、`scrollX` / `scrollY` にしない。  
   px で持たない規則と理由は `FR-080` が持つ。
 - **時間軸のしきい値は 1 つの配列にせず、境目ごとに別のキーとして名づける。**  
   キーは表 T-205 の `S-83` 〜 `S-85`。  

@@ -24,7 +24,7 @@ const iconOf = (resume: string | null, resumeValid: boolean): string => {
         percentComplete: 30,
       }),
     ],
-    settings: { progressMarkerVisible: true },
+    settings: { isProgressMarkerVisible: true },
   })
   return scene.svg()
 }

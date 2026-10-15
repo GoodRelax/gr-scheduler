@@ -82,8 +82,8 @@ describe('AM-8 -- importDocument checks the document whatever shape it comes in'
       const { api, bench } = apiOn()
       const before = JSON.stringify(bench.loop.document().schedule)
       const outcome = await api.importDocument(source as never)
-      expect(outcome.accepted).toBe(false)
-      if (outcome.accepted) return
+      expect(outcome.ok).toBe(false)
+      if (outcome.ok) return
       expect(outcome.refusal.reason).toBe(codecReason)
       expect(JSON.stringify(bench.loop.document().schedule), 'nothing lands').toBe(before)
     })

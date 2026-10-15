@@ -34,14 +34,14 @@ test('UC-013 fix the schedule while consulting an AI (FR-066 AG-11, DR-4 changeL
     const answer = await page.evaluate(
       ({ uid, reason }) => {
         const api = (window as any).grSchedulerAgentApi
-        const written = api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid, name: 'Survey phase (moved)' }], explanation: reason })
+        const written = api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid, name: 'Survey phase (moved)' }], explanation: reason })
         const posted = api.postDialogueMessage(reason)
         return { written, posted }
       },
       { uid: TASK, reason: REASON },
     )
-    expect(answer.written.accepted).toBe(true)
-    expect(answer.posted.accepted).toBe(true)
+    expect(answer.written.ok).toBe(true)
+    expect(answer.posted.ok).toBe(true)
     await settle(page)
     await expect(page.locator(FIELD)).toContainText(REASON)
   })

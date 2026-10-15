@@ -301,11 +301,11 @@ const taskGroup = (id: string, order: number): TaskGroup =>
   ({
     id,
     parentId: null,
-    label: id,
+    name: id,
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', color: null,
-    minHeight: null,
+    minHeightPx: null,
   }) as unknown as TaskGroup
 
 const taskVisual = (taskUid: number, shapeKind: string): TaskVisual =>
@@ -336,7 +336,7 @@ const scheduleOf = (
       company: null,
       manager: null,
       author: null,
-      created: null,
+      creationDate: null,
       revision: null,
       startDate: '2026-03-01T00:00:00',
       statusDate: null,
@@ -349,7 +349,7 @@ const scheduleOf = (
       defaultFinishTime: null,
       themeHue: 214,
       uidHighWaterMark: 1000,
-      importSeq: 0,
+      importSequence: 0,
       carry: {},
       carryElements: [],
     },
@@ -360,7 +360,7 @@ const scheduleOf = (
     taskGroups: ids.map((id, i) => taskGroup(id, i)),
     taskGroupMembers: tasks.map((one, i) => ({
       taskUid: one.uid,
-      groupId: groupIds[i] ?? ids[0] ?? 'g1',
+      taskGroupId: groupIds[i] ?? ids[0] ?? 'g1',
     })) as unknown as readonly TaskGroupMember[],
     taskVisuals: visuals,
     commentBoxes: [],
@@ -428,7 +428,7 @@ const draw = (schedule: Schedule, zoomX: number): Drawn => {
     scrollDate: day(1),
     stackDirection: 'down',
     displayScale: DEFAULT_DISPLAY_SCALE,
-    progressMarkerVisible: true, // see S-63
+    isProgressMarkerVisible: true, // see S-63
   })
   const regions = regionsFromScreen(SCREEN, settings)
   const layout = layoutFromSchedule(schedule, settings, regions)
@@ -1312,7 +1312,7 @@ interface TwoPictures {
 
 const shellPictures = (schedule: Schedule): TwoPictures => {
   const base = structuredClone(startupTemplate) as unknown as Document
-  const settings = settingsOf({ stackDirection: 'down', progressMarkerVisible: true })
+  const settings = settingsOf({ stackDirection: 'down', isProgressMarkerVisible: true })
   const document = {
     ...base,
     schedule,

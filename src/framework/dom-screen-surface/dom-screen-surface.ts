@@ -685,9 +685,9 @@ export function boxStyle(box: ScreenRect): string {
 /** @purity pure */
 export function anchorKey(anchor: TooltipAnchor): string {
   if (anchor.kind === 'icon') {
-    return [anchor.kind, anchor.surface, anchor.icon, anchor.groupId].filter((one) => one !== undefined).join(' ')
+    return [anchor.kind, anchor.surface, anchor.icon, anchor.taskGroupId].filter((one) => one !== undefined).join(' ')
   }
-  if (anchor.kind === 'taskGroupTitle') return `taskGroupTitle ${anchor.groupId}`
+  if (anchor.kind === 'taskGroupTitle') return `taskGroupTitle ${anchor.taskGroupId}`
   if (anchor.kind === 'scrollbar') return `scrollbar ${anchor.axis}`
   return `${anchor.kind} ${anchor.taskUid}`
 }
@@ -1328,8 +1328,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
       if (icon !== null && entry === null) entry = icon
       const chosen = node.getAttribute('data-format')
       if (chosen !== null && format === null) format = chosen
-      const groupId = node.getAttribute('data-group-id')
-      if (groupId !== null && group === null) group = groupId
+      const taskGroupId = node.getAttribute('data-group-id')
+      if (taskGroupId !== null && group === null) group = taskGroupId
       const resource = node.getAttribute('data-uid')
       if (resource !== null && uid === null) uid = resource
       const resized = node.getAttribute('data-panel')

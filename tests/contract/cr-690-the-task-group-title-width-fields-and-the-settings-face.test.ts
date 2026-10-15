@@ -127,7 +127,7 @@ const DOCUMENT = documentOf({ tasks: [taskOf(1), taskOf(2, { start: '2026-05-04T
 
 const withWidth = (width: number, fixed: boolean): Document => ({
   ...DOCUMENT,
-  documentSettings: { ...DOCUMENT.documentSettings, taskGroupPanelWidth: width, taskGroupPanelWidthFixed: fixed },
+  documentSettings: { ...DOCUMENT.documentSettings, taskGroupPanelWidthPx: width, isTaskGroupPanelWidthFixed: fixed },
 })
 
 async function settingsStage(document: Document, language: DisplayLanguage = 'ja'): Promise<ExportStage> {
@@ -179,7 +179,7 @@ describe('FR-052 T-368 WF-1 / WF-2 -- the fix check and the width input', () => 
     const field = fieldOf((await settingsStage(DOCUMENT, language)).lastView(), K_143)
     expect(field.name).toBe(settingsWordOf(K_143, language))
     expect(field.controls.map((one) => one.kind)).toEqual(['boolean'])
-    const fix = commitOf(K_143, 'taskGroupPanelWidthFixed', 'true')
+    const fix = commitOf(K_143, 'isTaskGroupPanelWidthFixed', 'true')
     expect(kindsOf(commandFromFieldCommit(fix, contextOf(DOCUMENT)))).toEqual([CM_91])
   })
 
@@ -192,10 +192,10 @@ describe('FR-052 T-368 WF-1 / WF-2 -- the fix check and the width input', () => 
   it(`${WF_2_VALUE} -- the stored width rounded, and a whole width settles as one ${CM_67}`, async () => {
     const stage = await settingsStage(withWidth(250.6, true))
     expect(fieldOf(stage.lastView(), K_71).controls[0]?.text).toBe('251')
-    const commit = commitOf(K_71, 'taskGroupPanelWidth', '260')
+    const commit = commitOf(K_71, 'taskGroupPanelWidthPx', '260')
     expect(kindsOf(commandFromFieldCommit(commit, contextOf(withWidth(250.6, true))))).toEqual([CM_67])
     await commitOn(stage, commit)
-    expect(stage.loop.document().documentSettings.taskGroupPanelWidth).toBe(260)
+    expect(stage.loop.document().documentSettings.taskGroupPanelWidthPx).toBe(260)
   })
 
   it(`${WF_2_UNFIXED} -- unfixed it shows the value and cannot be written; fixed it can`, async () => {
@@ -206,16 +206,16 @@ describe('FR-052 T-368 WF-1 / WF-2 -- the fix check and the width input', () => 
   })
 
   it.each([String(S_79_FLOOR - 1), '250.5', 'wide'])(`${WF_2_REFUSE} -- %s issues nothing and the input keeps the stored width`, async (text) => {
-    const commit = commitOf(K_71, 'taskGroupPanelWidth', text)
+    const commit = commitOf(K_71, 'taskGroupPanelWidthPx', text)
     expect(commandFromFieldCommit(commit, contextOf(withWidth(300, true)))).toEqual([])
     const stage = await settingsStage(withWidth(300, true))
     await commitOn(stage, commit)
-    expect(stage.loop.document().documentSettings.taskGroupPanelWidth).toBe(300)
+    expect(stage.loop.document().documentSettings.taskGroupPanelWidthPx).toBe(300)
     expect(fieldOf(stage.lastView(), K_71).controls[0]?.text).toBe('300')
   })
 
   it(`${WF_2_REFUSE} -- the floor itself is taken`, () => {
-    const commit = commitOf(K_71, 'taskGroupPanelWidth', String(S_79_FLOOR))
+    const commit = commitOf(K_71, 'taskGroupPanelWidthPx', String(S_79_FLOOR))
     expect(kindsOf(commandFromFieldCommit(commit, contextOf(withWidth(300, true))))).toEqual([CM_67])
   })
 })
@@ -236,7 +236,7 @@ describe('FR-052 T-368 WF-3 -- the drawn width read-out', () => {
     const scaled = fieldOf(stage.lastView(), WF_3).readout
     expect(scaled).not.toBe(before)
     expect(scaled).toBe(readoutOf(drawnWidthOf(stage)))
-    await commitOn(stage, commitOf(K_71, 'taskGroupPanelWidth', '250'))
+    await commitOn(stage, commitOf(K_71, 'taskGroupPanelWidthPx', '250'))
     expect(fieldOf(stage.lastView(), WF_3).readout).toBe(readoutOf(drawnWidthOf(stage)))
     expect(fieldOf(stage.lastView(), WF_3).readout).not.toBe(scaled)
   })
@@ -259,7 +259,7 @@ describe('FR-052 T-368 WF-4 -- the boundary while the width is fixed', () => {
     await commitOn(fixed, commitOf(K_125, 'displayScale', '150'))
     const unfixed = await settingsStage(withWidth(300, false))
     await commitOn(unfixed, commitOf(K_125, 'displayScale', '150'))
-    expect(fixed.loop.document().documentSettings.taskGroupPanelWidth).toBe(300)
+    expect(fixed.loop.document().documentSettings.taskGroupPanelWidthPx).toBe(300)
     expect(drawnWidthOf(fixed)).toBe(drawnWidthOf(unfixed))
   })
 })

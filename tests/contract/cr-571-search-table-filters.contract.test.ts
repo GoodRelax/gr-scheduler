@@ -90,7 +90,7 @@ const task = (
     milestone: false,
     isBottleneck: false,
     rowPath,
-    groupId: `g-${taskUid}`,
+    taskGroupId: `g-${taskUid}`,
   }) as TaskSearchRow
 
 const box = (commentBoxId: string, text: string, taskGroupName: string, anchorDate: string | null): CommentBoxSearchRow => ({
@@ -98,7 +98,7 @@ const box = (commentBoxId: string, text: string, taskGroupName: string, anchorDa
   text,
   taskGroupName,
   anchorDate,
-  groupId: `g-${commentBoxId}`,
+  taskGroupId: `g-${commentBoxId}`,
 })
 
 const P1 = '1. Program'

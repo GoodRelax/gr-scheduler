@@ -340,7 +340,7 @@ export const scheduleOf = (wish: SceneWish): Schedule => {
       company: null,
       manager: null,
       author: null,
-      created: null,
+      creationDate: null,
       revision: null,
       startDate: day(1),
       statusDate: wish.statusDate ?? null,
@@ -353,7 +353,7 @@ export const scheduleOf = (wish: SceneWish): Schedule => {
       defaultFinishTime: null,
       themeHue: 214,
       uidHighWaterMark: 1000,
-      importSeq: 0,
+      importSequence: 0,
       carry: {},
       carryElements: [],
     },
@@ -384,16 +384,16 @@ export const scheduleOf = (wish: SceneWish): Schedule => {
       {
         id: 'g1',
         parentId: null,
-        label: 'g1',
+        name: 'g1',
         derivedFromTaskUid: null,
         order: 0,
         treeState: 'auto', color: null,
-        minHeight: null,
+        minHeightPx: null,
       },
     ],
     taskGroupMembers: wish.tasks.map((one) => ({
       taskUid: (one as unknown as { uid: number }).uid,
-      groupId: 'g1',
+      taskGroupId: 'g1',
     })),
     taskVisuals: wish.tasks.map((one) => {
       const uid = (one as unknown as { uid: number }).uid

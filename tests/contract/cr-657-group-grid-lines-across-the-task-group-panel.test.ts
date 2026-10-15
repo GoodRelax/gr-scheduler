@@ -98,12 +98,12 @@ const groupOf = (id: string, order: number): TaskGroup =>
   ({
     id,
     parentId: null,
-    label: `row ${id}`,
+    name: `row ${id}`,
     derivedFromTaskUid: null,
     order,
     treeState: 'auto',
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   }) as unknown as TaskGroup
 
 const IDS = ['g1', 'g2', 'g3'] as const
@@ -135,15 +135,15 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
   ({
     ...SETTINGS_DEFAULTS,
     displayScale: DEFAULT_DISPLAY_SCALE,
-    taskGroupPanelWidth: PANEL_WIDTH,
-    pinnedGroupIds: [],
+    taskGroupPanelWidthPx: PANEL_WIDTH,
+    pinnedTaskGroupIds: [],
     ...part,
   }) as unknown as DocumentSettings
 
 const panelOf = (settings: DocumentSettings): TaskGroupPanel =>
   taskGroupPanelFromSchedule(SCHEDULE, settings, emptySelection(), ROOT, {
     ...READINGS,
-    taskGroupBoxes: IDS.map((groupId) => ({ groupId, box: BOXES[groupId] as ScreenRect })),
+    taskGroupBoxes: IDS.map((taskGroupId) => ({ taskGroupId, box: BOXES[taskGroupId] as ScreenRect })),
   })
 
 const linesOf = (panel: TaskGroupPanel): readonly ScreenRect[] => panel.groupGridLines ?? []
@@ -157,13 +157,13 @@ const lineAtBottomOf = (panel: TaskGroupPanel, box: ScreenRect): ScreenRect | un
 
 
 describe('FR-042 (MUST) -- 「タスクグループパネル（`U-22`）のタスクグループの境にも引くこと」', () => {
-  const panel = panelOf(settingsOf({ groupGridLinesVisible: true }))
+  const panel = panelOf(settingsOf({ isGroupGridLinesVisible: true }))
 
   it('draws one line at the bottom boundary of every task group the panel draws', () => {
     const titles = titlesOf(panel)
-    expect(titles.map((one) => one.groupId).sort()).toEqual([...IDS])
+    expect(titles.map((one) => one.taskGroupId).sort()).toEqual([...IDS])
     for (const title of titles) {
-      expect(lineAtBottomOf(panel, title.box), `a line at the bottom of ${title.groupId}`).toBeDefined()
+      expect(lineAtBottomOf(panel, title.box), `a line at the bottom of ${title.taskGroupId}`).toBeDefined()
     }
     expect(linesOf(panel)).toHaveLength(titles.length)
   })
@@ -171,7 +171,7 @@ describe('FR-042 (MUST) -- 「タスクグループパネル（`U-22`）のタ�
   it('draws it at the thickness of U-18, centered on the boundary as the schedule side strokes it', () => {
     for (const title of titlesOf(panel)) {
       const line = lineAtBottomOf(panel, title.box) as ScreenRect
-      expect(line.height, `${title.groupId}'s line thickness`).toBe(GROUP_GRID_LINE_WIDTH_PX)
+      expect(line.height, `${title.taskGroupId}'s line thickness`).toBe(GROUP_GRID_LINE_WIDTH_PX)
       expect(line.y).toBeCloseTo(title.box.y + title.box.height - GROUP_GRID_LINE_WIDTH_PX / 2, 6)
     }
   })
@@ -179,8 +179,8 @@ describe('FR-042 (MUST) -- 「タスクグループパネル（`U-22`）のタ�
   it('draws it from the panel task group\'s left edge to its right edge', () => {
     for (const title of titlesOf(panel)) {
       const line = lineAtBottomOf(panel, title.box) as ScreenRect
-      expect(line.x, `${title.groupId}'s line starts at the panel's left`).toBeCloseTo(title.box.x, 6)
-      expect(line.x + line.width, `${title.groupId}'s line ends at the panel's right`).toBeCloseTo(
+      expect(line.x, `${title.taskGroupId}'s line starts at the panel's left`).toBeCloseTo(title.box.x, 6)
+      expect(line.x + line.width, `${title.taskGroupId}'s line ends at the panel's right`).toBeCloseTo(
         title.box.x + title.box.width,
         6,
       )
@@ -189,8 +189,8 @@ describe('FR-042 (MUST) -- 「タスクグループパネル（`U-22`）のタ�
 })
 
 describe('T-202 S-68 false -- the panel carries no line', () => {
-  it('draws no task-group-boundary line when groupGridLinesVisible is false', () => {
-    const panel = panelOf(settingsOf({ groupGridLinesVisible: false }))
+  it('draws no task-group-boundary line when isGroupGridLinesVisible is false', () => {
+    const panel = panelOf(settingsOf({ isGroupGridLinesVisible: false }))
     expect(titlesOf(panel).length, 'the task groups themselves are still drawn').toBe(IDS.length)
     expect(linesOf(panel)).toEqual([])
   })
@@ -200,8 +200,8 @@ describe('T-202 S-68 false -- the panel carries no line', () => {
 
 describe('FR-098 -- 「タスクグループ見出しの側の境目も同じ線で示す」', () => {
   it('draws the line under the last pinned task group, so the band boundary is shown on the panel side', () => {
-    const panel = panelOf(settingsOf({ groupGridLinesVisible: true, pinnedGroupIds: ['g1', 'g2'] }))
-    const pinned = panel.pinnedTitles.map((one) => one.groupId)
+    const panel = panelOf(settingsOf({ isGroupGridLinesVisible: true, pinnedTaskGroupIds: ['g1', 'g2'] }))
+    const pinned = panel.pinnedTitles.map((one) => one.taskGroupId)
     expect(pinned, 'the fixture pins g1 and g2').toEqual(['g1', 'g2'])
     const lastPinned = panel.pinnedTitles[panel.pinnedTitles.length - 1] as TaskGroupTitle
     const boundary = lineAtBottomOf(panel, lastPinned.box)
@@ -210,12 +210,12 @@ describe('FR-098 -- 「タスクグループ見出しの側の境目も同じ線
     expect((boundary as ScreenRect).x).toBeCloseTo(lastPinned.box.x, 6)
     expect((boundary as ScreenRect).width).toBeCloseTo(lastPinned.box.width, 6)
     for (const title of titlesOf(panel)) {
-      expect(lineAtBottomOf(panel, title.box), `a line at the bottom of ${title.groupId}`).toBeDefined()
+      expect(lineAtBottomOf(panel, title.box), `a line at the bottom of ${title.taskGroupId}`).toBeDefined()
     }
   })
 
   it('draws no line at the pinned band boundary either when S-68 is false', () => {
-    const panel = panelOf(settingsOf({ groupGridLinesVisible: false, pinnedGroupIds: ['g1', 'g2'] }))
+    const panel = panelOf(settingsOf({ isGroupGridLinesVisible: false, pinnedTaskGroupIds: ['g1', 'g2'] }))
     expect(panel.pinnedTitles.length).toBe(2)
     expect(linesOf(panel)).toEqual([])
   })
@@ -246,26 +246,26 @@ const exportSettingsOf = (visible: boolean): DocumentSettings =>
   ({
     ...nestedFrom(SETTINGS_DEFAULTS),
     displayScale: DEFAULT_DISPLAY_SCALE,
-    taskGroupPanelWidth: PANEL_WIDTH,
-    pinnedGroupIds: [],
-    groupGridLinesVisible: visible,
+    taskGroupPanelWidthPx: PANEL_WIDTH,
+    pinnedTaskGroupIds: [],
+    isGroupGridLinesVisible: visible,
   }) as unknown as DocumentSettings
 
 const EXPORT_REGIONS: ScreenRegions = (() => {
   const canvasHeight = EXPORT_SCREEN.height - EXPORT_SCREEN.appHeaderHeight
-  const rulerHeight = (SETTINGS_DEFAULTS as unknown as { rulerHeight: number }).rulerHeight
+  const rulerHeightPx = (SETTINGS_DEFAULTS as unknown as { rulerHeightPx: number }).rulerHeightPx
   const taskGroupAreaWidth = EXPORT_SCREEN.width - SETTINGS_CONSTANTS.canvasPadding - PANEL_WIDTH
   return {
     appHeader: { x: 0, y: 0, width: EXPORT_SCREEN.width, height: EXPORT_SCREEN.appHeaderHeight },
     scheduleCanvas: { x: 0, y: EXPORT_SCREEN.appHeaderHeight, width: EXPORT_SCREEN.width, height: canvasHeight },
     taskGroupPanel: { x: 0, y: EXPORT_SCREEN.appHeaderHeight, width: PANEL_WIDTH, height: canvasHeight },
-    timeRuler: { x: PANEL_WIDTH, y: EXPORT_SCREEN.appHeaderHeight, width: taskGroupAreaWidth, height: rulerHeight },
+    timeRuler: { x: PANEL_WIDTH, y: EXPORT_SCREEN.appHeaderHeight, width: taskGroupAreaWidth, height: rulerHeightPx },
     propertiesPanel: { x: EXPORT_SCREEN.width, y: EXPORT_SCREEN.appHeaderHeight, width: 0, height: canvasHeight },
     taskGroupArea: {
       x: PANEL_WIDTH,
-      y: EXPORT_SCREEN.appHeaderHeight + rulerHeight,
+      y: EXPORT_SCREEN.appHeaderHeight + rulerHeightPx,
       width: taskGroupAreaWidth,
-      height: canvasHeight - rulerHeight - SETTINGS_CONSTANTS.canvasPadding,
+      height: canvasHeight - rulerHeightPx - SETTINGS_CONSTANTS.canvasPadding,
     },
   }
 })()
@@ -343,7 +343,7 @@ describe('T-076 EP-3 -- 「タスクグループの境のグループ罫線（`U
     const settings = exportSettingsOf(true)
     const panel = panelOf(settings)
     expect(linesOf(panel).length, 'the screen carries the lines this case scales').toBe(IDS.length)
-    const ink = colorOf('S-165', THEME_HUE, false, settings.themeMonochrome)
+    const ink = colorOf('S-165', THEME_HUE, false, settings.isThemeMonochrome)
     const rects = rectsOf(pictureOf(sceneOf(settings, panel)))
     for (const line of linesOf(panel)) {
       const want = { x: line.x * RATIO, y: line.y * RATIO, width: line.width * RATIO, height: line.height * RATIO }
@@ -361,7 +361,7 @@ describe('T-076 EP-3 -- 「タスクグループの境のグループ罫線（`U
 
   it('draws no panel-side line into the picture when S-68 is false', () => {
     const settings = exportSettingsOf(false)
-    const ink = colorOf('S-165', THEME_HUE, false, settings.themeMonochrome)
+    const ink = colorOf('S-165', THEME_HUE, false, settings.isThemeMonochrome)
     const rects = rectsOf(pictureOf(sceneOf(settings, panelOf(settings))))
     const thin = rects.filter(
       (one) => one.fill === ink && Math.abs(one.height - GROUP_GRID_LINE_WIDTH_PX * RATIO) < ROUNDING,

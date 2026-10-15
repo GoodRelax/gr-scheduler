@@ -55,7 +55,7 @@
 //            display group, and 「`OP-10` に当たるときは、この 2 つを `BO-4` が
 //            決める」.
 //   T-201    S-1 `pxPerDayAt1x`, and T-203 S-75 `zoomX` -- the width of one day.
-//   T-203    S-77 `scrollDate` / S-78 `scrollGroupId` -- the stored place, and
+//   T-203    S-77 `scrollDate` / S-78 `scrollTaskGroupId` -- the stored place, and
 //            what a `null` in either means.
 //   T-206    S-96 / S-97 / S-98 -- the three zoom values the document does not
 //            keep, which the fit is handed.
@@ -324,7 +324,7 @@ function fitWrite(settings: DocumentSettings): Record<string, unknown> {
     isTextEntryUnsettled: false,
     isDualCursorMode: false,
     today: '2026-04-01T00:00:00',
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
   } as unknown as InputContext
 
   const answer = commandFromInput(PRESS_F, context)
@@ -420,7 +420,7 @@ describe('OP-10 (MUST NOT) -- the template carries no place of its own', () => {
   it('ships no row id either, for the same MUST NOT', () => {
     // S-78: 「表示の上端が指すタスクグループ。⚠️ 整数ではない」 -- a `TaskGroup.id`, and the
     // template names none.
-    expect(SETTINGS.scrollGroupId).toBeNull()
+    expect(SETTINGS.scrollTaskGroupId).toBeNull()
   })
 
   it('so both halves of OP-10 condition are met, and only the BT-4 exclusion keeps the fit off', () => {
@@ -428,7 +428,7 @@ describe('OP-10 (MUST NOT) -- the template carries no place of its own', () => {
     // とき」 is satisfied here, so without 「表 T-034 の `BT-4`（起動テンプレート）
     // から開いた文書には働かせてはならない（MUST NOT）」 every boot would land on
     // FR-055's fit -- and section 4 measures what that fit answers.
-    expect(SETTINGS.scrollDate === null || SETTINGS.scrollGroupId === null).toBe(true)
+    expect(SETTINGS.scrollDate === null || SETTINGS.scrollTaskGroupId === null).toBe(true)
   })
 })
 
@@ -454,7 +454,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     // puts it at the top edge -- not scrolled past.
     const first = bootFrame.values.layout.taskGroups[0]
     expect(first, 'the boot drew task groups at all').toBeDefined()
-    expect(first?.groupId).toBe(headOfTaskGroupTree())
+    expect(first?.taskGroupId).toBe(headOfTaskGroupTree())
     expect(first?.y).toBe(REGIONS.taskGroupArea.y)
   })
 
@@ -484,7 +484,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     const seen = taskGroupsInFirstScreenful(bootFrame.values.layout)
     const parentOf = new Map(GROUPS.map((row) => [row['id'], row['parentId']]))
     const pairs = seen.filter(
-      (taskGroup, index) => index > 0 && parentOf.get(taskGroup.groupId) === seen[index - 1]?.groupId,
+      (taskGroup, index) => index > 0 && parentOf.get(taskGroup.taskGroupId) === seen[index - 1]?.taskGroupId,
     )
     expect(pairs.length, 'no child follows its own parent in the first screenful').toBeGreaterThan(0)
   })
@@ -528,7 +528,7 @@ describe('FR-018 -- the depths the first frame of the shipped template draws', (
     // the document itself comes through a boot unedited either way.
     const held = bootFrame.held.documentSettings as DocumentSettings
     expect(held.scrollDate).toBe(SETTINGS.scrollDate)
-    expect(held.scrollGroupId).toBe(SETTINGS.scrollGroupId)
+    expect(held.scrollTaskGroupId).toBe(SETTINGS.scrollTaskGroupId)
     expect(held.zoomX).toBe(SETTINGS.zoomX)
     expect(held.zoomY).toBe(SETTINGS.zoomY)
     expect(

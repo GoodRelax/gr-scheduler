@@ -116,16 +116,16 @@ function fixtureDocument(at: Layout): Document {
       taskGroups: TASK_GROUPS.map((id, order) => ({
         id,
         parentId: null,
-        label: `row ${order}`,
+        name: `row ${order}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
       taskGroupMembers: [
-        { taskUid: SEL, groupId: rowId(1) },
-        { taskUid: OUT, groupId: rowId(4) },
+        { taskUid: SEL, taskGroupId: rowId(1) },
+        { taskUid: OUT, taskGroupId: rowId(4) },
       ],
       taskVisuals: [],
       commentBoxes: [
@@ -134,7 +134,7 @@ function fixtureDocument(at: Layout): Document {
           leaderShapeKind: null,
           text: 'a note',
           anchorDate: '2026-05-04',
-          anchorGroupId: rowId(at.commentTaskGroup),
+          anchorTaskGroupId: rowId(at.commentTaskGroup),
           bodyOffsetPx: null,
           strokeColor: null,
           strokeWidthPx: null,
@@ -146,10 +146,10 @@ function fixtureDocument(at: Layout): Document {
       highlightBoxes: [
         {
           id: HIGHLIGHT_ID,
-          startDate: '2026-04-20T08:00:00',
-          endDate: '2026-04-24T17:00:00',
-          topGroupId: rowId(at.highlightTaskGroups[0]),
-          bottomGroupId: rowId(at.highlightTaskGroups[1]),
+          start: '2026-04-20T08:00:00',
+          finish: '2026-04-24T17:00:00',
+          topTaskGroupId: rowId(at.highlightTaskGroups[0]),
+          bottomTaskGroupId: rowId(at.highlightTaskGroups[1]),
           strokeColor: null,
           cornerRadiusPx: null,
           strokeWidthPx: null,
@@ -250,9 +250,9 @@ function pointOnBox(loop: FrameLoop, kind: 'highlightBox' | 'commentBox'): Point
   throw new Error(`no point of the canvas answers a ${kind}`)
 }
 
-const drawnTaskGroup = (loop: FrameLoop, groupId: string): TaskGroupPlacement => {
-  const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no task group ${groupId}`)
+const drawnTaskGroup = (loop: FrameLoop, taskGroupId: string): TaskGroupPlacement => {
+  const found = frameOf(loop).layout.taskGroups.find((one) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`the frame drew no task group ${taskGroupId}`)
   return found
 }
 
@@ -293,7 +293,7 @@ const day = (value: string | null | undefined): string => (value ?? '').slice(0,
 function seen(built: Bench): Seen {
   const schedule = built.loop.document().schedule
   const rowOf = (uid: number): number =>
-    TASK_GROUPS.indexOf(schedule.taskGroupMembers.find((one) => one.taskUid === uid)?.groupId ?? '')
+    TASK_GROUPS.indexOf(schedule.taskGroupMembers.find((one) => one.taskUid === uid)?.taskGroupId ?? '')
   const taskOf = (uid: number): Task => {
     const found = schedule.tasks.find((one) => one.uid === uid)
     if (found === undefined) throw new Error(`no Task ${uid}`)
@@ -307,12 +307,12 @@ function seen(built: Bench): Seen {
     outStart: day(taskOf(OUT).start),
     outTaskGroup: rowOf(OUT),
     highlight: {
-      start: day(box?.startDate),
-      end: day(box?.endDate),
-      top: TASK_GROUPS.indexOf(box?.topGroupId ?? ''),
-      bottom: TASK_GROUPS.indexOf(box?.bottomGroupId ?? ''),
+      start: day(box?.start),
+      end: day(box?.finish),
+      top: TASK_GROUPS.indexOf(box?.topTaskGroupId ?? ''),
+      bottom: TASK_GROUPS.indexOf(box?.bottomTaskGroupId ?? ''),
     },
-    comment: { date: day(note?.anchorDate), row: TASK_GROUPS.indexOf(note?.anchorGroupId ?? '') },
+    comment: { date: day(note?.anchorDate), row: TASK_GROUPS.indexOf(note?.anchorTaskGroupId ?? '') },
     taskCount: schedule.tasks.length,
     boxCount: schedule.highlightBoxes.length + schedule.commentBoxes.length,
   }

@@ -97,7 +97,7 @@ function created(document: Document, from: number, to: number): { readonly docum
     shapeKind: 'rectangle',
     start: day(from),
     finish: day(to),
-    groupId: firstGroupId(document),
+    taskGroupId: firstGroupId(document),
   })
   const added = after.schedule.tasks.find((each) => !before.has(each.uid))
   if (added === undefined) throw new Error('createTask added no task')

@@ -258,19 +258,19 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
   const row = (id: string, label: string, order: number) => ({
     id,
     parentId: null,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   })
   const successor = task(SUCCESSOR, '2026-05-06T00:00:00', '2026-05-20T00:00:00', 'Two') as any
   successor.dependencies = [
     {
       predecessorUid: PREDECESSOR,
       linkType: 1,
-      lag: null,
+      linkLag: null,
       lagFormat: null,
       carry: {},
       carryElements: [],
@@ -295,9 +295,9 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [row(ALPHA, 'Alpha', 0), row(BETA, 'Beta', 1)],
       taskGroupMembers: [
-        { taskUid: PREDECESSOR, groupId: ALPHA },
-        { taskUid: SUCCESSOR, groupId: BETA },
-        { taskUid: SPARE, groupId: BETA },
+        { taskUid: PREDECESSOR, taskGroupId: ALPHA },
+        { taskUid: SUCCESSOR, taskGroupId: BETA },
+        { taskUid: SPARE, taskGroupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [
@@ -306,7 +306,7 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
           leaderShapeKind: null,
           text: 'a note',
           anchorDate: '2026-04-02T00:00:00',
-          anchorGroupId: ALPHA,
+          anchorTaskGroupId: ALPHA,
           bodyOffsetPx: null,
           // WHY: fig-erd-detail AT-148..AT-152 are columns of the CommentBox, each nullable.
           strokeColor: null,
@@ -319,10 +319,10 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
       highlightBoxes: [
         {
           id: HIGHLIGHT,
-          startDate: '2026-04-01T00:00:00',
-          endDate: '2026-04-10T00:00:00',
-          topGroupId: ALPHA,
-          bottomGroupId: ALPHA,
+          start: '2026-04-01T00:00:00',
+          finish: '2026-04-10T00:00:00',
+          topTaskGroupId: ALPHA,
+          bottomTaskGroupId: ALPHA,
           strokeColor: null,
           cornerRadiusPx: null,
           // WHY: fig-erd-detail AT-145..AT-147 (null = the T-217 default, FR-019).

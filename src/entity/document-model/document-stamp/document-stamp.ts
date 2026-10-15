@@ -13,13 +13,13 @@ export {}
 /** ET-16 of table T-056. */
 export interface DocumentStamp {
   /** AT-127 */
-  readonly scheduleUpdatedUtc: string
+  readonly scheduleUpdatedAt: string
   /** AT-128 */
   readonly lastEditedBy: string
   /** AT-129 */
-  readonly settingsUpdatedUtc: string
+  readonly settingsUpdatedAt: string
   /** AT-140 */
-  readonly fileSavedUtc: string | null
+  readonly fileSavedAt: string | null
 }
 
 /** ET-17 of table T-056. */
@@ -31,7 +31,7 @@ export interface ChangeLogEntry {
   /** AT-132 */
   readonly explanation: string
   /** AT-133 */
-  readonly changedUtc: string
+  readonly changedAt: string
 }
 // </generated>
 
@@ -43,18 +43,18 @@ export function advancedStamp(
   options: { readonly hasMovedSchedule: boolean },
 ): DocumentStamp {
   return {
-    scheduleUpdatedUtc: options.hasMovedSchedule ? updatedUtc : stamp.scheduleUpdatedUtc,
+    scheduleUpdatedAt: options.hasMovedSchedule ? updatedUtc : stamp.scheduleUpdatedAt,
     lastEditedBy: editedBy,
-    settingsUpdatedUtc: updatedUtc,
-    fileSavedUtc: stamp.fileSavedUtc,
+    settingsUpdatedAt: updatedUtc,
+    fileSavedAt: stamp.fileSavedAt,
   }
 }
 
 /** @purity pure */
 export function isStampMatched(read: DocumentStamp, current: DocumentStamp): boolean {
   return (
-    read.scheduleUpdatedUtc === current.scheduleUpdatedUtc &&
+    read.scheduleUpdatedAt === current.scheduleUpdatedAt &&
     read.lastEditedBy === current.lastEditedBy &&
-    read.settingsUpdatedUtc === current.settingsUpdatedUtc
+    read.settingsUpdatedAt === current.settingsUpdatedAt
   )
 }

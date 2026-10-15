@@ -139,7 +139,7 @@ export { acceptedEdit as edited, refusedEdit as refused }
 export type UnimplementedDocumentCommand =
   | {
       readonly kind: 'setTaskGroupEditGroup'
-      readonly groupId: TaskGroup['id']
+      readonly taskGroupId: TaskGroup['id']
       readonly editGroup: TaskGroup['editGroup']
     }
 
@@ -178,16 +178,16 @@ const COMMAND_KINDS_BY_UNION = {
     'setTaskVisualMilestoneGlyph',
     'setTaskVisualColors',
     'resetTaskVisualColors',
-    'setTaskVisualStrokeWidth',
+    'setTaskVisualStrokeWidthPx',
   ],
   TaskGroupCommand: [
     'createTaskGroup',
     'deleteTaskGroup',
     'pasteTaskGroupSubtree',
-    'setTaskGroupLabel',
+    'setTaskGroupName',
     'setTaskGroupColor',
     'resetTaskGroupColor',
-    'setTaskGroupMinHeight',
+    'setTaskGroupMinHeightPx',
     'reorderTaskGroupSiblings',
     'resetTaskGroupTreeStates',
     'moveTaskGroup',
@@ -202,17 +202,17 @@ const COMMAND_KINDS_BY_UNION = {
     'setCommentBoxAnchor',
     'setCommentBoxBodyOffsetPx',
     'setCommentBoxStrokeColor',
-    'setCommentBoxStrokeWidth',
+    'setCommentBoxStrokeWidthPx',
     'setCommentBoxFillColor',
-    'setCommentBoxFillTransparency',
+    'setCommentBoxFillTransparencyPercent',
     'setCommentBoxTextColor',
     'createHighlightBox',
     'deleteHighlightBox',
     'setHighlightBoxRange',
     'setHighlightBoxStrokeColor',
-    'setHighlightBoxStrokeWidth',
+    'setHighlightBoxStrokeWidthPx',
     'setHighlightBoxFillColor',
-    'setHighlightBoxFillTransparency',
+    'setHighlightBoxFillTransparencyPercent',
   ],
   ResourceCommand: [
     'createResource',
@@ -220,7 +220,7 @@ const COMMAND_KINDS_BY_UNION = {
     'deleteResource',
     'deleteUnreferencedResources',
     'createAssignment',
-    'unassignResource',
+    'deleteAssignment',
   ],
   CalendarCommand: ['setCalendar'],
   ProjectCommand: [
@@ -229,7 +229,7 @@ const COMMAND_KINDS_BY_UNION = {
     'setStatusDate',
     'clearStatusDate',
     'setThemeHue',
-    'setParentProgressTolerance',
+    'setParentProgressToleranceDays',
     'setScheduleDataTimeZone',
     'shiftScheduleTimes',
   ],
@@ -241,7 +241,7 @@ const COMMAND_KINDS_BY_UNION = {
     'setThemeMonochrome',
     'setZoom',
     'setScrollPosition',
-    'setTaskGroupPanelWidth',
+    'setTaskGroupPanelWidthPx',
     'pinTaskGroup',
     'unpinTaskGroup',
     'fitScheduleToScreen',
@@ -253,7 +253,7 @@ const COMMAND_KINDS_BY_UNION = {
     'setTableView',
     'setViewTimeZone',
     'setDisplayTimeZones',
-    'setShowsTimeOfDay',
+    'setTimeOfDayVisible',
     'setLevelZeroTreeState',
   ],
 } as const

@@ -712,7 +712,7 @@ function controlInTime(control: PropertyControl, column: string): PropertyContro
 }
 
 // see PR-5, PR-42, TX-3
-const TYPED_LENGTH_COLUMNS: readonly string[] = ['actualDuration', 'lag']
+const TYPED_LENGTH_COLUMNS: readonly string[] = ['actualDuration', 'linkLag']
 
 /** @purity pure */
 function textOfItem(
@@ -804,11 +804,11 @@ const PLUS_SIGN = '+'
 // WHY: read in working days whatever unit it was taken in; a lag no day count settles is read through the day's minutes.
 /** @purity pure */
 function lagWordOf(project: Project, dependency: Dependency, language: DisplayLanguage, inTime: InstantOnSide | null): string {
-  if (dependency.lag === null || dependency.lag === 0) return ''
+  if (dependency.linkLag === null || dependency.linkLag === 0) return ''
   const typed = typedLagTextOf(project, dependency, inTime)
-  if (typed !== null) return `${dependency.lag > 0 ? PLUS_SIGN : ''}${typed}`
+  if (typed !== null) return `${dependency.linkLag > 0 ? PLUS_SIGN : ''}${typed}`
   const minutesPerDay = minutesPerWorkingDayOf(project)
-  const days = lagWorkingDaysOf(dependency, minutesPerDay) ?? dependency.lag / TENTHS_OF_A_MINUTE / minutesPerDay
+  const days = lagWorkingDaysOf(dependency, minutesPerDay) ?? dependency.linkLag / TENTHS_OF_A_MINUTE / minutesPerDay
   const signed = `${days > 0 ? PLUS_SIGN : ''}${shownLagNumber(days)}`
   return (PROPERTY_FIELD_WORDS.get('lagDays')?.[language] ?? '').replace(LAG_SLOT, () => signed)
 }
@@ -893,12 +893,12 @@ function minutesOfUnit(project: Project, length: LagUnitLength): number | null {
 // see FR-009, S-118, AT-47, AT-48
 /** @purity pure */
 function lagText(project: Project, dependency: Dependency, inTime: InstantOnSide | null): string {
-  if (dependency.lag === null) return ''
+  if (dependency.linkLag === null) return ''
   const spelled = typedLagTextOf(project, dependency, inTime)
   if (spelled !== null) return spelled
   const workingDays = lagWorkingDaysOf(dependency, minutesPerWorkingDayOf(project))
   if (workingDays !== null) return shownLagNumber(workingDays)
-  const minutes = dependency.lag / TENTHS_OF_A_MINUTE
+  const minutes = dependency.linkLag / TENTHS_OF_A_MINUTE
   const format = dependency.lagFormat ?? 0
   const isEstimated = format > ESTIMATED_LAG_FORMAT_OFFSET
   const unit = LAG_FORMAT_UNITS.get(isEstimated ? format - ESTIMATED_LAG_FORMAT_OFFSET : format)
@@ -911,7 +911,7 @@ function lagText(project: Project, dependency: Dependency, inTime: InstantOnSide
 // WHY: null is no time of day, or a format not typed in d / h / m; that lag keeps the spelling of FR-009.
 /** @purity pure */
 function typedLagTextOf(project: Project, dependency: Dependency, inTime: InstantOnSide | null): string | null {
-  const lag = dependency.lag ?? 0
+  const lag = dependency.linkLag ?? 0
   if (inTime === null) return null
   if (lag !== 0 && !TYPED_LAG_FORMATS.includes(dependency.lagFormat ?? 0)) return null
   return lengthTextOf(lag / TENTHS_OF_A_MINUTE, minutesPerWorkingDayOf(project))
@@ -941,7 +941,7 @@ function dependencyText(
 ): string {
   if (column === 'predecessorUid') return dependencyEndText(schedule, dependency.predecessorUid, language)
   if (column === 'successorUid') return dependencyEndText(schedule, successorUid, language)
-  if (column === 'lag') return lagText(schedule.project, dependency, inTime)
+  if (column === 'linkLag') return lagText(schedule.project, dependency, inTime)
   if (column !== 'linkType') return textOfValue((dependency as unknown as Record<string, unknown>)[column])
   const kind = DEPENDENCY_KINDS.find((one) => one.linkType === dependency.linkType)
   return kind === undefined ? textOfValue(dependency.linkType) : kind.abbreviation
@@ -1080,7 +1080,7 @@ function objectFields<Held>(
 
 type TaskGroup = Schedule['taskGroups'][number]
 
-const TASK_GROUP_NAME_COLUMN = 'label'
+const TASK_GROUP_NAME_COLUMN = 'name'
 const TASK_GROUP_NAME_FIELD_TASK_GROUP = 'AT-53'
 
 // see IR-1, FR-085, FR-042
@@ -1092,7 +1092,7 @@ function declaredRowOf(item: ItemRows): string {
 
 const TASK_GROUP_MIN_HEIGHT_WORDS = new Map(displayWords.rowMinHeightField.map((entry) => [entry.part, entry.text]))
 
-const MIN_HEIGHT_COLUMN: keyof TaskGroup & string = 'minHeight'
+const MIN_HEIGHT_COLUMN: keyof TaskGroup & string = 'minHeightPx'
 
 const READOUT_PX_SLOT = '{px}'
 
@@ -1103,8 +1103,8 @@ function taskGroupMinHeightWord(part: string, language: DisplayLanguage): string
 
 // see MH-3, MH-6
 /** @purity pure */
-function minHeightReadoutOf(groupId: string, placedTaskGroups: readonly TaskGroupPlacement[], language: DisplayLanguage): string {
-  const placed = placedTaskGroups.find((taskGroup) => taskGroup.groupId === groupId)
+function minHeightReadoutOf(taskGroupId: string, placedTaskGroups: readonly TaskGroupPlacement[], language: DisplayLanguage): string {
+  const placed = placedTaskGroups.find((taskGroup) => taskGroup.taskGroupId === taskGroupId)
   if (placed === undefined) return taskGroupMinHeightWord('currentlyHidden', language)
   return taskGroupMinHeightWord('currentValue', language).replace(READOUT_PX_SLOT, String(Math.round(placed.height)))
 }
@@ -1114,7 +1114,7 @@ function minHeightReadoutOf(groupId: string, placedTaskGroups: readonly TaskGrou
 /** @purity pure */
 function minHeightFields(
   field: PropertyField,
-  groupId: string,
+  taskGroupId: string,
   placedTaskGroups: readonly TaskGroupPlacement[],
   language: DisplayLanguage,
 ): readonly PropertyField[] {
@@ -1126,7 +1126,7 @@ function minHeightFields(
   return [
     { row: MIN_HEIGHT_CHECK_TASK_GROUP, name: taskGroupMinHeightWord('enable', language), text: String(isSet), isEditable: field.isEditable, controls: [check] },
     { ...field, unit: taskGroupMinHeightWord('unit', language), controls: [{ ...value, hint, ...(isSet ? {} : { isDisabled: true as const }) }] },
-    { row: MIN_HEIGHT_READOUT_TASK_GROUP, name: taskGroupMinHeightWord('currentName', language), text: '', isEditable: false, controls: [], readout: minHeightReadoutOf(groupId, placedTaskGroups, language) },
+    { row: MIN_HEIGHT_READOUT_TASK_GROUP, name: taskGroupMinHeightWord('currentName', language), text: '', isEditable: false, controls: [], readout: minHeightReadoutOf(taskGroupId, placedTaskGroups, language) },
   ]
 }
 
@@ -1144,7 +1144,7 @@ function groupFields(
 ): readonly PropertyField[] {
   const keyOf = (column: keyof TaskGroup & string): PropertyFieldKey => ({
     holder: 'taskGroup',
-    groupId: group.id,
+    taskGroupId: group.id,
     column,
   })
   const rows = { items: GROUP_ITEMS, held: group, keyOf, entity: 'TaskGroup', rowOf: declaredRowOf } as const
@@ -1174,10 +1174,10 @@ function fieldsOfSubject(
   const item = subjectOf(subject.selection)
   if (item !== null) return fieldsOfItem(schedule, item, labelCoef, language, inTime)
 
-  const groupId = onlyGroupId(subject.groupIds)
-  if (groupId === null) return []
+  const taskGroupId = onlyGroupId(subject.groupIds)
+  if (taskGroupId === null) return []
 
-  const group = schedule.taskGroups.find((held) => held.id === groupId)
+  const group = schedule.taskGroups.find((held) => held.id === taskGroupId)
   if (group === undefined) return null
   return groupFields(group, labelCoef, language, placedTaskGroups)
 }
@@ -1280,13 +1280,13 @@ function fitSpanField(settings: DocumentSettings, language: DisplayLanguage): Pr
       const text = texts[at] ?? ''
       return {
         ...settingsControl({ holder: 'documentSettings', column }, 'date', text, dateEntryWidthOf(false)),
-        ...(settings.fitSpanFixed ? {} : DISABLED_UNLESS_FIXED),
+        ...(settings.isFitSpanFixed ? {} : DISABLED_UNLESS_FIXED),
       }
     }),
   }
 }
 
-type CheckColumn = 'fitSpanFixed' | 'taskGroupPanelWidthFixed' | 'showsTimeOfDay'
+type CheckColumn = 'isFitSpanFixed' | 'isTaskGroupPanelWidthFixed' | 'isTimeOfDayVisible'
 
 // see FX-4, WF-1, K-142, K-143, CM-90, CM-91, FO-13, K-146
 /** @purity pure */
@@ -1341,7 +1341,7 @@ function shownSpanField(settings: DocumentSettings, readings: ScreenViewReadings
       {
         ...settingsControl({ holder: 'documentSettings', column: 'fitSpanStart' }, 'text', FIT_SPAN_COPY_TEXT, widthOf(word, null, SETTINGS_CONSTANTS.labelCoef)),
         press: word,
-        ...(settings.fitSpanFixed ? {} : DISABLED_UNLESS_FIXED),
+        ...(settings.isFitSpanFixed ? {} : DISABLED_UNLESS_FIXED),
       },
     ],
   }
@@ -1350,8 +1350,8 @@ function shownSpanField(settings: DocumentSettings, readings: ScreenViewReadings
 // see WF-2, K-71, CM-67, S-79
 /** @purity pure */
 function taskGroupPanelWidthField(settings: DocumentSettings, language: DisplayLanguage): PropertyField {
-  const column = 'taskGroupPanelWidth'
-  const text = String(Math.round(settings.taskGroupPanelWidth))
+  const column = 'taskGroupPanelWidthPx'
+  const text = String(Math.round(settings.taskGroupPanelWidthPx))
   return {
     row: settingsWordOf(column)?.rowId ?? column,
     ...settingsNamed(column, language),
@@ -1361,7 +1361,7 @@ function taskGroupPanelWidthField(settings: DocumentSettings, language: DisplayL
     controls: [
       {
         ...settingsControl({ holder: 'documentSettings', column }, 'number', text, widthOf(text, null, SETTINGS_CONSTANTS.labelCoef)),
-        ...(settings.taskGroupPanelWidthFixed ? {} : DISABLED_UNLESS_FIXED),
+        ...(settings.isTaskGroupPanelWidthFixed ? {} : DISABLED_UNLESS_FIXED),
       },
     ],
   }
@@ -1774,28 +1774,28 @@ const READ_ONLY_GROUPS: readonly ReadOnlyGroupRows[] = [
   {
     group: 'groupShowHide',
     rows: [
-      ...['planVisible', 'actualVisible', 'progressMarkerVisible', 'dependencyVisible', 'progressLineVisible'].map(visibleRow),
-      { key: 'baselineVisible', shape: 'overlaid' },
+      ...['isPlanVisible', 'isActualVisible', 'isProgressMarkerVisible', 'isDependencyVisible', 'isProgressLineVisible'].map(visibleRow),
+      { key: 'isBaselineVisible', shape: 'overlaid' },
     ],
   },
-  { group: 'groupLabels', rows: ['assigneeVisible', 'percentCompleteVisible', 'planDatesVisible'].map(visibleRow) },
+  { group: 'groupLabels', rows: ['isAssigneeVisible', 'isPercentCompleteVisible', 'isPlanDatesVisible'].map(visibleRow) },
   {
     group: 'groupView',
     rows: [
       ...['zoomX', 'zoomY'].map(shaped('percent')),
       { key: 'scrollDate', shape: 'date' },
       { key: 'scrollDayOffset', shape: 'dayOffset' },
-      { key: 'scrollGroupId', shape: 'taskGroup' },
+      { key: 'scrollTaskGroupId', shape: 'taskGroup' },
       { key: 'scrollGroupOffset', shape: 'groupOffset' },
-      { key: 'pinnedGroupIds', shape: 'count' },
+      { key: 'pinnedTaskGroupIds', shape: 'count' },
       { key: 'levelZeroTreeState', shape: 'treeState' },
     ],
   },
   {
     group: 'groupGridLinesAndColor',
-    rows: [...['dateGridLinesVisible', 'groupGridLinesVisible'].map(visibleRow), { key: 'themeMonochrome', shape: 'monochrome' }],
+    rows: [...['isDateGridLinesVisible', 'isGroupGridLinesVisible'].map(visibleRow), { key: 'isThemeMonochrome', shape: 'monochrome' }],
   },
-  { group: 'groupRulerAndStack', rows: [...['rulerFont', 'rulerHeight'].map(shaped('pixels')), { key: 'stackDirection', shape: 'stack' }] },
+  { group: 'groupRulerAndStack', rows: [...['rulerFontSizePx', 'rulerHeightPx'].map(shaped('pixels')), { key: 'stackDirection', shape: 'stack' }] },
   { group: 'groupTableViews', section: 'Search Panel', rows: tableViewRows('searchPanel', HIDDEN_TASKS, []) },
   {
     group: 'groupTableViews',
@@ -1872,7 +1872,7 @@ const READ_ONLY_FORMATS: Readonly<Record<ReadOnlyShape, ReadOnlyFormat>> = {
   dayOffset: (value, _schedule, language) =>
     readOnlyWord('dayOffset', language).replace(TIME_SLOT, clockOfDay(Number(value))).replace(PERCENT_SLOT, percentText(Number(value), language)),
   taskGroup: (value, schedule, language) =>
-    schedule.taskGroups.find((group) => group.id === value)?.label ?? readOnlyWord('notSetFromTop', language),
+    schedule.taskGroups.find((group) => group.id === value)?.name ?? readOnlyWord('notSetFromTop', language),
   groupOffset: (value, _schedule, language) => (value === 0 ? readOnlyWord('topZero', language) : percentText(Number(value), language)),
   count: countOrNone('itemCount'),
   columns: (value, schedule, language) => countOrNone(lengthOf(value) === 1 ? 'columnCountOne' : 'columnCount')(value, schedule, language),
@@ -1911,18 +1911,18 @@ function settingsFields(
   const dark = screen.themePreference === 'dark'
   const readOnly = readOnlySettingsFields(settings, schedule, language)
   return [
-    themeHueField(schedule.project.themeHue, dark, settings.themeMonochrome, language),
+    themeHueField(schedule.project.themeHue, dark, settings.isThemeMonochrome, language),
     steppedSettingField(settings, 'displayScale', language),
     steppedSettingField(settings, 'fontScale', language),
-    checkField(settings, 'taskGroupPanelWidthFixed', language),
+    checkField(settings, 'isTaskGroupPanelWidthFixed', language),
     taskGroupPanelWidthField(settings, language),
     drawnWidthField(readings, language),
     statusDateField(schedule.project.statusDate, language),
-    checkField(settings, 'fitSpanFixed', language),
+    checkField(settings, 'isFitSpanFixed', language),
     fitSpanField(settings, language),
     shownSpanField(settings, readings, language),
     parentProgressToleranceField(schedule.project.parentProgressToleranceDays, language),
-    checkField(settings, 'showsTimeOfDay', language),
+    checkField(settings, 'isTimeOfDayVisible', language),
     baseTimeZoneField(schedule, settings, screen, language),
     ...displayTimeZonesFields(settings, language),
     wholeScheduleShiftField(schedule, screen, language),
@@ -2099,16 +2099,16 @@ const UNIT_PART_OF_COLUMN: Readonly<Record<string, string>> = { strokeWidthPx: '
 const HINT_PART_OF_COLUMN: Readonly<Record<string, string>> = { resumeValid: 'resumeValidHint' }
 
 /** @purity pure */
-function withFieldWords(fields: readonly PropertyField[], language: DisplayLanguage, showsTimeOfDay: boolean): readonly PropertyField[] {
+function withFieldWords(fields: readonly PropertyField[], language: DisplayLanguage, isTimeOfDayVisible: boolean): readonly PropertyField[] {
   return fields.map((field) => {
     const column: string = field.controls[0]?.key.column ?? ''
-    const unitPart = showsTimeOfDay && TYPED_LENGTH_COLUMNS.includes(column) ? undefined : UNIT_PART_OF_COLUMN[column]
+    const unitPart = isTimeOfDayVisible && TYPED_LENGTH_COLUMNS.includes(column) ? undefined : UNIT_PART_OF_COLUMN[column]
     const hintPart = HINT_PART_OF_COLUMN[column]
     if (unitPart === undefined && hintPart === undefined) return field
     const hint = hintPart === undefined ? {} : { hint: PROPERTY_FIELD_WORDS.get(hintPart)?.[language] ?? '' }
     const sized =
       column === ACTUAL_LENGTH_ITEM
-        ? { isSizedAsDate: true as const, widthInFontSizes: dateEntryWidthOf(showsTimeOfDay) }
+        ? { isSizedAsDate: true as const, widthInFontSizes: dateEntryWidthOf(isTimeOfDayVisible) }
         : {}
     return {
       ...field,
@@ -2153,15 +2153,15 @@ export function propertiesPanelFromSelection(
     : { selection: isTaskGroupPick ? content.subject.selection : selection, groupIds: readings.selectedGroupIds }
   // WHY: readings with no layout place no task group, so the task group reads as not drawn (MH-6), never as 0 px.
   const placedTaskGroups = readings.placedTaskGroups ?? []
-  const inTime = settings.showsTimeOfDay ? shownInstantReader(schedule, settings.viewTimeZone) : null
+  const inTime = settings.isTimeOfDayVisible ? shownInstantReader(schedule, settings.viewTimeZone) : null
   const described = fieldsOfSubject(schedule, subject, SETTINGS_CONSTANTS.labelCoef, language, placedTaskGroups, inTime)
   const look = {
     hue: schedule.project.themeHue,
     dark,
-    monochrome: settings.themeMonochrome,
+    monochrome: settings.isThemeMonochrome,
     language,
   }
-  const fields = described === null ? null : withFieldWords(withColorFields(described, look), language, settings.showsTimeOfDay)
+  const fields = described === null ? null : withFieldWords(withColorFields(described, look), language, settings.isTimeOfDayVisible)
 
   const isSubjectGone = isNothingPicked || fields === null
 

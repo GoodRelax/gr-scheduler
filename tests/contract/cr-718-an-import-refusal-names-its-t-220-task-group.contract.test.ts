@@ -86,7 +86,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   company: null,
   manager: null,
   author: null,
-  created: null,
+  creationDate: null,
   revision: null,
   startDate: null,
   statusDate: null,
@@ -100,7 +100,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   themeHue: 214,
   parentProgressToleranceDays: 1,
   uidHighWaterMark: 0,
-  importSeq: 0,
+  importSequence: 0,
   outlineBase: 1,
   sourceFormat: 'grs',
   scheduleDataTimeZone: 'UTC+00:00',
@@ -128,9 +128,9 @@ const documentOf = (tasks: readonly Task[], project: Project = projectOf()): Doc
     },
     documentSettings: {},
     documentStamp: {
-      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      scheduleUpdatedAt: '2026-08-17T00:00:00Z',
       lastEditedBy: 'user',
-      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+      settingsUpdatedAt: '2026-08-17T00:00:00Z',
     },
     changeLog: [],
   }) as unknown as Document
@@ -161,7 +161,7 @@ describe('IV-10 -- a Task that finishes before it starts is refused under IV-10'
 })
 
 describe(`IV-14 -- a date before importMinDate (${IMPORT_MIN_DATE}) is refused under IV-14, not under the setting`, () => {
-  it.each(['created', 'startDate', 'statusDate'] as const)(`${NO_FALL_TO_A_T_233_ROW} -- Project.%s`, (column) => {
+  it.each(['creationDate', 'startDate', 'statusDate'] as const)(`${NO_FALL_TO_A_T_233_ROW} -- Project.%s`, (column) => {
     const verdict = verdictOf(documentOf([taskOf({ uid: 1, name: 't1', ...IN_RANGE })], projectOf({ [column]: `${BEFORE_MIN_DATE}T00:00:00` })))
     expect(verdict.ok).toBe(false)
     const rules = rulesOf(verdict)
@@ -178,7 +178,7 @@ describe(`IV-14 -- a date before importMinDate (${IMPORT_MIN_DATE}) is refused u
   })
 
   it('a control: a Project date on importMinDate is accepted', () => {
-    expect(verdictOf(documentOf([taskOf({ uid: 1, name: 't1', ...IN_RANGE })], projectOf({ created: `${IMPORT_MIN_DATE}T00:00:00` })))).toEqual({ ok: true })
+    expect(verdictOf(documentOf([taskOf({ uid: 1, name: 't1', ...IN_RANGE })], projectOf({ creationDate: `${IMPORT_MIN_DATE}T00:00:00` })))).toEqual({ ok: true })
   })
 })
 

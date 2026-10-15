@@ -47,9 +47,9 @@
    - 日付は 1970-01-01 から 2200-12-31 の間にする。
 3. タスクグループ（taskGroups）
    - 原本の見出しの 1 行を 1 つの TaskGroup にする。id は小文字の UUID（例 "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"）で、文書の中で重ならないようにする。
-   - label に見出しの文字を入れる。derivedFromTaskUid は null。
+   - name に見出しの文字を入れる。derivedFromTaskUid は null。
    - 入れ子の見出しは parentId に親の id を入れる。
-   - order は同じ親の下での上からの並び（0 から）。treeState は "auto" にする —— 静止画では、タスクグループが GRS の中で折りたたまれていたか・1 階層だけ展開されていたか・隠されていたかを読み取れないので、ここは常に "auto" にする（他の 4 つの値 —— 配下をすべて描かせない "collapsed"、子を 1 階層だけ展開したままにする "expanded"、縮小するまで配下をすべて展開したままにする "temporarilyExpanded"、タスクグループ自身を描かせない "hidden" —— は人が GRS の中で行った操作の結果であり、静止画からは読み取れない）。editGroup は null（誰でも編集できるタスクグループ）、minHeight は null。
+   - order は同じ親の下での上からの並び（0 から）。treeState は "auto" にする —— 静止画では、タスクグループが GRS の中で折りたたまれていたか・1 階層だけ展開されていたか・隠されていたかを読み取れないので、ここは常に "auto" にする（他の 4 つの値 —— 配下をすべて描かせない "collapsed"、子を 1 階層だけ展開したままにする "expanded"、縮小するまで配下をすべて展開したままにする "temporarilyExpanded"、タスクグループ自身を描かせない "hidden" —— は人が GRS の中で行った操作の結果であり、静止画からは読み取れない）。editGroup は null（誰でも編集できるタスクグループ）、minHeightPx は null。
    - color は原本のタスクグループの帯（背景）の色。「色の合わせ方」に従って選ぶ。ただしタスクグループの色に "black" は使えない。帯に色が無ければ null。
    - TaskGroup は必ず 1 つ以上置く。
 4. 横並びを保つ（重要）
@@ -57,7 +57,7 @@
    - 原本の見出しの行の中で、タスクまたはマイルストーンが 2 つ以上、同じ高さに横一列に並んでいたら、それを 1 本の並びとする。形状が違ってもよい（バーと ◇ が同じ高さに並んでいれば、まとめて 1 本の並び）。
    - 並び 1 本ごとに、見出しのタスクグループの 1 段下に子のタスクグループ（parentId が見出しのタスクグループの id の TaskGroup）を作り、並びの物をすべてその子のタスクグループに載せる。子のタスクグループには、その並びの物だけを載せる。
    - 子のタスクグループの order は、原本で上にある並びから 0, 1, 2 … と振る。
-   - 子のタスクグループの label は、その並びに載る物を一言で要約した語にする。原本が日本語なら 2 語まで（例「承認」「設計レビュー」）、英語なら 3 語まで（例 "Approvals"、"Design reviews"）。derivedFromTaskUid は null。
+   - 子のタスクグループの name は、その並びに載る物を一言で要約した語にする。原本が日本語なら 2 語まで（例「承認」「設計レビュー」）、英語なら 3 語まで（例 "Approvals"、"Design reviews"）。derivedFromTaskUid は null。
    - 見出しのタスクグループにその並びしか無いときは、子のタスクグループを作らず、見出しのタスクグループにそのまま載せる。
    - タスクグループの深さ（根のタスクグループを 1 と数える）は 3 までにする。深さ 4 以上のタスクグループは、既定の縦の倍率では GRS に描かれない。子のタスクグループが深さ 4 になるときは、子のタスクグループにせず、見出しのタスクグループのすぐ下に同じ深さのタスクグループとして置き、そうしたことを「推定したこと」に書く。
 5. タスク（tasks）
@@ -72,7 +72,7 @@
      - 未着手・実績が描かれていない: actualStart・stop・actualFinish は null、percentComplete は null。
      - 実績の最後の日を actualStart より前にしない。
    - resume は null、resumeValid は null。deadline・notes・calendarUid は null。
-   - 依存（矢印でタスクどうしがつながっている）は、後のタスクの dependencies に {"predecessorUid": 前のタスクの uid, "linkType": 1, "lag": 0, "lagFormat": 7, "carry": {}, "carryElements": []} を入れる。linkType は 0 = 終了→終了、1 = 終了→開始、2 = 開始→終了、3 = 開始→開始。lag の単位は、lagFormat が何であっても 0.1 分である（lagFormat 7 は、日で表示することだけを言う）。1 日は project.minutesPerDay 分で、null なら 480 分 —— ラグが無ければ 0、2 日のラグは 2 × 1 日の分数 × 10（project.minutesPerDay が null なら 2 × 480 × 10）。矢印が無ければ []。
+   - 依存（矢印でタスクどうしがつながっている）は、後のタスクの dependencies に {"predecessorUid": 前のタスクの uid, "linkType": 1, "linkLag": 0, "lagFormat": 7, "carry": {}, "carryElements": []} を入れる。linkType は 0 = 終了→終了、1 = 終了→開始、2 = 開始→終了、3 = 開始→開始。linkLag の単位は、lagFormat が何であっても 0.1 分である（lagFormat 7 は、日で表示することだけを言う）。1 日は project.minutesPerDay 分で、null なら 480 分 —— ラグが無ければ 0、2 日のラグは 2 × 1 日の分数 × 10（project.minutesPerDay が null なら 2 × 480 × 10）。矢印が無ければ []。
 6. フェードと、薄れていくグラデーション（fadeInDays / fadeOutDays）
    - GRS のフェードは、予定のバーの端を斜めにする印である（日付がまだ確かでないことを表す）。開始側だけなら左の辺が斜めの台形、終了側だけなら右の辺が斜めの台形、両方なら平行四辺形になる。
    - 原本のバーの端が斜め、先細り、または色のグラデーションで背景の色や透明へ薄れていくときは、開始側の斜め（薄れ）の横の長さを暦日で fadeInDays に、終了側を fadeOutDays に入れる。無い側は null。
@@ -80,7 +80,7 @@
    - fadeInDays と fadeOutDays は 0 以上、足して finish − start の暦日の日数を超えない。フェードを付けるタスクは finish を持つ。GRS はこれに反する文書を開かない。
    - 実績のバーにはフェードが無い。実績の斜めや薄れは読み取らない。
 7. どのタスクグループに載せるか（taskGroupMembers）
-   - どのタスクも、ちょうど 1 つの {"taskUid": uid, "groupId": タスクグループの id} から指されるようにする。タスクグループの中で積む段は書かない（GRS が自動で積む）。原本でそのバーが描かれているタスクグループ（4. で作った子のタスクグループを含む）を選ぶ。
+   - どのタスクも、ちょうど 1 つの {"taskUid": uid, "taskGroupId": タスクグループの id} から指されるようにする。タスクグループの中で積む段は書かない（GRS が自動で積む）。原本でそのバーが描かれているタスクグループ（4. で作った子のタスクグループを含む）を選ぶ。
 8. 形状と色（taskVisuals）
    - どのタスクにも 1 件ずつ置く。
    - shapeKind:
@@ -115,11 +115,11 @@
 4. 出す前に、次を自分で確かめ、確かめた結果を 1 行ずつ書く。
    - tasks・resources・assignments の uid と、taskGroups の id がそれぞれ重ならない
    - どのタスクも taskGroupMembers にちょうど 1 回、taskVisuals にちょうど 1 回出てくる
-   - dependencies の predecessorUid、assignments の taskUid / resourceUid、taskGroupMembers の groupId、taskGroups の parentId がすべて実在する
-   - どの TaskGroup も label を持つ
+   - dependencies の predecessorUid、assignments の taskUid / resourceUid、taskGroupMembers の taskGroupId、taskGroups の parentId がすべて実在する
+   - どの TaskGroup も name を持つ
    - finish が start より前のタスクが無い。マイルストーンは start と finish が同じ
    - フェードを持つタスクは rectangle か chevron で、finish を持ち、fadeInDays と fadeOutDays の和が期間の暦日を超えない
-   - 原本で同じ高さに横一列に並んでいた物（形状が違っても）は、その物だけが載る 1 つのタスクグループに入っている（その並びしか無い見出しのタスクグループを除く）。子のタスクグループの label は日本語 2 語まで・英語 3 語まで。タスクグループの深さは 3 まで
+   - 原本で同じ高さに横一列に並んでいた物（形状が違っても）は、その物だけが載る 1 つのタスクグループに入っている（その並びしか無い見出しのタスクグループを除く）。子のタスクグループの name は日本語 2 語まで・英語 3 語まで。タスクグループの深さは 3 まで
    - 色は「色の合わせ方」で許した値だけで、fillColor と strokeColor が両方 "transparent" のものが無い
    - スキーマに無い鍵を足していない
 ````
@@ -152,7 +152,7 @@
       "resume": null, "resumeValid": null, "percentComplete": null,
       "fadeInDays": null, "fadeOutDays": null,
       "dependencies": [
-        { "predecessorUid": 1, "linkType": 1, "lag": 0, "lagFormat": 7, "carry": {}, "carryElements": [] }
+        { "predecessorUid": 1, "linkType": 1, "linkLag": 0, "lagFormat": 7, "carry": {}, "carryElements": [] }
       ],
       "carry": {}, "carryElements": []
     },
@@ -172,26 +172,26 @@
       "resume": null, "resumeValid": null, "percentComplete": null,
       "fadeInDays": null, "fadeOutDays": null,
       "dependencies": [
-        { "predecessorUid": 3, "linkType": 1, "lag": 0, "lagFormat": 7, "carry": {}, "carryElements": [] }
+        { "predecessorUid": 3, "linkType": 1, "linkLag": 0, "lagFormat": 7, "carry": {}, "carryElements": [] }
       ],
       "carry": {}, "carryElements": []
     }
   ],
   "taskGroups": [
     {
-      "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "parentId": null, "label": "Planning",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": "lightgray", "minHeight": null
+      "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "parentId": null, "name": "Planning",
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": "lightgray", "minHeightPx": null
     },
     {
-      "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "parentId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "label": "Approvals",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": null, "minHeight": null
+      "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "parentId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "name": "Approvals",
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": null, "minHeightPx": null
     }
   ],
   "taskGroupMembers": [
-    { "taskUid": 1, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01" },
-    { "taskUid": 2, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02" },
-    { "taskUid": 3, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02" },
-    { "taskUid": 4, "groupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02" }
+    { "taskUid": 1, "taskGroupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01" },
+    { "taskUid": 2, "taskGroupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02" },
+    { "taskUid": 3, "taskGroupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02" },
+    { "taskUid": 4, "taskGroupId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02" }
   ],
   "taskVisuals": [
     {

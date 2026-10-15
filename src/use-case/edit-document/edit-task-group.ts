@@ -16,8 +16,8 @@ import { taskByUid, workingCalendarOf } from '../../entity/document-model/schedu
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import { documentWithTableViewsKept } from './edit-document-settings'
-import { createTaskGroup, setTaskGroupLabel } from './task-group-naming'
-import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupMinHeight } from './task-group-look'
+import { createTaskGroup, setTaskGroupName } from './task-group-naming'
+import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupMinHeightPx } from './task-group-look'
 import { resetTaskGroupTreeStates, setTaskGroupTreeState } from './task-group-folding'
 import { moveTaskGroup, reorderTaskGroupSiblings } from './task-group-order'
 import { pastedCopyOf } from './task-plan-actual'
@@ -33,32 +33,36 @@ export type TaskGroupCommand =
       readonly kind: 'createTaskGroup'
       readonly id: TaskGroup['id']
       readonly parentId: TaskGroup['parentId']
-      readonly label: TaskGroup['label']
+      readonly label: TaskGroup['name']
       readonly derivedFromTaskUid: TaskGroup['derivedFromTaskUid']
       readonly order: TaskGroup['order']
     }
-  | { readonly kind: 'deleteTaskGroup'; readonly groupId: TaskGroup['id']; readonly newGroupId: string }
   | {
-      readonly kind: 'pasteTaskGroupSubtree'
-      readonly sourceGroupId: TaskGroup['id']
-      readonly targetGroupId: TaskGroup['parentId']
-      readonly newGroupIds: Readonly<Record<string, string>>
+      readonly kind: 'deleteTaskGroup'
+      readonly taskGroupId: TaskGroup['id']
+      readonly newTaskGroupId: string
     }
   | {
-      readonly kind: 'setTaskGroupLabel'
-      readonly groupId: TaskGroup['id']
-      readonly label: TaskGroup['label']
+      readonly kind: 'pasteTaskGroupSubtree'
+      readonly sourceTaskGroupId: TaskGroup['id']
+      readonly targetTaskGroupId: TaskGroup['parentId']
+      readonly newTaskGroupIds: Readonly<Record<string, string>>
+    }
+  | {
+      readonly kind: 'setTaskGroupName'
+      readonly taskGroupId: TaskGroup['id']
+      readonly label: TaskGroup['name']
     }
   | {
       readonly kind: 'setTaskGroupColor'
-      readonly groupId: TaskGroup['id']
+      readonly taskGroupId: TaskGroup['id']
       readonly color: NonNullable<TaskGroup['color']>
     }
-  | { readonly kind: 'resetTaskGroupColor'; readonly groupId: TaskGroup['id'] }
+  | { readonly kind: 'resetTaskGroupColor'; readonly taskGroupId: TaskGroup['id'] }
   | {
-      readonly kind: 'setTaskGroupMinHeight'
-      readonly groupId: TaskGroup['id']
-      readonly minHeight: TaskGroup['minHeight']
+      readonly kind: 'setTaskGroupMinHeightPx'
+      readonly taskGroupId: TaskGroup['id']
+      readonly minHeight: TaskGroup['minHeightPx']
     }
   | {
       readonly kind: 'reorderTaskGroupSiblings'
@@ -68,13 +72,13 @@ export type TaskGroupCommand =
   | { readonly kind: 'resetTaskGroupTreeStates' }
   | {
       readonly kind: 'moveTaskGroup'
-      readonly groupId: TaskGroup['id']
+      readonly taskGroupId: TaskGroup['id']
       readonly parentId: TaskGroup['parentId']
       readonly order: TaskGroup['order']
     }
   | {
       readonly kind: 'setTaskGroupTreeState'
-      readonly groupId: TaskGroup['id']
+      readonly taskGroupId: TaskGroup['id']
       readonly treeState: TaskGroup['treeState']
     }
 // </generated>
@@ -162,7 +166,7 @@ function pastedTreeState(state: TaskGroup['treeState']): TaskGroup['treeState'] 
 /** @purity pure */
 export function settledTaskGroup(schedule: Schedule, taskGroup: TaskGroup, defaultTaskGroupName: string): TaskGroup {
   const source = taskGroup.derivedFromTaskUid === null ? null : taskByUid(schedule, taskGroup.derivedFromTaskUid)
-  return { ...taskGroup, label: taskGroup.label ?? source?.name ?? defaultTaskGroupName, derivedFromTaskUid: null }
+  return { ...taskGroup, name: taskGroup.name ?? source?.name ?? defaultTaskGroupName, derivedFromTaskUid: null }
 }
 
 type PastePlan =
@@ -176,13 +180,13 @@ function pastePlanOf(
   byId: ReadonlyMap<string, TaskGroup>,
   groups: readonly TaskGroup[],
 ): PastePlan {
-  const copied = subtreeOf(groups, command.sourceGroupId)
+  const copied = subtreeOf(groups, command.sourceTaskGroupId)
   if (copied === null) {
-    return { ok: false, refusals: [reject('CM-28', 'IV-2', `no such task group: ${command.sourceGroupId}`)] }
+    return { ok: false, refusals: [reject('CM-28', 'IV-2', `no such task group: ${command.sourceTaskGroupId}`)] }
   }
-  const target = command.targetGroupId === null ? null : byId.get(command.targetGroupId)
+  const target = command.targetTaskGroupId === null ? null : byId.get(command.targetTaskGroupId)
   if (target === undefined) {
-    return { ok: false, refusals: [reject('CM-28', 'IV-2', `no such task group to paste under: ${command.targetGroupId}`)] }
+    return { ok: false, refusals: [reject('CM-28', 'IV-2', `no such task group to paste under: ${command.targetTaskGroupId}`)] }
   }
   const refusals: Refusal[] = []
   const under = target === null ? 0 : depthOf(byId, target)
@@ -193,7 +197,7 @@ function pastePlanOf(
   const idOf = new Map<string, string>()
   const taken = new Set<string>()
   for (const taskGroup of copied.taskGroups) {
-    const fresh = command.newGroupIds[taskGroup.id]
+    const fresh = command.newTaskGroupIds[taskGroup.id]
     if (fresh === undefined) {
       refusals.push(reject('CM-28', 'AT-51', `no new id was given for the copy of ${taskGroup.id}`))
     } else if (byId.has(fresh) || taken.has(fresh)) {
@@ -218,8 +222,8 @@ function copiedTaskGroupOf(
   defaultTaskGroupName: string,
 ): TaskGroup {
   const parentId =
-    taskGroup.id === command.sourceGroupId
-      ? command.targetGroupId
+    taskGroup.id === command.sourceTaskGroupId
+      ? command.targetTaskGroupId
       : taskGroup.parentId === null
         ? null
         : (idOf.get(taskGroup.parentId) ?? taskGroup.parentId)
@@ -242,7 +246,7 @@ function pasteTaskGroupSubtree(
   const plan = pastePlanOf(command, byId, schedule.taskGroups)
   if (!plan.ok) return refused([...plan.refusals])
   const copiedTaskGroups = new Set(plan.copied.taskGroups.map((one) => one.id))
-  const riders = schedule.taskGroupMembers.filter((member) => copiedTaskGroups.has(member.groupId))
+  const riders = schedule.taskGroupMembers.filter((member) => copiedTaskGroups.has(member.taskGroupId))
 
   let mark = schedule.project.uidHighWaterMark
   const uidOf = new Map<number, number>()
@@ -258,7 +262,7 @@ function pasteTaskGroupSubtree(
       copiedTaskGroupOf(schedule, taskGroup, command, plan.idOf, uidOf, defaultTaskGroupName))],
     tasks: [...schedule.tasks, ...paired],
     taskGroupMembers: [...schedule.taskGroupMembers, ...riders.map((one) =>
-      ({ ...one, taskUid: uidOf.get(one.taskUid) as number, groupId: plan.idOf.get(one.groupId) as string }))],
+      ({ ...one, taskUid: uidOf.get(one.taskUid) as number, taskGroupId: plan.idOf.get(one.taskGroupId) as string }))],
   }
   const newVisuals: TaskVisual[] = schedule.taskVisuals.flatMap((one) => {
     const fresh = uidOf.get(one.taskUid)
@@ -298,13 +302,13 @@ export function editTaskGroup(
       return createTaskGroup(document, command, byId)
 
     case 'deleteTaskGroup': {
-      const doomed = subtreeOf(groups, command.groupId)
+      const doomed = subtreeOf(groups, command.taskGroupId)
       if (doomed === null) {
-        return refused([reject('CM-27', 'FR-032', `no such task group: ${command.groupId}`)])
+        return refused([reject('CM-27', 'FR-032', `no such task group: ${command.taskGroupId}`)])
       }
       const doomedTaskGroups = new Set(doomed.taskGroups.map((one) => one.id))
       const seeds = schedule.taskGroupMembers
-        .filter((member) => doomedTaskGroups.has(member.groupId))
+        .filter((member) => doomedTaskGroups.has(member.taskGroupId))
         .map((member) => member.taskUid)
       const doomedTasks = wbsSubtreesOf(schedule.tasks, seeds)
 
@@ -326,14 +330,14 @@ export function editTaskGroup(
           return held.length === task.dependencies.length ? task : { ...task, dependencies: held }
         })
 
-      const pinned = settings.pinnedGroupIds.filter((one) => !doomedTaskGroups.has(one))
-      const scrollGroupId =
-        settings.scrollGroupId !== null && doomedTaskGroups.has(settings.scrollGroupId)
+      const pinned = settings.pinnedTaskGroupIds.filter((one) => !doomedTaskGroups.has(one))
+      const scrollTaskGroupId =
+        settings.scrollTaskGroupId !== null && doomedTaskGroups.has(settings.scrollTaskGroupId)
           ? null
-          : settings.scrollGroupId
+          : settings.scrollTaskGroupId
       const documentSettings =
-        pinned.length !== settings.pinnedGroupIds.length || scrollGroupId !== settings.scrollGroupId
-          ? { ...settings, pinnedGroupIds: pinned, scrollGroupId }
+        pinned.length !== settings.pinnedTaskGroupIds.length || scrollTaskGroupId !== settings.scrollTaskGroupId
+          ? { ...settings, pinnedTaskGroupIds: pinned, scrollTaskGroupId }
           : settings
 
       // WHY: baselineTasks match by uid rather than by reference, and resources are kept.
@@ -344,7 +348,7 @@ export function editTaskGroup(
           taskGroups: kept,
           tasks: survivors,
           taskGroupMembers: schedule.taskGroupMembers.filter(
-            (one) => !doomedTasks.has(one.taskUid) && !doomedTaskGroups.has(one.groupId),
+            (one) => !doomedTasks.has(one.taskUid) && !doomedTaskGroups.has(one.taskGroupId),
           ),
           taskVisuals: schedule.taskVisuals.filter((one) => !doomedTasks.has(one.taskUid)),
           taskOrigins: schedule.taskOrigins.filter((one) => !doomedTasks.has(one.taskUid)),
@@ -352,12 +356,12 @@ export function editTaskGroup(
             (one) => one.taskUid === null || !doomedTasks.has(one.taskUid),
           ),
           commentBoxes: schedule.commentBoxes.filter(
-            (one) => one.anchorGroupId === null || !doomedTaskGroups.has(one.anchorGroupId),
+            (one) => one.anchorTaskGroupId === null || !doomedTaskGroups.has(one.anchorTaskGroupId),
           ),
           highlightBoxes: schedule.highlightBoxes.filter(
             (one) =>
-              !(one.topGroupId !== null && doomedTaskGroups.has(one.topGroupId)) &&
-              !(one.bottomGroupId !== null && doomedTaskGroups.has(one.bottomGroupId)),
+              !(one.topTaskGroupId !== null && doomedTaskGroups.has(one.topTaskGroupId)) &&
+              !(one.bottomTaskGroupId !== null && doomedTaskGroups.has(one.bottomTaskGroupId)),
           ),
         },
         documentSettings,
@@ -367,14 +371,14 @@ export function editTaskGroup(
     case 'pasteTaskGroupSubtree':
       return pasteTaskGroupSubtree(document, command, byId, defaultTaskGroupName)
 
-    case 'setTaskGroupLabel':
-      return setTaskGroupLabel(document, command, byId)
+    case 'setTaskGroupName':
+      return setTaskGroupName(document, command, byId)
     case 'setTaskGroupColor':
       return setTaskGroupColor(document, command, byId)
     case 'resetTaskGroupColor':
       return resetTaskGroupColor(document, command, byId)
-    case 'setTaskGroupMinHeight':
-      return setTaskGroupMinHeight(document, command, byId)
+    case 'setTaskGroupMinHeightPx':
+      return setTaskGroupMinHeightPx(document, command, byId)
     case 'setTaskGroupTreeState':
       return setTaskGroupTreeState(document, command, byId)
     case 'reorderTaskGroupSiblings':

@@ -94,7 +94,7 @@ const nested = (flat: Readonly<Record<string, unknown>>): DocumentSettings => {
 interface MergeScene {
   readonly taskUid: number
   readonly before: TaskVisual
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly merged: Document
 }
 
@@ -138,7 +138,7 @@ function mergedFlip(shapeIsMilestone: boolean, flip: boolean): MergeScene {
   const before = current.schedule.taskVisuals.find((one) => one.taskUid === taskUid)
   const member = current.schedule.taskGroupMembers.find((one) => one.taskUid === taskUid)
   if (before === undefined || member === undefined) throw new Error('premise: the task has a visual and a task group')
-  return { taskUid, before, groupId: member.groupId, merged: outcome.document }
+  return { taskUid, before, taskGroupId: member.taskGroupId, merged: outcome.document }
 }
 
 const visualIn = (document: Document, taskUid: number): TaskVisual | undefined =>
@@ -169,7 +169,7 @@ describe('T-032 MG-8: an MSPDI merge that flips Task/Milestone on a held task (C
     const after = visualIn(scene.merged, scene.taskUid)
     expect({ ...after, shapeKind: scene.before.shapeKind }).toEqual(scene.before)
     const member = scene.merged.schedule.taskGroupMembers.find((one) => one.taskUid === scene.taskUid)
-    expect(member?.groupId).toBe(scene.groupId)
+    expect(member?.taskGroupId).toBe(scene.taskGroupId)
   })
 
   it(`${MG_8_KEEP} -- control: a merge that leaves Task/Milestone alone keeps the shape too`, () => {
@@ -194,7 +194,7 @@ interface LabelScene {
 
 // see FR-002, T-251, S-232
 function labelDatesOf(scene: LabelScene): string {
-  const document = taskGroupDocument([{ id: 'r1', parentId: null }], { planDatesVisible: true }, {
+  const document = taskGroupDocument([{ id: 'r1', parentId: null }], { isPlanDatesVisible: true }, {
     taskVisuals: [
       {
         taskUid: 1,

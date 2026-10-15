@@ -111,8 +111,8 @@ export function lengthTextOf(minutes: number, minutesPerDay: number): string {
 // see T-375, TX-1, FR-054, FR-156
 // WHY: the date of ND-4 alone without time of day; with it, the instant read on its side in the view base, day and clock.
 /** @purity pure */
-function shownDateTimeText(text: string | null, side: DateTimeSide, reader: DayReader, withYear: boolean, showsTimeOfDay: boolean): string {
-  const instant = showsTimeOfDay ? reader.shown(text, side) : null
+function shownDateTimeText(text: string | null, side: DateTimeSide, reader: DayReader, withYear: boolean, isTimeOfDayVisible: boolean): string {
+  const instant = isTimeOfDayVisible ? reader.shown(text, side) : null
   const day = instant === null ? reader.day(text) : dayOfInstant(instant)
   if (day === null) return ''
   return instant === null ? planDateText(day, withYear) : `${planDateText(day, withYear)} ${clockTextOf(instant)}`
@@ -120,12 +120,12 @@ function shownDateTimeText(text: string | null, side: DateTimeSide, reader: DayR
 
 // see ND-1, ND-2, ND-3, TX-1
 /** @purity pure */
-function planDatesOf(task: Task, reader: DayReader, withYear: boolean, showsTimeOfDay: boolean): string {
+function planDatesOf(task: Task, reader: DayReader, withYear: boolean, isTimeOfDayVisible: boolean): string {
   if (reader.day(task.start) === null) return ''
-  const startText = shownDateTimeText(task.start, startSideOf(task), reader, withYear, showsTimeOfDay)
+  const startText = shownDateTimeText(task.start, startSideOf(task), reader, withYear, isTimeOfDayVisible)
   if (task.milestone === true) return startText
   if (reader.day(task.finish) === null) return ''
-  return `${startText} - ${shownDateTimeText(task.finish, 'finish', reader, withYear, showsTimeOfDay)}`
+  return `${startText} - ${shownDateTimeText(task.finish, 'finish', reader, withYear, isTimeOfDayVisible)}`
 }
 
 interface NameLabel {
@@ -140,7 +140,7 @@ interface NameLabel {
 export function nameLabelOf(task: Task, reader: DayReader, datesWithYear: boolean | null,
                      settings: DrawnSettings): NameLabel {
   const name = truncate(task.name ?? '', settings.truncateUnits)
-  const dates = datesWithYear === null ? '' : planDatesOf(task, reader, datesWithYear, settings.showsTimeOfDay)
+  const dates = datesWithYear === null ? '' : planDatesOf(task, reader, datesWithYear, settings.isTimeOfDayVisible)
   if (dates === '') return { name, labelDates: '' }
   return { name, labelDates: name === '' ? dates : ` ${dates}` }
 }

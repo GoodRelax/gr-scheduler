@@ -68,8 +68,8 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     const plan = (await figureBox(page, 'task-' + TASK + '-plan'))!
     expect(plan.w).toBeGreaterThan(0)
     const tag = page.locator('[data-figure="task-' + TASK + '-oc2-label"]')
-    if (!doc.documentSettings.assigneeVisible) await press(page, 'IC-79')
-    if (doc.documentSettings.percentCompleteVisible) await press(page, 'IC-80')
+    if (!doc.documentSettings.isAssigneeVisible) await press(page, 'IC-79')
+    if (doc.documentSettings.isPercentCompleteVisible) await press(page, 'IC-80')
     await expect(tag).toHaveText(resource.name)
     await press(page, 'IC-80')
     await expect(tag).toHaveText(resource.name + ' : ' + String(taskOf(doc).percentComplete) + '%')
@@ -84,7 +84,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     const before = (await readDocument(page)).documentSettings
     await press(page, 'IC-42')
     const after = (await readDocument(page)).documentSettings
-    expect(after.dateGridLinesVisible).toBe(!before.dateGridLinesVisible)
+    expect(after.isDateGridLinesVisible).toBe(!before.isDateGridLinesVisible)
     // WHY: FR-039 keeps the light/dark theme (S-72, table T-206) out of the document,
     // so IC-16 repaints the screen and leaves every saved setting as it was.
     const ground = await page.locator('[data-figure="ruler-ground"]').getAttribute('fill')
@@ -98,7 +98,7 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
   await test.step('UC-003 step 6: the schedule is drawn again as set (FR-089, FR-039)', async () => {
     const settings = (await readDocument(page)).documentSettings
     const gridLines = await page.locator('[data-figure^="date-grid-"]').count()
-    expect(gridLines > 0).toBe(settings.dateGridLinesVisible)
+    expect(gridLines > 0).toBe(settings.isDateGridLinesVisible)
     const ground = await page.locator('[data-figure="ruler-ground"]').getAttribute('fill')
     await press(page, 'IC-16')
     expect(await page.locator('[data-figure="ruler-ground"]').getAttribute('fill')).not.toBe(ground)

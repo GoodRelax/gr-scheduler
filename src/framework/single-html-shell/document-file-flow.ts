@@ -233,7 +233,7 @@ function suggestedFileNameOf(project: Project, form: SaveFileForm): string {
 // WHY: only the bytes carry the stamp; the held document keeps the one it was opened with (HS-11).
 /** @purity pure */
 export function documentStampedAt(document: Document, savedAt: string | null): Document {
-  return { ...document, documentStamp: { ...document.documentStamp, fileSavedUtc: savedAt } }
+  return { ...document, documentStamp: { ...document.documentStamp, fileSavedAt: savedAt } }
 }
 
 // see AT-140, FR-101, HS-11
@@ -776,7 +776,7 @@ function landReplacedDocument(
   incoming: Document,
 ): void {
   store?.adoptFileReadToOpen()
-  flow.noteFileOpened(incoming.documentStamp.fileSavedUtc, readIn.byteLength)
+  flow.noteFileOpened(incoming.documentStamp.fileSavedAt, readIn.byteLength)
   const lines = { droppedTaskNames, missingTaskNames: [], reportedCounts: reading.counted() }
   landOpenedDocument(reading.hands, lines, 'replace', newer, readIn.fileName)
 }

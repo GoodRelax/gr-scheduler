@@ -216,7 +216,7 @@ export interface RulerAbbreviation {
 }
 
 export interface TaskGroupTitle {
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly depth: number
   readonly box: ScreenRect
   readonly indentPx: number
@@ -376,7 +376,7 @@ export type PropertyFieldKey =
     }
   | {
       readonly holder: 'taskGroup'
-      readonly groupId: string
+      readonly taskGroupId: string
       readonly column: keyof Schedule['taskGroups'][number] & string
     }
   | {
@@ -648,11 +648,11 @@ export interface Tooltip {
 }
 
 export type TooltipAnchor =
-  | { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly groupId?: string }
+  | { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly taskGroupId?: string }
   | { readonly kind: 'task'; readonly taskUid: number }
   | { readonly kind: 'deadline'; readonly taskUid: number }
   | { readonly kind: 'baseline'; readonly taskUid: number }
-  | { readonly kind: 'taskGroupTitle'; readonly groupId: string }
+  | { readonly kind: 'taskGroupTitle'; readonly taskGroupId: string }
   | { readonly kind: 'scrollbar'; readonly axis: 'horizontal' | 'vertical' }
 
 export interface ScreenView {
@@ -736,7 +736,7 @@ export interface ScreenViewReadings {
   readonly themeHue: number
   readonly isRecordingInteractions?: boolean
   readonly taskGroupGrabbedAt?: {
-    readonly groupId: string
+    readonly taskGroupId: string
     readonly depth: number
     readonly axis: 'position' | 'depth'
     readonly resistedPx: number
@@ -754,7 +754,7 @@ export interface ScreenViewReadings {
   readonly reportedCounts?: readonly { readonly reason: string; readonly count: number }[]
   readonly notices: readonly RaisedNotice[]
   readonly confirmation: RaisedConfirmation | null
-  readonly taskGroupBoxes: readonly { readonly groupId: string; readonly box: ScreenRect }[]
+  readonly taskGroupBoxes: readonly { readonly taskGroupId: string; readonly box: ScreenRect }[]
   readonly placedTaskGroupIds?: readonly string[]
   readonly placedTaskGroups?: readonly TaskGroupPlacement[]
   // see FX-6, WF-3
@@ -821,7 +821,7 @@ function delayDiagnosticsReportOf(session: ScreenSession, readings: ScreenViewRe
   const layout = { canvas: source.canvas, textSizeStep }
   return delayDiagnosticsReportFromWindow(
     session, held?.window ?? null, view, held?.report ?? null, source.schedule, layout, held?.fixTables,
-    source.settings.showsTimeOfDay, source.settings.viewTimeZone,
+    source.settings.isTimeOfDayVisible, source.settings.viewTimeZone,
   )
 }
 

@@ -69,11 +69,11 @@ export function commandFromRowEntry(
 
   if (entry === ENTRY.taskGroupPin) {
     // TRAP: read the document, not the drawn task group: against a stale picture the pin never comes off.
-    const isPinned = context.document.documentSettings.pinnedGroupIds.includes(taskGroupId)
+    const isPinned = context.document.documentSettings.pinnedTaskGroupIds.includes(taskGroupId)
     return changed([
       isPinned
-        ? { kind: 'unpinTaskGroup', groupId: taskGroupId }
-        : { kind: 'pinTaskGroup', groupId: taskGroupId },
+        ? { kind: 'unpinTaskGroup', taskGroupId: taskGroupId }
+        : { kind: 'pinTaskGroup', taskGroupId: taskGroupId },
     ])
   }
 
@@ -122,7 +122,7 @@ export function commandFromRowEntry(
 // WHY: the fresh id rides on every delete; only the use case knows the task groups would run out.
 /** @purity pure */
 function taskGroupDeleted(context: InputContext, taskGroupId: string): TranslatedInput {
-  return changed([{ kind: 'deleteTaskGroup', groupId: taskGroupId, newGroupId: context.newGroupId }])
+  return changed([{ kind: 'deleteTaskGroup', taskGroupId: taskGroupId, newTaskGroupId: context.newTaskGroupId }])
 }
 
 // see HF-20, CD-6, IC-106, T-328
@@ -130,11 +130,11 @@ function taskGroupDeleted(context: InputContext, taskGroupId: string): Translate
 // WHY: the same bundle opens level zero (everyTaskGroupDeletePressed), so the one task group T-050 leaves is drawn.
 /** @purity pure */
 export function everyTaskGroupDeleted(context: InputContext): TranslatedInput {
-  const newGroupId = context.newGroupId
+  const newTaskGroupId = context.newTaskGroupId
   const document = context.document
   const deletes: DocumentCommand[] = document.schedule.taskGroups
     .filter((taskGroup) => taskGroup.parentId === null)
-    .map((taskGroup) => ({ kind: 'deleteTaskGroup', groupId: taskGroup.id, newGroupId }))
+    .map((taskGroup) => ({ kind: 'deleteTaskGroup', taskGroupId: taskGroup.id, newTaskGroupId }))
   if (deletes.length === 0) return CONSUMED_ELSEWHERE
   const writes: DocumentCommand[] = [
     ...deletes,
@@ -159,7 +159,7 @@ function isLevelZeroCollapsedIn(context: InputContext): boolean {
 
 /** @purity pure */
 function placedRowIdsOf(context: InputContext): ReadonlySet<string> {
-  return new Set(context.layout.taskGroups.map((taskGroup) => taskGroup.groupId))
+  return new Set(context.layout.taskGroups.map((taskGroup) => taskGroup.taskGroupId))
 }
 
 // TRAP: task-group-panel.ts arms IC-74, IC-58 and IC-90 by these three same tests; change both together.
@@ -191,11 +191,11 @@ function isOpenOneLevelArmed(context: InputContext, taskGroupId: string): boolea
   const schedule = context.document.schedule
   const on = zoomOnScreen(context)
   const depthLimit = groupDepthLimit(drawnSettingsOf({ ...settings, zoomX: on.x, zoomY: on.y }))
-  const pinned = new Set(settings.pinnedGroupIds)
+  const pinned = new Set(settings.pinnedTaskGroupIds)
   const byId = new Map(schedule.taskGroups.map((one) => [one.id, one]))
   const placedGroups = [...placed].flatMap((id) => byId.get(id) ?? [])
   const keptByExpanded = keptInViewByTreeState(placedGroups, 'expandedOnly')
-  const depthOf = new Map(placedTaskGroups.map((taskGroup) => [taskGroup.groupId, taskGroup.depth] as const))
+  const depthOf = new Map(placedTaskGroups.map((taskGroup) => [taskGroup.taskGroupId, taskGroup.depth] as const))
   return schedule.taskGroups.some((child) => {
     if (child.parentId !== taskGroupId) return false
     const depth = depthOf.get(child.id)
@@ -222,7 +222,7 @@ function orderPastLastChild(schedule: Schedule, parentGroupId: string | null): n
 // WHY: the new task group is shown by its tree state (temporarilyExpanded, CM-26), never by a zoom write (HF-14).
 /** @purity pure */
 export function taskGroupStoodUp(context: InputContext, parentGroupId: string | null): TranslatedInput {
-  const newGroupId = context.newGroupId
+  const newTaskGroupId = context.newTaskGroupId
   // TRAP: keep the tree state writes in the task group's bundle; a bundle of their own is a second undo step.
   return changedAndCreated(
     [
@@ -230,7 +230,7 @@ export function taskGroupStoodUp(context: InputContext, parentGroupId: string | 
         ...treeWritesOf(context, { type: 'childTaskGroupAddPressed', pressedRowId: parentGroupId }),
         {
           kind: 'createTaskGroup',
-          id: newGroupId,
+          id: newTaskGroupId,
           parentId: parentGroupId,
           label: DEFAULT_TASK_GROUP_NAME,
           derivedFromTaskUid: null,
@@ -238,7 +238,7 @@ export function taskGroupStoodUp(context: InputContext, parentGroupId: string | 
         } as const,
       ],
     ],
-    { kind: 'taskGroup', groupId: newGroupId },
+    { kind: 'taskGroup', taskGroupId: newTaskGroupId },
   )
 }
 

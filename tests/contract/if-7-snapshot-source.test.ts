@@ -219,7 +219,7 @@ function endpoint(over: Shell = shell(), withholdScene = false): Endpoint {
           frame === null
             ? 0
             : frame.regions.taskGroupArea.width +
-              document.documentSettings.taskGroupPanelWidth +
+              document.documentSettings.taskGroupPanelWidthPx +
               frame.regions.propertiesPanel.width,
       },
       readAt: '2026-08-20T08:30:00Z',

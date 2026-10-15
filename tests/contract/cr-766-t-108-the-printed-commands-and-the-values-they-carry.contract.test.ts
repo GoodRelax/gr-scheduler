@@ -167,7 +167,7 @@ describe('CM-76 is printed with its values, and the table says it is not impleme
   it('CM-76 setTaskGroupEditGroup carries the task group key and the editGroup column (AT-144)', () => {
     expect(editGroup?.name).toBe('setTaskGroupEditGroup')
     expect(editGroup?.values.map((value) => [value.name, value.role, value.pointer])).toEqual([
-      ['groupId', 'key', 'AT-51'],
+      ['taskGroupId', 'key', 'AT-51'],
       ['editGroup', 'column', 'AT-144'],
     ])
   })

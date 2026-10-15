@@ -54,7 +54,7 @@ function proposingDocument(): string {
       task['actualStart'] = `${actualStart}T08:00:00`
       task['percentComplete'] = 30
     }
-    task['dependencies'] = uid === 5 ? [{ predecessorUid: 4, linkType: 1, lag: null, lagFormat: null, carry: {}, carryElements: [] }] : []
+    task['dependencies'] = uid === 5 ? [{ predecessorUid: 4, linkType: 1, linkLag: null, lagFormat: null, carry: {}, carryElements: [] }] : []
   }
   return JSON.stringify(base)
 }

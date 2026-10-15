@@ -165,7 +165,7 @@ function bench(): Bench {
       replaceDocument(
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
-          newGroupId: 'fresh-task-group',
+          newTaskGroupId: 'fresh-task-group',
           readStamp: held.document.documentStamp,
           moment: { gestureInFlight: false, editingInPlace: false, questionAsked: false, deliveringNotices: false },
           // WHY: table T-230 forbids a replacement naming no row; RD-1 is the undo row.
@@ -193,11 +193,11 @@ function mustUndo(one: Bench, why: string): Document {
   return outcome.document
 }
 
-const pin = (groupId: string): DocumentCommand =>
-  ({ kind: commandKindOf('CM-68'), groupId }) as unknown as DocumentCommand
+const pin = (taskGroupId: string): DocumentCommand =>
+  ({ kind: commandKindOf('CM-68'), taskGroupId }) as unknown as DocumentCommand
 
-const unpin = (groupId: string): DocumentCommand =>
-  ({ kind: commandKindOf('CM-69'), groupId }) as unknown as DocumentCommand
+const unpin = (taskGroupId: string): DocumentCommand =>
+  ({ kind: commandKindOf('CM-69'), taskGroupId }) as unknown as DocumentCommand
 
 // WHY: the unrelated edit (CM-9) writes into the schedule-data group only,
 // so it cannot move S-126 -- every post-undo assertion is the history's alone.

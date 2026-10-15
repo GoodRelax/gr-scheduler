@@ -46,17 +46,17 @@ const span = (uid: number, from: string, to: string, extra: Partial<TaskSpec> = 
 interface Line {
   readonly predecessorUid: number
   readonly linkType: number
-  readonly lag: number
+  readonly linkLag: number
 }
 
 const linesOf = (document: Document, uid: number): readonly Line[] =>
   (taskIn(document, uid)['dependencies'] as readonly Line[]).map((one) => ({
     predecessorUid: one.predecessorUid,
     linkType: one.linkType,
-    lag: one.lag,
+    linkLag: one.linkLag,
   }))
 
-const line = (predecessorUid: number, linkType: number, lag = 0): Line => ({ predecessorUid, linkType, lag })
+const line = (predecessorUid: number, linkType: number, lag = 0): Line => ({ predecessorUid, linkType, linkLag: lag })
 
 // WHY: the bench builds a line from three numbers only; a line the person can tell apart (a carried value) needs the
 // dependencies of one task replaced on a copy of the document.
@@ -179,7 +179,7 @@ describe('T-108 CM-93 -- deletes only the order-th line among the lines from one
     const task = taskIn(THREE_LINES(), 2) as unknown as Parameters<typeof scheduleEntry.withoutDependencyAt>[0]
     const cut = scheduleEntry.withoutDependencyAt(task, 1, 1)
     expect(cut).not.toBeNull()
-    expect((cut as unknown as { dependencies: readonly Line[] }).dependencies.map((one) => [one.linkType, one.lag])).toEqual([
+    expect((cut as unknown as { dependencies: readonly Line[] }).dependencies.map((one) => [one.linkType, one.linkLag])).toEqual([
       [FS, 0],
       [FF, A_DAY],
     ])
@@ -282,7 +282,7 @@ describe('T-373 FA-3 -- three or more lines of the same kind and lag: the machin
     expect(findingRowsOf(before)).toContain('VC-3')
     const rows = proposed(before)
     const row = rowOfFa3(rows, 2)
-    expect(row.fixType).toBe('automatic')
+    expect(row.fixKind).toBe('automatic')
     const commands = commandsOf(machineRows(rows)) as unknown as readonly Loose[]
     expect(commands).toHaveLength(count - 1)
     expect(new Set(commands.map((one) => one['kind']))).toEqual(new Set(['deleteDependencyAt']))
@@ -321,7 +321,7 @@ describe('T-373 FA-3 -- lines that differ in kind or lag: a choice with one choi
   it('the row is a choice of three, not issued by the machine', () => {
     const rows = proposed(THREE_LINES())
     const row = rowOfFa3(rows, 2)
-    expect(row.fixType).toBe('choose')
+    expect(row.fixKind).toBe('choose')
     expect(row.choices ?? []).toHaveLength(3)
     expect(machineRows(rows)).not.toContain(row)
     expect(commandsOf(machineRows(rows))).toEqual([])
@@ -332,7 +332,7 @@ describe('T-373 FA-3 -- lines that differ in kind or lag: a choice with one choi
       statusDate: BEFORE_ALL,
     })
     const row = rowOfFa3(proposed(before), 2)
-    expect(row.fixType).toBe('choose')
+    expect(row.fixKind).toBe('choose')
     expect(row.choices ?? []).toHaveLength(3)
   })
 
@@ -379,7 +379,7 @@ describe('T-310 VC-3 / T-373 FA-3 -- lines in both directions between the same t
     expect(findings.filter((one) => one === 'VC-3')).toHaveLength(1)
     expect(findings).toContain('VC-1')
     const rows = proposed(before)
-    expect(rowOfFa3(rows, 2).fixType).toBe('automatic')
+    expect(rowOfFa3(rows, 2).fixKind).toBe('automatic')
     expect(rows.filter((one) => one.findingRow === 'VC-3' && one.taskUid === 1)).toEqual([])
   })
 

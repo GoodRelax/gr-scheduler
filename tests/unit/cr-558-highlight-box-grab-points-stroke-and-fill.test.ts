@@ -163,10 +163,10 @@ interface Fixture {
 
 const boxRecord = (spec: BoxSpec): Record<string, unknown> => ({
   id: spec.id ?? BOX_ID,
-  startDate: day(spec.start ?? 6),
-  endDate: day(spec.end ?? 16),
-  topGroupId: ROW[spec.top ?? 'B'],
-  bottomGroupId: ROW[spec.bottom ?? 'D'],
+  start: day(spec.start ?? 6),
+  finish: day(spec.end ?? 16),
+  topTaskGroupId: ROW[spec.top ?? 'B'],
+  bottomTaskGroupId: ROW[spec.bottom ?? 'D'],
   strokeColor: null,
   cornerRadiusPx: null,
   strokeWidthPx: spec.strokeWidthPx === undefined ? null : spec.strokeWidthPx,
@@ -214,14 +214,14 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       taskGroups: LETTERS.map((letter, order) => ({
         id: ROW[letter],
         parentId: null,
-        label: `task group ${letter}`,
+        name: `task group ${letter}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: fixture.withTask === true ? [{ taskUid: TASK_UID, groupId: ROW.B }] : [],
+      taskGroupMembers: fixture.withTask === true ? [{ taskUid: TASK_UID, taskGroupId: ROW.B }] : [],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: (fixture.boxes ?? [{}]).map(boxRecord),
@@ -233,9 +233,9 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       zoomX: (PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x) * (fixture.zoomFactor ?? 1),
       scrollDate: '2026-04-01',
       scrollDayOffset: 0,
-      scrollGroupId: ROW.A,
+      scrollTaskGroupId: ROW.A,
       scrollGroupOffset: 0,
-      pinnedGroupIds: [],
+      pinnedTaskGroupIds: [],
     },
     documentStamp: template['documentStamp'],
     changeLog: [],
@@ -309,7 +309,7 @@ const drawnBox = (loop: FrameLoop, id: string = BOX_ID) => {
 }
 
 const taskGroupBand = (loop: FrameLoop, letter: Letter): { readonly y: number; readonly height: number } => {
-  const found = valuesOf(loop).layout.taskGroups.find((one) => one.groupId === ROW[letter])
+  const found = valuesOf(loop).layout.taskGroups.find((one) => one.taskGroupId === ROW[letter])
   if (found === undefined) throw new Error(`the frame drew no task group ${letter}`)
   return found
 }
@@ -355,7 +355,7 @@ const storedBox = (loop: FrameLoop, id: string = BOX_ID): Record<string, unknown
 const rangeText = (loop: FrameLoop): string => {
   const stored = storedBox(loop)
   const dayOf = (value: unknown): number => Number(String(value).slice(8, 10))
-  return `${dayOf(stored['startDate'])}..${dayOf(stored['endDate'])} ${LETTER_OF[String(stored['topGroupId'])]}..${LETTER_OF[String(stored['bottomGroupId'])]}`
+  return `${dayOf(stored['start'])}..${dayOf(stored['finish'])} ${LETTER_OF[String(stored['topTaskGroupId'])]}..${LETTER_OF[String(stored['bottomTaskGroupId'])]}`
 }
 
 function drag(built: Stage, from: Point, dx: number, dy: number): void {
@@ -826,10 +826,10 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
 
   it('CM-77 places a width inside S-369, and null, and refuses one outside it or not whole', () => {
     for (const width of [S_369.low, S_369.high, null]) {
-      expect(acceptedBox({ kind: 'setHighlightBoxStrokeWidth', id: BOX_ID, strokeWidthPx: width })['strokeWidthPx']).toBe(width)
+      expect(acceptedBox({ kind: 'setHighlightBoxStrokeWidthPx', id: BOX_ID, strokeWidthPx: width })['strokeWidthPx']).toBe(width)
     }
     for (const width of [S_369.low - 1, S_369.high + 1, S_369.low + 0.5]) {
-      expect(refusalOf({ kind: 'setHighlightBoxStrokeWidth', id: BOX_ID, strokeWidthPx: width }), `width ${width}`).toEqual(
+      expect(refusalOf({ kind: 'setHighlightBoxStrokeWidthPx', id: BOX_ID, strokeWidthPx: width }), `width ${width}`).toEqual(
         expect.objectContaining({ command: 'CM-77', rule: 'S-369' }),
       )
     }
@@ -837,10 +837,10 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
 
   it('CM-79 places a transparency inside S-371, and null, and refuses one outside it or not whole', () => {
     for (const percent of [S_371.low, S_371.high, null]) {
-      expect(acceptedBox({ kind: 'setHighlightBoxFillTransparency', id: BOX_ID, fillTransparencyPercent: percent })['fillTransparencyPercent']).toBe(percent)
+      expect(acceptedBox({ kind: 'setHighlightBoxFillTransparencyPercent', id: BOX_ID, fillTransparencyPercent: percent })['fillTransparencyPercent']).toBe(percent)
     }
     for (const percent of [S_371.low - 1, S_371.high + 1, 12.5]) {
-      expect(refusalOf({ kind: 'setHighlightBoxFillTransparency', id: BOX_ID, fillTransparencyPercent: percent }), `percent ${percent}`).toEqual(
+      expect(refusalOf({ kind: 'setHighlightBoxFillTransparencyPercent', id: BOX_ID, fillTransparencyPercent: percent }), `percent ${percent}`).toEqual(
         expect.objectContaining({ command: 'CM-79', rule: 'S-371' }),
       )
     }
@@ -859,9 +859,9 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
 
   it('each of the three commands refuses a box that does not exist (AT-116)', () => {
     const missing = '3b000000-0000-4000-8000-0000000000ff'
-    expect(refusalOf({ kind: 'setHighlightBoxStrokeWidth', id: missing, strokeWidthPx: 2 })).toEqual(expect.objectContaining({ command: 'CM-77', rule: 'AT-116' }))
+    expect(refusalOf({ kind: 'setHighlightBoxStrokeWidthPx', id: missing, strokeWidthPx: 2 })).toEqual(expect.objectContaining({ command: 'CM-77', rule: 'AT-116' }))
     expect(refusalOf({ kind: 'setHighlightBoxFillColor', id: missing, fillColor: 'red' })).toEqual(expect.objectContaining({ command: 'CM-78', rule: 'AT-116' }))
-    expect(refusalOf({ kind: 'setHighlightBoxFillTransparency', id: missing, fillTransparencyPercent: 2 })).toEqual(expect.objectContaining({ command: 'CM-79', rule: 'AT-116' }))
+    expect(refusalOf({ kind: 'setHighlightBoxFillTransparencyPercent', id: missing, fillTransparencyPercent: 2 })).toEqual(expect.objectContaining({ command: 'CM-79', rule: 'AT-116' }))
   })
 
   it(`${NO_TRANSPARENT_OUTLINE} -- CM-55 takes a transparent outline`, () => {
@@ -871,9 +871,9 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
   it('placing the value a column already holds leaves the box as it was', () => {
     const before = storedBox(stage().loop)
     for (const command of [
-      { kind: 'setHighlightBoxStrokeWidth', id: BOX_ID, strokeWidthPx: null },
+      { kind: 'setHighlightBoxStrokeWidthPx', id: BOX_ID, strokeWidthPx: null },
       { kind: 'setHighlightBoxFillColor', id: BOX_ID, fillColor: null },
-      { kind: 'setHighlightBoxFillTransparency', id: BOX_ID, fillTransparencyPercent: null },
+      { kind: 'setHighlightBoxFillTransparencyPercent', id: BOX_ID, fillTransparencyPercent: null },
     ] as const) {
       expect(acceptedBox(command), command.kind).toEqual(before)
     }
@@ -883,7 +883,7 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
     const result = editAnnotation(document(), {
       kind: 'createHighlightBox',
       id: OTHER_ID,
-      range: { startDate: day(20), endDate: day(22), topGroupId: ROW.E, bottomGroupId: ROW.F },
+      range: { startDate: day(20), endDate: day(22), topTaskGroupId: ROW.E, bottomTaskGroupId: ROW.F },
     })
     if (!result.ok) throw new Error(`refused: ${JSON.stringify(result.refusals)}`)
     const made = (result.document.schedule.highlightBoxes as unknown as readonly Record<string, unknown>[]).find((one) => one['id'] === OTHER_ID)

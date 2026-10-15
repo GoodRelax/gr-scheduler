@@ -22,7 +22,7 @@
   },
   "schemaVersion": {
    "type": "string",
-   "const": "2026-10-11T04:10:00Z"
+   "const": "2026-10-15T05:52:20Z"
   },
   "schedule": {
    "type": "object",
@@ -118,63 +118,43 @@
    "type": "object",
    "description": "How the document is drawn when opened. Every key is written even at its default, so that a later change of a default never changes this picture.",
    "required": [
-    "actualVisible",
-    "assigneeVisible",
-    "baselineVisible",
-    "dateGridLinesVisible",
-    "dependencyVisible",
     "displayScale",
     "displayTimeZones",
     "fitSpanFinish",
-    "fitSpanFixed",
     "fitSpanStart",
     "fontScale",
-    "groupGridLinesVisible",
+    "isActualVisible",
+    "isAssigneeVisible",
+    "isBaselineVisible",
+    "isDateGridLinesVisible",
+    "isDependencyVisible",
+    "isFitSpanFixed",
+    "isGroupGridLinesVisible",
+    "isPercentCompleteVisible",
+    "isPlanDatesVisible",
+    "isPlanVisible",
+    "isProgressLineVisible",
+    "isProgressMarkerVisible",
+    "isTaskGroupPanelWidthFixed",
+    "isThemeMonochrome",
+    "isTimeOfDayVisible",
     "levelZeroTreeState",
-    "percentCompleteVisible",
-    "pinnedGroupIds",
-    "planDatesVisible",
-    "planVisible",
-    "progressLineVisible",
-    "progressMarkerVisible",
-    "rulerFont",
-    "rulerHeight",
+    "pinnedTaskGroupIds",
+    "rulerFontSizePx",
+    "rulerHeightPx",
     "scrollDate",
     "scrollDayOffset",
-    "scrollGroupId",
     "scrollGroupOffset",
-    "showsTimeOfDay",
+    "scrollTaskGroupId",
     "stackDirection",
     "tableViews",
-    "taskGroupPanelWidth",
-    "taskGroupPanelWidthFixed",
-    "themeMonochrome",
+    "taskGroupPanelWidthPx",
     "viewTimeZone",
     "zoomX",
     "zoomY"
    ],
    "additionalProperties": false,
    "properties": {
-    "actualVisible": {
-     "type": "boolean",
-     "default": true
-    },
-    "assigneeVisible": {
-     "type": "boolean",
-     "default": false
-    },
-    "baselineVisible": {
-     "type": "boolean",
-     "default": false
-    },
-    "dateGridLinesVisible": {
-     "type": "boolean",
-     "default": false
-    },
-    "dependencyVisible": {
-     "type": "boolean",
-     "default": true
-    },
     "displayScale": {
      "enum": [
       50,
@@ -247,11 +227,6 @@
      "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
      "default": null
     },
-    "fitSpanFixed": {
-     "description": "When true, Fit and picture export show fitSpanStart..fitSpanFinish (the finish day's column included) instead of the whole schedule; opening the document does not move the view.",
-     "type": "boolean",
-     "default": false
-    },
     "fitSpanStart": {
      "type": [
       "string",
@@ -268,9 +243,67 @@
      ],
      "default": "M"
     },
-    "groupGridLinesVisible": {
+    "isActualVisible": {
      "type": "boolean",
      "default": true
+    },
+    "isAssigneeVisible": {
+     "type": "boolean",
+     "default": false
+    },
+    "isBaselineVisible": {
+     "type": "boolean",
+     "default": false
+    },
+    "isDateGridLinesVisible": {
+     "type": "boolean",
+     "default": false
+    },
+    "isDependencyVisible": {
+     "type": "boolean",
+     "default": true
+    },
+    "isFitSpanFixed": {
+     "description": "When true, Fit and picture export show fitSpanStart..fitSpanFinish (the finish day's column included) instead of the whole schedule; opening the document does not move the view.",
+     "type": "boolean",
+     "default": false
+    },
+    "isGroupGridLinesVisible": {
+     "type": "boolean",
+     "default": true
+    },
+    "isPercentCompleteVisible": {
+     "type": "boolean",
+     "default": false
+    },
+    "isPlanDatesVisible": {
+     "type": "boolean",
+     "default": false
+    },
+    "isPlanVisible": {
+     "type": "boolean",
+     "default": true
+    },
+    "isProgressLineVisible": {
+     "type": "boolean",
+     "default": false
+    },
+    "isProgressMarkerVisible": {
+     "type": "boolean",
+     "default": true
+    },
+    "isTaskGroupPanelWidthFixed": {
+     "type": "boolean",
+     "default": false
+    },
+    "isThemeMonochrome": {
+     "type": "boolean",
+     "default": false
+    },
+    "isTimeOfDayVisible": {
+     "description": "Only how the chart is shown; the stored date-times always keep their time.",
+     "type": "boolean",
+     "default": false
     },
     "levelZeroTreeState": {
      "enum": [
@@ -279,11 +312,7 @@
      ],
      "default": "auto"
     },
-    "percentCompleteVisible": {
-     "type": "boolean",
-     "default": false
-    },
-    "pinnedGroupIds": {
+    "pinnedTaskGroupIds": {
      "type": "array",
      "items": {
       "type": "string",
@@ -291,28 +320,12 @@
      },
      "default": []
     },
-    "planDatesVisible": {
-     "type": "boolean",
-     "default": false
-    },
-    "planVisible": {
-     "type": "boolean",
-     "default": true
-    },
-    "progressLineVisible": {
-     "type": "boolean",
-     "default": false
-    },
-    "progressMarkerVisible": {
-     "type": "boolean",
-     "default": true
-    },
-    "rulerFont": {
+    "rulerFontSizePx": {
      "type": "number",
      "default": 21,
      "minimum": 12
     },
-    "rulerHeight": {
+    "rulerHeightPx": {
      "type": "number",
      "maximum": 150,
      "default": 69
@@ -329,22 +342,17 @@
      "type": "number",
      "default": 0
     },
-    "scrollGroupId": {
+    "scrollGroupOffset": {
+     "type": "number",
+     "default": 0
+    },
+    "scrollTaskGroupId": {
      "type": [
       "string",
       "null"
      ],
      "format": "uuid",
      "default": null
-    },
-    "scrollGroupOffset": {
-     "type": "number",
-     "default": 0
-    },
-    "showsTimeOfDay": {
-     "description": "Only how the chart is shown; the stored date-times always keep their time.",
-     "type": "boolean",
-     "default": false
     },
     "stackDirection": {
      "description": "up stacks a task group's tasks so that the chart climbs to a goal at the upper right; down stacks them so that it descends to a goal at the lower right.",
@@ -472,18 +480,10 @@
       }
      }
     },
-    "taskGroupPanelWidth": {
+    "taskGroupPanelWidthPx": {
      "type": "number",
      "default": 300,
      "minimum": 80
-    },
-    "taskGroupPanelWidthFixed": {
-     "type": "boolean",
-     "default": false
-    },
-    "themeMonochrome": {
-     "type": "boolean",
-     "default": false
     },
     "viewTimeZone": {
      "enum": [
@@ -555,7 +555,7 @@
     "company",
     "manager",
     "author",
-    "created",
+    "creationDate",
     "revision",
     "startDate",
     "statusDate",
@@ -569,7 +569,7 @@
     "themeHue",
     "parentProgressToleranceDays",
     "uidHighWaterMark",
-    "importSeq",
+    "importSequence",
     "carry",
     "carryElements",
     "outlineBase",
@@ -627,7 +627,7 @@
       "null"
      ]
     },
-    "created": {
+    "creationDate": {
      "description": "MS Project's CreationDate: a local date-time like the schedule dates; GRS writes it when it makes a new document and keeps an imported one.",
      "$ref": "#/$defs/DateTime"
     },
@@ -703,7 +703,7 @@
      "description": "One counter for the uids of tasks, resources, assignments and calendars; uids are never reused, so new ones are taken above it.",
      "type": "integer"
     },
-    "importSeq": {
+    "importSequence": {
      "type": "integer"
     },
     "carry": {
@@ -906,7 +906,7 @@
    "required": [
     "predecessorUid",
     "linkType",
-    "lag",
+    "linkLag",
     "lagFormat",
     "carry",
     "carryElements"
@@ -922,7 +922,7 @@
      "minimum": 0,
      "maximum": 3
     },
-    "lag": {
+    "linkLag": {
      "description": "MS Project's LinkLag: tenths of a minute whatever lagFormat says; a working day (lagFormat 7) is project.minutesPerDay minutes, or 480 when that is null.",
      "type": [
       "integer",
@@ -953,13 +953,13 @@
    "required": [
     "id",
     "parentId",
-    "label",
+    "name",
     "derivedFromTaskUid",
     "order",
     "treeState",
     "editGroup",
     "color",
-    "minHeight"
+    "minHeightPx"
    ],
    "additionalProperties": false,
    "properties": {
@@ -974,7 +974,7 @@
      ],
      "format": "uuid"
     },
-    "label": {
+    "name": {
      "type": [
       "string",
       "null"
@@ -1013,7 +1013,7 @@
      ],
      "pattern": "^(?:white|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$"
     },
-    "minHeight": {
+    "minHeightPx": {
      "type": [
       "integer",
       "null"
@@ -1026,14 +1026,14 @@
    "description": "Which task group a task sits on; every task sits on exactly one task group. No lane is stored: GRS stacks a task group's tasks itself, in the direction documentSettings.stackDirection names.",
    "required": [
     "taskUid",
-    "groupId"
+    "taskGroupId"
    ],
    "additionalProperties": false,
    "properties": {
     "taskUid": {
      "type": "integer"
     },
-    "groupId": {
+    "taskGroupId": {
      "type": "string",
      "format": "uuid"
     }
@@ -1409,7 +1409,7 @@
     "taskUid",
     "sourceProjectUid",
     "sourceUid",
-    "lastSeenImportSeq",
+    "lastSeenImportSequence",
     "importSessionId"
    ],
    "additionalProperties": false,
@@ -1426,7 +1426,7 @@
     "sourceUid": {
      "type": "integer"
     },
-    "lastSeenImportSeq": {
+    "lastSeenImportSequence": {
      "type": "integer"
     },
     "importSessionId": {
@@ -1445,7 +1445,7 @@
     "leaderShapeKind",
     "text",
     "anchorDate",
-    "anchorGroupId",
+    "anchorTaskGroupId",
     "bodyOffsetPx",
     "strokeColor",
     "strokeWidthPx",
@@ -1475,7 +1475,7 @@
     "anchorDate": {
      "$ref": "#/$defs/DateTime"
     },
-    "anchorGroupId": {
+    "anchorTaskGroupId": {
      "type": [
       "string",
       "null"
@@ -1541,10 +1541,10 @@
    "description": "One highlight box. Encloses a range of dates and task groups.",
    "required": [
     "id",
-    "startDate",
-    "endDate",
-    "topGroupId",
-    "bottomGroupId",
+    "start",
+    "finish",
+    "topTaskGroupId",
+    "bottomTaskGroupId",
     "strokeColor",
     "cornerRadiusPx",
     "strokeWidthPx",
@@ -1557,20 +1557,20 @@
      "type": "string",
      "format": "uuid"
     },
-    "startDate": {
+    "start": {
      "$ref": "#/$defs/DateTime"
     },
-    "endDate": {
+    "finish": {
      "$ref": "#/$defs/DateTime"
     },
-    "topGroupId": {
+    "topTaskGroupId": {
      "type": [
       "string",
       "null"
      ],
      "format": "uuid"
     },
-    "bottomGroupId": {
+    "bottomTaskGroupId": {
      "type": [
       "string",
       "null"
@@ -1646,14 +1646,14 @@
    "type": "object",
    "description": "When the document last changed and was saved, and who wrote it last. These instants live outside schedule and documentSettings so that writing them never moves either group's clock.",
    "required": [
-    "scheduleUpdatedUtc",
+    "scheduleUpdatedAt",
     "lastEditedBy",
-    "settingsUpdatedUtc",
-    "fileSavedUtc"
+    "settingsUpdatedAt",
+    "fileSavedAt"
    ],
    "additionalProperties": false,
    "properties": {
-    "scheduleUpdatedUtc": {
+    "scheduleUpdatedAt": {
      "type": "string",
      "format": "date-time",
      "$comment": "ISO 8601, UTC, to the second."
@@ -1661,13 +1661,13 @@
     "lastEditedBy": {
      "type": "string"
     },
-    "settingsUpdatedUtc": {
+    "settingsUpdatedAt": {
      "type": "string",
      "format": "date-time",
      "$comment": "ISO 8601, UTC, to the second."
     },
-    "fileSavedUtc": {
-     "description": "When this document was last written to its file. It lives in documentStamp, not in schedule.project, so that a save does not move scheduleUpdatedUtc; it is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change.",
+    "fileSavedAt": {
+     "description": "When this document was last written to its file. It lives in documentStamp, not in schedule.project, so that a save does not move scheduleUpdatedAt; it is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change.",
      "type": [
       "string",
       "null"
@@ -1684,7 +1684,7 @@
     "ordinal",
     "editedBy",
     "explanation",
-    "changedUtc"
+    "changedAt"
    ],
    "additionalProperties": false,
    "properties": {
@@ -1697,7 +1697,7 @@
     "explanation": {
      "type": "string"
     },
-    "changedUtc": {
+    "changedAt": {
      "type": "string",
      "format": "date-time",
      "$comment": "ISO 8601, UTC, to the second."

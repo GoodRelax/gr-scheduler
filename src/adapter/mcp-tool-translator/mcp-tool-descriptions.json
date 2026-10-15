@@ -88,7 +88,7 @@
       "type": "object",
       "description": "照合する刻印と命令の束",
       "properties": {
-       "readStamp": {
+       "expectedStamp": {
         "type": "object",
         "description": "呼ぶ側が最後に読んだ刻印 —— 今の刻印と 1 つでも違えば束ごと拒む（`AG-2`）"
        },
@@ -253,7 +253,7 @@
            "description": "親タスクの進捗の疑義が許す日数を変える",
            "properties": {
             "kind": {
-             "const": "setParentProgressTolerance"
+             "const": "setParentProgressToleranceDays"
             },
             "workingDays": {
              "type": "integer",
@@ -376,10 +376,10 @@
              "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
              "description": "`Task.finish`（`AT-29`）を書く（`null` は受けない）"
             },
-            "groupId": {
+            "taskGroupId": {
              "type": "string",
              "format": "uuid",
-             "description": "`TaskGroupMember.groupId`（`AT-61`）を書く —— タスクを載せるタスクグループ"
+             "description": "`TaskGroupMember.taskGroupId`（`AT-61`）を書く —— タスクを載せるタスクグループ"
             }
            },
            "required": [
@@ -387,7 +387,7 @@
             "shapeKind",
             "start",
             "finish",
-            "groupId"
+            "taskGroupId"
            ],
            "additionalProperties": false
           },
@@ -914,16 +914,16 @@
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
-            "groupId": {
+            "taskGroupId": {
              "type": "string",
              "format": "uuid",
-             "description": "`TaskGroupMember.groupId`（`AT-61`）を書く"
+             "description": "`TaskGroupMember.taskGroupId`（`AT-61`）を書く"
             }
            },
            "required": [
             "kind",
             "uid",
-            "groupId"
+            "taskGroupId"
            ],
            "additionalProperties": false
           },
@@ -1055,7 +1055,7 @@
            "description": "線の太さを置く",
            "properties": {
             "kind": {
-             "const": "setTaskVisualStrokeWidth"
+             "const": "setTaskVisualStrokeWidthPx"
             },
             "uid": {
              "type": "integer",
@@ -1103,7 +1103,7 @@
               "string",
               "null"
              ],
-             "description": "`TaskGroup.label`（`AT-53`）を書く"
+             "description": "`TaskGroup.name`（`AT-53`）を書く"
             },
             "derivedFromTaskUid": {
              "type": [
@@ -1134,20 +1134,20 @@
             "kind": {
              "const": "deleteTaskGroup"
             },
-            "groupId": {
+            "taskGroupId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`TaskGroup.id`、`AT-51`）"
             },
-            "newGroupId": {
+            "newTaskGroupId": {
              "type": "string",
              "description": "`string` —— 新しいタスクグループの `id`（⚠️ いまの編集はこの値を読まない）"
             }
            },
            "required": [
             "kind",
-            "groupId",
-            "newGroupId"
+            "taskGroupId",
+            "newTaskGroupId"
            ],
            "additionalProperties": false
           },
@@ -1158,12 +1158,12 @@
             "kind": {
              "const": "pasteTaskGroupSubtree"
             },
-            "sourceGroupId": {
+            "sourceTaskGroupId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`TaskGroup.id`、`AT-51`） —— 複製する部分木の根"
             },
-            "targetGroupId": {
+            "targetTaskGroupId": {
              "type": [
               "string",
               "null"
@@ -1171,7 +1171,7 @@
              "format": "uuid",
              "description": "`TaskGroup.parentId`（`AT-52`）を書く —— 写しの根を載せる親"
             },
-            "newGroupIds": {
+            "newTaskGroupIds": {
              "type": "object",
              "additionalProperties": {
               "type": "string"
@@ -1181,9 +1181,9 @@
            },
            "required": [
             "kind",
-            "sourceGroupId",
-            "targetGroupId",
-            "newGroupIds"
+            "sourceTaskGroupId",
+            "targetTaskGroupId",
+            "newTaskGroupIds"
            ],
            "additionalProperties": false
           },
@@ -1192,9 +1192,9 @@
            "description": "タスクグループ名を変える",
            "properties": {
             "kind": {
-             "const": "setTaskGroupLabel"
+             "const": "setTaskGroupName"
             },
-            "groupId": {
+            "taskGroupId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`TaskGroup.id`、`AT-51`）"
@@ -1204,12 +1204,12 @@
               "string",
               "null"
              ],
-             "description": "`TaskGroup.label`（`AT-53`）を書く"
+             "description": "`TaskGroup.name`（`AT-53`）を書く"
             }
            },
            "required": [
             "kind",
-            "groupId",
+            "taskGroupId",
             "label"
            ],
            "additionalProperties": false
@@ -1221,7 +1221,7 @@
             "kind": {
              "const": "setTaskGroupColor"
             },
-            "groupId": {
+            "taskGroupId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`TaskGroup.id`、`AT-51`）"
@@ -1234,7 +1234,7 @@
            },
            "required": [
             "kind",
-            "groupId",
+            "taskGroupId",
             "color"
            ],
            "additionalProperties": false
@@ -1246,7 +1246,7 @@
             "kind": {
              "const": "resetTaskGroupColor"
             },
-            "groupId": {
+            "taskGroupId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`TaskGroup.id`、`AT-51`）"
@@ -1254,7 +1254,7 @@
            },
            "required": [
             "kind",
-            "groupId"
+            "taskGroupId"
            ],
            "additionalProperties": false
           },
@@ -1263,9 +1263,9 @@
            "description": "タスクグループの最小の高さを置く",
            "properties": {
             "kind": {
-             "const": "setTaskGroupMinHeight"
+             "const": "setTaskGroupMinHeightPx"
             },
-            "groupId": {
+            "taskGroupId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`TaskGroup.id`、`AT-51`）"
@@ -1275,12 +1275,12 @@
               "integer",
               "null"
              ],
-             "description": "`TaskGroup.minHeight`（`AT-59`）を書く"
+             "description": "`TaskGroup.minHeightPx`（`AT-59`）を書く"
             }
            },
            "required": [
             "kind",
-            "groupId",
+            "taskGroupId",
             "minHeight"
            ],
            "additionalProperties": false
@@ -1423,7 +1423,7 @@
             },
             "lagWorkingDays": {
              "type": "integer",
-             "description": "`integer` —— ラグ（稼働日）で、`lag`（`AT-47`）と `lagFormat`（`AT-48`）へ換えて書く"
+             "description": "`integer` —— ラグ（稼働日）で、`linkLag`（`AT-47`）と `lagFormat`（`AT-48`）へ換えて書く"
             }
            },
            "required": [
@@ -1451,7 +1451,7 @@
             },
             "lagMinutes": {
              "type": "integer",
-             "description": "`integer` —— ラグ（分）で、`lag`（`AT-47`）へ換えて書く"
+             "description": "`integer` —— ラグ（分）で、`linkLag`（`AT-47`）へ換えて書く"
             },
             "lagUnit": {
              "enum": [
@@ -1773,7 +1773,7 @@
            "description": "割当を解く",
            "properties": {
             "kind": {
-             "const": "unassignResource"
+             "const": "deleteAssignment"
             },
             "taskUid": {
              "type": "integer",
@@ -1811,15 +1811,15 @@
                "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
                "description": "`CommentBox.anchorDate`（`AT-113`）を書く（`null` は受けない）"
               },
-              "groupId": {
+              "taskGroupId": {
                "type": "string",
                "format": "uuid",
-               "description": "`CommentBox.anchorGroupId`（`AT-114`）を書く（`null` は受けない）"
+               "description": "`CommentBox.anchorTaskGroupId`（`AT-114`）を書く（`null` は受けない）"
               }
              },
              "required": [
               "date",
-              "groupId"
+              "taskGroupId"
              ],
              "additionalProperties": false,
              "description": "`AnnotationAnchor` —— 留め先"
@@ -1925,15 +1925,15 @@
                "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
                "description": "`CommentBox.anchorDate`（`AT-113`）を書く（`null` は受けない）"
               },
-              "groupId": {
+              "taskGroupId": {
                "type": "string",
                "format": "uuid",
-               "description": "`CommentBox.anchorGroupId`（`AT-114`）を書く（`null` は受けない）"
+               "description": "`CommentBox.anchorTaskGroupId`（`AT-114`）を書く（`null` は受けない）"
               }
              },
              "required": [
               "date",
-              "groupId"
+              "taskGroupId"
              ],
              "additionalProperties": false,
              "description": "`AnnotationAnchor` —— 新しい留め先"
@@ -2008,7 +2008,7 @@
            "description": "枠と引出し線の太さを置く",
            "properties": {
             "kind": {
-             "const": "setCommentBoxStrokeWidth"
+             "const": "setCommentBoxStrokeWidthPx"
             },
             "id": {
              "type": "string",
@@ -2063,7 +2063,7 @@
            "description": "本文の箱の塗りの透過率を置く",
            "properties": {
             "kind": {
-             "const": "setCommentBoxFillTransparency"
+             "const": "setCommentBoxFillTransparencyPercent"
             },
             "id": {
              "type": "string",
@@ -2131,29 +2131,29 @@
               "startDate": {
                "type": "string",
                "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
-               "description": "`HighlightBox.startDate`（`AT-117`）を書く（`null` は受けない）"
+               "description": "`HighlightBox.start`（`AT-117`）を書く（`null` は受けない）"
               },
               "endDate": {
                "type": "string",
                "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
-               "description": "`HighlightBox.endDate`（`AT-118`）を書く（`null` は受けない）"
+               "description": "`HighlightBox.finish`（`AT-118`）を書く（`null` は受けない）"
               },
-              "topGroupId": {
+              "topTaskGroupId": {
                "type": "string",
                "format": "uuid",
-               "description": "`HighlightBox.topGroupId`（`AT-119`）を書く（`null` は受けない）"
+               "description": "`HighlightBox.topTaskGroupId`（`AT-119`）を書く（`null` は受けない）"
               },
-              "bottomGroupId": {
+              "bottomTaskGroupId": {
                "type": "string",
                "format": "uuid",
-               "description": "`HighlightBox.bottomGroupId`（`AT-120`）を書く（`null` は受けない）"
+               "description": "`HighlightBox.bottomTaskGroupId`（`AT-120`）を書く（`null` は受けない）"
               }
              },
              "required": [
               "startDate",
               "endDate",
-              "topGroupId",
-              "bottomGroupId"
+              "topTaskGroupId",
+              "bottomTaskGroupId"
              ],
              "additionalProperties": false,
              "description": "`HighlightRange` —— 囲む範囲"
@@ -2203,29 +2203,29 @@
               "startDate": {
                "type": "string",
                "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
-               "description": "`HighlightBox.startDate`（`AT-117`）を書く（`null` は受けない）"
+               "description": "`HighlightBox.start`（`AT-117`）を書く（`null` は受けない）"
               },
               "endDate": {
                "type": "string",
                "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
-               "description": "`HighlightBox.endDate`（`AT-118`）を書く（`null` は受けない）"
+               "description": "`HighlightBox.finish`（`AT-118`）を書く（`null` は受けない）"
               },
-              "topGroupId": {
+              "topTaskGroupId": {
                "type": "string",
                "format": "uuid",
-               "description": "`HighlightBox.topGroupId`（`AT-119`）を書く（`null` は受けない）"
+               "description": "`HighlightBox.topTaskGroupId`（`AT-119`）を書く（`null` は受けない）"
               },
-              "bottomGroupId": {
+              "bottomTaskGroupId": {
                "type": "string",
                "format": "uuid",
-               "description": "`HighlightBox.bottomGroupId`（`AT-120`）を書く（`null` は受けない）"
+               "description": "`HighlightBox.bottomTaskGroupId`（`AT-120`）を書く（`null` は受けない）"
               }
              },
              "required": [
               "startDate",
               "endDate",
-              "topGroupId",
-              "bottomGroupId"
+              "topTaskGroupId",
+              "bottomTaskGroupId"
              ],
              "additionalProperties": false,
              "description": "`HighlightRange` —— 新しく囲む範囲"
@@ -2271,7 +2271,7 @@
            "description": "枠の線の太さを置く",
            "properties": {
             "kind": {
-             "const": "setHighlightBoxStrokeWidth"
+             "const": "setHighlightBoxStrokeWidthPx"
             },
             "id": {
              "type": "string",
@@ -2326,7 +2326,7 @@
            "description": "塗りの透過率を置く",
            "properties": {
             "kind": {
-             "const": "setHighlightBoxFillTransparency"
+             "const": "setHighlightBoxFillTransparencyPercent"
             },
             "id": {
              "type": "string",
@@ -2378,19 +2378,19 @@
             },
             "element": {
              "enum": [
-              "baselineVisible",
-              "planVisible",
-              "actualVisible",
-              "progressLineVisible",
-              "progressMarkerVisible",
-              "dateGridLinesVisible",
-              "groupGridLinesVisible",
-              "assigneeVisible",
-              "percentCompleteVisible",
-              "dependencyVisible",
-              "planDatesVisible"
+              "isBaselineVisible",
+              "isPlanVisible",
+              "isActualVisible",
+              "isProgressLineVisible",
+              "isProgressMarkerVisible",
+              "isDateGridLinesVisible",
+              "isGroupGridLinesVisible",
+              "isAssigneeVisible",
+              "isPercentCompleteVisible",
+              "isDependencyVisible",
+              "isPlanDatesVisible"
              ],
-             "description": "`baselineVisible`（`S-69`） ・ `planVisible`（`S-227`） ・ `actualVisible`（`S-228`） ・ `progressLineVisible`（`S-64`） ・ `progressMarkerVisible`（`S-63`） ・ `dateGridLinesVisible`（`S-67`） ・ `groupGridLinesVisible`（`S-68`） ・ `assigneeVisible`（`S-60`） ・ `percentCompleteVisible`（`S-61`） ・ `dependencyVisible`（`S-62`） ・ `planDatesVisible`（`S-232`） のどれか —— 表示を切り替える要素（値はその行の鍵）"
+             "description": "`isBaselineVisible`（`S-69`） ・ `isPlanVisible`（`S-227`） ・ `isActualVisible`（`S-228`） ・ `isProgressLineVisible`（`S-64`） ・ `isProgressMarkerVisible`（`S-63`） ・ `isDateGridLinesVisible`（`S-67`） ・ `isGroupGridLinesVisible`（`S-68`） ・ `isAssigneeVisible`（`S-60`） ・ `isPercentCompleteVisible`（`S-61`） ・ `isDependencyVisible`（`S-62`） ・ `isPlanDatesVisible`（`S-232`） のどれか —— 表示を切り替える要素（値はその行の鍵）"
             },
             "visible": {
              "type": "boolean",
@@ -2435,7 +2435,7 @@
             },
             "monochrome": {
              "type": "boolean",
-             "description": "`themeMonochrome`（`S-74`）を書く"
+             "description": "`isThemeMonochrome`（`S-74`）を書く"
             }
            },
            "required": [
@@ -2486,13 +2486,13 @@
              "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
              "description": "`scrollDate`（`S-77`）を書く"
             },
-            "scrollGroupId": {
+            "scrollTaskGroupId": {
              "type": [
               "string",
               "null"
              ],
              "format": "uuid",
-             "description": "`scrollGroupId`（`S-78`）を書く"
+             "description": "`scrollTaskGroupId`（`S-78`）を書く"
             },
             "scrollDayOffset": {
              "type": "number",
@@ -2506,7 +2506,7 @@
            "required": [
             "kind",
             "scrollDate",
-            "scrollGroupId",
+            "scrollTaskGroupId",
             "scrollDayOffset",
             "scrollGroupOffset"
            ],
@@ -2517,17 +2517,17 @@
            "description": "タスクグループパネルの幅を変える",
            "properties": {
             "kind": {
-             "const": "setTaskGroupPanelWidth"
+             "const": "setTaskGroupPanelWidthPx"
             },
-            "taskGroupPanelWidth": {
+            "taskGroupPanelWidthPx": {
              "type": "number",
              "minimum": 80,
-             "description": "`taskGroupPanelWidth`（`S-79`）を書く"
+             "description": "`taskGroupPanelWidthPx`（`S-79`）を書く"
             }
            },
            "required": [
             "kind",
-            "taskGroupPanelWidth"
+            "taskGroupPanelWidthPx"
            ],
            "additionalProperties": false
           },
@@ -2538,15 +2538,15 @@
             "kind": {
              "const": "pinTaskGroup"
             },
-            "groupId": {
+            "taskGroupId": {
              "type": "string",
              "format": "uuid",
-             "description": "鍵（`TaskGroup.id`、`AT-51`） —— `pinnedGroupIds`（`S-126`）に足すタスクグループ"
+             "description": "鍵（`TaskGroup.id`、`AT-51`） —— `pinnedTaskGroupIds`（`S-126`）に足すタスクグループ"
             }
            },
            "required": [
             "kind",
-            "groupId"
+            "taskGroupId"
            ],
            "additionalProperties": false
           },
@@ -2557,15 +2557,15 @@
             "kind": {
              "const": "unpinTaskGroup"
             },
-            "groupId": {
+            "taskGroupId": {
              "type": "string",
              "format": "uuid",
-             "description": "鍵（`TaskGroup.id`、`AT-51`） —— `pinnedGroupIds`（`S-126`）から除くタスクグループ"
+             "description": "鍵（`TaskGroup.id`、`AT-51`） —— `pinnedTaskGroupIds`（`S-126`）から除くタスクグループ"
             }
            },
            "required": [
             "kind",
-            "groupId"
+            "taskGroupId"
            ],
            "additionalProperties": false
           },
@@ -2596,13 +2596,13 @@
              "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
              "description": "`scrollDate`（`S-77`）を書く"
             },
-            "scrollGroupId": {
+            "scrollTaskGroupId": {
              "type": [
               "string",
               "null"
              ],
              "format": "uuid",
-             "description": "`scrollGroupId`（`S-78`）を書く"
+             "description": "`scrollTaskGroupId`（`S-78`）を書く"
             },
             "scrollDayOffset": {
              "type": "number",
@@ -2618,7 +2618,7 @@
             "zoomX",
             "zoomY",
             "scrollDate",
-            "scrollGroupId",
+            "scrollTaskGroupId",
             "scrollDayOffset",
             "scrollGroupOffset"
            ],
@@ -2644,7 +2644,7 @@
             "kind": {
              "const": "moveTaskGroup"
             },
-            "groupId": {
+            "taskGroupId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`TaskGroup.id`、`AT-51`）"
@@ -2664,7 +2664,7 @@
            },
            "required": [
             "kind",
-            "groupId",
+            "taskGroupId",
             "parentId",
             "order"
            ],
@@ -2750,9 +2750,9 @@
             "kind": {
              "const": "setFitSpanFixed"
             },
-            "fitSpanFixed": {
+            "isFitSpanFixed": {
              "type": "boolean",
-             "description": "`fitSpanFixed`（`S-532`）を書く"
+             "description": "`isFitSpanFixed`（`S-532`）を書く"
             },
             "shownStart": {
              "type": [
@@ -2771,7 +2771,7 @@
            },
            "required": [
             "kind",
-            "fitSpanFixed",
+            "isFitSpanFixed",
             "shownStart",
             "shownFinish"
            ],
@@ -2784,14 +2784,14 @@
             "kind": {
              "const": "setTaskGroupPanelWidthFixed"
             },
-            "taskGroupPanelWidthFixed": {
+            "isTaskGroupPanelWidthFixed": {
              "type": "boolean",
-             "description": "`taskGroupPanelWidthFixed`（`S-533`）を書く"
+             "description": "`isTaskGroupPanelWidthFixed`（`S-533`）を書く"
             }
            },
            "required": [
             "kind",
-            "taskGroupPanelWidthFixed"
+            "isTaskGroupPanelWidthFixed"
            ],
            "additionalProperties": false
           },
@@ -3007,16 +3007,16 @@
            "description": "時刻を表示するかを置く",
            "properties": {
             "kind": {
-             "const": "setShowsTimeOfDay"
+             "const": "setTimeOfDayVisible"
             },
-            "showsTimeOfDay": {
+            "isTimeOfDayVisible": {
              "type": "boolean",
-             "description": "`showsTimeOfDay`（`S-576`）を書く"
+             "description": "`isTimeOfDayVisible`（`S-576`）を書く"
             }
            },
            "required": [
             "kind",
-            "showsTimeOfDay"
+            "isTimeOfDayVisible"
            ],
            "additionalProperties": false
           },
@@ -3027,7 +3027,7 @@
             "kind": {
              "const": "setTaskGroupTreeState"
             },
-            "groupId": {
+            "taskGroupId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`TaskGroup.id`、`AT-51`）"
@@ -3045,7 +3045,7 @@
            },
            "required": [
             "kind",
-            "groupId",
+            "taskGroupId",
             "treeState"
            ],
            "additionalProperties": false
@@ -3077,7 +3077,7 @@
        }
       },
       "required": [
-       "readStamp",
+       "expectedStamp",
        "commands"
       ]
      }

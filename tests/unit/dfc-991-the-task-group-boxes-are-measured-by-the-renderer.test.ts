@@ -31,12 +31,12 @@ describe('PI-37 (DFC-991) -- ScreenRenderer publishes drawnTaskGroupBoxesOf', ()
     const frame = built.loop.current()
     expect(frame, 'premise: a frame was drawn').not.toBeNull()
     const measured = screenRenderer.drawnTaskGroupBoxesOf(frame!.layout, frame!.regions)
-    expect(measured.map((one) => one.groupId)).toEqual(['g1', 'g2', 'g3'])
+    expect(measured.map((one) => one.taskGroupId)).toEqual(['g1', 'g2', 'g3'])
     const drawn = built.last().taskGroupPanel.titles
     for (const one of measured) {
-      const title = drawn.find((entry) => entry.groupId === one.groupId)
-      expect(title, `the panel draws ${one.groupId}`).toBeDefined()
-      expect(title?.box, `the box of ${one.groupId}`).toEqual(one.box)
+      const title = drawn.find((entry) => entry.taskGroupId === one.taskGroupId)
+      expect(title, `the panel draws ${one.taskGroupId}`).toBeDefined()
+      expect(title?.box, `the box of ${one.taskGroupId}`).toEqual(one.box)
     }
   })
 })

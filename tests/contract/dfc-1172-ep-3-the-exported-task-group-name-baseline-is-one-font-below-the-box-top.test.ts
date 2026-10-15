@@ -14,20 +14,20 @@ import { RATIO, stored } from '../unit/cr-430-cross-section-scene'
 
 const SETTINGS = SETTINGS_DEFAULTS as unknown as DocumentSettings
 const SCREEN = { width: 1000, height: 800, appHeaderHeight: 56 } as const
-const PANEL_WIDTH = SETTINGS.taskGroupPanelWidth
+const PANEL_WIDTH = SETTINGS.taskGroupPanelWidthPx
 const CANVAS_HEIGHT = SCREEN.height - SCREEN.appHeaderHeight
 
 const REGIONS: ScreenRegions = {
   appHeader: { x: 0, y: 0, width: SCREEN.width, height: SCREEN.appHeaderHeight },
   scheduleCanvas: { x: 0, y: SCREEN.appHeaderHeight, width: SCREEN.width, height: CANVAS_HEIGHT },
   taskGroupPanel: { x: 0, y: SCREEN.appHeaderHeight, width: PANEL_WIDTH, height: CANVAS_HEIGHT },
-  timeRuler: { x: PANEL_WIDTH, y: SCREEN.appHeaderHeight, width: SCREEN.width - PANEL_WIDTH, height: SETTINGS.rulerHeight },
+  timeRuler: { x: PANEL_WIDTH, y: SCREEN.appHeaderHeight, width: SCREEN.width - PANEL_WIDTH, height: SETTINGS.rulerHeightPx },
   propertiesPanel: { x: SCREEN.width, y: SCREEN.appHeaderHeight, width: 0, height: CANVAS_HEIGHT },
   taskGroupArea: {
     x: PANEL_WIDTH,
-    y: SCREEN.appHeaderHeight + SETTINGS.rulerHeight,
+    y: SCREEN.appHeaderHeight + SETTINGS.rulerHeightPx,
     width: SCREEN.width - PANEL_WIDTH,
-    height: CANVAS_HEIGHT - SETTINGS.rulerHeight,
+    height: CANVAS_HEIGHT - SETTINGS.rulerHeightPx,
   },
 }
 
@@ -60,7 +60,7 @@ const viewOf = (rows: readonly Placed[]): ScreenView =>
     taskGroupPanel: {
       pinnedTitles: [],
       titles: rows.map((one, index) => ({
-        groupId: `g${index + 1}`,
+        taskGroupId: `g${index + 1}`,
         depth: one.depth,
         fontPx: fontOf(one.depth),
         indentPx: 0,

@@ -730,7 +730,7 @@ export function svgFromSchedule(
 ): string {
   const settings = drawnSettingsOf(storedSettings)
   const hue = schedule.project.themeHue
-  const monochrome = settings.themeMonochrome
+  const monochrome = settings.isThemeMonochrome
   const dark = viewer.themePreference === 'dark'
   const themed = themedColors(hue, dark, monochrome)
   const chosen: ChosenColor = (stored, form) => chosenColorOf(stored, form, dark, monochrome, themed)
@@ -939,7 +939,7 @@ export function marqueeOverlaySvg(
   if (marquee === null) return ''
   const settings = drawnSettingsOf(storedSettings)
   const dark = viewer.themePreference === 'dark'
-  const themed = themedColors(schedule.project.themeHue, dark, settings.themeMonochrome)
+  const themed = themedColors(schedule.project.themeHue, dark, settings.isThemeMonochrome)
   const { width, height } = pictureSizeOf(regions)
   const frame = zoLayer('ZO-6', [selectionFrameSvg(marquee, themed('S-151'), 'marquee')])
   return (

@@ -110,7 +110,7 @@ const CASES: readonly (readonly [string, string, string])[] = [
     'a Project date before importMinDate',
     'IV-14',
     editedDocument((built) => {
-      built.schedule.project['created'] = BEFORE_MIN_DATE
+      built.schedule.project['creationDate'] = BEFORE_MIN_DATE
     }),
   ],
 ]

@@ -55,7 +55,7 @@ function columnRowOf(entity: string, column: string): string {
 }
 
 // see HF-14
-const TASK_GROUP_NAME_COLUMN = columnRowOf('TaskGroup', 'label')
+const TASK_GROUP_NAME_COLUMN = columnRowOf('TaskGroup', 'name')
 
 /** @purity pure */
 function wholeRow(table: SpecTable, id: string): string {

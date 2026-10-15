@@ -36,7 +36,7 @@ const documentWith = (shows: boolean): Document => {
       taskOf(MILESTONE, { milestone: true, start: '2026-04-09T17:00:00', finish: '2026-04-09T17:00:00' }),
     ],
   })
-  return { ...base, documentSettings: { ...base.documentSettings, showsTimeOfDay: shows } } as unknown as Document
+  return { ...base, documentSettings: { ...base.documentSettings, isTimeOfDayVisible: shows } } as unknown as Document
 }
 
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 240, taskGroupAreaWidthWithoutPanels: 982 }

@@ -202,7 +202,7 @@ export const bandAt = (page: Page, y: number): Promise<string | null> =>
     return null
   }, y)
 
-export const taskGroupSelector = (groupId: string): string => '[data-role="Task Group Title Tree"] [data-group-id="' + groupId + '"]'
+export const taskGroupSelector = (taskGroupId: string): string => '[data-role="Task Group Title Tree"] [data-group-id="' + taskGroupId + '"]'
 
 export const groupIdOfTaskGroupNamed = (page: Page, name: string): Promise<string | null> =>
   page.evaluate((name) => {
@@ -214,8 +214,8 @@ export const groupIdOfTaskGroupNamed = (page: Page, name: string): Promise<strin
   }, name)
 
 // TRAP: task group controls are drawn only while the pointer is over the task group name (HF-6).
-export const revealTaskGroup = async (page: Page, groupId: string): Promise<void> => {
-  const row = page.locator(taskGroupSelector(groupId))
+export const revealTaskGroup = async (page: Page, taskGroupId: string): Promise<void> => {
+  const row = page.locator(taskGroupSelector(taskGroupId))
   for (const direction of [1, -1]) {
     for (let i = 0; i < 25 && (await row.count()) === 0; i++) {
       await page.mouse.move(VIEWPORT.width / 2, VIEWPORT.height / 2)
@@ -231,9 +231,9 @@ export const revealTaskGroup = async (page: Page, groupId: string): Promise<void
   }
 }
 
-export const pressRowControl = async (page: Page, groupId: string, id: string): Promise<void> => {
-  await revealTaskGroup(page, groupId)
-  const row = page.locator(taskGroupSelector(groupId))
+export const pressRowControl = async (page: Page, taskGroupId: string, id: string): Promise<void> => {
+  await revealTaskGroup(page, taskGroupId)
+  const row = page.locator(taskGroupSelector(taskGroupId))
   await row.locator(':scope > span').first().hover()
   await row.locator(icon(id)).click()
   await settle(page)

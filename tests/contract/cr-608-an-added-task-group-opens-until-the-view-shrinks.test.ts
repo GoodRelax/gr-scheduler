@@ -78,7 +78,7 @@ interface Group {
 
 interface Stage {
   readonly loop: FrameLoop
-  press(surface: string, entry: string, groupId: string | null): void
+  press(surface: string, entry: string, taskGroupId: string | null): void
   drawn(): string[]
   groups(): Group[]
   stateOf(id: string): TreeState | undefined
@@ -116,12 +116,12 @@ function stage(document: Record<string, unknown>): Stage {
   const groups = (): Group[] => (loop.document().schedule as unknown as { taskGroups: Group[] }).taskGroups
   return {
     loop,
-    press: (surfaceName, entry, groupId) => {
+    press: (surfaceName, entry, taskGroupId) => {
       part = {
         part: surfaceName,
         entry,
         format: null,
-        taskGroupId: groupId,
+        taskGroupId: taskGroupId,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -130,7 +130,7 @@ function stage(document: Record<string, unknown>): Stage {
       send(pointer('up'))
       part = null
     },
-    drawn: () => (loop.current()?.layout.taskGroups ?? []).map((one) => one.groupId),
+    drawn: () => (loop.current()?.layout.taskGroups ?? []).map((one) => one.taskGroupId),
     groups,
     stateOf: (id) => groups().find((one) => one.id === id)?.treeState,
     zoomY: () => loop.document().documentSettings.zoomY,
@@ -161,7 +161,7 @@ function droppedTierDocument(pressedParent: TreeState = 'auto'): Record<string, 
     { id: Q, parentId: R },
     { id: QK, parentId: Q },
   ]
-  return taskGroupDocument(rows, { zoomY: ZOOM_DEPTH_TWO, scrollGroupId: R })
+  return taskGroupDocument(rows, { zoomY: ZOOM_DEPTH_TWO, scrollTaskGroupId: R })
 }
 
 describe('CR-608 -- the manuscript still says what these cases read', () => {
@@ -228,7 +228,7 @@ describe(`CR-608 tests 2 and 3 -- ${HF_14_ONE_PARENT}`, () => {
         { id: X, parentId: null, treeState: 'collapsed' },
         { id: XK, parentId: X },
       ],
-      { zoomY: 1, scrollGroupId: A },
+      { zoomY: 1, scrollTaskGroupId: A },
     )
 
   const cases: readonly [TreeState, TreeState][] = [

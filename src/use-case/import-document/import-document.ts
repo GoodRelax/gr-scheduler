@@ -136,7 +136,7 @@ export interface ImportReport {
   readonly discardsHistory: boolean
   readonly fitToScreenRequired: boolean
   readonly source: SourceJudgment
-  readonly importSeq: number
+  readonly importSequence: number
   readonly candidates: readonly MergeCandidate[]
   readonly overwrittenTaskUids: readonly number[]
   readonly addedTaskUids: readonly number[]
@@ -163,7 +163,7 @@ const PROFILE_COLUMNS: readonly { readonly row: string; readonly key: keyof Proj
   { row: 'PF-7', key: 'revision' },
   { row: 'PF-8', key: 'startDate' },
   // WHY: PF-9 is asked about too; narrowing to editable rows would be this file deciding.
-  { row: 'PF-9', key: 'created' },
+  { row: 'PF-9', key: 'creationDate' },
 ]
 
 /** @purity pure */
@@ -223,9 +223,9 @@ function restoredSettings(fromFile: DocumentSettings, defaults: DocumentSettings
 // TRAP: null means no place chosen yet; OP-6's defaulting must not fill it.
 /** @purity pure */
 function fitToScreenRequired(document: Document): boolean {
-  const { scrollDate, scrollGroupId } = document.documentSettings
-  if (scrollDate === null || scrollGroupId === null) return true
-  return !document.schedule.taskGroups.some((group) => group.id === scrollGroupId)
+  const { scrollDate, scrollTaskGroupId } = document.documentSettings
+  if (scrollDate === null || scrollTaskGroupId === null) return true
+  return !document.schedule.taskGroups.some((group) => group.id === scrollTaskGroupId)
 }
 
 /** @purity pure */
@@ -234,14 +234,14 @@ function refuse(refusal: ImportRefusal): ImportOutcome {
 }
 
 /** @purity pure */
-function emptyReport(choice: OpenChoice, importSeq: number): ImportReport {
+function emptyReport(choice: OpenChoice, importSequence: number): ImportReport {
   return {
     choice,
     undo: 'oneStep',
     discardsHistory: false,
     fitToScreenRequired: false,
     source: 'notJudged',
-    importSeq,
+    importSequence,
     candidates: [],
     overwrittenTaskUids: [],
     addedTaskUids: [],
@@ -309,7 +309,7 @@ function replacedDocument(request: ImportRequest): ImportOutcome {
     ok: true,
     document,
     report: {
-      ...emptyReport('replace', document.schedule.project.importSeq),
+      ...emptyReport('replace', document.schedule.project.importSequence),
       undo: 'notUndoable',
       discardsHistory: true,
       fitToScreenRequired: fitToScreenRequired(document),
@@ -341,14 +341,14 @@ function baselinedDocument(request: ImportRequest): ImportOutcome {
   const document: Document = {
     ...request.current,
     schedule: { ...request.current.schedule, baselineTasks },
-    documentSettings: { ...request.current.documentSettings, baselineVisible: true },
+    documentSettings: { ...request.current.documentSettings, isBaselineVisible: true },
   }
 
   return {
     ok: true,
     document,
     report: {
-      ...emptyReport('baseline', document.schedule.project.importSeq),
+      ...emptyReport('baseline', document.schedule.project.importSequence),
       undo: 'oneStep',
       fitToScreenRequired: fitToScreenRequired(document),
       baselineTaskUidsNotDrawn: notDrawn,
@@ -644,8 +644,8 @@ function builtMerge(input: MergeInput): ImportOutcome {
   const incoming = request.incoming.schedule
   const dropped: DroppedReference[] = []
 
-  const previousSeq = current.project.importSeq
-  const importSeq = previousSeq + 1
+  const previousSeq = current.project.importSequence
+  const importSequence = previousSeq + 1
 
   let highWater = highWaterOf(current, incoming)
 
@@ -798,7 +798,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
       taskUid: uid,
       sourceProjectUid: incoming.project.id,
       sourceUid: task.uid,
-      lastSeenImportSeq: importSeq,
+      lastSeenImportSequence: importSequence,
       importSessionId: request.importSessionId,
     })
   }
@@ -836,11 +836,11 @@ function builtMerge(input: MergeInput): ImportOutcome {
   const commentBoxes: CommentBox[] = [...current.commentBoxes]
   for (const box of incoming.commentBoxes) {
     if (index.commentBoxIds.has(box.id)) continue
-    if (box.anchorGroupId !== null && !groupIds.has(box.anchorGroupId)) {
+    if (box.anchorTaskGroupId !== null && !groupIds.has(box.anchorTaskGroupId)) {
       dropped.push({
         what: 'commentBox',
         owner: box.id,
-        missing: `anchorGroupId ${box.anchorGroupId}`,
+        missing: `anchorTaskGroupId ${box.anchorTaskGroupId}`,
       })
       continue
     }
@@ -849,17 +849,17 @@ function builtMerge(input: MergeInput): ImportOutcome {
   const highlightBoxes: HighlightBox[] = [...current.highlightBoxes]
   for (const box of incoming.highlightBoxes) {
     if (index.highlightBoxIds.has(box.id)) continue
-    const missing = [box.topGroupId, box.bottomGroupId].find(
+    const missing = [box.topTaskGroupId, box.bottomTaskGroupId].find(
       (id) => id !== null && !groupIds.has(id),
     )
     if (missing !== undefined && missing !== null) {
-      dropped.push({ what: 'highlightBox', owner: box.id, missing: `groupId ${missing}` })
+      dropped.push({ what: 'highlightBox', owner: box.id, missing: `taskGroupId ${missing}` })
       continue
     }
     highlightBoxes.push(box)
   }
 
-  const project = mergedProject(input, importSeq, highWater)
+  const project = mergedProject(input, importSequence, highWater)
 
   const documentSettings =
     input.settingsConflicted && answers.settingsConflict === 'overwrite'
@@ -890,7 +890,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
     if (touched.has(task.uid)) continue
     onlyInCurrent.push(task.uid)
     const origin = index.originByTaskUid.get(task.uid)
-    if (previousSeq > 0 && origin !== undefined && origin.lastSeenImportSeq === previousSeq) {
+    if (previousSeq > 0 && origin !== undefined && origin.lastSeenImportSequence === previousSeq) {
       missingSinceLastImport.push(task.uid)
     }
   }
@@ -904,7 +904,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
     ok: true,
     document,
     report: {
-      ...emptyReport('merge', importSeq),
+      ...emptyReport('merge', importSequence),
       undo: 'oneStep',
       fitToScreenRequired: fitToScreenRequired(document),
       source,
@@ -922,7 +922,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
 
 // see MG-4, MG-9, MG-13, T-224
 /** @purity pure */
-function mergedProject(input: MergeInput, importSeq: number, uidHighWaterMark: number): Project {
+function mergedProject(input: MergeInput, importSequence: number, uidHighWaterMark: number): Project {
   const current = input.request.current.schedule.project
   const incoming = input.request.incoming.schedule.project
   const conflicting = new Set(input.profileRows)
@@ -935,5 +935,5 @@ function mergedProject(input: MergeInput, importSeq: number, uidHighWaterMark: n
     held[column.key] = conflicting.has(column.row) ? (overwrite ? theirs : mine) : (mine ?? theirs)
   }
 
-  return { ...(held as unknown as Project), importSeq, uidHighWaterMark }
+  return { ...(held as unknown as Project), importSequence, uidHighWaterMark }
 }

@@ -142,7 +142,7 @@ function taskGroupGrabPlacesInDrawingOrder(
   const depth = taskGroupGrabDepthOf(byId, held)
   const parentsWithADrawnChild = new Set<string>()
   for (const entry of drawn) {
-    const parentId = byId.get(entry.groupId)?.parentId
+    const parentId = byId.get(entry.taskGroupId)?.parentId
     if (parentId !== undefined && parentId !== null) parentsWithADrawnChild.add(parentId)
   }
 
@@ -173,7 +173,7 @@ function taskGroupGrabPlacesInDrawingOrder(
   }
 
   for (const entry of drawn) {
-    const taskGroup = byId.get(entry.groupId)
+    const taskGroup = byId.get(entry.taskGroupId)
     if (taskGroup === undefined) continue
     const taskGroupDepth = taskGroupGrabDepthOf(byId, taskGroup)
     if (taskGroupDepth > depth) continue
@@ -213,7 +213,7 @@ function taskGroupGrabPositionOf(
 ): { readonly place: TaskGroupGrabPlace; readonly situation: SpentEntranceSituation | null } | null {
   const drawn = context.drawnTaskGroupBoxes
   if (drawn === undefined) return null
-  const heldBox = drawn.find((one) => one.groupId === heldGroupId)?.box
+  const heldBox = drawn.find((one) => one.taskGroupId === heldGroupId)?.box
   if (heldBox === undefined) return null
   const places = taskGroupGrabPlacesInDrawingOrder(context, heldGroupId)
   const ownAt = places.findIndex((one) => one.isOwn)
@@ -280,33 +280,33 @@ export function grabbedTaskGroupId(press: PointerPress): string | null {
 export function taskGroupGrabFollow(input: PointerInput, context: InputContext): TranslatedInput {
   const press = context.pressed
   if (press === null) return UNASSIGNED
-  const groupId = grabbedTaskGroupId(press)
-  if (groupId === null) return UNASSIGNED
+  const taskGroupId = grabbedTaskGroupId(press)
+  if (taskGroupId === null) return UNASSIGNED
   // WHY: a caller that does not record the axis cannot hold it (as `paletteFollow` refuses).
   if (press.taskGroupGrabAxis === undefined) return UNASSIGNED
   const axis = taskGroupGrabAxisAt(input, press)
   if (axis === null) return UNASSIGNED
   if (axis === 'position') {
-    const found = taskGroupGrabPositionOf(context, groupId, input.y - press.at.y)
+    const found = taskGroupGrabPositionOf(context, taskGroupId, input.y - press.at.y)
     if (found === null) return UNASSIGNED
     return acted({
       kind: 'followTaskGroupGrab',
-      groupId,
+      taskGroupId,
       axis,
-      atDepth: taskGroupDepthOfGroup(context, groupId),
+      atDepth: taskGroupDepthOfGroup(context, taskGroupId),
       atY: found.place.atY,
       resistedPx: taskGroupGrabResistedPx(input.x - press.at.x, drawnTaskGroupIndentOf(context)),
     })
   }
-  const step = taskGroupGrabLandingOf(context, groupId, taskGroupGrabDepthSteps(context, input, press))
+  const step = taskGroupGrabLandingOf(context, taskGroupId, taskGroupGrabDepthSteps(context, input, press))
   if (step === null) return UNASSIGNED
   return acted({
     kind: 'followTaskGroupGrab',
-    groupId,
+    taskGroupId,
     axis,
     atDepth: step.landing.depth,
     atY: null,
-    resistedPx: taskGroupGrabResistedPx(input.y - press.at.y, taskGroupGrabTaskGroupHeightOf(context, groupId)),
+    resistedPx: taskGroupGrabResistedPx(input.y - press.at.y, taskGroupGrabTaskGroupHeightOf(context, taskGroupId)),
   })
 }
 
@@ -319,7 +319,7 @@ function taskGroupGrabResistedPx(travelPx: number, stepPx: number): number {
 
 /** @purity pure */
 function taskGroupGrabTaskGroupHeightOf(context: InputContext, heldGroupId: string): number {
-  const placed = (context.drawnTaskGroupBoxes ?? []).find((one) => one.groupId === heldGroupId)
+  const placed = (context.drawnTaskGroupBoxes ?? []).find((one) => one.taskGroupId === heldGroupId)
   return placed === undefined ? 0 : placed.box.height
 }
 
@@ -335,7 +335,7 @@ export function commandFromRowGrab(
   if (axis === null) {
     return acted({
       kind: 'chooseTaskGroup',
-      groupId: heldGroupId,
+      taskGroupId: heldGroupId,
       isExtending: press.at.modifiers.shift,
     })
   }
@@ -349,7 +349,7 @@ export function commandFromRowGrab(
     return changed([
       {
         kind: 'moveTaskGroup',
-        groupId: heldGroupId,
+        taskGroupId: heldGroupId,
         parentId: found.place.parentId,
         order: found.place.order,
       },
@@ -367,7 +367,7 @@ export function commandFromRowGrab(
   return changed([
     {
       kind: 'moveTaskGroup',
-      groupId: heldGroupId,
+      taskGroupId: heldGroupId,
       parentId: landing.parentId,
       order: landing.order,
     },

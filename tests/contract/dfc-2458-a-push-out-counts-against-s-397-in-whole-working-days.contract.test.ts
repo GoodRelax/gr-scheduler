@@ -43,7 +43,7 @@ function documentOf(statusDate: string, task: Record<string, unknown>): Document
   raw.schedule.project.statusDate = statusDate
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = [task]
-  raw.schedule.taskGroupMembers = [{ taskUid: UID, groupId: 'r0' }]
+  raw.schedule.taskGroupMembers = [{ taskUid: UID, taskGroupId: 'r0' }]
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`premise: the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
   return decoded.document

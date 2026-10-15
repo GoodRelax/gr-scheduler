@@ -127,7 +127,7 @@ const notStarted = (): Document =>
         startDate: null,
         themeHue: 214,
         uidHighWaterMark: 10,
-        importSeq: 0,
+        importSequence: 0,
         revision: 1,
         carry: {},
         carryElements: [],
@@ -164,14 +164,14 @@ const notStarted = (): Document =>
         {
           id: 'g1',
           parentId: null,
-          label: 'task group',
+          name: 'task group',
           derivedFromTaskUid: null,
           order: 0,
           treeState: 'auto', color: null,
-          minHeight: null,
+          minHeightPx: null,
         } as unknown as TaskGroup,
       ],
-      taskGroupMembers: [{ taskUid: 1, groupId: 'g1' }],
+      taskGroupMembers: [{ taskUid: 1, taskGroupId: 'g1' }],
       taskVisuals: [
         {
           taskUid: 1,
@@ -189,9 +189,9 @@ const notStarted = (): Document =>
     } as unknown as Schedule,
     documentSettings: settingsOf(),
     documentStamp: {
-      scheduleUpdatedUtc: '2026-09-14T00:00:00Z',
+      scheduleUpdatedAt: '2026-09-14T00:00:00Z',
       lastEditedBy: 'user',
-      settingsUpdatedUtc: '2026-09-14T00:00:00Z',
+      settingsUpdatedAt: '2026-09-14T00:00:00Z',
     },
     changeLog: [],
   }) as unknown as Document

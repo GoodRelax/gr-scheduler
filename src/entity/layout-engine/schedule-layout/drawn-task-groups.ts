@@ -16,7 +16,7 @@ function taskGroupsCarryingShown(schedule: Schedule, shown: ReadonlySet<number>,
   const kept = new Set<string>()
   for (const member of schedule.taskGroupMembers) {
     if (!shown.has(member.taskUid)) continue
-    let foundAt: string | null = member.groupId
+    let foundAt: string | null = member.taskGroupId
     for (let guard = 0; foundAt !== null && !kept.has(foundAt) && guard <= SETTINGS_CONSTANTS.maxGroupDepth; guard++) {
       kept.add(foundAt)
       foundAt = byId.get(foundAt)?.parentId ?? null

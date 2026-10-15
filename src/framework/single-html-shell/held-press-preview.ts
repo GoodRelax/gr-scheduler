@@ -200,7 +200,7 @@ export function tentativeDependencyOf(
   // WHY: FR-009 asks for the line with no exception for IC-81's toggle, so the copy draws it whatever the toggle says.
   const drawn = geometryFromLayout(
     { ...made.document.schedule, highlightBoxes: [], commentBoxes: [] },
-    { ...settings, dependencyVisible: true },
+    { ...settings, isDependencyVisible: true },
     { ...layout, placements: [fromPlaced, successorPlaced] },
     regions,
     emptySelection(),

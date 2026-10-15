@@ -172,7 +172,7 @@ const ROW_ID = 'r-alfa'
 
 const SETTINGS = settingsOf({
   scrollDate: '2026-01-01',
-  scrollGroupId: ROW_ID,
+  scrollTaskGroupId: ROW_ID,
   stackDirection: 'down',
 })
 
@@ -208,9 +208,9 @@ const documentWithTitle = (title: string | null): Document =>
     schedule: scheduleWithTitle(title),
     documentSettings: SETTINGS,
     documentStamp: {
-      scheduleUpdatedUtc: '2026-01-01T00:00:00Z',
+      scheduleUpdatedAt: '2026-01-01T00:00:00Z',
       lastEditedBy: 'test',
-      settingsUpdatedUtc: '2026-01-01T00:00:00Z',
+      settingsUpdatedAt: '2026-01-01T00:00:00Z',
     },
     changeLog: [],
   }) as unknown as Document
@@ -249,7 +249,7 @@ const contextFor = (document: Document, part: Partial<InputContext> = {}): Input
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
     ...part,

@@ -36,8 +36,8 @@ const deepTaskGroupBench = (): ShellBench => {
   const stacked = Array.from({ length: STACKED_TASKS }, (_unused, index) => taskOf(index + 1))
   const tasks = [...stacked, taskOf(ROOT_TASK_UID)]
   const members = [
-    ...stacked.map((one) => ({ taskUid: one['uid'], groupId: DEEP })),
-    { taskUid: ROOT_TASK_UID, groupId: ROOT },
+    ...stacked.map((one) => ({ taskUid: one['uid'], taskGroupId: DEEP })),
+    { taskUid: ROOT_TASK_UID, taskGroupId: ROOT },
   ]
   const rows = [
     { id: ROOT, parentId: null },
@@ -50,8 +50,8 @@ const deepTaskGroupBench = (): ShellBench => {
 
 const zoomYOf = (built: ShellBench): number => Number(built.loop.document().documentSettings.zoomY)
 const tallestBandOf = (built: ShellBench): number => Math.max(...frameOf(built).layout.taskGroups.map((taskGroup) => taskGroup.height))
-const isDrawn = (built: ShellBench, groupId: string): boolean =>
-  frameOf(built).layout.taskGroups.some((taskGroup) => taskGroup.groupId === groupId)
+const isDrawn = (built: ShellBench, taskGroupId: string): boolean =>
+  frameOf(built).layout.taskGroups.some((taskGroup) => taskGroup.taskGroupId === taskGroupId)
 
 // see SK-16a
 const stopsUpToTheEnd = (built: ShellBench): { readonly zoomY: number; readonly band: number }[] => {

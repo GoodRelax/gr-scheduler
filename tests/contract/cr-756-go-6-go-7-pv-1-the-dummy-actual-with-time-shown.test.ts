@@ -67,21 +67,21 @@ const taskAfter = (document: Document, command: TaskCommand, uid: number): Task 
 }
 
 const begun = (
-  showsTimeOfDay: boolean,
+  isTimeOfDayVisible: boolean,
   grabbed: 'GA-5' | 'GA-6' | 'GA-17',
   released: string,
   snapMinutes: number,
   uid: number = TIMED_UID,
 ): Task =>
   taskAfter(
-    documentOf({ showsTimeOfDay, pxPerDay: HOUR_TIER }),
+    documentOf({ isTimeOfDayVisible, pxPerDay: HOUR_TIER }),
     { kind: 'beginTaskActual', uid, grabbed, released: { start: released, finish: released }, snapMinutes },
     uid,
   )
 
-const pressed = (showsTimeOfDay: boolean, snapMinutes: number | undefined, uid: number = TIMED_UID): Task =>
+const pressed = (isTimeOfDayVisible: boolean, snapMinutes: number | undefined, uid: number = TIMED_UID): Task =>
   taskAfter(
-    documentOf({ showsTimeOfDay, pxPerDay: HOUR_TIER }),
+    documentOf({ isTimeOfDayVisible, pxPerDay: HOUR_TIER }),
     snapMinutes === undefined
       ? { kind: 'cycleTaskPlanActualState', uid, remembered: null }
       : { kind: 'cycleTaskPlanActualState', uid, remembered: null, snapMinutes },
@@ -206,7 +206,7 @@ const pastBy = (one: Stage, iso: string): number =>
 
 describe('the screen: a dummy released or pressed with time of day shown (DFC-2572)', () => {
   it(`hour tier, GA-5 released at 10:05 on 04-07: ${FR_043_THE_TIMED_VALUES}`, () => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay: HOUR_TIER })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay: HOUR_TIER })
     dragFrom(one, halfOf(one, TIMED_UID, 'left'), pastBy(one, '2026-04-07T10:00:00'))
     expect(written(taskIn(one.loop, TIMED_UID)), GO_6_S_585_WORKING_MINUTES).toEqual({
       actualStart: '2026-04-07T10:00',
@@ -215,7 +215,7 @@ describe('the screen: a dummy released or pressed with time of day shown (DFC-25
   })
 
   it(`hour tier, GA-6 released at 15:05 on 04-06: ${FR_043_THE_OTHER_END}`, () => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay: HOUR_TIER })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay: HOUR_TIER })
     dragFrom(one, halfOf(one, TIMED_UID, 'right'), pastBy(one, '2026-04-06T15:00:00'))
     expect(written(taskIn(one.loop, TIMED_UID)), GO_7_THE_PLAN_START_INSTANT).toEqual({
       actualStart: '2026-04-06T10:30',
@@ -224,7 +224,7 @@ describe('the screen: a dummy released or pressed with time of day shown (DFC-25
   })
 
   it(`day tier with time shown, GA-5 released at 03:00 on 04-07: ${FR_103_THE_NEAREST_DAY_EDGE}`, () => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay: DAY_TIER })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay: DAY_TIER })
     dragFrom(one, halfOf(one, TIMED_UID, 'left'), xOfInstant(one, '2026-04-07T03:00:00'))
     expect(written(taskIn(one.loop, TIMED_UID)), GO_6_THE_FLOOR).toEqual({
       actualStart: '2026-04-07T08:00',
@@ -233,7 +233,7 @@ describe('the screen: a dummy released or pressed with time of day shown (DFC-25
   })
 
   it(`hour tier, the milestone dummy GA-17 released at 15:05 on 04-07: ${GO_8_THE_SAME_DAY}`, () => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay: HOUR_TIER })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay: HOUR_TIER })
     const ink = inkOf(one, TIMED_MILESTONE_UID)
     dragFrom(one, { x: ink.x + ink.width / 2, y: ink.y + ink.height / 2 }, pastBy(one, '2026-04-07T15:00:00'))
     expect(written(taskIn(one.loop, TIMED_MILESTONE_UID)), GO_8_THE_SAME_DAY).toEqual({
@@ -243,7 +243,7 @@ describe('the screen: a dummy released or pressed with time of day shown (DFC-25
   })
 
   it(`hour tier, the progress marker pressed: ${PV_1_NOT_ROUNDED}`, () => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay: HOUR_TIER })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay: HOUR_TIER })
     const at = markerOf(one, TIMED_UID)
     one.send(pointer('down', at.x, at.y))
     one.send(pointer('up', at.x, at.y))
@@ -254,7 +254,7 @@ describe('the screen: a dummy released or pressed with time of day shown (DFC-25
   })
 
   it(`hour tier, the progress marker pulled to 14:05 on 04-07: ${GO_9_RIGHT_OF_THE_DUMMY}`, () => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay: HOUR_TIER })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay: HOUR_TIER })
     dragFrom(one, markerOf(one, TIMED_UID), pastBy(one, '2026-04-07T14:00:00'))
     expect(written(taskIn(one.loop, TIMED_UID)), GO_9_RIGHT_OF_THE_DUMMY).toEqual({
       actualStart: '2026-04-06T10:30',
@@ -263,7 +263,7 @@ describe('the screen: a dummy released or pressed with time of day shown (DFC-25
   })
 
   it(`hour tier, the progress marker pulled to 09:05 on 04-06: ${GO_9_LEFT_OF_THE_PLAN_START}`, () => {
-    const one = stageOf({ showsTimeOfDay: true, pxPerDay: HOUR_TIER })
+    const one = stageOf({ isTimeOfDayVisible: true, pxPerDay: HOUR_TIER })
     dragFrom(one, markerOf(one, TIMED_UID), pastBy(one, '2026-04-06T09:00:00'))
     expect(written(taskIn(one.loop, TIMED_UID)), GO_9_LEFT_OF_THE_PLAN_START).toEqual({
       actualStart: '2026-04-06T10:30',

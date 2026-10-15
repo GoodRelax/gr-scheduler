@@ -91,15 +91,15 @@ const S_149_LIGHT = bare(rowOf('T-236', 'S-149').by['明るいテーマ'] ?? '')
 
 const rect = (x: number, y: number, width: number, height: number) => ({ x, y, width, height })
 
-function title(groupId: string, top: number, over: Partial<TaskGroupTitle> = {}): TaskGroupTitle {
+function title(taskGroupId: string, top: number, over: Partial<TaskGroupTitle> = {}): TaskGroupTitle {
   return {
-    groupId,
+    taskGroupId,
     depth: 0,
     box: rect(0, top, 170, 30),
     indentPx: 0,
     fontPx: 14,
-    label: `task group ${groupId}`,
-    wholeLabel: `task group ${groupId}`,
+    label: `task group ${taskGroupId}`,
+    wholeLabel: `task group ${taskGroupId}`,
     isLabelTruncated: false,
     expander: { canOpen: true, canClose: true, canCloseBelow: true },
     canOpenOneLevel: true,
@@ -141,8 +141,8 @@ function drawn(panel: TaskGroupPanel): Stage {
   return built
 }
 
-const taskGroupNode = (built: Stage, groupId: string): FakeElement[] =>
-  selfAndDescendants(built.root()).filter((one) => one.getAttribute('data-group-id') === groupId)
+const taskGroupNode = (built: Stage, taskGroupId: string): FakeElement[] =>
+  selfAndDescendants(built.root()).filter((one) => one.getAttribute('data-group-id') === taskGroupId)
 
 const PINNED = title('g-pinned', 40, { isPinned: true, foldedTaskGroupCount: 4 })
 const PLAIN = title('g-plain', 70, {
@@ -227,8 +227,8 @@ describe('each task group (HF-18, HF-2, HF-6, HF-15, FR-098)', () => {
 
   it('HF-6 ピン止めしているタスクグループの IC-60 だけは、ポインタが乗っていなくても描くこと', () => {
     const built = drawn({ pinnedTitles: [PINNED], titles: [PLAIN] })
-    const pinOf = (groupId: string): FakeElement =>
-      byRole(taskGroupNode(built, groupId)[0] as FakeElement, TASK_GROUP_PIN)[0] as FakeElement
+    const pinOf = (taskGroupId: string): FakeElement =>
+      byRole(taskGroupNode(built, taskGroupId)[0] as FakeElement, TASK_GROUP_PIN)[0] as FakeElement
     expect(pinOf('g-pinned').getAttribute('data-icon')).toBe('IC-60')
     expect(styleMap(pinOf('g-pinned')).get('visibility')).toBe('visible')
     expect(styleMap(pinOf('g-plain')).get('visibility')).not.toBe('visible')

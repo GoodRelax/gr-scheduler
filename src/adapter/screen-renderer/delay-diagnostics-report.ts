@@ -4,7 +4,7 @@
 // @purity    pure
 
 import {
-  DELAY_FIX_TYPES,
+  DELAY_FIX_KINDS,
   DELAY_REPORT_STATUSES,
   delayDiagnosticsReportMarkdown,
   delayDiagnosticsReportRows,
@@ -273,7 +273,7 @@ function statusTextIn(status: DelayReportStatus, language: DisplayLanguage, isWi
 // see TX-7, TX-8, FR-158, S-576
 // WHY: the S-576 switch and the length of 1d (FR-054), read only when a quantity is shown.
 interface ShownTimes {
-  readonly showsTimeOfDay: boolean
+  readonly isTimeOfDayVisible: boolean
   readonly minutesPerDayOf: () => number
   readonly dates: ShownDateTimes
 }
@@ -283,7 +283,7 @@ interface ShownTimes {
 /** @purity pure */
 function quantityText(minutes: number, times: ShownTimes): string {
   const minutesPerDay = times.minutesPerDayOf()
-  if (times.showsTimeOfDay) return lengthTextOf(minutes, minutesPerDay)
+  if (times.isTimeOfDayVisible) return lengthTextOf(minutes, minutesPerDay)
   return String(Math.ceil(minutes / minutesPerDay))
 }
 
@@ -298,22 +298,22 @@ interface QuantityWord {
 
 /** @purity pure */
 function quantityWordOf(part: string, times: ShownTimes): QuantityWord {
-  return times.showsTimeOfDay ? { part: `${part}${WHEN_TIME_SHOWN}`, slot: 'amount' } : { part, slot: 'days' }
+  return times.isTimeOfDayVisible ? { part: `${part}${WHEN_TIME_SHOWN}`, slot: 'amount' } : { part, slot: 'days' }
 }
 
 // see FR-158, S-576, FR-054, FR-156, S-574
 /** @purity pure */
-function shownTimesOf(schedule: Schedule, showsTimeOfDay: boolean, viewTimeZone: unknown): ShownTimes {
+function shownTimesOf(schedule: Schedule, isTimeOfDayVisible: boolean, viewTimeZone: unknown): ShownTimes {
   return {
-    showsTimeOfDay,
+    isTimeOfDayVisible,
     minutesPerDayOf: () => minutesPerWorkingDayOf(schedule.project),
-    dates: shownDateTimesOf(schedule, { showsTimeOfDay, viewTimeZone: isStandardTimeZoneKey(viewTimeZone) ? viewTimeZone : null }),
+    dates: shownDateTimesOf(schedule, { isTimeOfDayVisible, viewTimeZone: isStandardTimeZoneKey(viewTimeZone) ? viewTimeZone : null }),
   }
 }
 
 /** @purity pure */
-function shownTimesIn(rows: { readonly schedule: Schedule; readonly showsTimeOfDay?: boolean; readonly viewTimeZone?: unknown }): ShownTimes {
-  return shownTimesOf(rows.schedule, rows.showsTimeOfDay ?? false, rows.viewTimeZone ?? null)
+function shownTimesIn(rows: { readonly schedule: Schedule; readonly isTimeOfDayVisible?: boolean; readonly viewTimeZone?: unknown }): ShownTimes {
+  return shownTimesOf(rows.schedule, rows.isTimeOfDayVisible ?? false, rows.viewTimeZone ?? null)
 }
 
 // see TX-7, DT-5, DT-6
@@ -567,11 +567,11 @@ export function delayDiagnosticsReportFromWindow(
   schedule: Schedule,
   layout: { readonly canvas: ScreenRect; readonly textSizeStep: number },
   fixTables: DelayFixTables = NO_DELAY_FIX_TABLES,
-  showsTimeOfDay = false,
+  isTimeOfDayVisible = false,
   viewTimeZone: unknown = null,
 ): DelayDiagnosticsReportView | null {
   if (window === null || report === null) return null
-  const times = shownTimesOf(schedule, showsTimeOfDay, viewTimeZone)
+  const times = shownTimesOf(schedule, isTimeOfDayVisible, viewTimeZone)
   const diagnosis = diagnosisReportViewOf(session, window, view, report, schedule, layout, times)
   const words = fixWordsOf(schedule, displayLanguageOf(session), report, times)
   const values = delayFixValuesOf(window)
@@ -650,7 +650,7 @@ export function delayDiagnosticsReportShowingRow(
     readonly report: DelayDiagnosticsReport
     readonly schedule: Schedule
     readonly language: DisplayLanguage
-    readonly showsTimeOfDay?: boolean
+    readonly isTimeOfDayVisible?: boolean
     readonly viewTimeZone?: unknown
   },
 ): { readonly window: DelayDiagnosticsReportWindow; readonly view: TableView } | null {
@@ -692,7 +692,7 @@ export function delayDiagnosticsReportAfterEntry(
     readonly schedule: Schedule
     readonly language: DisplayLanguage
     readonly fixTables?: DelayFixTables
-    readonly showsTimeOfDay?: boolean
+    readonly isTimeOfDayVisible?: boolean
     readonly viewTimeZone?: unknown
   },
   listed?: readonly string[] | null,
@@ -791,13 +791,13 @@ export function delayDiagnosticsReportMarkdownOf(
   language: DisplayLanguage,
   stamp: { readonly documentName: string; readonly madeAt: string },
   fixTables: DelayFixTables = NO_DELAY_FIX_TABLES,
-  showsTimeOfDay = false,
+  isTimeOfDayVisible = false,
   viewTimeZone: unknown = null,
 ): string {
   const all = delayDiagnosticsReportRows(report, schedule)
   const printed = markdownViewOf(view)
   const look = { word: window.panel.word, view: printed }
-  const times = shownTimesOf(schedule, showsTimeOfDay, viewTimeZone)
+  const times = shownTimesOf(schedule, isTimeOfDayVisible, viewTimeZone)
   const rows = shownTaskGroupsOf(look, all, language, times).map((shown) => ({ status: shown.row.status, cells: markdownCellsOf(shown.cells) }))
   const columns = printed.columnFilters.map((one) => ({
     heading: partWordOf(COLUMN_WORDS, one.column, language),
@@ -1020,7 +1020,7 @@ function fixWordsOf(schedule: Schedule, language: DisplayLanguage, report: Delay
       openFieldHint: word('openFieldHint'),
       cascadePrefix: word('cascadePrefix'),
       readOnlyReason: word('readOnlyReason'),
-      fixTypeOf: word,
+      fixKindOf: word,
       findingOf: (findingRow, taskUid) => fixFindingWordOf(report, findingRow, taskUid, language, times),
       columnOf: (column) => fixColumnWordOf(column, language),
       choiceOf: (choice) => fixChoiceWordOf(choice, nameOf, language),
@@ -1035,9 +1035,9 @@ function fixWordsOf(schedule: Schedule, language: DisplayLanguage, report: Delay
 // WHY: proposeDelayFixes settled each box; a row an earlier row mends stays checked with that row and is held there.
 /** @purity pure */
 function fixCheckOf(row: DelayFixRow): DelayFixCellView['check'] {
-  if (row.fixType === 'byHand') return 'none'
+  if (row.fixKind === 'byHand') return 'none'
   if (row.isCheckable) return row.checked ? 'on' : 'off'
-  if (row.refusal === null && row.fixType === 'choose' && row.chosen === null) return 'off'
+  if (row.refusal === null && row.fixKind === 'choose' && row.chosen === null) return 'off'
   return row.checked ? 'held' : 'disabled'
 }
 
@@ -1079,7 +1079,7 @@ const FIX_TABLE: TableColumns<ShownFixRow> = {
     [FIX_DATE_COLUMN]: (shown) => (shown.columns.includes(FIX_DATE_COLUMN) ? fixCellOf(shown, FIX_DATE_COLUMN).replace(/\//g, '-').slice(0, 10) : null),
   },
   orders: {
-    'FM-3': (a, b) => DELAY_FIX_TYPES.findIndex((type) => fixTypeWordMatches(type, a)) - DELAY_FIX_TYPES.findIndex((type) => fixTypeWordMatches(type, b)),
+    'FM-3': (a, b) => DELAY_FIX_KINDS.findIndex((type) => fixKindWordMatches(type, a)) - DELAY_FIX_KINDS.findIndex((type) => fixKindWordMatches(type, b)),
     'FM-9': (a, b) => taskTypeRankOfWord(a) - taskTypeRankOfWord(b),
   },
 }
@@ -1091,7 +1091,7 @@ function taskTypeRankOfWord(word: string): number {
 }
 
 /** @purity pure */
-function fixTypeWordMatches(type: DelayFixRow['fixType'], word: string): boolean {
+function fixKindWordMatches(type: DelayFixRow['fixKind'], word: string): boolean {
   return fixWordOf(type, 'ja') === word || fixWordOf(type, 'en') === word
 }
 
@@ -1178,11 +1178,11 @@ function fixTargetOf(shown: ShownFixRow): SearchRowView['target'] {
 /** @purity pure */
 function fixCellViewOf(shown: ShownFixRow, row: DelayFixRow, values: DelayFixWindowValues, words: FixWords): DelayFixCellView {
   const isOpen = row.refusal === null
-  const isDated = isOpen && row.fixType === 'suggestedDate'
+  const isDated = isOpen && row.fixKind === 'suggestedDate'
   return {
     key: row.key,
     check: fixCheckOf(row),
-    choices: isOpen && row.fixType === 'choose' && row.choices.length > 1
+    choices: isOpen && row.fixKind === 'choose' && row.choices.length > 1
       ? row.choices.map((choice) => ({ key: choice.key, label: words.cells.choiceOf(choice), isChosen: row.chosen === choice.key }))
       : null,
     blankChoice: words.cells.choosePlaceholder,
@@ -1238,7 +1238,7 @@ function delayFixFooterOf(values: DelayFixWindowValues, tables: DelayFixTables, 
 
 /** @purity pure */
 function isAdoptable(row: DelayFixRow): boolean {
-  const isRecommended = row.fixType === 'automatic' || (row.fixType === 'choose' && row.choices.length === 1)
+  const isRecommended = row.fixKind === 'automatic' || (row.fixKind === 'choose' && row.choices.length === 1)
   return isRecommended && row.isCheckable && !row.checked
 }
 
@@ -1248,7 +1248,7 @@ function byHandKeysOf(tables: DelayFixTables, values: DelayFixWindowValues, word
   const shown = foundFixRowsOf(shownFixRowsOf('proposals', tables, words), '', values.views.proposals)
   return shown.flatMap((one) => {
     const row = proposalOf(one)
-    return row === null || row.fixType === 'automatic' ? [] : [row.key]
+    return row === null || row.fixKind === 'automatic' ? [] : [row.key]
   })
 }
 

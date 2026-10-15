@@ -264,11 +264,11 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
 const group = (id: string, order: number, label: string): unknown => ({
   id,
   parentId: null,
-  label,
+  name: label,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', color: null,
-  minHeight: null,
+  minHeightPx: null,
 })
 
 function fixtureDocument(): Document {
@@ -293,7 +293,7 @@ function fixtureDocument(): Document {
       resources: [],
       assignments: [],
       taskGroups: TASK_GROUPS.map((id, i) => group(id, i, `R${i + 1}`)),
-      taskGroupMembers: [{ taskUid: ALPHA_UID, groupId: ALPHA_TASK_GROUP }],
+      taskGroupMembers: [{ taskUid: ALPHA_UID, taskGroupId: ALPHA_TASK_GROUP }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -308,7 +308,7 @@ function fixtureDocument(): Document {
       stackDirection: 'down',
       scrollDate: '2026-04-01',
       scrollDayOffset: 0,
-      scrollGroupId: TASK_GROUPS[0],
+      scrollTaskGroupId: TASK_GROUPS[0],
       scrollGroupOffset: 0,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -470,9 +470,9 @@ const frameOf = (loop: FrameLoop) => {
 }
 
 /** Where one task group's band stands, as the frame placed it. */
-function bandOf(loop: FrameLoop, groupId: string): { readonly y: number; readonly height: number } {
-  const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no band for task group ${groupId}`)
+function bandOf(loop: FrameLoop, taskGroupId: string): { readonly y: number; readonly height: number } {
+  const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`the frame drew no band for task group ${taskGroupId}`)
   return { y: found.y as number, height: found.height as number }
 }
 

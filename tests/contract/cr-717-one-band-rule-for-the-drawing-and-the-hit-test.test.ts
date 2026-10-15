@@ -36,7 +36,7 @@ const TASKS = [
     name: 'far',
     start: '2027-03-02T00:00:00',
     finish: '2027-03-06T00:00:00',
-    dependencies: [{ predecessorUid: PINNED_UID, linkType: 1, lag: null, lagFormat: null, carry: {}, carryElements: [] }],
+    dependencies: [{ predecessorUid: PINNED_UID, linkType: 1, linkLag: null, lagFormat: null, carry: {}, carryElements: [] }],
   }),
 ]
 
@@ -45,12 +45,12 @@ const GROUP_OF: Readonly<Record<number, string>> = { [PINNED_UID]: PINNED_GROUP,
 const group = (id: string, order: number): unknown => ({
   id,
   parentId: null,
-  label: id,
+  name: id,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto',
   color: null,
-  minHeight: null,
+  minHeightPx: null,
 })
 
 interface Pt {
@@ -65,7 +65,7 @@ const build = () => {
     taskGroups: [group(PINNED_GROUP, 0), group(SCROLLING_GROUP, 1)],
     taskGroupMembers: TASKS.map((one) => {
       const uid = (one as unknown as { uid: number }).uid
-      return { taskUid: uid, groupId: GROUP_OF[uid] }
+      return { taskUid: uid, taskGroupId: GROUP_OF[uid] }
     }),
   } as unknown as Schedule
   const settings = {
@@ -73,8 +73,8 @@ const build = () => {
     zoomX: 8,
     scrollDate: day(1),
     stackDirection: 'down',
-    pinnedGroupIds: [PINNED_GROUP],
-    scrollGroupId: SCROLLING_GROUP,
+    pinnedTaskGroupIds: [PINNED_GROUP],
+    scrollTaskGroupId: SCROLLING_GROUP,
     scrollGroupOffset: 0,
   } as unknown as Parameters<typeof layoutFromSchedule>[1]
   const regions = regionsFromScreen(SCREEN, settings)

@@ -110,9 +110,9 @@ export function commandFromPanelDivider(
 ): TranslatedInput {
   if (panel !== 'taskGroupPanel') return CONSUMED_ELSEWHERE
   const settings = context.document.documentSettings
-  const taskGroupPanelWidth = taskGroupPanelWidthAfterDrag(settings, release.x - press.at.x)
-  if (taskGroupPanelWidth === settings.taskGroupPanelWidth) return CONSUMED_ELSEWHERE
-  return changed([{ kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth }])
+  const taskGroupPanelWidthPx = taskGroupPanelWidthAfterDrag(settings, release.x - press.at.x)
+  if (taskGroupPanelWidthPx === settings.taskGroupPanelWidthPx) return CONSUMED_ELSEWHERE
+  return changed([{ kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx }])
 }
 
 // see FR-052, GR-22, S-171, S-248, T-280
@@ -132,10 +132,10 @@ export function screenEventFromPanelDivider(
 // see FR-052, FR-039, T-252
 /** @purity pure */
 function taskGroupPanelWidthAfterDrag(settings: DocumentSettings, traveled: number): number {
-  const stored = settings.taskGroupPanelWidth
+  const stored = settings.taskGroupPanelWidthPx
   const ratio = displayRatioOf(settings)
-  const drawnAtPress = drawnSettingsOf(settings).taskGroupPanelWidth
-  const floor = drawnSettingsOf({ ...settings, taskGroupPanelWidth: 0 }).taskGroupPanelWidth
+  const drawnAtPress = drawnSettingsOf(settings).taskGroupPanelWidthPx
+  const floor = drawnSettingsOf({ ...settings, taskGroupPanelWidthPx: 0 }).taskGroupPanelWidthPx
   const isWiderThanFloor = drawnAtPress + traveled > floor
   if (!isWiderThanFloor) return Math.min(stored, floor / ratio)
   const drawnTravel = drawnAtPress - stored * ratio + traveled

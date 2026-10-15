@@ -91,16 +91,16 @@ async function documentWithTaskGroups(baseURL: string, roots: number, offset: nu
       const members: Bag[] = []
       let uid = 1
       for (let index = 0; index < asked.count; index += 1) {
-        groups.push({ ...group0, id: `r${index}`, parentId: null, order: index, label: `Row ${index}`, treeState: 'collapsed', minHeight: null })
-        groups.push({ ...group0, id: `r${index}c`, parentId: `r${index}`, order: 0, label: `Child ${index}`, treeState: 'auto', minHeight: null })
-        for (const groupId of [`r${index}`, `r${index}c`]) {
+        groups.push({ ...group0, id: `r${index}`, parentId: null, order: index, name: `Row ${index}`, treeState: 'collapsed', minHeightPx: null })
+        groups.push({ ...group0, id: `r${index}c`, parentId: `r${index}`, order: 0, name: `Child ${index}`, treeState: 'auto', minHeightPx: null })
+        for (const taskGroupId of [`r${index}`, `r${index}c`]) {
           const over: Bag = {
             uid, name: `T${uid}`, start: '2026-01-05T08:00:00', finish: '2026-01-20T17:00:00', dependencies: [],
             actualStart: null, actualFinish: null, actualDuration: null, stop: null, percentComplete: null,
             resume: null, resumeValid: true, parentTaskUid: null, milestone: false,
           }
           tasks.push({ ...task0, ...Object.fromEntries(Object.entries(over).filter(([key]) => key in task0)) })
-          members.push({ groupId, taskUid: uid })
+          members.push({ taskGroupId, taskUid: uid })
           uid += 1
         }
       }
@@ -114,8 +114,8 @@ async function documentWithTaskGroups(baseURL: string, roots: number, offset: nu
           resources: [], assignments: [], taskOrigins: [], baselineTasks: [],
         },
         documentSettings: {
-          ...held.documentSettings, displayScale: 100, zoomY: 1, zoomX: 1, pinnedGroupIds: [],
-          scrollGroupId: 'r0', scrollGroupOffset: asked.offset, scrollDate: '2026-01-01T00:00:00', scrollDayOffset: 0,
+          ...held.documentSettings, displayScale: 100, zoomY: 1, zoomX: 1, pinnedTaskGroupIds: [],
+          scrollTaskGroupId: 'r0', scrollGroupOffset: asked.offset, scrollDate: '2026-01-01T00:00:00', scrollDayOffset: 0,
         },
       })
     }, { count: roots, offset, schemaAddress: TEMPLATE['$schema'] })

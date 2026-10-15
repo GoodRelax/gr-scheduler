@@ -58,7 +58,7 @@ describe('CR-386 -- the manuscript these cases are driven by', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it('holds table T-251 with ND-1 to ND-5, and S-232 as a boolean planDatesVisible defaulting to false', () => {
+  it('holds table T-251 with ND-1 to ND-5, and S-232 as a boolean isPlanDatesVisible defaulting to false', () => {
     expect(specTable('T-251').rows.map((row) => row.id)).toEqual(['ND-1', 'ND-2', 'ND-3', 'ND-4', 'ND-5'])
     const s232 = specTable('T-202').rows.find((row) => row.id === 'S-232')
     expect(bare(s232?.by['キー'] ?? '')).toBe(PLAN_DATES_KEY)
@@ -67,8 +67,8 @@ describe('CR-386 -- the manuscript these cases are driven by', () => {
   })
 })
 
-const PLAN_DATES_KEY = 'planDatesVisible'
-const PLAN_VISIBLE_KEY = 'planVisible'
+const PLAN_DATES_KEY = 'isPlanDatesVisible'
+const PLAN_VISIBLE_KEY = 'isPlanVisible'
 const DATES_ENTRY = 'IC-103'
 const STATUS_DATE_ENTRY = 'IC-44'
 
@@ -188,13 +188,13 @@ function fixtureDocument(planned: readonly Planned[], settings: Readonly<Record<
       taskGroups: planned.map((one, order) => ({
         id: rowIdOf(one.uid),
         parentId: null,
-        label: `task group ${order}`,
+        name: `task group ${order}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto', color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: planned.map((one) => ({ taskUid: one.uid, groupId: rowIdOf(one.uid) })),
+      taskGroupMembers: planned.map((one) => ({ taskUid: one.uid, taskGroupId: rowIdOf(one.uid) })),
       taskVisuals: planned
         .filter((one) => one.milestone)
         .map((one) => ({
@@ -374,19 +374,19 @@ describe('T-109 IC-103 -- placed at the head of its group, left of IC-44', () =>
 })
 
 describe('the bench -- a palette toggle that already exists is switched by the same press', () => {
-  it('CONTROL: the Command Palette entry naming S-62 flips dependencyVisible through this harness', () => {
+  it('CONTROL: the Command Palette entry naming S-62 flips isDependencyVisible through this harness', () => {
     const row = specTable('T-109').rows.find(
       (one) => (one.by['切り替える設定値'] ?? '') === '`S-62`' && (one.by['面'] ?? '').includes('Command Palette'),
     )
     expect(row, 'table T-109 has a palette entry for S-62').toBeDefined()
-    const built = stage(SAME_YEAR, { dependencyVisible: false }, row?.id ?? '')
+    const built = stage(SAME_YEAR, { isDependencyVisible: false }, row?.id ?? '')
     pressDatesEntry(built)
-    expect(settingOf(built.loop, 'dependencyVisible'), `${row?.id} pressed once`).toBe(true)
+    expect(settingOf(built.loop, 'isDependencyVisible'), `${row?.id} pressed once`).toBe(true)
   })
 })
 
 describe('FR-049 via IC-103 -- a press switches S-232', () => {
-  it('turns planDatesVisible from false to true, and back on a second press', () => {
+  it('turns isPlanDatesVisible from false to true, and back on a second press', () => {
     const built = stage(SAME_YEAR, { [PLAN_DATES_KEY]: false })
     expect(settingOf(built.loop, PLAN_DATES_KEY), 'premise: S-232 starts false').toBe(false)
     pressDatesEntry(built)
@@ -453,7 +453,7 @@ describe(`FR-002 (MUST) -- ${FR_002_T_273_MEASURES_THE_DATES}`, () => {
     zoomX: 2,
     zoomY: 1,
     scrollDate: '2026-04-01',
-    scrollGroupId: rowIdOf(ALPHA.uid),
+    scrollTaskGroupId: rowIdOf(ALPHA.uid),
   }
 
   it('a name that fits inside its shape alone goes outside once the dates are added', () => {

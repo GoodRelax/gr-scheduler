@@ -391,7 +391,7 @@
   {
    "id": "PR-18",
    "columns": [
-    "label"
+    "name"
    ],
    "inputKinds": [
     "文字"
@@ -407,7 +407,7 @@
   {
    "id": "PR-20",
    "columns": [
-    "minHeight"
+    "minHeightPx"
    ],
    "inputKinds": [
     "数値"
@@ -632,7 +632,7 @@
   {
    "id": "PR-42",
    "columns": [
-    "lag"
+    "linkLag"
    ],
    "inputKinds": [
     "数値"

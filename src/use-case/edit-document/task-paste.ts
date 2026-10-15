@@ -61,7 +61,7 @@ export function withInferredCopyParents(
 ): Task[] {
   const byId = new Map(after.taskGroups.map((one) => [one.id, one]))
   const landingOf = new Map<number, string>()
-  for (const one of after.taskGroupMembers) if (!landingOf.has(one.taskUid)) landingOf.set(one.taskUid, one.groupId)
+  for (const one of after.taskGroupMembers) if (!landingOf.has(one.taskUid)) landingOf.set(one.taskUid, one.taskGroupId)
   const copyUids = new Set(copies.map((one) => one.uid))
   const settled = [...copies]
   sources.forEach((source, at) => {
@@ -109,7 +109,7 @@ export function pasteTasks(
     .map((one) => ({
       ...one,
       taskUid: remap.get(one.taskUid) as number,
-      groupId: landing?.groupIdOf[one.taskUid] ?? one.groupId,
+      taskGroupId: landing?.groupIdOf[one.taskUid] ?? one.taskGroupId,
     }))
   const assignmentCopies: Assignment[] = schedule.assignments
     .filter((one) => one.taskUid !== null && chosen.has(one.taskUid))

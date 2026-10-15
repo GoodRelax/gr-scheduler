@@ -20,7 +20,7 @@ export interface SelectionCopiedTask {
 
 export interface SelectionCopiedTaskGroup {
   readonly kind: 'taskGroup'
-  readonly groupId: string
+  readonly taskGroupId: string
 }
 
 export type SelectionCopied = SelectionCopiedTask | SelectionCopiedTaskGroup
@@ -132,7 +132,7 @@ function isSameList<T>(a: readonly T[], b: readonly T[]): boolean {
 function isSameCopy(a: SelectionCopied | null, b: SelectionCopied): boolean {
   if (a === null || a.kind !== b.kind) return false
   if (a.kind === 'task') return isSameList(a.uids, (b as SelectionCopiedTask).uids)
-  return a.groupId === (b as SelectionCopiedTaskGroup).groupId
+  return a.taskGroupId === (b as SelectionCopiedTaskGroup).taskGroupId
 }
 
 // WHY: rewriting a carried value with the one it already holds changes nothing (SF-3, SD-3).

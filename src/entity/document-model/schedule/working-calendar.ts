@@ -825,7 +825,7 @@ export function textOfFinishSide(day: CalendarDay, project: Project): string {
 // TRAP: null means GRS does not read the lag's format, never "no lag"; a zero lag is zero whatever its format.
 /** @purity pure */
 export function lagWorkingDaysOf(dependency: Dependency, minutesPerDay: number): number | null {
-  const lag = dependency.lag ?? 0
+  const lag = dependency.linkLag ?? 0
   if (lag === 0) return 0
   if (dependency.lagFormat !== WORKING_DAY_LAG_FORMAT) return null
   return lag / TENTHS_OF_A_MINUTE / minutesPerDay

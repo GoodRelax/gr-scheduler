@@ -47,11 +47,11 @@ export type DocumentSettingsCommand =
   | { readonly kind: 'setStackDirection'; readonly direction: DocumentSettings['stackDirection'] }
   | {
       readonly kind: 'setElementVisible'
-      readonly element: 'baselineVisible' | 'planVisible' | 'actualVisible' | 'progressLineVisible' | 'progressMarkerVisible' | 'dateGridLinesVisible' | 'groupGridLinesVisible' | 'assigneeVisible' | 'percentCompleteVisible' | 'dependencyVisible' | 'planDatesVisible'
+      readonly element: 'isBaselineVisible' | 'isPlanVisible' | 'isActualVisible' | 'isProgressLineVisible' | 'isProgressMarkerVisible' | 'isDateGridLinesVisible' | 'isGroupGridLinesVisible' | 'isAssigneeVisible' | 'isPercentCompleteVisible' | 'isDependencyVisible' | 'isPlanDatesVisible'
       readonly visible: boolean
     }
   | { readonly kind: 'setFontScale'; readonly scale: DocumentSettings['fontScale'] }
-  | { readonly kind: 'setThemeMonochrome'; readonly monochrome: DocumentSettings['themeMonochrome'] }
+  | { readonly kind: 'setThemeMonochrome'; readonly monochrome: DocumentSettings['isThemeMonochrome'] }
   | {
       readonly kind: 'setZoom'
       readonly zoomX: DocumentSettings['zoomX']
@@ -60,22 +60,22 @@ export type DocumentSettingsCommand =
   | {
       readonly kind: 'setScrollPosition'
       readonly scrollDate: DocumentSettings['scrollDate']
-      readonly scrollGroupId: DocumentSettings['scrollGroupId']
+      readonly scrollTaskGroupId: DocumentSettings['scrollTaskGroupId']
       readonly scrollDayOffset: DocumentSettings['scrollDayOffset']
       readonly scrollGroupOffset: DocumentSettings['scrollGroupOffset']
     }
   | {
-      readonly kind: 'setTaskGroupPanelWidth'
-      readonly taskGroupPanelWidth: DocumentSettings['taskGroupPanelWidth']
+      readonly kind: 'setTaskGroupPanelWidthPx'
+      readonly taskGroupPanelWidthPx: DocumentSettings['taskGroupPanelWidthPx']
     }
-  | { readonly kind: 'pinTaskGroup'; readonly groupId: TaskGroup['id'] }
-  | { readonly kind: 'unpinTaskGroup'; readonly groupId: TaskGroup['id'] }
+  | { readonly kind: 'pinTaskGroup'; readonly taskGroupId: TaskGroup['id'] }
+  | { readonly kind: 'unpinTaskGroup'; readonly taskGroupId: TaskGroup['id'] }
   | {
       readonly kind: 'fitScheduleToScreen'
       readonly zoomX: DocumentSettings['zoomX']
       readonly zoomY: DocumentSettings['zoomY']
       readonly scrollDate: DocumentSettings['scrollDate']
-      readonly scrollGroupId: DocumentSettings['scrollGroupId']
+      readonly scrollTaskGroupId: DocumentSettings['scrollTaskGroupId']
       readonly scrollDayOffset: DocumentSettings['scrollDayOffset']
       readonly scrollGroupOffset: DocumentSettings['scrollGroupOffset']
     }
@@ -88,13 +88,13 @@ export type DocumentSettingsCommand =
   | { readonly kind: 'clearFitSpan' }
   | {
       readonly kind: 'setFitSpanFixed'
-      readonly fitSpanFixed: DocumentSettings['fitSpanFixed']
+      readonly isFitSpanFixed: DocumentSettings['isFitSpanFixed']
       readonly shownStart: string | null
       readonly shownFinish: string | null
     }
   | {
       readonly kind: 'setTaskGroupPanelWidthFixed'
-      readonly taskGroupPanelWidthFixed: DocumentSettings['taskGroupPanelWidthFixed']
+      readonly isTaskGroupPanelWidthFixed: DocumentSettings['isTaskGroupPanelWidthFixed']
     }
   | {
       readonly kind: 'setTableView'
@@ -103,7 +103,10 @@ export type DocumentSettingsCommand =
     }
   | { readonly kind: 'setViewTimeZone'; readonly timeZone: string | null }
   | { readonly kind: 'setDisplayTimeZones'; readonly timeZones: DocumentSettings['displayTimeZones'] }
-  | { readonly kind: 'setShowsTimeOfDay'; readonly showsTimeOfDay: DocumentSettings['showsTimeOfDay'] }
+  | {
+      readonly kind: 'setTimeOfDayVisible'
+      readonly isTimeOfDayVisible: DocumentSettings['isTimeOfDayVisible']
+    }
   | {
       readonly kind: 'setLevelZeroTreeState'
       readonly levelZeroTreeState: DocumentSettings['levelZeroTreeState']
@@ -278,21 +281,21 @@ type SettingsPut = (part: Partial<DocumentSettings>) => EditResult
 /** @purity pure */
 function taskGroupPanelWidthEdited(
   settings: DocumentSettings,
-  command: Extract<DocumentSettingsCommand, { readonly kind: 'setTaskGroupPanelWidth' }>,
+  command: Extract<DocumentSettingsCommand, { readonly kind: 'setTaskGroupPanelWidthPx' }>,
   limits: SettingsLimits,
   put: SettingsPut,
 ): EditResult {
   // TRAP: test as !(w > 0), not w <= 0; AG-8 hands commands over as data and NaN fails both.
-  if (!(command.taskGroupPanelWidth > 0)) {
+  if (!(command.taskGroupPanelWidthPx > 0)) {
     // WHY: S-79's formula floor is not applied; applying it here would own a second copy of that row.
     return refused([reject('CM-67', 'FR-052', 'the task group panel must be wider than zero')])
   }
   // TRAP: the limit is measured off the DRAWN regions, so the stored width has to be scaled to meet it.
-  const taskGroupArea = limits.taskGroupAreaWidthWithoutPanels - command.taskGroupPanelWidth * displayRatioOf(settings)
+  const taskGroupArea = limits.taskGroupAreaWidthWithoutPanels - command.taskGroupPanelWidthPx * displayRatioOf(settings)
   if (!(taskGroupArea > 0)) {
     return refused([reject('CM-67', 'FR-052', 'the width would leave the Task Group Area at or below zero')])
   }
-  return put({ taskGroupPanelWidth: command.taskGroupPanelWidth })
+  return put({ taskGroupPanelWidthPx: command.taskGroupPanelWidthPx })
 }
 
 // see CM-86, S-418, T-328
@@ -317,14 +320,14 @@ function fontScaleEdited(
   command: Extract<DocumentSettingsCommand, { readonly kind: 'setFontScale' }>,
   put: SettingsPut,
 ): EditResult {
-  const ruler = SETTINGS_DERIVED.rulerFont
-  const rulerFont = SETTINGS_CONSTANTS[ruler.index][command.scale] * ruler.times
-  const band = SETTINGS_DERIVED.rulerHeight
-  const padded = { ...settings, rulerFont }
+  const ruler = SETTINGS_DERIVED.rulerFontSizePx
+  const rulerFontSizePx = SETTINGS_CONSTANTS[ruler.index][command.scale] * ruler.times
+  const band = SETTINGS_DERIVED.rulerHeightPx
+  const padded = { ...settings, rulerFontSizePx }
   return put({
     fontScale: command.scale,
-    rulerFont,
-    rulerHeight:
+    rulerFontSizePx,
+    rulerHeightPx:
       padded[band.from] * band.times +
       band.plus +
       SETTINGS_CONSTANTS[band.plusFrom] * band.plusTimes,
@@ -338,14 +341,14 @@ function pinEdited(
   command: Extract<DocumentSettingsCommand, { readonly kind: 'pinTaskGroup' }>,
   put: SettingsPut,
 ): EditResult {
-  const held = settings.pinnedGroupIds
-  if (held.includes(command.groupId)) return put({ pinnedGroupIds: held })
+  const held = settings.pinnedTaskGroupIds
+  if (held.includes(command.taskGroupId)) return put({ pinnedTaskGroupIds: held })
   if (held.length >= SETTINGS_CONSTANTS.pinnedTaskGroupMax) {
     return refused([
       reject('CM-68', 'FR-098', `already holding ${SETTINGS_CONSTANTS.pinnedTaskGroupMax} pinned task groups`),
     ])
   }
-  return put({ pinnedGroupIds: [...held, command.groupId] })
+  return put({ pinnedTaskGroupIds: [...held, command.taskGroupId] })
 }
 
 type FitSpanPair = { readonly span: Partial<DocumentSettings> } | { readonly refusal: EditResult }
@@ -384,9 +387,9 @@ function fitSpanFixedEdited(
   put: SettingsPut,
 ): EditResult {
   const hasSpan = dayOf(settings.fitSpanStart) !== null && dayOf(settings.fitSpanFinish) !== null
-  if (!command.fitSpanFixed || hasSpan) return put({ fitSpanFixed: command.fitSpanFixed })
+  if (!command.isFitSpanFixed || hasSpan) return put({ isFitSpanFixed: command.isFitSpanFixed })
   const pair = fitSpanPairOf('CM-90', command.shownStart, command.shownFinish)
-  return 'refusal' in pair ? pair.refusal : put({ ...pair.span, fitSpanFixed: true })
+  return 'refusal' in pair ? pair.refusal : put({ ...pair.span, isFitSpanFixed: true })
 }
 
 type FitSpanCommand = Extract<DocumentSettingsCommand, { readonly kind: 'setFitSpan' | 'clearFitSpan' | 'setFitSpanFixed' }>
@@ -406,12 +409,12 @@ function isComposedCommand(command: DocumentSettingsCommand): command is Compose
   return Object.prototype.hasOwnProperty.call(COMPOSED_KINDS, command.kind)
 }
 
-type FlagCommand = Extract<DocumentSettingsCommand, { readonly kind: 'setThemeMonochrome' | 'setTaskGroupPanelWidthFixed' | 'setShowsTimeOfDay' }>
+type FlagCommand = Extract<DocumentSettingsCommand, { readonly kind: 'setThemeMonochrome' | 'setTaskGroupPanelWidthFixed' | 'setTimeOfDayVisible' }>
 
 const FLAG_KINDS: Readonly<Record<FlagCommand['kind'], true>> = {
   setThemeMonochrome: true,
   setTaskGroupPanelWidthFixed: true,
-  setShowsTimeOfDay: true,
+  setTimeOfDayVisible: true,
 }
 
 /** @purity pure */
@@ -454,9 +457,9 @@ function zoneCommandEdited(settings: DocumentSettings, command: ZoneCommand, put
 // see CM-64, CM-91, CM-97
 /** @purity pure */
 function flagCommandEdited(command: FlagCommand, put: SettingsPut): EditResult {
-  if (command.kind === 'setThemeMonochrome') return put({ themeMonochrome: command.monochrome })
-  if (command.kind === 'setTaskGroupPanelWidthFixed') return put({ taskGroupPanelWidthFixed: command.taskGroupPanelWidthFixed })
-  return put({ showsTimeOfDay: command.showsTimeOfDay })
+  if (command.kind === 'setThemeMonochrome') return put({ isThemeMonochrome: command.monochrome })
+  if (command.kind === 'setTaskGroupPanelWidthFixed') return put({ isTaskGroupPanelWidthFixed: command.isTaskGroupPanelWidthFixed })
+  return put({ isTimeOfDayVisible: command.isTimeOfDayVisible })
 }
 
 /** @purity pure */
@@ -471,7 +474,7 @@ function fitSpanCommandEdited(settings: DocumentSettings, command: FitSpanComman
   if (command.kind === 'setFitSpan') return fitSpanEdited(command, put)
   if (command.kind === 'setFitSpanFixed') return fitSpanFixedEdited(settings, command, put)
   // WHY: a cleared span takes its fix with it in the same one step (FX-5).
-  return put({ fitSpanStart: null, fitSpanFinish: null, fitSpanFixed: false })
+  return put({ fitSpanStart: null, fitSpanFinish: null, isFitSpanFixed: false })
 }
 
 // see T-108, FR-063
@@ -521,22 +524,22 @@ export function editDocumentSettings(
       }
       return put({
         scrollDate: command.scrollDate,
-        scrollGroupId: command.scrollGroupId,
+        scrollTaskGroupId: command.scrollTaskGroupId,
         scrollDayOffset: command.scrollDayOffset,
         scrollGroupOffset: command.scrollGroupOffset,
       })
     }
 
-    case 'setTaskGroupPanelWidth':
+    case 'setTaskGroupPanelWidthPx':
       return taskGroupPanelWidthEdited(settings, command, limits, put)
 
     case 'pinTaskGroup':
       return pinEdited(settings, command, put)
 
     case 'unpinTaskGroup': {
-      const held = settings.pinnedGroupIds
-      if (!held.includes(command.groupId)) return edited(document)
-      return put({ pinnedGroupIds: held.filter((one) => one !== command.groupId) })
+      const held = settings.pinnedTaskGroupIds
+      if (!held.includes(command.taskGroupId)) return edited(document)
+      return put({ pinnedTaskGroupIds: held.filter((one) => one !== command.taskGroupId) })
     }
 
     case 'fitScheduleToScreen': {
@@ -548,7 +551,7 @@ export function editDocumentSettings(
         zoomX: clamp(command.zoomX),
         zoomY: clamp(command.zoomY),
         scrollDate: command.scrollDate,
-        scrollGroupId: command.scrollGroupId,
+        scrollTaskGroupId: command.scrollTaskGroupId,
         scrollDayOffset: command.scrollDayOffset,
         scrollGroupOffset: command.scrollGroupOffset,
       })
@@ -597,15 +600,15 @@ export function baseChangeCommandOf(
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-109, T-202, FR-049
 export type VisibleElement =
-  | 'baselineVisible'
-  | 'planVisible'
-  | 'actualVisible'
-  | 'progressLineVisible'
-  | 'progressMarkerVisible'
-  | 'dateGridLinesVisible'
-  | 'groupGridLinesVisible'
-  | 'assigneeVisible'
-  | 'percentCompleteVisible'
-  | 'dependencyVisible'
-  | 'planDatesVisible'
+  | 'isBaselineVisible'
+  | 'isPlanVisible'
+  | 'isActualVisible'
+  | 'isProgressLineVisible'
+  | 'isProgressMarkerVisible'
+  | 'isDateGridLinesVisible'
+  | 'isGroupGridLinesVisible'
+  | 'isAssigneeVisible'
+  | 'isPercentCompleteVisible'
+  | 'isDependencyVisible'
+  | 'isPlanDatesVisible'
 // </generated>

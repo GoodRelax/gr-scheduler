@@ -95,7 +95,7 @@ describe('CR-582 -- the manuscript these cases are driven by', () => {
   it('table T-338 holds MH-1 .. MH-4 and MH-6 (CR-689 left the fifth row out), and table T-016 PR-20 is the minHeight of a TaskGroup', () => {
     expect(specTable('T-338').rows.map((row) => row.id)).toEqual(['MH-1', 'MH-2', 'MH-3', 'MH-4', 'MH-6'])
     const pr20 = specTable('T-016').rows.find((row) => row.id === 'PR-20')
-    expect(pr20?.cells.map(bare)).toEqual(expect.arrayContaining(['minHeight', 'TaskGroup']))
+    expect(pr20?.cells.map(bare)).toEqual(expect.arrayContaining(['minHeightPx', 'TaskGroup']))
   })
 })
 
@@ -204,15 +204,15 @@ function sceneOf(options: SceneOptions = {}): Document {
       taskGroups: rows.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
-        label: `Row${index + 1}`,
+        name: `Row${index + 1}`,
         derivedFromTaskUid: null,
         order: index,
         treeState: 'auto',
         editGroup: null,
         color: null,
-        minHeight: options.minHeightOf?.[one.id] ?? null,
+        minHeightPx: options.minHeightOf?.[one.id] ?? null,
       })),
-      taskGroupMembers: rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
+      taskGroupMembers: rows.map((one, index) => ({ taskUid: index + 1, taskGroupId: one.id })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -223,7 +223,7 @@ function sceneOf(options: SceneOptions = {}): Document {
       ...structuredClone(TEMPLATE.documentSettings),
       ...(options.displayScale === undefined ? {} : { displayScale: options.displayScale }),
       scrollDate: '2026-04-01',
-      scrollGroupId: A,
+      scrollTaskGroupId: A,
       scrollGroupOffset: 0,
       zoomY: options.zoomY ?? 1,
       levelZeroTreeState: 'auto',
@@ -318,9 +318,9 @@ interface Bench {
   send(input: HumanInput): void
   wheel(notches: number): void
   pressEntrance(icon: string): void
-  openTaskGroup(groupId: string): void
+  openTaskGroup(taskGroupId: string): void
   view(): ScreenView
-  band(groupId: string): number | null
+  band(taskGroupId: string): number | null
   zoomY(): number
 }
 
@@ -384,12 +384,12 @@ function bench(document: Document, language: DisplayLanguage = 'ja'): Bench {
       drain()
     },
     // see MK-13
-    openTaskGroup: (groupId) => {
-      const title = view().taskGroupPanel.titles.find((one) => one.groupId === groupId)
-      if (title === undefined) throw new Error(`the task group title of ${groupId} is not drawn`)
+    openTaskGroup: (taskGroupId) => {
+      const title = view().taskGroupPanel.titles.find((one) => one.taskGroupId === taskGroupId)
+      if (title === undefined) throw new Error(`the task group title of ${taskGroupId} is not drawn`)
       const x = title.box.x + title.box.width / 2
       const y = title.box.y + title.box.height / 2
-      aimed = partOn('Task Group Panel', null, groupId)
+      aimed = partOn('Task Group Panel', null, taskGroupId)
       send(pointerAt('down', x, y))
       send(pointerAt('up', x, y))
       send(pointerAt('down', x, y, 2))
@@ -398,7 +398,7 @@ function bench(document: Document, language: DisplayLanguage = 'ja'): Bench {
       if (view().propertiesPanel === null) throw new Error('premise: MK-13 put the property panel up on the task group')
     },
     view,
-    band: (groupId) => frame().layout.taskGroups.find((one) => one.groupId === groupId)?.height ?? null,
+    band: (taskGroupId) => frame().layout.taskGroups.find((one) => one.taskGroupId === taskGroupId)?.height ?? null,
     zoomY: () => loop.document().documentSettings.zoomY as number,
   }
 }
@@ -480,18 +480,18 @@ function tick(built: Bench, checked: boolean): void {
   built.send({ kind: 'pointer', phase: 'move', button: 'left', x: 5, y: SCREEN.height - 20, modifiers: MODS(), clickCount: 0 } as PointerInput)
 }
 
-const minHeightIn = (document: Document, groupId: string): unknown =>
-  (document.schedule.taskGroups.find((one) => one.id === groupId) as unknown as Record<string, unknown>)['minHeight']
+const minHeightIn = (document: Document, taskGroupId: string): unknown =>
+  (document.schedule.taskGroups.find((one) => one.id === taskGroupId) as unknown as Record<string, unknown>)['minHeightPx']
 
-function openedOn(options: SceneOptions, groupId = A, language: DisplayLanguage = 'ja'): Bench {
+function openedOn(options: SceneOptions, taskGroupId = A, language: DisplayLanguage = 'ja'): Bench {
   const built = bench(sceneOf(options), language)
-  built.openTaskGroup(groupId)
+  built.openTaskGroup(taskGroupId)
   return built
 }
 
-const bandNow = (built: Bench, groupId = A): number => {
-  const band = built.band(groupId)
-  if (band === null) throw new Error(`task group ${groupId} is not placed`)
+const bandNow = (built: Bench, taskGroupId = A): number => {
+  const band = built.band(taskGroupId)
+  if (band === null) throw new Error(`task group ${taskGroupId} is not placed`)
   return band
 }
 
@@ -577,7 +577,7 @@ describe(`T-338 MH-2 -- "${MH_2_EMPTY}"`, () => {
     expect(input.value, MH_2_CLEAR).toBe('')
     expect(input.getAttribute('disabled'), `${MH_2_CLEAR} -- 打てなくする`).not.toBeNull()
     expect(placeholderOf(input) ?? '', MH_2_NOT_ZERO).toBe('')
-    const control = describedField(built).controls.find((one) => one.key.column === 'minHeight')
+    const control = describedField(built).controls.find((one) => one.key.column === 'minHeightPx')
     expect(control?.isDisabled, MH_2_CLEAR).toBe(true)
     expect(control?.text ?? '', MH_2_NOT_ZERO).not.toBe('0')
     expect(drawnTexts(built).filter((one) => /^0\b/.test(one)), MH_2_NOT_ZERO).toEqual([])
@@ -608,7 +608,7 @@ describe(`T-338 MH-2 -- "${MH_2_EMPTY}"`, () => {
     const written = (JSON.parse(jsonFromDocument(built.loop.document())) as { schedule: { taskGroups: Record<string, unknown>[] } })
       .schedule.taskGroups
     const taskGroup = written.find((one) => one['id'] === A)
-    expect(taskGroup?.['minHeight']).toBeNull()
+    expect(taskGroup?.['minHeightPx']).toBeNull()
     expect(written.filter((one) => Object.hasOwn(one, 'height'))).toEqual([])
   })
 

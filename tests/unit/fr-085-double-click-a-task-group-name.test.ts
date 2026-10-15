@@ -44,7 +44,7 @@
 //            （MUST NOT）」.
 //   T-023    MK-13's タスクグループ見出し entry.
 //   T-036    SK-19, which closes the panel and is NOT restated here.
-//   AT-53    `TaskGroup.label`, the task group's name.
+//   AT-53    `TaskGroup.name`, the task group's name.
 //
 // ⛔ WRITTEN FROM docs/spec AND NOTHING ELSE (docs/development-rules/
 // 04-verification.md section 1). What was read of `src/`: the exported
@@ -125,17 +125,17 @@ const THE_OVERRIDDEN_SENTENCE =
  * `AT-53` -- the task group's name, read out of the ERD rather than typed.
  *
  * ⭐ THE ROW ID IS THE JOIN across IF-9 (`focusPropertyField` takes one), so it
- * is read from the table that owns it and asserted to be `TaskGroup.label`.
+ * is read from the table that owns it and asserted to be `TaskGroup.name`.
  */
 const TASK_GROUP_NAME_FIELD = ((): string => {
   const detail = unbroken(readFileSync(
     join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
     'utf8',
   ))
-  const line = detail.split('\n').find((one) => one.includes('`TaskGroup` | `label`'))
-  if (line === undefined) throw new Error('the ERD holds no `TaskGroup`.`label` row')
+  const line = detail.split('\n').find((one) => one.includes('`TaskGroup` | `name`'))
+  if (line === undefined) throw new Error('the ERD holds no `TaskGroup`.`name` row')
   const id = line.split('|')[1]?.trim() ?? ''
-  if (!/^AT-\d+$/.test(id)) throw new Error(`the row for TaskGroup.label reads "${id}"`)
+  if (!/^AT-\d+$/.test(id)) throw new Error(`the row for TaskGroup.name reads "${id}"`)
   return id
 })()
 
@@ -163,11 +163,11 @@ function twoTaskGroupDocument(): Document {
   const row = (id: string, parentId: string | null, label: string, order: number) => ({
     id,
     parentId,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', color: null,
-    minHeight: null,
+    minHeightPx: null,
   })
   return {
     '$schema': template['$schema'],
@@ -300,10 +300,10 @@ interface Stage {
   send(input: HumanInput): void
   panel(): PropertiesPanel | null
   /** Aim the next press at one task group of the `Task Group Panel`, on its name. */
-  aimAtTaskGroup(groupId: string): void
+  aimAtTaskGroup(taskGroupId: string): void
   aimAtNothing(): void
   /** The name the document holds for one task group. */
-  labelOf(groupId: string): string | null
+  labelOf(taskGroupId: string): string | null
 }
 
 function stage(): Stage {
@@ -323,12 +323,12 @@ function stage(): Stage {
     // ⚠️ `entry` IS NULL, which is what a press on the task group's NAME is: the three
     // controls table T-051 draws on a task group each carry a row of table T-109, and
     // the name carries none.
-    aimAtTaskGroup: (groupId) => {
+    aimAtTaskGroup: (taskGroupId) => {
       screen.drawAt({
         part: TASK_GROUP_PANEL,
         entry: null,
         format: null,
-        taskGroupId: groupId,
+        taskGroupId: taskGroupId,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -337,15 +337,15 @@ function stage(): Stage {
     aimAtNothing: () => {
       screen.drawAt(null)
     },
-    labelOf: (groupId) =>
-      ((loop.document() as any).schedule.taskGroups.find((one: any) => one.id === groupId)?.label ??
+    labelOf: (taskGroupId) =>
+      ((loop.document() as any).schedule.taskGroups.find((one: any) => one.id === taskGroupId)?.name ??
         null) as string | null,
   }
 }
 
 /** One plain press on a task group -- FR-085's choosing, and nothing more. */
-function pressRow(built: Stage, groupId: string): void {
-  built.aimAtTaskGroup(groupId)
+function pressRow(built: Stage, taskGroupId: string): void {
+  built.aimAtTaskGroup(taskGroupId)
   built.send(pointer('down', 80, 200))
   built.send(pointer('up', 80, 200))
   built.aimAtNothing()
@@ -360,8 +360,8 @@ function pressRow(built: Stage, groupId: string): void {
  * the shell to choose a task group AND rename it on one press, which the branch says in
  * as many words it does not do -- and it would pass or fail for the wrong reason.
  */
-function doubleClickTaskGroupName(built: Stage, groupId: string): void {
-  built.aimAtTaskGroup(groupId)
+function doubleClickTaskGroupName(built: Stage, taskGroupId: string): void {
+  built.aimAtTaskGroup(taskGroupId)
   built.send(pointer('down', 80, 200))
   built.send(pointer('up', 80, 200))
   built.send(pointer('down', 80, 200, { clickCount: 2 }))
@@ -392,7 +392,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(REQUIREMENTS).not.toContain(THE_OVERRIDDEN_SENTENCE)
   })
 
-  it('⭐ AT-53 is `TaskGroup`.`label`, read from the ERD and not typed', () => {
+  it('⭐ AT-53 is `TaskGroup`.`name`, read from the ERD and not typed', () => {
     // GOES RED IF: the row a name lives on is renumbered, which would send the
     // focus at a row the panel does not draw.
     expect(TASK_GROUP_NAME_FIELD).toBe('AT-53')
@@ -476,7 +476,7 @@ describe('FR-085 (MUST): a double click on the name opens the panel at that fiel
     // ⚠️ THE NAME IS WRITTEN BY THE FIELD S COMMIT AND NOT BY THIS PRESS. A
     // double click that wrote would put a step on the undo history for an edit
     // nobody made (FR-031 with UN-3 of table T-027).
-    // GOES RED IF: the branch mints a `setTaskGroupLabel` on the press.
+    // GOES RED IF: the branch mints a `setTaskGroupName` on the press.
     const built = stage()
     doubleClickTaskGroupName(built, ALPHA)
     expect(built.labelOf(ALPHA)).toBe(ALPHA_NAME)

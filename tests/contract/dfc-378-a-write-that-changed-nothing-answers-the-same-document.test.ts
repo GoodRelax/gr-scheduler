@@ -25,7 +25,7 @@ import {
 const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 
 // see S-3
-const RULER_FONT_FACTOR = SETTINGS_DERIVED.rulerFont.times
+const RULER_FONT_FACTOR = SETTINGS_DERIVED.rulerFontSizePx.times
 const RULER_LABEL_PAD = SETTINGS_CONSTANTS.rulerLabelPad
 const SIZE_M = SETTINGS_CONSTANTS.fontScaleSizes.M
 
@@ -68,24 +68,24 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       stackDirection: 'up',
       fontScale: 'M',
       // WHY: the pair agrees with fontScale M (S-3 x its factor, S-2 = x3 + pad x3), so CM-62 on M changes nothing.
-      rulerFont: SIZE_M * RULER_FONT_FACTOR,
-      rulerHeight: SIZE_M * RULER_FONT_FACTOR * 3 + RULER_LABEL_PAD * 3,
-      taskGroupPanelWidth: 170,
-      pinnedGroupIds: [],
+      rulerFontSizePx: SIZE_M * RULER_FONT_FACTOR,
+      rulerHeightPx: SIZE_M * RULER_FONT_FACTOR * 3 + RULER_LABEL_PAD * 3,
+      taskGroupPanelWidthPx: 170,
+      pinnedTaskGroupIds: [],
       zoomX: 1,
       zoomY: 1,
       scrollDate: null,
-      scrollGroupId: null,
+      scrollTaskGroupId: null,
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
-      themeMonochrome: false,
-      dependencyVisible: true,
+      isThemeMonochrome: false,
+      isDependencyVisible: true,
       ...((part.documentSettings as Record<string, unknown>) ?? {}),
     },
     documentStamp: {
-      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      scheduleUpdatedAt: '2026-08-17T00:00:00Z',
       lastEditedBy: 'template',
-      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+      settingsUpdatedAt: '2026-08-17T00:00:00Z',
     },
     changeLog: [],
   }) as unknown as Document
@@ -210,13 +210,13 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
   it('CM-58 setElementVisible -- the key the command names, and no other', () => {
     bothWays(
       settings as never,
-      { kind: 'setElementVisible', element: 'dependencyVisible', visible: true },
-      { kind: 'setElementVisible', element: 'dependencyVisible', visible: false },
+      { kind: 'setElementVisible', element: 'isDependencyVisible', visible: true },
+      { kind: 'setElementVisible', element: 'isDependencyVisible', visible: false },
     )
   })
 
   it('CM-62 setFontScale -- the three keys it writes are judged together', () => {
-    // WHY: fontScale drives rulerFont and rulerHeight too (FR-039), so a
+    // WHY: fontScale drives rulerFontSizePx and rulerHeightPx too (FR-039), so a
     // drifted derived pair must be repaired -- tested as a whole, not one key.
     bothWays(
       settings as never,
@@ -227,13 +227,13 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
 
   it('CM-62 still repairs a document whose derived pair drifted from the scale it names', () => {
     // TRAP: an arm comparing fontScale alone would answer this document
-    // untouched and leave rulerFont at 99.
-    const drifted = documentOf({ documentSettings: { fontScale: 'M', rulerFont: 99 } })
+    // untouched and leave rulerFontSizePx at 99.
+    const drifted = documentOf({ documentSettings: { fontScale: 'M', rulerFontSizePx: 99 } })
     const result = editDocumentSettings(drifted, { kind: 'setFontScale', scale: 'M' }, LIMITS)
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.document).not.toBe(drifted)
-    expect(result.document.documentSettings.rulerFont, 'S-3: fontScaleSizes[fontScale] x its factor').toBe(
+    expect(result.document.documentSettings.rulerFontSizePx, 'S-3: fontScaleSizes[fontScale] x its factor').toBe(
       SIZE_M * RULER_FONT_FACTOR,
     )
   })
@@ -269,25 +269,25 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
       {
         kind: 'setScrollPosition',
         scrollDate: null,
-        scrollGroupId: null,
+        scrollTaskGroupId: null,
         scrollDayOffset: 0,
         scrollGroupOffset: 0,
       },
       {
         kind: 'setScrollPosition',
         scrollDate: '2026-03-02',
-        scrollGroupId: 'g1',
+        scrollTaskGroupId: 'g1',
         scrollDayOffset: 0,
         scrollGroupOffset: 0,
       },
     )
   })
 
-  it('CM-67 setTaskGroupPanelWidth -- the width the document already stands at', () => {
+  it('CM-67 setTaskGroupPanelWidthPx -- the width the document already stands at', () => {
     bothWays(
       settings as never,
-      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 170 },
-      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 171 },
+      { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 170 },
+      { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 171 },
     )
   })
 
@@ -296,7 +296,7 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
     // still applies no matter what the document already holds.
     const result = editDocumentSettings(
       documentOf(),
-      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 0 },
+      { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 0 },
       LIMITS,
     )
     expect(result.ok).toBe(false)
@@ -310,7 +310,7 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
         zoomX: 1,
         zoomY: 1,
         scrollDate: null,
-        scrollGroupId: null,
+        scrollTaskGroupId: null,
         scrollDayOffset: 0,
         scrollGroupOffset: 0,
       },
@@ -319,7 +319,7 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
         zoomX: 3,
         zoomY: 1,
         scrollDate: null,
-        scrollGroupId: null,
+        scrollTaskGroupId: null,
         scrollDayOffset: 0,
         scrollGroupOffset: 0,
       },
@@ -338,7 +338,7 @@ describe('FR-063 -- what the write path reads off the reference the arms keep', 
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
     expect(plan.hasMovedSchedule).toBe(false)
-    expect(plan.document.documentStamp.scheduleUpdatedUtc).toBe('2026-08-17T00:00:00Z')
+    expect(plan.document.documentStamp.scheduleUpdatedAt).toBe('2026-08-17T00:00:00Z')
   })
 
   it('a CM-1 that DOES move the title still moves both', () => {
@@ -348,7 +348,7 @@ describe('FR-063 -- what the write path reads off the reference the arms keep', 
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
     expect(plan.hasMovedSchedule).toBe(true)
-    expect(plan.document.documentStamp.scheduleUpdatedUtc).toBe('2026-08-17T01:00:00Z')
+    expect(plan.document.documentStamp.scheduleUpdatedAt).toBe('2026-08-17T01:00:00Z')
   })
 
   it('a no-op on the presentation group leaves the schedule instant alone either way', () => {

@@ -50,7 +50,7 @@ function documentText(): string {
   const base = JSON.parse(
     taskGroupsDocument({ rows: 40, parentTaskOf: { 30: 25 }, settings: { zoomX: 6, scrollDate: '2026-02-25T00:00:00' } }),
   ) as { schedule: { tasks: { dependencies: unknown[] }[] } }
-  const link = (predecessorUid: number): unknown => ({ predecessorUid, linkType: 1, lag: null, lagFormat: null, carry: {}, carryElements: [] })
+  const link = (predecessorUid: number): unknown => ({ predecessorUid, linkType: 1, linkLag: null, lagFormat: null, carry: {}, carryElements: [] })
   base.schedule.tasks[29]!.dependencies = [link(18)]
   base.schedule.tasks[34]!.dependencies = [link(30)]
   expect(validateDocument(base).errors, 'the fixture is a document the schema accepts').toEqual([])
@@ -191,12 +191,12 @@ async function expectLandedOnTheChosen(page: Page): Promise<void> {
   expect(uid, 'the target is a chosen task').toBeDefined()
   const read = await readingOf(page, uid!)
   expect(read.plan, 'the target is drawn').not.toBeNull()
-  const settings = (await readDocumentOf(page)).documentSettings as { scrollGroupId: string | null; scrollGroupOffset: number }
+  const settings = (await readDocumentOf(page)).documentSettings as { scrollTaskGroupId: string | null; scrollGroupOffset: number }
   const groups = (await readDocumentOf(page)).schedule.taskGroups as { id: string; parentId: string | null; order: number }[]
   const first = groups.filter((one) => one.parentId === null).sort((a, b) => a.order - b.order)[0]
   await expectLanded(page, uid!, {
     isWide: read.plan!.right - read.plan!.x > read.areaWidth - 2 * S_428,
-    isFirstRows: settings.scrollGroupOffset === 0 && settings.scrollGroupId === (first?.id ?? null),
+    isFirstRows: settings.scrollGroupOffset === 0 && settings.scrollTaskGroupId === (first?.id ?? null),
   })
 }
 

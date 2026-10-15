@@ -39,7 +39,7 @@ const send = async (built: PaletteStage, input: HumanInput): Promise<void> => {
 
 const placeOf = (built: PaletteStage) => {
   const settings = built.loop.document().documentSettings
-  return [settings.scrollDate, settings.scrollDayOffset, settings.scrollGroupId, settings.scrollGroupOffset]
+  return [settings.scrollDate, settings.scrollDayOffset, settings.scrollTaskGroupId, settings.scrollGroupOffset]
 }
 
 async function pan(built: PaletteStage): Promise<void> {
@@ -54,9 +54,9 @@ async function pan(built: PaletteStage): Promise<void> {
 // WHY: a stored place and zoom one IC-12 step above the floor, so one press reaches the end.
 const oneStepAboveTheTimeFloor = (): Document => {
   const document = here()
-  const groupId = document.schedule.taskGroups[0]?.id ?? null
+  const taskGroupId = document.schedule.taskGroups[0]?.id ?? null
   const zoomX = NOT_STORED_ZOOM_BOUNDS['S-97'] * NOT_STORED_ZOOM_STEP['S-96']
-  return { ...document, documentSettings: { ...document.documentSettings, scrollGroupId: groupId, zoomX } }
+  return { ...document, documentSettings: { ...document.documentSettings, scrollTaskGroupId: taskGroupId, zoomX } }
 }
 
 const isEnabled = (built: PaletteStage, icon: string): boolean => {

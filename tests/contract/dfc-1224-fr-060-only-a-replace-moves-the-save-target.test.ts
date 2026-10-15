@@ -99,9 +99,9 @@ const oneTaskGroupDocument = (title: string, rowId: string, uid: number): Docume
   draft.schedule.tasks[0].name = `Task ${uid}`
   draft.schedule.taskGroupMembers[0].taskUid = uid
   draft.schedule.taskVisuals[0].taskUid = uid
-  // WHY: with a row id held in scrollGroupId on either side, IC-72 landed no
+  // WHY: with a row id held in scrollTaskGroupId on either side, IC-72 landed no
   // task in this build; that is not the seam under test, so neither holds one.
-  draft.documentSettings.scrollGroupId = null
+  draft.documentSettings.scrollTaskGroupId = null
   return draft as unknown as Document
 }
 

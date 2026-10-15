@@ -172,7 +172,7 @@ function taskGroupOfEachTask(document: Document): ReadonlyMap<number, number | n
   const rows = new Map(document.schedule.taskGroups.map((each) => [each.id, each]))
   const found = new Map<number, number | null>()
   for (const member of document.schedule.taskGroupMembers) {
-    found.set(member.taskUid, rows.get(member.groupId)?.derivedFromTaskUid ?? null)
+    found.set(member.taskUid, rows.get(member.taskGroupId)?.derivedFromTaskUid ?? null)
   }
   return found
 }
@@ -234,7 +234,7 @@ function taskGroupMoves(document: Document, bar: { readonly uid: number; readonl
   // (CR-706), so that move changes more than the sibling order.
   return [
     ['reorderTaskGroupSiblings', groupEdited(document, { kind: 'reorderTaskGroupSiblings', parentId: null, orderedIds: [...rootTaskGroups].reverse() })],
-    ['moveTaskToTaskGroup', taskEdited(document, { kind: 'moveTaskToTaskGroup', uid: bar.uid, groupId: rowIdMadeFrom(document, bar.toTaskGroupOf) })],
+    ['moveTaskToTaskGroup', taskEdited(document, { kind: 'moveTaskToTaskGroup', uid: bar.uid, taskGroupId: rowIdMadeFrom(document, bar.toTaskGroupOf) })],
   ]
 }
 
@@ -269,7 +269,7 @@ describe('CR-567 -- FR-058 on an MSPDI document built in the test', () => {
   })
 
   it('puts the Tasks that share a parent on one task group', () => {
-    const rowIds = new Map(document.schedule.taskGroupMembers.map((each) => [each.taskUid, each.groupId]))
+    const rowIds = new Map(document.schedule.taskGroupMembers.map((each) => [each.taskUid, each.taskGroupId]))
     expect(new Set([3, 4, 5].map((uid) => rowIds.get(uid))).size).toBe(1)
     expect(new Set([7, 8].map((uid) => rowIds.get(uid))).size).toBe(1)
   })
@@ -386,7 +386,7 @@ describe('CR-567 -- FR-058 on sample-schedule/sample-large-erp-program.ja.xml', 
 
   it('puts more than one Task on a task group, up to the 19 CR-567 counted', () => {
     const perTaskGroup = new Map<string, number>()
-    for (const member of document.schedule.taskGroupMembers) perTaskGroup.set(member.groupId, (perTaskGroup.get(member.groupId) ?? 0) + 1)
+    for (const member of document.schedule.taskGroupMembers) perTaskGroup.set(member.taskGroupId, (perTaskGroup.get(member.taskGroupId) ?? 0) + 1)
     expect(Math.max(...perTaskGroup.values())).toBe(19)
     expect([...perTaskGroup.values()].filter((count) => count > 1).length).toBeGreaterThan(0)
   })

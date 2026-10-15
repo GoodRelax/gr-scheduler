@@ -89,8 +89,8 @@ const HOURS_PER_DAY = 24
 // see FR-016, S-229, S-579, S-1, FR-158
 // TRAP: S-1 is divided as stored: the display ratio (FR-039) is on both sides, so the time-of-day ceiling ignores it.
 /** @purity pure */
-export function zoomXCeiling(context: InputContext, showsTimeOfDay: boolean): number | null {
-  if (showsTimeOfDay) return (HOURS_PER_DAY * NOT_STORED_HOUR_WIDTH_CEILING['S-579']) / SETTINGS_CONSTANTS.pxPerDayAt1x
+export function zoomXCeiling(context: InputContext, isTimeOfDayVisible: boolean): number | null {
+  if (isTimeOfDayVisible) return (HOURS_PER_DAY * NOT_STORED_HOUR_WIDTH_CEILING['S-579']) / SETTINGS_CONSTANTS.pxPerDayAt1x
   const width = context.regions.taskGroupArea.width
   const pxPerDayAt1x = drawnSettingsOf(context.document.documentSettings).pxPerDayAt1x
   const ceiling = width / (NOT_STORED_VISIBLE_DAY_FLOOR['S-229'] * pxPerDayAt1x)
@@ -151,7 +151,7 @@ function isVerticalZoomAtLowerEnd(context: InputContext, on: { readonly x: numbe
 // see ZE-1, ZE-6, FR-018
 /** @purity pure */
 function drawsSameTaskGroups(one: readonly TaskGroupPlacement[], other: readonly TaskGroupPlacement[]): boolean {
-  return one.length === other.length && one.every((taskGroup, at) => taskGroup.groupId === other[at]?.groupId)
+  return one.length === other.length && one.every((taskGroup, at) => taskGroup.taskGroupId === other[at]?.taskGroupId)
 }
 
 // see ZE-6, ZE-1, FR-018, FR-094
@@ -241,9 +241,9 @@ export function zoomEntranceEndsOf(context: InputContext): ZoomEntranceEnds {
 function mayStopAtStackCap(schedule: Schedule, drawn: DrawnSettings): boolean {
   const members = new Map<string, number>()
   for (const one of schedule.taskGroupMembers) {
-    const count = (members.get(one.groupId) ?? 0) + 1
+    const count = (members.get(one.taskGroupId) ?? 0) + 1
     if (count > drawn.stackSafetyCap) return true
-    members.set(one.groupId, count)
+    members.set(one.taskGroupId, count)
   }
   return false
 }
@@ -369,7 +369,7 @@ function zoomTimesFrom(
 ): number {
   if (axis === 'y') return zoomYWithinCeiling(context, on.x, on.y * factor)
   const stepped = on.x * factor
-  const ceiling = zoomXCeiling(context, context.document.documentSettings.showsTimeOfDay)
+  const ceiling = zoomXCeiling(context, context.document.documentSettings.isTimeOfDayVisible)
   return ceiling === null ? stepped : Math.min(stepped, ceiling)
 }
 
@@ -402,10 +402,10 @@ function zoomCommand(
 export function namesAPlace(
   schedule: Schedule,
   scrollDate: string | null,
-  scrollGroupId: string | null,
+  scrollTaskGroupId: string | null,
 ): boolean {
   if (scrollDate === null) return false
-  return schedule.taskGroups.some((one) => one.id === scrollGroupId)
+  return schedule.taskGroups.some((one) => one.id === scrollTaskGroupId)
 }
 
 // see OP-10
@@ -413,15 +413,15 @@ export function namesAPlace(
 function placeSeated(context: InputContext): readonly DocumentCommand[] {
   const schedule = context.document.schedule
   const settings = context.document.documentSettings
-  if (namesAPlace(schedule, settings.scrollDate, settings.scrollGroupId)) return []
+  if (namesAPlace(schedule, settings.scrollDate, settings.scrollTaskGroupId)) return []
   const at = scrolledAnchor(context, 0, 0)
-  if (!namesAPlace(schedule, at.scrollDate, at.scrollGroupId)) return []
+  if (!namesAPlace(schedule, at.scrollDate, at.scrollTaskGroupId)) return []
   return [
     {
       kind: 'setScrollPosition',
       scrollDate: at.scrollDate,
       scrollDayOffset: at.scrollDayOffset,
-      scrollGroupId: at.scrollGroupId,
+      scrollTaskGroupId: at.scrollTaskGroupId,
       scrollGroupOffset: at.scrollGroupOffset,
     },
   ]
@@ -443,9 +443,9 @@ function zoomCenterY(context: InputContext, pointerY: number | null): number {
 /** @purity pure */
 export function taskGroupPointIn(
   taskGroups: readonly TaskGroupPlacement[],
-  anchor: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
+  anchor: Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'>,
 ): number | null {
-  const at = taskGroups.findIndex((taskGroup) => taskGroup.groupId === anchor.scrollGroupId)
+  const at = taskGroups.findIndex((taskGroup) => taskGroup.taskGroupId === anchor.scrollTaskGroupId)
   if (at < 0) return null
   const taskGroup = taskGroups[at]
   if (taskGroup === undefined) return null
@@ -458,7 +458,7 @@ export function taskGroupPointIn(
 /** @purity pure */
 export function topEdgeIn(
   taskGroups: readonly TaskGroupPlacement[],
-  anchor: Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>,
+  anchor: Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'>,
 ): number | null {
   const marked = taskGroupPointIn(taskGroups, anchor)
   if (marked !== null) return marked
@@ -493,7 +493,7 @@ function taskGroupHeldStill(
   zoomX: number | null,
   zoomY: number | null,
   centerY: number,
-): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> | null {
+): Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'> | null {
   if (zoomY === null) return null
   const on = zoomOnScreen(context)
   const willBe = zoomWithinBounds(context, zoomY)
@@ -508,7 +508,7 @@ function taskGroupHeldStill(
       zoomX: zoomX === null ? on.x : zoomWithinBounds(context, zoomX),
       scrollDate: seat.scrollDate,
       scrollDayOffset: seat.scrollDayOffset,
-      scrollGroupId: seat.scrollGroupId,
+      scrollTaskGroupId: seat.scrollTaskGroupId,
       scrollGroupOffset: seat.scrollGroupOffset,
     },
     context.regions,
@@ -540,10 +540,10 @@ function placeHeldStill(
     kind: 'setScrollPosition',
     scrollDate: heldDay.scrollDate,
     scrollDayOffset: heldDay.scrollDayOffset,
-    scrollGroupId: heldTaskGroup.scrollGroupId,
+    scrollTaskGroupId: heldTaskGroup.scrollTaskGroupId,
     scrollGroupOffset: heldTaskGroup.scrollGroupOffset,
   } as const
-  if (!namesAPlace(context.document.schedule, to.scrollDate, to.scrollGroupId)) {
+  if (!namesAPlace(context.document.schedule, to.scrollDate, to.scrollTaskGroupId)) {
     return placeSeated(context)
   }
   return isScrollPositionInForce(context, to) ? [] : [to]
@@ -618,7 +618,7 @@ export function zoomOnScreen(context: InputContext): { readonly x: number; reado
   // TRAP: keep ?? and not === true: an absent flag falls back to OP-10's base half.
   const atStoredZoom =
     context.isPictureAtStoredZoom ??
-    namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
+    namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollTaskGroupId)
   if (atStoredZoom) {
     return { x: settings.zoomX, y: settings.zoomY }
   }
@@ -648,7 +648,7 @@ export function unstoredZoomWrites(context: InputContext): readonly DocumentComm
 /** @purity pure */
 export function isPlaceSeatedIn(context: InputContext): boolean {
   const held = context.document.documentSettings
-  return namesAPlace(context.document.schedule, held.scrollDate, held.scrollGroupId)
+  return namesAPlace(context.document.schedule, held.scrollDate, held.scrollTaskGroupId)
 }
 
 // see FR-046, OP-10
@@ -663,7 +663,7 @@ export function statusLineCentered(context: InputContext, date: string): readonl
     kind: 'setScrollPosition',
     scrollDate: onDay.scrollDate,
     scrollDayOffset: onDay.scrollDayOffset,
-    scrollGroupId: rows.scrollGroupId,
+    scrollTaskGroupId: rows.scrollTaskGroupId,
     scrollGroupOffset: rows.scrollGroupOffset,
   } as const
   const zoom = unstoredZoomWrites(context)
@@ -678,8 +678,8 @@ function fitCommand(context: InputContext): DocumentCommand {
   const fitted = fittedNow(context, context.layout.shownTaskUids ?? null)
   const at = scrolledAnchor(context, 0, 0)
   const place =
-    namesAPlace(schedule, fitted.scrollDate, fitted.scrollGroupId) ||
-    !namesAPlace(schedule, at.scrollDate, at.scrollGroupId)
+    namesAPlace(schedule, fitted.scrollDate, fitted.scrollTaskGroupId) ||
+    !namesAPlace(schedule, at.scrollDate, at.scrollTaskGroupId)
       ? fitted
       : at
   const fixed = fixedSpanAcrossOf(context)
@@ -688,7 +688,7 @@ function fitCommand(context: InputContext): DocumentCommand {
     zoomX: fixed?.zoomX ?? fitted.zoomX,
     zoomY: fitted.zoomY,
     scrollDate: fixed?.scrollDate ?? place.scrollDate,
-    scrollGroupId: place.scrollGroupId,
+    scrollTaskGroupId: place.scrollTaskGroupId,
     scrollDayOffset: fixed === null ? place.scrollDayOffset : 0,
     scrollGroupOffset: 0,
   }

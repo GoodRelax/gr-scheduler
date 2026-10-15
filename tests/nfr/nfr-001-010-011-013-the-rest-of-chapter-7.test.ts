@@ -681,7 +681,7 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
               }[]
             }
           }
-          importDocument(source: unknown): { accepted: boolean; refusal?: { reason?: string } }
+          importDocument(source: unknown): { ok: boolean; refusal?: { reason?: string } }
         }
       | undefined
     if (api === undefined) return null
@@ -698,8 +698,8 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
       longestLabel: lengths.length === 0 ? 0 : Math.max(...lengths),
       meanLabel:
         lengths.length === 0 ? 0 : Math.round(lengths.reduce((a, b) => a + b, 0) / lengths.length),
-      importAvailable: answer.accepted,
-      importAnswer: String(answer.refusal?.reason ?? (answer.accepted ? 'accepted' : 'refused')),
+      importAvailable: answer.ok,
+      importAnswer: String(answer.refusal?.reason ?? (answer.ok ? 'accepted' : 'refused')),
     }
   })
   if (document0 === null) {
@@ -1007,7 +1007,7 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
       const api = (window as unknown as { grSchedulerAgentApi: {
         readDocument(): { schedule: { tasks: { uid: number; parentTaskUid: number | null }[] } }
         readStamp(): unknown
-        applyCommands(request: unknown): { accepted: boolean; refusal?: unknown }
+        applyCommands(request: unknown): { ok: boolean; refusal?: unknown }
       } }).grSchedulerAgentApi
       const tasks = api.readDocument().schedule.tasks
       if (tasks.length <= target) return { tasks: tasks.length, accepted: true, note: 'already at or below' }
@@ -1017,13 +1017,13 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
       const leaves = tasks.filter((t) => !parents.has(t.uid)).map((t) => t.uid)
       const victims = leaves.slice(0, tasks.length - target)
       const answer = api.applyCommands({
-        readStamp: api.readStamp(),
+        expectedStamp: api.readStamp(),
         commands: victims.map((uid) => ({ kind: 'deleteTask', uid })),
       })
       return {
         tasks: api.readDocument().schedule.tasks.length,
-        accepted: answer.accepted,
-        note: answer.accepted ? '' : JSON.stringify(answer.refusal).slice(0, 160),
+        accepted: answer.ok,
+        note: answer.ok ? '' : JSON.stringify(answer.refusal).slice(0, 160),
       }
     }, want)
     await page.waitForTimeout(900)

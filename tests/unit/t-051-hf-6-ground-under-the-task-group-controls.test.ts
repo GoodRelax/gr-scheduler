@@ -857,13 +857,13 @@ const TASK_GROUP_TITLE_INDENT = SETTINGS_CONSTANTS['taskGroupTitleIndent'] as nu
 /** The task group's own box, which HF-6 measures the ground's height against. */
 const TASK_GROUP_BOX = rect(0, 40, 170, 29)
 
-const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { groupId: string }): TaskGroupTitle => ({
+const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { taskGroupId: string }): TaskGroupTitle => ({
   depth: patch.depth ?? 1,
   ...taskGroupNameFont(patch.depth ?? 1),
   indentPx: (patch.depth ?? 1) * TASK_GROUP_TITLE_INDENT,
   box: TASK_GROUP_BOX,
-  label: patch.groupId,
-  wholeLabel: patch.groupId,
+  label: patch.taskGroupId,
+  wholeLabel: patch.taskGroupId,
   isLabelTruncated: false,
   // ⭐ A TASK GROUP WITH NOTHING TO FOLD, WHICH IS NOT A TASK GROUP WITHOUT CONTROLS. This
   // read `null` until 2026-08-30, when `TaskGroupTitle.expander` stopped being
@@ -914,9 +914,9 @@ function drawn(view: ScreenView): Stage {
 }
 
 /** A screen holding one task group whose controls are drawn. */
-const oneTaskGroup = (expander: TaskGroupExpander = EVERY_CONTROL, groupId = 'TaskGroupAlpha'): ScreenView =>
+const oneTaskGroup = (expander: TaskGroupExpander = EVERY_CONTROL, taskGroupId = 'TaskGroupAlpha'): ScreenView =>
   viewWith({
-    taskGroupPanel: { pinnedTitles: [], titles: [taskGroupTitle({ groupId, expander })] },
+    taskGroupPanel: { pinnedTitles: [], titles: [taskGroupTitle({ taskGroupId, expander })] },
   })
 
 /** Everything a failure needs to be read without opening the unit. */
@@ -1107,7 +1107,7 @@ describe('表 T-051 HF-6 -- the ground laid under a task group’s controls', ()
     const short = rect(0, 40, 170, 21.625)
     const built = drawn(
       viewWith({
-        taskGroupPanel: { pinnedTitles: [], titles: [taskGroupTitle({ groupId: 'TaskGroupAlpha', expander: EVERY_CONTROL, box: short })] },
+        taskGroupPanel: { pinnedTitles: [], titles: [taskGroupTitle({ taskGroupId: 'TaskGroupAlpha', expander: EVERY_CONTROL, box: short })] },
       }),
     )
     const row = taskGroupElement(built)
@@ -1185,8 +1185,8 @@ describe('表 T-051 HF-6 -- the ground laid under a task group’s controls', ()
         taskGroupPanel: {
           pinnedTitles: [],
           titles: [
-            taskGroupTitle({ groupId: 'TaskGroupAlpha', expander: EVERY_CONTROL, box: rect(0, 40, 170, 29) }),
-            taskGroupTitle({ groupId: 'TaskGroupBeta', expander: EVERY_CONTROL, box: rect(0, 69, 170, 29) }),
+            taskGroupTitle({ taskGroupId: 'TaskGroupAlpha', expander: EVERY_CONTROL, box: rect(0, 40, 170, 29) }),
+            taskGroupTitle({ taskGroupId: 'TaskGroupBeta', expander: EVERY_CONTROL, box: rect(0, 69, 170, 29) }),
           ],
         },
       }),
@@ -1263,7 +1263,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
       viewWith({
         taskGroupPanel: {
           pinnedTitles: [],
-          titles: [taskGroupTitle({ groupId: 'TaskGroupAlpha', expander: EVERY_CONTROL })],
+          titles: [taskGroupTitle({ taskGroupId: 'TaskGroupAlpha', expander: EVERY_CONTROL })],
           canOpenEveryTaskGroup: false,
           canCloseEveryTaskGroup: false,
         },
@@ -1286,7 +1286,7 @@ describe('FR-029 (MUST) -- an entrance with nothing to do is painted S-149', () 
       viewWith({
         taskGroupPanel: {
           pinnedTitles: [],
-          titles: [taskGroupTitle({ groupId: 'TaskGroupAlpha', expander: EVERY_CONTROL })],
+          titles: [taskGroupTitle({ taskGroupId: 'TaskGroupAlpha', expander: EVERY_CONTROL })],
           canOpenEveryTaskGroup: true,
           canCloseEveryTaskGroup: true,
         },

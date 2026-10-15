@@ -51,7 +51,7 @@ describe('FR-017 -- the manuscript these cases are built from still reads as quo
 })
 
 // see S-8, S-577, S-578, T-205
-const PX_SCALE = ((SETTINGS_DEFAULTS['rulerFont'] as number) * RATIO) / stored('S-8')
+const PX_SCALE = ((SETTINGS_DEFAULTS['rulerFontSizePx'] as number) * RATIO) / stored('S-8')
 const thresholdOf = (id: string): number => Number(bare(rowOf('T-205', id).by['既定'] ?? ''))
 const S_577 = thresholdOf('S-577')
 const S_578 = thresholdOf('S-578')
@@ -87,7 +87,7 @@ function sceneOf(wish: SceneWish): Scene {
     zoomX: (wish.width * PX_SCALE) / (SETTINGS_CONSTANTS.pxPerDayAt1x * RATIO),
     scrollDate: `${day}T00:00:00`,
     stackDirection: 'down',
-    showsTimeOfDay: wish.shows ?? true,
+    isTimeOfDayVisible: wish.shows ?? true,
     viewTimeZone: wish.view ?? null,
     displayTimeZones: wish.display ?? [],
   } as unknown as DocumentSettings
@@ -252,20 +252,20 @@ const BENCH = (): Document => documentOf({ tasks: [{ uid: 1, name: 'Kickoff', st
 // see FR-017, EP-2, EP-3, FR-025
 describe(`FR-017 -- the screen view and the exported picture: ${FR_017_PICTURE}`, () => {
   it('the screen view carries no abbreviations while time of day is hidden', async () => {
-    const built = await shiftStage(withClocks(BENCH(), { showsTimeOfDay: false, displayTimeZones: ['UTC+09:00'] }))
+    const built = await shiftStage(withClocks(BENCH(), { isTimeOfDayVisible: false, displayTimeZones: ['UTC+09:00'] }))
     expect(built.lastView().taskGroupPanel.rulerAbbreviations).toBeUndefined()
   })
 
   it('the screen view carries the display zone abbreviations while time of day is shown', async () => {
-    const built = await shiftStage(withClocks(BENCH(), { showsTimeOfDay: true, displayTimeZones: ['UTC+09:00', 'UTC-07:00 DST'] }))
+    const built = await shiftStage(withClocks(BENCH(), { isTimeOfDayVisible: true, displayTimeZones: ['UTC+09:00', 'UTC-07:00 DST'] }))
     const texts = (built.lastView().taskGroupPanel.rulerAbbreviations ?? []).map((one) => one.text)
     expect(texts.slice(-2)).toEqual(['JST', 'PDT'])
   })
 
   it('the exported SVG prints each abbreviation right-anchored at its box', async () => {
-    const built = await shiftStage(withClocks(BENCH(), { showsTimeOfDay: true, displayTimeZones: ['UTC+09:00', 'UTC-07:00 DST'] }))
+    const built = await shiftStage(withClocks(BENCH(), { isTimeOfDayVisible: true, displayTimeZones: ['UTC+09:00', 'UTC-07:00 DST'] }))
     const view = built.lastView()
-    const settings = { ...SETTINGS_DEFAULTS, showsTimeOfDay: true } as unknown as DocumentSettings
+    const settings = { ...SETTINGS_DEFAULTS, isTimeOfDayVisible: true } as unknown as DocumentSettings
     const picture = exportSvg({
       svg: '',
       regions: regionsFromScreen(SCREEN, settings),

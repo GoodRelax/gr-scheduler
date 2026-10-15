@@ -90,7 +90,7 @@ const group = (id: string, parentId: string | null, order: number, label: string
   id,
   parentId,
   order,
-  label,
+  name: label,
   derivedFromTaskUid,
   treeState: 'auto',
 })
@@ -123,12 +123,12 @@ const assignment = (uid: number, taskUid: number, resourceUid: number): Loose =>
   resourceUid,
 })
 
-const commentBox = (id: string, text: string, anchorGroupId: string, anchorDate: string | null): Loose => ({
+const commentBox = (id: string, text: string, anchorTaskGroupId: string, anchorDate: string | null): Loose => ({
   id,
   leaderShapeKind: null,
   text,
   anchorDate,
-  anchorGroupId,
+  anchorTaskGroupId,
   bodyOffsetPx: null,
   strokeColor: null,
   strokeWidthPx: null,
@@ -158,13 +158,13 @@ const TASKS = [
 ]
 
 const MEMBERS = [
-  { taskUid: 201, groupId: R11 },
-  { taskUid: 202, groupId: R2 },
-  { taskUid: 203, groupId: R12 },
-  { taskUid: 204, groupId: R2 },
-  { taskUid: 205, groupId: R1 },
-  { taskUid: 206, groupId: R1 },
-  { taskUid: 207, groupId: R11 },
+  { taskUid: 201, taskGroupId: R11 },
+  { taskUid: 202, taskGroupId: R2 },
+  { taskUid: 203, taskGroupId: R12 },
+  { taskUid: 204, taskGroupId: R2 },
+  { taskUid: 205, taskGroupId: R1 },
+  { taskUid: 206, taskGroupId: R1 },
+  { taskUid: 207, taskGroupId: R11 },
 ]
 
 // WHY: resource 302 is assigned before 301, the reverse of both uid and reading order, so
@@ -322,7 +322,7 @@ describe('T-331 -- the value column of each row, on one task and one comment box
     expect(row.plannedStart).toBe(taskOf(201)['start'])
     expect(row.plannedFinish).toBe(taskOf(201)['finish'])
     expect(row.planActualState).toBe(planActualState(taskOf(201) as never))
-    expect(row.groupId).toBe(R11)
+    expect(row.taskGroupId).toBe(R11)
   })
 
   it(`SQ-2 -- every Resource.name the task's assignments point at, ${SQ_2_ORDER}`, () => {
@@ -360,7 +360,7 @@ describe('T-331 -- the value column of each row, on one task and one comment box
     expect(box?.text).toBe('pm again')
     expect(box?.taskGroupName).toBe('1. Program')
     expect(box?.anchorDate).toBe(D('2026-04-20'))
-    expect(box?.groupId).toBe(R1)
+    expect(box?.taskGroupId).toBe(R1)
     expect(rows.find((row) => row.commentBoxId === 'c-1')?.taskGroupName).toBe('1.5 Steering')
   })
 })

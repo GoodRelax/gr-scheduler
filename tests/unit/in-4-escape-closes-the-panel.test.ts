@@ -265,12 +265,12 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
   const row = (id: string, parentId: string | null, label: string) => ({
     id,
     parentId,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   })
   const draft = {
     '$schema': template['$schema'],
@@ -290,8 +290,8 @@ function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [row(ALPHA, null, 'Alpha'), row(BETA, ALPHA, 'Beta')],
       taskGroupMembers: [
-        { taskUid: THE_TASK, groupId: ALPHA },
-        { taskUid: 2, groupId: BETA },
+        { taskUid: THE_TASK, taskGroupId: ALPHA },
+        { taskUid: 2, taskGroupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],

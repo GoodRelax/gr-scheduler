@@ -13,7 +13,7 @@ const box = (text: string | null) => ({
   leaderShapeKind: 'calloutBox',
   text,
   anchorDate: '2026-03-10',
-  anchorGroupId: 'g1',
+  anchorTaskGroupId: 'g1',
   bodyOffsetPx: null,
 })
 

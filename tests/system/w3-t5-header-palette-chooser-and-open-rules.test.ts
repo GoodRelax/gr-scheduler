@@ -29,7 +29,7 @@ const FR_095_BOTH_TIERS_BACK =
   '⭐ 新しく始めた後は、`FR-101` のファイルの状態を 2 段ともまだ書いていない側へ戻すこと（MUST）'
 // see OP-10
 const OP_10_EITHER_NULL =
-  '⭐ 表示位置は `scrollDate`（`S-77`）と `scrollGroupId`（`S-78`）の組であり、どちらか一方でも `null` なら、表示位置が `null` であるとすること（MUST）'
+  '⭐ 表示位置は `scrollDate`（`S-77`）と `scrollTaskGroupId`（`S-78`）の組であり、どちらか一方でも `null` なら、表示位置が `null` であるとすること（MUST）'
 // see T-109
 const T_109_BLOCKS =
   '同じ面で同じ `群` の行を 1 つの塊に寄せ、塊どうしは塊の最初の行が本表に現れる順に、塊の中は本表の行の順に並べること（MUST）'
@@ -269,7 +269,7 @@ test(`FR-053: "${FR_053_RECORDING_ON_THE_BAND}"`, async ({ page }) => {
 test(`FR-095: "${FR_095_BOTH_TIERS_BACK}"`, async ({ page }) => {
   await launch(page)
   const opened = documentWith((root) => {
-    root['documentStamp']['fileSavedUtc'] = '2026-10-01T03:04:05Z'
+    root['documentStamp']['fileSavedAt'] = '2026-10-01T03:04:05Z'
   })
   await openByDrop(page, 'w3-t5-opened.json', opened)
   expect(await page.locator('[data-role="Opened File Name"]').innerText(), 'premise: the upper tier names the opened file').toContain('w3-t5-opened')
@@ -322,7 +322,7 @@ test(`OP-10: "${OP_10_EITHER_NULL}"`, async ({ page }) => {
 
   for (const [date, group] of [['2026-01-05', null], [null, firstRow]] as const) {
     const one = await openedPicture(date, group)
-    expect(differences(one.atOpen, one.fitted), `${OP_10_EITHER_NULL} -- scrollDate=${String(date)}, scrollGroupId=${String(group)}`).toEqual([])
+    expect(differences(one.atOpen, one.fitted), `${OP_10_EITHER_NULL} -- scrollDate=${String(date)}, scrollTaskGroupId=${String(group)}`).toEqual([])
   }
 })
 

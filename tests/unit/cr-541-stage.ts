@@ -114,15 +114,15 @@ export function taskGroupDocument(
       taskGroups: rows.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
-        label: `row ${index + 1}`,
+        name: `row ${index + 1}`,
         derivedFromTaskUid: null,
         order: index,
         treeState: one.treeState ?? 'auto',
         editGroup: null,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
+      taskGroupMembers: rows.map((one, index) => ({ taskUid: index + 1, taskGroupId: one.id })),
       taskVisuals: rows.map((_one, index) => blankTaskVisual(index + 1)),
       commentBoxes: [],
       highlightBoxes: [],
@@ -133,7 +133,7 @@ export function taskGroupDocument(
     documentSettings: {
       ...structuredClone(TEMPLATE.documentSettings),
       scrollDate: '2026-04-01T00:00:00',
-      scrollGroupId: rows[0]?.id ?? null,
+      scrollTaskGroupId: rows[0]?.id ?? null,
       scrollGroupOffset: 0,
       zoomY: 1,
       levelZeroTreeState: 'auto',
@@ -151,7 +151,7 @@ export interface ShellBench {
   aim(part: ScreenPart | null): void
   send(input: HumanInput): void
   click(x: number, y: number, mods?: Partial<InputModifiers>): void
-  press(part: string, entry: string | null, groupId: string | null): void
+  press(part: string, entry: string | null, taskGroupId: string | null): void
   last(): ScreenView
   notices(): readonly string[]
   groups(): any[]
@@ -213,12 +213,12 @@ export function shell(
       send(pointerOf('down', x, y, mods))
       send(pointerOf('up', x, y, mods))
     },
-    press: (surfaceName, entry, groupId) => {
+    press: (surfaceName, entry, taskGroupId) => {
       part = {
         part: surfaceName,
         entry,
         format: null,
-        taskGroupId: groupId,
+        taskGroupId: taskGroupId,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,

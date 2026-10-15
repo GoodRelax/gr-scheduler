@@ -156,7 +156,7 @@ const READINGS_BASE = {
 
 function settingsPanel(preference: Preference, monochrome: boolean): PropertiesPanel {
   const schedule = { ...TEMPLATE_DOCUMENT.schedule, project: { ...TEMPLATE_DOCUMENT.schedule.project, themeHue: S_73_DEFAULT } }
-  const settings = { ...TEMPLATE_DOCUMENT.documentSettings, themeMonochrome: monochrome }
+  const settings = { ...TEMPLATE_DOCUMENT.documentSettings, isThemeMonochrome: monochrome }
   const session = {
     ...emptyScreenSession,
     screen: {
@@ -385,14 +385,14 @@ function suspendedDocument(): Document {
       taskGroups: tasks.map((one, order) => ({
         id: groupIdOf(one.uid),
         parentId: null,
-        label: `row ${order}`,
+        name: `row ${order}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, groupId: groupIdOf(one.uid) })),
+      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, taskGroupId: groupIdOf(one.uid) })),
       taskVisuals: SHAPES.flatMap((shape) =>
         STATES.map((state) => ({
           taskUid: uidOf(shape, state),

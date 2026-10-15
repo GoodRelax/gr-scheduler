@@ -56,7 +56,7 @@ function compareByStackOrder(left: Task, right: Task): number {
 export function tasksRankedByTheTaskGroupTree(schedule: Schedule): readonly Task[] {
   if (schedule.tasks.length === 0) return schedule.tasks
   const rankById = taskGroupTreeRankById(schedule.taskGroups)
-  const taskGroupOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
+  const taskGroupOfTask = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.taskGroupId]))
   const rankOf = (task: Task): number => {
     const row = taskGroupOfTask.get(task.uid)
     const rank = row === undefined ? undefined : rankById.get(row)
@@ -129,18 +129,18 @@ export function moveTaskGroup(
   byId: ReadonlyMap<string, TaskGroup>,
 ): EditResult {
   const groups = document.schedule.taskGroups
-  const moved = byId.get(command.groupId)
+  const moved = byId.get(command.taskGroupId)
   if (moved === undefined) {
-    return refused([reject('CM-73', 'FR-005', `no such task group: ${command.groupId}`)])
+    return refused([reject('CM-73', 'FR-005', `no such task group: ${command.taskGroupId}`)])
   }
   const refusals: Refusal[] = []
   const parent = command.parentId === null ? null : byId.get(command.parentId)
   if (command.parentId !== null && parent === undefined) {
     refusals.push(reject('CM-73', 'FR-005', `no such parent task group: ${command.parentId}`))
   }
-  const carried = subtreeOf(groups, command.groupId)
+  const carried = subtreeOf(groups, command.taskGroupId)
   if (carried === null) {
-    return refused([reject('CM-73', 'FR-005', `no such task group: ${command.groupId}`)])
+    return refused([reject('CM-73', 'FR-005', `no such task group: ${command.taskGroupId}`)])
   }
   if (command.parentId !== null && carried.taskGroups.some((one) => one.id === command.parentId)) {
     refusals.push(
@@ -162,16 +162,16 @@ export function moveTaskGroup(
 
   const landing = Math.max(0, Math.trunc(command.order))
   const stays = groups.filter(
-    (one) => one.id !== command.groupId && one.parentId === command.parentId,
+    (one) => one.id !== command.taskGroupId && one.parentId === command.parentId,
   )
   const placed = [...stays.slice(0, landing), moved, ...stays.slice(landing)]
   const rank = new Map(placed.map((one, at) => [one.id, at]))
   const left = groups.filter(
-    (one) => one.id !== command.groupId && one.parentId === moved.parentId,
+    (one) => one.id !== command.taskGroupId && one.parentId === moved.parentId,
   )
   const leftRank = new Map(left.map((one, at) => [one.id, at]))
   const next = groups.map((one) => {
-    if (one.id === command.groupId) {
+    if (one.id === command.taskGroupId) {
       const at = rank.get(one.id) ?? landing
       return one.parentId === command.parentId && one.order === at
         ? one

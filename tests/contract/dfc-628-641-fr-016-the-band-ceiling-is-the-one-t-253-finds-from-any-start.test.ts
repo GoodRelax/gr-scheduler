@@ -33,7 +33,7 @@ afterEach(() => {
 
 function stackedTaskGroupBench(zoomY: number): ShellBench {
   const tasks = Array.from({ length: STACKED_TASKS }, (_unused, index) => taskOf(index + 1))
-  const members = tasks.map((_unused, index) => ({ taskUid: index + 1, groupId: 'task-group-1' }))
+  const members = tasks.map((_unused, index) => ({ taskUid: index + 1, taskGroupId: 'task-group-1' }))
   const built = shell(
     taskGroupDocument([{ id: 'task-group-1', parentId: null }], { zoomY }, { tasks, taskGroupMembers: members, taskVisuals: [] }),
   )
@@ -160,14 +160,14 @@ function flooredTaskGroupBench(minHeight: number): ShellBench {
     ],
     { zoomY: START_ZOOM_Y },
   )
-  document.schedule.taskGroups[0].minHeight = minHeight
+  document.schedule.taskGroups[0].minHeightPx = minHeight
   const built = shell(document)
   benches.push(built)
   return built
 }
 
 const flooredBandOf = (built: ShellBench): number =>
-  frameOf(built).layout.taskGroups.find((taskGroup) => taskGroup.groupId === 'task-group-1')?.height ?? Number.NaN
+  frameOf(built).layout.taskGroups.find((taskGroup) => taskGroup.taskGroupId === 'task-group-1')?.height ?? Number.NaN
 
 // WHY: the floor is the only thing that sets the band, so a floor landing exactly on the Task Group Area's height makes "equal" a real case.
 function minHeightFillingTheAreaExactly(): number {

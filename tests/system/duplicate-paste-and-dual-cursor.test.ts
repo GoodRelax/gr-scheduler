@@ -224,7 +224,7 @@ interface DocShot {
   readonly tasks: readonly DocTask[]
   readonly names: Readonly<Record<string, string>>
   readonly groups: readonly DocGroup[]
-  readonly members: ReadonlyArray<{ readonly taskUid: number; readonly groupId: string }>
+  readonly members: ReadonlyArray<{ readonly taskUid: number; readonly taskGroupId: string }>
 }
 
 // WHY: S-65 and S-66 are screen values (table T-206) that AM-3 no longer
@@ -367,8 +367,8 @@ async function readShot(page: Page): Promise<DocShot> {
       const held = api.readDocument() as {
         schedule: {
           tasks: { uid: number; name: string | null; parentTaskUid: number | null }[]
-          taskGroups: { id: string; parentId: string | null; label: string | null }[]
-          taskGroupMembers: { taskUid: number; groupId: string }[]
+          taskGroups: { id: string; parentId: string | null; name: string | null }[]
+          taskGroupMembers: { taskUid: number; taskGroupId: string }[]
         }
       }
       const names: Record<string, string> = {}
@@ -383,11 +383,11 @@ async function readShot(page: Page): Promise<DocShot> {
         groups: held.schedule.taskGroups.map((one) => ({
           id: one.id,
           parentId: one.parentId,
-          label: one.label,
+          label: one.name,
         })),
         members: held.schedule.taskGroupMembers.map((one) => ({
           taskUid: one.taskUid,
-          groupId: one.groupId,
+          taskGroupId: one.taskGroupId,
         })),
       }
     },
@@ -460,14 +460,14 @@ async function chosenRowIds(page: Page): Promise<string[]> {
 // WHY: the pointer goes on the task group first, then the point is chosen -- HF-6
 // hides a task group's own controls (GR-20's grab strip too) until hovered.
 /** @purity non-pure */
-async function chooseTaskGroup(page: Page, groupId: string, isExtending: boolean): Promise<void> {
+async function chooseTaskGroup(page: Page, taskGroupId: string, isExtending: boolean): Promise<void> {
   const hover = await page.evaluate((wanted: string) => {
     const row = document.querySelector(`[data-depth][data-group-id="${wanted}"]`)
     if (row === null) return null
     const box = row.getBoundingClientRect()
     return { x: Math.round(box.x + box.width / 2), y: Math.round(box.y + box.height / 2) }
-  }, groupId)
-  if (hover === null) throw new Error(`the panel is not drawing the task group ${groupId}`)
+  }, taskGroupId)
+  if (hover === null) throw new Error(`the panel is not drawing the task group ${taskGroupId}`)
   await page.mouse.move(hover.x, hover.y)
   await page.waitForTimeout(400)
   const at = await page.evaluate((wanted: string) => {
@@ -485,9 +485,9 @@ async function chooseTaskGroup(page: Page, groupId: string, isExtending: boolean
       }
     }
     return null
-  }, groupId)
+  }, taskGroupId)
   if (at === null) {
-    throw new Error(`every point of the task group ${groupId} is covered by one of its own controls`)
+    throw new Error(`every point of the task group ${taskGroupId} is covered by one of its own controls`)
   }
   if (isExtending) await page.keyboard.down('Shift')
   await pressAt(page, at)
@@ -574,7 +574,7 @@ async function sweep(): Promise<Measured> {
     let picked: number | null = null
     for (const rowId of await drawnRowIds(page)) {
       const carries = atStart.members.some(
-        (one) => one.groupId === rowId && wbsLeaves.has(one.taskUid),
+        (one) => one.taskGroupId === rowId && wbsLeaves.has(one.taskUid),
       )
       if (!carries) continue
       picked = await pickATask(page, rowId, wbsLeaves)
@@ -588,7 +588,7 @@ async function sweep(): Promise<Measured> {
     // presses, so the paste is measured against the state the walk left.
     const beforeTaskPaste = await shot()
     const pickedTaskRowId =
-      beforeTaskPaste.members.find((one) => one.taskUid === pickedTaskUid)?.groupId ?? ''
+      beforeTaskPaste.members.find((one) => one.taskUid === pickedTaskUid)?.taskGroupId ?? ''
     await page.keyboard.press(COPY_KEY)
     await page.waitForTimeout(400)
     await page.keyboard.press(PASTE_KEY)
@@ -626,7 +626,7 @@ async function sweep(): Promise<Measured> {
     const leafWithTasks = (await drawnRowIds(page)).find(
       (id) =>
         spanOf(beforeIntoChosen.groups, id) === 1 &&
-        beforeIntoChosen.members.some((one) => one.groupId === id),
+        beforeIntoChosen.members.some((one) => one.taskGroupId === id),
     )
     if (leafWithTasks === undefined) {
       throw new Error('the panel is drawing no childless task group that carries a Task')
@@ -778,7 +778,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
       (one) => !seen.beforeTaskPaste.taskUids.includes(one),
     )
     expect(added, 'the sweep recorded no pasted Task to judge').toHaveLength(1)
-    const landedOn = seen.afterTaskPaste.members.find((one) => one.taskUid === added[0])?.groupId
+    const landedOn = seen.afterTaskPaste.members.find((one) => one.taskUid === added[0])?.taskGroupId
     expect(landedOn, 'FR-033 (MUST) puts the duplicate on the same task group as its source').toBe(
       seen.pickedTaskRowId,
     )
@@ -809,7 +809,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
   test('a copied task group brings the Tasks that stood on it', () => {
     const seen = readingsOfTheSweep()
     const stoodOnTheSource = seen.intoChosenTaskGroup.before.members.filter(
-      (one) => one.groupId === seen.intoChosenTaskGroup.sourceId,
+      (one) => one.taskGroupId === seen.intoChosenTaskGroup.sourceId,
     ).length
     expect(stoodOnTheSource, 'the task group that was copied carried no Task to judge').toBeGreaterThan(0)
     const added = tasksAdded(seen.intoChosenTaskGroup)
@@ -818,7 +818,7 @@ test.describe(`FR-033, driven by ${COPY_KEY} and ${PASTE_KEY} of table T-036`, (
     )
     const addedTaskGroups = taskGroupsAdded(seen.intoChosenTaskGroup).map((one) => one.id)
     const landedElsewhere = added.filter((uid) => {
-      const on = seen.intoChosenTaskGroup.after.members.find((one) => one.taskUid === uid)?.groupId ?? ''
+      const on = seen.intoChosenTaskGroup.after.members.find((one) => one.taskUid === uid)?.taskGroupId ?? ''
       return !addedTaskGroups.includes(on)
     })
     expect(

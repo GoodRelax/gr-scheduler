@@ -41,7 +41,7 @@ const TO = 2
 const ANNA = 41
 const BORIS = 42
 
-const dependencyLink = { predecessorUid: FROM, linkType: 1, lag: 0, lagFormat: 7, carry: {}, carryElements: [] }
+const dependencyLink = { predecessorUid: FROM, linkType: 1, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] }
 
 // WHY: two resources, one of them assigned (so "delete the unreferenced" has something to keep), one task with a dependency line.
 const withResourcesAndALine = (): Document =>
@@ -102,7 +102,7 @@ describe('FR-020 / FR-063 (DFC-540 4) -- a Resource or Dependency write that cha
 
   it('FR-063: the schedule instant does not move for any of the writes above, and moves for a write that changed a value', () => {
     const document = withResourcesAndALine()
-    const before = document.documentStamp.scheduleUpdatedUtc
+    const before = document.documentStamp.scheduleUpdatedAt
     for (const command of [
       { kind: 'setResourceName', uid: ANNA, name: 'Anna' },
       { kind: 'deleteResource', uids: [] },
@@ -112,13 +112,13 @@ describe('FR-020 / FR-063 (DFC-540 4) -- a Resource or Dependency write that cha
       expect(plan.ok, command.kind).toBe(true)
       if (!plan.ok) continue
       expect(plan.hasMovedSchedule, command.kind).toBe(false)
-      expect(plan.document.documentStamp.scheduleUpdatedUtc, command.kind).toBe(before)
+      expect(plan.document.documentStamp.scheduleUpdatedAt, command.kind).toBe(before)
     }
     const moved = planOf(document, [{ kind: 'setResourceName', uid: ANNA, name: 'Anna B' }])
     expect(moved.ok).toBe(true)
     if (!moved.ok) return
     expect(moved.hasMovedSchedule).toBe(true)
-    expect(moved.document.documentStamp.scheduleUpdatedUtc).toBe('2099-01-01T00:00:00Z')
+    expect(moved.document.documentStamp.scheduleUpdatedAt).toBe('2099-01-01T00:00:00Z')
   })
 })
 

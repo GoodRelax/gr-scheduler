@@ -23,7 +23,7 @@ type SelectionCopied = NonNullable<ScreenSession['selection']['copiedForPaste']>
 // WHY: one chosen task group wins over chosen Tasks; two task groups or nothing copy nothing (RS-27). see FR-033, SL-7b
 /** @purity pure */
 export function copiedForPasteOf(chosenTaskGroups: readonly string[], selected: Selection): SelectionCopied | null {
-  if (chosenTaskGroups.length === 1) return { kind: 'taskGroup', groupId: chosenTaskGroups[0] as string }
+  if (chosenTaskGroups.length === 1) return { kind: 'taskGroup', taskGroupId: chosenTaskGroups[0] as string }
   if (chosenTaskGroups.length > 1) return null
   const uids = taskUidsIn(selected)
   return uids.length === 0 ? null : { kind: 'task', uids }
@@ -129,18 +129,18 @@ function pasteCommandFor(
     byParent.set(taskGroup.parentId, [...(byParent.get(taskGroup.parentId) ?? []), taskGroup])
   }
   const chosenTaskGroups = hands.readSession().selection.chosenTaskGroups
-  const newGroupIds: Record<string, string> = {}
-  const walking = [copied.groupId]
+  const newTaskGroupIds: Record<string, string> = {}
+  const walking = [copied.taskGroupId]
   while (walking.length > 0) {
     const id = walking.pop() as string
-    if (newGroupIds[id] !== undefined) continue
-    newGroupIds[id] = crypto.randomUUID()
+    if (newTaskGroupIds[id] !== undefined) continue
+    newTaskGroupIds[id] = crypto.randomUUID()
     for (const child of byParent.get(id) ?? []) walking.push(child.id)
   }
   return {
     kind: 'pasteTaskGroupSubtree',
-    sourceGroupId: copied.groupId,
-    targetGroupId: chosenTaskGroups.length === 1 ? (chosenTaskGroups[0] as string) : null,
-    newGroupIds,
+    sourceTaskGroupId: copied.taskGroupId,
+    targetTaskGroupId: chosenTaskGroups.length === 1 ? (chosenTaskGroups[0] as string) : null,
+    newTaskGroupIds,
   }
 }

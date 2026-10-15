@@ -194,7 +194,7 @@ const uuidOf = (n: number): string => `00000000-0000-4000-8000-${String(n).padSt
 interface GroupSpec {
   readonly id: string
   readonly parentId: string | null
-  readonly label: string
+  readonly name: string
   readonly treeState: 'auto' | 'collapsed'
 }
 
@@ -217,12 +217,12 @@ function documentWith(groups: readonly GroupSpec[], zoomY: number): Document {
       taskGroups: groups.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
-        label: one.label,
+        name: one.name,
         derivedFromTaskUid: null,
         order: index,
         treeState: one.treeState,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
       taskGroupMembers: [],
       taskVisuals: [],
@@ -365,9 +365,9 @@ interface Stage {
   readonly screen: ScreenPane
   send(input: HumanInput): void
   /** Aim one entrance of one task group and press it -- CS-2 freezes the aim at the press. */
-  press(entry: string, groupId: string): void
+  press(entry: string, taskGroupId: string): void
   /** The title drawn for a task group, or `undefined` if the panel draws no such task group. */
-  titleFor(groupId: string): TaskGroupTitle | undefined
+  titleFor(taskGroupId: string): TaskGroupTitle | undefined
 }
 
 function stage(document: Document, language: DisplayLanguage = 'ja'): Stage {
@@ -383,12 +383,12 @@ function stage(document: Document, language: DisplayLanguage = 'ja'): Stage {
     loop,
     screen,
     send,
-    press: (entry, groupId) => {
+    press: (entry, taskGroupId) => {
       screen.drawAt({
         part: TASK_GROUP_PANEL,
         entry: entry as any,
         format: null,
-        taskGroupId: groupId,
+        taskGroupId: taskGroupId,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -398,9 +398,9 @@ function stage(document: Document, language: DisplayLanguage = 'ja'): Stage {
       send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       screen.drawAt(null)
     },
-    titleFor: (groupId) => {
+    titleFor: (taskGroupId) => {
       const panel = screen.last().taskGroupPanel
-      return [...panel.pinnedTitles, ...panel.titles].find((one) => one.groupId === groupId)
+      return [...panel.pinnedTitles, ...panel.titles].find((one) => one.taskGroupId === taskGroupId)
     },
   }
 }
@@ -498,8 +498,8 @@ describe('表 T-051 HF-14 (MUST): a task group raised past the drawn tier is dra
     const pressed = uuidOf(2)
     const before = documentWith(
       [
-        { id: root, parentId: null, label: 'depth 1', treeState: 'auto' },
-        { id: pressed, parentId: root, label: 'depth 2', treeState: 'auto' },
+        { id: root, parentId: null, name: 'depth 1', treeState: 'auto' },
+        { id: pressed, parentId: root, name: 'depth 2', treeState: 'auto' },
       ],
       GROUP_LOD_BASE, // exactly S-87 -- clears depth 2, misses depth 3.
     )
@@ -541,7 +541,7 @@ describe('表 T-051 HF-14 (MUST): a task group raised past the drawn tier is dra
     // depth 3 above, so a unit that never draws a raised task group fails here too.
     const root = uuidOf(3)
     const before = documentWith(
-      [{ id: root, parentId: null, label: 'depth 1', treeState: 'auto' }],
+      [{ id: root, parentId: null, name: 'depth 1', treeState: 'auto' }],
       GROUP_LOD_BASE,
     )
     expect(groupDepthLimit(drawnSettingsOf(before.documentSettings))).toBe(2)
@@ -586,12 +586,12 @@ describe('表 T-051 HF-14 half 2 (折りたたみ, MUST / MUST NOT): only the on
     const elsewhere = uuidOf(6)
     const before = documentWith(
       [
-        { id: root, parentId: null, label: 'root', treeState: 'auto' },
+        { id: root, parentId: null, name: 'root', treeState: 'auto' },
         // 表 T-015 HR-4/HR-6 language: a human folded this task group already.
-        { id: pressed, parentId: root, label: 'pressed, folded by a person', treeState: 'collapsed' },
+        { id: pressed, parentId: root, name: 'pressed, folded by a person', treeState: 'collapsed' },
         // An unrelated sibling branch, also folded by a person, untouched by
         // anything this case does to `pressed`.
-        { id: elsewhere, parentId: root, label: 'elsewhere, also folded', treeState: 'collapsed' },
+        { id: elsewhere, parentId: root, name: 'elsewhere, also folded', treeState: 'collapsed' },
       ],
       SETTINGS_DEFAULTS['zoomY'] as number, // default zoomY: no LOD obstacle in this half.
     )
@@ -640,8 +640,8 @@ describe('表 T-051 HF-14: both obstacles together still end with the task group
     const pressed = uuidOf(8)
     const before = documentWith(
       [
-        { id: root, parentId: null, label: 'root', treeState: 'auto' },
-        { id: pressed, parentId: root, label: 'pressed, folded AND past the tier', treeState: 'collapsed' },
+        { id: root, parentId: null, name: 'root', treeState: 'auto' },
+        { id: pressed, parentId: root, name: 'pressed, folded AND past the tier', treeState: 'collapsed' },
       ],
       GROUP_LOD_BASE, // depth 2 clears, depth 3 (the new child) would not.
     )

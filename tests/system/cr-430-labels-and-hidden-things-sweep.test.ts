@@ -56,9 +56,9 @@ const familyOf = (grabArea: string): string => {
 const FAMILY_BY_ROW: ReadonlyMap<string, string> = new Map(grabAreaTaskGroups().map((row) => [row, familyOf(row)]))
 
 interface Turn {
-  readonly planVisible: boolean
-  readonly actualVisible: boolean
-  readonly progressMarkerVisible: boolean
+  readonly isPlanVisible: boolean
+  readonly isActualVisible: boolean
+  readonly isProgressMarkerVisible: boolean
   readonly fits: boolean
   readonly shape: 'rectangle' | 'arrow' | 'milestone' | 'dummy'
   readonly zoomX: number
@@ -69,14 +69,14 @@ const ZOOM_ENDS = [drawingDefault('S-54'), drawingDefault('S-55')]
 
 const TURNS: readonly Turn[] = (() => {
   const out: Turn[] = []
-  for (const planVisible of [true, false]) {
-    for (const actualVisible of [true, false]) {
-      for (const progressMarkerVisible of [true, false]) {
+  for (const isPlanVisible of [true, false]) {
+    for (const isActualVisible of [true, false]) {
+      for (const isProgressMarkerVisible of [true, false]) {
         for (const fits of [true, false]) {
           for (const shape of ['rectangle', 'arrow', 'milestone', 'dummy'] as const) {
             for (const zoomX of ZOOM_ENDS) {
               for (const actualIsEarly of [true, false]) {
-                out.push({ planVisible, actualVisible, progressMarkerVisible, fits, shape, zoomX, actualIsEarly })
+                out.push({ isPlanVisible, isActualVisible, isProgressMarkerVisible, fits, shape, zoomX, actualIsEarly })
               }
             }
           }
@@ -88,8 +88,8 @@ const TURNS: readonly Turn[] = (() => {
 })()
 
 const nameOf = (turn: Turn): string =>
-  `${turn.shape} plan=${String(turn.planVisible)} actual=${String(turn.actualVisible)} ` +
-  `marker=${String(turn.progressMarkerVisible)} fits=${String(turn.fits)} ` +
+  `${turn.shape} plan=${String(turn.isPlanVisible)} actual=${String(turn.isActualVisible)} ` +
+  `marker=${String(turn.isProgressMarkerVisible)} fits=${String(turn.fits)} ` +
   `zoomX=${String(turn.zoomX)} early=${String(turn.actualIsEarly)}`
 
 const nestedDefaults = (): Record<string, unknown> => {
@@ -110,15 +110,15 @@ const settingsOf = (turn: Turn): DocumentSettings =>
   ({
     ...nestedDefaults(),
     scrollDate: '2026-04-01',
-    scrollGroupId: ROW_ID,
+    scrollTaskGroupId: ROW_ID,
     scrollDayOffset: 0,
     scrollGroupOffset: 0,
     stackDirection: 'down',
-    assigneeVisible: true,
-    percentCompleteVisible: true,
-    planVisible: turn.planVisible,
-    actualVisible: turn.actualVisible,
-    progressMarkerVisible: turn.progressMarkerVisible,
+    isAssigneeVisible: true,
+    isPercentCompleteVisible: true,
+    isPlanVisible: turn.isPlanVisible,
+    isActualVisible: turn.isActualVisible,
+    isProgressMarkerVisible: turn.isProgressMarkerVisible,
     zoomX: turn.zoomX,
   }) as unknown as DocumentSettings
 
@@ -162,8 +162,8 @@ const scheduleOf = (turn: Turn): Schedule =>
     highlightBoxes: [],
     commentBoxes: [],
     tasks: [taskOf(turn)],
-    taskGroups: [{ id: ROW_ID, parentId: null, order: 0, minHeight: null }],
-    taskGroupMembers: [{ groupId: ROW_ID, taskUid: TASK_UID }],
+    taskGroups: [{ id: ROW_ID, parentId: null, order: 0, minHeightPx: null }],
+    taskGroupMembers: [{ taskGroupId: ROW_ID, taskUid: TASK_UID }],
     taskVisuals: [{ taskUid: TASK_UID, shapeKind: turn.shape === 'dummy' ? 'rectangle' : turn.shape }],
     taskOrigins: [],
     baselineTasks: [],
@@ -274,10 +274,10 @@ const allowedIn = (scene: Scene): ReadonlySet<string> => {
   const out = new Set<string>()
   if (scene.drawn === null) return out
   for (const [row, family] of FAMILY_BY_ROW) {
-    if (family === 'plan' && turn.planVisible) out.add(row)
-    if ((family === 'actual' || family === 'dummy') && turn.actualVisible) out.add(row)
-    if (family === 'marker' && turn.progressMarkerVisible) out.add(row)
-    if (family === 'resume' && turn.progressMarkerVisible && turn.actualVisible) out.add(row)
+    if (family === 'plan' && turn.isPlanVisible) out.add(row)
+    if ((family === 'actual' || family === 'dummy') && turn.isActualVisible) out.add(row)
+    if (family === 'marker' && turn.isProgressMarkerVisible) out.add(row)
+    if (family === 'resume' && turn.isProgressMarkerVisible && turn.isActualVisible) out.add(row)
   }
   return out
 }
@@ -308,9 +308,9 @@ const showsInFrame = (scene: Scene, family: string): boolean =>
 const wantedIn = (scene: Scene): readonly string[] => {
   const out: string[] = []
   if (scene.drawn === null) return out
-  if (scene.turn.planVisible) out.push('plan')
-  if (scene.turn.actualVisible) out.push(scene.turn.shape === 'dummy' ? 'dummy' : 'actual')
-  if (scene.turn.progressMarkerVisible) out.push('marker')
+  if (scene.turn.isPlanVisible) out.push('plan')
+  if (scene.turn.isActualVisible) out.push(scene.turn.shape === 'dummy' ? 'dummy' : 'actual')
+  if (scene.turn.isProgressMarkerVisible) out.push('marker')
   return out.filter((family) => showsInFrame(scene, family))
 }
 
@@ -377,13 +377,13 @@ test('every family the frame did draw answers somewhere, at both ends of the zoo
 test('control: a turn that hides everything leaves no grab area allowed', () => {
   const blind = scenes().find(
     (scene) =>
-      !scene.turn.planVisible && !scene.turn.actualVisible && !scene.turn.progressMarkerVisible && scene.drawn !== null,
+      !scene.turn.isPlanVisible && !scene.turn.isActualVisible && !scene.turn.isProgressMarkerVisible && scene.drawn !== null,
   )
   expect(blind, 'the sweep holds a drawn turn with every display off').toBeDefined()
   expect([...allowedIn(blind!)], 'FR-108 (MUST)').toEqual([])
   const seeing = scenes().find(
     (scene) =>
-      scene.turn.planVisible && scene.turn.actualVisible && scene.turn.progressMarkerVisible && scene.drawn !== null,
+      scene.turn.isPlanVisible && scene.turn.isActualVisible && scene.turn.isProgressMarkerVisible && scene.drawn !== null,
   )
   expect(
     [...allowedIn(seeing!)].length,

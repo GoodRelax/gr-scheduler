@@ -113,7 +113,7 @@ type FoldOfP = 'collapsed' | 'expanded'
 function fixture(foldOfP: FoldOfP): string {
   const group = TEMPLATE.schedule['taskGroups'][0] as Record<string, unknown>
   const resource = TEMPLATE.schedule['resources'][0] as Record<string, unknown>
-  const link = { predecessorUid: ALPHA, linkType: 1, lag: 0, lagFormat: 7, carry: {}, carryElements: [] }
+  const link = { predecessorUid: ALPHA, linkType: 1, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] }
   const tasks = [taskRow(ALPHA, 5, 9), taskRow(BRAVO, 6, 8), taskRow(CHARLIE, 12, 14), taskRow(DELTA, 13, 16, [link])]
   const built = {
     '$schema': TEMPLATE['$schema'],
@@ -133,15 +133,15 @@ function fixture(foldOfP: FoldOfP): string {
         { uid: 2104, taskUid: DELTA, resourceUid: 2002, carry: {}, carryElements: [] },
       ],
       taskGroups: [
-        { ...group, id: TASK_GROUP_P, parentId: null, label: 'Row P', order: 0, treeState: foldOfP, minHeight: null },
-        { ...group, id: TASK_GROUP_C, parentId: TASK_GROUP_P, label: 'Row C', order: 1, treeState: 'auto', minHeight: null },
-        { ...group, id: TASK_GROUP_Q, parentId: null, label: 'Row Q', order: 2, treeState: 'auto', minHeight: null },
+        { ...group, id: TASK_GROUP_P, parentId: null, name: 'Row P', order: 0, treeState: foldOfP, minHeightPx: null },
+        { ...group, id: TASK_GROUP_C, parentId: TASK_GROUP_P, name: 'Row C', order: 1, treeState: 'auto', minHeightPx: null },
+        { ...group, id: TASK_GROUP_Q, parentId: null, name: 'Row Q', order: 2, treeState: 'auto', minHeightPx: null },
       ],
       taskGroupMembers: [
-        { taskUid: ALPHA, groupId: TASK_GROUP_C },
-        { taskUid: BRAVO, groupId: TASK_GROUP_C },
-        { taskUid: CHARLIE, groupId: TASK_GROUP_Q },
-        { taskUid: DELTA, groupId: TASK_GROUP_Q },
+        { taskUid: ALPHA, taskGroupId: TASK_GROUP_C },
+        { taskUid: BRAVO, taskGroupId: TASK_GROUP_C },
+        { taskUid: CHARLIE, taskGroupId: TASK_GROUP_Q },
+        { taskUid: DELTA, taskGroupId: TASK_GROUP_Q },
       ],
       taskVisuals: tasks.map((one) => ({ taskUid: one['uid'], shapeKind: null, milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null })),
       commentBoxes: [],
@@ -149,7 +149,7 @@ function fixture(foldOfP: FoldOfP): string {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDayOffset: 0, scrollGroupId: TASK_GROUP_P, scrollGroupOffset: 0 },
+    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDayOffset: 0, scrollTaskGroupId: TASK_GROUP_P, scrollGroupOffset: 0 },
     documentStamp: TEMPLATE.documentStamp,
     changeLog: [],
   }

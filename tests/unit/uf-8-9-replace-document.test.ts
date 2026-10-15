@@ -173,7 +173,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   company: null,
   manager: null,
   author: null,
-  created: null,
+  creationDate: null,
   revision: null,
   startDate: null,
   statusDate: null,
@@ -187,7 +187,7 @@ const projectOf = (part: Partial<Project> = {}): Project => ({
   themeHue: 214,
   parentProgressToleranceDays: 1,
   uidHighWaterMark: 0,
-  importSeq: 0,
+  importSequence: 0,
   outlineBase: 1,
   sourceFormat: 'grs',
   scheduleDataTimeZone: 'UTC+00:00',
@@ -222,34 +222,34 @@ const taskOf = (part: Partial<Task> & { readonly uid: number }): Task => ({
 
 const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup => ({
   parentId: null,
-  label: null,
+  name: null,
   derivedFromTaskUid: null,
   order: 0,
   treeState: 'auto', editGroup: null,
   color: null,
-  minHeight: null,
+  minHeightPx: null,
   ...part,
 })
 
-const memberOf = (taskUid: number, groupId: string): TaskGroupMember => ({
+const memberOf = (taskUid: number, taskGroupId: string): TaskGroupMember => ({
   taskUid,
-  groupId,
+  taskGroupId,
 })
 
 // Carried on BOTH sides of every merge, so that a key which happens to be
 // absent can never be mistaken for the conflict MG-12 asks about.
 const SETTINGS_BASE = {
   scrollDate: '2026-01-05',
-  scrollGroupId: 'g1',
-  pinnedGroupIds: [] as readonly string[],
+  scrollTaskGroupId: 'g1',
+  pinnedTaskGroupIds: [] as readonly string[],
   taskGroupGap: 6,
   stackDirection: 'up',
   fontScale: 'M',
   fontScaleSizes: { S: 12, M: 14, L: 16 },
   zoomX: 1,
   zoomY: 1,
-  baselineVisible: true,
-  dependencyVisible: true,
+  isBaselineVisible: true,
+  isDependencyVisible: true,
   dependencyLagDefault: 0,
 } as const
 
@@ -273,10 +273,10 @@ const scheduleOf = (part: Partial<Schedule> = {}): Schedule => ({
 })
 
 const stampOf = (part: Partial<DocumentStamp> = {}): DocumentStamp => ({
-  scheduleUpdatedUtc: '2026-08-20T09:00:00Z',
+  scheduleUpdatedAt: '2026-08-20T09:00:00Z',
   lastEditedBy: 'the person at the keyboard',
-  settingsUpdatedUtc: '2026-08-20T09:00:00Z',
-  fileSavedUtc: null,
+  settingsUpdatedAt: '2026-08-20T09:00:00Z',
+  fileSavedAt: null,
   ...part,
 })
 
@@ -293,7 +293,7 @@ const rowed = (
     schemaVersion: '1',
     schedule: scheduleOf({
       tasks,
-      taskGroups: [groupOf({ id: 'g1', label: 'task group 1', order: 0 })],
+      taskGroups: [groupOf({ id: 'g1', name: 'task group 1', order: 0 })],
       taskGroupMembers: tasks.map((task) => memberOf(task.uid, 'g1')),
     }),
     documentSettings: settingsOf(documentSettings),
@@ -314,7 +314,7 @@ const CURRENT = rowed([taskOf({ uid: 1, name: 'ours' })], stampOf())
 /** The document one undo step back -- an EARLIER 刻, on purpose (FR-063). */
 const ONE_STEP_BACK = rowed(
   [taskOf({ uid: 1, name: 'as it was' })],
-  stampOf({ scheduleUpdatedUtc: EARLIER, settingsUpdatedUtc: EARLIER }),
+  stampOf({ scheduleUpdatedAt: EARLIER, settingsUpdatedAt: EARLIER }),
 )
 
 /**
@@ -327,7 +327,7 @@ const ONE_STEP_BACK = rowed(
  */
 const ONE_STEP_BACK_SAME_SCHEDULE = rowed(
   [taskOf({ uid: 1, name: 'ours' })],
-  stampOf({ settingsUpdatedUtc: EARLIER, lastEditedBy: 'somebody else' }),
+  stampOf({ settingsUpdatedAt: EARLIER, lastEditedBy: 'somebody else' }),
   { fontScale: 'L' },
 )
 
@@ -335,8 +335,8 @@ const ONE_STEP_BACK_SAME_SCHEDULE = rowed(
 const OUT_OF_A_FILE = rowed(
   [taskOf({ uid: 9, name: 'from a file' })],
   stampOf({
-    scheduleUpdatedUtc: FROM_A_FILE,
-    settingsUpdatedUtc: FROM_A_FILE,
+    scheduleUpdatedAt: FROM_A_FILE,
+    settingsUpdatedAt: FROM_A_FILE,
     lastEditedBy: 'somebody else',
   }),
 )
@@ -348,7 +348,7 @@ const OUT_OF_A_FILE = rowed(
  */
 const SAME_SCHEDULE_STAMP = rowed(
   [taskOf({ uid: 9, name: 'a different schedule, the same 刻' })],
-  stampOf({ settingsUpdatedUtc: FROM_A_FILE, lastEditedBy: 'somebody else' }),
+  stampOf({ settingsUpdatedAt: FROM_A_FILE, lastEditedBy: 'somebody else' }),
 )
 
 /**
@@ -368,8 +368,8 @@ const SAME_SCHEDULE_STAMP = rowed(
 const THE_BUNDLED_TEMPLATE = rowed(
   [taskOf({ uid: 7, name: 'the bundled template' })],
   stampOf({
-    scheduleUpdatedUtc: FROM_A_FILE,
-    settingsUpdatedUtc: FROM_A_FILE,
+    scheduleUpdatedAt: FROM_A_FILE,
+    settingsUpdatedAt: FROM_A_FILE,
     lastEditedBy: 'whoever wrote the template',
   }),
 )
@@ -377,7 +377,7 @@ const THE_BUNDLED_TEMPLATE = rowed(
 /** The same template with the 日程データの群の刻 already current -- the `match` flavor. */
 const TEMPLATE_SAME_SCHEDULE_STAMP = rowed(
   [taskOf({ uid: 7, name: 'the bundled template' })],
-  stampOf({ settingsUpdatedUtc: FROM_A_FILE, lastEditedBy: 'whoever wrote the template' }),
+  stampOf({ settingsUpdatedAt: FROM_A_FILE, lastEditedBy: 'whoever wrote the template' }),
 )
 
 /**
@@ -515,7 +515,7 @@ function bench(start: HeldDocument, onDeliver?: (self: Bench) => void): Bench {
       replaceDocument(
         {
           defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
-          newGroupId: 'fresh-task-group',
+          newTaskGroupId: 'fresh-task-group',
           readStamp: 'readStamp' in part ? (part.readStamp ?? null) : held.document.documentStamp,
           moment: part.moment ?? CALM,
           call,
@@ -551,7 +551,7 @@ interface RowDrive {
    * of the fixtures this case set up.
    *
    *   「`WS-7` へ渡す「日程データの群が動いたか」は、出て行く文書と入ってくる
-   *    文書の `scheduleUpdatedUtc` の等値で導くこと（MUST）」
+   *    文書の `scheduleUpdatedAt` の等値で導くこと（MUST）」
    *
    * 「出て行く文書」 is what the holder held when the run began; 「入ってくる
    * 文書」 is what this row sends in, carrying the 刻 the 刻印 column says it
@@ -588,7 +588,7 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
   const stepBack = instants === 'differ' ? ONE_STEP_BACK : ONE_STEP_BACK_SAME_SCHEDULE
   // What a caller that brings its own document brings.
   const brought = instants === 'differ' ? OUT_OF_A_FILE : SAME_SCHEDULE_STAMP
-  const outgoingScheduleUpdatedUtc = start.document.documentStamp.scheduleUpdatedUtc
+  const outgoingScheduleUpdatedUtc = start.document.documentStamp.scheduleUpdatedAt
   switch (row) {
     case 'RD-1': {
       // 「`UndoEdit`（`PI-11`）」 -- asked here, exactly as the column names it.
@@ -599,7 +599,7 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
         ws3Document: answer.next.document,
         ws3History: answer.next.history,
         outgoingScheduleUpdatedUtc,
-        incomingScheduleUpdatedUtc: stepBack.documentStamp.scheduleUpdatedUtc,
+        incomingScheduleUpdatedUtc: stepBack.documentStamp.scheduleUpdatedAt,
       }
     }
     case 'RD-2': {
@@ -613,8 +613,8 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
         ws3History: answer.next.history,
         // Undo left the 段's document current; redo sends back the one this
         // case started from.
-        outgoingScheduleUpdatedUtc: stepBack.documentStamp.scheduleUpdatedUtc,
-        incomingScheduleUpdatedUtc: CURRENT.documentStamp.scheduleUpdatedUtc,
+        outgoingScheduleUpdatedUtc: stepBack.documentStamp.scheduleUpdatedAt,
+        incomingScheduleUpdatedUtc: CURRENT.documentStamp.scheduleUpdatedAt,
       }
     }
     case 'RD-3': {
@@ -646,7 +646,7 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
         ws3Document: answer,
         ws3History: null,
         outgoingScheduleUpdatedUtc,
-        incomingScheduleUpdatedUtc: brought.documentStamp.scheduleUpdatedUtc,
+        incomingScheduleUpdatedUtc: brought.documentStamp.scheduleUpdatedAt,
       }
     }
     case 'RD-6':
@@ -657,7 +657,7 @@ function driveOf(row: string, instants: Instants = 'differ'): RowDrive {
         ws3Document: brought,
         ws3History: null,
         outgoingScheduleUpdatedUtc,
-        incomingScheduleUpdatedUtc: brought.documentStamp.scheduleUpdatedUtc,
+        incomingScheduleUpdatedUtc: brought.documentStamp.scheduleUpdatedAt,
       }
     case 'RD-7': {
       // 「呼び手が持って来る（表 T-034 の `BT-4` の同梱の雛形）」, so the
@@ -775,9 +775,9 @@ describe('WS-1 -- 照合するのは申告された刻印と現在の文書で�
   // AG-2: 「照合は刻印の 3 つすべての等値で行うこと（MUST）。1 つでも違えば拒否
   // すること（MUST）」 —— 日程データの群の刻だけでは見せ方の群の衝突を見落とす。
   const THREE_FIELDS: readonly (keyof DocumentStamp)[] = [
-    'scheduleUpdatedUtc',
+    'scheduleUpdatedAt',
     'lastEditedBy',
-    'settingsUpdatedUtc',
+    'settingsUpdatedAt',
   ]
   for (const field of THREE_FIELDS) {
     it(`GIVEN a declared 刻印 differing only in \`${field}\` WHEN it replaces THEN WS-1 refuses and nothing is swapped`, () => {
@@ -966,14 +966,14 @@ describe('表 T-230 の刻印の欄 -- 行ごとに', () => {
         // 「入ってきたまま」の行で進めてはならない（MUST NOT）: not this
         // writer's name and not this write's instant, on any of the three.
         expect(landed.documentStamp.lastEditedBy).not.toBe(WRITER)
-        expect(landed.documentStamp.settingsUpdatedUtc).not.toBe(WRITE_INSTANT)
-        expect(landed.documentStamp.scheduleUpdatedUtc).not.toBe(WRITE_INSTANT)
+        expect(landed.documentStamp.settingsUpdatedAt).not.toBe(WRITE_INSTANT)
+        expect(landed.documentStamp.scheduleUpdatedAt).not.toBe(WRITE_INSTANT)
       } else {
         // WS-5: 「どちらの群であれ動いた刻と、最後に書いた者は必ず更新する」, and
         // 「日程データの群の刻を動かすのは、その群を変えたときだけ」 -- the merge
         // this row drives overwrites a `Task`, so that group moved.
         expect(landed.documentStamp.lastEditedBy).toBe(WRITER)
-        expect(landed.documentStamp.settingsUpdatedUtc).toBe(WRITE_INSTANT)
+        expect(landed.documentStamp.settingsUpdatedAt).toBe(WRITE_INSTANT)
         // ⚠️ A precondition of the fixture, and it is read from what WS-3
         // answered -- not from the landed document, which is the thing being
         // judged: 「その群を変えたとき」 has to be true of the merge itself.
@@ -981,7 +981,7 @@ describe('表 T-230 の刻印の欄 -- 行ごとに', () => {
           drive.ws3Document.schedule,
           'the merge this row drives is meant to change the 日程データの群',
         ).not.toEqual(drive.start.document.schedule)
-        expect(landed.documentStamp.scheduleUpdatedUtc).toBe(WRITE_INSTANT)
+        expect(landed.documentStamp.scheduleUpdatedAt).toBe(WRITE_INSTANT)
       }
     })
   }
@@ -1155,7 +1155,7 @@ describe('表 T-230 の `WS-3` の位置に立つもの -- 行ごとに', () => 
     // 表 T-034), whose document was already put through OP-5 on the way in.
     const outOfRange = rowed(
       [taskOf({ uid: 3, name: 'written long ago', start: '1801-05-04', finish: '1801-05-08' })],
-      stampOf({ scheduleUpdatedUtc: FROM_A_FILE, settingsUpdatedUtc: FROM_A_FILE }),
+      stampOf({ scheduleUpdatedAt: FROM_A_FILE, settingsUpdatedAt: FROM_A_FILE }),
     )
     // ⚠️ The bounds are the tool's constants (table T-214), not an expectation
     // about the unit: the fixture only has to be one FR-023 turns away, and the
@@ -1224,11 +1224,11 @@ describe('WS-6 then WS-7 -- 差し替えの後に通知を配る', () => {
 })
 
 describe('日程データの群が動いたか -- 出て行く文書と入ってくる文書の等値で導く', () => {
-  it('GIVEN two different `scheduleUpdatedUtc` WHEN the replacement lands THEN WS-7 is told the schedule moved', () => {
+  it('GIVEN two different `scheduleUpdatedAt` WHEN the replacement lands THEN WS-7 is told the schedule moved', () => {
     // 「`WS-7` へ渡す「日程データの群が動いたか」は、出て行く文書と入ってくる
-    // 文書の `scheduleUpdatedUtc` の等値で導くこと（MUST）。」
-    expect(OUT_OF_A_FILE.documentStamp.scheduleUpdatedUtc).not.toBe(
-      CURRENT.documentStamp.scheduleUpdatedUtc,
+    // 文書の `scheduleUpdatedAt` の等値で導くこと（MUST）。」
+    expect(OUT_OF_A_FILE.documentStamp.scheduleUpdatedAt).not.toBe(
+      CURRENT.documentStamp.scheduleUpdatedAt,
     )
     const one = bench(heldWithOneStep())
     const outcome = accepted(one.run({ row: 'RD-6', document: OUT_OF_A_FILE }))
@@ -1236,11 +1236,11 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     expect(one.delivered[0]?.hasMovedSchedule).toBe(true)
   })
 
-  it('GIVEN two equal `scheduleUpdatedUtc` WHEN the replacement lands THEN WS-7 is told it did not move, however different the rest is', () => {
+  it('GIVEN two equal `scheduleUpdatedAt` WHEN the replacement lands THEN WS-7 is told it did not move, however different the rest is', () => {
     // AG-6: 「見せ方の群だけが動いた書き込みで起きてはならない（MUST NOT）」 --
     // and the judgment is the equality of that ONE field, not of the 刻印.
-    expect(SAME_SCHEDULE_STAMP.documentStamp.scheduleUpdatedUtc).toBe(
-      CURRENT.documentStamp.scheduleUpdatedUtc,
+    expect(SAME_SCHEDULE_STAMP.documentStamp.scheduleUpdatedAt).toBe(
+      CURRENT.documentStamp.scheduleUpdatedAt,
     )
     expect(SAME_SCHEDULE_STAMP.documentStamp).not.toEqual(CURRENT.documentStamp)
     const one = bench(heldWithOneStep())
@@ -1254,7 +1254,7 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
     // （MUST）」 —— 取り消しは以前の文書を刻印ごと復元するので、順序で読むと
     // 「戻った文書」を「新しくない」と読み、`AG-6` が通知を落とす。
     const drive = driveOf('RD-1')
-    expect(drive.ws3Document.documentStamp.scheduleUpdatedUtc).toBe(EARLIER)
+    expect(drive.ws3Document.documentStamp.scheduleUpdatedAt).toBe(EARLIER)
     expect(EARLIER < NOW, 'the restored 刻 is the EARLIER of the two').toBe(true)
 
     const one = bench(drive.start)
@@ -1284,7 +1284,7 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
 
   it('GIVEN every drivable row of table T-230, driven both ways WHEN each lands THEN WS-7 is told the equality of the two 刻 THE CASE SET UP', () => {
     // 「`WS-7` へ渡す「日程データの群が動いたか」は、出て行く文書と入ってくる
-    // 文書の `scheduleUpdatedUtc` の等値で導くこと（MUST）」 —— 「`WS-5` が判定
+    // 文書の `scheduleUpdatedAt` の等値で導くこと（MUST）」 —— 「`WS-5` が判定
     // を下さない行があるためである。」
     // ⛔ Both instants come from `RowDrive`, which built them out of THIS case's
     // fixtures. Reading either of them back out of `one.held()` would make the
@@ -1299,11 +1299,11 @@ describe('日程データの群が動いたか -- 出て行く文書と入って
         // Preconditions on the fixture, both taken from what the CASE built:
         // the document that goes out is the holder's own before the run, and
         // the document that goes in carries what the 刻印 column says it does.
-        expect(drive.start.document.documentStamp.scheduleUpdatedUtc, where).toBe(
+        expect(drive.start.document.documentStamp.scheduleUpdatedAt, where).toBe(
           drive.outgoingScheduleUpdatedUtc,
         )
         if (cellOf(row, COL_STAMP) === '入ってきたまま') {
-          expect(drive.ws3Document.documentStamp.scheduleUpdatedUtc, where).toBe(
+          expect(drive.ws3Document.documentStamp.scheduleUpdatedAt, where).toBe(
             drive.incomingScheduleUpdatedUtc,
           )
         }
@@ -1400,9 +1400,9 @@ describe('表 T-230 RD-7 -- 扱いは `RD-4` と同じであり、選んだの�
     const one = bench(drive.start)
     const landed = accepted(one.run(drive.call)).document
     expect(landed.documentStamp.lastEditedBy).toBe(WRITER)
-    expect(landed.documentStamp.settingsUpdatedUtc).toBe(WRITE_INSTANT)
-    expect(landed.documentStamp.scheduleUpdatedUtc).toBe(WRITE_INSTANT)
-    expect(landed.documentStamp.fileSavedUtc).toBe(drive.ws3Document.documentStamp.fileSavedUtc)
+    expect(landed.documentStamp.settingsUpdatedAt).toBe(WRITE_INSTANT)
+    expect(landed.documentStamp.scheduleUpdatedAt).toBe(WRITE_INSTANT)
+    expect(landed.documentStamp.fileSavedAt).toBe(drive.ws3Document.documentStamp.fileSavedAt)
   })
 
   it('取り消しの 1 段: RD-7 (積まない) pushes none', () => {

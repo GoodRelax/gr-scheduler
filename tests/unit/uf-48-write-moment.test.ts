@@ -226,12 +226,12 @@ function twoTaskGroupDocument(): Document {
   const row = (id: string, parentId: string | null, label: string) => ({
     id,
     parentId,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   })
   const draft = {
     '$schema': template['$schema'],
@@ -251,8 +251,8 @@ function twoTaskGroupDocument(): Document {
       assignments: [],
       taskGroups: [row(ALPHA, null, 'Alpha'), row(BETA, ALPHA, 'Beta')],
       taskGroupMembers: [
-        { taskUid: 1, groupId: ALPHA },
-        { taskUid: 2, groupId: BETA },
+        { taskUid: 1, taskGroupId: ALPHA },
+        { taskUid: 2, taskGroupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -954,18 +954,18 @@ const DEFAULT_OF = new Map(
  * hand the gate's own subject to `FR-049` and to the saved document at once.
  */
 const EXPECTED_BOOLEAN_KEYS = [
-  'planVisible',
-  'actualVisible',
-  'assigneeVisible',
-  'percentCompleteVisible',
-  'dependencyVisible',
-  'progressMarkerVisible',
-  'progressLineVisible',
-  'dateGridLinesVisible',
-  'groupGridLinesVisible',
-  'baselineVisible',
-  'planDatesVisible',
-  'showsTimeOfDay',
+  'isPlanVisible',
+  'isActualVisible',
+  'isAssigneeVisible',
+  'isPercentCompleteVisible',
+  'isDependencyVisible',
+  'isProgressMarkerVisible',
+  'isProgressLineVisible',
+  'isDateGridLinesVisible',
+  'isGroupGridLinesVisible',
+  'isBaselineVisible',
+  'isPlanDatesVisible',
+  'isTimeOfDayVisible',
 ]
 
 const T_206_VALUE = 0
@@ -1004,37 +1004,37 @@ interface Entrance {
 }
 
 const ENTRANCES: readonly Entrance[] = [
-  { entry: 'IC-4', part: APP_HEADER, table: 'T-202', row: 'S-69', key: 'baselineVisible' },
-  { entry: 'IC-8', part: APP_HEADER, table: 'T-202', row: 'S-227', key: 'planVisible' },
-  { entry: 'IC-9', part: APP_HEADER, table: 'T-202', row: 'S-228', key: 'actualVisible' },
+  { entry: 'IC-4', part: APP_HEADER, table: 'T-202', row: 'S-69', key: 'isBaselineVisible' },
+  { entry: 'IC-8', part: APP_HEADER, table: 'T-202', row: 'S-227', key: 'isPlanVisible' },
+  { entry: 'IC-9', part: APP_HEADER, table: 'T-202', row: 'S-228', key: 'isActualVisible' },
   { entry: 'IC-16', part: APP_HEADER, table: 'T-206', row: 'S-72', key: 'themePreference' },
   {
     entry: 'IC-39',
     part: COMMAND_PALETTE,
     table: 'T-202',
     row: 'S-64',
-    key: 'progressLineVisible',
+    key: 'isProgressLineVisible',
   },
   {
     entry: 'IC-40',
     part: COMMAND_PALETTE,
     table: 'T-202',
     row: 'S-63',
-    key: 'progressMarkerVisible',
+    key: 'isProgressMarkerVisible',
   },
   {
     entry: 'IC-42',
     part: COMMAND_PALETTE,
     table: 'T-202',
     row: 'S-67',
-    key: 'dateGridLinesVisible',
+    key: 'isDateGridLinesVisible',
   },
   {
     entry: 'IC-43',
     part: COMMAND_PALETTE,
     table: 'T-202',
     row: 'S-68',
-    key: 'groupGridLinesVisible',
+    key: 'isGroupGridLinesVisible',
   },
   // ⛔ IC-46 STOOD HERE and IC-49 after IC-48, until CR-369 retired both on
   // 2026-09-06. The seats are left empty in the manuscript and they are left
@@ -1047,10 +1047,10 @@ const THEME_ENTRY = 'IC-16'
 
 // WHY: kept out of ENTRANCES so the press cases over the ten stay as they were.
 const PALETTE_SWITCHES_NOT_PRESSED: readonly Entrance[] = [
-  { entry: 'IC-79', part: COMMAND_PALETTE, table: 'T-202', row: 'S-60', key: 'assigneeVisible' },
-  { entry: 'IC-80', part: COMMAND_PALETTE, table: 'T-202', row: 'S-61', key: 'percentCompleteVisible' },
-  { entry: 'IC-81', part: COMMAND_PALETTE, table: 'T-202', row: 'S-62', key: 'dependencyVisible' },
-  { entry: 'IC-103', part: COMMAND_PALETTE, table: 'T-202', row: 'S-232', key: 'planDatesVisible' },
+  { entry: 'IC-79', part: COMMAND_PALETTE, table: 'T-202', row: 'S-60', key: 'isAssigneeVisible' },
+  { entry: 'IC-80', part: COMMAND_PALETTE, table: 'T-202', row: 'S-61', key: 'isPercentCompleteVisible' },
+  { entry: 'IC-81', part: COMMAND_PALETTE, table: 'T-202', row: 'S-62', key: 'isDependencyVisible' },
+  { entry: 'IC-103', part: COMMAND_PALETTE, table: 'T-202', row: 'S-232', key: 'isPlanDatesVisible' },
 ]
 
 const NAMED_IN_THE_SWITCH_COLUMN: readonly Entrance[] = [
@@ -1341,7 +1341,7 @@ describe('FR-018 -- holding a zoom entrance down', () => {
 describe('the tables these ten entrances are driven by', () => {
   it('the four tables print the columns this file reads by position', () => {
     expect(specTable('T-202').headings.length).toBe(7)
-    expect(bare(cellAt('T-202', 'S-62', SETTING_KEY))).toBe('dependencyVisible')
+    expect(bare(cellAt('T-202', 'S-62', SETTING_KEY))).toBe('isDependencyVisible')
     expect(specTable('T-206').headings.length).toBe(4)
     expect(keyOfRow('T-206', 'S-72')).toBe('themePreference')
     // WHY: a count misses one column inserted while another is dropped, so the positions read are pinned too.
@@ -1366,7 +1366,7 @@ describe('the tables these ten entrances are driven by', () => {
     // reach it and no entrance may treat it as a toggle. It takes the table
     // 15 -> 16 and leaves the booleans at eleven.
     // WHY: CR-677 added fitSpanStart / fitSpanFinish (S-518 / S-519, dates): 16 -> 18, still eleven booleans.
-    // WHY: CR-710 added viewTimeZone, displayTimeZones and the boolean showsTimeOfDay (S-574 .. S-576): 18 -> 21, twelve booleans.
+    // WHY: CR-710 added viewTimeZone, displayTimeZones and the boolean isTimeOfDayVisible (S-574 .. S-576): 18 -> 21, twelve booleans.
     expect([...BOOLEAN_KEYS].sort()).toEqual([...EXPECTED_BOOLEAN_KEYS].sort())
     expect(T_202_KEYS.length).toBe(21)
   })
@@ -1666,12 +1666,12 @@ describe('IC-100 -- FR-041 (MUST) puts monochrome in the App Header', () => {
 
   for (const from of [false, true]) {
     it(`takes a document saved as ${String(from)} to ${String(!from)}`, () => {
-      const run = standing({ ...CONTRARY, themeMonochrome: from })
-      expect(settingsOf(run.loop).themeMonochrome, 'the premise').toBe(from)
+      const run = standing({ ...CONTRARY, isThemeMonochrome: from })
+      expect(settingsOf(run.loop).isThemeMonochrome, 'the premise').toBe(from)
 
       takeEntry(run.loop, run.screen, APP_HEADER, 'IC-100')
 
-      expect(settingsOf(run.loop).themeMonochrome, 'one entrance, two values').toBe(!from)
+      expect(settingsOf(run.loop).isThemeMonochrome, 'one entrance, two values').toBe(!from)
       run.frames.runAnimationFrames()
     })
   }
@@ -1702,15 +1702,15 @@ describe('IC-8 / IC-9 -- each entrance flips its own row and leaves the other', 
   // FR-049 (MUST, the ruling of 2026-09-07): S-227 and S-228 are two independent
   // booleans. Table T-109 gives each its own entrance -- IC-8 the PLAN, IC-9 the
   // ACTUAL -- so a press flips the row it names and MUST NOT touch the other.
-  const spelled: readonly (readonly [string, 'planVisible' | 'actualVisible'])[] = [
-    ['IC-8', 'planVisible'],
-    ['IC-9', 'actualVisible'],
+  const spelled: readonly (readonly [string, 'isPlanVisible' | 'isActualVisible'])[] = [
+    ['IC-8', 'isPlanVisible'],
+    ['IC-9', 'isActualVisible'],
   ]
 
   for (const [entry, key] of spelled) {
     for (const from of [true, false]) {
       it(`${entry} takes ${key} from ${String(from)} to ${String(!from)}`, () => {
-        const other = key === 'planVisible' ? 'actualVisible' : 'planVisible'
+        const other = key === 'isPlanVisible' ? 'isActualVisible' : 'isPlanVisible'
         for (const otherFrom of [true, false]) {
           const run = standing({ ...CONTRARY, [key]: from, [other]: otherFrom })
           expect(settingsOf(run.loop)[key], 'the premise').toBe(from)
@@ -1742,12 +1742,12 @@ describe('FR-049 -- both halves may be hidden (the ruling of 2026-09-07)', () =>
   // once held to be unreachable is now an ordinary one, and the safety valve the
   // front runner proposed instead was turned down.
   it('IC-8 pressed while the actual is already hidden leaves neither drawn', () => {
-    const run = standing({ ...CONTRARY, planVisible: true, actualVisible: false })
+    const run = standing({ ...CONTRARY, isPlanVisible: true, isActualVisible: false })
 
     takeEntry(run.loop, run.screen, APP_HEADER, 'IC-8')
 
-    expect(settingsOf(run.loop).planVisible).toBe(false)
-    expect(settingsOf(run.loop).actualVisible).toBe(false)
+    expect(settingsOf(run.loop).isPlanVisible).toBe(false)
+    expect(settingsOf(run.loop).isActualVisible).toBe(false)
     expect(
       validateDocument(run.loop.document()).valid,
       'the document with neither half drawn is still one the schema admits',

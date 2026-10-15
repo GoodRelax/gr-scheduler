@@ -36,20 +36,20 @@ const SCROLLED = {
   zoomX: 8,
   scrollDate: day(1),
   stackDirection: 'down',
-  pinnedGroupIds: [PINNED_GROUP],
-  scrollGroupId: SHOWN_GROUP,
+  pinnedTaskGroupIds: [PINNED_GROUP],
+  scrollTaskGroupId: SHOWN_GROUP,
   scrollGroupOffset: 0,
 }
 
 const group = (id: string, order: number): unknown => ({
   id,
   parentId: null,
-  label: id,
+  name: id,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto',
   color: null,
-  minHeight: null,
+  minHeightPx: null,
 })
 
 const build = () => {
@@ -57,7 +57,7 @@ const build = () => {
   const schedule = {
     ...base,
     taskGroups: [group(PINNED_GROUP, 0), group(HIDDEN_GROUP, 1), group(SHOWN_GROUP, 2)],
-    taskGroupMembers: TASKS.map((one) => ({ taskUid: (one as unknown as { uid: number }).uid, groupId: GROUP_OF[(one as unknown as { uid: number }).uid] })),
+    taskGroupMembers: TASKS.map((one) => ({ taskUid: (one as unknown as { uid: number }).uid, taskGroupId: GROUP_OF[(one as unknown as { uid: number }).uid] })),
   } as unknown as Schedule
   const settings = { ...SETTINGS_DEFAULTS, ...SCROLLED } as unknown as Parameters<typeof layoutFromSchedule>[1]
   const regions = regionsFromScreen(SCREEN, settings)

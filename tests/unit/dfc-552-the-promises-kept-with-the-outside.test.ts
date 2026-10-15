@@ -56,7 +56,7 @@ describe('FR-073 / FR-022 / AM-8 (DFC-552 3) -- a newer version handed to import
     built.send(keyOf(PROCEED_KEY))
     await later()
     built.send(keyOf('x'))
-    expect(outcome.accepted, JSON.stringify(outcome)).toBe(true)
+    expect(outcome.ok, JSON.stringify(outcome)).toBe(true)
     expect(built.loop.document().schedule.project.title).toBe('A plan from a newer build')
     expect(
       built.last().notices.some((one: any) => String(one.dismissKey).includes(NO_UNREADABLE_COLUMN_REASON)),

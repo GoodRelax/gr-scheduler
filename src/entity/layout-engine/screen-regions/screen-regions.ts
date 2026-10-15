@@ -78,7 +78,7 @@ export function displayScaleFractionOf(settings: DocumentSettings): number {
 
 // TRAP: DS-1, DS-3, DS-4 and DS-9 only; S-56 (DS-5), S-11 (DS-10) and every ratio row keep out.
 const SCALED_BY_THE_DISPLAY: readonly (keyof DrawnSettings)[] = [
-  'pxPerDayAt1x', 'rulerHeight', 'rulerFont', 'rulerLabelGap', 'rulerLabelPad',
+  'pxPerDayAt1x', 'rulerHeightPx', 'rulerFontSizePx', 'rulerLabelGap', 'rulerLabelPad',
   'rulerLabelBottomPad', 'basePlanHeight', 'actualMin', 'fontMin', 'actualGap',
   'taskGroupGap', 'dependencyWidth', 'dependencyArrowLength', 'dependencyLeadOut',
   'dependencyLeadIn', 'dependencyArrowWidth', 'markerSize',
@@ -87,7 +87,7 @@ const SCALED_BY_THE_DISPLAY: readonly (keyof DrawnSettings)[] = [
   'taskGroupTitleFont', 'taskGroupTitleIndent', 'planStroke', 'thinStrokeWidth',
   'thinArrowHeadLength', 'thinArrowHeadHeight', 'spanDotSize',
   'minShapeWidth', 'progressLineWidth', 'progressLineOverhang', 'commentBoxPad',
-  'taskGroupPanelWidth',
+  'taskGroupPanelWidthPx',
 ]
 
 // TRAP: S-243, not S-141: every entrance composed here sits on the Task Group Panel.
@@ -119,7 +119,7 @@ function drawnTaskGroupPanelWidthPx(settings: DocumentSettings, ratio: number): 
   const grabStrip = NOT_STORED_ENTRANCE_SIZES['S-138'] * NOT_STORED_CHROME_SCALE['S-235']
   const taskGroupControls =
     ROW_CONTROL_COLUMNS * entranceOuterWidthPx() * NOT_STORED_CHROME_SCALE['S-235']
-  return Math.max(settings.taskGroupPanelWidth * ratio, indents + grabStrip + taskGroupControls)
+  return Math.max(settings.taskGroupPanelWidthPx * ratio, indents + grabStrip + taskGroupControls)
 }
 
 const DRAWN_AT_RATIO = '__drawnAtDisplayRatio'
@@ -139,7 +139,7 @@ export function drawnSettingsOf(settings: DocumentSettings): DrawnSettings {
         if (typeof value === 'number') merged[key] = value * ratio
       }
     }
-    merged['taskGroupPanelWidth'] = drawnTaskGroupPanelWidthPx(settings, ratio)
+    merged['taskGroupPanelWidthPx'] = drawnTaskGroupPanelWidthPx(settings, ratio)
   }
   Object.defineProperty(merged, DRAWN_AT_RATIO, { value: ratio, enumerable: false })
   return merged as unknown as DrawnSettings
@@ -149,18 +149,18 @@ export function drawnSettingsOf(settings: DocumentSettings): DrawnSettings {
 const RULER_BAND_ROWS = 3
 
 /** @purity pure */
-export function rulerZoneRowsOf(settings: Pick<DocumentSettings, 'showsTimeOfDay' | 'displayTimeZones'>): readonly string[] {
-  return settings.showsTimeOfDay ? settings.displayTimeZones.filter((zone) => zone !== '') : []
+export function rulerZoneRowsOf(settings: Pick<DocumentSettings, 'isTimeOfDayVisible' | 'displayTimeZones'>): readonly string[] {
+  return settings.isTimeOfDayVisible ? settings.displayTimeZones.filter((zone) => zone !== '') : []
 }
 
 /** @purity pure */
 export function rulerZoneRowHeightOf(drawn: DrawnSettings): number {
-  return drawn.rulerHeight / RULER_BAND_ROWS
+  return drawn.rulerHeightPx / RULER_BAND_ROWS
 }
 
 /** @purity pure */
 export function rulerBandHeightOf(drawn: DrawnSettings): number {
-  return drawn.rulerHeight + rulerZoneRowsOf(drawn).length * rulerZoneRowHeightOf(drawn)
+  return drawn.rulerHeightPx + rulerZoneRowsOf(drawn).length * rulerZoneRowHeightOf(drawn)
 }
 
 /** @purity pure */
@@ -175,7 +175,7 @@ export function regionsFromScreen(
   const canvasTop = headerHeight + (env.topBandHeight ?? 0)
   const canvas = rect(0, canvasTop, env.width, env.height - canvasTop)
 
-  const titleWidth = drawn.taskGroupPanelWidth
+  const titleWidth = drawn.taskGroupPanelWidthPx
   const propsWidth = env.propertyPanelWidth
   const bandHeight = rulerBandHeightOf(drawn)
   const bar = env.scrollbarThickness

@@ -73,7 +73,7 @@ const FR_015_TURNS_S_69_ON =
 const UN_18_ONE_STEP = '| UN-18 | 対象 | 重ねの取り込み（表 T-024a の `OP-9`、`FR-015`）。取り込み 1 回を 1 段とする'
 // WHY: CR-710 names the time-of-day toggle of FR-158 in UN-7 (JDG-1975).
 const UN_7_TOGGLES_OUTSIDE = '| UN-7 | 対象外 | 表示の切り替え（各トグル。`FR-158` の「時刻を表示する」を含む） |'
-const S_69_ROW = '| S-69 | `baselineVisible` | 真偽 | `false` |'
+const S_69_ROW = '| S-69 | `isBaselineVisible` | 真偽 | `false` |'
 
 type RawGuard = { readonly name?: string; readonly not?: boolean; readonly in?: string }
 type RawBranch = { readonly to?: string; readonly guard?: readonly RawGuard[]; readonly effect?: string }
@@ -127,7 +127,7 @@ describe('CR-588 premises -- the clauses these cases quote still stand', () => {
     expect(REQUIREMENTS).toContain(UN_7_TOGGLES_OUTSIDE)
   })
 
-  it('T-202 S-69 is still baselineVisible, 真偽, default false', () => {
+  it('T-202 S-69 is still isBaselineVisible, 真偽, default false', () => {
     expect(SETTINGS_TABLE).toContain(S_69_ROW)
   })
 
@@ -152,7 +152,7 @@ function valuesUnder(value: unknown, key: string, out: unknown[] = []): unknown[
   return out
 }
 
-const S_69_KEY = 'baselineVisible'
+const S_69_KEY = 'isBaselineVisible'
 
 const NESTED = {
   exportCanvas: { width: 1600, height: 900 },
@@ -163,14 +163,14 @@ const NESTED = {
 
 const ROW_ID = 'r-alfa'
 
-const settingsWith = (baselineVisible: boolean): DocumentSettings =>
+const settingsWith = (isBaselineVisible: boolean): DocumentSettings =>
   ({
     ...SETTINGS_DEFAULTS,
     ...NESTED,
     scrollDate: '2026-01-01',
-    scrollGroupId: ROW_ID,
+    scrollTaskGroupId: ROW_ID,
     stackDirection: 'down',
-    baselineVisible,
+    isBaselineVisible,
   }) as unknown as DocumentSettings
 
 const ONE_BASELINE_TASK = { uid: 1, name: 'before', start: '2026-01-05T08:00:00', finish: '2026-01-09T17:00:00', milestone: false }
@@ -191,15 +191,15 @@ const scheduleWith = (baselineTasks: readonly unknown[]): Schedule =>
     baselineTasks,
   }) as unknown as Schedule
 
-const documentWith = (baselineTasks: readonly unknown[], baselineVisible: boolean): Document =>
+const documentWith = (baselineTasks: readonly unknown[], isBaselineVisible: boolean): Document =>
   ({
     schemaVersion: '2026-01-01',
     schedule: scheduleWith(baselineTasks),
-    documentSettings: settingsWith(baselineVisible),
+    documentSettings: settingsWith(isBaselineVisible),
     documentStamp: {
-      scheduleUpdatedUtc: '2026-01-01T00:00:00Z',
+      scheduleUpdatedAt: '2026-01-01T00:00:00Z',
       lastEditedBy: 'test',
-      settingsUpdatedUtc: '2026-01-01T00:00:00Z',
+      settingsUpdatedAt: '2026-01-01T00:00:00Z',
     },
     changeLog: [],
   }) as unknown as Document
@@ -263,7 +263,7 @@ function pressIc4(document: Document): PressAnswer {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   }
@@ -443,7 +443,7 @@ function replacedBy(from: HeldDocument, call: ReplacementCall): HeldDocument {
   const outcome = replaceDocument(
     {
       defaultTaskGroupName: 'fixture default task group name',
-      newGroupId: 'fresh-task-group',
+      newTaskGroupId: 'fresh-task-group',
       readStamp: from.document.documentStamp,
       moment: CALM,
       call,

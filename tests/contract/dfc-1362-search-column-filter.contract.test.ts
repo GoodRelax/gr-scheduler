@@ -222,17 +222,17 @@ const groupOf = (id: string, parentId: string | null, order: number, label: stri
   id,
   parentId,
   order,
-  label,
+  name: label,
   derivedFromTaskUid: null,
   treeState: 'expanded',
 })
 
-const commentOf = (id: string, text: string, anchorGroupId: string, anchorDate: string | null): Loose => ({
+const commentOf = (id: string, text: string, anchorTaskGroupId: string, anchorDate: string | null): Loose => ({
   id,
   leaderShapeKind: null,
   text,
   anchorDate: anchorDate === null ? null : D(anchorDate),
-  anchorGroupId,
+  anchorTaskGroupId,
   bodyOffsetPx: null,
   strokeColor: null,
   strokeWidthPx: null,
@@ -257,7 +257,7 @@ const SCHEDULE = {
     groupOf(G_REVIEW, null, 1, REVIEW),
     groupOf(G_ARCHIVE, null, 2, ARCHIVE),
   ],
-  taskGroupMembers: TASKS.map((one) => ({ taskUid: one.uid, groupId: one.group })),
+  taskGroupMembers: TASKS.map((one) => ({ taskUid: one.uid, taskGroupId: one.group })),
   resources: PEOPLE.map(([uid, name]) => ({ ...firstOf('resources'), uid, name })),
   assignments: ASSIGNED.map(([taskUid, resourceUid], at) => ({
     ...firstOf('assignments'),

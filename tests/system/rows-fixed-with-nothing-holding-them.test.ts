@@ -55,7 +55,7 @@ function columnRowOf(entity: string, column: string): string {
 
 // WHY: IR-1 marks a field by its table T-016 row; the task-group-name field alone
 // keeps the ERD column (AT-53), so only the name is read from table T-058.
-const TASK_GROUP_NAME_COLUMN = columnRowOf('TaskGroup', 'label')
+const TASK_GROUP_NAME_COLUMN = columnRowOf('TaskGroup', 'name')
 
 /** @purity pure */
 function propertyRowOf(entity: string, column: string): string {
@@ -70,7 +70,7 @@ function propertyRowOf(entity: string, column: string): string {
   return found[0]?.id ?? ''
 }
 
-const ROW_HEIGHT_FIELD = propertyRowOf('TaskGroup', 'minHeight')
+const ROW_HEIGHT_FIELD = propertyRowOf('TaskGroup', 'minHeightPx')
 
 // WHY: found by what the table says the entrance does, so that no case
 // spells an IC-nn of its own.

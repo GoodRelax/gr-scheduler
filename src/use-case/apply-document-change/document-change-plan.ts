@@ -79,9 +79,9 @@ function isUndoable(command: DocumentCommand): boolean {
   switch (command.kind) {
     case 'setElementVisible':
       return false
-    case 'setTaskGroupPanelWidth':
+    case 'setTaskGroupPanelWidthPx':
     case 'setTaskGroupPanelWidthFixed':
-    case 'setShowsTimeOfDay':
+    case 'setTimeOfDayVisible':
       return false
     // TRAP: FR-031 splits a fit into CM-71 (no step) then CM-72 (a step); swapping or merging
     // them makes an undo rewind the zoom against UN-8.
@@ -99,26 +99,26 @@ function isUndoable(command: DocumentCommand): boolean {
 /** @purity pure */
 function columnsOutsideHistory(current: DocumentSettings): Partial<DocumentSettings> {
   return {
-    planVisible: current.planVisible,
-    actualVisible: current.actualVisible,
-    assigneeVisible: current.assigneeVisible,
-    percentCompleteVisible: current.percentCompleteVisible,
-    dependencyVisible: current.dependencyVisible,
-    progressMarkerVisible: current.progressMarkerVisible,
-    progressLineVisible: current.progressLineVisible,
-    dateGridLinesVisible: current.dateGridLinesVisible,
-    groupGridLinesVisible: current.groupGridLinesVisible,
-    baselineVisible: current.baselineVisible,
-    planDatesVisible: current.planDatesVisible,
-    showsTimeOfDay: current.showsTimeOfDay,
+    isPlanVisible: current.isPlanVisible,
+    isActualVisible: current.isActualVisible,
+    isAssigneeVisible: current.isAssigneeVisible,
+    isPercentCompleteVisible: current.isPercentCompleteVisible,
+    isDependencyVisible: current.isDependencyVisible,
+    isProgressMarkerVisible: current.isProgressMarkerVisible,
+    isProgressLineVisible: current.isProgressLineVisible,
+    isDateGridLinesVisible: current.isDateGridLinesVisible,
+    isGroupGridLinesVisible: current.isGroupGridLinesVisible,
+    isBaselineVisible: current.isBaselineVisible,
+    isPlanDatesVisible: current.isPlanDatesVisible,
+    isTimeOfDayVisible: current.isTimeOfDayVisible,
 
-    taskGroupPanelWidth: current.taskGroupPanelWidth,
-    taskGroupPanelWidthFixed: current.taskGroupPanelWidthFixed,
+    taskGroupPanelWidthPx: current.taskGroupPanelWidthPx,
+    isTaskGroupPanelWidthFixed: current.isTaskGroupPanelWidthFixed,
 
     zoomX: current.zoomX,
     zoomY: current.zoomY,
     scrollDate: current.scrollDate,
-    scrollGroupId: current.scrollGroupId,
+    scrollTaskGroupId: current.scrollTaskGroupId,
     scrollDayOffset: current.scrollDayOffset,
     scrollGroupOffset: current.scrollGroupOffset,
   }
@@ -163,7 +163,7 @@ function stepSizeBytes(document: Document): number {
 /** @purity pure */
 function freshRowIdOf(commands: readonly DocumentCommand[]): string | null {
   for (const command of commands) {
-    if (command.kind === 'deleteTaskGroup') return command.newGroupId
+    if (command.kind === 'deleteTaskGroup') return command.newTaskGroupId
   }
   return null
 }
@@ -180,14 +180,14 @@ function documentHoldingOneTaskGroup(
   const taskGroup: TaskGroup = {
     id: freshRowId,
     parentId: null,
-    label: defaultTaskGroupName,
+    name: defaultTaskGroupName,
     derivedFromTaskUid: null,
     order: 0,
     // WHY: the one task group T-050 leaves stands open whatever emptied the task groups, as a CM-26 task group does (AT-153).
     treeState: 'temporarilyExpanded',
     editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   }
   return { ...document, schedule: { ...document.schedule, taskGroups: [taskGroup] } }
 }
@@ -322,7 +322,7 @@ export interface ReplacementInput {
   readonly moment: WriteMoment
   readonly call: ReplacementCall
   readonly defaultTaskGroupName: string
-  readonly newGroupId: string
+  readonly newTaskGroupId: string
 }
 
 export type ReplacementRefusal =
@@ -346,7 +346,7 @@ export type ReplacementPlan =
 // TRAP: compare for equality, never order; an undo restores an older stamp.
 /** @purity pure */
 function hasMovedScheduleBetween(outgoing: Document, incoming: Document): boolean {
-  return outgoing.documentStamp.scheduleUpdatedUtc !== incoming.documentStamp.scheduleUpdatedUtc
+  return outgoing.documentStamp.scheduleUpdatedAt !== incoming.documentStamp.scheduleUpdatedAt
 }
 
 /** @purity pure */
@@ -355,7 +355,7 @@ function replacementSettled(
   next: HeldDocument,
   input: ReplacementInput,
 ): ReplacementPlan {
-  const settled = documentHoldingOneTaskGroup(next.document, input.defaultTaskGroupName, input.newGroupId)
+  const settled = documentHoldingOneTaskGroup(next.document, input.defaultTaskGroupName, input.newTaskGroupId)
   const pair: HeldDocument =
     settled === next.document ? next : { document: settled, history: next.history }
   return { ok: true, next: pair, hasMovedSchedule: hasMovedScheduleBetween(held.document, pair.document) }

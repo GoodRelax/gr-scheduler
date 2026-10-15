@@ -109,7 +109,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   creationLanded: [
     { created: { kind: 'task', uid: NAMED_UID } },
     { created: { kind: 'task', uid: 9 } },
-    { created: { kind: 'taskGroup', groupId: 'group1' } },
+    { created: { kind: 'taskGroup', taskGroupId: 'group1' } },
   ],
   fieldFocusWithdrawn: [{}],
   fieldEditBegan: EDITED_ROWS.map((fieldRow) => ({ fieldRow })),
@@ -183,7 +183,7 @@ function expectedCarried(target: string, before: Loose, event: Loose): Loose {
 // see HF-17
 function expectedEffect(branch: RawBranch, event: Loose): Loose {
   if (branch.effect === 'bringCreatedTaskGroupIntoSight') {
-    return { type: 'bringCreatedTaskGroupIntoSight', groupId: (event['created'] as Loose)['groupId'] }
+    return { type: 'bringCreatedTaskGroupIntoSight', taskGroupId: (event['created'] as Loose)['taskGroupId'] }
   }
   throw new Error(`effect ${String(branch.effect)} is named by the manuscript but not by this file's oracle`)
 }

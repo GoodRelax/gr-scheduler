@@ -40,7 +40,7 @@ const OPEN_EXPORT_CHOOSER = rowOf(specTable('T-109'), 'IC-2').id
 const SPAN_28 = { fitSpanStart: '2026-03-02T00:00:00', fitSpanFinish: '2026-03-29T00:00:00' }
 const SPAN_14 = { fitSpanStart: '2026-03-02T00:00:00', fitSpanFinish: '2026-03-15T00:00:00' }
 // WHY: CM-90 fixes the span; it reaches the picture only while fixed (FX-2).
-const FIX = { kind: 'setFitSpanFixed', fitSpanFixed: true, shownStart: null, shownFinish: null }
+const FIX = { kind: 'setFitSpanFixed', isFitSpanFixed: true, shownStart: null, shownFinish: null }
 
 let browser: Browser | null = null
 
@@ -148,7 +148,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
   })
 
   test(`IX-14 (MUST): ${IX_14_ZOOM_ONE.slice(-40)} -- the screen zoomed to 2 leaves the picture's task group pitch at the zoom-1 pitch`, async () => {
-    const opened = await stageWith(30, { ...SPAN_28, fitSpanFixed: true })
+    const opened = await stageWith(30, { ...SPAN_28, isFitSpanFixed: true })
     try {
       const pitchAtOne = await screenTaskGroupPitch(opened.page)
       const first = await pictureOf(opened.page)
@@ -167,7 +167,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
   })
 
   test(`IX-12 (MUST): ${IX_12.slice(-40)} -- the day width is the Task Group Area over the span's days, whatever the window`, async () => {
-    const opened = await stageWith(12, { ...SPAN_28, fitSpanFixed: true })
+    const opened = await stageWith(12, { ...SPAN_28, isFitSpanFixed: true })
     try {
       const at28 = await pictureOf(opened.page)
       const bar28 = planOf(at28, 1)
@@ -190,14 +190,14 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
   })
 
   test(`IX-15 (MUST NOT): ${IX_15_NO_FIT.slice(-40)} -- more task groups grow the height, never shrink the task groups, days or type`, async () => {
-    const few = await stageWith(20, { ...SPAN_28, fitSpanFixed: true })
+    const few = await stageWith(20, { ...SPAN_28, isFitSpanFixed: true })
     let fewPicture = ''
     try {
       fewPicture = await pictureOf(few.page)
     } finally {
       await few.close()
     }
-    const many = await stageWith(80, { ...SPAN_28, fitSpanFixed: true })
+    const many = await stageWith(80, { ...SPAN_28, isFitSpanFixed: true })
     try {
       const manyPicture = await pictureOf(many.page)
       expect(heightOf(manyPicture), 'premise: the 80-row picture is taller').toBeGreaterThan(heightOf(fewPicture))
@@ -211,7 +211,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
       await many.close()
     }
     const taskGroupsPastTheCap = Math.ceil(S_217 / 10)
-    const tall = await stageWith(taskGroupsPastTheCap, { ...SPAN_28, fitSpanFixed: true })
+    const tall = await stageWith(taskGroupsPastTheCap, { ...SPAN_28, isFitSpanFixed: true })
     try {
       const answer = await exportSvgOf(tall.page)
       expect(answer.ok, `IX-5: ${taskGroupsPastTheCap} task groups do not fit under S-217 (${S_217}px), and are refused rather than squeezed`).toBe(false)
@@ -221,7 +221,7 @@ test.describe('FR-025 the export span picture on the shipped build', () => {
   })
 
   test(`IX-16 (MUST): ${IX_16.slice(-30)} -- the span picture draws what EP-1 / EP-3 / EP-5 draw and leaves EP-11 out`, async () => {
-    const opened = await stageWith(12, { ...SPAN_28, fitSpanFixed: true })
+    const opened = await stageWith(12, { ...SPAN_28, isFitSpanFixed: true })
     try {
       const paletteWords = await opened.page.evaluate((selector: string) => {
         const found = document.querySelector(selector)
@@ -260,7 +260,7 @@ test.describe('FR-096 the Export Chooser on the shipped build', () => {
   }
 
   test(`FR-096 (MUST): ${FR_096_SPAN.slice(-40)} -- the span line reads 2026/03/02 - 2026/03/29 and is gone with the span`, async () => {
-    const opened = await stageWith(4, { ...SPAN_28, fitSpanFixed: true })
+    const opened = await stageWith(4, { ...SPAN_28, isFitSpanFixed: true })
     try {
       expect(await pressEntrance(opened.page, OPEN_EXPORT_CHOOSER), 'IC-2 opens the Export Chooser').toBe(true)
       const shown = await chooserOf(opened.page)

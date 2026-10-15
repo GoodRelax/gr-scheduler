@@ -21,7 +21,7 @@ const FS = 1
 const link = (predecessorUid: number): Record<string, unknown> => ({
   predecessorUid,
   linkType: FS,
-  lag: 0,
+  linkLag: 0,
   lagFormat: 7,
   carry: {},
   carryElements: [],

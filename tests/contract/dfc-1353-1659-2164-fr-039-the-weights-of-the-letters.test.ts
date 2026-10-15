@@ -70,7 +70,7 @@ const VIEW = {
     pinnedTitles: [],
     titles: [
       {
-        groupId: 'g1', depth: 1, fontPx: 20, indentPx: 4, box: { x: 0, y: 100, width: 300, height: 40 },
+        taskGroupId: 'g1', depth: 1, fontPx: 20, indentPx: 4, box: { x: 0, y: 100, width: 300, height: 40 },
         label: 'a task group name', wholeLabel: 'a task group name', isLabelTruncated: false,
         expander: { canOpen: true, canClose: true, canCloseBelow: false }, isPinned: false, isSelected: false,
       },
@@ -110,10 +110,10 @@ describe('DFC-1353: the Document Title is drawn S-463 bold on the screen and in 
     const regions: ScreenRegions = {
       appHeader: { x: 0, y: 0, width: 1000, height: 56 },
       scheduleCanvas: { x: 0, y: 56, width: 1000, height: 744 },
-      taskGroupPanel: { x: 0, y: 56, width: settings.taskGroupPanelWidth, height: 744 },
-      timeRuler: { x: settings.taskGroupPanelWidth, y: 56, width: 1000 - settings.taskGroupPanelWidth, height: settings.rulerHeight },
+      taskGroupPanel: { x: 0, y: 56, width: settings.taskGroupPanelWidthPx, height: 744 },
+      timeRuler: { x: settings.taskGroupPanelWidthPx, y: 56, width: 1000 - settings.taskGroupPanelWidthPx, height: settings.rulerHeightPx },
       propertiesPanel: { x: 1000, y: 56, width: 0, height: 744 },
-      taskGroupArea: { x: settings.taskGroupPanelWidth, y: 56 + settings.rulerHeight, width: 1000 - settings.taskGroupPanelWidth, height: 700 },
+      taskGroupArea: { x: settings.taskGroupPanelWidthPx, y: 56 + settings.rulerHeightPx, width: 1000 - settings.taskGroupPanelWidthPx, height: 700 },
     }
     const scene = {
       svg: '<svg xmlns="http://www.w3.org/2000/svg"><circle cx="7" cy="11" r="3"/></svg>',
@@ -178,8 +178,8 @@ const SEARCH_SCHEDULE = {
     percentComplete: null,
     dependencies: [],
   })),
-  taskGroups: [{ ...firstOf('taskGroups'), id: 'task-group-top', parentId: null, order: 0, label: 'Program', derivedFromTaskUid: null, treeState: 'expanded' }],
-  taskGroupMembers: [1, 2, 3].map((uid) => ({ taskUid: uid, groupId: 'task-group-top' })),
+  taskGroups: [{ ...firstOf('taskGroups'), id: 'task-group-top', parentId: null, order: 0, name: 'Program', derivedFromTaskUid: null, treeState: 'expanded' }],
+  taskGroupMembers: [1, 2, 3].map((uid) => ({ taskUid: uid, taskGroupId: 'task-group-top' })),
   resources: [],
   assignments: [],
   commentBoxes: [],

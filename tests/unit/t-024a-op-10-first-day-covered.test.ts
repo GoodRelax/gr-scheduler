@@ -60,11 +60,11 @@
 //           タスクグループが存在しないとき」
 //   T-034  BT-4  「初期表示用のテンプレート（`FR-027`）」 -- the seat OP-10
 //           excludes by name, and what `startedFromTemplate` says.
-//   T-203  S-77 `scrollDate` / S-78 `scrollGroupId` -- the stored place.
+//   T-203  S-77 `scrollDate` / S-78 `scrollTaskGroupId` -- the stored place.
 //   T-058  AT-28 `start` / AT-34 `actualStart` -- the two columns the definition
 //           names; AT-31 `deadline`, AT-29 `finish`, AT-36 `actualFinish` and
 //           AT-37 `resume` are Task date columns it does NOT name.
-//   T-058  AT-113 `CommentBox.anchorDate`, AT-117 `HighlightBox.startDate`,
+//   T-058  AT-113 `CommentBox.anchorDate`, AT-117 `HighlightBox.start`,
 //           AT-79 `Exception.fromDate` -- the three the MUST NOT lists.
 //
 // ---------------------------------------------------------------------------
@@ -92,7 +92,7 @@
 //     tests/unit/fr-027-startup-shows-its-depth.test.ts, and nothing here
 //     repeats a case of that file.
 //   - The branch where OP-10 DOES run (a null place on a document that did not
-//     come from BT-4, and a `scrollGroupId` naming no task group).
+//     come from BT-4, and a `scrollTaskGroupId` naming no task group).
 //     tests/unit/uf-47-48.test.ts owns those three.
 //   - 「別の文書を開いた時点でこの除外は解けること（MUST）」 and the ⭐ that
 //     undo / redo / merge do not lift it. Those are about a SECOND document
@@ -100,7 +100,7 @@
 //   - 「倍率は文書が持つものをそのまま使う」 -- the zoom on the BT-4 branch,
 //     which is fr-027's.
 //   - ⚠️ WHICH day the fit takes when only the TASK GROUP half of the place dangles --
-//     `scrollDate` holding a day while `scrollGroupId` names no task group, on a
+//     `scrollDate` holding a day while `scrollTaskGroupId` names no task group, on a
 //     document with nothing drawn. OP-10 fires on that, and FR-055 then says
 //     「表示位置を `scrollDate` に合わせる」; but whether the day half survives a
 //     place OP-10 has just called unusable is not settled anywhere. ⛔ STILL A
@@ -256,12 +256,12 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
 const group = (id: string, order: number, label: string): unknown => ({
   id,
   parentId: null,
-  label,
+  name: label,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  minHeight: null,
+  minHeightPx: null,
 })
 
 /**
@@ -297,8 +297,8 @@ function documentOf(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [group(TASK_GROUP_ONE, 0, 'One'), group(TASK_GROUP_TWO, 1, 'Two')],
       taskGroupMembers: [
-        { taskUid: 1, groupId: TASK_GROUP_ONE },
-        { taskUid: 2, groupId: TASK_GROUP_TWO },
+        { taskUid: 1, taskGroupId: TASK_GROUP_ONE },
+        { taskUid: 2, taskGroupId: TASK_GROUP_TWO },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -414,7 +414,7 @@ function frameOfBoot(document: Document, fromTemplate: boolean): DrawnPlace {
     // `textOfDay` answers the stored spelling, which carries a time part the
     // schedule never interprets (FR-054, MUST NOT). The day is what is compared.
     origin: origin === null ? null : dayPart(textOfDay(origin)),
-    topTaskGroup: values.layout.taskGroups[0]?.groupId ?? null,
+    topTaskGroup: values.layout.taskGroups[0]?.taskGroupId ?? null,
   }
 }
 
@@ -463,7 +463,7 @@ describe('the fixture these cases stand on', () => {
     // branch none of them is about, without changing a line of them.
     const settings = (documentOf() as any).documentSettings
     expect(settings.scrollDate).toBeNull()
-    expect(settings.scrollGroupId).toBeNull()
+    expect(settings.scrollTaskGroupId).toBeNull()
   })
 
   it('carries an `actualStart` earlier than every `start`, which is what makes the two columns tell apart', () => {
@@ -517,7 +517,7 @@ describe('OP-10 -- the days it MUST NOT count', () => {
         leaderShapeKind: 'polyline',
         text: 'Note',
         anchorDate: stored(NOT_COUNTED),
-        anchorGroupId: TASK_GROUP_ONE,
+        anchorTaskGroupId: TASK_GROUP_ONE,
         bodyOffsetPx: null,
       })
     })
@@ -528,10 +528,10 @@ describe('OP-10 -- the days it MUST NOT count', () => {
     const withBox = documentOf((draft) => {
       draft.schedule.highlightBoxes.push({
         id: '3c000000-0000-4000-8000-000000000001',
-        startDate: stored(NOT_COUNTED),
-        endDate: stored('2026-01-20'),
-        topGroupId: TASK_GROUP_ONE,
-        bottomGroupId: TASK_GROUP_TWO,
+        start: stored(NOT_COUNTED),
+        finish: stored('2026-01-20'),
+        topTaskGroupId: TASK_GROUP_ONE,
+        bottomTaskGroupId: TASK_GROUP_TWO,
         strokeColor: null,
         cornerRadiusPx: null,
       })
@@ -697,7 +697,7 @@ describe('OP-10 -- a document that holds no `Task`', () => {
     expect(held.zoomX).toBe(STORED_ZOOM_X)
     expect(held.zoomY).toBe(STORED_ZOOM_Y)
     expect(held.scrollDate).toBeNull()
-    expect(held.scrollGroupId).toBeNull()
+    expect(held.scrollTaskGroupId).toBeNull()
   })
 
   it('takes FR-055 place too: 表示位置を `scrollDate` に合わせる, and `null` may only become 実行日', () => {

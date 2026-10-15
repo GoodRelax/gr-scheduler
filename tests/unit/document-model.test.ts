@@ -160,24 +160,24 @@ describe('DialogueLog (PI-33)', () => {
 
 describe('DocumentStamp (PI-3)', () => {
   const stamp: DocumentStamp = {
-    scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+    scheduleUpdatedAt: '2026-08-17T00:00:00Z',
     lastEditedBy: 'human',
-    settingsUpdatedUtc: '2026-08-17T00:00:00Z',
-    fileSavedUtc: null,
+    settingsUpdatedAt: '2026-08-17T00:00:00Z',
+    fileSavedAt: null,
   }
 
   it('FR-063 moves the schedule-data instant for a schedule-data write', () => {
     // 「日程データの群の刻を動かすのは、日程データの群を変える更新とすること
     // （MUST）」, and 「どちらの群であれ動いた刻と、最後に書いた者は … 更新
     // すること（MUST）」 -- so those three fields move together here.
-    // ⚠️ `fileSavedUtc` (AT-140) is the FOURTH field and does NOT move: an
+    // ⚠️ `fileSavedAt` (AT-140) is the FOURTH field and does NOT move: an
     // edit is not a write to a file, and FR-101 owns when that one moves.
     const next = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasMovedSchedule: true })
     expect(next).toEqual({
-      scheduleUpdatedUtc: '2026-08-17T00:01:00Z',
+      scheduleUpdatedAt: '2026-08-17T00:01:00Z',
       lastEditedBy: 'agent',
-      settingsUpdatedUtc: '2026-08-17T00:01:00Z',
-      fileSavedUtc: null,
+      settingsUpdatedAt: '2026-08-17T00:01:00Z',
+      fileSavedAt: null,
     })
   })
 
@@ -185,9 +185,9 @@ describe('DocumentStamp (PI-3)', () => {
     // 「見せ方の群だけを変える更新で、日程データの群の刻を動かしてはならない
     // （MUST NOT）」.
     const next = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasMovedSchedule: false })
-    expect(next.scheduleUpdatedUtc).toBe('2026-08-17T00:00:00Z')
+    expect(next.scheduleUpdatedAt).toBe('2026-08-17T00:00:00Z')
     expect(next.lastEditedBy).toBe('agent')
-    expect(next.settingsUpdatedUtc).toBe('2026-08-17T00:01:00Z')
+    expect(next.settingsUpdatedAt).toBe('2026-08-17T00:01:00Z')
   })
 
   it('AG-2 compares all three, so a presentation-only write is still a mismatch', () => {
@@ -201,8 +201,8 @@ describe('DocumentStamp (PI-3)', () => {
     // （MUST）」 -- 「刻印が答えるのは『同じ文書か』だけであり、『どちらが新しい
     // か』ではない。」 An undo restores an earlier stamp (FR-031), so a stamp
     // that ran backwards has to read as different, not as "not newer".
-    const earlier: DocumentStamp = { ...stamp, scheduleUpdatedUtc: '2026-08-16T00:00:00Z' }
-    const later: DocumentStamp = { ...stamp, scheduleUpdatedUtc: '2026-08-18T00:00:00Z' }
+    const earlier: DocumentStamp = { ...stamp, scheduleUpdatedAt: '2026-08-16T00:00:00Z' }
+    const later: DocumentStamp = { ...stamp, scheduleUpdatedAt: '2026-08-18T00:00:00Z' }
     expect(isStampMatched(earlier, stamp)).toBe(false)
     expect(isStampMatched(later, stamp)).toBe(false)
     expect(isStampMatched(stamp, earlier)).toBe(false)
@@ -216,9 +216,9 @@ describe('DocumentStamp (PI-3)', () => {
     // 「照合は刻印の 3 つすべての等値で行うこと（MUST）。1 つでも違えば拒否する
     // こと（MUST）」.
     for (const differing of [
-      { scheduleUpdatedUtc: '2026-08-17T00:00:01Z' },
+      { scheduleUpdatedAt: '2026-08-17T00:00:01Z' },
       { lastEditedBy: 'agent' },
-      { settingsUpdatedUtc: '2026-08-17T00:00:01Z' },
+      { settingsUpdatedAt: '2026-08-17T00:00:01Z' },
     ] as const) {
       expect(isStampMatched({ ...stamp, ...differing }, stamp)).toBe(false)
     }
@@ -575,8 +575,8 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
 
 describe('DocumentSettings (PI-2)', () => {
   it('reads its bounds from the sources, not from a second copy', () => {
-    // S-2 rulerHeight: at most 150 in table T-202.
-    expect(SETTINGS_BOUNDS['rulerHeight']?.max).toBe(150)
+    // S-2 rulerHeightPx: at most 150 in table T-202.
+    expect(SETTINGS_BOUNDS['rulerHeightPx']?.max).toBe(150)
   })
 
   it('pulls a value up to the lower bound and says it moved', () => {
