@@ -174,6 +174,8 @@ FILES = (
     os.path.join('_assets', 'tbl-published-entries.md'),
     # CR-712: tables T-233 / T-234 left 01-04-requirements.md for here.
     os.path.join('_assets', 'tbl-notice-reasons.md'),
+    # CR-765: table T-107 left tbl-glossary.md for here, with table T-400.
+    os.path.join('_assets', 'tbl-agent-api-members.md'),
     os.path.join('_assets', 'fig-erd-detail.md'),
     os.path.join('_assets', 'fig-erd-overview.md'),
 )

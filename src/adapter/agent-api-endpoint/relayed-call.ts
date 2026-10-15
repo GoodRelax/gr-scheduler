@@ -2,6 +2,8 @@
 // @unit      UF-185   (docs/spec/05-07-design.md, table T-075)
 // @component AgentApiEndpoint, layer Adapter (table T-062)
 // @purity    non-pure
+// Generated region: RelayedParams and MEMBER_PARAMETERS from docs/spec/_source/agent-api-members.json
+// (table T-107). Do not edit by hand; npm run gen.
 
 import {
   messageOf,
@@ -11,6 +13,8 @@ import {
   type AgentWriteRequest,
 } from './agent-api-members'
 
+// <generated -- do not edit by hand>
+// From docs/spec/_source/agent-api-members.json (table T-107).
 // see T-107, AG-12
 export interface RelayedParams {
   agentApiVersion: {}
@@ -33,10 +37,21 @@ export interface RelayedParams {
   exportEmbeddedHtml: {}
   focusTask: { taskUid: number }
   showOnlyTasks: { taskUids: readonly number[] | null }
-  // WHY: no waitMs here -- the relay does the waiting, the page only subscribes.
+  // WHY: the relay reads waitMs itself; the page only subscribes.
   watchChanges: {}
   postDialogueMessage: { text: string }
 }
+
+// WHY: only members with arguments, in their argument order.
+const MEMBER_PARAMETERS = {
+  readSearchRows: ['word'],
+  applyCommands: ['request'],
+  importDocument: ['source'],
+  focusTask: ['taskUid'],
+  showOnlyTasks: ['taskUids'],
+  postDialogueMessage: ['text'],
+} as const satisfies { readonly [K in ParameterizedMember]: readonly (keyof RelayedParams[K])[] }
+// </generated>
 
 export type RelayedCall = {
   [K in keyof AgentApi]: { readonly member: K; readonly params: RelayedParams[K] }
@@ -50,16 +65,6 @@ export type RelayedAnswer =
 type ParameterizedMember = {
   [K in keyof AgentApi]: keyof RelayedParams[K] extends never ? never : K
 }[keyof AgentApi]
-
-// WHY: only members with arguments -- listing all of them would restate table T-107 (check 69).
-const MEMBER_PARAMETERS = {
-  readSearchRows: ['word'],
-  applyCommands: ['request'],
-  importDocument: ['source'],
-  focusTask: ['taskUid'],
-  showOnlyTasks: ['taskUids'],
-  postDialogueMessage: ['text'],
-} as const satisfies { readonly [K in ParameterizedMember]: readonly (keyof RelayedParams[K])[] }
 
 type ArgumentsNamed<TParams, TNames> = {
   -readonly [I in keyof TNames]: TParams[TNames[I] & keyof TParams]

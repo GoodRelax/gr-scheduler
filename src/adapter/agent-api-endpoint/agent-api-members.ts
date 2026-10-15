@@ -2,6 +2,8 @@
 // @unit      UF-28   (docs/spec/05-07-design.md, table T-075)
 // @component AgentApiEndpoint, layer Adapter (table T-062)
 // @purity    non-pure
+// Generated region: the value types of table T-400, AgentApi and AGENT_API_VERSION from
+// docs/spec/_source/agent-api-members.json (tables T-107, T-400). Do not edit by hand; npm run gen.
 
 import type { Document } from '../../entity/document-model/document/document'
 import {
@@ -49,7 +51,64 @@ type DocumentStamp = Document['documentStamp']
 // see AG-9a, T-233
 type CodecRefusalReason = Extract<DocumentCodec.JsonDecoding, { readonly ok: false }>['reason']
 
-// see AG-9a, FR-028
+type ChangeNotice = NotifyChangeWatchers.ChangeNotice
+
+// see AM-26, TV-1
+// WHY: the keys of the document's tableViews, read off the document so this component gains no edge to AdvanceScreenSession.
+export type VisibilityTable = keyof Document['documentSettings']['tableViews']
+
+type SearchTableView = Document['documentSettings']['tableViews']['searchPanel']
+
+// see AM-26, AM-16, SJ-0
+// WHY: the table views are the document's (FR-151, S-560); AM-27 writes them with setTableView (CM-92).
+export interface ShownTasksHolder {
+  /** @purity semi-pure-b */
+  readShownTasks(): AgentShownTasks
+  // see SJ-0, UN-20
+  // WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which puts the target among the drawn tasks;
+  // its view writes ride in the SJ-2 write, so the jump is one undo step.
+  /** @purity semi-pure-b */
+  jumpViewWrites(taskUid: number): readonly DocumentCommand[]
+  // see SJ-5
+  /** @purity non-pure */
+  holdJumpTarget(taskUid: number): void
+}
+
+// see DX-12, RW-16
+export interface DelayFixLogSource {
+  /** @purity semi-pure-b */
+  readDelayFixLog(): readonly DelayFixLogRow[]
+}
+
+// see AM-8, AG-9a
+export type ImportLanding =
+  | boolean
+  | { readonly landed: false; readonly refusals: readonly InvariantRefusal[] }
+
+// <generated -- do not edit by hand>
+// From docs/spec/_source/agent-api-members.json (tables T-107 and T-400).
+// see AV-1
+export interface AgentWriteRequest {
+  readonly readStamp: DocumentStamp
+  readonly commands: readonly DocumentCommand[]
+}
+
+// see AV-2
+export type AgentWriteOutcome =
+  | { readonly accepted: true; readonly stamp: DocumentStamp; readonly hasMovedSchedule: boolean }
+  | { readonly accepted: false; readonly refusal: AgentRefusal }
+
+// see AV-3
+export interface AgentRefusal {
+  readonly target: string
+  readonly reason: AgentRefusalReason
+  readonly stamp: DocumentStamp
+  readonly document: Document | null
+  readonly refusals: readonly Refusal[]
+  readonly what: string
+}
+
+// see AV-4
 export type AgentRefusalReason =
   | 'staleStamp'
   | 'gestureInFlight'
@@ -67,100 +126,53 @@ export type AgentRefusalReason =
   | CodecRefusalReason
   | InvariantRow
 
-// see AG-9a, AG-2
-export interface AgentRefusal {
-  readonly target: string
-  readonly reason: AgentRefusalReason
-  readonly stamp: DocumentStamp
-  readonly document: Document | null
-  readonly refusals: readonly Refusal[]
-  readonly what: string
-}
-
+// see AV-5
 export type AgentExport<TValue> =
   | { readonly ok: true; readonly value: TValue }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
-// see AM-18, AG-11, AG-9a
-export type AgentUtteranceOutcome =
-  | { readonly accepted: true; readonly message: DialogueMessage }
-  | { readonly accepted: false; readonly refusal: AgentRefusal }
-
-// see AM-7, AG-3
-export interface AgentWriteRequest {
-  readonly readStamp: DocumentStamp
-  readonly commands: readonly DocumentCommand[]
-}
-
-export type AgentWriteOutcome =
+// see AV-6
+export type AgentFocusOutcome =
   | {
       readonly accepted: true
       readonly stamp: DocumentStamp
       readonly hasMovedSchedule: boolean
+      readonly isScrolled: boolean
     }
   | { readonly accepted: false; readonly refusal: AgentRefusal }
 
-// see AM-16, SJ-9
-export type AgentFocusOutcome =
-  | (Extract<AgentWriteOutcome, { readonly accepted: true }> & { readonly isScrolled: boolean })
-  | Extract<AgentWriteOutcome, { readonly accepted: false }>
+// see AV-7
+export type AgentImportSource =
+  | Document
+  | { readonly document: Document }
+  | { readonly text: string }
 
-// see AM-26, TV-1
-// WHY: the keys of the document's tableViews, read off the document so this component gains no edge to AdvanceScreenSession.
-export type VisibilityTable = keyof Document['documentSettings']['tableViews']
-
-type SearchTableView = Document['documentSettings']['tableViews']['searchPanel']
-
-// see AM-26, TV-1
-// WHY: drawnTaskUids is null while no table's Schedule Filter is on; tables are the tables whose filter is on.
+// see AV-8
 export interface AgentShownTasks {
   readonly drawnTaskUids: readonly number[] | null
   readonly tables: readonly VisibilityTable[]
 }
 
-// see AM-26, AM-16, SJ-0
-// WHY: the table views are the document's (FR-151, S-560); AM-27 writes them with setTableView (CM-92).
-export interface ShownTasksHolder {
-  /** @purity semi-pure-b */
-  readShownTasks(): AgentShownTasks
-  // see SJ-0, UN-20
-  // WHY: AM-16 touches no panel (SJ-9) but does SJ-0, which puts the target among the drawn tasks;
-  // its view writes ride in the SJ-2 write, so the jump is one undo step.
-  /** @purity semi-pure-b */
-  jumpViewWrites(taskUid: number): readonly DocumentCommand[]
-  // see SJ-5
-  /** @purity non-pure */
-  holdJumpTarget(taskUid: number): void
-}
-
-// see AM-19, DX-11, DX-12
+// see AV-9
 export interface AgentDelayDiagnostics extends DelayDiagnosticsReport {
   readonly fixProposals: readonly DelayFixRow[]
   readonly fixLog: readonly DelayFixLogRow[]
 }
 
-// see DX-12, RW-16
-export interface DelayFixLogSource {
-  /** @purity semi-pure-b */
-  readDelayFixLog(): readonly DelayFixLogRow[]
-}
+// see AV-10
+export type AgentChangeReceiver = (notice: ChangeNotice) => void
 
-// see AM-8, FR-022
-export type AgentImportSource = Document | { readonly document: Document } | { readonly text: string }
-
-// see AM-8, AG-9a
-export type ImportLanding =
-  | boolean
-  | { readonly landed: false; readonly refusals: readonly InvariantRefusal[] }
-
-export type AgentChangeReceiver = (notice: NotifyChangeWatchers.ChangeNotice) => void
-
-// see AM-17
+// see AV-11
 export interface AgentWatch {
   readonly hasReplacedEarlierWatch: boolean
   /** @purity non-pure */
   stopWatching(): boolean
 }
+
+// see AV-12
+export type AgentUtteranceOutcome =
+  | { readonly accepted: true; readonly message: DialogueMessage }
+  | { readonly accepted: false; readonly refusal: AgentRefusal }
 
 // see T-107
 export interface AgentApi {
@@ -215,6 +227,21 @@ export interface AgentApi {
   postDialogueMessage(text: string): AgentUtteranceOutcome
 }
 
+// see AV-13, AV-14
+// WHY: declared by their own components; their field names are held against table T-400 here.
+type SameFieldNames<TValue, TNames extends PropertyKey> = [keyof TValue] extends [TNames]
+  ? ([TNames] extends [keyof TValue] ? true : false)
+  : false
+const ELSEWHERE_DECLARED_FIELDS_MATCH: [
+  SameFieldNames<DialogueMessage, 'sequence' | 'author' | 'text' | 'settledAt'>,
+  SameFieldNames<ChangeNotice, 'watcher' | 'document' | 'messages' | 'mark'>,
+] = [true, true]
+void ELSEWHERE_DECLARED_FIELDS_MATCH
+
+// see AM-1, AG-1
+const AGENT_API_VERSION = 4
+// </generated>
+
 export interface AgentApiWiring {
   readonly source: SnapshotSource
   readonly holder: DocumentHolder
@@ -239,10 +266,6 @@ export interface AgentApiWiring {
   readonly writerName: string
   readonly schemaVersion: string
 }
-
-// see AM-1, AG-1, AM-19, DQ-2, DQ-3, DQ-4, CM-94, CM-95, CM-96, CM-98
-// WHY: one raise for CR-710: readDelayDiagnostics counts DQ-2..DQ-4 in minutes, applyCommands takes the zone commands.
-const AGENT_API_VERSION = 4
 
 // see AG-4
 // WHY: a walk, not structuredClone or a JSON round trip: both throw on some values (FR-028).

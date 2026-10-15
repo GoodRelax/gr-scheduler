@@ -110,7 +110,7 @@ demoted 13 and 14.
 
 **What it deliberately does NOT guard.** Signatures: table T-075 puts arguments
 and return values in `src/` because that is where `tsc` reaches them, so a
-member that exists with the wrong shape passes here. And the 18 Agent API
+member that exists with the wrong shape passes here. And the 22 Agent API
 members, because `PI-17` says (MUST NOT) not to copy them into T-064 — only
 `installAgentApi` and `SnapshotSource` are held against that entry, and table
 T-107 stays their only full count.

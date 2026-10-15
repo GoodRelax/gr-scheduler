@@ -15,6 +15,8 @@ DESIGN = "docs/spec/05-07-design.md"
 # here reads the table wherever it lives.
 PUBLISHED = "docs/spec/_assets/tbl-published-entries.md"
 GLOSSARY = "docs/spec/_assets/tbl-glossary.md"
+# CR-765: table T-107 is printed here from _source/agent-api-members.json.
+AGENT_API = "docs/spec/_assets/tbl-agent-api-members.md"
 MODEL = "docs/spec/_source/components.json"
 # ⭐ THE RECORD THIS FILE READS TWICE. The A.3 Changelog is kept in
 # docs/development-records/changelog.md, not in docs/spec/A-appendix.md,
@@ -115,10 +117,10 @@ leaves = [f for f in folders if f not in
 check("directory tree leaf folders == T-062 rows", len(leaves), len(cp))
 
 # Agent API member count.  The design asserts it in prose in four places, and
-# the glossary's table T-107 is the owner -- so read both and pair them.  This
+# table T-107 (tbl-agent-api-members.md) is the owner -- so read both and pair them.  This
 # replaces a check that expected 18 and a second one that hunted for the
 # literals 10..17: neither could survive the table gaining a member.
-api_rows = re.findall(r"^\| (AM-\d+) \|", glossary, re.M)
+api_rows = re.findall(r"^\| (AM-\d+) \|", open(AGENT_API, encoding="utf-8").read(), re.M)
 check("prose 'N メンバ' == T-107 rows", stated(r"(\d+) の?メンバ"), [len(api_rows)])
 
 print()

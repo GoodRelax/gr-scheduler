@@ -78,6 +78,7 @@ BOOKS = [
     'docs/spec/_assets/tbl-property-items.md',
     'docs/spec/_assets/tbl-published-entries.md',
     'docs/spec/_assets/tbl-notice-reasons.md',
+    'docs/spec/_assets/tbl-agent-api-members.md',
 ]
 TREES = ('src', 'tests')
 

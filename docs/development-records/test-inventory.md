@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 357 | 4420 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 357 | 4421 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 89 | 577 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 648 | 9008 | 11 | 8 | 13 | 2 |
+| **all** | | | 648 | 9009 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -337,7 +337,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-612-fr-027-mc-10-the-template-rides-in-its-own-container.test.ts` | 5 | FR-027 | - | T-025, T-226 | BT-1, MC-10, TP-5, TP-6 | - | - | - | - |
 | `tests/contract/cr-612-io-7-fr-067-an-exported-html-opens.test.ts` | 7 | FR-022, FR-060, FR-067, FR-096 | - | T-233 | IC-71, IC-72, IO-7, NT-1, OP-3, RS-67, SK-10, SK-11, U-56 | - | - | - | - |
 | `tests/contract/cr-612-pi-20-document-from-embedded-html.test.ts` | 17 | FR-067 | - | T-024, T-024a | BT-1, IO-1, IO-2, IO-7, OP-1, OP-5, OP-12, PI-20, RS-67 | - | - | - | - |
-| `tests/contract/cr-613-seam-1-answer-relayed-call.contract.test.ts` | 15 | - | - | T-107 | AG-6, AG-8, AG-9a, PI-17, UF-185 | - | - | - | - |
+| `tests/contract/cr-613-seam-1-answer-relayed-call.contract.test.ts` | 16 | - | - | T-107 | AG-6, AG-8, AG-9a, AG-12, PI-17, UF-185 | - | - | - | - |
 | `tests/contract/cr-613-seam-2-mcp-tool-translator.contract.test.ts` | 20 | - | - | T-107 | AG-5, AG-8, AG-9a, AG-12, PI-40, UF-186 | - | - | - | - |
 | `tests/contract/cr-613-seam-3-mcp-relay-server.contract.test.ts` | 39 | - | - | - | AG-5, AG-6, AG-9a, AG-12, PI-41, UF-187 | - | - | - | - |
 | `tests/contract/cr-614-chapter-2-knows-the-relay.contract.test.ts` | 6 | FR-023, NFR-009 | - | T-007, T-008, T-107 | AG-5, AG-9a, AG-12, CHN-10, CHN-12, CHN-13, CHN-14, CN-6, DEV-6, PI-17, UF-188 | - | - | - | - |

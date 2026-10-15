@@ -75,6 +75,14 @@
    }
   },
   {
+   "prefix": "AV",
+   "words": "Agent API Value",
+   "owner": "spec",
+   "means": {
+    "ja": "`Agent API` のメンバが受け渡す値の型 1 つと、その欄（表 T-400）"
+   }
+  },
+  {
    "prefix": "BC",
    "words": "Band Ceiling",
    "owner": "spec",

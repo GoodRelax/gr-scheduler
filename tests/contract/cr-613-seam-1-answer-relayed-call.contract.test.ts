@@ -10,31 +10,20 @@ import {
 } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import { specTable } from './spec-table'
 
-// see T-107
-const PARAM_KEYS: Readonly<Record<string, readonly string[]>> = {
-  agentApiVersion: [],
-  schemaVersion: [],
-  readDocument: [],
-  readStamp: [],
-  readSelection: [],
-  readDialogueMessages: [],
-  readSearchRows: ['word'],
-  readShownTasks: [],
-  readDelayDiagnostics: [],
-  applyCommands: ['request'],
-  importDocument: ['source'],
-  undoEdit: [],
-  redoEdit: [],
-  exportJson: [],
-  exportMspdi: [],
-  exportSvg: [],
-  exportPng: [],
-  exportEmbeddedHtml: [],
-  focusTask: ['taskUid'],
-  showOnlyTasks: ['taskUids'],
-  watchChanges: [],
-  postDialogueMessage: ['text'],
-}
+// see T-107, AG-12
+// WHY: the argument column writes each argument as `name`: type, and a member with an MCP-only key carries none to the
+// page -- the relay reads that key itself. The Japanese is the table's own heading and label.
+const ARGUMENT_HEADING = '\u5f15\u6570'
+const TOOL_ONLY_LABEL = '\u26a0\ufe0f MCP \u3060\u3051\u306e\u9375'
+const ARGUMENT_NAME = /`([A-Za-z_$][\w$]*)`:/g
+
+const PARAM_KEYS: Readonly<Record<string, readonly string[]>> = Object.fromEntries(
+  specTable('T-107').rows.map((row) => {
+    const cell = row.by[ARGUMENT_HEADING] ?? ''
+    const keys = cell.includes(TOOL_ONLY_LABEL) ? [] : [...cell.matchAll(ARGUMENT_NAME)].map((found) => found[1] ?? '')
+    return [(row.cells[1] ?? '').replace(/`/g, ''), keys]
+  }),
+)
 
 const PROPERTIES = new Set(['agentApiVersion', 'schemaVersion'])
 
@@ -131,6 +120,17 @@ const directAnswer = async (api: AgentApi, member: string): Promise<unknown> => 
 describe('SEAM-1: the fake is built from table T-107', () => {
   it('T-107 names exactly the members the seam gives parameters to', () => {
     expect([...MEMBERS].sort()).toEqual(Object.keys(PARAM_KEYS).sort())
+  })
+
+  it('the argument column gives six members arguments the relay carries, in their order', () => {
+    expect(Object.entries(PARAM_KEYS).filter(([, keys]) => keys.length > 0)).toEqual([
+      ['readSearchRows', ['word']],
+      ['applyCommands', ['request']],
+      ['importDocument', ['source']],
+      ['focusTask', ['taskUid']],
+      ['showOnlyTasks', ['taskUids']],
+      ['postDialogueMessage', ['text']],
+    ])
   })
 })
 

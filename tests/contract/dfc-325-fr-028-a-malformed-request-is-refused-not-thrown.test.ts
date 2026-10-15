@@ -39,8 +39,8 @@ const REQUIREMENTS = unbroken(readFileSync(
   'utf8',
 ))
 
-const GLOSSARY = unbroken(readFileSync(
-  join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'),
+const AGENT_API_MEMBERS = unbroken(readFileSync(
+  join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'),
   'utf8',
 ))
 
@@ -223,7 +223,7 @@ describe('DFC-325 -- the manuscript these cases are driven by', () => {
     expect(row?.cells.join(' ')).toContain('`applyCommands`')
     expect(row?.cells.join(' ')).toContain('受理したか否かを値で返す')
     expect(row?.cells.join(' ')).toContain('`FR-028`')
-    expect(GLOSSARY).toContain('| AM-7 | 書く | `applyCommands` |')
+    expect(AGENT_API_MEMBERS).toContain('| AM-7 | 書く | `applyCommands` |')
   })
 })
 

@@ -21,21 +21,36 @@ interface T107Row {
   readonly id: string
   readonly name: string
   readonly description: string
+  readonly paramKeys: readonly string[]
+  readonly toolOnlyKeys: readonly string[]
 }
 
-const GLOSSARY = join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md')
+const AGENT_API_MEMBERS = join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md')
 
-const T_107_COLUMNS = 6
+const T_107_COLUMNS = 8
 const NAME_COLUMN = 2
-const DESCRIPTION_COLUMN = 4
+const ARGUMENT_COLUMN = 4
+const DESCRIPTION_COLUMN = 6
+
+// see T-107, AG-12
+// WHY: the argument cell writes one argument per line as `name`: type, and the keys only the MCP tool takes
+// open with the label the table prints for them -- the Japanese is the table's own word.
+const ARGUMENT_LINE = /^`([A-Za-z_$][\w$]*)`:/
+const TOOL_ONLY_LINE = /^\u26a0\ufe0f MCP \u3060\u3051\u306e\u9375 `([A-Za-z_$][\w$]*)`:/
+
+const keysOf = (cell: string, pattern: RegExp): string[] =>
+  cell.split(/<br\s*\/?>/i).flatMap((line) => {
+    const found = pattern.exec(line.trim())
+    return found?.[1] === undefined ? [] : [found[1]]
+  })
 
 const rawCells = (line: string): string[] =>
   line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim())
 
 const T_107: readonly T107Row[] = (() => {
-  const lines = readFileSync(GLOSSARY, 'utf8').split(/\r?\n/)
+  const lines = readFileSync(AGENT_API_MEMBERS, 'utf8').split(/\r?\n/)
   const at = lines.findIndex((line) => line.startsWith('**') && line.includes('T-107'))
-  if (at < 0) throw new Error('table T-107 is not in tbl-glossary.md')
+  if (at < 0) throw new Error('table T-107 is not in tbl-agent-api-members.md')
   const rows: T107Row[] = []
   let started = false
   for (const line of lines.slice(at + 1)) {
@@ -52,39 +67,22 @@ const T_107: readonly T107Row[] = (() => {
       id,
       name: (cells[NAME_COLUMN] ?? '').replace(/`/g, ''),
       description: (cells[DESCRIPTION_COLUMN] ?? '').replace(/<br\s*\/?>/gi, '\n').trim(),
+      paramKeys: keysOf(cells[ARGUMENT_COLUMN] ?? '', ARGUMENT_LINE),
+      toolOnlyKeys: keysOf(cells[ARGUMENT_COLUMN] ?? '', TOOL_ONLY_LINE),
     })
   }
   return rows
 })()
 
 // see T-107
-const PARAM_KEYS: Readonly<Record<string, readonly string[]>> = {
-  agentApiVersion: [],
-  schemaVersion: [],
-  readDocument: [],
-  readStamp: [],
-  readSelection: [],
-  readDialogueMessages: [],
-  readSearchRows: ['word'],
-  readShownTasks: [],
-  readDelayDiagnostics: [],
-  applyCommands: ['request'],
-  importDocument: ['source'],
-  undoEdit: [],
-  redoEdit: [],
-  exportJson: [],
-  exportMspdi: [],
-  exportSvg: [],
-  exportPng: [],
-  exportEmbeddedHtml: [],
-  focusTask: ['taskUid'],
-  showOnlyTasks: ['taskUids'],
-  watchChanges: [],
-  postDialogueMessage: ['text'],
-}
+const PARAM_KEYS: Readonly<Record<string, readonly string[]>> = Object.fromEntries(
+  T_107.map((row) => [row.name, row.paramKeys]),
+)
 
 // see AG-12
-const TOOL_ONLY_KEYS: Readonly<Record<string, readonly string[]>> = { watchChanges: ['waitMs'] }
+const TOOL_ONLY_KEYS: Readonly<Record<string, readonly string[]>> = Object.fromEntries(
+  T_107.filter((row) => row.toolOnlyKeys.length > 0).map((row) => [row.name, row.toolOnlyKeys]),
+)
 
 const toolNamed = (name: string): McpTool => {
   const found = mcpToolList().find((tool) => tool.name === name)
@@ -111,8 +109,17 @@ describe('SEAM-2 mcpToolList: the tools are table T-107, row for row (AG-12 (4))
     expect(T_107.map((row) => row.name)).toEqual(shared.map((row) => (row.cells[1] ?? '').replace(/`/g, '')))
   })
 
-  it('the seam names every member of T-107 and nothing else (the RelayedParams keys)', () => {
-    expect([...T_107.map((row) => row.name)].sort()).toEqual(Object.keys(PARAM_KEYS).sort())
+  it('the argument column of T-107 names the seven arguments and the one MCP-only key', () => {
+    expect(Object.entries(PARAM_KEYS).filter(([, keys]) => keys.length > 0)).toEqual([
+      ['readSearchRows', ['word']],
+      ['applyCommands', ['request']],
+      ['importDocument', ['source']],
+      ['focusTask', ['taskUid']],
+      ['showOnlyTasks', ['taskUids']],
+      ['watchChanges', ['receive']],
+      ['postDialogueMessage', ['text']],
+    ])
+    expect(TOOL_ONLY_KEYS).toEqual({ watchChanges: ['waitMs'] })
   })
 
   it('AG-12 (4): one tool per row of T-107, in the row order, named by the confirmed name -- none added, none bundled', () => {
@@ -127,14 +134,16 @@ describe('SEAM-2 mcpToolList: the tools are table T-107, row for row (AG-12 (4))
   it('design 3.1: each input is one object whose keys are the member\'s parameter names', () => {
     for (const row of T_107) {
       const tool = toolNamed(row.name)
-      const expected = [...(PARAM_KEYS[row.name] ?? []), ...(TOOL_ONLY_KEYS[row.name] ?? [])].sort()
+      const expected = [...(TOOL_ONLY_KEYS[row.name] ?? PARAM_KEYS[row.name] ?? [])].sort()
       expect(tool.inputSchema.type, row.id).toBe('object')
       expect(Object.keys(tool.inputSchema.properties).sort(), `${row.id} ${row.name}`).toEqual(expected)
     }
   })
 
   it('AG-12 (5): watchChanges takes exactly waitMs, a number', () => {
-    expect(toolNamed('watchChanges').inputSchema.properties).toEqual({ waitMs: { type: 'number' } })
+    const properties = toolNamed('watchChanges').inputSchema.properties
+    expect(Object.keys(properties)).toEqual(['waitMs'])
+    expect(properties['waitMs']).toMatchObject({ type: 'number' })
   })
 
   it('design 3.1: the two properties and the members without a parameter take an empty object', () => {

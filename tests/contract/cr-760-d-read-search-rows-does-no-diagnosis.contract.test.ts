@@ -30,11 +30,11 @@ const descriptionOf = (name: string): string => {
   return found.description
 }
 
-const GLOSSARY_LINES = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-glossary.md'), 'utf8').split(/\r?\n/)
+const AGENT_API_MEMBER_LINES = readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-agent-api-members.md'), 'utf8').split(/\r?\n/)
 
 // WHY: the generated description reads each <br> of the T-107 cell as a newline, and the parsed table has dropped them.
 const linesOfAgentCell = (id: string, opening: string): readonly string[] => {
-  const line = GLOSSARY_LINES.find((one) => one.startsWith(`| ${id} |`))
+  const line = AGENT_API_MEMBER_LINES.find((one) => one.startsWith(`| ${id} |`))
   const cell = line?.split(' | ').find((one) => one.startsWith(opening))
   if (cell === undefined) throw new Error(`table T-107 has no cell of ${id} opening with ${opening}`)
   return cell.split(/<br\s*\/?>/i).map((one) => one.trim()).filter((one) => one !== '')

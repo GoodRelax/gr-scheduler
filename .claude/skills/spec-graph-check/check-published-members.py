@@ -34,7 +34,7 @@ it does. `--skips` lists exactly what was not covered.
 
 ⚠️ What this cannot check: SIGNATURES. Table T-075 puts the arguments and the
 return value in `src/`, so a member that exists with the wrong shape passes here
-and is caught by `tsc`. The 18 Agent API members are outside it on purpose --
+and is caught by `tsc`. The 22 Agent API members are outside it on purpose --
 `PI-17` says (MUST NOT) not to copy them into table T-064, so only
 `installAgentApi` and `SnapshotSource` are held against that entry, and table
 T-107 remains their only full count.

@@ -1,0 +1,440 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/agent-api-members.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates _source/agent-api-members.json, which is the single source of truth for table T-107 (the members of the Agent API) and table T-400 (the value types they hand over) (CR-765).",
+  "Same role as _source/published-entries.schema.json and _source/notice-reasons.schema.json.",
+  "The schema sees the SHAPE. What JSON Schema cannot say -- a row id or a name written twice, a type naming an identifier nobody defines, a line whose parenthesis does not close -- is refused by agent_api_members_json_to_md.py."
+ ],
+ "title": "The Agent API members manuscript",
+ "description": "Table T-107 (the 22 members and how each is called) and table T-400 (the value types they hand over).",
+ "type": "object",
+ "required": [
+  "version",
+  "kinds",
+  "mcpOnlyLabel",
+  "externalTypes",
+  "members",
+  "values"
+ ],
+ "additionalProperties": false,
+ "$defs": {
+  "prose": {
+   "description": "Printed prose, one string per language (check 23).",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "string",
+     "minLength": 1
+    },
+    "en": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  },
+  "lines": {
+   "description": "Printed lines, one list per language. One string is one printed line; the generator puts the line breaks in.",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "$ref": "#/$defs/lineList"
+    },
+    "en": {
+     "$ref": "#/$defs/lineList"
+    }
+   }
+  },
+  "lineList": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "string",
+    "minLength": 1
+   }
+  },
+  "paragraphs": {
+   "description": "Printed paragraphs, one list per language; each paragraph is a list of lines.",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/lineList"
+     }
+    }
+   }
+  },
+  "identifier": {
+   "type": "string",
+   "pattern": "^[A-Za-z_$][A-Za-z0-9_$]*$"
+  },
+  "typeText": {
+   "description": "A TypeScript type, spelled as the code spells it.",
+   "type": "string",
+   "minLength": 1
+  },
+  "purity": {
+   "enum": [
+    "pure",
+    "semi-pure-a",
+    "semi-pure-b",
+    "non-pure"
+   ]
+  },
+  "table": {
+   "type": "object",
+   "required": [
+    "id",
+    "caption",
+    "columns"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^T-[0-9]+$"
+    },
+    "caption": {
+     "$ref": "#/$defs/prose"
+    },
+    "columns": {
+     "type": "object",
+     "required": [
+      "ja"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "ja": {
+       "$ref": "#/$defs/lineList"
+      }
+     }
+    }
+   }
+  },
+  "argument": {
+   "description": "One argument (or one MCP-only key): its name, its TypeScript type and one line saying what it means.",
+   "type": "object",
+   "required": [
+    "name",
+    "type",
+    "meaning"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "name": {
+     "$ref": "#/$defs/identifier"
+    },
+    "type": {
+     "$ref": "#/$defs/typeText"
+    },
+    "meaning": {
+     "$ref": "#/$defs/prose"
+    }
+   }
+  },
+  "member": {
+   "type": "object",
+   "required": [
+    "id",
+    "group",
+    "name",
+    "kind",
+    "purity",
+    "arguments",
+    "returns",
+    "carries",
+    "source"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^AM-[0-9]+$"
+    },
+    "group": {
+     "$ref": "#/$defs/prose"
+    },
+    "name": {
+     "$ref": "#/$defs/identifier"
+    },
+    "kind": {
+     "enum": [
+      "property",
+      "method"
+     ]
+    },
+    "purity": {
+     "$ref": "#/$defs/purity"
+    },
+    "arguments": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/argument"
+     }
+    },
+    "mcpOnlyKeys": {
+     "description": "Keys the MCP tool takes that the TypeScript member does not (AG-12 (5)): the relay reads them and carries none of them to the page.",
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/argument"
+     }
+    },
+    "returns": {
+     "$ref": "#/$defs/typeText"
+    },
+    "carries": {
+     "$ref": "#/$defs/lines"
+    },
+    "source": {
+     "$ref": "#/$defs/prose"
+    }
+   }
+  },
+  "field": {
+   "type": "object",
+   "required": [
+    "name",
+    "type",
+    "meaning"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "name": {
+     "$ref": "#/$defs/identifier"
+    },
+    "type": {
+     "$ref": "#/$defs/typeText"
+    },
+    "meaning": {
+     "$ref": "#/$defs/prose"
+    },
+    "kind": {
+     "description": "A method of the value (called with no argument); absent for a plain field.",
+     "const": "method"
+    },
+    "purity": {
+     "$ref": "#/$defs/purity"
+    }
+   }
+  },
+  "variant": {
+   "description": "One alternative of a union: a named or literal type, or an object with its fields.",
+   "oneOf": [
+    {
+     "type": "object",
+     "required": [
+      "type",
+      "meaning"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "type": {
+       "$ref": "#/$defs/typeText"
+      },
+      "meaning": {
+       "$ref": "#/$defs/prose"
+      }
+     }
+    },
+    {
+     "type": "object",
+     "required": [
+      "label",
+      "fields"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "label": {
+       "$ref": "#/$defs/prose"
+      },
+      "fields": {
+       "type": "array",
+       "minItems": 1,
+       "items": {
+        "$ref": "#/$defs/field"
+       }
+      }
+     }
+    }
+   ]
+  },
+  "value": {
+   "type": "object",
+   "required": [
+    "id",
+    "name",
+    "shape",
+    "source"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^AV-[0-9]+$"
+    },
+    "name": {
+     "$ref": "#/$defs/identifier"
+    },
+    "shape": {
+     "enum": [
+      "interface",
+      "union",
+      "function"
+     ]
+    },
+    "typeParameters": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/identifier"
+     }
+    },
+    "extends": {
+     "$ref": "#/$defs/identifier"
+    },
+    "declaredElsewhere": {
+     "description": "The type is declared by another component; the code holds its field names against this row instead of declaring it again.",
+     "const": true
+    },
+    "lead": {
+     "$ref": "#/$defs/prose"
+    },
+    "fields": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/field"
+     }
+    },
+    "variants": {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "$ref": "#/$defs/variant"
+     }
+    },
+    "returns": {
+     "$ref": "#/$defs/typeText"
+    },
+    "source": {
+     "$ref": "#/$defs/prose"
+    }
+   }
+  }
+ },
+ "properties": {
+  "$schema": {
+   "type": "string"
+  },
+  "$comment": {
+   "description": "Notes for whoever edits this manuscript. Check 21 reads the first of them. Not rendered.",
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "version": {
+   "description": "The Agent API version AM-1 returns (AG-1). A change to how a member is called raises it.",
+   "type": "integer",
+   "minimum": 1
+  },
+  "kinds": {
+   "description": "The printed word of each member kind (the part-of-speech half of the 品詞と純粋性 column).",
+   "type": "object",
+   "required": [
+    "property",
+    "method"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "property": {
+     "$ref": "#/$defs/prose"
+    },
+    "method": {
+     "$ref": "#/$defs/prose"
+    }
+   }
+  },
+  "mcpOnlyLabel": {
+   "$ref": "#/$defs/prose"
+  },
+  "externalTypes": {
+   "description": "Type names the two tables use and do not define, each with the row that holds it.",
+   "type": "object",
+   "propertyNames": {
+    "$ref": "#/$defs/identifier"
+   },
+   "additionalProperties": {
+    "$ref": "#/$defs/prose"
+   }
+  },
+  "members": {
+   "type": "object",
+   "required": [
+    "table",
+    "before",
+    "rows",
+    "after"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "table": {
+     "$ref": "#/$defs/table"
+    },
+    "before": {
+     "$ref": "#/$defs/lines"
+    },
+    "rows": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/member"
+     }
+    },
+    "after": {
+     "$ref": "#/$defs/paragraphs"
+    }
+   }
+  },
+  "values": {
+   "type": "object",
+   "required": [
+    "table",
+    "before",
+    "rows"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "table": {
+     "$ref": "#/$defs/table"
+    },
+    "before": {
+     "$ref": "#/$defs/lines"
+    },
+    "rows": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/value"
+     }
+    }
+   }
+  }
+ }
+}

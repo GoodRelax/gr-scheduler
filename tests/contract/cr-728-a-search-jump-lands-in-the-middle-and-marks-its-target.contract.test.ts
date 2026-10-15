@@ -87,7 +87,7 @@ const SJ_6_WIDE =
   '⭐ ただし形の幅が `Task Group Area` の幅から `S-428` の 2 つ分を引いた幅より広いときは、飛ぶ先の日付（タスクは `AT-28`、コメントボックスは `AT-113`）が表示の左端から `S-428` だけ内側に来るよう置く。'
 const SJ_6_OCCUPANCY =
   '飛ぶ先がタスクで、表 T-038 が左へ数える占有（担当と完了率の札 `OC-2` ほか）が日付より左へ出ているときは、日付ではなくその占有の左端を `S-428` だけ内側に置く'
-const SJ_9_STEPS = '`_assets/tbl-glossary.md` の 表 T-107 の `AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8`・`SJ-10` を行う'
+const SJ_9_STEPS = '`_assets/tbl-agent-api-members.md` の 表 T-107 の `AM-16` は `SJ-0`・`SJ-2`・`SJ-5` 〜 `SJ-8`・`SJ-10` を行う'
 const SJ_9_NO_PANEL = 'ただし `SJ-4` を行わず、パネルに触れず、`SJ-8` では告げずに、寄せなかったことを答えの値で返す'
 const FR_134_JUMP = '表の 1 行の名前を押したら、その行の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）で飛ぶこと（MUST）。'
 const PTL_16_JUMP = 'その親の `Task` へ、`FR-151` の 表 T-332 の飛び方（`SJ-0`・`SJ-2` 〜 `SJ-8`・`SJ-10`）で飛び、親を選ぶ。'

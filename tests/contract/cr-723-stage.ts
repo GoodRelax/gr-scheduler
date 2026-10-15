@@ -27,6 +27,7 @@ const read = (...parts: string[]): string => unbroken(readFileSync(join(SPEC, ..
 
 export const REQUIREMENTS = read('01-04-requirements.md')
 export const GLOSSARY = read('_assets', 'tbl-glossary.md')
+export const AGENT_API_MEMBERS = read('_assets', 'tbl-agent-api-members.md')
 export const SETTINGS_BOOK = read('_assets', 'tbl-settings.md')
 export const SETTINGS_SOURCE = JSON.parse(readFileSync(join(SPEC, '_source', 'settings.json'), 'utf8')) as unknown
 

@@ -12,7 +12,7 @@ import { taskGroupDocument, shell, taskOf, TEMPLATE, type ShellBench } from './c
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
-const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
+const AGENT_API_MEMBERS = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-agent-api-members.md'), 'utf8'))
 const NOTICE_ROSTER = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-notice-reasons.md'), 'utf8'))
 
 const AG_9A_REASON =
@@ -64,7 +64,7 @@ describe('AM-8 -- importDocument checks the document whatever shape it comes in'
     expect(REQUIREMENTS).toContain(AG_9A_NOT_ONE)
     expect(NOTICE_ROSTER).toContain(RS_25)
     expect(REQUIREMENTS).toContain(CV_1)
-    expect(GLOSSARY).toContain(AM_8)
+    expect(AGENT_API_MEMBERS).toContain(AM_8)
   })
 
   it('premise: the codec refuses the document carrying a drawn color value, and accepts the same document with a palette name', () => {

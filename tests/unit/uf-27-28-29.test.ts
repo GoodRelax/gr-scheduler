@@ -110,7 +110,7 @@ const LAST_SAVED_AT = '2026-10-03T09:00:00'
 // ---------------------------------------------------------------------------
 
 /**
- * Table T-107 of `_assets/tbl-glossary.md`, in the table's own order. `isProperty`
+ * Table T-107 of `_assets/tbl-agent-api-members.md`, in the table's own order. `isProperty`
  * is the part-of-speech column: the first two rows are properties, the others
  * are verb-plus-object calls.
  */

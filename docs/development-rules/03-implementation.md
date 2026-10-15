@@ -129,6 +129,11 @@ NOTICE_DISPLAY_OF_REASON             通知の理由ごとの表示の仕方（�
 NOTICE_WORDS_ROW_OF_REASON           通知の理由ごとに語を刷る行（表 T-233 のまとめ方の欄。相乗りしない行は自身。同じ生成器。`CR-712`）
 NOTICE_VALUES_INITIAL_AXES           通知の各状態機械の初期の種類（表 T-286 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 QUESTION_DISPLAY_OF_ROW              問いごとの問うか（表 T-234 の問うかの欄。同じ生成器。`CR-712`）
+AGENT_API_VERSION                    `Agent API` の版（`AM-1` が返す値。`_source/agent-api-members.json` の `version` から `tools/generate_agent_api.py` が `agent-api-members.ts` に刷る。`CR-765`）
+ELSEWHERE_DECLARED_FIELDS_MATCH      ほかのコンポーネントが宣言する 表 T-400 の型（`AV-13`・`AV-14`）の欄の名を型で照らす印（同じ生成器。`CR-765`）
+MEMBER_PARAMETERS                    引数を持つメンバごとの引数の名の順（表 T-107 の引数の欄。同じ生成器が `relayed-call.ts` に刷る。`CR-765`）
+WATCH_CHANGES                        取次が待つメンバの確定名（表 T-107 の `AM-17`。同じ生成器が `mcp-relay-server.ts` に刷る。`CR-765`）
+WAIT_MS_KEY                          そのメンバの MCP だけの鍵（`AM-17` の `waitMs`、`AG-12` の ⑤。同じ生成器。`CR-765`）
 SCHEDULE_COLORS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
 SCHEDULE_COLORS_SOURCES             その行のうち、ほかの行を継ぐ行と継ぎ先（表 T-366 で寄せた行を継ぐ行が、寄せた値で描かれるため。`CR-683`）
 SCHEMA_DEFS                          そのスキーマの `$defs`（`GRS_DOCUMENT_SCHEMA` と同じ生成器）

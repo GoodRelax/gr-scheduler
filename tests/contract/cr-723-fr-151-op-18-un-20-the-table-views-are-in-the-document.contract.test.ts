@@ -3,7 +3,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { bare, specTable, unbroken } from './spec-table'
-import { GLOSSARY, KEYS_OF, REQUIREMENTS, SETTINGS_BOOK, TABLES } from './cr-723-stage'
+import { AGENT_API_MEMBERS, KEYS_OF, REQUIREMENTS, SETTINGS_BOOK, TABLES } from './cr-723-stage'
 
 const cellOf = (table: string, id: string, heading: string): string =>
   unbroken(specTable(table).rows.find((one) => one.id === id)?.by[heading] ?? '')
@@ -149,7 +149,7 @@ describe('CR-723 -- UN-20 is the undo row of a view, CD-1 and CD-5 take the hidd
     const cells = row?.cells.map((one) => unbroken(one)).join(' | ') ?? ''
     expect(cells).toContain('`setTableView`')
     expect(cells).toContain('表 1 つの見え方（表示の列の値・スケジュールフィルタの入切・列のフィルタ・並べ替え')
-    expect(GLOSSARY).toContain('出す命令は `setTableView`（表 T-108 の `CM-92`）1 つであり、未保存の編集（`FR-100`）で取り消しの 1 段である（`FR-031` の 表 T-027 の `UN-20`）')
+    expect(AGENT_API_MEMBERS).toContain('出す命令は `setTableView`（表 T-108 の `CM-92`）1 つであり、未保存の編集（`FR-100`）で取り消しの 1 段である（`FR-031` の 表 T-027 の `UN-20`）')
   })
 })
 

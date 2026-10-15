@@ -3,6 +3,8 @@
 // @component McpRelayServer, layer Framework (table T-062)
 // @purity    non-pure
 // @publishes table T-064 row PI-41
+// Generated region: the member and key AG-12 (5) waits on, from docs/spec/_source/agent-api-members.json
+// (table T-107). Do not edit by hand; npm run gen.
 
 import { createHash, randomBytes, timingSafeEqual } from 'node:crypto'
 import {
@@ -68,8 +70,14 @@ const INTERNAL_ERROR = -32603
 const KEY_PRESENTED = 'relayKeyPresented'
 const CHANGE_NOTICED = 'changeNoticed'
 const CANCELED = 'notifications/cancelled'
-const WATCH_CHANGES = 'watchChanges'
 const LONGEST_TIMER_MS = 2 ** 31 - 1
+
+// <generated -- do not edit by hand>
+// From docs/spec/_source/agent-api-members.json (table T-107, the MCP-only key of AM-17).
+// see AM-17, AG-12
+const WATCH_CHANGES = 'watchChanges'
+const WAIT_MS_KEY = 'waitMs'
+// </generated>
 
 const WEBSOCKET_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11'
 const WEBSOCKET_VERSION = '13'
@@ -480,7 +488,7 @@ function noticeOrTimeout(state: RelayState, waitMs: number, canceled: Promise<nu
 
 /** @purity pure */
 function waitMsOf(toolArguments: unknown): number {
-  const waitMs = isPlainRecord(toolArguments) ? toolArguments['waitMs'] : undefined
+  const waitMs = isPlainRecord(toolArguments) ? toolArguments[WAIT_MS_KEY] : undefined
   return typeof waitMs === 'number' && Number.isFinite(waitMs) && waitMs > 0 ? waitMs : 0
 }
 

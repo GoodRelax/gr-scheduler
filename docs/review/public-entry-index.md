@@ -719,17 +719,17 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | --- | --- | --- | --- | --- | --- |
 | `AgentApi` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentApi` | -- | interface AgentApi |
 | `AgentApiWiring` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentApiWiring` | -- | interface AgentApiWiring |
-| `AgentChangeReceiver` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentChangeReceiver` | -- | type AgentChangeReceiver = (notice: NotifyChangeWatchers.ChangeNotice) => void |
-| `AgentExport` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentExport` | -- | type AgentExport<TValue> = \| { readonly ok: true; readonly value: TValue } \| { readonly ok: false; readonly refusal: AgentRefusal } // see AM-18, AG-11, AG-9... |
-| `AgentFocusOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentFocusOutcome` | -- | type AgentFocusOutcome = \| (Extract<AgentWriteOutcome, { readonly accepted: true }> & { readonly isScrolled: boolean }) \| Extract<AgentWriteOutcome, { readon... |
-| `AgentImportSource` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportSource` | -- | type AgentImportSource = Document \| { readonly document: Document } \| { readonly text: string } |
+| `AgentChangeReceiver` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentChangeReceiver` | -- | type AgentChangeReceiver = (notice: ChangeNotice) => void |
+| `AgentExport` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentExport` | -- | type AgentExport<TValue> = \| { readonly ok: true; readonly value: TValue } \| { readonly ok: false; readonly refusal: AgentRefusal } // see AV-6 export type A... |
+| `AgentFocusOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentFocusOutcome` | -- | type AgentFocusOutcome = \| |
+| `AgentImportSource` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportSource` | -- | type AgentImportSource = \| Document \| { readonly document: Document } \| { readonly text: string } // see AV-8 export interface AgentShownTasks |
 | `AgentRefusal` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentRefusal` | -- | interface AgentRefusal |
 | `AgentRefusalReason` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentRefusalReason` | -- | type AgentRefusalReason = \| 'staleStamp' \| 'gestureInFlight' \| 'editingInPlace' \| 'questionAsked' \| 'deliveringNotices' \| 'commandRefused' \| 'unknownTask' \| ... |
 | `AgentShownTasks` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentShownTasks` | -- | interface AgentShownTasks |
 | `AgentSnapshot` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#AgentSnapshot` | -- | interface AgentSnapshot |
 | `AgentUtteranceOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentUtteranceOutcome` | -- | type AgentUtteranceOutcome = \| { readonly accepted: true; readonly message: DialogueMessage } \| { readonly accepted: false; readonly refusal: AgentRefusal } ... |
 | `AgentWatch` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWatch` | -- | interface AgentWatch |
-| `AgentWriteOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteOutcome` | -- | type AgentWriteOutcome = \| |
+| `AgentWriteOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteOutcome` | -- | type AgentWriteOutcome = \| { readonly accepted: true; readonly stamp: DocumentStamp; readonly hasMovedSchedule: boolean } \| { readonly accepted: false; reado... |
 | `AgentWriteRequest` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteRequest` | -- | interface AgentWriteRequest |
 | `answerRelayedCall` | entry | function | `src/adapter/agent-api-endpoint/relayed-call.ts#answerRelayedCall` | PI-17 | `non-pure`。 |
 | `FrameSnapshot` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#FrameSnapshot` | -- | interface FrameSnapshot |
@@ -742,7 +742,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `agentApiMembers` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#agentApiMembers` | -- | function agentApiMembers(wiring: AgentApiWiring): AgentApi |
 | `AgentDelayDiagnostics` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentDelayDiagnostics` | -- | interface AgentDelayDiagnostics extends DelayDiagnosticsReport |
 | `DelayFixLogSource` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#DelayFixLogSource` | -- | interface DelayFixLogSource |
-| `ImportLanding` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#ImportLanding` | -- | type ImportLanding = \| boolean \| { readonly landed: false; readonly refusals: readonly InvariantRefusal[] } export type AgentChangeReceiver = (notice: Notify... |
+| `ImportLanding` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#ImportLanding` | -- | type ImportLanding = \| boolean \| { readonly landed: false; readonly refusals: readonly InvariantRefusal[] } // <generated -- do not edit by hand> // From doc... |
 | `messageOf` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#messageOf` | -- | function messageOf(thrown: unknown): string |
 | `VisibilityTable` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#VisibilityTable` | -- | type VisibilityTable = keyof Document['documentSettings']['tableViews'] |
 

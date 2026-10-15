@@ -33,74 +33,19 @@ const WATCH_CHANGES = 'watchChanges'
 const EXPORT_PNG = 'exportPng'
 const PNG_MIME_TYPE = 'image/png'
 
-type SchemaKeysOf<K extends MemberName> = K extends typeof WATCH_CHANGES
-  ? 'waitMs'
-  : keyof Extract<RelayedCall, { readonly member: K }>['params']
+// WHY: the names, descriptions and input shapes are printed from the manuscript of table T-107 (CR-765),
+// the one that also prints AgentApi and RelayedParams, so a tool and its member cannot drift apart unseen.
+const MCP_TOOLS: readonly McpTool[] = toolDescriptions.tools.map((row): McpTool => ({
+  name: row.name,
+  description: row.description,
+  inputSchema: { type: 'object', properties: row.inputSchema.properties },
+}))
 
-type SameKeys<A, B> = [A] extends [B] ? ([B] extends [A] ? true : false) : false
-
-type CheckedProperties<T> = {
-  readonly [K in MemberName]: K extends keyof T
-    ? SameKeys<keyof T[K], SchemaKeysOf<K>> extends true
-      ? T[K]
-      : never
-    : never
-}
-
-const STRING_VALUE = { type: 'string' } as const
-const NUMBER_VALUE = { type: 'number' } as const
-const OBJECT_VALUE = { type: 'object' } as const
-const NUMBER_LIST_VALUE = { type: ['array', 'null'], items: NUMBER_VALUE } as const
-
-const WRITTEN_PROPERTIES = {
-  agentApiVersion: {},
-  schemaVersion: {},
-  readDocument: {},
-  readStamp: {},
-  readSelection: {},
-  readDialogueMessages: {},
-  readSearchRows: { word: STRING_VALUE },
-  readShownTasks: {},
-  readDelayDiagnostics: {},
-  applyCommands: { request: OBJECT_VALUE },
-  importDocument: { source: OBJECT_VALUE },
-  undoEdit: {},
-  redoEdit: {},
-  exportJson: {},
-  exportMspdi: {},
-  exportSvg: {},
-  exportPng: {},
-  exportEmbeddedHtml: {},
-  focusTask: { taskUid: NUMBER_VALUE },
-  showOnlyTasks: { taskUids: NUMBER_LIST_VALUE },
-  watchChanges: { waitMs: NUMBER_VALUE },
-  postDialogueMessage: { text: STRING_VALUE },
-} satisfies Record<MemberName, Record<string, object>>
-
-const TOOL_PROPERTIES: CheckedProperties<typeof WRITTEN_PROPERTIES> = WRITTEN_PROPERTIES
+const MEMBER_NAMES: ReadonlySet<string> = new Set(MCP_TOOLS.map((tool) => tool.name))
 
 /** @purity pure */
 function isMemberName(name: string): name is MemberName {
-  return Object.hasOwn(TOOL_PROPERTIES, name)
-}
-
-/** @purity pure */
-function toolOf(row: { readonly name: string; readonly description: string }): McpTool {
-  if (!isMemberName(row.name)) {
-    throw new Error(`table T-107 names ${row.name}, which AgentApi does not have`)
-  }
-  return {
-    name: row.name,
-    description: row.description,
-    inputSchema: { type: 'object', properties: TOOL_PROPERTIES[row.name] },
-  }
-}
-
-// TRAP: built once at load, so a T-107 row without an AgentApi member (or the reverse)
-// stops the relay at start instead of listing a tool no page can answer.
-const MCP_TOOLS: readonly McpTool[] = toolDescriptions.tools.map(toolOf)
-if (MCP_TOOLS.length !== Object.keys(TOOL_PROPERTIES).length) {
-  throw new Error('table T-107 and AgentApi do not name the same members')
+  return MEMBER_NAMES.has(name)
 }
 
 // see AG-12, T-107

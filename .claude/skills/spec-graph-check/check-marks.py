@@ -62,6 +62,7 @@ BOOKS = [
     'docs/spec/_assets/tbl-property-items.md',
     'docs/spec/_assets/tbl-published-entries.md',
     'docs/spec/_assets/tbl-notice-reasons.md',
+    'docs/spec/_assets/tbl-agent-api-members.md',
     'docs/spec/_assets/fig-erd-detail.md',
     'docs/spec/_assets/fig-erd-overview.md',
 ]

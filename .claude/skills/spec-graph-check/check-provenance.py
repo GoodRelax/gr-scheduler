@@ -110,11 +110,19 @@ ARTIFACTS = [
     # startup template beside it may NOT have: that one is validated by the GRS
     # JSON schema, and this one is not.
     ('src/adapter/screen-renderer/icon-roster.json', 'tbl-glossary.md'),
-    # The MCP tool descriptions the relay lists (CR-613): one per row of table
-    # T-107, printed from its description cell (AG-12 (4), design-mcp-relay.md
-    # 3.1), so no tool description is written by hand.
+    # The MCP tools the relay lists (CR-613): one per row of table T-107, with
+    # its description and, since CR-765, its input shape, so neither is written
+    # by hand (AG-12 (4), design-mcp-relay.md 3.1).
     ('src/adapter/mcp-tool-translator/mcp-tool-descriptions.json',
-     'tbl-glossary.md'),
+     'agent-api-members.json'),
+    # Tables T-107 and T-400 (CR-765) and the three units whose region carries
+    # the call shapes printed from the same manuscript.
+    ('docs/spec/_assets/tbl-agent-api-members.md', 'agent-api-members.json'),
+    ('src/adapter/agent-api-endpoint/agent-api-members.ts',
+     'agent-api-members.json'),
+    ('src/adapter/agent-api-endpoint/relayed-call.ts', 'agent-api-members.json'),
+    ('src/framework/mcp-relay-server/mcp-relay-server.ts',
+     'agent-api-members.json'),
     # The chart's milestone shapes (CR-583): printed from figure F-044 after the
     # generator holds every element against figure F-019 (LF-18 allows two
     # differences), so the figure, not a table, is the manuscript.
