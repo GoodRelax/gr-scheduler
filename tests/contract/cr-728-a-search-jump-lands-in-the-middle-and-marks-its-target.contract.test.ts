@@ -59,12 +59,13 @@ const STATE_MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec',
 
 const SJ_10_MARK = '飛ぶ先のタスクかコメントボックスに、飛んだ先の印を付けること（MUST）'
 const SJ_10_KEEP = '波紋の後は囲みだけを残し、`FR-009` の 表 T-303 の `EL-17` の決まりで消すこと（MUST）'
-const SJ_10_RING = '① 囲み —— 予定の形（タスクは描いた予定の図形で実績を含めず、コメントボックスは箱）の外接矩形から `_assets/tbl-settings.md` の `S-555` だけ外に、表 T-236 の `S-151` の色で描く、太さ `S-556` の実線の矩形 —— 選択の枠（表 T-023c の `SL-8`）の外側に在る。'
+const SJ_10_RING = '① 囲み —— 予定の形（タスクは描いた予定の図形で実績を含めず、コメントボックスは箱）の外接矩形から、線の内側の縁まで `_assets/tbl-settings.md` の `S-555` だけ空けて、表 T-236 の `S-585` の色で描く、太さ `S-556`、角の丸み `S-586` の実線の矩形。'
+const SJ_10_ABOVE_RING = '選択の枠と掴み点は囲みより手前の層（`FR-110` の 表 T-020 の `ZO-10`）に描くので、囲みに隠れない。'
 const SJ_10_RIPPLE =
-  '② 波紋 —— 印を付けた時から、囲みと同じ色と太さの矩形を、`S-558` の長さのあいだに囲みの所から各辺 `S-559` だけ外へ広げながら、不透明から透明へ消す。'
+  '② 波紋 —— 印を付けた時から、囲みと同じ色・太さ・角の丸みの矩形を、`S-558` の長さのあいだに囲みの所から各辺 `S-559` だけ外へ広げながら、不透明から透明へ消す。'
 const SJ_10_TIMES = 'これを `S-557` 回続けて出し、出し終えたら消す。'
 const SJ_10_INSIDE = '囲みと波紋は `Task Group Area`（`_assets/tbl-glossary.md` の `U-50`）の中に描く。'
-const SJ_10_Z = '日程表の前後（`FR-110` の 表 T-020）では `ZO-10` に在る。'
+const SJ_10_Z = '日程表の前後（`FR-110` の 表 T-020）では `ZO-8` に在る —— 進捗マーカーと札より奥である。'
 const SJ_10_REDUCED =
   '⭐ 閲覧環境が動きを減らす設定（`prefers-reduced-motion: reduce`）のときは波紋を出さず、囲みだけとする'
 const SJ_10_ENTRANCES =
@@ -101,7 +102,7 @@ const EL_17_WHEEL = 'ホイール（表 T-023 の `MK-1` 〜 `MK-5`、面やパ�
 const EL_17_MODIFIER = '修飾キー（`Ctrl` ・ `Shift` ・ `Alt` ・ `Meta`）だけの押下でも消さないこと（MUST）'
 const EL_18_NOTHING =
   '印が出ているあいだの 2 回目の押下（宿主が数える押下の回数が 2 以上の押下）では、何もしないこと（MUST）'
-const ZO_10_RING = '飛んだ先の印の囲みと波紋（`FR-151` の 表 T-332 の `SJ-10`）'
+const ZO_8_RING = '飛んだ先の印の囲み（`FR-151` の 表 T-332 の `SJ-10`、関係するタスクの囲み `RW-13` も）'
 const UZ_12_INSIDE = '中の前後は `FR-110` の 表 T-020 に従うこと（MUST）'
 
 const flat = (text: string): string => text.replace(/<br\s*\/?>/g, '').replace(/\*\*/g, '').replace(/\s*\n\s*/g, '')
@@ -114,7 +115,8 @@ describe('CR-728 -- the manuscript these cases are driven by', () => {
     ['T-332 SJ-10 (ripple)', rowCells('T-332', 'SJ-10'), SJ_10_RIPPLE],
     ['T-332 SJ-10 (times)', rowCells('T-332', 'SJ-10'), SJ_10_TIMES],
     ['T-332 SJ-10 (inside the Task Group Area)', rowCells('T-332', 'SJ-10'), SJ_10_INSIDE],
-    ['T-332 SJ-10 (ZO-10)', rowCells('T-332', 'SJ-10'), SJ_10_Z],
+    ['T-332 SJ-10 (ZO-8)', rowCells('T-332', 'SJ-10'), SJ_10_Z],
+    ['T-332 SJ-10 (the selection frame above the ring)', rowCells('T-332', 'SJ-10'), SJ_10_ABOVE_RING],
     ['T-332 SJ-10 (reduced motion)', rowCells('T-332', 'SJ-10'), SJ_10_REDUCED],
     ['T-332 SJ-10 (entrances)', rowCells('T-332', 'SJ-10'), SJ_10_ENTRANCES],
     ['T-332 SJ-10 (AM-16)', rowCells('T-332', 'SJ-10'), SJ_10_AM_16],
@@ -136,7 +138,7 @@ describe('CR-728 -- the manuscript these cases are driven by', () => {
     ['T-303 EL-17 (wheel)', rowCells('T-303', 'EL-17'), EL_17_WHEEL],
     ['T-303 EL-17 (modifier)', rowCells('T-303', 'EL-17'), EL_17_MODIFIER],
     ['T-303 EL-18', rowCells('T-303', 'EL-18'), EL_18_NOTHING],
-    ['T-020 ZO-10', rowCells('T-020', 'ZO-10'), ZO_10_RING],
+    ['T-020 ZO-8', rowCells('T-020', 'ZO-8'), ZO_8_RING],
     ['T-337 UZ-12', rowCells('T-337', 'UZ-12'), UZ_12_INSIDE],
     ['T-351 PTL-16', rowCells('T-351', 'PTL-16'), PTL_16_JUMP],
   ] as const)('%s still says it', (_name, cell, clause) => {
@@ -150,10 +152,11 @@ describe('CR-728 -- the manuscript these cases are driven by', () => {
     }
   })
 
-  it('the values: S-554 is a ratio inside (0, 1), S-555 / S-556 / S-558 / S-559 are positive, S-557 is a whole count', () => {
+  it('the values: S-554 is a ratio inside (0, 1), S-555 is not negative, S-556 / S-558 / S-559 are positive, S-557 is a whole count', () => {
     expect(S_554).toBeGreaterThan(0)
     expect(S_554).toBeLessThan(1)
-    for (const value of [S_555, S_556, S_558, S_559, S_428]) expect(value).toBeGreaterThan(0)
+    expect(S_555).toBeGreaterThanOrEqual(0)
+    for (const value of [S_556, S_558, S_559, S_428]) expect(value).toBeGreaterThan(0)
     expect(Number.isInteger(S_557) && S_557 > 0).toBe(true)
   })
 })
@@ -559,9 +562,10 @@ const svgOf = (scene: Scene, landing: LandingState, picture: 'screen' | 'export'
     { themePreference: theme, guideCursorMode: 'none', landingMarkDisplayState: landing } as never,
   )
 
-const S_151 = (theme: Theme): string => cellOf('T-236', 'S-151', theme === 'light' ? '明るいテーマ' : '暗いテーマ').replace(/`/g, '').trim()
-// WHY: the color row is written with the theme hue as H (the project's hue is 214 in these scenes).
-const inkOf = (theme: Theme): string => S_151(theme).replace(/\bH\b/, '214').toLowerCase()
+// see S-585
+// WHY: the ring's own row, which follows no theme hue (its hue cell is -).
+const inkOf = (theme: Theme): string =>
+  cellOf('T-236', 'S-585', theme === 'light' ? '明るいテーマ' : '暗いテーマ').replace(/`/g, '').trim().toLowerCase()
 const colorOnly = (value: string | null): string => (value ?? '').toLowerCase().replace(/\s+/g, ' ').trim()
 
 const boxOfRing = (ring: Element): { x: number; y: number; width: number; height: number; stroke: number } => ({
@@ -587,22 +591,21 @@ describe(`T-332 SJ-10 -- ${SJ_10_RING}`, () => {
     expect(ringsOf(svgOf(scene, HIDDEN)), SJ_10_MARK).toEqual([])
   })
 
-  it('the ring is a frame: S-556 thick, the S-151 color (light), no fill', () => {
+  it('the ring is a frame: S-556 thick, the S-585 color (light), no fill', () => {
     const ring = ringsOf(svg)[0]!
     expect(Number(attrOf(ring.attrs, 'stroke-width')), 'S-556').toBeCloseTo(S_556, 6)
-    expect(colorOnly(attrOf(ring.attrs, 'stroke')), 'S-151 light').toBe(inkOf('light'))
+    expect(colorOnly(attrOf(ring.attrs, 'stroke')), 'S-585 light').toBe(inkOf('light'))
     const fill = colorOnly(attrOf(ring.attrs, 'fill'))
     expect(fill === 'none' || fill === 'transparent' || Number(attrOf(ring.attrs, 'fill-opacity') ?? '1') === 0, 'a frame, not a patch').toBe(true)
     expect(attrOf(ring.attrs, 'stroke-dasharray'), 'a solid line (SJ-10 ①)').toBeNull()
   })
 
-  it('the ring takes the dark theme S-151 color in the dark theme', () => {
+  it('the ring takes the dark theme S-585 color in the dark theme', () => {
     const ring = ringsOf(svgOf(scene, landedOn(TASK(15)), 'screen', 'dark'))[0]!
-    expect(colorOnly(attrOf(ring.attrs, 'stroke')), 'S-151 dark').toBe(inkOf('dark'))
+    expect(colorOnly(attrOf(ring.attrs, 'stroke')), 'S-585 dark').toBe(inkOf('dark'))
   })
 
-  // WHY: the spec says "S-555 outside the bounding box" and the stroke is S-556 wide; a reader may count the gap to the
-  // stroke's inner edge or to its center line, so both readings are accepted and the case says which it saw.
+  // WHY: SJ-10 counts S-555 to the line's inner edge (CR-763), and the stroke is S-556 wide.
   it('the ring stands S-555 outside the plan figure (the box without the actual), on every side', () => {
     const placed = placementOf(scene, 15)
     const ring = boxOfRing(ringsOf(svg)[0]!)
@@ -614,32 +617,29 @@ describe(`T-332 SJ-10 -- ${SJ_10_RING}`, () => {
     }
     for (const side of ['left', 'top', 'right', 'bottom'] as const) {
       const innerEdgeGap = centerGap(side) - S_556 / 2
-      const reading = Math.abs(innerEdgeGap - S_555) <= 0.5 ? 'inner edge' : Math.abs(centerGap(side) - S_555) <= 0.5 ? 'center line' : 'neither'
-      expect(reading, `${side}: gap ${String(innerEdgeGap)} to the inner edge, ${String(centerGap(side))} to the center line`).not.toBe('neither')
+      expect(innerEdgeGap, `${side}: gap ${String(innerEdgeGap)} to the inner edge`).toBeCloseTo(S_555, 1)
     }
   })
 
-  it('the ring lies outside the selection frame of the task (SL-8) when the task is selected', () => {
+  it(`${SJ_10_ABOVE_RING}: the selection frame of the task (SL-8) is drawn after the ring when the task is selected`, () => {
     const selected = sceneOf(LONG_LIST, { ...FAR_START, ...scrollFieldsOf(landed.plan) }, selectionWith(emptySelection(), { kind: 'task', uid: 15 }))
     const picture = svgOf(selected, landedOn(TASK(15)))
     const frames = elementsOf(picture).filter((one) => one.tag === 'rect' && attrOf(one.attrs, 'stroke-dasharray') !== null && one.zo === 'ZO-10')
     expect(frames.length, 'premise: the selection frame is drawn').toBeGreaterThan(0)
-    const ring = boxOfRing(ringsOf(picture)[0]!)
-    for (const frame of frames) {
-      const inner = boxOfRing(frame)
-      expect(inner.x, 'the frame is right of the ring left').toBeGreaterThan(ring.x)
-      expect(inner.y).toBeGreaterThan(ring.y)
-      expect(inner.x + inner.width).toBeLessThan(ring.x + ring.width)
-      expect(inner.y + inner.height).toBeLessThan(ring.y + ring.height)
-    }
+    const ring = ringsOf(picture)[0]!
+    for (const frame of frames) expect(frame.at, 'the frame (ZO-10) is drawn after the ring (ZO-8)').toBeGreaterThan(ring.at)
   })
 
-  it(`${SJ_10_Z}: the ring is in the ZO-10 layer, after every task figure`, () => {
+  it(`${SJ_10_Z}: the ring is in the ZO-8 layer, after the plan and actual figures and before the markers and labels`, () => {
     const ring = ringsOf(svg)[0]!
-    expect(ring.zo).toBe('ZO-10')
+    expect(ring.zo).toBe('ZO-8')
     const taskFigures = elementsOf(svg).filter((one) => /^task-\d+-/.test(attrOf(one.attrs, 'data-figure') ?? ''))
     expect(taskFigures.length, 'premise: task figures are drawn').toBeGreaterThan(0)
-    for (const one of taskFigures) expect(one.at, attrOf(one.attrs, 'data-figure') ?? '').toBeLessThan(ring.at)
+    for (const one of taskFigures) {
+      const name = attrOf(one.attrs, 'data-figure') ?? ''
+      if (one.zo === 'ZO-1' || one.zo === 'ZO-2') expect(one.at, name).toBeLessThan(ring.at)
+      if (one.zo === 'ZO-3' || one.zo === 'ZO-5') expect(one.at, name).toBeGreaterThan(ring.at)
+    }
   })
 
   it(`${SJ_10_INSIDE}: the ring is clipped to the ground the task figures are clipped to, which starts at the Task Group Area's top left and spans its height`, () => {
@@ -724,7 +724,7 @@ describe('T-332 SJ-10 -- the mark changes no drawn gap (FR-105 / FR-094)', () =>
     // WHY: the layout and the geometry are computed without the landing state; the picture only adds the ring.
     const plain = svgOf(after, HIDDEN)
     const marked = svgOf(after, landedOn(TASK(15)))
-    const withoutRing = marked.replace(/<g clip-path="[^"]*"><g data-zo="ZO-10"><rect [^>]*data-role="Jump Landing Ring"[^>]*\/><\/g><\/g>/, '')
+    const withoutRing = marked.replace(/<g clip-path="[^"]*"><g data-zo="ZO-8"><rect [^>]*data-role="Jump Landing Ring"[^>]*\/><\/g><\/g>/, '')
     expect(ringsOf(marked).length, 'premise').toBe(1)
     expect(withoutRing, 'everything but the ring is the same picture').toBe(plain)
   })

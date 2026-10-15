@@ -168,7 +168,7 @@ const PAINT_ROW = {
   scheduleFilter: 'S-543',
   scheduleFilterGlyph: 'S-544',
   dropCue: 'S-151',
-  jumpLanding: 'S-151',
+  jumpLanding: 'S-585',
   refusal: 'S-154',
 } as const
 
@@ -1293,7 +1293,7 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
     lastKeys = drawnKeys
     showUnpressableWords(host, scaleMessageLayer, readoutLayer, view)
     showDropCue(host, dropCueLayer, view.dropCue)
-    showJumpRipple(host, jumpRippleLayer, view.jumpRipple)
+    showJumpRipple(host, jumpRippleLayer, view.jumpRipple, readTheme().monochrome === true)
     // TRAP: shown synchronously, never inside a frame callback: a first paint that waits for one
     // leaves a white screen until an input arrives.
     root.setAttribute('style', STYLE.rootShown + typefaceStyle() + themeStyle(readTheme()))
@@ -1478,24 +1478,29 @@ function rippleClipStyle(within: ScreenRect): string {
   )
 }
 
-// see SJ-10, S-556
-// WHY: an outline drawn from the ring's inner edge, so at offset 0 it lies on the ring and the offset alone spreads it.
+// see SJ-10, S-556, S-586, FR-041
+// WHY: an outline from the ring's inner edge (corner S-586 less half a line), so the offset alone spreads it;
+// in monochrome a double outline of S-556's width is the ring's two lines, the outer and inner thirds.
 /** @purity pure */
-function rippleStyle(ripple: NonNullable<ScreenView['jumpRipple']>): string {
+function rippleStyle(ripple: NonNullable<ScreenView['jumpRipple']>, isMonochrome: boolean): string {
   const { inner, within } = ripple
+  const corner = Math.max(0, NOT_STORED_JUMP_LANDING_RIPPLE['S-586'] - ripple.lineWidth / 2)
   return (
     'position:absolute;box-sizing:border-box;pointer-events:none;' +
     `left:${inner.x - within.x}px;top:${inner.y - within.y}px;width:${inner.width}px;height:${inner.height}px;` +
-    `outline:${ripple.lineWidth}px solid ${PAINT.jumpLanding};`
+    `border-radius:${corner}px;` +
+    `outline:${ripple.lineWidth}px ${isMonochrome ? 'double' : 'solid'} ${PAINT.jumpLanding};`
   )
 }
 
 // see SJ-10, S-557, S-558, S-559
 // TRAP: the host animates it and it is dropped when done: no frame is asked, and the SVG rebuilt each frame never restarts it.
 /** @purity non-pure */
-function startJumpRipple(host: Document, layer: HTMLElement, ripple: NonNullable<ScreenView['jumpRipple']>): void {
+function startJumpRipple(
+  host: Document, layer: HTMLElement, ripple: NonNullable<ScreenView['jumpRipple']>, isMonochrome: boolean,
+): void {
   const clip = made(host, 'div', rippleClipStyle(ripple.within))
-  const ring = part(host, 'div', JUMP_RIPPLE_ROLE, rippleStyle(ripple))
+  const ring = part(host, 'div', JUMP_RIPPLE_ROLE, rippleStyle(ripple, isMonochrome))
   if (host.defaultView?.matchMedia?.(REDUCED_MOTION_QUERY).matches === true || typeof ring.animate !== 'function') return
   clip.append(ring)
   layer.append(clip)
@@ -1508,7 +1513,7 @@ function startJumpRipple(host: Document, layer: HTMLElement, ripple: NonNullable
 
 // see SJ-10, EL-17, UZ-12
 /** @purity non-pure */
-function showJumpRipple(host: Document, layer: HTMLElement, ripple: ScreenView['jumpRipple']): void {
+function showJumpRipple(host: Document, layer: HTMLElement, ripple: ScreenView['jumpRipple'], isMonochrome: boolean): void {
   if (ripple === undefined) {
     if (layer.hasAttribute(LANDING_ATTRIBUTE)) layer.replaceChildren()
     layer.removeAttribute(LANDING_ATTRIBUTE)
@@ -1518,14 +1523,14 @@ function showJumpRipple(host: Document, layer: HTMLElement, ripple: ScreenView['
   if (layer.getAttribute(LANDING_ATTRIBUTE) !== landing) {
     layer.setAttribute(LANDING_ATTRIBUTE, landing)
     layer.replaceChildren()
-    startJumpRipple(host, layer, ripple)
+    startJumpRipple(host, layer, ripple, isMonochrome)
     return
   }
   const clip = layer.firstElementChild
   const clipStyle = rippleClipStyle(ripple.within)
   if (clip !== null && clip.getAttribute('style') !== clipStyle) clip.setAttribute('style', clipStyle)
   const ring = clip?.firstElementChild ?? null
-  const ringStyle = rippleStyle(ripple)
+  const ringStyle = rippleStyle(ripple, isMonochrome)
   if (ring !== null && ring.getAttribute('style') !== ringStyle) ring.setAttribute('style', ringStyle)
 }
 
@@ -1669,10 +1674,12 @@ const NOT_STORED_JUMP_LANDING_RIPPLE: {
   readonly 'S-557': number
   readonly 'S-558': number
   readonly 'S-559': number
+  readonly 'S-586': number
 } = {
   'S-557': 2,
   'S-558': 600,
   'S-559': 16,
+  'S-586': 2,
 }
 
 // see T-206
@@ -1884,5 +1891,6 @@ export const SCREEN_COLORS: {
   'S-543': { light: '#a02b2b', dark: '#e07a7a', followsHue: false },
   'S-544': { light: '#ffffff', dark: '#ffffff', followsHue: false },
   'S-573': { light: '#07695a', dark: '#4fd1b5', followsHue: false },
+  'S-585': { light: '#b31959', dark: '#f17eae', followsHue: false },
 }
 // </generated>

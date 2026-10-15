@@ -55,10 +55,11 @@ export interface ViewerValues {
         readonly successorUid: number } | null; readonly landedTarget: LandedTarget; readonly landedRelatedTasks?: readonly number[] }
 }
 
-// see SJ-10, S-555, S-556
+// see SJ-10, S-555, S-556, S-586
 export interface JumpLandingRing {
   readonly inner: ScreenRect
   readonly lineWidth: number
+  readonly cornerRadius: number
 }
 
 export interface OverlaysInput {
@@ -441,7 +442,7 @@ export function overlayParts(input: OverlaysInput): OverlayParts {
   return { fillParts, linkParts, progressLineParts, annotationParts, selectionParts }
 }
 
-// see SJ-10, S-555, S-556, S-227
+// see SJ-10, S-555, S-556, S-586, S-227
 // WHY: the one box the ring is drawn on and the ripple starts from, so the two cannot part; a task whose
 // plan figure is not drawn (no plan dates, or the plan hidden) gets none.
 /** @purity pure */
@@ -456,22 +457,26 @@ export function jumpLandingRingOf(layout: ScheduleLayout, geometry: ScheduleGeom
   return {
     inner: { x: box.x - gap, y: box.y - gap, width: box.width + 2 * gap, height: box.height + 2 * gap },
     lineWidth: NOT_STORED_JUMP_LANDING_RING_SIZES['S-556'],
+    cornerRadius: NOT_STORED_JUMP_LANDING_RING_SIZES['S-586'],
   }
 }
 
-// see SJ-10, ZO-10, EP-12, FR-098
+// see SJ-10, FR-041, S-74
+type RingInput = Pick<OverlaysInput, 'geometry' | 'layout' | 'themed'> & { readonly monochrome: boolean }
+
+// see SJ-10, ZO-8, EP-12, FR-098, S-585
 // WHY: a ring around a task below the pinned band scrolls under it, so it is handed back apart from one that stands in the band.
 /** @purity pure */
 export function jumpLandingRingParts(
   viewer: ViewerValues,
-  input: Pick<OverlaysInput, 'geometry' | 'layout' | 'themed' | 'drawsOperationState'>,
+  input: RingInput & Pick<OverlaysInput, 'drawsOperationState'>,
 ): { readonly pinned: readonly string[]; readonly scrolling: readonly string[] } {
   const mark = viewer.landingMarkDisplayState
   if (!input.drawsOperationState || mark?.kind !== 'shown' || mark.landedBy !== 'jump') return { pinned: [], scrolling: [] }
   const ring = jumpLandingRingOf(input.layout, input.geometry, mark.landedTarget)
   const related = relatedTaskRingParts(mark.landedRelatedTasks ?? [], input)
   if (ring === null) return related
-  const svg = ringSvg(ring, input.themed('S-151'), JUMP_LANDING_RING_ROLE, 'jump-landing')
+  const svg = ringSvg(ring, input.themed('S-585'), input.monochrome, JUMP_LANDING_RING_ROLE, 'jump-landing')
   const target = mark.landedTarget
   const isPinned = target.kind === 'task' && isPinnedTask(input, target.taskUid)
   const placed = isPinned || target.kind === 'commentBox' ? { pinned: [svg], scrolling: [] } : { pinned: [], scrolling: [svg] }
@@ -483,15 +488,28 @@ function isPinnedTask(input: Pick<OverlaysInput, 'geometry'>, taskUid: number): 
   return input.geometry.pinnedBand?.pinnedTaskUids.has(taskUid) === true
 }
 
-// see SJ-10, S-556
+// see SJ-10, S-556, S-586
+// WHY: a line `outward` of the inner edge keeps the band's rounding: further out rounds more, further in less.
 /** @purity pure */
-function ringSvg(ring: JumpLandingRing, stroke: string, role: string, key: string): string {
-  const half = ring.lineWidth / 2
+function ringLineSvg(ring: JumpLandingRing, outward: number, width: number, stroke: string, role: string, key: string): string {
+  const radius = Math.max(0, ring.cornerRadius + outward - ring.lineWidth / 2)
   return (
-    `<rect x="${rounded(ring.inner.x - half)}" y="${rounded(ring.inner.y - half)}"` +
-    ` width="${rounded(ring.inner.width + ring.lineWidth)}" height="${rounded(ring.inner.height + ring.lineWidth)}"` +
-    ` fill="none" stroke="${stroke}" stroke-width="${rounded(ring.lineWidth)}"` +
+    `<rect x="${rounded(ring.inner.x - outward)}" y="${rounded(ring.inner.y - outward)}"` +
+    ` width="${rounded(ring.inner.width + 2 * outward)}" height="${rounded(ring.inner.height + 2 * outward)}"` +
+    ` rx="${rounded(radius)}" ry="${rounded(radius)}"` +
+    ` fill="none" stroke="${stroke}" stroke-width="${rounded(width)}"` +
     ` data-role="${role}"${figureKey(key)}/>`
+  )
+}
+
+// see SJ-10, FR-041, S-556
+/** @purity pure */
+function ringSvg(ring: JumpLandingRing, stroke: string, isMonochrome: boolean, role: string, key: string): string {
+  const width = ring.lineWidth
+  if (!isMonochrome) return ringLineSvg(ring, width / 2, width, stroke, role, key)
+  const third = width / 3
+  return (
+    ringLineSvg(ring, width - third / 2, third, stroke, role, key) + ringLineSvg(ring, third / 2, third, stroke, role, key)
   )
 }
 
@@ -500,14 +518,14 @@ function ringSvg(ring: JumpLandingRing, stroke: string, role: string, key: strin
 /** @purity pure */
 function relatedTaskRingParts(
   taskUids: readonly number[],
-  input: Pick<OverlaysInput, 'geometry' | 'layout' | 'themed'>,
+  input: RingInput,
 ): { readonly pinned: readonly string[]; readonly scrolling: readonly string[] } {
   const pinned: string[] = []
   const scrolling: string[] = []
   for (const taskUid of taskUids) {
     const ring = jumpLandingRingOf(input.layout, input.geometry, { kind: 'task', taskUid })
     if (ring === null) continue
-    const svg = ringSvg(ring, input.themed('S-573'), RELATED_TASK_RING_ROLE, `jump-related-${taskUid}`)
+    const svg = ringSvg(ring, input.themed('S-573'), input.monochrome, RELATED_TASK_RING_ROLE, `jump-related-${taskUid}`)
     if (isPinnedTask(input, taskUid)) pinned.push(svg)
     else scrolling.push(svg)
   }
