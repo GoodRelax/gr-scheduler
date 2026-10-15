@@ -79,25 +79,32 @@ export function clockTextOf(instant: number): string {
   return `${Math.floor(minute / MINUTES_PER_HOUR)}:${String(minute % MINUTES_PER_HOUR).padStart(MINUTE_DIGITS, '0')}`
 }
 
-const LENGTH_UNITS = { day: 'd', hour: 'h', minute: 'm' } as const
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, TypedLag.lagUnit).
+// see T-108, TX-10
+type LengthLetter = 'd' | 'h' | 'm'
+// </generated>
+
+// see T-375, TX-10, FR-054
+// WHY: the minutes in one of each letter, in the order a length is spelled.
+const MINUTES_IN_LETTER: Readonly<Record<LengthLetter, number | 'workingDay'>> = { d: 'workingDay', h: MINUTES_PER_HOUR, m: 1 }
 
 // see T-375, TX-10
-const ZERO_LENGTH_TEXT = `0${LENGTH_UNITS.hour}`
+const ZERO_LENGTH_LETTER: LengthLetter = 'h'
 
 // see T-375, TX-10, TX-2, TX-3, TX-6, TX-8
 // WHY: one spelling of a length; d is minutesPerDay minutes (FR-054), the letters are the same in every language.
 /** @purity pure */
 export function lengthTextOf(minutes: number, minutesPerDay: number): string {
-  const whole = Math.round(Math.abs(minutes))
-  const days = minutesPerDay > 0 ? Math.floor(whole / minutesPerDay) : 0
-  const rest = whole - days * minutesPerDay
-  const counts: readonly (readonly [number, string])[] = [
-    [days, LENGTH_UNITS.day],
-    [Math.floor(rest / MINUTES_PER_HOUR), LENGTH_UNITS.hour],
-    [rest % MINUTES_PER_HOUR, LENGTH_UNITS.minute],
-  ]
-  const parts = counts.filter(([count]) => count > 0).map(([count, unit]) => `${count}${unit}`)
-  if (parts.length === 0) return ZERO_LENGTH_TEXT
+  let rest = Math.round(Math.abs(minutes))
+  const parts: string[] = []
+  for (const [letter, inLetter] of Object.entries(MINUTES_IN_LETTER)) {
+    const size = inLetter === 'workingDay' ? minutesPerDay : inLetter
+    const count = size > 0 ? Math.floor(rest / size) : 0
+    rest -= count * size
+    if (count > 0) parts.push(`${count}${letter}`)
+  }
+  if (parts.length === 0) return `0${ZERO_LENGTH_LETTER}`
   return `${minutes < 0 ? '-' : ''}${parts.join(' ')}`
 }
 

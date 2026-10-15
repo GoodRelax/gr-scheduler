@@ -8,7 +8,7 @@ import type { DocumentSettings } from '../../entity/document-model/document-sett
 import { calendarDaysBetween, dayOf, textOfDayStart } from '../../entity/document-model/schedule/schedule'
 import { dateAtX, fitZoom, timeAxisOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenRegions } from '../../entity/layout-engine/screen-regions/screen-regions'
-import { NOT_STORED_ZOOM_BOUNDS } from '../../use-case/edit-document/edit-document'
+import { NOT_STORED_ZOOM_BOUNDS, type DocumentCommand } from '../../use-case/edit-document/edit-document'
 import { NOT_STORED_ZOOM_STEP } from '../../adapter/input-command-translator/input-command-translator'
 import { isSameEnvironment, readToday, type FrameEnvironment, type FrameLoopHands } from './frame-loop'
 
@@ -17,10 +17,11 @@ interface ViewSettings {
   readonly isAtStoredZoom: boolean
 }
 
-type ViewPlace = Pick<
-  DocumentSettings,
-  'zoomX' | 'zoomY' | 'scrollDate' | 'scrollGroupId' | 'scrollDayOffset' | 'scrollGroupOffset'
->
+type CarriedBy<TKind extends DocumentCommand['kind']> = Omit<Extract<DocumentCommand, { readonly kind: TKind }>, 'kind'>
+
+type ScrollPlace = CarriedBy<'setScrollPosition'>
+
+type ViewPlace = CarriedBy<'setZoom'> & ScrollPlace
 
 // TRAP: input-command-translator.ts names the same half of OP-10's condition in namesAPlace; change both together.
 // see OP-10
@@ -57,8 +58,6 @@ function firstRowIdOf(held: Document): string | null {
   const firstTaskGroup = [...held.schedule.taskGroups].sort((a, b) => a.order - b.order)[0]
   return firstTaskGroup === undefined ? null : firstTaskGroup.id
 }
-
-type ScrollPlace = Pick<ViewPlace, 'scrollDate' | 'scrollGroupId' | 'scrollDayOffset' | 'scrollGroupOffset'>
 
 const HALF = 2
 

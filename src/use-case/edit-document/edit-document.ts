@@ -155,6 +155,108 @@ export type DocumentCommand =
   | WholeScheduleShiftCommand
   | DocumentSettingsCommand
   | UnimplementedDocumentCommand
+
+// see T-108
+// WHY: the router reads the commands of each union here rather than a hand copy (check 69).
+const COMMAND_KINDS_BY_UNION = {
+  TaskCommand: [
+    'createTask',
+    'deleteTask',
+    'pasteTasks',
+    'setTaskName',
+    'setTaskNotes',
+    'setTaskPlanDates',
+    'setTaskDeadline',
+    'setTaskPlanActualState',
+    'beginTaskActual',
+    'cycleTaskPlanActualState',
+    'setTaskFadeInDays',
+    'setTaskFadeOutDays',
+    'setTaskParentTask',
+    'moveTaskToTaskGroup',
+    'setTaskVisualShapeKind',
+    'setTaskVisualMilestoneGlyph',
+    'setTaskVisualColors',
+    'resetTaskVisualColors',
+    'setTaskVisualStrokeWidth',
+  ],
+  TaskGroupCommand: [
+    'createTaskGroup',
+    'deleteTaskGroup',
+    'pasteTaskGroupSubtree',
+    'setTaskGroupLabel',
+    'setTaskGroupColor',
+    'resetTaskGroupColor',
+    'setTaskGroupMinHeight',
+    'reorderTaskGroupSiblings',
+    'resetTaskGroupTreeStates',
+    'moveTaskGroup',
+    'setTaskGroupTreeState',
+  ],
+  DependencyCommand: ['createDependency', 'deleteDependency', 'deleteDependencyAt', 'setDependencyLag'],
+  AnnotationCommand: [
+    'createCommentBox',
+    'deleteCommentBox',
+    'setCommentBoxText',
+    'setCommentBoxLeaderShapeKind',
+    'setCommentBoxAnchor',
+    'setCommentBoxBodyOffsetPx',
+    'setCommentBoxStrokeColor',
+    'setCommentBoxStrokeWidth',
+    'setCommentBoxFillColor',
+    'setCommentBoxFillTransparency',
+    'setCommentBoxTextColor',
+    'createHighlightBox',
+    'deleteHighlightBox',
+    'setHighlightBoxRange',
+    'setHighlightBoxStrokeColor',
+    'setHighlightBoxStrokeWidth',
+    'setHighlightBoxFillColor',
+    'setHighlightBoxFillTransparency',
+  ],
+  ResourceCommand: [
+    'createResource',
+    'setResourceName',
+    'deleteResource',
+    'deleteUnreferencedResources',
+    'createAssignment',
+    'unassignResource',
+  ],
+  CalendarCommand: ['setCalendar'],
+  ProjectCommand: [
+    'setProjectTitle',
+    'setProjectProfile',
+    'setStatusDate',
+    'clearStatusDate',
+    'setThemeHue',
+    'setParentProgressTolerance',
+    'setScheduleDataTimeZone',
+    'shiftScheduleTimes',
+  ],
+  WholeScheduleShiftCommand: ['shiftScheduleToStartDate'],
+  DocumentSettingsCommand: [
+    'setStackDirection',
+    'setElementVisible',
+    'setFontScale',
+    'setThemeMonochrome',
+    'setZoom',
+    'setScrollPosition',
+    'setTaskGroupPanelWidth',
+    'pinTaskGroup',
+    'unpinTaskGroup',
+    'fitScheduleToScreen',
+    'setDisplayScale',
+    'setFitSpan',
+    'clearFitSpan',
+    'setFitSpanFixed',
+    'setTaskGroupPanelWidthFixed',
+    'setTableView',
+    'setViewTimeZone',
+    'setDisplayTimeZones',
+    'setShowsTimeOfDay',
+    'setLevelZeroTreeState',
+  ],
+} as const
 // </generated>
 
 type AggregateEdit = (
@@ -176,141 +278,30 @@ function routes<K extends readonly string[]>(
   return table as Record<K[number], AggregateEdit>
 }
 
-const TASK_KINDS = [
-  'createTask',
-  'deleteTask',
-  'pasteTasks',
-  'setTaskName',
-  'setTaskNotes',
-  'setTaskPlanDates',
-  'setTaskDeadline',
-  'setTaskPlanActualState',
-  'beginTaskActual',
-  'cycleTaskPlanActualState',
-  'setTaskFadeInDays',
-  'setTaskFadeOutDays',
-  'setTaskParentTask',
-  'moveTaskToTaskGroup',
-  'setTaskVisualShapeKind',
-  'setTaskVisualMilestoneGlyph',
-  'setTaskVisualColors',
-  'resetTaskVisualColors',
-  'setTaskVisualStrokeWidth',
-] as const satisfies readonly TaskCommand['kind'][]
-
-const TASK_GROUP_KINDS = [
-  'createTaskGroup',
-  'deleteTaskGroup',
-  'pasteTaskGroupSubtree',
-  'setTaskGroupLabel',
-  'setTaskGroupColor',
-  'resetTaskGroupColor',
-  'setTaskGroupMinHeight',
-  'setTaskGroupTreeState',
-  'reorderTaskGroupSiblings',
-  'resetTaskGroupTreeStates',
-  'moveTaskGroup',
-] as const satisfies readonly TaskGroupCommand['kind'][]
-
-const DEPENDENCY_KINDS = [
-  'createDependency',
-  'deleteDependency',
-  'deleteDependencyAt',
-  'setDependencyLag',
-] as const satisfies readonly DependencyCommand['kind'][]
-
-const ANNOTATION_KINDS = [
-  'createCommentBox',
-  'deleteCommentBox',
-  'setCommentBoxText',
-  'setCommentBoxLeaderShapeKind',
-  'setCommentBoxAnchor',
-  'setCommentBoxBodyOffsetPx',
-  'setCommentBoxStrokeColor',
-  'setCommentBoxStrokeWidth',
-  'setCommentBoxFillColor',
-  'setCommentBoxFillTransparency',
-  'setCommentBoxTextColor',
-  'createHighlightBox',
-  'deleteHighlightBox',
-  'setHighlightBoxRange',
-  'setHighlightBoxStrokeColor',
-  'setHighlightBoxStrokeWidth',
-  'setHighlightBoxFillColor',
-  'setHighlightBoxFillTransparency',
-] as const satisfies readonly AnnotationCommand['kind'][]
-
-const RESOURCE_KINDS = [
-  'createResource',
-  'setResourceName',
-  'deleteResource',
-  'deleteUnreferencedResources',
-  'createAssignment',
-  'unassignResource',
-] as const satisfies readonly ResourceCommand['kind'][]
-
-const CALENDAR_KINDS = ['setCalendar'] as const satisfies readonly CalendarCommand['kind'][]
-
-const PROJECT_KINDS = [
-  'setProjectTitle',
-  'setProjectProfile',
-  'setStatusDate',
-  'clearStatusDate',
-  'setThemeHue',
-  'setParentProgressTolerance',
-  'setScheduleDataTimeZone',
-  'shiftScheduleTimes',
-] as const satisfies readonly ProjectCommand['kind'][]
-
-// see CM-99, UT-2
-const WHOLE_SCHEDULE_KINDS = ['shiftScheduleToStartDate'] as const satisfies readonly WholeScheduleShiftCommand['kind'][]
-
-const SETTINGS_KINDS = [
-  'setStackDirection',
-  'setElementVisible',
-  'setFontScale',
-  'setDisplayScale',
-  'setThemeMonochrome',
-  'setZoom',
-  'setScrollPosition',
-  'setTaskGroupPanelWidth',
-  'pinTaskGroup',
-  'unpinTaskGroup',
-  'fitScheduleToScreen',
-  'setLevelZeroTreeState',
-  'setFitSpan',
-  'clearFitSpan',
-  'setFitSpanFixed',
-  'setTaskGroupPanelWidthFixed',
-  'setShowsTimeOfDay',
-  'setViewTimeZone',
-  'setDisplayTimeZones',
-  'setTableView',
-] as const satisfies readonly DocumentSettingsCommand['kind'][]
-
 // WHY: an unimplemented command has no aggregate; editDocument refuses it below.
 const ROUTE_TABLE: Record<Exclude<DocumentCommand['kind'], UnimplementedDocumentCommand['kind']>, AggregateEdit> = {
-  ...routes(TASK_KINDS, (document, command, _limits, defaultTaskGroupName) =>
+  ...routes(COMMAND_KINDS_BY_UNION.TaskCommand, (document, command, _limits, defaultTaskGroupName) =>
     editTask(document, command as TaskCommand, defaultTaskGroupName),
   ),
-  ...routes(TASK_GROUP_KINDS, (document, command, _limits, defaultTaskGroupName) =>
+  ...routes(COMMAND_KINDS_BY_UNION.TaskGroupCommand, (document, command, _limits, defaultTaskGroupName) =>
     editTaskGroup(document, command as TaskGroupCommand, defaultTaskGroupName),
   ),
-  ...routes(DEPENDENCY_KINDS, (document, command) =>
+  ...routes(COMMAND_KINDS_BY_UNION.DependencyCommand, (document, command) =>
     editDependency(document, command as DependencyCommand),
   ),
-  ...routes(ANNOTATION_KINDS, (document, command) =>
+  ...routes(COMMAND_KINDS_BY_UNION.AnnotationCommand, (document, command) =>
     editAnnotation(document, command as AnnotationCommand),
   ),
-  ...routes(RESOURCE_KINDS, (document, command) =>
+  ...routes(COMMAND_KINDS_BY_UNION.ResourceCommand, (document, command) =>
     editResource(document, command as ResourceCommand),
   ),
-  ...routes(CALENDAR_KINDS, (document, command) =>
+  ...routes(COMMAND_KINDS_BY_UNION.CalendarCommand, (document, command) =>
     editCalendar(document, command as CalendarCommand),
   ),
-  ...routes(PROJECT_KINDS, (document, command) => editProject(document, command as ProjectCommand)),
-  ...routes(WHOLE_SCHEDULE_KINDS, (document, command) => wholeScheduleShifted(document, command as WholeScheduleShiftCommand)),
-  ...routes(SETTINGS_KINDS, (document, command, limits) =>
+  ...routes(COMMAND_KINDS_BY_UNION.ProjectCommand, (document, command) => editProject(document, command as ProjectCommand)),
+  // see CM-99, UT-2
+  ...routes(COMMAND_KINDS_BY_UNION.WholeScheduleShiftCommand, (document, command) => wholeScheduleShifted(document, command as WholeScheduleShiftCommand)),
+  ...routes(COMMAND_KINDS_BY_UNION.DocumentSettingsCommand, (document, command, limits) =>
     editDocumentSettings(document, command as DocumentSettingsCommand, limits),
   ),
 }
