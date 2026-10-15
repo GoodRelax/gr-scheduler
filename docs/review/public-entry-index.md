@@ -283,7 +283,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DayReader` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#DayReader` | -- | interface DayReader |
 | `deadlineHeadHalfWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#deadlineHeadHalfWidthOf` | PI-5 | 期限の印の矢じりの半幅（表 T-206 の `S-365` に進捗マーカーの径を掛けた幅の半分）。 |
 | `dummyBandOf` | entry | function | `src/entity/layout-engine/schedule-layout/label-placement.ts#dummyBandOf` | PI-5 | ダミーを描く帯。 |
-| `dummyInkWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#dummyInkWidthOf` | -- | function dummyInkWidthOf(markerDiameter: number): number |
+| `dummyInkWidthOf` | entry | function | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#dummyInkWidthOf` | -- | function dummyInkWidthOf( markerDiameter: number, axis: { readonly pxPerDay: number; readonly showsTimeOfDay: boolean }, ): number |
 | `FitToScreen` | entry | interface | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#FitToScreen` | -- | interface FitToScreen |
 | `fitZoom` | entry | function | `src/entity/layout-engine/schedule-layout/fit-zoom.ts#fitZoom` | PI-5 | `FR-055` |
 | `fixedFitSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#fixedFitSpanOf` | PI-5 | 文書が全体表示時の期間を固定しているときだけ、その 2 つの日と暦日の数を返す。 |

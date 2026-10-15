@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 342 | 4154 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 344 | 4186 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 86 | 566 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 630 | 8731 | 11 | 8 | 13 | 2 |
+| **all** | | | 632 | 8763 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -427,6 +427,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-751-the-schema-names-the-regions-and-no-spec-id.contract.test.ts` | 12 | FR-024, FR-054, FR-156 | - | T-376 | IV-24, S-574, S-575, S-582 | - | - | - | - |
 | `tests/contract/cr-752-call-shapes-and-two-fix-rows.contract.test.ts` | 20 | FR-011, FR-012, FR-054 | - | T-064, T-108, T-310, T-346 | CM-11, CM-37, FA-3, FA-15, FA-24, PI-1, RW-16, VC-15 | - | - | - | - |
 | `tests/contract/cr-753-a-ctrl-drag-copy-lands-where-the-body-move-lands.test.ts` | 34 | FR-016, FR-017, FR-103 | - | T-209, T-266, T-270, T-350, T-378 | CY-5, CY-7, CY-9, GA-9, GA-14, GA-15, GA-18, PE-1, PE-6, PTD-7, RV-1, S-1, S-8, S-55, S-85, S-229, S-482, S-483, S-577, S-578, SG-1, SG-2, SG-3, WT-1, WT-2 | - | - | - | - |
+| `tests/contract/cr-756-dm-1-dm-3-dm-12-the-dummy-stands-at-the-plan-start-instant.test.ts` | 14 | - | - | T-206, T-240, T-378 | DM-1, DM-3, DM-12, PI-5, RF-1, S-180, S-585, SG-1, SG-2, SG-3 | - | - | - | - |
+| `tests/contract/cr-756-go-6-go-7-pv-1-the-dummy-actual-with-time-shown.test.ts` | 18 | FR-104 | - | T-021a, T-245 | GA-5, GA-6, GA-17, GO-6, GO-7, GO-8, GO-9, PV-1, S-130, S-585, SG-1 | - | - | - | - |
 | `tests/contract/cr-757-cm-99-one-write-moves-every-date-but-the-calendar.test.ts` | 21 | FR-159 | - | T-108, T-214, T-379 | CM-99, IV-14, S-77, S-518, S-519, UN-13, WH-4, WH-5, WH-6, WH-7, WH-8, WH-9, WH-10 | - | - | - | - |
 | `tests/contract/cr-757-fo-17-the-settings-row-asks-then-moves.test.ts` | 23 | FR-156, FR-159 | - | T-369, T-379 | CM-99, FO-15, FO-16, FO-17, NT-7, QN-15, RS-87, S-77, S-518, S-519, SK-6, TX-12, UN-8, UN-13, WH-1, WH-2, WH-7, WH-9, WH-11, WH-12 | - | - | 1: DFC-2761 | - |
 | `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | 27 | FR-054, FR-159 | - | T-075, T-234, T-375 | CM-99, QN-15, TX-12, UF-207, WH-2, WH-5, WH-11, WT-5 | - | - | 2: none, none | - |

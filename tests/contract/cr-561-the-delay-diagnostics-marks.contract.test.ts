@@ -150,7 +150,6 @@ function inputsOf(diagnostics: Diagnostics | undefined): GeometryInputs {
     showActual: drawn.actualVisible,
     selectedTaskUids: new Set<number>(),
     selectedLinks: new Set<string>(),
-    dummyFromByStart: new Map(),
     dummyEndByFrom: new Map(),
   }
   return (diagnostics === undefined ? base : { ...base, delayDiagnostics: diagnostics }) as unknown as GeometryInputs
