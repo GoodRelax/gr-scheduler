@@ -253,16 +253,16 @@ export function isWholeScheduleShiftWrite(writes: readonly (readonly DocumentCom
   return writes.some((bundle) => bundle.some((command) => command.kind === 'shiftScheduleToStartDate'))
 }
 
-// see FR-156, IC-161, CM-94, CM-95
+// see FR-156, FO-14, CM-94, CM-95, UN-13
 /** @purity pure */
 export function baseChangeCommandsOf(
-  draft: { readonly chosenRegion: string | null; readonly chosenWay: Parameters<typeof baseChangeCommandOf>[2] },
+  draft: { readonly chosenRegion: string; readonly chosenWay: Parameters<typeof baseChangeCommandOf>[2] },
   document: Document,
 ): readonly DocumentCommand[] {
   const scheduleDataTimeZone = document.schedule.project.scheduleDataTimeZone
-  const held = { scheduleDataTimeZone, viewTimeZone: viewRegionOf(scheduleDataTimeZone, document.documentSettings.viewTimeZone) }
-  const command = baseChangeCommandOf(held, draft.chosenRegion, draft.chosenWay)
-  return command === null ? [] : [command]
+  const stored = document.documentSettings.viewTimeZone
+  const held = { scheduleDataTimeZone, viewTimeZone: viewRegionOf(scheduleDataTimeZone, stored) === scheduleDataTimeZone ? null : stored }
+  return baseChangeCommandOf(held, draft.chosenRegion, draft.chosenWay)
 }
 
 type CalendarCommand = Extract<DocumentCommand, { readonly kind: 'setCalendar' }>

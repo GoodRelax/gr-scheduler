@@ -42,7 +42,8 @@ const FO_17_ABOVE_FO_16 = '⭐ `FO-16` の上に置く（利用者の指示）'
 const FR_159_ONE_UNDO = '取り消しを 1 度押せば全部の日付が元へ戻ること（MUST）'
 
 // see T-369
-const FACE_ROW_OF_FO_15 = 'K-145'
+// WHY: CR-755 -- FO-15 is four rows; the last of them stands right above FO-17.
+const FACE_ROW_OF_FO_15 = 'K-145:4'
 const FACE_ROW_OF_FO_16 = 'IC-162'
 const LINE_BREAK = '\n'
 const DASH = '—'

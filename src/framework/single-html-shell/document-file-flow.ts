@@ -87,7 +87,7 @@ import {
   noticeReasonOfRefusals,
   readInstantOfWrite,
   readLocalMoment,
-  readPcRegion,
+  readPcStandardTimeZone,
   type ConfirmationQuestion,
   type FrameLoopHands,
   type FrameValues,
@@ -911,7 +911,7 @@ export async function openDocumentIntoHold(
   if (choice === 'replace') {
     const replaced = hands.replaceHeldDocument({ row: 'RD-4', importing: { ...importing, incoming: documentAsOpened(incoming), choice } })
     if (replaced) landReplacedDocument(reading, flow, store, droppedNames, newer, readIn, incoming)
-    if (replaced) tellOpenedCalendarAndZone(hands, incoming, readIn.format)
+    if (replaced) tellOpenedCalendar(hands, incoming)
     return replaced
   }
   // STOP: spec does not decide the surface MG-4 and MG-12 ask through. Looked in FR-022, T-103, T-109 (PND-423)
@@ -964,21 +964,18 @@ async function reopenDocumentIntoHold(
 // see RS-89, FR-054, FR-088
 export const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89'
 
-const TIME_ZONE_SET_REASON: NoticeReason = 'RS-90'
-
-// see FR-156, RS-90
-// WHY: MSPDI holds no zone (FR-156), so a read MSPDI is the PC's region; the codec keeps the current one.
+// see FR-156, BK-4
+// WHY: MSPDI holds no zone, so a read MSPDI is the PC's standard time, told to nobody (FR-156).
 /** @purity semi-pure-b */
 function withPcTimeZone(document: Document): Document {
   const project = document.schedule.project
-  return { ...document, schedule: { ...document.schedule, project: { ...project, scheduleDataTimeZone: readPcRegion().region } } }
+  return { ...document, schedule: { ...document.schedule, project: { ...project, scheduleDataTimeZone: readPcStandardTimeZone() } } }
 }
 
-// see RS-89, RS-90, FR-054, FR-088, FR-156
+// see RS-89, FR-054, FR-088
 /** @purity non-pure */
-function tellOpenedCalendarAndZone(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, opened: Document, format: ImportedFormat): void {
+function tellOpenedCalendar(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, opened: Document): void {
   if (holdsWorkingDayUnlikeMinutesPerDay(opened.schedule)) hands.raiseNotice(WORKING_TIMES_UNLIKE_DAY_REASON, null)
-  if (format === 'mspdi') hands.raiseNotice(TIME_ZONE_SET_REASON, null)
 }
 
 // see RS-51, RS-52, RS-60

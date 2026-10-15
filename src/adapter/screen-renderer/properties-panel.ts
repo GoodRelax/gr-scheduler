@@ -85,7 +85,13 @@ import { DISPLAY_TIME_ZONE_SLOT_SEPARATOR, FIT_SPAN_COPY_TEXT, displayLanguageOf
 import { dateText } from './table-window'
 import dependencyKinds from './dependency-kinds.json'
 import { iconHint, iconLabel } from './tooltips'
-import { shiftAmountText, timeZoneFieldWord, timeZoneLabelOf, wholeScheduleShiftFieldWord } from './notices'
+import {
+  shiftAmountText,
+  timeZoneAbbreviationOf,
+  timeZoneFieldWord,
+  timeZoneLabelOf,
+  wholeScheduleShiftFieldWord,
+} from './notices'
 import displayWords from './display-words.json'
 import iconRoster from './icon-roster.json'
 import propertyItems from './property-items.json'
@@ -1432,7 +1438,10 @@ const FIELDED_SETTINGS: readonly string[] = [
   'displayTimeZones',
 ]
 
-const TIME_ZONE_REGIONS = TIME_ZONE_ROWS.map((row) => row.region)
+const TIME_ZONE_KEYS = TIME_ZONE_ROWS.map((row) => row.key)
+
+// see FR-156, AT-157, S-574
+const STANDARD_TIME_ZONE_KEYS = TIME_ZONE_ROWS.filter((row) => !row.isDaylight).map((row) => row.key)
 
 const VIEW_TIME_ZONE_KEY = { holder: 'documentSettings', column: 'viewTimeZone' } as const
 
@@ -1452,108 +1461,113 @@ function readoutLines(lines: readonly string[]): string {
   return lines.filter((line) => line !== '').join(READOUT_LINE_BREAK)
 }
 
-const BASE_CHANGE_ENTRY: IconId = 'IC-161'
-
 // see FR-029
 const DISABLED_ENTRY = { isDisabled: true } as const
 
 const CHOSEN_REGION_KEY = { holder: 'baseTimeZoneDraft', column: 'chosenRegion' } as const
 
-const CHOSEN_WAY_KEY = { holder: 'baseTimeZoneDraft', column: 'chosenWay' } as const
-
-const BASE_CHANGE_ENTRY_KEY = { holder: 'baseTimeZoneDraft', column: 'entry' } as const
-
 type BaseChangeWay = 'keepGlobalTime' | 'keepLocalTime'
+
+// see FR-156, FO-14
+const BASE_CHANGE_HINTS: Readonly<Record<BaseChangeWay, string>> = {
+  keepGlobalTime: 'keepGlobalTimeHint',
+  keepLocalTime: 'keepLocalTimeHint',
+}
 
 const BASE_CHANGE_WAYS: readonly BaseChangeWay[] = ['keepGlobalTime', 'keepLocalTime']
 
-// WHY: untouched, the draft reads as the view base with Keep Global Time chosen (CR-742 X-b); a null chosen region is the view base too.
-interface BaseChangeDraft {
-  readonly region: string
-  readonly way: BaseChangeWay
-}
+const BASE_CHANGE_CANCEL_KEY = { holder: 'baseTimeZoneDraft', column: 'cancel' } as const
 
 // see FR-156, S-575
 const DISPLAY_TIME_ZONE_SLOTS = [0, 1, 2, 3] as const
 
+const DISPLAY_TIME_ZONE_ROW_SEPARATOR = ':'
+
 // see FO-14, FO-15, T-376
 /** @purity pure */
-function timeZoneChoiceLabels(language: DisplayLanguage): readonly string[] {
-  return TIME_ZONE_REGIONS.map((region) => timeZoneLabelOf(region, language))
+function timeZoneChoiceLabels(keys: readonly string[], language: DisplayLanguage): readonly string[] {
+  return keys.map((key) => timeZoneLabelOf(key, language))
 }
 
 // see FO-14, FR-156, T-280
 /** @purity pure */
-function baseChangeDraftOf(screen: ScreenSession['screen'], viewRegion: string): BaseChangeDraft {
+function draftedBaseOf(screen: ScreenSession['screen']): string | null {
   const state = screen.baseTimeZoneDraftState
-  if (state.kind !== 'drafted') return { region: viewRegion, way: 'keepGlobalTime' }
-  return { region: state.chosenRegion ?? viewRegion, way: state.chosenWay }
+  return state.kind === 'drafted' ? state.chosenRegion : null
 }
 
-// see FR-156, FR-029, IC-161
-// WHY: Keep Global Time moves the view base, Keep Local Time the data's region; choosing what is already there changes nothing.
+// see TX-11, FR-156, T-376
 /** @purity pure */
-function isBaseChangeIdle(schedule: Schedule, viewRegion: string, draft: BaseChangeDraft): boolean {
-  const held = draft.way === 'keepGlobalTime' ? viewRegion : schedule.project.scheduleDataTimeZone
-  return draft.region === held
-}
-
-// see TX-11, FR-156
-/** @purity pure */
-function exampleDateTimeOf(instant: number): string {
+function changeDateTimeOf(instant: number, key: string, language: DisplayLanguage): string {
   const day = dayOf(textOfInstant(instant))
-  return day === null ? '' : `${planDateText(day, false)} ${clockTextOf(instant)}`
+  return day === null ? '' : `${planDateText(day, false)} ${clockTextOf(instant)} ${timeZoneAbbreviationOf(key, language)}`
 }
 
 // see FR-156, CM-94, CM-95
 /** @purity pure */
-function appliedReaderOf(schedule: Schedule, settings: DocumentSettings, draft: BaseChangeDraft): InstantOnSide {
-  if (draft.way === 'keepGlobalTime') return shownInstantReader(schedule, draft.region)
-  const moved: Schedule = { ...schedule, project: { ...schedule.project, scheduleDataTimeZone: draft.region } }
-  return shownInstantReader(moved, viewRegionOf(draft.region, settings.viewTimeZone))
+function answeredReaderOf(schedule: Schedule, chosen: string, way: BaseChangeWay): InstantOnSide {
+  if (way === 'keepGlobalTime') return shownInstantReader(schedule, chosen)
+  const moved: Schedule = { ...schedule, project: { ...schedule.project, scheduleDataTimeZone: chosen } }
+  return shownInstantReader(moved, null)
 }
 
 // see FO-14, FR-156, TX-11
-// WHY: the first task with a start, read now and after the draft is applied, so the change shows on a name the author knows.
+// WHY: the first task with a start, read now and after the answer, each with its zone's abbreviation; none, no lines.
 /** @purity pure */
-function baseExampleLine(
+function beforeAfterLines(
   schedule: Schedule,
-  settings: DocumentSettings,
-  draft: BaseChangeDraft,
+  shownBase: string,
+  chosen: string,
+  way: BaseChangeWay,
   language: DisplayLanguage,
 ): string {
   const first = schedule.tasks.find((one) => one.start !== null)
   if (first === undefined) return ''
-  const viewRegion = viewRegionOf(schedule.project.scheduleDataTimeZone, settings.viewTimeZone)
   const side = startSideOf(first)
-  const before = shownInstantReader(schedule, viewRegion)(first.start, side)
-  const after = appliedReaderOf(schedule, settings, draft)(first.start, side)
+  const before = shownInstantReader(schedule, shownBase)(first.start, side)
+  const after = answeredReaderOf(schedule, chosen, way)(first.start, side)
   if (before === null || after === null) return ''
-  return timeZoneFieldWord('example', language)
-    .replace('{name}', first.name ?? '')
-    .replace('{before}', exampleDateTimeOf(before))
-    .replace('{after}', exampleDateTimeOf(after))
+  return readoutLines([
+    timeZoneFieldWord('beforeLine', language).replace('{time}', changeDateTimeOf(before, shownBase, language)),
+    timeZoneFieldWord('afterLine', language).replace('{time}', changeDateTimeOf(after, chosen, language)),
+  ])
 }
 
-// see FO-14, FR-156, IC-161
+// see FO-14, FR-156
 /** @purity pure */
-function baseChangeControls(draft: BaseChangeDraft, isIdle: boolean, language: DisplayLanguage): readonly PropertyControl[] {
-  const labels = timeZoneChoiceLabels(language)
-  const ways = BASE_CHANGE_WAYS.map((way) => timeZoneFieldWord(way, language))
-  const entryWord = iconLabel(BASE_CHANGE_ENTRY, language)
+function wordsLine(words: string): PropertyControl {
+  return { ...settingsControl(CHOSEN_REGION_KEY, 'text', '', 0), words, isOwnLine: true }
+}
+
+// see FO-14, FR-156
+/** @purity pure */
+function answerControl(key: PropertyFieldKey, word: string, hint: string | null): PropertyControl {
+  return {
+    ...settingsControl(key, 'text', '', widthOf(word, null, SETTINGS_CONSTANTS.labelCoef)),
+    press: word,
+    isOwnLine: true,
+    ...(hint === null ? {} : { hint }),
+  }
+}
+
+// see FO-14, FR-156, TX-11, T-280
+// WHY: shown only while a draft holds another time zone; the two that write carry their before / after lines.
+/** @purity pure */
+function baseChangeAnswers(schedule: Schedule, shownBase: string, chosen: string, language: DisplayLanguage): readonly PropertyControl[] {
+  const answers = BASE_CHANGE_WAYS.flatMap((way) => {
+    const lines = beforeAfterLines(schedule, shownBase, chosen, way, language)
+    const key = { holder: 'baseTimeZoneDraft', column: way } as const
+    const answer = answerControl(key, timeZoneFieldWord(way, language), timeZoneFieldWord(BASE_CHANGE_HINTS[way], language))
+    return lines === '' ? [answer] : [answer, wordsLine(lines)]
+  })
   return [
-    { ...settingsControl(CHOSEN_REGION_KEY, 'choice', draft.region, widthOf('', labels, SETTINGS_CONSTANTS.labelCoef)), choices: labels, choiceValues: TIME_ZONE_REGIONS },
-    { ...settingsControl(CHOSEN_WAY_KEY, 'choice', draft.way, widthOf('', ways, SETTINGS_CONSTANTS.labelCoef)), choices: ways, choiceValues: BASE_CHANGE_WAYS },
-    {
-      ...settingsControl(BASE_CHANGE_ENTRY_KEY, 'text', '', widthOf(entryWord, null, SETTINGS_CONSTANTS.labelCoef)),
-      press: entryWord,
-      hint: iconHint(BASE_CHANGE_ENTRY, language),
-      ...(isIdle ? DISABLED_ENTRY : {}),
-    },
+    wordsLine(timeZoneFieldWord('baseChangeQuestion', language)),
+    ...answers,
+    answerControl(BASE_CHANGE_CANCEL_KEY, timeZoneFieldWord('cancelBaseChange', language), null),
   ]
 }
 
-// see FO-14, FR-156, K-144, IC-161, T-280
+// see FO-14, FR-156, K-144, T-280
 /** @purity pure */
 function baseTimeZoneField(
   schedule: Schedule,
@@ -1562,40 +1576,46 @@ function baseTimeZoneField(
   language: DisplayLanguage,
 ): PropertyField {
   const column = VIEW_TIME_ZONE_KEY.column
-  const viewRegion = viewRegionOf(schedule.project.scheduleDataTimeZone, settings.viewTimeZone)
-  const draft = baseChangeDraftOf(screen, viewRegion)
-  const example = baseExampleLine(schedule, settings, draft, language)
+  const shownBase = viewRegionOf(schedule.project.scheduleDataTimeZone, settings.viewTimeZone)
+  const drafted = draftedBaseOf(screen)
+  const labels = timeZoneChoiceLabels(STANDARD_TIME_ZONE_KEYS, language)
+  const chooser = {
+    ...settingsControl(CHOSEN_REGION_KEY, 'choice', drafted ?? shownBase, widthOf('', labels, SETTINGS_CONSTANTS.labelCoef)),
+    choices: labels,
+    choiceValues: STANDARD_TIME_ZONE_KEYS,
+  }
   return {
     row: settingsWordOf(column)?.rowId ?? column,
     name: settingsName(column, language),
     text: '',
     isEditable: true,
-    readout: readoutLines([timeZoneLabelOf(viewRegion, language), example]),
-    controls: baseChangeControls(draft, isBaseChangeIdle(schedule, viewRegion, draft), language),
+    controls: drafted === null ? [chooser] : [chooser, ...baseChangeAnswers(schedule, shownBase, drafted, language)],
   }
 }
 
 // see FO-15, FR-156, K-145, CM-96, S-575
 /** @purity pure */
-function displayTimeZonesField(settings: DocumentSettings, language: DisplayLanguage): PropertyField {
+function displayTimeZonesFields(settings: DocumentSettings, language: DisplayLanguage): readonly PropertyField[] {
   const column = DISPLAY_TIME_ZONES_KEY.column
   const none = timeZoneFieldWord('none', language)
-  const labels = timeZoneChoiceLabels(language)
+  const labels = timeZoneChoiceLabels(TIME_ZONE_KEYS, language)
   const width = widthOf(none, labels, SETTINGS_CONSTANTS.labelCoef)
-  return {
-    row: settingsWordOf(column)?.rowId ?? column,
-    name: settingsName(column, language),
-    text: settings.displayTimeZones.join(', '),
-    isEditable: true,
-    controls: DISPLAY_TIME_ZONE_SLOTS.map((slot) => {
-      const of = (region: string): string => `${slot}${DISPLAY_TIME_ZONE_SLOT_SEPARATOR}${region}`
-      return {
+  const row = settingsWordOf(column)?.rowId ?? column
+  return DISPLAY_TIME_ZONE_SLOTS.map((slot) => {
+    const of = (key: string): string => `${slot}${DISPLAY_TIME_ZONE_SLOT_SEPARATOR}${key}`
+    const number = String(slot + 1)
+    return {
+      row: `${row}${DISPLAY_TIME_ZONE_ROW_SEPARATOR}${number}`,
+      name: `${settingsName(column, language)} ${number}`,
+      text: settings.displayTimeZones[slot] ?? '',
+      isEditable: true,
+      controls: [{
         ...settingsControl(DISPLAY_TIME_ZONES_KEY, 'choice', of(settings.displayTimeZones[slot] ?? ''), width),
         choices: [none, ...labels],
-        choiceValues: [of(''), ...TIME_ZONE_REGIONS.map(of)],
-      }
-    }),
-  }
+        choiceValues: [of(''), ...TIME_ZONE_KEYS.map(of)],
+      }],
+    }
+  })
 }
 
 // see FO-16, FR-157, IC-162, CM-98, T-280
@@ -1716,7 +1736,7 @@ function settingsFields(
     parentProgressToleranceField(schedule.project.parentProgressToleranceDays, language),
     checkField(settings, 'showsTimeOfDay', language),
     baseTimeZoneField(schedule, settings, screen, language),
-    displayTimeZonesField(settings, language),
+    ...displayTimeZonesFields(settings, language),
     wholeScheduleShiftField(schedule, screen, language),
     timeShiftField(screen, language),
     ...readOnly,

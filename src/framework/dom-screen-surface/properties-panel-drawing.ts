@@ -981,6 +981,21 @@ export function rewritePanelReadouts(panel: HTMLElement, description: Properties
   }
 }
 
+// see FO-14, FR-156
+/** @purity non-pure */
+function ownLineOf(host: Document, elements: readonly HTMLElement[]): readonly HTMLElement[] {
+  const line = made(host, 'div', 'flex:1 1 100%;display:flex;')
+  line.append(...elements)
+  return [line]
+}
+
+/** @purity non-pure */
+function wordsElement(host: Document, words: string): HTMLElement {
+  const shown = made(host, 'span', 'white-space:pre-line;')
+  shown.textContent = words
+  return shown
+}
+
 // see T-016, FR-006, CV-9, AS-5, PTL-15
 /** @purity non-pure */
 function controlElementsOf(
@@ -1042,7 +1057,10 @@ export function fieldElement(
     shown.textContent = field.text
     controls.append(shown)
   }
-  for (const control of field.controls) controls.append(...controlElementsOf(host, field, control, typedByRow))
+  for (const control of field.controls) {
+    const drawn = control.words === undefined ? controlElementsOf(host, field, control, typedByRow) : [wordsElement(host, control.words)]
+    controls.append(...(control.isOwnLine === true ? ownLineOf(host, drawn) : drawn))
+  }
   if (field.unit !== undefined) controls.append(unitElement(host, field.unit))
   line.append(name, controls)
   return line

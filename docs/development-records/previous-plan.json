@@ -30,7 +30,7 @@
    "carryElements": [],
    "outlineBase": 1,
    "sourceFormat": "grs",
-   "scheduleDataTimeZone": "Asia/Tokyo"
+   "scheduleDataTimeZone": "UTC+09:00"
   },
   "calendars": [
    {
@@ -2359,7 +2359,7 @@
   "taskGroupPanelWidth": 300,
   "taskGroupPanelWidthFixed": false,
   "themeMonochrome": false,
-  "viewTimeZone": "Asia/Tokyo",
+  "viewTimeZone": "UTC+09:00",
   "zoomX": 1,
   "zoomY": 1
  },

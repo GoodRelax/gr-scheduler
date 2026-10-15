@@ -118,8 +118,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isSameDay` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#isSameDay` | PI-1 | 2 つの日時の字が同じ日か。 |
 | `isSameWorkingTimeSet` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isSameWorkingTimeSet` | PI-1 | 2 つの時間帯の組が同じか。 |
 | `isSearchWordFound` | entry | function | `src/entity/document-model/schedule/schedule-search.ts#isSearchWordFound` | PI-1 | 名や本文が語に当たるか（表 T-330 の `SV-4` の比べ方） |
+| `isStandardTimeZoneKey` | entry | function | `src/entity/document-model/schedule/time-zone.ts#isStandardTimeZoneKey` | PI-1 | 値が 表 T-376 の種が標準時の行の鍵か（`FR-156`、`AT-157`・`S-574`） |
 | `isStoredColor` | entry | function | `src/entity/document-model/schedule/stored-color.ts#isStoredColor` | PI-1 | 色の列が取る綴りか。 |
-| `isTimeZoneRegion` | entry | function | `src/entity/document-model/schedule/time-zone.ts#isTimeZoneRegion` | PI-1 | 値が 表 T-376 の地域名か（`FR-156`） |
+| `isTimeZoneKey` | entry | function | `src/entity/document-model/schedule/time-zone.ts#isTimeZoneKey` | PI-1 | 値が 表 T-376 の鍵か（標準時と夏時間のどちらの行でもよい、`FR-156`・`S-575`） |
 | `isWorkingDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isWorkingDay` | PI-1 | その日が文書の暦の稼働日か（`FR-054`） |
 | `isWorkingTimeSetUnlikeDay` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#isWorkingTimeSetUnlikeDay` | PI-1 | 当てる時間帯の 1 組の合計が `Project.minutesPerDay` と違うか。 |
 | `lagOfWorkingDays` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#lagOfWorkingDays` | PI-1 | 稼働日のラグを、保存する 0.1 分にする（`FR-009`・`AT-47`） |
@@ -134,18 +135,16 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `parentCandidatesOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentCandidatesOf` | PI-1 | 親の決まらない子の候補の並び（表 T-318 の `IP-4`、`FR-135` の番号の枠） |
 | `ParentTaskResolution` | entry | type | `src/entity/document-model/schedule/delay-diagnostics.ts#ParentTaskResolution` | PI-1 | 型。 |
 | `parentTaskResolutionsOf` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#parentTaskResolutionsOf` | PI-1 | どの `Task` の親タスクも、明記・導いた親タスク（表 T-318 の `IP-2`）・決まらない（`VO-4`、候補は `IP-4` の並び）・根（`IP-5`）のどれかで答える。 |
-| `PcRegionChoice` | entry | interface | `src/entity/document-model/schedule/time-zone.ts#PcRegionChoice` | PI-1 | 型。 |
-| `PcTimeZone` | entry | interface | `src/entity/document-model/schedule/time-zone.ts#PcTimeZone` | -- | interface PcTimeZone |
+| `PcTimeZone` | entry | interface | `src/entity/document-model/schedule/time-zone.ts#PcTimeZone` | PI-1 | 型。 |
 | `PlanActualState` | entry | type | `src/entity/document-model/schedule/plan-actual-state.ts#PlanActualState` | -- | type PlanActualState = \| 'notStarted' \| 'finished' \| 'suspendedResumeUnknown' \| 'suspendedResumePlanned' \| 'inProgress' // see T-019a /** @purity pure */ exp... |
 | `planActualState` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#planActualState` | PI-1 | 表 T-019a の判別 |
 | `plannedDurationMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedDurationMinutesOf` | PI-1 | 予定の長さの分数。 |
 | `plannedInstantsOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedInstantsOf` | PI-1 | 予定の始まりと終わりの瞬間の対。 |
 | `plannedLengthMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedLengthMinutesOf` | PI-1 | 予定の期間（分）。 |
-| `PRINTED_TIME_ZONE` | entry | const | `src/entity/document-model/schedule/time-zone.ts#PRINTED_TIME_ZONE` | -- | const PRINTED_TIME_ZONE: TimeZoneRegion = 'UTC' |
+| `PRINTED_TIME_ZONE` | entry | const | `src/entity/document-model/schedule/time-zone.ts#PRINTED_TIME_ZONE` | PI-1 | 刷った空の文書が持つ日程データのタイムゾーン（表 T-342 の `BK-4`、表 T-376 の `ZN-47`） |
 | `progressPointDayOf` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#progressPointDayOf` | PI-1 | 表 T-022 の頂点を打つ日。 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
 | `proposeDelayFixes` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#proposeDelayFixes` | PI-1 | 遅延診断の指摘（表 T-317 の `DX-3`）ごとに、表 T-373 の直し方で直す案の行を作る（`FR-155`）。 |
-| `regionForPc` | entry | function | `src/entity/document-model/schedule/time-zone.ts#regionForPc` | PI-1 | この PC の地域を 表 T-376 の行へ寄せる（`FR-156`・`RS-90`） |
 | `Resource` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Resource` | -- | interface Resource |
 | `reversedActualMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#reversedActualMinutesOf` | PI-1 | 終わりが始まりより前の実績の長さ（分、`FR-011` の数え方）。 |
 | `Schedule` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Schedule` | PI-1 | 型。 |
@@ -156,6 +155,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `serial` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#serial` | PI-1 | 日付の通し番号（暦日）。 |
 | `shownInstantReader` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#shownInstantReader` | PI-1 | 画面が見せる日時の読み手 —— 字を側で読み（`FR-054`）、見せる基準の時計で見せる（`FR-156`）。 |
 | `sideOfTaskColumn` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#sideOfTaskColumn` | PI-1 | `Task` の日時の列を読む側。 |
+| `StandardTimeZoneKey` | entry | type | `src/entity/document-model/schedule/time-zone.ts#StandardTimeZoneKey` | PI-1 | 型。 |
+| `standardTimeZoneKeyForPc` | entry | function | `src/entity/document-model/schedule/time-zone.ts#standardTimeZoneKeyForPc` | PI-1 | この PC の標準時（1 月 1 日と 7 月 1 日の UTC の差の小さいほう）を、表 T-376 の標準時の行の鍵へ寄せる（`FR-156`） |
 | `startSideOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#startSideOf` | PI-1 | `Task` の開始の側の列をどちらの側で読むか。 |
 | `Task` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Task` | -- | interface Task |
 | `taskByUid` | entry | function | `src/entity/document-model/schedule/schedule.ts#taskByUid` | PI-1 | `uid` で引く。 |
@@ -172,11 +173,12 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `textOfFinishSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfFinishSide` | PI-1 | 終了の側の列へ書く日時の字（表 T-350 の `WT-2`・`WT-4`） |
 | `textOfInstant` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#textOfInstant` | PI-1 | 瞬間を日時の字にする。 |
 | `textOfStartSide` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#textOfStartSide` | PI-1 | 開始の側の列へ書く日時の字。 |
-| `TIME_ZONE_ROWS` | entry | const | `src/entity/document-model/schedule/time-zone.ts#TIME_ZONE_ROWS` | PI-1 | 表 T-376 のタイムゾーンの行（地域名・標準時の UTC の差・夏時間の有無）を表の順に。 |
+| `TIME_ZONE_ROWS` | entry | const | `src/entity/document-model/schedule/time-zone.ts#TIME_ZONE_ROWS` | PI-1 | 表 T-376 のタイムゾーンの行（鍵・UTC の差・夏時間の行か・略称）を表の順に。 |
 | `TimeZoneRow` | entry | interface | `src/entity/document-model/schedule/time-zone.ts#TimeZoneRow` | -- | interface TimeZoneRow |
+| `timeZoneRowOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#timeZoneRowOf` | PI-1 | 鍵の 表 T-376 の行。 |
 | `TRANSPARENT` | entry | const | `src/entity/document-model/schedule/stored-color.ts#TRANSPARENT` | PI-1 | 透明の色の綴り（`_assets/tbl-settings.md` の `S-324`）。 |
-| `viewRegionOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewRegionOf` | PI-1 | 見せる基準の地域（`S-574`、空なら日程データのタイムゾーン `AT-157`） |
-| `viewWallOfDataWall` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewWallOfDataWall` | PI-1 | 日程データの壁時計の分を、見せる基準の壁時計の分へ（同じ地域なら換算しない） |
+| `viewRegionOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewRegionOf` | PI-1 | 見せる基準の鍵（`S-574`、空か標準時の行の鍵でなければ日程データのタイムゾーン `AT-157`） |
+| `viewWallOfDataWall` | entry | function | `src/entity/document-model/schedule/time-zone.ts#viewWallOfDataWall` | PI-1 | 日程データの壁時計の分を、見せる基準の壁時計の分へ（同じ鍵なら換算しない） |
 | `viewWallReader` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#viewWallReader` | PI-1 | 日程データの壁時計の分を、見せる基準（`S-574`）の壁時計の分へ換える読み手。 |
 | `WeekDay` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#WeekDay` | -- | interface WeekDay |
 | `weekDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#weekDayOf` | PI-1 | 時間帯も持ち回りも持たない曜日の行。 |
@@ -196,7 +198,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `WorkingTimeSet` | entry | interface | `src/entity/document-model/schedule/working-calendar.ts#WorkingTimeSet` | -- | interface WorkingTimeSet |
 | `workingTimeSetOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#workingTimeSetOf` | PI-1 | 文書の稼働日の時間帯の 1 組と、違う組を持つ曜日。 |
 | `ZoneClock` | entry | interface | `src/entity/document-model/schedule/time-zone.ts#ZoneClock` | -- | interface ZoneClock |
-| `zoneClockOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#zoneClockOf` | PI-1 | 地域の規則で UTC の差を読む時計（壁時計の分と UTC の分の換算）。 |
+| `zoneClockOf` | entry | function | `src/entity/document-model/schedule/time-zone.ts#zoneClockOf` | PI-1 | 表 T-376 の行の固定の UTC の差で読む時計（壁時計の分と UTC の分の換算）。 |
 | `isDateWithoutTime` | file only | function | `src/entity/document-model/schedule/calendar-day.ts#isDateWithoutTime` | -- | function isDateWithoutTime(text: string): boolean |
 | `textOfDayAt` | file only | function | `src/entity/document-model/schedule/calendar-day.ts#textOfDayAt` | -- | function textOfDayAt(day: CalendarDay, time: string): string |
 | `DelayReportWall` | file only | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayReportWall` | -- | interface DelayReportWall |
@@ -225,7 +227,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `plannedFinishOf` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#plannedFinishOf` | -- | function plannedFinishOf(task: Task): string \| null |
 | `plannedStartInstantsOf` | file only | function | `src/entity/document-model/schedule/schedule-search.ts#plannedStartInstantsOf` | -- | function plannedStartInstantsOf(schedule: Schedule): ReadonlyMap<number, number \| null> |
 | `taskGroupPathOf` | file only | function | `src/entity/document-model/schedule/task-group-names.ts#taskGroupPathOf` | -- | function taskGroupPathOf(schedule: Schedule, groupId: string): readonly string[] |
-| `TimeZoneRegion` | file only | type | `src/entity/document-model/schedule/time-zone.ts#TimeZoneRegion` | -- | type TimeZoneRegion = NonNullable<DocumentSettings['viewTimeZone']> |
 | `MinuteSpan` | file only | interface | `src/entity/document-model/schedule/working-calendar.ts#MinuteSpan` | -- | interface MinuteSpan |
 | `previousWorkingDay` | file only | function | `src/entity/document-model/schedule/working-calendar.ts#previousWorkingDay` | -- | function previousWorkingDay(within: WorkingCalendar, from: CalendarDay): CalendarDay |
 
@@ -314,7 +315,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `planDatesSpanYears` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#planDatesSpanYears` | PI-5 | 文書のすべてのタスクとマイルストーンの予定の日が 2 つ以上の暦年にまたがるか。 |
 | `planDateText` | entry | function | `src/entity/layout-engine/schedule-layout/name-label.ts#planDateText` | PI-5 | 予定の 1 つの日を `ND-4`・`ND-5` の形で書く |
 | `RulerTier` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#RulerTier` | -- | type RulerTier = 'year' \| 'yearMonth' \| 'yearMonthWeek' \| 'yearMonthDayWeekday' \| 'dayHour' |
-| `rulerTierOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#rulerTierOf` | -- | function rulerTierOf(pxPerDay: number, storedSettings: DocumentSettings): RulerTier |
+| `rulerTierOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#rulerTierOf` | PI-5 | 目盛の段階（`FR-017` の 表 T-238 の段）を、1 日あたりの表示幅と設定から求める。 |
 | `ScheduleLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ScheduleLayout` | PI-5 | 型 |
 | `ShapeKind` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ShapeKind` | -- | type ShapeKind = 'rectangle' \| 'chevron' \| 'arrow' \| 'endpointSpan' \| 'milestone' |
 | `shownSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#shownSpanOf` | PI-5 | `Task Group Area` の左端の位置と、右端の 1 px 手前の位置が指す 2 つの日を求める。 |
@@ -501,10 +502,10 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ActualGrabHold` | entry | type | `src/use-case/edit-document/edit-task.ts#ActualGrabHold` | -- | type ActualGrabHold = 'GA-5' \| 'GA-6' \| 'GA-17' \| 'GA-21' \| 'GA-22' |
 | `AnnotationAnchor` | entry | interface | `src/use-case/edit-document/edit-annotation.ts#AnnotationAnchor` | -- | interface AnnotationAnchor |
 | `AnnotationCommand` | entry | type | `src/use-case/edit-document/edit-annotation.ts#AnnotationCommand` | -- | type AnnotationCommand = \| { readonly kind: 'createCommentBox'; readonly id: string; readonly anchor: AnnotationAnchor } \| { readonly kind: 'deleteCommentBox... |
-| `baseChangeCommandOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#baseChangeCommandOf` | PI-9 | 選んだ地域と選び方で基準を変える 1 つの命令（表 T-108 の `CM-94` か `CM-95`） —— 当てても何も変わらないときは無い（`FR-156`、表 T-109 の `IC-161`） |
+| `baseChangeCommandOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#baseChangeCommandOf` | PI-9 | 選んだタイムゾーンと答え（換算して適用する ／ 換算しない）で基準を変える命令（表 T-108 の `CM-95`、または `CM-94` と `CM-95` の 2 つを 1 回の書き込みで） —— 当てても何も変わらないときは無い（`FR-156`、表 T-369 の `FO-14` の答え） |
 | `BaseChangeWay` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#BaseChangeWay` | -- | type BaseChangeWay = 'keepGlobalTime' \| 'keepLocalTime' |
 | `BaseTimeZones` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#BaseTimeZones` | -- | interface BaseTimeZones |
-| `baseTimeZonesAfterChange` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#baseTimeZonesAfterChange` | -- | function baseTimeZonesAfterChange(held: BaseTimeZones, chosenRegion: string \| null, chosenWay: BaseChangeWay): BaseTimeZones |
+| `baseTimeZonesAfterChange` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#baseTimeZonesAfterChange` | -- | function baseTimeZonesAfterChange(held: BaseTimeZones, chosenRegion: string, chosenWay: BaseChangeWay): BaseTimeZones |
 | `CalendarCommand` | entry | type | `src/use-case/edit-document/edit-calendar.ts#CalendarCommand` | -- | type CalendarCommand = \| |
 | `CommandRefusal` | entry | interface | `src/use-case/edit-document/edit-document.ts#CommandRefusal` | -- | interface CommandRefusal |
 | `confirmationOwedBy` | entry | function | `src/use-case/edit-document/deletion-confirmations.ts#confirmationOwedBy` | PI-9 | 削除の書き込みの束が 表 T-234 の問い（`QN-1`・`QN-2`・`QN-10`）を負うかを決め、負うなら消える `Task` の名を挙げた問いを返す —— 連鎖は 表 T-050 の `CD-1`・`CD-2`・`CD-6` |
@@ -915,6 +916,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_SELECTION_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_SELECTION_SIZES` | -- | const NOT_STORED_SELECTION_SIZES: |
 | `pointsOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#pointsOf` | -- | function pointsOf(path: Path): string |
 | `rounded` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#rounded` | -- | function rounded(value: number): string |
+| `RulerClockRow` | entry | interface | `src/adapter/svg-renderer/schedule-grid.ts#RulerClockRow` | PI-19 | 型。 |
+| `rulerClockRowsOf` | entry | function | `src/adapter/svg-renderer/schedule-grid.ts#rulerClockRowsOf` | PI-19 | 目盛の時計の段（見せる基準の時の段は `TM-5` のときだけ、表示するタイムゾーンの段は時刻を表示しているあいだ）と、各段のタイムゾーンの鍵・上端・高さ・ラベルの基線（`FR-017`、`FR-156`）。 |
 | `SchedulePicture` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#SchedulePicture` | -- | type SchedulePicture = 'screen' \| 'export' |
 | `selectedLineWidth` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#selectedLineWidth` | -- | function selectedLineWidth(own: number, selected: boolean): number |
 | `selectionFrameSvg` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#selectionFrameSvg` | -- | function selectionFrameSvg(box: ScreenRect, color: string, key: string): string |
@@ -1125,7 +1128,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `WORKING_TIMES_UNLIKE_DAY_REASON` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#WORKING_TIMES_UNLIKE_DAY_REASON` | -- | const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89' |
 | `askTimeShift` | file only | function | `src/framework/single-html-shell/field-entry.ts#askTimeShift` | -- | function askTimeShift(hands: Pick<FieldEntryHands, 'readHeld' \| 'readSession' \| 'sendToSession'>, frame: FrameValues, minutes: number): void |
 | `askWholeScheduleShift` | file only | function | `src/framework/single-html-shell/field-entry.ts#askWholeScheduleShift` | -- | function askWholeScheduleShift( hands: Pick<FieldEntryHands, 'readHeld' \| 'readSession' \| 'sendToSession'>, frame: FrameValues, newStartDate: string, ): void |
-| `baseChangeCommandsOf` | file only | function | `src/framework/single-html-shell/field-entry.ts#baseChangeCommandsOf` | -- | function baseChangeCommandsOf( draft: { readonly chosenRegion: string \| null; readonly chosenWay: Parameters<typeof baseChangeCommandOf>[2] }, document: Docu... |
+| `baseChangeCommandsOf` | file only | function | `src/framework/single-html-shell/field-entry.ts#baseChangeCommandsOf` | -- | function baseChangeCommandsOf( draft: { readonly chosenRegion: string; readonly chosenWay: Parameters<typeof baseChangeCommandOf>[2] }, document: Document, )... |
 | `drainFieldEditNotices` | file only | function | `src/framework/single-html-shell/field-entry.ts#drainFieldEditNotices` | -- | function drainFieldEditNotices(hands: FieldEntryHands, frame: FrameValues \| null): void |
 | `FIELD_ROW_OF_IN_PLACE_TARGET` | file only | const | `src/framework/single-html-shell/field-entry.ts#FIELD_ROW_OF_IN_PLACE_TARGET` | -- | const FIELD_ROW_OF_IN_PLACE_TARGET: Readonly<Record<InPlaceKind, string>> = |
 | `FieldEntryHands` | file only | type | `src/framework/single-html-shell/field-entry.ts#FieldEntryHands` | -- | type FieldEntryHands = Pick< |
@@ -1196,7 +1199,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `readInstantOfWrite` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readInstantOfWrite` | -- | function readInstantOfWrite(): string |
 | `readLocalMoment` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readLocalMoment` | -- | function readLocalMoment(): string |
 | `readMonotonicMs` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readMonotonicMs` | -- | function readMonotonicMs(): number |
-| `readPcRegion` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readPcRegion` | -- | function readPcRegion(): PcRegionChoice |
+| `readPcStandardTimeZone` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readPcStandardTimeZone` | -- | function readPcStandardTimeZone(): StandardTimeZoneKey |
 | `readToday` | file only | function | `src/framework/single-html-shell/frame-loop.ts#readToday` | -- | function readToday(): string |
 | `ScreenWiring` | file only | interface | `src/framework/single-html-shell/frame-loop.ts#ScreenWiring` | -- | interface ScreenWiring |
 | `SEAM_ABSENT_REASON` | file only | const | `src/framework/single-html-shell/frame-loop.ts#SEAM_ABSENT_REASON` | -- | const SEAM_ABSENT_REASON: NoticeReason = 'RS-3' |
@@ -1475,6 +1478,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ResourceListView` | entry | interface | `src/adapter/screen-renderer/resource-list.ts#ResourceListView` | PI-37 | 型。 |
 | `resourceListWithColumnWidth` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、ウィンドウの値へ当てる（表 T-370 の `RO-9`）。 |
 | `resourceListWithFilterClosed` | entry | function | `src/adapter/screen-renderer/resource-list.ts#resourceListWithFilterClosed` | PI-37 | 開いている列のフィルタを閉じたウィンドウの値を答える（表 T-330 の `SV-14`）。 |
+| `RulerAbbreviation` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RulerAbbreviation` | PI-37 | 型。 |
 | `rulerWeekdayWords` | entry | function | `src/adapter/screen-renderer/screen-renderer.ts#rulerWeekdayWords` | PI-37 | 目盛の第 4 段が刷る曜日 7 語。 |
 | `scheduleFilterBarOf` | entry | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterBarOf` | PI-37 | スケジュールフィルタの帯（`U-67`）の語を、掛けている表の名・文書のタスクの数・描いているタスクの数から作る（表 T-353 の `TV-11`）。 |
 | `ScheduleFilterBarView` | entry | interface | `src/adapter/screen-renderer/table-window.ts#ScheduleFilterBarView` | PI-37 | 型。 |
@@ -1559,13 +1563,15 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `confirmationAnswers` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationAnswers` | -- | function confirmationAnswers(language: DisplayLanguage): readonly ConfirmationAnswer[] |
 | `confirmationFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#confirmationFromSession` | -- | function confirmationFromSession( session: ScreenSession, readings: ScreenViewReadings, ): Confirmation \| null |
 | `linkedWordsOf` | file only | function | `src/adapter/screen-renderer/notices.ts#linkedWordsOf` | -- | function linkedWordsOf(word: string): LinkedWords \| null |
-| `noticesFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#noticesFromSession` | -- | function noticesFromSession( session: ScreenSession, readings: ScreenViewReadings, scheduleDataTimeZone: string \| null = null, |
+| `noticesFromSession` | file only | function | `src/adapter/screen-renderer/notices.ts#noticesFromSession` | -- | function noticesFromSession(session: ScreenSession, readings: ScreenViewReadings): readonly Notice[] |
 | `reasonNextStepLink` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonNextStepLink` | -- | function reasonNextStepLink(reason: string, language: DisplayLanguage): LinkedWords \| null |
 | `reasonSurfaceWords` | file only | function | `src/adapter/screen-renderer/notices.ts#reasonSurfaceWords` | -- | function reasonSurfaceWords( reason: string, language: DisplayLanguage, ): { readonly text: string; readonly nextStep: string; readonly dismissText: string } |
 | `shownDateTimeOf` | file only | function | `src/adapter/screen-renderer/notices.ts#shownDateTimeOf` | -- | function shownDateTimeOf(stored: string): string |
+| `timeZoneAbbreviationOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneAbbreviationOf` | -- | function timeZoneAbbreviationOf(key: string, language: DisplayLanguage): string |
 | `timeZoneFieldWord` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneFieldWord` | -- | function timeZoneFieldWord(part: string, language: DisplayLanguage): string |
-| `timeZoneLabelOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneLabelOf` | -- | function timeZoneLabelOf(region: string, language: DisplayLanguage): string |
+| `timeZoneLabelOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneLabelOf` | -- | function timeZoneLabelOf(key: string, language: DisplayLanguage): string |
 | `wholeScheduleShiftFieldWord` | file only | function | `src/adapter/screen-renderer/notices.ts#wholeScheduleShiftFieldWord` | -- | function wholeScheduleShiftFieldWord(part: string, language: DisplayLanguage): string |
+| `zoneOffsetTextOf` | file only | function | `src/adapter/screen-renderer/notices.ts#zoneOffsetTextOf` | -- | function zoneOffsetTextOf(offsetMinutes: number): string |
 | `exportNameBodyOf` | file only | function | `src/adapter/screen-renderer/open-modals.ts#exportNameBodyOf` | -- | function exportNameBodyOf(documentName: string): string |
 | `helpModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#helpModalFromSession` | -- | function helpModalFromSession(session: ScreenSession, area: HelpWindowArea): HelpModal \| null |
 | `openModalFromSession` | file only | function | `src/adapter/screen-renderer/open-modals.ts#openModalFromSession` | -- | function openModalFromSession( session: ScreenSession, schedule: Schedule, readings: ScreenViewReadings, settings: DocumentSettings, ): OpenModal \| null |
@@ -1639,6 +1645,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `windowWithColumnWidth` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowWithColumnWidth` | -- | function windowWithColumnWidth(window: TableWindowState, column: SearchColumn, width: number): TableWindowState |
 | `wordOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#wordOf` | -- | function wordOf(held: { readonly [L in DisplayLanguage]: string } \| undefined, language: DisplayLanguage): string |
 | `wouldScheduleFilterChange` | file only | function | `src/adapter/screen-renderer/table-window.ts#wouldScheduleFilterChange` | -- | function wouldScheduleFilterChange( visibility: TableVisibility, rowKeysOf: () => ReadonlySet<number>, isEveryTaskRowed: boolean, ): boolean |
+| `rulerAbbreviationsOf` | file only | function | `src/adapter/screen-renderer/task-group-panel.ts#rulerAbbreviationsOf` | -- | function rulerAbbreviationsOf( regions: ScreenRegions, schedule: Schedule, storedSettings: DocumentSettings, language: DisplayLanguage, ): readonly RulerAbbr... |
 | `taskGroupPanelFromSchedule` | file only | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupPanelFromSchedule` | -- | function taskGroupPanelFromSchedule( schedule: Schedule, storedSettings: DocumentSettings, _selection: Selection, _session: ScreenSession, readings: ScreenVi... |
 | `baselineHint` | file only | function | `src/adapter/screen-renderer/tooltips.ts#baselineHint` | -- | function baselineHint(baseline: BaselineTask, schedule: Schedule \| null, language: DisplayLanguage, times = NO_HINT_TIMES): string |
 | `cursorDateText` | file only | function | `src/adapter/screen-renderer/tooltips.ts#cursorDateText` | -- | function cursorDateText(day: CalendarDay, language: DisplayLanguage): string |
@@ -1953,7 +1960,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `emptyNoticeValues` | file only | const | `src/use-case/advance-screen-session/notice-values.ts#emptyNoticeValues` | -- | const emptyNoticeValues: NoticeValues = { ...NOTICE_VALUES_INITIAL_AXES } |
 | `InvariantRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#InvariantRow` | -- | type InvariantRow = \| 'IV-1' \| 'IV-2' \| 'IV-3' \| 'IV-4' \| 'IV-5' \| 'IV-6' \| 'IV-23' \| 'IV-7' \| 'IV-17' \| 'IV-8' \| 'IV-9' |
 | `NoticeDisplayState` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeDisplayState` | -- | type NoticeDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly standing: NoticeValuesStateCarried['standing'] } export type Cha... |
-| `NoticeManner` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeManner` | -- | type NoticeManner = \| 'NT-1' \| 'NT-2' \| 'NT-3' \| 'NT-3a' \| 'NT-4' \| 'NT-5' \| 'NT-6' // see T-233, T-037 export const NOTICE_MANNER_OF_REASON: Readonly<Record... |
+| `NoticeManner` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeManner` | -- | type NoticeManner = \| 'NT-1' \| 'NT-3' \| 'NT-3a' \| 'NT-4' \| 'NT-5' \| 'NT-6' // see T-233, T-037 export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeRe... |
 | `NoticeValues` | file only | interface | `src/use-case/advance-screen-session/notice-values.ts#NoticeValues` | -- | interface NoticeValues |
 | `NoticeValuesAxes` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesAxes` | -- | type NoticeValuesAxes = Omit<NoticeValues, never> |
 | `NoticeValuesEffect` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#NoticeValuesEffect` | -- | type NoticeValuesEffect = |
@@ -1967,7 +1974,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ReasonRow` | file only | type | `src/use-case/advance-screen-session/notice-values.ts#ReasonRow` | -- | type ReasonRow = \| 'RS-1' \| 'RS-2' \| 'RS-3' \| 'RS-4' \| 'RS-5' \| 'RS-6' \| 'RS-7' \| 'RS-8' \| 'RS-9' \| 'RS-10' \| 'RS-11' |
 | `stepNoticeValues` | file only | function | `src/use-case/advance-screen-session/notice-values.ts#stepNoticeValues` | -- | function stepNoticeValues(values: NoticeValues, event: NoticeValuesEvent): NoticeStep |
 | `ArmModeState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#ArmModeState` | -- | type ArmModeState = \| { readonly kind: 'notArmed' } \| { readonly kind: 'taskShapeArmed'; readonly shapeKind: ScreenValuesStateCarried['shapeKind'] } \| { read... |
-| `BaseTimeZoneDraftState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#BaseTimeZoneDraftState` | -- | type BaseTimeZoneDraftState = \| { readonly kind: 'untouched' } \| { readonly kind: 'drafted'; readonly chosenRegion: ScreenValuesStateCarried['chosenRegion'];... |
+| `BaseTimeZoneDraftState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#BaseTimeZoneDraftState` | -- | type BaseTimeZoneDraftState = \| { readonly kind: 'untouched' } \| { readonly kind: 'drafted'; readonly chosenRegion: ScreenValuesStateCarried['chosenRegion'] ... |
 | `CalendarDraftState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#CalendarDraftState` | -- | type CalendarDraftState = \| { readonly kind: 'untouched' } \| { readonly kind: 'drafted'; readonly calendarDraft: ScreenValuesStateCarried['calendarDraft'] } ... |
 | `DialogueFieldDisplayShownState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DialogueFieldDisplayShownState` | -- | type DialogueFieldDisplayShownState = \| { readonly kind: 'normal' } \| { readonly kind: 'minimized' } \| { readonly kind: 'maximized' } export type DualCursorM... |
 | `DialogueFieldDisplayState` | file only | type | `src/use-case/advance-screen-session/screen-values.ts#DialogueFieldDisplayState` | -- | type DialogueFieldDisplayState = \| { readonly kind: 'hidden' } \| { readonly kind: 'shown'; readonly child: DialogueFieldDisplayShownState } export type DualC... |
@@ -2038,4 +2045,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1031 name(s) leave through a public entry (489 of them published by table T-064), 797 more are exported by a file and not by its entry.
+Totals: 1036 name(s) leave through a public entry (497 of them published by table T-064), 799 more are exported by a file and not by its entry.

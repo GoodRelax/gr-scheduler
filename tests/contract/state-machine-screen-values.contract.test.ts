@@ -169,8 +169,7 @@ const STATE_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   landedLink: [STORED_LANDING],
   landedTarget: [{ kind: 'task', taskUid: STORED_LANDING.successorUid }],
   landedRelatedTasks: [[]],
-  chosenRegion: [null, 'Asia/Tokyo'],
-  chosenWay: ['keepGlobalTime'],
+  chosenRegion: ['UTC+09:00'],
   shiftMinutes: [90],
   newStartDate: ['2029-03-05'],
   calendarDraft: [CLEAN_CALENDAR_DRAFT, REFUSED_CALENDAR_DRAFT],
@@ -265,7 +264,8 @@ const EVENT_CARRIED_VARIANTS: Record<string, readonly unknown[]> = {
   landedLink: [NEW_LANDING],
   landedTarget: [{ kind: 'task', taskUid: NEW_LANDING.successorUid }],
   landedRelatedTasks: [[], [NEW_LANDING.predecessorUid]],
-  chosenRegion: ['Europe/London'],
+  chosenRegion: ['UTC+01:00'],
+  isOtherThanShownBase: [true, false],
   chosenWay: ['keepGlobalTime', 'keepLocalTime'],
   shiftMinutes: [0, 90, -30],
   newStartDate: ['', '2029-03-05', '2029-04-02'],
@@ -333,6 +333,7 @@ function guardHolds(name: string, session: ScreenSession, event: Loose): boolean
     case 'isAgentApiEnabled':
     case 'hasDaysToPlace':
     case 'isOpenAccepted':
+    case 'isOtherThanShownBase':
       return event[name] === true
     case 'isSameArm': {
       const armed = screen['armModeState'] as Loose

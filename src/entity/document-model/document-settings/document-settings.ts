@@ -65,7 +65,7 @@ export interface DocumentSettings {
   readonly taskGroupPanelWidth: number
   readonly taskGroupPanelWidthFixed: boolean
   readonly themeMonochrome: boolean
-  readonly viewTimeZone: 'Etc/GMT+12' | 'Pacific/Pago_Pago' | 'Pacific/Honolulu' | 'America/Anchorage' | 'America/Los_Angeles' | 'America/Denver' | 'America/Chicago' | 'America/New_York' | 'America/Halifax' | 'America/Sao_Paulo' | 'Atlantic/South_Georgia' | 'Atlantic/Azores' | 'UTC' | 'Europe/London' | 'Europe/Berlin' | 'Europe/Helsinki' | 'Europe/Moscow' | 'Asia/Dubai' | 'Asia/Karachi' | 'Asia/Kolkata' | 'Asia/Dhaka' | 'Asia/Bangkok' | 'Asia/Singapore' | 'Asia/Tokyo' | 'Australia/Sydney' | 'Pacific/Noumea' | 'Pacific/Auckland' | 'Pacific/Tongatapu' | null
+  readonly viewTimeZone: 'UTC-12:00' | 'UTC-11:00' | 'UTC-10:00' | 'UTC-09:00' | 'UTC-08:00' | 'UTC-07:00' | 'UTC-06:00' | 'UTC-05:00' | 'UTC-04:00' | 'UTC-03:00' | 'UTC-02:00' | 'UTC-01:00' | 'UTC+00:00' | 'UTC+01:00' | 'UTC+02:00' | 'UTC+03:00' | 'UTC+04:00' | 'UTC+05:00' | 'UTC+05:30' | 'UTC+06:00' | 'UTC+07:00' | 'UTC+08:00' | 'UTC+09:00' | 'UTC+10:00' | 'UTC+11:00' | 'UTC+12:00' | 'UTC+13:00' | null
   readonly zoomX: number
   readonly zoomY: number
 }

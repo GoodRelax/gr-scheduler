@@ -55,6 +55,9 @@ export type { ViewerValues }
 
 export { jumpLandingRingOf } from './schedule-overlays'
 
+export { rulerClockRowsOf } from './schedule-grid'
+export type { RulerClockRow } from './schedule-grid'
+
 // see DC-2, DC-8
 export interface DualCursorFollow {
   readonly side: 'date1' | 'date2'

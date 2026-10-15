@@ -13,10 +13,10 @@ import {
 import {
   compareDays,
   dayOf,
-  isTimeZoneRegion,
+  isStandardTimeZoneKey,
+  isTimeZoneKey,
   textOfDayEnd,
   textOfDayStart,
-  viewRegionOf,
   type Schedule,
 } from '../../entity/document-model/schedule/schedule'
 import { displayRatioOf } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -427,14 +427,14 @@ const MOST_DISPLAY_TIME_ZONES = 4
 /** @purity pure */
 function zoneCommandEdited(settings: DocumentSettings, command: ZoneCommand, put: SettingsPut): EditResult {
   if (command.kind === 'setViewTimeZone') {
-    if (command.timeZone !== null && !isTimeZoneRegion(command.timeZone)) {
-      return refused([reject('CM-95', 'FR-156', `not a region of table T-376: ${String(command.timeZone)}`)])
+    if (command.timeZone !== null && !isStandardTimeZoneKey(command.timeZone)) {
+      return refused([reject('CM-95', 'FR-156', `not a standard-time key of table T-376: ${String(command.timeZone)}`)])
     }
     return put({ viewTimeZone: command.timeZone })
   }
   const zones = command.timeZones
-  if (!Array.isArray(zones) || zones.length > MOST_DISPLAY_TIME_ZONES || !zones.every(isTimeZoneRegion)) {
-    return refused([reject('CM-96', 'FR-156', `not 0 to ${MOST_DISPLAY_TIME_ZONES} regions of table T-376`)])
+  if (!Array.isArray(zones) || zones.length > MOST_DISPLAY_TIME_ZONES || !zones.every(isTimeZoneKey)) {
+    return refused([reject('CM-96', 'FR-156', `not 0 to ${MOST_DISPLAY_TIME_ZONES} keys of table T-376`)])
   }
   const held = settings.displayTimeZones
   if (held.length === zones.length && held.every((one, at) => one === zones[at])) return put({})
@@ -558,27 +558,26 @@ export interface BaseTimeZones {
 }
 
 /** @purity pure */
-export function baseTimeZonesAfterChange(held: BaseTimeZones, chosenRegion: string | null, chosenWay: BaseChangeWay): BaseTimeZones {
-  const region = chosenRegion ?? viewRegionOf(held.scheduleDataTimeZone, held.viewTimeZone)
-  if (chosenWay === 'keepLocalTime') return { ...held, scheduleDataTimeZone: region }
-  return { ...held, viewTimeZone: region === held.scheduleDataTimeZone ? null : region }
+export function baseTimeZonesAfterChange(held: BaseTimeZones, chosenRegion: string, chosenWay: BaseChangeWay): BaseTimeZones {
+  if (chosenWay === 'keepLocalTime') return { scheduleDataTimeZone: chosenRegion, viewTimeZone: null }
+  return { ...held, viewTimeZone: chosenRegion === held.scheduleDataTimeZone ? null : chosenRegion }
 }
 
-// see FR-156, IC-161, CM-94, CM-95, FR-029
-// WHY: null when applying changes nothing (IC-161 dimmed); a null region is the shown base a draft holds.
+// see FR-156, FO-14, CM-94, CM-95, UN-13
+// WHY: one list written at once, so one undo takes it back (UN-13); held.viewTimeZone is the stored S-574.
 /** @purity pure */
 export function baseChangeCommandOf(
   held: BaseTimeZones,
-  chosenRegion: string | null,
+  chosenRegion: string,
   chosenWay: BaseChangeWay,
-): ProjectCommand | DocumentSettingsCommand | null {
+): readonly (ProjectCommand | DocumentSettingsCommand)[] {
   const after = baseTimeZonesAfterChange(held, chosenRegion, chosenWay)
-  if (chosenWay === 'keepLocalTime') {
-    const timeZone = after.scheduleDataTimeZone
-    return timeZone === held.scheduleDataTimeZone ? null : { kind: 'setScheduleDataTimeZone', timeZone }
-  }
-  const isSameShown = viewRegionOf(held.scheduleDataTimeZone, after.viewTimeZone) === viewRegionOf(held.scheduleDataTimeZone, held.viewTimeZone)
-  return isSameShown ? null : { kind: 'setViewTimeZone', timeZone: after.viewTimeZone }
+  const isDataMoved = after.scheduleDataTimeZone !== held.scheduleDataTimeZone
+  const isViewMoved = after.viewTimeZone !== held.viewTimeZone
+  return [
+    ...(isDataMoved ? [{ kind: 'setScheduleDataTimeZone', timeZone: after.scheduleDataTimeZone } as const] : []),
+    ...(isViewMoved ? [{ kind: 'setViewTimeZone', timeZone: after.viewTimeZone } as const] : []),
+  ]
 }
 
 // <generated -- do not edit by hand>

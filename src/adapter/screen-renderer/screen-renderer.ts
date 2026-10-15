@@ -55,7 +55,7 @@ export const FIT_SPAN_COPY_TEXT = 'copyCurrent'
 export const DISPLAY_TIME_ZONE_SLOT_SEPARATOR = '|'
 import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
-import { drawnTaskGroupBoxesOf, taskGroupPanelFromSchedule, taskGroupTitleFontPxOf } from './task-group-panel'
+import { drawnTaskGroupBoxesOf, rulerAbbreviationsOf, taskGroupPanelFromSchedule, taskGroupTitleFontPxOf } from './task-group-panel'
 import { searchPanelFromSession, type SearchPanelView } from './search-panel'
 import {
   delayDiagnosticsReportFromWindow,
@@ -200,6 +200,16 @@ export interface TaskGroupPanel {
   readonly canOpenLevelZero?: boolean
   readonly foldedTaskGroupCount?: number
   readonly groupGridLines?: readonly ScreenRect[]
+  // TRAP: optional so literals compile; absent prints no abbreviation (FR-017, FR-156).
+  readonly rulerAbbreviations?: readonly RulerAbbreviation[]
+}
+
+// see FR-017, FR-156, T-376, EP-3
+export interface RulerAbbreviation {
+  readonly text: string
+  readonly box: ScreenRect
+  readonly baseline: number
+  readonly fontPx: number
 }
 
 export interface TaskGroupTitle {
@@ -327,6 +337,9 @@ export interface PropertyControl {
   // see FX-7
   // WHY: a word entrance committing `text` when pressed; it holds no value of its own.
   readonly press?: string
+  // WHY: words with no entry, and a control on a line of its own: the base change answers (FO-14, FR-156).
+  readonly words?: string
+  readonly isOwnLine?: true
   readonly link?: PropertyLink
   readonly badge?: PropertyBadge
   readonly lag?: string
@@ -393,10 +406,9 @@ export type PropertyFieldKey =
       readonly holder: 'wholeScheduleShift'
       readonly column: 'newStartDate' | 'entry'
     }
-  // see FO-14, FR-156, IC-161
   | {
       readonly holder: 'baseTimeZoneDraft'
-      readonly column: 'chosenRegion' | 'chosenWay' | 'entry'
+      readonly column: 'chosenRegion' | 'keepGlobalTime' | 'keepLocalTime' | 'cancel'
     }
   // see WC-3, WC-4, WC-8, IC-134, IC-165
   | {
@@ -887,6 +899,11 @@ function dropCueOf(session: ScreenSession, canvas: ScreenRect, language: Display
   return { dropCue: { text: DROP_CUE_WORDS.text[language], area: canvas } }
 }
 
+/** @purity pure */
+function withRulerAbbreviations(panel: TaskGroupPanel, abbreviations: readonly RulerAbbreviation[]): TaskGroupPanel {
+  return abbreviations.length === 0 ? panel : { ...panel, rulerAbbreviations: abbreviations }
+}
+
 // see PI-37, SF-5
 /** @purity pure */
 export function screenViewFromRegions(
@@ -904,7 +921,10 @@ export function screenViewFromRegions(
     language,
     frame: screenFrameFromRegions(regions, settings, session, readings),
     appHeaderItems: appHeaderItemsFromDocument(schedule, settings, session, readings),
-    taskGroupPanel: taskGroupPanelFromSchedule(schedule, settings, selection, session, readings),
+    taskGroupPanel: withRulerAbbreviations(
+      taskGroupPanelFromSchedule(schedule, settings, selection, session, readings),
+      rulerAbbreviationsOf(regions, schedule, settings, language),
+    ),
     propertiesPanel: propertiesPanelFromSelection(schedule, settings, selection, session, readings),
     commandPalette: commandPaletteFromSession(
       session,
@@ -916,7 +936,7 @@ export function screenViewFromRegions(
     ),
     ...openModalPlaced(session, schedule, readings, settings),
     helpModal: help === null ? null : { ...help, place: readings.windowPlaces?.helpModal ?? DEFAULT_WINDOW_PLACE },
-    notices: noticesFromSession(session, readings, schedule.project.scheduleDataTimeZone),
+    notices: noticesFromSession(session, readings),
     confirmation: confirmationFromSession(session, readings),
     dialogueField: dialogueFieldFromLog(dialogueLog, session, readings, regions.scheduleCanvas),
     ...tableWindowsOf(session, readings, { schedule, settings, canvas: regions.scheduleCanvas }),

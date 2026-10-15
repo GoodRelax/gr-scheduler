@@ -10,7 +10,8 @@ import type { Document } from '../../src/entity/document-model/document/document
 import type { Schedule } from '../../src/entity/document-model/schedule/schedule'
 import {
   TIME_ZONE_ROWS,
-  isTimeZoneRegion,
+  isStandardTimeZoneKey,
+  isTimeZoneKey,
   viewRegionOf,
   zoneClockOf,
 } from '../../src/entity/document-model/schedule/time-zone'
@@ -27,23 +28,24 @@ const KNOWN_VERSION = (JSON.parse(FIXTURE_TEXT) as Json)['schemaVersion'] as str
 const fixture = (): Json => JSON.parse(FIXTURE_TEXT) as Json
 
 // see T-376
+// WHY: CR-755 -- the table holds keys of fixed offsets; the base takes the standard-time rows only.
 const T_376 = specTable('T-376')
-const REGIONS: readonly string[] = T_376.rows.map((row) => bare(row.cells[0] ?? ''))
+const REGIONS: readonly string[] = T_376.rows.map((row) => bare(row.by['鍵'] ?? ''))
+const STANDARD_KEYS: readonly string[] = T_376.rows.filter((row) => row.by['種'] === '標準時').map((row) => bare(row.by['鍵'] ?? ''))
+const DAYLIGHT_KEYS: readonly string[] = REGIONS.filter((key) => !STANDARD_KEYS.includes(key))
 
 // see T-376
-function standardOffsetMinutesOf(cell: string): number {
-  const text = cell.replace(/\u2212/g, '-').replace(/\u00b1/g, '+').trim()
+function offsetMinutesOf(cell: string): number {
+  const text = cell.replace(/−/g, '-').replace(/±/g, '+').trim()
   const found = /^([+-])(\d{2}):(\d{2})$/.exec(text)
   if (found === null) throw new Error(`T-376: unreadable offset cell ${JSON.stringify(cell)}`)
   const minutes = Number(found[2]) * 60 + Number(found[3])
   return found[1] === '-' ? -minutes : minutes
 }
 
-// see T-376
-const observesDaylightSaving = (cell: string): boolean => cell.trim() !== '\u2014'
-
 // see FR-156
-const OUTSIDE = ['Mars/Base', 'Asia/Seoul', '', 'utc', 'asia/tokyo', ' Asia/Tokyo', 'Etc/GMT-9', '+09:00']
+// WHY: CR-755 -- a region name (the old values) is outside the table now, as is a made-up or mis-spelt key.
+const OUTSIDE = ['Mars/Base', 'Asia/Tokyo', 'UTC', '', 'utc+09:00', ' UTC+09:00', 'UTC+9:00', '+09:00', 'UTC+09:00 dst']
 
 function withScheduleZone(zone: unknown): string {
   const json = fixture()
@@ -58,24 +60,25 @@ function decodedOk(text: string): Document {
 }
 
 describe('premise -- the tables and rows these cases are built from', () => {
-  it('T-376 has 28 rows ZN-1..ZN-28, each naming one distinct region', () => {
-    expect(T_376.rows.map((row) => row.id)).toEqual(Array.from({ length: 28 }, (_, i) => `ZN-${i + 1}`))
-    expect(new Set(REGIONS).size).toBe(28)
-    expect(REGIONS).toContain('UTC')
+  it('T-376 has 39 rows ZN-29..ZN-67, each naming one distinct key, 27 of them standard time', () => {
+    expect(T_376.rows.map((row) => row.id)).toEqual(Array.from({ length: 39 }, (_, i) => `ZN-${i + 29}`))
+    expect(new Set(REGIONS).size).toBe(39)
+    expect(STANDARD_KEYS).toHaveLength(27)
+    expect(STANDARD_KEYS).toContain('UTC+00:00')
   })
 
-  it('no OUTSIDE value (made-up, a real zone T-376 leaves out, empty, wrong case, padded, an offset) is a T-376 region', () => {
+  it('no OUTSIDE value (made-up, a region name, empty, wrong case, padded, unpadded, an offset) is a T-376 key', () => {
     for (const value of OUTSIDE) expect(REGIONS, JSON.stringify(value)).not.toContain(value)
   })
 
   it('the fixture opens as it is', () => {
-    expect(decodedOk(FIXTURE_TEXT).schedule.project.scheduleDataTimeZone).toBe('UTC')
+    expect(decodedOk(FIXTURE_TEXT).schedule.project.scheduleDataTimeZone).toBe('UTC+00:00')
   })
 })
 
 // see FR-156, T-376, RS-25
-describe('FR-156: a GRS JSON whose scheduleDataTimeZone is not in T-376 is refused whole with RS-25', () => {
-  it.each(OUTSIDE.map((value) => [JSON.stringify(value), value]))(
+describe('FR-156: a GRS JSON whose scheduleDataTimeZone is not a standard-time key of T-376 is refused whole with RS-25', () => {
+  it.each([...OUTSIDE, ...DAYLIGHT_KEYS].map((value) => [JSON.stringify(value), value]))(
     '%s is refused with RS-25, and the faults name the column (RS-25: a column does not match its form)',
     (_name, value) => {
       const read = documentFromJson(withScheduleZone(value), KNOWN_VERSION)
@@ -87,53 +90,53 @@ describe('FR-156: a GRS JSON whose scheduleDataTimeZone is not in T-376 is refus
     },
   )
 
-  it.each(REGIONS.map((region, i) => [`ZN-${i + 1}`, region]))('%s %s opens (FR-156: every T-376 region is a choice)', (_id, region) => {
-    const read = documentFromJson(withScheduleZone(region), KNOWN_VERSION)
+  it.each(STANDARD_KEYS.map((key) => [key]))('%s opens (FR-156: every standard-time row is a choice)', (key) => {
+    const read = documentFromJson(withScheduleZone(key), KNOWN_VERSION)
     expect(read.ok, read.ok ? '' : JSON.stringify(read.faults).slice(0, 400)).toBe(true)
-    if (read.ok) expect(read.document.schedule.project.scheduleDataTimeZone).toBe(region)
+    if (read.ok) expect(read.document.schedule.project.scheduleDataTimeZone).toBe(key)
   })
 })
 
 // see FR-156, T-376
 describe('FR-156 / T-376: the roster the code holds is the table', () => {
-  it('TIME_ZONE_ROWS holds the T-376 rows in table order: row ID, region, standard offset, daylight saving', () => {
-    expect(TIME_ZONE_ROWS.map((row) => [row.rowId, row.region, row.standardOffsetMinutes, row.observesDaylightSaving])).toEqual(
+  it('TIME_ZONE_ROWS holds the T-376 rows in table order: row ID, key, offset, daylight row, abbreviation', () => {
+    expect(TIME_ZONE_ROWS.map((row) => [row.rowId, row.key, row.offsetMinutes, row.isDaylight, row.abbreviation])).toEqual(
       T_376.rows.map((row) => [
         row.id,
-        bare(row.cells[0] ?? ''),
-        standardOffsetMinutesOf(row.cells[1] ?? ''),
-        observesDaylightSaving(row.cells[2] ?? ''),
+        bare(row.by['鍵'] ?? ''),
+        offsetMinutesOf(row.by['UTC の差'] ?? ''),
+        row.by['種'] === '夏時間',
+        row.by['略称'] === '—' ? null : (row.by['略称'] ?? null),
       ]),
     )
   })
 
-  it('isTimeZoneRegion is true for every T-376 region and false for every OUTSIDE value, null and a non-string', () => {
-    for (const region of REGIONS) expect(isTimeZoneRegion(region), region).toBe(true)
-    for (const value of [...OUTSIDE, null, undefined, 9]) expect(isTimeZoneRegion(value), JSON.stringify(value)).toBe(false)
+  it('isTimeZoneKey is true for every T-376 key; isStandardTimeZoneKey only for the standard-time ones; both false outside', () => {
+    for (const key of REGIONS) expect(isTimeZoneKey(key), key).toBe(true)
+    for (const key of STANDARD_KEYS) expect(isStandardTimeZoneKey(key), key).toBe(true)
+    for (const key of DAYLIGHT_KEYS) expect(isStandardTimeZoneKey(key), key).toBe(false)
+    for (const value of [...OUTSIDE, null, undefined, 9]) {
+      expect(isTimeZoneKey(value), JSON.stringify(value)).toBe(false)
+      expect(isStandardTimeZoneKey(value), JSON.stringify(value)).toBe(false)
+    }
   })
 
-  it('zoneClockOf reads each region on its T-376 standard offset, and a DST region one season off it (FR-156: DST follows the region rule)', () => {
+  it('zoneClockOf reads each key on its T-376 offset all year (FR-156: no daylight saving by season)', () => {
     const MS_PER_MINUTE = 60000
     const january = Date.UTC(2026, 0, 15, 12, 0) / MS_PER_MINUTE
     const july = Date.UTC(2026, 6, 15, 12, 0) / MS_PER_MINUTE
     for (const row of T_376.rows) {
-      const region = bare(row.cells[0] ?? '')
-      const standard = standardOffsetMinutesOf(row.cells[1] ?? '')
-      const clock = zoneClockOf(region)
-      const offsets = [january, july].map((utc) => clock.wallOf(utc) - utc)
-      if (observesDaylightSaving(row.cells[2] ?? '')) {
-        expect(Math.min(...offsets), `${row.id} ${region}`).toBe(standard)
-        expect(Math.max(...offsets), `${row.id} ${region}`).toBeGreaterThan(standard)
-      } else {
-        expect(offsets, `${row.id} ${region}`).toEqual([standard, standard])
-      }
+      const key = bare(row.by['鍵'] ?? '')
+      const offset = offsetMinutesOf(row.by['UTC の差'] ?? '')
+      const clock = zoneClockOf(key)
+      expect([january, july].map((utc) => clock.wallOf(utc) - utc), `${row.id} ${key}`).toEqual([offset, offset])
     }
   })
 
-  it('viewRegionOf: null (S-574) and an OUTSIDE value (OP-6 default) show the schedule data zone; a T-376 region shows itself', () => {
-    expect(viewRegionOf('Asia/Tokyo', null)).toBe('Asia/Tokyo')
-    expect(viewRegionOf('Asia/Tokyo', 'Europe/Berlin')).toBe('Europe/Berlin')
-    for (const value of OUTSIDE) expect(viewRegionOf('Asia/Tokyo', value), JSON.stringify(value)).toBe('Asia/Tokyo')
+  it('viewRegionOf: null (S-574), a daylight key and an OUTSIDE value (OP-6 default) show the schedule data zone; a standard key shows itself', () => {
+    expect(viewRegionOf('UTC+09:00', null)).toBe('UTC+09:00')
+    expect(viewRegionOf('UTC+09:00', 'UTC+01:00')).toBe('UTC+01:00')
+    for (const value of [...OUTSIDE, ...DAYLIGHT_KEYS]) expect(viewRegionOf('UTC+09:00', value), JSON.stringify(value)).toBe('UTC+09:00')
   })
 })
 
@@ -177,11 +180,13 @@ describe('FR-156 / OP-6: a view key outside T-376 does not refuse; after a repla
 
   const cases: readonly (readonly [string, string, unknown])[] = [
     ['S-574', 'viewTimeZone', 'Mars/Base'],
-    ['S-574', 'viewTimeZone', 'Asia/Seoul'],
+    ['S-574', 'viewTimeZone', 'Asia/Tokyo'],
     ['S-574', 'viewTimeZone', ''],
-    ['S-575', 'displayTimeZones', ['Asia/Tokyo', 'Mars/Base']],
-    ['S-575', 'displayTimeZones', ['Asia/Seoul']],
-    ['S-575', 'displayTimeZones', 'Asia/Tokyo'],
+    // WHY: CR-755 (X-r) -- the view base takes a standard-time key only; a daylight key goes back to the default.
+    ['S-574', 'viewTimeZone', 'UTC-07:00 DST'],
+    ['S-575', 'displayTimeZones', ['UTC+09:00', 'Mars/Base']],
+    ['S-575', 'displayTimeZones', ['Asia/Tokyo']],
+    ['S-575', 'displayTimeZones', 'UTC+09:00'],
   ]
 
   it.each(cases.map(([id, key, value]) => [`${id} ${key} = ${JSON.stringify(value)}`, id, key, value]))(
@@ -199,13 +204,13 @@ describe('FR-156 / OP-6: a view key outside T-376 does not refuse; after a repla
     },
   )
 
-  it('a T-376 region in both keys is kept as written (the reset is only for values outside the table)', () => {
+  it('a T-376 key in both keys is kept as written, a daylight key included in S-575 (the reset is only for values outside)', () => {
     const json = fixture()
-    json['documentSettings']['viewTimeZone'] = 'Europe/Berlin'
-    json['documentSettings']['displayTimeZones'] = ['Asia/Tokyo', 'America/New_York']
+    json['documentSettings']['viewTimeZone'] = 'UTC+01:00'
+    json['documentSettings']['displayTimeZones'] = ['UTC+09:00', 'UTC-07:00 DST']
     const settings = replacedBy(decodedOk(JSON.stringify(json))).documentSettings as unknown as Json
-    expect(settings['viewTimeZone']).toBe('Europe/Berlin')
-    expect(settings['displayTimeZones']).toEqual(['Asia/Tokyo', 'America/New_York'])
+    expect(settings['viewTimeZone']).toBe('UTC+01:00')
+    expect(settings['displayTimeZones']).toEqual(['UTC+09:00', 'UTC-07:00 DST'])
   })
 })
 

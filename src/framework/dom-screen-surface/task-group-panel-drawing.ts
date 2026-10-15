@@ -4,6 +4,7 @@
 // @purity    non-pure
 
 import type {
+  RulerAbbreviation,
   TaskGroupTitle,
   TaskGroupPanel,
   ScreenView,
@@ -528,6 +529,25 @@ export function taskGroupsTopPx(panel: TaskGroupPanel): number | null {
   return top
 }
 
+// see FR-017, FR-156, JDG-2043
+// WHY: right-aligned in its box; a box narrower than the words clips them on the left (flex-end overflows leftward).
+/** @purity non-pure */
+function rulerAbbreviationElement(host: Document, abbreviation: RulerAbbreviation): HTMLElement {
+  const shown = made(
+    host,
+    'div',
+    boxStyle(abbreviation.box) +
+      'display:flex;align-items:center;justify-content:flex-end;overflow:hidden;white-space:nowrap;pointer-events:none;' +
+      `font-size:${abbreviation.fontPx}px;color:${PAINT.ink};`,
+  )
+  shown.setAttribute(RULER_ABBREVIATION_MARK, 'true')
+  shown.setAttribute('aria-hidden', 'true')
+  shown.textContent = abbreviation.text
+  return shown
+}
+
+const RULER_ABBREVIATION_MARK = 'data-ruler-abbreviation'
+
 // see U-22, FR-098
 /** @purity non-pure */
 export function fillTaskGroupTitleTree(
@@ -555,6 +575,7 @@ export function fillTaskGroupTitleTree(
     rule.setAttribute('aria-hidden', 'true')
     drawn.push(rule)
   }
+  for (const abbreviation of panel.rulerAbbreviations ?? []) drawn.push(rulerAbbreviationElement(host, abbreviation))
   tree.replaceChildren(...drawn)
 }
 

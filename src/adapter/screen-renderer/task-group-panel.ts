@@ -7,7 +7,7 @@ import type {
   DocumentSettings,
   DrawnSettings,
 } from '../../entity/document-model/document-settings/document-settings'
-import { taskGroupNameOf, type Schedule, type TaskGroup } from '../../entity/document-model/schedule/schedule'
+import { PRINTED_TIME_ZONE, taskGroupNameOf, type Schedule, type TaskGroup } from '../../entity/document-model/schedule/schedule'
 import type { Selection } from '../../entity/document-model/selection/selection'
 import {
   drawnSettingsOf,
@@ -17,11 +17,21 @@ import {
 import {
   groupDepthLimit,
   keptInViewByTreeState,
+  rulerTierOf,
+  timeAxisOf,
   type ScheduleLayout,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import type { ScreenSession } from '../../use-case/advance-screen-session/advance-screen-session'
-import { GROUP_GRID_LINE_WIDTH_PX } from '../svg-renderer/svg-renderer'
-import type { TaskGroupExpander, TaskGroupTitle, TaskGroupPanel, ScreenViewReadings } from './screen-renderer'
+import { GROUP_GRID_LINE_WIDTH_PX, rulerClockRowsOf } from '../svg-renderer/svg-renderer'
+import { timeZoneAbbreviationOf } from './notices'
+import type {
+  DisplayLanguage,
+  RulerAbbreviation,
+  TaskGroupExpander,
+  TaskGroupTitle,
+  TaskGroupPanel,
+  ScreenViewReadings,
+} from './screen-renderer'
 
 interface PanelIndex extends OpenArming {
   readonly groupsById: ReadonlyMap<string, TaskGroup>
@@ -418,6 +428,31 @@ export function taskGroupPanelFromSchedule(
       : index.rootGroups.some((taskGroup) => taskGroup.treeState === 'hidden'),
     foldedTaskGroupCount: index.foldedTaskGroupCountAtLevelZero,
   }
+}
+
+// see FR-017, FR-156, JDG-2043, S-313, EP-3
+// WHY: each clock row of the ruler gets its zone's abbreviation in the blank over the panel, right-aligned S-313 in
+// from the panel's right edge (as the head controls, HF-10); none while time of day is not shown.
+/** @purity pure */
+export function rulerAbbreviationsOf(
+  regions: ScreenRegions,
+  schedule: Schedule,
+  storedSettings: DocumentSettings,
+  language: DisplayLanguage,
+): readonly RulerAbbreviation[] {
+  const settings = drawnSettingsOf(storedSettings)
+  if (!settings.showsTimeOfDay) return []
+  const panel = regions.taskGroupPanel
+  const tier = rulerTierOf(timeAxisOf(storedSettings, regions).pxPerDay, storedSettings)
+  // TRAP: read through ?.: views built from a partial schedule carry no project.
+  const dataRegion = schedule.project?.scheduleDataTimeZone ?? PRINTED_TIME_ZONE
+  const width = Math.max(0, panel.width - NOT_STORED_TASK_GROUP_CONTROL_SIZES['S-313'])
+  return rulerClockRowsOf(tier, settings, regions.timeRuler, dataRegion).map((row) => ({
+    text: timeZoneAbbreviationOf(row.zoneKey, language),
+    box: { x: panel.x, y: row.top, width, height: row.height },
+    baseline: row.baseline,
+    fontPx: settings.rulerFont,
+  }))
 }
 
 // <generated -- do not edit by hand>

@@ -135,9 +135,7 @@ export interface ScreenValuesStateCarried {
   readonly landedBy: LandedBy
   readonly landedTarget: SearchJumpTarget
   readonly landedRelatedTasks: readonly number[]
-  // WHY: null is the shown base (S-574, else AT-157) while only the way was chosen.
-  readonly chosenRegion: string | null
-  readonly chosenWay: BaseChangeWay
+  readonly chosenRegion: string
   readonly shiftMinutes: number
   readonly newStartDate: string
   readonly calendarDraft: CalendarDraft
@@ -173,6 +171,7 @@ export interface ScreenValuesEventCarried {
   readonly landedRelatedTasks: readonly number[]
   readonly isOpenAccepted: boolean
   readonly chosenRegion: string
+  readonly isOtherThanShownBase: boolean
   readonly chosenWay: BaseChangeWay
   readonly shiftMinutes: number
   readonly newStartDate: string
@@ -203,7 +202,7 @@ interface ScreenValuesEffectPayloads {
   readonly seedHelpLanguage: NoPayload
   readonly focusSearchWord: NoPayload
   readonly writeProgressStep: { readonly taskUid: number } & Carried
-  readonly issueBaseChangeCommand: Pick<ScreenValuesStateCarried, 'chosenRegion' | 'chosenWay'>
+  readonly issueBaseChangeCommand: Pick<ScreenValuesStateCarried, 'chosenRegion'> & Pick<ScreenValuesEventCarried, 'chosenWay'>
   readonly raiseTimeShiftQuestion: Pick<ScreenValuesStateCarried, 'shiftMinutes'>
   readonly raiseWholeScheduleShiftQuestion: Pick<ScreenValuesStateCarried, 'newStartDate'>
   readonly issueCalendarCommand: Pick<ScreenValuesStateCarried, 'calendarDraft'>
@@ -368,7 +367,7 @@ export type DropCueDisplayState =
 
 export type BaseTimeZoneDraftState =
   | { readonly kind: 'untouched' }
-  | { readonly kind: 'drafted'; readonly chosenRegion: ScreenValuesStateCarried['chosenRegion']; readonly chosenWay: ScreenValuesStateCarried['chosenWay'] }
+  | { readonly kind: 'drafted'; readonly chosenRegion: ScreenValuesStateCarried['chosenRegion'] }
 
 export type TimeShiftDraftState =
   | { readonly kind: 'empty' }
@@ -463,9 +462,9 @@ export type ScreenValuesEvent =
   | { readonly type: 'searchJumpLanded'; readonly landedTarget: ScreenValuesEventCarried['landedTarget']; readonly landedRelatedTasks: ScreenValuesEventCarried['landedRelatedTasks'] }
   | { readonly type: 'fileDragEntered'; readonly isOpenAccepted: ScreenValuesEventCarried['isOpenAccepted'] }
   | { readonly type: 'fileDragLeft' }
-  | { readonly type: 'baseTimeZoneChosen'; readonly chosenRegion: ScreenValuesEventCarried['chosenRegion'] }
-  | { readonly type: 'baseChangeWayChosen'; readonly chosenWay: ScreenValuesEventCarried['chosenWay'] }
-  | { readonly type: 'baseChangeEntryPressed' }
+  | { readonly type: 'baseTimeZoneChosen'; readonly chosenRegion: ScreenValuesEventCarried['chosenRegion']; readonly isOtherThanShownBase: ScreenValuesEventCarried['isOtherThanShownBase'] }
+  | { readonly type: 'baseChangeEntryPressed'; readonly chosenWay: ScreenValuesEventCarried['chosenWay'] }
+  | { readonly type: 'baseChangeCancelPressed' }
   | { readonly type: 'timeShiftAmountSettled'; readonly shiftMinutes: ScreenValuesEventCarried['shiftMinutes'] }
   | { readonly type: 'timeShiftEntryPressed' }
   | { readonly type: 'timeShiftLanded' }
@@ -1133,37 +1132,33 @@ function helpHidden(values: ScreenValues): ScreenStep {
 
 const HOLIDAY_SETTINGS_SURFACE = 'U-65'
 
-const BASE_CHANGE_WAY_AT_FIRST: BaseChangeWay = 'keepGlobalTime'
-
 // see T-280, FR-156, FO-14
-/** @purity pure */
-function baseDraftMoved(values: ScreenValues, chosenRegion: string | null, chosenWay: BaseChangeWay): ScreenStep {
-  const held = values.baseTimeZoneDraftState
-  if (held.kind === 'drafted' && held.chosenRegion === chosenRegion && held.chosenWay === chosenWay) return unchanged(values)
-  return moved(values, { baseTimeZoneDraftState: { kind: 'drafted', chosenRegion, chosenWay } })
-}
-
+// WHY: choosing the shown base again drops the draft -- the answers show only for another time zone (X-j).
 /** @purity pure */
 function onBaseTimeZoneChosen(values: ScreenValues, event: EventOf<'baseTimeZoneChosen'>): ScreenStep {
   const held = values.baseTimeZoneDraftState
-  return baseDraftMoved(values, event.chosenRegion, held.kind === 'drafted' ? held.chosenWay : BASE_CHANGE_WAY_AT_FIRST)
+  if (!event.isOtherThanShownBase) {
+    return held.kind === 'untouched' ? unchanged(values) : moved(values, { baseTimeZoneDraftState: { kind: 'untouched' } })
+  }
+  if (held.kind === 'drafted' && held.chosenRegion === event.chosenRegion) return unchanged(values)
+  return moved(values, { baseTimeZoneDraftState: { kind: 'drafted', chosenRegion: event.chosenRegion } })
 }
 
+// see T-280, FR-156, FO-14, CM-94, CM-95
 /** @purity pure */
-function onBaseChangeWayChosen(values: ScreenValues, event: EventOf<'baseChangeWayChosen'>): ScreenStep {
-  const held = values.baseTimeZoneDraftState
-  return baseDraftMoved(values, held.kind === 'drafted' ? held.chosenRegion : null, event.chosenWay)
-}
-
-// see T-280, FR-156, IC-161, CM-94, CM-95
-/** @purity pure */
-function onBaseChangeEntryPressed(values: ScreenValues): ScreenStep {
+function onBaseChangeEntryPressed(values: ScreenValues, event: EventOf<'baseChangeEntryPressed'>): ScreenStep {
   const held = values.baseTimeZoneDraftState
   if (held.kind === 'untouched') return unchanged(values)
-  const { chosenRegion, chosenWay } = held
   return moved(values, { baseTimeZoneDraftState: { kind: 'untouched' } }, [
-    { type: 'issueBaseChangeCommand', chosenRegion, chosenWay },
+    { type: 'issueBaseChangeCommand', chosenRegion: held.chosenRegion, chosenWay: event.chosenWay },
   ])
+}
+
+// see T-280, FR-156, FO-14
+/** @purity pure */
+function onBaseChangeCancelPressed(values: ScreenValues): ScreenStep {
+  if (values.baseTimeZoneDraftState.kind === 'untouched') return unchanged(values)
+  return moved(values, { baseTimeZoneDraftState: { kind: 'untouched' } })
 }
 
 // see T-280, FR-157, FO-16
@@ -1341,8 +1336,8 @@ const HANDLERS: {
   fileDragEntered: onFileDragEntered,
   fileDragLeft: onFileDragLeft,
   baseTimeZoneChosen: onBaseTimeZoneChosen,
-  baseChangeWayChosen: onBaseChangeWayChosen,
   baseChangeEntryPressed: onBaseChangeEntryPressed,
+  baseChangeCancelPressed: onBaseChangeCancelPressed,
   timeShiftAmountSettled: onTimeShiftAmountSettled,
   timeShiftEntryPressed: onTimeShiftEntryPressed,
   timeShiftLanded: onTimeShiftLanded,

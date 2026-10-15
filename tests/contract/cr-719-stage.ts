@@ -104,7 +104,7 @@ const projectOf = (): Project => ({
   importSeq: 0,
   outlineBase: 1,
   sourceFormat: 'grs',
-  scheduleDataTimeZone: 'UTC',
+  scheduleDataTimeZone: 'UTC+00:00',
   carry: {},
   carryElements: [],
 })

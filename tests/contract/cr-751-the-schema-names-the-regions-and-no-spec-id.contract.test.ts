@@ -16,13 +16,16 @@ const DEFS = SCHEMA['$defs'] as Json
 const SETTINGS = SCHEMA['properties']['documentSettings']['properties'] as Json
 
 // see T-376
-const REGIONS: readonly string[] = specTable('T-376').rows.map((row) => bare(row.cells[0] ?? ''))
+// WHY: CR-755 -- the values are the table's keys; the base keys take the standard-time rows only.
+const T376 = specTable('T-376')
+const REGIONS: readonly string[] = T376.rows.map((row) => bare(row.by['鍵'] ?? ''))
+const STANDARD_KEYS: readonly string[] = T376.rows.filter((row) => row.by['種'] === '標準時').map((row) => bare(row.by['鍵'] ?? ''))
 
 // see FR-156, S-574, S-575
-const REGION_KEYS: readonly (readonly [string, Json])[] = [
-  ['Project.scheduleDataTimeZone', DEFS['Project']['properties']['scheduleDataTimeZone']],
-  ['documentSettings.viewTimeZone', SETTINGS['viewTimeZone']],
-  ['documentSettings.displayTimeZones items', SETTINGS['displayTimeZones']['items']],
+const REGION_KEYS: readonly (readonly [string, Json, readonly string[]])[] = [
+  ['Project.scheduleDataTimeZone', DEFS['Project']['properties']['scheduleDataTimeZone'], STANDARD_KEYS],
+  ['documentSettings.viewTimeZone', SETTINGS['viewTimeZone'], STANDARD_KEYS],
+  ['documentSettings.displayTimeZones items', SETTINGS['displayTimeZones']['items'], REGIONS],
 ]
 
 const PREFIX_SOURCE = JSON.parse(readFileSync(join(SOURCE, 'row-id-prefixes.json'), 'utf8')) as Json
@@ -46,13 +49,14 @@ function descriptionsOf(node: unknown, at: string, out: (readonly [string, strin
 }
 
 describe('premise', () => {
-  it('T-376 names 28 regions; the schema root has a description', () => {
-    expect(REGIONS).toHaveLength(28)
+  it('T-376 names 39 keys, 27 of them standard time (CR-755); the schema root has a description', () => {
+    expect(REGIONS).toHaveLength(39)
+    expect(STANDARD_KEYS).toHaveLength(27)
     expect(typeof SCHEMA['description']).toBe('string')
   })
 
   it('the ID pattern catches the IDs it must refuse', () => {
-    for (const id of ['FR-156', 'T-376', 'S-128', 'RS-25', 'IV-24', 'ZN-13', 'AT-157', 'OP-6', 'S-582']) {
+    for (const id of ['FR-156', 'T-376', 'S-128', 'RS-25', 'IV-24', 'ZN-47', 'AT-157', 'OP-6', 'S-582']) {
       expect(SPEC_ID.test(`see ${id} here`), id).toBe(true)
     }
   })
@@ -60,9 +64,9 @@ describe('premise', () => {
 
 // see FR-156, T-376, S-574, S-575
 describe('JDG-2039 / Chapter 6.2: the region keys enumerate the T-376 regions in table order', () => {
-  it.each(REGION_KEYS.map(([name, node]) => [name, node]))('%s enumerates exactly the T-376 regions, in order', (_name, node) => {
+  it.each(REGION_KEYS.map(([name, node, keys]) => [name, node, keys] as const))('%s enumerates exactly its T-376 keys, in order', (_name, node, keys) => {
     const values = (node['enum'] ?? []) as unknown[]
-    expect(values.filter((one) => one !== null)).toEqual(REGIONS)
+    expect(values.filter((one) => one !== null)).toEqual(keys)
   })
 
   it('Project.scheduleDataTimeZone takes no null (FR-156: a value outside T-376 is refused)', () => {

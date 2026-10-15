@@ -156,8 +156,9 @@ HELP_LINKS = ('about',)
 BROWSER_FUNCTION_ROW = re.compile(r'^\| (BF-\d+[a-z]?) \|')
 BROWSER_FUNCTION_TABLE = 'T-255'
 # CR-710: the names of the time zones FR-156 lets a person choose (table
-# T-376). Every row takes a word: the table holds the region name and the
-# offset, and the name a person reads is the dictionary's.
+# T-376). Every row takes a word: the table holds the key, the offset and the
+# abbreviation, the dictionary the place (CR-755); the name a person reads is
+# the dictionary's zoneName of section timeZoneField joining the two.
 TIME_ZONE_ROW = re.compile(r'^\| (ZN-\d+) \|')
 TIME_ZONE_TABLE = 'T-376'
 # ⭐ The words and the next step for a document refused on import. FR-076 has
@@ -342,10 +343,15 @@ TASK_GROUP_PANEL_WIDTH_FIELD_PARTS = ('unit', 'currentName', 'currentValue')
 FIT_SPAN_FIELD_PARTS = ('currentName', 'currentValue', 'copyCurrent')
 # CR-710 wave 3b: the words of the time zone fields of the document settings
 # face (FO-14, FO-16 of table T-369) and the lines the Time Shift question
-# (QN-14) shows under its sentence (BS-3 of table T-377). The two ways to
-# change the base are the words FR-156 names; no table holds them as rows, so
+# (QN-14) shows under its sentence (BS-3 of table T-377). CR-755: the base
+# change question, its three answers with their hints and the before / after
+# lines (TX-11), and the two shapes of a zone's name (zoneName, offsetName).
+# The answers are the words FR-156 names; no table holds them as rows, so
 # they are HELD HERE, the same move as FIT_SPAN_FIELD_PARTS. KEYS, not words.
-TIME_ZONE_FIELD_PARTS = ('keepGlobalTime', 'keepLocalTime', 'example', 'none',
+TIME_ZONE_FIELD_PARTS = ('baseChangeQuestion', 'keepGlobalTime',
+                         'keepGlobalTimeHint', 'keepLocalTime',
+                         'keepLocalTimeHint', 'cancelBaseChange', 'beforeLine',
+                         'afterLine', 'zoneName', 'offsetName', 'none',
                          'shiftUnit', 'shiftAmountLine', 'shiftTaskCountLine',
                          'shiftOutsideCountLine', 'shiftExampleLine')
 

@@ -497,7 +497,11 @@
     },
     "valuesFrom": {
      "const": "T-376",
-     "description": "CR-751: the enum's members are the rows of this table of 01-04 (the region names of T-376), read by the generator that already reads the table, so they are not copied here. Never together with \"values\"."
+     "description": "CR-751, CR-755: the enum's members are the keys of the rows of this table of 01-04 (the time zone keys of T-376), read by the generator that already reads the table, so they are not copied here. Never together with \"values\"."
+    },
+    "valuesOnly": {
+     "const": "standard",
+     "description": "CR-755: only the keys of the rows whose kind is standard time (FR-156: the base time zone may not be a daylight-time row). Only together with \"valuesFrom\"."
     },
     "maxItemsFrom": {
      "type": "string",
