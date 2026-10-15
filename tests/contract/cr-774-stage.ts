@@ -4,7 +4,6 @@ import { displayRatioOf } from '../../src/entity/layout-engine/screen-regions/sc
 import type {
   InputContext,
   PointerPress,
-  TaskGroupGrabLanding,
   TranslatedInput,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 import * as grab from '../../src/adapter/input-command-translator/task-group-grab'
