@@ -151,11 +151,37 @@ function expanderOf(group: TaskGroup, index: PanelIndex): TaskGroupExpander {
   }
 }
 
-interface HeldTaskGroup {
-  readonly depth: number
-  readonly atY: number | null
-  readonly axis: 'position' | 'depth'
-  readonly resistedPx: number
+type GrabbedTaskGroup = NonNullable<ScreenViewReadings['taskGroupGrabbedAt']>
+
+// see HF-15
+// WHY: the grabbed task group and every drawn one below it take the ground; they move as one (X-h of CR-772).
+/** @purity pure */
+function heldTaskGroupIdsOf(grabbed: GrabbedTaskGroup | null, groupsById: ReadonlyMap<string, TaskGroup>): ReadonlySet<string> {
+  const held = new Set<string>()
+  if (grabbed === null) return held
+  for (const group of groupsById.values()) {
+    const climbed = new Set<string>()
+    for (let at: string | null = group.id; at !== null && !climbed.has(at); at = groupsById.get(at)?.parentId ?? null) {
+      climbed.add(at)
+      if (at === grabbed.taskGroupId) held.add(group.id)
+    }
+  }
+  return held
+}
+
+// see HF-15, S-599
+/** @purity pure */
+function grabCuesOf(
+  grabbed: GrabbedTaskGroup | null,
+  pointer: ScreenViewReadings['pointer'],
+  schedule: Schedule,
+): Pick<TaskGroupPanel, 'dropCue' | 'grabCopy'> {
+  if (grabbed === null) return { dropCue: null, grabCopy: null }
+  const landing = grabbed.landing
+  return {
+    dropCue: landing === null ? null : { lineY: landing.gapY, lineIndentPx: landing.lineIndentPx, parentTaskGroupId: landing.parentId },
+    grabCopy: pointer === null ? null : { x: pointer.x, y: pointer.y, name: taskGroupNameOf(schedule, grabbed.taskGroupId) },
+  }
 }
 
 /** @purity pure */
@@ -166,9 +192,9 @@ function taskGroupTitleOf(
   index: PanelIndex,
   settings: DrawnSettings,
   chosenTaskGroupIds: ReadonlySet<string>,
-  held: HeldTaskGroup | null,
+  isHeld: boolean,
 ): TaskGroupTitle {
-  const depth = held?.depth ?? taskGroupDepth(group, index.groupsById, settings)
+  const depth = taskGroupDepth(group, index.groupsById, settings)
   const fontSizePx = taskGroupTitleFontPxOf(depth, settings)
   const name = taskGroupNameOf(index.schedule, group.id)
   const wholeLabel = name === '' ? null : name
@@ -180,7 +206,7 @@ function taskGroupTitleOf(
   return {
     taskGroupId: group.id,
     depth,
-    box: heldBox(box, held),
+    box,
     indentPx: depth * settings.taskGroupTitleIndent,
     fontPx: fontSizePx,
     label: shownLabel,
@@ -193,16 +219,8 @@ function taskGroupTitleOf(
     // see FR-085, T-293
     isSelected: chosenTaskGroupIds.has(group.id),
     foldedTaskGroupCount: index.foldedTaskGroupCountByTaskGroupId.get(group.id) ?? 0,
-    heldOnAxis: held === null ? null : held.axis,
+    isHeld,
   }
-}
-/** @purity pure */
-function heldBox(box: ScreenRect, held: HeldTaskGroup | null): ScreenRect {
-  if (held === null) return box
-  const y = held.atY ?? box.y
-  return held.axis === 'position'
-    ? { ...box, x: box.x + held.resistedPx, y }
-    : { ...box, y: y + held.resistedPx }
 }
 
 // see T-329
@@ -384,22 +402,14 @@ export function taskGroupPanelFromSchedule(
   const pinnedTaskGroupIds = new Set(settings.pinnedTaskGroupIds)
   const chosenTaskGroupIds: ReadonlySet<string> = new Set(readings.selectedTaskGroupIds)
   const grabbed = readings.taskGroupGrabbedAt ?? null
-  const heldOf = (taskGroupId: string): HeldTaskGroup | null =>
-    grabbed === null || grabbed.taskGroupId !== taskGroupId
-      ? null
-      : {
-          depth: grabbed.depth,
-          atY: grabbed.atY,
-          axis: grabbed.axis,
-          resistedPx: grabbed.resistedPx,
-        }
+  const heldIds = heldTaskGroupIdsOf(grabbed, index.groupsById)
 
   const pinnedTitles: TaskGroupTitle[] = []
   for (const taskGroupId of pinnedTaskGroupIds) {
     const group = index.groupsById.get(taskGroupId)
     const box = index.boxByTaskGroupId.get(taskGroupId)
     if (group === undefined || box === undefined) continue
-    pinnedTitles.push(taskGroupTitleOf(group, box, true, index, settings, chosenTaskGroupIds, null))
+    pinnedTitles.push(taskGroupTitleOf(group, box, true, index, settings, chosenTaskGroupIds, false))
   }
 
   const describedTaskGroupIds = new Set(pinnedTaskGroupIds)
@@ -409,7 +419,7 @@ export function taskGroupPanelFromSchedule(
     const group = index.groupsById.get(placed.taskGroupId)
     if (group === undefined) continue
     describedTaskGroupIds.add(placed.taskGroupId)
-    titles.push(taskGroupTitleOf(group, placed.box, false, index, settings, chosenTaskGroupIds, heldOf(group.id)))
+    titles.push(taskGroupTitleOf(group, placed.box, false, index, settings, chosenTaskGroupIds, heldIds.has(group.id)))
   }
 
   if (pinnedTitles.length === 0 && titles.length === 0 && !isLevelZeroCollapsed) {
@@ -427,6 +437,7 @@ export function taskGroupPanelFromSchedule(
       ? index.rootGroups.length > 0
       : index.rootGroups.some((taskGroup) => taskGroup.treeState === 'hidden'),
     foldedTaskGroupCount: index.foldedTaskGroupCountAtLevelZero,
+    ...grabCuesOf(grabbed, readings.pointer, schedule),
   }
 }
 

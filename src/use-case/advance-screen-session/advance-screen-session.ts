@@ -177,7 +177,7 @@ const IS_GESTURE_EVENT: { readonly [T in GestureValuesEvent['type']]: true } = {
   pointerPressed: true,
   pointerReleased: true,
   pressInterrupted: true,
-  taskGroupGrabAxisSettled: true,
+  taskGroupGrabTravelPassed: true,
   entryRepeatTimeElapsed: true,
 }
 

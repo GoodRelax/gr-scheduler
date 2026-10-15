@@ -45,10 +45,6 @@ copy | rounded :: rounds as svg renderer ts does change both together
 twin: src/adapter/svg-renderer/svg-renderer.ts#rounded
 why: published by SvgRenderer's entry and ImageExporter->SvgRenderer is declared; nothing stops the fold -- import it.
 
-coupling | hasDraggedPastThreshold :: keep this per axis as taskgroupgrabaxisat reads it a diagonal
-twin: src/adapter/input-command-translator/task-group-grab.ts#taskGroupGrabAxisAt
-why: one component (InputCommandTranslator): the threshold stays per axis because taskGroupGrabAxisAt reads it so; a shared per-axis helper in the component folds it.
-
 copy | taskGroupAnchorIn.slab :: scrolloffsetof task group scroll ts inverts this both must divide
 twin: src/entity/layout-engine/schedule-layout/task-group-scroll.ts#scrollOffsetOf
 why: the inverse of the same slab arithmetic; scrollOffsetOf is not published by ScheduleLayout's entry (no T-064 row) though InputCommandTranslator->ScheduleLayout is declared.

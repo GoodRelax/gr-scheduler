@@ -9,6 +9,7 @@ import { NO_EFFECTS, unchanged, type Step } from './session-step'
 // WHY: the translator's PressRow again; UseCase may not read an Adapter type (table T-061).
 export type GesturePressRow = 'PTD-7' | 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
 
+// see DFC-2903
 export type GrabbedVerticalAxis = 'position' | 'depth'
 
 // WHY: what was pressed, never where -- a point is a frame value (SF-5).
@@ -29,7 +30,6 @@ export interface GestureValuesStateCarried {
 export interface GestureValuesEventCarried {
   readonly pressRow: GesturePressRow
   readonly pressedOn: PressedOn | null
-  readonly axis: GrabbedVerticalAxis
 }
 
 export type GestureValuesEffect = { readonly type: GestureValuesEffectName }
@@ -121,11 +121,6 @@ function isTaskGroupGrabStrip(pressedOn: PressedOn | null): boolean {
   return pressedOn?.kind === 'taskGroupGrabStrip'
 }
 
-/** @purity pure */
-function isPositionAxis(axis: GrabbedVerticalAxis): boolean {
-  return axis === 'position'
-}
-
 // WHY: a machine the event leaves alone keeps its reference, and so does the region (SD-3, SF-3).
 /** @purity pure */
 function combined(
@@ -150,7 +145,7 @@ function onPointerPressed(values: GestureValues, event: EventOf<'pointerPressed'
   const repeats = press.kind === 'notPressed' && !isChanging && isOnRepeatingEntry(event.pressedOn)
   const effects: readonly GestureValuesEffect[] = repeats ? [{ type: 'startEntryRepeat' }] : NO_EFFECTS
   const grabbed: TaskGroupGrabState =
-    taskGroupGrab.kind === 'notGrabbed' && isTaskGroupGrabStrip(event.pressedOn) ? { kind: 'axisUndecided' } : taskGroupGrab
+    taskGroupGrab.kind === 'notGrabbed' && isTaskGroupGrabStrip(event.pressedOn) ? { kind: 'grabPressed' } : taskGroupGrab
   return combined(values, pressed, grabbed, effects)
 }
 
@@ -166,12 +161,12 @@ function ended(values: GestureValues, isInterrupted: boolean): GestureStep {
   return combined(values, released, ungrabbed, effects)
 }
 
-// WHY: a decided axis finds no cell and keeps its reference until release (HF-15).
+// WHY: a carried grab finds no cell and keeps its reference until release (HF-15, S-208).
 /** @purity pure */
-function onTaskGroupGrabAxisSettled(values: GestureValues, event: EventOf<'taskGroupGrabAxisSettled'>): GestureStep {
-  if (values.taskGroupGrabState.kind !== 'axisUndecided') return unchanged(values)
-  const settled: TaskGroupGrabState = { kind: isPositionAxis(event.axis) ? 'changingPosition' : 'changingDepth' }
-  return combined(values, values.pointerPressState, settled, NO_EFFECTS)
+function onTaskGroupGrabTravelPassed(values: GestureValues): GestureStep {
+  if (values.taskGroupGrabState.kind !== 'grabPressed') return unchanged(values)
+  const carrying: TaskGroupGrabState = { kind: 'carrying' }
+  return combined(values, values.pointerPressState, carrying, NO_EFFECTS)
 }
 
 // WHY: a tick that arrives after the press ended finds no cell, so the shell need not ask again.
@@ -188,7 +183,7 @@ const HANDLERS: {
   pointerPressed: onPointerPressed,
   pointerReleased: (values) => ended(values, false),
   pressInterrupted: (values) => ended(values, true),
-  taskGroupGrabAxisSettled: onTaskGroupGrabAxisSettled,
+  taskGroupGrabTravelPassed: onTaskGroupGrabTravelPassed,
   entryRepeatTimeElapsed: onEntryRepeatTimeElapsed,
 }
 

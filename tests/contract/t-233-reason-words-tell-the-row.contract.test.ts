@@ -222,10 +222,6 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-32': '8f6a3b4632a549c0',
   'RS-33': '12ab5c81b0f353b9',
   'RS-34': '208cd7e4ab6ad6b4',
-  'RS-36': 'afd4312b2582c860',
-  'RS-37': '130cbc057c0d61fd',
-  'RS-38': 'd47f16b571788fc3',
-  'RS-39': '9f096ec4bba1db34',
   'RS-40': 'ee6ace9eedfca0f0',
   'RS-41': '34729e01f76ee4ed',
   // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
@@ -243,9 +239,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   足せません」 is again the same sentence, en 「A task group cannot be added any
   //   deeper than this」 says the same, and the next step DFC-206 「もっと浅い行に足して
   //   ください」 / 「Add it to a shallower task group」 is the one `FR-085`'s cap leaves
-  //   open. ⭐ It also stays clear of `RS-38` 「深さの上限に達しているので、これ以上
-  //   深い段へは動かせない」, which is the MOVE and not the ADD -- the distinction
-  //   CR-340 was written to keep. ⇒ the words tell the scene.
+  //   open. ⇒ the words tell the scene. (The MOVE at the cap was told by a row
+  //   of its own until CR-772 retired it: a carried task group now stops silently.)
   // ---------------------------------------------------------------------
   // WHY: re-read 2026-10-03 (CR-635 next step, CR-637 text; JDG-1157/1181 Add = tsuika): the ja
   // text now says "tsuika dekimasen", the same scene; the next step still offers the shallower task group.
@@ -445,10 +440,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   is refused as a parent, so taking that task group out of the subtree first
   //   makes the very same move legal. ⚠️ 作法 is `NT-1`, so a next step is not
   //   owed here; it is carried all the same.
-  // ⚠️ IT STAYS CLEAR OF `RS-36` 〜 `RS-39` and `RS-38`, which are the indent
-  //   and outdent limits (no sibling above, already shallowest, the depth cap,
-  //   nowhere left in that direction). Those refuse a move that would be fine
-  //   but for a limit; this one refuses a move that can never be well formed.
+  // ⚠️ IT IS NOT A LIMIT OF THE CARRY: a carried task group stops silently at
+  //   the end of its range (CR-772); this row refuses a move that can never be
+  //   well formed.
   // ⇒ the words tell the scene.
   'RS-55': '6f50e8e196c6abc3',
   //

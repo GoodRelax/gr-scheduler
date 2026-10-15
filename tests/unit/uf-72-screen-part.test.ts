@@ -475,12 +475,7 @@ const T_051_HF10_NOT_TWO_TIERS =
 /** 表 T-051 `HF-20` — where the head's delete stands in that run. */
 const T_051_HF20_LAST_IN_THE_RUN = '並びの最後、`HF-17`（最も浅い段へ足す）の右隣である。'
 
-/** 表 T-051 `HF-15` — the four MUSTs of that row that reach a drawing unit. */
-const T_051_HF15_THE_AXIS_MARK =
-  'いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと（MUST）'
-const T_051_HF15_THE_BANDS =
-  '上下の軸が生きているときはタスクグループの左右の辺に、左右の軸が生きているときはタスクグループの上下の辺に、帯を 1 本ずつ描くこと（MUST）'
-const T_051_HF15_THE_GROUND = '掴んでいるタスクグループには地を敷くこと（MUST）'
+/** 表 T-051 `HF-15` — the MUST of that row this drawing unit still reads. */
 const T_051_HF15_THE_STRIP_IS_ALWAYS_DRAWN = '掴み代は常に描くこと（MUST）'
 
 /** 表 T-051 `HF-18` — the count a task group shows for what it holds folded. */
@@ -5384,26 +5379,12 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
 // ===========================================================================
 // 表 T-051 HF-15 AND HF-18 -- WHAT IS DRAWN THAT IS NOT AN ENTRANCE.
 //
-// ⭐ THREE MUSTS OF `HF-15` REACH THIS UNIT, and all three are about drawing:
-//   ⭐⭐ 「**いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと（MUST）** ——
-//      **上下の軸が生きているときはタスクグループの左右の辺に、左右の軸が生きているときはタスクグループの
-//      上下の辺に、帯を 1 本ずつ描くこと（MUST）。**⭐ **色は 表 T-236 の `S-151`
-//      （上下）と `S-152`（左右）とする。**」
-//   ⭐ 「掴んでいるタスクグループには地を敷くこと（MUST）」 (see HF-15)
-//   ⭐ 「**掴み代は常に描くこと（MUST）** —— ⛔ **`HF-6`（操作子はポインタが乗って
-//      いるあいだだけ）の対象ではない** —— **掴めることが読めなければ、掴もうと
-//      する手が動かない。**」
-// ⭐ AND ONE OF `HF-18`: 「**配下に折りたたみ込んでいるタスクグループがあるとき、そのタスクグループの数をタスクグループに示す
-//   こと（MUST）**」, with ⛔ 「**`HF-6` の対象ではない** —— **ポインタが乗って
-//   いるあいだだけでは、抱えているタスクグループを探して回ることになる**」.
-//
-// ⭐ THE BAND'S THICKNESS IS STATED SINCE 2026-08-31 and is read below: `S-213`
-// of 表 T-206, which `HF-15` and `HF-18` BOTH name -- 「タスクグループの辺に引く 1 本の帯」 is
-// one thing and holds one number. ⛔ Until that day neither band had a source
-// and this unit carried two invented ones, 2px and 3px.
-// ⚠️ WHAT IS STILL NOT ASSERTED. The GROUND'S COLOR under the held task group:
-// `HF-15` (MUST) asks for a ground and names no color, and no row of 表 T-236
-// does either -- ⛔ so a case that fixed one would be inventing it.
+// ⭐ `HF-15` reaches this unit by drawing: the held task group takes a ground
+// (CR-772 retired the two axis bands), and 「掴み代は常に描くこと（MUST）」.
+// ⭐ AND ONE OF `HF-18`: the count of what a task group holds folded, drawn
+// whether or not a pointer is on it.
+// ⚠️ WHAT IS NOT ASSERTED HERE: the drop line, the parent frame and the copy of
+// CR-772 -- the spec-only tester owns those cases.
 // ===========================================================================
 
 /** The two colors 表 T-236 gives HF-15's bands, read out of the table. */
@@ -5413,19 +5394,8 @@ const themeColorsOf = (row: string): readonly string[] => {
   return ['明るいテーマ', '暗いテーマ'].map((column) => bare(found.by[column] ?? ''))
 }
 
-/** The border declarations this node states, by the edge each one is on. */
-function bordersOf(element: FakeElement): Map<string, string> {
-  const declared = styleMap(element)
-  const found = new Map<string, string>()
-  for (const edge of ['top', 'right', 'bottom', 'left']) {
-    const value = (declared.get(`border-${edge}`) ?? '').trim()
-    if (value !== '' && !/(^|\s)(0|none)(\s|$)/.test(value)) found.set(edge, value)
-  }
-  return found
-}
-
-/** One task group, drawn as the one HF-15's grab is holding on the given axis. */
-const taskGroupHeldOn = (axis: 'position' | 'depth' | null): ScreenView =>
+/** One task group, drawn held by HF-15's grab or not. */
+const taskGroupHeldOn = (isHeld: boolean): ScreenView =>
   viewWith({
     taskGroupPanel: {
       pinnedTitles: [],
@@ -5433,108 +5403,30 @@ const taskGroupHeldOn = (axis: 'position' | 'depth' | null): ScreenView =>
         taskGroupTitle({
           taskGroupId: 'g-1',
           label: 'TaskGroupOne',
-          heldOnAxis: axis,
+          isHeld,
           expander: { canOpen: true, canClose: true, canCloseBelow: false },
         }),
       ],
     },
   })
 
-describe('表 T-051 HF-15 (MUST) -- the task group that is held says which axis is live', () => {
-  it('GIVEN the specification is re-read WHEN HF-15 is looked up THEN it still asks for the bands, the ground and the always-drawn strip (Chapter 1.9)', () => {
+describe('表 T-051 HF-15 (MUST) -- the held task group takes a ground, and the strip is always drawn', () => {
+  it('GIVEN the specification is re-read WHEN HF-15 is looked up THEN it still asks for the always-drawn strip and the S-213 thickness (Chapter 1.9)', () => {
     const hf15 = (specTable('T-051').rows.find((one) => one.id === 'HF-15')?.cells ?? []).join(' ')
 
-    expect(hf15).toContain(T_051_HF15_THE_AXIS_MARK)
-    expect(hf15).toContain(T_051_HF15_THE_BANDS)
-    expect(hf15).toContain(T_051_HF15_THE_GROUND)
     expect(hf15).toContain(T_051_HF15_THE_STRIP_IS_ALWAYS_DRAWN)
-    // ⭐ The two colors are named by row, and 表 T-236 still holds both.
-    expect(hf15).toContain('`S-151`（上下）と `S-152`（左右）')
-    for (const row of ['S-151', 'S-152']) {
-      expect(themeColorsOf(row).filter((one) => one !== ''), `表 T-236 ${row}`).toHaveLength(2)
-    }
-    // ⭐ AND THE THICKNESS, which the row states since 2026-08-31.
     expect(hf15).toContain('太さは 表 T-206 の `S-213` とすること（MUST）')
   })
 
-  it('⭐ MUST GIVEN an axis is live WHEN the bands are read THEN both are S-213 thick (HF-15: 太さは 表 T-206 の `S-213`)', () => {
-    // ⭐ ONE NUMBER FOR BOTH BANDS, which `S-213` states: HF-15's live axis and
-    // HF-18's holding mark are 「タスクグループの辺に引く 1 本の帯」.
-    // ⛔ THEY WERE 2px AND 3px, both invented in the drawing unit.
-    const stated = specTable('T-206').rows.find((one) => one.id === 'S-213')
-    if (stated === undefined) throw new Error('表 T-206 no longer holds S-213')
-    const number = /\d+(?:\.\d+)?/.exec(stated.by['既定'] ?? '')
-    if (number === null) throw new Error('S-213 states no number in its 既定 column')
-    const wanted = Number(number[0])
-    for (const axis of ['position', 'depth'] as const) {
-      const built = drawn(taskGroupHeldOn(axis))
-      const edges = [...bordersOf(theTaskGroupOf(built)).entries()]
-      expect(edges.length, `no band was drawn on the ${axis} axis`).toBe(2)
-      for (const [edge, written] of edges) {
-        const found = /(-?\d+(?:\.\d+)?)px/.exec(written)
-        expect(found, `the ${edge} band states no thickness: ${written}`).not.toBeNull()
-        expect(
-          Number((found as RegExpExecArray)[1]),
-          `HF-15 (MUST): the ${edge} band is not S-213 thick: ${written}`,
-        ).toBe(wanted)
-      }
-    }
-  })
-
-  it('⭐ MUST GIVEN the position axis is live WHEN the held task group is read THEN a band lies on its LEFT and RIGHT edges and on neither other (HF-15: 上下の軸が生きているときはタスクグループの左右の辺に)', () => {
-    // ⛔ CROSSWISE IS WHAT THE ROW SAYS: a grab that moves the task group UP AND DOWN
-    // is marked on the left and right edges.
-    const row = theTaskGroupOf(drawn(taskGroupHeldOn('position')))
-
-    expect([...bordersOf(row).keys()].sort(), `the held task group's edges: ${inlineStyle(row)}`).toEqual([
-      'left',
-      'right',
-    ])
-  })
-
-  it('⭐ MUST GIVEN the depth axis is live WHEN the held task group is read THEN a band lies on its TOP and BOTTOM edges and on neither other (HF-15: 左右の軸が生きているときはタスクグループの上下の辺に)', () => {
-    const row = theTaskGroupOf(drawn(taskGroupHeldOn('depth')))
-
-    expect([...bordersOf(row).keys()].sort(), `the held task group's edges: ${inlineStyle(row)}`).toEqual([
-      'bottom',
-      'top',
-    ])
-  })
-
-  it('⭐ GIVEN the two axes WHEN the bands are compared THEN they are NOT painted alike (HF-15: 色は S-151（上下）と S-152（左右）)', () => {
-    // ⚠️ WHICH INK IS WHICH IS NOT READ HERE -- 表 T-236 states each color twice
-    // (one per theme) and this unit resolves the theme, so a case that fixed the
-    // string would be asserting the theme and not the rule. ⛔ What the rule
-    // decides, and what is read, is that the two axes are told APART by color:
-    // one task group, two colors, and 「どちらの軸が生きているか」 unreadable if they
-    // were the same.
-    const onPosition = [...bordersOf(theTaskGroupOf(drawn(taskGroupHeldOn('position')))).values()]
-    const onDepth = [...bordersOf(theTaskGroupOf(drawn(taskGroupHeldOn('depth')))).values()]
-
-    expect(onPosition, 'the position axis drew no band').not.toHaveLength(0)
-    expect(onDepth, 'the depth axis drew no band').not.toHaveLength(0)
-    expect(new Set(onPosition).size, 'the two bands of one axis differ').toBe(1)
-    expect(new Set(onDepth).size, 'the two bands of one axis differ').toBe(1)
-    expect(onPosition[0], 'the two axes are drawn in one and the same color').not.toBe(onDepth[0])
-  })
-
-  it('⭐ MUST GIVEN a task group is held WHEN it is compared with the same task group unheld THEN it is given a ground of its own (HF-15: 掴んでいるタスクグループには地を敷くこと)', () => {
-    const held = theTaskGroupOf(drawn(taskGroupHeldOn('position')))
-    const free = theTaskGroupOf(drawn(taskGroupHeldOn(null)))
+  it('⭐ MUST GIVEN a task group is held WHEN it is compared with the same task group unheld THEN it is given a ground of its own (HF-15: the held task group takes a ground)', () => {
+    const held = theTaskGroupOf(drawn(taskGroupHeldOn(true)))
+    const free = theTaskGroupOf(drawn(taskGroupHeldOn(false)))
 
     const groundOf = (row: FakeElement): string =>
       (styleMap(row).get('background') ?? styleMap(row).get('background-color') ?? '').trim()
 
     expect(groundOf(held), `the held task group has no ground: ${inlineStyle(held)}`).not.toBe('')
     expect(groundOf(held), 'the held task group is painted like every other task group').not.toBe(groundOf(free))
-  })
-
-  it('⛔ GIVEN NO task group is held WHEN the task group is read THEN it carries neither band nor axis mark (HF-15: the mark says WHICH task group is held)', () => {
-    const row = theTaskGroupOf(drawn(taskGroupHeldOn(null)))
-
-    expect([...bordersOf(row).keys()], `an unheld task group carries a band: ${inlineStyle(row)}`).toEqual(
-      [],
-    )
   })
 
   it('⭐⭐ MUST GIVEN the panel is drawn with nothing held WHEN GR-20’s strip is read THEN NO resting rule hides it, though the task group controls beside it are hidden (HF-15: 掴み代は常に描くこと、HF-6 の対象ではない)', () => {

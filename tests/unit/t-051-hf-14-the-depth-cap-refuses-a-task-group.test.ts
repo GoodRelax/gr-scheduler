@@ -25,10 +25,8 @@
 //
 //   「| RS-46 | **これ以上深い段にはタスクグループを足せない** | `NT-3a` | `FR-085` |」
 //
-// ⛔ AND THE ROW IT MUST NOT BE CONFUSED WITH, which CR-340 names outright:
-//   「| RS-38 | 深さの上限に達しているので、これ以上深い段へは動かせない | `NT-1` |
-//    `FR-085` |」 —— 「⛔ **`RS-38`（動かせない）を流用してはならない** —— **あちらは
-//   `HF-15` の移動のためであり、足す押しには真でない。**」
+// ⚠️ CR-340 once set a MOVE row beside it, told at the cap of a carried task group;
+// CR-772 retired that row, since a carried task group now stops silently (HF-15).
 //
 // ---------------------------------------------------------------------------
 // Unit under test: UF-48 of 表 T-075 (`frame-loop.ts`, component CP-25 of
@@ -151,8 +149,6 @@ const mannerOf = (reason: string): string => bare(rowOf('T-233', reason).by['作
 
 /** RS-46 -- 「これ以上深い段にはタスクグループを足せない」. */
 const RS_46 = 'RS-46'
-/** RS-38 -- the MOVE at the cap, which CR-340 forbids reusing for the ADD. */
-const RS_38 = 'RS-38'
 /** RS-15 -- FR-029's landing place for a reason 表 T-233 has no row for. */
 const RS_15 = 'RS-15'
 
@@ -484,14 +480,6 @@ describe('the manuscript still says what these cases read', () => {
     }
   })
 
-  it('⛔ RS-38 is still the MOVE and not the ADD, so the two cannot be used for each other', () => {
-    // ⭐ CR-340: 「⛔ **`RS-38`（動かせない）を流用してはならない** —— **あちらは
-    // `HF-15` の移動のためであり、足す押しには真でない。**」 Both cite FR-085, so
-    // the ONLY thing that parts them is the 場面 -- which is why it is read here.
-    expect(rowOf('T-233', RS_38).by['場面']).toContain('これ以上深い段へは動かせない')
-    expect(wordsFor(RS_38).text.ja).not.toBe(wordsFor(RS_46).text.ja)
-  })
-
   it('⛔ FR-029 still ties the faint drawing and the telling into one rule', () => {
     expect(REQUIREMENTS).toContain('押されたときに限り、行えない理由を通知の仕組みへ運ぶこと（MUST）')
     expect(REQUIREMENTS).toContain('当たる行があるのに落ち先を運んではならない（MUST NOT）')
@@ -522,7 +510,7 @@ describe('表 T-051 HF-14 (MUST): a task group at FR-085s cap has no child to ad
   })
 
   for (const language of ['ja', 'en'] as const) {
-    it(`⭐ a press at the cap shows none of RS-46's, RS-38's or RS-15's words (${language})`, () => {
+    it(`⭐ a press at the cap shows none of RS-46's or RS-15's words (${language})`, () => {
       // ⛔⛔ THE DEFECT THIS CASE IS WRITTEN FOR, measured in CR-340 and still
       // written into HF-14: 「⚠️ **実測（2026-09-03、出荷ビルド）: 深さ 5 で入口は
       // 薄いまま押せ、押した先は開き、確定してもタスクグループは増えず通知も出なかった。**」
@@ -534,10 +522,6 @@ describe('表 T-051 HF-14 (MUST): a task group at FR-085s cap has no child to ad
       const texts = built.notices().map((one) => one.text)
       expect(texts, 'RS-46 is hidden (表 T-233 の表示の仕方)').not.toContain(
         wordsFor(RS_46).text[language],
-      )
-      // ⛔ 「当たる行があるのに落ち先を運んではならない（MUST NOT）」 -- FR-029.
-      expect(texts, 'RS-38 is the MOVE at the cap, not the ADD').not.toContain(
-        wordsFor(RS_38).text[language],
       )
       expect(texts, 'RS-15 is for a reason 表 T-233 has no row for').not.toContain(
         wordsFor(RS_15).text[language],

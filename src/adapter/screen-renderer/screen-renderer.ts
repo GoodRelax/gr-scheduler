@@ -205,6 +205,21 @@ export interface TaskGroupPanel {
   readonly groupGridLines?: readonly ScreenRect[]
   // TRAP: optional so literals compile; absent prints no abbreviation (FR-017, FR-156).
   readonly rulerAbbreviations?: readonly RulerAbbreviation[]
+  readonly dropCue?: TaskGroupDropCue | null
+  readonly grabCopy?: TaskGroupGrabCopy | null
+}
+
+export interface TaskGroupDropCue {
+  readonly lineY: number
+  readonly lineIndentPx: number
+  readonly parentTaskGroupId: string | null
+}
+
+// see HF-15, S-599
+export interface TaskGroupGrabCopy {
+  readonly x: number
+  readonly y: number
+  readonly name: string
 }
 
 // see FR-017, FR-156, T-376, EP-3
@@ -228,7 +243,7 @@ export interface TaskGroupTitle {
   readonly canOpenOneLevel?: boolean
   readonly canAddChildTaskGroup?: boolean
   readonly foldedTaskGroupCount?: number
-  readonly heldOnAxis?: 'position' | 'depth' | null
+  readonly isHeld?: boolean
   readonly isPinned: boolean
   readonly isSelected: boolean
 }
@@ -739,10 +754,7 @@ export interface ScreenViewReadings {
   readonly isRecordingInteractions?: boolean
   readonly taskGroupGrabbedAt?: {
     readonly taskGroupId: string
-    readonly depth: number
-    readonly axis: 'position' | 'depth'
-    readonly resistedPx: number
-    readonly atY: number | null
+    readonly landing: { readonly gapY: number; readonly lineIndentPx: number; readonly parentId: string | null } | null
   } | null
   // see FR-085, T-293
   readonly selectedTaskGroupIds: readonly string[]

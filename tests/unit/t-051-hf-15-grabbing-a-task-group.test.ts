@@ -33,32 +33,15 @@
 //
 // ⛔ NOT ONE EXPECTED VALUE BELOW COMES OUT OF `src/`. Every number is read out
 // of the manuscript at read time (`S-208`, `S-37`, `S-125` -- see `settingOf`),
-// every landing is stated as the relation HF-15 states (「すぐ上の兄弟の末子」,
-// 「親の次の兄弟」, 「次の群の長子の位置」), and every refusal is looked up in
-// 表 T-233 and in FR-038's dictionary rather than typed here.
+// and every landing is stated as a relation of the tree rather than typed here.
 //
 // ---------------------------------------------------------------------------
 // THE ROWS THESE CASES REST ON
 // ---------------------------------------------------------------------------
-//   T-051 HF-15 「**タスクグループを掴んで動かせること（MUST）** —— 掴み代は 表 T-023d の
-//           `GR-20` である。⭐ **軸を 1 本に固定すること（MUST）。掴んでから最初
-//           に閾値を超えた向きで軸が決まり、離すまで変わらないこと（MUST）**……
-//           閾値は `_assets/tbl-settings.md` の 表 T-206 の `S-208` が持つ。
-//           ⭐ **上下は位置を変え、段を変えてはならない（MUST NOT）** ——
-//           **その段に置ける場所を描く順にたどること（MUST）。**⇒ **ある群の
-//           末子の次は次の群の長子の位置であり、親をまたぐ。**⛔ **折りたたまれた群の
-//           中の場所を選んではならない（MUST NOT）**……⭐ **左右は段を変える
-//           こと（MUST）。右へ 1 歩はすぐ上の兄弟の末子になること、左へ 1 歩は
-//           親の次の兄弟になること（MUST）**……⇒ **すぐ上に兄弟が無いタスクグループは右へ
-//           動かせない。**⚠️ **左へ出たとき、後ろに居た兄弟は元の親に残すこと
-//           （MUST）。**⛔ **深さの上限を超える右移動を受け付けてはならない
-//           （MUST NOT）** —— 上限は `FR-085` が持つ。⭐ **どちらの向きでも、
-//           そのタスクグループの配下ごと動かすこと（MUST）。**⭐ **握っているあいだ、タスクグループを
-//           ポインタに追従させること（MUST）。段送りの刻みは 表 T-201 の `S-37`
-//           と同じとすること（MUST）** —— ⛔⛔ **刻みを別に持ってはならない
-//           （MUST NOT）**……⛔ **動かせないときは、タスクグループを動かさずに理由を告げる
-//           こと（MUST）** —— 作法は `FR-029` に従い、理由は 表 T-233 の行と
-//           する」
+//   T-051 HF-15 -- read at read time below; CR-772 rewrote it (one drag sets
+//           the gap and the depth). ⚠️ The cases of the retired axis lock, its
+//           bands, its refusals and its resisted follow were removed with it;
+//           the spec-only tester of CR-772 writes the cases of the new rule.
 //   T-023d GR-20 「タスクグループパネルのタスクグループ | **タスクグループの左端に敷く掴み代**（幅は
 //           `_assets/tbl-settings.md` の 表 T-206 の `S-138`）| 掴めばタスクグループを動かす
 //           （表 T-051 の `HF-15`）。⛔ **ピン止めしているタスクグループは掴めないこと
@@ -68,10 +51,7 @@
 //           （MUST NOT）**」
 //   T-023d  「⛔ **掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）**
 //           （`FR-031`）—— **追従は絵であって編集ではない。**」
-//   T-233 RS-36 / RS-37 / RS-38 / RS-39 -- the four reasons a refusal carries,
-//           all of manner `NT-1`
-//   T-206 S-208 「掴んだタスクグループの軸が決まる距離」, and its own ⛔ 「刻みを本表に
-//           持たせてはならない」
+//   T-206 S-208 the distance past which a grabbed task group is carried
 //   T-206 S-138 the width GR-20 lays the strip at
 //   T-201 S-37 `taskGroupTitleIndent` -- the 段送りの刻み HF-15 borrows
 //   T-211 S-125 `maxGroupDepth`, 「根のタスクグループを深さ 1 と数える」
@@ -95,15 +75,6 @@
 //   - HOW THE STRIP IS PAINTED. GR-20 gives it a width and a place and no ink;
 //     表 T-026 makes a new figure the user's ruling (RC-13), so a case naming a
 //     color or a shape would be inventing one.
-//   - WHETHER A GAP OR A DROP MARK IS OPENED FOR THE HELD TASK GROUP. No row of 表
-//     T-103 gives a part for a place-to-land and no row of 表 T-109 an entrance,
-//     so a case demanding either would be asserting a thing the manuscript
-//     declines to decide. What IS asserted is where the task group itself is drawn.
-//   - HM-4 「自分の子孫を親にする移動を受け付けてはならない」. HF-15's two
-//     steps are 「すぐ上の兄弟の末子」 and 「親の次の兄弟」, and neither can
-//     name a descendant of the task group being moved -- so this gesture cannot reach
-//     the task group HM-4 refuses, and a case would be driving an input the
-//     specification gives no way to make.
 //   - THE UNDO HISTORY ITSELF. UN-4 makes one drag 一段, but `FrameLoop`
 //     publishes no history, so what is asserted here is the other half of the
 //     same claim: the whole gesture writes ONCE, on the release, and what it
@@ -123,10 +94,6 @@
 //     panel to say where one is -- so it is held in
 //     tests/unit/uf-72-screen-part.test.ts and not here. See the note in the
 //     GR-20 describe near the foot of this file.
-//   - WHETHER A TASK GROUP WITH NO CHILDREN OFFERS A PLACE AT THE DEPTH BELOW IT.
-//     HF-15 says 「その段に置ける場所」 and no row says whether a childless task group
-//     opens one. Every fixture below therefore gives each group a child, so no
-//     case turns on that undecided question.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -157,7 +124,6 @@ import {
   type ScreenWiring,
 } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable, unbroken } from '../contract/spec-table'
-import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 
 // ===========================================================================
 // What the manuscript says, read at read time rather than copied
@@ -192,50 +158,22 @@ function settingOf(table: string, id: string, column: string): number {
 }
 
 /**
- * 表 T-206 `S-208` -- 掴んだタスクグループの軸が決まる距離.
+ * 表 T-206 `S-208` -- the distance past which a grabbed task group is carried.
  *
  * ⚠️ THE `既定` COLUMN AND NOT `値`. 表 T-206's first cell NAMES the thing and
  * the second gives the number; a reading of the first would come back with the
  * digits of the row id it points at.
  */
-const S_208_AXIS_SETTLES_AT = settingOf('T-206', 'S-208', '既定')
+const S_208_CARRIES_PAST = settingOf('T-206', 'S-208', '既定')
 
 /** 表 T-201 `S-37` `taskGroupTitleIndent` -- 段送りの刻み, which HF-15 borrows. */
 const S_37_INDENT = settingOf('T-201', 'S-37', '既定値')
-
-// see HF-15, S-37, DS-1
-const DRAWN_S_37 = S_37_INDENT * DEFAULT_DISPLAY_RATIO
 
 /** 表 T-211 `S-125` `maxGroupDepth`. 「根のタスクグループを深さ 1 と数える」. */
 const S_125_MAX_DEPTH = settingOf('T-211', 'S-125', '値')
 
 /** 表 T-103 U-22 -- the settled name IF-9 answers a point in the panel by. */
 const U_22_PART = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
-
-/**
- * FR-038's dictionary, as the manuscript keeps it.
- *
- * ⭐ THE MANUSCRIPT'S COPY AND NOT THE BUILT ONE. `docs/spec/_source/` is where
- * the words are written and `src/` holds what is printed from it; rule 04
- * section 1 has these cases driven from docs/spec. ⭐ The shape is copied from
- * tests/unit/fr-029-the-reason-a-press-carries.test.ts.
- */
-interface ReasonWords {
-  readonly rowId: string
-  readonly text: Readonly<Record<DisplayLanguage, string>>
-}
-
-const REASON_WORDS: readonly ReasonWords[] = (
-  JSON.parse(readFileSync(join(SPEC, '_source', 'display-words.json'), 'utf8')) as {
-    reasons: ReasonWords[]
-  }
-).reasons
-
-function wordsFor(rowId: string): string {
-  const found = REASON_WORDS.find((one) => one.rowId === rowId)
-  if (found === undefined) throw new Error(`FR-038's dictionary holds no words for ${rowId}`)
-  return found.text.ja
-}
 
 // ===========================================================================
 // The documents these cases drive
@@ -597,17 +535,6 @@ function storedTaskGroup(loop: FrameLoop, taskGroupId: string): Row {
   return found
 }
 
-const parentOf = (loop: FrameLoop, taskGroupId: string): string | null =>
-  storedTaskGroup(loop, taskGroupId).parentId
-
-/** The children of one parent, in the order the document stores them. */
-const childrenOf = (loop: FrameLoop, parentId: string | null): readonly string[] =>
-  rowsOf(loop)
-    .filter((one) => one.parentId === parentId)
-    .slice()
-    .sort((a, b) => a.order - b.order)
-    .map((one) => nameOf(one.id))
-
 /** How deep one task group sits. 「根のタスクグループを深さ 1 と数える」 (S-125). */
 function depthOf(loop: FrameLoop, taskGroupId: string): number {
   let at: string | null = taskGroupId
@@ -619,63 +546,8 @@ function depthOf(loop: FrameLoop, taskGroupId: string): number {
   return depth
 }
 
-/** The TaskGroupTitle the panel drew for one task group, or `null` when it drew none. */
-function drawnTitle(built: Stage, taskGroupId: string): any {
-  const panel = built.screen.last().taskGroupPanel
-  const all = [...panel.pinnedTitles, ...panel.titles] as any[]
-  return all.find((one) => one.taskGroupId === taskGroupId) ?? null
-}
-
-function titleOf(built: Stage, taskGroupId: string): any {
-  const found = drawnTitle(built, taskGroupId)
-  if (found === null) throw new Error(`the panel drew no title for task group ${nameOf(taskGroupId)}`)
-  return found
-}
-
-const noticesOf = (built: Stage): ScreenView['notices'] => built.screen.last().notices
-
-/** The four reasons 表 T-233 gives HF-15 and FR-085 for a refused task group move. */
-const HF_15_REASONS = ['RS-36', 'RS-37', 'RS-38', 'RS-39'] as const
-
-/**
- * The refusal was told, it was told the NT-1 way, and it was told with THIS
- * row's words and none of its three neighbors'.
- *
- * ⬛ WHY THE NEIGHBORS ARE NAMED. All four reasons refuse the same gesture,
- * so a build that answered one of them for everything would satisfy a case that
- * only asked 「a reason was told」 -- and FR-029's whole point is that the person
- * is told WHICH.
- */
-function toldOnly(built: Stage, rowId: (typeof HF_15_REASONS)[number]): void {
-  const said = noticesOf(built)
-  for (const one of HF_15_REASONS) {
-    expect(said.map((notice) => notice.text), `${one} was shown, but table T-233 hides it`).not.toContain(wordsFor(one))
-  }
-  expect(bare(rowOf('T-233', rowId).by['表示の仕方'] ?? ''), `table T-233 shows ${rowId} again`).toBe('出さない')
-}
-
-/**
- * One whole gesture on GR-20's strip: press the task group, travel, let go.
- *
- * ⚠️ The travel is handed over in STEPS rather than in one jump, because HF-15
- * settles the axis on 「最初に閾値を超えた」 travel -- a single `move` would
- * leave a case unable to say which travel was the first.
- */
-function drag(
-  built: Stage,
-  taskGroupId: string,
-  steps: readonly { readonly dx: number; readonly dy: number }[],
-): void {
-  const from = stripPoint(built.loop, taskGroupId)
-  built.aimAtTheStrip(taskGroupId)
-  built.send(pointer('down', from.x, from.y))
-  for (const step of steps) built.send(pointer('move', from.x + step.dx, from.y + step.dy))
-  const last = steps[steps.length - 1] ?? { dx: 0, dy: 0 }
-  built.send(pointer('up', from.x + last.dx, from.y + last.dy))
-}
-
-/** A travel far enough to settle the axis, in one named direction. */
-const PAST = S_208_AXIS_SETTLES_AT + 1
+/** A travel far enough to carry the task group. */
+const PAST = S_208_CARRIES_PAST + 1
 
 // ===========================================================================
 // The premises -- the manuscript still says what every case below rests on
@@ -686,22 +558,7 @@ describe('the specification still says what these cases are driven by', () => {
     const hf15 = saysOf('T-051', 'HF-15')
     for (const clause of [
       'タスクグループを掴んで動かせること（MUST）',
-      '軸を 1 本に固定すること（MUST）',
-      '掴んでから最初に閾値を超えた向きで軸が決まり、離すまで変わらないこと（MUST）',
-      '上下は位置を変え、段を変えてはならない（MUST NOT）',
-      'その段に置ける場所を描く順にたどること（MUST）',
-      'ある群の末子の次は次の群の長子の位置であり、親をまたぐ',
-      '折りたたまれた群の中の場所を選んではならない（MUST NOT）',
-      '左右は段を変えること（MUST）',
-      '右へ 1 歩はすぐ上の兄弟の末子になること、左へ 1 歩は親の次の兄弟になること（MUST）',
-      'すぐ上に兄弟が無いタスクグループは右へ動かせない',
-      '左へ出たとき、後ろに居た兄弟は元の親に残すこと（MUST）',
-      '深さの上限を超える右移動を受け付けてはならない（MUST NOT）',
       'そのタスクグループの配下ごと動かすこと（MUST）',
-      '握っているあいだ、タスクグループをポインタに追従させること（MUST）',
-      '段送りの刻みは 表 T-201 の `S-37` と同じとすること（MUST）',
-      '刻みを別に持ってはならない（MUST NOT）',
-      '動かせないときは、タスクグループを動かさずに理由を告げること（MUST）',
     ]) {
       expect(hf15, `表 T-051 の HF-15 no longer says 「${clause}」`).toContain(clause)
     }
@@ -728,40 +585,6 @@ describe('the specification still says what these cases are driven by', () => {
       '掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）',
     )
     expect(REQUIREMENTS).toContain('追従は絵であって編集ではない')
-  })
-
-  it('表 T-233 still holds RS-36 .. RS-39, all told the NT-1 way, and FR-038 has words for each', () => {
-    const owners: Readonly<Record<string, string>> = {
-      'RS-36': '表 T-051 の `HF-15`',
-      'RS-37': '表 T-051 の `HF-15`',
-      'RS-38': '`FR-085`',
-      'RS-39': '表 T-051 の `HF-15`',
-    }
-    for (const [id, owner] of Object.entries(owners)) {
-      const row = rowOf('T-233', id)
-      expect(row.cells.join(' '), `${id} is no longer told the NT-1 way`).toContain('NT-1')
-      expect(row.cells.join(' '), `${id} no longer names ${owner}`).toContain(owner)
-      expect(wordsFor(id).length, `FR-038's dictionary has no words for ${id}`).toBeGreaterThan(0)
-    }
-  })
-
-  it('S-208 is the threshold, S-37 is the step, and NO settings row holds a step of its own', () => {
-    const s208 = saysOf('T-206', 'S-208')
-    expect(s208).toContain('掴んだタスクグループの軸が決まる距離')
-    expect(s208, 'S-208 no longer forbids a second home for the step').toContain(
-      '刻みを本表に持たせてはならない',
-    )
-    expect(S_208_AXIS_SETTLES_AT, '⛔ 0 にしてはならない').toBeGreaterThan(0)
-
-    // ⛔⛔ 「刻みを別に持ってはならない（MUST NOT）」. The only row of 表 T-206
-    // that may speak of the step at all is S-208, and only to say it is not
-    // there.
-    const speakers = specTable('T-206')
-      .rows.filter((one) => one.cells.join(' ').includes('段送りの刻み'))
-      .map((one) => one.id)
-    expect(speakers, '表 T-206 grew a second home for the 段送りの刻み').toEqual(['S-208'])
-
-    expect(S_37_INDENT, '表 T-201 の S-37 no longer states a step').toBeGreaterThan(0)
   })
 
   it('表 T-108 still holds CM-73, and UN-4 still makes one drag ONE 段 (FR-031)', () => {
@@ -851,393 +674,12 @@ describe('the fixture these cases drive', () => {
 // 軸を 1 本に固定すること（MUST）
 // ===========================================================================
 
-describe('HF-15 (MUST) -- 軸を 1 本に固定すること。掴んでから最初に閾値を超えた向きで軸が決まり、離すまで変わらない', () => {
-  it('a travel that never passes S-208 settles no axis, so the document is not touched', () => {
-    // ⛔ 「0 にしてはならない —— 1 画素の震えで軸が決まってしまう」 (S-208). A
-    // hand that shook by less than the threshold has said nothing.
-    const built = stage()
-    const before = structuredClone(built.loop.document())
-
-    const short = S_208_AXIS_SETTLES_AT - 1
-    drag(built, A2, [
-      { dx: short, dy: 0 },
-      { dx: 0, dy: short },
-    ])
-
-    expect(built.loop.document(), 'a travel inside the threshold moved a task group').toEqual(before)
-  })
-
-  it('the FIRST travel past S-208 going sideways settles the depth axis, and a large travel down after it does not take it back', () => {
-    // 「軸を固定しないと、1 画素ごとに『動かすのか、親を変えるのか』を道具が
-    // 推し量ることになり、境目で答えが反転する」.
-    const built = stage()
-    const downToDelta = bandOf(built.loop, D1).y - bandOf(built.loop, A2).y
-
-    drag(built, A2, [
-      { dx: PAST, dy: 0 },
-      { dx: DRAWN_S_37, dy: 0 },
-      { dx: DRAWN_S_37, dy: downToDelta },
-    ])
-
-    // 右へ 1 歩はすぐ上の兄弟の末子になること -- A2's sibling immediately above
-    // is A1, and the vertical travel that followed changed nothing about that.
-    expect(parentOf(built.loop, A2), 'the vertical travel took the axis back').toBe(A1)
-  })
-
-  it('the FIRST travel past S-208 going down settles the position axis, and a large travel sideways after it does not change the depth', () => {
-    const built = stage()
-    const downToB1 = bandOf(built.loop, B1).y - bandOf(built.loop, A2).y
-    const wasDepth = depthOf(built.loop, A2)
-
-    drag(built, A2, [
-      { dx: 0, dy: PAST },
-      { dx: 0, dy: downToB1 },
-      { dx: S_37_INDENT * 3, dy: downToB1 },
-    ])
-
-    expect(
-      depthOf(built.loop, A2),
-      'the sideways travel changed the depth after the position axis had settled',
-    ).toBe(wasDepth)
-  })
-})
-
-// ===========================================================================
-// 上下は位置を変え、段を変えてはならない（MUST NOT）
-// ===========================================================================
-
-describe('HF-15 -- 上下は位置を変え、段を変えてはならない（MUST NOT）', () => {
-  it('⛔ MUST NOT: a drag down changes where the task group stands and never how deep it is', () => {
-    const built = stage()
-    const wasDepth = depthOf(built.loop, A2)
-    const downToB1 = bandOf(built.loop, B1).y - bandOf(built.loop, A2).y
-
-    drag(built, A2, [
-      { dx: 0, dy: PAST },
-      { dx: 0, dy: downToB1 },
-    ])
-
-    expect(depthOf(built.loop, A2), 'a vertical drag changed the task group’s depth').toBe(wasDepth)
-  })
-
-  it('⭐ MUST: 「ある群の末子の次は次の群の長子の位置であり、親をまたぐ」 -- A2 is Alpha’s last child, and one place down is Beta’s first', () => {
-    // ⭐ THE SENTENCE THIS FILE EXISTS FOR. The place drawn where B1 stands is
-    // BETA's first-child position, and the hand standing there lands the task group
-    // there -- under a DIFFERENT parent, at the SAME depth.
-    const built = stage()
-    const downToB1 = bandOf(built.loop, B1).y - bandOf(built.loop, A2).y
-
-    drag(built, A2, [
-      { dx: 0, dy: PAST },
-      { dx: 0, dy: downToB1 },
-    ])
-
-    expect(parentOf(built.loop, A2), 'the walk did not cross the parent').toBe(BETA)
-    expect(childrenOf(built.loop, BETA), 'A2 did not land as Beta’s 長子').toEqual(['A2', 'B1'])
-    expect(depthOf(built.loop, A2)).toBe(2)
-  })
-
-  it('⭐ UN-4 「同じ親の中の並べ替え」 -- dragged UP one place, A2 stays under Alpha and stands before A1', () => {
-    // ⚠️ THE OTHER HALF OF THE WALK. UN-4 names both outcomes of one drag --
-    // 「親をまたぐことも、またがないこともあり」 -- so a build that always crossed the
-    // parent would pass the case above and fail this one.
-    const built = stage()
-    const upToA1 = bandOf(built.loop, A1).y - bandOf(built.loop, A2).y
-
-    drag(built, A2, [
-      { dx: 0, dy: -PAST },
-      { dx: 0, dy: upToA1 },
-    ])
-
-    expect(parentOf(built.loop, A2), 'the task group left its parent on a move that stays inside it').toBe(
-      ALPHA,
-    )
-    expect(childrenOf(built.loop, ALPHA), 'the two siblings did not change places').toEqual([
-      'A2',
-      'A1',
-    ])
-    expect(depthOf(built.loop, A2)).toBe(2)
-  })
-
-  it('⛔ MUST NOT: 「折りたたまれた群の中の場所を選んではならない」 -- a drag that walks PAST the folded Gamma lands under Delta and never inside Gamma', () => {
-    // 「動かしたタスクグループが消えることになり、効かない操作子と見分けがつかない」.
-    const built = stage()
-    const downToD1 = bandOf(built.loop, D1).y - bandOf(built.loop, A2).y
-
-    drag(built, A2, [
-      { dx: 0, dy: PAST },
-      { dx: 0, dy: downToD1 },
-    ])
-
-    expect(parentOf(built.loop, A2), 'the task group was put inside a folded group').not.toBe(GAMMA)
-    expect(parentOf(built.loop, A2)).toBe(DELTA)
-  })
-
-  it('⛔ MUST: 「その向きに置ける場所が無いので、これ以上動かせない」 -- the first task group dragged UP is refused with RS-39 and does not move', () => {
-    const built = stage()
-    const before = structuredClone(built.loop.document())
-
-    drag(built, ALPHA, [
-      { dx: 0, dy: -PAST },
-      { dx: 0, dy: -bandOf(built.loop, ALPHA).height * 3 },
-    ])
-
-    expect(built.loop.document(), 'the task group moved although there was nowhere to go').toEqual(before)
-    toldOnly(built, 'RS-39')
-  })
-})
-
-// ===========================================================================
-// 左右は段を変えること（MUST）
-// ===========================================================================
-
-describe('HF-15 -- 左右は段を変えること（MUST）', () => {
-  it('⭐ MUST: 右へ 1 歩はすぐ上の兄弟の末子になること -- A2 goes under A1, AFTER A1X', () => {
-    const built = stage()
-
-    drag(built, A2, [
-      { dx: PAST, dy: 0 },
-      { dx: DRAWN_S_37, dy: 0 },
-    ])
-
-    expect(parentOf(built.loop, A2), 'the task group did not become a child of the sibling above it').toBe(
-      A1,
-    )
-    expect(childrenOf(built.loop, A1), 'the task group landed as 長子 instead of 末子').toEqual([
-      'A1X',
-      'A2',
-    ])
-    expect(depthOf(built.loop, A2)).toBe(3)
-  })
-
-  it('⭐ MUST: 左へ 1 歩は親の次の兄弟になること -- A1 leaves Alpha and stands right after it', () => {
-    const built = stage()
-
-    drag(built, A1, [
-      { dx: -PAST, dy: 0 },
-      { dx: -S_37_INDENT, dy: 0 },
-    ])
-
-    expect(parentOf(built.loop, A1), 'the task group did not come out to its parent’s level').toBe(
-      null,
-    )
-    expect(
-      childrenOf(built.loop, null),
-      'the task group did not land as the NEXT sibling of its old parent',
-    ).toEqual(['Alpha', 'A1', 'Beta', 'Gamma', 'Delta'])
-    expect(depthOf(built.loop, A1)).toBe(1)
-  })
-
-  it('⚠️ MUST: 左へ出たとき、後ろに居た兄弟は元の親に残すこと -- A2 stays under Alpha when A1 comes out', () => {
-    const built = stage()
-
-    drag(built, A1, [
-      { dx: -PAST, dy: 0 },
-      { dx: -S_37_INDENT, dy: 0 },
-    ])
-
-    expect(parentOf(built.loop, A2), 'the sibling behind it was dragged out too').toBe(ALPHA)
-    expect(childrenOf(built.loop, ALPHA)).toEqual(['A2'])
-  })
-
-  it('⇒ すぐ上に兄弟が無いタスクグループは右へ動かせない -- A1 is Alpha’s first child, so RS-36 is told and the task group does not move', () => {
-    const built = stage()
-    const before = structuredClone(built.loop.document())
-
-    drag(built, A1, [
-      { dx: PAST, dy: 0 },
-      { dx: S_37_INDENT, dy: 0 },
-    ])
-
-    expect(built.loop.document(), 'a task group with no sibling above it was moved right').toEqual(before)
-    toldOnly(built, 'RS-36')
-  })
-
-  it('⛔ MUST: いちばん浅い段に居るタスクグループは左へ動かせない -- Alpha is at depth 1, so RS-37 is told and the task group does not move', () => {
-    const built = stage()
-    const before = structuredClone(built.loop.document())
-
-    drag(built, ALPHA, [
-      { dx: -PAST, dy: 0 },
-      { dx: -S_37_INDENT, dy: 0 },
-    ])
-
-    expect(built.loop.document(), 'a root task group was moved further out').toEqual(before)
-    toldOnly(built, 'RS-37')
-  })
-})
-
-// ===========================================================================
-// 深さの上限を超える右移動を受け付けてはならない（MUST NOT）
-// ===========================================================================
-
-describe('HF-15 / FR-085 / HM-3a -- 深さの上限を超える右移動を受け付けてはならない（MUST NOT）', () => {
-  const P = (n: number): string => id(100 + n)
-
-  /**
-   * A chain `S-125` deep, with two leaves at the bottom so that a right step
-   * would make one of them a child of the other.
-   *
-   *   P1 .. P(cap-1)   the chain, each the only child of the one above
-   *     Q              depth = cap
-   *     R              depth = cap   <- grabbed
-   */
-  function atTheCap(): Fixture {
-    const cap = S_125_MAX_DEPTH
-    const rows: { id: string; parent: string | null; order: number }[] = []
-    for (let level = 1; level <= cap - 1; level += 1) {
-      rows.push({ id: P(level), parent: level === 1 ? null : P(level - 1), order: 0 })
-    }
-    rows.push({ id: P(90), parent: P(cap - 1), order: 0 }) // Q
-    rows.push({ id: P(91), parent: P(cap - 1), order: 1 }) // R
-    return { rows, folded: [] }
-  }
-
-  it('⛔ MUST NOT: a task group already at S-125 is refused a step right, RS-38 is told, and it does not move', () => {
-    const built = stage(atTheCap())
-    const R = P(91)
-    expect(depthOf(built.loop, R), 'the fixture is not at the cap').toBe(S_125_MAX_DEPTH)
-    const before = structuredClone(built.loop.document())
-
-    drag(built, R, [
-      { dx: PAST, dy: 0 },
-      { dx: S_37_INDENT, dy: 0 },
-    ])
-
-    expect(built.loop.document(), 'a task group was pushed past the depth cap').toEqual(before)
-    toldOnly(built, 'RS-38')
-  })
-
-  it('⛔ HM-3a: 部分木は移動後の最深部で測る -- a task group one step INSIDE the cap is still refused when its child would break it', () => {
-    // 「移動後の深さが `FR-004` の上限を超える移動を受け付けてはならない
-    // （MUST NOT）。部分木は**移動後の最深部**で測る」.
-    const cap = S_125_MAX_DEPTH
-    const rows: { id: string; parent: string | null; order: number }[] = []
-    for (let level = 1; level <= cap - 2; level += 1) {
-      rows.push({ id: P(level), parent: level === 1 ? null : P(level - 1), order: 0 })
-    }
-    // Two siblings one step inside the cap, and the second carries a child that
-    // already stands ON the cap.
-    rows.push({ id: P(90), parent: P(cap - 2), order: 0 })
-    rows.push({ id: P(91), parent: P(cap - 2), order: 1 })
-    rows.push({ id: P(92), parent: P(91), order: 0 })
-
-    const built = stage({ rows, folded: [] })
-    expect(depthOf(built.loop, P(92))).toBe(S_125_MAX_DEPTH)
-    const before = structuredClone(built.loop.document())
-
-    drag(built, P(91), [
-      { dx: PAST, dy: 0 },
-      { dx: S_37_INDENT, dy: 0 },
-    ])
-
-    expect(
-      built.loop.document(),
-      'the move was measured at the task group and not at its deepest descendant',
-    ).toEqual(before)
-    toldOnly(built, 'RS-38')
-  })
-})
-
-// ===========================================================================
-// どちらの向きでも、そのタスクグループの配下ごと動かすこと（MUST）
-// ===========================================================================
-
-describe('HF-15 (MUST) -- どちらの向きでも、そのタスクグループの配下ごと動かすこと', () => {
-  it('the DEPTH axis carries the subtree: A2A is still A2’s child, one step deeper', () => {
-    const built = stage()
-
-    drag(built, A2, [
-      { dx: PAST, dy: 0 },
-      { dx: S_37_INDENT, dy: 0 },
-    ])
-
-    expect(parentOf(built.loop, A2A), 'the child was left behind').toBe(A2)
-    expect(depthOf(built.loop, A2A)).toBe(depthOf(built.loop, A2) + 1)
-  })
-
-  it('the POSITION axis carries the subtree: A2A follows A2 across the parent', () => {
-    const built = stage()
-    const downToB1 = bandOf(built.loop, B1).y - bandOf(built.loop, A2).y
-
-    drag(built, A2, [
-      { dx: 0, dy: PAST },
-      { dx: 0, dy: downToB1 },
-    ])
-
-    expect(parentOf(built.loop, A2A), 'the child was left behind').toBe(A2)
-    // ⚠️ HM-5 (MUST NOT): 「タスクグループの器を作り直してはならない。更新するのは親だけ」 --
-    // so the child that came along is the SAME task group, keeping its own name.
-    expect(rowsOf(built.loop).map((one) => one.id).sort()).toEqual(
-      TASK_GROUPS.map((one) => one.id).sort(),
-    )
-  })
-})
-
-// ===========================================================================
-// 握っているあいだ、タスクグループをポインタに追従させること（MUST）
-// ===========================================================================
-
-describe('HF-15 (MUST) -- 握っているあいだ、タスクグループをポインタに追従させること。段送りの刻みは S-37 と同じ', () => {
-  it('⭐ the depth axis moves the drawn task group by EXACTLY one S-37 per S-37 of travel', () => {
-    // ⛔⛔ 「刻みを別に持ってはならない（MUST NOT）」 —— 実測で、刻み 26px・
-    // 段送り 16px のときポインタ 64px に対しタスクグループは 22px しか動かず、1 段ごとに
-    // 離れていった。⭐ 揃えるとずれは 0px である。
-    const built = stage()
-    const at = stripPoint(built.loop, A2)
-    const restingIndent = titleOf(built, A2).indentPx as number
-
-    built.aimAtTheStrip(A2)
-    built.send(pointer('down', at.x, at.y))
-    built.send(pointer('move', at.x + PAST, at.y))
-
-    const step = DRAWN_S_37
-
-    built.send(pointer('move', at.x + step, at.y))
-    const oneStep = titleOf(built, A2).indentPx as number
-    built.send(pointer('move', at.x + step * 2, at.y))
-    const twoSteps = titleOf(built, A2).indentPx as number
-
-    built.send(pointer('up', at.x + step * 2, at.y))
-
-    expect(
-      oneStep - restingIndent,
-      '描いた S-37 ぶん動かしても、描いた S-37 ぶんタスクグループが動かない（表 T-252 の DS-1）',
-    ).toBeCloseTo(step, 9)
-    expect(
-      twoSteps - restingIndent,
-      'the picture drifted away from the pointer by the second step',
-    ).toBe(step * 2)
-  })
-
-  it('⭐ the position axis draws the held task group at the place the hand stands on, and back where it was when the hand comes back', () => {
-    const built = stage()
-    const at = stripPoint(built.loop, A2)
-    const resting = titleOf(built, A2).box.y as number
-    const downToB1 = bandOf(built.loop, B1).y - bandOf(built.loop, A2).y
-
-    built.aimAtTheStrip(A2)
-    built.send(pointer('down', at.x, at.y))
-    built.send(pointer('move', at.x, at.y + PAST))
-    built.send(pointer('move', at.x, at.y + downToB1))
-    const carried = titleOf(built, A2).box.y as number
-
-    built.send(pointer('move', at.x, at.y))
-    const home = titleOf(built, A2).box.y as number
-    built.send(pointer('up', at.x, at.y))
-
-    expect(carried, 'the held task group stayed where the layout had put it').not.toBe(resting)
-    expect(carried, 'the held task group did not follow the pointer downward').toBeGreaterThan(resting)
-    expect(home, 'the picture did not come back when the pointer came back').toBe(resting)
-  })
-})
-
 // ===========================================================================
 // 掴んでいるあいだ値を文書へ書いてはならない（MUST NOT）, and one write on release
 // ===========================================================================
 
 describe('表 T-023d (MUST NOT) -- 掴んでいるあいだ値を文書へ書いてはならない。追従は絵であって編集ではない', () => {
-  it('⛔ MUST NOT: nothing is written while the depth grab is held', () => {
+  it('⛔ MUST NOT: nothing is written while a sideways carry is held', () => {
     const built = stage()
     const at = stripPoint(built.loop, A2)
     const before = structuredClone(built.loop.document())
@@ -1251,7 +693,7 @@ describe('表 T-023d (MUST NOT) -- 掴んでいるあいだ値を文書へ書い
     expect(built.loop.document(), 'the document was written while the task group was held').toEqual(before)
   })
 
-  it('⛔ MUST NOT: nothing is written while the position grab is held', () => {
+  it('⛔ MUST NOT: nothing is written while a downward carry is held', () => {
     const built = stage()
     const at = stripPoint(built.loop, A2)
     const downToB1 = bandOf(built.loop, B1).y - bandOf(built.loop, A2).y
@@ -1407,208 +849,5 @@ describe('GR-20 -- the strip is what the drag is taken on, and nothing else on t
     built.send(pointer('up', at.x + S_37_INDENT * 2, at.y))
 
     expect(built.loop.document(), 'a press off the strip moved the task group').toEqual(before)
-  })
-})
-
-// ===========================================================================
-// ⭐⭐ THE TWO MUSTS 利用者の裁定 2026-08-30 ADDED TO `HF-15`, AND NEITHER HAD A
-// CASE UNTIL NOW.
-//
-//   THE AXIS MARK 「⭐⭐ **いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと
-//     （MUST）** —— **上下の軸が生きているときはタスクグループの左右の辺に、左右の軸が生きて
-//     いるときはタスクグループの上下の辺に、帯を 1 本ずつ描くこと（MUST）。**⭐ **色は 表 T-236
-//     の `S-151`（上下）と `S-152`（左右）とする。**⛔ **描かないと、動かせない向き
-//     へ引いたときに壊れた操作子と見分けがつかない** —— **押しても何も起きない入口
-//     と同じ見え方になる**」
-//   THE RESISTED FOLLOW 「⭐⭐ **拒まれた向きへの追従は途中で止めること（MUST）**
-//     —— **止める割合は … `S-212` が持つ。**⛔ **拒んだうえにタスクグループをポインタへ付いて
-//     行かせてはならない（MUST NOT）** —— **手応えが返らないと、木から離れて滑って
-//     いくだけに見える**」, with `S-212` 「⭐ **掛ける相手は、その軸の 1 歩ぶんで
-//     ある** —— **左右なら 表 T-201 の `S-37`、上下ならそのタスクグループが占める送りである**」
-//
-// ⛔ WHAT IS READ HERE AND WHAT IS NOT. This file drives the frame loop and reads
-// the DESCRIPTION it hands the surface, so what these cases can see is
-// `TaskGroupTitle.heldOnAxis` -- which axis the held task group is to be drawn marked with --
-// and the BOX the held task group is described in. ⚠️ The bands themselves, their two
-// colors and the ground under the held task group are DRAWN, and are held in
-// tests/unit/uf-72-screen-part.test.ts; ⛔ nothing here asserts a pixel of paint.
-// ===========================================================================
-
-/** 表 T-206 `S-212` -- 拒まれた向きへ掴んだタスクグループが追従する割合. */
-const S_212_RESISTED_RATIO = settingOf('T-206', 'S-212', '既定')
-
-/** Which axis the panel says each drawn task group is held on, keyed by task group. */
-function heldAxes(built: Stage): Map<string, unknown> {
-  const panel = built.screen.last().taskGroupPanel
-  const found = new Map<string, unknown>()
-  for (const title of [...panel.pinnedTitles, ...panel.titles] as any[]) {
-    if (title.heldOnAxis != null) found.set(title.taskGroupId as string, title.heldOnAxis)
-  }
-  return found
-}
-
-describe('HF-15 (MUST) -- いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと', () => {
-  it('表 T-051 still asks for the mark, the bands, the ground and the always-drawn strip, and 表 T-236 still holds the two colors', () => {
-    const hf15 = saysOf('T-051', 'HF-15')
-    for (const clause of [
-      'いまどちらの軸が生きているかを、掴んでいるタスクグループに描くこと（MUST）',
-      '上下の軸が生きているときはタスクグループの左右の辺に、左右の軸が生きているときはタスクグループの上下の辺に、帯を 1 本ずつ描くこと（MUST）',
-      '色は 表 T-236 の `S-151`（上下）と `S-152`（左右）とする',
-      '掴んでいるタスクグループには地を敷くこと（MUST）',
-      '拒まれた向きへの追従は途中で止めること（MUST）',
-      '拒んだうえにタスクグループをポインタへ付いて行かせてはならない（MUST NOT）',
-      '掴み代は常に描くこと（MUST）',
-      '`HF-6`（操作子はポインタが乗っているあいだだけ）の対象ではない',
-    ]) {
-      expect(hf15, `表 T-051 の HF-15 no longer says 「${clause}」`).toContain(clause)
-    }
-    for (const row of ['S-151', 'S-152']) {
-      expect(rowOf('T-236', row).id, `表 T-236 no longer holds ${row}`).toBe(row)
-    }
-    // ⭐ AND THE RATIO IS A REAL FRACTION, which S-212 states as two MUST NOTs:
-    // 「⛔ **0 にしてはならない** …⛔ **1 にしてはならない**」.
-    expect(S_212_RESISTED_RATIO).toBeGreaterThan(0)
-    expect(S_212_RESISTED_RATIO).toBeLessThan(1)
-  })
-
-  it('⭐ MUST: while the DEPTH axis is live, the held task group is marked with that axis and no other task group is marked at all', () => {
-    const built = stage()
-    const at = stripPoint(built.loop, A2)
-
-    built.aimAtTheStrip(A2)
-    built.send(pointer('down', at.x, at.y))
-    expect(heldAxes(built).size, 'a task group was marked before the axis had settled').toBe(0)
-
-    built.send(pointer('move', at.x + PAST, at.y))
-    const marked = heldAxes(built)
-
-    expect([...marked.keys()], 'the mark is not on the task group that is held').toEqual([A2])
-    expect(marked.get(A2), 'a sideways grab was not marked as the depth axis').toBe('depth')
-
-    built.send(pointer('up', at.x + PAST, at.y))
-    expect(heldAxes(built).size, 'the mark outlived the hand').toBe(0)
-  })
-
-  it('⭐ MUST: while the POSITION axis is live, the held task group carries the OTHER axis', () => {
-    // ⛔ THE TWO ARE TOLD APART OR THE MARK SAYS NOTHING: 「描かないと、動かせない
-    // 向きへ引いたときに壊れた操作子と見分けがつかない」.
-    const built = stage()
-    const at = stripPoint(built.loop, A2)
-
-    built.aimAtTheStrip(A2)
-    built.send(pointer('down', at.x, at.y))
-    built.send(pointer('move', at.x, at.y + PAST))
-    const marked = heldAxes(built)
-
-    expect([...marked.keys()]).toEqual([A2])
-    expect(marked.get(A2), 'a downward grab was not marked as the position axis').toBe('position')
-
-    built.send(pointer('up', at.x, at.y + PAST))
-    expect(heldAxes(built).size, 'the mark outlived the hand').toBe(0)
-  })
-
-  it('⛔ a press that never settles an axis marks nothing, so the mark is the AXIS and not the press', () => {
-    // 「掴んでから最初に閾値を超えた向きで軸が決まり」 -- below `S-208` there is no
-    // live axis, and a mark drawn then would name one that does not exist.
-    const built = stage()
-    const at = stripPoint(built.loop, A2)
-
-    built.aimAtTheStrip(A2)
-    built.send(pointer('down', at.x, at.y))
-    built.send(pointer('move', at.x + S_208_AXIS_SETTLES_AT - 1, at.y))
-
-    expect(heldAxes(built).size).toBe(0)
-    built.send(pointer('up', at.x + S_208_AXIS_SETTLES_AT - 1, at.y))
-  })
-
-  it('⛔ a press on the task group’s NAME marks nothing, however far it travels (GR-20: the strip is what the drag is taken on)', () => {
-    const built = stage()
-    const at = stripPoint(built.loop, A2)
-
-    built.aimAtTheName(A2)
-    built.send(pointer('down', at.x + 60, at.y))
-    built.send(pointer('move', at.x + 60, at.y + PAST * 4))
-
-    expect(heldAxes(built).size).toBe(0)
-    built.send(pointer('up', at.x + 60, at.y + PAST * 4))
-  })
-})
-
-describe('HF-15 (MUST) -- 拒まれた向きへの追従は途中で止めること（S-212）', () => {
-  it('⭐⭐ MUST: with the POSITION axis live, a sideways pull moves the task group S-212 of ONE S-37 and no further', () => {
-    // ⭐ 「掛ける相手は、その軸の 1 歩ぶんである —— 左右なら 表 T-201 の `S-37`」.
-    const built = stage()
-    const at = stripPoint(built.loop, A2)
-    const resting = titleOf(built, A2).box.x as number
-
-    built.aimAtTheStrip(A2)
-    built.send(pointer('down', at.x, at.y))
-    built.send(pointer('move', at.x, at.y + PAST))
-
-    built.send(pointer('move', at.x + S_37_INDENT * 4, at.y + PAST))
-    const pulled = (titleOf(built, A2).box.x as number) - resting
-    built.send(pointer('move', at.x + S_37_INDENT * 8, at.y + PAST))
-    const pulledFurther = (titleOf(built, A2).box.x as number) - resting
-
-    built.send(pointer('up', at.x + S_37_INDENT * 8, at.y + PAST))
-
-    // ⛔ MUST NOT: 「拒んだうえにタスクグループをポインタへ付いて行かせてはならない」.
-    expect(pulled, 'the task group followed the whole way into the refused direction').toBeLessThan(
-      S_37_INDENT * 4,
-    )
-    // ⭐ MUST: 「途中で止めること」 -- and 「0 にしてはならない」, or the hand gets
-    // no answer at all and 「掴めていないのか拒まれているのか」 cannot be read.
-    expect(pulled, 'the task group did not move at all, so the hand got no answer').toBeGreaterThan(0)
-    // ⭐ AND THE AMOUNT IS THE ONE S-212 STATES, on one step of THIS axis.
-    expect(
-      Math.abs(pulled - S_212_RESISTED_RATIO * DRAWN_S_37),
-      `the resisted follow is ${pulled}px, not S-212 (${S_212_RESISTED_RATIO}) of one drawn S-37 (${DRAWN_S_37}px)`,
-    ).toBeLessThanOrEqual(1)
-    // ⛔ AND IT STOPS: twice the pull is not twice the follow.
-    expect(pulledFurther, 'the task group went on sliding with the hand').toBe(pulled)
-  })
-
-  it('⭐ MUST: with the DEPTH axis live, a downward pull moves the task group part of one task group’s advance and stops', () => {
-    // ⭐ 「上下ならそのタスクグループが占める送りである」 -- the task group's own band is that advance,
-    // and the loop is what placed it.
-    const built = stage()
-    const at = stripPoint(built.loop, A2)
-    const advance = bandOf(built.loop, A2).height
-    const resting = titleOf(built, A2).box.y as number
-
-    built.aimAtTheStrip(A2)
-    built.send(pointer('down', at.x, at.y))
-    built.send(pointer('move', at.x + PAST, at.y))
-
-    built.send(pointer('move', at.x + PAST, at.y + advance * 4))
-    const pulled = (titleOf(built, A2).box.y as number) - resting
-    built.send(pointer('move', at.x + PAST, at.y + advance * 8))
-    const pulledFurther = (titleOf(built, A2).box.y as number) - resting
-
-    built.send(pointer('up', at.x + PAST, at.y + advance * 8))
-
-    expect(pulled, 'the task group followed the whole way into the refused direction').toBeLessThan(
-      advance * 4,
-    )
-    expect(pulled, 'the task group did not move at all, so the hand got no answer').toBeGreaterThan(0)
-    expect(
-      Math.abs(pulled - S_212_RESISTED_RATIO * advance),
-      `the resisted follow is ${pulled}px, not S-212 (${S_212_RESISTED_RATIO}) of one advance (${advance}px)`,
-    ).toBeLessThanOrEqual(1)
-    expect(pulledFurther, 'the task group went on sliding with the hand').toBe(pulled)
-  })
-
-  it('⛔ MUST NOT: the resisted follow is a PICTURE and writes nothing (表 T-023d: 掴んでいるあいだ値を文書へ書いてはならない)', () => {
-    const built = stage()
-    const at = stripPoint(built.loop, A2)
-    const before = structuredClone(built.loop.document())
-
-    built.aimAtTheStrip(A2)
-    built.send(pointer('down', at.x, at.y))
-    built.send(pointer('move', at.x, at.y + PAST))
-    built.send(pointer('move', at.x + S_37_INDENT * 4, at.y + PAST))
-
-    expect(built.loop.document()).toEqual(before)
-    built.send(pointer('up', at.x + S_37_INDENT * 4, at.y + PAST))
   })
 })

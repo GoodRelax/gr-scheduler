@@ -144,8 +144,6 @@ function guardHolds(name: string, gesture: Loose, event: Loose): boolean {
       return isOnRepeatingEntry(event['type'] === 'pointerPressed' ? event['pressedOn'] : pressedOnNow)
     case 'isOnPaletteBand':
       return (pressedOnNow as Loose | null | undefined)?.['kind'] === 'paletteBand'
-    case 'isPositionAxis':
-      return event['axis'] === 'position'
     default:
       throw new Error(`guard ${name} is named by the manuscript but not by this file's oracle`)
   }
@@ -228,7 +226,6 @@ function crossedSessions(): { name: string; session: ScreenSession }[] {
 function gestureEvents(): Loose[] {
   const samples: Record<string, readonly Loose[]> = {
     pointerPressed: PRESSES.map((p) => ({ pressRow: p.pressRow, pressedOn: p.pressedOn })),
-    taskGroupGrabAxisSettled: [{ axis: 'position' }, { axis: 'depth' }],
   }
   return GESTURE.events.flatMap((ev) => (samples[ev.key] ?? [{}]).map((v) => ({ type: ev.key, ...v })))
 }
@@ -291,7 +288,7 @@ describe('SS-5: screen and notice events leave the gesture region at the same re
   }
   const held = withGesture({
     pointerPressState: { kind: 'changingDocument', pressRow: 'PTD-3', pressedOn: PRESSED_ON['taskGroupGrabStrip'] },
-    taskGroupGrabState: { kind: 'axisUndecided' },
+    taskGroupGrabState: { kind: 'grabPressed' },
   })
   const cases = ['screen', 'notices'].flatMap((name) =>
     regionNamed(name).events.map((ev) => {

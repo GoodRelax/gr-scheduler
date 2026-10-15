@@ -832,8 +832,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `taskGroupAtY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupAtY` | -- | function taskGroupAtY(layout: ScheduleLayout, y: number): TaskGroupPlacement \| null |
 | `taskGroupBandCeilingOf` | entry | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupBandCeilingOf` | PI-18 | `FR-016` の縦軸の上限のうち、いちばん高いタスクグループの帯の高さが初めて `Task Group Area` の高さ以上になった倍率を、表 T-253 の手順で探した答え。 |
 | `taskGroupDepthOfGroup` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupDepthOfGroup` | -- | function taskGroupDepthOfGroup(context: InputContext, taskGroupId: string): number |
-| `TaskGroupGrabAxis` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#TaskGroupGrabAxis` | -- | type TaskGroupGrabAxis = 'position' \| 'depth' |
 | `taskGroupGrabDepthOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupGrabDepthOf` | -- | function taskGroupGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, taskGroup: TaskGroup): number |
+| `TaskGroupGrabLanding` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#TaskGroupGrabLanding` | -- | interface TaskGroupGrabLanding |
+| `TaskGroupGrabScroll` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#TaskGroupGrabScroll` | -- | type TaskGroupGrabScroll = Pick<ScrollAnchor, 'scrollTaskGroupId' \| 'scrollGroupOffset'> |
 | `taskGroupRankById` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
 | `taskGroupsAtZoomY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupsAtZoomY` | -- | function taskGroupsAtZoomY( context: InputContext, measuredWith: DocumentSettings, zoomY: number, ): readonly TaskGroupPlacement[] |
 | `taskShapeKindOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskShapeKindOf` | -- | function taskShapeKindOf(name: string): TaskShapeKind \| null |
@@ -863,6 +864,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `commandFromRowGrab` | file only | function | `src/adapter/input-command-translator/task-group-grab.ts#commandFromRowGrab` | -- | function commandFromRowGrab( release: PointerInput, press: PointerPress, context: InputContext, heldTaskGroupId: string, ): TranslatedInput |
 | `grabbedTaskGroupId` | file only | function | `src/adapter/input-command-translator/task-group-grab.ts#grabbedTaskGroupId` | -- | function grabbedTaskGroupId(press: PointerPress): string \| null |
 | `taskGroupGrabFollow` | file only | function | `src/adapter/input-command-translator/task-group-grab.ts#taskGroupGrabFollow` | -- | function taskGroupGrabFollow(input: PointerInput, context: InputContext): TranslatedInput |
+| `taskGroupGrabLandingAt` | file only | function | `src/adapter/input-command-translator/task-group-grab.ts#taskGroupGrabLandingAt` | -- | function taskGroupGrabLandingAt( context: InputContext, heldGroupId: string, at: { readonly x: number; readonly y: number }, press: PointerPress, ): TaskGrou... |
+| `taskGroupGrabScrollSpeedAt` | file only | function | `src/adapter/input-command-translator/task-group-grab.ts#taskGroupGrabScrollSpeedAt` | -- | function taskGroupGrabScrollSpeedAt(pointerY: number, panelTop: number, panelBottom: number): number |
+| `taskGroupGrabWheel` | file only | function | `src/adapter/input-command-translator/task-group-grab.ts#taskGroupGrabWheel` | -- | function taskGroupGrabWheel(input: WheelInput, context: InputContext): TranslatedInput \| null |
 | `commandFromRowEntry` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#commandFromRowEntry` | -- | function commandFromRowEntry( entry: string, taskGroupId: string \| null, context: InputContext, ): TranslatedInput |
 | `commandFromRowExpanderCloseAll` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#commandFromRowExpanderCloseAll` | -- | function commandFromRowExpanderCloseAll(context: InputContext): TranslatedInput |
 | `commandFromRowExpanderOpenAll` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#commandFromRowExpanderOpenAll` | -- | function commandFromRowExpanderOpenAll(context: InputContext): TranslatedInput |
@@ -871,6 +875,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `taskGroupStoodUp` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#taskGroupStoodUp` | -- | function taskGroupStoodUp(context: InputContext, parentTaskGroupId: string \| null): TranslatedInput |
 | `treeWritesOf` | file only | function | `src/adapter/input-command-translator/task-group-tree-entrances.ts#treeWritesOf` | -- | function treeWritesOf(context: InputContext, event: TreeStateEvent): readonly DocumentCommand[] |
 | `commandFromWheel` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#commandFromWheel` | -- | function commandFromWheel( input: WheelInput, context: InputContext, searchPanelBox: ScreenRect \| null = null, |
+| `taskGroupTurnedTo` | file only | function | `src/adapter/input-command-translator/wheel-input.ts#taskGroupTurnedTo` | -- | function taskGroupTurnedTo(context: InputContext, dy: number): TaskGroupAnchor |
 | `fitWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#fitWrites` | -- | function fitWrites(context: InputContext): readonly (readonly DocumentCommand[])[] |
 | `isPlaceNamed` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#isPlaceNamed` | -- | function isPlaceNamed( schedule: Schedule, scrollDate: string \| null, scrollTaskGroupId: string \| null, ): boolean |
 | `isPlaceSeatedIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#isPlaceSeatedIn` | -- | function isPlaceSeatedIn(context: InputContext): boolean |
@@ -1515,7 +1520,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `TableWindowState` | entry | interface | `src/adapter/screen-renderer/table-window.ts#TableWindowState` | PI-37 | 型。 |
 | `tableWithScheduleFilterOff` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterOff` | -- | function tableWithScheduleFilterOff(view: TableView): TableView |
 | `tableWithScheduleFilterToggled` | entry | function | `src/adapter/screen-renderer/table-window.ts#tableWithScheduleFilterToggled` | PI-37 | 表のスケジュールフィルタの入切を返す（表 T-353 の `TV-5`・`TV-8`）。 |
+| `TaskGroupDropCue` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupDropCue` | -- | interface TaskGroupDropCue |
 | `TaskGroupExpander` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupExpander` | -- | interface TaskGroupExpander |
+| `TaskGroupGrabCopy` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupGrabCopy` | -- | interface TaskGroupGrabCopy |
 | `TaskGroupPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupPanel` | -- | interface TaskGroupPanel |
 | `TaskGroupTitle` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#TaskGroupTitle` | -- | interface TaskGroupTitle |
 | `taskGroupTitleFontPxOf` | entry | function | `src/adapter/screen-renderer/task-group-panel.ts#taskGroupTitleFontPxOf` | PI-37 | タスクグループ名の字の大きさ。 |
@@ -1713,6 +1720,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_SEARCH_PANEL_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_SIZES: |
 | `NOT_STORED_TASK_GROUP_BAND_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_BAND_SIZES` | -- | const NOT_STORED_TASK_GROUP_BAND_SIZES: |
 | `NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES` | -- | const NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES: |
+| `NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES` | -- | const NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES: |
 | `NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES` | -- | const NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES: |
 | `NOT_STORED_WHEEL_UNITS` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_WHEEL_UNITS` | -- | const NOT_STORED_WHEEL_UNITS: |
 | `NOTICE_BOX_ATTRIBUTE` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOTICE_BOX_ATTRIBUTE` | -- | const NOTICE_BOX_ATTRIBUTE = 'data-notice-box' |
@@ -2061,4 +2069,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1043 name(s) leave through a public entry (502 of them published by table T-064), 808 more are exported by a file and not by its entry.
+Totals: 1047 name(s) leave through a public entry (502 of them published by table T-064), 812 more are exported by a file and not by its entry.
