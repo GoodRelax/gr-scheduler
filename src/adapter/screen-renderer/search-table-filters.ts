@@ -250,20 +250,33 @@ export function filteredSearchRows(
   }
 }
 
-// WHY: listed in the column's ascending order with the blank last, as SV-8 sorts it; SV-7 gives the list no order.
+// see SV-7, SV-8
+// WHY: in the sort's direction when this column is the sorted one, ascending otherwise; the blank stays last.
 /** @purity pure */
-export function tableColumnValues<Row>(rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn): readonly string[] {
+export function tableColumnValues<Row>(
+  rows: readonly Row[],
+  table: TableColumns<Row>,
+  column: SearchColumn,
+  sort: ColumnSort | null = null,
+): readonly string[] {
   const values = table.values[column]
   if (values === undefined) return []
   const seen = new Set(rows.flatMap((row) => values(row)))
-  const filled = [...seen].filter((value) => value !== BLANK_SEARCH_VALUE).sort(valueOrderOf(table, column))
+  const order = valueOrderOf(table, column)
+  const sign = sort?.column === column && sort.direction !== 'ascending' ? -1 : 1
+  const filled = [...seen].filter((value) => value !== BLANK_SEARCH_VALUE).sort((a, b) => sign * order(a, b))
   return seen.has(BLANK_SEARCH_VALUE) ? [...filled, BLANK_SEARCH_VALUE] : filled
 }
 
 // see SV-7
 /** @purity pure */
-export function columnValuesOf(rows: SearchRows, column: SearchColumn, hidden: ReadonlySet<number> = NOTHING_HIDDEN): readonly string[] {
+export function columnValuesOf(
+  rows: SearchRows,
+  column: SearchColumn,
+  hidden: ReadonlySet<number> = NOTHING_HIDDEN,
+  sort: ColumnSort | null = null,
+): readonly string[] {
   const tasks = taskTableOf(hidden)
-  if (isColumnOf(tasks, column)) return tableColumnValues(rows.taskRows, tasks, column)
-  return tableColumnValues(rows.commentBoxRows, COMMENT_BOX_TABLE, column)
+  if (isColumnOf(tasks, column)) return tableColumnValues(rows.taskRows, tasks, column, sort)
+  return tableColumnValues(rows.commentBoxRows, COMMENT_BOX_TABLE, column, sort)
 }

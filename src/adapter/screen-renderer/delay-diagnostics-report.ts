@@ -54,6 +54,7 @@ import {
   percentText,
   tableColumnValues,
   withVisibilityColumn,
+  type ColumnSort,
   type TableColumns,
 } from './search-table-filters'
 import {
@@ -468,6 +469,7 @@ function reportWidthSamplesIn(all: readonly ShownTaskGroup[], language: DisplayL
 /** @purity pure */
 function reportLabelOf(column: string, value: string, language: DisplayLanguage): string {
   if (column === VISIBILITY_COLUMN) return visibilityLabelOf(value, language) ?? value
+  if (value === BLANK_SEARCH_VALUE) return wordOf(BLANK_WORD, language)
   return column === STATUS_COLUMN ? statusWordOf(value as DelayReportStatus, language) : value
 }
 
@@ -485,7 +487,7 @@ function reportTableOf(
     fixedCount: DELAY_REPORT_COLUMNS.indexOf(LAST_FIXED_COLUMN) + 1,
     headingOf: (column) => partWordOf(COLUMN_WORDS, column, language),
     isDateColumn: (column) => REPORT_TABLE.dates[column] !== undefined,
-    valuesOf: (column) => tableColumnValues(found(), columns, column),
+    valuesOf: (column) => tableColumnValues(found(), columns, column, view.sort),
     labelOf: (column, value) => reportLabelOf(column, value, language),
     ...(all === undefined ? {} : { widthSamplesOf: reportWidthSamplesIn(all, language) }),
   }
@@ -569,7 +571,8 @@ function diagnosisReportViewOf(
   const all = isOpen ? reported : []
   const withCells = taskGroupsWithCells(all, language, times)
   const found = shownTaskGroupsFrom({ word: window.panel.word, view }, withCells)
-  const table = reportTableOf(view, () => found, language, withCells)
+  const listed = (): readonly ShownTaskGroup[] => shownTaskGroupsFrom({ word: window.panel.word, view: { ...view, columnFilters: [] } }, withCells)
+  const table = reportTableOf(view, listed, language, withCells)
   const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldReportFilterChange(view, reported, schedule), language)
   const rows = reportRowViewsOf(view, found)
   return {
@@ -1033,14 +1036,19 @@ function foundFixRowsOf(all: readonly ShownFixRow[], word: string, view: TableVi
 
 // see T-374, RW-9, RW-10, SV-18
 /** @purity pure */
-function fixWindowTableOf(table: FixTable, found: () => readonly ShownFixRow[], language: DisplayLanguage): WindowTable {
+function fixWindowTableOf(
+  table: FixTable,
+  found: () => readonly ShownFixRow[],
+  language: DisplayLanguage,
+  listed: { readonly rows: () => readonly ShownFixRow[]; readonly sort: ColumnSort | null } = { rows: found, sort: null },
+): WindowTable {
   const columns = table === 'log' ? LOG_COLUMNS : PROPOSAL_COLUMNS
   return {
     columns,
     fixedCount: columns.indexOf(FIX_JUMP_COLUMN) + 1,
     headingOf: (column) => partWordOf(FIX_COLUMN_WORDS, column, language),
     isDateColumn: (column) => column === FIX_DATE_COLUMN,
-    valuesOf: (column) => tableColumnValues(found(), FIX_TABLE, column),
+    valuesOf: (column) => tableColumnValues(listed.rows(), FIX_TABLE, column, listed.sort),
     labelOf: (_column, value) => (value === BLANK_SEARCH_VALUE ? wordOf(BLANK_WORD, language) : value),
     widthSamplesOf: (column) => (DEFAULT_WIDTH_FIX_COLUMNS.includes(column) ? null : [...new Set(found().map((shown) => fixCellOf(shown, column)))]),
   }
@@ -1188,7 +1196,8 @@ function fixTableViewOf(
   const view = values.views[table]
   const all = window.shown === 'minimized' ? [] : shownFixRowsOf(table, tables, words)
   const found = foundFixRowsOf(all, window.panel.word, view)
-  const shape = fixWindowTableOf(table, () => found, language)
+  const listed = (): readonly ShownFixRow[] => foundFixRowsOf(all, window.panel.word, { ...view, columnFilters: [] })
+  const shape = fixWindowTableOf(table, () => found, language, { rows: listed, sort: view.sort })
   return {
     ...windowColumnsViewOf(window, view, shape, language),
     rows: fixRowViewsOf(found, values, words),
