@@ -904,7 +904,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `GROUP_GRID_LINE_WIDTH_PX` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#GROUP_GRID_LINE_WIDTH_PX` | PI-19 | `Group Grid Lines` の罫の太さ。 |
 | `inkOn` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#inkOn` | PI-19 | 色の上に置く字の色（白か黒）を、その色の明度から返す。 |
 | `isScheduleColorRow` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#isScheduleColorRow` | PI-19 | 表 T-236 の行 ID が、`colorOf` の答えられる行（日程の図も塗る行）かを返す。 |
-| `jumpLandingRingOf` | entry | function | `src/adapter/svg-renderer/schedule-overlays.ts#jumpLandingRingOf` | PI-19 | 飛んだ先の印の囲みの箱と線の太さ（表 T-332 の `SJ-10`、`S-555` ・ `S-556`）。 |
+| `jumpLandingRingOf` | entry | function | `src/adapter/svg-renderer/schedule-overlays.ts#jumpLandingRingOf` | PI-19 | 飛んだ先の印の囲みの箱と線の太さと角の丸み（表 T-332 の `SJ-10`、`S-555` ・ `S-556` ・ `S-588`）。 |
 | `markerGlyphSvg` | entry | function | `src/adapter/svg-renderer/schedule-task-figures.ts#markerGlyphSvg` | PI-19 | 進捗マーカーの図形を、字 1 つぶんの正方形の SVG にして返す（`FR-133`、表 T-021・表 T-315）。 |
 | `marqueeOverlaySvg` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#marqueeOverlaySvg` | PI-19 | 重ねの絵 —— 範囲選択の矩形（表 T-020 の `ZO-6`）だけを持つ SVG を返し、握っていなければ空の文字列を返す。 |
 | `NOT_STORED_DELAY_MARK_SIZES` | entry | const | `src/adapter/svg-renderer/svg-renderer.ts#NOT_STORED_DELAY_MARK_SIZES` | -- | const NOT_STORED_DELAY_MARK_SIZES: |
@@ -935,7 +935,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `rulerSvg` | file only | function | `src/adapter/svg-renderer/schedule-grid.ts#rulerSvg` | -- | function rulerSvg( layout: ScheduleLayout, settings: DrawnSettings, band: ScreenRect, weekStart: number, ground: string, ink: string, rule: string, weekdayWo... |
 | `guideCursorPointOf` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#guideCursorPointOf` | -- | function guideCursorPointOf( regions: ScreenRegions, guideCursorMode: ViewerValues['guideCursorMode'], pointer: Point \| null, ): Point \| null |
 | `JumpLandingRing` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#JumpLandingRing` | -- | interface JumpLandingRing |
-| `jumpLandingRingParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#jumpLandingRingParts` | -- | function jumpLandingRingParts( viewer: ViewerValues, input: Pick<OverlaysInput, 'geometry' \| 'layout' \| 'themed' \| 'drawsOperationState'>, ): { readonly pinn... |
+| `jumpLandingRingParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#jumpLandingRingParts` | -- | function jumpLandingRingParts( viewer: ViewerValues, input: RingInput & Pick<OverlaysInput, 'drawsOperationState'>, ): { readonly pinned: readonly string[]; ... |
 | `OverlayParts` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#OverlayParts` | -- | interface OverlayParts |
 | `overlayParts` | file only | function | `src/adapter/svg-renderer/schedule-overlays.ts#overlayParts` | -- | function overlayParts(input: OverlaysInput): OverlayParts |
 | `OverlaysInput` | file only | interface | `src/adapter/svg-renderer/schedule-overlays.ts#OverlaysInput` | -- | interface OverlaysInput |
