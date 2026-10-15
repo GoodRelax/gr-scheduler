@@ -39,7 +39,7 @@
 # LOWERED 2026-10-04 to the measured value (tree density 1720 -> 1711 bp) under JDG-520: the merge of CR-648 (8573378a) into coord, whose tests added cases with few comments.
 # LOWERED 2026-10-04 to the measured value (tree density 1720 -> 1711 bp) under JDG-520: the CR-652 test file added 17 cases with few comments.
 # LOWERED 2026-10-11 to the measured values (tree density 1476 -> 1458 bp, if-1-svg-surface 86 -> 65) under JDG-520: the CR-710 reconcile, measured on abdafc0c plus its edits.
-tree-density-basis-points 1448
+tree-density-basis-points 1406
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 341
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0
@@ -197,7 +197,7 @@ tests/unit/uf-37-38.test.ts 1
 tests/unit/uf-39-40.test.ts 764
 tests/unit/uf-41-42.test.ts 0
 tests/unit/uf-45-46.test.ts 0
-tests/unit/uf-47-48-choosers.test.ts 1395
+tests/unit/uf-47-48-choosers.test.ts 1393
 tests/unit/uf-47-48-history-bytes.test.ts 504
 tests/unit/uf-47-48.test.ts 806
 tests/unit/uf-48-input.test.ts 551

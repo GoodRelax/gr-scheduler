@@ -418,7 +418,7 @@ function themedColors(hue: number, dark: boolean, monochrome: boolean): (rowId: 
 }
 
 // see CV-6
-export type ColorForm = 'fill' | 'outline' | 'actual' | 'band'
+export type ColorForm = keyof PaletteForms
 
 // see CV-6
 export type ChosenColor = (stored: string | null, form: ColorForm) => string | null

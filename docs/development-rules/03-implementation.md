@@ -45,6 +45,7 @@ COLUMN_DEFAULTS                      列の既定値（表 T-058 が刷る）
 COLUMN_SHAPES                        列の入力の形・選択肢・下限上限（`erd.json`）
 DATE_COLUMNS                         日付列の全数（表 T-058）
 DEFAULT_CALENDAR_VALUES              既定の暦（表 T-209）
+EDITED_BY_SCREEN                     画面を操作する人が `lastEditedBy` に書く語（表 T-229 の `ED-1`。`CR-768`）
 ENTITY_ROWS                          実体の行（`erd.json`）
 FINDING_LAYERS                       遅延診断の矛盾と疑義の観点ごとの層（表 T-310・表 T-311 の「層」の欄、`DX-3`。`delay-diagnostics.ts` が読む）
 FIELD_ENTRY_VALUES_INITIAL_AXES      名前付けと入力欄の各状態機械の初期の種類（表 T-292 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
@@ -52,6 +53,7 @@ FILE_FLOW_VALUES_INITIAL_AXES        ファイル操作と問いの各状態機�
 GESTURE_VALUES_INITIAL_AXES          身振りの各状態機械の初期の種類（表 T-289 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 GRS_DOCUMENT_SCHEMA                  `GRS JSON` を読むときに当てるスキーマの根（`grs-document.schema.json`。`tools/generate_json_schema_validator.py` が刷る）
 INTERACTION_RECORD_VALUES_INITIAL_AXES 操作の記録の状態機械の初期の種類（表 T-295 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
+MEDIA_TYPE_OF_EXTENSION              保存の選択面に渡す媒体の型を拡張子ごとに（表 T-024 の媒体の型の欄。`FR-096`、`JDG-2163`、`CR-768`）
 NOT_STORED_CHROME_SCALE              `App Header`と`Command Palette`、入口の図形の箱と隙間の縮尺（`S-235`）
 NOT_STORED_COMMAND_PALETTE_SIZES     `Command Palette` の掴み帯（`S-135a`）
 NOT_STORED_CONFIRMATION_RULE_SIZES   一覧を持つ確認の、見出し部と一覧を隔てる線（`S-242`）
@@ -129,8 +131,10 @@ NOTICE_DISPLAY_OF_REASON             通知の理由ごとの表示の仕方（�
 NOTICE_WORDS_ROW_OF_REASON           通知の理由ごとに語を刷る行（表 T-233 のまとめ方の欄。相乗りしない行は自身。同じ生成器。`CR-712`）
 NOTICE_VALUES_INITIAL_AXES           通知の各状態機械の初期の種類（表 T-286 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）
 QUESTION_DISPLAY_OF_ROW              問いごとの問うか（表 T-234 の問うかの欄。同じ生成器。`CR-712`）
+ROOT_KEYS                            文書の根の鍵の並び（`grs-document.schema.json` の根の `properties`。`DR-1`・`DR-4`、`CR-768`）
 SCHEDULE_COLORS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
 SCHEDULE_COLORS_SOURCES             その行のうち、ほかの行を継ぐ行と継ぎ先（表 T-366 で寄せた行を継ぐ行が、寄せた値で描かれるため。`CR-683`）
+SAVE_FILE_FORMS                      `FileGateway` が保存する形の並び —— 表 T-024 の「`IC-2` に出す」が「出す」の行の行 ID（`FR-096`、`CR-768`）。`SingleHtmlShell` が選ばれた行を形にする。型 `SaveFileForm` は `FileGateway` に同じ生成器が刷る
 SCHEMA_DEFS                          そのスキーマの `$defs`（`GRS_DOCUMENT_SCHEMA` と同じ生成器）
 SCREEN_COLORS                       画面の地の色（表 T-236 のうち `DomScreenSurface` が塗る分）
 SCREEN_VALUES_INITIAL_AXES           画面の値の各状態機械の初期の種類（表 T-280 の状態の一覧の初期。`tools/generate_state_machine_types.py` が刷る）

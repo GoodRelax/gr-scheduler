@@ -319,7 +319,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `RulerTier` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#RulerTier` | -- | type RulerTier = 'year' \| 'yearMonth' \| 'yearMonthWeek' \| 'yearMonthDayWeekday' \| 'dayHour' |
 | `rulerTierOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#rulerTierOf` | PI-5 | 目盛の段階（`FR-017` の 表 T-238 の段）を、1 日あたりの表示幅と設定から求める。 |
 | `ScheduleLayout` | entry | interface | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ScheduleLayout` | PI-5 | 型 |
-| `ShapeKind` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ShapeKind` | -- | type ShapeKind = 'rectangle' \| 'chevron' \| 'arrow' \| 'endpointSpan' \| 'milestone' |
+| `ShapeKind` | entry | type | `src/entity/layout-engine/schedule-layout/schedule-layout.ts#ShapeKind` | -- | type ShapeKind = NonNullable<TaskVisual['shapeKind']> |
 | `shownSpanOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#shownSpanOf` | PI-5 | `Task Group Area` の左端の位置と、右端の 1 px 手前の位置が指す 2 つの日を求める。 |
 | `snapMinutesOf` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snapMinutesOf` | PI-5 | 寄せの単位（分） —— `FR-103` の 表 T-378 の `SG-1`〜`SG-4` |
 | `snappedInstantAtX` | entry | function | `src/entity/layout-engine/schedule-layout/time-axis.ts#snappedInstantAtX` | PI-5 | 横の位置を、寄せの単位で寄せた瞬間（分）として読む（`FR-103`） |
@@ -897,7 +897,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `beneathPointerReadingOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#beneathPointerReadingOf` | PI-19 | 下の絵（表 T-065 の `IF-1`）が指から読むもの —— ガイドカーソルを描く点・指が中にある実績のダミーのタスク・指が掴み代に載った進捗マーカーのタスクを返す。 |
 | `boxOfPoints` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#boxOfPoints` | -- | function boxOfPoints(path: Path): ScreenRect \| null |
 | `ChosenColor` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ChosenColor` | -- | type ChosenColor = (stored: string \| null, form: ColorForm) => string \| null |
-| `ColorForm` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ColorForm` | -- | type ColorForm = 'fill' \| 'outline' \| 'actual' \| 'band' |
+| `ColorForm` | entry | type | `src/adapter/svg-renderer/svg-renderer.ts#ColorForm` | -- | type ColorForm = keyof PaletteForms |
 | `colorOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#colorOf` | PI-19 | 表 T-236 の行 ID と、いまの色の好みから 1 色を返す。 |
 | `DualCursorFollow` | entry | interface | `src/adapter/svg-renderer/svg-renderer.ts#DualCursorFollow` | -- | interface DualCursorFollow |
 | `emphasizedWidthOf` | entry | function | `src/adapter/svg-renderer/svg-renderer.ts#emphasizedWidthOf` | -- | function emphasizedWidthOf(own: number): number |
@@ -1068,7 +1068,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ProjectIdentity` | entry | interface | `src/adapter/file-gateway/file-gateway.ts#ProjectIdentity` | -- | interface ProjectIdentity |
 | `saveDocumentFile` | entry | function | `src/adapter/file-gateway/file-gateway.ts#saveDocumentFile` | PI-22 | `non-pure` |
 | `SaveFileContent` | entry | type | `src/adapter/file-gateway/file-gateway.ts#SaveFileContent` | -- | type SaveFileContent = \| { readonly text: string } \| { readonly bytes: Uint8Array } export interface ProjectIdentity |
-| `SaveFileForm` | entry | type | `src/adapter/file-gateway/file-gateway.ts#SaveFileForm` | -- | type SaveFileForm = 'grsJson' \| 'mspdi' \| 'svg' \| 'png' \| 'singleHtml' |
+| `SaveFileForm` | entry | type | `src/adapter/file-gateway/file-gateway.ts#SaveFileForm` | -- | type SaveFileForm = 'IO-2' \| 'IO-1' \| 'IO-7' \| 'IO-3' \| 'IO-4' |
 
 ## ClipboardGateway (PI-24, `src/adapter/clipboard-gateway/clipboard-gateway.ts`)
 
@@ -1345,7 +1345,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Document` | entry | interface | `src/entity/document-model/document/document.ts#Document` | PI-34 | 型。 |
 | `DocumentViolation` | entry | interface | `src/entity/document-model/document/document.ts#DocumentViolation` | -- | interface DocumentViolation |
 | `documentViolations` | entry | function | `src/entity/document-model/document/document.ts#documentViolations` | PI-34 | `DR-1` に反する箇所 |
-| `ROOT_KEYS` | entry | const | `src/entity/document-model/document/document.ts#ROOT_KEYS` | -- | const ROOT_KEYS = [ |
 
 ## ScreenRegions (PI-35, `src/entity/layout-engine/screen-regions/screen-regions.ts`)
 
@@ -1399,6 +1398,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `ConfirmationItem` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ConfirmationItem` | -- | interface ConfirmationItem |
 | `DEFAULT_TASK_GROUP_NAME` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#DEFAULT_TASK_GROUP_NAME` | PI-37 | タスクグループを既定の名前で立てるときの語。 |
 | `DEFAULT_WINDOW_PLACE` | entry | const | `src/adapter/screen-renderer/window-box.ts#DEFAULT_WINDOW_PLACE` | PI-37 | 覚えた位置も大きさも無いウィンドウの値 —— 既定の箱で描く（表 T-335 の `WB-1`・`WB-6`）。 |
+| `DELAY_DIAGNOSTICS_REPORT_EXTENSION` | entry | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DELAY_DIAGNOSTICS_REPORT_EXTENSION` | PI-37 | 書き出すファイルの拡張子（表 T-024 の `IO-8`、表 T-346 の `RW-7`）。 |
 | `delayDiagnosticsReportAfterEntry` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterEntry` | PI-37 | 遅延診断レポートの窓の入口（表 T-346 の `RW-2`・表 T-330 の `SV-7`・`SV-8`、表 T-335 の `WB-2`・`WB-3`）を押した後の窓の値を答える。 |
 | `delayDiagnosticsReportAfterFilterChange` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterFilterChange` | PI-37 | 列のフィルタの変化（表 T-330 の `SV-7`）を遅延診断レポートの窓の値へ当てる。 |
 | `delayDiagnosticsReportFileNameOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFileNameOf` | PI-37 | 書き出すファイルの提案の名を作る（表 T-346 の `RW-7`）。 |
@@ -2053,4 +2053,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1038 name(s) leave through a public entry (498 of them published by table T-064), 805 more are exported by a file and not by its entry.
+Totals: 1038 name(s) leave through a public entry (499 of them published by table T-064), 805 more are exported by a file and not by its entry.

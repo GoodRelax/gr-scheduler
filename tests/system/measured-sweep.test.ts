@@ -229,12 +229,12 @@ const T233_COLUMNS = 5
 const T233_SITUATION = 0
 
 /**
- * Columns of table T-024 after the row ID: the format, which way it goes, the
- * file's ending, the first character a reader sees, what it is for, the note.
+ * Columns of table T-024 after the row ID: format, direction, ending, media type,
+ * offered on IC-2, the first character a reader sees, what it is for, the note.
  */
-const T024_COLUMNS = 6
+const T024_COLUMNS = 8
 const T024_ENDING = 2
-const T024_FIRST_CHARACTER = 3
+const T024_FIRST_CHARACTER = 5
 
 /** Columns of table T-204 after the row ID: key, type, default, meaning. */
 const T204_COLUMNS = 4

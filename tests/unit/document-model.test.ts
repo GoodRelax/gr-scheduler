@@ -566,10 +566,7 @@ import {
   type InputContext,
 } from '../../src/adapter/input-command-translator/input-command-translator'
 
-import {
-  documentViolations,
-  ROOT_KEYS,
-} from '../../src/entity/document-model/document/document'
+import { documentViolations } from '../../src/entity/document-model/document/document'
 
 // A whole DocumentSettings is 97 keys; a clamp reads one key at a time, so the
 // cases below carry only the keys they are about.
@@ -796,13 +793,14 @@ describe('Document (PI-34) -- table T-052', () => {
 
   // WHY: CR-699 (JDG-1693) put the schema's address at the head of the root (DR-4).
   it('holds the six keys DR-1 to DR-4 name, the address first', () => {
-    expect([...ROOT_KEYS]).toEqual([
-      '$schema',
-      'schemaVersion',
-      'schedule',
-      'documentSettings',
-      'documentStamp',
-      'changeLog',
+    // WHY: the root keys are a generated region since CR-768; DR-4 names each one missing, in order.
+    expect(documentViolations({}).filter((one) => one.row === 'DR-4').map((one) => one.at)).toEqual([
+      '/$schema',
+      '/schemaVersion',
+      '/schedule',
+      '/documentSettings',
+      '/documentStamp',
+      '/changeLog',
     ])
     expect(documentViolations(sound)).toEqual([])
   })

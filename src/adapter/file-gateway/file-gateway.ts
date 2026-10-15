@@ -53,8 +53,6 @@ export type DocumentFileOpening =
     }
   | { readonly ok: false; readonly fault: DocumentFileFault }
 
-export type SaveFileForm = 'grsJson' | 'mspdi' | 'svg' | 'png' | 'singleHtml'
-
 export type SaveFileContent =
   | { readonly text: string }
   | { readonly bytes: Uint8Array }
@@ -91,8 +89,8 @@ export type DocumentFileSaving =
   | { readonly ok: true; readonly openedFile: OpenedFileState }
   | { readonly ok: false; readonly fault: DocumentFileFault }
 
-// see SX-1, SX-2, FR-060
-const ROUND_TRIP_FORMS: readonly SaveFileForm[] = ['grsJson']
+// see SX-1, SX-2, FR-060, IO-2
+const ROUND_TRIP_FORMS: readonly SaveFileForm[] = ['IO-2']
 
 /** @purity pure */
 function isRoundTripForm(form: SaveFileForm): boolean {
@@ -249,3 +247,11 @@ export async function saveDocumentFile(
   }
   return savingOfWriting(await store.overwriteOpenedFile(bytes))
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/01-04-requirements.md (table T-024)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-024, FR-096
+export type SaveFileForm = 'IO-2' | 'IO-1' | 'IO-7' | 'IO-3' | 'IO-4'
+// </generated>

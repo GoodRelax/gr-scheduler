@@ -1678,6 +1678,20 @@ const PROBES: readonly Probe[] = [
     }),
   ),
   {
+    // see IO-8, FR-134, RW-7
+    rows: ['IO-8'],
+    expect: 'answers',
+    setUp: async (p) => {
+      await press(p, 'IC-107')
+      await p.waitForSelector('[data-icon="IC-140"]', { timeout: 8_000 })
+    },
+    act: async (p) => {
+      await press(p, 'IC-140')
+      await p.waitForTimeout(2_000)
+      return null
+    },
+  },
+  {
     // IO-6: CR-120 「現在の画面を画像として他のアプリへ渡す」, IC-3 in the header.
     rows: ['IO-6'],
     expect: 'answers',

@@ -30,7 +30,7 @@ export const T_340_NOTHING_MOVES_ON_FAILURE =
   '⭐ **書けなかったときは、どの行でも何も動かさないこと（MUST）'
 
 export const T_340_SX_2_ROW =
-  '| SX-2 | 表 T-024 のうち書出の方向を持ちファイルとして出る、`IO-2` 以外の形式（`IC-2` で選んで書いたとき） | 書き出し —— `fileFlow/documentFileWriteEnded` を送ること（MUST） | 変えてはならない（MUST NOT） | 変えてはならない（MUST NOT） | 変えてはならない（MUST NOT） —— 書き出した先は交換や絵のためのファイルであり、この文書のファイルではない |'
+  '| SX-2 | 表 T-024 のうち「`IC-2` に出す」の欄が「出す」の、`IO-2` 以外の形式（`IC-2` で選んで書いたとき） | 書き出し —— `fileFlow/documentFileWriteEnded` を送ること（MUST） | 変えてはならない（MUST NOT） | 変えてはならない（MUST NOT） | 変えてはならない（MUST NOT） —— 書き出した先は交換や絵のためのファイルであり、この文書のファイルではない |'
 
 export const T_340_SX_3_ROW =
   '| SX-3 | 直す前のバックアップの `GRS JSON`（`FR-155` の 表 T-109 の `IC-158`、提案する名は 表 T-346 の `RW-15`） | バックアップ —— 表 T-290 の `fileFlow/diagnosticFixBackupSaved` を送ること（MUST） | 変えてはならない（MUST NOT） —— バックアップはこの文書の作業のファイルではない | 変えてはならない（MUST NOT） | 変えてはならない（MUST NOT） —— バックアップを上書きする先にすると、次の `SK-11` が直した文書でバックアップを潰す |'

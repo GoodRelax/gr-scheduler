@@ -16,16 +16,6 @@ export interface Document {
   readonly changeLog: readonly ChangeLogEntry[]
 }
 
-// WHY: '$schema' (DR-4) stands in the written text only -- DocumentCodec writes it first and drops it on read.
-export const ROOT_KEYS = [
-  '$schema',
-  'schemaVersion',
-  'schedule',
-  'documentSettings',
-  'documentStamp',
-  'changeLog',
-] as const
-
 export interface DocumentViolation {
   readonly row: string
   readonly at: string
@@ -68,3 +58,19 @@ export function documentViolations(value: unknown): readonly DocumentViolation[]
 
   return found
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/_source/grs-document.schema.json (itself generated from erd.json and settings.json)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see DR-1, DR-4
+// WHY: '$schema' (DR-4) stands in the written text only -- DocumentCodec writes it first and drops it on read.
+const ROOT_KEYS = [
+  '$schema',
+  'schemaVersion',
+  'schedule',
+  'documentSettings',
+  'documentStamp',
+  'changeLog',
+] as const
+// </generated>

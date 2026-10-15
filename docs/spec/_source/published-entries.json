@@ -3759,6 +3759,20 @@
      }
     },
     {
+     "name": "DELAY_DIAGNOSTICS_REPORT_EXTENSION",
+     "note": {
+      "ja": [
+       "書き出すファイルの拡張子（表 T-024 の `IO-8`、表 T-346 の `RW-7`）。",
+       "`SingleHtmlShell` が `IC-140` の書き出しの依頼に載せ、保存の選択面はこの拡張子と同じ行の媒体の型で開く"
+      ]
+     },
+     "after": {
+      "ja": [
+       "—— ⭐ 公開したのは、拡張子を `src/` の 2 か所に置かないためである（`R2.21`、CR-768 の X-g）"
+      ]
+     }
+    },
+    {
      "name": "DelayFixTelling",
      "note": {
       "ja": [
