@@ -598,9 +598,6 @@ function postAgentUtterance(
   }
 }
 
-// STOP: spec does not decide whether readSearchRows answers SQ-5's bottleneck, shown only while S-445 is on. Looked in AM-25, SQ-5, AM-19 (PND-711)
-const NO_SEARCH_BOTTLENECKS: ReadonlySet<number> = new Set()
-
 // see T-107
 /** @purity non-pure */
 export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
@@ -630,9 +627,12 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       return frozenCopy(source.readSnapshot().dialogue.messages)
     },
 
+    // see AM-25, AM-19
+    // WHY: no delay diagnosis here, so late is only a planned day past the status date (T-021b) and
+    // (?), the bottleneck and (!!) never show; the precise analysis is readDelayDiagnostics'.
     /** @purity semi-pure-b */
     readSearchRows(word: string): SearchRows {
-      return frozenCopy(searchRowsOf(source.readSnapshot().document.schedule, word, NO_SEARCH_BOTTLENECKS))
+      return frozenCopy(searchRowsOf(source.readSnapshot().document.schedule, word))
     },
 
     /** @purity semi-pure-b */

@@ -118,6 +118,9 @@ describe('CR-648 DT-1 -- the status order and the precedence', () => {
   })
 })
 
+// WHY: the reason cell is found by the row order of T-347, not by a fixed index, so a column added before it moves it.
+const DT_7_AT = specTable('T-347').rows.map((one) => one.id).indexOf('DT-7')
+
 describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en', () => {
   it('T-347: the column headings are the dictionary words of DT-1 .. DT-7, in the table order', () => {
     const rows = specTable('T-347').rows.map((one) => one.id)
@@ -133,7 +136,7 @@ describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en'
 
   it('DT-7 / T-312 / VO-5: the milestone finding prints the question and the candidate achieved date', () => {
     const milestone = viewIn('ja')?.rows.find((one) => one.target.kind === 'task' && one.target.taskUid === 3)
-    expect(milestone?.cells[7]).toBe(`${wordIn('delayReportReasons', 'part', 'milestoneAchieved').ja}（達成日の候補: 2027/05/07）`)
+    expect(milestone?.cells[DT_7_AT]).toBe(`${wordIn('delayReportReasons', 'part', 'milestoneAchieved').ja}（達成日の候補: 2027/05/07）`)
   })
 
   it('DT-7 / T-311 / VS-6: the dictionary holds the told words of table T-311, its slots named in ASCII', () => {
@@ -175,13 +178,13 @@ describe('CR-648 FR-038 -- the report prints the dictionary words, in ja and en'
         wordIn('delayReportReasons', 'part', 'parentProgressOutside')[language],
       )
       expect(expected).not.toContain('{')
-      expect(delta?.cells[7]).toBe(expected)
+      expect(delta?.cells[DT_7_AT]).toBe(expected)
     }
   })
 
   it('DT-7: a bottleneck reason fills the pattern with DQ-4, DQ-2, DQ-3 and the end tasks reached', () => {
     const alpha = viewIn('en')?.rows.find((one) => one.target.kind === 'task' && one.target.taskUid === 1)
-    expect(alpha?.cells[7]).toBe('Delaying the whole schedule by 5 working days (inherited 1, own 2; reaches 3 end tasks)')
+    expect(alpha?.cells[DT_7_AT]).toBe('Delaying the whole schedule by 5 working days (inherited 1, own 2; reaches 3 end tasks)')
   })
 
   it('IC-108: the ja label is Copy', () => {
@@ -209,9 +212,9 @@ describe('CR-648 RW-4 / RW-6 / RW-10 -- the summary line, no legend, the flame, 
     expect(viewIn('ja')).not.toHaveProperty('legend')
   })
 
-  it('RW-10: DT-8, DT-1, DT-3 and DT-4 are fixed and DT-2, DT-5 .. DT-7 scroll under them (CR-722)', () => {
+  it('RW-10: DT-8, DT-1, DT-3, DT-9 and DT-4 are fixed and DT-2, DT-5 .. DT-7 scroll under them (CR-722, CR-760)', () => {
     const columns = viewIn('ja')?.columns ?? []
-    expect(columns.filter((one) => one.isFixed).map((one) => one.column)).toEqual(['DT-8', 'DT-1', 'DT-3', 'DT-4'])
+    expect(columns.filter((one) => one.isFixed).map((one) => one.column)).toEqual(['DT-8', 'DT-1', 'DT-3', 'DT-9', 'DT-4'])
     expect(columns.filter((one) => !one.isFixed).map((one) => one.column)).toEqual(['DT-2', 'DT-5', 'DT-6', 'DT-7'])
   })
 })

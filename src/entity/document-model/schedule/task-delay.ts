@@ -33,6 +33,28 @@ export function isDelayed(task: Task, statusDate: CalendarDay | null): boolean {
   return compareDays(statusDate, from) > 0
 }
 
+// see T-021, T-315
+export type ProgressMarker = 'PM-1a' | 'PM-1' | 'PM-2' | 'PM-3' | 'PM-4' | 'DG-1' | 'DG-2' | 'DG-3'
+
+// see PI-1, RV-5, SQ-5, T-021, T-315
+/** @purity pure */
+export function progressMarkerOf(task: Task, statusDate: CalendarDay | null,
+                                 diagnosed?: 'DG-1' | 'DG-2' | 'DG-3'): ProgressMarker {
+  if (diagnosed !== undefined) return diagnosed
+  if (isDelayed(task, statusDate)) return 'PM-4'
+  switch (planActualState(task)) {
+    case 'finished':
+      return 'PM-2'
+    case 'suspendedResumeUnknown':
+    case 'suspendedResumePlanned':
+      return 'PM-3'
+    case 'notStarted':
+      return 'PM-1a'
+    case 'inProgress':
+      return 'PM-1'
+  }
+}
+
 /** @purity pure */
 export function delayWorkingDays(within: WorkingCalendar, task: Task,
                                  statusDate: CalendarDay | null): number {

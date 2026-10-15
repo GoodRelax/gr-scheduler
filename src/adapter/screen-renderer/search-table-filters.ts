@@ -38,24 +38,48 @@ const LINE_BREAK_SPACE = ' '
 
 const STATUS_COLUMN: SearchColumn = 'SQ-5'
 
-export const BOTTLENECK_STATE = 'bottleneck'
-
-export type SearchTaskState = TaskSearchRow['planActualState'] | typeof BOTTLENECK_STATE
+export type SearchTaskState = TaskSearchRow['planActualState'] | 'DG-1' | 'DG-2' | 'DG-3' | 'PM-4'
 
 /** @purity pure */
 export function searchTaskStateOf(row: TaskSearchRow): SearchTaskState {
-  return row.isBottleneck ? BOTTLENECK_STATE : row.planActualState
+  switch (row.progressMarker) {
+    case 'DG-1':
+    case 'DG-2':
+    case 'DG-3':
+    case 'PM-4':
+      return row.progressMarker
+    default:
+      return row.planActualState
+  }
 }
 
 // see SV-8
 const STATES_ASCENDING: readonly SearchTaskState[] = [
-  BOTTLENECK_STATE,
+  'DG-1',
+  'DG-2',
+  'DG-3',
+  'PM-4',
   'notStarted',
   'inProgress',
   'finished',
   'suspendedResumePlanned',
   'suspendedResumeUnknown',
 ]
+
+// see SQ-14, SV-8
+export type TaskType = 'task' | 'milestone'
+
+export const TASK_TYPES_ASCENDING: readonly TaskType[] = ['task', 'milestone']
+
+/** @purity pure */
+export function taskTypeOf(isMilestone: boolean): TaskType {
+  return isMilestone ? 'milestone' : 'task'
+}
+
+/** @purity pure */
+export function compareTaskTypes(a: string, b: string): number {
+  return TASK_TYPES_ASCENDING.indexOf(a as TaskType) - TASK_TYPES_ASCENDING.indexOf(b as TaskType)
+}
 
 // see SV-7, SV-8, T-331, T-347
 export interface TableColumns<Row> {
@@ -89,6 +113,7 @@ const TASK_TABLE: TableColumns<TaskSearchRow> = {
     'SQ-1': (row) => [row.name],
     'SQ-2': (row) => (row.assigneeNames.length === 0 ? [BLANK_SEARCH_VALUE] : row.assigneeNames),
     'SQ-5': (row) => [searchTaskStateOf(row)],
+    'SQ-14': (row) => [taskTypeOf(row.milestone)],
     'SQ-11': (row) => [percentText(row.percentComplete)],
     'SQ-6': (row) => [row.rowPath.join(TASK_GROUP_PATH_SEPARATOR)],
   },
@@ -100,6 +125,7 @@ const TASK_TABLE: TableColumns<TaskSearchRow> = {
   },
   orders: {
     'SQ-11': comparePercentTexts,
+    'SQ-14': compareTaskTypes,
   },
 }
 

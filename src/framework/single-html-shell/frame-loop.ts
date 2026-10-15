@@ -512,8 +512,6 @@ interface HeldDelayDiagnostics {
   readonly of: Document
   readonly report: DelayDiagnosticsReport
   readonly drawing: DelayDiagnosticsDrawing
-  // see SQ-5
-  readonly bottleneckUids: ReadonlySet<number>
   readonly reportTaskUids: ReadonlySet<number>
 }
 
@@ -524,9 +522,8 @@ function delayDiagnosticsOf(document: Document): HeldDelayDiagnostics {
   const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
   const symbolByUid = new Map<number, 'DG-1' | 'DG-2' | 'DG-3'>()
   for (const one of report.markerStates) if (one.row !== 'DG-4') symbolByUid.set(one.uid, one.row)
-  const bottleneckUids = new Set(report.bottlenecks.map((one) => one.uid))
   const reportTaskUids = new Set(delayDiagnosticsReportRows(report, document.schedule).map((row) => row.taskUid))
-  return { of: document, report, drawing: { shown: true, symbolByUid }, bottleneckUids, reportTaskUids }
+  return { of: document, report, drawing: { shown: true, symbolByUid }, reportTaskUids }
 }
 
 type GeometryArguments = Parameters<typeof geometryFromLayout>
@@ -1572,7 +1569,7 @@ function searchPanelAfterEntry(
   session: ScreenSession,
   schedule: Document['schedule'],
   filterColumn: string | null,
-  bottleneckUids: ReadonlySet<number> | undefined,
+  diagnosed: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> | undefined,
   listed?: readonly string[] | null,
 ): { readonly panel: SearchPanelSession; readonly view: TableView } | null {
   if (entry === SEARCH_FILTER_ENTRY) {
@@ -1583,7 +1580,7 @@ function searchPanelAfterEntry(
   if (entry === SEARCH_TASKS_ENTRY) return { panel: { ...held, table: 'tasks' }, view }
   if (entry === SEARCH_COMMENT_BOXES_ENTRY) return { panel: { ...held, table: 'commentBoxes' }, view }
   if (entry === SEARCH_TEXT_SIZE_ENTRY) return { panel: { ...held, textSizeStep: nextSearchPanelTextSizeStep(held.textSizeStep) }, view }
-  const filtered = searchPanelAfterFilterEntry(session, held, view, entry, schedule, bottleneckUids, listed)
+  const filtered = searchPanelAfterFilterEntry(session, held, view, entry, schedule, diagnosed, listed)
   return filtered === null ? null : { panel: held, view: filtered }
 }
 
@@ -1831,7 +1828,7 @@ function windowPlacesAfterTyping(
 
 // see WB-6, RW-1, S-451, SQ-5
 /** @purity pure */
-function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'bottleneckUids'> | null, drawnTaskUids: ReadonlySet<number> | null, fixTablesOf: () => DelayFixTables | undefined) {
+function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'drawing'> | null, drawnTaskUids: ReadonlySet<number> | null, fixTablesOf: () => DelayFixTables | undefined) {
   const window = held.delayDiagnosticsReport
   const report = diagnostics?.report ?? null
   return {
@@ -1840,7 +1837,7 @@ function windowReadingsOf(held: WindowPlaces, diagnostics: Pick<HeldDelayDiagnos
     drawnTaskUids,
     windowPlaces: { helpModal: held.helpModal, dialogueField: held.dialogueField, closeOnlyTitledSurface: held.closeOnlyTitledSurface },
     delayDiagnosticsReport: window === null || report === null ? null : { window, report, fixTables: fixTablesOf() },
-    bottleneckUids: diagnostics?.bottleneckUids,
+    diagnosedMarkers: diagnostics?.drawing.symbolByUid,
   }
 }
 
@@ -1964,7 +1961,7 @@ function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letSche
       return typed.views
     },
     /** @purity non-pure */
-    readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'bottleneckUids'> | null, drawn: ReadonlySet<number> | null, fixLog: FixLogSource = {}) {
+    readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'drawing'> | null, drawn: ReadonlySet<number> | null, fixLog: FixLogSource = {}) {
       const isSearchPanelShown = session.screen.searchPanelDisplayState.kind !== 'hidden'
       held = withFrontTableWindowSettled(held, wasSearchPanelShown, isSearchPanelShown)
       wasSearchPanelShown = isSearchPanelShown
@@ -3564,7 +3561,7 @@ export function frameLoop(
     const tableWindowAnswer = answerTableWindowEntry({ entry, surface, filterColumn, listed }, windows, shownTasks, rows)
     if (tableWindowAnswer !== null) return tableWindowAnswer
     const searchStep = searchPanelAfterEntry(
-      windows.searchPanel(), shownTasks.views().searchPanel, entry, session, held.document.schedule, filterColumn, delayDiagnosticsNow()?.bottleneckUids, listed,
+      windows.searchPanel(), shownTasks.views().searchPanel, entry, session, held.document.schedule, filterColumn, delayDiagnosticsNow()?.drawing.symbolByUid, listed,
     )
     if (searchStep !== null) {
       shownTasks.holdSearchStep(searchStep, frame)

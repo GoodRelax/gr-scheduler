@@ -101,7 +101,7 @@ const withWord = (word: string): DelayDiagnosticsReportWindow => ({
 
 
 // see T-347, DT-8
-const REPORT_ORDER: readonly string[] = ['DT-8', 'DT-1', 'DT-3', 'DT-4', 'DT-2', 'DT-5', 'DT-6', 'DT-7']
+const REPORT_ORDER: readonly string[] = ['DT-8', 'DT-1', 'DT-3', 'DT-9', 'DT-4', 'DT-2', 'DT-5', 'DT-6', 'DT-7']
 
 describe('T-347 -- the rows of the report table (FR-134, DT-1)', () => {
   const rows = delayDiagnosticsReportRows(REPORT, SCHEDULE)
@@ -152,7 +152,7 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
     expect(view?.summary).toHaveLength(8)
   })
 
-  it('T-347: the columns are DT-8, DT-1, DT-3, DT-4, DT-2, DT-5, DT-6, DT-7, and the name cell DT-4 is the one a press jumps from', () => {
+  it('T-347: the columns are DT-8, DT-1, DT-3, DT-9, DT-4, DT-2, DT-5, DT-6, DT-7, and the name cell DT-4 is the one a press jumps from', () => {
     expect(view?.columns.map((one) => one.column)).toEqual(REPORT_ORDER)
     expect(view?.jumpAt).toBe(REPORT_ORDER.indexOf('DT-4'))
   })
@@ -161,11 +161,11 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
     const columns = view?.columns ?? []
     const sizing = unmeasuredSizing(16)
     expect(columns.map((one) => columnWidthPx(one, sizing))).toEqual(
-      ['S-496', null, null, 'S-478', 'S-476', null, null, 'S-481'].map((row) =>
+      ['S-496', null, null, null, 'S-478', 'S-476', null, null, 'S-481'].map((row) =>
         row === null ? sizing.floor : NOT_STORED_SEARCH_PANEL_SIZES[row as keyof typeof NOT_STORED_SEARCH_PANEL_SIZES],
       ),
     )
-    expect(columns.filter((one) => one.widthSamples !== null).map((one) => one.column)).toEqual(['DT-1', 'DT-3', 'DT-5', 'DT-6'])
+    expect(columns.filter((one) => one.widthSamples !== null).map((one) => one.column)).toEqual(['DT-1', 'DT-3', 'DT-9', 'DT-5', 'DT-6'])
     const widened = delayDiagnosticsReportWithColumnWidth(OPENED_DELAY_DIAGNOSTICS_REPORT, 'DT-4', 333)
     expect(viewOf(widened)?.columns[REPORT_ORDER.indexOf('DT-4')]?.width).toBe(333)
   })

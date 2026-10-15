@@ -11,12 +11,12 @@ const ICONS = ['IC-154', 'IC-155', 'IC-156', 'IC-157', 'IC-158', 'IC-159', 'IC-1
 
 const HINTS: Readonly<Record<string, Words>> = {
   'IC-154': { ja: '診断の結果の表を出す', en: 'Show the diagnosis table' },
-  'IC-155': { ja: '直す案の表を出す（修正前と修正後）', en: 'Show the fix proposals (before and after)' },
-  'IC-156': { ja: '直した記録の表を出す', en: 'Show the log of fixes' },
-  'IC-157': { ja: '今のファイルに上書きして保存してから、チェックした行を直す', en: 'Save over the current file, then fix the checked rows' },
-  'IC-158': { ja: '直す前の文書を別名で保存してから、チェックした行を直す', en: 'Save a backup under another name, then fix the checked rows' },
-  'IC-159': { ja: '人が直す 1 つ前の指摘へ移る', en: 'Go to the previous finding to fix by hand' },
-  'IC-160': { ja: '人が直す次の指摘へ移る', en: 'Go to the next finding to fix by hand' },
+  'IC-155': { ja: '修正案の表を出す（修正前と修正後）', en: 'Show the fix proposals (before and after)' },
+  'IC-156': { ja: '修正の記録の表を出す', en: 'Show the log of fixes' },
+  'IC-157': { ja: '今のファイルに上書きして保存してから、チェックした行を修正する', en: 'Save over the current file, then fix the checked rows' },
+  'IC-158': { ja: '修正する前のスケジュールを別名で保存してから、チェックした行を修正する', en: 'Save a backup under another name, then fix the checked rows' },
+  'IC-159': { ja: '人が修正する 1 つ前の指摘へ移る', en: 'Go to the previous finding to fix by hand' },
+  'IC-160': { ja: '人が修正する次の指摘へ移る', en: 'Go to the next finding to fix by hand' },
 }
 
 const CHOICES: readonly (readonly [string, Words])[] = [
@@ -82,7 +82,7 @@ describe('FM-1 to FM-8 and the sections delayFixColumns and delayFixes', () => {
   it('the four words of a fix type are the words T-373 writes in its fix type column', () => {
     const section = WORDS['delayFixes'] as readonly Record<string, any>[]
     const ja = ['automatic', 'choose', 'suggestedDate', 'byHand'].map((part) => section.find((one) => one['part'] === part)?.['text']['ja'])
-    expect(ja).toEqual(['機械', '選ぶ', '日付の候補', '手で直す'])
+    expect(ja).toEqual(['機械', '選ぶ', '日付の候補', '手で修正'])
   })
 })
 

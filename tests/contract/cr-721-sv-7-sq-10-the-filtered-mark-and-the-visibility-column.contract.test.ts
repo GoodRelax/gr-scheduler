@@ -37,7 +37,7 @@ const SQ_10_HEADING_STATES =
   '見出しのセルは、一覧に出ている行がすべて入っている・一部・1 つも入っていない の 3 つの状態のチェックボックスと `IC-122`。'
 const SQ_10_HEADING_PRESS = '見出しのチェックボックスを押すと、一覧に出ている行だけをすべて入れる（すべて入っていればすべて外す）。'
 const SQ_10_VALUES = '値の一覧（「表示」「非表示」）'
-const SV_6_FIRST_COLUMN_NOTE = '表示・ステータス・進捗・タスク の 4 列'
+const SV_6_FIRST_COLUMN_NOTE = '表示・ステータス・進捗・タスク種別・タスク の 5 列'
 
 describe('CR-721 the manuscript these cases are driven by', () => {
   it('T-330 SV-7 and SV-8 and T-331 SQ-10 still say it, word for word', () => {
@@ -157,10 +157,10 @@ describe('FR-151 T-331 SQ-10, T-330 SV-8 -- the Visibility column words and valu
     expect(viewOf(panel).rows.map((one) => (one.target.kind === 'task' ? one.target.taskUid : -1))).toEqual([2])
   })
 
-  it('SQ-10 stands first and the first four columns are fixed (SV-6)', () => {
+  it('SQ-10 stands first and the first five columns are fixed (SV-6)', () => {
     const columns = viewOf(TASK_PANEL).columns
-    expect(columns.map((one) => one.column).slice(0, 4)).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-1'])
-    expect(columns.slice(0, 4).every((one) => one.isFixed)).toBe(true)
+    expect(columns.map((one) => one.column).slice(0, 5)).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-14', 'SQ-1'])
+    expect(columns.slice(0, 5).every((one) => one.isFixed)).toBe(true)
   })
 
   it('SQ-10 is not a column of the comment box table', () => {

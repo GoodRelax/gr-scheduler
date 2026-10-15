@@ -146,6 +146,13 @@ const FIX_TABLE_ROLES = { proposals: 'Delay Fix Proposals', log: 'Delay Fix Log'
 
 const DELAY_FIX_FOOTER_ROLE = 'Delay Fix Footer'
 
+const DELAY_FIX_NOTICE_ROLE = 'Delay Fix Notice'
+
+// WHY: the entries line wraps between items as RW-4's summary does; the RW-17 notice takes its own line under it (RW-12).
+const FIX_FOOTER_STYLE = 'flex:none;display:flex;flex-direction:column;row-gap:0.25em;padding:0.25em 0.5em;'
+
+const FIX_FOOTER_LINE_STYLE = 'display:flex;flex-wrap:wrap;align-items:center;column-gap:0.5em;row-gap:0.25em;'
+
 const FIX_LINE_STYLE = 'flex:none;display:flex;align-items:center;column-gap:0.5em;padding:0.25em 0.5em;'
 
 const FIX_CHECK_COLUMN = 'FM-1'
@@ -154,9 +161,8 @@ const FIX_AFTER_COLUMN = 'FM-8'
 
 const UID_JOIN = ','
 
-// see T-374, S-496, S-481, S-478
+// see T-374, S-481, S-478
 const FIX_COLUMN_WIDTH_ROWS: { readonly [column: string]: keyof typeof NOT_STORED_SEARCH_PANEL_SIZES } = {
-  [FIX_CHECK_COLUMN]: 'S-496',
   'FM-4': 'S-481',
   'FM-5': 'S-478',
 }
@@ -294,7 +300,7 @@ function tableRowWidthPx(column: SearchColumnView): number {
 // WHY: the Visibility column keeps its fixed S-496 and has no border to pull, so the floor is not laid on it.
 /** @purity pure */
 export function columnWidthPx(column: SearchColumnView, sizing: ColumnSizing): number {
-  if (VISIBILITY_COLUMNS.includes(column.column) || column.column === FIX_CHECK_COLUMN) return column.width ?? tableRowWidthPx(column)
+  if (VISIBILITY_COLUMNS.includes(column.column)) return column.width ?? tableRowWidthPx(column)
   const byDefault = column.widthSamples === null ? tableRowWidthPx(column) : (sizing.measured.get(column.column) ?? sizing.floor)
   return Math.max(column.width ?? byDefault, sizing.floor)
 }
@@ -427,13 +433,12 @@ function headerCellElement(
   showHeading: SearchPanelView['showHeading'] | null,
   sizing: ColumnSizing,
 ): HTMLElement {
-  const isBordered = showHeading === null && column.column !== FIX_CHECK_COLUMN
+  const isBordered = showHeading === null
   const cell = made(host, 'th', headerCellStyle(column.isFixed, isBordered) + (column.isFiltered ? filteredHeadingStyle() : ''))
   cell.setAttribute(COLUMN_ATTRIBUTE, column.column)
   cell.setAttribute('data-width', String(columnWidthPx(column, sizing)))
   if (column.isFixed) cell.setAttribute(FIXED_COLUMN_ATTRIBUTE, 'true')
   if (column.isFiltered) cell.setAttribute(FILTERED_ATTRIBUTE, 'true')
-  if (column.column === FIX_CHECK_COLUMN) cell.setAttribute(NO_BORDER_ATTRIBUTE, 'true')
   const line = made(host, 'div', HEADING_LINE_STYLE)
   const filter = commandEntry(host, column.filterEntry)
   if (column.isFiltered) filter.setAttribute('style', (filter.getAttribute('style') ?? '') + filteredEntryStyle())
@@ -737,13 +742,13 @@ function aboveTableElements(host: Document, view: TableWindowView, fontPx: numbe
   return [line, ...tabs, summary]
 }
 
-// see RW-11, RW-12, IC-154, IC-155, IC-156, IC-157, IC-158
-// WHY: these entries carry words (the count, RW-11), so the word is drawn beside the picture.
+// see RW-11, RW-12, IC-154, IC-155, IC-156, IC-157, IC-158, IC-166
+// WHY: these entries carry words (the count, RW-11), so the word is drawn beside the picture, from its left (RW-12).
 /** @purity non-pure */
 function wordedEntry(host: Document, item: CommandItem, anchors: Map<string, HTMLElement>, role: string, count?: number): HTMLElement {
   const entry = anchoredEntry(host, item, anchors, role)
   entry.append(count === undefined ? item.label : `${item.label} (${count})`)
-  entry.setAttribute('style', (entry.getAttribute('style') ?? '') + 'width:auto;padding:0 0.5em;white-space:nowrap;')
+  entry.setAttribute('style', (entry.getAttribute('style') ?? '') + 'width:auto;padding:0 0.5em;white-space:nowrap;justify-content:flex-start;')
   return entry
 }
 
@@ -765,16 +770,22 @@ function walkElements(host: Document, view: TableWindowView, anchors: Map<string
   return [...view.walkEntries.map((item) => anchoredEntry(host, item, anchors, role)), counter]
 }
 
-// see RW-12, IC-157, IC-158
+// see RW-12, RW-17, IC-166, IC-157, IC-158
 /** @purity non-pure */
 function fixFooterElements(host: Document, footer: FixFooter | null | undefined, at: EntryPlace): readonly HTMLElement[] {
   if (footer === undefined || footer === null) return []
-  const band = part(host, 'div', DELAY_FIX_FOOTER_ROLE, FIX_LINE_STYLE + `font-size:${at.fontPx}px;justify-content:space-between;`)
+  const band = part(host, 'div', DELAY_FIX_FOOTER_ROLE, FIX_FOOTER_STYLE + `font-size:${at.fontPx}px;`)
   const count = made(host, 'span', 'white-space:nowrap;')
-  count.textContent = footer.text
-  const entries = made(host, 'span', 'display:flex;column-gap:0.5em;')
-  entries.replaceChildren(...footer.entries.map((item) => wordedEntry(host, item, at.anchors, at.role)))
-  band.replaceChildren(count, ' ', entries)
+  count.textContent = footer.count
+  const line = made(host, 'div', FIX_FOOTER_LINE_STYLE)
+  line.replaceChildren(count, ...footer.entries.map((item) => wordedEntry(host, item, at.anchors, at.role)))
+  if (footer.notice === null) {
+    band.replaceChildren(line)
+    return [band]
+  }
+  const notice = part(host, 'div', DELAY_FIX_NOTICE_ROLE, '')
+  notice.textContent = footer.notice
+  band.replaceChildren(line, notice)
   return [band]
 }
 
@@ -978,6 +989,31 @@ function fixPickOf(control: HTMLInputElement): SearchFilterChange | null {
   return { kind: 'fixPick', column: fixPart === 'check' ? FIX_CHECK_COLUMN : FIX_AFTER_COLUMN, key, part: fixPart, value }
 }
 
+// see FM-1, FM-8
+// TRAP: the host flipped the box before this listener, so a refused tick is put back; showPicker may be absent or throw.
+/** @purity non-pure */
+function isUnchosenTickRefused(control: HTMLInputElement | null, layer: Element): boolean {
+  if (control === null || typeof control.getAttribute !== 'function' || control.getAttribute(DELAY_FIX_PART_ATTRIBUTE) !== 'check') return false
+  const key = control.getAttribute(DELAY_FIX_KEY_ATTRIBUTE)
+  const list = [...layer.querySelectorAll<HTMLSelectElement>(`[${DELAY_FIX_KEY_ATTRIBUTE}]`)]
+    .find((one) => one.getAttribute(DELAY_FIX_KEY_ATTRIBUTE) === key && one.getAttribute(DELAY_FIX_PART_ATTRIBUTE) === 'choice')
+  if (list === undefined || isChoiceMade(list)) return false
+  control.checked = false
+  list.focus()
+  try {
+    ;(list as { showPicker?: () => void }).showPicker?.()
+  } catch {
+    return true
+  }
+  return true
+}
+
+/** @purity semi-pure-b */
+function isChoiceMade(list: HTMLSelectElement): boolean {
+  if (typeof list.value === 'string' && list.value !== '') return true
+  return [...list.querySelectorAll('option')].some((one) => one.getAttribute('selected') !== null && one.getAttribute('value') !== '')
+}
+
 /** @purity pure */
 function visibilityKeyFrom(written: string): VisibilityKey {
   return written === UNASSIGNED_ROW_KEY ? UNASSIGNED_ROW_KEY : Number(written)
@@ -999,6 +1035,7 @@ function shownChangeOf(control: HTMLInputElement, layer: Element, column: string
 export function filterChangeWatch(layer: HTMLElement, onChanged: () => void, visibilityColumn: string): { readonly read: () => readonly SearchFilterChange[] } {
   let changes: readonly SearchFilterChange[] = []
   layer.addEventListener('input', (event: Event) => {
+    if (isUnchosenTickRefused(event.target as HTMLInputElement | null, layer)) return
     const change = filterChangeOf(event.target as HTMLInputElement | null, layer, visibilityColumn)
     if (change === null) return
     changes = [...changes, change]

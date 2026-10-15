@@ -128,7 +128,8 @@ export {
   zoneClockOf,
 } from './time-zone'
 export type { PcRegionChoice, PcTimeZone, TimeZoneRow, ZoneClock } from './time-zone'
-export { delayStart, delayWorkingDays, isDelayed } from './task-delay'
+export { delayStart, delayWorkingDays, isDelayed, progressMarkerOf } from './task-delay'
+export type { ProgressMarker } from './task-delay'
 export { diagnoseDelay, parentCandidatesOf, parentTaskResolutionsOf } from './delay-diagnostics'
 export type { DelayDiagnosticsReport, ParentTaskResolution } from './delay-diagnostics'
 export {

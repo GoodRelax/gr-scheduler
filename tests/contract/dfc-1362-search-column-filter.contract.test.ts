@@ -67,7 +67,7 @@ const SV_7_ONE_OPEN = '開いているフィルタは一度に 1 つ'
 
 const SV_8_ONE = '並べ替える列は 1 つ。'
 const SV_8_STATES =
-  '状態の列（`SQ-5`）の昇順は ボトルネック → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
+  '状態の列（`SQ-5`）の昇順は 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
 const SV_8_TIES = '同じ値の行は既定の並びを保ち、空の値は向きによらず末尾。'
 const SV_8_DEFAULT =
   '既定の並びは、タスクグループの木の上からの並び → `SQ-3`（コメントボックスは `SQ-9`）→ `Task.uid`（コメントボックスは `id`）'
@@ -245,8 +245,11 @@ const commentOf = (id: string, text: string, anchorGroupId: string, anchorDate: 
 const COMMENT_DEFAULT = ['c-1', 'c-2', 'c-3']
 const COMMENT_TEXT: Readonly<Record<string, string>> = { 'c-1': 'PM note', 'c-2': 'other', 'c-3': 'memo' }
 
+// WHY: CR-760 made SQ-5 show PM-4 for a late task (T-021b); the template's status date would make these April
+// tasks late, so the fixture has none and every row shows its T-019a state (the CR-760 file holds the late ones).
 const SCHEDULE = {
   ...TEMPLATE.schedule,
+  project: { ...(TEMPLATE.schedule['project'] as Loose), statusDate: null },
   tasks: TASKS.map(taskOf),
   taskGroups: [
     groupOf(G_PROGRAM, null, 0, PROGRAM),
@@ -414,7 +417,7 @@ describe('FR-151 / T-330 / T-331 / T-109 / T-028 -- the clauses this file is dri
     for (const [icon, words] of Object.entries(IC_WORDS)) expect(cellOf('T-109', icon, '何の入口か'), icon).toBe(words)
     expect(BLANK_JA).toBe('（空白）')
     expect(cellOf('T-331', 'SQ-10', 'フィルタ')).toBe('値の一覧（「表示」「非表示」）')
-    expect(TASK_COLUMNS).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-6'])
+    expect(TASK_COLUMNS).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-14', 'SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-6'])
     expect(COMMENT_COLUMNS).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
   })
 })

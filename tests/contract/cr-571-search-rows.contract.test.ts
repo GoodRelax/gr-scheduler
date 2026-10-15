@@ -53,8 +53,9 @@ const SQ_6_TOP_FIRST = '最上位から順に'
 // WHY: the seam (CR-571 section 5) gives each column of table T-331 one field; this copy
 // is checked against the table below, so a row added to T-331 fails here first.
 const T_331_FIELDS: Readonly<Record<string, { readonly table: 'タスク' | 'コメントボックス'; readonly field: string }>> = {
-  'SQ-5': { table: 'タスク', field: 'planActualState' },
+  'SQ-5': { table: 'タスク', field: 'progressMarker' },
   'SQ-11': { table: 'タスク', field: 'percentComplete' },
+  'SQ-14': { table: 'タスク', field: 'milestone' },
   'SQ-1': { table: 'タスク', field: 'name' },
   'SQ-2': { table: 'タスク', field: 'assigneeNames' },
   'SQ-3': { table: 'タスク', field: 'plannedStart' },

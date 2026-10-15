@@ -142,6 +142,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `plannedInstantsOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedInstantsOf` | PI-1 | 予定の始まりと終わりの瞬間の対。 |
 | `plannedLengthMinutesOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#plannedLengthMinutesOf` | PI-1 | 予定の期間（分）。 |
 | `PRINTED_TIME_ZONE` | entry | const | `src/entity/document-model/schedule/time-zone.ts#PRINTED_TIME_ZONE` | -- | const PRINTED_TIME_ZONE: TimeZoneRegion = 'UTC' |
+| `ProgressMarker` | entry | type | `src/entity/document-model/schedule/task-delay.ts#ProgressMarker` | -- | type ProgressMarker = 'PM-1a' \| 'PM-1' \| 'PM-2' \| 'PM-3' \| 'PM-4' \| 'DG-1' \| 'DG-2' \| 'DG-3' |
+| `progressMarkerOf` | entry | function | `src/entity/document-model/schedule/task-delay.ts#progressMarkerOf` | PI-1 | 進捗マーカーの値を 1 つ求める（`FR-013` の 表 T-021、遅延診断の行を受ければ `FR-133` の 表 T-315 の優先順）。 |
 | `progressPointDayOf` | entry | function | `src/entity/document-model/schedule/plan-actual-state.ts#progressPointDayOf` | PI-1 | 表 T-022 の頂点を打つ日。 |
 | `Project` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Project` | -- | interface Project |
 | `proposeDelayFixes` | entry | function | `src/entity/document-model/schedule/delay-fixes.ts#proposeDelayFixes` | PI-1 | 遅延診断の指摘（表 T-317 の `DX-3`）ごとに、表 T-373 の修正のしかたで修正案の行を作る（`FR-155`）。 |
@@ -391,7 +393,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PathSegment` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#PathSegment` | -- | type PathSegment = \| { readonly command: 'M' \| 'L'; readonly to: Point } \| { readonly command: 'Q'; readonly control: Point; readonly to: Point } \| |
 | `Point` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#Point` | -- | interface Point |
 | `point` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#point` | -- | function point(x: number, y: number): Point |
-| `ProgressSymbol` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ProgressSymbol` | -- | type ProgressSymbol = 'PM-1' \| 'PM-1a' \| 'PM-2' \| 'PM-3' \| 'PM-4' \| 'DG-1' \| 'DG-2' \| 'DG-3' |
+| `ProgressSymbol` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ProgressSymbol` | -- | type ProgressSymbol = ReturnType<typeof progressMarkerOf> |
 | `ResumeGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ResumeGeometry` | -- | interface ResumeGeometry |
 | `ScheduleGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ScheduleGeometry` | PI-6 | 型 |
 | `selectedLinksOf` | entry | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | PI-6 | 選んでいる依存線（表 T-023c の `SL-8`）を、先行と後続の `UID` の対の鍵の集合で答える。 |
@@ -1490,7 +1492,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchFilterChange` | entry | type | `src/adapter/screen-renderer/table-window.ts#SearchFilterChange` | PI-37 | 型。 |
 | `searchPanelAfterFilterChange` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterChange` | PI-37 | 開いているフィルタの値ごとの印の入れ外しと、日付の「いつから」「いつまで」の選びを、検索パネルの覚えているフィルタへ当てる（`FR-151` の 表 T-330 の `SV-7`）。 |
 | `searchPanelAfterFilterEntry` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelAfterFilterEntry` | PI-37 | 開いている列のフィルタの入口（`IC-123` 〜 `IC-126`）の押下を、検索パネルの覚えているフィルタと並べ替えへ当てる（`FR-151` の 表 T-330 の `SV-7`・`SV-8`）。 |
-| `searchPanelFromSession` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelFromSession` | -- | function searchPanelFromSession( session: ScreenSession, panel: SearchPanelSession, view: TableView, schedule: Schedule, canvas: ScreenRect, bottleneckUids?:... |
+| `searchPanelFromSession` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelFromSession` | -- | function searchPanelFromSession( session: ScreenSession, panel: SearchPanelSession, view: TableView, schedule: Schedule, canvas: ScreenRect, diagnosed?: Read... |
 | `SearchPanelShown` | entry | type | `src/adapter/screen-renderer/search-panel.ts#SearchPanelShown` | -- | type SearchPanelShown = WindowShown |
 | `SearchPanelView` | entry | interface | `src/adapter/screen-renderer/search-panel.ts#SearchPanelView` | PI-37 | 型。 |
 | `searchPanelWithColumnWidth` | entry | function | `src/adapter/screen-renderer/search-panel.ts#searchPanelWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、検索パネルの覚えている列の幅へ当てる（`FR-151` の 表 T-330 の `SV-18`）。 |
@@ -1535,6 +1537,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `commandPaletteFromSession` | file only | function | `src/adapter/screen-renderer/command-palette.ts#commandPaletteFromSession` | -- | function commandPaletteFromSession( session: ScreenSession, settings: DocumentSettings, selection: Selection, readings: ScreenViewReadings, schedule?: Schedu... |
 | `DELAY_REPORT_COLUMNS` | file only | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DELAY_REPORT_COLUMNS` | -- | const DELAY_REPORT_COLUMNS: readonly string[] = displayWords.delayReportColumns.map((entry) => entry.rowId) |
 | `delayDiagnosticsReportFromWindow` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFromWindow` | -- | function delayDiagnosticsReportFromWindow( session: ScreenSession, window: DelayDiagnosticsReportWindow \| null, view: TableView, report: DelayDiagnosticsRepo... |
+| `delayDiagnosticsReportWithAdoptAll` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithAdoptAll` | -- | function delayDiagnosticsReportWithAdoptAll(window: DelayDiagnosticsReportWindow, tables: DelayFixTables): DelayDiagnosticsReportWindow |
 | `delayDiagnosticsReportWithPick` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithPick` | -- | function delayDiagnosticsReportWithPick(window: DelayDiagnosticsReportWindow, change: DelayFixPickChange): DelayDiagnosticsReportWindow |
 | `delayFixBundleOf` | file only | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayFixBundleOf` | -- | function delayFixBundleOf(rows: readonly DelayFixRow[]): readonly DelayFixRow[] |
 | `DelayFixCellView` | file only | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayFixCellView` | -- | interface DelayFixCellView |
@@ -1581,15 +1584,17 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchFilterMenuView` | file only | type | `src/adapter/screen-renderer/table-window.ts#SearchFilterMenuView` | -- | type SearchFilterMenuView = \| |
 | `SearchFilterValueView` | file only | interface | `src/adapter/screen-renderer/table-window.ts#SearchFilterValueView` | -- | interface SearchFilterValueView |
 | `SearchRowView` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#SearchRowView` | -- | interface SearchRowView |
+| `taskTypeWordOf` | file only | function | `src/adapter/screen-renderer/search-panel.ts#taskTypeWordOf` | -- | function taskTypeWordOf(taskType: string, language: DisplayLanguage): string |
+| `taskTypeWordsIn` | file only | function | `src/adapter/screen-renderer/search-panel.ts#taskTypeWordsIn` | -- | function taskTypeWordsIn(language: DisplayLanguage): readonly string[] |
 | `windowTitleEntriesOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowTitleEntriesOf` | -- | function windowTitleEntriesOf(shown: WindowShown, language: DisplayLanguage): readonly CommandItem[] |
 | `ASSIGNEE_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#ASSIGNEE_SEPARATOR` | -- | const ASSIGNEE_SEPARATOR = ', ' |
 | `BLANK_SEARCH_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#BLANK_SEARCH_VALUE` | -- | const BLANK_SEARCH_VALUE = '' |
-| `BOTTLENECK_STATE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#BOTTLENECK_STATE` | -- | const BOTTLENECK_STATE = 'bottleneck' |
 | `ColumnFilter` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#ColumnFilter` | -- | type ColumnFilter = TableView['columnFilters'][number] |
 | `ColumnSort` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#ColumnSort` | -- | type ColumnSort = NonNullable<TableView['sort']> |
 | `columnValuesOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnValuesOf` | -- | function columnValuesOf(rows: SearchRows, column: SearchColumn, hidden: ReadonlySet<number> = NOTHING_HIDDEN): readonly string[] |
 | `COMMENT_BOX_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#COMMENT_BOX_SEARCH_COLUMNS` | -- | const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9'] |
 | `comparePercentTexts` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#comparePercentTexts` | -- | function comparePercentTexts(a: string, b: string): number |
+| `compareTaskTypes` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#compareTaskTypes` | -- | function compareTaskTypes(a: string, b: string): number |
 | `filteredSearchRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredSearchRows` | -- | function filteredSearchRows( rows: SearchRows, columnFilters: readonly ColumnFilter[], sort: ColumnSort \| null, hidden: ReadonlySet<number> = NOTHING_HIDDEN, |
 | `filteredTableRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredTableRows` | -- | function filteredTableRows<Row>( rows: readonly Row[], table: TableColumns<Row>, columnFilters: readonly ColumnFilter[], sort: ColumnSort \| null, ): readonly... |
 | `HIDE_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#HIDE_VALUE` | -- | const HIDE_VALUE = 'hide' |
@@ -1597,13 +1602,16 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `percentText` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#percentText` | -- | function percentText(percent: number \| null): string |
 | `searchBodyTextOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchBodyTextOf` | -- | function searchBodyTextOf(text: string): string |
 | `SearchColumn` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchColumn` | -- | type SearchColumn = ColumnFilter['column'] |
-| `SearchTaskState` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchTaskState` | -- | type SearchTaskState = TaskSearchRow['planActualState'] \| typeof BOTTLENECK_STATE |
+| `SearchTaskState` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchTaskState` | -- | type SearchTaskState = TaskSearchRow['planActualState'] \| 'DG-1' \| 'DG-2' \| 'DG-3' \| 'PM-4' |
 | `searchTaskStateOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchTaskStateOf` | -- | function searchTaskStateOf(row: TaskSearchRow): SearchTaskState |
 | `SHOW_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#SHOW_VALUE` | -- | const SHOW_VALUE = 'show' |
 | `TableColumns` | file only | interface | `src/adapter/screen-renderer/search-table-filters.ts#TableColumns` | -- | interface TableColumns<Row> |
 | `tableColumnValues` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#tableColumnValues` | -- | function tableColumnValues<Row>(rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn): readonly string[] |
 | `TASK_GROUP_PATH_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_GROUP_PATH_SEPARATOR` | -- | const TASK_GROUP_PATH_SEPARATOR = ' \u2192 ' |
 | `TASK_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_SEARCH_COLUMNS` | -- | const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchColumns |
+| `TASK_TYPES_ASCENDING` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_TYPES_ASCENDING` | -- | const TASK_TYPES_ASCENDING: readonly TaskType[] = ['task', 'milestone'] |
+| `TaskType` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#TaskType` | -- | type TaskType = 'task' \| 'milestone' |
+| `taskTypeOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#taskTypeOf` | -- | function taskTypeOf(isMilestone: boolean): TaskType |
 | `withVisibilityColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#withVisibilityColumn` | -- | function withVisibilityColumn<Row>(table: TableColumns<Row>, column: SearchColumn, isShown: (row: Row) => boolean): TableColumns<Row> |
 | `clearEntryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#clearEntryOf` | -- | function clearEntryOf(view: TableView, language: DisplayLanguage): CommandItem |
 | `DATES_ONLY` | file only | const | `src/adapter/screen-renderer/table-window.ts#DATES_ONLY` | -- | const DATES_ONLY: ShownDateTimes = { showsTimeOfDay: false, instantOf: () => null, startSideOf: () => 'start' } |
@@ -2038,4 +2046,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1031 name(s) leave through a public entry (489 of them published by table T-064), 797 more are exported by a file and not by its entry.
+Totals: 1033 name(s) leave through a public entry (490 of them published by table T-064), 803 more are exported by a file and not by its entry.

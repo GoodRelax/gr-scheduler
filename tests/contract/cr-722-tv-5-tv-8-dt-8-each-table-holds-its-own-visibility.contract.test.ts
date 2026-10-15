@@ -18,7 +18,7 @@ const TV_5_STAYS_ON = '掛けているあいだは、行をすべて「表示」
 const TV_8_VALUES_STAY = '解除しても表示の列の値は残る（利用者が定めた）'
 const TV_2_WORDS_KEEP = '語・列のフィルタ・並べ替え・表の切り替えは表示の列の値を変えない —— 一覧に出ていない行の値も残る。'
 const DT_8_VALUE = 'この表でのそのタスクの行の値（`FR-151` の 表 T-353 の `TV-2`）'
-const RW_10_FIXED = '横は `DT-8`・`DT-1`・`DT-3`・`DT-4`（表示・ステータス・進捗・タスク —— 表 T-347 の並びで左の 4 列）を左に固定し'
+const RW_10_FIXED = '横は `DT-8`・`DT-1`・`DT-3`・`DT-9`・`DT-4`（表示・ステータス・進捗・タスク種別・タスク —— 表 T-347 の並びで左の 5 列）を左に固定し'
 
 describe('CR-722 the manuscript these cases are driven by', () => {
   it('T-353, T-347 and T-346 still say it, word for word', () => {
@@ -115,11 +115,11 @@ describe(`FR-151 T-353 TV-5 -- ${TV_5_ON_OFF.slice(0, 40)}`, () => {
 })
 
 describe(`FR-134 T-347 DT-8, T-346 RW-10 -- the report table leads with the Visibility column`, () => {
-  it('DT-8 is the first column of the report and the first four columns are fixed', () => {
+  it('DT-8 is the first column of the report and the first five columns are fixed', () => {
     const columns = reportViewOf(OPENED_REPORT).columns
-    expect(columns.map((one) => one.column).slice(0, 4)).toEqual(['DT-8', 'DT-1', 'DT-3', 'DT-4'])
-    expect(columns.slice(0, 4).every((one) => one.isFixed)).toBe(true)
-    expect(columns.slice(4).some((one) => one.isFixed)).toBe(false)
+    expect(columns.map((one) => one.column).slice(0, 5)).toEqual(['DT-8', 'DT-1', 'DT-3', 'DT-9', 'DT-4'])
+    expect(columns.slice(0, 5).every((one) => one.isFixed)).toBe(true)
+    expect(columns.slice(5).some((one) => one.isFixed)).toBe(false)
   })
 
   it('a report row made Hide reads Hide', () => {

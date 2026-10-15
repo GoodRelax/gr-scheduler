@@ -6,9 +6,9 @@
 import type { DrawnSettings } from '../../document-model/document-settings/document-settings'
 import {
   dayOf,
-  isDelayed,
   lastDayForLength,
   planActualState,
+  progressMarkerOf,
   textOfDay,
   type CalendarDay,
   type Task,
@@ -44,7 +44,6 @@ import {
   type Path,
   type PathSegment,
   type Point,
-  type ProgressSymbol,
   type ResumeGeometry,
   type TaskGeometry,
 } from './schedule-geometry'
@@ -525,26 +524,9 @@ function barOf(inputs: GeometryInputs, placed: TaskPlacement, x0: number, x1: nu
   return { form: 'outline', points: fadedOutline(x0, x1, top, height, fade.fadeIn ?? 0, fade.fadeOut ?? 0) }
 }
 
-// see RV-5
-/** @purity pure */
-function progressSymbolOf(task: Task, statusDate: CalendarDay | null): ProgressSymbol {
-  if (isDelayed(task, statusDate)) return 'PM-4'
-  switch (planActualState(task)) {
-    case 'finished':
-      return 'PM-2'
-    case 'suspendedResumeUnknown':
-    case 'suspendedResumePlanned':
-      return 'PM-3'
-    case 'notStarted':
-      return 'PM-1a'
-    case 'inProgress':
-      return 'PM-1'
-  }
-}
-
 // see FR-133, T-315
 /** @purity pure */
-function diagnosedSymbolOf(inputs: GeometryInputs, taskUid: number): ProgressSymbol | undefined {
+function diagnosedSymbolOf(inputs: GeometryInputs, taskUid: number): 'DG-1' | 'DG-2' | 'DG-3' | undefined {
   const diagnostics = inputs.delayDiagnostics
   if (diagnostics === undefined || !diagnostics.shown) return undefined
   return diagnostics.symbolByUid.get(taskUid)
@@ -601,7 +583,7 @@ function markerOf(inputs: GeometryInputs, task: Task,
   if (markerLeft === null) return null
   const radius = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings) / 2
   return {
-    symbol: diagnosedSymbolOf(inputs, task.uid) ?? progressSymbolOf(task, inputs.statusDate),
+    symbol: progressMarkerOf(task, inputs.statusDate, diagnosedSymbolOf(inputs, task.uid)),
     center: point(markerLeft + radius, labelTierMiddleOf(placed, settings)),
     radius,
     // see GA-18, FR-013, S-584

@@ -131,9 +131,10 @@ describe('CR-655 TL-10 (table T-348) -- the tooltip day follows ND-5', () => {
 })
 
 const SV_8_ORDER =
-  '状態の列（`SQ-5`）の昇順は ボトルネック → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
-const SQ_5_WHILE_SHOWN = '遅延診断を出しているあいだ（表 T-206 の `S-445`）、表 T-315 の `DG-2` の条件を満たすタスクは、それに代えて「ボトルネック」と出す'
-const SQ_5_NOT_SHOWN = '診断を出していないあいだは判じた結果が無いので出さず'
+  '状態の列（`SQ-5`）の昇順は 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
+// WHY: CR-760 retired the two SQ-5 clauses this file was cut from; these are the clauses that replaced them.
+const SQ_5_WHILE_SHOWN = '`DG-1` 〜 `DG-3` は診断を出しているあいだだけ出し、診断を閉じると同じタスクは診断の無いときの値へ戻る。'
+const SQ_5_LATE_ALWAYS = '⭐ 遅れ（`PM-4`、表 T-021b）は予定の日と基準日だけで決まるので、診断を出していなくても出す。'
 
 const FF = 0
 const day2027 = (month: number, date: number, hour: number): string =>
@@ -176,12 +177,15 @@ const DOCUMENT = diagnosedDocument()
 const SCHEDULE = DOCUMENT.schedule
 const REPORT = scheduleEntry.diagnoseDelay(DOCUMENT, scheduleEntry.workingCalendarOf(SCHEDULE))
 // see SQ-5, DG-2
-const BOTTLENECKS: ReadonlySet<number> = new Set(REPORT.bottlenecks.map((one) => one.uid))
+// WHY: CR-760 -- SQ-5 takes each task's diagnosed T-315 row (DG-1 .. DG-3); this file keeps to the bottlenecks, DG-2.
+const BOTTLENECKS: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> = new Map(REPORT.bottlenecks.map((one) => [one.uid, 'DG-2' as const]))
 
 const WORDS = JSON.parse(
   readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8'),
 ) as { readonly delayReportStatuses: readonly { readonly rowId: string; readonly text: Record<DisplayLanguage, string> }[] }
 const DG_2_WORD = WORDS.delayReportStatuses.find((one) => one.rowId === 'DG-2')?.text
+// WHY: SQ-5 writes a late task with the word of the T-315 row DG-4.
+const DG_4_WORD = WORDS.delayReportStatuses.find((one) => one.rowId === 'DG-4')?.text
 
 const CANVAS: ScreenRect = { x: 0, y: 56, width: 1000, height: 600 }
 const step = (session: ScreenSession, type: string): ScreenSession =>
@@ -194,7 +198,7 @@ const TASK_PANEL: SearchPanelSession = { ...emptySearchPanelSession, table: 'tas
 // WHY: CR-723 -- the table's view is the document's and is handed in beside the panel; none is set here.
 const NO_VIEW: TableView = { visibility: EVERY_ROW_SHOWN, columnFilters: [], sort: null }
 
-function viewOf(language: DisplayLanguage, bottleneckUids?: ReadonlySet<number>): SearchPanelView {
+function viewOf(language: DisplayLanguage, bottleneckUids?: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'>): SearchPanelView {
   const view = searchPanelFromSession(sessionIn(language), TASK_PANEL, NO_VIEW, SCHEDULE, CANVAS, bottleneckUids)
   if (view === null) throw new Error('premise: a shown panel has a view')
   return view
@@ -206,41 +210,44 @@ const stateCellOf = (view: SearchPanelView, uid: number): string | undefined =>
 const uidsOf = (rows: readonly scheduleEntry.TaskSearchRow[]): readonly number[] => rows.map((row) => row.taskUid)
 
 describe('CR-655 SQ-5 / SV-8 (tables T-331, T-330) -- the bottleneck in the search table', () => {
-  it('SV-8 and SQ-5 say: ボトルネック → 未着手 → … / 診断を出しているあいだ DG-2 を満たすタスクは「ボトルネック」', () => {
+  it('SV-8 and SQ-5 say: 信用できない・要修正 → ボトルネック → … / DG-1 〜 DG-3 は診断を出しているあいだだけ', () => {
     expect(cellOf('T-330', 'SV-8', '定め')).toContain(SV_8_ORDER)
     const sq5 = firstCellOf('T-331', 'SQ-5')
     expect(sq5).toContain(SQ_5_WHILE_SHOWN)
-    expect(sq5).toContain(SQ_5_NOT_SHOWN)
-    expect(sq5).toContain('表 T-315 の `DG-2` の語')
+    expect(sq5).toContain(SQ_5_LATE_ALWAYS)
+    expect(sq5).toContain('表 T-315 の `DG-1` 〜 `DG-4` の語')
   })
 
   it('premise: the diagnosis names Lead, and only Lead, a bottleneck (T-315 DG-2)', () => {
-    expect([...BOTTLENECKS]).toEqual([LEAD])
+    expect([...BOTTLENECKS.keys()]).toEqual([LEAD])
   })
 
   it('SQ-5: with the diagnosis shown, the DG-2 task reads the T-315 DG-2 word in both languages', () => {
     expect(DG_2_WORD?.ja).toBe('ボトルネック')
     expect(stateCellOf(viewOf('ja', BOTTLENECKS), LEAD)).toBe(DG_2_WORD?.ja)
     expect(stateCellOf(viewOf('en', BOTTLENECKS), LEAD)).toBe(DG_2_WORD?.en)
-    expect(stateCellOf(viewOf('ja', BOTTLENECKS), TRAIL), 'SQ-5: a task outside DG-2 keeps its T-019a state').toBe('進行中')
+    // WHY: CR-760 -- Trail is late (T-021b DL-1) and so no longer reads its state; Later is neither late nor diagnosed.
+    expect(stateCellOf(viewOf('ja', BOTTLENECKS), LATER), 'SQ-5: a task outside DG-2 keeps its T-019a state').toBe('未着手')
   })
 
-  it('SQ-5: with the diagnosis not shown, nothing reads ボトルネック and Lead keeps its T-019a state', () => {
-    expect(stateCellOf(viewOf('ja'), LEAD)).toBe('進行中')
+  it('SQ-5: with the diagnosis not shown, nothing reads ボトルネック and Lead reads its value without the diagnosis (late, PM-4)', () => {
+    expect(stateCellOf(viewOf('ja'), LEAD), SQ_5_LATE_ALWAYS).toBe(DG_4_WORD?.ja)
     expect(viewOf('ja').rows.map((row) => row.cells[STATE_AT])).not.toContain(DG_2_WORD?.ja)
   })
 
   it('SV-8: ascending puts the bottleneck first, descending puts it last', () => {
     const rows = scheduleEntry.searchRowsOf(SCHEDULE, '', BOTTLENECKS)
     const up = filteredSearchRows(rows, NO_VIEW.columnFilters, { column: 'SQ-5', direction: 'ascending' })
-    expect(uidsOf(up.taskRows)).toEqual([LEAD, LATER, TRAIL, DONE])
+    // WHY: Trail is late (T-021b DL-1), and SV-8 puts the late before the not started.
+    expect(uidsOf(up.taskRows)).toEqual([LEAD, TRAIL, LATER, DONE])
     const down = filteredSearchRows(rows, NO_VIEW.columnFilters, { column: 'SQ-5', direction: 'descending' })
-    expect(uidsOf(down.taskRows)).toEqual([DONE, TRAIL, LATER, LEAD])
+    expect(uidsOf(down.taskRows)).toEqual([DONE, LATER, TRAIL, LEAD])
   })
 
   it('SV-7 / SV-8: the state filter lists the bottleneck first, and IC-126 hides it with the rest', () => {
     const rows = scheduleEntry.searchRowsOf(SCHEDULE, '', BOTTLENECKS)
-    expect(columnValuesOf(rows, 'SQ-5')[0]).toBe('bottleneck')
+    // WHY: SQ-5's value is the T-315 row itself when one of DG-1 .. DG-3 wins.
+    expect(columnValuesOf(rows, 'SQ-5')[0]).toBe('DG-2')
     const opened = searchPanelWithFilterOpened(sessionIn('ja'), TASK_PANEL, NO_VIEW, 'SQ-5')
     if (opened === null) throw new Error('premise: the SQ-5 filter opens')
     const hidden = searchPanelAfterFilterEntry(sessionIn('ja'), opened, NO_VIEW, 'IC-126', SCHEDULE, BOTTLENECKS)

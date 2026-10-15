@@ -3,13 +3,14 @@
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
 
-import { instantOf } from './calendar-day'
+import { dayOf, instantOf, type CalendarDay } from './calendar-day'
 import { instantOnSideReader, startSideOf } from './working-calendar'
 import { planActualState } from './plan-actual-state'
 import type { PlanActualState } from './plan-actual-state'
 import { taskGroupNameOf, taskGroupPathOf } from './task-group-names'
 import type { CommentBox, Schedule, Task } from './schedule-entities'
 import { taskGroupRankById } from './schedule-invariants'
+import { progressMarkerOf, type ProgressMarker } from './task-delay'
 
 // see T-331
 export type TaskSearchRow = {
@@ -23,7 +24,8 @@ export type TaskSearchRow = {
   readonly actualStart: string | null
   readonly actualFinish: string | null
   readonly planActualState: PlanActualState
-  readonly isBottleneck: boolean
+  readonly progressMarker: ProgressMarker
+  readonly milestone: boolean
   readonly rowPath: readonly string[]
   readonly groupId: string | null
 }
@@ -121,11 +123,11 @@ export function plannedFinishOf(task: Task): string | null {
   return task.milestone === true ? task.start : task.finish
 }
 
-const NO_BOTTLENECK_UIDS: ReadonlySet<number> = new Set()
+const NOTHING_DIAGNOSED: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> = new Map()
 
 /** @purity pure */
 function taskSearchRowOf(task: Task, assigneeNames: readonly string[],
-                         place: Pick<TaskSearchRow, 'rowPath' | 'groupId'>, isBottleneck: boolean): TaskSearchRow {
+                         place: Pick<TaskSearchRow, 'rowPath' | 'groupId'>, progressMarker: ProgressMarker): TaskSearchRow {
   return {
     taskUid: task.uid,
     name: task.name ?? '',
@@ -134,17 +136,25 @@ function taskSearchRowOf(task: Task, assigneeNames: readonly string[],
     plannedFinish: plannedFinishOf(task),
     ...progressOf(task),
     planActualState: planActualState(task),
-    isBottleneck,
+    progressMarker,
+    milestone: task.milestone === true,
     ...place,
   }
 }
 
-// see SV-4, T-331, SQ-5
+// TRAP: read through ?.: a schedule built from a part of a document may carry no project, and then no row is late.
+/** @purity pure */
+function statusDayOf(schedule: Schedule): CalendarDay | null {
+  return dayOf(schedule.project?.statusDate ?? null)
+}
+
+// see SV-4, T-331, SQ-5, SQ-14
 /** @purity pure */
 export function searchRowsOf(
   schedule: Schedule,
   word: string,
-  bottleneckUids: ReadonlySet<number> = NO_BOTTLENECK_UIDS,
+  diagnosed: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> = NOTHING_DIAGNOSED,
+  statusDate: CalendarDay | null = statusDayOf(schedule),
 ): SearchRows {
   const rankById = taskGroupRankById(schedule.taskGroups)
   const rankOf = (groupId: string | null): number =>
@@ -168,7 +178,8 @@ export function searchRowsOf(
     const names = assigneeNames.get(task.uid) ?? []
     if (!isSearchWordFound(name, word) && !names.some((one) => isSearchWordFound(one, word))) continue
     const groupId = heldTaskGroup(groupIdByTaskUid.get(task.uid))
-    const row = taskSearchRowOf(task, names, { rowPath: pathOf(groupId), groupId }, bottleneckUids.has(task.uid))
+    const marker = progressMarkerOf(task, statusDate, diagnosed.get(task.uid))
+    const row = taskSearchRowOf(task, names, { rowPath: pathOf(groupId), groupId }, marker)
     taskRows.push({ row, rank: rankOf(groupId), at: startAt.get(task.uid) ?? null, key: task.uid })
   }
 

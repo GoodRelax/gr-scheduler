@@ -10,6 +10,7 @@ import {
   workingCalendarOf,
   type BaselineTask,
   type CalendarDay,
+  type progressMarkerOf,
   type Schedule,
   type Task,
   type TaskGroup,
@@ -105,7 +106,7 @@ export type BarGeometry =
     }
 
 // see RV-5, T-021, T-315
-export type ProgressSymbol = 'PM-1' | 'PM-1a' | 'PM-2' | 'PM-3' | 'PM-4' | 'DG-1' | 'DG-2' | 'DG-3'
+export type ProgressSymbol = ReturnType<typeof progressMarkerOf>
 
 export interface MarkerGeometry {
   readonly symbol: ProgressSymbol

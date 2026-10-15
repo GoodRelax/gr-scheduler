@@ -38,7 +38,7 @@ const EVERY_VIEWPOINT = [
   ...Array.from({ length: 6 }, (_, at) => `VS-${String(at + 1)}`),
   ...Array.from({ length: 5 }, (_, at) => `VO-${String(at + 1)}`),
 ]
-const FOUR_WORDS = ['機械', '選ぶ', '日付の候補', '手で直す']
+const FOUR_WORDS = ['機械', '選ぶ', '日付の候補', '手で修正']
 
 const mended = (document: ReturnType<typeof ONE_PARENT>) => {
   const rows = proposed(document)
@@ -62,7 +62,7 @@ describe('FR-155 / T-373 -- the manuscript these cases read', () => {
 
   it('T-373 gives every row one of the four fix types, FA-3 alone by its content', () => {
     for (const one of T_373.rows) {
-      const type = (one.by['直し方'] ?? '').trim()
+      const type = (one.by['修正のしかた'] ?? '').trim()
       if (one.id === 'FA-3') expect(type, one.id).toContain('機械')
       else expect(FOUR_WORDS, one.id).toContain(type)
     }

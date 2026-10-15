@@ -40,7 +40,7 @@ const SV_7_BLANK_DATES = '日付の列に「いつから」か「いつまで」
 const SV_8 = cellOf('T-330', 'SV-8', '定め')
 const SV_8_ONE = '並べ替える列は 1 つ。'
 const SV_8_STATES =
-  '状態の列（`SQ-5`）の昇順は ボトルネック → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
+  '状態の列（`SQ-5`）の昇順は 信用できない・要修正 → ボトルネック → ボトルネック経路 → 遅れ → 未着手 → 進行中 → 完了 → 中断・再開予定あり → 中断・再開日未定、降順はその逆'
 const SV_8_TIES = '同じ値の行は既定の並びを保ち、空の値は向きによらず末尾。'
 const SV_8_DEFAULT =
   '既定の並びは、タスクグループの木の上からの並び → `SQ-3`（コメントボックスは `SQ-9`）→ `Task.uid`（コメントボックスは `id`）'
@@ -49,6 +49,15 @@ const SQ_6_JOIN = '最上位から順に「 → 」で繋ぐ'
 
 // see T-019a
 // WHY: the fixture spells a state as PlanActualState does; the first case pins each spelling to its row's word.
+// see T-021, SQ-5
+// WHY: CR-760 gives a row the marker of its state (no row of this fixture is late or diagnosed).
+const MARKER_OF: Readonly<Record<PlanActualState, string>> = {
+  notStarted: 'PM-1a',
+  inProgress: 'PM-1',
+  finished: 'PM-2',
+  suspendedResumePlanned: 'PM-3',
+  suspendedResumeUnknown: 'PM-3',
+}
 const STATE_WORDS: Readonly<Record<string, readonly [PlanActualState, string]>> = {
   'PS-1': ['notStarted', '未着手'],
   'PS-2': ['finished', '完了'],
@@ -66,20 +75,23 @@ const task = (
   plannedStart: string | null,
   planActualState: PlanActualState,
   rowPath: readonly string[],
-): TaskSearchRow => ({
-  taskUid,
-  name,
-  assigneeNames,
-  plannedStart,
-  plannedFinish: plannedStart,
-  percentComplete: null,
-  actualStart: null,
-  actualFinish: null,
-  planActualState,
-  isBottleneck: false,
-  rowPath,
-  groupId: `g-${taskUid}`,
-})
+): TaskSearchRow =>
+  ({
+    taskUid,
+    name,
+    assigneeNames,
+    plannedStart,
+    plannedFinish: plannedStart,
+    percentComplete: null,
+    actualStart: null,
+    actualFinish: null,
+    planActualState,
+    progressMarker: MARKER_OF[planActualState],
+    milestone: false,
+    isBottleneck: false,
+    rowPath,
+    groupId: `g-${taskUid}`,
+  }) as TaskSearchRow
 
 const box = (commentBoxId: string, text: string, taskGroupName: string, anchorDate: string | null): CommentBoxSearchRow => ({
   commentBoxId,

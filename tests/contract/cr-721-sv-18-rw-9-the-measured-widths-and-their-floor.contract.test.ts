@@ -30,15 +30,15 @@ const lastCellOf = (table: string, id: string): string => {
 }
 
 const SV_18_MEASURED =
-  '⭐ 中身の字の幅が決まる列（ステータス・進捗・日付 —— `SQ-5`・`SQ-11`・`SQ-3`・`SQ-4`・`SQ-12`・`SQ-13`・`SQ-9`）の既定は、そのときの言語（`FR-038`）と字の段（`SV-16`）で、見出し（語と `IC-122`）も値も省略記号で切られない最小の幅とすること（MUST）'
-const SV_18_WHAT_IS_MEASURED = '測る相手は、見出しと、その表がいま持つすべての行の値（一覧に出ていない行を含む）とし、状態の列（`SQ-5`）は表 T-019a と 表 T-315 の `DG-2` の語のすべてとする。'
+  '⭐ 中身の字の幅が決まる列（ステータス・進捗・タスク種別・日付 —— `SQ-5`・`SQ-11`・`SQ-14`・`SQ-3`・`SQ-4`・`SQ-12`・`SQ-13`・`SQ-9`）の既定は、そのときの言語（`FR-038`）と字の段（`SV-16`）で、見出し（語と `IC-122`）も値も省略記号で切られない最小の幅とすること（MUST）'
+const SV_18_WHAT_IS_MEASURED = '測る相手は、見出しと、その表がいま持つすべての行の値（一覧に出ていない行を含む）とし、状態の列（`SQ-5`）は 表 T-019a の語と 表 T-315 の `DG-1` 〜 `DG-4` の語のすべて、タスク種別の列（`SQ-14`）はその 2 つの値の語とする。'
 const SV_18_WHEN = '測るのは、窓を開いたとき・`IC-127` で段を変えたとき・表示の言語を変えたときだけとし、ほかの時には測り直さない'
 const SV_18_DRAGGED = '引いて変えた列は測り直さず、変えた幅を保つ。'
 const SV_18_FLOOR = '幅の下限は `S-425` —— 見出しのセルに `IC-122` の箱と、セルの左右の詰めと罫が入る幅を、そのときの段で測った値である'
 const SV_18_RAISE = '段を変えて下限が列の幅を超えたときは、列を下限まで広げる。'
 const SV_18_NOT_BY_STEP = '幅は画面の px であり、字の段（`S-429`）と表示の倍率（`S-234`）で変えない。'
 const SV_18_VISIBILITY = '⭐ [表示] の列（`SQ-10`）は例外で、幅は `S-496` の固定の値とし、右の境目（`GR-28`）を持たない'
-const RW_9_MEASURED = '中身の字の幅が決まる列（`DT-1`・`DT-3`・`DT-5`・`DT-6`）の既定は、`SV-18` と同じ規則で測る'
+const RW_9_MEASURED = '中身の字の幅が決まる列（`DT-1`・`DT-3`・`DT-9`・`DT-5`・`DT-6`）の既定は、`SV-18` と同じ規則で測る'
 // WHY: CR-737 added the IC-122 clearance (S-465, T-330 SV-7) to the floor; the old clause without it is retired.
 const S_425_FLOOR =
   '⭐ 見出しのセルに `IC-122` の箱と、セルの左右の詰め（0.25em ずつ）と、`IC-122` を列の境目の掴み代の外に立てる離れ（`S-465`、表 T-330 の `SV-7`）と、罫 1px が入る幅を、そのときの字の段（`S-429`）で測る'
@@ -60,11 +60,11 @@ describe('CR-721 the manuscript these cases are driven by', () => {
 const withPanel = (patch: Partial<SearchPanelSession>): Pane => ({ ...TASK_PANEL, panel: { ...TASK_PANEL.panel, ...patch } })
 const withWidth = (column: string, width: number): Pane => ({ ...TASK_PANEL, panel: searchPanelWithColumnWidth(TASK_PANEL.panel, column, width) })
 
-const MEASURED_TASK_COLUMNS = ['SQ-5', 'SQ-11', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13']
-const MEASURED_REPORT_COLUMNS = ['DT-1', 'DT-3', 'DT-5', 'DT-6']
+const MEASURED_TASK_COLUMNS = ['SQ-5', 'SQ-11', 'SQ-14', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13']
+const MEASURED_REPORT_COLUMNS = ['DT-1', 'DT-3', 'DT-9', 'DT-5', 'DT-6']
 
 describe('FR-151 T-330 SV-18 -- 見出しも値も省略記号で切られない最小の幅: only the columns whose text decides their width are measured', () => {
-  it('the tasks table measures status, progress and the date columns and no other', () => {
+  it('the tasks table measures status, progress, task type and the date columns and no other', () => {
     const measured = viewOf(TASK_PANEL).columns.filter((one) => one.widthSamples !== null).map((one) => one.column)
     expect(measured).toEqual(MEASURED_TASK_COLUMNS)
   })
@@ -74,7 +74,7 @@ describe('FR-151 T-330 SV-18 -- 見出しも値も省略記号で切られない
     expect(measured).toEqual(['SQ-9'])
   })
 
-  it('RW-9: the report measures DT-1, DT-3, DT-5 and DT-6 and no other', () => {
+  it('RW-9: the report measures DT-1, DT-3, DT-9, DT-5 and DT-6 and no other', () => {
     const measured = reportViewOf(OPENED_REPORT).columns.filter((one) => one.widthSamples !== null).map((one) => one.column)
     expect(measured).toEqual(MEASURED_REPORT_COLUMNS)
   })
@@ -89,13 +89,13 @@ describe('FR-151 T-330 SV-18 -- 測る相手は、見出しと、その表がい
     expect(all).toEqual(expect.arrayContaining(['2026/04/01', '2026/04/02', '2026/04/03']))
   })
 
-  it.each(['ja', 'en'] as const)('SQ-5 hands over every state word of T-019a and the bottleneck word of DG-2 in %s', (language) => {
+  it.each(['ja', 'en'] as const)('SQ-5 hands over every state word of T-019a and the words of DG-1 to DG-4 in %s', (language) => {
     const samples = columnOf(viewOf(TASK_PANEL, language), 'SQ-5').widthSamples ?? []
     const states = WORDS.planActualStates.map((one) => one.text[language])
-    const bottleneck = WORDS.delayReportStatuses.find((one) => one.rowId === 'DG-2')?.text[language]
+    const markers = ['DG-1', 'DG-2', 'DG-3', 'DG-4'].map((row) => WORDS.delayReportStatuses.find((one) => one.rowId === row)?.text[language])
     expect(states.length, 'premise: the dictionary holds the five states').toBe(5)
-    expect(bottleneck, 'premise: the dictionary holds the DG-2 word').toBeDefined()
-    for (const word of [...states, bottleneck ?? '']) expect(samples, word).toContain(word)
+    expect(markers.every((one) => one !== undefined), 'premise: the dictionary holds the DG-1 to DG-4 words').toBe(true)
+    for (const word of [...states, ...markers.map((one) => one ?? '')]) expect(samples, word).toContain(word)
   })
 
   it('a filter on another column does not shrink the samples', () => {

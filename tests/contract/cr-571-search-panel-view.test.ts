@@ -57,7 +57,7 @@ const SV_2_REFOCUS = '`SK-24` か `IC-117` を押したとき、パネルが出�
 const SV_3_ONE = '表は一度に 1 つだけ出す。'
 const SV_3_DEFAULT = '既定はタスクの表。'
 const SV_3_CHOSEN = '出している表の入口は 表 T-237 の `EN-6`（排他の選択のうち選ばれているもの）で示す'
-const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク の 4 列）、コメントボックスの表は `SQ-7` までを左に固定し'
+const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク種別・タスク の 5 列）、コメントボックスの表は `SQ-7` までを左に固定し'
 const SV_9_SIZE =
   '幅は `Schedule Canvas`（`U-32`）の幅に `_assets/tbl-settings.md` の 表 T-206 の `S-421` を、高さはその高さに `S-422` を掛けた大きさ。'
 const SV_9_CORNER = '左下の角を `Schedule Canvas` の左下に合わせる。'
@@ -166,8 +166,11 @@ const row = (id: string, parentId: string | null, label: string): Loose => ({
   treeState: 'expanded',
 })
 
+// WHY: CR-760 made SQ-5 show PM-4 for a late task (T-021b); the template's status date would make these tasks
+// late, so the fixture has no status date and SQ-5 writes a T-019a state (the CR-760 file holds the late ones).
 const SCHEDULE = {
   ...TEMPLATE.schedule,
+  project: { ...(TEMPLATE.schedule['project'] as Loose), statusDate: null },
   tasks: [
     task(NAMED_UID, NAMED, '2026-01-01T00:00:00', '2026-01-09T00:00:00'),
     task(NAMELESS_UID, '', '2026-02-01T00:00:00', '2026-02-03T00:00:00'),

@@ -1108,9 +1108,22 @@ function isReadOnly(context: FixContext, draft: FixDraft): boolean {
     .some((command) => writtenUidsOf(command).some((uid) => context.readOnlyUids.has(uid))))
 }
 
+// see FM-1, FM-8, T-373, T-064
+/** @purity pure */
+function isOneChoice(draft: FixDraft): boolean {
+  return draft.fixType === 'choose' && draft.choices.length === 1
+}
+
 /** @purity pure */
 function chosenOf(draft: FixDraft, check: DelayFixCheck | null): DelayFixChoice | null {
-  return draft.fixType === 'choose' ? draft.choices.find((one) => one.key === check?.choice) ?? null : null
+  if (draft.fixType !== 'choose') return null
+  if (isOneChoice(draft)) return draft.choices[0] ?? null
+  return draft.choices.find((one) => one.key === check?.choice) ?? null
+}
+
+/** @purity pure */
+function isCheckedByDefault(draft: FixDraft): boolean {
+  return draft.fixType !== 'suggestedDate' && !isOneChoice(draft)
 }
 
 // see FM-8, RW-16
@@ -1160,7 +1173,7 @@ function rowOf(context: FixContext, seed: Seed, draft: FixDraft, check: DelayFix
     choices: draft.choices,
     chosen: chosen?.key ?? null,
     suggested: draft.suggested === null ? null : textOfDay(draft.suggested),
-    checked: isCheckable && (check?.checked ?? draft.fixType !== 'suggestedDate'),
+    checked: isCheckable && (check?.checked ?? isCheckedByDefault(draft)),
     isCheckable,
     causedBy: seed.causedBy,
     refusal,

@@ -766,7 +766,7 @@ export interface ScreenViewReadings {
     readonly fixTables?: DelayFixTables
   } | null
   // see SQ-5, S-445
-  readonly bottleneckUids?: ReadonlySet<number>
+  readonly diagnosedMarkers?: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'>
   readonly resourceList?: TableWindowState | null
   // WHY: the tasks the product draws (null while no Schedule Filter is on); the band counts them.
   readonly drawnTaskUids?: ReadonlySet<number> | null
@@ -829,7 +829,7 @@ function tableWindowsOf(
   const view = tableViewOf(source.settings, 'searchPanel')
   return {
     searchPanel: searchPanelFromSession(
-      session, panel, view, source.schedule, source.canvas, readings.bottleneckUids, shownDateTimesOf(source.schedule, source.settings),
+      session, panel, view, source.schedule, source.canvas, readings.diagnosedMarkers, shownDateTimesOf(source.schedule, source.settings),
     ),
     delayDiagnosticsReport: delayDiagnosticsReportOf(session, readings, source),
     resourceList: resourceListOf(session, readings, source),

@@ -24,7 +24,6 @@ import { windowPlaceInRange, type WindowShown } from './window-box'
 import {
   ASSIGNEE_SEPARATOR,
   BLANK_SEARCH_VALUE,
-  BOTTLENECK_STATE,
   COMMENT_BOX_SEARCH_COLUMNS,
   TASK_GROUP_PATH_SEPARATOR,
   TASK_SEARCH_COLUMNS,
@@ -34,6 +33,8 @@ import {
   percentText,
   searchBodyTextOf,
   searchTaskStateOf,
+  taskTypeOf,
+  TASK_TYPES_ASCENDING,
   type SearchTaskState,
 } from './search-table-filters'
 import {
@@ -89,8 +90,10 @@ const STATUS_COLUMN: SearchColumn = 'SQ-5'
 
 const VISIBILITY_COLUMN: SearchColumn = 'SQ-10'
 
+const TASK_TYPE_COLUMN: SearchColumn = 'SQ-14'
+
 // see SV-18
-const MEASURED_COLUMNS: ReadonlySet<SearchColumn> = new Set(['SQ-5', 'SQ-11', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-9'])
+const MEASURED_COLUMNS: ReadonlySet<SearchColumn> = new Set(['SQ-5', 'SQ-11', 'SQ-14', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-9'])
 
 const NOTHING_FOUND: SearchRows = { taskRows: [], commentBoxRows: [] }
 
@@ -113,8 +116,14 @@ const STATE_GLYPHS: { readonly [S in SearchTaskState]: MarkGlyph } = {
   finished: 'PM-2',
   suspendedResumePlanned: 'PM-3',
   suspendedResumeUnknown: 'PM-3',
-  [BOTTLENECK_STATE]: 'DG-2',
+  'PM-4': 'PM-4',
+  'DG-1': 'DG-1',
+  'DG-2': 'DG-2',
+  'DG-3': 'DG-3',
 }
+
+// see SQ-5, T-315
+const MARKER_WORD_ROWS: { readonly [S in SearchTaskState]?: string } = { 'DG-1': 'DG-1', 'DG-2': 'DG-2', 'DG-3': 'DG-3', 'PM-4': 'DG-4' }
 
 // see T-019a
 // TRAP: the PS rows top down, which is the order of their words; a state out of that order shows another's words.
@@ -129,9 +138,10 @@ const STATES_IN_TABLE_ORDER: readonly PlanActualState[] = [
 const SEARCH_TASK_STATES = Object.keys(STATE_GLYPHS) as readonly SearchTaskState[]
 
 const COLUMN_WORDS = new Map(displayWords.searchColumns.map((entry) => [entry.rowId, entry]))
-const STATE_WORDS = new Map(displayWords.planActualStates.map((entry, at) => [STATES_IN_TABLE_ORDER[at], entry]))
-// see SQ-5, DG-2
-const BOTTLENECK_WORD = displayWords.delayReportStatuses.find((entry) => entry.rowId === 'DG-2')?.text
+const STATE_WORDS = new Map<SearchTaskState | undefined, (typeof displayWords.planActualStates)[number]>(
+  displayWords.planActualStates.map((entry, at) => [STATES_IN_TABLE_ORDER[at], entry]),
+)
+const TASK_TYPE_WORDS = new Map(displayWords.taskTypes.map((entry) => [entry.part, entry.text]))
 const PANEL_WORDS = new Map(displayWords.searchPanel.map((entry) => [entry.part, entry]))
 const PANEL_HEADING = displayWords.surfaces.find((entry) => entry.name === SEARCH_PANEL)?.heading
 
@@ -177,8 +187,21 @@ export interface SearchPanelView {
 // see SQ-5, T-019a, T-315
 /** @purity pure */
 function stateWordOf(state: SearchTaskState, language: DisplayLanguage): string {
-  if (state === BOTTLENECK_STATE) return wordOf(BOTTLENECK_WORD, language)
+  const markerRow = MARKER_WORD_ROWS[state]
+  if (markerRow !== undefined) return wordOf(displayWords.delayReportStatuses.find((entry) => entry.rowId === markerRow)?.text, language)
   return wordOf(STATE_WORDS.get(state)?.text, language)
+}
+
+// see SQ-14, DT-9, FM-9
+/** @purity pure */
+export function taskTypeWordOf(taskType: string, language: DisplayLanguage): string {
+  return wordOf(TASK_TYPE_WORDS.get(taskType), language)
+}
+
+// see SV-18, SQ-14, DT-9
+/** @purity pure */
+export function taskTypeWordsIn(language: DisplayLanguage): readonly string[] {
+  return TASK_TYPES_ASCENDING.map((taskType) => taskTypeWordOf(taskType, language))
 }
 
 // see T-331, TX-4
@@ -186,18 +209,19 @@ function stateWordOf(state: SearchTaskState, language: DisplayLanguage): string 
 function taskCells(row: TaskSearchRow, language: DisplayLanguage, times: ShownDateTimes): readonly string[] {
   const name = row.name === '' ? wordOf(PANEL_WORDS.get('noName')?.text, language) : row.name
   const startSide = times.startSideOf(row.taskUid)
-  return [
-    '',
-    stateWordOf(searchTaskStateOf(row), language),
-    percentText(row.percentComplete),
-    name,
-    row.assigneeNames.join(ASSIGNEE_SEPARATOR),
-    dateTimeText(row.plannedStart, times, startSide),
-    dateTimeText(row.plannedFinish, times, 'finish'),
-    dateTimeText(row.actualStart, times, startSide),
-    dateTimeText(row.actualFinish, times, 'finish'),
-    row.rowPath.join(TASK_GROUP_PATH_SEPARATOR),
-  ]
+  const cells: { readonly [column: SearchColumn]: string } = {
+    'SQ-5': stateWordOf(searchTaskStateOf(row), language),
+    'SQ-11': percentText(row.percentComplete),
+    'SQ-14': taskTypeWordOf(taskTypeOf(row.milestone), language),
+    'SQ-1': name,
+    'SQ-2': row.assigneeNames.join(ASSIGNEE_SEPARATOR),
+    'SQ-3': dateTimeText(row.plannedStart, times, startSide),
+    'SQ-4': dateTimeText(row.plannedFinish, times, 'finish'),
+    'SQ-12': dateTimeText(row.actualStart, times, startSide),
+    'SQ-13': dateTimeText(row.actualFinish, times, 'finish'),
+    'SQ-6': row.rowPath.join(TASK_GROUP_PATH_SEPARATOR),
+  }
+  return TASK_SEARCH_COLUMNS.map((column) => cells[column] ?? BLANK_SEARCH_VALUE)
 }
 
 // see SQ-7, SQ-8, SQ-9, SV-17
@@ -237,6 +261,7 @@ function hiddenTasksOf(view: TableView): ReadonlySet<number> {
 function valueLabelOf(column: SearchColumn, value: string, language: DisplayLanguage): string {
   if (value === BLANK_SEARCH_VALUE) return wordOf(PANEL_WORDS.get('blank')?.text, language)
   if (column === VISIBILITY_COLUMN) return visibilityLabelOf(value, language) ?? value
+  if (column === TASK_TYPE_COLUMN) return taskTypeWordOf(value, language)
   if (column !== STATUS_COLUMN) return value
   return stateWordOf(value as SearchTaskState, language)
 }
@@ -252,6 +277,7 @@ function widthSamplesIn(all: SearchRows, panel: SearchPanelSession, language: Di
   return (column) => {
     if (!MEASURED_COLUMNS.has(column)) return null
     if (column === STATUS_COLUMN) return SEARCH_TASK_STATES.map((state) => stateWordOf(state, language))
+    if (column === TASK_TYPE_COLUMN) return taskTypeWordsIn(language)
     const at = columns.indexOf(column)
     return [...new Set(cells.map((line) => line[at] ?? ''))]
   }
@@ -302,14 +328,14 @@ export function searchPanelFromSession(
   view: TableView,
   schedule: Schedule,
   canvas: ScreenRect,
-  bottleneckUids?: ReadonlySet<number>,
+  diagnosed?: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'>,
   times = DATES_ONLY,
 ): SearchPanelView | null {
   const shown = shownIn(session)
   if (shown === null) return null
   const language = displayLanguageOf(session)
-  const found = shown === 'minimized' ? null : searchRowsOf(schedule, panel.word, bottleneckUids)
-  const all = found === null || panel.word === '' ? found : searchRowsOf(schedule, '', bottleneckUids)
+  const found = shown === 'minimized' ? null : searchRowsOf(schedule, panel.word, diagnosed)
+  const all = found === null || panel.word === '' ? found : searchRowsOf(schedule, '', diagnosed)
   const table = searchTableOf(session, panel, view, () => found ?? NOTHING_FOUND, all ?? undefined, times)
   const open = openFilterIn(panel, shown, table)
   const kept = found === null ? null : filteredSearchRows(found, view.columnFilters, view.sort, hiddenTasksOf(view))
@@ -363,12 +389,12 @@ export function searchPanelAfterFilterEntry(
   view: TableView,
   entry: IconId,
   schedule: Schedule,
-  bottleneckUids?: ReadonlySet<number>,
+  diagnosed?: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'>,
   listed?: readonly string[] | null,
 ): TableView | null {
   const filtered = tableWithScheduleFilterPressed(view, entry, () => wouldSearchFilterChange(view, schedule))
   if (filtered !== null) return filtered
-  const table = searchTableOf(session, panel, view, () => searchRowsOf(schedule, panel.word, bottleneckUids))
+  const table = searchTableOf(session, panel, view, () => searchRowsOf(schedule, panel.word, diagnosed))
   return tableAfterFilterEntry(panel, view, shownIn(session), entry, table, listed)
 }
 

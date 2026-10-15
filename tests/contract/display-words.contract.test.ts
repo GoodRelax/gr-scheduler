@@ -411,6 +411,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   searchColumns: 'rowId',
   planActualStates: 'rowId',
   searchPanel: 'part',
+  // WHY: CR-760 keys the two values of the Task Type column (SQ-14, DT-9, FM-9) by the part they name, task or milestone.
+  taskTypes: 'part',
   // WHY: CR-722 keys the Resource List's headings by their row of table T-371, and its (Unassigned) and joining words by part.
   resourceListColumns: 'rowId',
   resourceList: 'part',
@@ -1038,7 +1040,7 @@ const delayReportShown = (shown: 'normal' | 'maximized', table: 'diagnosis' | 'p
   })
 
 // see RW-12
-const FIX_FOOTER_ENTRIES: readonly string[] = ['IC-157', 'IC-158']
+const FIX_FOOTER_ENTRIES: readonly string[] = ['IC-166', 'IC-157', 'IC-158']
 
 // WHY: CR-731 -- IC-156 stands only once the fix log holds a row (RW-11); the row's own fields are not read here.
 const ONE_FIX_LOGGED = {
@@ -2745,6 +2747,40 @@ for (const entry of GENERATED['planActualStates'] ?? []) {
       const task = SEARCH_TASK_BY_STATE[state]
       return task === undefined ? undefined : searchCellOf(view, task.uid, STATE_COLUMN)
     },
+  })
+}
+
+// WHY: the search frame's tasks all have Task.milestone empty, so the milestone word of SQ-14 gets a frame of its own
+// in which the PS-2 task is a milestone.
+const TASK_TYPE_COLUMN = 'SQ-14'
+const SEARCH_MILESTONE_UID = SEARCH_TASK_BY_STATE['PS-2']?.uid ?? 0
+const SEARCH_WITH_A_MILESTONE: Frame = {
+  ...SEARCH_TASKS_SHOWN,
+  schedule: {
+    ...SCHEDULE_TO_SEARCH,
+    tasks: SCHEDULE_TO_SEARCH.tasks.map((one) => (one.uid === SEARCH_MILESTONE_UID ? { ...one, milestone: true } : one)),
+  } as unknown as Schedule,
+}
+const TASK_TYPE_PLACES: Readonly<Record<string, { readonly frame: Frame; readonly uid: number }>> = {
+  task: { frame: SEARCH_TASKS_SHOWN, uid: SEARCH_TASK_BY_STATE['PS-1']?.uid ?? 0 },
+  milestone: { frame: SEARCH_WITH_A_MILESTONE, uid: SEARCH_MILESTONE_UID },
+}
+
+for (const entry of GENERATED['taskTypes'] ?? []) {
+  const part = keyOf('taskTypes', entry)
+  const at = TASK_TYPE_PLACES[part]
+  if (at === undefined) {
+    drop('taskTypes', part, 'table T-331 SQ-14 names only the two values task and milestone')
+    continue
+  }
+  place({
+    section: 'taskTypes',
+    key: part,
+    field: 'text',
+    unit: 'UF-180',
+    what: `the ${part} word of column SQ-14 of the Search Panel's task table`,
+    frame: at.frame,
+    read: (view) => searchCellOf(view, at.uid, TASK_TYPE_COLUMN),
   })
 }
 

@@ -75,10 +75,15 @@ export async function windowStage(document: Document): Promise<WindowStage> {
   }
   const built = stage({ 'App Header': SCREEN.appHeaderHeight })
   let held: ((row: string) => unknown) | null = null
+  // WHY: the report's word and its fix ticks (RW-3, RW-16) reach the shell only through this reader.
+  let reportInput: (() => { readonly word: string | null; readonly changes: readonly unknown[] }) | null = null
   built.surface = domScreenSurface({
     ...wiringOf(built, { preference: 'light', hue: 214 }),
     holdFocusPropertyField: (focus) => {
       held = focus
+    },
+    holdWindowReaders: (readers) => {
+      reportInput = readers.readReportInput
     },
   })
   let aimed: FakeElement | null = null
@@ -114,7 +119,8 @@ export async function windowStage(document: Document): Promise<WindowStage> {
         asked.push(row)
         return held === null ? null : (held as (row: string) => unknown)(row)
       },
-    },
+      readDelayDiagnosticsReportInput: () => (reportInput === null ? { word: null, changes: [] } : reportInput()),
+    } as never,
     fileSystemAccessFileStore(browser.environment),
     undefined,
     {

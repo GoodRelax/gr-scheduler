@@ -45,8 +45,8 @@ import { specTable, unbroken, type SpecRow } from './spec-table'
 
 const T_331_ORDER = '列は、表ごとに本表の行の順に左から並べる'
 const T_347_ORDER = '欄は本表の行の順に左から並べる'
-const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク の 4 列）、コメントボックスの表は `SQ-7` までを左に固定し'
-const RW_10_FIXED = '横は `DT-8`・`DT-1`・`DT-3`・`DT-4`（表示・ステータス・進捗・タスク —— 表 T-347 の並びで左の 4 列）を左に固定し'
+const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク種別・タスク の 5 列）、コメントボックスの表は `SQ-7` までを左に固定し'
+const RW_10_FIXED = '横は `DT-8`・`DT-1`・`DT-3`・`DT-9`・`DT-4`（表示・ステータス・進捗・タスク種別・タスク —— 表 T-347 の並びで左の 5 列）を左に固定し'
 const FR_134_COLUMNS = '窓には、上から、まとめ・タスクの表を置き、表の欄は 表 T-347 に従うこと（MUST）'
 const SV_7_CONTROLS_FIRST = '⭐ 中身は、上から操作の段と値の一覧である。'
 const SV_7_CONTROLS =
@@ -61,11 +61,11 @@ const SV_7_DATES =
 const SV_7_HEADING_WORD = '見出しのセルの語を押したときも、`IC-122` を押したものとして同じに答えること（MUST）'
 const SV_7_CLOSE = '⭐ 開いているフィルタは、同じ列の `IC-122` をもう一度押すか、`Esc`（`SV-14`）か、フィルタの箱の外を押すと閉じる。'
 const SV_18_ROWS =
-  '既定は列ごとに `_assets/tbl-settings.md` の 表 T-206 の行が持つ —— `SQ-1` 〜 `SQ-9` は `S-466` 〜 `S-474`、`SQ-11` 〜 `SQ-13` は `S-500` 〜 `S-502`（どちらもこの順）。'
-const RW_9_ROWS = '既定は `_assets/tbl-settings.md` の 表 T-206 の `S-475` 〜 `S-481`（`DT-1` 〜 `DT-7` の順）とする。'
+  '既定は列ごとに `_assets/tbl-settings.md` の 表 T-206 の行が持つ —— `SQ-1` 〜 `SQ-9` は `S-466` 〜 `S-474`、`SQ-11` 〜 `SQ-13` は `S-500` 〜 `S-502`（どちらもこの順）、`SQ-14` は `S-585`。'
+const RW_9_ROWS = '既定は `_assets/tbl-settings.md` の 表 T-206 の `S-475` 〜 `S-481`（`DT-1` 〜 `DT-7` の順）と `S-586`（`DT-9`）とする。'
 const SQ_5_GLYPHS =
-  '未着手は `PM-1a`、進行中は `PM-1`、完了は `PM-2`、中断の 2 つは `PM-3`、ボトルネックは `DG-2` の炎。'
-const SQ_5_NO_PM_4 = '遅れの `PM-4` は描かない'
+  '未着手は `PM-1a`、進行中は `PM-1`、完了は `PM-2`、中断の 2 つは `PM-3`、遅れは `PM-4`、信用できない・要修正は `DG-1`、ボトルネックは `DG-2` の炎、ボトルネック経路は `DG-3`。'
+const SQ_5_DG_WINS = '値が 表 T-315 の `DG-1` 〜 `DG-3` か 表 T-021 の `PM-4` ならその行'
 const DT_1_GLYPHS = '`DG-1` は `?`、`DG-2` は炎、`DG-3` は `!!`、`DG-4` は 表 T-021 の `PM-4` の `!`'
 const DT_1_NO_GLYPH = '疑義・記載漏れと確定はマーカーを持たないので絵を描かず、絵の幅だけ空けて語の頭をそろえる。'
 const RW_4_GLYPHS = '`DT-1` の窓の絵と同じ —— 疑義・記載漏れと確定は絵の幅だけ空ける'
@@ -105,6 +105,8 @@ const WIDTH_ROW: Readonly<Record<string, string>> = {
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [`SQ-${n}`, `S-${465 + n}`])),
   ...Object.fromEntries([11, 12, 13].map((n) => [`SQ-${n}`, `S-${489 + n}`])),
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((n) => [`DT-${n}`, `S-${474 + n}`])),
+  'SQ-14': 'S-585',
+  'DT-9': 'S-586',
   'SQ-10': 'S-496',
   'DT-8': 'S-496',
 }
@@ -164,8 +166,11 @@ const TASKS: readonly TaskSpec[] = [
 ]
 const G_TASK_GROUP = 'g-task-group'
 
+// WHY: CR-760 made SQ-5 show PM-4 for a late task (T-021b); the template's status date would make most of these
+// April tasks late, so the fixture has none and every row shows its T-019a state (the CR-760 file holds the late ones).
 const SCHEDULE = {
   ...TEMPLATE.schedule,
+  project: { ...(TEMPLATE.schedule['project'] as Loose), statusDate: null },
   tasks: TASKS.map((spec) => ({
     ...firstOf('tasks'),
     uid: spec.uid,
@@ -209,8 +214,19 @@ interface Pane {
 const TASK_PANEL: Pane = { panel: { ...emptySearchPanelSession, table: 'tasks' }, view: NO_VIEW }
 const COMMENT_PANEL: Pane = { panel: { ...emptySearchPanelSession, table: 'commentBoxes' }, view: NO_VIEW }
 
+// WHY: CR-760 -- SQ-5 takes each task's diagnosed T-315 row (DG-1 .. DG-3), not only the bottlenecks; a bottleneck is DG-2.
 const viewOf = (pane: Pane, bottlenecks?: ReadonlySet<number>): SearchPanelView =>
-  found(searchPanelFromSession(JA, pane.panel, pane.view, SCHEDULE, CANVAS, bottlenecks), 'a view of a shown panel')
+  found(
+    searchPanelFromSession(
+      JA,
+      pane.panel,
+      pane.view,
+      SCHEDULE,
+      CANVAS,
+      bottlenecks === undefined ? undefined : new Map([...bottlenecks].map((uid) => [uid, 'DG-2' as const])),
+    ),
+    'a view of a shown panel',
+  )
 
 const opened = (column: string, pane: Pane = TASK_PANEL): Pane => ({
   panel: found(searchPanelWithFilterOpened(JA, pane.panel, pane.view, column), `the panel after IC-122 on ${column}`),
@@ -368,7 +384,7 @@ describe('CR-660 -- the clauses this file is driven by', () => {
     expect(cellOf('T-330', 'SV-18', '定め')).toContain(SV_18_ROWS)
     expect(cellOf('T-346', 'RW-9', '定め')).toContain(RW_9_ROWS)
     expect(cellOf('T-331', 'SQ-5', '書き方')).toContain(SQ_5_GLYPHS)
-    expect(cellOf('T-331', 'SQ-5', '書き方')).toContain(SQ_5_NO_PM_4)
+    expect(cellOf('T-331', 'SQ-5', '値')).toContain(SQ_5_DG_WINS)
     expect(cellOf('T-347', 'DT-1', '書き方')).toContain(DT_1_GLYPHS)
     expect(cellOf('T-347', 'DT-1', '書き方')).toContain(DT_1_NO_GLYPH)
     expect(cellOf('T-346', 'RW-4', '定め')).toContain(RW_4_GLYPHS)
@@ -379,9 +395,9 @@ describe('CR-660 -- the clauses this file is driven by', () => {
   })
 
   it('premise: the two tables hold the rows the CR-660 cases walk', () => {
-    expect(TASK_COLUMNS).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-6'])
+    expect(TASK_COLUMNS).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-14', 'SQ-1', 'SQ-2', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13', 'SQ-6'])
     expect(COMMENT_COLUMNS).toEqual(['SQ-7', 'SQ-8', 'SQ-9'])
-    expect(REPORT_COLUMNS).toEqual(['DT-8', 'DT-1', 'DT-3', 'DT-4', 'DT-2', 'DT-5', 'DT-6', 'DT-7'])
+    expect(REPORT_COLUMNS).toEqual(['DT-8', 'DT-1', 'DT-3', 'DT-9', 'DT-4', 'DT-2', 'DT-5', 'DT-6', 'DT-7'])
   })
 })
 
@@ -411,20 +427,20 @@ describe('T-331 / T-347 -- the row order of each table is its column order (area
     }
   })
 
-  it('SV-6: the tasks table fixes its columns up to SQ-1 (status, progress, task) and no other', () => {
+  it('SV-6: the tasks table fixes its columns up to SQ-1 (status, progress, task type, task) and no other', () => {
     const fixed = viewOf(TASK_PANEL).columns.filter((one) => one.isFixed).map((one) => one.column)
     expect(fixed).toEqual(TASK_COLUMNS.slice(0, TASK_COLUMNS.indexOf('SQ-1') + 1))
-    expect(fixed).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-1'])
+    expect(fixed).toEqual(['SQ-10', 'SQ-5', 'SQ-11', 'SQ-14', 'SQ-1'])
   })
 
   it('SV-6: the comment box table still fixes SQ-7 only', () => {
     expect(viewOf(COMMENT_PANEL).columns.filter((one) => one.isFixed).map((one) => one.column)).toEqual(['SQ-7'])
   })
 
-  it('RW-10: the report fixes DT-8, DT-1, DT-3 and DT-4 (the left four of T-347) and no other', () => {
+  it('RW-10: the report fixes DT-8, DT-1, DT-3, DT-9 and DT-4 (the left five of T-347) and no other', () => {
     const fixed = reportViewOf(OPENED_REPORT).columns.filter((one) => one.isFixed).map((one) => one.column)
     expect(fixed).toEqual(REPORT_COLUMNS.slice(0, REPORT_COLUMNS.indexOf('DT-4') + 1))
-    expect(fixed).toEqual(['DT-8', 'DT-1', 'DT-3', 'DT-4'])
+    expect(fixed).toEqual(['DT-8', 'DT-1', 'DT-3', 'DT-9', 'DT-4'])
   })
 
   it('SV-6: the drawn tasks table marks the headings of the fixed columns, ending at the task column', () => {
@@ -547,11 +563,13 @@ describe('T-331 SQ-5 / T-347 DT-1 / T-346 RW-4 -- the leading glyph of a status 
     }
   })
 
-  it('SQ-5: while the diagnosis is shown a bottleneck draws the DG-2 flame, never PM-4', () => {
+  it(`SQ-5 「${SQ_5_DG_WINS}」: while the diagnosis is shown a bottleneck draws the DG-2 flame, the other rows their own marker`, () => {
     const view = viewOf(TASK_PANEL, new Set([2]))
-    const glyphs = view.rows.map((one) => one.glyph)
     expect(view.rows.find((one) => one.target.kind === 'task' && one.target.taskUid === 2)?.glyph).toBe('DG-2')
-    expect(glyphs, SQ_5_NO_PM_4).not.toContain('PM-4')
+    for (const task of TASKS.filter((one) => one.uid !== 2)) {
+      const row = found(view.rows.find((one) => one.target.kind === 'task' && one.target.taskUid === task.uid), `row ${task.uid}`)
+      expect(row.glyph, `${task.name} (${task.state})`).toBe(STATE_GLYPH[task.state])
+    }
   })
 
   it('SQ-5: the comment box table draws no glyph', () => {

@@ -54,6 +54,8 @@ export interface DelayReportRow {
   readonly plannedFinish: string | null
   readonly actualStart: string | null
   readonly actualFinish: string | null
+  // see DT-9
+  readonly milestone: boolean
   readonly reason: DelayReportReason
 }
 
@@ -159,6 +161,7 @@ function rowOf(
     plannedFinish: plannedFinishOf(task),
     actualStart: task.actualStart,
     actualFinish: task.actualFinish,
+    milestone: task.milestone === true,
     reason: reasonOf(report, task.uid, status, names.tasks),
   }
 }
@@ -266,6 +269,8 @@ export interface DelayFixWords {
   readonly columnOf: (column: string) => string
   readonly choiceOf: (choice: DelayFixChoice) => string
   readonly taskNameOf: (taskUid: number) => string
+  // see FM-9
+  readonly taskTypeWordOf: (taskUid: number) => string
   readonly linkTypeOf: (linkType: number) => string
 }
 
@@ -294,6 +299,7 @@ function tableOfColumn(column: string): DelayFixTable | 'both' | null {
     case 'FM-2':
       return 'log'
     case 'FM-4':
+    case 'FM-9':
     case 'FM-5':
     case 'FM-6':
     case 'FM-7':
@@ -433,6 +439,8 @@ function sharedCellOf(column: string, row: DelayFixRow | DelayFixLogRow, isCasca
   switch (column) {
     case 'FM-4':
       return findingCellText(row.findingRow, row.taskUid, isCascade, words)
+    case 'FM-9':
+      return words.taskTypeWordOf(row.taskUid)
     case 'FM-5':
       return row.taskName ?? ''
     case 'FM-6':
