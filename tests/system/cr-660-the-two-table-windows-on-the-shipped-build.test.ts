@@ -19,9 +19,9 @@ const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並
 const RW_10_FIXED = '横は `DT-8`・`DT-1`・`DT-3`・`DT-9`・`DT-4`（表示・ステータス・進捗・タスク種別・タスク —— 表 T-347 の並びで左の 5 列）を左に固定し'
 const SV_18_MEASURED =
   '⭐ 中身の字の幅が決まる列（ステータス・進捗・タスク種別・日付 —— `SQ-5`・`SQ-11`・`SQ-14`・`SQ-3`・`SQ-4`・`SQ-12`・`SQ-13`・`SQ-9`）の既定は、そのときの言語（`FR-038`）と字の段（`SV-16`）で、見出し（語と `IC-122`）も値も省略記号で切られない最小の幅とすること（MUST）'
-const SV_18_WIDTH_ROWS = '`SQ-1` 〜 `SQ-9` は `S-466` 〜 `S-474`、`SQ-11` 〜 `SQ-13` は `S-500` 〜 `S-502`（どちらもこの順）、`SQ-14` は `S-585`'
+const SV_18_WIDTH_ROWS = '`SQ-1` 〜 `SQ-9` は `S-466` 〜 `S-474`、`SQ-11` 〜 `SQ-13` は `S-500` 〜 `S-502`（どちらもこの順）、`SQ-14` は `S-595`'
 const RW_9_MEASURED = '中身の字の幅が決まる列（`DT-1`・`DT-3`・`DT-9`・`DT-5`・`DT-6`）の既定は、`SV-18` と同じ規則で測る'
-const RW_9_WIDTH_ROWS = '既定は `_assets/tbl-settings.md` の 表 T-206 の `S-475` 〜 `S-481`（`DT-1` 〜 `DT-7` の順）と `S-586`（`DT-9`）とする'
+const RW_9_WIDTH_ROWS = '既定は `_assets/tbl-settings.md` の 表 T-206 の `S-475` 〜 `S-481`（`DT-1` 〜 `DT-7` の順）と `S-596`（`DT-9`）とする'
 const SV_18_FOLLOW = '握っているあいだ、列の幅をポインタに追従させること（MUST）'
 const SV_18_OTHERS = 'その境目の左の列の幅を変える —— ほかの列の幅は変えず、右の列はその分だけ動く。'
 const SV_11_EDGE = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインタに追従させること（MUST）'
@@ -61,9 +61,9 @@ const MEASURED_REPORT_COLUMNS = idsIn(RW_9_MEASURED).filter((id) => REPORT_COLUM
 const WIDTH_ROW: Readonly<Record<string, string>> = {
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [`SQ-${n}`, `S-${465 + n}`])),
   ...Object.fromEntries([11, 12, 13].map((n) => [`SQ-${n}`, `S-${489 + n}`])),
-  'SQ-14': 'S-585',
+  'SQ-14': 'S-595',
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((n) => [`DT-${n}`, `S-${474 + n}`])),
-  'DT-9': 'S-586',
+  'DT-9': 'S-596',
   'SQ-10': 'S-496',
   'DT-8': 'S-496',
 }

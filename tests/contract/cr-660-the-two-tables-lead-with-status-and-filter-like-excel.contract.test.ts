@@ -61,8 +61,8 @@ const SV_7_DATES =
 const SV_7_HEADING_WORD = '見出しのセルの語を押したときも、`IC-122` を押したものとして同じに答えること（MUST）'
 const SV_7_CLOSE = '⭐ 開いているフィルタは、同じ列の `IC-122` をもう一度押すか、`Esc`（`SV-14`）か、フィルタの箱の外を押すと閉じる。'
 const SV_18_ROWS =
-  '既定は列ごとに `_assets/tbl-settings.md` の 表 T-206 の行が持つ —— `SQ-1` 〜 `SQ-9` は `S-466` 〜 `S-474`、`SQ-11` 〜 `SQ-13` は `S-500` 〜 `S-502`（どちらもこの順）、`SQ-14` は `S-585`。'
-const RW_9_ROWS = '既定は `_assets/tbl-settings.md` の 表 T-206 の `S-475` 〜 `S-481`（`DT-1` 〜 `DT-7` の順）と `S-586`（`DT-9`）とする。'
+  '既定は列ごとに `_assets/tbl-settings.md` の 表 T-206 の行が持つ —— `SQ-1` 〜 `SQ-9` は `S-466` 〜 `S-474`、`SQ-11` 〜 `SQ-13` は `S-500` 〜 `S-502`（どちらもこの順）、`SQ-14` は `S-595`。'
+const RW_9_ROWS = '既定は `_assets/tbl-settings.md` の 表 T-206 の `S-475` 〜 `S-481`（`DT-1` 〜 `DT-7` の順）と `S-596`（`DT-9`）とする。'
 const SQ_5_GLYPHS =
   '未着手は `PM-1a`、進行中は `PM-1`、完了は `PM-2`、中断の 2 つは `PM-3`、遅れは `PM-4`、信用できない・要修正は `DG-1`、ボトルネックは `DG-2` の炎、ボトルネック経路は `DG-3`。'
 const SQ_5_DG_WINS = '値が 表 T-315 の `DG-1` 〜 `DG-3` か 表 T-021 の `PM-4` ならその行'
@@ -105,8 +105,8 @@ const WIDTH_ROW: Readonly<Record<string, string>> = {
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [`SQ-${n}`, `S-${465 + n}`])),
   ...Object.fromEntries([11, 12, 13].map((n) => [`SQ-${n}`, `S-${489 + n}`])),
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((n) => [`DT-${n}`, `S-${474 + n}`])),
-  'SQ-14': 'S-585',
-  'DT-9': 'S-586',
+  'SQ-14': 'S-595',
+  'DT-9': 'S-596',
   'SQ-10': 'S-496',
   'DT-8': 'S-496',
 }
