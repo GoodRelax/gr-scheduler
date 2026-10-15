@@ -52,19 +52,16 @@ test('UC-008 tell by annotations (FR-019, T-023b AR-5 AR-6, FR-097 PR-21, T-217,
     expect(Math.abs(dayNumber(boxes[0]!.anchorDate) - axis.dayOf(ANCHOR.x))).toBeLessThanOrEqual(1)
   })
 
-  await test.step('UC-008 step 2: the anchor is a date and a row id, only the body offset is in screen pixels, and the body carries the anchor (FR-019, T-023d)', async () => {
+  await test.step('UC-008 step 2: the anchor is a date and a row id, only the body offset is in screen pixels, and a drag of the body moves the body alone (FR-019, T-023d, JDG-2400)', async () => {
     const before = (await readDocument(page)).schedule.commentBoxes[0]!
     const body = (await figureBox(page, 'comment-' + commentId))!
-    const band = (await figureBox(page, 'task-group-' + anchorTaskGroup + '-band'))!
-    const axis = await dayAxis(page)
-    const taskGroupUnderTheMovedAnchor = await bandAt(page, band.y + band.h / 2 + OFFSET.dy)
     await drag(page, { x: body.x + body.w / 2, y: body.y + body.h / 2 }, { x: body.x + body.w / 2 + OFFSET.dx, y: body.y + body.h / 2 + OFFSET.dy }, [], DROP_STEPS)
     const box = (await readDocument(page)).schedule.commentBoxes[0]!
     const moved = (await figureBox(page, 'comment-' + commentId))!
     expect(Math.abs(moved.x - body.x - OFFSET.dx)).toBeLessThanOrEqual(1)
     expect(Math.abs(moved.y - body.y - OFFSET.dy)).toBeLessThanOrEqual(1)
-    expect(Math.abs(dayNumber(box.anchorDate) - axis.dayOf(axis.xOf(dayNumber(before.anchorDate)) + OFFSET.dx))).toBeLessThanOrEqual(1)
-    expect(box.anchorTaskGroupId).toBe(taskGroupUnderTheMovedAnchor)
+    expect(box.anchorDate).toBe(before.anchorDate)
+    expect(box.anchorTaskGroupId).toBe(before.anchorTaskGroupId)
     expect(Number.isFinite(box.bodyOffsetPx.dx) && Number.isFinite(box.bodyOffsetPx.dy)).toBe(true)
     await press(page, 'IC-13')
     expect((await readDocument(page)).schedule.commentBoxes[0]!.bodyOffsetPx).toEqual(box.bodyOffsetPx)

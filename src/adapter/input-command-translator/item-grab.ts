@@ -611,6 +611,13 @@ function highlightBoxShiftWrite(
   return highlightRangeWrite(context, box, { upper, lower, left: dayShifted(early, days), right: dayShifted(late, days) })
 }
 
+// see FR-019
+// WHY: a box with no anchor date stands at the document's start date, as commentGeometry draws it.
+/** @purity pure */
+function stoodDayOf(context: InputContext, box: CommentBox): CalendarDay | null {
+  return dayOf(box.anchorDate) ?? dayOf(context.document.schedule.project.startDate)
+}
+
 // see PE-1, SL-7, FR-019, CM-50
 // WHY: CM-50 alone: the body stands off the anchor (bodyOffsetPx), so it rides along with the moved anchor.
 /** @purity pure */
@@ -622,7 +629,7 @@ function commentBoxShiftWrite(
   crossed: number,
 ): DocumentCommand | null {
   if (box.anchorTaskGroupId === null) return null
-  const stood = dayOf(box.anchorDate) ?? dayOf(context.document.schedule.project.startDate)
+  const stood = stoodDayOf(context, box)
   if (stood === null) return null
   const at = drawnTaskGroupIndexOf(taskGroups, box.anchorTaskGroupId)
   const landed = at === null ? undefined : taskGroups[at + crossed]
@@ -925,9 +932,8 @@ function heldOrWritten(held: string | null, day: CalendarDay, write: (day: Calen
   return held !== null && heldDay !== null && compareDay(heldDay, day) === 0 ? held : write(day)
 }
 
-// see GR-14, CM-50, CM-51, FR-019, RS-44
-// WHY: CM-50 and CM-51 in one bundle, one undo (FR-031): the box stands off its anchor, so CM-50 alone would
-// carry the box along with a moved anchor.
+// see GR-14, CM-51
+// WHY: the body and the leader move the text box alone, so the comment keeps pointing at its task.
 /** @purity pure */
 function commentBoxMoveWrite(
   context: InputContext,
@@ -937,29 +943,38 @@ function commentBoxMoveWrite(
   isAnchor: boolean,
 ): TranslatedInput {
   const box = boxById(context.document.schedule.commentBoxes, id)
-  // TRAP: from the document and the task groups at the press, never context.geometry: a held drag draws the box already
-  // moved, so the pull would be counted twice.
+  if (box === undefined) return CONSUMED_ELSEWHERE
+  if (isAnchor) return commentAnchorMoveWrite(context, press, release, box)
+  const pull = { dx: release.x - press.at.x, dy: release.y - press.at.y }
+  if (pull.dx === 0 && pull.dy === 0) return CONSUMED_ELSEWHERE
+  const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
+  return changed([{ kind: 'setCommentBoxBodyOffsetPx', id, dx: offset.dx + pull.dx, dy: offset.dy + pull.dy }])
+}
+
+// see GR-14, CM-50, CM-51, RS-44
+// WHY: CM-50 and CM-51 in one bundle, one undo (FR-031): CM-50 alone would carry the box with the anchor.
+/** @purity pure */
+function commentAnchorMoveWrite(
+  context: InputContext,
+  press: PointerPress,
+  release: PointerInput,
+  box: CommentBox,
+): TranslatedInput {
+  // TRAP: the layout at the press, never context.geometry: a held drag draws the box already moved.
   const layout = layoutAtPressOf(context, press)
-  // WHY: a box with no anchor date stands at the document's start date, as commentGeometry draws it (FR-019).
-  const stoodDay = dayOf(box?.anchorDate ?? null) ?? dayOf(context.document.schedule.project.startDate)
+  const stoodDay = stoodDayOf(context, box)
   const stood =
-    box === undefined || stoodDay === null || box.anchorTaskGroupId === null
-      ? null
-      : commentAnchorPointOf(layout, stoodDay, box.anchorTaskGroupId)
-  if (box === undefined || stood === null) return CONSUMED_ELSEWHERE
-  const pull = isAnchor ? { dx: 0, dy: 0 } : { dx: release.x - press.at.x, dy: release.y - press.at.y }
-  const aim = isAnchor ? release : { x: stood.x + pull.dx, y: stood.y + pull.dy }
-  const anchor = commentAnchorAt(layout, aim.x, aim.y)
+    stoodDay === null || box.anchorTaskGroupId === null ? null : commentAnchorPointOf(layout, stoodDay, box.anchorTaskGroupId)
+  if (stood === null) return CONSUMED_ELSEWHERE
+  const anchor = commentAnchorAt(layout, release.x, release.y)
   if (!('taskGroupId' in anchor)) return anchor
   const day = dayOf(anchor.date)
   const at = day === null ? null : commentAnchorPointOf(layout, day, anchor.taskGroupId)
   if (at === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
   const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
-  const left = stood.x + offset.dx + pull.dx
-  const bottom = stood.y + offset.dy + pull.dy
   return changed([
-    { kind: 'setCommentBoxAnchor', id, anchor },
-    { kind: 'setCommentBoxBodyOffsetPx', id, dx: left - at.x, dy: bottom - at.y },
+    { kind: 'setCommentBoxAnchor', id: box.id, anchor },
+    { kind: 'setCommentBoxBodyOffsetPx', id: box.id, dx: stood.x + offset.dx - at.x, dy: stood.y + offset.dy - at.y },
   ])
 }
 

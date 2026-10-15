@@ -66,11 +66,11 @@ const HIGHLIGHT_CM_54 =
 const HIGHLIGHT_COLUMNS =
   '⭐ ハイライトボックスの位置と大きさを持つ列は囲む範囲の 4 列（`_assets/fig-erd-detail.md` の `AT-117` 〜 `AT-120`）だけであり、それを書く命令は同表に `CM-54` 1 つしか無い。'
 const COMMENT_PARTS = 'コメントボックスは本体・引出し線・線先を持つ。'
-// WHY: CR-559 rewrote the comment box clauses: body, leader and anchor each write CM-50 and CM-51 as one bundle.
-const COMMENT_BODY_MOVES_BOTH =
-  '⭐ 本体（本文の箱の全体）か引出し線（線から左右へ同表の `S-291`）を掴んで引いたときは、本文の箱と線先を一緒に動かすこと（MUST） —— 本文の箱は引いた量だけ動かし、線先は、押したときに描いていた線先の点を引いた量だけずらした点で読む（読み方は下の「線先は離した位置で読む」と同じ）。'
-const COMMENT_ONE_BUNDLE =
-  'その 2 つは、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-50`（線先）と `CM-51`（ずれ）を 1 つの束にして書くこと（MUST） —— `CM-51` のずれは、置き直した線先を描く点（`05-07-design.md` の 表 T-221 の `LF-15`）から、動かした本文の箱の左下隅までとする。'
+// WHY: CR-559 rewrote the comment box clauses; CR-773 (JDG-2400): the body and the leader write CM-51 alone, the anchor writes CM-50 and CM-51 as one bundle.
+const COMMENT_BODY_MOVES_ALONE =
+  '⭐ 本体（本文の箱の全体）か引出し線（線から左右へ同表の `S-291`）を掴んで引いたときは、本文の箱だけを動かし、線先は動かさないこと（MUST） —— 本文の箱は引いた量だけ動かし、線先の日とタスクグループは今のままとする（箱を空いた所へよけるたびに指す先が変わると、どのタスクについてのコメントかが崩れる）。'
+const COMMENT_BODY_WRITES_CM_51 =
+  'その動きは、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-51`（ずれ）だけを書くこと（MUST） —— `CM-50`（線先）は書かない。'
 const COMMENT_ANCHOR_ALONE =
   '⭐ 線先（線先から同表の `S-292`）を掴んで引いたときは、線先だけを動かし、本文の箱を画面の上で動かさないこと（MUST） —— `CM-50` で線先を、`CM-51` で、置き直した線先を描く点から押したときの本文の箱の左下隅までのずれを、1 つの束にして書く。'
 const COMMENT_NO_CORNERS =
@@ -572,7 +572,7 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
   // WHY: the comment box clauses CR-559 rewrote stand in their own case so a red there names CR-559
   // WHY: and does not hide the highlight box clauses CR-558 rewrote.
   it('CR-559: the comment box body and anchor commands clause still reads verbatim', () => {
-    for (const clause of [COMMENT_BODY_MOVES_BOTH, COMMENT_ONE_BUNDLE, COMMENT_ANCHOR_ALONE]) {
+    for (const clause of [COMMENT_BODY_MOVES_ALONE, COMMENT_BODY_WRITES_CM_51, COMMENT_ANCHOR_ALONE]) {
       expect(REQUIREMENTS).toContain(clause)
     }
   })
@@ -989,7 +989,7 @@ describe('DFC-568 FR-019: the box is drawn by whole day columns', () => {
   })
 })
 
-describe('DFC-568 comment box: no corners; body and anchor write CM-50 and CM-51 in one bundle', () => {
+describe('DFC-568 comment box: no corners; the body writes CM-51 alone and the anchor writes CM-50 and CM-51 in one bundle', () => {
   for (const corner of CORNERS) {
     it(`⛔ コメントボックスに四隅を持たせてはならない（MUST NOT） —— 本文の箱の大きさは \`FR-097\` が本文に合わせて決めており、文書は大きさの列を持たない（\`AT-110\` 〜 \`AT-115\`）。 -- the ${corner.name} corner of the body resizes nothing`, () => {
       const built = stage()
@@ -1007,7 +1007,7 @@ describe('DFC-568 comment box: no corners; body and anchor write CM-50 and CM-51
     })
   }
 
-  it(`${COMMENT_BODY_MOVES_BOTH} -- the body moves the box by the pull and pins the anchor three days on, in one bundle`, () => {
+  it(`${COMMENT_BODY_MOVES_ALONE} -- the body moves the box by the pull and leaves the anchor where it stood, CM-51 alone`, () => {
     const built = stage()
     const drawn = commentDrawn(built.loop)
     const before = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
@@ -1015,9 +1015,9 @@ describe('DFC-568 comment box: no corners; body and anchor write CM-50 and CM-51
     dragBy(built, { x: drawn.body.x + drawn.body.width / 2, y: drawn.body.y + drawn.body.height / 2 }, travel)
     const after = storedOf(built.loop, 'commentBoxes', COMMENT_ID)
     for (const column of changedColumns(before, after)) {
-      expect([...CM_50_COLUMNS, ...CM_51_COLUMNS] as readonly string[], `${column} is not a column CM-50 or CM-51 writes`).toContain(column)
+      expect(CM_51_COLUMNS as readonly string[], `${column} is not a column CM-51 writes`).toContain(column)
     }
-    expectAnchor(built.loop, { day: ANCHOR_DAY + TRAVEL_DAYS, row: TASK_GROUP_F }, 'body pull')
+    expectAnchor(built.loop, { day: ANCHOR_DAY, row: TASK_GROUP_F }, 'body pull')
     expect(commentDrawn(built.loop).body.x - drawn.body.x, 'the box did not move by the pull').toBeCloseTo(travel, 1)
     expect(commentDrawn(built.loop).body.y, 'the box moved up or down').toBeCloseTo(drawn.body.y, 1)
   })

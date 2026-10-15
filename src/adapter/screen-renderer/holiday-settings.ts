@@ -45,8 +45,8 @@ const WORKING_HOURS_ROW = 'WC-8'
 
 const DAYS_PER_WEEK = 7
 
-// WHY: the sample's range spelling (sample 52), an en dash between the two clocks.
-const RANGE_JOIN = '–'
+// WHY: a plain hyphen-minus between the two clocks, a character the keyboard types (WC-8).
+const RANGE_JOIN = '-'
 
 export type HolidaySettingsFieldColumn = 'weekStartDay' | 'fromTime' | 'toTime' | 'name' | 'fromDate' | 'toDate'
 

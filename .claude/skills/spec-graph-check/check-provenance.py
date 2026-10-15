@@ -168,6 +168,16 @@ ARTIFACTS = [
 # (title, UID, Version) or a JSON Schema's $schema and $id, and no longer.
 HEAD_CHARS = 1400
 
+# Artifacts that cannot carry a banner of their own because a schema refuses
+# any extra key (the GRS JSON documents, JDG-2373). For these the GENERATOR
+# names the artifact by path, says not to edit by hand and says how to run it,
+# in its own head. artifact -> generator.
+BANNERLESS = [
+    ('sample-schedule/Three-Year Product Plan.json',
+     'tools/generate_startup_template.py'),
+]
+GENERATOR_HEAD_CHARS = 4000
+
 GENERATED = ('生成物', 'generated', 'Generated')
 NO_HAND = ('手で直さない', 'do not edit by hand', 'Do not edit by hand',
            'Never edit by hand')
@@ -226,6 +236,20 @@ def main():
         if not any(w in head for w in REBUILD):
             problems.append('%s does not say how to rebuild it' % rel)
 
+    for rel, generator in BANNERLESS:
+        if not os.path.exists(os.path.join(ROOT, rel)):
+            problems.append('%s is missing' % rel)
+            continue
+        head = io.open(os.path.join(ROOT, generator),
+                       encoding='utf-8').read(GENERATOR_HEAD_CHARS)
+        if rel not in head:
+            problems.append('%s does not name %s in its head' % (generator, rel))
+        if not any(w in head for w in NO_HAND):
+            problems.append('%s does not say not to edit %s by hand'
+                            % (generator, rel))
+        if generator not in head:
+            problems.append('%s does not say how to run itself' % generator)
+
     for p in problems:
         sys.stdout.write('  %s\n' % p)
     if problems:
@@ -233,8 +257,9 @@ def main():
                          'a manuscript from an artifact\n' % len(problems))
         return 1
     sys.stdout.write('OK       %d generated artifacts name their manuscript and '
-                     'how to rebuild; every file of %s says which it is\n'
-                     % (len(ARTIFACTS), SOURCE_DIR))
+                     'how to rebuild (and %d more through their generator); '
+                     'every file of %s says which it is\n'
+                     % (len(ARTIFACTS), len(BANNERLESS), SOURCE_DIR))
     return 0
 
 
