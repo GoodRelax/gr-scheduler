@@ -15,6 +15,7 @@ import type {
 import { taskByUid, workingCalendarOf } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
+import { commentBoxesReleasedFrom } from './edit-annotation'
 import { documentWithTableViewsKept } from './edit-document-settings'
 import { createTaskGroup, setTaskGroupName } from './task-group-naming'
 import { resetTaskGroupColor, setTaskGroupColor, setTaskGroupMinHeightPx } from './task-group-look'
@@ -341,6 +342,11 @@ export function editTaskGroup(
           ? { ...settings, pinnedTaskGroupIds: pinned, scrollTaskGroupId }
           : settings
 
+      const doomedHighlightBoxes = schedule.highlightBoxes.filter(
+        (one) =>
+          (one.topTaskGroupId !== null && doomedTaskGroups.has(one.topTaskGroupId)) ||
+          (one.bottomTaskGroupId !== null && doomedTaskGroups.has(one.bottomTaskGroupId)),
+      )
       // WHY: baselineTasks match by uid rather than by reference, and resources are kept.
       return edited(documentWithTableViewsKept({
         ...document,
@@ -356,14 +362,12 @@ export function editTaskGroup(
           assignments: schedule.assignments.filter(
             (one) => one.taskUid === null || !doomedTasks.has(one.taskUid),
           ),
-          commentBoxes: schedule.commentBoxes.filter(
-            (one) => one.anchorTaskGroupId === null || !doomedTaskGroups.has(one.anchorTaskGroupId),
-          ),
-          highlightBoxes: schedule.highlightBoxes.filter(
-            (one) =>
-              !(one.topTaskGroupId !== null && doomedTaskGroups.has(one.topTaskGroupId)) &&
-              !(one.bottomTaskGroupId !== null && doomedTaskGroups.has(one.bottomTaskGroupId)),
-          ),
+          commentBoxes: commentBoxesReleasedFrom(schedule, {
+            taskUids: doomedTasks,
+            highlightBoxIds: new Set(doomedHighlightBoxes.map((one) => one.id)),
+            isKeptTaskGroup: (id) => !doomedTaskGroups.has(id),
+          }).filter((one) => one.anchorTaskGroupId === null || !doomedTaskGroups.has(one.anchorTaskGroupId)),
+          highlightBoxes: schedule.highlightBoxes.filter((one) => !doomedHighlightBoxes.includes(one)),
         },
         documentSettings,
       }))

@@ -169,6 +169,11 @@ erDiagram
         日時 anchorDate "GRS"
         文字列 **anchorTaskGroupId** FK "GRS・UUID"
         オブジェクト bodyOffsetPx "GRS・{ dx, dy }"
+        数値 anchorBandFraction "GRS・0〜1"
+        整数 **anchorTaskUid** FK "GRS"
+        列挙 anchorTaskFigure "GRS・3 値"
+        文字列 **anchorHighlightBoxId** FK "GRS・UUID"
+        列挙 anchorSnapPoint "GRS・8 値"
         文字列 strokeColor "GRS"
         整数 strokeWidthPx "GRS・px"
         文字列 fillColor "GRS"
@@ -236,6 +241,8 @@ erDiagram
     Task |o--o| BaselineTask : "変更前の予定との対応（uid の一致。参照ではない）。対応が無いものは描かない（FR-015）"
     WeekDay ||--o{ WorkingTime : "曜日の稼働の時間帯（弱エンティティ）"
     Exception ||--o{ WorkingTime : "例外日の稼働の時間帯（弱エンティティ）"
+    CommentBox }o--o| Task : "線先が吸着したタスク（anchorTaskUid）"
+    CommentBox }o--o| HighlightBox : "線先が吸着したハイライトボックス（anchorHighlightBoxId）"
     Project ||--o{ CarryElement : "carryElements の中身"
     Task ||--o{ CarryElement : "carryElements の中身"
     Dependency ||--o{ CarryElement : "carryElements の中身"
@@ -267,7 +274,7 @@ erDiagram
 | ET-10 | `Assignment` | どの担当がどのタスクに就くか | `uid` | 書き出す | あり |
 | ET-11 | `TaskVisual` | タスクの見せ方。形と色。どのタスクもちょうど 1 つ持つ | `taskUid` | **書き出さない** | — |
 | ET-12 | `TaskOrigin` | 取り込み元の記録。合流の照合に使う | `taskUid` | **書き出さない** | — |
-| ET-13 | `CommentBox` | コメントボックス 1 つ。日付とタスクグループに留める | `id` | **書き出さない** | — |
+| ET-13 | `CommentBox` | コメントボックス 1 つ。線先は、自由点（日時とタスクグループと帯の中の高さ）か、吸着した対象（タスクかハイライトボックス）の 8 点の 1 つに立つ | `id` | **書き出さない** | — |
 | ET-14 | `HighlightBox` | ハイライトボックス 1 つ。日付とタスクグループの範囲を囲む | `id` | **書き出さない** | — |
 | ET-15 | `CarryElement` | 解釈しない要素 1 つを、原形のまま抱える器（自己参照） | 所有者 ＋ `ordinal` | 書き出す | — |
 | ET-16 | `documentStamp` | 3 つの刻と、最後に書いた者 | — （文書に 1 つしか無い） | **書き出さない** | — |
@@ -306,6 +313,8 @@ erDiagram
 | RL-22 | `Task` | `BaselineTask` | 0..1 ─ 0..1 | 変更前の予定との対応（`uid` の一致。参照ではない）。対応が無いものは描かない（`FR-015`） |
 | RL-31 | `WeekDay` | `WorkingTime` | 1 ─ 0..n | 曜日の稼働の時間帯（弱エンティティ） |
 | RL-32 | `Exception` | `WorkingTime` | 1 ─ 0..n | 例外日の稼働の時間帯（弱エンティティ） |
+| RL-33 | `CommentBox` | `Task` | 0..n ─ 0..1 | 線先が吸着したタスク（`anchorTaskUid`） |
+| RL-34 | `CommentBox` | `HighlightBox` | 0..n ─ 0..1 | 線先が吸着したハイライトボックス（`anchorHighlightBoxId`） |
 | RL-23 | `Project` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
 | RL-24 | `Task` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
 | RL-25 | `Dependency` | `CarryElement` | 1 ─ 0..n | 解釈しない要素の退避先（`carryElements`） |
@@ -442,9 +451,14 @@ erDiagram
 | AT-110 | `CommentBox` | `id` | 文字列（UUID） | 否 | PK | GRS | — | 注記の識別子 |
 | AT-111 | `CommentBox` | `leaderShapeKind` | 列挙（2 値） | 可 | — | GRS | — | 引き出し線の形 |
 | AT-112 | `CommentBox` | `text` | 文字列 | 可 | — | GRS | — | 本文。「コメント」と略さない（`U-14`） |
-| AT-113 | `CommentBox` | `anchorDate` | 日時 | 可 | — | GRS | — | 留める日 |
-| AT-114 | `CommentBox` | `anchorTaskGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 留めるタスクグループ |
+| AT-113 | `CommentBox` | `anchorDate` | 日時 | 可 | — | GRS | — | 線先の自由点の日時。横は、この日時（分まで）を時間軸に置いた位置（`05-07-design.md` の 表 T-221 の `LF-15`）。吸着しているあいだも、吸着した点の日時を持つ（対象を消したときに戻る所） |
+| AT-114 | `CommentBox` | `anchorTaskGroupId` | 文字列（UUID） | 可 | FK | GRS | — | 線先の自由点のタスクグループ。吸着しているあいだも、吸着した点が描かれた帯のタスクグループを持つ |
 | AT-115 | `CommentBox` | `bodyOffsetPx` | `{ dx, dy }` | 可 | — | GRS | — | 留めた点から本文の左下隅までのずれ（`FR-019`） |
+| AT-163 | `CommentBox` | `anchorBandFraction` | 数値（0〜1） | 可（`null` = 0.5、帯の縦の中央） | — | GRS | — | 線先の自由点の、帯の中の高さ。帯の上端を 0、下端を 1 とする割合（`05-07-design.md` の 表 T-221 の `LF-15`） |
+| AT-164 | `CommentBox` | `anchorTaskUid` | 整数 | 可（`null` = タスクに吸着していない） | FK | GRS | — | 線先が吸着したタスクの `UID`。`anchorHighlightBoxId` と同時には持たない（`FR-019`） |
+| AT-165 | `CommentBox` | `anchorTaskFigure` | 列挙（3 値） | 可（`anchorTaskUid` と同時に `null`） | — | GRS | — | 線先が吸着したタスクの図形 —— 予定バー・実績バー・マイルストーンの図形（`FR-019`） |
+| AT-166 | `CommentBox` | `anchorHighlightBoxId` | 文字列（UUID） | 可（`null` = ハイライトボックスに吸着していない） | FK | GRS | — | 線先が吸着したハイライトボックスの識別子。`anchorTaskUid` と同時には持たない（`FR-019`） |
+| AT-167 | `CommentBox` | `anchorSnapPoint` | 列挙（8 値） | 可（吸着していなければ `null`） | — | GRS | — | 線先が吸着した、対象の 8 点のどれか —— 四隅と 4 辺の中点（`LF-15`）。対象を持つときだけ持つ（`FR-019`） |
 | AT-148 | `CommentBox` | `strokeColor` | 文字列 | 可（`null` = 注記の色 `S-312`） | — | GRS | — | 本文の箱の枠と引出し線の色。形は `AT-102` と同じ。ただし透明は取らない（`FR-019`） |
 | AT-149 | `CommentBox` | `strokeWidthPx` | 整数（px） | 可（`null` = 表 T-217 の既定） | — | GRS | — | 枠と引出し線の太さ。`null` と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-374`。ズームによらず一定に描く（`FR-019`） |
 | AT-150 | `CommentBox` | `fillColor` | 文字列 | 可（`null` = 地の色 `S-146`） | — | GRS | — | 本文の箱の塗りの色。形は `AT-102` と同じ。透明も取る（`FR-019`） |

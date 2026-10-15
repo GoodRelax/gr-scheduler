@@ -32,8 +32,10 @@ import {
 } from '../../entity/document-model/selection/selection'
 import type { Hit } from '../../entity/layout-engine/item-hit-area/item-hit-area'
 import {
+  anchorSnapsOf,
   commentAnchorPointOf,
   type BarGeometry,
+  type Point,
   type DependencyGeometry,
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
@@ -45,6 +47,7 @@ import {
 import { drawnSettingsOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
   pastedUidsOf,
+  type AnnotationAnchor,
   type DocumentCommand,
 } from '../../use-case/edit-document/edit-document'
 import type { PointerInput } from './input-source'
@@ -635,9 +638,23 @@ function commentBoxShiftWrite(
   const landed = at === null ? undefined : taskGroups[at + crossed]
   const taskGroupId = landed === undefined ? box.anchorTaskGroupId : landed.taskGroupId
   if (days === 0 && taskGroupId === box.anchorTaskGroupId) return null
-  const date = heldOrWritten(box.anchorDate, dayShifted(stood, days), textOfDayStart)
-  return { kind: 'setCommentBoxAnchor', id: box.id, anchor: { date, taskGroupId } }
+  const stoodAt = instantOf(box.anchorDate) ?? instantOf(textOfDayStart(stood)) ?? 0
+  const date = days === 0 && box.anchorDate !== null ? box.anchorDate : textOfInstant(stoodAt + days * MINUTES_PER_CALENDAR_DAY)
+  return { kind: 'setCommentBoxAnchor', id: box.id, anchor: { ...heldAnchorOf(box), date, taskGroupId } }
 }
+
+// see FR-019, CM-50
+/** @purity pure */
+function heldAnchorOf(box: CommentBox): Omit<AnnotationAnchor, 'date' | 'taskGroupId'> {
+  return {
+    bandFraction: box.anchorBandFraction ?? null,
+    taskUid: box.anchorTaskUid ?? null,
+    taskFigure: box.anchorTaskFigure ?? null,
+    highlightBoxId: box.anchorHighlightBoxId ?? null,
+    snapPoint: box.anchorSnapPoint ?? null,
+  }
+}
+
 
 /** @purity pure */
 function draggedDayCount(context: InputContext, press: PointerPress, release: PointerInput): number {
@@ -960,22 +977,33 @@ function commentAnchorMoveWrite(
   release: PointerInput,
   box: CommentBox,
 ): TranslatedInput {
-  // TRAP: the layout at the press, never context.geometry: a held drag draws the box already moved.
+  // TRAP: the layout at the press, never context.geometry's comment boxes: a held drag draws the box already moved.
   const layout = layoutAtPressOf(context, press)
-  const stoodDay = stoodDayOf(context, box)
-  const stood =
-    stoodDay === null || box.anchorTaskGroupId === null ? null : commentAnchorPointOf(layout, stoodDay, box.anchorTaskGroupId)
+  const snapsFrom = context.geometry
+  const around = { schedule: context.document.schedule, layout, snaps: anchorSnapsOf(snapsFrom.tasks, snapsFrom.highlightBoxes) }
+  const stood = commentAnchorPointOf(around, box)
   if (stood === null) return CONSUMED_ELSEWHERE
-  const anchor = commentAnchorAt(layout, release.x, release.y)
-  if (!('taskGroupId' in anchor)) return anchor
-  const day = dayOf(anchor.date)
-  const at = day === null ? null : commentAnchorPointOf(layout, day, anchor.taskGroupId)
-  if (at === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
+  const placed = commentAnchorAt(layout, snapsFrom, release.x, release.y)
+  if (!('anchor' in placed)) return placed
+  const { anchor, at } = placed
   const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
+  if (isReleasedInPlace(box, anchor, stood, at)) return CONSUMED_ELSEWHERE
   return changed([
     { kind: 'setCommentBoxAnchor', id: box.id, anchor },
     { kind: 'setCommentBoxBodyOffsetPx', id: box.id, dx: stood.x + offset.dx - at.x, dy: stood.y + offset.dy - at.y },
   ])
+}
+
+// see GR-14, FR-100
+// WHY: a tip released within half a pixel of its point writes nothing, or unsaved edits rise (as DFC-2912).
+/** @purity pure */
+function isReleasedInPlace(box: CommentBox, anchor: AnnotationAnchor, stood: Point, at: Point): boolean {
+  const isSameTarget =
+    (anchor.taskUid ?? null) === (box.anchorTaskUid ?? null) &&
+    (anchor.taskFigure ?? null) === (box.anchorTaskFigure ?? null) &&
+    (anchor.highlightBoxId ?? null) === (box.anchorHighlightBoxId ?? null) &&
+    (anchor.snapPoint ?? null) === (box.anchorSnapPoint ?? null)
+  return isSameTarget && Math.abs(at.x - stood.x) < 0.5 && Math.abs(at.y - stood.y) < 0.5
 }
 
 // see FR-016, FD-5, RV-6

@@ -21,6 +21,7 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
+import { commentBoxesReleasedFrom } from './edit-annotation'
 import { documentWithTableViewsKept } from './edit-document-settings'
 import { settledTaskGroup, tasksRankedByTheTaskGroupTree, wbsSubtreesOf } from './edit-task-group'
 import { createTask } from './task-create'
@@ -227,6 +228,50 @@ export function checkDay(text: string): DayCheck {
   return { ok: true, day }
 }
 
+// see CM-7, FR-019
+// WHY: a tip snapped to a deleted Task falls back to a free point in this same command (FR-031).
+/** @purity pure */
+function deleteTask(document: Document, uid: Task['uid'], defaultTaskGroupName: string): EditResult {
+  const schedule = document.schedule
+  const doomed = wbsSubtreesOf(schedule.tasks, [uid])
+
+  const taskGroups: TaskGroup[] = []
+  for (const group of schedule.taskGroups) {
+    if (group.derivedFromTaskUid === null || !doomed.has(group.derivedFromTaskUid)) {
+      taskGroups.push(group)
+      continue
+    }
+    // WHY: settle the name rather than refuse; refusing makes every task drawn on empty space undeletable.
+    taskGroups.push(settledTaskGroup(schedule, group, defaultTaskGroupName))
+  }
+
+  const tasks = schedule.tasks
+    .filter((one) => !doomed.has(one.uid))
+    .map((one) =>
+      one.dependencies.some((link) => doomed.has(link.predecessorUid))
+        ? { ...one, dependencies: one.dependencies.filter((link) => !doomed.has(link.predecessorUid)) }
+        : one,
+    )
+  return edited(
+    documentWithTableViewsKept(withSchedule(document, {
+      ...schedule,
+      tasks,
+      taskVisuals: schedule.taskVisuals.filter((one) => !doomed.has(one.taskUid)),
+      taskOrigins: schedule.taskOrigins.filter((one) => !doomed.has(one.taskUid)),
+      taskGroupMembers: schedule.taskGroupMembers.filter((one) => !doomed.has(one.taskUid)),
+      commentBoxes: commentBoxesReleasedFrom(schedule, {
+        taskUids: doomed,
+        highlightBoxIds: new Set(),
+        isKeptTaskGroup: () => true,
+      }),
+      assignments: schedule.assignments.filter(
+        (one) => one.taskUid === null || !doomed.has(one.taskUid),
+      ),
+      taskGroups,
+    })),
+  )
+}
+
 // see T-108, IV-2
 /** @purity pure */
 export function editTask(document: Document, command: TaskCommand, defaultTaskGroupName: string): EditResult {
@@ -248,40 +293,8 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
     case 'createTask':
       return createTask(document, command, within)
 
-    case 'deleteTask': {
-      const doomed = wbsSubtreesOf(schedule.tasks, [command.uid])
-
-      const taskGroups: TaskGroup[] = []
-      for (const group of schedule.taskGroups) {
-        if (group.derivedFromTaskUid === null || !doomed.has(group.derivedFromTaskUid)) {
-          taskGroups.push(group)
-          continue
-        }
-        // WHY: settle the name rather than refuse; refusing makes every task drawn on empty space undeletable.
-        taskGroups.push(settledTaskGroup(schedule, group, defaultTaskGroupName))
-      }
-
-      const tasks = schedule.tasks
-        .filter((one) => !doomed.has(one.uid))
-        .map((one) =>
-          one.dependencies.some((link) => doomed.has(link.predecessorUid))
-            ? { ...one, dependencies: one.dependencies.filter((link) => !doomed.has(link.predecessorUid)) }
-            : one,
-        )
-      return edited(
-        documentWithTableViewsKept(withSchedule(document, {
-          ...schedule,
-          tasks,
-          taskVisuals: schedule.taskVisuals.filter((one) => !doomed.has(one.taskUid)),
-          taskOrigins: schedule.taskOrigins.filter((one) => !doomed.has(one.taskUid)),
-          taskGroupMembers: schedule.taskGroupMembers.filter((one) => !doomed.has(one.taskUid)),
-          assignments: schedule.assignments.filter(
-            (one) => one.taskUid === null || !doomed.has(one.taskUid),
-          ),
-          taskGroups,
-        })),
-      )
-    }
+    case 'deleteTask':
+      return deleteTask(document, command.uid, defaultTaskGroupName)
 
     case 'setTaskName':
       return edited(withTask(document, { ...task, name: command.name }))

@@ -7,8 +7,10 @@
 // TRAP: never quote the region's opening marker in a comment; the generator injects the block at the first one.
 
 import {
+  anchorSnapsOf,
   isLinkInBand,
   leaderOf,
+  type AnchorSnap,
   type BarGeometry,
   type CommentGeometry,
   type DependencyGeometry,
@@ -1208,6 +1210,30 @@ export function answersAtPointer(walk: PointerWalk, x: number, y: number): Point
     hit: shape ?? statusLineHitOf(walk.geometry, x, y, walk.sizes) ?? parentTaskLinkHitOf(walk.geometry, x, y),
     hint: hintPastNotesOf(walk, shape, x, y),
   }
+}
+
+// see GR-14, AR-5, LF-15
+// WHY: the snap reach is the tip's own reach (S-292), so a tip grabbed and dropped in place snaps back to its point;
+// a tie keeps the earlier point of anchorSnapsOf's list (tasks before highlight boxes, then AT-167's order).
+/** @purity pure */
+export function anchorSnapAt(
+  geometry: Pick<ScheduleGeometry, 'tasks' | 'highlightBoxes'>,
+  x: number,
+  y: number,
+  sizes: GrabSizes,
+): AnchorSnap | null {
+  const reach = sizes['S-292']
+  let best: AnchorSnap | null = null
+  let bestDistance = Number.POSITIVE_INFINITY
+  for (const snap of anchorSnapsOf(geometry.tasks, geometry.highlightBoxes)) {
+    if (!isNearPoint(x, y, snap.at, reach, reach)) continue
+    const distance = Math.hypot(snap.at.x - x, snap.at.y - y)
+    if (distance < bestDistance) {
+      best = snap
+      bestDistance = distance
+    }
+  }
+  return best
 }
 
 // see T-023d, EL-17, EL-19

@@ -306,6 +306,16 @@ export interface CommentBox {
   readonly anchorTaskGroupId: string | null
   /** AT-115 */
   readonly bodyOffsetPx: { readonly dx: number, readonly dy: number } | null
+  /** AT-163 */
+  readonly anchorBandFraction: number | null
+  /** AT-164 */
+  readonly anchorTaskUid: number | null
+  /** AT-165 */
+  readonly anchorTaskFigure: 'plannedBar' | 'actualBar' | 'milestone' | null
+  /** AT-166 */
+  readonly anchorHighlightBoxId: string | null
+  /** AT-167 */
+  readonly anchorSnapPoint: 'topLeftCorner' | 'topMiddle' | 'topRightCorner' | 'rightMiddle' | 'bottomRightCorner' | 'bottomMiddle' | 'bottomLeftCorner' | 'leftMiddle' | null
   /** AT-148 */
   readonly strokeColor: string | null
   /** AT-149 */
@@ -488,6 +498,11 @@ export const COLUMN_SHAPES: {
     anchorDate: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     anchorTaskGroupId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
     bodyOffsetPx: { kind: 'object', choices: null, min: null, max: null, isNullable: true },
+    anchorBandFraction: { kind: 'number', choices: null, min: 0, max: 1, isNullable: true },
+    anchorTaskUid: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
+    anchorTaskFigure: { kind: 'enum', choices: ['plannedBar', 'actualBar', 'milestone'], min: null, max: null, isNullable: true },
+    anchorHighlightBoxId: { kind: 'string', choices: null, min: null, max: null, isNullable: true },
+    anchorSnapPoint: { kind: 'enum', choices: ['topLeftCorner', 'topMiddle', 'topRightCorner', 'rightMiddle', 'bottomRightCorner', 'bottomMiddle', 'bottomLeftCorner', 'leftMiddle'], min: null, max: null, isNullable: true },
     strokeColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple'], min: null, max: null, isNullable: true },
     strokeWidthPx: { kind: 'integer', choices: null, min: null, max: null, isNullable: true },
     fillColor: { kind: 'color', choices: ['white', 'black', 'dimgray', 'lightgray', 'red', 'blue', 'yellow', 'green', 'orange', 'purple', 'transparent'], min: null, max: null, isNullable: true },
@@ -666,7 +681,11 @@ export const ENTITY_ROWS: readonly EntityRows[] = [
     scheduleKey: 'commentBoxes',
     hasManyRows: true,
     primaryKey: ['id'],
-    foreignKeys: [{ fromColumn: 'anchorTaskGroupId', child: 'TaskGroup', toColumn: 'id' }],
+    foreignKeys: [
+      { fromColumn: 'anchorTaskGroupId', child: 'TaskGroup', toColumn: 'id' },
+      { fromColumn: 'anchorTaskUid', child: 'Task', toColumn: 'uid' },
+      { fromColumn: 'anchorHighlightBoxId', child: 'HighlightBox', toColumn: 'id' },
+    ],
     nested: [],
   },
   {

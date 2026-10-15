@@ -169,9 +169,9 @@ export function commandFromArmed(
   }
 
   if (armed.kind === 'commentBoxArmed') {
-    const anchor = commentAnchorAt(context.layout, press.at.x, press.at.y)
-    if (!('taskGroupId' in anchor)) return anchor
-    return changed([{ kind: 'createCommentBox', id: context.newCommentBoxId, anchor }])
+    const placed = commentAnchorAt(context.layout, context.geometry, press.at.x, press.at.y)
+    if (!('anchor' in placed)) return placed
+    return changed([{ kind: 'createCommentBox', id: context.newCommentBoxId, anchor: placed.anchor }])
   }
 
   if (armed.kind === 'highlightBoxArmed') {

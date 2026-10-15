@@ -500,6 +500,18 @@ function conflictingSettingsKeys(
   return differing.sort()
 }
 
+// see FR-019, RL-33
+// WHY: the tip follows its task's renumbered UID; a task the merge did not take leaves a free point behind,
+// held in the box's own date, band and height columns.
+/** @purity pure */
+function mergedCommentBoxOf(box: CommentBox, mergedUidOf: ReadonlyMap<number, number>): CommentBox {
+  const taskUid = box.anchorTaskUid ?? null
+  if (taskUid === null) return box
+  const merged = mergedUidOf.get(taskUid)
+  if (merged !== undefined) return merged === taskUid ? box : { ...box, anchorTaskUid: merged }
+  return { ...box, anchorTaskUid: null, anchorTaskFigure: null, anchorSnapPoint: null }
+}
+
 // see T-032, MG-5, IV-1
 /** @purity pure */
 function uidKeptUnlessHeld(uid: number, held: ReadonlySet<number>, highWater: number): number {
@@ -844,7 +856,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
       })
       continue
     }
-    commentBoxes.push(box)
+    commentBoxes.push(mergedCommentBoxOf(box, mergedUidOf))
   }
   const highlightBoxes: HighlightBox[] = [...current.highlightBoxes]
   for (const box of incoming.highlightBoxes) {

@@ -542,7 +542,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   CommentBox: {
     type: ['object'],
-    required: ['id', 'leaderShapeKind', 'text', 'anchorDate', 'anchorTaskGroupId', 'bodyOffsetPx', 'strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor'],
+    required: ['id', 'leaderShapeKind', 'text', 'anchorDate', 'anchorTaskGroupId', 'bodyOffsetPx', 'anchorBandFraction', 'anchorTaskUid', 'anchorTaskFigure', 'anchorHighlightBoxId', 'anchorSnapPoint', 'strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor'],
     closed: true,
     properties: {
       id: {
@@ -572,6 +572,23 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
             type: ['number'],
           },
         },
+      },
+      anchorBandFraction: {
+        type: ['number', 'null'],
+        minimum: 0,
+        maximum: 1,
+      },
+      anchorTaskUid: {
+        type: ['integer', 'null'],
+      },
+      anchorTaskFigure: {
+        enum: ['plannedBar', 'actualBar', 'milestone', null],
+      },
+      anchorHighlightBoxId: {
+        type: ['string', 'null'],
+      },
+      anchorSnapPoint: {
+        enum: ['topLeftCorner', 'topMiddle', 'topRightCorner', 'rightMiddle', 'bottomRightCorner', 'bottomMiddle', 'bottomLeftCorner', 'leftMiddle', null],
       },
       strokeColor: {
         type: ['string', 'null'],

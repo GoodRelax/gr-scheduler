@@ -97,6 +97,31 @@
      "name": "taskGroupId",
      "column": "AT-114",
      "null": false
+    },
+    {
+     "name": "bandFraction",
+     "column": "AT-163",
+     "optional": true
+    },
+    {
+     "name": "taskUid",
+     "column": "AT-164",
+     "optional": true
+    },
+    {
+     "name": "taskFigure",
+     "column": "AT-165",
+     "optional": true
+    },
+    {
+     "name": "highlightBoxId",
+     "column": "AT-166",
+     "optional": true
+    },
+    {
+     "name": "snapPoint",
+     "column": "AT-167",
+     "optional": true
     }
    ]
   },
@@ -1875,7 +1900,7 @@
      "name": "anchor",
      "type": "AnnotationAnchor",
      "meaning": {
-      "ja": "留め先"
+      "ja": "留め先 —— 省いた鍵は `null` として書き、吸着した対象（`taskUid` と `taskFigure` の組か `highlightBoxId`）と `snapPoint` は、吸着したときだけ揃えて持つ（`FR-019`）"
      }
     }
    ],
@@ -1983,7 +2008,7 @@
      "name": "anchor",
      "type": "AnnotationAnchor",
      "meaning": {
-      "ja": "新しい留め先"
+      "ja": "新しい留め先 —— 省いた鍵は `null` として書き、吸着した対象（`taskUid` と `taskFigure` の組か `highlightBoxId`）と `snapPoint` は、吸着したときだけ揃えて持つ（`FR-019`）"
      }
     }
    ],

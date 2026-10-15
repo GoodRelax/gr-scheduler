@@ -1815,6 +1815,53 @@
                "type": "string",
                "format": "uuid",
                "description": "`CommentBox.anchorTaskGroupId`（`AT-114`）を書く（`null` は受けない）"
+              },
+              "bandFraction": {
+               "type": [
+                "number",
+                "null"
+               ],
+               "minimum": 0,
+               "maximum": 1,
+               "description": "`CommentBox.anchorBandFraction`（`AT-163`）を書く（省いてよい）"
+              },
+              "taskUid": {
+               "type": [
+                "integer",
+                "null"
+               ],
+               "description": "`CommentBox.anchorTaskUid`（`AT-164`）を書く（省いてよい）"
+              },
+              "taskFigure": {
+               "enum": [
+                "plannedBar",
+                "actualBar",
+                "milestone",
+                null
+               ],
+               "description": "`CommentBox.anchorTaskFigure`（`AT-165`）を書く（省いてよい）"
+              },
+              "highlightBoxId": {
+               "type": [
+                "string",
+                "null"
+               ],
+               "format": "uuid",
+               "description": "`CommentBox.anchorHighlightBoxId`（`AT-166`）を書く（省いてよい）"
+              },
+              "snapPoint": {
+               "enum": [
+                "topLeftCorner",
+                "topMiddle",
+                "topRightCorner",
+                "rightMiddle",
+                "bottomRightCorner",
+                "bottomMiddle",
+                "bottomLeftCorner",
+                "leftMiddle",
+                null
+               ],
+               "description": "`CommentBox.anchorSnapPoint`（`AT-167`）を書く（省いてよい）"
               }
              },
              "required": [
@@ -1822,7 +1869,7 @@
               "taskGroupId"
              ],
              "additionalProperties": false,
-             "description": "`AnnotationAnchor` —— 留め先"
+             "description": "`AnnotationAnchor` —— 留め先 —— 省いた鍵は `null` として書き、吸着した対象（`taskUid` と `taskFigure` の組か `highlightBoxId`）と `snapPoint` は、吸着したときだけ揃えて持つ（`FR-019`）"
             }
            },
            "required": [
@@ -1929,6 +1976,53 @@
                "type": "string",
                "format": "uuid",
                "description": "`CommentBox.anchorTaskGroupId`（`AT-114`）を書く（`null` は受けない）"
+              },
+              "bandFraction": {
+               "type": [
+                "number",
+                "null"
+               ],
+               "minimum": 0,
+               "maximum": 1,
+               "description": "`CommentBox.anchorBandFraction`（`AT-163`）を書く（省いてよい）"
+              },
+              "taskUid": {
+               "type": [
+                "integer",
+                "null"
+               ],
+               "description": "`CommentBox.anchorTaskUid`（`AT-164`）を書く（省いてよい）"
+              },
+              "taskFigure": {
+               "enum": [
+                "plannedBar",
+                "actualBar",
+                "milestone",
+                null
+               ],
+               "description": "`CommentBox.anchorTaskFigure`（`AT-165`）を書く（省いてよい）"
+              },
+              "highlightBoxId": {
+               "type": [
+                "string",
+                "null"
+               ],
+               "format": "uuid",
+               "description": "`CommentBox.anchorHighlightBoxId`（`AT-166`）を書く（省いてよい）"
+              },
+              "snapPoint": {
+               "enum": [
+                "topLeftCorner",
+                "topMiddle",
+                "topRightCorner",
+                "rightMiddle",
+                "bottomRightCorner",
+                "bottomMiddle",
+                "bottomLeftCorner",
+                "leftMiddle",
+                null
+               ],
+               "description": "`CommentBox.anchorSnapPoint`（`AT-167`）を書く（省いてよい）"
               }
              },
              "required": [
@@ -1936,7 +2030,7 @@
               "taskGroupId"
              ],
              "additionalProperties": false,
-             "description": "`AnnotationAnchor` —— 新しい留め先"
+             "description": "`AnnotationAnchor` —— 新しい留め先 —— 省いた鍵は `null` として書き、吸着した対象（`taskUid` と `taskFigure` の組か `highlightBoxId`）と `snapPoint` は、吸着したときだけ揃えて持つ（`FR-019`）"
             }
            },
            "required": [
