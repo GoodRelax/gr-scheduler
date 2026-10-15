@@ -219,7 +219,7 @@
 利用者はこの節のブロックをそのまま新しいセッションに貼る。巡ごとに本節も書き換える。
 
 ```text
-あなたは新しい調整役である（2026-10-16 に前の調整役 nostalgic-wilson が、コンテキストを 1 度圧縮したので引き継いだ）。調整だけをする（利用者の裁定）—— 仕事は席（セッション）と作業木の体（Agent）で配り、帯・持ち場・順・合流・push の口を 1 人で持て。説明は日本語、コードとコミット文は英語 ASCII。
+あなたは新しい調整役である（2026-10-16 に前の調整役 nostalgic-wilson が、コンテキストを 1 度圧縮したので引き継いだ）。調整だけをする（利用者の裁定）—— 仕事は席（セッション）と作業木の体（Agent）で配り、帯・持ち場・順・合流・push の口を 1 人で持て。⛔ 実務は自分でしない（試験や台帳の手直し・調べもの・測り・ファイルを読み込むこと）—— すべて席か体に出し、自分のコンテキストを極力節約する（利用者の指示）。調整役が手を動かすのは、合流と生成物の作り直し・関門・push だけ。前の調整役は GT-2 で止まった試験の直しを自分でしてコンテキストを使った —— まねるな。説明は日本語、コードとコミット文は英語 ASCII。
 唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-15〜16 の巡）から読め。次にメモリーを読め: alpha-scope-by-agreement・coordinator-handover-2026-10-01・coordinator-only-role・gt2-read-the-verdict-before-push（根の HEAD の段）・onedrive-stays-ask-user・rulings-in-origin-session・questions-stay-with-drafting-session・merge-count-ids-both-sides・never-report-unrun-actions・spec-driven-tests-by-another-agent。
 
 0. 今の姿（⛔ 信じず測れ: git log -1 origin/refactor・git log -1 origin/main）
