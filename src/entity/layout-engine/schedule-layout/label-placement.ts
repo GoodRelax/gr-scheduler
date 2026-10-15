@@ -56,16 +56,17 @@ export function labelReferenceOf(
   return { ...band, fitWidth: band.width, nameFloor: band.x }
 }
 
-// see RF-1
+// see RF-1, DM-1, DM-3, DM-12, FR-158
 /** @purity pure */
 export function dummyBandOf(
   shapeKind: ShapeKind,
   plan: { readonly x: number; readonly width: number },
   markerDiameter: number,
+  axis: { readonly pxPerDay: number; readonly showsTimeOfDay: boolean },
 ): { readonly x: number; readonly width: number } {
   return actualPlacementOf(shapeKind) === 'sideways'
     ? { x: plan.x + plan.width / 2, width: 0 }
-    : { x: plan.x, width: dummyInkWidthOf(markerDiameter) }
+    : { x: plan.x, width: dummyInkWidthOf(markerDiameter, axis) }
 }
 
 // see LP-2, LP-4, GA-20

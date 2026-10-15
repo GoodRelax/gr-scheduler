@@ -13,6 +13,7 @@ import {
 } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   DEFAULT_CALENDAR_VALUES,
+  MINUTES_PER_CALENDAR_DAY,
   type Schedule,
   type Task,
   type TaskGroup,
@@ -45,7 +46,8 @@ const FR_043_ZERO_IS_A_POSITION =
   '⚠️ **ここでいう 0 は位置の話である** —— **開始日と終了日が同じ日の実績は 1 日であり、0 日ではない**（`FR-011`）。'
 
 const GO_7_PINS_THE_START =
-  '実績の最後の日 ＝ 離した所そのもの、`actualStart` ＝ 予定の開始日、`resumeValid` ＝ `true`'
+  '実績の最後の日 ＝ 離した所そのもの、`actualStart` ＝ 予定の開始日（時刻を表示しているとき（`FR-158`）は予定の開始の瞬間 —— ' +
+  '表 T-240 の `DM-1` であり、日の既定の開始時刻へ丸めない）、`resumeValid` ＝ `true`'
 
 const DM_1_THE_PLAN_START_DAY = '**ダミーを描く位置は、予定の開始日とすること（MUST）'
 
@@ -195,7 +197,17 @@ const notStarted = (): Document =>
   }) as unknown as Document
 
 const releasedFromGr17 = (droppedIso: string): EditResult =>
-  editTask(notStarted(), { kind: 'beginTaskActual', uid: 1, grabbed: 'GA-6', droppedDay: stored(droppedIso) }, DEFAULT_TASK_GROUP_NAME_FIXTURE)
+  editTask(
+    notStarted(),
+    {
+      kind: 'beginTaskActual',
+      uid: 1,
+      grabbed: 'GA-6',
+      released: { start: stored(droppedIso), finish: stored(droppedIso) },
+      snapMinutes: MINUTES_PER_CALENDAR_DAY,
+    },
+    DEFAULT_TASK_GROUP_NAME_FIXTURE,
+  )
 
 const taskOf = (document: Document): Task => {
   const found = document.schedule.tasks.find((one) => one.uid === 1)

@@ -7,9 +7,14 @@
 import type { DocumentSettings, DrawnSettings } from '../../document-model/document-settings/document-settings'
 import {
   dayOf,
+  finishSideDayFrom,
+  instantOnSideReader,
+  startSideOf,
   workingCalendarOf,
   type BaselineTask,
   type CalendarDay,
+  type DateTimeSide,
+  type InstantOnSide,
   type Schedule,
   type Task,
   type TaskGroup,
@@ -21,6 +26,7 @@ import {
   isDroppedByTreeState,
   thinEndHalfHeightOf,
   xFromDay,
+  xOfInstant,
   type TaskGroupPlacement,
   type ScheduleLayout,
   type TaskPlacement,
@@ -279,7 +285,6 @@ export interface GeometryInputs {
   readonly selectedTaskUids: ReadonlySet<number>
   readonly selectedLinks: ReadonlySet<string>
   // TRAP: made and dropped inside one call; holding it longer is a cache Chapter 5.6 must first record (R2.20).
-  readonly dummyFromByStart: Map<string, CalendarDay | null>
   readonly dummyEndByFrom: Map<string, CalendarDay>
   readonly delayDiagnostics?: {
     readonly shown: boolean
@@ -504,20 +509,37 @@ function planExtentOf(placed: TaskPlacement, settings: DrawnSettings): { readonl
   return { top: thinTierMiddle(placed, settings, false) - half, height: half * 2 }
 }
 
+// see BL-2, RV-6, FR-054, FR-158
+// WHY: as the plan bar: the instant with time of day; whole columns without, a 00:00 end closing the day before.
+/** @purity pure */
+function baselineEdgeXOf(text: string | null, side: DateTimeSide, reading: DateTimeSide,
+                         inputs: GeometryInputs, onSide: InstantOnSide): number | null {
+  if (inputs.settings.showsTimeOfDay) {
+    const instant = onSide(text, reading)
+    return instant === null ? null : xOfInstant(inputs.layout, instant)
+  }
+  if (side === 'start') {
+    const day = dayOf(text)
+    return day === null ? null : xFromDay(inputs.layout, day)
+  }
+  const last = finishSideDayFrom(dayOf(text), text)
+  return last === null ? null : xFromDay(inputs.layout, last) + inputs.layout.pxPerDay
+}
+
 // see BL-1, BL-2
 /** @purity pure */
 function baselineOutlineOf(baseline: BaselineTask, placed: TaskPlacement, isPinned: boolean,
-                           inputs: GeometryInputs): BaselineOutline | null {
-  const start = dayOf(baseline.start)
-  const finish = dayOf(baseline.finish)
-  if (start === null || finish === null) return null
+                           inputs: GeometryInputs, onSide: InstantOnSide): BaselineOutline | null {
+  const reading = startSideOf({ milestone: baseline.milestone === true })
+  const x = baselineEdgeXOf(baseline.start, 'start', reading, inputs, onSide)
+  const right = baselineEdgeXOf(baseline.finish, 'finish', 'finish', inputs, onSide)
+  if (x === null || right === null) return null
   const { top, height } = planExtentOf(placed, inputs.settings)
-  const x = xFromDay(inputs.layout, start)
   const taskUid = baseline.uid
   if (baseline.milestone === true) {
     return { taskUid, kind: 'diamond', box: { x: x - height / 2, y: top, width: height, height }, isPinned }
   }
-  const width = planSpanWidthOf(inputs.layout, x, finish, inputs.settings)
+  const width = Math.max(right - x, inputs.settings.minShapeWidth)
   return { taskUid, kind: 'rectangle', box: { x, y: top, width, height }, isPinned }
 }
 
@@ -534,11 +556,12 @@ function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): Baselin
   for (const taskGroup of inputs.layout.taskGroups) {
     if (taskGroup.isPinned === true) pinnedIds.add(taskGroup.groupId)
   }
+  const onSide = instantOnSideReader(inputs.within)
   const out: BaselineOutline[] = []
   for (const baseline of schedule.baselineTasks) {
     const placed = placedByUid.get(baseline.uid)
     if (placed === undefined) continue
-    const outline = baselineOutlineOf(baseline, placed, pinnedIds.has(placed.groupId), inputs)
+    const outline = baselineOutlineOf(baseline, placed, pinnedIds.has(placed.groupId), inputs, onSide)
     if (outline !== null) out.push(outline)
   }
   return out
@@ -575,7 +598,6 @@ export function geometryFromLayout(
     showActual: settings.actualVisible,
     selectedTaskUids: new Set(taskUidsIn(selection)),
     selectedLinks: selectedLinksOf(schedule, selection),
-    dummyFromByStart: new Map<string, CalendarDay | null>(),
     dummyEndByFrom: new Map<string, CalendarDay>(),
     ...(delayDiagnostics === undefined ? {} : { delayDiagnostics }),
   }

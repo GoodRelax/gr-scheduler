@@ -7,11 +7,13 @@ import {
   actualLastDay,
   dayOf,
   dayOfInstant,
+  instantOf,
+  instantOnSide,
   plannedInstantsOf,
   MINUTES_PER_CALENDAR_DAY,
   planActualState,
+  startSideOf,
   taskByUid,
-  textOfDay,
   textOfDayEnd,
   textOfDayStart,
   textOfFinishSide,
@@ -178,13 +180,8 @@ export function commandFromGrab(
     case 'GA-21':
     case 'GA-6':
     case 'GA-22':
-    case 'GA-17': {
-      const dropped = dayAtX(context.layout, release.x)
-      if (dropped === null) return CONSUMED_ELSEWHERE
-      return changed([
-        { kind: 'beginTaskActual', uid, grabbed: grab, droppedDay: textOfDay(dropped) },
-      ])
-    }
+    case 'GA-17':
+      return dummyReleaseWrite(context, release, uid, grab)
     case 'GA-9':
     case 'GA-14':
     case 'GA-15':
@@ -367,12 +364,53 @@ function actualEndWrite(
 ): TranslatedInput {
   const task = taskByUid(context.document.schedule, uid)
   if (task === null) return CONSUMED_ELSEWHERE
-  const startText = releasedText(context, release, 'start', task.milestone === true)
-  const finishText = releasedText(context, release, 'finish', task.milestone === true)
-  if (startText === null || finishText === null) return CONSUMED_ELSEWHERE
-  const place = actualEndPlacement(task, grab, { start: startText, finish: finishText })
+  const released = releasedPairOf(context, release, task)
+  if (released === null) return CONSUMED_ELSEWHERE
+  const place = actualEndPlacement(task, grab, released)
   if (place === null) return CONSUMED_ELSEWHERE
   return changed([{ kind: 'setTaskPlanActualState', uid, place }])
+}
+
+type DummyHold = Extract<DocumentCommand, { readonly kind: 'beginTaskActual' }>['grabbed']
+
+/** @purity pure */
+function releasedPairOf(context: InputContext, release: PointerInput,
+                        task: Task): { readonly start: string; readonly finish: string } | null {
+  const start = releasedText(context, release, 'start', task.milestone === true)
+  const finish = releasedText(context, release, 'finish', task.milestone === true)
+  return start === null || finish === null ? null : { start, finish }
+}
+
+// see GO-6, GO-7, GO-8, FR-103, T-378
+// WHY: read as every other end is (releasedText): with time of day shown the snapped instant, never the day (DFC-2572).
+/** @purity pure */
+function dummyReleaseWrite(
+  context: InputContext,
+  release: PointerInput,
+  uid: number,
+  grab: DummyHold,
+): TranslatedInput {
+  const task = taskByUid(context.document.schedule, uid)
+  if (task === null) return CONSUMED_ELSEWHERE
+  const released = releasedPairOf(context, release, task)
+  if (released === null) return CONSUMED_ELSEWHERE
+  return changed([
+    { kind: 'beginTaskActual', uid, grabbed: grab, released, snapMinutes: releasedSnapOf(context, release) },
+  ])
+}
+
+// see GO-9, DM-1, FR-158
+/** @purity pure */
+function isLeftOfPlanStart(context: InputContext, task: Task, released: string): boolean {
+  if (!context.document.documentSettings.showsTimeOfDay) {
+    const planStart = dayOf(task.start)
+    const dropped = dayOf(released)
+    return planStart !== null && dropped !== null && compareDay(dropped, planStart) < 0
+  }
+  const within = workingCalendarOf(context.document.schedule)
+  const planStart = instantOnSide(within, task.start, startSideOf(task))
+  const dropped = instantOf(released)
+  return planStart !== null && dropped !== null && dropped < planStart
 }
 
 // see GO-9
@@ -387,13 +425,18 @@ function markerPullWrite(
   if (task !== null && planActualState(task) !== 'notStarted') {
     return actualEndWrite(context, release, uid, 'GA-4')
   }
-  const planStart = dayOf(task?.start ?? null)
-  const dropped = dayAtX(context.layout, release.x)
-  if (planStart === null || dropped === null) return CONSUMED_ELSEWHERE
-  // WHY: released left of the plan start, GO-9 asks for a one-day actual there, not a refusal.
-  const held = compareDay(dropped, planStart) < 0 ? planStart : dropped
+  if (task === null || task.start === null || dayOf(task.start) === null) return CONSUMED_ELSEWHERE
+  const finish = releasedPairOf(context, release, task)?.finish ?? null
+  if (finish === null) return CONSUMED_ELSEWHERE
+  const snapMinutes = releasedSnapOf(context, release)
+  // WHY: released left of the plan start, GO-9 asks for the dummy's own actual (DM-2) on the plan start, not a refusal.
+  if (isLeftOfPlanStart(context, task, finish)) {
+    return changed([
+      { kind: 'beginTaskActual', uid, grabbed: 'GA-5', released: { start: task.start, finish: task.start }, snapMinutes },
+    ])
+  }
   return changed([
-    { kind: 'beginTaskActual', uid, grabbed: 'GA-6', droppedDay: textOfDay(held) },
+    { kind: 'beginTaskActual', uid, grabbed: 'GA-6', released: { start: finish, finish }, snapMinutes },
   ])
 }
 

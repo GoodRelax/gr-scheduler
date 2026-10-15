@@ -62,7 +62,8 @@ NOT_STORED_SCHEMA_ADDRESS            刊行する GRS JSON のスキーマの所
 NOT_STORED_DUAL_CURSOR_SIZES         2 連カーソルと基準日線の線の太さ（`S-194` / `S-333`）
 NOT_STORED_DELAY_MARK_SIZES          遅れの記号 `(!)` の縦棒と点の寸法（`S-328` 〜 `S-331`）
 NOT_STORED_BOTTLENECK_THRESHOLD      ボトルネックとする押し出し日数の下限（`S-397`、`CR-561`。`delay-diagnostics.ts` が読む）
-NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅の上限と、進捗マーカーの径に対する比（`S-180` / `S-247`）
+NOT_STORED_DUMMY_ACTUAL_MINUTES      時刻を表示しているときにダミーから置く実績の長さ（`S-585`、`CR-756`。`task-plan-actual.ts` が読む）
+NOT_STORED_DUMMY_SIZES               実績のダミーを描く幅の上限と、進捗マーカーの径に対する比と、時刻を表示しているときの長さ（`S-180` / `S-247` / `S-585`）
 NOT_STORED_END_POINTER_SIZES         本ツールが描くポインタの画像の大きさと縁（表 T-269。`S-249` / `S-294` 〜 `S-297`）
 NOT_STORED_ENTRANCE_SIZES            タスクグループパネルの入口の図形の箱・枠・隙間（`S-138` / `S-237` / `S-243`）
 NOT_STORED_HELP_SIZES                ヘルプの取り分と列と塊の空き、ツールチップと読み出しの字と余白とポインタからの隔たり、表 T-335 のウィンドウの下限と縁、対話欄の既定の大きさ、リポジトリの所（`S-201` 〜 `S-204` / `S-334` / `S-339` / `S-340` / `S-436` / `S-437` / `S-457` / `S-458` / `S-460` / `S-423` / `S-424` / `S-426` / `S-453` / `S-454` / `S-459`）
