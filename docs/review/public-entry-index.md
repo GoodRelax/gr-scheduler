@@ -1587,7 +1587,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `BOTTLENECK_STATE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#BOTTLENECK_STATE` | -- | const BOTTLENECK_STATE = 'bottleneck' |
 | `ColumnFilter` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#ColumnFilter` | -- | type ColumnFilter = TableView['columnFilters'][number] |
 | `ColumnSort` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#ColumnSort` | -- | type ColumnSort = NonNullable<TableView['sort']> |
-| `columnValuesOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnValuesOf` | -- | function columnValuesOf(rows: SearchRows, column: SearchColumn, hidden: ReadonlySet<number> = NOTHING_HIDDEN): readonly string[] |
+| `columnValuesOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#columnValuesOf` | -- | function columnValuesOf( rows: SearchRows, column: SearchColumn, hidden: ReadonlySet<number> = NOTHING_HIDDEN, |
 | `COMMENT_BOX_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#COMMENT_BOX_SEARCH_COLUMNS` | -- | const COMMENT_BOX_SEARCH_COLUMNS: readonly SearchColumn[] = ['SQ-7', 'SQ-8', 'SQ-9'] |
 | `comparePercentTexts` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#comparePercentTexts` | -- | function comparePercentTexts(a: string, b: string): number |
 | `filteredSearchRows` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#filteredSearchRows` | -- | function filteredSearchRows( rows: SearchRows, columnFilters: readonly ColumnFilter[], sort: ColumnSort \| null, hidden: ReadonlySet<number> = NOTHING_HIDDEN, |
@@ -1601,7 +1601,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchTaskStateOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchTaskStateOf` | -- | function searchTaskStateOf(row: TaskSearchRow): SearchTaskState |
 | `SHOW_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#SHOW_VALUE` | -- | const SHOW_VALUE = 'show' |
 | `TableColumns` | file only | interface | `src/adapter/screen-renderer/search-table-filters.ts#TableColumns` | -- | interface TableColumns<Row> |
-| `tableColumnValues` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#tableColumnValues` | -- | function tableColumnValues<Row>(rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn): readonly string[] |
+| `tableColumnValues` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#tableColumnValues` | -- | function tableColumnValues<Row>( rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn, sort: ColumnSort \| null = null, |
 | `TASK_GROUP_PATH_SEPARATOR` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_GROUP_PATH_SEPARATOR` | -- | const TASK_GROUP_PATH_SEPARATOR = ' \u2192 ' |
 | `TASK_SEARCH_COLUMNS` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#TASK_SEARCH_COLUMNS` | -- | const TASK_SEARCH_COLUMNS: readonly SearchColumn[] = displayWords.searchColumns |
 | `withVisibilityColumn` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#withVisibilityColumn` | -- | function withVisibilityColumn<Row>(table: TableColumns<Row>, column: SearchColumn, isShown: (row: Row) => boolean): TableColumns<Row> |
