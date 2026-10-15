@@ -11,6 +11,7 @@ export type { AppShell, AppShellReading, AppShellSource } from './app-shell-sour
 
 export { documentFromJson, jsonFromDocument } from './json-codec'
 export type { FormatVersionReading, JsonDecoding, JsonFault } from './json-codec'
+export { commandShapeFaults } from './grs-json-schema'
 
 export { documentFromMspdi, mspdiFromDocument } from './mspdi-codec'
 export type { MspdiDecoding, MspdiEncoding, MspdiFault, MspdiNotice } from './mspdi-codec'

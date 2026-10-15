@@ -2932,6 +2932,16 @@
      }
     },
     {
+     "name": "commandShapeFaults",
+     "note": {
+      "ja": [
+       "`pure`。",
+       "命令 1 つが 表 T-108 の形（種類・要る値・持てない値・値の型）に合うかを答える。",
+       "`applyCommands` が外れた束を表 T-035 の `AG-9a` の `malformedRequest` で断るのに使う（`FR-028`）"
+      ]
+     }
+    },
+    {
      "name": "extensionOfFormat",
      "note": {
       "ja": [

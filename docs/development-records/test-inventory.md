@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 385 | 4817 | 9 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 386 | 4828 | 9 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 91 | 589 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3867 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 678 | 9383 | 12 | 8 | 13 | 2 |
+| **all** | | | 679 | 9394 | 12 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -549,6 +549,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-545-a-held-choice-or-checkbox-is-no-text-entry.contract.test.ts` | 5 | - | - | - | IF-9, IN-5a, IN-6, PR-1, SK-3, SK-19, WS-2 | - | - | - | - |
 | `tests/contract/dfc-554-gr-17-released-at-or-left-of-the-dummy-keeps-s-129.test.ts` | 5 | FR-011, FR-043 | - | T-023d, T-266, T-350 | AT-39, DM-1, GA-5, GA-6, IV-21, S-129, S-482, S-483 | - | - | - | - |
 | `tests/contract/dfc-556-in-2-an-armed-dependency-line-gives-the-drawing-signal-on-empty-canvas.test.ts` | 5 | - | - | T-023b, T-028, T-109 | AR-2, AR-4, IN-2, PTD-5 | - | - | - | - |
+| `tests/contract/dfc-557-mspdi-notices-are-told.contract.test.ts` | 11 | FR-038, FR-102 | - | T-233 | EX-6, IC-72, RS-15 | - | - | - | - |
 | `tests/contract/dfc-567-fr-029-a-faint-roster-entrance-that-is-pressed-tells-rs-27.test.ts` | 9 | FR-029 | - | T-233 | IC-63, IC-64, IC-65, IC-66, RO-1, RO-3, RS-27 | - | - | - | - |
 | `tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts` | 63 | FR-019, FR-097 | - | T-023d, T-108, T-206, T-221, T-246 | AT-110, AT-115, AT-117, CM-50, CM-51, CM-54, GR-14, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6, HB-11, HB-12, IV-19, LF-14, LF-15, LF-17, RS-44, S-1, S-12, S-75, S-137, S-230, S-292, S-293 | - | - | - | - |
 | `tests/contract/dfc-571-if-9-a-half-typed-line-is-no-utterance.test.ts` | 4 | - | - | T-035, T-065 | AG-11, IF-9 | - | - | - | - |

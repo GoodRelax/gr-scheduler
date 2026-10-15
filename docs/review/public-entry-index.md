@@ -973,6 +973,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AppShell` | entry | interface | `src/adapter/document-codec/app-shell-source.ts#AppShell` | -- | interface AppShell |
 | `AppShellReading` | entry | type | `src/adapter/document-codec/app-shell-source.ts#AppShellReading` | -- | type AppShellReading = \| { readonly ok: true; readonly appShell: AppShell } \| { readonly ok: false; readonly what: string } export interface AppShellSource |
 | `AppShellSource` | entry | interface | `src/adapter/document-codec/app-shell-source.ts#AppShellSource` | PI-20 | 表 T-065 |
+| `commandShapeFaults` | entry | function | `src/adapter/document-codec/grs-json-schema.ts#commandShapeFaults` | PI-20 | `pure`。 |
 | `documentFromEmbeddedHtml` | entry | function | `src/adapter/document-codec/embedded-html-codec.ts#documentFromEmbeddedHtml` | PI-20 | `pure`。 |
 | `documentFromJson` | entry | function | `src/adapter/document-codec/json-codec.ts#documentFromJson` | PI-20 | function documentFromJson( text: string, greatestKnownSchemaVersion?: string, ): JsonDecoding |
 | `documentFromMspdi` | entry | function | `src/adapter/document-codec/mspdi-codec.ts#documentFromMspdi` | PI-20 | function documentFromMspdi(text: string, current: Document): MspdiDecoding |
@@ -2070,4 +2071,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1047 name(s) leave through a public entry (502 of them published by table T-064), 813 more are exported by a file and not by its entry.
+Totals: 1048 name(s) leave through a public entry (503 of them published by table T-064), 813 more are exported by a file and not by its entry.
