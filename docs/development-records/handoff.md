@@ -225,7 +225,7 @@
 唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-15〜16 の巡）から読め。次にメモリーを読め: alpha-scope-by-agreement・coordinator-handover-2026-10-01・coordinator-only-role・gt2-read-the-verdict-before-push（根の HEAD の段）・onedrive-stays-ask-user・rulings-in-origin-session・questions-stay-with-drafting-session・merge-count-ids-both-sides・never-report-unrun-actions・spec-driven-tests-by-another-agent。
 
 0. 今の姿（⛔ 信じず測れ: git log -1 origin/refactor・git log -1 origin/main）
-   - 統合の枝 integ/coord-1011 は前の調整役の作業木 .claude/worktrees/nostalgic-wilson-2f0799 に在る。先端は 6fbb69fe（＋引継書のコミット）。あなたは自分の作業木で git merge --ff-only <その先端> から積め。根（refactor のチェックアウト）は利用者だけが早送りする（96cb8168 まで済み）。
+   - 統合の枝 integ/coord-1011 は前の調整役の作業木 .claude/worktrees/nostalgic-wilson-2f0799 に在る。先端は 6fbb69fe に計画の合流（147f26c9）と引継書のコミットを足したもの —— git -C .claude/worktrees/nostalgic-wilson-2f0799 log -1 で測れ。あなたは自分の作業木で git merge --ff-only <その先端> から積め。根（refactor のチェックアウト）は利用者だけが早送りする（96cb8168 まで済み）。
    - この巡の src／dist の変更はまだ push していない。push は GT-2 の後に refactor と main へ 1 回。
    - GT-2 は根でだけ回る: node tools/gate/gate-queue.mjs enqueue GT-2 → 根で GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。根の HEAD が順番待ちの sha と同じでないと捨てられる —— 先に利用者に早送りを頼む。OneDrive は利用者に止めてもらう。
    - push は grep -q "GT-2 <sha> passed" <ログ> を確かめてから git push origin <sha>:refactor <sha>:main を単独の 1 コマンドで。続けて gh workflow run pages.yml --ref main。
