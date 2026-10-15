@@ -317,13 +317,13 @@ describe('CR-557 S-3 -- the committed hue translates to CM-5 alone', () => {
   it.each(ROSTER.map((one) => [one.rowId, one.hue] as const))(
     `FR-041 "${CLAUSE_ONE_CM_5}" -- %s (hue %s)`,
     (_rowId, hue) => {
-      expect(translate(String(hue))).toEqual([{ kind: CM_5, hue }])
+      expect(translate(String(hue))).toEqual([{ kind: CM_5, themeHue: hue }])
     },
   )
 
   it('the S-73 bounds themselves translate', () => {
-    expect(translate(String(HUE_MIN))).toEqual([{ kind: CM_5, hue: HUE_MIN }])
-    expect(translate(String(HUE_MAX))).toEqual([{ kind: CM_5, hue: HUE_MAX }])
+    expect(translate(String(HUE_MIN))).toEqual([{ kind: CM_5, themeHue: HUE_MIN }])
+    expect(translate(String(HUE_MAX))).toEqual([{ kind: CM_5, themeHue: HUE_MAX }])
   })
 
   it.each([String(HUE_MIN - 1), String(HUE_MAX + 1), '12.5', 'abc', ''])(
@@ -361,7 +361,7 @@ describe('CR-557 -- the press, the document and the history (CM-5, UN-13)', () =
     if (commit === null) return
     const one = bench()
     const commands = commandFromFieldCommit(commit, contextOf(one.held.document))
-    expect(commands).toEqual([{ kind: CM_5, hue: target.hue }])
+    expect(commands).toEqual([{ kind: CM_5, themeHue: target.hue }])
     expect(one.write(commands).ok).toBe(true)
     expect(hueOf(one.held.document)).toBe(target.hue)
     expect(one.depth()).toBe(1)

@@ -258,15 +258,15 @@ function commandFromTaskColumn(
     }
     case 'fadeInDays': {
       const days = settledNumber(text)
-      return days === undefined ? [] : [{ kind: 'setTaskFadeInDays', uid, days }]
+      return days === undefined ? [] : [{ kind: 'setTaskFadeInDays', uid, fadeInDays: days }]
     }
     case 'fadeOutDays': {
       const days = settledNumber(text)
-      return days === undefined ? [] : [{ kind: 'setTaskFadeOutDays', uid, days }]
+      return days === undefined ? [] : [{ kind: 'setTaskFadeOutDays', uid, fadeOutDays: days }]
     }
     case 'parentTaskUid': {
       const parentUid = settledNumber(text)
-      return parentUid === undefined ? [] : [{ kind: 'setTaskParentTask', uid, parentUid }]
+      return parentUid === undefined ? [] : [{ kind: 'setTaskParentTask', uid, parentTaskUid: parentUid }]
     }
     default:
       return []
@@ -307,7 +307,7 @@ function commandFromVisualColumn(
       const held = settledText(text)
       const glyph = held === null ? null : milestoneGlyphOf(held)
       if (held !== null && glyph === null) return []
-      return [{ kind: 'setTaskVisualMilestoneGlyph', uid, glyph }]
+      return [{ kind: 'setTaskVisualMilestoneGlyph', uid, milestoneGlyph: glyph }]
     }
     case 'strokeColor':
     case 'fillColor':
@@ -332,7 +332,7 @@ function commandFromGroupColumn(
   const taskGroupId = group.id
   switch (column) {
     case 'name': {
-      return [{ kind: 'setTaskGroupName', taskGroupId, label: settledText(text) }]
+      return [{ kind: 'setTaskGroupName', taskGroupId, name: settledText(text) }]
     }
     case 'color': {
       const color = settledColor(text, group.color, dark)
@@ -342,7 +342,7 @@ function commandFromGroupColumn(
     }
     case 'minHeightPx': {
       const minHeight = settledNumber(text)
-      return minHeight === undefined ? [] : [{ kind: 'setTaskGroupMinHeightPx', taskGroupId, minHeight }]
+      return minHeight === undefined ? [] : [{ kind: 'setTaskGroupMinHeightPx', taskGroupId, minHeightPx: minHeight }]
     }
     default:
       return []
@@ -482,7 +482,7 @@ function commandFromThemeHue(text: string): readonly DocumentCommand[] {
   if (!DECIMAL_DIGITS.test(text)) return []
   const hue = Number(text)
   if (hue < LOWEST_HUE || hue > HIGHEST_HUE) return []
-  return [{ kind: 'setThemeHue', hue }]
+  return [{ kind: 'setThemeHue', themeHue: hue }]
 }
 
 // see FR-131, CM-87
@@ -490,7 +490,7 @@ function commandFromThemeHue(text: string): readonly DocumentCommand[] {
 function commandFromParentProgressTolerance(text: string): readonly DocumentCommand[] {
   const workingDays = settledNumber(text)
   if (workingDays === undefined || workingDays === null) return []
-  return [{ kind: 'setParentProgressToleranceDays', workingDays }]
+  return [{ kind: 'setParentProgressToleranceDays', parentProgressToleranceDays: workingDays }]
 }
 
 // see FR-046, CM-3, CM-4, WT-4
@@ -499,7 +499,7 @@ function commandsFromStatusDate(text: string, context: InputContext): readonly D
   const date = settledDay(text, (day) => textOfFinishSide(day, context.document.schedule.project))
   if (date === undefined) return []
   if (date === null) return [{ kind: 'clearStatusDate' }]
-  return [{ kind: 'setStatusDate', date }, ...statusLineCentered(context, date)]
+  return [{ kind: 'setStatusDate', statusDate: date }, ...statusLineCentered(context, date)]
 }
 
 // see FR-035, CM-1, FR-041, FR-131, FR-046
@@ -595,11 +595,11 @@ function commandFromDocumentSettingsColumn(
   if (column === 'taskGroupPanelWidthPx') return commandsFromTaskGroupTitleWidth(text)
   if (column === 'displayScale') {
     const scale = DISPLAY_SCALE_STEPS.find((step) => String(step) === text)
-    return scale === undefined ? [] : [{ kind: 'setDisplayScale', scale }]
+    return scale === undefined ? [] : [{ kind: 'setDisplayScale', displayScale: scale }]
   }
   if (column !== 'fontScale') return []
   const scale = FONT_SCALE_STEPS.find((step) => step === text)
-  return scale === undefined ? [] : [{ kind: 'setFontScale', scale }]
+  return scale === undefined ? [] : [{ kind: 'setFontScale', fontScale: scale }]
 }
 
 const FONT_SCALE_STEPS = Object.keys(SETTINGS_CONSTANTS.fontScaleSizes) as readonly DocumentSettings['fontScale'][]
@@ -746,5 +746,5 @@ function commandsFromDisplayTimeZone(text: string, settings: DocumentSettings): 
   if (at < 0 || !Number.isInteger(slot)) return []
   const slots = [0, 1, 2, 3].map((one) => settings.displayTimeZones[one] ?? '')
   slots[slot] = text.slice(at + 1)
-  return [{ kind: 'setDisplayTimeZones', timeZones: slots.filter((one) => one !== '') }]
+  return [{ kind: 'setDisplayTimeZones', displayTimeZones: slots.filter((one) => one !== '') }]
 }

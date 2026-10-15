@@ -581,7 +581,7 @@ describe('CR-572 item 9 -- the Agent API sends CM-64 and none of the four retire
   it('CM-64: an Agent can still switch monochrome, and it lands in the document', () => {
     const built = bench()
     const api = agentOf(built)
-    const outcome = api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setThemeMonochrome', monochrome: true } as never] })
+    const outcome = api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setThemeMonochrome', isThemeMonochrome: true } as never] })
     expect(outcome.ok).toBe(true)
     expect(settingsOf(built.loop)['isThemeMonochrome']).toBe(true)
   })

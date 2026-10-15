@@ -33,7 +33,7 @@ export type TaskGroupCommand =
       readonly kind: 'createTaskGroup'
       readonly id: TaskGroup['id']
       readonly parentId: TaskGroup['parentId']
-      readonly label: TaskGroup['name']
+      readonly name: TaskGroup['name']
       readonly derivedFromTaskUid: TaskGroup['derivedFromTaskUid']
       readonly order: TaskGroup['order']
     }
@@ -51,7 +51,7 @@ export type TaskGroupCommand =
   | {
       readonly kind: 'setTaskGroupName'
       readonly taskGroupId: TaskGroup['id']
-      readonly label: TaskGroup['name']
+      readonly name: TaskGroup['name']
     }
   | {
       readonly kind: 'setTaskGroupColor'
@@ -62,7 +62,7 @@ export type TaskGroupCommand =
   | {
       readonly kind: 'setTaskGroupMinHeightPx'
       readonly taskGroupId: TaskGroup['id']
-      readonly minHeight: TaskGroup['minHeightPx']
+      readonly minHeightPx: TaskGroup['minHeightPx']
     }
   | {
       readonly kind: 'reorderTaskGroupSiblings'

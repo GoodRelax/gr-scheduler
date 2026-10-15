@@ -162,7 +162,7 @@ describe('FR-085 (DFC-696) -- a task group that left the document is no longer c
     built.send(keyOf('x'))
     expect(built.last().taskGroupPanel.titles.some((one) => one.taskGroupId === 'g1'), 'premise: the task group is gone').toBe(false)
     expect(chosenTaskGroups(built), 'FR-085 MUST: the task group left the choice with the document').toEqual([])
-    const again = written({ kind: 'createTaskGroup', id: 'g1', parentId: null, label: 'again', derivedFromTaskUid: null, order: 9 })
+    const again = written({ kind: 'createTaskGroup', id: 'g1', parentId: null, name: 'again', derivedFromTaskUid: null, order: 9 })
     built.send(keyOf('x'))
     expect(again.ok, JSON.stringify(again)).toBe(true)
     expect(built.last().taskGroupPanel.titles.some((one) => one.taskGroupId === 'g1'), 'premise: a task group with that id is back').toBe(true)

@@ -389,7 +389,7 @@ describe(`FR-019 -- ${FR_019_PLACED_UNFILLED}`, () => {
     const result = run(documentOf({ tasks: [taskOf(TASK)] }), {
       kind: 'createHighlightBox',
       id: 'h-new',
-      range: { startDate: '2026-04-06', endDate: '2026-04-09', topTaskGroupId: 'g1', bottomTaskGroupId: 'g1' },
+      range: { start: '2026-04-06', finish: '2026-04-09', topTaskGroupId: 'g1', bottomTaskGroupId: 'g1' },
     })
     expect(result.ok, JSON.stringify(result)).toBe(true)
     if (result.ok) expect(result.document.schedule.highlightBoxes.find((one) => one.id === 'h-new')?.fillColor).toBe(s370)

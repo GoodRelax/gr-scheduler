@@ -53,7 +53,7 @@ export function setTaskFadeDays(
   task: Task,
 ): EditResult {
   const row = command.kind === 'setTaskFadeInDays' ? 'CM-16' : 'CM-17'
-  const days = command.days
+  const days = command.kind === 'setTaskFadeInDays' ? command.fadeInDays : command.fadeOutDays
   if (days !== null) {
     if (!Number.isInteger(days) || days < 0) {
       return refused([reject(row, 'FD-7', `fade days must be a whole number of days, not ${days}`)])
@@ -103,15 +103,15 @@ export function setTaskVisualMilestoneGlyph(
   const schedule = document.schedule
   // WHY: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
   if (
-    command.glyph !== null
-    && !(COLUMN_SHAPES.TaskVisual.milestoneGlyph?.choices ?? []).includes(command.glyph)
+    command.milestoneGlyph !== null
+    && !(COLUMN_SHAPES.TaskVisual.milestoneGlyph?.choices ?? []).includes(command.milestoneGlyph)
   ) {
     return refused([
       reject('CM-21', 'FR-078', 'the figure is not one of those table T-012 SH-5 names'),
     ])
   }
   const visual = visualOf(schedule, command.uid)
-  return edited(withVisual(document, { ...visual, milestoneGlyph: command.glyph }))
+  return edited(withVisual(document, { ...visual, milestoneGlyph: command.milestoneGlyph }))
 }
 
 // see CM-22, IV-9

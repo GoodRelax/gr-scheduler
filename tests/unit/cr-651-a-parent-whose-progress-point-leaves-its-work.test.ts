@@ -560,8 +560,8 @@ const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 const LIMITS = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
-const cm87 = (workingDays: number): DocumentCommand =>
-  ({ kind: CM_87_NAME, workingDays }) as unknown as DocumentCommand
+const cm87 = (parentProgressToleranceDays: number): DocumentCommand =>
+  ({ kind: CM_87_NAME, parentProgressToleranceDays }) as unknown as DocumentCommand
 
 describe('CR-651 CM-87 FR-131 -- setParentProgressToleranceDays', () => {
   it.each([0, 3, 1000])('CM-87 accepts the integer %i and writes it to Project.parentProgressToleranceDays', (value) => {

@@ -170,7 +170,7 @@ function deleteCommandsFor(context: InputContext): readonly DocumentCommand[] {
         commands.push({ kind: 'clearStatusDate' })
         break
       case 'parentTaskLink':
-        commands.push({ kind: 'setTaskParentTask', uid: one.childUid, parentUid: null })
+        commands.push({ kind: 'setTaskParentTask', uid: one.childUid, parentTaskUid: null })
         break
     }
   }

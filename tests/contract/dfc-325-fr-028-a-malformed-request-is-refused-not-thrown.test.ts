@@ -189,7 +189,7 @@ const MALFORMED: ReadonlyArray<{ readonly what: string; readonly request: unknow
     what: 'a command of a real row whose field is spelled wrong',
     request: {
       expectedStamp: { ...STARTING_STAMP },
-      commands: [{ kind: 'setStatusDate', statusDate: '2026-08-21T00:00:00' }],
+      commands: [{ kind: 'setStatusDate', date: '2026-08-21T00:00:00' }],
     },
   },
   {

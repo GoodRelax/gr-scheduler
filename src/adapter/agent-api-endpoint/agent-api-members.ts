@@ -497,6 +497,25 @@ function serializedDocument(value: object): HandedText {
   }
 }
 
+// see FR-028, AG-9a, T-108
+// WHY: judged before the one path, so a bundle out of shape is refused without touching the document (DFC-2856).
+/** @purity pure */
+function malformedWriteRequestWhat(request: AgentWriteRequest): string | null {
+  if (request === null || typeof request !== 'object'
+    || (request.expectedStamp as unknown) === null
+    || typeof request.expectedStamp !== 'object'
+    || !Array.isArray(request.commands)) {
+    return 'AM-7 takes { expectedStamp, commands }; one of the two is missing or not its shape'
+  }
+  for (const [index, command] of (request.commands as readonly unknown[]).entries()) {
+    const fault = DocumentCodec.commandShapeFaults(command)[0]
+    if (fault !== undefined) {
+      return `command ${index} is not the shape table T-108 declares: ${fault.at === '' ? 'it' : fault.at} ${fault.what}`
+    }
+  }
+  return null
+}
+
 // see AG-5
 /** @purity non-pure */
 function writeThroughTheOnePath(
@@ -673,23 +692,9 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     /** @purity non-pure */
     applyCommands(request: AgentWriteRequest): AgentWriteOutcome {
       const snapshot = source.readSnapshot()
-      if (request === null || typeof request !== 'object'
-        || (request.expectedStamp as unknown) === null
-        || typeof request.expectedStamp !== 'object'
-        || !Array.isArray(request.commands)
-        || request.commands.some(
-          (one) => one === null || one === undefined || typeof one !== 'object',
-        )) {
-        return {
-          ok: false,
-          refusal: agentRefusal(
-            'AM-7',
-            'malformedRequest',
-            snapshot,
-            'AM-7 takes { expectedStamp, commands }; one of the two is missing or not its shape',
-            [],
-          ),
-        }
+      const malformed = malformedWriteRequestWhat(request)
+      if (malformed !== null) {
+        return { ok: false, refusal: agentRefusal('AM-7', 'malformedRequest', snapshot, malformed, []) }
       }
       return writeThroughTheOnePath(
         wiring,

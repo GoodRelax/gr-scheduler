@@ -883,7 +883,7 @@ describe(`T-108 CM-77 .. CM-79: ${OUT_OF_RANGE_REFUSED}`, () => {
     const result = editAnnotation(document(), {
       kind: 'createHighlightBox',
       id: OTHER_ID,
-      range: { startDate: day(20), endDate: day(22), topTaskGroupId: ROW.E, bottomTaskGroupId: ROW.F },
+      range: { start: day(20), finish: day(22), topTaskGroupId: ROW.E, bottomTaskGroupId: ROW.F },
     })
     if (!result.ok) throw new Error(`refused: ${JSON.stringify(result.refusals)}`)
     const made = (result.document.schedule.highlightBoxes as unknown as readonly Record<string, unknown>[]).find((one) => one['id'] === OTHER_ID)

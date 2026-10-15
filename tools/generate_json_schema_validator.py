@@ -265,6 +265,11 @@ def ts_node(node, indent):
             lines.append('%s%s: %s,' % (inner, keyword, ts_scalar(value)))
         elif keyword in ('values', 'items'):
             lines.append('%s%s: %s,' % (inner, keyword, ts_node(value, indent + 1)))
+        elif keyword == 'alternatives':
+            lines.append('%salternatives: [' % inner)
+            for child in value:
+                lines.append('%s  %s,' % (inner, ts_node(child, indent + 2)))
+            lines.append('%s],' % inner)
         elif keyword == 'properties':
             lines.append('%sproperties: {' % inner)
             for key, child in value.items():
@@ -375,6 +380,9 @@ def build(schema):
     lines.append('  readonly values?: SchemaNode')
     lines.append('  readonly properties?: Readonly<Record<string, SchemaNode>>')
     lines.append('  readonly items?: SchemaNode')
+    # The shapes of table T-108 (generate_document_commands.py) choose one of
+    # several objects; the GRS JSON schema never does.
+    lines.append('  readonly alternatives?: readonly SchemaNode[]')
     lines.append('}')
     lines.append('')
     lines.append('const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {')

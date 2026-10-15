@@ -195,20 +195,20 @@ describe('PTL-11 -- Delete on picked arrows unlinks their children', () => {
 
   it('PTL-11 / SK-3: Delete writes setTaskParentTask with parentUid null for the picked arrow child', () => {
     const groups = unlinkBy(KEY.del, pick(link(P)))
-    expect(groups.flat()).toEqual([{ kind: 'setTaskParentTask', uid: P, parentUid: null }])
+    expect(groups.flat()).toEqual([{ kind: 'setTaskParentTask', uid: P, parentTaskUid: null }])
   })
 
   it('PTL-11 / SK-3: Backspace does the same', () => {
     const groups = unlinkBy(KEY.backspace, pick(link(F)))
-    expect(groups.flat()).toEqual([{ kind: 'setTaskParentTask', uid: F, parentUid: null }])
+    expect(groups.flat()).toEqual([{ kind: 'setTaskParentTask', uid: F, parentTaskUid: null }])
   })
 
   it('PTL-11 / FR-135: two picked arrows are unlinked in one call (one writes entry)', () => {
     const groups = unlinkBy(KEY.del, pick(link(P), link(F)))
     expect(groups.length).toBe(1)
     expect([...groups[0]!].sort((a, b) => Number(a['uid']) - Number(b['uid']))).toEqual([
-      { kind: 'setTaskParentTask', uid: P, parentUid: null },
-      { kind: 'setTaskParentTask', uid: F, parentUid: null },
+      { kind: 'setTaskParentTask', uid: P, parentTaskUid: null },
+      { kind: 'setTaskParentTask', uid: F, parentTaskUid: null },
     ])
   })
 
@@ -278,8 +278,8 @@ describe('PTL-3 / PTL-5 .. PTL-8 -- armed, a release picks and a drag links', ()
     const groups = writeGroupsOf(done.out)
     expect(groups.length, 'FR-135: one call').toBe(1)
     expect([...groups[0]!].sort((a, b) => Number(a['uid']) - Number(b['uid']))).toEqual([
-      { kind: 'setTaskParentTask', uid: C, parentUid: Q },
-      { kind: 'setTaskParentTask', uid: F, parentUid: Q },
+      { kind: 'setTaskParentTask', uid: C, parentTaskUid: Q },
+      { kind: 'setTaskParentTask', uid: F, parentTaskUid: Q },
     ])
     expect(kindsOf(done.selection)).toEqual([`task ${C}`, `task ${F}`].sort())
   })
@@ -287,7 +287,7 @@ describe('PTL-3 / PTL-5 .. PTL-8 -- armed, a release picks and a drag links', ()
   it('PTL-6: a drag from a bar outside S replaces the selection with that bar and links it alone', () => {
     const scene = sceneOf(DRAWN, pick(task(F)), true)
     const done = gesture(scene, centerOf(barOf(scene, C)), centerOf(barOf(scene, Q)))
-    expect(writeGroupsOf(done.out).flat()).toEqual([{ kind: 'setTaskParentTask', uid: C, parentUid: Q }])
+    expect(writeGroupsOf(done.out).flat()).toEqual([{ kind: 'setTaskParentTask', uid: C, parentTaskUid: Q }])
     expect(kindsOf(done.selection)).toEqual([`task ${C}`])
   })
 
