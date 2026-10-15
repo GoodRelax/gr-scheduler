@@ -1,4 +1,5 @@
-75
+74
+# LOWERED 75 -> 74 on 2026-10-16 (JDG-520): measured on 0ed0c093 (the CR-772 implementation, 9a6432c6) while writing the CR-772 spec-only tests; check 45 printed 74 groups. Hold the ground.
 # LOWERED 76 -> 75 on 2026-10-15 under JDG-520 (the coordinator may lower): measured on b8fe0d50 (after CR-769 and CR-770) while applying CR-771; check 45 printed 75 groups. Hold the ground.
 # LOWERED 78 -> 77 on 2026-10-11 (JDG-520): CR-710 wave 2 folds the non-working shade box (shadeBoxOf) both the day and the hour tiers draw with.
 # LOWERED 79 -> 78 on 2026-10-10 (JDG-520): the DFC-2410/2411/2412 fix folds the unstored-zoom writes into unstoredZoomWrites.

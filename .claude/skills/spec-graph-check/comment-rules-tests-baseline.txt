@@ -40,7 +40,8 @@
 # LOWERED 2026-10-04 to the measured value (tree density 1720 -> 1711 bp) under JDG-520: the CR-652 test file added 17 cases with few comments.
 # LOWERED 2026-10-11 to the measured values (tree density 1476 -> 1458 bp, if-1-svg-surface 86 -> 65) under JDG-520: the CR-710 reconcile, measured on abdafc0c plus its edits.
 # LOWERED 2026-10-15 to the measured value (tree density 1406 -> 1381 bp) under JDG-520: the CR-766 spec-only tests (61139053) added 618 cases with few comments.
-tree-density-basis-points 1381
+# LOWERED 2026-10-16 to the measured values (tree density 1381 -> 1372 bp, four files: t-233 553 -> 549, t-051-hf-14 depth cap 256 -> 242, t-051-hf-15 588 -> 356, uf-72 2534 -> 2483) under JDG-520: the CR-772 implementation (9a6432c6) rewrote those tests; the CR-772 spec-only tests add no held comment line.
+tree-density-basis-points 1372
 tests/contract/display-words.contract.test.ts 1253
 tests/contract/document-invariants.contract.test.ts 341
 tests/contract/erd-seats-are-never-reissued.contract.test.ts 0
@@ -53,7 +54,7 @@ tests/contract/if-7-snapshot-source.test.ts 173
 tests/contract/seams.contract.test.ts 77
 tests/contract/spec-table-reads-the-whole-cell.contract.test.ts 67
 tests/contract/spec-table.ts 199
-tests/contract/t-233-reason-words-tell-the-row.contract.test.ts 553
+tests/contract/t-233-reason-words-tell-the-row.contract.test.ts 549
 tests/contract/units.contract.test.ts 0
 tests/fixtures/display-scale.ts 0
 tests/fixtures/fake-browser.ts 77
@@ -183,8 +184,8 @@ tests/unit/t-024a-op-14-a-handed-document-that-cannot-be-read.test.ts 130
 tests/unit/t-027-outside-the-history.test.ts 0
 tests/unit/t-050-a-document-always-holds-one-task-group.test.ts 116
 tests/unit/t-051-hf-14-a-raised-task-group-is-visible.test.ts 246
-tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts 256
-tests/unit/t-051-hf-15-grabbing-a-task-group.test.ts 588
+tests/unit/t-051-hf-14-the-depth-cap-refuses-a-task-group.test.ts 242
+tests/unit/t-051-hf-15-grabbing-a-task-group.test.ts 356
 tests/unit/t-051-hf-17-adding-a-task-group-walks-the-rename-road.test.ts 250
 tests/unit/t-051-hf-17-unfolds-segment-zero-by-one-level.test.ts 113
 tests/unit/t-051-hf-6-ground-under-the-task-group-controls.test.ts 412
@@ -208,7 +209,7 @@ tests/unit/uf-50.test.ts 325
 tests/unit/uf-51.test.ts 0
 tests/unit/uf-71-confirmation.test.ts 706
 tests/unit/uf-71.test.ts 1421
-tests/unit/uf-72-screen-part.test.ts 2534
+tests/unit/uf-72-screen-part.test.ts 2483
 tests/unit/uf-8-9-history-depth.test.ts 0
 tests/unit/uf-8-9-replace-document.test.ts 538
 tests/unit/use-case.test.ts 0

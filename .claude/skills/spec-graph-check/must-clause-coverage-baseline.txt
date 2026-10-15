@@ -1,4 +1,5 @@
-2079
+2057
+# LOWERED 2079 -> 2057 on 2026-10-16 (JDG-520): the CR-772 spec-only tests quote 22 HF-15 clauses (one drag sets the gap and the depth, the range and its silent stop, the parent and the order, the drop drawing, the edge scroll, the wheel), plus HM-3a, UC-002 2a and UF-97.
 # LOWERED 2081 -> 2079 on 2026-10-15 (JDG-520): the CR-766 spec-only tests quote the FR-019 CM-46 five-nulls MUST and the FR-057 CM-39 exception-time MUST.
 # LOWERED 2088 -> 2084 on 2026-10-15 (JDG-520): the CR-768 spec-only tests quote the FR-096 media-type MUST and MUST NOT, the FR-096 order and IO-6 clauses, and SX-2.
 # LOWERED 2091 -> 2089 on 2026-10-15 (JDG-520): the CR-764 spec-only tests quote RW-19 and FR-130.
