@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 386 | 4834 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 387 | 4847 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 91 | 589 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3867 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 679 | 9400 | 11 | 8 | 13 | 2 |
+| **all** | | | 680 | 9413 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -529,6 +529,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-286-fr-044-emptying-a-set-resume-date-clears-resume-valid.test.ts` | 12 | FR-006, FR-044 | - | T-016, T-019, T-019a, T-108, T-216, T-218 | PA-2, PA-3, PA-4, PR-7, PR-8, PR-15, PS-3, PS-4, PS-5, TS-2, TS-6 | - | - | - | - |
 | `tests/contract/dfc-288-d-289-fr-099-deleting-the-chosen-assignees.test.ts` | 19 | FR-029, FR-038, FR-099 | - | T-037, T-050, T-060, T-062, T-066, T-075, T-108, T-109, T-218, T-233, T-234 | CD-5, CM-42, CP-25, CS-2, IC-62, IC-65, IC-66, IC-67, IC-68, LY-5, NT-7, QN-3, RS-27, TS-2, TS-6, UF-48 | - | - | - | - |
 | `tests/contract/dfc-290-d-321-fr-033-copy-and-paste-reach-the-document.test.ts` | 16 | FR-031, FR-033, FR-038, FR-076, NFR-004 | - | T-014, T-023c, T-036, T-037, T-050, T-062, T-066, T-075, T-103, T-218, T-223, T-233 | CD-2, CM-8, CM-28, CP-25, CS-2, DU-1, DU-2, IN-1, RS-24, RS-27, S-89, SK-4, SK-5, SL-2, ST-7, TS-6, U-22, UF-48 | - | - | - | - |
+| `tests/contract/dfc-2912-a-highlight-box-released-unmoved-is-no-edit.test.ts` | 13 | FR-031, FR-100, FR-103 | - | T-246 | GR-14, HB-3, HB-4, HB-7, HB-10, HB-11, HB-12 | - | - | - | - |
 | `tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts` | 11 | FR-012, FR-043 | - | T-019, T-033, T-059, T-108, T-218 | CM-9, CM-11, CM-13, CM-14, CM-15, DV-11, EX-2, PA-1, PS-2, TS-2, TS-6 | - | - | - | - |
 | `tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts` | 13 | FR-048, FR-082, FR-083 | VT-2 | T-023a, T-023b, T-027, T-028, T-029a, T-062, T-064, T-103, T-109, T-218, T-280 | AR-1, AR-4, AR-7, CP-18, DC-1, DC-2, DC-4, DC-9, IC-45, IN-1, IN-4, PI-18, PTD-2, PTD-5, S-65, SP-1, SP-4, TS-6, U-26, UF-48, UN-16 | - | - | - | - |
 | `tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` | 7 | FR-027, FR-051, FR-052, FR-055, FR-076, FR-102 | - | T-023d, T-024a, T-027, T-031, T-034, T-035, T-062, T-206, T-218 | AG-9, BT-4, CP-19, CP-25, GR-21, IC-76, IF-9, OP-10, S-77, S-78, S-176, S-177, S-205, SC-4, TS-6, UF-48, UF-61, UN-8, WS-2 | - | - | - | - |
