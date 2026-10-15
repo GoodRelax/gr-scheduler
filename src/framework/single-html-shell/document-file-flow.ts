@@ -152,8 +152,6 @@ const READING_BROKE_REASON: NoticeReason = 'RS-75'
 // see IF-3
 const WRITING_BROKE_REASON: NoticeReason = 'RS-76'
 
-const NEWER_FORMAT_REFUSED_REASON: Extract<NoticeReason, JsonRefusalReason> = 'RS-64'
-
 // see EX-3
 const WORK_NOT_REWRITTEN_REASON: NoticeReason = 'RS-77'
 
@@ -325,7 +323,7 @@ function decodedDocument(
     : null
 }
 
-// see FR-073, RS-64
+// see FR-073, FR-076, RS-25, RS-64, RS-67
 /** @purity non-pure */
 function acceptedIntake(
   hands: Pick<DocumentFileFlowHands, 'raiseNotice'>,
@@ -333,9 +331,7 @@ function acceptedIntake(
 ): DecodedIntake | null {
   if (decoded === null) return null
   if (!('refusal' in decoded)) return decoded
-  if (decoded.refusal === NEWER_FORMAT_REFUSED_REASON || decoded.refusal === NOT_OPENABLE_HTML_REASON) {
-    hands.raiseNotice(decoded.refusal, null)
-  }
+  hands.raiseNotice(decoded.refusal, null)
   return null
 }
 
@@ -980,8 +976,7 @@ type HandedFirstReading = Pick<HandedImport, 'unreadColumns' | 'isNewerFormat'> 
 }
 
 // see AM-8, FR-022, FR-073
-// TRAP: the handed document was decoded once already and its unread columns dropped there;
-// reading its text again finds none, so a caller that has the first reading must pass it.
+// TRAP: the handed document's unread columns were dropped at its first decode; a caller holding that reading passes it.
 /** @purity non-pure */
 export async function takeInHandedDocument(
   hands: DocumentFileFlowHands,
