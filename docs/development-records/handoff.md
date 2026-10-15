@@ -5,7 +5,24 @@
 ⛔ **公開なので、個人情報・絶対パス・秘密を書かないこと。**
 ⛔ **本書は状態だけを持つ** —— 着地・止めたもの・次にやること・利用者の確認待ち。**学びと規則は `docs/development-rules/` へ下ろす**（規則 05 の 1）。検査 72 が、最新の日付の節の外に残った学びを赤にする。
 
-> 🆕⭐ **2026-10-11〜15 の巡（調整役 nostalgic-wilson）—— 本節が最新。** ⛔ 数は測り直せ（`git log -1 origin/refactor`・`git log -1 origin/main`）。測った範囲 `2bb7d3ce..bf75ab22`（2026-10-15。`git log --oneline` と `--merges`、`git diff --name-only` で数えた）: 101 コミット（合流 35・それ以外 66）、311 ファイル。変更履歴は `4.38`〜`4.59` の 18 版（`grep -cE '^\| 4\.(3[89]|4[0-9]|5[0-9]) '`。`4.46` と `4.53`〜`4.55` は使われなかった欠番）。
+> 🆕⭐ **2026-10-15〜16 の巡（調整役 nostalgic-wilson の 2 期目。コンテキストを 1 度圧縮した）—— 本節が最新。** ⛔ 数は測り直せ（`git log -1 origin/refactor`・`git log -1 origin/main`）。測った範囲 `bf75ab22..6fbb69fe`（2026-10-16。`git rev-list --count` と `--merges`、`git diff --name-only` で数えた）: 235 コミット（合流 81）、832 ファイル。変更履歴は `4.60`〜`4.84` の 25 版（`grep -cE '^\| 4\.(6[0-9]|7[0-9]|8[0-9]) '`）。
+> - **枝**: 統合の枝 `integ/coord-1011`（作業木 `nostalgic-wilson-2f0799`）の先端 `6fbb69fe`。⛔ この巡の `src`／`dist` の変更は **まだ 1 つも push していない**（origin は `bf75ab22` にデータだけの push を足した姿。測れ）。根（`refactor` のチェックアウト）は利用者が `96cb8168` まで早送りした。
+> - **着地**（統合の枝に在る。push は GT-2 の後）: `CR-740`・`CR-751`〜`766`・`CR-768` の A と B・`CR-769`〜`771`（英語の名）・`CR-772`（タスクグループは 1 回のドラッグで順序と段を決める。利用者の最優先）・`CR-773`（利用者が答えた 6 つの裁定）・`DFC-2309`（開けないファイルを黙って捨てない）・`DFC-2765`（変更前の予定の輪郭）・紹介頁の表紙（`.md` の仕様へのリンクと見本 2 本）とダーク／ライトの切り替え・計画 `docs/development-records/project-plan.json`（`f943daf3`。前の計画は `previous-plan.json`）。各 CR は仕様だけを読む試験の体が試験を書いた（`CR-773` だけは既存の試験の直しまで）。
+> - **関門の今**: 根の GT-2 が 2 回止まった —— ① `CR-772` の試験の型の誤り（`96cb8168` で直した）② `tests/unit/uf-36.test.ts` が `CR-769` の前の列名を期待していた（`6fbb69fe` で直した。この試験は MSPDI のスキーマが在る所でしか走らない）。作業木でスキーマを写して `node tools/gate/run-gate.mjs GT-2` を直に流している（結果は前の調整役の作業メモ）。⛔ 流し終えたら作業木の `docs/reference/mspdi` を消すこと（追跡外だが残すな）。
+> - **次にやること（順に）**:
+>   1. 作業木の GT-2 が緑なら、利用者に根で `git merge --ff-only <先端の sha>` を頼み、`node tools/gate/gate-queue.mjs enqueue GT-2` → 根で `GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain`。`GT-2 <sha> passed` を grep してから `git push origin <sha>:refactor <sha>:main`、`gh workflow run pages.yml --ref main`。
+>   2. 性能の試験（利用者の指示）: GT-2 は性能を測らない。`enqueue PERF` → `GRS_PERF=1 ... drain`（OneDrive を止めてから）。赤のときだけ利用者を呼ぶ（`JDG-605`）。
+>   3. `CR-774`（深さの上限 5 に当たって離したら Yes／No で問う。`JDG-2393` を一部覆す）: 席「Hear improvement point 2」が起草と仕様の段を当てた —— `36c8e3d2`（枝 `claude/keen-swartz-459eef`、`6fbb69fe` の上。残る赤は検査 39 の 2057→2061 だけ、tsc 0）。統合の枝へ合流し、実装の体（CR-774 の 5.1 節の表が継ぎ目）→ 仕様だけを読む試験の体（5.2 節の 8 項目。書き直すのは cr-772 の契約試験 3 本と t-051-hf-15）を出す。帯は `JDG-2398`／`2399`・`2410`〜`2414`、`DFC-2907`〜`2909`、変更履歴 `4.85`、perf-pending `222`。同じ席が `CR-772` の Q2（親の枠の太さ。仮置き 3px）を利用者に問う。
+>   4. 完了確認の残り: 席に目的を果たしたかを問い、果たしていれば「問題なし」で完了を宣言させる（利用者の指示）。19 席は完了を宣言済み。「Apply CR-758」は目的を果たしたと答えた（`DFC-2705`〜`2707` を次へ回す）—— 「問題なし」をまだ返していない。まだ送っていない: 「Apply CR-759 and CR-760」・「Move memory-only rules into machine checks」・「Draft the one-page user checklist」・「Apply CR-740」・「Apply CR-763」・「Draft CR-763/764」。⛔ ほかの席への送信は、利用者の書き込み 1 回につき 10 通まで（アプリの歯止め）。
+>   5. α 版（10/19 に人に見せる）に何を入れるかは利用者と決める（`JDG` の行は無い。利用者 2026-10-15「どの実装に入るかは俺と協議の上で決めろ」）。週の使用量は 2026-10-16 04:40 に 51%（水 19:00 に戻る）。候補: `JDG-2361`（命令の値 19 の名を列の名へ。新しい CR、約 3 時間）・`CR-767` の実装（状態機械の JSON と UML。`JDG-2362`〜`2364`）→ `CR-768` の C・`CM-27` の注（`DFC-2855` は誤報と分かった）・`DFC-2911`（コメントボックスの先端の吸い付き。大）・`DFC-2912`・`DFC-2856`・`DFC-2903`・`DFC-557`・`DFC-2870`・`DFC-2890`／`2891`・`DFC-2700`〜`2702`・`DFC-2730`（古い STOP の印 16）・`DFC-2640`。最後に 1 枚の利用者のチェックリスト。
+> - **番号**（2026-10-16、`6fbb69fe` で grep した行の最大 ＋ 1。⛔ 配る前に測り直せ。`CR-774` の席の帯は除く）: `JDG` は `2415` から・`DFC` は `2913` から・`PND` は `895` から・`CR` は `775` から・変更履歴は `4.86` から・perf-pending は `223` から・見本のフォルダは `59` から・検査は `82` から。
+> - **罠（いまの姿。短く）**:
+>   - `gate-queue.mjs drain` は根でだけ回り、根の HEAD が順番待ちの sha と違えば捨てる。根を動かすのは利用者。早送りで git が「Deletion of directory … Should I try again? (y/n)」と問うたら `n`（空のフォルダが残るだけ）。
+>   - `gate-queue.mjs run -- node tools/gate/run-gate.mjs` は、中の `run-gate` が同じ錠を取りに行って自分を待ち続ける。`run-gate` は直に回す。
+>   - MSPDI のスキーマを読む試験は作業木では飛ぶ。体の「全体が緑」は根では赤になりうる。作業木で全体を回すときは根の `docs/reference/mspdi` を写し、終わったら消す。
+>   - 仕様だけを読む試験の体の分を合流したら、型の検査を必ず回す（vitest は型を見ない）。
+
+> **2026-10-11〜15 の巡（調整役 nostalgic-wilson）—— 前の節（2026-10-15〜16 の巡が引き継いだ。数と席は古い）。** ⛔ 数は測り直せ（`git log -1 origin/refactor`・`git log -1 origin/main`）。測った範囲 `2bb7d3ce..bf75ab22`（2026-10-15。`git log --oneline` と `--merges`、`git diff --name-only` で数えた）: 101 コミット（合流 35・それ以外 66）、311 ファイル。変更履歴は `4.38`〜`4.59` の 18 版（`grep -cE '^\| 4\.(3[89]|4[0-9]|5[0-9]) '`。`4.46` と `4.53`〜`4.55` は使われなかった欠番）。
 > - **枝**: 調整役は自分の作業木の統合の枝 `integ/coord-1011`（`2bb7d3ce` から）で積む。根（`refactor` のチェックアウト）は早送りだけ、関門（GT-2）は根で回す。`git push origin <sha>:refactor` と `git push origin <sha>:main` は、GT-2 が `GT-2 <sha> passed` の行を出した sha にだけ打つ（判定の行の sha を目で確かめてから。push は単独の 1 コマンド）。アプリの変更が入ったときは、その後に `gh workflow run pages.yml --ref main`。データだけの push は GT-2 なしで、個人情報の数を測ってから問わずに打つ（`JDG-1965`）。体は作業木で `git merge --ff-only <調整役の sha>` から始める。いまの先端（2026-10-15 に測った）: `origin/refactor` ＝ `origin/main` ＝ 根 ＝ `bf75ab22`（`CR-748`〜`750` と GT-2 で見つけた試験の直し。GT-2 が通り、push 済み。Pages の配備も起こした）。この巡の push は 15 回（調整役の記録で数え、15 の sha がすべて範囲に在ることを `git log` で確かめた。GT-2 を通したのは `c581c5df`・`fc7d354e`・`bf75ab22`、残りはデータだけ —— 紹介頁の 9 回と台帳・見本）。
 > - **着地**（`bf75ab22` まで push 済み）:
 >   - CR（`change-request/` に在る）: `CR-733`（表のウィンドウはどこを押しても前に出る。4.38）・`CR-735`（依存線を 1 本だけ名指して消す命令と `FA-3`、`VC-9`〜`VC-12` は明記の親だけ。4.39）・`CR-737`（列の境目のフィルタの入口を掴み代の外へ、表のウィンドウの上のポインタの形。4.40）・`CR-738`（`VC-3` は同じ向きの線だけ。4.41）・`CR-739`（上の縁がタイトルバーに勝ち、見出しのセルは指の形。4.42）・`CR-736`（範囲選択の矩形を重ねの SVG へ。4.44）・`CR-710`（分刻みの日程。波 0 の仕様 4.43、波 3b が 4.47・波 2b が 4.48・合わせの体が 4.49。波 1・2・3a は版を足していない）・`CR-741`（時刻の無い日付・境目・秒の 3 つの端。4.45）・`CR-742`（遅延診断は日で比べる・単位の無い量の語・基準の変更は入口で当てる。仕様 4.50）・`CR-743`（休日の設定の面。仕様 4.51）・`CR-744`（MS Project を開いたときのタイムゾーンの知らせ `RS-90` は時間で消える。4.52）・`CR-742`／`743`／`744` の `src` の 4 つの体の合わせ（4.56）・`CR-748`（ヘルプから紹介頁へのリンク `S-583`。4.57）・`CR-749`（完了率の数え直しは暦の索引を 1 度だけ作る。4.58）・`CR-750`（`RS-90` の次の一手は [基準を変える] を押すまで。4.59）。`CR-740` は `DFC-2446` の下の絵の覚え置きのために予約したまま（本文は無い）。`CR-745`〜`747` は聞き取りの席に配り、返された（使っていない）。
@@ -202,36 +219,35 @@
 利用者はこの節のブロックをそのまま新しいセッションに貼る。巡ごとに本節も書き換える。
 
 ```text
-あなたは新しい調整役である（2026-10-15 に前の調整役 nostalgic-wilson がコンテキスト満杯で引き継いだ）。調整だけをする（利用者の裁定）—— 仕事は提案チップ（セッション）と作業木の体（Agent）で配り、帯・持ち場・順・合流・push の口を 1 人で持て。並行は 〜5 セッションでよい。ほかのセッションは提案チップを出す前にあなたの許しを得る（JDG-950）。説明は日本語、コードとコミット文は英語 ASCII。
-唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-11〜15 の巡（調整役 nostalgic-wilson））から読め。次にメモリーを読め: coordinator-handover-2026-10-01（その 2026-10-15 の段）・coordinator-only-role・gt2-read-the-verdict-before-push・data-only-push-no-ask・ask-one-by-one-with-options・rulings-concrete-names-and-options・merge-count-ids-both-sides・session-guard-own-worktree-only・pages-deploy・mechanical-work-goes-to-a-body・tester-bodies-leave-stray-background・worktree-sweep-windows-locks・never-report-unrun-actions。
+あなたは新しい調整役である（2026-10-16 に前の調整役 nostalgic-wilson が、コンテキストを 1 度圧縮したので引き継いだ）。調整だけをする（利用者の裁定）—— 仕事は席（セッション）と作業木の体（Agent）で配り、帯・持ち場・順・合流・push の口を 1 人で持て。説明は日本語、コードとコミット文は英語 ASCII。
+唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-15〜16 の巡）から読め。次にメモリーを読め: alpha-scope-by-agreement・coordinator-handover-2026-10-01・coordinator-only-role・gt2-read-the-verdict-before-push（根の HEAD の段）・onedrive-stays-ask-user・rulings-in-origin-session・questions-stay-with-drafting-session・merge-count-ids-both-sides・never-report-unrun-actions・spec-driven-tests-by-another-agent。
 
 0. 今の姿（⛔ 信じず測れ: git log -1 origin/refactor・git log -1 origin/main）
-   - 2026-10-15 に origin/main ＝ origin/refactor ＝ 根（refactor のチェックアウト）＝ bdec0735。すべて push 済み、Pages も配置済み。58c98588 より後はデータだけ（進捗の表 2026-10-15）。
-   - 自分の作業木に統合の枝を切って積む（前の巡は integ/coord-1011）。根は早送りだけ。⛔ main では直接作業しない。タグは利用者が打つ。
-   - GT-2 は根で回す: node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_PERF=1 GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。⛔ GT-2 の前に毎回、利用者に OneDrive を終了してもらう（同期が 5 秒・30 秒の時間切れを起こした。止めると vitest は約 470 秒に戻った）。
-   - push は grep -q "GT-2 <sha> passed" <ログ> を確かめてから、git push origin <sha>:refactor <sha>:main を単独の 1 コマンドで。アプリか公開の頁が変わったら gh workflow run pages.yml --ref main。データだけ（src/ と dist/ の変更が 0）の push は GT-2 不要: python tools/privacy_count.py --range の数が 0 なら問わずに push（JDG-1965）。
-1. 前の調整役の作業メモ（リポジトリの外。読むだけ。パスをリポジトリに書くな）: %LOCALAPPDATA%\Temp\claude\ の下の、名前に nostalgic-wilson-2f0799 を含むフォルダの scratchpad。coord-notes-2026-10-11.md（巡の記録）・common-brief.md（体が読む共通の指示）・cr-body-brief.md（BASE_SHA の行を直して使う）・cr742-743-src.md（並行の波の型: 継ぎ目の名を逐語でそろえた 1 枚の指示 → 体 4 つ → 合わせの体 1 つ）・rowwise3.py／keepboth.py／cellunion.py（台帳の合流の道具）・sweep\（作業木の掃除の .ps1。利用者が流す）。要るものを自分の scratchpad へ写せ。
-2. 席（ListAgents で見て、動いている席に自分の名を送る）
-   - 「Hear the new defects and improvement points」—— 動いている。2026-10-15 に利用者から 11 件を受け付けた（時間軸の見出しの左上にタイムゾーンの略称、設定パネルに [×] が無い、テーマ色のアイコンに説明が無い、全体表示の期間の日付欄の見切れ、設定パネルの横スクロールバー、「グローバルタイム（UTC）を保つ／ローカルタイムを保つ」の意味が分からない、ゾーンの一覧に JST などの略称が無い、米国の夏時間（PDT など）が無い、分単位でダミーの実績が 0:00 始まり、再開予定日と期限に時分が無い、設定に全体を日単位でずらす機能）。記録と対応策の検討だけ（仕様とコードには入らない —— 利用者の指示）。帯は DFC-2515〜2539・JDG-2043〜2062・PND-885〜894、枝 claude/youthful-shirley-73f233。表が届いたら、直す段取りを組み、利用者の裁定を 1 問ずつ問う。
-   - 「Make a one-file HTML page introducing GRS」（docs/about/）—— データだけの回を送ることがある。JDG-2037 を持つ。さらに使う前に帯を問わせる。
-   - 閉じた席: 「Redraw the project progress at minute level」（進捗の表を push 済み、UID の hwm 2401）・「Hear and fix the bugs the user reports」（DFC-2491 を直し、DFC-2492 は取下げ）。
-   - サイドバーの「gr-scheduler 調整役引き継ぎ」は、おおもとのセッション（グループの見出し）で、止まっている。連絡しない。
-3. 次の番号（⛔ 配る前に grep で測り直せ）: JDG 2063・DFC 2540・PND 895・CR 752（CR-740 は DFC-2446 の予約、CR-751 は進捗の席の GRS JSON のスキーマの更新案）・変更履歴 4.60・perf-pending 200・見本のフォルダ 53・検査 78。配り直してよい使い残し: DFC 2474〜2481・2483〜2490・2506〜2512・2514（2493〜2505 は進捗の席がスキーマの穴の 13 行に使う）、perf 178・185・189・193〜195。
+   - 統合の枝 integ/coord-1011 は前の調整役の作業木 .claude/worktrees/nostalgic-wilson-2f0799 に在る。先端は 6fbb69fe（＋引継書のコミット）。あなたは自分の作業木で git merge --ff-only <その先端> から積め。根（refactor のチェックアウト）は利用者だけが早送りする（96cb8168 まで済み）。
+   - この巡の src／dist の変更はまだ push していない。push は GT-2 の後に refactor と main へ 1 回。
+   - GT-2 は根でだけ回る: node tools/gate/gate-queue.mjs enqueue GT-2 → 根で GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。根の HEAD が順番待ちの sha と同じでないと捨てられる —— 先に利用者に早送りを頼む。OneDrive は利用者に止めてもらう。
+   - push は grep -q "GT-2 <sha> passed" <ログ> を確かめてから git push origin <sha>:refactor <sha>:main を単独の 1 コマンドで。続けて gh workflow run pages.yml --ref main。
+   - 性能の試験は GT-2 に入っていない: enqueue PERF → GRS_PERF=1 で drain。利用者が「一通り実装して単体試験が終わったら性能の試験」と言った。
+1. 前の調整役の作業メモ（リポジトリの外。読むだけ。パスをリポジトリに書くな）: %LOCALAPPDATA%\Temp\claude\ の下の、名前に e336a5f1 を含むフォルダの scratchpad。coord-notes-2026-10-15.md（巡の記録）・brief-*.txt（体への指示の型。tools/session_brief.py が刷る）・carry_rulings.py と resolve766.py（台帳の合流）・handoff-new-section.md。作業木で直に流した GT-2 のログは %TEMP%\claude\gt2-local-6fbb69fe.log。
+2. 席
+   - 「Hear improvement point 2」（local_25526e50）—— CR-774 の仕様の段を 36c8e3d2 にコミットした。CR-772 の Q2（親の枠の太さ）を利用者に問うている。答えを記録したら sha を送ってくる。
+   - 「Apply CR-758」（local_a9da7bfd）—— 目的を果たしたと答えた。「問題なし。DFC-2705〜2707 は調整役が預かる。セッション完了を宣言して止まれ」と返せ。
+   - 完了確認をまだ送っていない席: Apply CR-759 and CR-760・Move memory-only rules into machine checks・Draft the one-page user checklist・Apply CR-740・Apply CR-763・Draft CR-763/764。問い方は coord-notes の「完了確認」の文。⛔ 他のセッションへの送信は、利用者の書き込み 1 回につき 10 通まで。
+   - ほかの 19 席は完了を宣言して止まった。連絡しない。
+3. 次の番号（⛔ 配る前に grep で測り直せ）: JDG 2415・DFC 2913・PND 895・CR 775・変更履歴 4.86・perf-pending 223・見本のフォルダ 59・検査 82。CR-774 の席の帯（JDG 2398／2399・2410〜2414、DFC 2907〜2909、4.85、perf 222）は除く。
 4. 次にやること（順に）
-   1) 聞き取りの席の表を受け、11 件の直しを組む（いくつかは CR-710 の後追い）。
-   2) 1 枚の利用者のチェックリスト（実測待ちの行の「利用者の手順」を画面ごとに）。利用者が確かめるのは、AI 以外の不具合が全部直った後に 1 回。
-   3) DFC-2482（時刻を表示しているときの Ctrl の写しと日の寄せ —— 裁定待ち）・DFC-2513（CR-749 のメンバの名）・DFC-2446 と DFC-2447／2448 → CR-740・DFC-2380（依存線の張り出し。CR が要る。手順は行に在る）。
-   4) 残り: DFC-2303、罠 DFC-544／547／548／549、用語集の JSON DFC-2175、W4 の分割、W5 の異常系（DFC-586・DFC-922）、AI 連携（CR-695・CR-697・DFC-2214／2215）、DFC-730（GP-1）。
-   5) OneDrive: 一部のフォルダだけを同期から外すことはできず、「フォルダーの選択」で外すと手元のコピーが消える。安全なのはリポジトリを OneDrive の外へ移すこと（全セッションを閉じた区切りで）。利用者が望めば手順を 1 枚で出す。取り込み済みの体の作業木は定期的に掃く（.ps1 は利用者が流す）。
-   JDG-1740 は生きている: 解明・リファクタ・分刻みが終わるまで正式公開しない。
+   1) 作業木の GT-2 の結果を読む。緑なら引継書のコミットまで含めた先端で、根の早送り → GT-2 → push → Pages。赤なら直してから。
+   2) PERF（性能の試験）。
+   3) CR-774: 36c8e3d2 を合流 → 実装の体（CR-774 の 5.1 節）→ 仕様だけを読む試験の体（5.2 節）。CR-772 と同じ型。合流したら tsc を必ず回す（vitest は型を見ない）。
+   4) α 版（10/19 に人に見せる）に何を入れるかを利用者と決める。週の使用量は 10/16 04:40 に 51%。候補は引継書の 🆕 の節の 5。決まるまで新しい実装は始めない（利用者の指示）。
+   5) 1 枚の利用者のチェックリスト（実測待ちの行の「利用者の手順」を画面ごとに）。
 5. 毎回の約束
-   - 並行の体は継ぎ目の名を逐語でそろえた 1 枚の指示から出し、合流の後に合わせの体を 1 つ。仕様だけを読む試験の体は、辞書に節を足す CR やリンクの宛先を足す CR では display-words の契約試験と NFR-004 も回す（CR-748 の後に GT-2 が 2 つとも拾った）。
-   - 生成物の合流は片側を採って作り直す。台帳の合流のたびに両側の ID を数える。着地した CR に追記しない（新しい番号）。仕様とコードの食い違いは側を選ばずに defects.md へ、そのあと利用者に 1 問。
-   - 体に作業木や node_modules の junction を作らせない。git stash をさせない。git add -A／-u は使わない（フックが止める）—— パスを名指す。日本語を含む台本は Bash の heredoc ではなく Write で書く。大きな測りの出力は作業木の外へ。
-   - e2e と check.sh は GRS_DEV_PORT=5991（5992 は GT-2 の口）。検査は終了コードで判じる（rm -rf output を先に）。基準線は下げ・掃除は調整役が書いてよい（JDG-520）、上げは利用者に問う。
-   - 利用者の裁定が要るときは、場面・画面の名（日英）・2〜4 の案の比較・推奨と根拠を、1 問ずつ。
+   - 体の作業木は git merge --ff-only <あなたの sha> から始め、node_modules の junction を作らせない。git stash をさせない。git add は名指し。
+   - 仕様だけを読む試験は実装の体と別の体が書く（継ぎ目の名を逐語で渡す）。MSPDI のスキーマを読む試験は作業木では飛ぶ —— 全体を作業木で回すなら根の docs/reference/mspdi を写し、終わったら消す。
+   - 生成物の合流は片側を採って作り直す。台帳の合流のたびに両側の ID を数える。着地した CR に追記しない（新しい番号）。
+   - 基準線は下げ・掃除は調整役が書いてよい（JDG-520）、上げは利用者に問う。利用者の裁定は、詳細を調べた子の席から 1 問ずつ問わせる。調整役は問わない。
    - コミット／push は許可済み（gr-scheduler に限る）。コミットの前に毎回 python tools/privacy_count.py --staged の数を報告。⛔ MSPDI の XSD と SDK から取り出したファイルは、絶対にコミットも push もしない。
-   - コンテキストが ~85% に近づいたら、区切りで本節を書き換えて引き継ぐ。
+   - コンテキストを 1 度圧縮したら、区切りで本節を書き換えて引き継ぐ。
 ```
 
 ---
