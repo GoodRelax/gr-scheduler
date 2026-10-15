@@ -975,6 +975,7 @@ interface ShownFixRow {
   readonly row: DelayFixRow | DelayFixLogRow
   readonly cells: readonly string[]
   readonly columns: readonly string[]
+  readonly blankWord: string
 }
 
 /** @purity pure */
@@ -987,9 +988,17 @@ function fixCellOf(shown: ShownFixRow, column: string): string {
   return shown.cells[shown.columns.indexOf(column)] ?? BLANK_SEARCH_VALUE
 }
 
+// see SV-7, SV-8, FM-7
+// WHY: a cell that shows the blank word holds the empty value, so it lists as (Blanks) and sorts last.
+/** @purity pure */
+function fixValueOf(shown: ShownFixRow, column: string): string {
+  const text = fixCellOf(shown, column)
+  return text === shown.blankWord ? BLANK_SEARCH_VALUE : text
+}
+
 // see T-374, SV-7, SV-8, FM-2
 const FIX_TABLE: TableColumns<ShownFixRow> = {
-  values: Object.fromEntries(FIX_COLUMNS.map((column) => [column, (shown: ShownFixRow) => [fixCellOf(shown, column)]])),
+  values: Object.fromEntries(FIX_COLUMNS.map((column) => [column, (shown: ShownFixRow) => [fixValueOf(shown, column)]])),
   dates: {
     [FIX_DATE_COLUMN]: (shown) => (shown.columns.includes(FIX_DATE_COLUMN) ? fixCellOf(shown, FIX_DATE_COLUMN).replace(/\//g, '-').slice(0, 10) : null),
   },
@@ -1023,9 +1032,9 @@ function isFixWordFound(shown: ShownFixRow, word: string): boolean {
 /** @purity pure */
 function shownFixRowsOf(table: FixTable, tables: DelayFixTables, words: FixWords): readonly ShownFixRow[] {
   if (table === 'log') {
-    return delayFixLogRowsInOrder(tables.log).map((row) => ({ row, cells: delayFixLogCells(row, words.cells, FIX_COLUMNS), columns: LOG_COLUMNS }))
+    return delayFixLogRowsInOrder(tables.log).map((row) => ({ row, cells: delayFixLogCells(row, words.cells, FIX_COLUMNS), columns: LOG_COLUMNS, blankWord: words.cells.empty }))
   }
-  return tables.proposals.map((row) => ({ row, cells: delayFixProposalCells(row, words.cells, FIX_COLUMNS), columns: PROPOSAL_COLUMNS }))
+  return tables.proposals.map((row) => ({ row, cells: delayFixProposalCells(row, words.cells, FIX_COLUMNS), columns: PROPOSAL_COLUMNS, blankWord: words.cells.empty }))
 }
 
 /** @purity pure */
@@ -1247,7 +1256,7 @@ function stepAfterWalk(window: DelayDiagnosticsReportWindow, view: TableView, st
   const row = tables.proposals.find((one) => one.key === next)
   if (next === undefined || at + step < 0 || row === undefined) return null
   const moved = withFixValues(windowOnTable(window, 'proposals'), { at: next })
-  return { window: moved, view, asked: { kind: 'fixJump', target: fixTargetOf({ row, cells: [], columns: [] }) } }
+  return { window: moved, view, asked: { kind: 'fixJump', target: fixTargetOf({ row, cells: [], columns: [], blankWord: '' }) } }
 }
 
 // see RW-12, FR-155, T-290
