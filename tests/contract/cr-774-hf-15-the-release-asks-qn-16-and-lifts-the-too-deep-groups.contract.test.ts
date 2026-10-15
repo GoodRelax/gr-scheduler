@@ -223,7 +223,9 @@ describe('HF-15 / QN-16 -- Yes (proceed) moves the group and lifts the too-deep 
     expect(childrenIn(after, 'S2')).toEqual(['S3', 'S4'])
     expect(deepestIn(after)).toBe(S_125)
     expect(built.loop.document().schedule.taskGroupMembers, 'a Task stays on the task group that carries it').toEqual(before.taskGroupMembers)
-    expect(built.loop.document().schedule.tasks).toEqual(before.tasks)
+    // WHY: HM-9 (MUST) re-ranks wbsOrder by the task group tree on every move, so the Task is compared without it.
+    const withoutRank = (tasks: typeof before.tasks) => tasks.map(({ wbsOrder: _rank, ...rest }) => rest)
+    expect(withoutRank(built.loop.document().schedule.tasks)).toEqual(withoutRank(before.tasks))
   })
 
   it('two task groups past the limit are lifted in tree order, the second after the first', () => {

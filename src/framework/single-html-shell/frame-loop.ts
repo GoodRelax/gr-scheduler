@@ -1973,6 +1973,14 @@ function heldGrabScrollOf() {
   }
 }
 
+// see HF-15, CM-66
+// WHY: an edge tick that turned nothing owes no write; writing it would mark an unchanged document as edited.
+/** @purity pure */
+function turnedGrabScrollPlace(owed: HeldGrabScroll, stored: DocumentSettings): Parameters<typeof writeScrollPlace>[1] | null {
+  if (owed.scrollTaskGroupId === stored.scrollTaskGroupId && owed.scrollGroupOffset === stored.scrollGroupOffset) return null
+  return { scrollDate: stored.scrollDate, scrollDayOffset: stored.scrollDayOffset, ...owed }
+}
+
 // see HF-15, S-597, S-598
 /** @purity non-pure */
 function taskGroupGrabCarryOf(hands: FrameLoopHands) {
@@ -2017,8 +2025,8 @@ function taskGroupGrabCarryOf(hands: FrameLoopHands) {
     held.hold(null)
     tickedAtMs = null
     if (isInterrupted || owed === null) return
-    const { scrollDate, scrollDayOffset } = hands.readHeld().document.documentSettings
-    writeScrollPlace(hands, { scrollDate, scrollDayOffset, ...owed }, frame)
+    const place = turnedGrabScrollPlace(owed, hands.readHeld().document.documentSettings)
+    if (place !== null) writeScrollPlace(hands, place, frame)
   }
 
   return { scrolled: held.scrolled, scrollTo, readingAt, end }

@@ -244,10 +244,18 @@ const SHOWN_ON_ANOTHER_TASK_GROUP_MARK: string = (() => {
   return held.text[LANGUAGE] ?? ''
 })()
 
+const SETTING_SLOT_ROWS: Readonly<Record<string, string>> = { maxGroupDepth: 'S-125' }
+
+const settingSlotValue = (slot: string, name: string): string => {
+  const id = SETTING_SLOT_ROWS[name]
+  const row = id === undefined ? undefined : specTable('T-211').rows.find((one) => one.id === id)
+  return /-?\d+/.exec(bare(row?.by['値'] ?? '').replace(/`/g, ''))?.[0] ?? slot
+}
+
 const sentenceFor = (question: string): string => {
   const held = QUESTION_WORDS.find((one) => one.rowId === question)
   if (held === undefined) throw new Error(`the dictionary holds no row of table T-234 for ${question}`)
-  return held.text[LANGUAGE] ?? ''
+  return (held.text[LANGUAGE] ?? '').replace(/\{(\w+)\}/g, settingSlotValue)
 }
 
 /**

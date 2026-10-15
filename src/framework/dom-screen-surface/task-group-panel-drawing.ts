@@ -217,10 +217,12 @@ function dropLineElement(host: Document, cue: NonNullable<TaskGroupPanel['dropCu
   const x = panelBox.x + cue.lineIndentPx
   const width = Math.max(0, panelBox.x + panelBox.width - x)
   const isPastDepthCap = cue.isPastDepthCap === true
-  const paint = isPastDepthCap
-    ? boxStyle({ x, y: cue.lineY - band / 2, width, height: 0 }) + `border-top:${band}px dashed ${PAINT.heldTaskGroup};`
-    : boxStyle({ x, y: cue.lineY - band / 2, width, height: band }) + `background:${PAINT.heldTaskGroup};`
-  const line = part(host, 'div', ROLE.taskGroupDropLine, `${paint}pointer-events:none;`)
+  // WHY: the dashed line keeps the solid line's box, so both stand centred on the gap (HF-15).
+  const stroke = isPastDepthCap
+    ? `box-sizing:border-box;border-top:${band}px dashed ${PAINT.heldTaskGroup};`
+    : `background:${PAINT.heldTaskGroup};`
+  const style = boxStyle({ x, y: cue.lineY - band / 2, width, height: band }) + stroke
+  const line = part(host, 'div', ROLE.taskGroupDropLine, `${style}pointer-events:none;`)
   line.setAttribute('aria-hidden', 'true')
   if (isPastDepthCap) line.setAttribute(PAST_DEPTH_CAP_MARK, 'true')
   return line
