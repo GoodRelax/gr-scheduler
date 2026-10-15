@@ -59,7 +59,7 @@ const STATE_MACHINES = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec',
 
 const SJ_10_MARK = '飛ぶ先のタスクかコメントボックスに、飛んだ先の印を付けること（MUST）'
 const SJ_10_KEEP = '波紋の後は囲みだけを残し、`FR-009` の 表 T-303 の `EL-17` の決まりで消すこと（MUST）'
-const SJ_10_RING = '① 囲み —— 予定の形（タスクは描いた予定の図形で実績を含めず、コメントボックスは箱）の外接矩形から、線の内側の縁まで `_assets/tbl-settings.md` の `S-555` だけ空けて、表 T-236 の `S-585` の色で描く、太さ `S-556`、角の丸み `S-586` の実線の矩形。'
+const SJ_10_RING = '① 囲み —— 予定の形（タスクは描いた予定の図形で実績を含めず、コメントボックスは箱）の外接矩形から、線の内側の縁まで `_assets/tbl-settings.md` の `S-555` だけ空けて、表 T-236 の `S-587` の色で描く、太さ `S-556`、角の丸み `S-588` の実線の矩形。'
 const SJ_10_ABOVE_RING = '選択の枠と掴み点は囲みより手前の層（`FR-110` の 表 T-020 の `ZO-10`）に描くので、囲みに隠れない。'
 const SJ_10_RIPPLE =
   '② 波紋 —— 印を付けた時から、囲みと同じ色・太さ・角の丸みの矩形を、`S-558` の長さのあいだに囲みの所から各辺 `S-559` だけ外へ広げながら、不透明から透明へ消す。'
@@ -562,10 +562,10 @@ const svgOf = (scene: Scene, landing: LandingState, picture: 'screen' | 'export'
     { themePreference: theme, guideCursorMode: 'none', landingMarkDisplayState: landing } as never,
   )
 
-// see S-585
+// see S-587
 // WHY: the ring's own row, which follows no theme hue (its hue cell is -).
 const inkOf = (theme: Theme): string =>
-  cellOf('T-236', 'S-585', theme === 'light' ? '明るいテーマ' : '暗いテーマ').replace(/`/g, '').trim().toLowerCase()
+  cellOf('T-236', 'S-587', theme === 'light' ? '明るいテーマ' : '暗いテーマ').replace(/`/g, '').trim().toLowerCase()
 const colorOnly = (value: string | null): string => (value ?? '').toLowerCase().replace(/\s+/g, ' ').trim()
 
 const boxOfRing = (ring: Element): { x: number; y: number; width: number; height: number; stroke: number } => ({
@@ -591,18 +591,18 @@ describe(`T-332 SJ-10 -- ${SJ_10_RING}`, () => {
     expect(ringsOf(svgOf(scene, HIDDEN)), SJ_10_MARK).toEqual([])
   })
 
-  it('the ring is a frame: S-556 thick, the S-585 color (light), no fill', () => {
+  it('the ring is a frame: S-556 thick, the S-587 color (light), no fill', () => {
     const ring = ringsOf(svg)[0]!
     expect(Number(attrOf(ring.attrs, 'stroke-width')), 'S-556').toBeCloseTo(S_556, 6)
-    expect(colorOnly(attrOf(ring.attrs, 'stroke')), 'S-585 light').toBe(inkOf('light'))
+    expect(colorOnly(attrOf(ring.attrs, 'stroke')), 'S-587 light').toBe(inkOf('light'))
     const fill = colorOnly(attrOf(ring.attrs, 'fill'))
     expect(fill === 'none' || fill === 'transparent' || Number(attrOf(ring.attrs, 'fill-opacity') ?? '1') === 0, 'a frame, not a patch').toBe(true)
     expect(attrOf(ring.attrs, 'stroke-dasharray'), 'a solid line (SJ-10 ①)').toBeNull()
   })
 
-  it('the ring takes the dark theme S-585 color in the dark theme', () => {
+  it('the ring takes the dark theme S-587 color in the dark theme', () => {
     const ring = ringsOf(svgOf(scene, landedOn(TASK(15)), 'screen', 'dark'))[0]!
-    expect(colorOnly(attrOf(ring.attrs, 'stroke')), 'S-585 dark').toBe(inkOf('dark'))
+    expect(colorOnly(attrOf(ring.attrs, 'stroke')), 'S-587 dark').toBe(inkOf('dark'))
   })
 
   // WHY: SJ-10 counts S-555 to the line's inner edge (CR-763), and the stroke is S-556 wide.

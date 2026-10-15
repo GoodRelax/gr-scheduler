@@ -1,4 +1,4 @@
-// CR-763 on the dev build: the jump landing ripple of T-332 SJ-10 (2) is the S-585 rose, S-556 wide, S-586 rounded.
+// CR-763 on the dev build: the jump landing ripple of T-332 SJ-10 (2) is the S-587 rose, S-556 wide, S-588 rounded.
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { bare, specTable, unbroken } from '../contract/spec-table'
@@ -11,15 +11,15 @@ import { taskGroupsDocument } from './w3-t1-stage'
 const numberIn = (cell: string): number => Number(cell.replace(/`/g, '').match(/-?\d+(?:\.\d+)?/)?.[0])
 const T206 = (id: string): number => numberIn(unbroken(rowOf(specTable('T-206'), id).by['既定'] ?? ''))
 const S_556 = T206('S-556')
-const S_586 = T206('S-586')
-const S_585_LIGHT = bare(rowOf(specTable('T-236'), 'S-585').by['明るいテーマ'] ?? '')
+const S_586 = T206('S-588')
+const S_585_LIGHT = bare(rowOf(specTable('T-236'), 'S-587').by['明るいテーマ'] ?? '')
 
 const SJ_10_RIPPLE =
   '② 波紋 —— 印を付けた時から、囲みと同じ色・太さ・角の丸みの矩形を、`S-558` の長さのあいだに囲みの所から各辺 `S-559` だけ外へ広げながら、不透明から透明へ消す。'
 const SJ_10_MONO = '⭐ モノクロ（`FR-041`）では、色は表 T-236 のほかの行と同じく灰にし、線を太さ `S-556` の中で 2 本に分ける'
-const S_586_EDGES = '内の縁は `S-586` − `S-556` の半分（0 を下回れば直角）'
+const S_586_EDGES = '内の縁は `S-588` − `S-556` の半分（0 を下回れば直角）'
 
-// see S-586
+// see S-588
 // WHY: a CSS outline follows the box's border-radius from the line's inner edge, so the box rounds by half a line less.
 const INNER_EDGE_RADIUS = Math.max(0, S_586 - S_556 / 2)
 
@@ -135,15 +135,15 @@ test.describe(`CR-763 -- T-332 SJ-10 ${SJ_10_RIPPLE}`, () => {
   test('premise: the manuscript still says it', () => {
     const cell = unbroken(rowOf(specTable('T-332'), 'SJ-10').cells.join(' | '))
     for (const clause of [SJ_10_RIPPLE, SJ_10_MONO]) expect(cell, clause).toContain(clause)
-    expect(unbroken(rowOf(specTable('T-206'), 'S-586').cells.join(' | ')), S_586_EDGES).toContain(S_586_EDGES)
+    expect(unbroken(rowOf(specTable('T-206'), 'S-588').cells.join(' | ')), S_586_EDGES).toContain(S_586_EDGES)
   })
 
-  test('light theme: the ripple is a solid S-556 outline in the S-585 color, its box rounded so the line\'s middle has S-586', async () => {
+  test('light theme: the ripple is a solid S-556 outline in the S-587 color, its box rounded so the line\'s middle has S-588', async () => {
     const opened = await openWith({})
     try {
       const ripple = await jumpAndReadRipple(opened.page, TARGET_UID)
       expect(ripple, 'SJ-10 (2): a ripple starts on the jump').not.toBeNull()
-      expect(sameRgb(rgbOf(ripple!.outlineColor), rgbOf(S_585_LIGHT)), `S-585 light: ${ripple!.outlineColor} against ${S_585_LIGHT}`).toBe(true)
+      expect(sameRgb(rgbOf(ripple!.outlineColor), rgbOf(S_585_LIGHT)), `S-587 light: ${ripple!.outlineColor} against ${S_585_LIGHT}`).toBe(true)
       expect(sameRgb(rgbOf(ripple!.jumpLanding), rgbOf(S_585_LIGHT)), `--gr-jumpLanding: ${ripple!.jumpLanding}`).toBe(true)
       expect(ripple!.outlineStyle, 'a solid line, as the ring').toBe('solid')
       expect(Number.parseFloat(ripple!.outlineWidth), 'S-556').toBeCloseTo(S_556, 1)
@@ -153,7 +153,7 @@ test.describe(`CR-763 -- T-332 SJ-10 ${SJ_10_RIPPLE}`, () => {
     }
   })
 
-  test('monochrome: the ripple is a double outline (two lines in the S-556 band), grey keeping S-585\'s lightness', async () => {
+  test('monochrome: the ripple is a double outline (two lines in the S-556 band), grey keeping S-587\'s lightness', async () => {
     const opened = await openWith({ themeMonochrome: true })
     try {
       const ripple = await jumpAndReadRipple(opened.page, TARGET_UID)

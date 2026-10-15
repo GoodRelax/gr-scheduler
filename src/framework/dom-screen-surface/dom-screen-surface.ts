@@ -168,7 +168,7 @@ const PAINT_ROW = {
   scheduleFilter: 'S-543',
   scheduleFilterGlyph: 'S-544',
   dropCue: 'S-151',
-  jumpLanding: 'S-585',
+  jumpLanding: 'S-587',
   refusal: 'S-154',
 } as const
 
@@ -1478,13 +1478,13 @@ function rippleClipStyle(within: ScreenRect): string {
   )
 }
 
-// see SJ-10, S-556, S-586, FR-041
-// WHY: an outline from the ring's inner edge (corner S-586 less half a line), so the offset alone spreads it;
+// see SJ-10, S-556, S-588, FR-041
+// WHY: an outline from the ring's inner edge (corner S-588 less half a line), so the offset alone spreads it;
 // in monochrome a double outline of S-556's width is the ring's two lines, the outer and inner thirds.
 /** @purity pure */
 function rippleStyle(ripple: NonNullable<ScreenView['jumpRipple']>, isMonochrome: boolean): string {
   const { inner, within } = ripple
-  const corner = Math.max(0, NOT_STORED_JUMP_LANDING_RIPPLE['S-586'] - ripple.lineWidth / 2)
+  const corner = Math.max(0, NOT_STORED_JUMP_LANDING_RIPPLE['S-588'] - ripple.lineWidth / 2)
   return (
     'position:absolute;box-sizing:border-box;pointer-events:none;' +
     `left:${inner.x - within.x}px;top:${inner.y - within.y}px;width:${inner.width}px;height:${inner.height}px;` +
@@ -1674,12 +1674,12 @@ const NOT_STORED_JUMP_LANDING_RIPPLE: {
   readonly 'S-557': number
   readonly 'S-558': number
   readonly 'S-559': number
-  readonly 'S-586': number
+  readonly 'S-588': number
 } = {
   'S-557': 2,
   'S-558': 600,
   'S-559': 16,
-  'S-586': 2,
+  'S-588': 2,
 }
 
 // see T-206
@@ -1891,6 +1891,6 @@ export const SCREEN_COLORS: {
   'S-543': { light: '#a02b2b', dark: '#e07a7a', followsHue: false },
   'S-544': { light: '#ffffff', dark: '#ffffff', followsHue: false },
   'S-573': { light: '#07695a', dark: '#4fd1b5', followsHue: false },
-  'S-585': { light: '#b31959', dark: '#f17eae', followsHue: false },
+  'S-587': { light: '#b31959', dark: '#f17eae', followsHue: false },
 }
 // </generated>

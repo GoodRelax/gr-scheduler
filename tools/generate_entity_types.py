@@ -1566,14 +1566,14 @@ NOT_STORED_TARGETS = {
     # by schedule-overlays.ts in ZO-8 (CR-763), which imports this constant from
     # svg-renderer.ts as it does the selection's; the ripple reads the ring's
     # box and width off the same function, so the DOM surface holds neither.
-    # CR-763: and the corner radius at the line's middle (S-586).
-    'NOT_STORED_JUMP_LANDING_RING_SIZES': (['S-555', 'S-556', 'S-586'], DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-763: and the corner radius at the line's middle (S-588).
+    'NOT_STORED_JUMP_LANDING_RING_SIZES': (['S-555', 'S-556', 'S-588'], DRAWN_WITH_WHERE_IT_STANDS),
     # CR-728: the ripple of SJ-10 -- how many times it runs (S-557), how long
     # one run lasts (S-558) and how far it spreads on each side (S-559). The
     # DOM surface animates it outside the schedule's SVG, so it alone reads them.
-    # CR-763: the ripple starts with the ring's corner (S-586), one row read by
+    # CR-763: the ripple starts with the ring's corner (S-588), one row read by
     # both units like S-573.
-    'NOT_STORED_JUMP_LANDING_RIPPLE': (['S-557', 'S-558', 'S-559', 'S-586'], DRAWN_WITH_WHERE_IT_STANDS),
+    'NOT_STORED_JUMP_LANDING_RIPPLE': (['S-557', 'S-558', 'S-559', 'S-588'], DRAWN_WITH_WHERE_IT_STANDS),
     # CR-721: S-425 and the eleven measured columns (S-468 .. S-470, S-474,
     # S-475, S-477, S-479, S-480, S-500 .. S-502) hold the rule 測る (SV-18)
     # and no number, so they left this constant: the surface measures them.
@@ -2074,7 +2074,7 @@ COLOR_TARGETS = {
                        # shape as S-503: one row read by both units.
                        'S-573',
                        # CR-763: the landing ring and ripple's color (SJ-10).
-                       'S-585'],
+                       'S-587'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labeled "ruler and task groups" and gives ScreenRenderer no
@@ -2120,7 +2120,7 @@ COLOR_TARGETS = {
                          # (RW-13): SJ-10's ring in its own color, without the ripple.
                          'S-573',
                          # CR-763: SJ-10's own ring color, which follows no theme hue.
-                         'S-585'],
+                         'S-587'],
 }
 
 COLOR_NOTE = [

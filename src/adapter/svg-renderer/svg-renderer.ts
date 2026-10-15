@@ -1002,11 +1002,11 @@ export const NOT_STORED_DUAL_CURSOR_SIZES: {
 export const NOT_STORED_JUMP_LANDING_RING_SIZES: {
   readonly 'S-555': number
   readonly 'S-556': number
-  readonly 'S-586': number
+  readonly 'S-588': number
 } = {
   'S-555': 0,
   'S-556': 3,
-  'S-586': 2,
+  'S-588': 2,
 }
 
 // see T-206
@@ -1142,7 +1142,7 @@ const SCHEDULE_COLORS: {
   'S-527': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
   'S-528': { light: 'hsl(H 44% 46%)', dark: 'hsl(H 46% 66%)', followsHue: true },
   'S-573': { light: '#07695a', dark: '#4fd1b5', followsHue: false },
-  'S-585': { light: '#b31959', dark: '#f17eae', followsHue: false },
+  'S-587': { light: '#b31959', dark: '#f17eae', followsHue: false },
 }
 
 // see T-236, T-366

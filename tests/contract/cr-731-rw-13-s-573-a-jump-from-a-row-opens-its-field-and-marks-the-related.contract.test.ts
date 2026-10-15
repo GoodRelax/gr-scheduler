@@ -70,11 +70,11 @@ describe('RW-13 / SJ-4 -- the manuscript these cases read', () => {
     expect(REQUIREMENTS).toContain('飛ぶことを理由に、プロパティパネル（`_assets/tbl-settings.md` の `S-99h`）を出したり閉じたりしてはならない（MUST NOT）')
   })
 
-  it('S-573 is a color of its own, neither of the two colors of the landing ring (S-585)', () => {
+  it('S-573 is a color of its own, neither of the two colors of the landing ring (S-587)', () => {
     expect(LIGHT).toMatch(/^#[0-9a-f]{6}$/)
     expect(DARK).toMatch(/^#[0-9a-f]{6}$/)
-    expect(cellOf('T-236', 'S-585', '明るいテーマ')).not.toContain(LIGHT)
-    expect(cellOf('T-236', 'S-585', '暗いテーマ')).not.toContain(DARK)
+    expect(cellOf('T-236', 'S-587', '明るいテーマ')).not.toContain(LIGHT)
+    expect(cellOf('T-236', 'S-587', '暗いテーマ')).not.toContain(DARK)
   })
 })
 
@@ -122,7 +122,7 @@ describe('item 18 -- a name pressed in the proposals opens the panel on the fiel
   })
 })
 
-describe('item 19 -- S-573 marks the related tasks and the landing ring (S-585) marks the target', () => {
+describe('item 19 -- S-573 marks the related tasks and the landing ring (S-587) marks the target', () => {
   const landed = async (): Promise<WindowStage> => {
     const stage = await proposalsOver(FS_SUCCESSOR_STARTED())
     const row = rowsOf(stage).find((one) => one.textContent.includes(suggestedWord))

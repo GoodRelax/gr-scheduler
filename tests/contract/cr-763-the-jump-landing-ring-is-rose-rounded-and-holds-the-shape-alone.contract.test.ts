@@ -40,7 +40,7 @@ const SETTINGS_MD = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_
 const PUBLISHED = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '_assets', 'tbl-published-entries.md'), 'utf8'))
 
 const SJ_10_RING =
-  '① 囲み —— 予定の形（タスクは描いた予定の図形で実績を含めず、コメントボックスは箱）の外接矩形から、線の内側の縁まで `_assets/tbl-settings.md` の `S-555` だけ空けて、表 T-236 の `S-585` の色で描く、太さ `S-556`、角の丸み `S-586` の実線の矩形。'
+  '① 囲み —— 予定の形（タスクは描いた予定の図形で実績を含めず、コメントボックスは箱）の外接矩形から、線の内側の縁まで `_assets/tbl-settings.md` の `S-555` だけ空けて、表 T-236 の `S-587` の色で描く、太さ `S-556`、角の丸み `S-588` の実線の矩形。'
 const SJ_10_TOUCHES = '⭐ 既定の `S-555`（0）では囲みの線は形に接し'
 const SJ_10_ABOVE_RING = '選択の枠と掴み点は囲みより手前の層（`FR-110` の 表 T-020 の `ZO-10`）に描くので、囲みに隠れない。'
 const SJ_10_NO_MARKER =
@@ -56,7 +56,7 @@ const ZO_8_WHY = '⭐ 飛んだ先の囲みを進捗マーカー（`ZO-3`）と�
 const ZO_10_FRAME = '選択の枠・フェードの掴み点（選んでいるタスクにだけ出す。'
 const S_555_INNER = '⭐ 線の中心ではなく内側の縁までを測る —— 線は形の外 `S-555` 〜 `S-555` ＋ `S-556` に在る'
 const S_586_MIDDLE = '飛んだ先の囲みの角の丸み —— 線の中心で測る半径。'
-const S_586_EDGES = '線の外の縁の半径は `S-586` ＋ `S-556` の半分、内の縁は `S-586` − `S-556` の半分（0 を下回れば直角）'
+const S_586_EDGES = '線の外の縁の半径は `S-588` ＋ `S-556` の半分、内の縁は `S-588` − `S-556` の半分（0 を下回れば直角）'
 const S_585_WHAT = '飛んだ先の囲みと波紋の色。'
 const S_585_NO_THEME = '⛔ テーマ色に追随させない'
 const RW_13_RING =
@@ -64,12 +64,12 @@ const RW_13_RING =
 const RW_13_UNDRAWN = '描かれていないタスク（スケジュールフィルタの 表 T-353 の `TV-3` を含む）の印は描かない'
 const FR_041_EVERY_ROW = '同書の 表 T-236 のすべての行を（色相の欄が ○ の行も — の行も）'
 const T_294_KEEP_LIGHTNESS = 'モノクロは、その値を HSL の明度を保ったまま彩度 0 にして測った'
-const PI_19_RING = '飛んだ先の印の囲みの箱と線の太さと角の丸み（表 T-332 の `SJ-10`、`S-555` ・ `S-556` ・ `S-586`）。'
+const PI_19_RING = '飛んだ先の印の囲みの箱と線の太さと角の丸み（表 T-332 の `SJ-10`、`S-555` ・ `S-556` ・ `S-588`）。'
 
 const T206 = (id: string): number => numberIn(cellOf('T-206', id, '既定'))
 const S_555 = T206('S-555')
 const S_556 = T206('S-556')
-const S_586 = T206('S-586')
+const S_586 = T206('S-588')
 
 const HUE_COLUMN = '色相追随'
 const LIGHT = '明るいテーマ'
@@ -90,10 +90,10 @@ describe('CR-763 -- the manuscript these cases are driven by', () => {
     ['T-020 ZO-8 (why behind ZO-3 / ZO-5)', rowCells('T-020', 'ZO-8'), ZO_8_WHY],
     ['T-020 ZO-10', rowCells('T-020', 'ZO-10'), ZO_10_FRAME],
     ['T-206 S-555', rowCells('T-206', 'S-555'), S_555_INNER],
-    ['T-206 S-586 (middle)', rowCells('T-206', 'S-586'), S_586_MIDDLE],
-    ['T-206 S-586 (edges)', rowCells('T-206', 'S-586'), S_586_EDGES],
-    ['T-236 S-585 (what)', rowCells('T-236', 'S-585'), S_585_WHAT],
-    ['T-236 S-585 (no theme)', rowCells('T-236', 'S-585'), S_585_NO_THEME],
+    ['T-206 S-588 (middle)', rowCells('T-206', 'S-588'), S_586_MIDDLE],
+    ['T-206 S-588 (edges)', rowCells('T-206', 'S-588'), S_586_EDGES],
+    ['T-236 S-587 (what)', rowCells('T-236', 'S-587'), S_585_WHAT],
+    ['T-236 S-587 (no theme)', rowCells('T-236', 'S-587'), S_585_NO_THEME],
     ['T-346 RW-13 (ring)', rowCells('T-346', 'RW-13'), RW_13_RING],
     ['T-346 RW-13 (undrawn)', rowCells('T-346', 'RW-13'), RW_13_UNDRAWN],
   ] as const)('%s still says it', (_name, cell, clause) => {
@@ -106,11 +106,11 @@ describe('CR-763 -- the manuscript these cases are driven by', () => {
     expect(PUBLISHED, PI_19_RING).toContain(PI_19_RING)
   })
 
-  it('the values: S-555 is not negative, S-556 is positive and S-586 is not negative; S-585 and S-573 follow no theme hue', () => {
+  it('the values: S-555 is not negative, S-556 is positive and S-588 is not negative; S-587 and S-573 follow no theme hue', () => {
     expect(S_555).toBeGreaterThanOrEqual(0)
     expect(S_556).toBeGreaterThan(0)
     expect(S_586).toBeGreaterThanOrEqual(0)
-    expect(cellOf('T-236', 'S-585', HUE_COLUMN).trim()).toBe(HUE_FIXED)
+    expect(cellOf('T-236', 'S-587', HUE_COLUMN).trim()).toBe(HUE_FIXED)
     expect(cellOf('T-236', 'S-573', HUE_COLUMN).trim()).toBe(HUE_FIXED)
   })
 })
@@ -154,9 +154,9 @@ const lightnessOf = (rgb: Rgb): number => ((Math.max(...rgb) + Math.min(...rgb))
 // see T-294
 const grayOf = (rgb: Rgb): Rgb => rgbOfHsl(0, 0, lightnessOf(rgb))
 
-// see S-585, S-573, S-151
+// see S-587, S-573, S-151
 const t236 = (id: string, theme: Theme): string => bare(cellOf('T-236', id, theme === 'light' ? LIGHT : DARK))
-const S_585 = (theme: Theme): Rgb => rgbOf(t236('S-585', theme))
+const S_585 = (theme: Theme): Rgb => rgbOf(t236('S-587', theme))
 const S_573 = (theme: Theme): Rgb => rgbOf(t236('S-573', theme))
 const S_151 = (theme: Theme, hue: number): Rgb => rgbOf(t236('S-151', theme).replace(/\bH\b/g, String(hue)))
 
@@ -420,11 +420,11 @@ const INNER_THIRD_RADIUS = Math.max(0, S_586 - S_556 / 3)
 
 describe(`T-332 SJ-10 -- ${SJ_10_RING} (the color)`, () => {
   for (const theme of THEMES) {
-    it.each(HUES.map((hue) => [hue]))(`${theme}, theme hue %i: the ring is the S-585 ${theme} color, not S-151`, (hue) => {
+    it.each(HUES.map((hue) => [hue]))(`${theme}, theme hue %i: the ring is the S-587 ${theme} color, not S-151`, (hue) => {
       const rings = byRole(svgOf(sceneOf({ hue }), landedOn(TASK(TARGET)), theme), RING)
       expect(rings.length, 'one ring').toBe(1)
       const drawn = drawnOf(rings[0]!)
-      expect(sameRgb(rgbOf(drawn.stroke), S_585(theme)), `S-585 ${theme}: ${drawn.stroke} against ${t236('S-585', theme)}`).toBe(true)
+      expect(sameRgb(rgbOf(drawn.stroke), S_585(theme)), `S-587 ${theme}: ${drawn.stroke} against ${t236('S-587', theme)}`).toBe(true)
       expect(sameRgb(rgbOf(drawn.stroke), S_151(theme, hue)), `not S-151 at hue ${String(hue)}`).toBe(false)
     })
 
@@ -464,7 +464,7 @@ describe(`T-332 SJ-10 -- ${SJ_10_RING} (the place and the corner)`, () => {
     expectRect(ring, grown(plan, S_555 + S_556 / 2), 'the ring')
   })
 
-  it(`${S_586_MIDDLE}: rx and ry are S-586`, () => {
+  it(`${S_586_MIDDLE}: rx and ry are S-588`, () => {
     expect(ring.rx, 'rx').toBeCloseTo(S_586, 6)
     expect(ring.ry, 'ry').toBeCloseTo(S_586, 6)
   })
@@ -473,7 +473,7 @@ describe(`T-332 SJ-10 -- ${SJ_10_RING} (the place and the corner)`, () => {
     expect(elementsOf(svgOf(scene, landedOn(TASK(TARGET)))).some((one) => attrOf(one.attrs, 'data-figure') === `task-${String(TARGET)}-actual`)).toBe(true)
   })
 
-  it('a comment box target: the ring stands S-555 to its inner edge from the box, with S-586 corners', () => {
+  it('a comment box target: the ring stands S-555 to its inner edge from the box, with S-588 corners', () => {
     const boxScene = sceneOf(WITH_BOX)
     const rings = byRole(svgOf(boxScene, landedOn(BOX('box-dated'))), RING)
     expect(rings.length, 'one ring').toBe(1)
@@ -574,7 +574,7 @@ describe(`T-332 SJ-10 -- ${SJ_10_MONO}`, () => {
       for (const line of [outer, inner]) {
         const rgb = rgbOf(line.stroke)
         expect(isGray(rgb), `grey: ${line.stroke}`).toBe(true)
-        expect(sameRgb(rgb, gray), `keeps the HSL lightness of S-585 ${theme}: ${line.stroke}`).toBe(true)
+        expect(sameRgb(rgb, gray), `keeps the HSL lightness of S-587 ${theme}: ${line.stroke}`).toBe(true)
         expect(line.strokeWidth, 'a third of S-556').toBeCloseTo(S_556 / 3, 6)
         expect(isFrame(line), `fill ${line.fill}`).toBe(true)
       }
@@ -600,7 +600,7 @@ describe(`T-332 SJ-10 -- ${SJ_10_MONO}`, () => {
 
 describe(`T-346 RW-13 -- ${RW_13_RING}`, () => {
   for (const theme of THEMES) {
-    it(`${theme}: each related task gets a ring of S-573, with the gap S-555, the width S-556 and the corner S-586`, () => {
+    it(`${theme}: each related task gets a ring of S-573, with the gap S-555, the width S-556 and the corner S-588`, () => {
       const scene = sceneOf()
       const svg = svgOf(scene, landedOn(TASK(TARGET), [...RELATED]), theme)
       const related = byRole(svg, RELATED_RING)
@@ -651,7 +651,7 @@ describe(`T-064 PI-19 jumpLandingRingOf -- ${PI_19_RING}`, () => {
   const ringOf = (scene: Scene, target: Target): Loose | null =>
     jumpLandingRingOf(scene.layout as never, scene.geometry as never, target as never) as unknown as Loose | null
 
-  it('a task: inner is the plan shape grown by S-555, lineWidth is S-556, cornerRadius is S-586', () => {
+  it('a task: inner is the plan shape grown by S-555, lineWidth is S-556, cornerRadius is S-588', () => {
     const scene = sceneOf()
     const ring = ringOf(scene, TASK(TARGET))
     expect(ring).not.toBeNull()
