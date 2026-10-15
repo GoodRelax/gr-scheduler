@@ -767,6 +767,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `CreatedSubject` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#CreatedSubject` | -- | type CreatedSubject = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'taskGroup'; readonly taskGroupId: string } export type InputActio... |
 | `dayAnchorAt` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayAnchorAt` | -- | function dayAnchorAt( context: InputContext, x: number, ): Pick<ScrollAnchor, 'scrollDate' \| 'scrollDayOffset'> |
 | `dayAtX` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayAtX` | -- | function dayAtX(layout: ScheduleLayout, x: number): CalendarDay \| null |
+| `dayFromSerial` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayFromSerial` | -- | function dayFromSerial(serial: number): CalendarDay |
 | `dayShift` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayShift` | -- | function dayShift(context: InputContext, fromX: number, toX: number): number |
 | `dayShifted` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayShifted` | -- | function dayShifted(day: CalendarDay, days: number): CalendarDay |
 | `diagnosisRowAskedOf` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#diagnosisRowAskedOf` | PI-18 | 遅延診断を出しているあいだ、`DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離した入力なら、その `Task` の `uid` を答える（`FR-134` の 表 T-346 の `RW-19`）。 |
@@ -2060,4 +2061,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1042 name(s) leave through a public entry (502 of them published by table T-064), 808 more are exported by a file and not by its entry.
+Totals: 1043 name(s) leave through a public entry (502 of them published by table T-064), 808 more are exported by a file and not by its entry.
