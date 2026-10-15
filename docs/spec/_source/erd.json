@@ -946,21 +946,22 @@
     {
      "seat": 157,
      "name": "scheduleDataTimeZone",
-     "type": "文字列（地域名）",
+     "type": "文字列（表 T-376 の標準時の鍵）",
      "nullable": "否",
      "json": {
       "kind": "enum",
       "valuesFrom": "T-376",
+      "valuesOnly": "standard",
       "null": false
      },
      "key": "",
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "日程データのタイムゾーン —— 保存する日時の数字を、どの地域の現地の時刻として読むか（`01-04-requirements.md` の `FR-156`）。値は同要求の 表 T-376 の地域名であり、表に無い値を持つ文書は開かない（同要求）。MSPDI を取り込んだ文書と新しく作った文書では、その PC の地域とする（同要求）。⛔ MSPDI へは書き出さない —— 交換相手に置き場が無い"
+      "ja": "日程データのタイムゾーン —— 保存する日時の数字を、どの固定の UTC の差の時刻として読むか（`01-04-requirements.md` の `FR-156`）。値は同要求の 表 T-376 の種が標準時の行の鍵であり、それ以外の値を持つ文書は開かない（同要求）。夏時間を季節で当てない。MSPDI を取り込んだ文書と新しく作った文書では、その PC の標準時の行の鍵とする（同要求）。⛔ MSPDI へは書き出さない —— 交換相手に置き場が無い"
      },
      "schemaNote": {
-      "en": "The region whose wall clock the schedule date-times are. Not written to MS Project, which has no place for it."
+      "en": "The fixed UTC offset whose wall clock the schedule date-times are, as a standard-time key such as UTC+09:00. Daylight saving is never applied by season. Not written to MS Project, which has no place for it."
      }
     }
    ]

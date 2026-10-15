@@ -1563,14 +1563,17 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE': (['S-554'], READ_WHERE_IT_STANDS),
     # CR-728: the landing ring SJ-10 of table T-332 draws around a jumped-to
     # shape -- its gap from the shape (S-555) and its line width (S-556). Drawn
-    # by schedule-overlays.ts in ZO-10, which imports this constant from
+    # by schedule-overlays.ts in ZO-8 (CR-763), which imports this constant from
     # svg-renderer.ts as it does the selection's; the ripple reads the ring's
     # box and width off the same function, so the DOM surface holds neither.
-    'NOT_STORED_JUMP_LANDING_RING_SIZES': (['S-555', 'S-556'], DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-763: and the corner radius at the line's middle (S-588).
+    'NOT_STORED_JUMP_LANDING_RING_SIZES': (['S-555', 'S-556', 'S-588'], DRAWN_WITH_WHERE_IT_STANDS),
     # CR-728: the ripple of SJ-10 -- how many times it runs (S-557), how long
     # one run lasts (S-558) and how far it spreads on each side (S-559). The
     # DOM surface animates it outside the schedule's SVG, so it alone reads them.
-    'NOT_STORED_JUMP_LANDING_RIPPLE': (['S-557', 'S-558', 'S-559'], DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-763: the ripple starts with the ring's corner (S-588), one row read by
+    # both units like S-573.
+    'NOT_STORED_JUMP_LANDING_RIPPLE': (['S-557', 'S-558', 'S-559', 'S-588'], DRAWN_WITH_WHERE_IT_STANDS),
     # CR-721: S-425 and the eleven measured columns (S-468 .. S-470, S-474,
     # S-475, S-477, S-479, S-480, S-500 .. S-502) hold the rule 測る (SV-18)
     # and no number, so they left this constant: the surface measures them.
@@ -1795,7 +1798,14 @@ NOT_STORED_TARGETS = {
     # S-247 (CR-421) rides the same constant: DM-3 of table T-240 draws the
     # dummy at the marker's diameter times S-247, capped by S-180, and the
     # row's own note gives S-180's reason for not being kept.
-    'NOT_STORED_DUMMY_SIZES': (['S-180', 'S-247'], DRAWN_FOR_THE_SCREEN_ALONE),
+    # CR-756 adds S-585: while time of day is shown, DM-3 draws the dummy at
+    # the larger of the mark's width and the width S-585 minutes take on the
+    # time axis, so the unit that solves the band reads the minutes too.
+    'NOT_STORED_DUMMY_SIZES': (['S-180', 'S-247', 'S-585'], DRAWN_FOR_THE_SCREEN_ALONE),
+    # CR-756 (JDG-2108): the actual a dummy starts while time of day is shown
+    # is S-585 working minutes long (GO-6, GO-9, PV-1). One manuscript row,
+    # printed into the use-case unit that writes that actual.
+    'NOT_STORED_DUMMY_ACTUAL_MINUTES': (['S-585'], READ_WHERE_IT_STANDS),
     # CR-556: the deadline mark's three ratios to the marker's diameter
     # (DA-2 of table T-304, FR-045) -- the arrowhead's width and height and
     # the shaft's width. A NEW CONSTANT: one constant per consuming SUBJECT,
@@ -2069,7 +2079,9 @@ COLOR_TARGETS = {
                        'S-390', 'S-543', 'S-544',
                        # CR-731: the related-task ring's color (RW-13), the same
                        # shape as S-503: one row read by both units.
-                       'S-573'],
+                       'S-573',
+                       # CR-763: the landing ring and ripple's color (SJ-10).
+                       'S-587'],
     # The schedule itself: bars, the two lines, markers, bands -- and the time
     # ruler, which is drawn on this side too (`_source/components.json` gives
     # SvgRenderer the edge labeled "ruler and task groups" and gives ScreenRenderer no
@@ -2113,7 +2125,9 @@ COLOR_TARGETS = {
                          'S-503', 'S-527', 'S-528',
                          # CR-731: the ring on the tasks related to a fix-proposal row
                          # (RW-13): SJ-10's ring in its own color, without the ripple.
-                         'S-573'],
+                         'S-573',
+                         # CR-763: SJ-10's own ring color, which follows no theme hue.
+                         'S-587'],
 }
 
 COLOR_NOTE = [
@@ -3391,6 +3405,11 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_SEARCH_JUMP_INSET') + NEWLINE * 2
      # CR-728: SJ-5's share of the room below the pins.
      + not_stored_block('NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE'),
+     ['docs/spec/_source/settings.json (table T-206)']),
+    # CR-756: GO-6, GO-9 and PV-1 write an actual of S-585 working minutes
+    # from the dummy while time of day is shown.
+    (os.path.join(USECASE, 'edit-document', 'task-plan-actual.ts'),
+     lambda _erd: not_stored_block('NOT_STORED_DUMMY_ACTUAL_MINUTES'),
      ['docs/spec/_source/settings.json (table T-206)']),
     (os.path.join(USECASE, 'edit-document', 'edit-document.ts'),
      lambda _erd: not_stored_block('NOT_STORED_ZOOM_BOUNDS'),

@@ -119,15 +119,17 @@ export type {
 } from './working-calendar'
 export {
   dataWallOfViewWall,
-  isTimeZoneRegion,
+  isStandardTimeZoneKey,
+  isTimeZoneKey,
   PRINTED_TIME_ZONE,
-  regionForPc,
+  standardTimeZoneKeyForPc,
   TIME_ZONE_ROWS,
+  timeZoneRowOf,
   viewRegionOf,
   viewWallOfDataWall,
   zoneClockOf,
 } from './time-zone'
-export type { PcRegionChoice, PcTimeZone, TimeZoneRow, ZoneClock } from './time-zone'
+export type { PcTimeZone, StandardTimeZoneKey, TimeZoneRow, ZoneClock } from './time-zone'
 export { delayStart, delayWorkingDays, isDelayed, progressMarkerOf } from './task-delay'
 export type { ProgressMarker } from './task-delay'
 export { diagnoseDelay, parentCandidatesOf, parentTaskResolutionsOf } from './delay-diagnostics'

@@ -803,12 +803,6 @@
     <circle class="f" cx="6" cy="12" r="2"/>
   </g>
   <text class="lbl" x="208" y="530">IC-160</text>
-  <g transform="translate(232 496)">
-    <circle class="s" cx="12" cy="12" r="8"/>
-    <path class="s" d="M4 12 H20"/>
-    <ellipse class="s" cx="12" cy="12" rx="3.5" ry="8"/>
-  </g>
-  <text class="lbl" x="244" y="530">IC-161</text>
   <g transform="translate(268 496)">
     <circle class="s" cx="10" cy="12" r="6.5"/>
     <path class="s" d="M10 8.5 V12 L12.5 13.5"/>

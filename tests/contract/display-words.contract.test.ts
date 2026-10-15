@@ -1864,6 +1864,15 @@ const ROWS_ON_THE_SETTINGS_FACE = new Set(
 const settingsFieldName = (view: ScreenView, rowId: string): string | undefined =>
   view.propertiesPanel?.fields.find((field) => field.row === rowId)?.name
 
+// see FO-15, K-145
+// WHY: CR-755 -- four display rows named by the setting's name and a number; row 1's name less ' 1' is the word.
+const NUMBERED_SETTINGS_ROWS: ReadonlySet<string> = new Set(['K-145'])
+const FIRST_ROW_NUMBER = ' 1'
+const numberedFieldName = (view: ScreenView, rowId: string): string | undefined => {
+  const name = settingsFieldName(view, `${rowId}:1`)
+  return name?.endsWith(FIRST_ROW_NUMBER) === true ? name.slice(0, -FIRST_ROW_NUMBER.length) : name
+}
+
 for (const entry of GENERATED['settings'] ?? []) {
   const rowId = keyOf('settings', entry)
   if (!ROWS_ON_THE_SETTINGS_FACE.has(rowId)) {
@@ -1882,7 +1891,7 @@ for (const entry of GENERATED['settings'] ?? []) {
     unit: 'UF-64',
     what: `the name the settings face shows for ${rowId}`,
     frame: PANEL_STATES['documentSettings'] as Frame,
-    read: (view) => settingsFieldName(view, rowId),
+    read: (view) => NUMBERED_SETTINGS_ROWS.has(rowId) ? numberedFieldName(view, rowId) : settingsFieldName(view, rowId),
   })
 }
 
@@ -2542,35 +2551,31 @@ for (const entry of GENERATED['themeHues'] ?? []) {
   })
 }
 
-// see FR-156, T-376, T-369, FO-14
-// WHY: CR-742 -- the base time zone field (FO-14) is a region chooser listing table T-376's rows in that
-// WHY: table's order, then a chooser of the two ways (FR-156); neither applies until IC-161 is pressed.
-const T376_ROWS: readonly string[] = specTable('T-376').rows.map((row) => row.id)
-const baseWayControlOf = (view: ScreenView, at: number) => settingsRowOf(view, 'K-144')?.controls[at]
+// see FR-156, T-376, FO-14, FO-15
+// WHY: CR-755 -- a zone's place is printed only inside the name zoneName builds, never alone.
 for (const entry of GENERATED['timeZones'] ?? []) {
-  const rowId = keyOf('timeZones', entry)
-  place({
-    section: 'timeZones',
-    key: rowId,
-    field: 'label',
-    unit: 'UF-64',
-    what: `the choice ${rowId} of table T-376 on the settings face's base time zone field`,
-    frame: SETTINGS_WITH_READOUTS,
-    read: (view) => baseWayControlOf(view, 0)?.choices?.[T376_ROWS.indexOf(rowId)],
-  })
+  drop('timeZones', keyOf('timeZones', entry), 'printed only inside the name timeZoneField.zoneName builds (FR-156), never alone')
 }
 
 // see FO-14, FO-15, FO-16, FR-156, FR-157
 const TIME_ZONE_FIELD_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
-  keepGlobalTime: (view) => baseWayControlOf(view, 1)?.choices?.[0],
-  keepLocalTime: (view) => baseWayControlOf(view, 1)?.choices?.[1],
-  none: (view) => settingsRowOf(view, 'K-145')?.controls[0]?.choices?.[0],
+  none: (view) => settingsRowOf(view, 'K-145:1')?.controls[0]?.choices?.[0],
   shiftUnit: (view) => settingsRowOf(view, 'IC-162')?.unit,
 }
-// WHY: the example line needs a dated task on the face's document, and the four Time Shift lines are
-// composed when the shell raises QN-14, which no frame of this file raises.
+// WHY: CR-755 -- the answers stand only while a draft holds another zone, which no frame here holds.
+// WHY: zoneName and offsetName are shapes with slots; the QN-14 lines are composed when the shell asks.
+const ONLY_WHILE_DRAFTED = 'FO-14 shows it only while a draft holds a time zone other than the shown base (FR-156); no frame here holds one'
 const TIME_ZONE_FIELD_NOT_ON_A_FRAME: Readonly<Record<string, string>> = {
-  example: 'FO-14 prints it only for a document holding a dated task; the settings frame here holds none',
+  baseChangeQuestion: ONLY_WHILE_DRAFTED,
+  keepGlobalTime: ONLY_WHILE_DRAFTED,
+  keepGlobalTimeHint: ONLY_WHILE_DRAFTED,
+  keepLocalTime: ONLY_WHILE_DRAFTED,
+  keepLocalTimeHint: ONLY_WHILE_DRAFTED,
+  cancelBaseChange: ONLY_WHILE_DRAFTED,
+  beforeLine: ONLY_WHILE_DRAFTED,
+  afterLine: ONLY_WHILE_DRAFTED,
+  zoneName: 'a shape with slots (FR-156): every label it builds fills them, so the shape itself is never printed alone',
+  offsetName: 'a shape with a slot (FR-017): printed filled, only for a row without an abbreviation (UTC-12:00)',
   shiftAmountLine: 'a QN-14 line: the shell composes it when it raises the question (FR-157), outside these frames',
   shiftTaskCountLine: 'a QN-14 line: the shell composes it when it raises the question (FR-157), outside these frames',
   shiftOutsideCountLine: 'a QN-14 line: the shell composes it when it raises the question (FR-157), outside these frames',
@@ -3747,6 +3752,8 @@ describe('CR-194 section 5 / PND-160 -- fill one word of the manuscript and it r
                 ? customValueFramesShowing(cell.word, cell.language)
                 : cell.section === 'searchPanel' && COUNT_SLOTTED_SEARCH_PANEL_PARTS.has(cell.key)
                 ? countSlottedFramesShowing(cell.word, cell.language)
+                : cell.section === 'settings' && NUMBERED_SETTINGS_ROWS.has(cell.key)
+                ? framesShowing(`${printed}${FIRST_ROW_NUMBER}`, cell.language)
                 : framesShowing(printed, cell.language)
       expect(
         on.length,

@@ -1,0 +1,21 @@
+- ordinal (Calendar, WeekDay, Exception, WorkingTime, changeLog) and TaskGroup.order: the schema does not say whether they count from 0 or 1 -> wrote 0-based everywhere.
+- Task.wbsOrder: no base given (outlineBase defaults to 1, but it may only concern outline numbers) -> wrote 1-based, in file order.
+- Task.parentTaskUid / WBS: unclear whether a flat list needs a summary task (MS Project's UID 0) -> no summary task; every task top-level with parentTaskUid null.
+- uidHighWaterMark: "the highest uid used" or "the next free uid" was unclear, and whether tasks and the calendar share one uid space -> calendar uid 1, tasks 2..9, uidHighWaterMark = 9 (highest used).
+- WeekDay.workingTimes on day-level working days: GRS may store [] (meaning the default 08:00-12:00, 13:00-17:00) or the explicit spans -> wrote the explicit spans.
+- WeekDay rows: unclear whether all seven days must be listed or only the working ones -> wrote all seven, Sunday first (dayType 1..7).
+- Exception day hours vs minutesPerDay: the "other hours" exception and the "until 24:00" exception had to keep 480 working minutes or GRS would tell that 1d differs -> 10:00-13:00 + 14:00-19:00 and 16:00-24:00 (toTime "00:00:00"), both on normal weekdays, recurrenceKind 1, fromDate 00:00:00 / toDate 23:59:00.
+- Finish at 24:00: unclear whether an end at midnight is written as the next day's 00:00:00 -> avoided it; no task finishes exactly at 24:00 (the late-shift day carries tasks ending 20:30 and 23:30 and one crossing midnight).
+- Milestone placement after a finish-to-start link: unclear whether GRS puts it on the predecessor's finish instant or on the next working start -> on the predecessor's finish instant (17:00 / 23:30), as MS Project does.
+- Start after a link landing on a span end: unclear whether the successor start is written at the span end or the next span start -> next working span start (e.g. 08:00 next working day).
+- statusDate time of day: the schema says its time does not move anything but not what GRS writes -> day-level 17:00 (end of day, equal to the in-progress task's stop); minute-level 10:30 equal to stop.
+- percentComplete rounding: the schema says round() but not how .5 is rounded -> chose stops that give exact values (50) so no tie arises.
+- resume / resumeValid on an uninterrupted in-progress task: unclear whether GRS fills Resume with the stop instant -> both null.
+- fadeInDays / fadeOutDays for a new task: null ("no value") or 0 -> wrote 0.
+- TaskVisual.shapeKind for a plain task and milestoneGlyph for a non-milestone: no stated default for shapeKind; milestoneGlyph defaults to diamond -> "rectangle" for tasks, "milestone" for milestones, "diamond" glyph on every row.
+- Task.calendarUid / Project.revision / Project.id: unclear what GRS writes for a document it made -> null.
+- Project.weekStartDay and daysPerMonth: no GRS default stated -> 0 (Sunday, MS Project's default) and 20.
+- Lag units: lagFormat 7/5/3 accepted but no rule which one GRS writes for a typed value -> day-level 7 with lag 2d = 9600; minute-level 5 for a 90-minute lag (900) and 3 for a 120-minute lag (1200); 3 on zero-lag links.
+- viewTimeZone: null may mean the viewer's zone or the schedule's zone -> day-level null; minute-level UTC+09:00 so the time-of-day ruler shows the schedule's own clock.
+- documentStamp / changeLog: unclear whether a hand-written file should carry a changeLog row and a fileSavedUtc -> one changeLog row and all three stamps set to 2026-10-15T00:00:00Z.
+- scheduleDataTimeZone for the day-level file: any key would do -> UTC+09:00.

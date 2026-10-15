@@ -1544,17 +1544,6 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-161",
-   "surfaces": [
-    "Properties Panel"
-   ],
-   "group": null,
-   "entryTo": "選んだ選び方（グローバルタイム（UTC）を保つ ／ ローカルタイムを保つ）で、選んだタイムゾーンを基準に当てる。<br>⭐ 選んだだけでは当たらず、本入口を押して当てる（`FR-156`）。<br>当てても何も変わらないあいだは薄くする（`FR-029`）",
-   "authority": "`FR-156`",
-   "arms": null,
-   "armsShape": null
-  },
-  {
    "rowId": "IC-162",
    "surfaces": [
     "Properties Panel"

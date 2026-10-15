@@ -435,8 +435,9 @@ describe('CR-557 S-2 -- nothing else enters the field, and every other setting i
   it(`FR-072 "${CLAUSE_READ_ONLY}" / "${CLAUSE_EXCEPTION}"`, () => {
     // WHY: table T-369 (CR-690) orders the fields under this one: FO-3 K-125, FO-4 K-85, FO-5 K-143, FO-6 K-71,
     // FO-7 (read-out), FO-8 IC-44, FO-9 K-142, FO-10 K-141, FO-11 (read-out and copy), FO-12 K-140, FO-13 to FO-16 (CR-710).
-    const placed = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'K-140', 'K-146', 'K-144', 'K-145', 'FO-17', 'IC-162']
-    const withControls = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'FX-6', 'K-140', 'K-146', 'K-144', 'K-145', 'FO-17', 'IC-162']
+    // WHY: CR-755 (FO-15) -- the display time zones are four rows, the setting's row and its number.
+    const placed = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'K-140', 'K-146', 'K-144', 'K-145:1', 'K-145:2', 'K-145:3', 'K-145:4', 'FO-17', 'IC-162']
+    const withControls = ['K-125', 'K-85', 'K-143', 'K-71', 'IC-44', 'K-142', 'K-141', 'FX-6', 'K-140', 'K-146', 'K-144', 'K-145:1', 'K-145:2', 'K-145:3', 'K-145:4', 'FO-17', 'IC-162']
     const rest = settingsPanel().fields.slice(1)
     expect(rest.length, 'premise: the panel shows other settings too').toBeGreaterThan(0)
     expect(rest.filter((one) => one.isEditable).map((one) => one.row)).toEqual(placed)

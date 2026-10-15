@@ -4,7 +4,15 @@
 // @purity    pure
 
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
-import { compareDays, dayOf, taskByUid, textOfDay, type CalendarDay } from '../../entity/document-model/schedule/schedule'
+import {
+  compareDays,
+  dayOf,
+  taskByUid,
+  textOfDay,
+  viewRegionOf,
+  type CalendarDay,
+} from '../../entity/document-model/schedule/schedule'
+import { snapMinutesOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   calendarDraftOf,
   withExceptionAdded,
@@ -92,22 +100,18 @@ const FULL_SCREEN_ENTRY_PRESSED: ScreenValuesEvent = { type: 'fullScreenEntryPre
 
 const ARM_DROPPED: ScreenValuesEvent = { type: 'escapePressed', rung: 'armed' }
 
-// see U-65, IC-138, IC-161, IC-162, FO-14, RS-87, T-214
+// see U-65, IC-138, IC-162, FO-14, RS-87, T-214
 const HOLIDAY_SETTINGS_ROW = 'U-65'
 
 type CalendarDraft = Extract<ScreenValuesEvent, { readonly type: 'calendarDraftEdited' }>['calendarDraft']
 
-type BaseChangeWay = Extract<ScreenValuesEvent, { readonly type: 'baseChangeWayChosen' }>['chosenWay']
-
 const CALENDAR_APPLY_ENTRY_PRESSED: ScreenValuesEvent = { type: 'calendarApplyEntryPressed' }
 
-const BASE_CHANGE_ENTRY_PRESSED: ScreenValuesEvent = { type: 'baseChangeEntryPressed' }
+const BASE_CHANGE_CANCEL_PRESSED: ScreenValuesEvent = { type: 'baseChangeCancelPressed' }
 
 const TIME_SHIFT_ENTRY_PRESSED: ScreenValuesEvent = { type: 'timeShiftEntryPressed' }
 
 const WHOLE_SCHEDULE_SHIFT_ENTRY_PRESSED: ScreenValuesEvent = { type: 'wholeScheduleShiftEntryPressed' }
-
-const BASE_CHANGE_WAYS: readonly BaseChangeWay[] = ['keepGlobalTime', 'keepLocalTime']
 
 const UNREADABLE_DAY_TOLD: SessionEvent = { type: 'noticeRaised', reason: 'RS-87', affectedCount: null }
 
@@ -292,6 +296,7 @@ function screenEventAfterMarkerPress(
   const task = taskByUid(context.document.schedule, uid)
   if (task === null) return null
   const remembered = rememberedActualIn(context, uid)
+  const snapAt = snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, false)
   const turned = cycleTaskPlanActualState(task, remembered, {
     startSide: task.start,
     floorDay: task.start,
@@ -301,7 +306,7 @@ function screenEventAfterMarkerPress(
     type: 'progressMarkerPressed',
     taskUid: uid,
     rememberedActual: turned.remembered,
-    writes: [{ kind: 'cycleTaskPlanActualState', uid, remembered }],
+    writes: [{ kind: 'cycleTaskPlanActualState', uid, remembered, snapMinutes: snapAt }],
   }
 }
 
@@ -344,15 +349,20 @@ export function screenEventFromInput(
 
 type DraftKey<Holder extends string> = Extract<FieldCommit['key'], { readonly holder: Holder }>
 
-// see FO-14, FR-156, IC-161, T-280
+// see FO-14, FR-156, S-574, AT-157, T-280
+// WHY: the guard isOtherThanShownBase reads the shown base (S-574, else AT-157) here, where the document is at hand.
 /** @purity pure */
-function baseTimeZoneDraftEventOf(column: DraftKey<'baseTimeZoneDraft'>['column'], text: string): ScreenValuesEvent | null {
-  if (column === 'entry') return BASE_CHANGE_ENTRY_PRESSED
-  if (column === 'chosenWay') {
-    const chosenWay = BASE_CHANGE_WAYS.find((one) => one === text)
-    return chosenWay === undefined ? null : { type: 'baseChangeWayChosen', chosenWay }
-  }
-  return text === '' ? null : { type: 'baseTimeZoneChosen', chosenRegion: text }
+function baseTimeZoneDraftEventOf(
+  column: DraftKey<'baseTimeZoneDraft'>['column'],
+  text: string,
+  context: InputContext,
+): ScreenValuesEvent | null {
+  if (column === 'cancel') return BASE_CHANGE_CANCEL_PRESSED
+  if (column === 'keepGlobalTime' || column === 'keepLocalTime') return { type: 'baseChangeEntryPressed', chosenWay: column }
+  if (text === '') return null
+  const document = context.document
+  const shownBase = viewRegionOf(document.schedule.project.scheduleDataTimeZone, document.documentSettings.viewTimeZone)
+  return { type: 'baseTimeZoneChosen', chosenRegion: text, isOtherThanShownBase: text !== shownBase }
 }
 
 // see FO-16, FR-157, IC-162, CM-98, T-280
@@ -419,7 +429,7 @@ function calendarDraftFieldEventOf(key: DraftKey<'calendarDraft'>, text: string,
 /** @purity pure */
 export function screenEventFromFieldCommit(commit: FieldCommit, context: InputContext): SessionEvent | null {
   const key = commit.key
-  if (key.holder === 'baseTimeZoneDraft') return baseTimeZoneDraftEventOf(key.column, commit.text)
+  if (key.holder === 'baseTimeZoneDraft') return baseTimeZoneDraftEventOf(key.column, commit.text, context)
   if (key.holder === 'timeShift') return timeShiftDraftEventOf(key.column, commit.text)
   if (key.holder === 'wholeScheduleShift') return wholeScheduleShiftDraftEventOf(key.column, commit.text)
   if (key.holder === 'calendarDraft') return calendarDraftFieldEventOf(key, commit.text, context)

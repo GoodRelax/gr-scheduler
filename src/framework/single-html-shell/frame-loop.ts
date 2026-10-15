@@ -25,15 +25,15 @@ import {
 import {
   delayDiagnosticsReportRows,
   diagnoseDelay,
-  regionForPc,
   scheduleViolations,
+  standardTimeZoneKeyForPc,
   textOfDay,
   textOfDayEnd,
   textOfDayStart,
   workingCalendarOf,
   type CalendarDay,
   type DelayDiagnosticsReport,
-  type PcRegionChoice,
+  type StandardTimeZoneKey,
 } from '../../entity/document-model/schedule/schedule'
 import {
   answersAtPointer,
@@ -2598,7 +2598,7 @@ export function readToday(): string {
 // see FR-095, RD-7
 /** @purity semi-pure-b */
 function startingAfreshCall(emptyDocument: Document): ReplacementCall {
-  const document = startedDocumentOf(emptyDocument, readLocalMoment(), readPcRegion().region)
+  const document = startedDocumentOf(emptyDocument, readLocalMoment(), readPcStandardTimeZone())
   return { row: 'RD-7', document, editedBy: EDITED_BY_SCREEN, updatedUtc: readInstantOfWrite() }
 }
 
@@ -2609,16 +2609,19 @@ export function startedDocumentOf(emptyDocument: Document, created: string, sche
   return { ...emptyDocument, schedule: { ...schedule, project: { ...schedule.project, created, scheduleDataTimeZone } } }
 }
 
-const MS_PER_MINUTE = 60000
+// WHY: noon, so no date of the year lands on a daylight-saving switch hour; month 0 is January, 6 July (FR-156).
+const PC_OFFSET_HOUR = 12
 
-const TIME_ZONE_SET_REASON: NoticeReason = 'RS-90'
+const JANUARY = 0
 
-// see FR-156, RS-90, T-376
+const JULY = 6
+
+// see FR-156, BK-4, T-376
 /** @purity semi-pure-b */
-export function readPcRegion(): PcRegionChoice {
-  const now = new Date()
-  const region = Intl.DateTimeFormat().resolvedOptions().timeZone
-  return regionForPc({ region, offsetMinutes: -now.getTimezoneOffset() }, Math.floor(now.getTime() / MS_PER_MINUTE))
+export function readPcStandardTimeZone(): StandardTimeZoneKey {
+  const year = new Date().getFullYear()
+  const offsetOn = (month: number): number => -new Date(year, month, 1, PC_OFFSET_HOUR).getTimezoneOffset()
+  return standardTimeZoneKeyForPc({ januaryOffsetMinutes: offsetOn(JANUARY), julyOffsetMinutes: offsetOn(JULY) })
 }
 
 // see FR-063
@@ -3532,7 +3535,7 @@ export function frameLoop(
   function carryOutOwedAction(owedAction: FileFlowOwedAction, frame: FrameValues | null): void {
     if (owedAction.kind === 'startNewDocument') {
       // TRAP: not RD-6, whose history cell differs.
-      if (emptyDocument !== undefined && replaceHeldDocument(startingAfreshCall(emptyDocument))) raiseNotice(TIME_ZONE_SET_REASON, null)
+      if (emptyDocument !== undefined) replaceHeldDocument(startingAfreshCall(emptyDocument))
       return
     }
     if (owedAction.kind === 'resetGrs') return resetGrs(pageReload)

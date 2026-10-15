@@ -1,0 +1,53 @@
+{
+  "file": "minute-level.json",
+  "app": "worktree build of CR-755 (vite build, dist/index.html)",
+  "measuredAt": "2026-10-15T00:03:49.790Z",
+  "schemaViolations": {
+    "count": 0,
+    "messages": [],
+    "formatsUnchecked": [
+      "date-time"
+    ]
+  },
+  "refused": false,
+  "title": {
+    "file": "Minute-level sample",
+    "headerBefore": "Sample Project - Press N to start a new one",
+    "headerAfter": "Minute-level sample",
+    "readBack": "Minute-level sample"
+  },
+  "notices": {
+    "count": 0,
+    "items": [],
+    "standingBeforeOpen": []
+  },
+  "consoleErrors": {
+    "count": 0,
+    "items": []
+  },
+  "pageExceptions": {
+    "count": 0,
+    "items": []
+  },
+  "recounts": {
+    "count": 0,
+    "fields": [
+      "percentComplete",
+      "start",
+      "finish",
+      "actualStart",
+      "actualFinish",
+      "stop"
+    ],
+    "tasksInFile": 8,
+    "tasksReadBack": 8,
+    "rows": []
+  },
+  "steps": [
+    "IC-1 pressed: true",
+    "[data-role=\"Open Chooser\"] shown: true",
+    "IC-71 pressed: true",
+    "IC-20 pressed: true"
+  ],
+  "pass": true
+}

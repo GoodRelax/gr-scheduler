@@ -74,7 +74,7 @@ const HIDDEN = [
 const TIMED = [
   'RS-23', 'RS-33', 'RS-54', 'RS-56', 'RS-58', 'RS-59', 'RS-61', 'RS-63', 'RS-65', 'RS-66', 'RS-68',
   'RS-70', 'RS-69', 'RS-77',
-  'RS-84', 'RS-85', 'RS-86', 'RS-87', 'RS-88', 'RS-90',
+  'RS-84', 'RS-85', 'RS-86', 'RS-87', 'RS-88',
 ] as const
 const REPORTED = ['RS-14', 'RS-16', 'RS-50', 'RS-51', 'RS-52', 'RS-60', 'RS-71', 'RS-72', 'RS-73'] as const
 const RIDING: Readonly<Record<string, string>> = {
@@ -141,11 +141,12 @@ describe('FR-076: the display column is the one place that decides', () => {
 })
 
 describe(`T-233 display column -- ${FR_076_THE_COLUMN_HOLDS_IT}`, () => {
-  it('the manuscript holds 85 reasons: show 35 (5 riding), autoDismiss 20, hide 21, report 9', () => {
+  // WHY: CR-755 retired the MSPDI time zone notice (an autoDismiss row): 85 -> 84.
+  it('the manuscript holds 84 reasons: show 35 (5 riding), autoDismiss 19, hide 21, report 9', () => {
     const count = (display: ReasonDisplay): number => ROSTER.reasons.filter((one) => one.display === display).length
-    expect(ROSTER.reasons).toHaveLength(85)
+    expect(ROSTER.reasons).toHaveLength(84)
     expect(count('show')).toBe(35)
-    expect(count('autoDismiss')).toBe(20)
+    expect(count('autoDismiss')).toBe(19)
     expect(count('hide')).toBe(21)
     expect(count('report')).toBe(9)
     expect(ROSTER.reasons.filter((one) => one.wordsOf !== undefined)).toHaveLength(5)
@@ -247,12 +248,12 @@ describe('the generated rosters src reads are the manuscript (PI-39)', () => {
 })
 
 describe(`the dictionary follows the riding -- ${FR_076_A_RIDING_ROW_HAS_NONE}`, () => {
-  it('a riding row has no entry in reasons, and every other row of T-233 has one (80)', () => {
+  it('a riding row has no entry in reasons, and every other row of T-233 has one (79)', () => {
     const entries = WORDS.reasons.map((one) => one.rowId)
     for (const rider of Object.keys(RIDING)) expect(entries, `${rider} rides and has no words of its own`).not.toContain(rider)
     const owners = ROSTER.reasons.filter((one) => one.wordsOf === undefined).map((one) => one.id)
     expect([...entries].sort()).toEqual([...owners].sort())
-    expect(entries).toHaveLength(80)
+    expect(entries).toHaveLength(79)
   })
 
   it('a hidden row keeps its words (JDG-1759)', () => {

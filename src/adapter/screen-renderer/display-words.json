@@ -1498,17 +1498,6 @@
    }
   },
   {
-   "rowId": "IC-161",
-   "label": {
-    "ja": "基準を変える",
-    "en": "Change Base Time Zone"
-   },
-   "hint": {
-    "ja": "選んだタイムゾーンを表示の基準にする。スケジュールの日時の値は書き換えない",
-    "en": "Use the chosen time zone as the base for display. The schedule date-time values are not rewritten"
-   }
-  },
-  {
    "rowId": "IC-162",
    "label": {
     "ja": "タイムシフト",
@@ -2831,8 +2820,8 @@
     "viewTimeZone"
    ],
    "label": {
-    "ja": "基準のタイムゾーン",
-    "en": "viewTimeZone"
+    "ja": "本プロジェクトの基準タイムゾーン",
+    "en": "Project Base Time Zone"
    }
   },
   {
@@ -2842,7 +2831,7 @@
    ],
    "label": {
     "ja": "表示するタイムゾーン",
-    "en": "displayTimeZones"
+    "en": "Display Time Zone"
    }
   },
   {
@@ -4008,17 +3997,6 @@
    "nextStep": {
     "ja": "「1d」と打った長さは、時間帯の合計ではなく文書が決めた 1 日の長さで数えます。そろえたいときは、休日の設定で時間帯を直してください",
     "en": "1d is counted as the day length the document sets, not as the sum of the ranges. To make them agree, fix the ranges in Holiday Settings"
-   }
-  },
-  {
-   "rowId": "RS-90",
-   "text": {
-    "ja": "日程データのタイムゾーンを、この PC の地域にしました",
-    "en": "The schedule data time zone was set to this PC's region"
-   },
-   "nextStep": {
-    "ja": "この PC の地域が一覧に無いときは、UTC の差が同じ一覧の地域に寄せています。別の地域で読みたいときは、文書の設定で基準のタイムゾーンを選び、「ローカルタイムを保つ」を選んで [基準を変える] を押してください",
-    "en": "If this PC's region is not in the list, the listed region with the same UTC offset was used. To read the dates in another region, pick it as the base time zone in Document Settings, choose Keep Local Time, then press Change Base Time Zone"
    }
   },
   {
@@ -5542,222 +5520,348 @@
  ],
  "timeZones": [
   {
-   "rowId": "ZN-1",
+   "rowId": "ZN-29",
    "label": {
-    "ja": "(UTC-12:00) 日付変更線の西",
-    "en": "(UTC-12:00) International Date Line West"
+    "ja": "日付変更線の西",
+    "en": "International Date Line West"
    }
   },
   {
-   "rowId": "ZN-2",
+   "rowId": "ZN-30",
    "label": {
-    "ja": "(UTC-11:00) サモア（米領）",
-    "en": "(UTC-11:00) American Samoa"
+    "ja": "サモア（米領）",
+    "en": "American Samoa"
    }
   },
   {
-   "rowId": "ZN-3",
+   "rowId": "ZN-31",
    "label": {
-    "ja": "(UTC-10:00) ハワイ",
-    "en": "(UTC-10:00) Hawaii"
+    "ja": "ハワイ",
+    "en": "Hawaii"
    }
   },
   {
-   "rowId": "ZN-4",
+   "rowId": "ZN-32",
    "label": {
-    "ja": "(UTC-09:00) アラスカ",
-    "en": "(UTC-09:00) Alaska"
+    "ja": "アラスカ標準時",
+    "en": "Alaska Standard Time"
    }
   },
   {
-   "rowId": "ZN-5",
+   "rowId": "ZN-33",
    "label": {
-    "ja": "(UTC-08:00) 太平洋時間（米国・カナダ）",
-    "en": "(UTC-08:00) Pacific Time (US and Canada)"
+    "ja": "太平洋標準時（米国・カナダ）",
+    "en": "Pacific Standard Time (US and Canada)"
    }
   },
   {
-   "rowId": "ZN-6",
+   "rowId": "ZN-34",
    "label": {
-    "ja": "(UTC-07:00) 山岳部時間（米国・カナダ）",
-    "en": "(UTC-07:00) Mountain Time (US and Canada)"
+    "ja": "アラスカ夏時間",
+    "en": "Alaska Daylight Time"
    }
   },
   {
-   "rowId": "ZN-7",
+   "rowId": "ZN-35",
    "label": {
-    "ja": "(UTC-06:00) 中部時間（米国・カナダ）",
-    "en": "(UTC-06:00) Central Time (US and Canada)"
+    "ja": "山岳部標準時（米国・カナダ）",
+    "en": "Mountain Standard Time (US and Canada)"
    }
   },
   {
-   "rowId": "ZN-8",
+   "rowId": "ZN-36",
    "label": {
-    "ja": "(UTC-05:00) 東部時間（米国・カナダ）",
-    "en": "(UTC-05:00) Eastern Time (US and Canada)"
+    "ja": "太平洋夏時間（米国・カナダ）",
+    "en": "Pacific Daylight Time (US and Canada)"
    }
   },
   {
-   "rowId": "ZN-9",
+   "rowId": "ZN-37",
    "label": {
-    "ja": "(UTC-04:00) 大西洋時間（カナダ）",
-    "en": "(UTC-04:00) Atlantic Time (Canada)"
+    "ja": "中部標準時（米国・カナダ）",
+    "en": "Central Standard Time (US and Canada)"
    }
   },
   {
-   "rowId": "ZN-10",
+   "rowId": "ZN-38",
    "label": {
-    "ja": "(UTC-03:00) サンパウロ",
-    "en": "(UTC-03:00) Sao Paulo"
+    "ja": "山岳部夏時間（米国・カナダ）",
+    "en": "Mountain Daylight Time (US and Canada)"
    }
   },
   {
-   "rowId": "ZN-11",
+   "rowId": "ZN-39",
    "label": {
-    "ja": "(UTC-02:00) 南ジョージア",
-    "en": "(UTC-02:00) South Georgia"
+    "ja": "東部標準時（米国・カナダ）",
+    "en": "Eastern Standard Time (US and Canada)"
    }
   },
   {
-   "rowId": "ZN-12",
+   "rowId": "ZN-40",
    "label": {
-    "ja": "(UTC-01:00) アゾレス",
-    "en": "(UTC-01:00) Azores"
+    "ja": "中部夏時間（米国・カナダ）",
+    "en": "Central Daylight Time (US and Canada)"
    }
   },
   {
-   "rowId": "ZN-13",
+   "rowId": "ZN-41",
    "label": {
-    "ja": "(UTC) 協定世界時",
-    "en": "(UTC) Coordinated Universal Time"
+    "ja": "大西洋標準時（カナダ）",
+    "en": "Atlantic Standard Time (Canada)"
    }
   },
   {
-   "rowId": "ZN-14",
+   "rowId": "ZN-42",
    "label": {
-    "ja": "(UTC+00:00) ロンドン",
-    "en": "(UTC+00:00) London"
+    "ja": "東部夏時間（米国・カナダ）",
+    "en": "Eastern Daylight Time (US and Canada)"
    }
   },
   {
-   "rowId": "ZN-15",
+   "rowId": "ZN-43",
    "label": {
-    "ja": "(UTC+01:00) 中央ヨーロッパ（ベルリン・パリ）",
-    "en": "(UTC+01:00) Central Europe (Berlin, Paris)"
+    "ja": "サンパウロ",
+    "en": "Sao Paulo"
    }
   },
   {
-   "rowId": "ZN-16",
+   "rowId": "ZN-44",
    "label": {
-    "ja": "(UTC+02:00) 東ヨーロッパ（ヘルシンキ）",
-    "en": "(UTC+02:00) Eastern Europe (Helsinki)"
+    "ja": "大西洋夏時間（カナダ）",
+    "en": "Atlantic Daylight Time (Canada)"
    }
   },
   {
-   "rowId": "ZN-17",
+   "rowId": "ZN-45",
    "label": {
-    "ja": "(UTC+03:00) モスクワ",
-    "en": "(UTC+03:00) Moscow"
+    "ja": "ヌーク・南ジョージア",
+    "en": "Nuuk, South Georgia"
    }
   },
   {
-   "rowId": "ZN-18",
+   "rowId": "ZN-46",
    "label": {
-    "ja": "(UTC+04:00) ドバイ",
-    "en": "(UTC+04:00) Dubai"
+    "ja": "カーボベルデ・アゾレス",
+    "en": "Cape Verde, Azores"
    }
   },
   {
-   "rowId": "ZN-19",
+   "rowId": "ZN-47",
    "label": {
-    "ja": "(UTC+05:00) カラチ",
-    "en": "(UTC+05:00) Karachi"
+    "ja": "協定世界時・ロンドン",
+    "en": "Coordinated Universal Time, London"
    }
   },
   {
-   "rowId": "ZN-20",
+   "rowId": "ZN-48",
    "label": {
-    "ja": "(UTC+05:30) インド",
-    "en": "(UTC+05:30) India"
+    "ja": "アゾレス夏時間",
+    "en": "Azores Summer Time"
    }
   },
   {
-   "rowId": "ZN-21",
+   "rowId": "ZN-49",
    "label": {
-    "ja": "(UTC+06:00) ダッカ",
-    "en": "(UTC+06:00) Dhaka"
+    "ja": "中央ヨーロッパ（ベルリン・パリ）",
+    "en": "Central Europe (Berlin, Paris)"
    }
   },
   {
-   "rowId": "ZN-22",
+   "rowId": "ZN-50",
    "label": {
-    "ja": "(UTC+07:00) バンコク",
-    "en": "(UTC+07:00) Bangkok"
+    "ja": "ロンドン夏時間",
+    "en": "London Summer Time"
    }
   },
   {
-   "rowId": "ZN-23",
+   "rowId": "ZN-51",
    "label": {
-    "ja": "(UTC+08:00) シンガポール・北京",
-    "en": "(UTC+08:00) Singapore, Beijing"
+    "ja": "カイロ・東ヨーロッパ（ヘルシンキ）",
+    "en": "Cairo, Eastern Europe (Helsinki)"
    }
   },
   {
-   "rowId": "ZN-24",
+   "rowId": "ZN-52",
    "label": {
-    "ja": "(UTC+09:00) 東京",
-    "en": "(UTC+09:00) Tokyo"
+    "ja": "中央ヨーロッパ夏時間（ベルリン・パリ）",
+    "en": "Central European Summer Time (Berlin, Paris)"
    }
   },
   {
-   "rowId": "ZN-25",
+   "rowId": "ZN-53",
    "label": {
-    "ja": "(UTC+10:00) シドニー",
-    "en": "(UTC+10:00) Sydney"
+    "ja": "モスクワ",
+    "en": "Moscow"
    }
   },
   {
-   "rowId": "ZN-26",
+   "rowId": "ZN-54",
    "label": {
-    "ja": "(UTC+11:00) ヌメア",
-    "en": "(UTC+11:00) Noumea"
+    "ja": "東ヨーロッパ夏時間（カイロ・ヘルシンキ）",
+    "en": "Eastern European Summer Time (Cairo, Helsinki)"
    }
   },
   {
-   "rowId": "ZN-27",
+   "rowId": "ZN-55",
    "label": {
-    "ja": "(UTC+12:00) オークランド",
-    "en": "(UTC+12:00) Auckland"
+    "ja": "ドバイ",
+    "en": "Dubai"
    }
   },
   {
-   "rowId": "ZN-28",
+   "rowId": "ZN-56",
    "label": {
-    "ja": "(UTC+13:00) トンガ",
-    "en": "(UTC+13:00) Tonga"
+    "ja": "カラチ",
+    "en": "Karachi"
+   }
+  },
+  {
+   "rowId": "ZN-57",
+   "label": {
+    "ja": "インド",
+    "en": "India"
+   }
+  },
+  {
+   "rowId": "ZN-58",
+   "label": {
+    "ja": "ダッカ",
+    "en": "Dhaka"
+   }
+  },
+  {
+   "rowId": "ZN-59",
+   "label": {
+    "ja": "ジャカルタ・バンコク",
+    "en": "Jakarta, Bangkok"
+   }
+  },
+  {
+   "rowId": "ZN-60",
+   "label": {
+    "ja": "北京・シンガポール",
+    "en": "Beijing, Singapore"
+   }
+  },
+  {
+   "rowId": "ZN-61",
+   "label": {
+    "ja": "東京",
+    "en": "Tokyo"
+   }
+  },
+  {
+   "rowId": "ZN-62",
+   "label": {
+    "ja": "シドニー",
+    "en": "Sydney"
+   }
+  },
+  {
+   "rowId": "ZN-63",
+   "label": {
+    "ja": "ホニアラ・ヌメア",
+    "en": "Honiara, Noumea"
+   }
+  },
+  {
+   "rowId": "ZN-64",
+   "label": {
+    "ja": "シドニー夏時間",
+    "en": "Sydney Daylight Time"
+   }
+  },
+  {
+   "rowId": "ZN-65",
+   "label": {
+    "ja": "オークランド",
+    "en": "Auckland"
+   }
+  },
+  {
+   "rowId": "ZN-66",
+   "label": {
+    "ja": "サモア・トンガ",
+    "en": "Samoa, Tonga"
+   }
+  },
+  {
+   "rowId": "ZN-67",
+   "label": {
+    "ja": "オークランド夏時間",
+    "en": "Auckland Daylight Time"
    }
   }
  ],
  "timeZoneField": [
   {
+   "part": "baseChangeQuestion",
+   "text": {
+    "ja": "スケジュールデータの時刻:",
+    "en": "Schedule data times:"
+   }
+  },
+  {
    "part": "keepGlobalTime",
    "text": {
-    "ja": "グローバルタイム（UTC）を保つ",
-    "en": "Keep Global Time (UTC)"
+    "ja": "換算して適用する",
+    "en": "Convert and Apply"
+   }
+  },
+  {
+   "part": "keepGlobalTimeHint",
+   "text": {
+    "ja": "選んだタイムゾーンを表示の基準にする。スケジュールの日時の値は書き換えない",
+    "en": "Use the chosen time zone as the base for display. The schedule date-time values are not rewritten"
    }
   },
   {
    "part": "keepLocalTime",
    "text": {
-    "ja": "ローカルタイムを保つ",
-    "en": "Keep Local Time"
+    "ja": "換算しない",
+    "en": "Don't Convert"
    }
   },
   {
-   "part": "example",
+   "part": "keepLocalTimeHint",
    "text": {
-    "ja": "例: {name} {before} -> {after}",
-    "en": "Example: {name} {before} -> {after}"
+    "ja": "選んだタイムゾーンを、スケジュールの日時の数字が指すタイムゾーンにする。数字は書き換えず、瞬間が動く",
+    "en": "Make the chosen time zone the one the schedule date-time numbers are read in. The numbers are not rewritten, so the instants move"
+   }
+  },
+  {
+   "part": "cancelBaseChange",
+   "text": {
+    "ja": "キャンセル",
+    "en": "Cancel"
+   }
+  },
+  {
+   "part": "beforeLine",
+   "text": {
+    "ja": "変更前: {time}",
+    "en": "Before: {time}"
+   }
+  },
+  {
+   "part": "afterLine",
+   "text": {
+    "ja": "変更後: {time}",
+    "en": "After: {time}"
+   }
+  },
+  {
+   "part": "zoneName",
+   "text": {
+    "ja": "UTC {offset} {abbreviation} {place}",
+    "en": "UTC {offset} {abbreviation} {place}"
+   }
+  },
+  {
+   "part": "offsetName",
+   "text": {
+    "ja": "UTC{offset}",
+    "en": "UTC{offset}"
    }
   },
   {

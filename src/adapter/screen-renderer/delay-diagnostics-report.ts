@@ -15,7 +15,7 @@ import {
   delayFixRowsInOrder,
   isSameDay,
   isSearchWordFound,
-  isTimeZoneRegion,
+  isStandardTimeZoneKey,
   minutesPerWorkingDayOf,
   type DelayDiagnosticsReport,
   type DelayFixCheck,
@@ -57,6 +57,7 @@ import {
   taskTypeOf,
   TASK_TYPES_ASCENDING,
   withVisibilityColumn,
+  type ColumnSort,
   type TableColumns,
 } from './search-table-filters'
 import {
@@ -300,7 +301,7 @@ function shownTimesOf(schedule: Schedule, showsTimeOfDay: boolean, viewTimeZone:
   return {
     showsTimeOfDay,
     minutesPerDayOf: () => minutesPerWorkingDayOf(schedule.project),
-    dates: shownDateTimesOf(schedule, { showsTimeOfDay, viewTimeZone: isTimeZoneRegion(viewTimeZone) ? viewTimeZone : null }),
+    dates: shownDateTimesOf(schedule, { showsTimeOfDay, viewTimeZone: isStandardTimeZoneKey(viewTimeZone) ? viewTimeZone : null }),
   }
 }
 
@@ -478,6 +479,7 @@ function reportWidthSamplesIn(all: readonly ShownTaskGroup[], language: DisplayL
 function reportLabelOf(column: string, value: string, language: DisplayLanguage): string {
   if (column === VISIBILITY_COLUMN) return visibilityLabelOf(value, language) ?? value
   if (column === TASK_TYPE_COLUMN) return taskTypeWordOf(value, language)
+  if (value === BLANK_SEARCH_VALUE) return wordOf(BLANK_WORD, language)
   return column === STATUS_COLUMN ? statusWordOf(value as DelayReportStatus, language) : value
 }
 
@@ -501,7 +503,7 @@ function reportTableOf(
     fixedCount: DELAY_REPORT_COLUMNS.indexOf(LAST_FIXED_COLUMN) + 1,
     headingOf: (column) => partWordOf(COLUMN_WORDS, column, language),
     isDateColumn: (column) => REPORT_TABLE.dates[column] !== undefined,
-    valuesOf: (column) => tableColumnValues(found(), columns, column),
+    valuesOf: (column) => tableColumnValues(found(), columns, column, view.sort),
     labelOf: (column, value) => reportLabelOf(column, value, language),
     ...(all === undefined ? {} : { widthSamplesOf: reportWidthSamplesIn(all, language) }),
   }
@@ -585,7 +587,8 @@ function diagnosisReportViewOf(
   const all = isOpen ? reported : []
   const withCells = taskGroupsWithCells(all, language, times)
   const found = shownTaskGroupsFrom({ word: window.panel.word, view }, withCells)
-  const table = reportTableOf(view, () => found, language, withCells)
+  const listed = (): readonly ShownTaskGroup[] => shownTaskGroupsFrom({ word: window.panel.word, view: { ...view, columnFilters: [] } }, withCells)
+  const table = reportTableOf(view, listed, language, withCells)
   const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldReportFilterChange(view, reported, schedule), language)
   const rows = reportRowViewsOf(view, found)
   return {
@@ -994,6 +997,7 @@ interface ShownFixRow {
   readonly row: DelayFixRow | DelayFixLogRow
   readonly cells: readonly string[]
   readonly columns: readonly string[]
+  readonly blankWord: string
 }
 
 /** @purity pure */
@@ -1006,9 +1010,17 @@ function fixCellOf(shown: ShownFixRow, column: string): string {
   return shown.cells[shown.columns.indexOf(column)] ?? BLANK_SEARCH_VALUE
 }
 
+// see SV-7, SV-8, FM-7
+// WHY: a cell that shows the blank word holds the empty value, so it lists as (Blanks) and sorts last.
+/** @purity pure */
+function fixValueOf(shown: ShownFixRow, column: string): string {
+  const text = fixCellOf(shown, column)
+  return text === shown.blankWord ? BLANK_SEARCH_VALUE : text
+}
+
 // see T-374, SV-7, SV-8, FM-2
 const FIX_TABLE: TableColumns<ShownFixRow> = {
-  values: Object.fromEntries(FIX_COLUMNS.map((column) => [column, (shown: ShownFixRow) => [fixCellOf(shown, column)]])),
+  values: Object.fromEntries(FIX_COLUMNS.map((column) => [column, (shown: ShownFixRow) => [fixValueOf(shown, column)]])),
   dates: {
     [FIX_DATE_COLUMN]: (shown) => (shown.columns.includes(FIX_DATE_COLUMN) ? fixCellOf(shown, FIX_DATE_COLUMN).replace(/\//g, '-').slice(0, 10) : null),
   },
@@ -1049,9 +1061,9 @@ function isFixWordFound(shown: ShownFixRow, word: string): boolean {
 /** @purity pure */
 function shownFixRowsOf(table: FixTable, tables: DelayFixTables, words: FixWords): readonly ShownFixRow[] {
   if (table === 'log') {
-    return delayFixLogRowsInOrder(tables.log).map((row) => ({ row, cells: delayFixLogCells(row, words.cells, FIX_COLUMNS), columns: LOG_COLUMNS }))
+    return delayFixLogRowsInOrder(tables.log).map((row) => ({ row, cells: delayFixLogCells(row, words.cells, FIX_COLUMNS), columns: LOG_COLUMNS, blankWord: words.cells.empty }))
   }
-  return tables.proposals.map((row) => ({ row, cells: delayFixProposalCells(row, words.cells, FIX_COLUMNS), columns: PROPOSAL_COLUMNS }))
+  return tables.proposals.map((row) => ({ row, cells: delayFixProposalCells(row, words.cells, FIX_COLUMNS), columns: PROPOSAL_COLUMNS, blankWord: words.cells.empty }))
 }
 
 /** @purity pure */
@@ -1062,14 +1074,20 @@ function foundFixRowsOf(all: readonly ShownFixRow[], word: string, view: TableVi
 
 // see T-374, RW-9, RW-10, SV-18
 /** @purity pure */
-function fixWindowTableOf(table: FixTable, found: () => readonly ShownFixRow[], language: DisplayLanguage, all?: readonly ShownFixRow[]): WindowTable {
+function fixWindowTableOf(
+  table: FixTable,
+  found: () => readonly ShownFixRow[],
+  language: DisplayLanguage,
+  listed: { readonly rows: () => readonly ShownFixRow[]; readonly sort: ColumnSort | null } = { rows: found, sort: null },
+  all?: readonly ShownFixRow[],
+): WindowTable {
   const columns = table === 'log' ? LOG_COLUMNS : PROPOSAL_COLUMNS
   return {
     columns,
     fixedCount: columns.indexOf(FIX_JUMP_COLUMN) + 1,
     headingOf: (column) => partWordOf(FIX_COLUMN_WORDS, column, language),
     isDateColumn: (column) => column === FIX_DATE_COLUMN,
-    valuesOf: (column) => tableColumnValues(found(), FIX_TABLE, column),
+    valuesOf: (column) => tableColumnValues(listed.rows(), FIX_TABLE, column, listed.sort),
     labelOf: (_column, value) => (value === BLANK_SEARCH_VALUE ? wordOf(BLANK_WORD, language) : value),
     ...(all === undefined ? {} : { widthSamplesOf: fixWidthSamplesIn(all, language) }),
   }
@@ -1236,7 +1254,8 @@ function fixTableViewOf(
   const view = values.views[table]
   const all = window.shown === 'minimized' ? [] : shownFixRowsOf(table, tables, words)
   const found = foundFixRowsOf(all, window.panel.word, view)
-  const shape = fixWindowTableOf(table, () => found, language, all)
+  const listed = (): readonly ShownFixRow[] => foundFixRowsOf(all, window.panel.word, { ...view, columnFilters: [] })
+  const shape = fixWindowTableOf(table, () => found, language, { rows: listed, sort: view.sort }, all)
   return {
     ...windowColumnsViewOf(window, view, shape, language),
     rows: fixRowViewsOf(found, values, words),
@@ -1286,7 +1305,7 @@ function stepAfterWalk(window: DelayDiagnosticsReportWindow, view: TableView, st
   const row = tables.proposals.find((one) => one.key === next)
   if (next === undefined || at + step < 0 || row === undefined) return null
   const moved = withFixValues(windowOnTable(window, 'proposals'), { at: next })
-  return { window: moved, view, asked: { kind: 'fixJump', target: fixTargetOf({ row, cells: [], columns: [] }) } }
+  return { window: moved, view, asked: { kind: 'fixJump', target: fixTargetOf({ row, cells: [], columns: [], blankWord: '' }) } }
 }
 
 // see RW-12, FR-155, T-290
@@ -1368,7 +1387,6 @@ export function delayDiagnosticsReportWithPick(window: DelayDiagnosticsReportWin
 }
 
 // see RW-18, RW-16, FM-1
-// WHY: unticks nothing and leaves suggested dates, 2+ choices and rows by hand; rows out of the list are ticked too.
 /** @purity pure */
 export function delayDiagnosticsReportWithAdoptAll(window: DelayDiagnosticsReportWindow, tables: DelayFixTables): DelayDiagnosticsReportWindow {
   return tables.proposals.filter(isAdoptable).reduce(

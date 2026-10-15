@@ -253,7 +253,7 @@ function lineTableOf(view: TableView, listed: () => readonly ResourceLine[], lan
     fixedCount: FIXED_COLUMN_COUNT,
     headingOf: (column) => wordOf(COLUMN_WORDS.get(column), language),
     isDateColumn: () => false,
-    valuesOf: (column) => tableColumnValues(listed(), lineColumns, column),
+    valuesOf: (column) => tableColumnValues(listed(), lineColumns, column, view.sort),
     labelOf: (column, value) => lineLabelOf(column, value, language),
     ...(all === undefined ? {} : { widthSamplesOf: widthSamplesIn(all, language) }),
   }
@@ -307,7 +307,7 @@ export function resourceListFromWindow(
   const language = displayLanguageOf(session)
   const all = resourceLinesOf({ schedule, chosenResourceUids, language })
   const listed = window.shown === 'minimized' ? [] : listedLinesOf({ word: window.panel.word, view }, all)
-  const table = lineTableOf(view, () => listed, language, all)
+  const table = lineTableOf(view, () => listedLinesOf({ word: window.panel.word, view: { ...view, columnFilters: [] } }, all), language, all)
   const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldResourceFilterChange(view, schedule), language)
   const rows = listed.map((line) => rowViewOf(view, line, language))
   return {

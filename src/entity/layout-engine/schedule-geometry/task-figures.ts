@@ -541,7 +541,7 @@ function drawnReferenceOf(inputs: GeometryInputs, placed: TaskPlacement): LabelR
   if (!inputs.showActual) return labelReferenceOf(placed.shapeKind, plan, fade, null, settings)
   const diameter = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings)
   const band = placed.actualX === null
-    ? dummyBandOf(placed.shapeKind, plan, diameter)
+    ? dummyBandOf(placed.shapeKind, plan, diameter, dummyAxisOf(inputs))
     : { x: placed.actualX, width: placed.actualWidth }
   return labelReferenceOf(placed.shapeKind, plan, fade, band, settings)
 }
@@ -650,15 +650,10 @@ function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   }
 }
 
+// see DM-3, FR-158
 /** @purity pure */
-function dummyFromOf(inputs: GeometryInputs, startText: string | null): CalendarDay | null {
-  const key = startText ?? ''
-  const held = inputs.dummyFromByStart.get(key)
-  if (held !== undefined) return held
-  // WHY: the plan start itself, not the working day after it: the mark stands where the actual would start (DM-1).
-  const made = dayOf(startText)
-  inputs.dummyFromByStart.set(key, made)
-  return made
+function dummyAxisOf(inputs: GeometryInputs): { readonly pxPerDay: number; readonly showsTimeOfDay: boolean } {
+  return { pxPerDay: inputs.layout.pxPerDay, showsTimeOfDay: inputs.settings.showsTimeOfDay }
 }
 
 // TRAP: keyed by textOfDay, since two equal CalendarDay records are not one Map key.
@@ -679,9 +674,12 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                    actualHeight: number): readonly DummyGeometry[] {
   // TRAP: empties only what is drawn and grabbed; the room stays in the layout's dummyReach (DM-14, FR-049).
   if (!inputs.showActual || placed.actualX !== null) return []
-  const from = dummyFromOf(inputs, task.start)
+  // WHY: the plan start itself, not the working day after it: the mark stands where the actual would start (DM-1).
+  const from = dayOf(task.start)
   if (from === null) return []
-  const fromX = xFromDay(inputs.layout, from)
+  const diameter = markerDiameterOf(placed.shapeKind, placed.labelFontSize, inputs.settings)
+  const drawn = dummyBandOf(placed.shapeKind, { x: placed.x, width: placed.width }, diameter, dummyAxisOf(inputs))
+  const fromX = drawn.x
   const planMiddle = placed.y + placed.planHeight / 2
 
   if (placed.actualPlacement === 'sideways') {
@@ -697,11 +695,7 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
     return [{ grab: 'GA-17', at: point(fromX, planMiddle), ink, figure }]
   }
 
-  // TRAP: schedule-layout.ts counts the same width into dummyReach (dummyInkWidthOf); change both together.
-  const width = Math.min(
-    markerDiameterOf(placed.shapeKind, placed.labelFontSize, inputs.settings) * NOT_STORED_DUMMY_SIZES['S-247'],
-    NOT_STORED_DUMMY_SIZES['S-180'],
-  )
+  const width = drawn.width
   const thin = isThinShape(placed.shapeKind)
   const band = thin ? inputs.settings.thinStrokeWidth : actualHeight
   // TRAP: the band follows actualPlacement (LF-9); the plan's mid-line would put an SH-3 / SH-4 dummy on the plan line.
@@ -713,10 +707,11 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   const ink: ScreenRect = { x: fromX, y: top, width, height: band }
   // WHY: one barOf call shared by both dummies: the mark is a one-day actual's shape (DM-2, DM-4).
   const figure = barOf(inputs, placed, fromX, fromX + width, top, band, true)
-  const end = dummyEndOf(inputs, from)
+  // WHY: with time of day shown the dummy's actual ends where the mark does (DM-2, JDG-2108); without, on its last day.
+  const endX = inputs.settings.showsTimeOfDay ? fromX + width : xFromDay(inputs.layout, dummyEndOf(inputs, from))
   return [
     { grab: thin ? 'GA-21' : 'GA-5', at: point(fromX, middle), ink, figure },
-    { grab: thin ? 'GA-22' : 'GA-6', at: point(xFromDay(inputs.layout, end), middle), ink, figure },
+    { grab: thin ? 'GA-22' : 'GA-6', at: point(endX, middle), ink, figure },
   ]
 }
 
@@ -835,9 +830,11 @@ export function taskGeometryOf(inputs: GeometryInputs, task: Task, placed: TaskP
 export const NOT_STORED_DUMMY_SIZES: {
   readonly 'S-180': number
   readonly 'S-247': number
+  readonly 'S-585': number
 } = {
   'S-180': 30,
   'S-247': 0.5,
+  'S-585': 60,
 }
 
 // see T-206

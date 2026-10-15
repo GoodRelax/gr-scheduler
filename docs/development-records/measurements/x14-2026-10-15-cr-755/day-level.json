@@ -1,0 +1,618 @@
+{
+  "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
+  "schemaVersion": "2026-10-11T04:10:00Z",
+  "schedule": {
+    "project": {
+      "id": null,
+      "name": "Day-level sample",
+      "title": "Day-level sample",
+      "subject": null,
+      "category": null,
+      "company": null,
+      "manager": null,
+      "author": null,
+      "created": "2026-10-15T09:00:00",
+      "revision": null,
+      "startDate": "2026-11-02T08:00:00",
+      "statusDate": "2026-11-06T17:00:00",
+      "minutesPerDay": 480,
+      "minutesPerWeek": 2400,
+      "daysPerMonth": 20,
+      "weekStartDay": 0,
+      "calendarUid": 1,
+      "defaultStartTime": "08:00:00",
+      "defaultFinishTime": "17:00:00",
+      "themeHue": 214,
+      "parentProgressToleranceDays": 1,
+      "uidHighWaterMark": 9,
+      "importSeq": 0,
+      "carry": {},
+      "carryElements": [],
+      "outlineBase": 1,
+      "sourceFormat": "grs",
+      "scheduleDataTimeZone": "UTC+09:00"
+    },
+    "calendars": [
+      {
+        "uid": 1,
+        "name": "Standard",
+        "isBaseCalendar": true,
+        "baseCalendarUid": null,
+        "ordinal": 0,
+        "carry": {},
+        "carryElements": [],
+        "weekDays": [
+          {
+            "ordinal": 0,
+            "dayType": 1,
+            "dayWorking": false,
+            "workingTimes": [],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 1,
+            "dayType": 2,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "08:00:00",
+                "toTime": "12:00:00"
+              },
+              {
+                "ordinal": 1,
+                "fromTime": "13:00:00",
+                "toTime": "17:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 2,
+            "dayType": 3,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "08:00:00",
+                "toTime": "12:00:00"
+              },
+              {
+                "ordinal": 1,
+                "fromTime": "13:00:00",
+                "toTime": "17:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 3,
+            "dayType": 4,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "08:00:00",
+                "toTime": "12:00:00"
+              },
+              {
+                "ordinal": 1,
+                "fromTime": "13:00:00",
+                "toTime": "17:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 4,
+            "dayType": 5,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "08:00:00",
+                "toTime": "12:00:00"
+              },
+              {
+                "ordinal": 1,
+                "fromTime": "13:00:00",
+                "toTime": "17:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 5,
+            "dayType": 6,
+            "dayWorking": true,
+            "workingTimes": [
+              {
+                "ordinal": 0,
+                "fromTime": "08:00:00",
+                "toTime": "12:00:00"
+              },
+              {
+                "ordinal": 1,
+                "fromTime": "13:00:00",
+                "toTime": "17:00:00"
+              }
+            ],
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "ordinal": 6,
+            "dayType": 7,
+            "dayWorking": false,
+            "workingTimes": [],
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "exceptions": []
+      }
+    ],
+    "tasks": [
+      {
+        "uid": 2,
+        "parentTaskUid": null,
+        "wbsOrder": 1,
+        "name": "Requirements",
+        "start": "2026-11-02T08:00:00",
+        "finish": "2026-11-04T17:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": null,
+        "calendarUid": null,
+        "actualStart": "2026-11-02T08:00:00",
+        "stop": null,
+        "actualFinish": "2026-11-04T17:00:00",
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 100,
+        "fadeInDays": 0,
+        "fadeOutDays": 0,
+        "dependencies": [],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 3,
+        "parentTaskUid": null,
+        "wbsOrder": 2,
+        "name": "Basic design",
+        "start": "2026-11-05T08:00:00",
+        "finish": "2026-11-10T17:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": null,
+        "calendarUid": null,
+        "actualStart": "2026-11-05T08:00:00",
+        "stop": "2026-11-06T17:00:00",
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 50,
+        "fadeInDays": 0,
+        "fadeOutDays": 0,
+        "dependencies": [
+          {
+            "predecessorUid": 2,
+            "linkType": 1,
+            "lag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 4,
+        "parentTaskUid": null,
+        "wbsOrder": 3,
+        "name": "Detailed design",
+        "start": "2026-11-11T08:00:00",
+        "finish": "2026-11-13T17:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": 0,
+        "fadeOutDays": 0,
+        "dependencies": [
+          {
+            "predecessorUid": 3,
+            "linkType": 1,
+            "lag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 5,
+        "parentTaskUid": null,
+        "wbsOrder": 4,
+        "name": "Design review",
+        "start": "2026-11-13T17:00:00",
+        "finish": "2026-11-13T17:00:00",
+        "milestone": true,
+        "deadline": null,
+        "notes": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": 0,
+        "fadeOutDays": 0,
+        "dependencies": [
+          {
+            "predecessorUid": 4,
+            "linkType": 1,
+            "lag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 6,
+        "parentTaskUid": null,
+        "wbsOrder": 5,
+        "name": "Build module A",
+        "start": "2026-11-16T08:00:00",
+        "finish": "2026-11-20T17:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": 0,
+        "fadeOutDays": 0,
+        "dependencies": [
+          {
+            "predecessorUid": 5,
+            "linkType": 1,
+            "lag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 7,
+        "parentTaskUid": null,
+        "wbsOrder": 6,
+        "name": "Build module B",
+        "start": "2026-11-18T08:00:00",
+        "finish": "2026-11-23T17:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": 0,
+        "fadeOutDays": 0,
+        "dependencies": [
+          {
+            "predecessorUid": 4,
+            "linkType": 1,
+            "lag": 9600,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 8,
+        "parentTaskUid": null,
+        "wbsOrder": 7,
+        "name": "Integration test",
+        "start": "2026-11-24T08:00:00",
+        "finish": "2026-11-26T17:00:00",
+        "milestone": false,
+        "deadline": null,
+        "notes": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": 0,
+        "fadeOutDays": 0,
+        "dependencies": [
+          {
+            "predecessorUid": 6,
+            "linkType": 1,
+            "lag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          },
+          {
+            "predecessorUid": 7,
+            "linkType": 1,
+            "lag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      },
+      {
+        "uid": 9,
+        "parentTaskUid": null,
+        "wbsOrder": 8,
+        "name": "Release",
+        "start": "2026-11-26T17:00:00",
+        "finish": "2026-11-26T17:00:00",
+        "milestone": true,
+        "deadline": null,
+        "notes": null,
+        "calendarUid": null,
+        "actualStart": null,
+        "stop": null,
+        "actualFinish": null,
+        "resume": null,
+        "resumeValid": null,
+        "percentComplete": 0,
+        "fadeInDays": 0,
+        "fadeOutDays": 0,
+        "dependencies": [
+          {
+            "predecessorUid": 8,
+            "linkType": 1,
+            "lag": 0,
+            "lagFormat": 7,
+            "carry": {},
+            "carryElements": []
+          }
+        ],
+        "carry": {},
+        "carryElements": []
+      }
+    ],
+    "resources": [],
+    "assignments": [],
+    "taskGroups": [
+      {
+        "id": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01",
+        "parentId": null,
+        "label": "Design",
+        "derivedFromTaskUid": null,
+        "order": 0,
+        "treeState": "auto",
+        "editGroup": null,
+        "color": null,
+        "minHeight": null
+      },
+      {
+        "id": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02",
+        "parentId": null,
+        "label": "Build",
+        "derivedFromTaskUid": null,
+        "order": 1,
+        "treeState": "auto",
+        "editGroup": null,
+        "color": null,
+        "minHeight": null
+      }
+    ],
+    "taskGroupMembers": [
+      {
+        "taskUid": 2,
+        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
+      },
+      {
+        "taskUid": 3,
+        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
+      },
+      {
+        "taskUid": 4,
+        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
+      },
+      {
+        "taskUid": 5,
+        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
+      },
+      {
+        "taskUid": 6,
+        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
+      },
+      {
+        "taskUid": 7,
+        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
+      },
+      {
+        "taskUid": 8,
+        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
+      },
+      {
+        "taskUid": 9,
+        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
+      }
+    ],
+    "taskVisuals": [
+      {
+        "taskUid": 2,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 3,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 4,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 5,
+        "shapeKind": "milestone",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 6,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 7,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 8,
+        "shapeKind": "rectangle",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      },
+      {
+        "taskUid": 9,
+        "shapeKind": "milestone",
+        "milestoneGlyph": "diamond",
+        "fillColor": null,
+        "strokeColor": null,
+        "strokeWidthPx": null
+      }
+    ],
+    "commentBoxes": [],
+    "highlightBoxes": [],
+    "taskOrigins": [],
+    "baselineTasks": []
+  },
+  "documentSettings": {
+    "actualVisible": true,
+    "assigneeVisible": false,
+    "baselineVisible": false,
+    "dateGridLinesVisible": false,
+    "dependencyVisible": true,
+    "displayScale": 100,
+    "displayTimeZones": [],
+    "fitSpanFinish": null,
+    "fitSpanFixed": false,
+    "fitSpanStart": null,
+    "fontScale": "M",
+    "groupGridLinesVisible": true,
+    "levelZeroTreeState": "auto",
+    "percentCompleteVisible": false,
+    "pinnedGroupIds": [],
+    "planDatesVisible": false,
+    "planVisible": true,
+    "progressLineVisible": false,
+    "progressMarkerVisible": true,
+    "rulerFont": 21,
+    "rulerHeight": 69,
+    "scrollDate": null,
+    "scrollDayOffset": 0,
+    "scrollGroupId": null,
+    "scrollGroupOffset": 0,
+    "showsTimeOfDay": false,
+    "stackDirection": "up",
+    "tableViews": {
+      "delayDiagnosticsReport": {
+        "columnFilters": [],
+        "hiddenTaskUids": [],
+        "isScheduleFilterApplied": false,
+        "sort": null
+      },
+      "resourceList": {
+        "columnFilters": [],
+        "hiddenResourceUids": [],
+        "isScheduleFilterApplied": false,
+        "isUnassignedHidden": false,
+        "sort": null
+      },
+      "searchPanel": {
+        "columnFilters": [],
+        "hiddenTaskUids": [],
+        "isScheduleFilterApplied": false,
+        "sort": null
+      }
+    },
+    "taskGroupPanelWidth": 300,
+    "taskGroupPanelWidthFixed": false,
+    "themeMonochrome": false,
+    "viewTimeZone": null,
+    "zoomX": 1,
+    "zoomY": 1
+  },
+  "documentStamp": {
+    "scheduleUpdatedUtc": "2026-10-15T00:00:00Z",
+    "lastEditedBy": "X-14 schema-only writer",
+    "settingsUpdatedUtc": "2026-10-15T00:00:00Z",
+    "fileSavedUtc": "2026-10-15T00:00:00Z"
+  },
+  "changeLog": [
+    {
+      "ordinal": 0,
+      "editedBy": "X-14 schema-only writer",
+      "explanation": "Created from the JSON Schema alone.",
+      "changedUtc": "2026-10-15T00:00:00Z"
+    }
+  ]
+}

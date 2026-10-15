@@ -105,9 +105,9 @@
 | `screen/searchJumpLanded` | 入力（押して飛ぶ入口（SJ-1 のセル・FR-134 の行・RW-13 の修正案の行・PTL-16 の親の名・PR-37 / PR-38 の名）を押して離し、飛んで画面に出した。AM-16 が寄せたときも送る。SJ-8 で出せなかったときは送らない）: `SJ-10` ・ `AM-16` ・ `RW-13` | `landedTarget` ／ `landedRelatedTasks` | `landingMarkDisplayStateMachine` |
 | `screen/fileDragEntered` | 入力（ファイルを持つドラッグ（`dataTransfer.types` に `Files`）がウィンドウに入った。ウィンドウの中の UI パーツから UI パーツへ移るだけのものは送らない）: `OP-17` | `isOpenAccepted` | `dropCueDisplayStateMachine` |
 | `screen/fileDragLeft` | 入力（ファイルを持つドラッグがウィンドウの外へ出た、またはドロップした）: `OP-17` | — | `dropCueDisplayStateMachine` |
-| `screen/baseTimeZoneChosen` | 入力（基準のタイムゾーンの地域の選ぶ欄で地域を選んだ。選んだだけでは当てない）: `FO-14` ・ `FR-156` | `chosenRegion`（`FR-156`。表 T-376 の行の地域名） | `baseTimeZoneDraftStateMachine` |
-| `screen/baseChangeWayChosen` | 入力（基準を変える 2 つの選び方の 1 つを選んだ）: `FO-14` ・ `FR-156` | `chosenWay`（`keepGlobalTime`（グローバルタイム（UTC）を保つ）／ `keepLocalTime`（ローカルタイムを保つ）） | `baseTimeZoneDraftStateMachine` |
-| `screen/baseChangeEntryPressed` | 入力: `IC-161` ・ `FR-156` | — | `baseTimeZoneDraftStateMachine` |
+| `screen/baseTimeZoneChosen` | 入力（本プロジェクトの基準タイムゾーンの選ぶ欄でタイムゾーンを選んだ。選んだだけでは当てない）: `FO-14` ・ `FR-156` | `chosenRegion`（`FR-156`。表 T-376 の種が標準時の行の鍵） ／ `isOtherThanShownBase`（`FR-156` ・ `S-574`。選んだタイムゾーンが、いまの見せる基準（`S-574`、空なら `AT-157`）と違うか） | `baseTimeZoneDraftStateMachine` |
+| `screen/baseChangeEntryPressed` | 入力（答え 換算して適用する ／ 換算しない の 1 つを押した）: `FO-14` ・ `FR-156` | `chosenWay`（`keepGlobalTime`（換算して適用する）／ `keepLocalTime`（換算しない）） | `baseTimeZoneDraftStateMachine` |
+| `screen/baseChangeCancelPressed` | 入力（答え キャンセル を押した）: `FO-14` ・ `FR-156` | — | `baseTimeZoneDraftStateMachine` |
 | `screen/timeShiftAmountSettled` | 入力（タイムシフトの量の欄を確定した（`Enter` か欄を離れる）。確定しただけでは問わない）: `FO-16` ・ `IN-6` ・ `SK-19` | `shiftMinutes`（`FR-157`。正負の分） | `timeShiftDraftStateMachine` |
 | `screen/timeShiftEntryPressed` | 入力: `IC-162` ・ `FR-157` | — | `timeShiftDraftStateMachine` |
 | `screen/timeShiftLanded` | 副作用の結果（タイムシフトの書き込み（`CM-98`）が受け入れられた）: `FR-157` ・ `CM-98` | — | `timeShiftDraftStateMachine` |
@@ -602,16 +602,16 @@ stateDiagram-v2
     [*] --> baseTimeZoneDraftStateMachine_untouched
     baseTimeZoneDraftStateMachine_untouched : untouched
     baseTimeZoneDraftStateMachine_drafted : drafted
-    baseTimeZoneDraftStateMachine_untouched --> baseTimeZoneDraftStateMachine_drafted : baseTimeZoneChosen, baseChangeWayChosen
-    baseTimeZoneDraftStateMachine_drafted --> baseTimeZoneDraftStateMachine_drafted : baseTimeZoneChosen, baseChangeWayChosen
-    baseTimeZoneDraftStateMachine_drafted --> baseTimeZoneDraftStateMachine_untouched : baseChangeEntryPressed, surfaceCloseAsked, escapePressed, settingsEntryPressed, propertiesOfChoiceAsked, selectionMoved, createdNameSettled, settleKeyPressed, documentReplacedByOpenOrNew
+    baseTimeZoneDraftStateMachine_untouched --> baseTimeZoneDraftStateMachine_drafted : baseTimeZoneChosen
+    baseTimeZoneDraftStateMachine_drafted --> baseTimeZoneDraftStateMachine_drafted : baseTimeZoneChosen
+    baseTimeZoneDraftStateMachine_drafted --> baseTimeZoneDraftStateMachine_untouched : baseTimeZoneChosen, baseChangeEntryPressed, baseChangeCancelPressed, surfaceCloseAsked, escapePressed, settingsEntryPressed, propertiesOfChoiceAsked, selectionMoved, createdNameSettled, settleKeyPressed, documentReplacedByOpenOrNew
 ```
 
 | 出来事 | `untouched` | `drafted` |
 | --- | --- | --- |
-| `screen/baseTimeZoneChosen` | → `drafted`（選び方は初めの `keepGlobalTime`） | → 自己（`chosenRegion` を書き換える） |
-| `screen/baseChangeWayChosen` | → `drafted`（地域は初めのいまの見せる基準（`S-574`、空なら `AT-157`）） | → 自己（`chosenWay` を書き換える） |
-| `screen/baseChangeEntryPressed` | — | → `untouched` / `issueBaseChangeCommand`（下書きの選び方で `CM-94` か `CM-95` を 1 回出す。確認を取らない。当てても何も変わらない下書きでは `IC-161` が薄い（`FR-029`）） |
+| `screen/baseTimeZoneChosen` | → `drafted` [`isOtherThanShownBase`]（いまの見せる基準と同じタイムゾーンを選んだときは移らない）<br>それ以外 → — | → 自己 [`isOtherThanShownBase`]（`chosenRegion` を書き換える）<br>→ `untouched` [not `isOtherThanShownBase`]（いまの見せる基準を選び直したので、下書きを捨てる） |
+| `screen/baseChangeEntryPressed` | — | → `untouched` / `issueBaseChangeCommand`（`keepGlobalTime` は `CM-95` を、`keepLocalTime` は `CM-94` と `CM-95`（`null`）を、1 回の書き込みで出す。確認を取らない） |
+| `screen/baseChangeCancelPressed` | — | → `untouched`（何も書かない） |
 | `screen/surfaceCloseAsked` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
 | `screen/escapePressed` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
 | `screen/settingsEntryPressed` | — | → `untouched` [`isLeavingDocumentSettings`]（プロパティパネルが文書の設定を出さなくなるときだけ、下書きを捨てる）<br>それ以外 → — |
@@ -622,7 +622,7 @@ stateDiagram-v2
 | `screen/documentReplacedByOpenOrNew` | — | → `untouched` |
 
 - `baseTimeZoneDraftStateMachine.untouched` —— 初期。根拠 `FO-14` ・ `FR-156`
-- `baseTimeZoneDraftStateMachine.drafted` —— 運ぶ値 `chosenRegion`（`FR-156`） ／ `chosenWay`（`keepGlobalTime` ／ `keepLocalTime`）。根拠 `FR-156` ・ `IC-161`
+- `baseTimeZoneDraftStateMachine.drafted` —— 運ぶ値 `chosenRegion`（`FR-156`。表 T-376 の種が標準時の行の鍵。いまの見せる基準と違う）。根拠 `FR-156` ・ `FO-14`
 
 表に無い出来事は `baseTimeZoneDraftStateMachine` を変えない（同じ参照）。
 

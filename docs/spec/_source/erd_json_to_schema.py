@@ -71,8 +71,8 @@ import generate_entity_types as settings_reader  # noqa: E402
 # ⭐ The format version has ONE source, the build's own startup document
 # (DR-4 of table T-052); the schema's `const` is read from it (CR-643).
 from generate_startup_template import SCHEMA_VERSION  # noqa: E402
-# CR-751: the region names an enum may take come from table T-376 through the
-# one reading of that table, never retyped.
+# CR-751, CR-755: the time zone keys an enum may take come from table T-376
+# through the one reading of that table, never retyped.
 import generate_time_zone_roster  # noqa: E402
 # HERE is docs/spec/_source/ (the manuscripts, which belong to no language);
 # what it writes goes to docs/spec/_assets/ (CR-175).
@@ -459,10 +459,16 @@ def element(spec, where):
 
 
 # CR-751: the tables an enum may take its members from ("valuesFrom"), each
-# read by the one generator that already reads it. The schedule data's time
-# zone and the view's time zones take the region names of table T-376.
+# read by the one generator that already reads it. CR-755: the schedule data's
+# time zone and the view's time zones take the keys of table T-376; a column
+# that says "valuesOnly": "standard" takes only the standard-time rows' keys
+# (FR-156: the base time zone may not be a daylight-time row).
 VALUES_FROM = {
-    'T-376': lambda: [row['region'] for row in generate_time_zone_roster.build()],
+    'T-376': lambda: generate_time_zone_roster.build(),
+}
+
+VALUES_ONLY = {
+    'standard': lambda row: not row['isDaylight'],
 }
 
 
@@ -473,7 +479,11 @@ def enum_node(spec, where):
         if reader is None:
             raise SystemExit('%s takes its values from %s, which this generator '
                              'does not read' % (where, spec['valuesFrom']))
-        members = reader()
+        keeps = VALUES_ONLY.get(spec.get('valuesOnly'), lambda row: True)
+        if 'valuesOnly' in spec and spec['valuesOnly'] not in VALUES_ONLY:
+            raise SystemExit('%s narrows its values to %r, which this generator '
+                             'does not know' % (where, spec['valuesOnly']))
+        members = [row['key'] for row in reader() if keeps(row)]
     else:
         members = list(spec['values'])
     if spec.get('null'):

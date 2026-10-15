@@ -324,7 +324,7 @@ const PROJECT: Project = {
   importSeq: 3,
   outlineBase: 1,
   sourceFormat: 'grs',
-  scheduleDataTimeZone: 'UTC',
+  scheduleDataTimeZone: 'UTC+00:00',
   carry: {},
   carryElements: [],
 }
