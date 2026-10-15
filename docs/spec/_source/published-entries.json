@@ -4627,15 +4627,6 @@
      }
     },
     {
-     "name": "GrabbedVerticalAxis",
-     "note": {
-      "ja": [
-       "型。",
-       "掴んだタスクグループを動かす軸 —— 表 T-289"
-      ]
-     }
-    },
-    {
      "name": "StandingNotice",
      "note": {
       "ja": [

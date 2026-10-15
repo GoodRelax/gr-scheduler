@@ -114,7 +114,7 @@ export type {
   FileFlowWriteForm,
   FileOperationState,
 } from './file-flow-values'
-export type { GrabbedVerticalAxis, PressedOn } from './gesture-values'
+export type { PressedOn } from './gesture-values'
 export type { NoticeReason, StandingNotice } from './notice-values'
 export { NOTICE_DISPLAY_OF_REASON, NOTICE_MANNER_OF_REASON, NOTICE_WORDS_ROW_OF_REASON } from './notice-values'
 
