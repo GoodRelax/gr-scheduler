@@ -1068,9 +1068,9 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
 // </generated>
 
 // <generated -- do not edit by hand>
-// From docs/spec/_source/document-commands.json (table T-108, COMMAND_SHAPES).
+// From docs/spec/_source/document-commands.json (table T-108, SHAPE_OF_COMMAND_KIND).
 // see T-108, FR-028, AG-9a
-const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
+const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
   setProjectTitle: {
     type: ['object'],
     required: ['kind', 'title'],
@@ -1127,13 +1127,13 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
   },
   setStatusDate: {
     type: ['object'],
-    required: ['kind', 'date'],
+    required: ['kind', 'statusDate'],
     closed: true,
     properties: {
       kind: {
         enum: ['setStatusDate'],
       },
-      date: {
+      statusDate: {
         type: ['string'],
       },
     },
@@ -1150,39 +1150,39 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
   },
   setThemeHue: {
     type: ['object'],
-    required: ['kind', 'hue'],
+    required: ['kind', 'themeHue'],
     closed: true,
     properties: {
       kind: {
         enum: ['setThemeHue'],
       },
-      hue: {
+      themeHue: {
         type: ['integer'],
       },
     },
   },
   setParentProgressToleranceDays: {
     type: ['object'],
-    required: ['kind', 'workingDays'],
+    required: ['kind', 'parentProgressToleranceDays'],
     closed: true,
     properties: {
       kind: {
         enum: ['setParentProgressToleranceDays'],
       },
-      workingDays: {
+      parentProgressToleranceDays: {
         type: ['integer'],
       },
     },
   },
   setScheduleDataTimeZone: {
     type: ['object'],
-    required: ['kind', 'timeZone'],
+    required: ['kind', 'scheduleDataTimeZone'],
     closed: true,
     properties: {
       kind: {
         enum: ['setScheduleDataTimeZone'],
       },
-      timeZone: {
+      scheduleDataTimeZone: {
         enum: ['UTC-12:00', 'UTC-11:00', 'UTC-10:00', 'UTC-09:00', 'UTC-08:00', 'UTC-07:00', 'UTC-06:00', 'UTC-05:00', 'UTC-04:00', 'UTC-03:00', 'UTC-02:00', 'UTC-01:00', 'UTC+00:00', 'UTC+01:00', 'UTC+02:00', 'UTC+03:00', 'UTC+04:00', 'UTC+05:00', 'UTC+05:30', 'UTC+06:00', 'UTC+07:00', 'UTC+08:00', 'UTC+09:00', 'UTC+10:00', 'UTC+11:00', 'UTC+12:00', 'UTC+13:00'],
       },
     },
@@ -1510,7 +1510,7 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskFadeInDays: {
     type: ['object'],
-    required: ['kind', 'uid', 'days'],
+    required: ['kind', 'uid', 'fadeInDays'],
     closed: true,
     properties: {
       kind: {
@@ -1519,14 +1519,14 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
       uid: {
         type: ['integer'],
       },
-      days: {
+      fadeInDays: {
         type: ['integer', 'null'],
       },
     },
   },
   setTaskFadeOutDays: {
     type: ['object'],
-    required: ['kind', 'uid', 'days'],
+    required: ['kind', 'uid', 'fadeOutDays'],
     closed: true,
     properties: {
       kind: {
@@ -1535,14 +1535,14 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
       uid: {
         type: ['integer'],
       },
-      days: {
+      fadeOutDays: {
         type: ['integer', 'null'],
       },
     },
   },
   setTaskParentTask: {
     type: ['object'],
-    required: ['kind', 'uid', 'parentUid'],
+    required: ['kind', 'uid', 'parentTaskUid'],
     closed: true,
     properties: {
       kind: {
@@ -1551,7 +1551,7 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
       uid: {
         type: ['integer'],
       },
-      parentUid: {
+      parentTaskUid: {
         type: ['integer', 'null'],
       },
     },
@@ -1590,7 +1590,7 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskVisualMilestoneGlyph: {
     type: ['object'],
-    required: ['kind', 'uid', 'glyph'],
+    required: ['kind', 'uid', 'milestoneGlyph'],
     closed: true,
     properties: {
       kind: {
@@ -1599,7 +1599,7 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
       uid: {
         type: ['integer'],
       },
-      glyph: {
+      milestoneGlyph: {
         enum: ['circle', 'hexagon', 'pentagon', 'diamond', 'square', 'star', 'triangleUp', 'triangleDown', 'file', 'box', 'floppyDisk', 'cylinder', 'person', 'smile', 'beerMug', null],
       },
     },
@@ -1654,7 +1654,7 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
   },
   createTaskGroup: {
     type: ['object'],
-    required: ['kind', 'id', 'parentId', 'label', 'derivedFromTaskUid', 'order'],
+    required: ['kind', 'id', 'parentId', 'name', 'derivedFromTaskUid', 'order'],
     closed: true,
     properties: {
       kind: {
@@ -1666,7 +1666,7 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
       parentId: {
         type: ['string', 'null'],
       },
-      label: {
+      name: {
         type: ['string', 'null'],
       },
       derivedFromTaskUid: {
@@ -1717,7 +1717,7 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskGroupName: {
     type: ['object'],
-    required: ['kind', 'taskGroupId', 'label'],
+    required: ['kind', 'taskGroupId', 'name'],
     closed: true,
     properties: {
       kind: {
@@ -1726,7 +1726,7 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
       taskGroupId: {
         type: ['string'],
       },
-      label: {
+      name: {
         type: ['string', 'null'],
       },
     },
@@ -1762,7 +1762,7 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
   },
   setTaskGroupMinHeightPx: {
     type: ['object'],
-    required: ['kind', 'taskGroupId', 'minHeight'],
+    required: ['kind', 'taskGroupId', 'minHeightPx'],
     closed: true,
     properties: {
       kind: {
@@ -1771,7 +1771,7 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
       taskGroupId: {
         type: ['string'],
       },
-      minHeight: {
+      minHeightPx: {
         type: ['integer', 'null'],
       },
     },
@@ -2312,13 +2312,13 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
       },
       range: {
         type: ['object'],
-        required: ['startDate', 'endDate', 'topTaskGroupId', 'bottomTaskGroupId'],
+        required: ['start', 'finish', 'topTaskGroupId', 'bottomTaskGroupId'],
         closed: true,
         properties: {
-          startDate: {
+          start: {
             type: ['string'],
           },
-          endDate: {
+          finish: {
             type: ['string'],
           },
           topTaskGroupId: {
@@ -2357,13 +2357,13 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
       },
       range: {
         type: ['object'],
-        required: ['startDate', 'endDate', 'topTaskGroupId', 'bottomTaskGroupId'],
+        required: ['start', 'finish', 'topTaskGroupId', 'bottomTaskGroupId'],
         closed: true,
         properties: {
-          startDate: {
+          start: {
             type: ['string'],
           },
-          endDate: {
+          finish: {
             type: ['string'],
           },
           topTaskGroupId: {
@@ -2442,13 +2442,13 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
   },
   setStackDirection: {
     type: ['object'],
-    required: ['kind', 'direction'],
+    required: ['kind', 'stackDirection'],
     closed: true,
     properties: {
       kind: {
         enum: ['setStackDirection'],
       },
-      direction: {
+      stackDirection: {
         enum: ['up', 'down'],
       },
     },
@@ -2471,26 +2471,26 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
   },
   setFontScale: {
     type: ['object'],
-    required: ['kind', 'scale'],
+    required: ['kind', 'fontScale'],
     closed: true,
     properties: {
       kind: {
         enum: ['setFontScale'],
       },
-      scale: {
+      fontScale: {
         enum: ['S', 'M', 'L'],
       },
     },
   },
   setThemeMonochrome: {
     type: ['object'],
-    required: ['kind', 'monochrome'],
+    required: ['kind', 'isThemeMonochrome'],
     closed: true,
     properties: {
       kind: {
         enum: ['setThemeMonochrome'],
       },
-      monochrome: {
+      isThemeMonochrome: {
         type: ['boolean'],
       },
     },
@@ -2631,13 +2631,13 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
   },
   setDisplayScale: {
     type: ['object'],
-    required: ['kind', 'scale'],
+    required: ['kind', 'displayScale'],
     closed: true,
     properties: {
       kind: {
         enum: ['setDisplayScale'],
       },
-      scale: {
+      displayScale: {
         enum: [50, 67, 75, 90, 100, 110, 125, 150, 175, 200],
       },
     },
@@ -2779,26 +2779,26 @@ const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {
   },
   setViewTimeZone: {
     type: ['object'],
-    required: ['kind', 'timeZone'],
+    required: ['kind', 'viewTimeZone'],
     closed: true,
     properties: {
       kind: {
         enum: ['setViewTimeZone'],
       },
-      timeZone: {
+      viewTimeZone: {
         type: ['string', 'null'],
       },
     },
   },
   setDisplayTimeZones: {
     type: ['object'],
-    required: ['kind', 'timeZones'],
+    required: ['kind', 'displayTimeZones'],
     closed: true,
     properties: {
       kind: {
         enum: ['setDisplayTimeZones'],
       },
-      timeZones: {
+      displayTimeZones: {
         type: ['array'],
         items: {
           enum: ['UTC-12:00', 'UTC-11:00', 'UTC-10:00', 'UTC-09:00', 'UTC-08:00', 'UTC-08:00 DST', 'UTC-07:00', 'UTC-07:00 DST', 'UTC-06:00', 'UTC-06:00 DST', 'UTC-05:00', 'UTC-05:00 DST', 'UTC-04:00', 'UTC-04:00 DST', 'UTC-03:00', 'UTC-03:00 DST', 'UTC-02:00', 'UTC-01:00', 'UTC+00:00', 'UTC+00:00 DST', 'UTC+01:00', 'UTC+01:00 DST', 'UTC+02:00', 'UTC+02:00 DST', 'UTC+03:00', 'UTC+03:00 DST', 'UTC+04:00', 'UTC+05:00', 'UTC+05:30', 'UTC+06:00', 'UTC+07:00', 'UTC+08:00', 'UTC+09:00', 'UTC+10:00', 'UTC+11:00', 'UTC+11:00 DST', 'UTC+12:00', 'UTC+13:00', 'UTC+13:00 DST'],
@@ -3005,7 +3005,7 @@ export function collectSchemaFaults(value: unknown, out: JsonFault[]): void {
 /** @purity pure */
 export function commandShapeFaults(command: unknown): readonly JsonFault[] {
   const kind = isObject(command) ? command['kind'] : undefined
-  const shape = typeof kind === 'string' && Object.hasOwn(COMMAND_SHAPES, kind) ? COMMAND_SHAPES[kind] : undefined
+  const shape = typeof kind === 'string' && Object.hasOwn(SHAPE_OF_COMMAND_KIND, kind) ? SHAPE_OF_COMMAND_KIND[kind] : undefined
   if (shape === undefined) return [jsonFault('/kind', 'is not the kind of a command of table T-108')]
   const out: JsonFault[] = []
   collectFaults(command, shape, '', out)

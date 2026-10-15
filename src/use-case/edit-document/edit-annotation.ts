@@ -21,8 +21,8 @@ export interface AnnotationAnchor {
 
 // see T-108
 export interface HighlightRange {
-  readonly startDate: NonNullable<HighlightBox['start']>
-  readonly endDate: NonNullable<HighlightBox['finish']>
+  readonly start: NonNullable<HighlightBox['start']>
+  readonly finish: NonNullable<HighlightBox['finish']>
   readonly topTaskGroupId: NonNullable<HighlightBox['topTaskGroupId']>
   readonly bottomTaskGroupId: NonNullable<HighlightBox['bottomTaskGroupId']>
 }
@@ -174,11 +174,11 @@ function anchorRefusals(command: string, document: Document, anchor: AnnotationA
 /** @purity pure */
 function rangeRefusals(command: string, document: Document, range: HighlightRange): Refusal[] {
   const found: Refusal[] = []
-  if (dayOf(range.startDate) === null) {
-    found.push(reject(command, 'AT-117', `the left edge is not a date: ${range.startDate}`))
+  if (dayOf(range.start) === null) {
+    found.push(reject(command, 'AT-117', `the left edge is not a date: ${range.start}`))
   }
-  if (dayOf(range.endDate) === null) {
-    found.push(reject(command, 'AT-118', `the right edge is not a date: ${range.endDate}`))
+  if (dayOf(range.finish) === null) {
+    found.push(reject(command, 'AT-118', `the right edge is not a date: ${range.finish}`))
   }
   if (!hasGroup(document, range.topTaskGroupId)) {
     found.push(reject(command, 'IV-2', `the document holds no task group with id ${range.topTaskGroupId} (RL-19)`))
@@ -275,8 +275,8 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (refusals.length > 0) return refused(refusals)
       const box: HighlightBox = {
         id: command.id,
-        start: command.range.startDate,
-        finish: command.range.endDate,
+        start: command.range.start,
+        finish: command.range.finish,
         topTaskGroupId: command.range.topTaskGroupId,
         bottomTaskGroupId: command.range.bottomTaskGroupId,
         strokeColor: null,
@@ -308,7 +308,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       }
       const refusals = rangeRefusals('CM-54', document, command.range)
       if (refusals.length > 0) return refused(refusals)
-      const { startDate, endDate, topTaskGroupId, bottomTaskGroupId } = command.range
+      const { start: startDate, finish: endDate, topTaskGroupId, bottomTaskGroupId } = command.range
       if (
         isSameDay(box.start, startDate) &&
         isSameDay(box.finish, endDate) &&

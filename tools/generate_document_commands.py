@@ -31,7 +31,7 @@ WRITES  one region per unit, the one that opens
                                                              TypedLag.lagUnit: the letters
                                                              a length is spelled in (TX-10)
           src/adapter/screen-renderer/properties-panel.ts    LENGTH_LETTERS, the same values
-          src/adapter/document-codec/grs-json-schema.ts      COMMAND_SHAPES, the shape of each
+          src/adapter/document-codec/grs-json-schema.ts      SHAPE_OF_COMMAND_KIND, the shape of each
                                                              command as the walker there reads
                                                              it (DFC-2856)
 
@@ -754,7 +754,7 @@ def shape_check_node(node, at):
 
 
 def shape_check_region(doc, columns, schema):
-    """(unit, what, lines) of COMMAND_SHAPES, keyed by the kind of each command.
+    """(unit, what, lines) of SHAPE_OF_COMMAND_KIND, keyed by the kind of each command.
 
     @purity pure
     """
@@ -762,7 +762,7 @@ def shape_check_region(doc, columns, schema):
     # for with_command_shapes() alone, and is run on copies that carry no validator.
     import generate_json_schema_validator as validator
     lines = ['// see %s, FR-028, AG-9a' % doc['table']['id'],
-             'const COMMAND_SHAPES: Readonly<Record<string, SchemaNode>> = {']
+             'const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {']
     ways = collections.OrderedDict()
     for one in command_schemas(doc, columns, schema):
         kind = one['properties']['kind']['const']
@@ -772,7 +772,7 @@ def shape_check_region(doc, columns, schema):
         node = nodes[0] if len(nodes) == 1 else collections.OrderedDict([('alternatives', nodes)])
         lines.append('  %s: %s,' % (validator.ts_key(kind), validator.ts_node(node, 1)))
     lines.append('}')
-    return (SHAPE_UNIT, 'table %s, COMMAND_SHAPES' % doc['table']['id'], lines)
+    return (SHAPE_UNIT, 'table %s, SHAPE_OF_COMMAND_KIND' % doc['table']['id'], lines)
 
 
 def main():

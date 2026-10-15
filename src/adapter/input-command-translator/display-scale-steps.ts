@@ -81,7 +81,7 @@ function displayScaleWrites(
 ): readonly DocumentCommand[] {
   const settings = context.document.documentSettings
   if (next === settings.displayScale) return []
-  const scale: DocumentCommand = { kind: 'setDisplayScale', scale: next }
+  const scale: DocumentCommand = { kind: 'setDisplayScale', displayScale: next }
   const before = displayRatioOf(settings)
   const after = displayRatioOf({ ...settings, displayScale: next })
   if (!(before > 0) || !(after > 0)) return [scale]

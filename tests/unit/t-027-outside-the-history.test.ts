@@ -412,14 +412,14 @@ const UN_13_CASES: readonly InsideCase[] = [
     settingRow: 'S-58',
     key: 'stackDirection',
     wanted: 'down',
-    command: { kind: commandKindOf('CM-56'), direction: 'down' } as unknown as DocumentCommand,
+    command: { kind: commandKindOf('CM-56'), stackDirection: 'down' } as unknown as DocumentCommand,
   },
   {
     commandRow: 'CM-62',
     settingRow: 'S-70',
     key: 'fontScale',
     wanted: 'L',
-    command: { kind: commandKindOf('CM-62'), scale: 'L' } as unknown as DocumentCommand,
+    command: { kind: commandKindOf('CM-62'), fontScale: 'L' } as unknown as DocumentCommand,
   },
   {
     commandRow: 'CM-74',
@@ -429,7 +429,6 @@ const UN_13_CASES: readonly InsideCase[] = [
     wanted: 150,
     command: {
       kind: commandKindOf('CM-74'),
-      scale: 150,
       displayScale: 150,
     } as unknown as DocumentCommand,
   },

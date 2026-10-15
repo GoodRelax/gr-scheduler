@@ -46,7 +46,8 @@ MEMBER_TABLE = 'T-107'
 
 BANNER = (
     'GENERATED -- do not edit by hand. Generated from %s, table %s (the '
-    'members of the Agent API) by %s. Rebuild: npm run gen -- npm run '
+    'members of the Agent API), and the commands the AM-7 input carries from '
+    'docs/spec/_source/document-commands.json (table T-108), by %s. Rebuild: npm run gen -- npm run '
     'gen:check fails on drift. One entry per row in the table\'s order: the '
     'confirmed name, its description lines joined by newlines, and its input '
     'shape (AG-12 (4) (5), design-mcp-relay.md 3.1).' % (REL_SOURCE, MEMBER_TABLE, REL_SELF)

@@ -126,12 +126,16 @@ export type TaskCommand =
       readonly remembered: RememberedActual | null
       readonly snapMinutes?: number
     }
-  | { readonly kind: 'setTaskFadeInDays'; readonly uid: Task['uid']; readonly days: Task['fadeInDays'] }
-  | { readonly kind: 'setTaskFadeOutDays'; readonly uid: Task['uid']; readonly days: Task['fadeOutDays'] }
+  | { readonly kind: 'setTaskFadeInDays'; readonly uid: Task['uid']; readonly fadeInDays: Task['fadeInDays'] }
+  | {
+      readonly kind: 'setTaskFadeOutDays'
+      readonly uid: Task['uid']
+      readonly fadeOutDays: Task['fadeOutDays']
+    }
   | {
       readonly kind: 'setTaskParentTask'
       readonly uid: Task['uid']
-      readonly parentUid: Task['parentTaskUid']
+      readonly parentTaskUid: Task['parentTaskUid']
     }
   | {
       readonly kind: 'moveTaskToTaskGroup'
@@ -146,7 +150,7 @@ export type TaskCommand =
   | {
       readonly kind: 'setTaskVisualMilestoneGlyph'
       readonly uid: Task['uid']
-      readonly glyph: TaskVisual['milestoneGlyph']
+      readonly milestoneGlyph: TaskVisual['milestoneGlyph']
     }
   | {
       readonly kind: 'setTaskVisualColors'
@@ -314,17 +318,17 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
       return setTaskFadeDays(document, command, task)
 
     case 'setTaskParentTask': {
-      if (command.parentUid !== null) {
-        if (taskByUid(schedule, command.parentUid) === null) {
-          return refused([reject('CM-18', 'IV-2', `no Task with uid ${command.parentUid}`)])
+      if (command.parentTaskUid !== null) {
+        if (taskByUid(schedule, command.parentTaskUid) === null) {
+          return refused([reject('CM-18', 'IV-2', `no Task with uid ${command.parentTaskUid}`)])
         }
-        if (wbsSubtreesOf(schedule.tasks, [command.uid]).has(command.parentUid)) {
+        if (wbsSubtreesOf(schedule.tasks, [command.uid]).has(command.parentTaskUid)) {
           return refused([
-            reject('CM-18', 'HM-4', `uid ${command.parentUid} is inside the subtree of ${command.uid}`),
+            reject('CM-18', 'HM-4', `uid ${command.parentTaskUid} is inside the subtree of ${command.uid}`),
           ])
         }
       }
-      return edited(withTask(document, { ...task, parentTaskUid: command.parentUid }))
+      return edited(withTask(document, { ...task, parentTaskUid: command.parentTaskUid }))
     }
 
     case 'moveTaskToTaskGroup': {

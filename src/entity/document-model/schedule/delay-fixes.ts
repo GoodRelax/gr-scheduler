@@ -71,7 +71,7 @@ export type DelayFixCommand =
   | { readonly kind: 'deleteDependencyAt'; readonly predecessorUid: number; readonly successorUid: number; readonly order: number }
   | { readonly kind: 'setTaskPlanDates'; readonly uid: number; readonly start: string; readonly finish: string }
   | { readonly kind: 'setTaskPlanActualState'; readonly uid: number; readonly place: DelayFixPlacement }
-  | { readonly kind: 'setStatusDate'; readonly date: string }
+  | { readonly kind: 'setStatusDate'; readonly statusDate: string }
 
 // see T-373
 export type DelayFixChoiceWord =
@@ -360,7 +360,7 @@ function withTaskEdited(schedule: Schedule, uid: number, edit: (task: Task) => T
 function scheduleAfter(schedule: Schedule, command: DelayFixCommand): Schedule {
   switch (command.kind) {
     case 'setStatusDate':
-      return { ...schedule, project: { ...schedule.project, statusDate: command.date } }
+      return { ...schedule, project: { ...schedule.project, statusDate: command.statusDate } }
     case 'deleteDependency':
       return withTaskEdited(schedule, command.successorUid, (task) => ({
         ...task,
@@ -947,7 +947,7 @@ function statusDateDrafts(context: FixContext, finding: DelayFinding): readonly 
   if (day === null || compareDates(textOfDay(day), status) <= 0) return []
   const date = onDay(status, day, textOfDay(day))
   const choices = [choiceOf('moveStatusDateToActual', 'moveStatusDateToActual', { date }, {
-    after: dateValue(date), commands: [{ kind: 'setStatusDate', date }],
+    after: dateValue(date), commands: [{ kind: 'setStatusDate', statusDate: date }],
   })]
   return [draftOf({ fixKind: 'choose', before: dateValue(status), choices })]
 }

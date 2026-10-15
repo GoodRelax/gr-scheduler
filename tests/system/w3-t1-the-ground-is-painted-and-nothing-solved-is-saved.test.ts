@@ -117,7 +117,7 @@ test.describe(`CF-1 (MUST NOT): ${CF_1_NOT_SAVED.slice(-40)}`, () => {
       expect(await pressEntrance(opened.page, AGENT_API), 'IC-20 opens the Agent API').toBe(true)
       const before = await exportedJson(opened.page)
       expect(before.schedule.project.themeHue, 'premise: the template hue').toBe(HUE)
-      const answer = await applyCommandsOf(opened.page, [{ kind: 'setThemeHue', hue: 52 }])
+      const answer = await applyCommandsOf(opened.page, [{ kind: 'setThemeHue', themeHue: 52 }])
       expect(answer.ok, 'premise: the hue is written').toBe(true)
       expect(await pressEntrance(opened.page, THEME_TOGGLE)).toBe(true)
       await settle(opened.page)

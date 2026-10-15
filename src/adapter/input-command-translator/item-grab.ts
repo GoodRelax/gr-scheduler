@@ -115,7 +115,7 @@ export function commandFromGrab(
     const project = context.document.schedule.project
     return day === null
       ? CONSUMED_ELSEWHERE
-      : changed([{ kind: 'setStatusDate', date: textOfFinishSide(day, project) }])
+      : changed([{ kind: 'setStatusDate', statusDate: textOfFinishSide(day, project) }])
   }
 
   // TRAP: must stay above GR-14's moves below, or a double click and a drag on one place are one press.
@@ -917,8 +917,8 @@ function highlightRangeWrite(
     kind: 'setHighlightBoxRange',
     id: box.id,
     range: {
-      startDate: heldOrWritten(box.start, isLeftFirst ? left : right, textOfDayStart),
-      endDate: heldOrWritten(box.finish, isLeftFirst ? right : left, textOfDayEnd),
+      start: heldOrWritten(box.start, isLeftFirst ? left : right, textOfDayStart),
+      finish: heldOrWritten(box.finish, isLeftFirst ? right : left, textOfDayEnd),
       topTaskGroupId: (isUpperFirst ? upper : lower).taskGroupId,
       bottomTaskGroupId: (isUpperFirst ? lower : upper).taskGroupId,
     },
@@ -994,7 +994,9 @@ function fadeEndWrite(context: InputContext, release: PointerInput, uid: number,
   const stood = (grab === 'GA-7' ? task.fadeInDays : task.fadeOutDays) ?? 0
   if (days === stood) return CONSUMED_ELSEWHERE
   return changed([
-    grab === 'GA-7' ? { kind: 'setTaskFadeInDays', uid, days } : { kind: 'setTaskFadeOutDays', uid, days },
+    grab === 'GA-7'
+      ? { kind: 'setTaskFadeInDays', uid, fadeInDays: days }
+      : { kind: 'setTaskFadeOutDays', uid, fadeOutDays: days },
   ])
 }
 
