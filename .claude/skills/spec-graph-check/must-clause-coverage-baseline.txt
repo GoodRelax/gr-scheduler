@@ -1,4 +1,5 @@
-2081
+2079
+# LOWERED 2081 -> 2079 on 2026-10-15 (JDG-520): the CR-766 spec-only tests quote the FR-019 CM-46 five-nulls MUST and the FR-057 CM-39 exception-time MUST.
 # LOWERED 2088 -> 2084 on 2026-10-15 (JDG-520): the CR-768 spec-only tests quote the FR-096 media-type MUST and MUST NOT, the FR-096 order and IO-6 clauses, and SX-2.
 # LOWERED 2091 -> 2089 on 2026-10-15 (JDG-520): the CR-764 spec-only tests quote RW-19 and FR-130.
 # LOWERED 2103 -> 2098 on 2026-10-15 (JDG-520): the CR-756 spec-only tests quote DM-1, DM-3, DM-12, GO-6, PV-1 and FR-043.
