@@ -245,15 +245,22 @@ interface WriteMoment {
   readonly savedLocalAt: string
 }
 
-// see FR-096, AT-140, DV-12
+interface ExportedText {
+  readonly text: string
+  // see EX-6, RS-15
+  readonly unlistedNoticeCount: number
+}
+
+// see FR-096, AT-140, DV-12, EX-6
 /** @purity pure */
-function exportedText(form: SaveFileForm, document: Document, moment: WriteMoment): string | null {
+function exportedText(form: SaveFileForm, document: Document, moment: WriteMoment): ExportedText | null {
   switch (form) {
     case 'IO-2':
-      return savedDocumentText(document, moment.savedAt)
-    case 'IO-1':
-      // DEVIATION: spec says export notices are told (EX-6); here they are dropped (DFC-557)
-      return mspdiFromDocument(document, moment.savedLocalAt).text
+      return { text: savedDocumentText(document, moment.savedAt), unlistedNoticeCount: 0 }
+    case 'IO-1': {
+      const encoded = mspdiFromDocument(document, moment.savedLocalAt)
+      return { text: encoded.text, unlistedNoticeCount: encoded.notices.length }
+    }
     case 'IO-3':
     case 'IO-4':
     case 'IO-7':
@@ -275,6 +282,8 @@ interface DecodedIntake {
   readonly clampedCount: number
   readonly recountedCount: number
   readonly duplicateLeaves: number
+  // see T-233, RS-15
+  readonly unlistedNoticeCount: number
   readonly unreadColumns: readonly string[]
   readonly isNewerFormat: boolean
 }
@@ -283,13 +292,19 @@ interface RefusedIntake {
   readonly refusal: JsonRefusalReason | typeof NOT_OPENABLE_HTML_REASON
 }
 
+// see T-233, RS-15
+// WHY: table T-233 has no row for why an MSPDI could not be read, so each fault falls to RS-15.
+interface UnreadableMspdi {
+  readonly unlistedFaultCount: number
+}
+
 // see OP-12, FR-073
 /** @purity pure */
 function decodedDocument(
   format: ExchangeFormat,
   text: string,
   current: Document,
-): DecodedIntake | RefusedIntake | null {
+): DecodedIntake | RefusedIntake | UnreadableMspdi {
   if (format === 'grsJson' || format === 'singleHtml') {
     // TRAP: omit this argument and OP-7 silently answers notCompared (FR-073).
     const read =
@@ -303,12 +318,12 @@ function decodedDocument(
           clampedCount: read.clampedCount,
           recountedCount: read.recountedCount,
           duplicateLeaves: 0,
+          unlistedNoticeCount: 0,
           unreadColumns: read.unreadColumns,
           isNewerFormat: read.formatVersion === 'newerThanKnown',
         }
       : { refusal: read.reason }
   }
-  // DEVIATION: spec says a reading's notices and faults are told (T-233); here they are dropped (DFC-557)
   const read = documentFromMspdi(text, current)
   return read.ok
     ? {
@@ -317,22 +332,33 @@ function decodedDocument(
         // WHY: an MSPDI keeps the percent complete it carried (FR-012, FR-021).
         recountedCount: 0,
         duplicateLeaves: read.duplicateLeaves,
+        unlistedNoticeCount: read.notices.length,
         unreadColumns: [],
         isNewerFormat: false,
       }
-    : null
+    : { unlistedFaultCount: read.faults.length }
 }
 
-// see FR-073, FR-076, RS-25, RS-64, RS-67
+// see FR-073, FR-076, RS-15, RS-25, RS-64, RS-67
 /** @purity non-pure */
 function acceptedIntake(
   hands: Pick<DocumentFileFlowHands, 'raiseNotice'>,
-  decoded: DecodedIntake | RefusedIntake | null,
+  decoded: DecodedIntake | RefusedIntake | UnreadableMspdi,
 ): DecodedIntake | null {
-  if (decoded === null) return null
+  if ('unlistedFaultCount' in decoded) {
+    tellUnlisted(hands, decoded.unlistedFaultCount)
+    return null
+  }
   if (!('refusal' in decoded)) return decoded
   hands.raiseNotice(decoded.refusal, null)
   return null
+}
+
+// see T-233, RS-15
+// WHY: the MSPDI codec words its notices for a reader, not by a row of table T-220, so they share RS-15.
+/** @purity non-pure */
+function tellUnlisted(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, count: number): void {
+  if (count > 0) hands.raiseNotice(UNLISTED_REASON, count > 1 ? count : null)
 }
 
 interface NewerFormatReading {
@@ -962,12 +988,13 @@ function tellOpenedCalendar(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, o
   if (isWorkingDayUnlikeMinutesPerDay(opened.schedule)) hands.raiseNotice(WORKING_TIMES_UNLIKE_DAY_REASON, null)
 }
 
-// see RS-51, RS-52, RS-60
+// see RS-51, RS-52, RS-60, RS-15
 /** @purity non-pure */
 function tellDecodedIntake(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, decoded: DecodedIntake): void {
   if (decoded.clampedCount > 0) hands.raiseNotice(SETTINGS_CLAMPED_REASON, decoded.clampedCount)
   if (decoded.recountedCount > 0) hands.raiseNotice(PERCENT_COMPLETE_RECOUNTED_REASON, decoded.recountedCount)
   if (decoded.duplicateLeaves > 0) hands.raiseNotice(DUPLICATE_LEAVES_REASON, decoded.duplicateLeaves)
+  tellUnlisted(hands, decoded.unlistedNoticeCount)
 }
 
 // see FR-012, RS-52
@@ -1113,7 +1140,8 @@ async function exportHeldDocumentToFile(
   const form = saveFormOfExportFormat(format)
   if (form === null) return
   const savedAt = readInstantOfWrite()
-  const text = exportedText(form, written, { savedAt, savedLocalAt: readLocalMoment() })
+  const exported = exportedText(form, written, { savedAt, savedLocalAt: readLocalMoment() })
+  const text = exported?.text ?? null
   // WHY: a form that builds no picture owes no cap stop (CR-440 decision 9); the value rides with the content.
   const picture =
     text === null
@@ -1129,10 +1157,17 @@ async function exportHeldDocumentToFile(
     if (form === SAVE_FORM && text !== null) return landSavedDocument(hands, flow, saving, byteLengthOfText(text), savedAt)
     // TRAP: leave stackSafetyCapToldFor alone; it is the frame's, and touching it silences the screen.
     if (picture.capStopTaskGroupId !== null) hands.raiseNotice(STACK_SAFETY_CAP_REASON, null)
-    if (form === 'IO-1' && holdsWorkValues(written)) hands.raiseNotice(WORK_NOT_REWRITTEN_REASON, null)
+    if (form === 'IO-1') tellMspdiWritten(hands, written, exported?.unlistedNoticeCount ?? 0)
     return
   }
   hands.raiseFileFault(saving.fault)
+}
+
+// see EX-3, EX-6, RS-77, RS-15
+/** @purity non-pure */
+function tellMspdiWritten(hands: Pick<DocumentFileFlowHands, 'raiseNotice'>, written: Document, noticeCount: number): void {
+  if (holdsWorkValues(written)) hands.raiseNotice(WORK_NOT_REWRITTEN_REASON, null)
+  tellUnlisted(hands, noticeCount)
 }
 
 // see IO-3, IO-4, IO-7, ST-7
