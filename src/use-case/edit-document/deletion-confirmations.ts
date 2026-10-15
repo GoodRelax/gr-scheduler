@@ -10,17 +10,31 @@ import { subtreeOf, wbsSubtreesOf } from './edit-task-group'
 // see T-234, NT-7
 // WHY: the question and the names only; the shell that raises it adds the manner (NT-7).
 export interface DeletionQuestion {
-  readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-10'
+  readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-10' | 'QN-16'
   readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherTaskGroup: boolean }[]
 }
 
 const UNASSIGNMENT_QUESTION: DeletionQuestion['question'] = 'QN-3'
 
-// see FR-032, T-234
+const DEPTH_CAP_QUESTION: DeletionQuestion['question'] = 'QN-16'
+
+// see FR-032, T-234, HF-15, QN-16
 /** @purity pure */
 export function confirmationOwedBy(
   commands: readonly DocumentCommand[],
   held: Document,
+  asked: DeletionQuestion['question'] | undefined,
+): DeletionQuestion | null {
+  // WHY: a lift past the depth cap is always asked, and names no task group (T-234).
+  if (asked === DEPTH_CAP_QUESTION) return { question: asked, items: [] }
+  return deletionOwedBy(held, commands, asked)
+}
+
+// see FR-032, T-234
+/** @purity pure */
+function deletionOwedBy(
+  held: Document,
+  commands: readonly DocumentCommand[],
   asked: DeletionQuestion['question'] | undefined,
 ): DeletionQuestion | null {
   const schedule = held.schedule

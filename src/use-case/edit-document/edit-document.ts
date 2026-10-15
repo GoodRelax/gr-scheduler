@@ -283,8 +283,8 @@ const ROUTE_TABLE: Record<Exclude<DocumentCommand['kind'], UnimplementedDocument
   ...routes(COMMAND_KINDS_BY_UNION.TaskCommand, (document, command, _limits, defaultTaskGroupName) =>
     editTask(document, command as TaskCommand, defaultTaskGroupName),
   ),
-  ...routes(COMMAND_KINDS_BY_UNION.TaskGroupCommand, (document, command, _limits, defaultTaskGroupName) =>
-    editTaskGroup(document, command as TaskGroupCommand, defaultTaskGroupName),
+  ...routes(COMMAND_KINDS_BY_UNION.TaskGroupCommand, (document, command, limits, defaultTaskGroupName) =>
+    editTaskGroup(document, command as TaskGroupCommand, defaultTaskGroupName, limits.groupDepthCap),
   ),
   ...routes(COMMAND_KINDS_BY_UNION.DependencyCommand, (document, command) =>
     editDependency(document, command as DependencyCommand),

@@ -326,7 +326,7 @@ function questionCell(row: string, language: DisplayLanguage): string | undefine
 /** @purity pure */
 function questionText(question: string, language: DisplayLanguage): string {
   const word = questionCell(question, language)
-  if (word !== undefined) return word
+  if (word !== undefined) return settingsFilledWord(word)
   const unlisted = questionCell(UNLISTED_QUESTION_ROW, language)
   if (unlisted !== undefined) return unlisted
   return NO_WORDS

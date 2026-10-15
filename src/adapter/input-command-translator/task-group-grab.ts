@@ -5,6 +5,7 @@
 
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
 import type { TaskGroup } from '../../entity/document-model/schedule/schedule'
+import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
 import { displayRatioOf, type ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import type { PointerInput, WheelInput } from './input-source'
 import {
@@ -128,14 +129,75 @@ export function taskGroupGrabLandingAt(
   const above = rows[gap - 1] ?? null
   const below = rows[gap] ?? null
   const lowest = below === null ? 1 : below.depth
-  const highest = Math.min(above === null ? 1 : above.depth + 1, SETTINGS_CONSTANTS.maxGroupDepth - subtree.height + 1)
-  // WHY: no depth fits this gap, so no line is drawn and a release writes nothing.
+  // WHY: only the held task group itself stays within S-125; a subtree reaching past it is asked on release (QN-16).
+  const highest = Math.min(above === null ? 1 : above.depth + 1, SETTINGS_CONSTANTS.maxGroupDepth)
   if (highest < lowest) return null
   const indent = drawnTaskGroupIndentOf(context)
   const steps = indent > 0 ? Math.round((at.x - press.at.x) / indent) : 0
   const depth = Math.max(lowest, Math.min(highest, taskGroupGrabDepthOf(tree.byId, held) + steps))
   const gapY = above !== null ? above.box.y + above.box.height : (below?.box.y ?? at.y)
-  return { ...taskGroupGrabPlaceOf(tree, above, depth), depth, gapY, lineIndentPx: depth * indent }
+  const isPastDepthCap = depth + subtree.height - 1 > SETTINGS_CONSTANTS.maxGroupDepth
+  return { ...taskGroupGrabPlaceOf(tree, above, depth), depth, gapY, lineIndentPx: depth * indent, isPastDepthCap }
+}
+
+type TaskGroupMove = Extract<DocumentCommand, { readonly kind: 'moveTaskGroup' }>
+
+interface TaskGroupLift {
+  readonly taskGroupId: string
+  readonly parentId: string | null
+  readonly afterId: string
+}
+
+// see HF-15, QN-16
+/** @purity pure */
+function taskGroupLiftsOf(tree: TaskGroupGrabTree, landing: Pick<TaskGroupGrabLanding, 'parentId' | 'depth'>): readonly TaskGroupLift[] {
+  const cap = SETTINGS_CONSTANTS.maxGroupDepth
+  const lifts: TaskGroupLift[] = []
+  const chain: (string | null)[] = []
+  chain[landing.depth - 1] = landing.parentId
+  const walk = (id: string, depth: number): void => {
+    chain[depth] = id
+    const parentId = chain[cap - 1]
+    const afterId = chain[cap]
+    if (depth > cap && parentId !== undefined && afterId !== undefined && afterId !== null) lifts.push({ taskGroupId: id, parentId, afterId })
+    for (const child of tree.childrenOf.get(id) ?? []) walk(child.id, depth + 1)
+  }
+  walk(tree.heldId, landing.depth)
+  return lifts
+}
+
+// see HF-15, CM-73
+/** @purity pure */
+function withChildPlaced(childIds: Map<string | null, string[]>, id: string, from: string | null, to: string | null, at: number): void {
+  childIds.set(from, (childIds.get(from) ?? []).filter((one) => one !== id))
+  const siblings = childIds.get(to) ?? []
+  childIds.set(to, [...siblings.slice(0, at), id, ...siblings.slice(at)])
+}
+
+// see HF-15, QN-16, CM-73, HM-3a, HM-12
+// WHY: read after the held move, in tree order; each order is CM-73's rank among the new siblings.
+/** @purity pure */
+export function taskGroupLiftMovesAfter(
+  taskGroups: readonly TaskGroup[],
+  heldGroupId: string,
+  landing: Pick<TaskGroupGrabLanding, 'parentId' | 'order' | 'depth'>,
+): readonly TaskGroupMove[] {
+  const tree = taskGroupGrabTreeOf(taskGroups, heldGroupId)
+  const heldParentId = tree.byId.get(heldGroupId)?.parentId
+  if (heldParentId === undefined) return []
+  const childIds = new Map([...tree.childrenOf].map(([parentId, children]) => [parentId, children.map((one) => one.id)]))
+  withChildPlaced(childIds, heldGroupId, heldParentId, landing.parentId, landing.order)
+  const lastPlacedAfter = new Map<string, string>()
+  const commands: TaskGroupMove[] = []
+  for (const lift of taskGroupLiftsOf(tree, landing)) {
+    const from = tree.byId.get(lift.taskGroupId)?.parentId ?? null
+    const siblings = (childIds.get(lift.parentId) ?? []).filter((id) => id !== lift.taskGroupId)
+    const order = siblings.indexOf(lastPlacedAfter.get(lift.afterId) ?? lift.afterId) + 1
+    withChildPlaced(childIds, lift.taskGroupId, from, lift.parentId, order)
+    lastPlacedAfter.set(lift.afterId, lift.taskGroupId)
+    commands.push({ kind: 'moveTaskGroup', taskGroupId: lift.taskGroupId, parentId: lift.parentId, order })
+  }
+  return commands
 }
 
 // see HF-15, S-597, S-598
@@ -202,7 +264,9 @@ function isWhereItStands(context: InputContext, heldTaskGroupId: string, landing
   return siblings.findIndex((one) => one.id === heldTaskGroupId) === landing.order
 }
 
-// see HF-15, FR-085, CM-73
+const DEPTH_CAP_QUESTION = 'QN-16'
+
+// see HF-15, FR-085, CM-73, QN-16
 /** @purity pure */
 export function commandFromRowGrab(
   release: PointerInput,
@@ -220,12 +284,9 @@ export function commandFromRowGrab(
   const landing = taskGroupGrabLandingAt(context, heldTaskGroupId, release, press)
   // WHY: not written: an accepted write marks unsaved edits even if nothing moved.
   if (landing === null || isWhereItStands(context, heldTaskGroupId, landing)) return CONSUMED_ELSEWHERE
-  return changed([
-    {
-      kind: 'moveTaskGroup',
-      taskGroupId: heldTaskGroupId,
-      parentId: landing.parentId,
-      order: landing.order,
-    },
-  ])
+  const move: TaskGroupMove = { kind: 'moveTaskGroup', taskGroupId: heldTaskGroupId, parentId: landing.parentId, order: landing.order }
+  if (!landing.isPastDepthCap) return changed([move])
+  // WHY: one write, so Yes lands it as one undo step; ApplyDocumentChange holds S-125 at its end (HM-3a).
+  const lifts = taskGroupLiftMovesAfter(context.document.schedule.taskGroups, heldTaskGroupId, landing)
+  return acted({ kind: 'changeDocument', writes: [[move, ...lifts]], question: DEPTH_CAP_QUESTION })
 }

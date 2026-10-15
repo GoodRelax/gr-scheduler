@@ -197,6 +197,8 @@ function heldTaskGroupGroundStyle(): string {
 
 const DROP_PARENT_MARK = 'data-drop-parent'
 
+const PAST_DEPTH_CAP_MARK = 'data-past-depth-cap'
+
 const GRAB_STRIP_MARK_TEXT = '\u22ee\u22ee'
 
 // see HF-15, S-151, S-213
@@ -214,9 +216,13 @@ function dropLineElement(host: Document, cue: NonNullable<TaskGroupPanel['dropCu
   const band = taskGroupBandPx()
   const x = panelBox.x + cue.lineIndentPx
   const width = Math.max(0, panelBox.x + panelBox.width - x)
-  const style = boxStyle({ x, y: cue.lineY - band / 2, width, height: band }) + `background:${PAINT.heldTaskGroup};pointer-events:none;`
-  const line = part(host, 'div', ROLE.taskGroupDropLine, style)
+  const isPastDepthCap = cue.isPastDepthCap === true
+  const paint = isPastDepthCap
+    ? boxStyle({ x, y: cue.lineY - band / 2, width, height: 0 }) + `border-top:${band}px dashed ${PAINT.heldTaskGroup};`
+    : boxStyle({ x, y: cue.lineY - band / 2, width, height: band }) + `background:${PAINT.heldTaskGroup};`
+  const line = part(host, 'div', ROLE.taskGroupDropLine, `${paint}pointer-events:none;`)
   line.setAttribute('aria-hidden', 'true')
+  if (isPastDepthCap) line.setAttribute(PAST_DEPTH_CAP_MARK, 'true')
   return line
 }
 

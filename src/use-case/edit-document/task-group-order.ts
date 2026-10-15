@@ -121,12 +121,20 @@ export function reorderTaskGroupSiblings(
   return edited(withWbsOrderFollowingTheTaskGroups(document, ordered))
 }
 
+// see CM-73
+// TRAP: ranked by `order`, not by the array: a bundle of moves (QN-16) leaves the array out of tree order.
+/** @purity pure */
+function siblingsByOrder(groups: readonly TaskGroup[], parentId: string | null, without: string): readonly TaskGroup[] {
+  return groups.filter((one) => one.id !== without && one.parentId === parentId).sort((a, b) => a.order - b.order)
+}
+
 // see CM-73, FR-005
 /** @purity pure */
 export function moveTaskGroup(
   document: Document,
   command: TaskGroupCommandOf<'moveTaskGroup'>,
   byId: ReadonlyMap<string, TaskGroup>,
+  depthCap: number = SETTINGS_CONSTANTS.maxGroupDepth,
 ): EditResult {
   const groups = document.schedule.taskGroups
   const moved = byId.get(command.taskGroupId)
@@ -148,7 +156,7 @@ export function moveTaskGroup(
     )
   }
   const under = parent === undefined || parent === null ? 0 : depthOf(byId, parent)
-  if (under + carried.height > SETTINGS_CONSTANTS.maxGroupDepth) {
+  if (under + carried.height > depthCap) {
     refusals.push(
       reject(
         'CM-73',
@@ -161,14 +169,10 @@ export function moveTaskGroup(
   if (refusals.length > 0) return refused(refusals)
 
   const landing = Math.max(0, Math.trunc(command.order))
-  const stays = groups.filter(
-    (one) => one.id !== command.taskGroupId && one.parentId === command.parentId,
-  )
+  const stays = siblingsByOrder(groups, command.parentId, command.taskGroupId)
   const placed = [...stays.slice(0, landing), moved, ...stays.slice(landing)]
   const rank = new Map(placed.map((one, at) => [one.id, at]))
-  const left = groups.filter(
-    (one) => one.id !== command.taskGroupId && one.parentId === moved.parentId,
-  )
+  const left = siblingsByOrder(groups, moved.parentId, command.taskGroupId)
   const leftRank = new Map(left.map((one, at) => [one.id, at]))
   const next = groups.map((one) => {
     if (one.id === command.taskGroupId) {

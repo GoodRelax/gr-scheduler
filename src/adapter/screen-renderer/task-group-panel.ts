@@ -178,8 +178,9 @@ function grabCuesOf(
 ): Pick<TaskGroupPanel, 'dropCue' | 'grabCopy'> {
   if (grabbed === null) return { dropCue: null, grabCopy: null }
   const landing = grabbed.landing
+  const cue = landing === null ? null : { lineY: landing.gapY, lineIndentPx: landing.lineIndentPx, parentTaskGroupId: landing.parentId }
   return {
-    dropCue: landing === null ? null : { lineY: landing.gapY, lineIndentPx: landing.lineIndentPx, parentTaskGroupId: landing.parentId },
+    dropCue: cue === null || landing?.isPastDepthCap !== true ? cue : { ...cue, isPastDepthCap: true },
     grabCopy: pointer === null ? null : { x: pointer.x, y: pointer.y, name: taskGroupNameOf(schedule, grabbed.taskGroupId) },
   }
 }

@@ -134,6 +134,7 @@ export interface TaskGroupGrabLanding {
   readonly depth: number
   readonly gapY: number
   readonly lineIndentPx: number
+  readonly isPastDepthCap: boolean
 }
 
 export type TaskGroupGrabScroll = Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'>
@@ -245,8 +246,8 @@ export type InputAction =
       readonly kind: 'changeDocument'
       readonly writes: readonly (readonly DocumentCommand[])[]
       readonly created?: CreatedSubject
-      // see HF-20, QN-10
-      readonly question?: 'QN-10'
+      // see HF-20, QN-10, HF-15, QN-16
+      readonly question?: 'QN-10' | 'QN-16'
       // WHY: the copies a PTD-7 drag makes, picked once the bundle lands (CY-8).
       readonly picked?: Selection
     }

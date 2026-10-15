@@ -31,6 +31,9 @@ export interface SettingsLimits {
   readonly zoomMax: number
   // TRAP: never rebuild this from a window width here; regionsFromScreen owns that arithmetic.
   readonly taskGroupAreaWidthWithoutPanels: number
+  // see HM-3a, QN-16
+  // WHY: absent, S-125; ApplyDocumentChange lifts it inside a write and holds S-125 at the write's end.
+  readonly groupDepthCap?: number
 }
 
 // <generated -- do not edit by hand>
