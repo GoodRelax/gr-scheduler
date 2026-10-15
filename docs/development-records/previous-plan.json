@@ -1,6 +1,6 @@
 {
  "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
- "schemaVersion": "2026-10-11T04:10:00Z",
+ "schemaVersion": "2026-10-15T05:52:20Z",
  "schedule": {
   "project": {
    "id": "GRS-PLAN",
@@ -11,7 +11,7 @@
    "company": null,
    "manager": null,
    "author": null,
-   "created": "2026-10-15T05:05:00",
+   "creationDate": "2026-10-15T05:05:00",
    "revision": 1,
    "startDate": "2026-10-15T02:00:00",
    "statusDate": "2026-10-15T05:05:00",
@@ -25,7 +25,7 @@
    "themeHue": 214,
    "parentProgressToleranceDays": 1,
    "uidHighWaterMark": 49,
-   "importSeq": 0,
+   "importSequence": 0,
    "carry": {},
    "carryElements": [],
    "outlineBase": 1,
@@ -375,7 +375,7 @@
      {
       "predecessorUid": 4,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -383,7 +383,7 @@
      {
       "predecessorUid": 7,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -391,7 +391,7 @@
      {
       "predecessorUid": 8,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -399,7 +399,7 @@
      {
       "predecessorUid": 9,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -523,7 +523,7 @@
      {
       "predecessorUid": 14,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -670,7 +670,7 @@
      {
       "predecessorUid": 10,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -678,7 +678,7 @@
      {
       "predecessorUid": 2,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -710,7 +710,7 @@
      {
       "predecessorUid": 10,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -718,7 +718,7 @@
      {
       "predecessorUid": 2,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -750,7 +750,7 @@
      {
       "predecessorUid": 10,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -758,7 +758,7 @@
      {
       "predecessorUid": 2,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -790,7 +790,7 @@
      {
       "predecessorUid": 21,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -798,7 +798,7 @@
      {
       "predecessorUid": 22,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -806,7 +806,7 @@
      {
       "predecessorUid": 23,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -838,7 +838,7 @@
      {
       "predecessorUid": 24,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -870,7 +870,7 @@
      {
       "predecessorUid": 25,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -902,7 +902,7 @@
      {
       "predecessorUid": 26,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1003,7 +1003,7 @@
      {
       "predecessorUid": 30,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1035,7 +1035,7 @@
      {
       "predecessorUid": 11,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1067,7 +1067,7 @@
      {
       "predecessorUid": 3,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1191,7 +1191,7 @@
      {
       "predecessorUid": 36,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1199,7 +1199,7 @@
      {
       "predecessorUid": 31,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1231,7 +1231,7 @@
      {
       "predecessorUid": 38,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1286,7 +1286,7 @@
      {
       "predecessorUid": 40,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1318,7 +1318,7 @@
      {
       "predecessorUid": 41,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1350,7 +1350,7 @@
      {
       "predecessorUid": 42,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1382,7 +1382,7 @@
      {
       "predecessorUid": 43,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1414,7 +1414,7 @@
      {
       "predecessorUid": 40,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1446,7 +1446,7 @@
      {
       "predecessorUid": 40,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1478,7 +1478,7 @@
      {
       "predecessorUid": 40,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1510,7 +1510,7 @@
      {
       "predecessorUid": 45,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1518,7 +1518,7 @@
      {
       "predecessorUid": 46,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1526,7 +1526,7 @@
      {
       "predecessorUid": 47,
       "linkType": 1,
-      "lag": 0,
+      "linkLag": 0,
       "lagFormat": 7,
       "carry": {},
       "carryElements": []
@@ -1565,277 +1565,277 @@
    {
     "id": "360eebfe-b421-54f7-ae66-8f611ac2263d",
     "parentId": null,
-    "label": "調整役(合流・関門・push)",
+    "name": "調整役(合流・関門・push)",
     "derivedFromTaskUid": null,
     "order": 0,
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "minHeight": null
+    "minHeightPx": null
    },
    {
     "id": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc",
     "parentId": null,
-    "label": "利用者(裁定・聞き取り・実物の確認)",
+    "name": "利用者(裁定・聞き取り・実物の確認)",
     "derivedFromTaskUid": null,
     "order": 1,
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "minHeight": null
+    "minHeightPx": null
    },
    {
     "id": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f",
     "parentId": null,
-    "label": "席1(CR-753 → トリアージ・実装待ち → CR-755 → CR-754 → W4・W5)",
+    "name": "席1(CR-753 → トリアージ・実装待ち → CR-755 → CR-754 → W4・W5)",
     "derivedFromTaskUid": null,
     "order": 2,
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "minHeight": null
+    "minHeightPx": null
    },
    {
     "id": "45e69727-3ec2-537e-a8f6-f1153006e8c3",
     "parentId": null,
-    "label": "席2(CR-740 → 罠・DFC-730 → CR-756 → CR-695)",
+    "name": "席2(CR-740 → 罠・DFC-730 → CR-756 → CR-695)",
     "derivedFromTaskUid": null,
     "order": 3,
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "minHeight": null
+    "minHeightPx": null
    },
    {
     "id": "da39bfdb-f716-589c-8150-97dd28796ef9",
     "parentId": null,
-    "label": "席3(工程の道具 → CR-752 → T-064 → 聞き取り分 → CR-697)",
+    "name": "席3(工程の道具 → CR-752 → T-064 → 聞き取り分 → CR-697)",
     "derivedFromTaskUid": null,
     "order": 4,
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "minHeight": null
+    "minHeightPx": null
    },
    {
     "id": "92288265-9367-5757-9974-b1a8154ae4b6",
     "parentId": null,
-    "label": "席4(CR-758 → 用語集・仕様待ちの起草 → CR-757 → 仕様待ちの当て)",
+    "name": "席4(CR-758 → 用語集・仕様待ちの起草 → CR-757 → 仕様待ちの当て)",
     "derivedFromTaskUid": null,
     "order": 5,
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "minHeight": null
+    "minHeightPx": null
    },
    {
     "id": "06bb553e-298b-5794-98aa-8762a050243f",
     "parentId": null,
-    "label": "席5(JDG-2071 → 試験待ち → トリアージ分の直し)",
+    "name": "席5(JDG-2071 → 試験待ち → トリアージ分の直し)",
     "derivedFromTaskUid": null,
     "order": 6,
     "treeState": "auto",
     "editGroup": null,
     "color": null,
-    "minHeight": null
+    "minHeightPx": null
    }
   ],
   "taskGroupMembers": [
    {
     "taskUid": 1,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    },
    {
     "taskUid": 2,
-    "groupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+    "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
    },
    {
     "taskUid": 3,
-    "groupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+    "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
    },
    {
     "taskUid": 4,
-    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+    "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
    },
    {
     "taskUid": 5,
-    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+    "taskGroupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
    },
    {
     "taskUid": 6,
-    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+    "taskGroupId": "06bb553e-298b-5794-98aa-8762a050243f"
    },
    {
     "taskUid": 7,
-    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+    "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
    },
    {
     "taskUid": 8,
-    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+    "taskGroupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
    },
    {
     "taskUid": 9,
-    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+    "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
    },
    {
     "taskUid": 10,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    },
    {
     "taskUid": 11,
-    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+    "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
    },
    {
     "taskUid": 12,
-    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+    "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
    },
    {
     "taskUid": 13,
-    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+    "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
    },
    {
     "taskUid": 14,
-    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+    "taskGroupId": "06bb553e-298b-5794-98aa-8762a050243f"
    },
    {
     "taskUid": 15,
-    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+    "taskGroupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
    },
    {
     "taskUid": 16,
-    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+    "taskGroupId": "06bb553e-298b-5794-98aa-8762a050243f"
    },
    {
     "taskUid": 17,
-    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+    "taskGroupId": "06bb553e-298b-5794-98aa-8762a050243f"
    },
    {
     "taskUid": 18,
-    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+    "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
    },
    {
     "taskUid": 19,
-    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+    "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
    },
    {
     "taskUid": 20,
-    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+    "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
    },
    {
     "taskUid": 21,
-    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+    "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
    },
    {
     "taskUid": 22,
-    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+    "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
    },
    {
     "taskUid": 23,
-    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+    "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
    },
    {
     "taskUid": 24,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    },
    {
     "taskUid": 25,
-    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+    "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
    },
    {
     "taskUid": 26,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    },
    {
     "taskUid": 27,
-    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+    "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
    },
    {
     "taskUid": 28,
-    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+    "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
    },
    {
     "taskUid": 29,
-    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+    "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
    },
    {
     "taskUid": 30,
-    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+    "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
    },
    {
     "taskUid": 31,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    },
    {
     "taskUid": 32,
-    "groupId": "06bb553e-298b-5794-98aa-8762a050243f"
+    "taskGroupId": "06bb553e-298b-5794-98aa-8762a050243f"
    },
    {
     "taskUid": 33,
-    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+    "taskGroupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
    },
    {
     "taskUid": 34,
-    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+    "taskGroupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
    },
    {
     "taskUid": 35,
-    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+    "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
    },
    {
     "taskUid": 36,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    },
    {
     "taskUid": 37,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    },
    {
     "taskUid": 38,
-    "groupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+    "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
    },
    {
     "taskUid": 39,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    },
    {
     "taskUid": 40,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    },
    {
     "taskUid": 41,
-    "groupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+    "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
    },
    {
     "taskUid": 42,
-    "groupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
+    "taskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f"
    },
    {
     "taskUid": 43,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    },
    {
     "taskUid": 44,
-    "groupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
+    "taskGroupId": "f2b5a632-0e6d-56dd-acc2-4e8c5d72d9fc"
    },
    {
     "taskUid": 45,
-    "groupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
+    "taskGroupId": "45e69727-3ec2-537e-a8f6-f1153006e8c3"
    },
    {
     "taskUid": 46,
-    "groupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
+    "taskGroupId": "da39bfdb-f716-589c-8150-97dd28796ef9"
    },
    {
     "taskUid": 47,
-    "groupId": "92288265-9367-5757-9974-b1a8154ae4b6"
+    "taskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6"
    },
    {
     "taskUid": 48,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    },
    {
     "taskUid": 49,
-    "groupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
+    "taskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d"
    }
   ],
   "taskVisuals": [
@@ -2238,7 +2238,7 @@
     "leaderShapeKind": "calloutBox",
     "text": "紫の枠 = 波(同時に当てる CR の組)。1 つのファイルの組に書き手は 1 人\n波 A: CR-753・740・752・758(10-15)\n波 B: CR-755・756・757(10-15〜10-16。波 A の合流と利用者の残りの裁定を待つ)\n波 C: CR-754(＋DFC-2517)(10-16。パネルの幅は波 B が足した行の後に測るので最後)\n枠は日の列の端に描かれるので、3 つの枠は重なって見える",
     "anchorDate": "2026-10-15T00:00:00",
-    "anchorGroupId": "92288265-9367-5757-9974-b1a8154ae4b6",
+    "anchorTaskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6",
     "bodyOffsetPx": {
      "dx": 0,
      "dy": 250
@@ -2254,7 +2254,7 @@
     "leaderShapeKind": "calloutBox",
     "text": "調整役の行 10-17 20:15「並行の仕事の合流と台帳の締め」は、席 1〜5 の並行の仕事が全部済んでから:\n工程の道具・罠の束・用語集の JSON・JDG-2071 の規則・DFC-730・試験待ち 7 行・\n実装待ちの残り・T-064・トリアージの直し・聞き取り分・仕様待ちの残り\nどれも 32 時間以上の余裕があり合流の時刻を決めないので、依存線は描いていない",
     "anchorDate": "2026-10-17T00:00:00",
-    "anchorGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d",
+    "anchorTaskGroupId": "360eebfe-b421-54f7-ae66-8f611ac2263d",
     "bodyOffsetPx": {
      "dx": -100,
      "dy": 560
@@ -2269,10 +2269,10 @@
   "highlightBoxes": [
    {
     "id": "67ca8ea4-c156-5990-9759-92f5fec3ddef",
-    "startDate": "2026-10-15T05:15:00",
-    "endDate": "2026-10-15T10:30:00",
-    "topGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f",
-    "bottomGroupId": "92288265-9367-5757-9974-b1a8154ae4b6",
+    "start": "2026-10-15T05:15:00",
+    "finish": "2026-10-15T10:30:00",
+    "topTaskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f",
+    "bottomTaskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6",
     "strokeColor": "purple",
     "cornerRadiusPx": null,
     "strokeWidthPx": 2,
@@ -2281,10 +2281,10 @@
    },
    {
     "id": "9a60b5b2-d287-5390-9a06-2e71cc40182a",
-    "startDate": "2026-10-15T21:15:00",
-    "endDate": "2026-10-16T04:15:00",
-    "topGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f",
-    "bottomGroupId": "92288265-9367-5757-9974-b1a8154ae4b6",
+    "start": "2026-10-15T21:15:00",
+    "finish": "2026-10-16T04:15:00",
+    "topTaskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f",
+    "bottomTaskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6",
     "strokeColor": "purple",
     "cornerRadiusPx": null,
     "strokeWidthPx": 2,
@@ -2293,10 +2293,10 @@
    },
    {
     "id": "af4f4ba1-5f83-560a-927b-124dc7278744",
-    "startDate": "2026-10-16T05:15:00",
-    "endDate": "2026-10-16T10:45:00",
-    "topGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f",
-    "bottomGroupId": "92288265-9367-5757-9974-b1a8154ae4b6",
+    "start": "2026-10-16T05:15:00",
+    "finish": "2026-10-16T10:45:00",
+    "topTaskGroupId": "f38bb5e1-b65d-5bbd-a634-2a1c78cb558f",
+    "bottomTaskGroupId": "92288265-9367-5757-9974-b1a8154ae4b6",
     "strokeColor": "purple",
     "cornerRadiusPx": null,
     "strokeWidthPx": 2,
@@ -2308,32 +2308,32 @@
   "baselineTasks": []
  },
  "documentSettings": {
-  "actualVisible": true,
-  "assigneeVisible": false,
-  "baselineVisible": false,
-  "dateGridLinesVisible": false,
-  "dependencyVisible": true,
+  "isActualVisible": true,
+  "isAssigneeVisible": false,
+  "isBaselineVisible": false,
+  "isDateGridLinesVisible": false,
+  "isDependencyVisible": true,
   "displayScale": 100,
   "displayTimeZones": [],
   "fitSpanFinish": null,
-  "fitSpanFixed": false,
+  "isFitSpanFixed": false,
   "fitSpanStart": null,
   "fontScale": "M",
-  "groupGridLinesVisible": true,
+  "isGroupGridLinesVisible": true,
   "levelZeroTreeState": "auto",
-  "percentCompleteVisible": false,
-  "pinnedGroupIds": [],
-  "planDatesVisible": false,
-  "planVisible": true,
-  "progressLineVisible": false,
-  "progressMarkerVisible": true,
-  "rulerFont": 21,
-  "rulerHeight": 69,
+  "isPercentCompleteVisible": false,
+  "pinnedTaskGroupIds": [],
+  "isPlanDatesVisible": false,
+  "isPlanVisible": true,
+  "isProgressLineVisible": false,
+  "isProgressMarkerVisible": true,
+  "rulerFontSizePx": 21,
+  "rulerHeightPx": 69,
   "scrollDate": null,
   "scrollDayOffset": 0,
-  "scrollGroupId": null,
+  "scrollTaskGroupId": null,
   "scrollGroupOffset": 0,
-  "showsTimeOfDay": true,
+  "isTimeOfDayVisible": true,
   "stackDirection": "down",
   "tableViews": {
    "delayDiagnosticsReport": {
@@ -2356,25 +2356,25 @@
     "sort": null
    }
   },
-  "taskGroupPanelWidth": 300,
-  "taskGroupPanelWidthFixed": false,
-  "themeMonochrome": false,
+  "taskGroupPanelWidthPx": 300,
+  "isTaskGroupPanelWidthFixed": false,
+  "isThemeMonochrome": false,
   "viewTimeZone": "UTC+09:00",
   "zoomX": 1,
   "zoomY": 1
  },
  "documentStamp": {
-  "scheduleUpdatedUtc": "2026-10-14T20:05:00Z",
+  "scheduleUpdatedAt": "2026-10-14T20:05:00Z",
   "lastEditedBy": "project-plan session",
-  "settingsUpdatedUtc": "2026-10-14T20:05:00Z",
-  "fileSavedUtc": "2026-10-14T20:05:00Z"
+  "settingsUpdatedAt": "2026-10-14T20:05:00Z",
+  "fileSavedAt": "2026-10-14T20:05:00Z"
  },
  "changeLog": [
   {
    "ordinal": 1,
    "editedBy": "project-plan session",
    "explanation": "Plan written fresh from the handoff, the drafted CRs and the ledger counts.",
-   "changedUtc": "2026-10-14T20:05:00Z"
+   "changedAt": "2026-10-14T20:05:00Z"
   }
  ]
 }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
-  "schemaVersion": "2026-10-11T04:10:00Z",
+  "schemaVersion": "2026-10-15T05:52:20Z",
   "schedule": {
     "project": {
       "id": null,
@@ -11,7 +11,7 @@
       "company": null,
       "manager": null,
       "author": null,
-      "created": "2026-10-15T09:00:00",
+      "creationDate": "2026-10-15T09:00:00",
       "revision": null,
       "startDate": "2026-11-02T08:00:00",
       "statusDate": "2026-11-06T17:00:00",
@@ -25,7 +25,7 @@
       "themeHue": 214,
       "parentProgressToleranceDays": 1,
       "uidHighWaterMark": 9,
-      "importSeq": 0,
+      "importSequence": 0,
       "carry": {},
       "carryElements": [],
       "outlineBase": 1,
@@ -204,7 +204,7 @@
           {
             "predecessorUid": 2,
             "linkType": 1,
-            "lag": 0,
+            "linkLag": 0,
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
@@ -236,7 +236,7 @@
           {
             "predecessorUid": 3,
             "linkType": 1,
-            "lag": 0,
+            "linkLag": 0,
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
@@ -268,7 +268,7 @@
           {
             "predecessorUid": 4,
             "linkType": 1,
-            "lag": 0,
+            "linkLag": 0,
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
@@ -300,7 +300,7 @@
           {
             "predecessorUid": 5,
             "linkType": 1,
-            "lag": 0,
+            "linkLag": 0,
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
@@ -332,7 +332,7 @@
           {
             "predecessorUid": 4,
             "linkType": 1,
-            "lag": 9600,
+            "linkLag": 9600,
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
@@ -364,7 +364,7 @@
           {
             "predecessorUid": 6,
             "linkType": 1,
-            "lag": 0,
+            "linkLag": 0,
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
@@ -372,7 +372,7 @@
           {
             "predecessorUid": 7,
             "linkType": 1,
-            "lag": 0,
+            "linkLag": 0,
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
@@ -404,7 +404,7 @@
           {
             "predecessorUid": 8,
             "linkType": 1,
-            "lag": 0,
+            "linkLag": 0,
             "lagFormat": 7,
             "carry": {},
             "carryElements": []
@@ -420,58 +420,58 @@
       {
         "id": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01",
         "parentId": null,
-        "label": "Design",
+        "name": "Design",
         "derivedFromTaskUid": null,
         "order": 0,
         "treeState": "auto",
         "editGroup": null,
         "color": null,
-        "minHeight": null
+        "minHeightPx": null
       },
       {
         "id": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02",
         "parentId": null,
-        "label": "Build",
+        "name": "Build",
         "derivedFromTaskUid": null,
         "order": 1,
         "treeState": "auto",
         "editGroup": null,
         "color": null,
-        "minHeight": null
+        "minHeightPx": null
       }
     ],
     "taskGroupMembers": [
       {
         "taskUid": 2,
-        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
+        "taskGroupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
       },
       {
         "taskUid": 3,
-        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
+        "taskGroupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
       },
       {
         "taskUid": 4,
-        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
+        "taskGroupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
       },
       {
         "taskUid": 5,
-        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
+        "taskGroupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e01"
       },
       {
         "taskUid": 6,
-        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
+        "taskGroupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
       },
       {
         "taskUid": 7,
-        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
+        "taskGroupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
       },
       {
         "taskUid": 8,
-        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
+        "taskGroupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
       },
       {
         "taskUid": 9,
-        "groupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
+        "taskGroupId": "6f1c2a4e-8b3d-4c5a-9e7f-1a2b3c4d5e02"
       }
     ],
     "taskVisuals": [
@@ -546,32 +546,32 @@
     "baselineTasks": []
   },
   "documentSettings": {
-    "actualVisible": true,
-    "assigneeVisible": false,
-    "baselineVisible": false,
-    "dateGridLinesVisible": false,
-    "dependencyVisible": true,
+    "isActualVisible": true,
+    "isAssigneeVisible": false,
+    "isBaselineVisible": false,
+    "isDateGridLinesVisible": false,
+    "isDependencyVisible": true,
     "displayScale": 100,
     "displayTimeZones": [],
     "fitSpanFinish": null,
-    "fitSpanFixed": false,
+    "isFitSpanFixed": false,
     "fitSpanStart": null,
     "fontScale": "M",
-    "groupGridLinesVisible": true,
+    "isGroupGridLinesVisible": true,
     "levelZeroTreeState": "auto",
-    "percentCompleteVisible": false,
-    "pinnedGroupIds": [],
-    "planDatesVisible": false,
-    "planVisible": true,
-    "progressLineVisible": false,
-    "progressMarkerVisible": true,
-    "rulerFont": 21,
-    "rulerHeight": 69,
+    "isPercentCompleteVisible": false,
+    "pinnedTaskGroupIds": [],
+    "isPlanDatesVisible": false,
+    "isPlanVisible": true,
+    "isProgressLineVisible": false,
+    "isProgressMarkerVisible": true,
+    "rulerFontSizePx": 21,
+    "rulerHeightPx": 69,
     "scrollDate": null,
     "scrollDayOffset": 0,
-    "scrollGroupId": null,
+    "scrollTaskGroupId": null,
     "scrollGroupOffset": 0,
-    "showsTimeOfDay": false,
+    "isTimeOfDayVisible": false,
     "stackDirection": "up",
     "tableViews": {
       "delayDiagnosticsReport": {
@@ -594,25 +594,25 @@
         "sort": null
       }
     },
-    "taskGroupPanelWidth": 300,
-    "taskGroupPanelWidthFixed": false,
-    "themeMonochrome": false,
+    "taskGroupPanelWidthPx": 300,
+    "isTaskGroupPanelWidthFixed": false,
+    "isThemeMonochrome": false,
     "viewTimeZone": null,
     "zoomX": 1,
     "zoomY": 1
   },
   "documentStamp": {
-    "scheduleUpdatedUtc": "2026-10-15T00:00:00Z",
+    "scheduleUpdatedAt": "2026-10-15T00:00:00Z",
     "lastEditedBy": "X-14 schema-only writer",
-    "settingsUpdatedUtc": "2026-10-15T00:00:00Z",
-    "fileSavedUtc": "2026-10-15T00:00:00Z"
+    "settingsUpdatedAt": "2026-10-15T00:00:00Z",
+    "fileSavedAt": "2026-10-15T00:00:00Z"
   },
   "changeLog": [
     {
       "ordinal": 0,
       "editedBy": "X-14 schema-only writer",
       "explanation": "Created from the JSON Schema alone.",
-      "changedUtc": "2026-10-15T00:00:00Z"
+      "changedAt": "2026-10-15T00:00:00Z"
     }
   ]
 }

@@ -21,7 +21,10 @@ const DESCRIPTION_GENERATOR = 'tools/generate_mcp_tool_descriptions.py'
 const AGENT_GENERATOR = 'tools/generate_agent_api.py'
 const TABLE_PRINTER = 'docs/spec/_source/document_commands_json_to_md.py'
 
-const COPIED = [SOURCE_DIR, PRINTED, UNIT_DIR, DESCRIPTIONS, GENERATOR, DESCRIPTION_GENERATOR, AGENT_GENERATOR]
+// WHY: the generator also writes the one-line letters of a length (TX-10) into these two units outside UNIT_DIR.
+const LENGTH_LETTER_UNITS = ['src/entity/layout-engine/schedule-layout/name-label.ts', 'src/adapter/screen-renderer/properties-panel.ts']
+
+const COPIED = [SOURCE_DIR, PRINTED, UNIT_DIR, ...LENGTH_LETTER_UNITS, DESCRIPTIONS, GENERATOR, DESCRIPTION_GENERATOR, AGENT_GENERATOR]
 
 interface Value {
   name?: string
