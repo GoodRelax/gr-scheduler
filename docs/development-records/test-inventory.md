@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 341 | 4149 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 86 | 566 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 87 | 572 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 629 | 8726 | 11 | 8 | 13 | 2 |
+| **all** | | | 630 | 8732 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -611,7 +611,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/integration/cr-572-viewer-values-stay-off-the-document.test.ts` | 28 | FR-039, FR-041, FR-048, FR-052, FR-063, FR-080, FR-100 | - | T-027, T-108, T-206, T-215 | CM-64, DC-6, DC-7, IC-16, IC-47, IC-99, IC-100, S-2, S-3, S-66, S-171, UN-13, WY-1 | - | - | - | - |
 | `tests/integration/schedule-drawing.sws.test.ts` | 38 | FR-001, FR-003, FR-009, FR-013, FR-014, FR-017, FR-021, FR-029, FR-039, FR-043, FR-048, FR-054, FR-080, FR-089, FR-093, FR-094, FR-097, FR-098, SWS-1, SWS-2, SWS-3, SWS-4, SWS-5, SWS-6 | - | T-018, T-023d, T-051, T-061, T-064, T-077, T-205, T-206, T-209, T-218, T-219, T-221, T-222, T-240, T-252, T-272, T-273 | AT-17, BO-1, DS-1, DS-7, EP-14, GA-20, HF-1, HF-19, IV-17, LF-1, LF-2, LF-3, LF-5, LF-6, LF-7, LF-8, LF-9, LF-10, LF-11, LF-12, LF-13, LF-14, LF-15, LF-16, LF-17, LF-18, LF-19, LP-1, LP-2, LR-2, LR-5, OC-10, PI-5, PI-6, PI-19, PI-20, PI-35, PM-1a, RF-1, RP-1, RP-2, RP-4, RP-8, RV-1, RV-6, S-1, S-8, S-10, S-17, S-31, S-39, S-54, S-55, S-58, S-63, S-67, S-77, S-85, S-108, S-135, S-260, SH-3, ST-5, TS-2, TW-2, U-50, VG-2, VG-5, WT-2, WT-4, XS-6, XS-10 | - | - | - | - |
 | `tests/nfr/nfr-001-010-011-013-the-rest-of-chapter-7.test.ts` | 7 | FR-018, FR-065, NFR-001, NFR-002, NFR-003, NFR-004, NFR-010, NFR-011, NFR-013 | VT-3 | T-025, T-043, T-065, T-109, T-218 | AM-8, CN-1, IC-20, IF-1, MC-4, MC-5, MC-6, MC-7, MC-8, MC-9, MK-8, PG-1, PG-2, PG-3, PG-4, PG-5, PG-6, PG-7, PG-8, PG-9, PG-10, PG-11, PG-12, PG-14, TS-4 | - | - | - | - |
-| `tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts` | 5 | FR-021, FR-022, FR-025, FR-029, FR-065, FR-067, FR-076, NFR-002, NFR-003, NFR-004, NFR-010, SWS-6 | VT-3 | T-023, T-023a, T-024, T-024a, T-025, T-028, T-034, T-037, T-043, T-103, T-107, T-109, T-204, T-218, T-226, T-228, T-231, T-233 | AM-8, AM-12, AM-14, AM-15, BT-1, CN-1, IC-2, IC-20, IO-1, IO-2, IO-7, MC-4, MC-5, MC-6, MC-7, MC-8, MK-1, MK-2, MK-6, MK-7, MK-8, NR-1, NR-2, NR-3, NR-4, NR-5, NT-1, OP-12, PG-2, PG-3, PG-8, PTD-1, PTD-5, RS-27, RS-40, S-81, S-217, TP-6, TS-4, U-54, U-61 | - | - | - | - |
+| `tests/nfr/nfr-002-003-frame-time-is-the-interval.test.ts` | 5 | FR-021, FR-022, FR-025, FR-029, FR-065, FR-067, FR-076, NFR-002, NFR-003, NFR-004, NFR-010, SWS-6 | VT-3 | T-023, T-023a, T-024, T-024a, T-025, T-028, T-034, T-036, T-037, T-043, T-103, T-107, T-109, T-204, T-218, T-226, T-228, T-231, T-233 | AM-8, AM-12, AM-14, AM-15, BT-1, CN-1, GR-28, IC-2, IC-20, IO-1, IO-2, IO-7, MC-4, MC-5, MC-6, MC-7, MC-8, MC-10, MK-1, MK-2, MK-6, MK-7, MK-8, NR-1, NR-2, NR-3, NR-4, NR-5, NT-1, OP-12, PG-2, PG-3, PG-8, PTD-1, PTD-5, RS-27, RS-40, S-81, S-217, S-425, SK-24, SV-18, TP-6, TS-4, U-54, U-61 | - | - | - | - |
 | `tests/nfr/nfr-004-single-file.test.ts` | 5 | FR-069, FR-073, NFR-004, NFR-011 | - | - | AG-12, BR-4, CN-1, CN-6, CN-8, DR-4, LM-14, S-350, S-459, S-540, S-583 | - | - | - | - |
 | `tests/system/cr-381-task-group-names-drawn-at-their-own-size.test.ts` | 2 | FR-039, FR-065, FR-085, FR-094 | - | T-025, T-051, T-107, T-109, T-201, T-202, T-252 | DS-1, HF-5, PI-37, S-36, S-38, S-234 | - | - | - | - |
 | `tests/system/cr-389-full-screen-is-asked-of-the-browser.test.ts` | 5 | FR-038, FR-071 | - | T-025 | IC-11, RS-59 | - | - | - | - |
@@ -667,6 +667,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-736-the-marquee-overlay-in-the-built-app.test.ts` | 8 | - | - | T-065 | IF-1, IF-9, ZO-6 | - | - | - | - |
 | `tests/system/cr-737-the-column-border-grab-band-and-the-pointer-shape-over-windows.test.ts` | 11 | FR-106 | - | T-023d, T-103, T-109, T-206, T-330 | DT-8, GR-25, GR-28, IC-122, PK-10, PK-12, PK-15, RO-9, RQ-1, RW-9, S-425, S-426, S-465, SQ-10, SV-7, SV-18 | - | - | - | - |
 | `tests/system/cr-739-the-window-edge-answers-before-the-title-bar-and-the-header-cell-shows-the-finger.test.ts` | 13 | FR-106 | - | T-023d, T-103, T-109, T-330, T-335 | DT-8, GR-24, GR-25, IC-52, IC-122, IF-9, PK-7, PK-12, PK-13, PK-15, RO-9, RQ-1, RW-9, S-426, S-465, SQ-10, SV-1, SV-7, SV-18, WB-8, WB-9 | - | - | - | - |
+| `tests/system/cr-762-sv-18-a-border-pull-follows-the-pointer-and-stops-left-of-the-scrollbar.test.ts` | 6 | - | - | T-025, T-103, T-109, T-330 | GR-25, GR-28, MC-5, MC-8, RO-9, RW-9, S-425, SV-7, SV-18 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-color-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
