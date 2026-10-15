@@ -2960,23 +2960,26 @@ function collectFaults(
   }
   if (typeof value === 'string') stringFaults(value, node, at, out)
 
-  if (isObject(value)) {
-    for (const key of node.required ?? []) {
-      if (!(key in value)) out.push(jsonFault(pointer(at, key), A_KEY_THIS_SHAPE_LACKS))
-    }
-    for (const [key, inner] of Object.entries(value)) {
-      const child = node.properties?.[key] ?? node.values
-      if (child !== undefined) {
-        collectFaults(inner, child, pointer(at, key), out)
-      } else if (node.closed === true) {
-        out.push(jsonFault(pointer(at, key), NOT_A_KEY_THIS_SHAPE_CARRIES))
-      }
-    }
-  }
+  if (isObject(value)) objectFaults(value, node, at, out)
 
   const items = node.items
   if (items !== undefined && Array.isArray(value)) {
     value.forEach((element, index) => collectFaults(element, items, `${at}/${index}`, out))
+  }
+}
+
+/** @purity pure */
+function objectFaults(value: Readonly<Record<string, unknown>>, node: SchemaNode, at: string, out: JsonFault[]): void {
+  for (const key of node.required ?? []) {
+    if (!(key in value)) out.push(jsonFault(pointer(at, key), A_KEY_THIS_SHAPE_LACKS))
+  }
+  for (const [key, inner] of Object.entries(value)) {
+    const child = node.properties?.[key] ?? node.values
+    if (child !== undefined) {
+      collectFaults(inner, child, pointer(at, key), out)
+    } else if (node.closed === true) {
+      out.push(jsonFault(pointer(at, key), NOT_A_KEY_THIS_SHAPE_CARRIES))
+    }
   }
 }
 
