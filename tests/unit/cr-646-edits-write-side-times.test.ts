@@ -291,13 +291,15 @@ describe('X-2 WT-6..WT-8: the whole-day columns an annotation or a scroll writes
     expect(timeOf(boxes[0]?.finish)).toBe(DAY_END)
   })
 
-  it('WT-8: a comment box placed (IC-35) is anchored at 00:00:00', () => {
+  it('WT-8 / FR-019: a comment box placed (IC-35) carries the placed instant to the minute, not the day start', () => {
     const built = stage(grsDocument(ownTimes))
     built.pressEntry('Command Palette', 'IC-35')
     built.click(xOfDay(built.loop, april(21)), taskGroupY(built, BAR))
     const boxes = built.loop.document().schedule.commentBoxes
     expect(boxes.length, 'premise: the press placed one comment box').toBe(1)
-    expect(timeOf(boxes[0]?.anchorDate)).toBe(DAY_START)
+    expect(boxes[0]?.anchorDate?.slice(0, 10)).toBe('2026-04-21')
+    expect(timeOf(boxes[0]?.anchorDate)).toMatch(/^[0-9]{2}:[0-9]{2}:00$/)
+    expect(timeOf(boxes[0]?.anchorDate), 'a mid-column press is not read as the day start').not.toBe(DAY_START)
   })
 
   it('WT-8 / S-77: a horizontal scroll writes scrollDate at 00:00:00', () => {
@@ -356,6 +358,11 @@ describe('X-4 FR-054: dates are compared by their day', () => {
         text: 'note',
         anchorDate: april(21, DAY_START),
         anchorTaskGroupId: rowIdOf(0),
+        anchorBandFraction: null,
+        anchorTaskUid: null,
+        anchorTaskFigure: null,
+        anchorHighlightBoxId: null,
+        anchorSnapPoint: null,
         bodyOffsetPx: { dx: 10, dy: -10 },
         strokeColor: null,
         strokeWidthPx: null,
@@ -381,14 +388,14 @@ describe('X-4 FR-054: dates are compared by their day', () => {
     return base as unknown as Document
   }
 
-  it('FR-054 / CM-50: re-anchoring a comment box on the same day at another time changes nothing', () => {
+  it('FR-019 / CM-50: re-anchoring a comment box on the same day at another time writes that instant', () => {
     const before = annotated()
     const after = edited(before, {
       kind: 'setCommentBoxAnchor',
       id: COMMENT_ID,
       anchor: { date: april(21, '12:00:00'), taskGroupId: rowIdOf(0) },
     })
-    expect(after.schedule.commentBoxes).toEqual(before.schedule.commentBoxes)
+    expect(after.schedule.commentBoxes).toEqual([{ ...before.schedule.commentBoxes[0], anchorDate: april(21, '12:00:00') }])
   })
 
   it('FR-054 / CM-54: re-ranging a highlight box over the same days at other times changes nothing', () => {

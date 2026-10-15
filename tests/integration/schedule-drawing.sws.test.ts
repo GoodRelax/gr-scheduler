@@ -2110,10 +2110,10 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
       covers: ['LF-15'],
       given: 'two task groups, and a comment box anchored to day 5 of the second, once plain and once with that task group pinned',
       when: 'geometryFromLayout places the anchor',
-      then: 'the anchor stands at the center of the day 5 column and the center of the band the task group is drawn in',
+      then: 'the anchor stands at the left edge of the day 5 column (00:00) and the center of the band the task group is drawn in (a null fraction)',
     }),
     () => {
-      mentions(T221, 'LF-15', '`anchorDate` の日の列の中央', '`anchorTaskGroupId` のタスクグループが描かれた帯', '`LF-14`')
+      mentions(T221, 'LF-15', '`anchorDate` の日時（分まで）', '`anchorTaskGroupId` のタスクグループが描かれた帯', '`LF-14`')
       for (const pinned of [[], ['g2']]) {
         const bare = draw(
           [task({ uid: 1, name: 'a', start: day(2), finish: endOfDay(8) })],
@@ -2132,6 +2132,11 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
               text: 'note',
               anchorDate: day(5),
               anchorTaskGroupId: 'g2',
+              anchorBandFraction: null,
+              anchorTaskUid: null,
+              anchorTaskFigure: null,
+              anchorHighlightBoxId: null,
+              anchorSnapPoint: null,
               bodyOffsetPx: { dx: 40, dy: -40 },
             },
           ],
@@ -2142,8 +2147,8 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
         const anchor = geometry.commentBoxes.find((one) => one.id === 'c1')?.anchor
         if (anchor === undefined) throw new Error(`pinned ${pinned.length}: the geometry placed no comment box`)
         const taskGroup = taskGroupByIdOf(drawn, 'g2')
-        const columnCenter = xOfDay(5, drawn.regions, layout.pxPerDay) + layout.pxPerDay / 2
-        expect(anchor.x, `pinned ${pinned.length}: not the center of the day 5 column`).toBeCloseTo(columnCenter, 6)
+        const columnLeft = xOfDay(5, drawn.regions, layout.pxPerDay)
+        expect(anchor.x, `pinned ${pinned.length}: not the left edge of the day 5 column`).toBeCloseTo(columnLeft, 6)
         expect(anchor.y, `pinned ${pinned.length}: not the center of the task group band`).toBeCloseTo(taskGroup.y + taskGroup.height / 2, 6)
       }
     },
@@ -2180,6 +2185,11 @@ describe('SWS-4 -- choose the corner the comment box leader leaves from (LF-17)'
               text: 'note',
               anchorDate: day(5),
               anchorTaskGroupId: 'g2',
+              anchorBandFraction: null,
+              anchorTaskUid: null,
+              anchorTaskFigure: null,
+              anchorHighlightBoxId: null,
+              anchorSnapPoint: null,
               bodyOffsetPx: { dx, dy },
               strokeColor: null,
               strokeWidthPx: null,
