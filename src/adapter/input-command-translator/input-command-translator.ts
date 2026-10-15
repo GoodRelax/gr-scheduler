@@ -1443,10 +1443,12 @@ export const NOT_STORED_ZOOM_STEP: {
 // see T-206
 export const NOT_STORED_TASK_GROUP_GRAB_SIZES: {
   readonly 'S-208': number
-  readonly 'S-212': number
+  readonly 'S-597': number
+  readonly 'S-598': number
 } = {
   'S-208': 6,
-  'S-212': 0.4,
+  'S-597': 36,
+  'S-598': 840,
 }
 
 // see T-206

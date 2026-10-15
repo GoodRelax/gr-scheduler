@@ -1579,6 +1579,13 @@ export const NOT_STORED_TASK_GROUP_BAND_SIZES: {
 }
 
 // see T-206
+const NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES: {
+  readonly 'S-599': number
+} = {
+  'S-599': 8,
+}
+
+// see T-206
 export const NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES: {
   readonly 'S-313': number
 } = {

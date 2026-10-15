@@ -353,4 +353,13 @@ RETIRED = {'FR-050', 'T-030',
            # left table T-241. CR-677, CR-694, the changelog and rulings.md name
            # it, so the seat stays burned.
            'IX-17',
-           'T-006'}
+           'T-006',
+           # CR-772 (2026-10-16, rulings JDG-2390 / JDG-2393): one drag now picks
+           # both the gap and the depth of a grabbed task group, so the axis lock
+           # of HF-15 left. RS-36 / RS-37 / RS-39 (no sibling above, already at
+           # the shallowest depth, no place in that direction) had no scene any
+           # more, RS-38 (the depth cap during a drag) left when the user ruled
+           # the line stops silently, and S-212 (the share a refused direction
+           # follows) had no refused direction to follow. CR-772, the changelog
+           # and the ledgers name them, so the seats stay burned.
+           'RS-36', 'RS-37', 'RS-38', 'RS-39', 'S-212'}

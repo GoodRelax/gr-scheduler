@@ -44,9 +44,8 @@ export type GestureValuesKey =
   | 'pointerPressStateMachine.changingDocument'
   | 'pointerPressStateMachine.viewingDocument'
   | 'taskGroupGrabStateMachine.notGrabbed'
-  | 'taskGroupGrabStateMachine.axisUndecided'
-  | 'taskGroupGrabStateMachine.changingPosition'
-  | 'taskGroupGrabStateMachine.changingDepth'
+  | 'taskGroupGrabStateMachine.grabPressed'
+  | 'taskGroupGrabStateMachine.carrying'
 
 export type PointerPressState =
   | { readonly kind: 'notPressed' }
@@ -55,9 +54,8 @@ export type PointerPressState =
 
 export type TaskGroupGrabState =
   | { readonly kind: 'notGrabbed' }
-  | { readonly kind: 'axisUndecided' }
-  | { readonly kind: 'changingPosition' }
-  | { readonly kind: 'changingDepth' }
+  | { readonly kind: 'grabPressed' }
+  | { readonly kind: 'carrying' }
 
 export interface GestureValues {
   readonly pointerPressState: PointerPressState
@@ -70,7 +68,7 @@ export type GestureValuesEvent =
   | { readonly type: 'pointerPressed'; readonly pressRow: GestureValuesEventCarried['pressRow']; readonly pressedOn: GestureValuesEventCarried['pressedOn'] }
   | { readonly type: 'pointerReleased' }
   | { readonly type: 'pressInterrupted' }
-  | { readonly type: 'taskGroupGrabAxisSettled'; readonly axis: GestureValuesEventCarried['axis'] }
+  | { readonly type: 'taskGroupGrabTravelPassed' }
   | { readonly type: 'entryRepeatTimeElapsed' }
 
 export type GestureValuesEffectName =

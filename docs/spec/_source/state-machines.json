@@ -5062,7 +5062,7 @@
      "carries": []
     },
     {
-     "key": "taskGroupGrabAxisSettled",
+     "key": "taskGroupGrabTravelPassed",
      "source": {
       "kind": "input",
       "rows": [
@@ -5070,20 +5070,10 @@
        "S-208"
       ],
       "note": {
-       "ja": "タスクグループを掴んだまま、押した点から初めて閾値を超えて動いた。どちらの向きが先かは呼び手が判じる"
+       "ja": "タスクグループを掴んだまま、押した点から初めて `S-208` を超えて動いた"
       }
      },
-     "carries": [
-      {
-       "name": "axis",
-       "rows": [
-        "HF-15"
-       ],
-       "note": {
-        "ja": "`position`（上下）か `depth`（左右）"
-       }
-      }
-     ]
+     "carries": []
     },
     {
      "key": "entryRepeatTimeElapsed",
@@ -5347,7 +5337,7 @@
        ]
       },
       {
-       "key": "axisUndecided",
+       "key": "grabPressed",
        "parent": null,
        "initial": false,
        "carries": [],
@@ -5358,16 +5348,7 @@
        ]
       },
       {
-       "key": "changingPosition",
-       "parent": null,
-       "initial": false,
-       "carries": [],
-       "evidence": [
-        "HF-15"
-       ]
-      },
-      {
-       "key": "changingDepth",
+       "key": "carrying",
        "parent": null,
        "initial": false,
        "carries": [],
@@ -5379,7 +5360,7 @@
      "transitions": {
       "pointerPressed": {
        "notGrabbed": {
-        "to": "axisUndecided",
+        "to": "grabPressed",
         "guard": [
          {
           "name": "isTaskGroupGrabStrip"
@@ -5393,21 +5374,14 @@
        }
       },
       "pointerReleased": {
-       "axisUndecided": {
+       "grabPressed": {
         "to": "notGrabbed",
         "evidence": [
          "HF-15",
          "IN-1"
         ]
        },
-       "changingPosition": {
-        "to": "notGrabbed",
-        "evidence": [
-         "HF-15",
-         "IN-1"
-        ]
-       },
-       "changingDepth": {
+       "carrying": {
         "to": "notGrabbed",
         "evidence": [
          "HF-15",
@@ -5416,7 +5390,7 @@
        }
       },
       "pressInterrupted": {
-       "axisUndecided": {
+       "grabPressed": {
         "to": "notGrabbed",
         "evidence": [
          "IN-1",
@@ -5424,15 +5398,7 @@
          "IN-4"
         ]
        },
-       "changingPosition": {
-        "to": "notGrabbed",
-        "evidence": [
-         "IN-1",
-         "IN-1a",
-         "IN-4"
-        ]
-       },
-       "changingDepth": {
+       "carrying": {
         "to": "notGrabbed",
         "evidence": [
          "IN-1",
@@ -5441,34 +5407,14 @@
         ]
        }
       },
-      "taskGroupGrabAxisSettled": {
-       "axisUndecided": [
-        {
-         "to": "changingPosition",
-         "guard": [
-          {
-           "name": "isPositionAxis"
-          }
-         ],
-         "evidence": [
-          "HF-15",
-          "S-208"
-         ]
-        },
-        {
-         "to": "changingDepth",
-         "guard": [
-          {
-           "name": "isPositionAxis",
-           "not": true
-          }
-         ],
-         "evidence": [
-          "HF-15",
-          "S-208"
-         ]
-        }
-       ]
+      "taskGroupGrabTravelPassed": {
+       "grabPressed": {
+        "to": "carrying",
+        "evidence": [
+         "HF-15",
+         "S-208"
+        ]
+       }
       }
      }
     }

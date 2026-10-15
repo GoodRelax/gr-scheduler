@@ -1457,9 +1457,14 @@ NOT_STORED_TARGETS = {
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
     # dom-screen-surface.ts: one constant per consuming SUBJECT. S-138, S-141
     # and S-237 are the box an ENTRANCE is drawn in; S-213 is the band a TASK GROUP is
-    # marked with -- HF-15's live axis and HF-18's holding mark -- and the
+    # marked with -- HF-18's holding mark and HF-15's insertion line and parent frame -- and the
     # settings row itself states that those two bands are one number.
     'NOT_STORED_TASK_GROUP_BAND_SIZES': (['S-213'], DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-772: S-599 is how far the copy of a carried task group sits right of
+    # and below the pointer (HF-15's fourth drawing). NOT folded into the band
+    # line above: one constant per consuming SUBJECT, and this subject is the
+    # carried copy, not a line drawn on the panel.
+    'NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES': (['S-599'], DRAWN_WITH_WHERE_IT_STANDS),
     # THE SAME ROW, ON THE SIDE THAT DRAWS IT (seam S-9 of CR-541). S-313 stands
     # in NOT_STORED_TASK_GROUP_CONTROL_SIZES for task-group-panel.ts, which measures the
     # controls, and here for task-group-panel-drawing.ts, which lays the nearest
@@ -1878,20 +1883,19 @@ NOT_STORED_TARGETS = {
     # one constant per consuming SUBJECT, and the two do not even arrive the
     # same way -- S-96 is handed in and S-208 is read where it stands, which
     # is what the paragraph above each says.
-    # ⭐ S-212 JOINS S-208 BECAUSE THEY ARE ONE SUBJECT: both are HF-15's grab,
-    # both are read by the member that answers where the held task group is DRAWN, and
-    # neither is a length the document keeps. S-208 says when the axis is
-    # settled and S-212 says how far the task group still follows the axis that was
-    # refused -- 「拒まれた向きへの追従は途中で止めること（MUST）—— 止める割合は
-    # ... `S-212`」.
+    # ⭐ S-597 AND S-598 JOIN S-208 BECAUSE THEY ARE ONE SUBJECT: all three are
+    # HF-15's grab as the translator carries it, and none is a length the
+    # document keeps. S-208 says when carrying starts, S-597 how near the
+    # panel's top or bottom edge the panel starts to scroll, and S-598 how fast
+    # it scrolls at the edge (CR-772; S-212 left with the axis lock).
     # ⛔ S-211 IS NOT WITH THEM AND CANNOT BE. That row states a STATE (段 0 が
     # 折りたたまれているか) whose value cell is 「折りたたまれていない」, not a machine value,
     # so it has no literal to emit; its own note puts it beside S-99g, and the
     # shell holds it the way it holds that one.
-    'NOT_STORED_TASK_GROUP_GRAB_SIZES': (['S-208', 'S-212'], SETTLED_WHERE_IT_STANDS),
+    'NOT_STORED_TASK_GROUP_GRAB_SIZES': (['S-208', 'S-597', 'S-598'], SETTLED_WHERE_IT_STANDS),
     # ⛔ NOT FOLDED INTO EITHER LINE ABOVE, though all three land in the
     # translator: one constant per consuming SUBJECT. S-96 is how far one notch
-    # steps, S-208 / S-212 are HF-15's grab, and S-229 is the FLOOR ON WHAT
+    # steps, S-208 / S-597 / S-598 are HF-15's grab, and S-229 is the FLOOR ON WHAT
     # STAYS VISIBLE that FR-016 turns into the ceiling of the day axis -- three
     # subjects, and a shared constant would make one of the three paragraphs a
     # lie.
@@ -3607,6 +3611,7 @@ TARGETS = [
      lambda _erd: not_stored_block('NOT_STORED_ICON_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_TASK_GROUP_BAND_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2

@@ -95,11 +95,12 @@ NOT_STORED_JUMP_LANDING_RING_SIZES   飛んだ先の囲みと形のあいだ・�
 NOT_STORED_SCALE_MESSAGE_TIMES       表示の倍率のメッセージを出しておく時間（`S-244`）
 NOT_STORED_NOTICE_TIMES              時間で消す通知を出しておく時間（`S-542`、表 T-037 の `NT-2`。`CR-712`）
 NOT_STORED_ROW_BAND_CEILING_SEARCH   縦軸の上限（帯の側）を探す刻みと許容（`S-238` / `S-239`）
-NOT_STORED_TASK_GROUP_BAND_SIZES            タスクグループの辺に引く帯の太さ（`S-213`）
+NOT_STORED_TASK_GROUP_BAND_SIZES            タスクグループパネルに引く帯と線の太さ（`S-213`）
 NOT_STORED_TASK_GROUP_CONTROL_SIZES         タスクグループの操作子の大きさと右端からの隔たり（`S-140` / `S-313`）
 NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES    タスクグループの操作子を描く側の、右端からの隔たり（`S-313`）
 NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES       タスクグループの掴み代が取る場所（`S-138` / `S-218`）
-NOT_STORED_TASK_GROUP_GRAB_SIZES            掴んだタスクグループの軸と追従（`S-208` / `S-212`）
+NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES       運んでいるタスクグループの写しのずれ（`S-599`、`CR-772`）
+NOT_STORED_TASK_GROUP_GRAB_SIZES            掴んだタスクグループを運び始める距離と、縁で送る幅と速さ（`S-208` / `S-597` / `S-598`、`CR-772`）
 NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES      掴み代とタスクグループ名の隔たり（`S-218`）
 NOT_STORED_SCROLLBAR_SIZES           スクロールバーの厚みの下限（`S-205`）
 NOT_STORED_SCHEDULE_FILTER_BAR_SIZES スケジュールフィルタの帯の高さと字（`S-497` / `S-498`、`CR-661`、`CR-722`）。写しは 2 つ —— 帯を下げる `SingleHtmlShell`、帯を描く `DomScreenSurface`
