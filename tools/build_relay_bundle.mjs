@@ -118,7 +118,7 @@ function manifestOf() {
   return {
     manifest_version: MANIFEST_VERSION,
     name: 'grs-relay',
-    display_name: 'GRS relay',
+    display_name: 'GRS Relay',
     version,
     description:
       'Lets an AI app call the Agent API of a GoodRelax Scheduler page. The relay serves the ' +

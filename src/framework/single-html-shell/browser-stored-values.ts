@@ -5,7 +5,7 @@
 
 import type { DisplayLanguage } from '../../adapter/screen-renderer/screen-renderer'
 
-const WEB_STORAGE_KEY_PREFIX = 'grsched.'
+const WEB_STORAGE_KEY_PREFIX = 'grs.'
 
 const BROWSER_STORED_KEY: Readonly<Record<BrowserStoredRow, string>> = {
   'S-99': `${WEB_STORAGE_KEY_PREFIX}screenLanguage`,

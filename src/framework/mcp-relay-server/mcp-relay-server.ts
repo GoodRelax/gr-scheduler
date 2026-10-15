@@ -355,14 +355,14 @@ function sameKey(expected: string, presented: string | null): boolean {
 /** @purity non-pure */
 function presentKey(state: RelayState, link: WebSocketLink, text: string): void {
   if (!sameKey(state.key, presentedKeyOf(text))) {
-    state.options.log('GRS relay: refused a page link without the right key')
+    state.options.log('GRS Relay: refused a page link without the right key')
     closeWebSocket(link, CLOSE_POLICY_VIOLATION)
   } else if (state.page !== null) {
-    state.options.log('GRS relay: refused a second page; the first one stays connected')
+    state.options.log('GRS Relay: refused a second page; the first one stays connected')
     closeWebSocket(link, CLOSE_POLICY_VIOLATION)
   } else {
     state.page = link
-    state.options.log('GRS relay: a page connected')
+    state.options.log('GRS Relay: a page connected')
   }
 }
 
@@ -376,7 +376,7 @@ function dropPage(state: RelayState, link: WebSocketLink): void {
   state.pageCalls.clear()
   for (const settle of settles) settle(null)
   wakeNoticeWaiters(state)
-  state.options.log('GRS relay: the page disconnected')
+  state.options.log('GRS Relay: the page disconnected')
 }
 
 /** @purity pure */
@@ -600,7 +600,7 @@ function handleMcpLine(state: RelayState, line: string): void {
     return
   }
   answerMcpRequest(state, id, method, params).catch((error: unknown) => {
-    state.options.log(`GRS relay: ${method} failed: ${String(error)}`)
+    state.options.log(`GRS Relay: ${method} failed: ${String(error)}`)
     writeMcp(state, { id, error: { code: INTERNAL_ERROR, message: String(error) } })
   })
 }
@@ -677,8 +677,8 @@ export async function startMcpRelay(options: McpRelayOptions): Promise<McpRelay>
   })
   server.on('request', (request, response) => answerHttp(state, request, response))
   server.on('upgrade', (request, socket, head) => acceptUpgrade(state, request, socket as Socket, head))
-  server.on('error', (error) => options.log(`GRS relay: ${String(error)}`))
+  server.on('error', (error) => options.log(`GRS Relay: ${String(error)}`))
   const stopReading = readMcpInput(state)
-  options.log(`GRS relay: open ${state.pageUrl}`)
+  options.log(`GRS Relay: open ${state.pageUrl}`)
   return { port, pageUrl: state.pageUrl, close: () => closeRelay(state, server, stopReading) }
 }
