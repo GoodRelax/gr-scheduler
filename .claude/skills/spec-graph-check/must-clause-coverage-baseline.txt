@@ -1,4 +1,4 @@
-2089
+2088
 # LOWERED 2091 -> 2089 on 2026-10-15 (JDG-520): the CR-764 spec-only tests quote RW-19 and FR-130.
 # LOWERED 2103 -> 2098 on 2026-10-15 (JDG-520): the CR-756 spec-only tests quote DM-1, DM-3, DM-12, GO-6, PV-1 and FR-043.
 # LOWERED 2115 -> 2111 on 2026-10-11 (JDG-520): the CR-731 spec-only tests quote FR-155, T-373 and RW-11..RW-17.
