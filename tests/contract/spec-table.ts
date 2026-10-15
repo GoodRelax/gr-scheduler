@@ -52,6 +52,7 @@ const FILES = [
   join('_assets', 'tbl-published-entries.md'),
   join('_assets', 'tbl-notice-reasons.md'),
   join('_assets', 'tbl-agent-api-members.md'),
+  join('_assets', 'tbl-document-commands.md'),
   join('_assets', 'fig-erd-detail.md'),
   join('_assets', 'fig-erd-overview.md'),
   join('_assets', 'tbl-state-machines.md'),

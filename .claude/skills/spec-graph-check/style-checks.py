@@ -55,6 +55,8 @@ SETTINGS = 'docs/spec/_assets/tbl-settings.md'
 GLOSSARY = 'docs/spec/_assets/tbl-glossary.md'
 # CR-765: table T-107 left the glossary for a name table of its own.
 AGENT_API = 'docs/spec/_assets/tbl-agent-api-members.md'
+# CR-766: table T-108 left the glossary for a name table of its own.
+DOCUMENT_COMMANDS = 'docs/spec/_assets/tbl-document-commands.md'
 REQS = 'docs/spec/01-04-requirements.md'
 
 # Rules may sit in a value table only where the document says so. Each entry
@@ -134,7 +136,7 @@ def paragraphs_by_line(lines):
 
 # ------------------------------------------------------- check 12
 
-for rel in (SETTINGS, GLOSSARY, AGENT_API):
+for rel in (SETTINGS, GLOSSARY, AGENT_API, DOCUMENT_COMMANDS):
     lines = list(read(rel))
     blocks = paragraphs_by_line(lines)
     for i, line in enumerate(lines, 1):

@@ -1,0 +1,497 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://github.com/GoodRelax/gr-scheduler/docs/spec/_source/document-commands.schema.json",
+ "$comment": [
+  "HAND-WRITTEN CONTRACT -- EDIT THIS FILE.",
+  "Validates _source/document-commands.json, which is the single source of truth for table T-108 (the document commands and the values each one carries) (CR-766).",
+  "Same role as _source/agent-api-members.schema.json.",
+  "The schema sees the SHAPE. What JSON Schema cannot say -- a row id written twice, a value pointing at a row erd.json or settings.json does not hold, a type naming nothing, a line whose parenthesis does not close -- is refused by document_commands_json_to_md.py."
+ ],
+ "title": "The document commands manuscript",
+ "description": "Table T-108: the commands applyDocumentChange takes and the values each one carries.",
+ "type": "object",
+ "required": [
+  "table",
+  "before",
+  "after",
+  "words",
+  "shapes",
+  "externalTypes",
+  "retired",
+  "rows"
+ ],
+ "additionalProperties": false,
+ "$defs": {
+  "prose": {
+   "description": "Printed prose, one string per language (check 23).",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "string",
+     "minLength": 1
+    },
+    "en": {
+     "type": "string",
+     "minLength": 1
+    }
+   }
+  },
+  "lines": {
+   "description": "Printed lines, one list per language. One string is one printed line.",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    },
+    "en": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "string",
+      "minLength": 1
+     }
+    }
+   }
+  },
+  "paragraphs": {
+   "description": "Printed paragraphs, each a list of lines.",
+   "type": "object",
+   "required": [
+    "ja"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "ja": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+       "type": "string",
+       "minLength": 1
+      }
+     }
+    }
+   }
+  },
+  "rowRef": {
+   "description": "An AT- row of table T-058 (erd.json) or an S- row of tables T-202 / T-203 (settings.json).",
+   "type": "string",
+   "pattern": "^(AT|S)-[0-9]+$"
+  },
+  "rowRefs": {
+   "oneOf": [
+    {
+     "$ref": "#/$defs/rowRef"
+    },
+    {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "$ref": "#/$defs/rowRef"
+     }
+    }
+   ]
+  },
+  "identifier": {
+   "type": "string",
+   "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+  },
+  "value": {
+   "description": "One value a command or a shape carries: a key, a column it writes, a typed value, or a choice of shapes.",
+   "type": "object",
+   "additionalProperties": false,
+   "properties": {
+    "name": {
+     "$ref": "#/$defs/identifier"
+    },
+    "key": {
+     "$ref": "#/$defs/rowRefs"
+    },
+    "column": {
+     "$ref": "#/$defs/rowRefs"
+    },
+    "type": {
+     "$ref": "#/$defs/identifier"
+    },
+    "values": {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "type": "string"
+     }
+    },
+    "valuesOf": {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "$ref": "#/$defs/rowRef"
+     }
+    },
+    "keyType": {
+     "enum": [
+      "string",
+      "integer"
+     ]
+    },
+    "valueType": {
+     "enum": [
+      "string",
+      "integer"
+     ]
+    },
+    "oneOf": {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "$ref": "#/$defs/identifier"
+     }
+    },
+    "list": {
+     "const": true
+    },
+    "null": {
+     "type": "boolean"
+    },
+    "optional": {
+     "const": true
+    },
+    "meaning": {
+     "$ref": "#/$defs/prose"
+    }
+   },
+   "oneOf": [
+    {
+     "required": [
+      "name",
+      "key"
+     ],
+     "not": {
+      "anyOf": [
+       {
+        "required": [
+         "type"
+        ]
+       },
+       {
+        "required": [
+         "column"
+        ]
+       },
+       {
+        "required": [
+         "oneOf"
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "required": [
+      "name",
+      "column"
+     ],
+     "not": {
+      "anyOf": [
+       {
+        "required": [
+         "type"
+        ]
+       },
+       {
+        "required": [
+         "key"
+        ]
+       },
+       {
+        "required": [
+         "oneOf"
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "required": [
+      "name",
+      "type",
+      "meaning"
+     ],
+     "not": {
+      "anyOf": [
+       {
+        "required": [
+         "key"
+        ]
+       },
+       {
+        "required": [
+         "oneOf"
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "required": [
+      "oneOf"
+     ],
+     "not": {
+      "anyOf": [
+       {
+        "required": [
+         "name"
+        ]
+       },
+       {
+        "required": [
+         "key"
+        ]
+       },
+       {
+        "required": [
+         "column"
+        ]
+       },
+       {
+        "required": [
+         "type"
+        ]
+       }
+      ]
+     }
+    }
+   ]
+  },
+  "shape": {
+   "description": "A composite value. The generator declares it in the code; `inline` is printed where it is used instead, and `elsewhere` is declared by hand by another component, whose field names the generator holds against the manuscript.",
+   "type": "object",
+   "required": [
+    "name"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "name": {
+     "$ref": "#/$defs/identifier"
+    },
+    "elsewhere": {
+     "const": true
+    },
+    "inline": {
+     "const": true
+    },
+    "fields": {
+     "type": "array",
+     "minItems": 1,
+     "items": {
+      "$ref": "#/$defs/value"
+     }
+    },
+    "discriminant": {
+     "$ref": "#/$defs/identifier"
+    },
+    "variants": {
+     "type": "array",
+     "minItems": 2,
+     "items": {
+      "type": "object",
+      "required": [
+       "tag",
+       "fields"
+      ],
+      "additionalProperties": false,
+      "properties": {
+       "tag": {
+        "type": "string",
+        "minLength": 1
+       },
+       "fields": {
+        "type": "array",
+        "items": {
+         "$ref": "#/$defs/value"
+        }
+       }
+      }
+     }
+    }
+   },
+   "oneOf": [
+    {
+     "required": [
+      "fields"
+     ],
+     "not": {
+      "anyOf": [
+       {
+        "required": [
+         "variants"
+        ]
+       },
+       {
+        "required": [
+         "discriminant"
+        ]
+       }
+      ]
+     }
+    },
+    {
+     "required": [
+      "discriminant",
+      "variants"
+     ],
+     "not": {
+      "required": [
+       "fields"
+      ]
+     }
+    }
+   ]
+  },
+  "row": {
+   "description": "One command: a row of table T-108.",
+   "type": "object",
+   "required": [
+    "id",
+    "group",
+    "name",
+    "union",
+    "bundle",
+    "values",
+    "carries",
+    "source"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "type": "string",
+     "pattern": "^CM-[0-9]+$"
+    },
+    "group": {
+     "$ref": "#/$defs/prose"
+    },
+    "name": {
+     "$ref": "#/$defs/identifier"
+    },
+    "union": {
+     "$ref": "#/$defs/identifier"
+    },
+    "bundle": {
+     "type": "boolean"
+    },
+    "agent": {
+     "const": false
+    },
+    "values": {
+     "type": "array",
+     "items": {
+      "$ref": "#/$defs/value"
+     }
+    },
+    "carries": {
+     "$ref": "#/$defs/lines"
+    },
+    "source": {
+     "$ref": "#/$defs/prose"
+    }
+   }
+  }
+ },
+ "properties": {
+  "$schema": {
+   "type": "string"
+  },
+  "$comment": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "table": {
+   "type": "object",
+   "required": [
+    "id",
+    "caption",
+    "columns"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "id": {
+     "const": "T-108"
+    },
+    "caption": {
+     "$ref": "#/$defs/prose"
+    },
+    "columns": {
+     "$ref": "#/$defs/lines"
+    }
+   }
+  },
+  "before": {
+   "$ref": "#/$defs/paragraphs"
+  },
+  "after": {
+   "$ref": "#/$defs/paragraphs"
+  },
+  "words": {
+   "type": "object",
+   "required": [
+    "key",
+    "writes",
+    "list",
+    "orNull",
+    "notNull",
+    "optional",
+    "oneOf",
+    "map",
+    "unimplemented"
+   ],
+   "additionalProperties": false,
+   "patternProperties": {
+    "^[a-zA-Z]+$": {
+     "$ref": "#/$defs/prose"
+    }
+   }
+  },
+  "shapes": {
+   "type": "array",
+   "items": {
+    "$ref": "#/$defs/shape"
+   }
+  },
+  "externalTypes": {
+   "type": "object",
+   "additionalProperties": {
+    "$ref": "#/$defs/prose"
+   }
+  },
+  "retired": {
+   "type": "array",
+   "items": {
+    "type": "string",
+    "pattern": "^CM-[0-9]+$"
+   }
+  },
+  "rows": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "$ref": "#/$defs/row"
+   }
+  }
+ }
+}

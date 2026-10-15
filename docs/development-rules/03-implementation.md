@@ -150,6 +150,7 @@ SETTINGS_CONSTANTS                   文書に保存しない設定の値（`_as
 SETTINGS_BOUNDS                      その下限・上限
 SETTINGS_DEFAULTS                    見せ方の群の既定値
 SETTINGS_DERIVED                     他の鍵の式で書かれた既定値（⭐ 答えではなく式そのものを刷る）
+SHAPE_FIELDS_MATCH                   命令が運ぶ形のうち、ほかのコンポーネントが手で宣言する型（`RememberedActual`）の欄の名を 表 T-108 の原稿と型で照らす印（`_source/document-commands.json` から `tools/generate_document_commands.py` が `edit-document/` の和のユニットに刷る。`CR-766`）
 TREE_STATE_TRANSITIONS               タスクグループの木の状態遷移表の升を 1 つずつ並べたもの（表 T-328。`tools/generate_state_machine_types.py` が `task-group-folding.ts` に刷る）
 VISIBLE_ELEMENT_BY_ENTRY             表示の切り替えの入口が反転する 表 T-202 の真偽の鍵（表 T-109 の `切り替える設定値`。`FR-049`、`CR-589`）。写しは 3 つ —— 翻訳係・`Command Palette`・`App Header`
 GUIDE_CURSOR_MODE_BY_ENTRY           ガイドカーソルの入口が書く `S-66` の値（同じ欄。`FR-048`、`CR-589`）。写しは 2 つ —— 翻訳係・`Command Palette`

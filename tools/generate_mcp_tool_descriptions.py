@@ -31,6 +31,8 @@ import os
 import sys
 
 import generate_agent_api
+# CR-766: the request of AM-7 carries table T-108's commands, printed from their manuscript.
+import generate_document_commands
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
@@ -77,7 +79,8 @@ def build():
         tools.append({
             'name': member['name'],
             'description': description,
-            'inputSchema': generate_agent_api.mcp_input_schema(member),
+            'inputSchema': generate_document_commands.with_command_shapes(
+                generate_agent_api.mcp_input_schema(member), member, doc),
         })
     names = [one['name'] for one in tools]
     if len(names) != len(set(names)):

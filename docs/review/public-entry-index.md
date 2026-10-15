@@ -501,9 +501,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `acceptedEdit` | entry | function | `src/use-case/edit-document/edit-document.ts#acceptedEdit` | -- | function acceptedEdit(document: Document, report: EditReport = NOTHING_TO_TELL): EditResult |
-| `ActualGrabHold` | entry | type | `src/use-case/edit-document/edit-task.ts#ActualGrabHold` | -- | type ActualGrabHold = 'GA-5' \| 'GA-6' \| 'GA-17' \| 'GA-21' \| 'GA-22' |
+| `ActualGrabHold` | entry | type | `src/use-case/edit-document/edit-task.ts#ActualGrabHold` | -- | type ActualGrabHold = Extract<TaskCommand, { readonly kind: 'beginTaskActual' }>['grabbed'] |
 | `AnnotationAnchor` | entry | interface | `src/use-case/edit-document/edit-annotation.ts#AnnotationAnchor` | -- | interface AnnotationAnchor |
-| `AnnotationCommand` | entry | type | `src/use-case/edit-document/edit-annotation.ts#AnnotationCommand` | -- | type AnnotationCommand = \| { readonly kind: 'createCommentBox'; readonly id: string; readonly anchor: AnnotationAnchor } \| { readonly kind: 'deleteCommentBox... |
+| `AnnotationCommand` | entry | type | `src/use-case/edit-document/edit-annotation.ts#AnnotationCommand` | -- | type AnnotationCommand = \| { readonly kind: 'createCommentBox'; readonly id: CommentBox['id']; readonly anchor: AnnotationAnchor } \| { readonly kind: 'delete... |
 | `baseChangeCommandOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#baseChangeCommandOf` | PI-9 | 選んだタイムゾーンと答え（換算して適用する ／ 換算しない）で基準を変える命令（表 T-108 の `CM-95`、または `CM-94` と `CM-95` の 2 つを 1 回の書き込みで） —— 当てても何も変わらないときは無い（`FR-156`、表 T-369 の `FO-14` の答え） |
 | `BaseChangeWay` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#BaseChangeWay` | -- | type BaseChangeWay = 'keepGlobalTime' \| 'keepLocalTime' |
 | `BaseTimeZones` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#BaseTimeZones` | -- | interface BaseTimeZones |
@@ -519,7 +519,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DependencyCommand` | entry | type | `src/use-case/edit-document/edit-dependency.ts#DependencyCommand` | -- | type DependencyCommand = \| |
 | `DependencyEdge` | entry | type | `src/use-case/edit-document/edit-dependency.ts#DependencyEdge` | -- | type DependencyEdge = 'start' \| 'finish' |
 | `DocumentCommand` | entry | type | `src/use-case/edit-document/edit-document.ts#DocumentCommand` | -- | type DocumentCommand = \| TaskCommand \| TaskGroupCommand \| DependencyCommand \| AnnotationCommand \| ResourceCommand \| CalendarCommand \| ProjectCommand \| WholeS... |
-| `DocumentSettingsCommand` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#DocumentSettingsCommand` | -- | type DocumentSettingsCommand = \| { readonly kind: 'setStackDirection'; readonly direction: 'up' \| 'down' } \| { readonly kind: 'setElementVisible'; readonly e... |
+| `DocumentSettingsCommand` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#DocumentSettingsCommand` | -- | type DocumentSettingsCommand = \| { readonly kind: 'setStackDirection'; readonly direction: DocumentSettings['stackDirection'] } \| |
 | `editAnnotation` | entry | function | `src/use-case/edit-document/edit-annotation.ts#editAnnotation` | -- | function editAnnotation(document: Document, command: AnnotationCommand): EditResult |
 | `editCalendar` | entry | function | `src/use-case/edit-document/edit-calendar.ts#editCalendar` | -- | function editCalendar(document: Document, command: CalendarCommand): EditResult |
 | `editDependency` | entry | function | `src/use-case/edit-document/edit-dependency.ts#editDependency` | -- | function editDependency(document: Document, command: DependencyCommand): EditResult |
@@ -538,15 +538,15 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `levelZeroWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#levelZeroWritesFor` | PI-9 | 同じ出来事が書き換える段 0 の値 `levelZeroTreeState` を求める |
 | `NOT_STORED_ZOOM_BOUNDS` | entry | const | `src/use-case/edit-document/edit-document.ts#NOT_STORED_ZOOM_BOUNDS` | -- | const NOT_STORED_ZOOM_BOUNDS: |
 | `pastedUidsOf` | entry | function | `src/use-case/edit-document/task-paste.ts#pastedUidsOf` | PI-9 | コピー元の `UID` から、`CM-8` がそのコピーに払い出す `UID` への対応 —— `FR-033`。 |
-| `PlanActualPlacement` | entry | type | `src/use-case/edit-document/edit-task.ts#PlanActualPlacement` | -- | type PlanActualPlacement = \| { readonly row: 'PA-1' } \| { readonly row: 'PA-2'; readonly actualStart: string; readonly stop: string } \| |
-| `ProjectCommand` | entry | type | `src/use-case/edit-document/edit-project.ts#ProjectCommand` | -- | type ProjectCommand = \| { readonly kind: 'setProjectTitle'; readonly title: string \| null } \| { readonly kind: 'setProjectProfile'; readonly fields: ProjectP... |
+| `PlanActualPlacement` | entry | type | `src/use-case/edit-document/edit-task.ts#PlanActualPlacement` | -- | type PlanActualPlacement = \| { readonly row: 'PA-1' } \| |
+| `ProjectCommand` | entry | type | `src/use-case/edit-document/edit-project.ts#ProjectCommand` | -- | type ProjectCommand = \| { readonly kind: 'setProjectTitle'; readonly title: Project['title'] } \| { readonly kind: 'setProjectProfile'; readonly fields: Proje... |
 | `ProjectProfileFields` | entry | interface | `src/use-case/edit-document/edit-project.ts#ProjectProfileFields` | -- | interface ProjectProfileFields |
 | `recountedPercentComplete` | entry | function | `src/use-case/edit-document/percent-complete.ts#recountedPercentComplete` | PI-9 | 文書の全 `Task` の完了率を日付から数え直し、値が変わった `Task` の uid を答える（`FR-012`）。 |
 | `Refusal` | entry | type | `src/use-case/edit-document/edit-document.ts#Refusal` | PI-9 | 型。 |
 | `refused` | entry | function | `src/use-case/edit-document/edit-document.ts#refusedEdit` | -- | function refusedEdit(refusals: readonly Refusal[]): EditResult |
 | `refusedEdit` | entry | function | `src/use-case/edit-document/edit-document.ts#refusedEdit` | -- | function refusedEdit(refusals: readonly Refusal[]): EditResult |
 | `reject` | entry | function | `src/use-case/edit-document/edit-document.ts#reject` | -- | function reject( command: string, rule: string, what: string, reasonCategory?: Refusal['reasonCategory'], ): Refusal |
-| `ResourceCommand` | entry | type | `src/use-case/edit-document/edit-resource.ts#ResourceCommand` | -- | type ResourceCommand = \| { readonly kind: 'createResource'; readonly name: string \| null } \| { readonly kind: 'setResourceName'; readonly uid: number; readon... |
+| `ResourceCommand` | entry | type | `src/use-case/edit-document/edit-resource.ts#ResourceCommand` | -- | type ResourceCommand = \| { readonly kind: 'createResource'; readonly name: Resource['name'] } \| { readonly kind: 'setResourceName'; readonly uid: Resource['u... |
 | `searchJumpCommands` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpCommands` | PI-9 | 飛ぶ書き込み（`searchJumpWrites` の答え）を、1 つの変更として当てる命令の並びにする。 |
 | `SearchJumpPlan` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpPlan` | PI-9 | 型。 |
 | `searchJumpReachOf` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpReachOf` | PI-9 | 飛ぶ先の形が描かれた絵から、表 T-332 の `SJ-5`・`SJ-6` が置き場所を決めるのに読む値を読む —— 形の外接矩形と日付の位置、`Task Group Area` の幅、ピン止めの帯の下に残る高さ、占有（表 T-038）が日付より左へ出ている幅、1 日の幅。 |
@@ -564,13 +564,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `timeShiftPreviewOf` | entry | function | `src/use-case/edit-document/edit-project.ts#timeShiftPreviewOf` | PI-9 | タイムシフトの確認（`QN-14`）に出すもの（表 T-377 の `BS-3`）を、書き込む前に数える |
 | `TreeStateEvent` | entry | type | `src/use-case/edit-document/task-group-folding.ts#TreeStateEvent` | PI-9 | 型。 |
 | `treeStateWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#treeStateWritesFor` | PI-9 | 表 T-328 の出来事 1 つが書き換えるタスクグループの `treeState` を求める。 |
+| `UnimplementedDocumentCommand` | entry | type | `src/use-case/edit-document/edit-document.ts#UnimplementedDocumentCommand` | -- | type UnimplementedDocumentCommand = \| |
 | `VisibleElement` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#VisibleElement` | -- | type VisibleElement = \| 'baselineVisible' \| 'planVisible' \| 'actualVisible' \| 'progressLineVisible' \| 'progressMarkerVisible' \| 'dateGridLinesVisible' \| 'gro... |
 | `wbsSubtreesOf` | entry | function | `src/use-case/edit-document/edit-task-group.ts#wbsSubtreesOf` | PI-9 | `Task` の集合に、`WBS` の子孫をすべて足した集合 —— `CD-1`。 |
-| `WholeScheduleShiftCommand` | entry | interface | `src/use-case/edit-document/whole-schedule-shift.ts#WholeScheduleShiftCommand` | -- | interface WholeScheduleShiftCommand |
+| `WholeScheduleShiftCommand` | entry | type | `src/use-case/edit-document/whole-schedule-shift.ts#WholeScheduleShiftCommand` | -- | type WholeScheduleShiftCommand = \| { readonly kind: 'shiftScheduleToStartDate'; readonly newStartDate: string } // </generated> const COMMAND_ROW = 'CM-99' |
 | `wholeScheduleShiftPreviewOf` | entry | function | `src/use-case/edit-document/whole-schedule-shift.ts#wholeScheduleShiftPreviewOf` | PI-9 | 全体日程シフトの確認（`QN-15`）に出すもの（表 T-379 の `WH-11`）を、書き込む前に数える。 |
 | `CommentBoxLeaderShapeKind` | file only | type | `src/use-case/edit-document/edit-annotation.ts#CommentBoxLeaderShapeKind` | -- | type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']> |
 | `TypedLag` | file only | interface | `src/use-case/edit-document/edit-dependency.ts#TypedLag` | -- | interface TypedLag |
-| `TypedLagUnit` | file only | type | `src/use-case/edit-document/edit-dependency.ts#TypedLagUnit` | -- | type TypedLagUnit = 'd' \| 'h' \| 'm' |
+| `TypedLagUnit` | file only | type | `src/use-case/edit-document/edit-dependency.ts#TypedLagUnit` | -- | type TypedLagUnit = TypedLag['lagUnit'] |
 | `WorkingDayLag` | file only | interface | `src/use-case/edit-document/edit-dependency.ts#WorkingDayLag` | -- | interface WorkingDayLag |
 | `documentWithTableViewsKept` | file only | function | `src/use-case/edit-document/edit-document-settings.ts#documentWithTableViewsKept` | -- | function documentWithTableViewsKept(document: Document): Document |
 | `isAcceptedDay` | file only | function | `src/use-case/edit-document/edit-project.ts#isAcceptedDay` | -- | function isAcceptedDay(day: CalendarDay): boolean |
@@ -2058,4 +2059,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1042 name(s) leave through a public entry (502 of them published by table T-064), 806 more are exported by a file and not by its entry.
+Totals: 1043 name(s) leave through a public entry (502 of them published by table T-064), 806 more are exported by a file and not by its entry.

@@ -30,7 +30,7 @@ afterEach(restoreAnimationFrames)
 
 const FR_159_PLACE = '全体日程シフトの欄は、`FR-072` の 表 T-369 の `FO-17` の場所に置く。'
 const FR_159_SHOWS_START = '欄の上にいまの開始日（表 T-379 の `WH-1`）を見せること（MUST）'
-const FR_159_AGENT = '`Agent API` から `_assets/tbl-glossary.md` の 表 T-108 の `CM-99` を受けたときは問わない'
+const FR_159_AGENT = '`Agent API` から `_assets/tbl-document-commands.md` の 表 T-108 の `CM-99` を受けたときは問わない'
 const FR_156_ASKS_ONLY = '確認を取るのは、データを大幅に書き換えるタイムシフト（`FR-157`）と全体日程シフト（`FR-159`）だけである（利用者の判断）'
 const WH_1_DASH = '⛔ 開始を持つ `Task` が 1 つも無いあいだは、欄の上に「—」を見せ、適用のボタンを押せないものとする（`WH-12`）'
 const WH_2_LINE = '欄の上の段（いまの開始日の次の行）と問いに、辞書の `wholeScheduleShiftField` の `holidayStartLine` の語を出す'

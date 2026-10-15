@@ -3997,7 +3997,26 @@ def refuse_quoted_open_marker(rel, text):
         '  Reword the comment that quotes:\n    %s' % (rel, quoted, alone, OPEN))
 
 
+# CR-766: a region another generator owns names its manuscript on the line after
+# the marker (`// From docs/spec/_source/...`, tools/generate_document_commands.py);
+# it is set aside before this generator counts or cuts its own, and put back after.
+FOREIGN_REGION = re.compile(r'^' + re.escape(OPEN) + r'\r?\n// From docs/spec/_source/.*?^'
+                            + re.escape(CLOSE) + r'$', re.M | re.S)
+FOREIGN_MASK = '// <set aside: region %d of another generator>'
+
+
 def region(text, body, rel='the unit'):
+    """own_region() on the unit with every other generator's region set aside."""
+    foreign = FOREIGN_REGION.findall(text)
+    count = iter(range(len(foreign)))
+    masked = FOREIGN_REGION.sub(lambda _match: FOREIGN_MASK % next(count), text)
+    built = own_region(masked, body, rel)
+    for number, one in enumerate(foreign):
+        built = built.replace(FOREIGN_MASK % number, one, 1)
+    return built
+
+
+def own_region(text, body, rel='the unit'):
     """Replace the marked region, leaving everything around it untouched.
 
     Only what sits between the two markers belongs to this generator. What a

@@ -25,43 +25,59 @@ import { copiedTask, withInferredCopyParents } from './task-paste'
 
 export { tasksRankedByTheTaskGroupTree } from './task-group-order'
 
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, TaskGroupCommand).
+// see T-108
 export type TaskGroupCommand =
   | {
       readonly kind: 'createTaskGroup'
-      readonly id: string
-      readonly parentId: string | null
-      readonly label: string | null
-      readonly derivedFromTaskUid: number | null
-      readonly order: number
+      readonly id: TaskGroup['id']
+      readonly parentId: TaskGroup['parentId']
+      readonly label: TaskGroup['label']
+      readonly derivedFromTaskUid: TaskGroup['derivedFromTaskUid']
+      readonly order: TaskGroup['order']
     }
-  | { readonly kind: 'deleteTaskGroup'; readonly groupId: string; readonly newGroupId: string }
+  | { readonly kind: 'deleteTaskGroup'; readonly groupId: TaskGroup['id']; readonly newGroupId: string }
   | {
       readonly kind: 'pasteTaskGroupSubtree'
-      readonly sourceGroupId: string
-      readonly targetGroupId: string | null
+      readonly sourceGroupId: TaskGroup['id']
+      readonly targetGroupId: TaskGroup['parentId']
       readonly newGroupIds: Readonly<Record<string, string>>
     }
-  | { readonly kind: 'setTaskGroupLabel'; readonly groupId: string; readonly label: string | null }
-  | { readonly kind: 'setTaskGroupColor'; readonly groupId: string; readonly color: string }
-  | { readonly kind: 'resetTaskGroupColor'; readonly groupId: string }
-  | { readonly kind: 'setTaskGroupMinHeight'; readonly groupId: string; readonly minHeight: number | null }
   | {
-      readonly kind: 'setTaskGroupTreeState'
-      readonly groupId: string
-      readonly treeState: TaskGroup['treeState']
+      readonly kind: 'setTaskGroupLabel'
+      readonly groupId: TaskGroup['id']
+      readonly label: TaskGroup['label']
+    }
+  | {
+      readonly kind: 'setTaskGroupColor'
+      readonly groupId: TaskGroup['id']
+      readonly color: NonNullable<TaskGroup['color']>
+    }
+  | { readonly kind: 'resetTaskGroupColor'; readonly groupId: TaskGroup['id'] }
+  | {
+      readonly kind: 'setTaskGroupMinHeight'
+      readonly groupId: TaskGroup['id']
+      readonly minHeight: TaskGroup['minHeight']
     }
   | {
       readonly kind: 'reorderTaskGroupSiblings'
-      readonly parentId: string | null
-      readonly orderedIds: readonly string[]
-    }
-  | {
-      readonly kind: 'moveTaskGroup'
-      readonly groupId: string
-      readonly parentId: string | null
-      readonly order: number
+      readonly parentId: TaskGroup['parentId']
+      readonly orderedIds: readonly TaskGroup['id'][]
     }
   | { readonly kind: 'resetTaskGroupTreeStates' }
+  | {
+      readonly kind: 'moveTaskGroup'
+      readonly groupId: TaskGroup['id']
+      readonly parentId: TaskGroup['parentId']
+      readonly order: TaskGroup['order']
+    }
+  | {
+      readonly kind: 'setTaskGroupTreeState'
+      readonly groupId: TaskGroup['id']
+      readonly treeState: TaskGroup['treeState']
+    }
+// </generated>
 
 export type TaskGroupCommandOf<K extends TaskGroupCommand['kind']> = Extract<
   TaskGroupCommand,

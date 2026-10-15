@@ -28,13 +28,13 @@ import { DEFAULT_DISPLAY_RATIO } from '../fixtures/display-scale'
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8').replace(/\r\n/g, '\n'))
 const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8').replace(/\r\n/g, '\n'))
-const GLOSSARY = readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8').replace(/\r\n/g, '\n')
+const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8').replace(/\r\n/g, '\n')
 
 // see T-023d
 const BODY_OR_LEADER_MOVES_BOTH =
   '⭐ 本体（本文の箱の全体）か引出し線（線から左右へ同表の `S-291`）を掴んで引いたときは、本文の箱と線先を一緒に動かすこと（MUST） —— 本文の箱は引いた量だけ動かし、線先は、押したときに描いていた線先の点を引いた量だけずらした点で読む（読み方は下の「線先は離した位置で読む」と同じ）。'
 const ONE_BUNDLE =
-  'その 2 つは、`_assets/tbl-glossary.md` の 表 T-108 の `CM-50`（線先）と `CM-51`（ずれ）を 1 つの束にして書くこと（MUST） —— `CM-51` のずれは、置き直した線先を描く点（`05-07-design.md` の 表 T-221 の `LF-15`）から、動かした本文の箱の左下隅までとする。'
+  'その 2 つは、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-50`（線先）と `CM-51`（ずれ）を 1 つの束にして書くこと（MUST） —— `CM-51` のずれは、置き直した線先を描く点（`05-07-design.md` の 表 T-221 の `LF-15`）から、動かした本文の箱の左下隅までとする。'
 const ANCHOR_STEPS_BY_HALVES =
   '⚠️ 線先は日の列の中央とタスクグループの帯の中央に立つので、線先の動く量は、引いた量から日の列とタスクグループの帯の半分まで離れることがある —— 本文の箱は引いた量のとおりに動く。'
 const BODY_NO_TASK_GROUP =
@@ -60,7 +60,7 @@ const LEADER_ONE_CORNER =
   '⭐ 描き方はこうである（MUST）: 留めた点と、本文の箱の 4 隅のうち `05-07-design.md` の 表 T-221 の `LF-17` が選ぶ 1 隅とを、1 本の線で結ぶこと。'
 const NULLS_DRAW_DEFAULTS =
   '⭐ 太さと透過率の列が `null` のときは 表 T-217 の同じ列の既定で、色の 3 列が `null` のときは、線を注記の色（`_assets/tbl-settings.md` の 表 T-236 の `S-312`）、塗りを地の色（同表の `S-146`）、字を文字の色（同表の `S-147`）で描くこと（MUST） —— 5 列がすべて `null` の箱は、列を足す前と同じ絵になる。'
-const PLACED_WITH_NULLS = '⭐ 置くとき（`_assets/tbl-glossary.md` の 表 T-108 の `CM-46`）は 5 列を `null` とすること（MUST）'
+const PLACED_WITH_NULLS = '⭐ 置くとき（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-46`）は 5 列を `null` とすること（MUST）'
 const ONE_COLOR_ONE_WIDTH = '⭐ 枠と引出し線は 1 つの色と 1 つの太さで描く'
 const WIDTH_NOT_SCALED = '⛔ 線の太さに倍率を掛けてはならない（MUST NOT）'
 const FILL_RULE =
@@ -507,7 +507,7 @@ describe('CR-559 premises: the clauses these cases read, and the fixture they st
 
   it('T-108 holds CM-80 .. CM-84 on CommentBox, and T-206 / T-217 give every value one number', () => {
     for (const [row, name] of CM_ROWS) {
-      expect(GLOSSARY).toContain(`| ${row} | \`CommentBox\` | \`${name}\` |`)
+      expect(DOCUMENT_COMMANDS).toContain(`| ${row} | \`CommentBox\` | \`${name}\` |`)
     }
     for (const value of [S_291, S_292, S_376, S_174]) expect(value).toBeGreaterThan(0)
     expect(S_376, 'S-376 fits inside the S-292 reach').toBeLessThanOrEqual(2 * S_292)

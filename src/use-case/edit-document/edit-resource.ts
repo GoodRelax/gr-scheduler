@@ -13,13 +13,25 @@ import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 import { documentWithTableViewsKept } from './edit-document-settings'
 
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, ResourceCommand).
+// see T-108
 export type ResourceCommand =
-  | { readonly kind: 'createResource'; readonly name: string | null }
-  | { readonly kind: 'setResourceName'; readonly uid: number; readonly name: string | null }
-  | { readonly kind: 'deleteResource'; readonly uids: readonly number[] }
+  | { readonly kind: 'createResource'; readonly name: Resource['name'] }
+  | { readonly kind: 'setResourceName'; readonly uid: Resource['uid']; readonly name: Resource['name'] }
+  | { readonly kind: 'deleteResource'; readonly uids: readonly Resource['uid'][] }
   | { readonly kind: 'deleteUnreferencedResources' }
-  | { readonly kind: 'createAssignment'; readonly taskUid: number; readonly resourceUid: number }
-  | { readonly kind: 'unassignResource'; readonly taskUid: number; readonly resourceUid: number }
+  | {
+      readonly kind: 'createAssignment'
+      readonly taskUid: NonNullable<Assignment['taskUid']>
+      readonly resourceUid: NonNullable<Assignment['resourceUid']>
+    }
+  | {
+      readonly kind: 'unassignResource'
+      readonly taskUid: NonNullable<Assignment['taskUid']>
+      readonly resourceUid: NonNullable<Assignment['resourceUid']>
+    }
+// </generated>
 
 const WORK_RESOURCE = 1
 

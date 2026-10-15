@@ -9,68 +9,90 @@ import { dayOf, isSameDay, isStoredColor, TRANSPARENT } from '../../entity/docum
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 
-export interface AnnotationAnchor {
-  readonly date: string
-  readonly groupId: string
-}
-
-export interface HighlightRange {
-  readonly startDate: string
-  readonly endDate: string
-  readonly topGroupId: string
-  readonly bottomGroupId: string
-}
-
 export type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']>
 
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, AnnotationCommand).
+// see T-108
+export interface AnnotationAnchor {
+  readonly date: NonNullable<CommentBox['anchorDate']>
+  readonly groupId: NonNullable<CommentBox['anchorGroupId']>
+}
+
+// see T-108
+export interface HighlightRange {
+  readonly startDate: NonNullable<HighlightBox['startDate']>
+  readonly endDate: NonNullable<HighlightBox['endDate']>
+  readonly topGroupId: NonNullable<HighlightBox['topGroupId']>
+  readonly bottomGroupId: NonNullable<HighlightBox['bottomGroupId']>
+}
+
+// see T-108
 export type AnnotationCommand =
-  | { readonly kind: 'createCommentBox'; readonly id: string; readonly anchor: AnnotationAnchor }
-  | { readonly kind: 'deleteCommentBox'; readonly id: string }
-  | { readonly kind: 'setCommentBoxText'; readonly id: string; readonly text: string | null }
+  | { readonly kind: 'createCommentBox'; readonly id: CommentBox['id']; readonly anchor: AnnotationAnchor }
+  | { readonly kind: 'deleteCommentBox'; readonly id: CommentBox['id'] }
+  | { readonly kind: 'setCommentBoxText'; readonly id: CommentBox['id']; readonly text: CommentBox['text'] }
   | {
       readonly kind: 'setCommentBoxLeaderShapeKind'
-      readonly id: string
-      readonly leaderShapeKind: CommentBoxLeaderShapeKind
+      readonly id: CommentBox['id']
+      readonly leaderShapeKind: NonNullable<CommentBox['leaderShapeKind']>
     }
-  | { readonly kind: 'setCommentBoxAnchor'; readonly id: string; readonly anchor: AnnotationAnchor }
+  | { readonly kind: 'setCommentBoxAnchor'; readonly id: CommentBox['id']; readonly anchor: AnnotationAnchor }
   | {
       readonly kind: 'setCommentBoxBodyOffsetPx'
-      readonly id: string
+      readonly id: CommentBox['id']
       readonly dx: number
       readonly dy: number
     }
-  | { readonly kind: 'setCommentBoxStrokeColor'; readonly id: string; readonly strokeColor: string | null }
-  | { readonly kind: 'setCommentBoxStrokeWidth'; readonly id: string; readonly strokeWidthPx: number | null }
-  | { readonly kind: 'setCommentBoxFillColor'; readonly id: string; readonly fillColor: string | null }
+  | {
+      readonly kind: 'setCommentBoxStrokeColor'
+      readonly id: CommentBox['id']
+      readonly strokeColor: CommentBox['strokeColor']
+    }
+  | {
+      readonly kind: 'setCommentBoxStrokeWidth'
+      readonly id: CommentBox['id']
+      readonly strokeWidthPx: CommentBox['strokeWidthPx']
+    }
+  | {
+      readonly kind: 'setCommentBoxFillColor'
+      readonly id: CommentBox['id']
+      readonly fillColor: CommentBox['fillColor']
+    }
   | {
       readonly kind: 'setCommentBoxFillTransparency'
-      readonly id: string
-      readonly fillTransparencyPercent: number | null
+      readonly id: CommentBox['id']
+      readonly fillTransparencyPercent: CommentBox['fillTransparencyPercent']
     }
-  | { readonly kind: 'setCommentBoxTextColor'; readonly id: string; readonly textColor: string | null }
-  | { readonly kind: 'createHighlightBox'; readonly id: string; readonly range: HighlightRange }
-  | { readonly kind: 'deleteHighlightBox'; readonly id: string }
-  | { readonly kind: 'setHighlightBoxRange'; readonly id: string; readonly range: HighlightRange }
+  | {
+      readonly kind: 'setCommentBoxTextColor'
+      readonly id: CommentBox['id']
+      readonly textColor: CommentBox['textColor']
+    }
+  | { readonly kind: 'createHighlightBox'; readonly id: HighlightBox['id']; readonly range: HighlightRange }
+  | { readonly kind: 'deleteHighlightBox'; readonly id: HighlightBox['id'] }
+  | { readonly kind: 'setHighlightBoxRange'; readonly id: HighlightBox['id']; readonly range: HighlightRange }
   | {
       readonly kind: 'setHighlightBoxStrokeColor'
-      readonly id: string
-      readonly strokeColor: string | null
+      readonly id: HighlightBox['id']
+      readonly strokeColor: HighlightBox['strokeColor']
     }
   | {
       readonly kind: 'setHighlightBoxStrokeWidth'
-      readonly id: string
-      readonly strokeWidthPx: number | null
+      readonly id: HighlightBox['id']
+      readonly strokeWidthPx: HighlightBox['strokeWidthPx']
     }
   | {
       readonly kind: 'setHighlightBoxFillColor'
-      readonly id: string
-      readonly fillColor: string | null
+      readonly id: HighlightBox['id']
+      readonly fillColor: HighlightBox['fillColor']
     }
   | {
       readonly kind: 'setHighlightBoxFillTransparency'
-      readonly id: string
-      readonly fillTransparencyPercent: number | null
+      readonly id: HighlightBox['id']
+      readonly fillTransparencyPercent: HighlightBox['fillTransparencyPercent']
     }
+// </generated>
 
 // see FR-019, CV-1
 // WHY: the outline takes transparent (no line); the pair with the fill is IV-9's, checked on the result.

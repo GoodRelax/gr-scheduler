@@ -31,11 +31,12 @@ import type { EditResult, Refusal } from './edit-document'
 import { edited, refused, reject } from './edit-document'
 import { isAcceptedDay, isInsideWorkingTime } from './edit-project'
 
-// see CM-99, FR-159
-export interface WholeScheduleShiftCommand {
-  readonly kind: 'shiftScheduleToStartDate'
-  readonly newStartDate: string
-}
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, WholeScheduleShiftCommand).
+// see T-108
+export type WholeScheduleShiftCommand =
+  | { readonly kind: 'shiftScheduleToStartDate'; readonly newStartDate: string }
+// </generated>
 
 const COMMAND_ROW = 'CM-99'
 

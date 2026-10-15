@@ -20,34 +20,41 @@ import {
   type BaselineTask,
   type CalendarDay,
   type InstantOnSide,
+  type Project,
   type Task,
 } from '../../entity/document-model/schedule/schedule'
 import type { Document } from '../../entity/document-model/document/document'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, ProjectCommand).
+// see T-108
 export interface ProjectProfileFields {
-  readonly name?: string | null
-  readonly subject?: string | null
-  readonly category?: string | null
-  readonly company?: string | null
-  readonly manager?: string | null
-  readonly author?: string | null
-  readonly revision?: number | null
-  readonly startDate?: string | null
+  readonly name?: Project['name']
+  readonly subject?: Project['subject']
+  readonly category?: Project['category']
+  readonly company?: Project['company']
+  readonly manager?: Project['manager']
+  readonly author?: Project['author']
+  readonly revision?: Project['revision']
+  readonly startDate?: Project['startDate']
 }
 
+// see T-108
 export type ProjectCommand =
-  | { readonly kind: 'setProjectTitle'; readonly title: string | null }
+  | { readonly kind: 'setProjectTitle'; readonly title: Project['title'] }
   | { readonly kind: 'setProjectProfile'; readonly fields: ProjectProfileFields }
-  | { readonly kind: 'setStatusDate'; readonly date: string }
+  | { readonly kind: 'setStatusDate'; readonly date: NonNullable<Project['statusDate']> }
   | { readonly kind: 'clearStatusDate' }
-  | { readonly kind: 'setThemeHue'; readonly hue: number }
-  | { readonly kind: 'setParentProgressTolerance'; readonly workingDays: number }
-  // see CM-94, FR-156
-  | { readonly kind: 'setScheduleDataTimeZone'; readonly timeZone: string }
-  // see CM-98, FR-157, T-377
+  | { readonly kind: 'setThemeHue'; readonly hue: Project['themeHue'] }
+  | {
+      readonly kind: 'setParentProgressTolerance'
+      readonly workingDays: Project['parentProgressToleranceDays']
+    }
+  | { readonly kind: 'setScheduleDataTimeZone'; readonly timeZone: Project['scheduleDataTimeZone'] }
   | { readonly kind: 'shiftScheduleTimes'; readonly minutes: number }
+// </generated>
 
 const PROFILE_KEYS = [
   'name',
