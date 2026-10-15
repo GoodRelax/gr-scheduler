@@ -12,7 +12,7 @@
 > - **計画**: `docs/development-records/project-plan.json`（`a4733325`、統合の枝 `147f26c9` で合流。109 タスク、済み 47、マイルストーン 6）と読み方 `project-plan.md`。1 つ前（10-15 22:23）は `previous-plan.json` として点線で重なる。コミット済みの `dist/index.html` で開ける（日程の席が確かめた）。主な日付: 根の早送りと GT-2 は 10-16 06:45〜 → push と Pages 09:15 → PERF → `CR-774` の実装と試験 → α の範囲を利用者と決める（10-16 の利用者の時間帯）→ α 版の GT-2 10-17 → チェックリスト → α 版のお披露目 10-19（月）09:00（時刻は仮）→ 正式公開の判断 10-22。仮定は 2 つ: お披露目の時刻と、α の候補を全部入れた形（外せば早まる）。
 > - **利用者に確かめる 1 点**: `JDG-2197` の「遅延診断の窓が開いているときの押下は今どおり表示を終える」は起草の席の読み（利用者は窓を閉じた場合だけを答えた）。`CR-764` は当て済み。
 > - **次にやること（順に）**:
->   1. 作業木の GT-2（前の調整役のセッションが流している。ログは前の調整役の作業メモの横 `gt2-local-6fbb69fe.log`、引継ぎの時点で最後の e2e の段）が緑なら、利用者に根で `git merge --ff-only <先端の sha>` を頼み、`node tools/gate/gate-queue.mjs enqueue GT-2` → 根で `GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain`。`GT-2 <sha> passed` を grep してから `git push origin <sha>:refactor <sha>:main`、`gh workflow run pages.yml --ref main`。
+>   1. 作業木の GT-2 は**通った**（`run-gate.mjs GT-2` を直に、スキーマを写して。vitest は既知の赤 `DFC-922` の 2 件だけ、e2e 728 件が通り既知の赤 3 件。ログ `gt2-local-6fbb69fe.log`）。正式の GT-2 は根で回す —— 、利用者に根で `git merge --ff-only <先端の sha>` を頼み、`node tools/gate/gate-queue.mjs enqueue GT-2` → 根で `GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain`。`GT-2 <sha> passed` を grep してから `git push origin <sha>:refactor <sha>:main`、`gh workflow run pages.yml --ref main`。
 >   2. 性能の試験（利用者の指示）: GT-2 は性能を測らない。`enqueue PERF` → `GRS_PERF=1 ... drain`（OneDrive を止めてから）。赤のときだけ利用者を呼ぶ（`JDG-605`）。
 >   3. `CR-774`（深さの上限 5 に当たって離したら Yes／No で問う。`JDG-2393` を一部覆す）: 席「Hear improvement point 2」が起草と仕様の段を当てた —— `36c8e3d2` と追いの `12ba27fa`（枝 `claude/keen-swartz-459eef`、`6fbb69fe` の上。残る赤は検査 39 の 2057→2061 だけ、tsc 0。perf-pending `222` は足し済み）。統合の枝へ合流し、実装の体（CR-774 の 5.1 節の表が継ぎ目）→ 仕様だけを読む試験の体（5.2 節の 8 項目。書き直すのは cr-772 の契約試験 3 本と t-051-hf-15）を出す。帯は `JDG-2398`／`2399`・`2410`〜`2414`、`DFC-2907`〜`2909`、変更履歴 `4.85`、perf-pending `222`。`CR-772` の Q2 は利用者が 3px（`S-213`）と答えた（`JDG-2411`）。`CR-772`／`CR-774` に利用者への問いは残っていない。
 >   4. 完了確認の残り（利用者の指示: 目的を果たした席に完了を宣言させる）: 20 席は「問題なし」で閉じた（`DFC-2705`〜`2707` は預かり）。残る 6 席（「Apply CR-759 and CR-760」・「Move memory-only rules into machine checks」・「Draft the one-page user checklist」・「Apply CR-740」・「Apply CR-763」・「Draft CR-763/764」）には確認を送り、問題が無ければ自分で宣言してよいと伝えた —— 宣言していない席は最後の報告を読んで片付ける。⛔ ほかの席への送信は、利用者の書き込み 1 回につき 10 通まで（アプリの歯止め）。
@@ -238,7 +238,7 @@
    - 計画: docs/development-records/project-plan.json（読み方は project-plan.md）。あなたの最初の指示を利用者が出すときの地図になる。巡ごとに日程の席に書き直させる（前の計画は previous-plan.json）。
    - 残っている席（CR-774 の席 local_25526e50 ほか）は前の調整役の子のまま。SendMessage の宛先は local_ の id で書く。
 4. 次にやること（順に）
-   1) 作業木の GT-2 の結果を読む（前の調整役のセッションが流している。ログは %TEMP%\claude\gt2-local-6fbb69fe.log。「gate GT-2 passed」か「gate stopped」を grep）。緑なら引継書のコミットまで含めた先端で、根の早送り → GT-2 → push → Pages。赤なら直してから。
+   1) 作業木の GT-2 は通った（%TEMP%\claude\gt2-local-6fbb69fe.log に「gate GT-2 passed」）。正式の GT-2 を根で回す。緑なら引継書のコミットまで含めた先端で、根の早送り → GT-2 → push → Pages。赤なら直してから。
    2) PERF（性能の試験）。
    3) CR-774: 12ba27fa を合流 → 実装の体（CR-774 の 5.1 節）→ 仕様だけを読む試験の体（5.2 節）。CR-772 と同じ型。合流したら tsc を必ず回す（vitest は型を見ない）。
    4) α 版（10/19 に人に見せる）に何を入れるかを利用者と決める。週の使用量は 10/16 04:40 に 51%。候補は引継書の 🆕 の節の 5。決まるまで新しい実装は始めない（利用者の指示）。
