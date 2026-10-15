@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 365 | 4543 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 369 | 4593 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 89 | 577 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 656 | 9131 | 11 | 8 | 13 | 2 |
+| **all** | | | 660 | 9181 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -456,6 +456,10 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-765-the-clauses-that-point-at-t-107.contract.test.ts` | 7 | - | - | T-064, T-107, T-400 | AM-8, AV-7, OP-16, PI-17 | - | - | - | - |
 | `tests/contract/cr-765-the-generators-check-the-tree-against-the-manuscript.contract.test.ts` | 10 | - | - | T-107, T-400 | - | - | - | - | - |
 | `tests/contract/cr-765-the-mcp-tool-inputs-are-the-printed-arguments.contract.test.ts` | 14 | - | - | T-107 | AG-12, AM-17, AM-19, AM-25 | - | - | - | - |
+| `tests/contract/cr-768-ic-2-offers-the-rows-the-offered-column-says.contract.test.ts` | 10 | FR-096 | - | - | IC-2, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, SK-11, SX-1, SX-2 | - | - | - | - |
+| `tests/contract/cr-768-t-024-holds-the-media-type-and-the-offered-column.contract.test.ts` | 17 | FR-096 | - | T-024, T-340, T-346 | IC-2, IC-140, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, RW-7, SX-2 | - | - | - | - |
+| `tests/contract/cr-768-the-hand-copies-are-generated-and-drift-is-caught.contract.test.ts` | 18 | FR-096 | - | T-024, T-229 | ED-1, IO-8, PI-37, RW-7 | - | - | - | - |
+| `tests/contract/cr-768-the-save-chooser-is-handed-the-media-type-of-the-table.contract.test.ts` | 5 | FR-096 | - | T-024, T-346 | IC-2, IC-140, IO-4, IO-8, RW-7 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
