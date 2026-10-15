@@ -18,7 +18,11 @@ const GENERATOR = 'tools/generate_agent_api.py'
 const DESCRIPTION_GENERATOR = 'tools/generate_mcp_tool_descriptions.py'
 const TABLE_PRINTER = 'docs/spec/_source/agent_api_members_json_to_md.py'
 
-const COPIED = [MANUSCRIPT, MEMBERS_UNIT, RELAYED_UNIT, RELAY_UNIT, DESCRIPTIONS, GENERATOR, DESCRIPTION_GENERATOR]
+// WHY: the description generator imports the command generator (CR-766), which reads the whole _source folder.
+const SOURCE_DIR = 'docs/spec/_source'
+const COMMAND_GENERATOR = 'tools/generate_document_commands.py'
+
+const COPIED = [SOURCE_DIR, MEMBERS_UNIT, RELAYED_UNIT, RELAY_UNIT, DESCRIPTIONS, GENERATOR, DESCRIPTION_GENERATOR, COMMAND_GENERATOR]
 
 interface Member {
   id: string
@@ -53,7 +57,7 @@ const scratchCopy = (): string => {
   scratches.push(copy)
   for (const rel of COPIED) {
     mkdirSync(dirname(join(copy, rel)), { recursive: true })
-    cpSync(join(ROOT, rel), join(copy, rel))
+    cpSync(join(ROOT, rel), join(copy, rel), { recursive: true })
   }
   return copy
 }

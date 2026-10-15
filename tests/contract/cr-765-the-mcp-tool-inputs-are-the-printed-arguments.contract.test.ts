@@ -32,7 +32,14 @@ interface Schema {
   readonly type?: unknown
   readonly items?: unknown
   readonly description?: unknown
+  readonly properties?: Readonly<Record<string, unknown>>
+  readonly required?: unknown
 }
+
+// WHY: CR-766 gives the request of AM-7 the keys of the write request and one choice per command of table T-108,
+// so this one key carries more than a type and a description; the shape of its choices is pinned by the CR-766 tests.
+const WRITE_REQUEST_TOOL = 'applyCommands'
+const WRITE_REQUEST_KEYS = ['expectedStamp', 'commands']
 
 const NUMBER_LIST_OR_NULL = 'readonly number[] | null'
 
@@ -105,7 +112,13 @@ describe('mcpToolList: one tool per row of T-107, with the input the argument co
     for (const member of members) {
       const properties = toolNamed(member.name).inputSchema.properties as Readonly<Record<string, Schema>>
       for (const argument of keysOf(member)) {
-        expect(properties[argument.name], `${member.id} ${argument.name}`).toEqual(schemaOf(argument))
+        const at = `${member.id} ${argument.name}`
+        if (member.name === WRITE_REQUEST_TOOL) {
+          expect(properties[argument.name], at).toMatchObject(schemaOf(argument))
+          expect(Object.keys(properties[argument.name]?.properties ?? {}), at).toEqual(WRITE_REQUEST_KEYS)
+        } else {
+          expect(properties[argument.name], at).toEqual(schemaOf(argument))
+        }
       }
     }
   })
@@ -163,7 +176,7 @@ describe('mcp-tool-descriptions.json is what mcpToolList returns', () => {
   it('every property is a type, an optional items and a description, and nothing else', () => {
     for (const tool of FILE.tools) {
       for (const [key, schema] of Object.entries(tool.inputSchema.properties)) {
-        const allowed = ['type', 'items', 'description']
+        const allowed = tool.name === WRITE_REQUEST_TOOL ? ['type', 'items', 'description', 'properties', 'required'] : ['type', 'items', 'description']
         expect(Object.keys(schema).every((one) => allowed.includes(one)), `${tool.name} ${key}`).toBe(true)
         expect(typeof schema.description, `${tool.name} ${key}`).toBe('string')
       }

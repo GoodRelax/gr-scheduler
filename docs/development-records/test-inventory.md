@@ -461,12 +461,12 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-765-the-agent-api-type-and-the-relayed-params.contract.test.ts` | 17 | - | - | T-107, T-400 | AG-1, AM-1, AM-2, AV-3, AV-4 | - | - | - | - |
 | `tests/contract/cr-765-the-clauses-that-point-at-t-107.contract.test.ts` | 7 | - | - | T-064, T-107, T-400 | AM-8, AV-7, OP-16, PI-17 | - | - | - | - |
 | `tests/contract/cr-765-the-generators-check-the-tree-against-the-manuscript.contract.test.ts` | 10 | - | - | T-107, T-400 | - | - | - | - | - |
-| `tests/contract/cr-765-the-mcp-tool-inputs-are-the-printed-arguments.contract.test.ts` | 14 | - | - | T-107 | AG-12, AM-17, AM-19, AM-25 | - | - | - | - |
+| `tests/contract/cr-765-the-mcp-tool-inputs-are-the-printed-arguments.contract.test.ts` | 14 | - | - | T-107, T-108 | AG-12, AM-7, AM-17, AM-19, AM-25 | - | - | - | - |
 | `tests/contract/cr-766-t-108-the-printed-commands-and-the-values-they-carry.contract.test.ts` | 19 | - | - | T-058, T-064, T-108, T-202, T-203 | AT-144, CM-1, CM-76, PI-8 | - | - | - | - |
 | `tests/contract/cr-766-the-applycommands-input-is-one-choice-per-command.contract.test.ts` | 16 | - | - | T-019, T-108 | AM-7, CM-13, CM-76 | - | - | - | - |
 | `tests/contract/cr-766-the-clauses-that-point-at-t-108.contract.test.ts` | 8 | FR-019, FR-057 | - | T-075, T-108 | CM-39, CM-46, UF-16, WT-6, WT-7 | - | - | - | - |
 | `tests/contract/cr-766-the-command-unions-carry-the-printed-values.contract.test.ts` | 10 | - | - | T-019, T-108 | CM-38, CM-76 | - | - | - | - |
-| `tests/contract/cr-766-the-generators-print-the-commands-from-the-manuscript.contract.test.ts` | 13 | - | - | T-108 | AM-7, CM-16, CM-76 | - | - | - | - |
+| `tests/contract/cr-766-the-generators-print-the-commands-from-the-manuscript.contract.test.ts` | 13 | - | - | T-108 | AM-7, CM-16, CM-76, TX-10 | - | - | - | - |
 | `tests/contract/cr-768-ic-2-offers-the-rows-the-offered-column-says.contract.test.ts` | 10 | FR-096 | - | - | IC-2, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, SK-11, SX-1, SX-2 | - | - | - | - |
 | `tests/contract/cr-768-t-024-holds-the-media-type-and-the-offered-column.contract.test.ts` | 17 | FR-096 | - | T-024, T-340, T-346 | IC-2, IC-140, IO-1, IO-2, IO-3, IO-4, IO-5, IO-6, IO-7, IO-8, RW-7, SX-2 | - | - | - | - |
 | `tests/contract/cr-768-the-hand-copies-are-generated-and-drift-is-caught.contract.test.ts` | 18 | FR-096 | - | T-024, T-229 | ED-1, IO-8, PI-37, RW-7 | - | - | - | - |
