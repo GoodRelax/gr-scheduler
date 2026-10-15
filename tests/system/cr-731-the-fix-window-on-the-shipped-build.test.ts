@@ -1,6 +1,9 @@
 // CR-731 on the shipped build: the boxes, the choice and the date of the proposal, pressed as a person presses them (RW-16, FA-1, FA-24, UN-21).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { specTable, unbroken } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import { keyOf, openDocument, openStage, pressEntrance, settle, type Stage } from './cr-570-tree-state-stage'
 import { readDocumentOf, taskGroupsDocument } from './w3-t1-stage'
@@ -10,6 +13,25 @@ const SHOW_PROPOSALS = 'IC-155'
 const OVERWRITE_AND_FIX = 'IC-157'
 const PROPOSALS = '[data-role="Delay Fix Proposals"]'
 const FOOTER = '[data-role="Delay Fix Footer"]'
+const RW_12_COUNT = '「修正件数 : n 件」（チェックの入った行の数 —— 辞書の `delayFixes` の `fixCount`）'
+
+const FIX_COUNT = (
+  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+    readonly delayFixes: readonly { readonly part: string; readonly text: { readonly ja: string; readonly en: string } }[]
+  }
+).delayFixes.find((one) => one.part === 'fixCount')?.text
+
+const escaped = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
+// WHY: the strip holds IC-166 and the other entries right after the count, so the count is read in its dictionary words, not as a bare digit.
+/** @purity pure */
+function saysCount(strip: string, n: number): boolean {
+  if (FIX_COUNT === undefined) throw new Error('the dictionary has no delayFixes fixCount')
+  return [FIX_COUNT.ja, FIX_COUNT.en].some((said) => {
+    const [head = '', tail = ''] = said.split('{n}')
+    return new RegExp(`${escaped(head)}${n}(?!\\d)${escaped(tail)}`).test(strip)
+  })
+}
 
 let browser: Browser | null = null
 
@@ -140,16 +162,26 @@ test.describe('item 2 -- RW-16: the chain row follows the box of the row it foll
     }
   })
 
-  test('the strip counts the checked rows: 2, then 0, then 2', async () => {
+  test('RW-12 still reads this way', () => {
+    expect(unbroken(specTable('T-346').rows.find((row) => row.id === 'RW-12')?.by['定め'] ?? '')).toContain(RW_12_COUNT)
+    expect(FIX_COUNT?.ja, 'the dictionary fixCount holds {n}').toContain('{n}')
+    expect(FIX_COUNT?.en, 'the dictionary fixCount holds {n}').toContain('{n}')
+  })
+
+  test(`RW-12 「${RW_12_COUNT}」 -- the strip counts the checked rows: 2, then 0, then 2`, async () => {
     const { page, close } = await proposalsOver(CHAIN())
     try {
-      expect(await footerText(page)).toMatch(/\b2\b/)
+      const counted = async (n: number): Promise<void> => {
+        const strip = await footerText(page)
+        expect(saysCount(strip, n), `the strip says ${n} in the fixCount words: "${strip}"`).toBe(true)
+      }
+      await counted(2)
       await page.locator(`${PROPOSALS} input[type="checkbox"]`).first().click()
       await settle(page)
-      expect(await footerText(page)).toMatch(/\b0\b/)
+      await counted(0)
       await page.locator(`${PROPOSALS} input[type="checkbox"]`).first().click()
       await settle(page)
-      expect(await footerText(page)).toMatch(/\b2\b/)
+      await counted(2)
     } finally {
       await close()
     }

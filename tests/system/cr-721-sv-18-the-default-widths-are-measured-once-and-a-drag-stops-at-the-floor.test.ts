@@ -1,6 +1,7 @@
 // CR-721 on the shipped build: default widths are measured only on open, type size and language change; a dragged column keeps its width; a drag stops at the floor and at the area's right edge (T-330 SV-18, T-346 RW-9, T-206 S-425, S-496).
 
 import { expect, test, type Browser, type Page } from '@playwright/test'
+import { specTable } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
 import {
   APP_HEADER,
@@ -20,7 +21,8 @@ import {
 } from './cr-721-stage'
 
 const SV_18_MEASURED =
-  '⭐ 中身の字の幅が決まる列（ステータス・進捗・日付 —— `SQ-5`・`SQ-11`・`SQ-3`・`SQ-4`・`SQ-12`・`SQ-13`・`SQ-9`）の既定は、そのときの言語（`FR-038`）と字の段（`SV-16`）で、見出し（語と `IC-122`）も値も省略記号で切られない最小の幅とすること（MUST）'
+  '⭐ 中身の字の幅が決まる列（ステータス・進捗・タスク種別・日付 —— `SQ-5`・`SQ-11`・`SQ-14`・`SQ-3`・`SQ-4`・`SQ-12`・`SQ-13`・`SQ-9`）の既定は、そのときの言語（`FR-038`）と字の段（`SV-16`）で、見出し（語と `IC-122`）も値も省略記号で切られない最小の幅とすること（MUST）'
+const RW_9_MEASURED = '中身の字の幅が決まる列（`DT-1`・`DT-3`・`DT-9`・`DT-5`・`DT-6`）の既定は、`SV-18` と同じ規則で測る'
 const SV_18_WHEN = '測るのは、窓を開いたとき・`IC-127` で段を変えたとき・表示の言語を変えたときだけとし、ほかの時には測り直さない'
 const SV_18_DRAGGED = '引いて変えた列は測り直さず、変えた幅を保つ。'
 const SV_18_FOLLOW = '握っているあいだ、列の幅をポインタに追従させること（MUST）'
@@ -50,15 +52,21 @@ const need = (): Browser => {
   return browser
 }
 
-const MEASURED = ['SQ-5', 'SQ-11', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13']
+const idsIn = (clause: string): readonly string[] => [...clause.matchAll(/`([A-Z]+-\d+)`/g)].map((one) => one[1] ?? '')
+// WHY: the measured columns are the ones the clause names, kept to the columns this window's table holds.
+const MEASURED = idsIn(SV_18_MEASURED).filter((id) => specTable('T-331').rows.some((row) => row.id === id && row.by['表'] === 'タスク'))
+const MEASURED_REPORT = idsIn(RW_9_MEASURED).filter((id) => specTable('T-347').rows.some((row) => row.id === id))
 const TOLERANCE = 1
 
 test.describe('CR-721 the manuscript these cases are driven by', () => {
-  test('T-330 SV-18 and T-206 S-425 still say it, word for word', () => {
+  test('T-330 SV-18, T-346 RW-9 and T-206 S-425 still say it, word for word', () => {
     const say = cellOf('T-330', 'SV-18', '定め')
     for (const clause of [SV_18_MEASURED, SV_18_WHEN, SV_18_DRAGGED, SV_18_FOLLOW, SV_18_ABORT, SV_18_FLOOR, SV_18_RIGHT_EDGE, SV_18_NOT_BY_STEP, SV_18_VISIBILITY]) {
       expect(say).toContain(clause)
     }
+    expect(cellOf('T-346', 'RW-9', '定め')).toContain(RW_9_MEASURED)
+    expect(MEASURED, 'premise: SV-18 names measured columns of the tasks table').not.toHaveLength(0)
+    expect(MEASURED_REPORT, 'premise: RW-9 names measured columns of the report').not.toHaveLength(0)
   })
 })
 
@@ -116,7 +124,7 @@ test.describe('T-330 SV-18 -- 測るのは、窓を開いたとき・段を変�
       const opened = await widthsOf(page, REPORT)
       await pressSelector(page, `${REPORT} [data-icon="${TEXT_SIZE}"]`)
       const stepped = await widthsOf(page, REPORT)
-      expect(['DT-1', 'DT-3', 'DT-5', 'DT-6'].some((column) => Math.abs((stepped[column] ?? 0) - (opened[column] ?? 0)) > TOLERANCE)).toBe(true)
+      expect(MEASURED_REPORT.some((column) => Math.abs((stepped[column] ?? 0) - (opened[column] ?? 0)) > TOLERANCE)).toBe(true)
       unchanged(opened, stepped, ['DT-2', 'DT-4', 'DT-7'])
     } finally {
       await stage.close()

@@ -15,10 +15,10 @@ what this reading does not see.
 | `contract` | TS-5 | VT-2 | 350 | 4249 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 86 | 566 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 86 | 567 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 638 | 8826 | 11 | 8 | 13 | 2 |
+| **all** | | | 638 | 8827 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -647,7 +647,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-653-an-icon-tooltip-takes-no-press.test.ts` | 4 | FR-038 | - | T-103, T-109, T-212, T-337 | EZ-2, GR-19, IC-90, IN-3, S-124, U-26, U-53, UZ-2 | - | - | - | - |
 | `tests/system/cr-657-group-grid-lines-across-the-task-group-panel.test.ts` | 2 | FR-042 | - | T-025 | IC-43, S-68, U-18, U-22 | - | - | - | - |
 | `tests/system/cr-659-the-header-mark-margins-on-the-shipped-build.test.ts` | 2 | - | - | T-025, T-206, T-349 | BR-2, BR-3, BR-7, HS-9, S-461, S-462 | - | - | - | - |
-| `tests/system/cr-660-the-two-table-windows-on-the-shipped-build.test.ts` | 21 | - | - | T-019a, T-103, T-109, T-206, T-330, T-331, T-333, T-346, T-347 | DG-2, DT-1, DT-3, DT-4, DT-8, IC-122, IC-126, RW-4, RW-9, RW-10, SQ-1, SQ-5, SQ-10, SQ-11, SV-6, SV-7, SV-11, SV-14, SV-18, U-32, UZ-9 | - | - | - | - |
+| `tests/system/cr-660-the-two-table-windows-on-the-shipped-build.test.ts` | 21 | - | - | T-019a, T-021, T-103, T-109, T-206, T-315, T-330, T-331, T-333, T-346, T-347 | DT-1, DT-3, DT-4, DT-8, DT-9, IC-122, IC-126, RW-4, RW-9, RW-10, SQ-1, SQ-5, SQ-9, SQ-10, SQ-11, SV-6, SV-7, SV-11, SV-14, SV-18, U-32, UZ-9 | - | - | - | - |
 | `tests/system/cr-661-show-only-the-checked-tasks-on-the-shipped-build.test.ts` | 10 | FR-134, FR-151 | - | T-109, T-206, T-332, T-353 | AM-26, EL-21, IC-143, IX-11, S-497, S-498, SJ-0, SQ-10, SV-4, TV-1, TV-2, TV-3, TV-6, TV-8, TV-11 | - | - | - | - |
 | `tests/system/cr-664-the-color-rows-line-up-with-the-other-fields.test.ts` | 2 | FR-006, FR-052 | - | T-016, T-025, T-206 | CV-9, S-248 | - | - | - | - |
 | `tests/system/cr-665-help-fits-one-screen.test.ts` | 7 | FR-036, FR-069 | - | T-025, T-103, T-109, T-206, T-256 | MC-6, S-203 | - | - | - | - |
@@ -664,14 +664,14 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-718-an-import-refusal-is-told-in-its-t-220-words.test.ts` | 2 | FR-076 | - | T-214, T-220 | IV-10, IV-14, OP-2, RS-15, S-119 | - | - | - | - |
 | `tests/system/cr-719-opening-a-file-over-the-task-limit-tells-rs-79.test.ts` | 2 | FR-023, FR-076 | - | - | IC-1, RS-79, S-114 | - | - | - | - |
 | `tests/system/cr-721-ix-11-ep-24-the-export-leaves-the-band-out-and-closes-up.test.ts` | 2 | - | - | T-076, T-241 | EP-24, IX-11, TV-11 | - | - | - | - |
-| `tests/system/cr-721-sv-18-the-default-widths-are-measured-once-and-a-drag-stops-at-the-floor.test.ts` | 11 | - | - | T-206, T-330, T-346 | IC-122, RW-9, S-425, S-465, S-496, SV-7, SV-18 | - | - | - | - |
+| `tests/system/cr-721-sv-18-the-default-widths-are-measured-once-and-a-drag-stops-at-the-floor.test.ts` | 11 | - | - | T-206, T-330, T-331, T-346, T-347 | IC-122, RW-9, S-425, S-465, S-496, SV-7, SV-18 | - | - | - | - |
 | `tests/system/cr-721-sv-7-an-outside-press-closes-the-filter-and-is-answered.test.ts` | 7 | - | - | T-330 | IC-122, SV-7 | - | - | - | - |
 | `tests/system/cr-721-sv-7-ic-153-the-green-heading-and-the-clear-entry.test.ts` | 8 | - | - | T-109, T-236, T-330, T-346 | IC-153, RW-2, S-146, S-183, SQ-1, SQ-3, SQ-4, SQ-11, SV-1, SV-7 | - | - | - | - |
 | `tests/system/cr-722-the-eyes-the-red-and-the-resource-list-on-the-shipped-build.test.ts` | 11 | FR-099, FR-151 | - | T-109, T-236, T-237, T-353, T-370, T-371 | AM-26, AM-27, EN-5, EN-8, IC-62, IC-117, IC-143, RO-6, S-543, S-544, SJ-0, SQ-10, SV-4, SV-9, TV-8, TV-11, TV-12 | - | - | - | - |
 | `tests/system/cr-723-the-views-are-saved-and-the-windows-come-back-minimized-on-the-shipped-build.test.ts` | 7 | FR-100 | - | T-109, T-236 | AM-27, GR-24, IC-143, OP-18, RO-6, S-445, S-543, S-560, S-564, S-572, SQ-10, SV-4, TV-8, TV-12, UN-20, UZ-6, WB-2, WB-8 | - | - | - | - |
 | `tests/system/cr-727-op-17-the-drag-over-the-built-page.test.ts` | 9 | - | - | - | FT-1, OP-2, OP-17, S-553, U-32, UZ-1 | - | - | - | - |
 | `tests/system/cr-728-a-search-jump-lands-in-the-middle-and-marks-its-target.test.ts` | 12 | FR-134 | - | T-103, T-109, T-206, T-303, T-332 | AM-16, EL-17, PR-37, PR-38, PTL-16, S-554, S-557, S-558, SJ-1, SJ-2, SJ-5, SJ-6, SJ-9, SJ-10 | - | - | - | - |
-| `tests/system/cr-731-the-fix-window-on-the-shipped-build.test.ts` | 4 | - | - | - | FA-1, FA-23, FA-24, FM-8, IC-157, RW-16, UN-21 | - | - | - | - |
+| `tests/system/cr-731-the-fix-window-on-the-shipped-build.test.ts` | 5 | - | - | T-346 | FA-1, FA-23, FA-24, FM-8, IC-157, IC-166, RW-12, RW-16, UN-21 | - | - | - | - |
 | `tests/system/cr-733-a-press-anywhere-brings-a-table-window-to-the-front.test.ts` | 14 | - | - | T-103, T-109, T-330, T-335 | IC-52, IC-117, IN-4, SK-24, SV-2, SV-9, UZ-6, WB-2, WB-8, WB-11 | - | - | - | - |
 | `tests/system/cr-736-the-marquee-overlay-in-the-built-app.test.ts` | 8 | - | - | T-065 | IF-1, IF-9, ZO-6 | - | - | - | - |
 | `tests/system/cr-737-the-column-border-grab-band-and-the-pointer-shape-over-windows.test.ts` | 11 | FR-106 | - | T-023d, T-103, T-109, T-206, T-330 | DT-8, GR-25, GR-28, IC-122, PK-10, PK-12, PK-15, RO-9, RQ-1, RW-9, S-425, S-426, S-465, SQ-10, SV-7, SV-18 | - | - | - | - |

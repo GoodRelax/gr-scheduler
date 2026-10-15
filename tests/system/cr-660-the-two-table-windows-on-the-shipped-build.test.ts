@@ -15,16 +15,21 @@ const SV_7_HEADING_WORD = '見出しのセルの語を押したときも、`IC-1
 const SV_7_CLOSE = '⭐ 開いているフィルタは、同じ列の `IC-122` をもう一度押すか、`Esc`（`SV-14`）か、フィルタの箱の外を押すと閉じる。'
 const SV_7_OUTSIDE = '外を押して閉じたときは、その押下を押した先（日程表のタスク・ほかの窓・`App Header`・同じ窓のほかの所）にも渡すこと（MUST）'
 const SV_7_DROPDOWN = 'フィルタは、押した列の見出しのセルの下に、表の上に重ねるドロップダウンとして開くこと（MUST）'
-const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク の 4 列）、コメントボックスの表は `SQ-7` までを左に固定し'
-const RW_10_FIXED = '横は `DT-8`・`DT-1`・`DT-3`・`DT-4`（表示・ステータス・進捗・タスク —— 表 T-347 の並びで左の 4 列）を左に固定し'
+const SV_6_FIXED = '横は、タスクの表は `SQ-1` まで（表 T-331 の並びで 表示・ステータス・進捗・タスク種別・タスク の 5 列）、コメントボックスの表は `SQ-7` までを左に固定し'
+const RW_10_FIXED = '横は `DT-8`・`DT-1`・`DT-3`・`DT-9`・`DT-4`（表示・ステータス・進捗・タスク種別・タスク —— 表 T-347 の並びで左の 5 列）を左に固定し'
 const SV_18_MEASURED =
-  '⭐ 中身の字の幅が決まる列（ステータス・進捗・日付 —— `SQ-5`・`SQ-11`・`SQ-3`・`SQ-4`・`SQ-12`・`SQ-13`・`SQ-9`）の既定は、そのときの言語（`FR-038`）と字の段（`SV-16`）で、見出し（語と `IC-122`）も値も省略記号で切られない最小の幅とすること（MUST）'
-const RW_9_MEASURED = '中身の字の幅が決まる列（`DT-1`・`DT-3`・`DT-5`・`DT-6`）の既定は、`SV-18` と同じ規則で測る'
+  '⭐ 中身の字の幅が決まる列（ステータス・進捗・タスク種別・日付 —— `SQ-5`・`SQ-11`・`SQ-14`・`SQ-3`・`SQ-4`・`SQ-12`・`SQ-13`・`SQ-9`）の既定は、そのときの言語（`FR-038`）と字の段（`SV-16`）で、見出し（語と `IC-122`）も値も省略記号で切られない最小の幅とすること（MUST）'
+const SV_18_WIDTH_ROWS = '`SQ-1` 〜 `SQ-9` は `S-466` 〜 `S-474`、`SQ-11` 〜 `SQ-13` は `S-500` 〜 `S-502`（どちらもこの順）、`SQ-14` は `S-585`'
+const RW_9_MEASURED = '中身の字の幅が決まる列（`DT-1`・`DT-3`・`DT-9`・`DT-5`・`DT-6`）の既定は、`SV-18` と同じ規則で測る'
+const RW_9_WIDTH_ROWS = '既定は `_assets/tbl-settings.md` の 表 T-206 の `S-475` 〜 `S-481`（`DT-1` 〜 `DT-7` の順）と `S-586`（`DT-9`）とする'
 const SV_18_FOLLOW = '握っているあいだ、列の幅をポインタに追従させること（MUST）'
 const SV_18_OTHERS = 'その境目の左の列の幅を変える —— ほかの列の幅は変えず、右の列はその分だけ動く。'
 const SV_11_EDGE = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインタに追従させること（MUST）'
 const SQ_5_DRAW = '先頭に、日程表の進捗マーカーと同じ絵（`FR-133`、表 T-021・表 T-315 の色と形）を表の字の大きさ（1 字ぶんの正方形）で描き、続けて語を書く'
-const SQ_5_GLYPHS = '未着手は `PM-1a`、進行中は `PM-1`、完了は `PM-2`、中断の 2 つは `PM-3`、ボトルネックは `DG-2` の炎。'
+const SQ_5_GLYPHS = '未着手は `PM-1a`、進行中は `PM-1`、完了は `PM-2`、中断の 2 つは `PM-3`、遅れは `PM-4`、信用できない・要修正は `DG-1`、ボトルネックは `DG-2` の炎、ボトルネック経路は `DG-3`。'
+const SQ_5_WORDS = '語は 表 T-019a の状態の語と、表 T-315 の `DG-1` 〜 `DG-4` の語（`FR-134` の 表 T-347 の `DT-1` と同じ語 —— `PM-4` は `DG-4` の語）'
+const SQ_5_DIAGNOSIS_ONLY = '`DG-1` 〜 `DG-3` は診断を出しているあいだだけ出し、診断を閉じると同じタスクは診断の無いときの値へ戻る。'
+const DT_1_GLYPHS = '先頭にマーカーの絵（`FR-133` と同じ色と形 —— `DG-1` は `?`、`DG-2` は炎、`DG-3` は `!!`、`DG-4` は 表 T-021 の `PM-4` の `!`）'
 const DT_1_NO_GLYPH = '疑義・記載漏れと確定はマーカーを持たないので絵を描かず、絵の幅だけ空けて語の頭をそろえる。'
 const RW_4_GLYPHS = '`DT-1` の窓の絵と同じ —— 疑義・記載漏れと確定は絵の幅だけ空ける'
 const SQ_1_LINK = '字を `_assets/tbl-settings.md` の 表 T-236 の `S-503` の色で描き、下線を引く'
@@ -47,21 +52,27 @@ const STEPS = specTable('T-333').rows.length
 
 const TASK_COLUMNS = specTable('T-331').rows.filter((row) => row.by['表'] === 'タスク').map((row) => row.id)
 const REPORT_COLUMNS = specTable('T-347').rows.map((row) => row.id)
-const MEASURED_TASK_COLUMNS = ['SQ-5', 'SQ-11', 'SQ-3', 'SQ-4', 'SQ-12', 'SQ-13']
-const MEASURED_REPORT_COLUMNS = ['DT-1', 'DT-3', 'DT-5', 'DT-6']
+const idsIn = (clause: string): readonly string[] => [...clause.matchAll(/`([A-Z]+-\d+)`/g)].map((one) => one[1] ?? '')
+// WHY: the measured columns are the ones SV-18 / RW-9 name, kept to the table each window holds (SQ-9 is the comment box's).
+const MEASURED_TASK_COLUMNS = idsIn(SV_18_MEASURED).filter((id) => TASK_COLUMNS.includes(id))
+const MEASURED_REPORT_COLUMNS = idsIn(RW_9_MEASURED).filter((id) => REPORT_COLUMNS.includes(id))
 
 // see SV-18, RW-9
 const WIDTH_ROW: Readonly<Record<string, string>> = {
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => [`SQ-${n}`, `S-${465 + n}`])),
   ...Object.fromEntries([11, 12, 13].map((n) => [`SQ-${n}`, `S-${489 + n}`])),
+  'SQ-14': 'S-585',
   ...Object.fromEntries([1, 2, 3, 4, 5, 6, 7].map((n) => [`DT-${n}`, `S-${474 + n}`])),
+  'DT-9': 'S-586',
   'SQ-10': 'S-496',
   'DT-8': 'S-496',
 }
 
 /** @purity pure */
 function settingPx(column: string): number | null {
-  const said = cellOf('T-206', WIDTH_ROW[column] ?? '', '既定')
+  const row = WIDTH_ROW[column]
+  if (row === undefined) throw new Error(`SV-18 / RW-9 name no T-206 row for ${column}`)
+  const said = cellOf('T-206', row, '既定')
   if (said.startsWith('測る')) return null
   const px = /^(\d+)px/.exec(said)
   if (px === null) throw new Error(`T-206 holds no px default for ${column}: ${said}`)
@@ -84,8 +95,25 @@ const WORDS = JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_sour
 const STATE_WORD = new Map(WORDS.planActualStates.flatMap((one) => [[one.text.ja, one.rowId] as const, [one.text.en, one.rowId] as const]))
 const REPORT_STATUS = new Map(WORDS.delayReportStatuses.flatMap((one) => [[one.text.ja, one.rowId] as const, [one.text.en, one.rowId] as const]))
 
-// see SQ-5, T-019a
-const GLYPH_OF_STATE: Readonly<Record<string, string>> = { 'PS-1': 'PM-1a', 'PS-5': 'PM-1', 'PS-2': 'PM-2', 'PS-3': 'PM-3', 'PS-4': 'PM-3' }
+// see SQ-5, T-019a, T-315
+const MARKER_ROWS = specTable('T-315').rows.map((row) => row.id)
+const MARKER_WORD = new Map([...REPORT_STATUS].filter(([, row]) => MARKER_ROWS.includes(row)))
+const sq5ValueOf = (word: string): string | undefined => STATE_WORD.get(word) ?? MARKER_WORD.get(word)
+
+// see SQ-5, T-019a, T-315, T-021
+const GLYPH_ROW_OF: Readonly<Record<string, string>> = {
+  'PS-1': 'PM-1a',
+  'PS-5': 'PM-1',
+  'PS-2': 'PM-2',
+  'PS-3': 'PM-3',
+  'PS-4': 'PM-3',
+  'DG-4': 'PM-4',
+  'DG-1': 'DG-1',
+  'DG-2': 'DG-2',
+  'DG-3': 'DG-3',
+}
+// see SQ-5
+const DIAGNOSIS_ONLY = ['DG-1', 'DG-2', 'DG-3']
 
 interface Box {
   readonly x: number
@@ -379,12 +407,13 @@ test.describe('CR-660 -- the clauses these cases are driven by', () => {
     }
     expect(cellOf('T-330', 'SV-6', '定め')).toContain(SV_6_FIXED)
     expect(cellOf('T-346', 'RW-10', '定め')).toContain(RW_10_FIXED)
-    for (const clause of [SV_18_MEASURED, SV_18_FOLLOW, SV_18_OTHERS]) expect(cellOf('T-330', 'SV-18', '定め')).toContain(clause)
-    expect(cellOf('T-346', 'RW-9', '定め')).toContain(RW_9_MEASURED)
+    for (const clause of [SV_18_MEASURED, SV_18_WIDTH_ROWS, SV_18_FOLLOW, SV_18_OTHERS]) expect(cellOf('T-330', 'SV-18', '定め')).toContain(clause)
+    for (const clause of [RW_9_MEASURED, RW_9_WIDTH_ROWS]) expect(cellOf('T-346', 'RW-9', '定め')).toContain(clause)
     expect(REQUIREMENTS).toContain(SV_11_EDGE)
-    expect(cellOf('T-331', 'SQ-5', '書き方')).toContain(SQ_5_DRAW)
-    expect(cellOf('T-331', 'SQ-5', '書き方')).toContain(SQ_5_GLYPHS)
-    expect(cellOf('T-347', 'DT-1', '書き方')).toContain(DT_1_NO_GLYPH)
+    for (const clause of [SQ_5_DRAW, SQ_5_GLYPHS, SQ_5_WORDS]) expect(cellOf('T-331', 'SQ-5', '書き方')).toContain(clause)
+    expect(cellOf('T-331', 'SQ-5', '値')).toContain(SQ_5_DIAGNOSIS_ONLY)
+    for (const clause of [DT_1_GLYPHS, DT_1_NO_GLYPH]) expect(cellOf('T-347', 'DT-1', '書き方')).toContain(clause)
+    expect(MARKER_ROWS, 'SQ-5: the four T-315 rows').toEqual(['DG-1', 'DG-2', 'DG-3', 'DG-4'])
     expect(cellOf('T-346', 'RW-4', '定め')).toContain(RW_4_GLYPHS)
     expect(cellOf('T-331', 'SQ-1', '書き方')).toContain(SQ_1_LINK)
     expect(cellOf('T-347', 'DT-4', '書き方')).toContain(DT_4_LINK)
@@ -419,7 +448,7 @@ test.describe('T-331 / T-347 / SV-6 / RW-10 -- column order and the fixed column
     }
   })
 
-  test('T-347 / RW-10: the report heads its columns in T-347 order, and DT-8, DT-1, DT-3, DT-4 stay while the rest scroll', async () => {
+  test('T-347 / RW-10: the report heads its columns in T-347 order, and DT-8, DT-1, DT-3, DT-9, DT-4 stay while the rest scroll', async () => {
     const stage = await withReport()
     try {
       const page = stage.page
@@ -597,17 +626,18 @@ test.describe('T-330 SV-7 -- how the open filter closes (area 3)', () => {
 test.describe('T-331 SQ-5 / T-347 DT-1 / T-346 RW-4 -- the status glyph (area 4)', () => {
   test.setTimeout(180_000)
 
-  test(`SQ-5 「${SQ_5_GLYPHS}」 -- one glyph per glyph row, one character square, before the word`, async () => {
+  test(`SQ-5 「${SQ_5_GLYPHS}」 「${SQ_5_WORDS}」 -- without the diagnosis: one glyph per glyph row, one character square, before the word`, async () => {
     const stage = await withSearch()
     try {
       const cells = await glyphCells(stage.page, PANEL, 'SQ-5')
       const byGlyphRow = new Map<string, Set<string>>()
       for (const cell of cells) {
-        const state = STATE_WORD.get(cell.word)
-        expect(state, `the SQ-5 word ${cell.word} is a T-019a state`).toBeDefined()
+        const value = sq5ValueOf(cell.word)
+        expect(value, `the SQ-5 word ${cell.word} is a T-019a state word or a T-315 row's word`).toBeDefined()
+        expect(DIAGNOSIS_ONLY, `${cell.word}: ${SQ_5_DIAGNOSIS_ONLY}`).not.toContain(value)
         expect(cell.glyph, `${cell.word} draws a glyph`).not.toBeNull()
         expect(Math.abs(cell.glyphPx - cell.fontPx), `${cell.word}: the glyph is one character wide`).toBeLessThanOrEqual(0.5)
-        const row = GLYPH_OF_STATE[state ?? ''] ?? ''
+        const row = GLYPH_ROW_OF[value ?? ''] ?? ''
         byGlyphRow.set(row, (byGlyphRow.get(row) ?? new Set()).add(cell.glyph ?? ''))
       }
       expect(byGlyphRow.size, 'premise: the sample holds tasks of at least three glyph rows').toBeGreaterThanOrEqual(3)
@@ -660,21 +690,33 @@ test.describe('T-331 SQ-5 / T-347 DT-1 / T-346 RW-4 -- the status glyph (area 4)
     }
   })
 
-  test('SQ-5: while the diagnosis is shown a bottleneck draws the same flame as the report DT-1 DG-2', async () => {
+  test(`SQ-5 「${SQ_5_GLYPHS}」 -- while the diagnosis is shown each T-315 value draws the report's DT-1 glyph of the same row 「${DT_1_GLYPHS}」`, async () => {
     const stage = await withReport()
     try {
       const page = stage.page
       const report = await glyphCells(page, REPORT, 'DT-1')
-      const flame = report.find((one) => REPORT_STATUS.get(one.word) === 'DG-2')?.glyph
-      expect(flame, 'premise: the sample has a bottleneck').toBeDefined()
+      const reportGlyph = new Map<string, string | null>()
+      for (const one of report) {
+        const row = MARKER_WORD.get(one.word)
+        if (row !== undefined) reportGlyph.set(row, one.glyph)
+      }
+      expect(reportGlyph.get('DG-2'), 'premise: the sample has a bottleneck').toBeDefined()
       await page.keyboard.press(OPEN_SEARCH)
       await settle(page)
       const search = await glyphCells(page, PANEL, 'SQ-5')
-      const bottlenecks = search.filter((one) => !STATE_WORD.has(one.word))
-      expect(bottlenecks.length, 'premise: the search table names a bottleneck').toBeGreaterThan(0)
-      for (const one of bottlenecks) expect(one.glyph, one.word).toBe(flame)
-      const late = report.find((one) => REPORT_STATUS.get(one.word) === 'DG-4')?.glyph
-      if (late !== undefined) expect(search.map((one) => one.glyph), 'SQ-5: PM-4 is never drawn').not.toContain(late)
+      const marked = search.filter((one) => MARKER_WORD.has(one.word))
+      expect(marked.length, 'premise: the search table names a T-315 value').toBeGreaterThan(0)
+      const compared = new Set<string>()
+      for (const one of marked) {
+        const row = MARKER_WORD.get(one.word) ?? ''
+        const want = reportGlyph.get(row)
+        if (want === undefined) continue
+        compared.add(row)
+        expect(one.glyph, `${one.word} (${row}) draws the report's ${row} glyph`).toBe(want)
+      }
+      expect([...compared], 'premise: a bottleneck row is compared').toContain('DG-2')
+      const distinct = new Set([...compared].map((row) => reportGlyph.get(row)))
+      expect(distinct.size, `each compared T-315 row draws its own picture (${[...compared].join(', ')})`).toBe(compared.size)
     } finally {
       await stage.close()
     }
