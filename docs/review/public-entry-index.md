@@ -769,6 +769,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dayFromSerial` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayFromSerial` | -- | function dayFromSerial(serial: number): CalendarDay |
 | `dayShift` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayShift` | -- | function dayShift(context: InputContext, fromX: number, toX: number): number |
 | `dayShifted` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayShifted` | -- | function dayShifted(day: CalendarDay, days: number): CalendarDay |
+| `diagnosisRowAskedOf` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#diagnosisRowAskedOf` | PI-18 | 遅延診断を出しているあいだ、`DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離した入力なら、その `Task` の `uid` を答える（`FR-134` の 表 T-346 の `RW-19`）。 |
 | `drawnTaskGroupsCrossed` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#drawnTaskGroupsCrossed` | -- | function drawnTaskGroupsCrossed(taskGroups: readonly TaskGroupPlacement[], fromY: number, toY: number): number |
 | `drawnTaskGroupsOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#drawnTaskGroupsOf` | -- | function drawnTaskGroupsOf(layout: ScheduleLayout): readonly TaskGroupPlacement[] |
 | `ENTRY` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#ENTRY` | -- | const ENTRY = |
@@ -1403,6 +1404,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayDiagnosticsReportAfterFilterChange` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportAfterFilterChange` | PI-37 | 列のフィルタの変化（表 T-330 の `SV-7`）を遅延診断レポートの窓の値へ当てる。 |
 | `delayDiagnosticsReportFileNameOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportFileNameOf` | PI-37 | 書き出すファイルの提案の名を作る（表 T-346 の `RW-7`）。 |
 | `delayDiagnosticsReportMarkdownOf` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportMarkdownOf` | PI-37 | 窓のいまの並べ替えとフィルタで、コピーと書き出しの Markdown の文字列を作る（表 T-346 の `RW-6`）。 |
+| `delayDiagnosticsReportShowingRow` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportShowingRow` | PI-37 | 診断結果の表を出し、押したマーカーの `Task` の行を隠している語と列のフィルタの条件だけを外し、その行にいまの行の印を付けた窓の値と見え方を答える（表 T-346 の `RW-19`）。 |
 | `DelayDiagnosticsReportView` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportView` | -- | interface DelayDiagnosticsReportView extends Omit<SearchPanelView, 'table' \| 'rows'>, Partial<DelayFixView> |
 | `DelayDiagnosticsReportWindow` | entry | interface | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DelayDiagnosticsReportWindow` | PI-37 | 遅延診断レポートの窓の値の型 —— 表示の状態・語・フィルタ・並べ替え・位置・大きさ・列の幅・前後（`RW-5`） —— 保存しない（`FR-134`） |
 | `delayDiagnosticsReportWithColumnWidth` | entry | function | `src/adapter/screen-renderer/delay-diagnostics-report.ts#delayDiagnosticsReportWithColumnWidth` | PI-37 | 列の境目（表 T-023d の `GR-28`）を引いた後の列の幅を、窓の値へ当てる（表 T-346 の `RW-9`）。 |
@@ -1627,6 +1629,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isClearEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#isClearEntry` | -- | function isClearEntry(entry: IconId): boolean |
 | `isRowShown` | file only | function | `src/adapter/screen-renderer/table-window.ts#isRowShown` | -- | function isRowShown(visibility: TableVisibility, key: VisibilityKey): boolean |
 | `isScheduleFilterAppliedIn` | file only | function | `src/adapter/screen-renderer/table-window.ts#isScheduleFilterAppliedIn` | -- | function isScheduleFilterAppliedIn(settings: DocumentSettings, table: VisibilityTable): boolean |
+| `isWorkingFilter` | file only | function | `src/adapter/screen-renderer/table-window.ts#isWorkingFilter` | -- | function isWorkingFilter(filter: ColumnFilter): boolean |
 | `openFilterIn` | file only | function | `src/adapter/screen-renderer/table-window.ts#openFilterIn` | -- | function openFilterIn(panel: TableWindowSession, shown: WindowShown \| null, table: WindowTable): SearchColumn \| null |
 | `panelWithFilterShut` | file only | function | `src/adapter/screen-renderer/table-window.ts#panelWithFilterShut` | -- | function panelWithFilterShut<P extends TableWindowSession>(panel: P): P |
 | `scheduleFilterEntryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#scheduleFilterEntryOf` | -- | function scheduleFilterEntryOf(visibility: TableVisibility, wouldChange: boolean, language: DisplayLanguage): CommandItem |
@@ -2053,4 +2056,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1038 name(s) leave through a public entry (499 of them published by table T-064), 805 more are exported by a file and not by its entry.
+Totals: 1040 name(s) leave through a public entry (501 of them published by table T-064), 806 more are exported by a file and not by its entry.

@@ -282,17 +282,32 @@ function screenEventAfterChartPress(input: PointerInput, context: InputContext):
   return screenEventAfterMarkerPress(input, context)
 }
 
+/** @purity pure */
+function markerReleasedOf(input: PointerInput, context: InputContext): number | null {
+  const press = context.pressed
+  if (press === null || press.hit === null) return null
+  if (grabTaskGroupOf(press.hit) !== 'GA-18' || press.hit.item.kind !== 'task') return null
+  return hasDraggedPastThreshold(press, input) ? null : press.hit.item.taskUid
+}
+
+// see RW-19, PE-8, PE-10, GA-18
+/** @purity pure */
+export function diagnosisRowAskedOf(input: HumanInput, context: InputContext): number | null {
+  const press = context.pressed
+  if (input.kind !== 'pointer' || input.phase !== 'up' || press === null || press.on !== null) return null
+  if (pressRowOf(press, context) === 'PTD-2') return null
+  const uid = markerReleasedOf(input, context)
+  return uid !== null && context.diagnosisMarkedTaskUids?.has(uid) === true ? uid : null
+}
+
 // see PV-4, PV-5, T-280
 /** @purity pure */
 function screenEventAfterMarkerPress(
   input: PointerInput,
   context: InputContext,
 ): ScreenValuesEvent | null {
-  const press = context.pressed
-  if (press === null || press.hit === null) return null
-  if (grabTaskGroupOf(press.hit) !== 'GA-18' || press.hit.item.kind !== 'task') return null
-  if (hasDraggedPastThreshold(press, input)) return null
-  const uid = press.hit.item.taskUid
+  const uid = markerReleasedOf(input, context)
+  if (uid === null || context.diagnosisMarkedTaskUids?.has(uid) === true) return null
   const task = taskByUid(context.document.schedule, uid)
   if (task === null) return null
   const remembered = rememberedActualIn(context, uid)

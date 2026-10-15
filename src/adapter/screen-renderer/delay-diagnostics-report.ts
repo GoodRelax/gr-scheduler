@@ -80,6 +80,7 @@ import {
   windowColumnsViewOf,
   windowTitleEntriesOf,
   windowWithColumnWidth,
+  isWorkingFilter,
   wordOf,
   wouldScheduleFilterChange,
   type MarkGlyph,
@@ -189,6 +190,8 @@ const STATUS_GLYPHS: Readonly<Record<DelayReportStatus, MarkGlyph | null>> = {
 // fixes absent reads as the diagnosis table with nothing picked.
 export interface DelayDiagnosticsReportWindow extends TableWindowState {
   readonly fixes?: DelayFixWindowValues
+  // WHY: the row of the marker pressed last (RW-19); each press counts, so the table moves to it once per press.
+  readonly markedRow?: { readonly taskUid: number; readonly pressCount: number } | null
 }
 
 export const OPENED_DELAY_DIAGNOSTICS_REPORT: DelayDiagnosticsReportWindow = {
@@ -199,6 +202,7 @@ export const OPENED_DELAY_DIAGNOSTICS_REPORT: DelayDiagnosticsReportWindow = {
 
 export interface DelayReportRowView extends SearchRowView {
   readonly status: DelayReportStatus
+  readonly isCurrent?: boolean
 }
 
 // see RW-4
@@ -216,6 +220,7 @@ export interface DelayDiagnosticsReportView extends Omit<SearchPanelView, 'table
   readonly summary: readonly DelayReportLine[]
   readonly rows: readonly (DelayReportRowView | DelayFixRowView)[]
   readonly jumpAt: number
+  readonly rowRevealed?: { readonly at: number; readonly count: number } | null
 }
 
 interface ShownTaskGroup {
@@ -304,6 +309,11 @@ function shownTimesOf(schedule: Schedule, showsTimeOfDay: boolean, viewTimeZone:
     minutesPerDayOf: () => minutesPerWorkingDayOf(schedule.project),
     dates: shownDateTimesOf(schedule, { showsTimeOfDay, viewTimeZone: isStandardTimeZoneKey(viewTimeZone) ? viewTimeZone : null }),
   }
+}
+
+/** @purity pure */
+function shownTimesIn(rows: { readonly schedule: Schedule; readonly showsTimeOfDay?: boolean; readonly viewTimeZone?: unknown }): ShownTimes {
+  return shownTimesOf(rows.schedule, rows.showsTimeOfDay ?? false, rows.viewTimeZone ?? null)
 }
 
 // see TX-7, DT-5, DT-6
@@ -568,7 +578,7 @@ export function delayDiagnosticsReportFromWindow(
   const fixView = delayFixViewOf(values, fixTables, words)
   if (values.table === 'diagnosis') return { ...diagnosis, ...fixView }
   const table = fixTableViewOf(window, values.table, fixTables, words)
-  return { ...diagnosis, ...table, summary: [], glyphAt: null, showAt: null, showHeading: 'none', entryRefusals: [], ...fixView }
+  return { ...diagnosis, ...table, summary: [], glyphAt: null, showAt: null, showHeading: 'none', entryRefusals: [], rowRevealed: null, ...fixView }
 }
 
 // see FR-134, T-346, RW-2, RW-3, RW-4, RW-9, S-564
@@ -591,7 +601,8 @@ function diagnosisReportViewOf(
   const listed = (): readonly ShownTaskGroup[] => shownTaskGroupsFrom({ word: window.panel.word, view: { ...view, columnFilters: [] } }, withCells)
   const table = reportTableOf(view, listed, language, withCells)
   const scheduleFilter = scheduleFilterEntryOf(view.visibility, wouldReportFilterChange(view, reported, schedule), language)
-  const rows = reportRowViewsOf(view, found)
+  const rows = reportRowViewsOf(view, found, window.markedRow?.taskUid ?? null)
+  const markedAt = rows.findIndex((row) => row.isCurrent === true)
   return {
     heading: wordOf(HEADING, language),
     shown: window.shown,
@@ -607,6 +618,7 @@ function diagnosisReportViewOf(
     ...windowColumnsViewOf(window, view, table, language),
     rows,
     jumpAt: JUMP_COLUMN_AT,
+    rowRevealed: markedAt < 0 ? null : { at: markedAt, count: window.markedRow?.pressCount ?? 0 },
     glyphAt: DELAY_REPORT_COLUMNS.indexOf(STATUS_COLUMN),
     showAt: DELAY_REPORT_COLUMNS.indexOf(VISIBILITY_COLUMN),
     showHeading: visibilityHeadingOf(rows),
@@ -615,7 +627,7 @@ function diagnosisReportViewOf(
 }
 
 /** @purity pure */
-function reportRowViewsOf(view: TableView, found: readonly ShownTaskGroup[]): readonly DelayReportRowView[] {
+function reportRowViewsOf(view: TableView, found: readonly ShownTaskGroup[], markedUid: number | null): readonly DelayReportRowView[] {
   const hidden = new Set(view.visibility.hiddenKeys)
   return found.map((shown) => ({
     cells: shown.cells,
@@ -623,7 +635,48 @@ function reportRowViewsOf(view: TableView, found: readonly ShownTaskGroup[]): re
     status: shown.row.status,
     shown: !hidden.has(shown.row.taskUid),
     target: { kind: 'task', taskUid: shown.row.taskUid },
+    isCurrent: shown.row.taskUid === markedUid,
   }))
+}
+
+// see RW-19, RW-3, RW-11, SV-7, JDG-2195
+// WHY: only what hides the pressed task's row comes off; the other filters and the sort stay.
+/** @purity pure */
+export function delayDiagnosticsReportShowingRow(
+  window: DelayDiagnosticsReportWindow,
+  view: TableView,
+  taskUid: number,
+  rows: {
+    readonly report: DelayDiagnosticsReport
+    readonly schedule: Schedule
+    readonly language: DisplayLanguage
+    readonly showsTimeOfDay?: boolean
+    readonly viewTimeZone?: unknown
+  },
+): { readonly window: DelayDiagnosticsReportWindow; readonly view: TableView } | null {
+  const row = delayDiagnosticsReportRows(rows.report, rows.schedule).find((one) => one.taskUid === taskUid)
+  if (row === undefined) return null
+  const times = shownTimesIn(rows)
+  const shown = { row, cells: cellsOf(row, rows.language, times) }
+  const onTable = windowOnTable(window, 'diagnosis')
+  const word = isWordFound(shown, onTable.panel.word) ? onTable.panel.word : ''
+  const markedRow = { taskUid, pressCount: (window.markedRow?.pressCount ?? 0) + 1 }
+  return {
+    window: { ...onTable, panel: { ...onTable.panel, word }, markedRow },
+    view: { ...view, columnFilters: filtersShowing(shown, view) },
+  }
+}
+
+// see SV-7, DT-5, DT-6
+/** @purity pure */
+function filtersShowing(shown: ShownTaskGroup, view: TableView): TableView['columnFilters'] {
+  const columns = reportColumnsOf(view)
+  return view.columnFilters.flatMap((filter) => {
+    if (filteredTableRows([shown], columns, [filter], null).length > 0) return [filter]
+    const values = new Set(columns.values[filter.column]?.(shown) ?? [])
+    const kept = { ...filter, hiddenValues: filter.hiddenValues.filter((value) => !values.has(value)) }
+    return columns.dates[filter.column] !== undefined || !isWorkingFilter(kept) ? [] : [kept]
+  })
 }
 
 // see T-346, SV-7, SV-8, WB-2, WB-3, RW-1, RW-2, RW-11, RW-12, RW-14, IC-153, TV-8, UN-20
@@ -645,7 +698,7 @@ export function delayDiagnosticsReportAfterEntry(
   listed?: readonly string[] | null,
 ): DelayReportStep | null {
   const tables = rows.fixTables ?? NO_DELAY_FIX_TABLES
-  const times = shownTimesOf(rows.schedule, rows.showsTimeOfDay ?? false, rows.viewTimeZone ?? null)
+  const times = shownTimesIn(rows)
   const words = fixWordsOf(rows.schedule, rows.language, rows.report, times)
   const fixed = delayFixStepAfterEntry(window, view, entry, tables, words) ?? fixTableStepAfterEntry(window, view, entry, filterColumn, { tables, words, listed: listed ?? null })
   if (fixed !== null || delayFixValuesOf(window).table !== 'diagnosis') return fixed

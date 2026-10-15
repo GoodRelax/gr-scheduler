@@ -52,6 +52,7 @@ export interface DrawnRow {
   readonly key?: VisibilityKey
   readonly chosenEntry?: CommandItem | null
   readonly fix?: FixCell | null
+  readonly isCurrent?: boolean
 }
 
 // WHY: read off the published report view, so no further name leaves ScreenRenderer (T-064).
@@ -81,6 +82,7 @@ export type TableWindowView = Omit<SearchPanelView, 'table' | 'rows'> & {
   readonly walkCounter?: string
   readonly fixFooter?: FixFooter | null
   readonly fixTable?: 'proposals' | 'log' | null
+  readonly rowRevealed?: { readonly at: number; readonly count: number } | null
 }
 
 // see T-337, RW-5, SQ-10, DT-8, RQ-1
@@ -654,7 +656,8 @@ function fixControlOf(host: Document, fix: DrawnRow['fix'], column: string | und
 // see SJ-1, SV-17, SQ-1, SQ-5, DT-1, DT-4
 /** @purity non-pure */
 function bodyRowElement(host: Document, row: DrawnRow, columns: readonly SearchColumnView[], places: DrawnPlaces): HTMLElement {
-  const line = made(host, 'tr', row.fix?.isCurrent === true ? `outline:2px solid ${PAINT.pinned};outline-offset:-2px;` : '')
+  const isCurrent = row.fix?.isCurrent === true || row.isCurrent === true
+  const line = made(host, 'tr', isCurrent ? `outline:2px solid ${PAINT.pinned};outline-offset:-2px;` : '')
   const key = visibilityKeyOfRow(row)
   if (typeof row.key === 'number') line.setAttribute('data-uid', String(row.key))
   row.cells.forEach((text, at) => {
@@ -864,6 +867,36 @@ export function focusSearchWordIn(panel: HTMLElement): boolean {
   field.focus()
   field.select()
   return true
+}
+
+// see RW-19, RW-10
+// WHY: under the heading row, which stays on top of the scrolled rows.
+/** @purity non-pure */
+function rowScrolledIntoView(window: Element | null, at: number): void {
+  const box = window === null ? null : (tableBoxIn(window) as HTMLElement | null)
+  const line = box?.querySelectorAll('tbody tr')[at]
+  if (box == null || line === undefined) return
+  const shown = box.getBoundingClientRect()
+  const row = line.getBoundingClientRect()
+  const top = shown.top + box.clientTop + (box.querySelector('thead')?.getBoundingClientRect().height ?? 0)
+  const bottom = shown.top + box.clientTop + box.clientHeight
+  if (row.top < top) box.scrollTop -= top - row.top
+  else if (row.bottom > bottom) box.scrollTop += row.bottom - bottom
+}
+
+type PanelDraw = (panel: TableWindowView | null | undefined, isChanged: boolean, anchorsOf: () => Map<string, HTMLElement>) => void
+
+// see RW-19
+/** @purity non-pure */
+function drawnWithRowRevealed(layer: HTMLElement, draw: PanelDraw): PanelDraw {
+  let revealedCount: number | null = null
+  return (panel, isChanged, anchorsOf) => {
+    draw(panel, isChanged, anchorsOf)
+    const revealed = panel?.rowRevealed ?? null
+    if (revealed === null || revealed.count === revealedCount || panel?.shown === 'minimized') return
+    revealedCount = revealed.count
+    rowScrolledIntoView(layer.firstElementChild, revealed.at)
+  }
 }
 
 // see SV-9, SV-12, SV-13
@@ -1227,7 +1260,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
   const sizes = tableSizingKeeper(host, layer)
 
   /** @purity non-pure */
-  function draw(panel: TableWindowView | null | undefined, isChanged: boolean, anchorsOf: () => Map<string, HTMLElement>): void {
+  const draw: PanelDraw = (panel, isChanged, anchorsOf) => {
     if (isChanged) drawnKeepingFocus(host, layer, () => drawPanel(panel, anchorsOf))
   }
 
@@ -1243,7 +1276,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
     const fontPx = searchPanelFontPxOf(panel.textSizeStep, NOT_STORED_SEARCH_PANEL_FONT_SIZES)
     const sizing = sizes.sizingOf(panel, fontPx)
     // WHY: not the word: only typing changes it, and the typed field already holds it.
-    const frameKey = JSON.stringify({ ...panel, rows: [], columns: [], at: null, size: null, canvas: null, word: null })
+    const frameKey = JSON.stringify({ ...panel, rows: [], columns: [], at: null, size: null, canvas: null, word: null, rowRevealed: null })
     const tableKey = tableKeyOf(panel, fontPx, [...sizing.measured])
     const drawnPanel = layer.firstElementChild as HTMLElement | null
     const isTableKept = tableKey === tableDrawn
@@ -1258,7 +1291,7 @@ export function searchPanelPainter(host: Document, layer: HTMLElement, onWordTyp
   }
 
   return {
-    draw,
+    draw: drawnWithRowRevealed(layer, draw),
     readWord: typedWord.read,
     readFilterChanges: filterChanges.read,
     answerAt: (asked: PointAsked): ScreenPart | null =>

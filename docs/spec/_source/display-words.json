@@ -248,8 +248,8 @@
     "en": "Delay Diagnostics"
    },
    "hint": {
-    "ja": "遅延診断を行う。もう一度押すと診断の表示を終える",
-    "en": "Run the Delay Diagnostics; press again to end its display"
+    "ja": "遅延診断を行う。レポートを閉じていれば診断をやり直し、開いていれば診断の表示を終える",
+    "en": "Run the Delay Diagnostics; runs them again if the report is closed, or ends the display while it is open"
    }
   },
   {

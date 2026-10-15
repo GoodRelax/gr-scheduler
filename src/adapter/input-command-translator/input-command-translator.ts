@@ -118,7 +118,7 @@ export type {
   WheelInput,
 } from './input-source'
 export { commandFromFieldCommit } from './field-commit'
-export { screenEventFromFieldCommit, screenEventFromInput } from './screen-state-input'
+export { diagnosisRowAskedOf, screenEventFromFieldCommit, screenEventFromInput } from './screen-state-input'
 export { selectionFromInput } from './selection-input'
 export { taskGroupBandCeilingOf, zoomEntranceEndsOf } from './zoom-and-fit'
 
@@ -186,8 +186,9 @@ export interface InputContext {
   readonly focusedWindow?: WindowName | null
   readonly isFocusInPropertiesPanel?: boolean
   readonly isAgentApiEnabled?: boolean
-  // see RW-1, RW-5, RO-1, RO-6, S-451, S-545
+  // see RW-1, RW-5, RW-19, RO-1, RO-6, S-451, S-545
   readonly delayDiagnosticsReport?: { readonly shown: 'normal' | 'minimized' | 'maximized'; readonly isInFront: boolean } | null
+  readonly diagnosisMarkedTaskUids?: ReadonlySet<number>
   readonly resourceList?: { readonly shown: 'normal' | 'minimized' | 'maximized'; readonly isInFront: boolean } | null
   // WHY: the resources the Resource List lists after its word and filters; absent, every resource of the document.
   readonly listedResourceUids?: readonly number[]

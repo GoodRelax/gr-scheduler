@@ -117,6 +117,7 @@ export {
   delayDiagnosticsReportAfterFilterChange,
   delayDiagnosticsReportFileNameOf,
   delayDiagnosticsReportMarkdownOf,
+  delayDiagnosticsReportShowingRow,
   delayDiagnosticsReportWithColumnWidth,
   delayDiagnosticsReportWithFilterClosed,
   delayDiagnosticsReportWithInput,
