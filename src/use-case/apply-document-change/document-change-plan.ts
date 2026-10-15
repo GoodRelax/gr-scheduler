@@ -4,7 +4,7 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
+import { SETTINGS_CONSTANTS, type DocumentSettings } from '../../entity/document-model/document-settings/document-settings'
 import {
   advancedStamp,
   isStampMatched,
@@ -226,6 +226,42 @@ function refusalOfMoment(moment: WriteMoment, commands: readonly DocumentCommand
   return null
 }
 
+// see HM-3a, FR-004, S-125
+/** @purity pure */
+function isPastGroupDepthCap(groups: readonly TaskGroup[]): boolean {
+  const parentById = new Map(groups.map((group) => [group.id, group.parentId]))
+  return groups.some((group) => {
+    let depth = 1
+    for (let up = group.parentId; up !== null && depth <= SETTINGS_CONSTANTS.maxGroupDepth; up = parentById.get(up) ?? null) depth += 1
+    return depth > SETTINGS_CONSTANTS.maxGroupDepth
+  })
+}
+
+// see WS-3, HM-3a, QN-16, UN-21
+// WHY: a move past S-125 inside one write is held to S-125 at the write's end, so a lift bundle lands whole.
+/** @purity pure */
+function editedInTurn(input: PlanInput): { readonly held: Document; readonly refusals: readonly Refusal[]; readonly recountedTaskUids: ReadonlySet<number> } {
+  let held = input.document
+  const refusals: Refusal[] = []
+  const pastDepth: Refusal[] = []
+  const recountedTaskUids = new Set<number>()
+  for (const command of input.commands) {
+    let result = editDocument(held, command, input.settingsLimits, input.defaultTaskGroupName)
+    if (!result.ok && command.kind === 'moveTaskGroup' && result.refusals.every((one) => one.rule === 'HM-3a')) {
+      pastDepth.push(...result.refusals)
+      result = editDocument(held, command, { ...input.settingsLimits, groupDepthCap: Infinity }, input.defaultTaskGroupName)
+    }
+    if (!result.ok) {
+      refusals.push(...result.refusals)
+      continue
+    }
+    held = result.document
+    for (const uid of result.report.recountedTaskUids) recountedTaskUids.add(uid)
+  }
+  if (pastDepth.length > 0 && isPastGroupDepthCap(held.schedule.taskGroups)) refusals.push(...pastDepth)
+  return { held, refusals, recountedTaskUids }
+}
+
 // see T-067, AG-3, AG-10
 /** @purity pure */
 export function planDocumentChange(input: PlanInput): ChangePlan {
@@ -235,18 +271,7 @@ export function planDocumentChange(input: PlanInput): ChangePlan {
   const untimely = refusalOfMoment(input.moment, input.commands)
   if (untimely !== null) return { ok: false, refusal: untimely }
 
-  let held = input.document
-  const refusals: Refusal[] = []
-  const recountedTaskUids = new Set<number>()
-  for (const command of input.commands) {
-    const result = editDocument(held, command, input.settingsLimits, input.defaultTaskGroupName)
-    if (!result.ok) {
-      refusals.push(...result.refusals)
-      continue
-    }
-    held = result.document
-    for (const uid of result.report.recountedTaskUids) recountedTaskUids.add(uid)
-  }
+  const { held, refusals, recountedTaskUids } = editedInTurn(input)
   if (refusals.length > 0) {
     return { ok: false, refusal: { step: 'WS-3', reason: 'refused', refusals } }
   }

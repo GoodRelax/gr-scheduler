@@ -44,7 +44,7 @@ export type FileFlowFixBundle = readonly { readonly fixRow: string }[]
 // see NT-7, U-55
 export interface FileFlowQuestion {
   readonly manner: string
-  readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5' | 'QN-10' | 'QN-11' | 'QN-14' | 'QN-15'
+  readonly question: 'QN-1' | 'QN-2' | 'QN-3' | 'QN-4' | 'QN-5' | 'QN-10' | 'QN-11' | 'QN-14' | 'QN-15' | 'QN-16'
   readonly items: readonly { readonly name: string | null; readonly isShownOnAnotherTaskGroup: boolean }[]
 }
 

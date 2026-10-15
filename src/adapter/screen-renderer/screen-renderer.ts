@@ -213,6 +213,8 @@ export interface TaskGroupDropCue {
   readonly lineY: number
   readonly lineIndentPx: number
   readonly parentTaskGroupId: string | null
+  // see HF-15, QN-16
+  readonly isPastDepthCap?: boolean
 }
 
 // see HF-15, S-599
@@ -754,7 +756,12 @@ export interface ScreenViewReadings {
   readonly isRecordingInteractions?: boolean
   readonly taskGroupGrabbedAt?: {
     readonly taskGroupId: string
-    readonly landing: { readonly gapY: number; readonly lineIndentPx: number; readonly parentId: string | null } | null
+    readonly landing: {
+      readonly gapY: number
+      readonly lineIndentPx: number
+      readonly parentId: string | null
+      readonly isPastDepthCap?: boolean
+    } | null
   } | null
   // see FR-085, T-293
   readonly selectedTaskGroupIds: readonly string[]
