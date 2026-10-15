@@ -80,8 +80,7 @@ body.dragging, body.dragging * { cursor: grabbing !important; }
 .name { overflow: hidden; text-overflow: ellipsis; padding-left: 2px; }
 .count { color: var(--muted); font-size: 12px; margin-left: 6px; }
 .row.held { opacity: 0.35; }
-.row.parent-mark { background: var(--strong-bg); box-shadow: inset 0 0 0 1px var(--strong); }
-.row.parent-mark.into-collapsed { box-shadow: inset 0 0 0 2px var(--strong); }
+.row.parent-mark { background: var(--strong-bg); box-shadow: inset 0 0 0 var(--frame, 3px) var(--strong); }
 .tag {
   margin-left: auto; margin-right: 6px; font-size: 11px; line-height: 16px; padding: 0 5px;
   border-radius: 8px; background: var(--strong); color: var(--bg);
@@ -96,8 +95,12 @@ body.dragging, body.dragging * { cursor: grabbing !important; }
   content: ""; position: absolute; left: -5px; top: -7px; width: 8px; height: 8px;
   border: 2px solid var(--strong); border-radius: 50%; background: var(--panel-bg);
 }
+#line.over { border-top-style: dashed; }
+#ask { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgb(0 0 0 / 0.25); z-index: 10; }
+#ask .card { background: var(--bg); color: var(--fg); border: 1px solid var(--rule); border-radius: 8px; padding: 16px; max-width: 420px; font-size: 15px; line-height: 1.6; box-shadow: 0 6px 24px rgb(0 0 0 / 0.25); }
+#ask .btns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
 #ghost {
-  position: absolute; display: none; pointer-events: none; z-index: 4; height: 28px; line-height: 26px;
+  position: fixed; display: none; pointer-events: none; z-index: 4; height: 28px; line-height: 26px;
   font-size: 14px; padding: 0 8px 0 4px; border: 1px solid var(--strong); border-radius: 4px;
   background: var(--bg); box-shadow: 0 2px 8px rgb(0 0 0 / 0.2); white-space: nowrap;
 }
@@ -142,6 +145,16 @@ kbd { font: 13px ui-monospace, monospace; border: 1px solid var(--rule); border-
   </div>
   <div class="side">
     <div class="box">
+      <h2 data-t="qTag"></h2>
+      <label class="opt"><input type="radio" autocomplete="off" name="tag" value="none" checked> <span data-t="tagA"></span><small data-t="tagAd"></small></label>
+      <label class="opt"><input type="radio" autocomplete="off" name="tag" value="with"> <span data-t="tagB"></span><small data-t="tagBd"></small></label>
+    </div>
+    <div class="box">
+      <h2 data-t="qFrame"></h2>
+      <label class="opt"><input type="radio" autocomplete="off" name="frame" value="3" checked> <span data-t="frameA"></span><small data-t="frameAd"></small></label>
+      <label class="opt"><input type="radio" autocomplete="off" name="frame" value="1"> <span data-t="frameB"></span><small data-t="frameBd"></small></label>
+    </div>
+    <div class="box" hidden>
       <h2 data-t="q2"></h2>
       <label class="opt"><input type="radio" autocomplete="off" name="q2" value="a"> <span data-t="optA"></span><small data-t="optAd"></small></label>
       <label class="opt"><input type="radio" autocomplete="off" name="q2" value="b"> <span data-t="optB"></span><small data-t="optBd"></small></label>
@@ -158,6 +171,7 @@ kbd { font: 13px ui-monospace, monospace; border: 1px solid var(--rule); border-
     </div>
   </div>
 </main>
+<div id="ask"><div class="card"><div id="askText"></div><div class="btns"><button id="askYes">Yes</button><button id="askNo">No</button></div></div></div>
 <script>
 "use strict";
 
@@ -170,6 +184,17 @@ const WORDS = {
     btnUndo: "元に戻す",
     btnRedo: "やり直す",
     btnReset: "最初に戻す",
+    qn16: "タスクグループは {maxGroupDepth} 段までしか入れ子にできません。深すぎる配下を {maxGroupDepth} 段目へ引き上げて、移動しますか？",
+    qTag: "CR-772 の問い 1: 畳んだ親へ入れるとき、親の行に「中へ」のバッジ（札）を添えるか",
+    tagA: "A 添えない（推奨・いまの仮置き）",
+    tagAd: "親の枠と、差し込み線の字下げだけで「中へ入る」を示す。",
+    tagB: "B 添える",
+    tagBd: "親の行の右端に、地を塗った小さな語「中へ」（英 into）を出す。",
+    qFrame: "CR-772 の問い 2: 親の枠の太さ",
+    frameA: "A 3px（推奨・いまの仮置き）",
+    frameAd: "差し込み線と同じ太さ（S-213）。新しい設定の行を作らない。",
+    frameB: "B 1px",
+    frameBd: "見本の最初の版の太さ。設定の行を 1 つ足す。",
     q2: "質問 2: 折りたたまれたタスクグループの中へ落とせるか",
     optA: "a 中へは入れない",
     optAd: "畳んだ Y の下の隙間では、Y の子の段を選べない。子にするには先に Y を開く。",
@@ -181,9 +206,9 @@ const WORDS = {
     try: "試すこと",
     steps: [
       "掴み代 ⋮⋮ をつかんで上下に動かす —— 差し込み線が隙間に出る。左右に動かすと、線の始まり（段）が 16px 刻みで変わる。1 回で位置と段の両方が決まる。",
-      "[最も浅い段を 1 階層展開する] を押す（ログと同じ、最上段だけの畳んだ画面）。「予備」を「設計」の下へ運び、右へ引く —— a / b / c を切り替えて違いを見る。",
+      "[最も浅い段を 1 階層展開する] を押す（ログと同じ、最上段だけの畳んだ画面）。「予備」を掴み、「設計」の下へ運んで右へ引いたまま止める —— 右の問い 1 の A / B、問い 2 の A / B を切り替えて見比べる。",
       "「保守」を掴んでいちばん上の「企画」より上へ運ぶ —— 最上段の先頭に置ける。2 段目の「データ」を掴んで同じ所へ運び、左へ引くと、1 回で最上段の先頭になる。",
-      "[すべて開く] のあと、「画面」（自分を含めて 4 段の深さがある）を「移行」の下へ運んで右へ引く —— 段 2 で線が黙って止まる（段の上限 5）。「形式」と「移行」のあいだでは線が出ず、離しても何も起きない。",
+      "「企画」と「設計」を畳んだまま（[最も浅い段を 1 階層展開する]）、「設計」（自分を含めて 5 段）を掴み、「企画」の真下で右へ引く —— 差し込み線が破線になる。離すと「タスクグループは 5 段までしか…移動しますか？」と問う。Yes で「細目」が「並び」と同じ段へ引き上がり、「設計」一式が「企画」の配下に入る。No なら何も変わらない。",
       "[すべて開く] のあと、いちばん下の「臨時」を掴んで、パネルの上の縁まで運ぶ —— パネルが自動で送られ、画面の外の場所まで運べる。",
       "掴んだまま Esc で取り消し。離したあとは [元に戻す] で 1 手ずつ戻る。",
     ],
@@ -209,6 +234,17 @@ const WORDS = {
     btnUndo: "Undo",
     btnRedo: "Redo",
     btnReset: "Start over",
+    qn16: "Task groups nest at most {maxGroupDepth} levels. Lift the too-deep task groups to level {maxGroupDepth} and finish the move?",
+    qTag: "CR-772 question 1: when dropping into a collapsed parent, add an 'into' badge to the parent row?",
+    tagA: "A No badge (recommended, current placeholder)",
+    tagAd: "The parent frame and the indent of the insertion line alone say 'into'.",
+    tagB: "B Add the badge",
+    tagBd: "A small filled word 'into' (ja 中へ) at the right end of the parent row.",
+    qFrame: "CR-772 question 2: width of the parent frame",
+    frameA: "A 3px (recommended, current placeholder)",
+    frameAd: "Same width as the insertion line (S-213). No new settings row.",
+    frameB: "B 1px",
+    frameBd: "The width of the first sample. Adds one settings row.",
     q2: "Question 2: can a task group be dropped into a collapsed one?",
     optA: "a Not into it",
     optAd: "In the gap under a collapsed Y, Y's child depth is not offered. Open Y first to nest under it.",
@@ -220,9 +256,9 @@ const WORDS = {
     try: "Try this",
     steps: [
       "Grab a grip ⋮⋮ and move up or down: an insertion line shows the gap. Move left or right: the line's start (the depth) moves in 16px steps. One drag sets both position and depth.",
-      "Press [Show Top Level Only] (the collapsed top-level view from the log). Carry 'Reserve' to below 'Design' and pull right; switch a / b / c to compare.",
+      "Press [Show Top Level Only] (the collapsed top-level view from the log). Grab 'Reserve', carry it below 'Design', pull right and hold; switch question 1 A / B and question 2 A / B to compare.",
       "Grab 'Maintenance' and carry it above 'Plan' at the very top: it lands first at the top level. Grab the second-level 'Data', carry it to the same place and pull left: one drag makes it first at the top level.",
-      "After [Expand all], carry 'Screens' (four levels deep counting itself) below 'Migration' and pull right: the line stops at depth 2 without a word (depth cap 5). Between 'Format' and 'Migration' no line shows and a drop does nothing.",
+      "With 'Plan' and 'Design' collapsed ([Show Top Level Only]), grab 'Design' (five levels deep counting itself) and pull right just below 'Plan': the line turns dashed. Drop it and the question appears. Yes lifts 'Details' to the level of 'Order' and puts the whole of 'Design' under 'Plan'; No changes nothing.",
       "After [Expand all], grab 'Ad hoc' at the bottom and carry it to the panel's top edge: the panel scrolls by itself, so places off screen can be reached.",
       "Esc while holding cancels. After a drop, [Undo] goes back one move at a time.",
     ],
@@ -390,11 +426,12 @@ function landingAt(yContent, xClient) {
   let stoppedByCollapse = false;
   if (uCollapsed && mode !== "c") { maxD = U.depth; stoppedByCollapse = true; }
   const h = height(drag.node);
-  const capMax = MAX_DEPTH - h + 1;
-  if (maxD > capMax) maxD = capMax;
+  // CR-774: only the held group itself is capped; a depth whose subtree goes too deep is offered and asked on drop.
+  if (maxD > MAX_DEPTH) maxD = MAX_DEPTH;
   const want = drag.depth0 + Math.round((xClient - drag.x0) / INDENT);
   const bad = maxD < minD;
   let d = Math.max(minD, Math.min(maxD, want));
+  const overCap = d + h - 1 > MAX_DEPTH;
   const pulledIntoCollapsed = stoppedByCollapse && want > maxD;
 
   // parent and order
@@ -413,11 +450,15 @@ function landingAt(yContent, xClient) {
     }
   }
   const gapY = U ? U.top + ROW_H : 0;
-  return { U, L, minD, maxD, d, bad, parent, order, intoCollapsed, gapY, pulledIntoCollapsed, uCollapsed };
+  return { U, L, minD, maxD, d, bad, overCap, parent, order, intoCollapsed, gapY, pulledIntoCollapsed, uCollapsed };
 }
 function without(list) { return list.filter((c) => c.id !== drag.node.id); }
 
-function currentMode() { return document.querySelector("input[name=q2]:checked").value; }
+// Question 2 was ruled c (JDG-2391); the a / b code stays for the record.
+function currentMode() { return "c"; }
+function applyFrame() {
+  panel.style.setProperty("--frame", document.querySelector("input[name=frame]:checked").value + "px");
+}
 
 // ---- pointer handling ----------------------------------------------------
 let drag = null;   // {node, x0, y0, depth0, active, lastX, lastY, landing, opened:[], hoverId, hoverAt}
@@ -486,14 +527,14 @@ function showLanding() {
   drawn.forEach((r) => { r.el.classList.remove("parent-mark", "into-collapsed"); r.el.querySelector(".tag")?.remove(); });
   // WHY: a gap with no allowed depth draws no line, so a drop there visibly lands nowhere.
   lineEl.style.display = L.bad ? "none" : "block";
+  lineEl.classList.toggle("over", L.overCap);
   lineEl.style.top = (L.gapY - 1) + "px";
   lineEl.style.left = (4 + INDENT * (L.d - 1) + 4) + "px";
   if (!L.bad && L.parent !== root) {
     const pr = drawn.find((r) => r.node.id === L.parent.id);
     if (pr) {
       pr.el.classList.add("parent-mark");
-      if (L.intoCollapsed) {
-        pr.el.classList.add("into-collapsed");
+      if (L.intoCollapsed && document.querySelector("input[name=tag]:checked").value === "with") {
         const tag = document.createElement("span");
         tag.className = "tag"; tag.textContent = w().into;
         pr.el.append(tag);
@@ -502,8 +543,10 @@ function showLanding() {
   }
   ghostEl.style.display = "block";
   // WHY: offset below-right of the pointer so the names it passes over stay readable.
-  ghostEl.style.top = (contentY() + 8) + "px";
-  ghostEl.style.left = (4 + INDENT * (L.d - 1) + 40) + "px";
+  // WHY: fixed to the viewport, so the copy never stretches the panel's scroll height while it auto-scrolls.
+  const panelRect = panel.getBoundingClientRect();
+  ghostEl.style.top = (drag.lastY + 8) + "px";
+  ghostEl.style.left = (panelRect.left + 4 + INDENT * (L.d - 1) + 40) + "px";
   const n = countUnder(drag.node);
   ghostEl.textContent = "⋮⋮ " + nameOf(drag.node) + (n > 0 ? `  +${n}` : "");
   writeReadout(L);
@@ -541,7 +584,37 @@ function endDrag() {
   lineEl.style.display = "none";
   ghostEl.style.display = "none";
 }
-function onUp() {
+// QN-16 (CR-774), the wording the user settled on 2026-10-16.
+function askLift() {
+  const box = document.getElementById("ask");
+  document.getElementById("askText").textContent = w().qn16.replaceAll("{maxGroupDepth}", String(MAX_DEPTH));
+  box.style.display = "flex";
+  return new Promise((resolve) => {
+    const done = (yes) => { box.style.display = "none"; resolve(yes); };
+    document.getElementById("askYes").onclick = () => done(true);
+    document.getElementById("askNo").onclick = () => done(false);
+  });
+}
+function depthOf(node) { let d = 0, x = node; while (x && x !== root) { d++; x = findParent(x.id); } return d; }
+// Lift every group deeper than the cap to the cap: it becomes a child of its ancestor one above the cap,
+// placed after its ancestor at the cap (after earlier lifted ones), so tree order is kept.
+function liftTooDeep(moved) {
+  const lastAfter = new Map();
+  for (;;) {
+    let found = null;
+    (function walk(x) { for (const c of x.children) { if (found) return; if (depthOf(c) > MAX_DEPTH) { found = c; return; } walk(c); } })(moved);
+    if (!found) return;
+    let anc = findParent(found.id);
+    while (depthOf(anc) > MAX_DEPTH) anc = findParent(anc.id);
+    const keeper = findParent(anc.id);
+    const from = findParent(found.id);
+    from.children.splice(from.children.indexOf(found), 1);
+    const after = lastAfter.get(anc.id) || anc;
+    keeper.children.splice(keeper.children.indexOf(after) + 1, 0, found);
+    lastAfter.set(anc.id, found);
+  }
+}
+async function onUp() {
   if (!drag) return;
   const d = drag;
   endDrag();
@@ -558,12 +631,16 @@ function onUp() {
   if (sameSpot && d.opened.length === 0) {
     drag = null; render(); setNotice(t.notMoved, ""); readoutEl.innerHTML = ""; return;
   }
+  if (L.overCap && !(await askLift())) {
+    drag = null; render(); setNotice(t.cancelled, ""); readoutEl.innerHTML = idleReadout(); return;
+  }
   // one drag = one undo step (opening under option b is part of it)
   const snapshot = snapshotWith(d.opened);
   if (!sameSpot) {
     oldParent.children.splice(oldOrder, 1);
     L.parent.children.splice(L.order, 0, d.node);
   }
+  if (L.overCap) liftTooDeep(d.node);
   undoStack.push(snapshot); redoStack = [];
   drag = null;
   render();
@@ -611,6 +688,8 @@ document.getElementById("btnTop").onclick = () => { forEachNode((n) => { n.colla
 document.getElementById("btnAll").onclick = () => { forEachNode((n) => { n.collapsed = false; }); render(); };
 // WHY: a wheel turn while holding scrolls the panel; the landing must follow the new rows under the pointer.
 panel.addEventListener("scroll", () => { if (drag && drag.active) showLanding(); });
+document.querySelectorAll("input[name=tag], input[name=frame]").forEach((r) => r.addEventListener("change", () => { applyFrame(); if (drag && drag.active) showLanding(); }));
+applyFrame();
 document.querySelectorAll("input[name=q2]").forEach((r) => r.addEventListener("change", () => { if (drag && drag.active) showLanding(); }));
 document.getElementById("lang").onclick = () => {
   lang = lang === "ja" ? "en" : "ja";

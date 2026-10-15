@@ -4787,6 +4787,13 @@
    }
   },
   {
+   "rowId": "QN-16",
+   "text": {
+    "ja": "タスクグループは {maxGroupDepth} 段までしか入れ子にできません。深すぎる配下を {maxGroupDepth} 段目へ引き上げて、移動しますか？",
+    "en": "Task groups nest at most {maxGroupDepth} levels. Lift the too-deep task groups to level {maxGroupDepth} and finish the move?"
+   }
+  },
+  {
    "rowId": "QN-8",
    "text": {
     "ja": "この操作を続けますか？ 取り消しで戻せない変更が起きます",
