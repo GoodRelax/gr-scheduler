@@ -6,9 +6,9 @@ import type {
   PointerInput,
   PointerPhase,
 } from '../../src/adapter/input-command-translator/input-command-translator'
-import type { ScreenPart, ScreenSurface, ScreenView, ScreenWiring } from '../../src/adapter/screen-renderer/screen-renderer'
+import type { ScreenPart, ScreenSurface, ScreenView } from '../../src/adapter/screen-renderer/screen-renderer'
 import type { Document } from '../../src/entity/document-model/document/document'
-import { frameLoop, type FrameEnvironment, type FrameLoop } from '../../src/framework/single-html-shell/frame-loop'
+import { frameLoop, type FrameEnvironment, type FrameLoop, type ScreenWiring } from '../../src/framework/single-html-shell/frame-loop'
 import { bare, specTable } from './spec-table'
 import { taskGroupDocument } from '../unit/cr-541-stage'
 

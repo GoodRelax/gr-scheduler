@@ -3,7 +3,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { numberIn, rowOf } from '../unit/cr-541-stage'
-import { COUNT, idOf, key, longDocument, shell, wheel, type Shell } from './cr-772-shell-stage'
+import { COUNT, idOf, key, shell, wheel, type Shell } from './cr-772-shell-stage'
 
 const S_208 = numberIn(rowOf('T-206', 'S-208').by['既定'] ?? '')
 const S_597 = numberIn(rowOf('T-206', 'S-597').by['既定'] ?? '')
