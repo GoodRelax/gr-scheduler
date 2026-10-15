@@ -455,9 +455,6 @@ const ENTER_KEY = 'Enter'
 
 const GUIDE_CURSOR_NONE = 'none'
 
-// TRAP: not generated; a change to ED-1 of table T-229 must be copied here by hand.
-export const EDITED_BY_SCREEN = 'user'
-
 const SCREEN_LANGUAGE_ENTRY: IconId = 'IC-21'
 const HELP_LANGUAGE_ENTRY: IconId = 'IC-128'
 const MILESTONE_LIST_ENTRY: IconId = 'IC-50'
@@ -4198,6 +4195,7 @@ export function frameLoop(
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
+//   docs/spec/01-04-requirements.md (table T-229)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 const NOT_STORED_PROPERTIES_PANEL_SIZES: {
@@ -4235,4 +4233,7 @@ const NOT_STORED_WATERMARK_NAME: {
 } = {
   'S-99a': 'user',
 }
+
+// see T-229, ED-1
+export const EDITED_BY_SCREEN = 'user'
 // </generated>

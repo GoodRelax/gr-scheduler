@@ -29,11 +29,11 @@ import { SETTINGS_CONSTANTS } from '../../src/entity/document-model/document-set
 
 
 const T_024_FILE_ROWS = [
-  { id: 'IO-1', form: 'mspdi', isSaved: false, extension: '.xml' },
-  { id: 'IO-2', form: 'grsJson', isSaved: true, extension: '.json' },
-  { id: 'IO-3', form: 'svg', isSaved: false, extension: '.svg' },
-  { id: 'IO-4', form: 'png', isSaved: false, extension: '.png' },
-  { id: 'IO-7', form: 'singleHtml', isSaved: false, extension: '.html' },
+  { id: 'IO-1', form: 'IO-1', isSaved: false, extension: '.xml' },
+  { id: 'IO-2', form: 'IO-2', isSaved: true, extension: '.json' },
+  { id: 'IO-3', form: 'IO-3', isSaved: false, extension: '.svg' },
+  { id: 'IO-4', form: 'IO-4', isSaved: false, extension: '.png' },
+  { id: 'IO-7', form: 'IO-7', isSaved: false, extension: '.html' },
 ] as const satisfies readonly {
   readonly id: string
   readonly form: SaveFileForm
@@ -87,11 +87,11 @@ const EVERY_GATEWAY_REASON: Readonly<Record<DocumentFileFaultReason, true>> = {
 }
 
 const EVERY_SAVE_FORM: Readonly<Record<SaveFileForm, true>> = {
-  grsJson: true,
-  mspdi: true,
-  svg: true,
-  png: true,
-  singleHtml: true,
+  'IO-2': true,
+  'IO-1': true,
+  'IO-3': true,
+  'IO-4': true,
+  'IO-7': true,
 }
 
 const storeReasons = Object.keys(EVERY_STORE_REASON) as readonly FileStoreFaultReason[]
@@ -438,7 +438,7 @@ describe('FR-023 -- the byte count is this unit contribution, and the ceiling is
 describe('saveDocumentFile -- one entry, with the form as a field (FR-096)', () => {
   it('writes over the opened file through the member that names it (FR-060)', async () => {
     const stand = storeThat({ overwrite: writtenTo({ kind: 'writable', fileName: 'plan-a.json' }) })
-    const state = await saved(stand.store, overwriteRequest('grsJson', { text: 'A' }))
+    const state = await saved(stand.store, overwriteRequest('IO-2', { text: 'A' }))
     expect(stand.calls.map((call) => call.member)).toEqual(['overwriteOpenedFile'])
     expect(argumentOf(stand.calls, 'overwriteOpenedFile')).toEqual(bytesOf([0x41]))
     expect(state).toEqual({ kind: 'writable', fileName: 'plan-a.json' })
@@ -446,7 +446,7 @@ describe('saveDocumentFile -- one entry, with the form as a field (FR-096)', () 
 
   it('writes to a chosen file through the member that names it (FR-096)', async () => {
     const stand = storeThat({ chosen: writtenTo({ kind: 'writable', fileName: 'chosen.json' }) })
-    await saved(stand.store, chosenRequest('grsJson', { text: 'A' }, 'suggested.json'))
+    await saved(stand.store, chosenRequest('IO-2', { text: 'A' }, 'suggested.json'))
     expect(stand.calls.map((call) => call.member)).toEqual(['writeChosenFile'])
     const write = argumentOf(stand.calls, 'writeChosenFile') as ChosenFileWrite
     expect(write.bytes).toEqual(bytesOf([0x41]))
@@ -470,7 +470,7 @@ describe('saveDocumentFile -- one entry, with the form as a field (FR-096)', () 
   it('hands the suggested name over untouched, empty one included', async () => {
     for (const suggested of ['', 'a', 'plan a.json', 'plan.a.b', '\u65e5\u7a0b']) {
       const stand = storeThat({ chosen: writtenTo({ kind: 'none' }) })
-      await saved(stand.store, chosenRequest('grsJson', { text: 'A' }, suggested))
+      await saved(stand.store, chosenRequest('IO-2', { text: 'A' }, suggested))
       const write = argumentOf(stand.calls, 'writeChosenFile') as ChosenFileWrite
       expect(write.suggestedFileName, JSON.stringify(suggested)).toBe(suggested)
     }
@@ -479,7 +479,7 @@ describe('saveDocumentFile -- one entry, with the form as a field (FR-096)', () 
   it('reports the state the store gave (one case walks IF-3 three answers)', async () => {
     for (const state of IF_3_OPENED_STATES) {
       const stand = storeThat({ overwrite: writtenTo(state) })
-      expect(await saved(stand.store, overwriteRequest('grsJson', { text: 'A' })), state.kind).toEqual(
+      expect(await saved(stand.store, overwriteRequest('IO-2', { text: 'A' })), state.kind).toEqual(
         state,
       )
     }
@@ -487,7 +487,7 @@ describe('saveDocumentFile -- one entry, with the form as a field (FR-096)', () 
 
   it('writes an empty document as no bytes at all', async () => {
     const stand = storeThat({ overwrite: writtenTo({ kind: 'writable', fileName: 'a' }) })
-    await saved(stand.store, overwriteRequest('grsJson', { text: '' }))
+    await saved(stand.store, overwriteRequest('IO-2', { text: '' }))
     expect(argumentOf(stand.calls, 'overwriteOpenedFile')).toEqual(bytesOf([]))
   })
 
@@ -512,7 +512,7 @@ describe('CN-5 -- text becomes bytes by one encoding, and never gains a mark', (
   it('encodes every sequence length of that encoding (one case walks the roster)', async () => {
     for (const row of CN_5_UTF8) {
       const stand = storeThat({ overwrite: writtenTo({ kind: 'writable', fileName: 'a' }) })
-      await saved(stand.store, overwriteRequest('grsJson', { text: row.text }))
+      await saved(stand.store, overwriteRequest('IO-2', { text: row.text }))
       expect(argumentOf(stand.calls, 'overwriteOpenedFile'), row.why).toEqual(bytesOf(row.bytes))
     }
   })
@@ -544,14 +544,14 @@ describe('CN-5 -- text becomes bytes by one encoding, and never gains a mark', (
   it('leaves bytes alone -- a picture is not decoded and encoded again', async () => {
     const picture = bytesOf([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0xff, 0x00])
     const stand = storeThat({ chosen: writtenTo({ kind: 'none' }) })
-    await saved(stand.store, chosenRequest('png', { bytes: picture }, 'a.png'))
+    await saved(stand.store, chosenRequest('IO-4', { bytes: picture }, 'a.png'))
     const write = argumentOf(stand.calls, 'writeChosenFile') as ChosenFileWrite
     expect(write.bytes).toEqual(picture)
   })
 
   it('writes bytes of length zero when handed an empty byte string', async () => {
     const stand = storeThat({ chosen: writtenTo({ kind: 'none' }) })
-    await saved(stand.store, chosenRequest('png', { bytes: bytesOf([]) }, 'a.png'))
+    await saved(stand.store, chosenRequest('IO-4', { bytes: bytesOf([]) }, 'a.png'))
     const write = argumentOf(stand.calls, 'writeChosenFile') as ChosenFileWrite
     expect(write.bytes.byteLength).toBe(0)
   })
@@ -559,7 +559,7 @@ describe('CN-5 -- text becomes bytes by one encoding, and never gains a mark', (
   it('carries text back out as the same text it would read in', async () => {
     const text = '{"name":"\u65e5\u7a0b \u2014 \u00dcnicode"}'
     const stand = storeThat({ overwrite: writtenTo({ kind: 'none' }) })
-    await saved(stand.store, overwriteRequest('grsJson', { text }))
+    await saved(stand.store, overwriteRequest('IO-2', { text }))
     const written = argumentOf(stand.calls, 'overwriteOpenedFile') as Uint8Array
     const back = await opened(storeThat({ reading: readingOf(written, 'a') }).store)
     expect(back.text).toBe(text)
@@ -611,12 +611,12 @@ describe('FR-028 / AG-8 -- failures come back as values, and nothing throws', ()
       const fault: FileStoreFault = { reason, what: `store: ${reason}` }
       const overwriting = storeThat({ overwrite: { ok: false, fault } })
       expect(
-        (await refusedSave(overwriting.store, overwriteRequest('grsJson', { text: 'A' }))).reason,
+        (await refusedSave(overwriting.store, overwriteRequest('IO-2', { text: 'A' }))).reason,
         reason,
       ).toBe(reason)
       const choosing = storeThat({ chosen: { ok: false, fault } })
       expect(
-        (await refusedSave(choosing.store, chosenRequest('grsJson', { text: 'A' }, 'a'))).reason,
+        (await refusedSave(choosing.store, chosenRequest('IO-2', { text: 'A' }, 'a'))).reason,
         reason,
       ).toBe(reason)
     }
@@ -626,7 +626,7 @@ describe('FR-028 / AG-8 -- failures come back as values, and nothing throws', ()
     const stand = storeThat({
       overwrite: { ok: false, fault: { reason: 'noOpenedFile', what: 'nothing is open' } },
     })
-    const fault = await refusedSave(stand.store, overwriteRequest('grsJson', { text: 'A' }))
+    const fault = await refusedSave(stand.store, overwriteRequest('IO-2', { text: 'A' }))
     expect(fault.reason).toBe('noOpenedFile')
     expect(stand.calls.map((call) => call.member)).toEqual(['overwriteOpenedFile'])
   })
@@ -638,8 +638,8 @@ describe('FR-028 / AG-8 -- failures come back as values, and nothing throws', ()
     const broken = storeThat({
       overwrite: { ok: false, fault: { reason: 'unavailable', what: 'the disk said no' } },
     })
-    const lostFault = await refusedSave(lost.store, overwriteRequest('grsJson', { text: 'A' }))
-    const brokenFault = await refusedSave(broken.store, overwriteRequest('grsJson', { text: 'A' }))
+    const lostFault = await refusedSave(lost.store, overwriteRequest('IO-2', { text: 'A' }))
+    const brokenFault = await refusedSave(broken.store, overwriteRequest('IO-2', { text: 'A' }))
     expect(lostFault.reason).toBe('permissionLost')
     expect(brokenFault.reason).toBe('unavailable')
     expect(lostFault.reason).not.toBe(brokenFault.reason)
@@ -651,7 +651,7 @@ describe('FR-028 / AG-8 -- failures come back as values, and nothing throws', ()
     )
     const writing = await refusedSave(
       storeThat({ chosen: { ok: false, fault: { reason: 'canceled', what: 'dismissed' } } }).store,
-      chosenRequest('grsJson', { text: 'A' }, 'a'),
+      chosenRequest('IO-2', { text: 'A' }, 'a'),
     )
     expect(reading.reason).toBe('canceled')
     expect(writing.reason).toBe('canceled')
@@ -661,7 +661,7 @@ describe('FR-028 / AG-8 -- failures come back as values, and nothing throws', ()
     const stand = storeThat({
       overwrite: { ok: false, fault: { reason: 'unavailable', what: 'opened off the disk' } },
     })
-    const result = await saveDocumentFile(stand.store, overwriteRequest('grsJson', { text: 'A' }))
+    const result = await saveDocumentFile(stand.store, overwriteRequest('IO-2', { text: 'A' }))
     expect(result.ok).toBe(false)
     expect(result).not.toHaveProperty('openedFile')
   })
@@ -675,7 +675,7 @@ describe('FR-028 / AG-8 -- failures come back as values, and nothing throws', ()
       await expect(
         saveDocumentFile(
           storeThat({ overwrite: { ok: false, fault } }).store,
-          overwriteRequest('grsJson', { text: 'A' }),
+          overwriteRequest('IO-2', { text: 'A' }),
         ),
       ).resolves.toHaveProperty('ok', false)
     }
@@ -709,14 +709,14 @@ describe('NT-1 / NT-3a -- every refusal carries a reason and words behind it', (
         why: `overwrite refused with ${reason}`,
         fault: await refusedSave(
           storeThat({ overwrite: { ok: false, fault } }).store,
-          overwriteRequest('grsJson', { text: 'A' }),
+          overwriteRequest('IO-2', { text: 'A' }),
         ),
       })
       faults.push({
         why: `chosen write refused with ${reason}`,
         fault: await refusedSave(
           storeThat({ chosen: { ok: false, fault } }).store,
-          chosenRequest('grsJson', { text: 'A' }, 'a'),
+          chosenRequest('IO-2', { text: 'A' }, 'a'),
         ),
       })
     }
@@ -787,7 +787,7 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
   it('leaves the request and its bytes as it found them', async () => {
     const bytes = bytesOf([0x89, 0x50, 0x4e, 0x47])
     const before = Uint8Array.from(bytes)
-    const request = chosenRequest('png', { bytes }, 'a.png')
+    const request = chosenRequest('IO-4', { bytes }, 'a.png')
     const frozen = { ...request, content: structuredClone(request.content) }
     await saved(storeThat({ chosen: writtenTo({ kind: 'none' }) }).store, request)
     expect(bytes).toEqual(before)
@@ -796,23 +796,23 @@ describe('purity -- saveDocumentFile keeps no current value of its own (LY-5)', 
 
   it('remembers nothing from one call to the next', async () => {
     const first = storeThat({ chosen: writtenTo({ kind: 'writable', fileName: 'chosen.json' }) })
-    await saved(first.store, chosenRequest('grsJson', { text: 'A' }, 'chosen.json'))
+    await saved(first.store, chosenRequest('IO-2', { text: 'A' }, 'chosen.json'))
 
     const second = storeThat({
       overwrite: { ok: false, fault: { reason: 'noOpenedFile', what: 'nothing is open' } },
     })
-    const fault = await refusedSave(second.store, overwriteRequest('grsJson', { text: 'A' }))
+    const fault = await refusedSave(second.store, overwriteRequest('IO-2', { text: 'A' }))
     expect(fault.reason).toBe('noOpenedFile')
   })
 
   it('asks the store, never a remembered answer, for what may be overwritten', async () => {
     const writable = storeThat({ overwrite: writtenTo({ kind: 'writable', fileName: 'a' }) })
     const lost = storeThat({ overwrite: writtenTo({ kind: 'permissionLost', fileName: 'a' }) })
-    expect(await saved(writable.store, overwriteRequest('grsJson', { text: 'A' }))).toEqual({
+    expect(await saved(writable.store, overwriteRequest('IO-2', { text: 'A' }))).toEqual({
       kind: 'writable',
       fileName: 'a',
     })
-    expect(await saved(lost.store, overwriteRequest('grsJson', { text: 'A' }))).toEqual({
+    expect(await saved(lost.store, overwriteRequest('IO-2', { text: 'A' }))).toEqual({
       kind: 'permissionLost',
       fileName: 'a',
     })
@@ -1031,7 +1031,7 @@ function chosenSaveOf(
 ): ChosenSave {
   const textsRead: string[] = []
   let asked = 0
-  const form = overrides.form ?? 'grsJson'
+  const form = overrides.form ?? 'IO-2'
   const request: ChosenFileSaveRequest = {
     destination: 'chosenFile',
     content: overrides.content ?? { text: '{"schemaVersion":"2026-08-18"}' },
@@ -1272,7 +1272,7 @@ describe('table T-227 DI-5 -- FR-060 route asks nothing', () => {
 
     const result = await saveDocumentFile(
       stand.store,
-      overwriteRequest('grsJson', { text: '{"schemaVersion":"2026-08-18"}' }),
+      overwriteRequest('IO-2', { text: '{"schemaVersion":"2026-08-18"}' }),
     )
 
     expect(stand.calls.map((call) => call.member)).toEqual(['overwriteOpenedFile'])
@@ -1281,7 +1281,7 @@ describe('table T-227 DI-5 -- FR-060 route asks nothing', () => {
   })
 
   it('GIVEN FR-060 route WHEN the request is inspected THEN it carries no identity and no question to put (DI-5)', () => {
-    const request = overwriteRequest('grsJson', { text: 'A' })
+    const request = overwriteRequest('IO-2', { text: 'A' })
     expect(Object.keys(request).sort()).toEqual(['content', 'destination', 'form'])
   })
 
@@ -1403,7 +1403,7 @@ describe('FR-096 -- one entry for the export side, table T-227 hanging off it', 
     const chosen = chosenSaveOf(THIS_DOCUMENT, SAME_PROJECT, true)
     const chosenStand = storeAt(occupiedBy('plan-a.json', DESTINATION_TEXT))
 
-    const written = await saveDocumentFile(overwrite.store, overwriteRequest('grsJson', { text: 'A' }))
+    const written = await saveDocumentFile(overwrite.store, overwriteRequest('IO-2', { text: 'A' }))
     const exported = await saveDocumentFile(chosenStand.store, chosen.request)
 
     expect(written.ok).toBe(true)

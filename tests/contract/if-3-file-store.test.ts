@@ -264,7 +264,7 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
         chosenSave(
           {
             text: MINE,
-            form: 'grsJson',
+            form: 'IO-2',
             identity: MY_IDENTITY,
             identityOfDestination: SAME_PROJECT,
             answer: false,
@@ -299,7 +299,7 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
         chosenSave(
           {
             text: MINE,
-            form: 'grsJson',
+            form: 'IO-2',
             identity: { fileName: 'plan.json', projectName: 'Alpha', projectId: null },
             identityOfDestination: SAME_PROJECT,
             answer: true,
@@ -330,7 +330,7 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
         chosenSave(
           {
             text: MINE,
-            form: 'grsJson',
+            form: 'IO-2',
             identity: MY_IDENTITY,
             identityOfDestination: () => null,
             answer: true,
@@ -359,7 +359,7 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
         chosenSave(
           {
             text: MINE,
-            form: 'grsJson',
+            form: 'IO-2',
             identity: MY_IDENTITY,
             identityOfDestination: () => ({ projectName: 'Beta', projectId: 'P-2' }),
             answer: false,
@@ -389,7 +389,7 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
         chosenSave(
           {
             text: MINE,
-            form: 'grsJson',
+            form: 'IO-2',
             identity: MY_IDENTITY,
             identityOfDestination: SAME_PROJECT,
             answer: false,
@@ -418,7 +418,7 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
       const saving = await saveDocumentFile(store, {
         destination: 'openedFile',
         content: { text: MINE },
-        form: 'grsJson',
+        form: 'IO-2',
       })
 
       expect(saving.ok, `DI-5: the overwrite failed (${log.join(', ')})`).toBe(true)
@@ -460,7 +460,7 @@ describe('IF-3 FileStore -- table T-227, from the gateway through to the disk', 
           chosenSave(
             {
               text: MINE,
-              form: 'grsJson',
+              form: 'IO-2',
               identity: MY_IDENTITY,
               identityOfDestination: () => null,
               answer: true,
@@ -503,7 +503,7 @@ describe('IF-3 FileStore -- CS-4 of table T-066: what is collected, and when', (
         chosenSave(
           {
             text: MINE,
-            form: 'grsJson',
+            form: 'IO-2',
             identity: MY_IDENTITY,
             identityOfDestination: () => ({ projectName: 'Beta', projectId: 'P-2' }),
             answer: true,
@@ -536,7 +536,7 @@ describe('IF-3 FileStore -- CS-4 of table T-066: what is collected, and when', (
         chosenSave(
           {
             text: MINE,
-            form: 'grsJson',
+            form: 'IO-2',
             identity: MY_IDENTITY,
             identityOfDestination: (text) => {
               expect(text, 'CS-4: the judgment saw characters other than the destination')
@@ -570,7 +570,7 @@ describe('IF-3 FileStore -- CN-5 of table T-003: the encoding rule, applied once
       chosenSave(
         {
           text: WITH_A_WIDE_CHARACTER,
-          form: 'grsJson',
+          form: 'IO-2',
           identity: MY_IDENTITY,
           identityOfDestination: SAME_PROJECT,
           answer: true,
@@ -594,7 +594,7 @@ describe('IF-3 FileStore -- CN-5 of table T-003: the encoding rule, applied once
       chosenSave(
         {
           text: WITH_A_WIDE_CHARACTER,
-          form: 'grsJson',
+          form: 'IO-2',
           identity: MY_IDENTITY,
           identityOfDestination: SAME_PROJECT,
           answer: true,
@@ -629,19 +629,16 @@ describe('IF-3 FileStore -- CN-5 of table T-003: the encoding rule, applied once
   )
 })
 
-// see T-024, OP-1, FR-060
-const FORM_OF_ROW: Readonly<Record<string, SaveFileForm>> = {
-  'IO-1': 'mspdi',
-  'IO-2': 'grsJson',
-  'IO-3': 'svg',
-  'IO-4': 'png',
-  'IO-7': 'singleHtml',
-}
+// see T-024, OP-1, FR-060, FR-096
+// WHY: a save form IS the row id of a row table T-024 offers on IC-2 (CR-768 X-f).
+const OFFERED_ROWS: readonly string[] = T024.rows
+  .filter((one) => one.by['`IC-2` に出す'] === '出す')
+  .map((one) => one.id)
 
 // WHY: extension is read from table T-024, never typed, so FR-096 keeps one
 // WHY: source of truth; declared as a function so chosenSave can call it later.
 function extensionOfForm(form: SaveFileForm): string {
-  const row = T024.rows.find((one) => FORM_OF_ROW[one.id] === form)
+  const row = T024.rows.find((one) => one.id === form)
   if (row === undefined) throw new Error(`table T-024 has no row for the form ${form}`)
   return /`([^`]+)`/.exec(row.by['拡張子'] ?? '')?.[1] ?? ''
 }
@@ -651,10 +648,10 @@ const SAVED_ROWS: readonly string[] = (T340.rows.find((row) => row.id === 'SX-1'
   .match(/IO-\d+/g) ?? []
 
 const saveForms = T024.rows
-  .filter((row) => FORM_OF_ROW[row.id] !== undefined)
+  .filter((row) => OFFERED_ROWS.includes(row.id))
   .map((row) => ({
     id: row.id,
-    form: FORM_OF_ROW[row.id] as SaveFileForm,
+    form: row.id as SaveFileForm,
     comesIn: SAVED_ROWS.includes(row.id),
   }))
 
@@ -668,7 +665,7 @@ describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
       'IO-7',
     ])
     expect(saveForms.filter((one) => one.comesIn).map((one) => one.form).sort()).toEqual([
-      'grsJson',
+      'IO-2',
     ])
     for (const one of saveForms) {
       expect(
@@ -743,7 +740,7 @@ describe('IF-3 FileStore -- FR-060: the file the round trip closes on', () => {
     const saving = await saveDocumentFile(store, {
       destination: 'openedFile',
       content: { text: MINE },
-      form: 'grsJson',
+      form: 'IO-2',
     })
     expect(saving.ok).toBe(false)
   })

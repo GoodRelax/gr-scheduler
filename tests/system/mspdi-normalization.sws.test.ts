@@ -89,7 +89,7 @@ function partNameOf(row: SpecRow): string {
 
 // see T-024
 const T024_EXTENSION = 2
-const T024_FIRST_CHARACTER = 3
+const T024_FIRST_CHARACTER = 5
 
 /** @purity pure */
 function spanOf(row: SpecRow, at: number): string | null {

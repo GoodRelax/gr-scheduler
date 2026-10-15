@@ -1,9 +1,8 @@
 // Unit test: UF-51 `file-system-access-file-store.ts` -- the one FileStore implementation (FR-060, FR-087, IF-3).
 
-import { readFileSync, readdirSync } from 'node:fs'
-import { join } from 'node:path'
-
 import { beforeEach, describe, expect, it } from 'vitest'
+
+import { specTable } from '../contract/spec-table'
 
 import type {
   ChosenFileWrite,
@@ -65,13 +64,12 @@ const extensionsNamedTo = (options: Record<string, unknown>): readonly string[] 
 const mediaTypesNamedTo = (options: Record<string, unknown>): readonly string[] =>
   acceptMapsOf(options).flatMap((accept) => Object.keys(accept))
 
-// WHY: the whole of docs/spec is read rather than one table, because
-// FR-096's MUST NOT is about the book and not about a table.
-/** @purity non-pure */
-const specificationHolds = (value: string): boolean =>
-  readdirSync(join(process.cwd(), 'docs', 'spec'), { recursive: true, withFileTypes: true })
-    .filter((entry) => entry.isFile() && entry.name.endsWith('.md'))
-    .some((entry) => readFileSync(join(entry.parentPath, entry.name), 'utf8').includes(value))
+// WHY: since CR-768 (JDG-2163) table T-024 holds the media type FR-096 hands the chooser.
+/** @purity pure */
+const mediaTypeOfExtension = (extension: string): string | undefined => {
+  const row = specTable('T-024').rows.find((one) => (one.by['拡張子'] ?? '') === `\`${extension}\``)
+  return /`([^`]+)`/.exec(row?.by['保存の選択面に渡す媒体の型'] ?? '')?.[1]
+}
 
 // WHY: both routes are one member taking a value, so the walk below is
 // the whole of OP-2's rule (one entry, two routes).
@@ -849,11 +847,9 @@ describe('writeChosenFile -- a file the person points at', () => {
       expect(extensionsNamedTo(options), extension).toEqual([extension])
       for (const mediaType of mediaTypesNamedTo(options)) {
         expect(mediaType, extension).toMatch(/^[a-z]+\/[-+.a-z0-9]+$/)
-        expect(
-          specificationHolds(mediaType),
-          `FR-096 (MUST NOT): ${mediaType} is written into docs/spec, and 「その伝え方が要する` +
-            '媒体型を、本書のどの表にも持たせてはならない（MUST NOT）」',
-        ).toBe(false)
+        expect(mediaType, `FR-096 (MUST): ${extension} is told with the media type table T-024 gives it`).toBe(
+          mediaTypeOfExtension(extension),
+        )
       }
     }
   })

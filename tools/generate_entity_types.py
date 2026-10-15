@@ -2434,6 +2434,157 @@ def finding_layers_block():
     return '\n'.join(out)
 
 
+# ---- CR-768: value sets src/ used to copy by hand (DFC-2645) ---------------
+#
+# Each block below replaces a hand copy check 69 or check 70 held in its
+# baseline. ⛔ Every one is read from its manuscript; none is typed here.
+# ⚠️ Table T-024 is parsed by tools/generate_exchange_formats.py alone and
+# table T-016 by tools/generate_property_items.py alone: this file asks them,
+# so that a table has one reader (the note at the head of spec_tables.py).
+import generate_exchange_formats  # noqa: E402  (tools/ is the script's own folder)
+import generate_property_items  # noqa: E402  (tools/ is the script's own folder)
+
+EDITED_BY_TABLE = 'T-229'
+EDITED_BY_SCREEN_ROW = 'ED-1'
+# ⚠️ A Japanese needle: the heading of table T-229's word column.
+EDITED_BY_WORD_COLUMN = u'書く語'
+PLAIN_EXTENSION = re.compile(r'^\.[a-z0-9]+$')
+PLAIN_WORD = re.compile(r'^[A-Za-z][A-Za-z0-9-]*$')
+# A union longer than this is printed one member to a line.
+UNION_LINE_LIMIT = 100
+
+
+def ts_union(name, members, exported=False):
+    """`type NAME = 'a' | 'b'`, one line or one member to a line. @purity pure"""
+    head = '%stype %s =' % ('export ' if exported else '', name)
+    quoted = ["'%s'" % one for one in members]
+    one_line = '%s %s' % (head, ' | '.join(quoted))
+    if len(one_line) <= UNION_LINE_LIMIT:
+        return one_line
+    return NEWLINE.join([head] + ['  | %s' % one for one in quoted])
+
+
+def media_types_block():
+    """The media type FR-096 hands the save chooser, keyed by extension (CR-768).
+
+    Table T-024's media-type column, for every row that comes out as a file.
+    FileSystemAccessFileStore held these six pairs by hand (MEDIA_TYPE_OF_
+    EXTENSION, check 69); JDG-2163 put them in the table.
+
+    @purity semi-pure-b
+    """
+    out = ['// see T-024, FR-096, RW-7',
+           '// TRAP: .svg, .html and .md carry x- types: a well-known type makes Chromium list every',
+           '// extension it maps to that type (text/html brings .htm and .shtml; DFC-1722, JDG-1165).',
+           'const MEDIA_TYPE_OF_EXTENSION: Readonly<Record<string, string>> = {']
+    for row_id, extension, media_type, _offered in generate_exchange_formats.file_rows():
+        if not PLAIN_EXTENSION.match(extension):
+            raise SystemExit('table T-024 row %s writes the extension %r, which '
+                             'this region cannot print as a key' % (row_id, extension))
+        out.append("  '%s': '%s'," % (extension, media_type))
+    out.append('}')
+    return NEWLINE.join(out)
+
+
+def save_file_form_block():
+    """The forms FileGateway saves: the rows FR-096 offers on IC-2 (CR-768 X-f).
+
+    A form IS its row id. document-file-flow.ts bound five English names to
+    the rows by hand (TABLE_ROW_OF_SAVE_FORM, check 69); the row id is the
+    only join table T-024 admits, so it is the form. ⛔ A type only: PI-22
+    publishes two functions of FileGateway and no value, so the list the
+    shell walks is printed into the shell (save_file_forms_block).
+
+    @purity semi-pure-b
+    """
+    return NEWLINE.join([
+        '// see T-024, FR-096',
+        ts_union('SaveFileForm', generate_exchange_formats.offered_rows(), exported=True),
+    ])
+
+
+def save_file_forms_block():
+    """The same rows as a list, in the shell that turns a chosen row into a form.
+
+    @purity semi-pure-b
+    """
+    rows = generate_exchange_formats.offered_rows()
+    return NEWLINE.join([
+        '// see T-024, FR-096',
+        'const SAVE_FILE_FORMS: readonly SaveFileForm[] = [%s]'
+        % ', '.join("'%s'" % one for one in rows),
+    ])
+
+
+def property_item_unions_block():
+    """The selections table T-016 names, and its rows that apply to a Task (CR-768).
+
+    properties-panel.ts typed both by hand (AppliesTo and the keys of
+    HELD_BY_ON_A_TASK, check 69). ⚠️ Which ENTITY holds a Task row's column is
+    not table T-016's to say (the note at the head of
+    tools/generate_property_items.py), so only the keys are printed: the hand
+    map is keyed over the union and a row added to the table fails to compile.
+
+    @purity semi-pure-b
+    """
+    items = generate_property_items.build()['items']
+    applies_to = []
+    for item in items:
+        if item['appliesTo'] not in applies_to:
+            applies_to.append(item['appliesTo'])
+    task_rows = [item['rowId'] for item in items
+                 if item['appliesTo'] == generate_property_items.DEFAULT_APPLIES_TO]
+    for word in applies_to:
+        if not PLAIN_WORD.match(word):
+            raise SystemExit('property-items.json names the selection %r, which '
+                             'this region cannot print' % word)
+    return NEWLINE.join([
+        '// see T-016, FR-006',
+        ts_union('AppliesTo', applies_to),
+        '',
+        '// see T-016, FR-006',
+        ts_union('TaskPropertyItemRow', task_rows),
+    ])
+
+
+def root_keys_block():
+    """The root keys of a GRS JSON document, in the schema's order (CR-768).
+
+    document.ts held them by hand (ROOT_KEYS, check 69); the schema's root
+    properties are the manuscript.
+
+    @purity semi-pure-b
+    """
+    schema = json.load(io.open(SCHEMA, encoding='utf-8'),
+                       object_pairs_hook=collections.OrderedDict)
+    keys = list(schema['properties'])
+    if not keys:
+        raise SystemExit('grs-document.schema.json holds no root property')
+    out = ['// see DR-1, DR-4',
+           "// WHY: '$schema' (DR-4) stands in the written text only -- DocumentCodec writes it first and drops it on read.",
+           'const ROOT_KEYS = [']
+    out.extend("  '%s'," % key for key in keys)
+    out.append('] as const')
+    return NEWLINE.join(out)
+
+
+def edited_by_screen_block():
+    """The word the screen writes to lastEditedBy: ED-1 of table T-229 (CR-768 X-e).
+
+    frame-loop.ts held it by hand with a TRAP saying so (check 70, spec-copy).
+
+    @purity semi-pure-b
+    """
+    cell = spec_tables.read(REL_REQUIREMENTS, EDITED_BY_TABLE).by_id(
+        EDITED_BY_SCREEN_ROW).cell(EDITED_BY_WORD_COLUMN).strip()
+    word = cell[1:-1] if len(cell) > 2 and cell[0] == cell[-1] == '`' else ''
+    if not PLAIN_WORD.match(word):
+        raise SystemExit('table %s row %s writes %r where one back-quoted word '
+                         'stands' % (EDITED_BY_TABLE, EDITED_BY_SCREEN_ROW, cell))
+    return NEWLINE.join(['// see T-229, ED-1',
+                         "export const EDITED_BY_SCREEN = '%s'" % word])
+
+
 def search_panel_font_sizes_block():
     """Every row of table T-333, by its row ID (CR-571, FR-151 SV-16).
 
@@ -3146,6 +3297,10 @@ TARGETS = [
       'docs/spec/_source/settings.json (table T-209)']),
     (os.path.join(MODEL, 'document-stamp', 'document-stamp.ts'), stamp_block,
      ['docs/spec/_source/erd.json']),
+    # CR-768: the root keys DR-1 and DR-4 hold a document to.
+    (os.path.join(MODEL, 'document', 'document.ts'),
+     lambda _erd: root_keys_block(),
+     ['docs/spec/_source/grs-document.schema.json (itself generated from erd.json and settings.json)']),
     (os.path.join(MODEL, 'document-settings', 'document-settings.ts'), settings_block,
      ['docs/spec/_source/settings.json',
       'docs/spec/_source/erd.json',
@@ -3308,8 +3463,18 @@ TARGETS = [
     # CR-619: the chooser id stands in the unit that opens every chooser.
     (os.path.join(FRAMEWORK, 'file-system-access-file-store',
                   'file-system-access-file-store.ts'),
-     lambda _erd: not_stored_block('NOT_STORED_FILE_CHOOSER_ID'),
-     ['docs/spec/_source/settings.json (table T-206)']),
+     lambda _erd: not_stored_block('NOT_STORED_FILE_CHOOSER_ID') + NEWLINE * 2
+     # CR-768 (JDG-2163): the media types FR-096 hands the save chooser.
+     + media_types_block(),
+     ['docs/spec/_source/settings.json (table T-206)',
+      'docs/spec/01-04-requirements.md (table T-024)']),
+    # CR-768 X-f: the forms FileGateway saves are the rows FR-096 offers.
+    (os.path.join(ADAPTER, 'file-gateway', 'file-gateway.ts'),
+     lambda _erd: save_file_form_block(),
+     ['docs/spec/01-04-requirements.md (table T-024)']),
+    (os.path.join(FRAMEWORK, 'single-html-shell', 'document-file-flow.ts'),
+     lambda _erd: save_file_forms_block(),
+     ['docs/spec/01-04-requirements.md (table T-024)']),
     # ScheduleLayout's copy of NOT_STORED_SIZES stands in the one unit of the
     # component that reads it: label-placement.ts places the label past the
     # undecided resume icon (S-286) and keeps S-260 free inside the shape
@@ -3544,8 +3709,11 @@ TARGETS = [
      # names. ⛔ Not folded into the digest watermark-unlock.ts holds -- that one
      # is a row of table T-207 baked into the artifact, and this is a row of
      # table T-206 the environment may hold a different value for.
-     + not_stored_block('NOT_STORED_WATERMARK_NAME'),
-     ['docs/spec/_source/settings.json (table T-206)']),
+     + not_stored_block('NOT_STORED_WATERMARK_NAME') + NEWLINE * 2
+     # CR-768 X-e: the word the screen writes to lastEditedBy (ED-1).
+     + edited_by_screen_block(),
+     ['docs/spec/_source/settings.json (table T-206)',
+      'docs/spec/01-04-requirements.md (table T-229)']),
     # ⭐ The two lengths FR-018 measures a held entrance with, in their own
     # constant rather than beside the panel width in frame-loop.ts: they are
     # times and it is a width, and the seam differs -- S-171 is laid over the
@@ -3592,8 +3760,11 @@ TARGETS = [
     # min / max from table T-217, which the column shapes do not carry.
     (os.path.join(ADAPTER, 'screen-renderer', 'properties-panel.ts'),
      lambda _erd: not_stored_block('NOT_STORED_PROPERTY_CONTROL_SIZES') + NEWLINE * 2
-     + annotation_bounds_block(),
-     ['docs/spec/_source/settings.json (tables T-206 and T-217)']),
+     + annotation_bounds_block() + NEWLINE * 2
+     # CR-768: the selections table T-016 names and its Task rows.
+     + property_item_unions_block(),
+     ['docs/spec/_source/settings.json (tables T-206 and T-217)',
+      'docs/spec/_source/property-items.json (table T-016)']),
     # ⭐ DFC-314: the one call site FR-019 gives a fixed radius, reading table
     # T-217's own default rather than a copy typed at the use-case that
     # creates a `HighlightBox`. CR-558 / CR-559: its bounds refuse a command
@@ -3716,6 +3887,8 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_WHEEL_UNITS',
     ),
     'src/framework/single-html-shell/frame-loop.ts': (
+        # CR-768: document-file-flow.ts writes the same word (ED-1).
+        'EDITED_BY_SCREEN',
         'NOT_STORED_SCROLLBAR_SIZES',
     ),
     'src/framework/single-html-shell/watermark-unlock.ts': (

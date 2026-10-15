@@ -156,8 +156,12 @@ const T_109_AUTHORITY = 3
 /** Table T-024 prints format, direction, extension -- the last two are read here. */
 const T_024_DIRECTION = 1
 const T_024_EXTENSION = 2
-/** Table T-024 prints the first non-blank character after the extension. */
-const T_024_FIRST_CHARACTER = 3
+/**
+ * Table T-024 prints the media type and whether IC-2 offers the row after the
+ * extension (CR-768), then the first non-blank character.
+ */
+const T_024_OFFERED = 4
+const T_024_FIRST_CHARACTER = 5
 /** Table T-230 prints caller, what stands at WS-3, then the history column. */
 const T_230_HISTORY = 2
 /** Table T-036 prints what the shortcut does, then its assignment. */
@@ -248,24 +252,23 @@ function inDirectionRows(): readonly string[] {
     .map((row) => row.id)
 }
 
+const OFFERED_ON_IC_2 = '出す'
+
 /**
- * The rows of table T-024 that carry an out direction AND come out as a file --
+ * The rows of table T-024 whose column 「`IC-2` に出す」 reads 「出す」 --
  * what FR-096 (MUST) has the author choose between.
  *
- * 「作成者が書き出しを選んだとき、`GRS` は、**表 T-024 のうち書出の方向を持ち、
- *   ファイルとして出る形式**から選ばせ」（`FR-096`）.
+ * 「作成者が書き出しを選んだとき、`GRS` は、**表 T-024 のうち「`IC-2` に出す」の
+ *   欄が「出す」の形式**から選ばせ」（`FR-096`、CR-768）.
  *
- * ⭐ WHICH ROWS THOSE ARE IS THE TABLE'S OWN ANSWER, not a list minted here:
- * 「⭐ **拡張子の欄は、ファイルとして出る行がすべて持つ** —— `FR-096` が提案する
- *   名の正が本表だからであり…**`IO-5` と `IO-6` は持たない** —— 保管庫とクリップ
- *   ボードはファイルとして出ないので、名を付ける先が無い。」 So the extension
- * column IS the file-bearing test, and reading it keeps this set moving with the
- * table rather than with this file.
+ * ⭐ WHICH ROWS THOSE ARE IS THE TABLE'S OWN ANSWER, not a list minted here. ⚠️ An
+ * extension is no longer the test: IO-8 (the delay diagnostics report) is a file
+ * and is not offered.
  *
  * @purity pure
  */
-function fileBearingOutDirectionRows(): readonly string[] {
-  return outDirectionRows().filter((id) => extensionOf(id) !== null)
+function offeredOnIc2Rows(): readonly string[] {
+  return T_024.rows.filter((row) => (row.cells[T_024_OFFERED] ?? '') === OFFERED_ON_IC_2).map((row) => row.id)
 }
 
 /**
@@ -1671,7 +1674,7 @@ describe('FR-096 -- the Export Chooser', () => {
     // tests/system/mspdi-normalization.sws.test.ts both already keep. So this
     // case looks for the row ID ANYWHERE in the description rather than minting
     // a member name for it.
-    const offered = fileBearingOutDirectionRows()
+    const offered = offeredOnIc2Rows()
     expect(offered.length, 'table T-024 gives no file-bearing row an out direction').toBeGreaterThan(
       1,
     )
@@ -1717,7 +1720,7 @@ describe('FR-096 -- the Export Chooser', () => {
     // warns is not the rule. ⭐ Demonstrated by sorting the expectation into row
     // ID order, which is that surface seen from here: the case failed on the
     // sequence and every other case in this file stayed green.
-    const offered = fileBearingOutDirectionRows()
+    const offered = offeredOnIc2Rows()
     const pane = host()
     const screen = screenPane()
     const files = fileStore()
@@ -1917,7 +1920,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
     }
 
     const drivable = EXCHANGE_FORMATS.filter(
-      (format) => format.extension !== null && !cannotBeWritten.includes(format.rowId),
+      (format) => offeredOnIc2Rows().includes(format.rowId) && !cannotBeWritten.includes(format.rowId),
     )
     expect(drivable.length, 'no format of table T-024 can be written in this build').toBeGreaterThan(
       1,
@@ -1949,7 +1952,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
   it('FR-035 empty: T-352 FN-5 proposes schedule with the chosen format\'s extension (CR-648)', async () => {
     // Again per row, so the same sweep with no document name.
     const drivable = EXCHANGE_FORMATS.filter(
-      (format) => format.extension !== null && !['IO-3', 'IO-4', 'IO-7'].includes(format.rowId),
+      (format) => offeredOnIc2Rows().includes(format.rowId) && !['IO-3', 'IO-4', 'IO-7'].includes(format.rowId),
     )
 
     for (const format of drivable) {
@@ -2000,7 +2003,7 @@ describe('FR-096 -- the name the chooser proposes', () => {
     // cases above that read only `suggestedFileName` stayed green -- which is
     // the whole argument for this case existing.
     const drivable = EXCHANGE_FORMATS.filter(
-      (format) => format.extension !== null && !['IO-3', 'IO-4', 'IO-7'].includes(format.rowId),
+      (format) => offeredOnIc2Rows().includes(format.rowId) && !['IO-3', 'IO-4', 'IO-7'].includes(format.rowId),
     )
     expect(drivable.length).toBeGreaterThan(1)
 
@@ -2096,7 +2099,7 @@ describe('FR-029 / DFC-173 -- a format that cannot be written says so', () => {
     // whose 正 is LM-14 of 表 T-004 -- so nothing has to be invented to say it,
     // and narrowing the walk to the rows that happen to pass would put the hole
     // back where DFC-173 found it.
-    for (const rowId of fileBearingOutDirectionRows()) {
+    for (const rowId of offeredOnIc2Rows()) {
       const { written, view } = await press(rowId)
       expect(
         `${written} written, ${view.notices.length} told`,
@@ -2130,7 +2133,7 @@ describe('FR-029 / DFC-173 -- a format that cannot be written says so', () => {
     // would read.
     const known = REASON_WORDS.map((one) => one.text.ja)
     let told = 0
-    for (const rowId of fileBearingOutDirectionRows()) {
+    for (const rowId of offeredOnIc2Rows()) {
       const { written, view } = await press(rowId)
       if (written > 0) continue
       for (const notice of view.notices) {
@@ -2215,7 +2218,7 @@ describe('FR-076 / RS-40 -- an unwritable form carries its own row, not RS-15', 
       // GOES RED IF: an unwritable format is answered with the landing place
       // again -- which is the state the build was in on 2026-09-02.
       const fallbackWords = wordsFor('RS-15')
-      for (const rowId of fileBearingOutDirectionRows()) {
+      for (const rowId of offeredOnIc2Rows()) {
         const { written, view } = await pressIn(rowId, language)
         if (written > 0) continue
         for (const notice of view.notices) {
@@ -2244,7 +2247,7 @@ describe('FR-076 / RS-40 -- an unwritable form carries its own row, not RS-15', 
       // GOES RED IF: a refusal is worded with something no row holds, or is
       // given a manner or a next step from another row.
       const carried: string[] = []
-      for (const rowId of fileBearingOutDirectionRows()) {
+      for (const rowId of offeredOnIc2Rows()) {
         const { written, view } = await pressIn(rowId, language)
         if (written > 0) continue
         for (const notice of view.notices) {
@@ -2570,7 +2573,7 @@ describe('FR-076 -- a notice raised while a document is written out', () => {
 
 describe('the tables are read by position, so the positions are pinned', () => {
   it('table T-024 prints format, direction and extension in that order, and its rows in FR-096 order', () => {
-    expect(T_024.headings.length).toBe(7)
+    expect(T_024.headings.length).toBe(9)
     // ⭐⭐ THE ROW ORDER IS PINNED BECAUSE IT IS NOW A REQUIREMENT, and this is
     // the one file that may pin it. 「⭐ **選択面が形式を並べる順は、表 T-024 の
     //   行の並びとすること（MUST）**（利用者の指示 2026-09-01）—— ⛔ **順を本要求
@@ -2582,10 +2585,11 @@ describe('the tables are read by position, so the positions are pinned', () => {
     // that moves a row moves the save list with it, and the two cases in
     // `FR-096 -- the name the chooser proposes` that drive the surface would go
     // on passing, because they read the same table. This is where it is caught.
-    expect(outDirectionRows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4', 'IO-6'])
+    expect(outDirectionRows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4', 'IO-8', 'IO-6'])
+    expect(offeredOnIc2Rows()).toEqual(['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4'])
     // ⭐ And the same order said in extensions, which is how the person stated
     // it -- read out of the table rather than typed beside the row IDs above.
-    expect(fileBearingOutDirectionRows().map((id) => extensionOf(id))).toEqual([
+    expect(offeredOnIc2Rows().map((id) => extensionOf(id))).toEqual([
       '.json',
       '.xml',
       '.html',

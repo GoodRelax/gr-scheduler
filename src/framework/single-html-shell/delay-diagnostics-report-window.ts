@@ -16,6 +16,7 @@ import { writeClipboard, type Clipboard } from '../../adapter/clipboard-gateway/
 import type { TableView } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { DocumentFileFault, FileStore } from '../../adapter/file-gateway/file-gateway'
 import {
+  DELAY_DIAGNOSTICS_REPORT_EXTENSION,
   delayDiagnosticsReportAfterEntry,
   delayDiagnosticsReportFileNameOf,
   delayDiagnosticsReportMarkdownOf,
@@ -29,7 +30,6 @@ export const DELAY_DIAGNOSTICS_REPORT_SURFACE = 'Delay Diagnostics Report'
 
 const COPY_ENTRY: IconId = 'IC-108'
 const EXPORT_ENTRY: IconId = 'IC-140'
-const MARKDOWN_EXTENSION = '.md'
 
 export interface ReportHeld {
   readonly window: DelayDiagnosticsReportWindow
@@ -90,7 +90,7 @@ function handOutMarkdown(entry: IconId, held: ReportHeld, outlets: ReportOutlets
     .writeChosenFile({
       bytes: new TextEncoder().encode(text),
       suggestedFileName: delayDiagnosticsReportFileNameOf(held.documentName, held.report.statusDate),
-      extension: MARKDOWN_EXTENSION,
+      extension: DELAY_DIAGNOSTICS_REPORT_EXTENSION,
       shouldBecomeOpenedFile: false,
       askToWriteOver: async (there) => !(there.kind === 'occupied' && there.bytes.byteLength > 0) || (await outlets.confirmOverwrite()),
     })

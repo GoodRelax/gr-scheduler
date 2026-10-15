@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import { documentFromJson } from '../../src/adapter/document-codec/document-codec'
-import { ROOT_KEYS, type Document } from '../../src/entity/document-model/document/document'
+import type { Document } from '../../src/entity/document-model/document/document'
 import { SETTINGS_DEFAULTS } from '../../src/entity/document-model/document-settings/document-settings'
 import {
   NOT_STORED_LIMITS,
@@ -76,6 +76,8 @@ const TEMPLATE_PATH = join(
   'single-html-shell',
   'startup-template.json',
 )
+
+const SCHEMA_PATH = join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json')
 
 function templateDocument(): Document {
   const read = documentFromJson(readFileSync(TEMPLATE_PATH, 'utf8'))
@@ -468,7 +470,9 @@ describe('表 T-027 UN-9 / UN-10 / UN-11 -- outside the document, not merely out
 
   it('the document root and the 見せ方の群 hold no key for any of the three', () => {
     const named = ['selection', 'selectedIds', 'language', 'displayLanguage', 'armed', 'stance']
-    const keys = [...ROOT_KEYS, ...Object.keys(SETTINGS_DEFAULTS)]
+    // WHY: the root keys are read from the schema they are generated from (CR-768).
+    const schema = JSON.parse(readFileSync(SCHEMA_PATH, 'utf8')) as { readonly properties: Record<string, unknown> }
+    const keys = [...Object.keys(schema.properties), ...Object.keys(SETTINGS_DEFAULTS)]
     for (const key of named) expect(keys, key).not.toContain(key)
   })
 })

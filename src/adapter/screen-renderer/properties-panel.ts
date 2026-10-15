@@ -190,8 +190,6 @@ type CommentBoxPropertyItem = Extract<PropertyItem, { heldBy: 'commentBox' }>
 type HighlightBoxPropertyItem = Extract<PropertyItem, { heldBy: 'highlightBox' }>
 type DependencyPropertyItem = Extract<PropertyItem, { heldBy: 'dependency' }>
 
-type AppliesTo = 'Task' | 'TaskGroup' | 'CommentBox' | 'HighlightBox' | 'Dependency'
-
 const APPLIES_TO_TASK: AppliesTo = 'Task'
 const APPLIES_TO_TASK_GROUP: AppliesTo = 'TaskGroup'
 const APPLIES_TO_COMMENT_BOX: AppliesTo = 'CommentBox'
@@ -205,7 +203,7 @@ const HELD_BY_OF_OBJECT: Readonly<Partial<Record<AppliesTo, PropertyItem['heldBy
   Dependency: 'dependency',
 }
 
-const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
+const HELD_BY_ON_A_TASK: Readonly<Record<TaskPropertyItemRow, PropertyItem['heldBy']>> = {
   'PR-1': 'task',
   'PR-2': 'task',
   'PR-3': 'task',
@@ -233,7 +231,7 @@ const HELD_BY_ON_A_TASK: Readonly<Record<string, PropertyItem['heldBy']>> = {
 
 /** @purity pure */
 function heldByOf(row: string, appliesTo: AppliesTo): PropertyItem['heldBy'] {
-  const heldBy = HELD_BY_OF_OBJECT[appliesTo] ?? HELD_BY_ON_A_TASK[row]
+  const heldBy = HELD_BY_OF_OBJECT[appliesTo] ?? HELD_BY_ON_A_TASK[row as TaskPropertyItemRow]
   if (heldBy === undefined) {
     throw new Error(`table T-016 holds ${row}, and nothing says which entity holds its value`)
   }
@@ -1987,6 +1985,7 @@ export function propertiesPanelFromSelection(
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/settings.json (tables T-206 and T-217)
+//   docs/spec/_source/property-items.json (table T-016)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 const NOT_STORED_PROPERTY_CONTROL_SIZES: {
@@ -2009,4 +2008,33 @@ const NOT_STORED_ANNOTATION_BOUNDS: {
   'S-374': { key: 'CommentBox.strokeWidthPx', min: 1, max: 10 },
   'S-375': { key: 'CommentBox.fillTransparencyPercent', min: 0, max: 100 },
 }
+
+// see T-016, FR-006
+type AppliesTo = 'Task' | 'TaskGroup' | 'CommentBox' | 'HighlightBox' | 'Dependency'
+
+// see T-016, FR-006
+type TaskPropertyItemRow =
+  | 'PR-1'
+  | 'PR-34'
+  | 'PR-16'
+  | 'PR-3'
+  | 'PR-47'
+  | 'PR-35'
+  | 'PR-4'
+  | 'PR-6'
+  | 'PR-36'
+  | 'PR-5'
+  | 'PR-9'
+  | 'PR-7'
+  | 'PR-8'
+  | 'PR-10'
+  | 'PR-17'
+  | 'PR-14'
+  | 'PR-15'
+  | 'PR-37'
+  | 'PR-38'
+  | 'PR-2'
+  | 'PR-40'
+  | 'PR-39'
+  | 'PR-12'
 // </generated>

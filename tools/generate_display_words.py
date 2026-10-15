@@ -33,6 +33,7 @@ import os
 import re
 import sys
 
+import generate_exchange_formats
 import spec_tables
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -77,7 +78,6 @@ THEME_HUE_ROW = re.compile(r'^\| (TH-\d+[a-z]?) \|')
 PROPERTY_ROW = re.compile(r'^\| (PR-\d+[a-z]?) \|')
 SETTINGS_ROW = re.compile(r'^\| (K-\d+[a-z]?) \|')
 SHORTCUT_ROW = re.compile(r'^\| (SK-\d+[a-z]?) \|')
-EXPORT_FORMAT_ROW = re.compile(r'^\| (IO-\d+[a-z]?) \|')
 INVARIANT_ROW = re.compile(r'^\| (IV-\d+[a-z]?) \|')
 CODE_SPAN = re.compile(r'`([^`]+)`')
 
@@ -171,14 +171,11 @@ INVARIANT_TABLE = 'T-220'
 # ⚠️ THE NAME ONLY, NEVER THE EXTENSION. FR-096 (MUST NOT) keeps the
 # extension in table T-024 alone, so it travels from the table and a second
 # copy is never made here.
-EXPORT_FORMAT_TABLE = 'T-024'
-# ⛔ WHICH ROWS OF THAT TABLE ARE OFFERED IS NOT THIS FILE'S TO DECIDE, and
-# the whole table is not the answer: IO-5 is the browser store and IO-6 is
-# the clipboard, and FR-096 (MUST NOT) puts neither on the chooser -- the
-# first has no write direction of the kind offered, and the second does not
-# come out as a file, so it has no name to propose. FR-025 carries IO-6 on
-# IC-3 instead.
-EXPORT_FORMATS_NOT_OFFERED = ('IO-5', 'IO-6')
+# ⛔ WHICH ROWS OF TABLE T-024 ARE OFFERED IS NOT THIS FILE'S TO DECIDE: the
+# table's own column "offered on IC-2" says so (CR-768), and
+# tools/generate_exchange_formats.py is the one reader of that table. The list
+# of rows NOT offered that stood here was a hand copy of the column before
+# the column existed.
 # ⭐ The reasons a telling can carry (table T-233) and the sentences a question
 # shows (table T-234: the whole count of the places NT-7 lets GRS ask, so a
 # question with no row there cannot be raised) are read from the notice
@@ -759,10 +756,7 @@ def roster():
         'invariants': [row[0] for row in
                        table_rows(REL_DESIGN, INVARIANT_ROW, INVARIANT_TABLE)
                        if row[0] not in invariants_sharing_words()],
-        'exportFormats': [row[0] for row in
-                          table_rows(REL_REQUIREMENTS, EXPORT_FORMAT_ROW,
-                                     EXPORT_FORMAT_TABLE)
-                          if row[0] not in EXPORT_FORMATS_NOT_OFFERED],
+        'exportFormats': generate_exchange_formats.offered_rows(),
         # ⛔ A group is keyed by the FIRST row of table T-109 that sits in it.
         # The specification gives groups no id of their own, and minting one
         # (GRP-1 ..) would put a number in the code that no table holds. ⚠️ The

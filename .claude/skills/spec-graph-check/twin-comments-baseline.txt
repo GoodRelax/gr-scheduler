@@ -149,14 +149,6 @@ copy | TRANSPARENT_PAINT :: change with not drawn in svg renderer ts a mismatch
 twin: src/adapter/svg-renderer/svg-renderer.ts#NOT_DRAWN
 why: the 'none' paint copied; NOT_DRAWN is private and no DomScreenSurface->SvgRenderer edge is declared.
 
-copy | TABLE_ROW_OF_SAVE_FORM :: document codec ts holds a similar private map for decoding
-twin: src/adapter/document-codec/document-codec.ts#ROW_OF_FORMAT
-why: a similar, not equal, map (the codec reads READABLE_FORMATS rows); ROW_OF_FORMAT is private; SingleHtmlShell->DocumentCodec is declared.
-
-spec-copy | EDITED_BY_SCREEN :: not generated a change to ed 1 of table t
-twin: table T-229, row ED-1 (docs/spec)
-why: a hand copy of a specification table; the fix is a generated region (npm run gen), not an import.
-
 
 coupling | FIELD_FOCUS_WITHDRAWING_KEYS :: spelled as dom input source ts delivers them tab moves
 twin: the key names src/framework/dom-input-source/dom-input-source.ts delivers

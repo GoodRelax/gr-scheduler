@@ -8,7 +8,7 @@ import { REQUIREMENTS, UTF8, standInBrowser, standInFile } from './cr-610-file-f
 import { bare, specTable } from './spec-table'
 
 const FR_096_ENDS_WITH = '書き出した先の名前が、選んだ行の拡張子で終わることを保証すること（MUST）'
-const RW_7_ENDS_WITH = '書いた名前が `.md` で終わることを保証する（`FR-096` の拡張子の定めと同じ）'
+const RW_7_ENDS_WITH = '書いた名前が 表 T-024 の `IO-8` の拡張子で終わることを保証し'
 
 // WHY: the media types Chromium's own table maps to more than one extension -- the ones a key must not be.
 const MANY_EXTENSION_TYPES = ['text/html', 'image/svg+xml', 'text/xml', 'text/markdown', 'text/plain']
@@ -21,12 +21,13 @@ const extensionOfRow = (id: string): string => {
   return bare(cell).replace(/`/g, '').trim()
 }
 
+// WHY: since CR-768 RW-7 names the row of table T-024 its extension is read from, not the extension.
 const markdownExtension = (): string => {
   const found = specTable('T-346').rows.find((one) => one.id === 'RW-7')
   const cell = found?.cells.join(' ') ?? ''
-  const extension = /`(\.[a-z]+)`\s*で終わる/.exec(cell)?.[1]
-  if (extension === undefined) throw new Error(`RW-7 names no extension: ${cell}`)
-  return extension
+  const row = /表 T-024 の `(IO-\d+)` の拡張子で終わる/.exec(cell)?.[1]
+  if (row === undefined) throw new Error(`RW-7 names no row of table T-024: ${cell}`)
+  return extensionOfRow(row)
 }
 
 async function saveOptionsFor(extension: string): Promise<Record<string, unknown>> {

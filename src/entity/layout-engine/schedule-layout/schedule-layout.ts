@@ -112,7 +112,7 @@ export type LabelPlacement = 'inside' | 'right'
 export type MilestoneGlyph = NonNullable<TaskVisual['milestoneGlyph']>
 
 // see T-012, AT-100
-export type ShapeKind = 'rectangle' | 'chevron' | 'arrow' | 'endpointSpan' | 'milestone'
+export type ShapeKind = NonNullable<TaskVisual['shapeKind']>
 
 export interface TaskPlacement {
   readonly taskUid: number

@@ -41,6 +41,7 @@ import {
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import dependencyKinds from './dependency-kinds.json'
 import displayWords from './display-words.json'
+import exportFormats from './export-formats.json'
 import propertyItems from './property-items.json'
 import type { CommandItem, DisplayLanguage, IconId } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
@@ -158,7 +159,7 @@ const REPORT_FILE_WORD = 'delay-diagnostics'
 
 const FILE_NAME_JOIN = '_'
 
-const MARKDOWN_EXTENSION = '.md'
+export const DELAY_DIAGNOSTICS_REPORT_EXTENSION = exportFormats.files.find((one) => one.rowId === 'IO-8')?.extension ?? ''
 
 // WHY: a filter change reads the columns and their kinds only; no word it would print is shown.
 const COLUMNS_ONLY_LANGUAGE: DisplayLanguage = 'en'
@@ -765,7 +766,7 @@ export function delayDiagnosticsReportMarkdownOf(
 export function delayDiagnosticsReportFileNameOf(documentName: string, statusDate: string | null): string {
   const body = exportNameBodyOf(documentName)
   const day = dateText(statusDate).replace(/\//g, '-')
-  return [...(body === '' ? [] : [body]), REPORT_FILE_WORD, day].join(FILE_NAME_JOIN) + MARKDOWN_EXTENSION
+  return [...(body === '' ? [] : [body]), REPORT_FILE_WORD, day].join(FILE_NAME_JOIN) + DELAY_DIAGNOSTICS_REPORT_EXTENSION
 }
 
 const DIAGNOSIS_ENTRY: IconId = 'IC-154'

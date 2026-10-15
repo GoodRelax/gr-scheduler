@@ -111,6 +111,7 @@ export {
 } from './resource-list'
 export type { ResourceListRowView, ResourceListView } from './resource-list'
 export {
+  DELAY_DIAGNOSTICS_REPORT_EXTENSION,
   OPENED_DELAY_DIAGNOSTICS_REPORT,
   delayDiagnosticsReportAfterEntry,
   delayDiagnosticsReportAfterFilterChange,

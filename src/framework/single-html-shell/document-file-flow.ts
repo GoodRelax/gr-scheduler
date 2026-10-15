@@ -183,31 +183,19 @@ export const OPEN_ROUTE_FROM_CHOOSER: OpenRoute = 'chooser'
 
 export const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen'
 
-const SAVE_FORM: SaveFileForm = 'grsJson'
-
-// TRAP: document-codec.ts holds a similar private map for decoding (OP-12);
-// change both together.
-const TABLE_ROW_OF_SAVE_FORM: Readonly<Record<SaveFileForm, string>> = {
-  mspdi: 'IO-1',
-  grsJson: 'IO-2',
-  svg: 'IO-3',
-  png: 'IO-4',
-  singleHtml: 'IO-7',
-}
+// see SK-11, IO-2
+const SAVE_FORM: SaveFileForm = 'IO-2'
 
 // see FR-096, T-024
 /** @purity pure */
 function extensionOfForm(form: SaveFileForm): string {
-  return extensionOfFormat(TABLE_ROW_OF_SAVE_FORM[form])
+  return extensionOfFormat(form)
 }
 
 // see T-024
 /** @purity pure */
 function saveFormOfExportFormat(format: ExportFormatId): SaveFileForm | null {
-  for (const form of Object.keys(TABLE_ROW_OF_SAVE_FORM) as readonly SaveFileForm[]) {
-    if (TABLE_ROW_OF_SAVE_FORM[form] === format) return form
-  }
-  return null
+  return SAVE_FILE_FORMS.find((form) => form === format) ?? null
 }
 
 // see OP-6
@@ -263,14 +251,14 @@ interface WriteMoment {
 /** @purity pure */
 function exportedText(form: SaveFileForm, document: Document, moment: WriteMoment): string | null {
   switch (form) {
-    case 'grsJson':
+    case 'IO-2':
       return savedDocumentText(document, moment.savedAt)
-    case 'mspdi':
+    case 'IO-1':
       // DEVIATION: spec says export notices are told (EX-6); here they are dropped (DFC-557)
       return mspdiFromDocument(document, moment.savedLocalAt).text
-    case 'svg':
-    case 'png':
-    case 'singleHtml':
+    case 'IO-3':
+    case 'IO-4':
+    case 'IO-7':
       return null
   }
 }
@@ -1146,7 +1134,7 @@ async function exportHeldDocumentToFile(
     if (form === SAVE_FORM && text !== null) return landSavedDocument(hands, flow, saving, byteLengthOfText(text), savedAt)
     // TRAP: leave stackSafetyCapToldFor alone; it is the frame's, and touching it silences the screen.
     if (picture.capStopGroupId !== null) hands.raiseNotice(STACK_SAFETY_CAP_REASON, null)
-    if (form === 'mspdi' && holdsWorkValues(written)) hands.raiseNotice(WORK_NOT_REWRITTEN_REASON, null)
+    if (form === 'IO-1' && holdsWorkValues(written)) hands.raiseNotice(WORK_NOT_REWRITTEN_REASON, null)
     return
   }
   hands.raiseFileFault(saving.fault)
@@ -1163,19 +1151,19 @@ async function exportPictureContent(
   readonly capStopGroupId: string | null
 } | null> {
   switch (form) {
-    case 'grsJson':
-    case 'mspdi':
+    case 'IO-2':
+    case 'IO-1':
       return null
-    case 'singleHtml': {
+    case 'IO-7': {
       const content = await embeddedHtmlContent(hands, written)
       return content === null ? null : { content, capStopGroupId: null }
     }
-    case 'svg':
-    case 'png': {
+    case 'IO-3':
+    case 'IO-4': {
       const scene = hands.exportScene()
       if (scene === null) return null
       const capStopGroupId = scene.capStopGroupId
-      if (form === 'svg') {
+      if (form === 'IO-3') {
         const picture = exportSvg(scene)
         if (!picture.ok) {
           hands.raiseNotice(HEIGHT_CEILING_REASON, null)
@@ -1273,3 +1261,11 @@ export function askToOpenDroppedFile(hands: DocumentFileFlowHands): void {
   if (hands.files !== undefined) hands.sendToSession({ type: 'documentOpenAsked', openRoute: OPEN_ROUTE_FROM_DROP }, hands.readValues())
   if (isSizeSettled(hands.readEnvironment())) hands.ask()
 }
+
+// <generated -- do not edit by hand>
+// Single source of truth:
+//   docs/spec/01-04-requirements.md (table T-024)
+// Rebuild: npm run gen   ||   npm run gen:check fails on drift.
+// see T-024, FR-096
+const SAVE_FILE_FORMS: readonly SaveFileForm[] = ['IO-2', 'IO-1', 'IO-7', 'IO-3', 'IO-4']
+// </generated>

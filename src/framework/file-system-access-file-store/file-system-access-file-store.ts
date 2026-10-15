@@ -97,21 +97,9 @@ export interface FileSystemAccessEnvironment {
   readonly dropSurface: DropSurface
 }
 
-// see FR-096, T-024, RW-7
-// TRAP: Chromium adds every extension it knows for a well-known media type (text/html brings .htm and .shtml),
-// so a type it maps to more than one extension goes under an unregistered x- key (DFC-1722, JDG-1165).
-// WHY: no description: the OS names the one extension in its own language; a word here would be one language.
-const MEDIA_TYPE_OF_EXTENSION: Readonly<Record<string, string>> = {
-  '.json': 'application/json',
-  '.xml': 'application/xml',
-  '.svg': 'image/x-grs-svg',
-  '.png': 'image/png',
-  '.html': 'text/x-grs-html',
-  '.md': 'text/x-grs-markdown',
-}
-
-// see FR-096
+// see FR-096, T-024
 // TRAP: excludeAcceptAllOption rides only with a known type; some hosts refuse it beside empty types.
+// WHY: no description: the OS names the one extension in its own language; a word here would be one language.
 /** @purity pure */
 function saveFileTypesFor(extension: string): readonly SaveFileType[] | undefined {
   const mediaType = MEDIA_TYPE_OF_EXTENSION[extension]
@@ -539,11 +527,24 @@ export function fileSystemAccessFileStore(
 // <generated -- do not edit by hand>
 // Single source of truth:
 //   docs/spec/_source/settings.json (table T-206)
+//   docs/spec/01-04-requirements.md (table T-024)
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see T-206
 const NOT_STORED_FILE_CHOOSER_ID: {
   readonly 'S-452': string
 } = {
   'S-452': 'grs-files',
+}
+
+// see T-024, FR-096, RW-7
+// TRAP: .svg, .html and .md carry x- types: a well-known type makes Chromium list every
+// extension it maps to that type (text/html brings .htm and .shtml; DFC-1722, JDG-1165).
+const MEDIA_TYPE_OF_EXTENSION: Readonly<Record<string, string>> = {
+  '.json': 'application/json',
+  '.xml': 'application/xml',
+  '.html': 'text/x-grs-html',
+  '.svg': 'image/x-grs-svg',
+  '.png': 'image/png',
+  '.md': 'text/x-grs-markdown',
 }
 // </generated>
