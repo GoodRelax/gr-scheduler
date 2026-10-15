@@ -884,7 +884,19 @@ function highlightBoxRangeWrite(
     ;({ upper, lower, left, right } = grabPointRange(held, draggedSidesOf(part), atPointer, release.y))
   }
   if (upper === undefined || lower === undefined) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
-  return changed([highlightRangeWrite(context, box, { upper, lower, left, right })])
+  return changedUnlessUnmoved(box, highlightRangeWrite(context, box, { upper, lower, left, right }))
+}
+
+// see GR-14, CM-54, FR-100
+// WHY: a box released on the range it holds writes nothing; an equal document would still raise unsaved edits (DFC-2912).
+/** @purity pure */
+function changedUnlessUnmoved(box: HighlightBox, write: DocumentCommand): TranslatedInput {
+  if (write.kind !== 'setHighlightBoxRange') return changed([write])
+  const { startDate, endDate, topTaskGroupId, bottomTaskGroupId } = write.range
+  const isUnmoved =
+    startDate === box.start && endDate === box.finish &&
+    topTaskGroupId === box.topTaskGroupId && bottomTaskGroupId === box.bottomTaskGroupId
+  return isUnmoved ? CONSUMED_ELSEWHERE : changed([write])
 }
 
 // see HB-3, FR-019
