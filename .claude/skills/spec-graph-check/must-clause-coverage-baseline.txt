@@ -1,4 +1,5 @@
-2103
+2096
+# LOWERED 2103 -> 2096 on 2026-10-15 (JDG-520): the CR-755 spec-only tests quote FR-017 and FR-156 (the time zone keys, names, base field and answers).
 # LOWERED 2115 -> 2111 on 2026-10-11 (JDG-520): the CR-731 spec-only tests quote FR-155, T-373 and RW-11..RW-17.
 # LOWERED 2117 -> 2115 on 2026-10-11 (JDG-520): the CR-723 spec-only tests quote FR-151 and OP-18.
 # LOWERED 2119 -> 2117 on 2026-10-10 (JDG-520): the CR-728 and DFC-2410 spec-only tests quote SJ-10 and the scroll clauses.
