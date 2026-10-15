@@ -675,7 +675,7 @@ const T_058_MSPDI: readonly ColumnRow[] = [
   column('AT-6', 'Project', 'company', 'Company', SAMPLE.projectCompany),
   column('AT-7', 'Project', 'manager', 'Manager', SAMPLE.projectManager),
   column('AT-8', 'Project', 'author', 'Author', SAMPLE.projectAuthor),
-  column('AT-9', 'Project', 'created', 'CreationDate', SAMPLE.projectCreated),
+  column('AT-9', 'Project', 'creationDate', 'CreationDate', SAMPLE.projectCreated),
   column('AT-10', 'Project', 'revision', 'Revision', SAMPLE.projectRevision),
 
   column('AT-12', 'Project', 'startDate', 'StartDate', SAMPLE.projectStart),
@@ -704,7 +704,7 @@ const T_058_MSPDI: readonly ColumnRow[] = [
 
   column('AT-45', 'Dependency', 'predecessorUid', 'PredecessorUID', SAMPLE.taskUid, false),
   column('AT-46', 'Dependency', 'linkType', 'Type', SAMPLE.linkType, false),
-  column('AT-47', 'Dependency', 'lag', 'LinkLag', SAMPLE.lag, false),
+  column('AT-47', 'Dependency', 'linkLag', 'LinkLag', SAMPLE.lag, false),
   column('AT-48', 'Dependency', 'lagFormat', 'LagFormat', SAMPLE.lagFormat, false),
 
   column('AT-63', 'Calendar', 'uid', 'UID', SAMPLE.calendarUid),
@@ -1192,7 +1192,7 @@ describe('table T-053 -- the shape of the document', () => {
     // MUST NOT: a column naming the successor, and MUST NOT: a column for the
     // order of appearance. Table T-058 gives Dependency exactly six columns.
     expect(Object.keys(dependency ?? {}).sort()).toEqual(
-      ['carry', 'carryElements', 'lag', 'lagFormat', 'linkType', 'predecessorUid'].sort(),
+      ['carry', 'carryElements', 'lagFormat', 'linkLag', 'linkType', 'predecessorUid'].sort(),
     )
   })
 
