@@ -247,7 +247,6 @@ interface WriteMoment {
 
 interface ExportedText {
   readonly text: string
-  // see EX-6, RS-15
   readonly unlistedNoticeCount: number
 }
 
@@ -282,7 +281,6 @@ interface DecodedIntake {
   readonly clampedCount: number
   readonly recountedCount: number
   readonly duplicateLeaves: number
-  // see T-233, RS-15
   readonly unlistedNoticeCount: number
   readonly unreadColumns: readonly string[]
   readonly isNewerFormat: boolean
