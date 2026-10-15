@@ -27,7 +27,7 @@ export function createTaskGroup(
   if (!Number.isInteger(command.order)) {
     refusals.push(reject('CM-26', 'AT-55', `order is not an integer: ${command.order}`))
   }
-  if (command.label === null && command.derivedFromTaskUid === null) {
+  if (command.name === null && command.derivedFromTaskUid === null) {
     refusals.push(
       reject('CM-26', 'FR-058', 'a task group may hold neither a name nor a derivation source (AT-54)'),
     )
@@ -59,7 +59,7 @@ export function createTaskGroup(
   const taskGroup: TaskGroup = {
     id: command.id,
     parentId: command.parentId,
-    name: command.label,
+    name: command.name,
     derivedFromTaskUid: command.derivedFromTaskUid,
     order: command.order,
     treeState: 'temporarilyExpanded',
@@ -81,11 +81,11 @@ export function setTaskGroupName(
   if (taskGroup === undefined) {
     return refused([reject('CM-29', 'FR-085', `no such task group: ${command.taskGroupId}`)])
   }
-  if (command.label === null && taskGroup.derivedFromTaskUid === null) {
+  if (command.name === null && taskGroup.derivedFromTaskUid === null) {
     return refused([
       reject('CM-29', 'FR-058', 'a task group may hold neither a name nor a derivation source (AT-54)'),
     ])
   }
-  if (taskGroup.name === command.label) return edited(document)
-  return edited(withTaskGroup(document, { ...taskGroup, name: command.label }))
+  if (taskGroup.name === command.name) return edited(document)
+  return edited(withTaskGroup(document, { ...taskGroup, name: command.name }))
 }

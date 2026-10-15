@@ -527,7 +527,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DependencyCommand` | entry | type | `src/use-case/edit-document/edit-dependency.ts#DependencyCommand` | -- | type DependencyCommand = \| |
 | `DependencyEdge` | entry | type | `src/use-case/edit-document/edit-dependency.ts#DependencyEdge` | -- | type DependencyEdge = 'start' \| 'finish' |
 | `DocumentCommand` | entry | type | `src/use-case/edit-document/edit-document.ts#DocumentCommand` | -- | type DocumentCommand = \| TaskCommand \| TaskGroupCommand \| DependencyCommand \| AnnotationCommand \| ResourceCommand \| CalendarCommand \| ProjectCommand \| WholeS... |
-| `DocumentSettingsCommand` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#DocumentSettingsCommand` | -- | type DocumentSettingsCommand = \| { readonly kind: 'setStackDirection'; readonly direction: DocumentSettings['stackDirection'] } \| |
+| `DocumentSettingsCommand` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#DocumentSettingsCommand` | -- | type DocumentSettingsCommand = \| { readonly kind: 'setStackDirection'; readonly stackDirection: DocumentSettings['stackDirection'] } \| |
 | `editAnnotation` | entry | function | `src/use-case/edit-document/edit-annotation.ts#editAnnotation` | -- | function editAnnotation(document: Document, command: AnnotationCommand): EditResult |
 | `editCalendar` | entry | function | `src/use-case/edit-document/edit-calendar.ts#editCalendar` | -- | function editCalendar(document: Document, command: CalendarCommand): EditResult |
 | `editDependency` | entry | function | `src/use-case/edit-document/edit-dependency.ts#editDependency` | -- | function editDependency(document: Document, command: DependencyCommand): EditResult |
@@ -986,6 +986,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AppShell` | entry | interface | `src/adapter/document-codec/app-shell-source.ts#AppShell` | -- | interface AppShell |
 | `AppShellReading` | entry | type | `src/adapter/document-codec/app-shell-source.ts#AppShellReading` | -- | type AppShellReading = \| { readonly ok: true; readonly appShell: AppShell } \| { readonly ok: false; readonly what: string } export interface AppShellSource |
 | `AppShellSource` | entry | interface | `src/adapter/document-codec/app-shell-source.ts#AppShellSource` | PI-20 | 表 T-065 |
+| `commandShapeFaults` | entry | function | `src/adapter/document-codec/grs-json-schema.ts#commandShapeFaults` | PI-20 | `pure`。 |
 | `documentFromEmbeddedHtml` | entry | function | `src/adapter/document-codec/embedded-html-codec.ts#documentFromEmbeddedHtml` | PI-20 | `pure`。 |
 | `documentFromJson` | entry | function | `src/adapter/document-codec/json-codec.ts#documentFromJson` | PI-20 | function documentFromJson( text: string, greatestKnownSchemaVersion?: string, ): JsonDecoding |
 | `documentFromMspdi` | entry | function | `src/adapter/document-codec/mspdi-codec.ts#documentFromMspdi` | PI-20 | function documentFromMspdi(text: string, current: Document): MspdiDecoding |
@@ -1889,7 +1890,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileFlowSurfaceName` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowSurfaceName` | PI-39 | 型。 |
 | `FileFlowWriteForm` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowWriteForm` | PI-39 | 型。 |
 | `FileOperationState` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileOperationState` | PI-39 | 型。 |
-| `GrabbedVerticalAxis` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#GrabbedVerticalAxis` | PI-39 | 型。 |
 | `hasCalendarDraftRefusal` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#hasCalendarDraftRefusal` | -- | function hasCalendarDraftRefusal(draft: CalendarDraft): boolean |
 | `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximized`）。 |
 | `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximized`。 |

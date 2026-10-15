@@ -841,7 +841,7 @@ export function guideCursorModeOfEntry(entry: string): PressedGuideCursor | null
   return GUIDE_CURSOR_MODE_BY_ENTRY[entry] ?? null
 }
 
-type FontScale = Extract<DocumentCommand, { kind: 'setFontScale' }>['scale']
+type FontScale = Extract<DocumentCommand, { kind: 'setFontScale' }>['fontScale']
 
 const FONT_SCALE_STEPS: readonly FontScale[] = ['S', 'M', 'L']
 
@@ -1190,19 +1190,19 @@ function commandFromEntry(
       return changed([
         {
           kind: 'setFontScale',
-          scale: nextFontScale(context.document.documentSettings.fontScale),
+          fontScale: nextFontScale(context.document.documentSettings.fontScale),
         },
       ])
     case ENTRY.isThemeMonochrome:
       return changed([
         {
           kind: 'setThemeMonochrome',
-          monochrome: !context.document.documentSettings.isThemeMonochrome,
+          isThemeMonochrome: !context.document.documentSettings.isThemeMonochrome,
         },
       ])
     case ENTRY.stackDirection: {
       const isUpNow = context.document.documentSettings.stackDirection === 'up'
-      return changed([{ kind: 'setStackDirection', direction: isUpNow ? 'down' : 'up' }])
+      return changed([{ kind: 'setStackDirection', stackDirection: isUpNow ? 'down' : 'up' }])
     }
     case ENTRY.statusLine:
       return changed(statusLineWrites(context))

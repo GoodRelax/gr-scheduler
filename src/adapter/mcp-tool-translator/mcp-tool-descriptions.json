@@ -1,5 +1,5 @@
 {
- "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/agent-api-members.json, table T-107 (the members of the Agent API) by tools/generate_mcp_tool_descriptions.py. Rebuild: npm run gen -- npm run gen:check fails on drift. One entry per row in the table's order: the confirmed name, its description lines joined by newlines, and its input shape (AG-12 (4) (5), design-mcp-relay.md 3.1).",
+ "$comment": "GENERATED -- do not edit by hand. Generated from docs/spec/_source/agent-api-members.json, table T-107 (the members of the Agent API), and the commands the AM-7 input carries from docs/spec/_source/document-commands.json (table T-108), by tools/generate_mcp_tool_descriptions.py. Rebuild: npm run gen -- npm run gen:check fails on drift. One entry per row in the table's order: the confirmed name, its description lines joined by newlines, and its input shape (AG-12 (4) (5), design-mcp-relay.md 3.1).",
  "tools": [
   {
    "name": "agentApiVersion",
@@ -203,7 +203,7 @@
             "kind": {
              "const": "setStatusDate"
             },
-            "date": {
+            "statusDate": {
              "type": "string",
              "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
              "description": "`Project.statusDate`（`AT-13`）を書く（`null` は受けない）"
@@ -211,7 +211,7 @@
            },
            "required": [
             "kind",
-            "date"
+            "statusDate"
            ],
            "additionalProperties": false
           },
@@ -235,7 +235,7 @@
             "kind": {
              "const": "setThemeHue"
             },
-            "hue": {
+            "themeHue": {
              "type": "integer",
              "minimum": 0,
              "maximum": 359,
@@ -244,7 +244,7 @@
            },
            "required": [
             "kind",
-            "hue"
+            "themeHue"
            ],
            "additionalProperties": false
           },
@@ -255,7 +255,7 @@
             "kind": {
              "const": "setParentProgressToleranceDays"
             },
-            "workingDays": {
+            "parentProgressToleranceDays": {
              "type": "integer",
              "minimum": 0,
              "description": "`Project.parentProgressToleranceDays`（`AT-156`）を書く"
@@ -263,7 +263,7 @@
            },
            "required": [
             "kind",
-            "workingDays"
+            "parentProgressToleranceDays"
            ],
            "additionalProperties": false
           },
@@ -274,7 +274,7 @@
             "kind": {
              "const": "setScheduleDataTimeZone"
             },
-            "timeZone": {
+            "scheduleDataTimeZone": {
              "enum": [
               "UTC-12:00",
               "UTC-11:00",
@@ -309,7 +309,7 @@
            },
            "required": [
             "kind",
-            "timeZone"
+            "scheduleDataTimeZone"
            ],
            "additionalProperties": false
           },
@@ -834,7 +834,7 @@
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
-            "days": {
+            "fadeInDays": {
              "type": [
               "integer",
               "null"
@@ -846,7 +846,7 @@
            "required": [
             "kind",
             "uid",
-            "days"
+            "fadeInDays"
            ],
            "additionalProperties": false
           },
@@ -861,7 +861,7 @@
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
-            "days": {
+            "fadeOutDays": {
              "type": [
               "integer",
               "null"
@@ -873,7 +873,7 @@
            "required": [
             "kind",
             "uid",
-            "days"
+            "fadeOutDays"
            ],
            "additionalProperties": false
           },
@@ -888,7 +888,7 @@
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
-            "parentUid": {
+            "parentTaskUid": {
              "type": [
               "integer",
               "null"
@@ -899,7 +899,7 @@
            "required": [
             "kind",
             "uid",
-            "parentUid"
+            "parentTaskUid"
            ],
            "additionalProperties": false
           },
@@ -967,7 +967,7 @@
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
-            "glyph": {
+            "milestoneGlyph": {
              "enum": [
               "circle",
               "hexagon",
@@ -992,7 +992,7 @@
            "required": [
             "kind",
             "uid",
-            "glyph"
+            "milestoneGlyph"
            ],
            "additionalProperties": false
           },
@@ -1098,7 +1098,7 @@
              "format": "uuid",
              "description": "`TaskGroup.parentId`（`AT-52`）を書く"
             },
-            "label": {
+            "name": {
              "type": [
               "string",
               "null"
@@ -1121,7 +1121,7 @@
             "kind",
             "id",
             "parentId",
-            "label",
+            "name",
             "derivedFromTaskUid",
             "order"
            ],
@@ -1199,7 +1199,7 @@
              "format": "uuid",
              "description": "鍵（`TaskGroup.id`、`AT-51`）"
             },
-            "label": {
+            "name": {
              "type": [
               "string",
               "null"
@@ -1210,7 +1210,7 @@
            "required": [
             "kind",
             "taskGroupId",
-            "label"
+            "name"
            ],
            "additionalProperties": false
           },
@@ -1270,7 +1270,7 @@
              "format": "uuid",
              "description": "鍵（`TaskGroup.id`、`AT-51`）"
             },
-            "minHeight": {
+            "minHeightPx": {
              "type": [
               "integer",
               "null"
@@ -1281,7 +1281,7 @@
            "required": [
             "kind",
             "taskGroupId",
-            "minHeight"
+            "minHeightPx"
            ],
            "additionalProperties": false
           },
@@ -2222,12 +2222,12 @@
             "range": {
              "type": "object",
              "properties": {
-              "startDate": {
+              "start": {
                "type": "string",
                "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
                "description": "`HighlightBox.start`（`AT-117`）を書く（`null` は受けない）"
               },
-              "endDate": {
+              "finish": {
                "type": "string",
                "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
                "description": "`HighlightBox.finish`（`AT-118`）を書く（`null` は受けない）"
@@ -2244,8 +2244,8 @@
               }
              },
              "required": [
-              "startDate",
-              "endDate",
+              "start",
+              "finish",
               "topTaskGroupId",
               "bottomTaskGroupId"
              ],
@@ -2294,12 +2294,12 @@
             "range": {
              "type": "object",
              "properties": {
-              "startDate": {
+              "start": {
                "type": "string",
                "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
                "description": "`HighlightBox.start`（`AT-117`）を書く（`null` は受けない）"
               },
-              "endDate": {
+              "finish": {
                "type": "string",
                "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
                "description": "`HighlightBox.finish`（`AT-118`）を書く（`null` は受けない）"
@@ -2316,8 +2316,8 @@
               }
              },
              "required": [
-              "startDate",
-              "endDate",
+              "start",
+              "finish",
               "topTaskGroupId",
               "bottomTaskGroupId"
              ],
@@ -2449,7 +2449,7 @@
             "kind": {
              "const": "setStackDirection"
             },
-            "direction": {
+            "stackDirection": {
              "enum": [
               "up",
               "down"
@@ -2459,7 +2459,7 @@
            },
            "required": [
             "kind",
-            "direction"
+            "stackDirection"
            ],
            "additionalProperties": false
           },
@@ -2505,7 +2505,7 @@
             "kind": {
              "const": "setFontScale"
             },
-            "scale": {
+            "fontScale": {
              "enum": [
               "S",
               "M",
@@ -2516,7 +2516,7 @@
            },
            "required": [
             "kind",
-            "scale"
+            "fontScale"
            ],
            "additionalProperties": false
           },
@@ -2527,14 +2527,14 @@
             "kind": {
              "const": "setThemeMonochrome"
             },
-            "monochrome": {
+            "isThemeMonochrome": {
              "type": "boolean",
              "description": "`isThemeMonochrome`（`S-74`）を書く"
             }
            },
            "required": [
             "kind",
-            "monochrome"
+            "isThemeMonochrome"
            ],
            "additionalProperties": false
           },
@@ -2771,7 +2771,7 @@
             "kind": {
              "const": "setDisplayScale"
             },
-            "scale": {
+            "displayScale": {
              "enum": [
               50,
               67,
@@ -2789,7 +2789,7 @@
            },
            "required": [
             "kind",
-            "scale"
+            "displayScale"
            ],
            "additionalProperties": false
           },
@@ -3020,7 +3020,7 @@
             "kind": {
              "const": "setViewTimeZone"
             },
-            "timeZone": {
+            "viewTimeZone": {
              "type": [
               "string",
               "null"
@@ -3030,7 +3030,7 @@
            },
            "required": [
             "kind",
-            "timeZone"
+            "viewTimeZone"
            ],
            "additionalProperties": false
           },
@@ -3041,7 +3041,7 @@
             "kind": {
              "const": "setDisplayTimeZones"
             },
-            "timeZones": {
+            "displayTimeZones": {
              "type": "array",
              "items": {
               "enum": [
@@ -3092,7 +3092,7 @@
            },
            "required": [
             "kind",
-            "timeZones"
+            "displayTimeZones"
            ],
            "additionalProperties": false
           },

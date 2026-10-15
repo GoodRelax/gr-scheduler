@@ -129,12 +129,12 @@
    "name": "HighlightRange",
    "fields": [
     {
-     "name": "startDate",
+     "name": "start",
      "column": "AT-117",
      "null": false
     },
     {
-     "name": "endDate",
+     "name": "finish",
      "column": "AT-118",
      "null": false
     },
@@ -531,7 +531,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "date",
+     "name": "statusDate",
      "column": "AT-13",
      "null": false
     }
@@ -573,7 +573,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "hue",
+     "name": "themeHue",
      "column": "AT-19"
     }
    ],
@@ -596,7 +596,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "workingDays",
+     "name": "parentProgressToleranceDays",
      "column": "AT-156"
     }
    ],
@@ -619,7 +619,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "timeZone",
+     "name": "scheduleDataTimeZone",
      "column": "AT-157"
     }
    ],
@@ -1035,7 +1035,7 @@
      "key": "AT-24"
     },
     {
-     "name": "days",
+     "name": "fadeInDays",
      "column": "AT-40"
     }
    ],
@@ -1062,7 +1062,7 @@
      "key": "AT-24"
     },
     {
-     "name": "days",
+     "name": "fadeOutDays",
      "column": "AT-41"
     }
    ],
@@ -1089,7 +1089,7 @@
      "key": "AT-24"
     },
     {
-     "name": "parentUid",
+     "name": "parentTaskUid",
      "column": "AT-25"
     }
    ],
@@ -1171,7 +1171,7 @@
      "key": "AT-24"
     },
     {
-     "name": "glyph",
+     "name": "milestoneGlyph",
      "column": "AT-101"
     }
    ],
@@ -1283,7 +1283,7 @@
      "column": "AT-52"
     },
     {
-     "name": "label",
+     "name": "name",
      "column": "AT-53"
     },
     {
@@ -1390,7 +1390,7 @@
      "key": "AT-51"
     },
     {
-     "name": "label",
+     "name": "name",
      "column": "AT-53"
     }
    ],
@@ -1468,7 +1468,7 @@
      "key": "AT-51"
     },
     {
-     "name": "minHeight",
+     "name": "minHeightPx",
      "column": "AT-59"
     }
    ],
@@ -2396,7 +2396,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "direction",
+     "name": "stackDirection",
      "column": "S-58"
     }
    ],
@@ -2465,7 +2465,7 @@
    "bundle": true,
    "values": [
     {
-     "name": "scale",
+     "name": "fontScale",
      "column": "S-70"
     }
    ],
@@ -2488,7 +2488,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "monochrome",
+     "name": "isThemeMonochrome",
      "column": "S-74"
     }
    ],
@@ -2740,7 +2740,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "scale",
+     "name": "displayScale",
      "column": "S-234"
     }
    ],
@@ -2908,7 +2908,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "timeZone",
+     "name": "viewTimeZone",
      "type": "string",
      "column": "S-574",
      "null": true,
@@ -2936,7 +2936,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "timeZones",
+     "name": "displayTimeZones",
      "column": "S-575"
     }
    ],

@@ -636,7 +636,7 @@ function fittedAsDrawn(context: InputContext) {
 /** @purity pure */
 export function statusLineWrites(context: InputContext): readonly DocumentCommand[] {
   if (context.document.schedule.project.statusDate !== null) return [{ kind: 'clearStatusDate' }]
-  return [{ kind: 'setStatusDate', date: context.today }, ...statusLineCentered(context, context.today)]
+  return [{ kind: 'setStatusDate', statusDate: context.today }, ...statusLineCentered(context, context.today)]
 }
 
 // WHY: a picture drawn at the fit stores no zoom; a place written alone moves the next picture to the stored zoom (DFC-2410).

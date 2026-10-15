@@ -404,8 +404,8 @@ describe('X-4 FR-054: dates are compared by their day', () => {
       kind: 'setHighlightBoxRange',
       id: HIGHLIGHT_ID,
       range: {
-        startDate: april(20, '08:00:00'),
-        endDate: april(22, '17:00:00'),
+        start: april(20, '08:00:00'),
+        finish: april(22, '17:00:00'),
         topTaskGroupId: rowIdOf(0),
         bottomTaskGroupId: rowIdOf(1),
       },

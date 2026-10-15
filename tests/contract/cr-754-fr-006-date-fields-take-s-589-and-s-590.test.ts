@@ -159,8 +159,7 @@ describe(`FR-006 -- ${FR_006_ACTUAL_LENGTH}`, () => {
     expect(length?.widthInFontSizes).toBe(taskDateControl(panel, 'PR-4').widthInFontSizes)
   })
 
-  // DEVIATION: spec says PR-5 is as wide as its date fields, S-590 with the time shown (FR-006); here it keeps its text estimate (DFC-2870)
-  it.fails('the time shown: the actual length (PR-5) is as wide as the date and time fields beside it (S-590)', () => {
+  it('the time shown: the actual length (PR-5) is as wide as the date and time fields beside it (S-590)', () => {
     const panel = taskPanel({ settings: SHOWN_TIME })
     const length = panel.fields.find((one) => one.row === ACTUAL_LENGTH_ROW)?.controls[0]
     expect(length?.widthInFontSizes).toBe(taskDateControl(panel, 'PR-4').widthInFontSizes)

@@ -201,18 +201,18 @@ describe('a value that writes a document column takes that column\'s shape in th
 })
 
 describe('the published input refuses a command whose shape is off (schema level; the runtime refusal is DFC-2856)', () => {
-  const fadeIn = { kind: 'setTaskFadeInDays', uid: 12, days: 3 }
+  const fadeIn = { kind: 'setTaskFadeInDays', uid: 12, fadeInDays: 3 }
 
   it('a well-formed bundle is accepted', () => {
     expect(acceptsRequest({ expectedStamp: STAMP, commands: [fadeIn] }), JSON.stringify(acceptsRequest.errors)).toBe(true)
   })
 
   it.each([
-    ['days given as a string', { ...fadeIn, days: '3' }],
-    ['a misspelt field', { kind: 'setTaskFadeInDays', uid: 12, day: 3 }],
+    ['fadeInDays given as a string', { ...fadeIn, fadeInDays: '3' }],
+    ['a misspelt field', { kind: 'setTaskFadeInDays', uid: 12, fadeInDay: 3 }],
     ['a field left out', { kind: 'setTaskFadeInDays', uid: 12 }],
-    ['an extra field', { ...fadeIn, fadeInDays: 3 }],
-    ['a kind table T-108 does not hold', { kind: 'setTaskFadeDays', uid: 12, days: 3 }],
+    ['an extra field', { ...fadeIn, days: 3 }],
+    ['a kind table T-108 does not hold', { kind: 'setTaskFadeDays', uid: 12, fadeInDays: 3 }],
     ['CM-76, which only a person uses', { kind: 'setTaskGroupEditGroup', taskGroupId: 'g', editGroup: null }],
     ['both lag shapes at once', { kind: 'setDependencyLag', predecessorUid: 1, successorUid: 2, lagWorkingDays: 1, lagMinutes: 60, lagUnit: 'h' }],
     ['a lag unit outside d, h and m', { kind: 'setDependencyLag', predecessorUid: 1, successorUid: 2, lagMinutes: 60, lagUnit: 'w' }],

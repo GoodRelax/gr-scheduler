@@ -312,7 +312,7 @@ describe('DFC-418: the write path judges the figure (AG-5, FR-078)', () => {
     expect(GLYPHS.length).toBe(SH_5_FIGURE_COUNT)
     for (const glyph of GLYPHS) {
       const out = editTask(document(), {
-        kind: 'setTaskVisualMilestoneGlyph', uid: 1, glyph,
+        kind: 'setTaskVisualMilestoneGlyph', uid: 1, milestoneGlyph: glyph,
       } as never, DEFAULT_TASK_GROUP_NAME_FIXTURE)
       expect(out.ok, `${glyph} was refused`).toBe(true)
     }
@@ -320,14 +320,14 @@ describe('DFC-418: the write path judges the figure (AG-5, FR-078)', () => {
 
   it('refuses a word that is not one of them (AG-5)', () => {
     const out = editTask(document(), {
-      kind: 'setTaskVisualMilestoneGlyph', uid: 1, glyph: 'NOT-A-GLYPH',
+      kind: 'setTaskVisualMilestoneGlyph', uid: 1, milestoneGlyph: 'NOT-A-GLYPH',
     } as never, DEFAULT_TASK_GROUP_NAME_FIXTURE)
     expect(out.ok).toBe(false)
   })
 
   it('still clears the column, which is not an unknown word (AT-101)', () => {
     const out = editTask(document(), {
-      kind: 'setTaskVisualMilestoneGlyph', uid: 1, glyph: null,
+      kind: 'setTaskVisualMilestoneGlyph', uid: 1, milestoneGlyph: null,
     } as never, DEFAULT_TASK_GROUP_NAME_FIXTURE)
     expect(out.ok).toBe(true)
   })

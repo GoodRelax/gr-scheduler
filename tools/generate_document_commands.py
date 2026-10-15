@@ -31,6 +31,9 @@ WRITES  one region per unit, the one that opens
                                                              TypedLag.lagUnit: the letters
                                                              a length is spelled in (TX-10)
           src/adapter/screen-renderer/properties-panel.ts    LENGTH_LETTERS, the same values
+          src/adapter/document-codec/grs-json-schema.ts      SHAPE_OF_COMMAND_KIND, the shape of each
+                                                             command as the walker there reads
+                                                             it (DFC-2856)
 
         and, through tools/generate_mcp_tool_descriptions.py, which calls
         with_command_shapes() below, the input shape of the AM-7 MCP tool.
@@ -60,6 +63,7 @@ refuses a name nobody brings in.
 
 Run with PYTHONIOENCODING=utf-8.
 """
+import collections
 import copy
 import io
 import json
@@ -699,6 +703,78 @@ def with_command_shapes(input_schema, member, agent_doc):
     return out
 
 
+# ---------------------------------------------------------------- run-time shape check
+
+SHAPE_UNIT = 'src/adapter/document-codec/grs-json-schema.ts'
+
+# ⭐ What a run-time check of a command judges: its kind, the values it must
+# carry, the values it may not carry, and the JSON type of each (FR-028, AG-9a
+# of table T-035; DFC-2856). A bound, a spelling or a count is NOT judged here:
+# the planning of the command already refuses those with a reason of its own,
+# and a malformedRequest in their place would hide that reason.
+SHAPE_KEPT = ('type', 'const', 'enum', 'required', 'additionalProperties', 'properties', 'items', 'oneOf')
+SHAPE_NOT_JUDGED = ('description', 'pattern', 'format', 'minimum', 'maximum', 'maxItems', 'maxLength')
+
+
+def shape_check_node(node, at):
+    """One command schema node, cut down to the keywords the walker of SHAPE_UNIT reads.
+
+    @purity pure
+    """
+    out = collections.OrderedDict()
+    for keyword in node:
+        if keyword not in SHAPE_KEPT and keyword not in SHAPE_NOT_JUDGED:
+            stop('%s of a command schema uses %r, which neither SHAPE_KEPT nor SHAPE_NOT_JUDGED lists' % (at, keyword))
+    if 'type' in node:
+        out['type'] = [node['type']] if isinstance(node['type'], str) else list(node['type'])
+    if 'const' in node:
+        out['enum'] = [node['const']]
+    if 'enum' in node:
+        out['enum'] = list(node['enum'])
+    if 'required' in node:
+        out['required'] = list(node['required'])
+    if 'additionalProperties' in node:
+        extra = node['additionalProperties']
+        if extra is False:
+            out['closed'] = True
+        elif isinstance(extra, dict):
+            # A map whose keys are free and whose values have one shape (PasteLanding.taskGroupIdOf).
+            out['values'] = shape_check_node(extra, at + '/{}')
+        else:
+            stop('%s of a command schema gives additionalProperties the value %r' % (at, extra))
+    if 'properties' in node:
+        out['properties'] = collections.OrderedDict(
+            (key, shape_check_node(inner, at + '/' + key)) for key, inner in node['properties'].items())
+    if 'items' in node:
+        out['items'] = shape_check_node(node['items'], at + '/[]')
+    if 'oneOf' in node:
+        out['alternatives'] = [shape_check_node(one, '%s/oneOf/%d' % (at, index))
+                               for index, one in enumerate(node['oneOf'])]
+    return out
+
+
+def shape_check_region(doc, columns, schema):
+    """(unit, what, lines) of SHAPE_OF_COMMAND_KIND, keyed by the kind of each command.
+
+    @purity pure
+    """
+    # ⚠️ Imported here, not at the head: generate_mcp_tool_descriptions.py imports this file
+    # for with_command_shapes() alone, and is run on copies that carry no validator.
+    import generate_json_schema_validator as validator
+    lines = ['// see %s, FR-028, AG-9a' % doc['table']['id'],
+             'const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {']
+    ways = collections.OrderedDict()
+    for one in command_schemas(doc, columns, schema):
+        kind = one['properties']['kind']['const']
+        ways.setdefault(kind, []).append(shape_check_node(one, '/' + kind))
+    for kind, nodes in ways.items():
+        # A command with a choice of shapes (CM-38) is one alternative per shape.
+        node = nodes[0] if len(nodes) == 1 else collections.OrderedDict([('alternatives', nodes)])
+        lines.append('  %s: %s,' % (validator.ts_key(kind), validator.ts_node(node, 1)))
+    lines.append('}')
+    return (SHAPE_UNIT, 'table %s, SHAPE_OF_COMMAND_KIND' % doc['table']['id'], lines)
+
+
 def main():
     """Write the regions, or say whether the units on disk still match.
 
@@ -706,7 +782,7 @@ def main():
     """
     doc, columns = load()
     drifted = []
-    printed = regions(doc, columns)
+    printed = regions(doc, columns) + [shape_check_region(doc, columns, document_schema())]
     for rel, what, lines in printed:
         text = io.open(path_of(rel), encoding='utf-8', newline='').read()
         built = rewritten(rel, text, what, lines)

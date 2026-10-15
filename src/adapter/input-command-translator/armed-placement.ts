@@ -60,7 +60,7 @@ export function commandFromArmingEntry(entry: string, context: InputContext): Tr
       const glyph = milestoneGlyphOf(armed.glyph)
       if (glyph === null) continue
       commands.push({ kind: 'setTaskVisualShapeKind', uid: one.uid, shapeKind: 'milestone' })
-      commands.push({ kind: 'setTaskVisualMilestoneGlyph', uid: one.uid, glyph })
+      commands.push({ kind: 'setTaskVisualMilestoneGlyph', uid: one.uid, milestoneGlyph: glyph })
       continue
     }
   }
@@ -107,7 +107,7 @@ export function commandFromParentTaskDrag(
   if (parent.milestone === true) return nothingToDo('milestoneCannotBeAParent')
   const chosen = taskUidsIn(context.selection)
   const children = chosen.includes(from.taskUid) ? chosen : [from.taskUid]
-  return changed(children.map((uid) => ({ kind: 'setTaskParentTask', uid, parentUid: parent.uid })))
+  return changed(children.map((uid) => ({ kind: 'setTaskParentTask', uid, parentTaskUid: parent.uid })))
 }
 
 // see PTL-10, PTL-12, RS-70
@@ -158,7 +158,7 @@ export function commandFromArmed(
         commands.push({
           kind: 'setTaskVisualMilestoneGlyph',
           uid: nextIssuedUid(context.document.schedule),
-          glyph,
+          milestoneGlyph: glyph,
         })
       }
     }
@@ -193,8 +193,8 @@ export function commandFromArmed(
         kind: 'createHighlightBox',
         id: context.newHighlightBoxId,
         range: {
-          startDate: textOfDayStart(early),
-          endDate: textOfDayEnd(late),
+          start: textOfDayStart(early),
+          finish: textOfDayEnd(late),
           topTaskGroupId: top.taskGroupId,
           bottomTaskGroupId: bottom.taskGroupId,
         },

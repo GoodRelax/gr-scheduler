@@ -232,7 +232,7 @@ export function taskGroupStoodUp(context: InputContext, parentTaskGroupId: strin
           kind: 'createTaskGroup',
           id: newTaskGroupId,
           parentId: parentTaskGroupId,
-          label: DEFAULT_TASK_GROUP_NAME,
+          name: DEFAULT_TASK_GROUP_NAME,
           derivedFromTaskUid: null,
           order: orderPastLastChild(context.document.schedule, parentTaskGroupId),
         } as const,

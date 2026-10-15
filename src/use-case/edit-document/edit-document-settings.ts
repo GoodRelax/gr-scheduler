@@ -47,14 +47,14 @@ export interface TableView {
 
 // see T-108
 export type DocumentSettingsCommand =
-  | { readonly kind: 'setStackDirection'; readonly direction: DocumentSettings['stackDirection'] }
+  | { readonly kind: 'setStackDirection'; readonly stackDirection: DocumentSettings['stackDirection'] }
   | {
       readonly kind: 'setElementVisible'
       readonly element: 'isBaselineVisible' | 'isPlanVisible' | 'isActualVisible' | 'isProgressLineVisible' | 'isProgressMarkerVisible' | 'isDateGridLinesVisible' | 'isGroupGridLinesVisible' | 'isAssigneeVisible' | 'isPercentCompleteVisible' | 'isDependencyVisible' | 'isPlanDatesVisible'
       readonly visible: boolean
     }
-  | { readonly kind: 'setFontScale'; readonly scale: DocumentSettings['fontScale'] }
-  | { readonly kind: 'setThemeMonochrome'; readonly monochrome: DocumentSettings['isThemeMonochrome'] }
+  | { readonly kind: 'setFontScale'; readonly fontScale: DocumentSettings['fontScale'] }
+  | { readonly kind: 'setThemeMonochrome'; readonly isThemeMonochrome: DocumentSettings['isThemeMonochrome'] }
   | {
       readonly kind: 'setZoom'
       readonly zoomX: DocumentSettings['zoomX']
@@ -82,7 +82,7 @@ export type DocumentSettingsCommand =
       readonly scrollDayOffset: DocumentSettings['scrollDayOffset']
       readonly scrollGroupOffset: DocumentSettings['scrollGroupOffset']
     }
-  | { readonly kind: 'setDisplayScale'; readonly scale: DocumentSettings['displayScale'] }
+  | { readonly kind: 'setDisplayScale'; readonly displayScale: DocumentSettings['displayScale'] }
   | {
       readonly kind: 'setFitSpan'
       readonly fitSpanStart: DocumentSettings['fitSpanStart']
@@ -104,8 +104,8 @@ export type DocumentSettingsCommand =
       readonly table: 'searchPanel' | 'delayDiagnosticsReport' | 'resourceList'
       readonly view: TableView
     }
-  | { readonly kind: 'setViewTimeZone'; readonly timeZone: string | null }
-  | { readonly kind: 'setDisplayTimeZones'; readonly timeZones: DocumentSettings['displayTimeZones'] }
+  | { readonly kind: 'setViewTimeZone'; readonly viewTimeZone: string | null }
+  | { readonly kind: 'setDisplayTimeZones'; readonly displayTimeZones: DocumentSettings['displayTimeZones'] }
   | {
       readonly kind: 'setTimeOfDayVisible'
       readonly isTimeOfDayVisible: DocumentSettings['isTimeOfDayVisible']
@@ -324,11 +324,11 @@ function fontScaleEdited(
   put: SettingsPut,
 ): EditResult {
   const ruler = SETTINGS_DERIVED.rulerFontSizePx
-  const rulerFontSizePx = SETTINGS_CONSTANTS[ruler.index][command.scale] * ruler.times
+  const rulerFontSizePx = SETTINGS_CONSTANTS[ruler.index][command.fontScale] * ruler.times
   const band = SETTINGS_DERIVED.rulerHeightPx
   const padded = { ...settings, rulerFontSizePx }
   return put({
-    fontScale: command.scale,
+    fontScale: command.fontScale,
     rulerFontSizePx,
     rulerHeightPx:
       padded[band.from] * band.times +
@@ -443,12 +443,13 @@ const MOST_DISPLAY_TIME_ZONES = 4
 /** @purity pure */
 function zoneCommandEdited(settings: DocumentSettings, command: ZoneCommand, put: SettingsPut): EditResult {
   if (command.kind === 'setViewTimeZone') {
-    if (command.timeZone !== null && !isStandardTimeZoneKey(command.timeZone)) {
-      return refused([reject('CM-95', 'FR-156', `not a standard-time key of table T-376: ${String(command.timeZone)}`)])
+    if (command.viewTimeZone !== null && !isStandardTimeZoneKey(command.viewTimeZone)) {
+      const what = `not a standard-time key of table T-376: ${String(command.viewTimeZone)}`
+      return refused([reject('CM-95', 'FR-156', what)])
     }
-    return put({ viewTimeZone: command.timeZone })
+    return put({ viewTimeZone: command.viewTimeZone })
   }
-  const zones = command.timeZones
+  const zones = command.displayTimeZones
   if (!Array.isArray(zones) || zones.length > MOST_DISPLAY_TIME_ZONES || !zones.every(isTimeZoneKey)) {
     return refused([reject('CM-96', 'FR-156', `not 0 to ${MOST_DISPLAY_TIME_ZONES} keys of table T-376`)])
   }
@@ -460,7 +461,7 @@ function zoneCommandEdited(settings: DocumentSettings, command: ZoneCommand, put
 // see CM-64, CM-91, CM-97
 /** @purity pure */
 function flagCommandEdited(command: FlagCommand, put: SettingsPut): EditResult {
-  if (command.kind === 'setThemeMonochrome') return put({ isThemeMonochrome: command.monochrome })
+  if (command.kind === 'setThemeMonochrome') return put({ isThemeMonochrome: command.isThemeMonochrome })
   if (command.kind === 'setTaskGroupPanelWidthFixed') return put({ isTaskGroupPanelWidthFixed: command.isTaskGroupPanelWidthFixed })
   return put({ isTimeOfDayVisible: command.isTimeOfDayVisible })
 }
@@ -501,7 +502,7 @@ export function editDocumentSettings(
 
   switch (command.kind) {
     case 'setStackDirection':
-      return put({ stackDirection: command.direction })
+      return put({ stackDirection: command.stackDirection })
 
     case 'setElementVisible':
       return put({ [command.element]: command.visible } as Partial<DocumentSettings>)
@@ -511,7 +512,7 @@ export function editDocumentSettings(
 
     // see CM-74, FR-039
     case 'setDisplayScale':
-      return put({ displayScale: command.scale })
+      return put({ displayScale: command.displayScale })
 
     case 'setZoom': {
       // TRAP: refuse NaN here; it fails both comparisons, so the clamp alone would store it.
@@ -591,8 +592,10 @@ export function baseChangeCommandOf(
   const isDataMoved = after.scheduleDataTimeZone !== held.scheduleDataTimeZone
   const isViewMoved = after.viewTimeZone !== held.viewTimeZone
   return [
-    ...(isDataMoved ? [{ kind: 'setScheduleDataTimeZone', timeZone: after.scheduleDataTimeZone } as const] : []),
-    ...(isViewMoved ? [{ kind: 'setViewTimeZone', timeZone: after.viewTimeZone } as const] : []),
+    ...(isDataMoved
+      ? [{ kind: 'setScheduleDataTimeZone', scheduleDataTimeZone: after.scheduleDataTimeZone } as const]
+      : []),
+    ...(isViewMoved ? [{ kind: 'setViewTimeZone', viewTimeZone: after.viewTimeZone } as const] : []),
   ]
 }
 

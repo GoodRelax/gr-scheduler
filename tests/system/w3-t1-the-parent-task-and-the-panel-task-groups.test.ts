@@ -251,7 +251,7 @@ test.describe(`FR-075 (MUST): ${FR_075_COLORS.slice(-40)}`, () => {
       await opened.page.keyboard.press('Escape')
       await opened.page.keyboard.press('Escape')
       await settle(opened.page)
-      expect((await applyCommandsOf(opened.page, [{ kind: 'setThemeHue', hue: 52 }])).ok, 'premise: the hue is written').toBe(true)
+      expect((await applyCommandsOf(opened.page, [{ kind: 'setThemeHue', themeHue: 52 }])).ok, 'premise: the hue is written').toBe(true)
       expect(await pressEntrance(opened.page, THEME_TOGGLE)).toBe(true)
       await openPanelOf(opened.page, 2)
       const plan = await opened.page.evaluate(() => document.querySelector('[data-role="Schedule Canvas"] svg [data-figure="task-1-plan"]')?.getAttribute('stroke') ?? '')

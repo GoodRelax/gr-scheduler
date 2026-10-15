@@ -156,7 +156,7 @@ describe(`CR-608 -- ${AT_153_MADE}`, () => {
     ])
     const result = editTaskGroup(
       document as never,
-      { kind: 'createTaskGroup', id: FRESH, parentId: P, label: 'New', derivedFromTaskUid: null, order: 99 },
+      { kind: 'createTaskGroup', id: FRESH, parentId: P, name: 'New', derivedFromTaskUid: null, order: 99 },
       'Row',
     )
     expect(result.ok).toBe(true)
@@ -223,7 +223,7 @@ describe('CR-608 test 6 -- the Agent API createTaskGroup makes a deep task group
     const outcome = api.applyCommands({
       expectedStamp: api.readStamp(),
       commands: [
-        { kind: 'createTaskGroup', id: FRESH, parentId: P, label: 'From the agent', derivedFromTaskUid: null, order: 99 },
+        { kind: 'createTaskGroup', id: FRESH, parentId: P, name: 'From the agent', derivedFromTaskUid: null, order: 99 },
       ] as never,
     })
     drain()

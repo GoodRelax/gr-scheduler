@@ -371,7 +371,7 @@ describe(`T-035 AG-9 "${AG_9_EDITING}" -- through the Agent API while a field is
   // see CM-65, UN-8
   const ZOOM = { kind: kindOf('CM-65'), zoomX: 1, zoomY: 2 }
   // see CM-64, UN-13
-  const MONOCHROME = { kind: kindOf('CM-64'), monochrome: true }
+  const MONOCHROME = { kind: kindOf('CM-64'), isThemeMonochrome: true }
   // see CM-1, UN-13
   const TITLE = { kind: kindOf('CM-1'), title: 'CR-593 another title' }
 

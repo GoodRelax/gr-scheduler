@@ -118,7 +118,7 @@ export function commandFromGrab(
     const project = context.document.schedule.project
     return day === null
       ? CONSUMED_ELSEWHERE
-      : changed([{ kind: 'setStatusDate', date: textOfFinishSide(day, project) }])
+      : changed([{ kind: 'setStatusDate', statusDate: textOfFinishSide(day, project) }])
   }
 
   // TRAP: must stay above GR-14's moves below, or a double click and a drag on one place are one press.
@@ -532,6 +532,7 @@ function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): Docum
     const movedStart = textOfStartSide(dayShifted(start, drag.dayCount), project, task.milestone === true)
     return { kind: 'setTaskPlanDates', uid: task.uid, start: movedStart, finish: textOfFinishSide(dayShifted(finish, drag.dayCount), project) }
   }
+  if (isDateKeepingDrag(drag.press)) return null
   const plan = plannedInstantsOf(workingCalendarOf(context.document.schedule), task)
   if (plan === null) return null
   const [start, finish] = plan
@@ -899,7 +900,18 @@ function highlightBoxRangeWrite(
     ;({ upper, lower, left, right } = grabPointRange(held, draggedSidesOf(part), atPointer, release.y))
   }
   if (upper === undefined || lower === undefined) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
-  return changed([highlightRangeWrite(context, box, { upper, lower, left, right })])
+  return changedUnlessUnmoved(box, highlightRangeWrite(context, box, { upper, lower, left, right }))
+}
+
+// see GR-14, CM-54, FR-100
+/** @purity pure */
+function changedUnlessUnmoved(box: HighlightBox, write: DocumentCommand): TranslatedInput {
+  if (write.kind !== 'setHighlightBoxRange') return changed([write])
+  const { start, finish, topTaskGroupId, bottomTaskGroupId } = write.range
+  const isUnmoved =
+    start === box.start && finish === box.finish &&
+    topTaskGroupId === box.topTaskGroupId && bottomTaskGroupId === box.bottomTaskGroupId
+  return isUnmoved ? CONSUMED_ELSEWHERE : changed([write])
 }
 
 // see HB-3, FR-019
@@ -934,8 +946,8 @@ function highlightRangeWrite(
     kind: 'setHighlightBoxRange',
     id: box.id,
     range: {
-      startDate: heldOrWritten(box.start, isLeftFirst ? left : right, textOfDayStart),
-      endDate: heldOrWritten(box.finish, isLeftFirst ? right : left, textOfDayEnd),
+      start: heldOrWritten(box.start, isLeftFirst ? left : right, textOfDayStart),
+      finish: heldOrWritten(box.finish, isLeftFirst ? right : left, textOfDayEnd),
       topTaskGroupId: (isUpperFirst ? upper : lower).taskGroupId,
       bottomTaskGroupId: (isUpperFirst ? lower : upper).taskGroupId,
     },
@@ -1022,7 +1034,9 @@ function fadeEndWrite(context: InputContext, release: PointerInput, uid: number,
   const stood = (grab === 'GA-7' ? task.fadeInDays : task.fadeOutDays) ?? 0
   if (days === stood) return CONSUMED_ELSEWHERE
   return changed([
-    grab === 'GA-7' ? { kind: 'setTaskFadeInDays', uid, days } : { kind: 'setTaskFadeOutDays', uid, days },
+    grab === 'GA-7'
+      ? { kind: 'setTaskFadeInDays', uid, fadeInDays: days }
+      : { kind: 'setTaskFadeOutDays', uid, fadeOutDays: days },
   ])
 }
 

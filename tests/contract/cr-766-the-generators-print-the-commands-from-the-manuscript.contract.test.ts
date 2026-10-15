@@ -24,7 +24,13 @@ const TABLE_PRINTER = 'docs/spec/_source/document_commands_json_to_md.py'
 // WHY: the generator also writes the one-line letters of a length (TX-10) into these two units outside UNIT_DIR.
 const LENGTH_LETTER_UNITS = ['src/entity/layout-engine/schedule-layout/name-label.ts', 'src/adapter/screen-renderer/properties-panel.ts']
 
-const COPIED = [SOURCE_DIR, PRINTED, UNIT_DIR, ...LENGTH_LETTER_UNITS, DESCRIPTIONS, GENERATOR, DESCRIPTION_GENERATOR, AGENT_GENERATOR]
+// WHY: the generator also prints each command's shape into the codec's schema walker, through its printer (DFC-2856).
+const SHAPE_UNIT = 'src/adapter/document-codec/grs-json-schema.ts'
+const SHAPE_PRINTER = 'tools/generate_json_schema_validator.py'
+const COPIED = [
+  SOURCE_DIR, PRINTED, UNIT_DIR, ...LENGTH_LETTER_UNITS, DESCRIPTIONS, GENERATOR, DESCRIPTION_GENERATOR, AGENT_GENERATOR,
+  SHAPE_UNIT, SHAPE_PRINTER,
+]
 
 interface Value {
   name?: string
@@ -173,10 +179,10 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
     }
   })
 
-  it('renaming the days value of CM-16 leaves TaskCommand drifted, and no other unit', () => {
+  it('renaming the fadeInDays value of CM-16 to days leaves TaskCommand drifted, and no other unit', () => {
     const copy = scratchCopy()
     editManuscript(copy, (manuscript) => {
-      valueOf(manuscript, 'CM-16', 'days').name = 'fadeInDays'
+      valueOf(manuscript, 'CM-16', 'fadeInDays').name = 'days'
     })
     const ran = check(copy, GENERATOR)
     expect(ran.status).toBe(1)
@@ -187,7 +193,7 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
   it('the same rename leaves the printed table T-108 drifted', () => {
     const copy = scratchCopy()
     editManuscript(copy, (manuscript) => {
-      valueOf(manuscript, 'CM-16', 'days').name = 'fadeInDays'
+      valueOf(manuscript, 'CM-16', 'fadeInDays').name = 'days'
     })
     const ran = check(copy, TABLE_PRINTER)
     expect(ran.status).toBe(1)
@@ -197,7 +203,7 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
   it('the same rename leaves the MCP tool descriptions drifted', () => {
     const copy = scratchCopy()
     editManuscript(copy, (manuscript) => {
-      valueOf(manuscript, 'CM-16', 'days').name = 'fadeInDays'
+      valueOf(manuscript, 'CM-16', 'fadeInDays').name = 'days'
     })
     const ran = check(copy, DESCRIPTION_GENERATOR)
     expect(ran.status).toBe(1)
@@ -207,12 +213,12 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
   it('the generator writes the rename into TaskCommand, and its check is green again', () => {
     const copy = scratchCopy()
     editManuscript(copy, (manuscript) => {
-      valueOf(manuscript, 'CM-16', 'days').name = 'fadeInDays'
+      valueOf(manuscript, 'CM-16', 'fadeInDays').name = 'days'
     })
     const wrote = python(copy, [join(copy, GENERATOR)])
     expect(wrote, wrote.out).toMatchObject({ status: 0 })
     const unit = readFileSync(join(copy, TASK_UNIT), 'utf8')
-    expect(unit).toContain("readonly kind: 'setTaskFadeInDays'; readonly uid: Task['uid']; readonly fadeInDays: Task['fadeInDays']")
+    expect(unit).toContain("readonly kind: 'setTaskFadeInDays'; readonly uid: Task['uid']; readonly days: Task['fadeInDays']")
     expect(check(copy, GENERATOR).status).toBe(0)
   })
 
@@ -222,7 +228,7 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
   ])('a value that points at %s is refused by load_valid, and nothing is printed from it', (_label, row) => {
     const copy = scratchCopy()
     editManuscript(copy, (manuscript) => {
-      valueOf(manuscript, 'CM-16', 'days').column = row
+      valueOf(manuscript, 'CM-16', 'fadeInDays').column = row
     })
     const loaded = seam(copy, 'doc, found = printer.load_valid()\nprint(doc is None)\nprint("\\n".join(found or []))')
     expect(loaded, loaded.out).toMatchObject({ status: 0 })

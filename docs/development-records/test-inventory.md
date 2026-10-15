@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 388 | 4873 | 9 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 393 | 4941 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 91 | 589 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3867 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 681 | 9439 | 12 | 8 | 13 | 2 |
+| **all** | | | 686 | 9507 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -49,18 +49,17 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
-## 5. Expected-to-fail cases (12)
+## 5. Expected-to-fail cases (11)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 4 of 12.
+named either way: 4 of 11.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the bundle of the first document is refused on a document that cannot take its second c... | DFC-730 |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the refusal leaves nothing applied: no document and no step come out of it | none |
-| `tests/contract/cr-754-fr-006-date-fields-take-s-589-and-s-590.test.ts` | the time shown: the actual length (PR-5) is as wide as the date and time fields beside... | DFC-2870 |
 | `tests/contract/cr-757-fo-17-the-settings-row-asks-then-moves.test.ts` | UN-13 / FR-159: ${FR_159_ONE_UNDO} -- S-77 scrollDate is back too | DFC-2761 |
 | `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | a dateless milestone (read as 17:00, the end of the last span) is not counted outside a... | none |
 | `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | a milestone written at 17:00 (its WT-5 default time) is not counted outside after the move | none |
@@ -427,7 +426,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-751-the-schema-names-the-regions-and-no-spec-id.contract.test.ts` | 12 | FR-024, FR-054, FR-156 | - | T-376 | IV-24, S-574, S-575, S-582 | - | - | - | - |
 | `tests/contract/cr-752-call-shapes-and-two-fix-rows.contract.test.ts` | 20 | FR-011, FR-012, FR-054 | - | T-064, T-108, T-310, T-346 | CM-11, CM-37, FA-3, FA-15, FA-24, PI-1, RW-16, VC-15 | - | - | - | - |
 | `tests/contract/cr-753-a-ctrl-drag-copy-lands-where-the-body-move-lands.test.ts` | 34 | FR-016, FR-017, FR-103 | - | T-209, T-266, T-270, T-350, T-378 | CY-5, CY-7, CY-9, GA-9, GA-14, GA-15, GA-18, PE-1, PE-6, PTD-7, RV-1, S-1, S-8, S-55, S-85, S-229, S-482, S-483, S-577, S-578, SG-1, SG-2, SG-3, WT-1, WT-2 | - | - | - | - |
-| `tests/contract/cr-754-fr-006-date-fields-take-s-589-and-s-590.test.ts` | 16 | FR-006, FR-088, FR-093 | - | T-016, T-201, T-206 | K-141, PI-37, PR-5, S-30, S-199, S-589, S-590, TX-3, WC-4 | - | - | 1: DFC-2870 | - |
+| `tests/contract/cr-754-fr-006-date-fields-take-s-589-and-s-590.test.ts` | 16 | FR-006, FR-088, FR-093 | - | T-016, T-201, T-206 | K-141, PI-37, PR-5, S-30, S-199, S-589, S-590, TX-3, WC-4 | - | - | - | - |
 | `tests/contract/cr-754-fr-006-fr-038-item-names-wrap-at-the-dictionary-break-marks.test.ts` | 10 | FR-006, FR-038 | - | - | K-138 | - | - | - | - |
 | `tests/contract/cr-754-fr-072-the-close-only-row-heads-every-panel.test.ts` | 10 | FR-072 | - | - | FO-16, IC-52 | - | - | - | - |
 | `tests/contract/cr-754-s-171-s-197-the-panel-font-and-the-kept-choices.test.ts` | 5 | FR-006 | - | - | S-171, S-197, S-198 | - | - | - | - |
@@ -477,6 +476,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-772-hf-15-the-grab-has-three-states.contract.test.ts` | 9 | - | VT-2 | T-289 | HF-15, S-208 | - | - | - | - |
 | `tests/contract/cr-774-hf-15-a-gap-past-the-depth-cap-is-chosen-and-drawn-dashed.contract.test.ts` | 17 | FR-004 | - | T-234 | HF-15, HM-3a, QN-16 | - | - | - | - |
 | `tests/contract/cr-774-hf-15-the-release-asks-qn-16-and-lifts-the-too-deep-groups.contract.test.ts` | 16 | - | - | - | HF-15, HM-3, HM-9, QN-16, S-125, UF-97 | - | - | - | - |
+| `tests/contract/cr-775-alt-at-release-and-shift-keeps-dates.test.ts` | 17 | FR-016, FR-017, FR-103, FR-107, NFR-007 | - | T-236, T-266, T-270, T-366, T-378 | CF-6, CY-5, CY-9, CY-11, GA-9, GA-14, GA-15, GA-18, MK-12, MK-15, MK-16, MK-17, PE-1, PE-6, S-1, S-8, S-55, S-155, S-577, S-578, S-587, SG-2, SG-3, SG-4 | - | - | - | - |
+| `tests/contract/cr-776-778-command-values-carry-their-column-names.contract.test.ts` | 10 | - | - | T-058, T-064, T-202 | AM-7, PI-39 | - | - | - | - |
 | `tests/contract/cr-777-a-released-tip-snaps-or-stands-free.contract.test.ts` | 13 | - | - | - | AR-5, CM-51, GR-14 | - | - | - | - |
 | `tests/contract/cr-777-the-anchor-value-the-deleted-target-and-the-merge.contract.test.ts` | 22 | FR-019 | - | - | CM-7, CM-46, CM-50, CM-53 | - | - | - | - |
 | `tests/contract/cr-777-the-tip-stands-at-its-point-and-follows-its-target.contract.test.ts` | 21 | FR-019 | - | - | AT-167, GR-14, LF-15, S-292 | - | - | - | - |
@@ -529,9 +530,11 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-2463-fr-156-the-pc-standard-time-and-no-notice.contract.test.ts` | 12 | FR-156 | - | T-376 | BK-4, IC-71, IC-72, IC-73, IC-98, MG-4, PF-1, PF-8, ZN-57, ZN-61, ZN-62 | - | - | - | - |
 | `tests/contract/dfc-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts` | 19 | FR-025, FR-038, FR-080, FR-096 | - | T-014, T-024, T-036, T-037, T-041, T-060, T-062, T-066, T-075, T-103, T-109, T-218, T-233 | CP-25, CS-2, IC-3, IF-3, IF-5, IO-1, IO-2, IO-3, IO-6, IO-7, LY-5, NT-3, NT-3a, RS-24, S-89, SK-12, SK-16, SK-19, SK-21, ST-3, ST-7, ST-10, TS-6, U-54, UF-48, WY-2 | - | - | - | - |
 | `tests/contract/dfc-2765-bl-2-the-outline-uses-the-plan-bars-conversion.contract.test.ts` | 5 | FR-015, FR-054 | - | T-339 | BL-2 | - | - | - | - |
+| `tests/contract/dfc-2856-a-misshapen-command-bundle-is-refused.contract.test.ts` | 17 | FR-028 | - | T-108 | AG-9a, AM-7, AV-3, AV-4, CM-38, PI-20 | - | - | - | - |
 | `tests/contract/dfc-286-fr-044-emptying-a-set-resume-date-clears-resume-valid.test.ts` | 12 | FR-006, FR-044 | - | T-016, T-019, T-019a, T-108, T-216, T-218 | PA-2, PA-3, PA-4, PR-7, PR-8, PR-15, PS-3, PS-4, PS-5, TS-2, TS-6 | - | - | - | - |
 | `tests/contract/dfc-288-d-289-fr-099-deleting-the-chosen-assignees.test.ts` | 19 | FR-029, FR-038, FR-099 | - | T-037, T-050, T-060, T-062, T-066, T-075, T-108, T-109, T-218, T-233, T-234 | CD-5, CM-42, CP-25, CS-2, IC-62, IC-65, IC-66, IC-67, IC-68, LY-5, NT-7, QN-3, RS-27, TS-2, TS-6, UF-48 | - | - | - | - |
 | `tests/contract/dfc-290-d-321-fr-033-copy-and-paste-reach-the-document.test.ts` | 16 | FR-031, FR-033, FR-038, FR-076, NFR-004 | - | T-014, T-023c, T-036, T-037, T-050, T-062, T-066, T-075, T-103, T-218, T-223, T-233 | CD-2, CM-8, CM-28, CP-25, CS-2, DU-1, DU-2, IN-1, RS-24, RS-27, S-89, SK-4, SK-5, SL-2, ST-7, TS-6, U-22, UF-48 | - | - | - | - |
+| `tests/contract/dfc-2912-a-highlight-box-released-unmoved-is-no-edit.test.ts` | 13 | FR-031, FR-100, FR-103 | - | T-246 | GR-14, HB-3, HB-4, HB-7, HB-10, HB-11, HB-12 | - | - | - | - |
 | `tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts` | 11 | FR-012, FR-043 | - | T-019, T-033, T-059, T-108, T-218 | CM-9, CM-11, CM-13, CM-14, CM-15, DV-11, EX-2, PA-1, PS-2, TS-2, TS-6 | - | - | - | - |
 | `tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts` | 13 | FR-048, FR-082, FR-083 | VT-2 | T-023a, T-023b, T-027, T-028, T-029a, T-062, T-064, T-103, T-109, T-218, T-280 | AR-1, AR-4, AR-7, CP-18, DC-1, DC-2, DC-4, DC-9, IC-45, IN-1, IN-4, PI-18, PTD-2, PTD-5, S-65, SP-1, SP-4, TS-6, U-26, UF-48, UN-16 | - | - | - | - |
 | `tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` | 7 | FR-027, FR-051, FR-052, FR-055, FR-076, FR-102 | - | T-023d, T-024a, T-027, T-031, T-034, T-035, T-062, T-206, T-218 | AG-9, BT-4, CP-19, CP-25, GR-21, IC-76, IF-9, OP-10, S-77, S-78, S-176, S-177, S-205, SC-4, TS-6, UF-48, UF-61, UN-8, WS-2 | - | - | - | - |
@@ -552,6 +555,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-545-a-held-choice-or-checkbox-is-no-text-entry.contract.test.ts` | 5 | - | - | - | IF-9, IN-5a, IN-6, PR-1, SK-3, SK-19, WS-2 | - | - | - | - |
 | `tests/contract/dfc-554-gr-17-released-at-or-left-of-the-dummy-keeps-s-129.test.ts` | 5 | FR-011, FR-043 | - | T-023d, T-266, T-350 | AT-39, DM-1, GA-5, GA-6, IV-21, S-129, S-482, S-483 | - | - | - | - |
 | `tests/contract/dfc-556-in-2-an-armed-dependency-line-gives-the-drawing-signal-on-empty-canvas.test.ts` | 5 | - | - | T-023b, T-028, T-109 | AR-2, AR-4, IN-2, PTD-5 | - | - | - | - |
+| `tests/contract/dfc-557-mspdi-notices-are-told.contract.test.ts` | 11 | FR-038, FR-102 | - | T-233 | EX-6, IC-72, RS-15 | - | - | - | - |
 | `tests/contract/dfc-567-fr-029-a-faint-roster-entrance-that-is-pressed-tells-rs-27.test.ts` | 9 | FR-029 | - | T-233 | IC-63, IC-64, IC-65, IC-66, RO-1, RO-3, RS-27 | - | - | - | - |
 | `tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts` | 63 | FR-019, FR-097 | - | T-023d, T-108, T-206, T-221, T-246 | AT-110, AT-115, AT-117, CM-50, CM-51, CM-54, GR-14, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6, HB-11, HB-12, IV-19, LF-14, LF-15, LF-17, RS-44, S-1, S-12, S-75, S-137, S-230, S-292, S-293 | - | - | - | - |
 | `tests/contract/dfc-571-if-9-a-half-typed-line-is-no-utterance.test.ts` | 4 | - | - | T-035, T-065 | AG-11, IF-9 | - | - | - | - |

@@ -140,6 +140,7 @@ WAIT_MS_KEY                          そのメンバの MCP だけの鍵（`AM-1
 COMMAND_KINDS_BY_UNION               命令の型ごとの命令の名（表 T-108 の行を型ごとに。`_source/document-commands.json` から `tools/generate_document_commands.py` が `edit-document.ts` に刷り、振り分けが読む。`CR-766`）
 PROJECT_PROFILE_FIELD_NAMES          基本情報を直す命令が運べる欄の名（表 T-108 の `ProjectProfileFields`。同じ生成器が `edit-project.ts` に刷る。`CR-766`）
 LENGTH_LETTERS                       長さを綴る字（`TX-10`。表 T-108 の `TypedLag.lagUnit` の値。同じ生成器が `properties-panel.ts` に刷る —— `name-label.ts` には同じ値を型 `LengthLetter` として刷る。`CR-766`）
+SHAPE_OF_COMMAND_KIND                命令の種類ごとの形（表 T-108 の行ごとに、要る値・持てない値・値の型。同じ生成器が `grs-json-schema.ts` に刷り、`commandShapeFaults` が読む。`DFC-2856`）
 ROOT_KEYS                            文書の根の鍵の並び（`grs-document.schema.json` の根の `properties`。`DR-1`・`DR-4`、`CR-768`）
 SCHEDULE_COLORS                     日程の色（表 T-236 のうち `SvgRenderer` が塗る分）
 SCHEDULE_COLORS_SOURCES             その行のうち、ほかの行を継ぐ行と継ぎ先（表 T-366 で寄せた行を継ぐ行が、寄せた値で描かれるため。`CR-683`）

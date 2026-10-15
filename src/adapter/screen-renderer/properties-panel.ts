@@ -2104,12 +2104,13 @@ function withFieldWords(fields: readonly PropertyField[], language: DisplayLangu
     const column: string = field.controls[0]?.key.column ?? ''
     const unitPart = isTimeOfDayVisible && TYPED_LENGTH_COLUMNS.includes(column) ? undefined : UNIT_PART_OF_COLUMN[column]
     const hintPart = HINT_PART_OF_COLUMN[column]
-    if (unitPart === undefined && hintPart === undefined) return field
+    // WHY: PR-5 takes the date width even when the time of day drops its unit word (DFC-2870).
+    const isActualLength = column === ACTUAL_LENGTH_ITEM
+    if (unitPart === undefined && hintPart === undefined && !isActualLength) return field
     const hint = hintPart === undefined ? {} : { hint: PROPERTY_FIELD_WORDS.get(hintPart)?.[language] ?? '' }
-    const sized =
-      column === ACTUAL_LENGTH_ITEM
-        ? { isSizedAsDate: true as const, widthInFontSizes: dateEntryWidthOf(isTimeOfDayVisible) }
-        : {}
+    const sized = isActualLength
+      ? { isSizedAsDate: true as const, widthInFontSizes: dateEntryWidthOf(isTimeOfDayVisible) }
+      : {}
     return {
       ...field,
       ...(unitPart === undefined ? {} : { unit: PROPERTY_FIELD_WORDS.get(unitPart)?.[language] ?? '' }),
