@@ -7,7 +7,8 @@
   "EVERY ENTRY IS WRITTEN BY THE USER AND AN AGENT MUST NOT INVENT ONE. Table T-109 refuses an English column in as many words, and a word invented by an agent would settle the very names that refusal protects. Fill ja and en here for anything added; nothing else has to change for a word to appear, and the generator counts the written cells on every run.",
   "THIS FILE HOLDS NO ROSTER. Which entries exist is read from docs/spec every run -- table T-109, table T-037, table T-023, table T-023b, table T-104 and FR-072 -- and the generator refuses to write if this file and those tables disagree. Read those tables to know which entry a key stands for; a group is keyed by the first row of table T-109 that sits in it.",
   "THE settings SECTION IS KEYED BY THE ROW OF TABLE T-104, one word per row and never one per key -- the same move the properties section makes over table T-016, and for the same reason: K-103 names two keys and K-105 names three, and a word per key would settle names the glossary has not settled. The KEYS each row names are not written here; the generator reads them out of that table and carries them into src/ beside the word, so the surface can go from a settings key to its word without either side holding a copy of the table.",
-  "ITS WORDS WERE CARRIED OUT OF TABLE T-104 RATHER THAN INVENTED. That table is the authority on the NAME of a settings key and already held the user's own Japanese, so the ja cells are its own with the Markdown emphasis taken off, and the en cells are that table's settled English name. They are this file's now: edit them here, and the screen follows on the next npm run gen."
+  "ITS WORDS WERE CARRIED OUT OF TABLE T-104 RATHER THAN INVENTED. That table is the authority on the NAME of a settings key and already held the user's own Japanese, so the ja cells are its own with the Markdown emphasis taken off, and the en cells are that table's settled English name. They are this file's now: edit them here, and the screen follows on the next npm run gen.",
+  "A WORD MAY CARRY BREAK MARKS (CR-754, FR-038, FR-006). A `|` inside an item name of the properties panel marks where that name may wrap onto a second line; it is NOT part of the word. The generator takes every mark out of the word it writes to src/ and puts labelBreakSegments -- the word cut at its marks -- beside a marked word, and refuses to write if a mark would survive into src/ or a segment is empty. A word with no mark wraps at its spaces."
  ],
  "icons": [
   {
@@ -1822,7 +1823,7 @@
   {
    "rowId": "K-2",
    "label": {
-    "ja": "目盛の帯の高さ",
+    "ja": "目盛の|帯の|高さ",
     "en": "rulerHeight"
    }
   },
@@ -2284,7 +2285,7 @@
   {
    "rowId": "K-61",
    "label": {
-    "ja": "モノクロにするか",
+    "ja": "モノクロに|するか",
     "en": "themeMonochrome"
    }
   },
@@ -2319,42 +2320,42 @@
   {
    "rowId": "K-67",
    "label": {
-    "ja": "横のズーム倍率",
+    "ja": "横の|ズーム|倍率",
     "en": "zoomX"
    }
   },
   {
    "rowId": "K-68",
    "label": {
-    "ja": "縦のズーム倍率",
+    "ja": "縦の|ズーム|倍率",
     "en": "zoomY"
    }
   },
   {
    "rowId": "K-69",
    "label": {
-    "ja": "表示の左端が指す日付",
+    "ja": "表示の|左端が|指す|日付",
     "en": "scrollDate"
    }
   },
   {
    "rowId": "K-70",
    "label": {
-    "ja": "表示の上端が指すタスクグループ",
+    "ja": "表示の|上端が|指す|タスクグループ",
     "en": "scrollGroupId"
    }
   },
   {
    "rowId": "K-71",
    "label": {
-    "ja": "タスクグループパネルの幅",
+    "ja": "タスク|グループパネルの|幅",
     "en": "taskGroupPanelWidth"
    }
   },
   {
    "rowId": "K-143",
    "label": {
-    "ja": "タスクグループパネルの幅を固定する",
+    "ja": "タスクグループ|パネルの|幅を|固定する",
     "en": "Fix the task group panel width"
    }
   },
@@ -2368,7 +2369,7 @@
   {
    "rowId": "K-110",
    "label": {
-    "ja": "ピン止めの対象",
+    "ja": "ピン止めの|対象",
     "en": "pinnedGroupIds"
    }
   },
@@ -2390,56 +2391,56 @@
    "rowId": "K-122",
    "label": {
     "ja": "予定の表示",
-    "en": "planVisible"
+    "en": "Plan"
    }
   },
   {
    "rowId": "K-123",
    "label": {
     "ja": "実績の表示",
-    "en": "actualVisible"
+    "en": "Actual"
    }
   },
   {
    "rowId": "K-75",
    "label": {
     "ja": "担当ラベル",
-    "en": "assigneeVisible"
+    "en": "Assignee Label"
    }
   },
   {
    "rowId": "K-76",
    "label": {
     "ja": "完了率ラベル",
-    "en": "percentCompleteVisible"
+    "en": "Percent Complete Label"
    }
   },
   {
    "rowId": "K-124",
    "label": {
-    "ja": "名称ラベルに添える予定日",
-    "en": "planDatesVisible"
+    "ja": "名称ラベルに|添える|予定日",
+    "en": "Planned Dates"
    }
   },
   {
    "rowId": "K-77",
    "label": {
     "ja": "依存線",
-    "en": "dependencyVisible"
+    "en": "Dependency Lines"
    }
   },
   {
    "rowId": "K-78",
    "label": {
     "ja": "進捗マーカー",
-    "en": "progressMarkerVisible"
+    "en": "Progress Marker"
    }
   },
   {
    "rowId": "K-79",
    "label": {
     "ja": "イナズマ線",
-    "en": "progressLineVisible"
+    "en": "Progress Line"
    }
   },
   {
@@ -2459,22 +2460,22 @@
   {
    "rowId": "K-82",
    "label": {
-    "ja": "日付罫線（日付ごとの縦線）",
-    "en": "dateGridLinesVisible"
+    "ja": "日付罫線|（日付ごとの|縦線）",
+    "en": "Date Grid Lines"
    }
   },
   {
    "rowId": "K-83",
    "label": {
-    "ja": "グループ罫線（TaskGroup 境界の横線）",
-    "en": "groupGridLinesVisible"
+    "ja": "グループ罫線|（TaskGroup 境界の|横線）",
+    "en": "Group Grid Lines"
    }
   },
   {
    "rowId": "K-84",
    "label": {
-    "ja": "変更前の予定を重ねるか",
-    "en": "baselineVisible"
+    "ja": "変更前の|予定を|重ねるか",
+    "en": "Baseline"
    }
   },
   {
@@ -2487,7 +2488,7 @@
   {
    "rowId": "K-125",
    "label": {
-    "ja": "表示の倍率",
+    "ja": "表示の|倍率",
     "en": "displayScale"
    }
   },
@@ -2508,35 +2509,35 @@
   {
    "rowId": "K-141",
    "label": {
-    "ja": "全体表示時の期間",
+    "ja": "全体表示時の|期間",
     "en": "Fit span"
    }
   },
   {
    "rowId": "K-142",
    "label": {
-    "ja": "全体表示時の期間を固定する",
+    "ja": "全体表示時の|期間を|固定する",
     "en": "Fix the fit span"
    }
   },
   {
    "rowId": "K-144",
    "label": {
-    "ja": "本プロジェクトの基準タイムゾーン",
+    "ja": "本プロジェクトの|基準|タイムゾーン",
     "en": "Project Base Time Zone"
    }
   },
   {
    "rowId": "K-145",
    "label": {
-    "ja": "表示するタイムゾーン",
+    "ja": "表示する|タイムゾーン",
     "en": "Display Time Zone"
    }
   },
   {
    "rowId": "K-146",
    "label": {
-    "ja": "時刻を表示する",
+    "ja": "時刻を|表示する",
     "en": "showsTimeOfDay"
    }
   },
@@ -2697,28 +2698,28 @@
   {
    "rowId": "K-120",
    "label": {
-    "ja": "表示の上端が指すタスクグループのどこにあるか",
+    "ja": "表示の|上端が|指す|タスクグループの|どこに|あるか",
     "en": "scrollGroupOffset"
    }
   },
   {
    "rowId": "K-121",
    "label": {
-    "ja": "表示の左端が指す日のどこにあるか",
+    "ja": "表示の|左端が|指す|日の|どこに|あるか",
     "en": "scrollDayOffset"
    }
   },
   {
    "rowId": "K-138",
    "label": {
-    "ja": "段 0 の木の状態",
+    "ja": "段 0 の|木の|状態",
     "en": "levelZeroTreeState"
    }
   },
   {
    "rowId": "K-140",
    "label": {
-    "ja": "遅延診断時に親タスクの進捗の疑義を許す日数（稼働日）",
+    "ja": "遅延診断時に|親タスクの|進捗の|疑義を|許す|日数",
     "en": "parentProgressToleranceDays"
    }
   },
@@ -4207,7 +4208,7 @@
   {
    "part": "currentName",
    "text": {
-    "ja": "現在表示中の期間",
+    "ja": "現在表示中の|期間",
     "en": "Shown Now"
    }
   },
@@ -4986,6 +4987,13 @@
     "ja": "再開予定日が決まっている。外すと再開日が未定の中断",
     "en": "The resume date is decided. Clear it for an interruption with no resume date."
    }
+  },
+  {
+   "part": "workingDaysUnit",
+   "text": {
+    "ja": "稼働日",
+    "en": "working days"
+   }
   }
  ],
  "rowMinHeightField": [
@@ -5043,7 +5051,7 @@
   {
    "part": "currentName",
    "text": {
-    "ja": "現在のタスクグループパネルの幅",
+    "ja": "現在の|タスク|グループパネルの|幅",
     "en": "Current"
    }
   },
@@ -5520,7 +5528,7 @@
   {
    "part": "name",
    "text": {
-    "ja": "全体日程シフト",
+    "ja": "全体|日程シフト",
     "en": "Shift Whole Schedule"
    }
   },
@@ -5571,6 +5579,274 @@
    "text": {
     "ja": "{typed} は休日 —— {start} から始める",
     "en": "{typed} is not a working day; the schedule starts on {start}"
+   }
+  }
+ ],
+ "readOnlySettings": [
+  {
+   "part": "heading",
+   "text": {
+    "ja": "ここから下は読むだけ（このパネルでは変えられません）",
+    "en": "Read-only from here down (cannot be changed in this panel)"
+   }
+  },
+  {
+   "part": "groupShowHide",
+   "text": {
+    "ja": "表示の切り替え",
+    "en": "Show or Hide"
+   }
+  },
+  {
+   "part": "groupLabels",
+   "text": {
+    "ja": "ラベル",
+    "en": "Labels"
+   }
+  },
+  {
+   "part": "groupView",
+   "text": {
+    "ja": "見えている範囲",
+    "en": "View"
+   }
+  },
+  {
+   "part": "groupGridLinesAndColor",
+   "text": {
+    "ja": "罫線と色",
+    "en": "Grid Lines and Color"
+   }
+  },
+  {
+   "part": "groupRulerAndStack",
+   "text": {
+    "ja": "目盛と積む向き",
+    "en": "Ruler and Stack Direction"
+   }
+  },
+  {
+   "part": "groupTableViews",
+   "text": {
+    "ja": "表の見え方",
+    "en": "Table Views"
+   }
+  },
+  {
+   "part": "scheduleFilter",
+   "text": {
+    "ja": "スケジュールフィルタ",
+    "en": "Schedule Filter"
+   }
+  },
+  {
+   "part": "hiddenTasks",
+   "text": {
+    "ja": "非表示にしたタスク",
+    "en": "Hidden Tasks"
+   }
+  },
+  {
+   "part": "hiddenResources",
+   "text": {
+    "ja": "非表示にした担当",
+    "en": "Hidden Resources"
+   }
+  },
+  {
+   "part": "unassignedRow",
+   "text": {
+    "ja": "（担当なし）の行",
+    "en": "(Unassigned) Row"
+   }
+  },
+  {
+   "part": "columnFilters",
+   "text": {
+    "ja": "列ごとのフィルタ",
+    "en": "Column Filters"
+   }
+  },
+  {
+   "part": "sortOrder",
+   "text": {
+    "ja": "並べ替え",
+    "en": "Sort Order"
+   }
+  },
+  {
+   "part": "shown",
+   "text": {
+    "ja": "表示する",
+    "en": "Shown"
+   }
+  },
+  {
+   "part": "hidden",
+   "text": {
+    "ja": "表示しない",
+    "en": "Hidden"
+   }
+  },
+  {
+   "part": "overlaid",
+   "text": {
+    "ja": "重ねる",
+    "en": "Overlaid"
+   }
+  },
+  {
+   "part": "notOverlaid",
+   "text": {
+    "ja": "重ねない",
+    "en": "Not overlaid"
+   }
+  },
+  {
+   "part": "monochrome",
+   "text": {
+    "ja": "モノクロ",
+    "en": "Monochrome"
+   }
+  },
+  {
+   "part": "color",
+   "text": {
+    "ja": "カラー",
+    "en": "Color"
+   }
+  },
+  {
+   "part": "filterOn",
+   "text": {
+    "ja": "掛ける",
+    "en": "On"
+   }
+  },
+  {
+   "part": "filterOff",
+   "text": {
+    "ja": "掛けない",
+    "en": "Off"
+   }
+  },
+  {
+   "part": "stackUp",
+   "text": {
+    "ja": "上へ積む",
+    "en": "Stack up"
+   }
+  },
+  {
+   "part": "stackDown",
+   "text": {
+    "ja": "下へ積む",
+    "en": "Stack down"
+   }
+  },
+  {
+   "part": "expandedAuto",
+   "text": {
+    "ja": "開く（自動）",
+    "en": "Expanded (auto)"
+   }
+  },
+  {
+   "part": "collapsed",
+   "text": {
+    "ja": "畳む",
+    "en": "Collapsed"
+   }
+  },
+  {
+   "part": "notSet",
+   "text": {
+    "ja": "決めていない",
+    "en": "Not set"
+   }
+  },
+  {
+   "part": "notSetFromTop",
+   "text": {
+    "ja": "決めていない（先頭から）",
+    "en": "Not set (from the top)"
+   }
+  },
+  {
+   "part": "topZero",
+   "text": {
+    "ja": "先頭（0%）",
+    "en": "Top (0%)"
+   }
+  },
+  {
+   "part": "percent",
+   "text": {
+    "ja": "{n}%",
+    "en": "{n}%"
+   }
+  },
+  {
+   "part": "dayOffset",
+   "text": {
+    "ja": "{time} ごろ（日の {percent}）",
+    "en": "About {time} ({percent} of the day)"
+   }
+  },
+  {
+   "part": "itemCount",
+   "text": {
+    "ja": "{n} 件",
+    "en": "{n}"
+   }
+  },
+  {
+   "part": "columnCount",
+   "text": {
+    "ja": "{n} 列",
+    "en": "{n} columns"
+   }
+  },
+  {
+   "part": "columnCountOne",
+   "text": {
+    "ja": "{n} 列",
+    "en": "{n} column"
+   }
+  },
+  {
+   "part": "none",
+   "text": {
+    "ja": "なし",
+    "en": "None"
+   }
+  },
+  {
+   "part": "pixels",
+   "text": {
+    "ja": "{n} px",
+    "en": "{n} px"
+   }
+  },
+  {
+   "part": "defaultOrder",
+   "text": {
+    "ja": "既定の並び",
+    "en": "Default order"
+   }
+  },
+  {
+   "part": "sortAscending",
+   "text": {
+    "ja": "{column} の昇順",
+    "en": "{column}, ascending"
+   }
+  },
+  {
+   "part": "sortDescending",
+   "text": {
+    "ja": "{column} の降順",
+    "en": "{column}, descending"
    }
   }
  ],

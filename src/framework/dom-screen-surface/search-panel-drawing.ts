@@ -5,6 +5,7 @@
 
 import {
   UNASSIGNED_ROW_KEY,
+  dateEntryWidthOf,
   isFilterValueListed,
   statusGlyphSvg,
   windowBoxOf,
@@ -520,6 +521,7 @@ function filterDateFields(host: Document, menu: Extract<SearchFilterMenuView, { 
       const label = made(host, 'span', FILTER_BOUND_WORD_STYLE)
       label.textContent = word
       const field = filterControl(host, 'date', fontPx)
+      field.style.minWidth = `${dateEntryWidthOf(false)}em`
       field.setAttribute(SEARCH_FILTER_BOUND_ATTRIBUTE, bound)
       field.value = day ?? ''
       line.replaceChildren(label, field)
@@ -638,6 +640,7 @@ function fixAfterElement(host: Document, fix: FixCell): HTMLElement | null {
   if (fix.date === null) return null
   const field = fixInput(host, 'input', fix, 'date')
   field.setAttribute('type', 'date')
+  field.style.minWidth = `${dateEntryWidthOf(false)}em`
   field.value = fix.date.slice(0, 10)
   if (fix.dateNote === null || fix.dateNote === '') return field
   const held = made(host, 'span', 'white-space:nowrap;')

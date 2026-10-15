@@ -1221,6 +1221,14 @@
    }
   },
   {
+   "prefix": "RN",
+   "words": "Read-oNly settings",
+   "owner": "spec",
+   "means": {
+    "ja": "文書の設定の面の読むだけの行の組（表 T-380）"
+   }
+  },
+  {
    "prefix": "RO",
    "words": "",
    "owner": "spec",

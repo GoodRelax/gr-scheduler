@@ -78,8 +78,8 @@ const IC_17 = settingsEntrance()
 const APP_HEADER = bare(specTable('T-109').rows.find((one) => one.id === IC_17)?.by['面'] ?? '')
 
 describe('CR-424 -- the premises read from the manuscript', () => {
-  it('S-248 is 160 and S-171 is 280, with S-248 under S-171', () => {
-    expect([S_248, S_171]).toEqual([160, 280])
+  it('S-248 is 160 and S-171 is 560, with S-248 under S-171', () => {
+    expect([S_248, S_171]).toEqual([160, 560])
     expect(S_248).toBeLessThan(S_171)
   })
 

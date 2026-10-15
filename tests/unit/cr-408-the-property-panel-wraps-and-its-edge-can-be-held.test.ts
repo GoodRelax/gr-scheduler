@@ -80,8 +80,8 @@ describe('CR-408 -- the premises read from the manuscript', () => {
     expect(T_023D.rows.find((one) => one.id === 'GR-22')?.by[H_PLACE] ?? '').toContain('S-134')
   })
 
-  it('S-134 is 8, S-171 is 280 and S-193 is 2', () => {
-    expect([S_134, S_171, S_193]).toEqual([8, 280, 2])
+  it('S-134 is 8, S-171 is 560 and S-193 is 2', () => {
+    expect([S_134, S_171, S_193]).toEqual([8, 560, 2])
   })
 
   it('T-016 makes PR-1 and PR-18 text, and PR-2 and PR-21 multiline', () => {

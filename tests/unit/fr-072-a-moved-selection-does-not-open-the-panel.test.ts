@@ -310,8 +310,9 @@ function twoTaskDocument(): Document {
 // The host UF-48 is given. Copied from tests/unit/uf-48-input.test.ts.
 // ---------------------------------------------------------------------------
 
+// WHY: wide enough that the bars stay in the Task Group Area beside a panel of S-171 (560 px since CR-754).
 const SCREEN: FrameEnvironment = {
-  width: 1400,
+  width: 2400,
   height: 800,
   appHeaderHeight: 56,
   scrollbarThickness: 8,

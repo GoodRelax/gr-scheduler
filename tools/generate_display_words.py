@@ -316,7 +316,7 @@ COLOR_FIELD_PARTS = ('custom', 'themeHint', 'noFill', 'noLine', 'defaultColor',
 PROPERTY_FIELD_PARTS = ('dependencyEnd', 'addResource', 'derivedParent',
                         'undecidedParent', 'noParent', 'pxUnit', 'daysUnit',
                         'lagDays', 'linkHintFS', 'linkHintSF', 'linkHintFF',
-                        'linkHintSS', 'resumeValidHint')
+                        'linkHintSS', 'resumeValidHint', 'workingDaysUnit')
 
 # CR-582: the parts of a task group's min height field (table T-338): the unit beside
 # the value (MH-1), the current height with its `{px}` slot (MH-3), the word an
@@ -361,6 +361,31 @@ WHOLE_SCHEDULE_SHIFT_FIELD_PARTS = ('name', 'apply', 'currentStart',
                                     'newStartUnit', 'startLine',
                                     'workingDaysLine', 'pulledCountLine',
                                     'holidayStartLine')
+
+# CR-754: the read-only rows of the document settings face (table T-380 of
+# FR-072): the heading line above them, the six group names, the names of the
+# thirteen tableViews rows table T-104 has no row for, and the words a value is
+# shown with (JDG-2103, JDG-2234, JDG-2240). No table holds them as rows, so they
+# are HELD HERE, the same move as WHOLE_SCHEDULE_SHIFT_FIELD_PARTS. KEYS, not
+# words.
+READ_ONLY_SETTINGS_PARTS = ('heading', 'groupShowHide', 'groupLabels',
+                            'groupView', 'groupGridLinesAndColor',
+                            'groupRulerAndStack', 'groupTableViews',
+                            'scheduleFilter', 'hiddenTasks', 'hiddenResources',
+                            'unassignedRow', 'columnFilters', 'sortOrder',
+                            'shown', 'hidden', 'overlaid', 'notOverlaid',
+                            'monochrome', 'color', 'filterOn', 'filterOff',
+                            'stackUp', 'stackDown', 'expandedAuto', 'collapsed',
+                            'notSet', 'notSetFromTop', 'topZero', 'percent',
+                            'dayOffset', 'itemCount', 'columnCount',
+                            'columnCountOne', 'none', 'pixels', 'defaultOrder',
+                            'sortAscending', 'sortDescending')
+
+# CR-754 (FR-038, FR-006): a `|` inside a word marks where an item name may
+# wrap. It is not part of the word: build() takes it out and carries the word
+# cut at its marks as labelBreakSegments, per language.
+BREAK_MARK = '|'
+BREAK_SEGMENTS_FIELD = 'labelBreakSegments'
 
 # CR-743: the words of Holiday Settings (U-65) no table holds as rows -- the
 # section headings, the column headings, the WC-9 line and the refusals of
@@ -814,6 +839,7 @@ def roster():
         'fitSpanField': list(FIT_SPAN_FIELD_PARTS),
         'timeZoneField': list(TIME_ZONE_FIELD_PARTS),
         'wholeScheduleShiftField': list(WHOLE_SCHEDULE_SHIFT_FIELD_PARTS),
+        'readOnlySettings': list(READ_ONLY_SETTINGS_PARTS),
         'holidaySettings': list(HOLIDAY_SETTINGS_PARTS),
         'exportChooser': list(EXPORT_CHOOSER_PARTS),
         'openChooser': list(OPEN_CHOOSER_PARTS),
@@ -908,6 +934,7 @@ SHAPE = {
     'fitSpanField': ('part', ('text',)),
     'timeZoneField': ('part', ('text',)),
     'wholeScheduleShiftField': ('part', ('text',)),
+    'readOnlySettings': ('part', ('text',)),
     'holidaySettings': ('part', ('text',)),
     'exportChooser': ('part', ('text',)),
     'openChooser': ('part', ('text',)),
@@ -1020,7 +1047,7 @@ def build(doc, keys_by_row):
                     'colorNames', 'colorField', 'propertyField',
                     'rowMinHeightField', 'taskGroupPanelWidthField',
                     'themeHues', 'timeZones', 'timeZoneField',
-                    'wholeScheduleShiftField',
+                    'wholeScheduleShiftField', 'readOnlySettings',
                     'holidaySettings',
                     'scaleEcho', 'dualCursorReadout', 'searchColumns',
                     'planActualStates', 'searchPanel', 'taskTypes',
@@ -1032,13 +1059,48 @@ def build(doc, keys_by_row):
                     'delayReportAspects', 'delayReportWalls',
                     'delayFixColumns', 'delayFixes'):
         if section == 'settings':
-            out[section] = [{'rowId': entry['rowId'],
-                             'keys': keys_by_row[entry['rowId']],
-                             'label': entry['label']}
+            out[section] = [unmarked({'rowId': entry['rowId'],
+                                      'keys': keys_by_row[entry['rowId']],
+                                      'label': entry['label']}, section)
                             for entry in doc[section]]
             continue
-        out[section] = doc[section]
+        out[section] = [unmarked(entry, section) for entry in doc[section]]
     return json.dumps(out, ensure_ascii=False, indent=1) + '\n'
+
+
+def unmarked(entry, section):
+    """The entry as src/ reads it: break marks out of its words (CR-754).
+
+    ⭐ A word with a mark leaves with its marks taken out and, beside it,
+    labelBreakSegments: per language that had a mark, the word cut at its marks.
+    ⛔ Only ONE word field of an entry may carry marks, an empty segment is
+    refused, and nothing reaches src/ with a mark left in it (FR-038, MUST NOT).
+
+    @purity pure
+    """
+    _key, word_fields = SHAPE[section]
+    marked = [field for field in word_fields
+              if any(BREAK_MARK in entry[field][lang] for lang in LANGUAGES)]
+    if not marked:
+        return entry
+    if len(marked) > 1:
+        raise ValueError('%s: break marks in more than one word field' % section)
+    field = marked[0]
+    segments = {}
+    for lang in LANGUAGES:
+        word = entry[field][lang]
+        if BREAK_MARK not in word:
+            continue
+        parts = word.split(BREAK_MARK)
+        if any(part == '' for part in parts):
+            raise ValueError('%s/%s: an empty segment between break marks'
+                             % (section, lang))
+        segments[lang] = parts
+    out = dict(entry)
+    out[field] = {lang: entry[field][lang].replace(BREAK_MARK, '')
+                  for lang in LANGUAGES}
+    out[BREAK_SEGMENTS_FIELD] = segments
+    return out
 
 
 def build_dependency_kinds():
@@ -1105,7 +1167,13 @@ def main():
         say('%d word(s), %d written' % (counted(doc), filled(doc)))
         return 0
 
-    built = build(doc, settings_keys())
+    try:
+        built = build(doc, settings_keys())
+    except ValueError as refused:
+        say('  %s' % refused)
+        say('%s does not match the specification; nothing was written'
+            % REL_SOURCE)
+        return 1
     kinds = build_dependency_kinds()
     if '--check' in sys.argv:
         drifted = [rel for rel, body in ((REL_OUT, built),

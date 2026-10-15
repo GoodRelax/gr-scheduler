@@ -1397,6 +1397,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `Confirmation` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Confirmation` | -- | interface Confirmation extends RaisedConfirmation |
 | `ConfirmationAnswer` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ConfirmationAnswer` | -- | interface ConfirmationAnswer |
 | `ConfirmationItem` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ConfirmationItem` | -- | interface ConfirmationItem |
+| `dateEntryWidthOf` | entry | function | `src/adapter/screen-renderer/properties-panel.ts#dateEntryWidthOf` | PI-37 | 日付の欄（引数が偽）と、日付と時刻の欄（真）が要る幅を、字の大きさに対する倍率で答える（`FR-006`、`_assets/tbl-settings.md` の 表 T-206 の `S-589`・`S-590`）。 |
 | `DEFAULT_TASK_GROUP_NAME` | entry | const | `src/adapter/screen-renderer/screen-renderer.ts#DEFAULT_TASK_GROUP_NAME` | PI-37 | タスクグループを既定の名前で立てるときの語。 |
 | `DEFAULT_WINDOW_PLACE` | entry | const | `src/adapter/screen-renderer/window-box.ts#DEFAULT_WINDOW_PLACE` | PI-37 | 覚えた位置も大きさも無いウィンドウの値 —— 既定の箱で描く（表 T-335 の `WB-1`・`WB-6`）。 |
 | `DELAY_DIAGNOSTICS_REPORT_EXTENSION` | entry | const | `src/adapter/screen-renderer/delay-diagnostics-report.ts#DELAY_DIAGNOSTICS_REPORT_EXTENSION` | PI-37 | 書き出すファイルの拡張子（表 T-024 の `IO-8`、表 T-346 の `RW-7`）。 |
@@ -1470,6 +1471,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PropertyControl` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyControl` | -- | interface PropertyControl |
 | `PropertyControlKind` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#PropertyControlKind` | -- | type PropertyControlKind = \| 'text' \| 'multiline' \| 'date' \| 'number' \| 'boolean' \| 'choice' \| 'color' \| 'taskReference' // see CV-9 // WHY: swatches run bes... |
 | `PropertyField` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyField` | -- | interface PropertyField |
+| `PropertyFieldGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyFieldGroup` | -- | interface PropertyFieldGroup |
 | `PropertyFieldKey` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#PropertyFieldKey` | -- | type PropertyFieldKey = \| |
 | `PropertyLink` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyLink` | -- | interface PropertyLink |
 | `RaisedConfirmation` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#RaisedConfirmation` | -- | interface RaisedConfirmation |
@@ -2056,4 +2058,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1040 name(s) leave through a public entry (501 of them published by table T-064), 806 more are exported by a file and not by its entry.
+Totals: 1042 name(s) leave through a public entry (502 of them published by table T-064), 806 more are exported by a file and not by its entry.

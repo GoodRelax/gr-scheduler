@@ -1,4 +1,4 @@
-// DFC-2089 spec-only cases: FR-006 / S-199 -- a date field with no value is given at least the room a date needs, so the host's date shape and its calendar button are not cut.
+// DFC-2089 spec-only cases: FR-006 / S-589 -- a date field with no value is given at least the room a date needs, so the host's date shape and its calendar button are not cut.
 
 import { describe, expect, it } from 'vitest'
 
@@ -7,9 +7,9 @@ import { bare, specTable } from './spec-table'
 import { REQUIREMENTS, T_016, documentOf, fieldOf, panelOf, taskItem, taskOf } from './cr-606-stage'
 
 // see FR-006
-const FR_006_DATE_IS_WIDER = '日付の入力は値より広いので、上の「要る幅」を割らない。'
+const FR_006_DATE_IS_WIDER = '⭐ 値が空でも同じ幅とすること（MUST）'
 const FR_006_NO_NARROWER = '⛔ 1 つの操作子に、その値を出すのに要る幅より狭い幅を割ってはならない（MUST NOT）'
-const FR_006_DATE_AID = '`date` の欄は宿主が暦を開く釦を内側に置くので、値が入るだけの幅では全桁が見えない。'
+const FR_006_DATE_AID = '同表の `S-590` を掛けた幅とすること（MUST）'
 
 const numberIn = (cell: string): number => {
   const found = /-?\d+(?:\.\d+)?/.exec(bare(cell).replace(/`/g, ''))
@@ -23,13 +23,9 @@ const settingOf = (table: string, id: string, heading: string): number => {
   return numberIn(row.by[heading] ?? '')
 }
 
-// see S-30, S-199, FR-093
-const LABEL_COEF = settingOf('T-201', 'S-30', '既定値')
-const BEYOND_THE_VALUE = settingOf('T-206', 'S-199', '既定')
-
-// WHY: the host draws an empty date control in the shape yyyy/mm/dd (JDG-1491), ten half-width units at FR-093's count of one each.
-const DATE_SHAPE_UNITS = 'yyyy/mm/dd'.length
-const SHAPE_ROOM = DATE_SHAPE_UNITS * LABEL_COEF + BEYOND_THE_VALUE
+// see S-589, FR-006
+// WHY: CR-754 moved the room of a date field off FR-093's estimate onto its own row of table T-206 (JDG-2046).
+const SHAPE_ROOM = settingOf('T-206', 'S-589', '既定')
 
 // WHY: the date rows a plain task shows, each named by the one column table T-016 gives it.
 const DATE_ROWS = T_016.filter(
@@ -66,12 +62,12 @@ describe('DFC-2089 premise -- the clauses these cases press still stand', () => 
   })
 })
 
-describe(`FR-006 / S-199 -- ${FR_006_DATE_IS_WIDER}`, () => {
-  it.each(DATE_ROWS)('%s: the field with a value gets at least the room of the date shape plus S-199', (row) => {
+describe(`FR-006 / S-589 -- ${FR_006_DATE_IS_WIDER}`, () => {
+  it.each(DATE_ROWS)('%s: the field with a value gets at least the room S-589 gives a date', (row) => {
     expect(dateControlOf(2, row).widthInFontSizes, FR_006_DATE_AID).toBeGreaterThanOrEqual(SHAPE_ROOM)
   })
 
-  it.each(DATE_ROWS)('%s: the field with no value gets at least the room of the date shape plus S-199', (row) => {
+  it.each(DATE_ROWS)('%s: the field with no value gets at least the room S-589 gives a date', (row) => {
     expect(dateControlOf(1, row).widthInFontSizes, `${FR_006_NO_NARROWER} -- ${FR_006_DATE_AID}`).toBeGreaterThanOrEqual(SHAPE_ROOM)
   })
 

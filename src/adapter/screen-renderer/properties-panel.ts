@@ -6,7 +6,6 @@
 import {
   DISPLAY_SCALE_STEPS,
   SETTINGS_CONSTANTS,
-  SETTINGS_DEFAULTS,
   type DocumentSettings,
 } from '../../entity/document-model/document-settings/document-settings'
 import {
@@ -76,6 +75,7 @@ import type {
   PropertyControl,
   PropertyControlKind,
   PropertyField,
+  PropertyFieldGroup,
   PropertyBadge,
   PropertyFieldKey,
   PropertyLink,
@@ -145,12 +145,38 @@ function settingsName(key: string, language: DisplayLanguage): string {
   return word === '' ? NO_ENTRY_WORDS : word
 }
 
+type NamedField = Pick<PropertyField, 'name' | 'nameBreakSegments'>
+
+// see FR-006, FR-038
+/** @purity pure */
+function breakSegmentsOf(entry: object | undefined, language: DisplayLanguage): readonly string[] | undefined {
+  if (entry === undefined || !('labelBreakSegments' in entry)) return undefined
+  return (entry.labelBreakSegments as Partial<Record<DisplayLanguage, readonly string[]>>)[language]
+}
+
+/** @purity pure */
+function namedField(name: string, segments: readonly string[] | undefined): NamedField {
+  return segments === undefined ? { name } : { name, nameBreakSegments: segments }
+}
+
+/** @purity pure */
+function settingsNamed(key: string, language: DisplayLanguage): NamedField {
+  return namedField(settingsName(key, language), breakSegmentsOf(settingsWordOf(key), language))
+}
+
+/** @purity pure */
+function partNamed(entries: readonly { readonly part: string }[], part: string, language: DisplayLanguage): NamedField {
+  const entry = entries.find((one) => one.part === part) as { readonly text?: { readonly ja: string; readonly en: string } } | undefined
+  return namedField(entry?.text?.[language] ?? NO_ENTRY_WORDS, breakSegmentsOf(entry, language))
+}
+
 // see AS-5, IC-123, IC-124, IC-139
 const ASCENDING_ENTRY: IconId = 'IC-123'
 const DESCENDING_ENTRY: IconId = 'IC-124'
 const GRS_RESET_ENTRY: IconId = 'IC-139'
+const TIME_SHIFT_ENTRY: IconId = 'IC-162'
 // WHY: these sit inside a field of the panel, not on its way-out line beside IC-52.
-const IN_FIELD_ENTRIES: readonly IconId[] = [ASCENDING_ENTRY, DESCENDING_ENTRY, GRS_RESET_ENTRY]
+const IN_FIELD_ENTRIES: readonly IconId[] = [ASCENDING_ENTRY, DESCENDING_ENTRY, GRS_RESET_ENTRY, TIME_SHIFT_ENTRY]
 
 /** @purity pure */
 function commandItemOf(icon: IconId, language: DisplayLanguage): CommandItem {
@@ -328,21 +354,6 @@ function textOfValue(value: unknown): string {
   return ''
 }
 
-// WHY: found by shape, not by key: a hand roster of id-holding keys misses the next one added.
-const IDENTIFIER = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/
-
-/** @purity pure */
-function textOfSettingsValue(value: unknown): string {
-  if (typeof value === 'string') return IDENTIFIER.test(value) ? '' : value
-  if (Array.isArray(value)) {
-    return value
-      .map(textOfSettingsValue)
-      .filter((said) => said !== '')
-      .join(PART_SEPARATOR)
-  }
-  return textOfValue(value)
-}
-
 // see FR-054, EX-7
 /** @purity pure */
 function textOfDateColumn(stored: unknown): string {
@@ -490,7 +501,7 @@ function controlOf(
     choices,
     min: kind === 'number' ? (shape?.min ?? annotationBoundsOf(entity, column)?.min ?? null) : null,
     max: kind === 'number' ? (shape?.max ?? annotationBoundsOf(entity, column)?.max ?? null) : null,
-    widthInFontSizes: widthOf(measuredTextOf(kind, text), choices, labelCoef),
+    widthInFontSizes: kind === 'date' ? dateEntryWidthOf(false) : widthOf(text, choices, labelCoef),
   }
 }
 
@@ -570,14 +581,11 @@ function annotationBoundsOf(entity: ShapedEntity, column: string): { readonly mi
 // drawing side cuts a name too long for it (FR-006), so the longest name cannot push it past the edge.
 const NO_ROOM_FLOOR = 0
 
-// see FR-006, S-199
-// WHY: an empty date input still shows the host's date format, so that is what must fit, not the empty value (JDG-1491).
-const EMPTY_DATE_SHAPE = 'yyyy/mm/dd'
-
-// see FR-006, S-199
+// see FR-006, S-589, S-590, TX-3
+// WHY: the host draws its own format and calendar button, so the room is the same with or without a value (JDG-1491).
 /** @purity pure */
-function measuredTextOf(kind: PropertyControlKind, text: string): string {
-  return kind === 'date' && text === '' ? EMPTY_DATE_SHAPE : text
+export function dateEntryWidthOf(isDateTime: boolean): number {
+  return isDateTime ? NOT_STORED_PROPERTY_CONTROL_SIZES['S-590'] : NOT_STORED_PROPERTY_CONTROL_SIZES['S-589']
 }
 
 // see FR-006, FR-093, S-199
@@ -698,7 +706,7 @@ function controlsOfItem(
 // WHY: a host number entry refuses the d / h / m of TX-10, so a typed length is a text entry while time of day is shown.
 /** @purity pure */
 function controlInTime(control: PropertyControl, column: string): PropertyControl {
-  if (control.kind === 'date') return { ...control, isDateTime: true }
+  if (control.kind === 'date') return { ...control, isDateTime: true, widthInFontSizes: dateEntryWidthOf(true) }
   if (!TYPED_LENGTH_COLUMNS.includes(column)) return control
   return { ...control, kind: 'text', min: null, max: null }
 }
@@ -1198,7 +1206,7 @@ function themeHueField(hue: number, dark: boolean, monochrome: boolean, language
   const text = String(hue)
   return {
     row: settingsWordOf(THEME_HUE_KEY.column)?.rowId ?? THEME_HUE_KEY.column,
-    name: settingsName(THEME_HUE_KEY.column, language),
+    ...settingsNamed(THEME_HUE_KEY.column, language),
     text: words[chosen] ?? text,
     isEditable: true,
     controls: [
@@ -1219,6 +1227,8 @@ function themeHueField(hue: number, dark: boolean, monochrome: boolean, language
 
 const PARENT_PROGRESS_TOLERANCE_KEY = { holder: 'project', column: 'parentProgressToleranceDays' } as const
 
+const WORKING_DAYS_UNIT_PART = 'workingDaysUnit'
+
 // see FR-131, K-140, CM-87, S-487
 // WHY: no floor here: CM-87 alone refuses a value below S-487's bound and says so, so the range lives once.
 /** @purity pure */
@@ -1227,9 +1237,10 @@ function parentProgressToleranceField(workingDays: number, language: DisplayLang
   const text = String(workingDays)
   return {
     row: settingsWordOf(column)?.rowId ?? column,
-    name: settingsName(column, language),
+    ...settingsNamed(column, language),
     text,
     isEditable: true,
+    unit: PROPERTY_FIELD_WORDS.get(WORKING_DAYS_UNIT_PART)?.[language] ?? NO_ENTRY_WORDS,
     controls: [settingsControl(PARENT_PROGRESS_TOLERANCE_KEY, 'number', text, widthOf(text, null, SETTINGS_CONSTANTS.labelCoef))],
   }
 }
@@ -1258,15 +1269,14 @@ function fitSpanField(settings: DocumentSettings, language: DisplayLanguage): Pr
   const texts = FIT_SPAN_COLUMNS.map((column) => textOfDateColumn(settings[column]))
   return {
     row: settingsWordOf(startColumn)?.rowId ?? startColumn,
-    name: settingsName(startColumn, language),
+    ...settingsNamed(startColumn, language),
     text: texts.filter((one) => one !== '').join(PART_SEPARATOR),
     isEditable: true,
     isSettledAsOne: true,
     controls: FIT_SPAN_COLUMNS.map((column, at) => {
       const text = texts[at] ?? ''
-      const width = widthOf(measuredTextOf('date', text), null, SETTINGS_CONSTANTS.labelCoef)
       return {
-        ...settingsControl({ holder: 'documentSettings', column }, 'date', text, width),
+        ...settingsControl({ holder: 'documentSettings', column }, 'date', text, dateEntryWidthOf(false)),
         ...(settings.fitSpanFixed ? {} : DISABLED_UNLESS_FIXED),
       }
     }),
@@ -1281,7 +1291,7 @@ function checkField(settings: DocumentSettings, column: CheckColumn, language: D
   const text = String(settings[column])
   return {
     row: settingsWordOf(column)?.rowId ?? column,
-    name: settingsName(column, language),
+    ...settingsNamed(column, language),
     text,
     isEditable: true,
     controls: [settingsControl({ holder: 'documentSettings', column }, 'boolean', text, NO_ROOM_FLOOR)],
@@ -1320,7 +1330,7 @@ function shownSpanField(settings: DocumentSettings, readings: ScreenViewReadings
   const word = fieldWord(FIT_SPAN_WORDS, 'copyCurrent', language)
   return {
     row: SHOWN_SPAN_TASK_GROUP,
-    name: fieldWord(FIT_SPAN_WORDS, 'currentName', language),
+    ...partNamed(displayWords.fitSpanField, 'currentName', language),
     text: '',
     isEditable: false,
     readout: shownSpanReadoutOf(readings, language),
@@ -1341,7 +1351,7 @@ function taskGroupPanelWidthField(settings: DocumentSettings, language: DisplayL
   const text = String(Math.round(settings.taskGroupPanelWidth))
   return {
     row: settingsWordOf(column)?.rowId ?? column,
-    name: settingsName(column, language),
+    ...settingsNamed(column, language),
     text,
     isEditable: true,
     unit: fieldWord(TASK_GROUP_TITLE_WIDTH_WORDS, 'unit', language),
@@ -1364,7 +1374,7 @@ function drawnWidthField(readings: ScreenViewReadings, language: DisplayLanguage
       : fieldWord(TASK_GROUP_TITLE_WIDTH_WORDS, 'currentValue', language).replace(READOUT_PX_SLOT, String(Math.round(drawn)))
   return {
     row: DRAWN_WIDTH_TASK_GROUP,
-    name: fieldWord(TASK_GROUP_TITLE_WIDTH_WORDS, 'currentName', language),
+    ...partNamed(displayWords.taskGroupPanelWidthField, 'currentName', language),
     text: '',
     isEditable: false,
     controls: [],
@@ -1386,7 +1396,7 @@ function statusDateField(statusDate: string | null, language: DisplayLanguage): 
     name: iconLabel(STATUS_DATE_ENTRY, language),
     text,
     isEditable: true,
-    controls: [settingsControl(STATUS_DATE_KEY, 'date', text, widthOf(measuredTextOf('date', text), null, SETTINGS_CONSTANTS.labelCoef))],
+    controls: [settingsControl(STATUS_DATE_KEY, 'date', text, dateEntryWidthOf(false))],
   }
 }
 
@@ -1406,7 +1416,7 @@ function steppedSettingField(settings: DocumentSettings, column: SteppedSetting,
   const steps = SETTING_STEPS[column]
   return {
     row: settingsWordOf(column)?.rowId ?? column,
-    name: settingsName(column, language),
+    ...settingsNamed(column, language),
     text,
     isEditable: true,
     controls: [
@@ -1423,19 +1433,6 @@ function steppedSettingField(settings: DocumentSettings, column: SteppedSetting,
   }
 }
 
-// see IC-17, T-104, FR-072, T-369
-// WHY: a value with its own field is not repeated as a read-only row below it.
-const FIELDED_SETTINGS: readonly string[] = [
-  ...Object.keys(SETTING_STEPS),
-  ...FIT_SPAN_COLUMNS,
-  'fitSpanFixed',
-  'taskGroupPanelWidth',
-  'taskGroupPanelWidthFixed',
-  'showsTimeOfDay',
-  'viewTimeZone',
-  'displayTimeZones',
-]
-
 const TIME_ZONE_KEYS = TIME_ZONE_ROWS.map((row) => row.key)
 
 // see FR-156, AT-157, S-574
@@ -1448,8 +1445,6 @@ const DISPLAY_TIME_ZONES_KEY = { holder: 'documentSettings', column: 'displayTim
 const TIME_SHIFT_KEY = { holder: 'timeShift', column: 'minutes' } as const
 
 const TIME_SHIFT_ENTRY_KEY = { holder: 'timeShift', column: 'entry' } as const
-
-const TIME_SHIFT_ENTRY: IconId = 'IC-162'
 
 // WHY: the read-out is drawn pre-line (MH-3), so a line break starts the example on its own line.
 const READOUT_LINE_BREAK = '\n'
@@ -1584,7 +1579,7 @@ function baseTimeZoneField(
   }
   return {
     row: settingsWordOf(column)?.rowId ?? column,
-    name: settingsName(column, language),
+    ...settingsNamed(column, language),
     text: '',
     isEditable: true,
     controls: drafted === null ? [chooser] : [chooser, ...baseChangeAnswers(schedule, shownBase, drafted, language)],
@@ -1599,12 +1594,15 @@ function displayTimeZonesFields(settings: DocumentSettings, language: DisplayLan
   const labels = timeZoneChoiceLabels(TIME_ZONE_KEYS, language)
   const width = widthOf(none, labels, SETTINGS_CONSTANTS.labelCoef)
   const row = settingsWordOf(column)?.rowId ?? column
+  const named = settingsNamed(column, language)
   return DISPLAY_TIME_ZONE_SLOTS.map((slot) => {
     const of = (key: string): string => `${slot}${DISPLAY_TIME_ZONE_SLOT_SEPARATOR}${key}`
     const number = String(slot + 1)
+    const numbered = (word: string): string => `${word} ${number}`
+    const segments = named.nameBreakSegments
     return {
       row: `${row}${DISPLAY_TIME_ZONE_ROW_SEPARATOR}${number}`,
-      name: `${settingsName(column, language)} ${number}`,
+      ...namedField(numbered(named.name), segments === undefined ? undefined : [...segments.slice(0, -1), numbered(segments.at(-1) ?? '')]),
       text: settings.displayTimeZones[slot] ?? '',
       isEditable: true,
       controls: [{
@@ -1687,13 +1685,13 @@ function wholeScheduleShiftField(schedule: Schedule, screen: ScreenSession['scre
   const apply = wholeScheduleShiftFieldWord('apply', language)
   return {
     row: WHOLE_SCHEDULE_SHIFT_ROW,
-    name: wholeScheduleShiftFieldWord('name', language),
+    ...partNamed(displayWords.wholeScheduleShiftField, 'name', language),
     text: '',
     isEditable: true,
     unit,
     readout: readoutLines([currentLine, readout.holidayLine]),
     controls: [
-      settingsControl(WHOLE_SCHEDULE_SHIFT_DATE_KEY, 'date', typed, widthOf(measuredTextOf('date', typed), null, SETTINGS_CONSTANTS.labelCoef)),
+      settingsControl(WHOLE_SCHEDULE_SHIFT_DATE_KEY, 'date', typed, dateEntryWidthOf(false)),
       {
         ...settingsControl(WHOLE_SCHEDULE_SHIFT_ENTRY_KEY, 'text', '', widthOf(apply, null, SETTINGS_CONSTANTS.labelCoef)),
         press: apply,
@@ -1701,6 +1699,201 @@ function wholeScheduleShiftField(schedule: Schedule, screen: ScreenSession['scre
       },
     ],
   }
+}
+
+const READ_ONLY_WORDS = new Map(displayWords.readOnlySettings.map((entry) => [entry.part, entry.text]))
+
+const SURFACE_WORDS = new Map(displayWords.surfaces.map((entry) => [entry.name, entry.heading]))
+
+const TABLE_COLUMN_WORDS = new Map(
+  [...displayWords.searchColumns, ...displayWords.resourceListColumns, ...displayWords.delayReportColumns].map((entry) => [entry.rowId, entry.text]),
+)
+
+// see T-380
+/** @purity pure */
+function readOnlyWord(part: string, language: DisplayLanguage): string {
+  return READ_ONLY_WORDS.get(part)?.[language] ?? NO_ENTRY_WORDS
+}
+
+type ReadOnlyShape =
+  | 'visible'
+  | 'overlaid'
+  | 'monochrome'
+  | 'filter'
+  | 'hiddenFlag'
+  | 'percent'
+  | 'date'
+  | 'dayOffset'
+  | 'taskGroup'
+  | 'groupOffset'
+  | 'count'
+  | 'columns'
+  | 'treeState'
+  | 'pixels'
+  | 'stack'
+  | 'sort'
+
+interface ReadOnlyRow {
+  readonly key: string
+  readonly shape: ReadOnlyShape
+  readonly namePart?: string
+}
+
+interface ReadOnlyGroupRows {
+  readonly group: string
+  readonly section?: string
+  readonly rows: readonly ReadOnlyRow[]
+}
+
+/** @purity pure */
+function shaped(shape: ReadOnlyShape): (key: string) => ReadOnlyRow {
+  return (key) => ({ key, shape })
+}
+
+const visibleRow = shaped('visible')
+
+/** @purity pure */
+function tableViewRows(table: string, hidden: { readonly key: string; readonly namePart: string }, extra: readonly ReadOnlyRow[]): readonly ReadOnlyRow[] {
+  const at = (key: string): string => `tableViews.${table}.${key}`
+  return [
+    { key: at('isScheduleFilterApplied'), shape: 'filter', namePart: 'scheduleFilter' },
+    { key: at(hidden.key), shape: 'count', namePart: hidden.namePart },
+    ...extra.map((row) => ({ ...row, key: at(row.key) })),
+    { key: at('columnFilters'), shape: 'columns', namePart: 'columnFilters' },
+    { key: at('sort'), shape: 'sort', namePart: 'sortOrder' },
+  ]
+}
+
+const HIDDEN_TASKS = { key: 'hiddenTaskUids', namePart: 'hiddenTasks' } as const
+
+// see T-380, RN-1, RN-2, RN-3, RN-4, RN-5, RN-6, RN-7, RN-8, JDG-2103
+const READ_ONLY_GROUPS: readonly ReadOnlyGroupRows[] = [
+  {
+    group: 'groupShowHide',
+    rows: [
+      ...['planVisible', 'actualVisible', 'progressMarkerVisible', 'dependencyVisible', 'progressLineVisible'].map(visibleRow),
+      { key: 'baselineVisible', shape: 'overlaid' },
+    ],
+  },
+  { group: 'groupLabels', rows: ['assigneeVisible', 'percentCompleteVisible', 'planDatesVisible'].map(visibleRow) },
+  {
+    group: 'groupView',
+    rows: [
+      ...['zoomX', 'zoomY'].map(shaped('percent')),
+      { key: 'scrollDate', shape: 'date' },
+      { key: 'scrollDayOffset', shape: 'dayOffset' },
+      { key: 'scrollGroupId', shape: 'taskGroup' },
+      { key: 'scrollGroupOffset', shape: 'groupOffset' },
+      { key: 'pinnedGroupIds', shape: 'count' },
+      { key: 'levelZeroTreeState', shape: 'treeState' },
+    ],
+  },
+  {
+    group: 'groupGridLinesAndColor',
+    rows: [...['dateGridLinesVisible', 'groupGridLinesVisible'].map(visibleRow), { key: 'themeMonochrome', shape: 'monochrome' }],
+  },
+  { group: 'groupRulerAndStack', rows: [...['rulerFont', 'rulerHeight'].map(shaped('pixels')), { key: 'stackDirection', shape: 'stack' }] },
+  { group: 'groupTableViews', section: 'Search Panel', rows: tableViewRows('searchPanel', HIDDEN_TASKS, []) },
+  {
+    group: 'groupTableViews',
+    section: 'Resource List',
+    rows: tableViewRows('resourceList', { key: 'hiddenResourceUids', namePart: 'hiddenResources' }, [
+      { key: 'isUnassignedHidden', shape: 'hiddenFlag', namePart: 'unassignedRow' },
+    ]),
+  },
+  { group: 'groupTableViews', section: 'Delay Diagnostics Report', rows: tableViewRows('delayDiagnosticsReport', HIDDEN_TASKS, []) },
+]
+
+const PERCENT_SCALE = 100
+
+const TIME_SLOT = '{time}'
+
+const PERCENT_SLOT = '{percent}'
+
+const COLUMN_SLOT = '{column}'
+
+const CLOCK_DIGITS = 2
+
+/** @purity pure */
+function counted(part: string, n: number, language: DisplayLanguage): string {
+  return readOnlyWord(part, language).replace(COUNT_SLOT, String(n))
+}
+
+/** @purity pure */
+function percentText(ratio: number, language: DisplayLanguage): string {
+  return counted('percent', Math.round(ratio * PERCENT_SCALE), language)
+}
+
+/** @purity pure */
+function clockOfDay(ratio: number): string {
+  const minutes = Math.round(ratio * MINUTES_PER_ELAPSED_DAY)
+  const pad = (n: number): string => String(n).padStart(CLOCK_DIGITS, '0')
+  return `${pad(Math.floor(minutes / MINUTES_PER_HOUR))}:${pad(minutes % MINUTES_PER_HOUR)}`
+}
+
+/** @purity pure */
+function lengthOf(value: unknown): number {
+  return Array.isArray(value) ? value.length : 0
+}
+
+/** @purity pure */
+function sortText(value: unknown, language: DisplayLanguage): string {
+  if (value === null || typeof value !== 'object') return readOnlyWord('defaultOrder', language)
+  const sort = value as { readonly column: string; readonly direction: string }
+  const column = TABLE_COLUMN_WORDS.get(sort.column)?.[language] ?? sort.column
+  return readOnlyWord(sort.direction === 'descending' ? 'sortDescending' : 'sortAscending', language).replace(COLUMN_SLOT, column)
+}
+
+type ReadOnlyFormat = (value: unknown, schedule: Schedule, language: DisplayLanguage) => string
+
+/** @purity pure */
+function either(onTrue: string, onFalse: string): ReadOnlyFormat {
+  return (value, _schedule, language) => readOnlyWord(value === true ? onTrue : onFalse, language)
+}
+
+/** @purity pure */
+function countOrNone(part: string): ReadOnlyFormat {
+  return (value, _schedule, language) => (lengthOf(value) === 0 ? readOnlyWord('none', language) : counted(part, lengthOf(value), language))
+}
+
+// see T-380, RN-3, RN-6
+// WHY: one formatter per value shape, so no stored spelling (true, auto, a ratio, a T00:00:00) reaches the row.
+const READ_ONLY_FORMATS: Readonly<Record<ReadOnlyShape, ReadOnlyFormat>> = {
+  visible: either('shown', 'hidden'),
+  overlaid: either('overlaid', 'notOverlaid'),
+  monochrome: either('monochrome', 'color'),
+  filter: either('filterOn', 'filterOff'),
+  hiddenFlag: either('hidden', 'shown'),
+  percent: (value, _schedule, language) => percentText(Number(value), language),
+  date: (value, _schedule, language) => dateText(typeof value === 'string' ? value : null) || readOnlyWord('notSet', language),
+  dayOffset: (value, _schedule, language) =>
+    readOnlyWord('dayOffset', language).replace(TIME_SLOT, clockOfDay(Number(value))).replace(PERCENT_SLOT, percentText(Number(value), language)),
+  taskGroup: (value, schedule, language) =>
+    schedule.taskGroups.find((group) => group.id === value)?.label ?? readOnlyWord('notSetFromTop', language),
+  groupOffset: (value, _schedule, language) => (value === 0 ? readOnlyWord('topZero', language) : percentText(Number(value), language)),
+  count: countOrNone('itemCount'),
+  columns: (value, schedule, language) => countOrNone(lengthOf(value) === 1 ? 'columnCountOne' : 'columnCount')(value, schedule, language),
+  treeState: (value, _schedule, language) => readOnlyWord(value === 'collapsed' ? 'collapsed' : 'expandedAuto', language),
+  pixels: (value, _schedule, language) => counted('pixels', Number(value), language),
+  stack: (value, _schedule, language) => readOnlyWord(value === 'down' ? 'stackDown' : 'stackUp', language),
+  sort: (value, _schedule, language) => sortText(value, language),
+}
+
+// see FR-072, T-369, T-380, JDG-2103
+/** @purity pure */
+function readOnlySettingsFields(settings: DocumentSettings, schedule: Schedule, language: DisplayLanguage): readonly PropertyField[] {
+  return READ_ONLY_GROUPS.flatMap((group) => {
+    const section = group.section === undefined ? {} : { section: SURFACE_WORDS.get(group.section)?.[language] ?? group.section }
+    const readOnlyGroup: PropertyFieldGroup = { key: group.group, name: readOnlyWord(group.group, language), ...section }
+    return group.rows.map((row) => ({
+      row: settingsWordOf(row.key)?.rowId ?? row.key,
+      ...(row.namePart === undefined ? settingsNamed(row.key, language) : { name: readOnlyWord(row.namePart, language) }),
+      text: READ_ONLY_FORMATS[row.shape](valueAt(settings, row.key), schedule, language),
+      isEditable: false,
+      controls: [],
+      readOnlyGroup,
+    }))
+  })
 }
 
 // see IC-17, T-104, FR-072, T-369, FO-1, FO-12
@@ -1713,13 +1906,7 @@ function settingsFields(
   readings: ScreenViewReadings,
 ): readonly PropertyField[] {
   const dark = screen.themePreference === 'dark'
-  const readOnly = Object.keys(SETTINGS_DEFAULTS).filter((key) => !FIELDED_SETTINGS.includes(key)).map((key) => ({
-    row: settingsWordOf(key)?.rowId ?? key,
-    name: settingsName(key, language),
-    text: textOfSettingsValue(valueAt(settings, key)),
-    isEditable: false,
-    controls: [],
-  }))
+  const readOnly = readOnlySettingsFields(settings, schedule, language)
   return [
     themeHueField(schedule.project.themeHue, dark, settings.themeMonochrome, language),
     steppedSettingField(settings, 'displayScale', language),
@@ -1918,7 +2105,7 @@ function withFieldWords(fields: readonly PropertyField[], language: DisplayLangu
     const hint = hintPart === undefined ? {} : { hint: PROPERTY_FIELD_WORDS.get(hintPart)?.[language] ?? '' }
     const sized =
       column === ACTUAL_LENGTH_ITEM
-        ? { isSizedAsDate: true as const, widthInFontSizes: widthOf(EMPTY_DATE_SHAPE, null, SETTINGS_CONSTANTS.labelCoef) }
+        ? { isSizedAsDate: true as const, widthInFontSizes: dateEntryWidthOf(showsTimeOfDay) }
         : {}
     return {
       ...field,
@@ -1951,6 +2138,7 @@ export function propertiesPanelFromSelection(
       fields: settingsFields(settings, schedule, session.screen, language, readings),
       commands: panelCommands(language),
       headEntry: commandItemOf(GRS_RESET_ENTRY, language),
+      readOnlyHeading: readOnlyWord('heading', language),
     }
   }
 
@@ -1990,8 +2178,12 @@ export function propertiesPanelFromSelection(
 // see T-206
 const NOT_STORED_PROPERTY_CONTROL_SIZES: {
   readonly 'S-199': number
+  readonly 'S-589': number
+  readonly 'S-590': number
 } = {
   'S-199': 2.19,
+  'S-589': 9.5,
+  'S-590': 12.5,
 }
 
 // see T-217, FR-006, FR-019

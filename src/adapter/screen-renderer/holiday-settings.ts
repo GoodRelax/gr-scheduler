@@ -17,7 +17,7 @@ import {
   type ScreenSession,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import type { CommandItem, DisplayLanguage, IconId, PropertyControl, PropertyFieldKey } from './screen-renderer'
-import { widthOf } from './properties-panel'
+import { dateEntryWidthOf, widthOf } from './properties-panel'
 import { dateText } from './table-window'
 import { iconHint, iconLabel } from './tooltips'
 import displayWords from './display-words.json'
@@ -147,7 +147,7 @@ function cellOf(
   text: string,
   flags: { readonly isRefused: boolean; readonly hint: string; readonly isDisabled?: boolean },
 ): HolidaySettingsCell {
-  const width = widthOf(text, null, SETTINGS_CONSTANTS.labelCoef)
+  const width = kind === 'date' ? dateEntryWidthOf(false) : widthOf(text, null, SETTINGS_CONSTANTS.labelCoef)
   const control: PropertyControl = {
     key, kind, text, choices: null, min: null, max: null, widthInFontSizes: width, hint: flags.hint,
     ...(flags.isDisabled === true ? { isDisabled: true } : {}),

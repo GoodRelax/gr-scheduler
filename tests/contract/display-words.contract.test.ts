@@ -242,8 +242,14 @@ const GENERATED_PATH = join(ROOT, 'src', 'adapter', 'screen-renderer', 'display-
 /** The module id the five units import; group 3 stands a filled copy in its place. */
 const GENERATED_MODULE = '../../src/adapter/screen-renderer/display-words.json'
 
+// see FR-038, CR-754
+// WHY: the manuscript may mark where an item name wraps; the generator takes the marks out, so the cells compare without them.
+const BREAK_MARK = /\|/g
+const withoutBreakMarks = (_key: string, value: unknown): unknown =>
+  typeof value === 'string' ? value.replace(BREAK_MARK, '') : value
+
 const readDictionary = (path: string): Dictionary => {
-  const raw = JSON.parse(readFileSync(path, 'utf8')) as Record<string, unknown>
+  const raw = JSON.parse(readFileSync(path, 'utf8'), withoutBreakMarks) as Record<string, unknown>
   const out: Record<string, readonly Entry[]> = {}
   for (const [section, value] of Object.entries(raw)) {
     // ⚠️ `$comment` is a string in the generated file and a list of lines in
@@ -399,6 +405,8 @@ const KEY_FIELD: Readonly<Record<string, string>> = {
   timeZoneField: 'part',
   // WHY: CR-757 keys the words of the Shift Whole Schedule row (FO-17) and of its question by their part.
   wholeScheduleShiftField: 'part',
+  // WHY: CR-754 keys the words of the read-only rows of the settings face (table T-380) by their part.
+  readOnlySettings: 'part',
   // WHY: CR-743 section 4.4 keys the Holiday Settings words (U-65, T-344) by the part they fill.
   holidaySettings: 'part',
   // WHY: CR-411 6.3 keys the end word of SE-2 by the end it names, max or min.
@@ -1101,7 +1109,18 @@ const propertiesPanelEntries = (panel: ScreenView['propertiesPanel']): readonly 
         ...panel.commands,
         ...(panel.headEntry === undefined ? [] : [panel.headEntry]),
         ...panel.fields.flatMap((field) => field.controls.flatMap((control) => control.assignee?.sortEntries ?? [])),
+        ...panel.fields.flatMap((field) => field.controls.flatMap((control) => wordEntranceOf(field.row, control.press))),
       ]
+
+// see FO-16, IC-162, DFC-2517
+// WHY: an entrance of table T-109 drawn as its own field's word button stands in that field, not beside IC-52.
+const wordEntranceOf = (row: string, press: string | undefined): readonly CommandItem[] =>
+  press === undefined || !row.startsWith('IC-')
+    ? []
+    : [{ icon: row as CommandItem['icon'], label: press, isEnabled: true, isPressed: false, isArmed: false, isChosen: false }]
+
+// see FR-153, FO-16
+const ON_THE_SETTINGS_FACE_ONLY: readonly string[] = ['IC-139', 'IC-162']
 
 // see IC-52, T-109
 interface SurfaceScene {
@@ -1156,8 +1175,8 @@ const SCENE_OF_WINDOW: ReadonlyMap<string, SurfaceScene> = new Map([
   [
     'Properties Panel',
     {
-      // WHY: IC-139 stands at the head of the document-settings face only (FR-153).
-      frame: (rowId) => (PANEL_STATES[rowId === 'IC-139' ? 'documentSettings' : 'selection'] as Frame),
+      // WHY: IC-139 stands at the head of the document-settings face only (FR-153), IC-162 in its field (FO-16).
+      frame: (rowId) => (PANEL_STATES[ON_THE_SETTINGS_FACE_ONLY.includes(rowId ?? '') ? 'documentSettings' : 'selection'] as Frame),
       // WHY: FR-072 puts no heading row at the panel's head, so no member carries this word.
       heading: null,
       entries: (view) => propertiesPanelEntries(view.propertiesPanel),
@@ -2624,6 +2643,55 @@ for (const entry of GENERATED['wholeScheduleShiftField'] ?? []) {
     what: `the ${part} word of the Shift Whole Schedule row of the settings face (FO-17 of table T-369)`,
     frame: SETTINGS_WITH_READOUTS,
     read: (view) => WHOLE_SCHEDULE_SHIFT_READS[part]?.(view),
+  })
+}
+
+// see T-380, FR-072, JDG-2103
+// WHY: CR-754 -- the heading line, the group names and the words the default settings of the frame show.
+const readOnlyGroupNameOf = (view: ScreenView, key: string): string | undefined =>
+  view.propertiesPanel?.fields.find((field) => field.readOnlyGroup?.key === key)?.readOnlyGroup?.name
+const SEARCH_VIEW_ROW = (key: string): string => `tableViews.searchPanel.${key}`
+const READ_ONLY_SETTINGS_READS: Readonly<Record<string, (view: ScreenView) => string | undefined>> = {
+  heading: (view) => view.propertiesPanel?.readOnlyHeading,
+  groupShowHide: (view) => readOnlyGroupNameOf(view, 'groupShowHide'),
+  groupLabels: (view) => readOnlyGroupNameOf(view, 'groupLabels'),
+  groupView: (view) => readOnlyGroupNameOf(view, 'groupView'),
+  groupGridLinesAndColor: (view) => readOnlyGroupNameOf(view, 'groupGridLinesAndColor'),
+  groupRulerAndStack: (view) => readOnlyGroupNameOf(view, 'groupRulerAndStack'),
+  groupTableViews: (view) => readOnlyGroupNameOf(view, 'groupTableViews'),
+  scheduleFilter: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('isScheduleFilterApplied'))?.name,
+  hiddenTasks: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('hiddenTaskUids'))?.name,
+  hiddenResources: (view) => settingsRowOf(view, 'tableViews.resourceList.hiddenResourceUids')?.name,
+  unassignedRow: (view) => settingsRowOf(view, 'tableViews.resourceList.isUnassignedHidden')?.name,
+  columnFilters: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('columnFilters'))?.name,
+  sortOrder: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('sort'))?.name,
+  shown: (view) => settingsRowOf(view, 'K-122')?.text,
+  hidden: (view) => settingsRowOf(view, 'K-79')?.text,
+  notOverlaid: (view) => settingsRowOf(view, 'K-84')?.text,
+  color: (view) => settingsRowOf(view, 'K-61')?.text,
+  filterOff: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('isScheduleFilterApplied'))?.text,
+  stackUp: (view) => settingsRowOf(view, 'K-73')?.text,
+  expandedAuto: (view) => settingsRowOf(view, 'K-138')?.text,
+  none: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('hiddenTaskUids'))?.text,
+  defaultOrder: (view) => settingsRowOf(view, SEARCH_VIEW_ROW('sort'))?.text,
+}
+// WHY: the frame holds the default settings, so the other value of each pair and the slotted shapes are not printed on it.
+const READ_ONLY_SETTINGS_NOT_ON_A_FRAME =
+  'a value word the default settings of the frame do not show, or a shape with slots printed only filled (T-380)'
+for (const entry of GENERATED['readOnlySettings'] ?? []) {
+  const part = keyOf('readOnlySettings', entry)
+  if (READ_ONLY_SETTINGS_READS[part] === undefined) {
+    drop('readOnlySettings', part, READ_ONLY_SETTINGS_NOT_ON_A_FRAME)
+    continue
+  }
+  place({
+    section: 'readOnlySettings',
+    key: part,
+    field: 'text',
+    unit: 'UF-64',
+    what: `the ${part} word of the read-only rows of the settings face (T-380)`,
+    frame: SETTINGS_WITH_READOUTS,
+    read: (view) => READ_ONLY_SETTINGS_READS[part]?.(view),
   })
 }
 

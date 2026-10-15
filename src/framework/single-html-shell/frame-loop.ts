@@ -4229,7 +4229,7 @@ export function frameLoop(
 const NOT_STORED_PROPERTIES_PANEL_SIZES: {
   readonly 'S-171': number
 } = {
-  'S-171': 280,
+  'S-171': 560,
 }
 
 // see T-206
