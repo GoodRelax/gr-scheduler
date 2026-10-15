@@ -30,7 +30,7 @@
       "carry": {},
       "carryElements": [],
       "sourceFormat": "grs",
-      "scheduleDataTimeZone": "UTC"
+      "scheduleDataTimeZone": "UTC+00:00"
     },
     "calendars": [
       {

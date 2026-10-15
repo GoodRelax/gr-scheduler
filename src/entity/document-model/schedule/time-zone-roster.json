@@ -1,170 +1,275 @@
 [
  {
-  "rowId": "ZN-1",
-  "region": "Etc/GMT+12",
-  "standardOffsetMinutes": -720,
-  "observesDaylightSaving": false
+  "rowId": "ZN-29",
+  "key": "UTC-12:00",
+  "offsetMinutes": -720,
+  "isDaylight": false,
+  "abbreviation": null
  },
  {
-  "rowId": "ZN-2",
-  "region": "Pacific/Pago_Pago",
-  "standardOffsetMinutes": -660,
-  "observesDaylightSaving": false
+  "rowId": "ZN-30",
+  "key": "UTC-11:00",
+  "offsetMinutes": -660,
+  "isDaylight": false,
+  "abbreviation": "SST"
  },
  {
-  "rowId": "ZN-3",
-  "region": "Pacific/Honolulu",
-  "standardOffsetMinutes": -600,
-  "observesDaylightSaving": false
+  "rowId": "ZN-31",
+  "key": "UTC-10:00",
+  "offsetMinutes": -600,
+  "isDaylight": false,
+  "abbreviation": "HST"
  },
  {
-  "rowId": "ZN-4",
-  "region": "America/Anchorage",
-  "standardOffsetMinutes": -540,
-  "observesDaylightSaving": true
+  "rowId": "ZN-32",
+  "key": "UTC-09:00",
+  "offsetMinutes": -540,
+  "isDaylight": false,
+  "abbreviation": "AKST"
  },
  {
-  "rowId": "ZN-5",
-  "region": "America/Los_Angeles",
-  "standardOffsetMinutes": -480,
-  "observesDaylightSaving": true
+  "rowId": "ZN-33",
+  "key": "UTC-08:00",
+  "offsetMinutes": -480,
+  "isDaylight": false,
+  "abbreviation": "PST"
  },
  {
-  "rowId": "ZN-6",
-  "region": "America/Denver",
-  "standardOffsetMinutes": -420,
-  "observesDaylightSaving": true
+  "rowId": "ZN-34",
+  "key": "UTC-08:00 DST",
+  "offsetMinutes": -480,
+  "isDaylight": true,
+  "abbreviation": "AKDT"
  },
  {
-  "rowId": "ZN-7",
-  "region": "America/Chicago",
-  "standardOffsetMinutes": -360,
-  "observesDaylightSaving": true
+  "rowId": "ZN-35",
+  "key": "UTC-07:00",
+  "offsetMinutes": -420,
+  "isDaylight": false,
+  "abbreviation": "MST"
  },
  {
-  "rowId": "ZN-8",
-  "region": "America/New_York",
-  "standardOffsetMinutes": -300,
-  "observesDaylightSaving": true
+  "rowId": "ZN-36",
+  "key": "UTC-07:00 DST",
+  "offsetMinutes": -420,
+  "isDaylight": true,
+  "abbreviation": "PDT"
  },
  {
-  "rowId": "ZN-9",
-  "region": "America/Halifax",
-  "standardOffsetMinutes": -240,
-  "observesDaylightSaving": true
+  "rowId": "ZN-37",
+  "key": "UTC-06:00",
+  "offsetMinutes": -360,
+  "isDaylight": false,
+  "abbreviation": "CST"
  },
  {
-  "rowId": "ZN-10",
-  "region": "America/Sao_Paulo",
-  "standardOffsetMinutes": -180,
-  "observesDaylightSaving": false
+  "rowId": "ZN-38",
+  "key": "UTC-06:00 DST",
+  "offsetMinutes": -360,
+  "isDaylight": true,
+  "abbreviation": "MDT"
  },
  {
-  "rowId": "ZN-11",
-  "region": "Atlantic/South_Georgia",
-  "standardOffsetMinutes": -120,
-  "observesDaylightSaving": false
+  "rowId": "ZN-39",
+  "key": "UTC-05:00",
+  "offsetMinutes": -300,
+  "isDaylight": false,
+  "abbreviation": "EST"
  },
  {
-  "rowId": "ZN-12",
-  "region": "Atlantic/Azores",
-  "standardOffsetMinutes": -60,
-  "observesDaylightSaving": true
+  "rowId": "ZN-40",
+  "key": "UTC-05:00 DST",
+  "offsetMinutes": -300,
+  "isDaylight": true,
+  "abbreviation": "CDT"
  },
  {
-  "rowId": "ZN-13",
-  "region": "UTC",
-  "standardOffsetMinutes": 0,
-  "observesDaylightSaving": false
+  "rowId": "ZN-41",
+  "key": "UTC-04:00",
+  "offsetMinutes": -240,
+  "isDaylight": false,
+  "abbreviation": "AST"
  },
  {
-  "rowId": "ZN-14",
-  "region": "Europe/London",
-  "standardOffsetMinutes": 0,
-  "observesDaylightSaving": true
+  "rowId": "ZN-42",
+  "key": "UTC-04:00 DST",
+  "offsetMinutes": -240,
+  "isDaylight": true,
+  "abbreviation": "EDT"
  },
  {
-  "rowId": "ZN-15",
-  "region": "Europe/Berlin",
-  "standardOffsetMinutes": 60,
-  "observesDaylightSaving": true
+  "rowId": "ZN-43",
+  "key": "UTC-03:00",
+  "offsetMinutes": -180,
+  "isDaylight": false,
+  "abbreviation": "BRT"
  },
  {
-  "rowId": "ZN-16",
-  "region": "Europe/Helsinki",
-  "standardOffsetMinutes": 120,
-  "observesDaylightSaving": true
+  "rowId": "ZN-44",
+  "key": "UTC-03:00 DST",
+  "offsetMinutes": -180,
+  "isDaylight": true,
+  "abbreviation": "ADT"
  },
  {
-  "rowId": "ZN-17",
-  "region": "Europe/Moscow",
-  "standardOffsetMinutes": 180,
-  "observesDaylightSaving": false
+  "rowId": "ZN-45",
+  "key": "UTC-02:00",
+  "offsetMinutes": -120,
+  "isDaylight": false,
+  "abbreviation": "WGT"
  },
  {
-  "rowId": "ZN-18",
-  "region": "Asia/Dubai",
-  "standardOffsetMinutes": 240,
-  "observesDaylightSaving": false
+  "rowId": "ZN-46",
+  "key": "UTC-01:00",
+  "offsetMinutes": -60,
+  "isDaylight": false,
+  "abbreviation": "CVT"
  },
  {
-  "rowId": "ZN-19",
-  "region": "Asia/Karachi",
-  "standardOffsetMinutes": 300,
-  "observesDaylightSaving": false
+  "rowId": "ZN-47",
+  "key": "UTC+00:00",
+  "offsetMinutes": 0,
+  "isDaylight": false,
+  "abbreviation": "UTC"
  },
  {
-  "rowId": "ZN-20",
-  "region": "Asia/Kolkata",
-  "standardOffsetMinutes": 330,
-  "observesDaylightSaving": false
+  "rowId": "ZN-48",
+  "key": "UTC+00:00 DST",
+  "offsetMinutes": 0,
+  "isDaylight": true,
+  "abbreviation": "AZOST"
  },
  {
-  "rowId": "ZN-21",
-  "region": "Asia/Dhaka",
-  "standardOffsetMinutes": 360,
-  "observesDaylightSaving": false
+  "rowId": "ZN-49",
+  "key": "UTC+01:00",
+  "offsetMinutes": 60,
+  "isDaylight": false,
+  "abbreviation": "CET"
  },
  {
-  "rowId": "ZN-22",
-  "region": "Asia/Bangkok",
-  "standardOffsetMinutes": 420,
-  "observesDaylightSaving": false
+  "rowId": "ZN-50",
+  "key": "UTC+01:00 DST",
+  "offsetMinutes": 60,
+  "isDaylight": true,
+  "abbreviation": "BST"
  },
  {
-  "rowId": "ZN-23",
-  "region": "Asia/Singapore",
-  "standardOffsetMinutes": 480,
-  "observesDaylightSaving": false
+  "rowId": "ZN-51",
+  "key": "UTC+02:00",
+  "offsetMinutes": 120,
+  "isDaylight": false,
+  "abbreviation": "EET"
  },
  {
-  "rowId": "ZN-24",
-  "region": "Asia/Tokyo",
-  "standardOffsetMinutes": 540,
-  "observesDaylightSaving": false
+  "rowId": "ZN-52",
+  "key": "UTC+02:00 DST",
+  "offsetMinutes": 120,
+  "isDaylight": true,
+  "abbreviation": "CEST"
  },
  {
-  "rowId": "ZN-25",
-  "region": "Australia/Sydney",
-  "standardOffsetMinutes": 600,
-  "observesDaylightSaving": true
+  "rowId": "ZN-53",
+  "key": "UTC+03:00",
+  "offsetMinutes": 180,
+  "isDaylight": false,
+  "abbreviation": "MSK"
  },
  {
-  "rowId": "ZN-26",
-  "region": "Pacific/Noumea",
-  "standardOffsetMinutes": 660,
-  "observesDaylightSaving": false
+  "rowId": "ZN-54",
+  "key": "UTC+03:00 DST",
+  "offsetMinutes": 180,
+  "isDaylight": true,
+  "abbreviation": "EEST"
  },
  {
-  "rowId": "ZN-27",
-  "region": "Pacific/Auckland",
-  "standardOffsetMinutes": 720,
-  "observesDaylightSaving": true
+  "rowId": "ZN-55",
+  "key": "UTC+04:00",
+  "offsetMinutes": 240,
+  "isDaylight": false,
+  "abbreviation": "GST"
  },
  {
-  "rowId": "ZN-28",
-  "region": "Pacific/Tongatapu",
-  "standardOffsetMinutes": 780,
-  "observesDaylightSaving": false
+  "rowId": "ZN-56",
+  "key": "UTC+05:00",
+  "offsetMinutes": 300,
+  "isDaylight": false,
+  "abbreviation": "PKT"
+ },
+ {
+  "rowId": "ZN-57",
+  "key": "UTC+05:30",
+  "offsetMinutes": 330,
+  "isDaylight": false,
+  "abbreviation": "IST"
+ },
+ {
+  "rowId": "ZN-58",
+  "key": "UTC+06:00",
+  "offsetMinutes": 360,
+  "isDaylight": false,
+  "abbreviation": "BST"
+ },
+ {
+  "rowId": "ZN-59",
+  "key": "UTC+07:00",
+  "offsetMinutes": 420,
+  "isDaylight": false,
+  "abbreviation": "WIB"
+ },
+ {
+  "rowId": "ZN-60",
+  "key": "UTC+08:00",
+  "offsetMinutes": 480,
+  "isDaylight": false,
+  "abbreviation": "CST"
+ },
+ {
+  "rowId": "ZN-61",
+  "key": "UTC+09:00",
+  "offsetMinutes": 540,
+  "isDaylight": false,
+  "abbreviation": "JST"
+ },
+ {
+  "rowId": "ZN-62",
+  "key": "UTC+10:00",
+  "offsetMinutes": 600,
+  "isDaylight": false,
+  "abbreviation": "AEST"
+ },
+ {
+  "rowId": "ZN-63",
+  "key": "UTC+11:00",
+  "offsetMinutes": 660,
+  "isDaylight": false,
+  "abbreviation": "SBT"
+ },
+ {
+  "rowId": "ZN-64",
+  "key": "UTC+11:00 DST",
+  "offsetMinutes": 660,
+  "isDaylight": true,
+  "abbreviation": "AEDT"
+ },
+ {
+  "rowId": "ZN-65",
+  "key": "UTC+12:00",
+  "offsetMinutes": 720,
+  "isDaylight": false,
+  "abbreviation": "NZST"
+ },
+ {
+  "rowId": "ZN-66",
+  "key": "UTC+13:00",
+  "offsetMinutes": 780,
+  "isDaylight": false,
+  "abbreviation": "WST"
+ },
+ {
+  "rowId": "ZN-67",
+  "key": "UTC+13:00 DST",
+  "offsetMinutes": 780,
+  "isDaylight": true,
+  "abbreviation": "NZDT"
  }
 ]

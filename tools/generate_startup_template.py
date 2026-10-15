@@ -973,11 +973,12 @@ PROJECT_REVISION = 37
 # constraint and a duration for every task of it. One of the column's three
 # values, not prose, but it is a string, so the neutrality check has to know it.
 PROJECT_SOURCE_FORMAT = 'grs'
-# CR-710 (FR-156, table T-342's BK-4): the time zone the schedule data is
-# read in. A document started afresh takes the region of the PC it is
-# started on, which only the running page knows; the printed documents
-# carry UTC (row ZN-13 of table T-376), and a fresh start rewrites it.
-PRINTED_SCHEDULE_DATA_TIME_ZONE = 'UTC'
+# CR-710, CR-755 (FR-156, table T-342's BK-4): the time zone the schedule
+# data is read in. A document started afresh takes the standard-time row of
+# the PC it is started on, which only the running page knows; the printed
+# documents carry UTC+00:00 (row ZN-47 of table T-376), and a fresh start
+# rewrites it.
+PRINTED_SCHEDULE_DATA_TIME_ZONE = 'UTC+00:00'
 
 # A fixed namespace, so every run writes the same TaskGroup ids. A template
 # that changed its ids each rebuild would show up as a diff in every commit.

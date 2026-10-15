@@ -1309,7 +1309,7 @@
        "FR-156"
       ],
       "note": {
-       "ja": "基準のタイムゾーンの地域の選ぶ欄で地域を選んだ。選んだだけでは当てない"
+       "ja": "本プロジェクトの基準タイムゾーンの選ぶ欄でタイムゾーンを選んだ。選んだだけでは当てない"
       }
      },
      "carries": [
@@ -1319,28 +1319,17 @@
         "FR-156"
        ],
        "note": {
-        "ja": "表 T-376 の行の地域名"
+        "ja": "表 T-376 の種が標準時の行の鍵"
        }
-      }
-     ]
-    },
-    {
-     "key": "baseChangeWayChosen",
-     "source": {
-      "kind": "input",
-      "rows": [
-       "FO-14",
-       "FR-156"
-      ],
-      "note": {
-       "ja": "基準を変える 2 つの選び方の 1 つを選んだ"
-      }
-     },
-     "carries": [
+      },
       {
-       "name": "chosenWay",
+       "name": "isOtherThanShownBase",
+       "rows": [
+        "FR-156",
+        "S-574"
+       ],
        "note": {
-        "ja": "`keepGlobalTime`（グローバルタイム（UTC）を保つ）／ `keepLocalTime`（ローカルタイムを保つ）"
+        "ja": "選んだタイムゾーンが、いまの見せる基準（`S-574`、空なら `AT-157`）と違うか"
        }
       }
      ]
@@ -1350,9 +1339,33 @@
      "source": {
       "kind": "input",
       "rows": [
-       "IC-161",
+       "FO-14",
        "FR-156"
-      ]
+      ],
+      "note": {
+       "ja": "答え 換算して適用する ／ 換算しない の 1 つを押した"
+      }
+     },
+     "carries": [
+      {
+       "name": "chosenWay",
+       "note": {
+        "ja": "`keepGlobalTime`（換算して適用する）／ `keepLocalTime`（換算しない）"
+       }
+      }
+     ]
+    },
+    {
+     "key": "baseChangeCancelPressed",
+     "source": {
+      "kind": "input",
+      "rows": [
+       "FO-14",
+       "FR-156"
+      ],
+      "note": {
+       "ja": "答え キャンセル を押した"
+      }
      },
      "carries": []
     },
@@ -3641,18 +3654,15 @@
          "name": "chosenRegion",
          "rows": [
           "FR-156"
-         ]
-        },
-        {
-         "name": "chosenWay",
+         ],
          "note": {
-          "ja": "`keepGlobalTime` ／ `keepLocalTime`"
+          "ja": "表 T-376 の種が標準時の行の鍵。いまの見せる基準と違う"
          }
         }
        ],
        "evidence": [
         "FR-156",
-        "IC-161"
+        "FO-14"
        ]
       }
      ],
@@ -3660,59 +3670,77 @@
       "baseTimeZoneChosen": {
        "untouched": {
         "to": "drafted",
+        "guard": [
+         {
+          "name": "isOtherThanShownBase"
+         }
+        ],
         "evidence": [
          "FO-14",
          "FR-156"
         ],
         "note": {
-         "ja": "選び方は初めの `keepGlobalTime`"
+         "ja": "いまの見せる基準と同じタイムゾーンを選んだときは移らない"
         }
        },
-       "drafted": {
-        "to": "drafted",
-        "evidence": [
-         "FO-14",
-         "FR-156"
-        ],
-        "note": {
-         "ja": "`chosenRegion` を書き換える"
+       "drafted": [
+        {
+         "to": "drafted",
+         "guard": [
+          {
+           "name": "isOtherThanShownBase"
+          }
+         ],
+         "evidence": [
+          "FO-14",
+          "FR-156"
+         ],
+         "note": {
+          "ja": "`chosenRegion` を書き換える"
+         }
+        },
+        {
+         "to": "untouched",
+         "guard": [
+          {
+           "name": "isOtherThanShownBase",
+           "not": true
+          }
+         ],
+         "evidence": [
+          "FO-14",
+          "FR-156"
+         ],
+         "note": {
+          "ja": "いまの見せる基準を選び直したので、下書きを捨てる"
+         }
         }
-       }
-      },
-      "baseChangeWayChosen": {
-       "untouched": {
-        "to": "drafted",
-        "evidence": [
-         "FO-14",
-         "FR-156"
-        ],
-        "note": {
-         "ja": "地域は初めのいまの見せる基準（`S-574`、空なら `AT-157`）"
-        }
-       },
-       "drafted": {
-        "to": "drafted",
-        "evidence": [
-         "FO-14",
-         "FR-156"
-        ],
-        "note": {
-         "ja": "`chosenWay` を書き換える"
-        }
-       }
+       ]
       },
       "baseChangeEntryPressed": {
        "drafted": {
         "to": "untouched",
         "effect": "issueBaseChangeCommand",
         "evidence": [
-         "IC-161",
+         "FO-14",
          "CM-94",
          "CM-95",
          "FR-156"
         ],
         "note": {
-         "ja": "下書きの選び方で `CM-94` か `CM-95` を 1 回出す。確認を取らない。当てても何も変わらない下書きでは `IC-161` が薄い（`FR-029`）"
+         "ja": "`keepGlobalTime` は `CM-95` を、`keepLocalTime` は `CM-94` と `CM-95`（`null`）を、1 回の書き込みで出す。確認を取らない"
+        }
+       }
+      },
+      "baseChangeCancelPressed": {
+       "drafted": {
+        "to": "untouched",
+        "evidence": [
+         "FO-14",
+         "FR-156"
+        ],
+        "note": {
+         "ja": "何も書かない"
         }
        }
       },

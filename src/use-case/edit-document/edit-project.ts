@@ -10,7 +10,7 @@ import {
   dayOf,
   instantOf,
   instantOnSideReader,
-  isTimeZoneRegion,
+  isStandardTimeZoneKey,
   MINUTES_PER_CALENDAR_DAY,
   sideOfTaskColumn,
   startSideOf,
@@ -118,12 +118,12 @@ function projectValueEdited(document: Document, command: ProjectValueCommand): E
 }
 
 // see CM-94, FR-156, T-376
-// WHY: the stored numbers stay; only the region they are read in moves (FR-156, Keep Local Time).
+// WHY: the stored numbers stay; only the time zone they are read in moves (FR-156, Don't Convert).
 /** @purity pure */
 function withScheduleDataTimeZone(document: Document, timeZone: string): EditResult {
   const project = document.schedule.project
-  if (!isTimeZoneRegion(timeZone)) {
-    return refused([reject('CM-94', 'FR-156', `not a region of table T-376: ${String(timeZone)}`)])
+  if (!isStandardTimeZoneKey(timeZone)) {
+    return refused([reject('CM-94', 'FR-156', `not a standard-time key of table T-376: ${String(timeZone)}`)])
   }
   if (project.scheduleDataTimeZone === timeZone) return edited(document)
   return edited(withProject(document, { ...project, scheduleDataTimeZone: timeZone }))

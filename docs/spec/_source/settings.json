@@ -1884,7 +1884,7 @@
      "id": "S-574",
      "key": "`viewTimeZone`",
      "type": {
-      "ja": "表 T-376 の地域名（`FR-156`）/ `null`"
+      "ja": "表 T-376 の種が標準時の行の鍵（`FR-156`）/ `null`"
      },
      "default": {
       "lit": "null",
@@ -1898,6 +1898,7 @@
      "json": {
       "kind": "enum",
       "valuesFrom": "T-376",
+      "valuesOnly": "standard",
       "null": true
      }
     },
@@ -1905,7 +1906,7 @@
      "id": "S-575",
      "key": "`displayTimeZones`",
      "type": {
-      "ja": "地域名（`FR-156` の 表 T-376 の値）の配列（0 〜 4 個）"
+      "ja": "表 T-376 の鍵（`FR-156`。標準時と夏時間のどちらの行でもよい）の配列（0 〜 4 個）"
      },
      "default": {
       "lit": "[]",
@@ -1923,6 +1924,9 @@
        "valuesFrom": "T-376"
       },
       "maxItems": 4
+     },
+     "schemaNote": {
+      "en": "Up to four extra clocks shown under the time ruler. A key ending in \" DST\" is a daylight-time zone read at that offset all year."
      }
     },
     {

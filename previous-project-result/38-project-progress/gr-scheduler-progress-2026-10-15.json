@@ -30,7 +30,7 @@
    "carryElements": [],
    "outlineBase": 1,
    "sourceFormat": "grs",
-   "scheduleDataTimeZone": "Asia/Tokyo"
+   "scheduleDataTimeZone": "UTC+09:00"
   },
   "calendars": [
    {

@@ -1,4 +1,4 @@
-// Schedule -- the time zones of table T-376: which regions a document may name, and a region's clock.
+// Schedule -- the time zones of table T-376: which keys a document may name, and a zone's fixed-offset clock.
 // @unit      UF-202  (docs/spec/05-07-design.md, table T-075)
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
@@ -7,144 +7,119 @@ import type { DocumentSettings } from '../document-settings/document-settings'
 import timeZoneRoster from './time-zone-roster.json' with { type: 'json' }
 
 // see FR-156, T-376
+// WHY: abbreviation is null on the one row nobody uses as a clock (UTC-12:00); the screen then prints offsetName.
 export interface TimeZoneRow {
   readonly rowId: string
-  readonly region: string
-  readonly standardOffsetMinutes: number
-  readonly observesDaylightSaving: boolean
+  readonly key: string
+  readonly offsetMinutes: number
+  readonly isDaylight: boolean
+  readonly abbreviation: string | null
 }
 
 // see T-376
 // WHY: generated from the table (tools/generate_time_zone_roster.py), in the order the choosers offer it.
 export const TIME_ZONE_ROWS: readonly TimeZoneRow[] = timeZoneRoster
 
-// see FR-156, T-376, S-574
-// WHY: the 28 names come generated from table T-376 on the view-base row; one spelling, never a second list here.
-export type TimeZoneRegion = NonNullable<DocumentSettings['viewTimeZone']>
+// see FR-156, T-376, S-574, AT-157
+// WHY: the 27 standard-time keys come generated from table T-376 on the view-base row; one spelling, never a second list.
+export type StandardTimeZoneKey = NonNullable<DocumentSettings['viewTimeZone']>
 
-// see BK-4, ZN-13, RS-90
-// WHY: the zone a printed document carries (BK-4), and what regionForPc answers if the roster were empty.
-export const PRINTED_TIME_ZONE: TimeZoneRegion = 'UTC'
+// see BK-4, ZN-47
+// WHY: the zone a printed document carries (BK-4), and the clock an unknown key falls to.
+export const PRINTED_TIME_ZONE: StandardTimeZoneKey = 'UTC+00:00'
 
-const REGIONS: ReadonlySet<string> = new Set(TIME_ZONE_ROWS.map((row) => row.region))
+const ROW_OF_KEY: ReadonlyMap<string, TimeZoneRow> = new Map(TIME_ZONE_ROWS.map((row) => [row.key, row]))
 
 // see FR-156, T-376
 /** @purity pure */
-export function isTimeZoneRegion(region: unknown): region is TimeZoneRegion {
-  return typeof region === 'string' && REGIONS.has(region)
+export function timeZoneRowOf(key: unknown): TimeZoneRow | null {
+  return typeof key === 'string' ? (ROW_OF_KEY.get(key) ?? null) : null
 }
 
-const MS_PER_MINUTE = 60000
+// see FR-156, T-376, S-575
+/** @purity pure */
+export function isTimeZoneKey(value: unknown): value is string {
+  return timeZoneRowOf(value) !== null
+}
 
-const HOURS_PER_DAY = 24
-
-// WHY: an offset moves only on a quarter-hour of UTC in every region of T-376, so one reading per bucket is exact.
-const OFFSET_BUCKET_MINUTES = 15
+// see FR-156, T-376, AT-157, S-574
+// WHY: the base time zone may be a standard-time row only; a daylight-time row is a display zone (S-575).
+/** @purity pure */
+export function isStandardTimeZoneKey(value: unknown): value is StandardTimeZoneKey {
+  const row = timeZoneRowOf(value)
+  return row !== null && !row.isDaylight
+}
 
 // see FR-156, T-376
-// WHY: a region's clock reads the offset from the region's rules (daylight saving included), never a fixed offset.
+// WHY: a zone is one fixed offset all year -- daylight saving is never applied by season (FR-156, MUST NOT).
 // WHY: a wall minute is the reading instantOf gives a stored text; a UTC minute counts from 1970-01-01T00:00Z.
 export interface ZoneClock {
-  readonly region: string
-  offsetAt(utcMinute: number): number
+  readonly key: string
+  readonly offsetMinutes: number
   wallOf(utcMinute: number): number
   utcOf(wallMinute: number): number
 }
 
-/** @purity pure */
-function partNumber(parts: readonly Intl.DateTimeFormatPart[], type: Intl.DateTimeFormatPartTypes): number {
-  return Number(parts.find((part) => part.type === type)?.value ?? 0)
-}
-
 // see FR-156, RS-25, CM-94, CM-95, CM-96
-// TRAP: the formatter is built once per clock, never per reading: building one is the slow part (S-30).
-// WHY: a read (FR-156, RS-25) and an edit (CM-94..CM-96) refuse a value outside T-376, and an MSPDI open or a
-// new document takes regionForPc; the guard only keeps an unchecked screen draft from a mid-frame RangeError.
+// WHY: a read (FR-156, RS-25) and an edit (CM-94..CM-96) refuse a value outside T-376; the fallback only keeps an
+// unchecked screen draft from reading a clock of no offset at all.
 /** @purity pure */
-export function zoneClockOf(region: string): ZoneClock {
-  const format = new Intl.DateTimeFormat('en-US', {
-    timeZone: isTimeZoneRegion(region) ? region : PRINTED_TIME_ZONE,
-    hourCycle: 'h23',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-  const read = new Map<number, number>()
-  const offsetAt = (utcMinute: number): number => {
-    const bucket = Math.floor(utcMinute / OFFSET_BUCKET_MINUTES)
-    const held = read.get(bucket)
-    if (held !== undefined) return held
-    const at = bucket * OFFSET_BUCKET_MINUTES
-    const parts = format.formatToParts(new Date(at * MS_PER_MINUTE))
-    const wall = Date.UTC(
-      partNumber(parts, 'year'),
-      partNumber(parts, 'month') - 1,
-      partNumber(parts, 'day'),
-      partNumber(parts, 'hour') % HOURS_PER_DAY,
-      partNumber(parts, 'minute'),
-    ) / MS_PER_MINUTE
-    const offset = Math.round(wall - at)
-    read.set(bucket, offset)
-    return offset
-  }
+export function zoneClockOf(key: string): ZoneClock {
+  const offsetMinutes = timeZoneRowOf(key)?.offsetMinutes ?? 0
   return {
-    region,
-    offsetAt,
-    wallOf: (utcMinute) => utcMinute + offsetAt(utcMinute),
-    utcOf: (wallMinute) => wallMinute - offsetAt(wallMinute - offsetAt(wallMinute)),
+    key,
+    offsetMinutes,
+    wallOf: (utcMinute) => utcMinute + offsetMinutes,
+    utcOf: (wallMinute) => wallMinute - offsetMinutes,
   }
 }
 
 // see FR-156, S-574
-// WHY: the view's clock and the schedule data's clock in one: the same region needs no conversion at all.
+// WHY: the view's clock and the schedule data's clock in one: the same key needs no conversion at all.
 /** @purity pure */
 export function viewWallOfDataWall(data: ZoneClock, view: ZoneClock, dataWallMinute: number): number {
-  if (data.region === view.region) return dataWallMinute
+  if (data.key === view.key) return dataWallMinute
   return view.wallOf(data.utcOf(dataWallMinute))
 }
 
 // see FR-156, S-574
 /** @purity pure */
 export function dataWallOfViewWall(data: ZoneClock, view: ZoneClock, viewWallMinute: number): number {
-  if (data.region === view.region) return viewWallMinute
+  if (data.key === view.key) return viewWallMinute
   return data.wallOf(view.utcOf(viewWallMinute))
 }
 
-// see FR-156, S-574, AT-157
-// WHY: an empty view base is the schedule data's own zone (FR-156), so the two readers never disagree on it.
+// see FR-156, S-574, AT-157, OP-6
+// WHY: an empty view base is the schedule data's own zone (FR-156), so the two readers never disagree on it; a
+// daylight-time key is no base (OP-6 puts the default back on read), so it falls to the schedule data's zone too.
 /** @purity pure */
 export function viewRegionOf(scheduleDataTimeZone: string, viewTimeZone: unknown): string {
-  return isTimeZoneRegion(viewTimeZone) ? viewTimeZone : scheduleDataTimeZone
+  return isStandardTimeZoneKey(viewTimeZone) ? viewTimeZone : scheduleDataTimeZone
 }
 
-// see FR-156, RS-90
+// see FR-156, BK-4
+// WHY: two readings of the PC's offset, on January 1 and July 1: daylight saving only ever adds to the offset,
+// so the smaller of the two is the standard time on either hemisphere.
 export interface PcTimeZone {
-  readonly region: string | null
-  readonly offsetMinutes: number
+  readonly januaryOffsetMinutes: number
+  readonly julyOffsetMinutes: number
 }
 
-// see FR-156, RS-90, T-376
-export interface PcRegionChoice {
-  readonly region: string
-  readonly isMoved: boolean
-}
-
-// see FR-156, T-376, RS-90
-// WHY: a region outside T-376 falls to the first row of the same offset at that moment; with none, the nearest
-// offset (the earlier row on a tie) -- the table has no row for every offset the world uses.
+// see FR-156, T-376, BK-4
+// WHY: the PC's standard offset falls to the standard-time row of the same offset; with none, the nearest offset
+// (the earlier row on a tie) -- the table has no row for every offset the world uses (UTC+05:45 -> UTC+05:30).
 /** @purity pure */
-export function regionForPc(pc: PcTimeZone, utcMinute: number): PcRegionChoice {
-  if (pc.region !== null && isTimeZoneRegion(pc.region)) return { region: pc.region, isMoved: false }
-  let best: TimeZoneRow | null = null
+export function standardTimeZoneKeyForPc(pc: PcTimeZone): StandardTimeZoneKey {
+  const standardOffset = Math.min(pc.januaryOffsetMinutes, pc.julyOffsetMinutes)
+  let best: StandardTimeZoneKey = PRINTED_TIME_ZONE
   let bestGap = Number.POSITIVE_INFINITY
   for (const row of TIME_ZONE_ROWS) {
-    const gap = Math.abs(zoneClockOf(row.region).offsetAt(utcMinute) - pc.offsetMinutes)
+    if (!isStandardTimeZoneKey(row.key)) continue
+    const gap = Math.abs(row.offsetMinutes - standardOffset)
     if (gap < bestGap) {
-      best = row
+      best = row.key
       bestGap = gap
     }
   }
-  return { region: best?.region ?? PRINTED_TIME_ZONE, isMoved: true }
+  return best
 }

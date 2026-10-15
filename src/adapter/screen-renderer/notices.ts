@@ -20,7 +20,7 @@ import {
   type ScreenSession,
 } from '../../use-case/advance-screen-session/advance-screen-session'
 import { SETTINGS_CONSTANTS } from '../../entity/document-model/document-settings/document-settings'
-import { dayOf, instantOf, textOfInstant, TIME_ZONE_ROWS } from '../../entity/document-model/schedule/schedule'
+import { dayOf, instantOf, textOfInstant, timeZoneRowOf } from '../../entity/document-model/schedule/schedule'
 import { clockTextOf, planDateText } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { dateText } from './table-window'
 import displayWords from './display-words.json'
@@ -29,21 +29,54 @@ const STARTUP_PENDING_MANNER = 'NT-4'
 
 const ZONE_WORDS_BY_ROW = new Map(displayWords.timeZones.map((entry) => [entry.rowId, entry.label]))
 
-const ROW_OF_REGION = new Map(TIME_ZONE_ROWS.map((row) => [row.region, row.rowId]))
-
 const TIME_ZONE_FIELD_WORDS = new Map(displayWords.timeZoneField.map((entry) => [entry.part, entry.text]))
 
 type Slots = Readonly<Record<string, string>>
 
 const WHOLE_SCHEDULE_SHIFT_WORDS = new Map(displayWords.wholeScheduleShiftField.map((entry) => [entry.part, entry.text]))
 
-// see FR-156, T-376, FR-038
-// WHY: the dictionary's words of the table's row; a region outside the table shows its own name (it is a value).
+const MINUTE_DIGITS = 2
+
+// see FR-156, T-376
+// WHY: the hour unpadded, a zero offset as plus-minus; ASCII signs otherwise.
 /** @purity pure */
-export function timeZoneLabelOf(region: string, language: DisplayLanguage): string {
-  const row = ROW_OF_REGION.get(region)
-  const words = row === undefined ? undefined : ZONE_WORDS_BY_ROW.get(row)
-  return words?.[language] || region
+function offsetSignOf(offsetMinutes: number): string {
+  if (offsetMinutes === 0) return '±'
+  return offsetMinutes < 0 ? '-' : '+'
+}
+
+// see FR-156, T-376
+/** @purity pure */
+export function zoneOffsetTextOf(offsetMinutes: number): string {
+  const magnitude = Math.abs(offsetMinutes)
+  const minutes = String(magnitude % MINUTES_PER_HOUR).padStart(MINUTE_DIGITS, '0')
+  return `${offsetSignOf(offsetMinutes)}${Math.floor(magnitude / MINUTES_PER_HOUR)}:${minutes}`
+}
+
+// see FR-017, FR-156, T-376
+/** @purity pure */
+export function timeZoneAbbreviationOf(key: string, language: DisplayLanguage): string {
+  const row = timeZoneRowOf(key)
+  if (row === null) return key
+  if (row.abbreviation !== null) return row.abbreviation
+  const magnitude = Math.abs(row.offsetMinutes)
+  const minutes = magnitude % MINUTES_PER_HOUR
+  const hours = `${offsetSignOf(row.offsetMinutes)}${Math.floor(magnitude / MINUTES_PER_HOUR)}`
+  const offset = minutes === 0 ? hours : `${hours}:${String(minutes).padStart(MINUTE_DIGITS, '0')}`
+  return timeZoneFieldWord('offsetName', language).replace('{offset}', offset)
+}
+
+// see FR-156, T-376, FR-038
+// WHY: zoneName joins the table's offset and abbreviation to the dictionary's place; a key outside shows itself.
+/** @purity pure */
+export function timeZoneLabelOf(key: string, language: DisplayLanguage): string {
+  const row = timeZoneRowOf(key)
+  const place = row === null ? undefined : ZONE_WORDS_BY_ROW.get(row.rowId)?.[language]
+  if (row === null || place === undefined) return key
+  const shape = row.abbreviation === null
+    ? timeZoneFieldWord('zoneName', language).replace(' {abbreviation}', '')
+    : timeZoneFieldWord('zoneName', language).replace('{abbreviation}', row.abbreviation)
+  return shape.replace('{offset}', zoneOffsetTextOf(row.offsetMinutes)).replace('{place}', place)
 }
 
 // see FO-14, FO-16, QN-14, BS-3
@@ -155,9 +188,6 @@ export function wholeScheduleShiftQuestionItems(
   ]
   return lines.map((name) => ({ name, isShownOnAnotherTaskGroup: false }))
 }
-
-// see RS-90, FR-156
-const TIME_ZONE_SET_REASON = 'RS-90'
 
 const CONFIRMATION_BY_ANSWER = new Map(
   displayWords.confirmation.map((entry) => [entry.answer, entry]),
@@ -354,24 +384,15 @@ function isStartupPending(notice: Notice): boolean {
   return notice.manner === STARTUP_PENDING_MANNER
 }
 
-// see RS-90, FR-156
-// WHY: the region RS-90 set is the document's own value, added under the reason's words as RS-50 names its tasks.
 /** @purity pure */
-function detailOf(raised: RaisedNotice, language: DisplayLanguage, scheduleDataTimeZone: string | null): readonly string[] {
-  if (raised.reason !== TIME_ZONE_SET_REASON || scheduleDataTimeZone === null) return NO_NEXT_STEPS
-  return [timeZoneLabelOf(scheduleDataTimeZone, language)]
-}
-
-/** @purity pure */
-function toldNotice(raised: RaisedNotice, language: DisplayLanguage, scheduleDataTimeZone: string | null = null): Notice {
+function toldNotice(raised: RaisedNotice, language: DisplayLanguage): Notice {
   const nextStep = reasonWord(raised.reason, 'nextStep', language)
   const link = reasonNextStepLink(raised.reason, language)
-  const detail = detailOf(raised, language, scheduleDataTimeZone)
   return {
     manner: raised.manner,
     mannerText: mannerText(raised.manner, language),
     text: reasonWord(raised.reason, 'text', language),
-    nextSteps: [...detail, ...(nextStep === NO_WORDS ? NO_NEXT_STEPS : [nextStep])],
+    nextSteps: nextStep === NO_WORDS ? NO_NEXT_STEPS : [nextStep],
     ...(link === null ? {} : { nextStepLinks: [link] }),
     affectedCount: raised.affectedCount,
     dismissText: dismissText(language),
@@ -406,13 +427,9 @@ function gatheredStartupNotice(pending: readonly Notice[], language: DisplayLang
 
 // see FR-076, NT-4
 /** @purity pure */
-export function noticesFromSession(
-  session: ScreenSession,
-  readings: ScreenViewReadings,
-  scheduleDataTimeZone: string | null = null,
-): readonly Notice[] {
+export function noticesFromSession(session: ScreenSession, readings: ScreenViewReadings): readonly Notice[] {
   const language = displayLanguageOf(session)
-  const told = readings.notices.map((raised) => toldNotice(raised, language, scheduleDataTimeZone))
+  const told = readings.notices.map((raised) => toldNotice(raised, language))
   const startupPending = told.filter(isStartupPending)
 
   if (startupPending.length < 2) return told

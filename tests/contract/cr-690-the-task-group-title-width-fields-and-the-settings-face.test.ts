@@ -285,12 +285,22 @@ const faceNameOf = (row: (typeof FACE_ROWS)[number], language: DisplayLanguage):
   return partWordOf(words, 'currentName', language)
 }
 
+// see FO-15, K-145
+// WHY: CR-755 -- the display time zones are four rows, each the setting's row and name with its number 1 to 4.
+const NUMBERED_ROWS: Readonly<Record<string, number>> = { 'K-145': 4 }
+const numberedOf = (row: string, name: string): readonly { readonly row: string; readonly name: string }[] => {
+  const count = NUMBERED_ROWS[row]
+  if (count === undefined) return [{ row, name }]
+  return Array.from({ length: count }, (_, at) => ({ row: `${row}:${at + 1}`, name: `${name} ${at + 1}` }))
+}
+
 describe('FR-072 T-369 -- the order and the names of the settings face', () => {
   it.each(['ja', 'en'] as const)(`${FR_072_ORDER} -- %s`, async (language) => {
     const fields = (await settingsStage(DOCUMENT, language)).lastView().propertiesPanel?.fields ?? []
-    const placed = fields.slice(0, FACE_ROWS.length)
-    expect(placed.map((one) => one.row)).toEqual(FACE_ROWS.map(faceRowOf))
-    expect(placed.map((one) => one.name)).toEqual(FACE_ROWS.map((row) => faceNameOf(row, language)))
+    const rows = FACE_ROWS.flatMap((row) => numberedOf(faceRowOf(row), faceNameOf(row, language)))
+    const placed = fields.slice(0, rows.length)
+    expect(placed.map((one) => one.row)).toEqual(rows.map((one) => one.row))
+    expect(placed.map((one) => one.name)).toEqual(rows.map((one) => one.name))
   })
 
   it(`${FR_072_NO_ANCHOR} -- each field another requirement places names its T-369 row`, () => {

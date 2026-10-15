@@ -163,6 +163,18 @@ function taskGroupTitleSvg(
   return textSvg(x, y, fontSizePx * ratio, title.label, ink)
 }
 
+// see EP-2, EP-3, FR-017, FR-156
+// WHY: the zone abbreviation of each ruler clock row, as the screen prints it over the panel (text-anchor end).
+/** @purity pure */
+function rulerAbbreviationsSvg(view: ScreenView, ink: string, ratio: number): string {
+  return (view.taskGroupPanel.rulerAbbreviations ?? [])
+    .map((one) => {
+      const x = (one.box.x + one.box.width) * ratio
+      return textSvg(x, one.baseline * ratio, one.fontPx * ratio, one.text, ink).replace('<text ', '<text text-anchor="end" ')
+    })
+    .join('')
+}
+
 // see EP-3, FR-042
 /** @purity pure */
 function groupGridLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): string {
@@ -208,6 +220,7 @@ export function exportSvg(scene: ExportScene): SvgExport {
     pinned.map((title) => taskGroupTitleSvg(title, panel, drawn, ink, ratio)).join('') +
     titles.map((title) => taskGroupTitleSvg(title, panel, drawn, ink, ratio)).join('') +
     groupGridLinesSvg(screenView, scene, ratio) +
+    rulerAbbreviationsSvg(screenView, ink, ratio) +
     dividerLinesSvg(screenView, scene, ratio)
 
   const width = canvas.width

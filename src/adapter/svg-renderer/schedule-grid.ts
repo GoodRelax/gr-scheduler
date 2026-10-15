@@ -296,17 +296,58 @@ interface RulerInk {
   readonly rule: string
 }
 
+// see FR-017, FR-156, T-238, T-376
+// WHY: a row of the ruler read on one time zone's clock: the view base's hour row (TM-5) or a display zone's row.
+export interface RulerClockRow {
+  readonly zoneKey: string
+  readonly top: number
+  readonly height: number
+  readonly baseline: number
+}
+
+/** @purity pure */
+function rulerBaselineOf(top: number, settings: DrawnSettings): number {
+  return top + settings.rulerLabelPad + settings.rulerFont - settings.rulerLabelBottomPad
+}
+
+// see FR-017, FR-156, S-575
+// WHY: one row per shown zone under the tiers, each the height of one of the band's three rows.
+/** @purity pure */
+function zoneClockRowsOf(settings: DrawnSettings, band: ScreenRect): readonly RulerClockRow[] {
+  const zones = rulerZoneRowsOf(settings)
+  const height = rulerZoneRowHeightOf(settings)
+  return zones.map((zoneKey, index) => {
+    const top = band.y + band.height - (zones.length - index) * height
+    return { zoneKey, top, height, baseline: rulerBaselineOf(top, settings) }
+  })
+}
+
+// see FR-017, FR-156, TM-5, S-574, S-575
+// WHY: the rows whose left blank prints a time zone's abbreviation (JDG-2043): the view base's hour row only while
+// the ruler is at the hour tier, every display zone's row while time of day is shown.
+/** @purity pure */
+export function rulerClockRowsOf(
+  tier: ScheduleLayout['tier'],
+  settings: DrawnSettings,
+  band: ScreenRect,
+  dataRegion: string,
+): readonly RulerClockRow[] {
+  const zones = zoneClockRowsOf(settings, band)
+  if (tier !== 'dayHour') return zones
+  const rows = ROWS_OF_TIER[tier]
+  const height = (band.height - zones.length * rulerZoneRowHeightOf(settings)) / rows.length
+  const top = band.y + rows.indexOf('hour') * height
+  const base = { zoneKey: viewRegionOf(dataRegion, settings.viewTimeZone), top, height, baseline: rulerBaselineOf(top, settings) }
+  return [base, ...zones]
+}
+
 // see FR-017, FR-156, S-575
 // WHY: one row per shown zone under the tiers, each the height of one of the band's three rows.
 /** @purity pure */
 function zoneRowsSvg(layout: ScheduleLayout, settings: DrawnSettings, band: ScreenRect, dataRegion: string, look: RulerInk): readonly string[] {
-  const zones = rulerZoneRowsOf(settings)
-  const height = rulerZoneRowHeightOf(settings)
   const right = band.x + band.width
   const out: string[] = []
-  for (const [index, zone] of zones.entries()) {
-    const top = band.y + band.height - (zones.length - index) * height
-    const baseline = top + settings.rulerLabelPad + settings.rulerFont - settings.rulerLabelBottomPad
+  for (const [index, { zoneKey: zone, top, height, baseline }] of zoneClockRowsOf(settings, band).entries()) {
     const row: RulerRowBox = { top, height, baseline, left: band.x, right }
     const axis = rulerAxisOf(layout, zone, dataRegion, true)
     const keyHead = `ruler-zone-${index}`
@@ -397,8 +438,7 @@ export function rulerSvg(
 
   for (const [index, row] of rows.entries()) {
     const top = band.y + index * taskGroupHeight
-    const baseline =
-      top + settings.rulerLabelPad + settings.rulerFont - settings.rulerLabelBottomPad
+    const baseline = rulerBaselineOf(top, settings)
     if (index > 0) {
       out.push(
         `<line x1="${rounded(band.x)}" y1="${rounded(top)}"` +

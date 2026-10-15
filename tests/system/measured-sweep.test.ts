@@ -3854,7 +3854,9 @@ test('DFC-233: the settings surface prints dictionary words and no raw identifie
     ).toBeGreaterThan(0)
 
     const held = dictionaryWords()
-    const strangers = [...new Set(printing.names)].filter((name) => !held.has(name))
+    // WHY: CR-755 (FO-15) -- a display time zone row is the dictionary's name followed by its number 1 to 4.
+    const unnumbered = (name: string): string => name.replace(/ [1-4]$/, '')
+    const strangers = [...new Set(printing.names)].filter((name) => !held.has(name) && !held.has(unnumbered(name)))
     expect(
       strangers.slice(0, 12),
       `the settings surface prints ${strangers.length} of its ${printing.names.length} item ` +
