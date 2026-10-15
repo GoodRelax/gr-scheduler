@@ -312,7 +312,7 @@ export function tableColumnsOf(
 
 // WHY: a sort alone is not a filter, so it paints no heading (JDG-1807).
 /** @purity pure */
-function isWorkingFilter(filter: ColumnFilter): boolean {
+export function isWorkingFilter(filter: ColumnFilter): boolean {
   return filter.hiddenValues.length > 0 || filter.fromDate !== null || filter.toDate !== null
 }
 

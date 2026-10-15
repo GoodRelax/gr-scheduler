@@ -246,7 +246,7 @@
     "App Header"
    ],
    "group": "調べる",
-   "entryTo": "遅延診断を行う・診断の表示を終える（`S-445`）",
+   "entryTo": "遅延診断を行う・レポートを閉じていれば診断をやり直す・開いていれば診断の表示を終える（`S-445`）",
    "authority": "`FR-130`",
    "arms": null,
    "armsShape": null

@@ -141,6 +141,7 @@ import {
 } from '../../adapter/image-exporter/image-exporter'
 import {
   commandFromInput,
+  diagnosisRowAskedOf,
   escapeContextOf,
   isCombo,
   isLandingMarkKeptBy,
@@ -167,6 +168,7 @@ import {
   searchPanelWithColumnWidth,
   OPENED_DELAY_DIAGNOSTICS_REPORT,
   delayDiagnosticsReportWithInput,
+  delayDiagnosticsReportShowingRow,
   delayDiagnosticsReportWithColumnWidth,
   delayDiagnosticsReportWithFilterClosed,
   resourceListAfterFilterChange,
@@ -513,7 +515,10 @@ interface HeldDelayDiagnostics {
   readonly report: DelayDiagnosticsReport
   readonly drawing: DelayDiagnosticsDrawing
   readonly reportTaskUids: ReadonlySet<number>
+  readonly markedTaskUids: ReadonlySet<number>
 }
+
+const NO_MARKED_TASKS: ReadonlySet<number> = new Set()
 
 // see FR-133, T-315, S-3
 // WHY: DG-4 is left out; the geometry already draws it as PM-4.
@@ -523,7 +528,7 @@ function delayDiagnosticsOf(document: Document): HeldDelayDiagnostics {
   const symbolByUid = new Map<number, 'DG-1' | 'DG-2' | 'DG-3'>()
   for (const one of report.markerStates) if (one.row !== 'DG-4') symbolByUid.set(one.uid, one.row)
   const reportTaskUids = new Set(delayDiagnosticsReportRows(report, document.schedule).map((row) => row.taskUid))
-  return { of: document, report, drawing: { shown: true, symbolByUid }, reportTaskUids }
+  return { of: document, report, drawing: { shown: true, symbolByUid }, reportTaskUids, markedTaskUids: new Set(symbolByUid.keys()) }
 }
 
 type GeometryArguments = Parameters<typeof geometryFromLayout>
@@ -1936,7 +1941,16 @@ function tableWindowsHeldIn(read: () => WindowPlaces, write: (next: WindowPlaces
     report: (): DelayDiagnosticsReportWindow | null => read().delayDiagnosticsReport,
     holdReport: (report: DelayDiagnosticsReportWindow | null): void => write(withTableWindows(read(), report, read().resourceList)),
     reopenedReport: (): DelayDiagnosticsReportWindow =>
-      read().delayDiagnosticsReport ?? withoutDelayFixes(tableWindowReopened(null, read().closedReport, OPENED_DELAY_DIAGNOSTICS_REPORT)),
+      read().delayDiagnosticsReport ?? { ...withoutDelayFixes(tableWindowReopened(null, read().closedReport, OPENED_DELAY_DIAGNOSTICS_REPORT)), markedRow: null },
+    // see RW-1, RW-19, FR-130
+    // WHY: the diagnosis goes on, so the fix picks and the marked row come back with the window (RW-16).
+    shownReport: (): DelayDiagnosticsReportWindow => tableWindowReopened(read().delayDiagnosticsReport, read().closedReport, OPENED_DELAY_DIAGNOSTICS_REPORT),
+    keepMarkWithin<D extends Pick<HeldDelayDiagnostics, 'reportTaskUids'>>(diagnostics: D): D {
+      const report = read().delayDiagnosticsReport
+      const uid = report?.markedRow?.taskUid
+      if (report != null && uid !== undefined && !diagnostics.reportTaskUids.has(uid)) write(withTableWindows(read(), { ...report, markedRow: null }, read().resourceList))
+      return diagnostics
+    },
     resourceList: (): ResourceListWindow | null => read().resourceList,
     reopenedResourceList: (): ResourceListWindow => tableWindowReopened(read().resourceList, read().closedResourceList, OPENED_RESOURCE_LIST),
     holdResourceList: (list: ResourceListWindow | null): void => write(withTableWindows(read(), read().delayDiagnosticsReport, list)),
@@ -3022,17 +3036,28 @@ export function frameLoop(
   /** @purity non-pure */
   function delayDiagnosticsNow(): HeldDelayDiagnostics | null {
     if (!delayDiagnosticsShown) return null
-    if (delayDiagnosticsHeld?.of !== held.document) delayDiagnosticsHeld = delayDiagnosticsOf(held.document)
+    if (delayDiagnosticsHeld?.of !== held.document) delayDiagnosticsHeld = windows.keepMarkWithin(delayDiagnosticsOf(held.document))
     return delayDiagnosticsHeld
   }
 
-  // see RW-1, S-451
+  // see RW-1, S-451, FR-130
   /** @purity non-pure */
   function showDelayDiagnostics(isShown: boolean): void {
+    const isRunAgain = isShown && delayDiagnosticsShown
     delayDiagnosticsShown = isShown
-    if (!isShown) delayDiagnosticsHeld = null
+    if (!isShown || isRunAgain) delayDiagnosticsHeld = null
     if (!isShown) documentFileFlow.forgetDelayFixLog()
-    windows.holdReport(isShown ? windows.reopenedReport() : null)
+    windows.holdReport(isRunAgain ? windows.shownReport() : isShown ? windows.reopenedReport() : null)
+  }
+
+  // see RW-19, JDG-2195
+  /** @purity non-pure */
+  function showDiagnosisRow(taskUid: number): void {
+    const reportHeld = reportHeldOf(windows.shownReport(), delayDiagnosticsNow(), held.document, screenLanguageIn(session))
+    const shown = reportHeld === null ? null : delayDiagnosticsReportShowingRow(reportHeld.window, reportHeld.view, taskUid, reportHeld)
+    if (shown === null) return
+    shownTasks.writeViews({ delayDiagnosticsReport: shown.view })
+    windows.holdReport(shown.window)
   }
 
   // see FR-134, FR-155, T-346, RW-6, RW-7, RW-12, RW-14
@@ -3430,6 +3455,7 @@ export function frameLoop(
       isTextFieldFocusWanted: isFieldFocusWanted(hands),
       isSearchWordFocused: SEARCH_FIELD_ROWS.has(screen?.readFocusPosition?.() ?? ''),
       ...windowFocusContextOf(screen, session, { report: windows.report(), resourceList: windows.resourceList(), schedule: held.document.schedule, view: shownTasks.views().resourceList }),
+      diagnosisMarkedTaskUids: delayDiagnosticsNow()?.markedTaskUids ?? NO_MARKED_TASKS,
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
       drawnTaskGroupIds: drawnTaskGroupBoxes.map((one) => one.groupId),
@@ -3571,7 +3597,7 @@ export function frameLoop(
       return true
     }
     if (entry === DELAY_DIAGNOSTICS_ENTRY) {
-      showDelayDiagnostics(!delayDiagnosticsShown)
+      showDelayDiagnostics(!delayDiagnosticsShown || windows.report() === null)
       return true
     }
     if (parentTasks.isToggledBy(entry)) return true
@@ -4017,6 +4043,8 @@ export function frameLoop(
     windows.followGrab(session, input, context.pressed)
     if (hasEndedGesture(input) || escapeLevel === 'gesture') endPointerPress(isDragInterrupted, frame)
     if (screenEvent !== null && SENT_AFTER_PRESS_DROPS.has(screenEvent.type)) sendToSession(screenEvent, frame)
+    const diagnosisRow = diagnosisRowAskedOf(input, context)
+    if (diagnosisRow !== null) showDiagnosisRow(diagnosisRow)
     if (escapeLevel === 'gesture') endEntryRepeat()
     jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry, jumpViewWrites: shownTasks.jumpViewWrites, oweLanding: owedJump.owe, openField: (row) => void (showPropertiesOfChoice('objects'), wantFieldFocused(row)) })
 
@@ -4060,7 +4088,7 @@ export function frameLoop(
 
     const hasKeyActed =
       spent || didSettleFieldEntry || hasChoiceMoved || escapeLevel !== null || translated.action !== null ||
-      translated.displayScaleShown !== undefined || isVerticalZoomEndShown || screenEvent !== null
+      translated.displayScaleShown !== undefined || isVerticalZoomEndShown || screenEvent !== null || diagnosisRow !== null
     // WHY: a wheel at a vertical-axis end changes nothing owesFrame reads, yet its message is new (ZE-5).
     const owesAFrame =
       owesFrame(input, context, sessionBefore, partBefore, grabBefore, noticesBefore, hasKeyActed) ||
