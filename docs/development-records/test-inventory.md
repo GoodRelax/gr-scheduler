@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 346 | 4246 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 351 | 4304 | 9 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 86 | 566 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 87 | 575 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3901 | 1 | 1 | 2 | 0 |
 | `usecase` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 634 | 8823 | 11 | 8 | 13 | 2 |
+| **all** | | | 640 | 8890 | 12 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -49,17 +49,18 @@ Nodes with the prefixes `FR`, `NFR`, `UC`, `SWS`. A node named only in a test of
 | `tests/contract/mspdi-xsd-local-only.test.ts` | - |
 | `tests/contract/w3-t5-the-grs-json-schema-is-generated-from-the-manuscripts.contract.test.ts` | - |
 
-## 5. Expected-to-fail cases (11)
+## 5. Expected-to-fail cases (12)
 
 `it.fails` / `test.fail` / `specMismatch(...)`. The ledger row is a `DFC-` ID on the mark's
 line, the three lines above it, or its title; failing that, the `known-red.txt` lines of the
 file whose case text the title contains ("via known-red"). "none" means no ledger row is
-named either way: 4 of 11.
+named either way: 4 of 12.
 
 | file | case or reason | ledger row |
 | --- | --- | --- |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the bundle of the first document is refused on a document that cannot take its second c... | DFC-730 |
 | `tests/contract/cr-731-un-21-one-bundle-is-all-or-nothing-and-one-undo-step.contract.test.ts` | the refusal leaves nothing applied: no document and no step come out of it | none |
+| `tests/contract/cr-754-fr-006-date-fields-take-s-589-and-s-590.test.ts` | the time shown: the actual length (PR-5) is as wide as the date and time fields beside... | DFC-2870 |
 | `tests/contract/cr-757-fo-17-the-settings-row-asks-then-moves.test.ts` | UN-13 / FR-159: ${FR_159_ONE_UNDO} -- S-77 scrollDate is back too | DFC-2761 |
 | `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | a dateless milestone (read as 17:00, the end of the last span) is not counted outside a... | none |
 | `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | a milestone written at 17:00 (its WT-5 default time) is not counted outside after the move | none |
@@ -426,6 +427,11 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-751-the-schema-names-the-regions-and-no-spec-id.contract.test.ts` | 12 | FR-024, FR-054, FR-156 | - | T-376 | IV-24, S-574, S-575, S-582 | - | - | - | - |
 | `tests/contract/cr-752-call-shapes-and-two-fix-rows.contract.test.ts` | 20 | FR-011, FR-012, FR-054 | - | T-064, T-108, T-310, T-346 | CM-11, CM-37, FA-3, FA-15, FA-24, PI-1, RW-16, VC-15 | - | - | - | - |
 | `tests/contract/cr-753-a-ctrl-drag-copy-lands-where-the-body-move-lands.test.ts` | 34 | FR-016, FR-017, FR-103 | - | T-209, T-266, T-270, T-350, T-378 | CY-5, CY-7, CY-9, GA-9, GA-14, GA-15, GA-18, PE-1, PE-6, PTD-7, RV-1, S-1, S-8, S-55, S-85, S-229, S-482, S-483, S-577, S-578, SG-1, SG-2, SG-3, WT-1, WT-2 | - | - | - | - |
+| `tests/contract/cr-754-fr-006-date-fields-take-s-589-and-s-590.test.ts` | 16 | FR-006, FR-088, FR-093 | - | T-016, T-201, T-206 | K-141, PI-37, PR-5, S-30, S-199, S-589, S-590, TX-3, WC-4 | - | - | 1: DFC-2870 | - |
+| `tests/contract/cr-754-fr-006-fr-038-item-names-wrap-at-the-dictionary-break-marks.test.ts` | 10 | FR-006, FR-038 | - | - | K-138 | - | - | - | - |
+| `tests/contract/cr-754-fr-072-the-close-only-row-heads-every-panel.test.ts` | 10 | FR-072 | - | - | FO-16, IC-52 | - | - | - | - |
+| `tests/contract/cr-754-s-171-s-197-the-panel-font-and-the-kept-choices.test.ts` | 5 | FR-006 | - | - | S-171, S-197, S-198 | - | - | - | - |
+| `tests/contract/cr-754-t-380-the-read-only-rows-in-their-groups.test.ts` | 17 | FR-072 | - | T-369, T-380 | FO-12, FO-16, RN-6, RN-8 | - | - | - | - |
 | `tests/contract/cr-755-t-376-keys-names-and-the-schema.contract.test.ts` | 29 | FR-017, FR-038, FR-156 | - | T-376 | BK-4, OP-6, RS-25, S-574, S-575, ZN-29, ZN-67 | - | - | - | - |
 | `tests/contract/cr-755-the-base-zone-field-asks-three-answers.contract.test.ts` | 26 | FR-156 | VT-2 | T-280, T-369, T-376 | AT-157, CM-94, CM-95, FO-14, FO-15, K-144, K-145, S-574, S-575, TX-11, UN-13 | - | - | - | - |
 | `tests/contract/cr-755-the-ruler-prints-each-clock-rows-abbreviation.contract.test.ts` | 15 | FR-017, FR-025, FR-156 | - | T-205, T-206 | EP-2, EP-3, S-8, S-313, S-574, S-575, S-577, S-578, TM-5, U-22 | - | - | - | - |
@@ -672,6 +678,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-736-the-marquee-overlay-in-the-built-app.test.ts` | 8 | - | - | T-065 | IF-1, IF-9, ZO-6 | - | - | - | - |
 | `tests/system/cr-737-the-column-border-grab-band-and-the-pointer-shape-over-windows.test.ts` | 11 | FR-106 | - | T-023d, T-103, T-109, T-206, T-330 | DT-8, GR-25, GR-28, IC-122, PK-10, PK-12, PK-15, RO-9, RQ-1, RW-9, S-425, S-426, S-465, SQ-10, SV-7, SV-18 | - | - | - | - |
 | `tests/system/cr-739-the-window-edge-answers-before-the-title-bar-and-the-header-cell-shows-the-finger.test.ts` | 13 | FR-106 | - | T-023d, T-103, T-109, T-330, T-335 | DT-8, GR-24, GR-25, IC-52, IC-122, IF-9, PK-7, PK-12, PK-13, PK-15, RO-9, RQ-1, RW-9, S-426, S-465, SQ-10, SV-1, SV-7, SV-18, WB-8, WB-9 | - | - | - | - |
+| `tests/system/cr-754-the-settings-panel-fits-its-default-width-in-ja-and-en.test.ts` | 9 | FR-006, FR-072, FR-151 | - | T-025, T-206, T-331, T-369 | IC-117, IC-122, S-171, S-248, SV-7, U-24, U-25 | - | - | - | - |
 | `tests/system/dfc-2178-a-plain-wheel-leaves-a-focused-number-alone.test.ts` | 3 | - | - | T-025 | MC-6, MH-4, MK-1, S-197 | - | - | - | - |
 | `tests/system/display-words-reasons-and-watermark.test.ts` | 5 | - | - | T-025, T-103, T-233, T-234 | IC-66, QN-3, U-14 | - | - | - | - |
 | `tests/system/divider-color-corner-and-sticky-field.test.ts` | 4 | FR-006, FR-019, FR-029, FR-039, FR-065, FR-072 | - | T-016, T-023b, T-025, T-109, T-206, T-217, T-236 | AM-3, AT-19, IC-16, IC-17, IN-2, MK-13, PR-21, PR-28, S-72, S-132, S-134, S-149, S-193, S-208 | - | - | - | - |
