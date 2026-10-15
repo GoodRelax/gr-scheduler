@@ -81,7 +81,30 @@ const PRESS_BY_ROW = new Map(
   displayWords.assignments.map((entry) => [entry.rowId, entry]),
 )
 
-const ASSIGNMENT_SEPARATOR = ' ／ '
+const KEY_NOTATION_WORDS = new Map(displayWords.keyNotation.map((entry) => [entry.part, entry.text]))
+
+const CHORD_JOIN = '+'
+
+const PLUS_KEY = '+'
+
+// see FR-036, JDG-2248
+/** @purity pure */
+export function keysWords(keys: readonly (readonly string[])[] | null, language: DisplayLanguage): string | null {
+  if (keys === null || keys.length === 0) return null
+  const plusKey = KEY_NOTATION_WORDS.get('plusKey')?.[language] ?? PLUS_KEY
+  return keys
+    .map((chord) => chord.map((key) => (key === PLUS_KEY ? plusKey : key)).join(CHORD_JOIN))
+    .join(KEY_NOTATION_WORDS.get('alternative')?.[language] ?? '')
+}
+
+// see EZ-2, FR-036
+/** @purity pure */
+export function assignmentWords(keys: string | null, press: string | null, language: DisplayLanguage): string | null {
+  const written = [keys, press]
+    .filter((one): one is string => one !== null)
+    .join(KEY_NOTATION_WORDS.get('alternative')?.[language] ?? '')
+  return written === '' ? null : written
+}
 
 // see EZ-2, FR-036
 /** @purity pure */
@@ -90,8 +113,7 @@ function entryAssignment(icon: IconId, language: DisplayLanguage): string | null
   if (found === undefined) return null
   const word = found.press === null ? undefined : PRESS_BY_ROW.get(found.press)?.press[language]
   const press = word === undefined || word === '' ? null : word
-  const written = [found.keys, press].filter((one): one is string => one !== null).join(ASSIGNMENT_SEPARATOR)
-  return written === '' ? null : written
+  return assignmentWords(keysWords(found.keys, language), press, language)
 }
 
 /** @purity pure */

@@ -159,10 +159,6 @@ function helpBodyStyle(): string {
   )
 }
 
-// see FR-036
-// TRAP: the tooltip joins with the same one; EZ-2 forbids the pair built two ways.
-const ASSIGNMENT_SEPARATOR = ' \uFF0F '
-
 const HELP_GLYPH_GAP_EM = 0.5
 
 // see FR-036, S-436
@@ -221,9 +217,8 @@ function helpItemElement(
   }
   row.append(glyph)
 
-  const written = [line.keys, line.press]
-    .filter((one): one is string => one !== null)
-    .join(ASSIGNMENT_SEPARATOR)
+  // WHY: the adapter joins the keys and the press in the help's language, as the tooltip does (EZ-2).
+  const written = line.assignment ?? ''
   const text = made(host, 'span', written === '' ? STYLE.helpText : styles.text)
   text.textContent = line.text
   row.append(text)

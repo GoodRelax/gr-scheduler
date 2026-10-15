@@ -208,8 +208,8 @@ def keys_of(row, table):
     """The key assignment a reader needs, out of the cell table T-036 prints.
 
     The joins inside the cell (a full-width slash between assignments, a
-    full-width plus inside a chord) are the table's and are kept as written.
-    SK-8 carries a parenthetical about where its rule lives; that is prose in
+    full-width plus inside a chord) are the table's; `assignments_of` takes
+    them out before anything reaches the roster (CR-770). SK-8 carries a parenthetical about where its rule lives; that is prose in
     one language and is dropped. A cell still in the retired spelling stops the
     run rather than reach the help.
 
@@ -227,6 +227,23 @@ def keys_of(row, table):
         return None
     cut = written.find(PROSE_OPENS)
     return (written[:cut] if cut >= 0 else written).strip()
+
+
+def assignments_of(keys):
+    """The keys of one cell as the roster carries them: one list per assignment,
+    each holding its keys in order -- `Ctrl` ＋ `Y` ／ `Ctrl` ＋ `Shift` ＋ `Z`
+    becomes [["Ctrl", "Y"], ["Ctrl", "Shift", "Z"]].
+
+    FR-036 (MUST, CR-770): the screen spells a chord `Ctrl+Y` in every language
+    and joins two assignments with a word of the dictionary, so the roster
+    carries the keys alone and neither join (JDG-2248).
+
+    @purity pure
+    """
+    if keys is None:
+        return None
+    return [[key.strip() for key in chord.split(FULL_WIDTH_PLUS)]
+            for chord in keys.split(ASSIGNMENT_SEPARATOR)]
 
 
 def entrances_of(row):
@@ -374,7 +391,8 @@ def build():
             continue
         held_chords |= chords_of(keys)
         if not drives or off_the_help(drives):
-            basics.append(item(BASICS, None, SHORTCUT_TABLE, row.id, keys=keys))
+            basics.append(item(BASICS, None, SHORTCUT_TABLE, row.id,
+                               keys=assignments_of(keys)))
             continue
         for icon in drives:
             if icon not in by_id:
@@ -383,7 +401,7 @@ def build():
             if icon in keys_on:
                 stop('%s and another row of table %s both name %s; an item holds '
                      'one key assignment' % (row.id, SHORTCUT_TABLE, icon))
-            keys_on[icon] = keys
+            keys_on[icon] = assignments_of(keys)
 
     for row in spec_tables.read(REL_REQUIREMENTS, ASSIGNMENT_TABLE):
         drives = entrances_of(row)
@@ -410,7 +428,8 @@ def build():
             stop('%s of table %s has no assignment' % (row.id, BROWSER_TABLE))
         if chords_of(keys) & held_chords:
             continue
-        browser.append(item(BROWSER, None, BROWSER_TABLE, row.id, keys=keys))
+        browser.append(item(BROWSER, None, BROWSER_TABLE, row.id,
+                            keys=assignments_of(keys)))
 
     # FR-036: the note on IC-54 and on IC-20 belongs to that row's own item, so
     # an entrance never stands on a second item for it.

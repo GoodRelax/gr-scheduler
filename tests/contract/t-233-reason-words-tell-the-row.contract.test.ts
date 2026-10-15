@@ -153,21 +153,22 @@ const ROWS_WITH_OWN_WORDS: readonly string[] = ROW_IDS.filter((rowId) => wordsRo
  * store that goes stale exactly the way the dictionary did in DFC-166.
  */
 const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
-  'RS-1': 'a1f303801978cd0b',
-  'RS-2': 'bf0dc7411abc1f66',
-  'RS-3': '4e786edf4413b782',
-  'RS-4': 'b81c82b10e0ecda4',
-  'RS-5': 'bcf057c1289a01d5',
-  'RS-6': '8ef378ef0fa10b86',
-  'RS-7': 'e038b841e64009b9',
-  'RS-8': 'd4f4a0b55b5cd4ec',
-  'RS-9': 'bef80d88fdb54f6b',
-  'RS-10': '8fb99682d5b75c9b',
-  'RS-11': '8396435d00eeec28',
-  'RS-12': 'dd5bcc6c420308b1',
-  'RS-13': '866e28e2dd0f412d',
-  'RS-14': '8a3b1693d6bc54e1',
-  'RS-16': 'd17dd51b976cadca',
+  // WHY: read 2026-10-15 (CR-770); the en words gained a final period and UI convention words, so only re-keyed.
+  'RS-1': '4e06709e0faeacdf',
+  'RS-2': '99014ef99e47bb3d',
+  'RS-3': 'faef8d7f1451cdb6',
+  'RS-4': 'fa18413b8ba17296',
+  'RS-5': 'b6abbf3323dd6bc9',
+  'RS-6': '6bb7e2dac6ef2729',
+  'RS-7': 'bee1f45e481ff210',
+  'RS-8': '5246e70dbb9b5176',
+  'RS-9': '2b82bc278eeb6198',
+  'RS-10': '7511250cbfd09bdf',
+  'RS-11': 'c6653e5783ae7df2',
+  'RS-12': '95ad8c948d6a7601',
+  'RS-13': 'f321af6f75bd49bf',
+  'RS-14': '2d8c60534d77350f',
+  'RS-16': '1eac0dcebc65e01a',
   // ⭐⭐ RE-READ 2026-09-05, and the pair still holds. The scene gained
   // a MUST NOT against telling it (now the display 出さない, CR-712) when the ruling of that day left
   // the watermark's default name standing and put the road to set one off
@@ -198,40 +199,40 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // the scene are unchanged from HEAD; only the removed record moved. Read
   // against the dictionary again: both languages and the next step still
   // match the shortened scene, so only the fingerprint is re-keyed.
-  'RS-19': '70fb69236ad4afd7',
-  'RS-20': '9660f89d7f3c1a5b',
-  'RS-21': '320caa7b7c536e85',
+  'RS-19': '653421bf0fe000be',
+  'RS-20': '36f43f499a83ae7f',
+  'RS-21': 'ee990c6018d1a693',
   // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
   // above): the scene's MUST/MUST NOT text is unchanged from HEAD, only its
   // origin record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  'RS-22': '653c7f3c181a890a',
-  'RS-23': '35646140a764e5e2',
-  'RS-24': 'b0d947880efec7e6',
-  'RS-25': '0ede3e728aff5d5c',
-  'RS-26': '8edc74bc14553b8e',
-  'RS-27': '173885a124f06ac3',
-  'RS-28': '0e965ecd20e51dbd',
-  'RS-29': '89c449ebe78c5a57',
-  'RS-30': '376c4c7494bbc330',
+  'RS-22': '10eb5895e870b2fa',
+  'RS-23': 'b9fa9d67de247443',
+  'RS-24': 'ecaeb30723d6a2eb',
+  'RS-25': 'b5ecfa5dbaf254af',
+  'RS-26': 'a2d15b5a681f8f37',
+  'RS-27': 'c5082717955315b1',
+  'RS-28': '17384e3e95f1923c',
+  'RS-29': 'e1e9b843248cfb66',
+  'RS-30': '80b524e909a79457',
   // WHY: CR-570 rewrote the scene to 'no task group is left undrawn'; read against the words (every task group open
   // and drawn; fold a task group or zoom out vertically) they still tell it, so only the fingerprint is re-keyed.
-  'RS-31': '7fd52c9a611496f8',
-  'RS-32': '0f0c514d32fcb421',
-  'RS-33': '140b0a58e73b1f52',
-  'RS-34': '89ad57e7d522bc58',
-  'RS-36': '8be4f91d1c036f2e',
-  'RS-37': '99a1bb1512e7029e',
-  'RS-38': '9c36f2d1fad8587d',
-  'RS-39': 'e7f5ea9b1fc12ca0',
-  'RS-40': 'fa7ae27664d8d2ee',
-  'RS-41': '5f77c22a1e6ab2c0',
+  'RS-31': 'fbf6b90b3bd24213',
+  'RS-32': '8f6a3b4632a549c0',
+  'RS-33': '12ab5c81b0f353b9',
+  'RS-34': '208cd7e4ab6ad6b4',
+  'RS-36': 'afd4312b2582c860',
+  'RS-37': '130cbc057c0d61fd',
+  'RS-38': 'd47f16b571788fc3',
+  'RS-39': '9f096ec4bba1db34',
+  'RS-40': 'ee6ace9eedfca0f0',
+  'RS-41': '34729e01f76ee4ed',
   // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
-  'RS-42': '935fc971ed4c12fc',
-  'RS-43': '47681049c5cc8b79',
-  'RS-44': '40451d7ffa68e3c6',
+  'RS-42': 'fcbbc9996fa64c05',
+  'RS-43': 'fbb77a59bc23fc7c',
+  'RS-44': '9470f42447a1e43c',
   // ---------------------------------------------------------------------
   // ⭐ READ AGAINST EACH OTHER ON 2026-09-03 (CR-340, ledger rows DFC-202 and
   // DFC-206). ⛔ The fingerprints below were NOT pasted in from a failure
@@ -248,7 +249,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // ---------------------------------------------------------------------
   // WHY: re-read 2026-10-03 (CR-635 next step, CR-637 text; JDG-1157/1181 Add = tsuika): the ja
   // text now says "tsuika dekimasen", the same scene; the next step still offers the shallower task group.
-  'RS-46': '66f75610810d3928',
+  'RS-46': 'd81a17a2a4e27f6b',
   //
   // ⭐ READ AGAINST EACH OTHER ON 2026-09-05 (CR-357, ledger row DFC-282,
   //   利用者の裁定 「② ただし、具体的に差分を表示してユーザーの確認を受ける」).
@@ -266,9 +267,9 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   at all; here it opens. ⇒ the words tell the scene.
   // WHY: re-read with CR-565; the next step now tells the loss on going on and leads
   // to the latest version, as FR-073 asks of RS-48, RS-63 and RS-64 alike.
-  'RS-48': '1b131ac1abadb976',
-  'RS-63': '71a39b0898223b1c',
-  'RS-64': '8bea60cf828c6dcc',
+  'RS-48': 'a0e952c306b84841',
+  'RS-63': 'a18f4a5cf5656086',
+  'RS-64': 'a90a29e20cd784fa',
   // ⭐ ADDED 2026-09-06 (CR-364, the ruling that renaming an assignee must
   // carry the count). The row is FR-008's, and the pairing was read the way
   // this file asks: the 場面 against the three dictionary fields, before
@@ -279,7 +280,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  'RS-49': 'c2740b284cbc8d0b',
+  'RS-49': '67a6574e42a4e7d2',
   // ⭐ ADDED 2026-09-06 (CR-368, FR-023's ruling that the import drops and
   // tells). Read together before anything was recorded, the way this file
   // asks. 場面 「文書が使えない日付を持つ `Task` を落として、残りを取り込んだ」;
@@ -301,7 +302,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  'RS-50': '15ee3d8a688ebfe5',
+  'RS-50': 'ff56c31d6f15204a',
   // ⭐ ADDED 2026-09-06, on the user's ruling that a document carrying settings
   // out of range is clamped and told about. Read together before the fingerprint
   // was taken: the row of table T-233, the ja and en text, and the next step.
@@ -340,13 +341,13 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   a calendar that WAS accepted. Nothing in either word could be read for
   //   the other scene.
   //
-  'RS-51': '3c3b03a2bf25ce1a',
+  'RS-51': '6e02150e3eddb51f',
   // RE-READ 2026-09-13 (CR-375, ledger row DFC-510, same shape as RS-19
   // above): the scene's rule text is unchanged from HEAD, only its origin
   // record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  'RS-52': 'e3b89df280d173ec',
+  'RS-52': '9617566a64fa1a28',
   // RS-53 -- 「バーの形状を構えたまま、引かずに離した」, 作法 `NT-1`, 正 `FR-001`.
   //   Read against the words before the fingerprint was taken: the text says a
   //   task has a span and so is not made without a drag, and the next step names
@@ -369,8 +370,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  'RS-53': '0e86c8daafe7af5c',
-  'RS-15': 'c85a8bb4ca6b676b',
+  'RS-53': '29e1977f4a16d456',
+  'RS-15': '6297993f46149221',
   // RS-54 -- 「構えた形状が、選んでいるものに当てられない」, 作法 `NT-1`, 正
   //   `FR-083` (利用者の裁定 2026-09-08). Read against the words before the
   //   fingerprint was taken: the text says the armed shape cannot be applied to
@@ -420,7 +421,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // record was folded out. Read against the dictionary again -- both
   // languages and the next step still tell the same scene -- so only the
   // fingerprint is re-keyed.
-  'RS-54': '992dcf8a4d100136',
+  'RS-54': '558c7caaaf951875',
   // -----------------------------------------------------------------------
   // ⭐ READ AGAINST EACH OTHER ON 2026-09-09 (the four write refusals table
   // T-233 gained with 表 T-015a の `HM-4` / `FR-009` / `IV-1` / `IV-10` for
@@ -449,7 +450,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   nowhere left in that direction). Those refuse a move that would be fine
   //   but for a limit; this one refuses a move that can never be well formed.
   // ⇒ the words tell the scene.
-  'RS-55': '3ae1d982998dd9aa',
+  'RS-55': '6f50e8e196c6abc3',
   //
   // RS-56 -- 場面 「同じ `Task` を、依存の先行と後続の両方にしようとした」,
   //   作法 `NT-1`, 正 `FR-009`.
@@ -464,7 +465,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   矢印だけを捨てて構えは解除しない」, so the arming survives the refusal and
   //   drawing to another task is the very next thing a person can do.
   // ⇒ the words tell the scene.
-  'RS-56': '772c6497e64774be',
+  'RS-56': '87208aab9b1738c9',
   //
   // RS-57 -- 場面 「同じ id を持つものが、この文書に既に在る」, 作法 `NT-1`,
   //   正 Chapter 6.1 の 表 T-220 の `IV-1`.
@@ -485,7 +486,7 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   refused by it. ⛔ That is a question for the manuscript, not for the
   //   words, and it is left where it is.
   // ⇒ the words tell the scene.
-  'RS-57': 'ba449a8d282c9699',
+  'RS-57': '7321f1ec92dfb996',
   //
   // RS-58 -- 場面 「終了が開始より前である」, 作法 `NT-1`, 正 Chapter 6.1 の
   //   表 T-220 の `IV-10`.
@@ -502,67 +503,67 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   //   dropping tasks, where this row is `NT-1`, a write that is refused and
   //   changes nothing.
   // ⇒ the words tell the scene.
-  'RS-58': '233c73e32acd128b',
-  'RS-59': '2390e3f14b96cec8',
-  'RS-60': '0a81e9c568c92770',
+  'RS-58': '48b6575a7f704f7e',
+  'RS-59': 'ca5ce244475236d8',
+  'RS-60': '275f46ff4448f779',
   // WHY: the words are option B of Q2 (JDG-300), read against the scene: the task group is read-only
   // because a group is set on it, and a copy into a task group with no group is a write FR-111 allows.
-  'RS-61': '19af97e9b907c451',
+  'RS-61': '3c2360f4ac55a091',
   // WHY: read 2026-09-30; the words name editGroup by its PR-33 label and point to the person who may set it.
-  'RS-62': 'db4d5372ac8ceaf9',
+  'RS-62': 'bf2d387ab7a11905',
   // WHY: read 2026-09-30; the words say the prompt is on the clipboard and to hand it to an AI (FR-068).
   // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
   'RS-65': 'ce737a4edd9097c6',
   // WHY: read 2026-09-30; too many pinned task groups to show the jump target, and unpinning is the road.
   'RS-66': '8902906e4fbc4e1f',
-  'RS-67': '3ce77e4ce9aa953e',
+  'RS-67': '1271e9fd41af3746',
   // WHY: read 2026-10-03; the words say the schedule picture reached the clipboard, no next step (JDG-1094).
   // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and
   // the words still tell the same copy to the clipboard, so only the fingerprint is re-keyed.
-  'RS-68': '6f2ade59f54dfe34',
+  'RS-68': 'f2d7f18901dcc0a0',
   // WHY: read 2026-10-04; a milestone has no span, so it cannot be a parent, and the next step is a bar with a span (PTL-8).
-  'RS-69': 'cdf80f391df0095d',
+  'RS-69': '622c7c9858d60d6a',
   // WHY: read 2026-10-04; a dashed arrow is a parent inferred from dates, and the road is to link it under AR-7 (PTL-12).
-  'RS-70': '0709734a8898806e',
+  'RS-70': '164e7929c5bca997',
   // WHY: read 2026-10-07; the matching tasks were overwritten with the file's values (MG-14), and
   // undo is the road back; the count NT-3 asks for is the notice's own, not a word of the row.
-  'RS-71': 'f14b2594cbfd088c',
+  'RS-71': 'e4cf8addf139dc9d',
   // WHY: read 2026-10-07; tasks the file did not carry were kept (MG-7 only says it keeps them),
   // an NT-5 notice that is accepted, and deleting by hand is the road.
-  'RS-72': '355974dcc63a9ab3',
+  'RS-72': 'b9542a7c91a16d34',
   // WHY: read 2026-10-07; the tasks that came last time and not now are listed by name below
   // (MG-11), and the step warns a kept one comes back on the other side at the next export.
-  'RS-73': '6b104b07df319bff',
+  'RS-73': 'd09a368a5aadff7b',
   // WHY: read 2026-10-07; a write refused (AG-9a) while an NT-7 question stands, and the road is
   // to try again once that question has been answered (WS-2). Re-read 2026-10-09 (CR-718): the
   // scene now says a screen write is dropped as RS-27, not told; the words still tell it.
-  'RS-74': 'e0e5ef5269e1296a',
+  'RS-74': '2fda66aed54bfb73',
   // WHY: read 2026-10-08 (CR-705); opening or reopening a file broke for no row's reason (IF-3),
   // an NT-3a notice, and the road is to open it once more.
-  'RS-75': 'b9a97a96cf09ae40',
+  'RS-75': 'd7540ecac35069e4',
   // WHY: read 2026-10-08 (CR-705); saving or writing out broke for no row's reason (IF-3), the file
   // may not hold it, and the road is another destination, as RS-3's.
-  'RS-76': 'ec9c53b8e6e11451',
-  'RS-77': '4582796b6be4b330',
+  'RS-76': '12abe41d1b423c81',
+  'RS-77': '4632023f72925b3e',
   // WHY: read 2026-10-10 (CR-719, JDG-1777); four tell why a file is not opened (a limit of
   // table T-211 or a Task with no dates), seven tell which row of table T-220 an edit broke.
-  'RS-78': '041a289233490cc8',
-  'RS-79': 'a937ddb17ac75a7e',
-  'RS-80': 'eafa7e48e45f0966',
-  'RS-81': 'bdcb97db885040c8',
-  'RS-82': '061e56575e3dc8a7',
-  'RS-83': '124e158fd4882867',
-  'RS-84': '9c63222ecd445da3',
-  'RS-85': 'cbc5744a3c912700',
-  'RS-86': 'c64ce1bbc9c9cf28',
-  'RS-87': 'f14d9e550cb2c93e',
-  'RS-88': '09beef6619c3a678',
+  'RS-78': '49e4427d5fbf4fc7',
+  'RS-79': '8594e69ebd464347',
+  'RS-80': '3adf2f4780a23be2',
+  'RS-81': '8bfc0f5cc531d50c',
+  'RS-82': 'edd8c91b06498800',
+  'RS-83': '816c8fce5784f84a',
+  'RS-84': '46510224ead9b67d',
+  'RS-85': 'a1c7cd4f457dcc72',
+  'RS-86': '118c544dd5ae1637',
+  'RS-87': 'b6b6bb28f94a91c1',
+  'RS-88': '0e1f8f1cef6b1cc1',
   // WHY: read 2026-10-11 (CR-710 wave 2); RS-89 tells the ranges miss 1d, which still counts the day
   // length. CR-755 (JDG-2107) retired the MSPDI time zone notice: nothing is told when the PC's zone is set.
   // WHY: read 2026-10-15 (CR-751); the scene now also counts a one-off working exception day, and the
   // words still tell that the ranges miss 1d, so only the fingerprint is re-keyed.
-  'RS-89': '20d48979ab2ce0f6',
+  'RS-89': 'afc4b6d7567c09ae',
 }
 
 const fingerprintOf = (rowId: string): string => {

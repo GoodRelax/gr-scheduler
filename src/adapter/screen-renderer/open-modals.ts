@@ -27,7 +27,7 @@ import type {
 } from './screen-renderer'
 import { displayLanguageOf } from './screen-renderer'
 import { confirmationAnswers, linkedWordsOf, reasonNextStepLink, reasonSurfaceWords } from './notices'
-import { iconHint, iconLabel } from './tooltips'
+import { assignmentWords, iconHint, iconLabel, keysWords } from './tooltips'
 import { dateText } from './table-window'
 import { fixedFitSpanOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import { HOLIDAY_SETTINGS_SURFACE, holidaySettingsOf } from './holiday-settings'
@@ -312,19 +312,27 @@ function helpPress(entry: HelpRosterEntry, language: DisplayLanguage): string | 
 // see FR-036
 /** @purity pure */
 function helpEntries(language: DisplayLanguage): readonly HelpEntry[] {
-  return helpRoster.entries.map((entry) => ({
+  return helpRoster.entries.map((entry) => helpEntry(entry, language))
+}
+
+/** @purity pure */
+function helpEntry(entry: HelpRosterEntry, language: DisplayLanguage): HelpEntry {
+  const press = helpPress(entry, language)
+  const keys = keysWords(entry.keys, language)
+  return {
     table: entry.table,
     row: entry.row,
     text: helpText(entry, language),
-    press: helpPress(entry, language),
-    keys: entry.keys,
+    press,
+    keys,
+    assignment: assignmentWords(keys, press, language),
     icon: entry.kind === 'item' && entry.table === ICON_TABLE ? entry.row : null,
     kind: entry.kind,
     column: entry.column,
     block: entry.block,
     segment: entry.segment,
     glyphs: entry.glyphs,
-  }))
+  }
 }
 
 /** @purity pure */

@@ -1,36 +1,47 @@
-// CR-425: the generated help roster carries the unified key spelling with the full-width separators, and IC-102 is drawn as figure F-019.
+// CR-425, CR-770: the generated help roster carries the keys alone, the screen spells a chord Ctrl+A and joins two assignments with the dictionary's word, and IC-102 is drawn as figure F-019.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 import { describe, expect, it } from 'vitest'
 
+import { assignmentWords, keysWords } from '../../src/adapter/screen-renderer/tooltips'
 import { specTable, unbroken } from './spec-table'
 
 const ROOT = process.cwd()
 const REQUIREMENTS = unbroken(readFileSync(join(ROOT, 'docs', 'spec', '01-04-requirements.md'), 'utf8'))
 
 const FR_036_THE_SEPARATOR =
-  '⭐ 1 つの項目に割当が 2 つ以上あるときは、割当と割当のあいだに `／`（全角の斜線）を、前後に半角の空白を 1 つずつ置いて並べること（MUST）'
+  '⭐ 1 つの項目に割当が 2 つ以上あるときは、割当と割当のあいだに、辞書（`FR-038`）の `keyNotation` の `alternative` の語を置いて並べること（MUST）'
 const FR_036_THE_CELL_SEPARATOR =
-  '⭐ 表 T-036 と 表 T-255 の `割当` の欄が 1 つの欄に 2 つ以上の割当を持つときも、同じ区切りで並べること（MUST）'
+  '⭐ 表 T-036 と 表 T-255 の `割当` の欄が 1 つの欄に 2 つ以上の割当を持つときは、欄の中では `／`（全角の斜線）の前後に半角の空白を 1 つずつ置いて並べ、画面では上の文の語で並べること（MUST）'
 const FR_036_THE_KEY_SPELLING =
   '⭐ 表 T-036 と 表 T-255 の `割当` の欄は、キーを 1 つずつコードの印で囲み、＋ で繋ぐ形（例: `Ctrl` ＋ `Shift` ＋ `0`）にそろえること（MUST）'
+const FR_036_THE_SCREEN_CHORD =
+  '⭐ 画面（ヘルプとツールチップ）では、1 つの割当のキーを半角の `+` で、前後に空白を置かずに繋ぐこと（MUST）（例: `Ctrl+Shift+0`）'
+const FR_036_THE_PLUS_KEY =
+  '⭐ キーそのものが `+` のときは、そのキーを辞書の `keyNotation` の `plusKey` の語で書くこと（MUST）'
+const FR_036_THE_PRESS_CHORD = '⭐ マウス操作の語（下の文）の中のキーも、同じ綴り（例: `Ctrl+ドラッグ`）とすること（MUST）'
 const FR_036_THE_WHEEL_IS_NOT_A_LETTER = '⛔ `IC-102` の図形を、数字や英字と読み違える形にしてはならない（MUST NOT）'
 
-describe('CR-425 -- the manuscript these cases are driven by', () => {
-  it.each([FR_036_THE_SEPARATOR, FR_036_THE_CELL_SEPARATOR, FR_036_THE_KEY_SPELLING, FR_036_THE_WHEEL_IS_NOT_A_LETTER])(
-    'still says it, word for word: %s',
-    (clause) => {
-      expect(REQUIREMENTS).toContain(clause)
-    },
-  )
+describe('CR-425, CR-770 -- the manuscript these cases are driven by', () => {
+  it.each([
+    FR_036_THE_SEPARATOR,
+    FR_036_THE_CELL_SEPARATOR,
+    FR_036_THE_KEY_SPELLING,
+    FR_036_THE_SCREEN_CHORD,
+    FR_036_THE_PLUS_KEY,
+    FR_036_THE_PRESS_CHORD,
+    FR_036_THE_WHEEL_IS_NOT_A_LETTER,
+  ])('still says it, word for word: %s', (clause) => {
+    expect(REQUIREMENTS).toContain(clause)
+  })
 })
 
 const H_KEYS = String.fromCodePoint(0x5272, 0x5f53)
 const H_ENTRANCE = String.fromCodePoint(0x5165, 0x53e3)
 const SLASH = '／'
-const PLUS = '＋'
+const FULL_WIDTH_PLUS = '＋'
 
 // see FR-036, T-036, T-255
 const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
@@ -39,17 +50,11 @@ const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
     .map((one) => [...one.matchAll(/`([^`]+)`/g)].map((span) => span[1] ?? ''))
     .filter((keys) => keys.length > 0)
 
-// see FR-036
-const spelledOnScreen = (cell: string): string =>
-  assignmentsIn(cell)
-    .map((keys) => keys.join(` ${PLUS} `))
-    .join(` ${SLASH} `)
-
 interface RosterEntry {
   readonly kind: string
   readonly table: string
   readonly row: string
-  readonly keys: string | null
+  readonly keys: readonly (readonly string[])[] | null
   readonly press: string | null
   readonly glyphs: readonly string[]
 }
@@ -57,6 +62,24 @@ interface RosterEntry {
 const ROSTER = JSON.parse(
   readFileSync(join(ROOT, 'src', 'adapter', 'screen-renderer', 'help-roster.json'), 'utf8'),
 ) as { readonly entries: readonly RosterEntry[] }
+
+interface Words {
+  readonly ja: string
+  readonly en: string
+}
+
+const DICTIONARY = JSON.parse(
+  readFileSync(join(ROOT, 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
+) as {
+  readonly keyNotation: readonly { readonly part: string; readonly text: Words }[]
+  readonly assignments: readonly { readonly rowId: string; readonly press: Words }[]
+}
+
+const notation = (part: string): Words => {
+  const found = DICTIONARY.keyNotation.find((one) => one.part === part)
+  if (found === undefined) throw new Error(`display-words.json holds no keyNotation ${part}`)
+  return found.text
+}
 
 const T_036 = specTable('T-036')
 const T_255 = specTable('T-255')
@@ -66,7 +89,7 @@ const keyCellsOfTable = (table: typeof T_036): readonly { readonly row: string; 
     .map((row) => ({ row: row.id, entrance: row.by[H_ENTRANCE] ?? '', cell: row.by[H_KEYS] ?? '' }))
     .filter((one) => assignmentsIn(one.cell).length > 0)
 
-describe(`FR-036 (MUST) -- the roster carries each key cell as the manuscript spells it: ${FR_036_THE_KEY_SPELLING}`, () => {
+describe(`FR-036 (MUST) -- the roster carries each key cell's keys and no join: ${FR_036_THE_KEY_SPELLING}`, () => {
   it.each(keyCellsOfTable(T_036).map((one) => [one.row, one] as const))('T-036 %s', (_row, one) => {
     const byTableRow = ROSTER.entries.find((entry) => entry.kind === 'item' && entry.table === 'T-036' && entry.row === one.row)
     const icon = /IC-\d+/.exec(one.entrance)?.[0]
@@ -74,26 +97,55 @@ describe(`FR-036 (MUST) -- the roster carries each key cell as the manuscript sp
       icon === undefined ? undefined : ROSTER.entries.find((entry) => entry.kind === 'item' && entry.row === icon && entry.keys !== null)
     const entry = byTableRow ?? byIcon
     if (entry === undefined) return
-    expect(entry.keys, `${one.row}: ${FR_036_THE_CELL_SEPARATOR}`).toBe(spelledOnScreen(one.cell))
+    expect(entry.keys, `${one.row}: ${FR_036_THE_CELL_SEPARATOR}`).toEqual(assignmentsIn(one.cell))
   })
 
   it.each(keyCellsOfTable(T_255).map((one) => [one.row, one] as const))('T-255 %s', (_row, one) => {
     const entry = ROSTER.entries.find((found) => found.kind === 'item' && found.table === 'T-255' && found.row === one.row)
     expect(entry, `premise: the roster lists ${one.row}`).toBeDefined()
-    expect(entry!.keys, `${one.row}: ${FR_036_THE_CELL_SEPARATOR}`).toBe(spelledOnScreen(one.cell))
+    expect(entry!.keys, `${one.row}: ${FR_036_THE_CELL_SEPARATOR}`).toEqual(assignmentsIn(one.cell))
   })
 
-  it(`joins the two assignments of SK-7 on IC-6 with " ${SLASH} ": ${FR_036_THE_SEPARATOR}`, () => {
-    const entry = ROSTER.entries.find((found) => found.kind === 'item' && found.row === 'IC-6')
-    expect(entry, 'premise: the roster lists IC-6').toBeDefined()
-    expect(entry!.keys, FR_036_THE_SEPARATOR).toBe(`Ctrl ${PLUS} Y ${SLASH} Ctrl ${PLUS} Shift ${PLUS} Z`)
+  it('leaves no join inside a roster key: every key is one key name', () => {
+    const joined = ROSTER.entries
+      .flatMap((entry) => (entry.keys ?? []).flat().map((key) => `${entry.row}: ${key}`))
+      .filter((one) => one.includes(FULL_WIDTH_PLUS) || one.includes(SLASH) || /\S \S/.test(one.split(': ')[1] ?? ''))
+    expect(joined, FR_036_THE_SCREEN_CHORD).toEqual([])
+  })
+})
+
+describe(`FR-036 (MUST) -- the screen spells a chord Ctrl+A and joins with the dictionary's word: ${FR_036_THE_SCREEN_CHORD}`, () => {
+  const IC_6 = ROSTER.entries.find((found) => found.kind === 'item' && found.row === 'IC-6')
+
+  it.each(['ja', 'en'] as const)(`joins the two assignments of SK-7 on IC-6 with the %s word: ${FR_036_THE_SEPARATOR}`, (language) => {
+    expect(IC_6, 'premise: the roster lists IC-6').toBeDefined()
+    expect(keysWords(IC_6!.keys, language), FR_036_THE_SEPARATOR).toBe(
+      `Ctrl+Y${notation('alternative')[language]}Ctrl+Shift+Z`,
+    )
   })
 
-  it('leaves no roster key string with a half-width + welding two keys', () => {
-    const welded = ROSTER.entries
-      .filter((entry) => typeof entry.keys === 'string' && /[A-Za-z0-9]\+[A-Za-z0-9]/.test(entry.keys))
-      .map((entry) => `${entry.row}: ${entry.keys}`)
-    expect(welded, FR_036_THE_KEY_SPELLING).toEqual([])
+  it('spells the alternative join as the user ruled it: a spaced full-width slash in ja, "or" in en (JDG-2248)', () => {
+    expect(notation('alternative')).toEqual({ ja: ` ${SLASH} `, en: ' or ' })
+  })
+
+  it.each(['ja', 'en'] as const)(`writes the plus key with the %s word: ${FR_036_THE_PLUS_KEY}`, (language) => {
+    const plus = ROSTER.entries.find((found) => found.kind === 'item' && (found.keys ?? []).some((chord) => chord.includes('+')))
+    expect(plus, 'premise: a roster item holds the plus key').toBeDefined()
+    const written = keysWords(plus!.keys, language) ?? ''
+    expect(written, FR_036_THE_PLUS_KEY).toContain(`+${notation('plusKey')[language]}`)
+    expect(written, FR_036_THE_PLUS_KEY).not.toMatch(/\+\+/)
+  })
+
+  it.each(['ja', 'en'] as const)('joins the keys and the pointer press with the same %s word (EZ-2)', (language) => {
+    expect(assignmentWords('Ctrl+S', 'Ctrl+{IC-102}', language)).toBe(`Ctrl+S${notation('alternative')[language]}Ctrl+{IC-102}`)
+    expect(assignmentWords(null, null, language)).toBeNull()
+  })
+
+  it(`spells every chord inside a pointer press the same way: ${FR_036_THE_PRESS_CHORD}`, () => {
+    const spaced = DICTIONARY.assignments
+      .flatMap((one) => [`${one.rowId} ja: ${one.press.ja}`, `${one.rowId} en: ${one.press.en}`])
+      .filter((one) => one.includes(FULL_WIDTH_PLUS) || / \+ /.test(one))
+    expect(spaced, FR_036_THE_PRESS_CHORD).toEqual([])
   })
 })
 

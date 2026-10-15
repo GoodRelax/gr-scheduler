@@ -262,7 +262,13 @@ describe('PND-93 -- the physical keys reach the loop as the three signs, with Ct
 describe('FR-036 / T-255 -- the help lists both browser functions and the Ctrl + Shift keys on their entrances', () => {
   const ROSTER = JSON.parse(
     readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'help-roster.json'), 'utf8'),
-  ) as { readonly entries: readonly { readonly row: string; readonly table: string; readonly keys: string | null }[] }
+  ) as {
+    readonly entries: readonly {
+      readonly row: string
+      readonly table: string
+      readonly keys: readonly (readonly string[])[] | null
+    }[]
+  }
 
   const entryOf = (row: string) => {
     const found = ROSTER.entries.filter((one) => one.row === row)
@@ -279,14 +285,14 @@ describe('FR-036 / T-255 -- the help lists both browser functions and the Ctrl +
     ['IC-105', '+'],
     ['IC-104', '-'],
   ])('carries Ctrl + Shift + the sign on %s', (row, sign) => {
-    const keys = entryOf(row).keys ?? ''
+    const keys = (entryOf(row).keys ?? []).flat()
     expect(keys).toContain('Ctrl')
     expect(keys).toContain('Shift')
     expect(keys).toContain(sign)
   })
 
   it('carries Ctrl + Shift + 0 on no entry, now that JDG-301 retired that key', () => {
-    const spelled = ROSTER.entries.map((one) => (one.keys ?? '').replace(/\s/g, ''))
+    const spelled = ROSTER.entries.flatMap((one) => (one.keys ?? []).map((chord) => chord.join('+')))
     expect(spelled.filter((keys) => /Ctrl.*Shift.*[^0-9]0$/.test(keys))).toEqual([])
   })
 })

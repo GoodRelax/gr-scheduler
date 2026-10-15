@@ -572,6 +572,20 @@ function helpListedEntrances(): ReadonlySet<string> {
  *
  * @purity pure
  */
+// see FR-036, CR-770
+// WHY: the screen spells each chord of a cell Ctrl+A and writes the plus key with the help language's word.
+function screenChordsOf(cell: string): readonly string[] {
+  const words = JSON.parse(
+    readFileSync(join(process.cwd(), 'src', 'adapter', 'screen-renderer', 'display-words.json'), 'utf8'),
+  ) as { readonly keyNotation: readonly { readonly part: string; readonly text: Record<string, string> }[] }
+  const plus = words.keyNotation.find((one) => one.part === 'plusKey')?.text ?? {}
+  return cell
+    .split('\uff0f')
+    .map((chord) => chord.split('\uff0b').map((one) => one.trim()))
+    .filter((keys) => keys.some((one) => one !== ''))
+    .map((keys) => keys.map((one) => (one === '+' ? (plus['en'] ?? '+') : one)).join('+'))
+}
+
 function keyedShortcutRows(): ReadonlyArray<readonly [string, string, string]> {
   const listed = helpListedEntrances()
   const out: Array<readonly [string, string, string]> = []
@@ -1650,7 +1664,7 @@ test('DFC-105: a help item reads shape, description, assignment, drawn at S-203'
     }
     // WHY: an entrance item may carry a key and a mouse operation in one place
     // WHY: (FR-036), so the key is looked for inside the place, not as all of it.
-    if (!(places[2] ?? '').includes(key)) {
+    if (!screenChordsOf(key).every((chord) => (places[2] ?? '').includes(chord))) {
       wrongKeys.push(`${itemId} prints ${JSON.stringify(places[2] ?? '')} where T-036 ${rowId} writes ${JSON.stringify(key)}`)
     }
   }

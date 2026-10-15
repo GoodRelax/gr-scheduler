@@ -27,7 +27,7 @@
    "rowId": "IC-1",
    "label": {
     "ja": "開く",
-    "en": "Open"
+    "en": "Open…"
    },
    "hint": {
     "ja": "ファイルを開く。日程表にファイルを落としても開ける。読んだ内容の扱いは開いたあとで選ぶ",
@@ -38,7 +38,7 @@
    "rowId": "IC-2",
    "label": {
     "ja": "書き出して保存",
-    "en": "Save to File"
+    "en": "Save As…"
    },
    "hint": {
     "ja": "書き出す形式を選んで保存する",
@@ -64,7 +64,7 @@
    },
    "hint": {
     "ja": "変更前の予定の表示切替。変更前の予定が無いときは、そのファイルを選ぶ",
-    "en": "Show or hide the baseline. With no baseline yet, choose its file"
+    "en": "Show or hide the baseline. With no baseline yet, choose its file."
    }
   },
   {
@@ -93,7 +93,7 @@
    "rowId": "IC-10",
    "label": {
     "ja": "全体を収める",
-    "en": "Fit"
+    "en": "Zoom to Fit"
    },
    "hint": {
     "ja": "日程の全体を表示",
@@ -130,7 +130,7 @@
    },
    "hint": {
     "ja": "全画面表示の切替",
-    "en": "Enter or leave full screen"
+    "en": "Enter or exit full screen"
    }
   },
   {
@@ -185,7 +185,7 @@
    },
    "hint": {
     "ja": "モノクロで描く。もう一度押すと色に戻す",
-    "en": "Draw in monochrome; press again to go back to color"
+    "en": "Switch between monochrome and color"
    }
   },
   {
@@ -262,18 +262,18 @@
    },
    "hint": {
     "ja": "Agent API を有効にする。もう一度押すと無効にする (AI のアプリから使うときは、ヘルプに記載の .mcpb が必要)",
-    "en": "Enable the Agent API; press again to disable it (to use it from an AI app, get the .mcpb named in Help)"
+    "en": "Turn the Agent API on or off (to use it from an AI app, get the .mcpb named in Help)"
    }
   },
   {
    "rowId": "IC-18",
    "label": {
     "ja": "対話欄",
-    "en": "Dialogue Field"
+    "en": "Chat"
    },
    "hint": {
     "ja": "AI との対話欄の表示切替（Agent API も有効にする）",
-    "en": "Show or hide the Dialogue Field for the AI (also turns the Agent API on)"
+    "en": "Show or hide the Chat with the AI (also turns the Agent API on)"
    }
   },
   {
@@ -284,7 +284,7 @@
    },
    "hint": {
     "ja": "文書の描画設定をプロパティパネルに表示する。もう一度押すとパネルを閉じる。テーマ色もここで選ぶ",
-    "en": "Show the document's drawing settings in the Properties Panel, where the theme color is chosen; press again to close the panel"
+    "en": "Show or hide the document's drawing settings in the Properties Panel, where the theme color is chosen"
    }
   },
   {
@@ -317,7 +317,7 @@
    },
    "hint": {
     "ja": "矩形を構える。何にも当たらない場所をドラッグすると矩形のタスクを作る",
-    "en": "Arm the rectangle; drag on empty space to create a rectangle task"
+    "en": "Rectangle: drag on empty space to create a rectangle task"
    }
   },
   {
@@ -328,7 +328,7 @@
    },
    "hint": {
     "ja": "矢羽根を構える。何にも当たらない場所をドラッグすると矢羽根のタスクを作る",
-    "en": "Arm the chevron; drag on empty space to create a chevron task"
+    "en": "Chevron: drag on empty space to create a chevron task"
    }
   },
   {
@@ -339,7 +339,7 @@
    },
    "hint": {
     "ja": "矢印を構える。何にも当たらない場所をドラッグすると矢印のタスクを作る",
-    "en": "Arm the arrow; drag on empty space to create an arrow task"
+    "en": "Arrow: drag on empty space to create an arrow task"
    }
   },
   {
@@ -350,7 +350,7 @@
    },
    "hint": {
     "ja": "端点スパンを構える。何にも当たらない場所をドラッグすると端点スパンのタスクを作る",
-    "en": "Arm the endpoint span; drag on empty space to create an endpoint span task"
+    "en": "Endpoint Span: drag on empty space to create an endpoint span task"
    }
   },
   {
@@ -361,7 +361,7 @@
    },
    "hint": {
     "ja": "〇 のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a circle milestone; drag on empty space to create one"
+    "en": "Milestone (Circle): drag on empty space to create one"
    }
   },
   {
@@ -372,7 +372,7 @@
    },
    "hint": {
     "ja": "六角形のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a hexagon milestone; drag on empty space to create one"
+    "en": "Milestone (Hexagon): drag on empty space to create one"
    }
   },
   {
@@ -383,7 +383,7 @@
    },
    "hint": {
     "ja": "五角形のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a pentagon milestone; drag on empty space to create one"
+    "en": "Milestone (Pentagon): drag on empty space to create one"
    }
   },
   {
@@ -394,7 +394,7 @@
    },
    "hint": {
     "ja": "◇ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a diamond milestone; drag on empty space to create one"
+    "en": "Milestone (Diamond): drag on empty space to create one"
    }
   },
   {
@@ -405,7 +405,7 @@
    },
    "hint": {
     "ja": "□ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a square milestone; drag on empty space to create one"
+    "en": "Milestone (Square): drag on empty space to create one"
    }
   },
   {
@@ -416,7 +416,7 @@
    },
    "hint": {
     "ja": "☆ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a star milestone; drag on empty space to create one"
+    "en": "Milestone (Star): drag on empty space to create one"
    }
   },
   {
@@ -427,7 +427,7 @@
    },
    "hint": {
     "ja": "△ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm an upward triangle milestone; drag on empty space to create one"
+    "en": "Milestone (Triangle Up): drag on empty space to create one"
    }
   },
   {
@@ -438,7 +438,7 @@
    },
    "hint": {
     "ja": "▽ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a downward triangle milestone; drag on empty space to create one"
+    "en": "Milestone (Triangle Down): drag on empty space to create one"
    }
   },
   {
@@ -449,7 +449,7 @@
    },
    "hint": {
     "ja": "ファイル のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a file milestone; drag on empty space to create one"
+    "en": "Milestone (File): drag on empty space to create one"
    }
   },
   {
@@ -460,7 +460,7 @@
    },
    "hint": {
     "ja": "ボックス のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a box milestone; drag on empty space to create one"
+    "en": "Milestone (Box): drag on empty space to create one"
    }
   },
   {
@@ -471,7 +471,7 @@
    },
    "hint": {
     "ja": "フロッピー のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a floppy disk milestone; drag on empty space to create one"
+    "en": "Milestone (Floppy Disk): drag on empty space to create one"
    }
   },
   {
@@ -482,7 +482,7 @@
    },
    "hint": {
     "ja": "円筒 のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a cylinder milestone; drag on empty space to create one"
+    "en": "Milestone (Cylinder): drag on empty space to create one"
    }
   },
   {
@@ -493,7 +493,7 @@
    },
    "hint": {
     "ja": "会議の人 のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm meeting people milestone; drag on empty space to create one"
+    "en": "Milestone (Meeting People): drag on empty space to create one"
    }
   },
   {
@@ -504,7 +504,7 @@
    },
    "hint": {
     "ja": "嬉しい顔 のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a smiling face milestone; drag on empty space to create one"
+    "en": "Milestone (Smiling Face): drag on empty space to create one"
    }
   },
   {
@@ -515,29 +515,29 @@
    },
    "hint": {
     "ja": "ビールジョッキ のマイルストーンを構える。何にも当たらない場所をドラッグすると作る",
-    "en": "Arm a beer mug milestone; drag on empty space to create one"
+    "en": "Milestone (Beer Mug): drag on empty space to create one"
    }
   },
   {
    "rowId": "IC-61",
    "label": {
     "ja": "依存線を引く",
-    "en": "Draw a Dependency Line"
+    "en": "Link Tasks"
    },
    "hint": {
     "ja": "依存線を構える。タスクからタスクへ引く",
-    "en": "Arm a Dependency Line; draw it from one task to another"
+    "en": "Link Tasks: draw a dependency line from one task to another"
    }
   },
   {
    "rowId": "IC-35",
    "label": {
     "ja": "コメントボックス",
-    "en": "Comment Box"
+    "en": "Callout"
    },
    "hint": {
     "ja": "コメントボックスを構える。置きたい位置をドラッグすると置く",
-    "en": "Arm a Comment Box; drag where it should stand to place one"
+    "en": "Callout: drag where it should stand to place one"
    }
   },
   {
@@ -548,7 +548,7 @@
    },
    "hint": {
     "ja": "ハイライトボックスを構える。囲みたい範囲をドラッグする",
-    "en": "Arm a Highlight Box; drag over the range to enclose"
+    "en": "Highlight Box: drag over the range to enclose"
    }
   },
   {
@@ -581,7 +581,7 @@
    },
    "hint": {
     "ja": "イナズマ線を表示する。もう一度押すと非表示にする",
-    "en": "Show the Progress Line; press again to hide it"
+    "en": "Show or hide the Progress Line"
    }
   },
   {
@@ -592,14 +592,14 @@
    },
    "hint": {
     "ja": "進捗マーカーと再開アイコンを表示する。もう一度押すと非表示にする",
-    "en": "Show the Progress Marker and the Resume Icon; press again to hide them"
+    "en": "Show or hide the Progress Marker and the Resume Icon"
    }
   },
   {
    "rowId": "IC-41",
    "label": {
     "ja": "透かしを非表示（パスワードが必要）",
-    "en": "Hide the Watermark (Password Required)"
+    "en": "Watermark…"
    },
    "hint": {
     "ja": "透かしの表示切替。非表示にするときだけ透かし解除パスワードを求める",
@@ -614,7 +614,7 @@
    },
    "hint": {
     "ja": "日付罫線を表示する。もう一度押すと非表示にする",
-    "en": "Show the Date Grid Lines; press again to hide them"
+    "en": "Show or hide the Date Grid Lines"
    }
   },
   {
@@ -625,7 +625,7 @@
    },
    "hint": {
     "ja": "グループ罫線を表示する。もう一度押すと非表示にする",
-    "en": "Show the Group Grid Lines; press again to hide them"
+    "en": "Show or hide the Group Grid Lines"
    }
   },
   {
@@ -636,7 +636,7 @@
    },
    "hint": {
     "ja": "担当ラベルを表示する。もう一度押すと非表示にする",
-    "en": "Show the Assignee Label; press again to hide it"
+    "en": "Show or hide the Assignee Label"
    }
   },
   {
@@ -647,7 +647,7 @@
    },
    "hint": {
     "ja": "完了率ラベルを表示する。もう一度押すと非表示にする",
-    "en": "Show the Percent Complete Label; press again to hide it"
+    "en": "Show or hide the Percent Complete Label"
    }
   },
   {
@@ -658,7 +658,7 @@
    },
    "hint": {
     "ja": "依存線を表示する。もう一度押すと非表示にする",
-    "en": "Show the Dependency Lines; press again to hide them"
+    "en": "Show or hide the Dependency Lines"
    }
   },
   {
@@ -669,7 +669,7 @@
    },
    "hint": {
     "ja": "親タスクと子タスクを、子タスクから親タスクへの矢印で表示する。もう一度押すと非表示にする",
-    "en": "Show the parent tasks as arrows from child to parent; press again to hide them"
+    "en": "Show or hide the parent tasks as arrows from child to parent"
    }
   },
   {
@@ -680,7 +680,7 @@
    },
    "hint": {
     "ja": "親タスクを結ぶ構え。子を選び、子タスクから親タスクへ引く",
-    "en": "Arm parent task linking; select the children, then drag from a child to its parent"
+    "en": "Set Parent Task: select the children, then drag from a child to its parent"
    }
   },
   {
@@ -713,7 +713,7 @@
    },
    "hint": {
     "ja": "タスクとマイルストーンの名前の右に予定日を表示する。もう一度押すと非表示にする",
-    "en": "Show the planned dates to the right of task and milestone names; press again to hide them"
+    "en": "Show or hide the planned dates to the right of task and milestone names"
    }
   },
   {
@@ -724,7 +724,7 @@
    },
    "hint": {
     "ja": "基準日を置く・動かす・消す。基準日線はその位置に引く",
-    "en": "Place, move or clear the status date; the Status Line is drawn there"
+    "en": "Place, move, or clear the status date; the Status Line is drawn there"
    }
   },
   {
@@ -735,7 +735,7 @@
    },
    "hint": {
     "ja": "ガイドカーソルを十字にする。もう一度押すと消す",
-    "en": "Make the Guide Cursor a crosshair; press again to clear it"
+    "en": "Turn the crosshair Guide Cursor on or off"
    }
   },
   {
@@ -746,7 +746,7 @@
    },
    "hint": {
     "ja": "ガイドカーソルを縦 1 本にする。もう一度押すと消す",
-    "en": "Make the Guide Cursor a single vertical line; press again to clear it"
+    "en": "Turn the single vertical Guide Cursor on or off"
    }
   },
   {
@@ -768,7 +768,7 @@
    },
    "hint": {
     "ja": "マイルストーン形状の一覧を展開する。もう一度押すと折りたたむ",
-    "en": "Expand the list of milestone glyphs; press again to collapse"
+    "en": "Expand or collapse the list of milestone shapes"
    }
   },
   {
@@ -779,7 +779,7 @@
    },
    "hint": {
     "ja": "開いている面を閉じる。Esc でも閉じる",
-    "en": "Close the open surface; Esc closes it too"
+    "en": "Close the open window; Esc closes it too"
    }
   },
   {
@@ -801,18 +801,18 @@
    },
    "hint": {
     "ja": "コマンドパレットを最小化する。もう一度押すと戻る",
-    "en": "Minimize the Command Palette; press again to restore"
+    "en": "Minimize or restore the Command Palette"
    }
   },
   {
    "rowId": "IC-54",
    "label": {
     "ja": "構えている図形",
-    "en": "Armed Glyph"
+    "en": "Current Tool"
    },
    "hint": {
     "ja": "いま構えている図形。Esc で解除",
-    "en": "The glyph now armed; Esc clears it"
+    "en": "The selected tool; Esc clears it"
    }
   },
   {
@@ -900,7 +900,7 @@
    },
    "hint": {
     "ja": "タスクグループをピン止めして画面に残す。もう一度押すと外す",
-    "en": "Pin the task group so it stays on screen; press again to unpin it"
+    "en": "Pin or unpin the task group so it stays on screen"
    }
   },
   {
@@ -940,11 +940,11 @@
    "rowId": "IC-119",
    "label": {
     "ja": "コメントボックス",
-    "en": "Comment Boxes"
+    "en": "Callouts"
    },
    "hint": {
     "ja": "コメントボックスの表を出す",
-    "en": "Show the table of comment boxes"
+    "en": "Show the table of callouts"
    }
   },
   {
@@ -977,7 +977,7 @@
    },
    "hint": {
     "ja": "ウィンドウを最小化する。もう一度押すと戻る",
-    "en": "Minimize the window; press again to restore"
+    "en": "Minimize or restore the window"
    }
   },
   {
@@ -1065,14 +1065,14 @@
    },
    "hint": {
     "ja": "タイトルバーと表と入力欄の文字サイズを変える（9・10・12 px を順に巡る）",
-    "en": "Change the font size of the title bar, table and search box (cycles through 9, 10 and 12 px)"
+    "en": "Change the font size of the title bar, table, and search box (cycles through 9, 10, and 12 px)"
    }
   },
   {
    "rowId": "IC-140",
    "label": {
     "ja": ".md",
-    "en": ".md"
+    "en": "Save as Markdown…"
    },
    "hint": {
     "ja": "本レポートをMarkdownで出力する",
@@ -1193,11 +1193,11 @@
    "rowId": "IC-132",
    "label": {
     "ja": "休日の設定",
-    "en": "Holiday Settings"
+    "en": "Working Time…"
    },
    "hint": {
     "ja": "稼働する曜日・休業日・週の始まりを直す面を開く",
-    "en": "Open the surface that edits the working weekdays, the exception days and the week start"
+    "en": "Open the window that edits the working weekdays, the exception days, and the week start"
    }
   },
   {
@@ -1252,7 +1252,7 @@
    },
    "hint": {
     "ja": "この担当は選ばれている。押すと選択を解除",
-    "en": "This resource is selected; press to deselect it"
+    "en": "This resource is selected; click to deselect it"
    }
   },
   {
@@ -1263,7 +1263,7 @@
    },
    "hint": {
     "ja": "この担当は選ばれていない。押すと選択",
-    "en": "This resource is not selected; press to select it"
+    "en": "This resource is not selected; click to select it"
    }
   },
   {
@@ -1424,7 +1424,7 @@
    "rowId": "IC-92",
    "label": {
     "ja": "最も浅い段を 1 階層展開する",
-    "en": "Expand One Level"
+    "en": "Show Top Level Only"
    },
    "hint": {
     "ja": "最も浅い段のタスクグループだけを戻す。その配下は折りたたんだままにする",
@@ -1450,14 +1450,14 @@
    },
    "hint": {
     "ja": "マウス操作と画面描画の記録を始める。もう一度押すと止まり、記録をクリップボードへ入れる",
-    "en": "Start recording pointer input and drawing; press again to stop and put the record on the clipboard"
+    "en": "Start or stop recording pointer input and drawing; stopping puts the record on the clipboard"
    }
   },
   {
    "rowId": "IC-95",
    "label": {
     "ja": "開いたファイルから取る",
-    "en": "Take from the Opened File"
+    "en": "Use Opened File"
    },
    "hint": {
     "ja": "重複しているタスクを、開いたファイルの値で取り込む",
@@ -1479,7 +1479,7 @@
    "rowId": "IC-97",
    "label": {
     "ja": "取り込みをやめる",
-    "en": "Stop the Import"
+    "en": "Cancel Import"
    },
    "hint": {
     "ja": "取り込みをやめ、取り込み前と同じ状態へ戻す",
@@ -1820,7 +1820,7 @@
    ],
    "label": {
     "ja": "目盛の帯の高さ",
-    "en": "rulerHeightPx"
+    "en": "Ruler Height"
    },
    "labelBreakSegments": {
     "ja": [
@@ -1837,7 +1837,7 @@
    ],
    "label": {
     "ja": "目盛の文字",
-    "en": "rulerFontSizePx"
+    "en": "Ruler Font Size"
    }
   },
   {
@@ -2477,7 +2477,7 @@
    ],
    "label": {
     "ja": "テーマ色",
-    "en": "theme color"
+    "en": "Theme Color"
    }
   },
   {
@@ -2487,7 +2487,7 @@
    ],
    "label": {
     "ja": "モノクロにするか",
-    "en": "isThemeMonochrome"
+    "en": "Monochrome"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2543,7 +2543,7 @@
    ],
    "label": {
     "ja": "横のズーム倍率",
-    "en": "zoomX"
+    "en": "Horizontal Zoom"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2560,7 +2560,7 @@
    ],
    "label": {
     "ja": "縦のズーム倍率",
-    "en": "zoomY"
+    "en": "Vertical Zoom"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2577,7 +2577,7 @@
    ],
    "label": {
     "ja": "表示の左端が指す日付",
-    "en": "scrollDate"
+    "en": "Left Edge Date"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2595,7 +2595,7 @@
    ],
    "label": {
     "ja": "表示の上端が指すタスクグループ",
-    "en": "scrollTaskGroupId"
+    "en": "Top Task Group"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2613,7 +2613,7 @@
    ],
    "label": {
     "ja": "タスクグループパネルの幅",
-    "en": "taskGroupPanelWidthPx"
+    "en": "Task Group Panel Width"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2658,7 +2658,7 @@
    ],
    "label": {
     "ja": "ピン止めの対象",
-    "en": "pinnedTaskGroupIds"
+    "en": "Pinned Task Groups"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2684,7 +2684,7 @@
    ],
    "label": {
     "ja": "積む向き",
-    "en": "stackDirection"
+    "en": "Stack Direction"
    }
   },
   {
@@ -2852,7 +2852,7 @@
    ],
    "label": {
     "ja": "文字サイズ",
-    "en": "fontScale"
+    "en": "Font Size"
    }
   },
   {
@@ -2862,7 +2862,7 @@
    ],
    "label": {
     "ja": "表示の倍率",
-    "en": "displayScale"
+    "en": "Display Scale"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2899,7 +2899,7 @@
    ],
    "label": {
     "ja": "全体表示時の期間",
-    "en": "Fit span"
+    "en": "Fit Span"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2965,7 +2965,7 @@
    ],
    "label": {
     "ja": "時刻を表示する",
-    "en": "isTimeOfDayVisible"
+    "en": "Show time of day"
    },
    "labelBreakSegments": {
     "ja": [
@@ -3204,7 +3204,7 @@
    ],
    "label": {
     "ja": "表示の上端が指すタスクグループのどこにあるか",
-    "en": "scrollGroupOffset"
+    "en": "Top Task Group Position"
    },
    "labelBreakSegments": {
     "ja": [
@@ -3224,7 +3224,7 @@
    ],
    "label": {
     "ja": "表示の左端が指す日のどこにあるか",
-    "en": "scrollDayOffset"
+    "en": "Left Edge Time"
    },
    "labelBreakSegments": {
     "ja": [
@@ -3244,7 +3244,7 @@
    ],
    "label": {
     "ja": "段 0 の木の状態",
-    "en": "levelZeroTreeState"
+    "en": "Top-Level Tree State"
    },
    "labelBreakSegments": {
     "ja": [
@@ -3261,7 +3261,7 @@
    ],
    "label": {
     "ja": "遅延診断時に親タスクの進捗の疑義を許す日数",
-    "en": "parentProgressToleranceDays"
+    "en": "Parent Task Progress Tolerance"
    },
    "labelBreakSegments": {
     "ja": [
@@ -3328,7 +3328,7 @@
    "firstRow": "IC-54",
    "name": {
     "ja": "構え",
-    "en": "Armed Shape"
+    "en": "Current Tool"
    }
   }
  ],
@@ -3351,7 +3351,7 @@
    "name": "Export Chooser",
    "heading": {
     "ja": "ファイルに保存",
-    "en": "Save to File"
+    "en": "Save As"
    }
   },
   {
@@ -3379,14 +3379,14 @@
    "name": "Holiday Settings",
    "heading": {
     "ja": "休日の設定",
-    "en": "Holiday Settings"
+    "en": "Working Time"
    }
   },
   {
    "name": "Dialogue Field",
    "heading": {
     "ja": "対話欄",
-    "en": "Dialogue Field"
+    "en": "Chat"
    }
   }
  ],
@@ -3592,7 +3592,7 @@
    "rowId": "IC-54",
    "text": {
     "ja": "(構えている間だけ出る)",
-    "en": "(shown only while armed)"
+    "en": "(while a tool is selected)"
    }
   },
   {
@@ -3642,715 +3642,715 @@
    "rowId": "RS-1",
    "text": {
     "ja": "このファイルへ書き込む権限が切れています",
-    "en": "Permission to write to this file has lapsed"
+    "en": "Permission to write to this file has lapsed."
    },
    "nextStep": {
     "ja": "もう一度ファイルを選び直すと、書き込めるようになります",
-    "en": "Choose the file again to restore permission"
+    "en": "Choose the file again to restore permission."
    }
   },
   {
    "rowId": "RS-2",
    "text": {
     "ja": "開いているファイルが無いので、上書きする先がありません",
-    "en": "No file is open, so there is nothing to overwrite"
+    "en": "No file is open, so there is nothing to overwrite."
    },
    "nextStep": {
     "ja": "保存先を選んで書き出してください",
-    "en": "Choose a destination and write it out"
+    "en": "Choose a destination and save it."
    }
   },
   {
    "rowId": "RS-3",
    "text": {
     "ja": "この環境ではファイルへの書き込みが行えません",
-    "en": "Writing to a file is not available here"
+    "en": "Writing to a file is not available here."
    },
    "nextStep": {
     "ja": "別の保存先を選んで書き出してください",
-    "en": "Choose another destination and write it out"
+    "en": "Choose another destination and save it."
    }
   },
   {
    "rowId": "RS-4",
    "text": {
     "ja": "このファイルは UTF-8 ではないので読めません",
-    "en": "This file is not UTF-8, so it cannot be read"
+    "en": "This file is not UTF-8, so it cannot be read."
    },
    "nextStep": {
     "ja": "UTF-8 で保存し直してから開いてください",
-    "en": "Save it as UTF-8 and open it again"
+    "en": "Save it as UTF-8 and open it again."
    }
   },
   {
    "rowId": "RS-5",
    "text": {
     "ja": "この形式は書き出し専用なので、開いたファイルへは上書きできません",
-    "en": "This format only goes out, so it cannot overwrite the opened file"
+    "en": "This format only goes out, so it cannot overwrite the opened file."
    },
    "nextStep": {
     "ja": "保存先を選んで書き出してください",
-    "en": "Choose a destination and write it out"
+    "en": "Choose a destination and save it."
    }
   },
   {
    "rowId": "RS-6",
    "text": {
     "ja": "いまは変更を受け付けられなかったので、行っていません",
-    "en": "The change could not be accepted just now, so it was not made"
+    "en": "The change could not be accepted just now, so it was not made."
    },
    "nextStep": {
     "ja": "もう一度行ってください",
-    "en": "Try once more"
+    "en": "Try again."
    }
   },
   {
    "rowId": "RS-8",
    "text": {
     "ja": "いまは変更を受け付けられなかったので、行っていません",
-    "en": "The change could not be accepted just now, so it was not made"
+    "en": "The change could not be accepted just now, so it was not made."
    },
    "nextStep": {
     "ja": "先に [Enter] で編集を確定するか、[Esc] で取りやめてください",
-    "en": "First press Enter to commit the edit, or Esc to cancel it"
+    "en": "First press Enter to commit the edit, or Esc to cancel it."
    }
   },
   {
    "rowId": "RS-10",
    "text": {
     "ja": "受け付けられない操作が含まれていたので、まとめて取りやめました",
-    "en": "One of the changes was refused, so the whole set was dropped"
+    "en": "One of the changes was refused, so the whole set was dropped."
    },
    "nextStep": {
     "ja": "受け付けられなかった操作を取り除いて、もう一度行ってください",
-    "en": "Take out the refused change, then try once more"
+    "en": "Take out the refused change, then try again."
    }
   },
   {
    "rowId": "RS-11",
    "text": {
     "ja": "このファイルは GRS が読める形式（GRS JSON・MSPDI XML・GRS の .html）ではありません",
-    "en": "This file is not in a format GRS can read (GRS JSON, MSPDI XML or a GRS .html)"
+    "en": "This file is not in a format GRS can read (GRS JSON, MSPDI XML, or a GRS .html)."
    },
    "nextStep": {
     "ja": "形式とファイルが壊れていないかを確かめてください",
-    "en": "Check the format, and whether the file is intact"
+    "en": "Check the format, and whether the file is intact."
    }
   },
   {
    "rowId": "RS-14",
    "text": {
     "ja": "先頭の 1 つだけを開きました。残りは開いていません",
-    "en": "Only the first file was opened; the rest were left"
+    "en": "Only the first file was opened; the rest were left."
    },
    "nextStep": {
     "ja": "残りは 1 つずつ開いてください",
-    "en": "Open the rest one at a time"
+    "en": "Open the rest one at a time."
    }
   },
   {
    "rowId": "RS-78",
    "text": {
     "ja": "大きさが {importMaxBytes} MB を超えているので、このファイルは開けません",
-    "en": "The file is larger than {importMaxBytes} MB, so it cannot be opened"
+    "en": "The file is larger than {importMaxBytes} MB, so it cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルを分けるか、要らないものを除いて {importMaxBytes} MB 以下にしてから開いてください",
-    "en": "Split the original file, or take out what is not needed, to bring it to {importMaxBytes} MB or less, then open it"
+    "en": "Split the original file, or take out what is not needed, to bring it to {importMaxBytes} MB or less, then open it."
    }
   },
   {
    "rowId": "RS-79",
    "text": {
     "ja": "タスクが {importMaxItems} 件を超えているので、このファイルは開けません",
-    "en": "The file holds more than {importMaxItems} tasks, so it cannot be opened"
+    "en": "The file holds more than {importMaxItems} tasks, so it cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルを、タスクが {importMaxItems} 件以下になるように分けてから開いてください",
-    "en": "Split the original file so that each part holds {importMaxItems} tasks or fewer, then open it"
+    "en": "Split the original file so that each part holds {importMaxItems} tasks or fewer, then open it."
    }
   },
   {
    "rowId": "RS-80",
    "text": {
     "ja": "親タスクと子タスクの入れ子が {importMaxDepth} 段より深いので、このファイルは開けません",
-    "en": "Tasks are nested more than {importMaxDepth} levels deep, so this file cannot be opened"
+    "en": "Tasks are nested more than {importMaxDepth} levels deep, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルで入れ子を {importMaxDepth} 段以下に浅くしてから開いてください",
-    "en": "Make the nesting {importMaxDepth} levels or shallower in the original file, then open it"
+    "en": "Make the nesting {importMaxDepth} levels or shallower in the original file, then open it."
    }
   },
   {
    "rowId": "RS-81",
    "text": {
     "ja": "開始日か終了日の無いタスクがあるので、このファイルは開けません",
-    "en": "A task has no start date or no finish date, so this file cannot be opened"
+    "en": "A task has no start date or no finish date, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルでそのタスクに開始日と終了日を入れてから開いてください",
-    "en": "Give that task a start and a finish date in the original file, then open it"
+    "en": "Give that task a start and a finish date in the original file, then open it."
    }
   },
   {
    "rowId": "RS-16",
    "text": {
     "ja": "重ねたファイルの一部のタスクは、現在の文書に対応するものが無いので描いていません",
-    "en": "Some tasks of the overlaid file have no counterpart in this document, so they are not drawn"
+    "en": "Some tasks of the overlaid file have no counterpart in this document, so they are not drawn."
    },
    "nextStep": {
     "ja": "対応するタスクを持つ文書へ重ねると描かれます",
-    "en": "Overlay it on a document that holds the matching tasks and they will be drawn"
+    "en": "Overlay it on a document that holds the matching tasks and they will be drawn."
    }
   },
   {
    "rowId": "RS-19",
    "text": {
     "ja": "透かしに出す名前が、まだ設定されていません",
-    "en": "The name the watermark prints has not been set"
+    "en": "The name the watermark prints has not been set."
    },
    "nextStep": {
     "ja": "名前を設定すると、透かしにその名前が出ます",
-    "en": "Set a name and the watermark prints it"
+    "en": "Set a name and the watermark prints it."
    }
   },
   {
    "rowId": "RS-20",
    "text": {
     "ja": "無効にしても、既に渡した参照は取り消せません",
-    "en": "Disabling it does not take back references already handed out"
+    "en": "Disabling it does not take back references already handed out."
    },
    "nextStep": {
     "ja": "いま有効かどうかは、画面上の表示で確かめてください",
-    "en": "Check the on-screen indicator for whether it is enabled now"
+    "en": "Check the on-screen indicator for whether it is enabled now."
    }
   },
   {
    "rowId": "RS-21",
    "text": {
     "ja": "稼働する曜日が 1 つも無い暦なので、この文書の暦にできません",
-    "en": "This calendar has no working weekday, so it cannot be the calendar of this document"
+    "en": "This calendar has no working weekday, so it cannot be the calendar of this document."
    },
    "nextStep": {
     "ja": "稼働する曜日を 1 つ以上選んでください",
-    "en": "Choose at least one working weekday"
+    "en": "Choose at least one working weekday."
    }
   },
   {
    "rowId": "RS-22",
    "text": {
     "ja": "収まらないタスクがあるので、一部を描いていません",
-    "en": "Some tasks did not fit, so they are not drawn"
+    "en": "Some tasks did not fit, so they are not drawn."
    },
    "nextStep": {
     "ja": "タスクグループを折りたたむか、期間を絞ってから書き出してください",
-    "en": "Collapse some task groups or narrow the period, then export again"
+    "en": "Collapse some task groups or narrow the period, then export again."
    }
   },
   {
    "rowId": "RS-23",
    "text": {
     "ja": "変更の通知を配れなかった相手があります",
-    "en": "A change notice could not be delivered to one of the watchers"
+    "en": "A change notice could not be delivered to one of the watchers."
    },
    "nextStep": {
     "ja": "相手が受け取れる状態か確かめて、もう一度編集してください",
-    "en": "Check that the watcher can receive, then edit once more"
+    "en": "Check that the watcher can receive, then edit again."
    }
   },
   {
    "rowId": "RS-24",
    "text": {
     "ja": "1 つのタスクグループに重なるタスクが多すぎるので、これ以上積めません",
-    "en": "Too many tasks overlap on one task group, so no more can be stacked"
+    "en": "Too many tasks overlap on one task group, so no more can be stacked."
    },
    "nextStep": {
     "ja": "重なっているタスクを別のタスクグループへ移すか、日付をずらしてください",
-    "en": "Move some of the overlapping tasks to another task group, or shift their dates"
+    "en": "Move some of the overlapping tasks to another task group, or shift their dates."
    }
   },
   {
    "rowId": "RS-25",
    "text": {
     "ja": "読み込んだファイルの中身が、決められた形に合いません",
-    "en": "The contents of the file that was read do not match the settled shape"
+    "en": "The contents of the file that was read do not match the settled shape."
    },
    "nextStep": {
     "ja": "書き出したときのファイルをそのまま開いてください",
-    "en": "Open the file as it was written out"
+    "en": "Open the file as it was saved."
    }
   },
   {
    "rowId": "RS-26",
    "text": {
     "ja": "起動時に渡されたファイルを読めなかったので、開いていません",
-    "en": "The file handed at start-up could not be read, so it was not opened"
+    "en": "The file handed at startup could not be read, so it was not opened."
    },
    "nextStep": {
     "ja": "そのファイルを選び直して開いてください",
-    "en": "Choose that file again and open it"
+    "en": "Choose that file again and open it."
    }
   },
   {
    "rowId": "RS-27",
    "text": {
     "ja": "この操作は、いま行えることがありません",
-    "en": "There is nothing for this control to do right now"
+    "en": "There is nothing for this control to do right now."
    },
    "nextStep": {
     "ja": "対象ができてから、もう一度押してください",
-    "en": "Try it again once there is something for it to act on"
+    "en": "Try it again once there is something for it to act on."
    }
   },
   {
    "rowId": "RS-28",
    "text": {
     "ja": "展開する配下のタスクグループがありません",
-    "en": "There is no collapsed group under this task group to expand"
+    "en": "There is no collapsed group under this task group to expand."
    },
    "nextStep": {
     "ja": "配下を折りたたんでから、もう一度押してください",
-    "en": "Collapse something under this task group first, then press again"
+    "en": "Collapse something under this task group first, then try again."
    }
   },
   {
    "rowId": "RS-29",
    "text": {
     "ja": "このタスクグループは、描かれている子を 1 つも持っていません",
-    "en": "This task group draws no child, so there is nothing to collapse"
+    "en": "This task group draws no child, so there is nothing to collapse."
    },
    "nextStep": {
     "ja": "配下のタスクグループを戻してから、もう一度押してください",
-    "en": "Bring a task group under this one back first, then press again"
+    "en": "Bring a task group under this one back first, then try again."
    }
   },
   {
    "rowId": "RS-30",
    "text": {
     "ja": "このタスクグループの直下に、画面へ戻せる子がありません",
-    "en": "No child of this task group is out of the picture to bring back"
+    "en": "No child of this task group is out of the picture to bring back."
    },
    "nextStep": {
     "ja": "配下を折りたたむか、直下のタスクグループを隠してから、もう一度押してください",
-    "en": "Collapse what is under this task group, or hide one of its children, then press again"
+    "en": "Collapse what is under this task group, or hide one of its children, then try again."
    }
   },
   {
    "rowId": "RS-31",
    "text": {
     "ja": "すべてのタスクグループが、もう展開して描かれています",
-    "en": "Every task group is already expanded and drawn"
+    "en": "Every task group is already expanded and drawn."
    },
    "nextStep": {
     "ja": "どれかのタスクグループを折りたたむか、縦に縮小してから、もう一度押してください",
-    "en": "Collapse a task group or zoom out vertically, then press again"
+    "en": "Collapse a task group or zoom out vertically, then try again."
    }
   },
   {
    "rowId": "RS-32",
    "text": {
     "ja": "展開しているタスクグループが 1 つもありません",
-    "en": "No task group is expanded"
+    "en": "No task group is expanded."
    },
    "nextStep": {
     "ja": "どれかのタスクグループを展開してから、もう一度押してください",
-    "en": "Expand a task group first, then press again"
+    "en": "Expand a task group first, then try again."
    }
   },
   {
    "rowId": "RS-33",
    "text": {
     "ja": "予定と実績の両方を隠すことはできません",
-    "en": "The plan and the actual cannot both be hidden"
+    "en": "The plan and the actual cannot both be hidden."
    },
    "nextStep": {
     "ja": "もう一方を出してから、もう一度押してください",
-    "en": "Show the other one first, then press again"
+    "en": "Show the other one first, then try again."
    }
   },
   {
    "rowId": "RS-34",
    "text": {
     "ja": "揃える相手のタスクが選ばれていません",
-    "en": "No task is chosen to align"
+    "en": "No task is chosen to align."
    },
    "nextStep": {
     "ja": "タスクを選んでから、もう一度押してください",
-    "en": "Choose a task first, then press again"
+    "en": "Choose a task first, then try again."
    }
   },
   {
    "rowId": "RS-36",
    "text": {
     "ja": "すぐ上に兄弟が無いので、これ以上深い段へは動かせません",
-    "en": "There is no task group directly above this one to become a child of"
+    "en": "There is no task group directly above this one to become a child of."
    },
    "nextStep": {
     "ja": "一つ上へ動かしてから、もう一度お試しください",
-    "en": "Move it up one place first, then try again"
+    "en": "Move it up one place first, then try again."
    }
   },
   {
    "rowId": "RS-37",
    "text": {
     "ja": "いちばん浅い段に居るので、これ以上浅い段へは動かせません",
-    "en": "This task group is already at the shallowest level"
+    "en": "This task group is already at the shallowest level."
    },
    "nextStep": {
     "ja": "上下に動かすことはできます",
-    "en": "You can still move it up or down"
+    "en": "You can still move it up or down."
    }
   },
   {
    "rowId": "RS-38",
    "text": {
     "ja": "段の上限に達しているので、これ以上深い段へは動かせません",
-    "en": "The level limit has been reached, so this cannot go any deeper"
+    "en": "The level limit has been reached, so this cannot go any deeper."
    },
    "nextStep": {
     "ja": "上限は文書の設定で変えられます",
-    "en": "The limit can be changed in the document settings"
+    "en": "The limit can be changed in the document settings."
    }
   },
   {
    "rowId": "RS-39",
    "text": {
     "ja": "その向きに置ける場所が無いので、これ以上動かせません",
-    "en": "There is nowhere further in that direction to put this task group"
+    "en": "There is nowhere further in that direction to put this task group."
    },
    "nextStep": {
     "ja": "逆の向きへは動かせます",
-    "en": "It can still be moved the other way"
+    "en": "It can still be moved the other way."
    }
   },
   {
    "rowId": "RS-40",
    "text": {
     "ja": "この形式は、このビルドではまだ書けません",
-    "en": "This build cannot write this format yet"
+    "en": "This build cannot write this format yet."
    },
    "nextStep": {
     "ja": "別の形式を選んでください",
-    "en": "Choose another format"
+    "en": "Choose another format."
    }
   },
   {
    "rowId": "RS-41",
    "text": {
     "ja": "透かし解除パスワードが合いません",
-    "en": "That is not the watermark unlock password"
+    "en": "That is not the watermark unlock password."
    },
    "nextStep": {
     "ja": "もう一度入れてください",
-    "en": "Try entering it again"
+    "en": "Try entering it again."
    }
   },
   {
    "rowId": "RS-43",
    "text": {
     "ja": "タスクグループが多すぎて、この大きさでは描けません",
-    "en": "There are too many task groups to draw at this size"
+    "en": "There are too many task groups to draw at this size."
    },
    "nextStep": {
     "ja": "タスクグループを折りたたむか、期間を絞ってから書き出してください",
-    "en": "Collapse some task groups or narrow the period, then export again"
+    "en": "Collapse some task groups or narrow the period, then export again."
    }
   },
   {
    "rowId": "RS-44",
    "text": {
     "ja": "そこには注記を置くタスクグループがありません",
-    "en": "There is no task group there to put the annotation on"
+    "en": "There is no task group there to put the annotation on."
    },
    "nextStep": {
     "ja": "タスクグループの上で置いてください",
-    "en": "Place it over a task group"
+    "en": "Place it over a task group."
    }
   },
   {
    "rowId": "RS-46",
    "text": {
     "ja": "これ以上深い段にはタスクグループを追加できません",
-    "en": "A task group cannot be added any deeper than this"
+    "en": "A task group cannot be added any deeper than this."
    },
    "nextStep": {
     "ja": "もっと浅いタスクグループに追加してください",
-    "en": "Add it to a shallower task group"
+    "en": "Add it to a shallower task group."
    }
   },
   {
    "rowId": "RS-48",
    "text": {
     "ja": "この文書は新しい形式で書かれており、読めなかった項目があります",
-    "en": "This document is in a newer format, and some items could not be read"
+    "en": "This document is in a newer format, and some items could not be read."
    },
    "nextStep": {
     "ja": "続けると、読めなかった項目は保存したときに失われます。失いたくないときは、最新版を {downloadUrl} からダウンロードして開いてください",
-    "en": "If you go on, what could not be read is lost when you save. To keep it, download the latest version from {downloadUrl} and open the document there"
+    "en": "If you continue, what could not be read is lost when you save. To keep it, download the latest version from {downloadUrl} and open the document there."
    }
   },
   {
    "rowId": "RS-63",
    "text": {
     "ja": "この文書は、この版より新しい形式で書かれています",
-    "en": "This document is in a newer format than this version"
+    "en": "This document is in a newer format than this version."
    },
    "nextStep": {
     "ja": "最新版を {downloadUrl} からダウンロードして使ってください",
-    "en": "Download the latest version from {downloadUrl} and use it"
+    "en": "Download the latest version from {downloadUrl} and use it."
    }
   },
   {
    "rowId": "RS-64",
    "text": {
     "ja": "この文書は新しい形式で書かれており、この版では開けません",
-    "en": "This document is in a newer format, and this version cannot open it"
+    "en": "This document is in a newer format, and this version cannot open it."
    },
    "nextStep": {
     "ja": "最新版を {downloadUrl} からダウンロードして開いてください",
-    "en": "Download the latest version from {downloadUrl} and open the document there"
+    "en": "Download the latest version from {downloadUrl} and open the document there."
    }
   },
   {
    "rowId": "RS-49",
    "text": {
     "ja": "担当の名前を変えました。この担当が付いているタスクの表示が変わります",
-    "en": "The assignee has been renamed, and every task they are on now shows the new name"
+    "en": "The assignee has been renamed, and every task they are on now shows the new name."
    },
    "nextStep": {
     "ja": "変えたくないものが含まれていたときは、元に戻してください",
-    "en": "Undo it if that reached something you did not mean to rename"
+    "en": "Undo it if that reached something you did not mean to rename."
    }
   },
   {
    "rowId": "RS-50",
    "text": {
     "ja": "下記の無効なタスクを削除して取り込みました",
-    "en": "The invalid tasks listed below were removed, and the rest was imported"
+    "en": "The invalid tasks listed below were removed, and the rest was imported."
    },
    "nextStep": {
     "ja": "元のファイルの日付を直して読み直すか、取り消しで取り込む前へ戻せます",
-    "en": "Fix the dates in the original file and read it again, or undo to get back to before the import"
+    "en": "Fix the dates in the original file and read it again, or undo to get back to before the import."
    }
   },
   {
    "rowId": "RS-51",
    "text": {
     "ja": "読んだ設定値が範囲の外だったので、範囲に収めました",
-    "en": "Settings the document carried were out of range and were brought back in"
+    "en": "Settings the document carried were out of range and were brought back in."
    },
    "nextStep": {
     "ja": "元の値が要るときは、保存し直す前に元のファイルを控えてください",
-    "en": "Keep a copy of the original file before saving, if those values matter"
+    "en": "Keep a copy of the original file before saving, if those values matter."
    }
   },
   {
    "rowId": "RS-52",
    "text": {
     "ja": "完了率を日付から数え直しました",
-    "en": "The percent complete was counted again from the dates"
+    "en": "The percent complete was counted again from the dates."
    },
    "nextStep": {
     "ja": "暦を変えたときは、取り消しで暦ごと戻せます。ファイルを開いたときは、元の値が日付と食い違っていました",
-    "en": "After a calendar change, Undo puts both back. After opening a file, its stored values disagreed with its dates"
+    "en": "After a calendar change, Undo puts both back. After opening a file, its stored values disagreed with its dates."
    }
   },
   {
    "rowId": "RS-89",
    "text": {
     "ja": "稼働日の時間帯の合計が、1 日（1d）の長さと違います",
-    "en": "The working-time ranges of some working days do not add up to the length of 1d"
+    "en": "The working-time ranges of some working days do not add up to the length of 1d."
    },
    "nextStep": {
     "ja": "「1d」と打った長さは、時間帯の合計ではなく文書が決めた 1 日の長さで数えます。そろえたいときは、休日の設定で時間帯を直してください",
-    "en": "1d is counted as the day length the document sets, not as the sum of the ranges. To make them agree, fix the ranges in Holiday Settings"
+    "en": "1d is counted as the day length the document sets, not as the sum of the ranges. To make them agree, fix the ranges in Working Time."
    }
   },
   {
    "rowId": "RS-53",
    "text": {
     "ja": "タスクは期間を持つので、引かないと作れません",
-    "en": "A task has a span, so it is not created without a drag"
+    "en": "A task has a span, so it is not created without a drag."
    },
    "nextStep": {
     "ja": "始める日から終わる日まで引いてください。点を置きたいときはマイルストーンを使います",
-    "en": "Drag from the start day to the finish day. To place a point, use a milestone"
+    "en": "Drag from the start day to the finish day. To place a point, use a milestone."
    }
   },
   {
    "rowId": "RS-54",
    "text": {
     "ja": "構えている形状は、選んでいるものには当てられません",
-    "en": "The armed shape cannot be applied to what is selected"
+    "en": "The selected tool cannot be applied to what is selected."
    },
    "nextStep": {
     "ja": "構えはそのまま使えます。選択を解除して、空いている所に引いてください",
-    "en": "The arming is still live; clear the selection and drag on empty space"
+    "en": "The tool is still selected; clear the selection and drag on empty space."
    }
   },
   {
    "rowId": "RS-55",
    "text": {
     "ja": "自分自身や、その下にあるタスクグループの中へは動かせません",
-    "en": "A task group cannot be moved under itself or under one of its own descendants"
+    "en": "A task group cannot be moved under itself or under one of its own descendants."
    },
    "nextStep": {
     "ja": "先に外へ出してから、親にしたいタスクグループの下へ動かしてください",
-    "en": "Move it out first, then under the task group you want as its parent"
+    "en": "Move it out first, then under the task group you want as its parent."
    }
   },
   {
    "rowId": "RS-56",
    "text": {
     "ja": "同じタスクを、依存の前と後ろの両方にはできません",
-    "en": "One task cannot be both ends of a dependency"
+    "en": "One task cannot be both ends of a dependency."
    },
    "nextStep": {
     "ja": "別のタスクへ引いてください",
-    "en": "Draw the line to a different task"
+    "en": "Draw the line to a different task."
    }
   },
   {
    "rowId": "RS-57",
    "text": {
     "ja": "同じ id のものが、この文書に既にあります",
-    "en": "Something with the same id is already in this document"
+    "en": "Something with the same id is already in this document."
    },
    "nextStep": {
     "ja": "別の id を与えてください",
-    "en": "Give it a different id"
+    "en": "Give it a different id."
    }
   },
   {
    "rowId": "RS-58",
    "text": {
     "ja": "終了の日が、開始の日より前になっています",
-    "en": "The finish day is before the start day"
+    "en": "The finish day is before the start day."
    },
    "nextStep": {
     "ja": "開始と同じ日か、それより後の日を入れてください",
-    "en": "Enter the same day as the start, or a later one"
+    "en": "Enter the same day as the start, or a later one."
    }
   },
   {
    "rowId": "RS-82",
    "text": {
     "ja": "操作の相手（タスク・タスクグループ・担当）が、もう文書にないので、行っていません",
-    "en": "What this change points at (a task, task group or assignee) is no longer in the document, so it was not made"
+    "en": "What this change points at (a task, task group, or assignee) is no longer in the document, so it was not made."
    },
    "nextStep": {
     "ja": "画面を見直して、相手を選び直してから、もう一度行ってください",
-    "en": "Look over the screen, choose the target again, then try once more"
+    "en": "Look over the screen, choose the target again, then try again."
    }
   },
   {
    "rowId": "RS-83",
    "text": {
     "ja": "このタスクはどのタスクグループにも載っていないので、動かせません",
-    "en": "The task being moved sits on no task group, so it was not moved"
+    "en": "The task being moved sits on no task group, so it was not moved."
    },
    "nextStep": {
     "ja": "画面を見直して、もう一度行ってください",
-    "en": "Look over the screen, then try once more"
+    "en": "Look over the screen, then try again."
    }
   },
   {
    "rowId": "RS-84",
    "text": {
     "ja": "塗りと線の両方を透明にはできません",
-    "en": "The fill and the line cannot both be transparent"
+    "en": "The fill and the line cannot both be transparent."
    },
    "nextStep": {
     "ja": "どちらかに色を付けてください",
-    "en": "Give one of them a color"
+    "en": "Give one of them a color."
    }
   },
   {
    "rowId": "RS-85",
    "text": {
     "ja": "終了日の無いタスクには、フェードを付けられません",
-    "en": "A task with no finish date cannot have a fade"
+    "en": "A task with no finish date cannot have a fade."
    },
    "nextStep": {
     "ja": "先に終了日を入れてから、フェードを付けてください",
-    "en": "Enter a finish date first, then add the fade"
+    "en": "Enter a finish date first, then add the fade."
    }
   },
   {
    "rowId": "RS-86",
    "text": {
     "ja": "フェードの日数の和がタスクの期間より長くなるので、変えられません",
-    "en": "The fade days would add up to more than the task's span, so the change was not made"
+    "en": "The fade days would add up to more than the task's span, so the change was not made."
    },
    "nextStep": {
     "ja": "フェードを短くするか、タスクの期間を延ばしてください",
-    "en": "Shorten the fades, or lengthen the task's span"
+    "en": "Shorten the fades, or lengthen the task's span."
    }
   },
   {
    "rowId": "RS-87",
    "text": {
     "ja": "日付として読めないか、扱える範囲の外の日付なので、変えられません",
-    "en": "The value is not a date, or is outside the dates that can be handled, so the change was not made"
+    "en": "The value is not a date, or is outside the dates that can be handled, so the change was not made."
    },
    "nextStep": {
     "ja": "{importMinDate} から {importMaxDate} までの日付を入れてください",
-    "en": "Enter a date from {importMinDate} to {importMaxDate}"
+    "en": "Enter a date from {importMinDate} to {importMaxDate}."
    }
   },
   {
    "rowId": "RS-88",
    "text": {
     "ja": "実績の終了が実績の開始より前になるので、変えられません",
-    "en": "The actual finish would come before the actual start, so the change was not made"
+    "en": "The actual finish would come before the actual start, so the change was not made."
    },
    "nextStep": {
     "ja": "実績の開始より後に終了が来るように、日付を入れ直してください",
-    "en": "Enter the dates again so that the actual finish is on or after the actual start"
+    "en": "Enter the dates again so that the actual finish is on or after the actual start."
    }
   },
   {
    "rowId": "RS-59",
    "text": {
     "ja": "ブラウザが全画面表示を認めませんでした",
-    "en": "The browser did not allow full screen"
+    "en": "The browser did not allow full screen."
    },
    "nextStep": {
     "ja": "ブラウザのメニューから全画面表示にしてください",
-    "en": "Use the browser's own menu to go full screen"
+    "en": "Use the browser's own menu to go full screen."
    }
   },
   {
    "rowId": "RS-60",
    "text": {
     "ja": "同じ要素が重なっていたので、最初のものを採りました",
-    "en": "Some elements appeared more than once; the first of each was kept"
+    "en": "Some elements appeared more than once; the first of each was kept."
    },
    "nextStep": {
     "ja": "後のほうの値が正しいときは、元のファイルを直して読み直してください",
-    "en": "If a later copy held the right value, fix the original file and read it again"
+    "en": "If a later copy held the right value, fix the original file and read it again."
    }
   },
   {
    "rowId": "RS-61",
    "text": {
     "ja": "このタスクグループは読み取り専用です（編集グループが設定されています）",
-    "en": "This task group is read-only (an edit group is set on it)"
+    "en": "This task group is read-only (an edit group is set on it)."
    },
    "nextStep": {
     "ja": "編集グループの無いタスクグループへコピーしてから編集してください",
-    "en": "Copy it into a task group with no edit group, then edit it"
+    "en": "Copy it into a task group with no edit group, then edit it."
    }
   },
   {
    "rowId": "RS-62",
    "text": {
     "ja": "編集権限は人だけが変えられます",
-    "en": "Only a person can change the edit permission"
+    "en": "Only a person can change the edit permission."
    },
    "nextStep": {
     "ja": "プロパティパネルで、人に入れてもらってください",
-    "en": "Ask a person to set it in the properties panel"
+    "en": "Ask a person to set it in the Properties Panel."
    }
   },
   {
@@ -4379,18 +4379,18 @@
    "rowId": "RS-67",
    "text": {
     "ja": "このファイルは GRS で開ける .html ではありません",
-    "en": "This file is not an .html that GRS can open"
+    "en": "This file is not an .html that GRS can open."
    },
    "nextStep": {
     "ja": "GRS のヘッダーの書き出しで作ったファイルか、ファイルの出どころを確かめてください",
-    "en": "Check that it was written out from the GRS header, or where the file came from"
+    "en": "Check that it was saved from the GRS header, or where the file came from."
    }
   },
   {
    "rowId": "RS-68",
    "text": {
     "ja": "スケジュールをクリップボードにコピーしました",
-    "en": "The schedule was copied to the clipboard"
+    "en": "The schedule was copied to the clipboard."
    },
    "nextStep": {
     "ja": "",
@@ -4401,110 +4401,110 @@
    "rowId": "RS-69",
    "text": {
     "ja": "マイルストーンは期間を持たないので、親タスクにはできません",
-    "en": "A milestone has no span, so it cannot be a parent task"
+    "en": "A milestone has no span, so it cannot be a parent task."
    },
    "nextStep": {
     "ja": "期間を持つタスクへ引いてください",
-    "en": "Drag to a task that has a span"
+    "en": "Drag to a task that has a span."
    }
   },
   {
    "rowId": "RS-70",
    "text": {
     "ja": "期間から推定された仮の親タスクと子タスクの関係は選択・削除できません",
-    "en": "A parent inferred from the dates cannot be selected or deleted"
+    "en": "A parent inferred from the dates cannot be selected or deleted."
    },
    "nextStep": {
     "ja": "確定するには、親タスク設定を構えて子タスクから親タスクへ引いてください",
-    "en": "To make it definite, arm Set Parent Task and drag from the child to the parent"
+    "en": "To make it definite, select Set Parent Task and drag from the child to the parent."
    }
   },
   {
    "rowId": "RS-71",
    "text": {
     "ja": "取り込んだファイルの値で、対応するタスクを上書きしました",
-    "en": "The matching tasks were overwritten with the values of the file you brought in"
+    "en": "The matching tasks were overwritten with the values of the file you brought in."
    },
    "nextStep": {
     "ja": "上書きしたくなかったときは、取り消しで合流する前へ戻せます",
-    "en": "If that was not wanted, undo to get back to before the merge"
+    "en": "If that was not wanted, undo to get back to before the merge."
    }
   },
   {
    "rowId": "RS-72",
    "text": {
     "ja": "取り込んだファイルに無かったタスクは、消さずに残しました",
-    "en": "Tasks the file did not carry were kept, not deleted"
+    "en": "Tasks the file did not carry were kept, not deleted."
    },
    "nextStep": {
     "ja": "要らないものは、選んで削除してください",
-    "en": "Select and delete any you no longer need"
+    "en": "Select and delete any you no longer need."
    }
   },
   {
    "rowId": "RS-73",
    "text": {
     "ja": "前回の取り込みでは届いていた下記のタスクが、今回は届きませんでした",
-    "en": "The tasks listed below came with the last import but not with this one"
+    "en": "The tasks listed below came with the last import but not with this one."
    },
    "nextStep": {
     "ja": "要らないものは、日程表で選んで削除してください。残せば、書き出したときに相手側にまた現れます",
-    "en": "Select and delete on the schedule any you no longer need; kept ones reappear on the other side when you export"
+    "en": "Select and delete on the schedule any you no longer need; kept ones reappear on the other side when you export."
    }
   },
   {
    "rowId": "RS-74",
    "text": {
     "ja": "確認の問いが答えを待っている最中なので、この変更は適用できません",
-    "en": "A question is waiting for its answer, so this change was not applied"
+    "en": "A question is waiting for its answer, so this change was not applied."
    },
    "nextStep": {
     "ja": "画面の問いに答えが出てから、もう一度行ってください",
-    "en": "Once the question on the screen has been answered, try once more"
+    "en": "Once the question on the screen has been answered, try again."
    }
   },
   {
    "rowId": "RS-75",
    "text": {
     "ja": "ファイルを開く途中で、思いがけない理由で失敗しました",
-    "en": "Opening the file failed partway for an unexpected reason"
+    "en": "Opening the file failed partway for an unexpected reason."
    },
    "nextStep": {
     "ja": "もう一度開いてください。続くときは、直前の操作を控えてください",
-    "en": "Open it once more; if it keeps happening, note what you did"
+    "en": "Open it again; if it keeps happening, note what you did."
    }
   },
   {
    "rowId": "RS-76",
    "text": {
     "ja": "ファイルへ書く途中で、思いがけない理由で失敗しました。ファイルに書けていないかもしれません",
-    "en": "Writing to the file failed partway for an unexpected reason; the file may not hold it"
+    "en": "Writing to the file failed partway for an unexpected reason; the file may not hold it."
    },
    "nextStep": {
     "ja": "別の保存先を選んで、もう一度書き出してください",
-    "en": "Choose another destination and write it out once more"
+    "en": "Choose another destination and save it again."
    }
   },
   {
    "rowId": "RS-77",
    "text": {
     "ja": "工数は書き換えていません",
-    "en": "The work values were not rewritten"
+    "en": "The work values were not rewritten."
    },
    "nextStep": {
     "ja": "相手側のアプリで工数を更新してください",
-    "en": "Update the work in the other application"
+    "en": "Update the work in the other application."
    }
   },
   {
    "rowId": "RS-15",
    "text": {
     "ja": "操作を終えられませんでした",
-    "en": "The operation could not be completed"
+    "en": "The operation could not be completed."
    },
    "nextStep": {
     "ja": "もう一度行ってください。続くときは、直前の操作を控えてください",
-    "en": "Try once more; if it keeps happening, note what you did"
+    "en": "Try again; if it keeps happening, note what you did."
    }
   }
  ],
@@ -4513,242 +4513,242 @@
    "rowId": "IV-1",
    "text": {
     "ja": "同じ ID のものが 2 つ以上あるので、このファイルは開けません",
-    "en": "Two or more items share one ID, so this file cannot be opened"
+    "en": "Two or more items share one ID, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルの ID の重なりを直してから開いてください",
-    "en": "Fix the repeated IDs in the original file, then open it"
+    "en": "Fix the repeated IDs in the original file, then open it."
    }
   },
   {
    "rowId": "IV-2",
    "text": {
     "ja": "存在しないものを指している参照があるので、このファイルは開けません",
-    "en": "A reference points at something that does not exist, so this file cannot be opened"
+    "en": "A reference points at something that does not exist, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "書き出したときのファイルをそのまま開いてください",
-    "en": "Open the file exactly as it was exported"
+    "en": "Open the file exactly as it was exported."
    }
   },
   {
    "rowId": "IV-3",
    "text": {
     "ja": "ピン止めの記録が存在しないタスクグループを指しているので、このファイルは開けません",
-    "en": "A pin record points at a task group that does not exist, so this file cannot be opened"
+    "en": "A pin record points at a task group that does not exist, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "書き出したときのファイルをそのまま開いてください",
-    "en": "Open the file exactly as it was exported"
+    "en": "Open the file exactly as it was exported."
    }
   },
   {
    "rowId": "IV-4",
    "text": {
     "ja": "親タスクと子タスクの関係が輪になっているので、このファイルは開けません",
-    "en": "The parents and children of the tasks form a loop, so this file cannot be opened"
+    "en": "The parents and children of the tasks form a loop, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルで親タスクと子タスクの関係の輪を解いてから開いてください",
-    "en": "Break the loop in the original file, then open it"
+    "en": "Break the loop in the original file, then open it."
    }
   },
   {
    "rowId": "IV-5",
    "text": {
     "ja": "タスクグループの入れ子が段の上限より深いので、このファイルは開けません",
-    "en": "Task groups are nested deeper than the level limit, so this file cannot be opened"
+    "en": "Task groups are nested deeper than the level limit, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルで入れ子を浅くしてから開いてください",
-    "en": "Make the nesting shallower in the original file, then open it"
+    "en": "Make the nesting shallower in the original file, then open it."
    }
   },
   {
    "rowId": "IV-6",
    "text": {
     "ja": "どのタスクグループにも載っていない（または 2 つ以上に載っている）タスクがあるので、このファイルは開けません",
-    "en": "A task sits on no task group (or on more than one), so this file cannot be opened"
+    "en": "A task sits on no task group (or on more than one), so this file cannot be opened."
    },
    "nextStep": {
     "ja": "書き出したときのファイルをそのまま開いてください",
-    "en": "Open the file exactly as it was exported"
+    "en": "Open the file exactly as it was exported."
    }
   },
   {
    "rowId": "IV-23",
    "text": {
     "ja": "タスクの見た目の記録が欠けているか重なっているので、このファイルは開けません",
-    "en": "A task's appearance record is missing or repeated, so this file cannot be opened"
+    "en": "A task's appearance record is missing or repeated, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "書き出したときのファイルをそのまま開いてください",
-    "en": "Open the file exactly as it was exported"
+    "en": "Open the file exactly as it was exported."
    }
   },
   {
    "rowId": "IV-7",
    "text": {
     "ja": "暦が 1 つも無いので、このファイルは開けません",
-    "en": "The file has no calendar, so it cannot be opened"
+    "en": "The file has no calendar, so it cannot be opened."
    },
    "nextStep": {
     "ja": "書き出したときのファイルをそのまま開いてください",
-    "en": "Open the file exactly as it was exported"
+    "en": "Open the file exactly as it was exported."
    }
   },
   {
    "rowId": "IV-8",
    "text": {
     "ja": "名前の無いタスクグループがあるので、このファイルは開けません",
-    "en": "A task group has no name, so this file cannot be opened"
+    "en": "A task group has no name, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "書き出したときのファイルをそのまま開いてください",
-    "en": "Open the file exactly as it was exported"
+    "en": "Open the file exactly as it was exported."
    }
   },
   {
    "rowId": "IV-9",
    "text": {
     "ja": "塗りと線の両方が透明なものがあるので、このファイルは開けません",
-    "en": "Something has both its fill and its line transparent, so this file cannot be opened"
+    "en": "Something has both its fill and its line transparent, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "どちらかに色を付けてください",
-    "en": "Give one of them a color"
+    "en": "Give one of them a color."
    }
   },
   {
    "rowId": "IV-10",
    "text": {
     "ja": "終了の日が、開始の日より前になっているタスクがあるので、このファイルは開けません",
-    "en": "A task finishes before it starts, so this file cannot be opened"
+    "en": "A task finishes before it starts, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルでそのタスクの日付を直してから開いてください",
-    "en": "Fix that task's dates in the original file, then open it"
+    "en": "Fix that task's dates in the original file, then open it."
    }
   },
   {
    "rowId": "IV-11",
    "text": {
     "ja": "フェードが付いているのに終了日の無いタスクがあるので、このファイルは開けません",
-    "en": "A task has a fade but no finish date, so this file cannot be opened"
+    "en": "A task has a fade but no finish date, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルで終了日を入れるかフェードを外してから開いてください",
-    "en": "In the original file, enter a finish date or remove the fade, then open it"
+    "en": "In the original file, enter a finish date or remove the fade, then open it."
    }
   },
   {
    "rowId": "IV-12",
    "text": {
     "ja": "フェードの日数の和がタスクの期間より長いタスクがあるので、このファイルは開けません",
-    "en": "A task's fade days add up to more than its span, so this file cannot be opened"
+    "en": "A task's fade days add up to more than its span, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルでフェードを短くするか期間を延ばしてから開いてください",
-    "en": "In the original file, shorten the fades or lengthen the span, then open it"
+    "en": "In the original file, shorten the fades or lengthen the span, then open it."
    }
   },
   {
    "rowId": "IV-14",
    "text": {
     "ja": "日付として読めない値か、扱える範囲の外の日付です",
-    "en": "The value is not a date, or the date is outside the range that can be handled"
+    "en": "The value is not a date, or the date is outside the range that can be handled."
    },
    "nextStep": {
     "ja": "正しい日付を入れてください",
-    "en": "Enter a valid date"
+    "en": "Enter a valid date."
    }
   },
   {
    "rowId": "IV-15",
    "text": {
     "ja": "ファイルの中の取り込みの記録が食い違っているので、このファイルは開けません",
-    "en": "The import records in the file disagree, so this file cannot be opened"
+    "en": "The import records in the file disagree, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "書き出したときのファイルをそのまま開いてください",
-    "en": "Open the file exactly as it was exported"
+    "en": "Open the file exactly as it was exported."
    }
   },
   {
    "rowId": "IV-16",
    "text": {
     "ja": "設定値の上限と下限が逆になっているので、このファイルは開けません",
-    "en": "A setting's upper and lower limits are the wrong way round, so this file cannot be opened"
+    "en": "A setting's upper and lower limits are reversed, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルの設定値を直してから開いてください",
-    "en": "Fix the settings in the original file, then open it"
+    "en": "Fix the settings in the original file, then open it."
    }
   },
   {
    "rowId": "IV-19",
    "text": {
     "ja": "始まりと終わり（または上と下）が逆のハイライトボックスがあるので、このファイルは開けません",
-    "en": "A highlight box has its start and end (or top and bottom) the wrong way round, so this file cannot be opened"
+    "en": "A highlight box has its start and end (or top and bottom) reversed, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルでハイライトボックスの向きを直してから開いてください",
-    "en": "Put the highlight box the right way round in the original file, then open it"
+    "en": "Put the highlight box's ends in order in the original file, then open it."
    }
   },
   {
    "rowId": "IV-18",
    "text": {
     "ja": "タスクグループの親子が輪になっているので、このファイルは開けません",
-    "en": "The parents and children of the task groups form a loop, so this file cannot be opened"
+    "en": "The parents and children of the task groups form a loop, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "書き出したときのファイルをそのまま開いてください",
-    "en": "Open the file exactly as it was exported"
+    "en": "Open the file exactly as it was exported."
    }
   },
   {
    "rowId": "IV-20",
    "text": {
     "ja": "タスクグループが 1 つも無いので、このファイルは開けません",
-    "en": "The file has no task group, so it cannot be opened"
+    "en": "The file has no task group, so it cannot be opened."
    },
    "nextStep": {
     "ja": "書き出したときのファイルをそのまま開いてください",
-    "en": "Open the file exactly as it was exported"
+    "en": "Open the file exactly as it was exported."
    }
   },
   {
    "rowId": "IV-21",
    "text": {
     "ja": "実績の終了が実績の開始より前のタスクがあるので、このファイルは開けません",
-    "en": "A task's actual finish is before its actual start, so this file cannot be opened"
+    "en": "A task's actual finish is before its actual start, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルで実績の日付を直してから開いてください",
-    "en": "Fix the actual dates in the original file, then open it"
+    "en": "Fix the actual dates in the original file, then open it."
    }
   },
   {
    "rowId": "IV-22",
    "text": {
     "ja": "マイルストーンの形なのにマイルストーンでない（またはその逆の）タスクがあるので、このファイルは開けません",
-    "en": "A task drawn as a milestone is not a milestone (or the other way round), so this file cannot be opened"
+    "en": "A task drawn as a milestone is not a milestone (or the other way around), so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルでそのタスクの形とマイルストーンの印を揃えてから開いてください",
-    "en": "In the original file, make that task's shape and its milestone flag agree, then open it"
+    "en": "In the original file, make that task's shape and its milestone flag agree, then open it."
    }
   },
   {
    "rowId": "IV-24",
    "text": {
     "ja": "曜日か例外日の時間帯が、始まりが終わりより前でない・互いに重なっている・{workingTimesPerDayMax} 本を超えている、のどれかなので、このファイルは開けません",
-    "en": "A weekday or exception day has working-time ranges where a start is not before its end, ranges overlap, or there are more than {workingTimesPerDayMax}, so this file cannot be opened"
+    "en": "A weekday or exception day has working-time ranges where a start is not before its end, ranges overlap, or there are more than {workingTimesPerDayMax}, so this file cannot be opened."
    },
    "nextStep": {
     "ja": "元のファイルで時間帯を直してから開いてください",
-    "en": "Fix the working-time ranges in the original file, then open it"
+    "en": "Fix the working-time ranges in the original file, then open it."
    }
   }
  ],
@@ -4771,28 +4771,28 @@
    "rowId": "QN-3",
    "text": {
     "ja": "選んでいる担当を削除しますか？ 下のタスクの割り当てが外れます",
-    "en": "Delete the selected resources? They will be unassigned from the tasks below"
+    "en": "Delete the selected resources? They will be unassigned from the tasks below."
    }
   },
   {
    "rowId": "QN-4",
    "text": {
     "ja": "開いたときと同じ文書ではありません。上書きしますか？ その間の変更が失われます",
-    "en": "This is not the document that was opened. Overwrite it? The changes made since will be lost"
+    "en": "This is not the document that was opened. Overwrite it? The changes made since will be lost."
    }
   },
   {
    "rowId": "QN-5",
    "text": {
     "ja": "いまの文書を閉じますか？ 保存していない編集と、元に戻す履歴は失われます",
-    "en": "Close the current document? Unsaved edits and the undo history will be lost"
+    "en": "Close the current document? Unsaved edits and the undo history will be lost."
    }
   },
   {
    "rowId": "QN-9",
    "text": {
-    "ja": "透かしを非表示にするには、透かし解除パスワードが要ります。透かしはアクセス制御ではなく、画面に出した証跡です",
-    "en": "Hiding the watermark needs the watermark unlock password. The watermark is a record that this was on screen, not access control"
+    "ja": "透かしを非表示にしますか？ 透かし解除パスワードが要ります。透かしはアクセス制御ではなく、画面に出した証跡です",
+    "en": "Hide the watermark? This needs the watermark unlock password. The watermark is a record that this was on screen, not access control."
    }
   },
   {
@@ -4805,8 +4805,8 @@
   {
    "rowId": "QN-11",
    "text": {
-    "ja": "GRS をリセットしますか？ GRS がこのブラウザに覚えた値（画面の言語など）を消して、ページを読み直します。保存していない編集があれば、それも失われます\n※ リセットしても不具合が直らない場合、以下をお試しください。\nCtrl + F5 : 再読み込み\nF12（開発者ツール）→ Application（Firefox では「ストレージ」）→ GRS のローカルストレージをクリア",
-    "en": "Reset GRS? What GRS keeps in this browser (such as the screen language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too\n* If resetting does not fix the problem, try the following.\nCtrl + F5 : reload\nF12 (developer tools) → Application (Storage in Firefox) → clear GRS's local storage"
+    "ja": "GRS をリセットしますか？ GRS がこのブラウザに覚えた値（画面の言語など）を消して、ページを読み直します。保存していない編集があれば、それも失われます\n※ リセットしても不具合が直らない場合、以下をお試しください。\nCtrl+F5: 再読み込み\nF12（開発者ツール）→ Application（Firefox では「ストレージ」）→ GRS のローカルストレージをクリア",
+    "en": "Reset GRS? What GRS keeps in this browser (such as the display language) is cleared and the page is reloaded. Unsaved edits, if any, are lost too.\n* If resetting does not fix the problem, try the following.\nCtrl+F5: Reload\nF12 (developer tools) → Application (Storage in Firefox) → clear GRS's local storage"
    }
   },
   {
@@ -4820,21 +4820,21 @@
    "rowId": "QN-14",
    "text": {
     "ja": "タイムシフトを実行して、日程の日時を一斉にずらしますか？ 書き換える内容は下に示します。取り消し 1 回で戻せます",
-    "en": "Run the Time Shift and move every schedule date-time at once? What will be rewritten is shown below. One Undo brings it back"
+    "en": "Run the Time Shift and move every schedule date-time at once? What will be rewritten is shown below. One Undo brings it back."
    }
   },
   {
    "rowId": "QN-15",
    "text": {
     "ja": "全体日程シフトを実行して、日程全体を新しい開始日へ移しますか？ 書き換える内容は下に示します。取り消し 1 回で戻せます",
-    "en": "Shift the whole schedule to the new start date? What will be rewritten is shown below. One Undo brings it back"
+    "en": "Shift the whole schedule to the new start date? What will be rewritten is shown below. One Undo brings it back."
    }
   },
   {
    "rowId": "QN-8",
    "text": {
     "ja": "この操作を続けますか？ 取り消しで戻せない変更が起きます",
-    "en": "Go on? This makes a change that undo cannot bring back"
+    "en": "Continue? This can't be undone."
    }
   }
  ],
@@ -4894,8 +4894,8 @@
   {
    "use": "taskGroup",
    "text": {
-    "ja": "No name",
-    "en": "No name"
+    "ja": "Untitled",
+    "en": "Untitled"
    }
   }
  ],
@@ -5034,8 +5034,8 @@
     "en": "Zoom both axes, centered on the pointer"
    },
    "press": {
-    "ja": "Ctrl ＋ {IC-102}",
-    "en": "Ctrl + {IC-102}"
+    "ja": "Ctrl+{IC-102}",
+    "en": "Ctrl+{IC-102}"
    }
   },
   {
@@ -5045,8 +5045,8 @@
     "en": "Zoom the time axis only"
    },
    "press": {
-    "ja": "Shift ＋ {IC-102}",
-    "en": "Shift + {IC-102}"
+    "ja": "Shift+{IC-102}",
+    "en": "Shift+{IC-102}"
    }
   },
   {
@@ -5056,8 +5056,8 @@
     "en": "Zoom the vertical axis only"
    },
    "press": {
-    "ja": "Alt ＋ {IC-102}",
-    "en": "Alt + {IC-102}"
+    "ja": "Alt+{IC-102}",
+    "en": "Alt+{IC-102}"
    }
   },
   {
@@ -5067,15 +5067,15 @@
     "en": "Scroll horizontally"
    },
    "press": {
-    "ja": "Ctrl ＋ Shift ＋ {IC-102}",
-    "en": "Ctrl + Shift + {IC-102}"
+    "ja": "Ctrl+Shift+{IC-102}",
+    "en": "Ctrl+Shift+{IC-102}"
    }
   },
   {
    "rowId": "MK-6",
    "text": {
     "ja": "範囲選択する（Shift を併せると選択に追加する）",
-    "en": "Marquee-select; hold Shift to add to the Selection"
+    "en": "Marquee-select; hold Shift to add to the selection"
    },
    "press": {
     "ja": "素の左ドラッグ",
@@ -5089,15 +5089,15 @@
     "en": "Pan the view"
    },
    "press": {
-    "ja": "Ctrl ＋ ドラッグ ／ 中ボタンドラッグ",
-    "en": "Ctrl + drag ／ middle-button drag"
+    "ja": "Ctrl+ドラッグ ／ 中ボタンドラッグ",
+    "en": "Ctrl+drag or middle-button drag"
    }
   },
   {
    "rowId": "MK-8",
    "text": {
     "ja": "そのものへの操作になる。選択に含まれるものはまとめて動く",
-    "en": "Act on that Item; whatever is in the Selection moves with it"
+    "en": "Act on that item; whatever is in the selection moves with it"
    },
    "press": {
     "ja": "アイテムの上で左ドラッグ",
@@ -5141,7 +5141,7 @@
    "rowId": "MK-11",
    "text": {
     "ja": "選択を解除",
-    "en": "Clear the Selection"
+    "en": "Clear the selection"
    },
    "press": {
     "ja": "素の左クリック",
@@ -5155,8 +5155,8 @@
     "en": "Snap to the minute where you release"
    },
    "press": {
-    "ja": "掴み代の上で Alt ＋ ドラッグ（時刻を表示しているとき）",
-    "en": "Alt + drag on a grab handle (while time of day is shown)"
+    "ja": "掴み代の上で Alt+ドラッグ（時刻を表示しているとき）",
+    "en": "Alt+drag on a grab handle (while time of day is shown)"
    }
   },
   {
@@ -5174,7 +5174,7 @@
    "rowId": "MK-13",
    "text": {
     "ja": "対象で意味が決まる。コメントボックス＝プロパティパネルを開いて本文を編集、ハイライトボックス＝プロパティパネルを開いて枠の色を編集、名称ラベル＝名称、担当ラベル＝プロパティパネルを開いて担当を編集、タスクと実績＝プロパティパネルを開いて名前を編集、タスクグループ見出し＝タスクグループ名",
-    "en": "What it does depends on what it lands on -- Comment Box: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame color; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; task group title: the task group name"
+    "en": "What it does depends on what it lands on—Callout: opens the Properties Panel and edits its body; Highlight Box: opens the Properties Panel and edits its frame color; Name Label: its name; Assignee Label: opens the Properties Panel and edits the assignee; task and actual: opens the Properties Panel and edits its name; task group title: the task group name"
    },
    "press": {
     "ja": "ダブルクリック",
@@ -5185,22 +5185,22 @@
    "rowId": "MK-15",
    "text": {
     "ja": "選んでいるものをコピーして、離した所に置く（Shift を併せると日付を変えない）",
-    "en": "Copy the Selection and put the copy where you release; hold Shift too to keep the dates"
+    "en": "Copy the selection and put the copy where you release; hold Shift too to keep the dates"
    },
    "press": {
-    "ja": "選んでいるものの上で Ctrl ＋ ドラッグ",
-    "en": "Ctrl + drag on the Selection"
+    "ja": "選んでいるものの上で Ctrl+ドラッグ",
+    "en": "Ctrl+drag on the selection"
    }
   },
   {
    "rowId": "MK-16",
    "text": {
     "ja": "日付を変えずにタスクグループだけを移す（選択に無いタスクは選択に足す）",
-    "en": "Move to another task group only, keeping the dates; a task outside the Selection joins it"
+    "en": "Move to another task group only, keeping the dates; a task outside the selection joins it"
    },
    "press": {
-    "ja": "タスクの上で Shift ＋ ドラッグ",
-    "en": "Shift + drag on a task"
+    "ja": "タスクの上で Shift+ドラッグ",
+    "en": "Shift+drag on a task"
    }
   }
  ],
@@ -5237,7 +5237,7 @@
    "rowId": "AR-5",
    "text": {
     "ja": "コメントボックス",
-    "en": "Comment Box"
+    "en": "Callout"
    }
   },
   {
@@ -5406,7 +5406,7 @@
    "part": "custom",
    "text": {
     "ja": "その他の色",
-    "en": "Custom color"
+    "en": "More Colors…"
    }
   },
   {
@@ -5455,7 +5455,7 @@
    "part": "customValue",
    "text": {
     "ja": "その他の色（いまの値 {value}）",
-    "en": "Custom color (now {value})"
+    "en": "More Colors… (now {value})"
    }
   }
  ],
@@ -5513,7 +5513,7 @@
    "part": "lagDays",
    "text": {
     "ja": "{lag}日",
-    "en": "{lag} d"
+    "en": "{lag}d"
    }
   },
   {
@@ -6000,7 +6000,7 @@
    "part": "keepGlobalTimeHint",
    "text": {
     "ja": "選んだタイムゾーンを表示の基準にする。スケジュールの日時の値は書き換えない",
-    "en": "Use the chosen time zone as the base for display. The schedule date-time values are not rewritten"
+    "en": "Use the chosen time zone as the base for display. The schedule date-time values are not rewritten."
    }
   },
   {
@@ -6014,7 +6014,7 @@
    "part": "keepLocalTimeHint",
    "text": {
     "ja": "選んだタイムゾーンを、スケジュールの日時の数字が指すタイムゾーンにする。数字は書き換えず、瞬間が動く",
-    "en": "Make the chosen time zone the one the schedule date-time numbers are read in. The numbers are not rewritten, so the instants move"
+    "en": "Make the chosen time zone the one the schedule date-time numbers are read in. The numbers are not rewritten, so the instants move."
    }
   },
   {
@@ -6585,6 +6585,22 @@
    }
   }
  ],
+ "keyNotation": [
+  {
+   "part": "alternative",
+   "text": {
+    "ja": " ／ ",
+    "en": " or "
+   }
+  },
+  {
+   "part": "plusKey",
+   "text": {
+    "ja": "プラス (+)",
+    "en": "Plus (+)"
+   }
+  }
+ ],
  "dualCursorReadout": [
   {
    "line": "left",
@@ -6611,14 +6627,14 @@
    "line": "days",
    "text": {
     "ja": "{y}年 {m}か月 {d}日 ({n} days)",
-    "en": "{y}y {m}m {d}d ({n} days)"
+    "en": "{y} yr {m} mo {d} d ({n} days)"
    }
   },
   {
    "line": "oneDay",
    "text": {
     "ja": "{y}年 {m}か月 {d}日 ({n} day)",
-    "en": "{y}y {m}m {d}d ({n} day)"
+    "en": "{y} yr {m} mo {d} d ({n} day)"
    }
   }
  ],
@@ -6741,14 +6757,14 @@
    "rowId": "PS-3",
    "text": {
     "ja": "中断・再開日未定",
-    "en": "Paused, no resume date"
+    "en": "Stopped, no resume date"
    }
   },
   {
    "rowId": "PS-4",
    "text": {
     "ja": "中断・再開予定あり",
-    "en": "Paused, resume date set"
+    "en": "Stopped, resume date set"
    }
   },
   {
@@ -7181,14 +7197,14 @@
    "part": "parentProgressOutside",
    "text": {
     "ja": "親の進み具合（{parent}）が、配下の作業の進み具合（{leftmost} - {rightmost}）から {days} 稼働日外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは {tolerance} 稼働日）はプロパティパネルの文書の設定で変えられる",
-    "en": "This parent's progress ({parent}) lies {days} working days outside its work's progress ({leftmost} - {rightmost}). An update may be missing, work may not be split into child tasks, or the parent's span may have empty gaps. The allowed days (now {tolerance}) can be changed in the document settings of the property panel."
+    "en": "This parent's progress ({parent}) lies {days} working days outside its work's progress ({leftmost} - {rightmost}). An update may be missing, work may not be split into child tasks, or the parent's span may have empty gaps. The allowed days (now {tolerance}) can be changed in the document settings of the Properties Panel."
    }
   },
   {
    "part": "parentProgressOutsideWhenTimeShown",
    "text": {
     "ja": "親の進み具合（{parent}）が、配下の作業の進み具合（{leftmost} - {rightmost}）から {amount} 外れている。進捗の更新漏れ、子タスクに分けきれていない作業、親の期間の空白のどれかかもしれない。許す日数（いまは {tolerance} 稼働日）はプロパティパネルの文書の設定で変えられる",
-    "en": "This parent's progress ({parent}) lies {amount} outside its work's progress ({leftmost} - {rightmost}). An update may be missing, work may not be split into child tasks, or the parent's span may have empty gaps. The allowed days (now {tolerance}) can be changed in the document settings of the property panel."
+    "en": "This parent's progress ({parent}) lies {amount} outside its work's progress ({leftmost} - {rightmost}). An update may be missing, work may not be split into child tasks, or the parent's span may have empty gaps. The allowed days (now {tolerance}) can be changed in the document settings of the Properties Panel."
    }
   },
   {
@@ -7511,7 +7527,7 @@
    "part": "fixedNotice",
    "text": {
     "ja": "{n} 件を修正しました。取り消しで 1 回で戻せます",
-    "en": "Fixed {n}. Undo reverts them in one step"
+    "en": "Fixed {n}. Undo reverts them in one step."
    }
   },
   {
@@ -7546,7 +7562,7 @@
    "part": "clearPauseValues",
    "text": {
     "ja": "中断の値を外す",
-    "en": "Clear the Pause Values"
+    "en": "Clear the Stop and Resume Dates"
    }
   },
   {

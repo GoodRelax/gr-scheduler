@@ -503,6 +503,8 @@ export interface HelpEntry {
   readonly text: string
   readonly press: string | null
   readonly keys: string | null
+  // see FR-036, EZ-2
+  readonly assignment: string | null
   readonly icon: IconId | null
   readonly kind: string
   // see T-256

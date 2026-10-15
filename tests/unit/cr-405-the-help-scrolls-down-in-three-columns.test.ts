@@ -15,6 +15,7 @@ import type {
   ScreenView,
 } from '../../src/adapter/screen-renderer/screen-renderer'
 import { helpModalFromSession } from '../../src/adapter/screen-renderer/open-modals'
+import { keysWords } from '../../src/adapter/screen-renderer/tooltips'
 import {
   emptyScreenSession,
   type ScreenSession,
@@ -93,10 +94,8 @@ const assignmentsIn = (cell: string): readonly (readonly string[])[] =>
 const combosOf = (cell: string): readonly string[] => assignmentsIn(cell).map((keys) => keys.join('+'))
 
 // see FR-036, T-255
-const spelledOnScreen = (cell: string): string =>
-  assignmentsIn(cell)
-    .map((keys) => keys.join(' \uff0b '))
-    .join(' \uff0f ')
+// WHY: CR-770 -- the screen spells a chord Ctrl+A and joins two with the en word of keyNotation (the help here is en).
+const spelledOnScreen = (cell: string): string | null => keysWords(assignmentsIn(cell), 'en')
 
 const T_036_COMBOS = new Set(T_036.rows.flatMap((row) => combosOf(row.by[H_KEYS] ?? '')))
 
@@ -381,7 +380,7 @@ describe('FR-036 + T-256 (MUST) -- the roster the help is described from', () =>
     }
   })
 
-  it('carries BF-1 with the spelling of its T-255 cell, its two assignments joined by " \uff0f ", and no glyph', () => {
+  it('carries BF-1 with the keys of its T-255 cell, spelled Ctrl+A and joined by the keyNotation word, and no glyph', () => {
     const entry = entries.find((one) => rowIdOf(one) === 'BF-1')
     expect(entry, 'BF-1 is not in the help').toBeDefined()
     const keys = typeof entry?.['keys'] === 'string' ? (entry['keys'] as string) : ''

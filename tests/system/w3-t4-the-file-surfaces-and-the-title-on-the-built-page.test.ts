@@ -200,7 +200,8 @@ test.describe(`FR-096 -- ${FR_096_HEADING}`, () => {
       return { icons, firstFormat, texts }
     }, EXPORT_CHOOSER)
     if (read === null) throw new Error('the Export Chooser is not on the page')
-    const headings = ['ファイルに保存', 'Save to File']
+    // WHY: CR-770 (JDG-2251) renamed the English heading of the Export Chooser to Save As.
+    const headings = ['ファイルに保存', 'Save As']
     const heading = read.texts.find((one) => headings.includes(one.text))
     expect(heading, `${FR_096_HEADING}: the title is the heading word`).toBeDefined()
     const ids = read.icons.map((one) => one.id)
