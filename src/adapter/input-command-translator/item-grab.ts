@@ -529,7 +529,6 @@ function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): Docum
     const movedStart = textOfStartSide(dayShifted(start, drag.dayCount), project, task.milestone === true)
     return { kind: 'setTaskPlanDates', uid: task.uid, start: movedStart, finish: textOfFinishSide(dayShifted(finish, drag.dayCount), project) }
   }
-  // WHY: a Shift-only drag keeps the dates on the fine units too, as the copy does (MK-16, DFC-2702).
   if (isDateKeepingDrag(drag.press)) return null
   const plan = plannedInstantsOf(workingCalendarOf(context.document.schedule), task)
   if (plan === null) return null
@@ -888,7 +887,6 @@ function highlightBoxRangeWrite(
 }
 
 // see GR-14, CM-54, FR-100
-// WHY: a box released on the range it holds writes nothing; an equal document would still raise unsaved edits (DFC-2912).
 /** @purity pure */
 function changedUnlessUnmoved(box: HighlightBox, write: DocumentCommand): TranslatedInput {
   if (write.kind !== 'setHighlightBoxRange') return changed([write])

@@ -1,6 +1,4 @@
-// CR-775 spec-only cases: Alt (SG-4) is read at release (FR-103, T-378); a Shift-only body drag keeps the dates on the hour,
-// 30-minute and 1-minute snaps (MK-16, FR-107); Ctrl+Shift copies with amount 0 even with Alt at release (CY-5, CY-11, MK-15, MK-12);
-// the dark S-587 holds 3:1 on the planned bar fill S-155 at hue 60 (NFR-007, T-366).
+// CR-775 spec-only cases: Alt at release (FR-103), Shift keeps dates (MK-16), Ctrl+Shift copy amount 0 (CY-5), dark S-587 (NFR-007).
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -413,7 +411,9 @@ describe('premise: the scenes sit on the T-378 rows they are named after', () =>
   })
 })
 
-describe('FR-103 / T-378 SG-4 -- Alt is read at release, not at press', () => {
+const FR_103_ALT_AT_RELEASE = '⭐ `Alt`（`SG-4`）は離した時点で読むこと（MUST）'
+
+describe(`FR-103 / T-378 SG-4 -- ${FR_103_ALT_AT_RELEASE} -- Alt is read at release, not at press`, () => {
   it.each([true, false])('FR-103 -- pressed without Alt, released with Alt (move carries Alt: %s): the start lands on a 1-minute step', (carries) => {
     const built = stage(HOUR_SNAP)
     dragWith(built, bodyOf(built.loop, SOURCE), travel(built.loop, PULL_DAYS), PLAIN, ALT, carries)
