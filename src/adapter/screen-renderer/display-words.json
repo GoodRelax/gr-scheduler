@@ -6529,7 +6529,7 @@
   {
    "part": "timeNotReadable",
    "text": {
-    "ja": "時刻の形ではない（{text}）—— 0:00〜24:00 の形で打つ",
+    "ja": "時刻の形ではない（{text}）—— 0:00-24:00 の形で打つ",
     "en": "Not a time ({text}); type it as 0:00 to 24:00"
    }
   },
@@ -6596,8 +6596,8 @@
   {
    "part": "plusKey",
    "text": {
-    "ja": "プラス (+)",
-    "en": "Plus (+)"
+    "ja": "[+]",
+    "en": "[+]"
    }
   }
  ],

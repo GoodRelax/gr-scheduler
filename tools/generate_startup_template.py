@@ -4,7 +4,7 @@
     python tools/generate_startup_template.py
     python tools/generate_startup_template.py --check
 
-⭐ ONE RUN, FOUR ARTIFACTS (CR-611, CR-612):
+⭐ ONE RUN, FIVE ARTIFACTS (CR-611, CR-612, CR-773):
     startup-template.json           the template FR-027 ships. ⛔ No module
                                     imports it: the build puts it in a
                                     non-running JSON container of its own
@@ -20,6 +20,16 @@
                                     MC-10 of table T-025, the document the
                                     performance tests measure. Today it is the
                                     template byte for byte (JDG-970, PND-611).
+    sample-schedule/Three-Year Product Plan.json
+                                    the sample document the repository ships
+                                    to be opened by hand: the template with
+                                    its document title replaced by SAMPLE_TITLE.
+                                    Generated, so it keeps up with the format
+                                    (JDG-2373 overturns JDG-1732 and JDG-2247).
+                                    ⛔ Do not edit by hand: run this script
+                                    (npm run startup). It carries no banner
+                                    because the GRS JSON schema allows no extra
+                                    key; check 21 reads THIS docstring for it.
 
 FR-027 requires the template to be a bundled `GRS JSON` and forbids building
 the document in code, so that the same validator the import path uses can be
@@ -102,6 +112,7 @@ generated schema's job, not this file's.
 the script exits non-zero with a named reason when one fails. A template that
 drifts back into a shape nobody can read cannot be committed by accident.
 """
+import copy
 import hashlib
 import io
 import json
@@ -131,6 +142,7 @@ MANIFEST_OUT = os.path.join(ROOT, 'src', 'framework', 'single-html-shell',
 EMPTY_OUT = os.path.join(ROOT, 'src', 'framework', 'single-html-shell',
                          'empty-document.json')
 MEASURING_OUT = os.path.join(ROOT, 'tests', 'fixtures', 'measuring-document.json')
+SAMPLE_OUT = os.path.join(ROOT, 'sample-schedule', 'Three-Year Product Plan.json')
 ERD_JSON = os.path.join(ROOT, 'docs', 'spec', '_source', 'erd.json')
 
 # CR-612 decision 1: the template's container carries an id of its own, never
@@ -963,6 +975,7 @@ STAMP_AUTHOR = 'template'
 # same string.
 PROJECT_TITLE = 'Sample Project - Press N to start a new one'  # FR-035, SK-25 (JDG-972)
 PROJECT_NAME = 'Product Development Program'     # PF-1
+SAMPLE_TITLE = 'Three-Year Product Plan'        # FR-035, the sample file's title (JDG-2373)
 PROJECT_SUBJECT = 'Building and delivering the product over three years'
 PROJECT_CATEGORY = 'Software Development'
 PROJECT_COMPANY = 'Product Organization'
@@ -4665,6 +4678,17 @@ def empty_document():
     return document
 
 
+def sample_document(document):
+    """The shipped sample: the template under the title its file name says.
+
+    @purity semi-pure-b
+    """
+    sample = copy.deepcopy(document)
+    sample['schedule']['project']['title'] = SAMPLE_TITLE
+    check_schema(sample)
+    return sample
+
+
 def manifest():
     """The two facts the program and the build read instead of the template.
 
@@ -4691,6 +4715,8 @@ def main():
         (EMPTY_OUT, json_text(empty_document())),
         # MC-10: the same forest as the template, so today the same bytes.
         (MEASURING_OUT, body),
+        # JDG-2373: the sample file is the template under its own title.
+        (SAMPLE_OUT, json_text(sample_document(document))),
     )
     if '--check' in sys.argv:
         for path, text in wanted:

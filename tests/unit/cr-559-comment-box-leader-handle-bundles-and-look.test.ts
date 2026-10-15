@@ -31,17 +31,15 @@ const DESIGN = unbroken(readFileSync(join(SPEC, '05-07-design.md'), 'utf8').repl
 const DOCUMENT_COMMANDS = readFileSync(join(SPEC, '_assets', 'tbl-document-commands.md'), 'utf8').replace(/\r\n/g, '\n')
 
 // see T-023d
-const BODY_OR_LEADER_MOVES_BOTH =
-  '⭐ 本体（本文の箱の全体）か引出し線（線から左右へ同表の `S-291`）を掴んで引いたときは、本文の箱と線先を一緒に動かすこと（MUST） —— 本文の箱は引いた量だけ動かし、線先は、押したときに描いていた線先の点を引いた量だけずらした点で読む（読み方は下の「線先は離した位置で読む」と同じ）。'
+const BODY_OR_LEADER_MOVES_ALONE =
+  '⭐ 本体（本文の箱の全体）か引出し線（線から左右へ同表の `S-291`）を掴んで引いたときは、本文の箱だけを動かし、線先は動かさないこと（MUST） —— 本文の箱は引いた量だけ動かし、線先の日とタスクグループは今のままとする（箱を空いた所へよけるたびに指す先が変わると、どのタスクについてのコメントかが崩れる）。'
 const ONE_BUNDLE =
-  'その 2 つは、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-50`（線先）と `CM-51`（ずれ）を 1 つの束にして書くこと（MUST） —— `CM-51` のずれは、置き直した線先を描く点（`05-07-design.md` の 表 T-221 の `LF-15`）から、動かした本文の箱の左下隅までとする。'
-const ANCHOR_STEPS_BY_HALVES =
-  '⚠️ 線先は日の列の中央とタスクグループの帯の中央に立つので、線先の動く量は、引いた量から日の列とタスクグループの帯の半分まで離れることがある —— 本文の箱は引いた量のとおりに動く。'
+  'その動きは、`_assets/tbl-document-commands.md` の 表 T-108 の `CM-51`（ずれ）だけを書くこと（MUST） —— `CM-50`（線先）は書かない。'
 const BODY_NO_TASK_GROUP =
-  'ずらした点の下に描かれたタスクグループが無いときは、どちらも動かさず、表 T-233 の `RS-44` を運ぶ —— 表 T-246 の `HB-3` と同じ扱いである。'
+  '離した位置の下に描かれたタスクグループが無いときは、どちらも動かさず、表 T-233 の `RS-44` を運ぶ —— 表 T-246 の `HB-3` と同じ扱いである。'
 const ANCHOR_MOVES_ALONE =
   '⭐ 線先（線先から同表の `S-292`）を掴んで引いたときは、線先だけを動かし、本文の箱を画面の上で動かさないこと（MUST） —— `CM-50` で線先を、`CM-51` で、置き直した線先を描く点から押したときの本文の箱の左下隅までのずれを、1 つの束にして書く。'
-const ONE_UNDO = '⭐ どちらも 1 つの束なので、1 度の取り消し（`FR-031`）で 2 つとも戻る。'
+const ONE_UNDO = '⭐ 線先を引いたときの 2 つは 1 つの束なので、1 度の取り消し（`FR-031`）で 2 つとも戻る。'
 const HANDLE_WHILE_SELECTED =
   '⭐ コメントボックスを選んでいるあいだ（表 T-023c の `SL-8`）は、線先に四角の印を描き、線先を掴めることを示すこと（MUST）。'
 const HANDLE_SHAPE =
@@ -462,9 +460,8 @@ const expectJoins = (ends: readonly Point[] | null, anchor: Point, corner: Point
 describe('CR-559 premises: the clauses these cases read, and the fixture they stand on', () => {
   it('T-023d, FR-106 and FR-019 still say it, word for word', () => {
     for (const clause of [
-      BODY_OR_LEADER_MOVES_BOTH,
+      BODY_OR_LEADER_MOVES_ALONE,
       ONE_BUNDLE,
-      ANCHOR_STEPS_BY_HALVES,
       BODY_NO_TASK_GROUP,
       ANCHOR_MOVES_ALONE,
       ONE_UNDO,
@@ -532,7 +529,7 @@ describe('CR-559 premises: the clauses these cases read, and the fixture they st
   })
 })
 
-describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
+describe(`T-023d: ${BODY_OR_LEADER_MOVES_ALONE}`, () => {
   const pull = (loop: FrameLoop): Point => ({ x: Math.round(3.3 * pxPerDay(loop)), y: Math.round(taskGroupStep(loop)) + 3 })
 
   it('premise: the body center answers as the body and the leader midpoint as the leader', () => {
@@ -548,26 +545,27 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
   })
 
   for (const part of ['body', 'leader'] as const) {
-    it(`the ${part}, pulled 3.3 days right and one task group down, moves the box by the pull and pins day 13 of task group F`, () => {
+    it(`the ${part}, pulled 3.3 days right and one task group down, moves the box by the pull and leaves the anchor on day 10 of task group E`, () => {
       const built = stage()
       const before = drawnNote(built.loop)
       const leader = leaderOf(before)!
       const press =
         part === 'body' ? centerOf(before.body) : { x: (leader[0]!.x + leader[1]!.x) / 2, y: (leader[0]!.y + leader[1]!.y) / 2 }
       const by = pull(built.loop)
+      const offsetBefore = storedNote(built.loop)['bodyOffsetPx'] as { dx: number; dy: number }
       drag(built, press, by.x, by.y)
-      expect(anchorText(built.loop), `${part}: the anchor was not re-read at the moved point`).toBe('13 F')
+      expect(anchorText(built.loop), `${part}: the anchor moved`).toBe(`${ANCHOR_DAY} ${ANCHOR_TASK_GROUP}`)
       const after = drawnNote(built.loop)
       expect(after.body.x, `${part}: the box did not move by the pull`).toBeCloseTo(before.body.x + by.x, 1)
       expect(after.body.y, `${part}: the box did not move by the pull`).toBeCloseTo(before.body.y + by.y, 1)
-      // STEP: CM-51 holds the move from the new LF-15 point to the moved bottom-left corner
+      // STEP: CM-51 alone holds the move, the offset grown by the pull
       const offset = storedNote(built.loop)['bodyOffsetPx'] as { dx: number; dy: number }
-      expect(after.anchor.x + offset.dx).toBeCloseTo(after.body.x, 1)
-      expect(after.anchor.y + offset.dy).toBeCloseTo(after.body.y + after.body.height, 1)
+      expect(offset.dx).toBeCloseTo(offsetBefore.dx + by.x, 1)
+      expect(offset.dy).toBeCloseTo(offsetBefore.dy + by.y, 1)
     })
   }
 
-  it(`${ANCHOR_STEPS_BY_HALVES} -- pulled under half a day, the box moves by the pull and the anchor stays on day 10`, () => {
+  it('pulled under half a day, the box moves by the pull and the anchor stays on day 10', () => {
     const built = stage()
     const before = drawnNote(built.loop)
     // WHY: the pull stays clear of S-208 (the press/pull split FR-019 names for placing) and under half a day.
@@ -581,41 +579,41 @@ describe(`T-023d: ${BODY_OR_LEADER_MOVES_BOTH}`, () => {
     expect(after.anchor).toEqual(before.anchor)
   })
 
-  it(`${ONE_BUNDLE} ${ONE_UNDO} -- one undo after a body pull brings back both the anchor and the offset`, () => {
+  it(`${ONE_BUNDLE} -- one undo after a body pull brings back the offset`, () => {
     const built = stage()
     const stored = storedNote(built.loop)
     const before = drawnNote(built.loop)
     const by = pull(built.loop)
     drag(built, centerOf(before.body), by.x, by.y)
     const moved = storedNote(built.loop)
-    expect(moved['anchorDate'], 'premise: the anchor moved').not.toEqual(stored['anchorDate'])
+    expect(moved['anchorDate'], 'the anchor moved').toEqual(stored['anchorDate'])
     expect(moved['bodyOffsetPx'], 'premise: the offset moved').not.toEqual(stored['bodyOffsetPx'])
     undo(built)
     expect(storedNote(built.loop), 'one undo left part of the move in place').toEqual(stored)
     expect(drawnNote(built.loop).body).toEqual(before.body)
   })
 
-  it(`${BODY_NO_TASK_GROUP} -- the body pulled so far down that the moved anchor point has no drawn task group`, () => {
+  it(`${BODY_NO_TASK_GROUP} -- the anchor released so far down that no task group is drawn under it`, () => {
     const built = stage()
     const note = drawnNote(built.loop)
     const stored = storedNote(built.loop)
     const bottom = taskGroupBand(built.loop, 'F').y + taskGroupBand(built.loop, 'F').height
     const by = Math.round(bottom - note.anchor.y + 2 * S_292)
-    drag(built, centerOf(note.body), 0, by)
-    expect(storedNote(built.loop), 'a pull with no task group under the moved anchor moved something').toEqual(stored)
+    drag(built, note.anchor, 0, by)
+    expect(storedNote(built.loop), 'a release with no task group under it moved something').toEqual(stored)
     expect(built.noticeTexts(), 'RS-44 is hidden (表 T-233, CR-712)').not.toContain(RS_44_WORDS)
   })
 
   // WHY: the pull is the release minus the press; how many moves the pointer reported on the way is not in it.
   const PULLS: readonly (readonly [string, (loop: FrameLoop) => Point, string])[] = [
-    ['1.2 days right only', (loop) => ({ x: Math.round(1.2 * pxPerDay(loop)), y: 0 }), `11 ${ANCHOR_TASK_GROUP}`],
-    ['one task group down only', (loop) => ({ x: 0, y: Math.round(taskGroupStep(loop)) }), '10 F'],
-    ['3.3 days right and one task group down', (loop) => pull(loop), '13 F'],
+    ['1.2 days right only', (loop) => ({ x: Math.round(1.2 * pxPerDay(loop)), y: 0 }), `${ANCHOR_DAY} ${ANCHOR_TASK_GROUP}`],
+    ['one task group down only', (loop) => ({ x: 0, y: Math.round(taskGroupStep(loop)) }), `${ANCHOR_DAY} ${ANCHOR_TASK_GROUP}`],
+    ['3.3 days right and one task group down', (loop) => pull(loop), `${ANCHOR_DAY} ${ANCHOR_TASK_GROUP}`],
   ]
 
   for (const [label, pullOf, pinned] of PULLS) {
     for (const steps of [1, 2, 6]) {
-      it(`the body pulled ${label}, reported in ${steps} move(s), moves the box by the pull and pins ${pinned}`, () => {
+      it(`the body pulled ${label}, reported in ${steps} move(s), moves the box by the pull and leaves the anchor on ${pinned}`, () => {
         const built = stage()
         const before = drawnNote(built.loop)
         const by = pullOf(built.loop)

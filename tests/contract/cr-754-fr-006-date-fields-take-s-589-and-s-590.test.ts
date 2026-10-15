@@ -25,7 +25,7 @@ const FR_006_EMPTY_IS_AS_WIDE = '`S-590` を掛けた幅とすること（MUST�
 const FR_006_NOT_THE_ESTIMATE = '⛔ 書式の字を `FR-093` の概算で測ってはならない（MUST NOT）'
 const FR_006_OTHER_DATE_FIELDS = '⭐ 本段の日付と日時の要る幅は、`GRS` が描くほかの日付の欄にも当てること（MUST）'
 const FR_006_DATE_ROOM =
-  '⭐ ただし 表 T-016 の `入力の型` が `日付` の操作子の要る幅は、`FR-093` の概算によらず、その操作子の字の大きさに `_assets/tbl-settings.md` の 表 T-206 の `S-589` を掛けた幅とし'
+  '⭐ ただし日付の欄の要る幅は、`FR-093` の概算によらず、画面に出ている欄の形で決めること（MUST）'
 const FR_006_ACTUAL_LENGTH = 'その幅は、並ぶ日付の欄と同じ行（時刻を表示しているときは `S-590`）の幅である。'
 
 // see S-589, S-590

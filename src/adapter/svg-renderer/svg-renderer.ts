@@ -1145,7 +1145,7 @@ const SCHEDULE_COLORS: {
   'S-527': { light: '#ffffff', dark: 'hsl(H 12% 9%)', followsHue: true },
   'S-528': { light: 'hsl(H 44% 46%)', dark: 'hsl(H 46% 66%)', followsHue: true },
   'S-573': { light: '#07695a', dark: '#4fd1b5', followsHue: false },
-  'S-587': { light: '#b31959', dark: '#f17eae', followsHue: false },
+  'S-587': { light: '#b31959', dark: '#f283b1', followsHue: false },
 }
 
 // see T-236, T-366
