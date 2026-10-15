@@ -377,7 +377,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-712-nt-2-a-timed-notice-leaves-by-itself.contract.test.ts` | 15 | FR-076 | VT-2 | T-037, T-078, T-206, T-233, T-286 | MG-10, NT-2, NT-3, NT-5, RS-27, RS-65, RS-77, S-542 | - | - | - | - |
 | `tests/contract/cr-712-qn-5-asks-only-with-unsaved-edits.contract.test.ts` | 8 | FR-095 | VT-2 | T-234, T-290 | OP-3, OP-4, OP-13, QN-5 | - | - | - | - |
 | `tests/contract/cr-712-report-rows-reach-the-import-report.contract.test.ts` | 11 | FR-076 | VT-2 | T-290 | EP-22, MG-14, RS-51, RS-71, RS-72, U-62 | - | - | - | - |
-| `tests/contract/cr-712-the-display-manner-of-every-task-group.contract.test.ts` | 16 | FR-076 | - | T-033, T-220, T-233, T-234 | EX-3, IV-17, NT-1, NT-5, PI-39, QN-5, RS-21, RS-69, RS-77 | - | - | - | - |
+| `tests/contract/cr-712-the-display-manner-of-every-task-group.contract.test.ts` | 16 | FR-076 | - | T-033, T-220, T-233, T-234 | EX-3, IV-17, NT-1, NT-5, PI-39, QN-5, QN-16, RS-21, RS-69, RS-77 | - | - | - | - |
 | `tests/contract/cr-712-the-notice-roster-is-printed-from-its-manuscript.contract.test.ts` | 6 | FR-076 | - | T-220, T-233, T-234 | - | - | - | - | - |
 | `tests/contract/cr-712-the-words-and-the-hidden-rows.contract.test.ts` | 13 | FR-016, FR-019, FR-029 | - | T-032, T-233 | HB-3, HF-14, IV-17, MG-10, NT-7, PTL-9, RS-21, RS-27, RS-44, RS-46, RS-55 | - | - | - | - |
 | `tests/contract/cr-714-a-copy-carries-no-parent-links.test.ts` | 11 | FR-058 | - | T-223 | DU-1, DU-2 | - | - | - | - |
