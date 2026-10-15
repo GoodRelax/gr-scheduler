@@ -633,7 +633,7 @@ function reportRowViewsOf(view: TableView, found: readonly ShownTaskGroup[], mar
     cells: shown.cells,
     glyph: STATUS_GLYPHS[shown.row.status],
     status: shown.row.status,
-    shown: !hidden.has(shown.row.taskUid),
+    isShown: !hidden.has(shown.row.taskUid),
     target: { kind: 'task', taskUid: shown.row.taskUid },
     isCurrent: shown.row.taskUid === markedUid,
   }))

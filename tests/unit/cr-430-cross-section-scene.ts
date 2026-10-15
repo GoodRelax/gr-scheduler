@@ -149,7 +149,7 @@ export interface Resume {
   readonly head?: readonly Pt[]
   readonly box?: Rect
   readonly dash?: readonly Pt[]
-  readonly undecided?: boolean
+  readonly isUndecided?: boolean
 }
 
 export interface DrawnTask {

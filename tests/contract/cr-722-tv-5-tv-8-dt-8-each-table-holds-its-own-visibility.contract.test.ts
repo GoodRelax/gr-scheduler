@@ -50,13 +50,13 @@ describe('FR-151 T-353 TV-2, S-560 / S-564 -- every table starts with every row 
   it('every search row reads Show before anything is pressed', () => {
     const rows = viewOf(withView(TASK_PANEL, startingViewOf('searchPanel'))).rows
     expect(rows.length, 'premise: the stage lists tasks').toBeGreaterThan(0)
-    expect(rows.every((one) => one.shown === true)).toBe(true)
+    expect(rows.every((one) => one.isShown === true)).toBe(true)
   })
 
   it('every report row reads Show before anything is pressed', () => {
     const rows = reportViewOf({ ...OPENED_REPORT, view: startingViewOf('delayDiagnosticsReport') }).rows
     expect(rows.length, 'premise: the report lists tasks').toBeGreaterThan(0)
-    expect(rows.every((one) => one.shown === true)).toBe(true)
+    expect(rows.every((one) => one.isShown === true)).toBe(true)
   })
 })
 
@@ -76,12 +76,12 @@ describe(`FR-151 T-353 TV-6 / TV-2 -- tableAfterVisibilityChange puts rows in an
     const out = tableAfterVisibilityChange(TASK_PANEL.view, [CHARLIE], false)
     const worded: Pane = { panel: { ...TASK_PANEL.panel, word: 'alpha' }, view: out }
     expect(hiddenOf(worded.view)).toEqual([CHARLIE])
-    expect(viewOf(worded).rows.every((one) => one.shown === true), 'the listed row Alpha is Show').toBe(true)
+    expect(viewOf(worded).rows.every((one) => one.isShown === true), 'the listed row Alpha is Show').toBe(true)
   })
 
   it('a Hide row reads Hide in the search view', () => {
     const out = tableAfterVisibilityChange(TASK_PANEL.view, [BRAVO], false)
-    const shown = viewOf(withView(TASK_PANEL, out)).rows.map((one) => one.shown)
+    const shown = viewOf(withView(TASK_PANEL, out)).rows.map((one) => one.isShown)
     expect(shown).toEqual([true, false, true])
   })
 })
@@ -125,7 +125,7 @@ describe(`FR-134 T-347 DT-8, T-346 RW-10 -- the report table leads with the Visi
   it('a report row made Hide reads Hide', () => {
     const pane = { ...OPENED_REPORT, view: tableAfterVisibilityChange(OPENED_REPORT.view, [BRAVO], false) }
     const rows = reportViewOf(pane).rows
-    const of = (uid: number): boolean | undefined => rows.find((one) => one.target.kind === 'task' && one.target.taskUid === uid)?.shown
+    const of = (uid: number): boolean | undefined => rows.find((one) => one.target.kind === 'task' && one.target.taskUid === uid)?.isShown
     expect(of(BRAVO)).toBe(false)
     expect(of(ALPHA)).toBe(true)
   })

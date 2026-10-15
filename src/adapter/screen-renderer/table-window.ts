@@ -567,8 +567,8 @@ export function scheduleFilterBarOf(
 
 // WHY: the heading box of the Visibility column: ticked when every listed row is Show, half when some are.
 /** @purity pure */
-export function visibilityHeadingOf(rows: readonly { readonly shown?: boolean }[]): 'all' | 'some' | 'none' {
-  const ticked = rows.filter((row) => row.shown === true).length
+export function visibilityHeadingOf(rows: readonly { readonly isShown?: boolean }[]): 'all' | 'some' | 'none' {
+  const ticked = rows.filter((row) => row.isShown === true).length
   if (ticked === 0) return 'none'
   return ticked === rows.length ? 'all' : 'some'
 }

@@ -151,7 +151,7 @@ export type SearchPanelShown = WindowShown
 export interface SearchRowView {
   readonly cells: readonly string[]
   readonly glyph: MarkGlyph | null
-  readonly shown?: boolean
+  readonly isShown?: boolean
   readonly target:
     | {
         readonly kind: 'task'
@@ -239,7 +239,7 @@ function rowsOf(found: SearchRows, panel: SearchPanelSession, view: TableView, l
     return found.taskRows.map((row) => ({
       cells: taskCells(row, language, times),
       glyph: STATE_GLYPHS[searchTaskStateOf(row)],
-      shown: !hidden.has(row.taskUid),
+      isShown: !hidden.has(row.taskUid),
       target: { kind: 'task', taskUid: row.taskUid },
     }))
   }
