@@ -12,8 +12,8 @@ const TECHNICAL_BASE = '00000000-0000-4000-8000-00000000001c'
 const drawnRowIds = (page: Page): Promise<string[]> =>
   page.evaluate(() => [...document.querySelectorAll('[data-role="Task Group Title Tree"] [data-group-id]')].map((r) => r.getAttribute('data-group-id') ?? ''))
 
-const grabTaskGroupRight = async (page: Page, groupId: string, dx: number): Promise<void> => {
-  const grip = (await page.locator(taskGroupSelector(groupId) + ' [data-task-group-grab]').boundingBox())!
+const grabTaskGroupRight = async (page: Page, taskGroupId: string, dx: number): Promise<void> => {
+  const grip = (await page.locator(taskGroupSelector(taskGroupId) + ' [data-task-group-grab]').boundingBox())!
   const x = grip.x + grip.width / 2
   const y = grip.y + grip.height / 2
   await page.mouse.move(x, y)
@@ -46,14 +46,14 @@ test('UC-002 build task groups as a hierarchy (FR-085, FR-042, FR-005 HM-1 HM-2,
     await expect(page.locator('[data-role="Properties Panel"] input[data-field-row="PR-20"]')).toBeDisabled()
     await page.check('[data-role="Properties Panel"] input[type="checkbox"][data-field-row="MH-2"]')
     await settle(page)
-    expect((await readDocument(page)).schedule.taskGroups.find((g) => g.id === madeId)!.minHeight).not.toBeNull()
+    expect((await readDocument(page)).schedule.taskGroups.find((g) => g.id === madeId)!.minHeightPx).not.toBeNull()
     await page.fill('[data-role="Properties Panel"] input[data-field-row="PR-20"]', '60')
     await page.keyboard.press('Enter')
     await settle(page)
     const named = (await readDocument(page)).schedule.taskGroups.find((g) => g.id === madeId)!
-    expect(named.label).toBe('Review board')
+    expect(named.name).toBe('Review board')
     expect(named.color).toBe('green')
-    expect(named.minHeight).toBe(60)
+    expect(named.minHeightPx).toBe(60)
     await expect(page.locator(taskGroupSelector(madeId) + ' > span')).toHaveText('Review board')
   })
 

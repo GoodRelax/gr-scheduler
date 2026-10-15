@@ -50,7 +50,7 @@ interface Dated {
   readonly actualStart?: string
 }
 
-const link = (predecessorUid: number, linkType = 1): unknown => ({ predecessorUid, linkType, lag: null, lagFormat: null, carry: {}, carryElements: [] })
+const link = (predecessorUid: number, linkType = 1): unknown => ({ predecessorUid, linkType, linkLag: null, lagFormat: null, carry: {}, carryElements: [] })
 
 /** @purity pure */
 function documentWith(rows: number, parentTaskOf: Record<number, number>, dates: Record<number, Dated>, links: Record<number, readonly unknown[]>, statusDate: string): string {

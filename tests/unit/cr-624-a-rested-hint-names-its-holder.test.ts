@@ -123,7 +123,7 @@ describe('EZ-6 / T-023d -- the holder the hint walk found is the one the tooltip
   it('DFC-1720: an icon on a task group carries that task group in its anchor; one off a task group carries none', () => {
     const onTaskGroup = tipsFor(restingOn({ iconUnderPointer: 'IC-58', iconRowUnderPointer: 'g2', hintTargetDwellMs: 1e6 }))
     const offTaskGroup = tipsFor(restingOn({ iconUnderPointer: 'IC-5', iconRowUnderPointer: null, hintTargetDwellMs: 1e6 }))
-    expect(onTaskGroup.find((one) => one.anchor.kind === 'icon')?.anchor).toEqual({ kind: 'icon', icon: 'IC-58', groupId: 'g2' })
+    expect(onTaskGroup.find((one) => one.anchor.kind === 'icon')?.anchor).toEqual({ kind: 'icon', icon: 'IC-58', taskGroupId: 'g2' })
     expect(offTaskGroup.find((one) => one.anchor.kind === 'icon')?.anchor).toEqual({ kind: 'icon', icon: 'IC-5' })
   })
 })
@@ -135,8 +135,8 @@ describe('IN-3 -- each anchor kind has a key of its own', () => {
       anchorKey({ kind: 'deadline', taskUid: 7 }),
       anchorKey({ kind: 'baseline', taskUid: 7 }),
       anchorKey({ kind: 'icon', icon: 'IC-58' }),
-      anchorKey({ kind: 'icon', icon: 'IC-58', groupId: 'g1' }),
-      anchorKey({ kind: 'icon', icon: 'IC-58', groupId: 'g2' }),
+      anchorKey({ kind: 'icon', icon: 'IC-58', taskGroupId: 'g1' }),
+      anchorKey({ kind: 'icon', icon: 'IC-58', taskGroupId: 'g2' }),
       anchorKey({ kind: 'icon', icon: 'IC-58', surface: 'Help Modal' }),
     ]
     expect(new Set(keys).size).toBe(keys.length)

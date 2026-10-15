@@ -68,8 +68,8 @@ describe('CR-759 the manuscript these cases read', () => {
 
   it('the premise: the documents hold the rows the cases name', () => {
     const one = oneRow(proposed(ACTUAL_AFTER_STATUS_DATE()), 'VS-5', 1)
-    expect([one.fixRow, one.fixType, (one.choices ?? []).length]).toEqual(['FA-20', 'choose', 1])
-    const every = proposed(EVERY_KIND()).map((row) => [row.findingRow, row.taskUid, row.fixType, (row.choices ?? []).length])
+    expect([one.fixRow, one.fixKind, (one.choices ?? []).length]).toEqual(['FA-20', 'choose', 1])
+    const every = proposed(EVERY_KIND()).map((row) => [row.findingRow, row.taskUid, row.fixKind, (row.choices ?? []).length])
     expect(every).toEqual(
       expect.arrayContaining([
         ['VC-11', 1, 'automatic', 0],

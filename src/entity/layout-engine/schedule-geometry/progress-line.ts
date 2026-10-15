@@ -29,7 +29,7 @@ function vertexXOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
 /** @purity pure */
 export function progressLineOf(inputs: GeometryInputs): Path {
   const { layout, settings, statusDate } = inputs
-  if (!settings.progressLineVisible || statusDate === null) return []
+  if (!settings.isProgressLineVisible || statusDate === null) return []
   const first = layout.taskGroups[0]
   const last = layout.taskGroups[layout.taskGroups.length - 1]
   if (first === undefined || last === undefined) return []
@@ -39,16 +39,16 @@ export function progressLineOf(inputs: GeometryInputs): Path {
   // WHY: bucketed by task group and lane: by task group alone each lane rescans its task group, quadratic once Tasks overlap (NFR-013).
   const byLane = new Map<string, TaskPlacement[][]>()
   for (const placed of layout.placements) {
-    const lanes = byLane.get(placed.groupId) ?? []
+    const lanes = byLane.get(placed.taskGroupId) ?? []
     const held = lanes[placed.stack] ?? []
     held.push(placed)
     lanes[placed.stack] = held
-    byLane.set(placed.groupId, lanes)
+    byLane.set(placed.taskGroupId, lanes)
   }
 
   const points: Point[] = [point(baseX, first.y - settings.progressLineOverhang)]
   for (const taskGroup of layout.taskGroups) {
-    const lanes = byLane.get(taskGroup.groupId)
+    const lanes = byLane.get(taskGroup.taskGroupId)
     // TRAP: sort by top, not lane index: with S-58 'up' the index descends in y and the line zig-zags.
     const lanesByTop = taskGroup.stackTops
       .map((top, lane) => ({ top, lane }))

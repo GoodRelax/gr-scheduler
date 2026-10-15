@@ -68,13 +68,13 @@ function chainDocument(statusDate: string | null): Document {
       parentTaskUid: 100,
       start: S(9),
       finish: F(10),
-      dependencies: [{ predecessorUid: 101, linkType: 1, lag: 0, lagFormat: 7, carry: {}, carryElements: [] }],
+      dependencies: [{ predecessorUid: 101, linkType: 1, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] }],
     }),
   ]
   raw.schedule.taskGroupMembers = [
-    { taskUid: 100, groupId: 'r0' },
-    { taskUid: 101, groupId: 'r1' },
-    { taskUid: 102, groupId: 'r1' },
+    { taskUid: 100, taskGroupId: 'r0' },
+    { taskUid: 101, taskGroupId: 'r1' },
+    { taskUid: 102, taskGroupId: 'r1' },
   ]
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
@@ -272,10 +272,10 @@ describe(`AM-19 readDelayDiagnostics -- ${AM_19_NO_WRITE}`, () => {
     expect(one.state.selection).toBe(selection)
   })
 
-  it(`${FR_133_NO_S_63} -- S-63 (progressMarkerVisible) is not written`, () => {
+  it(`${FR_133_NO_S_63} -- S-63 (isProgressMarkerVisible) is not written`, () => {
     const one = bench(F(15))
-    const shown = one.state.document.documentSettings.progressMarkerVisible
+    const shown = one.state.document.documentSettings.isProgressMarkerVisible
     readDelayDiagnosticsOf(one.api)
-    expect(one.state.document.documentSettings.progressMarkerVisible).toBe(shown)
+    expect(one.state.document.documentSettings.isProgressMarkerVisible).toBe(shown)
   })
 })

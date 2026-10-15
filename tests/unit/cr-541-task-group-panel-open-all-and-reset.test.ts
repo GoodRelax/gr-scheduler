@@ -67,7 +67,7 @@ const statesOf = (built: ShellBench): Record<string, unknown> =>
 
 const titleOf = (built: ShellBench, id: string): TaskGroupTitle | undefined => {
   const panel = built.last().taskGroupPanel
-  return [...panel.pinnedTitles, ...panel.titles].find((one) => one.groupId === id)
+  return [...panel.pinnedTitles, ...panel.titles].find((one) => one.taskGroupId === id)
 }
 
 describe('CR-541 / CR-570 -- the clauses still stand in the manuscript', () => {
@@ -109,9 +109,9 @@ describe('HF-2 [vv] on one task group (T-328 allBelowOpenPressed)', () => {
         const armed = title.expander.canOpen
         const built = bench(fixture.rows, fixture.zoomY)
         const before = JSON.stringify(built.groups())
-        built.press(TASK_GROUP_PANEL, OPEN_ALL_BELOW, title.groupId)
+        built.press(TASK_GROUP_PANEL, OPEN_ALL_BELOW, title.taskGroupId)
         const acted = JSON.stringify(built.groups()) !== before
-        if (armed !== acted) disagree.push(`zoomY ${fixture.zoomY} task group ${title.groupId}: drawn armed=${armed}, press changed=${acted}`)
+        if (armed !== acted) disagree.push(`zoomY ${fixture.zoomY} task group ${title.taskGroupId}: drawn armed=${armed}, press changed=${acted}`)
       }
     }
     expect(disagree).toEqual([])
@@ -169,7 +169,7 @@ function numberOfPx(cell: string): number {
 
 const THEME: ScreenTheme = { preference: 'light', hue: 214 }
 const PANEL_TITLE: TaskGroupTitle = {
-  groupId: 'g-one',
+  taskGroupId: 'g-one',
   depth: 0,
   box: { x: 0, y: 40, width: 170, height: 30 },
   indentPx: 0,

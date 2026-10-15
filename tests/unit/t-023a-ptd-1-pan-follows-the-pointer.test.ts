@@ -75,7 +75,7 @@
 //           それだけでは 1 日・タスクグループ 1 つより短い移動が何も起こさず、等倍が成り立た
 //           ない。**端数は同表の `S-176` と `S-177` が持つ（MUST）。**」
 //   T-206 / T-203 S-176 / S-177   the two fractions that sentence leans on:
-//           「表示の上端が、`scrollGroupId` が指すタスクグループのどこにあるか。**そのタスクグループが
+//           「表示の上端が、`scrollTaskGroupId` が指すタスクグループのどこにあるか。**そのタスクグループが
 //           占める送り（そのタスクグループの帯の高さと、その下の隙間を合わせた長さ。次のタスクグループの
 //           上端までの距離であり、最後のタスクグループは自身の帯）に対する比であり、px では
 //           ない**（`FR-080`）。⛔⛔ **帯の高さに対する比にしてはならない
@@ -303,11 +303,11 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
 const group = (id: string, order: number, label: string): unknown => ({
   id,
   parentId: null,
-  label,
+  name: label,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', color: null,
-  minHeight: null,
+  minHeightPx: null,
 })
 
 function fixtureDocument(): Document {
@@ -333,8 +333,8 @@ function fixtureDocument(): Document {
       assignments: [],
       taskGroups: TASK_GROUPS.map((id, i) => group(id, i, `R${i + 1}`)),
       taskGroupMembers: [
-        { taskUid: NEAR_UID, groupId: TASK_GROUPS[1] },
-        { taskUid: FAR_UID, groupId: TASK_GROUPS[2] },
+        { taskUid: NEAR_UID, taskGroupId: TASK_GROUPS[1] },
+        { taskUid: FAR_UID, taskGroupId: TASK_GROUPS[2] },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -350,7 +350,7 @@ function fixtureDocument(): Document {
       stackDirection: 'down',
       scrollDate: SCROLL_DATE,
       scrollDayOffset: 0,
-      scrollGroupId: SCROLL_TASK_GROUP,
+      scrollTaskGroupId: SCROLL_TASK_GROUP,
       scrollGroupOffset: 0,
     },
     documentStamp: structuredClone(template.documentStamp),
@@ -508,9 +508,9 @@ const frameOf = (loop: FrameLoop) => {
 const pxPerDay = (loop: FrameLoop): number => (frameOf(loop).layout as any).pxPerDay as number
 
 /** Where one task group's band stands, as the frame placed it. */
-function bandOf(loop: FrameLoop, groupId: string): { readonly y: number; readonly height: number } {
-  const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no band for task group ${groupId}`)
+function bandOf(loop: FrameLoop, taskGroupId: string): { readonly y: number; readonly height: number } {
+  const found = (frameOf(loop).layout as any).taskGroups.find((one: any) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`the frame drew no band for task group ${taskGroupId}`)
   return { y: found.y as number, height: found.height as number }
 }
 

@@ -52,16 +52,16 @@ const documentWith = (label: string, note: string, settings: Record<string, unkn
       {
         id: 'shared-task-group',
         parentId: null,
-        label,
+        name: label,
         derivedFromTaskUid: null,
         order: 0,
         treeState: 'auto', editGroup: null,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       },
     ],
     commentBoxes: [
-      { id: 'shared-note', leaderShapeKind: null, text: note, anchorDate: '2026-04-08', anchorGroupId: 'shared-task-group', bodyOffsetPx: null },
+      { id: 'shared-note', leaderShapeKind: null, text: note, anchorDate: '2026-04-08', anchorTaskGroupId: 'shared-task-group', bodyOffsetPx: null },
     ],
   }) as unknown as Document
 
@@ -84,7 +84,7 @@ describe('MG-12 -- a merge keeps the current content of a shared id', () => {
     const outcome = importDocument(requestOf({}))
     if (!outcome.ok) throw new Error(`premise: the merge is accepted, was ${JSON.stringify(outcome.refusal)}`)
     const taskGroups = outcome.document.schedule.taskGroups.filter((one) => one.id === 'shared-task-group')
-    expect(taskGroups.map((one) => one.label), 'the task group of the shared id keeps the current label').toEqual(['current label'])
+    expect(taskGroups.map((one) => one.name), 'the task group of the shared id keeps the current label').toEqual(['current label'])
     const notes = outcome.document.schedule.commentBoxes.filter((one) => one.id === 'shared-note')
     expect(notes.map((one) => one.text), 'the note of the shared id keeps the current text').toEqual(['current note'])
   })
@@ -92,7 +92,7 @@ describe('MG-12 -- a merge keeps the current content of a shared id', () => {
 
 describe('OP-6 -- an MSPDI read by replace puts every setting to its default', () => {
   it(Q30, () => {
-    const moved = { zoomX: 7, zoomY: 0.5, scrollDate: '2026-06-01', displayScale: 125, dependencyVisible: false }
+    const moved = { zoomX: 7, zoomY: 0.5, scrollDate: '2026-06-01', displayScale: 125, isDependencyVisible: false }
     const current = documentWith('current label', 'current note', moved)
     const decoded = documentFromMspdi(mspdiFromDocument(current, LAST_SAVED_AT).text, current)
     if (!decoded.ok) throw new Error(`premise: the MSPDI text decodes, was ${JSON.stringify(decoded).slice(0, 300)}`)
@@ -126,7 +126,7 @@ describe('AG-6 -- the same name subscribed twice', () => {
     expect(secondAnswer, 'the second subscription answers that it replaced one').toBe(true)
     const changed = {
       ...document,
-      documentStamp: { ...document.documentStamp, scheduleUpdatedUtc: '2026-09-22T00:00:00Z', lastEditedBy: 'someone else' },
+      documentStamp: { ...document.documentStamp, scheduleUpdatedAt: '2026-09-22T00:00:00Z', lastEditedBy: 'someone else' },
     } as Document
     notifyChangeWatchers(WATCHERS, { document: changed, hasMovedSchedule: true, dialogue: emptyDialogueLog() })
     expect(first, 'the replaced subscription is no longer told').toHaveLength(0)

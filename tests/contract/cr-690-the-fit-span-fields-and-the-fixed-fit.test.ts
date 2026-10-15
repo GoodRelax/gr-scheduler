@@ -147,7 +147,7 @@ const DOCUMENT = documentOf({
 
 const withFit = (start: string | null, finish: string | null, fixed: boolean, base: Document = DOCUMENT): Document => ({
   ...base,
-  documentSettings: { ...base.documentSettings, fitSpanStart: start, fitSpanFinish: finish, fitSpanFixed: fixed },
+  documentSettings: { ...base.documentSettings, fitSpanStart: start, fitSpanFinish: finish, isFitSpanFixed: fixed },
 })
 
 const settingsOf = (stage: ExportStage) => stage.loop.document().documentSettings
@@ -176,7 +176,7 @@ async function commitOn(stage: ExportStage, commit: FieldCommit): Promise<void> 
 }
 
 const fixCommit = (fixed: boolean): FieldCommit =>
-  ({ row: K_142, key: { holder: 'documentSettings', column: 'fitSpanFixed' }, text: String(fixed) }) as FieldCommit
+  ({ row: K_142, key: { holder: 'documentSettings', column: 'isFitSpanFixed' }, text: String(fixed) }) as FieldCommit
 
 const spanCommit = (start: string, finish: string): FieldCommit =>
   ({
@@ -238,13 +238,13 @@ describe('FR-055 T-367 FX-1 -- the span and its fix are document values', () => 
     const read = documentFromJson(jsonFromDocument(saved))
     if (!read.ok) throw new Error(`premise: the written document reads back: ${JSON.stringify(read.faults)}`)
     const back = read.document.documentSettings
-    expect([back.fitSpanStart?.slice(0, 10), back.fitSpanFinish?.slice(0, 10), back.fitSpanFixed]).toEqual(['2026-05-01', '2026-05-31', true])
+    expect([back.fitSpanStart?.slice(0, 10), back.fitSpanFinish?.slice(0, 10), back.isFitSpanFixed]).toEqual(['2026-05-01', '2026-05-31', true])
   })
 
   it(`${FX_1_FIX_NEEDS_DAYS} -- a document fixed with no span reads as not fixed`, () => {
     const read = documentFromJson(jsonFromDocument(withFit(null, null, true)))
     if (!read.ok) throw new Error(`premise: the document reads: ${JSON.stringify(read.faults)}`)
-    expect(read.document.documentSettings.fitSpanFixed).toBe(false)
+    expect(read.document.documentSettings.isFitSpanFixed).toBe(false)
   })
 
   it(`${FX_1_EMPTIED} -- one emptied end settles as one ${CM_89}`, () => {
@@ -273,7 +273,7 @@ describe('FR-055 T-367 FX-5 -- the span field', () => {
     const stage = await settingsStage(withFit('2026-05-01', '2026-05-31', true))
     await commitOn(stage, spanCommit('2026-05-01', ''))
     const settings = settingsOf(stage)
-    expect([settings.fitSpanStart, settings.fitSpanFinish, settings.fitSpanFixed]).toEqual([null, null, false])
+    expect([settings.fitSpanStart, settings.fitSpanFinish, settings.isFitSpanFixed]).toEqual([null, null, false])
   })
 
   it(`${FX_5_UNFIXED} -- unfixed, both inputs show the stored days and cannot be written; fixed, they can`, async () => {
@@ -301,7 +301,7 @@ describe('FR-055 T-367 FX-4 -- the fix check', () => {
     const place = viewPlaceOf(stage)
     await commitOn(stage, fixCommit(true))
     const settings = settingsOf(stage)
-    expect([settings.fitSpanFixed, settings.fitSpanStart?.slice(0, 10), settings.fitSpanFinish?.slice(0, 10)]).toEqual([true, ...shown])
+    expect([settings.isFitSpanFixed, settings.fitSpanStart?.slice(0, 10), settings.fitSpanFinish?.slice(0, 10)]).toEqual([true, ...shown])
     expect(viewPlaceOf(stage), `${FX_2_NOT_ELSEWHERE}: fixing does not move the screen`).toEqual(place)
   })
 })
@@ -337,7 +337,7 @@ describe('FR-055 T-367 FX-2 / FX-3 -- the fixed fit', () => {
     const unfixed = exportStage(withFit(...SPAN, false))
     await unfixed.take('IC-10')
     expect(settingsOf(fixed).zoomY).toBe(settingsOf(unfixed).zoomY)
-    expect(settingsOf(fixed).scrollGroupId).toBe(settingsOf(unfixed).scrollGroupId)
+    expect(settingsOf(fixed).scrollTaskGroupId).toBe(settingsOf(unfixed).scrollTaskGroupId)
   })
 
   it.each([
@@ -403,7 +403,7 @@ describe('FR-055 T-367 FX-6 / FX-7 -- the shown span and the copy entrance', () 
     await commitOn(stage, press)
     const settings = settingsOf(stage)
     expect([settings.fitSpanStart?.slice(0, 10), settings.fitSpanFinish?.slice(0, 10)]).toEqual([...shown])
-    expect(settings.fitSpanFixed).toBe(true)
+    expect(settings.isFitSpanFixed).toBe(true)
     expect(viewPlaceOf(stage)).toEqual(place)
   })
 
@@ -443,15 +443,15 @@ describe('FR-025 T-241 IX-8 -- the unfixed picture keeps the cut of the top task
       schedule: {
         ...cut.schedule,
         taskGroups: rows.map((id, index) => ({ ...cut.schedule.taskGroups[0]!, id, label: id, order: index })),
-        taskGroupMembers: rows.map((id, index) => ({ taskUid: index + 1, groupId: id })),
+        taskGroupMembers: rows.map((id, index) => ({ taskUid: index + 1, taskGroupId: id })),
       },
-      documentSettings: { ...cut.documentSettings, scrollGroupId: 'r1', scrollGroupOffset: 0.5 },
+      documentSettings: { ...cut.documentSettings, scrollTaskGroupId: 'r1', scrollGroupOffset: 0.5 },
     }
     const stage = exportStage(document)
-    const screen = stage.lastView().taskGroupPanel.titles.slice(0, 2).map((one) => [one.groupId, one.box])
+    const screen = stage.lastView().taskGroupPanel.titles.slice(0, 2).map((one) => [one.taskGroupId, one.box])
     const scene = stage.loop.exportScene()
     if (scene === null) throw new Error('premise: the screen has a picture to export')
-    const pictured = scene.screenView.taskGroupPanel.titles.slice(0, 2).map((one) => [one.groupId, one.box])
+    const pictured = scene.screenView.taskGroupPanel.titles.slice(0, 2).map((one) => [one.taskGroupId, one.box])
     expect(pictured).toEqual(screen)
     const [top, next] = scene.screenView.taskGroupPanel.titles
     expect(top?.box.height, 'premise: the top task group is cut on the screen').toBeLessThan(next?.box.height ?? 0)

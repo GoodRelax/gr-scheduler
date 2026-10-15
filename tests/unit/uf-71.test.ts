@@ -107,7 +107,7 @@
 //   - which CSS property carries a place (PND-151 records the choice as display
 //     only); the cases below assert that the numbers the description carries
 //     REACH the drawn node, never which property spells them
-//   - what the `Task Group Title Tree` draws for a task group whose `label` is `null`
+//   - what the `Task Group Title Tree` draws for a task group whose `name` is `null`
 //     (FR-058 forbids the document to hold one, and no requirement says what to
 //     draw when one arrives anyway)
 //   - whether the entry keeps what was typed across a frame in which the field
@@ -1103,7 +1103,7 @@ const command = (patch: Partial<CommandItem> & { icon: string }): CommandItem =>
 
 const TASK_GROUP_TITLE_INDENT = SETTINGS_CONSTANTS['taskGroupTitleIndent'] as number
 
-const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { groupId: string }): TaskGroupTitle => ({
+const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { taskGroupId: string }): TaskGroupTitle => ({
   depth: patch.depth ?? 1,
   // `FR-085` takes 「そのタスクグループの深さぶんのインデント（`taskGroupTitleIndent`。
   // 表 T-201 の `S-37`）」 off the usable width, so a task group at depth n carries n
@@ -1111,10 +1111,10 @@ const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { groupId: string }): T
   indentPx: (patch.depth ?? 1) * TASK_GROUP_TITLE_INDENT,
   ...taskGroupNameFont(patch.depth ?? 1),
   box: rect(0, 0, 170, 24),
-  label: patch.groupId,
+  label: patch.taskGroupId,
   // Nothing is cut here, and the `TaskGroupTitle` contract fixes that case as
   // `wholeLabel === label` with `isLabelTruncated` false.
-  wholeLabel: patch.groupId,
+  wholeLabel: patch.taskGroupId,
   isLabelTruncated: false,
   // ⭐ A TASK GROUP WITH NOTHING TO FOLD, WHICH IS NOT A TASK GROUP WITHOUT CONTROLS. This
   // read `null` until 2026-08-30, when `TaskGroupTitle.expander` stopped being
@@ -1259,10 +1259,10 @@ const RICH_VIEW: ScreenView = viewWith({
     language: 'ja',
   },
   taskGroupPanel: {
-    pinnedTitles: [taskGroupTitle({ groupId: 'g-pinned', label: 'PinnedTaskGroupOne', isPinned: true })],
+    pinnedTitles: [taskGroupTitle({ taskGroupId: 'g-pinned', label: 'PinnedTaskGroupOne', isPinned: true })],
     titles: [
       taskGroupTitle({
-        groupId: 'g-1',
+        taskGroupId: 'g-1',
         label: 'TaskGroupOne',
         depth: 1,
         box: rect(0, 40, 170, 24),
@@ -1686,7 +1686,7 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前でタスクグループ�
   })()
 
   /** The task group the description below is about -- the first the rich view draws. */
-  const GROUP_ID = RICH_VIEW.taskGroupPanel.titles[0]?.groupId ?? ''
+  const GROUP_ID = RICH_VIEW.taskGroupPanel.titles[0]?.taskGroupId ?? ''
 
   /**
    * The name standing in that field.
@@ -1706,12 +1706,12 @@ describe('HF-14 of 表 T-051 (MUST) -- 既定の名前でタスクグループ�
       fields: [
         {
           row: NAME_TASK_GROUP,
-          name: 'label',
+          name: 'name',
           text: THE_NAME_STANDING_THERE,
           isEditable: true,
           controls: [
             {
-              key: { holder: 'taskGroup', groupId: GROUP_ID, column: 'label' },
+              key: { holder: 'taskGroup', taskGroupId: GROUP_ID, column: 'name' },
               kind: 'text',
               text: THE_NAME_STANDING_THERE,
               choices: null,
@@ -2481,7 +2481,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
       viewWith({
         taskGroupPanel: {
           pinnedTitles: [],
-          titles: [taskGroupTitle({ groupId: 'g-1', label: 'TaskGroupAlpha', box: rect(0, 137, 170, 29) })],
+          titles: [taskGroupTitle({ taskGroupId: 'g-1', label: 'TaskGroupAlpha', box: rect(0, 137, 170, 29) })],
         },
       }),
     )
@@ -2506,8 +2506,8 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
         taskGroupPanel: {
           pinnedTitles: [],
           titles: [
-            taskGroupTitle({ groupId: 'g-2', label: 'TaskGroupAtTwo', depth: 2, box: rect(0, 41, 171, 29) }),
-            taskGroupTitle({ groupId: 'g-3', label: 'TaskGroupAtThree', depth: 3, box: rect(0, 70, 171, 29) }),
+            taskGroupTitle({ taskGroupId: 'g-2', label: 'TaskGroupAtTwo', depth: 2, box: rect(0, 41, 171, 29) }),
+            taskGroupTitle({ taskGroupId: 'g-3', label: 'TaskGroupAtThree', depth: 3, box: rect(0, 70, 171, 29) }),
           ],
         },
       }),
@@ -2543,7 +2543,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
   //     確保する場所は 0 だからである（`S-140`）」, and ⛔「**描かないあいだも、
   //     確保する場所を変えてはならない（MUST NOT）** —— 規則と理由は `FR-085` が
   //     持つ」
-  //   `FR-085`         「使える幅は、`taskGroupPanelWidth` から、そのタスクグループの深さぶん
+  //   `FR-085`         「使える幅は、`taskGroupPanelWidthPx` から、そのタスクグループの深さぶん
   //     のインデント（`S-37`）と、タスクグループの操作子…に確保した場所と、**タスクグループの掴み代
   //     （表 T-023d の `GR-20`）に確保した場所（`S-138`）とその隔たり（`S-218`）**
   //     を引いた残りとすること（MUST）」
@@ -2603,7 +2603,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
 
     const { children } = drawnTaskGroup(
       taskGroupTitle({
-        groupId: 'g-1',
+        taskGroupId: 'g-1',
         label: 'TaskGroupAlpha',
         box: rect(0, 137, 170, 29),
         expander: { canOpen: true, canClose: true, canCloseBelow: true },
@@ -2629,7 +2629,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     // `S-218`, or the indent stops being the `indentPx` the description carries.
     const depth = 3
     const { row, children } = drawnTaskGroup(
-      taskGroupTitle({ groupId: 'g-3', label: 'TaskGroupAtThree', depth, box: rect(0, 70, 170, 29) }),
+      taskGroupTitle({ taskGroupId: 'g-3', label: 'TaskGroupAtThree', depth, box: rect(0, 70, 170, 29) }),
     )
     // ⚠️ THE RAW STYLE, not `styleOf`: that helper strips every space, and the
     // padding this case reads is a four-value shorthand whose spaces are what
@@ -2665,7 +2665,7 @@ describe('SC-1 / SC-4 / SC-5 of 表 T-031 -- what is placed by what', () => {
     // the state of the controls.
     // GOES RED IF: the task group reserves room per control, or the name's flex share
     // is written from the control count.
-    const shape = { groupId: 'g-1', label: 'TaskGroupAlpha', box: rect(0, 137, 170, 29) } as const
+    const shape = { taskGroupId: 'g-1', label: 'TaskGroupAlpha', box: rect(0, 137, 170, 29) } as const
     const quiet = drawnTaskGroup(
       taskGroupTitle({ ...shape, expander: { canOpen: false, canClose: false, canCloseBelow: false } }),
     )
@@ -2929,7 +2929,7 @@ describe('FR-023 -- nothing that arrived from a document becomes markup', () => 
     surfaceOf(built).showScreenView(
       viewWith({
         appHeaderItems: { ...EMPTY_HEADER, documentTitle: HOSTILE },
-        taskGroupPanel: { pinnedTitles: [], titles: [taskGroupTitle({ groupId: 'g-1', label: HOSTILE })] },
+        taskGroupPanel: { pinnedTitles: [], titles: [taskGroupTitle({ taskGroupId: 'g-1', label: HOSTILE })] },
       }),
     )
 
@@ -2950,8 +2950,8 @@ describe('FR-023 -- nothing that arrived from a document becomes markup', () => 
     surfaceOf(built).showScreenView(
       viewWith({
         appHeaderItems: { ...EMPTY_HEADER, documentTitle: HOSTILE },
-        taskGroupPanel: { pinnedTitles: [], titles: [taskGroupTitle({ groupId: HOSTILE, label: HOSTILE })] },
-        tooltips: [{ anchor: { kind: 'taskGroupTitle', groupId: HOSTILE }, text: HOSTILE, assignment: null }],
+        taskGroupPanel: { pinnedTitles: [], titles: [taskGroupTitle({ taskGroupId: HOSTILE, label: HOSTILE })] },
+        tooltips: [{ anchor: { kind: 'taskGroupTitle', taskGroupId: HOSTILE }, text: HOSTILE, assignment: null }],
       }),
     )
 
@@ -3091,10 +3091,10 @@ describe('boundaries', () => {
           // ⚠️ `expander` LEFT THIS LIST ON 2026-08-30 AND IS NOT AN OMISSION:
           // `TaskGroupTitle.expander` stopped being nullable when 表 T-051 の `HF-1`
           // 「各タスクグループに… 1 つずつ置く」 was read into the type, so it is no longer
-          // one of the description's optional parts. ⭐ `label` still is -- `FR-058`
+          // one of the description's optional parts. ⭐ `name` still is -- `FR-058`
           // and `AT-54` make a row's own name genuinely absent -- and that is what
           // this task group is here to carry.
-          titles: [taskGroupTitle({ groupId: 'g-1', label: null })],
+          titles: [taskGroupTitle({ taskGroupId: 'g-1', label: null })],
         },
       }),
     )
@@ -3264,7 +3264,7 @@ const EVERY_SURFACE_VIEW: ScreenView = viewWith({
     pinnedTitles: [],
     titles: [
       taskGroupTitle({
-        groupId: 'g-1',
+        taskGroupId: 'g-1',
         label: 'TaskGroupOne',
         expander: { canOpen: true, canClose: true, canCloseBelow: false },
       }),
@@ -3582,14 +3582,14 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
           pinnedTitles: [],
           titles: [
             taskGroupTitle({
-              groupId: 'g-shallow',
+              taskGroupId: 'g-shallow',
               label: 'ShallowTaskGroup',
               depth: 1,
               box: rect(0, 40, 170, 40),
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
             taskGroupTitle({
-              groupId: 'g-deep',
+              taskGroupId: 'g-deep',
               label: 'DeepTaskGroup',
               depth: 5,
               box: rect(0, 80, 170, 18),
@@ -3649,7 +3649,7 @@ describe('FR-029 (MUST) -- the box a shape is drawn in is S-138, on whatever sur
           pinnedTitles: [],
           titles: [
             taskGroupTitle({
-              groupId: 'g-tall',
+              taskGroupId: 'g-tall',
               label: 'A task group whose name is drawn much larger than the controls beside it',
               depth: 1,
               // Six times S-138 tall, so a centered trio would sit a long way

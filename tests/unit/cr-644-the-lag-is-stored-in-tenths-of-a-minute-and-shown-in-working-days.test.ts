@@ -22,7 +22,7 @@ import { DESIGN, REQUIREMENTS, numberIn, taskGroupDocument, rowOf, taskOf } from
 const FR_009_SHOWN_AND_TYPED =
   '⭐ プロパティパネルは、時刻を表示しない文書（`FR-158`）では形式 `7` のラグを稼働日で、形式 `5`・`3` のラグを下の段の字面（`3h`・`30m`）で見せ、整数の稼働日で打たせ、時刻を表示する文書では `d` ／ `h` ／ `m` で見せて打たせること（MUST） —— 保存は 0.1 分であり（`_assets/fig-erd-detail.md` の `AT-47`）、1 稼働日（`1d`）を `Project.minutesPerDay` 分（空なら `S-128`）として換算する。'
 const FR_009_WRITTEN =
-  '打たれたラグを書くときは、`lag` に打たれた長さの分 × 10 を、`lagFormat` に打った単位の形式を書くこと（MUST） —— `d`（稼働日）は `7`、`h` は `5`、`m` は `3` である（利用者の判断）。'
+  '打たれたラグを書くときは、`linkLag` に打たれた長さの分 × 10 を、`lagFormat` に打った単位の形式を書くこと（MUST） —— `d`（稼働日）は `7`、`h` は `5`、`m` は `3` である（利用者の判断）。'
 const FR_009_CREATED = '依存を作るときも同じく書く'
 const FR_009_UNDERSTOOD = '⭐ `GRS` が解するラグの形式は `lagFormat` が `7`（稼働日）・`5`（時）・`3`（分）のものとする（`AT-48`）。'
 const FR_009_LITERAL =
@@ -30,9 +30,9 @@ const FR_009_LITERAL =
 const FR_009_MINUTES = '長さを決められない形式（百分率・経過の月・空の形式、長さを決める列が空のとき）は、分の字面（`2880m`）で見せる'
 const FR_009_DECIMALS = '見せる数は小数 2 桁までとする'
 // see VC-15, BD-2
-const VC_15_LAG = '⭐ `lag` は稼働時間の分として数え（`FR-009` の換算 —— 形式 `7`・`5`・`3`）、先行の瞬間から文書の暦の稼働時間で進めた瞬間と比べる。'
-const VC_15_NOT_JUDGED = '⛔ `FR-009` が解さない形式で `lag` が 0 でない依存を、本行で判じてはならない（MUST NOT）'
-const BD_2_LAG = '⭐ `lag` は `VC-15` と同じく稼働時間の分で数え、文書の暦で進める。'
+const VC_15_LAG = '⭐ `linkLag` は稼働時間の分として数え（`FR-009` の換算 —— 形式 `7`・`5`・`3`）、先行の瞬間から文書の暦の稼働時間で進めた瞬間と比べる。'
+const VC_15_NOT_JUDGED = '⛔ `FR-009` が解さない形式で `linkLag` が 0 でない依存を、本行で判じてはならない（MUST NOT）'
+const BD_2_LAG = '⭐ `linkLag` は `VC-15` と同じく稼働時間の分で数え、文書の暦で進める。'
 const BD_2_ZERO = '`FR-009` が解さない形式のラグは 0 として流す'
 // see UF-128
 const UF_128 = '文書の暦で稼働日を判じ、数え、進め、ラグを稼働日へ換算する'
@@ -86,7 +86,7 @@ const TO = 2
 const linkOf = (lag: number | null, lagFormat: number | null): Record<string, unknown> => ({
   predecessorUid: FROM,
   linkType: 1,
-  lag,
+  linkLag: lag,
   lagFormat,
   carry: {},
   carryElements: [],
@@ -148,7 +148,7 @@ function lagOf(result: ReturnType<typeof editDependency>): Readonly<Record<strin
   const successor = result.document.schedule.tasks.find((one) => one.uid === TO)
   const link = successor?.dependencies.find((one) => one.predecessorUid === FROM)
   if (link === undefined) throw new Error('premise: the link is there')
-  return { lag: link.lag, lagFormat: link.lagFormat }
+  return { lag: link.linkLag, lagFormat: link.lagFormat }
 }
 
 describe(`FR-009 CM-38 -- ${FR_009_WRITTEN}`, () => {
@@ -218,7 +218,7 @@ function planDocument(plan: Plan): Document {
       dependencies: [{ ...linkOf(plan.lag, plan.lagFormat), predecessorUid: A }],
     }),
   ]
-  raw.schedule.taskGroupMembers = [A, B].map((taskUid) => ({ taskUid, groupId: 'r0' }))
+  raw.schedule.taskGroupMembers = [A, B].map((taskUid) => ({ taskUid, taskGroupId: 'r0' }))
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
   return decoded.document
@@ -297,7 +297,7 @@ describe('DFC-2465 FR-009 PR-42: a document that does not show the time of day s
   })
 
   it('premise: the document does not show the time of day', () => {
-    expect(lineDocument(0, WORKING_DAYS).documentSettings.showsTimeOfDay).toBe(false)
+    expect(lineDocument(0, WORKING_DAYS).documentSettings.isTimeOfDayVisible).toBe(false)
   })
 
   it.each([
@@ -327,7 +327,7 @@ describe('DFC-2466 FR-009 CM-38: a lag typed in two or more units writes the for
 
   const timed = (document: Document): Document => ({
     ...document,
-    documentSettings: { ...document.documentSettings, showsTimeOfDay: true },
+    documentSettings: { ...document.documentSettings, isTimeOfDayVisible: true },
   })
 
   function typed(text: string): Readonly<Record<string, unknown>> {

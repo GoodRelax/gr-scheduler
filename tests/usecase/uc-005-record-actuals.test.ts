@@ -44,7 +44,7 @@ test('UC-005 record actuals (FR-043, FR-011, FR-012, FR-013 T-021 T-021a PV-1..P
   await page.keyboard.type('Work')
   await page.keyboard.press('Enter')
   await press(page, 'IC-23')
-  if (!(await readDocument(page)).documentSettings.progressMarkerVisible) await press(page, 'IC-40')
+  if (!(await readDocument(page)).documentSettings.isProgressMarkerVisible) await press(page, 'IC-40')
   const uid = (await readDocument(page)).schedule.tasks[0]!.uid as number
   const task = async () => (await readDocument(page)).schedule.tasks[0]!
 

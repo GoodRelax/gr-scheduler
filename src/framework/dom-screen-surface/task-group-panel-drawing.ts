@@ -246,7 +246,7 @@ function taskGroupGrabStripStyle(isHeld: boolean): string {
 
 interface TaskGroupAnchors {
   readonly anchors: Map<string, HTMLElement>
-  readonly groupId: string
+  readonly taskGroupId: string
 }
 
 // see FR-029, HF-5, T-109, IN-3, DFC-1720
@@ -267,7 +267,7 @@ function taskGroupControlElement(
   control.setAttribute('aria-label', icon)
   if (!canAct) control.setAttribute('aria-disabled', 'true')
   fillEntry(host, control, icon, taskGroupControlGlyphGapStyle())
-  anchoredIn.anchors.set(anchorKey({ kind: 'icon', icon, groupId: anchoredIn.groupId }), control)
+  anchoredIn.anchors.set(anchorKey({ kind: 'icon', icon, taskGroupId: anchoredIn.taskGroupId }), control)
   return control
 }
 
@@ -289,7 +289,7 @@ function taskGroupTitleElement(host: Document, title: TaskGroupTitle, isPinned: 
   )
   if (title.heldOnAxis != null) row.setAttribute('data-held-axis', title.heldOnAxis)
   if (isPinned) row.setAttribute('data-role', ROLE.pinnedTaskGroup)
-  row.setAttribute('data-group-id', title.groupId)
+  row.setAttribute('data-group-id', title.taskGroupId)
   row.setAttribute('data-depth', String(title.depth))
   row.setAttribute('data-pinned', String(title.isPinned))
   row.setAttribute('data-selected', String(title.isSelected))
@@ -558,13 +558,13 @@ export function fillTaskGroupTitleTree(
 ): void {
   const drawn: HTMLElement[] = []
   for (const title of panel.pinnedTitles) {
-    const row = taskGroupTitleElement(host, title, true, { anchors, groupId: title.groupId })
-    anchors.set(anchorKey({ kind: 'taskGroupTitle', groupId: title.groupId }), row)
+    const row = taskGroupTitleElement(host, title, true, { anchors, taskGroupId: title.taskGroupId })
+    anchors.set(anchorKey({ kind: 'taskGroupTitle', taskGroupId: title.taskGroupId }), row)
     drawn.push(row)
   }
   for (const title of panel.titles) {
-    const row = taskGroupTitleElement(host, title, false, { anchors, groupId: title.groupId })
-    anchors.set(anchorKey({ kind: 'taskGroupTitle', groupId: title.groupId }), row)
+    const row = taskGroupTitleElement(host, title, false, { anchors, taskGroupId: title.taskGroupId })
+    anchors.set(anchorKey({ kind: 'taskGroupTitle', taskGroupId: title.taskGroupId }), row)
     drawn.push(row)
   }
   // WHY: after the task groups, whose opaque ground would hide a line set before them; a hovered

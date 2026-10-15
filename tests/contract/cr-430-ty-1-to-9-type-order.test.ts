@@ -54,8 +54,8 @@ const columnKinds = (column: string): readonly string[] =>
   rowsOf('T-268').flatMap((row) => kindsIn(row.by[column] ?? ''))
 
 // see S-63
-const SCENE = sceneOf('rectangle', { progressMarkerVisible: true })
-const MILESTONE = sceneOf('milestone', { progressMarkerVisible: true })
+const SCENE = sceneOf('rectangle', { isProgressMarkerVisible: true })
+const MILESTONE = sceneOf('milestone', { isProgressMarkerVisible: true })
 
 describe('table T-268 -- the manuscript shape of the nine rows', () => {
   it(`holds exactly TY-1 through TY-9: ${T_268_TOP_FIRST}`, () => {
@@ -141,7 +141,7 @@ describe(`TY-2 / TY-3 -- the marker outside the actual and the resume icon answe
   it('gives the marker the pixel it shares with the plan end grab', () => {
     const SHORT = sceneOf(
       'rectangle',
-      { progressMarkerVisible: true },
+      { isProgressMarkerVisible: true },
       { stop: PLAN_START, resume: null, resumeValid: null },
     )
     const marker = markerOf(SHORT.started)

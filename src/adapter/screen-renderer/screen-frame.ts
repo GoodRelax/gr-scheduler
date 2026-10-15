@@ -74,7 +74,7 @@ function scrollbarIn(
 // a fixed task group title width lays no band there, so nothing grabs it and the pointer keeps its shape.
 /** @purity pure */
 function dividersOf(regions: ScreenRegions, settings: DocumentSettings, session: ScreenSession): readonly PanelDivider[] {
-  const taskGroupTitle = settings.taskGroupPanelWidthFixed
+  const taskGroupTitle = settings.isTaskGroupPanelWidthFixed
     ? []
     : [dividerAt('taskGroupPanel', regions.taskGroupPanel, regions.taskGroupPanel.x + regions.taskGroupPanel.width)]
   if (session.screen.propertiesPanelContentState.kind === 'hidden') return taskGroupTitle

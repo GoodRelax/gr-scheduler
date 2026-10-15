@@ -14,7 +14,7 @@ const LINKED = [
     name: 'second',
     start: day(10),
     finish: day(14),
-    dependencies: [{ predecessorUid: PREDECESSOR, linkType: 1, lag: null, lagFormat: null, carry: {}, carryElements: [] }],
+    dependencies: [{ predecessorUid: PREDECESSOR, linkType: 1, linkLag: null, lagFormat: null, carry: {}, carryElements: [] }],
   }),
 ]
 

@@ -97,7 +97,7 @@ const DELETE = keyOf('Delete')
 const twoTaskDocument = (): Record<string, any> => {
   const document = taskGroupDocument([{ id: 'task-group-1', parentId: null }])
   document.schedule.tasks = [1, 2].map((uid) => taskOf(uid, { name: `T${uid}` }))
-  document.schedule.taskGroupMembers = [1, 2].map((taskUid) => ({ taskUid, groupId: 'task-group-1' }))
+  document.schedule.taskGroupMembers = [1, 2].map((taskUid) => ({ taskUid, taskGroupId: 'task-group-1' }))
   document.schedule.taskVisuals = document.schedule.taskVisuals.slice(0, 1).concat(document.schedule.taskVisuals.slice(0, 1).map((one: any) => ({ ...one, taskUid: 2 })))
   return document
 }

@@ -101,7 +101,7 @@ interface LaneSpan {
 export function laneSpansOf(layout: ScheduleLayout, settings: DrawnSettings): readonly LaneSpan[] {
   const byLane = new Map<string, LaneSpan>()
   for (const placed of layout.placements) {
-    const key = `${placed.groupId}#${placed.stack}`
+    const key = `${placed.taskGroupId}#${placed.stack}`
     const end = placedEndOf(placed, settings)
     const held = byLane.get(key) ?? end
     byLane.set(key, { top: Math.min(held.top, end.top), bottom: Math.max(held.bottom, end.bottom) })
@@ -110,7 +110,7 @@ export function laneSpansOf(layout: ScheduleLayout, settings: DrawnSettings): re
   for (const taskGroup of layout.taskGroups) {
     taskGroup.stackTops.forEach((laneTop, lane) => {
       const top = laneTop + settings.planStroke / 2
-      spans.push(byLane.get(`${taskGroup.groupId}#${lane}`) ?? { top, bottom: top + layout.rectangleHeight })
+      spans.push(byLane.get(`${taskGroup.taskGroupId}#${lane}`) ?? { top, bottom: top + layout.rectangleHeight })
     })
   }
   return spans.sort((one, other) => one.top - other.top)

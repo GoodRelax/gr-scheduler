@@ -45,15 +45,15 @@ describe('FR-020 (DFC-551 2) -- the day-and-time on the watermark', () => {
   it('is renewed by an accepted write that changed the document, and by nothing else', () => {
     const built = benchOf()
     const api = installAgentApi({ ...built.loop.agentApiSeams(), writerName: 'dfc-551', schemaVersion: TEMPLATE.schemaVersion } as never)
-    const write = (title: string): any => api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setProjectTitle', title }] } as never)
+    const write = (title: string): any => api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setProjectTitle', title }] } as never)
 
     at(2)
-    expect(write('Changed').accepted, 'premise: the write landed').toBe(true)
+    expect(write('Changed').ok, 'premise: the write landed').toBe(true)
     built.send(keyOf('x'))
     expect(new Set(watermarkTimes(built)), 'FR-020: a changed document is stamped again').toEqual(new Set([iso(2)]))
 
     at(3)
-    expect(write('').accepted, 'premise: an empty title is refused (FR-035)').toBe(false)
+    expect(write('').ok, 'premise: an empty title is refused (FR-035)').toBe(false)
     built.send(keyOf('x'))
     expect(new Set(watermarkTimes(built)), 'FR-020: a refused write does not restamp').toEqual(new Set([iso(2)]))
 

@@ -42,7 +42,7 @@ test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-0
   })
 
   await test.step('UC-006 step 2: one unbroken progress line runs from the top to the bottom with vertices off the status line (FR-014, T-022)', async () => {
-    if (!(await readDocument(page)).documentSettings.progressLineVisible) await press(page, 'IC-39')
+    if (!(await readDocument(page)).documentSettings.isProgressLineVisible) await press(page, 'IC-39')
     const lines = page.locator('[data-figure="progress-line"]')
     await expect(lines).toHaveCount(1)
     const points = ((await lines.getAttribute('points')) ?? '').trim().split(/\s+/).map((p) => p.split(',').map(Number))
@@ -54,7 +54,7 @@ test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-0
   })
 
   await test.step('UC-006 step 3: late tasks carry the delay mark, not-started ones included (FR-013 PM-4, T-021b DL-1 DL-2)', async () => {
-    if (!(await readDocument(page)).documentSettings.progressMarkerVisible) await press(page, 'IC-40')
+    if (!(await readDocument(page)).documentSettings.isProgressMarkerVisible) await press(page, 'IC-40')
     const doc = await readDocument(page)
     const statusDay = statusDayOf(doc)
     const shapes = await markerShapes(page)
@@ -78,8 +78,8 @@ test('UC-006 find delays (FR-046, FR-014 T-022, FR-013 PM-4 T-021b, FR-047, FR-0
     await openByDrop(page, ERP, readSample(ERP), 'IC-73')
     const doc = await readDocument(page)
     expect((doc.schedule['baselineTasks'] as unknown[]).length).toBeGreaterThan(0)
-    if (!doc.documentSettings.baselineVisible) await press(page, 'IC-4')
-    expect((await readDocument(page)).documentSettings.baselineVisible).toBe(true)
+    if (!doc.documentSettings.isBaselineVisible) await press(page, 'IC-4')
+    expect((await readDocument(page)).documentSettings.isBaselineVisible).toBe(true)
     expect.soft(await page.locator('[data-figure]').count()).toBeGreaterThan(before)
   })
 })

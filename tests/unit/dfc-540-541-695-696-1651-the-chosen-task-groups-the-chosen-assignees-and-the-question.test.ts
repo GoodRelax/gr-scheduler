@@ -39,7 +39,7 @@ const selectedTasks = (built: ShellBench): readonly number[] =>
   (built.loop.agentApiSeams().source.readSnapshot().selection as unknown as { items: { kind: string; uid: number }[] }).items.map((one) => one.uid)
 
 const chosenTaskGroups = (built: ShellBench): readonly string[] =>
-  built.last().taskGroupPanel.titles.filter((one) => one.isSelected).map((one) => one.groupId)
+  built.last().taskGroupPanel.titles.filter((one) => one.isSelected).map((one) => one.taskGroupId)
 
 const person = (uid: number, name: string): Record<string, unknown> => ({
   uid,
@@ -157,15 +157,15 @@ describe('FR-085 (DFC-696) -- a task group that left the document is no longer c
     take(built, TASK_GROUP_PANEL, null, 'g1')
     expect(chosenTaskGroups(built), 'premise').toEqual(['g1'])
     const api = installAgentApi({ ...built.loop.agentApiSeams(), writerName: 'dfc-696', schemaVersion: TEMPLATE.schemaVersion } as never)
-    const written = (command: unknown): any => api.applyCommands({ readStamp: api.readStamp(), commands: [command] } as never)
-    expect(written({ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'g-replacement' }).accepted, 'premise: the task group was deleted').toBe(true)
+    const written = (command: unknown): any => api.applyCommands({ expectedStamp: api.readStamp(), commands: [command] } as never)
+    expect(written({ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'g-replacement' }).ok, 'premise: the task group was deleted').toBe(true)
     built.send(keyOf('x'))
-    expect(built.last().taskGroupPanel.titles.some((one) => one.groupId === 'g1'), 'premise: the task group is gone').toBe(false)
+    expect(built.last().taskGroupPanel.titles.some((one) => one.taskGroupId === 'g1'), 'premise: the task group is gone').toBe(false)
     expect(chosenTaskGroups(built), 'FR-085 MUST: the task group left the choice with the document').toEqual([])
     const again = written({ kind: 'createTaskGroup', id: 'g1', parentId: null, label: 'again', derivedFromTaskUid: null, order: 9 })
     built.send(keyOf('x'))
-    expect(again.accepted, JSON.stringify(again)).toBe(true)
-    expect(built.last().taskGroupPanel.titles.some((one) => one.groupId === 'g1'), 'premise: a task group with that id is back').toBe(true)
+    expect(again.ok, JSON.stringify(again)).toBe(true)
+    expect(built.last().taskGroupPanel.titles.some((one) => one.taskGroupId === 'g1'), 'premise: a task group with that id is back').toBe(true)
     expect(chosenTaskGroups(built), 'a stale id would choose the new task group').toEqual([])
   })
 })

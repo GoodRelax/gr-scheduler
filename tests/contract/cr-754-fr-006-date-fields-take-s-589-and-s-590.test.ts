@@ -42,8 +42,8 @@ const ESTIMATE_OF_A_DATE = HALF_WIDTH_DATE_CHARACTERS * LABEL_COEF + FIELD_ROOM
 // see T-016
 const TASK_DATE_ROWS = ['PR-3', 'PR-47', 'PR-4', 'PR-6', 'PR-7', 'PR-10']
 const ACTUAL_LENGTH_ROW = 'PR-5'
-const SHOWN_TIME = { showsTimeOfDay: true }
-const HIDDEN_TIME = { showsTimeOfDay: false }
+const SHOWN_TIME = { isTimeOfDayVisible: true }
+const HIDDEN_TIME = { isTimeOfDayVisible: false }
 
 // WHY: the first task of the startup document with its empty date columns filled, to compare a full field with an empty one.
 const FILLED_TASK = { [FIRST_TASK_UID]: { actualFinish: '2026-05-01T17:00:00', resume: '2026-05-10T08:00:00', deadline: '2026-06-01T17:00:00' } }

@@ -68,8 +68,8 @@ function centerOf(area: ScreenRect): { readonly x: number; readonly y: number } 
 /** @purity pure */
 function taskGroupAreaWidthAt(context: InputContext, next: DocumentSettings['displayScale']): number {
   const settings = context.document.documentSettings
-  const held = drawnSettingsOf(settings).taskGroupPanelWidth
-  const moved = drawnSettingsOf({ ...settings, displayScale: next }).taskGroupPanelWidth
+  const held = drawnSettingsOf(settings).taskGroupPanelWidthPx
+  const moved = drawnSettingsOf({ ...settings, displayScale: next }).taskGroupPanelWidthPx
   return context.regions.taskGroupArea.width + held - moved
 }
 
@@ -99,7 +99,7 @@ function displayScaleWrites(
       displayScale: next,
       scrollDate: seat.scrollDate,
       scrollDayOffset: seat.scrollDayOffset,
-      scrollGroupId: seat.scrollGroupId,
+      scrollTaskGroupId: seat.scrollTaskGroupId,
       scrollGroupOffset: seat.scrollGroupOffset,
     },
     afterRegions,
@@ -119,7 +119,7 @@ function displayScaleWrites(
       kind: 'setScrollPosition',
       scrollDate: day.scrollDate,
       scrollDayOffset: day.scrollDayOffset,
-      scrollGroupId: (row ?? seat).scrollGroupId,
+      scrollTaskGroupId: (row ?? seat).scrollTaskGroupId,
       scrollGroupOffset: (row ?? seat).scrollGroupOffset,
     },
   ]

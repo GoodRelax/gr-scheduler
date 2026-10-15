@@ -215,7 +215,7 @@ describe('X-11 BK-4 / WT-9: a document started new', () => {
   }
 
   it('WT-9 / BK-4: created is the local instant it was started, without a zone, to the second', () => {
-    expect(startedNew().schedule.project.created).toBe('2026-10-03T14:05:06')
+    expect(startedNew().schedule.project.creationDate).toBe('2026-10-03T14:05:06')
   })
 
   it('BK-4: defaultStartTime and defaultFinishTime stay null', () => {
@@ -225,12 +225,12 @@ describe('X-11 BK-4 / WT-9: a document started new', () => {
 
 describe('WT-10: a GRS JSON read keeps the created it holds', () => {
   it('WT-10: created is kept as it came', () => {
-    expect(readOk(textOf(twoTasks({ created: CREATED }))).schedule.project.created).toBe(CREATED)
+    expect(readOk(textOf(twoTasks({ creationDate: CREATED }))).schedule.project.creationDate).toBe(CREATED)
   })
 
   it('WT-10: created is written back as it came', () => {
-    const text = jsonFromDocument(readOk(textOf(twoTasks({ created: CREATED }))))
-    expect(JSON.parse(text)['schedule'].project.created).toBe(CREATED)
+    const text = jsonFromDocument(readOk(textOf(twoTasks({ creationDate: CREATED }))))
+    expect(JSON.parse(text)['schedule'].project.creationDate).toBe(CREATED)
   })
 })
 
@@ -240,8 +240,8 @@ describe('X-12 T-224 / ST-6: what the profile and the member hold', () => {
   })
 
   it('MG-4 / T-224: a merge whose profiles differ asks only about PF rows the table holds', () => {
-    const current = asDocument({ tasks: [taskRow(1)], project: { created: CREATED } })
-    const incoming = asDocument({ tasks: [taskRow(1)], project: { created: '2026-02-02T10:00:00', name: 'Other' } })
+    const current = asDocument({ tasks: [taskRow(1)], project: { creationDate: CREATED } })
+    const incoming = asDocument({ tasks: [taskRow(1)], project: { creationDate: '2026-02-02T10:00:00', name: 'Other' } })
     const outcome = importDocument({
       current,
       incoming,
@@ -261,9 +261,9 @@ describe('X-12 T-224 / ST-6: what the profile and the member hold', () => {
     }
   })
 
-  it('ST-6 / AT-62 retired: a TaskGroupMember holds taskUid and groupId only', () => {
+  it('ST-6 / AT-62 retired: a TaskGroupMember holds taskUid and taskGroupId only', () => {
     const member = SCHEMA['$defs'].TaskGroupMember
-    expect(Object.keys(member.properties).sort()).toEqual(['groupId', 'taskUid'])
+    expect(Object.keys(member.properties).sort()).toEqual(['taskGroupId', 'taskUid'])
     expect(member.additionalProperties).toBe(false)
   })
 

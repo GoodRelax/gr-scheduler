@@ -123,7 +123,7 @@ function bench(document: Record<string, unknown>): Bench {
     key: (key) => send({ kind: 'key', key, modifiers: { ...NO_MODS } }),
     groups: () => loop.document().schedule.taskGroups as TaskGroup[],
     levelZero: () => (loop.document().documentSettings as unknown as Record<string, unknown>)['levelZeroTreeState'],
-    drawn: () => (loop.current()?.layout.taskGroups ?? []).map((one) => one.groupId),
+    drawn: () => (loop.current()?.layout.taskGroups ?? []).map((one) => one.taskGroupId),
     frame: () => loop.current(),
   }
 }
@@ -185,7 +185,7 @@ function pictureOf(frame: FrameValues | null) {
   return {
     pxPerDay: frame.layout.pxPerDay,
     originX: frame.layout.originX,
-    rows: frame.layout.taskGroups.map((one) => ({ groupId: one.groupId, y: one.y, height: one.height })),
+    rows: frame.layout.taskGroups.map((one) => ({ taskGroupId: one.taskGroupId, y: one.y, height: one.height })),
   }
 }
 
@@ -201,7 +201,7 @@ describe(`CR-608 test 9 (regression) -- ${CD_2_NULL}; OP-10: ${OP_10_FIT}`, () =
     deleteEveryTaskGroup(built)
     expect(built.loop.document().documentSettings.zoomY, HF_20_NO_VIEW_WRITE).toBe(zoomBefore)
     const afterDelete = pictureOf(built.frame())
-    expect(afterDelete.rows.map((one) => one.groupId), 'the one task group is the top of the tree').toEqual(
+    expect(afterDelete.rows.map((one) => one.taskGroupId), 'the one task group is the top of the tree').toEqual(
       built.groups().map((one) => one.id),
     )
 
@@ -227,23 +227,23 @@ const DEFAULT_SETTINGS: Record<string, unknown> = (() => {
 })()
 
 const STAMP: DocumentStamp = {
-  scheduleUpdatedUtc: '2026-10-01T00:00:00Z',
+  scheduleUpdatedAt: '2026-10-01T00:00:00Z',
   lastEditedBy: 'user',
-  settingsUpdatedUtc: '2026-10-01T00:00:00Z',
-  fileSavedUtc: null,
+  settingsUpdatedAt: '2026-10-01T00:00:00Z',
+  fileSavedAt: null,
 }
 
 const groupOf = (id: string, treeState: TaskGroup['treeState']): TaskGroup =>
   ({
     id,
     parentId: null,
-    label: 'the only row',
+    name: 'the only row',
     derivedFromTaskUid: null,
     order: 0,
     treeState,
     editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   }) as TaskGroup
 
 const documentOf = (taskGroups: readonly TaskGroup[]): Document =>
@@ -291,7 +291,7 @@ const theOneTaskGroup = (document: Document): TaskGroup => {
 function replaced(call: ReplacementCall, history: EditHistory<ChangeStep> = EMPTY_HISTORY): Document {
   const plan = planDocumentReplacement({
     defaultTaskGroupName: TASK_GROUP_WORD,
-    newGroupId: 'fresh-task-group',
+    newTaskGroupId: 'fresh-task-group',
     held: { document: ONE_TASK_GROUP, history },
     readStamp: null,
     moment: CALM,
@@ -310,7 +310,7 @@ describe(`CR-608 test 11 -- ${FR_032_VALUE} -- ${FR_032_ANY_ROAD}`, () => {
       defaultTaskGroupName: TASK_GROUP_WORD,
       document: ONE_TASK_GROUP,
       readStamp: ONE_TASK_GROUP.documentStamp,
-      commands: [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }],
+      commands: [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }],
       moment: CALM,
       history: EMPTY_HISTORY,
       historyLimits: { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 },

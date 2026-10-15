@@ -29,16 +29,16 @@ describe('DFC-947: the frame goes round the figures that are drawn, the dummy am
   })
 
   it('SL-8 premise: with the plan hidden and no actual, only the dummy is drawn', () => {
-    const { dummies } = framesOf({ planVisible: false })
+    const { dummies } = framesOf({ isPlanVisible: false })
     expect(dummies.length).toBeGreaterThan(0)
   })
 
   it('SL-8 a chosen task with the plan hidden is framed round its dummy (DFC-947)', () => {
-    expect(framesOf({ planVisible: false }).frames).toHaveLength(1)
+    expect(framesOf({ isPlanVisible: false }).frames).toHaveLength(1)
   })
 
   it('SL-8 the frame of a dummy-only task encloses every drawn dummy (DFC-947)', () => {
-    const { dummies, frames } = framesOf({ planVisible: false })
+    const { dummies, frames } = framesOf({ isPlanVisible: false })
     const frame = rectOf(frames[0] ?? {})
     for (const one of dummies) {
       expect(frame.x).toBeLessThanOrEqual(one.ink.x + TOLERANCE)

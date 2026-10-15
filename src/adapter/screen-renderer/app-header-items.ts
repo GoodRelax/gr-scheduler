@@ -318,17 +318,17 @@ const NOT_STORED_CHROME_SCALE: {
 }
 
 // see T-109, FR-049
-const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'baselineVisible' | 'planVisible' | 'actualVisible' | 'progressLineVisible' | 'progressMarkerVisible' | 'dateGridLinesVisible' | 'groupGridLinesVisible' | 'assigneeVisible' | 'percentCompleteVisible' | 'dependencyVisible' | 'planDatesVisible'>> = {
-  'IC-4': 'baselineVisible',
-  'IC-8': 'planVisible',
-  'IC-9': 'actualVisible',
-  'IC-39': 'progressLineVisible',
-  'IC-40': 'progressMarkerVisible',
-  'IC-42': 'dateGridLinesVisible',
-  'IC-43': 'groupGridLinesVisible',
-  'IC-79': 'assigneeVisible',
-  'IC-80': 'percentCompleteVisible',
-  'IC-81': 'dependencyVisible',
-  'IC-103': 'planDatesVisible',
+const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'isBaselineVisible' | 'isPlanVisible' | 'isActualVisible' | 'isProgressLineVisible' | 'isProgressMarkerVisible' | 'isDateGridLinesVisible' | 'isGroupGridLinesVisible' | 'isAssigneeVisible' | 'isPercentCompleteVisible' | 'isDependencyVisible' | 'isPlanDatesVisible'>> = {
+  'IC-4': 'isBaselineVisible',
+  'IC-8': 'isPlanVisible',
+  'IC-9': 'isActualVisible',
+  'IC-39': 'isProgressLineVisible',
+  'IC-40': 'isProgressMarkerVisible',
+  'IC-42': 'isDateGridLinesVisible',
+  'IC-43': 'isGroupGridLinesVisible',
+  'IC-79': 'isAssigneeVisible',
+  'IC-80': 'isPercentCompleteVisible',
+  'IC-81': 'isDependencyVisible',
+  'IC-103': 'isPlanDatesVisible',
 }
 // </generated>

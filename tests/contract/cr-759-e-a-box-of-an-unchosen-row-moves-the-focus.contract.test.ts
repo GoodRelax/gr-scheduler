@@ -15,7 +15,7 @@ describe('CR-759 the manuscript these cases read', () => {
   it('the premise: the VO-2 rows are choose rows of two choices', () => {
     for (const [make, uid] of [[ACTUAL_AFTER_STATUS_DATE, 1], [FS_SUCCESSOR_STARTED, 1], [FS_SUCCESSOR_STARTED, 2]] as const) {
       const row = oneRow(proposed(make()), 'VO-2', uid)
-      expect([row.fixType, (row.choices ?? []).length]).toEqual(['choose', 2])
+      expect([row.fixKind, (row.choices ?? []).length]).toEqual(['choose', 2])
     }
   })
 })

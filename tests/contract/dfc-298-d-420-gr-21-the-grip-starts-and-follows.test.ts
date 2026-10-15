@@ -259,7 +259,7 @@ const placedDocument = (): Document => {
   held.documentSettings = {
     ...held.documentSettings,
     scrollDate: `${String(held.schedule.project.startDate).slice(0, 10)}T00:00:00`,
-    scrollGroupId: first.id,
+    scrollTaskGroupId: first.id,
   }
   return held as Document
 }
@@ -399,7 +399,7 @@ const placeOf = (loop: FrameLoop): string => {
   return JSON.stringify([
     settings.scrollDate,
     settings.scrollDayOffset,
-    settings.scrollGroupId,
+    settings.scrollTaskGroupId,
     settings.scrollGroupOffset,
   ])
 }

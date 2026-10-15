@@ -31,7 +31,7 @@ const STATUS = F(5, 21)
 
 // see AT-46
 const FS = 1
-const after = (uid: number): Loose => ({ predecessorUid: uid, linkType: FS, lag: 0, lagFormat: 7, carry: {}, carryElements: [] })
+const after = (uid: number): Loose => ({ predecessorUid: uid, linkType: FS, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] })
 
 interface Row {
   readonly id: string
@@ -45,7 +45,7 @@ function documentOf(rows: readonly Row[], tolerance: number): Document {
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.project[TOLERANCE_KEY] = tolerance
   raw.schedule.tasks = rows.flatMap((row) => row.tasks)
-  raw.schedule.taskGroupMembers = rows.flatMap((row) => row.tasks.map((task) => ({ taskUid: task['uid'], groupId: row.id })))
+  raw.schedule.taskGroupMembers = rows.flatMap((row) => row.tasks.map((task) => ({ taskUid: task['uid'], taskGroupId: row.id })))
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
   return decoded.document

@@ -48,7 +48,7 @@
 //                   のは人が文書に対して行う操作であり、履歴を歩くこと自体は
 //                   その対象ではない」
 //   表 T-230 (MUST) 「`WS-7` へ渡す『日程データの群が動いたか』は、出て行く
-//                   文書と入ってくる文書の `scheduleUpdatedUtc` の等値で導く
+//                   文書と入ってくる文書の `scheduleUpdatedAt` の等値で導く
 //                   こと（MUST）」
 //   表 T-067 WS-2   「書ける時機かを見る。身振りの最中・編集入力の確定前・
 //                   通知の配布中は拒否する」
@@ -191,10 +191,10 @@ const BETA = '22222222-2222-4222-8222-222222222222'
  * the silence in the AG-6 cases correct instead of a defect.
  */
 const OPENED_STAMP = {
-  scheduleUpdatedUtc: '2026-03-04T05:06:07Z',
-  settingsUpdatedUtc: '2026-03-04T05:06:07Z',
+  scheduleUpdatedAt: '2026-03-04T05:06:07Z',
+  settingsUpdatedAt: '2026-03-04T05:06:07Z',
   lastEditedBy: 'template',
-  fileSavedUtc: null,
+  fileSavedAt: null,
 } as const
 
 /**
@@ -235,12 +235,12 @@ function twoTaskGroupDocument(edit: (draft: any) => void = () => {}): Document {
   const row = (id: string, parentId: string | null, label: string) => ({
     id,
     parentId,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   })
   const draft = {
     '$schema': template['$schema'],
@@ -260,8 +260,8 @@ function twoTaskGroupDocument(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [row(ALPHA, null, 'Alpha'), row(BETA, ALPHA, 'Beta')],
       taskGroupMembers: [
-        { taskUid: 1, groupId: ALPHA },
-        { taskUid: 2, groupId: BETA },
+        { taskUid: 1, taskGroupId: ALPHA },
+        { taskUid: 2, taskGroupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -432,7 +432,7 @@ function watching(loop: ReturnType<typeof frameLoop>): ChangeNotice[] {
   watchChanges(watchers, {
     watcher: WATCHER,
     since: {
-      seenScheduleUpdatedUtc: stampOf(loop.document()).scheduleUpdatedUtc,
+      seenScheduleUpdatedUtc: stampOf(loop.document()).scheduleUpdatedAt,
       seenSequence: 0,
     },
     deliver: (notice) => void taken.push(notice),
@@ -613,7 +613,7 @@ describe('表 T-067 WS-7 and AG-6 -- the watchers are told', () => {
     // 変更と発話だけ』を通知すること ... まるごと差し替える道では `WS-5` が
     // 判定を下さない行があるので、表 T-230 の定めに従う」, and 表 T-230 settles
     // the flag WS-7 is handed: 「出て行く文書と入ってくる文書の
-    // `scheduleUpdatedUtc` の等値で導くこと（MUST）」.
+    // `scheduleUpdatedAt` の等値で導くこと（MUST）」.
     //
     // The edit moved the schedule instant, so the undo moves it back to a
     // different value: the equality says the schedule moved, and the restored

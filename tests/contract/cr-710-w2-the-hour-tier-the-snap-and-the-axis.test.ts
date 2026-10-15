@@ -55,7 +55,7 @@ describe('the clauses these cases are built from still read as quoted', () => {
 
 // see S-8, DS-1, FR-017
 // WHY: FR-017 compares pxPerDay with the threshold after dividing by (the font the ruler is drawn with / S-8); the stored font is drawn at the display ratio.
-const PX_SCALE = ((SETTINGS_DEFAULTS['rulerFont'] as number) * RATIO) / stored('S-8')
+const PX_SCALE = ((SETTINGS_DEFAULTS['rulerFontSizePx'] as number) * RATIO) / stored('S-8')
 
 // see T-205
 const thresholdOf = (id: string): number => Number(bare(rowOf('T-205', id).by['既定'] ?? ''))
@@ -66,7 +66,7 @@ const S_577 = thresholdOf('S-577')
 const S_578 = thresholdOf('S-578')
 
 const withTime = (shows: boolean, over: Readonly<Record<string, unknown>> = {}): DocumentSettings =>
-  ({ ...SETTINGS_DEFAULTS, showsTimeOfDay: shows, ...over }) as unknown as DocumentSettings
+  ({ ...SETTINGS_DEFAULTS, isTimeOfDayVisible: shows, ...over }) as unknown as DocumentSettings
 
 describe('T-205: the new rows are 288 and 576 and sit in order after the day threshold', () => {
   it('S-577 is 288 (12 px per hour times 24) and S-578 is 576 (24 px per hour times 24)', () => {
@@ -117,7 +117,7 @@ describe('FR-017: rulerTierOf names the hour tier (TM-5) only while the time of 
   })
 
   it('divides the width by the font the ruler is drawn with over S-8: a larger ruler font moves the boundary out', () => {
-    const big = withTime(true, { rulerFont: (SETTINGS_DEFAULTS['rulerFont'] as number) * 2 })
+    const big = withTime(true, { rulerFontSizePx: (SETTINGS_DEFAULTS['rulerFontSizePx'] as number) * 2 })
     expect(rulerTierOf(px(S_577 + 1), big)).toBe('yearMonthDayWeekday')
     expect(rulerTierOf(px((S_577 + 1) * 2), big)).toBe('dayHour')
   })

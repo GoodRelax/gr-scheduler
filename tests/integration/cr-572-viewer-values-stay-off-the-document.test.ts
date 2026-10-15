@@ -43,7 +43,7 @@ const FR_039_REMEMBERED_NOWHERE =
 const FR_039_FONT_REACHES_THE_RULER = '文字サイズの変更は目盛にも及ぶこと（MUST）'
 const FR_039_FONT_IS_AN_EDIT = '変更した結果は文書の編集として保存される'
 const FR_041_ONLY_TWO_ARE_SAVED =
-  '保存するのは `themeHue` / `themeMonochrome` の 2 つだけとし、明暗（`themePreference`）は画面の値とし（`FR-039`）'
+  '保存するのは `themeHue` / `isThemeMonochrome` の 2 つだけとし、明暗（`themePreference`）は画面の値とし（`FR-039`）'
 const FR_052_STARTS_AT_S_171 =
   'プロパティパネルの幅は画面の値とし、起動のたびに `_assets/tbl-settings.md` の 表 T-206 の `S-171` から始めること（MUST）'
 const FR_052_WRITES_NOWHERE = 'プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'
@@ -403,11 +403,11 @@ describe('CR-572 item 4 -- switching light and dark touches nothing the document
   it('table T-027: it is no undo step -- an undo after it takes back the monochrome step before it, and leaves the theme', () => {
     const built = bench()
     built.press('IC-100')
-    expect(settingsOf(built.loop)['themeMonochrome']).toBe(true)
+    expect(settingsOf(built.loop)['isThemeMonochrome']).toBe(true)
     built.press('IC-16')
     const switched = built.loop.themePreference()
     built.send(UNDO)
-    expect(settingsOf(built.loop)['themeMonochrome']).toBe(false)
+    expect(settingsOf(built.loop)['isThemeMonochrome']).toBe(false)
     expect(built.loop.themePreference()).toBe(switched)
   })
 
@@ -423,11 +423,11 @@ describe('CR-572 item 4 -- switching light and dark touches nothing the document
 })
 
 describe('CR-572 item 5 -- monochrome stays in the file (FR-041, UN-13)', () => {
-  it(`FR-041 「${FR_041_ONLY_TWO_ARE_SAVED}」: IC-100 writes themeMonochrome and is an unsaved edit`, () => {
+  it(`FR-041 「${FR_041_ONLY_TWO_ARE_SAVED}」: IC-100 writes isThemeMonochrome and is an unsaved edit`, () => {
     const built = bench()
-    expect(settingsOf(built.loop)['themeMonochrome']).toBe(false)
+    expect(settingsOf(built.loop)['isThemeMonochrome']).toBe(false)
     built.press('IC-100')
-    expect(settingsOf(built.loop)['themeMonochrome']).toBe(true)
+    expect(settingsOf(built.loop)['isThemeMonochrome']).toBe(true)
     expect(built.loop.hasUnsavedEdits()).toBe(true)
   })
 
@@ -436,23 +436,23 @@ describe('CR-572 item 5 -- monochrome stays in the file (FR-041, UN-13)', () => 
     const before = stampOf(built.loop)
     built.press('IC-100')
     const after = stampOf(built.loop)
-    expect(after['settingsUpdatedUtc']).not.toBe(before['settingsUpdatedUtc'])
-    expect(after['scheduleUpdatedUtc']).toBe(before['scheduleUpdatedUtc'])
+    expect(after['settingsUpdatedAt']).not.toBe(before['settingsUpdatedAt'])
+    expect(after['scheduleUpdatedAt']).toBe(before['scheduleUpdatedAt'])
   })
 
   it('UN-13: it is an undo step', () => {
     const built = bench()
     built.press('IC-100')
     built.send(UNDO)
-    expect(settingsOf(built.loop)['themeMonochrome']).toBe(false)
+    expect(settingsOf(built.loop)['isThemeMonochrome']).toBe(false)
   })
 
   it('WY-1: a saved file reopens monochrome', async () => {
     const built = bench()
     built.press('IC-100')
     const text = await built.save()
-    expect(reopened(text).documentSettings.themeMonochrome).toBe(true)
-    expect(settingsOf(bench(reopened(text)).loop)['themeMonochrome']).toBe(true)
+    expect(reopened(text).documentSettings.isThemeMonochrome).toBe(true)
+    expect(settingsOf(bench(reopened(text)).loop)['isThemeMonochrome']).toBe(true)
   })
 })
 
@@ -548,8 +548,8 @@ describe('CR-572 item 8 -- the font size stays in the file and the ruler follows
     built.press('IC-99')
     const after = settingsOf(built.loop)
     expect(after['fontScale']).toBe(next)
-    expect(after['rulerFont']).toBe(perScale('S-3')[next])
-    expect(after['rulerHeight']).toBe(perScale('S-2')[next])
+    expect(after['rulerFontSizePx']).toBe(perScale('S-3')[next])
+    expect(after['rulerHeightPx']).toBe(perScale('S-2')[next])
   })
 
   it(`FR-039 「${FR_039_FONT_IS_AN_EDIT}」: an unsaved edit, an undo step (UN-13), and in the saved file`, async () => {
@@ -560,7 +560,7 @@ describe('CR-572 item 8 -- the font size stays in the file and the ruler follows
     const moved = { ...settingsOf(built.loop) }
     const text = await built.save()
     const written = (JSON.parse(text) as { documentSettings: Record<string, unknown> }).documentSettings
-    expect([written['fontScale'], written['rulerFont'], written['rulerHeight']]).toEqual([moved['fontScale'], moved['rulerFont'], moved['rulerHeight']])
+    expect([written['fontScale'], written['rulerFontSizePx'], written['rulerHeightPx']]).toEqual([moved['fontScale'], moved['rulerFontSizePx'], moved['rulerHeightPx']])
     built.send(UNDO)
     expect(settingsOf(built.loop)['fontScale']).toBe(from)
   })
@@ -581,9 +581,9 @@ describe('CR-572 item 9 -- the Agent API sends CM-64 and none of the four retire
   it('CM-64: an Agent can still switch monochrome, and it lands in the document', () => {
     const built = bench()
     const api = agentOf(built)
-    const outcome = api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setThemeMonochrome', monochrome: true } as never] })
-    expect(outcome.accepted).toBe(true)
-    expect(settingsOf(built.loop)['themeMonochrome']).toBe(true)
+    const outcome = api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setThemeMonochrome', monochrome: true } as never] })
+    expect(outcome.ok).toBe(true)
+    expect(settingsOf(built.loop)['isThemeMonochrome']).toBe(true)
   })
 
   it.each(RETIRED)(`「${T_108_IS_EVERY_COMMAND}」: %s is refused and the document is unchanged`, (kind) => {
@@ -591,10 +591,10 @@ describe('CR-572 item 9 -- the Agent API sends CM-64 and none of the four retire
     const api = agentOf(built)
     const document = JSON.stringify(built.loop.document())
     const outcome = api.applyCommands({
-      readStamp: api.readStamp(),
+      expectedStamp: api.readStamp(),
       commands: [{ kind, themePreference: 'dark', guideCursorMode: 'crosshair', date1: '2026-03-02', date2: '2026-03-04' } as never],
     })
-    expect(outcome.accepted).toBe(false)
+    expect(outcome.ok).toBe(false)
     expect(JSON.stringify(built.loop.document())).toBe(document)
     expect(keysAnywhere(JSON.stringify(built.loop.document()), VIEWER_KEYS)).toEqual([])
   })
@@ -610,7 +610,7 @@ describe('CR-572 item 10 -- the exported picture uses the exporter\'s light/dark
     if (scene === null) throw new Error('no export scene')
     expect(scene.themePreference).toBe(built.loop.themePreference())
     expect(scene.themePreference).toBe('dark')
-    expect(scene.settings.themeMonochrome).toBe(true)
+    expect(scene.settings.isThemeMonochrome).toBe(true)
   })
 
   it('control: the other way round -- light exporter, color document', () => {
@@ -620,6 +620,6 @@ describe('CR-572 item 10 -- the exported picture uses the exporter\'s light/dark
     const scene = built.loop.exportScene()
     if (scene === null) throw new Error('no export scene')
     expect(scene.themePreference).toBe('light')
-    expect(scene.settings.themeMonochrome).toBe(false)
+    expect(scene.settings.isThemeMonochrome).toBe(false)
   })
 })

@@ -111,7 +111,7 @@ interface Stage {
 
 const STAGE: Stage = (() => {
   const rows = [1, 2, 3, 4].map((uid) => ({ id: `g${uid}`, parentId: null }))
-  const raw = taskGroupDocument(rows, { progressMarkerVisible: true, themePreference: 'light' })
+  const raw = taskGroupDocument(rows, { isProgressMarkerVisible: true, themePreference: 'light' })
   raw.schedule.project.statusDate = '2026-05-08T17:00:00'
   raw.schedule.tasks = [
     taskOf(LATE, { name: 'Late', start: '2026-04-06T08:00:00', finish: '2026-04-24T17:00:00' }),
@@ -146,8 +146,8 @@ function inputsOf(diagnostics: Diagnostics | undefined): GeometryInputs {
     within: workingCalendarOf(STAGE.schedule),
     taskByUid: new Map(STAGE.schedule.tasks.map((task) => [task.uid, task])),
     statusDate: dayOf(STAGE.schedule.project.statusDate),
-    showPlan: drawn.planVisible,
-    showActual: drawn.actualVisible,
+    showPlan: drawn.isPlanVisible,
+    showActual: drawn.isActualVisible,
     selectedTaskUids: new Set<number>(),
     selectedLinks: new Set<string>(),
     dummyEndByFrom: new Map(),

@@ -156,7 +156,7 @@ export function tooltipAnchorTable(root: HTMLElement) {
       const found = held.get(key)
       if (found !== undefined) return found
     }
-    if (anchor.kind !== 'icon' || anchor.groupId !== undefined) return undefined
+    if (anchor.kind !== 'icon' || anchor.taskGroupId !== undefined) return undefined
     return root.querySelector<HTMLElement>(`[data-icon="${anchor.icon}"]`) ?? undefined
   }
 

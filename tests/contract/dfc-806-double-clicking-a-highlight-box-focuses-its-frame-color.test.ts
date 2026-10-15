@@ -66,10 +66,10 @@ const OPENER_TASK_UID = 3
 // WHY: the highlight box starts and ends outside the bars, so its left edge is not a bar's end (GA-3 / GA-4).
 const HIGHLIGHT = {
   id: 'h1',
-  startDate: '2026-04-02T08:00:00',
-  endDate: '2026-05-06T17:00:00',
-  topGroupId: 'g1',
-  bottomGroupId: 'g2',
+  start: '2026-04-02T08:00:00',
+  finish: '2026-05-06T17:00:00',
+  topTaskGroupId: 'g1',
+  bottomTaskGroupId: 'g2',
   strokeColor: null,
   cornerRadiusPx: null,
 }
@@ -78,13 +78,13 @@ const COMMENT = {
   leaderShapeKind: null,
   text: 'a body',
   anchorDate: '2026-04-20',
-  anchorGroupId: 'g5',
+  anchorTaskGroupId: 'g5',
   bodyOffsetPx: null,
 }
 
 function documentOf(strokeColor: string | null): Record<string, any> {
-  const document = taskGroupDocument(TASK_GROUPS, { progressMarkerVisible: false }, {
-    taskGroupMembers: TASKED_TASK_GROUPS.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
+  const document = taskGroupDocument(TASK_GROUPS, { isProgressMarkerVisible: false }, {
+    taskGroupMembers: TASKED_TASK_GROUPS.map((one, index) => ({ taskUid: index + 1, taskGroupId: one.id })),
     highlightBoxes: [{ ...HIGHLIGHT, strokeColor }],
     commentBoxes: [COMMENT],
   })

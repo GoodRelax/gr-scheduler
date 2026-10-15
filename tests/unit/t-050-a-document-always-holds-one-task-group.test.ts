@@ -138,12 +138,12 @@ const DEFAULT_SETTINGS: Record<string, unknown> = (() => {
 
 const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup => ({
   parentId: null,
-  label: null,
+  name: null,
   derivedFromTaskUid: null,
   order: 0,
   treeState: 'auto', editGroup: null,
   color: null,
-  minHeight: null,
+  minHeightPx: null,
   ...part,
 })
 
@@ -172,16 +172,16 @@ const taskOf = (uid: number, name: string | null): Task =>
     carryElements: [],
   }) as unknown as Task
 
-const memberOf = (taskUid: number, groupId: string): TaskGroupMember => ({
+const memberOf = (taskUid: number, taskGroupId: string): TaskGroupMember => ({
   taskUid,
-  groupId,
+  taskGroupId,
 })
 
 const STAMP: DocumentStamp = {
-  scheduleUpdatedUtc: '2026-09-01T00:00:00Z',
+  scheduleUpdatedAt: '2026-09-01T00:00:00Z',
   lastEditedBy: 'user',
-  settingsUpdatedUtc: '2026-09-01T00:00:00Z',
-  fileSavedUtc: null,
+  settingsUpdatedAt: '2026-09-01T00:00:00Z',
+  fileSavedAt: null,
 }
 
 const documentOf = (schedule: Partial<Schedule>, settings: Record<string, unknown> = {}): Document =>
@@ -212,7 +212,7 @@ const EMPTY_OF_TASK_GROUPS = documentOf({})
 
 /** One task group, one task on it -- the last task group a person can delete. */
 const ONE_TASK_GROUP = documentOf({
-  taskGroups: [groupOf({ id: 'g1', label: 'the only row' })],
+  taskGroups: [groupOf({ id: 'g1', name: 'the only row' })],
   tasks: [taskOf(1, 'on the only row')],
   taskGroupMembers: [memberOf(1, 'g1')],
 })
@@ -258,8 +258,8 @@ const holdsTheRequiredTaskGroup = (document: Document): TaskGroup => {
   // so a task group with no parent cannot stand anywhere else.
   expect(taskGroup.parentId).toBeNull()
   // 「名前は `FR-038` の辞書の `defaultNames` の `task group` の語とすること」.
-  expect(taskGroup.label).toBe(DICTIONARY_ROW_WORD.text.en)
-  expect(taskGroup.label).toBe(DICTIONARY_ROW_WORD.text.ja)
+  expect(taskGroup.name).toBe(DICTIONARY_ROW_WORD.text.en)
+  expect(taskGroup.name).toBe(DICTIONARY_ROW_WORD.text.ja)
   // AT-54 / FR-058: a task group holds a name OR a derivation source, never neither.
   expect(taskGroup.derivedFromTaskUid).toBeNull()
   expect(Number.isInteger(taskGroup.order)).toBe(true)
@@ -274,12 +274,12 @@ describe('table T-050 -- deleting the last task group', () => {
   it('is not refused', () => {
     // 「最後の 1 つのタスクグループの削除を拒んではならない（MUST NOT）」 -- 拒むと、そのタスクグループに載る
     // `Task` ごと消す道が無くなる.
-    const plan = planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }])
+    const plan = planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }])
     expect(plan.ok).toBe(true)
   })
 
   it('leaves the document holding one task group at L1, named from the dictionary', () => {
-    const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }]))
+    const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }]))
     const taskGroup = holdsTheRequiredTaskGroup(plan.document)
     // ⛔ NOT THE TASK GROUP THAT WAS DELETED. The one the invariant made is a new task group,
     // and everything CD-2 takes with the old one is gone.
@@ -291,22 +291,22 @@ describe('table T-050 -- deleting the last task group', () => {
   it('carries no Task, so the count FR-032 asks about has nothing to pick up', () => {
     // 「`FR-032` が問う件数に、作られる 1 つのタスクグループを足してはならない（MUST NOT）」 --
     // the question is about what disappears, and this task group is not one of them.
-    const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }]))
+    const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }]))
     const taskGroup = holdsTheRequiredTaskGroup(plan.document)
     expect(
-      plan.document.schedule.taskGroupMembers.filter((one) => one.groupId === taskGroup.id),
+      plan.document.schedule.taskGroupMembers.filter((one) => one.taskGroupId === taskGroup.id),
     ).toHaveLength(0)
   })
 
   it('moves the schedule instant, because a TaskGroup is schedule-group data', () => {
-    const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }]))
+    const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }]))
     expect(plan.hasMovedSchedule).toBe(true)
   })
 
   it('gives the deleted task group back on ONE press of undo', () => {
     // 「取り消しの単位を分けてはならない（MUST NOT）。消したことと作ったことは
     // 1 つの操作であり、取り消し 1 回で消したタスクグループが戻ること（MUST）」
-    const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', groupId: 'g1', newGroupId: 'fresh-task-group' }]))
+    const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }]))
     // WS-4 pushed exactly ONE step for the whole operation.
     expect(plan.history.done).toHaveLength(1)
 
@@ -339,7 +339,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     const plan = settled(
       planDocumentReplacement({
         defaultTaskGroupName: DICTIONARY_ROW_WORD.text.en,
-        newGroupId: 'fresh-task-group',
+        newTaskGroupId: 'fresh-task-group',
         held: { document: ONE_TASK_GROUP, history: EMPTY_HISTORY },
         readStamp: null,
         moment: CALM,
@@ -356,7 +356,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     const plan = settled(
       planDocumentReplacement({
         defaultTaskGroupName: DICTIONARY_ROW_WORD.text.en,
-        newGroupId: 'fresh-task-group',
+        newTaskGroupId: 'fresh-task-group',
         held: { document: EMPTY_OF_TASK_GROUPS, history: EMPTY_HISTORY },
         readStamp: null,
         moment: CALM,
@@ -377,7 +377,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     const plan = settled(
       planDocumentReplacement({
         defaultTaskGroupName: DICTIONARY_ROW_WORD.text.en,
-        newGroupId: 'fresh-task-group',
+        newTaskGroupId: 'fresh-task-group',
         held: { document: ONE_TASK_GROUP, history },
         readStamp: null,
         moment: CALM,
@@ -395,7 +395,7 @@ describe('table T-050 -- the roads that are not a delete', () => {
     const plan = settled(
       planDocumentReplacement({
         defaultTaskGroupName: DICTIONARY_ROW_WORD.text.en,
-        newGroupId: 'fresh-task-group',
+        newTaskGroupId: 'fresh-task-group',
         held: { document: ONE_TASK_GROUP, history },
         readStamp: null,
         moment: CALM,

@@ -94,7 +94,7 @@
      "null": false
     },
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "column": "AT-114",
      "null": false
     }
@@ -114,12 +114,12 @@
      "null": false
     },
     {
-     "name": "topGroupId",
+     "name": "topTaskGroupId",
      "column": "AT-119",
      "null": false
     },
     {
-     "name": "bottomGroupId",
+     "name": "bottomTaskGroupId",
      "column": "AT-120",
      "null": false
     }
@@ -319,7 +319,7 @@
      "name": "lagWorkingDays",
      "type": "integer",
      "meaning": {
-      "ja": "ラグ（稼働日）で、`lag`（`AT-47`）と `lagFormat`（`AT-48`）へ換えて書く"
+      "ja": "ラグ（稼働日）で、`linkLag`（`AT-47`）と `lagFormat`（`AT-48`）へ換えて書く"
      }
     }
    ]
@@ -331,7 +331,7 @@
      "name": "lagMinutes",
      "type": "integer",
      "meaning": {
-      "ja": "ラグ（分）で、`lag`（`AT-47`）へ換えて書く"
+      "ja": "ラグ（分）で、`linkLag`（`AT-47`）へ換えて書く"
      }
     },
     {
@@ -566,7 +566,7 @@
    "group": {
     "ja": "`Project`"
    },
-   "name": "setParentProgressTolerance",
+   "name": "setParentProgressToleranceDays",
    "union": "ProjectCommand",
    "bundle": false,
    "values": [
@@ -686,7 +686,7 @@
      "null": false
     },
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "column": "AT-61",
      "meaning": {
       "ja": "タスクを載せるタスクグループ"
@@ -1091,7 +1091,7 @@
      "key": "AT-24"
     },
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "column": "AT-61"
     }
    ],
@@ -1218,7 +1218,7 @@
    "group": {
     "ja": "`TaskVisual`"
    },
-   "name": "setTaskVisualStrokeWidth",
+   "name": "setTaskVisualStrokeWidthPx",
    "union": "TaskCommand",
    "bundle": false,
    "values": [
@@ -1289,11 +1289,11 @@
    "bundle": false,
    "values": [
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "key": "AT-51"
     },
     {
-     "name": "newGroupId",
+     "name": "newTaskGroupId",
      "type": "string",
      "meaning": {
       "ja": "新しいタスクグループの `id`（⚠️ いまの編集はこの値を読まない）"
@@ -1319,21 +1319,21 @@
    "bundle": true,
    "values": [
     {
-     "name": "sourceGroupId",
+     "name": "sourceTaskGroupId",
      "key": "AT-51",
      "meaning": {
       "ja": "複製する部分木の根"
      }
     },
     {
-     "name": "targetGroupId",
+     "name": "targetTaskGroupId",
      "column": "AT-52",
      "meaning": {
       "ja": "写しの根を載せる親"
      }
     },
     {
-     "name": "newGroupIds",
+     "name": "newTaskGroupIds",
      "type": "map",
      "keyType": "string",
      "valueType": "string",
@@ -1356,12 +1356,12 @@
    "group": {
     "ja": "`TaskGroup`"
    },
-   "name": "setTaskGroupLabel",
+   "name": "setTaskGroupName",
    "union": "TaskGroupCommand",
    "bundle": false,
    "values": [
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "key": "AT-51"
     },
     {
@@ -1388,7 +1388,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "key": "AT-51"
     },
     {
@@ -1416,7 +1416,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "key": "AT-51"
     }
    ],
@@ -1434,12 +1434,12 @@
    "group": {
     "ja": "`TaskGroup`"
    },
-   "name": "setTaskGroupMinHeight",
+   "name": "setTaskGroupMinHeightPx",
    "union": "TaskGroupCommand",
    "bundle": false,
    "values": [
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "key": "AT-51"
     },
     {
@@ -1834,7 +1834,7 @@
    "group": {
     "ja": "`Assignment`"
    },
-   "name": "unassignResource",
+   "name": "deleteAssignment",
    "union": "ResourceCommand",
    "bundle": false,
    "values": [
@@ -2067,7 +2067,7 @@
    "group": {
     "ja": "`CommentBox`"
    },
-   "name": "setCommentBoxStrokeWidth",
+   "name": "setCommentBoxStrokeWidthPx",
    "union": "AnnotationCommand",
    "bundle": false,
    "values": [
@@ -2121,7 +2121,7 @@
    "group": {
     "ja": "`CommentBox`"
    },
-   "name": "setCommentBoxFillTransparency",
+   "name": "setCommentBoxFillTransparencyPercent",
    "union": "AnnotationCommand",
    "bundle": false,
    "values": [
@@ -2285,7 +2285,7 @@
    "group": {
     "ja": "`HighlightBox`"
    },
-   "name": "setHighlightBoxStrokeWidth",
+   "name": "setHighlightBoxStrokeWidthPx",
    "union": "AnnotationCommand",
    "bundle": false,
    "values": [
@@ -2339,7 +2339,7 @@
    "group": {
     "ja": "`HighlightBox`"
    },
-   "name": "setHighlightBoxFillTransparency",
+   "name": "setHighlightBoxFillTransparencyPercent",
    "union": "AnnotationCommand",
    "bundle": false,
    "values": [
@@ -2517,7 +2517,7 @@
      "column": "S-77"
     },
     {
-     "name": "scrollGroupId",
+     "name": "scrollTaskGroupId",
      "column": "S-78"
     },
     {
@@ -2543,12 +2543,12 @@
    "group": {
     "ja": "見せ方の群"
    },
-   "name": "setTaskGroupPanelWidth",
+   "name": "setTaskGroupPanelWidthPx",
    "union": "DocumentSettingsCommand",
    "bundle": false,
    "values": [
     {
-     "name": "taskGroupPanelWidth",
+     "name": "taskGroupPanelWidthPx",
      "column": "S-79"
     }
    ],
@@ -2571,10 +2571,10 @@
    "bundle": false,
    "values": [
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "key": "AT-51",
      "meaning": {
-      "ja": "`pinnedGroupIds`（`S-126`）に足すタスクグループ"
+      "ja": "`pinnedTaskGroupIds`（`S-126`）に足すタスクグループ"
      }
     }
    ],
@@ -2597,10 +2597,10 @@
    "bundle": false,
    "values": [
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "key": "AT-51",
      "meaning": {
-      "ja": "`pinnedGroupIds`（`S-126`）から除くタスクグループ"
+      "ja": "`pinnedTaskGroupIds`（`S-126`）から除くタスクグループ"
      }
     }
    ],
@@ -2635,7 +2635,7 @@
      "column": "S-77"
     },
     {
-     "name": "scrollGroupId",
+     "name": "scrollTaskGroupId",
      "column": "S-78"
     },
     {
@@ -2684,7 +2684,7 @@
    "bundle": true,
    "values": [
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "key": "AT-51"
     },
     {
@@ -2783,7 +2783,7 @@
    "bundle": true,
    "values": [
     {
-     "name": "fitSpanFixed",
+     "name": "isFitSpanFixed",
      "column": "S-532"
     },
     {
@@ -2822,7 +2822,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "taskGroupPanelWidthFixed",
+     "name": "isTaskGroupPanelWidthFixed",
      "column": "S-533"
     }
    ],
@@ -2929,12 +2929,12 @@
    "group": {
     "ja": "見せ方の群"
    },
-   "name": "setShowsTimeOfDay",
+   "name": "setTimeOfDayVisible",
    "union": "DocumentSettingsCommand",
    "bundle": false,
    "values": [
     {
-     "name": "showsTimeOfDay",
+     "name": "isTimeOfDayVisible",
      "column": "S-576"
     }
    ],
@@ -2957,7 +2957,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "key": "AT-51"
     },
     {
@@ -2985,7 +2985,7 @@
    "agent": false,
    "values": [
     {
-     "name": "groupId",
+     "name": "taskGroupId",
      "key": "AT-51"
     },
     {

@@ -64,7 +64,7 @@ function family(roots: number): TaskGroupSeed[] {
   return rows
 }
 
-const VIEWLESS = { scrollDate: null, scrollGroupId: null, scrollGroupOffset: 0, scrollDayOffset: 0, zoomX: 1, zoomY: 1 }
+const VIEWLESS = { scrollDate: null, scrollTaskGroupId: null, scrollGroupOffset: 0, scrollDayOffset: 0, zoomX: 1, zoomY: 1 }
 
 const settingsOf = (built: ShellBench): Record<string, any> => built.loop.document().documentSettings as unknown as Record<string, any>
 
@@ -80,7 +80,7 @@ function pictureOf(built: ShellBench): Picture {
   if (frame === null) throw new Error('premise: a frame was drawn')
   const placements = (frame.layout as unknown as { readonly placements: readonly { readonly width: number }[] }).placements
   return {
-    drawn: frame.layout.taskGroups.map((one) => one.groupId),
+    drawn: frame.layout.taskGroups.map((one) => one.taskGroupId),
     band: frame.layout.taskGroups[0]?.height ?? Number.NaN,
     barWidth: placements[0]?.width ?? Number.NaN,
   }
@@ -110,8 +110,8 @@ describe('DFC-2410 -- MK-1: a plain wheel on a document with no view position sc
   it('premise: the document has no view position, and the whole-view picture shows fewer task groups than the stored zoom would', () => {
     const built = viewless()
     expect(settingsOf(built)['scrollDate'], 'OP-10: a view position of null').toBeNull()
-    expect(settingsOf(built)['scrollGroupId']).toBeNull()
-    const placed = keep(shell(taskGroupDocument(family(40), { ...VIEWLESS, scrollDate: '2026-04-01T00:00:00', scrollGroupId: 'g-0' })))
+    expect(settingsOf(built)['scrollTaskGroupId']).toBeNull()
+    const placed = keep(shell(taskGroupDocument(family(40), { ...VIEWLESS, scrollDate: '2026-04-01T00:00:00', scrollTaskGroupId: 'g-0' })))
     expect(pictureOf(built).drawn.length, 'FR-055 draws a shallower depth than the stored zoomY of 1 draws').toBeLessThan(
       pictureOf(placed).drawn.length,
     )
@@ -141,7 +141,7 @@ describe('DFC-2410 -- MK-1: a plain wheel on a document with no view position sc
     const built = viewless()
     wheel(built, {}, SCROLL_DOWN)
     expect(settingsOf(built)['scrollDate']).not.toBeNull()
-    expect(settingsOf(built)['scrollGroupId']).not.toBeNull()
+    expect(settingsOf(built)['scrollTaskGroupId']).not.toBeNull()
   })
 
   it(`${OP_10_CHOSEN} -- the zoom the picture was drawn at becomes the stored zoom (the frame seam unstoredZoom)`, () => {
@@ -168,13 +168,13 @@ describe('DFC-2410 -- MK-1: a plain wheel on a document with no view position sc
     const ids = pictureOf(built).drawn
     wheel(built, {}, SCROLL_DOWN)
     const settings = settingsOf(built)
-    const position = ids.indexOf(String(settings['scrollGroupId'])) + Number(settings['scrollGroupOffset'])
+    const position = ids.indexOf(String(settings['scrollTaskGroupId'])) + Number(settings['scrollGroupOffset'])
     expect(position, 'the view moved down the list').toBeGreaterThan(0)
   })
 
   it('a document that HAS a view position keeps the zoom it stores through the same wheel (the control)', () => {
     const built = keep(
-      shell(taskGroupDocument(family(40), { ...VIEWLESS, scrollDate: '2026-04-01T00:00:00', scrollGroupId: 'g-0', zoomX: 3, zoomY: 1 })),
+      shell(taskGroupDocument(family(40), { ...VIEWLESS, scrollDate: '2026-04-01T00:00:00', scrollTaskGroupId: 'g-0', zoomX: 3, zoomY: 1 })),
     )
     const before = pictureOf(built)
     wheel(built, {}, SCROLL_DOWN)
@@ -202,8 +202,8 @@ describe('DFC-2410 -- MK-5: a sideways wheel on a document with no view position
     const ids = pictureOf(built).drawn
     wheel(built, { ctrl: true, shift: true }, SCROLL_SIDEWAYS)
     const settings = settingsOf(built)
-    expect(settings['scrollGroupId'], 'S-78 points at a task group').not.toBeNull()
-    expect(ids, 'the task group is one that was drawn').toContain(String(settings['scrollGroupId']))
+    expect(settings['scrollTaskGroupId'], 'S-78 points at a task group').not.toBeNull()
+    expect(ids, 'the task group is one that was drawn').toContain(String(settings['scrollTaskGroupId']))
     expect(settings['scrollDate'], 'S-77 points at a day').not.toBeNull()
   })
 
@@ -211,7 +211,7 @@ describe('DFC-2410 -- MK-5: a sideways wheel on a document with no view position
     const built = viewless()
     const first = pictureOf(built).drawn[0]
     wheel(built, { ctrl: true, shift: true }, SCROLL_SIDEWAYS)
-    expect(settingsOf(built)['scrollGroupId']).toBe(first)
+    expect(settingsOf(built)['scrollTaskGroupId']).toBe(first)
     expect(Number(settingsOf(built)['scrollGroupOffset'])).toBe(0)
   })
 
@@ -225,9 +225,31 @@ describe('DFC-2410 -- MK-5: a sideways wheel on a document with no view position
   })
 })
 
+// WHY: the record predates CR-769's stored-key names and the shell reads no old key, so it is
+// read under the new names (Project.startDate keeps its name; the record has no highlight box).
+const CR_769_KEYS: Readonly<Record<string, string>> = {
+  actualVisible: 'isActualVisible', assigneeVisible: 'isAssigneeVisible', baselineVisible: 'isBaselineVisible',
+  dateGridLinesVisible: 'isDateGridLinesVisible', dependencyVisible: 'isDependencyVisible',
+  groupGridLinesVisible: 'isGroupGridLinesVisible', percentCompleteVisible: 'isPercentCompleteVisible',
+  planDatesVisible: 'isPlanDatesVisible', planVisible: 'isPlanVisible', progressLineVisible: 'isProgressLineVisible',
+  progressMarkerVisible: 'isProgressMarkerVisible', fitSpanFixed: 'isFitSpanFixed',
+  taskGroupPanelWidthFixed: 'isTaskGroupPanelWidthFixed', themeMonochrome: 'isThemeMonochrome',
+  groupId: 'taskGroupId', scrollGroupId: 'scrollTaskGroupId', pinnedGroupIds: 'pinnedTaskGroupIds',
+  scheduleUpdatedUtc: 'scheduleUpdatedAt', settingsUpdatedUtc: 'settingsUpdatedAt', fileSavedUtc: 'fileSavedAt',
+  rulerHeight: 'rulerHeightPx', rulerFont: 'rulerFontSizePx', taskGroupPanelWidth: 'taskGroupPanelWidthPx',
+  importSeq: 'importSequence', label: 'name', minHeight: 'minHeightPx', lag: 'linkLag', created: 'creationDate',
+}
+
+/** @purity pure */
+const underTheNewKeys = (value: unknown): unknown => {
+  if (Array.isArray(value)) return value.map(underTheNewKeys)
+  if (value === null || typeof value !== 'object') return value
+  return Object.fromEntries(Object.entries(value).map(([key, one]) => [CR_769_KEYS[key] ?? key, underTheNewKeys(one)]))
+}
+
 describe('DFC-2410 -- the real progress table, which stores no view position', () => {
   const PATH = join(process.cwd(), 'previous-project-result', '38-project-progress', 'gr-scheduler-progress-2026-10-10c.json')
-  const real = (): Record<string, any> => JSON.parse(readFileSync(PATH, 'utf8')) as Record<string, any>
+  const real = (): Record<string, any> => underTheNewKeys(JSON.parse(readFileSync(PATH, 'utf8'))) as Record<string, any>
 
   it('premise: the file stores no scrollDate (OP-10)', () => {
     expect(real().documentSettings.scrollDate).toBeNull()

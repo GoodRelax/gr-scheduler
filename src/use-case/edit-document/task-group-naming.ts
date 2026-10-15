@@ -59,33 +59,33 @@ export function createTaskGroup(
   const taskGroup: TaskGroup = {
     id: command.id,
     parentId: command.parentId,
-    label: command.label,
+    name: command.label,
     derivedFromTaskUid: command.derivedFromTaskUid,
     order: command.order,
     treeState: 'temporarilyExpanded',
     editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   }
   return edited(withSchedule(document, { taskGroups: [...groups, taskGroup] }))
 }
 
 // see CM-29, FR-085, FR-058
 /** @purity pure */
-export function setTaskGroupLabel(
+export function setTaskGroupName(
   document: Document,
-  command: TaskGroupCommandOf<'setTaskGroupLabel'>,
+  command: TaskGroupCommandOf<'setTaskGroupName'>,
   byId: ReadonlyMap<string, TaskGroup>,
 ): EditResult {
-  const taskGroup = byId.get(command.groupId)
+  const taskGroup = byId.get(command.taskGroupId)
   if (taskGroup === undefined) {
-    return refused([reject('CM-29', 'FR-085', `no such task group: ${command.groupId}`)])
+    return refused([reject('CM-29', 'FR-085', `no such task group: ${command.taskGroupId}`)])
   }
   if (command.label === null && taskGroup.derivedFromTaskUid === null) {
     return refused([
       reject('CM-29', 'FR-058', 'a task group may hold neither a name nor a derivation source (AT-54)'),
     ])
   }
-  if (taskGroup.label === command.label) return edited(document)
-  return edited(withTaskGroup(document, { ...taskGroup, label: command.label }))
+  if (taskGroup.name === command.label) return edited(document)
+  return edited(withTaskGroup(document, { ...taskGroup, name: command.label }))
 }

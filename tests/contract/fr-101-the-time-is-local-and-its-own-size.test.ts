@@ -19,7 +19,7 @@
 //
 //   FR-101 「**画面に出す時刻は、読む人のローカル時刻とすること（MUST）。保管は
 //          UTC のままとすること（MUST）**（利用者の指示 2026-08-27）—— **保管の綴り
-//          は 表 T-058 の `AT-140`（`documentStamp.fileSavedUtc`）が持ち、本要求は
+//          は 表 T-058 の `AT-140`（`documentStamp.fileSavedAt`）が持ち、本要求は
 //          動かさない。**」 —— ⚠️ re-anchored 2026-09-11: the column the sentence
 //          points at was `AT-127` until the ruling of that day gave the document
 //          its own `AT-140`. The rule these cases test is unchanged.

@@ -39,7 +39,7 @@ test('UC-001 place a task and set its period (FR-001 TC-6 TC-9, FR-091, FR-002, 
     expect(Math.abs(dayNumber(task.start) - axis.dayOf(from.x))).toBeLessThanOrEqual(1)
     expect(Math.abs(dayNumber(task.finish) - axis.dayOf(to.x))).toBeLessThanOrEqual(1)
     expect(doc.schedule.taskVisuals.find((v) => v.taskUid === firstUid)?.shapeKind).toBe('rectangle')
-    expect(doc.schedule.taskGroupMembers.find((m) => m.taskUid === firstUid)?.groupId).toBe(onlyTaskGroup[0]!.id)
+    expect(doc.schedule.taskGroupMembers.find((m) => m.taskUid === firstUid)?.taskGroupId).toBe(onlyTaskGroup[0]!.id)
     const plan = await figureBox(page, 'task-' + firstUid + '-plan')
     expect(plan).not.toBeNull()
     expect(Math.abs(plan!.x - from.x)).toBeLessThan(6)
@@ -71,7 +71,7 @@ test('UC-001 place a task and set its period (FR-001 TC-6 TC-9, FR-091, FR-002, 
     expect(doc.schedule.tasks).toHaveLength(2)
     const earlier = doc.schedule.tasks.find((t) => t.uid !== firstUid)!
     expect(dayNumber(earlier.start)).toBeLessThan(dayNumber(doc.schedule.tasks.find((t) => t.uid === firstUid)!.start))
-    expect(doc.schedule.taskGroupMembers.find((m) => m.taskUid === earlier.uid)?.groupId).toBe(onlyTaskGroup[0]!.id)
+    expect(doc.schedule.taskGroupMembers.find((m) => m.taskUid === earlier.uid)?.taskGroupId).toBe(onlyTaskGroup[0]!.id)
     const shallow = (await figureBox(page, 'task-' + earlier.uid + '-plan'))!
     const deep = (await figureBox(page, 'task-' + firstUid + '-plan'))!
     expect(Math.abs(shallow.y - deep.y)).toBeGreaterThanOrEqual(Math.min(shallow.h, deep.h))

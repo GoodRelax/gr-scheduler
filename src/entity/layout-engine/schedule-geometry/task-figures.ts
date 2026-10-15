@@ -558,7 +558,7 @@ function drawnLabelLayoutOf(inputs: GeometryInputs, task: Task,
     reference,
     placed.labelTextWidth,
     diameter,
-    settings.progressMarkerVisible,
+    settings.isProgressMarkerVisible,
     outwardStartOf(reference.x + reference.width, task, placed.shapeKind, diameter),
     settings,
   )
@@ -578,7 +578,7 @@ function labelTierMiddleOf(placed: TaskPlacement, settings: DrawnSettings): numb
 function markerOf(inputs: GeometryInputs, task: Task,
                   placed: TaskPlacement): MarkerGeometry | null {
   const settings = inputs.settings
-  if (!settings.progressMarkerVisible) return null
+  if (!settings.isProgressMarkerVisible) return null
   const markerLeft = drawnLabelLayoutOf(inputs, task, placed).markerLeft
   if (markerLeft === null) return null
   const radius = markerDiameterOf(placed.shapeKind, placed.labelFontSize, settings) / 2
@@ -652,8 +652,8 @@ function resumeOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
 
 // see DM-3, FR-158
 /** @purity pure */
-function dummyAxisOf(inputs: GeometryInputs): { readonly pxPerDay: number; readonly showsTimeOfDay: boolean } {
-  return { pxPerDay: inputs.layout.pxPerDay, showsTimeOfDay: inputs.settings.showsTimeOfDay }
+function dummyAxisOf(inputs: GeometryInputs): { readonly pxPerDay: number; readonly isTimeOfDayVisible: boolean } {
+  return { pxPerDay: inputs.layout.pxPerDay, isTimeOfDayVisible: inputs.settings.isTimeOfDayVisible }
 }
 
 // TRAP: keyed by textOfDay, since two equal CalendarDay records are not one Map key.
@@ -708,7 +708,7 @@ function dummiesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
   // WHY: one barOf call shared by both dummies: the mark is a one-day actual's shape (DM-2, DM-4).
   const figure = barOf(inputs, placed, fromX, fromX + width, top, band, true)
   // WHY: with time of day shown the dummy's actual ends where the mark does (DM-2, JDG-2108); without, on its last day.
-  const endX = inputs.settings.showsTimeOfDay ? fromX + width : xFromDay(inputs.layout, dummyEndOf(inputs, from))
+  const endX = inputs.settings.isTimeOfDayVisible ? fromX + width : xFromDay(inputs.layout, dummyEndOf(inputs, from))
   return [
     { grab: thin ? 'GA-21' : 'GA-5', at: point(fromX, middle), ink, figure },
     { grab: thin ? 'GA-22' : 'GA-6', at: point(endX, middle), ink, figure },

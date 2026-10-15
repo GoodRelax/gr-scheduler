@@ -283,12 +283,12 @@
     "rows": [
      [
       "文字列",
-      "scrollGroupId",
+      "scrollTaskGroupId",
       "S-78"
      ],
      [
       "配列",
-      "pinnedGroupIds",
+      "pinnedTaskGroupIds",
       "S-126"
      ]
     ]
@@ -589,7 +589,7 @@
     },
     {
      "seat": 9,
-     "name": "created",
+     "name": "creationDate",
      "type": "日時",
      "nullable": "可",
      "json": {
@@ -852,7 +852,7 @@
     },
     {
      "seat": 21,
-     "name": "importSeq",
+     "name": "importSequence",
      "type": "整数",
      "nullable": "否",
      "json": {
@@ -1413,7 +1413,7 @@
     },
     {
      "seat": 47,
-     "name": "lag",
+     "name": "linkLag",
      "type": "整数",
      "nullable": "可",
      "json": {
@@ -1536,7 +1536,7 @@
     },
     {
      "seat": 53,
-     "name": "label",
+     "name": "name",
      "type": "文字列",
      "nullable": "可（`null` = 導出）",
      "json": {
@@ -1563,7 +1563,7 @@
      "origin": "GRS",
      "exchange": "",
      "meaning": {
-      "ja": "名前の導出元。`label` と同時に `null` にできない"
+      "ja": "名前の導出元。`name` と同時に `null` にできない"
      }
     },
     {
@@ -1644,7 +1644,7 @@
     },
     {
      "seat": 59,
-     "name": "minHeight",
+     "name": "minHeightPx",
      "type": "整数",
      "nullable": "可（`null` = 下限なし）",
      "json": {
@@ -1691,7 +1691,7 @@
     },
     {
      "seat": 61,
-     "name": "groupId",
+     "name": "taskGroupId",
      "type": "文字列（UUID）",
      "nullable": "否",
      "json": {
@@ -2695,7 +2695,7 @@
     },
     {
      "seat": 108,
-     "name": "lastSeenImportSeq",
+     "name": "lastSeenImportSequence",
      "type": "整数",
      "nullable": "否",
      "json": {
@@ -2809,7 +2809,7 @@
     },
     {
      "seat": 114,
-     "name": "anchorGroupId",
+     "name": "anchorTaskGroupId",
      "type": "文字列（UUID）",
      "nullable": "可",
      "json": {
@@ -2961,7 +2961,7 @@
     },
     {
      "seat": 117,
-     "name": "startDate",
+     "name": "start",
      "type": "日時",
      "nullable": "可",
      "json": {
@@ -2978,7 +2978,7 @@
     },
     {
      "seat": 118,
-     "name": "endDate",
+     "name": "finish",
      "type": "日時",
      "nullable": "可",
      "json": {
@@ -2995,7 +2995,7 @@
     },
     {
      "seat": 119,
-     "name": "topGroupId",
+     "name": "topTaskGroupId",
      "type": "文字列（UUID）",
      "nullable": "可",
      "json": {
@@ -3012,7 +3012,7 @@
     },
     {
      "seat": 120,
-     "name": "bottomGroupId",
+     "name": "bottomTaskGroupId",
      "type": "文字列（UUID）",
      "nullable": "可",
      "json": {
@@ -3210,7 +3210,7 @@
    "columns": [
     {
      "seat": 127,
-     "name": "scheduleUpdatedUtc",
+     "name": "scheduleUpdatedAt",
      "type": "文字列（`ISO 8601`・UTC・秒）",
      "nullable": "否",
      "json": {
@@ -3243,7 +3243,7 @@
     },
     {
      "seat": 129,
-     "name": "settingsUpdatedUtc",
+     "name": "settingsUpdatedAt",
      "type": "文字列（`ISO 8601`・UTC・秒）",
      "nullable": "否",
      "json": {
@@ -3260,7 +3260,7 @@
     },
     {
      "seat": 140,
-     "name": "fileSavedUtc",
+     "name": "fileSavedAt",
      "type": "文字列（`ISO 8601`・UTC・秒）",
      "nullable": "可",
      "json": {
@@ -3275,7 +3275,7 @@
       "ja": "開いているファイルへ最後に書いた時刻（`FR-101`）。**秒までとする**（`AT-127` / `AT-129` と揃える）。⛔ **日程データの群が動いた刻（`AT-127`）とは別物である** —— **あちらは文書の中身が動いた刻であり、本列はファイルへ書けた刻である。**⚠️ **まだ 1 度もファイルへ書いていないあいだは空とする** —— `FR-101` がその旨を画面に示す。⛔ **往復無損失の突き合わせから本列を外すこと** —— 保存のたびに変わるので、書き出して読み直した文書と元の文書は本列だけが必ず食い違う。⭐ **ファイルへ書けた時刻を持つのは本列だけである** —— MSPDI の `LastSaved` は列に持たず、書き出すその瞬間から作る（表 T-059 の `DV-12`）。保存の時刻を 1 か所に持ち、保存を日程の変更に数えないためである。⚠️ **文書を開いているあいだは本列を書き換えない** —— 書けた時刻の正は `FR-101` の 表 T-341 の下段であり、文書を運ぶバイト列の本列はそこから作る（同表の `HS-11`）。`Agent API` が手渡す文書と刻印の本列も、そこから作る（同表の `HS-12`）"
      },
      "schemaNote": {
-      "en": "When this document was last written to its file. It lives in documentStamp, not in schedule.project, so that a save does not move scheduleUpdatedUtc; it is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change."
+      "en": "When this document was last written to its file. It lives in documentStamp, not in schedule.project, so that a save does not move scheduleUpdatedAt; it is UTC so that each reader sees it in their own local time. MS Project's LastSaved is not stored but made from the moment of export, so that the save time is held once and a save never counts as a schedule change."
      }
     }
    ]
@@ -3340,7 +3340,7 @@
     },
     {
      "seat": 133,
-     "name": "changedUtc",
+     "name": "changedAt",
      "type": "文字列（`ISO 8601`・UTC・秒）",
      "nullable": "否",
      "json": {
@@ -3506,9 +3506,9 @@
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 1",
    "label": {
-    "ja": "どのタスクグループに載るか（`groupId`）"
+    "ja": "どのタスクグループに載るか（`taskGroupId`）"
    },
-   "fromColumn": "groupId",
+   "fromColumn": "taskGroupId",
    "toColumn": "id"
   },
   {
@@ -3655,9 +3655,9 @@
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 0..1",
    "label": {
-    "ja": "留めるタスクグループ（`anchorGroupId`）"
+    "ja": "留めるタスクグループ（`anchorTaskGroupId`）"
    },
-   "fromColumn": "anchorGroupId",
+   "fromColumn": "anchorTaskGroupId",
    "toColumn": "id"
   },
   {
@@ -3666,9 +3666,9 @@
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 0..1",
    "label": {
-    "ja": "囲む範囲の上端のタスクグループ（`topGroupId`）"
+    "ja": "囲む範囲の上端のタスクグループ（`topTaskGroupId`）"
    },
-   "fromColumn": "topGroupId",
+   "fromColumn": "topTaskGroupId",
    "toColumn": "id"
   },
   {
@@ -3677,9 +3677,9 @@
    "child": "TaskGroup",
    "multiplicity": "0..n ─ 0..1",
    "label": {
-    "ja": "囲む範囲の下端のタスクグループ（`bottomGroupId`）"
+    "ja": "囲む範囲の下端のタスクグループ（`bottomTaskGroupId`）"
    },
-   "fromColumn": "bottomGroupId",
+   "fromColumn": "bottomTaskGroupId",
    "toColumn": "id"
   },
   {

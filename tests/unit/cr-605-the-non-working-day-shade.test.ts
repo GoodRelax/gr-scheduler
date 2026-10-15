@@ -82,7 +82,7 @@ const t236 = (id: string, preference: 'light' | 'dark'): string =>
 type Tier = 'year' | 'yearMonth' | 'yearMonthWeek' | 'yearMonthDayWeekday'
 
 // WHY: FR-017 compares pxPerDay against the threshold scaled by the ruler font over S-8; mid-band samples keep the tier unambiguous.
-const PX_SCALE = ((SETTINGS_DEFAULTS['rulerFont'] as number) * RATIO) / SETTINGS_CONSTANTS.fontMin
+const PX_SCALE = ((SETTINGS_DEFAULTS['rulerFontSizePx'] as number) * RATIO) / SETTINGS_CONSTANTS.fontMin
 const PX_PER_DAY_OF: Readonly<Record<Tier, number>> = {
   year: S_83 * 0.3 * PX_SCALE,
   yearMonth: Math.sqrt(S_83 * S_84) * PX_SCALE,
@@ -167,8 +167,8 @@ const scheduleWith = (wish: Wish = {}): Schedule => {
     calendars: [calendarOf(wish.exceptions ?? EXCEPTIONS, wish.working)],
     taskGroups: [g1, { ...g1, id: 'g2', label: 'g2', order: 1 }],
     taskGroupMembers: [
-      { taskUid: 1, groupId: 'g1' },
-      { taskUid: 2, groupId: 'g2' },
+      { taskUid: 1, taskGroupId: 'g1' },
+      { taskUid: 2, taskGroupId: 'g2' },
     ],
   } as unknown as Schedule
 }

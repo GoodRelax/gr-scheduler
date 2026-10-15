@@ -631,7 +631,7 @@ interface HeldZoomEnds {
 // see OP-10, OP-10a
 // WHY: the view place only shifts task groups and days; it changes no task group's height, order or the stored zoom.
 const VIEW_PLACE_FIELDS: ReadonlySet<string> = new Set<keyof DocumentSettings>([
-  'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset',
+  'scrollDate', 'scrollDayOffset', 'scrollTaskGroupId', 'scrollGroupOffset',
 ])
 
 /** @purity pure */
@@ -685,7 +685,7 @@ function followedPressOf(press: PointerPress | null, input: HumanInput, isFollow
 function stackSafetyCapToldAfter(told: string | null, layout: ScheduleLayout): { readonly told: string | null; readonly isNew: boolean } {
   const capStop = layout.stackSafetyCapReached
   if (capStop === null) return { told: null, isNew: false }
-  return { told: capStop.groupId, isNew: told !== capStop.groupId }
+  return { told: capStop.taskGroupId, isNew: told !== capStop.taskGroupId }
 }
 
 const SEARCH_HIT_JUMPED: ScreenValuesEvent = { type: 'searchHitJumped' }
@@ -1050,7 +1050,7 @@ interface ScreenViewReadingsTaken {
   readonly iconRowUnderPointer?: string | null
   readonly commandPaletteAt: ScreenViewReadings['commandPaletteAt']
   readonly taskGroupGrabbedAt: {
-    readonly groupId: string
+    readonly taskGroupId: string
     readonly depth: number
     readonly axis: 'position' | 'depth'
     readonly resistedPx: number
@@ -1095,7 +1095,7 @@ function screenViewReadingsOf(
     ...carried,
     themeHue: held.schedule.project.themeHue,
     taskGroupBoxes: drawnTaskGroupBoxesOf(layout, regions),
-    placedTaskGroupIds: layout.taskGroups.map((taskGroup) => taskGroup.groupId),
+    placedTaskGroupIds: layout.taskGroups.map((taskGroup) => taskGroup.taskGroupId),
     placedTaskGroups: layout.taskGroups,
     shownSpan: shownSpanTextsOf(layout, regions),
     taskGroupPanelDrawnWidth: regions.taskGroupPanel.width,
@@ -1333,7 +1333,7 @@ function agentHolderOf(holder: DocumentHolder, landed: () => void): DocumentHold
 /** @purity pure */
 function taskGroupsWithinSchedule(session: ScreenSession, schedule: Document['schedule']): readonly string[] {
   const chosenTaskGroups = session.selection.chosenTaskGroups
-  const kept = chosenTaskGroups.filter((groupId) => schedule.taskGroups.some((one) => one.id === groupId))
+  const kept = chosenTaskGroups.filter((taskGroupId) => schedule.taskGroups.some((one) => one.id === taskGroupId))
   return kept.length === chosenTaskGroups.length ? chosenTaskGroups : kept
 }
 
@@ -1425,7 +1425,7 @@ function spanExportViewOf(
     zoomY: 1,
     scrollDate: stored.fitSpanStart,
     scrollDayOffset: 0,
-    scrollGroupId: null,
+    scrollTaskGroupId: null,
     scrollGroupOffset: 0,
   }
   const layout = layoutFromSchedule(
@@ -1464,7 +1464,7 @@ interface ScreenEffectHands {
   readonly answerOverwriteQuestion: (isProceeding: boolean) => void
   readonly carryOutOwedAction: (owedAction: FileFlowOwedAction, frame: FrameValues | null) => void
   readonly issueDelayFixBundle: (fixBundle: CarriedFixBundle, frame: FrameValues | null) => void
-  readonly bringCreatedTaskGroupIntoSight: (groupId: string) => void
+  readonly bringCreatedTaskGroupIntoSight: (taskGroupId: string) => void
   readonly beginInteractionRecord: () => void
   readonly handInteractionRecordToClipboard: () => void
   readonly storeAgentApiEnabling: () => void
@@ -1518,7 +1518,7 @@ function effectRunnersOf(hands: ScreenEffectHands): EffectRunners<SessionEffect>
     carryOutOwedAction: (effect, frame) => hands.carryOutOwedAction(effect.owedAction, frame),
     issueDelayFixBundle: (effect, frame) => hands.issueDelayFixBundle(effect.fixBundle, frame),
 
-    bringCreatedTaskGroupIntoSight: (effect) => hands.bringCreatedTaskGroupIntoSight(effect.groupId),
+    bringCreatedTaskGroupIntoSight: (effect) => hands.bringCreatedTaskGroupIntoSight(effect.taskGroupId),
 
     beginInteractionRecord: () => hands.beginInteractionRecord(),
     handInteractionRecordToClipboard: () => hands.handInteractionRecordToClipboard(),
@@ -1609,13 +1609,13 @@ function searchJumpOnRelease(input: HumanInput, press: PointerPress | null, on: 
 
 // see SJ-2, SJ-4
 /** @purity pure */
-function searchHitOf(schedule: Document['schedule'], cell: SearchJumpCell): { readonly item: ItemRef; readonly groupId: string | null } {
+function searchHitOf(schedule: Document['schedule'], cell: SearchJumpCell): { readonly item: ItemRef; readonly taskGroupId: string | null } {
   if (cell.kind === 'task') {
     const member = schedule.taskGroupMembers.find((one) => one.taskUid === cell.taskUid)
-    return { item: { kind: 'task', uid: cell.taskUid }, groupId: member?.groupId ?? null }
+    return { item: { kind: 'task', uid: cell.taskUid }, taskGroupId: member?.taskGroupId ?? null }
   }
   const box = schedule.commentBoxes.find((one) => one.id === cell.commentBoxId)
-  return { item: { kind: 'commentBox', id: cell.commentBoxId }, groupId: box?.anchorGroupId ?? null }
+  return { item: { kind: 'commentBox', id: cell.commentBoxId }, taskGroupId: box?.anchorTaskGroupId ?? null }
 }
 
 type WindowGrab = NonNullable<ScreenPart['windowGrab']>
@@ -2019,8 +2019,8 @@ function reportHeldOf(
   if (window === null || diagnostics === null) return null
   const documentName = document.schedule.project.title ?? ''
   const view = tableViewOf(document.documentSettings, 'delayDiagnosticsReport')
-  const { showsTimeOfDay, viewTimeZone } = document.documentSettings
-  return { window, view, report: diagnostics.report, schedule: document.schedule, documentName, language, showsTimeOfDay, viewTimeZone, ...(fixTables === undefined ? {} : { fixTables }) }
+  const { isTimeOfDayVisible, viewTimeZone } = document.documentSettings
+  return { window, view, report: diagnostics.report, schedule: document.schedule, documentName, language, isTimeOfDayVisible, viewTimeZone, ...(fixTables === undefined ? {} : { fixTables }) }
 }
 
 // see RW-16, RW-17, DX-12
@@ -2063,7 +2063,7 @@ function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, fra
   hands.sendToSession(SEARCH_HIT_JUMPED, frame)
   const document = hands.readHeld().document
   const hit = searchHitOf(document.schedule, cell)
-  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, hit.groupId)
+  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, hit.taskGroupId)
   const reach = searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, cell)
   const plan = searchJumpWrites(document, cell, hasRoom, reach)
   const writes = [...viewWrites, ...searchJumpCommands(plan, frame.unstoredZoom)]
@@ -2081,7 +2081,7 @@ function jumpToSearchHit(hands: FrameLoopHands, cell: SearchJumpCell | null, fra
 function landJump(hands: FrameLoopHands, owed: OwedJump, frame: FrameValues): boolean {
   const { target, isPlacedAgain } = owed
   const document = hands.readHeld().document
-  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, searchHitOf(document.schedule, target).groupId)
+  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, searchHitOf(document.schedule, target).taskGroupId)
   const plan = searchJumpWrites(document, target, hasRoom, searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, target))
   if (plan.isBlockedByPinnedTaskGroups) return false
   const placedAgain = isPlacedAgain ? searchJumpCommands({ ...plan, treeStateWrites: [] }, frame.unstoredZoom) : []
@@ -2099,11 +2099,11 @@ function unstoredZoomOf(view: { readonly settings: DocumentSettings; readonly is
 // see HF-17
 // TRAP: the resolved day, not the stored null, or the fit undoes the write.
 /** @purity non-pure */
-function writeOwedSight(hands: FrameLoopHands, groupId: string | null, settings: DocumentSettings, frame: FrameValues): boolean {
-  if (groupId === null || drawnTaskGroupBoxesOf(frame.layout, frame.regions).some((one) => one.groupId === groupId)) return false
+function writeOwedSight(hands: FrameLoopHands, taskGroupId: string | null, settings: DocumentSettings, frame: FrameValues): boolean {
+  if (taskGroupId === null || drawnTaskGroupBoxesOf(frame.layout, frame.regions).some((one) => one.taskGroupId === taskGroupId)) return false
   const { scrollDate, scrollDayOffset } = settings
   const kept = frame.unstoredZoom === null ? [] : [{ kind: 'setZoom', ...frame.unstoredZoom } as const]
-  hands.writeDocument([...kept, { kind: 'setScrollPosition', scrollDate, scrollGroupId: groupId, scrollDayOffset, scrollGroupOffset: 0 }], frame)
+  hands.writeDocument([...kept, { kind: 'setScrollPosition', scrollDate, scrollTaskGroupId: taskGroupId, scrollDayOffset, scrollGroupOffset: 0 }], frame)
   return true
 }
 
@@ -2357,9 +2357,9 @@ export function selectedObjectsIn(session: ScreenSession): Selection {
 }
 
 /** @purity pure */
-function taskGroupsChosenWith(chosen: readonly string[], groupId: string, isExtending: boolean): readonly string[] {
-  if (!isExtending) return [groupId]
-  return chosen.includes(groupId) ? chosen.filter((one) => one !== groupId) : [...chosen, groupId]
+function taskGroupsChosenWith(chosen: readonly string[], taskGroupId: string, isExtending: boolean): readonly string[] {
+  if (!isExtending) return [taskGroupId]
+  return chosen.includes(taskGroupId) ? chosen.filter((one) => one !== taskGroupId) : [...chosen, taskGroupId]
 }
 
 // see HF-15, T-289
@@ -2617,7 +2617,7 @@ function startingAfreshCall(emptyDocument: Document): ReplacementCall {
 /** @purity pure */
 export function startedDocumentOf(emptyDocument: Document, created: string, scheduleDataTimeZone: string): Document {
   const schedule = emptyDocument.schedule
-  return { ...emptyDocument, schedule: { ...schedule, project: { ...schedule.project, created, scheduleDataTimeZone } } }
+  return { ...emptyDocument, schedule: { ...schedule, project: { ...schedule.project, creationDate: created, scheduleDataTimeZone } } }
 }
 
 // WHY: noon, so no date of the year lands on a daylight-saving switch hour; month 0 is January, 6 July (FR-156).
@@ -2870,7 +2870,7 @@ export function frameLoop(
     answerOverwriteQuestion,
     carryOutOwedAction,
     issueDelayFixBundle,
-    bringCreatedTaskGroupIntoSight: (groupId) => (addedTaskGroupOwedSight = groupId),
+    bringCreatedTaskGroupIntoSight: (taskGroupId) => (addedTaskGroupOwedSight = taskGroupId),
     beginInteractionRecord,
     handInteractionRecordToClipboard,
     storeAgentApiEnabling,
@@ -2907,7 +2907,7 @@ export function frameLoop(
     const diagnostics = delayDiagnosticsNow()
     // see FR-133, FR-049
     // TRAP: the drawn settings only; S-63 itself is never written for the diagnosis (DFC-1229).
-    const drawnSettings = diagnostics === null ? settings : { ...settings, progressMarkerVisible: true }
+    const drawnSettings = diagnostics === null ? settings : { ...settings, isProgressMarkerVisible: true }
     drawnPicture = drawnPictureOf(drawnPicture, {
       schedule: document.schedule,
       settings: drawnSettings,
@@ -3292,7 +3292,7 @@ export function frameLoop(
       settings,
       themePreference: session.screen.themePreference,
       themeHue: document.schedule.project.themeHue,
-      capStopGroupId: layout.stackSafetyCapReached?.groupId ?? null,
+      capStopGroupId: layout.stackSafetyCapReached?.taskGroupId ?? null,
     }
   }
 
@@ -3455,12 +3455,12 @@ export function frameLoop(
       diagnosisMarkedTaskUids: delayDiagnosticsNow()?.markedTaskUids ?? NO_MARKED_TASKS,
       isPropertiesPanelShowing: isPropertiesPanelOnScreen(),
       isNoticeStanding,
-      drawnTaskGroupIds: drawnTaskGroupBoxes.map((one) => one.groupId),
+      drawnTaskGroupIds: drawnTaskGroupBoxes.map((one) => one.taskGroupId),
       drawnTaskGroupBoxes,
       isSurfaceStanding: isAnySurfaceStanding(session),
       dualCursorFollowing: dualCursorFollowingIn(session),
       today: readToday(),
-      newGroupId: crypto.randomUUID(),
+      newTaskGroupId: crypto.randomUUID(),
       newCommentBoxId: crypto.randomUUID(),
       newHighlightBoxId: crypto.randomUUID(),
     }
@@ -3527,7 +3527,7 @@ export function frameLoop(
         moment: collectWriteMoment(),
         call,
         defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME,
-        newGroupId: crypto.randomUUID(),
+        newTaskGroupId: crypto.randomUUID(),
       },
       holder,
       audience,
@@ -3602,7 +3602,7 @@ export function frameLoop(
     // WHY: spent only when S-63 is already off; otherwise the translator's write turns it off.
     if (entry === PROGRESS_MARKER_ENTRY && delayDiagnosticsShown) {
       showDelayDiagnostics(false)
-      return !held.document.documentSettings.progressMarkerVisible
+      return !held.document.documentSettings.isProgressMarkerVisible
     }
     if (entry === SCREEN_LANGUAGE_ENTRY) {
       const language = screenLanguageIn(session) === 'ja' ? 'en' : 'ja'
@@ -3772,7 +3772,7 @@ export function frameLoop(
         if (pressed !== null) pressed = { ...pressed, taskGroupGrabAxis: action.axis }
         sendToSession({ type: 'taskGroupGrabAxisSettled', axis: action.axis }, frame)
         taskGroupGrabbedAt = {
-          groupId: action.groupId,
+          taskGroupId: action.taskGroupId,
           depth: action.atDepth,
           resistedPx: action.resistedPx,
           atY: action.atY,
@@ -3781,7 +3781,7 @@ export function frameLoop(
       }
       case 'chooseTaskGroup': {
         // TRAP: read the held set, not the drawn task group; FR-048 may skip a paint, so a picture can be older.
-        const chosenTaskGroups = taskGroupsChosenWith(session.selection.chosenTaskGroups, action.groupId, action.isExtending)
+        const chosenTaskGroups = taskGroupsChosenWith(session.selection.chosenTaskGroups, action.taskGroupId, action.isExtending)
         sendToSession({ type: 'taskGroupsPicked', chosenTaskGroups }, frame)
         showPropertiesOfChoice('taskGroups')
         sendToSession(FIELD_FOCUS_WITHDRAWN, frame)
@@ -3894,9 +3894,9 @@ export function frameLoop(
       if (!held.document.schedule.tasks.some((one) => one.uid === created.uid)) return
       sendToSession({ type: 'createdTaskSelected', createdTaskUid: created.uid }, values)
     } else {
-      const madeTaskGroup = held.document.schedule.taskGroups.find((one) => one.id === created.groupId)
+      const madeTaskGroup = held.document.schedule.taskGroups.find((one) => one.id === created.taskGroupId)
       if (madeTaskGroup === undefined) return
-      sendToSession({ type: 'createdTaskGroupSelected', createdGroupId: created.groupId }, values)
+      sendToSession({ type: 'createdTaskGroupSelected', createdGroupId: created.taskGroupId }, values)
     }
     showPropertiesOfChoice(created.kind === 'task' ? 'objects' : 'taskGroups')
     resetFieldFocusRetries()

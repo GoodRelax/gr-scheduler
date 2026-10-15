@@ -161,7 +161,7 @@ const row = (id: string, parentId: string | null, label: string): Loose => ({
   id,
   parentId,
   order: 0,
-  label,
+  name: label,
   derivedFromTaskUid: null,
   treeState: 'expanded',
 })
@@ -177,8 +177,8 @@ const SCHEDULE = {
   ],
   taskGroups: [row(TOP, null, TOP_NAME), row(INNER, TOP, INNER_NAME)],
   taskGroupMembers: [
-    { taskUid: NAMED_UID, groupId: INNER },
-    { taskUid: NAMELESS_UID, groupId: TOP },
+    { taskUid: NAMED_UID, taskGroupId: INNER },
+    { taskUid: NAMELESS_UID, taskGroupId: TOP },
   ],
   resources: [
     { ...firstOf('resources'), uid: 301, name: FIRST_ASSIGNEE },
@@ -194,7 +194,7 @@ const SCHEDULE = {
       leaderShapeKind: null,
       text: COMMENT_LINES.join('\n'),
       anchorDate: '2026-05-02T00:00:00',
-      anchorGroupId: INNER,
+      anchorTaskGroupId: INNER,
       bodyOffsetPx: null,
       strokeColor: null,
       strokeWidthPx: null,

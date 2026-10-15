@@ -213,7 +213,7 @@ const FS = 1
 const after = (uid: number): Record<string, unknown> => ({
   predecessorUid: uid,
   linkType: FS,
-  lag: 0,
+  linkLag: 0,
   lagFormat: 7,
   carry: {},
   carryElements: [],
@@ -224,7 +224,7 @@ function flatDocument(statusDate: string, tasks: readonly Record<string, unknown
   raw.schedule.project.statusDate = statusDate
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = tasks
-  raw.schedule.taskGroupMembers = tasks.map((task) => ({ taskUid: task['uid'], groupId: 'r0' }))
+  raw.schedule.taskGroupMembers = tasks.map((task) => ({ taskUid: task['uid'], taskGroupId: 'r0' }))
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
   return decoded.document

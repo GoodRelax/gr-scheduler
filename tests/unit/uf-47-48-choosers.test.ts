@@ -492,12 +492,12 @@ function taskGroup(id: string, label: string): Record<string, unknown> {
   return {
     id,
     parentId: null,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   }
 }
 
@@ -532,7 +532,7 @@ function documentWith(
       resources: [],
       assignments: [],
       taskGroups: [taskGroup(rowId, taskGroupLabel)],
-      taskGroupMembers: uids.map((uid) => ({ taskUid: uid, groupId: rowId })),
+      taskGroupMembers: uids.map((uid) => ({ taskUid: uid, taskGroupId: rowId })),
       taskVisuals: uids.map(blankTaskVisual),
       commentBoxes: [],
       highlightBoxes: [],
@@ -1637,8 +1637,8 @@ describe('CS-4 -- what the screen does while the person is being waited on', () 
     expect(uidsOf(loop.document())).toEqual([1, 2])
     expect(baselineUidsOf(loop.document())).toEqual([HERE_AND_THERE])
     // WHY: FR-015 (MUST) sets S-69 of table T-202 true when an overlay is read -- so the landing turns
-    // baselineVisible on and keeps every other value written in the wait.
-    expect((loop.document() as any).documentSettings).toEqual({ ...written, baselineVisible: true })
+    // isBaselineVisible on and keeps every other value written in the wait.
+    expect((loop.document() as any).documentSettings).toEqual({ ...written, isBaselineVisible: true })
   })
 })
 

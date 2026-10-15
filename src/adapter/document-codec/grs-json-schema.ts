@@ -44,7 +44,7 @@ interface SchemaNode {
 const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   Project: {
     type: ['object'],
-    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'created', 'revision', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'defaultStartTime', 'defaultFinishTime', 'themeHue', 'parentProgressToleranceDays', 'uidHighWaterMark', 'importSeq', 'carry', 'carryElements', 'outlineBase', 'sourceFormat', 'scheduleDataTimeZone'],
+    required: ['id', 'name', 'title', 'subject', 'category', 'company', 'manager', 'author', 'creationDate', 'revision', 'startDate', 'statusDate', 'minutesPerDay', 'minutesPerWeek', 'daysPerMonth', 'weekStartDay', 'calendarUid', 'defaultStartTime', 'defaultFinishTime', 'themeHue', 'parentProgressToleranceDays', 'uidHighWaterMark', 'importSequence', 'carry', 'carryElements', 'outlineBase', 'sourceFormat', 'scheduleDataTimeZone'],
     closed: true,
     properties: {
       id: {
@@ -72,7 +72,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       author: {
         type: ['string', 'null'],
       },
-      created: {
+      creationDate: {
         ref: 'DateTime',
       },
       revision: {
@@ -119,7 +119,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       uidHighWaterMark: {
         type: ['integer'],
       },
-      importSeq: {
+      importSequence: {
         type: ['integer'],
       },
       carry: {
@@ -223,7 +223,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   Dependency: {
     type: ['object'],
-    required: ['predecessorUid', 'linkType', 'lag', 'lagFormat', 'carry', 'carryElements'],
+    required: ['predecessorUid', 'linkType', 'linkLag', 'lagFormat', 'carry', 'carryElements'],
     closed: true,
     properties: {
       predecessorUid: {
@@ -234,7 +234,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         minimum: 0,
         maximum: 3,
       },
-      lag: {
+      linkLag: {
         type: ['integer', 'null'],
       },
       lagFormat: {
@@ -253,7 +253,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   TaskGroup: {
     type: ['object'],
-    required: ['id', 'parentId', 'label', 'derivedFromTaskUid', 'order', 'treeState', 'editGroup', 'color', 'minHeight'],
+    required: ['id', 'parentId', 'name', 'derivedFromTaskUid', 'order', 'treeState', 'editGroup', 'color', 'minHeightPx'],
     closed: true,
     properties: {
       id: {
@@ -262,7 +262,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       parentId: {
         type: ['string', 'null'],
       },
-      label: {
+      name: {
         type: ['string', 'null'],
       },
       derivedFromTaskUid: {
@@ -281,20 +281,20 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
         type: ['string', 'null'],
         pattern: '^(?:white|dimgray|lightgray|red|blue|yellow|green|orange|purple|transparent|#[0-9a-fA-F]{6}/(?:#[0-9a-fA-F]{6})?|/#[0-9a-fA-F]{6})$',
       },
-      minHeight: {
+      minHeightPx: {
         type: ['integer', 'null'],
       },
     },
   },
   TaskGroupMember: {
     type: ['object'],
-    required: ['taskUid', 'groupId'],
+    required: ['taskUid', 'taskGroupId'],
     closed: true,
     properties: {
       taskUid: {
         type: ['integer'],
       },
-      groupId: {
+      taskGroupId: {
         type: ['string'],
       },
     },
@@ -520,7 +520,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   TaskOrigin: {
     type: ['object'],
-    required: ['taskUid', 'sourceProjectUid', 'sourceUid', 'lastSeenImportSeq', 'importSessionId'],
+    required: ['taskUid', 'sourceProjectUid', 'sourceUid', 'lastSeenImportSequence', 'importSessionId'],
     closed: true,
     properties: {
       taskUid: {
@@ -532,7 +532,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       sourceUid: {
         type: ['integer'],
       },
-      lastSeenImportSeq: {
+      lastSeenImportSequence: {
         type: ['integer'],
       },
       importSessionId: {
@@ -542,7 +542,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   CommentBox: {
     type: ['object'],
-    required: ['id', 'leaderShapeKind', 'text', 'anchorDate', 'anchorGroupId', 'bodyOffsetPx', 'strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor'],
+    required: ['id', 'leaderShapeKind', 'text', 'anchorDate', 'anchorTaskGroupId', 'bodyOffsetPx', 'strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor'],
     closed: true,
     properties: {
       id: {
@@ -557,7 +557,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       anchorDate: {
         ref: 'DateTime',
       },
-      anchorGroupId: {
+      anchorTaskGroupId: {
         type: ['string', 'null'],
       },
       bodyOffsetPx: {
@@ -595,22 +595,22 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   HighlightBox: {
     type: ['object'],
-    required: ['id', 'startDate', 'endDate', 'topGroupId', 'bottomGroupId', 'strokeColor', 'cornerRadiusPx', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent'],
+    required: ['id', 'start', 'finish', 'topTaskGroupId', 'bottomTaskGroupId', 'strokeColor', 'cornerRadiusPx', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent'],
     closed: true,
     properties: {
       id: {
         type: ['string'],
       },
-      startDate: {
+      start: {
         ref: 'DateTime',
       },
-      endDate: {
+      finish: {
         ref: 'DateTime',
       },
-      topGroupId: {
+      topTaskGroupId: {
         type: ['string', 'null'],
       },
-      bottomGroupId: {
+      bottomTaskGroupId: {
         type: ['string', 'null'],
       },
       strokeColor: {
@@ -659,26 +659,26 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   documentStamp: {
     type: ['object'],
-    required: ['scheduleUpdatedUtc', 'lastEditedBy', 'settingsUpdatedUtc', 'fileSavedUtc'],
+    required: ['scheduleUpdatedAt', 'lastEditedBy', 'settingsUpdatedAt', 'fileSavedAt'],
     closed: true,
     properties: {
-      scheduleUpdatedUtc: {
+      scheduleUpdatedAt: {
         type: ['string'],
       },
       lastEditedBy: {
         type: ['string'],
       },
-      settingsUpdatedUtc: {
+      settingsUpdatedAt: {
         type: ['string'],
       },
-      fileSavedUtc: {
+      fileSavedAt: {
         type: ['string', 'null'],
       },
     },
   },
   changeLog: {
     type: ['object'],
-    required: ['ordinal', 'editedBy', 'explanation', 'changedUtc'],
+    required: ['ordinal', 'editedBy', 'explanation', 'changedAt'],
     closed: true,
     properties: {
       ordinal: {
@@ -690,7 +690,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
       explanation: {
         type: ['string'],
       },
-      changedUtc: {
+      changedAt: {
         type: ['string'],
       },
     },
@@ -857,24 +857,9 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
     },
     documentSettings: {
       type: ['object'],
-      required: ['actualVisible', 'assigneeVisible', 'baselineVisible', 'dateGridLinesVisible', 'dependencyVisible', 'displayScale', 'displayTimeZones', 'fitSpanFinish', 'fitSpanFixed', 'fitSpanStart', 'fontScale', 'groupGridLinesVisible', 'levelZeroTreeState', 'percentCompleteVisible', 'pinnedGroupIds', 'planDatesVisible', 'planVisible', 'progressLineVisible', 'progressMarkerVisible', 'rulerFont', 'rulerHeight', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'showsTimeOfDay', 'stackDirection', 'tableViews', 'taskGroupPanelWidth', 'taskGroupPanelWidthFixed', 'themeMonochrome', 'viewTimeZone', 'zoomX', 'zoomY'],
+      required: ['displayScale', 'displayTimeZones', 'fitSpanFinish', 'fitSpanStart', 'fontScale', 'isActualVisible', 'isAssigneeVisible', 'isBaselineVisible', 'isDateGridLinesVisible', 'isDependencyVisible', 'isFitSpanFixed', 'isGroupGridLinesVisible', 'isPercentCompleteVisible', 'isPlanDatesVisible', 'isPlanVisible', 'isProgressLineVisible', 'isProgressMarkerVisible', 'isTaskGroupPanelWidthFixed', 'isThemeMonochrome', 'isTimeOfDayVisible', 'levelZeroTreeState', 'pinnedTaskGroupIds', 'rulerFontSizePx', 'rulerHeightPx', 'scrollDate', 'scrollDayOffset', 'scrollGroupOffset', 'scrollTaskGroupId', 'stackDirection', 'tableViews', 'taskGroupPanelWidthPx', 'viewTimeZone', 'zoomX', 'zoomY'],
       closed: true,
       properties: {
-        actualVisible: {
-          type: ['boolean'],
-        },
-        assigneeVisible: {
-          type: ['boolean'],
-        },
-        baselineVisible: {
-          type: ['boolean'],
-        },
-        dateGridLinesVisible: {
-          type: ['boolean'],
-        },
-        dependencyVisible: {
-          type: ['boolean'],
-        },
         displayScale: {
           enum: [50, 67, 75, 90, 100, 110, 125, 150, 175, 200],
         },
@@ -887,46 +872,70 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         fitSpanFinish: {
           type: ['string', 'null'],
         },
-        fitSpanFixed: {
-          type: ['boolean'],
-        },
         fitSpanStart: {
           type: ['string', 'null'],
         },
         fontScale: {
           enum: ['S', 'M', 'L'],
         },
-        groupGridLinesVisible: {
+        isActualVisible: {
+          type: ['boolean'],
+        },
+        isAssigneeVisible: {
+          type: ['boolean'],
+        },
+        isBaselineVisible: {
+          type: ['boolean'],
+        },
+        isDateGridLinesVisible: {
+          type: ['boolean'],
+        },
+        isDependencyVisible: {
+          type: ['boolean'],
+        },
+        isFitSpanFixed: {
+          type: ['boolean'],
+        },
+        isGroupGridLinesVisible: {
+          type: ['boolean'],
+        },
+        isPercentCompleteVisible: {
+          type: ['boolean'],
+        },
+        isPlanDatesVisible: {
+          type: ['boolean'],
+        },
+        isPlanVisible: {
+          type: ['boolean'],
+        },
+        isProgressLineVisible: {
+          type: ['boolean'],
+        },
+        isProgressMarkerVisible: {
+          type: ['boolean'],
+        },
+        isTaskGroupPanelWidthFixed: {
+          type: ['boolean'],
+        },
+        isThemeMonochrome: {
+          type: ['boolean'],
+        },
+        isTimeOfDayVisible: {
           type: ['boolean'],
         },
         levelZeroTreeState: {
           enum: ['auto', 'collapsed'],
         },
-        percentCompleteVisible: {
-          type: ['boolean'],
-        },
-        pinnedGroupIds: {
+        pinnedTaskGroupIds: {
           type: ['array'],
           items: {
             type: ['string'],
           },
         },
-        planDatesVisible: {
-          type: ['boolean'],
-        },
-        planVisible: {
-          type: ['boolean'],
-        },
-        progressLineVisible: {
-          type: ['boolean'],
-        },
-        progressMarkerVisible: {
-          type: ['boolean'],
-        },
-        rulerFont: {
+        rulerFontSizePx: {
           type: ['number'],
         },
-        rulerHeight: {
+        rulerHeightPx: {
           type: ['number'],
         },
         scrollDate: {
@@ -935,14 +944,11 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
         scrollDayOffset: {
           type: ['number'],
         },
-        scrollGroupId: {
-          type: ['string', 'null'],
-        },
         scrollGroupOffset: {
           type: ['number'],
         },
-        showsTimeOfDay: {
-          type: ['boolean'],
+        scrollTaskGroupId: {
+          type: ['string', 'null'],
         },
         stackDirection: {
           enum: ['up', 'down'],
@@ -1032,14 +1038,8 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
             },
           },
         },
-        taskGroupPanelWidth: {
+        taskGroupPanelWidthPx: {
           type: ['number'],
-        },
-        taskGroupPanelWidthFixed: {
-          type: ['boolean'],
-        },
-        themeMonochrome: {
-          type: ['boolean'],
         },
         viewTimeZone: {
           enum: ['UTC-12:00', 'UTC-11:00', 'UTC-10:00', 'UTC-09:00', 'UTC-08:00', 'UTC-07:00', 'UTC-06:00', 'UTC-05:00', 'UTC-04:00', 'UTC-03:00', 'UTC-02:00', 'UTC-01:00', 'UTC+00:00', 'UTC+01:00', 'UTC+02:00', 'UTC+03:00', 'UTC+04:00', 'UTC+05:00', 'UTC+05:30', 'UTC+06:00', 'UTC+07:00', 'UTC+08:00', 'UTC+09:00', 'UTC+10:00', 'UTC+11:00', 'UTC+12:00', 'UTC+13:00', null],

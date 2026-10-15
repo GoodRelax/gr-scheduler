@@ -94,8 +94,8 @@ const settingsOf = (): DocumentSettings =>
     ...nestedDefaults(),
     scrollDate: '2026-01-01',
     displayScale: DEFAULT_DISPLAY_SCALE,
-    assigneeVisible: true,
-    percentCompleteVisible: true,
+    isAssigneeVisible: true,
+    isPercentCompleteVisible: true,
   }) as unknown as DocumentSettings
 
 const ENV: ScreenEnvironment = { width: 1600, height: 900, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
@@ -135,14 +135,14 @@ const SCHEDULE: Schedule = {
   taskGroups: SHAPES.map((_shape, index) => ({
     id: `g${index + 1}`,
     parentId: null,
-    label: `row${index + 1}`,
+    name: `row${index + 1}`,
     derivedFromTaskUid: null,
     order: index,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   })),
-  taskGroupMembers: SHAPES.map((_shape, index) => ({ groupId: `g${index + 1}`, taskUid: index + 1 })),
+  taskGroupMembers: SHAPES.map((_shape, index) => ({ taskGroupId: `g${index + 1}`, taskUid: index + 1 })),
   taskVisuals: SHAPES.map((shapeKind, index) => ({ taskUid: index + 1, shapeKind })),
   taskOrigins: [],
   baselineTasks: [],

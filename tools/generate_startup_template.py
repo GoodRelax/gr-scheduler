@@ -148,8 +148,11 @@ STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 # holds the format.
 # CR-723: documentSettings gained tableViews (the three tables' saved views).
 # CR-710: Project.scheduleDataTimeZone, WeekDay / Exception workingTimes and
-# three settings keys (viewTimeZone, displayTimeZones, showsTimeOfDay).
-SCHEMA_VERSION = '2026-10-11T04:10:00Z'
+# three settings keys (viewTimeZone, displayTimeZones, isTimeOfDayVisible).
+# CR-769 (JDG-2245..2247): stored keys follow the English convention -- is/has
+# booleans, taskGroupId, TaskGroup.name, unit suffixes, ...At instants,
+# creationDate, linkLag, importSequence, HighlightBox start/finish.
+SCHEMA_VERSION = '2026-10-15T05:52:20Z'
 # CR-699 (DR-4): the first key of every document this file writes. S-540 of
 # table T-206 holds it; read through the one reader of not-stored strings.
 SCHEMA_ADDRESS = settings_reader.not_stored_string('S-540')
@@ -533,7 +536,7 @@ WAITS_ON = (
 # every task of another.
 WAITING_LINKS = 3
 
-# The unit of `Dependency.lag`. ⭐ AT-47 stores it in tenths of a minute
+# The unit of `Dependency.linkLag`. ⭐ AT-47 stores it in tenths of a minute
 # whatever `lagFormat` says (JDG-1201); S-118 is only the unit the panel SHOWS,
 # working days, and FR-009 has a working-day lag written with `lagFormat` 7,
 # the one format GRS reads (JDG-1208). A lag without a format is a number
@@ -550,7 +553,7 @@ TENTHS_OF_A_MINUTE = 10
 
 
 def lag_of_working_days(days):
-    """The stored `lag` of a gap of `days` working days (FR-009, AT-47).
+    """The stored `linkLag` of a gap of `days` working days (FR-009, AT-47).
 
     The template writes `Project.minutesPerDay` as null, so a working day is
     S-128's minutes (FR-054), read from the generated table, never retyped.
@@ -1652,7 +1655,7 @@ class Builder(object):
         }
         self.tasks.append(task)
         self.by_uid[uid] = task
-        self.members.append({'taskUid': uid, 'groupId': row['id']})
+        self.members.append({'taskUid': uid, 'taskGroupId': row['id']})
         row['tasks'].append(uid)
         task['startAt'] = start_at
         task['finishAt'] = finish_at
@@ -2441,9 +2444,9 @@ class Builder(object):
                 # ⚠️ Only a finish-to-start link has room between its ends to
                 # measure; the other three name one edge of each bar, so the
                 # value there is S-117's zero.
-                'lag': lag_of_working_days(gap if kind == 1 else 0),
+                'linkLag': lag_of_working_days(gap if kind == 1 else 0),
                 # ⛔ NOT left unstated. `erd.json` says this column IS the unit
-                # of `lag`, and the exchange partner's own documentation says
+                # of `linkLag`, and the exchange partner's own documentation says
                 # "LinkLag requires a LagFormat to be specified". The code for
                 # working days is read from the canon, not invented.
                 'lagFormat': LAG_FORMAT_WORKING_DAYS,
@@ -2690,7 +2693,7 @@ class Builder(object):
             'manager': PROJECT_MANAGER,               # PF-5
             'author': PROJECT_AUTHOR,                 # PF-6
             # WT-9: the moment the sample was made, which is the day it names.
-            'created': text_of_day_start(PROJECT_CREATED),  # PF-9
+            'creationDate': text_of_day_start(PROJECT_CREATED),  # PF-9
             'revision': PROJECT_REVISION,             # PF-7
             'startDate': text_of_start_side(PROJECT_START, False),
             'statusDate': text_of_finish_side(WORKDAYS[status_at]),
@@ -2707,7 +2710,7 @@ class Builder(object):
             # AT-156 (CR-651): the tolerance VS-6 allows, saved with the document.
             'parentProgressToleranceDays': manuscript_number('S-487'),
             'uidHighWaterMark': self.next_uid,
-            'importSeq': 0,
+            'importSequence': 0,
             # FR-021: a document GRS made itself counts its outline
             # from 1, which is the shape ProjectLibre writes too.
             'outlineBase': 1,
@@ -2733,7 +2736,7 @@ class Builder(object):
             out.append({
                 'id': row['id'],
                 'parentId': row['parent']['id'] if row['parent'] else None,
-                'label': row['label'],
+                'name': row['label'],
                 # FR-058 lets a task group take its name from the task it was derived
                 # from; every task group here names itself, and AT-54 only forbids a
                 # task group with neither.
@@ -2745,7 +2748,7 @@ class Builder(object):
                 # that has never met a server must say.
                 'editGroup': None,
                 'color': color,
-                'minHeight': min_height,
+                'minHeightPx': min_height,
             })
         return out
 
@@ -3216,7 +3219,7 @@ def check_vocabulary(built):
     rows = dict((row['id'], row) for row in built.rows)
     where = {}
     for member in built.members:
-        where[member['taskUid']] = rows[member['groupId']]
+        where[member['taskUid']] = rows[member['taskGroupId']]
     shapes = {}
     for task in built.tasks:
         row = where[task['uid']]
@@ -3453,7 +3456,7 @@ def check_links(built):
                    'A17: %s depends on %s across %d working days, and a link '
                    'that far apart constrains nothing'
                    % (task['name'], pred['name'], gap))
-            insist(link['lag'] == lag_of_working_days(gap if kind == 1 else 0),
+            insist(link['linkLag'] == lag_of_working_days(gap if kind == 1 else 0),
                    'A17: the lag on %s does not measure its own gap'
                    % task['name'])
             insist(link['lagFormat'] == LAG_FORMAT_WORKING_DAYS,
@@ -3486,7 +3489,7 @@ def check_reach(built):
     where = {}
     rows = dict((row['id'], row) for row in built.rows)
     for member in built.members:
-        where[member['taskUid']] = rows[member['groupId']]
+        where[member['taskUid']] = rows[member['taskGroupId']]
     successors = {}
     pairs = {}
     inside = 0
@@ -4011,7 +4014,7 @@ def check_settings_bounds(settings):
     only the literal numbers, and the generated schema already enforces those
     (`fontMin` carries minimum 12 and maximum 40 there). None of the 25 rows
     whose bound NAMES another setting were in it, so `markerSize` = 100 with a
-    ceiling of `actualMin` = 16, and `rulerFont` = 5 with a floor of `fontMin`
+    ceiling of `actualMin` = 16, and `rulerFontSizePx` = 5 with a floor of `fontMin`
     = 12, both wrote the file happily.
 
     @purity semi-pure-b
@@ -4023,7 +4026,7 @@ def check_settings_bounds(settings):
             stated[key] = float(value)
         elif isinstance(value, list):
             # ⛔ A LIST HAS A LENGTH, AND THAT IS WHAT ITS BOUND BOUNDS.
-            # `pinnedGroupIds` (S-126) states a ceiling of `pinnedTaskGroupMax` and
+            # `pinnedTaskGroupIds` (S-126) states a ceiling of `pinnedTaskGroupMax` and
             # a floor of no items, and the row was skipped entirely because
             # the value was not a number -- so the one setting in the table
             # whose bound counts task groups was the one bound nobody read.
@@ -4078,7 +4081,7 @@ def check_invariants(document, settings):
     task_uids = set(one['uid'] for one in tasks)
     group_ids = set(one['id'] for one in groups)
 
-    for pinned in settings['pinnedGroupIds']:
+    for pinned in settings['pinnedTaskGroupIds']:
         insist(pinned in group_ids,
                'IV-3: a pinned task group points at %s, which is not a TaskGroup'
                % pinned)
@@ -4102,14 +4105,14 @@ def check_invariants(document, settings):
         depth, at, seen = 1, group['parentId'], set([group['id']])
         while at is not None:
             insist(at not in seen,
-                   'IV-5: the task groups above %s are a cycle' % group['label'])
+                   'IV-5: the task groups above %s are a cycle' % group['name'])
             seen.add(at)
             depth += 1
             at = above[at]
         cap = constant('maxGroupDepth')
         insist(depth <= cap,
                'IV-5: the task group %s sits %d deep, over the cap of %d'
-               % (group['label'], depth, cap))
+               % (group['name'], depth, cap))
 
     held = {}
     for member in schedule['taskGroupMembers']:
@@ -4141,9 +4144,9 @@ def check_invariants(document, settings):
            'IV-17: the document calendar works none of the seven days')
 
     for group in groups:
-        insist(group['label'] is not None
+        insist(group['name'] is not None
                or group['derivedFromTaskUid'] is not None,
-               'IV-8: a task group has neither a label nor a task to take one from')
+               'IV-8: a task group has neither a name nor a task to take one from')
 
     for visual in schedule['taskVisuals']:
         insist(not (visual['fillColor'] == 'transparent'
@@ -4178,7 +4181,7 @@ def check_invariants(document, settings):
     # document, so the condition is enforced -- once.
 
     for origin in schedule['taskOrigins']:
-        insist(origin['lastSeenImportSeq'] <= schedule['project']['importSeq'],
+        insist(origin['lastSeenImportSequence'] <= schedule['project']['importSequence'],
                'IV-15: a task origin has been seen after the last import')
 
     check_settings_bounds(settings)
@@ -4570,13 +4573,13 @@ def build():
         'documentStamp': {
             # FR-063: the two instants say WHICH document this is, never which
             # is newer. A template nobody has edited has one instant for both.
-            'scheduleUpdatedUtc': STAMPED_AT,
+            'scheduleUpdatedAt': STAMPED_AT,
             'lastEditedBy': STAMP_AUTHOR,
-            'settingsUpdatedUtc': STAMPED_AT,
+            'settingsUpdatedAt': STAMPED_AT,
             # AT-140, FR-101: the time the document was last written to
             # a file. A bundled template has never been written to one,
             # so it is null and the screen says so rather than a time.
-            'fileSavedUtc': None,
+            'fileSavedAt': None,
         },
         'changeLog': [],
     }
@@ -4622,7 +4625,7 @@ def empty_document():
     # BK-4 / JDG-1184 (reading B): weekStartDay is not nulled; it takes S-108,
     # the default FR-054 names for a document no import has profiled.
     project['weekStartDay'] = CALENDAR_VALUES['S-108']
-    project['importSeq'] = manuscript_number('S-71')
+    project['importSequence'] = manuscript_number('S-71')
     project['uidHighWaterMark'] = 0
     project['outlineBase'] = 1
     project['sourceFormat'] = PROJECT_SOURCE_FORMAT
@@ -4649,12 +4652,12 @@ def empty_document():
             'baselineTasks': [],
         },
         'documentSettings': settings,
-        # BK-6: the replacement (RD-7) advances these; fileSavedUtc stays empty.
+        # BK-6: the replacement (RD-7) advances these; fileSavedAt stays empty.
         'documentStamp': {
-            'scheduleUpdatedUtc': STAMPED_AT,
+            'scheduleUpdatedAt': STAMPED_AT,
             'lastEditedBy': STAMP_AUTHOR,
-            'settingsUpdatedUtc': STAMPED_AT,
-            'fileSavedUtc': None,
+            'settingsUpdatedAt': STAMPED_AT,
+            'fileSavedAt': None,
         },
         'changeLog': [],
     }

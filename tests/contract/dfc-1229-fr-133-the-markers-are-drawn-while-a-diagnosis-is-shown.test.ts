@@ -25,8 +25,8 @@ const APP_HEADER = bare(specTable('T-109').rows.find((one) => one.id === DIAGNOS
 
 const ROW_ID = '11111111-1111-4111-8111-111111111111'
 
-const documentWith = (progressMarkerVisible: boolean): Document => {
-  const settings = { ...structuredClone(TEMPLATE.documentSettings), progressMarkerVisible }
+const documentWith = (isProgressMarkerVisible: boolean): Document => {
+  const settings = { ...structuredClone(TEMPLATE.documentSettings), isProgressMarkerVisible }
   return {
     '$schema': TEMPLATE['$schema'],
     schemaVersion: TEMPLATE.schemaVersion,
@@ -44,9 +44,9 @@ const documentWith = (progressMarkerVisible: boolean): Document => {
       resources: [],
       assignments: [],
       taskGroups: [
-        { id: ROW_ID, parentId: null, label: 'Alpha', derivedFromTaskUid: null, order: 0, treeState: 'auto', editGroup: null, color: null, minHeight: null },
+        { id: ROW_ID, parentId: null, name: 'Alpha', derivedFromTaskUid: null, order: 0, treeState: 'auto', editGroup: null, color: null, minHeightPx: null },
       ],
-      taskGroupMembers: [{ taskUid: 1, groupId: ROW_ID }],
+      taskGroupMembers: [{ taskUid: 1, taskGroupId: ROW_ID }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -74,7 +74,7 @@ const pointer = (phase: PointerInput['phase'], x: number, y: number): PointerInp
   kind: 'pointer', phase, button: 'left', x, y, modifiers: NO_MODIFIERS, clickCount: 1,
 })
 
-const benchOf = (progressMarkerVisible: boolean) => {
+const benchOf = (isProgressMarkerVisible: boolean) => {
   const waiting: ((time: number) => void)[] = []
   GLOBAL['requestAnimationFrame'] = (callback: (time: number) => void): number => waiting.push(callback)
   const drain = (): void => {
@@ -88,7 +88,7 @@ const benchOf = (progressMarkerVisible: boolean) => {
     readFieldCommit: () => null,
     readScreenPartAt: () => aimed,
   }
-  const loop = frameLoop({ showSvg: (svg: string) => void (shown = svg) } as never, documentWith(progressMarkerVisible), SCREEN, { surface, language: 'ja' })
+  const loop = frameLoop({ showSvg: (svg: string) => void (shown = svg) } as never, documentWith(isProgressMarkerVisible), SCREEN, { surface, language: 'ja' })
   drain()
   const send = (input: HumanInput): void => {
     loop.receiveInput(input)
@@ -128,7 +128,7 @@ describe('DFC-1229: a diagnosis draws the progress markers whatever S-63 holds (
   it('FR-133 starting a diagnosis does not write S-63 (MUST NOT)', () => {
     const bench = benchOf(false)
     bench.pressDiagnose()
-    expect(bench.settings()['progressMarkerVisible']).toBe(false)
+    expect(bench.settings()['isProgressMarkerVisible']).toBe(false)
   })
 
   it('FR-133 ending the diagnosis takes the markers away again, S-63 being false', () => {

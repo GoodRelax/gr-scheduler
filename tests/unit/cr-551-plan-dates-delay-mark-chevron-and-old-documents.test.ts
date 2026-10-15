@@ -103,7 +103,7 @@ interface Seed {
 
 function documentOf(seeds: readonly Seed[], settings: Record<string, unknown> = {}, schedule: Record<string, unknown> = {}) {
   const rows = seeds.map((_one, index) => ({ id: `g${index + 1}`, parentId: null }))
-  const document = taskGroupDocument(rows, { progressMarkerVisible: false, ...settings }, schedule)
+  const document = taskGroupDocument(rows, { isProgressMarkerVisible: false, ...settings }, schedule)
   document.schedule.tasks = seeds.map((one, index) =>
     taskOf(index + 1, { name: one.name, start: `${one.start}T08:00:00`, finish: `${one.finish}T17:00:00`, ...one.part }),
   )
@@ -136,7 +136,7 @@ describe('ND-5 (table T-251) -- the year beside the plan dates', () => {
           { name: 'Alpha', start: '2026-04-06', finish: '2026-04-10' },
           { name: 'Beta', start: '2026-11-02', finish: '2026-12-30' },
         ],
-        { planDatesVisible: true },
+        { isPlanDatesVisible: true },
       ),
     )
     expect(labelOf(built.loop, 1)).toBe('Alpha 4/6 - 4/10')
@@ -151,7 +151,7 @@ describe('ND-5 (table T-251) -- the year beside the plan dates', () => {
           { name: 'Alpha', start: '2025-12-29', finish: '2026-01-05' },
           { name: 'Beta', start: '2026-04-06', finish: '2026-04-10' },
         ],
-        { planDatesVisible: true },
+        { isPlanDatesVisible: true },
       ),
     )
     expect(labelOf(built.loop, 1)).toBe('Alpha 2025/12/29 - 2026/1/5')
@@ -162,7 +162,7 @@ describe('ND-5 (table T-251) -- the year beside the plan dates', () => {
     // see ND-5
     const built = bench(
       documentOf([{ name: 'Alpha', start: '2005-12-29', finish: '2006-01-05' }], {
-        planDatesVisible: true,
+        isPlanDatesVisible: true,
         scrollDate: '2005-12-01',
       }),
     )
@@ -188,7 +188,7 @@ describe('FR-002 -- plan dates at the name size x S-325', () => {
 
   it('FR-002: 予定日の文字（その前に置く半角空白を含む）は ... S-325 を掛けた大きさで描く -- the drawn tspan', () => {
     // see FR-002, S-325
-    const built = bench(documentOf([{ name: 'Alpha', start: '2026-04-06', finish: '2026-04-24' }], { planDatesVisible: true }))
+    const built = bench(documentOf([{ name: 'Alpha', start: '2026-04-06', finish: '2026-04-24' }], { isPlanDatesVisible: true }))
     const drawn = [...built.svg().matchAll(LABEL_TEXT)]
     expect(drawn.length, 'premise: the label is drawn as the name followed by one smaller part').toBe(1)
     const [, nameAttributes, , nameText, datesAttributes, datesText] = drawn[0] as RegExpMatchArray
@@ -201,7 +201,7 @@ describe('FR-002 -- plan dates at the name size x S-325', () => {
 
   it('FR-002: 名前の部分と予定日の部分をそれぞれの大きさで測った和 -- the width T-273 and OC-1 read', () => {
     // see FR-002, LC-5, OC-1
-    const document = documentOf([{ name: 'Alpha', start: '2026-04-06', finish: '2026-04-24' }], { planDatesVisible: true })
+    const document = documentOf([{ name: 'Alpha', start: '2026-04-06', finish: '2026-04-24' }], { isPlanDatesVisible: true })
     const shown = placementOf(bench(document).loop, 1)
     const font = shown.labelFontSize
     expect(shown.labelTextWidth).toBeCloseTo(lc5('Alpha', font) + lc5(' 4/6 - 4/24', font * S_325), 3)
@@ -211,8 +211,8 @@ describe('FR-002 -- plan dates at the name size x S-325', () => {
     // see OC-1, FR-002
     // WHY: a one-day bar, so the name stands outside the shape with and without the dates.
     const seeds = [{ name: 'Alpha', start: '2026-04-06', finish: '2026-04-06' }]
-    const hidden = placementOf(bench(documentOf(seeds, { planDatesVisible: false })).loop, 1)
-    const shown = placementOf(bench(documentOf(seeds, { planDatesVisible: true })).loop, 1)
+    const hidden = placementOf(bench(documentOf(seeds, { isPlanDatesVisible: false })).loop, 1)
+    const shown = placementOf(bench(documentOf(seeds, { isPlanDatesVisible: true })).loop, 1)
     expect([hidden.labelPlacement, shown.labelPlacement], 'premise: the label stands outside the shape').toEqual(['right', 'right'])
     const grown = shown.occupiedX1 - shown.occupiedX0 - (hidden.occupiedX1 - hidden.occupiedX0)
     expect(grown).toBeCloseTo(lc5(' 4/6 - 4/6', shown.labelFontSize * S_325), 3)
@@ -235,7 +235,7 @@ function delayMark(): DelayMark {
   // WHY: a task that should have finished before the status date and has no actual start is late (PM-4).
   const document = documentOf(
     [{ name: 'Alpha', start: '2026-04-06', finish: '2026-04-24' }],
-    { progressMarkerVisible: true, themePreference: 'light' },
+    { isProgressMarkerVisible: true, themePreference: 'light' },
   )
   document.schedule.project.statusDate = '2026-05-08'
   const built = bench(document)
@@ -386,12 +386,12 @@ describe('FD-5 (table T-012a) -- the chevron ends', () => {
 })
 
 
-describe('S-63 -- progressMarkerVisible defaults to true', () => {
+describe('S-63 -- isProgressMarkerVisible defaults to true', () => {
   it('S-63: 既定 `true` -- the table, the settings defaults and the startup template agree', () => {
     // see S-63
     const row = verticalIn('T-202', 'S-63')
     const key = bare(row.by['キー'] ?? '')
-    expect(key).toBe('progressMarkerVisible')
+    expect(key).toBe('isProgressMarkerVisible')
     expect(bare(row.by['既定'] ?? '')).toBe('true')
     expect((SETTINGS_DEFAULTS as unknown as Record<string, unknown>)[key]).toBe(true)
     const template = JSON.parse(

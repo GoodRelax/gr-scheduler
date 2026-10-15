@@ -128,7 +128,7 @@ const SEEDS = [
 
 function seededDocument(settings: Record<string, unknown> = {}): Record<string, any> {
   const rows = SEEDS.map((_one, index) => ({ id: `g${index + 1}`, parentId: null }))
-  const document = taskGroupDocument(rows, { progressMarkerVisible: false, ...settings })
+  const document = taskGroupDocument(rows, { isProgressMarkerVisible: false, ...settings })
   document.schedule.tasks = SEEDS.map((one, index) =>
     taskOf(index + 1, { name: one.name, start: `${one.start}T08:00:00`, finish: `${one.finish}T17:00:00` }),
   )
@@ -150,7 +150,7 @@ const marginsOf = (loop: FrameLoop): { left: number; right: number; width: numbe
 describe('A: FR-055 / S-332 -- the first fit after a template start leaves the margin on both sides', () => {
   it('the first press of IC-10 on a document that stores no place (the startup template) leaves S-332 each side', () => {
     // see FR-055, S-332, OP-10
-    const built = started(seededDocument({ scrollDate: null, scrollGroupId: null }), { fromTemplate: true })
+    const built = started(seededDocument({ scrollDate: null, scrollTaskGroupId: null }), { fromTemplate: true })
     built.press('App Header', 'IC-10')
     const { left, right, width } = marginsOf(built.loop)
     expect(left, 'the left margin').toBeCloseTo(width * settingOf('S-332'), 0)
@@ -159,7 +159,7 @@ describe('A: FR-055 / S-332 -- the first fit after a template start leaves the m
 
   it('the same on a document without a stored place that did not come from the template', () => {
     // see FR-055, S-332
-    const built = started(seededDocument({ scrollDate: null, scrollGroupId: null, zoomX: 4 }))
+    const built = started(seededDocument({ scrollDate: null, scrollTaskGroupId: null, zoomX: 4 }))
     built.press('App Header', 'IC-10')
     const { left, right, width } = marginsOf(built.loop)
     expect(left, 'the left margin').toBeCloseTo(width * settingOf('S-332'), 0)
@@ -176,7 +176,7 @@ const horizontalBarOf = (built: ProbeBench) => {
 describe('B: GR-21 -- while the grip is held, the view stays inside the whole held from the press', () => {
   it('the grip follows the pointer, and where it meets the lane end the view stops with it', () => {
     // see GR-21, T-023d, FR-051
-    const built = started(seededDocument({ zoomX: 4, scrollDate: '2026-03-20', scrollGroupId: 'g1' }))
+    const built = started(seededDocument({ zoomX: 4, scrollDate: '2026-03-20', scrollTaskGroupId: 'g1' }))
     const bar = horizontalBarOf(built)
     const at = { x: bar.thumb.x + bar.thumb.width / 2, y: bar.thumb.y + bar.thumb.height / 2 }
     built.aim(partOf('Scrollbars', null, { scrollbarAxis: 'horizontal' }))
@@ -210,7 +210,7 @@ describe('B (the vertical twin): GR-21 -- the vertical grip holds the same whole
   it('the vertical grip follows the pointer, and where it meets the lane end the view stops with it', () => {
     // see GR-21, T-023d, FR-051
     const rows = Array.from({ length: 60 }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))
-    const built = started(taskGroupDocument(rows, { progressMarkerVisible: false, zoomY: 3 }))
+    const built = started(taskGroupDocument(rows, { isProgressMarkerVisible: false, zoomY: 3 }))
     const barOf = () => {
       const found = built.view().frame.scrollbars.find((one) => one.axis === 'vertical')
       if (found === undefined) throw new Error('SC-4 draws no vertical bar')
@@ -350,7 +350,7 @@ const PROPERTIES_PANEL = bare(specTable('T-103').rows.find((one) => one.id === '
 const panelRootOf = (bench: PanelBench): FakeElement => byRole(bench.built.root(), PROPERTIES_PANEL)[0] as FakeElement
 
 function taskPanel(task: Record<string, unknown> = {}, visual: Record<string, unknown> | null = null): PanelBench {
-  const document = taskGroupDocument([{ id: 'g1', parentId: null }], { progressMarkerVisible: false })
+  const document = taskGroupDocument([{ id: 'g1', parentId: null }], { isProgressMarkerVisible: false })
   document.schedule.tasks = [
     taskOf(1, { name: 'Alpha', start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00', ...task }),
   ]
@@ -498,7 +498,7 @@ describe('E: FR-051 E-14 -- the schedule is drawn only on the ground its task gr
   it('every layer of table T-020 sits inside one clip: the Task Group Area widened by canvasPadding to the vertical bar', () => {
     // see FR-051, EP-5, T-020
     const rows = Array.from({ length: 40 }, (_one, index) => ({ id: `g${index + 1}`, parentId: null }))
-    const document = taskGroupDocument(rows, { progressMarkerVisible: false, zoomY: 2 })
+    const document = taskGroupDocument(rows, { isProgressMarkerVisible: false, zoomY: 2 })
     const built = started(document)
     const svg = built.svg()
     const frame = built.loop.current()

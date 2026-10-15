@@ -12,12 +12,12 @@ import type {
   DelayQuantities,
 } from './delay-diagnostics'
 import {
-  DELAY_FIX_TYPES,
+  DELAY_FIX_KINDS,
   type DelayFixChoice,
   type DelayFixLink,
   type DelayFixLogRow,
   type DelayFixRow,
-  type DelayFixType,
+  type DelayFixKind,
   type DelayFixValue,
 } from './delay-fixes'
 import type { Schedule, Task } from './schedule-entities'
@@ -264,7 +264,7 @@ export interface DelayFixWords {
   readonly openFieldHint: string
   readonly cascadePrefix: string
   readonly readOnlyReason: string
-  readonly fixTypeOf: (fixType: DelayFixType) => string
+  readonly fixKindOf: (fixKind: DelayFixKind) => string
   readonly findingOf: (findingRow: string, taskUid: number) => string
   readonly columnOf: (column: string) => string
   readonly choiceOf: (choice: DelayFixChoice) => string
@@ -321,8 +321,8 @@ export function delayFixColumnsOf(table: DelayFixTable, columns: readonly string
 }
 
 /** @purity pure */
-function fixTypeRank(fixType: DelayFixType): number {
-  return DELAY_FIX_TYPES.indexOf(fixType)
+function fixKindRank(fixKind: DelayFixKind): number {
+  return DELAY_FIX_KINDS.indexOf(fixKind)
 }
 
 // see T-374, T-373
@@ -331,7 +331,7 @@ export function compareDelayFixRows(schedule: Schedule): (a: DelayFixRow, b: Del
   const startOf = plannedStartInstantsOf(schedule)
   const layerOf = (row: DelayFixRow): number => row.layer ?? Number.POSITIVE_INFINITY
   return (a, b) =>
-    fixTypeRank(a.fixType) - fixTypeRank(b.fixType) ||
+    fixKindRank(a.fixKind) - fixKindRank(b.fixKind) ||
     layerOf(a) - layerOf(b) ||
     b.depth - a.depth ||
     compareInstants(startOf.get(a.taskUid) ?? null, startOf.get(b.taskUid) ?? null) ||
@@ -407,7 +407,7 @@ export function delayFixValueText(value: DelayFixValue, words: DelayFixWords): s
 function proposalAfterText(row: DelayFixRow, words: DelayFixWords): string {
   const after = row.after === null ? '' : delayFixValueText(row.after, words)
   if (row.refusal === 'readOnly') return words.readOnlyReason
-  switch (row.fixType) {
+  switch (row.fixKind) {
     case 'byHand':
       return words.openFieldHint
     case 'choose': {
@@ -459,7 +459,7 @@ function proposalCellOf(column: string, row: DelayFixRow, words: DelayFixWords):
     case 'FM-1':
       return row.checked ? CHECK_MARK : ''
     case 'FM-3':
-      return words.fixTypeOf(row.fixType)
+      return words.fixKindOf(row.fixKind)
     case 'FM-8':
       return proposalAfterText(row, words)
     default:

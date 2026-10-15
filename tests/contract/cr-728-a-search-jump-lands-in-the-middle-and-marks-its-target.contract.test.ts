@@ -218,12 +218,12 @@ interface SceneSpec {
   readonly screenHeight?: number
 }
 
-const commentBoxOf = (id: string, anchorGroupId: string, anchorDate: string | null): Loose => ({
+const commentBoxOf = (id: string, anchorTaskGroupId: string, anchorDate: string | null): Loose => ({
   id,
   leaderShapeKind: null,
   text: id,
   anchorDate,
-  anchorGroupId,
+  anchorTaskGroupId,
   bodyOffsetPx: null,
   strokeColor: null,
   strokeWidthPx: null,
@@ -244,14 +244,14 @@ const scheduleOf = (spec: SceneSpec): Loose => ({
     id,
     parentId,
     order,
-    minHeight: null,
-    label: id,
+    minHeightPx: null,
+    name: id,
     derivedFromTaskUid: null,
     treeState: treeState ?? 'auto',
     editGroup: null,
     color: null,
   })),
-  taskGroupMembers: spec.tasks.map(([task, groupId]) => ({ groupId, taskUid: task['uid'] })),
+  taskGroupMembers: spec.tasks.map(([task, taskGroupId]) => ({ taskGroupId, taskUid: task['uid'] })),
   taskVisuals: spec.tasks.map(([task]) => ({ taskUid: task['uid'], shapeKind: 'rectangle' })),
   taskOrigins: [],
   baselineTasks: [],
@@ -349,14 +349,14 @@ const middleOfBox = (scene: Scene, id: string): { readonly x: number; readonly y
 const areaMiddleX = (scene: Scene): number => scene.regions.taskGroupArea.x + scene.regions.taskGroupArea.width / 2
 const wantedMiddleY = (scene: Scene): number => scene.regions.taskGroupArea.y + scene.regions.taskGroupArea.height * S_554
 
-const FAR_START = { scrollDate: iso(300), scrollGroupId: 'g25', scrollGroupOffset: 0.4, scrollDayOffset: 0.3 }
+const FAR_START = { scrollDate: iso(300), scrollTaskGroupId: 'g25', scrollGroupOffset: 0.4, scrollDayOffset: 0.3 }
 
 describe(`T-332 SJ-5 / SJ-6 -- ${SJ_5_MIDDLE}`, () => {
   it.each([
     ['from the top', {}, 15],
     ['from a view far below and to the right', FAR_START, 13],
-    ['from a view above the target', { scrollGroupId: 'g2', scrollGroupOffset: 0.7 }, 21],
-    ['from a view that already shows the target', { scrollGroupId: 'g10', scrollDate: iso(30) }, 15],
+    ['from a view above the target', { scrollTaskGroupId: 'g2', scrollGroupOffset: 0.7 }, 21],
+    ['from a view that already shows the target', { scrollTaskGroupId: 'g10', scrollDate: iso(30) }, 15],
   ] as const)('a task is put at the Task Group Area middle across and S-554 down, %s', (_name, start, uid) => {
     const { after } = jump(LONG_LIST, TASK(uid), start)
     expect(placementOf(after, uid), 'premise: the task is drawn after the jump').toBeDefined()
@@ -371,7 +371,7 @@ describe(`T-332 SJ-5 / SJ-6 -- ${SJ_5_MIDDLE}`, () => {
   })
 
   it('SJ-5: with pinned task groups the share is taken of the room the pinned band leaves, from its top edge', () => {
-    const pinned: SceneSpec = { ...LONG_LIST, settings: { pinnedGroupIds: ['g0', 'g1'] } }
+    const pinned: SceneSpec = { ...LONG_LIST, settings: { pinnedTaskGroupIds: ['g0', 'g1'] } }
     const { after } = jump(pinned, TASK(15), FAR_START)
     const band = after.layout.pinnedBandHeight ?? 0
     expect(band, 'premise: the pinned band takes room').toBeGreaterThan(0)
@@ -381,10 +381,10 @@ describe(`T-332 SJ-5 / SJ-6 -- ${SJ_5_MIDDLE}`, () => {
   })
 
   it('SJ-7: a target in a pinned task group is centered across and the vertical anchor is left alone', () => {
-    const pinned: SceneSpec = { ...LONG_LIST, settings: { pinnedGroupIds: ['g0', 'g1'] } }
+    const pinned: SceneSpec = { ...LONG_LIST, settings: { pinnedTaskGroupIds: ['g0', 'g1'] } }
     const { plan, after } = jump(pinned, TASK(1), FAR_START)
     expect(Math.abs(middleOfTask(after, 1).x - areaMiddleX(after)), SJ_6_MIDDLE).toBeLessThanOrEqual(WITHIN_A_PIXEL)
-    expect(scrollFieldsOf(plan)['scrollGroupId']).toBe(FAR_START.scrollGroupId)
+    expect(scrollFieldsOf(plan)['scrollTaskGroupId']).toBe(FAR_START.scrollTaskGroupId)
     expect(scrollFieldsOf(plan)['scrollGroupOffset']).toBe(FAR_START.scrollGroupOffset)
   })
 
@@ -447,7 +447,7 @@ describe(`T-332 SJ-5 / SJ-6 -- ${SJ_5_MIDDLE}`, () => {
 describe(`T-332 SJ-5 -- ${SJ_5_FIRST}`, () => {
   it.each([[2], [1]])('a task %i rows from the top stops at the first task group, so the shape is above the S-554 line', (uid) => {
     const { plan, after } = jump(LONG_LIST, TASK(uid), FAR_START)
-    expect(scrollFieldsOf(plan)['scrollGroupId'], SJ_5_FIRST).toBe('g0')
+    expect(scrollFieldsOf(plan)['scrollTaskGroupId'], SJ_5_FIRST).toBe('g0')
     expect(scrollFieldsOf(plan)['scrollGroupOffset'], SJ_5_FIRST).toBe(0)
     expect(middleOfTask(after, uid).y, SJ_5_FIRST).toBeLessThan(wantedMiddleY(after))
     expect(Math.abs(middleOfTask(after, uid).x - areaMiddleX(after)), 'SJ-6 still centers it').toBeLessThanOrEqual(WITHIN_A_PIXEL)
@@ -492,7 +492,7 @@ describe(`T-332 SJ-6 -- ${SJ_6_WIDE}`, () => {
     const spec = withWidth(daysFor(areaWidth - 2 * S_428 + 200), {
       resources: [{ ...(TEMPLATE['schedule'].resources[0] as Loose), uid: 1001, name: 'Analyst A' }],
       assignments: [{ ...(TEMPLATE['schedule'].assignments[0] as Loose), uid: 2001, taskUid: 15, resourceUid: 1001 }],
-      settings: { assigneeVisible: true, percentCompleteVisible: true },
+      settings: { isAssigneeVisible: true, isPercentCompleteVisible: true },
     })
     const withLabel = spec.tasks.map(([task, group]) => (task['uid'] === 15 ? ([{ ...task, percentComplete: 40 }, group] as const) : ([task, group] as const)))
     const { after } = jump({ ...spec, tasks: withLabel }, TASK(15), FAR_START)
@@ -698,7 +698,7 @@ describe(`T-332 SJ-10 -- ${SJ_10_EXPORT}`, () => {
 
 describe(`T-332 SJ-10 -- ${SJ_10_NOT_DRAWN}`, () => {
   it('a plan that is not shown (S-227 false) has no ring', () => {
-    const { after } = jump({ ...LONG_LIST, settings: { planVisible: false } }, TASK(15), FAR_START)
+    const { after } = jump({ ...LONG_LIST, settings: { isPlanVisible: false } }, TASK(15), FAR_START)
     expect(ringsOf(svgOf(after, landedOn(TASK(15)))), SJ_10_NOT_DRAWN).toEqual([])
   })
 
@@ -835,15 +835,15 @@ const shellDocument = (
       taskGroups: rows.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
-        label: `Row${String(index + 1)}`,
+        name: `Row${String(index + 1)}`,
         derivedFromTaskUid: null,
         order: index,
         treeState: one.treeState ?? 'auto',
         editGroup: null,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: tasks.map(([task, groupId]) => ({ taskUid: task['uid'], groupId })),
+      taskGroupMembers: tasks.map(([task, taskGroupId]) => ({ taskUid: task['uid'], taskGroupId })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -852,10 +852,10 @@ const shellDocument = (
     },
     documentSettings: {
       ...structuredClone(TEMPLATE['documentSettings']),
-      pinnedGroupIds: [],
+      pinnedTaskGroupIds: [],
       scrollDate: '2026-03-30',
       scrollDayOffset: 0,
-      scrollGroupId: rows[0]!.id,
+      scrollTaskGroupId: rows[0]!.id,
       scrollGroupOffset: 0,
       zoomX: 1,
       zoomY: 1,
@@ -973,7 +973,7 @@ describe(`AM-16 focusTask -- ${SJ_9_STEPS}`, () => {
     const shell = shellOf(SHELL_LONG())
     expect(ringCount(shell), 'premise: no mark before the jump').toBe(0)
     const outcome = focus(shell, 15)
-    expect(outcome.accepted, 'AM-16 accepts').toBe(true)
+    expect(outcome.ok, 'AM-16 accepts').toBe(true)
     const middle = shellMiddle(shell, 15)
     expect(Math.abs(middle.x - (shell.area().x + shell.area().width / 2)), SJ_6_MIDDLE).toBeLessThanOrEqual(WITHIN_A_PIXEL)
     expect(Math.abs(middle.y - (shell.area().y + shell.area().height * S_554)), SJ_5_MIDDLE).toBeLessThanOrEqual(WITHIN_A_PIXEL)
@@ -983,7 +983,7 @@ describe(`AM-16 focusTask -- ${SJ_9_STEPS}`, () => {
   it(`${SJ_5_AFTER_REVEAL}: a task under a folded task group is revealed first and then put S-554 down`, () => {
     const shell = shellOf(SHELL_LONG())
     expect(shell.placements().some((one) => one.taskUid === 50), 'premise: the folded task is not drawn').toBe(false)
-    expect(focus(shell, 50).accepted).toBe(true)
+    expect(focus(shell, 50).ok).toBe(true)
     const middle = shellMiddle(shell, 50)
     expect(Math.abs(middle.y - (shell.area().y + shell.area().height * S_554)), SJ_5_AFTER_REVEAL).toBeLessThanOrEqual(WITHIN_A_PIXEL)
     expect(Math.abs(middle.x - (shell.area().x + shell.area().width / 2)), SJ_6_MIDDLE).toBeLessThanOrEqual(WITHIN_A_PIXEL)
@@ -1011,7 +1011,7 @@ describe(`AM-16 focusTask -- ${SJ_9_STEPS}`, () => {
 
   it('an unknown task is refused and leaves no mark', () => {
     const shell = shellOf(SHELL_LONG())
-    expect(focus(shell, 9999).accepted).toBe(false)
+    expect(focus(shell, 9999).ok).toBe(false)
     expect(ringCount(shell)).toBe(0)
   })
 })
@@ -1122,16 +1122,16 @@ describe(`T-280 and EL-17 / EL-18 in the shell -- ${EL_17_CLEAR}`, () => {
 
 describe('SJ-8 / SJ-10 in the shell -- no room, no mark', () => {
   it(`${SJ_10_NOT_DRAWN}: a plan that is not shown draws no ring after the Agent API jump`, () => {
-    const shell = shellOf(SHELL_LONG({ planVisible: false }))
+    const shell = shellOf(SHELL_LONG({ isPlanVisible: false }))
     focus(shell, 15)
     expect(ringCount(shell), SJ_10_NOT_DRAWN).toBe(0)
   })
 
   it(`${SJ_10_NOT_DRAWN}: when pinned task groups leave no room the view is not brought and no ring is drawn`, () => {
     const pinned = GROUP_UUIDS.slice(0, 5)
-    const shell = shellOf(SHELL_LONG({ pinnedGroupIds: pinned, zoomY: 8 }))
+    const shell = shellOf(SHELL_LONG({ pinnedTaskGroupIds: pinned, zoomY: 8 }))
     const outcome = focus(shell, 15)
-    expect(outcome.accepted, 'AM-16 still answers').toBe(true)
+    expect(outcome.ok, 'AM-16 still answers').toBe(true)
     expect((outcome as { isScrolled?: boolean }).isScrolled, 'SJ-8 / SJ-9: the answer says the view was not brought').toBe(false)
     expect(ringCount(shell), SJ_10_NOT_DRAWN).toBe(0)
     const control = shellOf(SHELL_LONG({ zoomY: 8 }))

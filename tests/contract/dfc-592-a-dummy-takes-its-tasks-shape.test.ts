@@ -92,11 +92,11 @@ const scheduleOf = (one: Task, shapeKind: string): Schedule =>
   ({
     project: {
       id: null, name: null, title: null, subject: null, category: null, company: null,
-      manager: null, author: null, created: null, revision: null,
+      manager: null, author: null, creationDate: null, revision: null,
       startDate: '2026-03-01T00:00:00', statusDate: null, minutesPerDay: null,
       minutesPerWeek: null, daysPerMonth: null, weekStartDay: null,
       calendarUid: EVERY_DAY_WORKED.uid, themeHue: 214, uidHighWaterMark: 1000,
-      importSeq: 0, carry: {}, carryElements: [],
+      importSequence: 0, carry: {}, carryElements: [],
     },
     calendars: [EVERY_DAY_WORKED],
     tasks: [one],
@@ -104,12 +104,12 @@ const scheduleOf = (one: Task, shapeKind: string): Schedule =>
     assignments: [],
     taskGroups: [
       {
-        id: 'g1', parentId: null, label: 'g1', derivedFromTaskUid: null, order: 0,
-        treeState: 'auto', color: null, minHeight: null,
+        id: 'g1', parentId: null, name: 'g1', derivedFromTaskUid: null, order: 0,
+        treeState: 'auto', color: null, minHeightPx: null,
       } as unknown as TaskGroup,
     ],
     taskGroupMembers: [
-      { taskUid: 1, groupId: 'g1' },
+      { taskUid: 1, taskGroupId: 'g1' },
     ] as unknown as readonly TaskGroupMember[],
     taskVisuals: [visualOf(shapeKind)],
     commentBoxes: [],

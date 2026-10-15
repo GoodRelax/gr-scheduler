@@ -63,14 +63,14 @@ const LEFT_OFF_ROWS: readonly string[] = T_109.rows
 
 const rect = (x: number, y: number, width: number, height: number): ScreenRect => ({ x, y, width, height })
 
-const SETTINGS = { ...SETTINGS_DEFAULTS, taskGroupPanelWidth: 400 } as unknown as DocumentSettings
+const SETTINGS = { ...SETTINGS_DEFAULTS, taskGroupPanelWidthPx: 400 } as unknown as DocumentSettings
 
 const REGIONS: ScreenRegions = (() => {
   const width = 1280
   const height = 627
   const headerHeight = 56
-  const rulerHeight = 48
-  const titleWidth = SETTINGS.taskGroupPanelWidth
+  const rulerHeightPx = 48
+  const titleWidth = SETTINGS.taskGroupPanelWidthPx
   const padding = SETTINGS_CONSTANTS.canvasPadding
   const canvas = rect(0, headerHeight, width, height - headerHeight)
   const taskGroupAreaWidth = canvas.width - padding - titleWidth - 8
@@ -78,9 +78,9 @@ const REGIONS: ScreenRegions = (() => {
     appHeader: rect(0, 0, width, headerHeight),
     scheduleCanvas: canvas,
     taskGroupPanel: rect(canvas.x, canvas.y, titleWidth, canvas.height),
-    timeRuler: rect(canvas.x + titleWidth, canvas.y, taskGroupAreaWidth, rulerHeight),
+    timeRuler: rect(canvas.x + titleWidth, canvas.y, taskGroupAreaWidth, rulerHeightPx),
     propertiesPanel: rect(canvas.x + canvas.width, canvas.y, 0, canvas.height),
-    taskGroupArea: rect(canvas.x + titleWidth, canvas.y + rulerHeight, taskGroupAreaWidth, canvas.height - rulerHeight - padding - 8),
+    taskGroupArea: rect(canvas.x + titleWidth, canvas.y + rulerHeightPx, taskGroupAreaWidth, canvas.height - rulerHeightPx - padding - 8),
   }
 })()
 

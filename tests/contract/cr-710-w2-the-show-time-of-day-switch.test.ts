@@ -42,7 +42,7 @@ const CM_97 = commandNameOf('CM-97')
 
 const K_146 = 'K-146'
 const K_140 = 'K-140'
-const SHOWS_TIME_OF_DAY = 'showsTimeOfDay'
+const SHOWS_TIME_OF_DAY = 'isTimeOfDayVisible'
 
 const wordOf = (rowId: string, language: DisplayLanguage): string =>
   WORDS.settings.find((one) => one.rowId === rowId)?.label[language] ?? `(no dictionary word for ${rowId})`
@@ -120,7 +120,7 @@ describe('FR-158, FR-072 T-369 FO-13: the field of the switch', () => {
   })
 })
 
-describe('FR-158, CM-97: pressing the check box issues one setShowsTimeOfDay', () => {
+describe('FR-158, CM-97: pressing the check box issues one setTimeOfDayVisible', () => {
   it('turns the time on with one command of the name T-108 gives CM-97', () => {
     const document = documentWith({ [SHOWS_TIME_OF_DAY]: false })
     expect(kindsOf(commandFromFieldCommit(commitOf('true'), contextOf(document)))).toEqual([CM_97])

@@ -15,7 +15,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // WHY: each constant ends exactly at its marker, cut from the manuscript as check 39 reads it.
 const FR_041_OWN_GROUND = '地の色を自分で塗ること（MUST）。閲覧環境のシステム色に委ねてはならない（MUST NOT）'
-const CF_1_NOT_SAVED = '| CF-1 | 解くとき | テーマ色（`themeHue`）・明暗（`themePreference`）・モノクロ（`themeMonochrome`）のどれかが変わったら、描く前に `CF-2` 〜 `CF-4` を、この順に 1 回解くこと（MUST）。解いた値を保存してはならない（MUST NOT）'
+const CF_1_NOT_SAVED = '| CF-1 | 解くとき | テーマ色（`themeHue`）・明暗（`themePreference`）・モノクロ（`isThemeMonochrome`）のどれかが変わったら、描く前に `CF-2` 〜 `CF-4` を、この順に 1 回解くこと（MUST）。解いた値を保存してはならない（MUST NOT）'
 
 const THEME_TOGGLE = rowOf(specTable('T-109'), 'IC-16').id
 const AGENT_API = rowOf(specTable('T-109'), 'IC-20').id
@@ -118,7 +118,7 @@ test.describe(`CF-1 (MUST NOT): ${CF_1_NOT_SAVED.slice(-40)}`, () => {
       const before = await exportedJson(opened.page)
       expect(before.schedule.project.themeHue, 'premise: the template hue').toBe(HUE)
       const answer = await applyCommandsOf(opened.page, [{ kind: 'setThemeHue', hue: 52 }])
-      expect(answer.accepted, 'premise: the hue is written').toBe(true)
+      expect(answer.ok, 'premise: the hue is written').toBe(true)
       expect(await pressEntrance(opened.page, THEME_TOGGLE)).toBe(true)
       await settle(opened.page)
       const after = await exportedJson(opened.page)

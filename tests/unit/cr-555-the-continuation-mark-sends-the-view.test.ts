@@ -151,7 +151,7 @@ const taskOf = (uid: number, start: number, days: number, links: readonly number
   dependencies: links.map((predecessorUid) => ({
     predecessorUid,
     linkType: 1,
-    lag: null,
+    linkLag: null,
     lagFormat: null,
     carry: {},
     carryElements: [],
@@ -189,14 +189,14 @@ const scheduleOf = (spec: SceneSpec): Schedule =>
       id,
       parentId,
       order,
-      minHeight: null,
-      label: id,
+      minHeightPx: null,
+      name: id,
       derivedFromTaskUid: null,
       treeState: 'auto',
       editGroup: null,
       color: null,
     })),
-    taskGroupMembers: spec.tasks.map(([task, groupId]) => ({ groupId, taskUid: task['uid'] })),
+    taskGroupMembers: spec.tasks.map(([task, taskGroupId]) => ({ taskGroupId, taskUid: task['uid'] })),
     taskVisuals: spec.tasks.map(([task]) => ({ taskUid: task['uid'], shapeKind: 'rectangle' })),
     taskOrigins: [],
     baselineTasks: [],
@@ -232,7 +232,7 @@ const sceneOf = (spec: SceneSpec, override: Loose = {}): Scene => {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext
@@ -310,7 +310,7 @@ const sceneAfter = (scene: Scene, writes: readonly Loose[]): Scene => {
 }
 
 interface Row {
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly y: number
   readonly height: number
   readonly isPinned?: boolean
@@ -321,11 +321,11 @@ const rowsOf = (scene: Scene): readonly Row[] =>
 
 // WHY: the task group the view is drawn from -- the one crossing the top of the scroll area (under the pinned band),
 // with the fraction of it scrolled past (S-176, 0 or more and under 1 per OP-10a).
-const topTaskGroupOf = (scene: Scene): { readonly groupId: string; readonly offset: number } | undefined => {
+const topTaskGroupOf = (scene: Scene): { readonly taskGroupId: string; readonly offset: number } | undefined => {
   const band = (scene.context.layout as unknown as { readonly pinnedBandHeight?: number }).pinnedBandHeight ?? 0
   const edge = scene.taskGroupArea.y + band
   const row = rowsOf(scene).find((one) => one.isPinned !== true && one.y <= edge && edge < one.y + one.height)
-  return row === undefined ? undefined : { groupId: row.groupId, offset: (edge - row.y) / row.height }
+  return row === undefined ? undefined : { taskGroupId: row.taskGroupId, offset: (edge - row.y) / row.height }
 }
 
 const offRight = (): Scene =>
@@ -366,7 +366,7 @@ const underTheBand = (): Scene =>
       [taskOf(1, 0, 5), 'P'],
       [taskOf(2, 40, 5, [1]), 'a'],
     ],
-    settings: { pinnedGroupIds: ['P'], scrollGroupId: 'b' },
+    settings: { pinnedTaskGroupIds: ['P'], scrollTaskGroupId: 'b' },
   })
 
 const DEEP_DEPTH = 3
@@ -387,7 +387,7 @@ const pinnedOffRight = (): Scene =>
       [taskOf(1, 0, 5), 'a'],
       [taskOf(2, FAR, 5, [1]), 'P'],
     ],
-    settings: { pinnedGroupIds: ['P'] },
+    settings: { pinnedTaskGroupIds: ['P'] },
   })
 
 describe('CR-555 -- the manuscript these cases are driven by', () => {
@@ -459,15 +459,15 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
       const writes = writesOf(clickOnce(scene, markOf(scene, pair[0], pair[1])).out)
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, 'premise: EL-11 sent the view across').toBeDefined()
-      expect(scroll!['scrollGroupId'], `${EL_12_STAY} (S-78 names the task group already at the top)`).toBe(top!.groupId)
+      expect(scroll!['scrollTaskGroupId'], `${EL_12_STAY} (S-78 names the task group already at the top)`).toBe(top!.taskGroupId)
       expect(scroll!['scrollGroupOffset'], `${EL_12_STAY} (S-176 keeps the offset already at the top)`).toBeCloseTo(
         top!.offset,
         6,
       )
       const after = sceneAfter(scene, writes)
-      const taskGroupsAfter = new Map(rowsOf(after).map((one) => [one.groupId, one.y]))
+      const taskGroupsAfter = new Map(rowsOf(after).map((one) => [one.taskGroupId, one.y]))
       for (const row of rowsOf(scene)) {
-        expect(taskGroupsAfter.get(row.groupId), `${EL_12_STAY} (task group ${row.groupId} stays where it was drawn)`).toBeCloseTo(row.y, 6)
+        expect(taskGroupsAfter.get(row.taskGroupId), `${EL_12_STAY} (task group ${row.taskGroupId} stays where it was drawn)`).toBeCloseTo(row.y, 6)
       }
     })
   }
@@ -483,7 +483,7 @@ describe(`EL-11 -- ${EL_11_SEND}`, () => {
     const writes = writesOf(clickOnce(scene, drawnDot!).out)
     const scroll = onlyOf(writes, SET_SCROLL)
     expect(scroll, EL_11_SEND).toBeDefined()
-    expect(scroll!['scrollGroupId'], EL_12_PINNED).toBe(scene.settings['scrollGroupId'])
+    expect(scroll!['scrollTaskGroupId'], EL_12_PINNED).toBe(scene.settings['scrollTaskGroupId'])
     expect(scroll!['scrollGroupOffset'], EL_12_PINNED).toBe(scene.settings['scrollGroupOffset'])
     const moved = placementOf(sceneAfter(scene, writes), 2)!
     expect(moved.x + moved.width / 2, EL_11_SEND).toBeCloseTo(scene.taskGroupArea.x + scene.taskGroupArea.width / 2, 2)
@@ -504,7 +504,7 @@ describe(`EL-12 -- ${EL_12_SEND}`, () => {
       expect(onlyOf(writes, SET_ZOOM), 'the far end is drawn, so EL-10 does not apply').toBeUndefined()
       const scroll = onlyOf(writes, SET_SCROLL)
       expect(scroll, EL_12_SEND).toBeDefined()
-      expect(scroll!['scrollGroupId'], `${EL_12_SEND} (S-78)`).toBe(row)
+      expect(scroll!['scrollTaskGroupId'], `${EL_12_SEND} (S-78)`).toBe(row)
       expect(scroll!['scrollGroupOffset'], `${EL_12_SEND} (S-176)`).toBe(0)
     })
 
@@ -551,7 +551,7 @@ describe(`EL-10 -- ${EL_10_DEPTH}`, () => {
     const scene = deep()
     const scroll = onlyOf(writesOf(clickOnce(scene, markOf(scene, 1, 2)).out), SET_SCROLL)
     expect(scroll, EL_12_SEND).toBeDefined()
-    expect(scroll!['scrollGroupId'], `${EL_12_SEND} (S-78)`).toBe('a11')
+    expect(scroll!['scrollTaskGroupId'], `${EL_12_SEND} (S-78)`).toBe('a11')
     expect(scroll!['scrollGroupOffset'], `${EL_12_SEND} (S-176)`).toBe(0)
   })
 

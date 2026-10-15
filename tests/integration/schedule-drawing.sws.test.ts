@@ -286,12 +286,12 @@ const task = (over: Partial<Task> & { readonly uid: number }): Task => ({
 const taskGroup = (id: string, order: number, over: Partial<TaskGroup> = {}): TaskGroup => ({
   id,
   parentId: null,
-  label: id,
+  name: id,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  minHeight: null,
+  minHeightPx: null,
   ...over,
 })
 
@@ -308,7 +308,7 @@ const taskVisual = (taskUid: number, over: Partial<TaskVisual> = {}): TaskVisual
 const dependency = (predecessorUid: number, linkType: number) => ({
   predecessorUid,
   linkType,
-  lag: null,
+  linkLag: null,
   lagFormat: null,
   carry: {},
   carryElements: [],
@@ -330,7 +330,7 @@ const scheduleOf = (
     company: null,
     manager: null,
     author: null,
-    created: null,
+    creationDate: null,
     revision: null,
     startDate: '2026-03-01T00:00:00',
     statusDate,
@@ -344,7 +344,7 @@ const scheduleOf = (
     themeHue: 214,
     parentProgressToleranceDays: 1,
     uidHighWaterMark: 1000,
-    importSeq: 0,
+    importSequence: 0,
     outlineBase: 1,
     sourceFormat: 'grs',
     scheduleDataTimeZone: 'UTC+00:00',
@@ -407,7 +407,7 @@ const draw = (
   const groups = ids.map((id, i) => taskGroup(id, i))
   const members: TaskGroupMember[] = tasks.map((t, i) => ({
     taskUid: t.uid,
-    groupId: groupIds[i] ?? ids[0] ?? 'g1',
+    taskGroupId: groupIds[i] ?? ids[0] ?? 'g1',
   }))
   const schedule = scheduleOf(tasks, groups, members, visuals, statusDate)
   // scrollDate (S-77) pins the left edge of the Task Group Area, so the axis is fixed
@@ -431,9 +431,9 @@ const placementOf = (drawn: Drawn, uid: number) => {
   return found
 }
 
-const taskGroupByIdOf = (drawn: Drawn, groupId: string) => {
-  const found = drawn.layout.taskGroups.find((r) => r.groupId === groupId)
-  if (found === undefined) throw new Error(`this zoom drew no task group ${groupId}`)
+const taskGroupByIdOf = (drawn: Drawn, taskGroupId: string) => {
+  const found = drawn.layout.taskGroups.find((r) => r.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`this zoom drew no task group ${taskGroupId}`)
   return found
 }
 
@@ -611,7 +611,7 @@ const sameTicks = (
 
 const PX_PER_DAY_AT_1X = SETTINGS_CONSTANTS.pxPerDayAt1x
 const FONT_MIN = SETTINGS_CONSTANTS.fontMin
-const RULER_FONT = SETTINGS_DEFAULTS['rulerFont'] as number
+const RULER_FONT = SETTINGS_DEFAULTS['rulerFontSizePx'] as number
 
 /** S-108: the day the week starts on when the document names none (FR-054). */
 const WEEK_START_DEFAULT = DEFAULT_CALENDAR_VALUES['S-108']
@@ -624,8 +624,8 @@ const WEEK_START_DEFAULT = DEFAULT_CALENDAR_VALUES['S-108']
  * thresholds are quoted at. ⚠️ Leaving the font out of this is what let an
  * earlier sample drift a whole step away from the boundary its name claimed.
  */
-const pxPerDayReaching = (threshold: number, rulerFont: number): number =>
-  threshold * ((rulerFont * DISPLAY_RATIO) / FONT_MIN)
+const pxPerDayReaching = (threshold: number, rulerFontSizePx: number): number =>
+  threshold * ((rulerFontSizePx * DISPLAY_RATIO) / FONT_MIN)
 
 const TIER_MONTH_PX = pxPerDayReaching(
   SETTINGS_CONSTANTS.rulerTierPxPerDayMonth,
@@ -643,7 +643,7 @@ const TIER_DAY_PX = pxPerDayReaching(
 const ONE_TASK_SCHEDULE = scheduleOf(
   [task({ uid: 1, name: 'A', start: day(2), finish: endOfDay(6) })],
   [taskGroup('g1', 0)],
-  [{ taskUid: 1, groupId: 'g1' }],
+  [{ taskUid: 1, taskGroupId: 'g1' }],
   [taskVisual(1)],
   null,
 )
@@ -808,7 +808,7 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
       // for that step (MUST) -- a line standing on a date the ruler does not
       // show cannot be read as any date at all".
       //
-      // ⛔ NOTHING DRAWS THEM. `S-67` (`dateGridLinesVisible`) is turned on
+      // ⛔ NOTHING DRAWS THEM. `S-67` (`isDateGridLinesVisible`) is turned on
       // here and the Task Group Area comes back with no vertical line in it at all,
       // so the case fails on the count. ⚠️ The document carries no Task on
       // purpose: with an empty task group, a vertical line inside the Task Group Area can
@@ -818,7 +818,7 @@ describe('SWS-1 -- decide the interval between two ticks (FR-017)', () => {
         ['yearMonthDayWeekday', TIER_DAY_PX * 1.001],
       ]
       for (const [tier, pxPerDay] of steps) {
-        const frame = rulerAt(pxPerDay, { dateGridLinesVisible: true }, NO_TASK_SCHEDULE)
+        const frame = rulerAt(pxPerDay, { isDateGridLinesVisible: true }, NO_TASK_SCHEDULE)
         expect(frame.layout.tier).toBe(tier)
         const area = frame.taskGroupArea
         const grid = xsOf(
@@ -901,7 +901,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
           let sum = 0
           for (let lane = 0; lane < lanes; lane += 1) {
             const onLane = drawn.layout.placements.filter(
-              (p) => p.groupId === taskGroup.groupId && p.stack === lane,
+              (p) => p.taskGroupId === taskGroup.taskGroupId && p.stack === lane,
             )
             // STEP: a lane with no Task takes the rectangle; a drawn one reaches its border's outer edge.
             sum += onLane.length === 0
@@ -911,7 +911,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
           const gap = SETTINGS_CONSTANTS.stackGap * 2 + SETTINGS_CONSTANTS.dependencyWidth * DISPLAY_RATIO
           const lf2 = sum + gap * lanes
           if (lf2 < CONTROL_LATTICE) belowTheLattice += 1
-          expect(taskGroup.height, `${name}: task group ${taskGroup.groupId}`).toBeCloseTo(lf2, 6)
+          expect(taskGroup.height, `${name}: task group ${taskGroup.taskGroupId}`).toBeCloseTo(lf2, 6)
         }
       }
       expect(
@@ -982,7 +982,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
           const above = taskGroups[i - 1]
           const here = taskGroups[i]
           if (above === undefined || here === undefined) throw new Error('unreachable')
-          expect(here.y, `${name}: task group ${here.groupId}`).toBeCloseTo(
+          expect(here.y, `${name}: task group ${here.taskGroupId}`).toBeCloseTo(
             above.y + above.height + SETTINGS_CONSTANTS.taskGroupGap,
             6,
           )
@@ -1095,7 +1095,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
         ),
         rows,
         rows.map((_id, index) => taskVisual(index + 1)),
-        { pinnedGroupIds: ['g3'] },
+        { pinnedTaskGroupIds: ['g3'] },
       )
 
       const pinned = taskGroupByIdOf(drawn, 'g3')
@@ -1106,7 +1106,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
 
       // One task group in the band, so LF-14's sum has no `taskGroupGap` in it yet.
       const band = pinned.height
-      const scrolling = ['g1', 'g2', 'g4'].map((groupId) => taskGroupByIdOf(drawn, groupId))
+      const scrolling = ['g1', 'g2', 'g4'].map((taskGroupId) => taskGroupByIdOf(drawn, taskGroupId))
       expect(
         scrolling[0]?.y,
         'LF-14: the remainder begins below the band by one taskGroupGap',
@@ -1116,7 +1116,7 @@ describe('SWS-2 -- decide a task group band and where it sits (FR-003)', () => {
         const above = scrolling[index - 1]
         const here = scrolling[index]
         if (above === undefined || here === undefined) throw new Error('unreachable')
-        expect(here.y, `LF-14: the hole g3 left is closed up at ${here.groupId}`).toBeCloseTo(
+        expect(here.y, `LF-14: the hole g3 left is closed up at ${here.taskGroupId}`).toBeCloseTo(
           above.y + above.height + SETTINGS_CONSTANTS.taskGroupGap,
           6,
         )
@@ -1393,7 +1393,7 @@ describe('SWS-3 -- draw the route of a dependency line (FR-009)', () => {
         ],
         ['g1', 'g1'],
         [taskVisual(1), taskVisual(2)],
-        { zoomX: 1, progressMarkerVisible: false },
+        { zoomX: 1, isProgressMarkerVisible: false },
       )
       const line = dependencyOf(drawn)
       expect(line.pattern).toBe('RP-8')
@@ -1681,12 +1681,12 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         ],
         ['g1'],
         [taskVisual(1)],
-        { progressMarkerVisible: true }, // see S-63
+        { isProgressMarkerVisible: true }, // see S-63
         day(10),
       )
       const placed = placementOf(drawn, 1)
-      expect(drawn.settings.planVisible, 'the plan bar is on screen').toBe(true)
-      expect(drawn.settings.actualVisible, 'the actual bar is on screen').toBe(true)
+      expect(drawn.settings.isPlanVisible, 'the plan bar is on screen').toBe(true)
+      expect(drawn.settings.isActualVisible, 'the actual bar is on screen').toBe(true)
       expect(placed.actualX, 'the Task has an actual bar').not.toBeNull()
       const actualRight = (placed.actualX ?? 0) + placed.actualWidth
       expect(actualRight, 'and it ends short of the plan').toBeLessThan(placed.x + placed.width)
@@ -1739,7 +1739,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
         [task({ uid: 1, name: 'x', start: day(2), finish: endOfDay(10) })],
         ['g1'],
         [taskVisual(1)],
-        { progressMarkerVisible: true }, // see S-63
+        { isProgressMarkerVisible: true }, // see S-63
         day(10),
       )
       const placed = placementOf(drawn, 1)
@@ -1793,7 +1793,7 @@ describe('SWS-4 -- make the vertices of what is drawn (FR-094)', () => {
           ],
           ['g1'],
           [taskVisual(1)],
-          { progressMarkerVisible: true }, // see S-63
+          { isProgressMarkerVisible: true }, // see S-63
           day(10),
         )
         const marker = geometryOf(drawn, 1).marker
@@ -1962,7 +1962,7 @@ const progressDocument = (over: Readonly<Record<string, unknown>> = {}): Drawn =
     ],
     ['g1', 'g1', 'g2'],
     [taskVisual(1), taskVisual(2), taskVisual(3)],
-    { progressLineVisible: true, ...over },
+    { isProgressLineVisible: true, ...over },
     day(10),
   )
 
@@ -1996,7 +1996,7 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
         [task({ uid: 1, name: 'm', start: day(2), finish: endOfDay(2), milestone: true })],
         ['g1'],
         [taskVisual(1, { shapeKind: 'milestone', milestoneGlyph: 'diamond' })],
-        { progressLineVisible: true },
+        { isProgressLineVisible: true },
         day(10),
       )
       const taskGroup = taskGroupByIdOf(withMilestone, 'g1')
@@ -2054,7 +2054,7 @@ describe('SWS-5 -- put the vertices of the progress line (FR-014)', () => {
         [task({ uid: 1, name: 'a', start: day(2), finish: endOfDay(20) })],
         ['g1'],
         [taskVisual(1)],
-        { progressLineVisible: true },
+        { isProgressLineVisible: true },
         null,
       )
       expect(unset.geometry.progressLine).toEqual([])
@@ -2113,13 +2113,13 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
       then: 'the anchor stands at the center of the day 5 column and the center of the band the task group is drawn in',
     }),
     () => {
-      mentions(T221, 'LF-15', '`anchorDate` の日の列の中央', '`anchorGroupId` のタスクグループが描かれた帯', '`LF-14`')
+      mentions(T221, 'LF-15', '`anchorDate` の日の列の中央', '`anchorTaskGroupId` のタスクグループが描かれた帯', '`LF-14`')
       for (const pinned of [[], ['g2']]) {
         const bare = draw(
           [task({ uid: 1, name: 'a', start: day(2), finish: endOfDay(8) })],
           ['g1'],
           [taskVisual(1)],
-          { pinnedGroupIds: pinned },
+          { pinnedTaskGroupIds: pinned },
           null,
           ['g1', 'g2'],
         )
@@ -2131,7 +2131,7 @@ describe('SWS-4 -- place the comment box anchor (LF-15)', () => {
               leaderShapeKind: 'polyline',
               text: 'note',
               anchorDate: day(5),
-              anchorGroupId: 'g2',
+              anchorTaskGroupId: 'g2',
               bodyOffsetPx: { dx: 40, dy: -40 },
             },
           ],
@@ -2179,7 +2179,7 @@ describe('SWS-4 -- choose the corner the comment box leader leaves from (LF-17)'
               leaderShapeKind: 'polyline',
               text: 'note',
               anchorDate: day(5),
-              anchorGroupId: 'g2',
+              anchorTaskGroupId: 'g2',
               bodyOffsetPx: { dx, dy },
               strokeColor: null,
               strokeWidthPx: null,

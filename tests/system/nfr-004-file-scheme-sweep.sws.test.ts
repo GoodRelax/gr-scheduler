@@ -856,7 +856,7 @@ async function taskUidAt(page: Page, at: Spot): Promise<number> {
   return found.uid
 }
 
-// WHY: the renderer keys each drawn task group's ground `task-group-<groupId>-band`, so the task group a
+// WHY: the renderer keys each drawn task group's ground `task-group-<taskGroupId>-band`, so the task group a
 // WHY: point lies in is read off the drawing rather than off a fixed task group height.
 const TASK_GROUP_BANDS_SCRIPT = `(() => [...document.querySelectorAll('[data-role="Schedule Canvas"] svg [data-figure^="task-group-"][data-figure$="-band"]')]
   .map((e) => {
@@ -1775,14 +1775,14 @@ const PROBES: readonly Probe[] = [
             grSchedulerAgentApi: {
               readDocument(): { schedule: { tasks: { uid: number; finish: string }[] } }
               readStamp(): unknown
-              applyCommands(request: unknown): Promise<{ accepted: boolean }>
+              applyCommands(request: unknown): Promise<{ ok: boolean }>
             }
           }).grSchedulerAgentApi
           const task = api.readDocument().schedule.tasks.find((one) => one.uid === asked.uid)
           if (task === undefined) return false
           const deadline = new Date(Date.parse(`${task.finish}Z`) + asked.days * asked.dayMs).toISOString().slice(0, 19)
-          const answer = await api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setTaskDeadline', uid: asked.uid, deadline }] })
-          return answer.accepted
+          const answer = await api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskDeadline', uid: asked.uid, deadline }] })
+          return answer.ok
         },
         { uid, days: pastFinishDays, dayMs: DAY_MS },
       )
@@ -1983,10 +1983,10 @@ const PROBES: readonly Probe[] = [
       await openAgentApi(p)
       const accepted = await p.evaluate(async () => {
         const api = (window as unknown as {
-          grSchedulerAgentApi: { readStamp(): unknown; applyCommands(request: unknown): Promise<{ accepted: boolean }> }
+          grSchedulerAgentApi: { readStamp(): unknown; applyCommands(request: unknown): Promise<{ ok: boolean }> }
         }).grSchedulerAgentApi
-        const answer = await api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setShowsTimeOfDay', showsTimeOfDay: true }] })
-        return answer.accepted
+        const answer = await api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTimeOfDayVisible', isTimeOfDayVisible: true }] })
+        return answer.ok
       })
       if (!accepted) throw new Error('MK-17: the Agent API refused to show the time of day (CM-97)')
       await settled(p)

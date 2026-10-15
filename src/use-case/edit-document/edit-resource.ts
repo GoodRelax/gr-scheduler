@@ -27,7 +27,7 @@ export type ResourceCommand =
       readonly resourceUid: NonNullable<Assignment['resourceUid']>
     }
   | {
-      readonly kind: 'unassignResource'
+      readonly kind: 'deleteAssignment'
       readonly taskUid: NonNullable<Assignment['taskUid']>
       readonly resourceUid: NonNullable<Assignment['resourceUid']>
     }
@@ -156,7 +156,7 @@ export function editResource(document: Document, command: ResourceCommand): Edit
       )
     }
 
-    case 'unassignResource': {
+    case 'deleteAssignment': {
       // TRAP: remove every assignment of the pair, not the first: an imported document may hold two.
       const kept = assignments.filter(
         (one) => !(one.taskUid === command.taskUid && one.resourceUid === command.resourceUid),

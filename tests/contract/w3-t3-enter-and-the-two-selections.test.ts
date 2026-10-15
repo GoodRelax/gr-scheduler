@@ -49,7 +49,7 @@ const pickedItems = (stage: ExportStage): readonly unknown[] =>
   stage.loop.agentApiSeams().source.readSnapshot().selection.items
 
 const chosenTaskGroups = (stage: ExportStage): string[] =>
-  stage.lastView().taskGroupPanel.titles.filter((one) => one.isSelected).map((one) => one.groupId)
+  stage.lastView().taskGroupPanel.titles.filter((one) => one.isSelected).map((one) => one.taskGroupId)
 
 async function clickTask(stage: ExportStage, uid: number, clicks = 1): Promise<void> {
   const placement = stage.loop.current()?.layout.placements.find((one) => one.taskUid === uid)
@@ -109,11 +109,11 @@ describe('FR-085 -- a task group selection points only at task groups the docume
       schemaVersion: document.schemaVersion,
     } as never)
     const outcome = api.applyCommands({
-      readStamp: api.readStamp(),
-      commands: [{ kind: commandNameOf('CM-27'), groupId: 'task-group-b', newGroupId: 'task-group-fresh' }] as never,
+      expectedStamp: api.readStamp(),
+      commands: [{ kind: commandNameOf('CM-27'), taskGroupId: 'task-group-b', newTaskGroupId: 'task-group-fresh' }] as never,
     })
     await stage.pointAt(1, 1)
-    expect(outcome.accepted, 'premise: the write took the task group away').toBe(true)
+    expect(outcome.ok, 'premise: the write took the task group away').toBe(true)
     expect(stage.loop.document().schedule.taskGroups.some((one) => one.id === 'task-group-b')).toBe(false)
     await stage.take('IC-5')
     expect(stage.loop.document().schedule.taskGroups.some((one) => one.id === 'task-group-b'), 'premise: undo gave the task group back').toBe(true)

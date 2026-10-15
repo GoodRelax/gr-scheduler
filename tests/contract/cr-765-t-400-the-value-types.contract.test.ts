@@ -55,20 +55,20 @@ const EXPECTED_TYPES = [
 
 // see T-400
 const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> = {
-  'AV-1': [['readStamp', 'commands']],
+  'AV-1': [['expectedStamp', 'commands']],
   'AV-2': [
-    ['accepted', 'stamp', 'hasMovedSchedule'],
-    ['accepted', 'refusal'],
+    ['ok', 'stamp', 'hasMovedSchedule'],
+    ['ok', 'refusal'],
   ],
-  'AV-3': [['target', 'reason', 'stamp', 'document', 'refusals', 'what']],
+  'AV-3': [['target', 'reason', 'stamp', 'document', 'refusals', 'message']],
   'AV-4': [],
   'AV-5': [
     ['ok', 'value'],
     ['ok', 'refusal'],
   ],
   'AV-6': [
-    ['accepted', 'stamp', 'hasMovedSchedule', 'isScrolled'],
-    ['accepted', 'refusal'],
+    ['ok', 'stamp', 'hasMovedSchedule', 'isScrolled'],
+    ['ok', 'refusal'],
   ],
   'AV-7': [['document'], ['text']],
   'AV-8': [['drawnTaskUids', 'tables']],
@@ -76,8 +76,8 @@ const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> 
   'AV-10': [['notice']],
   'AV-11': [['hasReplacedEarlierWatch', 'stopWatching']],
   'AV-12': [
-    ['accepted', 'message'],
-    ['accepted', 'refusal'],
+    ['ok', 'message'],
+    ['ok', 'refusal'],
   ],
   'AV-13': [['sequence', 'author', 'text', 'settledAt']],
   'AV-14': [['watcher', 'document', 'messages', 'mark']],
@@ -100,7 +100,7 @@ const FIXED_REASONS = [
   'malformedRequest',
 ] as const satisfies readonly AgentRefusalReason[]
 
-const A_STAMP = { fileSavedUtc: 'stamp-9' }
+const A_STAMP = { fileSavedAt: 'stamp-9' }
 
 const refusalOf = (reason: string): Record<string, unknown> => ({
   target: 'AM-7',
@@ -260,7 +260,7 @@ describe('AV-4: the reasons a refusal carries, and what the relay returns of the
   })
 
   it.each(FIXED_REASONS.map((reason) => [reason] as const))('%s: the relay hands a page refusal on with the reason unchanged and as a value', (reason) => {
-    const result = { accepted: false, refusal: refusalOf(reason) }
+    const result = { ok: false, refusal: refusalOf(reason) }
     const answered = mcpToolResultOf('applyCommands', { result })
     expect(answered.isError ?? false).toBe(false)
     expect(answered.structuredContent).toEqual(result)

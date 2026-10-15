@@ -91,12 +91,12 @@ describe('the relay design says the request of applyCommands is printed from tab
 })
 
 describe('AM-7: the request is the stamp and the bundle of commands', () => {
-  it('request is an object with readStamp and commands, both required', () => {
+  it('request is an object with expectedStamp and commands, both required', () => {
     expect(tool).toBeDefined()
     expect(request['type']).toBe('object')
-    expect(request['required']).toEqual(['readStamp', 'commands'])
-    expect(Object.keys(requestProperties)).toEqual(['readStamp', 'commands'])
-    expect(requestProperties['readStamp']?.['type']).toBe('object')
+    expect(request['required']).toEqual(['expectedStamp', 'commands'])
+    expect(Object.keys(requestProperties)).toEqual(['expectedStamp', 'commands'])
+    expect(requestProperties['expectedStamp']?.['type']).toBe('object')
     expect(requestProperties['commands']?.['type']).toBe('array')
   })
 
@@ -204,7 +204,7 @@ describe('the published input refuses a command whose shape is off (schema level
   const fadeIn = { kind: 'setTaskFadeInDays', uid: 12, days: 3 }
 
   it('a well-formed bundle is accepted', () => {
-    expect(acceptsRequest({ readStamp: STAMP, commands: [fadeIn] }), JSON.stringify(acceptsRequest.errors)).toBe(true)
+    expect(acceptsRequest({ expectedStamp: STAMP, commands: [fadeIn] }), JSON.stringify(acceptsRequest.errors)).toBe(true)
   })
 
   it.each([
@@ -213,13 +213,13 @@ describe('the published input refuses a command whose shape is off (schema level
     ['a field left out', { kind: 'setTaskFadeInDays', uid: 12 }],
     ['an extra field', { ...fadeIn, fadeInDays: 3 }],
     ['a kind table T-108 does not hold', { kind: 'setTaskFadeDays', uid: 12, days: 3 }],
-    ['CM-76, which only a person uses', { kind: 'setTaskGroupEditGroup', groupId: 'g', editGroup: null }],
+    ['CM-76, which only a person uses', { kind: 'setTaskGroupEditGroup', taskGroupId: 'g', editGroup: null }],
     ['both lag shapes at once', { kind: 'setDependencyLag', predecessorUid: 1, successorUid: 2, lagWorkingDays: 1, lagMinutes: 60, lagUnit: 'h' }],
     ['a lag unit outside d, h and m', { kind: 'setDependencyLag', predecessorUid: 1, successorUid: 2, lagMinutes: 60, lagUnit: 'w' }],
     ['a null start where the table says null is not taken', { kind: 'setTaskPlanDates', uid: 1, start: null, finish: '2026-04-08T17:00:00' }],
   ])('%s is refused', (_label, command) => {
     expect(acceptsCommand(command)).toBe(false)
-    expect(acceptsRequest({ readStamp: STAMP, commands: [command] })).toBe(false)
+    expect(acceptsRequest({ expectedStamp: STAMP, commands: [command] })).toBe(false)
   })
 
   it('either lag shape alone is accepted', () => {
@@ -229,6 +229,6 @@ describe('the published input refuses a command whose shape is off (schema level
 
   it('a request without its stamp, or with commands that are no list, is refused', () => {
     expect(acceptsRequest({ commands: [fadeIn] })).toBe(false)
-    expect(acceptsRequest({ readStamp: STAMP, commands: fadeIn })).toBe(false)
+    expect(acceptsRequest({ expectedStamp: STAMP, commands: fadeIn })).toBe(false)
   })
 })

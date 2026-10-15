@@ -10,7 +10,7 @@ import { REQUIREMENTS } from './cr-610-file-flow-stage'
 
 const VC_15_NOT_ND_3 = '⛔ `ND-3` の「終了日はその日を含む」を、FS の 1 日の差に数えてはならない（MUST NOT）'
 const VC_15_SAME_DAY = '同じ瞬間は反せず、1 分でも前なら反する'
-const VC_15_FS = 'FS: 後続の `start` ≥ 先行の `finish` ＋ `lag`'
+const VC_15_FS = 'FS: 後続の `start` ≥ 先行の `finish` ＋ `linkLag`'
 
 // see AT-46
 const FS = 1
@@ -52,7 +52,7 @@ function linkedDocument(successorStart: string, successorFinish: string): Docume
   draft['schedule'].tasks[1] = taskOf(SUCCESSOR, {
     start: successorStart,
     finish: successorFinish,
-    dependencies: [{ predecessorUid: PREDECESSOR, linkType: FS, lag: 0, lagFormat: 7, carry: {}, carryElements: [] }],
+    dependencies: [{ predecessorUid: PREDECESSOR, linkType: FS, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] }],
   })
   const read = documentFromJson(JSON.stringify(draft))
   if (!read.ok) throw new Error(`the bench document is not GRS JSON: ${JSON.stringify(read.faults)}`)

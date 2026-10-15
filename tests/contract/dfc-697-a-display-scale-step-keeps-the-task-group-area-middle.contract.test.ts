@@ -31,7 +31,7 @@ const bench = (displayScale: number): ShellBench => {
   const built = shell(
     taskGroupDocument(rows(), {
       displayScale,
-      scrollGroupId: SEATED_TASK_GROUP,
+      scrollTaskGroupId: SEATED_TASK_GROUP,
       scrollGroupOffset: SEATED_TASK_GROUP_PART,
       scrollDayOffset: SEATED_DAY_PART,
     }),
@@ -54,13 +54,13 @@ function daySerialAt(frame: FrameValues, x: number): number {
 }
 
 /** @purity pure */
-function taskGroupPartAt(frame: FrameValues, y: number): { readonly groupId: string; readonly part: number } {
+function taskGroupPartAt(frame: FrameValues, y: number): { readonly taskGroupId: string; readonly part: number } {
   const scrolling = frame.layout.taskGroups.filter((taskGroup) => taskGroup.isPinned !== true)
   for (let at = 0; at < scrolling.length; at++) {
     const taskGroup = scrolling[at]!
     const below = scrolling[at + 1]
     const slab = below === undefined ? taskGroup.height : below.y - taskGroup.y
-    if (y >= taskGroup.y && y < taskGroup.y + slab) return { groupId: taskGroup.groupId, part: (y - taskGroup.y) / slab }
+    if (y >= taskGroup.y && y < taskGroup.y + slab) return { taskGroupId: taskGroup.taskGroupId, part: (y - taskGroup.y) / slab }
   }
   throw new Error(`premise: a scrolling task group stands at y ${y}`)
 }
@@ -101,7 +101,7 @@ describe('DFC-697 / FR-039, DS-1, DS-9, S-234 -- the middle of the Task Group Ar
     expect(after.regions.taskGroupArea.y, 'premise: DS-1 moved the Task Group Area top').not.toBe(before.regions.taskGroupArea.y)
     const landed = middleOf(after)
     expect(landed.day, `${FR_039_HOLD_THE_MIDDLE} -- the date`).toBeCloseTo(held.day, DIGITS)
-    expect(landed.row.groupId, `${FR_039_HOLD_THE_MIDDLE} -- the task group`).toBe(held.row.groupId)
+    expect(landed.row.taskGroupId, `${FR_039_HOLD_THE_MIDDLE} -- the task group`).toBe(held.row.taskGroupId)
     expect(landed.row.part, `${FR_039_HOLD_THE_MIDDLE} -- the place inside the task group`).toBeCloseTo(held.row.part, DIGITS)
   })
 })

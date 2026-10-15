@@ -516,14 +516,14 @@ function regionsOf(appHeaderHeight: number): ScreenRegions {
     taskGroupPanel: {
       x: canvas.x,
       y: canvas.y,
-      width: SETTINGS.taskGroupPanelWidth,
+      width: SETTINGS.taskGroupPanelWidthPx,
       height: canvas.height,
     },
     timeRuler: {
-      x: canvas.x + SETTINGS.taskGroupPanelWidth,
+      x: canvas.x + SETTINGS.taskGroupPanelWidthPx,
       y: canvas.y,
-      width: canvas.width - SETTINGS.taskGroupPanelWidth,
-      height: SETTINGS.rulerHeight,
+      width: canvas.width - SETTINGS.taskGroupPanelWidthPx,
+      height: SETTINGS.rulerHeightPx,
     },
     propertiesPanel: {
       x: canvas.x + canvas.width - panelWidth,
@@ -532,10 +532,10 @@ function regionsOf(appHeaderHeight: number): ScreenRegions {
       height: canvas.height,
     },
     taskGroupArea: {
-      x: canvas.x + SETTINGS.taskGroupPanelWidth,
-      y: canvas.y + SETTINGS.rulerHeight,
-      width: canvas.width - SETTINGS.taskGroupPanelWidth - panelWidth,
-      height: canvas.height - SETTINGS.rulerHeight,
+      x: canvas.x + SETTINGS.taskGroupPanelWidthPx,
+      y: canvas.y + SETTINGS.rulerHeightPx,
+      width: canvas.width - SETTINGS.taskGroupPanelWidthPx - panelWidth,
+      height: canvas.height - SETTINGS.rulerHeightPx,
     },
   } as ScreenRegions
 }

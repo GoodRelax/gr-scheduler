@@ -102,7 +102,7 @@ interface DocGroup {
   readonly id: string
   readonly parentId: string | null
   readonly order: number
-  readonly label: string | null
+  readonly name: string | null
   readonly derivedFromTaskUid: number | null
 }
 
@@ -116,17 +116,17 @@ interface DocTask {
 
 interface DocBox {
   readonly id: string
-  readonly startDate: string | null
-  readonly endDate: string | null
-  readonly topGroupId: string | null
-  readonly bottomGroupId: string | null
+  readonly start: string | null
+  readonly finish: string | null
+  readonly topTaskGroupId: string | null
+  readonly bottomTaskGroupId: string | null
 }
 
 interface DocShot {
   readonly groups: readonly DocGroup[]
   readonly tasks: readonly DocTask[]
   readonly boxes: readonly DocBox[]
-  readonly members: ReadonlyArray<{ readonly taskUid: number; readonly groupId: string }>
+  readonly members: ReadonlyArray<{ readonly taskUid: number; readonly taskGroupId: string }>
 }
 
 interface DrawnTaskGroup {
@@ -162,7 +162,7 @@ function rankInTaskGroupTree(groups: readonly DocGroup[]): ReadonlyMap<string, n
 /** @purity pure */
 function nameOf(groups: readonly DocGroup[], id: string | null): string {
   const group = groups.find((one) => one.id === id)
-  return `${group?.label ?? '(no label)'} <${String(id).slice(0, 8)}>`
+  return `${group?.name ?? '(no name)'} <${String(id).slice(0, 8)}>`
 }
 
 let browser: Browser | null = null
@@ -493,11 +493,11 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
             placed = true
             // ⭐ Held verbatim -- check 39, row `FR-019`, manuscript text ending
             // at its own marker:
-            // 「）—— **`startDate` が `endDate` より後のとき、および `topGroupId` が `bottomGroupId` より下のときは、入れ替えて持つこと（MUST）。**⛔ **拒んではならない（MUST NOT）」
+            // 「）—— **`start` が `finish` より後のとき、および `topTaskGroupId` が `bottomTaskGroupId` より下のときは、入れ替えて持つこと（MUST）。**⛔ **拒んではならない（MUST NOT）」
             expect
               .soft(
-                String(box.startDate) <= String(box.endDate),
-                `${IV_19} / FR-019: startDate ${box.startDate} is not after endDate ${box.endDate}`,
+                String(box.start) <= String(box.finish),
+                `${IV_19} / FR-019: start ${box.start} is not after finish ${box.finish}`,
               )
               .toBe(true)
             // ⭐ Held verbatim -- check 39, row `FR-019`, manuscript text ending
@@ -505,12 +505,12 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
             // 「— **そちらは `05-07-design.md` の 表 T-220 の `IV-10` と同じ扱いで拒む。**⛔⛔ **その「下」は、タスクグループの木における順位で判ずること（MUST）。画面に描かれた位置で判じてはならない（MUST NOT）」
             expect
               .soft(
-                (rank.get(String(box.topGroupId)) ?? -1) < (rank.get(String(box.bottomGroupId)) ?? -1),
+                (rank.get(String(box.topTaskGroupId)) ?? -1) < (rank.get(String(box.bottomTaskGroupId)) ?? -1),
                 `${IV_19} / FR-019 (control, nothing pinned): the top task group must rank earlier in the ` +
-                  `task group tree than the bottom one -- top ${nameOf(after?.groups ?? [], box.topGroupId)} ` +
-                  `is at ${String(rank.get(String(box.topGroupId)))}, bottom ` +
-                  `${nameOf(after?.groups ?? [], box.bottomGroupId)} at ` +
-                  `${String(rank.get(String(box.bottomGroupId)))}`,
+                  `task group tree than the bottom one -- top ${nameOf(after?.groups ?? [], box.topTaskGroupId)} ` +
+                  `is at ${String(rank.get(String(box.topTaskGroupId)))}, bottom ` +
+                  `${nameOf(after?.groups ?? [], box.bottomTaskGroupId)} at ` +
+                  `${String(rank.get(String(box.bottomTaskGroupId)))}`,
               )
               .toBe(true)
           }
@@ -576,14 +576,14 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
         // 「— **そちらは `05-07-design.md` の 表 T-220 の `IV-10` と同じ扱いで拒む。**⛔⛔ **その「下」は、タスクグループの木における順位で判ずること（MUST）。画面に描かれた位置で判じてはならない（MUST NOT）」
         expect
           .soft(
-            (rank.get(String(box.topGroupId)) ?? -1) < (rank.get(String(box.bottomGroupId)) ?? -1),
+            (rank.get(String(box.topTaskGroupId)) ?? -1) < (rank.get(String(box.bottomTaskGroupId)) ?? -1),
             `${IV_19} / FR-019: with ${pinned.label} pinned to the top of the screen, "below" must ` +
               'still be read off the TASK GROUP TREE and never off the drawn position -- expected top ' +
               `${nameOf(after?.groups ?? [], other.id)} (tree rank ${String(rank.get(other.id))}), ` +
-              `got top ${nameOf(after?.groups ?? [], box.topGroupId)} (tree rank ` +
-              `${String(rank.get(String(box.topGroupId)))}) and bottom ` +
-              `${nameOf(after?.groups ?? [], box.bottomGroupId)} (tree rank ` +
-              `${String(rank.get(String(box.bottomGroupId)))})`,
+              `got top ${nameOf(after?.groups ?? [], box.topTaskGroupId)} (tree rank ` +
+              `${String(rank.get(String(box.topTaskGroupId)))}) and bottom ` +
+              `${nameOf(after?.groups ?? [], box.bottomTaskGroupId)} (tree rank ` +
+              `${String(rank.get(String(box.bottomTaskGroupId)))})`,
           )
           .toBe(true)
 
@@ -622,7 +622,7 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
       const rows = await drawnTaskGroups(page)
       const before = await readDocumentShot(page)
       const rank = rankInTaskGroupTree(before?.groups ?? [])
-      const homeOf = new Map((before?.members ?? []).map((one) => [one.taskUid, one.groupId]))
+      const homeOf = new Map((before?.members ?? []).map((one) => [one.taskUid, one.taskGroupId]))
 
       const source = rows.find((one) => {
         const held = (before?.tasks ?? []).filter((task) => homeOf.get(task.uid) === one.id)
@@ -644,7 +644,7 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
             y: destination.y + Math.round(destination.height / 2),
           })
           const now = await readDocumentShot(page)
-          const nowHome = new Map((now?.members ?? []).map((one) => [one.taskUid, one.groupId]))
+          const nowHome = new Map((now?.members ?? []).map((one) => [one.taskUid, one.taskGroupId]))
           for (const [uid, home] of nowHome) {
             if (home === destination.id && homeOf.get(uid) === source.id && !moved.includes(uid)) {
               moved.push(uid)
@@ -660,7 +660,7 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
           .toBeGreaterThan(0)
 
         const after = await readDocumentShot(page)
-        const afterHome = new Map((after?.members ?? []).map((one) => [one.taskUid, one.groupId]))
+        const afterHome = new Map((after?.members ?? []).map((one) => [one.taskUid, one.taskGroupId]))
 
         // ⭐ Held verbatim -- check 39, row `HM-3` (table T-015a), manuscript
         // text ending at its own marker:
@@ -781,7 +781,7 @@ test('the task group tree, and not the screen, decides what is below (FR-019 / I
             now?.order ?? sibling.order,
             `${HM_8} (MUST): a drag in the task group panel reorders siblings -- this is the only ` +
               `entrance ${HM_9} has, so nothing can carry a reordering into the WBS without it. ` +
-              `Dragged ${sibling.label ?? ''} above ${above.label ?? ''}; its order was ` +
+              `Dragged ${sibling.name ?? ''} above ${above.name ?? ''}; its order was ` +
               `${sibling.order}`,
           )
           .toBeLessThan(sibling.order)

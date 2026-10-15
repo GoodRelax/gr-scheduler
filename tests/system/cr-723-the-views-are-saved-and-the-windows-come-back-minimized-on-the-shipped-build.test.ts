@@ -38,7 +38,7 @@ const NO_VIEWS = (): string => documentText(VIEW_SETTINGS({}))
 type Api = {
   readDocument(): { documentSettings: { tableViews: Record<string, Record<string, unknown>> } }
   readStamp(): unknown
-  applyCommands(request: unknown): { accepted: boolean }
+  applyCommands(request: unknown): { ok: boolean }
   readShownTasks(): { drawnTaskUids: number[] | null; tables: string[] }
   showOnlyTasks(taskUids: readonly number[] | null): unknown
 }
@@ -59,7 +59,7 @@ async function applyView(page: Page, table: string, view: unknown): Promise<bool
   return page.evaluate(
     (asked: { table: string; view: unknown }) => {
       const api = (window as unknown as { grSchedulerAgentApi: Api }).grSchedulerAgentApi
-      return api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setTableView', table: asked.table, view: asked.view }] }).accepted
+      return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTableView', table: asked.table, view: asked.view }] }).ok
     },
     { table, view },
   )

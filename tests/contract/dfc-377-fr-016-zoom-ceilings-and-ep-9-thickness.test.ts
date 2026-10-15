@@ -439,11 +439,11 @@ const groupOf = (id: string, order: number): TaskGroup =>
   ({
     id,
     parentId: null,
-    label: null,
+    name: null,
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', color: null,
-    minHeight: null,
+    minHeightPx: null,
   }) as unknown as TaskGroup
 
 /** Three flat root task groups -- FR-018's ladder domain starts at depth 2, so all
@@ -469,7 +469,7 @@ const SCHEDULE: Schedule = (() => {
     assignments: [],
     taskGroups: groups,
     taskGroupMembers: groups.map((group, index) => ({
-      groupId: group.id,
+      taskGroupId: group.id,
       taskUid: index + 1,
     })),
     taskVisuals: [],
@@ -482,7 +482,7 @@ const SCHEDULE: Schedule = (() => {
 
 const LAYOUT_SETTINGS: DocumentSettings = settingsOf({
   scrollDate: TASK_FROM, // S-77, pinned so the time axis has an origin
-  scrollGroupId: null, // S-78
+  scrollTaskGroupId: null, // S-78
   stackDirection: 'down', // S-58, top row first
 })
 

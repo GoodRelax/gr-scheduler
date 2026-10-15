@@ -16,15 +16,15 @@ export type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind'
 // see T-108
 export interface AnnotationAnchor {
   readonly date: NonNullable<CommentBox['anchorDate']>
-  readonly groupId: NonNullable<CommentBox['anchorGroupId']>
+  readonly taskGroupId: NonNullable<CommentBox['anchorTaskGroupId']>
 }
 
 // see T-108
 export interface HighlightRange {
-  readonly startDate: NonNullable<HighlightBox['startDate']>
-  readonly endDate: NonNullable<HighlightBox['endDate']>
-  readonly topGroupId: NonNullable<HighlightBox['topGroupId']>
-  readonly bottomGroupId: NonNullable<HighlightBox['bottomGroupId']>
+  readonly startDate: NonNullable<HighlightBox['start']>
+  readonly endDate: NonNullable<HighlightBox['finish']>
+  readonly topTaskGroupId: NonNullable<HighlightBox['topTaskGroupId']>
+  readonly bottomTaskGroupId: NonNullable<HighlightBox['bottomTaskGroupId']>
 }
 
 // see T-108
@@ -50,7 +50,7 @@ export type AnnotationCommand =
       readonly strokeColor: CommentBox['strokeColor']
     }
   | {
-      readonly kind: 'setCommentBoxStrokeWidth'
+      readonly kind: 'setCommentBoxStrokeWidthPx'
       readonly id: CommentBox['id']
       readonly strokeWidthPx: CommentBox['strokeWidthPx']
     }
@@ -60,7 +60,7 @@ export type AnnotationCommand =
       readonly fillColor: CommentBox['fillColor']
     }
   | {
-      readonly kind: 'setCommentBoxFillTransparency'
+      readonly kind: 'setCommentBoxFillTransparencyPercent'
       readonly id: CommentBox['id']
       readonly fillTransparencyPercent: CommentBox['fillTransparencyPercent']
     }
@@ -78,7 +78,7 @@ export type AnnotationCommand =
       readonly strokeColor: HighlightBox['strokeColor']
     }
   | {
-      readonly kind: 'setHighlightBoxStrokeWidth'
+      readonly kind: 'setHighlightBoxStrokeWidthPx'
       readonly id: HighlightBox['id']
       readonly strokeWidthPx: HighlightBox['strokeWidthPx']
     }
@@ -88,7 +88,7 @@ export type AnnotationCommand =
       readonly fillColor: HighlightBox['fillColor']
     }
   | {
-      readonly kind: 'setHighlightBoxFillTransparency'
+      readonly kind: 'setHighlightBoxFillTransparencyPercent'
       readonly id: HighlightBox['id']
       readonly fillTransparencyPercent: HighlightBox['fillTransparencyPercent']
     }
@@ -155,8 +155,8 @@ function putHighlightBox(document: Document, box: HighlightBox): Document {
 }
 
 /** @purity pure */
-function hasGroup(document: Document, groupId: string): boolean {
-  return document.schedule.taskGroups.some((one) => one.id === groupId)
+function hasGroup(document: Document, taskGroupId: string): boolean {
+  return document.schedule.taskGroups.some((one) => one.id === taskGroupId)
 }
 
 /** @purity pure */
@@ -165,8 +165,8 @@ function anchorRefusals(command: string, document: Document, anchor: AnnotationA
   if (dayOf(anchor.date) === null) {
     found.push(reject(command, 'AT-113', `the anchored day is not a date: ${anchor.date}`))
   }
-  if (!hasGroup(document, anchor.groupId)) {
-    found.push(reject(command, 'IV-2', `the document holds no task group with id ${anchor.groupId} (RL-18)`))
+  if (!hasGroup(document, anchor.taskGroupId)) {
+    found.push(reject(command, 'IV-2', `the document holds no task group with id ${anchor.taskGroupId} (RL-18)`))
   }
   return found
 }
@@ -180,11 +180,11 @@ function rangeRefusals(command: string, document: Document, range: HighlightRang
   if (dayOf(range.endDate) === null) {
     found.push(reject(command, 'AT-118', `the right edge is not a date: ${range.endDate}`))
   }
-  if (!hasGroup(document, range.topGroupId)) {
-    found.push(reject(command, 'IV-2', `the document holds no task group with id ${range.topGroupId} (RL-19)`))
+  if (!hasGroup(document, range.topTaskGroupId)) {
+    found.push(reject(command, 'IV-2', `the document holds no task group with id ${range.topTaskGroupId} (RL-19)`))
   }
-  if (!hasGroup(document, range.bottomGroupId)) {
-    found.push(reject(command, 'IV-2', `the document holds no task group with id ${range.bottomGroupId} (RL-20)`))
+  if (!hasGroup(document, range.bottomTaskGroupId)) {
+    found.push(reject(command, 'IV-2', `the document holds no task group with id ${range.bottomTaskGroupId} (RL-20)`))
   }
   return found
 }
@@ -211,7 +211,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         leaderShapeKind: null,
         text: null,
         anchorDate: command.anchor.date,
-        anchorGroupId: command.anchor.groupId,
+        anchorTaskGroupId: command.anchor.taskGroupId,
         bodyOffsetPx: null,
         strokeColor: null,
         strokeWidthPx: null,
@@ -239,14 +239,14 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       }
       const refusals = anchorRefusals('CM-50', document, command.anchor)
       if (refusals.length > 0) return refused(refusals)
-      if (isSameDay(box.anchorDate, command.anchor.date) && box.anchorGroupId === command.anchor.groupId) {
+      if (isSameDay(box.anchorDate, command.anchor.date) && box.anchorTaskGroupId === command.anchor.taskGroupId) {
         return edited(document)
       }
       return edited(
         putCommentBox(document, {
           ...box,
           anchorDate: command.anchor.date,
-          anchorGroupId: command.anchor.groupId,
+          anchorTaskGroupId: command.anchor.taskGroupId,
         }),
       )
     }
@@ -275,10 +275,10 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (refusals.length > 0) return refused(refusals)
       const box: HighlightBox = {
         id: command.id,
-        startDate: command.range.startDate,
-        endDate: command.range.endDate,
-        topGroupId: command.range.topGroupId,
-        bottomGroupId: command.range.bottomGroupId,
+        start: command.range.startDate,
+        finish: command.range.endDate,
+        topTaskGroupId: command.range.topTaskGroupId,
+        bottomTaskGroupId: command.range.bottomTaskGroupId,
         strokeColor: null,
         cornerRadiusPx: NOT_STORED_ANNOTATION_SIZES['S-132'],
         strokeWidthPx: null,
@@ -308,16 +308,16 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       }
       const refusals = rangeRefusals('CM-54', document, command.range)
       if (refusals.length > 0) return refused(refusals)
-      const { startDate, endDate, topGroupId, bottomGroupId } = command.range
+      const { startDate, endDate, topTaskGroupId, bottomTaskGroupId } = command.range
       if (
-        isSameDay(box.startDate, startDate) &&
-        isSameDay(box.endDate, endDate) &&
-        box.topGroupId === topGroupId &&
-        box.bottomGroupId === bottomGroupId
+        isSameDay(box.start, startDate) &&
+        isSameDay(box.finish, endDate) &&
+        box.topTaskGroupId === topTaskGroupId &&
+        box.bottomTaskGroupId === bottomTaskGroupId
       ) {
         return edited(document)
       }
-      return edited(putHighlightBox(document, { ...box, startDate, endDate, topGroupId, bottomGroupId }))
+      return edited(putHighlightBox(document, { ...box, start: startDate, finish: endDate, topTaskGroupId, bottomTaskGroupId }))
     }
   }
 }
@@ -327,17 +327,17 @@ type HighlightBoxLookCommand = Extract<
   {
     readonly kind:
       | 'setHighlightBoxStrokeColor'
-      | 'setHighlightBoxStrokeWidth'
+      | 'setHighlightBoxStrokeWidthPx'
       | 'setHighlightBoxFillColor'
-      | 'setHighlightBoxFillTransparency'
+      | 'setHighlightBoxFillTransparencyPercent'
   }
 >
 
 const HIGHLIGHT_BOX_LOOK_KINDS: ReadonlySet<AnnotationCommand['kind']> = new Set<HighlightBoxLookCommand['kind']>([
   'setHighlightBoxStrokeColor',
-  'setHighlightBoxStrokeWidth',
+  'setHighlightBoxStrokeWidthPx',
   'setHighlightBoxFillColor',
-  'setHighlightBoxFillTransparency',
+  'setHighlightBoxFillTransparencyPercent',
 ])
 
 /** @purity pure */
@@ -357,7 +357,7 @@ function highlightBoxLookChange(
         refusal: boxStrokeRefusal(command.strokeColor),
         look: { strokeColor: command.strokeColor },
       }
-    case 'setHighlightBoxStrokeWidth':
+    case 'setHighlightBoxStrokeWidthPx':
       return {
         commandRow: 'CM-77',
         refusal: lookNumberRefusal('CM-77', 'S-369', command.strokeWidthPx),
@@ -369,7 +369,7 @@ function highlightBoxLookChange(
         refusal: lookColorRefusal('CM-78', command.fillColor, true),
         look: { fillColor: command.fillColor },
       }
-    case 'setHighlightBoxFillTransparency':
+    case 'setHighlightBoxFillTransparencyPercent':
       return {
         commandRow: 'CM-79',
         refusal: lookNumberRefusal('CM-79', 'S-371', command.fillTransparencyPercent),
@@ -397,9 +397,9 @@ type CommentBoxLookCommand = Extract<
       | 'setCommentBoxText'
       | 'setCommentBoxLeaderShapeKind'
       | 'setCommentBoxStrokeColor'
-      | 'setCommentBoxStrokeWidth'
+      | 'setCommentBoxStrokeWidthPx'
       | 'setCommentBoxFillColor'
-      | 'setCommentBoxFillTransparency'
+      | 'setCommentBoxFillTransparencyPercent'
       | 'setCommentBoxTextColor'
   }
 >
@@ -417,9 +417,9 @@ const COMMENT_BOX_LOOK_KINDS: ReadonlySet<AnnotationCommand['kind']> = new Set<C
   'setCommentBoxText',
   'setCommentBoxLeaderShapeKind',
   'setCommentBoxStrokeColor',
-  'setCommentBoxStrokeWidth',
+  'setCommentBoxStrokeWidthPx',
   'setCommentBoxFillColor',
-  'setCommentBoxFillTransparency',
+  'setCommentBoxFillTransparencyPercent',
   'setCommentBoxTextColor',
 ])
 
@@ -444,7 +444,7 @@ function commentBoxLookChange(
         refusal: opaqueColorRefusal('CM-80', command.strokeColor),
         look: { strokeColor: command.strokeColor },
       }
-    case 'setCommentBoxStrokeWidth':
+    case 'setCommentBoxStrokeWidthPx':
       return {
         commandRow: 'CM-81',
         refusal: lookNumberRefusal('CM-81', 'S-374', command.strokeWidthPx),
@@ -456,7 +456,7 @@ function commentBoxLookChange(
         refusal: lookColorRefusal('CM-82', command.fillColor, true),
         look: { fillColor: command.fillColor },
       }
-    case 'setCommentBoxFillTransparency':
+    case 'setCommentBoxFillTransparencyPercent':
       return {
         commandRow: 'CM-83',
         refusal: lookNumberRefusal('CM-83', 'S-375', command.fillTransparencyPercent),

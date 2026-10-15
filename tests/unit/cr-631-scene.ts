@@ -131,14 +131,14 @@ export const scheduleOf = (spec: SceneSpec, statusDate: string | null = null): S
       id,
       parentId,
       order,
-      minHeight: null,
-      label: id,
+      minHeightPx: null,
+      name: id,
       derivedFromTaskUid: null,
       treeState: 'expanded',
       editGroup: null,
       color: null,
     })),
-    taskGroupMembers: spec.tasks.map(([task, groupId]) => ({ groupId, taskUid: task['uid'] })),
+    taskGroupMembers: spec.tasks.map(([task, taskGroupId]) => ({ taskGroupId, taskUid: task['uid'] })),
     taskVisuals: spec.tasks.map(([task]) =>
       task['milestone'] === true
         ? { taskUid: task['uid'], shapeKind: 'milestone', milestoneGlyph: 'diamond' }
@@ -207,7 +207,7 @@ export const sceneOf = (
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   } as unknown as InputContext

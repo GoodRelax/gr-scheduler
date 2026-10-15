@@ -60,18 +60,18 @@ function isDarkIn(scene: ExportScene): boolean {
 // see EP-1, EP-3
 /** @purity pure */
 function chromeGround(scene: ExportScene): string {
-  return colorOf('S-150', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
+  return colorOf('S-150', scene.themeHue, isDarkIn(scene), scene.settings.isThemeMonochrome)
 }
 
 /** @purity pure */
 function pictureGround(scene: ExportScene): string {
-  return colorOf('S-146', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
+  return colorOf('S-146', scene.themeHue, isDarkIn(scene), scene.settings.isThemeMonochrome)
 }
 
 // see EP-1, EP-3
 /** @purity pure */
 function chromeInk(scene: ExportScene): string {
-  return colorOf('S-147', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
+  return colorOf('S-147', scene.themeHue, isDarkIn(scene), scene.settings.isThemeMonochrome)
 }
 
 // TRAP: must not collide with an id inside the received picture it clips.
@@ -178,7 +178,7 @@ function rulerAbbreviationsSvg(view: ScreenView, ink: string, ratio: number): st
 // see EP-3, FR-042
 /** @purity pure */
 function groupGridLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): string {
-  const ink = colorOf('S-165', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
+  const ink = colorOf('S-165', scene.themeHue, isDarkIn(scene), scene.settings.isThemeMonochrome)
   return (view.taskGroupPanel.groupGridLines ?? [])
     .map((line) => rectSvg(scaledRect(line, ratio), ink))
     .join('')
@@ -187,7 +187,7 @@ function groupGridLinesSvg(view: ScreenView, scene: ExportScene, ratio: number):
 // see EP-9
 /** @purity pure */
 function dividerLinesSvg(view: ScreenView, scene: ExportScene, ratio: number): string {
-  const ink = colorOf('S-149', scene.themeHue, isDarkIn(scene), scene.settings.themeMonochrome)
+  const ink = colorOf('S-149', scene.themeHue, isDarkIn(scene), scene.settings.isThemeMonochrome)
   return view.frame.dividers
     .map((divider) => rectSvg(scaledRect(divider.line, ratio), ink))
     .join('')

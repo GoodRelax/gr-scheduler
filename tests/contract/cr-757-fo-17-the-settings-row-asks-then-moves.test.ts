@@ -236,9 +236,9 @@ describe(`FR-159 -- ${FR_159_AGENT}`, () => {
   it('CM-99 from the Agent API is accepted with no question standing', async () => {
     const stage = await shiftStage(WORKED())
     const api = installAgentApi({ ...stage.loop.agentApiSeams(), writerName: 'cr-757-tester', schemaVersion: '1' } as never)
-    const outcome = api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'shiftScheduleToStartDate', newStartDate: NEW_START }] as never })
+    const outcome = api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'shiftScheduleToStartDate', newStartDate: NEW_START }] as never })
     await stage.press({ kind: 'pointer', phase: 'move', button: 'left', x: 1, y: 1, modifiers: { ctrl: false, shift: false, alt: false, meta: false }, clickCount: 1 } as never)
-    expect(outcome.accepted).toBe(true)
+    expect(outcome.ok).toBe(true)
     expect(stage.lastView().confirmation).toBeNull()
     expect(taskIn(stage.loop.document(), TASK_A)['start']).toBe('2029-03-05T08:00:00')
   })

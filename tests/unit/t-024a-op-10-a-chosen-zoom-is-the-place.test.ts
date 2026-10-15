@@ -68,7 +68,7 @@
 //           entrances the measurement names.
 //   T-109   IC-10 全体を 1 画面に収める / IC-12 時間軸を縮小する /
 //           IC-13 時間軸を拡大する / IC-15 縦軸を拡大する.
-//   T-203   S-77 `scrollDate` and S-78 `scrollGroupId` -- 表示位置, the pair
+//   T-203   S-77 `scrollDate` and S-78 `scrollTaskGroupId` -- 表示位置, the pair
 //           OP-10's condition reads and the ruling says a choice fills in.
 //
 // ---------------------------------------------------------------------------
@@ -90,7 +90,7 @@
 //
 //   one press of SK-16 (`Shift` ＋ `+`) writes `zoomX: 1 -> 1.1` into the
 //   document, and the frame it asks for draws `pxPerDay` 18.67924528301887 --
-//   the SAME number as before the press. `scrollDate` and `scrollGroupId` are
+//   the SAME number as before the press. `scrollDate` and `scrollTaskGroupId` are
 //   both still `null` afterwards.
 //
 // ⇒ The press is delivered and the zoom IS written; `OP-10` then runs again and
@@ -117,7 +117,7 @@
 //   - `HF-8` of table T-051. The ruling states it is not moved, and
 //     tests/unit/uf-47-48.test.ts already holds it.
 //   - The three branches where OP-10 DOES fire (a null place, and a
-//     `scrollGroupId` naming no task group). tests/unit/uf-47-48.test.ts owns those.
+//     `scrollTaskGroupId` naming no task group). tests/unit/uf-47-48.test.ts owns those.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
@@ -285,12 +285,12 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
 const group = (id: string, order: number, label: string): unknown => ({
   id,
   parentId: null,
-  label,
+  name: label,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  minHeight: null,
+  minHeightPx: null,
 })
 
 /**
@@ -313,8 +313,8 @@ function fixtureDocument(edit: (draft: any) => void = () => {}): Document {
       assignments: [],
       taskGroups: [group(TASK_GROUP_ONE, 0, 'One'), group(TASK_GROUP_TWO, 1, 'Two')],
       taskGroupMembers: [
-        { taskUid: 1, groupId: TASK_GROUP_ONE },
-        { taskUid: 2, groupId: TASK_GROUP_TWO },
+        { taskUid: 1, taskGroupId: TASK_GROUP_ONE },
+        { taskUid: 2, taskGroupId: TASK_GROUP_TWO },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -325,7 +325,7 @@ function fixtureDocument(edit: (draft: any) => void = () => {}): Document {
     documentSettings: {
       ...structuredClone(template.documentSettings),
       scrollDate: null,
-      scrollGroupId: null,
+      scrollTaskGroupId: null,
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
@@ -417,7 +417,7 @@ interface Booted {
   /** Drain up to `turns` more animation frames with nothing pressed. */
   idle(turns?: number): number
   picture(): Picture
-  place(): { readonly scrollDate: unknown; readonly scrollGroupId: unknown }
+  place(): { readonly scrollDate: unknown; readonly scrollTaskGroupId: unknown }
 }
 
 function boot(document: Document = fixtureDocument()): Booted {
@@ -449,7 +449,7 @@ function boot(document: Document = fixtureDocument()): Booted {
       const settings = settingsOf(loop.document()) as unknown as Record<string, unknown>
       return {
         scrollDate: settings['scrollDate'],
-        scrollGroupId: settings['scrollGroupId'],
+        scrollTaskGroupId: settings['scrollTaskGroupId'],
       }
     },
   }
@@ -493,7 +493,7 @@ describe('表 T-024a OP-10 -- the manuscript this file is driven by', () => {
     expect(validateDocument(document).valid).toBe(true)
     const settings = settingsOf(document) as unknown as Record<string, unknown>
     expect(settings['scrollDate']).toBeNull()
-    expect(settings['scrollGroupId']).toBeNull()
+    expect(settings['scrollTaskGroupId']).toBeNull()
   })
 })
 
@@ -555,15 +555,15 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
     // task group that is not there.
     const one = boot()
     expect(one.place().scrollDate).toBeNull()
-    expect(one.place().scrollGroupId).toBeNull()
+    expect(one.place().scrollTaskGroupId).toBeNull()
 
     one.send(SHIFT_PLUS)
 
     const after = one.place()
     expect(after.scrollDate, 'S-77 still says the person has not chosen a place').not.toBeNull()
-    expect(after.scrollGroupId, 'S-78 still says the person has not chosen a place').not.toBeNull()
+    expect(after.scrollTaskGroupId, 'S-78 still says the person has not chosen a place').not.toBeNull()
     // 「または指すタスクグループが存在しないとき」 -- the other half of the same condition.
-    expect([TASK_GROUP_ONE, TASK_GROUP_TWO]).toContain(after.scrollGroupId)
+    expect([TASK_GROUP_ONE, TASK_GROUP_TWO]).toContain(after.scrollTaskGroupId)
   })
 
   it('fills it in for the vertical axis and for the fit as well, not only for the time axis', () => {
@@ -583,7 +583,7 @@ describe('OP-10 (MUST) -- what a person chose becomes the place', () => {
       one.send(press)
       const after = one.place()
       expect(after.scrollDate, `${String(press.key)} left S-77 null`).not.toBeNull()
-      expect(after.scrollGroupId, `${String(press.key)} left S-78 null`).not.toBeNull()
+      expect(after.scrollTaskGroupId, `${String(press.key)} left S-78 null`).not.toBeNull()
     }
   })
 })

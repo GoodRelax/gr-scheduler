@@ -62,7 +62,7 @@ export function dummyBandOf(
   shapeKind: ShapeKind,
   plan: { readonly x: number; readonly width: number },
   markerDiameter: number,
-  axis: { readonly pxPerDay: number; readonly showsTimeOfDay: boolean },
+  axis: { readonly pxPerDay: number; readonly isTimeOfDayVisible: boolean },
 ): { readonly x: number; readonly width: number } {
   return actualPlacementOf(shapeKind) === 'sideways'
     ? { x: plan.x + plan.width / 2, width: 0 }

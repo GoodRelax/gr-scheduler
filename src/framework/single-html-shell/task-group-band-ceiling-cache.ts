@@ -17,7 +17,7 @@ function isSameBandSettings(a: DocumentSettings, b: DocumentSettings): boolean {
   // WHY: the scroll place moves every task group and every x alike, so no band changes height; a zoom
   // at the pointer rewrites scrollDayOffset in its last digits on every notch.
   const moveWithoutBand = new Set<string>([
-    'zoomY', 'scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset',
+    'zoomY', 'scrollDate', 'scrollDayOffset', 'scrollTaskGroupId', 'scrollGroupOffset',
   ])
   const keys = new Set<string>([...Object.keys(a), ...Object.keys(b)])
   for (const key of keys) {

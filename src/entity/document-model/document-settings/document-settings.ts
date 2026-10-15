@@ -14,32 +14,34 @@ export {}
 // Rebuild: npm run gen   ||   npm run gen:check fails on drift.
 // see DR-3, FR-063
 export interface DocumentSettings {
-  readonly actualVisible: boolean
-  readonly assigneeVisible: boolean
-  readonly baselineVisible: boolean
-  readonly dateGridLinesVisible: boolean
-  readonly dependencyVisible: boolean
   readonly displayScale: 50 | 67 | 75 | 90 | 100 | 110 | 125 | 150 | 175 | 200
   readonly displayTimeZones: readonly string[]
   readonly fitSpanFinish: string | null
-  readonly fitSpanFixed: boolean
   readonly fitSpanStart: string | null
   readonly fontScale: 'S' | 'M' | 'L'
-  readonly groupGridLinesVisible: boolean
+  readonly isActualVisible: boolean
+  readonly isAssigneeVisible: boolean
+  readonly isBaselineVisible: boolean
+  readonly isDateGridLinesVisible: boolean
+  readonly isDependencyVisible: boolean
+  readonly isFitSpanFixed: boolean
+  readonly isGroupGridLinesVisible: boolean
+  readonly isPercentCompleteVisible: boolean
+  readonly isPlanDatesVisible: boolean
+  readonly isPlanVisible: boolean
+  readonly isProgressLineVisible: boolean
+  readonly isProgressMarkerVisible: boolean
+  readonly isTaskGroupPanelWidthFixed: boolean
+  readonly isThemeMonochrome: boolean
+  readonly isTimeOfDayVisible: boolean
   readonly levelZeroTreeState: 'auto' | 'collapsed'
-  readonly percentCompleteVisible: boolean
-  readonly pinnedGroupIds: readonly string[]
-  readonly planDatesVisible: boolean
-  readonly planVisible: boolean
-  readonly progressLineVisible: boolean
-  readonly progressMarkerVisible: boolean
-  readonly rulerFont: number
-  readonly rulerHeight: number
+  readonly pinnedTaskGroupIds: readonly string[]
+  readonly rulerFontSizePx: number
+  readonly rulerHeightPx: number
   readonly scrollDate: string | null
   readonly scrollDayOffset: number
-  readonly scrollGroupId: string | null
   readonly scrollGroupOffset: number
-  readonly showsTimeOfDay: boolean
+  readonly scrollTaskGroupId: string | null
   readonly stackDirection: 'up' | 'down'
   readonly tableViews: {
     readonly delayDiagnosticsReport: {
@@ -62,9 +64,7 @@ export interface DocumentSettings {
       readonly sort: ColumnSort | null
     }
   }
-  readonly taskGroupPanelWidth: number
-  readonly taskGroupPanelWidthFixed: boolean
-  readonly themeMonochrome: boolean
+  readonly taskGroupPanelWidthPx: number
   readonly viewTimeZone: 'UTC-12:00' | 'UTC-11:00' | 'UTC-10:00' | 'UTC-09:00' | 'UTC-08:00' | 'UTC-07:00' | 'UTC-06:00' | 'UTC-05:00' | 'UTC-04:00' | 'UTC-03:00' | 'UTC-02:00' | 'UTC-01:00' | 'UTC+00:00' | 'UTC+01:00' | 'UTC+02:00' | 'UTC+03:00' | 'UTC+04:00' | 'UTC+05:00' | 'UTC+05:30' | 'UTC+06:00' | 'UTC+07:00' | 'UTC+08:00' | 'UTC+09:00' | 'UTC+10:00' | 'UTC+11:00' | 'UTC+12:00' | 'UTC+13:00' | null
   readonly zoomX: number
   readonly zoomY: number
@@ -85,32 +85,34 @@ export interface ColumnSort {
 }
 
 export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
-  'actualVisible': true,
-  'assigneeVisible': false,
-  'baselineVisible': false,
-  'dateGridLinesVisible': false,
-  'dependencyVisible': true,
   'displayScale': 100,
   'displayTimeZones': [],
   'fitSpanFinish': null,
-  'fitSpanFixed': false,
   'fitSpanStart': null,
   'fontScale': 'M',
-  'groupGridLinesVisible': true,
+  'isActualVisible': true,
+  'isAssigneeVisible': false,
+  'isBaselineVisible': false,
+  'isDateGridLinesVisible': false,
+  'isDependencyVisible': true,
+  'isFitSpanFixed': false,
+  'isGroupGridLinesVisible': true,
+  'isPercentCompleteVisible': false,
+  'isPlanDatesVisible': false,
+  'isPlanVisible': true,
+  'isProgressLineVisible': false,
+  'isProgressMarkerVisible': true,
+  'isTaskGroupPanelWidthFixed': false,
+  'isThemeMonochrome': false,
+  'isTimeOfDayVisible': false,
   'levelZeroTreeState': 'auto',
-  'percentCompleteVisible': false,
-  'pinnedGroupIds': [],
-  'planDatesVisible': false,
-  'planVisible': true,
-  'progressLineVisible': false,
-  'progressMarkerVisible': true,
-  'rulerFont': 21,
-  'rulerHeight': 69,
+  'pinnedTaskGroupIds': [],
+  'rulerFontSizePx': 21,
+  'rulerHeightPx': 69,
   'scrollDate': null,
   'scrollDayOffset': 0,
-  'scrollGroupId': null,
   'scrollGroupOffset': 0,
-  'showsTimeOfDay': false,
+  'scrollTaskGroupId': null,
   'stackDirection': 'up',
   'tableViews.delayDiagnosticsReport.columnFilters': [],
   'tableViews.delayDiagnosticsReport.hiddenTaskUids': [],
@@ -125,9 +127,7 @@ export const SETTINGS_DEFAULTS: Readonly<Record<string, unknown>> = {
   'tableViews.searchPanel.hiddenTaskUids': [],
   'tableViews.searchPanel.isScheduleFilterApplied': false,
   'tableViews.searchPanel.sort': null,
-  'taskGroupPanelWidth': 300,
-  'taskGroupPanelWidthFixed': false,
-  'themeMonochrome': false,
+  'taskGroupPanelWidthPx': 300,
   'viewTimeZone': null,
   'zoomX': 1,
   'zoomY': 1,
@@ -150,16 +150,16 @@ export interface SettingsBound {
 
 // see IV-16
 export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
-  'pinnedGroupIds': { maxExpression: [{ num: 5 }] },
-  'rulerFont': {
+  'pinnedTaskGroupIds': { maxExpression: [{ num: 5 }] },
+  'rulerFontSizePx': {
     minExpression: [{ num: 12 }],
-    maxExpression: [{ key: 'rulerHeight' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '-' }, { num: 3 }, { op: '/' }],
+    maxExpression: [{ key: 'rulerHeightPx' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '-' }, { num: 3 }, { op: '/' }],
   },
-  'rulerHeight': {
+  'rulerHeightPx': {
     max: 150,
-    minExpression: [{ key: 'rulerFont' }, { num: 3 }, { op: '*' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '+' }],
+    minExpression: [{ key: 'rulerFontSizePx' }, { num: 3 }, { op: '*' }, { num: 2 }, { num: 3 }, { op: '*' }, { op: '+' }],
   },
-  'taskGroupPanelWidth': { minExpression: [{ num: 16 }, { num: 5 }, { op: '*' }] },
+  'taskGroupPanelWidthPx': { minExpression: [{ num: 16 }, { num: 5 }, { op: '*' }] },
   'zoomX': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 240 }] },
   'zoomY': { minExpression: [{ num: 0.02 }], maxExpression: [{ num: 240 }] },
 }
@@ -171,8 +171,8 @@ export const SETTINGS_BOUNDS: Readonly<Record<string, SettingsBound>> = {
 // plusFrom is null when the rule names no second key.
 // TRAP: a rule with index instead of from is index[by] * times.
 export const SETTINGS_DERIVED = {
-  'rulerFont': { index: 'fontScaleSizes', by: 'fontScale', times: 1.5 },
-  'rulerHeight': { from: 'rulerFont', times: 3, plus: 0, plusFrom: 'rulerLabelPad', plusTimes: 3 },
+  'rulerFontSizePx': { index: 'fontScaleSizes', by: 'fontScale', times: 1.5 },
+  'rulerHeightPx': { from: 'rulerFontSizePx', times: 3, plus: 0, plusFrom: 'rulerLabelPad', plusTimes: 3 },
 } as const
 
 // see FR-063, table T-064 PI-2

@@ -123,7 +123,7 @@ const nested = (flat: Readonly<Record<string, unknown>>): Record<string, unknown
 }
 
 const settingsOf = (part: Record<string, unknown> = {}): DocumentSettings =>
-  nested({ ...SETTINGS_DEFAULTS, scrollDate: '2026-03-25', scrollGroupId: 'g1', ...part }) as unknown as DocumentSettings
+  nested({ ...SETTINGS_DEFAULTS, scrollDate: '2026-03-25', scrollTaskGroupId: 'g1', ...part }) as unknown as DocumentSettings
 
 const ENV: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
 
@@ -160,7 +160,7 @@ const SCHEDULE = {
     startDate: null,
     themeHue: 214,
     uidHighWaterMark: 100,
-    importSeq: 0,
+    importSequence: 0,
     revision: 1,
     carry: {},
     carryElements: [],
@@ -173,14 +173,14 @@ const SCHEDULE = {
     {
       id: 'g1',
       parentId: null,
-      label: 'task group',
+      name: 'task group',
       derivedFromTaskUid: null,
       order: 0,
       treeState: 'auto', color: null,
-      minHeight: null,
+      minHeightPx: null,
     },
   ],
-  taskGroupMembers: [{ taskUid: 1, groupId: 'g1' }],
+  taskGroupMembers: [{ taskUid: 1, taskGroupId: 'g1' }],
   taskVisuals: [],
   commentBoxes: [],
   highlightBoxes: [],

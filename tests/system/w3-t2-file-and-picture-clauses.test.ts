@@ -72,13 +72,13 @@ const callApi = <T>(page: Page, body: string, arg?: unknown): Promise<T> =>
   page.evaluate(({ body, arg }) => new Function('api', 'arg', body)((window as any).grSchedulerAgentApi, arg), { body, arg }) as Promise<T>
 
 const setSpan = async (page: Page, start: string | null, finish: string | null): Promise<void> => {
-  const outcome = await callApi<{ accepted: boolean }>(
+  const outcome = await callApi<{ ok: boolean }>(
     page,
     // WHY: a span reaches the picture only while it is fixed (CR-690, FX-2), so the same one write fixes it (CM-90).
-    'return api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: "setFitSpan", fitSpanStart: arg[0], fitSpanFinish: arg[1] }, { kind: "setFitSpanFixed", fitSpanFixed: true, shownStart: null, shownFinish: null }] })',
+    'return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: "setFitSpan", fitSpanStart: arg[0], fitSpanFinish: arg[1] }, { kind: "setFitSpanFixed", isFitSpanFixed: true, shownStart: null, shownFinish: null }] })',
     [start === null ? null : start + 'T00:00:00', finish === null ? null : finish + 'T00:00:00'],
   )
-  expect(outcome.accepted, 'precondition: CM-88 and CM-90 were accepted').toBe(true)
+  expect(outcome.ok, 'precondition: CM-88 and CM-90 were accepted').toBe(true)
   await settle(page)
 }
 
@@ -135,7 +135,7 @@ test(`FR-135: ${ONLY_A_PERSON_WRITES_THE_PARENT}`, async ({ page }) => {
   if ((await page.locator('[data-icon="IC-141"]').count()) > 0) await press(page, 'IC-141')
   // STEP: an unrelated edit and a save write the document again
   const other = (await readDocument(page)).schedule.tasks.find((one) => !cleared.includes(one['uid']))?.['uid']
-  await callApi(page, 'return api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: "setTaskName", uid: arg, name: "Renamed" }] })', other)
+  await callApi(page, 'return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: "setTaskName", uid: arg, name: "Renamed" }] })', other)
   await settle(page)
   expect(await parentsOf()).toEqual(cleared.map(() => null))
   const written = await callApi<{ ok: boolean; value: string }>(page, 'return api.exportJson()')
@@ -148,7 +148,7 @@ test(`FX-2: ${SPAN_DOES_NOT_MOVE_THE_SCREEN}`, async ({ page }) => {
   await enableAgentApi(page)
   const screen = async (): Promise<{ view: Record<string, unknown>; figures: string[] }> => {
     const settings = (await readDocument(page)).documentSettings
-    const view = Object.fromEntries(['scrollDate', 'scrollDayOffset', 'scrollGroupId', 'scrollGroupOffset', 'zoomX', 'zoomY'].map((key) => [key, settings[key]]))
+    const view = Object.fromEntries(['scrollDate', 'scrollDayOffset', 'scrollTaskGroupId', 'scrollGroupOffset', 'zoomX', 'zoomY'].map((key) => [key, settings[key]]))
     const figures = await page.evaluate(() =>
       [...document.querySelectorAll('[data-figure$="-plan"], [data-figure*="-tick-"]')].map((e) => {
         const r = e.getBoundingClientRect()
@@ -230,7 +230,7 @@ test(`HS-11: ${STAMP_OF_THE_WRITTEN_BYTES}`, async ({ page }) => {
   const embeddedStamp = (html: string): unknown => {
     const found = /<script type="application\/json" id="embedded-document">([\s\S]*?)<\/script>/.exec(html)
     expect(found, 'precondition: the single .html embeds the document').not.toBeNull()
-    return (JSON.parse(found![1]!) as { documentStamp: Record<string, unknown> }).documentStamp['fileSavedUtc']
+    return (JSON.parse(found![1]!) as { documentStamp: Record<string, unknown> }).documentStamp['fileSavedAt']
   }
   const shownMoment = (): Promise<string> => page.evaluate(() => (document.querySelector('[data-role="File Saved At"]')?.textContent ?? '').trim())
   // see HS-5
@@ -244,7 +244,7 @@ test(`HS-11: ${STAMP_OF_THE_WRITTEN_BYTES}`, async ({ page }) => {
       const two = (n: number): string => String(n).padStart(2, '0')
       return `${at.getFullYear()}/${two(at.getMonth() + 1)}/${two(at.getDate())} ${two(at.getHours())}:${two(at.getMinutes())}:${two(at.getSeconds())}`
     }, utc)
-  expect(lower.startsWith(await localOf(saved.documentStamp['fileSavedUtc'])), `SX-1: the saved stamp ${String(saved.documentStamp['fileSavedUtc'])} is not the moment "${lower}" shows`).toBe(true)
+  expect(lower.startsWith(await localOf(saved.documentStamp['fileSavedAt'])), `SX-1: the saved stamp ${String(saved.documentStamp['fileSavedAt'])} is not the moment "${lower}" shows`).toBe(true)
   const embedded = embeddedStamp(await writeOut('IO-7'))
   expect(lower.startsWith(await localOf(embedded)), `the single .html carried ${String(embedded)} while the lower line shows "${lower}"`).toBe(true)
 })
@@ -253,7 +253,7 @@ test(`EP-3: ${TASK_GROUP_NAME_BASELINE}`, async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   const document = await readDocument(page)
-  const names = new Map(document.schedule.taskGroups.map((one) => [String(one['label']), String(one['id'])]))
+  const names = new Map(document.schedule.taskGroups.map((one) => [String(one['name']), String(one['id'])]))
   const svg = await exportedSvg(page)
   const bandTop = new Map(tagsWithFigure(svg, /^task-group-.+-band$/).map((tag) => [figureName(tag).slice(11, -5), numberAttr(tag, 'y')]))
   const taskGroupTitleRight = numberAttr(/<rect x="0" y="[\d.]+" width="([\d.]+)"[^>]*>/.exec(svg)?.[0] ?? '', 'width')
@@ -262,11 +262,11 @@ test(`EP-3: ${TASK_GROUP_NAME_BASELINE}`, async ({ page }) => {
   for (const match of svg.matchAll(/<text ([^>]*)>([^<]*)<\/text>/g)) {
     const attributes = ` ${match[1] ?? ''}`
     const name = (match[2] ?? '').replace(/&amp;/g, '&')
-    const groupId = names.get(name)
-    if (groupId === undefined) continue
+    const taskGroupId = names.get(name)
+    if (taskGroupId === undefined) continue
     const x = numberAttr(attributes, 'x')
     if (!(x < taskGroupTitleRight)) continue
-    const top = bandTop.get(groupId)
+    const top = bandTop.get(taskGroupId)
     if (top === undefined) continue
     checked += 1
     const expected = top + numberAttr(attributes, 'font-size')

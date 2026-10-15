@@ -72,8 +72,8 @@
 //   no press from outside can make it missing. A System case here could only
 //   assert that the normal route succeeds, which is not what the row is about.
 //
-//   DFC-211 asks that a highlight box whose `startDate` is after its `endDate`,
-//   or whose `topGroupId` is below its `bottomGroupId`, is refused -- `IV-19`
+//   DFC-211 asks that a highlight box whose `start` is after its `finish`,
+//   or whose `topTaskGroupId` is below its `bottomTaskGroupId`, is refused -- `IV-19`
 //   of table T-220. ⛔ Nothing that can be pressed reaches it. The row is one of
 //   the document invariants, and Chapter 6.1 gives that table exactly one
 //   driver: 「`scheduleViolations`（表 T-064 の `PI-1`）は本表を駆動して回ること
@@ -3865,7 +3865,7 @@ test('DFC-233: the settings surface prints dictionary words and no raw identifie
         `${DICTIONARY}`,
     ).toEqual([])
 
-    // ⚠️ A UUID IS THE SHAPE THE LEDGER MEASURED (`scrollGroupId`). It is asked
+    // ⚠️ A UUID IS THE SHAPE THE LEDGER MEASURED (`scrollTaskGroupId`). It is asked
     // for by shape rather than by field name so that an identifier printed in
     // some other row is caught by the same reading.
     const identifiers = printing.words.filter((said) =>

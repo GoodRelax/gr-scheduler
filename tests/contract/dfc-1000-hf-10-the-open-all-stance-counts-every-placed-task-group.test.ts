@@ -27,7 +27,7 @@ function documentWith(firstState: 'collapsed' | 'auto') {
     { id: FIRST_CHILD, parentId: FIRST },
     ...Array.from({ length: TASK_GROUPS - 1 }, (_, index) => ({ id: idOf(index + 1), parentId: null })),
   ]
-  return taskGroupDocument(rows, { scrollGroupId: idOf(SCROLLED_TO), scrollGroupOffset: 0 })
+  return taskGroupDocument(rows, { scrollTaskGroupId: idOf(SCROLLED_TO), scrollGroupOffset: 0 })
 }
 
 const toldReasons = (view: ScreenView): readonly string[] =>
@@ -50,7 +50,7 @@ describe('DFC-1000 -- the manuscript these cases are driven by', () => {
 describe('DFC-1000 -- HF-10 a folded task group scrolled out of the window still arms the head entrance', () => {
   it('precondition: the folded task group is not among the titles the window shows', async () => {
     const built = await paletteStage({ document: documentWith('collapsed') as never })
-    expect(built.last().taskGroupPanel.titles.map((one) => one.groupId)).not.toContain(FIRST)
+    expect(built.last().taskGroupPanel.titles.map((one) => one.taskGroupId)).not.toContain(FIRST)
     expect(built.last().taskGroupPanel.titles.length).toBeGreaterThan(0)
   })
 
@@ -86,7 +86,7 @@ describe('DFC-1000 -- HF-10 with every task group drawn the head entrance has no
 async function documentWithFoldedGrandchildBelowTheWindow() {
   const flat = await paletteStage({ document: taskGroupDocument(Array.from({ length: TASK_GROUPS }, (_, index) => ({ id: idOf(index), parentId: null }))) as never })
   const shown = flat.last().taskGroupPanel.titles
-  const lastShown = shown[shown.length - 1]?.groupId
+  const lastShown = shown[shown.length - 1]?.taskGroupId
   if (lastShown === undefined) throw new Error('the window shows no task group title')
   const at = Number(lastShown.slice(-12))
   const rows: TaskGroupSeed[] = Array.from({ length: TASK_GROUPS }, (_, index) => ({ id: idOf(index), parentId: null }))
@@ -99,9 +99,9 @@ describe('DFC-1000 -- HF-2 the task group entrance counts the task groups under 
   it('the last task group the window shows has IC-58 armed when only a folded task group below the window is not drawn', async () => {
     const { lastShown, document } = await documentWithFoldedGrandchildBelowTheWindow()
     const built = await paletteStage({ document: document as never })
-    const title = built.last().taskGroupPanel.titles.find((one) => one.groupId === lastShown)
+    const title = built.last().taskGroupPanel.titles.find((one) => one.taskGroupId === lastShown)
     expect(title, 'precondition: the task group is still the last one shown').toBeDefined()
-    expect(built.last().taskGroupPanel.titles.map((one) => one.groupId)).not.toContain(idOf(900))
+    expect(built.last().taskGroupPanel.titles.map((one) => one.taskGroupId)).not.toContain(idOf(900))
     expect(title?.expander.canOpen).toBe(true)
   })
 

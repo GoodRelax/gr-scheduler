@@ -34,7 +34,7 @@ const TASK_GROUP_B = 'task-group-b'
 const TARGET_UID = 301
 
 // WHY: the view starts on task group B with both fractions off zero, so any write that moves the task group anchor shows.
-const START_SCROLL = { scrollDate: '2026-03-02', scrollGroupId: TASK_GROUP_B, scrollDayOffset: 0.25, scrollGroupOffset: 0.5 }
+const START_SCROLL = { scrollDate: '2026-03-02', scrollTaskGroupId: TASK_GROUP_B, scrollDayOffset: 0.25, scrollGroupOffset: 0.5 }
 
 function documentWithPinned(pinned: readonly string[]): Document {
   const task: Loose = {
@@ -59,7 +59,7 @@ function documentWithPinned(pinned: readonly string[]): Document {
     id,
     parentId: null,
     order,
-    label: id,
+    name: id,
     derivedFromTaskUid: null,
     treeState: 'expanded',
   }))
@@ -67,7 +67,7 @@ function documentWithPinned(pinned: readonly string[]): Document {
     ...TEMPLATE.schedule,
     tasks: [task],
     taskGroups: groups,
-    taskGroupMembers: [{ taskUid: TARGET_UID, groupId: TASK_GROUP_A }],
+    taskGroupMembers: [{ taskUid: TARGET_UID, taskGroupId: TASK_GROUP_A }],
     commentBoxes: [],
     resources: [],
     assignments: [],
@@ -80,7 +80,7 @@ function documentWithPinned(pinned: readonly string[]): Document {
     ...TEMPLATE.documentSettings,
     ...START_SCROLL,
     levelZeroTreeState: 'auto',
-    pinnedGroupIds: pinned,
+    pinnedTaskGroupIds: pinned,
   }
   return { ...TEMPLATE, schedule, documentSettings } as unknown as Document
 }
@@ -89,14 +89,14 @@ const TO_TASK: SearchJumpTarget = { kind: 'task', taskUid: TARGET_UID }
 
 // WHY: a day is ten pixels wide and nothing of the task reaches left of its date.
 // see SJ-5, SJ-6 -- no picture is read (landing null): the cases here judge SJ-7 and SJ-8 alone
-const reachWith = (drawnTaskGroups: readonly { groupId: string; isPinned?: boolean }[]) => ({
+const reachWith = (drawnTaskGroups: readonly { taskGroupId: string; isPinned?: boolean }[]) => ({
   pxPerDay: 10,
   leftReachPx: 0,
   drawnTaskGroups,
   areaWidth: 800,
   landing: null,
 })
-const PINNED_BAND_DRAWS_A = reachWith([{ groupId: TASK_GROUP_A, isPinned: true }])
+const PINNED_BAND_DRAWS_A = reachWith([{ taskGroupId: TASK_GROUP_A, isPinned: true }])
 const PINNED_BAND_DRAWS_NOTHING = reachWith([])
 
 const scrollOf = (plan: SearchJumpPlan): Loose | null => plan.scrollWrite as unknown as Loose | null
@@ -127,7 +127,7 @@ describe(`T-332 SJ-7 -- ${SJ_7_PINNED_DRAWN} ${SJ_7_ROOM_IRRELEVANT}`, () => {
     expect(scrollOf(plan), 'SJ-6 still moves the view across, so a scroll is written').not.toBeNull()
     expect(scrollOf(plan)).toMatchObject({
       kind: 'setScrollPosition',
-      scrollGroupId: START_SCROLL.scrollGroupId,
+      scrollTaskGroupId: START_SCROLL.scrollTaskGroupId,
       scrollGroupOffset: START_SCROLL.scrollGroupOffset,
     })
   })
@@ -158,7 +158,7 @@ describe(`T-332 SJ-8 -- ${SJ_8_NOT_DRAWN}`, () => {
   })
 
   it('a task group that is not pinned and has no room below the band is told as no room (the plain SJ-8 case)', () => {
-    const plan = searchJumpWrites(documentWithPinned([TASK_GROUP_B]), TO_TASK, false, reachWith([{ groupId: TASK_GROUP_B, isPinned: true }]))
+    const plan = searchJumpWrites(documentWithPinned([TASK_GROUP_B]), TO_TASK, false, reachWith([{ taskGroupId: TASK_GROUP_B, isPinned: true }]))
     expect(plan.isBlockedByPinnedTaskGroups).toBe(true)
     expect(plan.scrollWrite).toBeNull()
   })

@@ -24,7 +24,7 @@ const rows = (): TaskGroupSeed[] =>
 
 const bench = (displayScale: number, zoomY: number): ShellBench => {
   const built = shell(
-    taskGroupDocument(rows(), { displayScale, zoomY, scrollGroupId: SEATED_TASK_GROUP, scrollGroupOffset: SEATED_TASK_GROUP_PART }),
+    taskGroupDocument(rows(), { displayScale, zoomY, scrollTaskGroupId: SEATED_TASK_GROUP, scrollGroupOffset: SEATED_TASK_GROUP_PART }),
   )
   benches.push(built)
   return built
@@ -62,7 +62,7 @@ describe('T-023 MK-5 -- a sideways scroll leaves the task group anchor where it 
         for (let notch = 0; notch < NOTCHES; notch++) {
           built.send(sidewaysWheel(built, direction))
           const now = settingsOf(built)
-          expect(now['scrollGroupId'], MK_5_ROW).toBe(start['scrollGroupId'])
+          expect(now['scrollTaskGroupId'], MK_5_ROW).toBe(start['scrollTaskGroupId'])
           expect(now['scrollGroupOffset'], MK_5_ROW).toBe(start['scrollGroupOffset'])
           seen.add(`${String(now['scrollDate'])}/${String(now['scrollDayOffset'])}`)
         }

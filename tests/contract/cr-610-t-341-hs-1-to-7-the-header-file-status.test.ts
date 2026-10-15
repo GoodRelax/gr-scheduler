@@ -68,7 +68,7 @@ function factorUpTo(node: FakeElement, top: FakeElement): number | null {
 
 const openedWithStamp = (stamp: string | null): unknown => {
   const document = JSON.parse(JSON.stringify(there())) as Record<string, any>
-  document['documentStamp']['fileSavedUtc'] = stamp
+  document['documentStamp']['fileSavedAt'] = stamp
   return document
 }
 

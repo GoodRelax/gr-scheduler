@@ -75,7 +75,7 @@ const ZOOM = { kind: kindOf('CM-65'), zoomX: 2, zoomY: 2 } as unknown as Documen
 const SCROLL = {
   kind: kindOf('CM-66'),
   scrollDate: '2026-03-02',
-  scrollGroupId: FIRST_TASK_GROUP,
+  scrollTaskGroupId: FIRST_TASK_GROUP,
   scrollDayOffset: 0,
   scrollGroupOffset: 0,
 } as unknown as DocumentCommand
@@ -85,7 +85,7 @@ const FIT = {
   zoomX: 2,
   zoomY: 2,
   scrollDate: '2026-03-02',
-  scrollGroupId: FIRST_TASK_GROUP,
+  scrollTaskGroupId: FIRST_TASK_GROUP,
   scrollDayOffset: 0,
   scrollGroupOffset: 0,
 } as unknown as DocumentCommand
@@ -95,7 +95,7 @@ const NOT_UN_8: readonly (readonly [string, DocumentCommand])[] = [
   // see UN-13
   ['CM-64 (UN-13, the view group)', { kind: kindOf('CM-64'), monochrome: true } as unknown as DocumentCommand],
   // see UN-7
-  ['CM-58 (UN-7, also outside the history)', { kind: kindOf('CM-58'), element: 'baselineVisible', visible: true } as unknown as DocumentCommand],
+  ['CM-58 (UN-7, also outside the history)', { kind: kindOf('CM-58'), element: 'isBaselineVisible', visible: true } as unknown as DocumentCommand],
   // see UN-13
   ['CM-1 (UN-13, the document name)', { kind: kindOf('CM-1'), title: 'CR-593 another title' } as unknown as DocumentCommand],
 ]

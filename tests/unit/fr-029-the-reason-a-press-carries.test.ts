@@ -270,7 +270,7 @@ interface Fixture {
    * left the roster above: hiding the second half is allowed, so there is no
    * press left for FR-029's rule to answer.
    */
-  readonly planActual?: { readonly planVisible: boolean; readonly actualVisible: boolean }
+  readonly planActual?: { readonly isPlanVisible: boolean; readonly isActualVisible: boolean }
 }
 
 /**
@@ -311,13 +311,13 @@ function documentWith(part: Fixture = {}): Document {
   const row = (id: string, parentId: string | null, label: string, order: number) => ({
     id,
     parentId,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order,
     treeState: folded.has(id) ? 'collapsed' : 'auto',
     editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   })
   return {
     '$schema': template['$schema'],
@@ -342,9 +342,9 @@ function documentWith(part: Fixture = {}): Document {
         row(GAMMA, BETA, 'Gamma', 0),
       ],
       taskGroupMembers: [
-        { taskUid: 1, groupId: ALPHA },
-        { taskUid: 2, groupId: BETA },
-        { taskUid: 3, groupId: GAMMA },
+        { taskUid: 1, taskGroupId: ALPHA },
+        { taskUid: 2, taskGroupId: BETA },
+        { taskUid: 3, taskGroupId: GAMMA },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -463,7 +463,7 @@ interface Stage {
   readonly screen: ScreenPane
   send(input: HumanInput): void
   /** Aim whatever comes next at one entrance of one task group. CS-2 freezes it at the press. */
-  aimAt(entry: string, groupId: string): void
+  aimAt(entry: string, taskGroupId: string): void
   /** Aim it at one entrance of a surface that is not a task group -- the header, the palette. */
   aimAtEntry(part: string, entry: string): void
   aimAtNothing(): void
@@ -494,7 +494,7 @@ function stage(part: Fixture = {}, language: DisplayLanguage = 'ja'): Stage {
       pen.runAnimationFrames()
     },
     aimAtEntry: (surface, entry) => at(surface, entry, null),
-    aimAt: (entry, groupId) => at(TASK_GROUP_PANEL, entry, groupId),
+    aimAt: (entry, taskGroupId) => at(TASK_GROUP_PANEL, entry, taskGroupId),
     aimAtNothing: () => screen.drawAt(null),
     notices: () => screen.last().notices,
   }
@@ -852,13 +852,13 @@ describe('FR-029 -- the telling belongs to an entrance that is spent, and to no 
       },
       {
         icon: 'IC-8',
-        fixture: { planActual: { planVisible: true, actualVisible: true } },
+        fixture: { planActual: { isPlanVisible: true, isActualVisible: true } },
         onTaskGroup: null,
         because: 'the plan is showing, so hiding it changes the picture',
       },
       {
         icon: 'IC-9',
-        fixture: { planActual: { planVisible: false, actualVisible: true } },
+        fixture: { planActual: { isPlanVisible: false, isActualVisible: true } },
         onTaskGroup: null,
         because:
           'the actual is showing, so hiding it changes the picture -- and the plan'

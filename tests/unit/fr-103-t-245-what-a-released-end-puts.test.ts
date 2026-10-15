@@ -137,12 +137,12 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
 const group = (id: string, order: number, label: string): unknown => ({
   id,
   parentId: null,
-  label,
+  name: label,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  minHeight: null,
+  minHeightPx: null,
 })
 
 function documentWith(
@@ -167,7 +167,7 @@ function documentWith(
       taskGroups: rows.map((id, index) => group(id, index, String.fromCharCode(65 + index))),
       taskGroupMembers: tasks.map((one, index) => ({
         taskUid: one.uid,
-        groupId: rows[index],
+        taskGroupId: rows[index],
       })),
       taskVisuals: [],
       commentBoxes: [],
@@ -180,7 +180,7 @@ function documentWith(
       // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate,
-      scrollGroupId: rows[0],
+      scrollTaskGroupId: rows[0],
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
     },

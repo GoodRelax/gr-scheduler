@@ -263,12 +263,12 @@ function twoTaskDocument(): Document {
   const row = (id: string, parentId: string | null, label: string) => ({
     id,
     parentId,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   })
   return {
     '$schema': template['$schema'],
@@ -288,8 +288,8 @@ function twoTaskDocument(): Document {
       assignments: [],
       taskGroups: [row(ALPHA, null, 'Alpha'), row(BETA, ALPHA, 'Beta')],
       taskGroupMembers: [
-        { taskUid: THE_TASK, groupId: ALPHA },
-        { taskUid: THE_OTHER_TASK, groupId: BETA },
+        { taskUid: THE_TASK, taskGroupId: ALPHA },
+        { taskUid: THE_OTHER_TASK, taskGroupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],

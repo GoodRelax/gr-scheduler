@@ -195,13 +195,13 @@ export interface InputContext {
   readonly isSurfaceStanding: boolean
   readonly dualCursorFollowing: DualCursorSide | null
   readonly today: string
-  readonly newGroupId: string
+  readonly newTaskGroupId: string
   readonly newCommentBoxId: string
   readonly newHighlightBoxId: string
   readonly isPropertiesPanelShowing?: boolean
   readonly isNoticeStanding?: boolean
   readonly drawnTaskGroupIds?: readonly string[]
-  readonly drawnTaskGroupBoxes?: readonly { readonly groupId: string; readonly box: ScreenRect }[]
+  readonly drawnTaskGroupBoxes?: readonly { readonly taskGroupId: string; readonly box: ScreenRect }[]
 }
 
 
@@ -209,7 +209,7 @@ export type InPlaceTarget =
   | { readonly kind: 'documentTitle' }
   | { readonly kind: 'taskName'; readonly uid: number }
   | { readonly kind: 'assignee'; readonly uid: number }
-  | { readonly kind: 'taskGroupName'; readonly groupId: string }
+  | { readonly kind: 'taskGroupName'; readonly taskGroupId: string }
   | { readonly kind: 'commentBoxText'; readonly id: string }
   | { readonly kind: 'highlightBoxStroke'; readonly id: string }
 
@@ -233,7 +233,7 @@ export type SpentEntranceSituation =
 
 export type CreatedSubject =
   | { readonly kind: 'task'; readonly uid: number }
-  | { readonly kind: 'taskGroup'; readonly groupId: string }
+  | { readonly kind: 'taskGroup'; readonly taskGroupId: string }
 
 export type InputAction =
   | {
@@ -268,7 +268,7 @@ export type InputAction =
     }
   | {
       readonly kind: 'followTaskGroupGrab'
-      readonly groupId: string
+      readonly taskGroupId: string
       readonly axis: TaskGroupGrabAxis
       readonly atDepth: number
       readonly atY: number | null
@@ -277,7 +277,7 @@ export type InputAction =
   // see FR-085, T-293
   | {
       readonly kind: 'chooseTaskGroup'
-      readonly groupId: string
+      readonly taskGroupId: string
       readonly isExtending: boolean
     }
   // STOP: spec does not decide where the chosen resources are held. Looked in FR-099, SL-1
@@ -525,18 +525,18 @@ export function commentAnchorAt(
   layout: ScheduleLayout,
   x: number,
   y: number,
-): { readonly date: string; readonly groupId: string } | TranslatedInput {
+): { readonly date: string; readonly taskGroupId: string } | TranslatedInput {
   const day = dayAtX(layout, x)
   if (day === null) return CONSUMED_ELSEWHERE
   const taskGroup = taskGroupAtY(layout, y)
   if (taskGroup === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
-  return { date: textOfDayStart(day), groupId: taskGroup.groupId }
+  return { date: textOfDayStart(day), taskGroupId: taskGroup.taskGroupId }
 }
 
 export interface ScrollAnchor {
   readonly scrollDate: string | null
   readonly scrollDayOffset: number
-  readonly scrollGroupId: string | null
+  readonly scrollTaskGroupId: string | null
   readonly scrollGroupOffset: number
 }
 
@@ -578,10 +578,10 @@ export function dayAnchorAt(
 function taskGroupAnchorAt(
   context: InputContext,
   y: number,
-): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> {
+): Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'> {
   const settings = context.document.documentSettings
   return taskGroupAnchorIn(scrollingTaskGroupsOf(context.layout), y, {
-    scrollGroupId: settings.scrollGroupId,
+    scrollTaskGroupId: settings.scrollTaskGroupId,
     scrollGroupOffset: settings.scrollGroupOffset,
   })
 }
@@ -595,7 +595,7 @@ export function panTo(context: InputContext, dx: number, dy: number): Translated
       kind: 'setScrollPosition',
       scrollDate: moved.scrollDate,
       scrollDayOffset: moved.scrollDayOffset,
-      scrollGroupId: moved.scrollGroupId,
+      scrollTaskGroupId: moved.scrollTaskGroupId,
       scrollGroupOffset: moved.scrollGroupOffset,
     },
   ])
@@ -706,7 +706,7 @@ export const ENTRY = {
   openDocument: 'IC-1',
   exportChooser: 'IC-2',
   copyPicture: 'IC-3',
-  baselineVisible: 'IC-4',
+  isBaselineVisible: 'IC-4',
   undo: 'IC-5',
   redo: 'IC-6',
   palette: 'IC-7',
@@ -725,7 +725,7 @@ export const ENTRY = {
   dialogueFieldVisible: 'IC-18',
   help: 'IC-22',
   fontScale: 'IC-99',
-  themeMonochrome: 'IC-100',
+  isThemeMonochrome: 'IC-100',
   stackDirection: 'IC-101',
   watermark: 'IC-41',
   statusLine: 'IC-44',
@@ -903,7 +903,7 @@ export function isScrollPositionInForce(
   // TRAP: compare every member CM-66 writes; one left out reads a real movement as none.
   return (
     to.scrollDate === settings.scrollDate &&
-    to.scrollGroupId === settings.scrollGroupId &&
+    to.scrollTaskGroupId === settings.scrollTaskGroupId &&
     to.scrollDayOffset === settings.scrollDayOffset &&
     to.scrollGroupOffset === settings.scrollGroupOffset
   )
@@ -1082,11 +1082,11 @@ function commandFromEntry(
   if (on.entry === null) {
     if (on.taskGroupId !== null) {
       if (press.at.clickCount >= 2) {
-        return acted({ kind: 'editInPlace', target: { kind: 'taskGroupName', groupId: on.taskGroupId } })
+        return acted({ kind: 'editInPlace', target: { kind: 'taskGroupName', taskGroupId: on.taskGroupId } })
       }
       return acted({
         kind: 'chooseTaskGroup',
-        groupId: on.taskGroupId,
+        taskGroupId: on.taskGroupId,
         isExtending: press.at.modifiers.shift,
       })
     }
@@ -1097,7 +1097,7 @@ function commandFromEntry(
     return UNASSIGNED
   }
   const entry = on.entry
-  if (entry === ENTRY.baselineVisible && context.document.schedule.baselineTasks.length === 0) {
+  if (entry === ENTRY.isBaselineVisible && context.document.schedule.baselineTasks.length === 0) {
     return acted({ kind: 'openDocumentFile', openRoute: 'baseline' })
   }
   const element = visibleElementOfEntry(entry)
@@ -1138,11 +1138,11 @@ function commandFromEntry(
           scale: nextFontScale(context.document.documentSettings.fontScale),
         },
       ])
-    case ENTRY.themeMonochrome:
+    case ENTRY.isThemeMonochrome:
       return changed([
         {
           kind: 'setThemeMonochrome',
-          monochrome: !context.document.documentSettings.themeMonochrome,
+          monochrome: !context.document.documentSettings.isThemeMonochrome,
         },
       ])
     case ENTRY.stackDirection: {
@@ -1255,10 +1255,10 @@ export function taskGroupGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, taskG
 }
 
 /** @purity pure */
-export function taskGroupDepthOfGroup(context: InputContext, groupId: string): number {
+export function taskGroupDepthOfGroup(context: InputContext, taskGroupId: string): number {
   const taskGroups = context.document.schedule.taskGroups
   const byId = new Map(taskGroups.map((one) => [one.id, one]))
-  const found = byId.get(groupId)
+  const found = byId.get(taskGroupId)
   return found === undefined ? 1 : taskGroupGrabDepthOf(byId, found)
 }
 
@@ -1293,7 +1293,7 @@ function chosenDrawnTaskCount(context: InputContext): number {
   const drawn = new Set(drawnIds)
   const drawnTaskUids = new Set<number>()
   for (const member of context.document.schedule.taskGroupMembers) {
-    if (drawn.has(member.groupId)) drawnTaskUids.add(member.taskUid)
+    if (drawn.has(member.taskGroupId)) drawnTaskUids.add(member.taskUid)
   }
   return chosen.filter((one) => one.kind === 'task' && drawnTaskUids.has(one.uid)).length
 }
@@ -1480,18 +1480,18 @@ export const NOT_STORED_PROPERTIES_PANEL_FLOOR: {
 }
 
 // see T-109, FR-049
-const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'baselineVisible' | 'planVisible' | 'actualVisible' | 'progressLineVisible' | 'progressMarkerVisible' | 'dateGridLinesVisible' | 'groupGridLinesVisible' | 'assigneeVisible' | 'percentCompleteVisible' | 'dependencyVisible' | 'planDatesVisible'>> = {
-  'IC-4': 'baselineVisible',
-  'IC-8': 'planVisible',
-  'IC-9': 'actualVisible',
-  'IC-39': 'progressLineVisible',
-  'IC-40': 'progressMarkerVisible',
-  'IC-42': 'dateGridLinesVisible',
-  'IC-43': 'groupGridLinesVisible',
-  'IC-79': 'assigneeVisible',
-  'IC-80': 'percentCompleteVisible',
-  'IC-81': 'dependencyVisible',
-  'IC-103': 'planDatesVisible',
+const VISIBLE_ELEMENT_BY_ENTRY: Readonly<Record<string, 'isBaselineVisible' | 'isPlanVisible' | 'isActualVisible' | 'isProgressLineVisible' | 'isProgressMarkerVisible' | 'isDateGridLinesVisible' | 'isGroupGridLinesVisible' | 'isAssigneeVisible' | 'isPercentCompleteVisible' | 'isDependencyVisible' | 'isPlanDatesVisible'>> = {
+  'IC-4': 'isBaselineVisible',
+  'IC-8': 'isPlanVisible',
+  'IC-9': 'isActualVisible',
+  'IC-39': 'isProgressLineVisible',
+  'IC-40': 'isProgressMarkerVisible',
+  'IC-42': 'isDateGridLinesVisible',
+  'IC-43': 'isGroupGridLinesVisible',
+  'IC-79': 'isAssigneeVisible',
+  'IC-80': 'isPercentCompleteVisible',
+  'IC-81': 'isDependencyVisible',
+  'IC-103': 'isPlanDatesVisible',
 }
 
 // see T-109, FR-048

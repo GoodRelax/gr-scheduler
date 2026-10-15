@@ -148,7 +148,7 @@
 //   7. WHETHER `defaultNames` ARRIVES ON A FRAME (DFC-171, 2026-09-01). ⛔ It is
 //      the ONE section whose word the screen never prints AS A WORD: FR-032
 //      (MUST) 「タスクグループ名を既定の名前に確定させること」 WRITES it into
-//      `TaskGroup.label`, so from that moment it is document data, and FR-038
+//      `TaskGroup.name`, so from that moment it is document data, and FR-038
 //      states in as many words that タスクグループ名 is not translated. ⇒ Asking a frame
 //      to print it in the reader's language would assert the opposite of what
 //      the two requirements say, and the only way to raise such a frame would
@@ -164,7 +164,7 @@
 //      (CR-344). `IC-17` of table T-109 opens that face on the document's
 //      drawing settings and `DR-3` of table T-052 says what those are, so a row
 //      of table T-104 with no key in that group -- `themeHue`, `language`,
-//      `zoomStep`, `zoomMin`, `zoomMax`, `importSeq`, `planActualGuideColor` and
+//      `zoomStep`, `zoomMin`, `zoomMax`, `importSequence`, `planActualGuideColor` and
 //      `watermarkOpacity` -- has no field to be printed on, whatever the road
 //      were wired to. ⚠️ Of a kind with 6 and 7: the surface exists and can be
 //      raised, and it is the ENTRY that has no place on it. ⭐ Which rows those
@@ -655,7 +655,7 @@ const centerOf = (region: ScreenRect): { readonly x: number; readonly y: number 
  */
 const SETTINGS = {
   ...SETTINGS_DEFAULTS,
-  taskGroupPanelWidth: 400,
+  taskGroupPanelWidthPx: 400,
 } as unknown as DocumentSettings
 
 const PROPERTIES_PANEL_WIDTH = 300
@@ -665,23 +665,23 @@ const REGIONS: ScreenRegions = (() => {
   const width = 1280
   const height = 800
   const headerHeight = 56
-  const rulerHeight = 48
+  const rulerHeightPx = 48
   // ⛔ Read off the settings above rather than re-typed: the cut and the
   // settings the same frame carries have to be the same screen.
-  const titleWidth = SETTINGS.taskGroupPanelWidth
+  const titleWidth = SETTINGS.taskGroupPanelWidthPx
   const propertiesWidth = PROPERTIES_PANEL_WIDTH
   const padding = SETTINGS_CONSTANTS.canvasPadding
   const barThickness = 8
   const canvas = rect(0, headerHeight, width, height - headerHeight)
   const taskGroupAreaWidth = canvas.width - padding - titleWidth - propertiesWidth - barThickness
-  const taskGroupAreaHeight = canvas.height - rulerHeight - padding - barThickness
+  const taskGroupAreaHeight = canvas.height - rulerHeightPx - padding - barThickness
   return {
     appHeader: rect(0, 0, width, headerHeight),
     scheduleCanvas: canvas,
     taskGroupPanel: rect(canvas.x, canvas.y, titleWidth, canvas.height),
-    timeRuler: rect(canvas.x + titleWidth, canvas.y, taskGroupAreaWidth, rulerHeight),
+    timeRuler: rect(canvas.x + titleWidth, canvas.y, taskGroupAreaWidth, rulerHeightPx),
     propertiesPanel: rect(canvas.x + canvas.width - propertiesWidth, canvas.y, propertiesWidth, canvas.height),
-    taskGroupArea: rect(canvas.x + titleWidth, canvas.y + rulerHeight, taskGroupAreaWidth, taskGroupAreaHeight),
+    taskGroupArea: rect(canvas.x + titleWidth, canvas.y + rulerHeightPx, taskGroupAreaWidth, taskGroupAreaHeight),
   }
 })()
 
@@ -1598,11 +1598,11 @@ const SCHEDULE_WITH_A_TASK_GROUP = {
     {
       id: THE_TASK_GROUP,
       parentId: null,
-      label: 'a task group',
+      name: 'a task group',
       derivedFromTaskUid: null,
       order: 0,
       treeState: 'auto', color: null,
-      minHeight: null,
+      minHeightPx: null,
     },
   ],
 } as unknown as Schedule
@@ -1622,7 +1622,7 @@ const TASK_GROUP_PLACED: Frame = frameWith({
   selection: emptySelection(),
   readings: sessionWith({
     selectedGroupIds: [THE_TASK_GROUP],
-    placedTaskGroups: [{ groupId: THE_TASK_GROUP, depth: 0, y: 0, height: 42, stackCount: 1, stackTops: [0] }],
+    placedTaskGroups: [{ taskGroupId: THE_TASK_GROUP, depth: 0, y: 0, height: 42, stackCount: 1, stackTops: [0] }],
   }),
 })
 
@@ -1645,7 +1645,7 @@ const SCHEDULE_WITH_A_COMMENT_BOX = {
       leaderShapeKind: null,
       text: 'a body',
       anchorDate: null,
-      anchorGroupId: null,
+      anchorTaskGroupId: null,
       bodyOffsetPx: null,
     },
   ],
@@ -1664,10 +1664,10 @@ const HIGHLIGHT_BOX_PICKED: Frame = frameWith({
     highlightBoxes: [
       {
         id: THE_HIGHLIGHT_BOX,
-        startDate: null,
-        endDate: null,
-        topGroupId: null,
-        bottomGroupId: null,
+        start: null,
+        finish: null,
+        topTaskGroupId: null,
+        bottomTaskGroupId: null,
         strokeColor: null,
         cornerRadiusPx: null,
       },
@@ -1687,7 +1687,7 @@ const SCHEDULE_WITH_A_DEPENDENCY = {
     {
       ...SCHEDULE.tasks[0],
       dependencies: [
-        { predecessorUid: THE_PREDECESSOR, linkType: 1, lag: 0, lagFormat: 7, carry: {}, carryElements: [] },
+        { predecessorUid: THE_PREDECESSOR, linkType: 1, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] },
       ],
     },
     { ...SCHEDULE.tasks[0], uid: THE_PREDECESSOR, name: 'a predecessor', dependencies: [] },
@@ -1863,7 +1863,7 @@ const rowOfSettingsKey = (key: string): string | undefined => {
  * group has no field to be printed on: `themeHue` (DR-5 of table T-052 keeps the
  * hue on `Project`), `language` (FR-038's own RATIONALE keeps it out of the
  * document -- 「どの言語で開くかは読む人の環境であり、文書に保存しない（MUST
- * NOT）」), `zoomStep`, `zoomMin`, `zoomMax`, `importSeq`, `planActualGuideColor`
+ * NOT）」), `zoomStep`, `zoomMin`, `zoomMax`, `importSequence`, `planActualGuideColor`
  * and `watermarkOpacity`. ⭐ Measured, not assumed: the group is asked.
  */
 const ROWS_ON_THE_SETTINGS_FACE = new Set(
@@ -2166,7 +2166,7 @@ for (const section of ['fileStatus', 'exportFormats']) {
 // ⭐ WHY A WORD THAT BECOMES DOCUMENT CONTENT IS NOT A WORD A FRAME PRINTS.
 // FR-032 (MUST) does not put this word on the screen; it puts it in the
 // document. 「⛔⛔ **導出元の `Task` が名前を持たないときは、タスクグループ名を既定の名前
-// に確定させること（MUST）**」 -- 確定させる is a WRITE, into `TaskGroup.label`
+// に確定させること（MUST）**」 -- 確定させる is a WRITE, into `TaskGroup.name`
 // (AT-53 of table T-058), on the way to emptying `derivedFromTaskUid`. Once it
 // is written it is the task group's name, indistinguishable from a name a person
 // typed: the screen shows it the way it shows every other タスクグループ名.
@@ -2178,14 +2178,14 @@ for (const section of ['fileStatus', 'exportFormats']) {
 // 言語に従うこと（MUST）」。⇒ 「タスクグループ名は訳さない」はもう引ける規則ではない。
 // ⭐ WHAT HOLDS THIS OMISSION IS `FR-032` ALONE, and it is enough: the word is
 // settled INTO the document before any frame could print it, so what a reader
-// sees is a `TaskGroup.label` this file would have had to write itself. The
+// sees is a `TaskGroup.name` this file would have had to write itself. The
 // arrival claim the acceptance case makes -- "asked for in `ja` a frame prints
 // the `ja` word, and asked for in `en` it does not" -- has no frame to make it
 // against, because no frame prints this word at all.
 //
 // ⛔ NOR COULD A FRAME BE RAISED THAT WOULD PRINT IT HONESTLY. To put the word
 // on the screen this file would first have to write it into `SCHEDULE` as a
-// `TaskGroup.label` itself -- and then the case would be finding its own input,
+// `TaskGroup.name` itself -- and then the case would be finding its own input,
 // which is the trap the stand-ins in `ASKING` and `TELLING` are spelled in ASCII
 // to avoid. ⭐ So this omission is of the STRONGEST kind, the kind omission 6
 // makes for the weekdays: not "the member is one this file may not name" (those
@@ -2209,7 +2209,7 @@ for (const entry of GENERATED['defaultNames'] ?? []) {
   drop(
     'defaultNames',
     keyOf('defaultNames', entry),
-    'FR-032 (MUST) settles it into TaskGroup.label, so it is document data and not screen text -- and ' +
+    'FR-032 (MUST) settles it into TaskGroup.name, so it is document data and not screen text -- and ' +
       'no frame this file can raise prints it at all, because the word is settled into the document ' +
       'before any frame could -- ⛔ NOT because タスクグループ名 is untranslatable: FR-038 withdrew that sentence ' +
       'on 2026-09-04 and now puts task group names under the display language like every other word',
@@ -2383,7 +2383,7 @@ for (const entry of GENERATED['dropCue'] ?? []) {
 // stores one; its two days are put back as {start} and {finish} to hold the line to the written word.
 const EXPORT_CHOOSER_WITH_SPAN = frameWith({
   root: rootWithSurface('Export Chooser'),
-  settings: { ...SETTINGS, fitSpanFixed: true, fitSpanStart: '2026-11-02T00:00:00', fitSpanFinish: '2026-12-25T23:59:00' },
+  settings: { ...SETTINGS, isFitSpanFixed: true, fitSpanStart: '2026-11-02T00:00:00', fitSpanFinish: '2026-12-25T23:59:00' },
 })
 const SPAN_DAY = /(\d{4}\/)?\d{1,2}\/\d{1,2}/
 const exportSpanWordOf = (line: string): string => line.replace(SPAN_DAY, '{start}').replace(SPAN_DAY, '{finish}')

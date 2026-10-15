@@ -27,8 +27,8 @@ export function leaderOf(comment: CommentGeometry): Path | null {
 // see LF-15
 // WHY: the one formula for where an anchor stands; the drawing and the translator's drag both call it (CR-559 S-1).
 /** @purity pure */
-export function commentAnchorPointOf(layout: ScheduleLayout, day: CalendarDay, groupId: string): Point | null {
-  const taskGroup = layout.taskGroups.find((one) => one.groupId === groupId)
+export function commentAnchorPointOf(layout: ScheduleLayout, day: CalendarDay, taskGroupId: string): Point | null {
+  const taskGroup = layout.taskGroups.find((one) => one.taskGroupId === taskGroupId)
   if (taskGroup === undefined) return null
   return point(xFromDay(layout, day) + layout.pxPerDay / 2, taskGroup.y + taskGroup.height / 2)
 }
@@ -91,7 +91,7 @@ export function commentGeometry(
     // see FR-019, UC-008, AT-12
     // WHY: a box with no anchor date stands at the document's start date, or it could not be chosen or deleted.
     const day = dayOf(box.anchorDate) ?? dayOf(schedule.project.startDate)
-    const anchor = day === null || box.anchorGroupId === null ? null : commentAnchorPointOf(layout, day, box.anchorGroupId)
+    const anchor = day === null || box.anchorTaskGroupId === null ? null : commentAnchorPointOf(layout, day, box.anchorTaskGroupId)
     if (anchor === null) continue
     const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
     const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }

@@ -69,7 +69,7 @@ const fixtureDocument = (): Document => {
     task(UID_A, '2026-04-06', '2026-04-10'),
     task(UID_B, '2026-04-20', '2026-04-24'),
     ...others.map((uid) =>
-      task(uid, '2026-04-06', '2026-04-10', uid === firstOther + 1 ? [{ predecessorUid: firstOther, linkType: FINISH_TO_START, lag: null, lagFormat: null, carry: {}, carryElements: [] }] : []),
+      task(uid, '2026-04-06', '2026-04-10', uid === firstOther + 1 ? [{ predecessorUid: firstOther, linkType: FINISH_TO_START, linkLag: null, lagFormat: null, carry: {}, carryElements: [] }] : []),
     ),
   ]
   return {
@@ -82,10 +82,10 @@ const fixtureDocument = (): Document => {
       resources: [],
       assignments: [],
       taskGroups: tasks.map((one, order) => ({
-        id: rowIdOf(one.uid), parentId: null, label: `task group ${order}`, derivedFromTaskUid: null, order,
-        treeState: 'auto', color: null, minHeight: null,
+        id: rowIdOf(one.uid), parentId: null, name: `task group ${order}`, derivedFromTaskUid: null, order,
+        treeState: 'auto', color: null, minHeightPx: null,
       })),
-      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, groupId: rowIdOf(one.uid) })),
+      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, taskGroupId: rowIdOf(one.uid) })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -95,8 +95,8 @@ const fixtureDocument = (): Document => {
     documentSettings: {
       ...template.documentSettings,
       zoomX: PX_PER_DAY / SETTINGS_CONSTANTS.pxPerDayAt1x,
-      dependencyVisible: true,
-      progressLineVisible: false,
+      isDependencyVisible: true,
+      isProgressLineVisible: false,
     },
     documentStamp: template.documentStamp,
     changeLog: [],

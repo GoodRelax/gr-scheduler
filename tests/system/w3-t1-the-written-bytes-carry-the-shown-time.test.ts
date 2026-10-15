@@ -30,7 +30,7 @@ async function shownTimeAsUtc(page: Page): Promise<string | null> {
 // WHY: a single .html carries the app's own code before the document; the document is the last stamp in the text.
 /** @purity pure */
 function lastStampOf(text: string): string | null {
-  const all = [...text.matchAll(/"fileSavedUtc"\s*:\s*(null|"(\d{4}-\d\d-\d\dT[0-9]{2}:[0-9]{2}:[0-9]{2})[^"]*")/g)]
+  const all = [...text.matchAll(/"fileSavedAt"\s*:\s*(null|"(\d{4}-\d\d-\d\dT[0-9]{2}:[0-9]{2}:[0-9]{2})[^"]*")/g)]
   const last = all[all.length - 1]
   return last === undefined ? 'absent' : (last[2] ?? null)
 }

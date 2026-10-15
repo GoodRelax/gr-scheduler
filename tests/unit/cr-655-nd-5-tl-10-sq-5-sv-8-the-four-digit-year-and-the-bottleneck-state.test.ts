@@ -71,7 +71,7 @@ function scheduleOf(tasks: readonly Loose[]): scheduleEntry.Schedule {
   const raw = taskGroupDocument([{ id: 'r0', parentId: null }])
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = tasks
-  raw.schedule.taskGroupMembers = tasks.map((one) => ({ taskUid: one['uid'], groupId: 'r0' }))
+  raw.schedule.taskGroupMembers = tasks.map((one) => ({ taskUid: one['uid'], taskGroupId: 'r0' }))
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
   return decoded.document.schedule
@@ -144,7 +144,7 @@ const F = (month: number, date: number): string => day2027(month, date, 17)
 const after = (uid: number, linkType: number): Loose => ({
   predecessorUid: uid,
   linkType,
-  lag: 0,
+  linkLag: 0,
   lagFormat: 7,
   carry: {},
   carryElements: [],
@@ -167,7 +167,7 @@ function diagnosedDocument(): Document {
     taskOf(LATER, { name: 'Later', start: S(6, 7), finish: F(6, 11) }),
     taskOf(DONE, { name: 'Done', start: S(4, 5), finish: F(4, 9), actualStart: S(4, 5), actualFinish: F(4, 9), percentComplete: 100 }),
   ]
-  raw.schedule.taskGroupMembers = (raw.schedule.tasks as readonly Loose[]).map((one) => ({ taskUid: one['uid'], groupId: 'r0' }))
+  raw.schedule.taskGroupMembers = (raw.schedule.tasks as readonly Loose[]).map((one) => ({ taskUid: one['uid'], taskGroupId: 'r0' }))
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
   return decoded.document

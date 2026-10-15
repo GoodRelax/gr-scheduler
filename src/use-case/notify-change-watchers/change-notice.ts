@@ -41,7 +41,7 @@ export function changeNoticeFor(
   const stamp = confirmed.document.documentStamp
 
   const isScheduleUnseen =
-    confirmed.hasMovedSchedule || stamp.scheduleUpdatedUtc !== seen.seenScheduleUpdatedUtc
+    confirmed.hasMovedSchedule || stamp.scheduleUpdatedAt !== seen.seenScheduleUpdatedUtc
   const changed = isScheduleUnseen && stamp.lastEditedBy !== watcher
 
   const messages =
@@ -56,7 +56,7 @@ export function changeNoticeFor(
     document: changed ? confirmed.document : null,
     messages,
     mark: {
-      seenScheduleUpdatedUtc: changed ? stamp.scheduleUpdatedUtc : seen.seenScheduleUpdatedUtc,
+      seenScheduleUpdatedUtc: changed ? stamp.scheduleUpdatedAt : seen.seenScheduleUpdatedUtc,
       seenSequence: latestSequence(confirmed.dialogue),
     },
   }

@@ -22,12 +22,12 @@ import {
 } from './input-command-translator'
 import { isPlaceSeatedIn, unstoredZoomWrites, verticalZoomAnswer, zoomStepAnswer, zoomTimes, zoomWrites } from './zoom-and-fit'
 
-type TaskGroupAnchor = Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'>
+type TaskGroupAnchor = Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'>
 
 /** @purity pure */
 function taskGroupHeldOf(context: InputContext): TaskGroupAnchor {
   const settings = context.document.documentSettings
-  return { scrollGroupId: settings.scrollGroupId, scrollGroupOffset: settings.scrollGroupOffset }
+  return { scrollTaskGroupId: settings.scrollTaskGroupId, scrollGroupOffset: settings.scrollGroupOffset }
 }
 
 // see MK-5, OP-10
@@ -36,7 +36,7 @@ function taskGroupHeldOf(context: InputContext): TaskGroupAnchor {
 function taskGroupKeptOf(context: InputContext): TaskGroupAnchor {
   if (isPlaceSeatedIn(context)) return taskGroupHeldOf(context)
   const drawn = scrolledAnchor(context, 0, 0)
-  return { scrollGroupId: drawn.scrollGroupId, scrollGroupOffset: drawn.scrollGroupOffset }
+  return { scrollTaskGroupId: drawn.scrollTaskGroupId, scrollGroupOffset: drawn.scrollGroupOffset }
 }
 
 // see FR-016, MK-1, S-176
@@ -51,7 +51,7 @@ function taskGroupTurnedTo(context: InputContext, dy: number): TaskGroupAnchor {
   if (dy === 0 || taskGroupIndexAtTopEdge(taskGroups, areaTop) === null) return held
   if (taskGroupIndexAtTopEdge(taskGroups, areaTop + dy) === null) {
     const first = taskGroups[0]
-    return dy < 0 && first !== undefined ? { scrollGroupId: first.groupId, scrollGroupOffset: 0 } : held
+    return dy < 0 && first !== undefined ? { scrollTaskGroupId: first.taskGroupId, scrollGroupOffset: 0 } : held
   }
   return taskGroupAnchorIn(taskGroups, areaTop + dy, held)
 }

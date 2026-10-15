@@ -965,7 +965,7 @@ describe('the ordinary case -- one MSPDI in', () => {
     expect(document.documentStamp).toEqual(CURRENT.documentStamp)
     expect(document.changeLog).toEqual(CURRENT.changeLog)
     expect(document.schedule.project.themeHue).toBe(CURRENT.schedule.project.themeHue)
-    expect(document.schedule.project.importSeq).toBe(CURRENT.schedule.project.importSeq)
+    expect(document.schedule.project.importSequence).toBe(CURRENT.schedule.project.importSequence)
   })
 
   it('merges nothing of `current.schedule` -- that is FR-056, in CP-10', () => {
@@ -1394,8 +1394,8 @@ describe('FR-058 -- the imported tasks land on task groups', () => {
     expect(deepest).toBeDefined()
     for (const uid of [MAX_GROUP_DEPTH, MAX_GROUP_DEPTH + 1, deeper]) {
       const member = document.schedule.taskGroupMembers.find((each) => each.taskUid === uid)
-      expect(member?.groupId, `task ${uid}`).toBe(deepest?.id)
-      expect(byId.get(member?.groupId ?? '')).toBeDefined()
+      expect(member?.taskGroupId, `task ${uid}`).toBe(deepest?.id)
+      expect(byId.get(member?.taskGroupId ?? '')).toBeDefined()
     }
   })
 
@@ -1418,7 +1418,7 @@ describe('FR-058 -- the imported tasks land on task groups', () => {
   it('gives every generated task group a derived name and no label (IV-8)', () => {
     const document = accepted(nestedTasksText(MAX_GROUP_DEPTH + 3))
     for (const group of document.schedule.taskGroups) {
-      expect(group.label).toBeNull()
+      expect(group.name).toBeNull()
       expect(group.derivedFromTaskUid).not.toBeNull()
       expect(document.schedule.tasks.map((each) => each.uid)).toContain(group.derivedFromTaskUid)
     }

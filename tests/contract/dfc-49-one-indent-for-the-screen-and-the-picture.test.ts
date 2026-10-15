@@ -65,8 +65,8 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
 
 const PANEL = settingsOf({
   displayScale: DEFAULT_DISPLAY_SCALE,
-  taskGroupPanelWidth: 400, // see S-79
-  pinnedGroupIds: [], // see S-126
+  taskGroupPanelWidthPx: 400, // see S-79
+  pinnedTaskGroupIds: [], // see S-126
 })
 
 // WHY: S-30, S-36, S-37, S-38 and S-125 are constants now; a document cannot carry them.
@@ -76,7 +76,7 @@ const keyOf = (settings: DocumentSettings, key: string): number =>
 // see FR-039, T-252
 const drawnPanelOf = (settings: DocumentSettings): number =>
   Math.max(
-    keyOf(settings, 'taskGroupPanelWidth') * DEFAULT_DISPLAY_RATIO,
+    keyOf(settings, 'taskGroupPanelWidthPx') * DEFAULT_DISPLAY_RATIO,
     keyOf(settings, 'taskGroupTitleIndent') * DEFAULT_DISPLAY_RATIO * keyOf(settings, 'maxGroupDepth') +
       S_138 * S_235 +
       26 * S_235 * 4,
@@ -117,11 +117,11 @@ const READINGS: ScreenViewReadings = {
 const groupOf = (part: Record<string, unknown>): TaskGroup =>
   ({
     parentId: null,
-    label: null,
+    name: null,
     derivedFromTaskUid: null,
     order: 0,
     treeState: 'auto', color: null,
-    minHeight: null,
+    minHeightPx: null,
     ...part,
   }) as unknown as TaskGroup
 
@@ -151,20 +151,20 @@ const titlesOfChain = (
 ): readonly TaskGroupTitle[] => {
   const ids = Array.from({ length: depth }, (_unused, index) => `g${index + 1}`)
   const groups = ids.map((id, index) =>
-    groupOf({ id, parentId: index === 0 ? null : `g${index}`, label, order: index }),
+    groupOf({ id, parentId: index === 0 ? null : `g${index}`, name: label, order: index }),
   )
   const panel: TaskGroupPanel = taskGroupPanelFromSchedule(
     scheduleOf(groups),
     settings,
     emptySelection(),
     ROOT,
-    { ...READINGS, taskGroupBoxes: ids.map((groupId, index) => ({ groupId, box: boxAt(index) })) },
+    { ...READINGS, taskGroupBoxes: ids.map((taskGroupId, index) => ({ taskGroupId, box: boxAt(index) })) },
   )
   return [...panel.pinnedTitles, ...panel.titles]
 }
 
 const deepestTitle = (depth: number, label: string, settings: DocumentSettings): TaskGroupTitle => {
-  const found = titlesOfChain(depth, label, settings).filter((one) => one.groupId === `g${depth}`)
+  const found = titlesOfChain(depth, label, settings).filter((one) => one.taskGroupId === `g${depth}`)
   expect(found.length, `exactly one title for g${depth}`).toBe(1)
   return found[0] as TaskGroupTitle
 }
@@ -256,7 +256,7 @@ const EXPORT_SCREEN = { width: 1000, height: 800, appHeaderHeight: 56 } as const
 const EXPORT_REGIONS: ScreenRegions = (() => {
   const canvasHeight = EXPORT_SCREEN.height - EXPORT_SCREEN.appHeaderHeight
   const taskGroupAreaWidth =
-    EXPORT_SCREEN.width - SETTINGS_CONSTANTS.canvasPadding - EXPORT_SETTINGS.taskGroupPanelWidth
+    EXPORT_SCREEN.width - SETTINGS_CONSTANTS.canvasPadding - EXPORT_SETTINGS.taskGroupPanelWidthPx
   return {
     appHeader: { x: 0, y: 0, width: EXPORT_SCREEN.width, height: EXPORT_SCREEN.appHeaderHeight },
     scheduleCanvas: {
@@ -268,14 +268,14 @@ const EXPORT_REGIONS: ScreenRegions = (() => {
     taskGroupPanel: {
       x: 0,
       y: EXPORT_SCREEN.appHeaderHeight,
-      width: EXPORT_SETTINGS.taskGroupPanelWidth,
+      width: EXPORT_SETTINGS.taskGroupPanelWidthPx,
       height: canvasHeight,
     },
     timeRuler: {
-      x: EXPORT_SETTINGS.taskGroupPanelWidth,
+      x: EXPORT_SETTINGS.taskGroupPanelWidthPx,
       y: EXPORT_SCREEN.appHeaderHeight,
       width: taskGroupAreaWidth,
-      height: EXPORT_SETTINGS.rulerHeight,
+      height: EXPORT_SETTINGS.rulerHeightPx,
     },
     propertiesPanel: {
       x: EXPORT_SCREEN.width,
@@ -284,10 +284,10 @@ const EXPORT_REGIONS: ScreenRegions = (() => {
       height: canvasHeight,
     },
     taskGroupArea: {
-      x: EXPORT_SETTINGS.taskGroupPanelWidth,
-      y: EXPORT_SCREEN.appHeaderHeight + EXPORT_SETTINGS.rulerHeight,
+      x: EXPORT_SETTINGS.taskGroupPanelWidthPx,
+      y: EXPORT_SCREEN.appHeaderHeight + EXPORT_SETTINGS.rulerHeightPx,
       width: taskGroupAreaWidth,
-      height: canvasHeight - EXPORT_SETTINGS.rulerHeight - SETTINGS_CONSTANTS.canvasPadding,
+      height: canvasHeight - EXPORT_SETTINGS.rulerHeightPx - SETTINGS_CONSTANTS.canvasPadding,
     },
   }
 })()
@@ -311,14 +311,14 @@ const sceneIndentedBy = (indentPx: number): ExportScene => {
       pinnedTitles: [],
       titles: [
         {
-          groupId: 'g1',
+          taskGroupId: 'g1',
           depth: 1,
           ...taskGroupNameFont(1),
           indentPx,
           box: {
             x: 0,
             y: 120,
-            width: EXPORT_SETTINGS.taskGroupPanelWidth,
+            width: EXPORT_SETTINGS.taskGroupPanelWidthPx,
             height: 60,
           },
           label: PICTURE_TASK_GROUP_NAME,

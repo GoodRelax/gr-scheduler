@@ -27,7 +27,7 @@ export function serialOf(day: CalendarDay): number {
 // see FR-017, S-8, T-205
 /** @purity pure */
 export function thresholdPxPerDayOf(pxPerDay: number, settings: DrawnSettings): number {
-  return pxPerDay / (settings.rulerFont / SETTINGS_CONSTANTS.fontMin)
+  return pxPerDay / (settings.rulerFontSizePx / SETTINGS_CONSTANTS.fontMin)
 }
 
 // see LC-3, FR-017, T-252, DS-1, DS-4, S-8, TM-5, S-577
@@ -36,7 +36,7 @@ export function thresholdPxPerDayOf(pxPerDay: number, settings: DrawnSettings): 
 export function rulerTierOf(pxPerDay: number, storedSettings: DocumentSettings): RulerTier {
   const settings = drawnSettingsOf(storedSettings)
   const scaled = thresholdPxPerDayOf(pxPerDay, settings)
-  if (settings.showsTimeOfDay && scaled >= SETTINGS_CONSTANTS.rulerTierPxPerDayHour) return 'dayHour'
+  if (settings.isTimeOfDayVisible && scaled >= SETTINGS_CONSTANTS.rulerTierPxPerDayHour) return 'dayHour'
   if (scaled >= SETTINGS_CONSTANTS.rulerTierPxPerDayDay) return 'yearMonthDayWeekday'
   if (scaled >= SETTINGS_CONSTANTS.rulerTierPxPerDayWeek) return 'yearMonthWeek'
   if (scaled >= SETTINGS_CONSTANTS.rulerTierPxPerDayMonth) return 'yearMonth'
@@ -51,7 +51,7 @@ const SNAP_MINUTES = { 'SG-2': 60, 'SG-3': 30, 'SG-4': 1 } as const
 /** @purity pure */
 export function snapMinutesOf(pxPerDay: number, storedSettings: DocumentSettings, isAltHeld: boolean): number {
   const settings = drawnSettingsOf(storedSettings)
-  if (!settings.showsTimeOfDay) return MINUTES_PER_CALENDAR_DAY
+  if (!settings.isTimeOfDayVisible) return MINUTES_PER_CALENDAR_DAY
   if (isAltHeld) return SNAP_MINUTES['SG-4']
   const scaled = thresholdPxPerDayOf(pxPerDay, settings)
   if (scaled >= SETTINGS_CONSTANTS.halfHourGridPxPerDay) return SNAP_MINUTES['SG-3']
@@ -97,7 +97,7 @@ export function dateAtX(layout: TimeAxis, x: number): CalendarDay | null {
 export function fixedFitSpanOf(
   settings: DocumentSettings,
 ): { readonly start: CalendarDay; readonly finish: CalendarDay; readonly days: number } | null {
-  if (!settings.fitSpanFixed) return null
+  if (!settings.isFitSpanFixed) return null
   const start = dayOf(settings.fitSpanStart)
   const finish = dayOf(settings.fitSpanFinish)
   if (start === null || finish === null) return null

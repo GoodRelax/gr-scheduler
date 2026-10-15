@@ -52,7 +52,7 @@ EXEMPT = {
                  '⭐ 125->126 / 138->139 on 2026-09-06: '
                  'Project.outlineBase (AT-139) is one more 整数 / 否. '
                  '⭐ 126->127 / 139->140 on 2026-09-11: '
-                 'documentStamp.fileSavedUtc (AT-140) is one more '
+                 'documentStamp.fileSavedAt (AT-140) is one more '
                  '文字列（`ISO 8601`・UTC・秒） / 可 -- both values already '
                  'sat in the file, so the count rose and the '
                  'distinct set did not. '

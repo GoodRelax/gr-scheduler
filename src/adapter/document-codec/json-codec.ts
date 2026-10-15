@@ -415,7 +415,7 @@ function pairedFitSpan(settings: DocumentSettings): DocumentSettings {
   const startDay = start ?? finish
   const finishDay = finish ?? start
   if (startDay === null || finishDay === null) {
-    return settings.fitSpanFixed === true ? { ...settings, fitSpanFixed: false } : settings
+    return settings.isFitSpanFixed === true ? { ...settings, isFitSpanFixed: false } : settings
   }
   if (start !== null && finish !== null && compareDays(finish, start) >= 0) return settings
   const pulled = compareDays(finishDay, startDay) < 0 ? startDay : finishDay

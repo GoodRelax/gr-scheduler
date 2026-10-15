@@ -62,8 +62,8 @@ function drawnEndsOf(
   treeOf: () => DrawnTaskGroupsInTree,
   screen: readonly TaskGroupPlacement[],
 ): { readonly top: TaskGroupPlacement; readonly bottom: TaskGroupPlacement } | undefined {
-  const topId = box.topGroupId
-  const bottomId = box.bottomGroupId
+  const topId = box.topTaskGroupId
+  const bottomId = box.bottomTaskGroupId
   const top = topId === null ? screen[0] : taskGroupById.get(topId)
   const bottom = bottomId === null ? screen[screen.length - 1] : taskGroupById.get(bottomId)
   if (top !== undefined && bottom !== undefined) return { top, bottom }
@@ -82,14 +82,14 @@ function drawnEndsOf(
 // see FR-019
 /** @purity pure */
 export function highlightGeometry(schedule: Schedule, layout: ScheduleLayout): readonly HighlightGeometry[] {
-  const taskGroupById = new Map(layout.taskGroups.map((taskGroup) => [taskGroup.groupId, taskGroup]))
+  const taskGroupById = new Map(layout.taskGroups.map((taskGroup) => [taskGroup.taskGroupId, taskGroup]))
   let tree: DrawnTaskGroupsInTree | null = null
   /** @purity pure */
   const treeOf = (): DrawnTaskGroupsInTree => (tree ??= drawnTaskGroupsInTreeOf(schedule, taskGroupById))
   const out: HighlightGeometry[] = []
   for (const box of schedule.highlightBoxes) {
-    const from = dayOf(box.startDate)
-    const toDay = dayOf(box.endDate)
+    const from = dayOf(box.start)
+    const toDay = dayOf(box.finish)
     if (from === null || toDay === null) continue
     const ends = drawnEndsOf(box, taskGroupById, treeOf, layout.taskGroups)
     if (ends === undefined) continue

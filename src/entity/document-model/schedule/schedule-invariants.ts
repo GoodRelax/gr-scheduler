@@ -388,10 +388,10 @@ const INVARIANTS: readonly Invariant[] = [
     find: ({ schedule, settings }) => {
       const rows = new Set(schedule.taskGroups.map((one) => one.id))
       const found: Breach[] = []
-      for (const [index, id] of settings.pinnedGroupIds.entries()) {
+      for (const [index, id] of settings.pinnedTaskGroupIds.entries()) {
         if (!rows.has(id)) {
           found.push({
-            at: `/documentSettings/pinnedGroupIds/${index}`,
+            at: `/documentSettings/pinnedTaskGroupIds/${index}`,
             what: `no TaskGroup is here with id ${id}`,
           })
         }
@@ -489,7 +489,7 @@ const INVARIANTS: readonly Invariant[] = [
     find: ({ schedule }) => {
       const found: Breach[] = []
       for (const [index, group] of schedule.taskGroups.entries()) {
-        if (group.label === null && group.derivedFromTaskUid === null) {
+        if (group.name === null && group.derivedFromTaskUid === null) {
           found.push({
             at: `/schedule/taskGroups/${index}`,
             what: `task group ${group.id} has neither a label nor a Task to take its name from`,
@@ -632,14 +632,14 @@ const INVARIANTS: readonly Invariant[] = [
     kind: 'range',
     /** @purity pure */
     find: ({ schedule }) => {
-      const ceiling = schedule.project.importSeq
+      const ceiling = schedule.project.importSequence
       const found: Breach[] = []
       for (const [index, origin] of schedule.taskOrigins.entries()) {
-        if (origin.lastSeenImportSeq > ceiling) {
+        if (origin.lastSeenImportSequence > ceiling) {
           found.push({
             at: `/schedule/taskOrigins/${index}`,
             what: `Task uid ${origin.taskUid} was last seen at import `
-              + `${origin.lastSeenImportSeq}, past the project's ${ceiling}`,
+              + `${origin.lastSeenImportSequence}, past the project's ${ceiling}`,
           })
         }
       }
@@ -681,13 +681,13 @@ const INVARIANTS: readonly Invariant[] = [
       const rankById = taskGroupRankById(schedule.taskGroups)
       for (const [index, box] of schedule.highlightBoxes.entries()) {
         const at = `/schedule/highlightBoxes/${index}`
-        const from = dayOf(box.startDate)
-        const to = dayOf(box.endDate)
+        const from = dayOf(box.start)
+        const to = dayOf(box.finish)
         if (from !== null && to !== null && compareDays(to, from) < 0) {
           found.push({ at, what: `HighlightBox ${box.id} ends before it starts` })
         }
-        const top = box.topGroupId === null ? undefined : rankById.get(box.topGroupId)
-        const bottom = box.bottomGroupId === null ? undefined : rankById.get(box.bottomGroupId)
+        const top = box.topTaskGroupId === null ? undefined : rankById.get(box.topTaskGroupId)
+        const bottom = box.bottomTaskGroupId === null ? undefined : rankById.get(box.bottomTaskGroupId)
         if (top !== undefined && bottom !== undefined && top > bottom) {
           found.push({ at, what: `HighlightBox ${box.id} has its top task group below its bottom task group` })
         }

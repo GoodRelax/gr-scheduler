@@ -152,9 +152,9 @@ export function resetTaskVisualColors(
 // see CM-24, AT-104, CL-2
 // WHY: the range is the column's own (AT-104), read from its generated shape, never a second copy.
 /** @purity pure */
-export function setTaskVisualStrokeWidth(
+export function setTaskVisualStrokeWidthPx(
   document: Document,
-  command: Extract<TaskCommand, { readonly kind: 'setTaskVisualStrokeWidth' }>,
+  command: Extract<TaskCommand, { readonly kind: 'setTaskVisualStrokeWidthPx' }>,
 ): EditResult {
   const width = command.strokeWidthPx
   const shape = COLUMN_SHAPES.TaskVisual.strokeWidthPx

@@ -33,7 +33,7 @@ const F = (month: number, date: number): string => day(month, date, 17)
 const after = (uid: number, linkType: number): Loose => ({
   predecessorUid: uid,
   linkType,
-  lag: 0,
+  linkLag: 0,
   lagFormat: 7,
   carry: {},
   carryElements: [],
@@ -50,7 +50,7 @@ function documentOf(statusDate: string, rows: readonly Row[]): Document {
   raw.schedule.project.statusDate = statusDate
   raw.schedule.project.uidHighWaterMark = 1000
   raw.schedule.tasks = rows.flatMap((row) => row.tasks)
-  raw.schedule.taskGroupMembers = rows.flatMap((row) => row.tasks.map((task) => ({ taskUid: task['uid'], groupId: row.id })))
+  raw.schedule.taskGroupMembers = rows.flatMap((row) => row.tasks.map((task) => ({ taskUid: task['uid'], taskGroupId: row.id })))
   const decoded = documentFromJson(JSON.stringify(raw))
   if (!decoded.ok) throw new Error(`the schedule does not decode: ${JSON.stringify(decoded.faults)}`)
   return decoded.document

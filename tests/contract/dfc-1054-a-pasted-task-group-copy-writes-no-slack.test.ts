@@ -27,7 +27,7 @@ function opened(): Document {
 const taskGroupOfTask = (document: Document, uid: number): string => {
   const found = document.schedule.taskGroupMembers.find((member) => member.taskUid === uid)
   if (found === undefined) throw new Error(`premise: task ${uid} stands in a task group`)
-  return found.groupId
+  return found.taskGroupId
 }
 
 const newTaskUids = (before: Document, after: Document): readonly number[] => {
@@ -52,9 +52,9 @@ function taskGroupPasted(document: Document): Document {
     document,
     {
       kind: 'pasteTaskGroupSubtree',
-      sourceGroupId: taskGroupOfTask(document, SOURCE_UID),
-      targetGroupId: null,
-      newGroupIds: { [taskGroupOfTask(document, SOURCE_UID)]: COPY_ROW_ID },
+      sourceTaskGroupId: taskGroupOfTask(document, SOURCE_UID),
+      targetTaskGroupId: null,
+      newTaskGroupIds: { [taskGroupOfTask(document, SOURCE_UID)]: COPY_ROW_ID },
     },
     'Row',
   )

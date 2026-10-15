@@ -176,10 +176,10 @@ const TASK_GROUP_NAME_FIELD = ((): string => {
     join(process.cwd(), 'docs', 'spec', '_assets', 'fig-erd-detail.md'),
     'utf8',
   ))
-  const line = detail.split('\n').find((one) => one.includes('`TaskGroup` | `label`'))
-  if (line === undefined) throw new Error('the ERD holds no `TaskGroup`.`label` row')
+  const line = detail.split('\n').find((one) => one.includes('`TaskGroup` | `name`'))
+  if (line === undefined) throw new Error('the ERD holds no `TaskGroup`.`name` row')
   const id = line.split('|')[1]?.trim() ?? ''
-  if (!/^AT-\d+$/.test(id)) throw new Error(`the row for TaskGroup.label reads "${id}"`)
+  if (!/^AT-\d+$/.test(id)) throw new Error(`the row for TaskGroup.name reads "${id}"`)
   return id
 })()
 
@@ -237,7 +237,7 @@ const BETA_NAME = 'BetaTaskGroupName'
 interface StoredRow {
   readonly id: string
   readonly parentId: string | null
-  readonly label: string | null
+  readonly name: string | null
   readonly order: number
 }
 
@@ -246,7 +246,7 @@ function threeTaskGroupDocument(): Document {
   const row = (id: string, parentId: string | null, label: string, order: number): StoredRow => ({
     id,
     parentId,
-    label,
+    name: label,
     order,
   })
   return {
@@ -263,9 +263,9 @@ function threeTaskGroupDocument(): Document {
       resources: [],
       assignments: [],
       taskGroups: [
-        { ...row(ALPHA, null, ALPHA_NAME, 0), derivedFromTaskUid: null, treeState: 'auto', color: null, minHeight: null },
-        { ...row(ALPHA_CHILD, ALPHA, ALPHA_CHILD_NAME, 0), derivedFromTaskUid: null, treeState: 'auto', color: null, minHeight: null },
-        { ...row(BETA, null, BETA_NAME, 1), derivedFromTaskUid: null, treeState: 'auto', color: null, minHeight: null },
+        { ...row(ALPHA, null, ALPHA_NAME, 0), derivedFromTaskUid: null, treeState: 'auto', color: null, minHeightPx: null },
+        { ...row(ALPHA_CHILD, ALPHA, ALPHA_CHILD_NAME, 0), derivedFromTaskUid: null, treeState: 'auto', color: null, minHeightPx: null },
+        { ...row(BETA, null, BETA_NAME, 1), derivedFromTaskUid: null, treeState: 'auto', color: null, minHeightPx: null },
       ],
       taskGroupMembers: [],
       taskVisuals: [],
@@ -382,12 +382,12 @@ interface Stage {
   readonly loop: FrameLoop
   readonly screen: ScreenPane
   send(input: HumanInput): void
-  aim(entry: string | null, groupId: string | null): void
+  aim(entry: string | null, taskGroupId: string | null): void
   aimAtNothing(): void
   /** Aim one control entrance and press it -- CS-2 freezes the aim at the press. */
-  press(entry: string, groupId: string | null): void
+  press(entry: string, taskGroupId: string | null): void
   /** `MK-13` on a row's name: the rename road `HF-14` points at. */
-  doubleClickName(groupId: string): void
+  doubleClickName(taskGroupId: string): void
   panel(): PropertiesPanel | null
   rows(): readonly StoredRow[]
 }
@@ -401,12 +401,12 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
     loop.receiveInput(input)
     pen.runAnimationFrames()
   }
-  const aim = (entry: string | null, groupId: string | null): void => {
+  const aim = (entry: string | null, taskGroupId: string | null): void => {
     screen.drawAt({
       part: TASK_GROUP_PANEL,
       entry: entry as any,
       format: null,
-      taskGroupId: groupId,
+      taskGroupId: taskGroupId,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,
@@ -419,17 +419,17 @@ function stage(language: DisplayLanguage = 'ja'): Stage {
     send,
     aim,
     aimAtNothing,
-    press: (entry, groupId) => {
-      aim(entry, groupId)
+    press: (entry, taskGroupId) => {
+      aim(entry, taskGroupId)
       // IN-1 settles a pointer operation on release, so a press is down then up.
       send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       aimAtNothing()
     },
-    doubleClickName: (groupId) => {
+    doubleClickName: (taskGroupId) => {
       // ⛔ BOTH CLICKS ARE SENT, WHICH IS WHAT A BROWSER DELIVERS. The first
       // (clickCount 1) chooses the task group; the second (clickCount 2) is `MK-13`'s.
-      aim(null, groupId)
+      aim(null, taskGroupId)
       send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y, { clickCount: 2 }))
@@ -573,7 +573,7 @@ describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the task group at o
       expect(after, 'exactly one task group was raised').toHaveLength(before.length + 1)
       const created = newTaskGroupSince(before, after)
       expect(created.parentId, '足したタスクグループは最も浅い段の末子 -- no parent, like the other roots').toBeNull()
-      expect(created.label, 'named from FR-038s dictionary, not left empty').toBe(
+      expect(created.name, 'named from FR-038s dictionary, not left empty').toBe(
         DEFAULT_TASK_GROUP_NAME_WORD.text[language],
       )
       expect(created.order, '末子: after every root that stood before the press').toBeGreaterThan(
@@ -592,7 +592,7 @@ describe('表 T-051 HF-17 and HF-14 (MUST): the press raises the task group at o
     expect(after, 'exactly one task group was raised').toHaveLength(before.length + 1)
     const created = newTaskGroupSince(before, after)
     expect(created.parentId, 'HR-8: 足す先は配下 -- under the pressed task group, not beside it').toBe(ALPHA)
-    expect(created.label).toBe(DEFAULT_TASK_GROUP_NAME_WORD.text.ja)
+    expect(created.name).toBe(DEFAULT_TASK_GROUP_NAME_WORD.text.ja)
   })
 
   it('⛔ neither press needs a second input to create the task group -- one press is the whole operation', () => {
@@ -624,7 +624,7 @@ describe('DFC-243 (利用者の裁定 2026-09-03): adding a task group feels exa
     expect(built.panel(), 'FR-072/HF-14 (MUST): the panel is up').not.toBeNull()
     const field = fieldOf(built.panel(), TASK_GROUP_NAME_FIELD)
     expect(field, `the panel drew ${TASK_GROUP_NAME_FIELD}`).toBeDefined()
-    expect(field?.text, 'the panel shows the task group it just raised').toBe(created.label)
+    expect(field?.text, 'the panel shows the task group it just raised').toBe(created.name)
     expect(field?.isEditable, 'FR-085 (MUST): the name can be edited here').toBe(true)
     expect(built.screen.focusAsks(), 'the same ask FR-085 sends for a double click').toEqual([
       TASK_GROUP_NAME_FIELD,

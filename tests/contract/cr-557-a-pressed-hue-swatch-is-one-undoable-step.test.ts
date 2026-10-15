@@ -164,7 +164,7 @@ function bench(document: Document = START): Bench {
       const outcome = replaceDocument(
         {
           defaultTaskGroupName: 'fixture default task group name',
-          newGroupId: 'fresh-task-group',
+          newTaskGroupId: 'fresh-task-group',
           readStamp: held.document.documentStamp,
           moment: CALM,
           call: { row: 'RD-1' },

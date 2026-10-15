@@ -34,7 +34,7 @@ export type SearchJumpPlan = {
 export interface SearchJumpReach {
   readonly pxPerDay: number
   readonly leftReachPx: number
-  readonly drawnTaskGroups: readonly Pick<TaskGroupPlacement, 'groupId' | 'isPinned'>[]
+  readonly drawnTaskGroups: readonly Pick<TaskGroupPlacement, 'taskGroupId' | 'isPinned'>[]
   readonly areaWidth: number
   readonly landing: SearchJumpLanding | null
 }
@@ -47,7 +47,7 @@ export interface SearchJumpLanding {
   readonly shapeMiddleY: number
   readonly roomTop: number
   readonly roomHeight: number
-  readonly scrollingTaskGroups: readonly Pick<TaskGroupPlacement, 'groupId' | 'y' | 'height'>[]
+  readonly scrollingTaskGroups: readonly Pick<TaskGroupPlacement, 'taskGroupId' | 'y' | 'height'>[]
 }
 
 type UnstoredZoom = Pick<DocumentSettings, 'zoomX' | 'zoomY'>
@@ -60,7 +60,7 @@ interface DrawnCommentBoxes {
 type ScrollAnchor = Omit<Extract<DocumentCommand, { readonly kind: 'setScrollPosition' }>, 'kind'>
 
 interface JumpPlace {
-  readonly groupId: string | null
+  readonly taskGroupId: string | null
   readonly date: string | null
 }
 
@@ -69,24 +69,24 @@ const NO_JUMP: SearchJumpPlan = { treeStateWrites: [], scrollWrite: null, isBloc
 // see SJ-2, SJ-6
 /** @purity pure */
 function placeOf(schedule: Schedule, target: SearchJumpTarget): JumpPlace | null {
-  const heldTaskGroup = (groupId: string | null): string | null =>
-    groupId !== null && schedule.taskGroups.some((taskGroup) => taskGroup.id === groupId) ? groupId : null
+  const heldTaskGroup = (taskGroupId: string | null): string | null =>
+    taskGroupId !== null && schedule.taskGroups.some((taskGroup) => taskGroup.id === taskGroupId) ? taskGroupId : null
   if (target.kind === 'task') {
     const task = schedule.tasks.find((one) => one.uid === target.taskUid)
     if (task === undefined) return null
     const member = schedule.taskGroupMembers.find((one) => one.taskUid === task.uid)
-    return { groupId: heldTaskGroup(member?.groupId ?? null), date: task.start }
+    return { taskGroupId: heldTaskGroup(member?.taskGroupId ?? null), date: task.start }
   }
   const box = schedule.commentBoxes.find((one) => one.id === target.commentBoxId)
   if (box === undefined) return null
-  return { groupId: heldTaskGroup(box.anchorGroupId), date: box.anchorDate }
+  return { taskGroupId: heldTaskGroup(box.anchorTaskGroupId), date: box.anchorDate }
 }
 
 // see SJ-2, T-328
 /** @purity pure */
-function revealWrites(document: Document, groupId: string | null): readonly DocumentCommand[] {
-  if (groupId === null) return []
-  const event: TreeStateEvent = { type: 'taskGroupRevealAsked', revealedRowId: groupId }
+function revealWrites(document: Document, taskGroupId: string | null): readonly DocumentCommand[] {
+  if (taskGroupId === null) return []
+  const event: TreeStateEvent = { type: 'taskGroupRevealAsked', revealedRowId: taskGroupId }
   return [
     ...treeStateWritesFor(document.schedule, event),
     ...levelZeroWritesFor(document.documentSettings.levelZeroTreeState, event),
@@ -99,12 +99,12 @@ export function shownTasksRevealWrites(document: Document, taskUids: readonly nu
   const wanted = new Set(taskUids)
   const held = new Set(document.schedule.taskGroups.map((taskGroup) => taskGroup.id))
   const rows = new Set(
-    document.schedule.taskGroupMembers.filter((one) => wanted.has(one.taskUid) && held.has(one.groupId)).map((one) => one.groupId),
+    document.schedule.taskGroupMembers.filter((one) => wanted.has(one.taskUid) && held.has(one.taskGroupId)).map((one) => one.taskGroupId),
   )
   const writes = new Map<string, DocumentCommand>()
-  for (const groupId of rows) {
-    for (const write of revealWrites(document, groupId)) {
-      writes.set(write.kind === 'setTaskGroupTreeState' ? write.groupId : write.kind, write)
+  for (const taskGroupId of rows) {
+    for (const write of revealWrites(document, taskGroupId)) {
+      writes.set(write.kind === 'setTaskGroupTreeState' ? write.taskGroupId : write.kind, write)
     }
   }
   return [...writes.values()]
@@ -166,9 +166,9 @@ function isShownAfterJump(
   hasRoomBelowPins: boolean,
   reach: SearchJumpReach,
 ): boolean {
-  const row = place.groupId
-  if (row === null || !document.documentSettings.pinnedGroupIds.includes(row)) return hasRoomBelowPins
-  if (reach.drawnTaskGroups.some((one) => one.groupId === row && one.isPinned === true)) return true
+  const row = place.taskGroupId
+  if (row === null || !document.documentSettings.pinnedTaskGroupIds.includes(row)) return hasRoomBelowPins
+  if (reach.drawnTaskGroups.some((one) => one.taskGroupId === row && one.isPinned === true)) return true
   return reveals.length > 0 && hasRoomBelowPins
 }
 
@@ -192,13 +192,13 @@ function acrossOf(held: ScrollAnchor, date: string | null, reach: SearchJumpReac
 // see SJ-5, S-554, S-176, FR-098
 // WHY: the top edge stands S-554 of the room above the shape's middle; it cannot go above the first task group (S-176 from 0).
 /** @purity pure */
-function downOf(row: string, reach: SearchJumpReach): Pick<ScrollAnchor, 'scrollGroupId' | 'scrollGroupOffset'> {
-  const atTop = { scrollGroupId: row, scrollGroupOffset: 0 }
+function downOf(row: string, reach: SearchJumpReach): Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'> {
+  const atTop = { scrollTaskGroupId: row, scrollGroupOffset: 0 }
   const landing = reach.landing
   if (landing === null) return atTop
   const topEdge = landing.shapeMiddleY - landing.roomHeight * NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE['S-554']
   const first = landing.scrollingTaskGroups[0]
-  if (first !== undefined && topEdge <= first.y) return { scrollGroupId: first.groupId, scrollGroupOffset: 0 }
+  if (first !== undefined && topEdge <= first.y) return { scrollTaskGroupId: first.taskGroupId, scrollGroupOffset: 0 }
   return taskGroupAnchorIn(landing.scrollingTaskGroups, topEdge, atTop)
 }
 
@@ -206,19 +206,19 @@ function downOf(row: string, reach: SearchJumpReach): Pick<ScrollAnchor, 'scroll
 /** @purity pure */
 function scrollWriteTo(document: Document, place: JumpPlace, reach: SearchJumpReach): DocumentCommand | null {
   const held = document.documentSettings
-  const row = place.groupId !== null && !held.pinnedGroupIds.includes(place.groupId) ? place.groupId : null
-  const down = row === null ? { scrollGroupId: held.scrollGroupId, scrollGroupOffset: held.scrollGroupOffset } : downOf(row, reach)
+  const row = place.taskGroupId !== null && !held.pinnedTaskGroupIds.includes(place.taskGroupId) ? place.taskGroupId : null
+  const down = row === null ? { scrollTaskGroupId: held.scrollTaskGroupId, scrollGroupOffset: held.scrollGroupOffset } : downOf(row, reach)
   const anchor = { ...acrossOf(held, place.date, reach), ...down }
   if (
     anchor.scrollDate === held.scrollDate &&
     anchor.scrollDayOffset === held.scrollDayOffset &&
-    anchor.scrollGroupId === held.scrollGroupId &&
+    anchor.scrollTaskGroupId === held.scrollTaskGroupId &&
     anchor.scrollGroupOffset === held.scrollGroupOffset
   ) {
     return null
   }
-  const { scrollDate, scrollGroupId, scrollDayOffset, scrollGroupOffset } = anchor
-  return { kind: 'setScrollPosition', scrollDate, scrollGroupId, scrollDayOffset, scrollGroupOffset }
+  const { scrollDate, scrollTaskGroupId, scrollDayOffset, scrollGroupOffset } = anchor
+  return { kind: 'setScrollPosition', scrollDate, scrollTaskGroupId, scrollDayOffset, scrollGroupOffset }
 }
 
 // see T-332
@@ -231,7 +231,7 @@ export function searchJumpWrites(
 ): SearchJumpPlan {
   const place = placeOf(document.schedule, target)
   if (place === null) return NO_JUMP
-  const treeStateWrites = revealWrites(document, place.groupId)
+  const treeStateWrites = revealWrites(document, place.taskGroupId)
   if (!isShownAfterJump(document, place, treeStateWrites, hasRoomBelowPins, reach)) {
     return { treeStateWrites, scrollWrite: null, isBlockedByPinnedTaskGroups: true }
   }

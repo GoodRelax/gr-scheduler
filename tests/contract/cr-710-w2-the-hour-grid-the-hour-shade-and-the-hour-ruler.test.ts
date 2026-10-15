@@ -42,7 +42,7 @@ describe('the clauses these cases are built from still read as quoted', () => {
 })
 
 // see S-8, DS-1, FR-017, T-205
-const PX_SCALE = ((SETTINGS_DEFAULTS['rulerFont'] as number) * RATIO) / stored('S-8')
+const PX_SCALE = ((SETTINGS_DEFAULTS['rulerFontSizePx'] as number) * RATIO) / stored('S-8')
 const thresholdOf = (id: string): number => Number(bare(rowOf('T-205', id).by['既定'] ?? ''))
 const S_577 = thresholdOf('S-577')
 const S_578 = thresholdOf('S-578')
@@ -69,11 +69,11 @@ interface Frame {
 function frameOf(threshold: number, shows: boolean, grid = true, scrollDay = MONDAY): Frame {
   const settings = {
     ...SETTINGS_DEFAULTS,
-    dateGridLinesVisible: grid,
+    isDateGridLinesVisible: grid,
     zoomX: (threshold * PX_SCALE) / (SETTINGS_CONSTANTS.pxPerDayAt1x * RATIO),
     scrollDate: `${scrollDay}T00:00:00`,
     stackDirection: 'down',
-    showsTimeOfDay: shows,
+    isTimeOfDayVisible: shows,
   } as unknown as DocumentSettings
   const base = scheduleOf({
     tasks: [taskOf({ uid: 1, name: 'a', start: `${MONDAY}T08:00:00`, finish: '2026-01-06T17:00:00' })],

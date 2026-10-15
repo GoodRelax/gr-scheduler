@@ -70,8 +70,8 @@ const valueOf = (member: string, mode: Mode, args: readonly unknown[]): unknown 
   }
   if (ANSWERS_ACCEPTED.has(member)) {
     return mode === 'answer'
-      ? { accepted: true, stamp: A_STAMP, echo: args }
-      : { accepted: false, refusal: refusalOf(member) }
+      ? { ok: true, stamp: A_STAMP, echo: args }
+      : { ok: false, refusal: refusalOf(member) }
   }
   return mode === 'answer'
     ? { ok: true, stamp: A_STAMP, value: { member, echo: args } }

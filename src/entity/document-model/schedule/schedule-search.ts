@@ -27,7 +27,7 @@ export type TaskSearchRow = {
   readonly progressMarker: ProgressMarker
   readonly milestone: boolean
   readonly rowPath: readonly string[]
-  readonly groupId: string | null
+  readonly taskGroupId: string | null
 }
 
 // see SQ-11, SQ-12, SQ-13
@@ -42,7 +42,7 @@ export type CommentBoxSearchRow = {
   readonly text: string
   readonly taskGroupName: string
   readonly anchorDate: string | null
-  readonly groupId: string | null
+  readonly taskGroupId: string | null
 }
 
 // see T-331
@@ -127,7 +127,7 @@ const NOTHING_DIAGNOSED: ReadonlyMap<number, 'DG-1' | 'DG-2' | 'DG-3'> = new Map
 
 /** @purity pure */
 function taskSearchRowOf(task: Task, assigneeNames: readonly string[],
-                         place: Pick<TaskSearchRow, 'rowPath' | 'groupId'>, progressMarker: ProgressMarker): TaskSearchRow {
+                         place: Pick<TaskSearchRow, 'rowPath' | 'taskGroupId'>, progressMarker: ProgressMarker): TaskSearchRow {
   return {
     taskUid: task.uid,
     name: task.name ?? '',
@@ -157,19 +157,19 @@ export function searchRowsOf(
   statusDate: CalendarDay | null = statusDayOf(schedule),
 ): SearchRows {
   const rankById = taskGroupRankById(schedule.taskGroups)
-  const rankOf = (groupId: string | null): number =>
-    (groupId === null ? undefined : rankById.get(groupId)) ?? rankById.size
-  const heldTaskGroup = (groupId: string | null | undefined): string | null =>
-    groupId !== null && groupId !== undefined && rankById.has(groupId) ? groupId : null
+  const rankOf = (taskGroupId: string | null): number =>
+    (taskGroupId === null ? undefined : rankById.get(taskGroupId)) ?? rankById.size
+  const heldTaskGroup = (taskGroupId: string | null | undefined): string | null =>
+    taskGroupId !== null && taskGroupId !== undefined && rankById.has(taskGroupId) ? taskGroupId : null
   const pathByGroupId = new Map<string, readonly string[]>()
-  const pathOf = (groupId: string | null): readonly string[] => {
-    if (groupId === null) return []
-    const held = pathByGroupId.get(groupId) ?? taskGroupPathOf(schedule, groupId)
-    pathByGroupId.set(groupId, held)
+  const pathOf = (taskGroupId: string | null): readonly string[] => {
+    if (taskGroupId === null) return []
+    const held = pathByGroupId.get(taskGroupId) ?? taskGroupPathOf(schedule, taskGroupId)
+    pathByGroupId.set(taskGroupId, held)
     return held
   }
 
-  const groupIdByTaskUid = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.groupId]))
+  const groupIdByTaskUid = new Map(schedule.taskGroupMembers.map((one) => [one.taskUid, one.taskGroupId]))
   const assigneeNames = assigneeNamesByTaskUid(schedule)
   const startAt = plannedStartInstantsOf(schedule)
   const taskRows: Ranked<TaskSearchRow>[] = []
@@ -177,17 +177,17 @@ export function searchRowsOf(
     const name = task.name ?? ''
     const names = assigneeNames.get(task.uid) ?? []
     if (!isSearchWordFound(name, word) && !names.some((one) => isSearchWordFound(one, word))) continue
-    const groupId = heldTaskGroup(groupIdByTaskUid.get(task.uid))
+    const taskGroupId = heldTaskGroup(groupIdByTaskUid.get(task.uid))
     const marker = progressMarkerOf(task, statusDate, diagnosed.get(task.uid))
-    const row = taskSearchRowOf(task, names, { rowPath: pathOf(groupId), groupId }, marker)
-    taskRows.push({ row, rank: rankOf(groupId), at: startAt.get(task.uid) ?? null, key: task.uid })
+    const row = taskSearchRowOf(task, names, { rowPath: pathOf(taskGroupId), taskGroupId }, marker)
+    taskRows.push({ row, rank: rankOf(taskGroupId), at: startAt.get(task.uid) ?? null, key: task.uid })
   }
 
   const commentBoxRows: Ranked<CommentBoxSearchRow>[] = []
   for (const box of schedule.commentBoxes) {
     const text = box.text ?? ''
     if (!isSearchWordFound(text, word)) continue
-    commentBoxRows.push(rankedCommentBox(box, text, heldTaskGroup(box.anchorGroupId), schedule, rankOf))
+    commentBoxRows.push(rankedCommentBox(box, text, heldTaskGroup(box.anchorTaskGroupId), schedule, rankOf))
   }
 
   return { taskRows: inDefaultOrder(taskRows), commentBoxRows: inDefaultOrder(commentBoxRows) }
@@ -198,16 +198,16 @@ export function searchRowsOf(
 function rankedCommentBox(
   box: CommentBox,
   text: string,
-  groupId: string | null,
+  taskGroupId: string | null,
   schedule: Schedule,
-  rankOf: (groupId: string | null) => number,
+  rankOf: (taskGroupId: string | null) => number,
 ): Ranked<CommentBoxSearchRow> {
   const row: CommentBoxSearchRow = {
     commentBoxId: box.id,
     text,
-    taskGroupName: groupId === null ? '' : taskGroupNameOf(schedule, groupId),
+    taskGroupName: taskGroupId === null ? '' : taskGroupNameOf(schedule, taskGroupId),
     anchorDate: box.anchorDate,
-    groupId,
+    taskGroupId,
   }
-  return { row, rank: rankOf(groupId), at: instantOf(box.anchorDate), key: box.id }
+  return { row, rank: rankOf(taskGroupId), at: instantOf(box.anchorDate), key: box.id }
 }

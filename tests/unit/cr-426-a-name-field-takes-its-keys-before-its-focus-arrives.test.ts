@@ -115,15 +115,15 @@ const oneTaskDocument = (): Document =>
         {
           id: 'g1',
           parentId: null,
-          label: 'task group',
+          name: 'task group',
           derivedFromTaskUid: null,
           order: 0,
           treeState: 'auto', editGroup: null,
           color: null,
-          minHeight: null,
+          minHeightPx: null,
         },
       ],
-      taskGroupMembers: [{ taskUid: TASK_UID, groupId: 'g1' }],
+      taskGroupMembers: [{ taskUid: TASK_UID, taskGroupId: 'g1' }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -133,7 +133,7 @@ const oneTaskDocument = (): Document =>
     documentSettings: {
       ...structuredClone(TEMPLATE.documentSettings),
       scrollDate: '2026-04-01T00:00:00',
-      scrollGroupId: 'g1',
+      scrollTaskGroupId: 'g1',
       // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: 20 / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },

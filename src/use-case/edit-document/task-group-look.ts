@@ -20,9 +20,9 @@ export function setTaskGroupColor(
   command: TaskGroupCommandOf<'setTaskGroupColor'>,
   byId: ReadonlyMap<string, TaskGroup>,
 ): EditResult {
-  const taskGroup = byId.get(command.groupId)
+  const taskGroup = byId.get(command.taskGroupId)
   if (taskGroup === undefined) {
-    return refused([reject('CM-30', 'FR-042', `no such task group: ${command.groupId}`)])
+    return refused([reject('CM-30', 'FR-042', `no such task group: ${command.taskGroupId}`)])
   }
   if (!TASK_GROUP_COLOR_NAMES.includes(command.color) && customColorOf(command.color) === null) {
     return refused([reject('CM-30', 'CV-9', `not a task group color name or a custom color: ${command.color}`)])
@@ -38,9 +38,9 @@ export function resetTaskGroupColor(
   command: TaskGroupCommandOf<'resetTaskGroupColor'>,
   byId: ReadonlyMap<string, TaskGroup>,
 ): EditResult {
-  const taskGroup = byId.get(command.groupId)
+  const taskGroup = byId.get(command.taskGroupId)
   if (taskGroup === undefined) {
-    return refused([reject('CM-31', 'FR-007', `no such task group: ${command.groupId}`)])
+    return refused([reject('CM-31', 'FR-007', `no such task group: ${command.taskGroupId}`)])
   }
   if (taskGroup.color === null) return edited(document)
   return edited(withTaskGroup(document, { ...taskGroup, color: null }))
@@ -48,19 +48,19 @@ export function resetTaskGroupColor(
 
 // see CM-32, FR-042
 /** @purity pure */
-export function setTaskGroupMinHeight(
+export function setTaskGroupMinHeightPx(
   document: Document,
-  command: TaskGroupCommandOf<'setTaskGroupMinHeight'>,
+  command: TaskGroupCommandOf<'setTaskGroupMinHeightPx'>,
   byId: ReadonlyMap<string, TaskGroup>,
 ): EditResult {
-  const taskGroup = byId.get(command.groupId)
+  const taskGroup = byId.get(command.taskGroupId)
   if (taskGroup === undefined) {
-    return refused([reject('CM-32', 'FR-042', `no such task group: ${command.groupId}`)])
+    return refused([reject('CM-32', 'FR-042', `no such task group: ${command.taskGroupId}`)])
   }
   if (command.minHeight !== null && !Number.isInteger(command.minHeight)) {
     return refused([reject('CM-32', 'AT-59', `min height is not an integer: ${command.minHeight}`)])
   }
   // WHY: a height below the stacks is a floor, not refused; null resets, as no reset command exists.
-  if (taskGroup.minHeight === command.minHeight) return edited(document)
-  return edited(withTaskGroup(document, { ...taskGroup, minHeight: command.minHeight }))
+  if (taskGroup.minHeightPx === command.minHeight) return edited(document)
+  return edited(withTaskGroup(document, { ...taskGroup, minHeightPx: command.minHeight }))
 }

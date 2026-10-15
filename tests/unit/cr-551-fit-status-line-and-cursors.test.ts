@@ -153,7 +153,7 @@ interface Seed {
 
 function documentOf(seeds: readonly Seed[], settings: Record<string, unknown> = {}) {
   const rows = seeds.map((_one, index) => ({ id: `g${index + 1}`, parentId: null }))
-  const document = taskGroupDocument(rows, { progressMarkerVisible: false, ...settings })
+  const document = taskGroupDocument(rows, { isProgressMarkerVisible: false, ...settings })
   document.schedule.tasks = seeds.map((one, index) =>
     taskOf(index + 1, { name: one.name, start: `${one.start}T08:00:00`, finish: `${one.finish}T17:00:00` }),
   )
@@ -223,7 +223,7 @@ describe('FR-055 -- the fit leaves a margin on each side', () => {
 
   it('FR-055: 着地する縦の倍率で描いた絵で測る -- the margins hold with the OC-2 labels and the markers shown', () => {
     // see FR-055, OC-2
-    const built = fitted({ percentCompleteVisible: true, progressMarkerVisible: true, planDatesVisible: true })
+    const built = fitted({ isPercentCompleteVisible: true, isProgressMarkerVisible: true, isPlanDatesVisible: true })
     const area = taskGroupAreaOf(built.loop)
     const margin = area.width * S_332
     const { left, right } = extentOf(built.loop)
@@ -288,12 +288,12 @@ describe('FR-046 / FR-106 -- the status-date line', () => {
     expect(built.settings()['zoomY'], '倍率を変えずに').toBe(before['zoomY'])
   })
 
-  it('FR-046: 縦の表示位置は動かさない -- scrollGroupId and scrollGroupOffset stay', () => {
+  it('FR-046: 縦の表示位置は動かさない -- scrollTaskGroupId and scrollGroupOffset stay', () => {
     // see FR-046
-    const built = bench(documentOf(SEEDS, { scrollDate: '2020-01-06', scrollGroupId: 'g2', scrollGroupOffset: 0 }))
+    const built = bench(documentOf(SEEDS, { scrollDate: '2020-01-06', scrollTaskGroupId: 'g2', scrollGroupOffset: 0 }))
     const before = { ...built.settings() }
     built.press('Command Palette', 'IC-44')
-    expect(built.settings()['scrollGroupId']).toBe(before['scrollGroupId'])
+    expect(built.settings()['scrollTaskGroupId']).toBe(before['scrollTaskGroupId'])
     expect(built.settings()['scrollGroupOffset']).toBe(before['scrollGroupOffset'])
   })
 

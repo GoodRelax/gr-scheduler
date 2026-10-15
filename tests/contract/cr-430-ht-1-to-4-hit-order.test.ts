@@ -52,9 +52,9 @@ const EXPECTED_STEPS = ['HT-1', 'HT-2', 'HT-3', 'HT-4']
 const SECOND_TASK_START = isoPlus(PLAN_START, 2)
 
 // see S-63
-const STACKED = stackedScene('rectangle', { progressMarkerVisible: true })
-const STACKED_ARROW = stackedScene('arrow', { progressMarkerVisible: true })
-const ROWS = sceneOf('rectangle', { progressMarkerVisible: true })
+const STACKED = stackedScene('rectangle', { isProgressMarkerVisible: true })
+const STACKED_ARROW = stackedScene('arrow', { isProgressMarkerVisible: true })
+const ROWS = sceneOf('rectangle', { isProgressMarkerVisible: true })
 
 const gridOver = (bar: unknown, step = 2): readonly { x: number; y: number }[] => {
   const box = boxOf(bar)
@@ -173,7 +173,7 @@ describe(`HT-3 -- within one step the type order of table T-268 decides: ${HT_3_
   it(`gives the drawn marker box to the marker, ahead of the plan end: ${HT_3_MARKER_EXCEPTION}`, () => {
     const ROWS = sceneOf(
       'rectangle',
-      { progressMarkerVisible: true },
+      { isProgressMarkerVisible: true },
       { stop: PLAN_START, resume: null, resumeValid: null },
     )
     const marker = markerOf(ROWS.started)
@@ -184,7 +184,7 @@ describe(`HT-3 -- within one step the type order of table T-268 decides: ${HT_3_
   })
 
   it(`still gives the left half of a marker on the actual start to the actual: ${HT_3_MARKER_LEFT_HALF}`, () => {
-    const notStartedYet = sceneOf('rectangle', { zoomX: 8, progressMarkerVisible: true })
+    const notStartedYet = sceneOf('rectangle', { zoomX: 8, isProgressMarkerVisible: true })
     const marker = markerOf(notStartedYet.started)
     const actual = boxOf(actualOf(notStartedYet.started))
     expect(marker, 'premise: a marker is drawn').not.toBeNull()

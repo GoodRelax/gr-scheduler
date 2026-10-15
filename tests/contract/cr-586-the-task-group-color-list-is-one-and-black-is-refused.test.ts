@@ -120,7 +120,7 @@ const colorOf = (document: Document): string | null =>
 
 // see CM-30
 const editWithSetTaskGroupColor = (color: string) => {
-  const command: TaskGroupCommand = { kind: 'setTaskGroupColor', groupId: ROW_ID, color }
+  const command: TaskGroupCommand = { kind: 'setTaskGroupColor', taskGroupId: ROW_ID, color }
   return editDocument(oneTaskGroup(), command, LIMITS, 'row')
 }
 
@@ -201,14 +201,14 @@ const PANEL_SCHEDULE: Schedule = taskGroupDocument([{ id: ROW_ID, parentId: null
   ],
   highlightBoxes: [
     {
-      id: HIGHLIGHT_ID, startDate: '2026-04-02T08:00:00', endDate: '2026-04-20T17:00:00',
-      topGroupId: ROW_ID, bottomGroupId: ROW_ID, strokeColor: null, cornerRadiusPx: null,
+      id: HIGHLIGHT_ID, start: '2026-04-02T08:00:00', finish: '2026-04-20T17:00:00',
+      topTaskGroupId: ROW_ID, bottomTaskGroupId: ROW_ID, strokeColor: null, cornerRadiusPx: null,
       strokeWidthPx: null, fillColor: null, fillTransparencyPercent: null,
     },
   ],
   commentBoxes: [
     {
-      id: COMMENT_ID, leaderShapeKind: null, text: 'a note', anchorDate: '2026-04-08', anchorGroupId: ROW_ID,
+      id: COMMENT_ID, leaderShapeKind: null, text: 'a note', anchorDate: '2026-04-08', anchorTaskGroupId: ROW_ID,
       bodyOffsetPx: null, strokeColor: null, strokeWidthPx: null, fillColor: null,
       fillTransparencyPercent: null, textColor: null,
     },

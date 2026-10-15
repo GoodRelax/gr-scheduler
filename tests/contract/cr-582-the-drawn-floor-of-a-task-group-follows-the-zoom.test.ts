@@ -121,15 +121,15 @@ function documentText(minHeight: number | null): string {
       taskGroups: rows.map((id, index) => ({
         id,
         parentId: null,
-        label: `Row${index + 1}`,
+        name: `Row${index + 1}`,
         derivedFromTaskUid: null,
         order: index,
         treeState: 'auto',
         editGroup: null,
         color: null,
-        minHeight: id === FLOORED ? minHeight : null,
+        minHeightPx: id === FLOORED ? minHeight : null,
       })),
-      taskGroupMembers: rows.map((id, index) => ({ taskUid: index + 1, groupId: id })),
+      taskGroupMembers: rows.map((id, index) => ({ taskUid: index + 1, taskGroupId: id })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -139,7 +139,7 @@ function documentText(minHeight: number | null): string {
     documentSettings: {
       ...structuredClone(TEMPLATE.documentSettings),
       scrollDate: '2026-04-01',
-      scrollGroupId: FLOORED,
+      scrollTaskGroupId: FLOORED,
       scrollGroupOffset: 0,
       levelZeroTreeState: 'auto',
     },
@@ -158,11 +158,11 @@ const ENV: ScreenEnvironment = { width: 1400, height: 4000, appHeaderHeight: 56,
 
 // see LF-2, LF-3, MH-3
 // WHY: the band height of the task group, without taskGroupGap.
-function bandOf(document: Document, displayScale: number, zoomY: number, groupId = FLOORED): number {
+function bandOf(document: Document, displayScale: number, zoomY: number, taskGroupId = FLOORED): number {
   const settings = { ...document.documentSettings, displayScale } as Document['documentSettings']
   const taskGroups = taskGroupPlacesAtZoomY(document.schedule, settings, regionsFromScreen(ENV, settings), zoomY)
-  const found = taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`task group ${groupId} is not placed at scale ${displayScale}, zoomY ${zoomY}`)
+  const found = taskGroups.find((one) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`task group ${taskGroupId} is not placed at scale ${displayScale}, zoomY ${zoomY}`)
   return found.height
 }
 
@@ -240,9 +240,9 @@ describe('FR-042 -- the stored value is the typed px, whatever the zoom', () => 
     expect(again.ok).toBe(true)
     if (!again.ok) return
     const group = again.document.schedule.taskGroups.find((one) => one.id === FLOORED) as unknown as Record<string, unknown>
-    expect(group['minHeight']).toBe(typed)
+    expect(group['minHeightPx']).toBe(typed)
     const written = (JSON.parse(text) as { schedule: { taskGroups: Record<string, unknown>[] } }).schedule.taskGroups
-    expect(written.every((one) => Object.hasOwn(one, 'minHeight'))).toBe(true)
+    expect(written.every((one) => Object.hasOwn(one, 'minHeightPx'))).toBe(true)
     expect(written.filter((one) => Object.hasOwn(one, 'height'))).toEqual([])
   })
 
@@ -251,6 +251,6 @@ describe('FR-042 -- the stored value is the typed px, whatever the zoom', () => 
     const document = documentOf(typed)
     for (const [displayScale, zoomY] of GRID) bandOf(document, displayScale, zoomY)
     const group = document.schedule.taskGroups.find((one) => one.id === FLOORED) as unknown as Record<string, unknown>
-    expect(group['minHeight']).toBe(typed)
+    expect(group['minHeightPx']).toBe(typed)
   })
 })

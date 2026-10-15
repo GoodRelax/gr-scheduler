@@ -124,20 +124,20 @@ const regionsOf = (
   const taskGroupAreaWidth =
     canvas.width -
     SETTINGS_CONSTANTS.canvasPadding -
-    settings.taskGroupPanelWidth -
+    settings.taskGroupPanelWidthPx -
     PROPERTIES_PANEL_WIDTH -
     screen.scrollbarThickness
   const taskGroupAreaHeight =
-    canvas.height - settings.rulerHeight - SETTINGS_CONSTANTS.canvasPadding - screen.scrollbarThickness
+    canvas.height - settings.rulerHeightPx - SETTINGS_CONSTANTS.canvasPadding - screen.scrollbarThickness
   return {
     appHeader: header,
     scheduleCanvas: canvas,
-    taskGroupPanel: { x: canvas.x, y: canvas.y, width: settings.taskGroupPanelWidth, height: canvas.height },
+    taskGroupPanel: { x: canvas.x, y: canvas.y, width: settings.taskGroupPanelWidthPx, height: canvas.height },
     timeRuler: {
-      x: canvas.x + settings.taskGroupPanelWidth,
+      x: canvas.x + settings.taskGroupPanelWidthPx,
       y: canvas.y,
       width: taskGroupAreaWidth,
-      height: settings.rulerHeight,
+      height: settings.rulerHeightPx,
     },
     propertiesPanel: {
       x: canvas.x + canvas.width - PROPERTIES_PANEL_WIDTH,
@@ -146,8 +146,8 @@ const regionsOf = (
       height: canvas.height,
     },
     taskGroupArea: {
-      x: canvas.x + settings.taskGroupPanelWidth,
-      y: canvas.y + settings.rulerHeight,
+      x: canvas.x + settings.taskGroupPanelWidthPx,
+      y: canvas.y + settings.rulerHeightPx,
       width: taskGroupAreaWidth,
       height: taskGroupAreaHeight,
     },

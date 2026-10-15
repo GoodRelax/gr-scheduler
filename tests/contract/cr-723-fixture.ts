@@ -20,7 +20,7 @@ export const SCROLLED_CLEAR_OF_THE_PALETTE: Loose = {
   zoomX: 6,
   scrollDate: '2025-12-20T00:00:00',
   scrollDayOffset: 0,
-  scrollGroupId: GROUP,
+  scrollTaskGroupId: GROUP,
   scrollGroupOffset: 0,
 }
 
@@ -79,8 +79,8 @@ export function scheduleFixture(): Loose {
     tasks,
     resources: [SATO, TANAKA, IDLE].map((uid) => ({ ...resource, uid, name: uid === SATO ? 'Sato Hanako' : uid === TANAKA ? 'Tanaka Jiro' : 'Idle Ken' })),
     assignments: pairs.map(([taskUid, resourceUid], at) => ({ uid: 2101 + at, taskUid, resourceUid, carry: {}, carryElements: [] })),
-    taskGroups: [{ ...group, id: GROUP, parentId: null, label: 'Row', order: 0, treeState: 'expanded', minHeight: null }],
-    taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, groupId: GROUP })),
+    taskGroups: [{ ...group, id: GROUP, parentId: null, name: 'Row', order: 0, treeState: 'expanded', minHeightPx: null }],
+    taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, taskGroupId: GROUP })),
     taskVisuals: tasks.map((one) => ({ taskUid: one.uid, shapeKind: null, milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null })),
     commentBoxes: [],
     highlightBoxes: [],

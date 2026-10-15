@@ -67,8 +67,8 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       project: { title: 'A', statusDate: null, themeHue: 214, startDate: null },
       // WHY: not an empty array -- table T-050 requires at least one
       // TaskGroup, and an empty fixture is not a document the spec admits.
-      taskGroups: [{ id: 'g0', parentId: null, label: 'task group 1', derivedFromTaskUid: null,
-                     order: 0, treeState: 'auto', color: null, minHeight: null }],
+      taskGroups: [{ id: 'g0', parentId: null, name: 'task group 1', derivedFromTaskUid: null,
+                     order: 0, treeState: 'auto', color: null, minHeightPx: null }],
       tasks: [],
       ...((part.schedule as Record<string, unknown>) ?? {}),
     },
@@ -77,9 +77,9 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       ...((part.documentSettings as Record<string, unknown>) ?? {}),
     },
     documentStamp: {
-      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      scheduleUpdatedAt: '2026-08-17T00:00:00Z',
       lastEditedBy: 'user',
-      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+      settingsUpdatedAt: '2026-08-17T00:00:00Z',
     },
     changeLog: [],
   }) as unknown as Document
@@ -201,14 +201,14 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
   it('FR-052 refuses a task group panel width that leaves the Task Group Area at or below zero', () => {
     const ok = editDocumentSettings(
       documentOf(),
-      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 170 },
+      { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 170 },
       LIMITS,
     )
     expect(ok.ok).toBe(true)
     // WHY: CM-67 writes the task group panel width alone; 982 drawn px wide leaves the Task Group Area at zero.
     const tooWide = editDocumentSettings(
       documentOf(),
-      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 982 / DEFAULT_DISPLAY_RATIO },
+      { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 982 / DEFAULT_DISPLAY_RATIO },
       LIMITS,
     )
     expect(tooWide.ok).toBe(false)
@@ -220,7 +220,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     // is refused even though the Task Group Area would be at its widest.
     const flat = editDocumentSettings(
       documentOf(),
-      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 0 },
+      { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 0 },
       LIMITS,
     )
     expect(flat.ok).toBe(false)
@@ -230,12 +230,12 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
   it('FR-098 refuses a pin at the cap and leaves the ones already placed alone', () => {
     // WHY: S-127 is a constant (CR-572); the document holds as many pins as it allows.
     const held = Array.from({ length: SETTINGS_CONSTANTS.pinnedTaskGroupMax }, (_, at) => `g${at}`)
-    const full = documentOf({ documentSettings: { pinnedGroupIds: held } })
-    const result = editDocumentSettings(full, { kind: 'pinTaskGroup', groupId: 'f' }, LIMITS)
+    const full = documentOf({ documentSettings: { pinnedTaskGroupIds: held } })
+    const result = editDocumentSettings(full, { kind: 'pinTaskGroup', taskGroupId: 'f' }, LIMITS)
     expect(result.ok).toBe(false)
     if (!result.ok) expect(result.refusals[0]!.rule).toBe('FR-098')
     // WHY: the oldest pin is NOT pushed out to make room (MUST NOT).
-    expect(settingsOf(full).pinnedGroupIds).toEqual(held)
+    expect(settingsOf(full).pinnedTaskGroupIds).toEqual(held)
   })
 
   it('FR-039 drags the ruler type and band along with the font scale', () => {
@@ -248,8 +248,8 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     const result = editDocumentSettings(documentOf(), { kind: 'setFontScale', scale: 'L' }, LIMITS)
     expect(result.ok).toBe(true)
     if (!result.ok) return
-    expect(settingsOf(result.document).rulerFont).toBe(sizeL)
-    expect(settingsOf(result.document).rulerHeight).toBe(sizeL * 3 + pad * 3)
+    expect(settingsOf(result.document).rulerFontSizePx).toBe(sizeL)
+    expect(settingsOf(result.document).rulerHeightPx).toBe(sizeL * 3 + pad * 3)
   })
 })
 
@@ -258,7 +258,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     // WHY: AG-2 requires a mismatch to refuse the write and return the current document.
     const document = documentOf()
     const plan = planOf(document, [{ kind: 'clearStatusDate' }], {
-      readStamp: { ...document.documentStamp, scheduleUpdatedUtc: '2026-08-17T00:00:02Z' },
+      readStamp: { ...document.documentStamp, scheduleUpdatedAt: '2026-08-17T00:00:02Z' },
     })
     expect(plan.ok).toBe(false)
     if (!plan.ok) expect(plan.refusal).toEqual({ step: 'WS-1', reason: 'staleStamp' })
@@ -269,10 +269,10 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     // NOT) forbids reading them as an order, so an earlier stamp is a mismatch too.
     const document = documentOf()
     for (const differing of [
-      { scheduleUpdatedUtc: '2020-01-01T00:00:00Z' },
+      { scheduleUpdatedAt: '2020-01-01T00:00:00Z' },
       { lastEditedBy: 'someone else' },
-      { settingsUpdatedUtc: '2020-01-01T00:00:00Z' },
-      { settingsUpdatedUtc: '2030-01-01T00:00:00Z' },
+      { settingsUpdatedAt: '2020-01-01T00:00:00Z' },
+      { settingsUpdatedAt: '2030-01-01T00:00:00Z' },
     ] as const) {
       const plan = planOf(document, [{ kind: 'clearStatusDate' }], {
         readStamp: { ...document.documentStamp, ...differing },
@@ -309,8 +309,8 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(undoable.ok && undoable.history.done).toHaveLength(1)
 
     for (const command of [
-      { kind: 'setElementVisible', element: 'dependencyVisible', visible: false },
-      { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 210 },
+      { kind: 'setElementVisible', element: 'isDependencyVisible', visible: false },
+      { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 210 },
       { kind: 'setZoom', zoomX: 2, zoomY: 2 },
     ] as const) {
       const plan = planOf(document, [command as DocumentCommand])
@@ -322,7 +322,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     const document = documentOf()
     const schedule = planOf(document, [{ kind: 'setProjectTitle', title: 'B' }])
     expect(schedule.ok && schedule.hasMovedSchedule).toBe(true)
-    expect(schedule.ok && schedule.document.documentStamp.scheduleUpdatedUtc).toBe(
+    expect(schedule.ok && schedule.document.documentStamp.scheduleUpdatedAt).toBe(
       '2026-08-17T01:00:00Z',
     )
 
@@ -330,12 +330,12 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(presentation.ok && presentation.hasMovedSchedule).toBe(false)
     // WHY: FR-063 (MUST NOT) forbids a presentation-only update from moving
     // the schedule-data group's instant.
-    expect(presentation.ok && presentation.document.documentStamp.scheduleUpdatedUtc).toBe(
-      document.documentStamp.scheduleUpdatedUtc,
+    expect(presentation.ok && presentation.document.documentStamp.scheduleUpdatedAt).toBe(
+      document.documentStamp.scheduleUpdatedAt,
     )
     // WHY: FR-063 (MUST) replaces who wrote last and whichever group's
     // instant moved, either way.
-    expect(presentation.ok && presentation.document.documentStamp.settingsUpdatedUtc).toBe(
+    expect(presentation.ok && presentation.document.documentStamp.settingsUpdatedAt).toBe(
       '2026-08-17T01:00:00Z',
     )
   })
@@ -355,7 +355,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         zoomX: 2,
         zoomY: 2,
         scrollDate: '2026-03-01',
-        scrollGroupId: 'g1',
+        scrollTaskGroupId: 'g1',
         // WHY: FR-080 has the anchors carry a fraction of their own extent
         // too, and a whole-view fit lands top-left, so both fractions are 0.
         scrollDayOffset: 0,
@@ -368,7 +368,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(plan.document.documentSettings.zoomX).toBe(2)
     expect(plan.document.documentSettings.zoomY).toBe(2)
     expect(plan.document.documentSettings.scrollDate).toBe('2026-03-01')
-    expect(plan.document.documentSettings.scrollGroupId).toBe('g1')
+    expect(plan.document.documentSettings.scrollTaskGroupId).toBe('g1')
     expect(plan.document.schedule.taskGroups[0]!.treeState).toBe('collapsed')
 
     // WHY: UN-8 files zoom/scroll/pan as out of scope, so WS-4 (MUST NOT)
@@ -378,12 +378,12 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     // WHY: FR-063 (MUST NOT) forbids a presentation-only update from moving
     // the schedule-data instant, and CM-71 touches nothing else.
     expect(plan.hasMovedSchedule).toBe(false)
-    expect(plan.document.documentStamp.scheduleUpdatedUtc).toBe(
-      document.documentStamp.scheduleUpdatedUtc,
+    expect(plan.document.documentStamp.scheduleUpdatedAt).toBe(
+      document.documentStamp.scheduleUpdatedAt,
     )
     // WHY: FR-063 (MUST) still replaces who wrote last and whichever
     // group's instant moved.
-    expect(plan.document.documentStamp.settingsUpdatedUtc).toBe('2026-08-17T01:00:00Z')
+    expect(plan.document.documentStamp.settingsUpdatedAt).toBe('2026-08-17T01:00:00Z')
   })
 
   it('CM-72 over two collapsed task groups opens both in ONE step (UN-17) and moves the schedule instant, leaving the hidden state alone (HF-8)', () => {
@@ -414,7 +414,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     // WHY: UN-17 files this as in scope, and treeState is a schedule-data
     // column, so FR-063 (MUST) moves the schedule-data instant.
     expect(plan.hasMovedSchedule).toBe(true)
-    expect(plan.document.documentStamp.scheduleUpdatedUtc).toBe('2026-08-17T01:00:00Z')
+    expect(plan.document.documentStamp.scheduleUpdatedAt).toBe('2026-08-17T01:00:00Z')
   })
 
   it('one press written CM-71 then CM-72 and undone once brings the collapse back while the new zoom stays (FR-031, UN-8 + UN-17)', () => {
@@ -431,7 +431,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         zoomX: 4,
         zoomY: 4,
         scrollDate: null,
-        scrollGroupId: null,
+        scrollTaskGroupId: null,
         scrollDayOffset: 0,
         scrollGroupOffset: 0,
       },
@@ -515,7 +515,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     const outcome = applyDocumentChange(
       {
         defaultTaskGroupName: DEFAULT_TASK_GROUP_NAME_FIXTURE,
-        readStamp: { ...document.documentStamp, scheduleUpdatedUtc: '2020-01-01T00:00:00Z' },
+        readStamp: { ...document.documentStamp, scheduleUpdatedAt: '2020-01-01T00:00:00Z' },
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
         moment: CALM,
         historyLimits: HISTORY_LIMITS,
@@ -549,22 +549,22 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         if (nested.length > 0) return
         nested.push(
           inside.applyCommands({
-            readStamp: inside.readStamp(),
+            expectedStamp: inside.readStamp(),
             commands: [{ kind: 'setProjectTitle', title: 'C' }],
           }),
         )
       })
 
       const outcome = outside.applyCommands({
-        readStamp: outside.readStamp(),
+        expectedStamp: outside.readStamp(),
         commands: [{ kind: 'setProjectTitle', title: 'B' }],
       })
 
-      expect(outcome.accepted, JSON.stringify(outcome)).toBe(true)
+      expect(outcome.ok, JSON.stringify(outcome)).toBe(true)
       expect(nested, 'premise: the subscriber was told and wrote back').toHaveLength(1)
       const inner = nested[0] as AgentWriteOutcome
-      expect(inner.accepted).toBe(false)
-      if (!inner.accepted) expect(inner.refusal.reason).toBe('deliveringNotices')
+      expect(inner.ok).toBe(false)
+      if (!inner.ok) expect(inner.refusal.reason).toBe('deliveringNotices')
       // WHY: the nested write reached neither WS-6 nor WS-7, so the document
       // held is the outer write's.
       expect(built.loop.document().schedule.project.title).toBe('B')
@@ -572,10 +572,10 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
       // WHY: the window closes when the delivery ends (table T-286), so one
       // refusal does not wedge the path shut.
       const after = inside.applyCommands({
-        readStamp: inside.readStamp(),
+        expectedStamp: inside.readStamp(),
         commands: [{ kind: 'setProjectTitle', title: 'D' }],
       })
-      expect(after.accepted, JSON.stringify(after)).toBe(true)
+      expect(after.ok, JSON.stringify(after)).toBe(true)
       expect(built.loop.document().schedule.project.title).toBe('D')
     } finally {
       unwatchChanges(built.loop.agentApiSeams().changeWatchers, 'use-case WS-2 subscriber')

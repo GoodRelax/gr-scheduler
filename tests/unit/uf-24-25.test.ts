@@ -36,9 +36,9 @@ const T2 = '2026-08-17T00:02:00Z'
 // WHY: AG-6 reads only the schedule-data group's instant, so this fixture
 // carries just the stamp and the four other root keys DR-1/DR-4 need.
 const documentOf = (
-  scheduleUpdatedUtc: string,
+  scheduleUpdatedAt: string,
   lastEditedBy: string,
-  settingsUpdatedUtc = T0,
+  settingsUpdatedAt = T0,
 ): Document =>
   ({
     schemaVersion: '1',
@@ -48,7 +48,7 @@ const documentOf = (
       tasks: [],
     },
     documentSettings: {},
-    documentStamp: { scheduleUpdatedUtc, lastEditedBy, settingsUpdatedUtc },
+    documentStamp: { scheduleUpdatedAt, lastEditedBy, settingsUpdatedAt },
     changeLog: [],
   }) as unknown as Document
 
@@ -68,7 +68,7 @@ const confirmedOf = (
 ): ConfirmedChange => ({ document, hasMovedSchedule, dialogue })
 
 const markAt = (confirmed: ConfirmedChange): WatcherMark => ({
-  seenScheduleUpdatedUtc: confirmed.document.documentStamp.scheduleUpdatedUtc,
+  seenScheduleUpdatedUtc: confirmed.document.documentStamp.scheduleUpdatedAt,
   seenSequence: latestSequence(confirmed.dialogue),
 })
 
@@ -267,7 +267,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     expect(notice.document).toBeNull()
     expect(notice.mark.seenSequence).toBe(3)
     expect(notice.mark.seenScheduleUpdatedUtc).toBe(T0)
-    expect(confirmed.document.documentStamp.scheduleUpdatedUtc).toBe(T0)
+    expect(confirmed.document.documentStamp.scheduleUpdatedAt).toBe(T0)
   })
 
   it('AG-6 tells a watcher only what it has NOT received: its mark silences the repeat', () => {
@@ -312,9 +312,9 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     expect(confirmed.dialogue).toEqual(dialogue)
     expect(confirmed.hasMovedSchedule).toBe(true)
     expect(confirmed.document.documentStamp).toEqual({
-      scheduleUpdatedUtc: T1,
+      scheduleUpdatedAt: T1,
       lastEditedBy: OTHER,
-      settingsUpdatedUtc: T0,
+      settingsUpdatedAt: T0,
     })
   })
 })
@@ -363,8 +363,8 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     expect([...notifyChangeWatchers(WATCHERS, spoken).notified]).toEqual([SELF])
     expect(heard).toHaveLength(1)
     expect(heard[0]!.messages.map((message) => message.text)).toEqual(['なぜそうしたか'])
-    expect(spoken.document.documentStamp.scheduleUpdatedUtc).toBe(
-      start.document.documentStamp.scheduleUpdatedUtc,
+    expect(spoken.document.documentStamp.scheduleUpdatedAt).toBe(
+      start.document.documentStamp.scheduleUpdatedAt,
     )
     expect(spoken.hasMovedSchedule).toBe(false)
     expect(heard[0]!.document).toBeNull()
@@ -387,11 +387,11 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     expect([...notifyChangeWatchers(WATCHERS, undone).notified]).toEqual([SELF])
     expect(heard).toHaveLength(2)
     expect(heard[1]!.document).toBe(start.document)
-    expect(heard[1]!.document?.documentStamp.scheduleUpdatedUtc).toBe(T1)
+    expect(heard[1]!.document?.documentStamp.scheduleUpdatedAt).toBe(T1)
   })
 
   it('AG-2 settles a same-instant collision as last-writer-wins: the watcher ends on the SECOND', () => {
-    // WHY: both writes carry the SAME scheduleUpdatedUtc, so the stamp alone
+    // WHY: both writes carry the SAME scheduleUpdatedAt, so the stamp alone
     // cannot tell them apart; AG-6 selects on WS-5's judgment instead.
     const SECOND_WRITER = 'user-2'
     const start = confirmedOf(documentOf(T0, OTHER))
@@ -400,8 +400,8 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
 
     const first = confirmedOf(documentOf(T1, OTHER), emptyDialogueLog(), true)
     const second = confirmedOf(documentOf(T1, SECOND_WRITER), emptyDialogueLog(), true)
-    expect(first.document.documentStamp.scheduleUpdatedUtc).toBe(
-      second.document.documentStamp.scheduleUpdatedUtc,
+    expect(first.document.documentStamp.scheduleUpdatedAt).toBe(
+      second.document.documentStamp.scheduleUpdatedAt,
     )
 
     expect([...notifyChangeWatchers(WATCHERS, first).notified]).toEqual([SELF])

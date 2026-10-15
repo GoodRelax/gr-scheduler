@@ -175,14 +175,14 @@ const T_035_UNWIRED = ['AM-8', 'AM-9', 'AM-10', 'AM-14', 'AM-15'] as const
  * The values below are only "something other than what the document holds".
  */
 const T_067_WS1 = [
-  { field: 'scheduleUpdatedUtc', differs: { scheduleUpdatedUtc: '2026-08-19T11:00:00Z' } },
+  { field: 'scheduleUpdatedAt', differs: { scheduleUpdatedAt: '2026-08-19T11:00:00Z' } },
   { field: 'lastEditedBy', differs: { lastEditedBy: 'somebody else entirely' } },
-  { field: 'settingsUpdatedUtc', differs: { settingsUpdatedUtc: '2026-08-19T11:00:00Z' } },
+  { field: 'settingsUpdatedAt', differs: { settingsUpdatedAt: '2026-08-19T11:00:00Z' } },
   // ⛔ FR-063 (MUST NOT): 「刻印を順序として読んではならない」. A stamp that
   // reads EARLIER than the document's is a mismatch just the same -- an undo
   // restores one (FR-031), so "older" is not "harmless".
-  { field: 'scheduleUpdatedUtc, earlier', differs: { scheduleUpdatedUtc: '1999-01-01T00:00:00Z' } },
-  { field: 'settingsUpdatedUtc, earlier', differs: { settingsUpdatedUtc: '1999-01-01T00:00:00Z' } },
+  { field: 'scheduleUpdatedAt, earlier', differs: { scheduleUpdatedAt: '1999-01-01T00:00:00Z' } },
+  { field: 'settingsUpdatedAt, earlier', differs: { settingsUpdatedAt: '1999-01-01T00:00:00Z' } },
 ] as const
 
 // ---------------------------------------------------------------------------
@@ -251,8 +251,8 @@ const SMALL_SCHEDULE: Loose = {
   ],
   taskGroups: [FIRST_GROUP, SECOND_GROUP],
   taskGroupMembers: [
-    { taskUid: FIRST_UID, groupId: FIRST_GROUP_ID },
-    { taskUid: SECOND_UID, groupId: SECOND_GROUP_ID },
+    { taskUid: FIRST_UID, taskGroupId: FIRST_GROUP_ID },
+    { taskUid: SECOND_UID, taskGroupId: SECOND_GROUP_ID },
   ],
   taskVisuals: [],
   resources: [],
@@ -265,10 +265,10 @@ const SMALL_SCHEDULE: Loose = {
 
 /** The stamp the document starts each case with. AT-127 to AT-129 name the three. */
 const STARTING_STAMP = {
-  scheduleUpdatedUtc: '2026-08-19T10:00:00Z',
+  scheduleUpdatedAt: '2026-08-19T10:00:00Z',
   lastEditedBy: 'a person at the keyboard',
-  settingsUpdatedUtc: '2026-08-19T10:00:00Z',
-  fileSavedUtc: null,
+  settingsUpdatedAt: '2026-08-19T10:00:00Z',
+  fileSavedAt: null,
 } as const
 
 const SJ_2_NO_STEP = '1 つも変わらなければ段を積まない'
@@ -602,20 +602,20 @@ const BAD_RENAME = { kind: 'setProjectTitle', title: '' } as const
 // does not move the schedule-data instant for it.
 const RECOLOR = { kind: 'setThemeMonochrome', monochrome: true } as const
 
-function accepted<TOutcome extends { readonly accepted: boolean }>(
+function accepted<TOutcome extends { readonly ok: boolean }>(
   outcome: TOutcome,
-): Extract<TOutcome, { accepted: true }> {
-  if (!outcome.accepted) {
+): Extract<TOutcome, { ok: true }> {
+  if (!outcome.ok) {
     throw new Error(`expected acceptance, was refused: ${JSON.stringify((outcome as { refusal?: unknown }).refusal)}`)
   }
-  return outcome as Extract<TOutcome, { accepted: true }>
+  return outcome as Extract<TOutcome, { ok: true }>
 }
 
-function refused<TOutcome extends { readonly accepted: boolean }>(
+function refused<TOutcome extends { readonly ok: boolean }>(
   outcome: TOutcome,
-): Extract<TOutcome, { accepted: false }> {
-  if (outcome.accepted) throw new Error('expected a refusal, was accepted')
-  return outcome as Extract<TOutcome, { accepted: false }>
+): Extract<TOutcome, { ok: false }> {
+  if (outcome.ok) throw new Error('expected a refusal, was accepted')
+  return outcome as Extract<TOutcome, { ok: false }>
 }
 
 function exported<TValue>(answer: AgentExport<TValue>): TValue {
@@ -653,7 +653,7 @@ function callEveryMember(api: AgentApi): void {
   api.readSelection()
   api.readDialogueMessages()
   api.readSearchRows('')
-  api.applyCommands({ readStamp: api.readStamp(), commands: [RENAME] })
+  api.applyCommands({ expectedStamp: api.readStamp(), commands: [RENAME] })
   api.importDocument({ text: '{}' })
   api.undoEdit()
   api.redoEdit()
@@ -762,11 +762,11 @@ describe('AM-1 / AM-2 -- the two versions', () => {
     expect(Number.isFinite(version)).toBe(true)
   })
 
-  it('AM-1 is 4 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
+  it('AM-1 is 5 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
     // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
     // 6.1 states the starting value. This case is what falls over when the
-    // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3, CR-710 wave 3b to 4.
-    expect(bench().api.agentApiVersion).toBe(4)
+    // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3, CR-710 wave 3b to 4, CR-769 to 5.
+    expect(bench().api.agentApiVersion).toBe(5)
   })
 
   it("AM-2 answers the build's version, not the open document's (T-107 AM-2)", () => {
@@ -821,13 +821,13 @@ describe('AM-3 to AM-6 -- AG-4, a frozen copy in both of its words', () => {
     expect(stamp).toEqual(one.document.documentStamp)
     expect(stamp).not.toBe(one.document.documentStamp)
     expect(Object.isFrozen(stamp)).toBe(true)
-    // ⭐ `fileSavedUtc` (AT-140) joined the stamp on 2026-09-11, so DR-4 now
+    // ⭐ `fileSavedAt` (AT-140) joined the stamp on 2026-09-11, so DR-4 now
     // names four fields rather than three. The copy must carry it too.
     expect([...Object.keys(stamp)].sort()).toEqual([
-      'fileSavedUtc',
+      'fileSavedAt',
       'lastEditedBy',
-      'scheduleUpdatedUtc',
-      'settingsUpdatedUtc',
+      'scheduleUpdatedAt',
+      'settingsUpdatedAt',
     ])
   })
 
@@ -872,7 +872,7 @@ describe('AM-3 to AM-6 -- AG-4, a frozen copy in both of its words', () => {
   it('every read answers the value as it now stands, never a value cached at install', () => {
     const one = bench()
     const before = one.api.readStamp()
-    accepted(one.api.applyCommands({ readStamp: before, commands: [RENAME] }))
+    accepted(one.api.applyCommands({ expectedStamp: before, commands: [RENAME] }))
 
     expect(one.api.readStamp()).not.toEqual(before)
     expect(one.api.readDocument().schedule.project.title).toBe(RENAME.title)
@@ -897,7 +897,7 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
   it('accepts a bundle written against the current stamp and answers the stamp after it', () => {
     const one = bench()
     const outcome = accepted(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }),
+      one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }),
     )
 
     expect(outcome.stamp).toEqual(one.document.documentStamp)
@@ -907,37 +907,37 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
   it('moves the schedule-data instant for a schedule-data change and says so (FR-063)', () => {
     const one = bench()
     const outcome = accepted(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }),
+      one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }),
     )
 
     expect(outcome.hasMovedSchedule).toBe(true)
-    expect(outcome.stamp.scheduleUpdatedUtc).toBe(READ_AT)
+    expect(outcome.stamp.scheduleUpdatedAt).toBe(READ_AT)
   })
 
   it('does NOT move the schedule instant for a presentation-group change (FR-063 MUST NOT)', () => {
     const one = bench()
     const outcome = accepted(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RECOLOR] }),
+      one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RECOLOR] }),
     )
 
     expect(outcome.hasMovedSchedule).toBe(false)
-    expect(outcome.stamp.scheduleUpdatedUtc).toBe(STARTING_STAMP.scheduleUpdatedUtc)
+    expect(outcome.stamp.scheduleUpdatedAt).toBe(STARTING_STAMP.scheduleUpdatedAt)
   })
 
   it('refreshes who wrote and when even when the schedule instant did not move (FR-063 MUST)', () => {
     const one = bench()
     const outcome = accepted(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RECOLOR] }),
+      one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RECOLOR] }),
     )
 
     expect(outcome.stamp.lastEditedBy).toBe(one.writerName)
-    expect(outcome.stamp.settingsUpdatedUtc).toBe(READ_AT)
-    expect(outcome.stamp.settingsUpdatedUtc).not.toBe(STARTING_STAMP.settingsUpdatedUtc)
+    expect(outcome.stamp.settingsUpdatedAt).toBe(READ_AT)
+    expect(outcome.stamp.settingsUpdatedAt).not.toBe(STARTING_STAMP.settingsUpdatedAt)
   })
 
   it('records the write under the name AM-17 subscribes with (AG-6 needs one name)', () => {
     const one = bench()
-    accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }))
+    accepted(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }))
     expect(one.document.documentStamp.lastEditedBy).toBe(one.writerName)
   })
 
@@ -945,7 +945,7 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
     const one = bench()
     accepted(
       one.api.applyCommands({
-        readStamp: one.api.readStamp(),
+        expectedStamp: one.api.readStamp(),
         commands: [RENAME, { kind: 'setStatusDate', date: '2026-08-20T00:00:00' }],
       }),
     )
@@ -955,10 +955,10 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
 
   it('answers with a value for an empty bundle rather than throwing (FR-028)', () => {
     const one = bench()
-    const outcome = one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [] })
+    const outcome = one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [] })
 
-    expect(typeof outcome.accepted).toBe('boolean')
-    expect(one.document.documentStamp.scheduleUpdatedUtc).toBe(STARTING_STAMP.scheduleUpdatedUtc)
+    expect(typeof outcome.ok).toBe('boolean')
+    expect(one.document.documentStamp.scheduleUpdatedAt).toBe(STARTING_STAMP.scheduleUpdatedAt)
   })
 })
 
@@ -967,7 +967,7 @@ describe('AM-7 applyCommands -- AG-2, the optimistic lock', () => {
     for (const row of T_067_WS1) {
       const one = bench()
       const stale = { ...one.api.readStamp(), ...row.differs }
-      const outcome = refused(one.api.applyCommands({ readStamp: stale, commands: [RENAME] }))
+      const outcome = refused(one.api.applyCommands({ expectedStamp: stale, commands: [RENAME] }))
 
       expect(outcome.refusal.reason, row.field).toBe('staleStamp')
       expect(one.document.schedule.project.title, row.field).not.toBe(RENAME.title)
@@ -976,8 +976,8 @@ describe('AM-7 applyCommands -- AG-2, the optimistic lock', () => {
 
   it('answers a stale write WITH the current document (AG-2, MUST)', () => {
     const one = bench()
-    const stale = { ...one.api.readStamp(), scheduleUpdatedUtc: '1999-01-01T00:00:00Z' }
-    const outcome = refused(one.api.applyCommands({ readStamp: stale, commands: [RENAME] }))
+    const stale = { ...one.api.readStamp(), scheduleUpdatedAt: '1999-01-01T00:00:00Z' }
+    const outcome = refused(one.api.applyCommands({ expectedStamp: stale, commands: [RENAME] }))
 
     expect(outcome.refusal.document).not.toBeNull()
     expect(outcome.refusal.document).toEqual(one.document)
@@ -986,11 +986,11 @@ describe('AM-7 applyCommands -- AG-2, the optimistic lock', () => {
 
   it('carries the whole current stamp, so the caller can retry from the answer (AG-2)', () => {
     const one = bench()
-    const stale = { ...one.api.readStamp(), scheduleUpdatedUtc: '1999-01-01T00:00:00Z' }
-    const first = refused(one.api.applyCommands({ readStamp: stale, commands: [RENAME] }))
+    const stale = { ...one.api.readStamp(), scheduleUpdatedAt: '1999-01-01T00:00:00Z' }
+    const first = refused(one.api.applyCommands({ expectedStamp: stale, commands: [RENAME] }))
 
     const retry = accepted(
-      one.api.applyCommands({ readStamp: first.refusal.stamp, commands: [RENAME] }),
+      one.api.applyCommands({ expectedStamp: first.refusal.stamp, commands: [RENAME] }),
     )
     expect(retry.hasMovedSchedule).toBe(true)
   })
@@ -1003,7 +1003,7 @@ describe('AM-7 applyCommands -- AG-3, one refusal drops the bundle', () => {
 
     const outcome = refused(
       one.api.applyCommands({
-        readStamp: one.api.readStamp(),
+        expectedStamp: one.api.readStamp(),
         commands: [{ kind: 'setStatusDate', date: '2026-08-20T00:00:00' }, BAD_RENAME],
       }),
     )
@@ -1015,7 +1015,7 @@ describe('AM-7 applyCommands -- AG-3, one refusal drops the bundle', () => {
 
   it('leaves no undo step behind when the bundle was dropped (WS-3 before WS-4)', () => {
     const one = bench()
-    refused(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [BAD_RENAME] }))
+    refused(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [BAD_RENAME] }))
     expect(one.history.done).toHaveLength(0)
   })
 })
@@ -1026,7 +1026,7 @@ describe('AM-7 applyCommands -- AG-9, a person is part way through something', (
     one.isGestureInFlight = true
 
     const outcome = refused(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }),
+      one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }),
     )
     expect(outcome.refusal.reason).toBe('gestureInFlight')
   })
@@ -1036,7 +1036,7 @@ describe('AM-7 applyCommands -- AG-9, a person is part way through something', (
     one.isEditingInPlace = true
 
     const outcome = refused(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }),
+      one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }),
     )
     expect(outcome.refusal.reason).toBe('editingInPlace')
   })
@@ -1044,10 +1044,10 @@ describe('AM-7 applyCommands -- AG-9, a person is part way through something', (
   it('accepts again once the gesture has ended (IN-1a is why the flag must be able to fall)', () => {
     const one = bench()
     one.isGestureInFlight = true
-    refused(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }))
+    refused(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }))
 
     one.isGestureInFlight = false
-    expect(accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] })))
+    expect(accepted(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] })))
       .toBeTruthy()
   })
 })
@@ -1060,12 +1060,12 @@ describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060
     // bound traveled, so the refusal IS the evidence that it did.
     const { refusal } = refused(
       one.api.applyCommands({
-        readStamp: one.api.readStamp(),
+        expectedStamp: one.api.readStamp(),
         commands: [
           {
-            kind: 'setTaskGroupPanelWidth',
+            kind: 'setTaskGroupPanelWidthPx',
             // WHY: the bound is drawn px and CM-67 writes a stored width, which FR-039 scales on the way in.
-            taskGroupPanelWidth:
+            taskGroupPanelWidthPx:
               SETTINGS_LIMITS.taskGroupAreaWidthWithoutPanels / displayRatioOf(one.document.documentSettings),
           },
         ],
@@ -1080,10 +1080,10 @@ describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060
     const one = bench()
     one.historyLimits = { ...one.historyLimits, maxSteps: 1 }
 
-    accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }))
+    accepted(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }))
     accepted(
       one.api.applyCommands({
-        readStamp: one.api.readStamp(),
+        expectedStamp: one.api.readStamp(),
         commands: [{ kind: 'setStatusDate', date: '2026-08-20T00:00:00' }],
       }),
     )
@@ -1098,7 +1098,7 @@ describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060
     one.api.readDocument()
     expect(one.snapshotReads).toBe(before + 1)
 
-    one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] })
+    one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] })
     // Two calls were made above: AM-4 and AM-7.
     expect(one.snapshotReads).toBe(before + 3)
   })
@@ -1110,7 +1110,7 @@ describe('Chapter 5.5 -- a write attempted while notices are going out', () => {
     let fromInside: AgentWriteOutcome | null = null
     one.api.watchChanges(() => {
       fromInside = one.api.applyCommands({
-        readStamp: one.api.readStamp(),
+        expectedStamp: one.api.readStamp(),
         commands: [RECOLOR],
       })
     })
@@ -1129,7 +1129,7 @@ describe('AG-9a / NT-1 -- what a refusal carries', () => {
     const one = bench()
     one.isGestureInFlight = true
     const { refusal } = refused(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }),
+      one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }),
     )
 
     expect(refusal.target).toBe('AM-7')
@@ -1145,7 +1145,7 @@ describe('AG-9a / NT-1 -- what a refusal carries', () => {
     const one = bench()
     one.isEditingInPlace = true
     const { refusal } = refused(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }),
+      one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }),
     )
 
     expect(refusal.document).toBeNull()
@@ -1154,7 +1154,7 @@ describe('AG-9a / NT-1 -- what a refusal carries', () => {
   it('says WHICH command was wrong and which rule refused it (NT-1 of table T-037)', () => {
     const one = bench()
     const { refusal } = refused(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [BAD_RENAME] }),
+      one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [BAD_RENAME] }),
     )
 
     expect(refusal.refusals.length).toBeGreaterThan(0)
@@ -1172,7 +1172,7 @@ describe('AG-9a / NT-1 -- what a refusal carries', () => {
     const one = bench()
     one.isGestureInFlight = true
     const { refusal } = refused(
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }),
+      one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }),
     )
 
     expect(refusal.refusals).toEqual([])
@@ -1187,12 +1187,12 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
   it('writes the two rows table T-107 names for it, S-77 and S-78', () => {
     const one = bench()
     expect(one.document.documentSettings.scrollDate).toBeNull()
-    expect(one.document.documentSettings.scrollGroupId).toBeNull()
+    expect(one.document.documentSettings.scrollTaskGroupId).toBeNull()
 
     accepted(one.api.focusTask(FIRST_UID))
 
     expect(one.document.documentSettings.scrollDate).not.toBeNull()
-    expect(one.document.documentSettings.scrollGroupId).not.toBeNull()
+    expect(one.document.documentSettings.scrollTaskGroupId).not.toBeNull()
   })
 
 
@@ -1202,7 +1202,7 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
     const one = bench()
     accepted(one.api.focusTask(FIRST_UID))
 
-    const written = one.document.documentSettings.scrollGroupId
+    const written = one.document.documentSettings.scrollTaskGroupId
     expect(one.document.schedule.taskGroups.map((group) => group.id)).toContain(written)
   })
 
@@ -1218,9 +1218,9 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
     const outcome = accepted(one.api.focusTask(FIRST_UID))
 
     expect(outcome.hasMovedSchedule).toBe(false)
-    expect(outcome.stamp.scheduleUpdatedUtc).toBe(STARTING_STAMP.scheduleUpdatedUtc)
+    expect(outcome.stamp.scheduleUpdatedAt).toBe(STARTING_STAMP.scheduleUpdatedAt)
     expect(outcome.stamp.lastEditedBy).toBe(one.writerName)
-    expect(outcome.stamp.settingsUpdatedUtc).toBe(READ_AT)
+    expect(outcome.stamp.settingsUpdatedAt).toBe(READ_AT)
   })
 
   it('refuses a uid no task carries, as a value, naming its own row (FR-028 / AG-9a)', () => {
@@ -1270,7 +1270,7 @@ describe('AM-11 exportJson -- AG-7 and the round trip', () => {
 
   it('writes the document as it now stands, not as it stood at install', () => {
     const one = bench()
-    accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }))
+    accepted(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }))
     const read = documentFromJson(exported(one.api.exportJson()))
 
     expect(read.ok).toBe(true)
@@ -1348,15 +1348,15 @@ describe('the five rows with nowhere to hand the work -- FR-028 and AG-8', () =>
   > = {
     'AM-8': async (api) => {
       const answer = await api.importDocument({ text: '{}' })
-      return answer.accepted ? null : answer.refusal
+      return answer.ok ? null : answer.refusal
     },
     'AM-9': async (api) => {
       const answer = api.undoEdit()
-      return answer.accepted ? null : answer.refusal
+      return answer.ok ? null : answer.refusal
     },
     'AM-10': async (api) => {
       const answer = api.redoEdit()
-      return answer.accepted ? null : answer.refusal
+      return answer.ok ? null : answer.refusal
     },
     'AM-14': async (api) => {
       const answer = await api.exportPng()
@@ -1406,7 +1406,7 @@ describe('AM-17 watchChanges -- AG-6', () => {
     const one = bench()
     one.api.watchChanges((notice) => one.notices.push(notice))
 
-    accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }))
+    accepted(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }))
 
     expect(one.notices).toEqual([])
   })
@@ -1437,7 +1437,7 @@ describe('AM-17 watchChanges -- AG-6', () => {
     // ⭐ The watcher woke and not one of the stamp's three fields moved -- the
     // dialogue's own order is what carried it (AG-11, MUST).
     expect(one.api.readStamp()).toEqual(before)
-    expect(one.notices[0]?.mark.seenScheduleUpdatedUtc).toBe(before.scheduleUpdatedUtc)
+    expect(one.notices[0]?.mark.seenScheduleUpdatedUtc).toBe(before.scheduleUpdatedAt)
     expect(one.notices[0]?.mark.seenSequence).toBe(1)
   })
 
@@ -1506,7 +1506,7 @@ describe('AM-18 postDialogueMessage -- AG-11', () => {
     one.api.postDialogueMessage('anything')
 
     expect(one.api.readStamp()).toEqual(before)
-    expect(accepted(one.api.applyCommands({ readStamp: before, commands: [RENAME] }))).toBeTruthy()
+    expect(accepted(one.api.applyCommands({ expectedStamp: before, commands: [RENAME] }))).toBeTruthy()
   })
 
   it('counts in an order of its own, rising by one past what the log already held', () => {
@@ -1554,10 +1554,10 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
 
   it('AM-7 takes a bundle of one and a bundle of many as one step each (FR-031)', () => {
     const one = bench()
-    accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }))
+    accepted(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }))
     accepted(
       one.api.applyCommands({
-        readStamp: one.api.readStamp(),
+        expectedStamp: one.api.readStamp(),
         commands: [
           { kind: 'setStatusDate', date: '2026-08-20T00:00:00' },
           { kind: 'setThemeHue', hue: 200 },
@@ -1572,8 +1572,8 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
   it('AM-7 keeps only as many steps as the bound the seam handed over (S-94, one step)', () => {
     const one = bench()
     one.historyLimits = { ...one.historyLimits, maxSteps: 1 }
-    accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }))
-    accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RENAME] }))
+    accepted(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }))
+    accepted(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }))
 
     expect(one.history.done).toHaveLength(1)
   })
@@ -1584,14 +1584,14 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
     // schedule says. The call is not refused, and it leaves nothing to undo.
     const outcome = accepted(
       one.api.applyCommands({
-        readStamp: one.api.readStamp(),
-        commands: [{ kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 200 }],
+        expectedStamp: one.api.readStamp(),
+        commands: [{ kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 200 }],
       }),
     )
 
     expect(outcome.hasMovedSchedule).toBe(false)
     expect(one.history.done).toHaveLength(0)
-    expect(one.document.documentSettings.taskGroupPanelWidth).toBe(200)
+    expect(one.document.documentSettings.taskGroupPanelWidthPx).toBe(200)
   })
 })
 
@@ -1651,7 +1651,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
       one.api.readStamp(),
       one.api.readSelection(),
       one.api.readDialogueMessages(),
-      one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [] }),
+      one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [] }),
       one.api.undoEdit(),
       one.api.redoEdit(),
       one.api.exportJson(),
@@ -1668,11 +1668,11 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
   // FR-028 that survives the widening: a rejected promise is an exception the
   // caller has to catch, and AG-8 asks for the failure as a VALUE.
   // ⚠️ AM-8 JOINED THEM ON 2026-09-07 (台帳 DFC-357) -- see the note above -- and it
-  // is judged on `accepted` rather than on `ok`, because AG-9a's shape for a
-  // write is `AgentWriteOutcome` and not `AgentExport`.
+  // is judged on `ok`: AG-9a's shape for a write is `AgentWriteOutcome`, whose verdict key
+  // CR-769 spelled `ok` like `AgentExport`'s.
   it('AM-8, AM-14 and AM-15 answer a promise that SETTLES, never one that rejects', async () => {
     const one = bench()
-    await expect(one.api.importDocument({ text: '{}' })).resolves.toHaveProperty('accepted')
+    await expect(one.api.importDocument({ text: '{}' })).resolves.toHaveProperty('ok')
     await expect(one.api.exportPng()).resolves.toHaveProperty('ok')
     await expect(one.api.exportEmbeddedHtml()).resolves.toHaveProperty('ok')
   })
@@ -1686,7 +1686,7 @@ describe('FR-028 -- accepted or refused, always as a value', () => {
     // The write is somebody else's, so AG-6 does wake the watcher that throws.
     expect(() => one.writeAsPerson([RENAME], 'a person at the keyboard')).not.toThrow()
     expect(() =>
-      accepted(one.api.applyCommands({ readStamp: one.api.readStamp(), commands: [RECOLOR] })),
+      accepted(one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RECOLOR] })),
     ).not.toThrow()
   })
 })

@@ -60,7 +60,7 @@ export type ProjectCommand =
   | { readonly kind: 'clearStatusDate' }
   | { readonly kind: 'setThemeHue'; readonly hue: Project['themeHue'] }
   | {
-      readonly kind: 'setParentProgressTolerance'
+      readonly kind: 'setParentProgressToleranceDays'
       readonly workingDays: Project['parentProgressToleranceDays']
     }
   | { readonly kind: 'setScheduleDataTimeZone'; readonly timeZone: Project['scheduleDataTimeZone'] }
@@ -114,12 +114,12 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
   }
 }
 
-type ProjectValueCommand = Extract<ProjectCommand, { readonly kind: 'setParentProgressTolerance' | 'setScheduleDataTimeZone' | 'shiftScheduleTimes' }>
+type ProjectValueCommand = Extract<ProjectCommand, { readonly kind: 'setParentProgressToleranceDays' | 'setScheduleDataTimeZone' | 'shiftScheduleTimes' }>
 
 // see CM-87, CM-94, CM-98
 /** @purity pure */
 function projectValueEdited(document: Document, command: ProjectValueCommand): EditResult {
-  if (command.kind === 'setParentProgressTolerance') return withParentProgressTolerance(document, command.workingDays)
+  if (command.kind === 'setParentProgressToleranceDays') return withParentProgressTolerance(document, command.workingDays)
   if (command.kind === 'setScheduleDataTimeZone') return withScheduleDataTimeZone(document, command.timeZone)
   return withScheduleTimesShifted(document, command.minutes)
 }

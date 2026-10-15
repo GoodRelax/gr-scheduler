@@ -12,7 +12,7 @@ import { point, type GeometryInputs, type Path } from './schedule-geometry'
 export function guidesOf(inputs: GeometryInputs, task: Task, placed: TaskPlacement,
                   actualHeight: number): readonly Path[] {
   const settings = inputs.settings
-  if (!settings.planVisible || !settings.actualVisible || placed.actualX === null) return []
+  if (!settings.isPlanVisible || !settings.isActualVisible || placed.actualX === null) return []
   const middle = placed.y + placed.planHeight / 2
 
   // TRAP: judge GD-4 before GD-1's overlap: milestone figures a day apart overlap in pixels, so GD-4 would never fire.

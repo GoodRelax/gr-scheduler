@@ -74,7 +74,7 @@ TABLES = [
         'mode': 'full',
         'conditions': [
             # 実績を表示: two-valued by construction -- a display switch
-            # (FR-108, `actualVisible`). READ FROM the table's own column and
+            # (FR-108, `isActualVisible`). READ FROM the table's own column and
             # from 表 T-272's closing note, which treats 「しない」 as the one
             # other case of 「する」.
             # ⛔ The column 実績がある left with CR-441: under FR-043's MUST a

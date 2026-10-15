@@ -146,7 +146,7 @@ function planActualWithColumn(
   task: Task,
   column: string,
   text: string,
-  showsTimeOfDay: boolean,
+  isTimeOfDayVisible: boolean,
 ): PlacedPlanActual | null {
   const next: Task = { ...task }
   // WHY: written by name; five typed arms would repeat the classification below five times.
@@ -154,7 +154,7 @@ function planActualWithColumn(
   if (column === 'resumeValid') {
     written[column] = settledTruth(text)
   } else if (column === ACTUAL_LENGTH_ITEM) {
-    const end = actualEndForLength(schedule, task, text, showsTimeOfDay)
+    const end = actualEndForLength(schedule, task, text, isTimeOfDayVisible)
     if (end === null) return null
     written[planActualState(task) === 'finished' ? 'actualFinish' : 'stop'] = end
   } else {
@@ -181,8 +181,8 @@ function planActualWithColumn(
 
 // see PR-5, FR-011, TX-3
 /** @purity pure */
-function actualEndForLength(schedule: Schedule, task: Task, text: string, showsTimeOfDay: boolean): string | null {
-  if (showsTimeOfDay) {
+function actualEndForLength(schedule: Schedule, task: Task, text: string, isTimeOfDayVisible: boolean): string | null {
+  if (isTimeOfDayVisible) {
     const typed = typedLengthOf(text, minutesPerWorkingDayOf(schedule.project))
     const within = workingCalendarOf(schedule)
     const from = instantOnSide(within, task.actualStart, startSideOf(task))
@@ -235,12 +235,12 @@ function commandFromTaskColumn(
   task: Task,
   column: keyof Task,
   text: string,
-  showsTimeOfDay: boolean,
+  isTimeOfDayVisible: boolean,
 ): readonly DocumentCommand[] {
   const uid = task.uid
 
   if (PLAN_ACTUAL_COLUMNS.includes(column)) {
-    const place = planActualWithColumn(schedule, task, column, text, showsTimeOfDay)
+    const place = planActualWithColumn(schedule, task, column, text, isTimeOfDayVisible)
     return place === null ? [] : [{ kind: 'setTaskPlanActualState', uid, place }]
   }
 
@@ -314,7 +314,7 @@ function commandFromVisualColumn(
       return commandsFromVisualColor(visual, uid, column === 'strokeColor', settledText(text), dark)
     case 'strokeWidthPx': {
       const strokeWidthPx = settledNumber(text)
-      return strokeWidthPx === undefined ? [] : [{ kind: 'setTaskVisualStrokeWidth', uid, strokeWidthPx }]
+      return strokeWidthPx === undefined ? [] : [{ kind: 'setTaskVisualStrokeWidthPx', uid, strokeWidthPx }]
     }
     default:
       return []
@@ -329,36 +329,36 @@ function commandFromGroupColumn(
   text: string,
   dark: boolean,
 ): readonly DocumentCommand[] {
-  const groupId = group.id
+  const taskGroupId = group.id
   switch (column) {
-    case 'label': {
-      return [{ kind: 'setTaskGroupLabel', groupId, label: settledText(text) }]
+    case 'name': {
+      return [{ kind: 'setTaskGroupName', taskGroupId, label: settledText(text) }]
     }
     case 'color': {
       const color = settledColor(text, group.color, dark)
       return color === null
-        ? [{ kind: 'resetTaskGroupColor', groupId }]
-        : [{ kind: 'setTaskGroupColor', groupId, color }]
+        ? [{ kind: 'resetTaskGroupColor', taskGroupId }]
+        : [{ kind: 'setTaskGroupColor', taskGroupId, color }]
     }
-    case 'minHeight': {
+    case 'minHeightPx': {
       const minHeight = settledNumber(text)
-      return minHeight === undefined ? [] : [{ kind: 'setTaskGroupMinHeight', groupId, minHeight }]
+      return minHeight === undefined ? [] : [{ kind: 'setTaskGroupMinHeightPx', taskGroupId, minHeight }]
     }
     default:
       return []
   }
 }
 
-const MIN_HEIGHT_COLUMN = 'minHeight'
+const MIN_HEIGHT_COLUMN = 'minHeightPx'
 
 const CHECK_TEXTS: readonly string[] = [String(true), String(false)]
 
 // see MH-2, MH-1, MH-3, DS-13
 /** @purity pure */
-function minHeightTextOf(text: string, groupId: string, context: InputContext): string | null {
+function minHeightTextOf(text: string, taskGroupId: string, context: InputContext): string | null {
   if (!CHECK_TEXTS.includes(text)) return text
   if (text === String(false)) return ''
-  const placed = context.layout.taskGroups.find((taskGroup) => taskGroup.groupId === groupId)
+  const placed = context.layout.taskGroups.find((taskGroup) => taskGroup.taskGroupId === taskGroupId)
   if (placed === undefined) return null
   return String(Math.round(placed.height / displayScaleFractionOf(context.document.documentSettings)))
 }
@@ -382,11 +382,11 @@ function commandFromHighlightBoxColumn(
     case 'fillColor':
       return [{ kind: 'setHighlightBoxFillColor', id, fillColor: settledColor(text, box.fillColor, dark) }]
     case 'strokeWidthPx':
-      return number === undefined ? [] : [{ kind: 'setHighlightBoxStrokeWidth', id, strokeWidthPx: number }]
+      return number === undefined ? [] : [{ kind: 'setHighlightBoxStrokeWidthPx', id, strokeWidthPx: number }]
     case 'fillTransparencyPercent':
       return number === undefined
         ? []
-        : [{ kind: 'setHighlightBoxFillTransparency', id, fillTransparencyPercent: number }]
+        : [{ kind: 'setHighlightBoxFillTransparencyPercent', id, fillTransparencyPercent: number }]
     default:
       return []
   }
@@ -415,11 +415,11 @@ function commandFromCommentBoxColumn(
     case 'textColor':
       return [{ kind: 'setCommentBoxTextColor', id, textColor: settledColor(text, box.textColor, dark) }]
     case 'strokeWidthPx':
-      return number === undefined ? [] : [{ kind: 'setCommentBoxStrokeWidth', id, strokeWidthPx: number }]
+      return number === undefined ? [] : [{ kind: 'setCommentBoxStrokeWidthPx', id, strokeWidthPx: number }]
     case 'fillTransparencyPercent':
       return number === undefined
         ? []
-        : [{ kind: 'setCommentBoxFillTransparency', id, fillTransparencyPercent: number }]
+        : [{ kind: 'setCommentBoxFillTransparencyPercent', id, fillTransparencyPercent: number }]
     default:
       return []
   }
@@ -448,9 +448,9 @@ function commandFromDependencyColumn(
   text: string,
   context: InputContext,
 ): readonly DocumentCommand[] {
-  if (column !== 'lag') return []
+  if (column !== 'linkLag') return []
   const { predecessorUid, successorUid } = link
-  if (context.document.documentSettings.showsTimeOfDay) {
+  if (context.document.documentSettings.isTimeOfDayVisible) {
     const typed = typedLengthOf(text, minutesPerWorkingDayOf(context.document.schedule.project))
     if (typed === undefined || typed === null) return []
     return [{ kind: 'setDependencyLag', predecessorUid, successorUid, lagMinutes: typed.minutes, lagUnit: typed.unit }]
@@ -490,7 +490,7 @@ function commandFromThemeHue(text: string): readonly DocumentCommand[] {
 function commandFromParentProgressTolerance(text: string): readonly DocumentCommand[] {
   const workingDays = settledNumber(text)
   if (workingDays === undefined || workingDays === null) return []
-  return [{ kind: 'setParentProgressTolerance', workingDays }]
+  return [{ kind: 'setParentProgressToleranceDays', workingDays }]
 }
 
 // see FR-046, CM-3, CM-4, WT-4
@@ -544,7 +544,7 @@ function shownSpanTextsOf(context: InputContext): { readonly start: string | nul
 /** @purity pure */
 function commandsFromFitSpanFixed(text: string, context: InputContext): readonly DocumentCommand[] {
   const shown = shownSpanTextsOf(context)
-  return [{ kind: 'setFitSpanFixed', fitSpanFixed: settledTruth(text), shownStart: shown.start, shownFinish: shown.finish }]
+  return [{ kind: 'setFitSpanFixed', isFitSpanFixed: settledTruth(text), shownStart: shown.start, shownFinish: shown.finish }]
 }
 
 // see CM-88, FX-7
@@ -563,16 +563,16 @@ const TASK_GROUP_TITLE_WIDTH_FLOOR = SETTINGS_CONSTANTS.taskGroupTitleIndent * S
 function commandsFromTaskGroupTitleWidth(text: string): readonly DocumentCommand[] {
   const width = settledNumber(text)
   if (width === undefined || width === null || !Number.isInteger(width) || width < TASK_GROUP_TITLE_WIDTH_FLOOR) return []
-  return [{ kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: width }]
+  return [{ kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: width }]
 }
 
 // see FO-13, CM-97, FR-016, FR-158
 /** @purity pure */
 function commandsFromShowsTimeOfDay(text: string, context: InputContext): readonly DocumentCommand[] {
-  const showsTimeOfDay = settledTruth(text)
-  const set: DocumentCommand = { kind: 'setShowsTimeOfDay', showsTimeOfDay }
+  const isTimeOfDayVisible = settledTruth(text)
+  const set: DocumentCommand = { kind: 'setTimeOfDayVisible', isTimeOfDayVisible }
   const settings = context.document.documentSettings
-  const ceiling = showsTimeOfDay ? null : zoomXCeiling(context, false)
+  const ceiling = isTimeOfDayVisible ? null : zoomXCeiling(context, false)
   if (ceiling === null || settings.zoomX <= ceiling) return [set]
   return [set, { kind: 'setZoom', zoomX: ceiling, zoomY: settings.zoomY }]
 }
@@ -588,11 +588,11 @@ function commandFromDocumentSettingsColumn(
   const settings = context.document.documentSettings
   if (column === 'fitSpanStart' && text === FIT_SPAN_COPY_TEXT) return commandsFromShownSpanCopy(context)
   if (column === 'fitSpanStart' || column === 'fitSpanFinish') return commandsFromFitSpan(commit, settings)
-  if (column === 'fitSpanFixed') return commandsFromFitSpanFixed(text, context)
-  if (column === 'taskGroupPanelWidthFixed') return [{ kind: 'setTaskGroupPanelWidthFixed', taskGroupPanelWidthFixed: settledTruth(text) }]
-  if (column === 'showsTimeOfDay') return commandsFromShowsTimeOfDay(text, context)
+  if (column === 'isFitSpanFixed') return commandsFromFitSpanFixed(text, context)
+  if (column === 'isTaskGroupPanelWidthFixed') return [{ kind: 'setTaskGroupPanelWidthFixed', isTaskGroupPanelWidthFixed: settledTruth(text) }]
+  if (column === 'isTimeOfDayVisible') return commandsFromShowsTimeOfDay(text, context)
   if (column === 'displayTimeZones') return commandsFromDisplayTimeZone(text, settings)
-  if (column === 'taskGroupPanelWidth') return commandsFromTaskGroupTitleWidth(text)
+  if (column === 'taskGroupPanelWidthPx') return commandsFromTaskGroupTitleWidth(text)
   if (column === 'displayScale') {
     const scale = DISPLAY_SCALE_STEPS.find((step) => String(step) === text)
     return scale === undefined ? [] : [{ kind: 'setDisplayScale', scale }]
@@ -649,7 +649,7 @@ function commandsFromAssigneeField(
   // a pair not held, and AG-3 then throws the whole bundle away.
   if (settled === null || (seatedUid !== null && !onTask.has(seatedUid))) return []
   const unseat: readonly DocumentCommand[] =
-    seatedUid === null ? [] : [{ kind: 'unassignResource', taskUid, resourceUid: seatedUid }]
+    seatedUid === null ? [] : [{ kind: 'deleteAssignment', taskUid, resourceUid: seatedUid }]
   if (settled === UNASSIGN_TOKEN) return unseat
 
   const held = pick === 'add' ? null : resourceUidOfCommit(schedule, settled, pick)
@@ -674,11 +674,11 @@ function commandsFromAssigneeField(
 // see T-016, PR-3
 /** @purity pure */
 function commandFromTaskField(schedule: Schedule, uid: number, column: keyof Task, text: string,
-                             showsTimeOfDay: boolean): readonly DocumentCommand[] {
+                             isTimeOfDayVisible: boolean): readonly DocumentCommand[] {
   const task = taskByUid(schedule, uid)
   if (task === null) return []
   const milestoneDay = task.milestone === true ? commandFromMilestoneDay(task, column, text, schedule.project) : null
-  return milestoneDay ?? commandFromTaskColumn(schedule, task, column, text, showsTimeOfDay)
+  return milestoneDay ?? commandFromTaskColumn(schedule, task, column, text, isTimeOfDayVisible)
 }
 
 // see PI-18, T-016
@@ -697,14 +697,14 @@ export function commandFromFieldCommit(
   switch (key.holder) {
     case 'task':
       return commandFromTaskField(schedule, key.uid, key.column, dataWallTextOf(commit.text, key.column, context),
-        context.document.documentSettings.showsTimeOfDay)
+        context.document.documentSettings.isTimeOfDayVisible)
     case 'taskVisual':
       return taskByUid(schedule, key.uid) === null
         ? []
         : commandFromVisualColumn(schedule, key.uid, key.column, commit.text, dark)
     case 'taskGroup': {
-      const group = schedule.taskGroups.find((held) => held.id === key.groupId)
-      const text = key.column === MIN_HEIGHT_COLUMN ? minHeightTextOf(commit.text, key.groupId, context) : commit.text
+      const group = schedule.taskGroups.find((held) => held.id === key.taskGroupId)
+      const text = key.column === MIN_HEIGHT_COLUMN ? minHeightTextOf(commit.text, key.taskGroupId, context) : commit.text
       return group === undefined || text === null ? [] : commandFromGroupColumn(group, key.column, text, dark)
     }
     case 'commentBox':
@@ -731,7 +731,7 @@ export function commandFromFieldCommit(
 function dataWallTextOf(text: string, column: keyof Task, context: InputContext): string {
   const settings = context.document.documentSettings
   const held = text.trim()
-  const instant = settings.showsTimeOfDay && DATE_COLUMNS.Task.includes(column) ? typedInstantOf(held) : null
+  const instant = settings.isTimeOfDayVisible && DATE_COLUMNS.Task.includes(column) ? typedInstantOf(held) : null
   const data = context.document.schedule.project.scheduleDataTimeZone
   const view = viewRegionOf(data, settings.viewTimeZone)
   if (instant === null || view === data) return text

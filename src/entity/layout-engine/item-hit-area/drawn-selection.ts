@@ -49,14 +49,14 @@ export function selectionWithinDrawnTaskGroups(
   if (isPreviewed) return selection
   const within = selectionWithinDrawn(selection, geometry)
   if (within === selection) return selection
-  const laidOut = new Set(layout.taskGroups.map((taskGroup) => taskGroup.groupId))
-  const pinned = new Set(settings.pinnedGroupIds)
+  const laidOut = new Set(layout.taskGroups.map((taskGroup) => taskGroup.taskGroupId))
+  const pinned = new Set(settings.pinnedTaskGroupIds)
   const inGeometry = new Set(geometry.tasks.map((task) => task.taskUid))
-  const isLeftOutUnnamed = (groupId: string): boolean =>
-    !laidOut.has(groupId) && (layout.stackSafetyCapReached !== null || pinned.has(groupId))
+  const isLeftOutUnnamed = (taskGroupId: string): boolean =>
+    !laidOut.has(taskGroupId) && (layout.stackSafetyCapReached !== null || pinned.has(taskGroupId))
   const undecided = new Set(
     schedule.taskGroupMembers
-      .filter((member) => isLeftOutUnnamed(member.groupId) && !inGeometry.has(member.taskUid))
+      .filter((member) => isLeftOutUnnamed(member.taskGroupId) && !inGeometry.has(member.taskUid))
       .map((member) => member.taskUid),
   )
   if (undecided.size === 0) return within

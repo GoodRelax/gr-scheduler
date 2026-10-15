@@ -20,7 +20,7 @@ import { specTable } from './spec-table'
 const OP_10_MARGIN =
   'その最初の日の左端は、`Task Group Area` の左端から `_assets/tbl-settings.md` の 表 T-206 の `S-534` だけ右に置くこと（MUST）'
 const OP_10_WRITTEN =
-  '書く文書の `scrollDate`（`S-77`）と `S-177` に `Task Group Area` の左端が指す日とその日の中の位置を、`scrollGroupId`（`S-78`）に描いているタスクグループの木の先頭のタスクグループを、`S-176` に `0` を書くこと（MUST）'
+  '書く文書の `scrollDate`（`S-77`）と `S-177` に `Task Group Area` の左端が指す日とその日の中の位置を、`scrollTaskGroupId`（`S-78`）に描いているタスクグループの木の先頭のタスクグループを、`S-176` に `0` を書くこと（MUST）'
 const FR_053_CORNER = '既定の角は `_assets/tbl-settings.md` の 表 T-206 の `S-535` に従うこと（MUST）'
 const FR_085_TOP = 'タスクグループ名は、タスクグループパネルのそのタスクグループの箱の上端に寄せて置くこと（MUST）'
 
@@ -163,7 +163,7 @@ describe(`表 T-024a OP-10 -- ${OP_10_WRITTEN}`, () => {
     expect(written.scrollDate).toBe(drawn.scrollDate)
     expect(written.scrollDayOffset).toBe(drawn.scrollDayOffset)
     expect(written.scrollGroupOffset).toBe(0)
-    expect(written.scrollGroupId).toBe(drawn.scrollGroupId)
+    expect(written.scrollTaskGroupId).toBe(drawn.scrollTaskGroupId)
 
     const axis = timeAxisOf(written, regions)
     const atMargin = dateAtX(axis, regions.taskGroupArea.x + STARTUP_MARGIN_PX)

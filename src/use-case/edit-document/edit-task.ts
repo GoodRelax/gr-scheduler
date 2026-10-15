@@ -35,7 +35,7 @@ import {
   resetTaskVisualColors,
   setTaskFadeDays,
   setTaskVisualColors,
-  setTaskVisualStrokeWidth,
+  setTaskVisualStrokeWidthPx,
   setTaskVisualMilestoneGlyph,
   setTaskVisualShapeKind,
 } from './task-appearance'
@@ -91,7 +91,7 @@ export type TaskCommand =
       readonly shapeKind: NonNullable<TaskVisual['shapeKind']>
       readonly start: NonNullable<Task['start']>
       readonly finish: NonNullable<Task['finish']>
-      readonly groupId: TaskGroupMember['groupId']
+      readonly taskGroupId: TaskGroupMember['taskGroupId']
     }
   | { readonly kind: 'deleteTask'; readonly uid: Task['uid'] }
   | {
@@ -136,7 +136,7 @@ export type TaskCommand =
   | {
       readonly kind: 'moveTaskToTaskGroup'
       readonly uid: Task['uid']
-      readonly groupId: TaskGroupMember['groupId']
+      readonly taskGroupId: TaskGroupMember['taskGroupId']
     }
   | {
       readonly kind: 'setTaskVisualShapeKind'
@@ -156,7 +156,7 @@ export type TaskCommand =
     }
   | { readonly kind: 'resetTaskVisualColors'; readonly uid: Task['uid'] }
   | {
-      readonly kind: 'setTaskVisualStrokeWidth'
+      readonly kind: 'setTaskVisualStrokeWidthPx'
       readonly uid: Task['uid']
       readonly strokeWidthPx: TaskVisual['strokeWidthPx']
     }
@@ -328,16 +328,16 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
     }
 
     case 'moveTaskToTaskGroup': {
-      if (!schedule.taskGroups.some((one) => one.id === command.groupId)) {
-        return refused([reject('CM-19', 'IV-2', `no TaskGroup with id ${command.groupId}`)])
+      if (!schedule.taskGroups.some((one) => one.id === command.taskGroupId)) {
+        return refused([reject('CM-19', 'IV-2', `no TaskGroup with id ${command.taskGroupId}`)])
       }
       const member = schedule.taskGroupMembers.find((one) => one.taskUid === command.uid)
       if (member === undefined) {
         return refused([reject('CM-19', 'IV-6', `uid ${command.uid} is on no task group`)])
       }
-      if (member.groupId === command.groupId) return edited(document)
+      if (member.taskGroupId === command.taskGroupId) return edited(document)
       const taskGroupMembers = schedule.taskGroupMembers.map((one) =>
-        one.taskUid === command.uid ? { ...one, groupId: command.groupId } : one,
+        one.taskUid === command.uid ? { ...one, taskGroupId: command.taskGroupId } : one,
       )
       const moved: Schedule = { ...schedule, taskGroupMembers }
       return edited(withSchedule(document, { ...moved, tasks: tasksRankedByTheTaskGroupTree(moved) }))
@@ -355,8 +355,8 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
     case 'resetTaskVisualColors':
       return resetTaskVisualColors(document, command)
 
-    case 'setTaskVisualStrokeWidth':
-      return setTaskVisualStrokeWidth(document, command)
+    case 'setTaskVisualStrokeWidthPx':
+      return setTaskVisualStrokeWidthPx(document, command)
   }
 }
 
@@ -382,5 +382,5 @@ const TABLE_T108_ROWS: Readonly<Record<TaskCommandKind, string>> = {
   setTaskVisualMilestoneGlyph: 'CM-21',
   setTaskVisualColors: 'CM-22',
   resetTaskVisualColors: 'CM-23',
-  setTaskVisualStrokeWidth: 'CM-24',
+  setTaskVisualStrokeWidthPx: 'CM-24',
 }

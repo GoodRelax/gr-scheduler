@@ -105,7 +105,7 @@ const COPIED = { kind: 'task', uids: [3] }
 const ROOT_VALUES: readonly Loose[] = [
   { chosenTaskGroups: [], chosenResources: [], copiedForPaste: null },
   { chosenTaskGroups: TASK_GROUPS, chosenResources: RESOURCES, copiedForPaste: COPIED },
-  { chosenTaskGroups: ['group9'], chosenResources: [], copiedForPaste: { kind: 'taskGroup', groupId: 'group9' } },
+  { chosenTaskGroups: ['group9'], chosenResources: [], copiedForPaste: { kind: 'taskGroup', taskGroupId: 'group9' } },
 ]
 
 const RUNGS = ['notice', 'textEntry', 'confirmation', 'surface', 'gesture', 'propertiesPanel', 'armed', 'selection', 'dualCursorMode', 'tooltip']
@@ -128,7 +128,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
   taskGroupsPicked: [{ chosenTaskGroups: TASK_GROUPS }, { chosenTaskGroups: ['group3'] }, { chosenTaskGroups: [] }],
   createdTaskGroupSelected: [{ createdGroupId: 'group9' }, { createdGroupId: 'group4' }],
   resourcesPicked: [{ chosenResources: RESOURCES }, { chosenResources: [5] }, { chosenResources: [] }],
-  copyTaken: [{ copiedForPaste: COPIED }, { copiedForPaste: { kind: 'taskGroup', groupId: 'group3' } }],
+  copyTaken: [{ copiedForPaste: COPIED }, { copiedForPaste: { kind: 'taskGroup', taskGroupId: 'group3' } }],
 }
 
 function selectionEvents(): Loose[] {

@@ -62,8 +62,8 @@ async function startAnew(built: ShellStage): Promise<void> {
 function livedIn(): Document {
   const draft = JSON.parse(JSON.stringify(here())) as Loose
   draft['documentSettings']['zoomX'] = 3
-  draft['documentSettings']['themeMonochrome'] = true
-  draft['documentStamp']['fileSavedUtc'] = '2026-05-04T03:02:01Z'
+  draft['documentSettings']['isThemeMonochrome'] = true
+  draft['documentStamp']['fileSavedAt'] = '2026-05-04T03:02:01Z'
   draft['schedule']['project']['themeHue'] = 30
   const read = documentFromJson(jsonFromDocument((draft) as never))
   if (!read.ok) throw new Error(`the lived-in document is not GRS JSON: ${JSON.stringify(read.faults)}`)
@@ -182,7 +182,7 @@ describe('T-342 -- the empty document, after N and proceed', () => {
     expect(rows).toHaveLength(1)
     expect(rows[0]?.['parentId']).toBeNull()
     const word = (SPEC_WORDS['defaultNames'] as Loose[]).find((one) => one['use'] === 'taskGroup')?.['text']['ja']
-    expect(rows[0]?.['label']).toBe(word)
+    expect(rows[0]?.['name']).toBe(word)
   })
 
   it('BK-2: the row id is taken anew each time a document is started', async () => {
@@ -213,16 +213,16 @@ describe('T-342 -- the empty document, after N and proceed', () => {
     const { after } = await emptyDocument()
     const project = after['schedule']['project'] as Loose
     for (const column of nullableColumns('Project')) {
-      if (column === 'calendarUid' || column === 'weekStartDay' || column === 'created') continue
+      if (column === 'calendarUid' || column === 'weekStartDay' || column === 'creationDate') continue
       expect(project[column], `BK-4: project.${column}`).toBeNull()
     }
     expect(project['calendarUid']).toBe(after['schedule']['calendars'][0]['uid'])
   })
 
   // WHY: CR-646 (JDG-1210) moved created out of the null columns: BK-4 writes the moment the document began (WT-9).
-  it('BK-4 / WT-9: project.created holds the moment the document began, zoneless and to the second', async () => {
+  it('BK-4 / WT-9: project.creationDate holds the moment the document began, zoneless and to the second', async () => {
     const { after } = await emptyDocument()
-    expect(after['schedule']['project']['created']).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)
+    expect(after['schedule']['project']['creationDate']).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/)
   })
 
   // WHY: JDG-1184 settled reading B (CR-638 writes it into BK-4); reading A (null) was turned down.
@@ -237,7 +237,7 @@ describe('T-342 -- the empty document, after N and proceed', () => {
     const { after } = await emptyDocument()
     const project = after['schedule']['project'] as Loose
     expect(project['themeHue']).toBe(settingNumber('S-73'))
-    expect(project['importSeq']).toBe(settingNumber('S-71'))
+    expect(project['importSequence']).toBe(settingNumber('S-71'))
     expect(project['uidHighWaterMark']).toBe(0)
     expect(project['outlineBase']).toBe(1)
     expect(project['sourceFormat']).toBe('grs')
@@ -255,18 +255,18 @@ describe('T-342 -- the empty document, after N and proceed', () => {
     }
   })
 
-  it('BK-6: the template version, an empty changeLog, no fileSavedUtc', async () => {
+  it('BK-6: the template version, an empty changeLog, no fileSavedAt', async () => {
     const { after } = await emptyDocument()
     expect(after['schemaVersion']).toBe((JSON.parse(TEMPLATE_TEXT) as Loose)['schemaVersion'])
     expect(after['changeLog']).toEqual([])
-    expect(after['documentStamp']['fileSavedUtc']).toBeNull()
+    expect(after['documentStamp']['fileSavedAt']).toBeNull()
   })
 
   it('BK-6 / RD-7: the stamp is advanced -- written by ED-1 at a new moment', async () => {
     const { before, after } = await emptyDocument()
     const user = bare(specTable('T-229').rows.find((one) => one.id === 'ED-1')?.cells[1] ?? '')
     expect(after['documentStamp']['lastEditedBy']).toBe(user)
-    expect(after['documentStamp']['scheduleUpdatedUtc']).not.toBe(before['documentStamp']['scheduleUpdatedUtc'])
+    expect(after['documentStamp']['scheduleUpdatedAt']).not.toBe(before['documentStamp']['scheduleUpdatedAt'])
   })
 })
 

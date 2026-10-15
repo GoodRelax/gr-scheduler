@@ -139,7 +139,7 @@ describe(`FR-087 OP-17 -- ${OP_17_REFUSED}`, () => {
       schemaVersion: TEMPLATE.schemaVersion as string,
     } as never)
     const outcome = api.applyCommands({
-      readStamp: api.readStamp(),
+      expectedStamp: api.readStamp(),
       commands: [
         {
           kind: 'createTaskGroup',
@@ -152,7 +152,7 @@ describe(`FR-087 OP-17 -- ${OP_17_REFUSED}`, () => {
       ] as never,
     })
     await settle()
-    expect(outcome.accepted, 'premise: the edit landed').toBe(true)
+    expect(outcome.ok, 'premise: the edit landed').toBe(true)
     expect(built.loop.hasUnsavedEdits(), 'premise: the edit is unsaved').toBe(true)
     await built.press(surfaceOfEntrance('IC-98'), 'IC-98')
     expect(built.last().confirmation?.question, 'premise: a question stands').toBe('QN-5')

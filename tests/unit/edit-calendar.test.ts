@@ -122,23 +122,23 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       dualCursor: null,
       fontScale: 'M',
       fontScaleSizes: { S: 12, M: 14, L: 16 },
-      rulerFont: 14,
-      rulerHeight: 48,
+      rulerFontSizePx: 14,
+      rulerHeightPx: 48,
       canvasPadding: 10,
-      taskGroupPanelWidth: 170,
+      taskGroupPanelWidthPx: 170,
       propertyPanelWidth: 280,
-      pinnedGroupIds: [],
+      pinnedTaskGroupIds: [],
       pinnedTaskGroupMax: 5,
       zoomX: 1,
       zoomY: 1,
       scrollDate: null,
-      scrollGroupId: null,
-      dependencyVisible: true,
+      scrollTaskGroupId: null,
+      isDependencyVisible: true,
     },
     documentStamp: {
-      scheduleUpdatedUtc: '2026-08-17T00:00:00Z',
+      scheduleUpdatedAt: '2026-08-17T00:00:00Z',
       lastEditedBy: 'user',
-      settingsUpdatedUtc: '2026-08-17T00:00:00Z',
+      settingsUpdatedAt: '2026-08-17T00:00:00Z',
     },
     changeLog: [],
   }) as unknown as Document
@@ -417,7 +417,7 @@ describe('EditCalendar (UF-16) -- CM-39 of table T-108', () => {
   it('UN-13 of table T-027 makes an edit of the calendar undoable and moves the schedule instant', () => {
     // UN-13 lists 暦（`FR-088`）among the document-wide settings undo covers,
     // and table T-209 files its values in 日程データの群, which WS-5 of table
-    // T-067 is the one that moves `documentStamp.scheduleUpdatedUtc` for.
+    // T-067 is the one that moves `documentStamp.scheduleUpdatedAt` for.
     const document = documentOf()
     const command: DocumentCommand = {
       kind: 'setCalendar',

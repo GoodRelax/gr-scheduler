@@ -190,7 +190,7 @@ const PLAIN: Look = { hue: S_73_DEFAULT, language: 'ja', preference: 'light', mo
 function settingsPanel(look: Partial<Look> = {}): PropertiesPanel {
   const { hue, language, preference, monochrome } = { ...PLAIN, ...look }
   const schedule = { ...TEMPLATE.schedule, project: { ...TEMPLATE.schedule.project, themeHue: hue } }
-  const settings = { ...TEMPLATE.documentSettings, themeMonochrome: monochrome }
+  const settings = { ...TEMPLATE.documentSettings, isThemeMonochrome: monochrome }
   const session: ScreenSession = {
     ...emptyScreenSession,
     screen: {

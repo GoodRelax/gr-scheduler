@@ -144,7 +144,7 @@ export function treeStateWritesFor(
   for (const taskGroup of schedule.taskGroups) {
     const treeState = nextTreeStateOf(taskGroup, event, facts)
     if (treeState !== taskGroup.treeState) {
-      writes.push({ kind: 'setTaskGroupTreeState', groupId: taskGroup.id, treeState })
+      writes.push({ kind: 'setTaskGroupTreeState', taskGroupId: taskGroup.id, treeState })
     }
   }
   return writes
@@ -175,9 +175,9 @@ export function setTaskGroupTreeState(
   command: TaskGroupCommandOf<'setTaskGroupTreeState'>,
   byId: ReadonlyMap<string, TaskGroup>,
 ): EditResult {
-  const taskGroup = byId.get(command.groupId)
+  const taskGroup = byId.get(command.taskGroupId)
   if (taskGroup === undefined) {
-    return refused([reject('CM-85', 'FR-004', `no such task group: ${command.groupId}`)])
+    return refused([reject('CM-85', 'FR-004', `no such task group: ${command.taskGroupId}`)])
   }
   // WHY: judged at run time, not left to the type; the Agent API hands commands over as data (AG-5).
   if (!isTreeState(command.treeState)) {

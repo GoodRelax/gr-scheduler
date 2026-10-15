@@ -133,8 +133,8 @@ const settingsOf = (part: Record<string, unknown>): DocumentSettings =>
   ({ ...SETTINGS_DEFAULTS, ...part }) as unknown as DocumentSettings
 
 const SETTINGS = settingsOf({
-  rulerHeight: 48, // S-2
-  rulerFont: 12, // S-3
+  rulerHeightPx: 48, // S-2
+  rulerFontSizePx: 12, // S-3
   scrollDate: '2026-01-01', // S-77
   stackDirection: 'down', // S-58
 })
@@ -217,7 +217,7 @@ const documentWith = (fadeIn: number, fadeOut: number): Schedule =>
       company: null,
       manager: null,
       author: null,
-      created: null,
+      creationDate: null,
       revision: null,
       startDate: null,
       statusDate: null,
@@ -231,7 +231,7 @@ const documentWith = (fadeIn: number, fadeOut: number): Schedule =>
       defaultFinishTime: null,
       themeHue: 0,
       uidHighWaterMark: 400,
-      importSeq: 3,
+      importSequence: 3,
       carry: {},
       carryElements: [],
     },
@@ -243,15 +243,15 @@ const documentWith = (fadeIn: number, fadeOut: number): Schedule =>
       {
         id: GROUP_ID,
         parentId: null,
-        label: 'task group one',
+        name: 'task group one',
         derivedFromTaskUid: null,
         order: 1,
         treeState: 'auto', color: null,
-        minHeight: null,
+        minHeightPx: null,
       },
     ],
     // IV-6 asks for exactly one of these per `Task`.
-    taskGroupMembers: [{ taskUid: 1, groupId: GROUP_ID }],
+    taskGroupMembers: [{ taskUid: 1, taskGroupId: GROUP_ID }],
     // FD-5 of table T-012a gives the fade to SH-1 and SH-2 only, so the shape
     // is named rather than left to a default.
     taskVisuals: [

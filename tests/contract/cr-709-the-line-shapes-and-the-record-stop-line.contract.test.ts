@@ -142,12 +142,12 @@ function sceneJson(): Json {
     ...structuredClone(firstGroup),
     id: groupIdOf(one.uid),
     parentId: null,
-    label: `row ${order}`,
+    name: `row ${order}`,
     derivedFromTaskUid: null,
     order,
     color: null,
   }))
-  schedule['taskGroupMembers'] = FIGURES.map((one) => ({ taskUid: one.uid, groupId: groupIdOf(one.uid) }))
+  schedule['taskGroupMembers'] = FIGURES.map((one) => ({ taskUid: one.uid, taskGroupId: groupIdOf(one.uid) }))
   schedule['taskVisuals'] = FIGURES.map((one) => ({
     taskUid: one.uid,
     shapeKind: shapeKindOf(one.shape),

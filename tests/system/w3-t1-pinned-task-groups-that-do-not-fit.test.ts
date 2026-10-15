@@ -41,7 +41,7 @@ test.describe(`FR-098 (MUST): ${FR_098_NOT_DRAWN.slice(-30)}`, () => {
     if (browser === null) throw new Error('no browser')
     const opened = await openStage(browser)
     try {
-      await openDocument(opened.page, 'w3-t1-pins.json', taskGroupsDocument({ rows: 10, settings: { zoomY: 20, pinnedGroupIds: PINNED } }))
+      await openDocument(opened.page, 'w3-t1-pins.json', taskGroupsDocument({ rows: 10, settings: { zoomY: 20, pinnedTaskGroupIds: PINNED } }))
       const drawn = await opened.page.evaluate((ids: readonly string[]) => {
         const svg = document.querySelector('[data-role="Schedule Canvas"] svg')
         const area = svg?.getBoundingClientRect()

@@ -211,7 +211,7 @@ describe('SEAM-2 mcpToolResultOf: the page\'s answer becomes the tool\'s answer'
   })
 
   it('AG-9a: a refusal of applyCommands stays a value -- not an MCP error, same target, reason and stamp', () => {
-    const result = { accepted: false, refusal: A_REFUSAL }
+    const result = { ok: false, refusal: A_REFUSAL }
     const got = mcpToolResultOf('applyCommands', { result })
     expect(got.isError ?? false).toBe(false)
     expect(got.structuredContent).toEqual(result)

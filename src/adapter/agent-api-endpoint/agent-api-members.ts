@@ -89,14 +89,14 @@ export type ImportLanding =
 // From docs/spec/_source/agent-api-members.json (tables T-107 and T-400).
 // see AV-1
 export interface AgentWriteRequest {
-  readonly readStamp: DocumentStamp
+  readonly expectedStamp: DocumentStamp
   readonly commands: readonly DocumentCommand[]
 }
 
 // see AV-2
 export type AgentWriteOutcome =
-  | { readonly accepted: true; readonly stamp: DocumentStamp; readonly hasMovedSchedule: boolean }
-  | { readonly accepted: false; readonly refusal: AgentRefusal }
+  | { readonly ok: true; readonly stamp: DocumentStamp; readonly hasMovedSchedule: boolean }
+  | { readonly ok: false; readonly refusal: AgentRefusal }
 
 // see AV-3
 export interface AgentRefusal {
@@ -105,7 +105,7 @@ export interface AgentRefusal {
   readonly stamp: DocumentStamp
   readonly document: Document | null
   readonly refusals: readonly Refusal[]
-  readonly what: string
+  readonly message: string
 }
 
 // see AV-4
@@ -134,12 +134,12 @@ export type AgentExport<TValue> =
 // see AV-6
 export type AgentFocusOutcome =
   | {
-      readonly accepted: true
+      readonly ok: true
       readonly stamp: DocumentStamp
       readonly hasMovedSchedule: boolean
       readonly isScrolled: boolean
     }
-  | { readonly accepted: false; readonly refusal: AgentRefusal }
+  | { readonly ok: false; readonly refusal: AgentRefusal }
 
 // see AV-7
 export type AgentImportSource =
@@ -171,8 +171,8 @@ export interface AgentWatch {
 
 // see AV-12
 export type AgentUtteranceOutcome =
-  | { readonly accepted: true; readonly message: DialogueMessage }
-  | { readonly accepted: false; readonly refusal: AgentRefusal }
+  | { readonly ok: true; readonly message: DialogueMessage }
+  | { readonly ok: false; readonly refusal: AgentRefusal }
 
 // see T-107
 export interface AgentApi {
@@ -239,7 +239,7 @@ const ELSEWHERE_DECLARED_FIELDS_MATCH: [
 void ELSEWHERE_DECLARED_FIELDS_MATCH
 
 // see AM-1, AG-1
-const AGENT_API_VERSION = 4
+const AGENT_API_VERSION = 5
 // </generated>
 
 export interface AgentApiWiring {
@@ -286,7 +286,7 @@ function frozenCopy<TValue>(value: TValue): TValue {
 // WHY: the held document keeps the AT-140 it was opened with (HS-11); every stamp handed out carries the lower line's time.
 /** @purity pure */
 function stampHandedOut(stamp: DocumentStamp, snapshot: AgentSnapshot): DocumentStamp {
-  return frozenCopy({ ...stamp, fileSavedUtc: snapshot.documentAsWritten.documentStamp.fileSavedUtc })
+  return frozenCopy({ ...stamp, fileSavedAt: snapshot.documentAsWritten.documentStamp.fileSavedAt })
 }
 
 /** @purity pure */
@@ -328,7 +328,7 @@ function agentRefusal(
     stamp: frozenCopy(handed.documentStamp),
     document: reason === 'staleStamp' ? frozenCopy(handed) : null,
     refusals,
-    what,
+    message: what,
   }
 }
 
@@ -379,11 +379,11 @@ function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, t
   const held = snapshot.document.documentSettings.tableViews.searchPanel
   const stamp = snapshot.document.documentStamp
   if (taskUids === null) {
-    if (!held.isScheduleFilterApplied) return { accepted: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasMovedSchedule: false }
+    if (!held.isScheduleFilterApplied) return { ok: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasMovedSchedule: false }
     return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, [searchTableViewWrite(held, held.hiddenTaskUids, false)])
   }
   const refusal = shownTasksRefusalOf(snapshot, taskUids, held)
-  if (refusal !== null) return { accepted: false, refusal }
+  if (refusal !== null) return { ok: false, refusal }
   const named = new Set(taskUids)
   const hiddenKeys = snapshot.document.schedule.tasks.map((task) => task.uid).filter((uid) => !named.has(uid))
   const opened = held.isScheduleFilterApplied ? [...named].filter((uid) => held.hiddenTaskUids.includes(uid)) : []
@@ -397,7 +397,7 @@ function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskU
   const frame = snapshot.frame
   if (frame === null) {
     return {
-      accepted: false,
+      ok: false,
       refusal: agentRefusal('AM-16', 'notDrawnYet', snapshot, 'BO-1: no frame yet', []),
     }
   }
@@ -405,21 +405,21 @@ function focusTaskThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, taskU
   const schedule = snapshot.document.schedule
   if (!schedule.tasks.some((held) => held.uid === taskUid)) {
     return {
-      accepted: false,
+      ok: false,
       refusal: agentRefusal('AM-16', 'unknownTask', snapshot, 'no task carries this uid', []),
     }
   }
 
   const member = schedule.taskGroupMembers.find((held) => held.taskUid === taskUid)
-  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, member?.groupId ?? null)
+  const hasRoom = hasRoomBelowPinsIn(frame.layout, frame.regions.taskGroupArea, member?.taskGroupId ?? null)
   const target = { kind: 'task', taskUid } as const
   const plan = searchJumpWrites(snapshot.document, target, hasRoom, searchJumpReachOf(frame.layout, frame.geometry, frame.regions.taskGroupArea, target))
   const commands = [...(wiring.shownTasks?.jumpViewWrites(taskUid) ?? []), ...searchJumpCommands(plan, frame.unstoredZoom ?? null)]
   // WHY: WS-1 gets the stamp just read: the caller named a task, not a document it read,
   // so a concurrent edit does not refuse it.
   const written = writeThroughTheOnePath(wiring, snapshot, 'AM-16', snapshot.document.documentStamp, commands)
-  if (written.accepted) wiring.shownTasks?.holdJumpTarget(taskUid)
-  return written.accepted ? { ...written, isScrolled: !plan.isBlockedByPinnedTaskGroups } : written
+  if (written.ok) wiring.shownTasks?.holdJumpTarget(taskUid)
+  return written.ok ? { ...written, isScrolled: !plan.isBlockedByPinnedTaskGroups } : written
 }
 
 // see FR-073
@@ -513,7 +513,7 @@ function writeThroughTheOnePath(
     outcome = planAndApply(wiring, snapshot, readStamp, commands)
   } catch (thrown) {
     return {
-      accepted: false,
+      ok: false,
       refusal: agentRefusal(
         target,
         'malformedRequest',
@@ -527,7 +527,7 @@ function writeThroughTheOnePath(
   if (!outcome.accepted) {
     const { refusal } = outcome
     return {
-      accepted: false,
+      ok: false,
       refusal: agentRefusal(
         target,
         reasonOfPlanRefusal(refusal),
@@ -539,7 +539,7 @@ function writeThroughTheOnePath(
   }
 
   return {
-    accepted: true,
+    ok: true,
     stamp: stampHandedOut(outcome.document.documentStamp, snapshot),
     hasMovedSchedule: outcome.hasMovedSchedule,
   }
@@ -595,7 +595,7 @@ function postAgentUtterance(
 ): AgentUtteranceOutcome {
   if (NotifyChangeWatchers.isDeliveringNotices(wiring.changeWatchers)) {
     return {
-      accepted: false,
+      ok: false,
       refusal: agentRefusal(
         'AM-18',
         'deliveringNotices',
@@ -616,7 +616,7 @@ function postAgentUtterance(
     wiring.dialogueAudience,
   )
   return {
-    accepted: true,
+    ok: true,
     message: frozenCopy({ ...utterance, sequence: latestSequence(posted) }),
   }
 }
@@ -674,19 +674,19 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     applyCommands(request: AgentWriteRequest): AgentWriteOutcome {
       const snapshot = source.readSnapshot()
       if (request === null || typeof request !== 'object'
-        || (request.readStamp as unknown) === null
-        || typeof request.readStamp !== 'object'
+        || (request.expectedStamp as unknown) === null
+        || typeof request.expectedStamp !== 'object'
         || !Array.isArray(request.commands)
         || request.commands.some(
           (one) => one === null || one === undefined || typeof one !== 'object',
         )) {
         return {
-          accepted: false,
+          ok: false,
           refusal: agentRefusal(
             'AM-7',
             'malformedRequest',
             snapshot,
-            'AM-7 takes { readStamp, commands }; one of the two is missing or not its shape',
+            'AM-7 takes { expectedStamp, commands }; one of the two is missing or not its shape',
             [],
           ),
         }
@@ -695,7 +695,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         wiring,
         snapshot,
         'AM-7',
-        request.readStamp,
+        request.expectedStamp,
         request.commands,
       )
     },
@@ -706,14 +706,14 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       const road = wiring.takeInDocument
       if (road === undefined) {
         return {
-          accepted: false,
+          ok: false,
           refusal: notAvailable('AM-8', snapshot, 'the wiring carries no import road'),
         }
       }
       const incoming = handedDocument(handedSource, wiring.schemaVersion)
       if (!incoming.ok) {
         return {
-          accepted: false,
+          ok: false,
           refusal: agentRefusal(
             'AM-8',
             incoming.reason,
@@ -731,7 +731,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         const refusals = landing === false ? [] : landing.refusals
         const first = refusals[0]
         return {
-          accepted: false,
+          ok: false,
           refusal: first === undefined
             ? agentRefusal(
               'AM-8',
@@ -750,7 +750,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
         }
       }
       return {
-        accepted: true,
+        ok: true,
         stamp: frozenCopy(after.documentAsWritten.documentStamp),
         hasMovedSchedule: true,
       }
@@ -759,7 +759,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     /** @purity semi-pure-b */
     undoEdit(): AgentWriteOutcome {
       return {
-        accepted: false,
+        ok: false,
         refusal: notAvailable(
           'AM-9',
           source.readSnapshot(),
@@ -771,7 +771,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
     /** @purity semi-pure-b */
     redoEdit(): AgentWriteOutcome {
       return {
-        accepted: false,
+        ok: false,
         refusal: notAvailable(
           'AM-10',
           source.readSnapshot(),
@@ -935,7 +935,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       const hasReplacedEarlierWatch = NotifyChangeWatchers.watchChanges(wiring.changeWatchers, {
         watcher: wiring.writerName,
         since: {
-          seenScheduleUpdatedUtc: snapshot.document.documentStamp.scheduleUpdatedUtc,
+          seenScheduleUpdatedUtc: snapshot.document.documentStamp.scheduleUpdatedAt,
           seenSequence: latestSequence(snapshot.dialogue),
         },
         deliver: receive,

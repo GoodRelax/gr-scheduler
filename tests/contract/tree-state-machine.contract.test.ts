@@ -98,7 +98,7 @@ function scheduleWith(states: Readonly<Record<string, TreeState>>): Schedule {
     ...TEMPLATE_GROUP,
     id: row.id,
     parentId: row.parentId,
-    label: row.id,
+    name: row.id,
     order,
     treeState: states[row.id] ?? 'auto',
   }))
@@ -184,9 +184,9 @@ type Written = { readonly id: string; readonly to: string }
 function writesOf(schedule: Schedule, event: TreeStateEvent): Written[] {
   return treeStateWritesFor(schedule, event)
     .map((command) => {
-      const loose = command as unknown as { kind: string; groupId?: string; treeState?: string }
+      const loose = command as unknown as { kind: string; taskGroupId?: string; treeState?: string }
       expect(loose.kind, 'CM-85: every write is setTaskGroupTreeState').toBe('setTaskGroupTreeState')
-      return { id: String(loose.groupId), to: String(loose.treeState) }
+      return { id: String(loose.taskGroupId), to: String(loose.treeState) }
     })
     .sort((a, b) => a.id.localeCompare(b.id))
 }

@@ -272,7 +272,7 @@ describe('T-310 VC-15 -- the scene: two late predecessors raise VC-15 twice on t
     expect(rows).toHaveLength(2)
     for (const row of rows) {
       expect(row.fixRow).toBe('FA-15')
-      expect(row.fixType).toBe('choose')
+      expect(row.fixKind).toBe('choose')
       expect(row.choices ?? []).toHaveLength(2)
       expect(row.checked).not.toBe(true)
     }
@@ -346,7 +346,7 @@ describe('T-064 PI-1 DelayFixCheck -- the fields key, checked, choice, date as t
     const document = DOUBLE_LINE_SAME()
     const rows = proposed(document)
     const row = oneRow(rows, 'VC-3', 2) as unknown as KeyedRow
-    expect(row.fixType).toBe('automatic')
+    expect(row.fixKind).toBe('automatic')
     expect(row.checked).toBe(true)
     expect(commandsOf(machineRows(rows))).not.toEqual([])
     const unchecked = proposed(document, [{ key: row.key, checked: false, choice: null, date: null }])

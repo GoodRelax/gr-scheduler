@@ -56,11 +56,11 @@ const oneTaskDocument = (): Document =>
       assignments: [],
       taskGroups: [
         {
-          id: ROW_ID, parentId: null, label: 'task group', derivedFromTaskUid: null, order: 0,
-          treeState: 'auto', editGroup: null, color: null, minHeight: null,
+          id: ROW_ID, parentId: null, name: 'task group', derivedFromTaskUid: null, order: 0,
+          treeState: 'auto', editGroup: null, color: null, minHeightPx: null,
         },
       ],
-      taskGroupMembers: [{ taskUid: TASK_UID, groupId: ROW_ID }],
+      taskGroupMembers: [{ taskUid: TASK_UID, taskGroupId: ROW_ID }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -70,7 +70,7 @@ const oneTaskDocument = (): Document =>
     documentSettings: {
       ...structuredClone(TEMPLATE.documentSettings),
       scrollDate: '2026-04-01T00:00:00',
-      scrollGroupId: ROW_ID,
+      scrollTaskGroupId: ROW_ID,
       zoomX: PX_PER_DAY / SETTINGS_CONSTANTS.pxPerDayAt1x,
     },
     documentStamp: structuredClone(TEMPLATE.documentStamp),

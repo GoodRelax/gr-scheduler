@@ -40,7 +40,7 @@ export interface ReportHeld {
   readonly language: DisplayLanguage
   readonly fixTables?: DelayFixTables
   // see FR-158, TX-7, TX-8
-  readonly showsTimeOfDay?: boolean
+  readonly isTimeOfDayVisible?: boolean
   readonly viewTimeZone?: unknown
 }
 
@@ -76,7 +76,7 @@ function madeAtText(now: Date): string {
 function handOutMarkdown(entry: IconId, held: ReportHeld, outlets: ReportOutlets): void {
   const stamp = { documentName: held.documentName, madeAt: madeAtText(new Date()) }
   const text = delayDiagnosticsReportMarkdownOf(
-    held.window, held.view, held.report, held.schedule, held.language, stamp, held.fixTables, held.showsTimeOfDay, held.viewTimeZone,
+    held.window, held.view, held.report, held.schedule, held.language, stamp, held.fixTables, held.isTimeOfDayVisible, held.viewTimeZone,
   )
   if (entry === COPY_ENTRY) {
     const seam = outlets.clipboard

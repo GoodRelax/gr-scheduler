@@ -1,6 +1,6 @@
 {
  "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
- "schemaVersion": "2026-10-11T04:10:00Z",
+ "schemaVersion": "2026-10-15T05:52:20Z",
  "schedule": {
   "project": {
    "id": null,
@@ -11,7 +11,7 @@
    "company": null,
    "manager": null,
    "author": null,
-   "created": null,
+   "creationDate": null,
    "revision": null,
    "startDate": null,
    "statusDate": null,
@@ -25,7 +25,7 @@
    "themeHue": 214,
    "parentProgressToleranceDays": 1,
    "uidHighWaterMark": 0,
-   "importSeq": 0,
+   "importSequence": 0,
    "outlineBase": 1,
    "carry": {},
    "carryElements": [],
@@ -114,32 +114,34 @@
   "baselineTasks": []
  },
  "documentSettings": {
-  "actualVisible": true,
-  "assigneeVisible": false,
-  "baselineVisible": false,
-  "dateGridLinesVisible": false,
-  "dependencyVisible": true,
   "displayScale": 100,
   "displayTimeZones": [],
   "fitSpanFinish": null,
-  "fitSpanFixed": false,
   "fitSpanStart": null,
   "fontScale": "M",
-  "groupGridLinesVisible": true,
+  "isActualVisible": true,
+  "isAssigneeVisible": false,
+  "isBaselineVisible": false,
+  "isDateGridLinesVisible": false,
+  "isDependencyVisible": true,
+  "isFitSpanFixed": false,
+  "isGroupGridLinesVisible": true,
+  "isPercentCompleteVisible": false,
+  "isPlanDatesVisible": false,
+  "isPlanVisible": true,
+  "isProgressLineVisible": false,
+  "isProgressMarkerVisible": true,
+  "isTaskGroupPanelWidthFixed": false,
+  "isThemeMonochrome": false,
+  "isTimeOfDayVisible": false,
   "levelZeroTreeState": "auto",
-  "percentCompleteVisible": false,
-  "pinnedGroupIds": [],
-  "planDatesVisible": false,
-  "planVisible": true,
-  "progressLineVisible": false,
-  "progressMarkerVisible": true,
-  "rulerFont": 21,
-  "rulerHeight": 69,
+  "pinnedTaskGroupIds": [],
+  "rulerFontSizePx": 21,
+  "rulerHeightPx": 69,
   "scrollDate": null,
   "scrollDayOffset": 0,
-  "scrollGroupId": null,
   "scrollGroupOffset": 0,
-  "showsTimeOfDay": false,
+  "scrollTaskGroupId": null,
   "stackDirection": "up",
   "tableViews": {
    "delayDiagnosticsReport": {
@@ -162,18 +164,16 @@
     "sort": null
    }
   },
-  "taskGroupPanelWidth": 300,
-  "taskGroupPanelWidthFixed": false,
-  "themeMonochrome": false,
+  "taskGroupPanelWidthPx": 300,
   "viewTimeZone": null,
   "zoomX": 1,
   "zoomY": 1
  },
  "documentStamp": {
-  "scheduleUpdatedUtc": "2026-08-20T00:00:00Z",
+  "scheduleUpdatedAt": "2026-08-20T00:00:00Z",
   "lastEditedBy": "template",
-  "settingsUpdatedUtc": "2026-08-20T00:00:00Z",
-  "fileSavedUtc": null
+  "settingsUpdatedAt": "2026-08-20T00:00:00Z",
+  "fileSavedAt": null
  },
  "changeLog": []
 }

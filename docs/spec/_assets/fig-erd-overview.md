@@ -42,20 +42,20 @@ erDiagram
         配列 baselineTasks "BaselineTask"
     }
     documentSettings {
-        文字列 scrollGroupId "S-78"
-        配列 pinnedGroupIds "S-126"
+        文字列 scrollTaskGroupId "S-78"
+        配列 pinnedTaskGroupIds "S-126"
     }
     documentStamp {
-        文字列 scheduleUpdatedUtc "日程が動いた刻"
+        文字列 scheduleUpdatedAt "日程が動いた刻"
         文字列 lastEditedBy "最後に書いた者"
-        文字列 settingsUpdatedUtc "時刻"
-        文字列 fileSavedUtc "保存した刻"
+        文字列 settingsUpdatedAt "時刻"
+        文字列 fileSavedAt "保存した刻"
     }
     changeLog {
         整数 ordinal "文書の中での出現順"
         文字列 editedBy "書いた者"
         文字列 explanation "変更の理由"
-        文字列 changedUtc "時刻"
+        文字列 changedAt "時刻"
     }
     Document ||--|| schedule : "日程データの群"
     Document ||--|| documentSettings : "見せ方の群"

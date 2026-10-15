@@ -640,7 +640,7 @@ export function taskFigureParts(input: TaskFiguresInput): TaskFigureParts {
         )
       }
     }
-    if (task.marker !== null && settings.progressMarkerVisible) {
+    if (task.marker !== null && settings.isProgressMarkerVisible) {
       ;(isPinnedTask ? markerPartsPinned : markerParts).push(
         markerSvg(
           task.marker,
@@ -824,7 +824,7 @@ export function dependencyLinkParts(input: DependencyLinksInput): DependencyLink
   const { geometry, settings, themed } = input
   const depLinkParts: string[] = []
   const depLinkPartsPinned: string[] = []
-  if (!settings.dependencyVisible || geometry.dependencies.length === 0) {
+  if (!settings.isDependencyVisible || geometry.dependencies.length === 0) {
     return { defsParts: [], depLinkParts, depLinkPartsPinned }
   }
   const haloWidth = settings.dependencyWidth * NOT_STORED_DEPENDENCY_SIZES['S-224']

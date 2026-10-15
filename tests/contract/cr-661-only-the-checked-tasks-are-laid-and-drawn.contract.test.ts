@@ -93,15 +93,15 @@ const taskRow = (uid: number, name: string, from: number, to: number, part: Reco
 const taskGroup = (id: string, parentId: string | null, label: string, order: number, treeState: string): Record<string, unknown> => ({
   id,
   parentId,
-  label,
+  name: label,
   derivedFromTaskUid: null,
   order,
   treeState,
   color: null,
-  minHeight: null,
+  minHeightPx: null,
 })
 
-const FS = { predecessorUid: ALPHA, linkType: 1, lag: 0, lagFormat: 7, carry: {}, carryElements: [] }
+const FS = { predecessorUid: ALPHA, linkType: 1, linkLag: 0, lagFormat: 7, carry: {}, carryElements: [] }
 
 function readDocument(parentState: string): Document {
   const tasks = [
@@ -120,9 +120,9 @@ function readDocument(parentState: string): Document {
       assignments: [],
       taskGroups: [taskGroup(TASK_GROUP_P, null, 'P', 0, parentState), taskGroup(TASK_GROUP_C, TASK_GROUP_P, 'C', 1, 'auto'), taskGroup(TASK_GROUP_Q, null, 'Q', 2, 'auto')],
       taskGroupMembers: [
-        { taskUid: ALPHA, groupId: TASK_GROUP_C },
-        { taskUid: BRAVO, groupId: TASK_GROUP_C },
-        { taskUid: CHARLIE, groupId: TASK_GROUP_Q },
+        { taskUid: ALPHA, taskGroupId: TASK_GROUP_C },
+        { taskUid: BRAVO, taskGroupId: TASK_GROUP_C },
+        { taskUid: CHARLIE, taskGroupId: TASK_GROUP_Q },
       ],
       taskVisuals: tasks.map((one) => blankTaskVisual(one['uid'] as number)),
       commentBoxes: [],
@@ -167,7 +167,7 @@ const geometryOf = (document: Document, shown: readonly number[] | null): Schedu
   return geometryFromLayout(document.schedule, settings, layout, regions, emptySelection(), null, undefined, FAMILIES)
 }
 
-const rowOf = (layout: ScheduleLayout, id: string) => layout.taskGroups.find((one) => one.groupId === id)
+const rowOf = (layout: ScheduleLayout, id: string) => layout.taskGroups.find((one) => one.taskGroupId === id)
 
 describe(`FR-003 (MUST): ${FR_003_LANES}`, () => {
   it('unfiltered, the overlapping Alpha and Bravo stack two lanes in task group C', () => {

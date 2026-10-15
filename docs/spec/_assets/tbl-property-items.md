@@ -54,8 +54,8 @@
 | PR-40 | `strokeWidthPx` | 数値 | `Task` | `both` | 枠線の太さ（px、予定バーと実績バーの縁の両方に掛ける。<br>`_assets/fig-erd-detail.md` の `AT-104`）。<br>空の欄は `null` ＝ `_assets/tbl-settings.md` の 表 T-201 の `S-39` の太さで描く。<br>範囲は `AT-104` が持つ | 無い（`GRS JSON` のみ） |
 | PR-39 | `strokeColor` | 色 | `Task` | `both` | 枠線の色（`FR-007`）。<br>欄の並べ方は 表 T-017b の `CV-9` | 無い（`GRS JSON` のみ） |
 | PR-12 | `fillColor` | 色 | `Task` | `both` | 塗りの色（`FR-007`）。<br>欄の並べ方は 表 T-017b の `CV-9` | 無い（`GRS JSON` のみ） |
-| PR-18 | `label` | 文字 | `TaskGroup` | — | タスクグループ名。<br>⚠️ **実体は `fig-erd-detail.md` の `AT-53` である** —— 表 T-023 の `MK-13` が名指すのはそちらであり、本行はその値をパネルに出す項目のほうである | 無い（`GRS JSON` のみ） |
-| PR-20 | `minHeight` | 数値 | `TaskGroup` | — | タスクグループの最小の高さ（表示の倍率 100 のときの画面の px。<br>縦のズームでは伸び縮みしない）。<br>`null` ＝ 下限なし（欄ではチェックを外した状態 —— `FR-042` の 表 T-338 の `MH-2`）。<br>欄の出し方は同表が持つ | 無い（`GRS JSON` のみ） |
+| PR-18 | `name` | 文字 | `TaskGroup` | — | タスクグループ名。<br>⚠️ **実体は `fig-erd-detail.md` の `AT-53` である** —— 表 T-023 の `MK-13` が名指すのはそちらであり、本行はその値をパネルに出す項目のほうである | 無い（`GRS JSON` のみ） |
+| PR-20 | `minHeightPx` | 数値 | `TaskGroup` | — | タスクグループの最小の高さ（表示の倍率 100 のときの画面の px。<br>縦のズームでは伸び縮みしない）。<br>`null` ＝ 下限なし（欄ではチェックを外した状態 —— `FR-042` の 表 T-338 の `MH-2`）。<br>欄の出し方は同表が持つ | 無い（`GRS JSON` のみ） |
 | PR-33 | `editGroup` | 文字 | `TaskGroup` | — | タスクグループを編集できるグループの名乗り（`fig-erd-detail.md` の `AT-144`）。<br>空の欄は `null` ＝ 誰でも編集できる。<br>⭐ **人だけが入れ・消せる項目である** —— `editGroup` が `null` でないタスクグループでも編集でき、`Agent API` からは書けない。<br>規則は `FR-111` の 表 T-275 の `GP-1` が持つ | 無い（`GRS JSON` のみ） |
 | PR-19 | `color` | 色 | `TaskGroup` | — | タスクグループの帯の色。<br>`null` ＝ テーマから解く | 無い（`GRS JSON` のみ） |
 | PR-21 | `text` | 複数行 | `CommentBox` | — | 付箋の本文。<br>⚠️ **「コメント」と略さない**（`U-14`）。<br>⭐ **本行が 表 T-023 の `MK-13` の言う「本文の編集」の入口である** —— **図の上で打ち換える器は作らない** | 無い（`GRS JSON` のみ） |
@@ -69,6 +69,6 @@
 | PR-25 | `fillColor` | 色 | `HighlightBox` | — | 塗りの色。<br>`null` ＝ テーマの色（`_assets/tbl-settings.md` の 表 T-236 の `S-155`）。<br>置くときは同書の `S-370`（透明 ＝ 塗らない）をコピーする。<br>規則は `FR-019` | 無い（`GRS JSON` のみ） |
 | PR-24 | `fillTransparencyPercent` | 数値 | `HighlightBox` | — | 塗りの透過率。<br>0 は不透明、100 は透明。<br>既定と範囲は `_assets/tbl-settings.md` の表 T-217 の `S-371` | 無い（`GRS JSON` のみ） |
 | PR-41 | `linkType` | 文字（読み取り専用） | `Dependency` | — | **読み取り専用。<br>** 依存の種別（`_assets/fig-erd-detail.md` の `AT-46`）。<br>`FR-009` の 表 T-018 の `名` の欄の略号で示し、保存した数を出さない。<br>種別を変える命令は無い（表 T-108 の `CM-36` 〜 `CM-38`） | `PredecessorLink/Type` |
-| PR-42 | `lag` | 数値 | `Dependency` | — | ラグ（`_assets/fig-erd-detail.md` の `AT-47`）。<br>見せて打たせる単位は `_assets/tbl-settings.md` の 表 T-213 の `S-118` であり、保存した 0.1 分との換算と、稼働日でない形式の見せ方は `FR-009` が持つ。<br>依存線の行のうち編集できるのは本行だけである（`FR-009`、表 T-108 の `CM-38`） | `PredecessorLink/LinkLag` |
+| PR-42 | `linkLag` | 数値 | `Dependency` | — | ラグ（`_assets/fig-erd-detail.md` の `AT-47`）。<br>見せて打たせる単位は `_assets/tbl-settings.md` の 表 T-213 の `S-118` であり、保存した 0.1 分との換算と、稼働日でない形式の見せ方は `FR-009` が持つ。<br>依存線の行のうち編集できるのは本行だけである（`FR-009`、表 T-108 の `CM-38`） | `PredecessorLink/LinkLag` |
 | PR-43 | `predecessorUid` | 文字（読み取り専用） | `Dependency` | — | **読み取り専用。<br>** 先行タスク（`_assets/fig-erd-detail.md` の `AT-45`）。<br>`FR-038` の辞書の形（名と `uid`）で示す | `PredecessorLink/PredecessorUID` |
 | PR-44 | `successorUid` | 文字（読み取り専用） | `Dependency` | — | **読み取り専用。<br>** 文書の列ではない —— 依存を入れ子で持つ後続タスク（`_assets/fig-erd-detail.md` の `ET-3`）。<br>`FR-038` の辞書の形（名と `uid`）で示す | 無い（入れ子の位置が表す） |

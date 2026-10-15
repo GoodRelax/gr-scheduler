@@ -9,14 +9,14 @@ import { descendants, stage, type FakeElement } from '../fixtures/fake-browser'
 
 const TASK_GROUP_CONTROLS = ['IC-58', 'IC-59', 'IC-77', 'IC-60'] as const
 
-const taskGroupTitle = (groupId: string, y: number): TaskGroupTitle => ({
-  groupId,
+const taskGroupTitle = (taskGroupId: string, y: number): TaskGroupTitle => ({
+  taskGroupId,
   depth: 0,
   box: { x: 0, y, width: 300, height: 24 },
   indentPx: 0,
   fontPx: 14,
-  label: groupId,
-  wholeLabel: groupId,
+  label: taskGroupId,
+  wholeLabel: taskGroupId,
   isLabelTruncated: false,
   expander: { canOpen: true, canClose: true, canCloseBelow: true },
   isPinned: false,
@@ -35,10 +35,10 @@ const drawnTree = () => {
   root.append(tree)
   const table = tooltipAnchorTable(root as unknown as HTMLElement)
   fillTaskGroupTitleTree(built.host, tree as unknown as HTMLElement, PANEL, table.anchorsOf('Task Group Title Tree'))
-  const controlOf = (groupId: string, icon: string): FakeElement => {
-    const row = tree.children.find((one) => one.getAttribute('data-group-id') === groupId)
+  const controlOf = (taskGroupId: string, icon: string): FakeElement => {
+    const row = tree.children.find((one) => one.getAttribute('data-group-id') === taskGroupId)
     const found = row === undefined ? undefined : descendants(row).find((one) => one.getAttribute('data-icon') === icon)
-    if (found === undefined) throw new Error(`premise: task group ${groupId} draws ${icon}`)
+    if (found === undefined) throw new Error(`premise: task group ${taskGroupId} draws ${icon}`)
     return found
   }
   return { built, table, controlOf }
@@ -58,7 +58,7 @@ describe('DFC-1720 -- IN-3 / UF-112: the tip stands under the control the pointe
       const { built, table, controlOf } = drawnTree()
       placedAt(controlOf('top', icon), 0, 280)
       placedAt(controlOf('lower', icon), 400, 280)
-      const tip: Tooltip = { anchor: { kind: 'icon', icon, groupId: 'lower' }, text: icon, assignment: null }
+      const tip: Tooltip = { anchor: { kind: 'icon', icon, taskGroupId: 'lower' }, text: icon, assignment: null }
       const drawn = tooltipElement(built.host, tip, table.anchorFor)
       expect(styleNumber(drawn, 'top')).toBe(416)
       expect(styleNumber(drawn, 'left')).toBe(280)
@@ -68,7 +68,7 @@ describe('DFC-1720 -- IN-3 / UF-112: the tip stands under the control the pointe
   it('a task group the tree does not hold finds no control, rather than the first one in the tree', () => {
     const { built, table, controlOf } = drawnTree()
     placedAt(controlOf('top', 'IC-58'), 50, 280)
-    const tip: Tooltip = { anchor: { kind: 'icon', icon: 'IC-58', groupId: 'gone' }, text: 'IC-58', assignment: null }
+    const tip: Tooltip = { anchor: { kind: 'icon', icon: 'IC-58', taskGroupId: 'gone' }, text: 'IC-58', assignment: null }
     expect(styleNumber(tooltipElement(built.host, tip, table.anchorFor), 'top')).toBe(0)
   })
 })

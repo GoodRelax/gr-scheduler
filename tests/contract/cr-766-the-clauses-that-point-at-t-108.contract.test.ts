@@ -55,7 +55,7 @@ describe('FR-019 (MUST): a comment box is placed (CM-46) with its five look colu
   })
 
   it('a comment box placed by CM-46 holds null in all five columns', () => {
-    const command: DocumentCommand = { kind: 'createCommentBox', id: BOX, anchor: { date: '2026-04-08T00:00:00', groupId: GROUP } }
+    const command: DocumentCommand = { kind: 'createCommentBox', id: BOX, anchor: { date: '2026-04-08T00:00:00', taskGroupId: GROUP } }
     const result = editDocument(documentWithOneGroup(), command, LIMITS, 'row')
     if (!result.ok) throw new Error(`CM-46 was refused: ${JSON.stringify(result.refusals)}`)
     const placed = result.document.schedule.commentBoxes.find((box) => box.id === BOX)

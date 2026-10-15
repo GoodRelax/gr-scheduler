@@ -130,7 +130,7 @@ export function commandFromArmed(
   const to = dayAtX(context.layout, release.x)
   const taskGroup = taskGroupAtY(context.layout, press.at.y)
   if (from === null || to === null) return CONSUMED_ELSEWHERE
-  const groupId = taskGroup === null ? context.newGroupId : taskGroup.groupId
+  const taskGroupId = taskGroup === null ? context.newTaskGroupId : taskGroup.taskGroupId
   const early = compareDay(from, to) <= 0 ? from : to
   const late = compareDay(from, to) <= 0 ? to : from
   const dragged = hasDraggedPastThreshold(press, release)
@@ -149,7 +149,7 @@ export function commandFromArmed(
         shapeKind,
         start: textOfStartSide(start, context.document.schedule.project, isMilestone),
         finish: textOfFinishSide(finish, context.document.schedule.project),
-        groupId,
+        taskGroupId,
       },
     ]
     if (armed.kind === 'milestoneShapeArmed') {
@@ -170,7 +170,7 @@ export function commandFromArmed(
 
   if (armed.kind === 'commentBoxArmed') {
     const anchor = commentAnchorAt(context.layout, press.at.x, press.at.y)
-    if (!('groupId' in anchor)) return anchor
+    if (!('taskGroupId' in anchor)) return anchor
     return changed([{ kind: 'createCommentBox', id: context.newCommentBoxId, anchor }])
   }
 
@@ -183,8 +183,8 @@ export function commandFromArmed(
     // TRAP: rank task groups by tree order, not TaskGroupPlacement.y: once FR-098 pins a task group,
     // comparing y writes pairs IV-19 refuses.
     const rankById = taskGroupRankById(context.document.schedule.taskGroups)
-    const pressRank = rankById.get(taskGroup.groupId) ?? 0
-    const releaseRank = rankById.get(releaseTaskGroup.groupId) ?? 0
+    const pressRank = rankById.get(taskGroup.taskGroupId) ?? 0
+    const releaseRank = rankById.get(releaseTaskGroup.taskGroupId) ?? 0
     const isPressAbove = pressRank <= releaseRank
     const top = isPressAbove ? taskGroup : releaseTaskGroup
     const bottom = isPressAbove ? releaseTaskGroup : taskGroup
@@ -195,8 +195,8 @@ export function commandFromArmed(
         range: {
           startDate: textOfDayStart(early),
           endDate: textOfDayEnd(late),
-          topGroupId: top.groupId,
-          bottomGroupId: bottom.groupId,
+          topTaskGroupId: top.taskGroupId,
+          bottomTaskGroupId: bottom.taskGroupId,
         },
       },
     ])

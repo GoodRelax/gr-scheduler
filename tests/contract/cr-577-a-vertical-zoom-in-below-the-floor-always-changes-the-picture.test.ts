@@ -237,7 +237,7 @@ function taskOf(uid: number): Record<string, unknown> {
 // WHY: the `stacked` extra tasks share the first task group's dates, so FR-003 stacks them into one tall band;
 // that band is how a case gets an FR-016 ceiling below the ZE-6 target without typing a ceiling.
 function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Document {
-  const members = rows.map((one, index) => ({ taskUid: index + 1, groupId: one.id }))
+  const members = rows.map((one, index) => ({ taskUid: index + 1, taskGroupId: one.id }))
   const extra = Array.from({ length: stacked }, (_unused, index) => rows.length + index + 1)
   return {
     '$schema': TEMPLATE['$schema'],
@@ -251,15 +251,15 @@ function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Docum
       taskGroups: rows.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
-        label: `Row${index + 1}`,
+        name: `Row${index + 1}`,
         derivedFromTaskUid: null,
         order: index,
         treeState: one.treeState ?? 'auto',
         editGroup: null,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: [...members, ...extra.map((uid) => ({ taskUid: uid, groupId: rows[0]!.id }))],
+      taskGroupMembers: [...members, ...extra.map((uid) => ({ taskUid: uid, taskGroupId: rows[0]!.id }))],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -268,10 +268,10 @@ function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Docum
     },
     documentSettings: {
       ...structuredClone(TEMPLATE.documentSettings),
-      pinnedGroupIds: [],
+      pinnedTaskGroupIds: [],
       displayScale: DEFAULT_DISPLAY_SCALE,
       scrollDate: '2026-04-01',
-      scrollGroupId: rows[0]!.id,
+      scrollTaskGroupId: rows[0]!.id,
       scrollGroupOffset: 0,
       zoomX: 1,
       zoomY,
@@ -295,7 +295,7 @@ function erpDocument(zoomY: number | null): Document {
   if (zoomY === null) return document as unknown as Document
   const tasks = document.schedule.tasks as readonly { start: string | null }[]
   const first = tasks.map((one) => one.start ?? '').filter((one) => one !== '').sort()[0] ?? '2026-04-01'
-  const place = { scrollDate: first.slice(0, 10), scrollGroupId: document.schedule.taskGroups[0].id, scrollGroupOffset: 0 }
+  const place = { scrollDate: first.slice(0, 10), scrollTaskGroupId: document.schedule.taskGroups[0].id, scrollGroupOffset: 0 }
   return { ...document, documentSettings: { ...document.documentSettings, ...place, zoomY } } as unknown as Document
 }
 
@@ -424,7 +424,7 @@ function bench(document: Document): Bench {
     if (now === null) throw new Error('the loop has drawn no frame')
     return now
   }
-  const drawnTaskGroups = (): readonly string[] => [...new Set(frame().layout.taskGroups.map((one) => one.groupId))].sort()
+  const drawnTaskGroups = (): readonly string[] => [...new Set(frame().layout.taskGroups.map((one) => one.taskGroupId))].sort()
   const planHeights = (): readonly string[] =>
     [
       ...new Set(

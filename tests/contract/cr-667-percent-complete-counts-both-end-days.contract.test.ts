@@ -157,9 +157,9 @@ const documentText = (tasks: readonly Record<string, unknown>[]): string =>
       resources: [],
       assignments: [],
       taskGroups: [
-        { id: TASK_GROUP, parentId: null, label: 'A', derivedFromTaskUid: null, order: 0, treeState: 'auto', color: null, minHeight: null },
+        { id: TASK_GROUP, parentId: null, name: 'A', derivedFromTaskUid: null, order: 0, treeState: 'auto', color: null, minHeightPx: null },
       ],
-      taskGroupMembers: tasks.map((one) => ({ taskUid: one['uid'], groupId: TASK_GROUP })),
+      taskGroupMembers: tasks.map((one) => ({ taskUid: one['uid'], taskGroupId: TASK_GROUP })),
       taskVisuals: tasks.map((one) => blankTaskVisual(one['uid'] as number)),
       commentBoxes: [],
       highlightBoxes: [],

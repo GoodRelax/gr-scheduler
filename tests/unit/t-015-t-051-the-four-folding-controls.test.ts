@@ -266,8 +266,8 @@ const TASK_GROUPS: readonly { readonly id: string; readonly parentId: string | n
 /** Every task group, in the order the panel draws them when nothing is folded. */
 const EVERY_TASK_GROUP = TASK_GROUPS.map((one) => one.name)
 
-const nameOf = (groupId: string): string =>
-  TASK_GROUPS.find((one) => one.id === groupId)?.name ?? groupId
+const nameOf = (taskGroupId: string): string =>
+  TASK_GROUPS.find((one) => one.id === taskGroupId)?.name ?? taskGroupId
 
 interface Fixture {
   /** Task groups standing `collapsed` (AT-153). */
@@ -324,17 +324,17 @@ function documentWith(part: Fixture = {}): Document {
       taskGroups: TASK_GROUPS.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
-        label: one.name,
+        name: one.name,
         derivedFromTaskUid: null,
         order: index,
         treeState: hidden.has(one.id) ? 'hidden' : folded.has(one.id) ? 'collapsed' : 'auto',
         editGroup: null,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
       taskGroupMembers: TASK_GROUPS.map((one, index) => ({
         taskUid: index + 1,
-        groupId: one.id,
+        taskGroupId: one.id,
       })),
       taskVisuals: [],
       commentBoxes: [],
@@ -344,7 +344,7 @@ function documentWith(part: Fixture = {}): Document {
     },
     documentSettings: {
       ...structuredClone(template.documentSettings),
-      ...(part.atStoredZoom === true ? { scrollDate: '2026-04-01T00:00:00', scrollGroupId: ALPHA } : {}),
+      ...(part.atStoredZoom === true ? { scrollDate: '2026-04-01T00:00:00', scrollTaskGroupId: ALPHA } : {}),
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
@@ -439,9 +439,9 @@ interface Stage {
   readonly loop: FrameLoop
   readonly screen: ScreenPane
   send(input: HumanInput): void
-  aim(entry: string, groupId: string | null): void
+  aim(entry: string, taskGroupId: string | null): void
   /** Aim one entrance and press it. */
-  press(entry: string, groupId: string | null): void
+  press(entry: string, taskGroupId: string | null): void
 }
 
 function stage(part: Fixture = {}): Stage {
@@ -453,12 +453,12 @@ function stage(part: Fixture = {}): Stage {
     loop.receiveInput(input)
     pen.runAnimationFrames()
   }
-  const aim = (entry: string, groupId: string | null): void => {
+  const aim = (entry: string, taskGroupId: string | null): void => {
     screen.drawAt({
       part: TASK_GROUP_PANEL,
       entry: entry as any,
       format: null,
-      taskGroupId: groupId,
+      taskGroupId: taskGroupId,
       resourceUid: null,
       dividerPanel: null,
       noticeDismissKey: null,
@@ -469,8 +469,8 @@ function stage(part: Fixture = {}): Stage {
     screen,
     send,
     aim,
-    press: (entry, groupId) => {
-      aim(entry, groupId)
+    press: (entry, taskGroupId) => {
+      aim(entry, taskGroupId)
       // IN-1 settles a pointer operation on release, so a press is down then up.
       send(pointer('down', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
       send(pointer('up', ON_THE_SURFACE.x, ON_THE_SURFACE.y))
@@ -485,39 +485,39 @@ function stage(part: Fixture = {}): Stage {
 /** The task groups the panel drew, by name, in the order it drew them. */
 function drawnTaskGroups(built: Stage): readonly string[] {
   const panel = built.screen.last().taskGroupPanel
-  return [...panel.pinnedTitles, ...panel.titles].map((one) => nameOf(one.groupId))
+  return [...panel.pinnedTitles, ...panel.titles].map((one) => nameOf(one.taskGroupId))
 }
 
 /** The title the panel drew for one task group. */
-function titleOf(built: Stage, groupId: string): TaskGroupTitle {
+function titleOf(built: Stage, taskGroupId: string): TaskGroupTitle {
   const panel = built.screen.last().taskGroupPanel
-  const found = [...panel.pinnedTitles, ...panel.titles].find((one) => one.groupId === groupId)
+  const found = [...panel.pinnedTitles, ...panel.titles].find((one) => one.taskGroupId === taskGroupId)
   if (found === undefined) {
-    throw new Error(`the panel drew no title for ${nameOf(groupId)}: ${drawnTaskGroups(built).join(', ')}`)
+    throw new Error(`the panel drew no title for ${nameOf(taskGroupId)}: ${drawnTaskGroups(built).join(', ')}`)
   }
   return found
 }
 
 /** The task group as the DOCUMENT holds it -- `AT-153` of _assets/fig-erd-detail.md. */
-function storedTaskGroup(built: Stage, groupId: string): TaskGroup {
+function storedTaskGroup(built: Stage, taskGroupId: string): TaskGroup {
   const found = (built.loop.document().schedule as any).taskGroups.find(
-    (one: any) => one.id === groupId,
+    (one: any) => one.id === taskGroupId,
   )
-  if (found === undefined) throw new Error(`the document has no task group ${nameOf(groupId)}`)
+  if (found === undefined) throw new Error(`the document has no task group ${nameOf(taskGroupId)}`)
   return found as TaskGroup
 }
 
 // see AT-153
-const treeOf = (built: Stage, groupId: string): TaskGroup['treeState'] =>
-  storedTaskGroup(built, groupId).treeState
+const treeOf = (built: Stage, taskGroupId: string): TaskGroup['treeState'] =>
+  storedTaskGroup(built, taskGroupId).treeState
 
-const isFolded = (built: Stage, groupId: string): boolean => treeOf(built, groupId) === 'collapsed'
+const isFolded = (built: Stage, taskGroupId: string): boolean => treeOf(built, taskGroupId) === 'collapsed'
 
-const isHiddenTaskGroup = (built: Stage, groupId: string): boolean => treeOf(built, groupId) === 'hidden'
+const isHiddenTaskGroup = (built: Stage, taskGroupId: string): boolean => treeOf(built, taskGroupId) === 'hidden'
 
 /** `HF-18`'s number, as the panel drew it. */
-const foldedCountOf = (built: Stage, groupId: string): number =>
-  ((titleOf(built, groupId) as any).foldedTaskGroupCount as number | null | undefined) ?? 0
+const foldedCountOf = (built: Stage, taskGroupId: string): number =>
+  ((titleOf(built, taskGroupId) as any).foldedTaskGroupCount as number | null | undefined) ?? 0
 
 /** The words a telling carried, so a case can say a press ACTED instead of refusing. */
 const noticeTexts = (built: Stage): readonly string[] =>
@@ -566,7 +566,7 @@ const THEME: ScreenTheme = {
 
 /** One task group with every control armed, so nothing is left undrawn for want of work. */
 const ONE_DRAWN_TASK_GROUP: TaskGroupTitle = {
-  groupId: 'TaskGroupAlpha',
+  taskGroupId: 'TaskGroupAlpha',
   depth: 1,
   ...taskGroupNameFont(1),
   indentPx: SETTINGS_CONSTANTS['taskGroupTitleIndent'] as number,

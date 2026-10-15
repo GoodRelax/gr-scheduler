@@ -43,7 +43,7 @@ describe('item 4 -- FA-1: a loop of three lines offers three choices and checks 
     expect(rows.length).toBeGreaterThan(0)
     for (const row of rows) {
       expect(row.fixRow).toBe('FA-1')
-      expect(row.fixType).toBe('choose')
+      expect(row.fixKind).toBe('choose')
       expect(row.choices ?? [], `task ${String(row.taskUid)}`).toHaveLength(3)
       expect(new Set((row.choices ?? []).map((one) => JSON.stringify(one))).size, 'three different lines').toBe(3)
     }
@@ -66,7 +66,7 @@ describe('item 5 -- FA-24: a successor started on 05/28 while the predecessor ha
     const rows = proposed(FS_SUCCESSOR_STARTED())
     const row = oneRow(rows, 'VO-3', 1)
     expect(row.fixRow).toBe('FA-24')
-    expect(row.fixType).toBe('suggestedDate')
+    expect(row.fixKind).toBe('suggestedDate')
     expect(dayTextIn(row.after)).toContain('2027-05-28')
     expect(machineRows(rows)).not.toContain(row)
   })
@@ -74,7 +74,7 @@ describe('item 5 -- FA-24: a successor started on 05/28 while the predecessor ha
   it('FA-22: a task past its start with no actual start suggests its start as the day', () => {
     const row = oneRow(proposed(NOT_STARTED_AFTER_START()), 'VO-1', 1)
     expect(row.fixRow).toBe('FA-22')
-    expect(row.fixType).toBe('suggestedDate')
+    expect(row.fixKind).toBe('suggestedDate')
     expect(dayTextIn(row.after)).toContain('2027-05-10')
   })
 
@@ -95,7 +95,7 @@ describe('T-373 -- the rows of a choice carry as many choices as the table says'
   it.each(CASES)('%s: the %s row is a choice of the number of choices in T-373, checked by no one', (fixRow, findingRow, make, uid) => {
     const row = oneRow(proposed(make()), findingRow, uid)
     expect(row.fixRow).toBe(fixRow)
-    expect(row.fixType).toBe('choose')
+    expect(row.fixKind).toBe('choose')
     expect(row.choices ?? []).toHaveLength(choiceCountOf(fixRow))
   })
 })
@@ -107,7 +107,7 @@ describe('FA-3 -- two lines between the same two tasks', () => {
     const rows = proposed(before)
     const row = oneRow(rows, 'VC-3', 2)
     expect(row.fixRow).toBe('FA-3')
-    expect(row.fixType).toBe('automatic')
+    expect(row.fixKind).toBe('automatic')
     const next = written(heldOf(before), commandsOf(machineRows(rows))).document
     expect((taskIn(next, 2)['dependencies'] as unknown[]).length).toBe(1)
     expect(findingRowsOf(next)).not.toContain('VC-3')
@@ -117,7 +117,7 @@ describe('FA-3 -- two lines between the same two tasks', () => {
     const rows = proposed(DOUBLE_LINE_DIFFERENT())
     const row = oneRow(rows, 'VC-3', 2)
     expect(row.fixRow).toBe('FA-3')
-    expect(row.fixType).toBe('choose')
+    expect(row.fixKind).toBe('choose')
     expect(row.choices ?? []).toHaveLength(2)
     expect(machineRows(rows)).not.toContain(row)
   })

@@ -32,7 +32,7 @@ const WH_6_TIME_KEPT = '日の部分だけを替え、時刻は保つ'
 const WH_6_TEXT_FORM = '時刻の無い字は時刻の無いまま、秒の有無も変えない'
 const WH_6_MIDNIGHT = '終了の側の `00:00`（前の日の終わり —— `FR-054`）は、その前の日を移し、移した日の翌日の `00:00` と書く'
 const WH_7_NOT_EXCEPTIONS = '⛔ ただし `Exception.fromDate`・`toDate`（暦）を除く'
-const WH_8_KEPT = '暦（`Calendar`・`WeekDay`・`Exception`・時間帯）、`Project.created`（`WT-9`）、量（`Dependency.lag`・フェードの日数・進捗）'
+const WH_8_KEPT = '暦（`Calendar`・`WeekDay`・`Exception`・時間帯）、`Project.creationDate`（`WT-9`）、量（`Dependency.linkLag`・フェードの日数・進捗）'
 const WH_9_NOTHING = '何も書かず、取り消しの段も残さない'
 const WH_10_IV_14 = '何も書かずに `05-07-design.md` の 表 T-220 の `IV-14` を運ぶ'
 const CM_99_NAME = 'shiftScheduleToStartDate'
@@ -107,7 +107,7 @@ describe('WH-4 / WH-5 / WH-7 -- every column WH-7 names moves by the worked exam
 
   it(`the weekend highlight box becomes the one Friday 2029-03-30 (WH-5: a whole-day range over non-working days only)`, () => {
     const box = oneOf(after.schedule.highlightBoxes, 'highlight box')
-    expect([box['startDate'], box['endDate']]).toEqual(['2029-03-30T00:00:00', '2029-03-30T23:59:00'])
+    expect([box['start'], box['finish']]).toEqual(['2029-03-30T00:00:00', '2029-03-30T23:59:00'])
   })
 
   it('CommentBox.anchorDate (rank -2)', () => {
@@ -152,11 +152,11 @@ describe(`WH-8 / FR-159 -- ${FR_159_NOT_THE_CALENDAR}`, () => {
     expect(after.schedule.calendars).toEqual(before.schedule.calendars)
   })
 
-  it('Project.created is not moved', () => {
-    expect(projectOf(after)['created']).toBe(projectOf(before)['created'])
+  it('Project.creationDate is not moved', () => {
+    expect(projectOf(after)['creationDate']).toBe(projectOf(before)['creationDate'])
   })
 
-  it('the amounts stay: Dependency.lag, the fade days and the progress', () => {
+  it('the amounts stay: Dependency.linkLag, the fade days and the progress', () => {
     const was = taskIn(before, TASK_B)
     const now = taskIn(after, TASK_B)
     expect(now['dependencies']).toEqual(was['dependencies'])

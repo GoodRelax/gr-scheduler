@@ -23,7 +23,7 @@ const sectionOf = (uid: string): string => {
 }
 
 const OP_10_IS_THE_FIT =
-  '| OP-10 | **表示位置が `null`、または指すタスクグループが存在しないとき**<br>⭐ 表示位置は `scrollDate`（`S-77`）と `scrollGroupId`（`S-78`）の組であり、どちらか一方でも `null` なら、表示位置が `null` であるとすること（MUST） —— 片方だけでは場所を指せない（日だけでは上端のタスクグループが、タスクグループだけでは左端の日が決まらない） | `FR-055` の全体表示が選ぶ倍率と表示位置にすること（MUST）。'
+  '| OP-10 | **表示位置が `null`、または指すタスクグループが存在しないとき**<br>⭐ 表示位置は `scrollDate`（`S-77`）と `scrollTaskGroupId`（`S-78`）の組であり、どちらか一方でも `null` なら、表示位置が `null` であるとすること（MUST） —— 片方だけでは場所を指せない（日だけでは上端のタスクグループが、タスクグループだけでは左端の日が決まらない） | `FR-055` の全体表示が選ぶ倍率と表示位置にすること（MUST）。'
 const OP_10_NOT_EVERY_FRAME =
   '⛔ **本行を毎フレームやり直してはならない（MUST NOT）** —— **本行は結果を定めるものであって、頻度を定めるものではない。'
 const OP_10_A_PERSON_CHOOSES =
@@ -45,7 +45,7 @@ const NOTHING_OF_THE_VIEW_PLACE = [
   '表示位置',
   '倍率',
   'scrollDate',
-  'scrollGroupId',
+  'scrollTaskGroupId',
   'zoomX',
   'zoomY',
   'FR-055',
@@ -174,16 +174,16 @@ function documentWithNoViewPlace(lastFinish: string | null = null): Loose {
       taskGroups: GROUPS.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
-        label: `G${index + 1}`,
+        name: `G${index + 1}`,
         derivedFromTaskUid: null,
         order: index,
         treeState: 'auto', editGroup: null,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
       taskGroupMembers: GROUPS.map((one, index) => ({
         taskUid: index + 1,
-        groupId: one.id,
+        taskGroupId: one.id,
       })),
       taskVisuals: [],
       commentBoxes: [],
@@ -194,7 +194,7 @@ function documentWithNoViewPlace(lastFinish: string | null = null): Loose {
     documentSettings: {
       ...structuredClone(TEMPLATE.documentSettings),
       scrollDate: null,
-      scrollGroupId: null,
+      scrollTaskGroupId: null,
     },
     documentStamp: structuredClone(TEMPLATE.documentStamp),
     changeLog: [],
@@ -257,7 +257,7 @@ interface ViewPlace {
   readonly zoomX: number
   readonly zoomY: number
   readonly scrollDate: string | null
-  readonly scrollGroupId: string | null
+  readonly scrollTaskGroupId: string | null
   readonly scrollDayOffset: number
   readonly scrollGroupOffset: number
 }
@@ -284,7 +284,7 @@ const viewPlaceOf = (settings: Loose): ViewPlace => ({
   zoomX: settings.zoomX as number,
   zoomY: settings.zoomY as number,
   scrollDate: (settings.scrollDate ?? null) as string | null,
-  scrollGroupId: (settings.scrollGroupId ?? null) as string | null,
+  scrollTaskGroupId: (settings.scrollTaskGroupId ?? null) as string | null,
   scrollDayOffset: settings.scrollDayOffset as number,
   scrollGroupOffset: settings.scrollGroupOffset as number,
 })
@@ -423,7 +423,7 @@ describe('表 T-024a の OP-10 -- 本ファイルを動かす条文', () => {
     const document = documentWithNoViewPlace()
     expect(validateDocument(document as never).errors).toEqual([])
     expect((document.documentSettings as Loose).scrollDate).toBeNull()
-    expect((document.documentSettings as Loose).scrollGroupId).toBeNull()
+    expect((document.documentSettings as Loose).scrollTaskGroupId).toBeNull()
   })
 })
 
@@ -473,7 +473,7 @@ describe('OP-10 の答えは 1 度だけ求める -- 求め直す出来事が来
     expect(built.storedViewPlace().scrollDate).toBeNull()
     built.drawATask()
     expect(built.storedViewPlace().scrollDate).toBeNull()
-    expect(built.storedViewPlace().scrollGroupId).toBeNull()
+    expect(built.storedViewPlace().scrollTaskGroupId).toBeNull()
   })
 })
 
@@ -547,7 +547,7 @@ describe('OP-10 の答えを取り直す出来事', () => {
     built.press(FIT)
     const chosen = built.storedViewPlace()
     expect(chosen.scrollDate).not.toBeNull()
-    expect(chosen.scrollGroupId).not.toBeNull()
+    expect(chosen.scrollTaskGroupId).not.toBeNull()
     built.oneMoreFrame()
     expect(built.storedViewPlace()).toEqual(chosen)
   })
@@ -573,7 +573,7 @@ describe('FR-080 -- 書き出す絵は、画面が立っている答えで描く
     const built = bench(documentWithNoViewPlace())
     const exported = built.exportedViewPlace()
     expect(exported.scrollDate).not.toBeNull()
-    expect(exported.scrollGroupId).not.toBeNull()
+    expect(exported.scrollTaskGroupId).not.toBeNull()
     expect(exported.zoomX).not.toBe(built.storedViewPlace().zoomX)
     expect(Number.isFinite(exported.scrollDayOffset)).toBe(true)
     expect(Number.isFinite(exported.scrollGroupOffset)).toBe(true)

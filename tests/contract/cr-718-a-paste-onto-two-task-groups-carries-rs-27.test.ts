@@ -63,14 +63,14 @@ afterEach(() => {
 })
 
 /** @purity non-pure */
-function pickTaskGroup(bench: ShellBench, groupId: string, modifier: 'ctrl' | 'shift' | 'meta' | null): void {
-  bench.aim({ part: TASK_GROUP_PANEL, entry: null, format: null, taskGroupId: groupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as never)
+function pickTaskGroup(bench: ShellBench, taskGroupId: string, modifier: 'ctrl' | 'shift' | 'meta' | null): void {
+  bench.aim({ part: TASK_GROUP_PANEL, entry: null, format: null, taskGroupId: taskGroupId, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as never)
   bench.click(60, 120, modifier === null ? {} : { [modifier]: true })
   bench.aim(null)
 }
 
 const pickedTaskGroups = (bench: ShellBench): readonly string[] =>
-  bench.last().taskGroupPanel.titles.filter((one: any) => one.isSelected).map((one: any) => one.groupId)
+  bench.last().taskGroupPanel.titles.filter((one: any) => one.isSelected).map((one: any) => one.taskGroupId)
 
 /** @purity non-pure */
 function copiedTask(bench: ShellBench, uid: number): void {
@@ -89,7 +89,7 @@ function copiedThenTaskGroupsChosen(rows: readonly string[]): ShellBench {
     const bench = shell(threeTaskGroups())
     benches.push(bench)
     copiedTask(bench, 1)
-    rows.forEach((groupId, index) => pickTaskGroup(bench, groupId, index === 0 ? null : modifier))
+    rows.forEach((taskGroupId, index) => pickTaskGroup(bench, taskGroupId, index === 0 ? null : modifier))
     if (pickedTaskGroups(bench).length === rows.length) {
       seen.raised.length = 0
       return bench

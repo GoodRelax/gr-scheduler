@@ -167,7 +167,7 @@ interface TaskGroupSeed {
 }
 
 function documentWith(rows: readonly TaskGroupSeed[], names: readonly string[], visual: Record<string, unknown> | null = null) {
-  const document = taskGroupDocument(rows, { progressMarkerVisible: false })
+  const document = taskGroupDocument(rows, { isProgressMarkerVisible: false })
   document.schedule.tasks = rows.map((_one, index) =>
     taskOf(index + 1, { name: names[index] ?? null, start: '2026-04-06T08:00:00', finish: '2026-04-30T17:00:00' }),
   )

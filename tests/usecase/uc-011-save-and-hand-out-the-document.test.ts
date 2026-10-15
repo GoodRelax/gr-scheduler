@@ -45,10 +45,10 @@ test('UC-011 save the document and hand it out (FR-096, FR-024, FR-080, FR-025, 
     const documentAfter = await readDocument(page)
     expect(documentAfter.schedule).toEqual(documentBefore.schedule)
     // WHY: OP-10 puts the drawn place on the saved copy of the startup template; the open one keeps null.
-    const placeless = (settings: Record<string, unknown>) => ({ ...settings, scrollDate: null, scrollGroupId: null, scrollDayOffset: 0, scrollGroupOffset: 0 })
+    const placeless = (settings: Record<string, unknown>) => ({ ...settings, scrollDate: null, scrollTaskGroupId: null, scrollDayOffset: 0, scrollGroupOffset: 0 })
     expect(documentBefore.documentSettings.scrollDate).toBeNull()
     expect(documentAfter.documentSettings.scrollDate).not.toBeNull()
-    expect(documentAfter.documentSettings.scrollGroupId).not.toBeNull()
+    expect(documentAfter.documentSettings.scrollTaskGroupId).not.toBeNull()
     expect(placeless(documentAfter.documentSettings)).toEqual(placeless(documentBefore.documentSettings))
     expect.soft(normalizedSvg(await exportSvg(page)) === pictureBefore).toBe(true)
     await press(page, 'IC-13')

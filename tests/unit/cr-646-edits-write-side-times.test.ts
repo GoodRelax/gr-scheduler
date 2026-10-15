@@ -279,7 +279,7 @@ describe('X-2 WT-6..WT-8: the whole-day columns an annotation or a scroll writes
     built.drag(xOfDay(built.loop, april(20)), taskGroupY(built, BAR), xOfDay(built.loop, april(22)), taskGroupY(built, MILESTONE))
     const boxes = built.loop.document().schedule.highlightBoxes
     expect(boxes.length, 'premise: the drag placed one highlight box').toBe(1)
-    expect(timeOf(boxes[0]?.startDate)).toBe(DAY_START)
+    expect(timeOf(boxes[0]?.start)).toBe(DAY_START)
   })
 
   it('WT-7: a highlight box placed (IC-36) ends at 23:59:00', () => {
@@ -288,7 +288,7 @@ describe('X-2 WT-6..WT-8: the whole-day columns an annotation or a scroll writes
     built.drag(xOfDay(built.loop, april(20)), taskGroupY(built, BAR), xOfDay(built.loop, april(22)), taskGroupY(built, MILESTONE))
     const boxes = built.loop.document().schedule.highlightBoxes
     expect(boxes.length, 'premise: the drag placed one highlight box').toBe(1)
-    expect(timeOf(boxes[0]?.endDate)).toBe(DAY_END)
+    expect(timeOf(boxes[0]?.finish)).toBe(DAY_END)
   })
 
   it('WT-8: a comment box placed (IC-35) is anchored at 00:00:00', () => {
@@ -355,7 +355,7 @@ describe('X-4 FR-054: dates are compared by their day', () => {
         leaderShapeKind: 'straight',
         text: 'note',
         anchorDate: april(21, DAY_START),
-        anchorGroupId: rowIdOf(0),
+        anchorTaskGroupId: rowIdOf(0),
         bodyOffsetPx: { dx: 10, dy: -10 },
         strokeColor: null,
         strokeWidthPx: null,
@@ -367,10 +367,10 @@ describe('X-4 FR-054: dates are compared by their day', () => {
     base['schedule'].highlightBoxes = [
       {
         id: HIGHLIGHT_ID,
-        startDate: april(20, DAY_START),
-        endDate: april(22, DAY_END),
-        topGroupId: rowIdOf(0),
-        bottomGroupId: rowIdOf(1),
+        start: april(20, DAY_START),
+        finish: april(22, DAY_END),
+        topTaskGroupId: rowIdOf(0),
+        bottomTaskGroupId: rowIdOf(1),
         strokeColor: null,
         cornerRadiusPx: null,
         strokeWidthPx: null,
@@ -386,7 +386,7 @@ describe('X-4 FR-054: dates are compared by their day', () => {
     const after = edited(before, {
       kind: 'setCommentBoxAnchor',
       id: COMMENT_ID,
-      anchor: { date: april(21, '12:00:00'), groupId: rowIdOf(0) },
+      anchor: { date: april(21, '12:00:00'), taskGroupId: rowIdOf(0) },
     })
     expect(after.schedule.commentBoxes).toEqual(before.schedule.commentBoxes)
   })
@@ -399,8 +399,8 @@ describe('X-4 FR-054: dates are compared by their day', () => {
       range: {
         startDate: april(20, '08:00:00'),
         endDate: april(22, '17:00:00'),
-        topGroupId: rowIdOf(0),
-        bottomGroupId: rowIdOf(1),
+        topTaskGroupId: rowIdOf(0),
+        bottomTaskGroupId: rowIdOf(1),
       },
     })
     expect(after.schedule.highlightBoxes).toEqual(before.schedule.highlightBoxes)

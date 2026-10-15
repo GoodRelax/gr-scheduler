@@ -328,11 +328,11 @@ const withTwoTaskGroups = (hiddenState: 'hidden' | 'collapsedParent'): Stage2 =>
   const g1 = (base['taskGroups'] as Record<string, unknown>[])[0] as Record<string, unknown>
   const groups =
     hiddenState === 'hidden'
-      ? [g1, { ...g1, id: 'g2', label: 'g2', order: 1, treeState: 'hidden' }]
+      ? [g1, { ...g1, id: 'g2', name: 'g2', order: 1, treeState: 'hidden' }]
       : [{ ...g1, treeState: 'collapsed' }, { ...g1, id: 'g2', label: 'g2', parentId: 'g1', order: 0 }]
   const members = [
-    { taskUid: 1, groupId: 'g1' },
-    { taskUid: 2, groupId: 'g2' },
+    { taskUid: 1, taskGroupId: 'g1' },
+    { taskUid: 2, taskGroupId: 'g2' },
   ]
   return built({ ...base, taskGroups: groups, taskGroupMembers: members } as unknown as Schedule)
 }
@@ -722,14 +722,14 @@ describe('ZO-13 -- the layer the mark is drawn in', () => {
           finish: day(24),
           actualStart: day(10),
           percentComplete: 70,
-          dependencies: [{ predecessorUid: 1, linkType: 1, lag: null, lagFormat: null, carry: {}, carryElements: [] }],
+          dependencies: [{ predecessorUid: 1, linkType: 1, linkLag: null, lagFormat: null, carry: {}, carryElements: [] }],
         }),
       ],
       assignedTaskUids: [1, 2],
       statusDate: day(14),
       settings: {
-        assigneeVisible: true,
-        percentCompleteVisible: true,
+        isAssigneeVisible: true,
+        isPercentCompleteVisible: true,
         [MARKER_VISIBLE]: true,
         [PROGRESS_LINE_VISIBLE]: true,
       },

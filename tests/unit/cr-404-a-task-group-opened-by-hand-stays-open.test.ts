@@ -245,15 +245,15 @@ function smallDocument(part: Fixture): Record<string, any> {
       taskGroups: TREE.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
-        label: NAMES[one.id],
+        name: NAMES[one.id],
         derivedFromTaskUid: null,
         order: index,
         treeState: stateIn(part, one.id),
         editGroup: null,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: TREE.map((one, index) => ({ taskUid: index + 1, groupId: one.id })),
+      taskGroupMembers: TREE.map((one, index) => ({ taskUid: index + 1, taskGroupId: one.id })),
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -263,7 +263,7 @@ function smallDocument(part: Fixture): Record<string, any> {
     documentSettings: {
       ...structuredClone(TEMPLATE_SETTINGS),
       scrollDate: '2026-04-01T00:00:00',
-      scrollGroupId: A,
+      scrollTaskGroupId: A,
       zoomY: part.zoomY,
       levelZeroTreeState: part.levelZero ?? 'auto',
     },
@@ -293,14 +293,14 @@ const key = (k: string, mods: Partial<typeof NO_MODS> = {}) => ({ kind: 'key', k
 
 interface Stage {
   readonly loop: any
-  press(entry: string, groupId: string | null): void
+  press(entry: string, taskGroupId: string | null): void
   key(k: string, mods?: Partial<typeof NO_MODS>): void
   undo(): void
   drawn(): string[]
   notices(): string[]
-  title(groupId: string): any
+  title(taskGroupId: string): any
   groups(): any[]
-  stateOf(groupId: string): unknown
+  stateOf(taskGroupId: string): unknown
   states(): Record<string, unknown>
   withState(treeState: TreeState): string[]
   levelZero(): unknown
@@ -348,12 +348,12 @@ function stage(document: Record<string, any>): Stage {
   const groups = (): any[] => loop.document().schedule.taskGroups
   return {
     loop,
-    press: (entry, groupId) => {
+    press: (entry, taskGroupId) => {
       part = {
         part: TASK_GROUP_PANEL,
         entry,
         format: null,
-        taskGroupId: groupId,
+        taskGroupId: taskGroupId,
         resourceUid: null,
         dividerPanel: null,
         noticeDismissKey: null,
@@ -363,16 +363,16 @@ function stage(document: Record<string, any>): Stage {
     },
     key: (k, mods = {}) => send(key(k, mods)),
     undo: () => send(key('Z', { ctrl: true })),
-    drawn: () => (loop.current()?.layout.taskGroups ?? []).map((one: any) => one.groupId),
+    drawn: () => (loop.current()?.layout.taskGroups ?? []).map((one: any) => one.taskGroupId),
     notices: () => last().notices.map((one: any) => one.text),
-    title: (groupId) => {
+    title: (taskGroupId) => {
       const panel = last().taskGroupPanel
-      const found = [...panel.pinnedTitles, ...panel.titles].find((one: any) => one.groupId === groupId)
-      if (found === undefined) throw new Error(`the panel drew no title for ${NAMES[groupId] ?? groupId}`)
+      const found = [...panel.pinnedTitles, ...panel.titles].find((one: any) => one.taskGroupId === taskGroupId)
+      if (found === undefined) throw new Error(`the panel drew no title for ${NAMES[taskGroupId] ?? taskGroupId}`)
       return found
     },
     groups,
-    stateOf: (groupId) => groups().find((one) => one.id === groupId)?.treeState,
+    stateOf: (taskGroupId) => groups().find((one) => one.id === taskGroupId)?.treeState,
     states: () => statesOf(groups()),
     withState: (treeState) => groups().filter((one) => one.treeState === treeState).map((one) => one.id),
     levelZero: () => loop.document().documentSettings.levelZeroTreeState,
@@ -384,7 +384,7 @@ const stateAmong = (groups: readonly any[], id: string): unknown => groups.find(
 
 function layoutOf(doc: Record<string, any>, env = SCREEN): string[] {
   const regions = regionsFromScreen({ ...(env as any), propertyPanelWidth: 0 }, doc.documentSettings)
-  return layoutFromSchedule(doc.schedule, doc.documentSettings, regions).taskGroups.map((one) => one.groupId)
+  return layoutFromSchedule(doc.schedule, doc.documentSettings, regions).taskGroups.map((one) => one.taskGroupId)
 }
 
 describe('CR-404 -- premises of the fixture', () => {
@@ -492,7 +492,7 @@ describe("the user's failure (JDG-145) -- the startup template, zoomed down, [v]
   function templateDocument(): Record<string, any> {
     const doc = structuredClone(TEMPLATE)
     doc.schedule.taskGroups = doc.schedule.taskGroups.map((one: any) => withTreeState(one, 'auto'))
-    doc.documentSettings = { ...TEMPLATE_SETTINGS, scrollDate: '2026-01-05T00:00:00', scrollGroupId: target.id }
+    doc.documentSettings = { ...TEMPLATE_SETTINGS, scrollDate: '2026-01-05T00:00:00', scrollTaskGroupId: target.id }
     return doc
   }
 
@@ -788,7 +788,7 @@ describe('HF-8 / FR-031 / UN-17 -- fit returns every value but hidden to auto in
       isSurfaceStanding: false,
       dualCursorFollowing: null,
       today: '2026-03-01T00:00:00',
-      newGroupId: 'task-group-minted-outside',
+      newTaskGroupId: 'task-group-minted-outside',
       newCommentBoxId: 'comment-box-minted-outside',
       newHighlightBoxId: 'highlight-box-minted-outside',
     }
@@ -847,12 +847,12 @@ describe('HF-8 / FR-031 / UN-17 -- fit returns every value but hidden to auto in
 
   it('CM-85 setTaskGroupTreeState, applied on its own, writes one task group and nothing else', () => {
     const doc = smallDocument({ zoomY: 0.8 })
-    const on = editTaskGroup(doc as any, { kind: 'setTaskGroupTreeState', groupId: R, treeState: 'expanded' } as any, 'Task group')
+    const on = editTaskGroup(doc as any, { kind: 'setTaskGroupTreeState', taskGroupId: R, treeState: 'expanded' } as any, 'Task group')
     expect(on?.ok, 'CM-85 is answered by the task group command module').toBe(true)
     if (!on?.ok) return
     const groups = (on.document.schedule as any).taskGroups
     expect(groups.filter((one: any) => one.treeState !== 'auto').map((one: any) => one.id)).toEqual([R])
-    const off = editTaskGroup(on.document, { kind: 'setTaskGroupTreeState', groupId: R, treeState: 'auto' } as any, 'Task group')
+    const off = editTaskGroup(on.document, { kind: 'setTaskGroupTreeState', taskGroupId: R, treeState: 'auto' } as any, 'Task group')
     expect(off.ok).toBe(true)
     if (off.ok) expect(stateAmong((off.document.schedule as any).taskGroups, R)).toBe('auto')
   })
@@ -945,7 +945,7 @@ describe(`FR-018 -- ${FR_018_ONLY_T_328}`, () => {
 
   it('moveTaskGroup keeps the moved task group value and every other', () => {
     const doc = smallDocument({ zoomY: 0.8, expanded: [R, C1] })
-    const result = editTaskGroup(doc as any, { kind: 'moveTaskGroup', groupId: C1, parentId: S, order: 99 }, 'Task group')
+    const result = editTaskGroup(doc as any, { kind: 'moveTaskGroup', taskGroupId: C1, parentId: S, order: 99 }, 'Task group')
     expect(result.ok).toBe(true)
     if (!result.ok) return
     const groups = (result.document.schedule as any).taskGroups
@@ -962,7 +962,7 @@ describe(`FR-018 -- ${FR_018_ONLY_T_328}`, () => {
     })
     const result = editTaskGroup(
       doc as any,
-      { kind: 'pasteTaskGroupSubtree', sourceGroupId: R, targetGroupId: B2, newGroupIds: newIds },
+      { kind: 'pasteTaskGroupSubtree', sourceTaskGroupId: R, targetTaskGroupId: B2, newTaskGroupIds: newIds },
       'Task group',
     )
     expect(result.ok).toBe(true)
@@ -1026,7 +1026,7 @@ describe(`FR-016 -- ${FR_016_TALLEST_AMONG_DRAWN}`, () => {
       isSurfaceStanding: false,
       dualCursorFollowing: null,
       today: '2026-03-01T00:00:00',
-      newGroupId: 'task-group-minted-outside',
+      newTaskGroupId: 'task-group-minted-outside',
       newCommentBoxId: 'comment-box-minted-outside',
       newHighlightBoxId: 'highlight-box-minted-outside',
     } as any)
@@ -1039,8 +1039,8 @@ describe(`FR-016 -- ${FR_016_TALLEST_AMONG_DRAWN}`, () => {
     const depthOf = (one: any): number => (one.parentId === null ? 1 : 1 + depthOf(byId.get(one.parentId)))
     const deep = groups.find((one: any) => depthOf(one) === 4)
     doc.schedule.taskGroups = groups.map((one: any) => withTreeState(one, one.id === deep.parentId ? parentState : 'auto'))
-    doc.schedule.taskGroupMembers = doc.schedule.taskGroupMembers.map((one: any) => ({ ...one, groupId: deep.id }))
-    doc.documentSettings = { ...TEMPLATE_SETTINGS, scrollDate: '2026-01-05T00:00:00', scrollGroupId: groups[0].id }
+    doc.schedule.taskGroupMembers = doc.schedule.taskGroupMembers.map((one: any) => ({ ...one, taskGroupId: deep.id }))
+    doc.documentSettings = { ...TEMPLATE_SETTINGS, scrollDate: '2026-01-05T00:00:00', scrollTaskGroupId: groups[0].id }
     return doc
   }
 

@@ -47,7 +47,7 @@ const COMMENT_BOX = {
   leaderShapeKind: 'calloutBox',
   text: 'a note',
   anchorDate: '2026-03-10',
-  anchorGroupId: 'g1',
+  anchorTaskGroupId: 'g1',
   bodyOffsetPx: { dx: 40, dy: -30 },
 }
 
@@ -68,16 +68,16 @@ const SCENE: SceneWish = {
       finish: day(20),
       actualStart: day(6),
       percentComplete: 60,
-      dependencies: [{ predecessorUid: 1, linkType: 1, lag: null, lagFormat: null, carry: {}, carryElements: [] }],
+      dependencies: [{ predecessorUid: 1, linkType: 1, linkLag: null, lagFormat: null, carry: {}, carryElements: [] }],
     }),
   ],
   assignedTaskUids: [1, 2],
   commentBoxes: [COMMENT_BOX],
   statusDate: day(14),
   settings: {
-    assigneeVisible: true,
-    percentCompleteVisible: true,
-    progressMarkerVisible: true, // see S-63
+    isAssigneeVisible: true,
+    isPercentCompleteVisible: true,
+    isProgressMarkerVisible: true, // see S-63
     [PROGRESS_LINE_VISIBLE]: true,
   },
 }

@@ -81,7 +81,7 @@ const T_246_HOLDS_THE_VALUES = '**ハイライトボックスの掴み点と枠�
 const T_246_NO_NEW_REFUSAL =
   '⚠️ 同表は新しい拒み方を立てない —— 拒むときの理由は 表 T-233 の `RS-44` であり、運ぶ作法は `FR-029` に従う。'
 const ANCHOR_READ =
-  '⭐ 線先は離した位置で読むこと（MUST） —— 離した点の下の日の列の日を `anchorDate` に、離した点の下に描かれたタスクグループを `anchorGroupId` に置く。'
+  '⭐ 線先は離した位置で読むこと（MUST） —— 離した点の下の日の列の日を `anchorDate` に、離した点の下に描かれたタスクグループを `anchorTaskGroupId` に置く。'
 const ANCHOR_SAME_AS_PLACING = '置いたときに位置を日付とタスクグループの識別子で持つ読み（`FR-019`）と同じであり、引いた量では読まない。'
 const ANCHOR_NO_TASK_GROUP =
   '離した点の下に描かれたタスクグループが無いときは動かさず、表 T-233 の `RS-44` を運ぶ —— 置くときにタスクグループが無ければ作らない `FR-019` と同じである。'
@@ -95,28 +95,28 @@ const FR_019_POINT_IS_LF_15 = '⭐ 留めた点を描く位置は `05-07-design.
 const FR_019_LEADER =
   '⭐ 描き方はこうである（MUST）: 留めた点と、本文の箱の 4 隅のうち `05-07-design.md` の 表 T-221 の `LF-17` が選ぶ 1 隅とを、1 本の線で結ぶこと。'
 const LF_15 =
-  '横は `anchorDate` の日の列の中央、縦は `anchorGroupId` のタスクグループが描かれた帯（`LF-2` / `LF-3`、ピン止めしたタスクグループは `LF-14`）の中央とする。'
+  '横は `anchorDate` の日の列の中央、縦は `anchorTaskGroupId` のタスクグループが描かれた帯（`LF-2` / `LF-3`、ピン止めしたタスクグループは `LF-14`）の中央とする。'
 const LF_15_BODY_FOLLOWS = '⚠️ 本文の箱は留めた点からのずれで置く（`FR-019`）ので、ずれを書かずにアンカーだけを書くと、箱もアンカーと共に動く'
 
-const IV_19 ='ハイライトボックスの `startDate` が `endDate` より後でないこと、および `topGroupId` が `bottomGroupId` より下でないこと。'
+const IV_19 ='ハイライトボックスの `start` が `finish` より後でないこと、および `topTaskGroupId` が `bottomTaskGroupId` より下でないこと。'
 
 const HB_1_ROW =
   '| HB-1 | 四隅を向かいの隅へ寄せて縮める | 開始日 ＝ 終了日、上端のタスクグループ ＝ 下端のタスクグループまで縮められる。<br>別の下限は置かない |'
 const HB_1 = '開始日 ＝ 終了日、上端のタスクグループ ＝ 下端のタスクグループまで縮められる。'
 const HB_2_ROW =
-  '| HB-2 | 隅を向かいの隅の先まで引く | 拒まない。<br>`startDate` と `endDate`、`topGroupId` と `bottomGroupId` を入れ替えて持つ。<br>上下は `FR-019` の「タスクグループの木における順位で判ずる」規則で判ずる |'
-const HB_2 = '`startDate` と `endDate`、`topGroupId` と `bottomGroupId` を入れ替えて持つ。'
+  '| HB-2 | 隅を向かいの隅の先まで引く | 拒まない。<br>`start` と `finish`、`topTaskGroupId` と `bottomTaskGroupId` を入れ替えて持つ。<br>上下は `FR-019` の「タスクグループの木における順位で判ずる」規則で判ずる |'
+const HB_2 = '`start` と `finish`、`topTaskGroupId` と `bottomTaskGroupId` を入れ替えて持つ。'
 const HB_2_TREE = '上下は `FR-019` の「タスクグループの木における順位で判ずる」規則で判ずる'
 const HB_3_ROW =
-  '| HB-3 | 本体を縦に動かす | `topGroupId` と `bottomGroupId` を、画面に描かれたタスクグループを単位に、同じ数だけずらす。<br>離した時点で `HB-2` と同じく木の順位で持ち直す。<br>ずらした先に描かれたタスクグループが無いときは動かさず、`RS-44` を運ぶ |'
-const HB_3 = '`topGroupId` と `bottomGroupId` を、画面に描かれたタスクグループを単位に、同じ数だけずらす。'
+  '| HB-3 | 本体を縦に動かす | `topTaskGroupId` と `bottomTaskGroupId` を、画面に描かれたタスクグループを単位に、同じ数だけずらす。<br>離した時点で `HB-2` と同じく木の順位で持ち直す。<br>ずらした先に描かれたタスクグループが無いときは動かさず、`RS-44` を運ぶ |'
+const HB_3 = '`topTaskGroupId` と `bottomTaskGroupId` を、画面に描かれたタスクグループを単位に、同じ数だけずらす。'
 const HB_3_NO_TASK_GROUP = 'ずらした先に描かれたタスクグループが無いときは動かさず、`RS-44` を運ぶ'
 const HB_3_FOLDED =
   '⚠️ 折りたたんだタスクグループやピン留めしたタスクグループ（`FR-098`）をまたぐと、保存される範囲が文書のタスクグループの数で伸び縮みする'
 const HB_4_HEAD = '| HB-4 | 四隅を横に動かす |'
 const HB_4_NEAREST = '離した点に一番近い日の列の境目へ、掴んだ隅を合わせる。'
 const HB_4_TIE = '左右の 2 つの境目から等しい距離のときは、後の日の側の境目を採る。'
-const HB_4_DAYS = '左の隅はその境目の右の日を `startDate` に、右の隅はその境目の左の日を `endDate` に置く。'
+const HB_4_DAYS = '左の隅はその境目の右の日を `start` に、右の隅はその境目の左の日を `finish` に置く。'
 const HB_4_KEEP = '向かいの辺の日は据え置く。'
 const HB_4_REACH = '境目が向かいの辺に届いたときは `HB-6` に従う'
 const HB_5_HEAD = '| HB-5 | 四隅を縦に動かす |'
@@ -126,18 +126,18 @@ const HB_5_DISTANCE = '境目までの距離は隙間の範囲までの距離と
 const HB_5_ENDS = '最初に描かれた帯より上は最初のタスクグループの上の境目、最後に描かれた帯より下は最後のタスクグループの下の境目とする。'
 const HB_5_TIE = '上下の 2 つの境目から等しい距離のときは、下の境目を採る。'
 const HB_5_TASK_GROUPS =
-  '上の隅はその境目のすぐ下に描かれたタスクグループを `topGroupId` に、下の隅はその境目のすぐ上に描かれたタスクグループを `bottomGroupId` に置く。'
+  '上の隅はその境目のすぐ下に描かれたタスクグループを `topTaskGroupId` に、下の隅はその境目のすぐ上に描かれたタスクグループを `bottomTaskGroupId` に置く。'
 const HB_5_HORIZONTAL = '横にだけ引いて離したときはタスクグループが変わらない'
 const HB_5_NO_REFUSAL = 'タスクグループが 1 つでも描かれていれば、どこで離しても一番近い境目が在るので、`RS-44` で拒む場面は生じない。'
 const HB_6_HEAD = '| HB-6 | 隅を向かいの辺に届くまで、または越えて引く |'
 const HB_6_RIGHT =
-  '右の隅を合わせた境目 b が s の左の境目か、それより左に在るときは、`startDate` ＝ b の右の日、`endDate` ＝ s とする。'
+  '右の隅を合わせた境目 b が s の左の境目か、それより左に在るときは、`start` ＝ b の右の日、`finish` ＝ s とする。'
 const HB_6_LEFT =
-  '左の隅を合わせた境目 b が e の右の境目か、それより右に在るときは、`startDate` ＝ e、`endDate` ＝ b の左の日とする。'
+  '左の隅を合わせた境目 b が e の右の境目か、それより右に在るときは、`start` ＝ e、`finish` ＝ b の左の日とする。'
 const HB_6_BOTTOM_UP =
-  '下の隅を合わせた境目が `topGroupId` のタスクグループの上の境目か、それより上に在るときは、`topGroupId` ＝ その境目のすぐ下のタスクグループ、`bottomGroupId` ＝ 元の `topGroupId` のタスクグループとする。'
+  '下の隅を合わせた境目が `topTaskGroupId` のタスクグループの上の境目か、それより上に在るときは、`topTaskGroupId` ＝ その境目のすぐ下のタスクグループ、`bottomTaskGroupId` ＝ 元の `topTaskGroupId` のタスクグループとする。'
 const HB_6_TOP_DOWN =
-  '上の隅を合わせた境目が `bottomGroupId` のタスクグループの下の境目か、それより下に在るときは、`topGroupId` ＝ 元の `bottomGroupId` のタスクグループ、`bottomGroupId` ＝ その境目のすぐ上のタスクグループとする。'
+  '上の隅を合わせた境目が `bottomTaskGroupId` のタスクグループの下の境目か、それより下に在るときは、`topTaskGroupId` ＝ 元の `bottomTaskGroupId` のタスクグループ、`bottomTaskGroupId` ＝ その境目のすぐ上のタスクグループとする。'
 const HB_6_NORMALIZE = '離した時点で `HB-2` と同じく木の順位で持ち直す'
 const HB_6_EXAMPLE =
   '例: 箱の日が 5 日 〜 7 日のとき、右の隅を 9 日の左の境目で離すと 5 日 〜 8 日、8 日の左で 5 日 〜 7 日、6 日の左で 5 日 〜 5 日、5 日の左で 5 日 〜 5 日、4 日の左で 4 日 〜 5 日、3 日の左で 3 日 〜 5 日となる。'
@@ -154,15 +154,15 @@ const specRowLine = (head: string): string => {
 
 const FR_019_TREE_ORDER = '⛔ その「下」は、タスクグループの木における順位で判ずること（MUST）。'
 const FR_019_WIDTH =
-  '⭐ **横は日の列で囲む** —— 箱の左端は `startDate` の日の列の左端、右端は `endDate` の日の列の右端とし、`startDate` ＝ `endDate` の箱は 1 日の幅で描くこと（MUST）。'
+  '⭐ **横は日の列で囲む** —— 箱の左端は `start` の日の列の左端、右端は `finish` の日の列の右端とし、`start` ＝ `finish` の箱は 1 日の幅で描くこと（MUST）。'
 const FR_019_ZERO_WIDTH = '⚠️ **幅 0 で描くと、本体（表 T-023d の `GR-14`）を掴む所が消える**'
 
 const CM_54_ROW = '| CM-54 | `HighlightBox` | `setHighlightBoxRange` |'
 const CM_50_ROW = '| CM-50 | `CommentBox` | `setCommentBoxAnchor` |'
 const CM_51_ROW = '| CM-51 | `CommentBox` | `setCommentBoxBodyOffsetPx` |'
 
-const CM_54_COLUMNS = ['startDate', 'endDate', 'topGroupId', 'bottomGroupId'] as const
-const CM_50_COLUMNS = ['anchorDate', 'anchorGroupId'] as const
+const CM_54_COLUMNS = ['start', 'finish', 'topTaskGroupId', 'bottomTaskGroupId'] as const
+const CM_50_COLUMNS = ['anchorDate', 'anchorTaskGroupId'] as const
 const CM_51_COLUMNS = ['bodyOffsetPx'] as const
 
 const t206Default = (rowId: string): string => {
@@ -231,11 +231,11 @@ const TRAVEL_DAYS = 3
 const group = (id: string, order: number, part: Record<string, unknown> = {}): Record<string, unknown> => ({
   id,
   parentId: null,
-  label: `task group ${id.slice(-2)}`,
+  name: `task group ${id.slice(-2)}`,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', color: null,
-  minHeight: null,
+  minHeightPx: null,
   ...part,
 })
 
@@ -253,13 +253,13 @@ const FOLDED_TASK_GROUPS = [
 ]
 
 interface HighlightRange {
-  readonly startDate: string
-  readonly endDate: string
-  readonly topGroupId: string
-  readonly bottomGroupId: string
+  readonly start: string
+  readonly finish: string
+  readonly topTaskGroupId: string
+  readonly bottomTaskGroupId: string
 }
 
-const DEFAULT_RANGE: HighlightRange = { startDate: day(6), endDate: day(16), topGroupId: TASK_GROUP_B, bottomGroupId: TASK_GROUP_D }
+const DEFAULT_RANGE: HighlightRange = { start: day(6), finish: day(16), topTaskGroupId: TASK_GROUP_B, bottomTaskGroupId: TASK_GROUP_D }
 
 interface Fixture {
   readonly taskGroups?: readonly Record<string, unknown>[]
@@ -288,7 +288,7 @@ function fixtureDocument(fixture: Fixture = {}): Document {
           leaderShapeKind: 'polyline',
           text: 'Note',
           anchorDate: day(22),
-          anchorGroupId: TASK_GROUP_F,
+          anchorTaskGroupId: TASK_GROUP_F,
           bodyOffsetPx: { dx: 60, dy: -60 },
         },
       ],
@@ -309,9 +309,9 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: '2026-04-01',
       scrollDayOffset: 0,
-      scrollGroupId: TASK_GROUP_A,
+      scrollTaskGroupId: TASK_GROUP_A,
       scrollGroupOffset: 0,
-      pinnedGroupIds: [...(fixture.pinned ?? [])],
+      pinnedTaskGroupIds: [...(fixture.pinned ?? [])],
     },
     documentStamp: template['documentStamp'],
     changeLog: [],
@@ -416,9 +416,9 @@ const commentDrawn = (loop: FrameLoop) => {
   return found
 }
 
-const drawnTaskGroup = (loop: FrameLoop, groupId: string): TaskGroupPlacement => {
-  const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no task group ${groupId}`)
+const drawnTaskGroup = (loop: FrameLoop, taskGroupId: string): TaskGroupPlacement => {
+  const found = frameOf(loop).layout.taskGroups.find((one) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`the frame drew no task group ${taskGroupId}`)
   return found
 }
 
@@ -452,7 +452,7 @@ const expectRange = (loop: FrameLoop, expected: { start: number; end: number; to
   const after = storedRange(loop)
   const dayZero = serialDay(day(1)) - 1
   expect(
-    `${serialDay(after['startDate']) - dayZero}..${serialDay(after['endDate']) - dayZero} ${taskGroupLetter(after['topGroupId'])}..${taskGroupLetter(after['bottomGroupId'])}`,
+    `${serialDay(after['start']) - dayZero}..${serialDay(after['finish']) - dayZero} ${taskGroupLetter(after['topTaskGroupId'])}..${taskGroupLetter(after['bottomTaskGroupId'])}`,
     what,
   ).toBe(`${expected.start}..${expected.end} ${taskGroupLetter(expected.top)}..${taskGroupLetter(expected.bottom)}`)
 }
@@ -467,15 +467,15 @@ interface Corner {
   readonly name: CornerName
   readonly at: (box: ScreenRect) => Point
   readonly inward: Point
-  readonly dateColumn: 'startDate' | 'endDate'
+  readonly dateColumn: 'start' | 'finish'
   readonly oppositeColumns: readonly string[]
 }
 
 const CORNERS: readonly Corner[] = [
-  { name: 'top-left', at: (b) => ({ x: b.x, y: b.y }), inward: { x: 1, y: 1 }, dateColumn: 'startDate', oppositeColumns: ['endDate', 'bottomGroupId'] },
-  { name: 'top-right', at: (b) => ({ x: b.x + b.width, y: b.y }), inward: { x: -1, y: 1 }, dateColumn: 'endDate', oppositeColumns: ['startDate', 'bottomGroupId'] },
-  { name: 'bottom-left', at: (b) => ({ x: b.x, y: b.y + b.height }), inward: { x: 1, y: -1 }, dateColumn: 'startDate', oppositeColumns: ['endDate', 'topGroupId'] },
-  { name: 'bottom-right', at: (b) => ({ x: b.x + b.width, y: b.y + b.height }), inward: { x: -1, y: -1 }, dateColumn: 'endDate', oppositeColumns: ['startDate', 'topGroupId'] },
+  { name: 'top-left', at: (b) => ({ x: b.x, y: b.y }), inward: { x: 1, y: 1 }, dateColumn: 'start', oppositeColumns: ['finish', 'bottomTaskGroupId'] },
+  { name: 'top-right', at: (b) => ({ x: b.x + b.width, y: b.y }), inward: { x: -1, y: 1 }, dateColumn: 'finish', oppositeColumns: ['start', 'bottomTaskGroupId'] },
+  { name: 'bottom-left', at: (b) => ({ x: b.x, y: b.y + b.height }), inward: { x: 1, y: -1 }, dateColumn: 'start', oppositeColumns: ['finish', 'topTaskGroupId'] },
+  { name: 'bottom-right', at: (b) => ({ x: b.x + b.width, y: b.y + b.height }), inward: { x: -1, y: -1 }, dateColumn: 'finish', oppositeColumns: ['start', 'topTaskGroupId'] },
 ]
 
 const cornerNamed = (name: CornerName): Corner => CORNERS.find((one) => one.name === name)!
@@ -504,14 +504,14 @@ function releaseAt(built: Stage, press: Point, to: Point): void {
 const dayLeftX = (built: Stage, startDay: number, d: number): number =>
   highlightRect(built.loop).x + (d - startDay) * pxPerDay(built.loop)
 
-const bandTop = (loop: FrameLoop, groupId: string): number => drawnTaskGroup(loop, groupId).y
+const bandTop = (loop: FrameLoop, taskGroupId: string): number => drawnTaskGroup(loop, taskGroupId).y
 
-const bandBottom = (loop: FrameLoop, groupId: string): number => {
-  const taskGroup = drawnTaskGroup(loop, groupId)
+const bandBottom = (loop: FrameLoop, taskGroupId: string): number => {
+  const taskGroup = drawnTaskGroup(loop, taskGroupId)
   return taskGroup.y + taskGroup.height
 }
 
-const START_OF = (range: HighlightRange): number => Number(range.startDate.slice(8, 10))
+const START_OF = (range: HighlightRange): number => Number(range.start.slice(8, 10))
 
 function expectCornerResize(built: Stage, corner: Corner, press: Point): void {
   const before = storedOf(built.loop, 'highlightBoxes', HIGHLIGHT_ID)
@@ -537,12 +537,12 @@ function expectBodyMove(built: Stage, press: Point, what: string): void {
   for (const column of changedColumns(before, after)) {
     expect(CM_54_COLUMNS as readonly string[], `${what}: ${column} is not a column CM-54 writes`).toContain(column)
   }
-  expect(serialDay(after['startDate']), `${what}: startDate did not move`).toBeGreaterThan(serialDay(before['startDate']))
-  expect(serialDay(after['endDate']) - serialDay(after['startDate']), `${what}: the span changed`).toBe(
-    serialDay(before['endDate']) - serialDay(before['startDate']),
+  expect(serialDay(after['start']), `${what}: start did not move`).toBeGreaterThan(serialDay(before['start']))
+  expect(serialDay(after['finish']) - serialDay(after['start']), `${what}: the span changed`).toBe(
+    serialDay(before['finish']) - serialDay(before['start']),
   )
-  expect(after['topGroupId'], `${what}: topGroupId moved`).toEqual(before['topGroupId'])
-  expect(after['bottomGroupId'], `${what}: bottomGroupId moved`).toEqual(before['bottomGroupId'])
+  expect(after['topTaskGroupId'], `${what}: topTaskGroupId moved`).toEqual(before['topTaskGroupId'])
+  expect(after['bottomTaskGroupId'], `${what}: bottomTaskGroupId moved`).toEqual(before['bottomTaskGroupId'])
 }
 
 // WHY: the inside of a highlight box holds no grab margin since CR-430, so a
@@ -584,7 +584,7 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
     expect(DOCUMENT_COMMANDS).toContain(CM_54_ROW)
     expect(DOCUMENT_COMMANDS).toContain(CM_50_ROW)
     expect(DOCUMENT_COMMANDS).toContain(CM_51_ROW)
-    for (const [row, column] of [['AT-117', 'startDate'], ['AT-118', 'endDate'], ['AT-119', 'topGroupId'], ['AT-120', 'bottomGroupId'], ['AT-113', 'anchorDate'], ['AT-114', 'anchorGroupId'], ['AT-115', 'bodyOffsetPx']]) {
+    for (const [row, column] of [['AT-117', 'start'], ['AT-118', 'finish'], ['AT-119', 'topTaskGroupId'], ['AT-120', 'bottomTaskGroupId'], ['AT-113', 'anchorDate'], ['AT-114', 'anchorTaskGroupId'], ['AT-115', 'bodyOffsetPx']]) {
       expect(ERD_DETAIL).toMatch(new RegExp(`\\| ${row} \\| \`\\w+\` \\| \`${column}\` \\|`))
     }
     expect(DESIGN).toContain(IV_19)
@@ -669,8 +669,8 @@ describe('DFC-568 premises: the clauses and the fixture still read this way', ()
   })
 
   it('the folded fixture hides C1 and C2 from the screen, and the pinned fixture draws F above A', () => {
-    const folded = stage({ taskGroups: FOLDED_TASK_GROUPS, range: { ...DEFAULT_RANGE, topGroupId: TASK_GROUP_A, bottomGroupId: TASK_GROUP_B } })
-    const drawnIds = frameOf(folded.loop).layout.taskGroups.map((one) => one.groupId)
+    const folded = stage({ taskGroups: FOLDED_TASK_GROUPS, range: { ...DEFAULT_RANGE, topTaskGroupId: TASK_GROUP_A, bottomTaskGroupId: TASK_GROUP_B } })
+    const drawnIds = frameOf(folded.loop).layout.taskGroups.map((one) => one.taskGroupId)
     expect(drawnIds).not.toContain(TASK_GROUP_C1)
     expect(drawnIds).not.toContain(TASK_GROUP_C2)
     expect(drawnIds).toContain(TASK_GROUP_D)
@@ -772,7 +772,7 @@ describe('DFC-568 T-246 HB-2: a corner dragged past its opposite is swapped, not
     const ppd = pxPerDay(built.loop)
     dragTo(built, justInside(built.loop, 'bottom-right'), -(16 - 6 + 5) * ppd, -taskGroupsApart(built.loop, TASK_GROUP_A, TASK_GROUP_D))
     const after = storedRange(built.loop)
-    expect(serialDay(after['startDate'])).toBeLessThanOrEqual(serialDay(after['endDate']))
+    expect(serialDay(after['start'])).toBeLessThanOrEqual(serialDay(after['finish']))
     expectRange(built.loop, { start: 2, end: 6, top: TASK_GROUP_B, bottom: TASK_GROUP_B }, 'HB-2 both axes')
   })
 
@@ -794,7 +794,7 @@ describe('DFC-568 T-246 HB-3: the body moves vertically by drawn task groups', (
   })
 
   it(`${HB_3_FOLDED} -- two drawn task groups down across a folded group lands on C and D`, () => {
-    const built = stage({ taskGroups: FOLDED_TASK_GROUPS, range: { ...DEFAULT_RANGE, topGroupId: TASK_GROUP_A, bottomGroupId: TASK_GROUP_B } })
+    const built = stage({ taskGroups: FOLDED_TASK_GROUPS, range: { ...DEFAULT_RANGE, topTaskGroupId: TASK_GROUP_A, bottomTaskGroupId: TASK_GROUP_B } })
     const inTaskGroupB = drawnTaskGroup(built.loop, TASK_GROUP_B)
     const box = highlightRect(built.loop)
     dragTo(built, onTheLeftFrame(box, inTaskGroupB.y + inTaskGroupB.height / 2), 0, taskGroupsApart(built.loop, TASK_GROUP_B, TASK_GROUP_D))
@@ -818,7 +818,7 @@ describe('DFC-568 T-246 HB-3: the body moves vertically by drawn task groups', (
 })
 
 describe('DFC-568 T-246 HB-4: a corner moved sideways takes the day boundary nearest the release', () => {
-  it(`${HB_4_NEAREST} -- top-right released in the left third of day 12 takes the boundary left of 12, so endDate is 11`, () => {
+  it(`${HB_4_NEAREST} -- top-right released in the left third of day 12 takes the boundary left of 12, so finish is 11`, () => {
     const built = stage()
     const press = justInside(built.loop, 'top-right')
     releaseAt(built, press, { x: dayLeftX(built, 6, 12) + pxPerDay(built.loop) / 4, y: press.y })
@@ -826,7 +826,7 @@ describe('DFC-568 T-246 HB-4: a corner moved sideways takes the day boundary nea
     expectNoRs44(built, 'HB-4 right corner, left third')
   })
 
-  it(`${HB_4_DAYS} -- top-left released in the left third of day 9 takes the boundary left of 9, so startDate is 9`, () => {
+  it(`${HB_4_DAYS} -- top-left released in the left third of day 9 takes the boundary left of 9, so start is 9`, () => {
     const built = stage()
     const press = justInside(built.loop, 'top-left')
     releaseAt(built, press, { x: dayLeftX(built, 6, 9) + pxPerDay(built.loop) / 4, y: press.y })
@@ -840,14 +840,14 @@ describe('DFC-568 T-246 HB-4: a corner moved sideways takes the day boundary nea
     expectRange(built.loop, { start: 6, end: 11, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, 'HB-4 position not amount')
   })
 
-  it(`${HB_4_TIE} -- top-right released at the exact middle of day 12 takes the later boundary, so endDate is 12`, () => {
+  it(`${HB_4_TIE} -- top-right released at the exact middle of day 12 takes the later boundary, so finish is 12`, () => {
     const built = stage()
     const press = justInside(built.loop, 'top-right')
     releaseAt(built, press, { x: dayLeftX(built, 6, 12) + pxPerDay(built.loop) / 2, y: press.y })
     expectRange(built.loop, { start: 6, end: 12, top: TASK_GROUP_B, bottom: TASK_GROUP_D }, 'HB-4 tie, right corner')
   })
 
-  it(`${HB_4_TIE} -- bottom-left released at the exact middle of day 9 takes the later boundary, so startDate is 10`, () => {
+  it(`${HB_4_TIE} -- bottom-left released at the exact middle of day 9 takes the later boundary, so start is 10`, () => {
     const built = stage()
     const press = justInside(built.loop, 'bottom-left')
     releaseAt(built, press, { x: dayLeftX(built, 6, 9) + pxPerDay(built.loop) / 2, y: press.y })
@@ -925,7 +925,7 @@ describe('DFC-568 T-246 HB-5: a corner moved vertically takes the task group gap
 })
 
 describe('DFC-568 T-246 HB-6: a corner reaching or passing the opposite edge is read as the opposite corner', () => {
-  const EXAMPLE_RANGE: HighlightRange = { ...DEFAULT_RANGE, startDate: day(5), endDate: day(7) }
+  const EXAMPLE_RANGE: HighlightRange = { ...DEFAULT_RANGE, start: day(5), finish: day(7) }
 
   for (const [boundaryDay, start, end] of [[9, 5, 8], [8, 5, 7], [6, 5, 5], [5, 5, 5], [4, 4, 5], [3, 3, 5]] as const) {
     it(`${HB_6_EXAMPLE} -- the right corner released at the left boundary of day ${boundaryDay} gives ${start}..${end}`, () => {
@@ -973,16 +973,16 @@ describe('DFC-568 T-246 HB-6: a corner reaching or passing the opposite edge is 
 })
 
 describe('DFC-568 FR-019: the box is drawn by whole day columns', () => {
-  it(`${FR_019_WIDTH} -- startDate equal to endDate is one day wide`, () => {
-    const drawn = drawnWidth({ ...DEFAULT_RANGE, startDate: day(10), endDate: day(10) })
+  it(`${FR_019_WIDTH} -- start equal to finish is one day wide`, () => {
+    const drawn = drawnWidth({ ...DEFAULT_RANGE, start: day(10), finish: day(10) })
     expect(drawn.pxPerDay).toBeGreaterThan(0)
     expect(Math.abs(drawn.box.width - drawn.pxPerDay)).toBeLessThanOrEqual(WIDTH_SLACK)
   })
 
   it(`${FR_019_WIDTH} -- one day apart is two days wide and starts at the same column`, () => {
-    const single = drawnWidth({ ...DEFAULT_RANGE, startDate: day(10), endDate: day(10) })
-    const pair = drawnWidth({ ...DEFAULT_RANGE, startDate: day(10), endDate: day(11) })
-    const next = drawnWidth({ ...DEFAULT_RANGE, startDate: day(11), endDate: day(11) })
+    const single = drawnWidth({ ...DEFAULT_RANGE, start: day(10), finish: day(10) })
+    const pair = drawnWidth({ ...DEFAULT_RANGE, start: day(10), finish: day(11) })
+    const next = drawnWidth({ ...DEFAULT_RANGE, start: day(11), finish: day(11) })
     expect(Math.abs(pair.box.width - 2 * pair.pxPerDay)).toBeLessThanOrEqual(WIDTH_SLACK)
     expect(Math.abs(pair.box.x - single.box.x)).toBeLessThanOrEqual(WIDTH_SLACK)
     expect(Math.abs(next.box.x - single.box.x - single.pxPerDay)).toBeLessThanOrEqual(WIDTH_SLACK)
@@ -1043,15 +1043,15 @@ const ANCHOR_DAY = 22
 
 const dayColumnLeft = (built: Stage, d: number): number => dayLeftX(built, START_OF(DEFAULT_RANGE), d)
 
-const bandCenter = (loop: FrameLoop, groupId: string): number => {
-  const taskGroup = drawnTaskGroup(loop, groupId)
+const bandCenter = (loop: FrameLoop, taskGroupId: string): number => {
+  const taskGroup = drawnTaskGroup(loop, taskGroupId)
   return taskGroup.y + taskGroup.height / 2
 }
 
 const expectAnchor = (loop: FrameLoop, expected: { day: number; row: string }, what: string): void => {
   const stored = storedOf(loop, 'commentBoxes', COMMENT_ID)
   const dayZero = serialDay(day(1)) - 1
-  expect(`${serialDay(stored['anchorDate']) - dayZero} ${taskGroupLetter(stored['anchorGroupId'])}`, what).toBe(
+  expect(`${serialDay(stored['anchorDate']) - dayZero} ${taskGroupLetter(stored['anchorTaskGroupId'])}`, what).toBe(
     `${expected.day} ${taskGroupLetter(expected.row)}`,
   )
 }
@@ -1101,7 +1101,7 @@ function createdAnchorAt(built: Stage, at: Point): Record<string, unknown> {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: day(1),
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   }
@@ -1271,8 +1271,8 @@ describe('DFC-568 JDG-72: placing and moving read the same place for the same po
       moveAnchor(moving, DEAD_ON, at)
       const stored = storedOf(moving.loop, 'commentBoxes', COMMENT_ID)
       // STEP: the created anchor and the moved anchor name the same day and task group
-      expect(`${String(created['date']).slice(0, 10)} ${taskGroupLetter(created['groupId'])}`).toBe(
-        `${String(stored['anchorDate']).slice(0, 10)} ${taskGroupLetter(stored['anchorGroupId'])}`,
+      expect(`${String(created['date']).slice(0, 10)} ${taskGroupLetter(created['taskGroupId'])}`).toBe(
+        `${String(stored['anchorDate']).slice(0, 10)} ${taskGroupLetter(stored['anchorTaskGroupId'])}`,
       )
       expect(String(stored['anchorDate']).slice(0, 10)).toBe(day(25).slice(0, 10))
     })

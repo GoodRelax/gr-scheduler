@@ -132,7 +132,7 @@ const ONE_TASK: Schedule = {
     } as unknown as Task,
   ],
   taskGroups: [{ id: 'g1', parentId: null, order: 0, minHeight: null }],
-  taskGroupMembers: [{ groupId: 'g1', taskUid: 1 }],
+  taskGroupMembers: [{ taskGroupId: 'g1', taskUid: 1 }],
   taskVisuals: [],
   taskOrigins: [],
   baselineTasks: [],

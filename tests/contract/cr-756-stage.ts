@@ -76,7 +76,7 @@ const TASKS = (): readonly Task[] => [
 
 // see S-580, FR-054, FR-158
 export function documentOf(options: {
-  readonly showsTimeOfDay: boolean
+  readonly isTimeOfDayVisible: boolean
   readonly pxPerDay: number
   readonly scrollDate?: string
 }): Document {
@@ -95,15 +95,15 @@ export function documentOf(options: {
       taskGroups: rows.map((id, order) => ({
         id,
         parentId: null,
-        label: `row ${String(order)}`,
+        name: `row ${String(order)}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
         editGroup: null,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: tasks.map((one, index) => ({ taskUid: one.uid, groupId: rows[index] })),
+      taskGroupMembers: tasks.map((one, index) => ({ taskUid: one.uid, taskGroupId: rows[index] })),
       taskVisuals: [{ taskUid: TIMED_MILESTONE_UID, shapeKind: 'milestone' }],
       commentBoxes: [],
       highlightBoxes: [],
@@ -112,11 +112,11 @@ export function documentOf(options: {
     },
     documentSettings: {
       ...template['documentSettings'],
-      showsTimeOfDay: options.showsTimeOfDay,
-      progressMarkerVisible: true, // see S-63
-      actualVisible: true, // see S-228
+      isTimeOfDayVisible: options.isTimeOfDayVisible,
+      isProgressMarkerVisible: true, // see S-63
+      isActualVisible: true, // see S-228
       scrollDate: options.scrollDate ?? '2026-04-06T00:00:00',
-      scrollGroupId: rows[0],
+      scrollTaskGroupId: rows[0],
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
       // WHY: FR-017 and FR-039 -- the drawn day width is S-1 times zoomX times the drawn ratio, so pxPerDay is the drawn one.

@@ -154,7 +154,7 @@ test.describe(`CR-763 -- T-332 SJ-10 ${SJ_10_RIPPLE}`, () => {
   })
 
   test('monochrome: the ripple is a double outline (two lines in the S-556 band), grey keeping S-587\'s lightness', async () => {
-    const opened = await openWith({ themeMonochrome: true })
+    const opened = await openWith({ isThemeMonochrome: true })
     try {
       const ripple = await jumpAndReadRipple(opened.page, TARGET_UID)
       expect(ripple, 'SJ-10 (2): a ripple starts on the jump').not.toBeNull()

@@ -112,8 +112,8 @@ export const settingsOf = (part: Loose = {}): Settings =>
     ...nestedDefaults(),
     scrollDate: '2026-01-26',
     stackDirection: 'down',
-    assigneeVisible: true,
-    percentCompleteVisible: true,
+    isAssigneeVisible: true,
+    isPercentCompleteVisible: true,
     zoomX: 8,
     ...part,
   }) as unknown as Settings
@@ -183,7 +183,7 @@ const downstreamTask = (milestone: boolean): Loose =>
     finish: milestone ? isoPlus(PLAN_START, 30) : isoPlus(PLAN_START, 40),
     milestone: milestone ? true : null,
     dependencies: [
-      { predecessorUid: STARTED_UID, linkType: 1, lag: null, lagFormat: null, carry: {}, carryElements: [] },
+      { predecessorUid: STARTED_UID, linkType: 1, linkLag: null, lagFormat: null, carry: {}, carryElements: [] },
     ],
   })
 
@@ -199,7 +199,7 @@ const scheduleOf = (tasks: readonly Loose[], shapeKind: ShapeKind, groups: reado
     commentBoxes: [],
     tasks,
     taskGroups: [...new Set(groups)].map((id, order) => ({ id, parentId: null, order, minHeight: null })),
-    taskGroupMembers: tasks.map((task, at) => ({ groupId: groups[at], taskUid: task['uid'] })),
+    taskGroupMembers: tasks.map((task, at) => ({ taskGroupId: groups[at], taskUid: task['uid'] })),
     taskVisuals: tasks.map((task) => ({ taskUid: task['uid'], shapeKind })),
     taskOrigins: [],
     baselineTasks: [],

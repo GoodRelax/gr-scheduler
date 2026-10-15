@@ -58,10 +58,10 @@ describe('FR-016 -- MK-1 moves the chart by the distance the device gave', () =>
     if (frame === null) throw new Error('premise: a frame was drawn')
     const area = frame.regions.taskGroupArea
     const band = frame.layout.taskGroups[0]!.height
-    const before = new Map(frame.layout.taskGroups.map((one) => [one.groupId, one.y]))
+    const before = new Map(frame.layout.taskGroups.map((one) => [one.taskGroupId, one.y]))
     built.send(wheelOf(area.x + area.width / 2, area.y + area.height / 2, dy))
     const after = built.loop.current()!.layout.taskGroups
-    const moved = after.filter((one) => before.has(one.groupId)).map((one) => before.get(one.groupId)! - one.y)
+    const moved = after.filter((one) => before.has(one.taskGroupId)).map((one) => before.get(one.taskGroupId)! - one.y)
     return { built, band, moved }
   }
 

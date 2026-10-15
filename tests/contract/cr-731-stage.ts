@@ -77,14 +77,14 @@ export interface FixRow {
   readonly column: unknown
   readonly before: unknown
   readonly after: unknown
-  readonly fixType: 'automatic' | 'choose' | 'suggestedDate' | 'byHand'
+  readonly fixKind: 'automatic' | 'choose' | 'suggestedDate' | 'byHand'
   readonly choices?: readonly unknown[] | null
   readonly causedBy?: unknown
   readonly refusal?: unknown
   readonly [key: string]: unknown
 }
 
-export const FIX_TYPES = ['automatic', 'choose', 'suggestedDate', 'byHand'] as const
+export const FIX_KINDS = ['automatic', 'choose', 'suggestedDate', 'byHand'] as const
 
 
 export interface TaskSpec {
@@ -117,7 +117,7 @@ export const FINISH_OF = (day: string): string => at(day, '17:00:00')
 export const FS = 1
 
 function dependencyOf(predecessorUid: number, linkType: number, lag: number): Loose {
-  return { predecessorUid, linkType, lag, lagFormat: 7, carry: {}, carryElements: [] }
+  return { predecessorUid, linkType, linkLag: lag, lagFormat: 7, carry: {}, carryElements: [] }
 }
 
 const groupIdOf = (uid: number): string => `cccccccc-0000-4000-8000-${String(uid).padStart(12, '0')}`
@@ -164,15 +164,15 @@ export function documentOf(tasks: readonly TaskSpec[], spec: DocumentSpec): Docu
       taskGroups: seeds.map((one, index) => ({
         id: one.id,
         parentId: one.parentId,
-        label: `row ${String(index + 1)}`,
+        name: `row ${String(index + 1)}`,
         derivedFromTaskUid: null,
         order: index,
         treeState: 'expanded',
         editGroup: tasks[index]?.readOnly === true ? 'imported-plan' : null,
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, groupId: groupIdOf(one.uid) })),
+      taskGroupMembers: tasks.map((one) => ({ taskUid: one.uid, taskGroupId: groupIdOf(one.uid) })),
       taskVisuals: tasks.map((one) => ({
         taskUid: one.uid,
         shapeKind: null,
@@ -189,7 +189,7 @@ export function documentOf(tasks: readonly TaskSpec[], spec: DocumentSpec): Docu
     documentSettings: {
       ...structuredClone(TEMPLATE['documentSettings']),
       scrollDate: '2027-05-01T00:00:00',
-      scrollGroupId: seeds[0]?.id ?? null,
+      scrollTaskGroupId: seeds[0]?.id ?? null,
       scrollGroupOffset: 0,
       zoomY: 1,
       levelZeroTreeState: 'auto',
@@ -242,7 +242,7 @@ export function proposed(document: Document, checks?: unknown): readonly FixRow[
 }
 
 export const machineRows = (rows: readonly FixRow[]): readonly FixRow[] =>
-  rows.filter((one) => one.fixType === 'automatic' && (one.refusal === null || one.refusal === undefined))
+  rows.filter((one) => one.fixKind === 'automatic' && (one.refusal === null || one.refusal === undefined))
 
 export const rowsFor = (rows: readonly FixRow[], findingRow: string): readonly FixRow[] =>
   rows.filter((one) => one.findingRow === findingRow)

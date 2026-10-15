@@ -130,11 +130,11 @@ const taskGroup = (id: string, order: number): TaskGroup =>
   ({
     id,
     parentId: null,
-    label: id,
+    name: id,
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', color: null,
-    minHeight: null,
+    minHeightPx: null,
   }) as unknown as TaskGroup
 
 const visualOf = (taskUid: number, shapeKind: string, glyph: string | null): TaskVisual =>
@@ -151,11 +151,11 @@ const scheduleOf = (tasks: readonly Task[], visuals: readonly TaskVisual[]): Sch
   ({
     project: {
       id: null, name: null, title: null, subject: null, category: null, company: null,
-      manager: null, author: null, created: null, revision: null,
+      manager: null, author: null, creationDate: null, revision: null,
       startDate: '2026-03-01T00:00:00', statusDate: null, minutesPerDay: null,
       minutesPerWeek: null, daysPerMonth: null, weekStartDay: null,
       calendarUid: EVERY_DAY_WORKED.uid, themeHue: 214, uidHighWaterMark: 1000,
-      importSeq: 0, carry: {}, carryElements: [],
+      importSequence: 0, carry: {}, carryElements: [],
     },
     calendars: [EVERY_DAY_WORKED],
     tasks,
@@ -163,7 +163,7 @@ const scheduleOf = (tasks: readonly Task[], visuals: readonly TaskVisual[]): Sch
     assignments: [],
     taskGroups: [taskGroup('g1', 0)],
     taskGroupMembers: tasks.map((one) => ({
-      taskUid: one.uid, groupId: 'g1',
+      taskUid: one.uid, taskGroupId: 'g1',
     })) as unknown as readonly TaskGroupMember[],
     taskVisuals: visuals,
     commentBoxes: [],
@@ -249,7 +249,7 @@ describe('DFC-417: the progress marker reads S-24 for its stroke (FR-094)', () =
     // S-24 is a constant (SETTINGS_CONSTANTS); a document cannot turn it, so the case reads it.
     const turned = SETTINGS_CONSTANTS.markerStroke
     // see S-63
-    const drawn = markerStrokeWidths(draw(started(), { progressMarkerVisible: true }).svg)
+    const drawn = markerStrokeWidths(draw(started(), { isProgressMarkerVisible: true }).svg)
     expect(drawn.length).toBeGreaterThan(0)
     for (const width of drawn) {
       expect(onGrid(width), 'S-24 x FR-039 の描く比、NS-3 の格子の上で').toBe(
@@ -271,8 +271,8 @@ describe("DFC-407: a not-started milestone's dummy is its own figure (FR-043)", 
     // The plan being hidden (S-64) says nothing about the dummy, so the two
     // pictures must place the same figure -- which is why the two point counts
     // are compared with each other rather than with a number typed here.
-    const shown = dummyPointCount(draw(milestone('star'), { planVisible: true }).svg)
-    const hidden = dummyPointCount(draw(milestone('star'), { planVisible: false }).svg)
+    const shown = dummyPointCount(draw(milestone('star'), { isPlanVisible: true }).svg)
+    const hidden = dummyPointCount(draw(milestone('star'), { isPlanVisible: false }).svg)
     expect(hidden).toBe(shown)
   })
 
@@ -281,7 +281,7 @@ describe("DFC-407: a not-started milestone's dummy is its own figure (FR-043)", 
     // star of SH-5 is not four of anything. ⚠️ Only a glyph whose outline has
     // more corners than a rectangle can state this, which is why the case names
     // one rather than sweeping all fifteen.
-    expect(dummyPointCount(draw(milestone('star'), { planVisible: false }).svg)).not.toBe(4)
+    expect(dummyPointCount(draw(milestone('star'), { isPlanVisible: false }).svg)).not.toBe(4)
   })
 })
 

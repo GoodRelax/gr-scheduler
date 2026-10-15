@@ -132,12 +132,12 @@ function task(over: Partial<Task> & { readonly uid: number }): Task {
 const group = (id: string, order: number, label: string): unknown => ({
   id,
   parentId: null,
-  label,
+  name: label,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', editGroup: null,
   color: null,
-  minHeight: null,
+  minHeightPx: null,
 })
 
 function fixtureDocument(): Document {
@@ -178,8 +178,8 @@ function fixtureDocument(): Document {
       assignments: [],
       taskGroups: [group(TASK_GROUP_A, 0, 'A'), group(TASK_GROUP_B, 1, 'B')],
       taskGroupMembers: [
-        { taskUid: PLAIN_UID, groupId: TASK_GROUP_A },
-        { taskUid: MILESTONE_UID, groupId: TASK_GROUP_B },
+        { taskUid: PLAIN_UID, taskGroupId: TASK_GROUP_A },
+        { taskUid: MILESTONE_UID, taskGroupId: TASK_GROUP_B },
       ],
       taskVisuals: [],
       commentBoxes: [],
@@ -192,7 +192,7 @@ function fixtureDocument(): Document {
       // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
       scrollDate: day(1),
-      scrollGroupId: TASK_GROUP_A,
+      scrollTaskGroupId: TASK_GROUP_A,
       scrollDayOffset: 0,
       scrollGroupOffset: 0,
     },

@@ -63,7 +63,7 @@ const flooredTaskGroupBench = (minHeight: number): ShellBench => {
     ],
     { zoomY: START_ZOOM_Y },
   )
-  document.schedule.taskGroups[0].minHeight = minHeight
+  document.schedule.taskGroups[0].minHeightPx = minHeight
   return keep(shell(document))
 }
 
@@ -83,7 +83,7 @@ const STACKED_TASKS = 24
 
 const stackedTaskGroupBench = (): ShellBench => {
   const tasks = Array.from({ length: STACKED_TASKS }, (_unused, index) => taskOf(index + 1))
-  const members = tasks.map((_unused, index) => ({ taskUid: index + 1, groupId: 'task-group-1' }))
+  const members = tasks.map((_unused, index) => ({ taskUid: index + 1, taskGroupId: 'task-group-1' }))
   const rows = [{ id: 'task-group-1', parentId: null }]
   return keep(shell(taskGroupDocument(rows, { zoomY: START_ZOOM_Y }, { tasks, taskGroupMembers: members, taskVisuals: [] })))
 }
@@ -106,7 +106,7 @@ const ceilingCase = (minHeight: number) => {
   const scale = Number(built.loop.document().documentSettings.displayScale) / PERCENT
   const floorBand = minHeight * scale
   const reached = verticalZoomToItsEnd(built)
-  const floored = frameOf(built).layout.taskGroups.find((taskGroup) => taskGroup.groupId === 'task-group-1')?.height ?? Number.NaN
+  const floored = frameOf(built).layout.taskGroups.find((taskGroup) => taskGroup.taskGroupId === 'task-group-1')?.height ?? Number.NaN
   return { floorBand, reached, floored, height }
 }
 
@@ -140,7 +140,7 @@ describe('DFC-699 / FR-016, T-253 -- task groups with no floor: the band ceiling
     const built = stackedTaskGroupBench()
     const height = frameOf(built).regions.taskGroupArea.height
     const bands = bandsUpToTheEnd(built)
-    expect(built.loop.document().schedule.taskGroups[0]?.minHeight, 'premise: the task group has no floor').toBeNull()
+    expect(built.loop.document().schedule.taskGroups[0]?.minHeightPx, 'premise: the task group has no floor').toBeNull()
     expect(bands[0], 'premise: the band starts short of the Task Group Area').toBeLessThan(height)
     expect(bands[bands.length - 1], 'the last zoom fills the Task Group Area').toBeGreaterThanOrEqual(height - 1)
     expect(bands[bands.length - 2], 'the zoom before it did not').toBeLessThan(height)

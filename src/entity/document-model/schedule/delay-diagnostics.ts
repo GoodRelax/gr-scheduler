@@ -345,14 +345,14 @@ function findingOf(row: string, task: Task, values: Record<string, FindingValue>
 /** @purity pure */
 function taskGroupDepthByTask(schedule: Schedule): ReadonlyMap<number, number> {
   const parentOf = new Map(schedule.taskGroups.map((group) => [group.id, group.parentId]))
-  const depthOf = (groupId: string): number => {
+  const depthOf = (taskGroupId: string): number => {
     let depth = 0
-    for (let at = parentOf.get(groupId) ?? null; at !== null && depth < parentOf.size; depth += 1) {
+    for (let at = parentOf.get(taskGroupId) ?? null; at !== null && depth < parentOf.size; depth += 1) {
       at = parentOf.get(at) ?? null
     }
     return depth
   }
-  return new Map(schedule.taskGroupMembers.map((member) => [member.taskUid, depthOf(member.groupId)]))
+  return new Map(schedule.taskGroupMembers.map((member) => [member.taskUid, depthOf(member.taskGroupId)]))
 }
 
 // see IP-1
@@ -453,7 +453,7 @@ const READ_LAG_FORMATS: ReadonlySet<number> = new Set([7, 5, 3])
 // WHY: rounding down never makes a bound later, so a lag with a fraction of a minute cannot raise a contradiction.
 /** @purity pure */
 export function lagMinutesOf(dependency: Dependency): number | null {
-  const lag = dependency.lag ?? 0
+  const lag = dependency.linkLag ?? 0
   if (lag === 0) return 0
   if (dependency.lagFormat === null || !READ_LAG_FORMATS.has(dependency.lagFormat)) return null
   return Math.floor(lag / TENTHS_OF_A_MINUTE)
@@ -738,7 +738,7 @@ function orderContradictions(facts: Facts, task: Task): readonly DelayFinding[] 
     }
     if (linkHolds(facts, dependency, plannedInstants(facts, predecessor), plannedInstants(facts, task)) === false) {
       found.push(findingOf('VC-15', task, {
-        predecessorUid, linkType: dependency.linkType, lag: dependency.lag, ...columnsOf(task, ['start', 'finish']),
+        predecessorUid, linkType: dependency.linkType, lag: dependency.linkLag, ...columnsOf(task, ['start', 'finish']),
         predecessorStart: predecessor.start, predecessorFinish: predecessor.finish,
       }))
     }

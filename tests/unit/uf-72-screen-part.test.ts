@@ -1507,7 +1507,7 @@ const HEADER: AppHeaderItems = {
   language: 'ja',
 }
 
-const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { groupId: string }): TaskGroupTitle => ({
+const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { taskGroupId: string }): TaskGroupTitle => ({
   depth: 1,
   // `depth` x S-37, the product FR-085 subtracts before it cuts the name.
   // ⚠️ It FOLLOWS the patched depth: a fixed number here would draw the
@@ -1516,8 +1516,8 @@ const taskGroupTitle = (patch: Partial<TaskGroupTitle> & { groupId: string }): T
   indentPx: (patch.depth ?? 1) * 12,
   ...taskGroupNameFont(patch.depth ?? 1),
   box: rect(0, 40, 170, 24),
-  label: patch.groupId,
-  wholeLabel: patch.groupId,
+  label: patch.taskGroupId,
+  wholeLabel: patch.taskGroupId,
   isLabelTruncated: false,
   // ⭐ A TASK GROUP WITH NOTHING TO FOLD, WHICH IS NOT A TASK GROUP WITHOUT CONTROLS. This
   // read `null` until 2026-08-30, when `TaskGroupTitle.expander` stopped being
@@ -1612,7 +1612,7 @@ const BASE_VIEW: ScreenView = {
     pinnedTitles: [],
     titles: [
       taskGroupTitle({
-        groupId: 'g-1',
+        taskGroupId: 'g-1',
         label: 'TaskGroupOne',
         isPinned: true,
         expander: { canOpen: true, canClose: false, canCloseBelow: false },
@@ -2436,7 +2436,7 @@ const withExpander = (expander: TaskGroupExpander): ScreenView =>
   viewWith({
     taskGroupPanel: {
       pinnedTitles: [],
-      titles: [taskGroupTitle({ groupId: 'g-1', label: 'TaskGroupOne', expander })],
+      titles: [taskGroupTitle({ taskGroupId: 'g-1', label: 'TaskGroupOne', expander })],
     },
   })
 
@@ -2500,14 +2500,14 @@ describe('表 T-051 HF-1 -- one opening control and one closing control per task
         taskGroupPanel: {
           pinnedTitles: [
             taskGroupTitle({
-              groupId: 'g-pinned',
+              taskGroupId: 'g-pinned',
               isPinned: true,
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
           titles: [
             taskGroupTitle({
-              groupId: 'g-1',
+              taskGroupId: 'g-1',
               expander: { canOpen: false, canClose: true, canCloseBelow: false },
             }),
           ],
@@ -2633,12 +2633,12 @@ const twoTaskGroups = (patch: Partial<TaskGroupTitle> = {}): ScreenView =>
       pinnedTitles: [],
       titles: [
         taskGroupTitle({
-          groupId: 'g-1',
+          taskGroupId: 'g-1',
           expander: { canOpen: true, canClose: true, canCloseBelow: false },
           ...patch,
         }),
         taskGroupTitle({
-          groupId: 'g-2',
+          taskGroupId: 'g-2',
           expander: { canOpen: true, canClose: true, canCloseBelow: false },
           ...patch,
         }),
@@ -3291,7 +3291,7 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
           pinnedTitles: [],
           titles: [
             taskGroupTitle({
-              groupId: 'g-1',
+              taskGroupId: 'g-1',
               label: '',
               wholeLabel: '',
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
@@ -3318,14 +3318,14 @@ describe('表 T-109 IC-58 / IC-59 / IC-60 -- the control has a box (the 4 x 0 fi
         taskGroupPanel: {
           pinnedTitles: [
             taskGroupTitle({
-              groupId: 'g-pinned',
+              taskGroupId: 'g-pinned',
               isPinned: true,
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
           titles: [
             taskGroupTitle({
-              groupId: 'g-1',
+              taskGroupId: 'g-1',
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
@@ -3556,7 +3556,7 @@ const taskGroupNamed = (label: string | null, depth = 1): ScreenView =>
       pinnedTitles: [],
       titles: [
         taskGroupTitle({
-          groupId: 'g-1',
+          taskGroupId: 'g-1',
           label,
           wholeLabel: label,
           depth,
@@ -3829,7 +3829,7 @@ describe('表 T-051 HF-4 / FR-098 -- the controls hold the right edge whatever t
         taskGroupPanel: {
           pinnedTitles: [
             taskGroupTitle({
-              groupId: 'g-pinned',
+              taskGroupId: 'g-pinned',
               isPinned: true,
               depth: 2,
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
@@ -4197,7 +4197,7 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
         taskGroupPanel: {
           pinnedTitles: [
             taskGroupTitle({
-              groupId: 'g-pinned',
+              taskGroupId: 'g-pinned',
               isPinned: true,
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
@@ -4244,7 +4244,7 @@ describe('表 T-051 HF-6 / FR-098 -- the task group controls are drawn only whil
         taskGroupPanel: {
           pinnedTitles: [
             taskGroupTitle({
-              groupId: 'g-pinned',
+              taskGroupId: 'g-pinned',
               isPinned: true,
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
@@ -4424,7 +4424,7 @@ const taskGroupWithControls = (): ScreenView =>
       pinnedTitles: [],
       titles: [
         taskGroupTitle({
-          groupId: 'g-1',
+          taskGroupId: 'g-1',
           label: 'TaskGroupOne',
           expander: { canOpen: true, canClose: true, canCloseBelow: false },
         }),
@@ -4534,7 +4534,7 @@ describe('表 T-051 HF-5 / FR-098 -- the controls are level with the top of the 
         taskGroupPanel: {
           pinnedTitles: [
             taskGroupTitle({
-              groupId: 'g-pinned',
+              taskGroupId: 'g-pinned',
               isPinned: true,
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
@@ -4638,23 +4638,23 @@ const PANEL_WITH_A_PIN = (): ScreenView =>
     taskGroupPanel: {
       pinnedTitles: [
         taskGroupTitle({
-          groupId: 'g-pinned',
+          taskGroupId: 'g-pinned',
           isPinned: true,
           expander: { canOpen: true, canClose: true, canCloseBelow: false },
         }),
       ],
       titles: [
         taskGroupTitle({
-          groupId: 'g-free',
+          taskGroupId: 'g-free',
           expander: { canOpen: true, canClose: true, canCloseBelow: false },
         }),
       ],
     },
   })
 
-const taskGroupWithGroupId = (built: Stage, groupId: string): FakeElement => {
-  const found = rowsOf(built).find((one) => one.getAttribute('data-group-id') === groupId)
-  if (found === undefined) throw new Error(`the panel drew no task group ${groupId}`)
+const taskGroupWithGroupId = (built: Stage, taskGroupId: string): FakeElement => {
+  const found = rowsOf(built).find((one) => one.getAttribute('data-group-id') === taskGroupId)
+  if (found === undefined) throw new Error(`the panel drew no task group ${taskGroupId}`)
   return found
 }
 
@@ -5217,7 +5217,7 @@ describe('表 T-051 HF-4 (MUST) -- the whole run of a task group, left to right'
         taskGroupPanel: {
           pinnedTitles: [
             taskGroupTitle({
-              groupId: 'g-pinned',
+              taskGroupId: 'g-pinned',
               isPinned: true,
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
@@ -5340,14 +5340,14 @@ describe('表 T-051 HF-10 (MUST) -- the run at the panel’s head, left to right
         taskGroupPanel: {
           pinnedTitles: [
             taskGroupTitle({
-              groupId: 'g-pinned',
+              taskGroupId: 'g-pinned',
               isPinned: true,
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
           titles: [
             taskGroupTitle({
-              groupId: 'g-1',
+              taskGroupId: 'g-1',
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
             }),
           ],
@@ -5431,7 +5431,7 @@ const taskGroupHeldOn = (axis: 'position' | 'depth' | null): ScreenView =>
       pinnedTitles: [],
       titles: [
         taskGroupTitle({
-          groupId: 'g-1',
+          taskGroupId: 'g-1',
           label: 'TaskGroupOne',
           heldOnAxis: axis,
           expander: { canOpen: true, canClose: true, canCloseBelow: false },
@@ -5603,7 +5603,7 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded 
           pinnedTitles: [],
           titles: [
             taskGroupTitle({
-              groupId: 'g-1',
+              taskGroupId: 'g-1',
               label: 'TaskGroupOne',
               foldedTaskGroupCount: 3,
               expander: { canOpen: true, canClose: true, canCloseBelow: false },
@@ -5635,7 +5635,7 @@ describe('表 T-051 HF-18 (MUST) -- the count of what a task group holds folded 
           pinnedTitles: [],
           titles: [
             taskGroupTitle({
-              groupId: 'g-1',
+              taskGroupId: 'g-1',
               label: 'TaskGroupOne',
               foldedTaskGroupCount: 7,
               expander: { canOpen: true, canClose: true, canCloseBelow: false },

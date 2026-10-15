@@ -417,7 +417,7 @@ interface DummyActualFrame {
   readonly project: Project
   readonly milestone: boolean
   readonly side: DateTimeSide
-  readonly showsTimeOfDay: boolean
+  readonly isTimeOfDayVisible: boolean
   readonly snapMinutes: number
 }
 
@@ -429,7 +429,7 @@ function dummyActualFrameOf(document: Document, task: Task, within: WorkingCalen
     project: document.schedule.project,
     milestone: isMilestone(task),
     side: startSideOf(task),
-    showsTimeOfDay: document.documentSettings.showsTimeOfDay,
+    isTimeOfDayVisible: document.documentSettings.isTimeOfDayVisible,
     snapMinutes,
   }
 }
@@ -437,7 +437,7 @@ function dummyActualFrameOf(document: Document, task: Task, within: WorkingCalen
 // see GO-6, PV-1, FR-158, T-378
 /** @purity pure */
 function isTimedDummy(frame: DummyActualFrame): boolean {
-  return frame.showsTimeOfDay && frame.snapMinutes < MINUTES_PER_CALENDAR_DAY
+  return frame.isTimeOfDayVisible && frame.snapMinutes < MINUTES_PER_CALENDAR_DAY
 }
 
 // WHY: S-585 working minutes from the start, never shorter than the snap unit in force (JDG-2108, FR-011's floor).
@@ -452,7 +452,7 @@ function dummyActualEndOf(within: WorkingCalendar, start: number, snapMinutes: n
 // WHY: with time of day shown the instant itself, a date-only text read on its side; never the day's default time.
 /** @purity pure */
 function dummyStartText(text: string | null, day: CalendarDay, frame: DummyActualFrame): string {
-  if (!frame.showsTimeOfDay) return textOfStartSide(day, frame.project, frame.milestone)
+  if (!frame.isTimeOfDayVisible) return textOfStartSide(day, frame.project, frame.milestone)
   const instant = instantOnSide(frame.within, text, frame.side)
   return instant === null ? textOfStartSide(day, frame.project, frame.milestone) : textOfInstant(instant)
 }
@@ -460,7 +460,7 @@ function dummyStartText(text: string | null, day: CalendarDay, frame: DummyActua
 // WHY: a shown milestone is a point on its instant; a timed actual runs S-585; otherwise it ends on the floor day.
 /** @purity pure */
 function dummyLastText(actualStart: string, startDay: CalendarDay, frame: DummyActualFrame): string {
-  if (frame.milestone && frame.showsTimeOfDay) return actualStart
+  if (frame.milestone && frame.isTimeOfDayVisible) return actualStart
   const instant = instantOf(actualStart)
   if (!frame.milestone && isTimedDummy(frame) && instant !== null) {
     return textOfInstant(dummyActualEndOf(frame.within, instant, frame.snapMinutes))

@@ -74,7 +74,7 @@ const cellOf = (row: string, heading: string): string => {
 afterEach(restoreAnimationFrames)
 
 // see S-63
-const built = (): Stage => stage(benchDocument({ progressMarkerVisible: true }))
+const built = (): Stage => stage(benchDocument({ isProgressMarkerVisible: true }))
 
 const scanOf = (one: Stage, uid: number): GrabScan => {
   const frame = frameOf(one.loop)
@@ -102,7 +102,7 @@ const lastActualDayOf = (one: Stage, uid: number): string | null => {
 
 const rowIdOf = (one: Stage, uid: number): string | null => {
   const found = one.loop.document().schedule.taskGroupMembers.find((member) => member.taskUid === uid)
-  return found === undefined ? null : found.groupId
+  return found === undefined ? null : found.taskGroupId
 }
 
 describe('CR-430 -- the manuscript these cases are driven by', () => {

@@ -134,11 +134,11 @@ const milestoneVisual = (taskUid: number): TaskVisual =>
 const taskGroupOfSchedule = (id: string, order: number) => ({
   id,
   parentId: null,
-  label: `row ${order}`,
+  name: `row ${order}`,
   derivedFromTaskUid: null,
   order,
   treeState: 'auto', color: null,
-  minHeight: null,
+  minHeightPx: null,
 })
 
 function fixtureDocument(): Document {
@@ -187,10 +187,10 @@ function fixtureDocument(): Document {
         taskGroupOfSchedule(DUMMY_STONE_TASK_GROUP, 3),
       ],
       taskGroupMembers: [
-        { taskUid: BAR_UID, groupId: BAR_TASK_GROUP },
-        { taskUid: STONE_UID, groupId: STONE_TASK_GROUP },
-        { taskUid: DUMMY_BAR_UID, groupId: DUMMY_BAR_TASK_GROUP },
-        { taskUid: DUMMY_STONE_UID, groupId: DUMMY_STONE_TASK_GROUP },
+        { taskUid: BAR_UID, taskGroupId: BAR_TASK_GROUP },
+        { taskUid: STONE_UID, taskGroupId: STONE_TASK_GROUP },
+        { taskUid: DUMMY_BAR_UID, taskGroupId: DUMMY_BAR_TASK_GROUP },
+        { taskUid: DUMMY_STONE_UID, taskGroupId: DUMMY_STONE_TASK_GROUP },
       ],
       taskVisuals: [milestoneVisual(STONE_UID), milestoneVisual(DUMMY_STONE_UID)],
       commentBoxes: [],

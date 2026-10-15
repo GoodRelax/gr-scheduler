@@ -51,7 +51,7 @@ const stageOf = (
     zoomX: 8,
     scrollDate: day(1),
     stackDirection: 'down',
-    baselineVisible: true,
+    isBaselineVisible: true,
     ...settings,
   } as unknown as DocumentSettings
   const regions = regionsFromScreen(SCREEN, merged)
@@ -81,8 +81,8 @@ const sameTexts = (
   return { outline: outlines[0] as Outline, plan: planBandOf(drawn) }
 }
 
-const MINUTES = { showsTimeOfDay: true }
-const DAYS = { showsTimeOfDay: false }
+const MINUTES = { isTimeOfDayVisible: true }
+const DAYS = { isTimeOfDayVisible: false }
 
 describe('BL-2 -- the outline is placed with the plan bar\'s conversion from a date to a position', () => {
   it(`BL-2 「${BL_2_X}」: minute level, 04:15 to 08:15 on one day -- the box spans the plan bar's left and right, not the whole day`, () => {

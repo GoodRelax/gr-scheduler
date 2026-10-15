@@ -87,7 +87,7 @@ const projectOf = (): Project => ({
   company: null,
   manager: null,
   author: null,
-  created: null,
+  creationDate: null,
   revision: null,
   startDate: null,
   statusDate: null,
@@ -101,7 +101,7 @@ const projectOf = (): Project => ({
   themeHue: 214,
   parentProgressToleranceDays: 1,
   uidHighWaterMark: 0,
-  importSeq: 0,
+  importSequence: 0,
   outlineBase: 1,
   sourceFormat: 'grs',
   scheduleDataTimeZone: 'UTC+00:00',
@@ -127,7 +127,7 @@ export const documentOf = (tasks: readonly Task[]): Document =>
       baselineTasks: [],
     },
     documentSettings: {},
-    documentStamp: { scheduleUpdatedUtc: '2026-08-17T00:00:00Z', lastEditedBy: 'user', settingsUpdatedUtc: '2026-08-17T00:00:00Z' },
+    documentStamp: { scheduleUpdatedAt: '2026-08-17T00:00:00Z', lastEditedBy: 'user', settingsUpdatedAt: '2026-08-17T00:00:00Z' },
     changeLog: [],
   }) as unknown as Document
 
@@ -158,7 +158,7 @@ export function grsJsonOf(count: number, shape: (task: Record<string, unknown>, 
     shape(task, index)
     return task
   })
-  draft.schedule.taskGroupMembers = draft.schedule.tasks.map((one: Record<string, unknown>) => ({ taskUid: one['uid'], groupId: GROUP }))
+  draft.schedule.taskGroupMembers = draft.schedule.tasks.map((one: Record<string, unknown>) => ({ taskUid: one['uid'], taskGroupId: GROUP }))
   draft.schedule.taskVisuals = draft.schedule.tasks.map((one: Record<string, unknown>) => blankTaskVisual(one['uid'] as number))
   return JSON.stringify(draft)
 }

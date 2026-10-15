@@ -54,16 +54,16 @@ const COMMENT_BOX = {
   leaderShapeKind: 'calloutBox',
   text: 'a note',
   anchorDate: '2026-03-10',
-  anchorGroupId: 'g1',
+  anchorTaskGroupId: 'g1',
   bodyOffsetPx: { dx: 40, dy: -30 },
 }
 
 const HIGHLIGHT_BOX = {
   id: 'h1',
-  startDate: '2026-03-05',
-  endDate: '2026-03-20',
-  topGroupId: 'g1',
-  bottomGroupId: 'g1',
+  start: '2026-03-05',
+  finish: '2026-03-20',
+  topTaskGroupId: 'g1',
+  bottomTaskGroupId: 'g1',
   strokeColor: null,
   cornerRadiusPx: null,
   // WHY: FR-019 draws the fill at ZO-14 only when it is not transparent, and S-370's default is transparent.
@@ -112,7 +112,7 @@ const RICH: SceneWish = {
         actualFinish: day(18),
         percentComplete: 70,
         dependencies: [
-          { predecessorUid: 1, linkType: 1, lag: null, lagFormat: null, carry: {}, carryElements: [] },
+          { predecessorUid: 1, linkType: 1, linkLag: null, lagFormat: null, carry: {}, carryElements: [] },
         ],
       }),
     ],
@@ -123,10 +123,10 @@ const RICH: SceneWish = {
     statusDate: day(14),
     selectTaskUid: 1,
     settings: {
-      assigneeVisible: true,
-      percentCompleteVisible: true,
+      isAssigneeVisible: true,
+      isPercentCompleteVisible: true,
       dualCursorVisible: true,
-      progressMarkerVisible: true, // see S-63
+      isProgressMarkerVisible: true, // see S-63
       [BASELINE_VISIBLE]: true,
       [PROGRESS_LINE_VISIBLE]: true,
     },

@@ -28,7 +28,7 @@ const documentOf = (): Document =>
     { id: 'task-group-b', parentId: null },
   ]) as unknown as Document
 
-const storedWidth = (stage: ExportStage): number => stage.loop.document().documentSettings.taskGroupPanelWidth
+const storedWidth = (stage: ExportStage): number => stage.loop.document().documentSettings.taskGroupPanelWidthPx
 
 function dividerOf(stage: ExportStage): { readonly x: number; readonly y: number } {
   const divider = stage.lastView().frame.dividers.find((one) => one.panel === TASK_GROUP_TITLE_DIVIDER)
@@ -62,7 +62,7 @@ describe('FR-039 -- a release that saves the stored S-79 rewrites nothing', () =
     const at = dividerOf(stage)
     await stage.dragDivider(TASK_GROUP_TITLE_DIVIDER, at.x, 1, at.y)
     const atFloor = storedWidth(stage)
-    expect(atFloor, 'premise: the first release at the floor narrowed the panel').toBeLessThan(documentOf().documentSettings.taskGroupPanelWidth)
+    expect(atFloor, 'premise: the first release at the floor narrowed the panel').toBeLessThan(documentOf().documentSettings.taskGroupPanelWidthPx)
     const stamp = stampOf(stage, document)
     const again = dividerOf(stage)
     await stage.dragDivider(TASK_GROUP_TITLE_DIVIDER, again.x, 1, again.y)

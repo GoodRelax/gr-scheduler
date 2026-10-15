@@ -287,14 +287,14 @@ function farEndSendWrites(
 ): readonly DocumentCommand[] {
   const settings = context.document.documentSettings
   const area = context.regions.taskGroupArea
-  const isSeated = namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollGroupId)
+  const isSeated = namesAPlace(context.document.schedule, settings.scrollDate, settings.scrollTaskGroupId)
   const kept = isSeated ? settings : scrolledAnchor(context, 0, 0)
   const across = far.isAcrossInTaskGroupArea ? kept : dayAnchorAt(context, far.middleX - area.width / 2)
   const to = {
     kind: 'setScrollPosition',
     scrollDate: across.scrollDate,
     scrollDayOffset: across.scrollDayOffset,
-    scrollGroupId: isDownOut ? far.groupId : kept.scrollGroupId,
+    scrollTaskGroupId: isDownOut ? far.taskGroupId : kept.scrollTaskGroupId,
     scrollGroupOffset: isDownOut ? 0 : kept.scrollGroupOffset,
   } as const
   const undrawnTaskGroupDepth = far.foldedRowId === null ? far.undrawnTaskGroupDepth : null
@@ -402,7 +402,7 @@ function dummyReleaseWrite(
 // see GO-9, DM-1, FR-158
 /** @purity pure */
 function isLeftOfPlanStart(context: InputContext, task: Task, released: string): boolean {
-  if (!context.document.documentSettings.showsTimeOfDay) {
+  if (!context.document.documentSettings.isTimeOfDayVisible) {
     const planStart = dayOf(task.start)
     const dropped = dayOf(released)
     return planStart !== null && dropped !== null && compareDay(dropped, planStart) < 0
@@ -462,8 +462,8 @@ function bodyMoveWrites(
     if (write !== null) commands.push(write)
     const at = taskGroupIndexOfTask(context, taskGroups, each)
     const landed = at === null ? undefined : taskGroups[at + crossed]
-    if (landed !== undefined && landed.groupId !== taskGroupOfTask(context, each)) {
-      commands.push({ kind: 'moveTaskToTaskGroup', uid: each, groupId: landed.groupId })
+    if (landed !== undefined && landed.taskGroupId !== taskGroupOfTask(context, each)) {
+      commands.push({ kind: 'moveTaskToTaskGroup', uid: each, taskGroupId: landed.taskGroupId })
     }
   }
   for (const box of boxes.highlightBoxes) {
@@ -489,7 +489,7 @@ function dayOfBoundary(boundary: number, side: ReleasedSide, isMilestone: boolea
 /** @purity pure */
 function releasedDay(context: InputContext, release: PointerInput, side: ReleasedSide, isMilestone: boolean): CalendarDay | null {
   const layout = context.layout
-  if (!context.document.documentSettings.showsTimeOfDay) return dayAtX(layout, release.x)
+  if (!context.document.documentSettings.isTimeOfDayVisible) return dayAtX(layout, release.x)
   const boundary = snappedInstantAtX(layout, release.x, MINUTES_PER_CALENDAR_DAY)
   return boundary === null ? null : dayOfBoundary(boundary, side, isMilestone)
 }
@@ -559,7 +559,7 @@ function bodyDayCount(context: InputContext, press: PointerPress, release: Point
   const snap = releasedSnapOf(context, release)
   const task = taskByUid(context.document.schedule, uid)
   if (isDateKeepingDrag(press)) return 0
-  if (snap !== MINUTES_PER_CALENDAR_DAY || !context.document.documentSettings.showsTimeOfDay || task === null) return dragged
+  if (snap !== MINUTES_PER_CALENDAR_DAY || !context.document.documentSettings.isTimeOfDayVisible || task === null) return dragged
   const plan = plannedInstantsOf(workingCalendarOf(context.document.schedule), task)
   const startDay = dayOf(task.start)
   if (plan === null || startDay === null) return dragged
@@ -600,8 +600,8 @@ function highlightBoxShiftWrite(
   days: number,
   crossed: number,
 ): DocumentCommand | null {
-  const start = dayOf(box.startDate)
-  const end = dayOf(box.endDate)
+  const start = dayOf(box.start)
+  const end = dayOf(box.finish)
   const span = highlightTaskGroupSpanOf(context, taskGroups, box)
   if (start === null || end === null || span === null || (days === 0 && crossed === 0)) return null
   const upper = taskGroups[span.upperAt + crossed]
@@ -621,15 +621,15 @@ function commentBoxShiftWrite(
   days: number,
   crossed: number,
 ): DocumentCommand | null {
-  if (box.anchorGroupId === null) return null
+  if (box.anchorTaskGroupId === null) return null
   const stood = dayOf(box.anchorDate) ?? dayOf(context.document.schedule.project.startDate)
   if (stood === null) return null
-  const at = drawnTaskGroupIndexOf(taskGroups, box.anchorGroupId)
+  const at = drawnTaskGroupIndexOf(taskGroups, box.anchorTaskGroupId)
   const landed = at === null ? undefined : taskGroups[at + crossed]
-  const groupId = landed === undefined ? box.anchorGroupId : landed.groupId
-  if (days === 0 && groupId === box.anchorGroupId) return null
+  const taskGroupId = landed === undefined ? box.anchorTaskGroupId : landed.taskGroupId
+  if (days === 0 && taskGroupId === box.anchorTaskGroupId) return null
   const date = heldOrWritten(box.anchorDate, dayShifted(stood, days), textOfDayStart)
-  return { kind: 'setCommentBoxAnchor', id: box.id, anchor: { date, groupId } }
+  return { kind: 'setCommentBoxAnchor', id: box.id, anchor: { date, taskGroupId } }
 }
 
 /** @purity pure */
@@ -647,9 +647,9 @@ function taskGroupIndexOfTask(
 }
 
 /** @purity pure */
-function drawnTaskGroupIndexOf(taskGroups: readonly TaskGroupPlacement[], groupId: string | null): number | null {
-  if (groupId === null) return null
-  const at = taskGroups.findIndex((one) => one.groupId === groupId)
+function drawnTaskGroupIndexOf(taskGroups: readonly TaskGroupPlacement[], taskGroupId: string | null): number | null {
+  if (taskGroupId === null) return null
+  const at = taskGroups.findIndex((one) => one.taskGroupId === taskGroupId)
   return at < 0 ? null : at
 }
 
@@ -679,7 +679,7 @@ function clampedTaskGroupShift(
     if (span !== null) held.push(span.upperAt, span.lowerAt)
   }
   for (const box of boxes.commentBoxes) {
-    const at = drawnTaskGroupIndexOf(taskGroups, box.anchorGroupId)
+    const at = drawnTaskGroupIndexOf(taskGroups, box.anchorTaskGroupId)
     if (at !== null) held.push(at)
   }
   return shiftWithinTaskGroups(taskGroups, held, asked)
@@ -733,7 +733,7 @@ export function copyDragWrite(context: InputContext, press: PointerPress, releas
   for (const uid of copied) {
     const at = taskGroupIndexOfTask(context, taskGroups, uid)
     const landed = at === null ? undefined : taskGroups[at + crossed]
-    if (landed !== undefined && landed.groupId !== taskGroupOfTask(context, uid)) groupIdOf[uid] = landed.groupId
+    if (landed !== undefined && landed.taskGroupId !== taskGroupOfTask(context, uid)) groupIdOf[uid] = landed.taskGroupId
   }
   const copyUidOf = pastedUidsOf(schedule, sources)
   const picked = selectionOfAll(sources.flatMap((uid) => {
@@ -845,8 +845,8 @@ function highlightBoxRangeWrite(
   part: NonNullable<Hit['boxPart']>,
 ): TranslatedInput {
   const box = boxById(context.document.schedule.highlightBoxes, id)
-  const start = dayOf(box === undefined ? null : box.startDate)
-  const end = dayOf(box === undefined ? null : box.endDate)
+  const start = dayOf(box === undefined ? null : box.start)
+  const end = dayOf(box === undefined ? null : box.finish)
   const taskGroups = drawnTaskGroupsOf(context.layout)
   const span = box === undefined ? null : highlightTaskGroupSpanOf(context, taskGroups, box)
   if (box === undefined || start === null || end === null || span === null) return CONSUMED_ELSEWHERE
@@ -889,8 +889,8 @@ function highlightTaskGroupSpanOf(
   const lastTaskGroup = context.layout.taskGroups[context.layout.taskGroups.length - 1]
   if (firstTaskGroup === undefined || lastTaskGroup === undefined) return null
   // TRAP: fall back to the first and last layout task groups exactly as highlightGeometry does, or the grabbed box is not the drawn one.
-  const topAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.groupId === box.topGroupId) ?? firstTaskGroup)
-  const bottomAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.groupId === box.bottomGroupId) ?? lastTaskGroup)
+  const topAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.taskGroupId === box.topTaskGroupId) ?? firstTaskGroup)
+  const bottomAt = taskGroups.indexOf(taskGroups.find((taskGroup) => taskGroup.taskGroupId === box.bottomTaskGroupId) ?? lastTaskGroup)
   return { upperAt: Math.min(topAt, bottomAt), lowerAt: Math.max(topAt, bottomAt) }
 }
 
@@ -904,16 +904,16 @@ function highlightRangeWrite(
 ): DocumentCommand {
   const { upper, lower, left, right } = to
   const rankById = taskGroupRankById(context.document.schedule.taskGroups)
-  const isUpperFirst = (rankById.get(upper.groupId) ?? 0) <= (rankById.get(lower.groupId) ?? 0)
+  const isUpperFirst = (rankById.get(upper.taskGroupId) ?? 0) <= (rankById.get(lower.taskGroupId) ?? 0)
   const isLeftFirst = compareDay(left, right) <= 0
   return {
     kind: 'setHighlightBoxRange',
     id: box.id,
     range: {
-      startDate: heldOrWritten(box.startDate, isLeftFirst ? left : right, textOfDayStart),
-      endDate: heldOrWritten(box.endDate, isLeftFirst ? right : left, textOfDayEnd),
-      topGroupId: (isUpperFirst ? upper : lower).groupId,
-      bottomGroupId: (isUpperFirst ? lower : upper).groupId,
+      startDate: heldOrWritten(box.start, isLeftFirst ? left : right, textOfDayStart),
+      endDate: heldOrWritten(box.finish, isLeftFirst ? right : left, textOfDayEnd),
+      topTaskGroupId: (isUpperFirst ? upper : lower).taskGroupId,
+      bottomTaskGroupId: (isUpperFirst ? lower : upper).taskGroupId,
     },
   }
 }
@@ -943,16 +943,16 @@ function commentBoxMoveWrite(
   // WHY: a box with no anchor date stands at the document's start date, as commentGeometry draws it (FR-019).
   const stoodDay = dayOf(box?.anchorDate ?? null) ?? dayOf(context.document.schedule.project.startDate)
   const stood =
-    box === undefined || stoodDay === null || box.anchorGroupId === null
+    box === undefined || stoodDay === null || box.anchorTaskGroupId === null
       ? null
-      : commentAnchorPointOf(layout, stoodDay, box.anchorGroupId)
+      : commentAnchorPointOf(layout, stoodDay, box.anchorTaskGroupId)
   if (box === undefined || stood === null) return CONSUMED_ELSEWHERE
   const pull = isAnchor ? { dx: 0, dy: 0 } : { dx: release.x - press.at.x, dy: release.y - press.at.y }
   const aim = isAnchor ? release : { x: stood.x + pull.dx, y: stood.y + pull.dy }
   const anchor = commentAnchorAt(layout, aim.x, aim.y)
-  if (!('groupId' in anchor)) return anchor
+  if (!('taskGroupId' in anchor)) return anchor
   const day = dayOf(anchor.date)
-  const at = day === null ? null : commentAnchorPointOf(layout, day, anchor.groupId)
+  const at = day === null ? null : commentAnchorPointOf(layout, day, anchor.taskGroupId)
   if (at === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
   const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
   const left = stood.x + offset.dx + pull.dx
@@ -1037,5 +1037,5 @@ function isSelectionMoved(context: InputContext, grabbed: number, press: Pointer
 /** @purity pure */
 function taskGroupOfTask(context: InputContext, uid: number): string | null {
   const member = context.document.schedule.taskGroupMembers.find((one) => one.taskUid === uid)
-  return member === undefined ? null : member.groupId
+  return member === undefined ? null : member.taskGroupId
 }

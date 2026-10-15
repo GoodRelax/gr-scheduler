@@ -122,7 +122,7 @@ describe('the clauses this file is driven by still stand (T-225, FR-059, T-016, 
 
 const CM_40 = 'createResource'
 const CM_44 = 'createAssignment'
-const CM_45 = 'unassignResource'
+const CM_45 = 'deleteAssignment'
 const UNASSIGN_TOKEN = '-'
 const ASSIGNEE_ROW = 'PR-16'
 
@@ -140,9 +140,9 @@ const SETTINGS = {
   planActualGuidePattern: { off: 2, on: 2 },
   shapeHeightOf: { arrow: 0.5, chevron: 1, endpointSpan: 0.5, milestone: 1.5, rectangle: 1 },
   scrollDate: '2026-01-01',
-  scrollGroupId: 'g1',
+  scrollTaskGroupId: 'g1',
   stackDirection: 'down',
-  assigneeVisible: true,
+  isAssigneeVisible: true,
 } as unknown as DocumentSettings
 
 const ENV: ScreenEnvironment = { width: 1000, height: 700, appHeaderHeight: 56, scrollbarThickness: 8, propertyPanelWidth: 0 }
@@ -244,7 +244,7 @@ const SCHEDULE = {
     order: index,
     minHeight: null,
   })),
-  taskGroupMembers: TASK_UIDS.map((taskUid, index) => ({ groupId: `g${index + 1}`, taskUid })),
+  taskGroupMembers: TASK_UIDS.map((taskUid, index) => ({ taskGroupId: `g${index + 1}`, taskUid })),
   taskVisuals: [],
   commentBoxes: [],
   highlightBoxes: [],
@@ -262,9 +262,9 @@ const CONTEXT: InputContext = {
     schedule: SCHEDULE,
     documentSettings: SETTINGS,
     documentStamp: {
-      scheduleUpdatedUtc: '2026-01-01T00:00:00Z',
+      scheduleUpdatedAt: '2026-01-01T00:00:00Z',
       lastEditedBy: 'test',
-      settingsUpdatedUtc: '2026-01-01T00:00:00Z',
+      settingsUpdatedAt: '2026-01-01T00:00:00Z',
     },
     changeLog: [],
   } as unknown as Document,
@@ -281,7 +281,7 @@ const CONTEXT: InputContext = {
   isSurfaceStanding: false,
   dualCursorFollowing: null,
   today: TODAY,
-  newGroupId: 'task-group-minted-outside',
+  newTaskGroupId: 'task-group-minted-outside',
   newCommentBoxId: 'comment-box-minted-outside',
   newHighlightBoxId: 'highlight-box-minted-outside',
 }

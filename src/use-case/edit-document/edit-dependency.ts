@@ -133,7 +133,7 @@ export function editDependency(document: Document, command: DependencyCommand): 
       const dependency: Dependency = {
         predecessorUid: command.predecessorUid,
         linkType,
-        lag: lagOfWorkingDays(SETTINGS_CONSTANTS.dependencyLagDefault, minutesPerWorkingDayOf(schedule.project)),
+        linkLag: lagOfWorkingDays(SETTINGS_CONSTANTS.dependencyLagDefault, minutesPerWorkingDayOf(schedule.project)),
         lagFormat: WORKING_DAY_LAG_FORMAT,
         carry: {},
         carryElements: [],
@@ -196,7 +196,7 @@ function withLagSet(document: Document, command: Extract<DependencyCommand, { ki
   }
   const written = writtenLagOf(command, minutesPerWorkingDayOf(schedule.project))
   if (typeof written === 'string') return refused([reject('CM-38', 'FR-009', written)])
-  if (held.lag === written.lag && held.lagFormat === written.lagFormat) {
+  if (held.linkLag === written.linkLag && held.lagFormat === written.lagFormat) {
     return edited(document)
   }
 
@@ -209,13 +209,13 @@ function withLagSet(document: Document, command: Extract<DependencyCommand, { ki
 // see FR-009, AT-47, AT-48
 // WHY: a string is the refusal's reason; the lag is held in tenths of a minute whatever unit was typed.
 /** @purity pure */
-function writtenLagOf(lag: WorkingDayLag | TypedLag, minutesPerDay: number): Pick<Dependency, 'lag' | 'lagFormat'> | string {
+function writtenLagOf(lag: WorkingDayLag | TypedLag, minutesPerDay: number): Pick<Dependency, 'linkLag' | 'lagFormat'> | string {
   if ('lagMinutes' in lag) {
     const lagFormat = LAG_FORMAT_OF_UNIT[lag.lagUnit] as number | undefined
     if (lagFormat === undefined) return `lag unit must be d, h or m: ${String(lag.lagUnit)}`
     if (!Number.isInteger(lag.lagMinutes)) return `lag must be whole minutes: ${lag.lagMinutes}`
-    return { lag: lag.lagMinutes * TENTHS_OF_A_MINUTE, lagFormat }
+    return { linkLag: lag.lagMinutes * TENTHS_OF_A_MINUTE, lagFormat }
   }
   if (!Number.isInteger(lag.lagWorkingDays)) return `lag must be whole working days: ${lag.lagWorkingDays}`
-  return { lag: lagOfWorkingDays(lag.lagWorkingDays, minutesPerDay), lagFormat: WORKING_DAY_LAG_FORMAT }
+  return { linkLag: lagOfWorkingDays(lag.lagWorkingDays, minutesPerDay), lagFormat: WORKING_DAY_LAG_FORMAT }
 }

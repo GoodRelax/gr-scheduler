@@ -138,10 +138,10 @@ export const seatOf = (uid: number, taskUid: number, resourceUid: number): Recor
 
 export const highlightBoxOf = (id: string, part: Record<string, unknown> = {}): Record<string, unknown> => ({
   id,
-  startDate: '2026-04-02T08:00:00',
-  endDate: '2026-04-20T17:00:00',
-  topGroupId: GROUP_ID,
-  bottomGroupId: GROUP_ID,
+  start: '2026-04-02T08:00:00',
+  finish: '2026-04-20T17:00:00',
+  topTaskGroupId: GROUP_ID,
+  bottomTaskGroupId: GROUP_ID,
   strokeColor: null,
   cornerRadiusPx: null,
   strokeWidthPx: null,
@@ -155,7 +155,7 @@ export const commentBoxOf = (id: string, part: Record<string, unknown> = {}): Re
   leaderShapeKind: null,
   text: 'a note',
   anchorDate: '2026-04-08',
-  anchorGroupId: GROUP_ID,
+  anchorTaskGroupId: GROUP_ID,
   bodyOffsetPx: null,
   strokeColor: null,
   strokeWidthPx: null,
@@ -168,7 +168,7 @@ export const commentBoxOf = (id: string, part: Record<string, unknown> = {}): Re
 export function documentOf(seed: Seed): Document {
   const built = taskGroupDocument([{ id: GROUP_ID, parentId: null }], {}, {
     tasks: seed.tasks,
-    taskGroupMembers: seed.tasks.map((one) => ({ taskUid: one['uid'], groupId: GROUP_ID })),
+    taskGroupMembers: seed.tasks.map((one) => ({ taskUid: one['uid'], taskGroupId: GROUP_ID })),
     taskVisuals: seed.visuals ?? [],
     resources: seed.resources ?? [],
     assignments: seed.assignments ?? [],
@@ -260,7 +260,7 @@ export function contextOf(document: Document): InputContext {
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-03-01T00:00:00',
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
   }

@@ -104,7 +104,7 @@ const WIDEST_HOUR_LABEL_STRIDE = 3
 // WHY: a two-digit hour label and its gap, the width S-83's note derives its threshold from.
 /** @purity pure */
 function hourStrideOf(pxPerDay: number, settings: DrawnSettings): number {
-  const room = labelWidth('00', settings.rulerFont, settings) + settings.rulerLabelGap
+  const room = labelWidth('00', settings.rulerFontSizePx, settings) + settings.rulerLabelGap
   const pxPerHour = pxPerDay / HOURS_PER_DAY
   return HOUR_LABEL_STRIDES.find((stride) => stride * pxPerHour >= room) ?? WIDEST_HOUR_LABEL_STRIDE
 }
@@ -112,7 +112,7 @@ function hourStrideOf(pxPerDay: number, settings: DrawnSettings): number {
 // see FR-017, TM-5, S-578
 /** @purity pure */
 function isHalfHourGridShown(pxPerDay: number, settings: DrawnSettings): boolean {
-  return settings.showsTimeOfDay && thresholdPxPerDayOf(pxPerDay, settings) >= SETTINGS_CONSTANTS.halfHourGridPxPerDay
+  return settings.isTimeOfDayVisible && thresholdPxPerDayOf(pxPerDay, settings) >= SETTINGS_CONSTANTS.halfHourGridPxPerDay
 }
 
 const MS_PER_DAY = 86400000
@@ -168,7 +168,7 @@ function rulerAxisOf(layout: ScheduleLayout, region: string, dataRegion: string,
 // see FR-156, S-574
 /** @purity pure */
 function viewAxisOf(layout: ScheduleLayout, settings: DrawnSettings, dataRegion: string): RulerAxis {
-  return rulerAxisOf(layout, viewRegionOf(dataRegion, settings.viewTimeZone), dataRegion, settings.showsTimeOfDay)
+  return rulerAxisOf(layout, viewRegionOf(dataRegion, settings.viewTimeZone), dataRegion, settings.isTimeOfDayVisible)
 }
 
 /** @purity pure */
@@ -265,7 +265,7 @@ function hourRowSvg(
 /** @purity pure */
 function rowLabelSvg(x: number, row: RulerRowBox, settings: DrawnSettings, ink: string, key: string, label: string): string {
   return (
-    `<text x="${rounded(x)}" y="${rounded(row.baseline)}" font-size="${rounded(settings.rulerFont)}"` +
+    `<text x="${rounded(x)}" y="${rounded(row.baseline)}" font-size="${rounded(settings.rulerFontSizePx)}"` +
     `${typefaceAttribute()} fill="${ink}" xml:space="preserve"${figureKey(key)}>${escaped(label)}</text>`
   )
 }
@@ -278,7 +278,7 @@ const WIDEST_ZONE_DATE = '12/31'
 // WHY: off the hour tier a zone's row prints the zone's own midnight as m/d, as often as the label fits.
 /** @purity pure */
 function zoneDateRowSvg(axis: RulerAxis, layout: ScheduleLayout, settings: DrawnSettings, row: RulerRowBox, look: RulerInk, keyHead: string): readonly string[] {
-  const room = labelWidth(WIDEST_ZONE_DATE, settings.rulerFont, settings) + settings.rulerLabelGap
+  const room = labelWidth(WIDEST_ZONE_DATE, settings.rulerFontSizePx, settings) + settings.rulerLabelGap
   const stride = Math.max(1, Math.ceil(room / Math.max(0.001, layout.pxPerDay)))
   const out: string[] = []
   for (let serial = Math.floor(serialOf(dayAtX(axis, row.left)) / stride) * stride; ; serial += stride) {
@@ -307,7 +307,7 @@ export interface RulerClockRow {
 
 /** @purity pure */
 function rulerBaselineOf(top: number, settings: DrawnSettings): number {
-  return top + settings.rulerLabelPad + settings.rulerFont - settings.rulerLabelBottomPad
+  return top + settings.rulerLabelPad + settings.rulerFontSizePx - settings.rulerLabelBottomPad
 }
 
 // see FR-017, FR-156, S-575
@@ -395,8 +395,8 @@ function rulerLabelSvg(
   const label = rulerLabelOf(row, day, weekdayWords)
   const fontSize =
     row === 'weekday'
-      ? settings.rulerFont * NOT_STORED_RULER_WEEKDAY_SIZES['S-219']
-      : settings.rulerFont
+      ? settings.rulerFontSizePx * NOT_STORED_RULER_WEEKDAY_SIZES['S-219']
+      : settings.rulerFontSizePx
   const left = rulerLabelLeftOf(tickX, nextTickX, label, fontSize, bandLeft, settings)
   if (left === null) return null
   return (
@@ -662,7 +662,7 @@ function hourGridParts(input: GridInput, axis: RulerAxis): readonly string[] {
 /** @purity pure */
 function dateGridParts(input: GridInput): readonly string[] {
   const { schedule, settings, layout, area, themed } = input
-  if (!settings.dateGridLinesVisible || layout.originDay === null) return []
+  if (!settings.isDateGridLinesVisible || layout.originDay === null) return []
   const axis = viewAxisOf(layout, settings, schedule.project.scheduleDataTimeZone)
   const gridFrom = dayAtX(axis, area.x)
   if (layout.tier === 'dayHour') return hourGridParts(input, axis)
@@ -702,14 +702,14 @@ export function gridParts(input: GridInput): GridParts {
     const top = Math.max(taskGroup.y, taskGroup.isPinned === true ? area.y : scrollTop)
     const bottom = Math.min(taskGroup.y + taskGroup.height, areaBottom)
     if (bottom <= top) continue
-    const band = chosen(colorOfGroup.get(taskGroup.groupId) ?? null, 'band') ?? themed(bandTaskGroupOf(taskGroup.depth, position))
-    const taskGroupKey = `task-group-${taskGroup.groupId}`
+    const band = chosen(colorOfGroup.get(taskGroup.taskGroupId) ?? null, 'band') ?? themed(bandTaskGroupOf(taskGroup.depth, position))
+    const taskGroupKey = `task-group-${taskGroup.taskGroupId}`
     bandParts.push(
       `<rect x="${rounded(area.x)}" y="${rounded(top)}"` +
         ` width="${rounded(bandWidthOf(input))}" height="${rounded(bottom - top)}"` +
         ` fill="${band}"${figureKey(`${taskGroupKey}-band`)}/>`,
     )
-    if (!settings.groupGridLinesVisible) continue
+    if (!settings.isGroupGridLinesVisible) continue
     ruleParts.push(
       `<line x1="${rounded(area.x)}" y1="${rounded(bottom)}"` +
         ` x2="${rounded(area.x + bandWidthOf(input))}" y2="${rounded(bottom)}"` +

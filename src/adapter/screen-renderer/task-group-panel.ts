@@ -80,7 +80,7 @@ function availableLabelWidthPx(depth: number, settings: DrawnSettings): number {
     NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES['S-138'] * NOT_STORED_CHROME_SCALE['S-235'] +
     NOT_STORED_TASK_GROUP_GRAB_ROOM_SIZES['S-218']
   const available =
-    settings.taskGroupPanelWidth -
+    settings.taskGroupPanelWidthPx -
     depth * settings.taskGroupTitleIndent -
     roomForControlsPx -
     roomForGrabStripPx
@@ -178,7 +178,7 @@ function taskGroupTitleOf(
       : labelCutToFit(wholeLabel, availableLabelWidthPx(depth, settings), fontSizePx, settings)
 
   return {
-    groupId: group.id,
+    taskGroupId: group.id,
     depth,
     box: heldBox(box, held),
     indentPx: depth * settings.taskGroupTitleIndent,
@@ -210,7 +210,7 @@ function heldBox(box: ScreenRect, held: HeldTaskGroup | null): ScreenRect {
 // (decision 15 of CR-570). Without the reading, the on-screen boxes stand in for it.
 /** @purity pure */
 function placedRowIdsOf(readings: ScreenViewReadings): ReadonlySet<string> {
-  const placed = readings.placedTaskGroupIds ?? readings.taskGroupBoxes.map((one) => one.groupId)
+  const placed = readings.placedTaskGroupIds ?? readings.taskGroupBoxes.map((one) => one.taskGroupId)
   return new Set(placed)
 }
 
@@ -240,7 +240,7 @@ function openArmingOf(
   }
 
   const depthLimit = groupDepthLimit(settings)
-  const pinned = new Set(settings.pinnedGroupIds)
+  const pinned = new Set(settings.pinnedTaskGroupIds)
   const placedGroups = [...placed].flatMap((id) => groupsById.get(id) ?? [])
   const keptByExpanded = keptInViewByTreeState(placedGroups, 'expandedOnly')
   const groupIdsWithAChildToOpen = new Set<string>()
@@ -289,8 +289,8 @@ function panelIndexOf(schedule: Schedule, readings: ScreenViewReadings, isLevelZ
 
   const boxByGroupId = new Map<string, ScreenRect>()
   for (const placed of readings.taskGroupBoxes) {
-    if (boxByGroupId.has(placed.groupId)) continue
-    boxByGroupId.set(placed.groupId, placed.box)
+    if (boxByGroupId.has(placed.taskGroupId)) continue
+    boxByGroupId.set(placed.taskGroupId, placed.box)
   }
 
   const groupIdsWithDrawnChildren = new Set<string>()
@@ -358,8 +358,8 @@ function groupGridLinesOf(
   index: PanelIndex,
   settings: DrawnSettings,
 ): readonly ScreenRect[] {
-  if (!settings.groupGridLinesVisible) return []
-  const placedBoxes = described.flatMap((title) => index.boxByGroupId.get(title.groupId) ?? [])
+  if (!settings.isGroupGridLinesVisible) return []
+  const placedBoxes = described.flatMap((title) => index.boxByGroupId.get(title.taskGroupId) ?? [])
   return placedBoxes.map((box) => ({
     x: box.x,
     y: box.y + box.height - GROUP_GRID_LINE_WIDTH_PX / 2,
@@ -381,11 +381,11 @@ export function taskGroupPanelFromSchedule(
   const settings = drawnSettingsOf(storedSettings)
   const isLevelZeroCollapsed = settings.levelZeroTreeState === 'collapsed'
   const index = panelIndexWithArmingOf(schedule, settings, readings, isLevelZeroCollapsed)
-  const pinnedGroupIds = new Set(settings.pinnedGroupIds)
+  const pinnedTaskGroupIds = new Set(settings.pinnedTaskGroupIds)
   const chosenGroupIds: ReadonlySet<string> = new Set(readings.selectedGroupIds)
   const grabbed = readings.taskGroupGrabbedAt ?? null
-  const heldOf = (groupId: string): HeldTaskGroup | null =>
-    grabbed === null || grabbed.groupId !== groupId
+  const heldOf = (taskGroupId: string): HeldTaskGroup | null =>
+    grabbed === null || grabbed.taskGroupId !== taskGroupId
       ? null
       : {
           depth: grabbed.depth,
@@ -395,20 +395,20 @@ export function taskGroupPanelFromSchedule(
         }
 
   const pinnedTitles: TaskGroupTitle[] = []
-  for (const groupId of pinnedGroupIds) {
-    const group = index.groupsById.get(groupId)
-    const box = index.boxByGroupId.get(groupId)
+  for (const taskGroupId of pinnedTaskGroupIds) {
+    const group = index.groupsById.get(taskGroupId)
+    const box = index.boxByGroupId.get(taskGroupId)
     if (group === undefined || box === undefined) continue
     pinnedTitles.push(taskGroupTitleOf(group, box, true, index, settings, chosenGroupIds, null))
   }
 
-  const describedGroupIds = new Set(pinnedGroupIds)
+  const describedGroupIds = new Set(pinnedTaskGroupIds)
   const titles: TaskGroupTitle[] = []
   for (const placed of readings.taskGroupBoxes) {
-    if (describedGroupIds.has(placed.groupId)) continue
-    const group = index.groupsById.get(placed.groupId)
+    if (describedGroupIds.has(placed.taskGroupId)) continue
+    const group = index.groupsById.get(placed.taskGroupId)
     if (group === undefined) continue
-    describedGroupIds.add(placed.groupId)
+    describedGroupIds.add(placed.taskGroupId)
     titles.push(taskGroupTitleOf(group, placed.box, false, index, settings, chosenGroupIds, heldOf(group.id)))
   }
 
@@ -441,7 +441,7 @@ export function rulerAbbreviationsOf(
   language: DisplayLanguage,
 ): readonly RulerAbbreviation[] {
   const settings = drawnSettingsOf(storedSettings)
-  if (!settings.showsTimeOfDay) return []
+  if (!settings.isTimeOfDayVisible) return []
   const panel = regions.taskGroupPanel
   const tier = rulerTierOf(timeAxisOf(storedSettings, regions).pxPerDay, storedSettings)
   // TRAP: read through ?.: views built from a partial schedule carry no project.
@@ -451,7 +451,7 @@ export function rulerAbbreviationsOf(
     text: timeZoneAbbreviationOf(row.zoneKey, language),
     box: { x: panel.x, y: row.top, width, height: row.height },
     baseline: row.baseline,
-    fontPx: settings.rulerFont,
+    fontPx: settings.rulerFontSizePx,
   }))
 }
 
@@ -490,7 +490,7 @@ const NOT_STORED_CHROME_SCALE: {
 export function drawnTaskGroupBoxesOf(
   layout: ScheduleLayout,
   regions: ScreenRegions,
-): readonly { readonly groupId: string; readonly box: ScreenRect }[] {
+): readonly { readonly taskGroupId: string; readonly box: ScreenRect }[] {
   const scrollTop = layout.scrollAreaY ?? regions.taskGroupArea.y
   return layout.taskGroups.flatMap((taskGroup) => {
     const top = Math.max(taskGroup.y, taskGroup.isPinned === true ? regions.taskGroupArea.y : scrollTop)
@@ -498,7 +498,7 @@ export function drawnTaskGroupBoxesOf(
     if (bottom <= top) return []
     return [
       {
-        groupId: taskGroup.groupId,
+        taskGroupId: taskGroup.taskGroupId,
         box: {
           x: regions.taskGroupPanel.x,
           y: top,

@@ -1816,11 +1816,11 @@
   {
    "rowId": "K-2",
    "keys": [
-    "rulerHeight"
+    "rulerHeightPx"
    ],
    "label": {
     "ja": "目盛の帯の高さ",
-    "en": "rulerHeight"
+    "en": "rulerHeightPx"
    },
    "labelBreakSegments": {
     "ja": [
@@ -1833,11 +1833,11 @@
   {
    "rowId": "K-3",
    "keys": [
-    "rulerFont"
+    "rulerFontSizePx"
    ],
    "label": {
     "ja": "目盛の文字",
-    "en": "rulerFont"
+    "en": "rulerFontSizePx"
    }
   },
   {
@@ -2483,11 +2483,11 @@
   {
    "rowId": "K-61",
    "keys": [
-    "themeMonochrome"
+    "isThemeMonochrome"
    ],
    "label": {
     "ja": "モノクロにするか",
-    "en": "themeMonochrome"
+    "en": "isThemeMonochrome"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2591,11 +2591,11 @@
   {
    "rowId": "K-70",
    "keys": [
-    "scrollGroupId"
+    "scrollTaskGroupId"
    ],
    "label": {
     "ja": "表示の上端が指すタスクグループ",
-    "en": "scrollGroupId"
+    "en": "scrollTaskGroupId"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2609,11 +2609,11 @@
   {
    "rowId": "K-71",
    "keys": [
-    "taskGroupPanelWidth"
+    "taskGroupPanelWidthPx"
    ],
    "label": {
     "ja": "タスクグループパネルの幅",
-    "en": "taskGroupPanelWidth"
+    "en": "taskGroupPanelWidthPx"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2626,7 +2626,7 @@
   {
    "rowId": "K-143",
    "keys": [
-    "taskGroupPanelWidthFixed"
+    "isTaskGroupPanelWidthFixed"
    ],
    "label": {
     "ja": "タスクグループパネルの幅を固定する",
@@ -2654,11 +2654,11 @@
   {
    "rowId": "K-110",
    "keys": [
-    "pinnedGroupIds"
+    "pinnedTaskGroupIds"
    ],
    "label": {
     "ja": "ピン止めの対象",
-    "en": "pinnedGroupIds"
+    "en": "pinnedTaskGroupIds"
    },
    "labelBreakSegments": {
     "ja": [
@@ -2690,7 +2690,7 @@
   {
    "rowId": "K-122",
    "keys": [
-    "planVisible"
+    "isPlanVisible"
    ],
    "label": {
     "ja": "予定の表示",
@@ -2700,7 +2700,7 @@
   {
    "rowId": "K-123",
    "keys": [
-    "actualVisible"
+    "isActualVisible"
    ],
    "label": {
     "ja": "実績の表示",
@@ -2710,7 +2710,7 @@
   {
    "rowId": "K-75",
    "keys": [
-    "assigneeVisible"
+    "isAssigneeVisible"
    ],
    "label": {
     "ja": "担当ラベル",
@@ -2720,7 +2720,7 @@
   {
    "rowId": "K-76",
    "keys": [
-    "percentCompleteVisible"
+    "isPercentCompleteVisible"
    ],
    "label": {
     "ja": "完了率ラベル",
@@ -2730,7 +2730,7 @@
   {
    "rowId": "K-124",
    "keys": [
-    "planDatesVisible"
+    "isPlanDatesVisible"
    ],
    "label": {
     "ja": "名称ラベルに添える予定日",
@@ -2747,7 +2747,7 @@
   {
    "rowId": "K-77",
    "keys": [
-    "dependencyVisible"
+    "isDependencyVisible"
    ],
    "label": {
     "ja": "依存線",
@@ -2757,7 +2757,7 @@
   {
    "rowId": "K-78",
    "keys": [
-    "progressMarkerVisible"
+    "isProgressMarkerVisible"
    ],
    "label": {
     "ja": "進捗マーカー",
@@ -2767,7 +2767,7 @@
   {
    "rowId": "K-79",
    "keys": [
-    "progressLineVisible"
+    "isProgressLineVisible"
    ],
    "label": {
     "ja": "イナズマ線",
@@ -2797,7 +2797,7 @@
   {
    "rowId": "K-82",
    "keys": [
-    "dateGridLinesVisible"
+    "isDateGridLinesVisible"
    ],
    "label": {
     "ja": "日付罫線（日付ごとの縦線）",
@@ -2814,7 +2814,7 @@
   {
    "rowId": "K-83",
    "keys": [
-    "groupGridLinesVisible"
+    "isGroupGridLinesVisible"
    ],
    "label": {
     "ja": "グループ罫線（TaskGroup 境界の横線）",
@@ -2831,7 +2831,7 @@
   {
    "rowId": "K-84",
    "keys": [
-    "baselineVisible"
+    "isBaselineVisible"
    ],
    "label": {
     "ja": "変更前の予定を重ねるか",
@@ -2874,11 +2874,11 @@
   {
    "rowId": "K-86",
    "keys": [
-    "importSeq"
+    "importSequence"
    ],
    "label": {
     "ja": "取り込みの連番",
-    "en": "importSeq"
+    "en": "importSequence"
    }
   },
   {
@@ -2911,7 +2911,7 @@
   {
    "rowId": "K-142",
    "keys": [
-    "fitSpanFixed"
+    "isFitSpanFixed"
    ],
    "label": {
     "ja": "全体表示時の期間を固定する",
@@ -2961,11 +2961,11 @@
   {
    "rowId": "K-146",
    "keys": [
-    "showsTimeOfDay"
+    "isTimeOfDayVisible"
    ],
    "label": {
     "ja": "時刻を表示する",
-    "en": "showsTimeOfDay"
+    "en": "isTimeOfDayVisible"
    },
    "labelBreakSegments": {
     "ja": [

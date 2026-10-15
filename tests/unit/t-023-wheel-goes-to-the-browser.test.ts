@@ -333,12 +333,12 @@ function twoTaskGroupDocument(): Document {
   const row = (id: string, label: string, order: number) => ({
     id,
     parentId: null,
-    label,
+    name: label,
     derivedFromTaskUid: null,
     order,
     treeState: 'auto', editGroup: null,
     color: null,
-    minHeight: null,
+    minHeightPx: null,
   })
   return {
     '$schema': template['$schema'],
@@ -358,8 +358,8 @@ function twoTaskGroupDocument(): Document {
       assignments: [],
       taskGroups: [row(ALPHA, 'Alpha', 0), row(BETA, 'Beta', 1)],
       taskGroupMembers: [
-        { taskUid: PARENT, groupId: ALPHA },
-        { taskUid: CHILD, groupId: BETA },
+        { taskUid: PARENT, taskGroupId: ALPHA },
+        { taskUid: CHILD, taskGroupId: BETA },
       ],
       taskVisuals: [],
       commentBoxes: [],

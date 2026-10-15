@@ -75,15 +75,15 @@ function fixture(): string {
       ],
       resources: [],
       assignments: [],
-      taskGroups: [{ ...TEMPLATE.schedule['taskGroups'][0], id: ROW, parentId: null, label: 'Row A', order: 0, treeState: 'auto', minHeight: null }],
-      taskGroupMembers: [{ taskUid: 1, groupId: ROW }],
+      taskGroups: [{ ...TEMPLATE.schedule['taskGroups'][0], id: ROW, parentId: null, name: 'Row A', order: 0, treeState: 'auto', minHeightPx: null }],
+      taskGroupMembers: [{ taskUid: 1, taskGroupId: ROW }],
       taskVisuals: [{ taskUid: 1, shapeKind: null, milestoneGlyph: null, fillColor: null, strokeColor: null, strokeWidthPx: null }],
       commentBoxes: [],
       highlightBoxes: [],
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: '2025-12-20T00:00:00', scrollDayOffset: 0, scrollGroupId: ROW, scrollGroupOffset: 0 },
+    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: '2025-12-20T00:00:00', scrollDayOffset: 0, scrollTaskGroupId: ROW, scrollGroupOffset: 0 },
     documentStamp: TEMPLATE.documentStamp,
     changeLog: [],
   }
@@ -107,11 +107,11 @@ async function readHeld(page: Page): Promise<Held> {
 }
 
 /** @purity non-pure */
-async function rename(page: Page, name: string): Promise<{ accepted: boolean }> {
+async function rename(page: Page, name: string): Promise<{ ok: boolean }> {
   return page.evaluate((wanted: string) => {
-    const api = (window as unknown as { grSchedulerAgentApi: { readStamp(): unknown; applyCommands(request: unknown): { accepted: boolean } } })
+    const api = (window as unknown as { grSchedulerAgentApi: { readStamp(): unknown; applyCommands(request: unknown): { ok: boolean } } })
       .grSchedulerAgentApi
-    return api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid: 1, name: wanted }] })
+    return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid: 1, name: wanted }] })
   }, name)
 }
 
@@ -147,7 +147,7 @@ async function askedStage(): Promise<Stage> {
   if (browser === null) throw new Error('no browser')
   const opened = await openStage(browser)
   await openDocument(opened.page, 'w3-t1-question.json', fixture())
-  expect((await rename(opened.page, 'Renamed')).accepted, 'premise: one undoable edit stands in the history').toBe(true)
+  expect((await rename(opened.page, 'Renamed')).ok, 'premise: one undoable edit stands in the history').toBe(true)
   await settle(opened.page)
   await askToDeleteEveryTaskGroup(opened.page)
   expect(await textOf(opened.page, CONFIRMATION), 'premise: QN-10 stands').not.toBeNull()
@@ -211,7 +211,7 @@ test.describe(`NT-7 (MUST): ${NT_7_NO_WRITE.slice(-40)}`, () => {
     const opened = await askedStage()
     try {
       const answer = await rename(opened.page, 'Agent')
-      expect(answer.accepted).toBe(false)
+      expect(answer.ok).toBe(false)
       expect((await readHeld(opened.page)).name).toBe('Renamed')
       await opened.page.keyboard.press('n')
       await settle(opened.page)

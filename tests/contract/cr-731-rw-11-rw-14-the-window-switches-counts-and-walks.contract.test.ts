@@ -175,12 +175,12 @@ describe('RW-12 -- the strip under the proposals', () => {
 })
 
 describe('item 12 -- RW-14: previous and next walk the rows a person mends, and stop at the ends', () => {
-  const humanRows = (): number => proposed(MIXED()).filter((one) => one.fixType !== 'automatic').length
+  const humanRows = (): number => proposed(MIXED()).filter((one) => one.fixKind !== 'automatic').length
   const counterText = (k: number): string => filled(fixWord('humanCounter'), { k, m: humanRows() })
 
   it('premise: one machine row and three rows for a person', () => {
     const rows = proposed(MIXED())
-    expect(rows.filter((one) => one.fixType === 'automatic')).toHaveLength(1)
+    expect(rows.filter((one) => one.fixKind === 'automatic')).toHaveLength(1)
     expect(humanRows()).toBe(3)
   })
 

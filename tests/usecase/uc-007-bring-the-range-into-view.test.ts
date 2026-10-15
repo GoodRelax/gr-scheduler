@@ -101,7 +101,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     expect(drawnTaskGroups.length).toBeGreaterThan(0)
     const dayOf = (iso: string) => Math.round(Date.parse(iso.slice(0, 10) + 'T00:00:00Z') / 86400000)
     let checked = 0
-    for (const member of doc.schedule.taskGroupMembers.filter((m) => drawnTaskGroups.includes(m.groupId))) {
+    for (const member of doc.schedule.taskGroupMembers.filter((m) => drawnTaskGroups.includes(m.taskGroupId))) {
       const task = doc.schedule.tasks.find((t) => t.uid === member.taskUid)!
       if (dayOf(task.finish) < seenFrom || dayOf(task.start) > seenTo) continue
       await expect(page.locator('[data-figure="task-' + task.uid + '-plan"]')).toHaveCount(1)
@@ -135,7 +135,7 @@ test('UC-007 bring the wanted range into view (MK-1 MK-2 MK-4 MK-7, FR-016, FR-0
     await press(page, 'IC-10')
     const target = groups.find((g) => g.parentId === null)!.id
     await pressRowControl(page, target, 'IC-60')
-    expect((await readDocument(page)).documentSettings.pinnedGroupIds).toContain(target)
+    expect((await readDocument(page)).documentSettings.pinnedTaskGroupIds).toContain(target)
     await wheel(page, 400, 10)
     const row = page.locator(taskGroupSelector(target))
     await expect(row).toHaveCount(1)

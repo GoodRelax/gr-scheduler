@@ -1381,7 +1381,7 @@ async function measureMspdiRoundTrip(page: Page): Promise<{
           // ⛔ The old test was `/…|false/i` over the whole answer, which an
           // ACCEPTED outcome also matches through `"hasMovedSchedule":false`.
           const outcome = answer !== null && typeof answer === 'object' ? (answer as Bag) : null
-          if (outcome?.['accepted'] === true) {
+          if (outcome?.['ok'] === true) {
             imported = true
             break
           }

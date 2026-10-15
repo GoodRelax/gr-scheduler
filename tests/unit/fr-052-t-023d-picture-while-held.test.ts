@@ -91,7 +91,7 @@
 //             ⛔ ONE CASE IS LEFT RED ON PURPOSE ON THIS ROW -- see the describe
 //             that names it, which also says which half of it is disputed and
 //             why the case is not judged on that half.
-//   S-79      `taskGroupPanelWidth`, 下限 `taskGroupTitleIndent` × `maxGroupDepth`,
+//   S-79      `taskGroupPanelWidthPx`, 下限 `taskGroupTitleIndent` × `maxGroupDepth`,
 //             上限 「`Task Group Area` の幅 > 0 に従う」.
 //   S-171     `propertyPanelWidth`, the screen value the panel starts at (CR-572).
 //   S-134     「`Panel Divider` の掴み帯（`FR-051`）| 境界に重なる 8px」 -- the
@@ -309,14 +309,14 @@ function fixtureDocument(): Document {
         {
           id: ROW_ID,
           parentId: null,
-          label: 'Alpha',
+          name: 'Alpha',
           derivedFromTaskUid: null,
           order: 0,
           treeState: 'auto', color: null,
-          minHeight: null,
+          minHeightPx: null,
         },
       ],
-      taskGroupMembers: [{ taskUid: FADED_UID, groupId: ROW_ID }],
+      taskGroupMembers: [{ taskUid: FADED_UID, taskGroupId: ROW_ID }],
       taskVisuals: [],
       commentBoxes: [],
       highlightBoxes: [],
@@ -327,7 +327,7 @@ function fixtureDocument(): Document {
       ...structuredClone(template.documentSettings),
       // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this fixture draws at.
       zoomX: PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x,
-      taskGroupPanelWidth: TASK_GROUP_PANEL_WIDTH_ON_THE_FLOOR,
+      taskGroupPanelWidthPx: TASK_GROUP_PANEL_WIDTH_ON_THE_FLOOR,
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],
@@ -649,7 +649,7 @@ function boundaryOf(built: Stage, panel: 'taskGroupPanel' | 'propertiesPanel'): 
 }
 
 const drawnPanelWidth = (loop: FrameLoop): number => frameOf(loop).regions.taskGroupPanel.width
-const storedPanelWidth = (loop: FrameLoop): number => settingsOf(loop).taskGroupPanelWidth
+const storedPanelWidth = (loop: FrameLoop): number => settingsOf(loop).taskGroupPanelWidthPx
 
 // ===========================================================================
 // The premises every case below stands on
@@ -1171,7 +1171,7 @@ describe('FR-052: while the boundary is held the widths are DRAWN and not WRITTE
     built.send(pointer('down', at.x, at.y))
     built.send(pointer('move', at.x + 40, at.y))
     expect(
-      (frameOf(built.loop).settingsMeasuredWith as any).taskGroupPanelWidth,
+      (frameOf(built.loop).settingsMeasuredWith as any).taskGroupPanelWidthPx,
       'the settings this frame was measured with are the ones it DREW: the drawn width over the drawn ratio (T-252)',
     ).toBeCloseTo((was + 40) / DEFAULT_DISPLAY_RATIO, 6)
   })

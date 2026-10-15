@@ -173,7 +173,7 @@ export interface TaskGeometry {
 export interface FarEndGeometry {
   readonly isAcrossInTaskGroupArea: boolean
   readonly isDownInTaskGroupPlace: boolean
-  readonly groupId: string
+  readonly taskGroupId: string
   readonly middleX: number
   readonly undrawnTaskGroupDepth: number | null
   readonly foldedRowId: string | null
@@ -308,7 +308,7 @@ interface EndReading {
 function readingOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRegions): EndReading {
   const groupOfTask = new Map<number, string>()
   for (const member of schedule.taskGroupMembers) {
-    if (!groupOfTask.has(member.taskUid)) groupOfTask.set(member.taskUid, member.groupId)
+    if (!groupOfTask.has(member.taskUid)) groupOfTask.set(member.taskUid, member.taskGroupId)
   }
   const groupById = new Map(schedule.taskGroups.map((group) => [group.id, group]))
   let treePosition: ReadonlyMap<string, number> | null = null
@@ -316,10 +316,10 @@ function readingOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRe
     inputs,
     regions,
     placedByUid: new Map(plannedPlacementsOf(inputs).map((one) => [one.taskUid, one])),
-    taskGroupById: new Map(inputs.layout.taskGroups.map((taskGroup) => [taskGroup.groupId, taskGroup])),
+    taskGroupById: new Map(inputs.layout.taskGroups.map((taskGroup) => [taskGroup.taskGroupId, taskGroup])),
     groupById,
     groupOfTask,
-    pinnedIds: new Set(inputs.settings.pinnedGroupIds),
+    pinnedIds: new Set(inputs.settings.pinnedTaskGroupIds),
     treePositionOf: () => {
       treePosition ??= new Map(inTreeOrder(schedule.taskGroups, groupById).map((group, at) => [group.id, at]))
       return treePosition
@@ -340,17 +340,17 @@ function overlapOf(from: number, to: number, lower: number, upper: number): numb
 // see EL-1, EL-2, FR-098, LF-14
 // WHY: an EL-2 end stands on a zero-height line, so it is never inside its task group's place down.
 /** @purity pure */
-function farEndOf(end: LinkEnd, groupId: string, undrawnTaskGroupDepth: number | null, foldedRowId: string | null,
+function farEndOf(end: LinkEnd, taskGroupId: string, undrawnTaskGroupDepth: number | null, foldedRowId: string | null,
                   reading: EndReading): FarEndGeometry {
   const area = reading.regions.taskGroupArea
   const bandFloor = reading.inputs.layout.scrollAreaY ?? area.y
-  const isPinned = reading.taskGroupById.get(groupId)?.isPinned === true
+  const isPinned = reading.taskGroupById.get(taskGroupId)?.isPinned === true
   const top = isPinned ? area.y : bandFloor
   const bottom = isPinned ? bandFloor : area.y + area.height
   return {
     isAcrossInTaskGroupArea: overlapOf(end.x, end.x + end.width, area.x, area.x + area.width) > 0,
     isDownInTaskGroupPlace: overlapOf(end.top, end.bottom, top, bottom) > 0,
-    groupId,
+    taskGroupId,
     middleX: (end.x + (end.x + end.width)) / 2,
     undrawnTaskGroupDepth,
     foldedRowId,
@@ -377,7 +377,7 @@ function scrollingFloorOf(reading: EndReading, counts: (taskGroup: TaskGroupPlac
 /** @purity pure */
 function standingYOf(taskGroup: TaskGroupPlacement, reading: EndReading): number {
   if (taskGroup.isPinned !== true) return taskGroup.y + taskGroup.height
-  const stop = reading.inputs.layout.taskGroups.findIndex((one) => one.groupId === taskGroup.groupId)
+  const stop = reading.inputs.layout.taskGroups.findIndex((one) => one.taskGroupId === taskGroup.taskGroupId)
   return scrollingFloorOf(reading, (_one, at) => stop < 0 || at < stop)
 }
 
@@ -386,7 +386,7 @@ function standingYOf(taskGroup: TaskGroupPlacement, reading: EndReading): number
 function unhiddenYOf(own: TaskGroup, reading: EndReading): number {
   const position = reading.treePositionOf()
   const ownAt = position.get(own.id) ?? Number.POSITIVE_INFINITY
-  return scrollingFloorOf(reading, (one) => (position.get(one.groupId) ?? ownAt) < ownAt)
+  return scrollingFloorOf(reading, (one) => (position.get(one.taskGroupId) ?? ownAt) < ownAt)
 }
 
 interface Climb {
@@ -420,8 +420,8 @@ function lodEndOf(task: Task, reading: EndReading): SightedEnd | null {
   const { layout, settings } = reading.inputs
   const start = dayOf(task.start)
   const finish = dayOf(task.finish)
-  const groupId = reading.groupOfTask.get(task.uid)
-  const own = groupId === undefined ? undefined : reading.groupById.get(groupId)
+  const taskGroupId = reading.groupOfTask.get(task.uid)
+  const own = taskGroupId === undefined ? undefined : reading.groupById.get(taskGroupId)
   if (start === null || finish === null || own === undefined || layout.stackSafetyCapReached !== null) return null
   const drawnTaskGroup = reading.taskGroupById.get(own.id)
   if (drawnTaskGroup !== undefined) return filteredEndOf(task, own, drawnTaskGroup, reading)
@@ -468,7 +468,7 @@ function sightedEndOf(uid: number, reading: EndReading): SightedEnd | null {
   const placed = reading.placedByUid.get(uid)
   if (placed !== undefined) {
     const end = placedEndOf(placed, reading.inputs.settings)
-    return { end, far: farEndOf(end, placed.groupId, null, null, reading) }
+    return { end, far: farEndOf(end, placed.taskGroupId, null, null, reading) }
   }
   const task = reading.inputs.taskByUid.get(uid)
   return task === undefined ? null : lodEndOf(task, reading)
@@ -484,7 +484,7 @@ function elisionOf(predecessorSeen: boolean, successorSeen: boolean): Elision {
 // see RT-4a, FR-009, T-303
 /** @purity pure */
 function dependenciesOf(schedule: Schedule, inputs: GeometryInputs, regions: ScreenRegions): DependencyGeometry[] {
-  if (!inputs.settings.dependencyVisible || !inputs.settings.planVisible) return []
+  if (!inputs.settings.isDependencyVisible || !inputs.settings.isPlanVisible) return []
   const reading = readingOf(schedule, inputs, regions)
   const lanes = laneSpansOf(inputs.layout, inputs.settings)
   const out: DependencyGeometry[] = []
@@ -515,7 +515,7 @@ function planExtentOf(placed: TaskPlacement, settings: DrawnSettings): { readonl
 /** @purity pure */
 function baselineEdgeXOf(text: string | null, side: DateTimeSide, reading: DateTimeSide,
                          inputs: GeometryInputs, onSide: InstantOnSide): number | null {
-  if (inputs.settings.showsTimeOfDay) {
+  if (inputs.settings.isTimeOfDayVisible) {
     const instant = onSide(text, reading)
     return instant === null ? null : xOfInstant(inputs.layout, instant)
   }
@@ -545,24 +545,24 @@ function baselineOutlineOf(baseline: BaselineTask, placed: TaskPlacement, isPinn
 }
 
 // see FR-015, BL-1, BL-4
-// TRAP: never gate on planVisible as dependenciesOf does: the overlay is drawn with the plan hidden.
+// TRAP: never gate on isPlanVisible as dependenciesOf does: the overlay is drawn with the plan hidden.
 /** @purity pure */
 function baselineOutlinesOf(schedule: Schedule, inputs: GeometryInputs): BaselineOutline[] {
-  if (!inputs.settings.baselineVisible || schedule.baselineTasks.length === 0) return []
+  if (!inputs.settings.isBaselineVisible || schedule.baselineTasks.length === 0) return []
   const placedByUid = new Map<number, TaskPlacement>()
   for (const placed of inputs.layout.placements) {
     if (!placedByUid.has(placed.taskUid)) placedByUid.set(placed.taskUid, placed)
   }
   const pinnedIds = new Set<string>()
   for (const taskGroup of inputs.layout.taskGroups) {
-    if (taskGroup.isPinned === true) pinnedIds.add(taskGroup.groupId)
+    if (taskGroup.isPinned === true) pinnedIds.add(taskGroup.taskGroupId)
   }
   const onSide = instantOnSideReader(inputs.within)
   const out: BaselineOutline[] = []
   for (const baseline of schedule.baselineTasks) {
     const placed = placedByUid.get(baseline.uid)
     if (placed === undefined) continue
-    const outline = baselineOutlineOf(baseline, placed, pinnedIds.has(placed.groupId), inputs, onSide)
+    const outline = baselineOutlineOf(baseline, placed, pinnedIds.has(placed.taskGroupId), inputs, onSide)
     if (outline !== null) out.push(outline)
   }
   return out
@@ -595,8 +595,8 @@ export function geometryFromLayout(
     within: workingCalendarOf(schedule),
     taskByUid: new Map(schedule.tasks.map((one) => [one.uid, one])),
     statusDate: dayOf(schedule.project.statusDate),
-    showPlan: settings.planVisible,
-    showActual: settings.actualVisible,
+    showPlan: settings.isPlanVisible,
+    showActual: settings.isActualVisible,
     selectedTaskUids: new Set(taskUidsIn(selection)),
     selectedLinks: selectedLinksOf(schedule, selection),
     dummyEndByFrom: new Map<string, CalendarDay>(),
@@ -626,10 +626,10 @@ export function geometryFromLayout(
 // see FR-098, S-78
 /** @purity pure */
 function pinnedBandOf(layout: ScheduleLayout, regions: ScreenRegions): Pick<ScheduleGeometry, 'pinnedBand'> {
-  const pinnedIds = new Set(layout.taskGroups.filter((taskGroup) => taskGroup.isPinned === true).map((taskGroup) => taskGroup.groupId))
+  const pinnedIds = new Set(layout.taskGroups.filter((taskGroup) => taskGroup.isPinned === true).map((taskGroup) => taskGroup.taskGroupId))
   if (pinnedIds.size === 0) return {}
   const pinnedTaskUids = new Set(
-    layout.placements.filter((one) => pinnedIds.has(one.groupId)).map((one) => one.taskUid),
+    layout.placements.filter((one) => pinnedIds.has(one.taskGroupId)).map((one) => one.taskUid),
   )
   return { pinnedBand: { scrollTop: layout.scrollAreaY ?? regions.taskGroupArea.y, pinnedTaskUids } }
 }

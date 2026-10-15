@@ -28,7 +28,7 @@ const TITLE_DOUBLE_CLICK = '／`Document Title`（`_assets/tbl-glossary.md` の 
 
 // see CF-1, T-366
 const SOLVE_BEFORE_DRAWING =
-  'テーマ色（`themeHue`）・明暗（`themePreference`）・モノクロ（`themeMonochrome`）のどれかが変わったら、描く前に `CF-2` 〜 `CF-4` を、この順に 1 回解くこと（MUST）'
+  'テーマ色（`themeHue`）・明暗（`themePreference`）・モノクロ（`isThemeMonochrome`）のどれかが変わったら、描く前に `CF-2` 〜 `CF-4` を、この順に 1 回解くこと（MUST）'
 
 // see FR-036, T-335
 const CHOOSERS_FOLLOW_WB_10 =
@@ -391,7 +391,7 @@ const wheelOutcome = async (browser: Browser, wheel: { deltaMode: number; deltaY
     )
     await settle(page)
     const settings = (await readDocument(page)).documentSettings
-    return { zoomX: settings['zoomX'], zoomY: settings['zoomY'], scrollGroupId: settings['scrollGroupId'], scrollGroupOffset: settings['scrollGroupOffset'], scrollDate: settings['scrollDate'], scrollDayOffset: settings['scrollDayOffset'] }
+    return { zoomX: settings['zoomX'], zoomY: settings['zoomY'], scrollTaskGroupId: settings['scrollTaskGroupId'], scrollGroupOffset: settings['scrollGroupOffset'], scrollDate: settings['scrollDate'], scrollDayOffset: settings['scrollDayOffset'] }
   } finally {
     await context.close()
   }
@@ -449,7 +449,7 @@ test(`FR-100: ${NO_WARNING_WORDS}`, async ({ page }) => {
   const uid = (await readDocument(page)).schedule.tasks[0]?.['uid']
   await page.evaluate((uid) => {
     const api = (window as any).grSchedulerAgentApi
-    return api.applyCommands({ readStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid, name: 'An unsaved edit' }] })
+    return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid, name: 'An unsaved edit' }] })
   }, uid)
   await settle(page)
   const heard = await page.evaluate(() => {

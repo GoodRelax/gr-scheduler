@@ -7,11 +7,11 @@ import type { DocumentSettings } from '../../document-model/document-settings/do
 import type { TaskGroupPlacement, TaskPlacement } from './schedule-layout'
 
 // see S-78, S-176
-type SlabOf = Pick<TaskGroupPlacement, 'groupId' | 'y' | 'height'>
+type SlabOf = Pick<TaskGroupPlacement, 'taskGroupId' | 'y' | 'height'>
 
 // see S-78, S-176
 interface TaskGroupAnchor {
-  readonly scrollGroupId: string | null
+  readonly scrollTaskGroupId: string | null
   readonly scrollGroupOffset: number
 }
 
@@ -22,7 +22,7 @@ export function scrollOffsetOf(
   settings: DocumentSettings,
   taskGroupAreaY: number,
 ): number {
-  const anchoredAt = taskGroups.findIndex((taskGroup) => taskGroup.groupId === settings.scrollGroupId)
+  const anchoredAt = taskGroups.findIndex((taskGroup) => taskGroup.taskGroupId === settings.scrollTaskGroupId)
   if (anchoredAt < 0) return 0
   const held = Number.isFinite(settings.scrollGroupOffset) ? settings.scrollGroupOffset : 0
   const carriedRows = Math.floor(held)
@@ -57,7 +57,7 @@ export function scrolledPlacements(
 ): readonly TaskPlacement[] {
   if (offsetY === 0) return placements
   return placements.map((one) =>
-    pinnedIdsPlaced.has(one.groupId) ? one : { ...one, y: one.y - offsetY },
+    pinnedIdsPlaced.has(one.taskGroupId) ? one : { ...one, y: one.y - offsetY },
   )
 }
 
@@ -92,10 +92,10 @@ export function taskGroupAnchorIn(
   if (slab <= 0) return held
   const into = y - taskGroup.y
   if (into >= slab && below !== undefined) {
-    return { scrollGroupId: below.groupId, scrollGroupOffset: 0 }
+    return { scrollTaskGroupId: below.taskGroupId, scrollGroupOffset: 0 }
   }
   // WHY: into < slab here, so the share is below 1 but for rounding, which wraps to 0 as a day's fraction does.
   const share = into / slab
-  return { scrollGroupId: taskGroup.groupId, scrollGroupOffset: share < 1 ? share : 0 }
+  return { scrollTaskGroupId: taskGroup.taskGroupId, scrollGroupOffset: share < 1 ? share : 0 }
 }
 

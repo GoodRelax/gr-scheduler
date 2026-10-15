@@ -245,20 +245,20 @@ function fixtureDocument(): Document {
       taskGroups: TASK_GROUPS.map((id, order) => ({
         id,
         parentId: null,
-        label: `row ${order}`,
+        name: `row ${order}`,
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
         color: null,
-        minHeight: null,
+        minHeightPx: null,
       })),
       taskGroupMembers: [
-        { taskUid: ROOT, groupId: TASK_GROUP_A },
-        { taskUid: PAUSED, groupId: TASK_GROUP_B },
-        { taskUid: CHILD, groupId: TASK_GROUP_C },
-        { taskUid: STONE, groupId: TASK_GROUP_D },
-        { taskUid: OTHER, groupId: TASK_GROUP_E },
-        { taskUid: HALTED, groupId: TASK_GROUP_F },
+        { taskUid: ROOT, taskGroupId: TASK_GROUP_A },
+        { taskUid: PAUSED, taskGroupId: TASK_GROUP_B },
+        { taskUid: CHILD, taskGroupId: TASK_GROUP_C },
+        { taskUid: STONE, taskGroupId: TASK_GROUP_D },
+        { taskUid: OTHER, taskGroupId: TASK_GROUP_E },
+        { taskUid: HALTED, taskGroupId: TASK_GROUP_F },
       ],
       taskVisuals: [
         {
@@ -407,9 +407,9 @@ const groundOf = (loop: FrameLoop): Point => {
   return { x: area.x + area.width - 4, y: area.y + area.height - 4 }
 }
 
-const drawnTaskGroup = (loop: FrameLoop, groupId: string): TaskGroupPlacement => {
-  const found = frameOf(loop).layout.taskGroups.find((one) => one.groupId === groupId)
-  if (found === undefined) throw new Error(`the frame drew no task group ${groupId}`)
+const drawnTaskGroup = (loop: FrameLoop, taskGroupId: string): TaskGroupPlacement => {
+  const found = frameOf(loop).layout.taskGroups.find((one) => one.taskGroupId === taskGroupId)
+  if (found === undefined) throw new Error(`the frame drew no task group ${taskGroupId}`)
   return found
 }
 
@@ -439,7 +439,7 @@ function drag(built: Stage, from: Point, by: Point, modifiers: Partial<InputModi
 const taskRef = (uid: number) => ({ kind: 'task', uid })
 
 const groupOf = (document: Document, uid: number): string | undefined =>
-  document.schedule.taskGroupMembers.find((one) => one.taskUid === uid)?.groupId
+  document.schedule.taskGroupMembers.find((one) => one.taskUid === uid)?.taskGroupId
 
 const byName = (tasks: readonly Task[], name: string): readonly Task[] => tasks.filter((one) => one.name === name)
 
@@ -527,7 +527,7 @@ function contextOf(built: Stage, selection: Selection, over: Partial<InputContex
     isSurfaceStanding: false,
     dualCursorFollowing: null,
     today: '2026-04-01',
-    newGroupId: 'task-group-minted-outside',
+    newTaskGroupId: 'task-group-minted-outside',
     newCommentBoxId: 'comment-box-minted-outside',
     newHighlightBoxId: 'highlight-box-minted-outside',
     ...over,
@@ -882,7 +882,7 @@ describe('T-223 DU-1: every road makes an unstarted copy and leaves the source',
       const document = fixtureDocument()
       const result = editDocument(
         document,
-        { kind: 'pasteTaskGroupSubtree', sourceGroupId: row, targetGroupId: null, newGroupIds: { [row]: 'task-group-copy' } } as DocumentCommand,
+        { kind: 'pasteTaskGroupSubtree', sourceTaskGroupId: row, targetTaskGroupId: null, newTaskGroupIds: { [row]: 'task-group-copy' } } as DocumentCommand,
         LIMITS,
         'Task group',
       )

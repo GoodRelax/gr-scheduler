@@ -16,7 +16,7 @@ export interface FieldEntryCreatedTask {
 
 export interface FieldEntryCreatedRow {
   readonly kind: 'taskGroup'
-  readonly groupId: string
+  readonly taskGroupId: string
 }
 
 // WHY: the translator's created again; UseCase may not read an Adapter type (table T-061).
@@ -33,7 +33,7 @@ export interface FieldEntryValuesEventCarried {
 }
 
 interface FieldEntryValuesEffectPayloads {
-  readonly bringCreatedTaskGroupIntoSight: { readonly groupId: string }
+  readonly bringCreatedTaskGroupIntoSight: { readonly taskGroupId: string }
 }
 
 export type FieldEntryValuesEffect = {
@@ -176,7 +176,7 @@ function onCreationLanded(values: FieldEntryValues, event: EventOf<'creationLand
   if (isCreatedTask(created)) {
     return combined(values, named(naming, created.uid), wanted(edit, TASK_NAME_FIELD_ROW), NO_EFFECTS)
   }
-  const effects: Effects = [{ type: 'bringCreatedTaskGroupIntoSight', groupId: created.groupId }]
+  const effects: Effects = [{ type: 'bringCreatedTaskGroupIntoSight', taskGroupId: created.taskGroupId }]
   return combined(values, naming, wanted(edit, TASK_GROUP_NAME_FIELD_TASK_GROUP), effects)
 }
 

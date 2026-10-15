@@ -80,9 +80,9 @@ const task = (uid: number, name: string, start: string): Loose => ({
 })
 
 const taskGroupsWith = (parentState: string, childState: string): readonly Loose[] => [
-  { ...(templateGroups[0] as Loose), id: PARENT, parentId: null, order: 0, label: 'Parent', derivedFromTaskUid: null, treeState: parentState },
-  { ...(templateGroups[0] as Loose), id: CHILD, parentId: PARENT, order: 0, label: 'Child', derivedFromTaskUid: null, treeState: childState },
-  { ...(templateGroups[0] as Loose), id: OTHER, parentId: null, order: 1, label: 'Other', derivedFromTaskUid: null, treeState: 'auto' },
+  { ...(templateGroups[0] as Loose), id: PARENT, parentId: null, order: 0, name: 'Parent', derivedFromTaskUid: null, treeState: parentState },
+  { ...(templateGroups[0] as Loose), id: CHILD, parentId: PARENT, order: 0, name: 'Child', derivedFromTaskUid: null, treeState: childState },
+  { ...(templateGroups[0] as Loose), id: OTHER, parentId: null, order: 1, name: 'Other', derivedFromTaskUid: null, treeState: 'auto' },
 ]
 
 const scheduleWith = (parentState: string, childState: string): Loose => ({
@@ -90,8 +90,8 @@ const scheduleWith = (parentState: string, childState: string): Loose => ({
   tasks: [task(DEEP_UID, 'PM review', '2026-05-01T00:00:00'), task(OTHER_UID, 'Budget', '2026-04-01T00:00:00')],
   taskGroups: taskGroupsWith(parentState, childState),
   taskGroupMembers: [
-    { taskUid: DEEP_UID, groupId: CHILD },
-    { taskUid: OTHER_UID, groupId: OTHER },
+    { taskUid: DEEP_UID, taskGroupId: CHILD },
+    { taskUid: OTHER_UID, taskGroupId: OTHER },
   ],
   resources: [{ ...(templateResources[0] as Loose), uid: 301, name: 'Pm Lead' }],
   assignments: [{ ...(templateAssignments[0] as Loose), uid: 401, taskUid: OTHER_UID, resourceUid: 301 }],
@@ -101,7 +101,7 @@ const scheduleWith = (parentState: string, childState: string): Loose => ({
       leaderShapeKind: null,
       text: 'pm note',
       anchorDate: '2026-05-02T00:00:00',
-      anchorGroupId: CHILD,
+      anchorTaskGroupId: CHILD,
       bodyOffsetPx: null,
       strokeColor: null,
       strokeWidthPx: null,
@@ -117,10 +117,10 @@ const scheduleWith = (parentState: string, childState: string): Loose => ({
 })
 
 const STARTING_STAMP = {
-  scheduleUpdatedUtc: '2026-08-19T10:00:00Z',
+  scheduleUpdatedAt: '2026-08-19T10:00:00Z',
   lastEditedBy: 'a person at the keyboard',
-  settingsUpdatedUtc: '2026-08-19T10:00:00Z',
-  fileSavedUtc: null,
+  settingsUpdatedAt: '2026-08-19T10:00:00Z',
+  fileSavedAt: null,
 } as const
 
 const HISTORY_LIMITS = { maxSteps: NOT_STORED_LIMITS['S-94'], maxTotalSizeBytes: NOT_STORED_LIMITS['S-95'] * 1024 * 1024 }
@@ -280,7 +280,7 @@ describe(`AM-16 focusTask -- ${SJ_9_WHICH_STEPS}`, () => {
   it(`opens the task's task group and its ancestor (SJ-2), as one undo step -- ${SJ_2_ONE_STEP}`, () => {
     const one = bench('collapsed', 'hidden')
     const outcome = one.api.focusTask(DEEP_UID)
-    expect(outcome.accepted).toBe(true)
+    expect(outcome.ok).toBe(true)
     expect(treeStateOf(one.state.document, PARENT)).toBe('expanded')
     expect(treeStateOf(one.state.document, CHILD)).toBe('expanded')
     expect(treeStateOf(one.state.document, OTHER)).toBe('auto')
@@ -289,7 +289,7 @@ describe(`AM-16 focusTask -- ${SJ_9_WHICH_STEPS}`, () => {
 
   it(`leaves no undo step when every task group is already open -- ${SJ_2_NO_STEP}`, () => {
     const one = bench('expanded', 'expanded')
-    expect(one.api.focusTask(DEEP_UID).accepted).toBe(true)
+    expect(one.api.focusTask(DEEP_UID).ok).toBe(true)
     expect(one.state.history.done).toHaveLength(0)
   })
 
@@ -297,8 +297,8 @@ describe(`AM-16 focusTask -- ${SJ_9_WHICH_STEPS}`, () => {
   // shape S-554 down the room, and the spec-only tests of CR-728 hold it.
   it('answers isScrolled: true when the task can be brought into view (SJ-9)', () => {
     const one = bench('auto', 'auto')
-    const outcome = one.api.focusTask(DEEP_UID) as unknown as { accepted: boolean; isScrolled?: unknown }
-    expect(outcome.accepted).toBe(true)
+    const outcome = one.api.focusTask(DEEP_UID) as unknown as { ok: boolean; isScrolled?: unknown }
+    expect(outcome.ok).toBe(true)
     expect(outcome.isScrolled).toBe(true)
   })
 

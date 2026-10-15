@@ -126,7 +126,7 @@ describe('CR-604 -- the clauses these cases rest on still stand', () => {
 
   it('the read values are numbers', () => {
     for (const one of [S_328, S_341]) expect(Number.isFinite(one) && one > 0).toBe(true)
-    expect(MARKER_VISIBLE).toBe('progressMarkerVisible')
+    expect(MARKER_VISIBLE).toBe('isProgressMarkerVisible')
   })
 })
 

@@ -101,8 +101,8 @@ const escaped = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\
 function expectedValue(key: string, settings: Loose, language: DisplayLanguage): string | RegExp {
   const value = valueAt(settings, key)
   const leaf = key.split('.').pop() ?? key
-  if (leaf === 'baselineVisible') return word(value === true ? 'overlaid' : 'notOverlaid', language)
-  if (leaf === 'themeMonochrome') return word(value === true ? 'monochrome' : 'color', language)
+  if (leaf === 'isBaselineVisible') return word(value === true ? 'overlaid' : 'notOverlaid', language)
+  if (leaf === 'isThemeMonochrome') return word(value === true ? 'monochrome' : 'color', language)
   if (leaf === 'isScheduleFilterApplied') return word(value === true ? 'filterOn' : 'filterOff', language)
   if (leaf === 'isUnassignedHidden') return word(value === true ? 'hidden' : 'shown', language)
   if (typeof value === 'boolean') return word(value ? 'shown' : 'hidden', language)
@@ -114,13 +114,13 @@ function expectedValue(key: string, settings: Loose, language: DisplayLanguage):
       .replace(escaped('{percent}'), escaped(`${percentOf(value as number)}%`))
     return new RegExp(`^${pattern}$`)
   }
-  if (leaf === 'scrollGroupId') {
+  if (leaf === 'scrollTaskGroupId') {
     if (value === null) return word('notSetFromTop', language)
-    return String((TEMPLATE.schedule.taskGroups as readonly Loose[]).find((one) => one['id'] === value)?.['label'])
+    return String((TEMPLATE.schedule.taskGroups as readonly Loose[]).find((one) => one['id'] === value)?.['name'])
   }
   if (leaf === 'scrollGroupOffset') return value === 0 ? word('topZero', language) : word('percent', language, { n: percentOf(value as number) })
   if (leaf === 'levelZeroTreeState') return word(value === 'collapsed' ? 'collapsed' : 'expandedAuto', language)
-  if (leaf === 'rulerFont' || leaf === 'rulerHeight') return word('pixels', language, { n: String(value) })
+  if (leaf === 'rulerFontSizePx' || leaf === 'rulerHeightPx') return word('pixels', language, { n: String(value) })
   if (leaf === 'stackDirection') return word(value === 'down' ? 'stackDown' : 'stackUp', language)
   if (leaf === 'columnFilters') {
     const count = (value as readonly unknown[]).length
@@ -140,28 +140,28 @@ const FILTER = { column: 'SQ-5', hiddenValues: ['x'], fromDate: null, toDate: nu
 
 // WHY: every value of T-380 moved off the startup document's, so each value form is pressed at least once off its default.
 const MOVED: Loose = {
-  planVisible: false,
-  actualVisible: false,
-  progressMarkerVisible: false,
-  dependencyVisible: false,
-  progressLineVisible: true,
-  baselineVisible: true,
-  assigneeVisible: true,
-  percentCompleteVisible: true,
-  planDatesVisible: true,
+  isPlanVisible: false,
+  isActualVisible: false,
+  isProgressMarkerVisible: false,
+  isDependencyVisible: false,
+  isProgressLineVisible: true,
+  isBaselineVisible: true,
+  isAssigneeVisible: true,
+  isPercentCompleteVisible: true,
+  isPlanDatesVisible: true,
   zoomX: 1.5,
   zoomY: 0.75,
   scrollDate: '2026-03-29T00:00:00',
   scrollDayOffset: 0.5,
-  scrollGroupId: FIRST_GROUP_ID,
+  scrollTaskGroupId: FIRST_GROUP_ID,
   scrollGroupOffset: 0.25,
-  pinnedGroupIds: [FIRST_GROUP_ID],
+  pinnedTaskGroupIds: [FIRST_GROUP_ID],
   levelZeroTreeState: 'collapsed',
-  dateGridLinesVisible: true,
-  groupGridLinesVisible: false,
-  themeMonochrome: true,
-  rulerFont: 18,
-  rulerHeight: 60,
+  isDateGridLinesVisible: true,
+  isGroupGridLinesVisible: false,
+  isThemeMonochrome: true,
+  rulerFontSizePx: 18,
+  rulerHeightPx: 60,
   stackDirection: 'down',
   tableViews: {
     searchPanel: { isScheduleFilterApplied: true, hiddenTaskUids: [1, 2, 3], columnFilters: [FILTER], sort: { column: 'SQ-5', direction: 'descending' } },

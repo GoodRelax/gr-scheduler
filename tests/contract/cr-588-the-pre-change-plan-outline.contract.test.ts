@@ -175,7 +175,7 @@ const rowsOf = (base: Record<string, unknown>, rows: Rows): Record<string, unkno
         : [g1, g2]
   const members = (base['taskGroupMembers'] as { taskUid: number }[]).map((one) => ({
     taskUid: one.taskUid,
-    groupId: one.taskUid === 1 ? 'g1' : 'g2',
+    taskGroupId: one.taskUid === 1 ? 'g1' : 'g2',
   }))
   return { ...base, taskGroups: groups, taskGroupMembers: members }
 }

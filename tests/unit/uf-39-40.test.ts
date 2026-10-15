@@ -277,25 +277,25 @@ const regionsOf = (
   const taskGroupAreaWidth =
     canvas.width -
     SETTINGS_CONSTANTS.canvasPadding -
-    settings.taskGroupPanelWidth -
+    settings.taskGroupPanelWidthPx -
     PROPERTIES_PANEL_WIDTH -
     screen.scrollbarThickness
   const taskGroupAreaHeight =
-    canvas.height - settings.rulerHeight - SETTINGS_CONSTANTS.canvasPadding - screen.scrollbarThickness
+    canvas.height - settings.rulerHeightPx - SETTINGS_CONSTANTS.canvasPadding - screen.scrollbarThickness
   return {
     appHeader: header,
     scheduleCanvas: canvas,
     taskGroupPanel: {
       x: canvas.x,
       y: canvas.y,
-      width: settings.taskGroupPanelWidth,
+      width: settings.taskGroupPanelWidthPx,
       height: canvas.height,
     },
     timeRuler: {
-      x: canvas.x + settings.taskGroupPanelWidth,
+      x: canvas.x + settings.taskGroupPanelWidthPx,
       y: canvas.y,
       width: taskGroupAreaWidth,
-      height: settings.rulerHeight,
+      height: settings.rulerHeightPx,
     },
     propertiesPanel: {
       x: canvas.x + canvas.width - PROPERTIES_PANEL_WIDTH,
@@ -304,8 +304,8 @@ const regionsOf = (
       height: canvas.height,
     },
     taskGroupArea: {
-      x: canvas.x + settings.taskGroupPanelWidth,
-      y: canvas.y + settings.rulerHeight,
+      x: canvas.x + settings.taskGroupPanelWidthPx,
+      y: canvas.y + settings.rulerHeightPx,
       width: taskGroupAreaWidth,
       height: taskGroupAreaHeight,
     },
@@ -434,12 +434,12 @@ const NOT_DRAWN_WORDS: readonly string[] = [
 ]
 
 const rowOf = (
-  groupId: string,
+  taskGroupId: string,
   depth: number,
   box: ScreenRect,
-  label: string | null = `name of ${groupId}`,
+  label: string | null = `name of ${taskGroupId}`,
 ): TaskGroupTitle => ({
-  groupId,
+  taskGroupId,
   depth,
   box,
   label,
@@ -530,7 +530,7 @@ const viewOf = (
   // ⭐ `EZ-2` of 表 T-040 (MUST) puts the row's assignment behind the words, so
   // every tooltip carries the member. `FR-036`: 「どちらも持たない行は、その
   // 場所を空ける」 -- a task group title has neither key nor mouse operation.
-  tooltips: [{ anchor: { kind: 'taskGroupTitle', groupId: 'g1' }, text: TOOLTIP_TEXT, assignment: null }],
+  tooltips: [{ anchor: { kind: 'taskGroupTitle', taskGroupId: 'g1' }, text: TOOLTIP_TEXT, assignment: null }],
   ...part,
 })
 
@@ -856,12 +856,12 @@ const GROWN_HEIGHT = Math.max(SETTINGS_CONSTANTS.exportCanvas.height, SCREEN.hei
 
 /** Six task groups, spread down a screen 800 tall. Every one of them is drawn. */
 const TALL_TASK_GROUPS: readonly TaskGroupTitle[] = [
-  rowOf('g1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
-  rowOf('g2', 2, { x: 0, y: 200, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
-  rowOf('g3', 3, { x: 0, y: 300, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
-  rowOf('g4', 1, { x: 0, y: 400, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
-  rowOf('g5', 2, { x: 0, y: 500, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
-  rowOf('g6', 2, { x: 0, y: 600, width: SETTINGS.taskGroupPanelWidth, height: 100 }),
+  rowOf('g1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidthPx, height: 100 }),
+  rowOf('g2', 2, { x: 0, y: 200, width: SETTINGS.taskGroupPanelWidthPx, height: 100 }),
+  rowOf('g3', 3, { x: 0, y: 300, width: SETTINGS.taskGroupPanelWidthPx, height: 100 }),
+  rowOf('g4', 1, { x: 0, y: 400, width: SETTINGS.taskGroupPanelWidthPx, height: 100 }),
+  rowOf('g5', 2, { x: 0, y: 500, width: SETTINGS.taskGroupPanelWidthPx, height: 100 }),
+  rowOf('g6', 2, { x: 0, y: 600, width: SETTINGS.taskGroupPanelWidthPx, height: 100 }),
 ]
 const DRAWN_ROW_IDS = ['g1', 'g2', 'g3', 'g4', 'g5', 'g6']
 
@@ -1240,7 +1240,7 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
       near(num(drawn.attrs, 'height'), REGIONS.taskGroupPanel.height * RATIO),
     )
     expect(panel).toBeDefined()
-    expect(rectOf(panel as Drawn).width).toBeCloseTo(SETTINGS.taskGroupPanelWidth * RATIO, 1)
+    expect(rectOf(panel as Drawn).width).toBeCloseTo(SETTINGS.taskGroupPanelWidthPx * RATIO, 1)
   })
 
   it('writes each name exactly as it arrived (FR-085 already cut it)', async () => {
@@ -1251,7 +1251,7 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
     const assembled = await exportedOf(
       sceneOf(
         viewOf([
-          rowOf('g1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 }, cut),
+          rowOf('g1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidthPx, height: 40 }, cut),
         ]),
       ),
     )
@@ -1273,7 +1273,7 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
       return num((found as DrawnText).attrs, 'y')
     }
     const boxOf = (id: string): ScreenRect =>
-      (TALL_TASK_GROUPS.find((row) => row.groupId === id) as TaskGroupTitle).box
+      (TALL_TASK_GROUPS.find((row) => row.taskGroupId === id) as TaskGroupTitle).box
     for (const id of DRAWN_ROW_IDS) {
       const band = scaledRect(boxOf(id), RATIO)
       expect(yOf(id), id).toBeGreaterThan(band.y)
@@ -1297,7 +1297,7 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
         'y',
       )
     const boxOf = (id: string): ScreenRect =>
-      (TALL_TASK_GROUPS.find((row) => row.groupId === id) as TaskGroupTitle).box
+      (TALL_TASK_GROUPS.find((row) => row.taskGroupId === id) as TaskGroupTitle).box
     expect(boxOf('g4').height).toBe(boxOf('g1').height)
     expect(yOf('g4') - yOf('g1')).toBeCloseTo((boxOf('g4').y - boxOf('g1').y) * RATIO, 1)
   })
@@ -1342,7 +1342,7 @@ describe('table T-076 EP-3 -- the Task Group Panel and its names', () => {
     const pinned = rowOf(
       'p1',
       1,
-      { x: 0, y: 110, width: SETTINGS.taskGroupPanelWidth, height: 40 },
+      { x: 0, y: 110, width: SETTINGS.taskGroupPanelWidthPx, height: 40 },
       'a pinned task group name',
     )
     const assembled = await exportedOf(
@@ -1388,7 +1388,7 @@ describe('FR-025 -- the frame the picture is written into', () => {
     const short = await exportedOf(
       sceneOf(
         viewOf(
-          [rowOf('s1', 1, { x: 0, y: 120, width: SETTINGS.taskGroupPanelWidth, height: 60 })],
+          [rowOf('s1', 1, { x: 0, y: 120, width: SETTINGS.taskGroupPanelWidthPx, height: 60 })],
           { frame: frameOf(shortRegions) },
         ),
         {},
@@ -1410,8 +1410,8 @@ describe('FR-025 -- the frame the picture is written into', () => {
     const shortScreen: MeasuredScreen = { ...SCREEN, height: 500 }
     const shortRegions = regionsOf(shortScreen)
     const rows = [
-      rowOf('s1', 1, { x: 0, y: 120, width: SETTINGS.taskGroupPanelWidth, height: 60 }),
-      rowOf('s2', 2, { x: 0, y: 180, width: SETTINGS.taskGroupPanelWidth, height: 60 }),
+      rowOf('s1', 1, { x: 0, y: 120, width: SETTINGS.taskGroupPanelWidthPx, height: 60 }),
+      rowOf('s2', 2, { x: 0, y: 180, width: SETTINGS.taskGroupPanelWidthPx, height: 60 }),
     ]
     const assembled = await exportedOf(
       sceneOf(viewOf(rows, { frame: frameOf(shortRegions) }), {}, shortRegions),
@@ -1594,7 +1594,7 @@ describe('boundaries', () => {
   it('answers for exactly one task group', async () => {
     const assembled = await exportedOf(
       sceneOf(
-        viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 })]),
+        viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidthPx, height: 40 })]),
       ),
     )
     expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of only')
@@ -1604,7 +1604,7 @@ describe('boundaries', () => {
     const assembled = await exportedOf(
       sceneOf(
         viewOf([
-          rowOf('n1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 }, null),
+          rowOf('n1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidthPx, height: 40 }, null),
         ]),
       ),
     )
@@ -1649,7 +1649,7 @@ describe('boundaries', () => {
     const assembled = await exportedOf(
       sceneOf(
         viewOf(
-          [rowOf('w1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 }, wild)],
+          [rowOf('w1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidthPx, height: 40 }, wild)],
           { appHeaderItems: { ...APP_HEADER_ITEMS, documentTitle: wild } },
         ),
       ),
@@ -1891,7 +1891,7 @@ describe('boundaries of the SVG route', () => {
   it('GIVEN exactly one task group WHEN exportSvg runs THEN its name is written', () => {
     const assembled = svgOnlyOf(
       sceneOf(
-        viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 })]),
+        viewOf([rowOf('only', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidthPx, height: 40 })]),
       ),
     )
     expect(assembled.texts.map((drawnText) => drawnText.content)).toContain('name of only')
@@ -1901,7 +1901,7 @@ describe('boundaries of the SVG route', () => {
     const assembled = svgOnlyOf(
       sceneOf(
         viewOf([
-          rowOf('n1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidth, height: 40 }, null),
+          rowOf('n1', 1, { x: 0, y: 100, width: SETTINGS.taskGroupPanelWidthPx, height: 40 }, null),
         ]),
       ),
     )

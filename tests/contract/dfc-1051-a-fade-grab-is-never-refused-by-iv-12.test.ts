@@ -38,7 +38,7 @@ const SPAN_DAYS_AT_MOST = 11
 const KEPT_END_DAYS = 4
 
 const documentWith = (fadeInDays: number, fadeOutDays: number): ReturnType<typeof benchDocument> => {
-  const document = benchDocument({ progressMarkerVisible: true })
+  const document = benchDocument({ isProgressMarkerVisible: true })
   const faded = document.schedule.tasks.find((one) => one.uid === FADED_UID) as Task
   Object.assign(faded, { start: april(6), finish: april(16), fadeInDays, fadeOutDays })
   return document

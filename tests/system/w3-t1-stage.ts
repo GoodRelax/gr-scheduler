@@ -64,12 +64,12 @@ export function taskGroupsDocument(asked: TaskGroupsDocument): string {
         ...TEMPLATE.schedule['taskGroups'][0],
         id: rowIdOf(index),
         parentId: null,
-        label: taskGroupLabelOf(index),
+        name: taskGroupLabelOf(index),
         order: index,
         treeState: 'auto',
-        minHeight: null,
+        minHeightPx: null,
       })),
-      taskGroupMembers: indexes.map((index) => ({ taskUid: index + 1, groupId: rowIdOf(index) })),
+      taskGroupMembers: indexes.map((index) => ({ taskUid: index + 1, taskGroupId: rowIdOf(index) })),
       taskVisuals: indexes.map((index) => ({
         taskUid: index + 1,
         shapeKind: null,
@@ -87,7 +87,7 @@ export function taskGroupsDocument(asked: TaskGroupsDocument): string {
       ...TEMPLATE.documentSettings,
       scrollDate: '2026-02-20T00:00:00',
       scrollDayOffset: 0,
-      scrollGroupId: rowIdOf(0),
+      scrollTaskGroupId: rowIdOf(0),
       scrollGroupOffset: 0,
       ...(asked.settings ?? {}),
     },
@@ -109,7 +109,7 @@ export async function applyCommandsOf(page: Page, commands: readonly unknown[]):
   return page.evaluate(async (list: readonly unknown[]) => {
     const api = (window as unknown as { grSchedulerAgentApi: { readStamp(): unknown; applyCommands(request: unknown): unknown } })
       .grSchedulerAgentApi
-    return await api.applyCommands({ readStamp: api.readStamp(), commands: list })
+    return await api.applyCommands({ expectedStamp: api.readStamp(), commands: list })
   }, commands)
 }
 

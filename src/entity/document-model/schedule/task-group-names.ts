@@ -8,24 +8,24 @@ import type { Schedule, TaskGroup } from './schedule-entities'
 // see AT-53, AT-54
 /** @purity pure */
 function nameOfTaskGroup(schedule: Schedule, taskGroup: TaskGroup): string {
-  if (taskGroup.label !== null) return taskGroup.label
+  if (taskGroup.name !== null) return taskGroup.name
   if (taskGroup.derivedFromTaskUid === null) return ''
   return schedule.tasks.find((task) => task.uid === taskGroup.derivedFromTaskUid)?.name ?? ''
 }
 
 // see AT-53, AT-54
 /** @purity pure */
-export function taskGroupNameOf(schedule: Schedule, groupId: string): string {
-  const taskGroup = schedule.taskGroups.find((one) => one.id === groupId)
+export function taskGroupNameOf(schedule: Schedule, taskGroupId: string): string {
+  const taskGroup = schedule.taskGroups.find((one) => one.id === taskGroupId)
   return taskGroup === undefined ? '' : nameOfTaskGroup(schedule, taskGroup)
 }
 
 // see SQ-6, AT-53, AT-54
 /** @purity pure */
-export function taskGroupPathOf(schedule: Schedule, groupId: string): readonly string[] {
+export function taskGroupPathOf(schedule: Schedule, taskGroupId: string): readonly string[] {
   const byId = new Map(schedule.taskGroups.map((taskGroup) => [taskGroup.id, taskGroup]))
   const path: string[] = []
-  let taskGroup = byId.get(groupId)
+  let taskGroup = byId.get(taskGroupId)
   // WHY: the climb stops after as many steps as there are task groups, so a parent ring cannot hang it.
   while (taskGroup !== undefined && path.length <= byId.size) {
     path.push(nameOfTaskGroup(schedule, taskGroup))

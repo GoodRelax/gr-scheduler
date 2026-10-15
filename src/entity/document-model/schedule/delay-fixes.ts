@@ -28,10 +28,10 @@ import {
 } from './working-calendar'
 
 // see T-373, FM-3
-export type DelayFixType = 'automatic' | 'choose' | 'suggestedDate' | 'byHand'
+export type DelayFixKind = 'automatic' | 'choose' | 'suggestedDate' | 'byHand'
 
 // see T-374, FM-3
-export const DELAY_FIX_TYPES: readonly DelayFixType[] = ['automatic', 'choose', 'suggestedDate', 'byHand']
+export const DELAY_FIX_KINDS: readonly DelayFixKind[] = ['automatic', 'choose', 'suggestedDate', 'byHand']
 
 // see T-373, GP-1
 export type DelayFixRefusal = 'readOnly'
@@ -122,7 +122,7 @@ export interface DelayFixSubject {
 export interface DelayFixRow extends DelayFixSubject {
   readonly key: string
   readonly after: DelayFixValue | null
-  readonly fixType: DelayFixType
+  readonly fixKind: DelayFixKind
   readonly choices: readonly DelayFixChoice[]
   readonly chosen: string | null
   readonly suggested: string | null
@@ -174,7 +174,7 @@ interface FixOutcome {
 }
 
 interface FixDraft {
-  readonly fixType: DelayFixType
+  readonly fixKind: DelayFixKind
   readonly column: string | null
   readonly other: number | null
   readonly before: DelayFixValue
@@ -218,7 +218,7 @@ interface Settled {
 }
 
 const BLANK_DRAFT: FixDraft = {
-  fixType: 'byHand',
+  fixKind: 'byHand',
   column: null,
   other: null,
   before: EMPTY,
@@ -405,7 +405,7 @@ function groupedBy(tasks: readonly Task[], keyOf: (task: Task) => number | null)
 /** @purity pure */
 function readOnlyUidsOf(schedule: Schedule): ReadonlySet<number> {
   const closed = new Set(schedule.taskGroups.filter((group) => group.editGroup !== null).map((group) => group.id))
-  return new Set(schedule.taskGroupMembers.filter((member) => closed.has(member.groupId)).map((member) => member.taskUid))
+  return new Set(schedule.taskGroupMembers.filter((member) => closed.has(member.taskGroupId)).map((member) => member.taskUid))
 }
 
 /** @purity pure */
@@ -458,7 +458,7 @@ function choiceOf(
 // WHY: a fix whose outcome cannot be formed is left to the person, so no row offers a fix it cannot issue.
 /** @purity pure */
 function hasOutcome(draft: FixDraft): boolean {
-  switch (draft.fixType) {
+  switch (draft.fixKind) {
     case 'automatic':
       return draft.outcome !== null
     case 'choose':
@@ -473,12 +473,12 @@ function hasOutcome(draft: FixDraft): boolean {
 /** @purity pure */
 function draftOf(parts: Partial<FixDraft>): FixDraft {
   const draft: FixDraft = { ...BLANK_DRAFT, ...parts }
-  return hasOutcome(draft) ? draft : { ...draft, fixType: 'byHand', outcome: null, choices: [], outcomeOn: null }
+  return hasOutcome(draft) ? draft : { ...draft, fixKind: 'byHand', outcome: null, choices: [], outcomeOn: null }
 }
 
 /** @purity pure */
 function linkOf(successorUid: number, dependency: Dependency): DelayFixLink {
-  return { predecessorUid: dependency.predecessorUid, successorUid, linkType: dependency.linkType, lag: dependency.lag }
+  return { predecessorUid: dependency.predecessorUid, successorUid, linkType: dependency.linkType, lag: dependency.linkLag }
 }
 
 /** @purity pure */
@@ -549,7 +549,7 @@ function ringDrafts(context: FixContext, finding: DelayFinding): readonly FixDra
   const choices = uniqueLines(links).map((line) =>
     deleteChoiceOf(line, linksValue(links.filter((one) => lineKeyOf(one) !== lineKeyOf(line))), 'deleteLinkBetween'))
   const related = [...ring].filter((one) => one !== finding.uid)
-  return [draftOf({ fixType: 'choose', before: linksValue(links), choices, related })]
+  return [draftOf({ fixKind: 'choose', before: linksValue(links), choices, related })]
 }
 
 // see FA-2, VC-2
@@ -560,7 +560,7 @@ function selfLinkDrafts(context: FixContext, finding: DelayFinding): readonly Fi
   const link = links[0]
   if (link === undefined) return []
   const outcome = { after: EMPTY, commands: [deleteLink(link)] }
-  return [draftOf({ fixType: 'automatic', before: linksValue(links), outcome })]
+  return [draftOf({ fixKind: 'automatic', before: linksValue(links), outcome })]
 }
 
 // see VC-3, FA-3
@@ -592,10 +592,10 @@ function duplicateDrafts(context: FixContext, finding: DelayFinding): readonly F
   const first = links[0]
   const base = { other, before: linksValue(links), related: [other] }
   if (first !== undefined && links.every((one) => one.linkType === first.linkType && one.lag === first.lag)) {
-    return [draftOf({ ...base, fixType: 'automatic', outcome: keepOutcome(links, first) })]
+    return [draftOf({ ...base, fixKind: 'automatic', outcome: keepOutcome(links, first) })]
   }
   const choices = links.map((kept, at) => choiceOf(`keep:${at}`, 'keepThisLink', kept, keepOutcome(links, kept)))
-  return [draftOf({ ...base, fixType: 'choose', choices })]
+  return [draftOf({ ...base, fixKind: 'choose', choices })]
 }
 
 // see FA-4, VC-4, PR-35
@@ -612,7 +612,7 @@ function milestoneDateDrafts(context: FixContext, finding: DelayFinding): readon
     return outcome === null ? [] : [choiceOf(at === 0 ? 'start' : 'finish', 'setPlannedDate', { date: text }, outcome)]
   })
   const before = datesValue([task.start, task.finish])
-  return [draftOf({ fixType: 'choose', column: 'PR-35', before, choices, openField: field(task.uid, 'PR-35') })]
+  return [draftOf({ fixKind: 'choose', column: 'PR-35', before, choices, openField: field(task.uid, 'PR-35') })]
 }
 
 // see FA-5, FA-6, FA-7, FA-18, FA-22, PR-4
@@ -639,7 +639,7 @@ function actualFinishOn(context: FixContext, task: Task, day: CalendarDay): FixO
 /** @purity pure */
 function suggestedStartDraft(context: FixContext, task: Task, suggested: CalendarDay | null): FixDraft {
   return draftOf({
-    fixType: 'suggestedDate',
+    fixKind: 'suggestedDate',
     column: 'PR-4',
     before: dateValue(task.actualStart),
     suggested,
@@ -676,7 +676,7 @@ function pauseDrafts(context: FixContext, finding: DelayFinding): readonly FixDr
     ...(started === null ? [] : [choiceOf('markAsStarted', 'markAsStarted', {}, started)]),
   ]
   const before = datesValue([task.stop, task.resume])
-  return [draftOf({ fixType: 'choose', column: 'PR-4', before, choices, openField: field(task.uid, 'PR-4') })]
+  return [draftOf({ fixKind: 'choose', column: 'PR-4', before, choices, openField: field(task.uid, 'PR-4') })]
 }
 
 // see FA-8, VC-8, PR-8
@@ -685,7 +685,7 @@ function resumeValidDrafts(context: FixContext, finding: DelayFinding): readonly
   const task = context.byUid.get(finding.uid)
   if (task === undefined || task.actualFinish === null || task.resumeValid !== true) return []
   const outcome = actualsOutcome(task, { resumeValid: false }, { kind: 'flag', value: false })
-  return [draftOf({ fixType: 'automatic', column: 'PR-8', before: { kind: 'flag', value: true }, outcome })]
+  return [draftOf({ fixKind: 'automatic', column: 'PR-8', before: { kind: 'flag', value: true }, outcome })]
 }
 
 // see FA-9, FA-14
@@ -727,7 +727,7 @@ function parentFinishedDrafts(context: FixContext, finding: DelayFinding): reado
     })]),
   ]
   const openField = field(parent.uid, 'PR-6')
-  return [draftOf({ fixType: 'choose', column: 'PR-6', before: dateValue(finish), choices, openField, related: uidsOf(children) })]
+  return [draftOf({ fixKind: 'choose', column: 'PR-6', before: dateValue(finish), choices, openField, related: uidsOf(children) })]
 }
 
 // see FA-10, VC-10
@@ -740,7 +740,7 @@ function parentUnfinishedDrafts(context: FixContext, finding: DelayFinding): rea
   const latest = endOf(children, 'actualFinish', true)
   const actualStart = parent.actualStart ?? endOf(children, 'actualStart', false)
   const outcome = latest === null ? null : actualsOutcome(parent, { actualStart, actualFinish: latest }, dateValue(latest))
-  return [draftOf({ fixType: 'automatic', column: 'PR-6', before: dateValue(parent.actualFinish), outcome, related: uidsOf(children) })]
+  return [draftOf({ fixKind: 'automatic', column: 'PR-6', before: dateValue(parent.actualFinish), outcome, related: uidsOf(children) })]
 }
 
 // see FA-11, VC-11, PR-3, PR-47
@@ -755,11 +755,11 @@ function parentPlanDrafts(context: FixContext, finding: DelayFinding): readonly 
   const drafts: FixDraft[] = []
   if (start !== null && !isSameDay(parent.start, start)) {
     const outcome = planOutcome(parent.uid, start, parent.finish ?? finish, dateValue(start))
-    drafts.push(draftOf({ fixType: 'automatic', column: 'PR-3', before: dateValue(parent.start), outcome, related }))
+    drafts.push(draftOf({ fixKind: 'automatic', column: 'PR-3', before: dateValue(parent.start), outcome, related }))
   }
   if (finish !== null && !isSameDay(parent.finish, finish)) {
     const outcome = planOutcome(parent.uid, parent.start ?? start, finish, dateValue(finish))
-    drafts.push(draftOf({ fixType: 'automatic', column: 'PR-47', before: dateValue(parent.finish), outcome, related }))
+    drafts.push(draftOf({ fixKind: 'automatic', column: 'PR-47', before: dateValue(parent.finish), outcome, related }))
   }
   return drafts
 }
@@ -777,11 +777,11 @@ function parentActualDrafts(context: FixContext, finding: DelayFinding): readonl
   const drafts: FixDraft[] = []
   if (!isSameDay(parent.actualStart, earliest) && (earliest !== null || parent.actualFinish === null)) {
     const outcome = actualsOutcome(parent, { actualStart: earliest }, dateValue(earliest))
-    drafts.push(draftOf({ fixType: 'automatic', column: 'PR-4', before: dateValue(parent.actualStart), outcome, related }))
+    drafts.push(draftOf({ fixKind: 'automatic', column: 'PR-4', before: dateValue(parent.actualStart), outcome, related }))
   }
   if (latest !== null && !isSameDay(parent.actualFinish, latest)) {
     const outcome = actualsOutcome(parent, { actualStart: parent.actualStart ?? earliest, actualFinish: latest }, dateValue(latest))
-    drafts.push(draftOf({ fixType: 'automatic', column: 'PR-6', before: dateValue(parent.actualFinish), outcome, related }))
+    drafts.push(draftOf({ fixKind: 'automatic', column: 'PR-6', before: dateValue(parent.actualFinish), outcome, related }))
   }
   return drafts
 }
@@ -816,7 +816,7 @@ function bindingEndDrafts(context: FixContext, finding: DelayFinding): readonly 
   if (byStart ? predecessor.actualStart !== null : isFinishedTask(predecessor)) return []
   const column = byStart ? 'PR-4' : 'PR-6'
   return [draftOf({
-    fixType: 'suggestedDate',
+    fixKind: 'suggestedDate',
     column,
     other: predecessor.uid,
     before: dateValue(byStart ? predecessor.actualStart : predecessor.actualFinish),
@@ -846,7 +846,7 @@ function milestoneActualDrafts(context: FixContext, finding: DelayFinding): read
   ]
   const before = datesValue([milestone.actualStart, finish])
   const openField = field(milestone.uid, 'PR-36')
-  return [draftOf({ fixType: 'choose', column: 'PR-36', before, choices, openField, related: uidsOf(open) })]
+  return [draftOf({ fixKind: 'choose', column: 'PR-36', before, choices, openField, related: uidsOf(open) })]
 }
 
 // see VC-15, BD-2, FR-054
@@ -897,7 +897,7 @@ function planLinkDrafts(context: FixContext, finding: DelayFinding): readonly Fi
     deleteChoiceOf(link, EMPTY),
   ]
   const openField = field(ends.successor.uid, 'PR-3')
-  return [draftOf({ fixType: 'choose', other: link.predecessorUid, before: linksValue([link]), choices, openField, related: [link.predecessorUid] })]
+  return [draftOf({ fixKind: 'choose', other: link.predecessorUid, before: linksValue([link]), choices, openField, related: [link.predecessorUid] })]
 }
 
 // see FA-16, VS-1
@@ -907,7 +907,7 @@ function parentChildLinkDrafts(context: FixContext, finding: DelayFinding): read
   const link = successor === undefined ? null : linkFrom(successor, numberIn(finding, 'predecessorUid'))
   if (link === null) return []
   const choices = [deleteChoiceOf(link, EMPTY)]
-  return [draftOf({ fixType: 'choose', other: link.predecessorUid, before: linksValue([link]), choices, related: [link.predecessorUid] })]
+  return [draftOf({ fixKind: 'choose', other: link.predecessorUid, before: linksValue([link]), choices, related: [link.predecessorUid] })]
 }
 
 // see FA-17, VS-2, PR-15
@@ -949,7 +949,7 @@ function statusDateDrafts(context: FixContext, finding: DelayFinding): readonly 
   const choices = [choiceOf('moveStatusDateToActual', 'moveStatusDateToActual', { date }, {
     after: dateValue(date), commands: [{ kind: 'setStatusDate', date }],
   })]
-  return [draftOf({ fixType: 'choose', before: dateValue(status), choices })]
+  return [draftOf({ fixKind: 'choose', before: dateValue(status), choices })]
 }
 
 // see VS-6
@@ -979,7 +979,7 @@ function unfinishedDrafts(context: FixContext, finding: DelayFinding): readonly 
     ...(working === null ? [] : [choiceOf('markAsStillInProgress', 'markAsStillInProgress', {}, working)]),
   ]
   const openField = field(task.uid, 'PR-6')
-  return [draftOf({ fixType: 'choose', column: 'PR-6', before: dateValue(task.actualFinish), choices, openField })]
+  return [draftOf({ fixKind: 'choose', column: 'PR-6', before: dateValue(task.actualFinish), choices, openField })]
 }
 
 // see FA-24, VO-3
@@ -994,7 +994,7 @@ function finishOmissionDrafts(context: FixContext, finding: DelayFinding): reado
   const suggested = earliest === null ? null : laterDay(earliest, dayOf(task.actualStart))
   const successorUid = numberIn(finding, 'successorUid')
   return [draftOf({
-    fixType: 'suggestedDate',
+    fixKind: 'suggestedDate',
     column: 'PR-6',
     other: successorUid,
     before: dateValue(task.actualFinish),
@@ -1020,7 +1020,7 @@ function achievedDrafts(context: FixContext, finding: DelayFinding): readonly Fi
   if (task === null) return []
   const outcome = day === null || achieved === null ? null
     : actualsOutcome(task, { actualStart: startSideOn(context, task, achieved, day), actualFinish: achieved }, dateValue(achieved))
-  return [draftOf({ fixType: 'automatic', column: 'PR-36', before: dateValue(task.actualFinish), outcome })]
+  return [draftOf({ fixKind: 'automatic', column: 'PR-36', before: dateValue(task.actualFinish), outcome })]
 }
 
 interface FixWay {
@@ -1111,25 +1111,25 @@ function isReadOnly(context: FixContext, draft: FixDraft): boolean {
 // see FM-1, FM-8, T-373, T-064
 /** @purity pure */
 function isOneChoice(draft: FixDraft): boolean {
-  return draft.fixType === 'choose' && draft.choices.length === 1
+  return draft.fixKind === 'choose' && draft.choices.length === 1
 }
 
 /** @purity pure */
 function chosenOf(draft: FixDraft, check: DelayFixCheck | null): DelayFixChoice | null {
-  if (draft.fixType !== 'choose') return null
+  if (draft.fixKind !== 'choose') return null
   if (isOneChoice(draft)) return draft.choices[0] ?? null
   return draft.choices.find((one) => one.key === check?.choice) ?? null
 }
 
 /** @purity pure */
 function isCheckedByDefault(draft: FixDraft): boolean {
-  return draft.fixType !== 'suggestedDate' && !isOneChoice(draft)
+  return draft.fixKind !== 'suggestedDate' && !isOneChoice(draft)
 }
 
 // see FM-8, RW-16
 /** @purity pure */
 function outcomeOf(draft: FixDraft, chosen: DelayFixChoice | null, check: DelayFixCheck | null): FixOutcome | null {
-  switch (draft.fixType) {
+  switch (draft.fixKind) {
     case 'automatic':
       return draft.outcome
     case 'choose':
@@ -1169,7 +1169,7 @@ function rowOf(context: FixContext, seed: Seed, draft: FixDraft, check: DelayFix
     column: draft.column,
     before: draft.before,
     after: outcome?.after ?? null,
-    fixType: draft.fixType,
+    fixKind: draft.fixKind,
     choices: draft.choices,
     chosen: chosen?.key ?? null,
     suggested: draft.suggested === null ? null : textOfDay(draft.suggested),
@@ -1194,7 +1194,7 @@ function draftsOf(context: FixContext, seed: Seed): readonly FixDraft[] {
 function settleColumn(rules: SettleRules, settled: Settled, seed: Seed, column: string | null): Settled {
   const context = contextOf(settled.schedule, rules.calendar)
   const draft = draftsOf(context, seed).find((one) => one.column === column)
-  if (draft === undefined || (seed.causedBy !== null && draft.fixType !== 'automatic')) return settled
+  if (draft === undefined || (seed.causedBy !== null && draft.fixKind !== 'automatic')) return settled
   const resolved = rowOf(context, seed, draft, rules.checks.get(rowKeyOf(seed.finding, draft)) ?? null)
   const row: DelayFixRow = { ...resolved, applyOrder: settled.rows.length }
   if (!rules.applies(row)) return withRowShown(settled, row)
@@ -1220,7 +1220,7 @@ function settleCovered(rules: SettleRules, settled: Settled, seed: Seed): Settle
   if (seed.causedBy !== null || settled.applied.length === 0 || cause === null) return settled
   const original = contextOf(rules.original, rules.calendar)
   const draft = draftsOf(original, seed)[0]
-  if (draft === undefined || draft.fixType !== 'automatic') return settled
+  if (draft === undefined || draft.fixKind !== 'automatic') return settled
   const row = { ...rowOf(original, seed, draft, null), causedBy: cause, checked: true, isCheckable: false, commands: [] }
   return withRowShown(settled, { ...row, applyOrder: settled.rows.length })
 }
@@ -1293,7 +1293,7 @@ function isIssued(row: DelayFixRow): boolean {
 // WHY: an 'automatic' row the person unchecked; its chain is found by applying it anyway, then shown unpressable.
 /** @purity pure */
 function isWithheld(row: DelayFixRow): boolean {
-  return row.fixType === 'automatic' && row.isCheckable && !row.checked
+  return row.fixKind === 'automatic' && row.isCheckable && !row.checked
 }
 
 // see RW-16

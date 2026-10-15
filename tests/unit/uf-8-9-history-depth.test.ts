@@ -196,11 +196,11 @@ function writeNames(one: Bench, nth: number): void {
 // WHY: each value differs from the bundled document's own, so a command
 // that changed nothing could not hide behind table T-027 for a different reason.
 const PAYLOAD: Readonly<Record<string, DocumentCommand>> = {
-  setTaskGroupPanelWidth: { kind: 'setTaskGroupPanelWidth', taskGroupPanelWidth: 200 },
+  setTaskGroupPanelWidthPx: { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 200 },
   // see CM-91, WF-1
-  setTaskGroupPanelWidthFixed: { kind: 'setTaskGroupPanelWidthFixed', taskGroupPanelWidthFixed: true },
-  pinTaskGroup: { kind: 'pinTaskGroup', groupId: FIRST_GROUP_ID },
-  unpinTaskGroup: { kind: 'unpinTaskGroup', groupId: FIRST_GROUP_ID },
+  setTaskGroupPanelWidthFixed: { kind: 'setTaskGroupPanelWidthFixed', isTaskGroupPanelWidthFixed: true },
+  pinTaskGroup: { kind: 'pinTaskGroup', taskGroupId: FIRST_GROUP_ID },
+  unpinTaskGroup: { kind: 'unpinTaskGroup', taskGroupId: FIRST_GROUP_ID },
 }
 
 describe('表 T-206 -- the two values FR-031 says the bounds are', () => {
@@ -346,7 +346,7 @@ describe('FR-031 / 表 T-027 -- 対象と対象外を、同じ書き込みの経
     const one = bench()
     writeNames(one, 1)
     expect(one.depth()).toBe(1)
-    one.write([PAYLOAD['setTaskGroupPanelWidth'] as DocumentCommand])
+    one.write([PAYLOAD['setTaskGroupPanelWidthPx'] as DocumentCommand])
     expect(one.depth()).toBe(1)
 
     const back = undoEdit(one.held)
