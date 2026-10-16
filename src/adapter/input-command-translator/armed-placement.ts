@@ -4,12 +4,16 @@
 // @purity    pure
 
 import {
+  MINUTES_PER_CALENDAR_DAY,
   taskByUid,
   textOfDayEnd,
   textOfDayStart,
   textOfFinishSide,
+  textOfInstant,
   textOfStartSide,
+  type CalendarDay,
 } from '../../entity/document-model/schedule/schedule'
+import { snapMinutesOf, snappedInstantAtX } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   dependencyEndAtPointer,
   dependencyStartOfHit,
@@ -118,6 +122,70 @@ export function commandFromParentTaskLinkRelease(release: PointerInput, press: P
   return item.isStated ? CONSUMED_ELSEWHERE : nothingToDo('derivedParentCannotBePicked')
 }
 
+type TaskShapeArmed = Extract<InputContext['screen']['armModeState'], { readonly kind: 'taskShapeArmed' | 'milestoneShapeArmed' }>
+
+interface ArmedDrag {
+  readonly press: PointerPress
+  readonly release: PointerInput
+  readonly armed: TaskShapeArmed
+}
+
+interface DraggedDays {
+  readonly from: CalendarDay
+  readonly early: CalendarDay
+  readonly late: CalendarDay
+  readonly taskGroupId: string
+  readonly dragged: boolean
+}
+
+// see PTD-4, FR-001, TC-1, TC-3
+/** @purity pure */
+function createdTaskWrite(context: InputContext, drag: ArmedDrag, days: DraggedDays): TranslatedInput {
+  const { armed } = drag
+  const named = armed.kind === 'taskShapeArmed' ? armed.shapeKind : 'milestone'
+  const shapeKind = taskShapeKindOf(named)
+  if (shapeKind === null) return CONSUMED_ELSEWHERE
+  const isMilestone = shapeKind === 'milestone'
+  if (!isMilestone && !days.dragged) return nothingToDo('barShapeReleasedWithoutADrag')
+  const project = context.document.schedule.project
+  const fine = createdSpanOnFineSnap(context, drag, isMilestone)
+  const commands: DocumentCommand[] = [
+    {
+      kind: 'createTask',
+      shapeKind,
+      start: fine?.start ?? textOfStartSide(isMilestone ? days.from : days.early, project, isMilestone),
+      finish: fine?.finish ?? textOfFinishSide(isMilestone ? days.from : days.late, project),
+      taskGroupId: days.taskGroupId,
+    },
+  ]
+  const glyph = armed.kind === 'milestoneShapeArmed' ? milestoneGlyphOf(armed.glyph) : null
+  if (glyph !== null) {
+    commands.push({ kind: 'setTaskVisualMilestoneGlyph', uid: nextIssuedUid(context.document.schedule), milestoneGlyph: glyph })
+  }
+  return changedAndCreated([commands], { kind: 'task', uid: nextIssuedUid(context.document.schedule) })
+}
+
+// see FR-001, FR-103, T-378, JDG-2422
+// WHY: finer than a day the press and the release are snapped instants, as a grabbed end is; a pull inside one unit spans one unit.
+/** @purity pure */
+function createdSpanOnFineSnap(
+  context: InputContext,
+  drag: ArmedDrag,
+  isMilestone: boolean,
+): { readonly start: string; readonly finish: string } | null {
+  const { press, release } = drag
+  const snap = snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, release.modifiers.alt)
+  if (snap >= MINUTES_PER_CALENDAR_DAY) return null
+  const from = snappedInstantAtX(context.layout, press.at.x, snap)
+  const to = snappedInstantAtX(context.layout, release.x, snap)
+  if (from === null || to === null) return null
+  if (isMilestone) return { start: textOfInstant(from), finish: textOfInstant(from) }
+  const isLeftward = release.x < press.at.x
+  const early = from !== to ? Math.min(from, to) : isLeftward ? from - snap : from
+  const late = from !== to ? Math.max(from, to) : isLeftward ? from : from + snap
+  return { start: textOfInstant(early), finish: textOfInstant(late) }
+}
+
 // see PTD-4, FR-001, FR-019
 /** @purity pure */
 export function commandFromArmed(
@@ -136,36 +204,7 @@ export function commandFromArmed(
   const dragged = hasDraggedPastThreshold(press, release)
 
   if (armed.kind === 'taskShapeArmed' || armed.kind === 'milestoneShapeArmed') {
-    const named = armed.kind === 'taskShapeArmed' ? armed.shapeKind : 'milestone'
-    const shapeKind = taskShapeKindOf(named)
-    if (shapeKind === null) return CONSUMED_ELSEWHERE
-    const isMilestone = shapeKind === 'milestone'
-    if (!isMilestone && !dragged) return nothingToDo('barShapeReleasedWithoutADrag')
-    const start = isMilestone ? from : early
-    const finish = isMilestone ? from : late
-    const commands: DocumentCommand[] = [
-      {
-        kind: 'createTask',
-        shapeKind,
-        start: textOfStartSide(start, context.document.schedule.project, isMilestone),
-        finish: textOfFinishSide(finish, context.document.schedule.project),
-        taskGroupId,
-      },
-    ]
-    if (armed.kind === 'milestoneShapeArmed') {
-      const glyph = milestoneGlyphOf(armed.glyph)
-      if (glyph !== null) {
-        commands.push({
-          kind: 'setTaskVisualMilestoneGlyph',
-          uid: nextIssuedUid(context.document.schedule),
-          milestoneGlyph: glyph,
-        })
-      }
-    }
-    return changedAndCreated([commands], {
-      kind: 'task',
-      uid: nextIssuedUid(context.document.schedule),
-    })
+    return createdTaskWrite(context, { press, release, armed }, { from, early, late, taskGroupId, dragged })
   }
 
   if (armed.kind === 'commentBoxArmed') {
