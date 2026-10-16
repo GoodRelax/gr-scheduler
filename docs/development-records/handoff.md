@@ -5,7 +5,20 @@
 ⛔ **公開なので、個人情報・絶対パス・秘密を書かないこと。**
 ⛔ **本書は状態だけを持つ** —— 着地・止めたもの・次にやること・利用者の確認待ち。**学びと規則は `docs/development-rules/` へ下ろす**（規則 05 の 1）。検査 72 が、最新の日付の節の外に残った学びを赤にする。
 
-> 🆕⭐ **2026-10-15〜16 の巡（調整役 nostalgic-wilson の 2 期目。コンテキストを 1 度圧縮した）—— 本節が最新。** ⛔ 数は測り直せ（`git log -1 origin/refactor`・`git log -1 origin/main`）。測った範囲 `bf75ab22..6fbb69fe`（2026-10-16。`git rev-list --count` と `--merges`、`git diff --name-only` で数えた）: 235 コミット（合流 81）、832 ファイル。変更履歴は `4.60`〜`4.84` の 25 版（`grep -cE '^\| 4\.(6[0-9]|7[0-9]|8[0-9]) '`）。
+> 🆕⭐ **2026-10-16〜17 の巡（調整役 coord-1016。コンテキストを 1 度圧縮した）—— 本節が最新。** ⛔ 数は測り直せ（`git log -1 origin/refactor`・`git log -1 origin/main`・根の `git log -1`）。この巡の push は `60d65950`・`3d6383c8`・`6c11e22a`・`f3224c74`・`d34abfb6`・`dde671ec`・`9171429f`（GT-2 を通したのは src を含む 5 つ。残りはデータだけ）。
+> - **枝**: 統合の枝 `integ/coord-1016`（作業木 `.claude/worktrees/coord-1016`）。根（`refactor`）は調整役が自分で `git -C <根> merge --ff-only <sha>` で早送りする（利用者 2026-10-16「お前がやれよ」）。origin は `9171429f`。根と統合の枝は `4392d587`（計画）の上の引継書のコミット（`git log -1` で測れ）（`9171429f` の上に規則 04 の 7 節・利用者の報告の仕分け・計画。push していない —— `docs/spec` の生成表を含むので GT-2 の後に push）。
+> - **着地（push 済み）**: `CR-774`（深さの上限で QN-16 を問い引き上げる）・紹介頁 05 タブ「機能拡張トライアル」と `@purity` の注・α の 9 件（`CR-775`〜`778`・`DFC-557`・`DFC-2856`・`DFC-2870`（1 回目）・`DFC-2911`・`DFC-2912`。範囲 `JDG-2415`）・`CR-780`（FR-100: 文書が変わらない書き込みは未保存の編集にしない、`JDG-2421`）・`DFC-2909`（深さの上限は命令ごと、`JDG-2414`）・`CR-781`（[診断を終える]、`JDG-2199`）・`DFC-2950`（形式の版を上げる、`JDG-2446`）・検査 23 の数え（`JDG-2416`）。
+> - **未合流（次の調整役が合流 → test_route で試験を選ぶ → GT-2 → push）**: レーン 1 `bcd5a4dd`（`DFC-2870` の当て直し・`CR-783` ドラッグで作るタスクは押した点＝開始・離した点＝終了、`JDG-2422`。未走行の Playwright 1 本 `tests/system/cr-754-...ja-and-en.test.ts`）・レーン 3 `0f2d5e47`（`CR-782` コメントボックスの先端が左下へ出る・置くとパネルの文字欄に焦点・手のひらのポインタ。`uc-008` と `open-defect-pins` を Playwright で見る。検査 39 を下げてよい 2057→2055）。
+> - **新しい規則（`JDG-2419`）**: 規則 04 の 7 節と `tools/test_route.py`（検査 82）。席は最小の試験だけ。合流の後、差分から PERF・e2e・GT-2・体の探りの要否と順を選ぶ。体が操る Playwright は最後の手段（利用者に渡すチェックリストの事前確かめと不具合の再現だけ）。UAT は「Claude が機能を確かめ切ってから、利用者は使い勝手だけ」。
+> - **利用者の報告の仕分け**（`96d31c60`、`docs/review/user-report-2026-10-17.md`）: `DFC-2960`〜`2973`・`JDG-2460`〜`2475`。束 A（`DFC-2960`/`2961` 引きの手掛かり）・B（`DFC-2962`〜`2965`・`2970` パネルの幅と設定の語）→ C（`DFC-2972` 担当の選び手。B と同じレーン、レーン 3 の後）・D（`DFC-2973` 最前面へ ＋ `DFC-2968`）・E（`DFC-2966`/`2967`/`2969` GRS JSON と実績の組み合わせ表）・F（`DFC-2971` 全欄の試験）。`DFC-2962` は見本 ＋ Playwright の測りが要る（調整役が判断）。投入時期は利用者と協議。
+> - **チェックリスト**: `docs/review/user-checklist-2026-10-16.md`（13 行）と利用者の `temp/user-checklist-2026-10-16.xlsx`（F 列に結果。行 5〜14 は Playwright で押した: OK 7・NG 1（`DFC-2870`）・未確認 2（画面で押せない `CR-776`・`DFC-2856`））。
+> - **罠（いまの姿。短く）**:
+>   - 調整役がこの巡で、合流の継ぎ目の直し（tsc の未使用 import・CR-776 の改名の継ぎ目・CR-712 の行数・CR-776 の例外表）を自分でした —— ⛔ 次は席か体に返せ（利用者 2026-10-17「調整役/司令塔に実業務をさせるな」）。
+>   - Claude in Chrome（Edge）からはドラッグがアプリに届かない、`file://` も開けない。実物で押すのは Playwright（規則 04 の 7.3）。
+>   - 形の変わる CR は形式の版を上げること（FR-073）。`DFC-2950` の試験が見張る。
+>   - 席が根の `refactor` に直にコミットしたことがある（`96d31c60`）。席には自分の作業木でコミットさせよ。
+
+> **2026-10-15〜16 の巡（調整役 nostalgic-wilson の 2 期目）—— 前の節（2026-10-16〜17 の巡が引き継いだ。数と席は古い）。** ⛔ 数は測り直せ（`git log -1 origin/refactor`・`git log -1 origin/main`）。測った範囲 `bf75ab22..6fbb69fe`（2026-10-16。`git rev-list --count` と `--merges`、`git diff --name-only` で数えた）: 235 コミット（合流 81）、832 ファイル。変更履歴は `4.60`〜`4.84` の 25 版（`grep -cE '^\| 4\.(6[0-9]|7[0-9]|8[0-9]) '`）。
 > - **枝**: 統合の枝 `integ/coord-1011`（作業木 `nostalgic-wilson-2f0799`）の先端 `6fbb69fe`。⛔ この巡の `src`／`dist` の変更は **まだ 1 つも push していない**（origin は `bf75ab22` にデータだけの push を足した姿。測れ）。根（`refactor` のチェックアウト）は利用者が `96cb8168` まで早送りした。
 > - **着地**（統合の枝に在る。push は GT-2 の後）: `CR-740`・`CR-751`〜`766`・`CR-768` の A と B・`CR-769`〜`771`（英語の名）・`CR-772`（タスクグループは 1 回のドラッグで順序と段を決める。利用者の最優先）・`CR-773`（利用者が答えた 6 つの裁定）・`DFC-2309`（開けないファイルを黙って捨てない）・`DFC-2765`（変更前の予定の輪郭）・紹介頁の表紙（`.md` の仕様へのリンクと見本 2 本）とダーク／ライトの切り替え・計画 `docs/development-records/project-plan.json`（`f943daf3`。前の計画は `previous-plan.json`）。各 CR は仕様だけを読む試験の体が試験を書いた（`CR-773` だけは既存の試験の直しまで）。
 > - **関門の今**: 根の GT-2 が 2 回止まった —— ① `CR-772` の試験の型の誤り（`96cb8168` で直した）② `tests/unit/uf-36.test.ts` が `CR-769` の前の列名を期待していた（`6fbb69fe` で直した。この試験は MSPDI のスキーマが在る所でしか走らない）。作業木でスキーマを写して `node tools/gate/run-gate.mjs GT-2` を直に流している（結果は前の調整役の作業メモ）。⛔ 流し終えたら作業木の `docs/reference/mspdi` を消すこと（追跡外だが残すな）。
@@ -222,36 +235,28 @@
 利用者はこの節のブロックをそのまま新しいセッションに貼る。巡ごとに本節も書き換える。
 
 ```text
-あなたは新しい調整役である（2026-10-16 に前の調整役 nostalgic-wilson が、コンテキストを 1 度圧縮したので引き継いだ）。調整だけをする（利用者の裁定）—— 仕事は席（セッション）と作業木の体（Agent）で配り、帯・持ち場・順・合流・push の口を 1 人で持て。⛔ 実務は自分でしない（試験や台帳の手直し・調べもの・測り・ファイルを読み込むこと）—— すべて席か体に出し、自分のコンテキストを極力節約する（利用者の指示）。調整役が手を動かすのは、合流と生成物の作り直し・関門・push だけ。前の調整役は GT-2 で止まった試験の直しを自分でしてコンテキストを使った —— まねるな。説明は日本語、コードとコミット文は英語 ASCII。
-唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-15〜16 の巡）から読め。次にメモリーを読め: alpha-scope-by-agreement・coordinator-handover-2026-10-01・coordinator-only-role・gt2-read-the-verdict-before-push（根の HEAD の段）・onedrive-stays-ask-user・rulings-in-origin-session・questions-stay-with-drafting-session・merge-count-ids-both-sides・never-report-unrun-actions・spec-driven-tests-by-another-agent。
+あなたは新しい調整役である（2026-10-17 に前の調整役 coord-1016 が、コンテキストを 1 度圧縮したので引き継いだ）。⛔ 調整だけをする（利用者の裁定 2026-10-17「調整役/司令塔に実業務をさせるな」）—— 調べもの・試験・台帳の手直し・継ぎ目の直し・ファイルの読み込みは、すべて席（セッション）か体（Agent）に出す。調整役が手を動かすのは、帯と持ち場と順を決めること、合流（衝突は生成物を作り直すだけ。継ぎ目の直しは席へ返す）、関門（GT-2・PERF）、根の早送り、push だけ。前の調整役は継ぎ目の直しを自分でしてコンテキストを使った —— まねるな。説明は日本語、コードとコミット文は英語 ASCII。
+唯一の引継書は docs/development-records/handoff.md である。冒頭の 🆕 の節（2026-10-16〜17 の巡）から読め。計画は docs/development-records/project-plan.json（読み方は project-plan.md）—— 最初の指示はこの計画に沿って利用者と決める。次にメモリーを読め: alpha-scope-by-agreement・coordinator-only-role・gt2-read-the-verdict-before-push・onedrive-stays-ask-user・rulings-in-origin-session・merge-count-ids-both-sides・never-report-unrun-actions・chrome-extension-drag-does-not-reach-grs。試験の選び方は規則 04 の 7 節と tools/test_route.py（JDG-2419）。
 
-0. 今の姿（⛔ 信じず測れ: git log -1 origin/refactor・git log -1 origin/main）
-   - 統合の枝 integ/coord-1011 は前の調整役の作業木 .claude/worktrees/nostalgic-wilson-2f0799 に在る。先端は 6fbb69fe に計画の合流（147f26c9）と引継書のコミットを足したもの —— git -C .claude/worktrees/nostalgic-wilson-2f0799 log -1 で測れ。あなたは自分の作業木で git merge --ff-only <その先端> から積め。根（refactor のチェックアウト）は利用者だけが早送りする（96cb8168 まで済み）。
-   - この巡の src／dist の変更はまだ push していない。push は GT-2 の後に refactor と main へ 1 回。
-   - GT-2 は根でだけ回る: node tools/gate/gate-queue.mjs enqueue GT-2 → 根で GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。根の HEAD が順番待ちの sha と同じでないと捨てられる —— 先に利用者に早送りを頼む。OneDrive は利用者に止めてもらう。
-   - push は grep -q "GT-2 <sha> passed" <ログ> を確かめてから git push origin <sha>:refactor <sha>:main を単独の 1 コマンドで。続けて gh workflow run pages.yml --ref main。
-   - 性能の試験は GT-2 に入っていない: enqueue PERF → GRS_PERF=1 で drain。利用者が「一通り実装して単体試験が終わったら性能の試験」と言った。
-1. 前の調整役の作業メモ（リポジトリの外。読むだけ。パスをリポジトリに書くな）: %LOCALAPPDATA%\Temp\claude\ の下の、名前に e336a5f1 を含むフォルダの scratchpad。coord-notes-2026-10-15.md（巡の記録）・brief-*.txt（体への指示の型。tools/session_brief.py が刷る）・carry_rulings.py と resolve766.py（台帳の合流）・handoff-new-section.md。作業木で直に流した GT-2 のログは %TEMP%\claude\gt2-local-6fbb69fe.log。
-2. 席
-   - 「Hear improvement point 2」（local_25526e50）—— CR-774 の仕様の段を 36c8e3d2 と 12ba27fa にコミットした（Q2 は JDG-2411 で答え済み）。待機中。実装の体に渡すのはあなた。
-   - 完了確認: 20 席に「問題なし」を返した（Apply CR-758 を含む。DFC-2705〜2707 は預かり）。残る 6 席（Apply CR-759 and CR-760・Move memory-only rules into machine checks・Draft the one-page user checklist・Apply CR-740・Apply CR-763・Draft CR-763/764）には確認を送り、「報告に問題が無ければ自分で完了を宣言してよい」と伝えた。宣言していない席があれば、その席の最後の報告を読んで片付けよ。⛔ 他のセッションへの送信は、利用者の書き込み 1 回につき 10 通まで。
-3. 次の番号（⛔ 配る前に grep で測り直せ）: JDG 2415・DFC 2913・PND 895・CR 775・変更履歴 4.86・perf-pending 223・見本のフォルダ 59・検査 82。CR-774 の席の帯（JDG 2398／2399・2410〜2414、DFC 2907〜2909、4.85、perf 222）は除く。
-   - 計画: docs/development-records/project-plan.json（読み方は project-plan.md）。あなたの最初の指示を利用者が出すときの地図になる。巡ごとに日程の席に書き直させる（前の計画は previous-plan.json）。
-   - 残っている席（CR-774 の席 local_25526e50 ほか）は前の調整役の子のまま。SendMessage の宛先は local_ の id で書く。
-4. 次にやること（順に）
-   1) 作業木の GT-2 は通った（%TEMP%\claude\gt2-local-6fbb69fe.log に「gate GT-2 passed」）。正式の GT-2 を根で回す。緑なら引継書のコミットまで含めた先端で、根の早送り → GT-2 → push → Pages。赤なら直してから。
-   2) PERF（性能の試験）。
-   3) CR-774: 12ba27fa を合流 → 実装の体（CR-774 の 5.1 節）→ 仕様だけを読む試験の体（5.2 節）。CR-772 と同じ型。合流したら tsc を必ず回す（vitest は型を見ない）。
-   3b) 紹介頁: 利用者の依頼 2 つ（@pure の説明・05 タブ「機能拡張トライアル」）を席に配る。中身は引継書の 🆕 の節の「紹介頁への利用者の依頼」。docs/about だけを触るのでデータだけの push で出せる（JDG-1965）。
-   4) α 版（10/19 に人に見せる）に何を入れるかを利用者と決める。週の使用量は 10/16 04:40 に 51%。候補は引継書の 🆕 の節の 5。決まるまで新しい実装は始めない（利用者の指示）。
-   5) 1 枚の利用者のチェックリスト（実測待ちの行の「利用者の手順」を画面ごとに）。
-5. 毎回の約束
-   - 体の作業木は git merge --ff-only <あなたの sha> から始め、node_modules の junction を作らせない。git stash をさせない。git add は名指し。
-   - 仕様だけを読む試験は実装の体と別の体が書く（継ぎ目の名を逐語で渡す）。MSPDI のスキーマを読む試験は作業木では飛ぶ —— 全体を作業木で回すなら根の docs/reference/mspdi を写し、終わったら消す。
-   - 生成物の合流は片側を採って作り直す。台帳の合流のたびに両側の ID を数える。着地した CR に追記しない（新しい番号）。
-   - 基準線は下げ・掃除は調整役が書いてよい（JDG-520）、上げは利用者に問う。利用者の裁定は、詳細を調べた子の席から 1 問ずつ問わせる。調整役は問わない。
-   - コミット／push は許可済み（gr-scheduler に限る）。コミットの前に毎回 python tools/privacy_count.py --staged の数を報告。⛔ MSPDI の XSD と SDK から取り出したファイルは、絶対にコミットも push もしない。
-   - コンテキストを 1 度圧縮したら、区切りで本節を書き換えて引き継ぐ。
+0. 今の姿（⛔ 信じず測れ: git log -1 origin/refactor・根の git log -1）
+   - origin は 9171429f。根と統合の枝 integ/coord-1016（作業木 .claude/worktrees/coord-1016）は 4392d587 の上の引継書のコミット（git log -1 で測れ）（push していない。docs/spec の生成表を含むので GT-2 の後に push）。あなたは自分の作業木を切り、git merge --ff-only 4392d587 の上の引継書のコミット（git log -1 で測れ） から積め。根の早送りは調整役が git -C <根> merge --ff-only <sha> で自分でやる。
+   - GT-2: 根で node tools/gate/gate-queue.mjs enqueue GT-2 → GRS_DEV_PORT=5992 node tools/gate/gate-queue.mjs drain > ログ（リポジトリの外）。push は grep -q "GT-2 <sha> passed" を見てから git push origin <sha>:refactor <sha>:main を単独の 1 コマンドで。続けて gh workflow run pages.yml --ref main。OneDrive は止まっていることを確かめる（止まっていなければ利用者に頼む）。
+1. 最初にやること
+   1) 不具合を受け付ける席の提案チップを出す（利用者の指示）。利用者の報告「実績を入力するUIが変になった」を最初に渡す。疑い: DFC-2870 の 1 回目の直し 35fcdfa4（9171429f で公開済み）・レーン 1 の当て直し 1e1f6707／bcd5a4dd（未合流）・CR-782（レーン 3、パネルを開く）。
+   2) 未合流の 2 本を合流: レーン 1 bcd5a4dd（DFC-2870 当て直し・CR-783）、レーン 3 0f2d5e47（CR-782）。継ぎ目の赤は元の席へ返す。合流したら python tools/test_route.py <範囲> で PERF・e2e・GT-2・探りの要否と順を決める（レーン 1 の未走行 Playwright 1 本、レーン 3 の uc-008／open-defect-pins を含める）。dist の作り直しと GT-2 → push。
+   3) 利用者の報告の束 A〜F（docs/review/user-report-2026-10-17.md）の投入時期と順を利用者と決める（利用者「修正投入時期は別途協議」）。
+   4) α 版のお披露目は 10-19（月）09:00。最後の GT-2 と push は日曜 23:00 まで。週の使用量は 2026-10-17 05:20 に 61%、上限は日曜 18:00 に 85%・23:00 に 90%。月曜夜〜水曜 19:00 は休み。
+2. 席（SendMessage の宛先は local_ の id）
+   - レーン 1 local_0e764896（bcd5a4dd を持って待機）・レーン 3 local_0cb6bc92（0f2d5e47 を持って待機）・利用者の報告の席 local_59b0ec7f（96d31c60 で仕分け済み、待機）・計画の席 local_50a7e85e（Rewrite the project plan as GRS JSON）・チェックリストの席 local_e08c41ee。どれも前の調整役の子のまま。
+   - ⛔ 他のセッションへの送信は、利用者の書き込み 1 回につき 10 通まで。
+3. 次の番号（⛔ 配る前に grep で測り直せ。未合流の枝が使った番号を含めて数えた）: JDG 2476・DFC 2974・PND 895・CR 784・変更履歴 4.96・perf-pending 230・見本のフォルダ 59・検査 83。仕様の行 ID（S-・AT-・CM-・PR-・TC- など）は配る前に docs/spec の最大を測り、枝の未合流分（レーン 3: S-600、AT-163〜167、RL-33/34）を除く。
+4. 毎回の約束
+   - 席は最小の試験（自分のファイルの単体・結合・複合 ＋ tsc ＋ check.sh 1 回）だけで報告する。PERF・全体の試験・体が操る Playwright は調整役が test_route で決める。
+   - 利用者に渡すチェックリストの行は、先に Playwright（体）で機能を確かめ切ってから渡す（UAT は使い勝手だけ、規則 04 の 7.4）。Claude in Chrome ではドラッグが届かない。
+   - 仕様だけを読む試験は実装の体と別の体が書く（継ぎ目の名を逐語で渡す）。形の変わる CR は形式の版を上げる（FR-073、DFC-2950 の試験）。
+   - 合流のたびに台帳の ID を両側で数える。生成物は片側を採って作り直す。基準線の上げは利用者に問う、下げは調整役がよい（JDG-520）。利用者の裁定は詳細を調べた子の席から 1 問ずつ。
+   - コミット／push は許可済み（gr-scheduler に限る）。コミットの前に毎回 python tools/privacy_count.py --staged の数を報告。⛔ MSPDI の XSD と SDK のファイルはコミットも push もしない。
+   - コンテキストを 1 度圧縮したら、区切りで計画の席に計画を更新させ、それに沿って本節を書き換えて引き継ぐ。
 ```
 
 ---
