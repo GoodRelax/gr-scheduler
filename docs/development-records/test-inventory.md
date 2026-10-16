@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 397 | 5008 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 398 | 5015 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
-| `system` | TS-3 | - | 91 | 591 | 0 | 0 | 0 | 0 |
+| `system` | TS-3 | - | 92 | 593 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 183 | 3877 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 691 | 9586 | 11 | 8 | 13 | 2 |
+| **all** | | | 693 | 9595 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -427,6 +427,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-751-the-schema-names-the-regions-and-no-spec-id.contract.test.ts` | 12 | FR-024, FR-054, FR-156 | - | T-376 | IV-24, S-574, S-575, S-582 | - | - | - | - |
 | `tests/contract/cr-752-call-shapes-and-two-fix-rows.contract.test.ts` | 20 | FR-011, FR-012, FR-054 | - | T-064, T-108, T-310, T-346 | CM-11, CM-37, FA-3, FA-15, FA-24, PI-1, RW-16, VC-15 | - | - | - | - |
 | `tests/contract/cr-753-a-ctrl-drag-copy-lands-where-the-body-move-lands.test.ts` | 34 | FR-016, FR-017, FR-103 | - | T-209, T-266, T-270, T-350, T-378 | CY-5, CY-7, CY-9, GA-9, GA-14, GA-15, GA-18, PE-1, PE-6, PTD-7, RV-1, S-1, S-8, S-55, S-85, S-229, S-482, S-483, S-577, S-578, SG-1, SG-2, SG-3, WT-1, WT-2 | - | - | - | - |
+| `tests/contract/cr-754-fr-006-actual-length-entry-is-drawn-as-wide-as-the-date-entry.test.ts` | 7 | FR-006 | - | - | PR-4, PR-5, PR-6 | - | - | - | - |
 | `tests/contract/cr-754-fr-006-date-fields-take-s-589-and-s-590.test.ts` | 16 | FR-006, FR-088, FR-093 | - | T-016, T-201, T-206 | K-141, PI-37, PR-5, S-30, S-199, S-589, S-590, TX-3, WC-4 | - | - | - | - |
 | `tests/contract/cr-754-fr-006-fr-038-item-names-wrap-at-the-dictionary-break-marks.test.ts` | 10 | FR-006, FR-038 | - | - | K-138 | - | - | - | - |
 | `tests/contract/cr-754-fr-072-the-close-only-row-heads-every-panel.test.ts` | 10 | FR-072 | - | - | FO-16, IC-52 | - | - | - | - |
@@ -724,6 +725,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-736-the-marquee-overlay-in-the-built-app.test.ts` | 8 | - | - | T-065 | IF-1, IF-9, ZO-6 | - | - | - | - |
 | `tests/system/cr-737-the-column-border-grab-band-and-the-pointer-shape-over-windows.test.ts` | 11 | FR-106 | - | T-023d, T-103, T-109, T-206, T-330 | DT-8, GR-25, GR-28, IC-122, PK-10, PK-12, PK-15, RO-9, RQ-1, RW-9, S-425, S-426, S-465, SQ-10, SV-7, SV-18 | - | - | - | - |
 | `tests/system/cr-739-the-window-edge-answers-before-the-title-bar-and-the-header-cell-shows-the-finger.test.ts` | 13 | FR-106 | - | T-023d, T-103, T-109, T-330, T-335 | DT-8, GR-24, GR-25, IC-52, IC-122, IF-9, PK-7, PK-12, PK-13, PK-15, RO-9, RQ-1, RW-9, S-426, S-465, SQ-10, SV-1, SV-7, SV-18, WB-8, WB-9 | - | - | - | - |
+| `tests/system/cr-754-the-actual-length-entry-is-as-wide-as-the-date-entries-in-ja-and-en.test.ts` | 2 | FR-006 | - | T-016, T-025 | K-146, PR-4, PR-5, PR-6, U-25 | - | - | - | - |
 | `tests/system/cr-754-the-settings-panel-fits-its-default-width-in-ja-and-en.test.ts` | 9 | FR-006, FR-072, FR-151 | - | T-025, T-206, T-331, T-369 | IC-117, IC-122, S-171, S-248, SV-7, U-24, U-25 | - | - | - | - |
 | `tests/system/cr-761-a-fix-proposal-value-unchecked-stays-listed.test.ts` | 1 | - | - | T-374 | SV-7 | - | - | - | - |
 | `tests/system/cr-762-sv-18-a-border-pull-follows-the-pointer-and-stops-left-of-the-scrollbar.test.ts` | 6 | - | - | T-025, T-103, T-109, T-330 | GR-25, GR-28, MC-5, MC-8, RO-9, RW-9, S-425, SV-7, SV-18 | - | - | - | - |
