@@ -249,8 +249,8 @@
     "en": "Delay Diagnostics"
    },
    "hint": {
-    "ja": "遅延診断を行う。レポートを閉じていれば診断をやり直し、開いていれば診断の表示を終える",
-    "en": "Run the Delay Diagnostics; runs them again if the report is closed, or ends the display while it is open"
+    "ja": "遅延診断を行う。レポートを閉じていれば診断をやり直して開き、開いていればレポートだけを閉じる",
+    "en": "Run the Delay Diagnostics; runs them again and opens the report if it is closed, or closes only the report while it is open"
    }
   },
   {
@@ -1076,6 +1076,17 @@
    "hint": {
     "ja": "タイトルバーと表と入力欄の文字サイズを変える（9・10・12 px を順に巡る）",
     "en": "Change the font size of the title bar, table, and search box (cycles through 9, 10, and 12 px)"
+   }
+  },
+  {
+   "rowId": "IC-167",
+   "label": {
+    "ja": "診断を終える",
+    "en": "End Diagnostics"
+   },
+   "hint": {
+    "ja": "遅延診断の表示を終える。レポートを閉じ、日程表の診断の印を消す",
+    "en": "End the Delay Diagnostics: close this report and clear the diagnosis marks from the schedule"
    }
   },
   {
