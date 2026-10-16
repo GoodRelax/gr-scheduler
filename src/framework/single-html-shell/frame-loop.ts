@@ -1316,8 +1316,10 @@ function agentHolderOf(holder: DocumentHolder, landed: () => void): DocumentHold
     },
     /** @purity non-pure */
     replace(next: HeldDocument): void {
+      const before = holder.read().document
       holder.replace(next)
-      landed()
+      // WHY: a write that left the document as it was raises no unsaved edits (FR-100, JDG-2421).
+      if (next.document !== before) landed()
     },
   }
 }
@@ -3560,7 +3562,7 @@ export function frameLoop(
     isSettlingFieldCommit = false,
   ): void {
     const settingsLimits = settingsLimitsOf(frame)
-    const scheduleBefore = held.document.schedule
+    const documentBefore = held.document
     const outcome = applyDocumentChange(
       {
         commands,
@@ -3576,8 +3578,8 @@ export function frameLoop(
       audience,
     )
     if (outcome.ok) {
-      sendToSession(DOCUMENT_EDIT_LANDED, frame)
-      shownTasks.holdCreatedTasks(scheduleBefore, held.document.schedule)
+      if (held.document !== documentBefore) sendToSession(DOCUMENT_EDIT_LANDED, frame)
+      shownTasks.holdCreatedTasks(documentBefore.schedule, held.document.schedule)
       const recounted = outcome.report.recountedTaskUids.length
       if (recounted > 0) raiseNotice(RECOUNTED_PERCENT_COMPLETE_REASON, recounted)
       return
