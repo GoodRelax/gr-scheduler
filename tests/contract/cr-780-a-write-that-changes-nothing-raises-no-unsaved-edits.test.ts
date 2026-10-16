@@ -7,7 +7,8 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import { installAgentApi, type AgentApi } from '../../src/adapter/agent-api-endpoint/agent-api-endpoint'
 import type { Document } from '../../src/entity/document-model/document/document'
-import { taskGroupDocument } from '../unit/cr-541-stage'
+import type { FieldCommit } from '../../src/adapter/screen-renderer/screen-renderer'
+import { taskGroupDocument, taskOf } from '../unit/cr-541-stage'
 import { unbroken } from './spec-table'
 import { exportStage, restoreAnimationFrames, type ExportStage } from './w3-t3-frame-stage'
 
@@ -23,6 +24,12 @@ const CLAUSE_UNCHANGED_WRITE_RAISES_NOTHING =
 const TASK_GROUP_TITLE_DIVIDER = 'taskGroupPanel'
 const HIGHLIGHT_ID = 'cr780-highlight-box'
 const NEW_DOCUMENT_ENTRY = 'IC-98'
+const SETTINGS_ENTRY = 'IC-17'
+const SHOWS_TIME_OF_DAY_ROW = 'K-146'
+const SHOWS_TIME_OF_DAY_COLUMN = 'isTimeOfDayVisible'
+
+// WHY: a long plan, so the body center of the bar is a point a click picks the task at.
+const LONG_PLAN = { start: '2026-04-06T08:00:00', finish: '2026-06-26T17:00:00' }
 
 const documentOf = (): Document =>
   taskGroupDocument(
@@ -121,6 +128,64 @@ describe(`(a) a screen write that changes nothing -- ${CLAUSE_UNCHANGED_WRITE_RA
     stage.pointer('move', at.x + 1, at.y)
     stage.pointer('move', at.x, at.y)
     stage.pointer('up', at.x, at.y)
+    expect(stage.loop.hasUnsavedEdits()).toBe(false)
+    expect(await newDocumentAsks(stage)).toBeNull()
+  })
+})
+
+// WHY: the commit is what a person's retyped field hands the shell; the write that follows goes through the shell's own write path.
+describe(`(a) a field commit that retypes the held value -- ${CLAUSE_UNCHANGED_WRITE_RAISES_NOTHING}`, () => {
+  const longPlanStage = (): ExportStage =>
+    exportStage(
+      taskGroupDocument(
+        [
+          { id: 'g1', parentId: null },
+          { id: 'g2', parentId: null },
+        ],
+        {},
+        { tasks: [taskOf(1, LONG_PLAN), taskOf(2, LONG_PLAN)] },
+      ) as unknown as Document,
+    )
+
+  async function pickedNameField(stage: ExportStage) {
+    const placement = stage.loop.current()?.layout.placements.find((one) => one.taskUid === 1)
+    if (placement === undefined) throw new Error('premise: task 1 is laid out')
+    await stage.click(placement.x + placement.width / 2, placement.y + placement.height / 2, 2)
+    const field = stage.lastView().propertiesPanel?.fields.find((one) => one.controls.some((control) => control.key.column === 'name'))
+    const control = field?.controls.find((one) => one.key.column === 'name')
+    if (field === undefined || control === undefined) throw new Error('premise: the panel shows the name field of the picked task')
+    return { row: field.row, key: control.key }
+  }
+
+  async function commitName(stage: ExportStage, text: string): Promise<void> {
+    const name = await pickedNameField(stage)
+    stage.beginEditing(name.row)
+    stage.commitNext({ row: name.row, key: name.key, text } as unknown as FieldCommit)
+    await stage.pointAt(1, 1)
+  }
+
+  it('the name field of a picked task retyped as the name it holds: no unsaved edits, QN-5 not raised', async () => {
+    const stage = longPlanStage()
+    await commitName(stage, taskNameOf(stage, 1))
+    expect(taskNameOf(stage, 1), 'premise: the name is as it was').toBe('Task1')
+    expect(stage.loop.hasUnsavedEdits()).toBe(false)
+    expect(await newDocumentAsks(stage)).toBeNull()
+  })
+
+  it('control: the name field retyped as another name: unsaved edits, QN-5 raised', async () => {
+    const stage = longPlanStage()
+    await commitName(stage, 'Retyped by hand')
+    expect(taskNameOf(stage, 1), 'premise: the commit reached the document').toBe('Retyped by hand')
+    expect(stage.loop.hasUnsavedEdits()).toBe(true)
+    expect(await newDocumentAsks(stage)).toBe('QN-5')
+  })
+
+  it('the settings face switch K-146 committed at the value it holds: no unsaved edits, QN-5 not raised', async () => {
+    const stage = stageOf()
+    await stage.take(SETTINGS_ENTRY)
+    const held = (stage.loop.document().documentSettings as unknown as Record<string, unknown>)[SHOWS_TIME_OF_DAY_COLUMN]
+    stage.commitNext({ row: SHOWS_TIME_OF_DAY_ROW, key: { holder: 'documentSettings', column: SHOWS_TIME_OF_DAY_COLUMN }, text: String(held) } as unknown as FieldCommit)
+    await stage.pointAt(1, 1)
     expect(stage.loop.hasUnsavedEdits()).toBe(false)
     expect(await newDocumentAsks(stage)).toBeNull()
   })
