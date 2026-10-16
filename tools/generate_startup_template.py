@@ -164,7 +164,9 @@ STARTUP_TEMPLATE_ELEMENT_ID = 'grs-startup-template'
 # CR-769 (JDG-2245..2247): stored keys follow the English convention -- is/has
 # booleans, taskGroupId, TaskGroup.name, unit suffixes, ...At instants,
 # creationDate, linkLag, importSequence, HighlightBox start/finish.
-SCHEMA_VERSION = '2026-10-15T05:52:20Z'
+# CR-777 / DFC-2950 (JDG-2446): CommentBox gained anchorBandFraction,
+# anchorTaskUid, anchorTaskFigure, anchorHighlightBoxId and anchorSnapPoint.
+SCHEMA_VERSION = '2026-10-16T12:35:39Z'
 # CR-699 (DR-4): the first key of every document this file writes. S-540 of
 # table T-206 holds it; read through the one reader of not-stored strings.
 SCHEMA_ADDRESS = settings_reader.not_stored_string('S-540')

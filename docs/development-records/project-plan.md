@@ -72,6 +72,7 @@ GRS で `project-plan.json` を開くと、1 つ前の計画（10-16 05:24 時�
 - `python -I tools/schema-only-writer/validate.py docs/spec/_source/grs-document.schema.json docs/development-records/project-plan.json` → 違反 0（`previous-plan.json` も 0）
 - `node tools/schema-only-writer/measure.mjs`（**コミット済みの `dist/index.html`**、`d34abfb6` で作り直した物）→ 2 ファイルとも PASS（拒み 0・知らせ 0・エラー 0・例外 0・数え直し 0、読み戻し 107 と 113）
 - ⚠️ 書き直す前の `project-plan.json`（`92ccd510`）は、`CR-777` が足した必須の 5 列が無いので、今の dist では「決められた形に合いません」（`RS-25`）と断られていた。スキーマの版（`schemaVersion` `2026-10-15T05:52:20Z`）は変わっていない
+- ⭐ その後、`CR-777` で上げ忘れた形式の版を `2026-10-16T12:35:39Z` へ上げた（`DFC-2950`・`JDG-2446`）。`project-plan.json` と `previous-plan.json` は版の字だけを替え、同じ検証で違反 0（2 ファイルとも）
 
 ## スキーマで迷った点
 

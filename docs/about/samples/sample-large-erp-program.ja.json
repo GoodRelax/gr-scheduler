@@ -1,6 +1,6 @@
 {
  "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
- "schemaVersion": "2026-10-15T05:52:20Z",
+ "schemaVersion": "2026-10-16T12:35:39Z",
  "schedule": {
   "calendars": [
    {

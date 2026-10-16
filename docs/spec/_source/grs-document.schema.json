@@ -22,7 +22,7 @@
   },
   "schemaVersion": {
    "type": "string",
-   "const": "2026-10-15T05:52:20Z"
+   "const": "2026-10-16T12:35:39Z"
   },
   "schedule": {
    "type": "object",
