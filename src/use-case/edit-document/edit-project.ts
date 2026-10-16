@@ -56,14 +56,17 @@ const PROJECT_PROFILE_FIELD_NAMES = [
 export type ProjectCommand =
   | { readonly kind: 'setProjectTitle'; readonly title: Project['title'] }
   | { readonly kind: 'setProjectProfile'; readonly fields: ProjectProfileFields }
-  | { readonly kind: 'setStatusDate'; readonly date: NonNullable<Project['statusDate']> }
+  | { readonly kind: 'setStatusDate'; readonly statusDate: NonNullable<Project['statusDate']> }
   | { readonly kind: 'clearStatusDate' }
-  | { readonly kind: 'setThemeHue'; readonly hue: Project['themeHue'] }
+  | { readonly kind: 'setThemeHue'; readonly themeHue: Project['themeHue'] }
   | {
       readonly kind: 'setParentProgressToleranceDays'
-      readonly workingDays: Project['parentProgressToleranceDays']
+      readonly parentProgressToleranceDays: Project['parentProgressToleranceDays']
     }
-  | { readonly kind: 'setScheduleDataTimeZone'; readonly timeZone: Project['scheduleDataTimeZone'] }
+  | {
+      readonly kind: 'setScheduleDataTimeZone'
+      readonly scheduleDataTimeZone: Project['scheduleDataTimeZone']
+    }
   | { readonly kind: 'shiftScheduleTimes'; readonly minutes: number }
 // </generated>
 
@@ -90,11 +93,11 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
       return withProjectProfile(document, command.fields)
 
     case 'setStatusDate': {
-      if (dayOf(command.date) === null) {
-        return refused([reject('CM-3', 'FR-046', `not a date: ${command.date}`)])
+      if (dayOf(command.statusDate) === null) {
+        return refused([reject('CM-3', 'FR-046', `not a date: ${command.statusDate}`)])
       }
-      if (project.statusDate === command.date) return edited(document)
-      return edited(withProject(document, { ...project, statusDate: command.date }))
+      if (project.statusDate === command.statusDate) return edited(document)
+      return edited(withProject(document, { ...project, statusDate: command.statusDate }))
     }
 
     case 'clearStatusDate':
@@ -102,11 +105,11 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
       return edited(withProject(document, { ...project, statusDate: null }))
 
     case 'setThemeHue': {
-      if (!Number.isInteger(command.hue) || command.hue < 0 || command.hue > 359) {
-        return refused([reject('CM-5', 'S-73', `hue outside 0..359: ${command.hue}`)])
+      if (!Number.isInteger(command.themeHue) || command.themeHue < 0 || command.themeHue > 359) {
+        return refused([reject('CM-5', 'S-73', `hue outside 0..359: ${command.themeHue}`)])
       }
-      if (project.themeHue === command.hue) return edited(document)
-      return edited(withProject(document, { ...project, themeHue: command.hue }))
+      if (project.themeHue === command.themeHue) return edited(document)
+      return edited(withProject(document, { ...project, themeHue: command.themeHue }))
     }
 
     default:
@@ -119,8 +122,12 @@ type ProjectValueCommand = Extract<ProjectCommand, { readonly kind: 'setParentPr
 // see CM-87, CM-94, CM-98
 /** @purity pure */
 function projectValueEdited(document: Document, command: ProjectValueCommand): EditResult {
-  if (command.kind === 'setParentProgressToleranceDays') return withParentProgressTolerance(document, command.workingDays)
-  if (command.kind === 'setScheduleDataTimeZone') return withScheduleDataTimeZone(document, command.timeZone)
+  if (command.kind === 'setParentProgressToleranceDays') {
+    return withParentProgressTolerance(document, command.parentProgressToleranceDays)
+  }
+  if (command.kind === 'setScheduleDataTimeZone') {
+    return withScheduleDataTimeZone(document, command.scheduleDataTimeZone)
+  }
   return withScheduleTimesShifted(document, command.minutes)
 }
 

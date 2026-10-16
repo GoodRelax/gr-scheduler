@@ -4,8 +4,17 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { CommentBox, HighlightBox, Schedule } from '../../entity/document-model/schedule/schedule'
-import { dayOf, isSameDay, isStoredColor, TRANSPARENT } from '../../entity/document-model/schedule/schedule'
+import type { CommentBox, HighlightBox, Schedule, Task } from '../../entity/document-model/schedule/schedule'
+import {
+  dayOf,
+  instantOf,
+  isSameDay,
+  isStoredColor,
+  MINUTES_PER_CALENDAR_DAY,
+  textOfDayStart,
+  textOfInstant,
+  TRANSPARENT,
+} from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
 import { refused, edited, reject } from './edit-document'
 
@@ -17,12 +26,17 @@ export type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind'
 export interface AnnotationAnchor {
   readonly date: NonNullable<CommentBox['anchorDate']>
   readonly taskGroupId: NonNullable<CommentBox['anchorTaskGroupId']>
+  readonly bandFraction?: CommentBox['anchorBandFraction']
+  readonly taskUid?: CommentBox['anchorTaskUid']
+  readonly taskFigure?: CommentBox['anchorTaskFigure']
+  readonly highlightBoxId?: CommentBox['anchorHighlightBoxId']
+  readonly snapPoint?: CommentBox['anchorSnapPoint']
 }
 
 // see T-108
 export interface HighlightRange {
-  readonly startDate: NonNullable<HighlightBox['start']>
-  readonly endDate: NonNullable<HighlightBox['finish']>
+  readonly start: NonNullable<HighlightBox['start']>
+  readonly finish: NonNullable<HighlightBox['finish']>
   readonly topTaskGroupId: NonNullable<HighlightBox['topTaskGroupId']>
   readonly bottomTaskGroupId: NonNullable<HighlightBox['bottomTaskGroupId']>
 }
@@ -159,6 +173,36 @@ function hasGroup(document: Document, taskGroupId: string): boolean {
   return document.schedule.taskGroups.some((one) => one.id === taskGroupId)
 }
 
+// see FR-019, CM-46, CM-50
+// WHY: a key the anchor leaves out is written as null, so a free point never keeps a target it no longer stands on.
+/** @purity pure */
+export function anchorColumnsOf(anchor: AnnotationAnchor) {
+  return {
+    anchorDate: anchor.date as CommentBox['anchorDate'],
+    anchorTaskGroupId: anchor.taskGroupId as CommentBox['anchorTaskGroupId'],
+    anchorBandFraction: anchor.bandFraction ?? null,
+    anchorTaskUid: anchor.taskUid ?? null,
+    anchorTaskFigure: anchor.taskFigure ?? null,
+    anchorHighlightBoxId: anchor.highlightBoxId ?? null,
+    anchorSnapPoint: anchor.snapPoint ?? null,
+  }
+}
+
+export type CommentAnchorColumns = ReturnType<typeof anchorColumnsOf>
+
+/** @purity pure */
+function isSameAnchor(box: CommentBox, columns: CommentAnchorColumns): boolean {
+  return (
+    instantOf(box.anchorDate) === instantOf(columns.anchorDate) &&
+    box.anchorTaskGroupId === columns.anchorTaskGroupId &&
+    (box.anchorBandFraction ?? null) === columns.anchorBandFraction &&
+    (box.anchorTaskUid ?? null) === columns.anchorTaskUid &&
+    (box.anchorTaskFigure ?? null) === columns.anchorTaskFigure &&
+    (box.anchorHighlightBoxId ?? null) === columns.anchorHighlightBoxId &&
+    (box.anchorSnapPoint ?? null) === columns.anchorSnapPoint
+  )
+}
+
 /** @purity pure */
 function anchorRefusals(command: string, document: Document, anchor: AnnotationAnchor): Refusal[] {
   const found: Refusal[] = []
@@ -168,17 +212,151 @@ function anchorRefusals(command: string, document: Document, anchor: AnnotationA
   if (!hasGroup(document, anchor.taskGroupId)) {
     found.push(reject(command, 'IV-2', `the document holds no task group with id ${anchor.taskGroupId} (RL-18)`))
   }
+  found.push(...anchorTargetRefusals(command, document, anchorColumnsOf(anchor)))
   return found
+}
+
+// see FR-019, AT-163, AT-164, AT-165, AT-166, AT-167
+// WHY: refused, not repaired: a command that names half a target would store a tip that draws as a free point.
+/** @purity pure */
+function anchorTargetRefusals(command: string, document: Document, columns: CommentAnchorColumns): Refusal[] {
+  const found: Refusal[] = []
+  const fraction = columns.anchorBandFraction
+  if (fraction !== null && !(Number.isFinite(fraction) && fraction >= 0 && fraction <= 1)) {
+    found.push(reject(command, 'AT-163', `not a height from 0 to 1 within the band: ${fraction}`))
+  }
+  const { anchorTaskUid: taskUid, anchorHighlightBoxId: highlightBoxId } = columns
+  if (taskUid !== null && !document.schedule.tasks.some((one) => one.uid === taskUid)) {
+    found.push(reject(command, 'IV-2', `the document holds no task with uid ${taskUid} (RL-33)`))
+  }
+  if (highlightBoxId !== null && highlightBoxOf(document, highlightBoxId) === null) {
+    found.push(reject(command, 'IV-2', `the document holds no highlight box with id ${highlightBoxId} (RL-34)`))
+  }
+  if (taskUid !== null && highlightBoxId !== null) {
+    found.push(reject(command, 'AT-166', 'a tip snaps to a task or to a highlight box, never to both'))
+  }
+  if ((taskUid === null) !== (columns.anchorTaskFigure === null)) {
+    found.push(reject(command, 'AT-165', 'a task and its figure are named together'))
+  }
+  if ((taskUid === null && highlightBoxId === null) !== (columns.anchorSnapPoint === null)) {
+    found.push(reject(command, 'AT-167', 'a snap point is named exactly when a target is'))
+  }
+  return found
+}
+
+export interface ReleasedTargets {
+  readonly taskUids: ReadonlySet<number>
+  readonly highlightBoxIds: ReadonlySet<string>
+  // WHY: a task-group delete also drops the bands a released tip could fall to; such a tip keeps its held band.
+  readonly isKeptTaskGroup: (taskGroupId: string) => boolean
+}
+
+// see FR-019, CM-7, CM-53
+// WHY: released inside the deleting command, so one undo brings back the target and the tip together (FR-031);
+// read on the schedule before the delete, while the target is still there to say where it stood.
+/** @purity pure */
+export function commentBoxesReleasedFrom(schedule: Schedule, gone: ReleasedTargets): readonly CommentBox[] {
+  let isChanged = false
+  const boxes = schedule.commentBoxes.map((box) => {
+    const released = releasedAnchorOf(schedule, box, gone)
+    if (released === null) return box
+    isChanged = true
+    return { ...box, ...released }
+  })
+  return isChanged ? boxes : schedule.commentBoxes
+}
+
+type SnapPoint = NonNullable<CommentBox['anchorSnapPoint']>
+
+// see FR-019
+// WHY: the instant and the band come from the document's own dates; the height within the band stays as it was
+// when the tip snapped, since only the layout knows where a bar stands inside its band.
+/** @purity pure */
+function releasedAnchorOf(schedule: Schedule, box: CommentBox, gone: ReleasedTargets): CommentAnchorColumns | null {
+  const taskUid = box.anchorTaskUid ?? null
+  const highlightBoxId = box.anchorHighlightBoxId ?? null
+  const isTaskGone = taskUid !== null && gone.taskUids.has(taskUid)
+  const isHighlightGone = highlightBoxId !== null && gone.highlightBoxIds.has(highlightBoxId)
+  if (!isTaskGone && !isHighlightGone) return null
+  const held: CommentAnchorColumns = {
+    anchorDate: box.anchorDate,
+    anchorTaskGroupId: box.anchorTaskGroupId,
+    anchorBandFraction: box.anchorBandFraction ?? null,
+    anchorTaskUid: null,
+    anchorTaskFigure: null,
+    anchorHighlightBoxId: null,
+    anchorSnapPoint: null,
+  }
+  const point = box.anchorSnapPoint ?? null
+  if (point === null) return held
+  const task = isTaskGone ? schedule.tasks.find((one) => one.uid === taskUid) : undefined
+  if (task !== undefined) {
+    const anchorTaskGroupId = taskBandOf(schedule, task.uid, held.anchorTaskGroupId, gone)
+    return { ...held, anchorTaskGroupId, anchorDate: releasedDate(held.anchorDate, taskSpanOf(task, box), point) }
+  }
+  const highlight = isHighlightGone ? schedule.highlightBoxes.find((one) => one.id === highlightBoxId) : undefined
+  return highlight === undefined ? held : releasedFromHighlight(held, highlight, point, gone)
+}
+
+// see FR-019
+// WHY: the band the tip snapped in while the Task still sits there, else the Task's first band that stays.
+/** @purity pure */
+function taskBandOf(schedule: Schedule, uid: number, held: string | null, gone: ReleasedTargets): string | null {
+  const bands = schedule.taskGroupMembers.filter((one) => one.taskUid === uid).map((one) => one.taskGroupId)
+  if (held !== null && bands.includes(held)) return held
+  return bands.find((one) => gone.isKeptTaskGroup(one)) ?? held
+}
+
+/** @purity pure */
+function taskSpanOf(task: Task, box: CommentBox): { readonly left: number | null; readonly right: number | null } {
+  const isActual = box.anchorTaskFigure === 'actualBar'
+  const left = instantOf(isActual ? (task.actualStart ?? task.start) : task.start)
+  const right = task.milestone ? left : instantOf(isActual ? (task.actualFinish ?? task.finish) : task.finish)
+  return { left, right }
+}
+
+// see FR-019, LF-15
+// WHY: a box is drawn from the start of its first day to the end of its last, so the right points stand a day on.
+/** @purity pure */
+function releasedFromHighlight(
+  held: CommentAnchorColumns,
+  highlight: HighlightBox,
+  point: SnapPoint,
+  gone: ReleasedTargets,
+): CommentAnchorColumns {
+  const startDay = dayOf(highlight.start)
+  const finishDay = dayOf(highlight.finish)
+  const left = startDay === null ? null : instantOf(textOfDayStart(startDay))
+  const finishStart = finishDay === null ? null : instantOf(textOfDayStart(finishDay))
+  const right = finishStart === null ? null : finishStart + MINUTES_PER_CALENDAR_DAY
+  const anchorDate = releasedDate(held.anchorDate, { left, right }, point)
+  const isTop = point.startsWith('top')
+  const rowTaskGroupId = isTop ? highlight.topTaskGroupId : point.startsWith('bottom') ? highlight.bottomTaskGroupId : null
+  if (rowTaskGroupId === null || !gone.isKeptTaskGroup(rowTaskGroupId)) return { ...held, anchorDate }
+  return { ...held, anchorDate, anchorTaskGroupId: rowTaskGroupId, anchorBandFraction: isTop ? 0 : 1 }
+}
+
+/** @purity pure */
+function releasedDate(
+  held: string | null,
+  span: { readonly left: number | null; readonly right: number | null },
+  point: SnapPoint,
+): string | null {
+  const { left, right } = span
+  if (left === null || right === null) return held
+  if (point.includes('Left') || point === 'leftMiddle') return textOfInstant(left)
+  if (point.includes('Right') || point === 'rightMiddle') return textOfInstant(right)
+  return textOfInstant(Math.round((left + right) / 2))
 }
 
 /** @purity pure */
 function rangeRefusals(command: string, document: Document, range: HighlightRange): Refusal[] {
   const found: Refusal[] = []
-  if (dayOf(range.startDate) === null) {
-    found.push(reject(command, 'AT-117', `the left edge is not a date: ${range.startDate}`))
+  if (dayOf(range.start) === null) {
+    found.push(reject(command, 'AT-117', `the left edge is not a date: ${range.start}`))
   }
-  if (dayOf(range.endDate) === null) {
-    found.push(reject(command, 'AT-118', `the right edge is not a date: ${range.endDate}`))
+  if (dayOf(range.finish) === null) {
+    found.push(reject(command, 'AT-118', `the right edge is not a date: ${range.finish}`))
   }
   if (!hasGroup(document, range.topTaskGroupId)) {
     found.push(reject(command, 'IV-2', `the document holds no task group with id ${range.topTaskGroupId} (RL-19)`))
@@ -210,8 +388,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         id: command.id,
         leaderShapeKind: null,
         text: null,
-        anchorDate: command.anchor.date,
-        anchorTaskGroupId: command.anchor.taskGroupId,
+        ...anchorColumnsOf(command.anchor),
         bodyOffsetPx: null,
         strokeColor: null,
         strokeWidthPx: null,
@@ -239,16 +416,9 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       }
       const refusals = anchorRefusals('CM-50', document, command.anchor)
       if (refusals.length > 0) return refused(refusals)
-      if (isSameDay(box.anchorDate, command.anchor.date) && box.anchorTaskGroupId === command.anchor.taskGroupId) {
-        return edited(document)
-      }
-      return edited(
-        putCommentBox(document, {
-          ...box,
-          anchorDate: command.anchor.date,
-          anchorTaskGroupId: command.anchor.taskGroupId,
-        }),
-      )
+      const columns = anchorColumnsOf(command.anchor)
+      if (isSameAnchor(box, columns)) return edited(document)
+      return edited(putCommentBox(document, { ...box, ...columns }))
     }
 
     case 'setCommentBoxBodyOffsetPx': {
@@ -275,8 +445,8 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       if (refusals.length > 0) return refused(refusals)
       const box: HighlightBox = {
         id: command.id,
-        start: command.range.startDate,
-        finish: command.range.endDate,
+        start: command.range.start,
+        finish: command.range.finish,
         topTaskGroupId: command.range.topTaskGroupId,
         bottomTaskGroupId: command.range.bottomTaskGroupId,
         strokeColor: null,
@@ -297,6 +467,11 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       return edited(
         withScheduleParts(document, {
           highlightBoxes: schedule.highlightBoxes.filter((one) => one !== box),
+          commentBoxes: commentBoxesReleasedFrom(schedule, {
+            taskUids: new Set(),
+            highlightBoxIds: new Set([box.id]),
+            isKeptTaskGroup: () => true,
+          }),
         }),
       )
     }
@@ -308,7 +483,7 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
       }
       const refusals = rangeRefusals('CM-54', document, command.range)
       if (refusals.length > 0) return refused(refusals)
-      const { startDate, endDate, topTaskGroupId, bottomTaskGroupId } = command.range
+      const { start: startDate, finish: endDate, topTaskGroupId, bottomTaskGroupId } = command.range
       if (
         isSameDay(box.start, startDate) &&
         isSameDay(box.finish, endDate) &&

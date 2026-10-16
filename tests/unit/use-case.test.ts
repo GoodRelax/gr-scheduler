@@ -171,15 +171,15 @@ describe('EditDocument (PI-9) -- the Project aggregate', () => {
   })
 
   it('FR-046 makes erasing the status line a null, with no separate flag', () => {
-    const set = editProject(documentOf(), { kind: 'setStatusDate', date: '2026-06-01' })
+    const set = editProject(documentOf(), { kind: 'setStatusDate', statusDate: '2026-06-01' })
     expect(set.ok && set.document.schedule.project.statusDate).toBe('2026-06-01')
     const cleared = editProject(documentOf(), { kind: 'clearStatusDate' })
     expect(cleared.ok && cleared.document.schedule.project.statusDate).toBeNull()
   })
 
   it('S-73 holds the theme hue to 0..359', () => {
-    expect(editProject(documentOf(), { kind: 'setThemeHue', hue: 360 }).ok).toBe(false)
-    expect(editProject(documentOf(), { kind: 'setThemeHue', hue: 0 }).ok).toBe(true)
+    expect(editProject(documentOf(), { kind: 'setThemeHue', themeHue: 360 }).ok).toBe(false)
+    expect(editProject(documentOf(), { kind: 'setThemeHue', themeHue: 0 }).ok).toBe(true)
   })
 })
 
@@ -245,7 +245,7 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
     // WHY: S-121..S-123 and S-136 are constants (CR-572); a document can no longer move them.
     const sizeL = SETTINGS_CONSTANTS.fontScaleSizes.L * RULER_FONT_FACTOR
     const pad = SETTINGS_CONSTANTS.rulerLabelPad
-    const result = editDocumentSettings(documentOf(), { kind: 'setFontScale', scale: 'L' }, LIMITS)
+    const result = editDocumentSettings(documentOf(), { kind: 'setFontScale', fontScale: 'L' }, LIMITS)
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(settingsOf(result.document).rulerFontSizePx).toBe(sizeL)
@@ -296,7 +296,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     const document = documentOf()
     const plan = planOf(document, [
       { kind: 'setProjectTitle', title: 'B' },
-      { kind: 'setThemeHue', hue: 999 },
+      { kind: 'setThemeHue', themeHue: 999 },
     ])
     expect(plan.ok).toBe(false)
     // WHY: AG-3 has nothing replaced, so the accepted first command is gone too.
@@ -326,7 +326,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
       '2026-08-17T01:00:00Z',
     )
 
-    const presentation = planOf(document, [{ kind: 'setStackDirection', direction: 'down' }])
+    const presentation = planOf(document, [{ kind: 'setStackDirection', stackDirection: 'down' }])
     expect(presentation.ok && presentation.hasMovedSchedule).toBe(false)
     // WHY: FR-063 (MUST NOT) forbids a presentation-only update from moving
     // the schedule-data group's instant.

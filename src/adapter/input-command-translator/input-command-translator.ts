@@ -15,9 +15,12 @@ import type {
 } from '../../entity/document-model/screen-state/screen-state'
 import {
   dayOf,
+  instantOf,
+  MINUTES_PER_CALENDAR_DAY,
   planActualState,
   taskByUid,
   textOfDayStart,
+  textOfInstant,
   textOfFinishSide,
   textOfStartSide,
   type CalendarDay,
@@ -26,11 +29,17 @@ import {
   type TaskGroup,
 } from '../../entity/document-model/schedule/schedule'
 import { isSelected, type Selection } from '../../entity/document-model/selection/selection'
-import type {
-  GrabArea,
-  Hit,
+import {
+  anchorSnapAt,
+  grabSizesOf,
+  type GrabArea,
+  type Hit,
 } from '../../entity/layout-engine/item-hit-area/item-hit-area'
-import type { ScheduleGeometry } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
+import type {
+  AnchorSnap,
+  Point,
+  ScheduleGeometry,
+} from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   dateAtX,
   taskGroupAnchorIn,
@@ -53,6 +62,7 @@ import {
   type VerticalWhole,
 } from '../screen-renderer/screen-renderer'
 import type {
+  AnnotationAnchor,
   DocumentCommand,
   TaskMilestoneGlyph,
   TaskShapeKind,
@@ -523,20 +533,60 @@ export function taskGroupAtY(layout: ScheduleLayout, y: number): TaskGroupPlacem
   return null
 }
 
-// see GR-14, FR-019, RS-44
-// WHY: not the drag amount for a move: a moved anchor would land where creating it at that point would not.
+export interface PlacedCommentAnchor {
+  readonly anchor: AnnotationAnchor
+  readonly at: Point
+}
+
+// see GR-14, AR-5, FR-019, LF-15, RS-44
+// WHY: the release point, not the drag amount; a snap within S-292 wins, else the pointer itself is the free point.
 /** @purity pure */
 export function commentAnchorAt(
   layout: ScheduleLayout,
+  snapsFrom: Pick<ScheduleGeometry, 'tasks' | 'highlightBoxes'>,
   x: number,
   y: number,
-): { readonly date: string; readonly taskGroupId: string } | TranslatedInput {
+): PlacedCommentAnchor | TranslatedInput {
+  const snap = anchorSnapAt(snapsFrom, x, y, grabSizesOf())
+  const snapped = snap === null ? null : snappedAnchorOf(layout, snap)
+  if (snapped !== null) return snapped
   const day = dayAtX(layout, x)
   if (day === null) return CONSUMED_ELSEWHERE
   const taskGroup = taskGroupAtY(layout, y)
   if (taskGroup === null) return nothingToDo('noTaskGroupToPutTheAnnotationOn')
-  return { date: textOfDayStart(day), taskGroupId: taskGroup.taskGroupId }
+  return { anchor: freeAnchorAt(layout, taskGroup, x, y), at: { x, y } }
 }
+
+// see LF-15, FR-019
+// WHY: free columns at the snapped point too, read just inside the band for a highlight box's top or bottom row.
+/** @purity pure */
+function snappedAnchorOf(layout: ScheduleLayout, snap: AnchorSnap): PlacedCommentAnchor | null {
+  const { target, at } = snap
+  const inward = target.snapPoint.startsWith('top') ? 0.5 : target.snapPoint.startsWith('bottom') ? -0.5 : 0
+  const named = target.kind === 'task' ? target.taskGroupId : null
+  const taskGroup =
+    (named === null ? undefined : layout.taskGroups.find((one) => one.taskGroupId === named)) ??
+    taskGroupAtY(layout, at.y + inward)
+  if (taskGroup === null || taskGroup === undefined || dayAtX(layout, at.x) === null) return null
+  const free = freeAnchorAt(layout, taskGroup, at.x, at.y)
+  const anchor: AnnotationAnchor =
+    target.kind === 'task'
+      ? { ...free, taskUid: target.taskUid, taskFigure: target.taskFigure, snapPoint: target.snapPoint }
+      : { ...free, highlightBoxId: target.highlightBoxId, snapPoint: target.snapPoint }
+  return { anchor, at }
+}
+
+// see LF-15
+/** @purity pure */
+function freeAnchorAt(layout: ScheduleLayout, taskGroup: TaskGroupPlacement, x: number, y: number): AnnotationAnchor {
+  const originStart = layout.originDay === null ? null : instantOf(textOfDayStart(layout.originDay))
+  const minutes = (originStart ?? 0) + Math.round(((x - layout.originX) / layout.pxPerDay) * MINUTES_PER_CALENDAR_DAY)
+  const share = taskGroup.height > 0 ? (y - taskGroup.y) / taskGroup.height : 0.5
+  const bandFraction = Math.round(Math.min(1, Math.max(0, share)) * BAND_FRACTION_STEPS) / BAND_FRACTION_STEPS
+  return { date: textOfInstant(minutes), taskGroupId: taskGroup.taskGroupId, bandFraction }
+}
+
+const BAND_FRACTION_STEPS = 10_000
 
 export interface ScrollAnchor {
   readonly scrollDate: string | null
@@ -791,7 +841,7 @@ export function guideCursorModeOfEntry(entry: string): PressedGuideCursor | null
   return GUIDE_CURSOR_MODE_BY_ENTRY[entry] ?? null
 }
 
-type FontScale = Extract<DocumentCommand, { kind: 'setFontScale' }>['scale']
+type FontScale = Extract<DocumentCommand, { kind: 'setFontScale' }>['fontScale']
 
 const FONT_SCALE_STEPS: readonly FontScale[] = ['S', 'M', 'L']
 
@@ -1140,19 +1190,19 @@ function commandFromEntry(
       return changed([
         {
           kind: 'setFontScale',
-          scale: nextFontScale(context.document.documentSettings.fontScale),
+          fontScale: nextFontScale(context.document.documentSettings.fontScale),
         },
       ])
     case ENTRY.isThemeMonochrome:
       return changed([
         {
           kind: 'setThemeMonochrome',
-          monochrome: !context.document.documentSettings.isThemeMonochrome,
+          isThemeMonochrome: !context.document.documentSettings.isThemeMonochrome,
         },
       ])
     case ENTRY.stackDirection: {
       const isUpNow = context.document.documentSettings.stackDirection === 'up'
-      return changed([{ kind: 'setStackDirection', direction: isUpNow ? 'down' : 'up' }])
+      return changed([{ kind: 'setStackDirection', stackDirection: isUpNow ? 'down' : 'up' }])
     }
     case ENTRY.statusLine:
       return changed(statusLineWrites(context))

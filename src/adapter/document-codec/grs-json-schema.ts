@@ -39,6 +39,7 @@ interface SchemaNode {
   readonly values?: SchemaNode
   readonly properties?: Readonly<Record<string, SchemaNode>>
   readonly items?: SchemaNode
+  readonly alternatives?: readonly SchemaNode[]
 }
 
 const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
@@ -542,7 +543,7 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
   },
   CommentBox: {
     type: ['object'],
-    required: ['id', 'leaderShapeKind', 'text', 'anchorDate', 'anchorTaskGroupId', 'bodyOffsetPx', 'strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor'],
+    required: ['id', 'leaderShapeKind', 'text', 'anchorDate', 'anchorTaskGroupId', 'bodyOffsetPx', 'anchorBandFraction', 'anchorTaskUid', 'anchorTaskFigure', 'anchorHighlightBoxId', 'anchorSnapPoint', 'strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor'],
     closed: true,
     properties: {
       id: {
@@ -572,6 +573,23 @@ const SCHEMA_DEFS: Readonly<Record<string, SchemaNode>> = {
             type: ['number'],
           },
         },
+      },
+      anchorBandFraction: {
+        type: ['number', 'null'],
+        minimum: 0,
+        maximum: 1,
+      },
+      anchorTaskUid: {
+        type: ['integer', 'null'],
+      },
+      anchorTaskFigure: {
+        enum: ['plannedBar', 'actualBar', 'milestone', null],
+      },
+      anchorHighlightBoxId: {
+        type: ['string', 'null'],
+      },
+      anchorSnapPoint: {
+        enum: ['topLeftCorner', 'topMiddle', 'topRightCorner', 'rightMiddle', 'bottomRightCorner', 'bottomMiddle', 'bottomLeftCorner', 'leftMiddle', null],
       },
       strokeColor: {
         type: ['string', 'null'],
@@ -1066,6 +1084,1820 @@ const GRS_DOCUMENT_SCHEMA: SchemaNode = {
 
 // </generated>
 
+// <generated -- do not edit by hand>
+// From docs/spec/_source/document-commands.json (table T-108, SHAPE_OF_COMMAND_KIND).
+// see T-108, FR-028, AG-9a
+const SHAPE_OF_COMMAND_KIND: Readonly<Record<string, SchemaNode>> = {
+  setProjectTitle: {
+    type: ['object'],
+    required: ['kind', 'title'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setProjectTitle'],
+      },
+      title: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setProjectProfile: {
+    type: ['object'],
+    required: ['kind', 'fields'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setProjectProfile'],
+      },
+      fields: {
+        type: ['object'],
+        required: [],
+        closed: true,
+        properties: {
+          name: {
+            type: ['string', 'null'],
+          },
+          subject: {
+            type: ['string', 'null'],
+          },
+          category: {
+            type: ['string', 'null'],
+          },
+          company: {
+            type: ['string', 'null'],
+          },
+          manager: {
+            type: ['string', 'null'],
+          },
+          author: {
+            type: ['string', 'null'],
+          },
+          revision: {
+            type: ['integer', 'null'],
+          },
+          startDate: {
+            type: ['string', 'null'],
+          },
+        },
+      },
+    },
+  },
+  setStatusDate: {
+    type: ['object'],
+    required: ['kind', 'statusDate'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setStatusDate'],
+      },
+      statusDate: {
+        type: ['string'],
+      },
+    },
+  },
+  clearStatusDate: {
+    type: ['object'],
+    required: ['kind'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['clearStatusDate'],
+      },
+    },
+  },
+  setThemeHue: {
+    type: ['object'],
+    required: ['kind', 'themeHue'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setThemeHue'],
+      },
+      themeHue: {
+        type: ['integer'],
+      },
+    },
+  },
+  setParentProgressToleranceDays: {
+    type: ['object'],
+    required: ['kind', 'parentProgressToleranceDays'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setParentProgressToleranceDays'],
+      },
+      parentProgressToleranceDays: {
+        type: ['integer'],
+      },
+    },
+  },
+  setScheduleDataTimeZone: {
+    type: ['object'],
+    required: ['kind', 'scheduleDataTimeZone'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setScheduleDataTimeZone'],
+      },
+      scheduleDataTimeZone: {
+        enum: ['UTC-12:00', 'UTC-11:00', 'UTC-10:00', 'UTC-09:00', 'UTC-08:00', 'UTC-07:00', 'UTC-06:00', 'UTC-05:00', 'UTC-04:00', 'UTC-03:00', 'UTC-02:00', 'UTC-01:00', 'UTC+00:00', 'UTC+01:00', 'UTC+02:00', 'UTC+03:00', 'UTC+04:00', 'UTC+05:00', 'UTC+05:30', 'UTC+06:00', 'UTC+07:00', 'UTC+08:00', 'UTC+09:00', 'UTC+10:00', 'UTC+11:00', 'UTC+12:00', 'UTC+13:00'],
+      },
+    },
+  },
+  shiftScheduleTimes: {
+    type: ['object'],
+    required: ['kind', 'minutes'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['shiftScheduleTimes'],
+      },
+      minutes: {
+        type: ['integer'],
+      },
+    },
+  },
+  shiftScheduleToStartDate: {
+    type: ['object'],
+    required: ['kind', 'newStartDate'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['shiftScheduleToStartDate'],
+      },
+      newStartDate: {
+        type: ['string'],
+      },
+    },
+  },
+  createTask: {
+    type: ['object'],
+    required: ['kind', 'shapeKind', 'start', 'finish', 'taskGroupId'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['createTask'],
+      },
+      shapeKind: {
+        enum: ['rectangle', 'chevron', 'arrow', 'endpointSpan', 'milestone'],
+      },
+      start: {
+        type: ['string'],
+      },
+      finish: {
+        type: ['string'],
+      },
+      taskGroupId: {
+        type: ['string'],
+      },
+    },
+  },
+  deleteTask: {
+    type: ['object'],
+    required: ['kind', 'uid'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['deleteTask'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+    },
+  },
+  pasteTasks: {
+    type: ['object'],
+    required: ['kind', 'sourceUids'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['pasteTasks'],
+      },
+      sourceUids: {
+        type: ['array'],
+        items: {
+          type: ['integer'],
+        },
+      },
+      landing: {
+        type: ['object'],
+        required: ['shiftMinutes', 'taskGroupIdOf'],
+        closed: true,
+        properties: {
+          shiftMinutes: {
+            type: ['integer'],
+          },
+          taskGroupIdOf: {
+            type: ['object'],
+            values: {
+              type: ['string'],
+            },
+          },
+        },
+      },
+    },
+  },
+  setTaskName: {
+    type: ['object'],
+    required: ['kind', 'uid', 'name'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskName'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      name: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setTaskNotes: {
+    type: ['object'],
+    required: ['kind', 'uid', 'notes'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskNotes'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      notes: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setTaskPlanDates: {
+    type: ['object'],
+    required: ['kind', 'uid', 'start', 'finish'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskPlanDates'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      start: {
+        type: ['string'],
+      },
+      finish: {
+        type: ['string'],
+      },
+    },
+  },
+  setTaskDeadline: {
+    type: ['object'],
+    required: ['kind', 'uid', 'deadline'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskDeadline'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      deadline: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setTaskPlanActualState: {
+    type: ['object'],
+    required: ['kind', 'uid', 'place'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskPlanActualState'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      place: {
+        alternatives: [
+          {
+            type: ['object'],
+            required: ['row'],
+            closed: true,
+            properties: {
+              row: {
+                enum: ['PA-1'],
+              },
+            },
+          },
+          {
+            type: ['object'],
+            required: ['row', 'actualStart', 'stop'],
+            closed: true,
+            properties: {
+              row: {
+                enum: ['PA-2'],
+              },
+              actualStart: {
+                type: ['string'],
+              },
+              stop: {
+                type: ['string'],
+              },
+            },
+          },
+          {
+            type: ['object'],
+            required: ['row', 'actualStart', 'stop', 'resume'],
+            closed: true,
+            properties: {
+              row: {
+                enum: ['PA-3'],
+              },
+              actualStart: {
+                type: ['string'],
+              },
+              stop: {
+                type: ['string'],
+              },
+              resume: {
+                type: ['string'],
+              },
+            },
+          },
+          {
+            type: ['object'],
+            required: ['row', 'actualStart', 'stop'],
+            closed: true,
+            properties: {
+              row: {
+                enum: ['PA-4'],
+              },
+              actualStart: {
+                type: ['string'],
+              },
+              stop: {
+                type: ['string'],
+              },
+            },
+          },
+          {
+            type: ['object'],
+            required: ['row', 'actualStart', 'actualFinish'],
+            closed: true,
+            properties: {
+              row: {
+                enum: ['PA-5'],
+              },
+              actualStart: {
+                type: ['string'],
+              },
+              actualFinish: {
+                type: ['string'],
+              },
+            },
+          },
+        ],
+      },
+    },
+  },
+  beginTaskActual: {
+    type: ['object'],
+    required: ['kind', 'uid', 'grabbed', 'released', 'snapMinutes'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['beginTaskActual'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      grabbed: {
+        enum: ['GA-5', 'GA-6', 'GA-17', 'GA-21', 'GA-22'],
+      },
+      released: {
+        type: ['object'],
+        required: ['start', 'finish'],
+        closed: true,
+        properties: {
+          start: {
+            type: ['string'],
+          },
+          finish: {
+            type: ['string'],
+          },
+        },
+      },
+      snapMinutes: {
+        type: ['integer'],
+      },
+    },
+  },
+  cycleTaskPlanActualState: {
+    type: ['object'],
+    required: ['kind', 'uid', 'remembered'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['cycleTaskPlanActualState'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      remembered: {
+        type: ['object', 'null'],
+        required: ['actualStart', 'actualFinish', 'stop', 'carriedActualDuration'],
+        closed: true,
+        properties: {
+          actualStart: {
+            type: ['string', 'null'],
+          },
+          actualFinish: {
+            type: ['string', 'null'],
+          },
+          stop: {
+            type: ['string', 'null'],
+          },
+          carriedActualDuration: {
+            type: ['string', 'null'],
+          },
+        },
+      },
+      snapMinutes: {
+        type: ['integer'],
+      },
+    },
+  },
+  setTaskFadeInDays: {
+    type: ['object'],
+    required: ['kind', 'uid', 'fadeInDays'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskFadeInDays'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      fadeInDays: {
+        type: ['integer', 'null'],
+      },
+    },
+  },
+  setTaskFadeOutDays: {
+    type: ['object'],
+    required: ['kind', 'uid', 'fadeOutDays'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskFadeOutDays'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      fadeOutDays: {
+        type: ['integer', 'null'],
+      },
+    },
+  },
+  setTaskParentTask: {
+    type: ['object'],
+    required: ['kind', 'uid', 'parentTaskUid'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskParentTask'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      parentTaskUid: {
+        type: ['integer', 'null'],
+      },
+    },
+  },
+  moveTaskToTaskGroup: {
+    type: ['object'],
+    required: ['kind', 'uid', 'taskGroupId'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['moveTaskToTaskGroup'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      taskGroupId: {
+        type: ['string'],
+      },
+    },
+  },
+  setTaskVisualShapeKind: {
+    type: ['object'],
+    required: ['kind', 'uid', 'shapeKind'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskVisualShapeKind'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      shapeKind: {
+        enum: ['rectangle', 'chevron', 'arrow', 'endpointSpan', 'milestone'],
+      },
+    },
+  },
+  setTaskVisualMilestoneGlyph: {
+    type: ['object'],
+    required: ['kind', 'uid', 'milestoneGlyph'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskVisualMilestoneGlyph'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      milestoneGlyph: {
+        enum: ['circle', 'hexagon', 'pentagon', 'diamond', 'square', 'star', 'triangleUp', 'triangleDown', 'file', 'box', 'floppyDisk', 'cylinder', 'person', 'smile', 'beerMug', null],
+      },
+    },
+  },
+  setTaskVisualColors: {
+    type: ['object'],
+    required: ['kind', 'uid', 'fillColor', 'strokeColor'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskVisualColors'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      fillColor: {
+        type: ['string', 'null'],
+      },
+      strokeColor: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  resetTaskVisualColors: {
+    type: ['object'],
+    required: ['kind', 'uid'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['resetTaskVisualColors'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+    },
+  },
+  setTaskVisualStrokeWidthPx: {
+    type: ['object'],
+    required: ['kind', 'uid', 'strokeWidthPx'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskVisualStrokeWidthPx'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      strokeWidthPx: {
+        type: ['integer', 'null'],
+      },
+    },
+  },
+  createTaskGroup: {
+    type: ['object'],
+    required: ['kind', 'id', 'parentId', 'name', 'derivedFromTaskUid', 'order'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['createTaskGroup'],
+      },
+      id: {
+        type: ['string'],
+      },
+      parentId: {
+        type: ['string', 'null'],
+      },
+      name: {
+        type: ['string', 'null'],
+      },
+      derivedFromTaskUid: {
+        type: ['integer', 'null'],
+      },
+      order: {
+        type: ['integer'],
+      },
+    },
+  },
+  deleteTaskGroup: {
+    type: ['object'],
+    required: ['kind', 'taskGroupId', 'newTaskGroupId'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['deleteTaskGroup'],
+      },
+      taskGroupId: {
+        type: ['string'],
+      },
+      newTaskGroupId: {
+        type: ['string'],
+      },
+    },
+  },
+  pasteTaskGroupSubtree: {
+    type: ['object'],
+    required: ['kind', 'sourceTaskGroupId', 'targetTaskGroupId', 'newTaskGroupIds'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['pasteTaskGroupSubtree'],
+      },
+      sourceTaskGroupId: {
+        type: ['string'],
+      },
+      targetTaskGroupId: {
+        type: ['string', 'null'],
+      },
+      newTaskGroupIds: {
+        type: ['object'],
+        values: {
+          type: ['string'],
+        },
+      },
+    },
+  },
+  setTaskGroupName: {
+    type: ['object'],
+    required: ['kind', 'taskGroupId', 'name'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskGroupName'],
+      },
+      taskGroupId: {
+        type: ['string'],
+      },
+      name: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setTaskGroupColor: {
+    type: ['object'],
+    required: ['kind', 'taskGroupId', 'color'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskGroupColor'],
+      },
+      taskGroupId: {
+        type: ['string'],
+      },
+      color: {
+        type: ['string'],
+      },
+    },
+  },
+  resetTaskGroupColor: {
+    type: ['object'],
+    required: ['kind', 'taskGroupId'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['resetTaskGroupColor'],
+      },
+      taskGroupId: {
+        type: ['string'],
+      },
+    },
+  },
+  setTaskGroupMinHeightPx: {
+    type: ['object'],
+    required: ['kind', 'taskGroupId', 'minHeightPx'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskGroupMinHeightPx'],
+      },
+      taskGroupId: {
+        type: ['string'],
+      },
+      minHeightPx: {
+        type: ['integer', 'null'],
+      },
+    },
+  },
+  reorderTaskGroupSiblings: {
+    type: ['object'],
+    required: ['kind', 'parentId', 'orderedIds'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['reorderTaskGroupSiblings'],
+      },
+      parentId: {
+        type: ['string', 'null'],
+      },
+      orderedIds: {
+        type: ['array'],
+        items: {
+          type: ['string'],
+        },
+      },
+    },
+  },
+  createDependency: {
+    type: ['object'],
+    required: ['kind', 'predecessorUid', 'successorUid', 'predecessorEdge', 'successorEdge'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['createDependency'],
+      },
+      predecessorUid: {
+        type: ['integer'],
+      },
+      successorUid: {
+        type: ['integer'],
+      },
+      predecessorEdge: {
+        enum: ['start', 'finish'],
+      },
+      successorEdge: {
+        enum: ['start', 'finish'],
+      },
+    },
+  },
+  deleteDependency: {
+    type: ['object'],
+    required: ['kind', 'predecessorUid', 'successorUid'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['deleteDependency'],
+      },
+      predecessorUid: {
+        type: ['integer'],
+      },
+      successorUid: {
+        type: ['integer'],
+      },
+    },
+  },
+  deleteDependencyAt: {
+    type: ['object'],
+    required: ['kind', 'predecessorUid', 'successorUid', 'order'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['deleteDependencyAt'],
+      },
+      predecessorUid: {
+        type: ['integer'],
+      },
+      successorUid: {
+        type: ['integer'],
+      },
+      order: {
+        type: ['integer'],
+      },
+    },
+  },
+  setDependencyLag: {
+    alternatives: [
+      {
+        type: ['object'],
+        required: ['kind', 'predecessorUid', 'successorUid', 'lagWorkingDays'],
+        closed: true,
+        properties: {
+          kind: {
+            enum: ['setDependencyLag'],
+          },
+          predecessorUid: {
+            type: ['integer'],
+          },
+          successorUid: {
+            type: ['integer'],
+          },
+          lagWorkingDays: {
+            type: ['integer'],
+          },
+        },
+      },
+      {
+        type: ['object'],
+        required: ['kind', 'predecessorUid', 'successorUid', 'lagMinutes', 'lagUnit'],
+        closed: true,
+        properties: {
+          kind: {
+            enum: ['setDependencyLag'],
+          },
+          predecessorUid: {
+            type: ['integer'],
+          },
+          successorUid: {
+            type: ['integer'],
+          },
+          lagMinutes: {
+            type: ['integer'],
+          },
+          lagUnit: {
+            enum: ['d', 'h', 'm'],
+          },
+        },
+      },
+    ],
+  },
+  setCalendar: {
+    type: ['object'],
+    required: ['kind'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setCalendar'],
+      },
+      workingDayTypes: {
+        type: ['array'],
+        items: {
+          type: ['integer'],
+        },
+      },
+      weekStartDay: {
+        type: ['integer', 'null'],
+      },
+      exceptions: {
+        type: ['array'],
+        items: {
+          type: ['object'],
+          required: ['ordinal', 'name', 'fromDate', 'toDate', 'dayWorking', 'recurrenceKind', 'workingTimes', 'carry', 'carryElements'],
+          closed: true,
+          properties: {
+            ordinal: {
+              type: ['integer'],
+            },
+            name: {
+              type: ['string', 'null'],
+            },
+            fromDate: {
+              type: ['string', 'null'],
+            },
+            toDate: {
+              type: ['string', 'null'],
+            },
+            dayWorking: {
+              type: ['boolean', 'null'],
+            },
+            recurrenceKind: {
+              type: ['integer', 'null'],
+            },
+            workingTimes: {
+              type: ['array'],
+              items: {
+                type: ['object'],
+                required: ['ordinal', 'fromTime', 'toTime'],
+                closed: true,
+                properties: {
+                  ordinal: {
+                    type: ['integer'],
+                  },
+                  fromTime: {
+                    type: ['string', 'null'],
+                  },
+                  toTime: {
+                    type: ['string', 'null'],
+                  },
+                },
+              },
+            },
+            carry: {
+              type: ['object'],
+              values: {
+                type: ['string'],
+              },
+            },
+            carryElements: {
+              type: ['array'],
+              items: {
+                type: ['object'],
+                required: ['ordinal', 'name', 'fields', 'children'],
+                closed: true,
+                properties: {
+                  ordinal: {
+                    type: ['integer'],
+                  },
+                  name: {
+                    type: ['string'],
+                  },
+                  fields: {
+                    type: ['object'],
+                    values: {
+                      type: ['string'],
+                    },
+                  },
+                  children: {
+                    type: ['array'],
+                    items: {
+                      type: ['object'],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      workingTimes: {
+        type: ['array'],
+        items: {
+          type: ['object'],
+          required: ['ordinal', 'fromTime', 'toTime'],
+          closed: true,
+          properties: {
+            ordinal: {
+              type: ['integer'],
+            },
+            fromTime: {
+              type: ['string', 'null'],
+            },
+            toTime: {
+              type: ['string', 'null'],
+            },
+          },
+        },
+      },
+    },
+  },
+  createResource: {
+    type: ['object'],
+    required: ['kind', 'name'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['createResource'],
+      },
+      name: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setResourceName: {
+    type: ['object'],
+    required: ['kind', 'uid', 'name'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setResourceName'],
+      },
+      uid: {
+        type: ['integer'],
+      },
+      name: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  deleteResource: {
+    type: ['object'],
+    required: ['kind', 'uids'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['deleteResource'],
+      },
+      uids: {
+        type: ['array'],
+        items: {
+          type: ['integer'],
+        },
+      },
+    },
+  },
+  deleteUnreferencedResources: {
+    type: ['object'],
+    required: ['kind'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['deleteUnreferencedResources'],
+      },
+    },
+  },
+  createAssignment: {
+    type: ['object'],
+    required: ['kind', 'taskUid', 'resourceUid'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['createAssignment'],
+      },
+      taskUid: {
+        type: ['integer'],
+      },
+      resourceUid: {
+        type: ['integer'],
+      },
+    },
+  },
+  deleteAssignment: {
+    type: ['object'],
+    required: ['kind', 'taskUid', 'resourceUid'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['deleteAssignment'],
+      },
+      taskUid: {
+        type: ['integer'],
+      },
+      resourceUid: {
+        type: ['integer'],
+      },
+    },
+  },
+  createCommentBox: {
+    type: ['object'],
+    required: ['kind', 'id', 'anchor'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['createCommentBox'],
+      },
+      id: {
+        type: ['string'],
+      },
+      anchor: {
+        type: ['object'],
+        required: ['date', 'taskGroupId'],
+        closed: true,
+        properties: {
+          date: {
+            type: ['string'],
+          },
+          taskGroupId: {
+            type: ['string'],
+          },
+          bandFraction: {
+            type: ['number', 'null'],
+          },
+          taskUid: {
+            type: ['integer', 'null'],
+          },
+          taskFigure: {
+            enum: ['plannedBar', 'actualBar', 'milestone', null],
+          },
+          highlightBoxId: {
+            type: ['string', 'null'],
+          },
+          snapPoint: {
+            enum: ['topLeftCorner', 'topMiddle', 'topRightCorner', 'rightMiddle', 'bottomRightCorner', 'bottomMiddle', 'bottomLeftCorner', 'leftMiddle', null],
+          },
+        },
+      },
+    },
+  },
+  deleteCommentBox: {
+    type: ['object'],
+    required: ['kind', 'id'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['deleteCommentBox'],
+      },
+      id: {
+        type: ['string'],
+      },
+    },
+  },
+  setCommentBoxText: {
+    type: ['object'],
+    required: ['kind', 'id', 'text'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setCommentBoxText'],
+      },
+      id: {
+        type: ['string'],
+      },
+      text: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setCommentBoxLeaderShapeKind: {
+    type: ['object'],
+    required: ['kind', 'id', 'leaderShapeKind'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setCommentBoxLeaderShapeKind'],
+      },
+      id: {
+        type: ['string'],
+      },
+      leaderShapeKind: {
+        enum: ['calloutBox', 'polyline'],
+      },
+    },
+  },
+  setCommentBoxAnchor: {
+    type: ['object'],
+    required: ['kind', 'id', 'anchor'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setCommentBoxAnchor'],
+      },
+      id: {
+        type: ['string'],
+      },
+      anchor: {
+        type: ['object'],
+        required: ['date', 'taskGroupId'],
+        closed: true,
+        properties: {
+          date: {
+            type: ['string'],
+          },
+          taskGroupId: {
+            type: ['string'],
+          },
+          bandFraction: {
+            type: ['number', 'null'],
+          },
+          taskUid: {
+            type: ['integer', 'null'],
+          },
+          taskFigure: {
+            enum: ['plannedBar', 'actualBar', 'milestone', null],
+          },
+          highlightBoxId: {
+            type: ['string', 'null'],
+          },
+          snapPoint: {
+            enum: ['topLeftCorner', 'topMiddle', 'topRightCorner', 'rightMiddle', 'bottomRightCorner', 'bottomMiddle', 'bottomLeftCorner', 'leftMiddle', null],
+          },
+        },
+      },
+    },
+  },
+  setCommentBoxBodyOffsetPx: {
+    type: ['object'],
+    required: ['kind', 'id', 'dx', 'dy'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setCommentBoxBodyOffsetPx'],
+      },
+      id: {
+        type: ['string'],
+      },
+      dx: {
+        type: ['number'],
+      },
+      dy: {
+        type: ['number'],
+      },
+    },
+  },
+  setCommentBoxStrokeColor: {
+    type: ['object'],
+    required: ['kind', 'id', 'strokeColor'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setCommentBoxStrokeColor'],
+      },
+      id: {
+        type: ['string'],
+      },
+      strokeColor: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setCommentBoxStrokeWidthPx: {
+    type: ['object'],
+    required: ['kind', 'id', 'strokeWidthPx'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setCommentBoxStrokeWidthPx'],
+      },
+      id: {
+        type: ['string'],
+      },
+      strokeWidthPx: {
+        type: ['integer', 'null'],
+      },
+    },
+  },
+  setCommentBoxFillColor: {
+    type: ['object'],
+    required: ['kind', 'id', 'fillColor'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setCommentBoxFillColor'],
+      },
+      id: {
+        type: ['string'],
+      },
+      fillColor: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setCommentBoxFillTransparencyPercent: {
+    type: ['object'],
+    required: ['kind', 'id', 'fillTransparencyPercent'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setCommentBoxFillTransparencyPercent'],
+      },
+      id: {
+        type: ['string'],
+      },
+      fillTransparencyPercent: {
+        type: ['integer', 'null'],
+      },
+    },
+  },
+  setCommentBoxTextColor: {
+    type: ['object'],
+    required: ['kind', 'id', 'textColor'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setCommentBoxTextColor'],
+      },
+      id: {
+        type: ['string'],
+      },
+      textColor: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  createHighlightBox: {
+    type: ['object'],
+    required: ['kind', 'id', 'range'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['createHighlightBox'],
+      },
+      id: {
+        type: ['string'],
+      },
+      range: {
+        type: ['object'],
+        required: ['start', 'finish', 'topTaskGroupId', 'bottomTaskGroupId'],
+        closed: true,
+        properties: {
+          start: {
+            type: ['string'],
+          },
+          finish: {
+            type: ['string'],
+          },
+          topTaskGroupId: {
+            type: ['string'],
+          },
+          bottomTaskGroupId: {
+            type: ['string'],
+          },
+        },
+      },
+    },
+  },
+  deleteHighlightBox: {
+    type: ['object'],
+    required: ['kind', 'id'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['deleteHighlightBox'],
+      },
+      id: {
+        type: ['string'],
+      },
+    },
+  },
+  setHighlightBoxRange: {
+    type: ['object'],
+    required: ['kind', 'id', 'range'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setHighlightBoxRange'],
+      },
+      id: {
+        type: ['string'],
+      },
+      range: {
+        type: ['object'],
+        required: ['start', 'finish', 'topTaskGroupId', 'bottomTaskGroupId'],
+        closed: true,
+        properties: {
+          start: {
+            type: ['string'],
+          },
+          finish: {
+            type: ['string'],
+          },
+          topTaskGroupId: {
+            type: ['string'],
+          },
+          bottomTaskGroupId: {
+            type: ['string'],
+          },
+        },
+      },
+    },
+  },
+  setHighlightBoxStrokeColor: {
+    type: ['object'],
+    required: ['kind', 'id', 'strokeColor'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setHighlightBoxStrokeColor'],
+      },
+      id: {
+        type: ['string'],
+      },
+      strokeColor: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setHighlightBoxStrokeWidthPx: {
+    type: ['object'],
+    required: ['kind', 'id', 'strokeWidthPx'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setHighlightBoxStrokeWidthPx'],
+      },
+      id: {
+        type: ['string'],
+      },
+      strokeWidthPx: {
+        type: ['integer', 'null'],
+      },
+    },
+  },
+  setHighlightBoxFillColor: {
+    type: ['object'],
+    required: ['kind', 'id', 'fillColor'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setHighlightBoxFillColor'],
+      },
+      id: {
+        type: ['string'],
+      },
+      fillColor: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setHighlightBoxFillTransparencyPercent: {
+    type: ['object'],
+    required: ['kind', 'id', 'fillTransparencyPercent'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setHighlightBoxFillTransparencyPercent'],
+      },
+      id: {
+        type: ['string'],
+      },
+      fillTransparencyPercent: {
+        type: ['integer', 'null'],
+      },
+    },
+  },
+  setStackDirection: {
+    type: ['object'],
+    required: ['kind', 'stackDirection'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setStackDirection'],
+      },
+      stackDirection: {
+        enum: ['up', 'down'],
+      },
+    },
+  },
+  setElementVisible: {
+    type: ['object'],
+    required: ['kind', 'element', 'visible'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setElementVisible'],
+      },
+      element: {
+        enum: ['isBaselineVisible', 'isPlanVisible', 'isActualVisible', 'isProgressLineVisible', 'isProgressMarkerVisible', 'isDateGridLinesVisible', 'isGroupGridLinesVisible', 'isAssigneeVisible', 'isPercentCompleteVisible', 'isDependencyVisible', 'isPlanDatesVisible'],
+      },
+      visible: {
+        type: ['boolean'],
+      },
+    },
+  },
+  setFontScale: {
+    type: ['object'],
+    required: ['kind', 'fontScale'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setFontScale'],
+      },
+      fontScale: {
+        enum: ['S', 'M', 'L'],
+      },
+    },
+  },
+  setThemeMonochrome: {
+    type: ['object'],
+    required: ['kind', 'isThemeMonochrome'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setThemeMonochrome'],
+      },
+      isThemeMonochrome: {
+        type: ['boolean'],
+      },
+    },
+  },
+  setZoom: {
+    type: ['object'],
+    required: ['kind', 'zoomX', 'zoomY'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setZoom'],
+      },
+      zoomX: {
+        type: ['number'],
+      },
+      zoomY: {
+        type: ['number'],
+      },
+    },
+  },
+  setScrollPosition: {
+    type: ['object'],
+    required: ['kind', 'scrollDate', 'scrollTaskGroupId', 'scrollDayOffset', 'scrollGroupOffset'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setScrollPosition'],
+      },
+      scrollDate: {
+        type: ['string', 'null'],
+      },
+      scrollTaskGroupId: {
+        type: ['string', 'null'],
+      },
+      scrollDayOffset: {
+        type: ['number'],
+      },
+      scrollGroupOffset: {
+        type: ['number'],
+      },
+    },
+  },
+  setTaskGroupPanelWidthPx: {
+    type: ['object'],
+    required: ['kind', 'taskGroupPanelWidthPx'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskGroupPanelWidthPx'],
+      },
+      taskGroupPanelWidthPx: {
+        type: ['number'],
+      },
+    },
+  },
+  pinTaskGroup: {
+    type: ['object'],
+    required: ['kind', 'taskGroupId'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['pinTaskGroup'],
+      },
+      taskGroupId: {
+        type: ['string'],
+      },
+    },
+  },
+  unpinTaskGroup: {
+    type: ['object'],
+    required: ['kind', 'taskGroupId'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['unpinTaskGroup'],
+      },
+      taskGroupId: {
+        type: ['string'],
+      },
+    },
+  },
+  fitScheduleToScreen: {
+    type: ['object'],
+    required: ['kind', 'zoomX', 'zoomY', 'scrollDate', 'scrollTaskGroupId', 'scrollDayOffset', 'scrollGroupOffset'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['fitScheduleToScreen'],
+      },
+      zoomX: {
+        type: ['number'],
+      },
+      zoomY: {
+        type: ['number'],
+      },
+      scrollDate: {
+        type: ['string', 'null'],
+      },
+      scrollTaskGroupId: {
+        type: ['string', 'null'],
+      },
+      scrollDayOffset: {
+        type: ['number'],
+      },
+      scrollGroupOffset: {
+        type: ['number'],
+      },
+    },
+  },
+  resetTaskGroupTreeStates: {
+    type: ['object'],
+    required: ['kind'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['resetTaskGroupTreeStates'],
+      },
+    },
+  },
+  moveTaskGroup: {
+    type: ['object'],
+    required: ['kind', 'taskGroupId', 'parentId', 'order'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['moveTaskGroup'],
+      },
+      taskGroupId: {
+        type: ['string'],
+      },
+      parentId: {
+        type: ['string', 'null'],
+      },
+      order: {
+        type: ['integer'],
+      },
+    },
+  },
+  setDisplayScale: {
+    type: ['object'],
+    required: ['kind', 'displayScale'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setDisplayScale'],
+      },
+      displayScale: {
+        enum: [50, 67, 75, 90, 100, 110, 125, 150, 175, 200],
+      },
+    },
+  },
+  setFitSpan: {
+    type: ['object'],
+    required: ['kind', 'fitSpanStart', 'fitSpanFinish'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setFitSpan'],
+      },
+      fitSpanStart: {
+        type: ['string', 'null'],
+      },
+      fitSpanFinish: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  clearFitSpan: {
+    type: ['object'],
+    required: ['kind'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['clearFitSpan'],
+      },
+    },
+  },
+  setFitSpanFixed: {
+    type: ['object'],
+    required: ['kind', 'isFitSpanFixed', 'shownStart', 'shownFinish'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setFitSpanFixed'],
+      },
+      isFitSpanFixed: {
+        type: ['boolean'],
+      },
+      shownStart: {
+        type: ['string', 'null'],
+      },
+      shownFinish: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setTaskGroupPanelWidthFixed: {
+    type: ['object'],
+    required: ['kind', 'isTaskGroupPanelWidthFixed'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskGroupPanelWidthFixed'],
+      },
+      isTaskGroupPanelWidthFixed: {
+        type: ['boolean'],
+      },
+    },
+  },
+  setTableView: {
+    type: ['object'],
+    required: ['kind', 'table', 'view'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTableView'],
+      },
+      table: {
+        enum: ['searchPanel', 'delayDiagnosticsReport', 'resourceList'],
+      },
+      view: {
+        type: ['object'],
+        required: ['visibility', 'columnFilters', 'sort'],
+        closed: true,
+        properties: {
+          visibility: {
+            type: ['object'],
+            required: ['hiddenKeys', 'isUnassignedHidden', 'isApplied'],
+            closed: true,
+            properties: {
+              hiddenKeys: {
+                type: ['array'],
+                items: {
+                  type: ['integer'],
+                },
+              },
+              isUnassignedHidden: {
+                type: ['boolean'],
+              },
+              isApplied: {
+                type: ['boolean'],
+              },
+            },
+          },
+          columnFilters: {
+            type: ['array'],
+            items: {
+              type: ['object'],
+              required: ['column', 'hiddenValues', 'fromDate', 'toDate'],
+              closed: true,
+              properties: {
+                column: {
+                  type: ['string'],
+                },
+                hiddenValues: {
+                  type: ['array'],
+                  items: {
+                    type: ['string'],
+                  },
+                },
+                fromDate: {
+                  type: ['string', 'null'],
+                },
+                toDate: {
+                  type: ['string', 'null'],
+                },
+              },
+            },
+          },
+          sort: {
+            type: ['object', 'null'],
+            required: ['column', 'direction'],
+            closed: true,
+            properties: {
+              column: {
+                type: ['string'],
+              },
+              direction: {
+                enum: ['ascending', 'descending'],
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+  setViewTimeZone: {
+    type: ['object'],
+    required: ['kind', 'viewTimeZone'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setViewTimeZone'],
+      },
+      viewTimeZone: {
+        type: ['string', 'null'],
+      },
+    },
+  },
+  setDisplayTimeZones: {
+    type: ['object'],
+    required: ['kind', 'displayTimeZones'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setDisplayTimeZones'],
+      },
+      displayTimeZones: {
+        type: ['array'],
+        items: {
+          enum: ['UTC-12:00', 'UTC-11:00', 'UTC-10:00', 'UTC-09:00', 'UTC-08:00', 'UTC-08:00 DST', 'UTC-07:00', 'UTC-07:00 DST', 'UTC-06:00', 'UTC-06:00 DST', 'UTC-05:00', 'UTC-05:00 DST', 'UTC-04:00', 'UTC-04:00 DST', 'UTC-03:00', 'UTC-03:00 DST', 'UTC-02:00', 'UTC-01:00', 'UTC+00:00', 'UTC+00:00 DST', 'UTC+01:00', 'UTC+01:00 DST', 'UTC+02:00', 'UTC+02:00 DST', 'UTC+03:00', 'UTC+03:00 DST', 'UTC+04:00', 'UTC+05:00', 'UTC+05:30', 'UTC+06:00', 'UTC+07:00', 'UTC+08:00', 'UTC+09:00', 'UTC+10:00', 'UTC+11:00', 'UTC+11:00 DST', 'UTC+12:00', 'UTC+13:00', 'UTC+13:00 DST'],
+        },
+      },
+    },
+  },
+  setTimeOfDayVisible: {
+    type: ['object'],
+    required: ['kind', 'isTimeOfDayVisible'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTimeOfDayVisible'],
+      },
+      isTimeOfDayVisible: {
+        type: ['boolean'],
+      },
+    },
+  },
+  setTaskGroupTreeState: {
+    type: ['object'],
+    required: ['kind', 'taskGroupId', 'treeState'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setTaskGroupTreeState'],
+      },
+      taskGroupId: {
+        type: ['string'],
+      },
+      treeState: {
+        enum: ['auto', 'collapsed', 'expanded', 'temporarilyExpanded', 'hidden'],
+      },
+    },
+  },
+  setLevelZeroTreeState: {
+    type: ['object'],
+    required: ['kind', 'levelZeroTreeState'],
+    closed: true,
+    properties: {
+      kind: {
+        enum: ['setLevelZeroTreeState'],
+      },
+      levelZeroTreeState: {
+        enum: ['auto', 'collapsed'],
+      },
+    },
+  },
+}
+// </generated>
+
 const NOT_A_KEY_THIS_SHAPE_CARRIES = 'is not a key this shape carries'
 
 const A_KEY_THIS_SHAPE_LACKS = 'is missing'
@@ -1149,6 +2981,7 @@ function collectFaults(
     if (target !== undefined) collectFaults(value, target, at, out)
     return
   }
+  if (node.alternatives !== undefined) return alternativeFaults(value, node.alternatives, at, out)
 
   const kinds = node.type
   if (kinds !== undefined && !kinds.some((kind) => jsonTypeHolds(value, kind))) {
@@ -1174,19 +3007,7 @@ function collectFaults(
   }
   if (typeof value === 'string') stringFaults(value, node, at, out)
 
-  if (isObject(value)) {
-    for (const key of node.required ?? []) {
-      if (!(key in value)) out.push(jsonFault(pointer(at, key), A_KEY_THIS_SHAPE_LACKS))
-    }
-    for (const [key, inner] of Object.entries(value)) {
-      const child = node.properties?.[key] ?? node.values
-      if (child !== undefined) {
-        collectFaults(inner, child, pointer(at, key), out)
-      } else if (node.closed === true) {
-        out.push(jsonFault(pointer(at, key), NOT_A_KEY_THIS_SHAPE_CARRIES))
-      }
-    }
-  }
+  if (isObject(value)) objectFaults(value, node, at, out)
 
   const items = node.items
   if (items !== undefined && Array.isArray(value)) {
@@ -1195,8 +3016,47 @@ function collectFaults(
 }
 
 /** @purity pure */
+function objectFaults(value: Readonly<Record<string, unknown>>, node: SchemaNode, at: string, out: JsonFault[]): void {
+  for (const key of node.required ?? []) {
+    if (!(key in value)) out.push(jsonFault(pointer(at, key), A_KEY_THIS_SHAPE_LACKS))
+  }
+  for (const [key, inner] of Object.entries(value)) {
+    const child = node.properties?.[key] ?? node.values
+    if (child !== undefined) {
+      collectFaults(inner, child, pointer(at, key), out)
+    } else if (node.closed === true) {
+      out.push(jsonFault(pointer(at, key), NOT_A_KEY_THIS_SHAPE_CARRIES))
+    }
+  }
+}
+
+// see T-108
+// WHY: no alternative is nearer than another, so the faults of each are not told; only that none fits.
+/** @purity pure */
+function alternativeFaults(value: unknown, alternatives: readonly SchemaNode[], at: string, out: JsonFault[]): void {
+  const fits = alternatives.some((one) => {
+    const tried: JsonFault[] = []
+    collectFaults(value, one, at, tried)
+    return tried.length === 0
+  })
+  if (!fits) out.push(jsonFault(at, `fits none of the ${alternatives.length} shapes allowed`))
+}
+
+/** @purity pure */
 export function collectSchemaFaults(value: unknown, out: JsonFault[]): void {
   collectFaults(value, GRS_DOCUMENT_SCHEMA, '', out)
+}
+
+// see T-108, FR-028, AG-9a
+// WHY: a command handed to the Agent API is untyped; one refused here never reaches the planning that throws on it.
+/** @purity pure */
+export function commandShapeFaults(command: unknown): readonly JsonFault[] {
+  const kind = isObject(command) ? command['kind'] : undefined
+  const shape = typeof kind === 'string' && Object.hasOwn(SHAPE_OF_COMMAND_KIND, kind) ? SHAPE_OF_COMMAND_KIND[kind] : undefined
+  if (shape === undefined) return [jsonFault('/kind', 'is not the kind of a command of table T-108')]
+  const out: JsonFault[] = []
+  collectFaults(command, shape, '', out)
+  return out
 }
 
 // see FR-021, AT-154, AT-155

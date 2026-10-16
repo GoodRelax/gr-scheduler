@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 387 | 4847 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 393 | 4941 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 91 | 589 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3867 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 680 | 9413 | 11 | 8 | 13 | 2 |
+| **all** | | | 686 | 9507 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -146,7 +146,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-631-wbs-parent-palette-chooser-and-picture.test.ts` | choiceStepOf (pure), commandPaletteFromSession (pure), confirmationFromSession (pure), drawnSettingsOf (pure), emptySelection (pure), grabSizesOf (pure), isMixedParentPick (pure), itemAtPointer (untagged), parentTaskHoldOf (non-pure), parentTaskParts (pure), pointerImageOf (pure), pointerRowOf (pure), selectionOfAll (pure), selectionOfParentChoice (pure) | - | FR-135, T-076, T-109, T-234, T-269, T-351 |
 | `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | diagnoseDelay (pure), documentFromJson (pure), editDependency (pure), workingCalendarOf (pure) | yes | FR-009, FR-054, T-075, T-209, T-213, T-314, T-375 |
 | `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` | blankTaskVisual (pure), documentFromEmbeddedHtml (pure), documentFromJson (pure), documentFromMspdi (pure), frameLoop (non-pure), jsonFromDocument (pure), mspdiFromDocument (pure) | - | FR-011, FR-012, FR-021, FR-054, FR-100, T-024a, T-036, T-103, T-233, T-350 |
-| `tests/unit/cr-646-edits-write-side-times.test.ts` | dayOf (pure), editDocument (pure), textOfDay (pure) | yes | FR-013, FR-054, FR-083, T-245, T-350 |
+| `tests/unit/cr-646-edits-write-side-times.test.ts` | dayOf (pure), editDocument (pure), textOfDay (pure) | yes | FR-013, FR-019, FR-054, FR-083, T-245, T-350 |
 | `tests/unit/cr-646-grs-json-shape.test.ts` | documentFromJson (pure), importDocument (pure), jsonFromDocument (pure), scheduleViolations (pure), validateImportedDocument (pure) | yes | FR-022, FR-073, T-220, T-224, T-297 |
 | `tests/unit/cr-646-mspdi-times-and-last-saved.test.ts` | dayOf (pure), documentFromMspdi (pure), editDocument (pure), mspdiFromDocument (pure), readLocalMoment (semi-pure-b) | - | FR-021, FR-101, T-059, T-220, T-228 |
 | `tests/unit/cr-646-side-time-writers.test.ts` | dayOf (pure) | yes | T-064, T-209, T-350 |
@@ -477,6 +477,10 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-774-hf-15-a-gap-past-the-depth-cap-is-chosen-and-drawn-dashed.contract.test.ts` | 17 | FR-004 | - | T-234 | HF-15, HM-3a, QN-16 | - | - | - | - |
 | `tests/contract/cr-774-hf-15-the-release-asks-qn-16-and-lifts-the-too-deep-groups.contract.test.ts` | 16 | - | - | - | HF-15, HM-3, HM-9, QN-16, S-125, UF-97 | - | - | - | - |
 | `tests/contract/cr-775-alt-at-release-and-shift-keeps-dates.test.ts` | 17 | FR-016, FR-017, FR-103, FR-107, NFR-007 | - | T-236, T-266, T-270, T-366, T-378 | CF-6, CY-5, CY-9, CY-11, GA-9, GA-14, GA-15, GA-18, MK-12, MK-15, MK-16, MK-17, PE-1, PE-6, S-1, S-8, S-55, S-155, S-577, S-578, S-587, SG-2, SG-3, SG-4 | - | - | - | - |
+| `tests/contract/cr-776-778-command-values-carry-their-column-names.contract.test.ts` | 10 | - | - | T-058, T-064, T-202 | AM-7, PI-39 | - | - | - | - |
+| `tests/contract/cr-777-a-released-tip-snaps-or-stands-free.contract.test.ts` | 13 | - | - | - | AR-5, CM-51, GR-14 | - | - | - | - |
+| `tests/contract/cr-777-the-anchor-value-the-deleted-target-and-the-merge.contract.test.ts` | 22 | FR-019 | - | - | CM-7, CM-46, CM-50, CM-53 | - | - | - | - |
+| `tests/contract/cr-777-the-tip-stands-at-its-point-and-follows-its-target.contract.test.ts` | 21 | FR-019 | - | - | AT-167, GR-14, LF-15, S-292 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
@@ -526,6 +530,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-2463-fr-156-the-pc-standard-time-and-no-notice.contract.test.ts` | 12 | FR-156 | - | T-376 | BK-4, IC-71, IC-72, IC-73, IC-98, MG-4, PF-1, PF-8, ZN-57, ZN-61, ZN-62 | - | - | - | - |
 | `tests/contract/dfc-271-d-345-st-7-tells-on-the-screen-and-after-the-export.test.ts` | 19 | FR-025, FR-038, FR-080, FR-096 | - | T-014, T-024, T-036, T-037, T-041, T-060, T-062, T-066, T-075, T-103, T-109, T-218, T-233 | CP-25, CS-2, IC-3, IF-3, IF-5, IO-1, IO-2, IO-3, IO-6, IO-7, LY-5, NT-3, NT-3a, RS-24, S-89, SK-12, SK-16, SK-19, SK-21, ST-3, ST-7, ST-10, TS-6, U-54, UF-48, WY-2 | - | - | - | - |
 | `tests/contract/dfc-2765-bl-2-the-outline-uses-the-plan-bars-conversion.contract.test.ts` | 5 | FR-015, FR-054 | - | T-339 | BL-2 | - | - | - | - |
+| `tests/contract/dfc-2856-a-misshapen-command-bundle-is-refused.contract.test.ts` | 17 | FR-028 | - | T-108 | AG-9a, AM-7, AV-3, AV-4, CM-38, PI-20 | - | - | - | - |
 | `tests/contract/dfc-286-fr-044-emptying-a-set-resume-date-clears-resume-valid.test.ts` | 12 | FR-006, FR-044 | - | T-016, T-019, T-019a, T-108, T-216, T-218 | PA-2, PA-3, PA-4, PR-7, PR-8, PR-15, PS-3, PS-4, PS-5, TS-2, TS-6 | - | - | - | - |
 | `tests/contract/dfc-288-d-289-fr-099-deleting-the-chosen-assignees.test.ts` | 19 | FR-029, FR-038, FR-099 | - | T-037, T-050, T-060, T-062, T-066, T-075, T-108, T-109, T-218, T-233, T-234 | CD-5, CM-42, CP-25, CS-2, IC-62, IC-65, IC-66, IC-67, IC-68, LY-5, NT-7, QN-3, RS-27, TS-2, TS-6, UF-48 | - | - | - | - |
 | `tests/contract/dfc-290-d-321-fr-033-copy-and-paste-reach-the-document.test.ts` | 16 | FR-031, FR-033, FR-038, FR-076, NFR-004 | - | T-014, T-023c, T-036, T-037, T-050, T-062, T-066, T-075, T-103, T-218, T-223, T-233 | CD-2, CM-8, CM-28, CP-25, CS-2, DU-1, DU-2, IN-1, RS-24, RS-27, S-89, SK-4, SK-5, SL-2, ST-7, TS-6, U-22, UF-48 | - | - | - | - |
@@ -550,6 +555,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-545-a-held-choice-or-checkbox-is-no-text-entry.contract.test.ts` | 5 | - | - | - | IF-9, IN-5a, IN-6, PR-1, SK-3, SK-19, WS-2 | - | - | - | - |
 | `tests/contract/dfc-554-gr-17-released-at-or-left-of-the-dummy-keeps-s-129.test.ts` | 5 | FR-011, FR-043 | - | T-023d, T-266, T-350 | AT-39, DM-1, GA-5, GA-6, IV-21, S-129, S-482, S-483 | - | - | - | - |
 | `tests/contract/dfc-556-in-2-an-armed-dependency-line-gives-the-drawing-signal-on-empty-canvas.test.ts` | 5 | - | - | T-023b, T-028, T-109 | AR-2, AR-4, IN-2, PTD-5 | - | - | - | - |
+| `tests/contract/dfc-557-mspdi-notices-are-told.contract.test.ts` | 11 | FR-038, FR-102 | - | T-233 | EX-6, IC-72, RS-15 | - | - | - | - |
 | `tests/contract/dfc-567-fr-029-a-faint-roster-entrance-that-is-pressed-tells-rs-27.test.ts` | 9 | FR-029 | - | T-233 | IC-63, IC-64, IC-65, IC-66, RO-1, RO-3, RS-27 | - | - | - | - |
 | `tests/contract/dfc-568-gr-14-corners-anchor-and-body.test.ts` | 63 | FR-019, FR-097 | - | T-023d, T-108, T-206, T-221, T-246 | AT-110, AT-115, AT-117, CM-50, CM-51, CM-54, GR-14, HB-1, HB-2, HB-3, HB-4, HB-5, HB-6, HB-11, HB-12, IV-19, LF-14, LF-15, LF-17, RS-44, S-1, S-12, S-75, S-137, S-230, S-292, S-293 | - | - | - | - |
 | `tests/contract/dfc-571-if-9-a-half-typed-line-is-no-utterance.test.ts` | 4 | - | - | T-035, T-065 | AG-11, IF-9 | - | - | - | - |
@@ -817,7 +823,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-631-wbs-parent-palette-chooser-and-picture.test.ts` | 28 | FR-135 | - | T-076, T-109, T-234, T-269, T-351 | AR-7, IC-81, IC-141, IC-142, PK-17, PK-18, PTL-13, PTL-14, QN-12, S-249, S-389, S-398, S-447, S-484, S-486, SL-8, VO-4 | - | - | - | - |
 | `tests/unit/cr-644-the-lag-is-stored-in-tenths-of-a-minute-and-shown-in-working-days.test.ts` | 30 | FR-009, FR-054 | - | T-075, T-209, T-213, T-314, T-375 | AT-48, BD-2, CM-36, CM-38, PR-42, S-117, S-118, S-128, TX-3, TX-10, UF-128, VC-15 | - | - | - | - |
 | `tests/unit/cr-645-a-grs-json-read-recounts-the-percent-complete.test.ts` | 15 | FR-011, FR-012, FR-021, FR-054, FR-100 | - | T-024a, T-036, T-103, T-233, T-350 | AT-39, IO-7, NT-3, OP-3, OP-4, OP-6, RS-52, VC-5 | - | - | - | - |
-| `tests/unit/cr-646-edits-write-side-times.test.ts` | 25 | FR-013, FR-054, FR-083 | - | T-245, T-350 | AT-154, AT-155, CM-14, CM-15, CM-50, CM-54, EX-4, GA-9, GA-18, GO-1, GO-2, GO-3, GO-5, GO-7, GO-8, GO-10, GO-11, IC-23, IC-35, IC-36, S-77, S-482, S-483, S-584, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2, X-3, X-4 | - | - | - | - |
+| `tests/unit/cr-646-edits-write-side-times.test.ts` | 25 | FR-013, FR-019, FR-054, FR-083 | - | T-245, T-350 | AT-154, AT-155, CM-14, CM-15, CM-50, CM-54, EX-4, GA-9, GA-18, GO-1, GO-2, GO-3, GO-5, GO-7, GO-8, GO-10, GO-11, IC-23, IC-35, IC-36, S-77, S-482, S-483, S-584, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2, X-3, X-4 | - | - | - | - |
 | `tests/unit/cr-646-grs-json-shape.test.ts` | 33 | FR-022, FR-073 | - | T-220, T-224, T-297 | AT-154, AT-155, BK-4, CP-13, IV-1, IV-23, MG-4, NT-1, OP-5, PF-1, PF-9, PI-13, RS-25, S-58, S-482, S-483, ST-5, ST-6, WT-9, WT-10 | - | - | - | - |
 | `tests/unit/cr-646-mspdi-times-and-last-saved.test.ts` | 26 | FR-021, FR-101 | - | T-059, T-220, T-228 | AT-154, AT-155, DV-12, EX-4, EX-10, EX-11, EX-12, IV-23, K-3, NR-1, NR-7, S-482, UF-36, WT-1, WT-9, WT-10, X-5 | - | - | - | - |
 | `tests/unit/cr-646-side-time-writers.test.ts` | 18 | - | - | T-064, T-209, T-350 | AT-154, AT-155, EX-7, K-1, PI-1, S-482, S-483, WT-1, WT-2, WT-3, WT-4, WT-5, WT-6, WT-7, WT-8, WT-10, X-1, X-2 | - | - | - | - |

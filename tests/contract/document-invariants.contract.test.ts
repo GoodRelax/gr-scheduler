@@ -532,6 +532,11 @@ const COMMENT_BOX_ONE: CommentBox = {
   text: null,
   anchorDate: null,
   anchorTaskGroupId: null,
+  anchorBandFraction: null,
+  anchorTaskUid: null,
+  anchorTaskFigure: null,
+  anchorHighlightBoxId: null,
+  anchorSnapPoint: null,
   bodyOffsetPx: null,
   strokeColor: null,
   strokeWidthPx: null,
@@ -924,6 +929,25 @@ const DANGLING: Readonly<Record<string, () => DocumentUnderTest>> = {
 
   'CommentBox.anchorTaskGroupId': () =>
     withSchedule({ commentBoxes: [{ ...COMMENT_BOX_ONE, anchorTaskGroupId: MISSING_GROUP_ID }] }),
+
+  'CommentBox.anchorTaskUid': () =>
+    withSchedule({
+      commentBoxes: [
+        {
+          ...COMMENT_BOX_ONE,
+          anchorTaskUid: MISSING_UID,
+          anchorTaskFigure: 'plannedBar',
+          anchorSnapPoint: 'topMiddle',
+        },
+      ],
+    }),
+
+  'CommentBox.anchorHighlightBoxId': () =>
+    withSchedule({
+      commentBoxes: [
+        { ...COMMENT_BOX_ONE, anchorHighlightBoxId: MISSING_GROUP_ID, anchorSnapPoint: 'topMiddle' },
+      ],
+    }),
 
   'HighlightBox.topTaskGroupId': () =>
     withSchedule({ highlightBoxes: [{ ...HIGHLIGHT_BOX_ONE, topTaskGroupId: MISSING_GROUP_ID }] }),

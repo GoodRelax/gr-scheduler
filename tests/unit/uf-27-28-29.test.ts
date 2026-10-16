@@ -600,7 +600,7 @@ const RENAME = { kind: 'setProjectTitle', title: 'a new document name' } as cons
 const BAD_RENAME = { kind: 'setProjectTitle', title: '' } as const
 // UN-13 of table T-027 keeps the theme in the presentation group, so FR-063
 // does not move the schedule-data instant for it.
-const RECOLOR = { kind: 'setThemeMonochrome', monochrome: true } as const
+const RECOLOR = { kind: 'setThemeMonochrome', isThemeMonochrome: true } as const
 
 function accepted<TOutcome extends { readonly ok: boolean }>(
   outcome: TOutcome,
@@ -946,7 +946,7 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
     accepted(
       one.api.applyCommands({
         expectedStamp: one.api.readStamp(),
-        commands: [RENAME, { kind: 'setStatusDate', date: '2026-08-20T00:00:00' }],
+        commands: [RENAME, { kind: 'setStatusDate', statusDate: '2026-08-20T00:00:00' }],
       }),
     )
 
@@ -1004,7 +1004,7 @@ describe('AM-7 applyCommands -- AG-3, one refusal drops the bundle', () => {
     const outcome = refused(
       one.api.applyCommands({
         expectedStamp: one.api.readStamp(),
-        commands: [{ kind: 'setStatusDate', date: '2026-08-20T00:00:00' }, BAD_RENAME],
+        commands: [{ kind: 'setStatusDate', statusDate: '2026-08-20T00:00:00' }, BAD_RENAME],
       }),
     )
 
@@ -1084,7 +1084,7 @@ describe('IF-7 -- every current value arrives over the seam (LY-5 of table T-060
     accepted(
       one.api.applyCommands({
         expectedStamp: one.api.readStamp(),
-        commands: [{ kind: 'setStatusDate', date: '2026-08-20T00:00:00' }],
+        commands: [{ kind: 'setStatusDate', statusDate: '2026-08-20T00:00:00' }],
       }),
     )
 
@@ -1559,8 +1559,8 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
       one.api.applyCommands({
         expectedStamp: one.api.readStamp(),
         commands: [
-          { kind: 'setStatusDate', date: '2026-08-20T00:00:00' },
-          { kind: 'setThemeHue', hue: 200 },
+          { kind: 'setStatusDate', statusDate: '2026-08-20T00:00:00' },
+          { kind: 'setThemeHue', themeHue: 200 },
           { kind: 'setProjectTitle', title: 'a third name' },
         ],
       }),

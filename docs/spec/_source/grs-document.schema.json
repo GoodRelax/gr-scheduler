@@ -1439,7 +1439,7 @@
   },
   "CommentBox": {
    "type": "object",
-   "description": "One comment box. Pinned to a date and a task group.",
+   "description": "One comment box. Its tip stands at a free point (an instant, a task group and a height within its band) or at one of eight points of the task or highlight box it snapped to.",
    "required": [
     "id",
     "leaderShapeKind",
@@ -1447,6 +1447,11 @@
     "anchorDate",
     "anchorTaskGroupId",
     "bodyOffsetPx",
+    "anchorBandFraction",
+    "anchorTaskUid",
+    "anchorTaskFigure",
+    "anchorHighlightBoxId",
+    "anchorSnapPoint",
     "strokeColor",
     "strokeWidthPx",
     "fillColor",
@@ -1500,6 +1505,48 @@
        "type": "number"
       }
      }
+    },
+    "anchorBandFraction": {
+     "type": [
+      "number",
+      "null"
+     ],
+     "minimum": 0,
+     "maximum": 1
+    },
+    "anchorTaskUid": {
+     "type": [
+      "integer",
+      "null"
+     ]
+    },
+    "anchorTaskFigure": {
+     "enum": [
+      "plannedBar",
+      "actualBar",
+      "milestone",
+      null
+     ]
+    },
+    "anchorHighlightBoxId": {
+     "type": [
+      "string",
+      "null"
+     ],
+     "format": "uuid"
+    },
+    "anchorSnapPoint": {
+     "enum": [
+      "topLeftCorner",
+      "topMiddle",
+      "topRightCorner",
+      "rightMiddle",
+      "bottomRightCorner",
+      "bottomMiddle",
+      "bottomLeftCorner",
+      "leftMiddle",
+      null
+     ]
     },
     "strokeColor": {
      "type": [

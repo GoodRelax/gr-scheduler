@@ -170,8 +170,8 @@ describe('EditProject (UF-17) -- CM-1 to CM-5 answer the same document when noth
   it('CM-3 setStatusDate -- the day the line already stands on', () => {
     bothWays(
       project as never,
-      { kind: 'setStatusDate', date: '2026-03-02' },
-      { kind: 'setStatusDate', date: '2026-03-03' },
+      { kind: 'setStatusDate', statusDate: '2026-03-02' },
+      { kind: 'setStatusDate', statusDate: '2026-03-03' },
     )
   })
 
@@ -192,8 +192,8 @@ describe('EditProject (UF-17) -- CM-1 to CM-5 answer the same document when noth
   it('CM-5 setThemeHue -- the hue the document already carries', () => {
     bothWays(
       project as never,
-      { kind: 'setThemeHue', hue: 214 },
-      { kind: 'setThemeHue', hue: 210 },
+      { kind: 'setThemeHue', themeHue: 214 },
+      { kind: 'setThemeHue', themeHue: 210 },
     )
   })
 })
@@ -202,8 +202,8 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
   it('CM-56 setStackDirection', () => {
     bothWays(
       settings as never,
-      { kind: 'setStackDirection', direction: 'up' },
-      { kind: 'setStackDirection', direction: 'down' },
+      { kind: 'setStackDirection', stackDirection: 'up' },
+      { kind: 'setStackDirection', stackDirection: 'down' },
     )
   })
 
@@ -220,8 +220,8 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
     // drifted derived pair must be repaired -- tested as a whole, not one key.
     bothWays(
       settings as never,
-      { kind: 'setFontScale', scale: 'M' },
-      { kind: 'setFontScale', scale: 'L' },
+      { kind: 'setFontScale', fontScale: 'M' },
+      { kind: 'setFontScale', fontScale: 'L' },
     )
   })
 
@@ -229,7 +229,7 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
     // TRAP: an arm comparing fontScale alone would answer this document
     // untouched and leave rulerFontSizePx at 99.
     const drifted = documentOf({ documentSettings: { fontScale: 'M', rulerFontSizePx: 99 } })
-    const result = editDocumentSettings(drifted, { kind: 'setFontScale', scale: 'M' }, LIMITS)
+    const result = editDocumentSettings(drifted, { kind: 'setFontScale', fontScale: 'M' }, LIMITS)
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.document).not.toBe(drifted)
@@ -241,8 +241,8 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
   it('CM-64 setThemeMonochrome', () => {
     bothWays(
       settings as never,
-      { kind: 'setThemeMonochrome', monochrome: false },
-      { kind: 'setThemeMonochrome', monochrome: true },
+      { kind: 'setThemeMonochrome', isThemeMonochrome: false },
+      { kind: 'setThemeMonochrome', isThemeMonochrome: true },
     )
   })
 
@@ -356,7 +356,7 @@ describe('FR-063 -- what the write path reads off the reference the arms keep', 
     // adds is the DOCUMENT reference, which is what FR-020's trail reads.
     const document = documentOf()
     const plan = planOf(document, [
-      { kind: 'setThemeMonochrome', monochrome: false } as DocumentCommand,
+      { kind: 'setThemeMonochrome', isThemeMonochrome: false } as DocumentCommand,
     ])
     expect(plan.ok).toBe(true)
     if (!plan.ok) return

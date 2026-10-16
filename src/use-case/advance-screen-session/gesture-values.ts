@@ -9,9 +9,6 @@ import { NO_EFFECTS, unchanged, type Step } from './session-step'
 // WHY: the translator's PressRow again; UseCase may not read an Adapter type (table T-061).
 export type GesturePressRow = 'PTD-7' | 'PTD-1' | 'PTD-2' | 'PTD-3' | 'PTD-4' | 'PTD-4a' | 'PTD-5'
 
-// see DFC-2903
-export type GrabbedVerticalAxis = 'position' | 'depth'
-
 // WHY: what was pressed, never where -- a point is a frame value (SF-5).
 export type PressedOn =
   | { readonly kind: 'grab'; readonly grabTaskGroup: string; readonly itemId: string }

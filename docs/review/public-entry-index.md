@@ -369,9 +369,14 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
+| `AnchorSnap` | entry | interface | `src/entity/layout-engine/schedule-geometry/comment-box.ts#AnchorSnap` | PI-6 | 型。 |
+| `AnchorSnapPoint` | entry | type | `src/entity/layout-engine/schedule-geometry/comment-box.ts#AnchorSnapPoint` | -- | type AnchorSnapPoint = NonNullable<CommentBox['anchorSnapPoint']> |
+| `anchorSnapsOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#anchorSnapsOf` | PI-6 | 描いたタスクの図形とハイライトボックスの、線先が吸着できる 8 点の並び（`LF-15`）。 |
+| `AnchorTarget` | entry | type | `src/entity/layout-engine/schedule-geometry/comment-box.ts#AnchorTarget` | -- | type AnchorTarget = \| |
+| `AnchorTaskFigure` | entry | type | `src/entity/layout-engine/schedule-geometry/comment-box.ts#AnchorTaskFigure` | -- | type AnchorTaskFigure = NonNullable<CommentBox['anchorTaskFigure']> |
 | `arrowHeadOf` | entry | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#arrowHeadOf` | PI-6 | 描いた依存線の矢じりの 3 点 —— 先端と、底辺の両端（高さは 表 T-201 の `S-19`、底辺は `S-300`）。 |
 | `BarGeometry` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#BarGeometry` | -- | type BarGeometry = \| |
-| `commentAnchorPointOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentAnchorPointOf` | PI-6 | コメントボックスの留めた点を描く点 —— `LF-15`（日の列の中央、タスクグループの帯の中央）。 |
+| `commentAnchorPointOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentAnchorPointOf` | PI-6 | コメントボックスの線先を描く点 —— `LF-15`（自由点か、吸着した対象の 8 点の 1 つ）。 |
 | `CommentGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#CommentGeometry` | PI-6 | 型。 |
 | `ContinuationGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#ContinuationGeometry` | -- | interface ContinuationGeometry |
 | `DeadlineGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DeadlineGeometry` | -- | interface DeadlineGeometry |
@@ -380,6 +385,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DummyGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#DummyGeometry` | -- | interface DummyGeometry |
 | `Elision` | entry | type | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#Elision` | -- | type Elision = 'EL-3' \| 'EL-4' \| 'EL-5' \| 'EL-6' |
 | `FarEndGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#FarEndGeometry` | -- | interface FarEndGeometry |
+| `freeAnchorPointOf` | entry | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#freeAnchorPointOf` | PI-6 | 自由点の線先を描く点 —— `LF-15` の自由点の段（日時の横、帯の中の高さの縦）。 |
 | `geometryFromLayout` | entry | function | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#geometryFromLayout` | PI-6 | function geometryFromLayout( schedule: Schedule, storedSettings: DocumentSettings, layout: ScheduleLayout, regions: ScreenRegions, selection: Selection, dual... |
 | `GeometryInputs` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#GeometryInputs` | -- | interface GeometryInputs |
 | `HighlightGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#HighlightGeometry` | PI-6 | 型。 |
@@ -400,7 +406,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `selectedLinksOf` | entry | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#selectedLinksOf` | PI-6 | 選んでいる依存線（表 T-023c の `SL-8`）を、先行と後続の `UID` の対の鍵の集合で答える。 |
 | `SpanDot` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#SpanDot` | -- | interface SpanDot |
 | `TaskGeometry` | entry | interface | `src/entity/layout-engine/schedule-geometry/schedule-geometry.ts#TaskGeometry` | -- | interface TaskGeometry |
-| `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DrawnSettings, layout: ScheduleLayout, ): readonly CommentGeometry[] |
+| `AnchorSurroundings` | file only | interface | `src/entity/layout-engine/schedule-geometry/comment-box.ts#AnchorSurroundings` | -- | interface AnchorSurroundings |
+| `commentGeometry` | file only | function | `src/entity/layout-engine/schedule-geometry/comment-box.ts#commentGeometry` | -- | function commentGeometry( schedule: Schedule, settings: DrawnSettings, layout: ScheduleLayout, snaps: readonly AnchorSnap[], ): readonly CommentGeometry[] |
 | `hasPlanDates` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#hasPlanDates` | -- | function hasPlanDates(task: Task): boolean |
 | `isAtLeastDrawnPx` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#isAtLeastDrawnPx` | -- | function isAtLeastDrawnPx(value: number, bound: number): boolean |
 | `laneSpansOf` | file only | function | `src/entity/layout-engine/schedule-geometry/dependency-route.ts#laneSpansOf` | -- | function laneSpansOf(layout: ScheduleLayout, settings: DrawnSettings): readonly LaneSpan[] |
@@ -430,6 +437,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
+| `anchorSnapAt` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#anchorSnapAt` | PI-7 | 離した点（押した点）が吸着するコメントボックスの線先の点 —— 縦と横へそれぞれ `S-292` の正方形の中で、いちばん近い点。 |
 | `answersAtPointer` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#answersAtPointer` | PI-7 | `PointerWalk` と点から、押したときの当たりと、説明の持ち主（表 T-040 の `EZ-6`）を 1 度の歩きで答える。 |
 | `BandCut` | entry | type | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#BandCut` | -- | type BandCut = NonNullable<ScheduleGeometry['pinnedBand']> \| null |
 | `bottomOf` | entry | function | `src/entity/layout-engine/item-hit-area/item-hit-area.ts#bottomOf` | -- | function bottomOf(box: ScreenRect): number |
@@ -502,7 +510,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | --- | --- | --- | --- | --- | --- |
 | `acceptedEdit` | entry | function | `src/use-case/edit-document/edit-document.ts#acceptedEdit` | -- | function acceptedEdit(document: Document, report: EditReport = NOTHING_TO_TELL): EditResult |
 | `ActualGrabHold` | entry | type | `src/use-case/edit-document/edit-task.ts#ActualGrabHold` | -- | type ActualGrabHold = Extract<TaskCommand, { readonly kind: 'beginTaskActual' }>['grabbed'] |
-| `AnnotationAnchor` | entry | interface | `src/use-case/edit-document/edit-annotation.ts#AnnotationAnchor` | -- | interface AnnotationAnchor |
+| `AnnotationAnchor` | entry | interface | `src/use-case/edit-document/edit-annotation.ts#AnnotationAnchor` | PI-9 | 型。 |
 | `AnnotationCommand` | entry | type | `src/use-case/edit-document/edit-annotation.ts#AnnotationCommand` | -- | type AnnotationCommand = \| { readonly kind: 'createCommentBox'; readonly id: CommentBox['id']; readonly anchor: AnnotationAnchor } \| { readonly kind: 'delete... |
 | `baseChangeCommandOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#baseChangeCommandOf` | PI-9 | 選んだタイムゾーンと答え（換算して適用する ／ 換算しない）で基準を変える命令（表 T-108 の `CM-95`、または `CM-94` と `CM-95` の 2 つを 1 回の書き込みで） —— 当てても何も変わらないときは無い（`FR-156`、表 T-369 の `FO-14` の答え） |
 | `BaseChangeWay` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#BaseChangeWay` | -- | type BaseChangeWay = 'keepGlobalTime' \| 'keepLocalTime' |
@@ -519,7 +527,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DependencyCommand` | entry | type | `src/use-case/edit-document/edit-dependency.ts#DependencyCommand` | -- | type DependencyCommand = \| |
 | `DependencyEdge` | entry | type | `src/use-case/edit-document/edit-dependency.ts#DependencyEdge` | -- | type DependencyEdge = 'start' \| 'finish' |
 | `DocumentCommand` | entry | type | `src/use-case/edit-document/edit-document.ts#DocumentCommand` | -- | type DocumentCommand = \| TaskCommand \| TaskGroupCommand \| DependencyCommand \| AnnotationCommand \| ResourceCommand \| CalendarCommand \| ProjectCommand \| WholeS... |
-| `DocumentSettingsCommand` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#DocumentSettingsCommand` | -- | type DocumentSettingsCommand = \| { readonly kind: 'setStackDirection'; readonly direction: DocumentSettings['stackDirection'] } \| |
+| `DocumentSettingsCommand` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#DocumentSettingsCommand` | -- | type DocumentSettingsCommand = \| { readonly kind: 'setStackDirection'; readonly stackDirection: DocumentSettings['stackDirection'] } \| |
 | `editAnnotation` | entry | function | `src/use-case/edit-document/edit-annotation.ts#editAnnotation` | -- | function editAnnotation(document: Document, command: AnnotationCommand): EditResult |
 | `editCalendar` | entry | function | `src/use-case/edit-document/edit-calendar.ts#editCalendar` | -- | function editCalendar(document: Document, command: CalendarCommand): EditResult |
 | `editDependency` | entry | function | `src/use-case/edit-document/edit-dependency.ts#editDependency` | -- | function editDependency(document: Document, command: DependencyCommand): EditResult |
@@ -569,7 +577,11 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `wbsSubtreesOf` | entry | function | `src/use-case/edit-document/edit-task-group.ts#wbsSubtreesOf` | PI-9 | `Task` の集合に、`WBS` の子孫をすべて足した集合 —— `CD-1`。 |
 | `WholeScheduleShiftCommand` | entry | type | `src/use-case/edit-document/whole-schedule-shift.ts#WholeScheduleShiftCommand` | -- | type WholeScheduleShiftCommand = \| { readonly kind: 'shiftScheduleToStartDate'; readonly newStartDate: string } // </generated> const COMMAND_ROW = 'CM-99' |
 | `wholeScheduleShiftPreviewOf` | entry | function | `src/use-case/edit-document/whole-schedule-shift.ts#wholeScheduleShiftPreviewOf` | PI-9 | 全体日程シフトの確認（`QN-15`）に出すもの（表 T-379 の `WH-11`）を、書き込む前に数える。 |
+| `anchorColumnsOf` | file only | function | `src/use-case/edit-document/edit-annotation.ts#anchorColumnsOf` | -- | function anchorColumnsOf(anchor: AnnotationAnchor) |
+| `CommentAnchorColumns` | file only | type | `src/use-case/edit-document/edit-annotation.ts#CommentAnchorColumns` | -- | type CommentAnchorColumns = ReturnType<typeof anchorColumnsOf> |
+| `commentBoxesReleasedFrom` | file only | function | `src/use-case/edit-document/edit-annotation.ts#commentBoxesReleasedFrom` | -- | function commentBoxesReleasedFrom(schedule: Schedule, gone: ReleasedTargets): readonly CommentBox[] |
 | `CommentBoxLeaderShapeKind` | file only | type | `src/use-case/edit-document/edit-annotation.ts#CommentBoxLeaderShapeKind` | -- | type CommentBoxLeaderShapeKind = NonNullable<CommentBox['leaderShapeKind']> |
+| `ReleasedTargets` | file only | interface | `src/use-case/edit-document/edit-annotation.ts#ReleasedTargets` | -- | interface ReleasedTargets |
 | `TypedLag` | file only | interface | `src/use-case/edit-document/edit-dependency.ts#TypedLag` | -- | interface TypedLag |
 | `TypedLagUnit` | file only | type | `src/use-case/edit-document/edit-dependency.ts#TypedLagUnit` | -- | type TypedLagUnit = TypedLag['lagUnit'] |
 | `WorkingDayLag` | file only | interface | `src/use-case/edit-document/edit-dependency.ts#WorkingDayLag` | -- | interface WorkingDayLag |
@@ -761,7 +773,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `changedInOrder` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#changedInOrder` | -- | function changedInOrder(writes: readonly (readonly DocumentCommand[])[]): TranslatedInput |
 | `commandFromFieldCommit` | entry | function | `src/adapter/input-command-translator/field-commit.ts#commandFromFieldCommit` | PI-18 | プロパティパネルで確定した値を 表 T-108 の命令にする。 |
 | `commandFromInput` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#commandFromInput` | PI-18 | 割当は 表 T-023 と 表 T-036 |
-| `commentAnchorAt` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#commentAnchorAt` | -- | function commentAnchorAt( layout: ScheduleLayout, x: number, y: number, ): { readonly date: string; readonly taskGroupId: string } \| TranslatedInput |
+| `commentAnchorAt` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#commentAnchorAt` | -- | function commentAnchorAt( layout: ScheduleLayout, snapsFrom: Pick<ScheduleGeometry, 'tasks' \| 'highlightBoxes'>, x: number, y: number, ): PlacedCommentAnchor... |
 | `compareDay` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#compareDay` | -- | function compareDay(a: CalendarDay, b: CalendarDay): number |
 | `CONSUMED_ELSEWHERE` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#CONSUMED_ELSEWHERE` | -- | const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefaultStopped: true } |
 | `CreatedSubject` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#CreatedSubject` | -- | type CreatedSubject = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'taskGroup'; readonly taskGroupId: string } export type InputActio... |
@@ -809,6 +821,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_ZOOM_STEP` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_ZOOM_STEP` | -- | const NOT_STORED_ZOOM_STEP: |
 | `nothingToDo` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#nothingToDo` | -- | function nothingToDo(situation: SpentEntranceSituation \| null): TranslatedInput |
 | `panTo` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#panTo` | -- | function panTo(context: InputContext, dx: number, dy: number): TranslatedInput |
+| `PlacedCommentAnchor` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#PlacedCommentAnchor` | -- | interface PlacedCommentAnchor |
 | `PlacedPlanActual` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#PlacedPlanActual` | -- | type PlacedPlanActual = Extract<DocumentCommand, { kind: 'setTaskPlanActualState' }>['place'] |
 | `placementAt` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#placementAt` | -- | function placementAt(task: Task): PlacedPlanActual \| null |
 | `PointerButton` | entry | type | `src/adapter/input-command-translator/input-source.ts#PointerButton` | -- | type PointerButton = 'left' \| 'middle' \| 'right' |
@@ -973,6 +986,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AppShell` | entry | interface | `src/adapter/document-codec/app-shell-source.ts#AppShell` | -- | interface AppShell |
 | `AppShellReading` | entry | type | `src/adapter/document-codec/app-shell-source.ts#AppShellReading` | -- | type AppShellReading = \| { readonly ok: true; readonly appShell: AppShell } \| { readonly ok: false; readonly what: string } export interface AppShellSource |
 | `AppShellSource` | entry | interface | `src/adapter/document-codec/app-shell-source.ts#AppShellSource` | PI-20 | 表 T-065 |
+| `commandShapeFaults` | entry | function | `src/adapter/document-codec/grs-json-schema.ts#commandShapeFaults` | PI-20 | `pure`。 |
 | `documentFromEmbeddedHtml` | entry | function | `src/adapter/document-codec/embedded-html-codec.ts#documentFromEmbeddedHtml` | PI-20 | `pure`。 |
 | `documentFromJson` | entry | function | `src/adapter/document-codec/json-codec.ts#documentFromJson` | PI-20 | function documentFromJson( text: string, greatestKnownSchemaVersion?: string, ): JsonDecoding |
 | `documentFromMspdi` | entry | function | `src/adapter/document-codec/mspdi-codec.ts#documentFromMspdi` | PI-20 | function documentFromMspdi(text: string, current: Document): MspdiDecoding |
@@ -1876,7 +1890,6 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `FileFlowSurfaceName` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowSurfaceName` | PI-39 | 型。 |
 | `FileFlowWriteForm` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileFlowWriteForm` | PI-39 | 型。 |
 | `FileOperationState` | entry | type | `src/use-case/advance-screen-session/file-flow-values.ts#FileOperationState` | PI-39 | 型。 |
-| `GrabbedVerticalAxis` | entry | type | `src/use-case/advance-screen-session/gesture-values.ts#GrabbedVerticalAxis` | PI-39 | 型。 |
 | `hasCalendarDraftRefusal` | entry | function | `src/use-case/advance-screen-session/calendar-draft.ts#hasCalendarDraftRefusal` | -- | function hasCalendarDraftRefusal(draft: CalendarDraft): boolean |
 | `isHelpStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isHelpStandingIn` | PI-39 | ヘルプが立っているか（`helpDisplayStateMachine` が `shown.normal` か `shown.maximized`）。 |
 | `isWindowStandingIn` | entry | function | `src/use-case/advance-screen-session/screen-values.ts#isWindowStandingIn` | PI-39 | ウィンドウ（`FR-036` の 表 T-335）が立っているか —— 表示の状態機械が `shown.normal` か `shown.maximized`。 |
@@ -2070,4 +2083,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1047 name(s) leave through a public entry (502 of them published by table T-064), 813 more are exported by a file and not by its entry.
+Totals: 1055 name(s) leave through a public entry (507 of them published by table T-064), 818 more are exported by a file and not by its entry.

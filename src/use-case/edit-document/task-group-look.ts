@@ -57,10 +57,10 @@ export function setTaskGroupMinHeightPx(
   if (taskGroup === undefined) {
     return refused([reject('CM-32', 'FR-042', `no such task group: ${command.taskGroupId}`)])
   }
-  if (command.minHeight !== null && !Number.isInteger(command.minHeight)) {
-    return refused([reject('CM-32', 'AT-59', `min height is not an integer: ${command.minHeight}`)])
+  if (command.minHeightPx !== null && !Number.isInteger(command.minHeightPx)) {
+    return refused([reject('CM-32', 'AT-59', `min height is not an integer: ${command.minHeightPx}`)])
   }
   // WHY: a height below the stacks is a floor, not refused; null resets, as no reset command exists.
-  if (taskGroup.minHeightPx === command.minHeight) return edited(document)
-  return edited(withTaskGroup(document, { ...taskGroup, minHeightPx: command.minHeight }))
+  if (taskGroup.minHeightPx === command.minHeightPx) return edited(document)
+  return edited(withTaskGroup(document, { ...taskGroup, minHeightPx: command.minHeightPx }))
 }

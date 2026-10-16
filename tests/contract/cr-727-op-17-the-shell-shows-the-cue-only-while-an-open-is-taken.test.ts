@@ -145,7 +145,7 @@ describe(`FR-087 OP-17 -- ${OP_17_REFUSED}`, () => {
           kind: 'createTaskGroup',
           id: 'a7270000-0000-4000-8000-000000000001',
           parentId: HERE_TASK_GROUP,
-          label: 'From the tester',
+          name: 'From the tester',
           derivedFromTaskUid: null,
           order: 99,
         },

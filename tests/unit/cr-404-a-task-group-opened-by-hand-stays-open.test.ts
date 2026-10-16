@@ -933,7 +933,7 @@ describe(`FR-018 -- ${FR_018_ONLY_T_328}`, () => {
     const fresh = 'bbbbbbbb-0000-4000-8000-000000000001'
     const result = editTaskGroup(
       doc as any,
-      { kind: 'createTaskGroup', id: fresh, parentId: R, label: 'New', derivedFromTaskUid: null, order: 99 },
+      { kind: 'createTaskGroup', id: fresh, parentId: R, name: 'New', derivedFromTaskUid: null, order: 99 },
       'Task group',
     )
     expect(result.ok).toBe(true)

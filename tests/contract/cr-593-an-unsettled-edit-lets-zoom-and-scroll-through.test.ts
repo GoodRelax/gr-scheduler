@@ -93,7 +93,7 @@ const FIT = {
 // WHY: not UN-8, each one a write a widened exemption might admit: the view group, UN-7, the document name.
 const NOT_UN_8: readonly (readonly [string, DocumentCommand])[] = [
   // see UN-13
-  ['CM-64 (UN-13, the view group)', { kind: kindOf('CM-64'), monochrome: true } as unknown as DocumentCommand],
+  ['CM-64 (UN-13, the view group)', { kind: kindOf('CM-64'), isThemeMonochrome: true } as unknown as DocumentCommand],
   // see UN-7
   ['CM-58 (UN-7, also outside the history)', { kind: kindOf('CM-58'), element: 'isBaselineVisible', visible: true } as unknown as DocumentCommand],
   // see UN-13

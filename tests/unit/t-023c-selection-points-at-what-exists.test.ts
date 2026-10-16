@@ -307,6 +307,11 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
           text: 'a note',
           anchorDate: '2026-04-02T00:00:00',
           anchorTaskGroupId: ALPHA,
+          anchorBandFraction: null,
+          anchorTaskUid: null,
+          anchorTaskFigure: null,
+          anchorHighlightBoxId: null,
+          anchorSnapPoint: null,
           bodyOffsetPx: null,
           // WHY: fig-erd-detail AT-148..AT-152 are columns of the CommentBox, each nullable.
           strokeColor: null,

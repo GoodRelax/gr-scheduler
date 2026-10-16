@@ -33,7 +33,7 @@ import {
   type TaskPlacement,
 } from '../schedule-layout/schedule-layout'
 import { drawnSettingsOf, type ScreenRect, type ScreenRegions } from '../screen-regions/screen-regions'
-import { commentGeometry } from './comment-box'
+import { anchorSnapsOf, commentGeometry, type AnchorSnap } from './comment-box'
 import {
   hasPlanDates,
   laneSpansOf,
@@ -51,7 +51,8 @@ import { progressLineOf } from './progress-line'
 import { isThinShape, taskGeometryOf, thinTierMiddle } from './task-figures'
 import { parentTaskGeometryOf, type ParentTaskFamilies, type ParentTaskGeometry } from './parent-task-arrows'
 
-export { commentAnchorPointOf, leaderOf } from './comment-box'
+export { anchorSnapsOf, commentAnchorPointOf, freeAnchorPointOf, leaderOf } from './comment-box'
+export type { AnchorSnap, AnchorSnapPoint, AnchorTarget, AnchorTaskFigure } from './comment-box'
 export { arrowHeadOf, selectedLinksOf } from './dependency-route'
 export { NOT_STORED_DUMMY_SIZES } from './task-figures'
 export type { ParentTaskFamilies } from './parent-task-arrows'
@@ -166,6 +167,8 @@ export interface TaskGeometry {
   readonly hasPlanDates?: boolean
   // WHY: FR-045 / T-304; optional, read as null when absent: a hand-built geometry may not say.
   readonly deadline?: DeadlineGeometry | null
+  // WHY: LF-15's band of this copy (one Task may be drawn in several); optional for hand-built geometry.
+  readonly taskGroupId?: string
 }
 
 // see EL-1, EL-2, EL-10, EL-11, EL-12, EL-20, EL-21
@@ -606,9 +609,12 @@ export function geometryFromLayout(
   const tasks: TaskGeometry[] = []
   for (const placed of layout.placements) {
     const task = inputs.taskByUid.get(placed.taskUid)
-    if (task !== undefined) tasks.push({ ...taskGeometryOf(inputs, task, placed), hasPlanDates: hasPlanDates(task) })
+    if (task !== undefined) {
+      tasks.push({ ...taskGeometryOf(inputs, task, placed), hasPlanDates: hasPlanDates(task), taskGroupId: placed.taskGroupId })
+    }
   }
 
+  const highlights = highlightGeometry(schedule, layout)
   return {
     tasks,
     baselineOutlines: baselineOutlinesOf(schedule, inputs),
@@ -616,11 +622,22 @@ export function geometryFromLayout(
     progressLine: progressLineOf(inputs),
     statusLine: statusLineOf(inputs, regions),
     dualCursor: dualCursorGeometry(dualCursor, layout, regions),
-    highlightBoxes: highlightGeometry(schedule, layout),
-    commentBoxes: commentGeometry(schedule, settings, layout),
+    highlightBoxes: highlights,
+    commentBoxes: commentGeometry(schedule, settings, layout, snapsForTips(schedule, tasks, highlights)),
     parentTasks: parentTaskGeometryOf(inputs, parentTaskFamilies),
     ...pinnedBandOf(layout, regions),
   }
+}
+
+// WHY: LF-15's eight points are listed only while some tip is snapped; otherwise nothing is paid per frame.
+/** @purity pure */
+function snapsForTips(
+  schedule: Schedule,
+  tasks: readonly TaskGeometry[],
+  highlights: readonly HighlightGeometry[],
+): readonly AnchorSnap[] {
+  const isAnySnapped = schedule.commentBoxes.some((box) => (box.anchorSnapPoint ?? null) !== null)
+  return isAnySnapped ? anchorSnapsOf(tasks, highlights) : []
 }
 
 // see FR-098, S-78

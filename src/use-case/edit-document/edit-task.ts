@@ -21,6 +21,7 @@ import {
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult } from './edit-document'
 import { refused, edited, reject } from './edit-document'
+import { commentBoxesReleasedFrom } from './edit-annotation'
 import { documentWithTableViewsKept } from './edit-document-settings'
 import { settledTaskGroup, tasksRankedByTheTaskGroupTree, wbsSubtreesOf } from './edit-task-group'
 import { createTask } from './task-create'
@@ -126,12 +127,16 @@ export type TaskCommand =
       readonly remembered: RememberedActual | null
       readonly snapMinutes?: number
     }
-  | { readonly kind: 'setTaskFadeInDays'; readonly uid: Task['uid']; readonly days: Task['fadeInDays'] }
-  | { readonly kind: 'setTaskFadeOutDays'; readonly uid: Task['uid']; readonly days: Task['fadeOutDays'] }
+  | { readonly kind: 'setTaskFadeInDays'; readonly uid: Task['uid']; readonly fadeInDays: Task['fadeInDays'] }
+  | {
+      readonly kind: 'setTaskFadeOutDays'
+      readonly uid: Task['uid']
+      readonly fadeOutDays: Task['fadeOutDays']
+    }
   | {
       readonly kind: 'setTaskParentTask'
       readonly uid: Task['uid']
-      readonly parentUid: Task['parentTaskUid']
+      readonly parentTaskUid: Task['parentTaskUid']
     }
   | {
       readonly kind: 'moveTaskToTaskGroup'
@@ -146,7 +151,7 @@ export type TaskCommand =
   | {
       readonly kind: 'setTaskVisualMilestoneGlyph'
       readonly uid: Task['uid']
-      readonly glyph: TaskVisual['milestoneGlyph']
+      readonly milestoneGlyph: TaskVisual['milestoneGlyph']
     }
   | {
       readonly kind: 'setTaskVisualColors'
@@ -227,6 +232,50 @@ export function checkDay(text: string): DayCheck {
   return { ok: true, day }
 }
 
+// see CM-7, FR-019
+// WHY: a tip snapped to a deleted Task falls back to a free point in this same command (FR-031).
+/** @purity pure */
+function deleteTask(document: Document, uid: Task['uid'], defaultTaskGroupName: string): EditResult {
+  const schedule = document.schedule
+  const doomed = wbsSubtreesOf(schedule.tasks, [uid])
+
+  const taskGroups: TaskGroup[] = []
+  for (const group of schedule.taskGroups) {
+    if (group.derivedFromTaskUid === null || !doomed.has(group.derivedFromTaskUid)) {
+      taskGroups.push(group)
+      continue
+    }
+    // WHY: settle the name rather than refuse; refusing makes every task drawn on empty space undeletable.
+    taskGroups.push(settledTaskGroup(schedule, group, defaultTaskGroupName))
+  }
+
+  const tasks = schedule.tasks
+    .filter((one) => !doomed.has(one.uid))
+    .map((one) =>
+      one.dependencies.some((link) => doomed.has(link.predecessorUid))
+        ? { ...one, dependencies: one.dependencies.filter((link) => !doomed.has(link.predecessorUid)) }
+        : one,
+    )
+  return edited(
+    documentWithTableViewsKept(withSchedule(document, {
+      ...schedule,
+      tasks,
+      taskVisuals: schedule.taskVisuals.filter((one) => !doomed.has(one.taskUid)),
+      taskOrigins: schedule.taskOrigins.filter((one) => !doomed.has(one.taskUid)),
+      taskGroupMembers: schedule.taskGroupMembers.filter((one) => !doomed.has(one.taskUid)),
+      commentBoxes: commentBoxesReleasedFrom(schedule, {
+        taskUids: doomed,
+        highlightBoxIds: new Set(),
+        isKeptTaskGroup: () => true,
+      }),
+      assignments: schedule.assignments.filter(
+        (one) => one.taskUid === null || !doomed.has(one.taskUid),
+      ),
+      taskGroups,
+    })),
+  )
+}
+
 // see T-108, IV-2
 /** @purity pure */
 export function editTask(document: Document, command: TaskCommand, defaultTaskGroupName: string): EditResult {
@@ -248,40 +297,8 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
     case 'createTask':
       return createTask(document, command, within)
 
-    case 'deleteTask': {
-      const doomed = wbsSubtreesOf(schedule.tasks, [command.uid])
-
-      const taskGroups: TaskGroup[] = []
-      for (const group of schedule.taskGroups) {
-        if (group.derivedFromTaskUid === null || !doomed.has(group.derivedFromTaskUid)) {
-          taskGroups.push(group)
-          continue
-        }
-        // WHY: settle the name rather than refuse; refusing makes every task drawn on empty space undeletable.
-        taskGroups.push(settledTaskGroup(schedule, group, defaultTaskGroupName))
-      }
-
-      const tasks = schedule.tasks
-        .filter((one) => !doomed.has(one.uid))
-        .map((one) =>
-          one.dependencies.some((link) => doomed.has(link.predecessorUid))
-            ? { ...one, dependencies: one.dependencies.filter((link) => !doomed.has(link.predecessorUid)) }
-            : one,
-        )
-      return edited(
-        documentWithTableViewsKept(withSchedule(document, {
-          ...schedule,
-          tasks,
-          taskVisuals: schedule.taskVisuals.filter((one) => !doomed.has(one.taskUid)),
-          taskOrigins: schedule.taskOrigins.filter((one) => !doomed.has(one.taskUid)),
-          taskGroupMembers: schedule.taskGroupMembers.filter((one) => !doomed.has(one.taskUid)),
-          assignments: schedule.assignments.filter(
-            (one) => one.taskUid === null || !doomed.has(one.taskUid),
-          ),
-          taskGroups,
-        })),
-      )
-    }
+    case 'deleteTask':
+      return deleteTask(document, command.uid, defaultTaskGroupName)
 
     case 'setTaskName':
       return edited(withTask(document, { ...task, name: command.name }))
@@ -314,17 +331,17 @@ export function editTask(document: Document, command: TaskCommand, defaultTaskGr
       return setTaskFadeDays(document, command, task)
 
     case 'setTaskParentTask': {
-      if (command.parentUid !== null) {
-        if (taskByUid(schedule, command.parentUid) === null) {
-          return refused([reject('CM-18', 'IV-2', `no Task with uid ${command.parentUid}`)])
+      if (command.parentTaskUid !== null) {
+        if (taskByUid(schedule, command.parentTaskUid) === null) {
+          return refused([reject('CM-18', 'IV-2', `no Task with uid ${command.parentTaskUid}`)])
         }
-        if (wbsSubtreesOf(schedule.tasks, [command.uid]).has(command.parentUid)) {
+        if (wbsSubtreesOf(schedule.tasks, [command.uid]).has(command.parentTaskUid)) {
           return refused([
-            reject('CM-18', 'HM-4', `uid ${command.parentUid} is inside the subtree of ${command.uid}`),
+            reject('CM-18', 'HM-4', `uid ${command.parentTaskUid} is inside the subtree of ${command.uid}`),
           ])
         }
       }
-      return edited(withTask(document, { ...task, parentTaskUid: command.parentUid }))
+      return edited(withTask(document, { ...task, parentTaskUid: command.parentTaskUid }))
     }
 
     case 'moveTaskToTaskGroup': {

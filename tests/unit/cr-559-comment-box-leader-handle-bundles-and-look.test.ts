@@ -199,6 +199,11 @@ const noteRecord = (spec: NoteSpec): Record<string, unknown> => ({
   text: spec.text ?? 'Note',
   anchorDate: day(spec.anchorDay ?? ANCHOR_DAY),
   anchorTaskGroupId: ROW[spec.anchorTaskGroup ?? ANCHOR_TASK_GROUP],
+  anchorBandFraction: null,
+  anchorTaskUid: null,
+  anchorTaskFigure: null,
+  anchorHighlightBoxId: null,
+  anchorSnapPoint: null,
   bodyOffsetPx: { dx: spec.dx ?? 60, dy: spec.dy ?? -60 },
   strokeColor: spec.strokeColor ?? null,
   strokeWidthPx: spec.strokeWidthPx ?? null,
@@ -631,7 +636,7 @@ describe(`T-023d: ${ANCHOR_MOVES_ALONE}`, () => {
   const releaseOn = (loop: FrameLoop, d: number, letter: Letter): Point => {
     const band = taskGroupBand(loop, letter)
     const note = drawnNote(loop)
-    const dayTen = note.anchor.x - pxPerDay(loop) / 2
+    const dayTen = note.anchor.x
     return { x: dayTen + (d - ANCHOR_DAY + 0.2) * pxPerDay(loop), y: band.y + band.height / 2 }
   }
 

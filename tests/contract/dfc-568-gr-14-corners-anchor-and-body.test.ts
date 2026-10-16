@@ -81,22 +81,24 @@ const T_246_HOLDS_THE_VALUES = '**ハイライトボックスの掴み点と枠�
 const T_246_NO_NEW_REFUSAL =
   '⚠️ 同表は新しい拒み方を立てない —— 拒むときの理由は 表 T-233 の `RS-44` であり、運ぶ作法は `FR-029` に従う。'
 const ANCHOR_READ =
-  '⭐ 線先は離した位置で読むこと（MUST） —— 離した点の下の日の列の日を `anchorDate` に、離した点の下に描かれたタスクグループを `anchorTaskGroupId` に置く。'
-const ANCHOR_SAME_AS_PLACING = '置いたときに位置を日付とタスクグループの識別子で持つ読み（`FR-019`）と同じであり、引いた量では読まない。'
+  '⭐ 線先は離した位置で読むこと（MUST） —— 置くとき（表 T-023b の `AR-5`）と同じ読みであり、引いた量では読まない。'
+const ANCHOR_SAME_AS_PLACING =
+  '置くとき（表 T-023b の `AR-5`）と同じ読みであり、引いた量では読まない。'
 const ANCHOR_NO_TASK_GROUP =
-  '離した点の下に描かれたタスクグループが無いときは動かさず、表 T-233 の `RS-44` を運ぶ —— 置くときにタスクグループが無ければ作らない `FR-019` と同じである。'
+  '離した点の下に描かれたタスクグループが無く、吸着する点も無いときは動かさず、表 T-233 の `RS-44` を運ぶ —— 置くときにタスクグループが無ければ作らない `FR-019` と同じである。'
 const ANCHOR_NOT_NEAREST =
-  '⚠️ 四隅（表 T-246 の `HB-4`）と違い、最寄りの境目へは合わせない —— 四隅は日の列の境目に立つが、線先は日を 1 つ指す点であり、その日の列の中央に描く（`05-07-design.md` の 表 T-221 の `LF-15`）。'
+  '⛔ 日の列の中央にも、帯の縦の中央にも寄せてはならない（MUST NOT） —— 寄せると、線先が離した点から帯の高さの半分までずれて描かれる。'
 const ANCHOR_HORIZONTAL =
-  '⭐ 横にだけ引いて離したときにタスクグループが変わらないのは、線先をタスクグループの帯の中央に描き、掴み代 `S-292` が既定で帯の高さの半分より狭いからである —— 表 T-246 の `HB-5` の根拠と同じである。'
+  '⭐ 吸着する点が無いときは、離した点そのものを自由点として持つこと（MUST） —— 横は離した点の日時（分まで）、縦は離した点の下に描かれたタスクグループと、その帯の中の高さとする（`FR-019` の ①）。'
 const FR_019_BODY_OFFSET =
   '⛔ コメントボックスの本文の箱は、留めた点からのずれで置き、その基準隅を左下とすること（MUST） —— **ずれ（`bodyOffsetPx`）は、留めた点から本文の**左下隅**へのものである。**'
-const FR_019_POINT_IS_LF_15 = '⭐ 留めた点を描く位置は `05-07-design.md` の 表 T-221 の `LF-15` が持つ。'
+const FR_019_POINT_IS_LF_15 =
+  '⭐ 自由点と 8 点を描く位置は `05-07-design.md` の 表 T-221 の `LF-15` が持つ。'
 const FR_019_LEADER =
   '⭐ 描き方はこうである（MUST）: 留めた点と、本文の箱の 4 隅のうち `05-07-design.md` の 表 T-221 の `LF-17` が選ぶ 1 隅とを、1 本の線で結ぶこと。'
 const LF_15 =
-  '横は `anchorDate` の日の列の中央、縦は `anchorTaskGroupId` のタスクグループが描かれた帯（`LF-2` / `LF-3`、ピン止めしたタスクグループは `LF-14`）の中央とする。'
-const LF_15_BODY_FOLLOWS = '⚠️ 本文の箱は留めた点からのずれで置く（`FR-019`）ので、ずれを書かずにアンカーだけを書くと、箱もアンカーと共に動く'
+  '⭐ 自由点（`01-04-requirements.md` の `FR-019` の ①） —— 横は `anchorDate` の日時（分まで）を時間軸に置いた位置'
+const LF_15_BODY_FOLLOWS = '⚠️ 本文の箱は線先からのずれで置く（`FR-019`）ので、ずれを書かずに線先だけを書くと、箱も線先と共に動く'
 
 const IV_19 ='ハイライトボックスの `start` が `finish` より後でないこと、および `topTaskGroupId` が `bottomTaskGroupId` より下でないこと。'
 
@@ -162,7 +164,15 @@ const CM_50_ROW = '| CM-50 | `CommentBox` | `setCommentBoxAnchor` |'
 const CM_51_ROW = '| CM-51 | `CommentBox` | `setCommentBoxBodyOffsetPx` |'
 
 const CM_54_COLUMNS = ['start', 'finish', 'topTaskGroupId', 'bottomTaskGroupId'] as const
-const CM_50_COLUMNS = ['anchorDate', 'anchorTaskGroupId'] as const
+const CM_50_COLUMNS = [
+  'anchorDate',
+  'anchorTaskGroupId',
+  'anchorBandFraction',
+  'anchorTaskUid',
+  'anchorTaskFigure',
+  'anchorHighlightBoxId',
+  'anchorSnapPoint',
+] as const
 const CM_51_COLUMNS = ['bodyOffsetPx'] as const
 
 const t206Default = (rowId: string): string => {
@@ -289,6 +299,11 @@ function fixtureDocument(fixture: Fixture = {}): Document {
           text: 'Note',
           anchorDate: day(22),
           anchorTaskGroupId: TASK_GROUP_F,
+          anchorBandFraction: null,
+          anchorTaskUid: null,
+          anchorTaskFigure: null,
+          anchorHighlightBoxId: null,
+          anchorSnapPoint: null,
           bodyOffsetPx: { dx: 60, dy: -60 },
         },
       ],
@@ -1022,7 +1037,7 @@ describe('DFC-568 comment box: no corners; the body writes CM-51 alone and the a
     expect(commentDrawn(built.loop).body.y, 'the box moved up or down').toBeCloseTo(drawn.body.y, 1)
   })
 
-  for (const [label, shift] of [['on the anchor', 0], ['within S-292 of the anchor', -S_292 / 2]] as const) {
+  for (const [label, shift] of [['on the anchor', 0], ['within S-292 of the anchor', S_292 / 2]] as const) {
     it(`${COMMENT_ANCHOR_ALONE} -- a press ${label} pins the anchor three days on and keeps the box still`, () => {
       const built = stage()
       const drawn = commentDrawn(built.loop)
@@ -1137,11 +1152,11 @@ describe('DFC-568 JDG-72 premises: the anchor clauses read verbatim', () => {
   })
 })
 
-describe('DFC-568 T-221 LF-15: the anchor is drawn at the day column center and the band center', () => {
+describe('DFC-568 T-221 LF-15: the anchor is drawn at its instant (00:00 = the column left edge) and the band center (a null fraction)', () => {
   it(`${LF_15} -- day 22 of task group F`, () => {
     const built = stage()
     const anchor = commentDrawn(built.loop).anchor
-    expect(anchor.x, 'the anchor is not at the center of the day 22 column').toBeCloseTo(dayColumnLeft(built, ANCHOR_DAY) + pxPerDay(built.loop) / 2, 1)
+    expect(anchor.x, 'the anchor is not at the left edge of the day 22 column (00:00)').toBeCloseTo(dayColumnLeft(built, ANCHOR_DAY), 1)
     expect(anchor.y, 'the anchor is not at the center of the task group F band').toBeCloseTo(bandCenter(built.loop, TASK_GROUP_F), 1)
   })
 
@@ -1149,7 +1164,7 @@ describe('DFC-568 T-221 LF-15: the anchor is drawn at the day column center and 
     const built = stage({ pinned: [TASK_GROUP_F] })
     const anchor = commentDrawn(built.loop).anchor
     expect(anchor.y).toBeCloseTo(bandCenter(built.loop, TASK_GROUP_F), 1)
-    expect(anchor.x).toBeCloseTo(dayColumnLeft(built, ANCHOR_DAY) + pxPerDay(built.loop) / 2, 1)
+    expect(anchor.x).toBeCloseTo(dayColumnLeft(built, ANCHOR_DAY), 1)
   })
 })
 
