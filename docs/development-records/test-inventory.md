@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 397 | 5008 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 399 | 5034 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 91 | 591 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 183 | 3877 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 691 | 9586 | 11 | 8 | 13 | 2 |
+| **all** | | | 693 | 9612 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -484,6 +484,8 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-777-the-tip-stands-at-its-point-and-follows-its-target.contract.test.ts` | 21 | FR-019 | - | - | AT-167, GR-14, LF-15, S-292 | - | - | - | - |
 | `tests/contract/cr-780-a-write-that-changes-nothing-raises-no-unsaved-edits.test.ts` | 15 | FR-095, FR-100 | VT-2 | T-036, T-290 | K-146, QN-5, SK-6, ZE-4 | - | - | - | - |
 | `tests/contract/cr-781-fr-130-rw-1-rw-3-ic-107-closes-the-open-report-and-ic-167-ends-the-diagnosis.contract.test.ts` | 19 | FR-038, FR-130, FR-133 | - | T-315, T-346 | DG-1, DG-2, DG-3, EN-2, IC-21, IC-40, IC-52, IC-107, IC-140, IC-156, IC-167, RW-1, RW-3, RW-16 | - | - | - | - |
+| `tests/contract/cr-782-a-placed-comment-box-is-selected-and-takes-text.contract.test.ts` | 16 | FR-019 | VT-2 | T-217, T-293 | AR-5, CM-46, LF-17, PR-21, S-600, SD-3, SL-7b | - | - | - | - |
+| `tests/contract/cr-782-the-comment-box-body-and-leader-show-the-palm.contract.test.ts` | 10 | FR-106 | - | T-269 | GR-14, PK-8, PK-11 | - | - | - | - |
 | `tests/contract/dfc-1000-hf-10-the-open-all-stance-counts-every-placed-task-group.test.ts` | 9 | - | - | T-051, T-109 | HF-2, HF-10, IC-58, IC-74, RS-31 | - | - | - | - |
 | `tests/contract/dfc-1013-tl-12-the-delay-days-are-told-only-in-the-ez-6-tip.test.ts` | 7 | FR-047 | - | T-038, T-348 | DX-10, EZ-6, OC-8, TL-12 | - | - | - | - |
 | `tests/contract/dfc-1015-fr-019-a-hidden-end-task-group-shrinks-the-frame.test.ts` | 5 | FR-019, UC-008 | - | - | - | - | - | - | - |
@@ -808,7 +810,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/cr-555-the-continuation-mark-sends-the-view.test.ts` | 17 | FR-018, FR-098 | - | T-023, T-027, T-205, T-270, T-303 | CM-65, CM-66, EL-2, EL-10, EL-11, EL-12, MK-13, OP-10a, PE-12, S-78, S-176, UN-8 | - | - | - | - |
 | `tests/unit/cr-556-the-deadline-arrow.test.ts` | 38 | FR-045, FR-094 | - | T-012, T-020, T-028, T-038, T-040, T-076, T-304 | DA-1, DA-2, DA-3, DA-4, DA-5, DA-6, DA-7, EP-5, EZ-6, IN-7, OC-9, S-7, S-146, S-364, S-365, S-366, S-367, SH-5, TL-9, TL-11, WY-3, ZO-1, ZO-2, ZO-3, ZO-4, ZO-5, ZO-8, ZO-13, ZO-16 | - | - | - | - |
 | `tests/unit/cr-558-highlight-box-grab-points-stroke-and-fill.test.ts` | 48 | FR-019, FR-106 | - | T-023d, T-108, T-206, T-217, T-236, T-246, T-269, T-294 | AT-116, CM-55, CM-77, CM-78, CM-79, CV-1, CV-3, CV-6, GR-14, HB-6, HB-7, HB-8, HB-9, HB-10, HB-11, HB-12, S-146, S-151, S-174, S-230, S-293, S-369, S-370, S-371, S-372, S-373, ZO-14 | - | - | - | - |
-| `tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts` | 50 | FR-019, FR-097, FR-106 | - | T-023d, T-108, T-206, T-217, T-221, T-236, T-269, T-294 | AT-110, AT-148, AT-152, CM-51, CM-80, CM-81, CM-82, CM-83, CM-84, CV-1, CV-3, CV-6, LF-17, PK-11, S-208, S-292, S-374, S-375, S-376 | - | - | - | - |
+| `tests/unit/cr-559-comment-box-leader-handle-bundles-and-look.test.ts` | 50 | FR-019, FR-097, FR-106 | - | T-023d, T-108, T-206, T-217, T-221, T-236, T-269, T-294 | AT-110, AT-148, AT-152, CM-51, CM-80, CM-81, CM-82, CM-83, CM-84, CV-1, CV-3, CV-6, LF-17, PK-8, PK-11, S-208, S-292, S-374, S-375, S-376 | - | - | - | - |
 | `tests/unit/cr-560-ctrl-drag-copies-the-selection-unstarted.test.ts` | 42 | FR-036, FR-111 | - | T-019a, T-023, T-023a, T-028, T-108, T-109, T-223, T-269, T-308 | CM-8, CM-28, CY-1, CY-2, CY-3, CY-5, CY-6, CY-7, CY-8, CY-9, CY-10, CY-11, DU-1, DU-2, GA-2, GA-9, IN-2, MK-7, MK-15, PK-16, PTD-1, PTD-7, S-1, S-75, S-208, SK-4, SK-5 | - | - | - | - |
 | `tests/unit/cr-565-a-grs-json-is-written-to-its-own-schema.test.ts` | 19 | FR-024, FR-073 | - | T-036, T-103, T-220, T-233 | AM-2, OP-6, RS-25, RS-63, RS-64, S-81, S-350 | - | - | - | - |
 | `tests/unit/cr-567-an-imported-leaf-task-sits-on-its-parents-task-group.test.ts` | 19 | FR-058 | - | T-015a | HM-9, HM-12, IV-6, MR-4, S-125, ST-2 | - | - | - | - |

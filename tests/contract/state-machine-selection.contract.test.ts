@@ -125,6 +125,7 @@ const EVENT_VARIANTS: Readonly<Record<string, readonly Loose[]>> = {
     { remainingObjects: NOTHING, chosenTaskGroups: [] },
   ],
   createdTaskSelected: [{ createdTaskUid: 3 }, { createdTaskUid: 8 }],
+  createdCommentBoxSelected: [{ createdCommentBoxId: 'box7' }, { createdCommentBoxId: 'box1' }],
   taskGroupsPicked: [{ chosenTaskGroups: TASK_GROUPS }, { chosenTaskGroups: ['group3'] }, { chosenTaskGroups: [] }],
   createdTaskGroupSelected: [{ createdTaskGroupId: 'group9' }, { createdTaskGroupId: 'group4' }],
   resourcesPicked: [{ chosenResources: RESOURCES }, { chosenResources: [5] }, { chosenResources: [] }],
@@ -189,6 +190,8 @@ function expectedSelected(event: Loose): { items: unknown; ordered?: unknown; sa
       return { items: itemsOf(event['remainingObjects']), same: event['remainingObjects'] }
     case 'createdTaskSelected':
       return { items: [{ kind: 'task', uid: event['createdTaskUid'] }] }
+    case 'createdCommentBoxSelected':
+      return { items: [{ kind: 'commentBox', id: event['createdCommentBoxId'] }] }
     default:
       throw new Error(`no oracle for what ${String(event['type'])} selects`)
   }

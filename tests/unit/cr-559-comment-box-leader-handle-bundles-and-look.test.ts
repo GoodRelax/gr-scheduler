@@ -876,7 +876,7 @@ describe(`FR-106: ${FR_106_ANCHOR}`, () => {
     expect(pointerImageOf(row as never)).toBe(environmentShapeOf('PK-11'))
   })
 
-  it('the body and the leader keep no pointer of their own (CR-559 section 10)', () => {
+  it('the body and the leader show the palm, PK-8 (FR-106, CR-782)', () => {
     const built = stage()
     const note = drawnNote(built.loop)
     const leader = leaderOf(note)!
@@ -884,8 +884,8 @@ describe(`FR-106: ${FR_106_ANCHOR}`, () => {
     const line = hitAt(built.loop, { x: (leader[0]!.x + leader[1]!.x) / 2, y: (leader[0]!.y + leader[1]!.y) / 2 })
     expect(body?.boxPart).toEqual({ kind: 'body' })
     expect(line?.boxPart).toEqual({ kind: 'leader' })
-    expect(pointerRowOf(body as never, false)).toBeNull()
-    expect(pointerRowOf(line as never, false)).toBeNull()
+    expect(pointerRowOf(body as never, false)).toBe('PK-8')
+    expect(pointerRowOf(line as never, false)).toBe('PK-8')
   })
 
   for (const selected of [false, true]) {
