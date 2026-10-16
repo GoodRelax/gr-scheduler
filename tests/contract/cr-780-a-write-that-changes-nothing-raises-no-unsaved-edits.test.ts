@@ -246,7 +246,7 @@ describe(`(c) the Agent API write path -- ${CLAUSE_UNCHANGED_WRITE_RAISES_NOTHIN
   })
 })
 
-// see SK-6 (T-036 spells the key as Z)
+// see SK-6, T-036
 const UNDO = { kind: 'key', key: 'Z', modifiers: { ctrl: true, shift: false, alt: false, meta: false } } as never
 
 const highlightFinish = (stage: ExportStage): string =>
