@@ -13,7 +13,7 @@ import {
   textOfStartSide,
   type CalendarDay,
 } from '../../entity/document-model/schedule/schedule'
-import { snapMinutesOf, snappedInstantAtX } from '../../entity/layout-engine/schedule-layout/schedule-layout'
+import { snappedInstantAtX } from '../../entity/layout-engine/schedule-layout/schedule-layout'
 import {
   dependencyEndAtPointer,
   dependencyStartOfHit,
@@ -35,6 +35,7 @@ import {
   milestoneGlyphOf,
   nextIssuedUid,
   nothingToDo,
+  releasedSnapOf,
   taskGroupAtY,
   taskGroupRankById,
   taskShapeKindOf,
@@ -174,7 +175,7 @@ function createdSpanOnFineSnap(
   isMilestone: boolean,
 ): { readonly start: string; readonly finish: string } | null {
   const { press, release } = drag
-  const snap = snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, release.modifiers.alt)
+  const snap = releasedSnapOf(context, release)
   if (snap >= MINUTES_PER_CALENDAR_DAY) return null
   const from = snappedInstantAtX(context.layout, press.at.x, snap)
   const to = snappedInstantAtX(context.layout, release.x, snap)

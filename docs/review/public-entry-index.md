@@ -831,6 +831,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `PointerPress` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#PointerPress` | -- | interface PointerPress |
 | `pressedRowOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#pressedRowOf` | PI-18 | 押下がどの行で始まったかを答える。 |
 | `PressRow` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#PressRow` | PI-18 | 型。 |
+| `releasedSnapOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#releasedSnapOf` | -- | function releasedSnapOf(context: InputContext, release: PointerInput): number |
 | `rememberedActualIn` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#rememberedActualIn` | -- | function rememberedActualIn(context: InputContext, taskUid: number): RememberedActual \| null |
 | `screenEventFromFieldCommit` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromFieldCommit` | PI-18 | 確定した欄のうち、画面の値の下書き（表 T-280 の `baseTimeZoneDraftStateMachine`・`timeShiftDraftStateMachine`・`calendarDraftStateMachine`）へ行くものの出来事 —— `FO-14`・`FO-16`・表 T-344 の `...` |
 | `screenEventFromInput` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#screenEventFromInput` | PI-18 | 入力から画面の値の出来事を 1 つ作る。 |
@@ -2083,4 +2084,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1055 name(s) leave through a public entry (507 of them published by table T-064), 818 more are exported by a file and not by its entry.
+Totals: 1056 name(s) leave through a public entry (507 of them published by table T-064), 818 more are exported by a file and not by its entry.

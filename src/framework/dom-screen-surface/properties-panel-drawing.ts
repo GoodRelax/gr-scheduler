@@ -259,7 +259,6 @@ function growWrappingField(field: Element): void {
 }
 
 // see FR-006, S-589, S-590
-// WHY: run after the panel is laid out; a new width re-wraps the text fields and re-sizes the host date entries.
 /** @purity non-pure */
 export function fitPanelFields(panel: HTMLElement): void {
   growWrappingFields(panel)
@@ -281,7 +280,6 @@ function matchDateSizedFields(panel: HTMLElement): void {
 
 const DATE_SIZED_FIELD_ATTRIBUTE = 'data-field-sized-as-date'
 const DATE_ENTRY_SELECTOR = 'input[type="date"], input[type="datetime-local"]'
-// see https://dom.spec.whatwg.org/#dom-node-document_position_following
 const DOCUMENT_POSITION_FOLLOWING = 4
 
 // see FR-006

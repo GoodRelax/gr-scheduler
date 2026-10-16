@@ -40,7 +40,6 @@ import {
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   groupDepthThresholdOf,
-  snapMinutesOf,
   snappedInstantAtX,
   type TaskGroupPlacement,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
@@ -71,6 +70,7 @@ import {
   grabTaskGroupOf,
   hasDraggedPastThreshold,
   isDateKeepingDrag,
+  releasedSnapOf,
   isScrollPositionInForce,
   isSwallowedSecondPress,
   nothingToDo,
@@ -544,11 +544,6 @@ function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): Docum
 /** @purity pure */
 function snappedStartShift(start: number, pulled: number, snap: number): number {
   return Math.round((start + pulled) / snap) * snap - start
-}
-
-/** @purity pure */
-function releasedSnapOf(context: InputContext, release: PointerInput): number {
-  return snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, release.modifiers.alt)
 }
 
 /** @purity pure */
