@@ -258,9 +258,33 @@ function growWrappingField(field: Element): void {
   if (box.scrollHeight > box.clientHeight) style.height = `${box.scrollHeight + frameHeight}px`
 }
 
+// see FR-006, S-589, S-590
+/** @purity non-pure */
+export function fitPanelFields(panel: HTMLElement): void {
+  growWrappingFields(panel)
+  matchDateSizedFields(panel)
+}
+
+// see FR-006, PR-5, DFC-2870
+// WHY: a host date entry outgrows its em floor at small type (its picker is fixed px), so the field copies the drawn width of the date entry before it.
+/** @purity non-pure */
+function matchDateSizedFields(panel: HTMLElement): void {
+  if (typeof panel.querySelectorAll !== 'function') return
+  const dates = Array.from(panel.querySelectorAll<HTMLElement>(DATE_ENTRY_SELECTOR))
+  for (const field of Array.from(panel.querySelectorAll<HTMLElement>(`[${DATE_SIZED_FIELD_ATTRIBUTE}]`))) {
+    const before = dates.filter((one) => (one.compareDocumentPosition(field) & DOCUMENT_POSITION_FOLLOWING) !== 0)
+    const width = before[before.length - 1]?.offsetWidth ?? 0
+    if (width > 0) field.style.width = `${width}px`
+  }
+}
+
+const DATE_SIZED_FIELD_ATTRIBUTE = 'data-field-sized-as-date'
+const DATE_ENTRY_SELECTOR = 'input[type="date"], input[type="datetime-local"]'
+const DOCUMENT_POSITION_FOLLOWING = 4
+
 // see FR-006
 /** @purity non-pure */
-export function growWrappingFields(panel: HTMLElement): void {
+function growWrappingFields(panel: HTMLElement): void {
   if (typeof panel.querySelectorAll !== 'function') return
   for (const field of Array.from(panel.querySelectorAll(`[${WRAPPING_FIELD_ATTRIBUTE}]`))) {
     growWrappingField(field)
@@ -301,9 +325,10 @@ function controlElement(
   control: PropertyControl,
   typedByRow: Map<string, TextEntryControl> | null,
 ): HTMLElement {
-  const tag = CONTROL_TAG[control.kind]
+  const isSizedAsDate = control.isSizedAsDate === true
+  const tag = isSizedAsDate ? 'input' : CONTROL_TAG[control.kind]
   const drawn = host.createElement(tag)
-  const isWrapping = IS_KIND_WRAPPING[control.kind]
+  const isWrapping = IS_KIND_WRAPPING[control.kind] && !isSizedAsDate
   drawn.setAttribute('style', controlStyleOf(control, isWrapping))
   markControl(drawn, control)
   if (isWrapping) {
@@ -312,6 +337,7 @@ function controlElement(
   }
   drawn.setAttribute('data-field-row', row)
   drawn.setAttribute('data-field-kind', control.kind)
+  if (isSizedAsDate) drawn.setAttribute(DATE_SIZED_FIELD_ATTRIBUTE, 'true')
 
   const inputType = control.isDateTime === true ? DATE_TIME_INPUT_TYPE : CONTROL_INPUT_TYPE[control.kind]
   if (inputType !== null) drawn.setAttribute('type', inputType)
