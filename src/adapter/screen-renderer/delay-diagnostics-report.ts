@@ -98,6 +98,7 @@ const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnostics Report'
 const EXPORT_ENTRY: IconId = 'IC-140'
 const COPY_ENTRY: IconId = 'IC-108'
 const TEXT_SIZE_ENTRY: IconId = 'IC-127'
+const END_DIAGNOSTICS_ENTRY: IconId = 'IC-167'
 
 const HEADING = displayWords.surfaces.find((entry) => entry.name === DELAY_DIAGNOSTICS_REPORT)?.heading
 
@@ -612,7 +613,7 @@ function diagnosisReportViewOf(
     textSizeStep: layout.textSizeStep,
     tableEntries: [clearEntryOf(view, language), scheduleFilter],
     titleEntries: [entryOf(TEXT_SIZE_ENTRY, language), ...windowTitleEntriesOf(window.shown, language)],
-    toolEntries: [entryOf(EXPORT_ENTRY, language), entryOf(COPY_ENTRY, language)],
+    toolEntries: reportToolEntriesOf(language),
     word: window.panel.word,
     summary: isOpen ? summaryOf(report, all, language, true) : [],
     ...windowColumnsViewOf(window, view, table, language),
@@ -624,6 +625,13 @@ function diagnosisReportViewOf(
     showHeading: visibilityHeadingOf(rows),
     entryRefusals: scheduleFilterRefusalsOf(scheduleFilter, language),
   }
+}
+
+// see RW-3, IC-167, IC-140, IC-108
+// WHY: IC-167 stands at the left end with its word in every table of the window (RW-11); the fix views keep these.
+/** @purity pure */
+function reportToolEntriesOf(language: DisplayLanguage): readonly CommandItem[] {
+  return [{ ...entryOf(END_DIAGNOSTICS_ENTRY, language), isLabelShown: true }, entryOf(EXPORT_ENTRY, language), entryOf(COPY_ENTRY, language)]
 }
 
 /** @purity pure */
