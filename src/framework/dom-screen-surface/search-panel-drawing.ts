@@ -736,7 +736,7 @@ function summaryItemElement(host: Document, one: NonNullable<TableWindowView['su
 // see RW-3, RW-4, RO-3
 /** @purity non-pure */
 function aboveTableElements(host: Document, view: TableWindowView, fontPx: number, anchors: Map<string, HTMLElement>, role: string): readonly HTMLElement[] {
-  const tools = view.toolEntries === undefined ? [] : view.toolEntries.map((item) => anchoredEntry(host, item, anchors, role))
+  const tools = (view.toolEntries ?? []).map((item) => toolEntry(host, item, { fontPx, anchors, role }))
   const word = wordFieldElement(host, view.word, fontPx)
   if (tools.length > 0) word.setAttribute('style', (word.getAttribute('style') ?? '') + WORD_BESIDE_TOOLS_STYLE)
   const line = made(host, 'div', TOOL_LINE_STYLE)
@@ -755,6 +755,15 @@ function wordedEntry(host: Document, item: CommandItem, anchors: Map<string, HTM
   const entry = anchoredEntry(host, item, anchors, role)
   entry.append(count === undefined ? item.label : `${item.label} (${count})`)
   entry.setAttribute('style', (entry.getAttribute('style') ?? '') + 'width:auto;padding:0 0.5em;white-space:nowrap;justify-content:flex-start;')
+  return entry
+}
+
+// see RW-3, IC-167, S-429
+/** @purity non-pure */
+function toolEntry(host: Document, item: CommandItem, at: EntryPlace): HTMLElement {
+  if (item.isLabelShown !== true) return anchoredEntry(host, item, at.anchors, at.role)
+  const entry = wordedEntry(host, item, at.anchors, at.role)
+  entry.setAttribute('style', (entry.getAttribute('style') ?? '') + `font-size:${at.fontPx}px;`)
   return entry
 }
 

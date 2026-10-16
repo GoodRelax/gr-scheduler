@@ -153,6 +153,7 @@ export interface CommandItem {
   readonly label: string
   // see TV-12, EN-8
   readonly isScheduleFilterApplied?: boolean
+  readonly isLabelShown?: boolean
 }
 
 export interface ScreenFrame {
@@ -802,6 +803,7 @@ export interface ScreenViewReadings {
     readonly closeOnlyTitledSurface?: { readonly x: number; readonly y: number } | null
   }
   readonly isDelayDiagnosticsShown?: boolean
+  readonly isDelayDiagnosticsReportOpen?: boolean
   readonly isParentTaskLinksShown?: boolean
   readonly parentTaskChoice?: ParentTaskChoice | null
   // see RW-1, S-451

@@ -155,7 +155,7 @@ function commandStateOf(
       return { isEnabled: true, isPressed: readings.isAgentApiEnabled }
 
     case DELAY_DIAGNOSTICS_ENTRY:
-      return { isEnabled: true, isPressed: readings.isDelayDiagnosticsShown === true }
+      return { isEnabled: true, isPressed: readings.isDelayDiagnosticsReportOpen === true }
 
     default:
       return USABLE_AND_OFF

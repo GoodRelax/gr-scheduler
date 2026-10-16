@@ -505,6 +505,7 @@ const SEARCH_FILTER_ENTRY: IconId = 'IC-122'
 const SEARCH_CLEAR_ENTRY: IconId = 'IC-153'
 
 const DELAY_DIAGNOSTICS_ENTRY: IconId = 'IC-107'
+const END_DIAGNOSTICS_ENTRY: IconId = 'IC-167'
 const PROGRESS_MARKER_ENTRY: IconId = 'IC-40'
 
 type DelayDiagnosticsDrawing = NonNullable<Parameters<typeof geometryFromLayout>[6]>
@@ -1067,6 +1068,7 @@ interface ScreenViewReadingsTaken {
   readonly drawnTaskUids?: ReadonlySet<number> | null
   readonly windowPlaces?: NonNullable<ScreenViewReadings['windowPlaces']>
   readonly isDelayDiagnosticsShown?: boolean
+  readonly isDelayDiagnosticsReportOpen?: boolean
   readonly isParentTaskLinksShown?: boolean
   readonly parentTaskChoice?: NonNullable<ScreenViewReadings['parentTaskChoice']> | null
   readonly jumpRipple?: ScreenViewReadings['jumpRipple']
@@ -1912,6 +1914,32 @@ function closingHoldOf(read: () => WindowPlaces, write: (next: WindowPlaces) => 
     closedTablesOf(read(), next).forEach(letGo)
     write(next)
   }
+}
+
+// see RW-1, S-451, JDG-2418
+/** @purity pure */
+function isDelayDiagnosticsReportOpen(isDelayDiagnosticsShown: boolean, report: DelayDiagnosticsReportWindow | null): boolean {
+  return isDelayDiagnosticsShown && report !== null
+}
+
+interface DelayDiagnosticsPress {
+  readonly isReportOpen: boolean
+  readonly show: (isShown: boolean) => void
+  readonly closeReport: () => boolean
+}
+
+// see FR-130, RW-1, RW-3, IC-52, IC-167, JDG-2197, JDG-2199
+// WHY: null is an entry of neither; an open window (minimized included) closes as its IC-52 does and the marks stay.
+/** @purity non-pure */
+function answerDelayDiagnosticsEntry(entry: IconId, surface: string | null, press: DelayDiagnosticsPress): boolean | null {
+  if (entry === END_DIAGNOSTICS_ENTRY && surface === DELAY_DIAGNOSTICS_REPORT_SURFACE) {
+    press.show(false)
+    return true
+  }
+  if (entry !== DELAY_DIAGNOSTICS_ENTRY) return null
+  if (press.isReportOpen) return press.closeReport()
+  press.show(true)
+  return true
 }
 
 // see T-335, RO-1, RW-1, TV-8, WB-6
@@ -3066,6 +3094,7 @@ export function frameLoop(
           zoomEntranceEnds: zoomEntranceEndsAt(values, held.document, environment.taskGroupControlsHeightPx, collectInputContext),
           ...windows.readings(session, delayDiagnosticsNow(), shownTasks.drawnSet(), documentFileFlow),
           ...parentTasks.readings(session, delayDiagnosticsShown),
+          isDelayDiagnosticsReportOpen: isDelayDiagnosticsReportOpen(delayDiagnosticsShown, windows.report()),
           jumpRipple: owedJump.rippleOf(session.screen, layout, geometry, regions),
         }),
       )
@@ -3652,6 +3681,9 @@ export function frameLoop(
       sendToSession(PANEL_CLOSE_ASKED, frame)
       return true
     }
+    const isReportOpen = isDelayDiagnosticsReportOpen(delayDiagnosticsShown, windows.report())
+    const diagnosisAnswer = answerDelayDiagnosticsEntry(entry, surface, { isReportOpen, show: showDelayDiagnostics, closeReport: () => answerReportEntry(CLOSE_SURFACE_ENTRY, null) })
+    if (diagnosisAnswer !== null) return diagnosisAnswer
     if (surface === DELAY_DIAGNOSTICS_REPORT_SURFACE && answerReportEntry(entry, filterColumn, listed)) return true
     const rows = { schedule: held.document.schedule, language: screenLanguageIn(session), chosenResourceUids: session.selection.chosenResources, hands, frame }
     const tableWindowAnswer = answerTableWindowEntry({ entry, surface, filterColumn, listed }, windows, shownTasks, rows)
@@ -3661,10 +3693,6 @@ export function frameLoop(
     )
     if (searchStep !== null) {
       shownTasks.holdSearchStep(searchStep, frame)
-      return true
-    }
-    if (entry === DELAY_DIAGNOSTICS_ENTRY) {
-      showDelayDiagnostics(!delayDiagnosticsShown || windows.report() === null)
       return true
     }
     if (parentTasks.isToggledBy(entry)) return true

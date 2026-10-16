@@ -5006,6 +5006,37 @@
    ]
   },
   {
+   "rowId": "IC-167",
+   "elements": [
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M12 3.45 Q17.13 9.1 18.84 15.04 Q18.27 21.12 12 21.5 Q5.73 21.12 5.16 15.04 Q5.92 10.48 8.96 8.2 Q9.62 12.19 12 12.76 Q10.86 7.68 12 3.45 Z"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    },
+    {
+     "tag": "path",
+     "attributes": [
+      {
+       "name": "d",
+       "value": "M4 20 L20 4"
+      },
+      {
+       "name": "style",
+       "value": "fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round"
+      }
+     ]
+    }
+   ]
+  },
+  {
    "rowId": "IC-140",
    "elements": [
     {
