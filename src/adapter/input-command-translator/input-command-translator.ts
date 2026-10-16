@@ -42,6 +42,7 @@ import type {
 } from '../../entity/layout-engine/schedule-geometry/schedule-geometry'
 import {
   dateAtX,
+  snapMinutesOf,
   taskGroupAnchorIn,
   taskGroupPlacesAtZoomY,
   xFromDay,
@@ -425,6 +426,12 @@ function isAssignedPointerCombo(modifiers: InputModifiers): boolean {
 /** @purity pure */
 function isCtrlDragCombo(modifiers: InputModifiers): boolean {
   return isCombo(modifiers, true, false, false) || isCombo(modifiers, true, true, false)
+}
+
+// see FR-103, T-378, SG-4
+/** @purity pure */
+export function releasedSnapOf(context: InputContext, release: PointerInput): number {
+  return snapMinutesOf(context.layout.pxPerDay, context.document.documentSettings, release.modifiers.alt)
 }
 
 // see MK-16, CY-5, CY-11, T-270

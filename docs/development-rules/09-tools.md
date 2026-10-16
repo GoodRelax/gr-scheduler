@@ -364,3 +364,7 @@ hook は `sweep` と `stats` を自動で走らせるので、Claude のセッ�
 | 検査 80 `check-drafted-ruling-cited.py` | 状態の欄が `指示 —— CR-n が当てる` の裁定行で、`change-request/CR-n-*.md` が在るのにその JDG を引いていないもの | 別の書き方の状態（`のあいだ` など）。CR が名を挙げるだけで当てていないこと | `check.sh` |
 | 検査 81 `check-spec-rests-on-src.py` | 仕様の文が、仕様のどこにも無く src にだけ在る名に権威を預ける形（`list-inverted-authority.py` の `find`。「表 T-nnn の」の後の名は仕様の内側として除く）／理由つきの除外 `spec-rests-on-src-exempt.txt` のうち、もう何にも当たらない行 | コードの側の食い違い（仕様だけを読む試験役と `GT-2` が拾う）。`DEFERS` に無い動詞で預ける文 | `check.sh` |
 | `tools/session_brief.py` | 課題・帯・持ち物の欠け／形の崩れた帯・逆向きの帯・重なる帯／持ち物の重なり（`body_brief.py` の判定を import）／関門のポート 5992。雛形 `tools/session-brief.md` の差し込みが 1 つでも残れば刷らない | 課題の 1 行が明確か、持ち物が正しいか。調整役がこの道具を使ったか（05 の 13 節が使えと言う） | 調整役が手で（チップを出す前） |
+| `tools/test_route.py` | 範囲（既定 `origin/refactor..HEAD`）の合流した差分を、04 の 7.2 の経路の表に上から当て、PERF・e2e（部分を先に／`GT-2` の中）・`GT-2`・体が操る探りの要否と順を刷る。探りが要るのは、範囲に入った確かめ表（`docs/review/`）の行のうち、行 ID をどの `tests/system/`・`tests/use-case/` のファイルも引かない行。赤にはせず推奨を刷る。`--self-test` は 11 の範囲と、規則の表の食い違い 2 つ | 試験が行 ID を引くことと、行の手順を押すことの違い。5 節の表に無い毎フレームの経路。機械が静かか（`PW-3`）。`GT-2` を省く理由の良し悪し | 調整役が手で（合流の後、push の前）／検査 82 |
+| 検査 82 `tools/test_route.py --check-rule` | 道具の表（`ROUTES`・`STEPS`）と、04 の 7 節の経路の表と段の表との食い違い —— 経路の名・置き場・PERF／e2e／GT-2 の語・行の順・段の名 | 表の外の散文。表の決めごとが正しいか | `check.sh` |
+
+⭐ 2026-10-17 に、`JDG-2419` の 2 行（`tools/test_route.py` と検査 82）を本表へ足した。

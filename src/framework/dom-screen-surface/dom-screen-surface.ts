@@ -29,7 +29,7 @@ import { fieldEditingOf } from './field-editing'
 import { keepTooltipsInside, showPointTip, tooltipAnchorTable, tooltipElement } from './tooltips-drawing'
 import {
   fillPropertiesPanel,
-  growWrappingFields,
+  fitPanelFields,
   markPropertiesPanel,
   propertiesPanelKeyOf,
   propertiesPanelStyle,
@@ -1146,8 +1146,8 @@ export function domScreenSurface(wiring: ScreenSurfaceWiring): ScreenSurface {
         : `left:${propertiesEdge.x + propertiesEdge.width}px;` +
           `top:${headerTopPx()}px;right:0;bottom:0;`
     propertiesPanel.setAttribute('style', propertiesPanelStyle() + place + zIndexStyle('UZ-11'))
-    // WHY: a new panel width re-wraps every text field, so each is grown again (FR-006).
-    growWrappingFields(propertiesPanel)
+    // WHY: a new panel width re-wraps the text fields and re-sizes the date entries, so each is fitted again (FR-006).
+    fitPanelFields(propertiesPanel)
   }
 
   // TRAP: a held field of the surface is not redrawn, or the typed letters and the caret are lost (as the panel's).

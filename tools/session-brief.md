@@ -22,6 +22,7 @@ Anything else: ask the coordinator first.
 - Whole suites (vitest, playwright) only under the lock: `node ../../../tools/gate/gate-queue.mjs run -- <command>`.
 - check.sh: `rm -rf output` first, `GRS_DEV_PORT=<<PORT>>` (5992 is the coordinator's gate). Judge by the exit code.
 - Run check.sh once after your edits and once after a fix; not in a loop.
+- Tests: only your minimum (rule 04 section 7.1: the unit, integration and composite files that cite your files or ids, by name), then report. No PERF, no whole suite and no agent-driven Playwright probing (scripts plus screenshots) without the coordinator's go-ahead (JDG-2419).
 
 ## Git
 - Never `git stash`; never `git add -A` / `-u` / `.`; name every path you stage.
