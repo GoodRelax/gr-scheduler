@@ -40,6 +40,11 @@ const NOT_RENAMED = new Set([
   'CM-51.dy',
   'AnnotationAnchor.date',
   'AnnotationAnchor.taskGroupId',
+  'AnnotationAnchor.bandFraction',
+  'AnnotationAnchor.taskUid',
+  'AnnotationAnchor.taskFigure',
+  'AnnotationAnchor.highlightBoxId',
+  'AnnotationAnchor.snapPoint',
 ])
 
 interface CommandValue {
