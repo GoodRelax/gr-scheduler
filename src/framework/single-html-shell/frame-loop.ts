@@ -1917,7 +1917,6 @@ function closingHoldOf(read: () => WindowPlaces, write: (next: WindowPlaces) => 
 }
 
 // see RW-1, S-451, JDG-2418
-// WHY: a minimized window is held too, so it counts as open.
 /** @purity pure */
 function isDelayDiagnosticsReportOpen(isDelayDiagnosticsShown: boolean, report: DelayDiagnosticsReportWindow | null): boolean {
   return isDelayDiagnosticsShown && report !== null
