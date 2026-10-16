@@ -222,6 +222,7 @@ const IS_SELECTION_EVENT: { readonly [T in SelectionValuesEvent['type']]: true }
   selectionCleared: true,
   selectionPruned: true,
   createdTaskSelected: true,
+  createdCommentBoxSelected: true,
   taskGroupsPicked: true,
   createdTaskGroupSelected: true,
   resourcesPicked: true,

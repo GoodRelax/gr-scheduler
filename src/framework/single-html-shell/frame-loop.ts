@@ -33,6 +33,7 @@ import {
   workingCalendarOf,
   type CalendarDay,
   type DelayDiagnosticsReport,
+  type Schedule,
   type StandardTimeZoneKey,
 } from '../../entity/document-model/schedule/schedule'
 import {
@@ -2767,6 +2768,27 @@ function beneathAndMarqueeOverlayShowerOf(surface: SvgSurface): (beneathSvg: str
   }
 }
 
+type CreatedSubject = NonNullable<Extract<InputAction, { kind: 'changeDocument' }>['created']>
+
+// see FR-091, HF-14, FR-019, AR-5
+/** @purity pure */
+function creationLandingOf(
+  schedule: Schedule,
+  created: CreatedSubject,
+): { readonly chosen: SessionEvent; readonly panel: PanelSubjectPick } | null {
+  switch (created.kind) {
+    case 'task':
+      if (!schedule.tasks.some((one) => one.uid === created.uid)) return null
+      return { chosen: { type: 'createdTaskSelected', createdTaskUid: created.uid }, panel: 'objects' }
+    case 'taskGroup':
+      if (!schedule.taskGroups.some((one) => one.id === created.taskGroupId)) return null
+      return { chosen: { type: 'createdTaskGroupSelected', createdTaskGroupId: created.taskGroupId }, panel: 'taskGroups' }
+    case 'commentBox':
+      if (!schedule.commentBoxes.some((one) => one.id === created.id)) return null
+      return { chosen: { type: 'createdCommentBoxSelected', createdCommentBoxId: created.id }, panel: 'objects' }
+  }
+}
+
 /** @purity non-pure */
 export function frameLoop(
   surface: SvgSurface,
@@ -3981,20 +4003,14 @@ export function frameLoop(
 
   // see FR-091, HF-14, HF-17
   /** @purity non-pure */
-  function standOnWhatWasCreated(
-    created: NonNullable<Extract<InputAction, { kind: 'changeDocument' }>['created']>,
-  ): void {
-    if (created.kind === 'task') {
-      if (!held.document.schedule.tasks.some((one) => one.uid === created.uid)) return
-      sendToSession({ type: 'createdTaskSelected', createdTaskUid: created.uid }, values)
-    } else {
-      const madeTaskGroup = held.document.schedule.taskGroups.find((one) => one.id === created.taskGroupId)
-      if (madeTaskGroup === undefined) return
-      sendToSession({ type: 'createdTaskGroupSelected', createdTaskGroupId: created.taskGroupId }, values)
-    }
-    showPropertiesOfChoice(created.kind === 'task' ? 'objects' : 'taskGroups')
+  function standOnWhatWasCreated(created: CreatedSubject): void {
+    const landing = creationLandingOf(held.document.schedule, created)
+    if (landing === null) return
+    sendToSession(landing.chosen, values)
+    showPropertiesOfChoice(landing.panel)
     resetFieldFocusRetries()
-    sendToSession({ type: 'creationLanded', created }, values)
+    if (created.kind === 'commentBox') wantFieldFocused(FIELD_ROW_OF_IN_PLACE_TARGET.commentBoxText)
+    else sendToSession({ type: 'creationLanded', created }, values)
   }
 
   // see FR-048, NFR-010

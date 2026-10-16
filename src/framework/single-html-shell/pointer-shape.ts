@@ -325,7 +325,7 @@ function highlightBoxPointerRowOf(part: HighlightBoxPart | undefined): PointerRo
 export function pointerRowOf(hit: Grabbed | null, armed: boolean): PointerRow | null {
   if (armed || hit === null) return null
   if (hit.grab === 'GR-14' && hit.item.kind === 'highlightBox') return highlightBoxPointerRowOf(hit.boxPart)
-  if (hit.grab === 'GR-14' && hit.item.kind === 'commentBox') return hit.boxPart?.kind === 'anchor' ? 'PK-11' : null
+  if (hit.grab === 'GR-14' && hit.item.kind === 'commentBox') return hit.boxPart?.kind === 'anchor' ? 'PK-11' : 'PK-8'
   if (hit.grab === 'PTL-10') return hit.item.kind === 'parentTaskLink' && !hit.item.isStated ? 'PK-18' : 'PK-17'
   return POINTER_BY_ROW_ID[hit.grab]?.row ?? null
 }

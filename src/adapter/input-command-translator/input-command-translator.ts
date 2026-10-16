@@ -250,6 +250,7 @@ export type SpentEntranceSituation =
 export type CreatedSubject =
   | { readonly kind: 'task'; readonly uid: number }
   | { readonly kind: 'taskGroup'; readonly taskGroupId: string }
+  | { readonly kind: 'commentBox'; readonly id: string }
 
 export type InputAction =
   | {

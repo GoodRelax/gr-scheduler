@@ -52,6 +52,7 @@ export interface FileFlowQuestion {
 export type FileFlowCreatedSubject =
   | { readonly kind: 'task'; readonly uid: number }
   | { readonly kind: 'taskGroup'; readonly taskGroupId: string }
+  | { readonly kind: 'commentBox'; readonly id: string }
 
 export type FileFlowOwedAction =
   | {

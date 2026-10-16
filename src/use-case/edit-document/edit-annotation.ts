@@ -389,7 +389,9 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
         leaderShapeKind: null,
         text: null,
         ...anchorColumnsOf(command.anchor),
-        bodyOffsetPx: null,
+        // see S-600, LF-17
+        // WHY: up and right of the tip, so the tip and its leader stand out at the lower left; at 0 no leader is drawn.
+        bodyOffsetPx: { dx: NOT_STORED_ANNOTATION_SIZES['S-600'], dy: -NOT_STORED_ANNOTATION_SIZES['S-600'] },
         strokeColor: null,
         strokeWidthPx: null,
         fillColor: null,
@@ -686,6 +688,7 @@ const NOT_STORED_ANNOTATION_SIZES: {
   readonly 'S-371': number
   readonly 'S-374': number
   readonly 'S-375': number
+  readonly 'S-600': number
 } = {
   'S-132': 4,
   'S-369': 1,
@@ -693,6 +696,7 @@ const NOT_STORED_ANNOTATION_SIZES: {
   'S-371': 50,
   'S-374': 1,
   'S-375': 0,
+  'S-600': 12,
 }
 
 // see T-217, FR-006, FR-019

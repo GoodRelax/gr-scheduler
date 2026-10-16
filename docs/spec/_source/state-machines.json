@@ -7904,6 +7904,27 @@
      ]
     },
     {
+     "key": "createdCommentBoxSelected",
+     "source": {
+      "kind": "effectResult",
+      "rows": [
+       "FR-019",
+       "AR-5"
+      ],
+      "note": {
+       "ja": "置く書き込みが着地し、置いたコメントボックスが文書に在る"
+      }
+     },
+     "carries": [
+      {
+       "name": "createdCommentBoxId",
+       "rows": [
+        "AT-110"
+       ]
+      }
+     ]
+    },
+    {
      "key": "taskGroupsPicked",
      "source": {
       "kind": "input",
@@ -8150,6 +8171,28 @@
         ],
         "note": {
          "ja": "`selectedObjects` を作ったタスク 1 つに置き換える"
+        }
+       }
+      },
+      "createdCommentBoxSelected": {
+       "nothingSelected": {
+        "to": "objectsSelected",
+        "evidence": [
+         "FR-019",
+         "AR-5"
+        ],
+        "note": {
+         "ja": "`selectedObjects` は置いたコメントボックス 1 つ"
+        }
+       },
+       "objectsSelected": {
+        "to": "objectsSelected",
+        "evidence": [
+         "FR-019",
+         "AR-5"
+        ],
+        "note": {
+         "ja": "`selectedObjects` を置いたコメントボックス 1 つに置き換える"
         }
        }
       }

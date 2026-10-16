@@ -38,6 +38,7 @@ export interface SelectionValuesEventCarried {
   readonly rung: EscapeTarget
   readonly remainingObjects: Selection
   readonly createdTaskUid: number
+  readonly createdCommentBoxId: string
   readonly chosenTaskGroups: readonly string[]
   readonly createdTaskGroupId: string
   readonly chosenResources: readonly number[]
@@ -76,6 +77,7 @@ export type SelectionValuesEvent =
   | { readonly type: 'selectionCleared' }
   | { readonly type: 'selectionPruned'; readonly remainingObjects: SelectionValuesEventCarried['remainingObjects']; readonly chosenTaskGroups: SelectionValuesEventCarried['chosenTaskGroups'] }
   | { readonly type: 'createdTaskSelected'; readonly createdTaskUid: SelectionValuesEventCarried['createdTaskUid'] }
+  | { readonly type: 'createdCommentBoxSelected'; readonly createdCommentBoxId: SelectionValuesEventCarried['createdCommentBoxId'] }
   | { readonly type: 'taskGroupsPicked'; readonly chosenTaskGroups: SelectionValuesEventCarried['chosenTaskGroups'] }
   | { readonly type: 'createdTaskGroupSelected'; readonly createdTaskGroupId: SelectionValuesEventCarried['createdTaskGroupId'] }
   | { readonly type: 'resourcesPicked'; readonly chosenResources: SelectionValuesEventCarried['chosenResources'] }
@@ -211,6 +213,12 @@ function onCreatedTaskSelected(values: SelectionValues, event: EventOf<'createdT
   return selected(values, selectionWith(emptySelection(), { kind: 'task', uid: event.createdTaskUid }))
 }
 
+// see FR-019, AR-5
+/** @purity pure */
+function onCreatedCommentBoxSelected(values: SelectionValues, event: EventOf<'createdCommentBoxSelected'>): SelectionStep {
+  return selected(values, selectionWith(emptySelection(), { kind: 'commentBox', id: event.createdCommentBoxId }))
+}
+
 /** @purity pure */
 function withTaskGroups(values: SelectionValues, chosenTaskGroups: readonly string[]): SelectionStep {
   if (isSameList(values.chosenTaskGroups, chosenTaskGroups)) return unchanged(values)
@@ -252,6 +260,7 @@ const HANDLERS: {
   selectionCleared: deselected,
   selectionPruned: onSelectionPruned,
   createdTaskSelected: onCreatedTaskSelected,
+  createdCommentBoxSelected: onCreatedCommentBoxSelected,
   taskGroupsPicked: onTaskGroupsPicked,
   createdTaskGroupSelected: onCreatedTaskGroupSelected,
   resourcesPicked: onResourcesPicked,

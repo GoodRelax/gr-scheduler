@@ -118,6 +118,15 @@ export function commandFromParentTaskLinkRelease(release: PointerInput, press: P
   return item.isStated ? CONSUMED_ELSEWHERE : nothingToDo('derivedParentCannotBePicked')
 }
 
+// see AR-5, FR-019
+/** @purity pure */
+function commentBoxPlacement(context: InputContext, press: PointerPress): TranslatedInput {
+  const placed = commentAnchorAt(context.layout, context.geometry, press.at.x, press.at.y)
+  if (!('anchor' in placed)) return placed
+  const id = context.newCommentBoxId
+  return changedAndCreated([[{ kind: 'createCommentBox', id, anchor: placed.anchor }]], { kind: 'commentBox', id })
+}
+
 // see PTD-4, FR-001, FR-019
 /** @purity pure */
 export function commandFromArmed(
@@ -168,11 +177,7 @@ export function commandFromArmed(
     })
   }
 
-  if (armed.kind === 'commentBoxArmed') {
-    const placed = commentAnchorAt(context.layout, context.geometry, press.at.x, press.at.y)
-    if (!('anchor' in placed)) return placed
-    return changed([{ kind: 'createCommentBox', id: context.newCommentBoxId, anchor: placed.anchor }])
-  }
+  if (armed.kind === 'commentBoxArmed') return commentBoxPlacement(context, press)
 
   if (armed.kind === 'highlightBoxArmed') {
     if (!dragged) return CONSUMED_ELSEWHERE
