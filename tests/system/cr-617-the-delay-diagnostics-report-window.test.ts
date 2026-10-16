@@ -1,5 +1,8 @@
 // CR-617 / CR-781 on the shipped build: IC-107 opens the Delay Diagnostics Report window (RW-1), IC-52, Esc and a second IC-107 close it alone, IC-167 ends the diagnosis.
 
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
+
 import { expect, test, type Browser, type Page } from '@playwright/test'
 import { bare, specTable } from '../contract/spec-table'
 import { CLEARING_UP_MS, launchReferenceBrowser } from './live-app'
@@ -14,6 +17,12 @@ const CLOSE = rowOf(specTable('T-109'), 'IC-52').id
 const EXPORT = rowOf(specTable('T-109'), 'IC-140').id
 const COPY = rowOf(specTable('T-109'), 'IC-108').id
 const END = rowOf(specTable('T-109'), 'IC-167').id
+// WHY: the word follows the SCREEN language (FR-038), which this stage starts in English whatever the opened document's language is.
+const END_WORD = (
+  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+    readonly icons: readonly { readonly rowId: string; readonly label: { readonly en: string } }[]
+  }
+).icons.find((one) => one.rowId === END)?.label.en
 const OPEN_SEARCH = keyOf('SK-24')
 
 let browser: Browser | null = null
@@ -107,7 +116,7 @@ test.describe('CR-617 -- the report window on the shipped build', () => {
       const page = stage.page
       await press(page, `[data-icon="${DIAGNOSE}"]`)
       await expect(page.locator(`${REPORT} [data-icon="${END}"]`)).toHaveCount(1)
-      await expect(page.locator(`${REPORT} [data-icon="${END}"]`)).toHaveText('診断を終える')
+      await expect(page.locator(`${REPORT} [data-icon="${END}"]`)).toHaveText(END_WORD ?? '')
       const order = await page.locator(`${REPORT} [data-icon="${END}"], ${REPORT} [data-icon="${EXPORT}"]`).evaluateAll((all) => all.map((one) => one.getAttribute('data-icon')))
       expect(order, 'IC-167 stands before IC-140').toEqual([END, EXPORT])
       await press(page, `${REPORT} [data-icon="${END}"]`)
