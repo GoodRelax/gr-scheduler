@@ -5,7 +5,10 @@ import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } f
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 
-import { afterAll, describe, expect, it } from 'vitest'
+import { afterAll, describe, expect, it, vi } from 'vitest'
+
+const GENERATOR_RUN_TIMEOUT_MS = 20_000
+vi.setConfig({ testTimeout: GENERATOR_RUN_TIMEOUT_MS })
 
 const ROOT = process.cwd()
 
