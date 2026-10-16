@@ -23,6 +23,10 @@ const TEMPLATE = JSON.parse(
 const DIAGNOSE_ENTRY = specTable('T-109').rows.find((one) => (one.cells.join(' ')).includes('遅延診断を行う'))?.id ?? ''
 const APP_HEADER = bare(specTable('T-109').rows.find((one) => one.id === DIAGNOSE_ENTRY)?.by['面'] ?? '')
 
+// see T-109
+const END_ENTRY = 'IC-167'
+const REPORT_WINDOW = bare(specTable('T-109').rows.find((one) => one.id === END_ENTRY)?.by['面'] ?? '')
+
 const ROW_ID = '11111111-1111-4111-8111-111111111111'
 
 const documentWith = (isProgressMarkerVisible: boolean): Document => {
@@ -97,6 +101,12 @@ const benchOf = (isProgressMarkerVisible: boolean) => {
   return {
     svg: () => shown,
     settings: () => loop.document().documentSettings as unknown as Record<string, unknown>,
+    pressEnd: (): void => {
+      aimed = { part: REPORT_WINDOW, entry: END_ENTRY, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
+      send(pointer('down', 700, 20))
+      send(pointer('up', 700, 20))
+      aimed = null
+    },
     pressDiagnose: (): void => {
       aimed = { part: APP_HEADER, entry: DIAGNOSE_ENTRY, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
       send(pointer('down', 700, 20))
@@ -112,6 +122,7 @@ describe('DFC-1229: a diagnosis draws the progress markers whatever S-63 holds (
   it('FR-130 premise: the entrance that starts a diagnosis is found in table T-109', () => {
     expect(DIAGNOSE_ENTRY).not.toBe('')
     expect(APP_HEADER).toBe('App Header')
+    expect(REPORT_WINDOW).toBe('Delay Diagnostics Report')
   })
 
   it('FR-049 premise: with S-63 false and no diagnosis the markers are not drawn', () => {
@@ -131,11 +142,19 @@ describe('DFC-1229: a diagnosis draws the progress markers whatever S-63 holds (
     expect(bench.settings()['isProgressMarkerVisible']).toBe(false)
   })
 
-  it('FR-133 ending the diagnosis takes the markers away again, S-63 being false', () => {
+  it('FR-130 the second press of the entrance closes the window alone: the markers stay drawn (CR-781)', () => {
     const bench = benchOf(false)
     bench.pressDiagnose()
     bench.pressDiagnose()
+    expect(hasMarkers(bench.svg())).toBe(true)
+  })
+
+  it('FR-130 IC-167 of the report window ends the diagnosis: the markers go away again, S-63 being false (CR-781)', () => {
+    const bench = benchOf(false)
+    bench.pressDiagnose()
+    bench.pressEnd()
     expect(hasMarkers(bench.svg())).toBe(false)
+    expect(bench.settings()['isProgressMarkerVisible']).toBe(false)
   })
 
   it('FR-133 with S-63 true the markers stay drawn through a diagnosis', () => {

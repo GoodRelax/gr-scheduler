@@ -32,8 +32,9 @@ const RW_1_IC_107 = '`IC-107` を押せば診断をやり直して開く（`FR-1
 const PE_8_EXCEPTION =
   '⚠️ 遅延診断を出しているあいだ、`FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いたマーカーは巡らせない —— `FR-134` の 表 T-346 の `RW-19` に従う'
 const PE_10_EXCEPTION = '⚠️ 遅延診断を出しているあいだの例外は `PE-8` と同じ（`RW-19`）'
+// WHY: CR-781 rewrote this sentence of FR-130: an open window (minimized included) is closed alone like IC-52, and the marks stay.
 const FR_130_THE_SAME_ENTRY =
-  '診断を出しているあいだに同じ入口を押したら、遅延診断レポートの窓（`FR-134` の 表 T-346 の `RW-1`）が開いていれば診断の表示を終え、窓だけを閉じていれば（`IC-52`）いまの文書で診断をやり直し、その結果をマーカーと一覧に出して窓を開くこと（MUST）'
+  '診断を出しているあいだに同じ入口を押したら、遅延診断レポートの窓（`FR-134` の 表 T-346 の `RW-1`）が開いていれば（最小化を含む）、窓の `IC-52` と同じく窓だけを閉じ、窓だけを閉じていれば（`IC-52`）いまの文書で診断をやり直し、その結果をマーカーと一覧に出して窓を開くこと（MUST）'
 
 const SPEC = join(process.cwd(), 'docs', 'spec')
 const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 'utf8'))
@@ -368,15 +369,15 @@ describe(`RW-19 ② -- ${RW_19_SECOND}; ${RW_19_FIXES_STILL}`, () => {
 })
 
 describe(`FR-130 -- ${FR_130_THE_SAME_ENTRY}`, () => {
-  it('with the window open, IC-107 ends the display: the window closes and the markers go back', async () => {
+  it('with the window open, IC-107 closes the window alone like IC-52: the markers stay (FR-130, RW-1 as CR-781 rewrote them)', async () => {
     const stage = await diagnosed()
     expect(reportOf(stage)).not.toBeNull()
     await stage.press('IC-107')
     expect(reportOf(stage)).toBeNull()
-    expect(isDiagnosisDrawn(stage)).toBe(false)
+    expect(isDiagnosisDrawn(stage)).toBe(true)
   })
 
-  it('with the window alone closed, IC-107 runs the diagnosis again: the markers stay and the window opens', async () => {
+  it('with the window alone closed, IC-107 runs the diagnosis again: the markers stay and the window opens; pressed again it closes the window alone', async () => {
     const stage = await diagnosed()
     await stage.press('IC-52')
     expect(reportOf(stage)).toBeNull()
@@ -385,8 +386,8 @@ describe(`FR-130 -- ${FR_130_THE_SAME_ENTRY}`, () => {
     expect(isDiagnosisDrawn(stage), 'the markers are shown').toBe(true)
     expect(markerOf(stage, SELF).symbol).toBe('DG-1')
     await stage.press('IC-107')
-    expect(reportOf(stage), 'pressed again with the window open, the display ends').toBeNull()
-    expect(isDiagnosisDrawn(stage)).toBe(false)
+    expect(reportOf(stage), 'pressed again with the window open, only the window closes (FR-130)').toBeNull()
+    expect(isDiagnosisDrawn(stage), 'the markers stay (FR-130)').toBe(true)
   })
 
   it('the result is the one of the document as it is now: a task changed while the window was closed is in the list', async () => {
@@ -405,8 +406,9 @@ describe(`FR-130 -- ${FR_130_THE_SAME_ENTRY}`, () => {
   it('the IC-107 hint says the same in both languages, and the shipped dictionary carries it', () => {
     const spec = SPEC_WORDS.icons.find((one) => one.rowId === 'IC-107')?.hint
     const shipped = SHIPPED_WORDS.icons.find((one) => one.rowId === 'IC-107')?.hint
-    expect(spec?.ja).toBe('遅延診断を行う。レポートを閉じていれば診断をやり直し、開いていれば診断の表示を終える')
-    expect(spec?.en).toBe('Run the Delay Diagnostics; runs them again if the report is closed, or ends the display while it is open')
+    // WHY: CR-781 reworded the hint of IC-107 (display-words.json): an open report is closed alone.
+    expect(spec?.ja).toBe('遅延診断を行う。レポートを閉じていれば診断をやり直して開き、開いていればレポートだけを閉じる')
+    expect(spec?.en).toBe('Run the Delay Diagnostics; runs them again and opens the report if it is closed, or closes only the report while it is open')
     expect(shipped).toEqual(spec)
   })
 })
