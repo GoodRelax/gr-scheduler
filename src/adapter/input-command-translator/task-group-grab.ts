@@ -168,6 +168,12 @@ function taskGroupLiftsOf(tree: TaskGroupGrabTree, landing: Pick<TaskGroupGrabLa
 
 // see HF-15, CM-73
 /** @purity pure */
+function childIdsOf(tree: TaskGroupGrabTree): Map<string | null, string[]> {
+  return new Map([...tree.childrenOf].map(([parentId, children]) => [parentId, children.map((one) => one.id)]))
+}
+
+// see HF-15, CM-73
+/** @purity pure */
 function withChildPlaced(childIds: Map<string | null, string[]>, id: string, from: string | null, to: string | null, at: number): void {
   childIds.set(from, (childIds.get(from) ?? []).filter((one) => one !== id))
   const siblings = childIds.get(to) ?? []
@@ -185,7 +191,7 @@ export function taskGroupLiftMovesAfter(
   const tree = taskGroupGrabTreeOf(taskGroups, heldGroupId)
   const heldParentId = tree.byId.get(heldGroupId)?.parentId
   if (heldParentId === undefined) return []
-  const childIds = new Map([...tree.childrenOf].map(([parentId, children]) => [parentId, children.map((one) => one.id)]))
+  const childIds = childIdsOf(tree)
   withChildPlaced(childIds, heldGroupId, heldParentId, landing.parentId, landing.order)
   const lastPlacedAfter = new Map<string, string>()
   const commands: TaskGroupMove[] = []
@@ -201,30 +207,25 @@ export function taskGroupLiftMovesAfter(
 }
 
 // see HF-15, QN-16, CM-73, HM-3a
-// WHY: the final tree is the one taskGroupLiftMovesAfter reads after the held move; replaying the
-// lifts first and the held move last reaches it with every command inside S-125 when it lands (JDG-2414).
-// Each order is the rank, in that final tree, among the siblings already standing when the command lands.
+// WHY: lifts first and the held move last, so no command passes S-125 when it lands (JDG-2414); each
+// order ranks the final tree of taskGroupLiftMovesAfter among the siblings standing at that moment.
 /** @purity pure */
-export function taskGroupLiftsThenMove(
-  taskGroups: readonly TaskGroup[],
-  heldGroupId: string,
-  landing: Pick<TaskGroupGrabLanding, 'parentId' | 'order' | 'depth'>,
+function liftsThenMoveOf(
+  tree: TaskGroupGrabTree,
+  lifts: readonly TaskGroupMove[],
+  landing: Pick<TaskGroupGrabLanding, 'parentId' | 'order'>,
 ): readonly TaskGroupMove[] {
-  const tree = taskGroupGrabTreeOf(taskGroups, heldGroupId)
-  const heldParentId = tree.byId.get(heldGroupId)?.parentId
-  if (heldParentId === undefined) return []
-  const childIdsOfTree = (): Map<string | null, string[]> =>
-    new Map([...tree.childrenOf].map(([parentId, children]) => [parentId, children.map((one) => one.id)]))
-  const final = childIdsOfTree()
-  withChildPlaced(final, heldGroupId, heldParentId, landing.parentId, landing.order)
-  const lifts = taskGroupLiftMovesAfter(taskGroups, heldGroupId, landing)
-  const parentNow = new Map(taskGroups.map((one) => [one.id, one.parentId]))
+  const heldId = tree.heldId
+  const parentsNow = (): Map<string, string | null> => new Map([...tree.byId.values()].map((one) => [one.id, one.parentId]))
+  const final = childIdsOf(tree)
+  withChildPlaced(final, heldId, tree.byId.get(heldId)?.parentId ?? null, landing.parentId, landing.order)
+  const parentNow = parentsNow()
   for (const lift of lifts) {
     withChildPlaced(final, lift.taskGroupId, parentNow.get(lift.taskGroupId) ?? null, lift.parentId, lift.order)
     parentNow.set(lift.taskGroupId, lift.parentId)
   }
-  const standing = childIdsOfTree()
-  const parentAt = new Map(taskGroups.map((one) => [one.id, one.parentId]))
+  const standing = childIdsOf(tree)
+  const parentAt = parentsNow()
   const landed = (taskGroupId: string, parentId: string | null): TaskGroupMove => {
     const finalSiblings = final.get(parentId) ?? []
     const present = new Set((standing.get(parentId) ?? []).filter((id) => id !== taskGroupId))
@@ -233,7 +234,7 @@ export function taskGroupLiftsThenMove(
     parentAt.set(taskGroupId, parentId)
     return { kind: 'moveTaskGroup', taskGroupId, parentId, order }
   }
-  return [...lifts.map((lift) => landed(lift.taskGroupId, lift.parentId)), landed(heldGroupId, landing.parentId)]
+  return [...lifts.map((lift) => landed(lift.taskGroupId, lift.parentId)), landed(heldId, landing.parentId)]
 }
 
 // see HF-15, S-597, S-598
@@ -323,6 +324,8 @@ export function commandFromRowGrab(
   const move: TaskGroupMove = { kind: 'moveTaskGroup', taskGroupId: heldTaskGroupId, parentId: landing.parentId, order: landing.order }
   if (!landing.isPastDepthCap) return changed([move])
   // WHY: one write, so Yes lands it as one undo step; lifts first, so no command passes S-125 (HM-3a, JDG-2414).
-  const bundle = taskGroupLiftsThenMove(context.document.schedule.taskGroups, heldTaskGroupId, landing)
+  const taskGroups = context.document.schedule.taskGroups
+  const lifts = taskGroupLiftMovesAfter(taskGroups, heldTaskGroupId, landing)
+  const bundle = liftsThenMoveOf(taskGroupGrabTreeOf(taskGroups, heldTaskGroupId), lifts, landing)
   return acted({ kind: 'changeDocument', writes: [bundle], question: DEPTH_CAP_QUESTION })
 }

@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 394 | 4956 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 395 | 4971 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 91 | 589 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 182 | 3867 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 687 | 9522 | 11 | 8 | 13 | 2 |
+| **all** | | | 688 | 9537 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -614,6 +614,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/if-3-file-store.test.ts` | 21 | FR-023, FR-060, FR-096 | - | T-003, T-024, T-066, T-227, T-340 | CN-5, CP-22, CP-28, CS-4, DI-6, IC-2, IF-3, NT-7, OP-1, S-113 | - | - | - | - |
 | `tests/contract/if-7-snapshot-source.test.ts` | 14 | FR-025, FR-028, FR-052, FR-080, NFR-002, NFR-003, NFR-011 | - | T-024, T-035, T-041, T-043, T-060, T-065, T-066, T-068, T-070, T-076, T-077, T-078, T-107, T-204, T-218 | AG-9a, AM-13, AM-14, AM-15, BO-1, CP-17, CP-25, CS-3, IF-6, IF-7, IF-8, IO-3, LY-5, MK-13, MN-6, PI-9, S-81, S-95, S-99h, S-171, S-217, TS-5, WY-2 | - | - | - | - |
 | `tests/contract/ix-4-ep-1-the-exported-height-is-whole-and-the-title-stays-inside.test.ts` | 6 | FR-025, FR-080 | - | T-076, T-241 | EP-1, IX-4, IX-5, NS-3, PI-21, S-81, S-217, S-225 | - | - | - | - |
+| `tests/contract/jdg-2414-hm-3a-is-measured-at-each-command.contract.test.ts` | 15 | - | - | T-233 | AG-3, AG-5, AG-9a, AM-7, CM-73, HF-15, HM-3, HM-3a, QN-16, S-125 | - | - | - | - |
 | `tests/contract/mspdi-xsd-local-only.test.ts` | 2 | - | - | - | - | - | - | - | - |
 | `tests/contract/pnd-318-ga-20-resume-without-stop.test.ts` | 3 | - | - | T-245 | GA-20, GO-10, S-63 | - | - | - | - |
 | `tests/contract/seams.contract.test.ts` | 6 | - | - | T-062, T-065, T-075, T-206 | IF-9, LR-1, LR-5, S-53, S-54, S-55, S-96, S-97, S-98, S-140 | - | - | - | - |
