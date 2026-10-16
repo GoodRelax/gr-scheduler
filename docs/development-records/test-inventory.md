@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 396 | 4991 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 397 | 5008 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 91 | 591 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 183 | 3877 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 690 | 9569 | 11 | 8 | 13 | 2 |
+| **all** | | | 691 | 9586 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -540,6 +540,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/dfc-2912-a-highlight-box-released-unmoved-is-no-edit.test.ts` | 13 | FR-031, FR-100, FR-103 | - | T-246 | GR-14, HB-3, HB-4, HB-7, HB-10, HB-11, HB-12 | - | - | - | - |
 | `tests/contract/dfc-294-t-019-the-carried-original-is-dropped-only-by-an-actual-edit.test.ts` | 11 | FR-012, FR-043 | - | T-019, T-033, T-059, T-108, T-218 | CM-9, CM-11, CM-13, CM-14, CM-15, DV-11, EX-2, PA-1, PS-2, TS-2, TS-6 | - | - | - | - |
 | `tests/contract/dfc-295-entering-the-dual-cursor-drops-the-arm.test.ts` | 13 | FR-048, FR-082, FR-083 | VT-2 | T-023a, T-023b, T-027, T-028, T-029a, T-062, T-064, T-103, T-109, T-218, T-280 | AR-1, AR-4, AR-7, CP-18, DC-1, DC-2, DC-4, DC-9, IC-45, IN-1, IN-4, PI-18, PTD-2, PTD-5, S-65, SP-1, SP-4, TS-6, U-26, UF-48, UN-16 | - | - | - | - |
+| `tests/contract/dfc-2950-fr-073-a-shape-change-raises-the-format-version.contract.test.ts` | 17 | FR-024, FR-073 | - | T-052, T-058 | DR-4, S-541 | - | - | - | - |
 | `tests/contract/dfc-298-d-420-gr-21-the-grip-starts-and-follows.test.ts` | 7 | FR-027, FR-051, FR-052, FR-055, FR-076, FR-102 | - | T-023d, T-024a, T-027, T-031, T-034, T-035, T-062, T-206, T-218 | AG-9, BT-4, CP-19, CP-25, GR-21, IC-76, IF-9, OP-10, S-77, S-78, S-176, S-177, S-205, SC-4, TS-6, UF-48, UF-61, UN-8, WS-2 | - | - | - | - |
 | `tests/contract/dfc-307-in-4-the-standing-explanation-is-the-last-rung.test.ts` | 28 | FR-031, FR-037, FR-038, FR-072, FR-092 | - | T-016, T-023, T-023c, T-023d, T-028, T-031, T-036, T-040, T-060, T-062, T-075, T-109, T-218, T-266 | CP-19, EZ-2, GA-3, GA-4, GA-5, GA-6, GA-9, GA-16, GA-17, GR-21, IC-7, IN-3, IN-4, IN-4a, LY-5, MK-13, PR-1, PTD-3, SC-4, SK-8, SL-5, TS-6, UF-69, UN-9 | - | - | - | - |
 | `tests/contract/dfc-322-sk-9-the-document-name-is-edited-in-place.test.ts` | 20 | FR-031, FR-035, FR-074, FR-085 | - | T-016, T-023, T-028, T-036, T-062, T-064, T-065, T-103, T-108, T-218 | AT-53, CM-1, CP-18, IF-9, IN-4, IN-5a, MK-13, PI-9, PI-18, PR-1, SK-9, SK-13, SK-15, SK-19, TS-6, U-27, UF-30 | - | - | - | - |
