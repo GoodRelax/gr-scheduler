@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 78 mechanical checks for the gr-scheduler specification.
+# All 79 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 61. (Recounted 2026-10-15 at checks 78-81
+# The ranges today are 1 + 4 + 8 + 4 + 62. (Recounted 2026-10-17 at check 82
+# (the test route table, JDG-2419): 61 + 1. Recounted 2026-10-15 at checks 78-81
 # (ledger row form, project plan, drafted rulings cited, the spec resting on
 # src; JDG-2122..2124, JDG-2127): 57 + 4. Recounted 2026-10-11 at check 77
 # (words spelled in code points, CR-726): 56 + 1. Recounted 2026-10-08 at check 76
@@ -385,6 +386,11 @@
 #          禁じている」), found by list-inverted-authority.py minus names
 #          after 「表 T-nnn の」 and the exempted defining lines. The
 #          specification is the truth (JDG-2071, JDG-2127). Baseline 0
+#   82     tools/test_route.py --self-test / --check-rule : the routes that
+#          say which costly test a merged range needs (PERF, the e2e subset,
+#          GT-2, agent-driven Playwright probing) and in which order are the
+#          same in the tool and in the route and step tables of rule 04
+#          section 7 -- names, globs, words and order. JDG-2419. Baseline 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -1091,6 +1097,21 @@ section "81  the specification never rests its authority on a name only src/ has
 # deferral, one table cell and one exempted line, plus a stale exemption.
 PYTHONIOENCODING=utf-8 python "$HERE/check-spec-rests-on-src.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-spec-rests-on-src.py" || failed
+
+echo ""
+section "82  the test route of rule 04 section 7 is the route the tool walks"
+# JDG-2419 (2026-10-17): the user asked for a procedure and a tool, not a
+# memory note, for choosing which costly test a merged range needs and in
+# which order -- after the coordinator had a 13-row checklist pressed by
+# hand, then by an agent reading screenshots. MEASURED 2026-10-17 on
+# 9171429f plus this change: 7 routes and 4 steps agree; dropping
+# `tools/gate/**` from the rule's config row, renaming the PROBE step,
+# flipping the PERF word of other-src and swapping two route rows each
+# report 1. Baseline 0. --self-test runs eleven planted ranges (a frame path
+# goes PERF first, a screen flow e2e first, ledgers only run nothing, ...)
+# and a planted rule section with two drifts.
+PYTHONIOENCODING=utf-8 python "$REPO/tools/test_route.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$REPO/tools/test_route.py" --check-rule || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"
