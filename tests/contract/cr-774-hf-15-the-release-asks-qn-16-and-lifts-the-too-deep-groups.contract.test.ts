@@ -40,7 +40,8 @@ const sentenceOf = (language: 'ja' | 'en'): string => {
 }
 
 describe('UF-97 -- a release past the limit returns the move and the lifts as one bundle, tagged with QN-16', () => {
-  it('H let go at depth 2 under P: one changeDocument with question QN-16, the move first, then the lifts of H4a and H4b', () => {
+  // JDG-2414: HM-3a is measured at each command, so the lifts come first and the held move last.
+  it('H let go at depth 2 under P: one changeDocument with question QN-16, the lifts of H4a and H4b first, then the move', () => {
     const landing = landingAt('H', 1, under('P1'))
     expect(landing?.isPastDepthCap).toBe(true)
     const result = releaseAt('H', 1, under('P1'))
@@ -49,19 +50,28 @@ describe('UF-97 -- a release past the limit returns the move and the lifts as on
     expect(action?.question).toBe('QN-16')
     const bundles = bundlesOf(result)
     expect(bundles, 'the move and the lifts are ONE bundle, which is one undo step').toHaveLength(1)
-    const [move, ...lifts] = bundles[0] ?? []
-    expect(move).toMatchObject({ kind: 'moveTaskGroup', taskGroupId: 'H', parentId: landing?.parentId, order: landing?.order })
-    expect(lifts.map((one) => [one.kind, one.taskGroupId])).toEqual([
+    const bundle = bundles[0] ?? []
+    const move = bundle[bundle.length - 1]
+    expect(move).toMatchObject({ kind: 'moveTaskGroup', taskGroupId: 'H', parentId: landing?.parentId })
+    expect(bundle.slice(0, -1).map((one) => [one.kind, one.taskGroupId])).toEqual([
       ['moveTaskGroup', 'H4a'],
       ['moveTaskGroup', 'H4b'],
     ])
   })
 
-  it('the lifts are exactly what taskGroupLiftMovesAfter gives for the landing', () => {
+  // JDG-2414: the bundle lands the tree taskGroupLiftMovesAfter reads after the held move, in its own order.
+  it('the bundle lands the same tree as the held move followed by taskGroupLiftMovesAfter', () => {
     const landing = landingAt('H', 1, under('P1'))
     expect(landing).not.toBeNull()
-    const lifts = liftMovesAfter('H', landing as NonNullable<typeof landing>)
-    expect(bundlesOf(releaseAt('H', 1, under('P1')))[0]?.slice(1)).toEqual(lifts)
+    const settled = landing as NonNullable<typeof landing>
+    const moveFirst = [
+      { kind: 'moveTaskGroup', taskGroupId: 'H', parentId: settled.parentId, order: settled.order },
+      ...liftMovesAfter('H', settled),
+    ]
+    const bundle = bundlesOf(releaseAt('H', 1, under('P1')))[0] ?? []
+    // WHY: by id: applyMoves appends a moved row, so the arrays differ in order while the tree is the same.
+    const byId = (rows: ReturnType<typeof applyMoves>) => [...rows].sort((x, y) => x.id.localeCompare(y.id))
+    expect(byId(applyMoves(groupsOf(), bundle))).toEqual(byId(applyMoves(groupsOf(), moveFirst)))
   })
 
   it('a release within the limit asks nothing and has no lifts', () => {

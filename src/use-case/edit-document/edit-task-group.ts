@@ -292,7 +292,6 @@ export function editTaskGroup(
   document: Document,
   command: TaskGroupCommand,
   defaultTaskGroupName: string,
-  groupDepthCap?: number,
 ): EditResult {
   const schedule = document.schedule
   const settings = document.documentSettings
@@ -389,7 +388,7 @@ export function editTaskGroup(
     case 'reorderTaskGroupSiblings':
       return reorderTaskGroupSiblings(document, command, byId)
     case 'moveTaskGroup':
-      return moveTaskGroup(document, command, byId, groupDepthCap)
+      return moveTaskGroup(document, command, byId)
     case 'resetTaskGroupTreeStates':
       return resetTaskGroupTreeStates(document)
   }

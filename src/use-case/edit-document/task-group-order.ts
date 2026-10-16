@@ -134,7 +134,6 @@ export function moveTaskGroup(
   document: Document,
   command: TaskGroupCommandOf<'moveTaskGroup'>,
   byId: ReadonlyMap<string, TaskGroup>,
-  depthCap: number = SETTINGS_CONSTANTS.maxGroupDepth,
 ): EditResult {
   const groups = document.schedule.taskGroups
   const moved = byId.get(command.taskGroupId)
@@ -156,7 +155,7 @@ export function moveTaskGroup(
     )
   }
   const under = parent === undefined || parent === null ? 0 : depthOf(byId, parent)
-  if (under + carried.height > depthCap) {
+  if (under + carried.height > SETTINGS_CONSTANTS.maxGroupDepth) {
     refusals.push(
       reject(
         'CM-73',
