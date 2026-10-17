@@ -427,6 +427,9 @@ describe('CR-651 FR-131 VS-6 is a doubt', () => {
 })
 
 const SAMPLE_DIR = join(process.cwd(), 'sample-schedule')
+// WHY: the large sample before CR-790, frozen for the CR-651 / CR-716 sweeps; the shipped sample now shows one VS-6 (CR-790).
+const LARGE_FILE = 'cr-651-large-sample-before-cr-790.ja.xml'
+const FIXTURE_DIR = join(process.cwd(), 'tests', 'fixtures')
 
 function currentDocument(tolerance?: number): Document {
   const read = documentFromJson(TEMPLATE_TEXT)
@@ -435,7 +438,7 @@ function currentDocument(tolerance?: number): Document {
 }
 
 function sampleDocument(file: string, current: Document = currentDocument()): Document {
-  const read = documentFromMspdi(readFileSync(join(SAMPLE_DIR, file), 'utf8'), current)
+  const read = documentFromMspdi(readFileSync(join(file === LARGE_FILE ? FIXTURE_DIR : SAMPLE_DIR, file), 'utf8'), current)
   if (!read.ok) throw new Error(`${file} was refused: ${JSON.stringify(read.faults)}`)
   return read.document
 }
@@ -455,7 +458,6 @@ const LANGUAGES = ['ja', 'en'] as const
 const LARGE_AT_DEFAULT = [125, 129, 133, 137, 141, 145, 181, 182, 200, 208]
 const LARGE_AT_WEEKLY = [181, 182, 200, 208]
 const COUNTS = [
-  ['sample-large-erp-program', LARGE_AT_DEFAULT.length, LARGE_AT_WEEKLY.length],
   ['sample-small-website-renewal', 1, 1],
   ['sample-medium-sfa-webapp', 0, 0],
 ] as const
@@ -470,8 +472,8 @@ const describeFound = (found: readonly Finding[]): string =>
     .join(' ')
 
 describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
-  it('VS-6 sample-large-erp-program.ja.xml: one VS-6 on uid 208, parentPoint 2026-09-02, leftmostPoint 2026-11-25', () => {
-    const found = vs6On(diagnose(sample('sample-large-erp-program.ja.xml')), 208)
+  it('VS-6 the large sample before CR-790: one VS-6 on uid 208, parentPoint 2026-09-02, leftmostPoint 2026-11-25', () => {
+    const found = vs6On(diagnose(sample(LARGE_FILE)), 208)
     expect(found).toHaveLength(1)
     const values = valuesOf(found[0])
     expect(dayText(values['parentPoint'])).toBe('2026-09-02')
@@ -484,9 +486,14 @@ describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
     expect(vs6Of(diagnose(sample('sample-small-website-renewal.ja.xml'))).map((one) => one.uid)).toEqual([38])
   })
 
-  const cases = COUNTS.flatMap(([name, atDefault, atWeekly]) =>
-    LANGUAGES.map((language) => [`${name}.${language}.xml`, atDefault, atWeekly] as const),
-  )
+  // WHY: the en twin of the large sample gave identical counts (CR-618 decision 5) and CR-790 froze ja only,
+  // so the large sample runs once, on the fixture.
+  const cases = [
+    ...COUNTS.flatMap(([name, atDefault, atWeekly]) =>
+      LANGUAGES.map((language) => [`${name}.${language}.xml`, atDefault, atWeekly] as const),
+    ),
+    [LARGE_FILE, LARGE_AT_DEFAULT.length, LARGE_AT_WEEKLY.length] as const,
+  ]
 
   it.each(cases)('VS-6 S-487 %s: %i at the default tolerance, %i at 7', (file, atDefault, atWeekly) => {
     const document = sample(file)
@@ -498,13 +505,13 @@ describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
   })
 
   it('VS-6 sample-large-erp-program at the default tolerance names exactly the parents CR-651 section 0.3 lists', () => {
-    const report = diagnose(sample('sample-large-erp-program.ja.xml'))
+    const report = diagnose(sample(LARGE_FILE))
     expect(vs6Of(report).map((one) => one.uid).sort((a, b) => a - b)).toEqual(LARGE_AT_DEFAULT)
   })
 
   // WHY: CR-710 places a Stop the file lacks by ActualDuration's working minutes, not rounded days (FR-011).
   it('VS-6 sample-large-erp-program at 7 keeps exactly 208, 200, 182 and 181, at 55, 59, 37 and 55 working days', () => {
-    const report = diagnose(withTolerance(sample('sample-large-erp-program.ja.xml'), WEEKLY_TOLERANCE))
+    const report = diagnose(withTolerance(sample(LARGE_FILE), WEEKLY_TOLERANCE))
     expect(vs6Of(report).map((one) => one.uid).sort((a, b) => a - b)).toEqual(LARGE_AT_WEEKLY)
     const days = new Map(vs6Of(report).map((one) => [one.uid, outsideDaysOf(valuesOf(one))]))
     expect([days.get(208), days.get(200), days.get(182), days.get(181)]).toEqual([55, 59, 37, 55])
@@ -543,7 +550,7 @@ describe('CR-651 AT-156 FR-073 -- the bundled documents carry the new column and
   })
 
   it('AT-156 an MSPDI open keeps the current document value (as themeHue does)', () => {
-    const opened = sampleDocument('sample-large-erp-program.ja.xml', currentDocument(WEEKLY_TOLERANCE))
+    const opened = sampleDocument(LARGE_FILE, currentDocument(WEEKLY_TOLERANCE))
     expect(opened.schedule.project.parentProgressToleranceDays).toBe(WEEKLY_TOLERANCE)
     expect(vs6Of(diagnose(opened))).toHaveLength(4)
   })
