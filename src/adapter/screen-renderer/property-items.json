@@ -370,6 +370,19 @@
    "oneInput": false
   },
   {
+   "rowId": "PR-48",
+   "columns": [
+    "id"
+   ],
+   "inputKinds": [
+    "命令"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "CommentBox",
+   "shownFor": null,
+   "oneInput": false
+  },
+  {
    "rowId": "PR-26",
    "columns": [
     "strokeWidthPx"
@@ -480,6 +493,19 @@
    ],
    "inputKinds": [
     "数値"
+   ],
+   "isReadOnly": false,
+   "appliesTo": "HighlightBox",
+   "shownFor": null,
+   "oneInput": false
+  },
+  {
+   "rowId": "PR-49",
+   "columns": [
+    "id"
+   ],
+   "inputKinds": [
+    "命令"
    ],
    "isReadOnly": false,
    "appliesTo": "HighlightBox",

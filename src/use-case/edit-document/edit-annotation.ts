@@ -4,15 +4,13 @@
 // @purity    pure
 
 import type { Document } from '../../entity/document-model/document/document'
-import type { CommentBox, HighlightBox, Schedule, Task } from '../../entity/document-model/schedule/schedule'
+import type { CommentBox, HighlightBox, Schedule } from '../../entity/document-model/schedule/schedule'
 import {
+  commentBoxShownDateOf,
   dayOf,
   instantOf,
   isSameDay,
   isStoredColor,
-  MINUTES_PER_CALENDAR_DAY,
-  textOfDayStart,
-  textOfInstant,
   TRANSPARENT,
 } from '../../entity/document-model/schedule/schedule'
 import type { EditResult, Refusal } from './edit-document'
@@ -83,6 +81,7 @@ export type AnnotationCommand =
       readonly id: CommentBox['id']
       readonly textColor: CommentBox['textColor']
     }
+  | { readonly kind: 'bringCommentBoxToFront'; readonly id: CommentBox['id'] }
   | { readonly kind: 'createHighlightBox'; readonly id: HighlightBox['id']; readonly range: HighlightRange }
   | { readonly kind: 'deleteHighlightBox'; readonly id: HighlightBox['id'] }
   | { readonly kind: 'setHighlightBoxRange'; readonly id: HighlightBox['id']; readonly range: HighlightRange }
@@ -106,6 +105,7 @@ export type AnnotationCommand =
       readonly id: HighlightBox['id']
       readonly fillTransparencyPercent: HighlightBox['fillTransparencyPercent']
     }
+  | { readonly kind: 'bringHighlightBoxToFront'; readonly id: HighlightBox['id'] }
 // </generated>
 
 // see FR-019, CV-1
@@ -289,13 +289,10 @@ function releasedAnchorOf(schedule: Schedule, box: CommentBox, gone: ReleasedTar
   }
   const point = box.anchorSnapPoint ?? null
   if (point === null) return held
-  const task = isTaskGone ? schedule.tasks.find((one) => one.uid === taskUid) : undefined
-  if (task !== undefined) {
-    const anchorTaskGroupId = taskBandOf(schedule, task.uid, held.anchorTaskGroupId, gone)
-    return { ...held, anchorTaskGroupId, anchorDate: releasedDate(held.anchorDate, taskSpanOf(task, box), point) }
-  }
-  const highlight = isHighlightGone ? schedule.highlightBoxes.find((one) => one.id === highlightBoxId) : undefined
-  return highlight === undefined ? held : releasedFromHighlight(held, highlight, point, gone)
+  const anchorDate = commentBoxShownDateOf(schedule, box)
+  if (isTaskGone) return { ...held, anchorDate, anchorTaskGroupId: taskBandOf(schedule, taskUid, held.anchorTaskGroupId, gone) }
+  const highlight = schedule.highlightBoxes.find((one) => one.id === highlightBoxId)
+  return highlight === undefined ? { ...held, anchorDate } : releasedFromHighlight({ ...held, anchorDate }, highlight, point, gone)
 }
 
 // see FR-019
@@ -307,16 +304,8 @@ function taskBandOf(schedule: Schedule, uid: number, held: string | null, gone: 
   return bands.find((one) => gone.isKeptTaskGroup(one)) ?? held
 }
 
-/** @purity pure */
-function taskSpanOf(task: Task, box: CommentBox): { readonly left: number | null; readonly right: number | null } {
-  const isActual = box.anchorTaskFigure === 'actualBar'
-  const left = instantOf(isActual ? (task.actualStart ?? task.start) : task.start)
-  const right = task.milestone ? left : instantOf(isActual ? (task.actualFinish ?? task.finish) : task.finish)
-  return { left, right }
-}
-
 // see FR-019, LF-15
-// WHY: a box is drawn from the start of its first day to the end of its last, so the right points stand a day on.
+// WHY: a top or bottom point stands on the box's own top or bottom band, at that band's edge.
 /** @purity pure */
 function releasedFromHighlight(
   held: CommentAnchorColumns,
@@ -324,29 +313,35 @@ function releasedFromHighlight(
   point: SnapPoint,
   gone: ReleasedTargets,
 ): CommentAnchorColumns {
-  const startDay = dayOf(highlight.start)
-  const finishDay = dayOf(highlight.finish)
-  const left = startDay === null ? null : instantOf(textOfDayStart(startDay))
-  const finishStart = finishDay === null ? null : instantOf(textOfDayStart(finishDay))
-  const right = finishStart === null ? null : finishStart + MINUTES_PER_CALENDAR_DAY
-  const anchorDate = releasedDate(held.anchorDate, { left, right }, point)
   const isTop = point.startsWith('top')
   const rowTaskGroupId = isTop ? highlight.topTaskGroupId : point.startsWith('bottom') ? highlight.bottomTaskGroupId : null
-  if (rowTaskGroupId === null || !gone.isKeptTaskGroup(rowTaskGroupId)) return { ...held, anchorDate }
-  return { ...held, anchorDate, anchorTaskGroupId: rowTaskGroupId, anchorBandFraction: isTop ? 0 : 1 }
+  if (rowTaskGroupId === null || !gone.isKeptTaskGroup(rowTaskGroupId)) return held
+  return { ...held, anchorTaskGroupId: rowTaskGroupId, anchorBandFraction: isTop ? 0 : 1 }
+}
+
+type FrontCommand = Extract<AnnotationCommand, { kind: 'bringCommentBoxToFront' | 'bringHighlightBoxToFront' }>
+
+// see FR-019, CM-100, CM-101, ZO-8, ZO-9
+// WHY: the array order is the drawing order (later in front), so the box moves to the end; already last is no edit.
+/** @purity pure */
+function broughtToFront(document: Document, command: FrontCommand): EditResult {
+  const schedule = document.schedule
+  if (command.kind === 'bringCommentBoxToFront') {
+    const box = commentBoxOf(document, command.id)
+    if (box === null) return refused([reject('CM-100', 'AT-110', `no comment box with id ${command.id}`)])
+    const moved = movedToEnd(schedule.commentBoxes, box)
+    return moved === null ? edited(document) : edited(withScheduleParts(document, { commentBoxes: moved }))
+  }
+  const box = highlightBoxOf(document, command.id)
+  if (box === null) return refused([reject('CM-101', 'AT-116', `no highlight box with id ${command.id}`)])
+  const moved = movedToEnd(schedule.highlightBoxes, box)
+  return moved === null ? edited(document) : edited(withScheduleParts(document, { highlightBoxes: moved }))
 }
 
 /** @purity pure */
-function releasedDate(
-  held: string | null,
-  span: { readonly left: number | null; readonly right: number | null },
-  point: SnapPoint,
-): string | null {
-  const { left, right } = span
-  if (left === null || right === null) return held
-  if (point.includes('Left') || point === 'leftMiddle') return textOfInstant(left)
-  if (point.includes('Right') || point === 'rightMiddle') return textOfInstant(right)
-  return textOfInstant(Math.round((left + right) / 2))
+function movedToEnd<Item>(list: readonly Item[], item: Item): readonly Item[] | null {
+  if (list[list.length - 1] === item) return null
+  return [...list.filter((one) => one !== item), item]
 }
 
 /** @purity pure */
@@ -373,6 +368,7 @@ function rangeRefusals(command: string, document: Document, range: HighlightRang
 /** @purity pure */
 export function editAnnotation(document: Document, command: AnnotationCommand): EditResult {
   if (isCommentBoxLookCommand(command)) return editCommentBoxLook(document, command)
+  if (command.kind === 'bringCommentBoxToFront' || command.kind === 'bringHighlightBoxToFront') return broughtToFront(document, command)
   if (isHighlightBoxLookCommand(command)) return editHighlightBoxLook(document, command)
   const schedule = document.schedule
 

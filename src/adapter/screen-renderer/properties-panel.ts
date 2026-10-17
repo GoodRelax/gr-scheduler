@@ -1065,17 +1065,40 @@ function objectFields<Held>(
   language: DisplayLanguage,
 ): readonly PropertyField[] {
   const { items, held, keyOf, entity } = rows
-  return items.map((item) => ({
-    row: rows.rowOf?.(item) ?? item.row,
-    name: itemName(item.row, language),
-    text: item.columns.map((column) => textOfValue(held[column])).join(PART_SEPARATOR),
-    isEditable: !READ_ONLY_ROWS.includes(item.row),
-    controls: READ_ONLY_ROWS.includes(item.row)
-      ? []
-      : item.columns.map((column) =>
-          controlOf(keyOf(column), entity, column, textOfValue(held[column]), labelCoef),
-        ),
-  }))
+  return items.map((item) => {
+    const [first] = item.columns
+    if (first !== undefined && first === COMMAND_COLUMN) return commandField(item.row, keyOf(first), entity, labelCoef, language)
+    return {
+      row: rows.rowOf?.(item) ?? item.row,
+      name: itemName(item.row, language),
+      text: item.columns.map((column) => textOfValue(held[column])).join(PART_SEPARATOR),
+      isEditable: !READ_ONLY_ROWS.includes(item.row),
+      controls: READ_ONLY_ROWS.includes(item.row)
+        ? []
+        : item.columns.map((column) => controlOf(keyOf(column), entity, column, textOfValue(held[column]), labelCoef)),
+    }
+  })
+}
+
+// see T-016, PR-48, PR-49, CM-100, CM-101
+// WHY: a command row edits no column; its one column is the box's key, and pressing its word commits that key,
+// which the translator reads as the row's command (the box to the front, FR-019).
+const COMMAND_COLUMN = 'id'
+
+// WHY: never the empty text, so a press is never read as leaving the field as it was.
+const COMMAND_PRESS_TEXT = 'bringToFront'
+
+/** @purity pure */
+function commandField(
+  row: string,
+  key: PropertyFieldKey,
+  entity: ShapedEntity,
+  labelCoef: number,
+  language: DisplayLanguage,
+): PropertyField {
+  const word = itemName(row, language)
+  const control = controlOf(key, entity, COMMAND_COLUMN, COMMAND_PRESS_TEXT, labelCoef)
+  return { row, name: '', text: '', isEditable: true, controls: [{ ...control, press: word, widthInFontSizes: widthOf(word, null, labelCoef) }] }
 }
 
 type TaskGroup = Schedule['taskGroups'][number]

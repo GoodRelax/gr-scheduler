@@ -2196,6 +2196,29 @@
    }
   },
   {
+   "id": "CM-100",
+   "group": {
+    "ja": "`CommentBox`"
+   },
+   "name": "bringCommentBoxToFront",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-110"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "コメントボックスを、コメントボックスの並びの最後（最前面）へ移す"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
    "id": "CM-52",
    "group": {
     "ja": "`HighlightBox`"
@@ -2380,6 +2403,29 @@
    "carries": {
     "ja": [
      "塗りの透過率を置く"
+    ]
+   },
+   "source": {
+    "ja": "`FR-019`"
+   }
+  },
+  {
+   "id": "CM-101",
+   "group": {
+    "ja": "`HighlightBox`"
+   },
+   "name": "bringHighlightBoxToFront",
+   "union": "AnnotationCommand",
+   "bundle": false,
+   "values": [
+    {
+     "name": "id",
+     "key": "AT-116"
+    }
+   ],
+   "carries": {
+    "ja": [
+     "ハイライトボックスを、ハイライトボックスの並びの最後（最前面）へ移す"
     ]
    },
    "source": {

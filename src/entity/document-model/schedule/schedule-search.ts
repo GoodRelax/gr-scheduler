@@ -3,7 +3,14 @@
 // @component Schedule, layer documentModel (table T-062)
 // @purity    pure
 
-import { dayOf, instantOf, type CalendarDay } from './calendar-day'
+import {
+  dayOf,
+  instantOf,
+  MINUTES_PER_CALENDAR_DAY,
+  textOfDayStart,
+  textOfInstant,
+  type CalendarDay,
+} from './calendar-day'
 import { instantOnSideReader, startSideOf } from './working-calendar'
 import { planActualState } from './plan-actual-state'
 import type { PlanActualState } from './plan-actual-state'
@@ -202,12 +209,51 @@ function rankedCommentBox(
   schedule: Schedule,
   rankOf: (taskGroupId: string | null) => number,
 ): Ranked<CommentBoxSearchRow> {
+  const shown = commentBoxShownDateOf(schedule, box)
   const row: CommentBoxSearchRow = {
     commentBoxId: box.id,
     text,
     taskGroupName: taskGroupId === null ? '' : taskGroupNameOf(schedule, taskGroupId),
-    anchorDate: box.anchorDate,
+    anchorDate: shown,
     taskGroupId,
   }
-  return { row, rank: rankOf(taskGroupId), at: instantOf(box.anchorDate), key: box.id }
+  return { row, rank: rankOf(taskGroupId), at: instantOf(shown), key: box.id }
+}
+
+// see FR-019, SQ-9, SJ-6
+// WHY: the one reading of the instant a tip stands at from the document alone: a snapped tip at its target's
+// point (start, finish or their middle), else the free point. The search row, the jump and the release on a
+// deleted target all read it, so the table, the jump and the drawn box agree once the target moves.
+/** @purity pure */
+export function commentBoxShownDateOf(schedule: Schedule, box: CommentBox): string | null {
+  const point = box.anchorSnapPoint ?? null
+  if (point === null) return box.anchorDate
+  const span = snappedSpanOf(schedule, box)
+  if (span === null) return box.anchorDate
+  const { left, right } = span
+  if (point.includes('Left') || point === 'leftMiddle') return textOfInstant(left)
+  if (point.includes('Right') || point === 'rightMiddle') return textOfInstant(right)
+  return textOfInstant(Math.round((left + right) / 2))
+}
+
+// see FR-019, LF-15
+// WHY: a highlight box is drawn from the start of its first day to the end of its last, so its right stands a day on.
+/** @purity pure */
+function snappedSpanOf(schedule: Schedule, box: CommentBox): { readonly left: number; readonly right: number } | null {
+  const taskUid = box.anchorTaskUid ?? null
+  if (taskUid !== null) {
+    const task = schedule.tasks.find((one) => one.uid === taskUid)
+    if (task === undefined) return null
+    const isActual = box.anchorTaskFigure === 'actualBar'
+    const left = instantOf(isActual ? (task.actualStart ?? task.start) : task.start)
+    const right = task.milestone ? left : instantOf(isActual ? (task.actualFinish ?? task.finish) : task.finish)
+    return left === null || right === null ? null : { left, right }
+  }
+  const highlight = schedule.highlightBoxes.find((one) => one.id === (box.anchorHighlightBoxId ?? null))
+  const startDay = dayOf(highlight?.start ?? null)
+  const finishDay = dayOf(highlight?.finish ?? null)
+  if (startDay === null || finishDay === null) return null
+  const left = instantOf(textOfDayStart(startDay))
+  const finishStart = instantOf(textOfDayStart(finishDay))
+  return left === null || finishStart === null ? null : { left, right: finishStart + MINUTES_PER_CALENDAR_DAY }
 }
