@@ -1788,6 +1788,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SETTLED_AS_ONE_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#SETTLED_AS_ONE_ATTRIBUTE` | -- | const SETTLED_AS_ONE_ATTRIBUTE = 'data-settled-as-one' |
 | `TextEntryControl` | file only | interface | `src/framework/dom-screen-surface/field-editing.ts#TextEntryControl` | -- | interface TextEntryControl |
 | `TYPED_CONTROLS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#TYPED_CONTROLS` | -- | const TYPED_CONTROLS = new WeakSet<object>() |
+| `TYPED_ROWS` | file only | const | `src/framework/dom-screen-surface/field-editing.ts#TYPED_ROWS` | -- | const TYPED_ROWS = new WeakMap<object, string>() |
 | `HOLIDAY_SETTINGS_TARGET_ATTRIBUTE` | file only | const | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#HOLIDAY_SETTINGS_TARGET_ATTRIBUTE` | -- | const HOLIDAY_SETTINGS_TARGET_ATTRIBUTE = 'data-holiday-target' |
 | `holidaySettingsBodyElements` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#holidaySettingsBodyElements` | -- | function holidaySettingsBodyElements( host: Document, modal: HolidaySettingsModal, anchors: Map<string, HTMLElement>, ): readonly HTMLElement[] |
 | `holidaySettingsFrameStyle` | file only | function | `src/framework/dom-screen-surface/holiday-settings-drawing.ts#holidaySettingsFrameStyle` | -- | function holidaySettingsFrameStyle(): string |
@@ -2095,4 +2096,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1062 name(s) leave through a public entry (512 of them published by table T-064), 823 more are exported by a file and not by its entry.
+Totals: 1062 name(s) leave through a public entry (512 of them published by table T-064), 824 more are exported by a file and not by its entry.

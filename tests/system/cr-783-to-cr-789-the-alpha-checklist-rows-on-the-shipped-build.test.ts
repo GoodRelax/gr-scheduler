@@ -455,7 +455,7 @@ test.describe('CR-788: the assignee field is a checkbox list and the first check
     await pressInList(page, `${LIST} [data-assignee-add]`, 16, 2)
     expect(await namesOf(page, 16), 'step 3: the added person is made and seated').toEqual(['Analyst A', 'Zed'])
 
-    // WHY: Backspace in the filter deletes the selected task instead (DFC-3100), so the filter is emptied as an input event.
+    // WHY: the filter is emptied in one input event; the typed keys are pressed by the DFC-3100 case below.
     await page.evaluate((LIST) => {
       const filter = document.querySelector(`${LIST} input[data-assignee-filter]`) as HTMLInputElement
       filter.value = ''
@@ -499,8 +499,7 @@ test.describe('CR-788: the assignee field is a checkbox list and the first check
     expect(await namesOf(page, 16), 'step 7: the primary is unchanged after MSPDI').toEqual(['Writer A', 'Analyst B'])
   })
 
-  // WHY: fixme until DFC-3100 -- single keys (SK-14 P, SK-18 F, SK-25 N, y) and Backspace (SK-3) leave the filter.
-  test.fixme('CR-788 section 5 step 3: every letter typed into the filter stays in the filter (DFC-3100)', async ({ page }) => {
+  test('CR-788 section 5 step 3: every letter typed into the filter stays in the filter (DFC-3100)', async ({ page }) => {
     await launch(page)
     await enableAgentApi(page)
     await openTaskPanel(page, 16)

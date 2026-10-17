@@ -37,6 +37,9 @@ const AS_5_ALL_AND_NONE =
 const AS_5_UNLISTED_KEPT = '一覧に出ていない担当のチェックは変えない'
 const AS_5_HEIGHT = '⭐ 一覧の高さはタイムゾーンの一覧（`FR-156`）と同じ —— 2 行の選択肢 `_assets/tbl-settings.md` の 表 T-206 の `S-607` 個ぶん —— とし、入らない担当は一覧の中で縦に送る。'
 const AS_5_STAYS_OPEN = '書いた後も一覧は開いたままとし、打った字も残す'
+// see DFC-3100
+const AS_5_FILTER_TAKES_ITS_KEYS =
+  '⭐ 絞り込みの欄は文字入力の欄であり、焦点があるあいだに打ったキーは欄が取ること（MUST） —— 単独のキーの割当（表 T-036）も `Backspace` の削除（`SK-3`）も働かない。'
 // see T-225, FR-059, TL-7
 const T_225_ONE_CALL =
   '`AS-5` の `IC-125` と `IC-126` は、一覧に出ている人の数だけの `CM-44` か `CM-45` を 1 回の呼び出しで走らせること（MUST）。'
@@ -62,6 +65,7 @@ describe('CR-788 -- the manuscript these cases are driven by', () => {
     ['AS-5 -- unlisted people keep their checks', AS_5_UNLISTED_KEPT],
     ['AS-5 -- the list height is S-607 choices', AS_5_HEIGHT],
     ['AS-5 -- the list stays open after a write', AS_5_STAYS_OPEN],
+    ['AS-5 (MUST) -- the filter takes its own keys (DFC-3100)', AS_5_FILTER_TAKES_ITS_KEYS],
     ['T-225 (MUST) -- IC-125 / IC-126 run in one call', T_225_ONE_CALL],
     ['FR-059 -- the primary and the mark', FR_059_MARK],
     ['FR-059 -- no count of the others', FR_059_NO_COUNT],

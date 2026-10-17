@@ -42,6 +42,8 @@ export interface TextEntryControl {
 
 export const TYPED_CONTROLS = new WeakSet<object>()
 
+export const TYPED_ROWS = new WeakMap<object, string>()
+
 export const CONTROL_PICKS = new WeakMap<Element, NonNullable<FieldCommit['pick']>>()
 
 /** @purity pure */
@@ -88,7 +90,7 @@ function assigneeLineDeleted(event: Event): FieldCommit | null {
 
 /** @purity pure */
 function rowOf(control: TextEntryControl): string {
-  return CONTROL_KEYS.get(control as unknown as Element)?.row ?? ''
+  return CONTROL_KEYS.get(control as unknown as Element)?.row ?? TYPED_ROWS.get(control) ?? ''
 }
 
 /** @purity pure */
