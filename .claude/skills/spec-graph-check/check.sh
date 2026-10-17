@@ -394,8 +394,11 @@
 #          section 7 -- names, globs, words and order. JDG-2419. Baseline 0
 #   83     check-source-references.py : a reference between the JSON
 #          files of docs/spec/_source (a pointing field such as `column`,
-#          `rowId`, `valuesOf`, `entity`, or an id in a code span) that
-#          resolves nowhere, and a stale exemption
+#          `rowId`, `valuesOf`, `entity`, or an id in any string, bare or
+#          in a code span) that resolves nowhere, a pointing field whose
+#          value is no id or lands in a family the field does not allow, a
+#          command column on an entity its command does not write, a
+#          retired command retired.py lacks, and a stale exemption
 #          (source-references-exempt.txt); plus the edge list
 #          source-relations.json the relation figure is drawn from is
 #          current (source_relations.py --check). JDG-2692. Baseline 0
@@ -1133,10 +1136,14 @@ echo ""
 section "83  every reference between the _source JSON files resolves"
 # JDG-2692 (2026-10-17): the user keeps the GRS JSON keys, screen words, API
 # and command names in docs/spec/_source and asked for a machine check that
-# the files there agree. MEASURED 2026-10-17 on e5d2b794 plus this change:
-# 6,738 references from 15 manuscripts, 4 exempted with a reason, 2 retired
-# ids cited in prose (printed, not red). Planting `"column": "AT-9999"` in
-# CM-87 gives 1. Baseline 0. The edge list the relation figure
+# the files there agree. MEASURED 2026-10-17 on d4eb2573 plus the stage-0
+# fixes the review of 585b29cc asked for: 7,766 references from 15
+# manuscripts and 11 schemas, 5 exempted with a reason, 3 retired ids cited
+# (printed, not red). The review's break tests B, C, D, E, F and J (a
+# dangling id in state-machines `rows`, a dangling `manner`, a dangling PA
+# `tag`, CM-26's column on a Task, a name where `column` wants an id,
+# `valuesOf` naming a PR row) were green and now give 1 each. Baseline 0.
+# The edge list the relation figure
 # (fig-source-relations) is drawn from is held against the same references.
 PYTHONIOENCODING=utf-8 python "$HERE/check-source-references.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-source-references.py" || failed
@@ -1144,9 +1151,11 @@ PYTHONIOENCODING=utf-8 python "$REPO/docs/spec/_source/source_relations.py" --ch
 
 echo ""
 section "84  a name in the _source JSON files matches what it points at"
-# JDG-2692 / JDG-2691 (2026-10-17). MEASURED 2026-10-17 on e5d2b794 plus this
-# change: 354 pairs, 41 differ, every one on source-names-allow.txt with its
-# reason. Renaming CM-87's value gives 1; deleting K-77's line gives 1.
+# JDG-2692 / JDG-2691 (2026-10-17). MEASURED 2026-10-17 on d4eb2573 plus the
+# stage-0 fixes: 368 pairs (a list-valued `column` makes one pair per
+# column), 47 differ, all covered by the 44 reasoned lines of
+# source-names-allow.txt. Renaming CM-87's value gives 1; deleting K-77's
+# line gives 1; a dangling or non-id column gives 1 (it raised IndexError).
 # Baseline 0. ⚠️ A rename that lands leaves its allow-list line stale, and
 # that is red too: delete the line in the same change.
 PYTHONIOENCODING=utf-8 python "$HERE/check-source-names.py" --self-test || failed

@@ -7,9 +7,10 @@ Writes, from the references the manuscripts already hold (JDG-2692):
       the STRUCTURED references -- a field whose whole value names a row, an
       entity, a column, a value shape or a component of another file -- and
       which generated JSON is written from which manuscript
-and keeps in the edge list, without a figure, the PROSE references -- a row
-id in a code span or a table number inside any string -- counted file to file
-(--matrix prints them as a Markdown matrix).
+and keeps in the edge list, without a figure, the PROSE references -- a token
+shaped like a row id or a table number in any other string, with or without
+a code span -- counted file to file (--matrix prints them as a matrix). Every
+manuscript is drawn; one that only cites in prose says how many ids.
 
 One cluster per file; an edge leaves the referring file's cluster and lands
 on the family it names (a row-id prefix, or erd.json's entity / column names).
@@ -146,6 +147,7 @@ def build_edges(root=ROOT):
              'from': [sr.SOURCE_DIR + '/' + f for f in froms]}
             for g, froms in sorted(sr.GENERATED_JSON.items())],
         'schemas': [{'file': k, 'schema': v} for k, v in sorted(schemas.items())],
+        'schemas_read': [sr.SOURCE_DIR + '/' + n for n in sr.schemas(root)],
         'structured': [
             {'from': s, 'to': t, 'family': fam,
              'fields': dict(sorted(fields.items())),
@@ -182,10 +184,13 @@ def structured_model(edges):
     for g in edges['generated']:
         sources.update(g['from'])
     targets = {e['to'] for e in edges['structured']}
-    # A file that neither names nor is named by another file through a
-    # structured field is left out of the picture; source-relations.json
-    # still lists it under `manuscripts`.
-    files = [f for f in edges['manuscripts'] if f in sources | targets]
+    # Every manuscript is drawn, also one that only cites ids in prose: the
+    # review of 585b29cc found five files the picture had never shown.
+    files = list(edges['manuscripts'])
+    prose_out = collections.Counter()
+    for e in edges['prose']:
+        if e['from'] not in edges['schemas_read']:
+            prose_out[e['from']] += e['count']
     # Neighbours first: a file sits beside the files it names, so the edges
     # of the middle band stay short (an unlisted file keeps the name order).
     files.sort(key=lambda f: (TARGET_ORDER.index(short(f))
@@ -224,10 +229,14 @@ def structured_model(edges):
             # A file nothing names still gets a box, so its outgoing edges
             # have a cluster to leave from.
             own = ', '.join('%s-' % p for p in sorted(rows))
+            # The box text is the node's name, so it has to be unique: a file
+            # whose box says only what kind of file it is names itself.
             if kind == 'generated':
-                text = 'generated'
+                text = 'generated: ' + short(f)
+            elif f not in sources:
+                text = '%s: %d ids in prose only' % (short(f), prose_out[f])
             else:
-                text = 'defines ' + own if own else 'no rows of its own'
+                text = 'defines ' + own if own else short(f)
             members.append(add_node(f, text))
         stroke, fill = COLOUR[kind]
         cluster = {'name': cluster_name(f), 'label': short(f),

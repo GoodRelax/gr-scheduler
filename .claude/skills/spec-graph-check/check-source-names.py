@@ -13,7 +13,9 @@ THREE PAIRINGS, each read from the manuscripts:
           or `fields` of a shape) that names the column it writes --
           `{"name": "parentId", "column": "AT-52"}`. The value's name must BE
           the column's name (JDG-2361); for a settings row (`S-…`), the
-          stored key's last segment.
+          stored key's last segment. A value that writes the same column of
+          several stored rows (`"column": ["S-560", "S-564", "S-568"]`) makes
+          one pair per column.
   key     a value that names the row it addresses by its key column --
           `{"name": "taskGroupId", "key": "AT-51"}`. The name must END with
           the key column's name (`…Id`, `…Uid`, or a list of them, `…Ids`):
@@ -27,7 +29,8 @@ THREE PAIRINGS, each read from the manuscripts:
 
 RED: a pair that does not match and has no allow-list line, and an allow-list
 line that matches no pair (stale -- the rename it waited for has landed, or
-the name moved; delete the line).
+the name moved; delete the line). A pair whose row is not there, or is not an
+id, is red here as `(no such row)`; check 83 says why.
 
 ⚠️ WHAT IT DOES NOT SEE. A name with no pointer beside it -- an Agent API
 member, a command's own name, a value with neither `column` nor `key` --
@@ -35,10 +38,13 @@ has nothing to be compared with here. Word matching is about spelling: a key
 whose words all appear in the screen word passes even when it means
 something else.
 
-MEASURED 2026-10-17 on e5d2b794 plus this change: 354 pairs (value 116,
-key 60, screen 178), 41 differ, all 41 on the allow-list with a reason.
-Renaming CM-87's value to `parentToleranceDays` gives 1 red; deleting the
-allow-list line of K-77 gives 1 red.
+MEASURED 2026-10-17 on d4eb2573 plus the stage-0 fixes: 368 pairs (value
+130, key 60, screen 178), 47 differ, all covered by 44 reasoned allow-list
+lines. Renaming CM-87's value to `parentToleranceDays` gives 1 red; deleting
+the allow-list line of K-77 gives 1 red; `"column": "AT-9999"` and a name in
+place of an id each give 1 red (they raised IndexError before). Pairing the
+list-valued columns found two real mismatches the user then ruled on
+(JDG-2723 isApplied, JDG-2724 hiddenKeys).
 --self-test feeds a matching, a mismatched, an allowed pair and a stale line.
 
 Usage: python check-source-names.py [--self-test] [--list]
@@ -99,8 +105,17 @@ def key_matches(name, column):
             or name.endswith(tail + 's'))
 
 
+# What a pair carries when the row it points at is not there (or is not an
+# id at all): the pair is then red here, and check 83 says why.
+NO_ROW = '(no such row)'
+
+
 def cells(defs, rid):
-    _t, f, ln = defs.index.row_owner[rid][0]
+    """The cells of the table row that defines rid, or None."""
+    owners = defs.index.row_owner.get(rid)
+    if not owners:
+        return None
+    _t, f, ln = owners[0]
     return [c.strip() for c in
             defs.index.lines[f][ln - 1].strip().strip('|').split('|')]
 
@@ -121,8 +136,9 @@ def pairs(defs):
 
     def spec_name(rid):
         if rid.startswith('S-'):
-            return settings_key.get(rid, '?').split('.')[-1]
-        return first_code(cells(defs, rid)[2])      # AT row: entity | column
+            return settings_key.get(rid, NO_ROW).split('.')[-1]
+        row = cells(defs, rid)                      # AT row: entity | column
+        return first_code(row[2]) if row and len(row) > 2 else NO_ROW
 
     def walk(x, where):
         if isinstance(x, dict):
@@ -131,9 +147,16 @@ def pairs(defs):
                     and 'id' not in x:
                 here = 'shape ' + x['name']
             name = x.get('name')
-            if isinstance(name, str) and isinstance(x.get('column'), str):
-                out.append(Pair('value', where, name, spec_name(x['column']),
-                                x['column']))
+            # A value may write one column or the same column of several
+            # stored rows (`TableVisibility.isApplied` -> S-560, S-564,
+            # S-568): every column is one pair.
+            columns = x.get('column')
+            if isinstance(columns, str):
+                columns = [columns]
+            if isinstance(name, str) and isinstance(columns, list):
+                for column in columns:
+                    out.append(Pair('value', where, name, spec_name(column),
+                                    column))
             if isinstance(name, str) and isinstance(x.get('key'), str) \
                     and sr.ROW_ID.match(x['key']):
                 out.append(Pair('key', where, name, spec_name(x['key']),
@@ -147,19 +170,22 @@ def pairs(defs):
 
     shown = sr.read_json(sr.SOURCE_DIR + '/display-words.json')
     for e in shown['settings']:
-        key = first_code(cells(defs, e['rowId'])[2])
+        row = cells(defs, e['rowId'])
+        key = first_code(row[2]) if row and len(row) > 2 else NO_ROW
         out.append(Pair('screen', e['rowId'], key, e['label']['en'],
                         'tbl-glossary.md'))
     items = {i['id']: i for i in
              sr.read_json(sr.SOURCE_DIR + '/property-items.json')['items']}
     for e in shown['properties']:
-        for column in items[e['rowId']]['columns']:
+        for column in items.get(e['rowId'], {}).get('columns', [NO_ROW]):
             out.append(Pair('screen', e['rowId'], column, e['label']['en'],
                             'property-items.json'))
     return out
 
 
 def matches(p):
+    if NO_ROW in (p.name, p.spec_name):
+        return False
     if p.kind == 'value':
         return p.name == p.spec_name
     if p.kind == 'key':
@@ -242,10 +268,12 @@ def main(argv):
                          'match what they point at\n' % len(red))
         return 1
     count = collections.Counter(p.kind for p in all_pairs)
+    differ = sum(1 for p in all_pairs if not matches(p))
     sys.stdout.write('OK       %d name pairs (value %d, key %d, screen %d): '
-                     '%d match, %d differ with a reason on the allow-list\n'
+                     '%d match, %d differ, all covered by the %d reasoned '
+                     'lines of the allow-list\n'
                      % (len(all_pairs), count['value'], count['key'],
-                        count['screen'], len(all_pairs) - len(allow),
+                        count['screen'], len(all_pairs) - differ, differ,
                         len(allow)))
     return 0
 

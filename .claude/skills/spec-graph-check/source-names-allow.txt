@@ -2,7 +2,8 @@
 # kind: value (a command value and the column it writes), key (a command value
 # and the key column of the row it addresses), screen (a stored key and its
 # screen word). `python check-source-names.py --list` prints every mismatch in
-# this form. MEASURED 2026-10-17 on e5d2b794: 41 mismatches, all below.
+# this form. MEASURED 2026-10-17 on d4eb2573 plus the stage-0 fixes: 47
+# mismatches in 44 lines (a list-valued `column` makes one pair per column).
 # Add a line only with its reason. A line whose pair has gone (a rename landed)
 # is red as stale -- delete it in the same change.
 #
@@ -26,6 +27,9 @@ screen | K-140 | parentProgressToleranceDays | Parent Task Progress Tolerance | 
 screen | PR-33 | editGroup | Edit Permission | renamed to editPermission by CR-792 (the user's choice, 2026-10-17)
 screen | K-121 | scrollDayOffset | Left Edge Time | JDG-2681: renamed to scrollDateFraction by CR-792 (the new name still differs from the screen word; CR-792 writes the new line)
 screen | K-120 | scrollGroupOffset | Top Task Group Position | JDG-2681: renamed to scrollTaskGroupFraction by CR-792 (the new name still differs from the screen word; CR-792 writes the new line)
+value | shape TableVisibility | isApplied | isScheduleFilterApplied | JDG-2723: the command value becomes isScheduleFilterApplied by CR-792 (it writes S-560, S-564 and S-568; one line covers the three)
+value | shape TableVisibility | hiddenKeys | hiddenTaskUids | JDG-2724: split into hiddenTaskUids (search panel, delay report) and hiddenResourceUids (resource list) by CR-792
+value | shape TableVisibility | hiddenKeys | hiddenResourceUids | JDG-2724: split into hiddenTaskUids and hiddenResourceUids by CR-792
 #
 # -- the shape of a value, not a name choice --
 value | shape AnnotationAnchor | date | anchorDate | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
@@ -35,7 +39,7 @@ value | shape AnnotationAnchor | taskUid | anchorTaskUid | the shape IS the comm
 value | shape AnnotationAnchor | taskFigure | anchorTaskFigure | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
 value | shape AnnotationAnchor | highlightBoxId | anchorHighlightBoxId | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
 value | shape AnnotationAnchor | snapPoint | anchorSnapPoint | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
-value | CM-39 | workingDayTypes | dayType | a list of the dayType values that count as working days, not the column itself
+value | CM-39 | workingDayTypes | dayType | JDG-2725: a list of the dayType values that count as working days, not the column itself
 value | CM-51 | dx | bodyOffsetPx | the horizontal part of the offset bodyOffsetPx holds
 value | CM-51 | dy | bodyOffsetPx | the vertical part of the offset bodyOffsetPx holds
 screen | PR-35 | start | Planned Date | one field edits the planned start and finish together under one word
@@ -45,10 +49,10 @@ screen | PR-36 | actualFinish | Actual Date | one field edits the actual start a
 screen | PR-48 | id | Bring to Front | an action on the comment box, not a value; the item names the row it acts on
 screen | PR-49 | id | Bring to Front | an action on the highlight box, not a value; the item names the row it acts on
 screen | PR-8 | resumeValid | Resume Date Confirmed | the MSPDI name ResumeValid, kept as MSPDI spells it
-screen | K-67 | zoomX | Horizontal Zoom | the screen spells the axis X as Horizontal
-screen | K-68 | zoomY | Vertical Zoom | the screen spells the axis Y as Vertical
-screen | K-75 | isAssigneeVisible | Assignee Label | the toggle shows or hides the assignee label on the bar; the screen names the label
-screen | K-76 | isPercentCompleteVisible | Percent Complete Label | the toggle shows or hides the percent-complete label on the bar; the screen names the label
+screen | K-67 | zoomX | Horizontal Zoom | JDG-2725: the screen spells the axis X as Horizontal
+screen | K-68 | zoomY | Vertical Zoom | JDG-2725: the screen spells the axis Y as Vertical
+screen | K-75 | isAssigneeVisible | Assignee Label | JDG-2725: the toggle shows or hides the assignee label on the bar; the screen names the label
+screen | K-76 | isPercentCompleteVisible | Percent Complete Label | JDG-2725: the toggle shows or hides the percent-complete label on the bar; the screen names the label
 #
 # -- asked one by one on 2026-10-17 and kept (JDG-2720..2722) --
 screen | K-60 | themeHue | Theme Color | JDG-2720: the value is a hue angle 0-359, not a color code; the screen word changed, the identifier stays (JDG-922 #15, JDG-966)

@@ -362,4 +362,12 @@ RETIRED = {'FR-050', 'T-030',
            # the line stops silently, and S-212 (the share a refused direction
            # follows) had no refused direction to follow. CR-772, the changelog
            # and the ledgers name them, so the seats stay burned.
-           'RS-36', 'RS-37', 'RS-38', 'RS-39', 'S-212'}
+           'RS-36', 'RS-37', 'RS-38', 'RS-39', 'S-212',
+           # Table T-108's own `retired` list (document-commands.json) held
+           # five commands this set did not, found by check 83 on 2026-10-17:
+           # CM-25 setTaskVisualNamePlacement left with the name anchor
+           # (CR-181), and CM-59 setGuideCursorMode, CM-60 / CM-61 the dual
+           # cursor and CM-63 setThemePreference left when the file stopped
+           # holding the viewer's screen (CR-572). Check 83 now reds a seat
+           # that list names and this set lacks.
+           'CM-25', 'CM-59', 'CM-60', 'CM-61', 'CM-63'}

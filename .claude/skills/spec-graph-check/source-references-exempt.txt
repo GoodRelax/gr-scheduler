@@ -5,3 +5,4 @@ docs/spec/_source/property-items.json | Task.assignee | PR-16: not a Task column
 docs/spec/_source/property-items.json | Task.predecessors | PR-37: read-only, not a document column -- the dependencies whose successor is this Task, one line each
 docs/spec/_source/property-items.json | Task.successors | PR-38: read-only, not a document column -- the dependencies whose predecessor is this Task, one line each
 docs/spec/_source/property-items.json | Dependency.successorUid | PR-44: read-only, not a document column -- the task that nests the dependency (ET-3)
+docs/spec/_source/property-items.schema.json | X-23 | CR-710's own item list ("CR-710 X-23"), not a row of the specification's X table
