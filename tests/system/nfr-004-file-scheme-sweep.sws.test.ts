@@ -1070,6 +1070,9 @@ const TIME_ZOOM_IN = 'Shift+='
 // see FR-039, T-252, DS-4, S-1
 const TIME_ZOOM_STEPS = 12
 
+// WHY: the one place the GR-14 probe put a comment box, for its act to grab.
+let placedCommentBoxTip: Spot | null = null
+
 const PROBES: readonly Probe[] = [
   { rows: ['MK-1'], expect: 'answers', act: async (p, g) => { await wheelAt(p, g.barBody, [], 400); return null } },
   { rows: ['MK-2'], expect: 'answers', act: async (p, g) => { await wheelAt(p, g.barBody, ['Control'], -300); return null } },
@@ -1416,20 +1419,26 @@ const PROBES: readonly Probe[] = [
   { rows: ['GA-7'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barStart.x + 2, y: g.barStart.y - 8 }, 60, 0) },
   { rows: ['GA-8'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barFinish.x - 2, y: g.barFinish.y + 8 }, -60, 0) },
   {
-    // see AR-5, PTD-4
+    // see AR-5, PTD-4, CR-782
+    // WHY: a placed comment box is selected and takes the text at once (CR-782), so the first Escape leaves
+    // WHY: the text field and only the second one puts the entrance down; the box is then grabbed by its tip
+    // WHY: where it was placed, because the empty place measured after the placing is another one.
     rows: ['GR-14'],
     expect: 'answers',
     setUp: async (p, g) => {
       await press(p, 'IC-35')
       if (g.empty === null) return
+      placedCommentBoxTip = g.empty
       await p.mouse.click(g.empty.x, g.empty.y)
       await p.waitForTimeout(400)
       await p.keyboard.press('Escape')
       await p.waitForTimeout(200)
+      await p.keyboard.press('Escape')
+      await p.waitForTimeout(200)
     },
-    act: async (p, g) => {
-      if (g.empty === null) throw new Error('GR-14 needs an empty place to put a comment box in')
-      return dragFrom(p, g.empty, 90, 40)
+    act: async (p) => {
+      if (placedCommentBoxTip === null) throw new Error('GR-14 needs an empty place to put a comment box in')
+      return dragFrom(p, placedCommentBoxTip, 90, 40)
     },
   },
   { rows: ['GA-16'], expect: 'answers', setUp: selectBar, act: async (p, g) => dragFrom(p, { x: g.barBody.x, y: g.barBody.y + 9 }, 60, 0) },
