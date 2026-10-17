@@ -276,11 +276,11 @@ describe('DFC-587 help title row: the entrances drawn on it', () => {
   })
 })
 
-// WHY: IC-123 / IC-124 head the open assignee list (AS-5), IC-139 the settings face only (FR-153);
+// WHY: IC-123 .. IC-126 head the open assignee list (AS-5, CR-788), IC-139 the settings face only (FR-153);
 // IC-162 is a word entrance in its own field there (FO-16, DFC-2517), no icon on either face.
 const NOT_ON_THE_FACE: Readonly<Record<'selection' | 'documentSettings', readonly string[]>> = {
-  selection: ['IC-123', 'IC-124', 'IC-139', 'IC-162'],
-  documentSettings: ['IC-123', 'IC-124', 'IC-162'],
+  selection: ['IC-123', 'IC-124', 'IC-125', 'IC-126', 'IC-139', 'IC-162'],
+  documentSettings: ['IC-123', 'IC-124', 'IC-125', 'IC-126', 'IC-162'],
 }
 
 /** @purity pure */

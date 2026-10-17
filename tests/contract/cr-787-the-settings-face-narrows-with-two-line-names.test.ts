@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 import { timeZoneLinesOf, zoneOffsetTextOf } from '../../src/adapter/screen-renderer/notices'
 import type { DisplayLanguage, PropertyControl, PropertyField } from '../../src/adapter/screen-renderer/screen-renderer'
 import { fieldElement } from '../../src/framework/dom-screen-surface/properties-panel-drawing'
-import { FakeElement, stage, type FakeEvent, type World } from '../fixtures/fake-browser'
+import { FakeElement, selfAndDescendants, stage, type FakeEvent, type World } from '../fixtures/fake-browser'
 import { FIRST_GROUP_ID, LANGUAGES, partWord, REQUIREMENTS, SETTINGS_BOOK, settingsPanel, TEMPLATE, type Loose } from './cr-754-stage'
 import { T_376_ROWS, WORDS, placeOf, timeZoneWord, zoneRowOfKey } from './cr-755-stage'
 import { bare, specTable } from './spec-table'
@@ -194,15 +194,19 @@ function rig(): { readonly host: Document; readonly rigged: (field: HTMLElement)
       }
     }
   }
-  const proto = FakeElement.prototype as unknown as Record<string, unknown>
-  if (!('dispatchEvent' in proto)) {
-    proto['dispatchEvent'] = function dispatch(this: FakeElement, event: Event): boolean {
-      fire(this, event.type, false)
-      return true
+  // WHY: each element is given its own dispatchEvent, so no prototype changes for any other file (--no-isolate).
+  const armed = (root: FakeElement): void => {
+    for (const node of selfAndDescendants(root)) {
+      if (typeof (node as unknown as Record<string, unknown>)['dispatchEvent'] === 'function') continue
+      Object.defineProperty(node, 'dispatchEvent', {
+        value: (event: Event): boolean => {
+          fire(node, event.type, false)
+          return true
+        },
+        configurable: true,
+      })
+      Object.defineProperty(node, 'parentElement', { get: () => node.parentNode, configurable: true })
     }
-  }
-  if (!('parentElement' in proto)) {
-    Object.defineProperty(proto, 'parentElement', { get(this: FakeElement) { return this.parentNode } })
   }
   const host = {
     createElement: (tagName: string): FakeElement => new FakeElement(tagName, built.world),
@@ -231,8 +235,14 @@ function rig(): { readonly host: Document; readonly rigged: (field: HTMLElement)
       return {
         mount,
         changes,
-        click: (node) => fire(node, 'click', true),
-        pointerDownOn: (node) => fire(node, 'pointerdown', true),
+        click: (node) => {
+          armed(mount)
+          fire(node, 'click', true)
+        },
+        pointerDownOn: (node) => {
+          armed(mount)
+          fire(node, 'pointerdown', true)
+        },
       }
     },
   }

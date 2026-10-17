@@ -116,9 +116,9 @@ describe('DFC-1338: a started task tells its actual, its assignees and its perce
     expect(lines[2]).not.toContain(dayText('2026-06-04', 'ja'))
   })
 
-  it('TL-7 the assignees are one line, in name order, joined by a comma and a space', () => {
+  it('TL-7 the assignees are one line, in the assignment order (AS-13, CR-788), joined by a comma and a space', () => {
     const lines = linesOf({ task: STARTED, assignees: ['Bob', 'Ada'] })
-    expect(lines).toContain('担当: Ada, Bob')
+    expect(lines).toContain('担当: Bob, Ada')
   })
 
   it('TL-7 a task with nobody assigned has no assignee line and leaves no gap', () => {

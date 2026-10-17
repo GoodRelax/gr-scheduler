@@ -25,8 +25,9 @@ const TL_7_ONE_LINE =
   '担当の語、`:`、半角空白 1 つ、名前の並び の順に、担当が何人でも 1 行で書くこと（MUST）'
 const TL_7_THE_WORD =
   '担当の語は、遅延診断レポートの担当の欄の見出しと同じ語（`FR-038` の辞書の `delayReportColumns` の `DT-2` の語）とすること（MUST）'
+// WHY: CR-788 -- the names follow the assignment order (the primary first, AS-13), not the name order.
 const TL_7_THE_ORDER =
-  '`FR-059` と同じ順（資源名の昇順、同名は `UID` の昇順）に、`,` と半角空白 1 つで繋いだものとする'
+  '名前の並びは、担当ラベルが対象にする担当（`FR-059` —— 作業資源で、名前が空でないもの）の名前を、割当の並びの順（主担当が先頭、`FR-008` の 表 T-225 の `AS-13`）に、`,` と半角空白 1 つで繋いだものとする'
 const TL_7_CUT_AT_WHOLE_NAMES =
   '⭐ 名前の並びが `_assets/tbl-settings.md` の 表 T-206 の `S-513` の字数を超えるときは、先頭から名前を 1 人ずつ丸ごと残し、半角空白 1 つと `…` を続けて止めること（MUST）'
 const TL_7_AS_MANY_AS_FIT = '残す名前は、残した並び・半角空白・`…` を合わせて `S-513` を超えない限り多くとる。'
@@ -231,7 +232,7 @@ for (const language of ['ja', 'en'] as const) {
         { uid: 11, name: 'Bea' },
         { uid: 12, name: 'Ada' },
       ], language)
-      expect(assigneeLinesOf(tip, language)).toEqual([`${ASSIGNEE(language)}Ada, Bea`])
+      expect(assigneeLinesOf(tip, language)).toEqual([`${ASSIGNEE(language)}Bea, Ada`])
       expect(linesOf(tip).filter((one) => one === 'Ada' || one === 'Bea'), 'no name stands on a line of its own').toEqual([])
     })
 
@@ -244,7 +245,15 @@ for (const language of ['ja', 'en'] as const) {
         { uid: 25, name: '' },
         { uid: 26, name: 'Bea' },
       ], language)
-      expect(assigneeLinesOf(tip, language)).toEqual([`${ASSIGNEE(language)}Ada, Bea, Cid`])
+      expect(assigneeLinesOf(tip, language)).toEqual([`${ASSIGNEE(language)}Cid, Ada, Bea`])
+    })
+
+    it(`TL-7 「${TL_7_THE_ORDER}」: the assignment order, not the uid order`, () => {
+      const tip = tipOf(STARTED, [
+        { uid: 29, name: 'Ada' },
+        { uid: 28, name: 'Bea' },
+      ], language)
+      expect(assigneeLinesOf(tip, language)).toEqual([`${ASSIGNEE(language)}Ada, Bea`])
     })
 
     it(`TL-7 「${TL_7_NONE}」`, () => {

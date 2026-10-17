@@ -503,10 +503,10 @@
 | IC-130 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Dialogue Field` | — | ウィンドウを最大化する（`S-435`・`S-442`・`S-451`・`S-99i`） | `FR-036` の 表 T-335 | — | — |
 | IC-131 | `Help Modal` / `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Dialogue Field` | — | 最大化したウィンドウを元のサイズに戻す（`S-435`・`S-442`・`S-451`・`S-99i`）。<br>⭐ `IC-130` の場所に、最大化しているあいだだけ描く | `FR-036` の 表 T-335 | — | — |
 | IC-122 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 列のフィルタと並べ替えを開く（列の見出しごとに 1 つ） | `FR-151` | — | — |
-| IC-123 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | その列で昇順に並べる。<br>プロパティパネルでは、担当の欄の候補を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
-| IC-124 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | その列で降順に並べる。<br>プロパティパネルでは、担当の欄の候補を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
-| IC-125 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 一覧に出ているすべての値にチェックを付ける | `FR-151` | — | — |
-| IC-126 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 一覧に出ているすべての値のチェックを外す | `FR-151` | — | — |
+| IC-123 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | その列で昇順に並べる。<br>プロパティパネルでは、担当の欄の一覧を名の昇順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
+| IC-124 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | その列で降順に並べる。<br>プロパティパネルでは、担当の欄の一覧を名の降順に並べる（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
+| IC-125 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | 一覧に出ているすべての値にチェックを付ける<br>プロパティパネルでは、担当の欄の一覧に出ている、就いていない担当をすべて就ける（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
+| IC-126 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | 一覧に出ているすべての値のチェックを外す<br>プロパティパネルでは、担当の欄の一覧に出ている、就いている担当をすべて外す（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
 | IC-127 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 表・入力欄・タイトルバーの面の名の字の大きさの段（`S-429`、3 値排他）を変え、3 つの表のウィンドウ（検索パネル・遅延診断レポート・担当リスト）はその 1 つの段を共に使うので、どのウィンドウで押しても 3 つの字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方） | `FR-151` の 表 T-330 の `SV-16` | — | — |
 | IC-167 | `Delay Diagnostics Report` | — | 診断の表示を終える（`S-445` を偽にする）—— 窓が閉じ、日程表の (?)・炎・`!!` の印が消える。<br>語を添えた入口で、`RW-11` のどの表でも在る | 表 T-346 の `RW-1` ・ `RW-3` | — | — |
 | IC-140 | `Delay Diagnostics Report` | — | `.md` のファイルに書き出す（札は `.md`）。<br>中身は `IC-108` のコピーと同じ文字列、置き場と名は 表 T-346 の `RW-7` | `FR-134` | — | — |

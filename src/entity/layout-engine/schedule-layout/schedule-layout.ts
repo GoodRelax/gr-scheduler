@@ -79,7 +79,7 @@ export {
 } from './time-axis'
 export type { TimeAxis } from './time-axis'
 export { labelUnits, labelWidth } from './label-width'
-export { labeledAssigneeUidOf } from './assignee-label'
+export { MORE_ASSIGNEES_MARK, labeledAssigneeUidOf } from './assignee-label'
 export {
   markerDiameterOf,
   thinEndHalfHeightOf,
