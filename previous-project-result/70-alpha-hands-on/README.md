@@ -17,3 +17,4 @@ The user tries the GRS alpha by hand before the Monday 2026-10-19 showing. This 
 | 7 | 3 table windows (AI) | Columns are spec row ids (`SQ-5`); the relay offers no list of column names | Low | DFC-3255 | Return the column list with the table reader (S, AI relay seat) |
 | 8 | 担当リスト Resource List (AI) | No AI reader for the resource list; only the whole document | Low | DFC-3256 | Include the resource list in the table reader (S, AI relay seat) |
 | 9 | GRS Relay (AI) | Request: same column filters for the AI; A' -- no new readers, paging on search, carry/uid options on readDocument | Decision | JDG-2765, JDG-2766 | New CR after the alpha |
+| 10 | GRS Relay (AI) | Claude Code drops the tool schemas' `oneOf` / type lists: the AI sees `commands: items {}` and cannot learn the 91 command kinds from the relay (the Chat tab reads them) | High | DFC-3257 | Plain schemas only; serve the command catalogue as a resource or reader (M, AI relay seat) |
