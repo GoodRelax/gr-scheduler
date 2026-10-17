@@ -169,7 +169,7 @@ const armRowOfEntry = (entry: string): string => {
  */
 const NESTED = {
   exportCanvas: { width: 1600, height: 900 },
-  fontScaleSizes: { L: 16, M: 14, S: 12 },
+  fontSizeStepSizes: { L: 16, M: 14, S: 12 },
   planActualGuidePattern: { off: 2, on: 2 },
   shapeHeightOf: { arrow: 0.5, chevron: 1, endpointSpan: 0.5, milestone: 1.5, rectangle: 1 },
 }

@@ -1018,7 +1018,7 @@ async function sweep(live: Browser, context: BrowserContext, page: Page): Promis
       const victims = leaves.slice(0, tasks.length - target)
       const answer = api.applyCommands({
         expectedStamp: api.readStamp(),
-        commands: victims.map((uid) => ({ kind: 'deleteTask', uid })),
+        commands: victims.map((uid) => ({ kind: 'deleteTask', taskUid: uid })),
       })
       return {
         tasks: api.readDocument().schedule.tasks.length,

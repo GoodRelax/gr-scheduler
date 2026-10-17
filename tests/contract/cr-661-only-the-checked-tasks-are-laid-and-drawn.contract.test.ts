@@ -130,7 +130,7 @@ function readDocument(parentState: string): Document {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...TEMPLATE['documentSettings'], scrollDate: day(1), scrollDayOffset: 0, zoomX: 6 },
+    documentSettings: { ...TEMPLATE['documentSettings'], scrollDate: day(1), scrollDateFraction: 0, zoomX: 6 },
     documentStamp: TEMPLATE['documentStamp'],
     changeLog: [],
   })

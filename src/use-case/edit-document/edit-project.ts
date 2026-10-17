@@ -60,8 +60,8 @@ export type ProjectCommand =
   | { readonly kind: 'clearStatusDate' }
   | { readonly kind: 'setThemeHue'; readonly themeHue: Project['themeHue'] }
   | {
-      readonly kind: 'setParentProgressToleranceDays'
-      readonly parentProgressToleranceDays: Project['parentProgressToleranceDays']
+      readonly kind: 'setParentTaskProgressToleranceDays'
+      readonly parentTaskProgressToleranceDays: Project['parentTaskProgressToleranceDays']
     }
   | {
       readonly kind: 'setScheduleDataTimeZone'
@@ -117,13 +117,13 @@ export function editProject(document: Document, command: ProjectCommand): EditRe
   }
 }
 
-type ProjectValueCommand = Extract<ProjectCommand, { readonly kind: 'setParentProgressToleranceDays' | 'setScheduleDataTimeZone' | 'shiftScheduleTimes' }>
+type ProjectValueCommand = Extract<ProjectCommand, { readonly kind: 'setParentTaskProgressToleranceDays' | 'setScheduleDataTimeZone' | 'shiftScheduleTimes' }>
 
 // see CM-87, CM-94, CM-98
 /** @purity pure */
 function projectValueEdited(document: Document, command: ProjectValueCommand): EditResult {
-  if (command.kind === 'setParentProgressToleranceDays') {
-    return withParentProgressTolerance(document, command.parentProgressToleranceDays)
+  if (command.kind === 'setParentTaskProgressToleranceDays') {
+    return withParentTaskProgressTolerance(document, command.parentTaskProgressToleranceDays)
   }
   if (command.kind === 'setScheduleDataTimeZone') {
     return withScheduleDataTimeZone(document, command.scheduleDataTimeZone)
@@ -248,13 +248,13 @@ function withProjectProfile(document: Document, fields: ProjectProfileFields): E
 // see CM-87, FR-131, S-487
 // WHY: refused, not clamped: a value moved into range would differ from the value the author set.
 /** @purity pure */
-function withParentProgressTolerance(document: Document, workingDays: number): EditResult {
+function withParentTaskProgressTolerance(document: Document, workingDays: number): EditResult {
   const project = document.schedule.project
   if (!Number.isInteger(workingDays) || workingDays < 0) {
     return refused([reject('CM-87', 'S-487', `not an integer of 0 or more: ${workingDays}`)])
   }
-  if (project.parentProgressToleranceDays === workingDays) return edited(document)
-  return edited(withProject(document, { ...project, parentProgressToleranceDays: workingDays }))
+  if (project.parentTaskProgressToleranceDays === workingDays) return edited(document)
+  return edited(withProject(document, { ...project, parentTaskProgressToleranceDays: workingDays }))
 }
 
 type SpansOfSerial = ReturnType<typeof workingSpansReader>

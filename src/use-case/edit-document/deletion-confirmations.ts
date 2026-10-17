@@ -50,8 +50,8 @@ function deletionOwedBy(
       continue
     }
     if (command.kind !== 'deleteTask') continue
-    if (!schedule.tasks.some((one) => one.parentTaskUid === command.uid)) continue
-    seeds.add(command.uid)
+    if (!schedule.tasks.some((one) => one.parentTaskUid === command.taskUid)) continue
+    seeds.add(command.taskUid)
     owed = true
   }
   if (!owed) return null

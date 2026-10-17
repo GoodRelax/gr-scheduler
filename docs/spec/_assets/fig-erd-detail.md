@@ -41,7 +41,7 @@ erDiagram
         時刻 defaultStartTime "Own"
         時刻 defaultFinishTime "Own"
         整数 themeHue "GRS・0〜359"
-        整数 parentProgressToleranceDays "GRS"
+        整数 parentTaskProgressToleranceDays "GRS"
         整数 uidHighWaterMark "GRS"
         整数 importSequence "GRS"
         連想 carry "Carry・文字列→文字列"
@@ -88,7 +88,7 @@ erDiagram
         整数 **derivedFromTaskUid** FK "GRS"
         整数 order "GRS"
         列挙 treeState "GRS・5 値"
-        文字列 editGroup "GRS"
+        文字列 editPermission "GRS"
         文字列 color "GRS"
         整数 minHeightPx "GRS"
     }
@@ -157,7 +157,7 @@ erDiagram
     }
     TaskOrigin {
         整数 **taskUid** PK,FK "GRS"
-        文字列 sourceProjectUid "GRS"
+        文字列 sourceProjectId "GRS"
         整数 sourceUid "GRS"
         整数 lastSeenImportSequence "GRS"
         文字列 importSessionId "GRS"
@@ -352,7 +352,7 @@ erDiagram
 | AT-154 | `Project` | `defaultStartTime` | 時刻 | 可 | — | Own | `Project/DefaultStartTime` | 既定の開始時刻（`xsd:time` の字面）。`GRS` が開始の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-482`。MSPDI から取り込むときは `Project/DefaultStartTime` を `carry` に残さず本列へ移し、書き出しでは公式スキーマの並びの位置に書く（`FR-021`、表 T-033 の `EX-10`）。⚠️ 取り込んだ字面が `xsd:time` に合わないときは本列へ移さず `carry` に残し（`EX-4`）、本列は空とする。`GRS JSON` で合わない値は文書ごと拒む（`05-07-design.md` の Chapter 6.1） |
 | AT-155 | `Project` | `defaultFinishTime` | 時刻 | 可 | — | Own | `Project/DefaultFinishTime` | 既定の終了時刻。`AT-154` と同じ扱いで、終了の側の日時に書く時刻である（`01-04-requirements.md` の 表 T-350）。空なら `tbl-settings.md` の `S-483` |
 | AT-19 | `Project` | `themeHue` | 整数（0〜359） | 否 | — | GRS | — | テーマ色の色相。置き場は表 T-052 の `DR-5`、値は `tbl-settings.md` の `S-73` |
-| AT-156 | `Project` | `parentProgressToleranceDays` | 整数 | 否 | — | GRS | — | 親タスクの進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない |
+| AT-156 | `Project` | `parentTaskProgressToleranceDays` | 整数 | 否 | — | GRS | — | 親タスクの進捗の疑義（`01-04-requirements.md` の 表 T-311 の `VS-6`）が許す日数。置き場はテーマ色と同じく `Project`（表 T-052 の `DR-5` と同じ理由）、値は `tbl-settings.md` の `S-487`。MSPDI へは書き出さない |
 | AT-20 | `Project` | `uidHighWaterMark` | 整数 | 否 | — | GRS | — | 発番済みの `uid` の最大値。**複製（`FR-033`）の採番はここに従う** |
 | AT-21 | `Project` | `importSequence` | 整数 | 否 | — | GRS | — | 取り込みごとの通し番号。値は `tbl-settings.md` の `S-71`、進め方と照合は表 T-032 の `MG-13` |
 | AT-22 | `Project` | `carry` | 連想（文字列→文字列） | 否（空可） | — | Carry | — | 解釈しない `Project` 直下のスカラー |
@@ -393,7 +393,7 @@ erDiagram
 | AT-54 | `TaskGroup` | `derivedFromTaskUid` | 整数 | 可 | FK | GRS | — | 名前の導出元。`name` と同時に `null` にできない |
 | AT-55 | `TaskGroup` | `order` | 整数 | 否 | — | GRS | — | 同じ親の下での並び |
 | AT-153 | `TaskGroup` | `treeState` | 列挙（5 値） | 否 | — | GRS | — | タスクグループの木の状態。`auto` ／ `collapsed` ／ `expanded` ／ `temporarilyExpanded` ／ `hidden`。値が描かせるタスクグループは `FR-018` の 表 T-329、値を書き換える入口と先の値は `_assets/tbl-state-machines.md` の 表 T-328 が持つ。`createTaskGroup`（`_assets/tbl-document-commands.md` の 表 T-108 の `CM-26`）で作るタスクグループと、タスクグループが 0 になったときに `01-04-requirements.md` の 表 T-050 の後の段が作るタスクグループは `temporarilyExpanded`（同書の 表 T-051 の `HF-14` —— 足したタスクグループを倍率によらず見せ、縦を縮めたら `auto` へ戻す）。既定の `auto` は、この値を持たずに読んだタスクグループと、`CM-26` を通らずにできるタスクグループ（MSPDI から取り込んだタスクグループ、`createTask` がタスクグループとともに作るタスクグループ）が取る。貼り付けたコピーは `01-04-requirements.md` の 表 T-223 の `DU-2` に従う。**既定は `'auto'`** |
-| AT-144 | `TaskGroup` | `editGroup` | 文字列 | 可（`null` ＝ 誰でも編集できる） | — | GRS | — | このタスクグループを編集できるグループ。`null` は誰でも編集できる。規則は `FR-111` |
+| AT-144 | `TaskGroup` | `editPermission` | 文字列 | 可（`null` ＝ 誰でも編集できる） | — | GRS | — | このタスクグループを編集できるグループ。`null` は誰でも編集できる。規則は `FR-111` |
 | AT-58 | `TaskGroup` | `color` | 文字列 | 可（`null` = テーマから解く） | — | GRS | — | タスクグループの帯の色。形は `AT-102` と同じ。ただしタスクグループの帯を持たない名（`_assets/tbl-settings.md` の表 T-294 の行の帯の欄が「—」の名 —— 黒 `S-315`）は取らない（表 T-017b の `CV-9`）。規則は表 T-017b |
 | AT-59 | `TaskGroup` | `minHeightPx` | 整数 | 可（`null` = 下限なし） | — | GRS | — | タスクグループの最小の高さ。表示の倍率 100 のときの画面の px（縦のズームでは伸び縮みしない）。描くときに掛ける比は `FR-039` の 表 T-252 の `DS-13`、欄の出し方は `FR-042` の 表 T-338 が持つ |
 | AT-60 | `TaskGroupMember` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 載るタスク。**1 つのタスクは 1 つのタスクグループにしか載らない**ので、これだけで一意である |
@@ -444,7 +444,7 @@ erDiagram
 | AT-103 | `TaskVisual` | `strokeColor` | 文字列 | 可（同上） | — | GRS | — | 輪郭。同上 |
 | AT-104 | `TaskVisual` | `strokeWidthPx` | 整数（px） | 可（`null` = 表 T-201 の `S-39`） | — | GRS | — | 輪郭（枠線）の太さ。予定バーと実績バーの縁の両方をこの太さで描く。`null` は `_assets/tbl-settings.md` の表 T-201 の `S-39` の太さで描く。範囲はハイライトボックスとコメントボックスの枠の太さ（表 T-217 の `S-369` ・ `S-374`）と揃える（`FR-007` の 表 T-017 の `CL-2`） |
 | AT-105 | `TaskOrigin` | `taskUid` | 整数 | 否 | PK/FK | GRS | — | 対象のタスク。**行が無い = 本ソフトウェア生まれ** |
-| AT-106 | `TaskOrigin` | `sourceProjectUid` | 文字列 | 可 | — | GRS | — | 取り込み元のプロジェクト |
+| AT-106 | `TaskOrigin` | `sourceProjectId` | 文字列 | 可 | — | GRS | — | 取り込み元のプロジェクト |
 | AT-107 | `TaskOrigin` | `sourceUid` | 整数 | 否 | — | GRS | — | 取り込み元でのタスクの識別子 |
 | AT-108 | `TaskOrigin` | `lastSeenImportSequence` | 整数 | 否 | — | GRS | — | 最後に見た取り込みの通し番号（`MG-13`） |
 | AT-109 | `TaskOrigin` | `importSessionId` | 文字列 | 可 | — | GRS | — | 取り込み 1 回の識別子 |

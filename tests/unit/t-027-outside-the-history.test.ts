@@ -190,7 +190,7 @@ function mustUndo(one: Bench, why: string): Document {
 function writeUnrelatedEdit(one: Bench, name: string): void {
   mustWrite(
     one,
-    [{ kind: commandKindOf('CM-9'), uid: FIRST_TASK_UID, name } as unknown as DocumentCommand],
+    [{ kind: commandKindOf('CM-9'), taskUid: FIRST_TASK_UID, name } as unknown as DocumentCommand],
     `CM-9 ${JSON.stringify(name)}`,
   )
 }
@@ -216,8 +216,8 @@ const UN_7_CASES: readonly OutsideCase[] = T_202_BOOLEAN_ROWS.map((row) => {
     expected: [wanted],
     command: {
       kind: commandKindOf('CM-58'),
-      element: row.key,
-      visible: wanted,
+      setting: row.key,
+      isVisible: wanted,
     } as unknown as DocumentCommand,
     before: [],
   }
@@ -237,14 +237,14 @@ const KEYED_CASES: readonly OutsideCase[] = [
     undoRow: 'UN-8',
     commandRow: 'CM-66',
     settingRows: ['S-77', 'S-78', 'S-176', 'S-177'],
-    keys: ['scrollDate', 'scrollTaskGroupId', 'scrollDayOffset', 'scrollGroupOffset'],
+    keys: ['scrollDate', 'scrollTaskGroupId', 'scrollDateFraction', 'scrollTaskGroupFraction'],
     expected: ['2026-05-01', FIRST_GROUP_ID, 0, 0],
     command: {
       kind: commandKindOf('CM-66'),
       scrollDate: '2026-05-01',
       scrollTaskGroupId: FIRST_GROUP_ID,
-      scrollDayOffset: 0,
-      scrollGroupOffset: 0,
+      scrollDateFraction: 0,
+      scrollTaskGroupFraction: 0,
     } as unknown as DocumentCommand,
     before: [],
   },
@@ -260,8 +260,8 @@ const KEYED_CASES: readonly OutsideCase[] = [
       zoomY: 4,
       scrollDate: '2026-06-01',
       scrollTaskGroupId: FIRST_GROUP_ID,
-      scrollDayOffset: 0,
-      scrollGroupOffset: 0,
+      scrollDateFraction: 0,
+      scrollTaskGroupFraction: 0,
     } as unknown as DocumentCommand,
     before: [],
   },
@@ -417,9 +417,9 @@ const UN_13_CASES: readonly InsideCase[] = [
   {
     commandRow: 'CM-62',
     settingRow: 'S-70',
-    key: 'fontScale',
+    key: 'fontSizeStep',
     wanted: 'L',
-    command: { kind: commandKindOf('CM-62'), fontScale: 'L' } as unknown as DocumentCommand,
+    command: { kind: commandKindOf('CM-62'), fontSizeStep: 'L' } as unknown as DocumentCommand,
   },
   {
     commandRow: 'CM-74',

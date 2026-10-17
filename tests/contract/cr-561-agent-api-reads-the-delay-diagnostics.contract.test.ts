@@ -149,10 +149,10 @@ function bench(statusDate: string | null): Bench {
       },
     },
     audience: {
-      deliver: (document, hasMovedSchedule) => {
+      deliver: (document, hasUpdatedSchedule) => {
         state.isDeliveringNotices = true
         try {
-          notifyChangeWatchers(CHANGE_WATCHERS, { document, hasMovedSchedule, dialogue: state.dialogue })
+          notifyChangeWatchers(CHANGE_WATCHERS, { document, hasUpdatedSchedule, dialogue: state.dialogue })
         } finally {
           state.isDeliveringNotices = false
         }

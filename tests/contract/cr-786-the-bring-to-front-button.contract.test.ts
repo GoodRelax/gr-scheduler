@@ -129,12 +129,12 @@ describe('FR-038 -- the button shows the dictionary word of its row in the scree
 describe(`PR-48 / PR-49 -- ${FR_019_FRONT}`, () => {
   it('pressing PR-48 makes exactly CM-100 for the selected comment box', () => {
     const field = fieldOf(panelOf(document(), COMMENT_ITEM, 'ja'), PR_48)
-    expect(commandsOf(document(), pressOf(field, pressControlOf(field)))).toEqual([{ kind: CM_100, id: COMMENT_ID }])
+    expect(commandsOf(document(), pressOf(field, pressControlOf(field)))).toEqual([{ kind: CM_100, commentBoxId: COMMENT_ID }])
   })
 
   it('pressing PR-49 makes exactly CM-101 for the selected highlight box', () => {
     const field = fieldOf(panelOf(document(), HIGHLIGHT_ITEM, 'ja'), PR_49)
-    expect(commandsOf(document(), pressOf(field, pressControlOf(field)))).toEqual([{ kind: CM_101, id: HIGHLIGHT_ID }])
+    expect(commandsOf(document(), pressOf(field, pressControlOf(field)))).toEqual([{ kind: CM_101, highlightBoxId: HIGHLIGHT_ID }])
   })
 
   it('the command PR-48 makes, run by editDocument, moves the comment box to the end', () => {

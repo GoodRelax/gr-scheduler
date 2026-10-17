@@ -255,7 +255,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Docum
         derivedFromTaskUid: null,
         order: index,
         treeState: one.treeState ?? 'auto',
-        editGroup: null,
+        editPermission: null,
         color: null,
         minHeightPx: null,
       })),
@@ -272,7 +272,7 @@ function documentOf(rows: readonly RowSpec[], zoomY: number, stacked = 0): Docum
       displayScale: DEFAULT_DISPLAY_SCALE,
       scrollDate: '2026-04-01',
       scrollTaskGroupId: rows[0]!.id,
-      scrollGroupOffset: 0,
+      scrollTaskGroupFraction: 0,
       zoomX: 1,
       zoomY,
       levelZeroTreeState: 'auto',
@@ -295,7 +295,7 @@ function erpDocument(zoomY: number | null): Document {
   if (zoomY === null) return document as unknown as Document
   const tasks = document.schedule.tasks as readonly { start: string | null }[]
   const first = tasks.map((one) => one.start ?? '').filter((one) => one !== '').sort()[0] ?? '2026-04-01'
-  const place = { scrollDate: first.slice(0, 10), scrollTaskGroupId: document.schedule.taskGroups[0].id, scrollGroupOffset: 0 }
+  const place = { scrollDate: first.slice(0, 10), scrollTaskGroupId: document.schedule.taskGroups[0].id, scrollTaskGroupFraction: 0 }
   return { ...document, documentSettings: { ...document.documentSettings, ...place, zoomY } } as unknown as Document
 }
 

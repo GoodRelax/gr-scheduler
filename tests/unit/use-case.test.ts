@@ -33,7 +33,7 @@ import { taskGroupDocument, shell, TEMPLATE } from './cr-541-stage'
 // see S-3, T-202, CR-418
 const RULER_FONT_FACTOR = ((): number => {
   const cell = specTable('T-202').rows.find((one) => one.id === 'S-3')?.by['既定'] ?? ''
-  const found = /`fontScaleSizes\[fontScale\]`\s*×\s*(\d+(?:\.\d+)?)/.exec(cell)
+  const found = /`fontSizeStepSizes\[fontSizeStep\]`\s*×\s*(\d+(?:\.\d+)?)/.exec(cell)
   if (found === null) throw new Error(`S-3 states no factor on the text size: ${cell}`)
   return Number(found[1])
 })()
@@ -241,11 +241,11 @@ describe('EditDocument (PI-9) -- the presentation aggregate', () => {
   it('FR-039 drags the ruler type and band along with the font scale', () => {
     // WHY: FR-039 (S-2, S-3) has the font scale carry ruler type and band
     // height with it; only the two 3s are literal, every size is read.
-    // WHY: CR-418 section 7.2 -- S-3 is fontScaleSizes[fontScale] x the T-201 factor, so L writes 16 x 1.5.
+    // WHY: CR-418 section 7.2 -- S-3 is fontSizeStepSizes[fontSizeStep] x the T-201 factor, so L writes 16 x 1.5.
     // WHY: S-121..S-123 and S-136 are constants (CR-572); a document can no longer move them.
-    const sizeL = SETTINGS_CONSTANTS.fontScaleSizes.L * RULER_FONT_FACTOR
+    const sizeL = SETTINGS_CONSTANTS.fontSizeStepSizes.L * RULER_FONT_FACTOR
     const pad = SETTINGS_CONSTANTS.rulerLabelPad
-    const result = editDocumentSettings(documentOf(), { kind: 'setFontScale', fontScale: 'L' }, LIMITS)
+    const result = editDocumentSettings(documentOf(), { kind: 'setFontSizeStep', fontSizeStep: 'L' }, LIMITS)
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(settingsOf(result.document).rulerFontSizePx).toBe(sizeL)
@@ -309,7 +309,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
     expect(undoable.ok && undoable.history.done).toHaveLength(1)
 
     for (const command of [
-      { kind: 'setElementVisible', element: 'isDependencyVisible', visible: false },
+      { kind: 'setVisibilitySetting', setting: 'isDependencyVisible', isVisible: false },
       { kind: 'setTaskGroupPanelWidthPx', taskGroupPanelWidthPx: 210 },
       { kind: 'setZoom', zoomX: 2, zoomY: 2 },
     ] as const) {
@@ -321,13 +321,13 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
   it('WS-5 moves the schedule instant for the schedule group and not for the presentation group', () => {
     const document = documentOf()
     const schedule = planOf(document, [{ kind: 'setProjectTitle', title: 'B' }])
-    expect(schedule.ok && schedule.hasMovedSchedule).toBe(true)
+    expect(schedule.ok && schedule.hasUpdatedSchedule).toBe(true)
     expect(schedule.ok && schedule.document.documentStamp.scheduleUpdatedAt).toBe(
       '2026-08-17T01:00:00Z',
     )
 
     const presentation = planOf(document, [{ kind: 'setStackDirection', stackDirection: 'down' }])
-    expect(presentation.ok && presentation.hasMovedSchedule).toBe(false)
+    expect(presentation.ok && presentation.hasUpdatedSchedule).toBe(false)
     // WHY: FR-063 (MUST NOT) forbids a presentation-only update from moving
     // the schedule-data group's instant.
     expect(presentation.ok && presentation.document.documentStamp.scheduleUpdatedAt).toBe(
@@ -358,8 +358,8 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         scrollTaskGroupId: 'g1',
         // WHY: FR-080 has the anchors carry a fraction of their own extent
         // too, and a whole-view fit lands top-left, so both fractions are 0.
-        scrollDayOffset: 0,
-        scrollGroupOffset: 0,
+        scrollDateFraction: 0,
+        scrollTaskGroupFraction: 0,
       },
     ])
     expect(plan.ok).toBe(true)
@@ -377,7 +377,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
 
     // WHY: FR-063 (MUST NOT) forbids a presentation-only update from moving
     // the schedule-data instant, and CM-71 touches nothing else.
-    expect(plan.hasMovedSchedule).toBe(false)
+    expect(plan.hasUpdatedSchedule).toBe(false)
     expect(plan.document.documentStamp.scheduleUpdatedAt).toBe(
       document.documentStamp.scheduleUpdatedAt,
     )
@@ -413,7 +413,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
 
     // WHY: UN-17 files this as in scope, and treeState is a schedule-data
     // column, so FR-063 (MUST) moves the schedule-data instant.
-    expect(plan.hasMovedSchedule).toBe(true)
+    expect(plan.hasUpdatedSchedule).toBe(true)
     expect(plan.document.documentStamp.scheduleUpdatedAt).toBe('2026-08-17T01:00:00Z')
   })
 
@@ -432,8 +432,8 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         zoomY: 4,
         scrollDate: null,
         scrollTaskGroupId: null,
-        scrollDayOffset: 0,
-        scrollGroupOffset: 0,
+        scrollDateFraction: 0,
+        scrollTaskGroupFraction: 0,
       },
     ])
     expect(first.ok).toBe(true)
@@ -476,7 +476,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
       },
     }
     const audience: ChangeAudience = {
-      deliver: (given: Document, hasMovedSchedule: boolean) => {
+      deliver: (given: Document, hasUpdatedSchedule: boolean) => {
         seen.push('deliver')
         // WHY: the subscriber must read the NEW document -- the whole
         // reason table T-067 fixes this order.
@@ -484,7 +484,7 @@ describe('ApplyDocumentChange (PI-8) -- the seven steps of table T-067', () => {
         expect(held.document).toBe(given)
         // WHY: AG-6 selects a live watcher by WS-5's judgment, and R2.7
         // carries that judgment to the audience rather than re-derive it.
-        expect(hasMovedSchedule).toBe(true)
+        expect(hasUpdatedSchedule).toBe(true)
       },
     }
     const outcome = applyDocumentChange(

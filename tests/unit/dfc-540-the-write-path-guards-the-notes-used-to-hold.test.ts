@@ -54,17 +54,17 @@ const withResourcesAndALine = (): Document =>
 describe('FR-020 / FR-063 (DFC-540 4) -- a Resource or Dependency write that changed nothing answers the same document', () => {
   it('CM-41 setResourceName: the name the Resource already holds, written again, is the same document', () => {
     const document = withResourcesAndALine()
-    const same = run(document, { kind: 'setResourceName', uid: ANNA, name: 'Anna' })
+    const same = run(document, { kind: 'setResourceName', resourceUid: ANNA, name: 'Anna' })
     expect(same.ok).toBe(true)
     if (!same.ok) return
     expect(same.document, 'FR-020 reads the reference: a new object here moves the trail instant').toBe(document)
-    const moved = run(document, { kind: 'setResourceName', uid: ANNA, name: 'Anna B' })
+    const moved = run(document, { kind: 'setResourceName', resourceUid: ANNA, name: 'Anna B' })
     expect(moved.ok && moved.document !== document, 'the same command with a new name still writes').toBe(true)
   })
 
-  it('CM-42 deleteResource: an empty choice is the same document', () => {
+  it('CM-42 deleteResources: an empty choice is the same document', () => {
     const document = withResourcesAndALine()
-    const same = run(document, { kind: 'deleteResource', uids: [] })
+    const same = run(document, { kind: 'deleteResources', resourceUids: [] })
     expect(same.ok && same.document === document).toBe(true)
   })
 
@@ -104,20 +104,20 @@ describe('FR-020 / FR-063 (DFC-540 4) -- a Resource or Dependency write that cha
     const document = withResourcesAndALine()
     const before = document.documentStamp.scheduleUpdatedAt
     for (const command of [
-      { kind: 'setResourceName', uid: ANNA, name: 'Anna' },
-      { kind: 'deleteResource', uids: [] },
+      { kind: 'setResourceName', resourceUid: ANNA, name: 'Anna' },
+      { kind: 'deleteResources', resourceUids: [] },
       { kind: 'deleteUnreferencedResources' },
     ]) {
       const plan = planOf(document, [command])
       expect(plan.ok, command.kind).toBe(true)
       if (!plan.ok) continue
-      expect(plan.hasMovedSchedule, command.kind).toBe(false)
+      expect(plan.hasUpdatedSchedule, command.kind).toBe(false)
       expect(plan.document.documentStamp.scheduleUpdatedAt, command.kind).toBe(before)
     }
-    const moved = planOf(document, [{ kind: 'setResourceName', uid: ANNA, name: 'Anna B' }])
+    const moved = planOf(document, [{ kind: 'setResourceName', resourceUid: ANNA, name: 'Anna B' }])
     expect(moved.ok).toBe(true)
     if (!moved.ok) return
-    expect(moved.hasMovedSchedule).toBe(true)
+    expect(moved.hasUpdatedSchedule).toBe(true)
     expect(moved.document.documentStamp.scheduleUpdatedAt).toBe('2099-01-01T00:00:00Z')
   })
 })
@@ -133,7 +133,7 @@ describe('IV-12 (DFC-540 5) -- CM-11 setTaskPlanDates is measured on the dates a
     const document = fadedDocument()
     const result = run(document, {
       kind: 'setTaskPlanDates',
-      uid: FADED,
+      taskUid: FADED,
       start: '2026-04-06T08:00:00',
       finish: '2026-04-10T17:00:00',
     })
@@ -146,7 +146,7 @@ describe('IV-12 (DFC-540 5) -- CM-11 setTaskPlanDates is measured on the dates a
     const document = fadedDocument()
     const result = run(document, {
       kind: 'setTaskPlanDates',
-      uid: FADED,
+      taskUid: FADED,
       start: '2026-05-04T08:00:00',
       finish: '2026-05-29T17:00:00',
     })
@@ -161,7 +161,7 @@ describe('IV-12 (DFC-540 5) -- CM-11 setTaskPlanDates is measured on the dates a
     const document = documentOf({ tasks: [taskOf(FADED, longPlan)] })
     const result = run(document, {
       kind: 'setTaskPlanDates',
-      uid: FADED,
+      taskUid: FADED,
       start: '2026-04-06T08:00:00',
       finish: '2026-04-06T17:00:00',
     })

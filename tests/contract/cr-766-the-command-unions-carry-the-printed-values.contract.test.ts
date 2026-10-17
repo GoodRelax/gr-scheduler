@@ -50,7 +50,7 @@ const PRINTED_VALUES = {
   setStatusDate: ['statusDate:column:Project.statusDate:nonNull'],
   clearStatusDate: [],
   setThemeHue: ['themeHue:column:Project.themeHue:'],
-  setParentProgressToleranceDays: ['parentProgressToleranceDays:column:Project.parentProgressToleranceDays:'],
+  setParentTaskProgressToleranceDays: ['parentTaskProgressToleranceDays:column:Project.parentTaskProgressToleranceDays:'],
   setScheduleDataTimeZone: ['scheduleDataTimeZone:column:Project.scheduleDataTimeZone:'],
   shiftScheduleTimes: ['minutes:own::'],
   shiftScheduleToStartDate: ['newStartDate:own::'],
@@ -60,24 +60,24 @@ const PRINTED_VALUES = {
     'finish:column:Task.finish:nonNull',
     'taskGroupId:column:TaskGroupMember.taskGroupId:',
   ],
-  deleteTask: ['uid:key:Task.uid:'],
+  deleteTask: ['taskUid:key:Task.uid:'],
   pasteTasks: [
     'sourceUids:key:Task.uid:many',
     'landing:own::optional',
     'landing.shiftMinutes:own::',
     'landing.taskGroupIdOf:own::',
   ],
-  setTaskName: ['uid:key:Task.uid:', 'name:column:Task.name:'],
-  setTaskNotes: ['uid:key:Task.uid:', 'notes:column:Task.notes:'],
+  setTaskName: ['taskUid:key:Task.uid:', 'name:column:Task.name:'],
+  setTaskNotes: ['taskUid:key:Task.uid:', 'notes:column:Task.notes:'],
   setTaskPlanDates: [
-    'uid:key:Task.uid:',
+    'taskUid:key:Task.uid:',
     'start:column:Task.start:nonNull',
     'finish:column:Task.finish:nonNull',
   ],
-  setTaskDeadline: ['uid:key:Task.uid:', 'deadline:column:Task.deadline:'],
-  setTaskPlanActualState: ['uid:key:Task.uid:', 'place:own::'],
+  setTaskDeadline: ['taskUid:key:Task.uid:', 'deadline:column:Task.deadline:'],
+  setTaskPlanActualState: ['taskUid:key:Task.uid:', 'place:own::'],
   beginTaskActual: [
-    'uid:key:Task.uid:',
+    'taskUid:key:Task.uid:',
     'grabbed:own::',
     'released:own::',
     'released.start:own::',
@@ -85,7 +85,7 @@ const PRINTED_VALUES = {
     'snapMinutes:own::',
   ],
   cycleTaskPlanActualState: [
-    'uid:key:Task.uid:',
+    'taskUid:key:Task.uid:',
     'remembered:own::',
     'remembered.actualStart:column:Task.actualStart:',
     'remembered.actualFinish:column:Task.actualFinish:',
@@ -93,19 +93,19 @@ const PRINTED_VALUES = {
     'remembered.carriedActualDuration:own::',
     'snapMinutes:own::optional',
   ],
-  setTaskFadeInDays: ['uid:key:Task.uid:', 'fadeInDays:column:Task.fadeInDays:'],
-  setTaskFadeOutDays: ['uid:key:Task.uid:', 'fadeOutDays:column:Task.fadeOutDays:'],
-  setTaskParentTask: ['uid:key:Task.uid:', 'parentTaskUid:column:Task.parentTaskUid:'],
-  moveTaskToTaskGroup: ['uid:key:Task.uid:', 'taskGroupId:column:TaskGroupMember.taskGroupId:'],
-  setTaskVisualShapeKind: ['uid:key:Task.uid:', 'shapeKind:column:TaskVisual.shapeKind:nonNull'],
-  setTaskVisualMilestoneGlyph: ['uid:key:Task.uid:', 'milestoneGlyph:column:TaskVisual.milestoneGlyph:'],
+  setTaskFadeInDays: ['taskUid:key:Task.uid:', 'fadeInDays:column:Task.fadeInDays:'],
+  setTaskFadeOutDays: ['taskUid:key:Task.uid:', 'fadeOutDays:column:Task.fadeOutDays:'],
+  setTaskParentTask: ['taskUid:key:Task.uid:', 'parentTaskUid:column:Task.parentTaskUid:'],
+  moveTaskToTaskGroup: ['taskUid:key:Task.uid:', 'taskGroupId:column:TaskGroupMember.taskGroupId:'],
+  setTaskVisualShapeKind: ['taskUid:key:Task.uid:', 'shapeKind:column:TaskVisual.shapeKind:nonNull'],
+  setTaskVisualMilestoneGlyph: ['taskUid:key:Task.uid:', 'milestoneGlyph:column:TaskVisual.milestoneGlyph:'],
   setTaskVisualColors: [
-    'uid:key:Task.uid:',
+    'taskUid:key:Task.uid:',
     'fillColor:column:TaskVisual.fillColor:',
     'strokeColor:column:TaskVisual.strokeColor:',
   ],
-  resetTaskVisualColors: ['uid:key:Task.uid:'],
-  setTaskVisualStrokeWidthPx: ['uid:key:Task.uid:', 'strokeWidthPx:column:TaskVisual.strokeWidthPx:'],
+  resetTaskVisualColors: ['taskUid:key:Task.uid:'],
+  setTaskVisualStrokeWidthPx: ['taskUid:key:Task.uid:', 'strokeWidthPx:column:TaskVisual.strokeWidthPx:'],
   createTaskGroup: [
     'id:column:TaskGroup.id:',
     'parentId:column:TaskGroup.parentId:',
@@ -116,7 +116,7 @@ const PRINTED_VALUES = {
   deleteTaskGroup: ['taskGroupId:key:TaskGroup.id:', 'newTaskGroupId:own::'],
   pasteTaskGroupSubtree: [
     'sourceTaskGroupId:key:TaskGroup.id:',
-    'targetTaskGroupId:column:TaskGroup.parentId:',
+    'parentId:column:TaskGroup.parentId:',
     'newTaskGroupIds:own::',
   ],
   setTaskGroupName: ['taskGroupId:key:TaskGroup.id:', 'name:column:TaskGroup.name:'],
@@ -150,8 +150,8 @@ const PRINTED_VALUES = {
     'workingTimes:own::optional',
   ],
   createResource: ['name:column:Resource.name:'],
-  setResourceName: ['uid:key:Resource.uid:', 'name:column:Resource.name:'],
-  deleteResource: ['uids:key:Resource.uid:many'],
+  setResourceName: ['resourceUid:key:Resource.uid:', 'name:column:Resource.name:'],
+  deleteResources: ['resourceUids:key:Resource.uid:many'],
   deleteUnreferencedResources: [],
   createAssignment: [
     'taskUid:column:Assignment.taskUid:nonNull',
@@ -162,7 +162,7 @@ const PRINTED_VALUES = {
     'resourceUid:key:Assignment.resourceUid:nonNull',
   ],
   createCommentBox: [
-    'id:column:CommentBox.id:',
+    'commentBoxId:column:CommentBox.id:',
     'anchor:own::',
     'anchor.date:column:CommentBox.anchorDate:nonNull',
     'anchor.taskGroupId:column:CommentBox.anchorTaskGroupId:nonNull',
@@ -172,14 +172,14 @@ const PRINTED_VALUES = {
     'anchor.highlightBoxId:column:CommentBox.anchorHighlightBoxId:optional',
     'anchor.snapPoint:column:CommentBox.anchorSnapPoint:optional',
   ],
-  deleteCommentBox: ['id:key:CommentBox.id:'],
-  setCommentBoxText: ['id:key:CommentBox.id:', 'text:column:CommentBox.text:'],
+  deleteCommentBox: ['commentBoxId:key:CommentBox.id:'],
+  setCommentBoxText: ['commentBoxId:key:CommentBox.id:', 'text:column:CommentBox.text:'],
   setCommentBoxLeaderShapeKind: [
-    'id:key:CommentBox.id:',
+    'commentBoxId:key:CommentBox.id:',
     'leaderShapeKind:column:CommentBox.leaderShapeKind:nonNull',
   ],
   setCommentBoxAnchor: [
-    'id:key:CommentBox.id:',
+    'commentBoxId:key:CommentBox.id:',
     'anchor:own::',
     'anchor.date:column:CommentBox.anchorDate:nonNull',
     'anchor.taskGroupId:column:CommentBox.anchorTaskGroupId:nonNull',
@@ -189,51 +189,51 @@ const PRINTED_VALUES = {
     'anchor.highlightBoxId:column:CommentBox.anchorHighlightBoxId:optional',
     'anchor.snapPoint:column:CommentBox.anchorSnapPoint:optional',
   ],
-  setCommentBoxBodyOffsetPx: ['id:key:CommentBox.id:', 'dx:own::', 'dy:own::'],
-  setCommentBoxStrokeColor: ['id:key:CommentBox.id:', 'strokeColor:column:CommentBox.strokeColor:'],
-  setCommentBoxStrokeWidthPx: ['id:key:CommentBox.id:', 'strokeWidthPx:column:CommentBox.strokeWidthPx:'],
-  setCommentBoxFillColor: ['id:key:CommentBox.id:', 'fillColor:column:CommentBox.fillColor:'],
+  setCommentBoxBodyOffsetPx: ['commentBoxId:key:CommentBox.id:', 'dx:own::', 'dy:own::'],
+  setCommentBoxStrokeColor: ['commentBoxId:key:CommentBox.id:', 'strokeColor:column:CommentBox.strokeColor:'],
+  setCommentBoxStrokeWidthPx: ['commentBoxId:key:CommentBox.id:', 'strokeWidthPx:column:CommentBox.strokeWidthPx:'],
+  setCommentBoxFillColor: ['commentBoxId:key:CommentBox.id:', 'fillColor:column:CommentBox.fillColor:'],
   setCommentBoxFillTransparencyPercent: [
-    'id:key:CommentBox.id:',
+    'commentBoxId:key:CommentBox.id:',
     'fillTransparencyPercent:column:CommentBox.fillTransparencyPercent:',
   ],
-  setCommentBoxTextColor: ['id:key:CommentBox.id:', 'textColor:column:CommentBox.textColor:'],
-  bringCommentBoxToFront: ['id:key:CommentBox.id:'],
+  setCommentBoxTextColor: ['commentBoxId:key:CommentBox.id:', 'textColor:column:CommentBox.textColor:'],
+  bringCommentBoxToFront: ['commentBoxId:key:CommentBox.id:'],
   createHighlightBox: [
-    'id:column:HighlightBox.id:',
+    'highlightBoxId:column:HighlightBox.id:',
     'range:own::',
     'range.start:column:HighlightBox.start:nonNull',
     'range.finish:column:HighlightBox.finish:nonNull',
     'range.topTaskGroupId:column:HighlightBox.topTaskGroupId:nonNull',
     'range.bottomTaskGroupId:column:HighlightBox.bottomTaskGroupId:nonNull',
   ],
-  deleteHighlightBox: ['id:key:HighlightBox.id:'],
+  deleteHighlightBox: ['highlightBoxId:key:HighlightBox.id:'],
   setHighlightBoxRange: [
-    'id:key:HighlightBox.id:',
+    'highlightBoxId:key:HighlightBox.id:',
     'range:own::',
     'range.start:column:HighlightBox.start:nonNull',
     'range.finish:column:HighlightBox.finish:nonNull',
     'range.topTaskGroupId:column:HighlightBox.topTaskGroupId:nonNull',
     'range.bottomTaskGroupId:column:HighlightBox.bottomTaskGroupId:nonNull',
   ],
-  setHighlightBoxStrokeColor: ['id:key:HighlightBox.id:', 'strokeColor:column:HighlightBox.strokeColor:'],
-  setHighlightBoxStrokeWidthPx: ['id:key:HighlightBox.id:', 'strokeWidthPx:column:HighlightBox.strokeWidthPx:'],
-  setHighlightBoxFillColor: ['id:key:HighlightBox.id:', 'fillColor:column:HighlightBox.fillColor:'],
+  setHighlightBoxStrokeColor: ['highlightBoxId:key:HighlightBox.id:', 'strokeColor:column:HighlightBox.strokeColor:'],
+  setHighlightBoxStrokeWidthPx: ['highlightBoxId:key:HighlightBox.id:', 'strokeWidthPx:column:HighlightBox.strokeWidthPx:'],
+  setHighlightBoxFillColor: ['highlightBoxId:key:HighlightBox.id:', 'fillColor:column:HighlightBox.fillColor:'],
   setHighlightBoxFillTransparencyPercent: [
-    'id:key:HighlightBox.id:',
+    'highlightBoxId:key:HighlightBox.id:',
     'fillTransparencyPercent:column:HighlightBox.fillTransparencyPercent:',
   ],
-  bringHighlightBoxToFront: ['id:key:HighlightBox.id:'],
+  bringHighlightBoxToFront: ['highlightBoxId:key:HighlightBox.id:'],
   setStackDirection: ['stackDirection:column:stackDirection:'],
-  setElementVisible: ['element:own::', 'visible:own::'],
-  setFontScale: ['fontScale:column:fontScale:'],
+  setVisibilitySetting: ['setting:own::', 'isVisible:own::'],
+  setFontSizeStep: ['fontSizeStep:column:fontSizeStep:'],
   setThemeMonochrome: ['isThemeMonochrome:column:isThemeMonochrome:'],
   setZoom: ['zoomX:column:zoomX:', 'zoomY:column:zoomY:'],
   setScrollPosition: [
     'scrollDate:column:scrollDate:',
     'scrollTaskGroupId:column:scrollTaskGroupId:',
-    'scrollDayOffset:column:scrollDayOffset:',
-    'scrollGroupOffset:column:scrollGroupOffset:',
+    'scrollDateFraction:column:scrollDateFraction:',
+    'scrollTaskGroupFraction:column:scrollTaskGroupFraction:',
   ],
   setTaskGroupPanelWidthPx: ['taskGroupPanelWidthPx:column:taskGroupPanelWidthPx:'],
   pinTaskGroup: ['taskGroupId:key:TaskGroup.id:'],
@@ -243,8 +243,8 @@ const PRINTED_VALUES = {
     'zoomY:column:zoomY:',
     'scrollDate:column:scrollDate:',
     'scrollTaskGroupId:column:scrollTaskGroupId:',
-    'scrollDayOffset:column:scrollDayOffset:',
-    'scrollGroupOffset:column:scrollGroupOffset:',
+    'scrollDateFraction:column:scrollDateFraction:',
+    'scrollTaskGroupFraction:column:scrollTaskGroupFraction:',
   ],
   resetTaskGroupTreeStates: [],
   moveTaskGroup: [
@@ -268,7 +268,7 @@ const PRINTED_VALUES = {
   setDisplayTimeZones: ['displayTimeZones:column:displayTimeZones:'],
   setTimeOfDayVisible: ['isTimeOfDayVisible:column:isTimeOfDayVisible:'],
   setTaskGroupTreeState: ['taskGroupId:key:TaskGroup.id:', 'treeState:column:TaskGroup.treeState:'],
-  setTaskGroupEditGroup: ['taskGroupId:key:TaskGroup.id:', 'editGroup:column:TaskGroup.editGroup:'],
+  setTaskGroupEditPermission: ['taskGroupId:key:TaskGroup.id:', 'editPermission:column:TaskGroup.editPermission:'],
   setLevelZeroTreeState: ['levelZeroTreeState:column:levelZeroTreeState:'],
 } as const
 
@@ -404,9 +404,9 @@ describe('DocumentCommand is the union of the 91 commands of table T-108', () =>
 
   it('a T-019 alternative of PlanActualPlacement holds the columns its row prints', () => {
     const place = commands.find((command) => command.id === 'CM-13')?.values.find((value) => value.name === 'place')
-    expect(place?.variants.map((variant) => variant.tag)).toEqual(['PA-1', 'PA-2', 'PA-3', 'PA-4', 'PA-5'])
-    expectTypeOf<keyof Extract<PlanActualPlacement, { row: 'PA-3' }>>().toEqualTypeOf<'row' | 'actualStart' | 'stop' | 'resume'>()
-    expectTypeOf<keyof Extract<PlanActualPlacement, { row: 'PA-5' }>>().toEqualTypeOf<'row' | 'actualStart' | 'actualFinish'>()
+    expect(place?.variants.map((variant) => variant.tag)).toEqual(['notStarted', 'inProgress', 'suspendedWithResumeDate', 'suspendedWithoutResumeDate', 'finished'])
+    expectTypeOf<keyof Extract<PlanActualPlacement, { state: 'suspendedWithResumeDate' }>>().toEqualTypeOf<'state' | 'actualStart' | 'stop' | 'resume'>()
+    expectTypeOf<keyof Extract<PlanActualPlacement, { state: 'finished' }>>().toEqualTypeOf<'state' | 'actualStart' | 'actualFinish'>()
   })
 })
 
@@ -414,17 +414,17 @@ describe('CM-76: the union holds it as not implemented, and a write of it is ref
   const GROUP = 'aaaaaaaa-0000-4000-8000-000000000001'
   const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
-  it('UnimplementedDocumentCommand is CM-76 setTaskGroupEditGroup, the one row the table marks as not implemented', () => {
-    expectTypeOf<UnimplementedDocumentCommand['kind']>().toEqualTypeOf<'setTaskGroupEditGroup'>()
-    expect(commands.filter(isUnimplemented).map((command) => command.name)).toEqual(['setTaskGroupEditGroup'])
+  it('UnimplementedDocumentCommand is CM-76 setTaskGroupEditPermission, the one row the table marks as not implemented', () => {
+    expectTypeOf<UnimplementedDocumentCommand['kind']>().toEqualTypeOf<'setTaskGroupEditPermission'>()
+    expect(commands.filter(isUnimplemented).map((command) => command.name)).toEqual(['setTaskGroupEditPermission'])
   })
 
   it('editing the document with it refuses under table T-108 and leaves the document as it was', () => {
     const document = taskGroupDocument([{ id: GROUP, parentId: null }]) as unknown as Document
-    const command: DocumentCommand = { kind: 'setTaskGroupEditGroup', taskGroupId: GROUP, editGroup: null }
+    const command: DocumentCommand = { kind: 'setTaskGroupEditPermission', taskGroupId: GROUP, editPermission: null }
     const result = editDocument(document, command, LIMITS, 'row')
     expect(JSON.stringify(result)).toContain('T-108')
-    expect(JSON.stringify(result)).toContain('setTaskGroupEditGroup')
-    expect(document.schedule.taskGroups[0]?.editGroup ?? null).toBeNull()
+    expect(JSON.stringify(result)).toContain('setTaskGroupEditPermission')
+    expect(document.schedule.taskGroups[0]?.editPermission ?? null).toBeNull()
   })
 })

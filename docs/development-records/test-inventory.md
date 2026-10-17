@@ -63,7 +63,7 @@ named either way: 4 of 11.
 | `tests/contract/cr-757-fo-17-the-settings-row-asks-then-moves.test.ts` | UN-13 / FR-159: ${FR_159_ONE_UNDO} -- S-77 scrollDate is back too | DFC-2761 |
 | `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | a dateless milestone (read as 17:00, the end of the last span) is not counted outside a... | none |
 | `tests/contract/cr-757-qn-15-wh-11-what-the-question-shows.test.ts` | a milestone written at 17:00 (its WT-5 default time) is not counted outside after the move | none |
-| `tests/contract/e24-paste-refused-while-several-task-groups-are-chosen.test.ts` | ${EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editGroup task group, ONE... | DFC-730 |
+| `tests/contract/e24-paste-refused-while-several-task-groups-are-chosen.test.ts` | ${EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editPermission task g... | DFC-730 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | %s (DFC-687) | DFC-687 |
 | `tests/contract/state-machine-gesture.contract.test.ts` | pointerPressed on entry %s (DFC-687) | DFC-687 |
 | `tests/unit/cr-439-notices-and-confirmation.test.ts` | NT-5 NT-1 と見分けがつく形にすること（MUST） -- an accepted-with-caution notice does not look like a r... | none |

@@ -12,7 +12,8 @@ export const T_108_HEADINGS = ['行 ID', '群', '確定名', '組', '運ぶ値',
 const LINE_BREAK = /<br\s*\/?>/gi
 const INDENT = '　　'
 const VALUE_LINE = /^`([A-Za-z_$][\w$]*)`: (.*)$/
-const VARIANT_LINE = /^`([A-Za-z_$][\w$]*)` が `'([^']+)'`:?$/
+// WHY: a word tag is followed by the table row it stands for, as (`PA-1`) in full-width brackets (CR-792).
+const VARIANT_LINE = /^`([A-Za-z_$][\w$]*)` が `'([^']+)'`(?:（`[A-Z]+-[0-9]+`）)?:?$/
 const SHAPE_LINE = /^`([A-Z][\w$]*)`:$/
 const CHOICE_LINE = /^次の形のどちらか —— (.*)$/
 const KEY_TEXT = /^鍵(の並び)?（`([\w.]+)`、`(AT-\d+)`）/

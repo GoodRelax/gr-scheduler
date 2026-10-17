@@ -84,7 +84,7 @@ export function setTaskVisualShapeKind(
   task: Task,
 ): EditResult {
   const schedule = document.schedule
-  const visual = visualOf(schedule, command.uid)
+  const visual = visualOf(schedule, command.taskUid)
   const wanted = command.shapeKind === 'milestone'
   if (isMilestone(task) !== wanted) {
     return refused([
@@ -110,7 +110,7 @@ export function setTaskVisualMilestoneGlyph(
       reject('CM-21', 'FR-078', 'the figure is not one of those table T-012 SH-5 names'),
     ])
   }
-  const visual = visualOf(schedule, command.uid)
+  const visual = visualOf(schedule, command.taskUid)
   return edited(withVisual(document, { ...visual, milestoneGlyph: command.milestoneGlyph }))
 }
 
@@ -129,7 +129,7 @@ export function setTaskVisualColors(
       return refused([reject('CM-22', 'CV-1', `not a palette name or a custom color: ${chosen}`)])
     }
   }
-  const visual = visualOf(schedule, command.uid)
+  const visual = visualOf(schedule, command.taskUid)
   return edited(
     withVisual(document, {
       ...visual,
@@ -145,7 +145,7 @@ export function resetTaskVisualColors(
   command: Extract<TaskCommand, { readonly kind: 'resetTaskVisualColors' }>,
 ): EditResult {
   const schedule = document.schedule
-  const visual = visualOf(schedule, command.uid)
+  const visual = visualOf(schedule, command.taskUid)
   return edited(withVisual(document, { ...visual, fillColor: null, strokeColor: null }))
 }
 
@@ -167,6 +167,6 @@ export function setTaskVisualStrokeWidthPx(
     return refused([reject('CM-24', 'AT-104', `the outline width must be a whole number from ${low} to ${high}, not ${width}`)])
   }
   const schedule = document.schedule
-  const visual = visualOf(schedule, command.uid)
+  const visual = visualOf(schedule, command.taskUid)
   return edited(withVisual(document, { ...visual, strokeWidthPx: width }))
 }

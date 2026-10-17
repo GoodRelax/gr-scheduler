@@ -57,7 +57,7 @@ const EXPECTED_TYPES = [
 const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> = {
   'AV-1': [['expectedStamp', 'commands']],
   'AV-2': [
-    ['ok', 'stamp', 'hasMovedSchedule'],
+    ['ok', 'stamp', 'hasUpdatedSchedule'],
     ['ok', 'refusal'],
   ],
   'AV-3': [['target', 'reason', 'stamp', 'document', 'refusals', 'message']],
@@ -67,11 +67,11 @@ const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> 
     ['ok', 'refusal'],
   ],
   'AV-6': [
-    ['ok', 'stamp', 'hasMovedSchedule', 'isScrolled'],
+    ['ok', 'stamp', 'hasUpdatedSchedule', 'isScrolled'],
     ['ok', 'refusal'],
   ],
   'AV-7': [['document'], ['text']],
-  'AV-8': [['drawnTaskUids', 'tables']],
+  'AV-8': [['drawnTaskUids', 'filteringTables']],
   'AV-9': [['fixProposals', 'fixLog']],
   'AV-10': [['notice']],
   'AV-11': [['hasReplacedEarlierWatch', 'stopWatching']],

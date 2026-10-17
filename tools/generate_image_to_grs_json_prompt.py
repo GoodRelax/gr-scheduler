@@ -177,7 +177,7 @@ def empty_document():
                 'derivedFromTaskUid': None,
                 'order': 0,
                 'treeState': 'auto',
-                'editGroup': None,
+                'editPermission': None,
                 'color': None,
                 'minHeightPx': None,
             }],

@@ -83,7 +83,7 @@ function fixture(): string {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: '2025-12-20T00:00:00', scrollDayOffset: 0, scrollTaskGroupId: ROW, scrollGroupOffset: 0 },
+    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: '2025-12-20T00:00:00', scrollDateFraction: 0, scrollTaskGroupId: ROW, scrollTaskGroupFraction: 0 },
     documentStamp: TEMPLATE.documentStamp,
     changeLog: [],
   }
@@ -111,7 +111,7 @@ async function rename(page: Page, name: string): Promise<{ ok: boolean }> {
   return page.evaluate((wanted: string) => {
     const api = (window as unknown as { grSchedulerAgentApi: { readStamp(): unknown; applyCommands(request: unknown): { ok: boolean } } })
       .grSchedulerAgentApi
-    return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid: 1, name: wanted }] })
+    return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', taskUid: 1, name: wanted }] })
   }, name)
 }
 

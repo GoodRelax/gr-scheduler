@@ -113,8 +113,8 @@ describe('one alternative per command the Agent API takes, in the order of table
     expect(alternativesOf('setDependencyLag')).toHaveLength(2)
   })
 
-  it('CM-76 setTaskGroupEditGroup, which the table marks as not implemented, is not offered', () => {
-    expect(alternatives.map(kindOf)).not.toContain('setTaskGroupEditGroup')
+  it('CM-76 setTaskGroupEditPermission, which the table marks as not implemented, is not offered', () => {
+    expect(alternatives.map(kindOf)).not.toContain('setTaskGroupEditPermission')
   })
 
   it.each(offered.map((command) => [command.id, command.name, command] as const))(
@@ -165,10 +165,10 @@ describe('a shape a command carries is a closed object of the fields table T-108
     const place = commands.find((command) => command.id === 'CM-13')?.values.find((value) => value.name === 'place')
     const node = propertiesOf(alternativesOf('setTaskPlanActualState')[0] ?? {})['place'] ?? {}
     const variants = (node['oneOf'] ?? []) as Json[]
-    expect(variants.map((one) => propertiesOf(one)['row'])).toEqual(place?.variants.map((variant) => ({ const: variant.tag })))
+    expect(variants.map((one) => propertiesOf(one)['state'])).toEqual(place?.variants.map((variant) => ({ const: variant.tag })))
     variants.forEach((one, at) => {
       expect(one['additionalProperties']).toBe(false)
-      expect(Object.keys(propertiesOf(one))).toEqual(['row', ...(place?.variants[at]?.fields.map((field) => field.name) ?? [])])
+      expect(Object.keys(propertiesOf(one))).toEqual(['state', ...(place?.variants[at]?.fields.map((field) => field.name) ?? [])])
     })
   })
 })
@@ -201,7 +201,7 @@ describe('a value that writes a document column takes that column\'s shape in th
 })
 
 describe('the published input refuses a command whose shape is off (schema level; the runtime refusal is DFC-2856)', () => {
-  const fadeIn = { kind: 'setTaskFadeInDays', uid: 12, fadeInDays: 3 }
+  const fadeIn = { kind: 'setTaskFadeInDays', taskUid: 12, fadeInDays: 3 }
 
   it('a well-formed bundle is accepted', () => {
     expect(acceptsRequest({ expectedStamp: STAMP, commands: [fadeIn] }), JSON.stringify(acceptsRequest.errors)).toBe(true)
@@ -209,14 +209,14 @@ describe('the published input refuses a command whose shape is off (schema level
 
   it.each([
     ['fadeInDays given as a string', { ...fadeIn, fadeInDays: '3' }],
-    ['a misspelt field', { kind: 'setTaskFadeInDays', uid: 12, fadeInDay: 3 }],
-    ['a field left out', { kind: 'setTaskFadeInDays', uid: 12 }],
+    ['a misspelt field', { kind: 'setTaskFadeInDays', taskUid: 12, fadeInDay: 3 }],
+    ['a field left out', { kind: 'setTaskFadeInDays', taskUid: 12 }],
     ['an extra field', { ...fadeIn, days: 3 }],
     ['a kind table T-108 does not hold', { kind: 'setTaskFadeDays', uid: 12, fadeInDays: 3 }],
-    ['CM-76, which only a person uses', { kind: 'setTaskGroupEditGroup', taskGroupId: 'g', editGroup: null }],
+    ['CM-76, which only a person uses', { kind: 'setTaskGroupEditPermission', taskGroupId: 'g', editPermission: null }],
     ['both lag shapes at once', { kind: 'setDependencyLag', predecessorUid: 1, successorUid: 2, lagWorkingDays: 1, lagMinutes: 60, lagUnit: 'h' }],
     ['a lag unit outside d, h and m', { kind: 'setDependencyLag', predecessorUid: 1, successorUid: 2, lagMinutes: 60, lagUnit: 'w' }],
-    ['a null start where the table says null is not taken', { kind: 'setTaskPlanDates', uid: 1, start: null, finish: '2026-04-08T17:00:00' }],
+    ['a null start where the table says null is not taken', { kind: 'setTaskPlanDates', taskUid: 1, start: null, finish: '2026-04-08T17:00:00' }],
   ])('%s is refused', (_label, command) => {
     expect(acceptsCommand(command)).toBe(false)
     expect(acceptsRequest({ expectedStamp: STAMP, commands: [command] })).toBe(false)

@@ -49,7 +49,7 @@ You are an expert at reading and converting schedule charts. Read the attached s
    - Make one TaskGroup for each heading row of the original. id is a lowercase UUID (e.g. "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01"), unique within the document.
    - Put the heading's text in name. derivedFromTaskUid is null.
    - For nested headings, set parentId to the parent's id.
-   - order is the position from the top among rows with the same parent (from 0). treeState is "auto": a still image cannot show whether a row was left collapsed, expanded or hidden inside the app, so always write "auto" here (GRS's other four values — "collapsed" stops drawing everything below the row, "expanded" keeps one level of children open, "temporarilyExpanded" keeps all children open until the next zoom-out, and "hidden" stops drawing the row itself — describe states a person set inside GRS, not something a still image can show). editGroup is null (anyone may edit the row) and minHeightPx is null.
+   - order is the position from the top among rows with the same parent (from 0). treeState is "auto": a still image cannot show whether a row was left collapsed, expanded or hidden inside the app, so always write "auto" here (GRS's other four values — "collapsed" stops drawing everything below the row, "expanded" keeps one level of children open, "temporarilyExpanded" keeps all children open until the next zoom-out, and "hidden" stops drawing the row itself — describe states a person set inside GRS, not something a still image can show). editPermission is null (anyone may edit the row) and minHeightPx is null.
    - color is the row band (background) color of the original, chosen by the color mode, except that a row cannot be "black". null if the band has no color.
    - Always have at least one TaskGroup.
 4. Keep horizontal lines (important)
@@ -180,11 +180,11 @@ Merged into `grs-skeleton.json` with `schedule.project.uidHighWaterMark` set to 
   "taskGroups": [
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "parentId": null, "name": "Planning",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": "lightgray", "minHeightPx": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editPermission": null, "color": "lightgray", "minHeightPx": null
     },
     {
       "id": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c02", "parentId": "3f1c2a9e-8b7d-4c21-9e0a-5d6f7a8b9c01", "name": "Approvals",
-      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editGroup": null, "color": null, "minHeightPx": null
+      "derivedFromTaskUid": null, "order": 0, "treeState": "auto", "editPermission": null, "color": null, "minHeightPx": null
     }
   ],
   "taskGroupMembers": [

@@ -162,19 +162,19 @@ describe('a value that writes a document column points at that column', () => {
 })
 
 describe('CM-76 is printed with its values, and the table says it is not implemented', () => {
-  const editGroup = commands.find((command) => command.id === 'CM-76')
+  const editPermission = commands.find((command) => command.id === 'CM-76')
 
-  it('CM-76 setTaskGroupEditGroup carries the task group key and the editGroup column (AT-144)', () => {
-    expect(editGroup?.name).toBe('setTaskGroupEditGroup')
-    expect(editGroup?.values.map((value) => [value.name, value.role, value.pointer])).toEqual([
+  it('CM-76 setTaskGroupEditPermission carries the task group key and the editPermission column (AT-144)', () => {
+    expect(editPermission?.name).toBe('setTaskGroupEditPermission')
+    expect(editPermission?.values.map((value) => [value.name, value.role, value.pointer])).toEqual([
       ['taskGroupId', 'key', 'AT-51'],
-      ['editGroup', 'column', 'AT-144'],
+      ['editPermission', 'column', 'AT-144'],
     ])
   })
 
   it('it is the one row the table marks as not implemented and refused', () => {
     expect(commands.filter(isUnimplemented).map((command) => command.id)).toEqual(['CM-76'])
-    expect(editGroup?.notes).toEqual(['⚠️ まだ実装していない —— 受けても断る'])
+    expect(editPermission?.notes).toEqual(['⚠️ まだ実装していない —— 受けても断る'])
   })
 })
 

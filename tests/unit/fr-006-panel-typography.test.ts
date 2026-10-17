@@ -28,9 +28,9 @@
 //               ⛔ 「px の定数として持ってはならない（MUST NOT）」 -- 「読む人が
 //               ブラウザで文字を大きくしたとき、パネルだけが取り残される」
 //               （WCAG 2.1 の 1.4.4。要求としては `FR-039` が持つ）。
-//               ⚠️ 「掛ける相手は 表 T-215 の `fontScaleSizes[fontScale]` では
+//               ⚠️ 「掛ける相手は 表 T-215 の `fontSizeStepSizes[fontSizeStep]` では
 //               ない。」 The requirement gives the ground in as many words:
-//               `fontScale` decides the SCHEDULE's own text and 「パネルは日程
+//               `fontSizeStep` decides the SCHEDULE's own text and 「パネルは日程
 //               表ではなく外枠である」, and multiplying by that table would
 //               reach 11.2px at its largest and 8.4px at its smallest.
 //   S-197       table T-206, 「プロパティパネルの文字の大きさの係数」 -- ⭐ 「px
@@ -38,7 +38,7 @@
 //               取ってはならない —— あれは本仕様が持たない 17px から出た数で
 //               ある」.
 //   S-198       table T-206, 「項目名だけをさらに小さくする係数」 -- ⭐ 「掛ける
-//               相手は `S-197` を適用したあとの大きさであって、`fontScaleSizes`
+//               相手は `S-197` を適用したあとの大きさであって、`fontSizeStepSizes`
 //               ではない」. ⚠️ Its own note separates it from S-189: 「あちらは
 //               幅、本行は文字の大きさ」.
 //   S-189       table T-206, 「項目名の欄が取る割合」 -- ⭐ 「px ではなく割合で
@@ -50,7 +50,7 @@
 //               only as corroboration that the text inside a field is expected
 //               to GROW with the reader's own setting; no case asserts it,
 //               because a height is not what this file is about.
-//   T-215       `fontScaleSizes` (S-121 / S-122 / S-123) -- read so that the
+//   T-215       `fontSizeStepSizes` (S-121 / S-122 / S-123) -- read so that the
 //               multiplicand FR-006 rules out can be named in a case rather
 //               than described in a comment.
 //   T-103 U-25  the settled name `Properties Panel`, which W-4 of table T-006a
@@ -204,11 +204,11 @@ const S_189 = numberOf('S-189')
 const S_189_CELL = cellOf('S-189')
 
 /**
- * `fontScaleSizes` (S-121 / S-122 / S-123 of table T-215) -- the multiplicand
+ * `fontSizeStepSizes` (S-121 / S-122 / S-123 of table T-215) -- the multiplicand
  * FR-006 rules out in as many words.
  */
 const T_215 = specTable('T-215')
-const FONT_SCALE_SIZES = ['S-121', 'S-122', 'S-123'].map((id) => {
+const FONT_SIZE_STEP_SIZES = ['S-121', 'S-122', 'S-123'].map((id) => {
   const row = T_215.rows.find((one) => one.id === id)
   if (row === undefined) throw new Error(`table T-215 no longer has row ${id}`)
   return Number.parseFloat(bare(row.by['値'] ?? ''))
@@ -1191,7 +1191,7 @@ describe('the manuscript still says what these cases read', () => {
     expect(S_198).toBeGreaterThan(0)
     expect(S_198).toBeLessThan(1)
     expect(S_197, 'S-197 and S-198 are two different ratios').not.toBe(S_198)
-    expect(FONT_SCALE_SIZES.every((one) => one > 0)).toBe(true)
+    expect(FONT_SIZE_STEP_SIZES.every((one) => one > 0)).toBe(true)
     expect(U_25).toBe('Properties Panel')
   })
 
@@ -1239,23 +1239,23 @@ describe("FR-006 (MUST) -- the panel's text is S-197 of the base the host gives"
     expect(large / small, 'the panel follows the reader, rather than a constant').toBeCloseTo(2, 9)
   })
 
-  it('⛔ MUST NOT: it is not `fontScaleSizes[fontScale]` that is multiplied', () => {
-    // ⚠️ 「掛ける相手は 表 T-215 の `fontScaleSizes[fontScale]` ではない」 --
-    // 「`fontScale` が決めるのは日程表そのものの文字であり、パネルは日程表では
+  it('⛔ MUST NOT: it is not `fontSizeStepSizes[fontSizeStep]` that is multiplied', () => {
+    // ⚠️ 「掛ける相手は 表 T-215 の `fontSizeStepSizes[fontSizeStep]` ではない」 --
+    // 「`fontSizeStep` が決めるのは日程表そのものの文字であり、パネルは日程表では
     // なく外枠である」. ⛔ The requirement even states what that mistake looks
     // like: 「いちばん大きい `L` でも 11.2px にしかならず、`S` では 8.4px にな
     // る」.
     // ⭐ The base below is deliberately none of table T-215's own numbers, so a
     // panel that multiplied the wrong thing cannot come out right by accident.
     const base = 20
-    expect(FONT_SCALE_SIZES, 'the base this case drives with is not one of them').not.toContain(base)
+    expect(FONT_SIZE_STEP_SIZES, 'the base this case drives with is not one of them').not.toContain(base)
 
     const { built, panel } = drawPanel([READ_ONLY_FIELD])
     const size = sizeOf(built, panel, base)
 
     expect(size).toBeCloseTo(S_197 * base, 9)
-    for (const wrong of FONT_SCALE_SIZES) {
-      expect(size, `S-197 x fontScaleSizes = ${S_197 * wrong}`).not.toBeCloseTo(S_197 * wrong, 9)
+    for (const wrong of FONT_SIZE_STEP_SIZES) {
+      expect(size, `S-197 x fontSizeStepSizes = ${S_197 * wrong}`).not.toBeCloseTo(S_197 * wrong, 9)
     }
   })
 })
@@ -1263,7 +1263,7 @@ describe("FR-006 (MUST) -- the panel's text is S-197 of the base the host gives"
 describe('FR-006 (MUST) -- the item name takes S-198 on top of that', () => {
   it('the item name is smaller than the value beside it by exactly S-198', () => {
     // 「項目名にはさらに `S-198` を掛けること（MUST）」, and S-198's own note:
-    // ⭐ 「掛ける相手は `S-197` を適用したあとの大きさであって、`fontScaleSizes`
+    // ⭐ 「掛ける相手は `S-197` を適用したあとの大きさであって、`fontSizeStepSizes`
     // ではない —— パネル全体が縮んだうえで、その中でさらに項目名だけが小さい」.
     const { built, panel } = drawPanel([READ_ONLY_FIELD])
 

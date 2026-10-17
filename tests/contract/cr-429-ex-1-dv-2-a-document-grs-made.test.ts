@@ -46,7 +46,7 @@ describe('EX-1 and DV-2 -- a document GRS made', () => {
     const first = start.schedule.tasks[0]
     if (group === undefined || first === undefined) throw new Error('the template has no task group or no task')
     const drawn = edited(start, { kind: 'createTask', shapeKind: 'rectangle', start: day(13), finish: day(17), taskGroupId: group.id })
-    const moved = edited(drawn, { kind: 'setTaskPlanDates', uid: first.uid, start: day(7), finish: day(14) })
+    const moved = edited(drawn, { kind: 'setTaskPlanDates', taskUid: first.uid, start: day(7), finish: day(14) })
     expect(schemaFaults(writtenText(moved), 'pj12')).toEqual([])
   })
 })

@@ -184,7 +184,7 @@ function documentWith(settings: Readonly<Record<string, unknown>>): Document {
           derivedFromTaskUid: null,
           order: 0,
           treeState: 'auto',
-          editGroup: null,
+          editPermission: null,
           color: null,
           minHeightPx: null,
         },

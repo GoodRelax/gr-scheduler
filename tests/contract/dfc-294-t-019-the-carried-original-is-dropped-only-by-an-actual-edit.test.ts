@@ -277,28 +277,28 @@ function commandFor(rowId: string): TaskCommand {
     case 'CM-13':
       return {
         kind,
-        uid: TASK_UID,
-        place: { row: 'PA-4', actualStart: '2026-04-06', stop: '2026-04-08' },
+        taskUid: TASK_UID,
+        place: { state: 'suspendedWithoutResumeDate', actualStart: '2026-04-06', stop: '2026-04-08' },
       } as unknown as TaskCommand
     // CM-14 -- 「実績を置き始める」, FR-043's 掴みシロを離した日.
     case 'CM-14':
       return {
         kind,
-        uid: TASK_UID,
+        taskUid: TASK_UID,
         released: { start: '2026-04-07', finish: '2026-04-07' },
         snapMinutes: MINUTES_PER_CALENDAR_DAY,
       } as unknown as TaskCommand
     // CM-15 -- CR-149 「予実の状態を巡らせる」.
     case 'CM-15':
-      return { kind, uid: TASK_UID } as unknown as TaskCommand
+      return { kind, taskUid: TASK_UID } as unknown as TaskCommand
     // CM-9 -- 「名称を変える」.
     case 'CM-9':
-      return { kind, uid: TASK_UID, name: 'RenamedAndNothingElse' } as unknown as TaskCommand
+      return { kind, taskUid: TASK_UID, name: 'RenamedAndNothingElse' } as unknown as TaskCommand
     // CM-11 -- 「予定の開始・終了を置く」.
     case 'CM-11':
       return {
         kind,
-        uid: TASK_UID,
+        taskUid: TASK_UID,
         start: '2026-04-13',
         finish: '2026-05-01',
       } as unknown as TaskCommand

@@ -27,7 +27,7 @@ const DEFAULT_TASK_GROUP_NAME_FIXTURE = 'fixture default task group name'
 // see S-3
 const RULER_FONT_FACTOR = SETTINGS_DERIVED.rulerFontSizePx.times
 const RULER_LABEL_PAD = SETTINGS_CONSTANTS.rulerLabelPad
-const SIZE_M = SETTINGS_CONSTANTS.fontScaleSizes.M
+const SIZE_M = SETTINGS_CONSTANTS.fontSizeStepSizes.M
 
 const documentOf = (part: Record<string, unknown> = {}): Document =>
   ({
@@ -66,8 +66,8 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
     },
     documentSettings: {
       stackDirection: 'up',
-      fontScale: 'M',
-      // WHY: the pair agrees with fontScale M (S-3 x its factor, S-2 = x3 + pad x3), so CM-62 on M changes nothing.
+      fontSizeStep: 'M',
+      // WHY: the pair agrees with fontSizeStep M (S-3 x its factor, S-2 = x3 + pad x3), so CM-62 on M changes nothing.
       rulerFontSizePx: SIZE_M * RULER_FONT_FACTOR,
       rulerHeightPx: SIZE_M * RULER_FONT_FACTOR * 3 + RULER_LABEL_PAD * 3,
       taskGroupPanelWidthPx: 170,
@@ -76,8 +76,8 @@ const documentOf = (part: Record<string, unknown> = {}): Document =>
       zoomY: 1,
       scrollDate: null,
       scrollTaskGroupId: null,
-      scrollDayOffset: 0,
-      scrollGroupOffset: 0,
+      scrollDateFraction: 0,
+      scrollTaskGroupFraction: 0,
       isThemeMonochrome: false,
       isDependencyVisible: true,
       ...((part.documentSettings as Record<string, unknown>) ?? {}),
@@ -207,33 +207,33 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
     )
   })
 
-  it('CM-58 setElementVisible -- the key the command names, and no other', () => {
+  it('CM-58 setVisibilitySetting -- the key the command names, and no other', () => {
     bothWays(
       settings as never,
-      { kind: 'setElementVisible', element: 'isDependencyVisible', visible: true },
-      { kind: 'setElementVisible', element: 'isDependencyVisible', visible: false },
+      { kind: 'setVisibilitySetting', setting: 'isDependencyVisible', isVisible: true },
+      { kind: 'setVisibilitySetting', setting: 'isDependencyVisible', isVisible: false },
     )
   })
 
-  it('CM-62 setFontScale -- the three keys it writes are judged together', () => {
-    // WHY: fontScale drives rulerFontSizePx and rulerHeightPx too (FR-039), so a
+  it('CM-62 setFontSizeStep -- the three keys it writes are judged together', () => {
+    // WHY: fontSizeStep drives rulerFontSizePx and rulerHeightPx too (FR-039), so a
     // drifted derived pair must be repaired -- tested as a whole, not one key.
     bothWays(
       settings as never,
-      { kind: 'setFontScale', fontScale: 'M' },
-      { kind: 'setFontScale', fontScale: 'L' },
+      { kind: 'setFontSizeStep', fontSizeStep: 'M' },
+      { kind: 'setFontSizeStep', fontSizeStep: 'L' },
     )
   })
 
   it('CM-62 still repairs a document whose derived pair drifted from the scale it names', () => {
-    // TRAP: an arm comparing fontScale alone would answer this document
+    // TRAP: an arm comparing fontSizeStep alone would answer this document
     // untouched and leave rulerFontSizePx at 99.
-    const drifted = documentOf({ documentSettings: { fontScale: 'M', rulerFontSizePx: 99 } })
-    const result = editDocumentSettings(drifted, { kind: 'setFontScale', fontScale: 'M' }, LIMITS)
+    const drifted = documentOf({ documentSettings: { fontSizeStep: 'M', rulerFontSizePx: 99 } })
+    const result = editDocumentSettings(drifted, { kind: 'setFontSizeStep', fontSizeStep: 'M' }, LIMITS)
     expect(result.ok).toBe(true)
     if (!result.ok) return
     expect(result.document).not.toBe(drifted)
-    expect(result.document.documentSettings.rulerFontSizePx, 'S-3: fontScaleSizes[fontScale] x its factor').toBe(
+    expect(result.document.documentSettings.rulerFontSizePx, 'S-3: fontSizeStepSizes[fontSizeStep] x its factor').toBe(
       SIZE_M * RULER_FONT_FACTOR,
     )
   })
@@ -270,15 +270,15 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
         kind: 'setScrollPosition',
         scrollDate: null,
         scrollTaskGroupId: null,
-        scrollDayOffset: 0,
-        scrollGroupOffset: 0,
+        scrollDateFraction: 0,
+        scrollTaskGroupFraction: 0,
       },
       {
         kind: 'setScrollPosition',
         scrollDate: '2026-03-02',
         scrollTaskGroupId: 'g1',
-        scrollDayOffset: 0,
-        scrollGroupOffset: 0,
+        scrollDateFraction: 0,
+        scrollTaskGroupFraction: 0,
       },
     )
   })
@@ -311,8 +311,8 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
         zoomY: 1,
         scrollDate: null,
         scrollTaskGroupId: null,
-        scrollDayOffset: 0,
-        scrollGroupOffset: 0,
+        scrollDateFraction: 0,
+        scrollTaskGroupFraction: 0,
       },
       {
         kind: 'fitScheduleToScreen',
@@ -320,15 +320,15 @@ describe('EditDocumentSettings -- the presentation arms answer the same document
         zoomY: 1,
         scrollDate: null,
         scrollTaskGroupId: null,
-        scrollDayOffset: 0,
-        scrollGroupOffset: 0,
+        scrollDateFraction: 0,
+        scrollTaskGroupFraction: 0,
       },
     )
   })
 })
 
 describe('FR-063 -- what the write path reads off the reference the arms keep', () => {
-  it('a no-op CM-1 moves neither hasMovedSchedule nor the schedule instant', () => {
+  it('a no-op CM-1 moves neither hasUpdatedSchedule nor the schedule instant', () => {
     // TRAP: the case below (a write that DOES move the title) must stay
     // green, or an arm that always answers the same document would pass this too.
     const document = documentOf()
@@ -337,7 +337,7 @@ describe('FR-063 -- what the write path reads off the reference the arms keep', 
     ])
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
-    expect(plan.hasMovedSchedule).toBe(false)
+    expect(plan.hasUpdatedSchedule).toBe(false)
     expect(plan.document.documentStamp.scheduleUpdatedAt).toBe('2026-08-17T00:00:00Z')
   })
 
@@ -347,12 +347,12 @@ describe('FR-063 -- what the write path reads off the reference the arms keep', 
     ])
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
-    expect(plan.hasMovedSchedule).toBe(true)
+    expect(plan.hasUpdatedSchedule).toBe(true)
     expect(plan.document.documentStamp.scheduleUpdatedAt).toBe('2026-08-17T01:00:00Z')
   })
 
   it('a no-op on the presentation group leaves the schedule instant alone either way', () => {
-    // WHY: hasMovedSchedule is already false for this arm; what this case
+    // WHY: hasUpdatedSchedule is already false for this arm; what this case
     // adds is the DOCUMENT reference, which is what FR-020's trail reads.
     const document = documentOf()
     const plan = planOf(document, [
@@ -360,7 +360,7 @@ describe('FR-063 -- what the write path reads off the reference the arms keep', 
     ])
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
-    expect(plan.hasMovedSchedule).toBe(false)
+    expect(plan.hasUpdatedSchedule).toBe(false)
     expect(plan.document.schedule).toBe(document.schedule)
     expect(plan.document.documentSettings).toBe(document.documentSettings)
   })

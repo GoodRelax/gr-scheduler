@@ -34,8 +34,8 @@ import type { DocumentCommand } from '../../src/use-case/apply-document-change/a
 const fresh = (): Held => heldOf(openedFrom(documentText()))
 const viewIn = (held: Held, table: VisibilityTable): TableView => tableViewOf(held.document.documentSettings, table)
 
-const HIDE_TWO: TableView = view({ visibility: { hiddenKeys: [ALPHA, BRAVO], isUnassignedHidden: false, isApplied: false } })
-const EYE_ON: TableView = view({ visibility: { hiddenKeys: [ALPHA, BRAVO], isUnassignedHidden: false, isApplied: true } })
+const HIDE_TWO: TableView = view({ visibility: { hiddenTaskUids: [ALPHA, BRAVO], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false } })
+const EYE_ON: TableView = view({ visibility: { hiddenTaskUids: [ALPHA, BRAVO], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: true } })
 const FILTERED: TableView = view({ ...EYE_ON, columnFilters: [STATUS_FILTER] })
 const SORTED: TableView = view({ ...FILTERED, sort: BY_RESOURCE })
 
@@ -54,7 +54,7 @@ describe('CM-92 -- setTableView puts one table\'s whole view into the document',
   })
 
   it('the resource list takes the (Unassigned) row as part of its Visibility', () => {
-    const asked = view({ visibility: { hiddenKeys: [TANAKA], isUnassignedHidden: true, isApplied: true } })
+    const asked = view({ visibility: { hiddenTaskUids: [], hiddenResourceUids: [TANAKA], isUnassignedHidden: true, isScheduleFilterApplied: true } })
     expect(viewIn(written(fresh(), [setTableView('resourceList', asked)]), 'resourceList')).toEqual(asked)
   })
 
@@ -97,15 +97,15 @@ describe('UN-20 / FR-151 -- a change of a view is an unsaved edit and one undo s
 
   it('releasing the eye (also by closing the window) is a step; undo turns the eye on again', () => {
     const on = written(fresh(), [setTableView('searchPanel', EYE_ON)])
-    const released = written(on, [setTableView('searchPanel', view({ ...EYE_ON, visibility: { ...EYE_ON.visibility, isApplied: false } }))])
+    const released = written(on, [setTableView('searchPanel', view({ ...EYE_ON, visibility: { ...EYE_ON.visibility, isScheduleFilterApplied: false } }))])
     expect(stepsOf(released)).toBe(stepsOf(on) + 1)
-    expect(viewIn(released, 'searchPanel').visibility.hiddenKeys, 'TV-8: the Visibility stays').toEqual([ALPHA, BRAVO])
-    expect(viewIn(undone(released), 'searchPanel').visibility.isApplied).toBe(true)
+    expect(viewIn(released, 'searchPanel').visibility.hiddenTaskUids, 'TV-8: the Visibility stays').toEqual([ALPHA, BRAVO])
+    expect(viewIn(undone(released), 'searchPanel').visibility.isScheduleFilterApplied).toBe(true)
   })
 
   it('the bar\'s release of every table, sent as one call, is one step and one undo turns every eye back on', () => {
     const everyEyeOn: readonly DocumentCommand[] = (['searchPanel', 'delayDiagnosticsReport', 'resourceList'] as const).map((table) =>
-      setTableView(table, view({ visibility: { hiddenKeys: [], isUnassignedHidden: false, isApplied: true } })),
+      setTableView(table, view({ visibility: { hiddenTaskUids: [], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: true } })),
     )
     const on = written(fresh(), everyEyeOn)
     const off = written(
@@ -115,13 +115,13 @@ describe('UN-20 / FR-151 -- a change of a view is an unsaved edit and one undo s
     expect(stepsOf(off)).toBe(stepsOf(on) + 1)
     const back = undone(off)
     for (const table of ['searchPanel', 'delayDiagnosticsReport', 'resourceList'] as const) {
-      expect(viewIn(back, table).visibility.isApplied, table).toBe(true)
+      expect(viewIn(back, table).visibility.isScheduleFilterApplied, table).toBe(true)
     }
   })
 
   it('the three tables change independently: a view set on one table moves nothing on the others', () => {
     const search = written(fresh(), [setTableView('searchPanel', EYE_ON)])
-    const both = written(search, [setTableView('resourceList', view({ visibility: { hiddenKeys: [SATO], isUnassignedHidden: false, isApplied: true } }))])
+    const both = written(search, [setTableView('resourceList', view({ visibility: { hiddenTaskUids: [], hiddenResourceUids: [SATO], isUnassignedHidden: false, isScheduleFilterApplied: true } }))])
     expect(viewIn(both, 'searchPanel')).toEqual(EYE_ON)
     expect(viewIn(undone(both), 'resourceList')).toEqual(DEFAULT_VIEW)
     expect(viewIn(undone(both), 'searchPanel')).toEqual(EYE_ON)
@@ -131,34 +131,34 @@ describe('UN-20 / FR-151 -- a change of a view is an unsaved edit and one undo s
 describe('CD-1 / TV-2 -- deleting a task takes its "hidden" value out of the searched and reported tables, and undo puts it back', () => {
   const holding = (): Held =>
     written(fresh(), [
-      setTableView('searchPanel', view({ visibility: { hiddenKeys: [ALPHA, BRAVO], isUnassignedHidden: false, isApplied: true } })),
-      setTableView('delayDiagnosticsReport', view({ visibility: { hiddenKeys: [ALPHA, CHARLIE], isUnassignedHidden: false, isApplied: false } })),
+      setTableView('searchPanel', view({ visibility: { hiddenTaskUids: [ALPHA, BRAVO], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: true } })),
+      setTableView('delayDiagnosticsReport', view({ visibility: { hiddenTaskUids: [ALPHA, CHARLIE], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false } })),
     ])
 
   it('the deleted uid leaves both tables\' hidden lists and the others stay', () => {
-    const after = written(holding(), [{ kind: 'deleteTask', uid: ALPHA } as unknown as DocumentCommand])
-    expect(viewIn(after, 'searchPanel').visibility.hiddenKeys).toEqual([BRAVO])
-    expect(viewIn(after, 'delayDiagnosticsReport').visibility.hiddenKeys).toEqual([CHARLIE])
+    const after = written(holding(), [{ kind: 'deleteTask', taskUid: ALPHA } as unknown as DocumentCommand])
+    expect(viewIn(after, 'searchPanel').visibility.hiddenTaskUids).toEqual([BRAVO])
+    expect(viewIn(after, 'delayDiagnosticsReport').visibility.hiddenTaskUids).toEqual([CHARLIE])
   })
 
   it('the eyes and the filters of those tables are not touched by the delete', () => {
-    const after = written(holding(), [{ kind: 'deleteTask', uid: ALPHA } as unknown as DocumentCommand])
-    expect(viewIn(after, 'searchPanel').visibility.isApplied).toBe(true)
+    const after = written(holding(), [{ kind: 'deleteTask', taskUid: ALPHA } as unknown as DocumentCommand])
+    expect(viewIn(after, 'searchPanel').visibility.isScheduleFilterApplied).toBe(true)
   })
 
   it('the delete is one step and its undo restores the task and both hidden values', () => {
     const before = holding()
-    const after = written(before, [{ kind: 'deleteTask', uid: ALPHA } as unknown as DocumentCommand])
+    const after = written(before, [{ kind: 'deleteTask', taskUid: ALPHA } as unknown as DocumentCommand])
     expect(stepsOf(after)).toBe(stepsOf(before) + 1)
     const back = undone(after)
-    expect(viewIn(back, 'searchPanel').visibility.hiddenKeys).toEqual([ALPHA, BRAVO])
-    expect(viewIn(back, 'delayDiagnosticsReport').visibility.hiddenKeys).toEqual([ALPHA, CHARLIE])
+    expect(viewIn(back, 'searchPanel').visibility.hiddenTaskUids).toEqual([ALPHA, BRAVO])
+    expect(viewIn(back, 'delayDiagnosticsReport').visibility.hiddenTaskUids).toEqual([ALPHA, CHARLIE])
     expect(back.document.schedule.tasks.map((one) => one.uid)).toContain(ALPHA)
   })
 
   it('deleting a task that was not hidden leaves every hidden list as it was', () => {
     const before = holding()
-    const after = written(before, [{ kind: 'deleteTask', uid: 5 } as unknown as DocumentCommand])
+    const after = written(before, [{ kind: 'deleteTask', taskUid: 5 } as unknown as DocumentCommand])
     expect(viewIn(after, 'searchPanel')).toEqual(viewIn(before, 'searchPanel'))
     expect(viewIn(after, 'delayDiagnosticsReport')).toEqual(viewIn(before, 'delayDiagnosticsReport'))
   })
@@ -167,33 +167,33 @@ describe('CD-1 / TV-2 -- deleting a task takes its "hidden" value out of the sea
     const schedule = scheduleFixture()
     const tasks = (schedule['tasks'] as Loose[]).map((one) => (one['uid'] === BRAVO ? { ...one, parentTaskUid: ALPHA } : one))
     const text = documentText({ tableViews: tableViewsText({ searchPanel: HIDE_TWO, delayDiagnosticsReport: DEFAULT_VIEW, resourceList: DEFAULT_VIEW }) }, { ...schedule, tasks })
-    const after = written(heldOf(openedFrom(text)), [{ kind: 'deleteTask', uid: ALPHA } as unknown as DocumentCommand])
+    const after = written(heldOf(openedFrom(text)), [{ kind: 'deleteTask', taskUid: ALPHA } as unknown as DocumentCommand])
     expect(after.document.schedule.tasks.map((one) => one.uid)).not.toContain(BRAVO)
-    expect(viewIn(after, 'searchPanel').visibility.hiddenKeys).toEqual([])
+    expect(viewIn(after, 'searchPanel').visibility.hiddenTaskUids).toEqual([])
   })
 })
 
 describe('CD-5 / TV-2 -- deleting a resource takes its "hidden" value out of the resource list, and undo puts it back', () => {
   const holding = (): Held =>
-    written(fresh(), [setTableView('resourceList', view({ visibility: { hiddenKeys: [SATO, TANAKA], isUnassignedHidden: true, isApplied: true } }))])
+    written(fresh(), [setTableView('resourceList', view({ visibility: { hiddenTaskUids: [], hiddenResourceUids: [SATO, TANAKA], isUnassignedHidden: true, isScheduleFilterApplied: true } }))])
 
   it('the deleted resource leaves the hidden list, the other stays, and the (Unassigned) row is as it was', () => {
-    const after = written(holding(), [{ kind: 'deleteResource', uids: [TANAKA] } as unknown as DocumentCommand])
-    expect(viewIn(after, 'resourceList').visibility).toEqual({ hiddenKeys: [SATO], isUnassignedHidden: true, isApplied: true })
+    const after = written(holding(), [{ kind: 'deleteResources', resourceUids: [TANAKA] } as unknown as DocumentCommand])
+    expect(viewIn(after, 'resourceList').visibility).toEqual({ hiddenTaskUids: [], hiddenResourceUids: [SATO], isUnassignedHidden: true, isScheduleFilterApplied: true })
   })
 
   it('no task is deleted with the resource', () => {
     const before = holding()
-    const after = written(before, [{ kind: 'deleteResource', uids: [TANAKA] } as unknown as DocumentCommand])
+    const after = written(before, [{ kind: 'deleteResources', resourceUids: [TANAKA] } as unknown as DocumentCommand])
     expect(after.document.schedule.tasks.map((one) => one.uid)).toEqual(before.document.schedule.tasks.map((one) => one.uid))
   })
 
   it('the delete is one step and undo restores the resource and its hidden value', () => {
     const before = holding()
-    const after = written(before, [{ kind: 'deleteResource', uids: [TANAKA] } as unknown as DocumentCommand])
+    const after = written(before, [{ kind: 'deleteResources', resourceUids: [TANAKA] } as unknown as DocumentCommand])
     expect(stepsOf(after)).toBe(stepsOf(before) + 1)
     const back = undone(after)
-    expect(viewIn(back, 'resourceList').visibility.hiddenKeys).toEqual([SATO, TANAKA])
+    expect(viewIn(back, 'resourceList').visibility.hiddenResourceUids).toEqual([SATO, TANAKA])
     expect(back.document.schedule.resources.map((one) => one.uid)).toContain(TANAKA)
   })
 })

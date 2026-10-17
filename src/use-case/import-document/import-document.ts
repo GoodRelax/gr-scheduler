@@ -193,8 +193,8 @@ function keyedRows<T>(rows: readonly T[], keyOf: (row: T) => number): Map<number
 }
 
 /** @purity pure */
-function originKey(sourceProjectUid: string | null, sourceUid: number): string {
-  return `${sourceProjectUid ?? ''} ${sourceUid}`
+function originKey(sourceProjectId: string | null, sourceUid: number): string {
+  return `${sourceProjectId ?? ''} ${sourceUid}`
 }
 
 /** @purity pure */
@@ -360,7 +360,7 @@ interface CurrentIndex {
   readonly taskByUid: ReadonlyMap<number, Task>
   readonly taskUidByOrigin: ReadonlyMap<string, number>
   readonly originByTaskUid: ReadonlyMap<number, TaskOrigin>
-  readonly sourceProjectUids: ReadonlySet<string>
+  readonly sourceProjectIds: ReadonlySet<string>
   readonly calendarUidByContent: ReadonlyMap<string, number>
   readonly resourceUidByName: ReadonlyMap<string, number>
   readonly commentBoxIds: ReadonlySet<string>
@@ -370,11 +370,11 @@ interface CurrentIndex {
 /** @purity pure */
 function currentIndexOf(schedule: Schedule): CurrentIndex {
   const taskUidByOrigin = new Map<string, number>()
-  const sourceProjectUids = new Set<string>()
+  const sourceProjectIds = new Set<string>()
   for (const origin of schedule.taskOrigins) {
-    const key = originKey(origin.sourceProjectUid, origin.sourceUid)
+    const key = originKey(origin.sourceProjectId, origin.sourceUid)
     if (!taskUidByOrigin.has(key)) taskUidByOrigin.set(key, origin.taskUid)
-    if (origin.sourceProjectUid !== null) sourceProjectUids.add(origin.sourceProjectUid)
+    if (origin.sourceProjectId !== null) sourceProjectIds.add(origin.sourceProjectId)
   }
 
   const calendarUidByContent = new Map<string, number>()
@@ -393,7 +393,7 @@ function currentIndexOf(schedule: Schedule): CurrentIndex {
     taskByUid: indexBy(schedule.tasks, (task) => task.uid),
     taskUidByOrigin,
     originByTaskUid: indexBy(schedule.taskOrigins, (origin) => origin.taskUid),
-    sourceProjectUids,
+    sourceProjectIds,
     calendarUidByContent,
     resourceUidByName,
     commentBoxIds: new Set(schedule.commentBoxes.map((box) => box.id)),
@@ -405,7 +405,7 @@ function currentIndexOf(schedule: Schedule): CurrentIndex {
 /** @purity pure */
 function judgedSource(incoming: Project, index: CurrentIndex): SourceJudgment {
   if (incoming.id === null) return 'undecidable'
-  return index.sourceProjectUids.has(incoming.id) ? 'sameMaster' : 'differentMaster'
+  return index.sourceProjectIds.has(incoming.id) ? 'sameMaster' : 'differentMaster'
 }
 
 type IncomingPlan =
@@ -808,7 +808,7 @@ function builtMerge(input: MergeInput): ImportOutcome {
 
     origins.set(uid, {
       taskUid: uid,
-      sourceProjectUid: incoming.project.id,
+      sourceProjectId: incoming.project.id,
       sourceUid: task.uid,
       lastSeenImportSequence: importSequence,
       importSessionId: request.importSessionId,

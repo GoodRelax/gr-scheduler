@@ -175,9 +175,9 @@ function isShownAfterJump(
 // see SJ-6, EL-11, FR-046, S-428
 // WHY: a shape wider than the area less two insets would start off the left, so it keeps the start in sight (S-428).
 /** @purity pure */
-function acrossOf(held: ScrollAnchor, date: string | null, reach: SearchJumpReach): Pick<ScrollAnchor, 'scrollDate' | 'scrollDayOffset'> {
+function acrossOf(held: ScrollAnchor, date: string | null, reach: SearchJumpReach): Pick<ScrollAnchor, 'scrollDate' | 'scrollDateFraction'> {
   const day = dayOf(date)
-  if (day === null || reach.pxPerDay <= 0) return { scrollDate: held.scrollDate, scrollDayOffset: held.scrollDayOffset }
+  if (day === null || reach.pxPerDay <= 0) return { scrollDate: held.scrollDate, scrollDateFraction: held.scrollDateFraction }
   const inset = NOT_STORED_SEARCH_JUMP_INSET['S-428']
   const landing = reach.landing
   const isCentered = landing !== null && landing.shapeWidthPx <= reach.areaWidth - 2 * inset
@@ -186,19 +186,19 @@ function acrossOf(held: ScrollAnchor, date: string | null, reach: SearchJumpReac
     : reach.leftReachPx + inset
   const left = serial(day) - leftPx / reach.pxPerDay
   const leftDay = Math.floor(left)
-  return { scrollDate: textOfDayStart(dayFromSerial(leftDay)), scrollDayOffset: left - leftDay }
+  return { scrollDate: textOfDayStart(dayFromSerial(leftDay)), scrollDateFraction: left - leftDay }
 }
 
 // see SJ-5, S-554, S-176, FR-098
 // WHY: the top edge stands S-554 of the room above the shape's middle; it cannot go above the first task group (S-176 from 0).
 /** @purity pure */
-function downOf(row: string, reach: SearchJumpReach): Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'> {
-  const atTop = { scrollTaskGroupId: row, scrollGroupOffset: 0 }
+function downOf(row: string, reach: SearchJumpReach): Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollTaskGroupFraction'> {
+  const atTop = { scrollTaskGroupId: row, scrollTaskGroupFraction: 0 }
   const landing = reach.landing
   if (landing === null) return atTop
   const topEdge = landing.shapeMiddleY - landing.roomHeight * NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE['S-554']
   const first = landing.scrollingTaskGroups[0]
-  if (first !== undefined && topEdge <= first.y) return { scrollTaskGroupId: first.taskGroupId, scrollGroupOffset: 0 }
+  if (first !== undefined && topEdge <= first.y) return { scrollTaskGroupId: first.taskGroupId, scrollTaskGroupFraction: 0 }
   return taskGroupAnchorIn(landing.scrollingTaskGroups, topEdge, atTop)
 }
 
@@ -207,18 +207,18 @@ function downOf(row: string, reach: SearchJumpReach): Pick<ScrollAnchor, 'scroll
 function scrollWriteTo(document: Document, place: JumpPlace, reach: SearchJumpReach): DocumentCommand | null {
   const held = document.documentSettings
   const row = place.taskGroupId !== null && !held.pinnedTaskGroupIds.includes(place.taskGroupId) ? place.taskGroupId : null
-  const down = row === null ? { scrollTaskGroupId: held.scrollTaskGroupId, scrollGroupOffset: held.scrollGroupOffset } : downOf(row, reach)
+  const down = row === null ? { scrollTaskGroupId: held.scrollTaskGroupId, scrollTaskGroupFraction: held.scrollTaskGroupFraction } : downOf(row, reach)
   const anchor = { ...acrossOf(held, place.date, reach), ...down }
   if (
     anchor.scrollDate === held.scrollDate &&
-    anchor.scrollDayOffset === held.scrollDayOffset &&
+    anchor.scrollDateFraction === held.scrollDateFraction &&
     anchor.scrollTaskGroupId === held.scrollTaskGroupId &&
-    anchor.scrollGroupOffset === held.scrollGroupOffset
+    anchor.scrollTaskGroupFraction === held.scrollTaskGroupFraction
   ) {
     return null
   }
-  const { scrollDate, scrollTaskGroupId, scrollDayOffset, scrollGroupOffset } = anchor
-  return { kind: 'setScrollPosition', scrollDate, scrollTaskGroupId, scrollDayOffset, scrollGroupOffset }
+  const { scrollDate, scrollTaskGroupId, scrollDateFraction, scrollTaskGroupFraction } = anchor
+  return { kind: 'setScrollPosition', scrollDate, scrollTaskGroupId, scrollDateFraction, scrollTaskGroupFraction }
 }
 
 // see T-332

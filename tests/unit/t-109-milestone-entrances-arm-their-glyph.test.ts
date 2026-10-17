@@ -305,8 +305,8 @@ function documentWith(tasks: readonly unknown[], taskVisuals: readonly unknown[]
       // what is drawn.
       scrollDate: '2026-04-01T00:00:00',
       scrollTaskGroupId: ROW,
-      scrollDayOffset: 0,
-      scrollGroupOffset: 0,
+      scrollDateFraction: 0,
+      scrollTaskGroupFraction: 0,
     },
     documentStamp: structuredClone(template.documentStamp),
     changeLog: [],

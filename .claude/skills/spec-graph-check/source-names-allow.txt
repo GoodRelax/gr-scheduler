@@ -1,0 +1,54 @@
+# Check 84 allow-list: <kind> | <where> | <name> | <the name it points at> | <why they differ>
+# kind: value (a command value and the column it writes), key (a command value
+# and the key column of the row it addresses), screen (a stored key and its
+# screen word). `python check-source-names.py --list` prints every mismatch in
+# this form. MEASURED 2026-10-17 on d4eb2573 plus the stage-0 fixes: 47
+# mismatches in 44 lines (a list-valued `column` makes one pair per column).
+# Add a line only with its reason. A line whose pair has gone (a rename landed)
+# is red as stale -- delete it in the same change.
+#
+# -- the user kept these names on purpose (JDG-2691) --
+screen | K-77 | isDependencyVisible | Dependency Lines | JDG-2691: the dependency is the thing; the line is how it is drawn (JDG-2241)
+screen | PR-17 | milestoneGlyph | Milestone Shape | JDG-2691: keeps it apart from shapeKind's value milestone (JDG-1628 set only the screen word)
+screen | PR-39 | strokeColor | Outline Color | JDG-2691: the SVG attribute name, paired with fillColor
+screen | PR-28 | strokeColor | Outline Color | JDG-2691: the SVG attribute name, paired with fillColor
+screen | PR-22 | strokeColor | Outline Color | JDG-2691: the SVG attribute name, paired with fillColor
+screen | PR-40 | strokeWidthPx | Outline Width | JDG-2691: the SVG attribute name, paired with fillColor
+screen | PR-26 | strokeWidthPx | Outline Width | JDG-2691: the SVG attribute name, paired with fillColor
+screen | PR-23 | strokeWidthPx | Outline Width | JDG-2691: the SVG attribute name, paired with fillColor
+screen | K-144 | viewTimeZone | Project Base Time Zone | JDG-2691: the user chose the name (JDG-1784); the base field writes viewTimeZone and Project.scheduleDataTimeZone both
+screen | K-138 | levelZeroTreeState | Top-Level Tree State | JDG-2691: the ja screen word says level 0 too; it names how levels are counted, like outlineBase
+#
+# -- ruled for renaming; CR-792 deletes the line when it lands --
+screen | K-121 | scrollDateFraction | Left Edge Time | JDG-2681: a fraction of a day past scrollDate, the ratio the screen shows as a time; Fraction says ratio as anchorBandFraction does
+screen | K-120 | scrollTaskGroupFraction | Top Task Group Position | JDG-2681: a fraction of the task group past scrollTaskGroupId, the ratio the screen shows as a position; Fraction says ratio as anchorBandFraction does
+#
+# -- the shape of a value, not a name choice --
+value | shape AnnotationAnchor | date | anchorDate | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
+value | shape AnnotationAnchor | taskGroupId | anchorTaskGroupId | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
+value | shape AnnotationAnchor | bandFraction | anchorBandFraction | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
+value | shape AnnotationAnchor | taskUid | anchorTaskUid | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
+value | shape AnnotationAnchor | taskFigure | anchorTaskFigure | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
+value | shape AnnotationAnchor | highlightBoxId | anchorHighlightBoxId | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
+value | shape AnnotationAnchor | snapPoint | anchorSnapPoint | the shape IS the comment box's anchor; its fields drop the anchor prefix of the CommentBox columns they are written into
+value | CM-39 | workingDayTypes | dayType | JDG-2725: a list of the dayType values that count as working days, not the column itself
+value | CM-51 | dx | bodyOffsetPx | the horizontal part of the offset bodyOffsetPx holds
+value | CM-51 | dy | bodyOffsetPx | the vertical part of the offset bodyOffsetPx holds
+value | CM-46 | commentBoxId | id | JDG-2685: every comment box command names its box commentBoxId, the one that makes the box too; it writes the column id
+value | CM-52 | highlightBoxId | id | JDG-2685: every highlight box command names its box highlightBoxId, the one that makes the box too; it writes the column id
+screen | PR-35 | start | Planned Date | one field edits the planned start and finish together under one word
+screen | PR-35 | finish | Planned Date | one field edits the planned start and finish together under one word
+screen | PR-36 | actualStart | Actual Date | one field edits the actual start and finish together under one word
+screen | PR-36 | actualFinish | Actual Date | one field edits the actual start and finish together under one word
+screen | PR-48 | id | Bring to Front | an action on the comment box, not a value; the item names the row it acts on
+screen | PR-49 | id | Bring to Front | an action on the highlight box, not a value; the item names the row it acts on
+screen | PR-8 | resumeValid | Resume Date Confirmed | the MSPDI name ResumeValid, kept as MSPDI spells it
+screen | K-67 | zoomX | Horizontal Zoom | JDG-2725: the screen spells the axis X as Horizontal
+screen | K-68 | zoomY | Vertical Zoom | JDG-2725: the screen spells the axis Y as Vertical
+screen | K-75 | isAssigneeVisible | Assignee Label | JDG-2725: the toggle shows or hides the assignee label on the bar; the screen names the label
+screen | K-76 | isPercentCompleteVisible | Percent Complete Label | JDG-2725: the toggle shows or hides the percent-complete label on the bar; the screen names the label
+#
+# -- asked one by one on 2026-10-17 and kept (JDG-2720..2722) --
+screen | K-60 | themeHue | Theme Color | JDG-2720: the value is a hue angle 0-359, not a color code; the screen word changed, the identifier stays (JDG-922 #15, JDG-966)
+screen | K-69 | scrollDate | Left Edge Date | JDG-2721: a scroll position (where the view was), one family with scrollDateFraction (JDG-2681); the glossary key rule names it
+screen | K-70 | scrollTaskGroupId | Top Task Group | JDG-2722: a scroll position in the taskGroupId form of JDG-2246; topTaskGroupId is already HighlightBox's column

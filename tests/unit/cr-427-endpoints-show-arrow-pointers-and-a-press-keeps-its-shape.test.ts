@@ -100,7 +100,7 @@ const documentAt = (displayScale: number): Document =>
           name: 'task group',
           derivedFromTaskUid: null,
           order: 0,
-          treeState: 'auto', editGroup: null,
+          treeState: 'auto', editPermission: null,
           color: null,
           minHeightPx: null,
         },

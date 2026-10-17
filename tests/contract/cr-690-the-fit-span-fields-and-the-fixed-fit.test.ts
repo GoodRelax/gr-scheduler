@@ -214,7 +214,7 @@ const readoutOf = (days: readonly [string, string], language: DisplayLanguage = 
 
 const viewPlaceOf = (stage: ExportStage) => {
   const settings = settingsOf(stage)
-  return { zoomX: settings.zoomX, scrollDate: settings.scrollDate, scrollDayOffset: settings.scrollDayOffset }
+  return { zoomX: settings.zoomX, scrollDate: settings.scrollDate, scrollDateFraction: settings.scrollDateFraction }
 }
 
 const shiftWheelOut = (x: number, y: number) =>
@@ -326,7 +326,7 @@ describe('FR-055 T-367 FX-2 / FX-3 -- the fixed fit', () => {
     await stage.take('IC-10')
     const frame = frameOf(stage)
     expect(frame.layout.pxPerDay).toBeCloseTo(frame.regions.taskGroupArea.width / SPAN_DAYS, 6)
-    expect([settingsOf(stage).scrollDate?.slice(0, 10), settingsOf(stage).scrollDayOffset]).toEqual([SPAN[0], 0])
+    expect([settingsOf(stage).scrollDate?.slice(0, 10), settingsOf(stage).scrollDateFraction]).toEqual([SPAN[0], 0])
     expect(shownDaysOf(frame)).toEqual(SPAN)
     expect(fieldOf(stage.lastView(), FX_6).readout, FX_6_FOLLOW).toBe(readoutOf(SPAN))
   })
@@ -346,7 +346,7 @@ describe('FR-055 T-367 FX-2 / FX-3 -- the fixed fit', () => {
   ])(`${FX_3_CLAMP} -- %s .. %s fits at the S-75 end %s`, async (start, finish, end) => {
     const stage = exportStage(withFit(start, finish, true))
     await stage.take('IC-10')
-    expect([settingsOf(stage).zoomX, settingsOf(stage).scrollDate?.slice(0, 10), settingsOf(stage).scrollDayOffset]).toEqual([end, start, 0])
+    expect([settingsOf(stage).zoomX, settingsOf(stage).scrollDate?.slice(0, 10), settingsOf(stage).scrollDateFraction]).toEqual([end, start, 0])
   })
 
   it(`${FR_055_MARGIN} -- unfixed, the fit keeps the margin on each side`, async () => {
@@ -445,7 +445,7 @@ describe('FR-025 T-241 IX-8 -- the unfixed picture keeps the cut of the top task
         taskGroups: rows.map((id, index) => ({ ...cut.schedule.taskGroups[0]!, id, label: id, order: index })),
         taskGroupMembers: rows.map((id, index) => ({ taskUid: index + 1, taskGroupId: id })),
       },
-      documentSettings: { ...cut.documentSettings, scrollTaskGroupId: 'r1', scrollGroupOffset: 0.5 },
+      documentSettings: { ...cut.documentSettings, scrollTaskGroupId: 'r1', scrollTaskGroupFraction: 0.5 },
     }
     const stage = exportStage(document)
     const screen = stage.lastView().taskGroupPanel.titles.slice(0, 2).map((one) => [one.taskGroupId, one.box])

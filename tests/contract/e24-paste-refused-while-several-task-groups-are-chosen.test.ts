@@ -19,8 +19,8 @@ const SEVERAL_TARGET_TASK_GROUPS_REFUSED =
   '⛔ 貼り付け先としてタスクグループが 2 つ以上選ばれているときは、貼り付けを受け付けず、行えない理由を `FR-029` のとおり通知の仕組みへ運ぶこと（MUST）'
 const TARGET_IS_THE_CHOSEN_TASK_GROUP = '貼り付け先は、選んでいるタスクグループの子とすること（MUST）'
 const SAME_TASK_GROUP = '**複製した `Task` は、複製元と同じタスクグループに載せること（MUST）'
-const EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP =
-  '⛐ **ただ 1 つの例外は、複製元のタスクグループが `editGroup` を名乗っているときである** —— そのときに限り、**選んでいる自分のタスクグループに載せること（MUST）**'
+const EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP =
+  '⛐ **ただ 1 つの例外は、複製元のタスクグループが `editPermission` を名乗っているときである** —— そのときに限り、**選んでいる自分のタスクグループに載せること（MUST）**'
 const MANY_TASKS_ALL_COPIED =
   '⭐ `Task` が 2 つ以上選ばれているときは、選ばれた `Task` をすべて複製し、それぞれを上の段のとおり複製元と同じタスクグループに載せること（MUST）'
 // WHY: CR-714 (JDG-1736) replaced "the copy keeps its source's parent" with a parent inferred from the landing task group.
@@ -34,7 +34,7 @@ describe('FR-033 / T-233 -- the clauses this file is driven by still stand', () 
     SEVERAL_TARGET_TASK_GROUPS_REFUSED,
     TARGET_IS_THE_CHOSEN_TASK_GROUP,
     SAME_TASK_GROUP,
-    EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP,
+    EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP,
     MANY_TASKS_ALL_COPIED,
     PARENT_FROM_THE_TASK_GROUP,
     NO_SAME_UID,
@@ -47,7 +47,7 @@ describe('FR-033 / T-233 -- the clauses this file is driven by still stand', () 
 const COPY = keyOf('C', { ctrl: true })
 const PASTE = keyOf('V', { ctrl: true })
 const TASK_GROUP_PANEL = bare(rowOf('T-103', 'U-22').by['確定名（英）'] ?? '')
-const EDIT_GROUP_NAME = 'fixture edit group'
+const EDIT_PERMISSION_NAME = 'fixture edit permission'
 
 // WHY: no T-233 row names the E-24 refusal, so the case asks only what REASON_IS_A_T233_ROW
 // asks: the words told are the words of some T-233 row.
@@ -58,7 +58,7 @@ const T233_WORDS: readonly string[] = (DISPLAY_WORDS.reasons as { rowId: string;
 
 // WHY: one Task per task group, all at the WBS top, so PARENT_FROM_THE_TASK_GROUP and "nothing chosen -> top"
 // agree on where a copy root goes.
-const threeTaskGroups = (editGroupOnTaskGroupOne: boolean): Record<string, any> => {
+const threeTaskGroups = (editPermissionOnTaskGroupOne: boolean): Record<string, any> => {
   const document = taskGroupDocument([
     { id: 'task-group-1', parentId: null },
     { id: 'task-group-2', parentId: null },
@@ -66,7 +66,7 @@ const threeTaskGroups = (editGroupOnTaskGroupOne: boolean): Record<string, any> 
   ])
   const taskName = (uid: number): Record<string, unknown> => ({ name: `T${uid}` })
   document.schedule.tasks = [taskOf(1, taskName(1)), taskOf(2, taskName(2)), taskOf(3, taskName(3))]
-  if (editGroupOnTaskGroupOne) document.schedule.taskGroups[0].editGroup = EDIT_GROUP_NAME
+  if (editPermissionOnTaskGroupOne) document.schedule.taskGroups[0].editPermission = EDIT_PERMISSION_NAME
   return document
 }
 
@@ -153,9 +153,9 @@ describe('E-24 -- a copied Task pasted while two task groups are chosen is refus
     expectRefused(copiedThenTwoTaskGroupsPicked(() => threeTaskGroups(false), [1, 2]))
   })
 
-  // WHY: here EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP makes the chosen task group the landing task group, so two
+  // WHY: here EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP makes the chosen task group the landing task group, so two
   // chosen task groups leave the landing task group undecided -- the reading of E-24 least open to doubt.
-  it(`${SEVERAL_TARGET_TASK_GROUPS_REFUSED} -- one Task copied from an editGroup task group`, () => {
+  it(`${SEVERAL_TARGET_TASK_GROUPS_REFUSED} -- one Task copied from an editPermission task group`, () => {
     expectRefused(copiedThenTwoTaskGroupsPicked(() => threeTaskGroups(true), [1]))
   })
 })
@@ -200,11 +200,11 @@ describe('controls -- one task group or no task group chosen, the Task paste goe
   })
 })
 
-// WHY: the control of the editGroup refusal case above; it reads the FR-033 exception, not
+// WHY: the control of the editPermission refusal case above; it reads the FR-033 exception, not
 // E-24, so hoisting the E-24 refusal alone does not turn it green.
-describe('FR-033 editGroup exception -- one task group chosen, the copy lands on it', () => {
-  // DEVIATION: spec says a copy from an editGroup task group lands on the chosen task group (FR-033); here it lands on its source task group (DFC-730)
-  it.fails(`${EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editGroup task group, ONE task group chosen`, () => {
+describe('FR-033 editPermission exception -- one task group chosen, the copy lands on it', () => {
+  // DEVIATION: spec says a copy from an editPermission task group lands on the chosen task group (FR-033); here it lands on its source task group (DFC-730)
+  it.fails(`${EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP} -- one Task from an editPermission task group, ONE task group chosen`, () => {
     const stage = stageOf(threeTaskGroups(true), 'ctrl')
     copyTasks(stage, [1])
     stage.pickTaskGroup('task-group-2', false)

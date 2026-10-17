@@ -229,7 +229,7 @@ function twoTaskGroupDocument(): Document {
     name: label,
     derivedFromTaskUid: null,
     order: 0,
-    treeState: 'auto', editGroup: null,
+    treeState: 'auto', editPermission: null,
     color: null,
     minHeightPx: null,
   })
@@ -835,7 +835,7 @@ describe('AG-9 exempts the two gestures table T-027 leaves outside the undo reco
 //   FR-049 (MUST NOT) not every row of table T-202 is a toggle -- only the rows
 //                     whose type is boolean are. The multi-valued row (S-66)
 //                     and the rows holding a value of their own (S-58
-//                     stackDirection, S-70 fontScale, S-65 dualCursor) are
+//                     stackDirection, S-70 fontSizeStep, S-65 dualCursor) are
 //                     outside it.
 //   FR-049 (MUST NOT) one half's entrance may not decide the other half. ⛔ THE
 //                     CLAUSE THAT ONCE FORBADE HIDING BOTH WAS STRUCK ON
@@ -1100,7 +1100,7 @@ function documentWithSettings(overrides: Record<string, unknown>): Document {
 const CONTRARY: Record<string, unknown> = {
   ...Object.fromEntries(BOOLEAN_KEYS.map((key) => [key, DEFAULT_OF.get(key) !== 'true'])),
   stackDirection: 'down',
-  fontScale: 'L',
+  fontSizeStep: 'L',
 }
 
 interface Pane {
@@ -1626,8 +1626,8 @@ describe('IC-16 -- the theme entrance flips the screen value and writes nothing 
 // of entrance (one press, one exclusive row of the settings).
 
 /** The steps of S-70, in the order table T-215 prints them. */
-const FONT_SCALE_STEPS: readonly string[] = specTable('T-215').rows.map((row) =>
-  bare(row.cells[SETTING_KEY] ?? '').replace('fontScaleSizes.', ''),
+const FONT_SIZE_STEPS: readonly string[] = specTable('T-215').rows.map((row) =>
+  bare(row.cells[SETTING_KEY] ?? '').replace('fontSizeStepSizes.', ''),
 )
 /** S-58's two, read out of its type cell in table T-202. */
 const STACK_VALUES = enumeratedValues(cellAt('T-202', 'S-58', SETTING_TYPE))
@@ -1639,16 +1639,16 @@ describe('IC-99 -- FR-039 (MUST) puts the font size on the Command Palette', () 
     expect(rowOf('T-109', 'IC-99').cells[3] ?? '').toContain('`CM-62`')
   })
 
-  for (const [index, from] of FONT_SCALE_STEPS.entries()) {
-    const to = FONT_SCALE_STEPS[(index + 1) % FONT_SCALE_STEPS.length] as string
+  for (const [index, from] of FONT_SIZE_STEPS.entries()) {
+    const to = FONT_SIZE_STEPS[(index + 1) % FONT_SIZE_STEPS.length] as string
     it(`takes a document saved at ${from} to ${to}`, () => {
-      const run = standing({ ...CONTRARY, fontScale: from })
-      expect(settingsOf(run.loop).fontScale, 'the premise').toBe(from)
+      const run = standing({ ...CONTRARY, fontSizeStep: from })
+      expect(settingsOf(run.loop).fontSizeStep, 'the premise').toBe(from)
 
       takeEntry(run.loop, run.screen, COMMAND_PALETTE, 'IC-99')
 
       expect(
-        settingsOf(run.loop).fontScale,
+        settingsOf(run.loop).fontSizeStep,
         'IC-99 moves to the next step table T-215 prints, and wraps at the end',
       ).toBe(to)
       run.frames.runAnimationFrames()
@@ -1764,7 +1764,7 @@ describe('FR-049 (MUST) -- only a boolean row is a toggle, so nothing else in T-
   //
   // ⭐ THE ROW EACH ENTRANCE NAMES IS LEFT OUT of the comparison and every other
   // row of table T-202 is in it -- so S-58 (stackDirection), S-65 (dualCursor)
-  // and S-70 (fontScale) are compared for all ten, and IC-16 is compared on
+  // and S-70 (fontSizeStep) are compared for all ten, and IC-16 is compared on
   // ALL THIRTEEN rows because S-72 is not a row of table T-202 at all.
   for (const entrance of ENTRANCES) {
     const spared = entrance.table === 'T-202' ? entrance.key : ''

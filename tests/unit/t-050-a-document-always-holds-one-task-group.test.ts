@@ -141,7 +141,7 @@ const groupOf = (part: Partial<TaskGroup> & { readonly id: string }): TaskGroup 
   name: null,
   derivedFromTaskUid: null,
   order: 0,
-  treeState: 'auto', editGroup: null,
+  treeState: 'auto', editPermission: null,
   color: null,
   minHeightPx: null,
   ...part,
@@ -300,7 +300,7 @@ describe('table T-050 -- deleting the last task group', () => {
 
   it('moves the schedule instant, because a TaskGroup is schedule-group data', () => {
     const plan = accepted(planOf(ONE_TASK_GROUP, [{ kind: 'deleteTaskGroup', taskGroupId: 'g1', newTaskGroupId: 'fresh-task-group' }]))
-    expect(plan.hasMovedSchedule).toBe(true)
+    expect(plan.hasUpdatedSchedule).toBe(true)
   })
 
   it('gives the deleted task group back on ONE press of undo', () => {

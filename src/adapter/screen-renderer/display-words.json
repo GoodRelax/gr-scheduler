@@ -2873,7 +2873,7 @@
   {
    "rowId": "K-85",
    "keys": [
-    "fontScale"
+    "fontSizeStep"
    ],
    "label": {
     "ja": "文字サイズ",
@@ -3133,13 +3133,13 @@
   {
    "rowId": "K-105",
    "keys": [
-    "fontScaleSizes.S",
-    "fontScaleSizes.M",
-    "fontScaleSizes.L"
+    "fontSizeStepSizes.S",
+    "fontSizeStepSizes.M",
+    "fontSizeStepSizes.L"
    ],
    "label": {
     "ja": "文字サイズの段（S / M / L）の px",
-    "en": "fontScaleSizes.S / fontScaleSizes.M / fontScaleSizes.L"
+    "en": "fontSizeStepSizes.S / fontSizeStepSizes.M / fontSizeStepSizes.L"
    }
   },
   {
@@ -3225,7 +3225,7 @@
   {
    "rowId": "K-120",
    "keys": [
-    "scrollGroupOffset"
+    "scrollTaskGroupFraction"
    ],
    "label": {
     "ja": "表示の上端が指すタスクグループのどこにあるか",
@@ -3245,7 +3245,7 @@
   {
    "rowId": "K-121",
    "keys": [
-    "scrollDayOffset"
+    "scrollDateFraction"
    ],
    "label": {
     "ja": "表示の左端が指す日のどこにあるか",
@@ -3282,7 +3282,7 @@
   {
    "rowId": "K-140",
    "keys": [
-    "parentProgressToleranceDays"
+    "parentTaskProgressToleranceDays"
    ],
    "label": {
     "ja": "遅延診断時に親タスクの進捗の疑義を許す日数",
@@ -4315,11 +4315,11 @@
    "rowId": "RS-61",
    "text": {
     "ja": "このタスクグループは読み取り専用です（編集グループが設定されています）",
-    "en": "This task group is read-only (an edit group is set on it)."
+    "en": "This task group is read-only (an edit permission is set on it)."
    },
    "nextStep": {
     "ja": "編集グループの無いタスクグループへコピーしてから編集してください",
-    "en": "Copy it into a task group with no edit group, then edit it."
+    "en": "Copy it into a task group with no edit permission, then edit it."
    }
   },
   {
@@ -6765,14 +6765,14 @@
    "rowId": "PS-3",
    "text": {
     "ja": "中断・再開日未定",
-    "en": "Stopped, no resume date"
+    "en": "Suspended, no resume date"
    }
   },
   {
    "rowId": "PS-4",
    "text": {
     "ja": "中断・再開予定あり",
-    "en": "Stopped, resume date set"
+    "en": "Suspended, resume date set"
    }
   },
   {

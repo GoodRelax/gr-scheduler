@@ -79,7 +79,7 @@ export function createTask(
       derivedFromTaskUid: uid,
       order,
       treeState: COLUMN_DEFAULTS.TaskGroup.treeState,
-      editGroup: null,
+      editPermission: null,
       color: null,
       minHeightPx: null,
     }

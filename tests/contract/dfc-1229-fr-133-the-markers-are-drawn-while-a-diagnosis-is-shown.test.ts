@@ -48,7 +48,7 @@ const documentWith = (isProgressMarkerVisible: boolean): Document => {
       resources: [],
       assignments: [],
       taskGroups: [
-        { id: ROW_ID, parentId: null, name: 'Alpha', derivedFromTaskUid: null, order: 0, treeState: 'auto', editGroup: null, color: null, minHeightPx: null },
+        { id: ROW_ID, parentId: null, name: 'Alpha', derivedFromTaskUid: null, order: 0, treeState: 'auto', editPermission: null, color: null, minHeightPx: null },
       ],
       taskGroupMembers: [{ taskUid: 1, taskGroupId: ROW_ID }],
       taskVisuals: [],

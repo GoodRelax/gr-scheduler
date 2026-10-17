@@ -329,7 +329,7 @@ const scheduleOf = (wish: SceneWish): Schedule => {
       derivedFromTaskUid: null,
       order,
       treeState: 'auto',
-      editGroup: null,
+      editPermission: null,
       color: null,
       minHeightPx: null,
     })),

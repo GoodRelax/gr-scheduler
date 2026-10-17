@@ -193,7 +193,7 @@ const sceneOf = (spec: SceneSpec): Scene => {
       name: id,
       derivedFromTaskUid: null,
       treeState: treeState ?? 'auto',
-      editGroup: null,
+      editPermission: null,
     })),
     taskGroupMembers: spec.tasks.map(([task, taskGroupId]) => ({ taskGroupId, taskUid: task['uid'] })),
     taskVisuals: spec.tasks.map(([task]) => ({ taskUid: task['uid'], shapeKind: 'rectangle' })),
@@ -529,7 +529,7 @@ describe('EL-1 -- an end is visible when its plan shape overlaps where its task 
         [taskOf(1, 0, 5), 'a'],
         [taskOf(2, 10, 5, [1]), 'b'],
       ],
-      settings: { scrollTaskGroupId: 'a', scrollGroupOffset: 0.5 },
+      settings: { scrollTaskGroupId: 'a', scrollTaskGroupFraction: 0.5 },
     })
     const shape = placementOf(scene, 1)
     const top = scene.regions.taskGroupArea.y

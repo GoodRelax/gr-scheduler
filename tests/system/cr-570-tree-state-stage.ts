@@ -441,9 +441,9 @@ export function documentOf(arranged: Arrangement): string {
       levelZeroTreeState: arranged.levelZero ?? 'auto',
       pinnedTaskGroupIds: arranged.pinned ?? [],
       scrollTaskGroupId: 'T1',
-      scrollGroupOffset: 0,
+      scrollTaskGroupFraction: 0,
       scrollDate: '2026-01-01T00:00:00',
-      scrollDayOffset: 0,
+      scrollDateFraction: 0,
     },
   }
   const checked = validateDocument(built)

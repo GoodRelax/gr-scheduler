@@ -95,7 +95,7 @@ export interface AgentWriteRequest {
 
 // see AV-2
 export type AgentWriteOutcome =
-  | { readonly ok: true; readonly stamp: DocumentStamp; readonly hasMovedSchedule: boolean }
+  | { readonly ok: true; readonly stamp: DocumentStamp; readonly hasUpdatedSchedule: boolean }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
 // see AV-3
@@ -136,7 +136,7 @@ export type AgentFocusOutcome =
   | {
       readonly ok: true
       readonly stamp: DocumentStamp
-      readonly hasMovedSchedule: boolean
+      readonly hasUpdatedSchedule: boolean
       readonly isScrolled: boolean
     }
   | { readonly ok: false; readonly refusal: AgentRefusal }
@@ -150,7 +150,7 @@ export type AgentImportSource =
 // see AV-8
 export interface AgentShownTasks {
   readonly drawnTaskUids: readonly number[] | null
-  readonly tables: readonly VisibilityTable[]
+  readonly filteringTables: readonly VisibilityTable[]
 }
 
 // see AV-9
@@ -176,7 +176,7 @@ export type AgentDialogueMessageOutcome =
 
 // see T-107
 export interface AgentApi {
-  readonly agentApiVersion: number
+  readonly agentApiVersion: string
   readonly schemaVersion: string
 
   /** @purity semi-pure-b */
@@ -239,7 +239,7 @@ const ELSEWHERE_DECLARED_FIELDS_MATCH: [
 void ELSEWHERE_DECLARED_FIELDS_MATCH
 
 // see AM-1, AG-1
-const AGENT_API_VERSION = 5
+const AGENT_API_VERSION = '2026-10-17T15:27:48Z'
 // </generated>
 
 export interface AgentApiWiring {
@@ -339,7 +339,7 @@ function notAvailable(target: string, snapshot: AgentSnapshot, missing: string):
 
 // see AM-26, TV-1
 // WHY: a page with no screen draws every task; it answers no product and no table.
-const NO_SHOWN_TASKS: AgentShownTasks = { drawnTaskUids: null, tables: [] }
+const NO_SHOWN_TASKS: AgentShownTasks = { drawnTaskUids: null, filteringTables: [] }
 
 // see AM-19, DX-11, DX-12, FR-155
 // WHY: the proposals with no row checked or chosen by a person: AM-19 reads no screen value but the log.
@@ -367,8 +367,8 @@ function shownTasksRefusalOf(snapshot: AgentSnapshot, taskUids: unknown, held: S
 
 // see AM-27, CM-92, S-560, S-561
 /** @purity pure */
-function searchTableViewWrite(held: SearchTableView, hiddenKeys: readonly number[], isApplied: boolean): DocumentCommand {
-  const visibility = { hiddenKeys, isUnassignedHidden: false, isApplied }
+function searchTableViewWrite(held: SearchTableView, hiddenTaskUids: readonly number[], isScheduleFilterApplied: boolean): DocumentCommand {
+  const visibility = { hiddenTaskUids, hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied }
   return { kind: 'setTableView', table: 'searchPanel', view: { visibility, columnFilters: held.columnFilters, sort: held.sort } }
 }
 
@@ -379,15 +379,15 @@ function showOnlyTasksThrough(wiring: AgentApiWiring, snapshot: AgentSnapshot, t
   const held = snapshot.document.documentSettings.tableViews.searchPanel
   const stamp = snapshot.document.documentStamp
   if (taskUids === null) {
-    if (!held.isScheduleFilterApplied) return { ok: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasMovedSchedule: false }
+    if (!held.isScheduleFilterApplied) return { ok: true, stamp: frozenCopy(snapshot.documentAsWritten.documentStamp), hasUpdatedSchedule: false }
     return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, [searchTableViewWrite(held, held.hiddenTaskUids, false)])
   }
   const refusal = shownTasksRefusalOf(snapshot, taskUids, held)
   if (refusal !== null) return { ok: false, refusal }
   const named = new Set(taskUids)
-  const hiddenKeys = snapshot.document.schedule.tasks.map((task) => task.uid).filter((uid) => !named.has(uid))
+  const hiddenTaskUids = snapshot.document.schedule.tasks.map((task) => task.uid).filter((uid) => !named.has(uid))
   const opened = held.isScheduleFilterApplied ? [...named].filter((uid) => held.hiddenTaskUids.includes(uid)) : []
-  const commands = [searchTableViewWrite(held, hiddenKeys, true), ...shownTasksRevealWrites(snapshot.document, opened)]
+  const commands = [searchTableViewWrite(held, hiddenTaskUids, true), ...shownTasksRevealWrites(snapshot.document, opened)]
   return writeThroughTheOnePath(wiring, snapshot, 'AM-27', stamp, commands)
 }
 
@@ -560,7 +560,7 @@ function writeThroughTheOnePath(
   return {
     ok: true,
     stamp: stampHandedOut(outcome.document.documentStamp, snapshot),
-    hasMovedSchedule: outcome.hasMovedSchedule,
+    hasUpdatedSchedule: outcome.hasUpdatedSchedule,
   }
 }
 
@@ -757,7 +757,7 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       return {
         ok: true,
         stamp: frozenCopy(after.documentAsWritten.documentStamp),
-        hasMovedSchedule: true,
+        hasUpdatedSchedule: true,
       }
     },
 

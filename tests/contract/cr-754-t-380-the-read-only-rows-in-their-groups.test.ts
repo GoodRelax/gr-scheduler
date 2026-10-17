@@ -115,7 +115,7 @@ const percentOf = (ratio: number): string => String(Math.round(ratio * 100))
 const twoDigits = (n: number): string => String(n).padStart(2, '0')
 
 // see T-380, RN-3
-// WHY: the date of scrollDate and the ratio of the day scrollDayOffset as a time from 0:00, hours two digits.
+// WHY: the date of scrollDate and the ratio of the day scrollDateFraction as a time from 0:00, hours two digits.
 /** @purity pure */
 function leftEdgeText(date: string, dayOffset: number): string {
   const minutes = Math.round(dayOffset * 24 * 60)
@@ -133,12 +133,12 @@ function expectedValue(key: string, settings: Loose, language: DisplayLanguage):
   if (leaf === 'isUnassignedHidden') return word(value === true ? 'hidden' : 'shown', language)
   if (typeof value === 'boolean') return word(value ? 'shown' : 'hidden', language)
   if (leaf === 'zoomX' || leaf === 'zoomY') return word('percent', language, { n: percentOf(value as number) })
-  // WHY: CR-787 -- RN-3 joins scrollDate with scrollDayOffset, and scrollTaskGroupId with scrollGroupOffset.
-  if (leaf === 'scrollDate') return value === null ? word('notSet', language) : leftEdgeText(String(value), Number(settings['scrollDayOffset']))
+  // WHY: CR-787 -- RN-3 joins scrollDate with scrollDateFraction, and scrollTaskGroupId with scrollTaskGroupFraction.
+  if (leaf === 'scrollDate') return value === null ? word('notSet', language) : leftEdgeText(String(value), Number(settings['scrollDateFraction']))
   if (leaf === 'scrollTaskGroupId') {
     const name = (TEMPLATE.schedule.taskGroups as readonly Loose[]).find((one) => one['id'] === value)?.['name']
     if (value === null || name === undefined) return word('notSetFromTop', language)
-    const percent = word('percent', language, { n: percentOf(Number(settings['scrollGroupOffset'])) })
+    const percent = word('percent', language, { n: percentOf(Number(settings['scrollTaskGroupFraction'])) })
     return word('groupFromTop', language, { name: String(name), percent })
   }
   if (leaf === 'levelZeroTreeState') return word(value === 'collapsed' ? 'collapsed' : 'expandedAuto', language)
@@ -174,9 +174,9 @@ const MOVED: Loose = {
   zoomX: 1.5,
   zoomY: 0.75,
   scrollDate: '2026-03-29T00:00:00',
-  scrollDayOffset: 0.5,
+  scrollDateFraction: 0.5,
   scrollTaskGroupId: FIRST_GROUP_ID,
-  scrollGroupOffset: 0.25,
+  scrollTaskGroupFraction: 0.25,
   pinnedTaskGroupIds: [FIRST_GROUP_ID],
   levelZeroTreeState: 'collapsed',
   isDateGridLinesVisible: true,
@@ -333,7 +333,7 @@ describe(`T-369 -- ${T_369_NO_RAW}`, () => {
   )
 
   it('a scroll offset of the day such as 0.8666666666666667 reads as a time on the left edge row (RN-3, CR-787)', () => {
-    const settings = { ...STARTUP, scrollDate: '2026-03-29T00:00:00', scrollDayOffset: 0.8666666666666667 }
+    const settings = { ...STARTUP, scrollDate: '2026-03-29T00:00:00', scrollDateFraction: 0.8666666666666667 }
     const field = readOnlyFieldsOf(panelOf('ja', settings)).find((one) => one.name === partWord(SECTION, 'viewLeftEdge', 'ja'))
     expect(field?.text).toBe(expectedValue('scrollDate', settings, 'ja'))
     expect(field?.text).toBe('2026/03/29 20:48')

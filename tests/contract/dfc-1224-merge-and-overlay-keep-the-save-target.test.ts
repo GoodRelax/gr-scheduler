@@ -106,7 +106,7 @@ function documentWith(title: string, rowId: string, uids: readonly number[]): Do
       assignments: [],
       taskGroups: [{
         id: rowId, parentId: null, name: title, derivedFromTaskUid: null, order: 0,
-        treeState: 'auto', editGroup: null, color: null, minHeightPx: null,
+        treeState: 'auto', editPermission: null, color: null, minHeightPx: null,
       }],
       taskGroupMembers: uids.map((uid) => ({ taskUid: uid, taskGroupId: rowId })),
       taskVisuals: uids.map((uid) => ({

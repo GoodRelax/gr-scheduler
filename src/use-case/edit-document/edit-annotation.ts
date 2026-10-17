@@ -41,71 +41,91 @@ export interface HighlightRange {
 
 // see T-108
 export type AnnotationCommand =
-  | { readonly kind: 'createCommentBox'; readonly id: CommentBox['id']; readonly anchor: AnnotationAnchor }
-  | { readonly kind: 'deleteCommentBox'; readonly id: CommentBox['id'] }
-  | { readonly kind: 'setCommentBoxText'; readonly id: CommentBox['id']; readonly text: CommentBox['text'] }
+  | {
+      readonly kind: 'createCommentBox'
+      readonly commentBoxId: CommentBox['id']
+      readonly anchor: AnnotationAnchor
+    }
+  | { readonly kind: 'deleteCommentBox'; readonly commentBoxId: CommentBox['id'] }
+  | {
+      readonly kind: 'setCommentBoxText'
+      readonly commentBoxId: CommentBox['id']
+      readonly text: CommentBox['text']
+    }
   | {
       readonly kind: 'setCommentBoxLeaderShapeKind'
-      readonly id: CommentBox['id']
+      readonly commentBoxId: CommentBox['id']
       readonly leaderShapeKind: NonNullable<CommentBox['leaderShapeKind']>
     }
-  | { readonly kind: 'setCommentBoxAnchor'; readonly id: CommentBox['id']; readonly anchor: AnnotationAnchor }
+  | {
+      readonly kind: 'setCommentBoxAnchor'
+      readonly commentBoxId: CommentBox['id']
+      readonly anchor: AnnotationAnchor
+    }
   | {
       readonly kind: 'setCommentBoxBodyOffsetPx'
-      readonly id: CommentBox['id']
+      readonly commentBoxId: CommentBox['id']
       readonly dx: number
       readonly dy: number
     }
   | {
       readonly kind: 'setCommentBoxStrokeColor'
-      readonly id: CommentBox['id']
+      readonly commentBoxId: CommentBox['id']
       readonly strokeColor: CommentBox['strokeColor']
     }
   | {
       readonly kind: 'setCommentBoxStrokeWidthPx'
-      readonly id: CommentBox['id']
+      readonly commentBoxId: CommentBox['id']
       readonly strokeWidthPx: CommentBox['strokeWidthPx']
     }
   | {
       readonly kind: 'setCommentBoxFillColor'
-      readonly id: CommentBox['id']
+      readonly commentBoxId: CommentBox['id']
       readonly fillColor: CommentBox['fillColor']
     }
   | {
       readonly kind: 'setCommentBoxFillTransparencyPercent'
-      readonly id: CommentBox['id']
+      readonly commentBoxId: CommentBox['id']
       readonly fillTransparencyPercent: CommentBox['fillTransparencyPercent']
     }
   | {
       readonly kind: 'setCommentBoxTextColor'
-      readonly id: CommentBox['id']
+      readonly commentBoxId: CommentBox['id']
       readonly textColor: CommentBox['textColor']
     }
-  | { readonly kind: 'bringCommentBoxToFront'; readonly id: CommentBox['id'] }
-  | { readonly kind: 'createHighlightBox'; readonly id: HighlightBox['id']; readonly range: HighlightRange }
-  | { readonly kind: 'deleteHighlightBox'; readonly id: HighlightBox['id'] }
-  | { readonly kind: 'setHighlightBoxRange'; readonly id: HighlightBox['id']; readonly range: HighlightRange }
+  | { readonly kind: 'bringCommentBoxToFront'; readonly commentBoxId: CommentBox['id'] }
+  | {
+      readonly kind: 'createHighlightBox'
+      readonly highlightBoxId: HighlightBox['id']
+      readonly range: HighlightRange
+    }
+  | { readonly kind: 'deleteHighlightBox'; readonly highlightBoxId: HighlightBox['id'] }
+  | {
+      readonly kind: 'setHighlightBoxRange'
+      readonly highlightBoxId: HighlightBox['id']
+      readonly range: HighlightRange
+    }
   | {
       readonly kind: 'setHighlightBoxStrokeColor'
-      readonly id: HighlightBox['id']
+      readonly highlightBoxId: HighlightBox['id']
       readonly strokeColor: HighlightBox['strokeColor']
     }
   | {
       readonly kind: 'setHighlightBoxStrokeWidthPx'
-      readonly id: HighlightBox['id']
+      readonly highlightBoxId: HighlightBox['id']
       readonly strokeWidthPx: HighlightBox['strokeWidthPx']
     }
   | {
       readonly kind: 'setHighlightBoxFillColor'
-      readonly id: HighlightBox['id']
+      readonly highlightBoxId: HighlightBox['id']
       readonly fillColor: HighlightBox['fillColor']
     }
   | {
       readonly kind: 'setHighlightBoxFillTransparencyPercent'
-      readonly id: HighlightBox['id']
+      readonly highlightBoxId: HighlightBox['id']
       readonly fillTransparencyPercent: HighlightBox['fillTransparencyPercent']
     }
-  | { readonly kind: 'bringHighlightBoxToFront'; readonly id: HighlightBox['id'] }
+  | { readonly kind: 'bringHighlightBoxToFront'; readonly highlightBoxId: HighlightBox['id'] }
 // </generated>
 
 // see FR-019, CV-1
@@ -326,8 +346,8 @@ type FrontCommand = Extract<AnnotationCommand, { kind: 'bringCommentBoxToFront' 
 /** @purity pure */
 function broughtToFront(document: Document, command: FrontCommand): EditResult {
   return command.kind === 'bringCommentBoxToFront'
-    ? commentBoxToFront(document, command.id)
-    : highlightBoxToFront(document, command.id)
+    ? commentBoxToFront(document, command.commentBoxId)
+    : highlightBoxToFront(document, command.highlightBoxId)
 }
 
 /** @purity pure */
@@ -383,13 +403,13 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
   switch (command.kind) {
     case 'createCommentBox': {
       const refusals: Refusal[] = []
-      if (commentBoxOf(document, command.id) !== null) {
-        refusals.push(reject('CM-46', 'IV-1', `a comment box with id ${command.id} is already here`))
+      if (commentBoxOf(document, command.commentBoxId) !== null) {
+        refusals.push(reject('CM-46', 'IV-1', `a comment box with id ${command.commentBoxId} is already here`))
       }
       refusals.push(...anchorRefusals('CM-46', document, command.anchor))
       if (refusals.length > 0) return refused(refusals)
       const box: CommentBox = {
-        id: command.id,
+        id: command.commentBoxId,
         leaderShapeKind: null,
         text: null,
         ...anchorColumnsOf(command.anchor),
@@ -406,9 +426,9 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
     }
 
     case 'deleteCommentBox': {
-      const box = commentBoxOf(document, command.id)
+      const box = commentBoxOf(document, command.commentBoxId)
       if (box === null) {
-        return refused([reject('CM-47', 'AT-110', `no comment box with id ${command.id}`)])
+        return refused([reject('CM-47', 'AT-110', `no comment box with id ${command.commentBoxId}`)])
       }
       return edited(
         withScheduleParts(document, { commentBoxes: schedule.commentBoxes.filter((one) => one !== box) }),
@@ -416,9 +436,9 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
     }
 
     case 'setCommentBoxAnchor': {
-      const box = commentBoxOf(document, command.id)
+      const box = commentBoxOf(document, command.commentBoxId)
       if (box === null) {
-        return refused([reject('CM-50', 'AT-110', `no comment box with id ${command.id}`)])
+        return refused([reject('CM-50', 'AT-110', `no comment box with id ${command.commentBoxId}`)])
       }
       const refusals = anchorRefusals('CM-50', document, command.anchor)
       if (refusals.length > 0) return refused(refusals)
@@ -428,9 +448,9 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
     }
 
     case 'setCommentBoxBodyOffsetPx': {
-      const box = commentBoxOf(document, command.id)
+      const box = commentBoxOf(document, command.commentBoxId)
       if (box === null) {
-        return refused([reject('CM-51', 'AT-110', `no comment box with id ${command.id}`)])
+        return refused([reject('CM-51', 'AT-110', `no comment box with id ${command.commentBoxId}`)])
       }
       if (!Number.isFinite(command.dx) || !Number.isFinite(command.dy)) {
         return refused([reject('CM-51', 'AT-115', 'the offset must be two finite numbers')])
@@ -444,13 +464,13 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
 
     case 'createHighlightBox': {
       const refusals: Refusal[] = []
-      if (highlightBoxOf(document, command.id) !== null) {
-        refusals.push(reject('CM-52', 'IV-1', `a highlight box with id ${command.id} is already here`))
+      if (highlightBoxOf(document, command.highlightBoxId) !== null) {
+        refusals.push(reject('CM-52', 'IV-1', `a highlight box with id ${command.highlightBoxId} is already here`))
       }
       refusals.push(...rangeRefusals('CM-52', document, command.range))
       if (refusals.length > 0) return refused(refusals)
       const box: HighlightBox = {
-        id: command.id,
+        id: command.highlightBoxId,
         start: command.range.start,
         finish: command.range.finish,
         topTaskGroupId: command.range.topTaskGroupId,
@@ -466,9 +486,9 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
     }
 
     case 'deleteHighlightBox': {
-      const box = highlightBoxOf(document, command.id)
+      const box = highlightBoxOf(document, command.highlightBoxId)
       if (box === null) {
-        return refused([reject('CM-53', 'AT-116', `no highlight box with id ${command.id}`)])
+        return refused([reject('CM-53', 'AT-116', `no highlight box with id ${command.highlightBoxId}`)])
       }
       return edited(
         withScheduleParts(document, {
@@ -483,9 +503,9 @@ export function editAnnotation(document: Document, command: AnnotationCommand): 
     }
 
     case 'setHighlightBoxRange': {
-      const box = highlightBoxOf(document, command.id)
+      const box = highlightBoxOf(document, command.highlightBoxId)
       if (box === null) {
-        return refused([reject('CM-54', 'AT-116', `no highlight box with id ${command.id}`)])
+        return refused([reject('CM-54', 'AT-116', `no highlight box with id ${command.highlightBoxId}`)])
       }
       const refusals = rangeRefusals('CM-54', document, command.range)
       if (refusals.length > 0) return refused(refusals)
@@ -563,8 +583,8 @@ function highlightBoxLookChange(
 /** @purity pure */
 function editHighlightBoxLook(document: Document, command: HighlightBoxLookCommand): EditResult {
   const { commandRow, refusal, look } = highlightBoxLookChange(command)
-  const box = highlightBoxOf(document, command.id)
-  if (box === null) return refused([reject(commandRow, 'AT-116', `no highlight box with id ${command.id}`)])
+  const box = highlightBoxOf(document, command.highlightBoxId)
+  if (box === null) return refused([reject(commandRow, 'AT-116', `no highlight box with id ${command.highlightBoxId}`)])
   if (refusal === null && boxDrawnWithNothing({ ...box, ...look })) {
     return refused([reject(commandRow, 'IV-9', 'a highlight box may not have both its fill and its outline transparent')])
   }
@@ -656,8 +676,8 @@ function commentBoxLookChange(
 /** @purity pure */
 function editCommentBoxLook(document: Document, command: CommentBoxLookCommand): EditResult {
   const { commandRow, refusal, look } = commentBoxLookChange(command)
-  const box = commentBoxOf(document, command.id)
-  if (box === null) return refused([reject(commandRow, 'AT-110', `no comment box with id ${command.id}`)])
+  const box = commentBoxOf(document, command.commentBoxId)
+  if (box === null) return refused([reject(commandRow, 'AT-110', `no comment box with id ${command.commentBoxId}`)])
   return lookEdited(document, box, refusal, look, putCommentBox)
 }
 

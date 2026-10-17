@@ -35,7 +35,7 @@ test.fixme('UC-013 fix the schedule while consulting an AI (FR-066 AG-11, DR-4 c
     const answer = await page.evaluate(
       ({ uid, reason }) => {
         const api = (window as any).grSchedulerAgentApi
-        const written = api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid, name: 'Survey phase (moved)' }], explanation: reason })
+        const written = api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', taskUid: uid, name: 'Survey phase (moved)' }], explanation: reason })
         const posted = api.postDialogueMessage(reason)
         return { written, posted }
       },
@@ -80,7 +80,7 @@ test('UC-013 without the dialogue field: the AI changes the document, only its r
     const answer = await page.evaluate(
       ({ uid, reason }) => {
         const api = (window as any).grSchedulerAgentApi
-        return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid, name: 'Survey phase (moved)' }], explanation: reason })
+        return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', taskUid: uid, name: 'Survey phase (moved)' }], explanation: reason })
       },
       { uid: TASK, reason: REASON },
     )

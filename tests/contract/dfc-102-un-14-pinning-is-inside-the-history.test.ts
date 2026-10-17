@@ -202,7 +202,7 @@ const unpin = (taskGroupId: string): DocumentCommand =>
 // WHY: the unrelated edit (CM-9) writes into the schedule-data group only,
 // so it cannot move S-126 -- every post-undo assertion is the history's alone.
 const rename = (name: string): DocumentCommand =>
-  ({ kind: commandKindOf('CM-9'), uid: FIRST_TASK_UID, name }) as unknown as DocumentCommand
+  ({ kind: commandKindOf('CM-9'), taskUid: FIRST_TASK_UID, name }) as unknown as DocumentCommand
 
 const NAME_BEFORE = firstTaskNameIn(START)
 const NAME_AFTER = 'RenamedWhileATaskGroupWasPinned'

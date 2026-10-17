@@ -55,10 +55,10 @@ export type DelayFixValue =
 // see T-019, CM-13
 // WHY: the same shape as the placement CM-13 takes, so a bundle reaches the edit with no conversion.
 export type DelayFixPlacement =
-  | { readonly row: 'PA-1' }
-  | ({ readonly row: 'PA-2' | 'PA-4'; readonly stop: string } & StartedPlacement)
-  | ({ readonly row: 'PA-3'; readonly stop: string; readonly resume: string } & StartedPlacement)
-  | ({ readonly row: 'PA-5'; readonly actualFinish: string } & StartedPlacement)
+  | { readonly state: 'notStarted' }
+  | ({ readonly state: 'inProgress' | 'suspendedWithoutResumeDate'; readonly stop: string } & StartedPlacement)
+  | ({ readonly state: 'suspendedWithResumeDate'; readonly stop: string; readonly resume: string } & StartedPlacement)
+  | ({ readonly state: 'finished'; readonly actualFinish: string } & StartedPlacement)
 
 interface StartedPlacement {
   readonly actualStart: string
@@ -69,8 +69,8 @@ interface StartedPlacement {
 export type DelayFixCommand =
   | { readonly kind: 'deleteDependency'; readonly predecessorUid: number; readonly successorUid: number }
   | { readonly kind: 'deleteDependencyAt'; readonly predecessorUid: number; readonly successorUid: number; readonly order: number }
-  | { readonly kind: 'setTaskPlanDates'; readonly uid: number; readonly start: string; readonly finish: string }
-  | { readonly kind: 'setTaskPlanActualState'; readonly uid: number; readonly place: DelayFixPlacement }
+  | { readonly kind: 'setTaskPlanDates'; readonly taskUid: number; readonly start: string; readonly finish: string }
+  | { readonly kind: 'setTaskPlanActualState'; readonly taskUid: number; readonly place: DelayFixPlacement }
   | { readonly kind: 'setStatusDate'; readonly statusDate: string }
 
 // see T-373
@@ -303,48 +303,48 @@ function deleteLink(link: Pick<DelayFixLink, 'predecessorUid' | 'successorUid'>)
 }
 
 // see T-019, CM-13
-// WHY: CM-13 places the five columns as one of the PA rows; the in-progress rows need a last day, so a missing stop
+// WHY: CM-13 places the five columns as one of the T-019 states; the in-progress rows need a last day, so a missing stop
 // takes the actual start and the command settles it (FR-011).
 /** @purity pure */
 function placementOf(actuals: Actuals): DelayFixPlacement {
   const { actualStart, actualFinish, resume } = actuals
-  if (actualStart === null) return { row: 'PA-1' }
-  if (actualFinish !== null) return { row: 'PA-5', actualStart, actualFinish }
+  if (actualStart === null) return { state: 'notStarted' }
+  if (actualFinish !== null) return { state: 'finished', actualStart, actualFinish }
   const stop = actuals.stop ?? actualStart
-  if (resume !== null) return { row: 'PA-3', actualStart, stop, resume }
-  return { row: actuals.resumeValid === false ? 'PA-4' : 'PA-2', actualStart, stop }
+  if (resume !== null) return { state: 'suspendedWithResumeDate', actualStart, stop, resume }
+  return { state: actuals.resumeValid === false ? 'suspendedWithoutResumeDate' : 'inProgress', actualStart, stop }
 }
 
 // see CM-13
-// WHY: a finish with no start has no PA row, so that outcome is not formed at all.
+// WHY: a finish with no start has no T-019 state, so that outcome is not formed at all.
 /** @purity pure */
 function actualsOutcome(task: Task, changes: Partial<Actuals>, after: DelayFixValue): FixOutcome | null {
   const actuals: Actuals = { ...task, ...changes }
   if (actuals.actualStart === null && actuals.actualFinish !== null) return null
-  return { after, commands: [{ kind: 'setTaskPlanActualState', uid: task.uid, place: placementOf(actuals) }] }
+  return { after, commands: [{ kind: 'setTaskPlanActualState', taskUid: task.uid, place: placementOf(actuals) }] }
 }
 
 // see CM-11
 /** @purity pure */
 function planOutcome(uid: number, start: string | null, finish: string | null, after: DelayFixValue): FixOutcome | null {
   if (start === null || finish === null) return null
-  return { after, commands: [{ kind: 'setTaskPlanDates', uid, start, finish }] }
+  return { after, commands: [{ kind: 'setTaskPlanDates', taskUid: uid, start, finish }] }
 }
 
 // see T-019
 /** @purity pure */
 function taskAfterPlacement(task: Task, place: DelayFixPlacement): Task {
   const cleared = { ...task, stop: null, actualFinish: null, resume: null }
-  switch (place.row) {
-    case 'PA-1':
+  switch (place.state) {
+    case 'notStarted':
       return { ...cleared, actualStart: null, percentComplete: 0 }
-    case 'PA-2':
+    case 'inProgress':
       return { ...cleared, actualStart: place.actualStart, stop: place.stop, resumeValid: true }
-    case 'PA-3':
+    case 'suspendedWithResumeDate':
       return { ...cleared, actualStart: place.actualStart, stop: place.stop, resume: place.resume, resumeValid: true }
-    case 'PA-4':
+    case 'suspendedWithoutResumeDate':
       return { ...cleared, actualStart: place.actualStart, stop: place.stop, resumeValid: false }
-    case 'PA-5':
+    case 'finished':
       return { ...cleared, actualStart: place.actualStart, actualFinish: place.actualFinish, resumeValid: false, percentComplete: 100 }
   }
 }
@@ -370,9 +370,9 @@ function scheduleAfter(schedule: Schedule, command: DelayFixCommand): Schedule {
       return withTaskEdited(schedule, command.successorUid, (task) =>
         withoutDependencyAt(task, command.predecessorUid, command.order) ?? task)
     case 'setTaskPlanDates':
-      return withTaskEdited(schedule, command.uid, (task) => ({ ...task, start: command.start, finish: command.finish }))
+      return withTaskEdited(schedule, command.taskUid, (task) => ({ ...task, start: command.start, finish: command.finish }))
     case 'setTaskPlanActualState':
-      return withTaskEdited(schedule, command.uid, (task) => taskAfterPlacement(task, command.place))
+      return withTaskEdited(schedule, command.taskUid, (task) => taskAfterPlacement(task, command.place))
   }
 }
 
@@ -386,7 +386,7 @@ function writtenUidsOf(command: DelayFixCommand): readonly number[] {
       return [command.successorUid]
     case 'setTaskPlanDates':
     case 'setTaskPlanActualState':
-      return [command.uid]
+      return [command.taskUid]
   }
 }
 
@@ -404,7 +404,7 @@ function groupedBy(tasks: readonly Task[], keyOf: (task: Task) => number | null)
 // see GP-1
 /** @purity pure */
 function readOnlyUidsOf(schedule: Schedule): ReadonlySet<number> {
-  const closed = new Set(schedule.taskGroups.filter((group) => group.editGroup !== null).map((group) => group.id))
+  const closed = new Set(schedule.taskGroups.filter((group) => group.editPermission !== null).map((group) => group.id))
   return new Set(schedule.taskGroupMembers.filter((member) => closed.has(member.taskGroupId)).map((member) => member.taskUid))
 }
 

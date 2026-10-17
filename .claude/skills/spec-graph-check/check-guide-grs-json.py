@@ -4,7 +4,7 @@ yields a document the GRS JSON schema accepts.
 
 WHY THIS EXISTS. DFC-1790: the guide's base document grs-skeleton.json had
 fallen two required keys behind the schema (Project.sourceFormat,
-TaskGroup.editGroup), and both prompts told the AI to write
+TaskGroup.editPermission), and both prompts told the AI to write
 TaskVisual.lineWeight -- a key the schema rejects (additionalProperties is
 false) since strokeWidthPx replaced it. Nothing generates the guide, so
 `npm run gen:check` never saw the drift; an app user following it got a
@@ -43,7 +43,7 @@ Usage:
     python check-guide-grs-json.py [repo-root] [--self-test]
 
 `--self-test` feeds an in-memory skeleton missing Project.sourceFormat and
-an in-memory prompt naming lineWeight and omitting editGroup, and is red
+an in-memory prompt naming lineWeight and omitting editPermission, and is red
 unless all three are reported; then a clean pair, which must report none.
 The clean pair is built on the real grs-skeleton.json, so a drifted skeleton
 reddens the self-test as well as the run.
@@ -189,10 +189,10 @@ def self_test(schema, skeleton):
 
     bad = prompt('{%s, "lineWeight": null}' % visual, '')
     got_bad = run(schema, broken, [('bad', bad)])
-    want = ['sourceFormat', 'lineWeight', 'editGroup']
+    want = ['sourceFormat', 'lineWeight', 'editPermission']
     caught = [w for w in want if any(w in p for p in got_bad)]
-    good = prompt('{%s, "strokeWidthPx": null} editGroup' % visual,
-                  ', "editGroup": null')
+    good = prompt('{%s, "strokeWidthPx": null} editPermission' % visual,
+                  ', "editPermission": null')
     got_good = run(schema, skeleton, [('good', good)])
     ok = len(caught) == len(want) and not got_good
     say(u'%s  self-test: the broken pair reported %d of %d (%s); the clean '

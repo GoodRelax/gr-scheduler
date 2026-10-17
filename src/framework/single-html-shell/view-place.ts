@@ -39,8 +39,8 @@ function viewPlaceOf(settings: DocumentSettings): ViewPlace {
     zoomY: settings.zoomY,
     scrollDate: settings.scrollDate,
     scrollTaskGroupId: settings.scrollTaskGroupId,
-    scrollDayOffset: settings.scrollDayOffset,
-    scrollGroupOffset: settings.scrollGroupOffset,
+    scrollDateFraction: settings.scrollDateFraction,
+    scrollTaskGroupFraction: settings.scrollTaskGroupFraction,
   }
 }
 
@@ -76,13 +76,13 @@ function dayLeftOfFirstDay(
   firstDay: string,
   settings: DocumentSettings,
   regions: ScreenRegions,
-): Pick<ScrollPlace, 'scrollDate' | 'scrollDayOffset'> {
+): Pick<ScrollPlace, 'scrollDate' | 'scrollDateFraction'> {
   const first = dayOf(firstDay)
-  const axis = timeAxisOf({ ...settings, scrollDate: firstDay, scrollDayOffset: 0 }, regions)
+  const axis = timeAxisOf({ ...settings, scrollDate: firstDay, scrollDateFraction: 0 }, regions)
   const edge = first === null ? null : dateAtX(axis, axis.originX - startupMarginPx())
-  if (first === null || edge === null) return { scrollDate: firstDay, scrollDayOffset: 0 }
+  if (first === null || edge === null) return { scrollDate: firstDay, scrollDateFraction: 0 }
   const offset = calendarDaysBetween(edge, first) - startupMarginPx() / axis.pxPerDay
-  return { scrollDate: textOfDayStart(edge), scrollDayOffset: offset > 0 && offset < 1 ? offset : 0 }
+  return { scrollDate: textOfDayStart(edge), scrollDateFraction: offset > 0 && offset < 1 ? offset : 0 }
 }
 
 // see OP-10, FR-024
@@ -95,7 +95,7 @@ function startupTemplatePlaceOf(
   const firstDay = firstCoveredDayOf(held)
   const firstRowId = firstRowIdOf(held)
   if (firstDay === null || firstRowId === null) return null
-  return { ...dayLeftOfFirstDay(firstDay, settings, regions), scrollTaskGroupId: firstRowId, scrollGroupOffset: 0 }
+  return { ...dayLeftOfFirstDay(firstDay, settings, regions), scrollTaskGroupId: firstRowId, scrollTaskGroupFraction: 0 }
 }
 
 // WHY: OP-10 puts the place on the written document alone; the open one keeps its null place.
@@ -147,8 +147,8 @@ function viewSettings(
       zoomY: fitted.zoomY,
       scrollDate: fitted.scrollDate,
       scrollTaskGroupId: fitted.scrollTaskGroupId,
-      scrollDayOffset: fitted.scrollDayOffset,
-      scrollGroupOffset: 0,
+      scrollDateFraction: fitted.scrollDateFraction,
+      scrollTaskGroupFraction: 0,
     },
     isAtStoredZoom: false,
   }

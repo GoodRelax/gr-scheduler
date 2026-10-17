@@ -58,14 +58,14 @@ export function commandFromArmingEntry(entry: string, context: InputContext): Tr
     if (one.kind !== 'task') continue
     if (armed.kind === 'taskShapeArmed') {
       const shapeKind = taskShapeKindOf(armed.shapeKind)
-      if (shapeKind !== null) commands.push({ kind: 'setTaskVisualShapeKind', uid: one.uid, shapeKind })
+      if (shapeKind !== null) commands.push({ kind: 'setTaskVisualShapeKind', taskUid: one.uid, shapeKind })
       continue
     }
     if (armed.kind === 'milestoneShapeArmed') {
       const glyph = milestoneGlyphOf(armed.glyph)
       if (glyph === null) continue
-      commands.push({ kind: 'setTaskVisualShapeKind', uid: one.uid, shapeKind: 'milestone' })
-      commands.push({ kind: 'setTaskVisualMilestoneGlyph', uid: one.uid, milestoneGlyph: glyph })
+      commands.push({ kind: 'setTaskVisualShapeKind', taskUid: one.uid, shapeKind: 'milestone' })
+      commands.push({ kind: 'setTaskVisualMilestoneGlyph', taskUid: one.uid, milestoneGlyph: glyph })
       continue
     }
   }
@@ -112,7 +112,7 @@ export function commandFromParentTaskDrag(
   if (parent.milestone === true) return nothingToDo('milestoneCannotBeAParent')
   const chosen = taskUidsIn(context.selection)
   const children = chosen.includes(from.taskUid) ? chosen : [from.taskUid]
-  return changed(children.map((uid) => ({ kind: 'setTaskParentTask', uid, parentTaskUid: parent.uid })))
+  return changed(children.map((uid) => ({ kind: 'setTaskParentTask', taskUid: uid, parentTaskUid: parent.uid })))
 }
 
 // see PTL-10, PTL-12, RS-70
@@ -129,7 +129,7 @@ function commentBoxPlacement(context: InputContext, press: PointerPress): Transl
   const placed = commentAnchorAt(context.layout, context.geometry, press.at.x, press.at.y)
   if (!('anchor' in placed)) return placed
   const id = context.newCommentBoxId
-  return changedAndCreated([[{ kind: 'createCommentBox', id, anchor: placed.anchor }]], { kind: 'commentBox', id })
+  return changedAndCreated([[{ kind: 'createCommentBox', commentBoxId: id, anchor: placed.anchor }]], { kind: 'commentBox', id })
 }
 
 type TaskShapeArmed = Extract<InputContext['screen']['armModeState'], { readonly kind: 'taskShapeArmed' | 'milestoneShapeArmed' }>
@@ -170,7 +170,7 @@ function createdTaskWrite(context: InputContext, drag: ArmedDrag, days: DraggedD
   ]
   const glyph = armed.kind === 'milestoneShapeArmed' ? milestoneGlyphOf(armed.glyph) : null
   if (glyph !== null) {
-    commands.push({ kind: 'setTaskVisualMilestoneGlyph', uid: nextIssuedUid(context.document.schedule), milestoneGlyph: glyph })
+    commands.push({ kind: 'setTaskVisualMilestoneGlyph', taskUid: nextIssuedUid(context.document.schedule), milestoneGlyph: glyph })
   }
   return changedAndCreated([commands], { kind: 'task', uid: nextIssuedUid(context.document.schedule) })
 }
@@ -236,7 +236,7 @@ export function commandFromArmed(
     return changed([
       {
         kind: 'createHighlightBox',
-        id: context.newHighlightBoxId,
+        highlightBoxId: context.newHighlightBoxId,
         range: {
           start: textOfDayStart(early),
           finish: textOfDayEnd(late),

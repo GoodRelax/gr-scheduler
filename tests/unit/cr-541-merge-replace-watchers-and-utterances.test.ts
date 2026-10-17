@@ -55,7 +55,7 @@ const documentWith = (label: string, note: string, settings: Record<string, unkn
         name: label,
         derivedFromTaskUid: null,
         order: 0,
-        treeState: 'auto', editGroup: null,
+        treeState: 'auto', editPermission: null,
         color: null,
         minHeightPx: null,
       },
@@ -128,7 +128,7 @@ describe('AG-6 -- the same name subscribed twice', () => {
       ...document,
       documentStamp: { ...document.documentStamp, scheduleUpdatedAt: '2026-09-22T00:00:00Z', lastEditedBy: 'someone else' },
     } as Document
-    notifyChangeWatchers(WATCHERS, { document: changed, hasMovedSchedule: true, dialogue: emptyDialogueLog() })
+    notifyChangeWatchers(WATCHERS, { document: changed, hasUpdatedSchedule: true, dialogue: emptyDialogueLog() })
     expect(first, 'the replaced subscription is no longer told').toHaveLength(0)
     expect(second, 'the new subscription is told').toHaveLength(1)
   })

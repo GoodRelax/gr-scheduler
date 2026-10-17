@@ -2661,7 +2661,7 @@
    "rowId": "K-105",
    "label": {
     "ja": "文字サイズの段（S / M / L）の px",
-    "en": "fontScaleSizes.S / fontScaleSizes.M / fontScaleSizes.L"
+    "en": "fontSizeStepSizes.S / fontSizeStepSizes.M / fontSizeStepSizes.L"
    }
   },
   {
@@ -3584,11 +3584,11 @@
    "rowId": "RS-61",
    "text": {
     "ja": "このタスクグループは読み取り専用です（編集グループが設定されています）",
-    "en": "This task group is read-only (an edit group is set on it)."
+    "en": "This task group is read-only (an edit permission is set on it)."
    },
    "nextStep": {
     "ja": "編集グループの無いタスクグループへコピーしてから編集してください",
-    "en": "Copy it into a task group with no edit group, then edit it."
+    "en": "Copy it into a task group with no edit permission, then edit it."
    }
   },
   {
@@ -6174,14 +6174,14 @@
    "rowId": "PS-3",
    "text": {
     "ja": "中断・再開日未定",
-    "en": "Stopped, no resume date"
+    "en": "Suspended, no resume date"
    }
   },
   {
    "rowId": "PS-4",
    "text": {
     "ja": "中断・再開予定あり",
-    "en": "Stopped, resume date set"
+    "en": "Suspended, resume date set"
    }
   },
   {

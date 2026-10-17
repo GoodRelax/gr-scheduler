@@ -135,7 +135,7 @@ export const scheduleOf = (spec: SceneSpec, statusDate: string | null = null): S
       name: id,
       derivedFromTaskUid: null,
       treeState: 'expanded',
-      editGroup: null,
+      editPermission: null,
       color: null,
     })),
     taskGroupMembers: spec.tasks.map(([task, taskGroupId]) => ({ taskGroupId, taskUid: task['uid'] })),

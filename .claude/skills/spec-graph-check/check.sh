@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# All 79 mechanical checks for the gr-scheduler specification.
+# All 81 mechanical checks for the gr-scheduler specification.
 #
 # The count is the numbered checks below, NOT counting check 0 (the rules
 # index, which prints before any check runs). ⛔ Recount it in the same change
@@ -10,7 +10,8 @@
 #
 # then add up the ranges in the headings (1-4 is four, 5-10 is six, and so
 # on). A heading may carry several numbers because one script answers them.
-# The ranges today are 1 + 4 + 8 + 4 + 62. (Recounted 2026-10-17 at check 82
+# The ranges today are 1 + 4 + 8 + 4 + 64. (Recounted 2026-10-17 at checks 83-84
+# (the _source references and names, JDG-2692): 62 + 2. Recounted 2026-10-17 at check 82
 # (the test route table, JDG-2419): 61 + 1. Recounted 2026-10-15 at checks 78-81
 # (ledger row form, project plan, drafted rulings cited, the spec resting on
 # src; JDG-2122..2124, JDG-2127): 57 + 4. Recounted 2026-10-11 at check 77
@@ -391,6 +392,22 @@
 #          GT-2, agent-driven Playwright probing) and in which order are the
 #          same in the tool and in the route and step tables of rule 04
 #          section 7 -- names, globs, words and order. JDG-2419. Baseline 0
+#   83     check-source-references.py : a reference between the JSON
+#          files of docs/spec/_source (a pointing field such as `column`,
+#          `rowId`, `valuesOf`, `entity`, or an id in any string, bare or
+#          in a code span) that resolves nowhere, a pointing field whose
+#          value is no id or lands in a family the field does not allow, a
+#          command column on an entity its command does not write, a
+#          retired command retired.py lacks, and a stale exemption
+#          (source-references-exempt.txt); plus the edge list
+#          source-relations.json the relation figure is drawn from is
+#          current (source_relations.py --check). JDG-2692. Baseline 0
+#   84     check-source-names.py : a name that does not match what it
+#          points at -- a command value against the column it writes, a
+#          value against the key column of the row it addresses, a stored
+#          key against its screen word -- and is not on the allow-list
+#          (source-names-allow.txt, reasons required; JDG-2691 seeds it), or
+#          a stale allow-list line. JDG-2692. Baseline 0
 #
 # Green does NOT prove the specification is sound: defects of meaning have
 # appeared while all of these were green. They stop broken references, not
@@ -562,6 +579,8 @@ echo ""
 # ⚠️ Five are checked in their own sections above -- 16 (settings and the
 # two ERD figures), 17 (the schema), 18 (the unit tree) and 20 (the types)
 # -- so the twenty-two below plus those five are the twenty-seven `gen:check` runs.
+# ⚠️ A twenty-eighth, `gen:relations:check` (source_relations.py, JDG-2692),
+# runs in section 83 beside the reference check it shares its reader with.
 section "27  the twenty-two other generated artifacts still match their manuscripts"
 PYTHONIOENCODING=utf-8 python tools/generate_json_schema_validator.py --check || failed
 PYTHONIOENCODING=utf-8 python tools/generate_startup_template.py --check || failed
@@ -1013,14 +1032,14 @@ PYTHONIOENCODING=utf-8 python "$HERE/check-conflict-markers.py" || failed
 echo ""
 section "75  the schedule-to-grs-json guide still yields a document the schema accepts"
 # DFC-1790 (2026-10-03): grs-skeleton.json lacked the required
-# Project.sourceFormat and TaskGroup.editGroup, and both prompts told the AI
+# Project.sourceFormat and TaskGroup.editPermission, and both prompts told the AI
 # to write TaskVisual.lineWeight, which strokeWidthPx replaced -- MEASURED on
 # 633db463: 32 problems (2 in the skeleton, 15 in each prompt). The guide is
 # hand-written for app users who only download files, so no generator and no
 # gen:check stands behind it. It does NOT read what the prose says about
 # values (color forms, ranges), nor whether ja and en agree; the in-app
 # prompt is gen:check's. --self-test feeds a skeleton without sourceFormat
-# and a prompt naming lineWeight and omitting editGroup, and is red unless
+# and a prompt naming lineWeight and omitting editPermission, and is red unless
 # all three are reported and a clean pair reports none.
 PYTHONIOENCODING=utf-8 python "$HERE/check-guide-grs-json.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$HERE/check-guide-grs-json.py" || failed
@@ -1112,6 +1131,35 @@ section "82  the test route of rule 04 section 7 is the route the tool walks"
 # and a planted rule section with two drifts.
 PYTHONIOENCODING=utf-8 python "$REPO/tools/test_route.py" --self-test || failed
 PYTHONIOENCODING=utf-8 python "$REPO/tools/test_route.py" --check-rule || failed
+
+echo ""
+section "83  every reference between the _source JSON files resolves"
+# JDG-2692 (2026-10-17): the user keeps the GRS JSON keys, screen words, API
+# and command names in docs/spec/_source and asked for a machine check that
+# the files there agree. MEASURED 2026-10-17 on d4eb2573 plus the stage-0
+# fixes the review of 585b29cc asked for: 7,766 references from 15
+# manuscripts and 11 schemas, 5 exempted with a reason, 3 retired ids cited
+# (printed, not red). The review's break tests B, C, D, E, F and J (a
+# dangling id in state-machines `rows`, a dangling `manner`, a dangling PA
+# `tag`, CM-26's column on a Task, a name where `column` wants an id,
+# `valuesOf` naming a PR row) were green and now give 1 each. Baseline 0.
+# The edge list the relation figure
+# (fig-source-relations) is drawn from is held against the same references.
+PYTHONIOENCODING=utf-8 python "$HERE/check-source-references.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-source-references.py" || failed
+PYTHONIOENCODING=utf-8 python "$REPO/docs/spec/_source/source_relations.py" --check || failed
+
+echo ""
+section "84  a name in the _source JSON files matches what it points at"
+# JDG-2692 / JDG-2691 (2026-10-17). MEASURED 2026-10-17 on d4eb2573 plus the
+# stage-0 fixes: 368 pairs (a list-valued `column` makes one pair per
+# column), 47 differ, all covered by the 44 reasoned lines of
+# source-names-allow.txt. Renaming CM-87's value gives 1; deleting K-77's
+# line gives 1; a dangling or non-id column gives 1 (it raised IndexError).
+# Baseline 0. ⚠️ A rename that lands leaves its allow-list line stale, and
+# that is red too: delete the line in the same change.
+PYTHONIOENCODING=utf-8 python "$HERE/check-source-names.py" --self-test || failed
+PYTHONIOENCODING=utf-8 python "$HERE/check-source-names.py" || failed
 
 echo ""
 section "NOT COVERED  what this run did not look at"

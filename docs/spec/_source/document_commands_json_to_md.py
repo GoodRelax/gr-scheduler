@@ -223,8 +223,10 @@ class Printer(object):
             return lines
         lines = []
         for variant in shape['variants']:
-            lines.append(u"%s`%s` が `'%s'`%s" % (indent, shape['discriminant'], variant['tag'],
-                                                  u':' if variant['fields'] else u''))
+            # CR-792: a word tag names its table row beside it, as `row` holds it.
+            row = u'（`%s`）' % variant['row'] if 'row' in variant else u''
+            lines.append(u"%s`%s` が `'%s'`%s%s" % (indent, shape['discriminant'], variant['tag'], row,
+                                                    u':' if variant['fields'] else u''))
             for one in variant['fields']:
                 lines += self.value_lines(one, depth + 1)
         return lines

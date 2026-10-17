@@ -308,7 +308,7 @@ export function commentGeometry(
     if (anchor === null) continue
     const lines = wrappedLines(box.text ?? '', settings.commentBoxWrapUnits)
     const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
-    const fontSize = settings.fontScaleSizes[settings.fontScale]
+    const fontSize = settings.fontSizeStepSizes[settings.fontSizeStep]
     const pad = settings.commentBoxPad
     const width = textWidthOf(lines, fontSize, settings.labelCoef) + 2 * pad
     const height = lines.length * fontSize + 2 * pad

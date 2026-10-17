@@ -420,9 +420,9 @@ function placeSeated(context: InputContext): readonly DocumentCommand[] {
     {
       kind: 'setScrollPosition',
       scrollDate: at.scrollDate,
-      scrollDayOffset: at.scrollDayOffset,
+      scrollDateFraction: at.scrollDateFraction,
       scrollTaskGroupId: at.scrollTaskGroupId,
-      scrollGroupOffset: at.scrollGroupOffset,
+      scrollTaskGroupFraction: at.scrollTaskGroupFraction,
     },
   ]
 }
@@ -443,7 +443,7 @@ function zoomCenterY(context: InputContext, pointerY: number | null): number {
 /** @purity pure */
 export function taskGroupPointIn(
   taskGroups: readonly TaskGroupPlacement[],
-  anchor: Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'>,
+  anchor: Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollTaskGroupFraction'>,
 ): number | null {
   const at = taskGroups.findIndex((taskGroup) => taskGroup.taskGroupId === anchor.scrollTaskGroupId)
   if (at < 0) return null
@@ -451,14 +451,14 @@ export function taskGroupPointIn(
   if (taskGroup === undefined) return null
   const below = taskGroups[at + 1]
   const slab = below === undefined ? taskGroup.height : below.y - taskGroup.y
-  const into = Number.isFinite(anchor.scrollGroupOffset) ? anchor.scrollGroupOffset : 0
+  const into = Number.isFinite(anchor.scrollTaskGroupFraction) ? anchor.scrollTaskGroupFraction : 0
   return taskGroup.y + into * slab
 }
 
 /** @purity pure */
 export function topEdgeIn(
   taskGroups: readonly TaskGroupPlacement[],
-  anchor: Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'>,
+  anchor: Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollTaskGroupFraction'>,
 ): number | null {
   const marked = taskGroupPointIn(taskGroups, anchor)
   if (marked !== null) return marked
@@ -478,7 +478,7 @@ function dayHeldStill(
   context: InputContext,
   zoomX: number | null,
   centerX: number,
-): Pick<ScrollAnchor, 'scrollDate' | 'scrollDayOffset'> | null {
+): Pick<ScrollAnchor, 'scrollDate' | 'scrollDateFraction'> | null {
   if (zoomX === null) return null
   const area = context.regions.taskGroupArea
   const factor = zoomWithinBounds(context, zoomX) / zoomOnScreen(context).x
@@ -493,7 +493,7 @@ function taskGroupHeldStill(
   zoomX: number | null,
   zoomY: number | null,
   centerY: number,
-): Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'> | null {
+): Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollTaskGroupFraction'> | null {
   if (zoomY === null) return null
   const on = zoomOnScreen(context)
   const willBe = zoomWithinBounds(context, zoomY)
@@ -507,9 +507,9 @@ function taskGroupHeldStill(
       ...context.document.documentSettings,
       zoomX: zoomX === null ? on.x : zoomWithinBounds(context, zoomX),
       scrollDate: seat.scrollDate,
-      scrollDayOffset: seat.scrollDayOffset,
+      scrollDateFraction: seat.scrollDateFraction,
       scrollTaskGroupId: seat.scrollTaskGroupId,
-      scrollGroupOffset: seat.scrollGroupOffset,
+      scrollTaskGroupFraction: seat.scrollTaskGroupFraction,
     },
     context.regions,
     willBe,
@@ -539,9 +539,9 @@ function placeHeldStill(
   const to = {
     kind: 'setScrollPosition',
     scrollDate: heldDay.scrollDate,
-    scrollDayOffset: heldDay.scrollDayOffset,
+    scrollDateFraction: heldDay.scrollDateFraction,
     scrollTaskGroupId: heldTaskGroup.scrollTaskGroupId,
-    scrollGroupOffset: heldTaskGroup.scrollGroupOffset,
+    scrollTaskGroupFraction: heldTaskGroup.scrollTaskGroupFraction,
   } as const
   if (!isPlaceNamed(context.document.schedule, to.scrollDate, to.scrollTaskGroupId)) {
     return placeSeated(context)
@@ -662,9 +662,9 @@ export function statusLineCentered(context: InputContext, date: string): readonl
   const to = {
     kind: 'setScrollPosition',
     scrollDate: onDay.scrollDate,
-    scrollDayOffset: onDay.scrollDayOffset,
+    scrollDateFraction: onDay.scrollDateFraction,
     scrollTaskGroupId: rows.scrollTaskGroupId,
-    scrollGroupOffset: rows.scrollGroupOffset,
+    scrollTaskGroupFraction: rows.scrollTaskGroupFraction,
   } as const
   const zoom = unstoredZoomWrites(context)
   if (zoom.length > 0) return [...zoom, to]
@@ -689,8 +689,8 @@ function fitCommand(context: InputContext): DocumentCommand {
     zoomY: fitted.zoomY,
     scrollDate: fixed?.scrollDate ?? place.scrollDate,
     scrollTaskGroupId: place.scrollTaskGroupId,
-    scrollDayOffset: fixed === null ? place.scrollDayOffset : 0,
-    scrollGroupOffset: 0,
+    scrollDateFraction: fixed === null ? place.scrollDateFraction : 0,
+    scrollTaskGroupFraction: 0,
   }
 }
 

@@ -86,7 +86,7 @@ function group(id: string, order: number): unknown {
     name: `task group ${String(order)}`,
     derivedFromTaskUid: null,
     order,
-    treeState: 'auto', editGroup: null,
+    treeState: 'auto', editPermission: null,
     color: null,
     minHeightPx: null,
   }
@@ -146,8 +146,8 @@ export function benchDocument(settings: Record<string, unknown> = {}): Document 
       ...structuredClone(template['documentSettings']),
       scrollDate: april(1),
       scrollTaskGroupId: rows[0],
-      scrollDayOffset: 0,
-      scrollGroupOffset: 0,
+      scrollDateFraction: 0,
+      scrollTaskGroupFraction: 0,
       ...settings,
       // WHY: S-1 is a constant (CR-572); the stored zoomX (S-75) carries the day width this bench draws at.
       zoomX: (PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x) * ((settings['zoomX'] as number | undefined) ?? 1),

@@ -34,7 +34,7 @@ const TASK_GROUP_B = 'task-group-b'
 const TARGET_UID = 301
 
 // WHY: the view starts on task group B with both fractions off zero, so any write that moves the task group anchor shows.
-const START_SCROLL = { scrollDate: '2026-03-02', scrollTaskGroupId: TASK_GROUP_B, scrollDayOffset: 0.25, scrollGroupOffset: 0.5 }
+const START_SCROLL = { scrollDate: '2026-03-02', scrollTaskGroupId: TASK_GROUP_B, scrollDateFraction: 0.25, scrollTaskGroupFraction: 0.5 }
 
 function documentWithPinned(pinned: readonly string[]): Document {
   const task: Loose = {
@@ -128,7 +128,7 @@ describe(`T-332 SJ-7 -- ${SJ_7_PINNED_DRAWN} ${SJ_7_ROOM_IRRELEVANT}`, () => {
     expect(scrollOf(plan)).toMatchObject({
       kind: 'setScrollPosition',
       scrollTaskGroupId: START_SCROLL.scrollTaskGroupId,
-      scrollGroupOffset: START_SCROLL.scrollGroupOffset,
+      scrollTaskGroupFraction: START_SCROLL.scrollTaskGroupFraction,
     })
   })
 

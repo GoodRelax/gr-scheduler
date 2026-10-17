@@ -39,7 +39,7 @@ const send = async (built: PaletteStage, input: HumanInput): Promise<void> => {
 
 const placeOf = (built: PaletteStage) => {
   const settings = built.loop.document().documentSettings
-  return [settings.scrollDate, settings.scrollDayOffset, settings.scrollTaskGroupId, settings.scrollGroupOffset]
+  return [settings.scrollDate, settings.scrollDateFraction, settings.scrollTaskGroupId, settings.scrollTaskGroupFraction]
 }
 
 async function pan(built: PaletteStage): Promise<void> {

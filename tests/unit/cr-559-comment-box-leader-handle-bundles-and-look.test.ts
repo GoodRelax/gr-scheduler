@@ -271,9 +271,9 @@ function fixtureDocument(fixture: Fixture = {}): Document {
       ...(template['documentSettings'] as Record<string, unknown>),
       zoomX: (PX_PER_DAY_AT_1X / SETTINGS_CONSTANTS.pxPerDayAt1x) * (fixture.zoomFactor ?? 1),
       scrollDate: '2026-04-01',
-      scrollDayOffset: 0,
+      scrollDateFraction: 0,
       scrollTaskGroupId: ROW.A,
-      scrollGroupOffset: 0,
+      scrollTaskGroupFraction: 0,
       pinnedTaskGroupIds: [],
     },
     documentStamp: template['documentStamp'],
@@ -1096,10 +1096,10 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
 
   it('CM-81 places a width inside S-374, and null, and refuses one outside it or not whole', () => {
     for (const width of [S_374.low, S_374.high, null]) {
-      expect(acceptedNote({ kind: 'setCommentBoxStrokeWidthPx', id: NOTE_ID, strokeWidthPx: width })['strokeWidthPx']).toBe(width)
+      expect(acceptedNote({ kind: 'setCommentBoxStrokeWidthPx', commentBoxId: NOTE_ID, strokeWidthPx: width })['strokeWidthPx']).toBe(width)
     }
     for (const width of [S_374.low - 1, S_374.high + 1, S_374.low + 0.5]) {
-      expect(refusalOf({ kind: 'setCommentBoxStrokeWidthPx', id: NOTE_ID, strokeWidthPx: width }), `width ${width}`).toEqual(
+      expect(refusalOf({ kind: 'setCommentBoxStrokeWidthPx', commentBoxId: NOTE_ID, strokeWidthPx: width }), `width ${width}`).toEqual(
         expect.objectContaining({ command: 'CM-81', rule: 'S-374' }),
       )
     }
@@ -1107,10 +1107,10 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
 
   it('CM-83 places a transparency inside S-375, and null, and refuses one outside it or not whole', () => {
     for (const percent of [S_375.low, S_375.high, null]) {
-      expect(acceptedNote({ kind: 'setCommentBoxFillTransparencyPercent', id: NOTE_ID, fillTransparencyPercent: percent })['fillTransparencyPercent']).toBe(percent)
+      expect(acceptedNote({ kind: 'setCommentBoxFillTransparencyPercent', commentBoxId: NOTE_ID, fillTransparencyPercent: percent })['fillTransparencyPercent']).toBe(percent)
     }
     for (const percent of [S_375.low - 1, S_375.high + 1, 12.5]) {
-      expect(refusalOf({ kind: 'setCommentBoxFillTransparencyPercent', id: NOTE_ID, fillTransparencyPercent: percent }), `percent ${percent}`).toEqual(
+      expect(refusalOf({ kind: 'setCommentBoxFillTransparencyPercent', commentBoxId: NOTE_ID, fillTransparencyPercent: percent }), `percent ${percent}`).toEqual(
         expect.objectContaining({ command: 'CM-83', rule: 'S-375' }),
       )
     }
@@ -1118,10 +1118,10 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
 
   it(`CM-82 places a palette name, a custom color, transparent and null (${FILL_MAY_BE_TRANSPARENT}), and refuses what is not a color (CV-1)`, () => {
     for (const color of ['red', '#123456/', 'transparent', null]) {
-      expect(acceptedNote({ kind: 'setCommentBoxFillColor', id: NOTE_ID, fillColor: color })['fillColor']).toBe(color)
+      expect(acceptedNote({ kind: 'setCommentBoxFillColor', commentBoxId: NOTE_ID, fillColor: color })['fillColor']).toBe(color)
     }
     for (const color of ['crimson', '#12345', '']) {
-      expect(refusalOf({ kind: 'setCommentBoxFillColor', id: NOTE_ID, fillColor: color }), `color ${color}`).toEqual(
+      expect(refusalOf({ kind: 'setCommentBoxFillColor', commentBoxId: NOTE_ID, fillColor: color }), `color ${color}`).toEqual(
         expect.objectContaining({ command: 'CM-82', rule: 'CV-1' }),
       )
     }
@@ -1133,13 +1133,13 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
   ] as const) {
     it(`${row} places a palette name, a custom color and null, refuses transparent (FR-019) and what is not a color (CV-1)`, () => {
       for (const color of ['red', '#123456/', null]) {
-        expect(acceptedNote({ kind, id: NOTE_ID, [key]: color } as Command)[key], `color ${String(color)}`).toBe(color)
+        expect(acceptedNote({ kind, commentBoxId: NOTE_ID, [key]: color } as Command)[key], `color ${String(color)}`).toBe(color)
       }
-      expect(refusalOf({ kind, id: NOTE_ID, [key]: 'transparent' } as Command), 'transparent').toEqual(
+      expect(refusalOf({ kind, commentBoxId: NOTE_ID, [key]: 'transparent' } as Command), 'transparent').toEqual(
         expect.objectContaining({ command: row, rule: 'FR-019' }),
       )
       for (const color of ['crimson', '#12345', '']) {
-        expect(refusalOf({ kind, id: NOTE_ID, [key]: color } as Command), `color ${color}`).toEqual(
+        expect(refusalOf({ kind, commentBoxId: NOTE_ID, [key]: color } as Command), `color ${color}`).toEqual(
           expect.objectContaining({ command: row, rule: 'CV-1' }),
         )
       }
@@ -1149,11 +1149,11 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
   it('each of the five commands refuses a note that does not exist (AT-110)', () => {
     const missing = '3c000000-0000-4000-8000-0000000000ff'
     const commands: readonly (readonly [string, Command])[] = [
-      ['CM-80', { kind: 'setCommentBoxStrokeColor', id: missing, strokeColor: 'red' }],
-      ['CM-81', { kind: 'setCommentBoxStrokeWidthPx', id: missing, strokeWidthPx: 2 }],
-      ['CM-82', { kind: 'setCommentBoxFillColor', id: missing, fillColor: 'red' }],
-      ['CM-83', { kind: 'setCommentBoxFillTransparencyPercent', id: missing, fillTransparencyPercent: 2 }],
-      ['CM-84', { kind: 'setCommentBoxTextColor', id: missing, textColor: 'red' }],
+      ['CM-80', { kind: 'setCommentBoxStrokeColor', commentBoxId: missing, strokeColor: 'red' }],
+      ['CM-81', { kind: 'setCommentBoxStrokeWidthPx', commentBoxId: missing, strokeWidthPx: 2 }],
+      ['CM-82', { kind: 'setCommentBoxFillColor', commentBoxId: missing, fillColor: 'red' }],
+      ['CM-83', { kind: 'setCommentBoxFillTransparencyPercent', commentBoxId: missing, fillTransparencyPercent: 2 }],
+      ['CM-84', { kind: 'setCommentBoxTextColor', commentBoxId: missing, textColor: 'red' }],
     ]
     for (const [row, command] of commands) {
       expect(refusalOf(command), row).toEqual(expect.objectContaining({ command: row, rule: 'AT-110' }))
@@ -1161,7 +1161,7 @@ describe(`T-108 CM-80 .. CM-84: ${OUT_OF_RANGE_REFUSED} ${NO_TRANSPARENT_LINE_OR
   })
 
   it(`${PLACED_WITH_NULLS} -- createCommentBox leaves the five columns null`, () => {
-    const result = editAnnotation(fixtureDocument(), { kind: 'createCommentBox', id: OTHER_NOTE_ID, anchor: { date: day(20), taskGroupId: ROW.E } })
+    const result = editAnnotation(fixtureDocument(), { kind: 'createCommentBox', commentBoxId: OTHER_NOTE_ID, anchor: { date: day(20), taskGroupId: ROW.E } })
     if (!result.ok) throw new Error(`refused: ${JSON.stringify(result.refusals)}`)
     const made = (result.document.schedule.commentBoxes as unknown as readonly Record<string, unknown>[]).find((one) => one['id'] === OTHER_NOTE_ID)
     for (const column of ['strokeColor', 'strokeWidthPx', 'fillColor', 'fillTransparencyPercent', 'textColor']) {

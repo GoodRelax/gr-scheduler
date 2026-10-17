@@ -1,0 +1,24 @@
+old	new	how	ruling	note
+hasMovedSchedule	hasUpdatedSchedule	whole	JDG-2680	Agent API answer field (AV-2, AV-6)
+scrollDayOffset	scrollDateFraction	whole	JDG-2681	stored key S-177 and CM-66 / CM-71 values
+scrollGroupOffset	scrollTaskGroupFraction	whole	JDG-2681	stored key S-176 and CM-66 / CM-71 values
+fontScale	fontSizeStep	whole	JDG-2682	stored key S-70
+setFontScale	setFontSizeStep	whole	JDG-2682	command CM-62
+sourceProjectUid	sourceProjectId	whole	JDG-2683	TaskOrigin column AT-106
+parentProgressToleranceDays	parentTaskProgressToleranceDays	whole	JDG-2688	Project column AT-156
+setParentProgressToleranceDays	setParentTaskProgressToleranceDays	whole	JDG-2688	command CM-87
+targetTaskGroupId	parentId	whole	JDG-2689	CM-28 value
+deleteResource	deleteResources	whole	JDG-2690	command CM-42
+editGroup	editPermission	whole	CR-792	TaskGroup column AT-144 (the user's choice, 2026-10-17)
+setTaskGroupEditGroup	setTaskGroupEditPermission	whole	CR-792	command CM-76
+setElementVisible	setVisibilitySetting	whole	JDG-2686	command CM-58
+isApplied	isScheduleFilterApplied	whole	JDG-2723	TableVisibility value of CM-92
+row	state	sites	JDG-2684	PlanActualPlacement discriminant (CM-13 / CM-14 / CM-15) only
+grabbed	grabbed	sites	JDG-2684	beginTaskActual (CM-14): the name stays, its GA-n values become words
+uid	taskUid / resourceUid	sites	JDG-2685	the value that says which row, in the commands JDG-2685 lists
+uids	resourceUids	sites	JDG-2685	CM-42 value
+id	commentBoxId / highlightBoxId	sites	JDG-2685	comment and highlight box commands
+element	setting	sites	JDG-2686	CM-58 value
+visible	isVisible	sites	JDG-2686	CM-58 value
+tables	filteringTables	sites	JDG-2687	AgentShownTasks field (AV-8)
+hiddenKeys	hiddenTaskUids / hiddenResourceUids	sites	JDG-2724	TableVisibility value of CM-92, split by table

@@ -221,10 +221,10 @@ function withTaskGroupColumnsOfAnOlderVersion(parsed: unknown): unknown {
   const schedule = isObject(parsed) ? parsed['schedule'] : undefined
   const taskGroups = isObject(schedule) ? schedule['taskGroups'] : undefined
   if (!isObject(parsed) || !isObject(schedule) || !Array.isArray(taskGroups)) return parsed
-  const wants = (taskGroup: unknown): boolean => isObject(taskGroup) && !('editGroup' in taskGroup)
+  const wants = (taskGroup: unknown): boolean => isObject(taskGroup) && !('editPermission' in taskGroup)
   if (!taskGroups.some(wants)) return parsed
   const shapedTaskGroups = taskGroups.map((taskGroup: unknown): unknown =>
-    !isObject(taskGroup) || 'editGroup' in taskGroup ? taskGroup : { ...taskGroup, editGroup: null })
+    !isObject(taskGroup) || 'editPermission' in taskGroup ? taskGroup : { ...taskGroup, editPermission: null })
   return { ...parsed, schedule: { ...schedule, taskGroups: shapedTaskGroups } }
 }
 

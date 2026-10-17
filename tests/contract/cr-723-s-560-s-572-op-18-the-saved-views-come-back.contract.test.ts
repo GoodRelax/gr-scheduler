@@ -32,7 +32,7 @@ import {
 } from './cr-723-stage'
 
 const A_MOMENT = '2026-10-11T09:00:00'
-const NOT_STORED_KEYS = ['word', 'at', 'size', 'textSizeStep', 'columnWidths', 'open', 'selection', 'isMinimized', 'isMaximized', 'filters', 'visibility', 'hiddenKeys', 'isApplied']
+const NOT_STORED_KEYS = ['word', 'at', 'size', 'textSizeStep', 'columnWidths', 'open', 'selection', 'isMinimized', 'isMaximized', 'filters', 'visibility', 'hiddenKeys']
 
 /** @purity pure */
 function keysAnywhere(value: unknown, found: string[] = []): string[] {
@@ -142,14 +142,14 @@ describe('OP-18 -- a uid that points at nothing and a column that is in no table
         tableViews: tableViewsText({
           ...VIEWS_SAVED,
           searchPanel: view({
-            visibility: { hiddenKeys: [ALPHA, GONE_TASK], isUnassignedHidden: false, isApplied: true },
+            visibility: { hiddenTaskUids: [ALPHA, GONE_TASK], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: true },
             columnFilters: [
               { column: 'SQ-5', hiddenValues: ['Done'], fromDate: null, toDate: null },
               { column: NOWHERE, hiddenValues: ['x'], fromDate: null, toDate: null },
             ],
             sort: { column: NOWHERE, direction: 'ascending' },
           }),
-          resourceList: view({ visibility: { hiddenKeys: [SATO, GONE_RESOURCE], isUnassignedHidden: false, isApplied: false } }),
+          resourceList: view({ visibility: { hiddenTaskUids: [], hiddenResourceUids: [SATO, GONE_RESOURCE], isUnassignedHidden: false, isScheduleFilterApplied: false } }),
         }),
       }),
       BUILT_VERSION,
@@ -190,10 +190,10 @@ describe('OP-18 -- a uid that points at nothing and a column that is in no table
   it('tableViewOf reads the same kept values', () => {
     const opened = { document: openedAsReplaced() }
     const read = tableViewOf(opened.document.documentSettings, 'searchPanel')
-    expect(read.visibility.hiddenKeys).toEqual([ALPHA])
+    expect(read.visibility.hiddenTaskUids).toEqual([ALPHA])
     expect(read.columnFilters.map((one: ColumnFilter) => one.column)).toEqual(['SQ-5'])
     expect(read.sort).toBeNull()
-    expect(tableViewOf(opened.document.documentSettings, 'resourceList').visibility.hiddenKeys).toEqual([SATO])
+    expect(tableViewOf(opened.document.documentSettings, 'resourceList').visibility.hiddenResourceUids).toEqual([SATO])
   })
 
   it('the dropped values do not come back in the saved file', () => {
@@ -210,9 +210,10 @@ describe('FR-151 -- what is not a view is not saved', () => {
     for (const key of NOT_STORED_KEYS) expect(found, key).not.toContain(key)
   })
 
-  it('the old camel-case shapes of the screen values (hiddenKeys, isApplied, visibility) are not the file\'s keys', () => {
+  // WHY: CR-792 (JDG-2723) gave the command value the stored key's own name isScheduleFilterApplied, so it is not listed.
+  it('the old camel-case shapes of the screen values (hiddenKeys, visibility) are not the file\'s keys', () => {
     const found = keysAnywhere(tableViewsIn(savedObjectOf(openedFrom(documentText({ tableViews: tableViewsText(VIEWS_SAVED) })))))
-    for (const key of ['hiddenKeys', 'isApplied', 'visibility', 'from', 'to']) expect(found, key).not.toContain(key)
+    for (const key of ['hiddenKeys', 'visibility', 'from', 'to']) expect(found, key).not.toContain(key)
   })
 })
 

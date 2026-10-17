@@ -61,7 +61,7 @@ const FIRST_TASK_UID = START.schedule.tasks[0]?.uid ?? 0
 // see CM-65, UN-8
 const ZOOM = { kind: kindOf('CM-65'), zoomX: 2, zoomY: 2 } as unknown as DocumentCommand
 // see CM-9, UN-13
-const RENAME = { kind: kindOf('CM-9'), uid: FIRST_TASK_UID, name: 'w3-t5 renamed' } as unknown as DocumentCommand
+const RENAME = { kind: kindOf('CM-9'), taskUid: FIRST_TASK_UID, name: 'w3-t5 renamed' } as unknown as DocumentCommand
 
 const LIMITS: SettingsLimits = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }

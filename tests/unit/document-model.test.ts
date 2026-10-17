@@ -172,7 +172,7 @@ describe('DocumentStamp (PI-3)', () => {
     // すること（MUST）」 -- so those three fields move together here.
     // ⚠️ `fileSavedAt` (AT-140) is the FOURTH field and does NOT move: an
     // edit is not a write to a file, and FR-101 owns when that one moves.
-    const next = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasMovedSchedule: true })
+    const next = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasUpdatedSchedule: true })
     expect(next).toEqual({
       scheduleUpdatedAt: '2026-08-17T00:01:00Z',
       lastEditedBy: 'agent',
@@ -184,14 +184,14 @@ describe('DocumentStamp (PI-3)', () => {
   it('FR-063 leaves the schedule instant alone for a presentation-only write, but not who and when', () => {
     // 「見せ方の群だけを変える更新で、日程データの群の刻を動かしてはならない
     // （MUST NOT）」.
-    const next = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasMovedSchedule: false })
+    const next = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasUpdatedSchedule: false })
     expect(next.scheduleUpdatedAt).toBe('2026-08-17T00:00:00Z')
     expect(next.lastEditedBy).toBe('agent')
     expect(next.settingsUpdatedAt).toBe('2026-08-17T00:01:00Z')
   })
 
   it('AG-2 compares all three, so a presentation-only write is still a mismatch', () => {
-    const after = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasMovedSchedule: false })
+    const after = advancedStamp(stamp, 'agent', '2026-08-17T00:01:00Z', { hasUpdatedSchedule: false })
     expect(isStampMatched(stamp, stamp)).toBe(true)
     expect(isStampMatched(stamp, after)).toBe(false)
   })

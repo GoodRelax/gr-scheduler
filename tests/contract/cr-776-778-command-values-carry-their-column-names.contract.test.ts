@@ -34,7 +34,9 @@ const columnNameOf = (row: string): string | undefined => AT_NAMES.get(row) ?? S
 
 // see CR-776
 const NOT_RENAMED = new Set([
-  'CM-28.targetTaskGroupId',
+  // WHY: JDG-2685 -- the command that makes a box names it as every command on that box does.
+  'CM-46.commentBoxId',
+  'CM-52.highlightBoxId',
   'CM-39.workingDayTypes',
   'CM-51.dx',
   'CM-51.dy',
@@ -111,10 +113,10 @@ describe('CR-776 -- the manuscript: a value that writes one column carries that 
       ['CM-29', 'label', 'name', 'AT-53'],
       ['CM-32', 'minHeight', 'minHeightPx', 'AT-59'],
       ['CM-56', 'direction', 'stackDirection', 'S-58'],
-      ['CM-62', 'scale', 'fontScale', 'S-70'],
+      ['CM-62', 'scale', 'fontSizeStep', 'S-70'],
       ['CM-64', 'monochrome', 'isThemeMonochrome', 'S-74'],
       ['CM-74', 'scale', 'displayScale', 'S-234'],
-      ['CM-87', 'workingDays', 'parentProgressToleranceDays', 'AT-156'],
+      ['CM-87', 'workingDays', 'parentTaskProgressToleranceDays', 'AT-156'],
       ['CM-94', 'timeZone', 'scheduleDataTimeZone', 'AT-157'],
       ['CM-95', 'timeZone', 'viewTimeZone', 'S-574'],
       ['CM-96', 'timeZones', 'displayTimeZones', 'S-575'],
@@ -174,7 +176,7 @@ const SAMPLES: Sample[] = [
   { title: 'setTaskGroupName (name, was label) -> AT-53', kind: 'setTaskGroupName', target: { taskGroupId: 'g1' }, newName: 'name', oldName: 'label', value: 'Renamed group', read: groupName },
   { title: 'setStatusDate (statusDate, was date) -> AT-13', kind: 'setStatusDate', target: {}, newName: 'statusDate', oldName: 'date', value: '2026-04-08T00:00:00', read: (b) => documentOf(b).schedule.project.statusDate },
   { title: 'setThemeHue (themeHue, was hue) -> AT-19', kind: 'setThemeHue', target: {}, newName: 'themeHue', oldName: 'hue', value: 123, read: (b) => documentOf(b).schedule.project.themeHue },
-  { title: 'setTaskFadeInDays (fadeInDays, was days) -> AT-40', kind: 'setTaskFadeInDays', target: { uid: 1 }, newName: 'fadeInDays', oldName: 'days', value: 2, read: fadeIn },
+  { title: 'setTaskFadeInDays (fadeInDays, was days) -> AT-40', kind: 'setTaskFadeInDays', target: { taskUid: 1 }, newName: 'fadeInDays', oldName: 'days', value: 2, read: fadeIn },
   { title: 'setDisplayScale (displayScale, was scale) -> S-234', kind: 'setDisplayScale', target: {}, newName: 'displayScale', oldName: 'scale', value: 125, read: (b) => documentOf(b).documentSettings.displayScale },
 ]
 

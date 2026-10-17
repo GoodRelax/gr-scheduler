@@ -138,7 +138,7 @@ const SCHEDULE: Schedule = {
     name: `row${index + 1}`,
     derivedFromTaskUid: null,
     order: index,
-    treeState: 'auto', editGroup: null,
+    treeState: 'auto', editPermission: null,
     color: null,
     minHeightPx: null,
   })),

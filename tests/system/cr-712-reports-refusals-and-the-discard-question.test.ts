@@ -124,7 +124,7 @@ async function editOneTask(page: Page): Promise<void> {
   expect(uid, 'premise: the opened document has a task to rename').toBeDefined()
   const accepted = await page.evaluate((taskUid: number) => {
     const api = (window as any).grSchedulerAgentApi
-    return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid: taskUid, name: 'Changed here' }] }).ok
+    return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', taskUid: taskUid, name: 'Changed here' }] }).ok
   }, uid!)
   expect(accepted, 'premise: the rename was accepted').toBe(true)
   await settle(page)
@@ -199,7 +199,7 @@ test.describe(`MG-10 (MUST): ${MG_10_ALWAYS_ON_U_61}`, () => {
     await openByDrop(page, 'cr-712-current.json', taskGroupsDocument({ rows: 3 }))
     const renamed = await page.evaluate(() => {
       const api = (window as any).grSchedulerAgentApi
-      return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid: 2, name: 'Changed here' }] }).ok
+      return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', taskUid: 2, name: 'Changed here' }] }).ok
     })
     expect(renamed, 'premise: task 2 differs from the incoming file').toBe(true)
     await dropOnly(page, 'cr-712-incoming.json', taskGroupsDocument({ rows: 3 }))

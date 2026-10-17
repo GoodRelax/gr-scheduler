@@ -74,7 +74,7 @@ describe('FR-016 -- MK-1 moves the chart by the distance the device gave', () =>
 
   it(Q20, () => {
     const { built, band } = scrolled(10)
-    const offset = Number((built.loop.document().documentSettings as unknown as Record<string, unknown>)['scrollGroupOffset'])
+    const offset = Number((built.loop.document().documentSettings as unknown as Record<string, unknown>)['scrollTaskGroupFraction'])
     expect(band).toBeGreaterThan(10)
     expect(offset, 'the part of a task group is held in S-176, not rounded away').toBeGreaterThan(0)
     expect(offset).toBeLessThan(1)

@@ -34,7 +34,7 @@ describe('CR-722 the manuscript these cases are driven by', () => {
 
 // WHY: CR-723 -- the Visibility is the table's view the document holds (FR-151), so a case reads it off the view.
 const visibilityOf = (view: TableView): TableVisibility => view.visibility
-const hiddenOf = (view: TableView): readonly number[] => [...visibilityOf(view).hiddenKeys].sort((a, b) => a - b)
+const hiddenOf = (view: TableView): readonly number[] => [...visibilityOf(view).hiddenTaskUids].sort((a, b) => a - b)
 const startingViewOf = (table: 'searchPanel' | 'delayDiagnosticsReport'): TableView => tableViewOf(openedFrom(documentText()).documentSettings, table)
 const withView = (pane: Pane, view: TableView): Pane => ({ ...pane, view })
 
@@ -62,44 +62,44 @@ describe('FR-151 T-353 TV-2, S-560 / S-564 -- every table starts with every row 
 
 describe(`FR-151 T-353 TV-6 / TV-2 -- tableAfterVisibilityChange puts rows in and out of Hide`, () => {
   it('taking two rows out makes them Hide and leaves the Schedule Filter as it was', () => {
-    const out = tableAfterVisibilityChange(TASK_PANEL.view, [ALPHA, BRAVO], false)
+    const out = tableAfterVisibilityChange('searchPanel', TASK_PANEL.view, [ALPHA, BRAVO], false)
     expect(hiddenOf(out)).toEqual([ALPHA, BRAVO])
-    expect(visibilityOf(out).isApplied).toBe(false)
+    expect(visibilityOf(out).isScheduleFilterApplied).toBe(false)
   })
 
   it('putting one back makes only that row Show again', () => {
-    const out = tableAfterVisibilityChange(tableAfterVisibilityChange(TASK_PANEL.view, [ALPHA, BRAVO], false), [ALPHA], true)
+    const out = tableAfterVisibilityChange('searchPanel', tableAfterVisibilityChange('searchPanel', TASK_PANEL.view, [ALPHA, BRAVO], false), [ALPHA], true)
     expect(hiddenOf(out)).toEqual([BRAVO])
   })
 
   it(`${TV_2_WORDS_KEEP.slice(0, 30)} -- the word does not touch the values`, () => {
-    const out = tableAfterVisibilityChange(TASK_PANEL.view, [CHARLIE], false)
+    const out = tableAfterVisibilityChange('searchPanel', TASK_PANEL.view, [CHARLIE], false)
     const worded: Pane = { panel: { ...TASK_PANEL.panel, word: 'alpha' }, view: out }
     expect(hiddenOf(worded.view)).toEqual([CHARLIE])
     expect(viewOf(worded).rows.every((one) => one.isShown === true), 'the listed row Alpha is Show').toBe(true)
   })
 
   it('a Hide row reads Hide in the search view', () => {
-    const out = tableAfterVisibilityChange(TASK_PANEL.view, [BRAVO], false)
+    const out = tableAfterVisibilityChange('searchPanel', TASK_PANEL.view, [BRAVO], false)
     const shown = viewOf(withView(TASK_PANEL, out)).rows.map((one) => one.isShown)
     expect(shown).toEqual([true, false, true])
   })
 })
 
 describe(`FR-151 T-353 TV-5 -- ${TV_5_ON_OFF.slice(0, 40)}`, () => {
-  const hiddenView = (): TableView => tableAfterVisibilityChange(TASK_PANEL.view, [ALPHA], false)
+  const hiddenView = (): TableView => tableAfterVisibilityChange('searchPanel', TASK_PANEL.view, [ALPHA], false)
 
   it('IC-143 turns the Schedule Filter on, and again off', () => {
     const on = tableWithScheduleFilterToggled(hiddenView())
-    expect(visibilityOf(on).isApplied).toBe(true)
-    expect(visibilityOf(tableWithScheduleFilterToggled(on)).isApplied).toBe(false)
+    expect(visibilityOf(on).isScheduleFilterApplied).toBe(true)
+    expect(visibilityOf(tableWithScheduleFilterToggled(on)).isScheduleFilterApplied).toBe(false)
   })
 
   it(`${TV_5_STAYS_ON.slice(0, 30)} -- putting every row back to Show keeps it on`, () => {
     const on = tableWithScheduleFilterToggled(hiddenView())
-    const back = tableAfterVisibilityChange(on, [ALPHA], true)
+    const back = tableAfterVisibilityChange('searchPanel', on, [ALPHA], true)
     expect(hiddenOf(back)).toEqual([])
-    expect(visibilityOf(back).isApplied).toBe(true)
+    expect(visibilityOf(back).isScheduleFilterApplied).toBe(true)
   })
 
   it(`TV-8: ${TV_8_VALUES_STAY} -- turning off keeps the Hide rows`, () => {
@@ -108,9 +108,9 @@ describe(`FR-151 T-353 TV-5 -- ${TV_5_ON_OFF.slice(0, 40)}`, () => {
   })
 
   it('the report table turns on and off by the same function, apart from the search table', () => {
-    const report = tableWithScheduleFilterToggled(tableAfterVisibilityChange(OPENED_REPORT.view, [BRAVO], false))
-    expect(visibilityOf(report).isApplied).toBe(true)
-    expect(visibilityOf(TASK_PANEL.view).isApplied, TV_5_INDEPENDENT).toBe(false)
+    const report = tableWithScheduleFilterToggled(tableAfterVisibilityChange('delayDiagnosticsReport', OPENED_REPORT.view, [BRAVO], false))
+    expect(visibilityOf(report).isScheduleFilterApplied).toBe(true)
+    expect(visibilityOf(TASK_PANEL.view).isScheduleFilterApplied, TV_5_INDEPENDENT).toBe(false)
   })
 })
 
@@ -123,7 +123,7 @@ describe(`FR-134 T-347 DT-8, T-346 RW-10 -- the report table leads with the Visi
   })
 
   it('a report row made Hide reads Hide', () => {
-    const pane = { ...OPENED_REPORT, view: tableAfterVisibilityChange(OPENED_REPORT.view, [BRAVO], false) }
+    const pane = { ...OPENED_REPORT, view: tableAfterVisibilityChange('delayDiagnosticsReport', OPENED_REPORT.view, [BRAVO], false) }
     const rows = reportViewOf(pane).rows
     const of = (uid: number): boolean | undefined => rows.find((one) => one.target.kind === 'task' && one.target.taskUid === uid)?.isShown
     expect(of(BRAVO)).toBe(false)

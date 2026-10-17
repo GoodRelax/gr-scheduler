@@ -107,7 +107,7 @@ describe(`AT-104 -- ${CL_2_RANGE_AT_AT_104}`, () => {
     documentOf({ tasks: [taskOf(TASK)], visuals: [visualOf(TASK, { shapeKind: 'rectangle' })] })
 
   const setWidth = (strokeWidthPx: number | null): EditResult =>
-    editDocument(plain(), { kind: 'setTaskVisualStrokeWidthPx', uid: TASK, strokeWidthPx } as DocumentCommand, LIMITS, 'row')
+    editDocument(plain(), { kind: 'setTaskVisualStrokeWidthPx', taskUid: TASK, strokeWidthPx } as DocumentCommand, LIMITS, 'row')
 
   const storedWidth = (result: EditResult): unknown =>
     result.ok ? result.document.schedule.taskVisuals.find((one) => one.taskUid === TASK)?.strokeWidthPx : 'refused'
@@ -342,13 +342,13 @@ const isIv9 = (result: EditResult): boolean => !result.ok && result.refusals.som
 
 describe(`FR-019 -- ${FR_019_NO_LINE}`, () => {
   it('CM-55 places a transparent outline on a filled box', () => {
-    const result = run(boxDocument({ fillColor: 'red' }), { kind: 'setHighlightBoxStrokeColor', id: BOX, strokeColor: TRANSPARENT })
+    const result = run(boxDocument({ fillColor: 'red' }), { kind: 'setHighlightBoxStrokeColor', highlightBoxId: BOX, strokeColor: TRANSPARENT })
     expect(result.ok, JSON.stringify(result)).toBe(true)
     if (result.ok) expect(result.document.schedule.highlightBoxes[0]?.strokeColor).toBe(TRANSPARENT)
   })
 
   it('CM-55 places a transparent outline on a box whose fill is null (the theme color, not transparent)', () => {
-    expect(run(boxDocument({ fillColor: null }), { kind: 'setHighlightBoxStrokeColor', id: BOX, strokeColor: TRANSPARENT }).ok).toBe(true)
+    expect(run(boxDocument({ fillColor: null }), { kind: 'setHighlightBoxStrokeColor', highlightBoxId: BOX, strokeColor: TRANSPARENT }).ok).toBe(true)
   })
 })
 
@@ -356,7 +356,7 @@ describe(`FR-019 / IV-9 -- ${FR_019_NOT_BOTH}`, () => {
   it('CM-55: a transparent outline on a transparent fill is refused by IV-9', () => {
     const result = run(boxDocument({ fillColor: TRANSPARENT }), {
       kind: 'setHighlightBoxStrokeColor',
-      id: BOX,
+      highlightBoxId: BOX,
       strokeColor: TRANSPARENT,
     })
     expect(isIv9(result), JSON.stringify(result)).toBe(true)
@@ -365,19 +365,19 @@ describe(`FR-019 / IV-9 -- ${FR_019_NOT_BOTH}`, () => {
   it('CM-78: a transparent fill under a transparent outline is refused by IV-9', () => {
     const result = run(boxDocument({ strokeColor: TRANSPARENT, fillColor: 'red' }), {
       kind: 'setHighlightBoxFillColor',
-      id: BOX,
+      highlightBoxId: BOX,
       fillColor: TRANSPARENT,
     })
     expect(isIv9(result), JSON.stringify(result)).toBe(true)
   })
 
   it('control: a transparent fill under a colored outline is accepted', () => {
-    expect(run(boxDocument({ strokeColor: 'red' }), { kind: 'setHighlightBoxFillColor', id: BOX, fillColor: TRANSPARENT }).ok).toBe(true)
+    expect(run(boxDocument({ strokeColor: 'red' }), { kind: 'setHighlightBoxFillColor', highlightBoxId: BOX, fillColor: TRANSPARENT }).ok).toBe(true)
   })
 
   it('IV-9 still refuses both transparent on a TaskVisual', () => {
     const document = documentOf({ tasks: [taskOf(TASK)], visuals: [visualOf(TASK, { shapeKind: 'rectangle' })] })
-    const result = run(document, { kind: 'setTaskVisualColors', uid: TASK, fillColor: TRANSPARENT, strokeColor: TRANSPARENT })
+    const result = run(document, { kind: 'setTaskVisualColors', taskUid: TASK, fillColor: TRANSPARENT, strokeColor: TRANSPARENT })
     expect(result.ok).toBe(false)
   })
 })
@@ -388,7 +388,7 @@ describe(`FR-019 -- ${FR_019_PLACED_UNFILLED}`, () => {
     expect(s370).toBe(TRANSPARENT)
     const result = run(documentOf({ tasks: [taskOf(TASK)] }), {
       kind: 'createHighlightBox',
-      id: 'h-new',
+      highlightBoxId: 'h-new',
       range: { start: '2026-04-06', finish: '2026-04-09', topTaskGroupId: 'g1', bottomTaskGroupId: 'g1' },
     })
     expect(result.ok, JSON.stringify(result)).toBe(true)

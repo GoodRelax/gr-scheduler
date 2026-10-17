@@ -99,7 +99,7 @@ const projectOf = (): Project => ({
   defaultStartTime: null,
   defaultFinishTime: null,
   themeHue: 214,
-  parentProgressToleranceDays: 1,
+  parentTaskProgressToleranceDays: 1,
   uidHighWaterMark: 0,
   importSequence: 0,
   outlineBase: 1,

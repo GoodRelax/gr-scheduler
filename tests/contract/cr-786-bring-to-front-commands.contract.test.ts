@@ -47,63 +47,63 @@ describe('CR-786 premise -- T-108 names the two commands and FR-019 says what th
 
 describe(`CM-100 -- ${FR_019_FRONT}`, () => {
   it('CM-100 moves the first comment box to the end; the others keep their relative order', () => {
-    const moved = accepted(run(threeOfEach(), { kind: CM_100, id: idAt(COMMENT_IDS, FIRST) }))
+    const moved = accepted(run(threeOfEach(), { kind: CM_100, commentBoxId: idAt(COMMENT_IDS, FIRST) }))
     expect(commentIdsOf(moved)).toEqual([idAt(COMMENT_IDS, MIDDLE), idAt(COMMENT_IDS, LAST), idAt(COMMENT_IDS, FIRST)])
   })
 
   it('CM-100 moves the middle comment box to the end', () => {
-    const moved = accepted(run(threeOfEach(), { kind: CM_100, id: idAt(COMMENT_IDS, MIDDLE) }))
+    const moved = accepted(run(threeOfEach(), { kind: CM_100, commentBoxId: idAt(COMMENT_IDS, MIDDLE) }))
     expect(commentIdsOf(moved)).toEqual([idAt(COMMENT_IDS, FIRST), idAt(COMMENT_IDS, LAST), idAt(COMMENT_IDS, MIDDLE)])
   })
 
   it('CM-100 touches only the comment boxes: the highlight boxes keep their order', () => {
-    const moved = accepted(run(threeOfEach(), { kind: CM_100, id: idAt(COMMENT_IDS, FIRST) }))
+    const moved = accepted(run(threeOfEach(), { kind: CM_100, commentBoxId: idAt(COMMENT_IDS, FIRST) }))
     expect(highlightIdsOf(moved)).toEqual(HIGHLIGHT_IDS)
   })
 
   it('CM-100 rewrites no column of the moved box (FR-019: the order is the array order, the shape does not change)', () => {
     const before = threeOfEach()
-    const moved = accepted(run(before, { kind: CM_100, id: idAt(COMMENT_IDS, FIRST) }))
+    const moved = accepted(run(before, { kind: CM_100, commentBoxId: idAt(COMMENT_IDS, FIRST) }))
     const find = (document: Document) => document.schedule.commentBoxes.find((one) => one.id === idAt(COMMENT_IDS, FIRST))
     expect(find(moved)).toEqual(find(before))
   })
 
   it('CM-100 refuses an id no comment box holds', () => {
-    expect(run(threeOfEach(), { kind: CM_100, id: UNKNOWN_ID }).ok).toBe(false)
+    expect(run(threeOfEach(), { kind: CM_100, commentBoxId: UNKNOWN_ID }).ok).toBe(false)
   })
 
   it('CM-100 refuses a highlight box id (same kind of boxes only)', () => {
-    expect(run(threeOfEach(), { kind: CM_100, id: idAt(HIGHLIGHT_IDS, FIRST) }).ok).toBe(false)
+    expect(run(threeOfEach(), { kind: CM_100, commentBoxId: idAt(HIGHLIGHT_IDS, FIRST) }).ok).toBe(false)
   })
 
   it('CM-100 on the box already last returns the same document object', () => {
     const before = threeOfEach()
-    expect(accepted(run(before, { kind: CM_100, id: idAt(COMMENT_IDS, LAST) }))).toBe(before)
+    expect(accepted(run(before, { kind: CM_100, commentBoxId: idAt(COMMENT_IDS, LAST) }))).toBe(before)
   })
 })
 
 describe(`CM-101 -- ${FR_019_FRONT}`, () => {
   it('CM-101 moves the first highlight box to the end; the others keep their relative order', () => {
-    const moved = accepted(run(threeOfEach(), { kind: CM_101, id: idAt(HIGHLIGHT_IDS, FIRST) }))
+    const moved = accepted(run(threeOfEach(), { kind: CM_101, highlightBoxId: idAt(HIGHLIGHT_IDS, FIRST) }))
     expect(highlightIdsOf(moved)).toEqual([idAt(HIGHLIGHT_IDS, MIDDLE), idAt(HIGHLIGHT_IDS, LAST), idAt(HIGHLIGHT_IDS, FIRST)])
   })
 
   it('CM-101 touches only the highlight boxes: the comment boxes keep their order', () => {
-    const moved = accepted(run(threeOfEach(), { kind: CM_101, id: idAt(HIGHLIGHT_IDS, MIDDLE) }))
+    const moved = accepted(run(threeOfEach(), { kind: CM_101, highlightBoxId: idAt(HIGHLIGHT_IDS, MIDDLE) }))
     expect(commentIdsOf(moved)).toEqual(COMMENT_IDS)
   })
 
   it('CM-101 refuses an id no highlight box holds', () => {
-    expect(run(threeOfEach(), { kind: CM_101, id: UNKNOWN_ID }).ok).toBe(false)
+    expect(run(threeOfEach(), { kind: CM_101, highlightBoxId: UNKNOWN_ID }).ok).toBe(false)
   })
 
   it('CM-101 refuses a comment box id (same kind of boxes only)', () => {
-    expect(run(threeOfEach(), { kind: CM_101, id: idAt(COMMENT_IDS, FIRST) }).ok).toBe(false)
+    expect(run(threeOfEach(), { kind: CM_101, highlightBoxId: idAt(COMMENT_IDS, FIRST) }).ok).toBe(false)
   })
 
   it('CM-101 on the box already last returns the same document object', () => {
     const before = threeOfEach()
-    expect(accepted(run(before, { kind: CM_101, id: idAt(HIGHLIGHT_IDS, LAST) }))).toBe(before)
+    expect(accepted(run(before, { kind: CM_101, highlightBoxId: idAt(HIGHLIGHT_IDS, LAST) }))).toBe(before)
   })
 })
 
@@ -116,7 +116,7 @@ describe(`FR-019 / FR-031 -- one command, so one undo brings the order back`, ()
   it.each(cases)('%s writes one undo step and one undo restores the order', (kind, id, idsOf) => {
     const start = threeOfEach()
     const held = bench(start)
-    const outcome = held.write([{ kind, id } as unknown as DocumentCommand])
+    const outcome = held.write([{ kind, [kind === CM_100 ? 'commentBoxId' : 'highlightBoxId']: id } as unknown as DocumentCommand])
     expect(outcome.ok, JSON.stringify(outcome)).toBe(true)
     expect(held.depth()).toBe(1)
     expect(idsOf(held.document())).not.toEqual(idsOf(start))
@@ -128,7 +128,7 @@ describe(`FR-019 / FR-031 -- one command, so one undo brings the order back`, ()
     [CM_101, idAt(HIGHLIGHT_IDS, LAST)],
   ])(`%s on the box already last leaves no undo step -- ${FR_031_NO_STEP}`, (kind, id) => {
     const held = bench(threeOfEach())
-    held.write([{ kind, id } as unknown as DocumentCommand])
+    held.write([{ kind, [kind === CM_100 ? 'commentBoxId' : 'highlightBoxId']: id } as unknown as DocumentCommand])
     expect(held.depth()).toBe(0)
   })
 })

@@ -168,7 +168,7 @@ const timeAxisBench = (): ShellBench =>
     shell(
       taskGroupDocument(
         Array.from({ length: TASK_GROUP_COUNT }, (_unused, index) => ({ id: `task-group-${index + 1}`, parentId: null })),
-        { scrollDayOffset: POINTER_SHARE },
+        { scrollDateFraction: POINTER_SHARE },
       ),
     ),
   )

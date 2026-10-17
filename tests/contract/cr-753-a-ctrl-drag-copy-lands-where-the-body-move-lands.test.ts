@@ -150,7 +150,7 @@ interface Scene {
   readonly isTimeOfDayVisible: boolean
   readonly zoomX: number
   readonly scrollDate: string
-  readonly scrollDayOffset: number
+  readonly scrollDateFraction: number
 }
 
 function fixtureDocument(scene: Scene): Document {
@@ -217,9 +217,9 @@ function fixtureDocument(scene: Scene): Document {
       isProgressMarkerVisible: false,
       zoomX: scene.zoomX,
       scrollDate: scene.scrollDate,
-      scrollDayOffset: scene.scrollDayOffset,
+      scrollDateFraction: scene.scrollDateFraction,
       scrollTaskGroupId: TASK_GROUP_A,
-      scrollGroupOffset: 0,
+      scrollTaskGroupFraction: 0,
     },
     documentStamp: template['documentStamp'],
     changeLog: [],
@@ -233,7 +233,7 @@ const DAY_SNAP_TIME_SHOWN: Scene = {
   isTimeOfDayVisible: true,
   zoomX: zoomXFor((S_85 + S_577) * 0.6),
   scrollDate: '2026-10-14',
-  scrollDayOffset: 0,
+  scrollDateFraction: 0,
 }
 
 // WHY: SG-1 with the time hidden -- the FR-016 day ceiling is area / (S-229 * S-1 * ratio); a third of it is safe.
@@ -243,7 +243,7 @@ const DAY_SNAP_TIME_HIDDEN: Scene = {
   isTimeOfDayVisible: false,
   zoomX: 1100 / (S_229 * S_1) / 2,
   scrollDate: '2026-10-11',
-  scrollDayOffset: 0,
+  scrollDateFraction: 0,
 }
 
 // WHY: SG-2 -- judged between S-577 and S-578.
@@ -253,7 +253,7 @@ const HOUR_SNAP: Scene = {
   isTimeOfDayVisible: true,
   zoomX: zoomXFor((S_577 + S_578) / 2),
   scrollDate: '2026-10-14',
-  scrollDayOffset: 0.25,
+  scrollDateFraction: 0.25,
 }
 
 // WHY: SG-3 -- judged over S-578, kept under the FR-016 zoomX ceiling S-55 by staying near S-578.

@@ -315,7 +315,7 @@ function documentWith(part: Fixture = {}): Document {
     derivedFromTaskUid: null,
     order,
     treeState: folded.has(id) ? 'collapsed' : 'auto',
-    editGroup: null,
+    editPermission: null,
     color: null,
     minHeightPx: null,
   })

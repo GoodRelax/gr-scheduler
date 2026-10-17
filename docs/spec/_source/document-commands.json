@@ -173,14 +173,16 @@
   },
   {
    "name": "PlanActualPlacement",
-   "discriminant": "row",
+   "discriminant": "state",
    "variants": [
     {
-     "tag": "PA-1",
+     "tag": "notStarted",
+     "row": "PA-1",
      "fields": []
     },
     {
-     "tag": "PA-2",
+     "tag": "inProgress",
+     "row": "PA-2",
      "fields": [
       {
        "name": "actualStart",
@@ -195,7 +197,8 @@
      ]
     },
     {
-     "tag": "PA-3",
+     "tag": "suspendedWithResumeDate",
+     "row": "PA-3",
      "fields": [
       {
        "name": "actualStart",
@@ -215,7 +218,8 @@
      ]
     },
     {
-     "tag": "PA-4",
+     "tag": "suspendedWithoutResumeDate",
+     "row": "PA-4",
      "fields": [
       {
        "name": "actualStart",
@@ -230,7 +234,8 @@
      ]
     },
     {
-     "tag": "PA-5",
+     "tag": "finished",
+     "row": "PA-5",
      "fields": [
       {
        "name": "actualStart",
@@ -416,16 +421,24 @@
    "inline": true,
    "fields": [
     {
-     "name": "hiddenKeys",
+     "name": "hiddenTaskUids",
      "type": "integer",
      "list": true,
      "column": [
       "S-561",
-      "S-565",
-      "S-569"
+      "S-565"
      ],
      "meaning": {
-      "ja": "隠した行の鍵（担当リストは `Resource.uid`、ほかは `Task.uid`）"
+      "ja": "隠したタスクの `Task.uid`（検索の表と遅延診断の表が書き、担当リストでは空の並び）"
+     }
+    },
+    {
+     "name": "hiddenResourceUids",
+     "type": "integer",
+     "list": true,
+     "column": "S-569",
+     "meaning": {
+      "ja": "隠した担当の `Resource.uid`（担当リストだけが書き、ほかの表では空の並び）"
      }
     },
     {
@@ -437,7 +450,7 @@
      }
     },
     {
-     "name": "isApplied",
+     "name": "isScheduleFilterApplied",
      "type": "boolean",
      "column": [
       "S-560",
@@ -591,12 +604,12 @@
    "group": {
     "ja": "`Project`"
    },
-   "name": "setParentProgressToleranceDays",
+   "name": "setParentTaskProgressToleranceDays",
    "union": "ProjectCommand",
    "bundle": false,
    "values": [
     {
-     "name": "parentProgressToleranceDays",
+     "name": "parentTaskProgressToleranceDays",
      "column": "AT-156"
     }
    ],
@@ -737,7 +750,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     }
    ],
@@ -796,7 +809,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -823,7 +836,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -850,7 +863,7 @@
    "bundle": true,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -883,7 +896,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -910,7 +923,7 @@
    "bundle": true,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -940,21 +953,21 @@
    "bundle": true,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
      "name": "grabbed",
      "type": "enum",
      "values": [
-      "GA-5",
-      "GA-6",
-      "GA-17",
-      "GA-21",
-      "GA-22"
+      "barDummyStart",
+      "barDummyFinish",
+      "milestoneDummy",
+      "arrowDummyStart",
+      "arrowDummyFinish"
      ],
      "meaning": {
-      "ja": "掴んだ掴み代（表 T-266 の行）"
+      "ja": "掴んだ掴み代（表 T-266 の行の語：`barDummyStart` は `GA-5`・`barDummyFinish` は `GA-6`・`milestoneDummy` は `GA-17`・`arrowDummyStart` は `GA-21`・`arrowDummyFinish` は `GA-22`）"
      }
     },
     {
@@ -991,7 +1004,7 @@
    "bundle": true,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -1031,7 +1044,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -1058,7 +1071,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -1085,7 +1098,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -1112,7 +1125,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -1139,7 +1152,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -1167,7 +1180,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -1194,7 +1207,7 @@
    "bundle": true,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -1225,7 +1238,7 @@
    "bundle": true,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     }
    ],
@@ -1248,7 +1261,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "taskUid",
      "key": "AT-24"
     },
     {
@@ -1351,7 +1364,7 @@
      }
     },
     {
-     "name": "targetTaskGroupId",
+     "name": "parentId",
      "column": "AT-52",
      "meaning": {
       "ja": "写しの根を載せる親"
@@ -1763,7 +1776,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "uid",
+     "name": "resourceUid",
      "key": "AT-85"
     },
     {
@@ -1785,12 +1798,12 @@
    "group": {
     "ja": "`Resource`"
    },
-   "name": "deleteResource",
+   "name": "deleteResources",
    "union": "ResourceCommand",
    "bundle": false,
    "values": [
     {
-     "name": "uids",
+     "name": "resourceUids",
      "key": "AT-85",
      "list": true,
      "meaning": {
@@ -1893,7 +1906,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "column": "AT-110"
     },
     {
@@ -1923,7 +1936,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "key": "AT-110"
     }
    ],
@@ -1946,7 +1959,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "key": "AT-110"
     },
     {
@@ -1973,7 +1986,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "key": "AT-110"
     },
     {
@@ -2001,7 +2014,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "key": "AT-110"
     },
     {
@@ -2031,7 +2044,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "key": "AT-110"
     },
     {
@@ -2070,7 +2083,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "key": "AT-110"
     },
     {
@@ -2097,7 +2110,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "key": "AT-110"
     },
     {
@@ -2124,7 +2137,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "key": "AT-110"
     },
     {
@@ -2151,7 +2164,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "key": "AT-110"
     },
     {
@@ -2178,7 +2191,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "key": "AT-110"
     },
     {
@@ -2205,7 +2218,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "commentBoxId",
      "key": "AT-110"
     }
    ],
@@ -2228,7 +2241,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "highlightBoxId",
      "column": "AT-116"
     },
     {
@@ -2258,7 +2271,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "highlightBoxId",
      "key": "AT-116"
     }
    ],
@@ -2281,7 +2294,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "highlightBoxId",
      "key": "AT-116"
     },
     {
@@ -2311,7 +2324,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "highlightBoxId",
      "key": "AT-116"
     },
     {
@@ -2338,7 +2351,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "highlightBoxId",
      "key": "AT-116"
     },
     {
@@ -2365,7 +2378,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "highlightBoxId",
      "key": "AT-116"
     },
     {
@@ -2392,7 +2405,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "highlightBoxId",
      "key": "AT-116"
     },
     {
@@ -2419,7 +2432,7 @@
    "bundle": false,
    "values": [
     {
-     "name": "id",
+     "name": "highlightBoxId",
      "key": "AT-116"
     }
    ],
@@ -2460,12 +2473,12 @@
    "group": {
     "ja": "見せ方の群"
    },
-   "name": "setElementVisible",
+   "name": "setVisibilitySetting",
    "union": "DocumentSettingsCommand",
    "bundle": false,
    "values": [
     {
-     "name": "element",
+     "name": "setting",
      "type": "enum",
      "valuesOf": [
       "S-69",
@@ -2485,10 +2498,10 @@
      }
     },
     {
-     "name": "visible",
+     "name": "isVisible",
      "type": "boolean",
      "meaning": {
-      "ja": "`element` が名指す行に書く値"
+      "ja": "`setting` が名指す行に書く値"
      }
     }
    ],
@@ -2506,12 +2519,12 @@
    "group": {
     "ja": "見せ方の群"
    },
-   "name": "setFontScale",
+   "name": "setFontSizeStep",
    "union": "DocumentSettingsCommand",
    "bundle": true,
    "values": [
     {
-     "name": "fontScale",
+     "name": "fontSizeStep",
      "column": "S-70"
     }
    ],
@@ -2592,11 +2605,11 @@
      "column": "S-78"
     },
     {
-     "name": "scrollDayOffset",
+     "name": "scrollDateFraction",
      "column": "S-177"
     },
     {
-     "name": "scrollGroupOffset",
+     "name": "scrollTaskGroupFraction",
      "column": "S-176"
     }
    ],
@@ -2710,11 +2723,11 @@
      "column": "S-78"
     },
     {
-     "name": "scrollDayOffset",
+     "name": "scrollDateFraction",
      "column": "S-177"
     },
     {
-     "name": "scrollGroupOffset",
+     "name": "scrollTaskGroupFraction",
      "column": "S-176"
     }
    ],
@@ -3050,7 +3063,7 @@
    "group": {
     "ja": "`TaskGroup`"
    },
-   "name": "setTaskGroupEditGroup",
+   "name": "setTaskGroupEditPermission",
    "union": "UnimplementedDocumentCommand",
    "bundle": false,
    "agent": false,
@@ -3060,7 +3073,7 @@
      "key": "AT-51"
     },
     {
-     "name": "editGroup",
+     "name": "editPermission",
      "column": "AT-144"
     }
    ],

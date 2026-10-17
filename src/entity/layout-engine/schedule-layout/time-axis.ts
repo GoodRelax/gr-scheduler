@@ -74,7 +74,7 @@ export function timeAxisOf(storedSettings: DocumentSettings, regions: ScreenRegi
   const settings = drawnSettingsOf(storedSettings)
   const pxPerDay = settings.pxPerDayAt1x * settings.zoomX
   const originDay = dayOf(settings.scrollDate)
-  const dayOffset = Number.isFinite(settings.scrollDayOffset) ? settings.scrollDayOffset : 0
+  const dayOffset = Number.isFinite(settings.scrollDateFraction) ? settings.scrollDateFraction : 0
   const originX = regions.taskGroupArea.x - (originDay === null ? 0 : dayOffset * pxPerDay)
   return { pxPerDay, originDay, originX }
 }

@@ -178,7 +178,7 @@ function bench(limits: HistoryLimits = REAL_LIMITS): Bench {
 // WHY: no counter here -- each caller names its own value at the call site;
 // WHY: a shared counter masked a same-value repeat as new in this file's sibling.
 const nameTask = (name: string): DocumentCommand =>
-  ({ kind: CM_9, uid: FIRST_TASK_UID, name }) as unknown as DocumentCommand
+  ({ kind: CM_9, taskUid: FIRST_TASK_UID, name }) as unknown as DocumentCommand
 
 // see FR-052
 const setTaskGroupPanelWidthPx = (taskGroupTitle: number): DocumentCommand =>

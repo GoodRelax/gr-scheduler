@@ -44,7 +44,7 @@ export interface DocumentHolder {
 
 export interface ChangeAudience {
   /** @purity non-pure */
-  deliver(document: Document, hasMovedSchedule: boolean): void
+  deliver(document: Document, hasUpdatedSchedule: boolean): void
 }
 
 export type ApplyOutcome =
@@ -52,7 +52,7 @@ export type ApplyOutcome =
   | {
       readonly ok: true
       readonly document: Document
-      readonly hasMovedSchedule: boolean
+      readonly hasUpdatedSchedule: boolean
       readonly report: EditReport
     }
 
@@ -61,7 +61,7 @@ export type ReplaceOutcome =
   | {
       readonly ok: true
       readonly document: Document
-      readonly hasMovedSchedule: boolean
+      readonly hasUpdatedSchedule: boolean
     }
 
 // see WS-6, WS-7, T-286
@@ -70,12 +70,12 @@ export type ReplaceOutcome =
 /** @purity non-pure */
 function replaceThenTell(
   next: HeldDocument,
-  hasMovedSchedule: boolean,
+  hasUpdatedSchedule: boolean,
   holder: DocumentHolder,
   audience: ChangeAudience,
 ): void {
   holder.replace(next)
-  audience.deliver(next.document, hasMovedSchedule)
+  audience.deliver(next.document, hasUpdatedSchedule)
 }
 
 // see CP-8, T-067
@@ -95,14 +95,14 @@ export function applyDocumentChange(
 
   replaceThenTell(
     { document: plan.document, history: plan.history },
-    plan.hasMovedSchedule,
+    plan.hasUpdatedSchedule,
     holder,
     audience,
   )
   return {
     ok: true,
     document: plan.document,
-    hasMovedSchedule: plan.hasMovedSchedule,
+    hasUpdatedSchedule: plan.hasUpdatedSchedule,
     report: plan.report,
   }
 }
@@ -121,6 +121,6 @@ export function replaceDocument(
   })
   if (!plan.ok) return { ok: false, refusal: plan.refusal }
 
-  replaceThenTell(plan.next, plan.hasMovedSchedule, holder, audience)
-  return { ok: true, document: plan.next.document, hasMovedSchedule: plan.hasMovedSchedule }
+  replaceThenTell(plan.next, plan.hasUpdatedSchedule, holder, audience)
+  return { ok: true, document: plan.next.document, hasUpdatedSchedule: plan.hasUpdatedSchedule }
 }

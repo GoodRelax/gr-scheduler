@@ -210,7 +210,7 @@ const LINE_TABLE: TableColumns<ResourceLine> = {
 // see RQ-1, TV-2, TV-13, S-569, S-570
 /** @purity pure */
 function lineColumnsOf(view: TableView): TableColumns<ResourceLine> {
-  return withVisibilityColumn(LINE_TABLE, VISIBILITY_COLUMN, (line) => isRowShown(view.visibility, line.key))
+  return withVisibilityColumn(LINE_TABLE, VISIBILITY_COLUMN, (line) => isRowShown('resourceList', view.visibility, line.key))
 }
 
 // see RO-3, SV-4
@@ -262,7 +262,7 @@ function lineTableOf(view: TableView, listed: () => readonly ResourceLine[], lan
 // WHY: the table rows every task (a resource's or the (Unassigned) row's), so only a Hide row changes the schedule.
 /** @purity pure */
 function wouldResourceFilterChange(view: TableView, schedule: Schedule): boolean {
-  return isScheduleFilterChanging(view.visibility, () => resourceUidsOf(schedule), true)
+  return isScheduleFilterChanging('resourceList', view.visibility, () => resourceUidsOf(schedule), true)
 }
 
 // see FR-029, FR-099, IC-63, IC-64, IC-65, IC-66, RO-3
@@ -290,7 +290,7 @@ function choiceEntriesOf(listed: readonly ResourceLine[], all: readonly Resource
 /** @purity pure */
 function rowViewOf(view: TableView, line: ResourceLine, language: DisplayLanguage): ResourceListRowView {
   const chosenEntry = line.isChosen === null ? null : entryOf(line.isChosen ? CHOSEN_ENTRY : UNCHOSEN_ENTRY, language)
-  return { key: line.key, cells: line.cells, isShown: isRowShown(view.visibility, line.key), chosenEntry }
+  return { key: line.key, cells: line.cells, isShown: isRowShown('resourceList', view.visibility, line.key), chosenEntry }
 }
 
 // see FR-099, T-370, T-371, RO-2, RO-3, RO-8, S-568
@@ -366,7 +366,7 @@ export function resourceListAfterEntry(
 export function resourceListAfterFilterChange(window: TableWindowState, view: TableView, change: SearchFilterChange): TableView {
   const after =
     change.kind === 'shown'
-      ? tableAfterVisibilityChange(view, change.keys, change.isShown)
+      ? tableAfterVisibilityChange('resourceList', view, change.keys, change.isShown)
       : tableAfterFilterChange(window.panel, view, window.shown, change, lineTableOf(view, () => [], COLUMNS_ONLY_LANGUAGE))
   return after ?? view
 }

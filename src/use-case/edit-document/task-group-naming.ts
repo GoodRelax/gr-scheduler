@@ -63,7 +63,7 @@ export function createTaskGroup(
     derivedFromTaskUid: command.derivedFromTaskUid,
     order: command.order,
     treeState: 'temporarilyExpanded',
-    editGroup: null,
+    editPermission: null,
     color: null,
     minHeightPx: null,
   }
