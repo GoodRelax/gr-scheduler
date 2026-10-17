@@ -21,7 +21,8 @@ async function placeANamedTask(page: Page): Promise<number> {
   await launch(page)
   await enableAgentApi(page)
   await press(page, 'IC-98')
-  await answerConfirmation(page, 'proceed')
+  // WHY: FR-095 asks QN-5 only when edits are unsaved; the start-up document has none, so most runs see no question.
+  if ((await page.locator('[data-role="Confirmation"]').count()) > 0) await answerConfirmation(page, 'proceed')
   await press(page, 'IC-23')
   await drag(page, FROM, TO)
   await page.keyboard.type('Alpha')
