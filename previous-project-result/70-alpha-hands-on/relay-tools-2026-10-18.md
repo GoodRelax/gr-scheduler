@@ -1,7 +1,7 @@
 # GRS Relay の全機能を使った結果（2026-10-18）
 
 - **対象**: Claude Desktop の拡張 GRS Relay（版 `0.0.0+f262abd0363f`。`+` の後は同梱の `dist/index.html` の SHA-256 の頭 12 桁で、`0829239a` の `dist/index.html` と一致）。ページは利用者の Edge で開いた雛形の文書（`sample-large-erp-program.ja.xml`、256 タスク）。
-- **呼んだ者**: α の補助の席（Claude Code、デスクトップ）。呼んだ時刻は 2026-10-18 06:18〜06:20 JST（刻印の `2026-10-17T21:18Z`〜）。
+- **呼んだ者**: α の補助の席（Claude Code、デスクトップ）。呼んだ時刻は 2026-10-18 06:18〜06:20 JST（刻印の `2026-10-17T21:18Z`〜）。書き出し 5 本（`AM-11`〜`AM-15`）は、`DFC-3252` で取次が作り直された後に利用者がページをつなぎ直してから呼んだ —— このときページが開いていたのは英語の雛形（「Product Development Program」、1,000 タスク）で、5 本とも同じ文書を書き出した。
 - ⚠️ **確かめ方の限り**: 命令の形（`setTaskName` の欄）と取り込みの形（`AV-7`）は、リレーの資源 `grs-document.schema.json` でなく **リポジトリの `src` と `docs/spec` から取った**。この席の受け手はリレーの資源を読む道具を持たない。だから本表は「リポジトリを見ない AI がリレーだけで使えるか」の試験になっていない。
 - 判定: ✅ 仕様どおり ／ ❌ 不具合（台帳の行を添える）／ ⏳ 未実施。
 
@@ -20,11 +20,11 @@
 | AM-8 | `importDocument` | 取り込みと合流 | 中身の空の GRS JSON を `text` で渡す → ページに合流の 3 択「ファイルを開く」が出て、答え待ちのまま Claude 側が「Request timed out」。その後リレーが別の口（65289 → 51858）で立ち上がり、ページは切れた | ❌ | `DFC-3252`。⚠️ 3 択は利用者がキャンセルする |
 | AM-9 | `undoEdit` | 履歴を戻す | `notAvailable`「not built yet: AM-9 declares neither a row of table T-230 nor the stamp WS-1 matches」 | ❌ | `DFC-3250`。`7c3b68e4`（2026-09-06）からの空実装 |
 | AM-10 | `redoEdit` | 履歴を進める | `notAvailable`（同じ文） | ❌ | `DFC-3250` |
-| AM-11 | `exportJson` | GRS JSON を値で返す | 未呼出 | ⏳ | ページの再接続の後に呼ぶ |
-| AM-12 | `exportMspdi` | 交換形式を値で返す | 未呼出 | ⏳ | 同上 |
-| AM-13 | `exportSvg` | 書き出す絵 | 未呼出 | ⏳ | 同上 |
-| AM-14 | `exportPng` | 画像 | 未呼出 | ⏳ | 同上 |
-| AM-15 | `exportEmbeddedHtml` | 本体と文書を合わせた `.html` | 未呼出 | ⏳ | 同上 |
+| AM-11 | `exportJson` | GRS JSON を値で返す | `ok: true`、1,020,418 字。頭が `$schema`（公開のスキーマの宛先）、`schemaVersion` は `2026-10-17T15:27:48Z`、タスク 1,000・割当 946 | ✅ | 受け手の上限を超えファイルに逃がされた（`DFC-3253` と同じ大きさの問題）。案内の「`$schema` で始まる」は確かめた |
+| AM-12 | `exportMspdi` | 交換形式を値で返す | `ok: true`、814,852 字の XML（`SaveVersion` 12）、`<Task>` 1,000、`<Name>` と `<Title>` は JSON と同じ | ✅ | 同上 |
+| AM-13 | `exportSvg` | 書き出す絵 | `ok: true`、902,078 字の `<svg>`（幅 1920・高さ 1080） | ✅ | 同上。絵の中身は PNG で目で見た |
+| AM-14 | `exportPng` | 画像 | `ok: true`、1920×1080 の PNG（332,706 B）。受け手が画像として表示した —— 表題「Sample Project - Press N to start a new one」、行「Whole Product」「Mobile Client」… | ✅ | 下の約 140 px は空き |
+| AM-15 | `exportEmbeddedHtml` | 本体と文書を合わせた `.html` | `ok: true`、2,249,421 字。`<!DOCTYPE html>`・`lang="ja"`・CSP の meta あり・表題「GoodRelax Scheduler」 | ✅ | 受け手の上限を超えファイルに逃がされた。開いて動くかは未確かめ |
 | AM-16 | `focusTask` | タスクを展開して見せる | uid 207 → `ok: true`・`isScrolled: true`、日程データの刻が進んだ | ✅ | 開閉の状態は保存され取り消せる（`CR-570`）ので刻が進むのは筋 |
 | AM-27 | `showOnlyTasks` | 検索の表で絞り込む | `[201,207]` → 受理、帯「256 件中 2 件」。`null`（解除）→ `malformedRequest` で拒否、絞り込みが残った | ❌ | `DFC-3251`。受理のときも刻印は進まなかった（`FR-100` は未保存の編集と言う。未確かめ） |
 | AM-17 | `watchChanges` | 自分以外の変更と発話を待つ | `waitMs: 3000` → `{"notices":[]}` | ✅ | 人が何もしていない間の「まだ無い」 |
@@ -32,5 +32,5 @@
 
 ## 数（測り直せる）
 
-- 道具: 22（拡張の `manifest.json` の `tools`）。呼んだ 17、未呼出 5（書き出し）。
-- 判定: ✅ 12・❌ 5（`DFC-3250` が 2 行、`DFC-3251`・`DFC-3252`・`DFC-3253`）・⏳ 5。
+- 道具: 22（拡張の `manifest.json` の `tools`）。22 とも呼んだ。
+- 判定: ✅ 17・❌ 5（`DFC-3250` が 2 行、`DFC-3251`・`DFC-3252`・`DFC-3253`）・⏳ 0。
