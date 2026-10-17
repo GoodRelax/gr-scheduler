@@ -147,7 +147,7 @@ export function commandFromGrab(
   const grab = grabTaskGroupOf(hit)
   switch (grab) {
     case 'GA-18':
-      if (hasDraggedPastThreshold(press, release)) return markerPullWrite(context, release, uid)
+      if (hasDraggedPastThreshold(press, release)) return markerPullWrite(context, press, release, uid)
       return CONSUMED_ELSEWHERE
     case 'GA-7':
     case 'GA-8':
@@ -328,18 +328,17 @@ function farEndZoomWrites(
   ]
 }
 
-// see PE-8, PE-10
+// see PE-8, PE-10, DFC-2980
+// WHY: read from the picture drawn at the press: the held picture already draws the pull, the document does not.
 /** @purity pure */
-function markerPullRow(context: InputContext, uid: number): 'PE-8' | 'PE-10' {
-  const drawn = context.geometry.tasks.find((one) => one.taskUid === uid)
+function markerPullRow(context: InputContext, press: PointerPress, uid: number): 'PE-8' | 'PE-10' {
+  const drawn = (press.geometryAtPress ?? context.geometry).tasks.find((one) => one.taskUid === uid)
   const task = taskByUid(context.document.schedule, uid)
   if (drawn === undefined || task === null) return 'PE-10'
   if (drawn.shapeKind !== 'rectangle' && drawn.shapeKind !== 'chevron') return 'PE-10'
   const marker = drawn.marker
   if (marker === null) return 'PE-10'
   const state = planActualState(task)
-  // TRAP: the geometry is the held picture, the document is not; while a dummy's pull is shown the
-  // dummy is gone and the actual it will put stands, so read the dummy only when no actual is drawn.
   if (state === 'notStarted' && drawn.actual === null) {
     const inks = drawn.dummies.map((one) => one.ink.x + one.ink.width)
     return inks.length > 0 && marker.center.x >= Math.max(...inks) ? 'PE-8' : 'PE-10'
@@ -420,10 +419,11 @@ function isLeftOfPlanStart(context: InputContext, task: Task, released: string):
 /** @purity pure */
 function markerPullWrite(
   context: InputContext,
+  press: PointerPress,
   release: PointerInput,
   uid: number,
 ): TranslatedInput {
-  if (markerPullRow(context, uid) === 'PE-10') return CONSUMED_ELSEWHERE
+  if (markerPullRow(context, press, uid) === 'PE-10') return CONSUMED_ELSEWHERE
   const task = taskByUid(context.document.schedule, uid)
   if (task !== null && planActualState(task) !== 'notStarted') {
     return actualEndWrite(context, release, uid, 'GA-4')

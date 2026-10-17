@@ -173,6 +173,8 @@ export interface PointerPress {
   readonly horizontalWholeAtPress?: HorizontalWhole
   // TRAP: the vertical twin, for the same reason: the last task group scrolled to the top runs past the content.
   readonly verticalWholeAtPress?: VerticalWhole
+  // TRAP: the picture DRAWN when the press began; the context's geometry follows the held picture (PE-8, DFC-2980).
+  readonly geometryAtPress?: ScheduleGeometry
 }
 
 export interface InputContext {
