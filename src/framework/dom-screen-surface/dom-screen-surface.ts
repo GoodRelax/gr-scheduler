@@ -1650,6 +1650,8 @@ export const NOT_STORED_HELP_SIZES: {
   readonly 'S-453': number
   readonly 'S-454': number
   readonly 'S-459': string
+  readonly 'S-621': number
+  readonly 'S-622': number
 } = {
   'S-201': 0.95,
   'S-202': 4,
@@ -1669,6 +1671,8 @@ export const NOT_STORED_HELP_SIZES: {
   'S-453': 24,
   'S-454': 14,
   'S-459': 'https://github.com/GoodRelax/gr-scheduler',
+  'S-621': 40,
+  'S-622': 10,
 }
 
 // see T-206

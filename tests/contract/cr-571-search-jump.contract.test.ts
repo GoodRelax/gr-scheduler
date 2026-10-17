@@ -100,7 +100,7 @@ const commentBox = (id: string, anchorTaskGroupId: string, anchorDate: string | 
 })
 
 // WHY: the view starts somewhere else (R2, both fractions off zero) so a write to it shows.
-const START_SCROLL = { scrollDate: '2026-03-02', scrollTaskGroupId: R2, scrollDayOffset: 0.25, scrollGroupOffset: 0.5 }
+const START_SCROLL = { scrollDate: '2026-03-02', scrollTaskGroupId: R2, scrollDateFraction: 0.25, scrollTaskGroupFraction: 0.5 }
 
 interface Arranged {
   readonly treeStates?: Readonly<Record<string, string>>
@@ -220,7 +220,7 @@ describe(`T-332 SJ-6 -- ${SJ_6_NO_ZOOM}`, () => {
     const reached = scrollOf(searchJumpWrites(documentOf(), TO_TASK, true, { ...WIDE, leftReachPx: 25 })) as Loose
     const daysBack =
       (Date.parse(String(atDate['scrollDate'])) - Date.parse(String(reached['scrollDate']))) / 86_400_000
-      + Number(atDate['scrollDayOffset']) - Number(reached['scrollDayOffset'])
+      + Number(atDate['scrollDateFraction']) - Number(reached['scrollDateFraction'])
     expect(daysBack).toBeCloseTo(2.5, 9)
   })
 
@@ -229,7 +229,7 @@ describe(`T-332 SJ-6 -- ${SJ_6_NO_ZOOM}`, () => {
     expect(scrollOf(plan)).toMatchObject({
       kind: 'setScrollPosition',
       scrollDate: START_SCROLL.scrollDate,
-      scrollDayOffset: START_SCROLL.scrollDayOffset,
+      scrollDateFraction: START_SCROLL.scrollDateFraction,
     })
   })
 
@@ -253,7 +253,7 @@ describe(`T-332 SJ-7 -- ${SJ_7_PINNED}`, () => {
     expect(scrollOf(plan)).toMatchObject({
       kind: 'setScrollPosition',
       scrollTaskGroupId: START_SCROLL.scrollTaskGroupId,
-      scrollGroupOffset: START_SCROLL.scrollGroupOffset,
+      scrollTaskGroupFraction: START_SCROLL.scrollTaskGroupFraction,
     })
   })
 

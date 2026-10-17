@@ -48,7 +48,7 @@ CLUSTERS = [
      '算入の可否は、表示の切り替えで位置が動くかで決めている'),
     ('設定値の相互依存',
      ['T-201', 'T-203', 'T-205', 'T-215'],
-     'fontScale -> rulerFontSizePx -> rulerHeightPx -> 目盛の段階 の鎖'),
+     'fontSizeStep -> rulerFontSizePx -> rulerHeightPx -> 目盛の段階 の鎖'),
     ('命名と置き場の規約',
      ['T-101', 'T-102', 'T-103', 'T-104', 'T-105'],
      '名前の正は辞書、値の正は設定値表、規則と理由の正は要求'),

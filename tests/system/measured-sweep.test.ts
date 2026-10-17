@@ -977,7 +977,7 @@ async function readNotices(page: Page): Promise<string[]> {
  * The host's own ground text size, which is what the three coefficients are
  * multiplied by.
  *
- * ⛔ NOT `fontScaleSizes` OF TABLE T-215. `S-197`, `S-203`, `S-204` and `S-210`
+ * ⛔ NOT `fontSizeStepSizes` OF TABLE T-215. `S-197`, `S-203`, `S-204` and `S-210`
  * all say in as many words that the multiplicand is the host's ground text and
  * not the drawing's own scale -- the frame around the schedule is not the
  * schedule. Read off the root element rather than `body`, so that a rule the

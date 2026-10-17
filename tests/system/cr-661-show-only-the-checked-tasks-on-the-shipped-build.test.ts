@@ -149,7 +149,7 @@ function fixture(foldOfP: FoldOfP): string {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDayOffset: 0, scrollTaskGroupId: TASK_GROUP_P, scrollGroupOffset: 0 },
+    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDateFraction: 0, scrollTaskGroupId: TASK_GROUP_P, scrollTaskGroupFraction: 0 },
     documentStamp: TEMPLATE.documentStamp,
     changeLog: [],
   }
@@ -160,21 +160,21 @@ function fixture(foldOfP: FoldOfP): string {
 
 interface Shown {
   readonly drawnTaskUids: readonly number[] | null
-  readonly tables: readonly string[]
+  readonly filteringTables: readonly string[]
 }
 
 // see AM-26
 /** @purity semi-pure-b */
 async function readShown(page: Page): Promise<Shown> {
   const shown = await page.evaluate(() => {
-    const api = (window as unknown as { grSchedulerAgentApi: { readShownTasks(): { drawnTaskUids: number[] | null; tables: string[] } } }).grSchedulerAgentApi
+    const api = (window as unknown as { grSchedulerAgentApi: { readShownTasks(): { drawnTaskUids: number[] | null; filteringTables: string[] } } }).grSchedulerAgentApi
     return api.readShownTasks()
   })
-  return { drawnTaskUids: shown.drawnTaskUids === null ? null : [...shown.drawnTaskUids].sort((a, b) => a - b), tables: [...shown.tables] }
+  return { drawnTaskUids: shown.drawnTaskUids === null ? null : [...shown.drawnTaskUids].sort((a, b) => a - b), filteringTables: [...shown.filteringTables] }
 }
 
-const NARROWED = { drawnTaskUids: [ALPHA, CHARLIE], tables: ['searchPanel'] }
-const NOT_NARROWED = { drawnTaskUids: null, tables: [] }
+const NARROWED = { drawnTaskUids: [ALPHA, CHARLIE], filteringTables: ['searchPanel'] }
+const NOT_NARROWED = { drawnTaskUids: null, filteringTables: [] }
 
 // WHY: every task figure is keyed task-<uid>-... (the drawing's own keys), so the drawn tasks are read off the keys.
 /** @purity semi-pure-b */
@@ -353,7 +353,7 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
       const { page } = stage
       await enter(page)
       await press(page, `${PANEL} [data-search-task="${BRAVO}"]`)
-      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, BRAVO, CHARLIE], tables: ['searchPanel'] })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, BRAVO, CHARLIE], filteringTables: ['searchPanel'] })
       expect(await drawnTaskUids(page)).toContain(BRAVO)
     } finally {
       await stage.close()
@@ -368,7 +368,7 @@ test.describe('FR-151 / T-353 on the shipped build', () => {
       const dot = `circle[data-figure="dep-${ALPHA}-${DELTA}"]`
       expect(await boxOf(page, dot), 'the link to the Hide Delta ends in the continuation mark (EL-20)').not.toBeNull()
       await press(page, dot)
-      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, CHARLIE, DELTA], tables: ['searchPanel'] })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, CHARLIE, DELTA], filteringTables: ['searchPanel'] })
       expect(await drawnTaskUids(page)).toContain(DELTA)
     } finally {
       await stage.close()

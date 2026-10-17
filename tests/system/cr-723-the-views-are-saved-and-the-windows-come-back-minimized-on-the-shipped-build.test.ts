@@ -39,7 +39,7 @@ type Api = {
   readDocument(): { documentSettings: { tableViews: Record<string, Record<string, unknown>> } }
   readStamp(): unknown
   applyCommands(request: unknown): { ok: boolean }
-  readShownTasks(): { drawnTaskUids: number[] | null; tables: string[] }
+  readShownTasks(): { drawnTaskUids: number[] | null; filteringTables: string[] }
   showOnlyTasks(taskUids: readonly number[] | null): unknown
 }
 
@@ -49,9 +49,9 @@ async function viewsOf(page: Page): Promise<Record<string, Record<string, unknow
 }
 
 /** @purity semi-pure-b */
-async function shownOf(page: Page): Promise<{ drawn: number[] | null; tables: string[] }> {
+async function shownOf(page: Page): Promise<{ drawn: number[] | null; filteringTables: string[] }> {
   const shown = await page.evaluate(() => (window as unknown as { grSchedulerAgentApi: Api }).grSchedulerAgentApi.readShownTasks())
-  return { drawn: shown.drawnTaskUids === null ? null : [...shown.drawnTaskUids].sort((a, b) => a - b), tables: [...shown.tables].sort() }
+  return { drawn: shown.drawnTaskUids === null ? null : [...shown.drawnTaskUids].sort((a, b) => a - b), filteringTables: [...shown.filteringTables].sort() }
 }
 
 /** @purity non-pure */
@@ -192,7 +192,7 @@ test.describe('CR-723 on the shipped build', () => {
       await hideListedIn(page, RESOURCE_LIST, 'Tanaka')
       const current = (await viewsOf(page))['searchPanel'] ?? {}
       expect(current['hiddenTaskUids'], 'premise: the two Sato tasks are Hide').toEqual([ALPHA, CHARLIE])
-      expect(await applyView(page, 'searchPanel', { visibility: { hiddenKeys: [ALPHA, CHARLIE], isUnassignedHidden: false, isApplied: false }, columnFilters: [STATUS_FILTER], sort: BY_RESOURCE })).toBe(true)
+      expect(await applyView(page, 'searchPanel', { visibility: { hiddenTaskUids: [ALPHA, CHARLIE], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false }, columnFilters: [STATUS_FILTER], sort: BY_RESOURCE })).toBe(true)
       await settle(page)
       // STEP: RO-6 -- the Resource List opened later stands in front of the Search Panel; drag it aside to reach the search IC-143
       await dragAside(page, RESOURCE_LIST)
@@ -225,7 +225,7 @@ test.describe('CR-723 on the shipped build', () => {
       expect(await paintsRed(page, `[data-icon="${OPEN_RESOURCE_LIST}"]`), 'TV-12: IC-62').toBe(true)
       expect(await paintsRed(page, `[data-icon="${DIAGNOSE}"]`), 'TV-12 (MUST NOT): IC-107 stays plain').toBe(false)
       expect(await page.locator(BAND).count(), 'TV-11: the bar is shown').toBe(1)
-      expect(await shownOf(page)).toEqual({ drawn: [ECHO], tables: ['resourceList', 'searchPanel'] })
+      expect(await shownOf(page)).toEqual({ drawn: [ECHO], filteringTables: ['resourceList', 'searchPanel'] })
       expect(await wouldWarn(page), 'OP-18: opening is not an unsaved edit').toBe(false)
       await press(page, `${SEARCH} [data-icon="${MINIMIZE}"]`)
       expect(await page.inputValue(`${SEARCH} input`), 'FR-151: the word is not part of the document').toBe('')
@@ -257,12 +257,12 @@ test.describe('CR-723 on the shipped build', () => {
       await openSearch(page)
       await hideListedIn(page, SEARCH, 'Sato')
       await press(page, `${SEARCH} [data-icon="${EYE}"]`)
-      expect((await shownOf(page)).tables).toEqual(['searchPanel'])
+      expect((await shownOf(page)).filteringTables).toEqual(['searchPanel'])
       await press(page, `${SEARCH} [data-icon="${CLOSE}"]`)
-      expect((await shownOf(page)).tables, 'closing releases the eye').toEqual([])
+      expect((await shownOf(page)).filteringTables, 'closing releases the eye').toEqual([])
       expect((await viewsOf(page))['searchPanel']?.['hiddenTaskUids'], 'TV-8: the Visibility stays').toEqual([ALPHA, CHARLIE])
       expect(await pressEntrance(page, UNDO)).toBe(true)
-      expect((await shownOf(page)).tables, 'undo turns the eye on again').toEqual(['searchPanel'])
+      expect((await shownOf(page)).filteringTables, 'undo turns the eye on again').toEqual(['searchPanel'])
       expect(await isMinimized(page, SEARCH), 'WB-2: the window comes back minimized').toBe(true)
     } finally {
       await stage.close()
@@ -308,7 +308,7 @@ test.describe('CR-723 on the shipped build', () => {
       expect(await isMinimized(page, REPORT), 'the report window comes up minimized').toBe(true)
       expect(await paintsRed(page, `${REPORT} [data-icon="${EYE}"]`), 'TV-12: the report eye').toBe(true)
       expect(await paintsRed(page, `[data-icon="${DIAGNOSE}"]`), 'TV-12: IC-107').toBe(true)
-      expect((await shownOf(page)).tables).toEqual(['delayDiagnosticsReport'])
+      expect((await shownOf(page)).filteringTables).toEqual(['delayDiagnosticsReport'])
       expect(await wouldWarn(page), 'opening is not an unsaved edit').toBe(false)
       await press(page, `${REPORT} [data-icon="${MINIMIZE}"]`)
       expect(await page.locator(`${REPORT} tbody tr`).count(), 'the diagnosis ran, so the report lists tasks').toBeGreaterThan(0)
@@ -333,7 +333,7 @@ test.describe('CR-723 on the shipped build', () => {
     const stage = await opened(text)
     try {
       const { page } = stage
-      expect((await shownOf(page)).tables, 'the report eye is not on').toEqual([])
+      expect((await shownOf(page)).filteringTables, 'the report eye is not on').toEqual([])
       expect(await paintsRed(page, `[data-icon="${DIAGNOSE}"]`)).toBe(false)
       expect(await wouldWarn(page), 'releasing it on opening is not an edit').toBe(false)
     } finally {

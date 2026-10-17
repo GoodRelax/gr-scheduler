@@ -64,7 +64,7 @@ function family(roots: number): TaskGroupSeed[] {
   return rows
 }
 
-const VIEWLESS = { scrollDate: null, scrollTaskGroupId: null, scrollGroupOffset: 0, scrollDayOffset: 0, zoomX: 1, zoomY: 1 }
+const VIEWLESS = { scrollDate: null, scrollTaskGroupId: null, scrollTaskGroupFraction: 0, scrollDateFraction: 0, zoomX: 1, zoomY: 1 }
 
 const settingsOf = (built: ShellBench): Record<string, any> => built.loop.document().documentSettings as unknown as Record<string, any>
 
@@ -168,7 +168,7 @@ describe('DFC-2410 -- MK-1: a plain wheel on a document with no view position sc
     const ids = pictureOf(built).drawn
     wheel(built, {}, SCROLL_DOWN)
     const settings = settingsOf(built)
-    const position = ids.indexOf(String(settings['scrollTaskGroupId'])) + Number(settings['scrollGroupOffset'])
+    const position = ids.indexOf(String(settings['scrollTaskGroupId'])) + Number(settings['scrollTaskGroupFraction'])
     expect(position, 'the view moved down the list').toBeGreaterThan(0)
   })
 
@@ -212,7 +212,7 @@ describe('DFC-2410 -- MK-5: a sideways wheel on a document with no view position
     const first = pictureOf(built).drawn[0]
     wheel(built, { ctrl: true, shift: true }, SCROLL_SIDEWAYS)
     expect(settingsOf(built)['scrollTaskGroupId']).toBe(first)
-    expect(Number(settingsOf(built)['scrollGroupOffset'])).toBe(0)
+    expect(Number(settingsOf(built)['scrollTaskGroupFraction'])).toBe(0)
   })
 
   it('the picture is the same after several more notches', () => {

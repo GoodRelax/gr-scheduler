@@ -138,9 +138,9 @@ export { acceptedEdit as edited, refusedEdit as refused }
 // WHY: rows of table T-108 nothing implements yet; editDocument refuses them as no aggregate owns them.
 export type UnimplementedDocumentCommand =
   | {
-      readonly kind: 'setTaskGroupEditGroup'
+      readonly kind: 'setTaskGroupEditPermission'
       readonly taskGroupId: TaskGroup['id']
-      readonly editGroup: TaskGroup['editGroup']
+      readonly editPermission: TaskGroup['editPermission']
     }
 
 // see T-108
@@ -219,7 +219,7 @@ const COMMAND_KINDS_BY_UNION = {
   ResourceCommand: [
     'createResource',
     'setResourceName',
-    'deleteResource',
+    'deleteResources',
     'deleteUnreferencedResources',
     'createAssignment',
     'deleteAssignment',
@@ -231,15 +231,15 @@ const COMMAND_KINDS_BY_UNION = {
     'setStatusDate',
     'clearStatusDate',
     'setThemeHue',
-    'setParentProgressToleranceDays',
+    'setParentTaskProgressToleranceDays',
     'setScheduleDataTimeZone',
     'shiftScheduleTimes',
   ],
   WholeScheduleShiftCommand: ['shiftScheduleToStartDate'],
   DocumentSettingsCommand: [
     'setStackDirection',
-    'setElementVisible',
-    'setFontScale',
+    'setVisibilitySetting',
+    'setFontSizeStep',
     'setThemeMonochrome',
     'setZoom',
     'setScrollPosition',

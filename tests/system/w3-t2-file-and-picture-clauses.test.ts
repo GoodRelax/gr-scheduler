@@ -135,7 +135,7 @@ test(`FR-135: ${ONLY_A_PERSON_WRITES_THE_PARENT}`, async ({ page }) => {
   if ((await page.locator('[data-icon="IC-141"]').count()) > 0) await press(page, 'IC-141')
   // STEP: an unrelated edit and a save write the document again
   const other = (await readDocument(page)).schedule.tasks.find((one) => !cleared.includes(one['uid']))?.['uid']
-  await callApi(page, 'return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: "setTaskName", uid: arg, name: "Renamed" }] })', other)
+  await callApi(page, 'return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: "setTaskName", taskUid: arg, name: "Renamed" }] })', other)
   await settle(page)
   expect(await parentsOf()).toEqual(cleared.map(() => null))
   const written = await callApi<{ ok: boolean; value: string }>(page, 'return api.exportJson()')
@@ -148,7 +148,7 @@ test(`FX-2: ${SPAN_DOES_NOT_MOVE_THE_SCREEN}`, async ({ page }) => {
   await enableAgentApi(page)
   const screen = async (): Promise<{ view: Record<string, unknown>; figures: string[] }> => {
     const settings = (await readDocument(page)).documentSettings
-    const view = Object.fromEntries(['scrollDate', 'scrollDayOffset', 'scrollTaskGroupId', 'scrollGroupOffset', 'zoomX', 'zoomY'].map((key) => [key, settings[key]]))
+    const view = Object.fromEntries(['scrollDate', 'scrollDateFraction', 'scrollTaskGroupId', 'scrollTaskGroupFraction', 'zoomX', 'zoomY'].map((key) => [key, settings[key]]))
     const figures = await page.evaluate(() =>
       [...document.querySelectorAll('[data-figure$="-plan"], [data-figure*="-tick-"]')].map((e) => {
         const r = e.getBoundingClientRect()

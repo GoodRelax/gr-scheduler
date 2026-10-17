@@ -140,7 +140,7 @@ function pasteCommandFor(
   return {
     kind: 'pasteTaskGroupSubtree',
     sourceTaskGroupId: copied.taskGroupId,
-    targetTaskGroupId: chosenTaskGroups.length === 1 ? (chosenTaskGroups[0] as string) : null,
+    parentId: chosenTaskGroups.length === 1 ? (chosenTaskGroups[0] as string) : null,
     newTaskGroupIds,
   }
 }

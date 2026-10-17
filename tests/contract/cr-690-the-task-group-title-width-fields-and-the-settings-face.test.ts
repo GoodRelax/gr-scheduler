@@ -316,7 +316,7 @@ describe('FR-072 T-369 -- the order and the names of the settings face', () => {
   it(`${FR_131_FIELD} -- a whole number of working days settles as one ${CM_87}`, async () => {
     const field = fieldOf((await settingsStage(DOCUMENT)).lastView(), K_140)
     expect(field.controls.map((one) => one.kind)).toEqual(['number'])
-    const commit = commitOf(K_140, 'parentProgressToleranceDays', '3', 'project')
+    const commit = commitOf(K_140, 'parentTaskProgressToleranceDays', '3', 'project')
     const commands = commandFromFieldCommit(commit, contextOf(DOCUMENT))
     expect(kindsOf(commands)).toEqual([CM_87])
     expect(Object.values(commands[0] as unknown as Record<string, unknown>)).toContain(3)

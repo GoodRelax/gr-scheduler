@@ -147,7 +147,7 @@ function deleteCommandsFor(context: InputContext): readonly DocumentCommand[] {
   for (const one of context.selection.items) {
     switch (one.kind) {
       case 'task':
-        commands.push({ kind: 'deleteTask', uid: one.uid })
+        commands.push({ kind: 'deleteTask', taskUid: one.uid })
         break
       case 'dependency': {
         const successor = taskByUid(schedule, one.successorUid)
@@ -161,16 +161,16 @@ function deleteCommandsFor(context: InputContext): readonly DocumentCommand[] {
         break
       }
       case 'highlightBox':
-        commands.push({ kind: 'deleteHighlightBox', id: one.id })
+        commands.push({ kind: 'deleteHighlightBox', highlightBoxId: one.id })
         break
       case 'commentBox':
-        commands.push({ kind: 'deleteCommentBox', id: one.id })
+        commands.push({ kind: 'deleteCommentBox', commentBoxId: one.id })
         break
       case 'statusLine':
         commands.push({ kind: 'clearStatusDate' })
         break
       case 'parentTaskLink':
-        commands.push({ kind: 'setTaskParentTask', uid: one.childUid, parentTaskUid: null })
+        commands.push({ kind: 'setTaskParentTask', taskUid: one.childUid, parentTaskUid: null })
         break
     }
   }

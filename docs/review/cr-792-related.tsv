@@ -1,0 +1,23 @@
+identifier	decision	new	reason
+hasMovedScheduleBetween	add	hasUpdatedScheduleBetween	computes the answer field hasMovedSchedule (document-change-plan.ts:356); it follows the field's name
+hasMovedScheduleGroup	add	hasUpdatedScheduleGroup	computes the answer field hasMovedSchedule (document-change-plan.ts:197); it follows the field's name
+FONT_SCALE_FIELD	add	FONT_SIZE_STEP_FIELD	a test's quoted clause about the S-70 field (w3-t2-screen-clauses.test.ts)
+FONT_SCALE_SIZES	add	FONT_SIZE_STEP_SIZES	a test's copy of table T-215 (fontScaleSizes), which JDG-2682 renames with the key
+FONT_SCALE_STEPS	add	FONT_SIZE_STEPS	the S / M / L steps of the S-70 value (input-command-translator.ts:856)
+FontScale	add	FontSizeStep	the type of the S-70 value (input-command-translator.ts:854)
+fontScaleEdited	add	fontSizeStepEdited	the handler of CM-62 (edit-document-settings.ts:318)
+fontScaleSizes	add	fontSizeStepSizes	table T-215's key; JDG-2682 says it takes the same word as the key
+nextFontScale	add	nextFontSizeStep	the next S-70 step (input-command-translator.ts:859)
+thinFontScale	keep		K-9 / S-9 is a real multiplier (the thin row's font ratio); Scale meaning a multiplier is exactly why fontScale had to change (naming audit N-3)
+EDIT_GROUP_LANDS_ON_CHOSEN_TASK_GROUP	add	EDIT_PERMISSION_LANDS_ON_CHOSEN_TASK_GROUP	a test's clause about the editGroup column
+EDIT_GROUP_NAME	add	EDIT_PERMISSION_NAME	a test fixture value written into editGroup
+editGroupOnTaskGroupOne	add	editPermissionOnTaskGroupOne	a test switch that sets editGroup on the first task group
+sourceProjectUids	add	sourceProjectIds	the set of TaskOrigin.sourceProjectUid values (import-document.ts:363); it follows the column's new name (JDG-2683). Found by the stage-1 review
+withParentProgressTolerance	add	withParentTaskProgressTolerance	the CM-87 body (edit-project.ts:251); parent says which parent as JDG-2688 asks. Found by the stage-1 review
+PARENT_PROGRESS_TOLERANCE_KEY	add	PARENT_TASK_PROGRESS_TOLERANCE_KEY	the settings key of the AT-156 field (properties-panel.ts:1256). Found by the stage-1 review
+parentProgressToleranceField	add	parentTaskProgressToleranceField	the properties field of AT-156 (properties-panel.ts:1263). Found by the stage-1 review
+commandFromParentProgressTolerance	add	commandFromParentTaskProgressTolerance	the CM-87 field commit (field-commit.ts:500). Found by the stage-1 review
+hasMoved	keep		a local in frame-loop.ts:4131: whether the pointer moved, not the answer field
+scrollDay	keep		a test parameter for scrollDate (the kept key, JDG-2721), not the fraction
+SCROLL_GROUP	keep		a test constant for S-78 scrollTaskGroupId (kept, JDG-2722), not the fraction
+scrollGroupId	keep		a test's record of the CR-708 rename to scrollTaskGroupId (kept, JDG-2722)

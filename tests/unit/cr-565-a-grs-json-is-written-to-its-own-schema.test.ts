@@ -166,12 +166,12 @@ describe('OP-6 (MUST) -- documentSettings is read for what this build s schema k
     const read = opened(
       handed(THIS_BUILD, (root) => {
         settingsOf(root)['displayScale'] = 'not a step'
-        settingsOf(root)['fontScale'] = 'L'
+        settingsOf(root)['fontSizeStep'] = 'L'
       }),
     )
     const settings = read.document.documentSettings as unknown as Group
     expect(settings['displayScale']).toEqual(settingDefaultOf('displayScale'))
-    expect(settings['fontScale']).toBe('L')
+    expect(settings['fontSizeStep']).toBe('L')
     expect(read.unreadColumns, 'OP-6: not told on a document that is not newer').toEqual([])
   })
 

@@ -202,7 +202,7 @@
        "type": "string"
       },
       "index": {
-       "description": "This default is another key indexed by a second one: [table, byKey] means the value of `table` at the value of `byKey`. S-3 follows fontScale this way (FR-039), and stating it keeps the number in one place instead of two that can disagree.",
+       "description": "This default is another key indexed by a second one: [table, byKey] means the value of `table` at the value of `byKey`. S-3 follows fontSizeStep this way (FR-039), and stating it keeps the number in one place instead of two that can disagree.",
        "type": "array",
        "minItems": 2,
        "maxItems": 2,

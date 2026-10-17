@@ -457,12 +457,12 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       // ⚠️ WS-5's judgment is the SECOND argument of `ChangeAudience.deliver`
       // and has to be carried through: AG-6 of table T-035 selects a live
       // watcher by it (MUST), and nothing downstream can work it out again.
-      deliver: (document, hasMovedSchedule) => {
+      deliver: (document, hasUpdatedSchedule) => {
         // WHY: as the shell does, open the window at the head and close it in a
         // `finally` so a throwing watcher cannot leave WS-2 refusing for ever.
         state.isDeliveringNotices = true
         try {
-          notifyChangeWatchers(CHANGE_WATCHERS, { document, hasMovedSchedule, dialogue: state.dialogue })
+          notifyChangeWatchers(CHANGE_WATCHERS, { document, hasUpdatedSchedule, dialogue: state.dialogue })
         } finally {
           state.isDeliveringNotices = false
         }
@@ -478,8 +478,8 @@ function bench(startWithFrame = true, schedule: Loose = SMALL_SCHEDULE): Bench {
       deliver: (log) => {
         state.dialogue = log
         // `false` for an utterance: AG-11 is not a schedule change, which is
-        // what `ConfirmedChange.hasMovedSchedule` states for this very case.
-        notifyChangeWatchers(CHANGE_WATCHERS, { document: state.document, hasMovedSchedule: false, dialogue: log })
+        // what `ConfirmedChange.hasUpdatedSchedule` states for this very case.
+        notifyChangeWatchers(CHANGE_WATCHERS, { document: state.document, hasUpdatedSchedule: false, dialogue: log })
       },
     },
     // ⚠️ IF-6 AND IF-8 ARE PRESENT AND ABSENT (台帳 DFC-356). `AgentApiWiring`
@@ -759,14 +759,14 @@ describe('table T-107 -- the roster', () => {
 describe('AM-1 / AM-2 -- the two versions', () => {
   it('AM-1 answers a value a caller can compare before it goes on (AG-1)', () => {
     const version = bench().api.agentApiVersion
-    expect(Number.isFinite(version)).toBe(true)
+    expect(version).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/)
   })
 
-  it('AM-1 is 5 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
+  it('AM-1 is the date-time of JDG-2741 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
     // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
     // 6.1 states the starting value. This case is what falls over when the
-    // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3, CR-710 wave 3b to 4, CR-769 to 5.
-    expect(bench().api.agentApiVersion).toBe(5)
+    // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3, CR-710 wave 3b to 4, CR-769 to 5, CR-792 to 6 and then to a date-time (JDG-2741).
+    expect(bench().api.agentApiVersion).toBe('2026-10-17T15:27:48Z')
   })
 
   it("AM-2 answers the build's version, not the open document's (T-107 AM-2)", () => {
@@ -910,7 +910,7 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
       one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RENAME] }),
     )
 
-    expect(outcome.hasMovedSchedule).toBe(true)
+    expect(outcome.hasUpdatedSchedule).toBe(true)
     expect(outcome.stamp.scheduleUpdatedAt).toBe(READ_AT)
   })
 
@@ -920,7 +920,7 @@ describe('AM-7 applyCommands -- the ordinary case', () => {
       one.api.applyCommands({ expectedStamp: one.api.readStamp(), commands: [RECOLOR] }),
     )
 
-    expect(outcome.hasMovedSchedule).toBe(false)
+    expect(outcome.hasUpdatedSchedule).toBe(false)
     expect(outcome.stamp.scheduleUpdatedAt).toBe(STARTING_STAMP.scheduleUpdatedAt)
   })
 
@@ -992,7 +992,7 @@ describe('AM-7 applyCommands -- AG-2, the optimistic lock', () => {
     const retry = accepted(
       one.api.applyCommands({ expectedStamp: first.refusal.stamp, commands: [RENAME] }),
     )
-    expect(retry.hasMovedSchedule).toBe(true)
+    expect(retry.hasUpdatedSchedule).toBe(true)
   })
 })
 
@@ -1217,7 +1217,7 @@ describe('AM-16 focusTask -- the view, not the schedule', () => {
     const one = bench(true, OPEN_SCHEDULE)
     const outcome = accepted(one.api.focusTask(FIRST_UID))
 
-    expect(outcome.hasMovedSchedule).toBe(false)
+    expect(outcome.hasUpdatedSchedule).toBe(false)
     expect(outcome.stamp.scheduleUpdatedAt).toBe(STARTING_STAMP.scheduleUpdatedAt)
     expect(outcome.stamp.lastEditedBy).toBe(one.writerName)
     expect(outcome.stamp.settingsUpdatedAt).toBe(READ_AT)
@@ -1589,7 +1589,7 @@ describe('the boundaries -- empty, one, and the bound itself', () => {
       }),
     )
 
-    expect(outcome.hasMovedSchedule).toBe(false)
+    expect(outcome.hasUpdatedSchedule).toBe(false)
     expect(one.history.done).toHaveLength(0)
     expect(one.document.documentSettings.taskGroupPanelWidthPx).toBe(200)
   })

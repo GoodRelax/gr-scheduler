@@ -79,7 +79,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `DelayFixMarkdown` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayFixMarkdown` | PI-1 | 型。 |
 | `DelayFixMarkdownSection` | entry | interface | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#DelayFixMarkdownSection` | PI-1 | 型。 |
 | `DelayFixOpenField` | entry | interface | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixOpenField` | -- | interface DelayFixOpenField |
-| `DelayFixPlacement` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixPlacement` | -- | type DelayFixPlacement = \| { readonly row: 'PA-1' } \| ({ readonly row: 'PA-2' \| 'PA-4'; readonly stop: string } & StartedPlacement) \| ({ readonly row: 'PA-3'... |
+| `DelayFixPlacement` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixPlacement` | -- | type DelayFixPlacement = \| { readonly state: 'notStarted' } \| ({ readonly state: 'inProgress' \| 'suspendedWithoutResumeDate'; readonly stop: string } & Start... |
 | `delayFixProposalCells` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixProposalCells` | PI-1 | 修正案の 1 行を、表 T-374 の書き方の文字列の列にする（表 T-346 の `RW-6` の Markdown にも使う） |
 | `delayFixProposalRows` | entry | function | `src/entity/document-model/schedule/delay-diagnostics-report-table.ts#delayFixProposalRows` | PI-1 | 修正案の行を 表 T-374 の既定の並びにし、連鎖の行を元の行のすぐ下に置く |
 | `DelayFixRefusal` | entry | type | `src/entity/document-model/schedule/delay-fixes.ts#DelayFixRefusal` | -- | type DelayFixRefusal = 'readOnly' |
@@ -513,7 +513,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `acceptedEdit` | entry | function | `src/use-case/edit-document/edit-document.ts#acceptedEdit` | -- | function acceptedEdit(document: Document, report: EditReport = NOTHING_TO_TELL): EditResult |
 | `ActualGrabHold` | entry | type | `src/use-case/edit-document/edit-task.ts#ActualGrabHold` | -- | type ActualGrabHold = Extract<TaskCommand, { readonly kind: 'beginTaskActual' }>['grabbed'] |
 | `AnnotationAnchor` | entry | interface | `src/use-case/edit-document/edit-annotation.ts#AnnotationAnchor` | PI-9 | 型。 |
-| `AnnotationCommand` | entry | type | `src/use-case/edit-document/edit-annotation.ts#AnnotationCommand` | -- | type AnnotationCommand = \| { readonly kind: 'createCommentBox'; readonly id: CommentBox['id']; readonly anchor: AnnotationAnchor } \| { readonly kind: 'delete... |
+| `AnnotationCommand` | entry | type | `src/use-case/edit-document/edit-annotation.ts#AnnotationCommand` | -- | type AnnotationCommand = \| |
 | `baseChangeCommandOf` | entry | function | `src/use-case/edit-document/edit-document-settings.ts#baseChangeCommandOf` | PI-9 | 選んだタイムゾーンと答え（換算して適用する ／ 換算しない）で基準を変える命令（表 T-108 の `CM-95`、または `CM-94` と `CM-95` の 2 つを 1 回の書き込みで） —— 当てても何も変わらないときは無い（`FR-156`、表 T-369 の `FO-14` の答え） |
 | `BaseChangeWay` | entry | type | `src/use-case/edit-document/edit-document-settings.ts#BaseChangeWay` | -- | type BaseChangeWay = 'keepGlobalTime' \| 'keepLocalTime' |
 | `BaseTimeZones` | entry | interface | `src/use-case/edit-document/edit-document-settings.ts#BaseTimeZones` | -- | interface BaseTimeZones |
@@ -548,7 +548,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `levelZeroWritesFor` | entry | function | `src/use-case/edit-document/task-group-folding.ts#levelZeroWritesFor` | PI-9 | 同じ出来事が書き換える段 0 の値 `levelZeroTreeState` を求める |
 | `NOT_STORED_ZOOM_BOUNDS` | entry | const | `src/use-case/edit-document/edit-document.ts#NOT_STORED_ZOOM_BOUNDS` | -- | const NOT_STORED_ZOOM_BOUNDS: |
 | `pastedUidsOf` | entry | function | `src/use-case/edit-document/task-paste.ts#pastedUidsOf` | PI-9 | コピー元の `UID` から、`CM-8` がそのコピーに払い出す `UID` への対応 —— `FR-033`。 |
-| `PlanActualPlacement` | entry | type | `src/use-case/edit-document/edit-task.ts#PlanActualPlacement` | -- | type PlanActualPlacement = \| { readonly row: 'PA-1' } \| |
+| `PlanActualPlacement` | entry | type | `src/use-case/edit-document/edit-task.ts#PlanActualPlacement` | -- | type PlanActualPlacement = \| { readonly state: 'notStarted' } \| |
 | `ProjectCommand` | entry | type | `src/use-case/edit-document/edit-project.ts#ProjectCommand` | -- | type ProjectCommand = \| { readonly kind: 'setProjectTitle'; readonly title: Project['title'] } \| { readonly kind: 'setProjectProfile'; readonly fields: Proje... |
 | `ProjectProfileFields` | entry | interface | `src/use-case/edit-document/edit-project.ts#ProjectProfileFields` | -- | interface ProjectProfileFields |
 | `recountedPercentComplete` | entry | function | `src/use-case/edit-document/percent-complete.ts#recountedPercentComplete` | PI-9 | 文書の全 `Task` の完了率を日付から数え直し、値が変わった `Task` の uid を答える（`FR-012`）。 |
@@ -556,7 +556,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `refused` | entry | function | `src/use-case/edit-document/edit-document.ts#refusedEdit` | -- | function refusedEdit(refusals: readonly Refusal[]): EditResult |
 | `refusedEdit` | entry | function | `src/use-case/edit-document/edit-document.ts#refusedEdit` | -- | function refusedEdit(refusals: readonly Refusal[]): EditResult |
 | `reject` | entry | function | `src/use-case/edit-document/edit-document.ts#reject` | -- | function reject( command: string, rule: string, what: string, reasonCategory?: Refusal['reasonCategory'], ): Refusal |
-| `ResourceCommand` | entry | type | `src/use-case/edit-document/edit-resource.ts#ResourceCommand` | -- | type ResourceCommand = \| { readonly kind: 'createResource'; readonly name: Resource['name'] } \| { readonly kind: 'setResourceName'; readonly uid: Resource['u... |
+| `ResourceCommand` | entry | type | `src/use-case/edit-document/edit-resource.ts#ResourceCommand` | -- | type ResourceCommand = \| { readonly kind: 'createResource'; readonly name: Resource['name'] } \| |
 | `searchJumpCommands` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpCommands` | PI-9 | 飛ぶ書き込み（`searchJumpWrites` の答え）を、1 つの変更として当てる命令の並びにする。 |
 | `SearchJumpPlan` | entry | type | `src/use-case/edit-document/search-jump.ts#SearchJumpPlan` | PI-9 | 型。 |
 | `searchJumpReachOf` | entry | function | `src/use-case/edit-document/search-jump.ts#searchJumpReachOf` | PI-9 | 飛ぶ先の形が描かれた絵から、表 T-332 の `SJ-5`・`SJ-6` が置き場所を決めるのに読む値を読む —— 形の外接矩形と日付の位置、`Task Group Area` の幅、ピン止めの帯の下に残る高さ、占有（表 T-038）が日付より左へ出ている幅、1 日の幅。 |
@@ -744,7 +744,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `AgentShownTasks` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentShownTasks` | -- | interface AgentShownTasks |
 | `AgentSnapshot` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#AgentSnapshot` | -- | interface AgentSnapshot |
 | `AgentWatch` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWatch` | -- | interface AgentWatch |
-| `AgentWriteOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteOutcome` | -- | type AgentWriteOutcome = \| { readonly ok: true; readonly stamp: DocumentStamp; readonly hasMovedSchedule: boolean } \| { readonly ok: false; readonly refusal:... |
+| `AgentWriteOutcome` | entry | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteOutcome` | -- | type AgentWriteOutcome = \| { readonly ok: true; readonly stamp: DocumentStamp; readonly hasUpdatedSchedule: boolean } \| { readonly ok: false; readonly refusa... |
 | `AgentWriteRequest` | entry | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentWriteRequest` | -- | interface AgentWriteRequest |
 | `answerRelayedCall` | entry | function | `src/adapter/agent-api-endpoint/relayed-call.ts#answerRelayedCall` | PI-17 | `non-pure`。 |
 | `FrameSnapshot` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#FrameSnapshot` | -- | interface FrameSnapshot |
@@ -779,7 +779,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `compareDay` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#compareDay` | -- | function compareDay(a: CalendarDay, b: CalendarDay): number |
 | `CONSUMED_ELSEWHERE` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#CONSUMED_ELSEWHERE` | -- | const CONSUMED_ELSEWHERE: TranslatedInput = { action: null, isBrowserDefaultStopped: true } |
 | `CreatedSubject` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#CreatedSubject` | -- | type CreatedSubject = \| { readonly kind: 'task'; readonly uid: number } \| { readonly kind: 'taskGroup'; readonly taskGroupId: string } \| { readonly kind: 'co... |
-| `dayAnchorAt` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayAnchorAt` | -- | function dayAnchorAt( context: InputContext, x: number, ): Pick<ScrollAnchor, 'scrollDate' \| 'scrollDayOffset'> |
+| `dayAnchorAt` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayAnchorAt` | -- | function dayAnchorAt( context: InputContext, x: number, ): Pick<ScrollAnchor, 'scrollDate' \| 'scrollDateFraction'> |
 | `dayAtX` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayAtX` | -- | function dayAtX(layout: ScheduleLayout, x: number): CalendarDay \| null |
 | `dayFromSerial` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayFromSerial` | -- | function dayFromSerial(serial: number): CalendarDay |
 | `dayShift` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#dayShift` | -- | function dayShift(context: InputContext, fromX: number, toX: number): number |
@@ -850,7 +850,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `taskGroupDepthOfGroup` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupDepthOfGroup` | -- | function taskGroupDepthOfGroup(context: InputContext, taskGroupId: string): number |
 | `taskGroupGrabDepthOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupGrabDepthOf` | -- | function taskGroupGrabDepthOf(byId: ReadonlyMap<string, TaskGroup>, taskGroup: TaskGroup): number |
 | `TaskGroupGrabLanding` | entry | interface | `src/adapter/input-command-translator/input-command-translator.ts#TaskGroupGrabLanding` | -- | interface TaskGroupGrabLanding |
-| `TaskGroupGrabScroll` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#TaskGroupGrabScroll` | -- | type TaskGroupGrabScroll = Pick<ScrollAnchor, 'scrollTaskGroupId' \| 'scrollGroupOffset'> |
+| `TaskGroupGrabScroll` | entry | type | `src/adapter/input-command-translator/input-command-translator.ts#TaskGroupGrabScroll` | -- | type TaskGroupGrabScroll = Pick<ScrollAnchor, 'scrollTaskGroupId' \| 'scrollTaskGroupFraction'> |
 | `taskGroupRankById` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupRankById` | -- | function taskGroupRankById(groups: readonly TaskGroup[]): ReadonlyMap<string, number> |
 | `taskGroupsAtZoomY` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskGroupsAtZoomY` | -- | function taskGroupsAtZoomY( context: InputContext, measuredWith: DocumentSettings, zoomY: number, ): readonly TaskGroupPlacement[] |
 | `taskShapeKindOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#taskShapeKindOf` | -- | function taskShapeKindOf(name: string): TaskShapeKind \| null |
@@ -899,8 +899,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `keyZoomFactor` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#keyZoomFactor` | -- | function keyZoomFactor(context: InputContext, isIn: boolean): number |
 | `statusLineCentered` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineCentered` | -- | function statusLineCentered(context: InputContext, date: string): readonly DocumentCommand[] |
 | `statusLineWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#statusLineWrites` | -- | function statusLineWrites(context: InputContext): readonly DocumentCommand[] |
-| `taskGroupPointIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupPointIn` | -- | function taskGroupPointIn( taskGroups: readonly TaskGroupPlacement[], anchor: Pick<ScrollAnchor, 'scrollTaskGroupId' \| 'scrollGroupOffset'>, ): number \| null |
-| `topEdgeIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#topEdgeIn` | -- | function topEdgeIn( taskGroups: readonly TaskGroupPlacement[], anchor: Pick<ScrollAnchor, 'scrollTaskGroupId' \| 'scrollGroupOffset'>, ): number \| null |
+| `taskGroupPointIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#taskGroupPointIn` | -- | function taskGroupPointIn( taskGroups: readonly TaskGroupPlacement[], anchor: Pick<ScrollAnchor, 'scrollTaskGroupId' \| 'scrollTaskGroupFraction'>, ): number ... |
+| `topEdgeIn` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#topEdgeIn` | -- | function topEdgeIn( taskGroups: readonly TaskGroupPlacement[], anchor: Pick<ScrollAnchor, 'scrollTaskGroupId' \| 'scrollTaskGroupFraction'>, ): number \| null |
 | `unstoredZoomWrites` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#unstoredZoomWrites` | -- | function unstoredZoomWrites(context: InputContext): readonly DocumentCommand[] |
 | `verticalZoomAnswer` | file only | function | `src/adapter/input-command-translator/zoom-and-fit.ts#verticalZoomAnswer` | -- | function verticalZoomAnswer( context: InputContext, factor: number, pointerX: number \| null, pointerY: number \| null, ): TranslatedInput |
 | `ZoomEntranceEnds` | file only | interface | `src/adapter/input-command-translator/zoom-and-fit.ts#ZoomEntranceEnds` | -- | interface ZoomEntranceEnds |
@@ -1550,6 +1550,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `timeShiftQuestionItems` | entry | function | `src/adapter/screen-renderer/notices.ts#timeShiftQuestionItems` | PI-37 | タイムシフトの確認（`QN-14`）の文の下に並べる行（表 T-377 の `BS-3`） |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
 | `TooltipAnchor` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipAnchor` | -- | type TooltipAnchor = \| { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly taskGroupId?: string } \| { readonly kind: 'task'; ... |
+| `TooltipRow` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipRow` | -- | type TooltipRow = \| { readonly kind: 'whole'; readonly text: string } \| { readonly kind: 'labeled'; readonly label: string; readonly value: string; readonly ... |
 | `UNASSIGNED_ROW_KEY` | entry | const | `src/adapter/screen-renderer/table-window.ts#UNASSIGNED_ROW_KEY` | PI-37 | 担当リストの表の（担当なし）の行の鍵（表 T-370 の `RO-5`）。 |
 | `UNTITLED_DOCUMENT_TITLE` | entry | const | `src/adapter/screen-renderer/open-modals.ts#UNTITLED_DOCUMENT_TITLE` | PI-37 | `AT-3` の文書名が `null` のときに見出しへ出す語 `Untitled`。 |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
@@ -1623,6 +1624,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SearchFilterMenuView` | file only | type | `src/adapter/screen-renderer/table-window.ts#SearchFilterMenuView` | -- | type SearchFilterMenuView = \| |
 | `SearchFilterValueView` | file only | interface | `src/adapter/screen-renderer/table-window.ts#SearchFilterValueView` | -- | interface SearchFilterValueView |
 | `SearchRowView` | file only | interface | `src/adapter/screen-renderer/search-panel.ts#SearchRowView` | -- | interface SearchRowView |
+| `taskStateWordOf` | file only | function | `src/adapter/screen-renderer/search-panel.ts#taskStateWordOf` | -- | function taskStateWordOf( task: Task, statusDate: CalendarDay \| null, diagnosed: 'DG-1' \| 'DG-2' \| 'DG-3' \| undefined, language: DisplayLanguage, ): string |
 | `taskTypeWordOf` | file only | function | `src/adapter/screen-renderer/search-panel.ts#taskTypeWordOf` | -- | function taskTypeWordOf(taskType: string, language: DisplayLanguage): string |
 | `taskTypeWordsIn` | file only | function | `src/adapter/screen-renderer/search-panel.ts#taskTypeWordsIn` | -- | function taskTypeWordsIn(language: DisplayLanguage): readonly string[] |
 | `windowTitleEntriesOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#windowTitleEntriesOf` | -- | function windowTitleEntriesOf(shown: WindowShown, language: DisplayLanguage): readonly CommandItem[] |
@@ -1642,7 +1644,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `searchBodyTextOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchBodyTextOf` | -- | function searchBodyTextOf(text: string): string |
 | `SearchColumn` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchColumn` | -- | type SearchColumn = ColumnFilter['column'] |
 | `SearchTaskState` | file only | type | `src/adapter/screen-renderer/search-table-filters.ts#SearchTaskState` | -- | type SearchTaskState = TaskSearchRow['planActualState'] \| 'DG-1' \| 'DG-2' \| 'DG-3' \| 'PM-4' |
-| `searchTaskStateOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchTaskStateOf` | -- | function searchTaskStateOf(row: TaskSearchRow): SearchTaskState |
+| `searchTaskStateOf` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#searchTaskStateOf` | -- | function searchTaskStateOf(row: Pick<TaskSearchRow, 'progressMarker' \| 'planActualState'>): SearchTaskState |
 | `SHOW_VALUE` | file only | const | `src/adapter/screen-renderer/search-table-filters.ts#SHOW_VALUE` | -- | const SHOW_VALUE = 'show' |
 | `TableColumns` | file only | interface | `src/adapter/screen-renderer/search-table-filters.ts#TableColumns` | -- | interface TableColumns<Row> |
 | `tableColumnValues` | file only | function | `src/adapter/screen-renderer/search-table-filters.ts#tableColumnValues` | -- | function tableColumnValues<Row>( rows: readonly Row[], table: TableColumns<Row>, column: SearchColumn, sort: ColumnSort \| null = null, |
@@ -1658,9 +1660,9 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `dateTimeText` | file only | function | `src/adapter/screen-renderer/table-window.ts#dateTimeText` | -- | function dateTimeText(stored: string \| null, times: ShownDateTimes, side: DateTimeSide): string |
 | `entryOf` | file only | function | `src/adapter/screen-renderer/table-window.ts#entryOf` | -- | function entryOf(icon: IconId, language: DisplayLanguage, isChosen = false, label?: string): CommandItem |
 | `isClearEntry` | file only | function | `src/adapter/screen-renderer/table-window.ts#isClearEntry` | -- | function isClearEntry(entry: IconId): boolean |
-| `isRowShown` | file only | function | `src/adapter/screen-renderer/table-window.ts#isRowShown` | -- | function isRowShown(visibility: TableVisibility, key: VisibilityKey): boolean |
+| `isRowShown` | file only | function | `src/adapter/screen-renderer/table-window.ts#isRowShown` | -- | function isRowShown(table: VisibilityTable, visibility: TableVisibility, key: VisibilityKey): boolean |
 | `isScheduleFilterAppliedIn` | file only | function | `src/adapter/screen-renderer/table-window.ts#isScheduleFilterAppliedIn` | -- | function isScheduleFilterAppliedIn(settings: DocumentSettings, table: VisibilityTable): boolean |
-| `isScheduleFilterChanging` | file only | function | `src/adapter/screen-renderer/table-window.ts#isScheduleFilterChanging` | -- | function isScheduleFilterChanging( visibility: TableVisibility, rowKeysOf: () => ReadonlySet<number>, isEveryTaskRowed: boolean, ): boolean |
+| `isScheduleFilterChanging` | file only | function | `src/adapter/screen-renderer/table-window.ts#isScheduleFilterChanging` | -- | function isScheduleFilterChanging( table: VisibilityTable, visibility: TableVisibility, rowKeysOf: () => ReadonlySet<number>, isEveryTaskRowed: boolean, ): b... |
 | `isWorkingFilter` | file only | function | `src/adapter/screen-renderer/table-window.ts#isWorkingFilter` | -- | function isWorkingFilter(filter: ColumnFilter): boolean |
 | `openFilterIn` | file only | function | `src/adapter/screen-renderer/table-window.ts#openFilterIn` | -- | function openFilterIn(panel: TableWindowSession, shown: WindowShown \| null, table: WindowTable): SearchColumn \| null |
 | `panelWithFilterShut` | file only | function | `src/adapter/screen-renderer/table-window.ts#panelWithFilterShut` | -- | function panelWithFilterShut<P extends TableWindowSession>(panel: P): P |
@@ -2096,4 +2098,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1062 name(s) leave through a public entry (512 of them published by table T-064), 824 more are exported by a file and not by its entry.
+Totals: 1063 name(s) leave through a public entry (512 of them published by table T-064), 825 more are exported by a file and not by its entry.

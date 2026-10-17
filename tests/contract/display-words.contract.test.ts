@@ -975,9 +975,9 @@ const SEARCH_TASKS_SHOWN = searchFrame('normal', { filters: { open: ASSIGNEE_COL
 const SHOW_COLUMN = 'SQ-10'
 const SHOWN_SEARCH_UIDS: readonly number[] = [2, 3]
 // WHY: CR-722 TV-2 -- every row starts as Show, so the rows not named are the Hide ones.
-const hiddenExcept = (shown: readonly number[], isApplied: boolean): Partial<SearchTableViewSetting> => ({
+const hiddenExcept = (shown: readonly number[], isScheduleFilterApplied: boolean): Partial<SearchTableViewSetting> => ({
   hiddenTaskUids: Object.values(SEARCH_TASK_BY_STATE).map((one) => one.uid).filter((uid) => !shown.includes(uid)),
-  isScheduleFilterApplied: isApplied,
+  isScheduleFilterApplied: isScheduleFilterApplied,
 })
 const SEARCH_SHOW_FILTER_OPEN = searchFrame('normal', { filters: { open: SHOW_COLUMN } }, hiddenExcept(SHOWN_SEARCH_UIDS, false))
 // WHY: the shell hands the product in as a reading (TV-1); the band counts it.
@@ -1850,7 +1850,7 @@ const T104 = specTable('T-104').rows.map((row) => ({
  * none -- six of the 113 keys, which is the ledger's DFC-238.
  *
  * ⚠️ THE LONGEST SPELLING THE TABLE HOLDS WINS: the group's keys are dotted, and
- * the table fixes some leaves by name (`fontScaleSizes.S` is K-105) and some
+ * the table fixes some leaves by name (`fontSizeStepSizes.S` is K-105) and some
  * groups by name (`exportCanvas` is K-87, and the panel stands one field for each
  * of its leaves, both naming that row).
  */

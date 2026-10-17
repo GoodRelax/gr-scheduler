@@ -37,7 +37,9 @@ const TL_7_CODE_POINTS = '字数は、文字（Unicode の符号位置）1 つ�
 const TL_7_NONE = '対象が 1 人もいなければ行を出さない。'
 const TL_7_NO_COUNT_FORM =
   '⛔ 担当ラベルの `-`（表 T-225 の `AS-2`）も、先頭 1 名と残りの人数の形もコピーしてはならない（MUST NOT）'
-const TL_8_LINE = '進捗の語、`:`、半角空白 1 つ、`percentComplete` の順に書くこと（MUST）'
+// WHY: CR-793 -- the progress line ends with the state word in parentheses.
+const TL_8_LINE =
+  '進捗の語、`:`、半角空白 1 つ、`percentComplete`、半角空白 1 つ、`(`、状態の語、`)` の順に書くこと（MUST）'
 const TL_8_THE_WORD =
   '進捗の語は、`FR-038` の辞書の `delayReportColumns` の `DT-3` の語とすること（MUST）'
 const TL_8_UNROUNDED =
@@ -86,6 +88,21 @@ const columnWord = (row: string, language: Language): string => {
 
 const ASSIGNEE = (language: Language): string => `${columnWord('DT-2', language)}: `
 const PROGRESS = (language: Language): string => `${columnWord('DT-3', language)}: `
+
+// see PS-5, SQ-5
+const IN_PROGRESS_WORD = (
+  JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
+    planActualStates: { rowId: string; text: Readonly<Record<Language, string>> }[]
+  }
+).planActualStates
+const stateWord = (language: Language): string => {
+  const found = IN_PROGRESS_WORD.find((one) => one.rowId === 'PS-5')?.text[language]
+  if (found === undefined) throw new Error('the dictionary planActualStates has no PS-5')
+  return found
+}
+// WHY: TL-8 -- "<word>: <percent>% (<state word>)"
+const PROGRESS_LINE = (language: Language, percent: number): string =>
+  `${PROGRESS(language)}${percent}% (${stateWord(language)})`
 
 const CUT_MARK = '…'
 const codePoints = (text: string): number => Array.from(text).length
@@ -328,13 +345,13 @@ for (const language of ['ja', 'en'] as const) {
   describe(`CR-663 TL-8 -- the progress line (${language})`, () => {
     it(`TL-8 「${TL_8_LINE}」 / 「${TL_8_THE_WORD}」`, () => {
       const tip = tipOf({ actualStart: day(2), percentComplete: 50 }, [], language)
-      expect(progressLinesOf(tip, language)).toEqual([`${PROGRESS(language)}50%`])
+      expect(progressLinesOf(tip, language)).toEqual([PROGRESS_LINE(language, 50)])
       expect(linesOf(tip), 'the bare percent line is gone').not.toContain('50%')
     })
 
     it(`TL-8 「${TL_8_UNROUNDED}」: a started task at 0 writes 0%`, () => {
       const tip = tipOf({ actualStart: day(2), percentComplete: 0 }, [], language)
-      expect(progressLinesOf(tip, language)).toEqual([`${PROGRESS(language)}0%`])
+      expect(progressLinesOf(tip, language)).toEqual([PROGRESS_LINE(language, 0)])
     })
 
     it(`TL-8 「${TL_8_NO_LINE}」`, () => {
@@ -348,7 +365,7 @@ for (const language of ['ja', 'en'] as const) {
       const lines = linesOf(tipOf(STARTED, [{ uid: 91, name: 'Ada' }], language))
       const assignee = lines.findIndex((one) => one.startsWith(ASSIGNEE(language)))
       expect(assignee).toBeGreaterThanOrEqual(0)
-      expect(lines[assignee + 1]).toBe(`${PROGRESS(language)}50%`)
+      expect(lines[assignee + 1]).toBe(PROGRESS_LINE(language, 50))
     })
   })
 }
@@ -357,6 +374,6 @@ describe('CR-663 -- the English words', () => {
   it('en: "Assignee: " and "Progress: "', () => {
     const tip = tipOf(STARTED, [{ uid: 95, name: 'Ada' }], 'en')
     expect(linesOf(tip)).toContain('Assignee: Ada')
-    expect(linesOf(tip)).toContain('Progress: 50%')
+    expect(linesOf(tip)).toContain('Progress: 50% (In progress)')
   })
 })

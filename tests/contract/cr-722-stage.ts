@@ -88,7 +88,7 @@ export const SCHEDULE = scheduleWith()
 export const ALL_TASKS: readonly number[] = TASKS.map((one) => one.uid)
 
 // see TV-2
-export const ALL_SHOWN: TableVisibility = { hiddenKeys: [], isUnassignedHidden: false, isApplied: false }
+export const ALL_SHOWN: TableVisibility = { hiddenTaskUids: [], hiddenResourceUids: [], isUnassignedHidden: false, isScheduleFilterApplied: false }
 
 export const visibility = (part: Partial<TableVisibility>): TableVisibility => ({ ...ALL_SHOWN, ...part })
 

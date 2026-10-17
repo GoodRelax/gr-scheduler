@@ -844,7 +844,7 @@ describe('T-308 CY-9: releases that copy nothing', () => {
 })
 
 describe('T-308 CY-10: refusals', () => {
-  it.todo('refuses to land a copy on a task group of another editGroup (waits for FR-111, DFC-730)')
+  it.todo('refuses to land a copy on a task group of another editPermission (waits for FR-111, DFC-730)')
 })
 
 describe('T-223 DU-1: every road makes an unstarted copy and leaves the source', () => {
@@ -885,7 +885,7 @@ describe('T-223 DU-1: every road makes an unstarted copy and leaves the source',
       const document = fixtureDocument()
       const result = editDocument(
         document,
-        { kind: 'pasteTaskGroupSubtree', sourceTaskGroupId: row, targetTaskGroupId: null, newTaskGroupIds: { [row]: 'task-group-copy' } } as DocumentCommand,
+        { kind: 'pasteTaskGroupSubtree', sourceTaskGroupId: row, parentId: null, newTaskGroupIds: { [row]: 'task-group-copy' } } as DocumentCommand,
         LIMITS,
         'Task group',
       )

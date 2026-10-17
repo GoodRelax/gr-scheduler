@@ -98,9 +98,9 @@ function displayScaleWrites(
       ...settings,
       displayScale: next,
       scrollDate: seat.scrollDate,
-      scrollDayOffset: seat.scrollDayOffset,
+      scrollDateFraction: seat.scrollDateFraction,
       scrollTaskGroupId: seat.scrollTaskGroupId,
-      scrollGroupOffset: seat.scrollGroupOffset,
+      scrollTaskGroupFraction: seat.scrollTaskGroupFraction,
     },
     afterRegions,
     zoomOnScreen(context).y,
@@ -118,9 +118,9 @@ function displayScaleWrites(
     {
       kind: 'setScrollPosition',
       scrollDate: day.scrollDate,
-      scrollDayOffset: day.scrollDayOffset,
+      scrollDateFraction: day.scrollDateFraction,
       scrollTaskGroupId: (row ?? seat).scrollTaskGroupId,
-      scrollGroupOffset: (row ?? seat).scrollGroupOffset,
+      scrollTaskGroupFraction: (row ?? seat).scrollTaskGroupFraction,
     },
   ]
 }

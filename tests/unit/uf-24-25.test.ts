@@ -60,12 +60,12 @@ const logOf = (...utterances: readonly (readonly [author: string, text: string])
   )
 
 // WHY: document and dialogue sit side by side because FR-066 keeps the
-// conversation out of the document; hasMovedSchedule is WS-5's own judgment.
+// conversation out of the document; hasUpdatedSchedule is WS-5's own judgment.
 const confirmedOf = (
   document: Document,
   dialogue: DialogueLog = emptyDialogueLog(),
-  hasMovedSchedule = false,
-): ConfirmedChange => ({ document, hasMovedSchedule, dialogue })
+  hasUpdatedSchedule = false,
+): ConfirmedChange => ({ document, hasUpdatedSchedule, dialogue })
 
 const markAt = (confirmed: ConfirmedChange): WatcherMark => ({
   seenScheduleUpdatedAt: confirmed.document.documentStamp.scheduleUpdatedAt,
@@ -284,7 +284,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     expect(first.document).not.toBeNull()
     expect(first.messages).toHaveLength(2)
 
-    // WHY: hasMovedSchedule is false here because a second announcement of
+    // WHY: hasUpdatedSchedule is false here because a second announcement of
     // the SAME write is not a second write -- only the mark equality is left to select on.
     const saidAgain = confirmedOf(confirmed.document, confirmed.dialogue, false)
     expect(changeNoticeFor(SELF, first.mark, saidAgain)).toBeNull()
@@ -310,7 +310,7 @@ describe('ChangeNotice (UF-25) -- what one watcher has not been told', () => {
     const twice = changeNoticeFor(SELF, SEEN, confirmed)
     expect(once).toEqual(twice)
     expect(confirmed.dialogue).toEqual(dialogue)
-    expect(confirmed.hasMovedSchedule).toBe(true)
+    expect(confirmed.hasUpdatedSchedule).toBe(true)
     expect(confirmed.document.documentStamp).toEqual({
       scheduleUpdatedAt: T1,
       lastEditedBy: OTHER,
@@ -366,7 +366,7 @@ describe('NotifyChangeWatchers (UF-24 / PI-15) -- registering, dropping, deliver
     expect(spoken.document.documentStamp.scheduleUpdatedAt).toBe(
       start.document.documentStamp.scheduleUpdatedAt,
     )
-    expect(spoken.hasMovedSchedule).toBe(false)
+    expect(spoken.hasUpdatedSchedule).toBe(false)
     expect(heard[0]!.document).toBeNull()
     expect(heard[0]!.mark.seenScheduleUpdatedAt).toBe(T0)
   })

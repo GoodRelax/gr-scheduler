@@ -161,8 +161,8 @@ describe(`表 T-024a OP-10 -- ${OP_10_WRITTEN}`, () => {
     const written = shell.documentToWrite(document).documentSettings as DocumentSettings
 
     expect(written.scrollDate).toBe(drawn.scrollDate)
-    expect(written.scrollDayOffset).toBe(drawn.scrollDayOffset)
-    expect(written.scrollGroupOffset).toBe(0)
+    expect(written.scrollDateFraction).toBe(drawn.scrollDateFraction)
+    expect(written.scrollTaskGroupFraction).toBe(0)
     expect(written.scrollTaskGroupId).toBe(drawn.scrollTaskGroupId)
 
     const axis = timeAxisOf(written, regions)

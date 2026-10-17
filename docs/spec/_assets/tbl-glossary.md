@@ -281,7 +281,7 @@
 | K-82 | 表示の切り替え | `isDateGridLinesVisible` | 日付罫線（日付ごとの縦線） |
 | K-83 | 表示の切り替え | `isGroupGridLinesVisible` | グループ罫線（`TaskGroup` 境界の横線） |
 | K-84 | 表示の切り替え | `isBaselineVisible` | 変更前の予定を重ねるか |
-| K-85 | 表示の切り替え | `fontScale` | 文字サイズ |
+| K-85 | 表示の切り替え | `fontSizeStep` | 文字サイズ |
 | K-125 | 表示の切り替え | `displayScale` | 表示の倍率 |
 | K-86 | 表示の切り替え | `importSequence` | 取り込みの連番 |
 | K-87 | 出力 | `exportCanvas` | SVG / PNG の出力サイズ |
@@ -303,7 +303,7 @@
 | K-102 | 構造の上限 | `maxGroupDepth` | `TaskGroup` の深さの上限 |
 | K-103 | 保存と上限 | `importMinDate` / `importMaxDate` | 受け入れる日付の範囲 |
 | K-104 | 依存線 | `dependencyLagDefault` | 依存を作ったときに置くラグ |
-| K-105 | 文字サイズ | `fontScaleSizes.S` / `fontScaleSizes.M` / `fontScaleSizes.L` | 文字サイズの段（S / M / L）の px |
+| K-105 | 文字サイズ | `fontSizeStepSizes.S` / `fontSizeStepSizes.M` / `fontSizeStepSizes.L` | 文字サイズの段（S / M / L）の px |
 | K-106 | 画面の寸法 | `iconHintDelayMs` | アイコンの説明を出すまでの待ち時間 |
 | K-107 | 予実 | `actualInitialDuration` | 掴んだときの実績期間 |
 | K-108 | 予実 | `milestoneActualDuration` | マイルストーンの実績期間 |
@@ -312,10 +312,10 @@
 | K-116 | 注記 | `commentBoxWrapUnits` | コメントボックスの本文を折り返す単位数 |
 | K-118 | 保存と上限 | `carryMaxDepth` | 解釈しない要素の入れ子の深さの上限 |
 | K-119 | 出力 | `exportCanvasHeightCap` | 書き出す絵の高さの上限 |
-| K-120 | 画面の状態 | `scrollGroupOffset` | 表示の上端が指すタスクグループのどこにあるか |
-| K-121 | 画面の状態 | `scrollDayOffset` | 表示の左端が指す日のどこにあるか |
+| K-120 | 画面の状態 | `scrollTaskGroupFraction` | 表示の上端が指すタスクグループのどこにあるか |
+| K-121 | 画面の状態 | `scrollDateFraction` | 表示の左端が指す日のどこにあるか |
 | K-138 | 画面の状態 | `levelZeroTreeState` | 段 0 の木の状態 |
-| K-140 | 遅延診断 | `parentProgressToleranceDays` | 遅延診断時に親タスクの進捗の疑義を許す日数（稼働日） |
+| K-140 | 遅延診断 | `parentTaskProgressToleranceDays` | 遅延診断時に親タスクの進捗の疑義を許す日数（稼働日） |
 | K-90 | 保存しないもの（別枠） | `screenLanguage` ⛔ | 画面の言語（`ja` / `en`）。<br>置き場と規則は表 T-206 の `S-99` |
 | K-139 | 保存しないもの | `helpLanguage` ⛔ | ヘルプの言語（`ja` / `en`）。<br>置き場と規則は表 T-206 の `S-434` |
 

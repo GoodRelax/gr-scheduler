@@ -166,7 +166,7 @@ export function commandFromGrab(
       return changed([
         {
           kind: 'setTaskPlanDates',
-          uid,
+          taskUid: uid,
           start: isStartHeld ? released : task.start,
           finish: isStartHeld ? task.finish : released,
         },
@@ -184,7 +184,7 @@ export function commandFromGrab(
     case 'GA-6':
     case 'GA-22':
     case 'GA-17':
-      return dummyReleaseWrite(context, release, uid, grab)
+      return dummyReleaseWrite(context, release, uid, dummyHoldOf(grab))
     case 'GA-9':
     case 'GA-14':
     case 'GA-15':
@@ -204,9 +204,9 @@ export function commandFromGrab(
       return changed([
         {
           kind: 'setTaskPlanActualState',
-          uid,
+          taskUid: uid,
           place: {
-            row: 'PA-3',
+            state: 'suspendedWithResumeDate',
             actualStart: task.actualStart,
             stop: textOfFinishSide(lastDay, project),
             resume: textOfStartSide(resume, project, task.milestone === true),
@@ -296,9 +296,9 @@ function farEndSendWrites(
   const to = {
     kind: 'setScrollPosition',
     scrollDate: across.scrollDate,
-    scrollDayOffset: across.scrollDayOffset,
+    scrollDateFraction: across.scrollDateFraction,
     scrollTaskGroupId: isDownOut ? far.taskGroupId : kept.scrollTaskGroupId,
-    scrollGroupOffset: isDownOut ? 0 : kept.scrollGroupOffset,
+    scrollTaskGroupFraction: isDownOut ? 0 : kept.scrollTaskGroupFraction,
   } as const
   const undrawnTaskGroupDepth = far.foldedRowId === null ? far.undrawnTaskGroupDepth : null
   const zoom = farEndZoomWrites(context, undrawnTaskGroupDepth, context.isPictureAtStoredZoom ?? isSeated)
@@ -370,10 +370,27 @@ function actualEndWrite(
   if (released === null) return CONSUMED_ELSEWHERE
   const place = actualEndPlacement(task, grab, released)
   if (place === null) return CONSUMED_ELSEWHERE
-  return changed([{ kind: 'setTaskPlanActualState', uid, place }])
+  return changed([{ kind: 'setTaskPlanActualState', taskUid: uid, place }])
 }
 
 type DummyHold = Extract<DocumentCommand, { readonly kind: 'beginTaskActual' }>['grabbed']
+
+// see CM-14, T-266
+/** @purity pure */
+function dummyHoldOf(grab: 'GA-5' | 'GA-6' | 'GA-17' | 'GA-21' | 'GA-22'): DummyHold {
+  switch (grab) {
+    case 'GA-5':
+      return 'barDummyStart'
+    case 'GA-6':
+      return 'barDummyFinish'
+    case 'GA-17':
+      return 'milestoneDummy'
+    case 'GA-21':
+      return 'arrowDummyStart'
+    case 'GA-22':
+      return 'arrowDummyFinish'
+  }
+}
 
 /** @purity pure */
 function releasedPairOf(context: InputContext, release: PointerInput,
@@ -397,7 +414,7 @@ function dummyReleaseWrite(
   const released = releasedPairOf(context, release, task)
   if (released === null) return CONSUMED_ELSEWHERE
   return changed([
-    { kind: 'beginTaskActual', uid, grabbed: grab, released, snapMinutes: releasedSnapOf(context, release) },
+    { kind: 'beginTaskActual', taskUid: uid, grabbed: grab, released, snapMinutes: releasedSnapOf(context, release) },
   ])
 }
 
@@ -435,11 +452,11 @@ function markerPullWrite(
   // WHY: released left of the plan start, GO-9 asks for the dummy's own actual (DM-2) on the plan start, not a refusal.
   if (isLeftOfPlanStart(context, task, finish)) {
     return changed([
-      { kind: 'beginTaskActual', uid, grabbed: 'GA-5', released: { start: task.start, finish: task.start }, snapMinutes },
+      { kind: 'beginTaskActual', taskUid: uid, grabbed: 'barDummyStart', released: { start: task.start, finish: task.start }, snapMinutes },
     ])
   }
   return changed([
-    { kind: 'beginTaskActual', uid, grabbed: 'GA-6', released: { start: finish, finish }, snapMinutes },
+    { kind: 'beginTaskActual', taskUid: uid, grabbed: 'barDummyFinish', released: { start: finish, finish }, snapMinutes },
   ])
 }
 
@@ -466,7 +483,7 @@ function bodyMoveWrites(
     const at = taskGroupIndexOfTask(context, taskGroups, each)
     const landed = at === null ? undefined : taskGroups[at + crossed]
     if (landed !== undefined && landed.taskGroupId !== taskGroupOfTask(context, each)) {
-      commands.push({ kind: 'moveTaskToTaskGroup', uid: each, taskGroupId: landed.taskGroupId })
+      commands.push({ kind: 'moveTaskToTaskGroup', taskUid: each, taskGroupId: landed.taskGroupId })
     }
   }
   for (const box of boxes.highlightBoxes) {
@@ -530,7 +547,7 @@ function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): Docum
     const finish = dayOf(task.finish)
     if (start === null || finish === null || drag.dayCount === 0) return null
     const movedStart = textOfStartSide(dayShifted(start, drag.dayCount), project, task.milestone === true)
-    return { kind: 'setTaskPlanDates', uid: task.uid, start: movedStart, finish: textOfFinishSide(dayShifted(finish, drag.dayCount), project) }
+    return { kind: 'setTaskPlanDates', taskUid: task.uid, start: movedStart, finish: textOfFinishSide(dayShifted(finish, drag.dayCount), project) }
   }
   if (isDateKeepingDrag(drag.press)) return null
   const plan = plannedInstantsOf(workingCalendarOf(context.document.schedule), task)
@@ -538,7 +555,7 @@ function planMoveWrite(context: InputContext, task: Task, drag: DragSpan): Docum
   const [start, finish] = plan
   const shift = snappedStartShift(start, pulledMinutesOf(context, drag.press, drag.release), snap)
   if (shift === 0) return null
-  return { kind: 'setTaskPlanDates', uid: task.uid, start: textOfInstant(start + shift), finish: textOfInstant(finish + shift) }
+  return { kind: 'setTaskPlanDates', taskUid: task.uid, start: textOfInstant(start + shift), finish: textOfInstant(finish + shift) }
 }
 
 /** @purity pure */
@@ -636,7 +653,7 @@ function commentBoxShiftWrite(
   if (days === 0 && taskGroupId === box.anchorTaskGroupId) return null
   const stoodAt = instantOf(box.anchorDate) ?? instantOf(textOfDayStart(stood)) ?? 0
   const date = days === 0 && box.anchorDate !== null ? box.anchorDate : textOfInstant(stoodAt + days * MINUTES_PER_CALENDAR_DAY)
-  return { kind: 'setCommentBoxAnchor', id: box.id, anchor: { ...heldAnchorOf(box), date, taskGroupId } }
+  return { kind: 'setCommentBoxAnchor', commentBoxId: box.id, anchor: { ...heldAnchorOf(box), date, taskGroupId } }
 }
 
 // see FR-019, CM-50
@@ -939,7 +956,7 @@ function highlightRangeWrite(
   const isLeftFirst = compareDay(left, right) <= 0
   return {
     kind: 'setHighlightBoxRange',
-    id: box.id,
+    highlightBoxId: box.id,
     range: {
       start: heldOrWritten(box.start, isLeftFirst ? left : right, textOfDayStart),
       finish: heldOrWritten(box.finish, isLeftFirst ? right : left, textOfDayEnd),
@@ -972,7 +989,7 @@ function commentBoxMoveWrite(
   const pull = { dx: release.x - press.at.x, dy: release.y - press.at.y }
   if (pull.dx === 0 && pull.dy === 0) return CONSUMED_ELSEWHERE
   const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
-  return changed([{ kind: 'setCommentBoxBodyOffsetPx', id, dx: offset.dx + pull.dx, dy: offset.dy + pull.dy }])
+  return changed([{ kind: 'setCommentBoxBodyOffsetPx', commentBoxId: id, dx: offset.dx + pull.dx, dy: offset.dy + pull.dy }])
 }
 
 // see GR-14, CM-50, CM-51, RS-44
@@ -996,8 +1013,8 @@ function commentAnchorMoveWrite(
   const offset = box.bodyOffsetPx ?? { dx: 0, dy: 0 }
   if (isReleasedInPlace(box, anchor, stood, at)) return CONSUMED_ELSEWHERE
   return changed([
-    { kind: 'setCommentBoxAnchor', id: box.id, anchor },
-    { kind: 'setCommentBoxBodyOffsetPx', id: box.id, dx: stood.x + offset.dx - at.x, dy: stood.y + offset.dy - at.y },
+    { kind: 'setCommentBoxAnchor', commentBoxId: box.id, anchor },
+    { kind: 'setCommentBoxBodyOffsetPx', commentBoxId: box.id, dx: stood.x + offset.dx - at.x, dy: stood.y + offset.dy - at.y },
   ])
 }
 
@@ -1030,8 +1047,8 @@ function fadeEndWrite(context: InputContext, release: PointerInput, uid: number,
   if (days === stood) return CONSUMED_ELSEWHERE
   return changed([
     grab === 'GA-7'
-      ? { kind: 'setTaskFadeInDays', uid, fadeInDays: days }
-      : { kind: 'setTaskFadeOutDays', uid, fadeOutDays: days },
+      ? { kind: 'setTaskFadeInDays', taskUid: uid, fadeInDays: days }
+      : { kind: 'setTaskFadeOutDays', taskUid: uid, fadeOutDays: days },
   ])
 }
 

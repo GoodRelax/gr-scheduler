@@ -26,8 +26,8 @@ const memberNamed = (name: string): PrintedMember => {
 const GLOSSARY = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-glossary.md'), 'utf8'))
 
 const GLOSSARY_POINTER = '表 T-107（`Agent API` のメンバ）と、その呼び方（引数・型・戻り値）は `_assets/tbl-agent-api-members.md` が持つ'
-const VERSION_SENTENCE = 'いまの版は 5 である（`AM-1` が返す値）。'
-const CHANGE_RAISES_VERSION = '呼び方を変える変更は版を上げる（表 T-035 の `AG-1`）。'
+const VERSION_SENTENCE = 'いまの版は `2026-10-17T15:27:48Z` である（`AM-1` が返す値）。'
+const CHANGE_RAISES_VERSION = '呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。'
 const TWENTY_TWO = '**`Agent API` は 1 つの面に 22 のメンバをフラットに並べる。**'
 const CALL_SHAPES_ARE_GENERATED =
   '呼び方（引数の名・型・意味と戻り値）は本表と 表 T-400 が持つ** —— コードの `AgentApi` の型と、MCP の道具の入力の形は本表の原稿から生成し、手で書かない'
@@ -41,7 +41,7 @@ const AM_19_POINTS_AT_25 = '`readSearchRows`（`AM-25`）の遅れは基準日�
 
 // see T-107
 const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], string])[] = [
-  ['AM-1', 'agentApiVersion', [], 'number'],
+  ['AM-1', 'agentApiVersion', [], 'string'],
   ['AM-2', 'schemaVersion', [], 'string'],
   ['AM-3', 'readDocument', [], 'Document'],
   ['AM-4', 'readStamp', [], 'DocumentStamp'],
@@ -77,7 +77,7 @@ describe('T-107 is printed in one place, with the two columns CR-765 adds', () =
     expect(caption).toContain('表 T-107 — `Agent API` のメンバ')
   })
 
-  it('the prose above the table says 22 members on one flat surface, the version is 5 and a change of call shape raises it', () => {
+  it('the prose above the table says 22 members on one flat surface, the version is a date-time and a change of call shape raises it', () => {
     const prose = unbroken(PRINTED_TEXT)
     expect(prose).toContain(TWENTY_TWO)
     expect(prose).toContain(VERSION_SENTENCE)

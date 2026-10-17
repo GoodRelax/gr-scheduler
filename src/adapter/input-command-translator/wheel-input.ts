@@ -22,12 +22,12 @@ import {
 } from './input-command-translator'
 import { isPlaceSeatedIn, unstoredZoomWrites, verticalZoomAnswer, zoomStepAnswer, zoomTimes, zoomWrites } from './zoom-and-fit'
 
-type TaskGroupAnchor = Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'>
+type TaskGroupAnchor = Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollTaskGroupFraction'>
 
 /** @purity pure */
 function taskGroupHeldOf(context: InputContext): TaskGroupAnchor {
   const settings = context.document.documentSettings
-  return { scrollTaskGroupId: settings.scrollTaskGroupId, scrollGroupOffset: settings.scrollGroupOffset }
+  return { scrollTaskGroupId: settings.scrollTaskGroupId, scrollTaskGroupFraction: settings.scrollTaskGroupFraction }
 }
 
 // see MK-5, OP-10
@@ -36,7 +36,7 @@ function taskGroupHeldOf(context: InputContext): TaskGroupAnchor {
 function taskGroupKeptOf(context: InputContext): TaskGroupAnchor {
   if (isPlaceSeatedIn(context)) return taskGroupHeldOf(context)
   const drawn = scrolledAnchor(context, 0, 0)
-  return { scrollTaskGroupId: drawn.scrollTaskGroupId, scrollGroupOffset: drawn.scrollGroupOffset }
+  return { scrollTaskGroupId: drawn.scrollTaskGroupId, scrollTaskGroupFraction: drawn.scrollTaskGroupFraction }
 }
 
 // see FR-016, MK-1, S-176
@@ -51,7 +51,7 @@ export function taskGroupTurnedTo(context: InputContext, dy: number): TaskGroupA
   if (dy === 0 || taskGroupIndexAtTopEdge(taskGroups, areaTop) === null) return held
   if (taskGroupIndexAtTopEdge(taskGroups, areaTop + dy) === null) {
     const first = taskGroups[0]
-    return dy < 0 && first !== undefined ? { scrollTaskGroupId: first.taskGroupId, scrollGroupOffset: 0 } : held
+    return dy < 0 && first !== undefined ? { scrollTaskGroupId: first.taskGroupId, scrollTaskGroupFraction: 0 } : held
   }
   return taskGroupAnchorIn(taskGroups, areaTop + dy, held)
 }
@@ -114,7 +114,7 @@ export function commandFromWheel(
   const to = {
     kind: 'setScrollPosition',
     scrollDate: moved.scrollDate,
-    scrollDayOffset: moved.scrollDayOffset,
+    scrollDateFraction: moved.scrollDateFraction,
     ...row,
   } as const
   return scrollWriteAnswer(context, to)

@@ -178,7 +178,7 @@ function documentWithNoViewPlace(lastFinish: string | null = null): Loose {
         name: `G${index + 1}`,
         derivedFromTaskUid: null,
         order: index,
-        treeState: 'auto', editGroup: null,
+        treeState: 'auto', editPermission: null,
         color: null,
         minHeightPx: null,
       })),
@@ -259,8 +259,8 @@ interface ViewPlace {
   readonly zoomY: number
   readonly scrollDate: string | null
   readonly scrollTaskGroupId: string | null
-  readonly scrollDayOffset: number
-  readonly scrollGroupOffset: number
+  readonly scrollDateFraction: number
+  readonly scrollTaskGroupFraction: number
 }
 
 interface Bench {
@@ -286,8 +286,8 @@ const viewPlaceOf = (settings: Loose): ViewPlace => ({
   zoomY: settings.zoomY as number,
   scrollDate: (settings.scrollDate ?? null) as string | null,
   scrollTaskGroupId: (settings.scrollTaskGroupId ?? null) as string | null,
-  scrollDayOffset: settings.scrollDayOffset as number,
-  scrollGroupOffset: settings.scrollGroupOffset as number,
+  scrollDateFraction: settings.scrollDateFraction as number,
+  scrollTaskGroupFraction: settings.scrollTaskGroupFraction as number,
 })
 
 function bench(document: Loose, env: FrameEnvironment = SCREEN, pen: Pump = pump()): Bench {
@@ -577,7 +577,7 @@ describe('FR-080 -- 書き出す絵は、画面が立っている答えで描く
     expect(exported.scrollDate).not.toBeNull()
     expect(exported.scrollTaskGroupId).not.toBeNull()
     expect(exported.zoomX).not.toBe(built.storedViewPlace().zoomX)
-    expect(Number.isFinite(exported.scrollDayOffset)).toBe(true)
-    expect(Number.isFinite(exported.scrollGroupOffset)).toBe(true)
+    expect(Number.isFinite(exported.scrollDateFraction)).toBe(true)
+    expect(Number.isFinite(exported.scrollTaskGroupFraction)).toBe(true)
   })
 })

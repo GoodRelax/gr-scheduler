@@ -1,6 +1,6 @@
 {
  "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
- "schemaVersion": "2026-10-16T12:35:39Z",
+ "schemaVersion": "2026-10-17T15:27:48Z",
  "schedule": {
   "calendars": [
    {
@@ -74249,7 +74249,7 @@
    "defaultStartTime": "08:00:00",
    "defaultFinishTime": "17:00:00",
    "themeHue": 214,
-   "parentProgressToleranceDays": 1,
+   "parentTaskProgressToleranceDays": 1,
    "uidHighWaterMark": 1960,
    "importSequence": 0,
    "scheduleDataTimeZone": "UTC+09:00",
@@ -74404,7 +74404,7 @@
     "derivedFromTaskUid": 1,
     "order": 0,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74415,7 +74415,7 @@
     "derivedFromTaskUid": 6,
     "order": 4,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74426,7 +74426,7 @@
     "derivedFromTaskUid": 16,
     "order": 1,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74437,7 +74437,7 @@
     "derivedFromTaskUid": 28,
     "order": 2,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74448,7 +74448,7 @@
     "derivedFromTaskUid": 46,
     "order": 3,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74459,7 +74459,7 @@
     "derivedFromTaskUid": 48,
     "order": 1,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74470,7 +74470,7 @@
     "derivedFromTaskUid": 55,
     "order": 2,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74481,7 +74481,7 @@
     "derivedFromTaskUid": 62,
     "order": 3,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74492,7 +74492,7 @@
     "derivedFromTaskUid": 69,
     "order": 4,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74503,7 +74503,7 @@
     "derivedFromTaskUid": 78,
     "order": 4,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74514,7 +74514,7 @@
     "derivedFromTaskUid": 79,
     "order": 0,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74525,7 +74525,7 @@
     "derivedFromTaskUid": 90,
     "order": 1,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74536,7 +74536,7 @@
     "derivedFromTaskUid": 101,
     "order": 2,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74547,7 +74547,7 @@
     "derivedFromTaskUid": 112,
     "order": 3,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74558,7 +74558,7 @@
     "derivedFromTaskUid": 123,
     "order": 5,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74569,7 +74569,7 @@
     "derivedFromTaskUid": 125,
     "order": 1,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74580,7 +74580,7 @@
     "derivedFromTaskUid": 129,
     "order": 2,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74591,7 +74591,7 @@
     "derivedFromTaskUid": 133,
     "order": 3,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74602,7 +74602,7 @@
     "derivedFromTaskUid": 137,
     "order": 4,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74613,7 +74613,7 @@
     "derivedFromTaskUid": 141,
     "order": 5,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74624,7 +74624,7 @@
     "derivedFromTaskUid": 145,
     "order": 6,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74635,7 +74635,7 @@
     "derivedFromTaskUid": 150,
     "order": 6,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74646,7 +74646,7 @@
     "derivedFromTaskUid": 153,
     "order": 2,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74657,7 +74657,7 @@
     "derivedFromTaskUid": 156,
     "order": 3,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74668,7 +74668,7 @@
     "derivedFromTaskUid": 159,
     "order": 4,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74679,7 +74679,7 @@
     "derivedFromTaskUid": 162,
     "order": 5,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74690,7 +74690,7 @@
     "derivedFromTaskUid": 165,
     "order": 6,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74701,7 +74701,7 @@
     "derivedFromTaskUid": 168,
     "order": 7,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74712,7 +74712,7 @@
     "derivedFromTaskUid": 171,
     "order": 8,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74723,7 +74723,7 @@
     "derivedFromTaskUid": 181,
     "order": 7,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74734,7 +74734,7 @@
     "derivedFromTaskUid": 182,
     "order": 0,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74745,7 +74745,7 @@
     "derivedFromTaskUid": 192,
     "order": 1,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74756,7 +74756,7 @@
     "derivedFromTaskUid": 200,
     "order": 2,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74767,7 +74767,7 @@
     "derivedFromTaskUid": 208,
     "order": 8,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74778,7 +74778,7 @@
     "derivedFromTaskUid": 227,
     "order": 9,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74789,7 +74789,7 @@
     "derivedFromTaskUid": 238,
     "order": 10,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    },
@@ -74800,7 +74800,7 @@
     "derivedFromTaskUid": 248,
     "order": 11,
     "treeState": "auto",
-    "editGroup": null,
+    "editPermission": null,
     "color": null,
     "minHeightPx": null
    }
@@ -77891,7 +77891,7 @@
   "displayTimeZones": [],
   "fitSpanFinish": null,
   "fitSpanStart": null,
-  "fontScale": "M",
+  "fontSizeStep": "M",
   "isActualVisible": true,
   "isAssigneeVisible": false,
   "isBaselineVisible": false,
@@ -77912,8 +77912,8 @@
   "rulerFontSizePx": 21,
   "rulerHeightPx": 69,
   "scrollDate": null,
-  "scrollDayOffset": 0,
-  "scrollGroupOffset": 0,
+  "scrollDateFraction": 0,
+  "scrollTaskGroupFraction": 0,
   "scrollTaskGroupId": null,
   "stackDirection": "up",
   "tableViews": {

@@ -46,7 +46,7 @@ export type TaskGroupCommand =
   | {
       readonly kind: 'pasteTaskGroupSubtree'
       readonly sourceTaskGroupId: TaskGroup['id']
-      readonly targetTaskGroupId: TaskGroup['parentId']
+      readonly parentId: TaskGroup['parentId']
       readonly newTaskGroupIds: Readonly<Record<string, string>>
     }
   | {
@@ -185,9 +185,9 @@ function pastePlanOf(
   if (copied === null) {
     return { ok: false, refusals: [reject('CM-28', 'IV-2', `no such task group: ${command.sourceTaskGroupId}`)] }
   }
-  const target = command.targetTaskGroupId === null ? null : byId.get(command.targetTaskGroupId)
+  const target = command.parentId === null ? null : byId.get(command.parentId)
   if (target === undefined) {
-    return { ok: false, refusals: [reject('CM-28', 'IV-2', `no such task group to paste under: ${command.targetTaskGroupId}`)] }
+    return { ok: false, refusals: [reject('CM-28', 'IV-2', `no such task group to paste under: ${command.parentId}`)] }
   }
   const refusals: Refusal[] = []
   const under = target === null ? 0 : depthOf(byId, target)
@@ -224,7 +224,7 @@ function copiedTaskGroupOf(
 ): TaskGroup {
   const parentId =
     taskGroup.id === command.sourceTaskGroupId
-      ? command.targetTaskGroupId
+      ? command.parentId
       : taskGroup.parentId === null
         ? null
         : (idOf.get(taskGroup.parentId) ?? taskGroup.parentId)

@@ -32,9 +32,7 @@ import {
   cursorInstantAtX,
   labeledAssigneeUidOf,
   lengthTextOf,
-  isPlanSpanningYears,
   clockTextOf,
-  planDateText,
   snappedInstantAtX,
   timeAxisOf,
 } from '../../entity/layout-engine/schedule-layout/schedule-layout'
@@ -52,8 +50,10 @@ import type {
   ScreenViewReadings,
   IconId,
   Tooltip,
+  TooltipRow,
 } from './screen-renderer'
 import { displayLanguageOf, rulerWeekdayWords } from './screen-renderer'
+import { taskStateWordOf } from './search-panel'
 import displayWords from './display-words.json'
 import helpRoster from './help-roster.json'
 
@@ -143,26 +143,31 @@ function weekdayWordOf(day: CalendarDay, language: DisplayLanguage): string {
 
 // see TL-11, CU-3
 /** @purity pure */
-function withWeekday(written: string, day: CalendarDay, language: DisplayLanguage): string {
-  return `${written} (${weekdayWordOf(day, language)})`
+function weekdayText(day: CalendarDay, language: DisplayLanguage): string {
+  return ` (${weekdayWordOf(day, language)})`
 }
 
 const CURSOR_YEAR_DIGITS = 4
 const CURSOR_MONTH_DAY_DIGITS = 2
+const CLOCK_TEXT_LENGTH = 'hh:mm'.length
+
+// see CU-3, DC-3, TL-10
+/** @purity pure */
+function paddedDateText(day: CalendarDay): string {
+  const padded = (value: number, width: number): string => String(value).padStart(width, '0')
+  const year = padded(day.year, CURSOR_YEAR_DIGITS)
+  const month = padded(day.month, CURSOR_MONTH_DAY_DIGITS)
+  return `${year}/${month}/${padded(day.day, CURSOR_MONTH_DAY_DIGITS)}`
+}
 
 // see CU-3, DC-3
 /** @purity pure */
 export function cursorDateText(day: CalendarDay, language: DisplayLanguage): string {
-  const padded = (value: number, width: number): string => String(value).padStart(width, '0')
-  const year = padded(day.year, CURSOR_YEAR_DIGITS)
-  const month = padded(day.month, CURSOR_MONTH_DAY_DIGITS)
-  const date = padded(day.day, CURSOR_MONTH_DAY_DIGITS)
-  return withWeekday(`${year}/${month}/${date}`, day, language)
+  return `${paddedDateText(day)}${weekdayText(day, language)}`
 }
 
 interface HintContext {
   readonly assigneeNames: readonly string[]
-  readonly isYearWritten: boolean
   readonly shown: InstantOnSide | null
 }
 
@@ -172,13 +177,18 @@ interface HintDay {
   readonly side: DateTimeSide
 }
 
-// see TL-10, ND-4, ND-5, TX-2
+// see TL-10, TL-13, TX-2
 /** @purity pure */
-function hintDayText(at: HintDay, context: HintContext, language: DisplayLanguage): string {
+function hintDayParts(at: HintDay, context: HintContext, language: DisplayLanguage): readonly string[] {
   const instant = context.shown === null ? null : context.shown(at.text, at.side)
   const day = instant === null ? at.day : dayOfInstant(instant)
-  const dated = withWeekday(planDateText(day, context.isYearWritten), day, language)
-  return instant === null ? dated : `${dated} ${clockTextOf(instant)}`
+  const dated = [paddedDateText(day), weekdayText(day, language)]
+  return instant === null ? dated : [...dated, ` ${clockTextOf(instant).padStart(CLOCK_TEXT_LENGTH, '0')}`]
+}
+
+/** @purity pure */
+function hintDayText(at: HintDay, context: HintContext, language: DisplayLanguage): string {
+  return hintDayParts(at, context, language).join('')
 }
 
 /** @purity pure */
@@ -192,13 +202,7 @@ type HintTimes = Pick<DocumentSettings, 'isTimeOfDayVisible' | 'viewTimeZone'>
 
 const NO_HINT_TIMES: HintTimes = { isTimeOfDayVisible: false, viewTimeZone: null }
 
-const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], isYearWritten: false, shown: null }
-
-// see TL-10, ND-5
-/** @purity pure */
-function isYearWrittenIn(schedule: Schedule): boolean {
-  return isPlanSpanningYears(schedule, { day: dayOf })
-}
+const NO_HINT_CONTEXT: HintContext = { assigneeNames: [], shown: null }
 
 // see TL-7, FR-059
 // WHY: asked of labeledAssigneeUidOf one name at a time, so FR-059's filter and order stay in ScheduleLayout alone.
@@ -219,16 +223,19 @@ function assigneeNamesOf(schedule: Schedule, taskUid: number): readonly string[]
 function hintContextOf(schedule: Schedule | null, taskUid: number, times: HintTimes = NO_HINT_TIMES): HintContext {
   if (schedule === null) return NO_HINT_CONTEXT
   const shown = times.isTimeOfDayVisible ? shownInstantReader(schedule, times.viewTimeZone) : null
-  return { assigneeNames: assigneeNamesOf(schedule, taskUid), isYearWritten: isYearWrittenIn(schedule), shown }
+  return { assigneeNames: assigneeNamesOf(schedule, taskUid), shown }
 }
 
 const HINT_LINE_WORDS = new Map(displayWords.hintLines.map((entry) => [entry.rowId, entry.text]))
 const PLAN_LINE_ROW = 'TL-5'
 const ACTUAL_LINE_ROW = 'TL-6'
-const HINT_WORD_SEPARATOR = ': '
+const LABEL_MARK = ':'
+const LABEL_GAP = ' '
 const DAY_RANGE_SEPARATOR = ' -'
 const DEADLINE_NAME_SEPARATOR = ' : '
 const PERCENT_SIGN = '%'
+const STATE_OPEN = ' ('
+const STATE_CLOSE = ')'
 
 const ASSIGNEE_LINE_ROW = 'DT-2'
 const PROGRESS_LINE_ROW = 'DT-3'
@@ -281,12 +288,29 @@ function namesWithin(names: readonly string[], cap: number): string {
   return `${head.join('')}${NAME_CUT_MARK}`
 }
 
+/** @purity pure */
+function labeledRow(word: string, value: string): TooltipRow {
+  return { kind: 'labeled', label: `${word}${LABEL_MARK}`, value }
+}
+
+/** @purity pure */
+function partedRow(word: string, parts: readonly string[]): TooltipRow {
+  return { kind: 'labeled', label: `${word}${LABEL_MARK}`, value: parts.join(''), parts }
+}
+
+// see TL-13
+// WHY: the tip's text keeps the one-line form "word: value"; the two columns are how it is drawn.
+/** @purity pure */
+function rowText(row: TooltipRow): string {
+  return row.kind === 'labeled' ? `${row.label}${LABEL_GAP}${row.value}` : row.text
+}
+
 // see TL-7, FR-059
 /** @purity pure */
-function assigneeLine(names: readonly string[], language: DisplayLanguage): string | null {
+function assigneeRow(names: readonly string[], language: DisplayLanguage): TooltipRow | null {
   if (names.length === 0) return null
   const written = namesWithin(names, NOT_STORED_TASK_HINT_ASSIGNEE_CAP['S-513'])
-  return `${columnWord(ASSIGNEE_LINE_ROW, language)}${HINT_WORD_SEPARATOR}${written}`
+  return labeledRow(columnWord(ASSIGNEE_LINE_ROW, language), written)
 }
 
 /** @purity pure */
@@ -296,49 +320,61 @@ function deadlineWord(language: DisplayLanguage): string {
 
 // see TL-5, TL-6, ND-1
 /** @purity pure */
-function daysLine(
+function daysRow(
   row: string,
   first: HintDay,
   last: HintDay | null,
   isMilestone: boolean,
   context: HintContext,
   language: DisplayLanguage,
-): string {
-  const word = `${hintLineWord(row, language)}${HINT_WORD_SEPARATOR}`
-  const firstText = hintDayText(first, context, language)
-  if (isMilestone) return `${word}${firstText}`
-  const lastText = last === null ? '' : ` ${hintDayText(last, context, language)}`
-  return `${word}${firstText}${DAY_RANGE_SEPARATOR}${lastText}`
+): TooltipRow {
+  const word = hintLineWord(row, language)
+  const firstParts = hintDayParts(first, context, language)
+  if (isMilestone) return partedRow(word, firstParts)
+  const [lastDate, ...lastRest] = last === null ? [] : hintDayParts(last, context, language)
+  const lastParts = lastDate === undefined ? [] : [` ${lastDate}`, ...lastRest]
+  return partedRow(word, [...firstParts, DAY_RANGE_SEPARATOR, ...lastParts])
 }
 
 // see TL-5, ND-2, ND-3
 /** @purity pure */
-function planLine(
+function planRow(
   planned: Pick<Task, 'start' | 'finish' | 'milestone'>,
   context: HintContext,
   language: DisplayLanguage,
-): string | null {
+): TooltipRow | null {
   const start = hintDayOf(planned.start, startSideOf(planned))
   const finish = hintDayOf(planned.finish, 'finish')
   const isMilestone = planned.milestone === true
   if (start === null || (finish === null && !isMilestone)) return null
-  return daysLine(PLAN_LINE_ROW, start, finish, isMilestone, context, language)
+  return daysRow(PLAN_LINE_ROW, start, finish, isMilestone, context, language)
 }
 
 // see TL-6, AT-34
 // TRAP: an unfinished actual stops at the dash; never write stop (FR-011) as its last day (TL-6 MUST NOT).
 /** @purity pure */
-function actualLine(task: Task, context: HintContext, language: DisplayLanguage): string | null {
+function actualRow(task: Task, context: HintContext, language: DisplayLanguage): TooltipRow | null {
   const start = hintDayOf(task.actualStart, startSideOf(task))
   if (start === null) return null
-  return daysLine(ACTUAL_LINE_ROW, start, hintDayOf(task.actualFinish, 'finish'), task.milestone === true, context, language)
+  return daysRow(ACTUAL_LINE_ROW, start, hintDayOf(task.actualFinish, 'finish'), task.milestone === true, context, language)
 }
 
-// see TL-8, FR-090
+// see TL-8, FR-090, SQ-5
 /** @purity pure */
-function percentLine(task: Task, language: DisplayLanguage): string | null {
+function percentRow(task: Task, stateWord: string, language: DisplayLanguage): TooltipRow | null {
   if (task.percentComplete === null || task.actualStart === null) return null
-  return `${columnWord(PROGRESS_LINE_ROW, language)}${HINT_WORD_SEPARATOR}${task.percentComplete}${PERCENT_SIGN}`
+  const value = `${task.percentComplete}${PERCENT_SIGN}${STATE_OPEN}${stateWord}${STATE_CLOSE}`
+  return labeledRow(columnWord(PROGRESS_LINE_ROW, language), value)
+}
+
+const NOTE_LINE_BREAKS = /\r\n|\r/g
+
+// see TL-14, AT-32
+// WHY: S-621 and S-622 cut the note where it is drawn; the text keeps the whole note.
+/** @purity pure */
+function noteRow(task: Task): TooltipRow | null {
+  const note = (task.notes ?? '').replace(NOTE_LINE_BREAKS, LINE_BREAK)
+  return note.trim() === '' ? null : { kind: 'note', text: note }
 }
 
 // see TL-9, TL-2
@@ -349,35 +385,48 @@ function deadlineDayText(task: Task, context: HintContext, language: DisplayLang
   return `${deadlineWord(language)} ${hintDayText(at, context, language)}`
 }
 
-const LATE_REASON_PART = 'late'
-const LATE_WORDS = displayWords.delayReportReasons.find((entry) => entry.part === LATE_REASON_PART)?.text
-const DAYS_SLOT = '{days}'
-
-// see TL-12, FR-047, DX-10, DT-7
-// WHY: DX-10's count in DG-4's reason words, so the tip and the report never differ on one delay.
+// see TL-9, TL-13
 /** @purity pure */
-function lateLine(task: Task, schedule: Schedule, language: DisplayLanguage): string | null {
-  // TRAP: read through ?. and ??: views built from a partial schedule carry no project or no statusDate (FR-046: no line).
-  const statusDate = dayOf(schedule.project?.statusDate ?? null)
-  if (!isDelayed(task, statusDate)) return null
-  const days = delayWorkingDays(workingCalendarOf(schedule), task, statusDate)
-  return (LATE_WORDS?.[language] ?? LATE_REASON_PART).replace(DAYS_SLOT, String(days))
+function deadlineRow(task: Task, context: HintContext, language: DisplayLanguage): TooltipRow | null {
+  const at = hintDayOf(task.deadline, 'finish')
+  return at === null ? null : partedRow(deadlineWord(language), hintDayParts(at, context, language))
 }
 
-// see TL-1
+const LATE_ROW = 'DG-4'
+const LATE_WORDS = displayWords.delayReportStatuses.find((entry) => entry.rowId === LATE_ROW)?.text
+const WORKING_DAYS_UNIT_PART = 'workingDaysUnit'
+const WORKING_DAYS_WORDS = displayWords.propertyField.find((entry) => entry.part === WORKING_DAYS_UNIT_PART)?.text
+
+// see TL-12, FR-047, DX-10, DG-4
+// WHY: DX-10's count under DG-4's word, so the tip and the report never differ on one delay.
 /** @purity pure */
-function taskHint(task: Task, context: HintContext, language: DisplayLanguage, late: string | null): string {
+function lateRow(task: Task, schedule: Schedule, statusDate: CalendarDay | null, language: DisplayLanguage): TooltipRow | null {
+  if (!isDelayed(task, statusDate)) return null
+  const days = delayWorkingDays(workingCalendarOf(schedule), task, statusDate)
+  const unit = WORKING_DAYS_WORDS?.[language] ?? WORKING_DAYS_UNIT_PART
+  return labeledRow(LATE_WORDS?.[language] ?? LATE_ROW, `${days} ${unit}`)
+}
+
+// see TL-1, TL-13, TL-14
+/** @purity pure */
+function taskHintRows(
+  task: Task,
+  context: HintContext,
+  language: DisplayLanguage,
+  facts: { readonly late: TooltipRow | null; readonly stateWord: string },
+): readonly TooltipRow[] {
   const name = task.name ?? ''
-  const lines = [
-    name === '' ? null : name,
-    planLine(task, context, language),
-    actualLine(task, context, language),
-    assigneeLine(context.assigneeNames, language),
-    percentLine(task, language),
-    deadlineDayText(task, context, language),
-    late,
+  const rows: readonly (TooltipRow | null)[] = [
+    name === '' ? null : { kind: 'whole', text: name },
+    planRow(task, context, language),
+    actualRow(task, context, language),
+    assigneeRow(context.assigneeNames, language),
+    percentRow(task, facts.stateWord, language),
+    noteRow(task),
+    deadlineRow(task, context, language),
+    facts.late,
   ]
-  return lines.filter((one): one is string => one !== null).join(LINE_BREAK)
+  return rows.filter((one): one is TooltipRow => one !== null)
 }
 
 // see TL-2
@@ -395,7 +444,8 @@ export function deadlineHint(task: Task, schedule: Schedule | null, language: Di
 export function baselineHint(baseline: BaselineTask, schedule: Schedule | null, language: DisplayLanguage, times = NO_HINT_TIMES): string {
   const context = hintContextOf(schedule, baseline.uid, times)
   const name = baseline.name ?? ''
-  const lines = [name === '' ? null : name, planLine(baseline, context, language)]
+  const plan = planRow(baseline, context, language)
+  const lines = [name === '' ? null : name, plan === null ? null : rowText(plan)]
   return lines.filter((one): one is string => one !== null).join(LINE_BREAK)
 }
 
@@ -459,17 +509,38 @@ function iconTooltipOf(
 
 type HintHolder = NonNullable<ScreenViewReadings['hintHolderUnderPointer']>
 
-// see TL-1, TL-2, TL-3, TL-12
+interface HintShown {
+  readonly text: string
+  readonly rows?: readonly TooltipRow[]
+}
+
 /** @purity pure */
-function hintTextOf(holder: HintHolder, schedule: Schedule, language: DisplayLanguage, times: HintTimes): string | null {
+function textOnly(text: string | null): HintShown | null {
+  return text === null ? null : { text }
+}
+
+// see TL-1, TL-2, TL-3, TL-12, SQ-5
+/** @purity pure */
+function hintShownOf(
+  holder: HintHolder,
+  schedule: Schedule,
+  language: DisplayLanguage,
+  times: HintTimes,
+  diagnosed: ScreenViewReadings['diagnosedMarkers'],
+): HintShown | null {
   if (holder.kind === 'baseline') {
     const baseline = schedule.baselineTasks.find((one) => one.uid === holder.taskUid)
-    return baseline === undefined ? null : baselineHint(baseline, schedule, language, times)
+    return baseline === undefined ? null : textOnly(baselineHint(baseline, schedule, language, times))
   }
   const task = taskByUid(schedule, holder.taskUid)
   if (task === null) return null
-  if (holder.kind === 'deadline') return deadlineHint(task, schedule, language, times)
-  return taskHint(task, hintContextOf(schedule, task.uid, times), language, lateLine(task, schedule, language))
+  if (holder.kind === 'deadline') return textOnly(deadlineHint(task, schedule, language, times))
+  // TRAP: read through ?. and ??: views built from a partial schedule carry no project or no statusDate (FR-046: no line).
+  const statusDate = dayOf(schedule.project?.statusDate ?? null)
+  const stateWord = taskStateWordOf(task, statusDate, diagnosed?.get(task.uid), language)
+  const facts = { late: lateRow(task, schedule, statusDate, language), stateWord }
+  const rows = taskHintRows(task, hintContextOf(schedule, task.uid, times), language, facts)
+  return { text: rows.map(rowText).join(LINE_BREAK), rows }
 }
 
 // see EZ-6, DC-3, S-439, T-023d
@@ -484,9 +555,10 @@ function taskTooltipOf(
   const holder = readings.hintHolderUnderPointer ?? null
   const isDue = readings.pointerRestedMs >= SETTINGS_CONSTANTS.taskHintDelayMs
   if (pointer === null || holder === null || isDualCursorOn(session) || !isDue) return null
-  const text = hintTextOf(holder, schedule, displayLanguageOf(session), times)
-  if (text === null || text === '') return null
-  return { anchor: holder, text, assignment: null, at: pointer }
+  const shown = hintShownOf(holder, schedule, displayLanguageOf(session), times, readings.diagnosedMarkers)
+  if (shown === null || shown.text === '') return null
+  const rows = shown.rows === undefined ? {} : { rows: shown.rows }
+  return { anchor: holder, text: shown.text, assignment: null, at: pointer, ...rows }
 }
 
 // see EZ-2, EZ-6, FR-037, IN-3

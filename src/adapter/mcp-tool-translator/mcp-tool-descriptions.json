@@ -4,7 +4,7 @@
  "tools": [
   {
    "name": "agentApiVersion",
-   "description": "`Agent API` の版。\n呼ぶ側が最初に読む",
+   "description": "`Agent API` の版 —— `schemaVersion` と同じ書式の日時の文字列（`YYYY-MM-DDTHH:MM:SSZ`）。\n呼ぶ側が最初に読む",
    "inputSchema": {
     "type": "object",
     "properties": {}
@@ -254,17 +254,17 @@
            "description": "親タスクの進捗の疑義が許す日数を変える",
            "properties": {
             "kind": {
-             "const": "setParentProgressToleranceDays"
+             "const": "setParentTaskProgressToleranceDays"
             },
-            "parentProgressToleranceDays": {
+            "parentTaskProgressToleranceDays": {
              "type": "integer",
              "minimum": 0,
-             "description": "`Project.parentProgressToleranceDays`（`AT-156`）を書く"
+             "description": "`Project.parentTaskProgressToleranceDays`（`AT-156`）を書く"
             }
            },
            "required": [
             "kind",
-            "parentProgressToleranceDays"
+            "parentTaskProgressToleranceDays"
            ],
            "additionalProperties": false
           },
@@ -399,14 +399,14 @@
             "kind": {
              "const": "deleteTask"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             }
            },
            "required": [
             "kind",
-            "uid"
+            "taskUid"
            ],
            "additionalProperties": false
           },
@@ -460,7 +460,7 @@
             "kind": {
              "const": "setTaskName"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -474,7 +474,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "name"
            ],
            "additionalProperties": false
@@ -486,7 +486,7 @@
             "kind": {
              "const": "setTaskNotes"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -500,7 +500,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "notes"
            ],
            "additionalProperties": false
@@ -512,7 +512,7 @@
             "kind": {
              "const": "setTaskPlanDates"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -529,7 +529,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "start",
             "finish"
            ],
@@ -542,7 +542,7 @@
             "kind": {
              "const": "setTaskDeadline"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -557,7 +557,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "deadline"
            ],
            "additionalProperties": false
@@ -569,7 +569,7 @@
             "kind": {
              "const": "setTaskPlanActualState"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -578,20 +578,20 @@
               {
                "type": "object",
                "properties": {
-                "row": {
-                 "const": "PA-1"
+                "state": {
+                 "const": "notStarted"
                 }
                },
                "required": [
-                "row"
+                "state"
                ],
                "additionalProperties": false
               },
               {
                "type": "object",
                "properties": {
-                "row": {
-                 "const": "PA-2"
+                "state": {
+                 "const": "inProgress"
                 },
                 "actualStart": {
                  "type": "string",
@@ -605,7 +605,7 @@
                 }
                },
                "required": [
-                "row",
+                "state",
                 "actualStart",
                 "stop"
                ],
@@ -614,8 +614,8 @@
               {
                "type": "object",
                "properties": {
-                "row": {
-                 "const": "PA-3"
+                "state": {
+                 "const": "suspendedWithResumeDate"
                 },
                 "actualStart": {
                  "type": "string",
@@ -634,7 +634,7 @@
                 }
                },
                "required": [
-                "row",
+                "state",
                 "actualStart",
                 "stop",
                 "resume"
@@ -644,8 +644,8 @@
               {
                "type": "object",
                "properties": {
-                "row": {
-                 "const": "PA-4"
+                "state": {
+                 "const": "suspendedWithoutResumeDate"
                 },
                 "actualStart": {
                  "type": "string",
@@ -659,7 +659,7 @@
                 }
                },
                "required": [
-                "row",
+                "state",
                 "actualStart",
                 "stop"
                ],
@@ -668,8 +668,8 @@
               {
                "type": "object",
                "properties": {
-                "row": {
-                 "const": "PA-5"
+                "state": {
+                 "const": "finished"
                 },
                 "actualStart": {
                  "type": "string",
@@ -683,7 +683,7 @@
                 }
                },
                "required": [
-                "row",
+                "state",
                 "actualStart",
                 "actualFinish"
                ],
@@ -695,7 +695,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "place"
            ],
            "additionalProperties": false
@@ -707,19 +707,19 @@
             "kind": {
              "const": "beginTaskActual"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
             "grabbed": {
              "enum": [
-              "GA-5",
-              "GA-6",
-              "GA-17",
-              "GA-21",
-              "GA-22"
+              "barDummyStart",
+              "barDummyFinish",
+              "milestoneDummy",
+              "arrowDummyStart",
+              "arrowDummyFinish"
              ],
-             "description": "`'GA-5'` ・ `'GA-6'` ・ `'GA-17'` ・ `'GA-21'` ・ `'GA-22'` のどれか —— 掴んだ掴み代（表 T-266 の行）"
+             "description": "`'barDummyStart'` ・ `'barDummyFinish'` ・ `'milestoneDummy'` ・ `'arrowDummyStart'` ・ `'arrowDummyFinish'` のどれか —— 掴んだ掴み代（表 T-266 の行の語：`barDummyStart` は `GA-5`・`barDummyFinish` は `GA-6`・`milestoneDummy` は `GA-17`・`arrowDummyStart` は `GA-21`・`arrowDummyFinish` は `GA-22`）"
             },
             "released": {
              "type": "object",
@@ -747,7 +747,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "grabbed",
             "released",
             "snapMinutes"
@@ -761,7 +761,7 @@
             "kind": {
              "const": "cycleTaskPlanActualState"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -819,7 +819,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "remembered"
            ],
            "additionalProperties": false
@@ -831,7 +831,7 @@
             "kind": {
              "const": "setTaskFadeInDays"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -846,7 +846,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "fadeInDays"
            ],
            "additionalProperties": false
@@ -858,7 +858,7 @@
             "kind": {
              "const": "setTaskFadeOutDays"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -873,7 +873,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "fadeOutDays"
            ],
            "additionalProperties": false
@@ -885,7 +885,7 @@
             "kind": {
              "const": "setTaskParentTask"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -899,7 +899,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "parentTaskUid"
            ],
            "additionalProperties": false
@@ -911,7 +911,7 @@
             "kind": {
              "const": "moveTaskToTaskGroup"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -923,7 +923,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "taskGroupId"
            ],
            "additionalProperties": false
@@ -935,7 +935,7 @@
             "kind": {
              "const": "setTaskVisualShapeKind"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -952,7 +952,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "shapeKind"
            ],
            "additionalProperties": false
@@ -964,7 +964,7 @@
             "kind": {
              "const": "setTaskVisualMilestoneGlyph"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -992,7 +992,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "milestoneGlyph"
            ],
            "additionalProperties": false
@@ -1004,7 +1004,7 @@
             "kind": {
              "const": "setTaskVisualColors"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -1027,7 +1027,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "fillColor",
             "strokeColor"
            ],
@@ -1040,14 +1040,14 @@
             "kind": {
              "const": "resetTaskVisualColors"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             }
            },
            "required": [
             "kind",
-            "uid"
+            "taskUid"
            ],
            "additionalProperties": false
           },
@@ -1058,7 +1058,7 @@
             "kind": {
              "const": "setTaskVisualStrokeWidthPx"
             },
-            "uid": {
+            "taskUid": {
              "type": "integer",
              "description": "鍵（`Task.uid`、`AT-24`）"
             },
@@ -1074,7 +1074,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "taskUid",
             "strokeWidthPx"
            ],
            "additionalProperties": false
@@ -1164,7 +1164,7 @@
              "format": "uuid",
              "description": "鍵（`TaskGroup.id`、`AT-51`） —— 複製する部分木の根"
             },
-            "targetTaskGroupId": {
+            "parentId": {
              "type": [
               "string",
               "null"
@@ -1183,7 +1183,7 @@
            "required": [
             "kind",
             "sourceTaskGroupId",
-            "targetTaskGroupId",
+            "parentId",
             "newTaskGroupIds"
            ],
            "additionalProperties": false
@@ -1693,7 +1693,7 @@
             "kind": {
              "const": "setResourceName"
             },
-            "uid": {
+            "resourceUid": {
              "type": "integer",
              "description": "鍵（`Resource.uid`、`AT-85`）"
             },
@@ -1707,7 +1707,7 @@
            },
            "required": [
             "kind",
-            "uid",
+            "resourceUid",
             "name"
            ],
            "additionalProperties": false
@@ -1717,9 +1717,9 @@
            "description": "選んだ担当を消す",
            "properties": {
             "kind": {
-             "const": "deleteResource"
+             "const": "deleteResources"
             },
-            "uids": {
+            "resourceUids": {
              "type": "array",
              "items": {
               "type": "integer"
@@ -1729,7 +1729,7 @@
            },
            "required": [
             "kind",
-            "uids"
+            "resourceUids"
            ],
            "additionalProperties": false
           },
@@ -1799,7 +1799,7 @@
             "kind": {
              "const": "createCommentBox"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "`CommentBox.id`（`AT-110`）を書く"
@@ -1875,7 +1875,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "commentBoxId",
             "anchor"
            ],
            "additionalProperties": false
@@ -1887,7 +1887,7 @@
             "kind": {
              "const": "deleteCommentBox"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`CommentBox.id`、`AT-110`）"
@@ -1895,7 +1895,7 @@
            },
            "required": [
             "kind",
-            "id"
+            "commentBoxId"
            ],
            "additionalProperties": false
           },
@@ -1906,7 +1906,7 @@
             "kind": {
              "const": "setCommentBoxText"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`CommentBox.id`、`AT-110`）"
@@ -1921,7 +1921,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "commentBoxId",
             "text"
            ],
            "additionalProperties": false
@@ -1933,7 +1933,7 @@
             "kind": {
              "const": "setCommentBoxLeaderShapeKind"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`CommentBox.id`、`AT-110`）"
@@ -1948,7 +1948,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "commentBoxId",
             "leaderShapeKind"
            ],
            "additionalProperties": false
@@ -1960,7 +1960,7 @@
             "kind": {
              "const": "setCommentBoxAnchor"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`CommentBox.id`、`AT-110`）"
@@ -2036,7 +2036,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "commentBoxId",
             "anchor"
            ],
            "additionalProperties": false
@@ -2048,7 +2048,7 @@
             "kind": {
              "const": "setCommentBoxBodyOffsetPx"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`CommentBox.id`、`AT-110`）"
@@ -2064,7 +2064,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "commentBoxId",
             "dx",
             "dy"
            ],
@@ -2077,7 +2077,7 @@
             "kind": {
              "const": "setCommentBoxStrokeColor"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`CommentBox.id`、`AT-110`）"
@@ -2093,7 +2093,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "commentBoxId",
             "strokeColor"
            ],
            "additionalProperties": false
@@ -2105,7 +2105,7 @@
             "kind": {
              "const": "setCommentBoxStrokeWidthPx"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`CommentBox.id`、`AT-110`）"
@@ -2120,7 +2120,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "commentBoxId",
             "strokeWidthPx"
            ],
            "additionalProperties": false
@@ -2132,7 +2132,7 @@
             "kind": {
              "const": "setCommentBoxFillColor"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`CommentBox.id`、`AT-110`）"
@@ -2148,7 +2148,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "commentBoxId",
             "fillColor"
            ],
            "additionalProperties": false
@@ -2160,7 +2160,7 @@
             "kind": {
              "const": "setCommentBoxFillTransparencyPercent"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`CommentBox.id`、`AT-110`）"
@@ -2175,7 +2175,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "commentBoxId",
             "fillTransparencyPercent"
            ],
            "additionalProperties": false
@@ -2187,7 +2187,7 @@
             "kind": {
              "const": "setCommentBoxTextColor"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`CommentBox.id`、`AT-110`）"
@@ -2203,7 +2203,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "commentBoxId",
             "textColor"
            ],
            "additionalProperties": false
@@ -2215,7 +2215,7 @@
             "kind": {
              "const": "bringCommentBoxToFront"
             },
-            "id": {
+            "commentBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`CommentBox.id`、`AT-110`）"
@@ -2223,7 +2223,7 @@
            },
            "required": [
             "kind",
-            "id"
+            "commentBoxId"
            ],
            "additionalProperties": false
           },
@@ -2234,7 +2234,7 @@
             "kind": {
              "const": "createHighlightBox"
             },
-            "id": {
+            "highlightBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "`HighlightBox.id`（`AT-116`）を書く"
@@ -2275,7 +2275,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "highlightBoxId",
             "range"
            ],
            "additionalProperties": false
@@ -2287,7 +2287,7 @@
             "kind": {
              "const": "deleteHighlightBox"
             },
-            "id": {
+            "highlightBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`HighlightBox.id`、`AT-116`）"
@@ -2295,7 +2295,7 @@
            },
            "required": [
             "kind",
-            "id"
+            "highlightBoxId"
            ],
            "additionalProperties": false
           },
@@ -2306,7 +2306,7 @@
             "kind": {
              "const": "setHighlightBoxRange"
             },
-            "id": {
+            "highlightBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`HighlightBox.id`、`AT-116`）"
@@ -2347,7 +2347,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "highlightBoxId",
             "range"
            ],
            "additionalProperties": false
@@ -2359,7 +2359,7 @@
             "kind": {
              "const": "setHighlightBoxStrokeColor"
             },
-            "id": {
+            "highlightBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`HighlightBox.id`、`AT-116`）"
@@ -2375,7 +2375,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "highlightBoxId",
             "strokeColor"
            ],
            "additionalProperties": false
@@ -2387,7 +2387,7 @@
             "kind": {
              "const": "setHighlightBoxStrokeWidthPx"
             },
-            "id": {
+            "highlightBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`HighlightBox.id`、`AT-116`）"
@@ -2402,7 +2402,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "highlightBoxId",
             "strokeWidthPx"
            ],
            "additionalProperties": false
@@ -2414,7 +2414,7 @@
             "kind": {
              "const": "setHighlightBoxFillColor"
             },
-            "id": {
+            "highlightBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`HighlightBox.id`、`AT-116`）"
@@ -2430,7 +2430,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "highlightBoxId",
             "fillColor"
            ],
            "additionalProperties": false
@@ -2442,7 +2442,7 @@
             "kind": {
              "const": "setHighlightBoxFillTransparencyPercent"
             },
-            "id": {
+            "highlightBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`HighlightBox.id`、`AT-116`）"
@@ -2457,7 +2457,7 @@
            },
            "required": [
             "kind",
-            "id",
+            "highlightBoxId",
             "fillTransparencyPercent"
            ],
            "additionalProperties": false
@@ -2469,7 +2469,7 @@
             "kind": {
              "const": "bringHighlightBoxToFront"
             },
-            "id": {
+            "highlightBoxId": {
              "type": "string",
              "format": "uuid",
              "description": "鍵（`HighlightBox.id`、`AT-116`）"
@@ -2477,7 +2477,7 @@
            },
            "required": [
             "kind",
-            "id"
+            "highlightBoxId"
            ],
            "additionalProperties": false
           },
@@ -2507,9 +2507,9 @@
            "description": "要素の表示を切り替える",
            "properties": {
             "kind": {
-             "const": "setElementVisible"
+             "const": "setVisibilitySetting"
             },
-            "element": {
+            "setting": {
              "enum": [
               "isBaselineVisible",
               "isPlanVisible",
@@ -2525,15 +2525,15 @@
              ],
              "description": "`isBaselineVisible`（`S-69`） ・ `isPlanVisible`（`S-227`） ・ `isActualVisible`（`S-228`） ・ `isProgressLineVisible`（`S-64`） ・ `isProgressMarkerVisible`（`S-63`） ・ `isDateGridLinesVisible`（`S-67`） ・ `isGroupGridLinesVisible`（`S-68`） ・ `isAssigneeVisible`（`S-60`） ・ `isPercentCompleteVisible`（`S-61`） ・ `isDependencyVisible`（`S-62`） ・ `isPlanDatesVisible`（`S-232`） のどれか —— 表示を切り替える要素（値はその行の鍵）"
             },
-            "visible": {
+            "isVisible": {
              "type": "boolean",
-             "description": "`boolean` —— `element` が名指す行に書く値"
+             "description": "`boolean` —— `setting` が名指す行に書く値"
             }
            },
            "required": [
             "kind",
-            "element",
-            "visible"
+            "setting",
+            "isVisible"
            ],
            "additionalProperties": false
           },
@@ -2542,20 +2542,20 @@
            "description": "文字サイズの段を変える",
            "properties": {
             "kind": {
-             "const": "setFontScale"
+             "const": "setFontSizeStep"
             },
-            "fontScale": {
+            "fontSizeStep": {
              "enum": [
               "S",
               "M",
               "L"
              ],
-             "description": "`fontScale`（`S-70`）を書く"
+             "description": "`fontSizeStep`（`S-70`）を書く"
             }
            },
            "required": [
             "kind",
-            "fontScale"
+            "fontSizeStep"
            ],
            "additionalProperties": false
           },
@@ -2627,21 +2627,21 @@
              "format": "uuid",
              "description": "`scrollTaskGroupId`（`S-78`）を書く"
             },
-            "scrollDayOffset": {
+            "scrollDateFraction": {
              "type": "number",
-             "description": "`scrollDayOffset`（`S-177`）を書く"
+             "description": "`scrollDateFraction`（`S-177`）を書く"
             },
-            "scrollGroupOffset": {
+            "scrollTaskGroupFraction": {
              "type": "number",
-             "description": "`scrollGroupOffset`（`S-176`）を書く"
+             "description": "`scrollTaskGroupFraction`（`S-176`）を書く"
             }
            },
            "required": [
             "kind",
             "scrollDate",
             "scrollTaskGroupId",
-            "scrollDayOffset",
-            "scrollGroupOffset"
+            "scrollDateFraction",
+            "scrollTaskGroupFraction"
            ],
            "additionalProperties": false
           },
@@ -2737,13 +2737,13 @@
              "format": "uuid",
              "description": "`scrollTaskGroupId`（`S-78`）を書く"
             },
-            "scrollDayOffset": {
+            "scrollDateFraction": {
              "type": "number",
-             "description": "`scrollDayOffset`（`S-177`）を書く"
+             "description": "`scrollDateFraction`（`S-177`）を書く"
             },
-            "scrollGroupOffset": {
+            "scrollTaskGroupFraction": {
              "type": "number",
-             "description": "`scrollGroupOffset`（`S-176`）を書く"
+             "description": "`scrollTaskGroupFraction`（`S-176`）を書く"
             }
            },
            "required": [
@@ -2752,8 +2752,8 @@
             "zoomY",
             "scrollDate",
             "scrollTaskGroupId",
-            "scrollDayOffset",
-            "scrollGroupOffset"
+            "scrollDateFraction",
+            "scrollTaskGroupFraction"
            ],
            "additionalProperties": false
           },
@@ -2949,26 +2949,34 @@
               "visibility": {
                "type": "object",
                "properties": {
-                "hiddenKeys": {
+                "hiddenTaskUids": {
                  "type": "array",
                  "items": {
                   "type": "integer"
                  },
-                 "description": "`integer`の並び で `tableViews.searchPanel.hiddenTaskUids` ／ `tableViews.delayDiagnosticsReport.hiddenTaskUids` ／ `tableViews.resourceList.hiddenResourceUids`（`S-561` ／ `S-565` ／ `S-569`）を書く —— 隠した行の鍵（担当リストは `Resource.uid`、ほかは `Task.uid`）"
+                 "description": "`integer`の並び で `tableViews.searchPanel.hiddenTaskUids` ／ `tableViews.delayDiagnosticsReport.hiddenTaskUids`（`S-561` ／ `S-565`）を書く —— 隠したタスクの `Task.uid`（検索の表と遅延診断の表が書き、担当リストでは空の並び）"
+                },
+                "hiddenResourceUids": {
+                 "type": "array",
+                 "items": {
+                  "type": "integer"
+                 },
+                 "description": "`integer`の並び で `tableViews.resourceList.hiddenResourceUids`（`S-569`）を書く —— 隠した担当の `Resource.uid`（担当リストだけが書き、ほかの表では空の並び）"
                 },
                 "isUnassignedHidden": {
                  "type": "boolean",
                  "description": "`boolean` で `tableViews.resourceList.isUnassignedHidden`（`S-570`）を書く —— 担当の無い行を隠すか（担当リストだけが書く）"
                 },
-                "isApplied": {
+                "isScheduleFilterApplied": {
                  "type": "boolean",
                  "description": "`boolean` で `tableViews.searchPanel.isScheduleFilterApplied` ／ `tableViews.delayDiagnosticsReport.isScheduleFilterApplied` ／ `tableViews.resourceList.isScheduleFilterApplied`（`S-560` ／ `S-564` ／ `S-568`）を書く —— スケジュールフィルタを掛けているか"
                 }
                },
                "required": [
-                "hiddenKeys",
+                "hiddenTaskUids",
+                "hiddenResourceUids",
                 "isUnassignedHidden",
-                "isApplied"
+                "isScheduleFilterApplied"
                ],
                "additionalProperties": false,
                "description": "`TableVisibility` —— 表示の列の値"

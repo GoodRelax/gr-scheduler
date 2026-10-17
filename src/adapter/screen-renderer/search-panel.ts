@@ -4,10 +4,14 @@
 // @purity    pure
 
 import {
+  planActualState,
+  progressMarkerOf,
   searchRowsOf,
+  type CalendarDay,
   type CommentBoxSearchRow,
   type Schedule,
   type SearchRows,
+  type Task,
   type TaskSearchRow,
 } from '../../entity/document-model/schedule/schedule'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -192,6 +196,19 @@ function stateWordOf(state: SearchTaskState, language: DisplayLanguage): string 
   return wordOf(STATE_WORDS.get(state)?.text, language)
 }
 
+// see TL-8, SQ-5
+// WHY: the task tooltip's progress line names the state in the Status column's words, so the two never differ on one task.
+/** @purity pure */
+export function taskStateWordOf(
+  task: Task,
+  statusDate: CalendarDay | null,
+  diagnosed: 'DG-1' | 'DG-2' | 'DG-3' | undefined,
+  language: DisplayLanguage,
+): string {
+  const progressMarker = progressMarkerOf(task, statusDate, diagnosed)
+  return stateWordOf(searchTaskStateOf({ progressMarker, planActualState: planActualState(task) }), language)
+}
+
 // see SQ-14, DT-9, FM-9
 /** @purity pure */
 export function taskTypeWordOf(taskType: string, language: DisplayLanguage): string {
@@ -253,7 +270,7 @@ function rowsOf(found: SearchRows, panel: SearchPanelSession, view: TableView, l
 // see SQ-10, TV-2, S-561
 /** @purity pure */
 function hiddenTasksOf(view: TableView): ReadonlySet<number> {
-  return new Set(view.visibility.hiddenKeys)
+  return new Set(view.visibility.hiddenTaskUids)
 }
 
 // see SV-7, SQ-5, T-331
@@ -316,7 +333,7 @@ function shownIn(session: ScreenSession): SearchPanelShown | null {
 // WHY: the search table rows every task, so only a Hide row of a task still in the document changes the schedule.
 /** @purity pure */
 function wouldSearchFilterChange(view: TableView, schedule: Schedule): boolean {
-  return isScheduleFilterChanging(view.visibility, () => new Set(schedule.tasks.map((task) => task.uid)), true)
+  return isScheduleFilterChanging('searchPanel', view.visibility, () => new Set(schedule.tasks.map((task) => task.uid)), true)
 }
 
 // see FR-151, T-330, S-442, SQ-5, S-560, TX-4
@@ -417,7 +434,7 @@ export function searchPanelAfterFilterChange(
   view: TableView,
   change: SearchFilterChange,
 ): TableView | null {
-  if (change.kind === 'shown') return tableAfterVisibilityChange(view, change.keys, change.isShown)
+  if (change.kind === 'shown') return tableAfterVisibilityChange('searchPanel', view, change.keys, change.isShown)
   return tableAfterFilterChange(panel, view, shownIn(session), change, searchTableOf(session, panel, view, () => NOTHING_FOUND))
 }
 

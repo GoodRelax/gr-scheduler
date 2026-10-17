@@ -227,7 +227,7 @@ describe('DV-8 / EX-12: Task/Duration counts the finish day', () => {
     // WHY: Tuesday the 7th to Tuesday the 14th holds six working days; the half-open count would say five.
     const result = editDocument(
       read.document,
-      { kind: 'setTaskPlanDates', uid: 1, start: april(7, S_482), finish: april(14, S_483) },
+      { kind: 'setTaskPlanDates', taskUid: 1, start: april(7, S_482), finish: april(14, S_483) },
       LIMITS,
       'Task group',
     )

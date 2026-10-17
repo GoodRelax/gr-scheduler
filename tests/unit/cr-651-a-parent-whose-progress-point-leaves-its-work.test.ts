@@ -194,13 +194,13 @@ describe('CR-651 -- the rows these cases are driven by', () => {
     expect(cellOf(table, id, heading)).toContain(sentence)
   })
 
-  it('S-487 holds the key parentProgressToleranceDays with an integer default of at least 0', () => {
-    expect(S_487_KEY).toBe('parentProgressToleranceDays')
+  it('S-487 holds the key parentTaskProgressToleranceDays with an integer default of at least 0', () => {
+    expect(S_487_KEY).toBe('parentTaskProgressToleranceDays')
     expect(S_487_DEFAULT).toBeGreaterThanOrEqual(0)
   })
 
-  it('CM-87 is named setParentProgressToleranceDays in T-108', () => {
-    expect(CM_87_NAME).toBe('setParentProgressToleranceDays')
+  it('CM-87 is named setParentTaskProgressToleranceDays in T-108', () => {
+    expect(CM_87_NAME).toBe('setParentTaskProgressToleranceDays')
   })
 })
 
@@ -268,7 +268,7 @@ describe('CR-651 FR-131 T-311 VS-6 -- the parent point against the points of its
     expect(dayText(values['rightmostPoint'])).toBe(D(5, 19))
     expect(values['rightmostUid']).toBe(C2)
     expect(outsideDaysOf(values)).toBe(LEFT_WORKING_DAYS)
-    expect(values['parentProgressToleranceDays']).toBe(S_487_DEFAULT)
+    expect(values['parentTaskProgressToleranceDays']).toBe(S_487_DEFAULT)
   })
 
   it('VS-6 FR-054: the gap is counted in working days of the document calendar (a weekend inside it)', () => {
@@ -320,11 +320,11 @@ describe('CR-651 FR-131 T-311 VS-6 -- the parent point against the points of its
     expect(vs6Of(diagnose(document))).toEqual([])
   })
 
-  it('VS-6 S-487 is read from Project.parentProgressToleranceDays: raising it takes the finding away', () => {
+  it('VS-6 S-487 is read from Project.parentTaskProgressToleranceDays: raising it takes the finding away', () => {
     const document = LEFT_PARENT(S_487_DEFAULT)
     expect(vs6On(diagnose(document), G)).toHaveLength(1)
     expect(vs6On(diagnose(withTolerance(document, 1000)), G)).toHaveLength(0)
-    expect(valuesOf(vs6On(diagnose(withTolerance(document, 2)), G)[0])['parentProgressToleranceDays']).toBe(2)
+    expect(valuesOf(vs6On(diagnose(withTolerance(document, 2)), G)[0])['parentTaskProgressToleranceDays']).toBe(2)
   })
 })
 
@@ -427,6 +427,9 @@ describe('CR-651 FR-131 VS-6 is a doubt', () => {
 })
 
 const SAMPLE_DIR = join(process.cwd(), 'sample-schedule')
+// WHY: the large sample before CR-790, frozen for the CR-651 / CR-716 sweeps; the shipped sample now shows one VS-6 (CR-790).
+const LARGE_FILE = 'cr-651-large-sample-before-cr-790.ja.xml'
+const FIXTURE_DIR = join(process.cwd(), 'tests', 'fixtures')
 
 function currentDocument(tolerance?: number): Document {
   const read = documentFromJson(TEMPLATE_TEXT)
@@ -435,7 +438,7 @@ function currentDocument(tolerance?: number): Document {
 }
 
 function sampleDocument(file: string, current: Document = currentDocument()): Document {
-  const read = documentFromMspdi(readFileSync(join(SAMPLE_DIR, file), 'utf8'), current)
+  const read = documentFromMspdi(readFileSync(join(file === LARGE_FILE ? FIXTURE_DIR : SAMPLE_DIR, file), 'utf8'), current)
   if (!read.ok) throw new Error(`${file} was refused: ${JSON.stringify(read.faults)}`)
   return read.document
 }
@@ -455,7 +458,6 @@ const LANGUAGES = ['ja', 'en'] as const
 const LARGE_AT_DEFAULT = [125, 129, 133, 137, 141, 145, 181, 182, 200, 208]
 const LARGE_AT_WEEKLY = [181, 182, 200, 208]
 const COUNTS = [
-  ['sample-large-erp-program', LARGE_AT_DEFAULT.length, LARGE_AT_WEEKLY.length],
   ['sample-small-website-renewal', 1, 1],
   ['sample-medium-sfa-webapp', 0, 0],
 ] as const
@@ -470,8 +472,8 @@ const describeFound = (found: readonly Finding[]): string =>
     .join(' ')
 
 describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
-  it('VS-6 sample-large-erp-program.ja.xml: one VS-6 on uid 208, parentPoint 2026-09-02, leftmostPoint 2026-11-25', () => {
-    const found = vs6On(diagnose(sample('sample-large-erp-program.ja.xml')), 208)
+  it('VS-6 the large sample before CR-790: one VS-6 on uid 208, parentPoint 2026-09-02, leftmostPoint 2026-11-25', () => {
+    const found = vs6On(diagnose(sample(LARGE_FILE)), 208)
     expect(found).toHaveLength(1)
     const values = valuesOf(found[0])
     expect(dayText(values['parentPoint'])).toBe('2026-09-02')
@@ -484,13 +486,18 @@ describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
     expect(vs6Of(diagnose(sample('sample-small-website-renewal.ja.xml'))).map((one) => one.uid)).toEqual([38])
   })
 
-  const cases = COUNTS.flatMap(([name, atDefault, atWeekly]) =>
-    LANGUAGES.map((language) => [`${name}.${language}.xml`, atDefault, atWeekly] as const),
-  )
+  // WHY: the en twin of the large sample gave identical counts (CR-618 decision 5) and CR-790 froze ja only,
+  // so the large sample runs once, on the fixture.
+  const cases = [
+    ...COUNTS.flatMap(([name, atDefault, atWeekly]) =>
+      LANGUAGES.map((language) => [`${name}.${language}.xml`, atDefault, atWeekly] as const),
+    ),
+    [LARGE_FILE, LARGE_AT_DEFAULT.length, LARGE_AT_WEEKLY.length] as const,
+  ]
 
   it.each(cases)('VS-6 S-487 %s: %i at the default tolerance, %i at 7', (file, atDefault, atWeekly) => {
     const document = sample(file)
-    expect(document.schedule.project.parentProgressToleranceDays).toBe(S_487_DEFAULT)
+    expect(document.schedule.project.parentTaskProgressToleranceDays).toBe(S_487_DEFAULT)
     const atDefaultFound = vs6Of(diagnose(document))
     expect(atDefaultFound, describeFound(atDefaultFound)).toHaveLength(atDefault)
     const atWeeklyFound = vs6Of(diagnose(withTolerance(document, WEEKLY_TOLERANCE)))
@@ -498,13 +505,13 @@ describe('CR-651 VS-6 -- the MSPDI samples (CR-651 section 0.3)', () => {
   })
 
   it('VS-6 sample-large-erp-program at the default tolerance names exactly the parents CR-651 section 0.3 lists', () => {
-    const report = diagnose(sample('sample-large-erp-program.ja.xml'))
+    const report = diagnose(sample(LARGE_FILE))
     expect(vs6Of(report).map((one) => one.uid).sort((a, b) => a - b)).toEqual(LARGE_AT_DEFAULT)
   })
 
   // WHY: CR-710 places a Stop the file lacks by ActualDuration's working minutes, not rounded days (FR-011).
   it('VS-6 sample-large-erp-program at 7 keeps exactly 208, 200, 182 and 181, at 55, 59, 37 and 55 working days', () => {
-    const report = diagnose(withTolerance(sample('sample-large-erp-program.ja.xml'), WEEKLY_TOLERANCE))
+    const report = diagnose(withTolerance(sample(LARGE_FILE), WEEKLY_TOLERANCE))
     expect(vs6Of(report).map((one) => one.uid).sort((a, b) => a - b)).toEqual(LARGE_AT_WEEKLY)
     const days = new Map(vs6Of(report).map((one) => [one.uid, outsideDaysOf(valuesOf(one))]))
     expect([days.get(208), days.get(200), days.get(182), days.get(181)]).toEqual([55, 59, 37, 55])
@@ -517,7 +524,7 @@ describe('CR-651 AT-156 FR-073 -- the bundled documents carry the new column and
   it.each([
     ['startup-template.json', TEMPLATE_TEXT],
     ['empty-document.json', EMPTY_DOCUMENT_TEXT],
-  ] as const)('AT-156 FR-073 %s: schemaVersion is the manifest version and project.parentProgressToleranceDays = S-487', (_file, text) => {
+  ] as const)('AT-156 FR-073 %s: schemaVersion is the manifest version and project.parentTaskProgressToleranceDays = S-487', (_file, text) => {
     const raw = JSON.parse(text) as { schemaVersion: string; schedule: { project: Loose } }
     expect(raw.schemaVersion).toBe(SCHEMA_VERSION)
     expect(raw.schedule.project[S_487_KEY]).toBe(S_487_DEFAULT)
@@ -527,7 +534,7 @@ describe('CR-651 AT-156 FR-073 -- the bundled documents carry the new column and
     const document = withTolerance(currentDocument(), 6)
     const read = documentFromJson(jsonFromDocument(document))
     expect(read.ok).toBe(true)
-    if (read.ok) expect(read.document.schedule.project.parentProgressToleranceDays).toBe(6)
+    if (read.ok) expect(read.document.schedule.project.parentTaskProgressToleranceDays).toBe(6)
   })
 
   it.each([
@@ -535,7 +542,7 @@ describe('CR-651 AT-156 FR-073 -- the bundled documents carry the new column and
     ['-1', -1],
     ['1.5', 1.5],
     ['null', null],
-  ] as const)('AT-156 a GRS JSON whose parentProgressToleranceDays is %s is refused', (_name, value) => {
+  ] as const)('AT-156 a GRS JSON whose parentTaskProgressToleranceDays is %s is refused', (_name, value) => {
     const raw = JSON.parse(TEMPLATE_TEXT) as { schedule: { project: Loose } }
     if (value === undefined) delete raw.schedule.project[S_487_KEY]
     else raw.schedule.project[S_487_KEY] = value
@@ -543,8 +550,8 @@ describe('CR-651 AT-156 FR-073 -- the bundled documents carry the new column and
   })
 
   it('AT-156 an MSPDI open keeps the current document value (as themeHue does)', () => {
-    const opened = sampleDocument('sample-large-erp-program.ja.xml', currentDocument(WEEKLY_TOLERANCE))
-    expect(opened.schedule.project.parentProgressToleranceDays).toBe(WEEKLY_TOLERANCE)
+    const opened = sampleDocument(LARGE_FILE, currentDocument(WEEKLY_TOLERANCE))
+    expect(opened.schedule.project.parentTaskProgressToleranceDays).toBe(WEEKLY_TOLERANCE)
     expect(vs6Of(diagnose(opened))).toHaveLength(4)
   })
 
@@ -560,21 +567,21 @@ const HISTORY_LIMITS = { maxSteps: 50, maxTotalSizeBytes: 64 * 1024 * 1024 }
 const EMPTY_HISTORY: EditHistory<ChangeStep> = { done: [], undone: [] }
 const LIMITS = { zoomMin: 0.02, zoomMax: 64, taskGroupAreaWidthWithoutPanels: 982 }
 
-const cm87 = (parentProgressToleranceDays: number): DocumentCommand =>
-  ({ kind: CM_87_NAME, parentProgressToleranceDays }) as unknown as DocumentCommand
+const cm87 = (parentTaskProgressToleranceDays: number): DocumentCommand =>
+  ({ kind: CM_87_NAME, parentTaskProgressToleranceDays }) as unknown as DocumentCommand
 
-describe('CR-651 CM-87 FR-131 -- setParentProgressToleranceDays', () => {
-  it.each([0, 3, 1000])('CM-87 accepts the integer %i and writes it to Project.parentProgressToleranceDays', (value) => {
+describe('CR-651 CM-87 FR-131 -- setParentTaskProgressToleranceDays', () => {
+  it.each([0, 3, 1000])('CM-87 accepts the integer %i and writes it to Project.parentTaskProgressToleranceDays', (value) => {
     const result = editProject(currentDocument(), cm87(value) as never)
     expect(result.ok).toBe(true)
-    if (result.ok) expect(result.document.schedule.project.parentProgressToleranceDays).toBe(value)
+    if (result.ok) expect(result.document.schedule.project.parentTaskProgressToleranceDays).toBe(value)
   })
 
   it.each([-1, 1.5, Number.NaN])('CM-87 refuses %s (FR-131: never clamped into range)', (value) => {
     const document = currentDocument()
     const result = editProject(document, cm87(value) as never)
     expect(result.ok).toBe(false)
-    expect(document.schedule.project.parentProgressToleranceDays).toBe(S_487_DEFAULT)
+    expect(document.schedule.project.parentTaskProgressToleranceDays).toBe(S_487_DEFAULT)
   })
 
   it('CM-87 UN-13: one undo step, and undo restores the old value', () => {
@@ -593,11 +600,11 @@ describe('CR-651 CM-87 FR-131 -- setParentProgressToleranceDays', () => {
     })
     expect(plan.ok).toBe(true)
     if (!plan.ok) return
-    expect(plan.document.schedule.project.parentProgressToleranceDays).toBe(5)
+    expect(plan.document.schedule.project.parentTaskProgressToleranceDays).toBe(5)
     expect(plan.history.done).toHaveLength(1)
     const undone = undoEdit({ document: plan.document, history: plan.history })
     expect(undone.undone).toBe(true)
-    expect(undone.next.document.schedule.project.parentProgressToleranceDays).toBe(S_487_DEFAULT)
+    expect(undone.next.document.schedule.project.parentTaskProgressToleranceDays).toBe(S_487_DEFAULT)
   })
 
   it('CM-87 a refused value throws the whole bundle away (no step is recorded)', () => {

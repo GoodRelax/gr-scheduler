@@ -27,7 +27,7 @@ function documentWith(firstState: 'collapsed' | 'auto') {
     { id: FIRST_CHILD, parentId: FIRST },
     ...Array.from({ length: TASK_GROUPS - 1 }, (_, index) => ({ id: idOf(index + 1), parentId: null })),
   ]
-  return taskGroupDocument(rows, { scrollTaskGroupId: idOf(SCROLLED_TO), scrollGroupOffset: 0 })
+  return taskGroupDocument(rows, { scrollTaskGroupId: idOf(SCROLLED_TO), scrollTaskGroupFraction: 0 })
 }
 
 const toldReasons = (view: ScreenView): readonly string[] =>

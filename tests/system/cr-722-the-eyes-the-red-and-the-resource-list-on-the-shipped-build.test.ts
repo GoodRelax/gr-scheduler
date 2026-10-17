@@ -147,7 +147,7 @@ function fixture(): string {
       taskOrigins: [],
       baselineTasks: [],
     },
-    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDayOffset: 0, scrollTaskGroupId: TASK_GROUP, scrollGroupOffset: 0 },
+    documentSettings: { ...TEMPLATE.documentSettings, zoomX: 6, scrollDate: CLEAR_OF_THE_PALETTE, scrollDateFraction: 0, scrollTaskGroupId: TASK_GROUP, scrollTaskGroupFraction: 0 },
     documentStamp: TEMPLATE.documentStamp,
     changeLog: [],
   }
@@ -158,7 +158,7 @@ function fixture(): string {
 
 interface Shown {
   readonly drawnTaskUids: readonly number[] | null
-  readonly tables: readonly string[]
+  readonly filteringTables: readonly string[]
 }
 
 // see AM-26
@@ -168,7 +168,7 @@ async function readShown(page: Page): Promise<Shown> {
     const api = (window as unknown as { grSchedulerAgentApi: { readShownTasks(): Shown } }).grSchedulerAgentApi
     return api.readShownTasks()
   })
-  return { drawnTaskUids: shown.drawnTaskUids === null ? null : [...shown.drawnTaskUids].sort((a, b) => a - b), tables: [...shown.tables] }
+  return { drawnTaskUids: shown.drawnTaskUids === null ? null : [...shown.drawnTaskUids].sort((a, b) => a - b), filteringTables: [...shown.filteringTables] }
 }
 
 // see AM-27
@@ -327,13 +327,13 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       await openResourceList(page)
       await hideListedIn(page, RESOURCE_LIST, TANAKA)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)
-      expect((await readShown(page)).tables, 'premise: the eye is on').toEqual(['resourceList'])
+      expect((await readShown(page)).filteringTables, 'premise: the eye is on').toEqual(['resourceList'])
       const during = JSON.parse(await saveDocument(page)) as Record<string, unknown>
       expect(during['schedule']).toEqual(before['schedule'])
       const settingsOf = (saved: Record<string, unknown>): Record<string, unknown> => saved['documentSettings'] as Record<string, unknown>
       expect(settingsOf(during)['tableViews']).toMatchObject({ resourceList: { isScheduleFilterApplied: true, hiddenResourceUids: [2002] } })
       expect({ ...settingsOf(during), tableViews: null }, 'S-546: nothing else of the window is saved').toEqual({ ...settingsOf(before), tableViews: null })
-      expect(JSON.stringify(during)).not.toMatch(/Resource List|hiddenKeys|isApplied|"visibility"/i)
+      expect(JSON.stringify(during)).not.toMatch(/Resource List|hiddenKeys|"visibility"/i)
     } finally {
       await stage.close()
     }
@@ -347,7 +347,7 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       expect(await isRed(page, `[data-icon="${OPEN_SEARCH_ICON}"]`), 'not red before the eye').toBe(false)
       await hideListedIn(page, PANEL, SATO)
       await press(page, `${PANEL} [data-icon="${EYE}"]`)
-      expect(await readShown(page)).toEqual({ drawnTaskUids: [BRAVO, DELTA, ECHO], tables: ['searchPanel'] })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: [BRAVO, DELTA, ECHO], filteringTables: ['searchPanel'] })
       expect(await drawnTaskUids(page)).toEqual([BRAVO, DELTA, ECHO])
       expect(await isRed(page, `${PANEL} [data-icon="${EYE}"]`), 'EN-8 on the eye').toBe(true)
       expect(await isRed(page, `[data-icon="${OPEN_SEARCH_ICON}"]`), 'EN-8 above EN-5 on IC-117').toBe(true)
@@ -366,7 +366,7 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       await openResourceList(page)
       await hideListedIn(page, RESOURCE_LIST, TANAKA)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)
-      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, CHARLIE, ECHO], tables: ['resourceList'] })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, CHARLIE, ECHO], filteringTables: ['resourceList'] })
       expect(await isRed(page, `[data-icon="${OPEN_RESOURCE_LIST}"]`, RED_DARK), 'EN-8 on IC-62').toBe(true)
       expect((await paintsOf(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)).inks, 'S-544: the glyph is drawn in white').toContain(GLYPH_DARK)
       expect(await isRed(page, `[data-icon="${OPEN_SEARCH_ICON}"]`, RED_DARK), TV_12_NOT_RED).toBe(false)
@@ -389,13 +389,13 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       await openResourceList(page)
       await hideListedIn(page, RESOURCE_LIST, SATO)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)
-      expect(await readShown(page)).toEqual({ drawnTaskUids: [BRAVO, ECHO], tables: ['searchPanel', 'resourceList'] })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: [BRAVO, ECHO], filteringTables: ['searchPanel', 'resourceList'] })
       const two = (await textOf(page, BAND)) ?? ''
       expect(sentencesOf(['Search Panel', 'Resource List'], ALL.length, 2).some((sentence) => two.includes(sentence)), `the bar reads ${two}`).toBe(true)
       const off = wordOf('searchPanel', 'scheduleFilterOff')
       await page.locator(BAND).getByText(new RegExp(`^(${off.ja}|${off.en})$`)).click()
       await settle(page)
-      expect(await readShown(page)).toEqual({ drawnTaskUids: null, tables: [] })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: null, filteringTables: [] })
       expect(await textOf(page, BAND)).toBeNull()
       expect(await drawnTaskUids(page)).toEqual(ALL)
       expect(await isRed(page, `[data-icon="${OPEN_SEARCH_ICON}"]`)).toBe(false)
@@ -411,16 +411,16 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       const { page } = stage
       await openResourceList(page)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)
-      expect(await readShown(page), 'TV-5: with no Hide row the eye does not turn on').toEqual({ drawnTaskUids: null, tables: [] })
+      expect(await readShown(page), 'TV-5: with no Hide row the eye does not turn on').toEqual({ drawnTaskUids: null, filteringTables: [] })
       await hideListedIn(page, RESOURCE_LIST, TANAKA)
       await press(page, `${RESOURCE_LIST} [data-icon="${EYE}"]`)
       expect((await readShown(page)).drawnTaskUids).toEqual([ALPHA, CHARLIE, ECHO])
       await press(page, `${RESOURCE_LIST} [data-icon="${MINIMIZE}"]`)
-      expect((await readShown(page)).tables, 'SV-12: minimizing keeps the eye').toEqual(['resourceList'])
+      expect((await readShown(page)).filteringTables, 'SV-12: minimizing keeps the eye').toEqual(['resourceList'])
       expect(await textOf(page, BAND)).not.toBeNull()
       await openResourceList(page)
       await press(page, `${RESOURCE_LIST} [data-icon="${CLOSE}"]`)
-      expect(await readShown(page), 'RO-1: closing drops the eye').toEqual({ drawnTaskUids: null, tables: [] })
+      expect(await readShown(page), 'RO-1: closing drops the eye').toEqual({ drawnTaskUids: null, filteringTables: [] })
       expect(await textOf(page, BAND)).toBeNull()
       expect(await drawnTaskUids(page)).toEqual(ALL)
       await openResourceList(page)
@@ -441,7 +441,7 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       await press(page, `${PANEL} [data-icon="${EYE}"]`)
       expect((await readShown(page)).drawnTaskUids).toEqual([ALPHA, CHARLIE, ECHO])
       await press(page, `${PANEL} [data-search-task="${String(BRAVO)}"]`)
-      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, BRAVO, CHARLIE, ECHO], tables: ['searchPanel'] })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, BRAVO, CHARLIE, ECHO], filteringTables: ['searchPanel'] })
       expect(await drawnTaskUids(page)).toContain(BRAVO)
       expect(await drawnTaskUids(page), 'Delta stays Hide').not.toContain(DELTA)
     } finally {
@@ -459,7 +459,7 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
       expect((await readShown(page)).drawnTaskUids).toEqual([ALPHA, CHARLIE, ECHO])
       await openSearch(page)
       await press(page, `${PANEL} [data-search-task="${String(BRAVO)}"]`)
-      expect(await readShown(page), 'the Resource List eye is off, so nothing narrows').toEqual({ drawnTaskUids: null, tables: [] })
+      expect(await readShown(page), 'the Resource List eye is off, so nothing narrows').toEqual({ drawnTaskUids: null, filteringTables: [] })
       expect(await drawnTaskUids(page)).toContain(BRAVO)
       // WHY: RO-6 puts the Resource List where SV-9 puts the search panel, and the later one stands in front; close the panel to reach the eye.
       await press(page, `${PANEL} [data-icon="${ICON('IC-52')}"]`)
@@ -474,14 +474,14 @@ test.describe('CR-722 / FR-151 T-353 / FR-099 T-370 on the shipped build', () =>
     const stage = await opened()
     try {
       const { page } = stage
-      expect(await readShown(page)).toEqual({ drawnTaskUids: null, tables: [] })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: null, filteringTables: [] })
       await showOnly(page, [ALPHA, CHARLIE])
-      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, CHARLIE], tables: ['searchPanel'] })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: [ALPHA, CHARLIE], filteringTables: ['searchPanel'] })
       expect(await drawnTaskUids(page)).toEqual([ALPHA, CHARLIE])
       expect(await textOf(page, BAND)).not.toBeNull()
       expect(await isRed(page, `[data-icon="${OPEN_SEARCH_ICON}"]`), 'TV-12 on IC-117').toBe(true)
       await showOnly(page, null)
-      expect(await readShown(page)).toEqual({ drawnTaskUids: null, tables: [] })
+      expect(await readShown(page)).toEqual({ drawnTaskUids: null, filteringTables: [] })
       expect(await textOf(page, BAND)).toBeNull()
       expect(await drawnTaskUids(page)).toEqual(ALL)
     } finally {

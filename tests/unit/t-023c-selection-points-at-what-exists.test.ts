@@ -261,7 +261,7 @@ function richDocument(edit: (draft: any) => void = () => {}): Document {
     name: label,
     derivedFromTaskUid: null,
     order,
-    treeState: 'auto', editGroup: null,
+    treeState: 'auto', editPermission: null,
     color: null,
     minHeightPx: null,
   })

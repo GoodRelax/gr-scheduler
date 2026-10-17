@@ -22,7 +22,7 @@
   },
   "schemaVersion": {
    "type": "string",
-   "const": "2026-10-16T12:35:39Z"
+   "const": "2026-10-17T15:27:48Z"
   },
   "schedule": {
    "type": "object",
@@ -122,7 +122,7 @@
     "displayTimeZones",
     "fitSpanFinish",
     "fitSpanStart",
-    "fontScale",
+    "fontSizeStep",
     "isActualVisible",
     "isAssigneeVisible",
     "isBaselineVisible",
@@ -143,8 +143,8 @@
     "rulerFontSizePx",
     "rulerHeightPx",
     "scrollDate",
-    "scrollDayOffset",
-    "scrollGroupOffset",
+    "scrollDateFraction",
+    "scrollTaskGroupFraction",
     "scrollTaskGroupId",
     "stackDirection",
     "tableViews",
@@ -235,7 +235,7 @@
      "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
      "default": null
     },
-    "fontScale": {
+    "fontSizeStep": {
      "enum": [
       "S",
       "M",
@@ -338,11 +338,11 @@
      "pattern": "^-?\\d{4,}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})?$",
      "default": null
     },
-    "scrollDayOffset": {
+    "scrollDateFraction": {
      "type": "number",
      "default": 0
     },
-    "scrollGroupOffset": {
+    "scrollTaskGroupFraction": {
      "type": "number",
      "default": 0
     },
@@ -567,7 +567,7 @@
     "defaultStartTime",
     "defaultFinishTime",
     "themeHue",
-    "parentProgressToleranceDays",
+    "parentTaskProgressToleranceDays",
     "uidHighWaterMark",
     "importSequence",
     "carry",
@@ -693,7 +693,7 @@
      "maximum": 359,
      "default": 214
     },
-    "parentProgressToleranceDays": {
+    "parentTaskProgressToleranceDays": {
      "description": "How many working days a parent task's progress point may lie outside the progress points of the work below it before Delay Diagnostics asks whether an update is missing. It belongs to the project (how often progress is collected), not to the reader, so it is here and not in documentSettings.",
      "type": "integer",
      "minimum": 0,
@@ -957,7 +957,7 @@
     "derivedFromTaskUid",
     "order",
     "treeState",
-    "editGroup",
+    "editPermission",
     "color",
     "minHeightPx"
    ],
@@ -1000,7 +1000,7 @@
      ],
      "default": "auto"
     },
-    "editGroup": {
+    "editPermission": {
      "type": [
       "string",
       "null"
@@ -1407,7 +1407,7 @@
    "description": "Where an imported task came from, so that importing the same file again updates the task instead of adding a copy.",
    "required": [
     "taskUid",
-    "sourceProjectUid",
+    "sourceProjectId",
     "sourceUid",
     "lastSeenImportSequence",
     "importSessionId"
@@ -1417,7 +1417,7 @@
     "taskUid": {
      "type": "integer"
     },
-    "sourceProjectUid": {
+    "sourceProjectId": {
      "type": [
       "string",
       "null"

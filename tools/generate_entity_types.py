@@ -875,7 +875,7 @@ def derived_defaults(manuscript, direct):
     """Every default a rule computes out of another key.
 
     ⭐ The rule stays in the manuscript -- `index` for S-3, which follows
-    fontScale, and `from`/`times`/`plusFrom`/`plusTimes` for S-2, which is
+    fontSizeStep, and `from`/`times`/`plusFrom`/`plusTimes` for S-2, which is
     three rows of the ruler plus three rows' worth of its padding. Evaluating
     it here rather than writing the answer down keeps the number in one place;
     a second copy is what CR-175 and CR-178 were spent removing.
@@ -889,7 +889,7 @@ def derived_defaults(manuscript, direct):
     reached, and the caller reports them as unstated rather than guessing.
 
     ⭐ `times` IS READ ON THE `index` BRANCH TOO (CR-418 decision 1). S-3's
-    cell became `index: [fontScaleSizes, fontScale], times: 1.5` -- the ruler
+    cell became `index: [fontSizeStepSizes, fontSizeStep], times: 1.5` -- the ruler
     font is the font-size step times 1.5 -- and CR-417 section 6.3 names this
     function: before it read `times`, the branch ignored the key and the
     generated default stayed at the bare step (14), which the manuscript no
@@ -1521,11 +1521,13 @@ NOT_STORED_TARGETS = {
     # CR-628: S-459, the repository's address, which the help's copyright line
     # (FR-069) and the App Header's Branding (BR-4 of table T-349) both open;
     # both are drawn on this side. A string, as S-350 is in notices.ts.
+    # CR-793: S-621 / S-622, the width and the line cap of the task tooltip's
+    # note (TL-14), which tooltips-drawing.ts draws beside S-339.
     'NOT_STORED_HELP_SIZES': (['S-201', 'S-202', 'S-203', 'S-204', 'S-334',
                                'S-339', 'S-340', 'S-436', 'S-437',
                                'S-457', 'S-458', 'S-460',
                                'S-423', 'S-424', 'S-426', 'S-453', 'S-454',
-                               'S-459'],
+                               'S-459', 'S-621', 'S-622'],
                               DRAWN_WITH_WHERE_IT_STANDS),
     # FR-088's Holiday Settings list (table T-257, CR-406; moved there from
     # FR-099 by CR-722): the text factor RR-1 reads and the rule width RR-5 reads. Not folded into the help line above -- one
@@ -1740,7 +1742,7 @@ NOT_STORED_TARGETS = {
     # coefficients its typography is drawn at. ⚠️ THE LAST TWO ARE NOT
     # LENGTHS: S-197 is the panel's text size as a fraction of the host's own
     # base, and S-198 is the item name's as a fraction of THAT -- FR-006 (MUST)
-    # states both multiplicands, and neither multiplies fontScaleSizes.
+    # states both multiplicands, and neither multiplies fontSizeStepSizes.
     # ⛔ NOT folded into
     # NOT_STORED_ICON_SIZES though both land in dom-screen-surface.ts: one
     # constant per consuming SUBJECT, which is the split the note under
@@ -2816,7 +2818,7 @@ def derived_rules(manuscript):
     generated file never has to know which ones may be left off.
 
     ⭐ AN `index` RULE IS PRINTED TOO, AND CR-418 IS WHY. Until S-3 carried
-    `times: 1.5` the rule was the bare step -- `fontScaleSizes[fontScale]` --
+    `times: 1.5` the rule was the bare step -- `fontSizeStepSizes[fontSizeStep]` --
     and the use-case that rewrites the ruler font on a font-size change
     (FR-039: 「目盛の文字と目盛の帯の高さがこれに追随し、その保存値が書き換わる」)
     could index the table itself. ⛔ With the factor in the manuscript, that

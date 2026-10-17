@@ -20,7 +20,7 @@ function cellOf(table: string, id: string, heading: string): string {
 }
 
 // see S-487, FR-131
-const TOLERANCE_KEY = 'parentProgressToleranceDays'
+const TOLERANCE_KEY = 'parentTaskProgressToleranceDays'
 
 // WHY: May 2027 has no exception in the bundled calendar, which works Monday to Friday; 2027-05-21 is a Friday.
 const day = (month: number, date: number, hour: number): string =>
@@ -131,7 +131,7 @@ describe('CR-716 -- the sentences these cases are driven by', () => {
   })
 
   it.each([
-    '表 T-311 の `VS-6` が許す日数は、文書の `Project.parentProgressToleranceDays`（`_assets/tbl-settings.md` の 表 T-216 の `S-487`）とすること（MUST）。',
+    '表 T-311 の `VS-6` が許す日数は、文書の `Project.parentTaskProgressToleranceDays`（`_assets/tbl-settings.md` の 表 T-216 の `S-487`）とすること（MUST）。',
     '各 `Task` の進捗マーカーを 表 T-315 の状態のうち優先順の最も高いもので描くこと。',
     '紫を最上位に置くのは、信用できない数字の上に出た赤や `!!` は誤りでありうるからである。',
     '親の進み具合の点が配下の点から外れる疑義（表 T-311 の `VS-6`）も紫に入れる',

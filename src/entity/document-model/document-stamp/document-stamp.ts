@@ -40,10 +40,10 @@ export function advancedStamp(
   stamp: DocumentStamp,
   editedBy: string,
   updatedAt: string,
-  options: { readonly hasMovedSchedule: boolean },
+  options: { readonly hasUpdatedSchedule: boolean },
 ): DocumentStamp {
   return {
-    scheduleUpdatedAt: options.hasMovedSchedule ? updatedAt : stamp.scheduleUpdatedAt,
+    scheduleUpdatedAt: options.hasUpdatedSchedule ? updatedAt : stamp.scheduleUpdatedAt,
     lastEditedBy: editedBy,
     settingsUpdatedAt: updatedAt,
     fileSavedAt: stamp.fileSavedAt,

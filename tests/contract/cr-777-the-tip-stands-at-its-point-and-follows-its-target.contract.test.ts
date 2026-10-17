@@ -218,7 +218,7 @@ describe(`FR-019: ${DRAW_TIME}`, () => {
     const document = before.loop.document()
     const result = editDocument(
       document,
-      { kind: 'setTaskPlanDates', uid: BAR_UID, start: april(12, '00:00:00'), finish: april(16, '17:00:00') },
+      { kind: 'setTaskPlanDates', taskUid: BAR_UID, start: april(12, '00:00:00'), finish: april(16, '17:00:00') },
       LIMITS,
       'row',
     )

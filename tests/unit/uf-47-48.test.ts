@@ -200,7 +200,7 @@ function twoTaskGroupDocument(edit: (draft: any) => void = () => {}): Document {
     name: label,
     derivedFromTaskUid: null,
     order: 0,
-    treeState: 'auto', editGroup: null,
+    treeState: 'auto', editPermission: null,
     color: null,
     minHeightPx: null,
   })
@@ -839,7 +839,7 @@ describe('ADR-001 and table T-071 -- computed once at the head of a frame', () =
     expect(after.regions.scheduleCanvas.width).toBe(1400)
     // ...the layout was laid out on THOSE regions...
     // see S-177, FR-055
-    // WHY: the fit keeps the left edge inside a day (scrollDate plus scrollDayOffset, never snapped to
+    // WHY: the fit keeps the left edge inside a day (scrollDate plus scrollDateFraction, never snapped to
     // the day boundary), so the origin stands up to one day left of the Task Group Area and never right of it.
     const dayOffset = (after.regions.taskGroupArea.x - after.layout.originX) / after.layout.pxPerDay
     expect(dayOffset).toBeGreaterThanOrEqual(0)
@@ -1227,7 +1227,7 @@ describe('SC-1 of table T-031 -- the panel and the body hold the SAME task group
           name: `Row ${index}`,
           derivedFromTaskUid: null,
           order: index,
-          treeState: 'auto', editGroup: null,
+          treeState: 'auto', editPermission: null,
           color: null,
           minHeightPx: null,
         })

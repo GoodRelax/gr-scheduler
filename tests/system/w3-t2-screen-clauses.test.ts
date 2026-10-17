@@ -12,7 +12,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(process.cwd(), 'docs', 'spec', '
 
 // see FR-039
 // WHY: CR-690 -- table T-369 places the font size field (FO-4) right under the display scale field (FO-3).
-const FONT_SCALE_FIELD = '文字サイズを選ぶ欄を同表の `FO-4` の場所に置き、表 T-202 の `S-70` の 3 段を選ばせ、選ばれた段で同表の `CM-62` を 1 回発行すること（MUST）'
+const FONT_SIZE_STEP_FIELD = '文字サイズを選ぶ欄を同表の `FO-4` の場所に置き、表 T-202 の `S-70` の 3 段を選ばせ、選ばれた段で同表の `CM-62` を 1 回発行すること（MUST）'
 const OTHER_TEXT_WEIGHT =
   '⭐ 名称ラベル・`NT-7` の頭 1 文字・`Document Title` のほかの字は、すべて `_assets/tbl-settings.md` の 表 T-206 の `S-529` の太さで描くこと（MUST）'
 
@@ -57,7 +57,7 @@ const OPEN_ALL_NOT_OUTERMOST =
 const FADE_FROM_POINTER = 'フェードの日数は、ポインタの位置から求めること（MUST）'
 
 const CLAUSES = [
-  FONT_SCALE_FIELD,
+  FONT_SIZE_STEP_FIELD,
   OTHER_TEXT_WEIGHT,
   FORMAT_BUTTON_GAP,
   HELD_WIDTH_IS_RELEASED_WIDTH,
@@ -127,7 +127,7 @@ test('the clauses are the specification words', () => {
   for (const clause of CLAUSES) expect(REQUIREMENTS, clause).toContain(clause)
 })
 
-test(`FR-039: ${FONT_SCALE_FIELD}`, async ({ page }) => {
+test(`FR-039: ${FONT_SIZE_STEP_FIELD}`, async ({ page }) => {
   await launch(page)
   await enableAgentApi(page)
   await press(page, 'IC-17')
@@ -138,19 +138,19 @@ test(`FR-039: ${FONT_SCALE_FIELD}`, async ({ page }) => {
   const levels = [...cellOf('T-202', 'S-70', '型').matchAll(/'([^']+)'/g)].map((m) => m[1])
   const field = page.locator('[data-role="Properties Panel"] select[data-field-row="K-85"]')
   expect(await field.locator('option').evaluateAll((all) => all.map((one) => (one as HTMLOptionElement).value))).toEqual(levels)
-  const before = (await readDocument(page)).documentSettings['fontScale']
+  const before = (await readDocument(page)).documentSettings['fontSizeStep']
   const chosen = levels.find((one) => one !== before) ?? ''
   await field.selectOption(chosen)
   // STEP: IN-6 -- the choice is an in-place edit, settled by Enter
   await field.press('Enter')
   await settle(page)
-  expect((await readDocument(page)).documentSettings['fontScale']).toBe(chosen)
+  expect((await readDocument(page)).documentSettings['fontSizeStep']).toBe(chosen)
   // STEP: one CM-62 is one undo step (UN-13), so one undo gives the level back
   await page.mouse.click(VIEWPORT.width / 2, VIEWPORT.height / 2)
   await settle(page)
   await page.keyboard.press('Control+z')
   await settle(page)
-  expect((await readDocument(page)).documentSettings['fontScale'], 'one undo did not give the level back: CM-62 was not issued once').toBe(before)
+  expect((await readDocument(page)).documentSettings['fontSizeStep'], 'one undo did not give the level back: CM-62 was not issued once').toBe(before)
 })
 
 test(`FR-039: ${OTHER_TEXT_WEIGHT}`, async ({ page }) => {
@@ -391,7 +391,7 @@ const wheelOutcome = async (browser: Browser, wheel: { deltaMode: number; deltaY
     )
     await settle(page)
     const settings = (await readDocument(page)).documentSettings
-    return { zoomX: settings['zoomX'], zoomY: settings['zoomY'], scrollTaskGroupId: settings['scrollTaskGroupId'], scrollGroupOffset: settings['scrollGroupOffset'], scrollDate: settings['scrollDate'], scrollDayOffset: settings['scrollDayOffset'] }
+    return { zoomX: settings['zoomX'], zoomY: settings['zoomY'], scrollTaskGroupId: settings['scrollTaskGroupId'], scrollTaskGroupFraction: settings['scrollTaskGroupFraction'], scrollDate: settings['scrollDate'], scrollDateFraction: settings['scrollDateFraction'] }
   } finally {
     await context.close()
   }
@@ -449,7 +449,7 @@ test(`FR-100: ${NO_WARNING_WORDS}`, async ({ page }) => {
   const uid = (await readDocument(page)).schedule.tasks[0]?.['uid']
   await page.evaluate((uid) => {
     const api = (window as any).grSchedulerAgentApi
-    return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', uid, name: 'An unsaved edit' }] })
+    return api.applyCommands({ expectedStamp: api.readStamp(), commands: [{ kind: 'setTaskName', taskUid: uid, name: 'An unsaved edit' }] })
   }, uid)
   await settle(page)
   const heard = await page.evaluate(() => {

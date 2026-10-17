@@ -148,7 +148,7 @@ export interface TaskGroupGrabLanding {
   readonly isPastDepthCap: boolean
 }
 
-export type TaskGroupGrabScroll = Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'>
+export type TaskGroupGrabScroll = Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollTaskGroupFraction'>
 
 export interface PointerPress {
   readonly at: PointerInput
@@ -600,9 +600,9 @@ const BAND_FRACTION_STEPS = 10_000
 
 export interface ScrollAnchor {
   readonly scrollDate: string | null
-  readonly scrollDayOffset: number
+  readonly scrollDateFraction: number
   readonly scrollTaskGroupId: string | null
-  readonly scrollGroupOffset: number
+  readonly scrollTaskGroupFraction: number
 }
 
 /** @purity pure */
@@ -626,16 +626,16 @@ export function pointerDaySerial(layout: ScheduleLayout, x: number): number | nu
 export function dayAnchorAt(
   context: InputContext,
   x: number,
-): Pick<ScrollAnchor, 'scrollDate' | 'scrollDayOffset'> {
+): Pick<ScrollAnchor, 'scrollDate' | 'scrollDateFraction'> {
   const settings = context.document.documentSettings
   const layout = context.layout
   const day = dayAtX(layout, x)
   if (day === null || !(layout.pxPerDay > 0)) {
-    return { scrollDate: settings.scrollDate, scrollDayOffset: settings.scrollDayOffset }
+    return { scrollDate: settings.scrollDate, scrollDateFraction: settings.scrollDateFraction }
   }
   return {
     scrollDate: textOfDayStart(day),
-    scrollDayOffset: unitFraction((x - xFromDay(layout, day)) / layout.pxPerDay),
+    scrollDateFraction: unitFraction((x - xFromDay(layout, day)) / layout.pxPerDay),
   }
 }
 
@@ -643,11 +643,11 @@ export function dayAnchorAt(
 function taskGroupAnchorAt(
   context: InputContext,
   y: number,
-): Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollGroupOffset'> {
+): Pick<ScrollAnchor, 'scrollTaskGroupId' | 'scrollTaskGroupFraction'> {
   const settings = context.document.documentSettings
   return taskGroupAnchorIn(scrollingTaskGroupsOf(context.layout), y, {
     scrollTaskGroupId: settings.scrollTaskGroupId,
-    scrollGroupOffset: settings.scrollGroupOffset,
+    scrollTaskGroupFraction: settings.scrollTaskGroupFraction,
   })
 }
 
@@ -659,9 +659,9 @@ export function panTo(context: InputContext, dx: number, dy: number): Translated
     {
       kind: 'setScrollPosition',
       scrollDate: moved.scrollDate,
-      scrollDayOffset: moved.scrollDayOffset,
+      scrollDateFraction: moved.scrollDateFraction,
       scrollTaskGroupId: moved.scrollTaskGroupId,
-      scrollGroupOffset: moved.scrollGroupOffset,
+      scrollTaskGroupFraction: moved.scrollTaskGroupFraction,
     },
   ])
 }
@@ -789,7 +789,7 @@ export const ENTRY = {
   agentApi: 'IC-20',
   dialogueFieldVisible: 'IC-18',
   help: 'IC-22',
-  fontScale: 'IC-99',
+  fontSizeStep: 'IC-99',
   isThemeMonochrome: 'IC-100',
   stackDirection: 'IC-101',
   watermark: 'IC-41',
@@ -835,7 +835,7 @@ export const ENTRY = {
   holidayRangeDelete: 'IC-164',
 } as const
 
-type VisibleElement = Extract<DocumentCommand, { kind: 'setElementVisible' }>['element']
+type VisibleElement = Extract<DocumentCommand, { kind: 'setVisibilitySetting' }>['setting']
 
 /** @purity pure */
 function visibleElementOfEntry(entry: string): VisibleElement | null {
@@ -851,14 +851,14 @@ export function guideCursorModeOfEntry(entry: string): PressedGuideCursor | null
   return GUIDE_CURSOR_MODE_BY_ENTRY[entry] ?? null
 }
 
-type FontScale = Extract<DocumentCommand, { kind: 'setFontScale' }>['fontScale']
+type FontSizeStep = Extract<DocumentCommand, { kind: 'setFontSizeStep' }>['fontSizeStep']
 
-const FONT_SCALE_STEPS: readonly FontScale[] = ['S', 'M', 'L']
+const FONT_SIZE_STEPS: readonly FontSizeStep[] = ['S', 'M', 'L']
 
 /** @purity pure */
-function nextFontScale(current: FontScale): FontScale {
-  const at = FONT_SCALE_STEPS.indexOf(current)
-  return FONT_SCALE_STEPS[(at + 1) % FONT_SCALE_STEPS.length] as FontScale
+function nextFontSizeStep(current: FontSizeStep): FontSizeStep {
+  const at = FONT_SIZE_STEPS.indexOf(current)
+  return FONT_SIZE_STEPS[(at + 1) % FONT_SIZE_STEPS.length] as FontSizeStep
 }
 
 export type Armed = Exclude<ScreenValues['armModeState'], { readonly kind: 'notArmed' }>
@@ -944,17 +944,17 @@ export function placementAt(task: Task): PlacedPlanActual | null {
     case 'notStarted':
       return null
     case 'inProgress':
-      return task.stop === null ? null : { row: 'PA-2', actualStart, stop: task.stop }
+      return task.stop === null ? null : { state: 'inProgress', actualStart, stop: task.stop }
     case 'suspendedResumePlanned':
       return task.stop === null || task.resume === null
         ? null
-        : { row: 'PA-3', actualStart, stop: task.stop, resume: task.resume }
+        : { state: 'suspendedWithResumeDate', actualStart, stop: task.stop, resume: task.resume }
     case 'suspendedResumeUnknown':
-      return task.stop === null ? null : { row: 'PA-4', actualStart, stop: task.stop }
+      return task.stop === null ? null : { state: 'suspendedWithoutResumeDate', actualStart, stop: task.stop }
     case 'finished':
       return task.actualFinish === null
         ? null
-        : { row: 'PA-5', actualStart, actualFinish: task.actualFinish }
+        : { state: 'finished', actualStart, actualFinish: task.actualFinish }
   }
 }
 
@@ -969,8 +969,8 @@ export function isScrollPositionInForce(
   return (
     to.scrollDate === settings.scrollDate &&
     to.scrollTaskGroupId === settings.scrollTaskGroupId &&
-    to.scrollDayOffset === settings.scrollDayOffset &&
-    to.scrollGroupOffset === settings.scrollGroupOffset
+    to.scrollDateFraction === settings.scrollDateFraction &&
+    to.scrollTaskGroupFraction === settings.scrollTaskGroupFraction
   )
 }
 
@@ -1196,11 +1196,11 @@ function commandFromEntry(
     case ENTRY.displayScaleDown:
     case ENTRY.displayScaleUp:
       return displayScaleStep(context, entry === ENTRY.displayScaleUp ? 1 : -1)
-    case ENTRY.fontScale:
+    case ENTRY.fontSizeStep:
       return changed([
         {
-          kind: 'setFontScale',
-          fontScale: nextFontScale(context.document.documentSettings.fontScale),
+          kind: 'setFontSizeStep',
+          fontSizeStep: nextFontSizeStep(context.document.documentSettings.fontSizeStep),
         },
       ])
     case ENTRY.isThemeMonochrome:
@@ -1277,7 +1277,7 @@ function commandFromEntry(
 function commandFromVisibleElement(element: VisibleElement, context: InputContext): TranslatedInput {
   // TRAP: read the document, not the drawn entry: a skipped paint leaves it stale and stuck.
   const isVisibleNow = context.document.documentSettings[element]
-  return changed([{ kind: 'setElementVisible', element, visible: !isVisibleNow }])
+  return changed([{ kind: 'setVisibilitySetting', setting: element, isVisible: !isVisibleNow }])
 }
 
 // see FR-029, FR-099, IC-63, IC-64, IC-65, RS-27
@@ -1386,7 +1386,7 @@ function alignWrites(context: InputContext, byStart: boolean): readonly Document
     if (shift === 0) continue
     commands.push({
       kind: 'setTaskPlanDates',
-      uid: one.uid,
+      taskUid: one.uid,
       start: textOfStartSide(dayShifted(start, shift), project, task.milestone === true),
       finish: textOfFinishSide(dayShifted(finish, shift), project),
     })

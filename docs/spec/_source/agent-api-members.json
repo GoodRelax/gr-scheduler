@@ -10,7 +10,7 @@
   "Rows are in the order the tables print them and the code declares them, which is not the numeric order. ONE STRING IS ONE PRINTED LINE.",
   "The rules about the Agent API are NOT here -- table T-035 (AG-n) and the requirements the `source` cells name hold them."
  ],
- "version": 5,
+ "version": "2026-10-17T15:27:48Z",
  "kinds": {
   "property": {
    "ja": "プロパティ"
@@ -107,8 +107,8 @@
    "ja": [
     "**`Agent API` は 1 つの面に 22 のメンバをフラットに並べる。**",
     "用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。",
-    "いまの版は {version} である（`AM-1` が返す値）。",
-    "呼び方を変える変更は版を上げる（表 T-035 の `AG-1`）。",
+    "いまの版は `{version}` である（`AM-1` が返す値）。",
+    "版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。",
     "⭐ **呼び方（引数の名・型・意味と戻り値）は本表と 表 T-400 が持つ** —— コードの `AgentApi` の型と、MCP の道具の入力の形は本表の原稿から生成し、手で書かない。",
     "境界値は Chapter 6.1 が持つ。"
    ]
@@ -123,10 +123,10 @@
     "kind": "property",
     "purity": "semi-pure-a",
     "arguments": [],
-    "returns": "number",
+    "returns": "string",
     "carries": {
      "ja": [
-      "`Agent API` の版。",
+      "`Agent API` の版 —— `schemaVersion` と同じ書式の日時の文字列（`YYYY-MM-DDTHH:MM:SSZ`）。",
       "呼ぶ側が最初に読む"
      ]
     },
@@ -707,7 +707,7 @@
         }
        },
        {
-        "name": "hasMovedSchedule",
+        "name": "hasUpdatedSchedule",
         "type": "boolean",
         "meaning": {
          "ja": "日程データの群を動かしたか（動かせば日程データの群の刻が進む —— `FR-063`）"
@@ -976,7 +976,7 @@
         }
        },
        {
-        "name": "hasMovedSchedule",
+        "name": "hasUpdatedSchedule",
         "type": "boolean",
         "meaning": {
          "ja": "日程データの群を動かしたか"
@@ -1077,7 +1077,7 @@
       }
      },
      {
-      "name": "tables",
+      "name": "filteringTables",
       "type": "readonly VisibilityTable[]",
       "meaning": {
        "ja": "スケジュールフィルタを掛けている表の名の並び"

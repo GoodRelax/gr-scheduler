@@ -218,7 +218,7 @@ describe(`(c) the Agent API write path -- ${CLAUSE_UNCHANGED_WRITE_RAISES_NOTHIN
   it('applyCommands setting a task name to the name it holds: accepted, no unsaved edits, QN-5 not raised', async () => {
     const stage = stageOf()
     const api = apiOf(stage)
-    const outcome = write(api, [{ kind: 'setTaskName', uid: 1, name: taskNameOf(stage, 1) }])
+    const outcome = write(api, [{ kind: 'setTaskName', taskUid: 1, name: taskNameOf(stage, 1) }])
     expect(outcome.ok, 'premise: the write is accepted').toBe(true)
     expect(stage.loop.hasUnsavedEdits()).toBe(false)
     expect(await newDocumentAsks(stage)).toBeNull()
@@ -228,8 +228,8 @@ describe(`(c) the Agent API write path -- ${CLAUSE_UNCHANGED_WRITE_RAISES_NOTHIN
     const stage = stageOf()
     const api = apiOf(stage)
     const outcome = write(api, [
-      { kind: 'setTaskName', uid: 1, name: taskNameOf(stage, 1) },
-      { kind: 'setTaskName', uid: 2, name: taskNameOf(stage, 2) },
+      { kind: 'setTaskName', taskUid: 1, name: taskNameOf(stage, 1) },
+      { kind: 'setTaskName', taskUid: 2, name: taskNameOf(stage, 2) },
     ])
     expect(outcome.ok, 'premise: the write is accepted').toBe(true)
     expect(stage.loop.hasUnsavedEdits()).toBe(false)
@@ -238,7 +238,7 @@ describe(`(c) the Agent API write path -- ${CLAUSE_UNCHANGED_WRITE_RAISES_NOTHIN
   it('control: applyCommands setting a task name to a new name: unsaved edits, QN-5 raised', async () => {
     const stage = stageOf()
     const api = apiOf(stage)
-    const outcome = write(api, [{ kind: 'setTaskName', uid: 1, name: 'Renamed by the agent' }])
+    const outcome = write(api, [{ kind: 'setTaskName', taskUid: 1, name: 'Renamed by the agent' }])
     expect(outcome.ok, 'premise: the write is accepted').toBe(true)
     expect(taskNameOf(stage, 1)).toBe('Renamed by the agent')
     expect(stage.loop.hasUnsavedEdits()).toBe(true)

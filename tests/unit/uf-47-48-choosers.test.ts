@@ -495,7 +495,7 @@ function taskGroup(id: string, label: string): Record<string, unknown> {
     name: label,
     derivedFromTaskUid: null,
     order: 0,
-    treeState: 'auto', editGroup: null,
+    treeState: 'auto', editPermission: null,
     color: null,
     minHeightPx: null,
   }

@@ -277,7 +277,7 @@ describe(`SV-7 「${SV_7_ORDER.slice(2, 60)}…」 -- Search Panel, tasks table`
   })
 
   it('the Visibility column follows the SV-8 order both ways (Show -> Hide)', () => {
-    const someHidden: Pane = { ...TASK_PANEL, view: { ...NO_VIEW, visibility: { ...NO_VIEW.visibility, hiddenKeys: [3] } } }
+    const someHidden: Pane = { ...TASK_PANEL, view: { ...NO_VIEW, visibility: { ...NO_VIEW.visibility, hiddenTaskUids: [3] } } }
     const ascending = [wordOf('searchPanel', 'showValue'), wordOf('searchPanel', 'hideValue')]
     expect(labels(panelItems('SQ-10', someHidden))).toEqual(ascending)
     expect(labels(panelItems('SQ-10', sortedBy('SQ-10', 'IC-124', someHidden)))).toEqual([...ascending].reverse())

@@ -12,7 +12,7 @@ type SlabOf = Pick<TaskGroupPlacement, 'taskGroupId' | 'y' | 'height'>
 // see S-78, S-176
 interface TaskGroupAnchor {
   readonly scrollTaskGroupId: string | null
-  readonly scrollGroupOffset: number
+  readonly scrollTaskGroupFraction: number
 }
 
 // see OP-10a, S-176
@@ -24,7 +24,7 @@ export function scrollOffsetOf(
 ): number {
   const anchoredAt = taskGroups.findIndex((taskGroup) => taskGroup.taskGroupId === settings.scrollTaskGroupId)
   if (anchoredAt < 0) return 0
-  const held = Number.isFinite(settings.scrollGroupOffset) ? settings.scrollGroupOffset : 0
+  const held = Number.isFinite(settings.scrollTaskGroupFraction) ? settings.scrollTaskGroupFraction : 0
   const carriedRows = Math.floor(held)
   const landedAt = Math.min(taskGroups.length - 1, Math.max(0, anchoredAt + carriedRows))
   const taskGroup = taskGroups[landedAt]
@@ -92,10 +92,10 @@ export function taskGroupAnchorIn(
   if (slab <= 0) return held
   const into = y - taskGroup.y
   if (into >= slab && below !== undefined) {
-    return { scrollTaskGroupId: below.taskGroupId, scrollGroupOffset: 0 }
+    return { scrollTaskGroupId: below.taskGroupId, scrollTaskGroupFraction: 0 }
   }
   // WHY: into < slab here, so the share is below 1 but for rounding, which wraps to 0 as a day's fraction does.
   const share = into / slab
-  return { scrollTaskGroupId: taskGroup.taskGroupId, scrollGroupOffset: share < 1 ? share : 0 }
+  return { scrollTaskGroupId: taskGroup.taskGroupId, scrollTaskGroupFraction: share < 1 ? share : 0 }
 }
 

@@ -25,7 +25,7 @@ const ORDER: readonly VisibilityTable[] = ['searchPanel', 'delayDiagnosticsRepor
 
 // WHY: section 5.1 names the first argument `tables` without its shape; this value is the list of the tables that are on and the record of all three.
 function tablesOn(on: readonly VisibilityTable[]): readonly VisibilityTable[] {
-  const record = Object.fromEntries(ORDER.map((name) => [name, on.includes(name) ? visibility({ isApplied: true }) : ALL_SHOWN]))
+  const record = Object.fromEntries(ORDER.map((name) => [name, on.includes(name) ? visibility({ isScheduleFilterApplied: true }) : ALL_SHOWN]))
   return Object.assign([...on], record)
 }
 

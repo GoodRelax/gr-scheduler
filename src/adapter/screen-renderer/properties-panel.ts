@@ -1253,15 +1253,15 @@ function themeHueField(hue: number, dark: boolean, monochrome: boolean, language
   }
 }
 
-const PARENT_PROGRESS_TOLERANCE_KEY = { holder: 'project', column: 'parentProgressToleranceDays' } as const
+const PARENT_TASK_PROGRESS_TOLERANCE_KEY = { holder: 'project', column: 'parentTaskProgressToleranceDays' } as const
 
 const WORKING_DAYS_UNIT_PART = 'workingDaysUnit'
 
 // see FR-131, K-140, CM-87, S-487
 // WHY: no floor here: CM-87 alone refuses a value below S-487's bound and says so, so the range lives once.
 /** @purity pure */
-function parentProgressToleranceField(workingDays: number, language: DisplayLanguage): PropertyField {
-  const column = PARENT_PROGRESS_TOLERANCE_KEY.column
+function parentTaskProgressToleranceField(workingDays: number, language: DisplayLanguage): PropertyField {
+  const column = PARENT_TASK_PROGRESS_TOLERANCE_KEY.column
   const text = String(workingDays)
   return {
     row: settingsWordOf(column)?.rowId ?? column,
@@ -1269,7 +1269,7 @@ function parentProgressToleranceField(workingDays: number, language: DisplayLang
     text,
     isEditable: true,
     unit: PROPERTY_FIELD_WORDS.get(WORKING_DAYS_UNIT_PART)?.[language] ?? NO_ENTRY_WORDS,
-    controls: [settingsControl(PARENT_PROGRESS_TOLERANCE_KEY, 'number', text, widthOf(text, null, SETTINGS_CONSTANTS.labelCoef))],
+    controls: [settingsControl(PARENT_TASK_PROGRESS_TOLERANCE_KEY, 'number', text, widthOf(text, null, SETTINGS_CONSTANTS.labelCoef))],
   }
 }
 
@@ -1428,13 +1428,13 @@ function statusDateField(statusDate: string | null, language: DisplayLanguage): 
   }
 }
 
-type SteppedSetting = 'displayScale' | 'fontScale'
+type SteppedSetting = 'displayScale' | 'fontSizeStep'
 
 // see FR-039, S-234, S-70, K-125, K-85
 // WHY: the steps are the type column's own order (S-234, S-70), so the field lists them as the palette entries step through them.
 const SETTING_STEPS: Readonly<Record<SteppedSetting, readonly string[]>> = {
   displayScale: DISPLAY_SCALE_STEPS.map(String),
-  fontScale: Object.keys(SETTINGS_CONSTANTS.fontScaleSizes),
+  fontSizeStep: Object.keys(SETTINGS_CONSTANTS.fontSizeStepSizes),
 }
 
 // see FR-039, CM-74, CM-62
@@ -1892,7 +1892,7 @@ type ReadOnlyFormat = (value: unknown, schedule: Schedule, language: DisplayLang
 /** @purity pure */
 function leftEdgeText(settings: DocumentSettings, language: DisplayLanguage): string {
   const day = dateText(settings.scrollDate)
-  return day === '' ? readOnlyWord('notSet', language) : `${day} ${clockOfDay(settings.scrollDayOffset)}`
+  return day === '' ? readOnlyWord('notSet', language) : `${day} ${clockOfDay(settings.scrollDateFraction)}`
 }
 
 // see RN-3, JDG-2469
@@ -1902,7 +1902,7 @@ function topEdgeText(settings: DocumentSettings, schedule: Schedule, language: D
   if (group === undefined) return readOnlyWord('notSetFromTop', language)
   return readOnlyWord('groupFromTop', language)
     .replace(NAME_OF_GROUP_SLOT, () => group.name ?? '')
-    .replace(PERCENT_SLOT, percentText(settings.scrollGroupOffset, language))
+    .replace(PERCENT_SLOT, percentText(settings.scrollTaskGroupFraction, language))
 }
 
 /** @purity pure */
@@ -1966,7 +1966,7 @@ function settingsFields(
   return [
     themeHueField(schedule.project.themeHue, dark, settings.isThemeMonochrome, language),
     steppedSettingField(settings, 'displayScale', language),
-    steppedSettingField(settings, 'fontScale', language),
+    steppedSettingField(settings, 'fontSizeStep', language),
     checkField(settings, 'isTaskGroupPanelWidthFixed', language),
     taskGroupPanelWidthField(settings, language),
     drawnWidthField(readings, language),
@@ -1974,7 +1974,7 @@ function settingsFields(
     checkField(settings, 'isFitSpanFixed', language),
     fitSpanField(settings, language),
     shownSpanField(settings, readings, language),
-    parentProgressToleranceField(schedule.project.parentProgressToleranceDays, language),
+    parentTaskProgressToleranceField(schedule.project.parentTaskProgressToleranceDays, language),
     checkField(settings, 'isTimeOfDayVisible', language),
     baseTimeZoneField(schedule, settings, screen, language),
     ...displayTimeZonesFields(settings, language),

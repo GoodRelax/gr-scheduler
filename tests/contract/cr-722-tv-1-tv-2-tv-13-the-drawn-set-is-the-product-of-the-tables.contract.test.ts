@@ -53,55 +53,55 @@ describe('CR-722 the manuscript these cases are driven by', () => {
 describe(`FR-151 T-353 TV-1 -- ${TV_1_PRODUCT.slice(0, 40)}`, () => {
   it('no table has its Schedule Filter on: nothing narrows (null), whatever rows are Hide', () => {
     expect(drawn({})).toBeNull()
-    expect(drawn({ search: visibility({ hiddenKeys: [ALPHA] }), resourceList: visibility({ hiddenKeys: [TANAKA] }) })).toBeNull()
+    expect(drawn({ search: visibility({ hiddenResourceUids: [ALPHA] }), resourceList: visibility({ hiddenResourceUids: [TANAKA] }) })).toBeNull()
   })
 
   it('a table with its Schedule Filter on and no Hide row still narrows: every task is drawn, not null', () => {
-    expect(drawn({ search: visibility({ isApplied: true }) })).toEqual(ALL_TASKS)
+    expect(drawn({ search: visibility({ isScheduleFilterApplied: true }) })).toEqual(ALL_TASKS)
   })
 
   it('the Search table alone draws its Show rows', () => {
-    expect(drawn({ search: visibility({ hiddenKeys: [ALPHA], isApplied: true }) })).toEqual([BRAVO, CHARLIE, DELTA, ECHO])
+    expect(drawn({ search: visibility({ hiddenTaskUids: [ALPHA], isScheduleFilterApplied: true }) })).toEqual([BRAVO, CHARLIE, DELTA, ECHO])
   })
 
   it('JDG-1814: Hide Alpha in the search table and Tanaka in the Resource List, both on -- neither Alpha nor the task only Tanaka carries is drawn', () => {
     const both = drawn({
-      search: visibility({ hiddenKeys: [ALPHA], isApplied: true }),
-      resourceList: visibility({ hiddenKeys: [TANAKA], isApplied: true }),
+      search: visibility({ hiddenTaskUids: [ALPHA], isScheduleFilterApplied: true }),
+      resourceList: visibility({ hiddenResourceUids: [TANAKA], isScheduleFilterApplied: true }),
     })
     expect(both).toEqual([CHARLIE, DELTA, ECHO])
   })
 
   it('JDG-1814: turning the search table off brings Alpha back; only the Resource List narrows', () => {
     const one = drawn({
-      search: visibility({ hiddenKeys: [ALPHA], isApplied: false }),
-      resourceList: visibility({ hiddenKeys: [TANAKA], isApplied: true }),
+      search: visibility({ hiddenTaskUids: [ALPHA], isScheduleFilterApplied: false }),
+      resourceList: visibility({ hiddenResourceUids: [TANAKA], isScheduleFilterApplied: true }),
     })
     expect(one).toEqual([ALPHA, CHARLIE, DELTA, ECHO])
   })
 
   it('TV-5: the Hide rows of a table whose Schedule Filter is off do not narrow', () => {
     expect(
-      drawn({ search: visibility({ hiddenKeys: [BRAVO] }), report: visibility({ hiddenKeys: [ALPHA], isApplied: true }), reportTaskUids: ALL_TASKS }),
+      drawn({ search: visibility({ hiddenTaskUids: [BRAVO] }), report: visibility({ hiddenTaskUids: [ALPHA], isScheduleFilterApplied: true }), reportTaskUids: ALL_TASKS }),
     ).toEqual([BRAVO, CHARLIE, DELTA, ECHO])
   })
 })
 
 describe(`FR-151 T-353 TV-2 -- ${TV_2_REPORT_ONLY.slice(0, 40)}`, () => {
   it('the report table on draws only the tasks the report lists', () => {
-    expect(drawn({ report: visibility({ isApplied: true }), reportTaskUids: [ALPHA, BRAVO] })).toEqual([ALPHA, BRAVO])
+    expect(drawn({ report: visibility({ isScheduleFilterApplied: true }), reportTaskUids: [ALPHA, BRAVO] })).toEqual([ALPHA, BRAVO])
   })
 
   it('and of those, only the rows that are Show', () => {
-    expect(drawn({ report: visibility({ hiddenKeys: [BRAVO], isApplied: true }), reportTaskUids: [ALPHA, BRAVO] })).toEqual([ALPHA])
+    expect(drawn({ report: visibility({ hiddenTaskUids: [BRAVO], isScheduleFilterApplied: true }), reportTaskUids: [ALPHA, BRAVO] })).toEqual([ALPHA])
   })
 
   it('the three tables on together draw the intersection', () => {
     const three = drawn({
-      search: visibility({ hiddenKeys: [DELTA], isApplied: true }),
-      report: visibility({ isApplied: true }),
+      search: visibility({ hiddenTaskUids: [DELTA], isScheduleFilterApplied: true }),
+      report: visibility({ isScheduleFilterApplied: true }),
       reportTaskUids: [ALPHA, BRAVO, CHARLIE, DELTA],
-      resourceList: visibility({ hiddenKeys: [SATO], isApplied: true }),
+      resourceList: visibility({ hiddenResourceUids: [SATO], isScheduleFilterApplied: true }),
     })
     expect(three).toEqual([BRAVO, CHARLIE])
   })
@@ -109,17 +109,17 @@ describe(`FR-151 T-353 TV-2 -- ${TV_2_REPORT_ONLY.slice(0, 40)}`, () => {
 
 describe(`FR-151 T-353 TV-13 -- ${TV_13_ANY_ONE.slice(0, 40)}`, () => {
   it('a task with two assignees is drawn while one of them is Show', () => {
-    expect(drawn({ resourceList: visibility({ hiddenKeys: [SATO], isApplied: true }) })).toContain(CHARLIE)
-    expect(drawn({ resourceList: visibility({ hiddenKeys: [TANAKA], isApplied: true }) })).toContain(CHARLIE)
+    expect(drawn({ resourceList: visibility({ hiddenResourceUids: [SATO], isScheduleFilterApplied: true }) })).toContain(CHARLIE)
+    expect(drawn({ resourceList: visibility({ hiddenResourceUids: [TANAKA], isScheduleFilterApplied: true }) })).toContain(CHARLIE)
   })
 
   it('and is not drawn when every assignee is Hide', () => {
-    expect(drawn({ resourceList: visibility({ hiddenKeys: [SATO, TANAKA], isApplied: true }) })).toEqual([DELTA, ECHO])
+    expect(drawn({ resourceList: visibility({ hiddenResourceUids: [SATO, TANAKA], isScheduleFilterApplied: true }) })).toEqual([DELTA, ECHO])
   })
 
   it('a task with no assignee follows the (Unassigned) row', () => {
-    expect(drawn({ resourceList: visibility({ isApplied: true }) })).toEqual(ALL_TASKS)
-    expect(drawn({ resourceList: visibility({ isUnassignedHidden: true, isApplied: true }) })).toEqual([ALPHA, BRAVO, CHARLIE])
+    expect(drawn({ resourceList: visibility({ isScheduleFilterApplied: true }) })).toEqual(ALL_TASKS)
+    expect(drawn({ resourceList: visibility({ isUnassignedHidden: true, isScheduleFilterApplied: true }) })).toEqual([ALPHA, BRAVO, CHARLIE])
   })
 
   it('the (Unassigned) row Hide narrows nothing while the Resource List is off', () => {
@@ -129,15 +129,15 @@ describe(`FR-151 T-353 TV-13 -- ${TV_13_ANY_ONE.slice(0, 40)}`, () => {
 
 describe(`FR-151 T-353 TV-7 and TV-13 -- JDG-1775: ${TV_13_CREATED.slice(0, 40)}`, () => {
   it('a task made while filtering, with no assignee, is drawn although (Unassigned) is Hide', () => {
-    expect(drawn({ resourceList: visibility({ isUnassignedHidden: true, isApplied: true }), created: [ECHO] })).toEqual([ALPHA, BRAVO, CHARLIE, ECHO])
+    expect(drawn({ resourceList: visibility({ isUnassignedHidden: true, isScheduleFilterApplied: true }), created: [ECHO] })).toEqual([ALPHA, BRAVO, CHARLIE, ECHO])
   })
 
   it('a task made while filtering is drawn although the report does not list it yet', () => {
-    expect(drawn({ report: visibility({ isApplied: true }), reportTaskUids: [ALPHA], created: [ECHO] })).toEqual([ALPHA, ECHO])
+    expect(drawn({ report: visibility({ isScheduleFilterApplied: true }), reportTaskUids: [ALPHA], created: [ECHO] })).toEqual([ALPHA, ECHO])
   })
 
   it('a task made while filtering is a Show row of the search table', () => {
-    expect(drawn({ search: visibility({ hiddenKeys: [ALPHA], isApplied: true }), created: [ECHO] })).toContain(ECHO)
+    expect(drawn({ search: visibility({ hiddenTaskUids: [ALPHA], isScheduleFilterApplied: true }), created: [ECHO] })).toContain(ECHO)
   })
 
   it(`${TV_13_AFTER} -- once Tanaka (Hide) is assigned to it, it is not drawn`, () => {
@@ -148,7 +148,7 @@ describe(`FR-151 T-353 TV-7 and TV-13 -- JDG-1775: ${TV_13_CREATED.slice(0, 40)}
       [CHARLIE, TANAKA],
       [ECHO, TANAKA],
     ])
-    const narrowed = drawn({ resourceList: visibility({ hiddenKeys: [TANAKA], isUnassignedHidden: true, isApplied: true }), created: [ECHO] }, assigned)
+    const narrowed = drawn({ resourceList: visibility({ hiddenTaskUids: [], hiddenResourceUids: [TANAKA], isUnassignedHidden: true, isScheduleFilterApplied: true }), created: [ECHO] }, assigned)
     expect(narrowed).toEqual([ALPHA, CHARLIE])
   })
 
@@ -158,7 +158,7 @@ describe(`FR-151 T-353 TV-7 and TV-13 -- JDG-1775: ${TV_13_CREATED.slice(0, 40)}
       [BRAVO, TANAKA],
       [ECHO, SATO],
     ])
-    const narrowed = drawn({ resourceList: visibility({ hiddenKeys: [TANAKA], isUnassignedHidden: true, isApplied: true }), created: [ECHO] }, assigned)
+    const narrowed = drawn({ resourceList: visibility({ hiddenTaskUids: [], hiddenResourceUids: [TANAKA], isUnassignedHidden: true, isScheduleFilterApplied: true }), created: [ECHO] }, assigned)
     expect(narrowed).toEqual([ALPHA, ECHO])
   })
 })

@@ -351,9 +351,9 @@
    }
   },
   "version": {
-   "description": "The Agent API version AM-1 returns (AG-1). A change to how a member is called raises it.",
-   "type": "integer",
-   "minimum": 1
+   "description": "The Agent API version AM-1 returns (AG-1): a date-time written as the GRS JSON format version is (RFC 3339 UTC, YYYY-MM-DDTHH:MM:SSZ). A change to how a member is called raises it to the instant it lands.",
+   "type": "string",
+   "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
   },
   "kinds": {
    "description": "The printed word of each member kind (the part-of-speech half of the 品詞と純粋性 column).",

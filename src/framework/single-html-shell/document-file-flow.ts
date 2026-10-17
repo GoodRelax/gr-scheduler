@@ -876,7 +876,7 @@ export async function openDocumentIntoHold(
     if (!incoming.schedule.tasks.some((one) => one.uid === uid)) continue
     const result = editDocument(
       incoming,
-      { kind: 'deleteTask', uid },
+      { kind: 'deleteTask', taskUid: uid },
       hands.settingsLimitsOf(null),
       DEFAULT_TASK_GROUP_NAME,
     )

@@ -99,7 +99,7 @@ export function documentOf(options: {
         derivedFromTaskUid: null,
         order,
         treeState: 'auto',
-        editGroup: null,
+        editPermission: null,
         color: null,
         minHeightPx: null,
       })),
@@ -117,8 +117,8 @@ export function documentOf(options: {
       isActualVisible: true, // see S-228
       scrollDate: options.scrollDate ?? '2026-04-06T00:00:00',
       scrollTaskGroupId: rows[0],
-      scrollDayOffset: 0,
-      scrollGroupOffset: 0,
+      scrollDateFraction: 0,
+      scrollTaskGroupFraction: 0,
       // WHY: FR-017 and FR-039 -- the drawn day width is S-1 times zoomX times the drawn ratio, so pxPerDay is the drawn one.
       zoomX: options.pxPerDay / (SETTINGS_CONSTANTS.pxPerDayAt1x * DEFAULT_DISPLAY_RATIO),
     },

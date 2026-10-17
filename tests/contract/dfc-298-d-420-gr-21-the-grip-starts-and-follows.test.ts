@@ -398,9 +398,9 @@ const placeOf = (loop: FrameLoop): string => {
   const settings = (loop.document() as any).documentSettings
   return JSON.stringify([
     settings.scrollDate,
-    settings.scrollDayOffset,
+    settings.scrollDateFraction,
     settings.scrollTaskGroupId,
-    settings.scrollGroupOffset,
+    settings.scrollTaskGroupFraction,
   ])
 }
 

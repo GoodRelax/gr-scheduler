@@ -1,6 +1,6 @@
 {
   "$schema": "https://goodrelax.github.io/gr-scheduler/spec/_source/grs-document.schema.json",
-  "schemaVersion": "2026-10-16T12:35:39Z",
+  "schemaVersion": "2026-10-17T15:27:48Z",
   "schedule": {
     "project": {
       "id": null,
@@ -23,7 +23,7 @@
       "defaultStartTime": null,
       "defaultFinishTime": null,
       "themeHue": 214,
-      "parentProgressToleranceDays": 1,
+      "parentTaskProgressToleranceDays": 1,
       "uidHighWaterMark": 0,
       "importSequence": 0,
       "outlineBase": 1,
@@ -191,7 +191,7 @@
         "derivedFromTaskUid": null,
         "order": 0,
         "treeState": "auto",
-        "editGroup": null,
+        "editPermission": null,
         "color": null,
         "minHeightPx": null
       }
@@ -214,7 +214,7 @@
     "fitSpanFinish": null,
     "isFitSpanFixed": false,
     "fitSpanStart": null,
-    "fontScale": "M",
+    "fontSizeStep": "M",
     "isGroupGridLinesVisible": true,
     "levelZeroTreeState": "auto",
     "isPercentCompleteVisible": false,
@@ -228,9 +228,9 @@
     "rulerFontSizePx": 14,
     "rulerHeightPx": 48,
     "scrollDate": null,
-    "scrollDayOffset": 0,
+    "scrollDateFraction": 0,
     "scrollTaskGroupId": null,
-    "scrollGroupOffset": 0,
+    "scrollTaskGroupFraction": 0,
     "isTimeOfDayVisible": false,
     "stackDirection": "up",
     "tableViews": {

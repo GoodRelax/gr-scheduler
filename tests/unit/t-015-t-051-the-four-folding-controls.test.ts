@@ -328,7 +328,7 @@ function documentWith(part: Fixture = {}): Document {
         derivedFromTaskUid: null,
         order: index,
         treeState: hidden.has(one.id) ? 'hidden' : folded.has(one.id) ? 'collapsed' : 'auto',
-        editGroup: null,
+        editPermission: null,
         color: null,
         minHeightPx: null,
       })),

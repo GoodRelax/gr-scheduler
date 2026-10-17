@@ -341,19 +341,19 @@ describe(`T-380 RN-3 -- ${RN_3_JOINED}`, () => {
     settingsPanel({ language, settings }).fields.filter((one) => one.readOnlyGroup !== undefined)
 
   it.each(LANGUAGES)('RN-3, %s: the left edge row (K-69) is named viewLeftEdge and reads yyyy/mm/dd hh:mm', (language) => {
-    const fields = readOnly(language, { scrollDate: '2026-04-01T00:00:00', scrollDayOffset: 1 / 3 })
+    const fields = readOnly(language, { scrollDate: '2026-04-01T00:00:00', scrollDateFraction: 1 / 3 })
     const left = fields.find((one) => one.row === 'K-69')
     expect(left?.name).toBe(partWord(SECTION, 'viewLeftEdge', language))
     expect(left?.text).toBe('2026/04/01 08:00')
   })
 
   it('RN-3: the hour of the left edge takes two digits', () => {
-    const left = readOnly('ja', { scrollDate: '2026-12-31T00:00:00', scrollDayOffset: 0.25 }).find((one) => one.row === 'K-69')
+    const left = readOnly('ja', { scrollDate: '2026-12-31T00:00:00', scrollDateFraction: 0.25 }).find((one) => one.row === 'K-69')
     expect(left?.text).toBe('2026/12/31 06:00')
   })
 
   it.each(LANGUAGES)('RN-3, %s: the top edge row (K-70) is named viewTopEdge and reads groupFromTop with the name and the percent', (language) => {
-    const fields = readOnly(language, { scrollTaskGroupId: FIRST_GROUP_ID, scrollGroupOffset: 0.25 })
+    const fields = readOnly(language, { scrollTaskGroupId: FIRST_GROUP_ID, scrollTaskGroupFraction: 0.25 })
     const top = fields.find((one) => one.row === 'K-70')
     expect(top?.name).toBe(partWord(SECTION, 'viewTopEdge', language))
     const percent = partWord(SECTION, 'percent', language).replace('{n}', '25')
@@ -361,7 +361,7 @@ describe(`T-380 RN-3 -- ${RN_3_JOINED}`, () => {
   })
 
   it('RN-3: 0% is written in the same shape (no topZero word)', () => {
-    const top = readOnly('ja', { scrollTaskGroupId: FIRST_GROUP_ID, scrollGroupOffset: 0 }).find((one) => one.row === 'K-70')
+    const top = readOnly('ja', { scrollTaskGroupId: FIRST_GROUP_ID, scrollTaskGroupFraction: 0 }).find((one) => one.row === 'K-70')
     expect(top?.text).toBe(partWord(SECTION, 'groupFromTop', 'ja').replace('{name}', groupName).replace('{percent}', '0%'))
   })
 
@@ -369,12 +369,12 @@ describe(`T-380 RN-3 -- ${RN_3_JOINED}`, () => {
     const fields = readOnly(language, { scrollDate: null, scrollTaskGroupId: null })
     expect(fields.find((one) => one.row === 'K-69')?.text).toBe(partWord(SECTION, 'notSet', language))
     expect(fields.find((one) => one.row === 'K-70')?.text).toBe(partWord(SECTION, 'notSetFromTop', language))
-    const stray = readOnly(language, { scrollTaskGroupId: '00000000-0000-4000-8000-00000000dead', scrollGroupOffset: 0.5 })
+    const stray = readOnly(language, { scrollTaskGroupId: '00000000-0000-4000-8000-00000000dead', scrollTaskGroupFraction: 0.5 })
     expect(stray.find((one) => one.row === 'K-70')?.text).toBe(partWord(SECTION, 'notSetFromTop', language))
   })
 
   it.each(LANGUAGES)('RN-3, %s: the day offset (K-121) and the group offset (K-120) are not rows of their own', (language) => {
-    const rows = readOnly(language, { scrollDate: '2026-04-01T00:00:00', scrollDayOffset: 0.5, scrollTaskGroupId: FIRST_GROUP_ID, scrollGroupOffset: 0.5 }).map(
+    const rows = readOnly(language, { scrollDate: '2026-04-01T00:00:00', scrollDateFraction: 0.5, scrollTaskGroupId: FIRST_GROUP_ID, scrollTaskGroupFraction: 0.5 }).map(
       (one) => one.row,
     )
     expect(rows).toContain('K-69')

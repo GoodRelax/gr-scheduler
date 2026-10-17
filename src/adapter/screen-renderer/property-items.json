@@ -333,7 +333,7 @@
   {
    "rowId": "PR-33",
    "columns": [
-    "editGroup"
+    "editPermission"
    ],
    "inputKinds": [
     "文字"

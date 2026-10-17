@@ -209,7 +209,7 @@ const accepted = (result: EditResult): Document => {
 }
 
 const pressed = (document: Document): Task => {
-  const next = accepted(editTask(document, { kind: 'cycleTaskPlanActualState', uid: 1, remembered: null }, DEFAULT_TASK_GROUP_NAME_FIXTURE))
+  const next = accepted(editTask(document, { kind: 'cycleTaskPlanActualState', taskUid: 1, remembered: null }, DEFAULT_TASK_GROUP_NAME_FIXTURE))
   const found = next.schedule.tasks.find((one) => one.uid === 1)
   if (found === undefined) throw new Error('Task 1 left the document')
   return found

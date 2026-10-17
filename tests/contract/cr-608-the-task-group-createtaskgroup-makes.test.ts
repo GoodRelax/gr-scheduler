@@ -262,7 +262,7 @@ describe(`CR-608 test 7 -- ${AT_153_DU_2}: ${DU_2_VALUE}`, () => {
     }
     const result = editTaskGroup(
       document as never,
-      { kind: 'pasteTaskGroupSubtree', sourceTaskGroupId: S, targetTaskGroupId: T, newTaskGroupIds: copies },
+      { kind: 'pasteTaskGroupSubtree', sourceTaskGroupId: S, parentId: T, newTaskGroupIds: copies },
       'Row',
     )
     expect(result.ok).toBe(true)

@@ -809,7 +809,7 @@ def open_type(key, cell, open_types):
 
 
 def nest(flat):
-    """Read a dotted key name as nesting: fontScaleSizes.S -> an object."""
+    """Read a dotted key name as nesting: fontSizeStepSizes.S -> an object."""
     tree = collections.OrderedDict()
     for key in sorted(flat):
         node, parts = tree, key.split('.')

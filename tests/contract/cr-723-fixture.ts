@@ -19,9 +19,9 @@ export const GROUP = '5c000000-0000-4000-8000-000000007230'
 export const SCROLLED_CLEAR_OF_THE_PALETTE: Loose = {
   zoomX: 6,
   scrollDate: '2025-12-20T00:00:00',
-  scrollDayOffset: 0,
+  scrollDateFraction: 0,
   scrollTaskGroupId: GROUP,
-  scrollGroupOffset: 0,
+  scrollTaskGroupFraction: 0,
 }
 
 const TASK_DAYS: readonly (readonly [number, string, string])[] = [

@@ -288,7 +288,7 @@ const group = (id: string, order: number, label: string): unknown => ({
   name: label,
   derivedFromTaskUid: null,
   order,
-  treeState: 'auto', editGroup: null,
+  treeState: 'auto', editPermission: null,
   color: null,
   minHeightPx: null,
 })

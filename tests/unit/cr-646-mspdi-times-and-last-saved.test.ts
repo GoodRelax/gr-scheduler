@@ -67,7 +67,7 @@ function sourceText(afterCalendarUid = ''): string {
 function withDatesEdited(document: Document): Document {
   const result = editDocument(
     document,
-    { kind: 'setTaskPlanDates', uid: 1, start: april(7, S_482), finish: april(14, S_483) },
+    { kind: 'setTaskPlanDates', taskUid: 1, start: april(7, S_482), finish: april(14, S_483) },
     LIMITS,
     'Task group',
   )

@@ -86,9 +86,9 @@ export function taskGroupsDocument(asked: TaskGroupsDocument): string {
     documentSettings: {
       ...TEMPLATE.documentSettings,
       scrollDate: '2026-02-20T00:00:00',
-      scrollDayOffset: 0,
+      scrollDateFraction: 0,
       scrollTaskGroupId: rowIdOf(0),
-      scrollGroupOffset: 0,
+      scrollTaskGroupFraction: 0,
       ...(asked.settings ?? {}),
     },
     documentStamp: TEMPLATE.documentStamp,

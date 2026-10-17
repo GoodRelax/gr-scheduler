@@ -812,7 +812,7 @@
     },
     {
      "seat": 156,
-     "name": "parentProgressToleranceDays",
+     "name": "parentTaskProgressToleranceDays",
      "type": "整数",
      "nullable": "否",
      "json": {
@@ -1611,7 +1611,7 @@
     },
     {
      "seat": 144,
-     "name": "editGroup",
+     "name": "editPermission",
      "type": "文字列",
      "nullable": "可（`null` ＝ 誰でも編集できる）",
      "json": {
@@ -2663,7 +2663,7 @@
     },
     {
      "seat": 106,
-     "name": "sourceProjectUid",
+     "name": "sourceProjectId",
      "type": "文字列",
      "nullable": "可",
      "json": {

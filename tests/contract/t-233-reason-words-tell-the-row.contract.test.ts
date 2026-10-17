@@ -502,8 +502,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   'RS-60': '275f46ff4448f779',
   // WHY: the words are option B of Q2 (JDG-300), read against the scene: the task group is read-only
   // because a group is set on it, and a copy into a task group with no group is a write FR-111 allows.
-  'RS-61': '3c2360f4ac55a091',
-  // WHY: read 2026-09-30; the words name editGroup by its PR-33 label and point to the person who may set it.
+  'RS-61': '754fab32707df05e',
+  // WHY: read 2026-09-30; the words name editPermission by its PR-33 label and point to the person who may set it.
   'RS-62': 'bf2d387ab7a11905',
   // WHY: read 2026-09-30; the words say the prompt is on the clipboard and to hand it to an AI (FR-068).
   // WHY: CR-713 (JDG-1737) changed only the word for copy (utsushi -> kopi-); read together, the scene and

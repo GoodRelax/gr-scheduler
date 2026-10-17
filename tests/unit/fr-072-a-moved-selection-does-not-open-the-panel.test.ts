@@ -266,7 +266,7 @@ function twoTaskDocument(): Document {
     name: label,
     derivedFromTaskUid: null,
     order: 0,
-    treeState: 'auto', editGroup: null,
+    treeState: 'auto', editPermission: null,
     color: null,
     minHeightPx: null,
   })

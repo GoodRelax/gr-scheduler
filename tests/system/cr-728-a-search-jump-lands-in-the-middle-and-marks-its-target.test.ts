@@ -191,12 +191,12 @@ async function expectLandedOnTheChosen(page: Page): Promise<void> {
   expect(uid, 'the target is a chosen task').toBeDefined()
   const read = await readingOf(page, uid!)
   expect(read.plan, 'the target is drawn').not.toBeNull()
-  const settings = (await readDocumentOf(page)).documentSettings as { scrollTaskGroupId: string | null; scrollGroupOffset: number }
+  const settings = (await readDocumentOf(page)).documentSettings as { scrollTaskGroupId: string | null; scrollTaskGroupFraction: number }
   const groups = (await readDocumentOf(page)).schedule.taskGroups as { id: string; parentId: string | null; order: number }[]
   const first = groups.filter((one) => one.parentId === null).sort((a, b) => a.order - b.order)[0]
   await expectLanded(page, uid!, {
     isWide: read.plan!.right - read.plan!.x > read.areaWidth - 2 * S_428,
-    isFirstRows: settings.scrollGroupOffset === 0 && settings.scrollTaskGroupId === (first?.id ?? null),
+    isFirstRows: settings.scrollTaskGroupFraction === 0 && settings.scrollTaskGroupId === (first?.id ?? null),
   })
 }
 

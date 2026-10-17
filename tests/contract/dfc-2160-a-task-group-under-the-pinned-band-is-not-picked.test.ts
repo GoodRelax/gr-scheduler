@@ -38,7 +38,7 @@ const SCROLLED = {
   stackDirection: 'down',
   pinnedTaskGroupIds: [PINNED_GROUP],
   scrollTaskGroupId: SHOWN_GROUP,
-  scrollGroupOffset: 0,
+  scrollTaskGroupFraction: 0,
 }
 
 const group = (id: string, order: number): unknown => ({

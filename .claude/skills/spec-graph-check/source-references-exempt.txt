@@ -1,0 +1,8 @@
+# Check 83 exemptions: <manuscript> | <token as check 83 prints it> | <why it resolves nowhere on purpose>
+# MEASURED 2026-10-17 on e5d2b794. Add a line only with its reason; the check
+# reds an exemption that no longer matches anything (it would hide a later break).
+docs/spec/_source/property-items.json | Task.assignee | PR-16: not a Task column -- the assignee is an Assignment row, its name derived (the item's note says so)
+docs/spec/_source/property-items.json | Task.predecessors | PR-37: read-only, not a document column -- the dependencies whose successor is this Task, one line each
+docs/spec/_source/property-items.json | Task.successors | PR-38: read-only, not a document column -- the dependencies whose predecessor is this Task, one line each
+docs/spec/_source/property-items.json | Dependency.successorUid | PR-44: read-only, not a document column -- the task that nests the dependency (ET-3)
+docs/spec/_source/property-items.schema.json | X-23 | CR-710's own item list ("CR-710 X-23"), not a row of the specification's X table

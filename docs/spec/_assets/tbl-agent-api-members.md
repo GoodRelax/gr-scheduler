@@ -14,8 +14,8 @@
 
 **`Agent API` は 1 つの面に 22 のメンバをフラットに並べる。**  
 用途別に分けない理由は Chapter 5.2 が持つ（`R2.5`）。  
-いまの版は 5 である（`AM-1` が返す値）。  
-呼び方を変える変更は版を上げる（表 T-035 の `AG-1`）。  
+いまの版は `2026-10-17T15:27:48Z` である（`AM-1` が返す値）。  
+版は、文書の形式の版（`FR-073`）と同じ書式の日時である —— 呼び方を変える変更は、版をその変更を当てる時刻へ上げる（表 T-035 の `AG-1`）。  
 ⭐ **呼び方（引数の名・型・意味と戻り値）は本表と 表 T-400 が持つ** —— コードの `AgentApi` の型と、MCP の道具の入力の形は本表の原稿から生成し、手で書かない。  
 境界値は Chapter 6.1 が持つ。
 
@@ -23,7 +23,7 @@
 
 | 行 ID | 群 | 確定名 | 品詞と純粋性 | 引数 | 戻り値 | 何を担うか | 正 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| AM-1 | 版 | `agentApiVersion` | プロパティ・`semi-pure-a` | — | `number` | `Agent API` の版。<br>呼ぶ側が最初に読む | 表 T-035 の `AG-1` |
+| AM-1 | 版 | `agentApiVersion` | プロパティ・`semi-pure-a` | — | `string` | `Agent API` の版 —— `schemaVersion` と同じ書式の日時の文字列（`YYYY-MM-DDTHH:MM:SSZ`）。<br>呼ぶ側が最初に読む | 表 T-035 の `AG-1` |
 | AM-2 | 版 | `schemaVersion` | プロパティ・`semi-pure-a` | — | `string` | この版の `GRS` が読み書きする文書の形式の版。<br>いま開いている文書が持つ値は `AM-3` で読む | 表 T-052 の `DR-4` |
 | AM-3 | 読む | `readDocument` | 動詞＋目的語・`semi-pure-b` | — | `Document`（表 T-064 の `PI-34`） | 文書ぜんたいの凍結された複製。<br>ルートの 3 群すべてを含む | 表 T-035 の `AG-4` ／ 表 T-052 の `DR-1` |
 | AM-4 | 読む | `readStamp` | 動詞＋目的語・`semi-pure-b` | — | `DocumentStamp`（表 T-064 の `PI-3`） | 文書の刻印。<br>楽観ロックの照合に用いる | 表 T-035 の `AG-2` ／ `FR-063` |
@@ -62,13 +62,13 @@
 | 行 ID | 型の名 | 欄 | 正 |
 | --- | --- | --- | --- |
 | AV-1 | `AgentWriteRequest` | `expectedStamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 呼ぶ側が最後に読んだ刻印 —— 今の刻印と 1 つでも違えば束ごと拒む（`AG-2`）<br>`commands`: `readonly DocumentCommand[]`（表 T-064 の `PI-8`、表 T-108） —— 命令の束 —— 束の単位で原子的に適用する（`AG-3`） | `AM-7` ／ 表 T-035 の `AG-2` / `AG-3` |
-| AV-2 | `AgentWriteOutcome` | **受理したとき**<br>　　`ok`: `true` —— 受理した<br>　　`stamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 適用した後の刻印<br>　　`hasMovedSchedule`: `boolean` —— 日程データの群を動かしたか（動かせば日程データの群の刻が進む —— `FR-063`）<br>**拒んだとき**<br>　　`ok`: `false` —— 拒んだ<br>　　`refusal`: `AgentRefusal`（`AV-3`） —— 拒否の値 | 表 T-035 の `AG-3` / `AG-9a` |
+| AV-2 | `AgentWriteOutcome` | **受理したとき**<br>　　`ok`: `true` —— 受理した<br>　　`stamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 適用した後の刻印<br>　　`hasUpdatedSchedule`: `boolean` —— 日程データの群を動かしたか（動かせば日程データの群の刻が進む —— `FR-063`）<br>**拒んだとき**<br>　　`ok`: `false` —— 拒んだ<br>　　`refusal`: `AgentRefusal`（`AV-3`） —— 拒否の値 | 表 T-035 の `AG-3` / `AG-9a` |
 | AV-3 | `AgentRefusal` | `target`: `string` —— 拒まれた対象（メンバの行 ID か、拒んだ規則の在りか）<br>`reason`: `AgentRefusalReason`（`AV-4`） —— 理由の区分<br>`stamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 今の刻印<br>`document`: `Document` か `null`（表 T-064 の `PI-34`） —— 刻印が食い違って拒んだとき（`staleStamp`）だけ今の文書の凍結された複製、ほかは `null`（`AG-2`）<br>`refusals`: `readonly Refusal[]`（表 T-064 の `PI-9`） —— 拒まれた命令ごとの拒否（`AG-3`）<br>`message`: `string` —— 人が読む説明 | 表 T-035 の `AG-9a` / `AG-2` |
 | AV-4 | `AgentRefusalReason` | 次のどれか 1 つ —— ⛔ 1 つの値へ潰さない（`AG-9a`）<br>`'staleStamp'` —— 渡した刻印が今の刻印と違う（`AG-2`）<br>`'gestureInFlight'` —— 人の操作が途中である<br>`'editingInPlace'` —— 人がその場で編集している途中である<br>`'questionAsked'` —— 人に問いを出している途中である<br>`'deliveringNotices'` —— 変更の知らせを配っている途中である（Chapter 5.5）<br>`'commandRefused'` —— 束の命令のどれかが拒まれた（`AG-3`）<br>`'unknownTask'` —— 指した `uid` のタスクが無い<br>`'notDrawnYet'` —— まだ 1 度も描いていない<br>`'tooTall'` —— 絵が書き出せる高さに収まらない（`FR-025`）<br>`'rasterFailed'` —— 画像にできなかった（`AG-8`）<br>`'embeddedHtmlFailed'` —— 単一 `.html` を組めなかった<br>`'notAvailable'` —— このページの結線に、そのメンバが使うコンポーネントが無い<br>`'malformedRequest'` —— 呼び方の形が違う（`FR-028`）<br>`CodecRefusalReason`（表 T-233） —— 取り込みの読みが拒んだ理由（表 T-233 の行 ID）<br>`InvariantRow`（表 T-064 の `PI-9`） —— 取り込みの検証（`FR-023`）が拒んだ不変条件（Chapter 6.1 の 表 T-220 の行 ID） | 表 T-035 の `AG-9a` ／ `FR-028` ／ 表 T-233 ／ 表 T-220 |
 | AV-5 | `AgentExport<TValue>` | **書き出せたとき**<br>　　`ok`: `true` —— 書き出せた<br>　　`value`: `TValue` —— 書き出した値<br>**拒んだとき**<br>　　`ok`: `false` —— 拒んだ<br>　　`refusal`: `AgentRefusal`（`AV-3`） —— 拒否の値 | 表 T-035 の `AG-7` / `AG-8` / `AG-9a` |
-| AV-6 | `AgentFocusOutcome` | **受理したとき**<br>　　`ok`: `true` —— 受理した<br>　　`stamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 適用した後の刻印<br>　　`hasMovedSchedule`: `boolean` —— 日程データの群を動かしたか<br>　　`isScrolled`: `boolean` —— 見える位置へ表示を寄せたか（ピン止めしたタスクグループに阻まれたら偽）<br>**拒んだとき**<br>　　`ok`: `false` —— 拒んだ<br>　　`refusal`: `AgentRefusal`（`AV-3`） —— 拒否の値 | `AM-16` ／ `FR-151` の 表 T-332 の `SJ-9` |
+| AV-6 | `AgentFocusOutcome` | **受理したとき**<br>　　`ok`: `true` —— 受理した<br>　　`stamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 適用した後の刻印<br>　　`hasUpdatedSchedule`: `boolean` —— 日程データの群を動かしたか<br>　　`isScrolled`: `boolean` —— 見える位置へ表示を寄せたか（ピン止めしたタスクグループに阻まれたら偽）<br>**拒んだとき**<br>　　`ok`: `false` —— 拒んだ<br>　　`refusal`: `AgentRefusal`（`AV-3`） —— 拒否の値 | `AM-16` ／ `FR-151` の 表 T-332 の `SJ-9` |
 | AV-7 | `AgentImportSource` | 次の 3 つの形のどれか —— どの形も同じ読み方で読み、同じものを拒む<br>`Document`（表 T-064 の `PI-34`） —— 文書そのもの<br>**包んだ文書**<br>　　`document`: `Document`（表 T-064 の `PI-34`） —— 文書<br>**文字列**<br>　　`text`: `string` —— `GRS JSON` の文字列 | `AM-8` ／ `FR-087` / `FR-022` |
-| AV-8 | `AgentShownTasks` | `drawnTaskUids`: `readonly number[]` か `null` —— いま日程表に描いているタスクの `uid` の並び —— スケジュールフィルタを掛けた表が 1 つも無ければ `null`（`TV-1`）<br>`tables`: `readonly VisibilityTable[]`（`FR-151` の 表 T-353） —— スケジュールフィルタを掛けている表の名の並び | `AM-26` ／ `FR-151` の 表 T-353 |
+| AV-8 | `AgentShownTasks` | `drawnTaskUids`: `readonly number[]` か `null` —— いま日程表に描いているタスクの `uid` の並び —— スケジュールフィルタを掛けた表が 1 つも無ければ `null`（`TV-1`）<br>`filteringTables`: `readonly VisibilityTable[]`（`FR-151` の 表 T-353） —— スケジュールフィルタを掛けている表の名の並び | `AM-26` ／ `FR-151` の 表 T-353 |
 | AV-9 | `AgentDelayDiagnostics` | 遅延診断のレポート `DelayDiagnosticsReport`（表 T-064 の `PI-1`、表 T-317） の欄のすべてに、次の 2 つを足す<br>`fixProposals`: `readonly DelayFixRow[]`（表 T-064 の `PI-1`） —— 修正案の行（`DX-11`）<br>`fixLog`: `readonly DelayFixLogRow[]`（表 T-064 の `PI-1`） —— 修正の記録の行（`DX-12`） | `AM-19` ／ `FR-134` の 表 T-317 |
 | AV-10 | `AgentChangeReceiver` | 知らせを 1 つずつ受け取る手（何も返さない）<br>`notice`: `ChangeNotice`（`AV-14`） —— 届いた知らせ | `AM-17` ／ 表 T-035 の `AG-6` |
 | AV-11 | `AgentWatch` | `hasReplacedEarlierWatch`: `boolean` —— 先に購読していた手を置き換えたか<br>`stopWatching()`: `boolean` —— 購読をやめ、やめた購読があったかを返す | `AM-17` ／ 表 T-035 の `AG-6` |
