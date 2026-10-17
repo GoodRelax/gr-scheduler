@@ -48,6 +48,23 @@ const FR_059_MARK =
 const FR_059_NO_COUNT = '残りの人数は出さない'
 const TL_7_ORDER = '割当の並びの順（主担当が先頭、`FR-008` の 表 T-225 の `AS-13`）に、`,` と半角空白 1 つで繋いだものとする'
 
+// see IN-5a, IN-6, DFC-3102, DFC-3103
+const IN_5A_SHIFTED =
+  '⭐ `Shift` だけを添えて打つ 1 字（大文字、`+`・`_` など）も単文字キーに数えること（MUST） —— 鍵盤によって `+` は `Shift` を要し、数えないと `SK-16`・`SK-16b` に取られて欄に届かない。'
+const IN_6_KEYED_DATE =
+  '⭐ 日付・日時の欄に鍵盤で打っているあいだは、打っている途中の値を書かず、`Enter`・欄の外の押下・焦点が欄を離れたときに確定すること（MUST）'
+const IN_6_CALENDAR = '宿主のカレンダーで選んだ日付は、選んだときに確定する —— 選んだ値は途中の値ではない。'
+
+describe('DFC-3102 / DFC-3103 -- the key clauses tests/unit/dfc-3102-dfc-3103 presses', () => {
+  it.each([
+    ['IN-5a (MUST) -- a Shift-only character is a single key', IN_5A_SHIFTED],
+    ['IN-6 (MUST) -- a keyed date settles on Enter, a press outside or the focus leaving', IN_6_KEYED_DATE],
+    ['IN-6 -- a calendar pick settles at once', IN_6_CALENDAR],
+  ])('01-04 still says it, word for word: %s', (_name, clause) => {
+    expect(REQUIREMENTS).toContain(clause)
+  })
+})
+
 describe('CR-788 -- the manuscript these cases are driven by', () => {
   it.each([
     ['AS-13 (MUST) -- the primary is the first assignment', AS_13_PRIMARY],

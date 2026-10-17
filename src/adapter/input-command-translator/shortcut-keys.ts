@@ -42,7 +42,7 @@ export function commandFromKey(input: KeyInput, context: InputContext): Translat
   // WHY: a field asked for but not yet focused takes its keys too, or the first letter typed
   // after MK-13 or HF-14 reaches SK-14 or SK-18 instead of the name.
   if (context.isTextEntryUnsettled || context.isTextFieldFocusWanted === true) {
-    if (plain && isSingleCharacterKey(key)) return UNASSIGNED
+    if ((plain || isCombo(modifiers, false, true, false)) && isSingleCharacterKey(key)) return UNASSIGNED
     if (plain && (key === KEY.del || key === KEY.backspace)) return UNASSIGNED
   }
   if (context.isTextEntryUnsettled) {
