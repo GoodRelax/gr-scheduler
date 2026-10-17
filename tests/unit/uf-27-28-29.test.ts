@@ -759,14 +759,14 @@ describe('table T-107 -- the roster', () => {
 describe('AM-1 / AM-2 -- the two versions', () => {
   it('AM-1 answers a value a caller can compare before it goes on (AG-1)', () => {
     const version = bench().api.agentApiVersion
-    expect(Number.isFinite(version)).toBe(true)
+    expect(version).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/)
   })
 
-  it('AM-1 is 5 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
+  it('AM-1 is the date-time of JDG-2741 -- the tripwire rule 06 asks PND-60 to leave behind', () => {
     // Nothing in table T-035, table T-107, `_assets/tbl-settings.md` or Chapter
     // 6.1 states the starting value. This case is what falls over when the
-    // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3, CR-710 wave 3b to 4, CR-769 to 5.
-    expect(bench().api.agentApiVersion).toBe(6)
+    // pending decision is settled the other way. AG-1: CR-708 raised it to 2, CR-730 to 3, CR-710 wave 3b to 4, CR-769 to 5, CR-792 to 6 and then to a date-time (JDG-2741).
+    expect(bench().api.agentApiVersion).toBe('2026-10-17T15:27:48Z')
   })
 
   it("AM-2 answers the build's version, not the open document's (T-107 AM-2)", () => {

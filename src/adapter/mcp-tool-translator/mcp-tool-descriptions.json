@@ -3,7 +3,7 @@
  "tools": [
   {
    "name": "agentApiVersion",
-   "description": "`Agent API` の版。\n呼ぶ側が最初に読む",
+   "description": "`Agent API` の版 —— `schemaVersion` と同じ書式の日時の文字列（`YYYY-MM-DDTHH:MM:SSZ`）。\n呼ぶ側が最初に読む",
    "inputSchema": {
     "type": "object",
     "properties": {}

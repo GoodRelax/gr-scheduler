@@ -176,7 +176,7 @@ export type AgentDialogueMessageOutcome =
 
 // see T-107
 export interface AgentApi {
-  readonly agentApiVersion: number
+  readonly agentApiVersion: string
   readonly schemaVersion: string
 
   /** @purity semi-pure-b */
@@ -239,7 +239,7 @@ const ELSEWHERE_DECLARED_FIELDS_MATCH: [
 void ELSEWHERE_DECLARED_FIELDS_MATCH
 
 // see AM-1, AG-1
-const AGENT_API_VERSION = 6
+const AGENT_API_VERSION = '2026-10-17T15:27:48Z'
 // </generated>
 
 export interface AgentApiWiring {

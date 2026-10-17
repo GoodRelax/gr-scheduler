@@ -52,10 +52,11 @@ type Stamp = Document['documentStamp']
 const noNotice = (): void => undefined
 
 describe('AM-1 and AG-1: the version the AgentApi hands out is the one the table prints', () => {
-  it('agentApiVersion is 6 -- the number the prose of T-107 gives and the manuscript declares', () => {
-    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe(6)
-    expect(MANUSCRIPT.version).toBe(6)
-    expect(PRINTED).toContain('いまの版は 6 である（`AM-1` が返す値）')
+  it('agentApiVersion is the date-time the prose of T-107 gives and the manuscript declares (JDG-2741)', () => {
+    expect(installAgentApi(stubbedWiring).agentApiVersion).toBe('2026-10-17T15:27:48Z')
+    expect(MANUSCRIPT.version).toBe('2026-10-17T15:27:48Z')
+    expect(MANUSCRIPT.version).toMatch(/^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$/)
+    expect(PRINTED).toContain('いまの版は `2026-10-17T15:27:48Z` である（`AM-1` が返す値）')
   })
 
   it('schemaVersion is the format version the page was wired with (AM-2)', () => {
@@ -112,7 +113,7 @@ describe('the AgentApi type, member by member (T-107)', () => {
   })
 
   it('the two properties are a number and a string', () => {
-    expectTypeOf<AgentApi['agentApiVersion']>().toEqualTypeOf<number>()
+    expectTypeOf<AgentApi['agentApiVersion']>().toEqualTypeOf<string>()
     expectTypeOf<AgentApi['schemaVersion']>().toEqualTypeOf<string>()
   })
 

@@ -34,7 +34,7 @@ interface Member {
 }
 
 interface Manuscript {
-  version: number
+  version: string
   members: { rows: Member[] }
 }
 
@@ -160,7 +160,7 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
   it('raising the version of the manuscript leaves AGENT_API_VERSION drifted', () => {
     const copy = scratchCopy()
     editManuscript(copy, (manuscript) => {
-      manuscript.version += 1
+      manuscript.version = '2099-01-01T00:00:00Z'
     })
     const ran = run(copy, GENERATOR)
     expect(ran.status).toBe(1)
@@ -171,8 +171,8 @@ describe('on a scratch copy outside the repository: an untouched copy is green, 
     const copy = scratchCopy()
     const unit = join(copy, MEMBERS_UNIT)
     const text = readFileSync(unit, 'utf8')
-    expect(text).toContain('const AGENT_API_VERSION = 6')
-    writeFileSync(unit, text.replace('const AGENT_API_VERSION = 6', 'const AGENT_API_VERSION = 7'), 'utf8')
+    expect(text).toContain("const AGENT_API_VERSION = '2026-10-17T15:27:48Z'")
+    writeFileSync(unit, text.replace("const AGENT_API_VERSION = '2026-10-17T15:27:48Z'", "const AGENT_API_VERSION = '2099-01-01T00:00:00Z'"), 'utf8')
     const ran = run(copy, GENERATOR)
     expect(ran.status).toBe(1)
     expect(ran.out).toContain(MEMBERS_UNIT)

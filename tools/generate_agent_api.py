@@ -231,7 +231,7 @@ def members_region(doc):
         out += value_declaration(row) + ['']
     out += agent_api_interface(doc)
     out += held_fields(elsewhere)
-    out += ['', '// see AM-1, AG-1', 'const AGENT_API_VERSION = %d' % doc['version']]
+    out += ['', '// see AM-1, AG-1', "const AGENT_API_VERSION = '%s'" % doc['version']]
     return ('tables %s and %s' % (doc['members']['table']['id'], doc['values']['table']['id']),
             out)
 
