@@ -18,3 +18,20 @@ The user tries the GRS alpha by hand before the Monday 2026-10-19 showing. This 
 | 8 | 担当リスト Resource List (AI) | No AI reader for the resource list; only the whole document | Low | DFC-3256 | Include the resource list in the table reader (S, AI relay seat) |
 | 9 | GRS Relay (AI) | Request: same column filters for the AI; A' -- no new readers, paging on search, carry/uid options on readDocument | Decision | JDG-2765, JDG-2766 | New CR after the alpha |
 | 10 | GRS Relay (AI) | Claude Code drops the tool schemas' `oneOf` / type lists: the AI sees `commands: items {}` and cannot learn the 91 command kinds from the relay (the Chat tab reads them) | High | DFC-3257 | Plain schemas only; serve the command catalogue as a resource or reader (M, AI relay seat) |
+| 11 | GRS Relay (AI) / 対話欄 Dialogue Field | Dialogue messages the AI posts are invisible (the field cannot be opened); the user will remove the dialogue feature | Decision | JDG-2767 | Remove FR-066, AM-6, AM-18, AG-11 in the relay CR (S-M) |
+| 12 | GRS Relay (AI) | Tool and command descriptions are Japanese with 315 spec row ids | Decision | JDG-2768 (closes PND-931, DFC-3131) | English descriptions, no row ids, spec URL once (M) |
+
+## Scope of the one relay change request (after the alpha)
+
+Sizes are estimates (S < 1 h, M 1-4 h, L > 4 h of seat time), not measurements.
+
+| Item | Rows | Size | Folds with |
+|---|---|---|---|
+| Open files through a human-picked window; AI saves 5 formats to the settings folder (default Documents\GRS), overwrite asked in chat or by setting, one .bak | JDG-2760..2763 | L | -- |
+| Calls that wait on a person return at once; relay deadline answers a value; page band on disconnect | JDG-2764, DFC-3252 | M | -- |
+| A': paging on readSearchRows, carry off and uid filter on readDocument, stamp-only staleStamp, slim change notices | JDG-2765, JDG-2766, DFC-3253 | M | -- |
+| Read the three tables with the screen's column filters and sort; column list; resource list | JDG-2766, DFC-3254..3256 | M | A' |
+| Undo / redo for AI edits | DFC-3250 | M | -- |
+| Plain tool schemas (no oneOf / type lists); command catalogue by another road; null-free clear | DFC-3257, DFC-3251 | M | English descriptions |
+| English descriptions without row ids | JDG-2768, DFC-3131 | M | schemas |
+| Remove the dialogue feature | JDG-2767 | S-M | -- |
