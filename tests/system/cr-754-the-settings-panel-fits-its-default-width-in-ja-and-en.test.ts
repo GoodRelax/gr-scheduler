@@ -14,7 +14,7 @@ const REQUIREMENTS = unbroken(readFileSync(join(SPEC, '01-04-requirements.md'), 
 const SETTINGS_BOOK = unbroken(readFileSync(join(SPEC, '_assets', 'tbl-settings.md'), 'utf8'))
 
 // see FR-006, FR-072, S-171
-const FR_006_FITS_AT_DEFAULT = '⭐ 既定の幅（`S-171`）では横に送らずに収まる —— 横に送るのは、人が既定より狭めたときだけである。'
+const FR_006_FITS_AT_DEFAULT = '⭐ 中身ごとの既定の幅（`FR-052`）では横に送らずに収まる —— 横に送るのは、人が既定より狭めたときだけである。'
 const FR_006_SCROLL_NOT_SHRINK = 'パネルを横に送って見せ、選びを縮めない。'
 const FR_006_EMPTY_IS_AS_WIDE = '`S-590` を掛けた幅とすること（MUST）。⭐ 値が空でも同じ幅とすること（MUST）'
 const FR_006_BREAK_AT_MARKS =
@@ -24,7 +24,7 @@ const FR_006_OTHER_DATE_FIELDS = '⭐ 本段の日付と日時の要る幅は、
 const FR_072_CLOSE_ROW =
   '⭐ パネルの先頭に、閉じる入口（`_assets/tbl-glossary.md` の 表 T-109 の `IC-52`）だけの行を置き、閉じる入口をその行の右端に置くこと（MUST）'
 const T_369_FOLDABLE = '見出しを押すとその組を畳め、初めはどの組も開いている。'
-const S_171_RULE = '横にはみ出さない最も小さい幅とし、10 px 単位に切り上げる。'
+const S_171_RULE = '横にはみ出さず、どの項目名も 2 行以内に収まる最も小さい幅とする'
 
 const SHIPPED_BUILD = join(process.cwd(), 'dist', 'index.html')
 const SCREEN = screenOf(rowOf(specTable('T-025'), 'MC-6'))
@@ -317,7 +317,7 @@ test('CR-754 the manuscript this file is driven by still reads this way', () => 
     expect(REQUIREMENTS, clause).toContain(clause)
   }
   expect(SETTINGS_BOOK).toContain(S_171_RULE)
-  expect(S_171).toBe(560)
+  expect(S_171).toBe(360)
 })
 
 for (const { language, locale } of LOCALES) {

@@ -28,13 +28,13 @@ const roleOf = (id: string): string =>
 const PROPERTIES_PANEL = roleOf('U-25')
 const PANEL_DIVIDER = roleOf('U-24')
 
-// see S-171, S-248
+// see S-602, S-248
 const settingPx = (id: string): number => {
   const found = /(\d+(?:\.\d+)?)/.exec(bare(specTable('T-206').rows.find((one) => one.id === id)?.by['既定'] ?? ''))
   if (found === null) throw new Error(`table T-206 row ${id} states no number`)
   return Number(found[1])
 }
-const S_171 = settingPx('S-171')
+const S_602 = settingPx('S-602')
 const S_248 = settingPx('S-248')
 
 type Loose = Record<string, unknown>
@@ -43,7 +43,7 @@ const TEMPLATE = JSON.parse(
 ) as { readonly schedule: { readonly tasks: readonly Loose[]; readonly assignments: readonly Loose[]; readonly resources: readonly Loose[] } }
 
 // WHY: the first Task of the startup document with both a parent task and an assignee.
-const SUBJECT = ((): { uid: number; parentUid: number; parentName: string; assigneeName: string } => {
+const SUBJECT = ((): { uid: number; parentUid: number; parentName: string; assigneeName: string; assigneeShown: string } => {
   const { tasks, assignments, resources } = TEMPLATE.schedule
   for (const task of tasks) {
     const parentUid = task['parentTaskUid']
@@ -51,11 +51,14 @@ const SUBJECT = ((): { uid: number; parentUid: number; parentName: string; assig
     if (typeof parentUid !== 'number' || assignment === undefined || task['milestone'] === true) continue
     const parent = tasks.find((one) => one['uid'] === parentUid)
     const person = resources.find((one) => one['uid'] === assignment['resourceUid'])
+    // WHY: AS-5 shows the primary (the first assignment, AS-13) and FR-059's mark when others sit too.
+    const seatedCount = assignments.filter((one) => one['taskUid'] === task['uid']).length
     return {
       uid: task['uid'] as number,
       parentUid,
       parentName: String(parent?.['name'] ?? ''),
       assigneeName: String(person?.['name'] ?? ''),
+      assigneeShown: `${String(person?.['name'] ?? '')}${seatedCount > 1 ? ', \u2026' : ''}`,
     }
   }
   throw new Error('premise: the startup document holds a Task with a parent and an assignee')
@@ -170,14 +173,15 @@ async function readPanel(page: Page, rows: readonly string[]): Promise<Reading> 
       const choosers: Chooser[] = []
       for (const row of rows) {
         // WHY: PR-15 is a task reference since CR-676 (PTL-15, kind renamed by JDG-1613); the Task it jumps to is its value.
-        const found = root.querySelectorAll(`select[data-field-row="${row}"], input[data-field-combo][data-field-row="${row}"], [data-field-row="${row}"] select, [data-field-row="${row}"][data-field-kind="taskReference"]`)
+        const found = root.querySelectorAll(`select[data-field-row="${row}"], input[data-field-combo][data-field-row="${row}"], [data-field-row="${row}"] select, [data-field-row="${row}"][data-field-kind="taskReference"], [data-assignee-field="${row}"] > button > span:first-child`)
         for (const one of Array.from(found)) {
           const link = one.getAttribute('data-field-kind') === 'taskReference' ? (one as HTMLElement) : null
           const element = one as HTMLSelectElement | HTMLInputElement
           const box = element.getBoundingClientRect()
           const style = getComputedStyle(element)
           const isSelect = element instanceof HTMLSelectElement
-          const shown = link !== null ? (link.textContent ?? '') : isSelect ? (element.selectedOptions[0]?.textContent ?? '') : element.value
+          const words = one.closest('[data-assignee-field]') !== null ? (one.textContent ?? '') : null
+          const shown = link !== null ? (link.textContent ?? '') : isSelect ? (element.selectedOptions[0]?.textContent ?? '') : (words ?? element.value)
           const options = isSelect ? Array.from(element.options).map((option) => option.textContent ?? '') : [shown]
           const padding = (Number.parseFloat(style.paddingLeft) || 0) + (Number.parseFloat(style.paddingRight) || 0)
           choosers.push({
@@ -185,7 +189,7 @@ async function readPanel(page: Page, rows: readonly string[]): Promise<Reading> 
             right: box.right,
             width: box.width,
             textOverflow: style.textOverflow,
-            value: link !== null ? (link.getAttribute('data-link-task-uid') ?? '') : element.value,
+            value: link !== null ? (link.getAttribute('data-link-task-uid') ?? '') : (words ?? element.value),
             shownText: shown,
             shownTextWidth: textWidth(shown, element),
             longestOptionWidth: Math.max(0, ...options.map((text) => textWidth(text, element))),
@@ -220,7 +224,7 @@ const CASES = [
 ] as const
 
 for (const { theme, locale } of CASES) {
-  test(`FR-006 (MUST, MUST NOT), ${theme}, ${locale}: PR-15 and PR-16 stay inside the panel at S-171 and at S-248, cut with an ellipsis, value kept`, async () => {
+  test(`FR-006 (MUST, MUST NOT), ${theme}, ${locale}: PR-15 and PR-16 stay inside the panel at S-602 and at S-248, cut with an ellipsis, value kept`, async () => {
     test.setTimeout(180_000)
     if (browser === null) throw new Error('the reference browser was not opened')
     const context = await browser.newContext({ viewport: SCREEN, colorScheme: theme, locale })
@@ -229,11 +233,11 @@ for (const { theme, locale } of CASES) {
       await page.goto(pathToFileURL(SHIPPED_BUILD).href)
       await readSettledDrawnSvg(page)
       await openOn(page, [SUBJECT.uid])
-      for (const where of ['S-171', 'S-248'] as const) {
+      for (const where of ['S-602', 'S-248'] as const) {
         if (where === 'S-248') await narrowToTheFloor(page)
         const read = await readPanel(page, DOCUMENT_NAME_TASK_GROUPS)
         expect(
-          Math.abs(read.panelWidth - (where === 'S-171' ? S_171 : S_248)),
+          Math.abs(read.panelWidth - (where === 'S-602' ? S_602 : S_248)),
           `premise: the panel is ${where} wide (its divider line aside)`,
         ).toBeLessThanOrEqual(PANEL_EDGE_PX)
         for (const row of DOCUMENT_NAME_TASK_GROUPS) {
@@ -249,7 +253,7 @@ for (const { theme, locale } of CASES) {
         expect(parent?.value, `PR-15 at ${where}: ${FR_006_VALUE_KEPT}`).toBe(String(SUBJECT.parentUid))
         expect(parent?.shownText, 'PR-15: the link keeps the whole name').toBe(SUBJECT.parentName)
         const assignee = read.choosers.find((one) => one.row === 'PR-16')
-        expect(assignee?.shownText, 'PR-16: the chosen option keeps the whole name').toBe(SUBJECT.assigneeName)
+        expect(assignee?.shownText, 'PR-16: the closed field keeps the whole primary name (AS-5)').toBe(SUBJECT.assigneeShown)
         if (where === 'S-248') {
           expect(
             (parent?.shownTextWidth ?? 0) > (parent?.contentWidth ?? 0),

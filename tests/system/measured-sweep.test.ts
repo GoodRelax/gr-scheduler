@@ -3681,8 +3681,8 @@ async function panelPrinting(page: Page): Promise<PanelPrinting> {
   return page.evaluate((panel: string) => {
     const host = document.querySelector(panel)
     if (host === null) return { names: [], words: [] }
-    const names = Array.from(host.querySelectorAll('[data-field-row]'))
-      .map((row) => (row.querySelector('span')?.textContent ?? '').trim())
+    const names = Array.from(host.querySelectorAll('div[data-field-row]'))
+      .map((row) => (row.querySelector(':scope > span')?.textContent ?? '').trim())
       .filter((said) => said !== '')
     const words = Array.from(host.querySelectorAll('*'))
       .filter((element) => element.children.length === 0)

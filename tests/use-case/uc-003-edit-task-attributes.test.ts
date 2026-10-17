@@ -52,13 +52,17 @@ test('UC-003 edit the attributes of a task (FR-072, T-016, FR-083 SP-2, FR-007, 
     await commit(page)
     expect(visualOf(await readDocument(page)).strokeWidthPx).toBe(3)
     const other = before.schedule.resources.find((r) => !assigneesOf(before).includes(r.uid))!
-    await page.click(PANEL + 'input[data-field-row="PR-16"][data-field-combo] >> nth=-1')
-    await page.click(PANEL + `[data-combo-list="PR-16"] [data-combo-item="candidate"][value="${other.uid}"] >> nth=0`)
+    const seated = assigneesOf(before)
+    // STEP: the field opens its checked list (AS-5); checking a person seats them (AS-12)
+    await page.click(PANEL + '[data-assignee-field="PR-16"] > button >> nth=0')
+    await page.click(PANEL + `[data-assignee-list="PR-16"] [data-assignee-person="${other.uid}"]`)
     await settle(page)
     await expect.poll(async () => assigneesOf(await readDocument(page))).toContain(other.uid)
-    // STEP: emptying the first line lets its person go (AS-3), so the new person is the only one
-    await page.fill(PANEL + 'input[data-field-row="PR-16"][data-field-combo] >> nth=0', '')
-    await settle(page)
+    // STEP: unchecking the people seated before lets them go (AS-3), so the new person is the only one
+    for (const uid of seated) {
+      await page.click(PANEL + `[data-assignee-list="PR-16"] [data-assignee-person="${uid}"]`)
+      await settle(page)
+    }
     await expect.poll(async () => assigneesOf(await readDocument(page))).toEqual([other.uid])
   })
 
