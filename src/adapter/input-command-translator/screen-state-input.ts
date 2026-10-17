@@ -283,11 +283,17 @@ function screenEventAfterChartPress(input: PointerInput, context: InputContext):
 }
 
 /** @purity pure */
+function markerTaskUidOf(context: InputContext): number | null {
+  const hit = context.pressed?.hit ?? null
+  if (hit === null || grabTaskGroupOf(hit) !== 'GA-18' || hit.item.kind !== 'task') return null
+  return hit.item.taskUid
+}
+
+/** @purity pure */
 function markerReleasedOf(input: PointerInput, context: InputContext): number | null {
   const press = context.pressed
-  if (press === null || press.hit === null) return null
-  if (grabTaskGroupOf(press.hit) !== 'GA-18' || press.hit.item.kind !== 'task') return null
-  return hasDraggedPastThreshold(press, input) ? null : press.hit.item.taskUid
+  const uid = markerTaskUidOf(context)
+  return uid === null || press === null || hasDraggedPastThreshold(press, input) ? null : uid
 }
 
 // see RW-1, RW-14, RW-19, PE-8, PE-10, JDG-2800, JDG-2801
@@ -298,14 +304,27 @@ function isDiagnosisRowAskedFor(taskUid: number, context: InputContext): boolean
   return context.diagnosisMarkedTaskUids?.has(taskUid) === true
 }
 
-// see RW-19, PE-8, PE-10, GA-18
+/** @purity pure */
+function isMarkerReleaseIn(input: PointerInput, context: InputContext): boolean {
+  const press = context.pressed
+  return input.phase === 'up' && press !== null && press.on === null && pressedRowOf(press, context) !== 'PTD-2'
+}
+
+// see RW-19, PE-8, PE-10, GA-18, PTD-2
 /** @purity pure */
 export function diagnosisRowAskedOf(input: HumanInput, context: InputContext): number | null {
-  const press = context.pressed
-  if (input.kind !== 'pointer' || input.phase !== 'up' || press === null || press.on !== null) return null
-  if (pressedRowOf(press, context) === 'PTD-2') return null
+  if (input.kind !== 'pointer' || !isMarkerReleaseIn(input, context)) return null
   const uid = markerReleasedOf(input, context)
   return uid !== null && isDiagnosisRowAskedFor(uid, context) ? uid : null
+}
+
+// see FR-130, PE-8, PE-10, RW-19, JDG-2803, JDG-2806
+/** @purity pure */
+export function markerOperatedTaskUidOf(input: HumanInput, context: InputContext): number | null {
+  const press = context.pressed
+  const uid = markerTaskUidOf(context)
+  if (input.kind !== 'pointer' || !isMarkerReleaseIn(input, context) || press === null || uid === null) return null
+  return hasDraggedPastThreshold(press, input) || !isDiagnosisRowAskedFor(uid, context) ? uid : null
 }
 
 // see PV-4, PV-5, T-280

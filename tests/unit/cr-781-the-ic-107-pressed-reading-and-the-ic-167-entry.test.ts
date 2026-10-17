@@ -1,4 +1,4 @@
-// CR-781 spec-only unit cases: IC-107 looks pressed while the report window is open (RW-1, S-451), and IC-167 stands first on the RW-3 line with its word.
+// CR-781 / CR-797 spec-only unit cases: IC-107 looks pressed while the report window is open (RW-1, S-451), and IC-168 (the End Diagnostics entry is retired) stands first on the RW-3 line with its word.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -90,19 +90,19 @@ describe('RW-1 / T-109 IC-107 -- the pressed look is the window being open (S-45
   })
 })
 
-describe('T-109 -- IC-167 is a row of the report window, standing just before IC-140', () => {
+describe('T-109 -- IC-168 is a row of the report window, standing just before IC-140', () => {
   const rows = specTable('T-109').rows
 
   it('the row exists, names the Delay Diagnostics Report and stands immediately before IC-140', () => {
-    const at = rows.findIndex((one) => one.id === 'IC-167')
-    expect(at, 'IC-167 is in T-109').toBeGreaterThanOrEqual(0)
+    const at = rows.findIndex((one) => one.id === 'IC-168')
+    expect(at, 'IC-168 is in T-109').toBeGreaterThanOrEqual(0)
     expect(rows[at + 1]?.id).toBe('IC-140')
     expect(rows[at]?.cells.join(' ')).toContain('Delay Diagnostics Report')
   })
 
-  it('the dictionary words are 診断を終える and End Diagnostics', () => {
-    expect(wordOf('IC-167', 'ja')).toBe('診断を終える')
-    expect(wordOf('IC-167', 'en')).toBe('End Diagnostics')
+  it('the dictionary words are 再診断 and Diagnose Again', () => {
+    expect(wordOf('IC-168', 'ja')).toBe('再診断')
+    expect(wordOf('IC-168', 'en')).toBe('Diagnose Again')
   })
 })
 
@@ -145,20 +145,20 @@ const viewIn = (language: Language) =>
     textSizeStep: 1,
   })
 
-describe('T-346 RW-3 -- the line under the title holds IC-167, IC-140 and IC-108, IC-167 first and shown with its word', () => {
-  it.each<[Language]>([['ja'], ['en']])('the entries are IC-167, IC-140, IC-108 in that order (%s)', (language) => {
-    expect(viewIn(language)?.toolEntries.map((one) => one.icon)).toEqual(['IC-167', 'IC-140', 'IC-108'])
+describe('T-346 RW-3 -- the line under the title holds IC-168, IC-140 and IC-108, IC-168 first and shown with its word', () => {
+  it.each<[Language]>([['ja'], ['en']])('the entries are IC-168, IC-140, IC-108 in that order (%s)', (language) => {
+    expect(viewIn(language)?.toolEntries.map((one) => one.icon)).toEqual(['IC-168', 'IC-140', 'IC-108'])
   })
 
-  it.each<[Language]>([['ja'], ['en']])('IC-167 is enabled, shown with its word, and carries the word of the dictionary (%s)', (language) => {
+  it.each<[Language]>([['ja'], ['en']])('IC-168 is enabled, shown with its word, and carries the word of the dictionary (%s)', (language) => {
     const entry = viewIn(language)?.toolEntries[0]
-    expect(entry?.icon).toBe('IC-167')
+    expect(entry?.icon).toBe('IC-168')
     expect(entry?.isEnabled).toBe(true)
     expect(entry?.isLabelShown).toBe(true)
-    expect(entry?.label).toBe(wordOf('IC-167', language))
+    expect(entry?.label).toBe(wordOf('IC-168', language))
   })
 
-  it('IC-167 is not a title-bar entry (RW-2 keeps its list)', () => {
+  it('IC-168 is not a title-bar entry (RW-2 keeps its list)', () => {
     const titled = viewIn('en')?.titleEntries.map((one) => one.icon) ?? []
     expect(titled).toEqual(['IC-127', 'IC-129', 'IC-130', 'IC-52'])
     expect(viewIn('en')?.tableEntries.map((one) => one.icon)).toEqual(['IC-153', 'IC-143'])

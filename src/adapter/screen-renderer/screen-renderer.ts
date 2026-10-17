@@ -158,6 +158,8 @@ export interface CommandItem {
   // see TV-12, EN-8
   readonly isScheduleFilterApplied?: boolean
   readonly isLabelShown?: boolean
+  // see FR-039, S-623
+  readonly isLabelBold?: boolean
 }
 
 export interface ScreenFrame {

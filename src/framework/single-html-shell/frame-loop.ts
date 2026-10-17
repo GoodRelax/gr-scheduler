@@ -142,6 +142,7 @@ import {
 import {
   commandFromInput,
   diagnosisRowAskedOf,
+  markerOperatedTaskUidOf,
   escapeContextOf,
   isCombo,
   isLandingMarkKeptBy,
@@ -508,7 +509,7 @@ const SEARCH_FILTER_ENTRY: IconId = 'IC-122'
 const SEARCH_CLEAR_ENTRY: IconId = 'IC-153'
 
 const DELAY_DIAGNOSTICS_ENTRY: IconId = 'IC-107'
-const END_DIAGNOSTICS_ENTRY: IconId = 'IC-167'
+const RE_DIAGNOSE_ENTRY: IconId = 'IC-168'
 const PROGRESS_MARKER_ENTRY: IconId = 'IC-40'
 
 type DelayDiagnosticsDrawing = NonNullable<Parameters<typeof geometryFromLayout>[6]>
@@ -519,19 +520,40 @@ interface HeldDelayDiagnostics {
   readonly drawing: DelayDiagnosticsDrawing
   readonly reportTaskUids: ReadonlySet<number>
   readonly markedTaskUids: ReadonlySet<number>
+  readonly fixLogAtRun: ReadonlySet<DelayFixLogRow>
 }
 
 const NO_MARKED_TASKS: ReadonlySet<number> = new Set()
 
-// see FR-133, T-315, S-3
-// WHY: DG-4 is left out; the geometry already draws it as PM-4.
+// see FR-130, FR-133, PE-8, T-315, S-3, JDG-2803, JDG-2804, JDG-2806
+// WHY: DG-4 is left out; the geometry already draws it as PM-4. Made only on a run (IC-107, IC-168), never on an edit.
 /** @purity pure */
-function delayDiagnosticsOf(document: Document): HeldDelayDiagnostics {
+function delayDiagnosticsOf(document: Document, fixLogAtRun: ReadonlySet<DelayFixLogRow>): HeldDelayDiagnostics {
   const report = diagnoseDelay(document, workingCalendarOf(document.schedule))
   const symbolByUid = new Map<number, 'DG-1' | 'DG-2' | 'DG-3'>()
   for (const one of report.markerStates) if (one.row !== 'DG-4') symbolByUid.set(one.uid, one.row)
   const reportTaskUids = new Set(delayDiagnosticsReportRows(report, document.schedule).map((row) => row.taskUid))
-  return { of: document, report, drawing: { shown: true, symbolByUid }, reportTaskUids, markedTaskUids: new Set(symbolByUid.keys()) }
+  return { of: document, report, drawing: { shown: true, symbolByUid }, reportTaskUids, markedTaskUids: new Set(symbolByUid.keys()), fixLogAtRun }
+}
+
+/** @purity pure */
+function heldAfterMarkerOperated(held: HeldDelayDiagnostics | null, taskUid: number | null): HeldDelayDiagnostics | null {
+  if (held === null || taskUid === null || !held.markedTaskUids.has(taskUid)) return held
+  const symbolByUid = new Map(held.drawing.symbolByUid)
+  symbolByUid.delete(taskUid)
+  return { ...held, drawing: { ...held.drawing, symbolByUid }, markedTaskUids: new Set(symbolByUid.keys()) }
+}
+
+type DelayFixSubjectKey = Pick<DelayFixLogRow, 'fixRow' | 'findingRow' | 'taskUid' | 'column'>
+
+// see RW-16, FR-130, FR-155, JDG-2808
+/** @purity pure */
+function proposalsNotIssuedSinceRun<R extends DelayFixSubjectKey>(proposals: readonly R[], log: readonly DelayFixLogRow[], logAtRun: ReadonlySet<DelayFixLogRow>): readonly R[] {
+  const issued = log.filter((one) => !logAtRun.has(one))
+  if (issued.length === 0) return proposals
+  const isIssued = (row: R): boolean =>
+    issued.some((one) => one.fixRow === row.fixRow && one.findingRow === row.findingRow && one.taskUid === row.taskUid && one.column === row.column)
+  return proposals.filter((row) => !isIssued(row))
 }
 
 type GeometryArguments = Parameters<typeof geometryFromLayout>
@@ -1961,12 +1983,12 @@ interface DelayDiagnosticsPress {
   readonly closeReport: () => boolean
 }
 
-// see FR-130, RW-1, RW-3, IC-52, IC-167, JDG-2197, JDG-2199
+// see FR-130, RW-1, RW-3, IC-52, IC-168, JDG-2197, JDG-2199, JDG-2805
 // WHY: null is an entry of neither; an open window (minimized included) closes as its IC-52 does and the marks stay.
 /** @purity non-pure */
 function answerDelayDiagnosticsEntry(entry: IconId, surface: string | null, press: DelayDiagnosticsPress): boolean | null {
-  if (entry === END_DIAGNOSTICS_ENTRY && surface === DELAY_DIAGNOSTICS_REPORT_SURFACE) {
-    press.show(false)
+  if (entry === RE_DIAGNOSE_ENTRY && surface === DELAY_DIAGNOSTICS_REPORT_SURFACE) {
+    press.show(true)
     return true
   }
   if (entry !== DELAY_DIAGNOSTICS_ENTRY) return null
@@ -1981,10 +2003,12 @@ function tableWindowsHeldIn(read: () => WindowPlaces, write: (next: WindowPlaces
   const fixTables = delayFixTablesKeeper()
   return {
     // see DX-11, DX-12, RW-16
-    fixTablesNow(diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report'> | null, fixLog: FixLogSource): DelayFixTables | undefined {
+    fixTablesNow(diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'fixLogAtRun'> | null, fixLog: FixLogSource): DelayFixTables | undefined {
       const window = read().delayDiagnosticsReport
       if (diagnostics === null || window === null) return undefined
-      return { ...fixTables(diagnostics, window, fixLog.readDelayFixLog?.() ?? []), telling: fixLog.readDelayFixTelling?.() ?? null }
+      const log = fixLog.readDelayFixLog?.() ?? []
+      const tables = fixTables(diagnostics, window, log)
+      return { ...tables, proposals: proposalsNotIssuedSinceRun(tables.proposals, log, diagnostics.fixLogAtRun), telling: fixLog.readDelayFixTelling?.() ?? null }
     },
     searchPanel: (): SearchPanelSession => read().searchPanel,
     holdSearchPanel: (panel: SearchPanelSession): void => write({ ...read(), searchPanel: panel }),
@@ -2112,7 +2136,7 @@ function heldWindowsOf(shownTasks: () => Pick<ShownTasksHold, 'views' | 'letSche
       return typed.views
     },
     /** @purity non-pure */
-    readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'drawing'> | null, drawn: ReadonlySet<number> | null, fixLog: FixLogSource = {}) {
+    readings(session: ScreenSession, diagnostics: Pick<HeldDelayDiagnostics, 'of' | 'report' | 'drawing' | 'fixLogAtRun'> | null, drawn: ReadonlySet<number> | null, fixLog: FixLogSource = {}) {
       const isSearchPanelShown = session.screen.searchPanelDisplayState.kind !== 'hidden'
       held = withFrontTableWindowSettled(held, wasSearchPanelShown, isSearchPanelShown)
       wasSearchPanelShown = isSearchPanelShown
@@ -3195,9 +3219,7 @@ export function frameLoop(
 
   /** @purity non-pure */
   function delayDiagnosticsNow(): HeldDelayDiagnostics | null {
-    if (!delayDiagnosticsShown) return null
-    if (delayDiagnosticsHeld?.of !== held.document) delayDiagnosticsHeld = windows.keepMarkWithin(delayDiagnosticsOf(held.document))
-    return delayDiagnosticsHeld
+    return delayDiagnosticsShown ? (delayDiagnosticsHeld ??= windows.keepMarkWithin(delayDiagnosticsOf(held.document, new Set(documentFileFlow.readDelayFixLog?.() ?? [])))) : null
   }
 
   // see RW-1, S-451, FR-130
@@ -4194,6 +4216,7 @@ export function frameLoop(
     if (screenEvent !== null && SENT_AFTER_PRESS_DROPS.has(screenEvent.type)) sendToSession(screenEvent, frame)
     const diagnosisRow = diagnosisRowAskedOf(input, context)
     if (diagnosisRow !== null) showDiagnosisRow(diagnosisRow)
+    delayDiagnosticsHeld = heldAfterMarkerOperated(delayDiagnosticsHeld, markerOperatedTaskUidOf(input, context))
     if (escapeLevel === 'gesture') endEntryRepeat()
     jumpToSearchHit(hands, searchJumpOnRelease(input, context.pressed, partUnderPointer), frame, { windows, answerReportEntry, jumpViewWrites: shownTasks.jumpViewWrites, oweLanding: owedJump.owe, openField: (row) => void (showPropertiesOfChoice('objects'), wantFieldFocused(row)) })
 

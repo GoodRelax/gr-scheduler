@@ -115,6 +115,7 @@ NOT_STORED_BASELINE_OUTLINE_SIZES    変更前の予定の輪郭の破線の刻�
 NOT_STORED_PARENT_TASK_ARROW_SIZES    親タスクと子タスクの矢印の当たりの太さと、導いた親タスクへの矢印の破線の刻み（`S-485` / `S-486`、`CR-631`）
 NOT_STORED_SEARCH_PANEL_SIZES        検索パネルの大きさと、検索の表と遅延診断レポートの表の列の幅・下限・境目の掴み代（`S-421` / `S-422`、`CR-571`。`S-425` / `S-465` 〜 `S-474`、`CR-629`。`S-475` 〜 `S-481`、`CR-639`。`S-500` 〜 `S-502`、`CR-660`）
 NOT_STORED_SEARCH_PANEL_FONT_SIZES   検索パネルの字の大きさの段（表 T-333、`CR-571`）。写しは 2 つ —— `DomScreenSurface` が描く px を、`ScreenState` が段の並び（`S-429` の段は行の位置）を `AdvanceScreenSession` へ渡す
+NOT_STORED_RE_DIAGNOSE_WEIGHT        遅延診断レポートの【再診断】（`IC-168`）の語の字の太さ（`S-623`、`CR-797`）
 NOT_STORED_SEARCH_JUMP_INSET         検索から飛んだ先の左端と表示の左端のあいだ（`S-428`、表 T-332 の `SJ-6`、`DFC-1770`）
 NOT_STORED_SEARCH_JUMP_HEIGHT_SHARE  飛んだ先の形の縦の中点を置く、帯の下に残る高さの上からの比（`S-554`、表 T-332 の `SJ-5`、`CR-728`）
 NOT_STORED_DEPENDENCY_SIZES          依存線の縁の太さの倍率（`S-224`）

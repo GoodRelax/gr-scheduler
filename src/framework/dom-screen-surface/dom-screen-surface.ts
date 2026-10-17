@@ -1755,6 +1755,13 @@ export const NOT_STORED_SEARCH_PANEL_SIZES: {
   'S-552': 380,
 }
 
+// see T-206
+export const NOT_STORED_RE_DIAGNOSE_WEIGHT: {
+  readonly 'S-623': number
+} = {
+  'S-623': 700,
+}
+
 // see SV-18, RW-9, T-206
 export const SEARCH_COLUMN_WIDTH_ROWS: {
   readonly [column: string]: keyof typeof NOT_STORED_SEARCH_PANEL_SIZES

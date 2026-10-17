@@ -1738,6 +1738,10 @@ NOT_STORED_TARGETS = {
     'NOT_STORED_DOCUMENT_TITLE_SIZES': (['S-225', 'S-226', 'S-461', 'S-462',
                                          'S-463', 'S-490', 'S-491', 'S-492'],
                                         DRAWN_ON_THE_SCREEN_AND_IN_THE_EXPORT),
+    # CR-797: S-623, the weight the Delay Diagnostics Report's Re-diagnose word
+    # (IC-168, RW-3) is drawn at. NOT folded into the title's line above -- its
+    # note forbids sharing S-463, and search-panel-drawing.ts draws the word.
+    'NOT_STORED_RE_DIAGNOSE_WEIGHT': (['S-623'], DRAWN_WITH_WHERE_IT_STANDS),
     # ⭐ The eight lengths FR-006's fields are drawn at, and the two
     # coefficients its typography is drawn at. ⚠️ THE LAST TWO ARE NOT
     # LENGTHS: S-197 is the panel's text size as a fraction of the host's own
@@ -3638,6 +3642,8 @@ TARGETS = [
      + not_stored_block('NOT_STORED_JUMP_LANDING_RIPPLE') + NEWLINE * 2
      # CR-571: the search panel's default size and its four text sizes.
      + not_stored_block('NOT_STORED_SEARCH_PANEL_SIZES') + NEWLINE * 2
+     # CR-797: the Re-diagnose word's weight (IC-168).
+     + not_stored_block('NOT_STORED_RE_DIAGNOSE_WEIGHT') + NEWLINE * 2
      # CR-660: which T-206 row holds each column's default width.
      + search_column_width_rows_block() + NEWLINE * 2
      + search_panel_font_sizes_block() + NEWLINE * 2
@@ -3904,6 +3910,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES',
         'NOT_STORED_SEARCH_PANEL_FONT_SIZES',
         'NOT_STORED_SEARCH_PANEL_SIZES',
+        'NOT_STORED_RE_DIAGNOSE_WEIGHT',
         'SCREEN_COLORS',
         'SEARCH_COLUMN_WIDTH_ROWS',
         'NOT_STORED_WHEEL_UNITS',

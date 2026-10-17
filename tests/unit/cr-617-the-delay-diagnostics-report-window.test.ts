@@ -142,9 +142,9 @@ describe('T-346 -- the report window (RW-2, RW-3, RW-4, RW-9)', () => {
     expect(view?.tableEntries[0]?.isEnabled).toBe(false)
   })
 
-  // WHY: CR-781 put IC-167 at the left end of the RW-3 line.
-  it('RW-3: the line under the title holds IC-167, IC-140 then IC-108, before the word field', () => {
-    expect(view?.toolEntries.map((one) => one.icon)).toEqual(['IC-167', 'IC-140', 'IC-108'])
+  // WHY: CR-797 puts IC-168 at the left end of the RW-3 line.
+  it('RW-3: the line under the title holds IC-168, IC-140 then IC-108, before the word field', () => {
+    expect(view?.toolEntries.map((one) => one.icon)).toEqual(['IC-168', 'IC-140', 'IC-108'])
   })
 
   it('RW-4: the summary counts every status and DX-7, and the view holds no legend (CR-648)', () => {

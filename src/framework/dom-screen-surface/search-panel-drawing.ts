@@ -20,6 +20,7 @@ import {
 } from '../../adapter/screen-renderer/screen-renderer'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
 import {
+  NOT_STORED_RE_DIAGNOSE_WEIGHT,
   NOT_STORED_SEARCH_PANEL_FONT_SIZES,
   NOT_STORED_SEARCH_PANEL_SIZES,
   PAINT,
@@ -758,12 +759,13 @@ function wordedEntry(host: Document, item: CommandItem, anchors: Map<string, HTM
   return entry
 }
 
-// see RW-3, IC-167, S-429
+// see RW-3, IC-168, S-429, S-623
 /** @purity non-pure */
 function toolEntry(host: Document, item: CommandItem, at: EntryPlace): HTMLElement {
   if (item.isLabelShown !== true) return anchoredEntry(host, item, at.anchors, at.role)
   const entry = wordedEntry(host, item, at.anchors, at.role)
-  entry.setAttribute('style', (entry.getAttribute('style') ?? '') + `font-size:${at.fontPx}px;`)
+  const weight = item.isLabelBold === true ? `font-weight:${NOT_STORED_RE_DIAGNOSE_WEIGHT['S-623']};` : ''
+  entry.setAttribute('style', (entry.getAttribute('style') ?? '') + `font-size:${at.fontPx}px;${weight}`)
   return entry
 }
 

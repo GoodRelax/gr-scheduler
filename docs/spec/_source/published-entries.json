@@ -2717,6 +2717,16 @@
      }
     },
     {
+     "name": "markerOperatedTaskUidOf",
+     "note": {
+      "ja": [
+       "進捗マーカー（表 T-266 の `GA-18`）を押して離した入力が状態を巡らせたか、引いて実績の終了を動かした入力なら、その `Task` の `uid` を答える（`FR-130`、表 T-270 の `PE-8`・`PE-10`）。",
+       "行へ送るだけの離し（`diagnosisRowAskedOf` が答える離し —— 表 T-346 の `RW-19`）と、ほかの入力は `null`。",
+       "`SingleHtmlShell` が押下を落とした後に使い、そのタスクの `DG-1` 〜 `DG-3` の印を次の診断まで外す"
+      ]
+     }
+    },
+    {
      "name": "screenEventFromFieldCommit",
      "note": {
       "ja": [

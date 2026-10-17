@@ -5006,7 +5006,7 @@
    ]
   },
   {
-   "rowId": "IC-167",
+   "rowId": "IC-168",
    "elements": [
     {
      "tag": "path",
@@ -7329,19 +7329,11 @@
    "rowId": "IC-162",
    "elements": [
     {
-     "tag": "circle",
+     "tag": "path",
      "attributes": [
       {
-       "name": "cx",
-       "value": "10"
-      },
-      {
-       "name": "cy",
-       "value": "12"
-      },
-      {
-       "name": "r",
-       "value": "6.5"
+       "name": "d",
+       "value": "M12 8.43 Q14.31 10.97 15.08 13.64 Q14.82 16.38 12 16.55 Q9.18 16.38 8.92 13.64 Q9.26 11.59 10.63 10.56 Q10.93 12.36 12 12.62 Q11.49 10.33 12 8.43 Z"
       },
       {
        "name": "style",
@@ -7354,7 +7346,7 @@
      "attributes": [
       {
        "name": "d",
-       "value": "M10 8.5 V12 L12.5 13.5"
+       "value": "M19.5 12 A7.5 7.5 0 1 1 17.3 6.7"
       },
       {
        "name": "style",
@@ -7367,7 +7359,7 @@
      "attributes": [
       {
        "name": "d",
-       "value": "M18 8.5 L21.5 12 L18 15.5"
+       "value": "M17.6 3 V6.9 H13.7"
       },
       {
        "name": "style",
