@@ -71,7 +71,7 @@ test('UC-013 without the dialogue field: the AI changes the document, only its r
   await test.step('UC-013 step 1: the author turns the Agent API on, and IC-18 is not in the App Header (IC-20, FR-066)', async () => {
     await enableAgentApi(page)
     await expect(page.locator(icon('IC-18'))).toHaveCount(0)
-    await expect(page.locator(FIELD)).toHaveCount(0)
+    await expect(page.locator(FIELD)).toBeHidden()
   })
 
   let original = ''

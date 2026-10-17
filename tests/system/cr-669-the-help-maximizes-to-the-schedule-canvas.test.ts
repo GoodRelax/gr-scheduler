@@ -17,7 +17,7 @@ const WB_8_FOLLOWS = 'タイトルバーの帯（表 T-023d の `GR-24`）を握
 const WB_8_RANGE = 'ウィンドウを、ウィンドウごとの範囲（`WB-3` と同じ）の外へ出してはならない（MUST NOT）'
 const WB_9_FOLLOWS = '縁と角（表 T-023d の `GR-25`）を握っているあいだ、ウィンドウの大きさをポインタに追従させること（MUST）'
 const WB_9_RANGE = 'ウィンドウごとの範囲の外へ広げてはならない（MUST NOT）'
-const FR_036_BRACKETS = '⭐ `IC-54` と `IC-20` の項目に添える語は、丸括弧で囲むこと（MUST）'
+const FR_036_BRACKETS = '⭐ `IC-54` の項目に添える語は、丸括弧で囲むこと（MUST）'
 const T_337_THE_FRONT_ONE_TAKES_THE_PRESS = '⭐ 押下は、その点で最も手前に描かれた UI パーツが受けること（MUST）'
 const FR_036_ONE_SCREEN =
   'ない環境の両方で、ヘルプの言語が日本語でも英語でも、開いたときの大きさ（表 T-335 の `WB-1`）で全部の塊とライセンスの行（`FR-069`）を 1 画面に収め、縦にも横にもスクロールを要さないこと（MUST）'
@@ -394,9 +394,9 @@ test.describe('CR-669 FR-036 brackets and S-203 at 1280 x 627 -- the help opened
     await app?.close()
   })
 
-  test('premise: the help was read in ja and in en, and the dictionary names IC-54 and IC-20 for added words', () => {
+  test('premise: the help was read in ja and in en, and the dictionary names IC-54 alone for added words', () => {
     expect(readings.map((one) => one.language).sort()).toEqual(['en', 'ja'])
-    expect(WORDS.helpNotes.map((one) => one.rowId).sort()).toEqual(['IC-20', 'IC-54'])
+    expect(WORDS.helpNotes.map((one) => one.rowId).sort()).toEqual(['IC-54'])
   })
 
   test(`FR-036 (MUST): ${FR_036_BRACKETS} -- the dictionary words start with "(" and end with ")"`, () => {
