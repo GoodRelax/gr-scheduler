@@ -29,7 +29,6 @@ export interface McpRelayOptions {
   readonly output: NodeJS.WritableStream
   readonly log: (line: string) => void
   readonly pageHtml: Uint8Array
-  /** The GRS JSON schema text the relay build carries in; served as the one resource (AG-12 (8)). */
   readonly documentSchema: string
 }
 
@@ -70,7 +69,6 @@ const INVALID_REQUEST = -32600
 const METHOD_NOT_FOUND = -32601
 const INVALID_PARAMS = -32602
 const INTERNAL_ERROR = -32603
-// MCP's "resource not found" (design-mcp-relay.md 3.1).
 const RESOURCE_NOT_FOUND = -32002
 const SCHEMA_RESOURCE_URI = 'grs-relay://grs-document.schema.json'
 const SCHEMA_RESOURCE_NAME = 'grs-document.schema.json'

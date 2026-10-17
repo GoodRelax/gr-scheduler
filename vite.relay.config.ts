@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { defineConfig, type Plugin } from 'vite'
 
@@ -74,11 +75,18 @@ function relayEntry(): Plugin {
 }
 
 const packageVersion = (JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }).version
+// CR-791: package.json's version alone (0.0.0) cannot tell two bundles apart; the build metadata
+// names the page the relay serves. tools/build_relay_bundle.mjs writes the same into manifest.json.
+const PAGE_HASH_HEX_DIGITS = 12
+const pageHash = existsSync(PAGE_HTML_PATH)
+  ? createHash('sha256').update(readFileSync(PAGE_HTML_PATH)).digest('hex').slice(0, PAGE_HASH_HEX_DIGITS)
+  : 'unbuilt'
+const relayVersion = `${packageVersion}+${pageHash}`
 
 export default defineConfig({
   plugins: [relayEntry()],
   publicDir: false,
-  define: { __GRS_RELAY_VERSION__: JSON.stringify(packageVersion) },
+  define: { __GRS_RELAY_VERSION__: JSON.stringify(relayVersion) },
   ssr: { noExternal: true, target: 'node' },
   build: {
     ssr: true,

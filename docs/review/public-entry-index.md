@@ -2083,6 +2083,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
+| `mcpInstructions` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#mcpInstructions` | PI-40 | MCP の初期化の答えに載せる案内（表 T-035 の `AG-12` の ⑧）。 |
 | `McpTool` | entry | interface | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#McpTool` | -- | interface McpTool |
 | `mcpToolList` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#mcpToolList` | PI-40 | MCP の道具の一覧。 |
 | `McpToolResult` | entry | interface | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#McpToolResult` | -- | interface McpToolResult |
@@ -2098,4 +2099,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1063 name(s) leave through a public entry (512 of them published by table T-064), 825 more are exported by a file and not by its entry.
+Totals: 1064 name(s) leave through a public entry (513 of them published by table T-064), 825 more are exported by a file and not by its entry.

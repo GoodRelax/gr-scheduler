@@ -36,6 +36,9 @@ const BUNDLE_NAME = 'grs-relay.mcpb'
 const SERVER_ENTRY = 'server/grs-relay.mjs'
 const MANIFEST_VERSION = '0.3'
 const OLDEST_NODE = '>=18.0.0'
+// CR-791: the version is package.json's plus, as build metadata, the head of the page's SHA-256 --
+// the same string vite.relay.config.ts gives the relay's serverInfo.
+const PAGE_HASH_HEX_DIGITS = 12
 
 // Zip format constants (APPNOTE.TXT).
 const LOCAL_HEADER_SIGNATURE = 0x04034b50
@@ -114,7 +117,9 @@ function zipOf(entries) {
 }
 
 function manifestOf() {
-  const { version } = JSON.parse(readFileSync(PACKAGE_JSON, 'utf8'))
+  const { version: packageVersion } = JSON.parse(readFileSync(PACKAGE_JSON, 'utf8'))
+  const pageHash = createHash('sha256').update(readFileSync(PAGE_HTML)).digest('hex').slice(0, PAGE_HASH_HEX_DIGITS)
+  const version = `${packageVersion}+${pageHash}`
   const { tools } = JSON.parse(readFileSync(TOOL_DESCRIPTIONS, 'utf8'))
   return {
     manifest_version: MANIFEST_VERSION,

@@ -15,6 +15,7 @@ const BUNDLE = join(DIST_RELAY, 'grs-relay.mcpb')
 const BUNDLE_SHA256 = join(DIST_RELAY, 'grs-relay.mcpb.sha256')
 const RELAY_JS = join(DIST_RELAY, 'grs-relay.mjs')
 
+const SCHEMA_SOURCE = join(process.cwd(), 'docs', 'spec', '_source', 'grs-document.schema.json')
 const SERVER_ENTRY = 'server/grs-relay.mjs'
 const STARTUP_WAIT_MS = 10_000
 
@@ -86,8 +87,8 @@ test('T-232 PO-7: the built page\'s CSP has connect-src \'self\' and no other so
   expect(directive(cspOf(built(PAGE).toString('utf8')), 'connect-src')).toEqual(["'self'"])
 })
 
-test('design 6 / CR-620: grs-relay.mcpb is a zip holding manifest.json, server/grs-relay.mjs and index.html', () => {
-  expect([...bundled().keys()]).toEqual(expect.arrayContaining(['manifest.json', SERVER_ENTRY, 'index.html']))
+test('design 6 / CR-791: grs-relay.mcpb is a zip of exactly two entries, manifest.json and server/grs-relay.mjs', () => {
+  expect([...bundled().keys()].sort()).toEqual(['manifest.json', SERVER_ENTRY])
 })
 
 test('JDG-1052: grs-relay.mcpb.sha256 holds the SHA-256 of grs-relay.mcpb', () => {
@@ -108,8 +109,15 @@ test('design 6 / CR-620: the manifest runs on node, from server/grs-relay.mjs', 
   expect(manifest.server?.entry_point).toBe(SERVER_ENTRY)
 })
 
-test('design 6: the bundle\'s index.html is dist/index.html byte for byte (the same build)', () => {
-  expect(Buffer.compare(bundled().get('index.html') ?? Buffer.alloc(0), built(PAGE))).toBe(0)
+// WHY: design 6 -- the version is package.json's version, "+", and the first 12 hex digits of the SHA-256 of dist/index.html.
+function expectedVersion(): string {
+  const packageVersion = (JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as { version: string }).version
+  return `${packageVersion}+${createHash('sha256').update(built(PAGE)).digest('hex').slice(0, 12)}`
+}
+
+test('design 6 / CR-791: manifest.json version is package.json version + "+" + first 12 hex digits of the SHA-256 of dist/index.html', () => {
+  const manifest = JSON.parse((bundled().get('manifest.json') ?? Buffer.alloc(0)).toString('utf8')) as { version?: string }
+  expect(manifest.version).toBe(expectedVersion())
 })
 
 test('AG-12 (1) / design 6: dist-relay/grs-relay.mjs is the same JavaScript as the bundle\'s server/grs-relay.mjs', () => {
@@ -160,9 +168,33 @@ test('AG-12 (1) / design 3.2: the built relay, run on node, serves dist/index.ht
       })
     })
     relay.stdin?.write(`${JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { capabilities: {} } })}\n`)
-    const answer = JSON.parse(await firstLine) as { id?: number; result?: { serverInfo?: { name?: string } } }
+    const answer = JSON.parse(await firstLine) as {
+      id?: number
+      result?: { serverInfo?: { name?: string; version?: string }; capabilities?: unknown }
+    }
     expect(answer.id).toBe(1)
     expect(answer.result?.serverInfo?.name).toBe('grs-relay')
+    expect(answer.result?.serverInfo?.version).toBe(expectedVersion())
+    expect(answer.result?.capabilities).toEqual({ tools: {}, resources: {} })
+
+    const schemaLine = new Promise<string>((resolve, reject) => {
+      let held = ''
+      const timer = setTimeout(() => reject(new Error(`no resources/read answer: ${held}`)), STARTUP_WAIT_MS)
+      relay.stdout?.on('data', (chunk: Buffer) => {
+        held += chunk.toString('utf8')
+        const at = held.indexOf('\n')
+        if (at >= 0) {
+          clearTimeout(timer)
+          resolve(held.slice(0, at))
+        }
+      })
+    })
+    relay.stdin?.write(
+      `${JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'resources/read', params: { uri: 'grs-relay://grs-document.schema.json' } })}\n`,
+    )
+    const read = JSON.parse(await schemaLine) as { id?: number; result?: { contents?: { text?: string }[] } }
+    expect(read.id).toBe(2)
+    expect(read.result?.contents?.[0]?.text).toBe(readFileSync(SCHEMA_SOURCE, 'utf8'))
   } finally {
     relay.kill()
   }
