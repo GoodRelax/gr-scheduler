@@ -110,7 +110,8 @@ const SCREEN: FrameEnvironment = {
   scrollbarThickness: 8,
 }
 
-const PANEL_WIDTH_WHEN_OPENED = numberIn(rowOf('T-206', 'S-171').by[DEFAULT_COLUMN] ?? '')
+// WHY: CR-787 -- drawing a task shows that Task, and a Task opens the panel at S-602 (FR-052).
+const PANEL_WIDTH_WHEN_OPENED = numberIn(rowOf('T-206', 'S-602').by[DEFAULT_COLUMN] ?? '')
 
 const NARROWER: FrameEnvironment = { ...SCREEN, width: SCREEN.width - PANEL_WIDTH_WHEN_OPENED }
 
@@ -412,9 +413,10 @@ describe('表 T-024a の OP-10 -- 本ファイルを動かす条文', () => {
     expect(REQUIREMENTS).toContain(FR_080_SAME_AS_THE_SCREEN)
   })
 
-  it('パネルの幅は画面の値であり、起動したときの値を 表 T-206 の S-171 が持つ', () => {
-    expect(String(rowOf('T-206', 'S-171').by['値'] ?? '')).toContain(
-      'プロパティパネルの幅。起動したときの値',
+  it('パネルの幅は画面の値であり、タスクを出したときの既定の幅を 表 T-206 の S-602 が持つ（FR-052）', () => {
+    expect(REQUIREMENTS).toContain('⭐ プロパティパネルの幅は画面の値とし、出している中身の種の既定の幅から始めること（MUST）')
+    expect(String(rowOf('T-206', 'S-602').by['値'] ?? '')).toContain(
+      'タスク（マイルストーンを含む）を出したプロパティパネルの既定の幅',
     )
     expect(PANEL_WIDTH_WHEN_OPENED).toBeGreaterThan(0)
   })

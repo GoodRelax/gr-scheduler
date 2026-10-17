@@ -1,4 +1,4 @@
-// CR-755 (spec-only): table T-376 holds fixed offsets with one abbreviation, the names read "UTC +9:00 JST Tokyo", no daylight saving by season, the base takes standard keys only, and the schema says so.
+// CR-755 (spec-only): table T-376 holds fixed offsets with one abbreviation, the names read "UTC +09:00 JST" over "Tokyo" (CR-787), no daylight saving by season, the base takes standard keys only, and the schema says so.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import { documentFromJson } from '../../src/adapter/document-codec/json-codec'
-import { timeZoneAbbreviationOf, timeZoneLabelOf, zoneOffsetTextOf } from '../../src/adapter/screen-renderer/notices'
+import { timeZoneAbbreviationOf, timeZoneLinesOf, zoneOffsetTextOf } from '../../src/adapter/screen-renderer/notices'
 import {
   PRINTED_TIME_ZONE,
   TIME_ZONE_ROWS,
@@ -27,7 +27,7 @@ import {
   T_376_ROWS,
   WORDS,
   expectedAbbreviationOf,
-  expectedNameOf,
+  expectedLinesOf,
   zoneRowOfKey,
   type Loose,
 } from './cr-755-stage'
@@ -42,11 +42,12 @@ const FR_156_REFUSE =
   '⛔ 日程データのタイムゾーンが 表 T-376 の種が標準時の行の鍵でない `GRS JSON` は開かず、表 T-233 の `RS-25` で拒むこと（MUST）'
 const FR_156_VIEW_RESET =
   '見せる基準（`S-574`）が標準時の行の鍵でないとき、表示するタイムゾーン（`S-575`）に 表 T-376 の鍵でない値があるときは、文書を拒まず、そのキーを既定へ戻す'
+// WHY: CR-787 (JDG-2463) -- the name is two lines, zoneHead over the place; hours take two digits.
 const FR_156_NAME =
-  '見せる名は、表 T-376 の UTC の差と略称と、`FR-038` の辞書の `timeZones` が行ごとに持つ地名とを、辞書の `timeZoneField` の `zoneName` の形でつないだものとすること（MUST）'
-const FR_156_NAME_EXAMPLES = '例「UTC +9:00 JST 東京」「UTC -7:00 PDT 太平洋夏時間（米国・カナダ）」'
-const FR_156_OFFSET_FORM = '差は時を 0 で埋めず分を 2 桁とし、0 は `±0:00` と書く。'
-const FR_156_NO_ABBREVIATION = '略称を持たない行は、略称の部を詰める（例「UTC -12:00 日付変更線の西」）。'
+  '見せる名は 2 行とし、1 行目は 表 T-376 の UTC の差と略称を `FR-038` の辞書の `timeZoneField` の `zoneHead` の形でつないだもの、2 行目は同じ辞書の `timeZones` が行ごとに持つ地名とすること（MUST）'
+const FR_156_NAME_EXAMPLES = '例「UTC +09:00 JST」／「東京」、「UTC -07:00 MST」／「Mountain Standard Time (US, Canada)」'
+const FR_156_OFFSET_FORM = '差は時も分も 2 桁とし、0 は `±00:00` と書く'
+const FR_156_NO_ABBREVIATION = '略称を持たない行は、1 行目の略称の部を詰める（例「UTC -12:00」／「日付変更線の西」）。'
 const FR_156_PC_STANDARD = 'PC の標準時は、その PC の今年の 1 月 1 日と 7 月 1 日の UTC の差の小さいほうとする。'
 const T_376_UTC = '±0:00 の標準時の略称は UTC とする（利用者の判断）。'
 const T_376_KNOWN = '広く知られた地域の略称を持つ時差の行は、その略称とする（例 AST・ADT・CET・MSK）（利用者の判断）。'
@@ -175,33 +176,34 @@ describe(`FR-156 -- ${FR_156_NO_SEASON}`, () => {
 // see FR-156, FR-038, T-376
 describe(`FR-156 -- ${FR_156_NAME}`, () => {
   it.each([
-    ['UTC+09:00', 'ja', 'UTC +9:00 JST 東京'],
-    ['UTC+09:00', 'en', 'UTC +9:00 JST Tokyo'],
-    ['UTC-07:00 DST', 'ja', 'UTC -7:00 PDT 太平洋夏時間（米国・カナダ）'],
-    ['UTC-07:00 DST', 'en', 'UTC -7:00 PDT Pacific Daylight Time (US and Canada)'],
-    ['UTC-08:00', 'ja', 'UTC -8:00 PST 太平洋標準時（米国・カナダ）'],
-    ['UTC+05:30', 'ja', 'UTC +5:30 IST インド'],
-    ['UTC-12:00', 'ja', 'UTC -12:00 日付変更線の西'],
-    ['UTC+00:00', 'ja', 'UTC ±0:00 UTC 協定世界時・ロンドン'],
-  ] as const)('%s in %s reads %s', (key, language, name) => {
-    expect(timeZoneLabelOf(key, language)).toBe(name)
+    ['UTC+09:00', 'ja', 'UTC +09:00 JST', '東京'],
+    ['UTC+09:00', 'en', 'UTC +09:00 JST', 'Tokyo'],
+    ['UTC-07:00', 'ja', 'UTC -07:00 MST', '山岳部標準時（米国・カナダ）'],
+    ['UTC-07:00', 'en', 'UTC -07:00 MST', 'Mountain Standard Time (US, Canada)'],
+    ['UTC-07:00 DST', 'en', 'UTC -07:00 PDT', 'Pacific Daylight Time (US, Canada)'],
+    ['UTC-08:00', 'ja', 'UTC -08:00 PST', '太平洋標準時（米国・カナダ）'],
+    ['UTC+05:30', 'ja', 'UTC +05:30 IST', 'インド'],
+    ['UTC-12:00', 'ja', 'UTC -12:00', '日付変更線の西'],
+    ['UTC+00:00', 'ja', 'UTC ±00:00 UTC', '協定世界時・ロンドン'],
+  ] as const)('%s in %s reads "%s" over "%s"', (key, language, head, place) => {
+    expect(timeZoneLinesOf(key, language)).toEqual([head, place])
   })
 
   it.each(T_376_ROWS.flatMap((row) => (['ja', 'en'] as const).map((language) => [row.key, language, row] as const)))(
-    '%s in %s is the table offset and abbreviation and the dictionary place, in the zoneName shape',
+    '%s in %s is the table offset and abbreviation in the zoneHead shape, over the dictionary place',
     (_key, language, row) => {
-      expect(timeZoneLabelOf(row.key, language)).toBe(expectedNameOf(row, language))
+      expect(timeZoneLinesOf(row.key, language)).toEqual(expectedLinesOf(row, language))
     },
   )
 
   it(`${FR_156_OFFSET_FORM} -- zoneOffsetTextOf`, () => {
     expect([-720, -480, -420, 0, 330, 540, 600, 780].map(zoneOffsetTextOf)).toEqual([
       '-12:00',
-      '-8:00',
-      '-7:00',
-      '±0:00',
-      '+5:30',
-      '+9:00',
+      '-08:00',
+      '-07:00',
+      '±00:00',
+      '+05:30',
+      '+09:00',
       '+10:00',
       '+13:00',
     ])

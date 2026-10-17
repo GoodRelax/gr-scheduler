@@ -5713,7 +5713,7 @@
    "rowId": "ZN-33",
    "label": {
     "ja": "太平洋標準時（米国・カナダ）",
-    "en": "Pacific Standard Time (US and Canada)"
+    "en": "Pacific Standard Time (US, Canada)"
    }
   },
   {
@@ -5727,42 +5727,42 @@
    "rowId": "ZN-35",
    "label": {
     "ja": "山岳部標準時（米国・カナダ）",
-    "en": "Mountain Standard Time (US and Canada)"
+    "en": "Mountain Standard Time (US, Canada)"
    }
   },
   {
    "rowId": "ZN-36",
    "label": {
     "ja": "太平洋夏時間（米国・カナダ）",
-    "en": "Pacific Daylight Time (US and Canada)"
+    "en": "Pacific Daylight Time (US, Canada)"
    }
   },
   {
    "rowId": "ZN-37",
    "label": {
     "ja": "中部標準時（米国・カナダ）",
-    "en": "Central Standard Time (US and Canada)"
+    "en": "Central Standard Time (US, Canada)"
    }
   },
   {
    "rowId": "ZN-38",
    "label": {
     "ja": "山岳部夏時間（米国・カナダ）",
-    "en": "Mountain Daylight Time (US and Canada)"
+    "en": "Mountain Daylight Time (US, Canada)"
    }
   },
   {
    "rowId": "ZN-39",
    "label": {
     "ja": "東部標準時（米国・カナダ）",
-    "en": "Eastern Standard Time (US and Canada)"
+    "en": "Eastern Standard Time (US, Canada)"
    }
   },
   {
    "rowId": "ZN-40",
    "label": {
     "ja": "中部夏時間（米国・カナダ）",
-    "en": "Central Daylight Time (US and Canada)"
+    "en": "Central Daylight Time (US, Canada)"
    }
   },
   {
@@ -5776,7 +5776,7 @@
    "rowId": "ZN-42",
    "label": {
     "ja": "東部夏時間（米国・カナダ）",
-    "en": "Eastern Daylight Time (US and Canada)"
+    "en": "Eastern Daylight Time (US, Canada)"
    }
   },
   {
@@ -6013,10 +6013,10 @@
    }
   },
   {
-   "part": "zoneName",
+   "part": "zoneHead",
    "text": {
-    "ja": "UTC {offset} {abbreviation} {place}",
-    "en": "UTC {offset} {abbreviation} {place}"
+    "ja": "UTC {offset} {abbreviation}",
+    "en": "UTC {offset} {abbreviation}"
    }
   },
   {
@@ -6093,8 +6093,8 @@
   {
    "part": "currentStart",
    "text": {
-    "ja": "現在の開始日: {date}",
-    "en": "Current start: {date}"
+    "ja": "最初のタスクの開始日: {date}",
+    "en": "First task start: {date}"
    }
   },
   {
@@ -6137,8 +6137,8 @@
   {
    "part": "heading",
    "text": {
-    "ja": "ここから下は読むだけ（このパネルでは変えられません）",
-    "en": "Read-only from here down (cannot be changed in this panel)"
+    "ja": "表示専用/変更不可",
+    "en": "Read-only"
    }
   },
   {
@@ -6324,10 +6324,38 @@
    }
   },
   {
-   "part": "topZero",
+   "part": "viewLeftEdge",
    "text": {
-    "ja": "先頭（0%）",
-    "en": "Top (0%)"
+    "ja": "日程表の左端の日時",
+    "en": "Left Edge Date-Time"
+   },
+   "labelBreakSegments": {
+    "ja": [
+     "日程表の",
+     "左端の",
+     "日時"
+    ]
+   }
+  },
+  {
+   "part": "viewTopEdge",
+   "text": {
+    "ja": "日程表の上端のタスクグループ",
+    "en": "Top Edge Task Group"
+   },
+   "labelBreakSegments": {
+    "ja": [
+     "日程表の",
+     "上端の",
+     "タスクグループ"
+    ]
+   }
+  },
+  {
+   "part": "groupFromTop",
+   "text": {
+    "ja": "{name}（上から {percent}）",
+    "en": "{name} ({percent} from top)"
    }
   },
   {
@@ -6335,13 +6363,6 @@
    "text": {
     "ja": "{n}%",
     "en": "{n}%"
-   }
-  },
-  {
-   "part": "dayOffset",
-   "text": {
-    "ja": "{time} ごろ（日の {percent}）",
-    "en": "About {time} ({percent} of the day)"
    }
   },
   {

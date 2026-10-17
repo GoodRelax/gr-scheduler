@@ -98,7 +98,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `delayWorkingDays` | entry | function | `src/entity/document-model/schedule/task-delay.ts#delayWorkingDays` | PI-1 | 表 T-021b の起点と終点 |
 | `Dependency` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Dependency` | -- | interface Dependency |
 | `diagnoseDelay` | entry | function | `src/entity/document-model/schedule/delay-diagnostics.ts#diagnoseDelay` | PI-1 | 遅延診断のレポート（表 T-317）を作る。 |
-| `earliestPlanStartDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#earliestPlanStartDayOf` | PI-1 | 全体日程シフトのいまの開始日（表 T-379 の `WH-1`）—— `Task` の予定の開始を開始の側で読んだ、いちばん早い日。 |
+| `earliestPlanStartDayOf` | entry | function | `src/entity/document-model/schedule/working-calendar.ts#earliestPlanStartDayOf` | PI-1 | 全体日程シフトの最初のタスクの開始日（表 T-379 の `WH-1`）—— `Task` の予定の開始を開始の側で読んだ、いちばん早い日。 |
 | `EntityRows` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#EntityRows` | -- | interface EntityRows |
 | `Exception` | entry | interface | `src/entity/document-model/schedule/schedule-entities.ts#Exception` | -- | interface Exception |
 | `finishSideDayFrom` | entry | function | `src/entity/document-model/schedule/calendar-day.ts#finishSideDayFrom` | PI-1 | `finishSideDayOf` と同じ日を、読み手が既に読んだその字の日（`dayOf` の答え）から数える。 |
@@ -1487,6 +1487,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OpenModal` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#OpenModal` | -- | type OpenModal = \| HelpModal \| ExportChooser \| OpenChooser \| HolidaySettings \| (OpenSurface & |
 | `PaletteGroup` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PaletteGroup` | -- | interface PaletteGroup |
 | `PanelDivider` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PanelDivider` | -- | interface PanelDivider |
+| `PanelFace` | entry | type | `src/adapter/screen-renderer/properties-panel.ts#PanelFace` | PI-37 | `panelFacesOf` が答える中身の種の型 |
+| `panelFacesOf` | entry | function | `src/adapter/screen-renderer/properties-panel.ts#panelFacesOf` | PI-37 | プロパティパネルがいま出している中身の種を、表 T-016 の `適用先` の順に 1 つずつ答える（文書の設定の面は `documentSettings`、出していないときは空）。 |
 | `ParentTaskChoice` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#ParentTaskChoice` | -- | interface ParentTaskChoice |
 | `PropertiesPanel` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertiesPanel` | -- | interface PropertiesPanel |
 | `PropertyBadge` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#PropertyBadge` | -- | interface PropertyBadge |
@@ -1600,7 +1602,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `shownDateTimeOf` | file only | function | `src/adapter/screen-renderer/notices.ts#shownDateTimeOf` | -- | function shownDateTimeOf(stored: string): string |
 | `timeZoneAbbreviationOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneAbbreviationOf` | -- | function timeZoneAbbreviationOf(key: string, language: DisplayLanguage): string |
 | `timeZoneFieldWord` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneFieldWord` | -- | function timeZoneFieldWord(part: string, language: DisplayLanguage): string |
-| `timeZoneLabelOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneLabelOf` | -- | function timeZoneLabelOf(key: string, language: DisplayLanguage): string |
+| `timeZoneLinesOf` | file only | function | `src/adapter/screen-renderer/notices.ts#timeZoneLinesOf` | -- | function timeZoneLinesOf(key: string, language: DisplayLanguage): readonly [string, string] |
 | `wholeScheduleShiftFieldWord` | file only | function | `src/adapter/screen-renderer/notices.ts#wholeScheduleShiftFieldWord` | -- | function wholeScheduleShiftFieldWord(part: string, language: DisplayLanguage): string |
 | `zoneOffsetTextOf` | file only | function | `src/adapter/screen-renderer/notices.ts#zoneOffsetTextOf` | -- | function zoneOffsetTextOf(offsetMinutes: number): string |
 | `exportNameBodyOf` | file only | function | `src/adapter/screen-renderer/open-modals.ts#exportNameBodyOf` | -- | function exportNameBodyOf(documentName: string): string |
@@ -2084,4 +2086,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1056 name(s) leave through a public entry (507 of them published by table T-064), 818 more are exported by a file and not by its entry.
+Totals: 1058 name(s) leave through a public entry (509 of them published by table T-064), 818 more are exported by a file and not by its entry.

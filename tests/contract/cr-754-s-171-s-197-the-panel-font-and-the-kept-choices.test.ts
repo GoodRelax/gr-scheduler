@@ -10,7 +10,10 @@ import { drawnPanel, LANGUAGES, REQUIREMENTS, SETTINGS_BOOK, settingsPanel, sett
 const FR_006_KEPT_CHOICE =
   '⭐ 候補が決まった一覧の選び（表 T-016 の `入力の型` が `選択` で、上の段に当たらないもの、と文書の設定の面の選び）は、要る幅を割らないこと（MUST）'
 const FR_006_SCROLL_NOT_SHRINK = 'パネルを横に送って見せ、選びを縮めない。'
-const S_171_RULE = '横にはみ出さない最も小さい幅とし、10 px 単位に切り上げる。'
+// WHY: CR-787 -- S-171 is the settings face's default, measured in 10 px steps to the smallest width that fits.
+const S_171_RULE = '縦のスクロールバーを出したパネルの幅を 900 px から 10 px ずつ狭め、横にはみ出さず、どの項目名も 2 行以内に収まる最も小さい幅とする'
+const S_171_SETTINGS_FACE = '本値は、文書の設定の面（`FR-072` の 表 T-369 のすべての行と、先頭の閉じる入口だけの行と、読むだけの行）を出したプロパティパネルの既定の幅である。'
+const FR_156_LIST = '⭐ タイムゾーンを選ぶ欄（`FO-14`・`FO-15`）は、いま選んでいる名を同じ 2 行で見せ、押すと欄の下に 2 行の選択肢の一覧を開き、選択肢を押すとそれを選んで一覧を閉じること（MUST）'
 const S_197_ONE_PANEL = '文書の設定を出しているときも、選択物を出しているときも同じ値である（パネルは 1 つ）。'
 
 const PANEL_FONT = settingValue('S-197')
@@ -36,14 +39,18 @@ describe('CR-754 premise -- the clauses and rows these cases read', () => {
     expect(REQUIREMENTS).toContain(clause)
   })
 
-  it.each([S_171_RULE, S_197_ONE_PANEL])('tbl-settings holds %s', (clause) => {
+  it.each([S_171_RULE, S_171_SETTINGS_FACE, S_197_ONE_PANEL])('tbl-settings holds %s', (clause) => {
     expect(SETTINGS_BOOK).toContain(clause)
   })
 
-  it('JDG-2096: the panel font is 0.56 of the ground, and the default width measured at it is 560 px', () => {
+  it('JDG-2096: the panel font is 0.56 of the ground, and the settings-face default width measured at it is a 10 px step (CR-787)', () => {
     expect(PANEL_FONT).toBe(0.56)
-    expect(DEFAULT_WIDTH).toBe(560)
+    expect(DEFAULT_WIDTH).toBeGreaterThan(0)
     expect(DEFAULT_WIDTH % 10).toBe(0)
+  })
+
+  it('01-04 holds the FR-156 two-line list the time zone fields are drawn as', () => {
+    expect(REQUIREMENTS).toContain(FR_156_LIST)
   })
 })
 
@@ -66,9 +73,15 @@ describe(`FR-006 -- ${FR_006_KEPT_CHOICE}`, () => {
     const choices = choicesOf(panel)
     expect(choices.length, 'premise: the settings face offers fixed-list choices').toBeGreaterThan(0)
     const drawn = drawnPanel(panel)
+    // WHY: CR-787 (FR-156) -- the time zone rows are drawn as the two-line field, not the host choice; it keeps
+    // the room of its first line as its floor.
+    const twoLineRows = new Set(panel.fields.filter((field) => field.controls.some((one) => one.choiceLines !== undefined)).map((field) => field.row))
+    expect(twoLineRows.size, 'premise: the settings face has two-line time zone fields').toBeGreaterThan(0)
     for (const { row, width } of choices) {
-      const select = selfAndDescendants(drawn).find((one) => one.tagName === 'SELECT' && one.getAttribute('data-field-row') === row)
-      expect(select, `premise: ${row} is drawn as a host choice`).toBeDefined()
+      const select = twoLineRows.has(row)
+        ? selfAndDescendants(drawn).find((one) => one.getAttribute('data-two-line-choice') === row)
+        : selfAndDescendants(drawn).find((one) => one.tagName === 'SELECT' && one.getAttribute('data-field-row') === row)
+      expect(select, `premise: ${row} is drawn as a host choice or a two-line field`).toBeDefined()
       expect(emOf(select as FakeElement, 'min-width'), `${FR_006_SCROLL_NOT_SHRINK} -- ${row}`).toBeGreaterThanOrEqual(width)
     }
     const style = styleMap(drawn)

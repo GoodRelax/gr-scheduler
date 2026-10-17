@@ -26,8 +26,9 @@ import {
 } from './cr-757-stage'
 import { specTable, unbroken } from './spec-table'
 
+// WHY: CR-787 renamed the start date to the first task start (JDG-2540).
 const WH_11_SHOWS =
-  'いまの開始日と新しい開始日（`WH-2` で寄せたときはその 1 行も）、ずらす稼働日の数（正負）、書き換える `Task` の件数、前の稼働日へ寄せる日付の件数（`WH-5`）、移した後に開始か終了が稼働時間の外に出る `Task` の件数、例 1 つ（文書の並びで最初に開始を持つ `Task` の名と、前後の日付）'
+  '最初のタスクの開始日と新しい開始日（`WH-2` で寄せたときはその 1 行も）、ずらす稼働日の数（正負）、書き換える `Task` の件数、前の稼働日へ寄せる日付の件数（`WH-5`）、移した後に開始か終了が稼働時間の外に出る `Task` の件数、例 1 つ（文書の並びで最初に開始を持つ `Task` の名と、前後の日付）'
 const TX_12_NO_TIME = '⭐ 時刻を表示していても時刻を添えない —— 全体日程シフトは日の単位で動かす'
 const FR_159_ASKS = '表 T-379 の `WH-11` が示すものを示して続けてよいかを問い（表 T-037 の `NT-7`、問いの文は 表 T-234 の `QN-15`）'
 
@@ -66,13 +67,13 @@ describe('the dictionary section wholeScheduleShiftField -- the words JDG-2109 s
   it.each([
     ['name', '全体日程シフト', 'Shift Whole Schedule'],
     ['apply', '適用', 'Apply'],
-    ['currentStart', '現在の開始日: {date}', 'Current start: {date}'],
+    ['currentStart', '最初のタスクの開始日: {date}', 'First task start: {date}'],
     ['newStartUnit', '新しい開始日', 'New start date'],
     ['startLine', '開始日: {before} → {after}', 'Start: {before} → {after}'],
     ['workingDaysLine', 'ずらす稼働日: {count} 日', 'Working days moved: {count}'],
     ['pulledCountLine', '前の稼働日へ寄せる日付: {count} 件', 'Dates pulled back to the previous working day: {count}'],
     ['holidayStartLine', '{typed} は休日 —— {start} から始める', '{typed} is not a working day; the schedule starts on {start}'],
-  ])('%s: ja "%s", en "%s" (CR-757 section 4.10)', (part, ja, en) => {
+  ])('%s: ja "%s", en "%s" (CR-757 section 4.10, CR-787 for currentStart)', (part, ja, en) => {
     expect([shiftWord(part, 'ja'), shiftWord(part, 'en')]).toEqual([ja, en])
   })
 

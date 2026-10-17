@@ -35,11 +35,13 @@ const TIME_SHIFT = 'IC-162'
 const DELAY_TOLERANCE = 'K-140'
 
 // see T-380
+// WHY: CR-787 (JDG-2469) -- a row may join two stored keys in one cell segment; partner is the second of them.
 interface ReadOnlyRow {
   readonly rowId: string
   readonly group: string
   readonly section: string | null
   readonly key: string
+  readonly partner: string | null
   readonly name: string
 }
 
@@ -50,22 +52,38 @@ const ticked = (cell: string): readonly string[] => [...cell.matchAll(/`([^`]+)`
 const T_380: readonly ReadOnlyRow[] = (() => {
   const rows: ReadOnlyRow[] = []
   let group = ''
-  const keysOf = new Map<string, readonly string[]>()
+  const keysOf = new Map<string, readonly (readonly string[])[]>()
   const namesOf = new Map<string, readonly string[]>()
   for (const row of specTable('T-380').rows) {
     const groupCell = row.by['組'] ?? ''
     group = ticked(groupCell).find((one) => one.startsWith('group')) ?? group
     const section = /小見出しは `([^`]+)`/.exec(groupCell)?.[1] ?? null
-    const keyTokens = ticked(row.by['行（設定の鍵、上から）'] ?? '')
+    const keyCell = row.by['行（設定の鍵、上から）'] ?? ''
+    const keyTokens = ticked(keyCell)
     const reusedKeys = keyTokens.find((one) => /^RN-\d+$/.test(one))
     const prefix = keyTokens[0]?.startsWith('tableViews.') === true ? `${keyTokens[0]}.` : ''
-    const own = reusedKeys !== undefined ? (keysOf.get(reusedKeys) ?? []) : keyTokens.filter((one) => !one.startsWith('tableViews.'))
-    const nameTokens = ticked(row.by['名の語'] ?? '')
+    // WHY: one displayed row per segment of the key cell; a segment of two keys is one row (T-380, RN-3, CR-787).
+    const segments: readonly (readonly string[])[] = keyCell
+      .split('・')
+      .map((segment) => ticked(segment).filter((one) => !one.startsWith('tableViews.')))
+      .filter((segment) => segment.length > 0)
+    const own = reusedKeys !== undefined ? (keysOf.get(reusedKeys) ?? []) : segments
+    // WHY: the section name readOnlySettings in the name cell says where the words live; it names no row.
+    const nameTokens = ticked(row.by['名の語'] ?? '').filter((one) => one !== 'readOnlySettings')
     const reusedNames = nameTokens.find((one) => /^RN-\d+$/.test(one))
     const names = reusedNames !== undefined ? (namesOf.get(reusedNames) ?? []) : nameTokens
     keysOf.set(row.id, own)
     namesOf.set(row.id, names)
-    own.forEach((key, at) => rows.push({ rowId: row.id, group, section, key: `${prefix}${key}`, name: names[at] ?? `(no name for ${key})` }))
+    own.forEach((keys, at) =>
+      rows.push({
+        rowId: row.id,
+        group,
+        section,
+        key: `${prefix}${keys[0] ?? ''}`,
+        partner: keys[1] === undefined ? null : `${prefix}${keys[1]}`,
+        name: names[at] ?? `(no name for ${keys.join(' + ')})`,
+      }),
+    )
   }
   return rows
 })()
@@ -94,7 +112,15 @@ const valueAt = (settings: Loose, key: string): unknown => key.split('.').reduce
 const percentOf = (ratio: number): string => String(Math.round(ratio * 100))
 
 /** @purity pure */
-const escaped = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+const twoDigits = (n: number): string => String(n).padStart(2, '0')
+
+// see T-380, RN-3
+// WHY: the date of scrollDate and the ratio of the day scrollDayOffset as a time from 0:00, hours two digits.
+/** @purity pure */
+function leftEdgeText(date: string, dayOffset: number): string {
+  const minutes = Math.round(dayOffset * 24 * 60)
+  return `${date.slice(0, 10).split('-').join('/')} ${twoDigits(Math.floor(minutes / 60))}:${twoDigits(minutes % 60)}`
+}
 
 // see T-380
 /** @purity pure */
@@ -107,18 +133,14 @@ function expectedValue(key: string, settings: Loose, language: DisplayLanguage):
   if (leaf === 'isUnassignedHidden') return word(value === true ? 'hidden' : 'shown', language)
   if (typeof value === 'boolean') return word(value ? 'shown' : 'hidden', language)
   if (leaf === 'zoomX' || leaf === 'zoomY') return word('percent', language, { n: percentOf(value as number) })
-  if (leaf === 'scrollDate') return value === null ? word('notSet', language) : String(value).slice(0, 10).split('-').join('/')
-  if (leaf === 'scrollDayOffset') {
-    const pattern = escaped(partWord(SECTION, 'dayOffset', language))
-      .replace(escaped('{time}'), '\\d{1,2}:\\d{2}')
-      .replace(escaped('{percent}'), escaped(`${percentOf(value as number)}%`))
-    return new RegExp(`^${pattern}$`)
-  }
+  // WHY: CR-787 -- RN-3 joins scrollDate with scrollDayOffset, and scrollTaskGroupId with scrollGroupOffset.
+  if (leaf === 'scrollDate') return value === null ? word('notSet', language) : leftEdgeText(String(value), Number(settings['scrollDayOffset']))
   if (leaf === 'scrollTaskGroupId') {
-    if (value === null) return word('notSetFromTop', language)
-    return String((TEMPLATE.schedule.taskGroups as readonly Loose[]).find((one) => one['id'] === value)?.['name'])
+    const name = (TEMPLATE.schedule.taskGroups as readonly Loose[]).find((one) => one['id'] === value)?.['name']
+    if (value === null || name === undefined) return word('notSetFromTop', language)
+    const percent = word('percent', language, { n: percentOf(Number(settings['scrollGroupOffset'])) })
+    return word('groupFromTop', language, { name: String(name), percent })
   }
-  if (leaf === 'scrollGroupOffset') return value === 0 ? word('topZero', language) : word('percent', language, { n: percentOf(value as number) })
   if (leaf === 'levelZeroTreeState') return word(value === 'collapsed' ? 'collapsed' : 'expandedAuto', language)
   if (leaf === 'rulerFontSizePx' || leaf === 'rulerHeightPx') return word('pixels', language, { n: String(value) })
   if (leaf === 'stackDirection') return word(value === 'down' ? 'stackDown' : 'stackUp', language)
@@ -310,10 +332,11 @@ describe(`T-369 -- ${T_369_NO_RAW}`, () => {
     },
   )
 
-  it('a scroll offset of the day such as 0.8666666666666667 reads as a time and a percent', () => {
-    const settings = { ...STARTUP, scrollDayOffset: 0.8666666666666667 }
-    const field = readOnlyFieldsOf(panelOf('ja', settings)).find((one) => one.name === settingLabel('K-121', 'ja'))
-    expect(field?.text).toMatch(expectedValue('scrollDayOffset', settings, 'ja'))
+  it('a scroll offset of the day such as 0.8666666666666667 reads as a time on the left edge row (RN-3, CR-787)', () => {
+    const settings = { ...STARTUP, scrollDate: '2026-03-29T00:00:00', scrollDayOffset: 0.8666666666666667 }
+    const field = readOnlyFieldsOf(panelOf('ja', settings)).find((one) => one.name === partWord(SECTION, 'viewLeftEdge', 'ja'))
+    expect(field?.text).toBe(expectedValue('scrollDate', settings, 'ja'))
+    expect(field?.text).toBe('2026/03/29 20:48')
   })
 })
 

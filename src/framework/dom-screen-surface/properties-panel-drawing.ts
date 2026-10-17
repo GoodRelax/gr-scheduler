@@ -73,12 +73,14 @@ function propertyWayOutStyle(): string {
   )
 }
 
+const FIELD_LINE_HEIGHT = 1.6
+
 /** @purity pure */
 function propertyFieldStyle(): string {
   const size = fieldSizes()
   return (
     `display:flex;align-items:flex-start;gap:${size.nameGap}px;` +
-    `margin-bottom:${size.taskGroupGap}px;line-height:1.6;`
+    `margin-bottom:${size.taskGroupGap}px;line-height:${FIELD_LINE_HEIGHT};`
   )
 }
 
@@ -1073,7 +1075,137 @@ function controlElementsOf(
   if (control.press !== undefined) return [pressElement(host, field.row, control, control.press)]
   if (control.assignee !== undefined) return assigneeComboElements(host, field.row, control, control.assignee, typedByRow)
   if (control.link !== undefined) return linkFieldElements(host, field.row, control, control.link)
+  if (control.choiceLines !== undefined) return [twoLineChoiceElement(host, field.row, control, control.choiceLines)]
   return [controlElement(host, field.row, control, typedByRow)]
+}
+
+type ChoiceLines = NonNullable<PropertyControl['choiceLines']>
+
+// WHY: the one two-line choice whose list stands; the panel redraws it open until a choice or a press elsewhere.
+const openTwoLineChoice: { identity: string | null } = { identity: null }
+
+const CHOICE_MARK = '▾'
+
+const TWO_LINE_CHOICE_ATTRIBUTE = 'data-two-line-choice'
+
+const TWO_LINE_LIST_ATTRIBUTE = 'data-two-line-list'
+
+// see FO-14, FO-15, FR-006
+// WHY: grown from its floor, not from its longest line, so a long place wraps rather than widening the panel.
+/** @purity pure */
+function twoLineFieldStyle(control: PropertyControl): string {
+  return `display:flex;flex-direction:column;flex:1 1 ${control.widthInFontSizes}em;min-width:${control.widthInFontSizes}em;`
+}
+
+// WHY: flex:none, or the list's height cap squeezes each choice and its two lines overlap the next.
+/** @purity pure */
+function twoLineEntryStyle(isChosen: boolean): string {
+  return (
+    'font:inherit;box-sizing:border-box;flex:none;width:100%;display:flex;align-items:center;justify-content:space-between;' +
+    `gap:${fieldSizes().nameGap}px;text-align:left;min-height:${fieldSizes().controlMinHeight}px;` +
+    `background:${PAINT.ground};color:${PAINT.ink};border:1px solid ${isChosen ? PAINT.ink : PAINT.rule};`
+  )
+}
+
+const LINES_PER_CHOICE = 2
+
+// see FO-14, FO-15, S-607
+/** @purity pure */
+function twoLineListStyle(): string {
+  const height = NOT_STORED_PROPERTY_FIELD_SIZES['S-607'] * LINES_PER_CHOICE * FIELD_LINE_HEIGHT
+  return `display:flex;flex-direction:column;max-height:${height}em;overflow-y:auto;border:1px solid ${PAINT.rule};`
+}
+
+/** @purity non-pure */
+function choiceLinesElement(host: Document, [head, place]: readonly [string, string]): HTMLElement {
+  const lines = made(host, 'span', 'display:flex;flex-direction:column;min-width:0;')
+  for (const [at, line] of (place === '' ? [head] : [head, place]).entries()) {
+    const shown = made(host, 'span', at === 0 ? 'white-space:nowrap;' : 'overflow-wrap:anywhere;')
+    shown.textContent = line
+    lines.append(shown)
+  }
+  return lines
+}
+
+// see FO-14, FO-15, FR-156, JDG-2463
+// WHY: the host's list draws one line per choice and the zone names take two, so the field draws its own:
+// a press on the field opens the list under it, a press on a choice commits it as a list choice does.
+/** @purity non-pure */
+function twoLineChoiceElement(host: Document, row: string, control: PropertyControl, choiceLines: ChoiceLines): HTMLElement {
+  const identity = colorFieldIdentity(row, control)
+  const values = control.choiceValues ?? []
+  const field = made(host, 'span', twoLineFieldStyle(control))
+  field.setAttribute(TWO_LINE_CHOICE_ATTRIBUTE, row)
+  const shown = made(host, 'button', twoLineEntryStyle(false))
+  shown.setAttribute('type', 'button')
+  shown.setAttribute(FIELD_ROW_ATTRIBUTE, row)
+  shown.setAttribute('data-field-kind', control.kind)
+  markControl(shown, control)
+  const mark = made(host, 'span', '')
+  mark.textContent = CHOICE_MARK
+  shown.append(choiceLinesElement(host, choiceLines[values.indexOf(control.text)] ?? [control.text, '']), mark)
+  keepFocusOff(shown)
+  field.append(shown)
+  const open = (): void => {
+    openTwoLineChoice.identity = identity
+    field.append(twoLineListElement(host, row, control, choiceLines))
+    closeOnPressElsewhere(host, field)
+  }
+  if (openTwoLineChoice.identity === identity) open()
+  shown.addEventListener(HOST_CLICK, () => {
+    const list = field.querySelector(`[${TWO_LINE_LIST_ATTRIBUTE}]`)
+    if (list === null) open()
+    else closeTwoLineList(field)
+  })
+  return field
+}
+
+/** @purity non-pure */
+function closeTwoLineList(field: HTMLElement): void {
+  openTwoLineChoice.identity = null
+  field.querySelector(`[${TWO_LINE_LIST_ATTRIBUTE}]`)?.remove()
+}
+
+// WHY: a field the panel has since redrawn lets go of the listener.
+/** @purity non-pure */
+function closeOnPressElsewhere(host: Document, field: HTMLElement): void {
+  const onPress = (event: Event): void => {
+    const isInside = field.isConnected && field.contains(event.target as Node)
+    if (isInside) return
+    host.removeEventListener('pointerdown', onPress, true)
+    if (field.isConnected) closeTwoLineList(field)
+  }
+  host.addEventListener('pointerdown', onPress, true)
+}
+
+// WHY: the field and its choices take no focus, so the panel keeps redrawing (a held control stops it, MH-2).
+/** @purity non-pure */
+function keepFocusOff(entry: HTMLElement): void {
+  entry.addEventListener('mousedown', (event: Event) => event.preventDefault())
+}
+
+/** @purity non-pure */
+function twoLineListElement(host: Document, row: string, control: PropertyControl, choiceLines: ChoiceLines): HTMLElement {
+  const list = made(host, 'div', twoLineListStyle())
+  list.setAttribute(TWO_LINE_LIST_ATTRIBUTE, row)
+  ;(control.choiceValues ?? []).forEach((value, at) => {
+    const choice = made(host, 'button', twoLineEntryStyle(value === control.text))
+    choice.setAttribute('type', 'button')
+    choice.setAttribute(FIELD_ROW_ATTRIBUTE, row)
+    choice.setAttribute('value', value)
+    ;(choice as HTMLButtonElement).value = value
+    choice.append(choiceLinesElement(host, choiceLines[at] ?? [value, '']))
+    if (value === control.text) markChosen(choice, true)
+    CONTROL_KEYS.set(choice, { row, key: control.key })
+    keepFocusOff(choice)
+    // WHY: the list goes at once: a choice equal to the value writes nothing, so no redraw would close it.
+    choice.addEventListener(HOST_CLICK, () => {
+      choice.dispatchEvent(new Event(HOST_CHANGE, { bubbles: true }))
+      closeTwoLineList(list.parentElement ?? list)
+    })
+    list.append(choice)
+  })
+  return list
 }
 
 // see T-016, MH-3, PR-37, PR-38

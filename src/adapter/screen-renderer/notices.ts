@@ -37,8 +37,10 @@ const WHOLE_SCHEDULE_SHIFT_WORDS = new Map(displayWords.wholeScheduleShiftField.
 
 const MINUTE_DIGITS = 2
 
+const HOUR_DIGITS = 2
+
 // see FR-156, T-376
-// WHY: the hour unpadded, a zero offset as plus-minus; ASCII signs otherwise.
+// WHY: a zero offset as plus-minus; ASCII signs otherwise.
 /** @purity pure */
 function offsetSignOf(offsetMinutes: number): string {
   if (offsetMinutes === 0) return '±'
@@ -46,11 +48,13 @@ function offsetSignOf(offsetMinutes: number): string {
 }
 
 // see FR-156, T-376
+// WHY: the hour padded to two digits as well (JDG-2463), so the head lines of the list stand aligned.
 /** @purity pure */
 export function zoneOffsetTextOf(offsetMinutes: number): string {
   const magnitude = Math.abs(offsetMinutes)
+  const hours = String(Math.floor(magnitude / MINUTES_PER_HOUR)).padStart(HOUR_DIGITS, '0')
   const minutes = String(magnitude % MINUTES_PER_HOUR).padStart(MINUTE_DIGITS, '0')
-  return `${offsetSignOf(offsetMinutes)}${Math.floor(magnitude / MINUTES_PER_HOUR)}:${minutes}`
+  return `${offsetSignOf(offsetMinutes)}${hours}:${minutes}`
 }
 
 // see FR-017, FR-156, T-376
@@ -67,16 +71,16 @@ export function timeZoneAbbreviationOf(key: string, language: DisplayLanguage): 
 }
 
 // see FR-156, T-376, FR-038
-// WHY: zoneName joins the table's offset and abbreviation to the dictionary's place; a key outside shows itself.
+// WHY: zoneHead holds the offset and abbreviation, the place stands under it; a key outside shows itself.
 /** @purity pure */
-export function timeZoneLabelOf(key: string, language: DisplayLanguage): string {
+export function timeZoneLinesOf(key: string, language: DisplayLanguage): readonly [string, string] {
   const row = timeZoneRowOf(key)
   const place = row === null ? undefined : ZONE_WORDS_BY_ROW.get(row.rowId)?.[language]
-  if (row === null || place === undefined) return key
+  if (row === null || place === undefined) return [key, '']
   const shape = row.abbreviation === null
-    ? timeZoneFieldWord('zoneName', language).replace(' {abbreviation}', '')
-    : timeZoneFieldWord('zoneName', language).replace('{abbreviation}', row.abbreviation)
-  return shape.replace('{offset}', zoneOffsetTextOf(row.offsetMinutes)).replace('{place}', place)
+    ? timeZoneFieldWord('zoneHead', language).replace(' {abbreviation}', '')
+    : timeZoneFieldWord('zoneHead', language).replace('{abbreviation}', row.abbreviation)
+  return [shape.replace('{offset}', zoneOffsetTextOf(row.offsetMinutes)), place]
 }
 
 // see FO-14, FO-16, QN-14, BS-3
