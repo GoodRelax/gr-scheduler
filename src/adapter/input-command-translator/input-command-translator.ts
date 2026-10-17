@@ -209,8 +209,12 @@ export interface InputContext {
   readonly focusedWindow?: WindowName | null
   readonly isFocusInPropertiesPanel?: boolean
   readonly isAgentApiEnabled?: boolean
-  // see RW-1, RW-5, RW-19, RO-1, RO-6, S-451, S-545
-  readonly delayDiagnosticsReport?: { readonly shown: 'normal' | 'minimized' | 'maximized'; readonly isInFront: boolean } | null
+  // see RW-1, RW-5, RW-14, RW-19, RO-1, RO-6, S-451, S-545
+  readonly delayDiagnosticsReport?: {
+    readonly shown: 'normal' | 'minimized' | 'maximized'
+    readonly isInFront: boolean
+    readonly markedRowTaskUid?: number | null
+  } | null
   readonly diagnosisMarkedTaskUids?: ReadonlySet<number>
   readonly resourceList?: { readonly shown: 'normal' | 'minimized' | 'maximized'; readonly isInFront: boolean } | null
   // WHY: the resources the Resource List lists after its word and filters; absent, every resource of the document.

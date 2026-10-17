@@ -26,13 +26,13 @@ import { CANVAS, NO_VIEW, found } from './cr-721-stage'
 import { specTable, unbroken } from './spec-table'
 
 const RW_19_STEPS_IN_ORDER =
-  '遅延診断を出しているあいだ、日程表で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離したら、状態を巡らせず（表 T-270 の `PE-8`・`PE-10` の例外）、次をこの順に行うこと（MUST）'
+  '遅延診断レポートの窓が開いているあいだ（最小化（`IC-129`）を含む —— `RW-1`）、日程表で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離したとき、そのタスクの行に下の ④ のいまの行の印が付いていなければ、状態を巡らせず（表 T-270 の `PE-8`・`PE-10` の例外）、次をこの順に行うこと（MUST）'
 const RW_19_SECOND = '② 診断結果の表（`RW-11` の `IC-154`）を出していなければ出す'
 const RW_19_THIRD =
   '③ そのタスクの行が語（`RW-3`）か列のフィルタ（`FR-151` の 表 T-330 の `SV-7`）で隠れていれば、その行を隠している条件だけを外す —— 語が行に合わなければ語を空にし、行の値を外している列のフィルタではその値にチェックを入れ直し、行の日付を範囲の外に置く日付の列（`DT-5`・`DT-6`）のフィルタではその列の範囲を外す。'
 const RW_19_OTHERS_KEPT = 'ほかの列のフィルタと並べ替えは変えない'
 const RW_19_FOURTH = '④ 行を表の中に送り、`RW-14` と同じいまの行の印を付ける。'
-const RW_19_ONE_MARK = '⚠️ いまの行の印は表に 1 つで、次にマーカーを押すまで残る。'
+const RW_19_ONE_MARK = '⚠️ いまの行の印は表に 1 つで、次に別のタスクのマーカーで ① 〜 ④ を行うまで残る —— 巡らせる押下は印を動かさない。'
 const RW_19_FIXES_STILL = '⚠️ 修正案の表とそのいまの行（`RW-14`）は動かさない（利用者が定めた）。'
 const T_347_ONE_ROW = '1 つの `Task` は 1 行で、上の順で先に当たるものを出す'
 
@@ -342,35 +342,45 @@ describe(`RW-19 -- ${RW_19_STEPS_IN_ORDER}`, () => {
 describe('PI-18 diagnosisRowAskedOf -- the published note: only a released press on a diagnosis marker answers', () => {
   const PRESS_AT = { kind: 'pointer', phase: 'down', button: 'left', x: 200, y: 120, modifiers: { ctrl: false, shift: false, alt: false, meta: false }, clickCount: 1 }
   const release = (dx = 0): HumanInput => ({ ...PRESS_AT, phase: 'up', x: PRESS_AT.x + dx }) as unknown as HumanInput
-  const contextOf = (taskUid: number, marked: readonly number[], grab = 'GA-18'): InputContext =>
+  const OPEN_REPORT = { shown: 'normal', isInFront: true, markedRowTaskUid: null }
+  const contextOf = (taskUid: number, marked: readonly number[], grab = 'GA-18', report: unknown = undefined): InputContext =>
     ({
       pressed: { at: PRESS_AT, hit: { grab, item: { kind: 'task', taskUid } }, on: null, pressRow: 'PTD-3' },
       dualCursorFollowing: null,
       selection: { items: [] },
       screen: { armModeState: null },
       diagnosisMarkedTaskUids: new Set(marked),
+      delayDiagnosticsReport: report,
     }) as unknown as InputContext
 
-  it('a release on the marker of a task drawn as DG-1 to DG-3 answers that task', () => {
-    expect(diagnosisRowAskedOf(release(), contextOf(21, [21, 40]))).toBe(21)
+  it('a release on the marker of a task drawn as DG-1 to DG-3 answers that task while the report is open and the row is not marked', () => {
+    expect(diagnosisRowAskedOf(release(), contextOf(21, [21, 40], 'GA-18', OPEN_REPORT))).toBe(21)
+    expect(diagnosisRowAskedOf(release(), contextOf(21, [21, 40], 'GA-18', { ...OPEN_REPORT, shown: 'minimized' }))).toBe(21)
+    expect(diagnosisRowAskedOf(release(), contextOf(21, [21, 40], 'GA-18', { ...OPEN_REPORT, markedRowTaskUid: 40 }))).toBe(21)
+  })
+
+  it('the same release answers null with the report closed, or with the row of that task marked', () => {
+    expect(diagnosisRowAskedOf(release(), contextOf(21, [21, 40]))).toBeNull()
+    expect(diagnosisRowAskedOf(release(), contextOf(21, [21, 40], 'GA-18', null))).toBeNull()
+    expect(diagnosisRowAskedOf(release(), contextOf(21, [21, 40], 'GA-18', { ...OPEN_REPORT, markedRowTaskUid: 21 }))).toBeNull()
   })
 
   it('a release on a marker not drawn as DG-1 to DG-3 answers null (DG-4 and plain markers cycle)', () => {
-    expect(diagnosisRowAskedOf(release(), contextOf(31, [21, 40]))).toBeNull()
-    expect(diagnosisRowAskedOf(release(), contextOf(31, []))).toBeNull()
+    expect(diagnosisRowAskedOf(release(), contextOf(31, [21, 40], 'GA-18', OPEN_REPORT))).toBeNull()
+    expect(diagnosisRowAskedOf(release(), contextOf(31, [], 'GA-18', OPEN_REPORT))).toBeNull()
   })
 
   it('a pull (a release past the drag threshold) answers null -- the pull is unchanged', () => {
-    expect(diagnosisRowAskedOf(release(80), contextOf(21, [21]))).toBeNull()
+    expect(diagnosisRowAskedOf(release(80), contextOf(21, [21], 'GA-18', OPEN_REPORT))).toBeNull()
   })
 
   it('a release on another grab of the task answers null', () => {
-    expect(diagnosisRowAskedOf(release(), contextOf(21, [21], 'GA-1'))).toBeNull()
+    expect(diagnosisRowAskedOf(release(), contextOf(21, [21], 'GA-1', OPEN_REPORT))).toBeNull()
   })
 
   it('the press itself, a key, and a release with no press answer null', () => {
-    expect(diagnosisRowAskedOf(PRESS_AT as unknown as HumanInput, contextOf(21, [21]))).toBeNull()
-    expect(diagnosisRowAskedOf({ kind: 'key', phase: 'down', key: 'a', code: 'KeyA', modifiers: PRESS_AT.modifiers } as unknown as HumanInput, contextOf(21, [21]))).toBeNull()
-    expect(diagnosisRowAskedOf(release(), { ...contextOf(21, [21]), pressed: null })).toBeNull()
+    expect(diagnosisRowAskedOf(PRESS_AT as unknown as HumanInput, contextOf(21, [21], 'GA-18', OPEN_REPORT))).toBeNull()
+    expect(diagnosisRowAskedOf({ kind: 'key', phase: 'down', key: 'a', code: 'KeyA', modifiers: PRESS_AT.modifiers } as unknown as HumanInput, contextOf(21, [21], 'GA-18', OPEN_REPORT))).toBeNull()
+    expect(diagnosisRowAskedOf(release(), { ...contextOf(21, [21], 'GA-18', OPEN_REPORT), pressed: null })).toBeNull()
   })
 })

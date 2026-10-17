@@ -2435,7 +2435,7 @@ function windowFocusContextOf(
     focusedWindow: screen?.readFocusedWindow?.() ?? null,
     isFocusInPropertiesPanel: screen?.isFocusInPropertiesPanel?.() === true,
     isAgentApiEnabled: isAgentApiEnabledIn(session),
-    delayDiagnosticsReport: report === null ? null : { shown: report.shown, isInFront: report.isInFront },
+    delayDiagnosticsReport: report === null ? null : { shown: report.shown, isInFront: report.isInFront, markedRowTaskUid: report.markedRow?.taskUid ?? null },
     resourceList: resourceList === null ? null : { shown: resourceList.shown, isInFront: resourceList.isInFront },
     ...(resourceList === null ? {} : { listedResourceUids: resourceListListedUidsOf(resourceList, windows.view, windows.schedule, session.selection.chosenResources) }),
   }

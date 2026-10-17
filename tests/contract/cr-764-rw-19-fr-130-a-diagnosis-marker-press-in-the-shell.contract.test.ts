@@ -16,22 +16,22 @@ import { windowStage, type WindowStage } from './cr-760-stage'
 import { specTable, unbroken } from './spec-table'
 
 const RW_19_STEPS_IN_ORDER =
-  '遅延診断を出しているあいだ、日程表で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離したら、状態を巡らせず（表 T-270 の `PE-8`・`PE-10` の例外）、次をこの順に行うこと（MUST）'
-const RW_19_FIRST = '① 窓が閉じていれば開き（`RW-1`）、最小化していれば戻し（`IC-129`）、手前に出す'
+  '遅延診断レポートの窓が開いているあいだ（最小化（`IC-129`）を含む —— `RW-1`）、日程表で `FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いた進捗マーカー（表 T-266 の `GA-18`）を押して離したとき、そのタスクの行に下の ④ のいまの行の印が付いていなければ、状態を巡らせず（表 T-270 の `PE-8`・`PE-10` の例外）、次をこの順に行うこと（MUST）'
+const RW_19_FIRST = '① 最小化していれば戻し（`IC-129`）、手前に出す'
 const RW_19_SECOND = '② 診断結果の表（`RW-11` の `IC-154`）を出していなければ出す'
 const RW_19_FOURTH = '④ 行を表の中に送り、`RW-14` と同じいまの行の印を付ける。'
 const RW_19_DG_4_CYCLES = '⭐ `DG-4`（`!`）と、どの状態でもないマーカーは今どおり巡る'
 const RW_19_PULL = '⚠️ 引く操作（`PE-8` の「引く」の欄）は変えない。'
-const RW_19_ONE_MARK = '⚠️ いまの行の印は表に 1 つで、次にマーカーを押すまで残る。'
+const RW_19_ONE_MARK = '⚠️ いまの行の印は表に 1 つで、次に別のタスクのマーカーで ① 〜 ④ を行うまで残る —— 巡らせる押下は印を動かさない。'
 const RW_19_MARK_GONE = '診断を作り直してその行が無くなれば消える。'
 const RW_19_FIXES_STILL = '⚠️ 修正案の表とそのいまの行（`RW-14`）は動かさない（利用者が定めた）。'
 const RW_19_SELECTED = '⚠️ 押したタスクは今どおり選ぶ（`FR-107`）。'
 const RW_19_VIEW_STILL = '日程表の見る位置は動かさない'
-const RW_1_REOPENED = '窓だけを閉じたあとは、`RW-19` のマーカーの押下で開き直す —— 開くのは閉じたときの位置と大きさである。'
+const RW_1_REOPENED = '窓だけを閉じたあとは、日程表のマーカーを押しても開かない（`RW-19`）—— 開き直すのは下の `IC-107` であり、開くのは閉じたときの位置と大きさである。'
 const RW_1_IC_107 = '`IC-107` を押せば診断をやり直して開く（`FR-130`）'
 const PE_8_EXCEPTION =
-  '⚠️ 遅延診断を出しているあいだ、`FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いたマーカーは巡らせない —— `FR-134` の 表 T-346 の `RW-19` に従う'
-const PE_10_EXCEPTION = '⚠️ 遅延診断を出しているあいだの例外は `PE-8` と同じ（`RW-19`）'
+  '⚠️ 遅延診断レポートの窓が開いているあいだ、`FR-133` の 表 T-315 の `DG-1` 〜 `DG-3` で描いたマーカーは、そのタスクの行にいまの行の印が付いていなければ巡らせない —— `FR-134` の 表 T-346 の `RW-19` に従う'
+const PE_10_EXCEPTION = '⚠️ 遅延診断レポートの窓が開いているあいだの例外は `PE-8` と同じ（`RW-19`）'
 // WHY: CR-781 rewrote this sentence of FR-130: an open window (minimized included) is closed alone like IC-52, and the marks stay.
 const FR_130_THE_SAME_ENTRY =
   '診断を出しているあいだに同じ入口を押したら、遅延診断レポートの窓（`FR-134` の 表 T-346 の `RW-1`）が開いていれば（最小化を含む）、窓の `IC-52` と同じく窓だけを閉じ、窓だけを閉じていれば（`IC-52`）いまの文書で診断をやり直し、その結果をマーカーと一覧に出して窓を開くこと（MUST）'
@@ -318,19 +318,24 @@ describe(`RW-19 / PE-8 / PE-10 -- ${RW_19_STEPS_IN_ORDER}`, () => {
 })
 
 describe(`RW-19 ① -- ${RW_19_FIRST}`, () => {
-  it(`the closed window opens again (${RW_1_REOPENED})`, async () => {
-    const stage = await diagnosed()
-    await drag(stage, [699, 600], [900, 600])
-    await drag(stage, [300, 429], [300, 300])
-    const placed = needReport(stage)
-    expect(placed.at, 'premise: the window was moved from where it opened').not.toBeNull()
-    await stage.press('IC-52')
-    expect(reportOf(stage)).toBeNull()
-    expect(isDiagnosisDrawn(stage), 'closing the window alone keeps the diagnosis (RW-1)').toBe(true)
-    await pressMarker(stage, SELF)
-    const reopened = needReport(stage)
-    expect({ at: reopened.at, size: reopened.size }).toEqual({ at: placed.at, size: placed.size })
-    expect(currentUids(stage)).toEqual([SELF])
+  it(`the closed window stays closed on a marker press and IC-107 opens it again at the place it was closed (${RW_1_REOPENED})`, async () => {
+    for (const entry of ['IC-52', 'IC-107']) {
+      const stage = await diagnosed()
+      await drag(stage, [699, 600], [900, 600])
+      await drag(stage, [300, 429], [300, 300])
+      const placed = needReport(stage)
+      expect(placed.at, 'premise: the window was moved from where it opened').not.toBeNull()
+      await stage.press(entry)
+      expect(reportOf(stage)).toBeNull()
+      expect(isDiagnosisDrawn(stage), 'closing the window alone keeps the diagnosis (RW-1)').toBe(true)
+      const before = taskOf(stage, SELF)
+      await pressMarker(stage, SELF)
+      expect(reportOf(stage), `the window closed by ${entry} stays closed`).toBeNull()
+      expect(taskOf(stage, SELF), 'the press cycles the state (RW-19)').not.toEqual(before)
+      await stage.press('IC-107')
+      const reopened = needReport(stage)
+      expect({ at: reopened.at, size: reopened.size }).toEqual({ at: placed.at, size: placed.size })
+    }
   })
 
   it('a minimized window is restored', async () => {
