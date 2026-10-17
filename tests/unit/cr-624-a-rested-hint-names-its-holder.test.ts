@@ -104,8 +104,8 @@ describe('EZ-6 / T-023d -- the holder the hint walk found is the one the tooltip
     expect(tips[0]?.anchor).toEqual({ kind: 'task', taskUid: TASK.uid })
     expect(lines[0]).toBe(TASK.name)
     // WHY: CR-793 TL-9 -- inside the task tip the deadline line is labelled "word: day"; the mark's own tip (TL-2) keeps "word day".
-    expect(deadlineHint({ ...TASK, name: '' }, SCHEDULE, 'ja')).toBe('期限 4/20 (月)')
-    expect(lines.at(-1)).toBe('期限: 4/20 (月)')
+    expect(deadlineHint({ ...TASK, name: '' }, SCHEDULE, 'ja')).toBe('期限 2026/04/20 (月)')
+    expect(lines.at(-1)).toBe('期限: 2026/04/20 (月)')
   })
 
   it('a holder the schedule does not hold tells nothing, and no holder tells nothing', () => {

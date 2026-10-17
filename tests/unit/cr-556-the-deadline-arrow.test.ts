@@ -77,10 +77,10 @@ const ZO_13_PLACE = '形と依存線より手前、線の道具（`ZO-8`）・�
 const TL_9_LINE = '期限の語、`:`、半角空白 1 つ、`deadline` の日（`TL-10`）の順に書くこと（MUST）'
 const TL_9_THE_WORD = '期限の語は、プロパティパネルの期限の欄と同じ語（`FR-038` の辞書の `properties` の `PR-10` の語）とすること（MUST）'
 const TL_9_NO_LINE = '`deadline` が `null` のときは、期限の行を出さないこと（MUST）'
-const TL_10_DAY = '月、`/`、日 の順とし、月も日も 0 で埋めない（表 T-251 の `ND-4` と同じ）'
+const TL_10_DAY = '年（西暦の 4 桁）、`/`、月、`/`、日 の順とし、月と日は 2 桁に 0 で埋めること（MUST）'
 const TL_1_ORDER = '`TL-9` の期限を、この順に 1 行ずつ出すこと（MUST）'
 // WHY: 2026-03-20 is a Friday; TL-11 adds the weekday word of the dictionary's weekdays.
-const DAY_20 = { ja: '3/20 (金)', en: '3/20 (Fri)' } as const
+const DAY_20 = { ja: '2026/03/20 (金)', en: '2026/03/20 (Fri)' } as const
 const IN_7_ONE_LINE = 'ツールチップは、説明の各行を折り返さずに 1 行で出すこと（MUST）'
 const EP_5_HAS_THE_MARK = '`Deadline Mark`（`U-63`）'
 

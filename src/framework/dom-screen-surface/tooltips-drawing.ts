@@ -32,7 +32,9 @@ const LABEL_GAP = ' '
 
 const LABEL_STYLE = 'display:inline-block;text-align:right;white-space:pre;'
 
-const labelsOf = new WeakMap<Element, readonly HTMLElement[]>()
+const PART_STYLE = 'display:inline-block;white-space:pre;'
+
+const columnsOf = new WeakMap<Element, readonly (readonly HTMLElement[])[]>()
 
 // see EZ-2, IN-7
 // WHY: border-box, so the cap holds the padding and the border too; content-box let a capped tip end past S-339 (DFC-1476).
@@ -56,7 +58,7 @@ export function tooltipElement(
   drawn.setAttribute('role', 'tooltip')
   drawn.setAttribute('data-anchor', key)
   if (tip.rows === undefined) appendTextLines(host, drawn, tip.assignment ? `${tip.text} ` : tip.text)
-  else labelsOf.set(drawn, appendTooltipRows(host, drawn, tip.rows))
+  else columnsOf.set(drawn, appendTooltipRows(host, drawn, tip.rows))
   if (tip.assignment) appendAssignment(host, drawn, tip.assignment, true)
 
   if (tip.at !== undefined) {
@@ -106,32 +108,56 @@ function noteStyle(): string {
 // see TL-13
 // WHY: one box per line, so every reader (innerText too) keeps a line whole; the label boxes are widened to one width after layout.
 /** @purity non-pure */
-function appendTooltipRows(host: Document, drawn: HTMLElement, rows: NonNullable<Tooltip['rows']>): readonly HTMLElement[] {
-  const labels: HTMLElement[] = []
+function appendTooltipRows(
+  host: Document,
+  drawn: HTMLElement,
+  rows: NonNullable<Tooltip['rows']>,
+): readonly (readonly HTMLElement[])[] {
+  const columns: HTMLElement[][] = [[]]
   for (const row of rows) {
     const line = made(host, 'div', row.kind === 'note' ? noteStyle() : '')
     if (row.kind === 'labeled') {
       const label = made(host, 'span', LABEL_STYLE)
       label.textContent = `${row.label}${LABEL_GAP}`
-      const value = made(host, 'span', '')
-      value.textContent = row.value
-      line.append(label, value)
-      labels.push(label)
+      line.append(label, valueOf(host, row, columns))
+      columns[0]?.push(label)
     } else {
       line.textContent = row.text
     }
     drawn.append(line)
   }
-  return labels
+  return columns
+}
+
+// see TL-13
+/** @purity non-pure */
+function valueOf(host: Document, row: { readonly value: string; readonly parts?: readonly string[] }, columns: HTMLElement[][]): HTMLElement {
+  const value = made(host, 'span', '')
+  if (row.parts === undefined) {
+    value.textContent = row.value
+    return value
+  }
+  row.parts.forEach((part, at) => {
+    const cell = made(host, 'span', PART_STYLE)
+    cell.textContent = part
+    value.append(cell)
+    const column = columns[at + 1] ?? []
+    column.push(cell)
+    columns[at + 1] = column
+  })
+  return value
 }
 
 // WHY: measured, not guessed from a character count: in a proportional face only the widest label's own width lines the colons up.
 /** @purity non-pure */
 function alignLabels(drawn: Element): void {
-  const labels = labelsOf.get(drawn) ?? []
-  if (labels.length === 0) return
-  const widest = Math.max(...labels.map((label) => label.getBoundingClientRect().width))
-  for (const label of labels) label.setAttribute('style', `${LABEL_STYLE}width:${widest}px;`)
+  const columns = columnsOf.get(drawn) ?? []
+  columns.forEach((cells, at) => {
+    if (cells.length === 0) return
+    const widest = Math.max(...cells.map((cell) => cell.getBoundingClientRect().width))
+    const style = at === 0 ? LABEL_STYLE : PART_STYLE
+    for (const cell of cells) cell.setAttribute('style', `${style}width:${widest}px;`)
+  })
 }
 
 /** @purity pure */

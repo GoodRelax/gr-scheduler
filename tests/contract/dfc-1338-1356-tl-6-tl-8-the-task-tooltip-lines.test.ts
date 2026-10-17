@@ -44,10 +44,11 @@ const WEEKDAYS: Readonly<Record<'ja' | 'en', readonly string[]>> = {
 }
 
 // see TL-10, TL-11
-const dayText = (iso: string, language: 'ja' | 'en', withYear = false): string => {
+// WHY: CR-794 -- the year is always written and the month and day are padded to two digits.
+const dayText = (iso: string, language: 'ja' | 'en'): string => {
   const [year, month, day] = iso.slice(0, 10).split('-').map(Number) as [number, number, number]
   const weekday = WEEKDAYS[language][new Date(Date.UTC(year, month - 1, day)).getUTCDay()]
-  return `${withYear ? `${year}/` : ''}${month}/${day} (${weekday})`
+  return `${year}/${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')} (${weekday})`
 }
 
 interface Wish {
@@ -150,13 +151,13 @@ describe('DFC-1338: a started task tells its actual, its assignees and its perce
     expect(lines[1]).toContain(`(${WEEKDAYS.en[new Date(Date.UTC(2026, 5, 1)).getUTCDay()]})`)
   })
 
-  it('TL-10 / ND-5 a document across two calendar years writes the year on every day', () => {
+  it('TL-10 a document across two calendar years writes the year and the padded day on every day', () => {
     const lines = linesOf({
       task: STARTED,
       others: [{ uid: 2, name: 'later', start: '2027-01-04T00:00:00', finish: '2027-01-08T00:00:00' }],
     })
-    expect(lines[1]).toBe(`予定: ${dayText('2026-06-01', 'ja', true)} - ${dayText('2026-06-05', 'ja', true)}`)
-    expect(lines[2]).toBe(`実績: ${dayText('2026-06-03', 'ja', true)} -`)
+    expect(lines[1]).toBe(`予定: ${dayText('2026-06-01', 'ja')} - ${dayText('2026-06-05', 'ja')}`)
+    expect(lines[2]).toBe(`実績: ${dayText('2026-06-03', 'ja')} -`)
   })
 })
 

@@ -1550,7 +1550,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `timeShiftQuestionItems` | entry | function | `src/adapter/screen-renderer/notices.ts#timeShiftQuestionItems` | PI-37 | タイムシフトの確認（`QN-14`）の文の下に並べる行（表 T-377 の `BS-3`） |
 | `Tooltip` | entry | interface | `src/adapter/screen-renderer/screen-renderer.ts#Tooltip` | -- | interface Tooltip |
 | `TooltipAnchor` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipAnchor` | -- | type TooltipAnchor = \| { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly taskGroupId?: string } \| { readonly kind: 'task'; ... |
-| `TooltipRow` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipRow` | -- | type TooltipRow = \| { readonly kind: 'whole'; readonly text: string } \| { readonly kind: 'labeled'; readonly label: string; readonly value: string } \| { read... |
+| `TooltipRow` | entry | type | `src/adapter/screen-renderer/screen-renderer.ts#TooltipRow` | -- | type TooltipRow = \| { readonly kind: 'whole'; readonly text: string } \| { readonly kind: 'labeled'; readonly label: string; readonly value: string; readonly ... |
 | `UNASSIGNED_ROW_KEY` | entry | const | `src/adapter/screen-renderer/table-window.ts#UNASSIGNED_ROW_KEY` | PI-37 | 担当リストの表の（担当なし）の行の鍵（表 T-370 の `RO-5`）。 |
 | `UNTITLED_DOCUMENT_TITLE` | entry | const | `src/adapter/screen-renderer/open-modals.ts#UNTITLED_DOCUMENT_TITLE` | PI-37 | `AT-3` の文書名が `null` のときに見出しへ出す語 `Untitled`。 |
 | `VerticalWhole` | entry | interface | `src/adapter/screen-renderer/screen-frame.ts#VerticalWhole` | PI-37 | 型。 |
