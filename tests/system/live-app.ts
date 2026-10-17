@@ -1,7 +1,7 @@
 // The running application, judged live: which browser, which screen, and how the drawing is read.
 
 import { chromium, type Browser, type Page } from '@playwright/test'
-import type { SpecRow } from '../contract/spec-table'
+import { bare, specTable, type SpecRow } from '../contract/spec-table'
 
 // see T-025
 const REFERENCE_CHANNEL = 'msedge'
@@ -51,14 +51,23 @@ export async function readDrawnSvg(page: Page): Promise<string | null> {
   )
 }
 
-// see MK-13, T-266, RV-6
+// see S-56, U-50
+// WHY: the drawing reaches canvasPadding past the Task Group Area, where a press answers nothing.
+const CANVAS_PADDING_PX = Number(/\d+/.exec(bare(specTable('T-201').rows.find((one) => one.id === 'S-56')?.by['既定値'] ?? ''))?.[0] ?? '')
+
+// see MK-13, T-266, RV-6, FR-051
 // WHY: MK-13 opens the panel only from a Task's own body, label or actual; a marker, resume icon, dependency
 // or status line over the bar answers first in T-266 (RV-6 moved one bar middle onto a resume icon).
 /** @purity semi-pure-b */
 export async function taskBodyPoint(page: Page): Promise<{ uid: string; x: number; y: number } | null> {
+  if (!Number.isFinite(CANVAS_PADDING_PX)) throw new Error('table T-201 row S-56 states no number')
   return page.evaluate(
     /** @purity semi-pure-b */
-    (selector: string) => {
+    ({ selector, padding }: { selector: string; padding: number }) => {
+      const bars = Array.from(document.querySelectorAll('[data-role="Scrollbars"]'))
+        .map((one) => one.getBoundingClientRect())
+        .filter((box) => box.height > box.width)
+      const reach = Math.min(Infinity, ...bars.map((box) => box.left - padding))
       const drawing = document.querySelector(selector)
       const figures = Array.from(drawing?.querySelectorAll('[data-figure]') ?? [])
       const isGround = (name: string): boolean =>
@@ -80,13 +89,13 @@ export async function taskBodyPoint(page: Page): Promise<{ uid: string; x: numbe
         for (const share of along) {
           const x = box.left + box.width * share
           const covered = others.some((one) => x >= one.left && x <= one.right && y >= one.top && y <= one.bottom)
-          if (covered || document.elementFromPoint(x, y) !== plan) continue
+          if (covered || x >= reach || document.elementFromPoint(x, y) !== plan) continue
           return { uid, x, y }
         }
       }
       return null
     },
-    DRAWN_SVG,
+    { selector: DRAWN_SVG, padding: CANVAS_PADDING_PX },
   )
 }
 
