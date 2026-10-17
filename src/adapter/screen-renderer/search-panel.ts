@@ -4,10 +4,14 @@
 // @purity    pure
 
 import {
+  planActualState,
+  progressMarkerOf,
   searchRowsOf,
+  type CalendarDay,
   type CommentBoxSearchRow,
   type Schedule,
   type SearchRows,
+  type Task,
   type TaskSearchRow,
 } from '../../entity/document-model/schedule/schedule'
 import type { ScreenRect } from '../../entity/layout-engine/screen-regions/screen-regions'
@@ -190,6 +194,19 @@ function stateWordOf(state: SearchTaskState, language: DisplayLanguage): string 
   const markerRow = MARKER_WORD_ROWS[state]
   if (markerRow !== undefined) return wordOf(displayWords.delayReportStatuses.find((entry) => entry.rowId === markerRow)?.text, language)
   return wordOf(STATE_WORDS.get(state)?.text, language)
+}
+
+// see TL-8, SQ-5
+// WHY: the task tooltip's progress line names the state in the Status column's words, so the two never differ on one task.
+/** @purity pure */
+export function taskStateWordOf(
+  task: Task,
+  statusDate: CalendarDay | null,
+  diagnosed: 'DG-1' | 'DG-2' | 'DG-3' | undefined,
+  language: DisplayLanguage,
+): string {
+  const progressMarker = progressMarkerOf(task, statusDate, diagnosed)
+  return stateWordOf(searchTaskStateOf({ progressMarker, planActualState: planActualState(task) }), language)
 }
 
 // see SQ-14, DT-9, FM-9

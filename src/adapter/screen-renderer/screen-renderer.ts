@@ -671,7 +671,13 @@ export interface Tooltip {
   readonly text: string
   readonly assignment: string | null
   readonly at?: { readonly x: number; readonly y: number }
+  readonly rows?: readonly TooltipRow[]
 }
+
+export type TooltipRow =
+  | { readonly kind: 'whole'; readonly text: string }
+  | { readonly kind: 'labeled'; readonly label: string; readonly value: string }
+  | { readonly kind: 'note'; readonly text: string }
 
 export type TooltipAnchor =
   | { readonly kind: 'icon'; readonly icon: IconId; readonly surface?: string; readonly taskGroupId?: string }

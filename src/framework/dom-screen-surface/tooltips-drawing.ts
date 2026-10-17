@@ -28,6 +28,12 @@ const WINDOW_SIDES = 2
 
 const LINE_BREAK = '\n'
 
+const LABEL_GAP = ' '
+
+const LABEL_STYLE = 'display:inline-block;text-align:right;white-space:pre;'
+
+const labelsOf = new WeakMap<Element, readonly HTMLElement[]>()
+
 // see EZ-2, IN-7
 // WHY: border-box, so the cap holds the padding and the border too; content-box let a capped tip end past S-339 (DFC-1476).
 /** @purity pure */
@@ -49,7 +55,8 @@ export function tooltipElement(
   const drawn = made(host, 'div', tooltipStyle())
   drawn.setAttribute('role', 'tooltip')
   drawn.setAttribute('data-anchor', key)
-  appendTextLines(host, drawn, tip.assignment ? `${tip.text} ` : tip.text)
+  if (tip.rows === undefined) appendTextLines(host, drawn, tip.assignment ? `${tip.text} ` : tip.text)
+  else labelsOf.set(drawn, appendTooltipRows(host, drawn, tip.rows))
   if (tip.assignment) appendAssignment(host, drawn, tip.assignment, true)
 
   if (tip.at !== undefined) {
@@ -87,6 +94,46 @@ function appendTextLines(host: Document, drawn: HTMLElement, text: string): void
   }
 }
 
+// see TL-14, S-621, S-622
+/** @purity pure */
+function noteStyle(): string {
+  return (
+    `white-space:pre-wrap;overflow-wrap:anywhere;max-width:${NOT_STORED_HELP_SIZES['S-621']}em;` +
+    `display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:${NOT_STORED_HELP_SIZES['S-622']};overflow:hidden;`
+  )
+}
+
+// see TL-13
+// WHY: one box per line, so every reader (innerText too) keeps a line whole; the label boxes are widened to one width after layout.
+/** @purity non-pure */
+function appendTooltipRows(host: Document, drawn: HTMLElement, rows: NonNullable<Tooltip['rows']>): readonly HTMLElement[] {
+  const labels: HTMLElement[] = []
+  for (const row of rows) {
+    const line = made(host, 'div', row.kind === 'note' ? noteStyle() : '')
+    if (row.kind === 'labeled') {
+      const label = made(host, 'span', LABEL_STYLE)
+      label.textContent = `${row.label}${LABEL_GAP}`
+      const value = made(host, 'span', '')
+      value.textContent = row.value
+      line.append(label, value)
+      labels.push(label)
+    } else {
+      line.textContent = row.text
+    }
+    drawn.append(line)
+  }
+  return labels
+}
+
+// WHY: measured, not guessed from a character count: in a proportional face only the widest label's own width lines the colons up.
+/** @purity non-pure */
+function alignLabels(drawn: Element): void {
+  const labels = labelsOf.get(drawn) ?? []
+  if (labels.length === 0) return
+  const widest = Math.max(...labels.map((label) => label.getBoundingClientRect().width))
+  for (const label of labels) label.setAttribute('style', `${LABEL_STYLE}width:${widest}px;`)
+}
+
 /** @purity pure */
 function tipInkOf(anchor: TooltipAnchor): string {
   return anchor.kind === 'baseline' ? `color:${PAINT.quiet};` : ''
@@ -120,6 +167,7 @@ export function keepTooltipsInside(layer: HTMLElement): void {
   const room = layer.getBoundingClientRect()
   const margin = NOT_STORED_HELP_SIZES['S-339']
   for (const drawn of tooltips) {
+    alignLabels(drawn)
     const point = pointOf.get(drawn)
     if (point !== undefined) {
       const placed = pointTipPlace(point.at, drawn.getBoundingClientRect(), room)
