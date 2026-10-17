@@ -88,8 +88,8 @@ test.describe('IN-5a: what already holds on the shipped build', () => {
   })
 })
 
-test.describe('IN-5a: the reds this sweep found (fixme until fixed)', () => {
-  test.fixme('DFC-3101: "Tony" typed into the assignee filter (PR-16) does not replace the document', async ({ page }) => {
+test.describe('IN-5a, IN-6: the reds this sweep found, now fixed', () => {
+  test('DFC-3101: "Tony" typed into the assignee filter (PR-16) does not replace the document', async ({ page }) => {
     await openSmallSample(page)
     await openTaskPanel(page)
     await page.locator('[data-assignee-field="PR-16"] > button[data-field-kind="choice"]').click()
@@ -101,7 +101,7 @@ test.describe('IN-5a: the reds this sweep found (fixme until fixed)', () => {
     expect((await readDocument(page)).schedule.tasks.length, 'the open document stays').toBe(45)
   })
 
-  test.fixme('DFC-3102: + and _ typed into an entry go into it and the time axis does not zoom (SK-16, SK-16b)', async ({ page }) => {
+  test('DFC-3102: + and _ typed into an entry go into it and the time axis does not zoom (SK-16, SK-16b)', async ({ page }) => {
     await openSmallSample(page)
     await openTaskPanel(page)
     const seen: Record<string, string> = {}
@@ -118,7 +118,7 @@ test.describe('IN-5a: the reds this sweep found (fixme until fixed)', () => {
     expect(seen).toEqual({ 'PR-1': 'A+_ zoom true', 'PR-2': 'A+_ zoom true', 'U-27': 'A+_ zoom true' })
   })
 
-  test.fixme('DFC-3103: typing a date by keyboard tells no out-of-range notice before the date is complete (PR-4)', async ({ page }) => {
+  test('DFC-3103: typing a date by keyboard tells no out-of-range notice before the date is complete (PR-4)', async ({ page }) => {
     await openSmallSample(page)
     await openTaskPanel(page)
     const start = page.locator(`${PANEL} input[data-field-row="PR-4"]`).first()

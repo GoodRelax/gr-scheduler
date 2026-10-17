@@ -11,6 +11,8 @@ export const CONTROL_KEYS = new WeakMap<Element, { row: string; key: PropertyFie
 
 const HOST_ESCAPE_KEY = 'Escape'
 
+const HOST_TAB_KEY = 'Tab'
+
 // see IN-4
 /** @purity pure */
 function isFreshEscape(event: Event): boolean {
@@ -123,6 +125,32 @@ function rowEntrancesOf(target: unknown): readonly TextEntryControl[] {
   return entrances.length > 1 ? entrances : []
 }
 
+/** @purity semi-pure-b */
+function isDateEntry(control: unknown): boolean {
+  const type = (control as Partial<HTMLInputElement> | null)?.type
+  return type === HOST_DATE_INPUT_TYPE || type === HOST_DATE_TIME_INPUT_TYPE
+}
+
+// see IN-6, FR-031
+// WHY: a keyed date changes at every digit (2 is the year 0002), so it waits for the settle; a calendar pick does not.
+/** @purity non-pure */
+function keyedDateOf() {
+  let isKeyed = false
+  return {
+    mark: (event: Event): void => {
+      const key = (event as Partial<KeyboardEvent>).key
+      if (key !== HOST_ENTER && key !== HOST_ESCAPE_KEY && key !== HOST_TAB_KEY) isKeyed = true
+    },
+    holds: (target: unknown, held: unknown): boolean => isKeyed && target === held,
+    settle: (held: TextEntryControl | null, valueAtFocus: string): FieldCommit | null => {
+      const wasKeyed = isKeyed
+      isKeyed = false
+      const commit = wasKeyed && held !== null ? fieldCommitOf(held) : null
+      return commit !== null && commit.text !== valueAtFocus ? commit : null
+    },
+  }
+}
+
 // see FX-5, IN-6, UN-13
 // WHY: a row of several entrances settles once, on Enter or when the focus leaves the row: a
 // commit on each entrance's change made one settle two commands and two undo steps (DFC-2223).
@@ -193,12 +221,13 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
     const commit = fieldCommitOf(event.target)
     if (commit === null || jointRow.holds(event.target)) return
     const target: unknown = event.target
-    if (target === (heldTextControl as unknown) && commit.text === heldTextValueAtFocus) return
+    if (target === (heldTextControl as unknown) && (commit.text === heldTextValueAtFocus || keyedDate.holds(target, heldTextControl))) return
     fieldCommit = commit
   }
 
   listen('change', onFieldChange)
   const jointRow = jointRowOf()
+  const keyedDate = keyedDateOf()
 
   const typedControlsByTaskGroup = new Map<string, TextEntryControl>()
 
@@ -282,14 +311,13 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   })
   listen('focusout', (event: Event) => {
     if (!jointRow.holds((event as FocusEvent).relatedTarget)) fieldCommit = jointRow.settle() ?? fieldCommit
+    fieldCommit = keyedDate.settle(heldTextControl, heldTextValueAtFocus) ?? fieldCommit
     isFieldHeld = false
     holdText(null)
     heldTextValueAtFocus = ''
     isHeldTextTakenBack = false
   })
-  listen('input', () => {
-    isHeldTextTakenBack = false
-  })
+  listen('input', () => (isHeldTextTakenBack = false))
 
   /** @purity non-pure */
   listen('keydown', (event: Event) => {
@@ -314,8 +342,8 @@ export function fieldEditingOf(host: Document, propertiesPanel: HTMLElement) {
   listen('keydown', (event: Event) => {
     fieldCommit = assigneeLineDeleted(event) ?? fieldCommit
     const held = heldTextControl
-    const type = (held as Partial<HTMLInputElement> | null)?.type
-    if (held === null || (type !== HOST_DATE_INPUT_TYPE && type !== HOST_DATE_TIME_INPUT_TYPE)) return
+    if (held === null || !isDateEntry(held)) return
+    keyedDate.mark(event)
     const key = event as Partial<KeyboardEvent>
     if (!isUnchordedDeleteKey(key)) return
     if (typeof event.preventDefault === 'function') event.preventDefault()
