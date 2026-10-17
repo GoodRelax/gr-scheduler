@@ -24,8 +24,8 @@ const DIAGNOSE_ENTRY = specTable('T-109').rows.find((one) => (one.cells.join(' '
 const APP_HEADER = bare(specTable('T-109').rows.find((one) => one.id === DIAGNOSE_ENTRY)?.by['面'] ?? '')
 
 // see T-109
-const END_ENTRY = 'IC-167'
-const REPORT_WINDOW = bare(specTable('T-109').rows.find((one) => one.id === END_ENTRY)?.by['面'] ?? '')
+const END_ENTRY = 'IC-40'
+const END_SURFACE = bare(specTable('T-109').rows.find((one) => one.id === END_ENTRY)?.by['面'] ?? '')
 
 const ROW_ID = '11111111-1111-4111-8111-111111111111'
 
@@ -102,7 +102,7 @@ const benchOf = (isProgressMarkerVisible: boolean) => {
     svg: () => shown,
     settings: () => loop.document().documentSettings as unknown as Record<string, unknown>,
     pressEnd: (): void => {
-      aimed = { part: REPORT_WINDOW, entry: END_ENTRY, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
+      aimed = { part: END_SURFACE, entry: END_ENTRY, format: null, taskGroupId: null, resourceUid: null, dividerPanel: null, noticeDismissKey: null } as unknown as ScreenPart
       send(pointer('down', 700, 20))
       send(pointer('up', 700, 20))
       aimed = null
@@ -122,7 +122,7 @@ describe('DFC-1229: a diagnosis draws the progress markers whatever S-63 holds (
   it('FR-130 premise: the entrance that starts a diagnosis is found in table T-109', () => {
     expect(DIAGNOSE_ENTRY).not.toBe('')
     expect(APP_HEADER).toBe('App Header')
-    expect(REPORT_WINDOW).toBe('Delay Diagnostics Report')
+    expect(END_SURFACE).toBe('Command Palette')
   })
 
   it('FR-049 premise: with S-63 false and no diagnosis the markers are not drawn', () => {
@@ -149,7 +149,7 @@ describe('DFC-1229: a diagnosis draws the progress markers whatever S-63 holds (
     expect(hasMarkers(bench.svg())).toBe(true)
   })
 
-  it('FR-130 IC-167 of the report window ends the diagnosis: the markers go away again, S-63 being false (CR-781)', () => {
+  it('FR-130 IC-40 ends the diagnosis (RW-1): the markers go away again, S-63 being false (CR-797)', () => {
     const bench = benchOf(false)
     bench.pressDiagnose()
     bench.pressEnd()

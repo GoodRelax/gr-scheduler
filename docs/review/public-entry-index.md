@@ -813,6 +813,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `isTypedIntoSearchWord` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#isTypedIntoSearchWord` | PI-18 | 焦点が `Search Panel` の入力欄にあるとき、そのキーが欄への打鍵としてブラウザへ渡るものか（`IN-5a`、`FR-151` の 表 T-330 の `SV-5` の `Enter`）。 |
 | `KEY` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#KEY` | -- | const KEY = |
 | `KeyInput` | entry | interface | `src/adapter/input-command-translator/input-source.ts#KeyInput` | -- | interface KeyInput |
+| `markerOperatedTaskUidOf` | entry | function | `src/adapter/input-command-translator/screen-state-input.ts#markerOperatedTaskUidOf` | PI-18 | 進捗マーカー（表 T-266 の `GA-18`）を押して離した入力が状態を巡らせたか、引いて実績の終了を動かした入力なら、その `Task` の `uid` を答える（`FR-130`、表 T-270 の `PE-8`・`PE-10`）。 |
 | `milestoneGlyphOf` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#milestoneGlyphOf` | -- | function milestoneGlyphOf(name: string): TaskMilestoneGlyph \| null |
 | `nextIssuedUid` | entry | function | `src/adapter/input-command-translator/input-command-translator.ts#nextIssuedUid` | -- | function nextIssuedUid(schedule: Schedule): number |
 | `NOT_STORED_HOUR_WIDTH_CEILING` | entry | const | `src/adapter/input-command-translator/input-command-translator.ts#NOT_STORED_HOUR_WIDTH_CEILING` | -- | const NOT_STORED_HOUR_WIDTH_CEILING: |
@@ -1739,6 +1740,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `NOT_STORED_PALETTE_GROUP_RULE_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PALETTE_GROUP_RULE_SIZES` | -- | const NOT_STORED_PALETTE_GROUP_RULE_SIZES: |
 | `NOT_STORED_PALETTE_ROW_CAP` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PALETTE_ROW_CAP` | -- | const NOT_STORED_PALETTE_ROW_CAP: |
 | `NOT_STORED_PROPERTY_FIELD_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_PROPERTY_FIELD_SIZES` | -- | const NOT_STORED_PROPERTY_FIELD_SIZES: |
+| `NOT_STORED_RE_DIAGNOSE_WEIGHT` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_RE_DIAGNOSE_WEIGHT` | -- | const NOT_STORED_RE_DIAGNOSE_WEIGHT: |
 | `NOT_STORED_SEARCH_PANEL_FONT_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_FONT_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_FONT_SIZES: |
 | `NOT_STORED_SEARCH_PANEL_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_SEARCH_PANEL_SIZES` | -- | const NOT_STORED_SEARCH_PANEL_SIZES: |
 | `NOT_STORED_TASK_GROUP_BAND_SIZES` | entry | const | `src/framework/dom-screen-surface/dom-screen-surface.ts#NOT_STORED_TASK_GROUP_BAND_SIZES` | -- | const NOT_STORED_TASK_GROUP_BAND_SIZES: |
@@ -2099,4 +2101,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1064 name(s) leave through a public entry (513 of them published by table T-064), 825 more are exported by a file and not by its entry.
+Totals: 1066 name(s) leave through a public entry (514 of them published by table T-064), 825 more are exported by a file and not by its entry.

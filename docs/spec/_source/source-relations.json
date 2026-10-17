@@ -961,12 +961,12 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec UIDs",
-   "count": 198
+   "count": 199
   },
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 668
+   "count": 677
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1036,12 +1036,12 @@
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec UIDs",
-   "count": 488
+   "count": 491
   },
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 913
+   "count": 915
   },
   {
    "from": "docs/spec/_source/settings.json",
@@ -1051,7 +1051,7 @@
   {
    "from": "docs/spec/_source/settings.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 32
+   "count": 34
   },
   {
    "from": "docs/spec/_source/settings.json",
@@ -1464,7 +1464,7 @@
    "PI": 39
   },
   "docs/spec/_source/settings.json": {
-   "S": 525
+   "S": 526
   },
   "docs/spec/_source/state-machines.json": {
    "RG": 16

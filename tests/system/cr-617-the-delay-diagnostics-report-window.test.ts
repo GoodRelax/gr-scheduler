@@ -1,4 +1,4 @@
-// CR-617 / CR-781 on the shipped build: IC-107 opens the Delay Diagnostics Report window (RW-1), IC-52, Esc and a second IC-107 close it alone, IC-167 ends the diagnosis.
+// CR-617 / CR-781 / CR-797 on the shipped build: IC-107 opens the Delay Diagnostics Report window (RW-1), IC-52, Esc and a second IC-107 close it alone, IC-40 ends the diagnosis, IC-168 runs it again with the window open.
 
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
@@ -16,13 +16,14 @@ const DIAGNOSE = rowOf(specTable('T-109'), 'IC-107').id
 const CLOSE = rowOf(specTable('T-109'), 'IC-52').id
 const EXPORT = rowOf(specTable('T-109'), 'IC-140').id
 const COPY = rowOf(specTable('T-109'), 'IC-108').id
-const END = rowOf(specTable('T-109'), 'IC-167').id
+const END = rowOf(specTable('T-109'), 'IC-40').id
+const REDIAGNOSE = rowOf(specTable('T-109'), 'IC-168').id
 // WHY: the word follows the SCREEN language (FR-038), which this stage starts in English whatever the opened document's language is.
-const END_WORD = (
+const REDIAGNOSE_WORD = (
   JSON.parse(readFileSync(join(process.cwd(), 'docs', 'spec', '_source', 'display-words.json'), 'utf8')) as {
     readonly icons: readonly { readonly rowId: string; readonly label: { readonly en: string } }[]
   }
-).icons.find((one) => one.rowId === END)?.label.en
+).icons.find((one) => one.rowId === REDIAGNOSE)?.label.en
 const OPEN_SEARCH = keyOf('SK-24')
 
 let browser: Browser | null = null
@@ -110,16 +111,43 @@ test.describe('CR-617 -- the report window on the shipped build', () => {
     }
   })
 
-  test('RW-1 / RW-3: IC-167 stands before IC-140 with its word, and ends the diagnosis', async () => {
+  test('RW-3: IC-168 stands before IC-140 with its word, bold, and IC-108 follows IC-140', async () => {
     const stage = await opened()
     try {
       const page = stage.page
       await press(page, `[data-icon="${DIAGNOSE}"]`)
-      await expect(page.locator(`${REPORT} [data-icon="${END}"]`)).toHaveCount(1)
-      await expect(page.locator(`${REPORT} [data-icon="${END}"]`)).toHaveText(END_WORD ?? '')
-      const order = await page.locator(`${REPORT} [data-icon="${END}"], ${REPORT} [data-icon="${EXPORT}"]`).evaluateAll((all) => all.map((one) => one.getAttribute('data-icon')))
-      expect(order, 'IC-167 stands before IC-140').toEqual([END, EXPORT])
-      await press(page, `${REPORT} [data-icon="${END}"]`)
+      await expect(page.locator(`${REPORT} [data-icon="${REDIAGNOSE}"]`)).toHaveCount(1)
+      await expect(page.locator(`${REPORT} [data-icon="${REDIAGNOSE}"]`)).toHaveText(REDIAGNOSE_WORD ?? '')
+      await expect(page.locator(`${REPORT} [data-icon="${REDIAGNOSE}"]`)).toHaveCSS('font-weight', '700')
+      const order = await page
+        .locator(`${REPORT} [data-icon="${REDIAGNOSE}"], ${REPORT} [data-icon="${EXPORT}"], ${REPORT} [data-icon="${COPY}"]`)
+        .evaluateAll((all) => all.map((one) => one.getAttribute('data-icon')))
+      expect(order, 'IC-168, IC-140, IC-108 in that order').toEqual([REDIAGNOSE, EXPORT, COPY])
+    } finally {
+      await stage.close()
+    }
+  })
+
+  test('FR-130 / RW-1: IC-168 runs the diagnosis again and keeps the window open, IC-107 still pressed', async () => {
+    const stage = await opened()
+    try {
+      const page = stage.page
+      await press(page, `[data-icon="${DIAGNOSE}"]`)
+      await press(page, `${REPORT} [data-icon="${REDIAGNOSE}"]`)
+      await expect(page.locator(REPORT)).toHaveCount(1)
+      expect(await isDiagnosePressed(page), 'IC-107 stays pressed while the window is open').toBe(true)
+    } finally {
+      await stage.close()
+    }
+  })
+
+  test('RW-1: IC-40 ends the diagnosis: the window closes and IC-107 is not pressed', async () => {
+    const stage = await opened()
+    try {
+      const page = stage.page
+      await press(page, `[data-icon="${DIAGNOSE}"]`)
+      await expect(page.locator(`${REPORT} [data-icon="${REDIAGNOSE}"]`)).toHaveCount(1)
+      await press(page, `[data-icon="${END}"]`)
       await expect(page.locator(REPORT)).toHaveCount(0)
       expect(await isDiagnosePressed(page), 'IC-107 is not pressed after the diagnosis ended').toBe(false)
     } finally {

@@ -1117,12 +1117,12 @@
    "armsShape": null
   },
   {
-   "rowId": "IC-167",
+   "rowId": "IC-168",
    "surfaces": [
     "Delay Diagnostics Report"
    ],
    "group": null,
-   "entryTo": "診断の表示を終える（`S-445` を偽にする）—— 窓が閉じ、日程表の (?)・炎・`!!` の印が消える。<br>語を添えた入口で、`RW-11` のどの表でも在る",
+   "entryTo": "窓を開いたまま、いまの文書で遅延診断をやり直し、日程表の印と窓の中身を作り直す（`FR-130`）。<br>語を添えた入口で、語は 表 T-206 の `S-623` の太さで描く。<br>`RW-11` のどの表でも在る",
    "authority": "表 T-346 の `RW-1` ・ `RW-3`",
    "arms": null,
    "armsShape": null

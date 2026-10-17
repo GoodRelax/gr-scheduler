@@ -1069,14 +1069,14 @@
    }
   },
   {
-   "rowId": "IC-167",
+   "rowId": "IC-168",
    "label": {
-    "ja": "診断を終える",
-    "en": "End Diagnostics"
+    "ja": "再診断",
+    "en": "Diagnose Again"
    },
    "hint": {
-    "ja": "遅延診断の表示を終える。レポートを閉じ、日程表の診断の印を消す",
-    "en": "End the Delay Diagnostics: close this report and clear the diagnosis marks from the schedule"
+    "ja": "いまの文書で遅延診断をやり直す。レポートは開いたまま、日程表の印も作り直す",
+    "en": "Run the Delay Diagnostics again on the current document; the report stays open and the schedule marks are rebuilt"
    }
   },
   {

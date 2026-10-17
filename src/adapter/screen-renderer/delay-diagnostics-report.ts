@@ -98,7 +98,7 @@ const DELAY_DIAGNOSTICS_REPORT = 'Delay Diagnostics Report'
 const EXPORT_ENTRY: IconId = 'IC-140'
 const COPY_ENTRY: IconId = 'IC-108'
 const TEXT_SIZE_ENTRY: IconId = 'IC-127'
-const END_DIAGNOSTICS_ENTRY: IconId = 'IC-167'
+const RE_DIAGNOSE_ENTRY: IconId = 'IC-168'
 
 const HEADING = displayWords.surfaces.find((entry) => entry.name === DELAY_DIAGNOSTICS_REPORT)?.heading
 
@@ -627,11 +627,11 @@ function diagnosisReportViewOf(
   }
 }
 
-// see RW-3, IC-167, IC-140, IC-108
-// WHY: IC-167 stands at the left end with its word in every table of the window (RW-11); the fix views keep these.
+// see RW-3, IC-168, IC-140, IC-108, S-623
+// WHY: IC-168 stands at the left end with its bold word in every table of the window (RW-11); the fix views keep these.
 /** @purity pure */
 function reportToolEntriesOf(language: DisplayLanguage): readonly CommandItem[] {
-  return [{ ...entryOf(END_DIAGNOSTICS_ENTRY, language), isLabelShown: true }, entryOf(EXPORT_ENTRY, language), entryOf(COPY_ENTRY, language)]
+  return [{ ...entryOf(RE_DIAGNOSE_ENTRY, language), isLabelShown: true, isLabelBold: true }, entryOf(EXPORT_ENTRY, language), entryOf(COPY_ENTRY, language)]
 }
 
 /** @purity pure */

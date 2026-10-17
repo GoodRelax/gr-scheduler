@@ -508,7 +508,7 @@
 | IC-125 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | 一覧に出ているすべての値にチェックを付ける<br>プロパティパネルでは、担当の欄の一覧に出ている、就いていない担当をすべて就ける（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
 | IC-126 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` / `Properties Panel` | — | 一覧に出ているすべての値のチェックを外す<br>プロパティパネルでは、担当の欄の一覧に出ている、就いている担当をすべて外す（`FR-008` の 表 T-225 の `AS-5`） | `FR-151` ・ `FR-008` | — | — |
 | IC-127 | `Search Panel` / `Delay Diagnostics Report` / `Resource List` | — | 表・入力欄・タイトルバーの面の名の字の大きさの段（`S-429`、3 値排他）を変え、3 つの表のウィンドウ（検索パネル・遅延診断レポート・担当リスト）はその 1 つの段を共に使うので、どのウィンドウで押しても 3 つの字が変わる。<br>⭐ 押すたびに `tbl-settings.md` の 表 T-333 の並びの次の段へ移り、末尾の次は先頭へ戻る（`IC-99` と同じ巡り方） | `FR-151` の 表 T-330 の `SV-16` | — | — |
-| IC-167 | `Delay Diagnostics Report` | — | 診断の表示を終える（`S-445` を偽にする）—— 窓が閉じ、日程表の (?)・炎・`!!` の印が消える。<br>語を添えた入口で、`RW-11` のどの表でも在る | 表 T-346 の `RW-1` ・ `RW-3` | — | — |
+| IC-168 | `Delay Diagnostics Report` | — | 窓を開いたまま、いまの文書で遅延診断をやり直し、日程表の印と窓の中身を作り直す（`FR-130`）。<br>語を添えた入口で、語は 表 T-206 の `S-623` の太さで描く。<br>`RW-11` のどの表でも在る | 表 T-346 の `RW-1` ・ `RW-3` | — | — |
 | IC-140 | `Delay Diagnostics Report` | — | `.md` のファイルに書き出す（札は `.md`）。<br>中身は `IC-108` のコピーと同じ文字列、置き場と名は 表 T-346 の `RW-7` | `FR-134` | — | — |
 | IC-108 | `Delay Diagnostics Report` | — | まとめと表を Markdown の文字列にしてクリップボードへ置く（表 T-346 の `RW-6`） | `FR-134` | — | — |
 | IC-154 | `Delay Diagnostics Report` | — | 遅延診断レポートの窓に、まとめと 表 T-347 の診断結果の表を出す（`FR-155`） | 表 T-346 の `RW-11` | — | — |

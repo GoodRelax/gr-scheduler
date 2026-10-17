@@ -130,7 +130,7 @@ export type {
   WheelInput,
 } from './input-source'
 export { commandFromFieldCommit } from './field-commit'
-export { diagnosisRowAskedOf, screenEventFromFieldCommit, screenEventFromInput } from './screen-state-input'
+export { diagnosisRowAskedOf, markerOperatedTaskUidOf, screenEventFromFieldCommit, screenEventFromInput } from './screen-state-input'
 export { selectionFromInput } from './selection-input'
 export { taskGroupBandCeilingOf, zoomEntranceEndsOf } from './zoom-and-fit'
 
