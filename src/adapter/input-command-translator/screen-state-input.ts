@@ -290,6 +290,14 @@ function markerReleasedOf(input: PointerInput, context: InputContext): number | 
   return hasDraggedPastThreshold(press, input) ? null : press.hit.item.taskUid
 }
 
+// see RW-1, RW-14, RW-19, PE-8, PE-10, JDG-2800, JDG-2801
+/** @purity pure */
+function isDiagnosisRowAskedFor(taskUid: number, context: InputContext): boolean {
+  const report = context.delayDiagnosticsReport
+  if (report == null || report.markedRowTaskUid === taskUid) return false
+  return context.diagnosisMarkedTaskUids?.has(taskUid) === true
+}
+
 // see RW-19, PE-8, PE-10, GA-18
 /** @purity pure */
 export function diagnosisRowAskedOf(input: HumanInput, context: InputContext): number | null {
@@ -297,7 +305,7 @@ export function diagnosisRowAskedOf(input: HumanInput, context: InputContext): n
   if (input.kind !== 'pointer' || input.phase !== 'up' || press === null || press.on !== null) return null
   if (pressedRowOf(press, context) === 'PTD-2') return null
   const uid = markerReleasedOf(input, context)
-  return uid !== null && context.diagnosisMarkedTaskUids?.has(uid) === true ? uid : null
+  return uid !== null && isDiagnosisRowAskedFor(uid, context) ? uid : null
 }
 
 // see PV-4, PV-5, T-280
@@ -307,7 +315,7 @@ function screenEventAfterMarkerPress(
   context: InputContext,
 ): ScreenValuesEvent | null {
   const uid = markerReleasedOf(input, context)
-  if (uid === null || context.diagnosisMarkedTaskUids?.has(uid) === true) return null
+  if (uid === null || isDiagnosisRowAskedFor(uid, context)) return null
   const task = taskByUid(context.document.schedule, uid)
   if (task === null) return null
   const remembered = rememberedActualIn(context, uid)
