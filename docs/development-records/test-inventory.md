@@ -721,7 +721,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/system/cr-666-escape-lock-and-held-esc.test.ts` | 5 | - | - | T-025, T-103, T-109 | - | - | - | - | - |
 | `tests/system/cr-667-panel-divider-in-the-rule-color.test.ts` | 2 | - | - | T-025, T-236 | EP-9, S-149, S-165, U-18, U-24 | - | - | - | - |
 | `tests/system/cr-669-the-help-maximizes-to-the-schedule-canvas.test.ts` | 9 | FR-036 | - | T-103, T-109, T-335, T-336, T-337 | GR-24, GR-25, HN-6, IC-54, S-203, U-32, UZ-9, WB-3, WB-8, WB-9 | - | - | - | - |
-| `tests/system/cr-671-document-name-choosers-fit-the-panel.test.ts` | 3 | FR-006, FR-052 | - | T-016, T-025, T-206, T-351 | PR-15, PR-16, PR-17, PTL-15, PTL-17, S-171, S-248, U-24, U-25 | - | - | - | - |
+| `tests/system/cr-671-document-name-choosers-fit-the-panel.test.ts` | 3 | FR-006, FR-052, FR-059 | - | T-016, T-025, T-206, T-351 | AS-5, AS-13, PR-15, PR-16, PR-17, PTL-15, PTL-17, S-248, S-602, U-24, U-25 | - | - | - | - |
 | `tests/system/cr-675-the-download-page.test.ts` | 14 | - | - | - | IC-1, IC-2, IC-20, S-350 | - | - | - | - |
 | `tests/system/cr-701-a-plan-end-released-on-a-saturday-asks-nothing.test.ts` | 4 | FR-031, FR-103 | - | - | - | - | - | - | - |
 | `tests/system/cr-709-the-written-html-starts-with-its-doctype.test.ts` | 2 | - | - | T-024 | IC-2, IO-7 | - | - | - | - |
@@ -971,7 +971,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/unit/wl-16-the-parent-link-answers-a-press-as-a-jump.test.ts` | 3 | - | - | T-332 | PTL-16, SJ-1 | - | - | - | - |
 | `tests/use-case/uc-001-place-a-task-and-set-its-period.test.ts` | 1 | FR-001, FR-002, FR-003, FR-091, FR-109, UC-001 | VT-1 | T-012, T-334 | IC-23, LP-3, S-35, SH-1, ST-2, ST-3, ST-5, TC-6, TC-9, VT-1 | - | - | - | - |
 | `tests/use-case/uc-002-build-task-groups-as-a-hierarchy.test.ts` | 1 | FR-005, FR-024, FR-042, FR-085, UC-002 | VT-1 | T-015, T-334, T-338 | GR-20, HF-15, HF-16, HF-17, HM-1, HM-2, HR-1a, HR-4, HR-6, IC-58, IC-59, IC-77, IO-2, MH-2, VT-1 | - | - | - | - |
-| `tests/use-case/uc-003-edit-task-attributes.test.ts` | 1 | FR-006, FR-007, FR-008, FR-031, FR-038, FR-039, FR-049, FR-072, FR-083, FR-089, FR-090, FR-103, UC-003 | VT-1 | T-016, T-206, T-334 | AS-3, IC-16, IC-17, IC-42, MK-13, PR-3, PR-16, PR-39, PR-40, S-60, S-61, S-72, SP-2, VT-1 | - | - | - | - |
+| `tests/use-case/uc-003-edit-task-attributes.test.ts` | 1 | FR-006, FR-007, FR-008, FR-031, FR-038, FR-039, FR-049, FR-072, FR-083, FR-089, FR-090, FR-103, UC-003 | VT-1 | T-016, T-206, T-334 | AS-3, AS-5, AS-12, IC-16, IC-17, IC-42, MK-13, PR-3, PR-16, PR-39, PR-40, S-60, S-61, S-72, SP-2, VT-1 | - | - | - | - |
 | `tests/use-case/uc-004-show-dependencies-between-tasks.test.ts` | 1 | FR-009, UC-004 | VT-1 | T-018, T-018a, T-023b, T-028, T-213, T-334 | AR-4, DP-1, DP-3, IC-61, IN-4, S-201, VT-1 | - | - | - | - |
 | `tests/use-case/uc-005-record-actuals.test.ts` | 2 | FR-011, FR-012, FR-013, FR-030, FR-043, UC-005 | VT-1 | T-019, T-021, T-021a, T-334 | PV-1, PV-2, PV-3, PV-4, VT-1 | - | - | - | - |
 | `tests/use-case/uc-006-find-delays.test.ts` | 1 | FR-013, FR-014, FR-015, FR-046, FR-047, UC-006 | VT-1 | T-021b, T-022, T-334 | DL-1, DL-2, EZ-6, GR-16, IC-4, IC-73, OC-8, OP-3, OP-9, PM-4, TL-12, VT-1 | - | - | - | - |
