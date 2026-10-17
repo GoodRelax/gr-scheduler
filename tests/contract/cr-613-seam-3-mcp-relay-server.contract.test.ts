@@ -24,6 +24,8 @@ const PAGE_HTML = new Uint8Array(
   Buffer.from('<!doctype html><html><head><title>t</title></head><body>é日 page</body></html>\n', 'utf8'),
 )
 
+const DOCUMENT_SCHEMA = '{"$schema":"https://json-schema.org/draft/2020-12/schema","title":"test schema"}\n'
+
 const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function until<T>(read: () => T | undefined, what: string, ms: number = WAIT_MS): Promise<T> {
@@ -401,6 +403,7 @@ beforeEach(async () => {
     output: client.output,
     log: (line) => void logLines.push(line),
     pageHtml: PAGE_HTML,
+    documentSchema: DOCUMENT_SCHEMA,
   })
 })
 
@@ -426,7 +429,13 @@ describe('SEAM-3 start: where the relay listens and what it tells (AG-12 (1) (7)
 
   it('AG-12 (7): each start makes a new key', async () => {
     const other = new StdioClient()
-    const second = await startMcpRelay({ input: other.input, output: other.output, log: () => undefined, pageHtml: PAGE_HTML })
+    const second = await startMcpRelay({
+      input: other.input,
+      output: other.output,
+      log: () => undefined,
+      pageHtml: PAGE_HTML,
+      documentSchema: DOCUMENT_SCHEMA,
+    })
     try {
       expect(keyOf(second.pageUrl)).not.toBe(keyOf(theRelay().pageUrl))
     } finally {
@@ -565,7 +574,7 @@ describe('SEAM-3 WebSocket: who may connect (AG-12 (3) (7), design 5 and 7, CR-6
 })
 
 describe('SEAM-3 MCP over stdio: the protocol messages', () => {
-  it('SEAM-3 initialize: echoes the client\'s protocol version, tools capability, serverInfo grs-relay', async () => {
+  it('SEAM-3 initialize: echoes the client\'s protocol version, tools and resources capabilities, serverInfo grs-relay', async () => {
     const answer = await client.request('initialize', {
       protocolVersion: '2025-03-26',
       capabilities: {},
@@ -573,10 +582,11 @@ describe('SEAM-3 MCP over stdio: the protocol messages', () => {
     })
     const result = answer['result'] as Json
     expect(result['protocolVersion']).toBe('2025-03-26')
-    expect(result['capabilities']).toEqual({ tools: {} })
+    expect(result['capabilities']).toEqual({ tools: {}, resources: {} })
     const info = result['serverInfo'] as Json
     expect(info['name']).toBe('grs-relay')
     expect(typeof info['version']).toBe('string')
+    expect(typeof result['instructions']).toBe('string')
   })
 
   it('SEAM-3 initialize: without a version from the client it answers 2025-06-18', async () => {
@@ -605,7 +615,7 @@ describe('SEAM-3 MCP over stdio: the protocol messages', () => {
   })
 
   it('SEAM-3: an unknown method is JSON-RPC error -32601', async () => {
-    const answer = await client.request('resources/list', {})
+    const answer = await client.request('prompts/list', {})
     expect((answer['error'] as Json | undefined)?.['code']).toBe(-32601)
   })
 

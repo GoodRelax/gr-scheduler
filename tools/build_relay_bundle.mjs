@@ -6,8 +6,9 @@
 // (the relay in one ESM file, the page bytes inside it), then runs this script,
 // which writes, beside it:
 //
-//   dist-relay/grs-relay.mcpb         a zip: manifest.json, server/grs-relay.mjs and
-//                               index.html (dist/index.html byte for byte)
+//   dist-relay/grs-relay.mcpb         a zip: manifest.json and server/grs-relay.mjs,
+//                               which carries dist/index.html and the GRS JSON schema
+//                               inside itself (CR-791: no second copy of the page)
 //   dist-relay/grs-relay.mcpb.sha256  its SHA-256, in the `sha256sum` line format
 //
 // docs/spec/_assets/design-mcp-relay.md section 6 settles the contents. The
@@ -35,6 +36,9 @@ const BUNDLE_NAME = 'grs-relay.mcpb'
 const SERVER_ENTRY = 'server/grs-relay.mjs'
 const MANIFEST_VERSION = '0.3'
 const OLDEST_NODE = '>=18.0.0'
+// CR-791: the version is package.json's plus, as build metadata, the head of the page's SHA-256 --
+// the same string vite.relay.config.ts gives the relay's serverInfo.
+const PAGE_HASH_HEX_DIGITS = 12
 
 // Zip format constants (APPNOTE.TXT).
 const LOCAL_HEADER_SIGNATURE = 0x04034b50
@@ -113,7 +117,9 @@ function zipOf(entries) {
 }
 
 function manifestOf() {
-  const { version } = JSON.parse(readFileSync(PACKAGE_JSON, 'utf8'))
+  const { version: packageVersion } = JSON.parse(readFileSync(PACKAGE_JSON, 'utf8'))
+  const pageHash = createHash('sha256').update(readFileSync(PAGE_HTML)).digest('hex').slice(0, PAGE_HASH_HEX_DIGITS)
+  const version = `${packageVersion}+${pageHash}`
   const { tools } = JSON.parse(readFileSync(TOOL_DESCRIPTIONS, 'utf8'))
   return {
     manifest_version: MANIFEST_VERSION,
@@ -141,7 +147,6 @@ function main() {
   const bundle = zipOf([
     { name: 'manifest.json', bytes: Buffer.from(manifest, 'utf8') },
     { name: SERVER_ENTRY, bytes: readFileSync(RELAY_JS) },
-    { name: 'index.html', bytes: readFileSync(PAGE_HTML) },
   ])
   writeFileSync(BUNDLE, bundle)
   const digest = createHash('sha256').update(bundle).digest('hex')

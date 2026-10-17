@@ -4886,6 +4886,15 @@
      }
     },
     {
+     "name": "mcpInstructions",
+     "note": {
+      "ja": [
+       "MCP の初期化の答えに載せる案内（表 T-035 の `AG-12` の ⑧）。",
+       "文は `_source/agent-api-members.json` の `mcpInstructions` から刷る（`_assets/design-mcp-relay.md` の 3.1）"
+      ]
+     }
+    },
+    {
      "name": "relayedCallOf",
      "note": {
       "ja": [

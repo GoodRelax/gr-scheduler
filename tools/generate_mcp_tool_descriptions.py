@@ -50,7 +50,9 @@ BANNER = (
     'docs/spec/_source/document-commands.json (table T-108), by %s. Rebuild: npm run gen -- npm run '
     'gen:check fails on drift. One entry per row in the table\'s order: the '
     'confirmed name, its description lines joined by newlines, and its input '
-    'shape (AG-12 (4) (5), design-mcp-relay.md 3.1).' % (REL_SOURCE, MEMBER_TABLE, REL_SELF)
+    'shape (AG-12 (4) (5), design-mcp-relay.md 3.1). instructions is the text the '
+    'relay answers MCP initialize with, the mcpInstructions lines joined by newlines '
+    '(AG-12 (8)).' % (REL_SOURCE, MEMBER_TABLE, REL_SELF)
 )
 
 
@@ -86,7 +88,11 @@ def build():
     names = [one['name'] for one in tools]
     if len(names) != len(set(names)):
         stop('table %s names a member twice: %s' % (MEMBER_TABLE, names))
-    return {'$comment': BANNER, 'tools': tools}
+    # CR-791: the text the relay answers MCP initialize with (AG-12 (8), design-mcp-relay.md 3.1).
+    instructions = '\n'.join(line.strip() for line in doc['mcpInstructions']['text']['en']).strip()
+    if not instructions:
+        stop('the manuscript holds no mcpInstructions text')
+    return {'$comment': BANNER, 'instructions': instructions, 'tools': tools}
 
 
 def main():

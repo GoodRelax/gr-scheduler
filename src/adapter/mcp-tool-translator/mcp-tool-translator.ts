@@ -54,6 +54,13 @@ export function mcpToolList(): readonly McpTool[] {
   return MCP_TOOLS
 }
 
+// see AG-12
+// WHY: printed from the same manuscript as the tools (CR-791), so the text never names a tool the list lacks.
+/** @purity pure */
+export function mcpInstructions(): string {
+  return toolDescriptions.instructions
+}
+
 // see AG-12, AG-5
 /** @purity pure */
 export function relayedCallOf(toolCall: {

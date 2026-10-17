@@ -14,6 +14,7 @@
   "version",
   "kinds",
   "mcpOnlyLabel",
+  "mcpInstructions",
   "externalTypes",
   "members",
   "values"
@@ -373,6 +374,32 @@
   },
   "mcpOnlyLabel": {
    "$ref": "#/$defs/prose"
+  },
+  "mcpInstructions": {
+   "description": "What the relay answers MCP initialize with (AG-12 (8), design-mcp-relay.md 3.1): a lead printed into the table document, and the text the AI reads, in English, one string per line.",
+   "type": "object",
+   "required": [
+    "lead",
+    "text"
+   ],
+   "additionalProperties": false,
+   "properties": {
+    "lead": {
+     "$ref": "#/$defs/lines"
+    },
+    "text": {
+     "type": "object",
+     "required": [
+      "en"
+     ],
+     "additionalProperties": false,
+     "properties": {
+      "en": {
+       "$ref": "#/$defs/lineList"
+      }
+     }
+    }
+   }
   },
   "externalTypes": {
    "description": "Type names the two tables use and do not define, each with the row that holds it.",

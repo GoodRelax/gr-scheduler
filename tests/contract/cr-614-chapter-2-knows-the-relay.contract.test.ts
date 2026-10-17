@@ -278,7 +278,13 @@ async function connectPage(api: AgentApi): Promise<RelayedPage> {
 
 beforeEach(async () => {
   client = new StdioClient()
-  relay = await startMcpRelay({ input: client.input, output: client.output, log: () => undefined, pageHtml: PAGE_HTML })
+  relay = await startMcpRelay({
+    input: client.input,
+    output: client.output,
+    log: () => undefined,
+    pageHtml: PAGE_HTML,
+    documentSchema: '{}',
+  })
 })
 
 afterEach(async () => {
