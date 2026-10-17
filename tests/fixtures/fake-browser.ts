@@ -402,6 +402,15 @@ export interface Stage {
   surface: ScreenSurface | undefined
   /** The tree the unit built inside the mount. */
   root(): FakeElement
+  // WHY: the listeners the unit put on the document itself; nothing fires them unless a case does.
+  readonly hostListeners?: HostListener[]
+}
+
+// WHY: one listener on the document (host.addEventListener), kept apart from the elements' own.
+export interface HostListener {
+  readonly type: string
+  readonly listener: (event: FakeEvent) => void
+  readonly capture: boolean
 }
 
 /** A browser that is only what `ScreenSurfaceWiring` says it is. */
@@ -418,11 +427,20 @@ export function stage(heightsByRole: Record<string, number> = {}): Stage {
     activeElement: null,
   }
 
+  const hostListeners: HostListener[] = []
+  // WHY: a list the unit opens closes on a press anywhere, so it listens on the document (FR-156, AS-5).
   const document = {
     createElement(tagName: string): FakeElement {
       const made = new FakeElement(tagName, world)
       world.created.push(made)
       return made
+    },
+    addEventListener(type: string, listener: (event: FakeEvent) => void, capture: unknown = false): void {
+      hostListeners.push({ type, listener, capture: capture === true })
+    },
+    removeEventListener(type: string, listener: (event: FakeEvent) => void): void {
+      const at = hostListeners.findIndex((one) => one.type === type && one.listener === listener)
+      if (at >= 0) hostListeners.splice(at, 1)
     },
   }
   const host = new Proxy(document, {
@@ -439,6 +457,7 @@ export function stage(heightsByRole: Record<string, number> = {}): Stage {
     world,
     host,
     mount,
+    hostListeners,
     reportedHeights: [],
     clockMs: Date.UTC(2026, 7, 30, 3, 4, 5),
     author: 'Watcher',

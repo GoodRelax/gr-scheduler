@@ -54,7 +54,7 @@ import {
 import {
   clockTextOf,
   labelUnits,
-  labeledAssigneeUidOf,
+  MORE_ASSIGNEES_MARK,
   lengthTextOf,
   planDateText,
   type TaskGroupPlacement,
@@ -81,7 +81,7 @@ import type {
   PropertyLink,
   ScreenViewReadings,
 } from './screen-renderer'
-import { DISPLAY_TIME_ZONE_SLOT_SEPARATOR, FIT_SPAN_COPY_TEXT, displayLanguageOf } from './screen-renderer'
+import { ASSIGNEE_LIST_SEPARATOR, DISPLAY_TIME_ZONE_SLOT_SEPARATOR, FIT_SPAN_COPY_TEXT, displayLanguageOf } from './screen-renderer'
 import { dateText } from './table-window'
 import dependencyKinds from './dependency-kinds.json'
 import { iconHint, iconLabel } from './tooltips'
@@ -173,10 +173,14 @@ function partNamed(entries: readonly { readonly part: string }[], part: string, 
 // see AS-5, IC-123, IC-124, IC-139
 const ASCENDING_ENTRY: IconId = 'IC-123'
 const DESCENDING_ENTRY: IconId = 'IC-124'
+const CHECK_ALL_ENTRY: IconId = 'IC-125'
+const UNCHECK_ALL_ENTRY: IconId = 'IC-126'
 const GRS_RESET_ENTRY: IconId = 'IC-139'
 const TIME_SHIFT_ENTRY: IconId = 'IC-162'
 // WHY: these sit inside a field of the panel, not on its way-out line beside IC-52.
-const IN_FIELD_ENTRIES: readonly IconId[] = [ASCENDING_ENTRY, DESCENDING_ENTRY, GRS_RESET_ENTRY, TIME_SHIFT_ENTRY]
+const IN_FIELD_ENTRIES: readonly IconId[] = [
+  ASCENDING_ENTRY, DESCENDING_ENTRY, CHECK_ALL_ENTRY, UNCHECK_ALL_ENTRY, GRS_RESET_ENTRY, TIME_SHIFT_ENTRY,
+]
 
 /** @purity pure */
 function commandItemOf(icon: IconId, language: DisplayLanguage): CommandItem {
@@ -417,8 +421,9 @@ function compareAssignees(a: Assignee, b: Assignee): number {
   return a.name < b.name ? -1 : 1
 }
 
-// see AS-6
+// see AS-6, AS-13
 // WHY: no FR-059 work-resource filter: this surface edits assignments, and a hidden resource could not be removed.
+// In document order: the first is the primary (AS-13).
 /** @purity pure */
 function assigneesOf(schedule: Schedule, taskUid: number): readonly Assignee[] {
   const assignees: Assignee[] = []
@@ -429,8 +434,6 @@ function assigneesOf(schedule: Schedule, taskUid: number): readonly Assignee[] {
     if (resource === undefined || resource.name === null) continue
     assignees.push({ name: resource.name, uid: resource.uid })
   }
-
-  assignees.sort(compareAssignees)
   return assignees
 }
 
@@ -598,7 +601,7 @@ export function widthOf(text: string, choices: readonly string[] | null, labelCo
 // see AS-5, AS-6
 // WHY: the uid is added to a name only where two people share it (AS-6).
 /** @purity pure */
-function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): AssigneeCombo {
+function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): Omit<AssigneeCombo, 'seated' | 'fieldWord'> {
   const people = assigneeChoices(schedule)
   const shared = (name: string): boolean => people.filter((one) => one.name === name).length > 1
   const held = {
@@ -608,6 +611,7 @@ function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): Assigne
     })),
     addWord: PROPERTY_FIELD_WORDS.get('addResource')?.[language] ?? '',
     sortEntries: [commandItemOf(ASCENDING_ENTRY, language), commandItemOf(DESCENDING_ENTRY, language)],
+    checkEntries: [commandItemOf(CHECK_ALL_ENTRY, language), commandItemOf(UNCHECK_ALL_ENTRY, language)],
   }
   // WHY: carried with the roster, so the drawing side narrows it without a second reading of SV-4.
   return { ...held, candidatesOf: (typed, isDescending) => assigneeCandidatesOf(held, typed, isDescending) }
@@ -617,7 +621,7 @@ function assigneeComboOf(schedule: Schedule, language: DisplayLanguage): Assigne
 // WHY: an empty text adds no one: the add item names the person it makes (AS-7).
 /** @purity pure */
 export function assigneeCandidatesOf(
-  combo: Omit<AssigneeCombo, 'candidatesOf'>,
+  combo: Pick<AssigneeCombo, 'people' | 'addWord'>,
   typed: string,
   isDescending: boolean,
 ): readonly AssigneeCandidate[] {
@@ -634,7 +638,8 @@ export function assigneeCandidatesOf(
 // see AS-3
 const UNASSIGN_TEXT = '-'
 
-// see PR-16, AS-1, AS-5, AS-9
+// see PR-16, AS-1, AS-5, AS-13
+// WHY: one field: the people seated in document order, the primary's word and the mark when more sit (FR-059).
 /** @purity pure */
 function assigneeControls(
   schedule: Schedule,
@@ -642,27 +647,24 @@ function assigneeControls(
   language: DisplayLanguage,
 ): readonly PropertyControl[] {
   const people = assigneeChoices(schedule)
-  const names = people.map((person) => person.name)
   const seated = [...new Set(assigneesOf(schedule, taskUid).map((person) => person.uid))]
-  const labeled = labeledAssigneeUidOf(schedule, taskUid)
-  const focused = labeled !== null && seated.includes(labeled) ? labeled : null
-  const assignee = assigneeComboOf(schedule, language)
-  return [...seated, null].map((resourceUid): PropertyControl => {
-    const text = resourceUid === null ? '' : String(resourceUid)
-    return {
-      key: { holder: 'assignment', taskUid, resourceUid, column: 'resourceUid' },
-      kind: 'choice',
-      text,
-      choices: names,
-      choiceValues: people.map((person) => String(person.uid)),
-      assignee,
-      min: null,
-      max: null,
-      widthInFontSizes: NO_ROOM_FLOOR,
-      ...(resourceUid === focused ? { isFocusTarget: true } : {}),
-    }
-  })
+  const combo = assigneeComboOf(schedule, language)
+  const primary = combo.people.find((one) => one.uid === seated[0])?.word ?? ''
+  const fieldWord = seated.length > 1 ? `${primary}${MORE_ASSIGNEES_MARK}` : primary
+  return [{
+    key: { holder: 'assignment', taskUid, resourceUid: null, column: 'resourceUid' },
+    kind: 'choice',
+    text: seated.join(ASSIGNEE_LIST_SEPARATOR),
+    choices: people.map((person) => person.name),
+    choiceValues: people.map((person) => String(person.uid)),
+    assignee: { ...combo, seated, fieldWord },
+    min: null,
+    max: null,
+    widthInFontSizes: NO_ROOM_FLOOR,
+    isFocusTarget: true,
+  }]
 }
+
 
 // see T-016, PR-35, PR-36
 // WHY: a oneInput row draws one input, for its first column; the commit writes the others (field-commit.ts).
@@ -1941,7 +1943,7 @@ function readOnlySettingsFields(settings: DocumentSettings, schedule: Schedule, 
     const readOnlyGroup: PropertyFieldGroup = { key: group.group, name: readOnlyWord(group.group, language), ...section }
     return group.rows.map((row) => ({
       row: settingsWordOf(row.key)?.rowId ?? row.key,
-      ...(row.namePart === undefined ? settingsNamed(row.key, language) : { name: readOnlyWord(row.namePart, language) }),
+      ...(row.namePart === undefined ? settingsNamed(row.key, language) : partNamed(displayWords.readOnlySettings, row.namePart, language)),
       text: READ_ONLY_FORMATS[row.shape](valueAt(settings, row.key), schedule, language, settings),
       isEditable: false,
       controls: [],

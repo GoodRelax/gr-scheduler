@@ -1111,6 +1111,7 @@ const propertiesPanelEntries = (panel: ScreenView['propertiesPanel']): readonly 
         ...panel.commands,
         ...(panel.headEntry === undefined ? [] : [panel.headEntry]),
         ...panel.fields.flatMap((field) => field.controls.flatMap((control) => control.assignee?.sortEntries ?? [])),
+        ...panel.fields.flatMap((field) => field.controls.flatMap((control) => control.assignee?.checkEntries ?? [])),
         ...panel.fields.flatMap((field) => field.controls.flatMap((control) => wordEntranceOf(field.row, control.press))),
       ]
 

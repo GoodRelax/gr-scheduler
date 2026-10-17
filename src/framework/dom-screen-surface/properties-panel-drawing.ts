@@ -10,6 +10,7 @@ import type {
   PropertyField,
   ScreenPart,
 } from '../../adapter/screen-renderer/screen-renderer'
+import { ASSIGNEE_LIST_SEPARATOR } from '../../adapter/screen-renderer/screen-renderer'
 import {
   HOST_ENTER,
   NOT_STORED_PROPERTY_FIELD_SIZES,
@@ -802,49 +803,37 @@ function forgetClosedCustomColor(description: PropertiesPanel): void {
   }
 }
 
-// see AS-5, IC-123, IC-124
+// WHY: the open list, its narrowing and order outlive the redraw after each check; the filter regains the focus.
+const openAssigneeList: { identity: string | null; typed: string; isDescending: boolean; isFilterRefocused: boolean } = {
+  identity: null,
+  typed: '',
+  isDescending: false,
+  isFilterRefocused: false,
+}
+
+type AssigneeComboOf = NonNullable<PropertyControl['assignee']>
+
+const ASSIGNEE_FIELD_ATTRIBUTE = 'data-assignee-field'
+const ASSIGNEE_LIST_ATTRIBUTE = 'data-assignee-list'
+const ASSIGNEE_PERSON_ATTRIBUTE = 'data-assignee-person'
+const ASSIGNEE_ADD_ATTRIBUTE = 'data-assignee-add'
+
 /** @purity pure */
-function comboListStyle(isShown: boolean): string {
+function assigneeListStyle(): string {
   return (
-    `flex:1 1 100%;display:${isShown ? 'flex' : 'none'};flex-direction:column;border:1px solid ${PAINT.rule};` +
+    `flex:1 1 100%;display:flex;flex-direction:column;border:1px solid ${PAINT.rule};` +
     `background:${PAINT.ground};color:${PAINT.ink};`
   )
 }
 
-const COMBO_ITEM_ATTRIBUTE = 'data-combo-item'
-const COMBO_HIGHLIGHT_ATTRIBUTE = 'aria-selected'
-const HOST_ARROW_DOWN = 'ArrowDown'
-const HOST_ARROW_UP = 'ArrowUp'
-const NO_HIGHLIGHT = -1
-
-interface ComboState {
-  isDescending: boolean
-  highlighted: number
+// see AS-5, S-607
+/** @purity pure */
+function assigneeItemsStyle(): string {
+  const height = NOT_STORED_PROPERTY_FIELD_SIZES['S-607'] * LINES_PER_CHOICE * FIELD_LINE_HEIGHT
+  return `display:flex;flex-direction:column;max-height:${height}em;overflow-y:auto;`
 }
 
-/** @purity non-pure */
-function comboInputOf(
-  host: Document,
-  row: string,
-  control: PropertyControl,
-  combo: NonNullable<PropertyControl['assignee']>,
-  typedByRow: Map<string, TextEntryControl> | null,
-): HTMLElement {
-  const box = made(host, 'input', propertyControlStyle(control.widthInFontSizes))
-  box.setAttribute('type', 'text')
-  box.setAttribute('data-field-row', row)
-  box.setAttribute('data-field-kind', control.kind)
-  box.setAttribute('data-field-combo', 'true')
-  const seated = combo.people.find((one) => String(one.uid) === control.text)
-  ;(box as HTMLInputElement).value = seated?.name ?? ''
-  CONTROL_KEYS.set(box, { row, key: control.key })
-  TYPED_CONTROLS.add(box)
-  holdTypedEntry(typedByRow, row, control, box)
-  return box
-}
-
-// WHY: preventDefault keeps the focus in the combo, and stopPropagation keeps the press from the
-// host's settle-on-press-outside, which would commit the typed text first.
+// WHY: preventDefault keeps the focus where it is; stopPropagation keeps the press from settle-on-press-outside.
 /** @purity non-pure */
 function onPressHeld(element: HTMLElement, act: () => void): void {
   element.addEventListener('pointerdown', (event: Event) => {
@@ -854,89 +843,235 @@ function onPressHeld(element: HTMLElement, act: () => void): void {
   })
 }
 
+// see AS-5, AS-7, IC-125, IC-126
+// WHY: one carrier writes, as a list choice does; the filter lets go first, or the held field stops the redraw (MH-2).
 /** @purity non-pure */
-function pickComboItem(box: HTMLElement, item: HTMLElement): void {
-  ;(box as HTMLInputElement).value = item.getAttribute('value') ?? ''
-  CONTROL_PICKS.set(box, item.getAttribute(COMBO_ITEM_ATTRIBUTE) === 'add' ? 'add' : 'candidate')
-  if (typeof box.dispatchEvent === 'function') box.dispatchEvent(new Event('change', { bubbles: true }))
-  if (typeof box.blur === 'function') box.blur()
+function commitAssignee(carrier: HTMLElement, filter: HTMLInputElement, write: { readonly key: PropertyControl['key']; readonly text: string; readonly pick: AssigneePick }): void {
+  const isFocused = filter.ownerDocument.activeElement === filter
+  openAssigneeList.isFilterRefocused = isFocused
+  if (isFocused) filter.blur()
+  ;(carrier as HTMLButtonElement).value = write.text
+  CONTROL_KEYS.set(carrier, { row: carrier.getAttribute(FIELD_ROW_ATTRIBUTE) ?? '', key: write.key })
+  CONTROL_PICKS.set(carrier, write.pick)
+  carrier.dispatchEvent(new Event(HOST_CHANGE, { bubbles: true }))
 }
 
-// see AS-5, IC-123, IC-124
+type AssigneePick = NonNullable<ReturnType<typeof CONTROL_PICKS.get>>
+
+/** @purity pure */
+function seatedKeyOf(control: PropertyControl, resourceUid: number | null): PropertyControl['key'] {
+  return { ...(control.key as Extract<PropertyControl['key'], { holder: 'assignment' }>), resourceUid }
+}
+
+// see AS-5, AS-7, AS-10
 /** @purity non-pure */
-function drawComboList(
+function assigneeItemElement(
   host: Document,
-  list: HTMLElement,
-  box: HTMLElement,
-  combo: NonNullable<PropertyControl['assignee']>,
-  state: ComboState,
+  candidate: ReturnType<AssigneeComboOf['candidatesOf']>[number],
+  isSeated: boolean,
+  press: () => void,
+): HTMLElement {
+  // WHY: a div, not a label: a label would flip its own check and raise a change of its own.
+  const item = made(host, 'div', `display:flex;align-items:center;gap:${fieldSizes().nameGap}px;cursor:default;padding:0 0.25em;`)
+  const check = made(host, 'input', 'margin:0;flex:none;pointer-events:none;')
+  check.setAttribute('type', 'checkbox')
+  check.setAttribute('tabindex', '-1')
+  ;(check as HTMLInputElement).checked = isSeated
+  const word = made(host, 'span', 'overflow-wrap:anywhere;')
+  word.textContent = candidate.word
+  item.append(check, word)
+  item.setAttribute(candidate.pick === 'add' ? ASSIGNEE_ADD_ATTRIBUTE : ASSIGNEE_PERSON_ATTRIBUTE, candidate.value)
+  onPressHeld(item, press)
+  return item
+}
+
+// see AS-5, AS-7, AS-10, IC-123, IC-124
+/** @purity non-pure */
+function drawAssigneeItems(
+  host: Document,
+  items: HTMLElement,
+  control: PropertyControl,
+  combo: AssigneeComboOf,
+  send: (key: PropertyControl['key'], text: string, pick: AssigneePick) => void,
 ): void {
-  state.highlighted = NO_HIGHLIGHT
+  const candidates = combo.candidatesOf(openAssigneeList.typed, openAssigneeList.isDescending)
+  items.replaceChildren(...candidates.map((one) => {
+    const uid = Number(one.value)
+    const isSeated = one.pick === 'candidate' && combo.seated.includes(uid)
+    return assigneeItemElement(host, one, isSeated, () => {
+      if (one.pick === 'add') send(seatedKeyOf(control, null), one.value, 'add')
+      else if (isSeated) send(seatedKeyOf(control, uid), UNASSIGN_TOKEN, 'candidate')
+      else send(seatedKeyOf(control, null), one.value, 'candidate')
+    })
+  }))
+}
+
+// see AS-3
+const UNASSIGN_TOKEN = '-'
+
+// see AS-5, IC-123, IC-124, IC-125, IC-126
+/** @purity non-pure */
+function assigneeHeadElement(
+  host: Document,
+  combo: AssigneeComboOf,
+  redraw: () => void,
+  sendList: (pick: 'all' | 'none') => void,
+): HTMLElement {
+  const checks = combo.checkEntries.map((item, at) => {
+    const entry = commandEntry(host, item)
+    onPressHeld(entry, () => sendList(at === 0 ? 'all' : 'none'))
+    return entry
+  })
   const sorts = combo.sortEntries.map((item, at) => {
-    const entry = commandEntry(host, { ...item, isPressed: (at === 1) === state.isDescending })
+    const entry = commandEntry(host, { ...item, isPressed: (at === 1) === openAssigneeList.isDescending })
     onPressHeld(entry, () => {
-      state.isDescending = at === 1
-      drawComboList(host, list, box, combo, state)
+      openAssigneeList.isDescending = at === 1
+      redraw()
     })
     return entry
   })
-  const head = made(host, 'div', 'display:flex;justify-content:flex-end;')
-  head.append(...sorts)
-  const shown = combo.candidatesOf((box as HTMLInputElement).value, state.isDescending).map((one) => {
-    const item = made(host, 'div', 'cursor:default;padding:0 0.25em;')
-    item.setAttribute(COMBO_ITEM_ATTRIBUTE, one.pick)
-    item.setAttribute('value', one.value)
-    item.textContent = one.word
-    onPressHeld(item, () => pickComboItem(box, item))
-    return item
-  })
-  list.replaceChildren(head, ...shown)
+  const head = made(host, 'div', `display:flex;flex-wrap:wrap;gap:${fieldSizes().nameGap}px;`)
+  head.append(...checks, ...sorts)
+  return head
 }
 
+// see AS-5, AS-8, SV-4
 /** @purity non-pure */
-function onComboKey(event: Event, list: HTMLElement, box: HTMLElement, state: ComboState): void {
+function onAssigneeFilterKey(event: Event, combo: AssigneeComboOf, check: (uid: number) => void): void {
   const key = event as Partial<KeyboardEvent>
-  const all: readonly HTMLElement[] = Array.from(list.querySelectorAll(`[${COMBO_ITEM_ATTRIBUTE}]`))
-  if (key.key === HOST_ARROW_DOWN || key.key === HOST_ARROW_UP) {
-    event.preventDefault()
-    if (all.length === 0) return
-    const step = key.key === HOST_ARROW_DOWN ? 1 : -1
-    const was = state.highlighted
-    state.highlighted = was === NO_HIGHLIGHT ? (step > 0 ? 0 : all.length - 1) : (was + step + all.length) % all.length
-    all.forEach((one, at) => one.setAttribute(COMBO_HIGHLIGHT_ATTRIBUTE, String(at === state.highlighted)))
-    return
-  }
-  const chosen = all[state.highlighted]
-  if (key.key !== HOST_ENTER || key.isComposing === true || chosen === undefined) return
+  if (key.key !== HOST_ENTER || key.isComposing === true) return
   event.preventDefault()
   event.stopPropagation()
-  pickComboItem(box, chosen)
+  const typed = openAssigneeList.typed.trim()
+  const named = combo.people.find((one) => one.name === typed)
+  if (named !== undefined && !combo.seated.includes(named.uid)) check(named.uid)
 }
 
-// see AS-5, AS-6, AS-7, SV-4
-// WHY: a pick commits through the panel's change listener with CONTROL_PICKS naming how it was
-// settled; an Enter with nothing highlighted bubbles on to the panel's own commit.
+// see AS-5, IC-125, IC-126
+/** @purity pure */
+function shownUidsOf(combo: AssigneeComboOf, isSeated: boolean): string {
+  return combo
+    .candidatesOf(openAssigneeList.typed, openAssigneeList.isDescending)
+    .filter((one) => one.pick === 'candidate' && combo.seated.includes(Number(one.value)) === isSeated)
+    .map((one) => one.value)
+    .join(ASSIGNEE_LIST_SEPARATOR)
+}
+
+// see AS-5, SV-4
 /** @purity non-pure */
-function assigneeComboElements(
+function assigneeFilterOf(host: Document, row: string, control: PropertyControl): HTMLInputElement {
+  const filter = made(host, 'input', propertyControlStyle(control.widthInFontSizes)) as HTMLInputElement
+  filter.setAttribute('type', 'text')
+  filter.setAttribute('data-assignee-filter', row)
+  filter.value = openAssigneeList.typed
+  return filter
+}
+
+// see AS-5, AS-7, AS-10, IC-123, IC-124, IC-125, IC-126
+/** @purity non-pure */
+function assigneeListElement(
+  host: Document,
+  parts: { readonly row: string; readonly control: PropertyControl; readonly combo: AssigneeComboOf },
+  filter: HTMLInputElement,
+  carrier: HTMLElement,
+): HTMLElement {
+  const { row, control, combo } = parts
+  const list = made(host, 'div', assigneeListStyle())
+  list.setAttribute(ASSIGNEE_LIST_ATTRIBUTE, row)
+  const items = made(host, 'div', assigneeItemsStyle())
+  const send = (key: PropertyControl['key'], text: string, pick: AssigneePick): void =>
+    commitAssignee(carrier, filter, { key, text, pick })
+  const redraw = (): void => drawAssigneeItems(host, items, control, combo, send)
+  const sendList = (pick: 'all' | 'none'): void => {
+    const uids = shownUidsOf(combo, pick === 'none')
+    if (uids !== '') send(seatedKeyOf(control, null), uids, pick)
+  }
+  filter.addEventListener('input', () => {
+    openAssigneeList.typed = filter.value
+    redraw()
+  })
+  filter.addEventListener('keydown', (event: Event) =>
+    onAssigneeFilterKey(event, combo, (uid) => send(seatedKeyOf(control, null), String(uid), 'candidate')),
+  )
+  list.append(filter, assigneeHeadElement(host, combo, redraw, sendList), items)
+  redraw()
+  return list
+}
+
+// see AS-1, AS-5, FR-059, AS-13
+/** @purity non-pure */
+function assigneeDropdownElements(
   host: Document,
   row: string,
   control: PropertyControl,
-  combo: NonNullable<PropertyControl['assignee']>,
+  combo: AssigneeComboOf,
   typedByRow: Map<string, TextEntryControl> | null,
 ): readonly HTMLElement[] {
-  const box = comboInputOf(host, row, control, combo, typedByRow)
-  const list = made(host, 'div', comboListStyle(false))
-  list.setAttribute('data-combo-list', row)
-  if (typeof box.addEventListener !== 'function') return [box, list]
-  const state: ComboState = { isDescending: false, highlighted: NO_HIGHLIGHT }
-  box.addEventListener('focus', () => {
-    list.setAttribute('style', comboListStyle(true))
-    drawComboList(host, list, box, combo, state)
+  const identity = colorFieldIdentity(row, control)
+  const field = made(host, 'span', 'display:flex;flex-direction:column;flex:1 1 100%;min-width:0;')
+  field.setAttribute(ASSIGNEE_FIELD_ATTRIBUTE, row)
+  const word = made(host, 'span', 'overflow:hidden;text-overflow:ellipsis;white-space:nowrap;')
+  word.textContent = combo.fieldWord
+  const shown = closedFieldOf(host, row, control, word)
+  const carrier = made(host, 'button', 'display:none;')
+  carrier.setAttribute(FIELD_ROW_ATTRIBUTE, row)
+  const filter = assigneeFilterOf(host, row, control)
+  const isOpen = (): boolean => field.querySelector(`[${ASSIGNEE_LIST_ATTRIBUTE}]`) !== null
+  const open = (): void => {
+    if (isOpen()) return
+    if (openAssigneeList.identity !== identity) Object.assign(openAssigneeList, { typed: '', isDescending: false })
+    openAssigneeList.identity = identity
+    filter.value = openAssigneeList.typed
+    field.append(assigneeListElement(host, { row, control, combo }, filter, carrier))
+    closeAssigneeOnPressElsewhere(host, field)
+  }
+  holdAssigneeFocus(filter, open, typedByRow, row)
+  field.append(shown, carrier)
+  if (openAssigneeList.identity === identity) open()
+  if (openAssigneeList.isFilterRefocused && isOpen()) refocusAssigneeFilter(filter)
+  shown.addEventListener(HOST_CLICK, () => (isOpen() ? closeAssigneeList(field) : open()))
+  return [field]
+}
+
+// WHY: AS-1 focuses the row's typed entry; the filter is that entry, so its focus opens the list first.
+/** @purity non-pure */
+function holdAssigneeFocus(
+  filter: HTMLInputElement,
+  open: () => void,
+  typedByRow: Map<string, TextEntryControl> | null,
+  row: string,
+): void {
+  const focusFilter = filter.focus.bind(filter)
+  filter.focus = (options?: FocusOptions): void => {
+    open()
+    focusFilter(options)
+  }
+  typedByRow?.set(row, filter as unknown as TextEntryControl)
+}
+
+/** @purity non-pure */
+function refocusAssigneeFilter(filter: HTMLInputElement): void {
+  openAssigneeList.isFilterRefocused = false
+  queueMicrotask(() => {
+    if (filter.isConnected) filter.focus()
   })
-  box.addEventListener('blur', () => list.setAttribute('style', comboListStyle(false)))
-  box.addEventListener('input', () => drawComboList(host, list, box, combo, state))
-  box.addEventListener('keydown', (event: Event) => onComboKey(event, list, box, state))
-  return [box, list]
+}
+
+/** @purity non-pure */
+function closeAssigneeList(field: HTMLElement): void {
+  Object.assign(openAssigneeList, { identity: null, typed: '', isDescending: false, isFilterRefocused: false })
+  field.querySelector(`[${ASSIGNEE_LIST_ATTRIBUTE}]`)?.remove()
+}
+
+// WHY: a field the panel has since redrawn lets go of the listener.
+/** @purity non-pure */
+function closeAssigneeOnPressElsewhere(host: Document, field: HTMLElement): void {
+  const onPress = (event: Event): void => {
+    if (field.isConnected && field.contains(event.target as Node)) return
+    host.removeEventListener('pointerdown', onPress, true)
+    if (field.isConnected) closeAssigneeList(field)
+  }
+  host.addEventListener('pointerdown', onPress, true)
 }
 
 const LINK_TASK_ATTRIBUTE = 'data-link-task-uid'
@@ -1073,7 +1208,7 @@ function controlElementsOf(
   if (control.color !== undefined) return colorFieldElements(host, field.row, control, typedByRow)
   if (control.swatches !== undefined) return swatchFieldElements(host, field, control, typedByRow)
   if (control.press !== undefined) return [pressElement(host, field.row, control, control.press)]
-  if (control.assignee !== undefined) return assigneeComboElements(host, field.row, control, control.assignee, typedByRow)
+  if (control.assignee !== undefined) return assigneeDropdownElements(host, field.row, control, control.assignee, typedByRow)
   if (control.link !== undefined) return linkFieldElements(host, field.row, control, control.link)
   if (control.choiceLines !== undefined) return [twoLineChoiceElement(host, field.row, control, control.choiceLines)]
   return [controlElement(host, field.row, control, typedByRow)]
@@ -1136,15 +1271,7 @@ function twoLineChoiceElement(host: Document, row: string, control: PropertyCont
   const values = control.choiceValues ?? []
   const field = made(host, 'span', twoLineFieldStyle(control))
   field.setAttribute(TWO_LINE_CHOICE_ATTRIBUTE, row)
-  const shown = made(host, 'button', twoLineEntryStyle(false))
-  shown.setAttribute('type', 'button')
-  shown.setAttribute(FIELD_ROW_ATTRIBUTE, row)
-  shown.setAttribute('data-field-kind', control.kind)
-  markControl(shown, control)
-  const mark = made(host, 'span', '')
-  mark.textContent = CHOICE_MARK
-  shown.append(choiceLinesElement(host, choiceLines[values.indexOf(control.text)] ?? [control.text, '']), mark)
-  keepFocusOff(shown)
+  const shown = closedFieldOf(host, row, control, choiceLinesElement(host, choiceLines[values.indexOf(control.text)] ?? [control.text, '']))
   field.append(shown)
   const open = (): void => {
     openTwoLineChoice.identity = identity
@@ -1176,6 +1303,21 @@ function closeOnPressElsewhere(host: Document, field: HTMLElement): void {
     if (field.isConnected) closeTwoLineList(field)
   }
   host.addEventListener('pointerdown', onPress, true)
+}
+
+// see FO-14, AS-5
+/** @purity non-pure */
+function closedFieldOf(host: Document, row: string, control: PropertyControl, words: HTMLElement): HTMLElement {
+  const shown = made(host, 'button', twoLineEntryStyle(false))
+  shown.setAttribute('type', 'button')
+  shown.setAttribute(FIELD_ROW_ATTRIBUTE, row)
+  shown.setAttribute('data-field-kind', control.kind)
+  markControl(shown, control)
+  const mark = made(host, 'span', '')
+  mark.textContent = CHOICE_MARK
+  shown.append(words, mark)
+  keepFocusOff(shown)
+  return shown
 }
 
 // WHY: the field and its choices take no focus, so the panel keeps redrawing (a held control stops it, MH-2).

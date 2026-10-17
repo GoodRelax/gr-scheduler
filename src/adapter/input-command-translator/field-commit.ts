@@ -37,7 +37,12 @@ import {
 } from '../../entity/document-model/document-settings/document-settings'
 import { displayScaleFractionOf } from '../../entity/layout-engine/screen-regions/screen-regions'
 import { shownSpanOf } from '../../entity/layout-engine/schedule-layout/schedule-layout'
-import { DISPLAY_TIME_ZONE_SLOT_SEPARATOR, FIT_SPAN_COPY_TEXT, type FieldCommit } from '../screen-renderer/screen-renderer'
+import {
+  ASSIGNEE_LIST_SEPARATOR,
+  DISPLAY_TIME_ZONE_SLOT_SEPARATOR,
+  FIT_SPAN_COPY_TEXT,
+  type FieldCommit,
+} from '../screen-renderer/screen-renderer'
 import type { DocumentCommand } from '../../use-case/edit-document/edit-document'
 import {
   milestoneGlyphOf,
@@ -637,6 +642,26 @@ function resourceUidOfCommit(schedule: Schedule, text: string, pick: FieldCommit
   return pick === 'candidate' ? resourceUidOfChoice(schedule, text) : resourceUidOfName(schedule, text)
 }
 
+// see AS-5, AS-10, AS-13, IC-125, IC-126
+// WHY: one undo step; check-all seats the named people not yet seated, after the seated, so the primary stays.
+/** @purity pure */
+function commandsFromAssigneeList(
+  schedule: Schedule,
+  taskUid: number,
+  onTask: ReadonlySet<number | null>,
+  text: string,
+  pick: 'all' | 'none',
+): readonly DocumentCommand[] {
+  const known = text
+    .split(ASSIGNEE_LIST_SEPARATOR)
+    .map((one) => resourceUidOfChoice(schedule, one))
+    .filter((uid): uid is number => uid !== null)
+  if (pick === 'none') {
+    return known.filter((uid) => onTask.has(uid)).map((resourceUid) => ({ kind: 'deleteAssignment', taskUid, resourceUid }))
+  }
+  return [...new Set(known)].filter((uid) => !onTask.has(uid)).map((resourceUid) => ({ kind: 'createAssignment', taskUid, resourceUid }))
+}
+
 // see AS-3, AS-5, AS-7, AS-8, AS-9, AS-10, AS-12, T-225
 /** @purity pure */
 function commandsFromAssigneeField(
@@ -646,10 +671,11 @@ function commandsFromAssigneeField(
   text: string,
   pick: FieldCommit['pick'],
 ): readonly DocumentCommand[] {
-  const settled = settledText(text)
   const onTask = new Set<number | null>(
     schedule.assignments.filter((one) => one.taskUid === taskUid).map((one) => one.resourceUid),
   )
+  if (pick === 'all' || pick === 'none') return commandsFromAssigneeList(schedule, taskUid, onTask, text, pick)
+  const settled = settledText(text)
   // TRAP: a line drawn before its person was taken off (UN-15) must write nothing: CM-45 refuses
   // a pair not held, and AG-3 then throws the whole bundle away.
   if (settled === null || (seatedUid !== null && !onTask.has(seatedUid))) return []

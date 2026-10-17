@@ -1,4 +1,5 @@
-2053
+2050
+# LOWERED 2053 -> 2050 on 2026-10-17 (JDG-520): the CR-788 spec-only tests quote the new T-225 clauses (AS-13 primary order and MSPDI order, AS-5 list, AS-12, AS-7 add-only, the IC-125 / IC-126 one-bundle paragraph) and FR-059; measured 2050.
 # LOWERED 2054 -> 2053 on 2026-10-17 (JDG-520): the CR-787 spec-only tests quote the two new FR-052 MUST clauses (open at the kind's default width, return to it when the kind changes) and the FR-156 field-width clause (the first line is the floor, a long place wraps inside the field); measured 2053.
 # LOWERED 2057 -> 2054 on 2026-10-17 (JDG-520, the coordinator's word): the CR-782 spec-only tests quote the three new FR-019 / FR-106 MUST clauses (CM-46 writes { dx: S-600, dy: -S-600 }, a placed box is chosen with PR-21 focused, the body and the leader show PK-8), and the merge of 1ce3f557 brings one more tie; measured 2054 on the merged tree.
 # LOWERED 2079 -> 2057 on 2026-10-16 (JDG-520): the CR-772 spec-only tests quote 22 HF-15 clauses (one drag sets the gap and the depth, the range and its silent stop, the parent and the order, the drop drawing, the edge scroll, the wheel), plus HM-3a, UC-002 2a and UF-97.
