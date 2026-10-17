@@ -255,10 +255,17 @@ describe('FR-158, TX-1, TX-2: the clock reads in 24 hours, the hour is not padde
   it('table T-375 gives the two forms of the name label day and the long form of the clock', () => {
     expect(cellOf('T-375', 'TX-1', '時刻を表示しない')).toBe('6/3')
     expect(cellOf('T-375', 'TX-1', '時刻を表示する')).toBe('6/3 10:00')
-    expect(cellOf('T-375', 'TX-2', '時刻を表示する')).toBe('6/3 (月) 10:00')
+    // WHY: CR-794 -- the tip day is yyyy/mm/dd with the year and a padded hour (TL-10); only the name label keeps 6/3.
+    expect(cellOf('T-375', 'TX-2', '時刻を表示しない')).toBe('yyyy/mm/dd (曜)')
+    expect(cellOf('T-375', 'TX-2', '時刻を表示する')).toBe('yyyy/mm/dd (曜) hh:mm')
     expect(cellOf('T-375', 'TX-4', '時刻を表示する')).toBe('yyyy/mm/dd H:MM')
     expect(cellOf('T-375', 'TX-6', '時刻を表示する')).toBe('yyyy/mm/dd (曜) H:MM')
     expect(cellOf('T-375', 'TX-7', '時刻を表示する')).toBe('yyyy/mm/dd H:MM')
+  })
+
+  it('table T-375 keeps the general unpadded hour rule and names the tip (TX-2) as its one exception', () => {
+    expect(REQUIREMENTS).toContain('⭐ 時刻は 24 時間制で、時を 0 で埋めず、分を 2 桁とする（`9:05`・`17:00`）')
+    expect(REQUIREMENTS).toContain('⚠️ ただし、ポインタを止めたときの説明（`TX-2`）だけは時も 2 桁に 0 で埋める（`09:05`）')
   })
 })
 

@@ -12,13 +12,13 @@ what this reading does not see.
 
 | place | T-218 | T-334 | files | case sites | expected-to-fail marks | known-red lines | need the MSPDI XSDs | tied to no spec row |
 | --- | --- | --- | --: | --: | --: | --: | --: | --: |
-| `contract` | TS-5 | VT-2 | 414 | 5249 | 8 | 4 | 11 | 2 |
+| `contract` | TS-5 | VT-2 | 414 | 5250 | 8 | 4 | 11 | 2 |
 | `integration` | TS-2 | - | 3 | 76 | 0 | 0 | 0 | 0 |
 | `nfr` | TS-4 | VT-3 | 3 | 17 | 0 | 0 | 0 | 0 |
 | `system` | TS-3 | - | 96 | 607 | 0 | 0 | 0 | 0 |
 | `unit` | TS-6 | - | 189 | 3976 | 1 | 1 | 2 | 0 |
 | `use-case` | TS-1 | VT-1 | 14 | 17 | 2 | 3 | 0 | 0 |
-| **all** | | | 719 | 9942 | 11 | 8 | 13 | 2 |
+| **all** | | | 719 | 9943 | 11 | 8 | 13 | 2 |
 
 "Case sites" counts the `it(` / `test(` / `.each` calls in the source; a site driven by
 `.each` or a loop runs more cases than it counts here.
@@ -377,7 +377,7 @@ its declaration. "UO-1 would omit" marks a file whose every such import is tagge
 | `tests/contract/cr-710-w1-the-must-clauses-the-cases-exercise.test.ts` | 1 | FR-011, FR-012, FR-054, FR-088 | - | - | - | - | - | - | - |
 | `tests/contract/cr-710-w2-rs-89-is-told-once-when-an-opened-file-replaces-the-document.test.ts` | 8 | FR-054 | - | T-036, T-103, T-233 | RS-89, S-128 | - | - | - | - |
 | `tests/contract/cr-710-w2-the-hour-grid-the-hour-shade-and-the-hour-ruler.test.ts` | 38 | FR-017, FR-089 | - | T-205, T-238 | DS-1, OD-1, OD-2, OD-6, RV-1, RV-6, S-8, S-578, S-581, TM-5, U-17 | - | - | - | - |
-| `tests/contract/cr-710-w2-the-hour-tier-the-snap-and-the-axis.test.ts` | 30 | FR-016, FR-017, FR-103, FR-158 | - | T-205, T-375, T-378 | DS-1, ND-4, ND-5, RV-1, RV-6, S-1, S-8, S-55, S-577, S-578, S-579, TM-4, TM-5, TX-1, TX-2 | - | - | - | - |
+| `tests/contract/cr-710-w2-the-hour-tier-the-snap-and-the-axis.test.ts` | 31 | FR-016, FR-017, FR-103, FR-158 | - | T-205, T-375, T-378 | DS-1, ND-4, ND-5, RV-1, RV-6, S-1, S-8, S-55, S-577, S-578, S-579, TL-10, TM-4, TM-5, TX-1, TX-2 | - | - | - | - |
 | `tests/contract/cr-710-w2-the-panel-date-field-takes-a-time.test.ts` | 9 | FR-054, FR-158 | - | T-016, T-375 | PR-3, PR-35, PR-47, TX-3 | - | - | - | - |
 | `tests/contract/cr-710-w2-the-show-time-of-day-switch.test.ts` | 13 | FR-016, FR-039, FR-072, FR-158 | - | T-108, T-369 | CM-97, FO-12, FO-13, K-140, K-146, S-1, S-229, UN-7 | - | - | - | - |
 | `tests/contract/cr-712-nt-2-a-timed-notice-leaves-by-itself.contract.test.ts` | 15 | FR-076 | VT-2 | T-037, T-078, T-206, T-233, T-286 | MG-10, NT-2, NT-3, NT-5, RS-27, RS-65, RS-77, S-542 | - | - | - | - |
