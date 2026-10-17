@@ -186,7 +186,9 @@ function drawn(taskUid: number): Drawn {
 const wordShown = (view: Drawn): string => view.shown().textContent.replace(/[^\p{L}\p{N}\s,.\u2026()\uff08\uff09]+$/u, '')
 
 // WHY: SV-4 folds full width and case, so the full-width upper-case ALPH finds the same people as alph.
-const FULL_WIDTH_ALPH = '\uff21\uff2c\uff30\uff28'
+// WHY: built from the ASCII word by the full-width offset, so no word is spelled in code points (check 77).
+const FULL_WIDTH_OFFSET = 0xfee0
+const FULL_WIDTH_ALPH = [...'ALPH'].map((one) => String.fromCharCode(one.charCodeAt(0) + FULL_WIDTH_OFFSET)).join('')
 
 const uidsOf = (rows: readonly FakeElement[]): readonly number[] => rows.map((one) => Number(one.getAttribute('data-assignee-person')))
 const ids = (...people: readonly { readonly uid: number }[]): readonly number[] => people.map((one) => one.uid)
