@@ -6,8 +6,9 @@
 // (the relay in one ESM file, the page bytes inside it), then runs this script,
 // which writes, beside it:
 //
-//   dist-relay/grs-relay.mcpb         a zip: manifest.json, server/grs-relay.mjs and
-//                               index.html (dist/index.html byte for byte)
+//   dist-relay/grs-relay.mcpb         a zip: manifest.json and server/grs-relay.mjs,
+//                               which carries dist/index.html and the GRS JSON schema
+//                               inside itself (CR-791: no second copy of the page)
 //   dist-relay/grs-relay.mcpb.sha256  its SHA-256, in the `sha256sum` line format
 //
 // docs/spec/_assets/design-mcp-relay.md section 6 settles the contents. The
@@ -141,7 +142,6 @@ function main() {
   const bundle = zipOf([
     { name: 'manifest.json', bytes: Buffer.from(manifest, 'utf8') },
     { name: SERVER_ENTRY, bytes: readFileSync(RELAY_JS) },
-    { name: 'index.html', bytes: readFileSync(PAGE_HTML) },
   ])
   writeFileSync(BUNDLE, bundle)
   const digest = createHash('sha256').update(bundle).digest('hex')

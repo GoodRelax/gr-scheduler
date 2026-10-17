@@ -10,13 +10,16 @@ import { defineConfig, type Plugin } from 'vite'
 // The process entry (stdin / stdout / stderr, exit when stdin ends) is a
 // virtual module here, so no file under src/ exists for it: table T-075 has no
 // unit for an entry, and McpRelayServer (UF-187) takes its streams as options.
-// The page bytes are inlined at build time as base64, so the relay reads
-// nothing from disk when it runs.
+// The page bytes are inlined at build time as base64, and the GRS JSON schema
+// as a string (AG-12 (8)), so the relay reads nothing from disk when it runs.
 
 const PAGE_HTML_PATH = 'dist/index.html'
+// The GRS JSON schema the relay serves as its one MCP resource (AG-12 (8), design-mcp-relay.md 3.1).
+const DOCUMENT_SCHEMA_PATH = 'docs/spec/_source/grs-document.schema.json'
 const OUTPUT_FILE_NAME = 'grs-relay.mjs'
 const ENTRY_ID = 'virtual:grs-relay-entry'
 const PAGE_HTML_ID = 'virtual:grs-relay-page-html'
+const DOCUMENT_SCHEMA_ID = 'virtual:grs-relay-document-schema'
 const RESOLVED_PREFIX = '\0'
 const RELAY_SERVER_MODULE = '/src/framework/mcp-relay-server/mcp-relay-server.ts'
 // Node 18 is the oldest runtime the bundle declares (manifest.json compatibility).
@@ -25,12 +28,14 @@ const NODE_TARGET = 'node18'
 const ENTRY_SOURCE = `
 import { startMcpRelay } from ${JSON.stringify(RELAY_SERVER_MODULE)}
 import pageHtmlBase64 from ${JSON.stringify(PAGE_HTML_ID)}
+import documentSchema from ${JSON.stringify(DOCUMENT_SCHEMA_ID)}
 
 const relay = await startMcpRelay({
   input: process.stdin,
   output: process.stdout,
   log: (line) => process.stderr.write(line + '\\n'),
   pageHtml: Buffer.from(pageHtmlBase64, 'base64'),
+  documentSchema,
 })
 let stopping = false
 const stop = () => {
@@ -50,10 +55,14 @@ function relayEntry(): Plugin {
     name: 'grs-relay-entry',
     enforce: 'pre',
     resolveId(id) {
-      return id === ENTRY_ID || id === PAGE_HTML_ID ? RESOLVED_PREFIX + id : null
+      return id === ENTRY_ID || id === PAGE_HTML_ID || id === DOCUMENT_SCHEMA_ID ? RESOLVED_PREFIX + id : null
     },
     load(id) {
       if (id === RESOLVED_PREFIX + ENTRY_ID) return ENTRY_SOURCE
+      if (id === RESOLVED_PREFIX + DOCUMENT_SCHEMA_ID) {
+        if (!existsSync(DOCUMENT_SCHEMA_PATH)) this.error(`${DOCUMENT_SCHEMA_PATH} is missing -- run \`npm run gen\``)
+        return `export default ${JSON.stringify(readFileSync(DOCUMENT_SCHEMA_PATH, 'utf8'))}`
+      }
       if (id !== RESOLVED_PREFIX + PAGE_HTML_ID) return null
       if (!existsSync(PAGE_HTML_PATH)) {
         this.error(`${PAGE_HTML_PATH} is missing -- run \`npm run build\` before \`npm run build:relay\``)

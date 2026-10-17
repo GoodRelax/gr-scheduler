@@ -209,6 +209,10 @@ def every_line(doc):
             yield 'members.after', line
     for line in prose(doc['values']['before']):
         yield 'values.before', line
+    for line in prose(doc['mcpInstructions']['lead']):
+        yield 'mcpInstructions.lead', line
+    for line in doc['mcpInstructions']['text']['en']:
+        yield 'mcpInstructions.text', line
     for row in doc['members']['rows']:
         for line in prose(row['carries']):
             yield row['id'], line
@@ -344,6 +348,12 @@ def build(doc):
     out += ['', paragraph(prose(values['before'])), '']
     out += table_head(second)
     out += [printer.value_row(row) for row in values['rows']]
+    # CR-791: what the relay answers MCP initialize with (AG-12 (8)), printed as the AI reads it.
+    instructions = doc['mcpInstructions']
+    out += ['', u'**MCP の初期化の答えに載せる案内**', '',
+            paragraph(prose(instructions['lead'])), '', '```text']
+    out += instructions['text']['en']
+    out += ['```']
     return u'\n'.join(out) + u'\n'
 
 

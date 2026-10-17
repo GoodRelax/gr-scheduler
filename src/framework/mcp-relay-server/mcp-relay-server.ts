@@ -17,6 +17,7 @@ import {
 import type { AddressInfo, Socket } from 'node:net'
 
 import {
+  mcpInstructions,
   mcpToolList,
   mcpToolResultOf,
   pageNotConnectedResult,
@@ -28,6 +29,8 @@ export interface McpRelayOptions {
   readonly output: NodeJS.WritableStream
   readonly log: (line: string) => void
   readonly pageHtml: Uint8Array
+  /** The GRS JSON schema text the relay build carries in; served as the one resource (AG-12 (8)). */
+  readonly documentSchema: string
 }
 
 export interface McpRelay {
@@ -67,6 +70,14 @@ const INVALID_REQUEST = -32600
 const METHOD_NOT_FOUND = -32601
 const INVALID_PARAMS = -32602
 const INTERNAL_ERROR = -32603
+// MCP's "resource not found" (design-mcp-relay.md 3.1).
+const RESOURCE_NOT_FOUND = -32002
+const SCHEMA_RESOURCE_URI = 'grs-relay://grs-document.schema.json'
+const SCHEMA_RESOURCE_NAME = 'grs-document.schema.json'
+const SCHEMA_RESOURCE_TITLE = 'GRS JSON document schema'
+const SCHEMA_RESOURCE_DESCRIPTION =
+  'The JSON Schema of the GRS JSON document, the same version as the page this relay serves.'
+const SCHEMA_MIME_TYPE = 'application/schema+json'
 const KEY_PRESENTED = 'relayKeyPresented'
 const CHANGE_NOTICED = 'changeNoticed'
 const CANCELED = 'notifications/cancelled'
@@ -548,9 +559,32 @@ function initializeResultOf(params: unknown): Record<string, unknown> {
   const requested = isPlainRecord(params) ? params['protocolVersion'] : undefined
   return {
     protocolVersion: typeof requested === 'string' ? requested : DEFAULT_PROTOCOL_VERSION,
-    capabilities: { tools: {} },
+    capabilities: { tools: {}, resources: {} },
     serverInfo: { name: RELAY_NAME, version: RELAY_VERSION },
+    instructions: mcpInstructions(),
   }
+}
+
+// see AG-12
+/** @purity pure */
+function schemaResourceOf(schema: string): Record<string, unknown> {
+  return {
+    uri: SCHEMA_RESOURCE_URI,
+    name: SCHEMA_RESOURCE_NAME,
+    title: SCHEMA_RESOURCE_TITLE,
+    description: SCHEMA_RESOURCE_DESCRIPTION,
+    mimeType: SCHEMA_MIME_TYPE,
+    size: Buffer.byteLength(schema, 'utf8'),
+  }
+}
+
+// see AG-12
+/** @purity pure */
+function resourceReadReplyOf(schema: string, params: unknown): McpReply {
+  const uri = isPlainRecord(params) ? params['uri'] : undefined
+  if (typeof uri !== 'string') return { error: { code: INVALID_PARAMS, message: 'resources/read needs a uri' } }
+  if (uri !== SCHEMA_RESOURCE_URI) return { error: { code: RESOURCE_NOT_FOUND, message: `Resource not found: ${uri}` } }
+  return { result: { contents: [{ uri, mimeType: SCHEMA_MIME_TYPE, text: schema }] } }
 }
 
 /** @purity non-pure */
@@ -564,6 +598,12 @@ function mcpReplyOf(state: RelayState, id: unknown, method: string, params: unkn
       return { result: { tools: mcpToolList() } }
     case 'tools/call':
       return toolCallReplyOf(state, id, params)
+    case 'resources/list':
+      return { result: { resources: [schemaResourceOf(state.options.documentSchema)] } }
+    case 'resources/templates/list':
+      return { result: { resourceTemplates: [] } }
+    case 'resources/read':
+      return resourceReadReplyOf(state.options.documentSchema, params)
     default:
       return { error: { code: METHOD_NOT_FOUND, message: `Unknown method: ${method}` } }
   }

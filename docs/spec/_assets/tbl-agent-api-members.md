@@ -75,3 +75,20 @@
 | AV-12 | `AgentDialogueMessageOutcome` | **置いたとき**<br>　　`ok`: `true` —— 置いた<br>　　`message`: `DialogueMessage`（`AV-13`） —— 置いた発話<br>**拒んだとき**<br>　　`ok`: `false` —— 拒んだ<br>　　`refusal`: `AgentRefusal`（`AV-3`） —— 拒否の値 | `AM-18` ／ 表 T-035 の `AG-11` / `AG-9a` |
 | AV-13 | `DialogueMessage` | `sequence`: `number` —— 発話の通し番号 —— 刻印とは別に数える（`AG-11`）<br>`author`: `string` —— 発話を確定した書き手の名<br>`text`: `string` —— 発話の本文<br>`settledAt`: `string` —— 確定した時刻 | 表 T-035 の `AG-11` ／ `FR-066` |
 | AV-14 | `ChangeNotice` | `watcher`: `string` —— 知らせを受ける書き手の名<br>`document`: `Document` か `null`（表 T-064 の `PI-34`） —— 自分以外が日程データを変えていれば今の文書の凍結された複製、変えていなければ `null`（`AG-6`）<br>`messages`: `readonly DialogueMessage[]`（`AV-13`） —— まだ受け取っていない、自分以外の発話（`AG-11`）<br>`mark`: `WatcherMark`（表 T-035 の `AG-6`） —— どこまで受け取ったかの印（日程データの群の刻と発話の通し番号） | 表 T-035 の `AG-6` / `AG-11` |
+
+**MCP の初期化の答えに載せる案内**
+
+取次が MCP の初期化の答えで返す案内である（表 T-035 の `AG-12` の ⑧、`_assets/design-mcp-relay.md` の 3.1）。  
+読むのは AI なので英語で書き、1 つの文字列を 1 行として改行で繋ぐ。
+
+```text
+GRS Relay carries each tool call to the Agent API of the GoodRelax Scheduler (GRS) page a person has open in a browser. The page holds the only copy of the schedule document; the relay holds none.
+Start with agentApiVersion. If a tool answers with the reason pageNotConnected, ask the person to open the address it gives (all of it, the part after # included), open a document there, and press the Agent API button in the page header.
+Before you read or write a document, read the resource grs-document.schema.json from this server. It is the JSON Schema of the GRS JSON document, of the same version as the page, with a description on every key: the times, the units and what each column means.
+If your client cannot read resources, call exportJson: its text begins with $schema, the address of the latest published schema.
+Read with readDocument and readStamp. Write with applyCommands, handing over the stamp you last read as expectedStamp; the whole batch is applied or refused as one.
+A refusal is a value, not an error: it names the reason and carries the current stamp. Read again, then retry.
+While the person is dragging, typing in place or answering a question, writes are refused; try again shortly.
+These tools save nothing to a file. The person saves the document from the page.
+The tool descriptions are in Japanese. Ids in them such as AT-24, AG-2, FR-028 or T-107 are rows of the GRS specification: https://goodrelax.github.io/gr-scheduler/spec-html/
+```
