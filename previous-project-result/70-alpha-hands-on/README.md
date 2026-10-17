@@ -1,0 +1,37 @@
+# 70 -- Alpha hands-on findings (2026-10-18)
+
+The user tries the GRS alpha by hand before the Monday 2026-10-19 showing. This page keeps one row per finding.
+
+- Build under test: Pages `0829239a` (same app as the root `dist/index.html` and the integration tip `52eb7112`).
+- Bands: `DFC-3250`..`3279`, `JDG-2760`..`2779`, `PND-950`..`954`.
+- Fixes are NOT made here. The coordinator schedules them after the user finishes (GT-2 is held until then).
+
+| # | Screen (ja / en) | What the user saw | Severity | DFC | Proposed fix (size, owning seat) |
+|---|---|---|---|---|---|
+| 1 | GRS Relay (AI) | `undoEdit` / `redoEdit` always refuse `notAvailable` -- not built since 7c3b68e4 | Medium | DFC-3250 | Add the T-230 rows and route through the screen's undo history (M, AI relay seat) |
+| 2 | GRS Relay (AI) / 検索 Search | `showOnlyTasks(null)` from Claude is refused `malformedRequest`; the schedule filter stays on | Medium | DFC-3251 | Print `anyOf` instead of a type list in the tool schema; name a missing key (S, AI relay seat) |
+| 3 | GRS Relay (AI) / ファイルを開く Open File | `importDocument` waits on the 3-choice dialog past the MCP timeout; the relay restarts on a new port and the page silently disconnects | High | DFC-3252 | Return at once after the dialog, deliver the result by `watchChanges`; page shows a disconnect band (M, AI relay seat) |
+| 4 | GRS Relay (AI) | `readDocument` and a `staleStamp` refusal are ~1.38 M chars on the template; over the AI client's limit | Medium | DFC-3253 | `staleStamp` returns the stamp only; or a read without MSPDI carry (M, AI relay seat, spec AV-3/AG-2) |
+| 5 | GRS Relay (AI) | Request: open/save files through the relay (human picks files to read; AI saves 5 formats by a named file/folder) | New feature | JDG-2760 | New CR after the alpha unless the user says otherwise; folder rule asked (A/B/C) |
+| 6 | 検索 Search / 遅延診断 Delay Diagnostics / 担当リスト Resource List (AI) | The AI can write the tables' column filters and sort (`setTableView`) but cannot read the filtered rows | Medium | DFC-3254 | Table reader honouring the screen's filters and sort, paged (M, AI relay seat; JDG-2766) |
+| 7 | 3 table windows (AI) | Columns are spec row ids (`SQ-5`); the relay offers no list of column names | Low | DFC-3255 | Return the column list with the table reader (S, AI relay seat) |
+| 8 | 担当リスト Resource List (AI) | No AI reader for the resource list; only the whole document | Low | DFC-3256 | Include the resource list in the table reader (S, AI relay seat) |
+| 9 | GRS Relay (AI) | Request: same column filters for the AI; A' -- no new readers, paging on search, carry/uid options on readDocument | Decision | JDG-2765, JDG-2766 | New CR after the alpha |
+| 10 | GRS Relay (AI) | Claude Code drops the tool schemas' `oneOf` / type lists: the AI sees `commands: items {}` and cannot learn the 91 command kinds from the relay (the Chat tab reads them) | High | DFC-3257 | Plain schemas only; serve the command catalogue as a resource or reader (M, AI relay seat) |
+| 11 | GRS Relay (AI) / 対話欄 Dialogue Field | Dialogue messages the AI posts are invisible (the field cannot be opened); the user will remove the dialogue feature | Decision | JDG-2767 | Remove FR-066, AM-6, AM-18, AG-11 in the relay CR (S-M) |
+| 12 | GRS Relay (AI) | Tool and command descriptions are Japanese with 315 spec row ids | Decision | JDG-2768 (closes PND-931, DFC-3131) | English descriptions, no row ids, spec URL once (M) |
+
+## Scope of the one relay change request (after the alpha)
+
+Sizes are estimates (S < 1 h, M 1-4 h, L > 4 h of seat time), not measurements.
+
+| Item | Rows | Size | Folds with |
+|---|---|---|---|
+| Open files through a human-picked window; AI saves 5 formats to the settings folder (default Documents\GRS), overwrite asked in chat or by setting, one .bak | JDG-2760..2763 | L | -- |
+| Calls that wait on a person return at once; relay deadline answers a value; page band on disconnect | JDG-2764, DFC-3252 | M | -- |
+| A': paging on readSearchRows, carry off and uid filter on readDocument, stamp-only staleStamp, slim change notices | JDG-2765, JDG-2766, DFC-3253 | M | -- |
+| Read the three tables with the screen's column filters and sort; column list; resource list | JDG-2766, DFC-3254..3256 | M | A' |
+| Undo / redo for AI edits | DFC-3250 | M | -- |
+| Plain tool schemas (no oneOf / type lists); command catalogue by another road; null-free clear | DFC-3257, DFC-3251 | M | English descriptions |
+| English descriptions without row ids | JDG-2768, DFC-3131 | M | schemas |
+| Remove the dialogue feature | JDG-2767 | S-M | -- |
