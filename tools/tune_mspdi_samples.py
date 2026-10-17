@@ -25,6 +25,24 @@ same table (CR-618 decision 5):
                 near the end of a chain so DW-1 purples only its short
                 downstream
 
+and, for a sample whose table asks for them (CR-790):
+
+    parentPointAtLeftmostLeaf
+                True: every started, unfinished summary takes the stop of its
+                leftmost leaf descendant -- the earliest stop of a started,
+                unfinished leaf, or the end of the status date -- so its
+                progress point stays inside its leaves' (no VS-6). MS Project
+                weights the summary by its children's lengths instead, which
+                leaves the point of an ordinary summary outside its leaves'
+    parentPointKeptOff
+                uids that keep the length-weighted roll-up: the VS-6 the
+                sample is meant to show, fixed by hand (table T-373 FA-21)
+    parentActualOffChildren
+                (uid, ActualStart | ActualFinish, working days): a finished
+                summary whose actual end sits that far off its children's
+                (table T-310 VC-12, fixed automatically by FA-12); placed on
+                a summary nothing depends on, so DW-1 purples nothing else
+
 A leaf that has not finished holds back what depends on it, so the tool
 derives the rest over every link until nothing changes: an FS successor of a
 leaf that has not finished does not start; an SS or FF successor of a leaf
@@ -35,7 +53,8 @@ error -- pick another.
 A summary task's ActualDuration is also capped at the status date, so the stop
 the importer derives from it is never after the status date (VS-5).
 
-THE COUNTS ARE NOT DECIDED HERE. Table S of CR-618 is checked by
+THE COUNTS ARE NOT DECIDED HERE. Table S of CR-618 (its large-sample row
+replaced by CR-790) is checked by
 tests/contract/cr-618-the-mspdi-samples-read-as-managed-projects.contract.test.ts
 with the real diagnoseDelay; this tool only writes the data.
 
@@ -75,7 +94,12 @@ TREATMENTS: dict[str, dict] = {
         'late': [(11, 90),                  # Steering Committee #5
                  (87, 90), (98, 90), (109, 90), (120, 90),              # the four Playback Sessions
                  (128, 90), (132, 90), (136, 90), (140, 90), (144, 90), (148, 90)],  # the six Connection Tests
-        'seed': [(243, 10)],                # Production Data Migration - Wave 2
+        # CR-790 (JDG-2660): three findings for a demo -- two fixed automatically, one by hand
+        'seed': [],
+        'parentPointAtLeftmostLeaf': True,
+        'parentPointKeptOff': [200],        # User Acceptance Test
+        'parentActualOffChildren': [(48, 'ActualStart', 1),      # Blueprint - Finance and Controlling
+                                    (153, 'ActualFinish', -1)],  # Migration Object - Customer Master
     },
 }
 
@@ -157,6 +181,10 @@ class Calendar:
         self.working_weekdays = {int(day) for day, working in
                                  re.findall(r'<WeekDay>\s*<DayType>(\d)</DayType>\s*<DayWorking>(\d)</DayWorking>', body)
                                  if working == '1'}
+        working_day = re.search(r'<WeekDay>\s*<DayType>\d</DayType>\s*<DayWorking>1</DayWorking>.*?</WeekDay>', body, re.S)
+        # WHY: the minutes of the day each shift covers, the same on every working weekday of these samples.
+        self.shifts = [(minute_of_day(low), minute_of_day(high)) for low, high in re.findall(
+            r'<FromTime>([^<]*)</FromTime>\s*<ToTime>([^<]*)</ToTime>', working_day.group(0))]
         self.off = set()
         for exception in re.findall(r'<Exception>.*?</Exception>', body, re.S):
             if re.search(r'<DayWorking>0</DayWorking>', exception) is None:
@@ -177,6 +205,38 @@ class Calendar:
             count += self.is_working(first)
             first += dt.timedelta(days=1)
         return count
+
+    def working_minutes(self, first: dt.datetime, last: dt.datetime) -> int:
+        """Working minutes from the instant first to the instant last."""
+        total, day = 0, first.date()
+        while day <= last.date():
+            if self.is_working(day):
+                low = first.hour * 60 + first.minute if day == first.date() else 0
+                high = last.hour * 60 + last.minute if day == last.date() else 24 * 60
+                total += sum(max(0, min(high, end) - max(low, begin)) for begin, end in self.shifts)
+            day += dt.timedelta(days=1)
+        return total
+
+    def day_end(self, day: dt.date) -> dt.datetime:
+        last = self.shifts[-1][1]
+        return dt.datetime.combine(day, dt.time(last // 60, last % 60))
+
+    def working_day_after(self, day: dt.date, days: int) -> dt.date:
+        """The working day `days` working days after day (before it when days is negative)."""
+        step = 1 if days > 0 else -1
+        while days:
+            day += dt.timedelta(days=step)
+            days -= step * self.is_working(day)
+        return day
+
+
+def minute_of_day(text: str) -> int:
+    hours, minutes = text.split(':')[:2]
+    return int(hours) * 60 + int(minutes)
+
+
+def instant_of(text: str) -> dt.datetime:
+    return dt.datetime.fromisoformat(text[:19])
 
 
 def day_of(text: str | None) -> dt.date | None:
@@ -273,6 +333,48 @@ def cap_at_status_date(summary: Element, calendar: Calendar, status: dt.date, mi
     summary.set_if_present('RemainingDuration', duration_of(max(0, whole - most)))
 
 
+def leaf_descendants(uid: int, children_of: dict[int, list[int]]) -> list[int]:
+    out = []
+    for kid in children_of[uid]:
+        out.extend(leaf_descendants(kid, children_of) if kid in children_of else [kid])
+    return out
+
+
+def stop_at_leftmost_leaf(tasks: dict[int, Element], uid: int, children_of: dict[int, list[int]],
+                          calendar: Calendar, status: dt.date) -> None:
+    """A started, unfinished summary stops where its leftmost leaf descendant stops (no VS-6)."""
+    summary = tasks[uid]
+    start = summary.get('ActualStart')
+    if start is None or summary.get('ActualFinish') is not None or summary.get('ActualDuration') is None:
+        return
+    # WHY: a leaf that draws no vertex (finished or not started) stands at the status date (VS-6).
+    stops = []
+    for leaf in leaf_descendants(uid, children_of):
+        task = tasks[leaf]
+        if task.get('ActualStart') is not None and task.get('ActualFinish') is None:
+            stops.append(calendar.working_minutes(instant_of(start), instant_of(task.get('ActualStart')))
+                         + minutes_of(task.get('ActualDuration')))
+        else:
+            stops.append(calendar.working_minutes(instant_of(start), calendar.day_end(status)))
+    spent = min(stops)
+    whole = minutes_of(summary.get('Duration'))
+    percent = min(99, spent * 100 // whole) if whole else 0
+    for tag in PERCENT_TAGS:
+        summary.set_if_present(tag, str(percent))
+    summary.set('ActualDuration', duration_of(spent))
+    summary.set_if_present('RemainingDuration', duration_of(max(0, whole - spent)))
+
+
+def put_actual_off_children(tasks: dict[int, Element], uid: int, tag: str, days: int,
+                            children_of: dict[int, list[int]], calendar: Calendar) -> None:
+    """A finished summary's ActualStart or ActualFinish, `days` working days off its children's (VC-12)."""
+    edges = [tasks[kid].get(tag) for kid in children_of[uid]]
+    if tasks[uid].get('ActualFinish') is None or None in edges:
+        raise ValueError('UID %d and its children must all be finished' % uid)
+    edge = min(edges) if tag == 'ActualStart' else max(edges)
+    tasks[uid].set(tag, calendar.working_day_after(day_of(edge), days).isoformat() + edge[10:])
+
+
 def wanted_states(tasks: dict[int, Element], links: dict[int, list[tuple[int, int]]], leaves: list[int],
                   status: str, late: dict[int, int], seed: dict[int, int]) -> dict[int, str]:
     """The state each leaf should hold: on plan, then held back behind what has not finished."""
@@ -364,6 +466,9 @@ def tune(xml: str, treatment: dict) -> str:
             mark_not_started(task, own, seed[uid])
         elif uid in late:
             mark_started(task, own, late[uid])
+        elif wanted[uid] == NOT_STARTED and task.state() == NOT_STARTED and task.get('PercentComplete') not in (None, '0'):
+            # WHY: a seed the table no longer names keeps its typed percent unless it is cleared here.
+            mark_not_started(task, own)
         elif wanted[uid] == task.state():
             continue
         elif wanted[uid] == FINISHED:
@@ -375,8 +480,14 @@ def tune(xml: str, treatment: dict) -> str:
         if task.text() + ''.join(one.text() for one in own) != before:
             touched.add(uid)
     roll_up(tasks, touched, parent_of, children_of)
+    if treatment.get('parentPointAtLeftmostLeaf'):
+        for uid in children_of:
+            if uid not in treatment.get('parentPointKeptOff', ()):
+                stop_at_leftmost_leaf(tasks, uid, children_of, calendar, status)
     for uid in children_of:
         cap_at_status_date(tasks[uid], calendar, status, minutes_per_day)
+    for uid, tag, days in treatment.get('parentActualOffChildren', ()):
+        put_actual_off_children(tasks, uid, tag, days, children_of, calendar)
 
     out, at = [], 0
     for match, element in zip(task_blocks, tasks.values()):

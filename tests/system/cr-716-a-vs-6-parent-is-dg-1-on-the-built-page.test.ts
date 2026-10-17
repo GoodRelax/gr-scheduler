@@ -1,12 +1,17 @@
 // CR-716 on the shipped build: the large sample's VS-6 parents are DG-1 in readDelayDiagnostics (T-315 DG-1, DX-7, DX-8).
+import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+
 import { expect, test, type Page } from '@playwright/test'
 
-import { VIEWPORT, enableAgentApi, launch, openByDrop, readSample } from '../use-case/uc-harness'
+import { VIEWPORT, enableAgentApi, launch, openByDrop } from '../use-case/uc-harness'
 import { REQUIREMENTS } from './cr-570-tree-state-stage'
 
 test.use({ viewport: VIEWPORT, locale: 'en-US', colorScheme: 'light' })
 
-const ERP = 'sample-large-erp-program.ja.xml'
+// WHY: the large sample before CR-790, frozen for the CR-651 / CR-716 sweeps; the shipped sample now shows one VS-6 (CR-790).
+const ERP = 'cr-651-large-sample-before-cr-790.ja.xml'
+const readFixture = (name: string): string => readFileSync(resolve('tests', 'fixtures', name), 'utf8')
 
 // WHY: the VS-6 parents of the large sample at S-487 = 1: four named ones and six inside uids 125 .. 145.
 const NAMED_PARENTS = [208, 200, 182, 181]
@@ -43,7 +48,7 @@ test('DX-8 / T-315 DG-1: on the shipped build every VS-6 parent of the large sam
   test.setTimeout(120_000)
   await launch(page)
   await enableAgentApi(page)
-  await openByDrop(page, ERP, readSample(ERP))
+  await openByDrop(page, ERP, readFixture(ERP))
   const report = reportOf(await callApi<unknown>(page, 'return api.readDelayDiagnostics()'))
   const parents = report.findings.filter((one) => one.row === 'VS-6').map((one) => one.uid)
   expect(parents, 'precondition: VS-6 finds the ten parents').toHaveLength(NAMED_PARENTS.length + RANGE_PARENTS)
