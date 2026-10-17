@@ -1457,7 +1457,7 @@ NOT_STORED_TARGETS = {
     # ⛔ NOT FOLDED INTO THE LINE ABOVE, though both land in
     # dom-screen-surface.ts: one constant per consuming SUBJECT. S-138, S-141
     # and S-237 are the box an ENTRANCE is drawn in; S-213 is the band a TASK GROUP is
-    # marked with -- HF-18's holding mark and HF-15's insertion line and parent frame -- and the
+    # marked with -- HF-18's holding mark and HF-15's insertion line and its ring -- and the
     # settings row itself states that those two bands are one number.
     'NOT_STORED_TASK_GROUP_BAND_SIZES': (['S-213'], DRAWN_WITH_WHERE_IT_STANDS),
     # CR-772: S-599 is how far the copy of a carried task group sits right of
@@ -1465,6 +1465,10 @@ NOT_STORED_TARGETS = {
     # line above: one constant per consuming SUBJECT, and this subject is the
     # carried copy, not a line drawn on the panel.
     'NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES': (['S-599'], DRAWN_WITH_WHERE_IT_STANDS),
+    # CR-789: S-620 is the outer size of the ring at the left end of the drop
+    # line (HF-15). NOT folded into the band line: the ring's stroke IS S-213,
+    # read from that constant; this subject is the ring's size alone.
+    'NOT_STORED_TASK_GROUP_DROP_RING_SIZES': (['S-620'], DRAWN_WITH_WHERE_IT_STANDS),
     # THE SAME ROW, ON THE SIDE THAT DRAWS IT (seam S-9 of CR-541). S-313 stands
     # in NOT_STORED_TASK_GROUP_CONTROL_SIZES for task-group-panel.ts, which measures the
     # controls, and here for task-group-panel-drawing.ts, which lays the nearest
@@ -3613,6 +3617,7 @@ TARGETS = [
      + not_stored_block('NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_TASK_GROUP_BAND_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES') + NEWLINE * 2
+     + not_stored_block('NOT_STORED_TASK_GROUP_DROP_RING_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES') + NEWLINE * 2
      + not_stored_block('NOT_STORED_STATE_GROUND_PERCENTS') + NEWLINE * 2
      + not_stored_block('NOT_STORED_HELP_SIZES') + NEWLINE * 2
@@ -3888,6 +3893,7 @@ PUBLISHED_READ_BY_SRC = {
         'NOT_STORED_TASK_GROUP_BAND_SIZES',
         'NOT_STORED_TASK_GROUP_CONTROL_EDGE_SIZES',
         'NOT_STORED_TASK_GROUP_GRAB_COPY_SIZES',
+        'NOT_STORED_TASK_GROUP_DROP_RING_SIZES',
         'NOT_STORED_TASK_GROUP_GRAB_STRIP_SIZES',
         'NOT_STORED_SEARCH_PANEL_FONT_SIZES',
         'NOT_STORED_SEARCH_PANEL_SIZES',

@@ -213,7 +213,6 @@ export interface TaskGroupPanel {
 export interface TaskGroupDropCue {
   readonly lineY: number
   readonly lineIndentPx: number
-  readonly parentTaskGroupId: string | null
   // see HF-15, QN-16
   readonly isPastDepthCap?: boolean
 }
