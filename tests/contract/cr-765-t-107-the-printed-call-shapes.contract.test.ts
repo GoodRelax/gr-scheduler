@@ -51,7 +51,7 @@ const EXPECTED_ROWS: readonly (readonly [string, string, readonly string[], stri
   ['AM-26', 'readShownTasks', [], 'AgentShownTasks'],
   ['AM-19', 'readDelayDiagnostics', [], 'AgentDelayDiagnostics'],
   ['AM-7', 'applyCommands', ['request: AgentWriteRequest'], 'AgentWriteOutcome'],
-  ['AM-8', 'importDocument', ['source: AgentImportSource'], 'Promise<AgentWriteOutcome>'],
+  ['AM-8', 'importDocument', ['source: AgentImportSource'], 'Promise<AgentImportOutcome>'],
   ['AM-9', 'undoEdit', [], 'AgentWriteOutcome'],
   ['AM-10', 'redoEdit', [], 'AgentWriteOutcome'],
   ['AM-11', 'exportJson', [], 'AgentExport<string>'],

@@ -345,7 +345,7 @@ export type AgentApiSeams = Omit<AgentApiWiring, 'writerName' | 'schemaVersion'>
 
 export type StartupNoticeReason = Extract<
   NoticeReason,
-  'RS-15' | 'RS-21' | 'RS-25' | 'RS-26' | 'RS-48' | 'RS-51' | 'RS-63' | 'RS-64' | 'RS-67'
+  'RS-15' | 'RS-21' | 'RS-25' | 'RS-26' | 'RS-48' | 'RS-51' | 'RS-63' | 'RS-64' | 'RS-67' | 'RS-90'
 >
 
 // see T-078
@@ -4353,7 +4353,7 @@ export function frameLoop(
       audience,
       rasterizer,
       appShell,
-      takeInDocument: (incoming, reading) => takeInHandedDocument(hands, documentFileFlow, incoming, reading),
+      takeInDocument: (incoming, reading, onAsked) => takeInHandedDocument(hands, documentFileFlow, incoming, reading, onAsked),
       changeWatchers,
       shownTasks: landingAgentHolder(shownTasks.agentHolder(), owedJump.owe, () => values),
       delayFixLog: documentFileFlow,

@@ -49,7 +49,8 @@ describe('FR-073 / FR-022 / AM-8 (DFC-552 3) -- a newer version handed to import
     })
     await later()
     built.send(keyOf('x'))
-    expect(outcome, 'FR-073 MUST NOT: refusing for a newer version').toBe('pending')
+    // WHY: AG-12 (6) returns as soon as the person is asked, so the call is no longer pending here.
+    expect(outcome?.asked, 'FR-073 MUST NOT refuse a newer version; AG-12 (6) returns once the person is asked').toBe('U-61')
     expect((built.last().openModal as { surface?: string } | null)?.surface, 'the document waits at the Open Chooser').toBe('Open Chooser')
     takeOnChooser(built, REPLACE_ENTRANCE)
     await later()

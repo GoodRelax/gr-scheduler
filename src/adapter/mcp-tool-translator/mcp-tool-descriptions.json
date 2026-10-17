@@ -3227,7 +3227,7 @@
   },
   {
    "name": "importDocument",
-   "description": "取り込みと合流",
+   "description": "取り込みと合流。\n⭐ 人に合流の 3 択（`OP-3`、`U-61`）を出したときは、答えを待たずに `AgentImportOutcome`（`AV-15`）の「人に問うたとき」を返す —— 人が選んだ後の書き込みは人の書き込みとして刻印に残り、`watchChanges` が知らせる（表 T-035 の `AG-12` の ⑥）。",
    "inputSchema": {
     "type": "object",
     "properties": {
@@ -3334,7 +3334,7 @@
     "properties": {
      "waitMs": {
       "type": "number",
-      "description": "待つ長さ（ミリ秒） —— 切れたら「まだ無い」を値で返す（`AG-12` の ⑤）"
+      "description": "待つ長さ（ミリ秒） —— 切れたら「まだ無い」を値で返す（`AG-12` の ⑤） —— 取次の締め切り（`_assets/design-mcp-relay.md` の 5）より短い 40,000 で頭打ちにする"
      }
     }
    }

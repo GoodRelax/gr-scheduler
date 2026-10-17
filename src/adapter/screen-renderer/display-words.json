@@ -4147,6 +4147,17 @@
    }
   },
   {
+   "rowId": "RS-90",
+   "text": {
+    "ja": "GRS Relay との接続が切れました",
+    "en": "The connection to GRS Relay was lost."
+   },
+   "nextStep": {
+    "ja": "AI に開く所を尋ね、そのアドレスを開き直してから「Agent API」を押してください",
+    "en": "Ask the AI for the address to open, open it again, then press Agent API."
+   }
+  },
+  {
    "rowId": "RS-53",
    "text": {
     "ja": "タスクは期間を持つので、引かないと作れません",

@@ -51,10 +51,52 @@ function relayRequestOf(text: unknown): RelayRequest | null {
 
 // see AG-12
 /** @purity non-pure */
+function answerRelayRequests(api: AgentApi, socket: WebSocket, sendWhileOpen: (message: object) => void): void {
+  socket.addEventListener('message', (event: MessageEvent) => {
+    const request = relayRequestOf(event.data)
+    if (request === null) return
+    const call = { member: request.method, params: request.params ?? {} } as RelayedCall
+    void answerRelayedCall(api, call, (notice) =>
+      sendWhileOpen({ method: CHANGE_NOTICED, params: notice }),
+    ).then((answer) => {
+      try {
+        sendWhileOpen({ id: request.id, ...answer })
+      } catch (thrown) {
+        // WHY: a value JSON cannot carry would otherwise leave the relay waiting for this id forever.
+        sendWhileOpen({ id: request.id, error: { code: INTERNAL_ERROR, message: String(thrown) } })
+      }
+    })
+  })
+}
+
+// see AG-12, RS-90
+// WHY: told once, only for a link that was up and that this page did not close itself.
+/** @purity non-pure */
+function linkClosedHere(socket: WebSocket, onOpened: () => void, onLost: () => void): () => void {
+  let hasOpened = false
+  let hasEnded = false
+  socket.addEventListener('open', () => {
+    hasOpened = true
+    onOpened()
+  })
+  socket.addEventListener('close', () => {
+    if (!hasOpened || hasEnded) return
+    hasEnded = true
+    onLost()
+  })
+  return () => {
+    hasEnded = true
+    socket.close()
+  }
+}
+
+// see AG-12
+/** @purity non-pure */
 export function openAgentApiRelayLink(
   api: AgentApi,
   place: RelayPlace,
   openSocket: (address: string) => WebSocket,
+  onLost: () => void = () => undefined,
 ): AgentApiRelayLink | null {
   const key = relayKeyOf(place.hash)
   if (key === null || place.host === '') return null
@@ -71,26 +113,7 @@ export function openAgentApiRelayLink(
     socket.send(JSON.stringify({ jsonrpc: JSON_RPC_VERSION, ...message }))
   }
 
-  socket.addEventListener('open', () => sendWhileOpen({ method: KEY_PRESENTED, params: { key } }))
-  socket.addEventListener('message', (event: MessageEvent) => {
-    const request = relayRequestOf(event.data)
-    if (request === null) return
-    const call = { member: request.method, params: request.params ?? {} } as RelayedCall
-    void answerRelayedCall(api, call, (notice) =>
-      sendWhileOpen({ method: CHANGE_NOTICED, params: notice }),
-    ).then((answer) => {
-      try {
-        sendWhileOpen({ id: request.id, ...answer })
-      } catch (thrown) {
-        // WHY: a value JSON cannot carry would otherwise leave the relay waiting for this id forever.
-        sendWhileOpen({ id: request.id, error: { code: INTERNAL_ERROR, message: String(thrown) } })
-      }
-    })
-  })
-
-  return {
-    close(): void {
-      socket.close()
-    },
-  }
+  const closeHere = linkClosedHere(socket, () => sendWhileOpen({ method: KEY_PRESENTED, params: { key } }), onLost)
+  answerRelayRequests(api, socket, sendWhileOpen)
+  return { close: closeHere }
 }

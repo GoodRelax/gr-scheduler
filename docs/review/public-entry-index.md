@@ -756,6 +756,8 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `SnapshotSource` | entry | interface | `src/adapter/agent-api-endpoint/snapshot-source.ts#SnapshotSource` | PI-17 | 表 T-065 |
 | `agentApiMembers` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#agentApiMembers` | -- | function agentApiMembers(wiring: AgentApiWiring): AgentApi |
 | `AgentDelayDiagnostics` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentDelayDiagnostics` | -- | interface AgentDelayDiagnostics extends DelayDiagnosticsReport |
+| `AgentImportOutcome` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AgentImportOutcome` | -- | type AgentImportOutcome = \| { readonly ok: true; readonly stamp: DocumentStamp; readonly hasUpdatedSchedule: boolean } \| { readonly ok: true; readonly asked:... |
+| `AskedSurface` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#AskedSurface` | -- | type AskedSurface = 'U-61' |
 | `DelayFixLogSource` | file only | interface | `src/adapter/agent-api-endpoint/agent-api-members.ts#DelayFixLogSource` | -- | interface DelayFixLogSource |
 | `ImportLanding` | file only | type | `src/adapter/agent-api-endpoint/agent-api-members.ts#ImportLanding` | -- | type ImportLanding = \| boolean \| { readonly landed: false; readonly refusals: readonly InvariantRefusal[] } // <generated -- do not edit by hand> // From doc... |
 | `messageOf` | file only | function | `src/adapter/agent-api-endpoint/agent-api-members.ts#messageOf` | -- | function messageOf(thrown: unknown): string |
@@ -1111,7 +1113,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | name | reach | kind | declared in | T-064 | what it is for / its declaration |
 | --- | --- | --- | --- | --- | --- |
 | `AgentApiRelayLink` | file only | interface | `src/framework/single-html-shell/agent-api-relay-link.ts#AgentApiRelayLink` | -- | interface AgentApiRelayLink |
-| `openAgentApiRelayLink` | file only | function | `src/framework/single-html-shell/agent-api-relay-link.ts#openAgentApiRelayLink` | -- | function openAgentApiRelayLink( api: AgentApi, place: RelayPlace, openSocket: (address: string) => WebSocket, ): AgentApiRelayLink \| null |
+| `openAgentApiRelayLink` | file only | function | `src/framework/single-html-shell/agent-api-relay-link.ts#openAgentApiRelayLink` | -- | function openAgentApiRelayLink( api: AgentApi, place: RelayPlace, openSocket: (address: string) => WebSocket, onLost: () => void = () => undefined, |
 | `RelayPlace` | file only | type | `src/framework/single-html-shell/agent-api-relay-link.ts#RelayPlace` | -- | type RelayPlace = Pick<Location, 'hash' \| 'host'> |
 | `beneathPictureHoldOf` | file only | function | `src/framework/single-html-shell/beneath-picture-hold.ts#beneathPictureHoldOf` | -- | function beneathPictureHoldOf(): (...inputs: BeneathPictureInputs) => string |
 | `clearBrowserStoredForReset` | file only | function | `src/framework/single-html-shell/browser-stored-values.ts#clearBrowserStoredForReset` | -- | function clearBrowserStoredForReset(): void |
@@ -1152,7 +1154,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `OPEN_ROUTE_REOPEN` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#OPEN_ROUTE_REOPEN` | -- | const OPEN_ROUTE_REOPEN: OpenRoute = 'reopen' |
 | `openDocumentIntoHold` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#openDocumentIntoHold` | -- | async function openDocumentIntoHold( outer: DocumentFileFlowHands, flow: OpeningFlow, store: FileStore \| null, route: OpenRoute, handed: HandedImport \| null ... |
 | `STARTUP_TEMPLATE_ELEMENT_ID` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#STARTUP_TEMPLATE_ELEMENT_ID` | -- | const STARTUP_TEMPLATE_ELEMENT_ID: string = startupTemplateManifest.containerElementId |
-| `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: HandedFirstReading, ): Promise<boolean> |
+| `takeInHandedDocument` | file only | function | `src/framework/single-html-shell/document-file-flow.ts#takeInHandedDocument` | -- | async function takeInHandedDocument( hands: DocumentFileFlowHands, flow: OpeningFlow, incoming: Document, firstReading?: HandedFirstReading, onAsked: (asked:... |
 | `WORKING_TIMES_UNLIKE_DAY_REASON` | file only | const | `src/framework/single-html-shell/document-file-flow.ts#WORKING_TIMES_UNLIKE_DAY_REASON` | -- | const WORKING_TIMES_UNLIKE_DAY_REASON: NoticeReason = 'RS-89' |
 | `askTimeShift` | file only | function | `src/framework/single-html-shell/field-entry.ts#askTimeShift` | -- | function askTimeShift(hands: Pick<FieldEntryHands, 'readHeld' \| 'readSession' \| 'sendToSession'>, frame: FrameValues, minutes: number): void |
 | `askWholeScheduleShift` | file only | function | `src/framework/single-html-shell/field-entry.ts#askWholeScheduleShift` | -- | function askWholeScheduleShift( hands: Pick<FieldEntryHands, 'readHeld' \| 'readSession' \| 'sendToSession'>, frame: FrameValues, newStartDate: string, ): void |
@@ -2092,6 +2094,7 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `mcpToolResultOf` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#mcpToolResultOf` | PI-40 | ページの答えを MCP の道具の答えに写す。 |
 | `pageNotConnectedResult` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#pageNotConnectedResult` | PI-40 | ページが繋がっていないときの答え。 |
 | `relayedCallOf` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#relayedCallOf` | PI-40 | MCP の道具の呼び出しを、ページへ運ぶ呼び出しに写す |
+| `relayTimedOutResult` | entry | function | `src/adapter/mcp-tool-translator/mcp-tool-translator.ts#relayTimedOutResult` | PI-40 | 取次の締め切りを過ぎた呼び出しの答え。 |
 
 ## McpRelayServer (PI-41, `src/framework/mcp-relay-server/mcp-relay-server.ts`)
 
@@ -2101,4 +2104,4 @@ Search this file for the words and the types of the job BEFORE writing a helper 
 | `McpRelayOptions` | entry | interface | `src/framework/mcp-relay-server/mcp-relay-server.ts#McpRelayOptions` | -- | interface McpRelayOptions |
 | `startMcpRelay` | entry | function | `src/framework/mcp-relay-server/mcp-relay-server.ts#startMcpRelay` | PI-41 | `non-pure`。 |
 
-Totals: 1066 name(s) leave through a public entry (514 of them published by table T-064), 825 more are exported by a file and not by its entry.
+Totals: 1067 name(s) leave through a public entry (515 of them published by table T-064), 827 more are exported by a file and not by its entry.

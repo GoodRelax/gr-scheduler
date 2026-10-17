@@ -51,6 +51,7 @@ const EXPECTED_TYPES = [
   ['AV-12', 'AgentDialogueMessageOutcome'],
   ['AV-13', 'DialogueMessage'],
   ['AV-14', 'ChangeNotice'],
+  ['AV-15', 'AgentImportOutcome'],
 ] as const
 
 // see T-400
@@ -81,6 +82,12 @@ const EXPECTED_FIELDS: Readonly<Record<string, readonly (readonly string[])[]>> 
   ],
   'AV-13': [['sequence', 'author', 'text', 'settledAt']],
   'AV-14': [['watcher', 'document', 'messages', 'mark']],
+  // see AV-15
+  'AV-15': [
+    ['ok', 'stamp', 'hasUpdatedSchedule'],
+    ['ok', 'asked', 'stamp'],
+    ['ok', 'refusal'],
+  ],
 }
 
 // see AV-4
@@ -126,23 +133,23 @@ const inClosure = (): Set<string> => {
   return seen
 }
 
-describe('T-400 is printed beside T-107 with fourteen rows AV-1 to AV-14', () => {
+describe('T-400 is printed beside T-107 with fifteen rows AV-1 to AV-15 (CR-796)', () => {
   it('the shared table reader finds it in tbl-agent-api-members.md; the columns are row id, type name, fields, source', () => {
     expect(specTable('T-400').file).toBe(join('_assets', 'tbl-agent-api-members.md'))
     expect(headings).toEqual([...T_400_HEADINGS])
     expect(caption).toContain('表 T-400 — `Agent API` が受け渡す値の型')
   })
 
-  it('the rows are AV-1 to AV-14 in order, each a distinct type name', () => {
+  it('the rows are AV-1 to AV-15 in order, each a distinct type name', () => {
     expect(values.map((one) => [one.id, one.bareName])).toEqual(EXPECTED_TYPES.map((one) => [...one]))
-    expect(new Set(values.map((one) => one.bareName)).size).toBe(14)
+    expect(new Set(values.map((one) => one.bareName)).size).toBe(15)
     expect(valueRow('AV-5').typeName).toBe('AgentExport<TValue>')
   })
 
-  it('the prefix AV is registered for table T-400 with its 14 rows', () => {
+  it('the prefix AV is registered for table T-400 with its 15 rows', () => {
     const registered = PREFIXES.split('\n').find((line) => line.startsWith('| `AV` |')) ?? ''
     expect(registered).toContain('`T-400`')
-    expect(registered.trim().endsWith('| 14 |')).toBe(true)
+    expect(registered.trim().endsWith('| 15 |')).toBe(true)
   })
 
   it('AV-13 and AV-14 are declared by other components and printed here with the field names of this table', () => {
@@ -162,7 +169,7 @@ describe('every row of T-400 is used by a member, and every type a member names 
     expect([...inClosure()].sort((a, b) => Number(a.slice(3)) - Number(b.slice(3)))).toEqual(values.map((one) => one.id))
   })
 
-  it('the rows a member points at directly are AV-1, AV-2 and AV-5 to AV-13', () => {
+  it('the rows a member points at directly are AV-1, AV-2, AV-5 to AV-13 and AV-15 (CR-796)', () => {
     const direct = new Set(
       members.flatMap((one) => [...one.arguments.flatMap((argument) => argument.pointsAt), ...one.returnsPointsAt]).filter((id) => id.startsWith('AV-')),
     )
@@ -178,6 +185,7 @@ describe('every row of T-400 is used by a member, and every type a member names 
       'AV-11',
       'AV-12',
       'AV-13',
+      'AV-15',
     ])
   })
 

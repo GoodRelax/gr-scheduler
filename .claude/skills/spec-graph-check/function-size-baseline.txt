@@ -65,7 +65,6 @@ excess-lines=5744 excess-branches=509
 # and say why in the commit.
 HELD src/adapter/agent-api-endpoint/agent-api-members.ts::agentApiMembers lines=350 branches=0
 HELD src/adapter/agent-api-endpoint/agent-api-members.ts::exportPng lines=62 branches=7
-HELD src/adapter/agent-api-endpoint/agent-api-members.ts::importDocument lines=54 branches=5
 HELD src/adapter/document-codec/grs-json-schema.ts::collectFaults lines=55 branches=22
 HELD src/adapter/document-codec/mspdi-codec.ts::tasksInWbsOrder lines=31 branches=16
 HELD src/adapter/document-codec/mspdi-xml.ts::readXml lines=105 branches=27

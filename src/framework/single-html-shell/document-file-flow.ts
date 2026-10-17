@@ -1000,6 +1000,26 @@ type HandedFirstReading = Pick<HandedImport, 'unreadColumns' | 'isNewerFormat'> 
   readonly recountedCount?: number
 }
 
+const ASKED_MERGE_SURFACE = 'U-61'
+
+// see AG-12, AV-15, OP-3, U-61, DFC-3252
+/** @purity non-pure */
+function askingOpeningFlow(flow: OpeningFlow, onAsked: (asked: typeof ASKED_MERGE_SURFACE) => void): OpeningFlow {
+  return {
+    ...flow,
+    askHowToOpen: (discarded, incomingFile) => {
+      const answer = flow.askHowToOpen(discarded, incomingFile)
+      onAsked(ASKED_MERGE_SURFACE)
+      return answer
+    },
+    askWhichFileToTakeFrom: (mergeCandidates, unreadColumns) => {
+      const answer = flow.askWhichFileToTakeFrom(mergeCandidates, unreadColumns)
+      onAsked(ASKED_MERGE_SURFACE)
+      return answer
+    },
+  }
+}
+
 // see AM-8, FR-022, FR-073
 // TRAP: the handed document's unread columns were dropped at its first decode; a caller holding that reading passes it.
 /** @purity non-pure */
@@ -1008,6 +1028,7 @@ export async function takeInHandedDocument(
   flow: OpeningFlow,
   incoming: Document,
   firstReading?: HandedFirstReading,
+  onAsked: (asked: typeof ASKED_MERGE_SURFACE) => void = () => undefined,
 ): Promise<boolean> {
   const before = hands.readSession()
   hands.sendToSession(AGENT_DOCUMENT_HANDED, null)
@@ -1015,7 +1036,7 @@ export async function takeInHandedDocument(
   try {
     const handedText = jsonFromDocument(incoming)
     const reread = documentFromJson(handedText, GREATEST_KNOWN_SCHEMA_VERSION)
-    const landed = await openDocumentIntoHold(hands, flow, null, OPEN_ROUTE_FROM_CHOOSER, {
+    const landed = await openDocumentIntoHold(hands, askingOpeningFlow(flow, onAsked), null, OPEN_ROUTE_FROM_CHOOSER, {
       incoming,
       format: 'grsJson',
       byteLength: new TextEncoder().encode(handedText).length,

@@ -25,6 +25,7 @@ import type {
   AgentDialogueMessageOutcome,
   AgentWatch,
   AgentWriteOutcome,
+  AgentImportOutcome,
   AgentWriteRequest,
 } from '../../src/adapter/agent-api-endpoint/agent-api-members'
 import type { RelayedParams } from '../../src/adapter/agent-api-endpoint/relayed-call'
@@ -132,7 +133,7 @@ describe('the AgentApi type, member by member (T-107)', () => {
     expectTypeOf<Parameters<AgentApi['applyCommands']>>().toEqualTypeOf<[request: AgentWriteRequest]>()
     expectTypeOf<ReturnType<AgentApi['applyCommands']>>().toEqualTypeOf<AgentWriteOutcome>()
     expectTypeOf<Parameters<AgentApi['importDocument']>>().toEqualTypeOf<[source: AgentImportSource]>()
-    expectTypeOf<ReturnType<AgentApi['importDocument']>>().toEqualTypeOf<Promise<AgentWriteOutcome>>()
+    expectTypeOf<ReturnType<AgentApi['importDocument']>>().toEqualTypeOf<Promise<AgentImportOutcome>>()
     expectTypeOf<ReturnType<AgentApi['undoEdit']>>().toEqualTypeOf<AgentWriteOutcome>()
     expectTypeOf<ReturnType<AgentApi['redoEdit']>>().toEqualTypeOf<AgentWriteOutcome>()
     expectTypeOf<Parameters<AgentApi['focusTask']>>().toEqualTypeOf<[taskUid: number]>()

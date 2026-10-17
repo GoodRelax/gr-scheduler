@@ -558,6 +558,8 @@ const PAIRED_ON_2026_09_03: Readonly<Record<string, string>> = {
   // WHY: read 2026-10-15 (CR-751); the scene now also counts a one-off working exception day, and the
   // words still tell that the ranges miss 1d, so only the fingerprint is re-keyed.
   'RS-89': 'afc4b6d7567c09ae',
+  // WHY: read 2026-10-18 (CR-796 slice 1); RS-90 tells the relay link dropped, and the words tell the person to reopen the address the AI gives.
+  'RS-90': '1f5e5ee4853bf4ce',
 }
 
 const fingerprintOf = (rowId: string): string => {

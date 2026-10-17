@@ -33,7 +33,7 @@
 | AM-26 | 読む | `readShownTasks` | 動詞＋目的語・`semi-pure-b` | — | `AgentShownTasks`（`AV-8`） | いま日程表に描いているタスクの `uid` の並び（`01-04-requirements.md` の 表 T-353 の `TV-1` の積 —— スケジュールフィルタを掛けた表が 1 つも無ければ `null`）と、スケジュールフィルタを掛けている表の名（`searchPanel`・`delayDiagnosticsReport`・`resourceList`）の並びを返す。<br>返すだけで、画面も文書も書かない | `FR-151` の 表 T-353 |
 | AM-19 | 読む | `readDelayDiagnostics` | 動詞＋目的語・`semi-pure-b` | — | `AgentDelayDiagnostics`（`AV-9`） | 遅延診断のレポート（`FR-134` の 表 T-317）を凍結した値で返す。<br>画面の値も文書も書かない。<br>正確な遅延の解析（信用できない値・ボトルネック・ボトルネック経路）はこの命令が返す。<br>`readSearchRows`（`AM-25`）の遅れは基準日との比べだけである | `FR-134` ／ 表 T-035 の `AG-4` |
 | AM-7 | 書く | `applyCommands` | 動詞＋目的語・`non-pure` | `request`: `AgentWriteRequest`（`AV-1`） —— 照合する刻印と命令の束 | `AgentWriteOutcome`（`AV-2`） | 一括の書き込み。<br>原子的に適用し、受理したか否かを値で返す | `FR-028` ／ 表 T-035 の `AG-3` / `AG-9a` |
-| AM-8 | 書く | `importDocument` | 動詞＋目的語・`non-pure` | `source`: `AgentImportSource`（`AV-7`） —— 取り込む文書 | `Promise<AgentWriteOutcome>`（`AV-2`） | 取り込みと合流 | `FR-087` / `FR-022` ／ 表 T-032a |
+| AM-8 | 書く | `importDocument` | 動詞＋目的語・`non-pure` | `source`: `AgentImportSource`（`AV-7`） —— 取り込む文書 | `Promise<AgentImportOutcome>`（`AV-15`） | 取り込みと合流。<br>⭐ 人に合流の 3 択（`OP-3`、`U-61`）を出したときは、答えを待たずに `AgentImportOutcome`（`AV-15`）の「人に問うたとき」を返す —— 人が選んだ後の書き込みは人の書き込みとして刻印に残り、`watchChanges` が知らせる（表 T-035 の `AG-12` の ⑥）。 | `FR-087` / `FR-022` ／ 表 T-032a |
 | AM-9 | 履歴 | `undoEdit` | 動詞＋目的語・`non-pure` | — | `AgentWriteOutcome`（`AV-2`） | 履歴を戻す | `FR-031` ／ 表 T-035 の `AG-10` |
 | AM-10 | 履歴 | `redoEdit` | 動詞＋目的語・`non-pure` | — | `AgentWriteOutcome`（`AV-2`） | 履歴を進める | `FR-031` |
 | AM-11 | 出す | `exportJson` | 動詞＋目的語・`semi-pure-b` | — | `AgentExport<string>`（`AV-5`） | `GRS JSON` を値で返す | 表 T-024 の `IO-2` ／ `FR-024` ／ 表 T-035 の `AG-7` |
@@ -43,7 +43,7 @@
 | AM-15 | 出す | `exportEmbeddedHtml` | 動詞＋目的語・`semi-pure-b` | — | `Promise<AgentExport<string>>`（`AV-5`） | 本体と文書を合わせた 1 つの `.html` を値で返す | 表 T-024 の `IO-7` ／ `FR-067` |
 | AM-16 | 見せる | `focusTask` | 動詞＋目的語・`non-pure` | `taskUid`: `number` —— 見せるタスクの `uid` | `AgentFocusOutcome`（`AV-6`） | 指定したタスクが載るタスクグループと祖先を展開し、見える位置へ表示を寄せる | `FR-151` の 表 T-332 の `SJ-9` |
 | AM-27 | 見せる | `showOnlyTasks` | 動詞＋目的語・`non-pure` | `taskUids`: `readonly number[]` か `null` —— 表示にするタスクの `uid` の並び（`null` は解除） | `AgentWriteOutcome`（`AV-2`） | `uid` の並びを受けて、検索の表の表示の列を、並びのタスクを「表示」・ほかのすべてを「非表示」に置き換え、検索の表のスケジュールフィルタを掛ける。<br>`null` を受けたら検索の表のスケジュールフィルタを解除する（表示の列の値は残す）。<br>検索パネルが出ていなければ最小化で出してから掛ける —— スケジュールフィルタはウィンドウと一緒に生きる（`TV-8`）。<br>掛けたら帯（`U-67`）が出る —— 人の画面に何が起きたかが残る。<br>展開は `TV-6` のとおり —— 検索の表のスケジュールフィルタを掛けているあいだに「非表示」から「表示」に戻った行のタスクだけを展開する。<br>⚠️ 遅延診断レポートの表と担当リストの表のスケジュールフィルタには触れない。<br>出す命令は `setTableView`（表 T-108 の `CM-92`）1 つであり、未保存の編集（`FR-100`）で取り消しの 1 段である（`FR-031` の 表 T-027 の `UN-20`） | `FR-151` の 表 T-353 の `TV-5` 〜 `TV-8` |
-| AM-17 | 待つ | `watchChanges` | 動詞＋目的語・`non-pure` | `receive`: `AgentChangeReceiver`（`AV-10`） —— 変更を受け取る手<br>⚠️ MCP だけの鍵 `waitMs`: `number` —— 待つ長さ（ミリ秒） —— 切れたら「まだ無い」を値で返す（`AG-12` の ⑤） | `AgentWatch`（`AV-11`） | 自分以外が確定した変更と発話を待つ | 表 T-035 の `AG-6` / `AG-11` |
+| AM-17 | 待つ | `watchChanges` | 動詞＋目的語・`non-pure` | `receive`: `AgentChangeReceiver`（`AV-10`） —— 変更を受け取る手<br>⚠️ MCP だけの鍵 `waitMs`: `number` —— 待つ長さ（ミリ秒） —— 切れたら「まだ無い」を値で返す（`AG-12` の ⑤） —— 取次の締め切り（`_assets/design-mcp-relay.md` の 5）より短い 40,000 で頭打ちにする | `AgentWatch`（`AV-11`） | 自分以外が確定した変更と発話を待つ | 表 T-035 の `AG-6` / `AG-11` |
 | AM-18 | 話す | `postDialogueMessage` | 動詞＋目的語・`non-pure` | `text`: `string` —— 置く発話 | `AgentDialogueMessageOutcome`（`AV-12`） | AI が確定した発話を対話欄へ置く | `FR-066` ／ 表 T-035 の `AG-11` |
 
 ⚠️ **見せ方の群を読む面も、書く面も置かない。**  
@@ -75,6 +75,7 @@
 | AV-12 | `AgentDialogueMessageOutcome` | **置いたとき**<br>　　`ok`: `true` —— 置いた<br>　　`message`: `DialogueMessage`（`AV-13`） —— 置いた発話<br>**拒んだとき**<br>　　`ok`: `false` —— 拒んだ<br>　　`refusal`: `AgentRefusal`（`AV-3`） —— 拒否の値 | `AM-18` ／ 表 T-035 の `AG-11` / `AG-9a` |
 | AV-13 | `DialogueMessage` | `sequence`: `number` —— 発話の通し番号 —— 刻印とは別に数える（`AG-11`）<br>`author`: `string` —— 発話を確定した書き手の名<br>`text`: `string` —— 発話の本文<br>`settledAt`: `string` —— 確定した時刻 | 表 T-035 の `AG-11` ／ `FR-066` |
 | AV-14 | `ChangeNotice` | `watcher`: `string` —— 知らせを受ける書き手の名<br>`document`: `Document` か `null`（表 T-064 の `PI-34`） —— 自分以外が日程データを変えていれば今の文書の凍結された複製、変えていなければ `null`（`AG-6`）<br>`messages`: `readonly DialogueMessage[]`（`AV-13`） —— まだ受け取っていない、自分以外の発話（`AG-11`）<br>`mark`: `WatcherMark`（表 T-035 の `AG-6`） —— どこまで受け取ったかの印（日程データの群の刻と発話の通し番号） | 表 T-035 の `AG-6` / `AG-11` |
+| AV-15 | `AgentImportOutcome` | **取り込みが着いたとき**<br>　　`ok`: `true` —— 受理した<br>　　`stamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 適用した後の刻印<br>　　`hasUpdatedSchedule`: `boolean` —— 日程データの群を動かしたか（`FR-063`）<br>**人に問うたとき**<br>　　`ok`: `true` —— 問いを出した —— まだ書いていない<br>　　`asked`: `string` —— 人に出した問いの在りか（いまは `U-61` だけ）<br>　　`stamp`: `DocumentStamp`（表 T-064 の `PI-3`） —— 問いを出したときの刻印<br>**拒んだとき**<br>　　`ok`: `false` —— 拒んだ<br>　　`refusal`: `AgentRefusal`（`AV-3`） —— 拒否の値 | `AM-8` ／ 表 T-035 の `AG-12` の ⑥ |
 
 **MCP の初期化の答えに載せる案内**
 

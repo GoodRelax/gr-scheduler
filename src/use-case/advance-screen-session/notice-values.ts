@@ -129,6 +129,7 @@ export type ReasonRow =
   | 'RS-51'
   | 'RS-52'
   | 'RS-89'
+  | 'RS-90'
   | 'RS-53'
   | 'RS-54'
   | 'RS-55'
@@ -266,6 +267,7 @@ export const NOTICE_MANNER_OF_REASON: Readonly<Record<NoticeReason, NoticeManner
   'RS-51': 'NT-5',
   'RS-52': 'NT-3',
   'RS-89': 'NT-3',
+  'RS-90': 'NT-5',
   'RS-53': 'NT-1',
   'RS-54': 'NT-1',
   'RS-55': 'NT-1',
@@ -373,6 +375,7 @@ export const NOTICE_DISPLAY_OF_REASON: Readonly<Record<NoticeReason, 'show' | 'h
   'RS-51': 'report',
   'RS-52': 'report',
   'RS-89': 'show',
+  'RS-90': 'show',
   'RS-53': 'hide',
   'RS-54': 'autoDismiss',
   'RS-55': 'hide',
@@ -480,6 +483,7 @@ export const NOTICE_WORDS_ROW_OF_REASON: Readonly<Record<NoticeReason, NoticeRea
   'RS-51': 'RS-51',
   'RS-52': 'RS-52',
   'RS-89': 'RS-89',
+  'RS-90': 'RS-90',
   'RS-53': 'RS-53',
   'RS-54': 'RS-54',
   'RS-55': 'RS-55',

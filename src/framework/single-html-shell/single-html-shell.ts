@@ -235,6 +235,8 @@ function appShellSource(): AppShellSource {
 
 const AGENT_API_IDENTIFIER = 'grSchedulerAgentApi'
 
+const RELAY_LOST_REASON: StartupNoticeReason = 'RS-90'
+
 // DEVIATION: spec says the caller declares its writer name (ED-2); here every caller is agent (DFC-560)
 const AGENT_API_WRITER = 'agent'
 
@@ -446,7 +448,7 @@ function environmentOf(
   }
 }
 
-// see T-077, FR-065, AG-12
+// see T-077, FR-065, AG-12, RS-90
 /** @purity non-pure */
 function publishAgentApiWhileEnabled(running: FrameLoop, schemaVersion: string): void {
   const host = globalThis as unknown as Record<string, unknown>
@@ -464,7 +466,8 @@ function publishAgentApiWhileEnabled(running: FrameLoop, schemaVersion: string):
       schemaVersion,
     })
     host[AGENT_API_IDENTIFIER] = agentApi
-    relayLink = openAgentApiRelayLink(agentApi, window.location, (address) => new WebSocket(address))
+    relayLink = openAgentApiRelayLink(agentApi, window.location, (address) => new WebSocket(address), () =>
+      running.raiseStartupNotice(RELAY_LOST_REASON))
   })
 }
 

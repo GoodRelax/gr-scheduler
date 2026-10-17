@@ -32,6 +32,7 @@ type MemberName = keyof AgentApi
 const WATCH_CHANGES = 'watchChanges'
 const EXPORT_PNG = 'exportPng'
 const PNG_MIME_TYPE = 'image/png'
+const MS_PER_SECOND = 1000
 
 // WHY: the names, descriptions and input shapes are printed from the manuscript of table T-107 (CR-765),
 // the one that also prints AgentApi and RelayedParams, so a tool and its member cannot drift apart unseen.
@@ -105,22 +106,26 @@ export function mcpToolResultOf(member: string, answer: RelayedAnswer): McpToolR
     : { content: [{ type: 'text', text }], structuredContent }
 }
 
+// WHY: the relay has no page to ask, so its refusals carry no stamp and no document (AG-9a shape).
+/** @purity pure */
+function relayRefusalResult(reason: string, what: string, extra: Record<string, unknown> = {}): McpToolResult {
+  const refusal = { target: 'relay', reason, stamp: null, document: null, refusals: [], what, ...extra }
+  const structuredContent = { ok: false, refusal }
+  return { content: [{ type: 'text', text: JSON.stringify(structuredContent) }], structuredContent }
+}
+
 // see AG-12
 /** @purity pure */
 export function pageNotConnectedResult(pageUrl: string): McpToolResult {
-  const structuredContent = {
-    ok: false,
-    refusal: {
-      target: 'relay',
-      reason: 'pageNotConnected',
-      stamp: null,
-      document: null,
-      refusals: [],
-      what:
-        `No GRS page is connected to the relay. Open ${pageUrl} in a browser, ` +
-        'open the document there and enable the Agent API.',
-      pageUrl,
-    },
-  }
-  return { content: [{ type: 'text', text: JSON.stringify(structuredContent) }], structuredContent }
+  const what = `No GRS page is connected to the relay. Open ${pageUrl} in a browser, ` +
+    'open the document there and enable the Agent API.'
+  return relayRefusalResult('pageNotConnected', what, { pageUrl })
+}
+
+// see AG-12
+/** @purity pure */
+export function relayTimedOutResult(member: string, deadlineMs: number): McpToolResult {
+  const what = `${member} did not answer within ${deadlineMs / MS_PER_SECOND} s. ` +
+    'Ask the person whether a question or a window is open on the GRS page.'
+  return relayRefusalResult('relayTimedOut', what)
 }

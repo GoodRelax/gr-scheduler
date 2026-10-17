@@ -22,6 +22,7 @@ import {
   mcpToolResultOf,
   pageNotConnectedResult,
   relayedCallOf,
+  relayTimedOutResult,
 } from '../../adapter/mcp-tool-translator/mcp-tool-translator'
 
 export interface McpRelayOptions {
@@ -30,6 +31,8 @@ export interface McpRelayOptions {
   readonly log: (line: string) => void
   readonly pageHtml: Uint8Array
   readonly documentSchema: string
+  // see AG-12
+  readonly callDeadlineMs?: number
 }
 
 export interface McpRelay {
@@ -80,6 +83,12 @@ const KEY_PRESENTED = 'relayKeyPresented'
 const CHANGE_NOTICED = 'changeNoticed'
 const CANCELED = 'notifications/cancelled'
 const LONGEST_TIMER_MS = 2 ** 31 - 1
+// see AG-12
+// WHY: shorter than the MCP client's request timeout, which restarts the relay and drops the page (DFC-3252).
+const DEFAULT_CALL_DEADLINE_MS = 45_000
+// see AM-17
+// WHY: shorter than the call deadline, so a watch never runs into the client's timeout itself.
+const LONGEST_WATCH_WAIT_MS = 40_000
 
 // <generated -- do not edit by hand>
 // From docs/spec/_source/agent-api-members.json (table T-107, the MCP-only key of AM-17).
@@ -467,18 +476,44 @@ function answerHttp(state: RelayState, request: IncomingMessage, response: Serve
   response.end(pageHtml)
 }
 
+// see AG-12
+// TRAP: the id leaves pageCalls at the deadline, so a late answer finds no one and is dropped.
+/** @purity non-pure */
+function pageAnswerOf(
+  state: RelayState,
+  callId: number,
+  deadlineMs: number,
+  canceled: Promise<null>,
+): Promise<RelayedAnswer | null | 'timedOut'> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      state.pageCalls.delete(callId)
+      resolve('timedOut')
+    }, Math.min(deadlineMs, LONGEST_TIMER_MS))
+    state.pageCalls.set(callId, (received) => {
+      clearTimeout(timer)
+      resolve(received)
+    })
+    void canceled.then(() => {
+      clearTimeout(timer)
+      state.pageCalls.delete(callId)
+    })
+  })
+}
+
 /** @purity non-pure */
 function pageResultOf(state: RelayState, call: RelayedCall, canceled: Promise<null>): Promise<McpToolResult> {
   const page = state.page
   if (page === null) return Promise.resolve(pageNotConnectedResult(state.pageUrl))
   const callId = state.nextPageCallId
   state.nextPageCallId += 1
-  const answer = new Promise<RelayedAnswer | null>((resolve) => state.pageCalls.set(callId, resolve))
-  void canceled.then(() => state.pageCalls.delete(callId))
+  const deadlineMs = state.options.callDeadlineMs ?? DEFAULT_CALL_DEADLINE_MS
+  const answer = pageAnswerOf(state, callId, deadlineMs, canceled)
   sendText(page, JSON.stringify({ jsonrpc: JSON_RPC_VERSION, id: callId, method: call.member, params: call.params }))
-  return answer.then((received) =>
-    received === null ? pageNotConnectedResult(state.pageUrl) : mcpToolResultOf(call.member, received),
-  )
+  return answer.then((received) => {
+    if (received === 'timedOut') return relayTimedOutResult(call.member, deadlineMs)
+    return received === null ? pageNotConnectedResult(state.pageUrl) : mcpToolResultOf(call.member, received)
+  })
 }
 
 /** @purity non-pure */
@@ -498,7 +533,7 @@ function noticeOrTimeout(state: RelayState, waitMs: number, canceled: Promise<nu
 /** @purity pure */
 function waitMsOf(toolArguments: unknown): number {
   const waitMs = isPlainRecord(toolArguments) ? toolArguments[WAIT_MS_KEY] : undefined
-  return typeof waitMs === 'number' && Number.isFinite(waitMs) && waitMs > 0 ? waitMs : 0
+  return typeof waitMs === 'number' && Number.isFinite(waitMs) && waitMs > 0 ? Math.min(waitMs, LONGEST_WATCH_WAIT_MS) : 0
 }
 
 // see AG-12, AG-6
@@ -515,7 +550,7 @@ async function watchResultOf(
     state.watchSubscribed = true
     const subscribed = await pageResultOf(state, call, canceled)
     if (state.page !== page) return pageNotConnectedResult(state.pageUrl)
-    if (subscribed.isError === true) {
+    if (subscribed.isError === true || subscribed.structuredContent?.['ok'] === false) {
       state.watchSubscribed = false
       return subscribed
     }

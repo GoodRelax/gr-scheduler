@@ -142,10 +142,11 @@ describe('FR-076: the display column is the one place that decides', () => {
 
 describe(`T-233 display column -- ${FR_076_THE_COLUMN_HOLDS_IT}`, () => {
   // WHY: CR-755 retired the MSPDI time zone notice (an autoDismiss row): 85 -> 84; CR-772 retired four hidden rows: -> 80.
-  it('the manuscript holds 80 reasons: show 35 (5 riding), autoDismiss 19, hide 17, report 9', () => {
+  // WHY: CR-796 slice 1 added RS-90 (show): -> 81, show 36.
+  it('the manuscript holds 81 reasons: show 36 (5 riding), autoDismiss 19, hide 17, report 9', () => {
     const count = (display: ReasonDisplay): number => ROSTER.reasons.filter((one) => one.display === display).length
-    expect(ROSTER.reasons).toHaveLength(80)
-    expect(count('show')).toBe(35)
+    expect(ROSTER.reasons).toHaveLength(81)
+    expect(count('show')).toBe(36)
     expect(count('autoDismiss')).toBe(19)
     expect(count('hide')).toBe(17)
     expect(count('report')).toBe(9)
@@ -248,12 +249,12 @@ describe('the generated rosters src reads are the manuscript (PI-39)', () => {
 })
 
 describe(`the dictionary follows the riding -- ${FR_076_A_RIDING_ROW_HAS_NONE}`, () => {
-  it('a riding row has no entry in reasons, and every other row of T-233 has one (75)', () => {
+  it('a riding row has no entry in reasons, and every other row of T-233 has one (76)', () => {
     const entries = WORDS.reasons.map((one) => one.rowId)
     for (const rider of Object.keys(RIDING)) expect(entries, `${rider} rides and has no words of its own`).not.toContain(rider)
     const owners = ROSTER.reasons.filter((one) => one.wordsOf === undefined).map((one) => one.id)
     expect([...entries].sort()).toEqual([...owners].sort())
-    expect(entries).toHaveLength(75)
+    expect(entries).toHaveLength(76)
   })
 
   it('a hidden row keeps its words (JDG-1759)', () => {

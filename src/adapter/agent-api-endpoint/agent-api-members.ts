@@ -80,6 +80,8 @@ export interface DelayFixLogSource {
   readDelayFixLog(): readonly DelayFixLogRow[]
 }
 
+export type AskedSurface = 'U-61'
+
 // see AM-8, AG-9a
 export type ImportLanding =
   | boolean
@@ -174,6 +176,12 @@ export type AgentDialogueMessageOutcome =
   | { readonly ok: true; readonly message: DialogueMessage }
   | { readonly ok: false; readonly refusal: AgentRefusal }
 
+// see AV-15
+export type AgentImportOutcome =
+  | { readonly ok: true; readonly stamp: DocumentStamp; readonly hasUpdatedSchedule: boolean }
+  | { readonly ok: true; readonly asked: string; readonly stamp: DocumentStamp }
+  | { readonly ok: false; readonly refusal: AgentRefusal }
+
 // see T-107
 export interface AgentApi {
   readonly agentApiVersion: string
@@ -197,7 +205,7 @@ export interface AgentApi {
   /** @purity non-pure */
   applyCommands(request: AgentWriteRequest): AgentWriteOutcome
   /** @purity non-pure */
-  importDocument(source: AgentImportSource): Promise<AgentWriteOutcome>
+  importDocument(source: AgentImportSource): Promise<AgentImportOutcome>
 
   /** @purity non-pure */
   undoEdit(): AgentWriteOutcome
@@ -255,7 +263,7 @@ export interface AgentApiWiring {
   readonly rasterizer: ImageExporter.Rasterizer | undefined
   readonly appShell: DocumentCodec.AppShellSource | undefined
   readonly takeInDocument:
-    | ((incoming: Document, reading: HandedFormatReading) => Promise<ImportLanding>)
+    | ((incoming: Document, reading: HandedFormatReading, onAsked: (asked: AskedSurface) => void) => Promise<ImportLanding>)
     | undefined
   // see AM-26, AM-27
   readonly shownTasks: ShownTasksHolder | undefined
@@ -640,6 +648,63 @@ function postAgentUtterance(
   }
 }
 
+/** @purity semi-pure-b */
+function importLandingOutcome(landing: ImportLanding, after: AgentSnapshot): AgentWriteOutcome {
+  // TRAP: `!landing` compiles but takes a refusal object for a landed import.
+  if (landing === true) {
+    return { ok: true, stamp: frozenCopy(after.documentAsWritten.documentStamp), hasUpdatedSchedule: true }
+  }
+  const refusals = landing === false ? [] : landing.refusals
+  const first = refusals[0]
+  return {
+    ok: false,
+    refusal: first === undefined
+      ? agentRefusal(
+        'AM-8',
+        'commandRefused',
+        after,
+        'the import did not land: answered MM-4, refused by OP-5, or OP-8 held',
+        [],
+      )
+      : agentRefusal(
+        'AM-8',
+        first.rule,
+        after,
+        `FR-023 refused it; the row is ${first.rule}: ${first.what}`,
+        refusals,
+      ),
+  }
+}
+
+// see AM-8, AG-12, AV-15, DFC-3252
+// WHY: answers as soon as the person is asked; waiting for the answer outlasts the MCP client's request.
+/** @purity non-pure */
+async function importHandedDocument(
+  wiring: AgentApiWiring,
+  handedSource: AgentImportSource,
+): Promise<AgentImportOutcome> {
+  const { source } = wiring
+  const snapshot = source.readSnapshot()
+  const road = wiring.takeInDocument
+  if (road === undefined) {
+    return { ok: false, refusal: notAvailable('AM-8', snapshot, 'the wiring carries no import road') }
+  }
+  const incoming = handedDocument(handedSource, wiring.schemaVersion)
+  if (!incoming.ok) {
+    return { ok: false, refusal: agentRefusal('AM-8', incoming.reason, snapshot, incoming.what, []) }
+  }
+  let answerAsked: (outcome: AgentImportOutcome) => void = () => undefined
+  const asked = new Promise<AgentImportOutcome>((resolve) => {
+    answerAsked = resolve
+  })
+  const onAsked = (surface: AskedSurface): void =>
+    answerAsked({ ok: true, asked: surface, stamp: frozenCopy(source.readSnapshot().documentAsWritten.documentStamp) })
+  // TRAP: a person answers U-61 during this await; take a fresh snapshot after it.
+  const settled = road(incoming.document, incoming, onAsked).then((landing) =>
+    importLandingOutcome(landing, source.readSnapshot()))
+  return Promise.race([asked, settled])
+}
+
 // see T-107
 /** @purity non-pure */
 export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
@@ -705,61 +770,9 @@ export function agentApiMembers(wiring: AgentApiWiring): AgentApi {
       )
     },
 
-    /** @purity semi-pure-b */
-    async importDocument(handedSource: AgentImportSource): Promise<AgentWriteOutcome> {
-      const snapshot = source.readSnapshot()
-      const road = wiring.takeInDocument
-      if (road === undefined) {
-        return {
-          ok: false,
-          refusal: notAvailable('AM-8', snapshot, 'the wiring carries no import road'),
-        }
-      }
-      const incoming = handedDocument(handedSource, wiring.schemaVersion)
-      if (!incoming.ok) {
-        return {
-          ok: false,
-          refusal: agentRefusal(
-            'AM-8',
-            incoming.reason,
-            snapshot,
-            incoming.what,
-            [],
-          ),
-        }
-      }
-      // TRAP: a person answers U-61 during this await; take a fresh snapshot after it.
-      const landing = await road(incoming.document, incoming)
-      const after = source.readSnapshot()
-      // TRAP: `!landing` compiles but takes a refusal object for a landed import.
-      if (landing !== true) {
-        const refusals = landing === false ? [] : landing.refusals
-        const first = refusals[0]
-        return {
-          ok: false,
-          refusal: first === undefined
-            ? agentRefusal(
-              'AM-8',
-              'commandRefused',
-              after,
-              'the import did not land: answered MM-4, refused by OP-5, or OP-8 held',
-              [],
-            )
-            : agentRefusal(
-              'AM-8',
-              first.rule,
-              after,
-              `FR-023 refused it; the row is ${first.rule}: ${first.what}`,
-              refusals,
-            ),
-        }
-      }
-      return {
-        ok: true,
-        stamp: frozenCopy(after.documentAsWritten.documentStamp),
-        hasUpdatedSchedule: true,
-      }
-    },
+    /** @purity non-pure */
+    importDocument: (handedSource: AgentImportSource): Promise<AgentImportOutcome> =>
+      importHandedDocument(wiring, handedSource),
 
     /** @purity semi-pure-b */
     undoEdit(): AgentWriteOutcome {

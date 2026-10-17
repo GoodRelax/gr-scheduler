@@ -170,12 +170,12 @@
    "to": "docs/spec/_source/notice-reasons.json",
    "family": "RS",
    "fields": {
-    "rowId": 75
+    "rowId": 76
    },
    "prefixes": [
     "RS"
    ],
-   "count": 75
+   "count": 76
   },
   {
    "from": "docs/spec/_source/display-words.json",
@@ -278,12 +278,12 @@
    "to": "docs/spec/01-04-requirements.md",
    "family": "rows",
    "fields": {
-    "manner": 81
+    "manner": 82
    },
    "prefixes": [
     "NT"
    ],
-   "count": 81
+   "count": 82
   },
   {
    "from": "docs/spec/_source/notice-reasons.json",
@@ -541,12 +541,12 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec UIDs",
-   "count": 37
+   "count": 38
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 132
+   "count": 137
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -556,7 +556,7 @@
   {
    "from": "docs/spec/_source/agent-api-members.json",
    "to": "docs/spec/_assets/tbl-glossary.md",
-   "count": 1
+   "count": 3
   },
   {
    "from": "docs/spec/_source/agent-api-members.json",
@@ -866,12 +866,12 @@
   {
    "from": "docs/spec/_source/notice-reasons.json",
    "to": "docs/spec UIDs",
-   "count": 64
+   "count": 65
   },
   {
    "from": "docs/spec/_source/notice-reasons.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 101
+   "count": 105
   },
   {
    "from": "docs/spec/_source/notice-reasons.json",
@@ -966,7 +966,7 @@
   {
    "from": "docs/spec/_source/published-entries.json",
    "to": "docs/spec/01-04-requirements.md",
-   "count": 677
+   "count": 679
   },
   {
    "from": "docs/spec/_source/published-entries.json",
@@ -1442,7 +1442,7 @@
   },
   "docs/spec/_source/agent-api-members.json": {
    "AM": 22,
-   "AV": 14
+   "AV": 15
   },
   "docs/spec/_source/document-commands.json": {
    "CM": 91
@@ -1455,7 +1455,7 @@
   },
   "docs/spec/_source/notice-reasons.json": {
    "QN": 13,
-   "RS": 80
+   "RS": 81
   },
   "docs/spec/_source/property-items.json": {
    "PR": 43
