@@ -44,8 +44,11 @@ const FR_039_FONT_REACHES_THE_RULER = '文字サイズの変更は目盛にも�
 const FR_039_FONT_IS_AN_EDIT = '変更した結果は文書の編集として保存される'
 const FR_041_ONLY_TWO_ARE_SAVED =
   '保存するのは `themeHue` / `isThemeMonochrome` の 2 つだけとし、明暗（`themePreference`）は画面の値とし（`FR-039`）'
-const FR_052_STARTS_AT_S_171 =
-  'プロパティパネルの幅は画面の値とし、起動のたびに `_assets/tbl-settings.md` の 表 T-206 の `S-171` から始めること（MUST）'
+// WHY: CR-787 -- the width starts at the default of the kind shown; the settings face IC-17 shows is S-171.
+const FR_052_STARTS_AT_THE_KIND_DEFAULT =
+  'プロパティパネルの幅は画面の値とし、出している中身の種の既定の幅から始めること（MUST）'
+const FR_052_SETTINGS_FACE_IS_S_171 = '文書の設定の面は `S-171`'
+const FR_052_EVERY_START = '起動のたびに既定の幅から始め、覚えない。'
 const FR_052_WRITES_NOWHERE = 'プロパティパネルの幅を、文書にもブラウザの保管庫にも書いてはならない（MUST NOT）'
 const FR_063_SETTINGS_STAMP_MOVES =
   'どちらの群であれ動いた刻と、最後に書いた者は、見せ方の群だけを変えたときも更新すること（MUST）'
@@ -333,7 +336,9 @@ describe('CR-572 -- the manuscript these cases are driven by', () => {
       FR_039_FONT_IS_AN_EDIT,
       FR_041_ONLY_TWO_ARE_SAVED,
       FR_041_SCREEN_AND_PICTURE_ALIKE,
-      FR_052_STARTS_AT_S_171,
+      FR_052_STARTS_AT_THE_KIND_DEFAULT,
+      FR_052_SETTINGS_FACE_IS_S_171,
+      FR_052_EVERY_START,
       FR_052_WRITES_NOWHERE,
       FR_063_SETTINGS_STAMP_MOVES,
       FR_063_SCHEDULE_STAMP_STAYS,
@@ -477,7 +482,7 @@ describe('CR-572 item 6 -- the guide cursor and the property panel width are scr
     expect(reloaded.chosen('IC-48')).toBe(false)
   })
 
-  it(`FR-052 「${FR_052_STARTS_AT_S_171}」: a dragged width is not in the saved file, and a reload starts at S-171`, async () => {
+  it(`FR-052 「${FR_052_STARTS_AT_THE_KIND_DEFAULT}」: a dragged width is not in the saved file, and a reload on the settings face starts at S-171`, async () => {
     const built = bench()
     built.press('IC-17')
     expect(built.drawnPanelWidth()).toBeCloseTo(S_171, 6)

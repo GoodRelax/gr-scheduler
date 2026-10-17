@@ -13,7 +13,7 @@ import {
   STANDARD_KEYS,
   STATE_MACHINE_BOOK,
   T_376_ROWS,
-  expectedNameOf,
+  expectedLinesOf,
   settingWord,
   timeZoneWord,
   zoneRowOfKey,
@@ -151,7 +151,14 @@ describe(`FO-14 -- ${FR_156_FIELD}`, () => {
     expect(field.name).toBe(settingWord('K-144', language))
     const chooser = chooserOf(field)
     expect(chooser.choiceValues).toEqual(STANDARD_KEYS)
-    expect(chooser.choices).toEqual(STANDARD_KEYS.map((key) => expectedNameOf(zoneRowOfKey(key), language)))
+    // WHY: CR-787 (FR-156) -- each choice is shown on two lines, zoneHead over the place, beside choiceValues.
+    expect(chooser.choiceLines).toEqual(STANDARD_KEYS.map((key) => expectedLinesOf(zoneRowOfKey(key), language)))
+    expect(chooser.choices).toHaveLength(STANDARD_KEYS.length)
+    for (const [index, key] of STANDARD_KEYS.entries()) {
+      const [head, place] = expectedLinesOf(zoneRowOfKey(key), language)
+      expect(chooser.choices?.[index], key).toContain(head)
+      expect(chooser.choices?.[index], key).toContain(place)
+    }
     expect(field.controls).toHaveLength(1)
   })
 
@@ -334,7 +341,11 @@ describe(`FO-15 -- ${FR_156_DISPLAY_ROWS}`, () => {
       const field = fieldOf(built, row)
       expect(field.name).toBe(`${settingWord('K-145', language)} ${String(index + 1)}`)
       const chooser = chooserOf(field)
-      expect(chooser.choices).toEqual([timeZoneWord('none', language), ...ALL_KEYS.map((key) => expectedNameOf(zoneRowOfKey(key), language))])
+      // WHY: CR-787 (FR-156) -- none first, then every row on two lines, beside choiceValues.
+      expect(chooser.choices?.[0]).toContain(timeZoneWord('none', language))
+      expect(chooser.choiceValues).toHaveLength(ALL_KEYS.length + 1)
+      expect(chooser.choiceLines).toHaveLength(ALL_KEYS.length + 1)
+      expect(chooser.choiceLines?.slice(1)).toEqual(ALL_KEYS.map((key) => expectedLinesOf(zoneRowOfKey(key), language)))
     }
   })
 
@@ -352,7 +363,8 @@ describe(`FO-15 -- ${FR_156_DISPLAY_ROWS}`, () => {
   it('choosing the PDT row in display row 1 stores the daylight key (S-575 takes every row)', async () => {
     const built = await shiftStage(benchOf(TASKS))
     const chooser = chooserOf(fieldOf(built, 'K-145:1'))
-    const index = chooser.choices?.indexOf(expectedNameOf(zoneRowOfKey('UTC-07:00 DST'), 'ja')) ?? -1
+    const pdt = expectedLinesOf(zoneRowOfKey('UTC-07:00 DST'), 'ja')
+    const index = chooser.choiceLines?.findIndex((lines) => lines[0] === pdt[0] && lines[1] === pdt[1]) ?? -1
     expect(index).toBeGreaterThan(0)
     await built.commitField('K-145:1', chooser.key, chooser.choiceValues?.[index] ?? '')
     expect(built.loop.document().documentSettings.displayTimeZones).toEqual(['UTC-07:00 DST'])

@@ -55,7 +55,8 @@ export const FIT_SPAN_COPY_TEXT = 'copyCurrent'
 export const DISPLAY_TIME_ZONE_SLOT_SEPARATOR = '|'
 import { helpModalFromSession, openModalFromSession } from './open-modals'
 import { propertiesPanelFromSelection } from './properties-panel'
-export { dateEntryWidthOf } from './properties-panel'
+export { dateEntryWidthOf, panelFacesOf } from './properties-panel'
+export type { PanelFace } from './properties-panel'
 import { drawnTaskGroupBoxesOf, rulerAbbreviationsOf, taskGroupPanelFromSchedule, taskGroupTitleFontPxOf } from './task-group-panel'
 import { searchPanelFromSession, type SearchPanelView } from './search-panel'
 import {
@@ -352,6 +353,7 @@ export interface PropertyControl {
   readonly text: string
   readonly choices: readonly string[] | null
   readonly choiceValues?: readonly string[]
+  readonly choiceLines?: readonly (readonly [string, string])[]
   readonly color?: ColorField
   // WHY: bare swatches beside choiceValues; ColorField brings entrances FR-041's hue field must not have.
   readonly swatches?: readonly string[]

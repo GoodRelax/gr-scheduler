@@ -65,7 +65,9 @@ const settingOf = (id: string): number => {
 }
 
 const S_134 = settingOf('S-134')
-const S_171 = settingOf('S-171')
+// WHY: CR-787 -- a Task opens the panel at S-602 (FR-052: the default width of the kind shown).
+const S_602 = settingOf('S-602')
+const S_248 = settingOf('S-248')
 const S_193 = settingOf('S-193')
 
 const T_023D = specTable('T-023d')
@@ -80,8 +82,9 @@ describe('CR-408 -- the premises read from the manuscript', () => {
     expect(T_023D.rows.find((one) => one.id === 'GR-22')?.by[H_PLACE] ?? '').toContain('S-134')
   })
 
-  it('S-134 is 8, S-171 is 560 and S-193 is 2', () => {
-    expect([S_134, S_171, S_193]).toEqual([8, 560, 2])
+  it('S-134 is 8 and S-193 is 2; a pull right of d from the Task default S-602 stays above S-248', () => {
+    expect([S_134, S_193]).toEqual([8, 2])
+    expect(S_602 - TRAVEL).toBeGreaterThan(S_248)
   })
 
   it('T-016 makes PR-1 and PR-18 text, and PR-2 and PR-21 multiline', () => {
@@ -240,32 +243,32 @@ function drag(built: LoopStage, travel: number): { held: number; storedWhileHeld
 const TRAVEL = 40
 
 describe('FR-052 (MUST / MUST NOT) -- the property panel width counts from the width drawn at the press', () => {
-  it('premise: the opened panel is drawn at S-171, and the document carries no width', () => {
+  it('premise: the opened panel is drawn at S-602 (a Task, FR-052), and the document carries no width', () => {
     const built = withThePanelOpen()
     expect(isWidthStored(built.loop)).toBe(false)
-    expect(drawnWidth(built.loop)).toBeCloseTo(S_171, 6)
+    expect(drawnWidth(built.loop)).toBeCloseTo(S_602, 6)
   })
 
-  it('pulled right by d from S-171, the panel is drawn and kept at S-171 - d', () => {
+  it('pulled right by d from S-602, the panel is drawn and kept at S-602 - d', () => {
     const built = withThePanelOpen()
     const { held, storedWhileHeld } = drag(built, TRAVEL)
-    expect(held, 'the held picture').toBeCloseTo(S_171 - TRAVEL, 6)
+    expect(held, 'the held picture').toBeCloseTo(S_602 - TRAVEL, 6)
     expect(storedWhileHeld, 'nothing is written while held').toBe(false)
-    expect(drawnWidth(built.loop), 'the release').toBeCloseTo(S_171 - TRAVEL, 6)
+    expect(drawnWidth(built.loop), 'the release').toBeCloseTo(S_602 - TRAVEL, 6)
     expect(isWidthStored(built.loop), 'nothing is written by the release either').toBe(false)
   })
 
-  it('pulled left by d from S-171, the panel is drawn and kept at S-171 + d, not at d', () => {
+  it('pulled left by d from S-602, the panel is drawn and kept at S-602 + d, not at d', () => {
     const built = withThePanelOpen()
     const { held } = drag(built, -TRAVEL)
-    expect(held, 'the held picture').toBeCloseTo(S_171 + TRAVEL, 6)
-    expect(drawnWidth(built.loop), 'the release').toBeCloseTo(S_171 + TRAVEL, 6)
+    expect(held, 'the held picture').toBeCloseTo(S_602 + TRAVEL, 6)
+    expect(drawnWidth(built.loop), 'the release').toBeCloseTo(S_602 + TRAVEL, 6)
   })
 
   it('from a settled width, a press released where it began leaves that width', () => {
     const built = withThePanelOpen()
     drag(built, -TRAVEL)
-    const settled = S_171 + TRAVEL
+    const settled = S_602 + TRAVEL
     expect(drawnWidth(built.loop)).toBeCloseTo(settled, 6)
     drag(built, 0)
     expect(drawnWidth(built.loop)).toBeCloseTo(settled, 6)
@@ -275,12 +278,12 @@ describe('FR-052 (MUST / MUST NOT) -- the property panel width counts from the w
     const built = withThePanelOpen()
     drag(built, -TRAVEL)
     drag(built, -TRAVEL)
-    expect(drawnWidth(built.loop)).toBeCloseTo(S_171 + 2 * TRAVEL, 6)
+    expect(drawnWidth(built.loop)).toBeCloseTo(S_602 + 2 * TRAVEL, 6)
   })
 
   it('a pull right past the whole drawn width never draws a negative width', () => {
     const built = withThePanelOpen()
-    drag(built, S_171 + 100)
+    drag(built, S_602 + 100)
     expect(drawnWidth(built.loop)).toBeGreaterThanOrEqual(0)
   })
 

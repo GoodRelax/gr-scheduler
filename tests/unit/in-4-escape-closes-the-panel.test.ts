@@ -78,8 +78,8 @@
 //   表 T-023 MK-13 「タスク（名称ラベルと本体のどちらでも）＝プロパティパネルを
 //                   出し、名称の欄（表 T-016 の `PR-1`）を編集できる状態にして焦点を置
 //                   き…」 -- the one entrance a pointer can reach in this loop.
-//   `S-171`        表 T-206: the properties panel width is a screen value that
-//                   starts at this row on every start (CR-572).
+//   `S-602`        表 T-206: the panel starts at the default width of the kind
+//                   shown, a Task's being this row (CR-572, CR-787 / FR-052).
 //   `S-99h`        表 T-206: whether the panel is shown is held apart from its
 //                   width -- a panel that is not shown takes no room.
 //   `FR-052`       「`Schedule Canvas` の幅から `canvasPadding`（`S-56`）と 2 つの
@@ -199,6 +199,8 @@ const S_99G = rowOf('T-206', 'S-99g').cells.join(' ')
  */
 const S_171 = settingNumber('S-171')
 
+const S_602 = settingNumber('S-602')
+
 /**
  * The room a panel that is not shown takes (`S-99h`): none.
  *
@@ -233,7 +235,7 @@ const THE_TASK = 1
  * Two task groups, one Task on each.
  *
  * ⭐ THE DOCUMENT CARRIES NO PANEL WIDTH (CR-572): the width is a screen value
- * that starts at `S-171`, so the panel MK-13 puts up is `S-171` wide and these
+ * that starts at the kind's default, so MK-13's Task panel is `S-602` wide and these
  * cases ask only what `Esc` does to it.
  */
 function openPanelDocument(edit: (draft: any) => void = () => {}): Document {
@@ -616,9 +618,10 @@ describe('the manuscript still says what these cases read', () => {
 
   it('S-171 holds the width a shown panel starts at, and S-99h keeps being shown apart from it', () => {
     // CR-572: the width is a screen value that starts at S-171 on every start;
-    // S-99h: 「幅（画面の値、初期値は `S-171`）とは別に持つこと」.
+    // S-99h: 「幅（画面の値、初期値は …）とは別に持つこと」 -- CR-787 makes the initial value per kind (FR-052).
     expect(rowOf('T-206', 'S-171').cells.join(' ')).toContain('`propertyPanelWidth`')
-    expect(rowOf('T-206', 'S-99h').cells.join(' ')).toContain('幅（画面の値、初期値は `S-171`）とは別に持つこと')
+    expect(rowOf('T-206', 'S-99h').cells.join(' ')).toContain('幅（画面の値、初期値は')
+    expect(rowOf('T-206', 'S-99h').cells.join(' ')).toContain('とは別に持つこと')
     expect(S_171, 'S-171 is the width the panel OPENS to').toBeGreaterThan(CLOSED_WIDTH)
   })
 
@@ -831,7 +834,7 @@ describe('FR-052 and S-99h -- a closed panel leaves no gap at the right edge', (
     // specification records being measured in the running app: a strip at the
     // window's right edge with nothing drawn into it.
     const built = withThePanelUp()
-    expect(built.panelWidth(), 'the panel has a width before the press').toBe(S_171)
+    expect(built.panelWidth(), 'the panel has a width before the press: S-602, a Task (FR-052)').toBe(S_602)
 
     built.send(ESCAPE())
 
@@ -848,6 +851,6 @@ describe('FR-052 and S-99h -- a closed panel leaves no gap at the right edge', (
 
     built.send(ESCAPE())
 
-    expect(built.taskGroupAreaWidth() - before, 'FR-052: the残り is what the Task Group Area gets').toBe(S_171)
+    expect(built.taskGroupAreaWidth() - before, 'FR-052: the残り is what the Task Group Area gets').toBe(S_602)
   })
 })

@@ -29,11 +29,12 @@ import { specTable, unbroken } from './spec-table'
 afterEach(restoreAnimationFrames)
 
 const FR_159_PLACE = '全体日程シフトの欄は、`FR-072` の 表 T-369 の `FO-17` の場所に置く。'
-const FR_159_SHOWS_START = '欄の上にいまの開始日（表 T-379 の `WH-1`）を見せること（MUST）'
+// WHY: CR-787 renamed the start date to the first task start (JDG-2540).
+const FR_159_SHOWS_START = '欄の上に最初のタスクの開始日（表 T-379 の `WH-1`）を見せること（MUST）'
 const FR_159_AGENT = '`Agent API` から `_assets/tbl-document-commands.md` の 表 T-108 の `CM-99` を受けたときは問わない'
 const FR_156_ASKS_ONLY = '確認を取るのは、データを大幅に書き換えるタイムシフト（`FR-157`）と全体日程シフト（`FR-159`）だけである（利用者の判断）'
 const WH_1_DASH = '⛔ 開始を持つ `Task` が 1 つも無いあいだは、欄の上に「—」を見せ、適用のボタンを押せないものとする（`WH-12`）'
-const WH_2_LINE = '欄の上の段（いまの開始日の次の行）と問いに、辞書の `wholeScheduleShiftField` の `holidayStartLine` の語を出す'
+const WH_2_LINE = '欄の上の段（最初のタスクの開始日の次の行）と問いに、辞書の `wholeScheduleShiftField` の `holidayStartLine` の語を出す'
 const WH_2_RANGE = '日付の欄は 表 T-214 の範囲の日だけを受ける（外の日と読めない字は欄を元へ戻し 表 T-233 の `RS-87` を告げる'
 const WH_12_BUTTON = '新しい開始日の日付の欄の右に、語を辞書の `wholeScheduleShiftField` の `apply` の語とするボタンを置き、押されたら下書きの日で問いを出すこと（MUST）'
 const WH_12_DIM = '⭐ 新しい開始日が空のあいだ、開始を持つ `Task` が無いあいだ（`WH-1`）、ずらす稼働日が 0 のあいだ（`WH-9`）は、押せないものとすること（MUST）'
